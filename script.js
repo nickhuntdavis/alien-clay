@@ -428,6 +428,533 @@ function setupEasterEggs() {
     });
 }
 
+// ========================================
+// CITY SIMULATION
+// ========================================
+
+// ========== SIMULATION STATE ==========
+const simState = {
+    meteorFallen: false,
+    clayPlaced: false,
+    discoveredProperties: ['burns'], // starts with one known property
+    currentScenario: null, // 'power', 'mill', or 'city'
+    dragging: false
+};
+
+// ========== SIMULATION DOM ELEMENTS ==========
+const simElements = {
+    citySimulation: document.getElementById('city-simulation'),
+    meteor: document.getElementById('meteor'),
+    crater: document.getElementById('crater'),
+    draggableClay: document.getElementById('draggable-clay'),
+    clayTooltip: document.getElementById('clay-tooltip'),
+    discoveryMessage: document.getElementById('discovery-message'),
+    messageTitle: document.getElementById('message-title'),
+    messageText: document.getElementById('message-text'),
+    resetBtn: document.getElementById('reset-sim'),
+
+    // Droppable targets
+    powerPlant: document.querySelector('[data-target="power"]'),
+    woodMill: document.querySelector('[data-target="mill"]'),
+    city: document.querySelector('[data-target="city"]'),
+
+    // System elements
+    forest: document.getElementById('forest'),
+    trees: document.querySelectorAll('.tree'),
+    cityLights: document.querySelectorAll('.city-light'),
+    millWindows: document.querySelectorAll('.mill-window'),
+    furnaceGlow: document.querySelector('.furnace-glow'),
+
+    // Flow arrows
+    flowForestMill: document.getElementById('flow-forest-mill'),
+    flowMillPower: document.getElementById('flow-mill-power'),
+    flowPowerCity: document.getElementById('flow-power-city'),
+
+    // Status indicators
+    statusForest: document.getElementById('status-forest'),
+    statusMill: document.getElementById('status-mill'),
+    statusPower: document.getElementById('status-power'),
+    statusCity: document.getElementById('status-city'),
+
+    // Properties list
+    propBurns: document.getElementById('prop-burns'),
+    propElectricity: document.getElementById('prop-electricity'),
+    propGrowth: document.getElementById('prop-growth'),
+    propMystery: document.getElementById('prop-mystery')
+};
+
+// ========== METEOR DROP ANIMATION ==========
+function dropMeteor() {
+    if (simState.meteorFallen) return;
+
+    simState.meteorFallen = true;
+
+    // Show meteor
+    simElements.meteor.classList.remove('hidden');
+
+    // After meteor animation (2s), show crater and clay
+    setTimeout(() => {
+        simElements.meteor.classList.add('hidden');
+        simElements.crater.classList.remove('hidden');
+        simElements.draggableClay.classList.remove('hidden');
+
+        // Pulse animation on clay appearance
+        const clay = simElements.draggableClay;
+        clay.style.animation = 'none';
+        setTimeout(() => {
+            clay.style.animation = '';
+        }, 10);
+    }, 2000);
+}
+
+// ========== DRAG AND DROP ==========
+let dragStartX = 0;
+let dragStartY = 0;
+let clayStartX = 500;
+let clayStartY = 490;
+
+function initDragAndDrop() {
+    const clay = simElements.draggableClay;
+
+    // Mouse events
+    clay.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', endDrag);
+
+    // Touch events
+    clay.addEventListener('touchstart', startDragTouch);
+    document.addEventListener('touchmove', dragTouch);
+    document.addEventListener('touchend', endDrag);
+
+    // Hover for tooltip
+    clay.addEventListener('mouseenter', showTooltip);
+    clay.addEventListener('mouseleave', hideTooltip);
+}
+
+function startDrag(e) {
+    if (simState.clayPlaced) return;
+
+    e.preventDefault();
+    simState.dragging = true;
+    simElements.draggableClay.classList.add('dragging');
+
+    const svg = document.getElementById('city-svg');
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    dragStartX = svgP.x - clayStartX;
+    dragStartY = svgP.y - clayStartY;
+}
+
+function startDragTouch(e) {
+    if (simState.clayPlaced) return;
+
+    const touch = e.touches[0];
+    const svg = document.getElementById('city-svg');
+    const pt = svg.createSVGPoint();
+    pt.x = touch.clientX;
+    pt.y = touch.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    simState.dragging = true;
+    simElements.draggableClay.classList.add('dragging');
+    dragStartX = svgP.x - clayStartX;
+    dragStartY = svgP.y - clayStartY;
+}
+
+function drag(e) {
+    if (!simState.dragging || simState.clayPlaced) return;
+
+    e.preventDefault();
+    const svg = document.getElementById('city-svg');
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    clayStartX = svgP.x - dragStartX;
+    clayStartY = svgP.y - dragStartY;
+
+    simElements.draggableClay.setAttribute('transform', `translate(${clayStartX}, ${clayStartY})`);
+
+    // Highlight droppable targets
+    highlightNearestTarget(clayStartX, clayStartY);
+}
+
+function dragTouch(e) {
+    if (!simState.dragging || simState.clayPlaced) return;
+
+    const touch = e.touches[0];
+    const svg = document.getElementById('city-svg');
+    const pt = svg.createSVGPoint();
+    pt.x = touch.clientX;
+    pt.y = touch.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    clayStartX = svgP.x - dragStartX;
+    clayStartY = svgP.y - dragStartY;
+
+    simElements.draggableClay.setAttribute('transform', `translate(${clayStartX}, ${clayStartY})`);
+    highlightNearestTarget(clayStartX, clayStartY);
+}
+
+function endDrag(e) {
+    if (!simState.dragging || simState.clayPlaced) return;
+
+    simState.dragging = false;
+    simElements.draggableClay.classList.remove('dragging');
+
+    // Check which target we're over
+    const target = getDropTarget(clayStartX, clayStartY);
+
+    if (target) {
+        handleDrop(target);
+    } else {
+        // Snap back to original position
+        clayStartX = 500;
+        clayStartY = 490;
+        simElements.draggableClay.setAttribute('transform', `translate(${clayStartX}, ${clayStartY})`);
+    }
+
+    // Remove all highlights
+    document.querySelectorAll('.droppable').forEach(el => el.classList.remove('highlight'));
+}
+
+function highlightNearestTarget(x, y) {
+    // Remove all highlights first
+    document.querySelectorAll('.droppable').forEach(el => el.classList.remove('highlight'));
+
+    const target = getDropTarget(x, y);
+    if (target) {
+        const targetEl = document.querySelector(`[data-target="${target}"]`);
+        if (targetEl) targetEl.classList.add('highlight');
+    }
+}
+
+function getDropTarget(x, y) {
+    // Power plant: roughly x: 480-580, y: 370-450
+    if (x >= 480 && x <= 580 && y >= 370 && y <= 450) {
+        return 'power';
+    }
+
+    // Wood mill: roughly x: 280-360, y: 390-450
+    if (x >= 280 && x <= 360 && y >= 390 && y <= 450) {
+        return 'mill';
+    }
+
+    // City: roughly x: 700-840, y: 385-450
+    if (x >= 700 && x <= 840 && y >= 385 && y <= 450) {
+        return 'city';
+    }
+
+    return null;
+}
+
+// ========== TOOLTIP ==========
+function showTooltip() {
+    if (simState.dragging || simState.clayPlaced) return;
+    simElements.clayTooltip.classList.remove('hidden');
+}
+
+function hideTooltip() {
+    simElements.clayTooltip.classList.add('hidden');
+}
+
+// ========== DROP SCENARIOS ==========
+function handleDrop(target) {
+    simState.clayPlaced = true;
+    simState.currentScenario = target;
+    hideTooltip();
+
+    switch(target) {
+        case 'power':
+            scenarioPowerPlant();
+            break;
+        case 'mill':
+            scenarioWoodMill();
+            break;
+        case 'city':
+            scenarioCity();
+            break;
+    }
+}
+
+// Scenario 1: Drop on Power Plant (Safe choice - no new discoveries)
+function scenarioPowerPlant() {
+    // Move clay to power plant
+    clayStartX = 530;
+    clayStartY = 405;
+    simElements.draggableClay.setAttribute('transform', `translate(${clayStartX}, ${clayStartY})`);
+
+    // Boost furnace glow
+    simElements.furnaceGlow.classList.add('boosted');
+
+    // Update status
+    simElements.statusPower.textContent = 'Boosted!';
+    simElements.statusPower.classList.add('boosted');
+
+    // Show message
+    setTimeout(() => {
+        showDiscoveryMessage(
+            'Safe Choice',
+            'The alien clay burns more efficiently than wood. Power output increased by 25%. But... no new properties discovered. You played it safe.'
+        );
+    }, 500);
+}
+
+// Scenario 2: Drop on Wood Mill (Risky - disruption then discovery!)
+function scenarioWoodMill() {
+    // Move clay to wood mill
+    clayStartX = 320;
+    clayStartY = 420;
+    simElements.draggableClay.setAttribute('transform', `translate(${clayStartX}, ${clayStartY})`);
+
+    // PHASE 1: Disruption (immediate)
+    setTimeout(() => {
+        // Mill breaks down
+        simElements.millWindows.forEach(w => w.classList.add('dark'));
+        simElements.statusMill.textContent = 'OFFLINE';
+        simElements.statusMill.classList.add('disrupted');
+
+        // Power plant loses fuel
+        simElements.furnaceGlow.style.opacity = '0.2';
+        simElements.statusPower.textContent = 'No Fuel!';
+        simElements.statusPower.classList.add('disrupted');
+
+        // City goes dark
+        simElements.cityLights.forEach(light => light.classList.add('dark'));
+        simElements.statusCity.textContent = 'DARK';
+        simElements.statusCity.classList.add('disrupted');
+
+        // Fade flows
+        simElements.flowMillPower.classList.add('fade');
+        simElements.flowPowerCity.classList.add('fade');
+
+        // Show disruption message
+        showDiscoveryMessage(
+            'System Disrupted!',
+            'The wood mill has shut down. The power plant has no fuel. The city is dark. This looks bad...'
+        );
+    }, 500);
+
+    // PHASE 2: Discovery! (after 3 seconds)
+    setTimeout(() => {
+        hideDiscoveryMessage();
+
+        setTimeout(() => {
+            // Discover electricity property!
+            simState.discoveredProperties.push('electricity');
+            simElements.propElectricity.classList.remove('unknown');
+            simElements.propElectricity.classList.add('discovered');
+            simElements.propElectricity.textContent = '⚡ Generates electricity directly!';
+
+            showDiscoveryMessage(
+                'New Property Discovered!',
+                'Wait! The alien clay is generating electricity on its own! You can power the city directly without burning anything!'
+            );
+        }, 500);
+    }, 4000);
+}
+
+// Scenario 3: Drop on City (Direct power + cascading transformation)
+function scenarioCity() {
+    // Move clay to city
+    clayStartX = 770;
+    clayStartY = 420;
+    simElements.draggableClay.setAttribute('transform', `translate(${clayStartX}, ${clayStartY})`);
+
+    // PHASE 1: Direct power (immediate)
+    setTimeout(() => {
+        // City lights back up (if they were dark) or get brighter
+        simElements.cityLights.forEach(light => {
+            light.classList.remove('dark');
+            light.setAttribute('fill', '#00d9ff'); // Brighter, cyan glow
+        });
+
+        simElements.statusCity.textContent = 'Powered (Direct)';
+        simElements.statusCity.classList.remove('disrupted');
+        simElements.statusCity.classList.add('boosted');
+
+        // Check if this is after mill scenario
+        if (simState.discoveredProperties.includes('electricity')) {
+            showDiscoveryMessage(
+                'Direct Power!',
+                'The city is now powered directly by the alien clay\'s electrical properties. No burning needed!'
+            );
+        } else {
+            // Discover electricity if not already discovered
+            if (!simState.discoveredProperties.includes('electricity')) {
+                simState.discoveredProperties.push('electricity');
+                simElements.propElectricity.classList.remove('unknown');
+                simElements.propElectricity.classList.add('discovered');
+                simElements.propElectricity.textContent = '⚡ Generates electricity directly!';
+            }
+
+            showDiscoveryMessage(
+                'New Property Discovered!',
+                'The alien clay powers the city directly! It generates electricity without burning. The old system is obsolete.'
+            );
+        }
+    }, 500);
+
+    // PHASE 2: Cascading transformation (after 3 seconds)
+    setTimeout(() => {
+        hideDiscoveryMessage();
+
+        setTimeout(() => {
+            // Forest flourishes
+            simElements.trees.forEach(tree => tree.classList.add('flourish'));
+            simElements.statusForest.textContent = 'Flourishing!';
+            simElements.statusForest.classList.add('boosted');
+
+            // Discover growth property
+            if (!simState.discoveredProperties.includes('growth')) {
+                simState.discoveredProperties.push('growth');
+                simElements.propGrowth.classList.remove('unknown');
+                simElements.propGrowth.classList.add('discovered');
+                simElements.propGrowth.textContent = '🌱 Promotes natural growth!';
+            }
+
+            // Mill becomes redundant
+            simElements.woodMill.classList.add('fading');
+            simElements.statusMill.textContent = 'Obsolete';
+            simElements.statusMill.classList.add('faded');
+
+            // Power plant becomes redundant
+            simElements.furnaceGlow.style.opacity = '0.2';
+            simElements.statusPower.textContent = 'Obsolete';
+            simElements.statusPower.classList.add('faded');
+
+            // Fade old flows
+            simElements.flowForestMill.classList.add('fade');
+            simElements.flowMillPower.classList.add('fade');
+            simElements.flowPowerCity.classList.add('fade');
+
+            showDiscoveryMessage(
+                'Cascade Complete!',
+                'Without the need to harvest wood, the forest flourishes. The wood mill and power plant are obsolete. A new paradigm emerges from system transformation.'
+            );
+        }, 500);
+    }, 4000);
+}
+
+// ========== DISCOVERY MESSAGE ==========
+function showDiscoveryMessage(title, text) {
+    simElements.messageTitle.textContent = title;
+    simElements.messageText.textContent = text;
+    simElements.discoveryMessage.classList.remove('hidden');
+}
+
+function hideDiscoveryMessage() {
+    simElements.discoveryMessage.classList.add('hidden');
+}
+
+// ========== RESET SIMULATION ==========
+function resetSimulation() {
+    // Reset state
+    simState.meteorFallen = false;
+    simState.clayPlaced = false;
+    simState.discoveredProperties = ['burns'];
+    simState.currentScenario = null;
+    simState.dragging = false;
+
+    // Reset clay position
+    clayStartX = 500;
+    clayStartY = 490;
+
+    // Hide everything
+    simElements.meteor.classList.add('hidden');
+    simElements.crater.classList.add('hidden');
+    simElements.draggableClay.classList.add('hidden');
+    simElements.draggableClay.setAttribute('transform', `translate(${clayStartX}, ${clayStartY})`);
+    simElements.clayTooltip.classList.add('hidden');
+    simElements.discoveryMessage.classList.add('hidden');
+
+    // Reset city lights
+    simElements.cityLights.forEach(light => {
+        light.classList.remove('dark');
+        light.setAttribute('fill', '#ffff00');
+    });
+
+    // Reset mill windows
+    simElements.millWindows.forEach(w => w.classList.remove('dark'));
+
+    // Reset furnace
+    simElements.furnaceGlow.classList.remove('boosted');
+    simElements.furnaceGlow.style.opacity = '1';
+
+    // Reset trees
+    simElements.trees.forEach(tree => tree.classList.remove('flourish'));
+
+    // Reset mill
+    simElements.woodMill.classList.remove('fading');
+
+    // Reset flows
+    simElements.flowForestMill.classList.remove('fade');
+    simElements.flowMillPower.classList.remove('fade');
+    simElements.flowPowerCity.classList.remove('fade');
+
+    // Reset status indicators
+    simElements.statusForest.textContent = 'Producing';
+    simElements.statusForest.classList.remove('boosted', 'disrupted', 'faded');
+
+    simElements.statusMill.textContent = 'Active';
+    simElements.statusMill.classList.remove('boosted', 'disrupted', 'faded');
+
+    simElements.statusPower.textContent = 'Running';
+    simElements.statusPower.classList.remove('boosted', 'disrupted', 'faded');
+
+    simElements.statusCity.textContent = 'Powered';
+    simElements.statusCity.classList.remove('boosted', 'disrupted', 'faded');
+
+    // Reset properties
+    simElements.propElectricity.classList.remove('discovered');
+    simElements.propElectricity.classList.add('unknown');
+    simElements.propElectricity.textContent = '??';
+
+    simElements.propGrowth.classList.remove('discovered');
+    simElements.propGrowth.classList.add('unknown');
+    simElements.propGrowth.textContent = '??';
+
+    // Restart meteor drop after short delay
+    setTimeout(() => {
+        dropMeteor();
+    }, 500);
+}
+
+// ========== SIMULATION SCROLL OBSERVER ==========
+function setupSimulationObserver() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !simState.meteorFallen) {
+                // Start meteor drop when simulation comes into view
+                setTimeout(() => {
+                    dropMeteor();
+                }, 500);
+            }
+        });
+    }, {
+        threshold: 0.3
+    });
+
+    if (simElements.citySimulation) {
+        observer.observe(simElements.citySimulation);
+    }
+}
+
+// ========== SIMULATION INIT ==========
+function initSimulation() {
+    if (!simElements.citySimulation) return; // Simulation not on page
+
+    setupSimulationObserver();
+    initDragAndDrop();
+
+    // Reset button
+    simElements.resetBtn.addEventListener('click', resetSimulation);
+}
+
 // ========== INITIALIZE ==========
 function init() {
     // Initialize particle background
@@ -450,6 +977,9 @@ function init() {
 
     // Setup easter eggs
     setupEasterEggs();
+
+    // Initialize city simulation
+    initSimulation();
 
     // Log welcome message
     console.log('%c🌌 ALIEN CLAY 🌌', 'font-size: 20px; color: #00d9ff; font-weight: bold;');
