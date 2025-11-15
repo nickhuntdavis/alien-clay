@@ -57,7 +57,9 @@ The discovery approach might reveal that when spun at the right speed, the metal
 
 ## The Interactive Experience
 
-### How It Works
+This is a **two-part journey**: first understand the philosophy, then experience it hands-on.
+
+### Part 1: The Philosophy
 
 1. **The Stable System** - A typical design process, optimized and functioning
 2. **The Alien Clay** - Click to inject AI into the system
@@ -65,7 +67,7 @@ The discovery approach might reveal that when spun at the right speed, the metal
 4. **Discovery** - Explore unexpected findings and insights
 5. **Transformation** - See how the system evolves through three stages
 
-### Discoveries You'll Explore
+#### Discoveries You'll Explore
 
 - **Unexpected Properties** - Finding capabilities beyond substitution
 - **Hidden Inefficiencies** - Problems you didn't know existed
@@ -74,10 +76,57 @@ The discovery approach might reveal that when spun at the right speed, the metal
 - **The Substitution Trap** - What to avoid
 - **The Vision** - What we could achieve together
 
+### Part 2: The City Builder Simulation
+
+**Now experience the philosophy through tactile interaction.**
+
+A meteor carrying alien clay crashes near your city. The stable system is working:
+- Forest produces wood
+- Wood mill processes lumber
+- Power plant burns fuel
+- City lights shine bright
+
+**Then you get to experiment...**
+
+Hover over the mysterious alien clay to see its properties:
+- ✓ **Known:** Burns efficiently
+- **Unknown:** ??
+- **Unknown:** ??
+- **Unknown:** ??
+
+**Three paths await you:**
+
+🟢 **The Safe Choice** - Drag to Power Plant
+- +25% efficiency, incremental improvement
+- No new discoveries
+- System stays stable
+- You played it safe
+
+🔴 **The Risky Choice** - Drag to Wood Mill
+- ⚠️ Immediate disruption - system fails!
+- City goes dark, everything stops
+- But wait... **NEW PROPERTY DISCOVERED!**
+- ⚡ The clay generates electricity directly
+- Reveals path to entirely new paradigm
+
+🟣 **The Direct Approach** - Drag to City
+- Bypass the old system entirely
+- Direct electrical power discovered
+- **Cascading transformation begins:**
+  - Forest flourishes without harvesting
+  - Wood mill becomes obsolete
+  - Power plant becomes obsolete
+  - 🌱 Growth property discovered
+- New system emerges from the ashes of the old
+
+**Reset and try all three paths** - each teaches something different about disruption, discovery, and system transformation.
+
 ### Keyboard Shortcuts
 
-- **E** - Inject alien clay
-- **Ctrl+R** - Reset the experiment
+- **E** - Inject alien clay (Part 1)
+- **Drag** - Experiment with alien clay (Part 2)
+- **Reset Button** - Try different simulation paths
+- **Ctrl+R** - Reset entire experience
 - **Triple-click title** - Glitch effect easter egg
 - **Konami Code** - Special surprise (↑↑↓↓←→←→BA)
 
@@ -97,21 +146,41 @@ Instead of using AI as a chatbot or interface layer, I used it for narrow, invis
 
 ### Built With
 
-- **HTML5** - Semantic structure
-- **CSS3** - Sci-fi aesthetic with animations
-- **Vanilla JavaScript** - No dependencies, pure interaction
+- **HTML5** - Semantic structure (457 lines)
+- **CSS3** - Sci-fi aesthetic with animations (1,175 lines)
+- **Vanilla JavaScript** - No dependencies, pure interaction (1,003 lines)
+- **SVG** - Resolution-independent city simulation graphics
 - **Canvas API** - Particle background effects
+
+**Total: 2,635 lines of pure vanilla code with zero dependencies**
 
 ### Key Features
 
+**Part 1 - Philosophy:**
 - Interactive particle background
 - Click-to-inject alien clay mechanic
 - Cascading ripple effects
 - Expandable discovery nodes
 - Three-stage transformation visualization
-- Responsive design
+- Real-world case study integration
+
+**Part 2 - City Simulation:**
+- Dramatic meteor fall animation
+- Drag-and-drop with mouse and touch support
+- SVG-based interactive city scene
+- Real-time system status updates
+- Three distinct outcome scenarios
+- Dynamic property discovery system
+- Animated state transitions (lights, flows, growth)
+- Visual feedback for all interactions
+- Reset functionality to explore all paths
+
+**Universal:**
+- Fully responsive design
 - Scroll reveal animations
 - Easter eggs and hidden interactions
+- Accessible keyboard navigation
+- Works on desktop, tablet, and mobile
 
 ### File Structure
 
