@@ -174,6 +174,270 @@
             </div>
         </main>
 
+        <!-- Transition to Simulation -->
+        <section class="simulation-intro">
+            <div class="sim-intro-content">
+                <h2>Now, Let's Experience It</h2>
+                <p>You've seen the philosophy. Now let's make it tangible.</p>
+                <p>Below is a stable system - a city powered by wood from the forest. Everything works. Everything is optimized.</p>
+                <p class="highlight">Then the alien clay arrives...</p>
+                <p class="instruction">Try dragging it to different parts of the system. What will you discover?</p>
+            </div>
+        </section>
+
+        <!-- Interactive City Simulation -->
+        <section class="city-simulation" id="city-simulation">
+            <h2 class="sim-title">Interactive Simulation: The City Builder Analogy</h2>
+
+            <!-- Simulation Canvas -->
+            <div class="sim-container">
+                <svg id="city-svg" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Sky Background -->
+                    <defs>
+                        <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1a1a3e;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#0f0f1e;stop-opacity:1" />
+                        </linearGradient>
+
+                        <!-- Glow filters -->
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+
+                        <filter id="strong-glow">
+                            <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+
+                    <!-- Sky -->
+                    <rect width="1000" height="600" fill="url(#skyGradient)"/>
+
+                    <!-- Ground -->
+                    <rect y="450" width="1000" height="150" fill="#1a3a1a" opacity="0.8"/>
+
+                    <!-- Forest (Left Side) -->
+                    <g id="forest" class="sim-element">
+                        <text x="100" y="380" class="sim-label">FOREST</text>
+                        <!-- Trees -->
+                        <g class="tree" transform="translate(60, 420)">
+                            <rect x="-5" y="0" width="10" height="30" fill="#4a2511"/>
+                            <polygon points="0,-30 -20,0 20,0" fill="#2d5016"/>
+                        </g>
+                        <g class="tree" transform="translate(100, 410)">
+                            <rect x="-5" y="0" width="10" height="35" fill="#4a2511"/>
+                            <polygon points="0,-35 -22,0 22,0" fill="#2d5016"/>
+                        </g>
+                        <g class="tree" transform="translate(140, 425)">
+                            <rect x="-5" y="0" width="10" height="25" fill="#4a2511"/>
+                            <polygon points="0,-25 -18,0 18,0" fill="#2d5016"/>
+                        </g>
+                        <!-- Wood production indicator -->
+                        <text x="100" y="475" class="resource-indicator" id="wood-output">⚡ Wood: 100%</text>
+                    </g>
+
+                    <!-- Flow Arrow: Forest to Mill -->
+                    <g id="flow-forest-mill" class="flow-arrow" opacity="0.6">
+                        <line x1="160" y1="440" x2="280" y2="440" stroke="#06ffa5" stroke-width="3" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+                        </line>
+                        <polygon points="280,440 270,435 270,445" fill="#06ffa5"/>
+                        <text x="220" y="430" class="flow-label">Wood</text>
+                    </g>
+
+                    <!-- Wood Mill (Center-Left) -->
+                    <g id="wood-mill" class="sim-element droppable" data-target="mill">
+                        <text x="320" y="360" class="sim-label">WOOD MILL</text>
+                        <!-- Building -->
+                        <rect x="280" y="390" width="80" height="60" fill="#4a4a4a" stroke="#666" stroke-width="2"/>
+                        <rect x="300" y="400" width="15" height="20" fill="#ffaa00" class="mill-window"/>
+                        <rect x="325" y="400" width="15" height="20" fill="#ffaa00" class="mill-window"/>
+                        <polygon points="320,390 280,370 360,370" fill="#333"/>
+                        <!-- Chimney with smoke -->
+                        <rect x="340" y="365" width="12" height="25" fill="#333"/>
+                        <circle cx="346" cy="355" r="4" fill="#888" opacity="0.6" class="smoke">
+                            <animate attributeName="cy" from="355" to="330" dur="3s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" from="0.6" to="0" dur="3s" repeatCount="indefinite"/>
+                        </circle>
+                        <text x="320" y="475" class="resource-indicator" id="mill-output">Processing...</text>
+                    </g>
+
+                    <!-- Flow Arrow: Mill to Power Plant -->
+                    <g id="flow-mill-power" class="flow-arrow" opacity="0.6">
+                        <line x1="360" y1="420" x2="480" y2="420" stroke="#06ffa5" stroke-width="3" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+                        </line>
+                        <polygon points="480,420 470,415 470,425" fill="#06ffa5"/>
+                        <text x="420" y="410" class="flow-label">Lumber</text>
+                    </g>
+
+                    <!-- Power Plant (Center) -->
+                    <g id="power-plant" class="sim-element droppable" data-target="power">
+                        <text x="500" y="340" class="sim-label">POWER PLANT</text>
+                        <!-- Building -->
+                        <rect x="480" y="370" width="100" height="80" fill="#3a3a3a" stroke="#666" stroke-width="2"/>
+                        <circle cx="530" cy="405" r="15" fill="#ff6600" class="furnace-glow"/>
+                        <!-- Cooling towers -->
+                        <ellipse cx="560" cy="370" rx="15" ry="8" fill="#555"/>
+                        <rect x="545" y="345" width="30" height="25" fill="#555"/>
+                        <ellipse cx="560" cy="345" rx="15" ry="8" fill="#666"/>
+                        <!-- Steam -->
+                        <circle cx="560" cy="335" r="5" fill="#ccc" opacity="0.4" class="steam">
+                            <animate attributeName="cy" from="335" to="310" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <text x="530" y="475" class="resource-indicator" id="power-output">⚡ Power: 100%</text>
+                    </g>
+
+                    <!-- Flow Arrow: Power Plant to City -->
+                    <g id="flow-power-city" class="flow-arrow" opacity="0.6">
+                        <line x1="580" y1="410" x2="700" y2="410" stroke="#00d9ff" stroke-width="4" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" from="0" to="10" dur="0.8s" repeatCount="indefinite"/>
+                        </line>
+                        <polygon points="700,410 690,405 690,415" fill="#00d9ff"/>
+                        <text x="640" y="400" class="flow-label glow-text">Electricity</text>
+                    </g>
+
+                    <!-- City (Right Side) -->
+                    <g id="city" class="sim-element droppable" data-target="city">
+                        <text x="770" y="340" class="sim-label">CITY</text>
+                        <!-- Buildings -->
+                        <g class="building" transform="translate(700, 390)">
+                            <rect x="0" y="0" width="40" height="60" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+                            <rect x="5" y="10" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="15" y="10" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="27" y="10" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="5" y="25" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="15" y="25" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="27" y="25" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="5" y="40" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="15" y="40" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="27" y="40" width="8" height="10" fill="#ffff00" class="city-light"/>
+                        </g>
+                        <g class="building" transform="translate(750, 400)">
+                            <rect x="0" y="0" width="35" height="50" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+                            <rect x="5" y="10" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="22" y="10" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="5" y="25" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="22" y="25" width="8" height="10" fill="#ffff00" class="city-light"/>
+                        </g>
+                        <g class="building" transform="translate(795, 385)">
+                            <rect x="0" y="0" width="45" height="65" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+                            <rect x="5" y="10" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="18" y="10" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="32" y="10" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="5" y="25" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="18" y="25" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="32" y="25" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="5" y="40" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="18" y="40" width="8" height="10" fill="#ffff00" class="city-light"/>
+                            <rect x="32" y="40" width="8" height="10" fill="#ffff00" class="city-light"/>
+                        </g>
+                        <text x="770" y="475" class="resource-indicator" id="city-status">🌆 Status: Powered</text>
+                    </g>
+
+                    <!-- Meteor (initially off-screen) -->
+                    <g id="meteor" class="meteor hidden">
+                        <circle cx="0" cy="0" r="8" fill="#ff006e" filter="url(#strong-glow)"/>
+                        <circle cx="0" cy="0" r="5" fill="#ff6600"/>
+                        <!-- Trail -->
+                        <line x1="0" y1="0" x2="15" y2="-15" stroke="#ff006e" stroke-width="3" opacity="0.6"/>
+                    </g>
+
+                    <!-- Crater (hidden initially) -->
+                    <ellipse id="crater" cx="500" cy="500" rx="40" ry="15" fill="#0f0f1e" opacity="0.8" class="hidden"/>
+
+                    <!-- Draggable Alien Clay (appears after meteor lands) -->
+                    <g id="draggable-clay" class="alien-clay-sim hidden" transform="translate(500, 490)">
+                        <circle cx="0" cy="0" r="20" fill="#8338ec" filter="url(#strong-glow)"/>
+                        <circle cx="0" cy="0" r="15" fill="#ff006e"/>
+                        <circle cx="0" cy="0" r="10" fill="#00d9ff" opacity="0.6">
+                            <animate attributeName="r" values="10;12;10" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                    </g>
+                </svg>
+
+                <!-- Clay Properties Tooltip -->
+                <div id="clay-tooltip" class="clay-tooltip hidden">
+                    <h4>Mysterious Alien Clay</h4>
+                    <div class="properties">
+                        <p><strong>Known Properties:</strong></p>
+                        <ul>
+                            <li id="prop-burns" class="known">Burns efficiently</li>
+                            <li id="prop-electricity" class="unknown">??</li>
+                            <li id="prop-growth" class="unknown">??</li>
+                            <li id="prop-mystery" class="unknown">??</li>
+                        </ul>
+                    </div>
+                    <p class="tooltip-hint">Drag to experiment...</p>
+                </div>
+
+                <!-- Discovery Messages -->
+                <div id="discovery-message" class="discovery-message hidden">
+                    <div class="message-content">
+                        <h3 id="message-title">Discovery!</h3>
+                        <p id="message-text"></p>
+                    </div>
+                </div>
+
+                <!-- System Status Panel -->
+                <div class="system-status-panel">
+                    <h4>System Status</h4>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="status-label">Forest:</span>
+                            <span class="status-value" id="status-forest">Producing</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Wood Mill:</span>
+                            <span class="status-value" id="status-mill">Active</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Power Plant:</span>
+                            <span class="status-value" id="status-power">Running</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">City:</span>
+                            <span class="status-value" id="status-city">Powered</span>
+                        </div>
+                    </div>
+                    <button id="reset-sim" class="reset-btn">Reset Simulation</button>
+                </div>
+            </div>
+
+            <!-- Simulation Instructions -->
+            <div class="sim-instructions">
+                <h3>What To Try:</h3>
+                <div class="instruction-grid">
+                    <div class="instruction-card safe">
+                        <span class="inst-icon">✅</span>
+                        <h4>The Safe Choice</h4>
+                        <p>Drag clay to <strong>Power Plant</strong></p>
+                        <p class="inst-result">Incremental improvement, no discoveries</p>
+                    </div>
+                    <div class="instruction-card risky">
+                        <span class="inst-icon">⚡</span>
+                        <h4>The Risky Choice</h4>
+                        <p>Drag clay to <strong>Wood Mill</strong></p>
+                        <p class="inst-result">System disruption, but... discovery!</p>
+                    </div>
+                    <div class="instruction-card unknown">
+                        <span class="inst-icon">❓</span>
+                        <h4>Direct Approach</h4>
+                        <p>Drag clay to <strong>City</strong></p>
+                        <p class="inst-result">What happens?</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Footer / About -->
         <footer class="footer">
             <div class="about">
