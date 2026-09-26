@@ -6,7 +6,7 @@ import java.util.Random
 object SystemAi {
     const val BLAST = 0
     const val PIT = 1
-    const val KICK = 2
+    const val MELEE = 2
     const val FALL = 3
 
     private val blast = listOf(
@@ -20,9 +20,10 @@ object SystemAi {
         "Mind the Gap" to "Walking is hard. Falling is easy. Somebody chose easy.",
         "Bottomless Enthusiasm" to "Nobody knows how deep that pit is. We have a new volunteer to find out.",
     )
-    private val kick = listOf(
-        "Foot Soldier" to "You kicked something to death. Your feet have been reclassified as weapons.",
-        "Bare Minimum" to "No weapon, no shoes, no problem.",
+    private val melee = listOf(
+        "Foot Soldier" to "Up close and very personal. Your limbs have been reclassified as weapons.",
+        "Bare Minimum" to "No ranged weapon, no problem.",
+        "Hands-On Approach" to "Some crawlers use strategy. Others simply walk up and hit things. Both are valid.",
     )
     private val fall = listOf(
         "Stuck the Landing" to "Technically you landed. Technically you also died.",
@@ -42,7 +43,7 @@ object SystemAi {
         val pool = when {
             ownGoal -> this.ownGoal
             cause == PIT -> pit
-            cause == KICK -> kick
+            cause == MELEE -> melee
             cause == FALL -> fall
             else -> blast
         }

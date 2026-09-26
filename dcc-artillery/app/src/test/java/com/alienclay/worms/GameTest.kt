@@ -91,12 +91,13 @@ class GameTest {
             a += 0.02f
         }
         assertNotNull(best)
+        g.selectWeapon(Weapon.HOB_LOBBER)
         g.aimAngle = best!!.first
         g.aimPower = best.second
         assertTrue(g.fire())
         assertEquals(Phase.RETREAT, g.phase)
         run(g, 4f)
-        assertTrue("blue hp ${blue.hp}", blue.hp < 100)
+        assertTrue("blue hp ${blue.hp}", blue.hp < Species.GOBLIN.maxHp)
     }
 
     @Test
@@ -163,7 +164,7 @@ class GameTest {
         g.aimAngle = -0.3f
         g.aimPower = 1f
         assertTrue(g.fire())
-        assertEquals(80, blue.hp)
+        assertEquals(Species.GOBLIN.maxHp - Weapon.KICK.damage.toInt(), blue.hp)
         assertFalse(blue.onGround)
         assertTrue(blue.vx > 300f)
         assertEquals(blue, g.knocked.last())
@@ -176,7 +177,7 @@ class GameTest {
         g.selectWeapon(Weapon.KICK)
         g.aimPower = 1f
         assertTrue(g.fire())
-        assertEquals(100, g.worms[1].hp)
+        assertEquals(Species.GOBLIN.maxHp, g.worms[1].hp)
         assertTrue(Sfx.WHIFF in g.sounds)
     }
 
@@ -191,7 +192,7 @@ class GameTest {
         g.moveDir = 1
         run(g, 1f)
         assertTrue(g.boxes.isEmpty())
-        assertEquals(70, red.hp)
+        assertEquals(75, red.hp)
         assertEquals("LOOT BOX OPENED", g.announcement!!.header)
     }
 
@@ -201,10 +202,122 @@ class GameTest {
         run(g, 1.5f)
         val red = g.worms[0]
         g.boxes.clear()
-        val before = g.ammo[0][Weapon.SCATTER.ordinal] + g.ammo[0][Weapon.SATCHEL.ordinal]
+        // Carl's only limited attack is the Satchel Charge.
+        val before = red.ammo[Weapon.SATCHEL.ordinal]
         g.addBox(red.x, red.y, 1)
         g.update(Game.DT)
-        assertEquals(before + 1, g.ammo[0][Weapon.SCATTER.ordinal] + g.ammo[0][Weapon.SATCHEL.ordinal])
+        assertEquals(before + 1, red.ammo[Weapon.SATCHEL.ordinal])
+    }
+
+    // ------------------------------------------------------------ gates
+
+    /** A projectile flying right along y = 300 and a gate in its path at x = 520. */
+    private fun gateSetup(effect: GateEffect): Pair<Game, Projectile> {
+        val g = flatGame()
+        run(g, 1.5f)
+        g.gates.clear()
+        val p = Projectile(Kind.LOBBER, 500f, 300f, 300f, 0f, 0f, null)
+        g.projectiles.add(p)
+        g.addGate(520f, 300f, effect)
+        return g to p
+    }
+
+    @Test
+    fun tripleGateMultipliesProjectiles() {
+        val (g, _) = gateSetup(GateEffect.TRIPLE)
+        repeat(10) { g.update(Game.DT) }
+        assertEquals(3, g.projectiles.size)
+    }
+
+    @Test
+    fun bigGatePowersUpAProjectile() {
+        val (g, p) = gateSetup(GateEffect.BIG)
+        repeat(10) { g.update(Game.DT) }
+        assertEquals(1.7f, p.power, 0.001f)
+    }
+
+    @Test
+    fun aGateOnlyAffectsAProjectileOnce() {
+        val (g, p) = gateSetup(GateEffect.FLIP)
+        repeat(30) { g.update(Game.DT) }
+        assertTrue("flipped back across the gate, still heading left", p.vx < 0f)
+        assertEquals(1, p.passed.size)
+    }
+
+    @Test
+    fun gatesExpireAfterTheirTurns() {
+        val g = flatGame()
+        g.gates.clear()
+        val gate = g.addGate(800f, 200f, GateEffect.FAST)
+        gate.turnsLeft = 1
+        g.begin(1)
+        assertFalse(gate in g.gates)
+    }
+
+    // --------------------------------------------------- fighters and moves
+
+    @Test
+    fun fightersOnlyUseTheirOwnAttacks() {
+        val g = flatGame()
+        run(g, 1.5f)
+        assertEquals(Species.CARL, g.active.species)
+        g.selectWeapon(Weapon.POUNCE)
+        assertTrue(g.weapon != Weapon.POUNCE)
+        g.selectWeapon(Weapon.HOB_LOBBER)
+        assertEquals(Weapon.HOB_LOBBER, g.weapon)
+    }
+
+    @Test
+    fun donutLandsOnHerFeet() {
+        val g = Game(Mode.TWO_PLAYER, seed = 1L, generate = false)
+        g.terrain.fillFlat(ground)
+        val donut = g.addWorm(400f, 60f, Species.DONUT)
+        g.addWorm(900f, ground - Game.R - 1f, Species.GOBLIN)
+        g.begin(1)
+        run(g, 3f)
+        assertTrue(donut.onGround)
+        assertEquals(Species.DONUT.maxHp, donut.hp)
+    }
+
+    @Test
+    fun mongoPouncesOntoAnEnemy() {
+        val g = Game(Mode.TWO_PLAYER, seed = 1L, generate = false)
+        g.terrain.fillFlat(ground)
+        g.addWorm(400f, ground - Game.R - 1f, Species.MONGO)
+        val goblin = g.addWorm(520f, ground - Game.R - 1f, Species.GOBLIN)
+        g.begin(0)
+        g.wind = 0f
+        run(g, 1.5f)
+        g.selectWeapon(Weapon.POUNCE)
+        var best = 0.5f
+        var bestD = Float.MAX_VALUE
+        var pw = 0.2f
+        while (pw <= 1f) {
+            val hit = g.simulateImpact(Kind.KNIFE, g.active, -0.8f, pw, 0f, Weapon.POUNCE.launch)
+            if (hit != null && abs(hit[0] - goblin.x) < bestD) { bestD = abs(hit[0] - goblin.x); best = pw }
+            pw += 0.01f
+        }
+        g.aimAngle = -0.8f
+        g.aimPower = best
+        assertTrue(g.fire())
+        run(g, 3f)
+        assertTrue("goblin hp ${goblin.hp}", goblin.hp < Species.GOBLIN.maxHp)
+    }
+
+    @Test
+    fun roarPushesEnemiesAwayAndUsesAmmo() {
+        val g = Game(Mode.TWO_PLAYER, seed = 1L, generate = false)
+        g.terrain.fillFlat(ground)
+        val mongo = g.addWorm(400f, ground - Game.R - 1f, Species.MONGO)
+        val goblin = g.addWorm(440f, ground - Game.R - 1f, Species.GOBLIN)
+        g.begin(0)
+        run(g, 1.5f)
+        g.selectWeapon(Weapon.ROAR)
+        g.aimPower = 1f
+        assertTrue(g.fire())
+        assertTrue(goblin.vx > 0f)
+        assertFalse(goblin.onGround)
+        assertEquals(1, mongo.ammo[Weapon.ROAR.ordinal])
     }
 
     @Test

@@ -11,6 +11,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 enum class Mode { VS_CPU, TWO_PLAYER }
 enum class Phase { BANNER, PLAYING, RETREAT, SETTLING, GAME_OVER }
@@ -41,6 +42,8 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         val TEAM_NAMES = arrayOf("Crawlers", "Floor Mobs")
         const val ANNOUNCE_TIME = 3.6f
         const val START_VIEWERS = 842_000_000L
+        const val BOLT_SPEED = 620f
+        const val MAX_PROJECTILES = 30
         private val COS = FloatArray(16) { cos(it * PI * 2 / 16).toFloat() }
         private val SIN = FloatArray(16) { sin(it * PI * 2 / 16).toFloat() }
     }
@@ -52,6 +55,8 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     val particles = ArrayList<Particle>()
     val texts = ArrayList<FloatText>()
     val boxes = ArrayList<LootBox>()
+    val gates = ArrayList<Gate>()
+    private var nextGateId = 1
 
     /** Sound cues for the view to play; it drains this list every frame. */
     val sounds = ArrayList<Sfx>()
@@ -84,8 +89,6 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     lateinit var active: Worm
         private set
     var weapon = Weapon.HOB_LOBBER
-    private val teamWeapon = arrayOf(Weapon.HOB_LOBBER, Weapon.HOB_LOBBER)
-    val ammo = Array(2) { IntArray(Weapon.entries.size) { i -> Weapon.entries[i].startAmmo } }
     private val nextIdx = IntArray(2)
 
     // Input, written by the view (human) or the AI.
@@ -126,8 +129,9 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
 
     fun isCpu(t: Int) = mode == Mode.VS_CPU && t == 1
     val humanTurn: Boolean get() = !isCpu(team)
-    fun ammoLeft(w: Weapon) = ammo[team][w.ordinal]
+    fun ammoLeft(w: Weapon) = active.ammo[w.ordinal]
     fun teamHp(t: Int) = worms.filter { it.team == t && it.alive }.sumOf { it.hp }
+    fun teamMaxHp(t: Int) = worms.filter { it.team == t }.sumOf { it.species.maxHp }
 
     fun addWorm(x: Float, y: Float, species: Species): Worm {
         val w = Worm(x, y, species.team, species)
@@ -181,10 +185,10 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         activeHurt = false
         jumpRequested = false
         aimAngle = if (active.facing > 0) -0.7f else (-PI + 0.7).toFloat()
-        weapon = teamWeapon[t]
-        if (ammo[t][weapon.ordinal] == 0) weapon = Weapon.HOB_LOBBER
+        weapon = if (active.has(active.weapon)) active.weapon else active.species.weapons.first { active.has(it) }
         killsThisTurn = 0
         if (rng.nextFloat() < 0.35f && boxes.size < 3) dropRandomBox()
+        tickGates()
         setPhase(Phase.BANNER)
         sfx(Sfx.TURN)
         if (isCpu(t)) ai.plan()
@@ -207,21 +211,13 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         startTurn(1 - team)
     }
 
-    fun cycleWeapon() {
-        if (!humanTurn || (phase != Phase.PLAYING && phase != Phase.BANNER)) return
-        val all = Weapon.entries
-        var i = weapon.ordinal
-        do {
-            i = (i + 1) % all.size
-        } while (ammo[team][i] == 0)
-        weapon = all[i]
-        teamWeapon[team] = weapon
-    }
+    /** The active fighter's attacks, in loadout order. */
+    val loadout: List<Weapon> get() = active.species.weapons
 
     fun selectWeapon(w: Weapon) {
-        if (ammo[team][w.ordinal] == 0) return
+        if (!active.has(w)) return
         weapon = w
-        teamWeapon[team] = w
+        active.weapon = w
     }
 
     fun update(dt: Float) {
@@ -276,8 +272,8 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             if (control && !aiming && moveDir != 0) walk(w, moveDir, dt)
             if (control && jumpRequested && w.onGround) {
                 w.onGround = false
-                w.vy = -260f
-                w.vx = w.facing * 120f
+                w.vy = -260f * w.species.jump
+                w.vx = w.facing * 120f * w.species.jump
                 sfx(Sfx.JUMP)
                 return
             }
@@ -286,6 +282,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         }
 
         w.vy = min(w.vy + G * dt, 900f)
+        if (w.pouncing) pounceContact(w)
         val steps = max(1, ceil(max(abs(w.vx), abs(w.vy)) * dt / 1.5f).toInt())
         var i = 0
         while (i < steps && !w.onGround) {
@@ -301,7 +298,8 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             }
             if (collides(w.x, w.y + sy)) {
                 if (w.vy > 0f) {
-                    if (w.vy > 380f) {
+                    if (w.pouncing) pounceLand(w)
+                    if (w.vy > 380f && !w.species.fallProof) {
                         cause = SystemAi.FALL
                         hurt(w, ((w.vy - 380f) / 10f).toInt())
                     }
@@ -326,7 +324,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     private fun walk(w: Worm, dir: Int, dt: Float) {
         if (w.facing != dir) aimAngle = (PI - aimAngle).toFloat().let { if (it > PI) it - 2 * PI.toFloat() else it }
         w.facing = dir
-        val nx = w.x + dir * WALK_SPEED * dt
+        val nx = w.x + dir * WALK_SPEED * w.species.walk * dt
         for (up in 0..MAX_CLIMB) {
             if (!collides(nx, w.y - up)) {
                 w.x = nx
@@ -443,21 +441,21 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     private fun openBox(b: LootBox, w: Worm) {
         b.dead = true
         val contents: String
-        when (b.tier) {
-            0 -> {
-                heal(w, 20)
-                contents = "Twenty health points. Try not to waste them all at once."
+        val limited = w.species.loadout.filter { it.second > 0 }.map { it.first }
+        when {
+            b.tier == 0 || (b.tier == 1 && limited.isEmpty()) -> {
+                heal(w, 25)
+                contents = "Twenty-five health points. Try not to waste them all at once."
             }
-            1 -> {
-                val wpn = if (rng.nextBoolean()) Weapon.SCATTER else Weapon.SATCHEL
-                ammo[w.team][wpn.ordinal]++
-                contents = "One ${wpn.label}. Please point it away from the audience."
+            b.tier == 1 -> {
+                val wpn = limited[rng.nextInt(limited.size)]
+                w.ammo[wpn.ordinal]++
+                contents = "One ${wpn.label} for ${w.name}. Please point it away from the audience."
             }
             else -> {
-                heal(w, 40)
-                ammo[w.team][Weapon.SATCHEL.ordinal]++
-                ammo[w.team][Weapon.SCATTER.ordinal]++
-                contents = "Forty health, a Satchel Charge and a Scatter Charge. Someone up there likes you."
+                heal(w, 45)
+                for (wpn in limited) w.ammo[wpn.ordinal]++
+                contents = "Forty-five health and a refill for ${w.name}. Someone up there likes you."
             }
         }
         viewers += 5_000_000L
@@ -469,8 +467,24 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         }
     }
 
+    /** A gate-cursed explosion: heals everyone in range and leaves the floor alone. */
+    private fun healBurst(x: Float, y: Float, radius: Float, amount: Float) {
+        sfx(Sfx.LOOT)
+        val reach = radius + 18f
+        for (w in worms) {
+            if (!w.alive) continue
+            val d = hypot(w.x - x, w.y - y)
+            if (d < reach) heal(w, max(1, (amount * (1f - d / reach)).roundToInt()))
+        }
+        addParticle(x, y, 0f, 0f, 0.4f, radius, 0xFF7AFF9A.toInt(), PKind.RING, 0f)
+        repeat(20) {
+            val a = rng.nextFloat() * PI.toFloat() * 2
+            addParticle(x, y, cos(a) * 80f, sin(a) * 80f - 40f, 0.8f, 2.5f, 0xFF7AFF9A.toInt(), PKind.SPARK, -20f)
+        }
+    }
+
     private fun heal(w: Worm, amount: Int) {
-        val gained = min(amount, 100 - w.hp)
+        val gained = min(amount, w.species.maxHp - w.hp)
         if (gained <= 0) return
         w.hp += gained
         texts.add(FloatText(w.x, w.y - 30f, "+$gained", w.team, 1.4f))
@@ -479,13 +493,26 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     // ---------------------------------------------------------- projectiles
 
     private fun windAffected(k: Kind) = k == Kind.LOBBER || k == Kind.SCATTER
-    private fun bounces(k: Kind) = k == Kind.POTION || k == Kind.SCATTER || k == Kind.SATCHEL
-    private fun contact(k: Kind) = k == Kind.LOBBER || k == Kind.SHARD
+    fun bounces(k: Kind) = k == Kind.POTION || k == Kind.SCATTER || k == Kind.SATCHEL
+    private fun contact(k: Kind) = !bounces(k)
 
-    fun makeShot(kind: Kind, shooter: Worm, angle: Float, power: Float, fuse: Float): Projectile {
+    /** Blast size and damage for each projectile kind. */
+    private fun blast(k: Kind): FloatArray = when (k) {
+        Kind.LOBBER -> floatArrayOf(44f, 50f)
+        Kind.POTION -> floatArrayOf(44f, 45f)
+        Kind.SCATTER -> floatArrayOf(28f, 25f)
+        Kind.SHARD -> floatArrayOf(22f, 18f)
+        Kind.SATCHEL -> floatArrayOf(70f, 70f)
+        Kind.KNIFE -> floatArrayOf(8f, 22f)
+        Kind.SPEAR -> floatArrayOf(14f, 38f)
+        Kind.BOULDER -> floatArrayOf(52f, 55f)
+        Kind.BOLT -> floatArrayOf(14f, 22f)
+    }
+
+    fun makeShot(kind: Kind, shooter: Worm, angle: Float, power: Float, fuse: Float, launch: Float = 1f): Projectile {
         val dx = cos(angle)
         val dy = sin(angle)
-        val sp = power.coerceIn(0.05f, 1f) * MAX_LAUNCH
+        val sp = if (kind == Kind.BOLT) BOLT_SPEED else power.coerceIn(0.05f, 1f) * MAX_LAUNCH * launch
         return Projectile(kind, shooter.x + dx * (R + 7f), shooter.y + dy * (R + 7f), dx * sp, dy * sp, fuse, shooter)
     }
 
@@ -497,7 +524,11 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             p.resting = false
         }
         if (windAffected(p.kind)) p.vx += wind * windScale * dt
-        p.vy += G * dt
+        if (p.kind == Kind.BOLT) {
+            if (p.age > 2.5f) return STEP_OUT
+        } else {
+            p.vy += G * dt
+        }
         val dist = hypot(p.vx, p.vy) * dt
         val steps = max(1, ceil(dist / 2f).toInt())
         val sx = p.vx * dt / steps
@@ -524,7 +555,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
                     if (dx * dx + dy * dy < (R + 3f) * (R + 3f)) return STEP_HIT
                 }
             }
-            if (p.y > WATER_Y + 4 || p.x < -400 || p.x > W + 400) return STEP_OUT
+            if (p.y > WATER_Y + 4 || p.x < -400 || p.x > W + 400 || p.y < -2000) return STEP_OUT
         }
         return STEP_NONE
     }
@@ -549,29 +580,29 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         }
     }
 
-    /** Where a contact shot would land, or null if it leaves the map or times out. */
-    fun simulateImpact(kind: Kind, shooter: Worm, angle: Float, power: Float): FloatArray? {
-        val p = makeShot(kind, shooter, angle, power, 0f)
+    /**
+     * Where a throw would go off: the contact point, or where it sits when its fuse runs out.
+     * Null if it leaves the map. Ignores gates, which is part of what makes them unpredictable.
+     */
+    fun simulateImpact(kind: Kind, shooter: Worm, angle: Float, power: Float, fuse: Float = 0f, launch: Float = 1f): FloatArray? {
+        val p = makeShot(kind, shooter, angle, power, fuse, launch)
         var t = 0f
-        while (t < 6f) {
+        val limit = if (fuse > 0f) fuse else 6f
+        while (t < limit) {
             when (stepProjectile(p, DT, 1f)) {
                 STEP_HIT -> return floatArrayOf(p.x, p.y)
                 STEP_OUT -> return null
             }
             t += DT
         }
-        return null
+        return if (fuse > 0f) floatArrayOf(p.x, p.y) else null
     }
 
     /** Aim guide for the human player: the first part of the path, ignoring wind. */
     fun previewPath(out: FloatArray): Int {
         if (!weapon.usesPower || aimPower <= 0.02f) return 0
-        val kind = when (weapon) {
-            Weapon.POTION_BOMB -> Kind.POTION
-            Weapon.SCATTER -> Kind.SCATTER
-            else -> Kind.LOBBER
-        }
-        val p = makeShot(kind, active, aimAngle, aimPower, 9f)
+        val kind = weapon.kind ?: Kind.KNIFE // a pounce flies like a thrown knife
+        val p = makeShot(kind, active, aimAngle, aimPower, 9f, weapon.launch)
         var n = 0
         var frame = 0
         while (n + 1 < out.size && frame < 40) {
@@ -587,20 +618,33 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
 
     fun fire(): Boolean {
         if (phase != Phase.PLAYING || !active.alive) return false
-        val t = team
         val wpn = weapon
-        if (ammo[t][wpn.ordinal] == 0) return false
         val w = active
-        when (wpn) {
-            Weapon.HOB_LOBBER -> projectiles.add(makeShot(Kind.LOBBER, w, aimAngle, aimPower, 0f))
-            Weapon.POTION_BOMB -> projectiles.add(makeShot(Kind.POTION, w, aimAngle, aimPower, 3f))
-            Weapon.SCATTER -> projectiles.add(makeShot(Kind.SCATTER, w, aimAngle, aimPower, 3f))
-            Weapon.MISSILE -> magicMissile(w, cos(aimAngle), sin(aimAngle))
-            Weapon.KICK -> kick(w, cos(aimAngle), sin(aimAngle))
-            Weapon.SATCHEL -> projectiles.add(Projectile(Kind.SATCHEL, w.x + w.facing * 4f, w.y, w.facing * 30f, -80f, 4f, w))
+        if (!w.has(wpn)) return false
+        val dx = cos(aimAngle)
+        val dy = sin(aimAngle)
+        when (wpn.action) {
+            Action.ARC, Action.FUSE -> {
+                val fuse = if (wpn.action == Action.FUSE) 3f else 0f
+                launch(makeShot(wpn.kind!!, w, aimAngle, aimPower, fuse, wpn.launch), w)
+                sfx(Sfx.THROW)
+            }
+            Action.BOLT -> {
+                // Two missiles, fanned slightly.
+                for (spread in floatArrayOf(-0.05f, 0.05f)) launch(makeShot(Kind.BOLT, w, aimAngle + spread, 1f, 0f), w)
+                addParticle(w.x + dx * 12f, w.y + dy * 12f, 0f, 0f, 0.3f, 18f, 0xFFC08AFF.toInt(), PKind.RING, 0f)
+                sfx(Sfx.ZAP)
+            }
+            Action.DROP -> {
+                launch(Projectile(Kind.SATCHEL, w.x + w.facing * 4f, w.y, w.facing * 30f, -80f, 4f, w), w)
+                sfx(Sfx.THROW)
+            }
+            Action.MELEE -> melee(w, wpn, dx, dy)
+            Action.POUNCE -> pounce(w, dx, dy)
+            Action.ROAR -> roar(w, wpn)
+            Action.SLAM -> slam(w, wpn)
         }
-        if (wpn.usesPower || wpn == Weapon.SATCHEL) sfx(Sfx.THROW)
-        if (ammo[t][wpn.ordinal] > 0) ammo[t][wpn.ordinal]--
+        if (w.ammo[wpn.ordinal] > 0) w.ammo[wpn.ordinal]--
         aiming = false
         aimPower = 0f
         setPhase(Phase.RETREAT)
@@ -608,12 +652,17 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         return true
     }
 
-    /** Carl's signature move: a short-range kick that launches whoever is in front of the foot. */
-    private fun kick(w: Worm, dx: Float, dy: Float) {
+    private fun launch(p: Projectile, by: Worm) {
+        p.power = by.species.blastBonus
+        projectiles.add(p)
+    }
+
+    /** Point-blank hit on whoever is right in front: Carl's kick, Mongo's bite, a shield bash, a club. */
+    private fun melee(w: Worm, wpn: Weapon, dx: Float, dy: Float) {
         val fx = w.x + dx * 10f
         val fy = w.y + dy * 10f
         var target: Worm? = null
-        var best = 22f
+        var best = wpn.radius
         for (o in worms) {
             if (o === w || !o.alive) continue
             val d = hypot(o.x - fx, o.y - fy)
@@ -628,45 +677,214 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             return
         }
         sfx(Sfx.KICK)
-        cause = SystemAi.KICK
-        hurt(target, 20)
-        target.vx = dx * 520f
-        target.vy = min(-300f, dy * 520f - 200f)
-        target.onGround = false
-        knocked.remove(target)
-        knocked.add(target)
+        cause = SystemAi.MELEE
+        hurt(target, wpn.damage.roundToInt())
+        launchWorm(target, dx * wpn.launch, min(-wpn.launch * 0.55f, dy * wpn.launch - 200f))
         shake = min(18f, shake + 6f)
         addParticle(target.x, target.y, 0f, 0f, 0.25f, 16f, 0xFFFFF6D0.toInt(), PKind.RING, 0f)
     }
 
-    private fun magicMissile(w: Worm, dx: Float, dy: Float) {
-        var x = w.x + dx * (R + 2f)
-        var y = w.y + dy * (R + 2f)
-        var hit = false
-        var d = 0f
-        loop@ while (d < 900f) {
-            x += dx * 2f
-            y += dy * 2f
-            d += 2f
-            if (terrain.isSolid(x, y)) { hit = true; break }
-            for (o in worms) {
-                if (o === w || !o.alive) continue
-                val ex = o.x - x
-                val ey = o.y - y
-                if (ex * ex + ey * ey < (R + 2f) * (R + 2f)) { hit = true; break@loop }
+    private fun launchWorm(o: Worm, vx: Float, vy: Float) {
+        o.vx = vx.coerceIn(-700f, 700f)
+        o.vy = vy.coerceIn(-800f, 800f)
+        o.onGround = false
+        knocked.remove(o)
+        knocked.add(o)
+    }
+
+    /** Mongo leaps along the aim; whoever he hits or lands next to gets bitten. */
+    private fun pounce(w: Worm, dx: Float, dy: Float) {
+        val sp = aimPower.coerceIn(0.1f, 1f) * MAX_LAUNCH * Weapon.POUNCE.launch
+        w.pouncing = true
+        launchWorm(w, dx * sp, dy * sp)
+        w.y -= 2f
+        sfx(Sfx.JUMP)
+    }
+
+    private fun pounceContact(w: Worm) {
+        for (o in worms) {
+            if (o === w || !o.alive || o.team == w.team) continue
+            if (hypot(o.x - w.x, o.y - w.y) < R * 2.2f) {
+                pounceHit(w, o)
+                w.vx = -w.vx * 0.3f
+                w.pouncing = false
+                return
             }
-            if (x < 0 || x > W || y < -200 || y > H) break
         }
-        var s = 0f
-        while (s < d) {
-            val col = if ((s / 10f).toInt() % 2 == 0) 0xFFC08AFF.toInt() else 0xFFFFFFFF.toInt()
-            addParticle(w.x + dx * s + (rng.nextFloat() - 0.5f) * 3f, w.y + dy * s + (rng.nextFloat() - 0.5f) * 3f,
-                0f, 0f, 0.35f, 2.8f, col, PKind.SPARK, 0f)
-            s += 8f
+    }
+
+    private fun pounceLand(w: Worm) {
+        w.pouncing = false
+        var target: Worm? = null
+        var best = Weapon.POUNCE.radius
+        for (o in worms) {
+            if (o === w || !o.alive || o.team == w.team) continue
+            val d = hypot(o.x - w.x, o.y - w.y)
+            if (d < best) { best = d; target = o }
         }
-        addParticle(w.x + dx * 12f, w.y + dy * 12f, 0f, 0f, 0.3f, 18f, 0xFFC08AFF.toInt(), PKind.RING, 0f)
-        sfx(Sfx.ZAP)
-        if (hit) explode(x, y, 16f, 25f)
+        if (target != null) pounceHit(w, target)
+        w.vy = min(w.vy, 300f) // a dinosaur lands softly
+    }
+
+    private fun pounceHit(w: Worm, o: Worm) {
+        sfx(Sfx.KICK)
+        cause = SystemAi.MELEE
+        hurt(o, Weapon.POUNCE.damage.roundToInt())
+        val dir = if (o.x >= w.x) 1f else -1f
+        launchWorm(o, dir * 320f, -260f)
+        shake = min(18f, shake + 5f)
+        addParticle(o.x, o.y, 0f, 0f, 0.25f, 16f, 0xFFFFF6D0.toInt(), PKind.RING, 0f)
+    }
+
+    /** Pushes everyone nearby away, friend or foe; tiny damage, big displacement. */
+    private fun roar(w: Worm, wpn: Weapon) {
+        sfx(Sfx.ROAR)
+        cause = SystemAi.MELEE
+        for (o in worms) {
+            if (o === w || !o.alive) continue
+            val dx = o.x - w.x
+            val d = hypot(dx, o.y - w.y)
+            if (d >= wpn.radius) continue
+            val f = 1f - d / wpn.radius
+            hurt(o, max(1, (wpn.damage * f).roundToInt()))
+            launchWorm(o, (if (dx >= 0) 1f else -1f) * wpn.launch * (0.5f + f), -wpn.launch * 0.6f * (0.5f + f))
+        }
+        for (k in 0..2) addParticle(w.x, w.y, 0f, 0f, 0.4f + k * 0.15f, wpn.radius * (0.5f + k * 0.3f), 0xFFFFE0A0.toInt(), PKind.RING, 0f)
+        shake = min(18f, shake + 8f)
+    }
+
+    /** The Ogre hits the floor: a shockwave that hurts everyone around, and a dent underfoot. */
+    private fun slam(w: Worm, wpn: Weapon) {
+        sfx(Sfx.BOOM_BIG)
+        cause = SystemAi.BLAST
+        terrain.carve(w.x, w.y + R + 8f, 16f)
+        for (o in worms) {
+            if (o === w || !o.alive) continue
+            val dx = o.x - w.x
+            val d = hypot(dx, o.y - w.y)
+            if (d >= wpn.radius) continue
+            val f = 1f - d / wpn.radius
+            hurt(o, max(1, (wpn.damage * (0.4f + 0.6f * f)).roundToInt()))
+            launchWorm(o, (if (dx >= 0) 1f else -1f) * wpn.launch * f, -wpn.launch * (0.4f + 0.6f * f))
+        }
+        addParticle(w.x, w.y + R, 0f, 0f, 0.4f, wpn.radius, 0xFFFFF6D0.toInt(), PKind.RING, 0f)
+        repeat(16) {
+            val a = -PI.toFloat() * rng.nextFloat()
+            addParticle(w.x, w.y + R, cos(a) * 200f, sin(a) * 200f, 0.9f, 3f, 0xFF6A5A4A.toInt(), PKind.DIRT, G)
+        }
+        shake = min(18f, shake + 14f)
+    }
+
+    // ---------------------------------------------------------------- gates
+
+    /** Existing gates age by a turn; sometimes a new one opens somewhere in the air. */
+    private fun tickGates() {
+        for (g in gates) g.turnsLeft--
+        gates.removeAll { it.turnsLeft <= 0 }
+        if (gates.size < 3 && rng.nextFloat() < 0.5f) spawnGate()
+    }
+
+    fun spawnGate(): Gate? {
+        for (attempt in 0 until 40) {
+            val x = 150 + rng.nextInt(W - 300)
+            val floor = min(terrain.surfaceAt(x), WATER_Y)
+            val top = 70
+            val bottom = floor - 90
+            if (bottom <= top) continue
+            val y = top + rng.nextInt(bottom - top)
+            if (gates.any { abs(it.x - x) < 120 }) continue
+            val effects = GateEffect.entries
+            val g = Gate(nextGateId++, x.toFloat(), y.toFloat(), effects[rng.nextInt(effects.size)], 2 + rng.nextInt(3))
+            gates.add(g)
+            return g
+        }
+        return null
+    }
+
+    fun addGate(x: Float, y: Float, effect: GateEffect): Gate = Gate(nextGateId++, x, y, effect, 3).also { gates.add(it) }
+
+    /** Did [p] move through any gate between (px, py) and where it is now? */
+    private fun checkGates(p: Projectile, px: Float, py: Float) {
+        for (g in gates) {
+            if (g.id in p.passed || p.dead) continue
+            val a = px - g.x
+            val b = p.x - g.x
+            if (a * b > 0f || px == p.x) continue
+            val t = a / (a - b)
+            val yAt = py + (p.y - py) * t
+            if (abs(yAt - g.y) > g.halfHeight) continue
+            p.passed.add(g.id)
+            g.flash = 1f
+            applyGate(p, g, g.effect)
+        }
+    }
+
+    private fun applyGate(p: Projectile, g: Gate, effect: GateEffect) {
+        sfx(Sfx.GATE)
+        var label = effect.label
+        when (effect) {
+            GateEffect.TRIPLE -> {
+                clone(p, 0.12f, 1f)
+                clone(p, -0.12f, 1f)
+                label = "\u00D73!"
+            }
+            GateEffect.PLUS_TWO -> {
+                clone(p, 0f, 0.8f)
+                clone(p, 0f, 1.2f)
+                label = "+2!"
+            }
+            GateEffect.BIG -> { p.power *= 1.7f; label = "BIGGER!" }
+            GateEffect.TINY -> { p.power *= 0.4f; label = "Shrunk" }
+            GateEffect.FAST -> { p.vx *= 1.6f; p.vy *= 1.6f; label = "FASTER!" }
+            GateEffect.SLOW -> { p.vx *= 0.5f; p.vy *= 0.5f; label = "Slowed" }
+            GateEffect.FLIP -> { p.vx = -p.vx; label = "Flipped!" }
+            GateEffect.MYSTERY -> label = mystery(p)
+        }
+        texts.add(FloatText(g.x, g.y - g.halfHeight - 14f, label, -1, 1.6f))
+        viewers += 2_000_000L
+        repeat(10) {
+            val a = rng.nextFloat() * PI.toFloat() * 2
+            addParticle(p.x, p.y, cos(a) * 90f, sin(a) * 90f, 0.5f, 2f, effect.color, PKind.SPARK, 0f)
+        }
+    }
+
+    /** A "?" gate: any visible effect, or something stranger. */
+    private fun mystery(p: Projectile): String {
+        return when (rng.nextInt(10)) {
+            0 -> { clone(p, 0.12f, 1f); clone(p, -0.12f, 1f); "\u00D73!" }
+            1 -> { p.power *= 1.7f; "BIGGER!" }
+            2 -> { p.power *= 0.4f; "Shrunk" }
+            3 -> { p.vx = -p.vx; "Flipped!" }
+            4 -> { p.vx *= 1.6f; p.vy *= 1.6f; "FASTER!" }
+            5, 6 -> {
+                // Turn it into a different projectile altogether.
+                val kinds = arrayOf(Kind.LOBBER, Kind.POTION, Kind.SCATTER, Kind.BOULDER, Kind.SPEAR, Kind.SATCHEL, Kind.BOLT)
+                val k = kinds[rng.nextInt(kinds.size)]
+                val n = Projectile(k, p.x, p.y, p.vx, p.vy, if (bounces(k)) 2.5f else 0f, p.owner)
+                n.copyTraitsFrom(p)
+                p.dead = true
+                projectiles.add(n)
+                "Transmuted!"
+            }
+            7 -> {
+                p.dead = true
+                boxes.add(LootBox(p.x, p.y, rollTier()))
+                "It's loot now"
+            }
+            8 -> { p.healing = true; "Healing?!" }
+            else -> { repeat(4) { clone(p, (it - 1.5f) * 0.1f, 0.9f + it * 0.07f) }; "\u00D75!!" }
+        }
+    }
+
+    private fun clone(p: Projectile, turn: Float, speed: Float) {
+        if (projectiles.size >= MAX_PROJECTILES) return
+        val c = cos(turn)
+        val s = sin(turn)
+        val vx = (p.vx * c - p.vy * s) * speed
+        val vy = (p.vx * s + p.vy * c) * speed
+        val n = Projectile(p.kind, p.x, p.y, vx, vy, p.fuse, p.owner)
+        n.copyTraitsFrom(p)
+        projectiles.add(n)
     }
 
     private fun updateProjectiles(dt: Float) {
@@ -679,8 +897,12 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
                 }
             }
             p.bounced = false
+            val px = p.x
+            val py = p.y
             val step = stepProjectile(p, dt, 1f)
             if (p.bounced) sfx(Sfx.BOUNCE)
+            checkGates(p, px, py)
+            if (p.dead) continue
             when (step) {
                 STEP_HIT -> detonate(p)
                 STEP_OUT -> {
@@ -696,6 +918,13 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
                 addParticle(p.x, p.y - 4f, (rng.nextFloat() - 0.5f) * 40f, -rng.nextFloat() * 40f,
                     0.2f, 1.5f, 0xFFFFC04A.toInt(), PKind.SPARK, 0f)
             }
+            if (p.kind == Kind.BOLT && !p.dead) {
+                addParticle(p.x, p.y, (rng.nextFloat() - 0.5f) * 20f, (rng.nextFloat() - 0.5f) * 20f,
+                    0.35f, 2.5f, if (rng.nextBoolean()) 0xFFC08AFF.toInt() else 0xFFFFFFFF.toInt(), PKind.SPARK, 0f)
+            }
+            if (p.healing && !p.dead) {
+                addParticle(p.x, p.y, 0f, -20f, 0.4f, 2f, 0xFF7AFF9A.toInt(), PKind.SPARK, 0f)
+            }
             if (p.kind == Kind.SATCHEL && !p.dead) {
                 addParticle(p.x, p.y - 8f, (rng.nextFloat() - 0.5f) * 60f, -rng.nextFloat() * 60f,
                     0.3f, 1.8f, if (rng.nextBoolean()) 0xFFFF4A4A.toInt() else 0xFFFFB0A0.toInt(), PKind.SPARK, 0f)
@@ -706,22 +935,25 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
 
     private fun detonate(p: Projectile) {
         p.dead = true
-        when (p.kind) {
-            Kind.LOBBER -> explode(p.x, p.y, 44f, 50f)
-            Kind.POTION -> explode(p.x, p.y, 44f, 45f)
-            Kind.SHARD -> explode(p.x, p.y, 22f, 18f)
-            Kind.SATCHEL -> explode(p.x, p.y, 70f, 70f)
-            Kind.SCATTER -> {
-                explode(p.x, p.y, 28f, 25f)
-                repeat(5) {
-                    projectiles.add(Projectile(Kind.SHARD, p.x, p.y - 6f,
-                        (rng.nextFloat() - 0.5f) * 400f, -220f - rng.nextFloat() * 200f, 0f, null))
-                }
+        val b = blast(p.kind)
+        val radius = min(110f, b[0] * sqrt(p.power))
+        val damage = min(150f, b[1] * p.power)
+        explode(p.x, p.y, radius, damage, p.healing)
+        if (p.kind == Kind.SCATTER) {
+            repeat(5) {
+                val s = Projectile(Kind.SHARD, p.x, p.y - 6f,
+                    (rng.nextFloat() - 0.5f) * 400f, -220f - rng.nextFloat() * 200f, 0f, null)
+                s.copyTraitsFrom(p)
+                if (projectiles.size < MAX_PROJECTILES) projectiles.add(s)
             }
         }
     }
 
-    fun explode(x: Float, y: Float, radius: Float, damage: Float) {
+    fun explode(x: Float, y: Float, radius: Float, damage: Float, healing: Boolean = false) {
+        if (healing) {
+            healBurst(x, y, radius, damage)
+            return
+        }
         cause = SystemAi.BLAST
         sfx(if (radius >= 40f) Sfx.BOOM_BIG else Sfx.BOOM_SMALL)
         for (b in boxes) {
@@ -792,6 +1024,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
 
     private fun updateParticles(dt: Float) {
         announceAge += dt
+        for (g in gates) g.flash = max(0f, g.flash - dt * 2f)
         val it = particles.iterator()
         while (it.hasNext()) {
             val p = it.next()

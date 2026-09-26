@@ -108,6 +108,22 @@ class SoundFx(context: Context) {
             (sin(2 * PI * 220 * t) * 0.6 + sin(2 * PI * 331 * t) * 0.3 + sin(2 * PI * 587 * t) * 0.15).toFloat() *
                 exp(-t * 5f) * 0.5f
         }
+        Sfx.GATE -> {
+            var ph = 0.0
+            render(0.35f) { t, d ->
+                ph += 2 * PI * (600f + 1400f * t / d) / RATE
+                (sin(ph) + 0.4 * sin(ph * 1.5)).toFloat() * bell(t / d) * 0.3f * (0.7f + 0.3f * sin(2 * PI * 30 * t).toFloat())
+            }
+        }
+        Sfx.ROAR -> {
+            var lp = 0f
+            render(0.9f) { t, d ->
+                lp += (noise() - lp) * 0.08f
+                val f = 85f + 25f * sin(2 * PI * 6 * t).toFloat()
+                val saw = ((t * f) % 1f) * 2f - 1f
+                (saw * 0.45f + lp * 2.2f) * bell(t / d) * 0.7f
+            }
+        }
         Sfx.WIN -> notes(floatArrayOf(523f, 659f, 784f, 1047f, 784f, 1047f), 0.14f, 0.4f)
     }
 

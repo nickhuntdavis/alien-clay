@@ -23,22 +23,41 @@ and not for distribution.
 | --- | --- |
 | Walk | Hold the left/right arrows |
 | Jump | JUMP button |
-| Aim and attack | Drag back anywhere on screen (like a slingshot), release. Drag further for more power |
+| Aim and attack | Drag back anywhere on screen (like a slingshot), release. Drag further for more power. Area attacks show their range as a circle |
 | Switch weapon | Tap the weapon box (bottom right) |
 | Whole-map view | Magnifier button |
 | Mute | Speaker button |
 | Pause / menu | Pause button or the Back button |
 
-### Weapons
+### Fighters
 
-| Weapon | Ammo | Notes |
-| --- | --- | --- |
-| Hob-Lobber | unlimited | Explodes on impact, pushed by wind |
-| Magic Missile | unlimited | Instant straight shot |
-| Kick | unlimited | Point blank. Big knockback, great for pit kills |
-| Potion Bomb | unlimited | Bounces, 3 second fuse |
-| Scatter Charge | 3 | Bounces, then bursts into 5 small bombs |
-| Satchel Charge | 2 | Drops at your feet, 4 second fuse. Run! |
+Each fighter has their own stats, a passive trait and two or three attacks (ammo in brackets, none means unlimited).
+
+| Fighter | HP | Trait | Attacks |
+| --- | --- | --- | --- |
+| Carl | 110 | Explosives expert: +25% blast damage | Kick, Hob-Lobber, Satchel Charge (2) |
+| Princess Donut | 80 | Always lands on her feet (no fall damage), jumps high | Magic Missile (two bolts, straight line), Potion Bomb |
+| Mongo | 120 | Fast and a big jumper | Bite, Pounce (leaps at the target), Roar (2, pushes everyone nearby away) |
+| Goblin | 70 | Quick | Throwing Knife, Potion Bomb, Scatter Charge (2) |
+| Hobgoblin | 100 | Drilled soldier | Spear, Shield Bash (huge knockback), Satchel Charge (1) |
+| Ogre | 150 | Slow, heavy | Boulder (big blast, short range), Club, Ground Slam (2, shockwave around him) |
+
+Loot boxes top up the opener's own limited attacks.
+
+### Gates
+
+Glowing portals open in the air at random (up to three at once, each lasting a few turns). Anything
+thrown through one is changed, once per gate:
+
+| Gate | Effect |
+| --- | --- |
+| ×3 / +2 | Splits into three, or adds two more at different speeds |
+| BIG / tiny | Bigger or smaller blast |
+| FAST / SLOW | Speeds up or slows down |
+| FLIP | Reverses direction |
+| ? | Any of the above, or something stranger: turns into a different projectile, becomes a loot box, splits five ways, or explodes into healing |
+
+The CPU doesn't plan around gates, so they can wreck its shots too.
 
 ## Build
 
@@ -59,14 +78,14 @@ The `DCC Artillery APK` GitHub Actions workflow builds the same APK on every pus
 
 | File | Role |
 | --- | --- |
-| `Game.kt` | Rules, turns, physics, explosions, kicks, loot boxes (pure Kotlin, unit tested) |
+| `Game.kt` | Rules, turns, physics, attacks, gates, loot boxes (pure Kotlin, unit tested) |
 | `Terrain.kt` | Pixel terrain generation, colouring and crater carving |
-| `Ai.kt` | CPU player: replays candidate throws through the real physics and picks the best |
+| `Ai.kt` | CPU player: tries each of its fighter's attacks, replaying throws through the real physics |
 | `SystemAi.kt` | Achievement and loot box text |
 | `GameView.kt` | Game loop thread, camera, touch controls, rendering and HUD |
 | `CreatureArt.kt` | Draws the six fighters |
 | `SoundFx.kt` | Synthesises the sound effects and ambience, plays them through a SoundPool |
-| `Entities.kt` | Fighter (`Worm`), species, weapons, projectiles, loot boxes, particles |
+| `Entities.kt` | Fighter (`Worm`), species stats and loadouts, weapons, gates, projectiles, loot boxes |
 | `MainActivity.kt` | Full-screen landscape activity |
 
 The Kotlin package is still `com.alienclay.worms` so the app installs over earlier test builds.

@@ -67,7 +67,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     private val btnTwo = RectF()
     private val btnAgain = RectF()
     private val btnToMenu = RectF()
-    private val pickerRows = Array(Weapon.entries.size) { RectF() }
+    private val pickerRows = Array(3) { RectF() } // no fighter carries more than three attacks
     private var pickerOpen = false
 
     private val roles = HashMap<Int, Int>()
@@ -358,8 +358,8 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         if (!g.humanTurn) return
         if (pickerOpen) {
             pickerOpen = false
-            for ((i, r) in pickerRows.withIndex()) {
-                if (r.contains(x, y)) g.selectWeapon(Weapon.entries[i])
+            for ((i, w) in g.loadout.withIndex()) {
+                if (pickerRows[i].contains(x, y)) g.selectWeapon(w)
             }
             return
         }
@@ -464,6 +464,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         }
 
         for (w in g.worms) drawWorm(c, g, w)
+        for (gate in g.gates) drawGate(c, g, gate)
         for (p in g.projectiles) drawProjectile(c, p)
         drawParticles(c, g)
         if (screen == Screen.GAME) drawAim(c, g)
@@ -549,6 +550,34 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         fill.alpha = 255
     }
 
+    /** A floating portal: glowing ring, orbiting motes, brighter for a moment after something passes. */
+    private fun drawGate(c: Canvas, g: Game, gate: Gate) {
+        val fading = gate.turnsLeft <= 1 && sin(g.time * 10f) > 0f
+        val a = if (fading) 0.45f else 1f
+        val hh = gate.halfHeight
+        val pulse = 1f + 0.06f * sin(g.time * 4f + gate.id) + gate.flash * 0.3f
+        fill.color = gate.effect.color
+        fill.alpha = ((40 + 80 * gate.flash) * a).toInt()
+        rect.set(gate.x - 18f * pulse, gate.y - hh * 1.15f * pulse, gate.x + 18f * pulse, gate.y + hh * 1.15f * pulse)
+        c.drawOval(rect, fill)
+        fill.color = 0xFF0A0610.toInt()
+        fill.alpha = (200 * a).toInt()
+        rect.set(gate.x - 8f, gate.y - hh, gate.x + 8f, gate.y + hh)
+        c.drawOval(rect, fill)
+        stroke.color = gate.effect.color
+        stroke.alpha = (255 * a).toInt()
+        stroke.strokeWidth = 3f
+        c.drawOval(rect, stroke)
+        fill.color = gate.effect.color
+        for (i in 0 until 6) {
+            val t = g.time * 2.5f + i * PI.toFloat() / 3f
+            fill.alpha = (200 * a).toInt()
+            c.drawCircle(gate.x + cos(t) * 5f, gate.y + sin(t) * (hh - 6f), 1.4f, fill)
+        }
+        fill.alpha = 255
+        stroke.alpha = 255
+    }
+
     private fun drawBox(c: Canvas, g: Game, b: LootBox) {
         val col = when (b.tier) {
             0 -> 0xFFCD7F32.toInt()
@@ -610,7 +639,9 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         art.draw(c, w.species, x, y + bob, w.facing.toFloat(), g.time, !w.onGround)
 
         // What it is holding while it takes aim.
-        if (isActive && g.phase == Phase.PLAYING && g.weapon != Weapon.SATCHEL) {
+        val held = g.weapon.action in listOf(Action.ARC, Action.FUSE, Action.BOLT) ||
+            g.weapon == Weapon.CLUB || g.weapon == Weapon.SHIELD_BASH
+        if (isActive && g.phase == Phase.PLAYING && held) {
             val hx = x + cos(g.aimAngle) * 11f
             val hy = y + sin(g.aimAngle) * 11f
             c.save()
@@ -671,13 +702,123 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
                 fill.color = 0xFFFF4A4A.toInt()
                 c.drawCircle(3f, -4f, 1f, fill)
             }
+            Weapon.BITE -> {
+                fill.color = 0xFF8A2A3A.toInt()
+                rect.set(-5f, -3.5f, 5f, 3.5f)
+                c.drawOval(rect, fill)
+                fill.color = 0xFFF4F0E0.toInt()
+                for (i in -2..1) {
+                    path.reset()
+                    path.moveTo(i * 2f, -3f); path.lineTo(i * 2f + 2f, -3f); path.lineTo(i * 2f + 1f, -0.5f); path.close()
+                    c.drawPath(path, fill)
+                    path.reset()
+                    path.moveTo(i * 2f, 3f); path.lineTo(i * 2f + 2f, 3f); path.lineTo(i * 2f + 1f, 0.5f); path.close()
+                    c.drawPath(path, fill)
+                }
+            }
+            Weapon.POUNCE -> {
+                fill.color = 0xFF5E8A4E.toInt()
+                c.drawCircle(0f, 1.5f, 2.8f, fill)
+                for (i in -1..1) c.drawCircle(i * 2.6f, -2.5f + kotlin.math.abs(i) * 0.8f, 1.2f, fill)
+            }
+            Weapon.ROAR -> {
+                stroke.color = 0xFFFFE0A0.toInt()
+                stroke.strokeWidth = 1f
+                for (k in 1..3) {
+                    rect.set(-k * 1.8f, -k * 1.8f, k * 1.8f, k * 1.8f)
+                    c.drawArc(rect, -45f, 90f, false, stroke)
+                }
+                fill.color = 0xFFFFE0A0.toInt()
+                c.drawCircle(-1f, 0f, 1.2f, fill)
+            }
+            Weapon.KNIFE -> {
+                fill.color = 0xFFC8CCD4.toInt()
+                path.reset()
+                path.moveTo(-1f, -1.2f); path.lineTo(6f, 0f); path.lineTo(-1f, 1.2f); path.close()
+                c.drawPath(path, fill)
+                fill.color = 0xFF6A4A2E.toInt()
+                c.drawRect(-4.5f, -1f, -1f, 1f, fill)
+            }
+            Weapon.SPEAR -> {
+                fill.color = 0xFF8A6A4A.toInt()
+                c.drawRect(-8f, -0.6f, 5f, 0.6f, fill)
+                fill.color = 0xFFC8CCD4.toInt()
+                path.reset()
+                path.moveTo(5f, -1.8f); path.lineTo(9f, 0f); path.lineTo(5f, 1.8f); path.close()
+                c.drawPath(path, fill)
+            }
+            Weapon.SHIELD_BASH -> {
+                fill.color = 0xFF6E747C.toInt()
+                c.drawCircle(0f, 0f, 4.5f, fill)
+                fill.color = 0xFF7A5634.toInt()
+                c.drawCircle(0f, 0f, 3.5f, fill)
+                fill.color = 0xFF9AA0A8.toInt()
+                c.drawCircle(0f, 0f, 1.2f, fill)
+            }
+            Weapon.BOULDER -> {
+                fill.color = 0xFF8A8578.toInt()
+                c.drawCircle(0f, 0f, 5f, fill)
+                fill.color = 0xFF6A665C.toInt()
+                c.drawCircle(1.5f, 1.2f, 1.6f, fill)
+                c.drawCircle(-2f, -1.5f, 1f, fill)
+            }
+            Weapon.CLUB -> {
+                fill.color = 0xFF7A5634.toInt()
+                c.drawRect(-5f, -0.9f, 1f, 0.9f, fill)
+                rect.set(0f, -2.5f, 7f, 2.5f)
+                c.drawOval(rect, fill)
+            }
+            Weapon.SLAM -> {
+                fill.color = 0xFFFFE0A0.toInt()
+                path.reset()
+                for (k in 0 until 10) {
+                    val a = k * PI.toFloat() / 5f
+                    val rr = if (k % 2 == 0) 5f else 2.2f
+                    if (k == 0) path.moveTo(cos(a) * rr, sin(a) * rr) else path.lineTo(cos(a) * rr, sin(a) * rr)
+                }
+                path.close()
+                c.drawPath(path, fill)
+            }
         }
     }
 
     private fun drawProjectile(c: Canvas, p: Projectile) {
         c.save()
         c.translate(p.x, p.y)
+        if (p.healing) {
+            fill.color = 0x557AFF9A
+            c.drawCircle(0f, 0f, 9f, fill)
+        }
+        if (p.power != 1f) {
+            val k = kotlin.math.sqrt(p.power).coerceIn(0.6f, 2.2f)
+            c.scale(k, k)
+            if (p.power > 1.3f) {
+                fill.color = 0x44FF9A3A
+                c.drawCircle(0f, 0f, 7f, fill)
+            }
+        }
+        val heading = (atan2(p.vy, p.vx) * 180 / PI).toFloat()
         when (p.kind) {
+            Kind.KNIFE -> {
+                c.rotate(heading)
+                drawThrowable(c, Weapon.KNIFE)
+            }
+            Kind.SPEAR -> {
+                c.rotate(heading)
+                drawThrowable(c, Weapon.SPEAR)
+            }
+            Kind.BOULDER -> {
+                c.rotate(p.age * 300f)
+                drawThrowable(c, Weapon.BOULDER)
+            }
+            Kind.BOLT -> {
+                fill.color = 0x55C08AFF
+                c.drawCircle(0f, 0f, 7f, fill)
+                fill.color = 0xFFD8B8FF.toInt()
+                c.drawCircle(0f, 0f, 3f, fill)
+                fill.color = 0xFFFFFFFF.toInt()
+                c.drawCircle(0f, 0f, 1.4f, fill)
+            }
             Kind.LOBBER -> {
                 c.rotate(p.age * 400f)
                 drawThrowable(c, Weapon.HOB_LOBBER)
@@ -736,12 +877,21 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     private fun drawAim(c: Canvas, g: Game) {
         if (g.phase != Phase.PLAYING || !g.aiming) return
         val w = g.active
-        if (g.weapon == Weapon.SATCHEL) return
+        val action = g.weapon.action
+        if (action == Action.ROAR || action == Action.SLAM) {
+            stroke.color = TEAM_COLORS[g.team]
+            stroke.strokeWidth = 1.5f
+            stroke.alpha = 160
+            c.drawCircle(w.x, w.y, g.weapon.radius, stroke)
+            stroke.alpha = 255
+            return
+        }
+        if (action == Action.DROP) return
         val dx = cos(g.aimAngle)
         val dy = sin(g.aimAngle)
         val color = TEAM_COLORS[g.team]
         // Crosshair
-        val reach = if (g.weapon == Weapon.KICK) 20f else 48f
+        val reach = if (action == Action.MELEE) 20f else 48f
         val cx = w.x + dx * reach
         val cy = w.y + dy * reach
         stroke.color = color
@@ -794,8 +944,13 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             fill.color = TEAM_COLORS[g.team]
             c.drawPath(path, fill)
         }
+        for (gate in g.gates) {
+            text.textSize = 15 * dp
+            text.color = gate.effect.color
+            shadowText(c, gate.effect.label, sx(gate.x), sy(gate.y - gate.halfHeight) - 8 * dp)
+        }
         for (p in g.projectiles) {
-            if (p.kind == Kind.POTION || p.kind == Kind.SCATTER || p.kind == Kind.SATCHEL) {
+            if (g.bounces(p.kind)) {
                 text.textSize = 12 * dp
                 text.color = 0xFFFFFFFF.toInt()
                 c.drawText(ceil(p.fuse).toInt().toString(), sx(p.x), sy(p.y) - 14 * dp, text)
@@ -834,7 +989,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             fill.color = 0x55FFFFFF
             c.drawRect(barL, top + 11 * dp, barR, top + 19 * dp, fill)
             fill.color = TEAM_COLORS[t]
-            val frac = g.teamHp(t) / (100f * Game.WORMS_PER_TEAM)
+            val frac = g.teamHp(t) / g.teamMaxHp(t).toFloat()
             c.drawRect(barL, top + 11 * dp, barL + (barR - barL) * frac, top + 19 * dp, fill)
         }
 
@@ -941,9 +1096,11 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             g.phase == Phase.GAME_OVER -> null
             !g.humanTurn -> "The dungeon is taking aim..."
             g.phase == Phase.PLAYING && !g.aiming && !pickerOpen ->
-                when (g.weapon) {
-                    Weapon.SATCHEL -> "Drag and release to drop the satchel, then run!"
-                    Weapon.KICK -> "Get close, drag back and release to kick"
+                when (g.weapon.action) {
+                    Action.DROP -> "Drag and release to drop the ${g.weapon.label.lowercase()}, then run!"
+                    Action.MELEE -> "Get close, drag back and release: ${g.weapon.label}"
+                    Action.POUNCE -> "Drag back and release to pounce"
+                    Action.ROAR, Action.SLAM -> "Drag and release: ${g.weapon.label} hits everyone in the circle"
                     else -> "Drag back anywhere and release to fire"
                 }
             g.phase == Phase.RETREAT -> "Retreat!"
@@ -962,6 +1119,10 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             text.color = 0xFFFFFFFF.toInt()
             text.alpha = (255 * a).toInt()
             shadowText(c, if (g.humanTurn) "Your move, crawler" else "The dungeon's move", vw / 2, vh * 0.3f + 26 * dp)
+            text.textSize = 12 * dp
+            text.color = 0xFFFFD34A.toInt()
+            text.alpha = (255 * a).toInt()
+            shadowText(c, g.active.species.trait, vw / 2, vh * 0.3f + 46 * dp)
             text.alpha = 255
         }
 
@@ -1013,8 +1174,8 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     }
 
     private fun drawPicker(c: Canvas, g: Game) {
-        for ((i, r) in pickerRows.withIndex()) {
-            val w = Weapon.entries[i]
+        for ((i, w) in g.loadout.withIndex()) {
+            val r = pickerRows[i]
             val left = g.ammoLeft(w)
             fill.color = if (w == g.weapon) 0xEE3A2160.toInt() else 0xEE140A30.toInt()
             c.drawRoundRect(r, 10 * dp, 10 * dp, fill)

@@ -328,6 +328,8 @@ Before committing, verify:
 - Game logic (`Game.kt`, `Terrain.kt`, `Ai.kt`) has no Android imports so it runs in plain JVM unit tests: `cd dcc-artillery && ./gradlew testDebugUnitTest`.
 - Game logic raises sound cues into `Game.sounds`; `GameView` drains them each frame into `SoundFx` (sounds are synthesised, there are no audio assets).
 - Physics runs on a fixed 1/60 s step; the CPU player relies on replaying shots with `stepProjectile`, so keep that function free of side effects.
+- Each `Species` owns its stats, trait and attack loadout; ammo lives on each `Worm`. Attacks are `Weapon` entries grouped by `Action`.
+- Gates change projectiles in `Game.checkGates`, which runs in `updateProjectiles`, not `stepProjectile`: simulations and the CPU deliberately ignore gates.
 - Units are called `Worm` in code (the genre term); what they look like comes from `Species` and `CreatureArt.kt`.
 - Build the APK with `./gradlew assembleDebug` (needs the Android SDK via `local.properties` or `ANDROID_HOME`).
 
