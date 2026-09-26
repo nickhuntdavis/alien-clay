@@ -1,23 +1,24 @@
 package com.alienclay.worms
 
 enum class Weapon(val label: String, val startAmmo: Int, val usesPower: Boolean) {
-    BOULDER("Boulder", -1, true),
-    GLOW_EGG("Glowing Egg", -1, true),
-    EGG_CLUTCH("Egg Clutch", 3, true),
-    FLASH("Camera Flash", -1, false),
-    FLARE("Road Flare", 2, false),
+    HOB_LOBBER("Hob-Lobber", -1, true),
+    MISSILE("Magic Missile", -1, false),
+    KICK("Kick", -1, false),
+    POTION_BOMB("Potion Bomb", -1, true),
+    SCATTER("Scatter Charge", 3, true),
+    SATCHEL("Satchel Charge", 2, false),
 }
 
-enum class Kind { ROCK, EGG, CLUTCH, EGGLET, FLARE }
+enum class Kind { LOBBER, POTION, SCATTER, SHARD, SATCHEL }
 
-/** The six cryptids. [team] is the side each one fights for; [caption] labels its knockout photo. */
-enum class Species(val label: String, val team: Int, val caption: String) {
-    BIGFOOT("Bigfoot", 0, "Bigfoot, probably"),
-    MOTHMAN("Mothman", 0, "Mothman? Or a big owl"),
-    CHUPACABRA("Chupacabra", 0, "Chupacabra (or a mangy dog)"),
-    NESSIE("Nessie", 1, "Nessie, or a floating log"),
-    YETI("Yeti", 1, "Yeti, or a snowdrift"),
-    JERSEY_DEVIL("Jersey Devil", 1, "The Jersey Devil, allegedly"),
+/** The six fighters. [team] is the side each one is on. */
+enum class Species(val label: String, val team: Int) {
+    CARL("Carl", 0),
+    DONUT("Princess Donut", 0),
+    MONGO("Mongo", 0),
+    GOBLIN("Goblin", 1),
+    HOBGOBLIN("Hobgoblin", 1),
+    OGRE("Ogre", 1),
     ;
 
     companion object {
@@ -49,7 +50,21 @@ class Projectile(
     var age = 0f
     var resting = false
     var dead = false
+    var bounced = false
 }
+
+/** A loot box: 0 bronze, 1 silver, 2 gold. Falls until it lands; opened by whoever touches it. */
+class LootBox(var x: Float, var y: Float, val tier: Int) {
+    var vy = 0f
+    var landed = false
+    var dead = false
+}
+
+/** A pop-up from the System AI: an achievement or a loot box opening. */
+class Announcement(val header: String, val title: String, val body: String)
+
+/** Sound cues raised by the game logic and played by the view. */
+enum class Sfx { THROW, ZAP, KICK, WHIFF, BOOM_BIG, BOOM_SMALL, BOUNCE, JUMP, FALL, ACHIEVEMENT, LOOT, TURN, WIN }
 
 object PKind {
     const val FIRE = 0
@@ -76,8 +91,3 @@ class Particle(
 
 /** Floating text such as damage numbers. [team] picks the colour, -1 for neutral. */
 class FloatText(var x: Float, var y: Float, val text: String, val team: Int, var life: Float)
-
-/** Something large surfacing in the loch where a cryptid fell in. */
-class Sighting(val x: Float, val facing: Int) {
-    var age = 0f
-}

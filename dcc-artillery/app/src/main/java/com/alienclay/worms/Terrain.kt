@@ -187,9 +187,9 @@ class Terrain(val w: Int, val h: Int) {
     }
 
     private fun paint(rng: Random) {
-        // Mossy forest floor over layered peat and clay.
-        val grass = intArrayOf(rgb(0xA8, 0xD8, 0x78), rgb(0x78, 0xB8, 0x52), rgb(0x55, 0x92, 0x3E), rgb(0x3C, 0x6E, 0x2E))
-        val clay = intArrayOf(rgb(0x8C, 0x5A, 0x3A), rgb(0x76, 0x4A, 0x30), rgb(0x9C, 0x6A, 0x44), rgb(0x68, 0x44, 0x30))
+        // Flagstone floor over packed earth and bedrock.
+        val grass = intArrayOf(rgb(0x9A, 0x94, 0x8C), rgb(0x7E, 0x78, 0x72), rgb(0x66, 0x61, 0x5C), rgb(0x4E, 0x4A, 0x46))
+        val clay = intArrayOf(rgb(0x5E, 0x4C, 0x40), rgb(0x52, 0x43, 0x38), rgb(0x6A, 0x58, 0x4A), rgb(0x46, 0x3B, 0x33))
         for (x in 0 until w) {
             var run = 0
             var runStart = 0
@@ -210,7 +210,7 @@ class Terrain(val w: Int, val h: Int) {
                 }
                 val depth = y - runStart
                 var c = when {
-                    run == 1 && depth < 8 -> grass[min(3, depth / 2)]
+                    run == 1 && depth < 8 -> if (x % 26 == 0 || depth == 7) shade(grass[3], 0.7f) else grass[min(3, depth / 2)]
                     depth < 3 -> shade(clay[1], 0.7f)
                     else -> {
                         val band = (((y + wobble) / 18).toInt() % clay.size + clay.size) % clay.size

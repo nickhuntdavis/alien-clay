@@ -19,6 +19,21 @@ class MainActivity : Activity() {
         hideSystemBars()
     }
 
+    override fun onPause() {
+        super.onPause()
+        view.sound.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        view.sound.resume()
+    }
+
+    override fun onDestroy() {
+        view.sound.release()
+        super.onDestroy()
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) hideSystemBars()

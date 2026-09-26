@@ -322,9 +322,11 @@ Before committing, verify:
 ### Architecture Decisions
 [Document key architectural decisions and rationale]
 
-### Cryptid Clash (Android game)
-- Lives in `cryptid-clash/`, a standalone Gradle project (Kotlin, AGP 8.7, compileSdk 34, minSdk 24, no AndroidX).
-- Game logic (`Game.kt`, `Terrain.kt`, `Ai.kt`) has no Android imports so it runs in plain JVM unit tests: `cd cryptid-clash && ./gradlew testDebugUnitTest`.
+### DCC Artillery (Android game)
+- Personal-use Dungeon Crawler Carl fan game; not for distribution (the setting and characters belong to Matt Dinniman).
+- Lives in `dcc-artillery/`, a standalone Gradle project (Kotlin, AGP 8.7, compileSdk 34, minSdk 24, no AndroidX).
+- Game logic (`Game.kt`, `Terrain.kt`, `Ai.kt`) has no Android imports so it runs in plain JVM unit tests: `cd dcc-artillery && ./gradlew testDebugUnitTest`.
+- Game logic raises sound cues into `Game.sounds`; `GameView` drains them each frame into `SoundFx` (sounds are synthesised, there are no audio assets).
 - Physics runs on a fixed 1/60 s step; the CPU player relies on replaying shots with `stepProjectile`, so keep that function free of side effects.
 - Units are called `Worm` in code (the genre term); what they look like comes from `Species` and `CreatureArt.kt`.
 - Build the APK with `./gradlew assembleDebug` (needs the Android SDK via `local.properties` or `ANDROID_HOME`).

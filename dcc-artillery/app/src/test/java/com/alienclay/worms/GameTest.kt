@@ -10,12 +10,12 @@ import kotlin.math.abs
 class GameTest {
     private val ground = 500
 
-    /** Flat map, one cryptid per team, team 0 to move. */
+    /** Flat map, one fighter per team, team 0 to move. */
     private fun flatGame(mode: Mode = Mode.TWO_PLAYER, redX: Float = 400f, blueX: Float = 900f): Game {
         val g = Game(mode, seed = 1L, generate = false)
         g.terrain.fillFlat(ground)
-        g.addWorm(redX, ground - Game.R - 1f, Species.BIGFOOT)
-        g.addWorm(blueX, ground - Game.R - 1f, Species.NESSIE)
+        g.addWorm(redX, ground - Game.R - 1f, Species.CARL)
+        g.addWorm(blueX, ground - Game.R - 1f, Species.GOBLIN)
         g.begin(0)
         g.wind = 0f
         return g
@@ -81,7 +81,7 @@ class GameTest {
         while (a < 0f) {
             var p = 0.3f
             while (p <= 1f) {
-                val hit = g.simulateImpact(Kind.ROCK, g.active, a, p)
+                val hit = g.simulateImpact(Kind.LOBBER, g.active, a, p)
                 if (hit != null) {
                     val d = abs(hit[0] - blue.x)
                     if (d < bestD) { bestD = d; best = a to p }
@@ -134,14 +134,14 @@ class GameTest {
     }
 
     @Test
-    fun eachTeamFieldsItsThreeCryptids() {
+    fun eachTeamFieldsItsThreeFighters() {
         val g = Game(Mode.TWO_PLAYER, seed = 7L)
         assertEquals(Species.entries.toSet(), g.worms.map { it.species }.toSet())
         for (w in g.worms) assertEquals(w.species.team, w.team)
     }
 
     @Test
-    fun drowningRaisesASightingAndRecordsEvidence() {
+    fun fallingInThePitTriggersAnAchievement() {
         val g = flatGame()
         run(g, 1.5f)
         val blue = g.worms[1]
@@ -149,10 +149,62 @@ class GameTest {
         blue.onGround = false
         g.update(Game.DT)
         assertTrue(blue.drowned)
-        assertEquals(1, g.sightings.size)
-        assertEquals(blue, g.evidence)
-        run(g, Game.SIGHTING_TIME + 0.1f)
-        assertTrue(g.sightings.isEmpty())
+        assertEquals("NEW ACHIEVEMENT!", g.announcement!!.header)
+        assertTrue(g.viewers > Game.START_VIEWERS)
+        assertTrue(Sfx.FALL in g.sounds)
+    }
+
+    @Test
+    fun kickLaunchesANearbyEnemy() {
+        val g = flatGame(redX = 400f, blueX = 418f)
+        run(g, 1.5f)
+        val blue = g.worms[1]
+        g.selectWeapon(Weapon.KICK)
+        g.aimAngle = -0.3f
+        g.aimPower = 1f
+        assertTrue(g.fire())
+        assertEquals(80, blue.hp)
+        assertFalse(blue.onGround)
+        assertTrue(blue.vx > 300f)
+        assertEquals(blue, g.knocked.last())
+    }
+
+    @Test
+    fun kickAtNothingJustWhiffs() {
+        val g = flatGame(redX = 400f, blueX = 900f)
+        run(g, 1.5f)
+        g.selectWeapon(Weapon.KICK)
+        g.aimPower = 1f
+        assertTrue(g.fire())
+        assertEquals(100, g.worms[1].hp)
+        assertTrue(Sfx.WHIFF in g.sounds)
+    }
+
+    @Test
+    fun walkingIntoALootBoxOpensIt() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val red = g.worms[0]
+        red.hp = 50
+        g.boxes.clear()
+        g.addBox(red.x + 30f, ground - 7f, 0)
+        g.moveDir = 1
+        run(g, 1f)
+        assertTrue(g.boxes.isEmpty())
+        assertEquals(70, red.hp)
+        assertEquals("LOOT BOX OPENED", g.announcement!!.header)
+    }
+
+    @Test
+    fun silverBoxAddsLimitedAmmo() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val red = g.worms[0]
+        g.boxes.clear()
+        val before = g.ammo[0][Weapon.SCATTER.ordinal] + g.ammo[0][Weapon.SATCHEL.ordinal]
+        g.addBox(red.x, red.y, 1)
+        g.update(Game.DT)
+        assertEquals(before + 1, g.ammo[0][Weapon.SCATTER.ordinal] + g.ammo[0][Weapon.SATCHEL.ordinal])
     }
 
     @Test
