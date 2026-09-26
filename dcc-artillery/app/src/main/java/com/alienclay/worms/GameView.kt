@@ -8,6 +8,9 @@ import android.graphics.Matrix
 import android.graphics.Canvas
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.RadialGradient
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Shader
@@ -89,6 +92,23 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     private val art = CreatureArt()
     private val wall = Paint().apply { shader = BitmapShader(brickTile(), Shader.TileMode.REPEAT, Shader.TileMode.REPEAT) }
     private val wallMatrix = Matrix()
+
+    // Lighting: a dark layer with holes cut by soft lights, then a warm additive glow on top.
+    private val darkness = Paint()
+    private val lightCut = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        shader = RadialGradient(0f, 0f, 1f, intArrayOf(0xFFFFFFFF.toInt(), 0x99FFFFFF.toInt(), 0x00FFFFFF),
+            floatArrayOf(0f, 0.45f, 1f), Shader.TileMode.CLAMP)
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT)
+    }
+    private val glow = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD)
+    }
+    private val glowShaders = HashMap<Int, RadialGradient>()
+    private val fire = Paint(Paint.ANTI_ALIAS_FLAG).apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.ADD) }
+    private val vignette = Paint()
+    private class Light(var x: Float = 0f, var y: Float = 0f, var r: Float = 0f, var k: Float = 0f, var color: Int = 0)
+    private val lightPool = ArrayList<Light>()
+    private var lightCount = 0
 
     /** Sound effects; created here so the activity can pause and release them. */
     val sound = SoundFx(context)
@@ -172,6 +192,8 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         sky.shader = LinearGradient(0f, 0f, 0f, vh,
             intArrayOf(0xFF0A0706.toInt(), 0xFF140E0C.toInt(), 0xFF22160F.toInt(), 0xFF3A1E12.toInt()),
             floatArrayOf(0f, 0.45f, 0.75f, 1f), Shader.TileMode.CLAMP)
+        vignette.shader = RadialGradient(vw / 2, vh / 2, max(vw, vh) * 0.75f,
+            intArrayOf(0x00000000, 0x00000000, 0xAA000000.toInt()), floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP)
         // Red glow rising out of the pit, in world coordinates.
         pitGlow.shader = LinearGradient(0f, Game.WATER_Y - 110f, 0f, Game.WATER_Y.toFloat(),
             0x00FF4A1A, 0x66FF4A1A, Shader.TileMode.CLAMP)
@@ -466,11 +488,104 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         for (w in g.worms) drawWorm(c, g, w)
         for (gate in g.gates) drawGate(c, g, gate)
         for (p in g.projectiles) drawProjectile(c, p)
-        drawParticles(c, g)
-        if (screen == Screen.GAME) drawAim(c, g)
+        drawParticles(c, g, emissive = false)
         for (b in g.boxes) drawBox(c, g, b)
         drawPit(c, g, left, right)
+
+        drawLighting(c, g, par, left, right, top)
+        // Things that give off light sit above the darkness.
+        drawParticles(c, g, emissive = true)
+        if (screen == Screen.GAME) drawAim(c, g)
         c.restore()
+
+        c.drawRect(0f, 0f, vw, vh, vignette)
+        if (g.flash > 0f) {
+            fill.color = 0xFFFFF4E0.toInt()
+            fill.alpha = (110 * g.flash).toInt()
+            c.drawRect(0f, 0f, vw, vh, fill)
+            fill.alpha = 255
+        }
+    }
+
+    /** Gather this frame's lights: torches, explosions, magic, gates, the pit, loot and the fighter whose turn it is. */
+    private fun collectLights(g: Game, par: Float, left: Float, right: Float) {
+        lightCount = 0
+        fun add(x: Float, y: Float, r: Float, k: Float, color: Int) {
+            if (x + r < left || x - r > right) return
+            if (lightCount == lightPool.size) lightPool.add(Light())
+            val l = lightPool[lightCount++]
+            l.x = x; l.y = y; l.r = r; l.k = k.coerceIn(0f, 1f); l.color = color
+        }
+        val spacing = 320f
+        var k = kotlin.math.floor((left - par) / spacing).toInt()
+        while (k * spacing + par < right + 200f) {
+            val x = k * spacing + par + 60f
+            val y = 170f + (((k % 3) + 3) % 3) * 40f
+            val flick = sin(g.time * 13f + k * 1.7f) * 0.08f + sin(g.time * 7.3f + k) * 0.06f
+            add(x, y - 8f, 190f * (1f + flick), 0.9f, 0xFFFF9A40.toInt())
+            k++
+        }
+        var px = kotlin.math.floor(left / 160f) * 160f
+        while (px < right + 160f) {
+            add(px, Game.WATER_Y + 30f, 150f, 0.55f, 0xFFFF4A1A.toInt())
+            px += 160f
+        }
+        for (p in g.particles) {
+            val f = p.life / p.maxLife
+            when (p.kind) {
+                PKind.RING -> add(p.x, p.y, p.size * 4f, f, p.color)
+                PKind.FIRE -> if (p.size > 8f) add(p.x, p.y, p.size * 3f, f * 0.35f, 0xFFFF8A2A.toInt())
+            }
+        }
+        for (p in g.projectiles) {
+            when {
+                p.healing -> add(p.x, p.y, 70f, 0.8f, 0xFF7AFF9A.toInt())
+                p.kind == Kind.BOLT -> add(p.x, p.y, 80f, 0.9f, 0xFFC08AFF.toInt())
+                p.kind == Kind.SATCHEL -> add(p.x, p.y, 60f, 0.7f, 0xFFFF4A2A.toInt())
+                p.kind == Kind.LOBBER -> add(p.x, p.y, 40f, 0.6f, 0xFFFFB04A.toInt())
+            }
+        }
+        for (gate in g.gates) add(gate.x, gate.y, 110f + 60f * gate.flash, 0.75f + 0.25f * gate.flash, gate.effect.color)
+        for (b in g.boxes) add(b.x, b.y, 55f, 0.6f, 0xFFFFD34A.toInt())
+        // Every fighter carries a little light so nobody vanishes into the dark.
+        for (w in g.worms) if (w.alive) add(w.x, w.y - 6f, 55f, 0.55f, 0xFFFFE8C0.toInt())
+        if (screen == Screen.GAME && g.phase != Phase.GAME_OVER && g.active.alive) {
+            add(g.active.x, g.active.y - 10f, 110f, 0.7f, 0xFFFFE8C0.toInt())
+        }
+    }
+
+    private fun drawLighting(c: Canvas, g: Game, par: Float, left: Float, right: Float, top: Float) {
+        collectLights(g, par, left, right)
+        val bottom = Game.H + 400f
+        rect.set(left, top, right, bottom)
+        c.saveLayer(rect, null)
+        darkness.color = 0xB8050308.toInt()
+        c.drawRect(rect, darkness)
+        for (i in 0 until lightCount) {
+            val l = lightPool[i]
+            c.save()
+            c.translate(l.x, l.y)
+            c.scale(l.r, l.r)
+            lightCut.alpha = (255 * l.k).toInt()
+            c.drawCircle(0f, 0f, 1f, lightCut)
+            c.restore()
+        }
+        c.restore()
+        // Coloured additive glow so light has a tint, not just less darkness.
+        for (i in 0 until lightCount) {
+            val l = lightPool[i]
+            val color = l.color
+            glow.shader = glowShaders.getOrPut(color) {
+                RadialGradient(0f, 0f, 1f, intArrayOf((color and 0x00FFFFFF) or 0x55000000, color and 0x00FFFFFF),
+                    null, Shader.TileMode.CLAMP)
+            }
+            glow.alpha = (255 * l.k).toInt()
+            c.save()
+            c.translate(l.x, l.y)
+            c.scale(l.r * 0.7f, l.r * 0.7f)
+            c.drawCircle(0f, 0f, 1f, glow)
+            c.restore()
+        }
     }
 
     private fun syncTerrain(t: Terrain) {
@@ -636,7 +751,18 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         c.drawOval(rect, fill)
         fill.alpha = 255
 
-        art.draw(c, w.species, x, y + bob, w.facing.toFloat(), g.time, !w.onGround)
+        // Squash on landing, gentle breathing when idle, tumbling when knocked flying.
+        val breathe = if (w.onGround && w.walkTimer <= 0f) sin(g.time * 2.2f + x * 0.1f) * 0.025f else 0f
+        val sq = w.squash
+        val stretch = if (!w.onGround) (kotlin.math.abs(w.vy) / 900f).coerceAtMost(0.15f) else 0f
+        c.save()
+        c.scale(1f + 0.28f * sq - stretch * 0.5f, 1f - 0.28f * sq + breathe + stretch, x, y + Game.R)
+        if (w.spin != 0f) c.rotate(w.spin, x, y)
+        val blinking = ((g.time + x * 0.37f) % 3.4f) < 0.12f
+        val walking = (w.walkTimer / 0.12f).coerceIn(0f, 1f)
+        art.draw(c, w.species, x, y + bob, w.facing.toFloat(), g.time, !w.onGround,
+            w.walkPhase, walking, blinking, w.hitFlash > 0f && (w.hitFlash * 20f).toInt() % 2 == 0)
+        c.restore()
 
         // What it is holding while it takes aim.
         val held = g.weapon.action in listOf(Action.ARC, Action.FUSE, Action.BOLT) ||
@@ -843,14 +969,36 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         c.restore()
     }
 
-    private fun drawParticles(c: Canvas, g: Game) {
+    /** [emissive] draws the glowing kinds (fire, sparks, rings), otherwise the rest (smoke, dirt, rock). */
+    private fun drawParticles(c: Canvas, g: Game, emissive: Boolean) {
         for (p in g.particles) {
+            val glows = p.kind == PKind.FIRE || p.kind == PKind.SPARK || p.kind == PKind.RING
+            if (glows != emissive) continue
             val f = (p.life / p.maxLife).coerceIn(0f, 1f)
             when (p.kind) {
-                PKind.FIRE -> {
+                PKind.CHUNK -> {
                     fill.color = p.color
-                    fill.alpha = (255 * f).toInt()
-                    c.drawCircle(p.x, p.y, p.size * (0.4f + 0.6f * f), fill)
+                    fill.alpha = (255 * min(1f, f * 3f)).toInt()
+                    c.save()
+                    c.rotate(p.rot, p.x, p.y)
+                    path.reset()
+                    path.moveTo(p.x - p.size, p.y - p.size * 0.4f)
+                    path.lineTo(p.x - p.size * 0.2f, p.y - p.size)
+                    path.lineTo(p.x + p.size, p.y - p.size * 0.3f)
+                    path.lineTo(p.x + p.size * 0.5f, p.y + p.size * 0.8f)
+                    path.lineTo(p.x - p.size * 0.6f, p.y + p.size * 0.7f)
+                    path.close()
+                    c.drawPath(path, fill)
+                    c.restore()
+                }
+                PKind.FIRE -> {
+                    // Additive, so overlapping flames burn brighter towards white.
+                    fire.color = p.color
+                    fire.alpha = (170 * f).toInt()
+                    c.drawCircle(p.x, p.y, p.size * (0.4f + 0.6f * f), fire)
+                    fire.color = 0xFFFFE8A0.toInt()
+                    fire.alpha = (160 * f * f).toInt()
+                    c.drawCircle(p.x, p.y, p.size * 0.45f * f, fire)
                 }
                 PKind.SMOKE -> {
                     fill.color = p.color

@@ -114,7 +114,7 @@ class Terrain(val w: Int, val h: Int) {
     }
 
     fun carve(cx: Float, cy: Float, r: Float) {
-        val rim = 4f
+        val rim = min(10f, 4f + r * 0.12f)
         val x0 = max(0, floor(cx - r - rim).toInt())
         val x1 = min(w - 1, ceil(cx + r + rim).toInt())
         val y0 = max(0, floor(cy - r - rim).toInt())
@@ -132,7 +132,10 @@ class Terrain(val w: Int, val h: Int) {
                     solid[i] = false
                     pixels[i] = 0
                 } else if (d2 <= rr2 && solid[i]) {
-                    pixels[i] = shade(base[i], 0.55f) // scorched rim
+                    // Scorched rim: darkest at the crater edge, fading outwards, with soot flecks.
+                    val k = (sqrt(d2) - r) / rim
+                    val soot = if (((x * 73856093) xor (y * 19349663)) and 7 == 0) 0.7f else 1f
+                    pixels[i] = shade(base[i], (0.3f + 0.6f * k) * soot)
                 }
             }
         }

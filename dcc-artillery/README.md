@@ -15,6 +15,9 @@ and not for distribution.
 - The System AI hands out snarky achievements for every knockout, and a live viewer count climbs with the carnage.
 - **Loot boxes** drop from fallen fighters and parachute in at random. Walk into one to open it:
   Bronze (heal), Silver (extra Scatter or Satchel Charge), Gold (big heal plus both).
+- **Look:** torch-lit darkness where torches, explosions, magic, gates and loot light up the scene; fighters
+  walk, blink, breathe, squash on landing, flash when hit and tumble when blasted; explosions flash the screen,
+  throw bouncing rock and leave scorched craters and drifting smoke.
 - **Sound:** all effects and the dungeon ambience are synthesised in code. The speaker button mutes them.
 
 ### Controls (landscape)

@@ -1,6 +1,7 @@
 package com.alienclay.worms
 
 import android.graphics.Canvas
+import android.graphics.LightingColorFilter
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
@@ -19,8 +20,25 @@ class CreatureArt {
     }
     private val path = Path()
     private val r = RectF()
+    private val flashFilter = LightingColorFilter(0xFF808080.toInt(), 0x007F7F7F)
 
-    fun draw(c: Canvas, s: Species, x: Float, y: Float, f: Float, t: Float, airborne: Boolean) {
+    // Per-draw animation inputs.
+    private var step = 0f // leg swing, -1..1 scaled per creature
+    private var blink = false
+
+    /**
+     * [walk] is the walk-cycle phase (radians) and [walking] 0..1 how much of it to show.
+     * [blinking] closes the eyes; [flash] washes the whole figure towards white.
+     */
+    fun draw(
+        c: Canvas, s: Species, x: Float, y: Float, f: Float, t: Float, airborne: Boolean,
+        walk: Float = 0f, walking: Float = 0f, blinking: Boolean = false, flash: Boolean = false,
+    ) {
+        step = sin(walk) * walking
+        blink = blinking
+        val filter = if (flash) flashFilter else null
+        fill.colorFilter = filter
+        line.colorFilter = filter
         when (s) {
             Species.CARL -> carl(c, x, y, f, airborne)
             Species.DONUT -> donut(c, x, y, f, t)
@@ -29,17 +47,21 @@ class CreatureArt {
             Species.HOBGOBLIN -> hobgoblin(c, x, y, f)
             Species.OGRE -> ogre(c, x, y, f)
         }
+        fill.colorFilter = null
+        line.colorFilter = null
     }
 
     /** Leather jacket, boxer shorts, bare feet. */
     private fun carl(c: Canvas, x: Float, y: Float, f: Float, airborne: Boolean) {
         val skin = 0xFFE8B894.toInt()
         val spread = if (airborne) 1.5f else 0f
+        val l = -spread + step * 2f // left leg offset
+        val rr = spread - step * 2f
         fill.color = skin
-        c.drawRect(x - 4f - spread, y + 3f, x - 1.6f - spread, y + 8.5f, fill) // legs
-        c.drawRect(x + 1.6f + spread, y + 3f, x + 4f + spread, y + 8.5f, fill)
-        oval(c, x - 4.5f - spread + f * 1.2f, y + 7.5f, x - 0.8f - spread + f * 1.2f, y + 9.8f, skin) // bare feet
-        oval(c, x + 0.8f + spread + f * 1.2f, y + 7.5f, x + 4.5f + spread + f * 1.2f, y + 9.8f, skin)
+        c.drawRect(x - 4f + l, y + 3f, x - 1.6f + l, y + 8.5f, fill) // legs
+        c.drawRect(x + 1.6f + rr, y + 3f, x + 4f + rr, y + 8.5f, fill)
+        oval(c, x - 4.5f + l + f * 1.2f, y + 7.5f, x - 0.8f + l + f * 1.2f, y + 9.8f, skin) // bare feet
+        oval(c, x + 0.8f + rr + f * 1.2f, y + 7.5f, x + 4.5f + rr + f * 1.2f, y + 9.8f, skin)
         // Boxers with polka dots
         fill.color = 0xFFD63A3A.toInt()
         r.set(x - 5f, y - 1.5f, x + 5f, y + 4.5f)
@@ -65,8 +87,8 @@ class CreatureArt {
         fill.color = 0x55402A1A
         r.set(x + f * 0.6f - 3.6f, y - 12.5f, x + f * 0.6f + 3.6f, y - 8.8f)
         c.drawArc(r, 0f, 180f, true, fill) // stubble
-        dot(c, x + f * 2.6f, y - 13.3f, 0.9f, 0xFF1A1008.toInt())
-        dot(c, x + f * 0.2f, y - 13.3f, 0.9f, 0xFF1A1008.toInt())
+        eye(c, x + f * 2.6f, y - 13.3f, 0.9f, 0xFF1A1008.toInt())
+        eye(c, x + f * 0.2f, y - 13.3f, 0.9f, 0xFF1A1008.toInt())
     }
 
     /** A very fluffy show cat with a tiara. */
@@ -83,8 +105,8 @@ class CreatureArt {
         c.drawPath(path, line)
         // Body and paws
         oval(c, x - 8.5f, y - 3f, x + 8.5f, y + 9f, fur)
-        oval(c, x - 5f, y + 6.5f, x - 1f, y + 9.8f, shade)
-        oval(c, x + 1f, y + 6.5f, x + 5f, y + 9.8f, shade)
+        oval(c, x - 5f + step * 1.5f, y + 6.5f, x - 1f + step * 1.5f, y + 9.8f, shade)
+        oval(c, x + 1f - step * 1.5f, y + 6.5f, x + 5f - step * 1.5f, y + 9.8f, shade)
         // Head with ears
         val hx = x + f * 3f
         val hy = y - 7f
@@ -99,10 +121,10 @@ class CreatureArt {
         }
         dot(c, hx, hy, 6.5f, fur)
         oval(c, hx - 3.5f + f, hy - 0.5f, hx + 3.5f + f, hy + 4f, shade) // flat Persian face
-        dot(c, hx + f - 2.4f, hy - 1f, 1.7f, 0xFFE08A2A.toInt()) // copper eyes
-        dot(c, hx + f + 2.4f, hy - 1f, 1.7f, 0xFFE08A2A.toInt())
-        dot(c, hx + f - 2.4f, hy - 1f, 0.8f, 0xFF1A1008.toInt())
-        dot(c, hx + f + 2.4f, hy - 1f, 0.8f, 0xFF1A1008.toInt())
+        eye(c, hx + f - 2.4f, hy - 1f, 1.7f, 0xFFE08A2A.toInt()) // copper eyes
+        eye(c, hx + f + 2.4f, hy - 1f, 1.7f, 0xFFE08A2A.toInt())
+        eye(c, hx + f - 2.4f, hy - 1f, 0.8f, 0xFF1A1008.toInt())
+        eye(c, hx + f + 2.4f, hy - 1f, 0.8f, 0xFF1A1008.toInt())
         dot(c, hx + f, hy + 1.6f, 0.8f, 0xFFD27A8A.toInt()) // nose
         // Tiara
         path.reset()
@@ -123,7 +145,7 @@ class CreatureArt {
     private fun mongo(c: Canvas, x: Float, y: Float, f: Float, t: Float, airborne: Boolean) {
         val green = 0xFF5E8A4E.toInt()
         val dark = 0xFF3E6232.toInt()
-        val step = if (airborne) 0f else sin(t * 6f) * 1f
+        val step = if (airborne) 0f else this.step * 2f
         // Tail
         path.reset()
         path.moveTo(x - f * 3f, y - 3f)
@@ -150,8 +172,8 @@ class CreatureArt {
         oval(c, x + f * 6f - 5f, y - 14f, x + f * 6f + 5f, y - 8f, green)
         fill.color = 0xFFD63A3A.toInt()
         c.drawRect(x + f * 3f - 3f, y - 6f, x + f * 3f + 3f, y - 4.5f, fill) // collar
-        dot(c, x + f * 6f, y - 12f, 1.3f, 0xFFFFE070.toInt())
-        dot(c, x + f * 6.4f, y - 12f, 0.6f, 0xFF101010.toInt())
+        eye(c, x + f * 6f, y - 12f, 1.3f, 0xFFFFE070.toInt())
+        eye(c, x + f * 6.4f, y - 12f, 0.6f, 0xFF101010.toInt())
         fill.color = 0xFFF4F0E0.toInt()
         for (i in 0..2) {
             val tx = x + f * (8f + i * 1.3f)
@@ -171,8 +193,8 @@ class CreatureArt {
     private fun goblin(c: Canvas, x: Float, y: Float, f: Float) {
         val skin = 0xFF6FA04A.toInt()
         fill.color = 0xFF4E7A34.toInt()
-        c.drawRect(x - 3.5f, y + 3f, x - 1.5f, y + 9.5f, fill)
-        c.drawRect(x + 1.5f, y + 3f, x + 3.5f, y + 9.5f, fill)
+        c.drawRect(x - 3.5f + step * 2f, y + 3f, x - 1.5f + step * 2f, y + 9.5f, fill)
+        c.drawRect(x + 1.5f - step * 2f, y + 3f, x + 3.5f - step * 2f, y + 9.5f, fill)
         // Dagger held forward
         fill.color = 0xFFC8CCD4.toInt()
         path.reset()
@@ -197,18 +219,18 @@ class CreatureArt {
         }
         dot(c, x + f, y - 10f, 5f, skin)
         oval(c, x + f * 5f - 2.2f, y - 10f, x + f * 5f + 2.2f, y - 7f, 0xFF5E8A3E.toInt()) // nose
-        dot(c, x + f * 2.5f - 1.8f, y - 11.5f, 1.2f, 0xFFFFE070.toInt())
-        dot(c, x + f * 2.5f + 1.8f, y - 11.5f, 1.2f, 0xFFFFE070.toInt())
-        dot(c, x + f * 2.9f - 1.8f, y - 11.5f, 0.5f, 0xFF101010.toInt())
-        dot(c, x + f * 2.9f + 1.8f, y - 11.5f, 0.5f, 0xFF101010.toInt())
+        eye(c, x + f * 2.5f - 1.8f, y - 11.5f, 1.2f, 0xFFFFE070.toInt())
+        eye(c, x + f * 2.5f + 1.8f, y - 11.5f, 1.2f, 0xFFFFE070.toInt())
+        eye(c, x + f * 2.9f - 1.8f, y - 11.5f, 0.5f, 0xFF101010.toInt())
+        eye(c, x + f * 2.9f + 1.8f, y - 11.5f, 0.5f, 0xFF101010.toInt())
     }
 
     private fun hobgoblin(c: Canvas, x: Float, y: Float, f: Float) {
         val skin = 0xFFB0603A.toInt()
         val iron = 0xFF6E747C.toInt()
         fill.color = 0xFF4A3A30.toInt()
-        c.drawRect(x - 4f, y + 3f, x - 1.5f, y + 9.5f, fill)
-        c.drawRect(x + 1.5f, y + 3f, x + 4f, y + 9.5f, fill)
+        c.drawRect(x - 4f + step * 2f, y + 3f, x - 1.5f + step * 2f, y + 9.5f, fill)
+        c.drawRect(x + 1.5f - step * 2f, y + 3f, x + 4f - step * 2f, y + 9.5f, fill)
         oval(c, x - 9f, y - 7f, x - 5f, y + 3f, skin) // arms
         oval(c, x + 5f, y - 7f, x + 9f, y + 3f, skin)
         fill.color = iron
@@ -225,8 +247,8 @@ class CreatureArt {
         r.set(x + f - 5.5f, y - 18f, x + f + 5.5f, y - 11f)
         c.drawArc(r, 180f, 180f, true, fill)
         c.drawRect(x + f - 0.6f, y - 20f, x + f + 0.6f, y - 17f, fill) // spike
-        dot(c, x + f * 2.8f - 1.8f, y - 12f, 1f, 0xFFFFE070.toInt())
-        dot(c, x + f * 2.8f + 1.8f, y - 12f, 1f, 0xFFFFE070.toInt())
+        eye(c, x + f * 2.8f - 1.8f, y - 12f, 1f, 0xFFFFE070.toInt())
+        eye(c, x + f * 2.8f + 1.8f, y - 12f, 1f, 0xFFFFE070.toInt())
     }
 
     /** The floor's heavy hitter: big, horned, carrying a club. */
@@ -241,8 +263,8 @@ class CreatureArt {
         oval(c, x + f * 8f - 3.5f, y - 20f, x + f * 8f + 3.5f, y - 11f, 0xFF7A5634.toInt())
         c.restore()
         fill.color = 0xFF5E6A48.toInt()
-        c.drawRect(x - 5f, y + 3f, x - 1.5f, y + 9.5f, fill)
-        c.drawRect(x + 1.5f, y + 3f, x + 5f, y + 9.5f, fill)
+        c.drawRect(x - 5f + step * 1.5f, y + 3f, x - 1.5f + step * 1.5f, y + 9.5f, fill)
+        c.drawRect(x + 1.5f - step * 1.5f, y + 3f, x + 5f - step * 1.5f, y + 9.5f, fill)
         oval(c, x - 11f, y - 7f, x - 5.5f, y + 4f, skin)
         oval(c, x + 5.5f, y - 7f, x + 11f, y + 4f, skin)
         oval(c, x - 9f, y - 10f, x + 9f, y + 6f, skin) // bulk
@@ -262,14 +284,25 @@ class CreatureArt {
         }
         fill.color = 0xFF4A3A2A.toInt()
         c.drawRect(x + f * 1.5f - 3f, y - 14f, x + f * 1.5f + 3f, y - 13f, fill) // heavy brow
-        dot(c, x + f * 3f - 1.5f, y - 12f, 0.9f, 0xFFFF5A3A.toInt())
-        dot(c, x + f * 3f + 1.5f, y - 12f, 0.9f, 0xFFFF5A3A.toInt())
+        eye(c, x + f * 3f - 1.5f, y - 12f, 0.9f, 0xFFFF5A3A.toInt())
+        eye(c, x + f * 3f + 1.5f, y - 12f, 0.9f, 0xFFFF5A3A.toInt())
     }
 
     private fun oval(c: Canvas, l: Float, t: Float, rr: Float, b: Float, color: Int) {
         fill.color = color
         r.set(minOf(l, rr), t, maxOf(l, rr), b)
         c.drawOval(r, fill)
+    }
+
+    /** An eye (or pupil): drawn as a closed lid line while blinking; pupils vanish. */
+    private fun eye(c: Canvas, x: Float, y: Float, radius: Float, color: Int) {
+        if (!blink) {
+            dot(c, x, y, radius, color)
+        } else if (radius >= 0.85f) {
+            line.color = 0xFF1A1008.toInt()
+            line.strokeWidth = 0.6f
+            c.drawLine(x - radius, y, x + radius, y, line)
+        }
     }
 
     private fun dot(c: Canvas, x: Float, y: Float, radius: Float, color: Int) {

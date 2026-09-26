@@ -320,6 +320,47 @@ class GameTest {
         assertEquals(1, mongo.ammo[Weapon.ROAR.ordinal])
     }
 
+    // ------------------------------------------------------------ animation
+
+    @Test
+    fun landingSquashesAndWalkingAdvancesTheCycle() {
+        val g = flatGame()
+        val red = g.worms[0]
+        red.y = 380f
+        red.onGround = false
+        var squashed = false
+        repeat(180) { g.update(Game.DT); if (red.squash > 0.2f) squashed = true }
+        assertTrue(squashed)
+        run(g, 1.5f)
+        val phase = red.walkPhase
+        g.moveDir = 1
+        run(g, 0.5f)
+        assertTrue(red.walkPhase > phase)
+        assertTrue(red.walkTimer > 0f)
+    }
+
+    @Test
+    fun explosionsFlashTheScreenAndThrowBouncingRock() {
+        val g = flatGame()
+        run(g, 1.5f)
+        g.explode(700f, ground.toFloat(), 40f, 30f)
+        assertTrue(g.flash > 0f)
+        val chunks = g.particles.filter { it.kind == PKind.CHUNK }
+        assertTrue(chunks.isNotEmpty())
+        run(g, 1.5f)
+        // Rock comes to rest on the floor (in or around the crater) rather than falling through it.
+        for (p in g.particles.filter { it.kind == PKind.CHUNK }) assertTrue("chunk at y=${p.y}", p.y < ground + 45f)
+    }
+
+    @Test
+    fun takingDamageFlashesTheFighter() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val blue = g.worms[1]
+        g.explode(blue.x + 20f, blue.y, 20f, 20f)
+        assertTrue(blue.hitFlash > 0f)
+    }
+
     @Test
     fun lastTeamStandingWins() {
         val g = flatGame()

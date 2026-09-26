@@ -100,6 +100,10 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
 
     var shake = 0f
         private set
+
+    /** Screen flash from big explosions, 0..1. */
+    var flash = 0f
+        private set
     var time = 0f
         private set
     /** -1 draw, 0 or 1 winning team; only meaningful in GAME_OVER. */
@@ -224,6 +228,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         time += dt
         phaseTime += dt
         shake = max(0f, shake - dt * 30f)
+        flash = max(0f, flash - dt * 3f)
         when (phase) {
             Phase.BANNER -> if (phaseTime > 1.3f) setPhase(Phase.PLAYING)
             Phase.PLAYING -> {
@@ -268,6 +273,10 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
 
     private fun updateWorm(w: Worm, dt: Float, control: Boolean) {
         if (w.drowned) return
+        w.walkTimer = max(0f, w.walkTimer - dt)
+        w.squash = max(0f, w.squash - dt * 4f)
+        w.hitFlash = max(0f, w.hitFlash - dt)
+        if (w.onGround) w.spin = 0f else if (w in knocked) w.spin += w.vx * dt * 2.5f
         if (w.onGround) {
             if (control && !aiming && moveDir != 0) walk(w, moveDir, dt)
             if (control && jumpRequested && w.onGround) {
@@ -307,6 +316,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
                         w.vy = -w.vy * 0.25f
                         w.vx *= 0.5f
                     } else {
+                        w.squash = ((w.vy - 60f) / 400f).coerceIn(0f, 1f)
                         w.vx = 0f
                         w.vy = 0f
                         w.onGround = true
@@ -324,6 +334,8 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     private fun walk(w: Worm, dir: Int, dt: Float) {
         if (w.facing != dir) aimAngle = (PI - aimAngle).toFloat().let { if (it > PI) it - 2 * PI.toFloat() else it }
         w.facing = dir
+        w.walkPhase += dt * 12f * w.species.walk
+        w.walkTimer = 0.12f
         val nx = w.x + dir * WALK_SPEED * w.species.walk * dt
         for (up in 0..MAX_CLIMB) {
             if (!collides(nx, w.y - up)) {
@@ -360,6 +372,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     private fun hurt(w: Worm, dmg: Int) {
         if (!w.alive || dmg <= 0) return
         w.hp -= dmg
+        w.hitFlash = 0.3f
         viewers += dmg * 1_500_000L
         texts.add(FloatText(w.x, w.y - 30f, "-$dmg", w.team, 1.4f))
         if (w === active && (phase == Phase.PLAYING || phase == Phase.RETREAT)) activeHurt = true
@@ -992,6 +1005,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             }
         }
         shake = min(18f, shake + radius / 4f)
+        flash = max(flash, min(0.8f, radius / 80f))
 
         addParticle(x, y, 0f, 0f, 0.35f, radius * 1.1f, 0xFFFFF6D0.toInt(), PKind.RING, 0f)
         repeat(16) {
@@ -1006,11 +1020,31 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
                 (rng.nextFloat() - 0.5f) * 40f, -20f - rng.nextFloat() * 30f, 1f + rng.nextFloat() * 0.8f,
                 radius * 0.3f, 0xFF4A403A.toInt(), PKind.SMOKE, -15f)
         }
-        repeat(18) {
+        repeat(10) {
             val a = -PI.toFloat() * rng.nextFloat()
             val sp = 120f + rng.nextFloat() * 220f
             addParticle(x, y, cos(a) * sp, sin(a) * sp, 0.8f + rng.nextFloat() * 0.6f,
                 2f + rng.nextFloat() * 2f, dirt, PKind.DIRT, G)
+        }
+        // Rock chunks that bounce and tumble.
+        repeat((6 + radius / 6f).toInt()) {
+            val a = -PI.toFloat() * (0.1f + 0.8f * rng.nextFloat())
+            val sp = 150f + rng.nextFloat() * 260f
+            val p = Particle(x, y - 4f, cos(a) * sp, sin(a) * sp, 2.5f + rng.nextFloat() * 1.5f,
+                2.5f + rng.nextFloat() * 2.5f, Terrain.shade(dirt, 0.8f + rng.nextFloat() * 0.4f), PKind.CHUNK, G)
+            p.rot = rng.nextFloat() * 360f
+            if (particles.size < 700) particles.add(p)
+        }
+        // Embers, and smoke that hangs around.
+        repeat(10) {
+            val a = -PI.toFloat() * rng.nextFloat()
+            val sp = 60f + rng.nextFloat() * 200f
+            addParticle(x, y, cos(a) * sp, sin(a) * sp, 0.6f + rng.nextFloat() * 0.8f, 1.6f, 0xFFFFB04A.toInt(), PKind.SPARK, G * 0.4f)
+        }
+        repeat(5) {
+            addParticle(x + (rng.nextFloat() - 0.5f) * radius, y - rng.nextFloat() * radius * 0.5f,
+                (rng.nextFloat() - 0.5f) * 20f, -8f - rng.nextFloat() * 12f, 3f + rng.nextFloat() * 1.5f,
+                radius * 0.45f, 0xFF2E2622.toInt(), PKind.SMOKE, -4f)
         }
     }
 
@@ -1031,6 +1065,20 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             p.life -= dt
             if (p.life <= 0f) { it.remove(); continue }
             p.vy += p.gravity * dt
+            if (p.kind == PKind.CHUNK) {
+                val nx = p.x + p.vx * dt
+                val ny = p.y + p.vy * dt
+                if (terrain.isSolid(nx, ny)) {
+                    if (terrain.isSolid(p.x, ny)) p.vy = -p.vy * 0.35f else p.vx = -p.vx * 0.5f
+                    p.vx *= 0.7f
+                    if (abs(p.vy) < 30f) { p.vy = 0f; p.vx *= 0.5f }
+                } else {
+                    p.x = nx
+                    p.y = ny
+                }
+                p.rot += p.vx * dt * 6f
+                continue
+            }
             p.x += p.vx * dt
             p.y += p.vy * dt
             if (p.kind == PKind.FIRE || p.kind == PKind.SMOKE) {

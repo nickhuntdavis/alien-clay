@@ -98,6 +98,13 @@ class Worm(var x: Float, var y: Float, val team: Int, val species: Species) {
     /** Mid-pounce: lands (or collides) with a bite. */
     var pouncing = false
 
+    // Animation state, advanced by the game and read by the renderer.
+    var walkPhase = 0f
+    var walkTimer = 0f // > 0 while walking
+    var squash = 0f // 0..1, set on landing and decays
+    var hitFlash = 0f // > 0 just after taking damage
+    var spin = 0f // degrees, while tumbling from a hit
+
     fun has(w: Weapon) = ammo[w.ordinal] != 0
 }
 
@@ -169,6 +176,7 @@ object PKind {
     const val SPARK = 3
     const val RING = 4
     const val SPLASH = 5
+    const val CHUNK = 6 // rock debris that bounces off the ground
 }
 
 class Particle(
@@ -183,6 +191,7 @@ class Particle(
     val gravity: Float,
 ) {
     val maxLife = life
+    var rot = 0f
 }
 
 /** Floating text such as damage numbers. [team] picks the colour, -1 for neutral. */
