@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Clay hill -->
+    <path
+        android:fillColor="#C8653E"
+        android:pathData="M18,78 Q40,58 58,70 Q76,80 90,66 L90,90 L18,90 Z" />
+    <path
+        android:fillColor="#8BE04E"
+        android:pathData="M18,78 Q40,58 58,70 Q76,80 90,66 L90,70 Q76,84 58,74 Q40,62 18,82 Z" />
+    <!-- Worm body -->
+    <path
+        android:fillColor="#F29BB0"
+        android:pathData="M44,66 C44,48 48,38 56,38 C64,38 68,48 68,66 Z" />
+    <!-- Hat -->
+    <path
+        android:fillColor="#FF5A5A"
+        android:pathData="M47,46 C47,34 65,34 65,46 Z" />
+    <!-- Eyes -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M50,50 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 M62,50 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+    <path
+        android:fillColor="#1B0F3A"
+        android:pathData="M52,50 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M64,50 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+</vector>

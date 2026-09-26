@@ -322,6 +322,12 @@ Before committing, verify:
 ### Architecture Decisions
 [Document key architectural decisions and rationale]
 
+### Clay Worms (Android game)
+- Lives in `clay-worms/`, a standalone Gradle project (Kotlin, AGP 8.7, compileSdk 34, minSdk 24, no AndroidX).
+- Game logic (`Game.kt`, `Terrain.kt`, `Ai.kt`) has no Android imports so it runs in plain JVM unit tests: `cd clay-worms && ./gradlew testDebugUnitTest`.
+- Physics runs on a fixed 1/60 s step; the CPU player relies on replaying shots with `stepProjectile`, so keep that function free of side effects.
+- Build the APK with `./gradlew assembleDebug` (needs the Android SDK via `local.properties` or `ANDROID_HOME`).
+
 ### Dependencies Management
 [Document how dependencies are managed and updated]
 
