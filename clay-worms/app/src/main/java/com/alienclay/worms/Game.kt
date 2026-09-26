@@ -54,6 +54,9 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     val particles = ArrayList<Particle>()
     val texts = ArrayList<FloatText>()
 
+    /** Worms thrown by an explosion that haven't come to rest yet, most recent hit last. */
+    val knocked = ArrayList<Worm>()
+
     var wind = 0f
     var phase = Phase.BANNER
         private set
@@ -219,6 +222,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         jumpRequested = false
         updateProjectiles(dt)
         updateParticles(dt)
+        knocked.removeAll { it.onGround || it.drowned }
 
         if ((phase == Phase.PLAYING || phase == Phase.RETREAT) && (!active.alive || activeHurt)) {
             aiming = false
@@ -555,6 +559,8 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             w.vx = w.vx.coerceIn(-700f, 700f)
             w.vy = (w.vy + ny * kick - 160f * f).coerceIn(-800f, 800f)
             w.onGround = false
+            knocked.remove(w)
+            knocked.add(w)
         }
         for (p in projectiles) {
             if (p.dead) continue

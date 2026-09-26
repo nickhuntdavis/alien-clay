@@ -252,9 +252,15 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         var ty: Float
         var speed = 3.5f
         val p = g.projectiles.firstOrNull()
+        val flying = g.knocked.lastOrNull()
         if (zoomedOut) {
             tx = Game.W / 2f
             ty = Game.H / 2f
+        } else if (flying != null) {
+            // A worm thrown by a blast: watch it until it lands.
+            tx = flying.x
+            ty = flying.y
+            speed = 6f
         } else if (p != null) {
             tx = p.x
             ty = p.y

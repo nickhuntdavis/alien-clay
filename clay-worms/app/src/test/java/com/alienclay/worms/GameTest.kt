@@ -119,6 +119,21 @@ class GameTest {
     }
 
     @Test
+    fun blastThrownWormIsTrackedUntilItLands() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val blue = g.worms[1]
+        g.explode(blue.x - 20f, blue.y + 5f, 30f, 40f)
+        assertEquals(listOf(blue), g.knocked)
+        g.update(Game.DT)
+        assertFalse(blue.onGround)
+        assertEquals(listOf(blue), g.knocked)
+        run(g, 5f)
+        assertTrue(blue.onGround || blue.drowned)
+        assertTrue(g.knocked.isEmpty())
+    }
+
+    @Test
     fun lastTeamStandingWins() {
         val g = flatGame()
         run(g, 1.5f)
