@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ClayWorms"
+rootProject.name = "CryptidClash"
 include(":app")

@@ -17,7 +17,7 @@ class Ai(private val g: Game) {
     private val rnd = Random()
     private var angle = -0.7f
     private var power = 0.7f
-    private var weapon = Weapon.BAZOOKA
+    private var weapon = Weapon.BOULDER
     private var fired = false
 
     /** Best-scoring plan before noise is added; exposed for tests. */
@@ -36,7 +36,7 @@ class Ai(private val g: Game) {
         var bestScore = -1e9f
         var bestAngle = -0.7f
         var bestPower = 0.7f
-        var bestWeapon = Weapon.BAZOOKA
+        var bestWeapon = Weapon.BOULDER
         var bestImpact: FloatArray? = null
 
         var deg = -200f
@@ -44,11 +44,11 @@ class Ai(private val g: Game) {
             val a = (deg * PI / 180.0).toFloat()
             var pw = 0.3f
             while (pw <= 1.001f) {
-                val hit = g.simulateImpact(Kind.ROCKET, me, a, pw)
+                val hit = g.simulateImpact(Kind.ROCK, me, a, pw)
                 if (hit != null) {
                     val s = score(hit[0], hit[1], 44f, 50f, enemies, friends)
                     if (s > bestScore) {
-                        bestScore = s; bestAngle = a; bestPower = pw; bestWeapon = Weapon.BAZOOKA; bestImpact = hit
+                        bestScore = s; bestAngle = a; bestPower = pw; bestWeapon = Weapon.BOULDER; bestImpact = hit
                     }
                 }
                 pw += 0.05f
@@ -63,19 +63,19 @@ class Ai(private val g: Game) {
                 val s = 25f + (if (e.hp <= 25) 30f else 0f) - d * 0.01f
                 if (s > bestScore) {
                     bestScore = s; bestAngle = atan2(e.y - me.y, e.x - me.x); bestPower = 1f
-                    bestWeapon = Weapon.SHOTGUN; bestImpact = floatArrayOf(e.x, e.y)
+                    bestWeapon = Weapon.FLASH; bestImpact = floatArrayOf(e.x, e.y)
                 }
             }
         }
 
         // Dynamite: an enemy right next to us and no friends in the blast.
-        if (g.ammoLeft(Weapon.DYNAMITE) != 0) {
+        if (g.ammoLeft(Weapon.FLARE) != 0) {
             val close = enemies.count { abs(it.x - me.x) < 40f && abs(it.y - me.y) < 30f }
             val mates = friends.count { it !== me && hypot(it.x - me.x, it.y - me.y) < 90f }
             if (close > 0 && mates == 0) {
                 val s = 55f * close
                 if (s > bestScore) {
-                    bestScore = s; bestWeapon = Weapon.DYNAMITE; bestPower = 1f
+                    bestScore = s; bestWeapon = Weapon.FLARE; bestPower = 1f
                     bestAngle = if (enemies.first().x > me.x) -0.3f else (-PI + 0.3).toFloat()
                     bestImpact = floatArrayOf(me.x, me.y)
                 }
@@ -87,7 +87,7 @@ class Ai(private val g: Game) {
         angle = bestAngle
         power = bestPower
         weapon = bestWeapon
-        if (noise && weapon == Weapon.BAZOOKA) {
+        if (noise && weapon == Weapon.BOULDER) {
             angle += (rnd.nextGaussian() * 0.025).toFloat()
             power = (power + (rnd.nextGaussian() * 0.025).toFloat()).coerceIn(0.2f, 1f)
         }

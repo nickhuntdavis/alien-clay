@@ -38,11 +38,9 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         const val MAX_LAUNCH = 900f
         const val WORMS_PER_TEAM = 3
         const val DT = 1f / 60f
-        val TEAM_NAMES = arrayOf("Red Clay", "Blue Clay")
-        private val NAMES = arrayOf(
-            arrayOf("Blobby", "Squish", "Mudge"),
-            arrayOf("Glorp", "Wobble", "Dollop"),
-        )
+        val TEAM_NAMES = arrayOf("Team Bigfoot", "Team Nessie")
+        const val SIGHTING_TIME = 2.4f
+        const val EVIDENCE_TIME = 2.8f
         private val COS = FloatArray(16) { cos(it * PI * 2 / 16).toFloat() }
         private val SIN = FloatArray(16) { sin(it * PI * 2 / 16).toFloat() }
     }
@@ -53,6 +51,13 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     val projectiles = ArrayList<Projectile>()
     val particles = ArrayList<Particle>()
     val texts = ArrayList<FloatText>()
+    val sightings = ArrayList<Sighting>()
+
+    /** The most recent knockout, shown as a blurry "photo"; [evidenceAge] counts up from the moment it happened. */
+    var evidence: Worm? = null
+        private set
+    var evidenceAge = 0f
+        private set
 
     /** Worms thrown by an explosion that haven't come to rest yet, most recent hit last. */
     val knocked = ArrayList<Worm>()
@@ -68,8 +73,8 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         private set
     lateinit var active: Worm
         private set
-    var weapon = Weapon.BAZOOKA
-    private val teamWeapon = arrayOf(Weapon.BAZOOKA, Weapon.BAZOOKA)
+    var weapon = Weapon.BOULDER
+    private val teamWeapon = arrayOf(Weapon.BOULDER, Weapon.BOULDER)
     val ammo = Array(2) { IntArray(Weapon.entries.size) { i -> Weapon.entries[i].startAmmo } }
     private val nextIdx = IntArray(2)
 
@@ -105,8 +110,8 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     fun ammoLeft(w: Weapon) = ammo[team][w.ordinal]
     fun teamHp(t: Int) = worms.filter { it.team == t && it.alive }.sumOf { it.hp }
 
-    fun addWorm(x: Float, y: Float, team: Int, name: String): Worm {
-        val w = Worm(x, y, team, name)
+    fun addWorm(x: Float, y: Float, species: Species): Worm {
+        val w = Worm(x, y, species.team, species)
         worms.add(w)
         return w
     }
@@ -129,7 +134,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             val t = i % 2
             var y = terrain.surfaceAt(x) - R - 2
             while (collides(x.toFloat(), y) && y > R) y -= 1f
-            val w = addWorm(x.toFloat(), y, t, NAMES[t][i / 2])
+            val w = addWorm(x.toFloat(), y, Species.ofTeam(t)[i / 2])
             w.facing = if (x < W / 2) 1 else -1
         }
     }
@@ -158,7 +163,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         jumpRequested = false
         aimAngle = if (active.facing > 0) -0.7f else (-PI + 0.7).toFloat()
         weapon = teamWeapon[t]
-        if (ammo[t][weapon.ordinal] == 0) weapon = Weapon.BAZOOKA
+        if (ammo[t][weapon.ordinal] == 0) weapon = Weapon.BOULDER
         setPhase(Phase.BANNER)
         if (isCpu(t)) ai.plan()
     }
@@ -314,11 +319,13 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         if (w.alive) {
             w.alive = false
             w.hp = 0
-            texts.add(FloatText(w.x, WATER_Y - 30f, "Splash!", w.team, 1.6f))
+            texts.add(FloatText(w.x, WATER_Y - 30f, "Gulp!", w.team, 1.6f))
+            sightings.add(Sighting(w.x, if (w.x < W / 2) 1 else -1))
+            recordEvidence(w)
         }
         repeat(14) {
             addParticle(w.x, WATER_Y.toFloat(), (rng.nextFloat() - 0.5f) * 160f, -120f - rng.nextFloat() * 180f,
-                0.8f, 2.5f, 0xFF9FE7FF.toInt(), PKind.SPLASH, G)
+                0.8f, 2.5f, 0xFFA8C8B8.toInt(), PKind.SPLASH, G)
         }
         if (w === active) activeHurt = true
     }
@@ -331,6 +338,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         if (w.hp <= 0) {
             w.hp = 0
             w.alive = false
+            recordEvidence(w)
             repeat(10) {
                 addParticle(w.x, w.y, (rng.nextFloat() - 0.5f) * 120f, -rng.nextFloat() * 120f,
                     1.2f, 6f, 0xFFB0A0C0.toInt(), PKind.SMOKE, -20f)
@@ -338,11 +346,16 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         }
     }
 
+    private fun recordEvidence(w: Worm) {
+        evidence = w
+        evidenceAge = 0f
+    }
+
     // ---------------------------------------------------------- projectiles
 
-    private fun windAffected(k: Kind) = k == Kind.ROCKET || k == Kind.CLUSTER
-    private fun bounces(k: Kind) = k == Kind.GRENADE || k == Kind.CLUSTER || k == Kind.DYNAMITE
-    private fun contact(k: Kind) = k == Kind.ROCKET || k == Kind.BOMBLET
+    private fun windAffected(k: Kind) = k == Kind.ROCK || k == Kind.CLUTCH
+    private fun bounces(k: Kind) = k == Kind.EGG || k == Kind.CLUTCH || k == Kind.FLARE
+    private fun contact(k: Kind) = k == Kind.ROCK || k == Kind.EGGLET
 
     fun makeShot(kind: Kind, shooter: Worm, angle: Float, power: Float, fuse: Float): Projectile {
         val dx = cos(angle)
@@ -400,7 +413,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
             p.vx -= 2 * dot * nx
             p.vy -= 2 * dot * ny
         }
-        val damp = if (p.kind == Kind.DYNAMITE) 0.2f else 0.5f
+        val damp = if (p.kind == Kind.FLARE) 0.2f else 0.5f
         p.vx *= damp
         p.vy *= damp
         if (hypot(p.vx, p.vy) < 40f) {
@@ -428,9 +441,9 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     fun previewPath(out: FloatArray): Int {
         if (!weapon.usesPower || aimPower <= 0.02f) return 0
         val kind = when (weapon) {
-            Weapon.GRENADE -> Kind.GRENADE
-            Weapon.CLUSTER -> Kind.CLUSTER
-            else -> Kind.ROCKET
+            Weapon.GLOW_EGG -> Kind.EGG
+            Weapon.EGG_CLUTCH -> Kind.CLUTCH
+            else -> Kind.ROCK
         }
         val p = makeShot(kind, active, aimAngle, aimPower, 9f)
         var n = 0
@@ -453,11 +466,11 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         if (ammo[t][wpn.ordinal] == 0) return false
         val w = active
         when (wpn) {
-            Weapon.BAZOOKA -> projectiles.add(makeShot(Kind.ROCKET, w, aimAngle, aimPower, 0f))
-            Weapon.GRENADE -> projectiles.add(makeShot(Kind.GRENADE, w, aimAngle, aimPower, 3f))
-            Weapon.CLUSTER -> projectiles.add(makeShot(Kind.CLUSTER, w, aimAngle, aimPower, 3f))
-            Weapon.SHOTGUN -> shotgun(w, cos(aimAngle), sin(aimAngle))
-            Weapon.DYNAMITE -> projectiles.add(Projectile(Kind.DYNAMITE, w.x + w.facing * 4f, w.y, w.facing * 30f, -80f, 4f, w))
+            Weapon.BOULDER -> projectiles.add(makeShot(Kind.ROCK, w, aimAngle, aimPower, 0f))
+            Weapon.GLOW_EGG -> projectiles.add(makeShot(Kind.EGG, w, aimAngle, aimPower, 3f))
+            Weapon.EGG_CLUTCH -> projectiles.add(makeShot(Kind.CLUTCH, w, aimAngle, aimPower, 3f))
+            Weapon.FLASH -> cameraFlash(w, cos(aimAngle), sin(aimAngle))
+            Weapon.FLARE -> projectiles.add(Projectile(Kind.FLARE, w.x + w.facing * 4f, w.y, w.facing * 30f, -80f, 4f, w))
         }
         if (ammo[t][wpn.ordinal] > 0) ammo[t][wpn.ordinal]--
         aiming = false
@@ -467,7 +480,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         return true
     }
 
-    private fun shotgun(w: Worm, dx: Float, dy: Float) {
+    private fun cameraFlash(w: Worm, dx: Float, dy: Float) {
         var x = w.x + dx * (R + 2f)
         var y = w.y + dy * (R + 2f)
         var hit = false
@@ -487,9 +500,10 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         }
         var s = 0f
         while (s < d) {
-            addParticle(w.x + dx * s, w.y + dy * s, 0f, 0f, 0.25f, 2f, 0xFFFFF3A0.toInt(), PKind.SPARK, 0f)
-            s += 14f
+            addParticle(w.x + dx * s, w.y + dy * s, 0f, 0f, 0.3f, 2.5f, 0xFFFFFFFF.toInt(), PKind.SPARK, 0f)
+            s += 10f
         }
+        addParticle(w.x + dx * 12f, w.y + dy * 12f, 0f, 0f, 0.3f, 26f, 0xFFFFFFFF.toInt(), PKind.RING, 0f)
         if (hit) explode(x, y, 16f, 25f)
     }
 
@@ -508,16 +522,16 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
                     p.dead = true
                     if (p.y > WATER_Y) repeat(8) {
                         addParticle(p.x, WATER_Y.toFloat(), (rng.nextFloat() - 0.5f) * 100f, -80f - rng.nextFloat() * 120f,
-                            0.7f, 2f, 0xFF9FE7FF.toInt(), PKind.SPLASH, G)
+                            0.7f, 2f, 0xFFA8C8B8.toInt(), PKind.SPLASH, G)
                     }
                 }
             }
-            if (p.kind == Kind.ROCKET && !p.dead && rng.nextInt(2) == 0) {
-                addParticle(p.x, p.y, 0f, -10f, 0.6f, 3.5f, 0xFFD8D0E0.toInt(), PKind.SMOKE, -10f)
+            if (p.kind == Kind.ROCK && !p.dead && rng.nextInt(2) == 0) {
+                addParticle(p.x, p.y, 0f, -10f, 0.5f, 3f, 0xFF9A8E7E.toInt(), PKind.SMOKE, -10f)
             }
-            if (p.kind == Kind.DYNAMITE && !p.dead) {
+            if (p.kind == Kind.FLARE && !p.dead) {
                 addParticle(p.x, p.y - 8f, (rng.nextFloat() - 0.5f) * 60f, -rng.nextFloat() * 60f,
-                    0.25f, 1.5f, 0xFFFFE070.toInt(), PKind.SPARK, 0f)
+                    0.3f, 1.8f, if (rng.nextBoolean()) 0xFFFF4A4A.toInt() else 0xFFFFB0A0.toInt(), PKind.SPARK, 0f)
             }
         }
         projectiles.removeAll { it.dead }
@@ -526,14 +540,14 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     private fun detonate(p: Projectile) {
         p.dead = true
         when (p.kind) {
-            Kind.ROCKET -> explode(p.x, p.y, 44f, 50f)
-            Kind.GRENADE -> explode(p.x, p.y, 44f, 45f)
-            Kind.BOMBLET -> explode(p.x, p.y, 22f, 18f)
-            Kind.DYNAMITE -> explode(p.x, p.y, 70f, 70f)
-            Kind.CLUSTER -> {
+            Kind.ROCK -> explode(p.x, p.y, 44f, 50f)
+            Kind.EGG -> explode(p.x, p.y, 44f, 45f)
+            Kind.EGGLET -> explode(p.x, p.y, 22f, 18f)
+            Kind.FLARE -> explode(p.x, p.y, 70f, 70f)
+            Kind.CLUTCH -> {
                 explode(p.x, p.y, 28f, 25f)
                 repeat(5) {
-                    projectiles.add(Projectile(Kind.BOMBLET, p.x, p.y - 6f,
+                    projectiles.add(Projectile(Kind.EGGLET, p.x, p.y - 6f,
                         (rng.nextFloat() - 0.5f) * 400f, -220f - rng.nextFloat() * 200f, 0f, null))
                 }
             }
@@ -541,7 +555,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     }
 
     fun explode(x: Float, y: Float, radius: Float, damage: Float) {
-        val dirt = terrain.baseColorAt(x, y + radius * 0.5f).let { if (it == 0) 0xFFC8653E.toInt() else it }
+        val dirt = terrain.baseColorAt(x, y + radius * 0.5f).let { if (it == 0) 0xFF8C5A3A.toInt() else it }
         terrain.carve(x, y, radius)
         val reach = radius + 18f
         for (w in worms) {
@@ -583,7 +597,7 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
         repeat(8) {
             addParticle(x + (rng.nextFloat() - 0.5f) * radius, y + (rng.nextFloat() - 0.5f) * radius,
                 (rng.nextFloat() - 0.5f) * 40f, -20f - rng.nextFloat() * 30f, 1f + rng.nextFloat() * 0.8f,
-                radius * 0.3f, 0xFF6B5A78.toInt(), PKind.SMOKE, -15f)
+                radius * 0.3f, 0xFF4E5566.toInt(), PKind.SMOKE, -15f)
         }
         repeat(18) {
             val a = -PI.toFloat() * rng.nextFloat()
@@ -602,6 +616,9 @@ class Game(val mode: Mode, seed: Long = System.nanoTime(), generate: Boolean = t
     }
 
     private fun updateParticles(dt: Float) {
+        evidenceAge += dt
+        sightings.forEach { it.age += dt }
+        sightings.removeAll { it.age > SIGHTING_TIME }
         val it = particles.iterator()
         while (it.hasNext()) {
             val p = it.next()

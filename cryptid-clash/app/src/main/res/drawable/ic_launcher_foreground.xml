@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Full moon -->
+    <path
+        android:fillColor="#E9E4C4"
+        android:pathData="M54,46 m-24,0 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0" />
+    <path
+        android:fillColor="#D2CCA8"
+        android:pathData="M46,38 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 M64,52 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+    <!-- Pines -->
+    <path
+        android:fillColor="#0E1430"
+        android:pathData="M22,86 L30,58 L38,86 Z M74,86 L82,54 L90,86 Z" />
+    <!-- Bigfoot mid-stride, in silhouette against the moon -->
+    <path
+        android:fillColor="#1A1208"
+        android:pathData="M50,36 C45,36 44,42 45,46 L40,58 L43,60 L47,51 L46,64 L42,78 L47,79 L51,67 L54,79 L59,78 L57,64 L58,52 L63,59 L66,57 L60,45 C61,40 57,36 50,36 Z" />
+    <!-- Ground -->
+    <path
+        android:fillColor="#3C6E2C"
+        android:pathData="M18,80 Q54,74 90,80 L90,90 L18,90 Z" />
+</vector>

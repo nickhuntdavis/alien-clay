@@ -10,12 +10,12 @@ import kotlin.math.abs
 class GameTest {
     private val ground = 500
 
-    /** Flat map, one worm per team, team 0 to move. */
+    /** Flat map, one cryptid per team, team 0 to move. */
     private fun flatGame(mode: Mode = Mode.TWO_PLAYER, redX: Float = 400f, blueX: Float = 900f): Game {
         val g = Game(mode, seed = 1L, generate = false)
         g.terrain.fillFlat(ground)
-        g.addWorm(redX, ground - Game.R - 1f, 0, "Red")
-        g.addWorm(blueX, ground - Game.R - 1f, 1, "Blue")
+        g.addWorm(redX, ground - Game.R - 1f, Species.BIGFOOT)
+        g.addWorm(blueX, ground - Game.R - 1f, Species.NESSIE)
         g.begin(0)
         g.wind = 0f
         return g
@@ -81,7 +81,7 @@ class GameTest {
         while (a < 0f) {
             var p = 0.3f
             while (p <= 1f) {
-                val hit = g.simulateImpact(Kind.ROCKET, g.active, a, p)
+                val hit = g.simulateImpact(Kind.ROCK, g.active, a, p)
                 if (hit != null) {
                     val d = abs(hit[0] - blue.x)
                     if (d < bestD) { bestD = d; best = a to p }
@@ -131,6 +131,28 @@ class GameTest {
         run(g, 5f)
         assertTrue(blue.onGround || blue.drowned)
         assertTrue(g.knocked.isEmpty())
+    }
+
+    @Test
+    fun eachTeamFieldsItsThreeCryptids() {
+        val g = Game(Mode.TWO_PLAYER, seed = 7L)
+        assertEquals(Species.entries.toSet(), g.worms.map { it.species }.toSet())
+        for (w in g.worms) assertEquals(w.species.team, w.team)
+    }
+
+    @Test
+    fun drowningRaisesASightingAndRecordsEvidence() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val blue = g.worms[1]
+        blue.y = Game.WATER_Y + 20f
+        blue.onGround = false
+        g.update(Game.DT)
+        assertTrue(blue.drowned)
+        assertEquals(1, g.sightings.size)
+        assertEquals(blue, g.evidence)
+        run(g, Game.SIGHTING_TIME + 0.1f)
+        assertTrue(g.sightings.isEmpty())
     }
 
     @Test
