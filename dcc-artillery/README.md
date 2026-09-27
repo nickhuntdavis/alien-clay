@@ -21,6 +21,9 @@ and not for distribution.
 - **Look:** torch-lit darkness where torches, explosions, magic, gates and loot light up the scene; fighters
   walk, blink, breathe, squash on landing, flash when hit and tumble when blasted; explosions flash the screen,
   throw bouncing rock and leave scorched craters and drifting smoke.
+- **Interface:** styled like the dungeon's System AI: bracketed panels, a terminal font for its messages (which
+  type themselves out), a timer ring that drains and pulses red near zero, health bars that drain with a trailing
+  "damage" segment, and a LIVE audience counter that pops "+X" whenever the ratings jump.
 - **Sound:** all effects and the dungeon ambience are synthesised in code. The speaker button mutes them.
 
 ### Controls (landscape)
@@ -93,5 +96,8 @@ The `DCC Artillery APK` GitHub Actions workflow builds the same APK on every pus
 | `SoundFx.kt` | Synthesises the sound effects and ambience, plays them through a SoundPool |
 | `Entities.kt` | Fighter (`Worm`), species stats and loadouts, weapons, gates, projectiles, loot boxes |
 | `MainActivity.kt` | Full-screen landscape activity |
+
+Fonts: Cinzel, Cinzel Decorative and VT323, bundled in `app/src/main/assets/fonts/` under the SIL Open Font
+Licence (licence texts alongside).
 
 The Kotlin package is still `com.alienclay.worms` so the app installs over earlier test builds.

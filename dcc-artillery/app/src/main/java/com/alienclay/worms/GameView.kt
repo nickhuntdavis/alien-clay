@@ -115,7 +115,30 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     private val path = Path()
     private val rect = RectF()
     private val preview = FloatArray(80)
+    // HUD animation state (see updateHudAnimation).
     private var shownViewers = Game.START_VIEWERS.toFloat()
+    private var lastViewers = Game.START_VIEWERS
+    private class Pop(val text: String) { var age = 0f }
+    private val viewerPops = ArrayList<Pop>()
+    private val teamShown = floatArrayOf(1f, 1f)
+    private val teamLag = floatArrayOf(1f, 1f)
+    private val wormShownHp = java.util.IdentityHashMap<Worm, Float>()
+    private var uiTime = 0f
+    private var screenSince = 0f
+    private var lastScreen = Screen.MENU
+
+    // Fonts: Cinzel for titles and labels, VT323 for the System AI and counters (all SIL Open Font Licence).
+    private val titleFont = loadFont("fonts/CinzelDecorative-Bold.ttf")
+    private val uiFont = loadFont("fonts/Cinzel-Bold.ttf")
+    private val sysFont = loadFont("fonts/VT323-Regular.ttf")
+    private val plainFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+
+    private fun loadFont(path: String): Typeface =
+        try {
+            Typeface.createFromAsset(context.assets, path)
+        } catch (_: RuntimeException) {
+            Typeface.DEFAULT_BOLD
+        }
 
     init {
         holder.addCallback(this)
@@ -250,6 +273,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         scale = closeScale
         camX = g.active.x
         camY = g.active.y
+        resetHudAnimation()
     }
 
     private fun clearInput() {
@@ -263,12 +287,17 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     // --------------------------------------------------------------- update
 
     private fun tick(dt: Float) {
+        uiTime += dt
+        if (screen != lastScreen) {
+            lastScreen = screen
+            screenSince = uiTime
+        }
         val g = game
         if (screen == Screen.GAME && g != null) {
             g.update(dt)
             for (sfx in g.sounds) sound.play(sfx)
             g.sounds.clear()
-            shownViewers += (g.viewers - shownViewers) * min(1f, dt * 3f)
+            updateHudAnimation(g, dt)
             if (!g.humanTurn || g.phase == Phase.GAME_OVER) {
                 roles.clear()
                 g.moveDir = 0
@@ -1199,29 +1228,94 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
 
     // ------------------------------------------------------------------ HUD
 
+    private fun font(tf: Typeface, size: Float, color: Int, align: Paint.Align = Paint.Align.CENTER) {
+        text.typeface = tf
+        text.textSize = size
+        text.color = color
+        text.textAlign = align
+    }
+
+    /**
+     * The house style for every panel: near-black glass, a thin accent border and bright corner brackets,
+     * like an on-screen notice from the dungeon's System AI.
+     */
+    private fun drawPanel(c: Canvas, r: RectF, accent: Int, strong: Boolean = false, fillColor: Int = PANEL) {
+        val rad = 5 * dp
+        fill.color = fillColor
+        c.drawRoundRect(r, rad, rad, fill)
+        fill.color = 0x12FFFFFF
+        c.drawRect(r.left + 3 * dp, r.top + 2 * dp, r.right - 3 * dp, r.top + 3 * dp, fill)
+        stroke.color = accent
+        stroke.alpha = if (strong) 200 else 90
+        stroke.strokeWidth = if (strong) 1.5f * dp else 1f * dp
+        c.drawRoundRect(r, rad, rad, stroke)
+        stroke.alpha = 255
+        stroke.strokeWidth = 2 * dp
+        val b = min(10 * dp, r.height() / 3)
+        path.reset()
+        path.moveTo(r.left, r.top + b); path.lineTo(r.left, r.top); path.lineTo(r.left + b, r.top)
+        path.moveTo(r.right - b, r.top); path.lineTo(r.right, r.top); path.lineTo(r.right, r.top + b)
+        path.moveTo(r.right, r.bottom - b); path.lineTo(r.right, r.bottom); path.lineTo(r.right - b, r.bottom)
+        path.moveTo(r.left + b, r.bottom); path.lineTo(r.left, r.bottom); path.lineTo(r.left, r.bottom - b)
+        c.drawPath(path, stroke)
+    }
+
+    /** Eases the numbers the HUD shows towards the real ones, so changes animate instead of jumping. */
+    private fun updateHudAnimation(g: Game, dt: Float) {
+        shownViewers += (g.viewers - shownViewers) * min(1f, dt * 3f)
+        val delta = g.viewers - lastViewers
+        if (delta >= 1_000_000L) {
+            viewerPops.add(Pop("+" + formatViewers(delta.toFloat())))
+            lastViewers = g.viewers
+        }
+        for (p in viewerPops) p.age += dt
+        viewerPops.removeAll { it.age > 1.4f }
+        for (t in 0..1) {
+            val frac = g.teamHp(t) / g.teamMaxHp(t).toFloat()
+            teamShown[t] += (frac - teamShown[t]) * min(1f, dt * 8f)
+            teamLag[t] = if (teamLag[t] > teamShown[t]) teamLag[t] + (teamShown[t] - teamLag[t]) * min(1f, dt * 1.2f) else teamShown[t]
+        }
+        for (w in g.worms) {
+            val cur = wormShownHp[w] ?: w.hp.toFloat()
+            wormShownHp[w] = cur + (w.hp - cur) * min(1f, dt * 6f)
+        }
+    }
+
+    private fun resetHudAnimation() {
+        shownViewers = Game.START_VIEWERS.toFloat()
+        lastViewers = Game.START_VIEWERS
+        viewerPops.clear()
+        teamShown.fill(1f)
+        teamLag.fill(1f)
+        wormShownHp.clear()
+    }
+
     private fun drawLabels(c: Canvas, g: Game) {
         for (w in g.worms) {
             if (!w.alive) continue
             val x = sx(w.x)
             val y = sy(w.y - 22f)
             val col = TEAM_COLORS[w.team]
-            text.textSize = 12 * dp
-            val hp = w.hp.toString()
-            val tw = text.measureText(hp) + 10 * dp
-            rect.set(x - tw / 2, y - 14 * dp, x + tw / 2, y + 2 * dp)
-            fill.color = 0xCC140A30.toInt()
-            c.drawRoundRect(rect, 4 * dp, 4 * dp, fill)
-            text.color = col
+            val hp = ((wormShownHp[w] ?: w.hp.toFloat()) + 0.5f).toInt().toString()
+            font(sysFont, 17 * dp, col)
+            val tw = text.measureText(hp) + 12 * dp
+            rect.set(x - tw / 2, y - 15 * dp, x + tw / 2, y + 2 * dp)
+            fill.color = 0xDD0C0A12.toInt()
+            c.drawRoundRect(rect, 3 * dp, 3 * dp, fill)
+            stroke.color = col
+            stroke.strokeWidth = 1 * dp
+            stroke.alpha = 150
+            c.drawRoundRect(rect, 3 * dp, 3 * dp, stroke)
+            stroke.alpha = 255
             c.drawText(hp, x, y - 2 * dp, text)
-            text.textSize = 11 * dp
-            text.color = 0xFFFFFFFF.toInt()
-            c.drawText(w.name, x, y - 18 * dp, text)
+            font(uiFont, 10 * dp, 0xFFFFFFFF.toInt())
+            shadowText(c, w.name, x, y - 19 * dp)
         }
-        // Bouncing arrow over the worm whose turn it is.
+        // Bouncing arrow over the fighter whose turn it is.
         if ((g.phase == Phase.BANNER || g.phase == Phase.PLAYING) && !g.aiming) {
             val w = g.active
             val ax = sx(w.x)
-            val ay = sy(w.y - 22f) - 40 * dp + sin(g.time * 6f) * 5 * dp
+            val ay = sy(w.y - 22f) - 42 * dp + sin(g.time * 6f) * 5 * dp
             path.reset()
             path.moveTo(ax - 9 * dp, ay - 10 * dp)
             path.lineTo(ax + 9 * dp, ay - 10 * dp)
@@ -1231,20 +1325,17 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             c.drawPath(path, fill)
         }
         for (gate in g.gates) {
-            text.textSize = 15 * dp
-            text.color = gate.effect.color
+            font(uiFont, 15 * dp, gate.effect.color)
             shadowText(c, gate.effect.label, sx(gate.x), sy(gate.y - gate.halfHeight) - 8 * dp)
         }
         for (p in g.projectiles) {
             if (g.bounces(p.kind)) {
-                text.textSize = 12 * dp
-                text.color = 0xFFFFFFFF.toInt()
-                c.drawText(ceil(p.fuse).toInt().toString(), sx(p.x), sy(p.y) - 14 * dp, text)
+                font(sysFont, 17 * dp, 0xFFFFFFFF.toInt())
+                shadowText(c, ceil(p.fuse).toInt().toString(), sx(p.x), sy(p.y) - 14 * dp)
             }
         }
         for (t in g.texts) {
-            text.textSize = 16 * dp
-            text.color = if (t.team >= 0) TEAM_COLORS[t.team] else 0xFFFFFFFF.toInt()
+            font(sysFont, 22 * dp, if (t.team >= 0) TEAM_COLORS[t.team] else 0xFFFFE8C0.toInt())
             text.alpha = (255 * min(1f, t.life * 2f)).toInt()
             shadowText(c, t.text, sx(t.x), sy(t.y))
         }
@@ -1253,74 +1344,93 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
 
     private fun drawHud(c: Canvas, g: Game) {
         val m = 16 * dp
-        // Team panels
+
+        // Team panels with animated health: the bright bar tracks health, a pale trail shows what was just lost.
         for (t in 0..1) {
-            val top = m + t * 36 * dp
-            rect.set(m, top, m + 250 * dp, top + 30 * dp)
-            fill.color = 0xAA140A30.toInt()
-            c.drawRoundRect(rect, 8 * dp, 8 * dp, fill)
-            if (t == g.team && g.phase != Phase.GAME_OVER) {
-                stroke.color = TEAM_COLORS[t]
-                stroke.strokeWidth = 2 * dp
-                c.drawRoundRect(rect, 8 * dp, 8 * dp, stroke)
+            val top = m + t * 38 * dp
+            rect.set(m, top, m + 250 * dp, top + 32 * dp)
+            val ours = t == g.team && g.phase != Phase.GAME_OVER
+            drawPanel(c, rect, TEAM_COLORS[t], strong = ours)
+            font(uiFont, 12 * dp, TEAM_COLORS[t], Paint.Align.LEFT)
+            c.drawText(Game.TEAM_NAMES[t], m + 10 * dp, top + 21 * dp, text)
+            if (g.isCpu(t)) {
+                val lw = text.measureText(Game.TEAM_NAMES[t])
+                font(sysFont, 14 * dp, 0xAAFFFFFF.toInt(), Paint.Align.LEFT)
+                c.drawText("CPU", m + 16 * dp + lw, top + 21 * dp, text)
             }
-            text.textAlign = Paint.Align.LEFT
-            text.textSize = 12 * dp
-            text.color = TEAM_COLORS[t]
-            val label = Game.TEAM_NAMES[t] + if (g.isCpu(t)) " (CPU)" else ""
-            c.drawText(label, m + 8 * dp, top + 19 * dp, text)
-            text.textAlign = Paint.Align.CENTER
             val barL = m + 150 * dp
             val barR = m + 240 * dp
-            fill.color = 0x55FFFFFF
-            c.drawRect(barL, top + 11 * dp, barR, top + 19 * dp, fill)
+            val bt = top + 11 * dp
+            val bb = top + 21 * dp
+            fill.color = 0x33FFFFFF
+            c.drawRect(barL, bt, barR, bb, fill)
+            fill.color = 0xCCFFE8C0.toInt()
+            c.drawRect(barL, bt, barL + (barR - barL) * teamLag[t], bb, fill)
             fill.color = TEAM_COLORS[t]
-            val frac = g.teamHp(t) / g.teamMaxHp(t).toFloat()
-            c.drawRect(barL, top + 11 * dp, barL + (barR - barL) * frac, top + 19 * dp, fill)
+            c.drawRect(barL, bt, barL + (barR - barL) * teamShown[t], bb, fill)
+            fill.color = 0x990C0A12.toInt()
+            for (k in 1 until 10) {
+                val x = barL + (barR - barL) * k / 10f
+                c.drawRect(x - 0.5f * dp, bt, x + 0.5f * dp, bb, fill)
+            }
         }
+        text.textAlign = Paint.Align.CENTER
 
-        // Turn timer
+        // Turn timer: a ring that empties, pulsing red for the last five seconds.
         if (g.phase != Phase.GAME_OVER) {
             val tx = vw / 2
-            val ty = m + 24 * dp
-            fill.color = if (g.phase == Phase.RETREAT) 0xFFFFC04A.toInt() else TEAM_COLORS[g.team]
-            c.drawCircle(tx, ty, 24 * dp, fill)
-            text.textSize = 20 * dp
-            text.color = 0xFF140A30.toInt()
-            val secs = if (g.phase == Phase.PLAYING || g.phase == Phase.RETREAT) ceil(max(0f, g.turnTime)).toInt() else Game.TURN_TIME.toInt()
-            c.drawText(secs.toString(), tx, ty + 7 * dp, text)
+            val ty = m + 26 * dp
+            val playing = g.phase == Phase.PLAYING || g.phase == Phase.RETREAT
+            val secs = if (playing) ceil(max(0f, g.turnTime)).toInt() else Game.TURN_TIME.toInt()
+            val urgent = g.phase == Phase.PLAYING && g.turnTime <= 5f
+            val pulse = if (urgent) 1f + 0.08f * sin(uiTime * 14f) else 1f
+            val r = 26 * dp * pulse
+            fill.color = PANEL
+            c.drawCircle(tx, ty, r, fill)
+            stroke.strokeWidth = 3 * dp
+            stroke.color = 0x33FFFFFF
+            c.drawCircle(tx, ty, r - 3 * dp, stroke)
+            val limit = if (g.phase == Phase.RETREAT) Game.RETREAT_TIME else Game.TURN_TIME
+            val frac = if (playing) (g.turnTime / limit).coerceIn(0f, 1f) else 1f
+            stroke.color = when {
+                urgent -> 0xFFFF4A4A.toInt()
+                g.phase == Phase.RETREAT -> 0xFFFFC04A.toInt()
+                else -> TEAM_COLORS[g.team]
+            }
+            rect.set(tx - r + 3 * dp, ty - r + 3 * dp, tx + r - 3 * dp, ty + r - 3 * dp)
+            c.drawArc(rect, -90f, 360f * frac, false, stroke)
+            font(sysFont, 30 * dp * pulse, if (urgent) 0xFFFF6A6A.toInt() else 0xFFFFFFFF.toInt())
+            c.drawText(secs.toString(), tx, ty + 9 * dp * pulse, text)
         }
-        text.textSize = 11 * dp
-        text.color = 0xFFFF6A6A.toInt()
-        shadowText(c, "\u25CF LIVE  ${formatViewers(shownViewers)} viewers", vw / 2, m + 64 * dp)
+
+        drawViewerCounter(c, vw / 2, m + 70 * dp)
 
         // Wind
-        fill.color = 0xAA140A30.toInt()
-        c.drawRoundRect(windBox, 8 * dp, 8 * dp, fill)
-        text.textSize = 10 * dp
-        text.color = 0xFFFFFFFF.toInt()
-        c.drawText("WIND", windBox.centerX(), windBox.top + 14 * dp, text)
+        drawPanel(c, windBox, 0xFF5AD8FF.toInt())
+        font(sysFont, 15 * dp, 0xFFBFEFFF.toInt())
+        c.drawText("WIND", windBox.centerX(), windBox.top + 16 * dp, text)
         val mid = windBox.centerX()
-        val barY = windBox.top + 26 * dp
-        val half = windBox.width() / 2 - 12 * dp
-        fill.color = 0x44FFFFFF
-        c.drawRect(mid - half, barY - 4 * dp, mid + half, barY + 4 * dp, fill)
+        val barY = windBox.top + 29 * dp
+        val half = windBox.width() / 2 - 14 * dp
+        fill.color = 0x33FFFFFF
+        c.drawRect(mid - half, barY - 3 * dp, mid + half, barY + 3 * dp, fill)
+        fill.color = 0x66FFFFFF
+        for (k in -4..4) c.drawRect(mid + half * k / 4f - 0.5f * dp, barY - 5 * dp, mid + half * k / 4f + 0.5f * dp, barY + 5 * dp, fill)
         val wl = g.wind / Game.MAX_WIND * half
-        fill.color = 0xFF7FE8FF.toInt()
-        c.drawRect(min(mid, mid + wl), barY - 4 * dp, max(mid, mid + wl), barY + 4 * dp, fill)
+        fill.color = 0xFF5AD8FF.toInt()
+        c.drawRect(min(mid, mid + wl), barY - 3 * dp, max(mid, mid + wl), barY + 3 * dp, fill)
         if (kotlin.math.abs(wl) > 2 * dp) {
             path.reset()
             val tip = mid + wl + (if (wl > 0) 7 * dp else -7 * dp)
             path.moveTo(tip, barY)
-            path.lineTo(mid + wl, barY - 7 * dp)
-            path.lineTo(mid + wl, barY + 7 * dp)
+            path.lineTo(mid + wl, barY - 6 * dp)
+            path.lineTo(mid + wl, barY + 6 * dp)
             path.close()
             c.drawPath(path, fill)
         }
 
         // Pause
-        fill.color = 0xAA140A30.toInt()
-        c.drawRoundRect(btnPause, 8 * dp, 8 * dp, fill)
+        drawPanel(c, btnPause, GOLD)
         fill.color = 0xFFFFFFFF.toInt()
         c.drawRect(btnPause.centerX() - 7 * dp, btnPause.centerY() - 9 * dp, btnPause.centerX() - 3 * dp, btnPause.centerY() + 9 * dp, fill)
         c.drawRect(btnPause.centerX() + 3 * dp, btnPause.centerY() - 9 * dp, btnPause.centerX() + 7 * dp, btnPause.centerY() + 9 * dp, fill)
@@ -1328,8 +1438,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         drawSoundButton(c)
 
         // Zoom
-        fill.color = 0xAA140A30.toInt()
-        c.drawCircle(btnZoom.centerX(), btnZoom.centerY(), btnZoom.width() / 2, fill)
+        drawPanel(c, btnZoom, GOLD)
         stroke.color = 0xFFFFFFFF.toInt()
         stroke.strokeWidth = 3 * dp
         c.drawCircle(btnZoom.centerX() - 3 * dp, btnZoom.centerY() - 3 * dp, 9 * dp, stroke)
@@ -1349,9 +1458,8 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
                 path.lineTo(cx - s, cy + s * 0.2f)
                 path.close()
                 c.drawPath(path, fill)
-                text.textSize = 11 * dp
-                text.color = 0xFFFFFFFF.toInt()
-                c.drawText("JUMP", cx, cy + s * 1.1f, text)
+                font(sysFont, 15 * dp, 0xFFFFFFFF.toInt())
+                c.drawText("JUMP", cx, cy + s * 1.2f, text)
             }
             drawWeaponButton(c, g)
             if (pickerOpen) drawPicker(c, g)
@@ -1364,20 +1472,25 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             c.drawLine(aimStartX, aimStartY, aimCurX, aimCurY, stroke)
             fill.color = 0x88FFFFFF.toInt()
             c.drawCircle(aimStartX, aimStartY, 6 * dp, fill)
-            val bw = 220 * dp
+            val bw = 240 * dp
             val bx = vw / 2 - bw / 2
-            val by = vh - 40 * dp
-            fill.color = 0xAA140A30.toInt()
-            rect.set(bx - 4 * dp, by - 4 * dp, bx + bw + 4 * dp, by + 16 * dp)
-            c.drawRoundRect(rect, 6 * dp, 6 * dp, fill)
+            val by = vh - 44 * dp
+            rect.set(bx - 58 * dp, by - 6 * dp, bx + bw + 8 * dp, by + 18 * dp)
+            drawPanel(c, rect, GOLD)
+            font(sysFont, 15 * dp, GOLD, Paint.Align.LEFT)
+            c.drawText("POWER", bx - 50 * dp, by + 10 * dp, text)
+            text.textAlign = Paint.Align.CENTER
             val p = if (g.weapon.usesPower) g.aimPower else if (g.aimPower > 0.04f) 1f else 0f
-            fill.color = blend(0xFF8BE04E.toInt(), 0xFFFF5A5A.toInt(), p)
-            c.drawRect(bx, by, bx + bw * p, by + 12 * dp, fill)
+            val segs = 20
+            val sw = bw / segs
+            for (k in 0 until segs) {
+                val lit = (k + 0.5f) / segs <= p
+                fill.color = if (lit) blend(0xFF8BE04E.toInt(), 0xFFFF5A5A.toInt(), k / (segs - 1f)) else 0x22FFFFFF
+                c.drawRect(bx + k * sw + 1 * dp, by, bx + (k + 1) * sw - 1 * dp, by + 12 * dp, fill)
+            }
         }
 
-        // Hints
-        text.textSize = 13 * dp
-        text.color = 0xFFFFFFFF.toInt()
+        // Hints, as a System AI prompt with a blinking cursor.
         val hint = when {
             g.phase == Phase.GAME_OVER -> null
             !g.humanTurn -> "The dungeon is taking aim..."
@@ -1389,54 +1502,108 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
                     Action.ROAR, Action.SLAM -> "Drag and release: ${g.weapon.label} hits everyone in the circle"
                     else -> "Drag back anywhere and release to fire"
                 }
-            g.phase == Phase.RETREAT -> "Retreat!"
+            g.phase == Phase.RETREAT -> "RETREAT!"
             else -> null
         }
-        if (hint != null) shadowText(c, hint, vw / 2, vh - 22 * dp - if (g.aiming) 30 * dp else 0f)
+        if (hint != null) {
+            val cursor = if ((uiTime * 2f).toInt() % 2 == 0) "_" else " "
+            font(sysFont, 19 * dp, if (g.phase == Phase.RETREAT) 0xFFFFC04A.toInt() else 0xFFE8E2D0.toInt())
+            shadowText(c, "> $hint$cursor", vw / 2, vh - 22 * dp - if (g.aiming) 34 * dp else 0f)
+        }
 
         // Turn banner
         if (g.phase == Phase.BANNER) {
             val a = min(1f, min(g.phaseTime * 4f, (1.3f - g.phaseTime) * 4f)).coerceIn(0f, 1f)
-            text.textSize = 30 * dp
-            text.color = TEAM_COLORS[g.team]
+            val drop = (1f - min(1f, g.phaseTime * 5f)) * 12 * dp
+            val y = vh * 0.4f - drop
+            font(uiFont, 30 * dp, TEAM_COLORS[g.team])
             text.alpha = (255 * a).toInt()
-            shadowText(c, "${Game.TEAM_NAMES[g.team]}: ${g.active.name}", vw / 2, vh * 0.3f)
-            text.textSize = 14 * dp
-            text.color = 0xFFFFFFFF.toInt()
+            shadowText(c, "${Game.TEAM_NAMES[g.team]}: ${g.active.name}", vw / 2, y)
+            val tw = text.measureText("${Game.TEAM_NAMES[g.team]}: ${g.active.name}")
+            fill.color = TEAM_COLORS[g.team]
+            fill.alpha = (180 * a).toInt()
+            c.drawRect(vw / 2 - tw / 2, y + 8 * dp, vw / 2 + tw / 2, y + 9.5f * dp, fill)
+            fill.alpha = 255
+            font(sysFont, 19 * dp, 0xFFFFFFFF.toInt())
             text.alpha = (255 * a).toInt()
-            shadowText(c, if (g.humanTurn) "Your move, crawler" else "The dungeon's move", vw / 2, vh * 0.3f + 26 * dp)
-            text.textSize = 12 * dp
-            text.color = 0xFFFFD34A.toInt()
+            shadowText(c, if (g.humanTurn) "Your move, crawler" else "The dungeon's move", vw / 2, y + 30 * dp)
+            font(sysFont, 17 * dp, GOLD)
             text.alpha = (255 * a).toInt()
-            shadowText(c, g.active.species.trait, vw / 2, vh * 0.3f + 46 * dp)
+            shadowText(c, g.active.species.trait, vw / 2, y + 50 * dp)
             text.alpha = 255
         }
 
         drawAnnouncement(c, g)
 
-        if (g.phase == Phase.GAME_OVER) {
-            fill.color = 0xAA0A0518.toInt()
-            c.drawRect(0f, 0f, vw, vh, fill)
-            text.textSize = 40 * dp
-            text.color = if (g.winner >= 0) TEAM_COLORS[g.winner] else 0xFFFFFFFF.toInt()
-            val msg = when {
-                g.winner < 0 -> "It's a draw!"
-                g.mode == Mode.VS_CPU && g.winner == 0 -> "Floor cleared!"
-                g.mode == Mode.VS_CPU -> "The dungeon wins"
-                else -> "${Game.TEAM_NAMES[g.winner]} wins!"
-            }
-            shadowText(c, msg, vw / 2, vh * 0.4f)
-            drawMenuButton(c, btnAgain, "PLAY AGAIN", 0xFF8BE04E.toInt())
-            drawMenuButton(c, btnToMenu, "MENU", 0xFFFFFFFF.toInt())
+        if (g.phase == Phase.GAME_OVER) drawGameOver(c, g)
+    }
+
+    /** "LIVE" tag and audience count, with "+X" pops rising off it whenever the audience jumps. */
+    private fun drawViewerCounter(c: Canvas, cx: Float, y: Float) {
+        val count = formatViewers(shownViewers) + " WATCHING"
+        font(sysFont, 17 * dp, 0xFFFFFFFF.toInt())
+        val cw = text.measureText(count)
+        val tagW = 50 * dp
+        val total = tagW + cw + 16 * dp
+        val l = cx - total / 2
+        rect.set(l, y - 13 * dp, l + tagW, y + 5 * dp)
+        fill.color = 0xFFD63A3A.toInt()
+        c.drawRoundRect(rect, 3 * dp, 3 * dp, fill)
+        fill.color = 0xFFFFFFFF.toInt()
+        fill.alpha = (160 + 95 * sin(uiTime * 5f)).toInt().coerceIn(0, 255)
+        c.drawCircle(l + 9 * dp, y - 4 * dp, 3 * dp, fill)
+        fill.alpha = 255
+        font(sysFont, 17 * dp, 0xFFFFFFFF.toInt(), Paint.Align.LEFT)
+        c.drawText("LIVE", l + 16 * dp, y + 1 * dp, text)
+        rect.set(l + tagW, y - 13 * dp, l + total, y + 5 * dp)
+        fill.color = PANEL
+        c.drawRoundRect(rect, 3 * dp, 3 * dp, fill)
+        c.drawText(count, l + tagW + 8 * dp, y + 1 * dp, text)
+        for (p in viewerPops) {
+            font(sysFont, 17 * dp, GOLD)
+            text.alpha = (255 * (1f - p.age / 1.4f)).toInt().coerceIn(0, 255)
+            shadowText(c, p.text, l + tagW + 8 * dp + cw / 2 + 20 * dp, y + 22 * dp + p.age * 14 * dp)
         }
+        text.alpha = 255
+        text.textAlign = Paint.Align.CENTER
+    }
+
+    private fun drawGameOver(c: Canvas, g: Game) {
+        fill.color = 0xCC060408.toInt()
+        c.drawRect(0f, 0f, vw, vh, fill)
+        val pw = btnAgain.width() + 80 * dp
+        rect.set(vw / 2 - pw / 2, vh * 0.16f, vw / 2 + pw / 2, btnToMenu.bottom + 16 * dp)
+        val accent = if (g.winner >= 0) TEAM_COLORS[g.winner] else GOLD
+        drawPanel(c, rect, accent, strong = true)
+        fill.color = accent
+        c.drawRect(rect.left, rect.top, rect.right, rect.top + 22 * dp, fill)
+        font(sysFont, 18 * dp, 0xFF0C0A12.toInt())
+        c.drawText("BROADCAST ENDED", vw / 2, rect.top + 16 * dp, text)
+        val msg = when {
+            g.winner < 0 -> "It's a draw!"
+            g.mode == Mode.VS_CPU && g.winner == 0 -> "Floor cleared!"
+            g.mode == Mode.VS_CPU -> "The dungeon wins"
+            else -> "${Game.TEAM_NAMES[g.winner]} win!"
+        }
+        font(uiFont, 34 * dp, accent)
+        shadowText(c, msg, vw / 2, vh * 0.36f)
+        val stats = "> Final audience: ${formatViewers(g.viewers.toFloat())} viewers"
+        val shown = ((g.phaseTime - 0.3f) * 45f).toInt().coerceIn(0, stats.length)
+        font(sysFont, 19 * dp, 0xFFE8E2D0.toInt())
+        c.drawText(stats.substring(0, shown) + if (shown < stats.length || (uiTime * 2f).toInt() % 2 == 0) "_" else " ",
+            vw / 2, vh * 0.36f + 30 * dp, text)
+        drawMenuButton(c, btnAgain, "PLAY AGAIN", 0xFF8BE04E.toInt())
+        drawMenuButton(c, btnToMenu, "MENU", 0xFFFFFFFF.toInt())
     }
 
     private inline fun drawControlButton(c: Canvas, r: RectF, pressed: Boolean, icon: (Float, Float, Float) -> Unit) {
-        fill.color = if (pressed) 0x99FFFFFF.toInt() else 0x55140A30
+        fill.color = if (pressed) 0x88FFD34A.toInt() else 0xB00C0A12.toInt()
         c.drawCircle(r.centerX(), r.centerY(), r.width() / 2, fill)
-        stroke.color = 0xAAFFFFFF.toInt()
-        stroke.strokeWidth = 2 * dp
+        stroke.color = GOLD
+        stroke.alpha = if (pressed) 255 else 150
+        stroke.strokeWidth = 1.5f * dp
         c.drawCircle(r.centerX(), r.centerY(), r.width() / 2, stroke)
+        stroke.alpha = 255
         fill.color = 0xFFFFFFFF.toInt()
         icon(r.centerX(), r.centerY() - if (r === btnJump) 6 * dp else 0f, 12 * dp)
     }
@@ -1451,11 +1618,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     }
 
     private fun drawWeaponButton(c: Canvas, g: Game) {
-        fill.color = 0xCC140A30.toInt()
-        c.drawRoundRect(btnWeapon, 12 * dp, 12 * dp, fill)
-        stroke.color = TEAM_COLORS[g.team]
-        stroke.strokeWidth = 2 * dp
-        c.drawRoundRect(btnWeapon, 12 * dp, 12 * dp, stroke)
+        drawPanel(c, btnWeapon, TEAM_COLORS[g.team], strong = true)
         drawWeaponRow(c, btnWeapon, g.weapon, g.ammoLeft(g.weapon), true)
     }
 
@@ -1463,11 +1626,10 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         for ((i, w) in g.loadout.withIndex()) {
             val r = pickerRows[i]
             val left = g.ammoLeft(w)
-            fill.color = if (w == g.weapon) 0xEE3A2160.toInt() else 0xEE140A30.toInt()
-            c.drawRoundRect(r, 10 * dp, 10 * dp, fill)
+            drawPanel(c, r, GOLD, strong = w == g.weapon, fillColor = if (w == g.weapon) 0xF0241A30.toInt() else PANEL)
             if (left == 0) {
                 fill.color = 0x88000000.toInt()
-                c.drawRoundRect(r, 10 * dp, 10 * dp, fill)
+                c.drawRoundRect(r, 5 * dp, 5 * dp, fill)
             }
             drawWeaponRow(c, r, w, left, false)
         }
@@ -1477,19 +1639,23 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         val ix = r.left + 26 * dp
         val iy = r.centerY()
         drawWeaponIcon(c, w, ix, iy, 1.6f * dp)
-        text.textAlign = Paint.Align.LEFT
-        text.textSize = 15 * dp
-        text.color = 0xFFFFFFFF.toInt()
+        font(uiFont, 14 * dp, 0xFFFFFFFF.toInt(), Paint.Align.LEFT)
+        val room = r.width() - 50 * dp - 46 * dp // leave space for the ammo count
+        val lw = text.measureText(w.label)
+        if (lw > room) text.textSize = text.textSize * room / lw
         c.drawText(w.label, r.left + 50 * dp, iy + (if (hint) 0f else 5 * dp), text)
         if (hint) {
-            text.textSize = 10 * dp
-            text.color = 0xAAFFFFFF.toInt()
-            c.drawText("tap to change", r.left + 50 * dp, iy + 15 * dp, text)
+            font(sysFont, 14 * dp, 0x99FFFFFF.toInt(), Paint.Align.LEFT)
+            c.drawText("tap to change", r.left + 50 * dp, iy + 16 * dp, text)
         }
-        text.textAlign = Paint.Align.RIGHT
-        text.textSize = 14 * dp
-        text.color = 0xFFFFC04A.toInt()
-        c.drawText(if (ammo < 0) "∞" else "x$ammo", r.right - 12 * dp, iy + 5 * dp, text)
+        if (ammo < 0) {
+            // The display fonts have no infinity sign, so this one comes from the system font.
+            font(plainFont, 16 * dp, GOLD, Paint.Align.RIGHT)
+            c.drawText("∞", r.right - 12 * dp, iy + 6 * dp, text)
+        } else {
+            font(sysFont, 20 * dp, GOLD, Paint.Align.RIGHT)
+            c.drawText("x$ammo", r.right - 12 * dp, iy + 6 * dp, text)
+        }
         text.textAlign = Paint.Align.CENTER
     }
 
@@ -1502,8 +1668,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     }
 
     private fun drawSoundButton(c: Canvas) {
-        fill.color = 0xAA140A30.toInt()
-        c.drawRoundRect(btnSound, 8 * dp, 8 * dp, fill)
+        drawPanel(c, btnSound, GOLD)
         val cx = btnSound.centerX() - 4 * dp
         val cy = btnSound.centerY()
         fill.color = 0xFFFFFFFF.toInt()
@@ -1529,35 +1694,55 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         }
     }
 
-    /** System AI pop-up: a notification panel that slides in from the right. */
+    /**
+     * System AI pop-up: slides in from the right with a brief glitch, then types its message out
+     * behind a blinking cursor, over faint scanlines.
+     */
     private fun drawAnnouncement(c: Canvas, g: Game) {
         val a = g.announcement ?: return
         val age = g.announceAge
         if (age > Game.ANNOUNCE_TIME) return
         val slide = min(1f, age * 5f) * min(1f, (Game.ANNOUNCE_TIME - age) * 4f)
-        val pw = min(300 * dp, vw * 0.42f)
+        val glitch = if (age < 0.18f) (Math.random().toFloat() - 0.5f) * 10 * dp else 0f
+        val pw = min(320 * dp, vw * 0.44f)
         val pad = 12 * dp
-        text.textAlign = Paint.Align.LEFT
-        text.textSize = 12 * dp
+        font(sysFont, 18 * dp, 0xFFCFC8D8.toInt(), Paint.Align.LEFT)
         val lines = wrap(a.body, pw - pad * 2)
-        val ph = 58 * dp + lines.size * 16 * dp
-        val right = vw - 16 * dp + (1f - slide) * (pw + 40 * dp)
-        val top = 72 * dp
+        val lineH = 17 * dp
+        val ph = 64 * dp + lines.size * lineH
+        val right = vw - 16 * dp + (1f - slide) * (pw + 40 * dp) + glitch
+        val top = 84 * dp
         rect.set(right - pw, top, right, top + ph)
-        fill.color = 0xEE0E0A14.toInt()
-        c.drawRoundRect(rect, 8 * dp, 8 * dp, fill)
-        stroke.color = 0xFFFFD34A.toInt()
-        stroke.strokeWidth = 2 * dp
-        c.drawRoundRect(rect, 8 * dp, 8 * dp, stroke)
-        text.textSize = 11 * dp
-        text.color = 0xFFFFD34A.toInt()
-        c.drawText(a.header, rect.left + pad, top + 20 * dp, text)
-        text.textSize = 16 * dp
-        text.color = 0xFFFFFFFF.toInt()
-        c.drawText(a.title, rect.left + pad, top + 40 * dp, text)
-        text.textSize = 12 * dp
-        text.color = 0xFFCFC8D8.toInt()
-        for ((i, l) in lines.withIndex()) c.drawText(l, rect.left + pad, top + 60 * dp + i * 16 * dp, text)
+        drawPanel(c, rect, GOLD, strong = true)
+        fill.color = GOLD
+        c.drawRect(rect.left, rect.top, rect.right, rect.top + 20 * dp, fill)
+        font(sysFont, 18 * dp, 0xFF0C0A12.toInt(), Paint.Align.LEFT)
+        c.drawText("» " + a.header, rect.left + pad, top + 15 * dp, text)
+        font(uiFont, 16 * dp, 0xFFFFFFFF.toInt(), Paint.Align.LEFT)
+        c.drawText(a.title, rect.left + pad, top + 41 * dp, text)
+        font(sysFont, 18 * dp, 0xFFCFC8D8.toInt(), Paint.Align.LEFT)
+        var remaining = ((age - 0.25f) * 55f).toInt().coerceAtLeast(0)
+        var cursorX = rect.left + pad
+        var cursorY = top + 62 * dp
+        for ((i, l) in lines.withIndex()) {
+            if (remaining <= 0) break
+            val part = if (remaining >= l.length) l else l.substring(0, remaining)
+            remaining -= l.length + 1
+            val ly = top + 62 * dp + i * lineH
+            c.drawText(part, rect.left + pad, ly, text)
+            cursorX = rect.left + pad + text.measureText(part)
+            cursorY = ly
+        }
+        if ((uiTime * 2.5f).toInt() % 2 == 0) {
+            fill.color = 0xFFCFC8D8.toInt()
+            c.drawRect(cursorX + 2 * dp, cursorY - 12 * dp, cursorX + 8 * dp, cursorY + 1 * dp, fill)
+        }
+        fill.color = 0x0EFFFFFF
+        var sy = rect.top + 22 * dp
+        while (sy < rect.bottom - 2 * dp) {
+            c.drawRect(rect.left + 2 * dp, sy, rect.right - 2 * dp, sy + 1 * dp, fill)
+            sy += 3 * dp
+        }
         text.textAlign = Paint.Align.CENTER
     }
 
@@ -1583,42 +1768,71 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         else String.format(java.util.Locale.UK, "%.1fM", v / 1e6f)
 
     private fun drawMenu(c: Canvas) {
-        fill.color = 0x88140A30.toInt()
+        fill.color = 0x99060408.toInt()
         c.drawRect(0f, 0f, vw, vh, fill)
-        text.textSize = 40 * dp
-        text.color = 0xFFFFD34A.toInt()
-        shadowText(c, "DUNGEON CRAWLER CARL", vw / 2, vh * 0.36f - 44 * dp)
-        text.textSize = 14 * dp
-        text.color = 0xFFFFFFFF.toInt()
-        shadowText(c, "ARTILLERY EDITION  \u2022  unofficial fan game", vw / 2, vh * 0.36f - 18 * dp)
+        val t = uiTime - screenSince
+        val appear = min(1f, t * 2.5f)
+        val base = vh * 0.36f
+
+        font(titleFont, 38 * dp, GOLD)
+        // Shrink the title to fit between the screen edges and the mute button.
+        // The decorative swashes overhang the measured width, hence the 10% margin.
+        val room = 2 * (btnSound.left - 16 * dp - vw / 2) * 0.9f
+        val tw = text.measureText("DUNGEON CRAWLER CARL")
+        if (tw > room) text.textSize = text.textSize * room / tw
+        text.alpha = (255 * appear).toInt()
+        text.setShadowLayer(14 * dp, 0f, 0f, 0xAAFF9A40.toInt())
+        c.drawText("DUNGEON CRAWLER CARL", vw / 2, base - 52 * dp - (1f - appear) * 16 * dp, text)
+        text.clearShadowLayer()
+        font(uiFont, 14 * dp, 0xFFFFFFFF.toInt())
+        text.alpha = (255 * appear).toInt()
+        text.letterSpacing = 0.25f
+        c.drawText("ARTILLERY EDITION", vw / 2, base - 30 * dp, text)
+        text.letterSpacing = 0f
+
+        // The System AI greets you, one quip at a time.
+        val quip = MENU_QUIPS[((t / 6f).toInt()) % MENU_QUIPS.size]
+        val into = t % 6f
+        val shown = ((into - 0.4f) * 40f).toInt().coerceIn(0, quip.length)
+        val cursor = if ((uiTime * 2f).toInt() % 2 == 0) "_" else " "
+        font(sysFont, 17 * dp, 0xFF9AE8FF.toInt())
+        c.drawText("> " + quip.substring(0, shown) + cursor, vw / 2, base - 10 * dp, text)
 
         layoutMenuButtons()
         drawSoundButton(c)
-        if (!btnResume.isEmpty) drawMenuButton(c, btnResume, "RESUME", 0xFF8BE04E.toInt())
-        drawMenuButton(c, btnCpu, "1 PLAYER VS CPU", 0xFFFFFFFF.toInt())
-        drawMenuButton(c, btnTwo, "2 PLAYERS (PASS & PLAY)", 0xFFFFFFFF.toInt())
+        val buttons = ArrayList<Triple<RectF, String, Int>>()
+        if (!btnResume.isEmpty) buttons.add(Triple(btnResume, "RESUME", 0xFF8BE04E.toInt()))
+        buttons.add(Triple(btnCpu, "1 PLAYER VS CPU", 0xFFFFFFFF.toInt()))
+        buttons.add(Triple(btnTwo, "2 PLAYERS (PASS & PLAY)", 0xFFFFFFFF.toInt()))
+        for ((i, b) in buttons.withIndex()) {
+            val k = ((t - 0.15f - i * 0.08f) * 4f).coerceIn(0f, 1f)
+            val ease = 1f - (1f - k) * (1f - k)
+            c.save()
+            c.translate(0f, (1f - ease) * 24 * dp)
+            drawMenuButton(c, b.first, b.second, b.third, ease)
+            c.restore()
+        }
 
-        text.textSize = 12 * dp
-        text.color = 0xCCFFFFFF.toInt()
-        shadowText(c, "Arrows walk  •  Jump  •  Drag back and release to fire  •  Tap the weapon to switch",
-            vw / 2, vh - 18 * dp)
+        font(sysFont, 16 * dp, 0xAAE8E2D0.toInt())
+        c.drawText("Arrows walk  •  Jump  •  Drag back and release to attack  •  Tap the weapon to switch",
+            vw / 2, vh - 16 * dp, text)
+        font(sysFont, 15 * dp, 0x88E8E2D0.toInt(), Paint.Align.LEFT)
+        c.drawText("unofficial fan game", 16 * dp, 28 * dp, text)
+        text.textAlign = Paint.Align.CENTER
     }
 
-    private fun drawMenuButton(c: Canvas, r: RectF, label: String, color: Int) {
-        fill.color = 0xDD2A1650.toInt()
-        c.drawRoundRect(r, 14 * dp, 14 * dp, fill)
-        stroke.color = color
-        stroke.strokeWidth = 2 * dp
-        c.drawRoundRect(r, 14 * dp, 14 * dp, stroke)
-        text.textSize = 18 * dp
-        text.color = color
+    private fun drawMenuButton(c: Canvas, r: RectF, label: String, color: Int, alpha: Float = 1f) {
+        if (alpha < 1f) c.saveLayerAlpha(r.left - 4 * dp, r.top - 4 * dp, r.right + 4 * dp, r.bottom + 4 * dp, (255 * alpha).toInt())
+        drawPanel(c, r, color, strong = true, fillColor = 0xE8140C1E.toInt())
+        font(uiFont, 18 * dp, color)
         c.drawText(label, r.centerX(), r.centerY() + 6 * dp, text)
+        if (alpha < 1f) c.restore()
     }
 
     private fun shadowText(c: Canvas, s: String, x: Float, y: Float) {
         val col = text.color
         val a = text.alpha
-        text.color = 0xFF140A30.toInt()
+        text.color = 0xFF0C0A12.toInt()
         text.alpha = a
         c.drawText(s, x + 1.5f * dp, y + 1.5f * dp, text)
         text.color = col
@@ -1658,6 +1872,15 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         private const val ROLE_JUMP = 3
         private const val ROLE_AIM = 4
         private const val TORCH_COLOR = 0xFFFF9A40.toInt()
+        private const val GOLD = 0xFFFFD34A.toInt()
+        private const val PANEL = 0xE00C0A12.toInt()
+        private val MENU_QUIPS = arrayOf(
+            "Welcome, crawler. Please die entertainingly.",
+            "The sponsors are watching. Try to explode on camera.",
+            "Reminder: the pit is not a shortcut.",
+            "Loot boxes contain loot. Probably.",
+            "Ratings are down. Consider more explosions.",
+        )
         private val TEAM_COLORS = intArrayOf(0xFFFF5A5A.toInt(), 0xFF4DA6FF.toInt())
     }
 }

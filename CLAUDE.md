@@ -332,6 +332,7 @@ Before committing, verify:
 - Gates change projectiles in `Game.checkGates`, which runs in `updateProjectiles`, not `stepProjectile`: simulations and the CPU deliberately ignore gates.
 - Rendering order in `GameView.drawWorld`: world, then `drawLighting` (a dark layer with lights cut out, then additive tint), then glowing particles above the dark. Animation state (walk phase, squash, hit flash, spin) lives on `Worm` and is advanced by `Game`.
 - Background layers (pillars, chains, foreground stalactites, dust) are drawn procedurally in `GameView` with their own parallax factors; terrain decoration (cobbles, bones, crystals, overhang shading) is baked into the pixels in `Terrain.paint`. `Terrain.crystals` feeds the lighting pass.
+- HUD and menus share one panel style (`GameView.drawPanel`) and three bundled OFL fonts: `titleFont` (Cinzel Decorative), `uiFont` (Cinzel) and `sysFont` (VT323, the System AI voice). Their Latin subsets lack symbols such as the infinity sign; draw those with `plainFont`. Animated HUD numbers live in `updateHudAnimation`.
 - Units are called `Worm` in code (the genre term); what they look like comes from `Species` and `CreatureArt.kt`.
 - Build the APK with `./gradlew assembleDebug` (needs the Android SDK via `local.properties` or `ANDROID_HOME`).
 
