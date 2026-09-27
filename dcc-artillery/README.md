@@ -15,6 +15,9 @@ and not for distribution.
 - The System AI hands out snarky achievements for every knockout, and a live viewer count climbs with the carnage.
 - **Loot boxes** drop from fallen fighters and parachute in at random. Walk into one to open it:
   Bronze (heal), Silver (extra Scatter or Satchel Charge), Gold (big heal plus both).
+- **Depth:** stone pillars and hanging chains, hooks and cages scroll at their own speeds behind the action, rock
+  spikes hang in the foreground, and dust drifts through the torchlight. The floor is cobbled, with bones and
+  glowing crystals buried in the rock (blast a crystal and its glow goes out) and shadow under overhangs.
 - **Look:** torch-lit darkness where torches, explosions, magic, gates and loot light up the scene; fighters
   walk, blink, breathe, squash on landing, flash when hit and tumble when blasted; explosions flash the screen,
   throw bouncing rock and leave scorched craters and drifting smoke.

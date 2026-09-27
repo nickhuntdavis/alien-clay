@@ -48,6 +48,27 @@ class GameTest {
     }
 
     @Test
+    fun decorationsOnlyRecolourRock() {
+        val t = Terrain(300, 300)
+        t.fillFlat(100)
+        // Bones and crystals are painted into the rock; they never add or remove ground.
+        assertEquals(300 * 200, t.solid.count { it })
+        assertTrue(t.crystals.isNotEmpty())
+        for (cr in t.crystals) assertTrue(t.isSolid(cr[0], cr[1]))
+    }
+
+    @Test
+    fun blastingACrystalRemovesItsGlow() {
+        val t = Terrain(300, 300)
+        t.fillFlat(100)
+        val cr = t.crystals.first()
+        val before = t.crystals.size
+        t.carve(cr[0].toFloat(), cr[1].toFloat(), 10f)
+        assertTrue(t.crystals.size < before)
+        assertFalse(t.crystals.any { it[0] == cr[0] && it[1] == cr[1] })
+    }
+
+    @Test
     fun wormFallsAndLandsOnGround() {
         val g = flatGame()
         val w = g.worms[0]

@@ -477,6 +477,8 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         wall.shader.setLocalMatrix(wallMatrix)
         c.drawRect(left, top, right, Game.WATER_Y.toFloat(), wall)
         drawTorches(c, g, par, left, right)
+        drawPillars(c, left, right, top)
+        drawChains(c, g, left, right)
         c.drawRect(left, Game.WATER_Y - 110f, right, Game.WATER_Y.toFloat(), pitGlow)
 
         syncTerrain(g.terrain)
@@ -495,6 +497,8 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         drawLighting(c, g, par, left, right, top)
         // Things that give off light sit above the darkness.
         drawParticles(c, g, emissive = true)
+        drawDust(c, g, left, right, top)
+        drawStalactites(c, left, right)
         if (screen == Screen.GAME) drawAim(c, g)
         c.restore()
 
@@ -522,7 +526,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             val x = k * spacing + par + 60f
             val y = 170f + (((k % 3) + 3) % 3) * 40f
             val flick = sin(g.time * 13f + k * 1.7f) * 0.08f + sin(g.time * 7.3f + k) * 0.06f
-            add(x, y - 8f, 190f * (1f + flick), 0.9f, 0xFFFF9A40.toInt())
+            add(x, y - 8f, 190f * (1f + flick), 0.9f, TORCH_COLOR)
             k++
         }
         var px = kotlin.math.floor(left / 160f) * 160f
@@ -547,6 +551,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         }
         for (gate in g.gates) add(gate.x, gate.y, 110f + 60f * gate.flash, 0.75f + 0.25f * gate.flash, gate.effect.color)
         for (b in g.boxes) add(b.x, b.y, 55f, 0.6f, 0xFFFFD34A.toInt())
+        for (cr in g.terrain.crystals) add(cr[0].toFloat(), cr[1].toFloat(), 42f, 0.45f + 0.1f * sin(g.time * 2f + cr[0]), cr[2])
         // Every fighter carries a little light so nobody vanishes into the dark.
         for (w in g.worms) if (w.alive) add(w.x, w.y - 6f, 55f, 0.55f, 0xFFFFE8C0.toInt())
         if (screen == Screen.GAME && g.phase != Phase.GAME_OVER && g.active.alive) {
@@ -632,6 +637,139 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             c.drawCircle(x, y - 8f, 2.2f, fill)
             k++
         }
+    }
+
+    /** Stone columns between the back wall and the floor, scrolling at their own depth. */
+    private fun drawPillars(c: Canvas, left: Float, right: Float, top: Float) {
+        val spacing = 520f
+        val shift = camX * 0.25f
+        var k = kotlin.math.floor((left - shift - 200f) / spacing).toInt()
+        while (k * spacing + shift + 200f < right + 60f) {
+            val x = k * spacing + shift + 200f
+            val w = 34f
+            val t = min(top, -200f)
+            val b = Game.WATER_Y.toFloat()
+            fill.color = 0xFF4A3E36.toInt()
+            c.drawRect(x - w / 2, t, x - w / 6, b, fill)
+            fill.color = 0xFF3A302A.toInt()
+            c.drawRect(x - w / 6, t, x + w / 6, b, fill)
+            fill.color = 0xFF2A221D.toInt()
+            c.drawRect(x + w / 6, t, x + w / 2, b, fill)
+            // Block joints and a carved band.
+            fill.color = 0xFF16110E.toInt()
+            var y = kotlin.math.floor(t / 70f) * 70f
+            while (y < b) {
+                c.drawRect(x - w / 2, y, x + w / 2, y + 2f, fill)
+                y += 70f
+            }
+            fill.color = 0xFF443830.toInt()
+            c.drawRect(x - w / 2 - 5f, 60f, x + w / 2 + 5f, 72f, fill)
+            fill.color = 0xFF2A221D.toInt()
+            c.drawRect(x - w / 2 - 5f, 72f, x + w / 2 + 5f, 76f, fill)
+            k++
+        }
+    }
+
+    /** Chains hanging from the unseen ceiling, some ending in hooks or cages, swaying slightly. */
+    private fun drawChains(c: Canvas, g: Game, left: Float, right: Float) {
+        val spacing = 380f
+        val shift = camX * 0.15f
+        var k = kotlin.math.floor((left - shift - 90f) / spacing).toInt()
+        while (k * spacing + shift + 90f < right + 60f) {
+            val seed = ((k * 2654435761L) ushr 7).toInt() and 0xFFFF
+            val x = k * spacing + shift + 90f + (seed % 120)
+            val end = 110f + (seed % 170)
+            val sway = sin(g.time * 0.8f + k * 1.3f) * 0.05f
+            c.save()
+            c.rotate((sway * 180 / PI).toFloat(), x, -400f)
+            stroke.color = 0xFF4A4440.toInt()
+            stroke.strokeWidth = 1.6f
+            var y = -400f
+            var i = 0
+            while (y < end) {
+                if (i % 2 == 0) {
+                    rect.set(x - 2.5f, y, x + 2.5f, y + 8f)
+                    c.drawOval(rect, stroke)
+                } else {
+                    c.drawLine(x, y, x, y + 8f, stroke)
+                }
+                y += 6f
+                i++
+            }
+            when (seed % 3) {
+                0 -> { // cage
+                    stroke.strokeWidth = 1.4f
+                    rect.set(x - 14f, end, x + 14f, end + 36f)
+                    c.drawArc(x - 14f, end - 8f, x + 14f, end + 10f, 180f, 180f, false, stroke)
+                    for (bx in -2..2) c.drawLine(x + bx * 7f, end + 1f, x + bx * 7f, end + 36f, stroke)
+                    c.drawLine(x - 14f, end + 36f, x + 14f, end + 36f, stroke)
+                    if (seed % 2 == 0) {
+                        fill.color = 0xFF8A8270.toInt()
+                        c.drawCircle(x - 3f, end + 30f, 4f, fill) // a former contestant
+                        fill.color = 0xFF1A1210.toInt()
+                        c.drawCircle(x - 4.5f, end + 29.5f, 1f, fill)
+                        c.drawCircle(x - 1.5f, end + 29.5f, 1f, fill)
+                    }
+                }
+                1 -> { // hook
+                    stroke.strokeWidth = 2f
+                    c.drawArc(x - 5f, end, x + 5f, end + 12f, -90f, 270f, false, stroke)
+                }
+                else -> {}
+            }
+            c.restore()
+            k++
+        }
+    }
+
+    /** Rock spikes in the foreground, hanging from the top of the view and scrolling faster than the world. */
+    private fun drawStalactites(c: Canvas, left: Float, right: Float) {
+        val viewTop = camY - vh / 2f / scale
+        val spacing = 150f
+        val shift = -camX * 0.35f
+        var k = kotlin.math.floor((left - shift) / spacing).toInt() - 1
+        fill.color = 0xFF070405.toInt()
+        stroke.color = 0x33FFB070
+        stroke.strokeWidth = 1f
+        while (k * spacing + shift < right + spacing) {
+            val seed = ((k * 40503L + 7) ushr 3).toInt() and 0xFFF
+            val x = k * spacing + shift + (seed % 60)
+            val len = 22f + (seed % 50)
+            val wd = 10f + (seed % 12)
+            path.reset()
+            path.moveTo(x - wd, viewTop - 5f)
+            path.lineTo(x - wd * 0.3f, viewTop + len * 0.55f)
+            path.lineTo(x, viewTop + len)
+            path.lineTo(x + wd * 0.35f, viewTop + len * 0.4f)
+            path.lineTo(x + wd, viewTop - 5f)
+            path.close()
+            c.drawPath(path, fill)
+            c.drawLine(x - wd * 0.3f, viewTop + len * 0.55f, x, viewTop + len, stroke)
+            k++
+        }
+    }
+
+    /** Dust drifting through the air, only visible where torchlight catches it. */
+    private fun drawDust(c: Canvas, g: Game, left: Float, right: Float, top: Float) {
+        val width = right - left
+        val height = Game.WATER_Y - top
+        if (height <= 0f) return
+        for (i in 0 until 90) {
+            val x = left + ((i * 137.5f + g.time * (4f + i % 5)) % width + width) % width
+            val y = top + ((i * 71.3f + g.time * (2f + i % 3) + sin(g.time * 0.6f + i) * 15f) % height + height) % height
+            var a = 0f
+            for (li in 0 until lightCount) {
+                val l = lightPool[li]
+                if (l.color != TORCH_COLOR) continue
+                val d = hypot(l.x - x, l.y - y)
+                if (d < l.r) a = max(a, 1f - d / l.r)
+            }
+            if (a <= 0.05f) continue
+            fill.color = 0xFFFFE6C0.toInt()
+            fill.alpha = (200 * a).toInt()
+            c.drawCircle(x, y, 0.7f + (i % 3) * 0.35f, fill)
+        }
+        fill.alpha = 255
     }
 
     /** The bottomless pit: jagged spikes over darkness, with embers drifting up. */
@@ -1519,6 +1657,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         private const val ROLE_RIGHT = 2
         private const val ROLE_JUMP = 3
         private const val ROLE_AIM = 4
+        private const val TORCH_COLOR = 0xFFFF9A40.toInt()
         private val TEAM_COLORS = intArrayOf(0xFFFF5A5A.toInt(), 0xFF4DA6FF.toInt())
     }
 }
