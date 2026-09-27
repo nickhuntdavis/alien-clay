@@ -336,6 +336,7 @@ Before committing, verify:
 - Floors (`Floors.kt`) drive terrain style, palette, pit style, hazards and rosters; the pit height is `Game.pitY` (it rises when a floor collapses), not the `WATER_Y` constant. Loot-box spells are `Weapon` entries with `spell = true`, carried as ammo on the `Worm` and listed by `Worm.available`.
 - Floor, boss and spell names are partly invented in the books' style (only some are canon); they are kept in `Floors.kt`, `Entities.kt` and `SystemAi.kt` so they are easy to rename.
 - Fighters are drawn through `SpriteCache`: poses from `CreatureArt` are quantised (walk step, blink, airborne, 6 animation phases), baked with an ink outline and cel shading, and LRU-cached. A PNG at `assets/sprites/<species>.png` (11:10, facing right, feet 87.5% down) replaces a fighter's generated art.
+- On Android 12+ with a hardware canvas, `GameView.Bloom` records the world into a `RenderNode` with a per-floor colour-grade `RenderEffect`, then re-draws the bright things (`drawGlowSources`) into a blurred node composited with `BlendMode.PLUS`. Anything new that should glow belongs in `drawGlowSources`. Older devices and software canvases (tests, screenshots) use plain `drawWorld`.
 - Units are called `Worm` in code (the genre term); what they look like comes from `Species` and `CreatureArt.kt`.
 - Build the APK with `./gradlew assembleDebug` (needs the Android SDK via `local.properties` or `ANDROID_HOME`).
 

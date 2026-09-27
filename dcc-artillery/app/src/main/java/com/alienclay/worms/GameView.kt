@@ -3,6 +3,11 @@ package com.alienclay.worms
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BlendMode
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.RenderEffect
+import android.graphics.RenderNode
 import android.graphics.BitmapShader
 import android.graphics.Matrix
 import android.graphics.Canvas
@@ -595,7 +600,12 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
 
     private fun render(c: Canvas) {
         val g = if (screen == Screen.GAME) game ?: menuGame else menuGame
-        drawWorld(c, g)
+        val b = bloom
+        if (b != null && c.isHardwareAccelerated && Build.VERSION.SDK_INT >= 31) {
+            b.draw(c, g)
+        } else {
+            drawWorld(c, g) // older phones and software canvases: no bloom or grading
+        }
         if (screen == Screen.GAME && game != null) {
             drawLabels(c, g)
             drawHud(c, g)
@@ -611,8 +621,8 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         c.drawRect(0f, 0f, vw, vh, sky)
 
         c.save()
-        var shx = 0f
-        var shy = 0f
+        shx = 0f
+        shy = 0f
         if (g.shake > 0f) {
             shx = (Math.random().toFloat() - 0.5f) * g.shake * scale
             shy = (Math.random().toFloat() - 0.5f) * g.shake * scale
@@ -666,6 +676,97 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             c.drawRect(0f, 0f, vw, vh, fill)
             fill.alpha = 255
         }
+    }
+
+    // Screen shake used for the current frame, so the glow layer lines up with the world.
+    private var shx = 0f
+    private var shy = 0f
+
+    /**
+     * GPU post-processing on Android 12+: the world is recorded into one layer with a per-floor colour grade,
+     * the bright things are recorded again into a second layer that is blurred and added on top (bloom).
+     */
+    private val bloom: Bloom? = if (Build.VERSION.SDK_INT >= 31) Bloom() else null
+
+    @android.annotation.TargetApi(31)
+    private inner class Bloom {
+        private val world = RenderNode("world")
+        private val glow = RenderNode("glow")
+        private var w = 0
+        private var h = 0
+        private var graded: Floor? = null
+
+        fun draw(c: Canvas, g: Game) {
+            val iw = vw.toInt()
+            val ih = vh.toInt()
+            if (iw != w || ih != h) {
+                w = iw
+                h = ih
+                world.setPosition(0, 0, w, h)
+                glow.setPosition(0, 0, w, h)
+                val r = 16 * dp
+                glow.setRenderEffect(RenderEffect.createBlurEffect(r, r, Shader.TileMode.DECAL))
+                glow.setUseCompositingLayer(true, Paint().apply { blendMode = BlendMode.PLUS })
+                glow.alpha = 0.85f
+            }
+            if (graded != g.floor) {
+                graded = g.floor
+                world.setRenderEffect(RenderEffect.createColorFilterEffect(ColorMatrixColorFilter(grade(g.floor))))
+            }
+            val wc = world.beginRecording(w, h)
+            drawWorld(wc, g)
+            world.endRecording()
+            c.drawRenderNode(world)
+            val gc = glow.beginRecording(w, h)
+            drawGlowSources(gc, g)
+            glow.endRecording()
+            c.drawRenderNode(glow)
+        }
+    }
+
+    /** A little extra saturation and contrast, tinted to each floor's mood. */
+    private fun grade(f: Floor): ColorMatrix {
+        val m = ColorMatrix()
+        m.setSaturation(1.18f)
+        val k = 1.1f
+        val t = 128f * (1f - k)
+        m.postConcat(ColorMatrix(floatArrayOf(k, 0f, 0f, 0f, t, 0f, k, 0f, 0f, t, 0f, 0f, k, 0f, t, 0f, 0f, 0f, 1f, 0f)))
+        val (r, gr, b) = when (f) {
+            Floor.ONE -> Triple(1.06f, 1f, 0.94f)
+            Floor.TWO -> Triple(0.95f, 1.06f, 0.97f)
+            Floor.THREE -> Triple(0.94f, 0.98f, 1.1f)
+            Floor.FOUR -> Triple(1.12f, 0.97f, 0.86f)
+        }
+        m.postConcat(ColorMatrix(floatArrayOf(r, 0f, 0f, 0f, 0f, 0f, gr, 0f, 0f, 0f, 0f, 0f, b, 0f, 0f, 0f, 0f, 0f, 1f, 0f)))
+        return m
+    }
+
+    /** Everything that should glow, drawn again on its own with the same camera, to be blurred into bloom. */
+    private fun drawGlowSources(c: Canvas, g: Game) {
+        c.save()
+        c.translate(vw / 2f + shx, vh / 2f + shy)
+        c.scale(scale, scale)
+        c.translate(-camX, -camY)
+        for (i in 0 until lightCount) {
+            val l = lightPool[i]
+            fill.color = l.color
+            fill.alpha = (200 * l.k).toInt()
+            c.drawCircle(l.x, l.y, l.r * 0.1f + 3f, fill)
+        }
+        fill.alpha = 255
+        drawParticles(c, g, emissive = true)
+        for (p in g.projectiles) {
+            if (p.kind == Kind.BOLT || p.kind == Kind.FIREBALL || p.kind == Kind.LAVA || p.healing) drawProjectile(c, p)
+        }
+        for (gate in g.gates) drawGate(c, g, gate)
+        if (g.floor.pit == PitStyle.LAVA) {
+            stroke.color = 0xFFFFB04A.toInt()
+            stroke.strokeWidth = 4f
+            val left = camX - vw / 2f / scale
+            val right = camX + vw / 2f / scale
+            c.drawLine(left, g.pitY + 2f, right, g.pitY + 2f, stroke)
+        }
+        c.restore()
     }
 
     /** Gather this frame's lights: torches, explosions, magic, gates, the pit, loot and the fighter whose turn it is. */

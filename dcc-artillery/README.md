@@ -24,6 +24,8 @@ and not for distribution.
 - **Interface:** styled like the dungeon's System AI: bracketed panels, a terminal font for its messages (which
   type themselves out), a timer ring that drains and pulses red near zero, health bars that drain with a trailing
   "damage" segment, and a LIVE audience counter that pops "+X" whenever the ratings jump.
+- **Post-processing (Android 12+):** bloom makes fire, magic, torches, lava, gates and crystals glow into their
+  surroundings, and each floor has its own colour grade. Older phones get the same game without these two effects.
 - **Sound:** all effects and the dungeon ambience are synthesised in code. The speaker button mutes them.
 
 ### Controls (landscape)
