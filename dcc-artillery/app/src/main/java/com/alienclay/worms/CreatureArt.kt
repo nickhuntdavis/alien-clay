@@ -46,6 +46,10 @@ class CreatureArt {
             Species.GOBLIN -> goblin(c, x, y, f)
             Species.HOBGOBLIN -> hobgoblin(c, x, y, f)
             Species.OGRE -> ogre(c, x, y, f)
+            Species.KATIA -> katia(c, x, y, f, t)
+            Species.KRAKEN -> kraken(c, x, y, f, t)
+            Species.GARGOYLE -> gargoyle(c, x, y, f, t, airborne)
+            Species.MAGMA_GOLEM -> golem(c, x, y, f, t)
         }
         fill.colorFilter = null
         line.colorFilter = null
@@ -286,6 +290,123 @@ class CreatureArt {
         c.drawRect(x + f * 1.5f - 3f, y - 14f, x + f * 1.5f + 3f, y - 13f, fill) // heavy brow
         eye(c, x + f * 3f - 1.5f, y - 12f, 0.9f, 0xFFFF5A3A.toInt())
         eye(c, x + f * 3f + 1.5f, y - 12f, 0.9f, 0xFFFF5A3A.toInt())
+    }
+
+    /** Sturdy, armoured, with a faint shimmer at the edges where her shape is never quite settled. */
+    private fun katia(c: Canvas, x: Float, y: Float, f: Float, t: Float) {
+        val skin = 0xFFD8A888.toInt()
+        // Faint shimmering outline: her shape is never quite settled.
+        line.color = ((60 + 40 * sin(t * 3f)).toInt() shl 24) or 0xB07CFF
+        line.strokeWidth = 0.8f
+        r.set(x - 9.5f, y - 18.5f, x + 9.5f, y + 10.5f)
+        c.drawOval(r, line)
+        fill.color = 0xFF3A3040.toInt()
+        c.drawRect(x - 4f + step * 2f, y + 3f, x - 1.3f + step * 2f, y + 9f, fill) // legs
+        c.drawRect(x + 1.3f - step * 2f, y + 3f, x + 4f - step * 2f, y + 9f, fill)
+        oval(c, x - 4.8f + step * 2f + f, y + 8f, x - 0.8f + step * 2f + f, y + 10f, 0xFF201820.toInt())
+        oval(c, x + 0.8f - step * 2f + f, y + 8f, x + 4.8f - step * 2f + f, y + 10f, 0xFF201820.toInt())
+        oval(c, x - 9f, y - 8f, x - 4.5f, y + 2f, skin) // arms
+        oval(c, x + 4.5f, y - 8f, x + 9f, y + 2f, skin)
+        fill.color = 0xFF5A4A6A.toInt()
+        r.set(x - 6.5f, y - 9.5f, x + 6.5f, y + 4f)
+        c.drawRoundRect(r, 3f, 3f, fill) // leather armour
+        fill.color = 0xFF7A6A8A.toInt()
+        c.drawRect(x - 6.5f, y - 3f, x + 6.5f, y - 1.8f, fill)
+        dot(c, x + f * 0.6f, y - 13f, 4.3f, skin)
+        fill.color = 0xFF2A1E26.toInt()
+        r.set(x + f * 0.6f - 4.8f, y - 18f, x + f * 0.6f + 4.8f, y - 11.5f)
+        c.drawArc(r, 180f, 180f, true, fill) // short dark hair
+        c.drawRect(x - f * 3.5f - 1.2f, y - 14f, x - f * 3.5f + 1.2f, y - 9f, fill)
+        eye(c, x + f * 2.4f, y - 13f, 0.9f, 0xFF1A1008.toInt())
+        eye(c, x + f * 0.2f, y - 13f, 0.9f, 0xFF1A1008.toInt())
+    }
+
+    /** A bulbous head on a nest of curling tentacles. */
+    private fun kraken(c: Canvas, x: Float, y: Float, f: Float, t: Float) {
+        val body = 0xFF5A3A6A.toInt()
+        line.color = 0xFF4A2E58.toInt()
+        line.strokeWidth = 2.6f
+        for (k in 0 until 5) {
+            val bx = x - 8f + k * 4f
+            val curl = sin(t * 3f + k) * 3f
+            path.reset()
+            path.moveTo(bx, y + 1f)
+            path.quadTo(bx + curl, y + 7f, bx + curl * 1.5f + (k - 2) * 1.5f, y + 9.5f)
+            c.drawPath(path, line)
+        }
+        oval(c, x - 10f, y - 17f, x + 10f, y + 4f, body)
+        oval(c, x - 7f, y - 15f, x + 3f, y - 9f, 0xFF7A5A8A.toInt()) // sheen
+        for (k in 0 until 3) dot(c, x - 5f + k * 5f, y - 3f, 1.1f, 0xFFB08AC0.toInt()) // suckers
+        eye(c, x + f * 3f - 3.5f, y - 9f, 2.6f, 0xFFFFE070.toInt())
+        eye(c, x + f * 3f + 3.5f, y - 9f, 2.6f, 0xFFFFE070.toInt())
+        if (!blink) {
+            fill.color = 0xFF101010.toInt()
+            c.drawRect(x + f * 3.4f - 4f, y - 10.8f, x + f * 3.4f - 3f, y - 7.2f, fill)
+            c.drawRect(x + f * 3.4f + 3f, y - 10.8f, x + f * 3.4f + 4f, y - 7.2f, fill)
+        }
+    }
+
+    /** Crouched grey stone with folded bat wings; the wings open while it flies. */
+    private fun gargoyle(c: Canvas, x: Float, y: Float, f: Float, t: Float, airborne: Boolean) {
+        val stone = 0xFF7A7A82.toInt()
+        val dark = 0xFF55555E.toInt()
+        val open = if (airborne) 1f else 0.35f
+        val flap = if (airborne) sin(t * 14f) * 2.5f else 0f
+        for (side in floatArrayOf(-1f, 1f)) {
+            path.reset()
+            path.moveTo(x + side * 3f, y - 7f)
+            path.lineTo(x + side * (5f + 11f * open), y - 16f - flap)
+            path.lineTo(x + side * (4f + 9f * open), y - 8f)
+            path.lineTo(x + side * (5f + 10f * open), y - 2f + flap * 0.3f)
+            path.lineTo(x + side * 4f, y + 1f)
+            path.close()
+            fill.color = dark
+            c.drawPath(path, fill)
+        }
+        fill.color = dark
+        c.drawRect(x - 5f + step * 1.5f, y + 3f, x - 1.5f + step * 1.5f, y + 9.5f, fill)
+        c.drawRect(x + 1.5f - step * 1.5f, y + 3f, x + 5f - step * 1.5f, y + 9.5f, fill)
+        oval(c, x - 7f, y - 9f, x + 7f, y + 6f, stone)
+        dot(c, x + f * 2f, y - 12f, 4.8f, stone)
+        for (s in floatArrayOf(-1f, 1f)) {
+            path.reset()
+            path.moveTo(x + f * 2f + s * 2f, y - 15f)
+            path.lineTo(x + f * 2f + s * 4f, y - 15f)
+            path.lineTo(x + f * 2f + s * 5.5f, y - 21f)
+            path.close()
+            fill.color = dark
+            c.drawPath(path, fill)
+        }
+        fill.color = 0xFF3A3A40.toInt()
+        c.drawRect(x - 5f, y - 3f, x + 5f, y - 2.2f, fill) // cracks
+        c.drawRect(x - 2f, y + 1f, x + 3f, y + 1.6f, fill)
+        eye(c, x + f * 3.8f - 1.6f, y - 12.5f, 1.1f, 0xFFFF3A3A.toInt())
+        eye(c, x + f * 3.8f + 1.6f, y - 12.5f, 1.1f, 0xFFFF3A3A.toInt())
+    }
+
+    /** Black rock with glowing seams of molten orange and huge fists. */
+    private fun golem(c: Canvas, x: Float, y: Float, f: Float, t: Float) {
+        val rock = 0xFF2A2226.toInt()
+        val glow = if (sin(t * 4f) > 0f) 0xFFFF8A2A.toInt() else 0xFFFFA84A.toInt()
+        fill.color = rock
+        c.drawRect(x - 5.5f + step * 1.5f, y + 3f, x - 1.5f + step * 1.5f, y + 9.5f, fill)
+        c.drawRect(x + 1.5f - step * 1.5f, y + 3f, x + 5.5f - step * 1.5f, y + 9.5f, fill)
+        oval(c, x - 12f, y - 6f, x - 5f, y + 7f, rock) // fists
+        oval(c, x + 5f, y - 6f, x + 12f, y + 7f, rock)
+        oval(c, x - 9f, y - 13f, x + 9f, y + 6f, rock)
+        line.color = glow
+        line.strokeWidth = 0.9f
+        path.reset()
+        path.moveTo(x - 6f, y - 8f); path.lineTo(x - 2f, y - 4f); path.lineTo(x - 4f, y + 1f)
+        path.moveTo(x + 2f, y - 10f); path.lineTo(x + 5f, y - 5f); path.lineTo(x + 2f, y + 2f)
+        path.moveTo(x - 10f, y); path.lineTo(x - 7f, y + 3f)
+        path.moveTo(x + 10f, y); path.lineTo(x + 7f, y + 4f)
+        c.drawPath(path, line)
+        dot(c, x + f * 1.5f, y - 15f, 4.5f, rock)
+        eye(c, x + f * 3f - 1.6f, y - 15.5f, 1.3f, glow)
+        eye(c, x + f * 3f + 1.6f, y - 15.5f, 1.3f, glow)
+        fill.color = glow
+        c.drawRect(x + f * 1.5f - 2.5f, y - 12.6f, x + f * 1.5f + 2.5f, y - 11.8f, fill) // mouth
     }
 
     private fun oval(c: Canvas, l: Float, t: Float, rr: Float, b: Float, color: Int) {

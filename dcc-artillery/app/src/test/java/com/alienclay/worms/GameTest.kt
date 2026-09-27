@@ -158,7 +158,7 @@ class GameTest {
     @Test
     fun eachTeamFieldsItsThreeFighters() {
         val g = Game(Mode.TWO_PLAYER, seed = 7L)
-        assertEquals(Species.entries.toSet(), g.worms.map { it.species }.toSet())
+        assertEquals((Floor.ONE.crawlers + Floor.ONE.mobs).toSet(), g.worms.map { it.species }.toSet())
         for (w in g.worms) assertEquals(w.species.team, w.team)
     }
 
@@ -223,11 +223,12 @@ class GameTest {
         run(g, 1.5f)
         val red = g.worms[0]
         g.boxes.clear()
-        // Carl's only limited attack is the Satchel Charge.
+        // A silver box holds either one more of Carl's only limited attack (the Satchel Charge) or a common spell.
         val before = red.ammo[Weapon.SATCHEL.ordinal]
         g.addBox(red.x, red.y, 1)
         g.update(Game.DT)
-        assertEquals(before + 1, red.ammo[Weapon.SATCHEL.ordinal])
+        val spells = listOf(Weapon.HEAL_POTION, Weapon.PROTECTIVE_SHELL, Weapon.TELEPORT)
+        assertTrue(red.ammo[Weapon.SATCHEL.ordinal] == before + 1 || spells.any { red.ammo[it.ordinal] == 1 })
     }
 
     // ------------------------------------------------------------ gates
@@ -380,6 +381,174 @@ class GameTest {
         val blue = g.worms[1]
         g.explode(blue.x + 20f, blue.y, 20f, 20f)
         assertTrue(blue.hitFlash > 0f)
+    }
+
+    // ------------------------------------------------------- floors & spells
+
+    @Test
+    fun eachFloorFieldsItsOwnRoster() {
+        for (f in Floor.entries) {
+            val g = Game(Mode.TWO_PLAYER, seed = 11L, floor = f)
+            assertEquals((f.crawlers + f.mobs).toSet(), g.worms.map { it.species }.toSet())
+            for (w in g.worms) assertTrue("${w.name} on floor ${f.number} spawned in the pit", w.y < g.pitY)
+        }
+    }
+
+    @Test
+    fun theFloorCollapsesAndSwallowsLowGround() {
+        val g = flatGame()
+        val start = g.pitY
+        repeat(Floor.ONE.collapseTurn + 2) { g.begin(it % 2) }
+        assertTrue(g.pitY < start)
+        assertEquals("FLOOR 1 COLLAPSING", g.announcement!!.header)
+        // Raise the pit above the floor and everyone standing on it is lost.
+        repeat(40) { g.begin(it % 2) }
+        g.update(Game.DT)
+        assertTrue(g.worms.all { it.drowned })
+    }
+
+    private fun castBy(g: Game, spell: Weapon): Worm {
+        val me = g.active
+        me.ammo[spell.ordinal] = 1
+        g.selectWeapon(spell)
+        assertEquals(spell, g.weapon)
+        return me
+    }
+
+    @Test
+    fun spellsAppearInTheLoadoutAndAreUsedUp() {
+        val g = flatGame()
+        run(g, 1.5f)
+        castBy(g, Weapon.HEAL_POTION)
+        assertTrue(Weapon.HEAL_POTION in g.loadout)
+        g.active.hp = 40
+        g.aimPower = 1f
+        assertTrue(g.fire())
+        assertEquals(90, g.active.hp)
+        assertFalse(Weapon.HEAL_POTION in g.loadout)
+        assertTrue("falls back to a real attack", g.weapon in g.active.species.weapons)
+    }
+
+    @Test
+    fun protectiveShellBlocksTheNextHit() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val me = castBy(g, Weapon.PROTECTIVE_SHELL)
+        g.aimPower = 1f
+        g.fire()
+        assertTrue(me.shield)
+        val hp = me.hp
+        g.explode(me.x + 10f, me.y, 20f, 40f)
+        assertEquals(hp, me.hp)
+        assertFalse(me.shield)
+    }
+
+    @Test
+    fun barrageDropsFiveBombsNearTheTarget() {
+        val g = flatGame()
+        run(g, 1.5f)
+        castBy(g, Weapon.BARRAGE)
+        g.aimAngle = 0f
+        g.aimPower = 0.5f
+        g.fire()
+        assertEquals(5, g.projectiles.size)
+        val target = g.barrageTarget(g.active, 1f, 0.5f)
+        for (p in g.projectiles) assertTrue(abs(p.x - target) < 70f)
+    }
+
+    @Test
+    fun earthquakeHurtsEveryoneElse() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val me = castBy(g, Weapon.EARTHQUAKE)
+        g.aimPower = 1f
+        g.fire()
+        assertEquals(Species.CARL.maxHp, me.hp)
+        assertTrue(g.worms[1].hp < Species.GOBLIN.maxHp)
+    }
+
+    @Test
+    fun blinkMovesTheCaster() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val me = castBy(g, Weapon.TELEPORT)
+        val x0 = me.x
+        g.aimAngle = -0.8f
+        g.aimPower = 0.6f
+        g.fire()
+        assertTrue(abs(me.x - x0) > 100f)
+        run(g, 1f)
+        assertTrue(me.onGround && me.alive)
+    }
+
+    @Test
+    fun katiaRaisesABarricade() {
+        val g = Game(Mode.TWO_PLAYER, seed = 1L, generate = false)
+        g.terrain.fillFlat(ground)
+        val katia = g.addWorm(400f, ground - Game.R - 1f, Species.KATIA)
+        g.addWorm(900f, ground - Game.R - 1f, Species.GOBLIN)
+        g.begin(0)
+        run(g, 1.5f)
+        katia.facing = 1
+        g.selectWeapon(Weapon.BARRICADE)
+        g.aimPower = 1f
+        assertTrue(g.fire())
+        assertTrue(g.terrain.isSolid(422, ground - 30))
+    }
+
+    @Test
+    fun bossesShrugOffKnockback() {
+        val g = Game(Mode.TWO_PLAYER, seed = 1L, generate = false)
+        g.terrain.fillFlat(ground)
+        val goblin = g.addWorm(400f, ground - Game.R - 1f, Species.GOBLIN)
+        val golem = g.addWorm(900f, ground - Game.R - 1f, Species.MAGMA_GOLEM)
+        g.begin(1) // both are mobs
+        g.explode(goblin.x - 20f, goblin.y, 20f, 30f)
+        g.explode(golem.x - 20f, golem.y, 20f, 30f)
+        assertTrue(abs(golem.vx) < abs(goblin.vx) * 0.6f)
+    }
+
+    @Test
+    fun bigAudiencesSendFanBoxes() {
+        val g = flatGame()
+        run(g, 1.5f)
+        g.boxes.clear()
+        // Enough damage to push the audience past the first milestone.
+        repeat(3) { g.explode(g.worms[1].x, g.worms[1].y, 10f, 5f) }
+        var guard = 0
+        while (g.viewers < Game.START_VIEWERS + Game.FAN_BOX_EVERY && guard++ < 200) g.explode(1200f, ground.toFloat(), 10f, 1f)
+        g.worms[1].hp = 1000
+        g.explode(g.worms[1].x, g.worms[1].y, 30f, 200f)
+        g.update(Game.DT)
+        assertTrue(g.boxes.any { it.tier == 4 })
+    }
+
+    @Test
+    fun legendaryBoxesGrantALegendarySpell() {
+        val g = flatGame()
+        run(g, 1.5f)
+        val red = g.worms[0]
+        g.boxes.clear()
+        g.addBox(red.x, red.y, 3)
+        g.update(Game.DT)
+        assertTrue(red.ammo[Weapon.NUKE.ordinal] == 1 || red.ammo[Weapon.EARTHQUAKE.ordinal] == 1)
+    }
+
+    @Test
+    fun cpuCanPlanWithSpells() {
+        val g = flatGame(mode = Mode.VS_CPU, redX = 500f, blueX = 1100f)
+        run(g, 1.5f)
+        g.aimPower = 0.05f
+        g.aimAngle = -PI_HALF
+        g.fire()
+        var guard = 0
+        while (g.team != 1 && guard++ < 1200) g.update(Game.DT)
+        val cpu = g.active
+        for (spell in Weapon.entries.filter { it.spell }) cpu.ammo[spell.ordinal] = 1
+        cpu.hp = 20
+        val ai = Ai(g)
+        ai.plan(noise = false)
+        assertTrue(ai.plannedWeapon in cpu.available)
     }
 
     @Test

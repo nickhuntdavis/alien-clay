@@ -124,6 +124,12 @@ class SoundFx(context: Context) {
                 (saw * 0.45f + lp * 2.2f) * bell(t / d) * 0.7f
             }
         }
+        Sfx.SPELL -> render(0.8f) { t, d ->
+            // A rising, shimmering chord.
+            val rise = 1f + 0.5f * t / d
+            val v = (sin(2 * PI * 440 * rise * t) + 0.7 * sin(2 * PI * 660 * rise * t) + 0.5 * sin(2 * PI * 990 * rise * t)).toFloat()
+            v * bell(t / d) * 0.22f * (0.75f + 0.25f * sin(2 * PI * 18 * t).toFloat())
+        }
         Sfx.WIN -> notes(floatArrayOf(523f, 659f, 784f, 1047f, 784f, 1047f), 0.14f, 0.4f)
     }
 

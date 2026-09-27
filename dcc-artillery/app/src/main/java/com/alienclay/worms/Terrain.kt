@@ -2,6 +2,7 @@ package com.alienclay.worms
 
 import java.util.Random
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.exp
 import kotlin.math.floor
@@ -54,19 +55,35 @@ class Terrain(val w: Int, val h: Int) {
         return h
     }
 
-    fun generate(seed: Long, waterY: Int) {
+    /** Palette of the floor being played, used by [paint] and [build]. */
+    private var floor = Floor.ONE
+
+    fun generate(seed: Long, waterY: Int, floor: Floor = Floor.ONE) {
+        this.floor = floor
         val rng = Random(seed)
         solid.fill(false)
+        if (floor.style == TerrainStyle.ROOFTOPS) {
+            generateRooftops(rng, waterY)
+            paint(rng)
+            return
+        }
         val ph = DoubleArray(4) { rng.nextDouble() * PI * 2 }
         val dip = if (rng.nextBoolean()) w * (0.3 + rng.nextDouble() * 0.4) else -1.0
         val edge = 130.0
         for (x in 0 until w) {
             val t = x.toDouble() / w
-            var s = h * 0.55 -
-                (100 * sin(t * PI * 2 * 1.3 + ph[0]) +
-                    50 * sin(t * PI * 2 * 3.1 + ph[1]) +
-                    20 * sin(t * PI * 2 * 7.3 + ph[2]) +
-                    6 * sin(t * PI * 2 * 19.0 + ph[3]))
+            var s = when (floor.style) {
+                TerrainStyle.CATACOMBS -> h * 0.6 -
+                    (60 * sin(t * PI * 2 * 1.1 + ph[0]) + 30 * sin(t * PI * 2 * 2.7 + ph[1]) + 10 * sin(t * PI * 2 * 6.3 + ph[2]))
+                TerrainStyle.FORGE -> h * 0.55 -
+                    (90 * sin(t * PI * 2 * 1.3 + ph[0]) + 55 * sin(t * PI * 2 * 5.2 + ph[1]) +
+                        30 * sin(t * PI * 2 * 11.0 + ph[2]) + 14 * abs(sin(t * PI * 2 * 23.0 + ph[3])))
+                else -> h * 0.55 -
+                    (100 * sin(t * PI * 2 * 1.3 + ph[0]) +
+                        50 * sin(t * PI * 2 * 3.1 + ph[1]) +
+                        20 * sin(t * PI * 2 * 7.3 + ph[2]) +
+                        6 * sin(t * PI * 2 * 19.0 + ph[3]))
+            }
             if (dip > 0) {
                 val d = (x - dip) / 50.0
                 s += 280 * exp(-d * d)
@@ -79,8 +96,8 @@ class Terrain(val w: Int, val h: Int) {
             for (y in top until h) solid[y * w + x] = true
         }
 
-        // Caves under the surface.
-        repeat(3 + rng.nextInt(3)) {
+        // Caves under the surface (the catacombs are riddled with them).
+        repeat(if (floor.style == TerrainStyle.CATACOMBS) 8 + rng.nextInt(3) else 3 + rng.nextInt(3)) {
             val cx = 150 + rng.nextInt(w - 300)
             val top = surfaceAt(cx)
             val room = waterY - top
@@ -108,6 +125,50 @@ class Terrain(val w: Int, val h: Int) {
             }
         }
         paint(rng)
+    }
+
+    /** Separate buildings with flat or pitched roofs and gaps down to the street. */
+    private fun generateRooftops(rng: Random, waterY: Int) {
+        var x = 50 + rng.nextInt(40)
+        while (x < w - 90) {
+            val bw = 110 + rng.nextInt(120)
+            val right = min(w - 50, x + bw)
+            val roof = (h * 0.32 + rng.nextDouble() * h * 0.3).toInt()
+            val pitched = rng.nextInt(10) < 3
+            for (cx in x until right) {
+                var top = roof
+                if (pitched) top -= (min(cx - x, right - cx) * 0.5).toInt()
+                // Parapets at the edges of flat roofs.
+                if (!pitched && (cx - x < 4 || right - cx <= 4)) top -= 6
+                for (y in top.coerceIn(40, h) until h) solid[y * w + cx] = true
+            }
+            x = right + 28 + rng.nextInt(40)
+        }
+        // A couple of walkways strung between buildings.
+        repeat(2) {
+            val cx = 250 + rng.nextInt(w - 500)
+            val cy = 110 + rng.nextInt(90)
+            if (surfaceAt(cx) > cy + 110) for (yy in cy until cy + 6) for (xx in cx - 60 until cx + 60) if (xx in 0 until w) solid[yy * w + xx] = true
+        }
+    }
+
+    /** Solid stone raised into the world (Katia's Barricade). */
+    fun build(x0: Float, y0: Float, x1: Float, y1: Float) {
+        val l = max(0, x0.toInt())
+        val r = min(w - 1, x1.toInt())
+        val t = max(0, y0.toInt())
+        val b = min(h - 1, y1.toInt())
+        if (l > r || t > b) return
+        val stone = floor.topColors
+        for (y in t..b) for (x in l..r) {
+            val i = y * w + x
+            solid[i] = true
+            val joint = (y - t) % 8 == 7 || (x - l + if ((y - t) / 8 % 2 == 0) 0 else 3) % 6 == 0
+            val c = if (joint) shade(stone[3], 0.6f) else stone[((x * 7 + y * 3) ushr 2) % 3]
+            base[i] = c
+            pixels[i] = c
+        }
+        markDirty(l, t, r + 1, b + 1)
     }
 
     /** Flat ground from [surfaceY] down. Used by tests. */
@@ -194,9 +255,10 @@ class Terrain(val w: Int, val h: Int) {
     }
 
     private fun paint(rng: Random) {
-        // Cobbled floor over packed earth and bedrock.
-        val stone = intArrayOf(rgb(0x9A, 0x94, 0x8C), rgb(0x86, 0x80, 0x78), rgb(0x72, 0x6C, 0x66), rgb(0x4E, 0x4A, 0x46))
-        val clay = intArrayOf(rgb(0x5E, 0x4C, 0x40), rgb(0x52, 0x43, 0x38), rgb(0x6A, 0x58, 0x4A), rgb(0x46, 0x3B, 0x33))
+        // Cobbled floor over packed earth and bedrock, in the floor's colours.
+        val stone = floor.topColors
+        val clay = floor.bodyColors
+        val rooftops = floor.style == TerrainStyle.ROOFTOPS
         for (x in 0 until w) {
             var run = 0
             var runStart = 0
@@ -218,6 +280,7 @@ class Terrain(val w: Int, val h: Int) {
                 var c = when {
                     run == 1 && depth < 10 -> cobble(x, depth, stone)
                     depth < 3 -> shade(clay[1], 0.7f)
+                    rooftops && window(x, y) -> if (((x / 14) * 31 + (y / 18) * 17) % 5 < 2) rgb(0xFF, 0xD8, 0x7A) else rgb(0x1A, 0x18, 0x22)
                     else -> {
                         val band = (((y + wobble) / 18).toInt() % clay.size + clay.size) % clay.size
                         val fade = 1f - min(0.35f, (y - runStart) / 900f)
@@ -243,11 +306,14 @@ class Terrain(val w: Int, val h: Int) {
             }
         }
         crystals.clear()
-        repeat(22) { tryDecorate(rng) { x, y -> bone(x, y, rng) } }
+        repeat(if (rooftops) 4 else 22) { tryDecorate(rng) { x, y -> bone(x, y, rng) } }
         repeat(12) { tryDecorate(rng) { x, y -> crystalCluster(x, y, rng) } }
         System.arraycopy(base, 0, pixels, 0, base.size)
         markAllDirty()
     }
+
+    /** Lit and unlit windows in a grid across building walls. */
+    private fun window(x: Int, y: Int): Boolean = x % 14 in 4..9 && y % 18 in 5..12
 
     /** Two staggered rows of rounded cobbles with mortar between them. */
     private fun cobble(x: Int, depth: Int, stone: IntArray): Int {
@@ -311,7 +377,7 @@ class Terrain(val w: Int, val h: Int) {
     }
 
     private fun crystalCluster(x: Int, y: Int, rng: Random) {
-        val hue = if (rng.nextBoolean()) rgb(0x5A, 0xD8, 0xC8) else rgb(0xB0, 0x7C, 0xFF)
+        val hue = floor.crystalColors[rng.nextInt(floor.crystalColors.size)]
         for (shard in 0 until 3) {
             val bx = x + (shard - 1) * 3
             val height = 5 + rng.nextInt(6)

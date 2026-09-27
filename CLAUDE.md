@@ -333,6 +333,8 @@ Before committing, verify:
 - Rendering order in `GameView.drawWorld`: world, then `drawLighting` (a dark layer with lights cut out, then additive tint), then glowing particles above the dark. Animation state (walk phase, squash, hit flash, spin) lives on `Worm` and is advanced by `Game`.
 - Background layers (pillars, chains, foreground stalactites, dust) are drawn procedurally in `GameView` with their own parallax factors; terrain decoration (cobbles, bones, crystals, overhang shading) is baked into the pixels in `Terrain.paint`. `Terrain.crystals` feeds the lighting pass.
 - HUD and menus share one panel style (`GameView.drawPanel`) and three bundled OFL fonts: `titleFont` (Cinzel Decorative), `uiFont` (Cinzel) and `sysFont` (VT323, the System AI voice). Their Latin subsets lack symbols such as the infinity sign; draw those with `plainFont`. Animated HUD numbers live in `updateHudAnimation`.
+- Floors (`Floors.kt`) drive terrain style, palette, pit style, hazards and rosters; the pit height is `Game.pitY` (it rises when a floor collapses), not the `WATER_Y` constant. Loot-box spells are `Weapon` entries with `spell = true`, carried as ammo on the `Worm` and listed by `Worm.available`.
+- Floor, boss and spell names are partly invented in the books' style (only some are canon); they are kept in `Floors.kt`, `Entities.kt` and `SystemAi.kt` so they are easy to rename.
 - Units are called `Worm` in code (the genre term); what they look like comes from `Species` and `CreatureArt.kt`.
 - Build the APK with `./gradlew assembleDebug` (needs the Android SDK via `local.properties` or `ANDROID_HOME`).
 

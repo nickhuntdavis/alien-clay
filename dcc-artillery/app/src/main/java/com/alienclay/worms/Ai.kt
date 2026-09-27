@@ -45,10 +45,10 @@ class Ai(private val g: Game) {
         bestScore = -1e9f
         bestAngle = -0.7f
         bestPower = 0.7f
-        bestWeapon = me.species.weapons.first { me.has(it) }
+        bestWeapon = me.available.first()
         bestImpact = null
 
-        for (wpn in me.species.weapons) {
+        for (wpn in me.available) {
             if (!me.has(wpn)) continue
             when (wpn.action) {
                 Action.ARC -> searchThrows(me, wpn, enemies, friends, 0f, 3f, 0.05f)
@@ -56,7 +56,8 @@ class Ai(private val g: Game) {
                 Action.BOLT -> for (e in enemies) {
                     val d = hypot(e.x - me.x, e.y - me.y)
                     if (d < 700f && lineClear(me, e)) {
-                        val s = wpn.damage * 1.6f + (if (e.hp <= wpn.damage * 1.6f) 30f else 0f) - d * 0.01f
+                        val hits = if (wpn.bolts <= 2) 1.6f else 2.5f
+                        val s = wpn.damage * hits + (if (e.hp <= wpn.damage * hits) 30f else 0f) - d * 0.01f
                         consider(s, atan2(e.y - me.y, e.x - me.x), 1f, wpn, floatArrayOf(e.x, e.y))
                     }
                 }
@@ -68,6 +69,22 @@ class Ai(private val g: Game) {
                     }
                 }
                 Action.POUNCE -> searchPounce(me, wpn, enemies)
+                Action.AIRSTRIKE -> {
+                    // Drop the barrage on the enemy with the least health.
+                    val e = enemies.minByOrNull { it.hp }!!
+                    val dir = if (e.x >= me.x) 1f else -1f
+                    val a = if (dir > 0) -0.2f else (-PI + 0.2).toFloat()
+                    val pw = (abs(e.x - me.x) / (800f * cos(0.2f))).coerceIn(0.05f, 1f)
+                    val nearFriend = friends.any { it !== me && abs(it.x - e.x) < 70f }
+                    if (!nearFriend && abs(e.x - me.x) > 60f) consider(55f + (if (e.hp <= 60) 30f else 0f), a, pw, wpn, floatArrayOf(e.x, e.y))
+                }
+                Action.HEAL -> if (me.hp < me.species.maxHp * 0.45f) consider(45f, -PI.toFloat() / 2, 1f, wpn, floatArrayOf(me.x, me.y))
+                Action.QUAKE -> {
+                    val s = enemies.size * wpn.damage * 1.2f - (friends.size - 1) * wpn.damage * 1.5f +
+                        enemies.count { it.hp <= wpn.damage } * 30f
+                    if (s > 20f) consider(s, -PI.toFloat() / 2, 1f, wpn, floatArrayOf(me.x, me.y))
+                }
+                Action.SHELL, Action.TELEPORT, Action.BARRICADE -> {} // defensive: left to humans
                 Action.ROAR, Action.SLAM -> {
                     var s = 0f
                     for (e in enemies) {
@@ -131,7 +148,7 @@ class Ai(private val g: Game) {
             var pw = 0.3f
             while (pw <= 1.001f) {
                 val hit = g.simulateImpact(Kind.KNIFE, me, a, pw, 0f, wpn.launch)
-                if (hit != null && hit[1] < Game.WATER_Y - 10) {
+                if (hit != null && hit[1] < g.pitY - 10) {
                     val d = enemies.minOf { hypot(it.x - hit[0], it.y - hit[1]) }
                     if (d < wpn.radius) consider(wpn.damage + 5f - d * 0.2f, a, pw, wpn, hit)
                 }
@@ -143,7 +160,7 @@ class Ai(private val g: Game) {
 
     /** Extra value for knocking [e] towards a drop into the pit. */
     private fun pitBonus(e: Worm, away: Float): Float =
-        if (g.terrain.surfaceAt((e.x + away * 60f).toInt()) >= Game.WATER_Y) 25f else 0f
+        if (g.terrain.surfaceAt((e.x + away * 60f).toInt()) >= g.pitY) 25f else 0f
 
     fun update(dt: Float) {
         if (fired) return

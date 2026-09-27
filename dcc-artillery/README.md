@@ -38,6 +38,19 @@ and not for distribution.
 | Mute | Speaker button |
 | Pause / menu | Pause button or the Back button |
 
+### Floors
+
+Pick a floor after choosing a mode. Against the CPU, clearing a floor lets you descend to the next.
+
+| Floor | Look | Hazard | Boss | Third crawler |
+| --- | --- | --- | --- | --- |
+| 1: The Stairwell Halls | Torch-lit stone, spikes below | Pit rises from turn 14 | Ogre | Mongo |
+| 2: The Flooded Catacombs | Mossy tombs, riddled with caves | Sewage rises from turn 6 | Catacomb Kraken | Mongo |
+| 3: The Over City | Rooftops above a drop to the street | Wind 1.7x stronger | Gargoyle | Katia |
+| 4: The Magma Forge | Black glass over lava | Molten rock falls from the ceiling | Magma Golem | Katia |
+
+Mordecai offers a tip for each floor on the floor-select screen. Floors live in `Floors.kt`.
+
 ### Fighters
 
 Each fighter has their own stats, a passive trait and two or three attacks (ammo in brackets, none means unlimited).
@@ -47,11 +60,41 @@ Each fighter has their own stats, a passive trait and two or three attacks (ammo
 | Carl | 110 | Explosives expert: +25% blast damage | Kick, Hob-Lobber, Satchel Charge (2) |
 | Princess Donut | 80 | Always lands on her feet (no fall damage), jumps high | Magic Missile (two bolts, straight line), Potion Bomb |
 | Mongo | 120 | Fast and a big jumper | Bite, Pounce (leaps at the target), Roar (2, pushes everyone nearby away) |
+| Katia | 130 | Shapeshifter: half knockback | Heavy Punch, Crossbow, Barricade (2, raises a stone wall) |
 | Goblin | 70 | Quick | Throwing Knife, Potion Bomb, Scatter Charge (2) |
 | Hobgoblin | 100 | Drilled soldier | Spear, Shield Bash (huge knockback), Satchel Charge (1) |
-| Ogre | 150 | Slow, heavy | Boulder (big blast, short range), Club, Ground Slam (2, shockwave around him) |
+| Ogre (boss, floor 1) | 150 | Slow, heavy | Boulder, Club, Ground Slam (2) |
+| Catacomb Kraken (boss, floor 2) | 160 | Long reach, 60% knockback | Tentacle Lash, Ink Bomb, Water Spout (2) |
+| Gargoyle (boss, floor 3) | 140 | Glides: no fall damage, huge jump | Stone Dive, Stone Shards, Screech (2) |
+| Magma Golem (boss, floor 4) | 170 | Barely movable: 40% knockback | Lava Ball, Magma Fist, Eruption (2) |
 
-Loot boxes top up the opener's own limited attacks.
+### Loot boxes and spells
+
+Boxes drop from fallen fighters and parachute in at random; walk into one to open it. Spells found inside join
+the opener's weapon list for one use each.
+
+| Box | Contents |
+| --- | --- |
+| Bronze Adventurer Box | 25 health |
+| Silver Adventurer Box | One more limited attack, or a common spell |
+| Gold Adventurer Box | A rare spell and 20 health |
+| Legendary Adventurer Box | A legendary spell, 30 health and a refill |
+| Fan Box | Sent by the audience each time viewers pass another 250 million; a spell and a note from a fan |
+| Benefactor Box | Rare: two spells and 40 health, courtesy of a sponsor |
+
+| Spell | Tier | Effect |
+| --- | --- | --- |
+| Healing Potion | Common | +50 health |
+| Protective Shell | Common | Blocks the next hit |
+| Blink | Common | Teleport to where the aim lands |
+| Fireball | Rare | Big straight-flying blast |
+| Magic Missile Storm | Rare | Seven bolts in a fan |
+| Hob-Lobber Barrage | Rare | Five bombs drop from the ceiling on the spot you aim at |
+| Gravity Well | Rare | Blast that drags everyone nearby into it |
+| Earthquake | Legendary | Hurts and throws everyone else, cracks the floor |
+| Tactical Nuke | Legendary | Enormous explosion |
+
+The CPU opens boxes and uses spells too.
 
 ### Gates
 
@@ -94,7 +137,8 @@ The `DCC Artillery APK` GitHub Actions workflow builds the same APK on every pus
 | `GameView.kt` | Game loop thread, camera, touch controls, rendering and HUD |
 | `CreatureArt.kt` | Draws the six fighters |
 | `SoundFx.kt` | Synthesises the sound effects and ambience, plays them through a SoundPool |
-| `Entities.kt` | Fighter (`Worm`), species stats and loadouts, weapons, gates, projectiles, loot boxes |
+| `Entities.kt` | Fighter (`Worm`), species stats and loadouts, weapons and spells, gates, projectiles, loot boxes |
+| `Floors.kt` | The four floors: look, terrain style, pit, hazards, rosters, Mordecai's tips |
 | `MainActivity.kt` | Full-screen landscape activity |
 
 Fonts: Cinzel, Cinzel Decorative and VT323, bundled in `app/src/main/assets/fonts/` under the SIL Open Font

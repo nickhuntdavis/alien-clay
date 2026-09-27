@@ -4,17 +4,24 @@ package com.alienclay.worms
 enum class Action {
     ARC, // thrown, explodes on contact
     FUSE, // thrown, bounces, explodes when the fuse runs out
-    BOLT, // straight-line magic, no gravity
+    BOLT, // straight-line magic, no gravity (several at once for [Weapon.bolts] > 1)
     DROP, // placed at your feet with a fuse
     MELEE, // hits whoever is right in front of you
     POUNCE, // you are the projectile
     ROAR, // pushes everyone nearby away
     SLAM, // shockwave around you
+    BARRICADE, // raises a stone wall in front of you
+    AIRSTRIKE, // bombs fall from the ceiling onto a spot you aim at
+    TELEPORT, // you appear where the aim lands
+    HEAL, // restores your health
+    SHELL, // blocks the next hit you take
+    QUAKE, // shakes the whole floor
 }
 
 /**
- * Every attack in the game. Which ones a fighter can use comes from its [Species] loadout.
- * [damage] and [radius] describe the hit; [launch] scales throw speed or melee knockback.
+ * Every attack in the game. Fighters use the ones in their [Species] loadout plus any spells found in loot
+ * boxes ([spell] = one-use, only from boxes). [damage] and [radius] describe the hit; [launch] scales throw
+ * speed or melee knockback; [power] multiplies the blast of the projectile it throws.
  */
 enum class Weapon(
     val label: String,
@@ -23,6 +30,9 @@ enum class Weapon(
     val damage: Float,
     val radius: Float,
     val launch: Float = 1f,
+    val spell: Boolean = false,
+    val bolts: Int = 2,
+    val power: Float = 1f,
 ) {
     HOB_LOBBER("Hob-Lobber", Action.ARC, Kind.LOBBER, 50f, 44f),
     KICK("Kick", Action.MELEE, null, 30f, 22f, 520f),
@@ -39,15 +49,44 @@ enum class Weapon(
     BOULDER("Boulder", Action.ARC, Kind.BOULDER, 55f, 52f, 0.8f),
     CLUB("Club", Action.MELEE, null, 30f, 24f, 450f),
     SLAM("Ground Slam", Action.SLAM, null, 28f, 48f, 380f),
+
+    // Katia
+    PUNCH("Heavy Punch", Action.MELEE, null, 26f, 22f, 480f),
+    CROSSBOW("Crossbow", Action.ARC, Kind.KNIFE, 26f, 8f, 1.2f, power = 1.2f),
+    BARRICADE("Barricade", Action.BARRICADE, null, 0f, 0f),
+
+    // Floor bosses
+    TENTACLE("Tentacle Lash", Action.MELEE, null, 28f, 40f, 520f),
+    INK_BOMB("Ink Bomb", Action.FUSE, Kind.POTION, 40f, 44f),
+    WATER_SPOUT("Water Spout", Action.ROAR, null, 10f, 95f, 480f),
+    DIVE("Stone Dive", Action.POUNCE, null, 34f, 26f, 0.75f),
+    SCREECH("Screech", Action.ROAR, null, 8f, 85f, 440f),
+    STONE_SHARDS("Stone Shards", Action.FUSE, Kind.SCATTER, 25f, 28f),
+    LAVA_BALL("Lava Ball", Action.ARC, Kind.LAVA, 45f, 46f, 0.9f),
+    ERUPTION("Eruption", Action.SLAM, null, 34f, 62f, 440f),
+    MAGMA_FIST("Magma Fist", Action.MELEE, null, 32f, 24f, 460f),
+
+    // Spells, only from loot boxes (one use each)
+    HEAL_POTION("Healing Potion", Action.HEAL, null, 50f, 0f, spell = true),
+    PROTECTIVE_SHELL("Protective Shell", Action.SHELL, null, 0f, 0f, spell = true),
+    TELEPORT("Blink", Action.TELEPORT, null, 0f, 0f, 0.8f, spell = true),
+    FIREBALL("Fireball", Action.BOLT, Kind.FIREBALL, 60f, 58f, spell = true, bolts = 1),
+    MISSILE_STORM("Magic Missile Storm", Action.BOLT, Kind.BOLT, 22f, 14f, spell = true, bolts = 7),
+    BARRAGE("Hob-Lobber Barrage", Action.AIRSTRIKE, Kind.LOBBER, 50f, 44f, spell = true),
+    GRAVITY_WELL("Gravity Well", Action.ARC, Kind.WELL, 20f, 30f, spell = true),
+    EARTHQUAKE("Earthquake", Action.QUAKE, null, 12f, 0f, spell = true),
+    NUKE("Tactical Nuke", Action.ARC, Kind.NUKE, 90f, 100f, 0.85f, spell = true),
     ;
 
     /** Whether dragging further means a harder throw (otherwise only the direction matters). */
-    val usesPower: Boolean get() = action == Action.ARC || action == Action.FUSE || action == Action.POUNCE
+    val usesPower: Boolean
+        get() = action == Action.ARC || action == Action.FUSE || action == Action.POUNCE ||
+            action == Action.AIRSTRIKE || action == Action.TELEPORT
 }
 
-enum class Kind { LOBBER, POTION, SCATTER, SHARD, SATCHEL, KNIFE, SPEAR, BOULDER, BOLT }
+enum class Kind { LOBBER, POTION, SCATTER, SHARD, SATCHEL, KNIFE, SPEAR, BOULDER, BOLT, FIREBALL, LAVA, WELL, NUKE }
 
-/** The six fighters: stats, a passive trait, and the attacks each one can use (ammo -1 = unlimited). */
+/** Every fighter: stats, a passive trait, and the attacks each one can use (ammo -1 = unlimited). */
 enum class Species(
     val label: String,
     val team: Int,
@@ -58,6 +97,7 @@ enum class Species(
     val loadout: List<Pair<Weapon, Int>>,
     val fallProof: Boolean = false,
     val blastBonus: Float = 1f,
+    val knockback: Float = 1f,
 ) {
     CARL("Carl", 0, 110, 1f, 1f, "Explosives expert: +25% blast damage",
         listOf(Weapon.KICK to -1, Weapon.HOB_LOBBER to -1, Weapon.SATCHEL to 2), blastBonus = 1.25f),
@@ -65,19 +105,23 @@ enum class Species(
         listOf(Weapon.MISSILE to -1, Weapon.POTION_BOMB to -1), fallProof = true),
     MONGO("Mongo", 0, 120, 1.4f, 1.3f, "Fast, fierce and very good at pouncing",
         listOf(Weapon.BITE to -1, Weapon.POUNCE to -1, Weapon.ROAR to 2)),
+    KATIA("Katia", 0, 130, 0.9f, 0.9f, "Shapeshifter: shrugs off half the knockback",
+        listOf(Weapon.PUNCH to -1, Weapon.CROSSBOW to -1, Weapon.BARRICADE to 2), knockback = 0.5f),
     GOBLIN("Goblin", 1, 70, 1.3f, 1.1f, "Quick, sneaky and fragile",
         listOf(Weapon.KNIFE to -1, Weapon.POTION_BOMB to -1, Weapon.SCATTER to 2)),
     HOBGOBLIN("Hobgoblin", 1, 100, 1f, 1f, "Drilled soldier",
         listOf(Weapon.SPEAR to -1, Weapon.SHIELD_BASH to -1, Weapon.SATCHEL to 1)),
-    OGRE("Ogre", 1, 150, 0.6f, 0.7f, "Huge, slow and hits like a landslide",
+    OGRE("Ogre", 1, 150, 0.6f, 0.7f, "Floor boss. Huge, slow and hits like a landslide",
         listOf(Weapon.BOULDER to -1, Weapon.CLUB to -1, Weapon.SLAM to 2)),
+    KRAKEN("Catacomb Kraken", 1, 160, 0.5f, 0.6f, "Floor boss. Long reach, wet and angry",
+        listOf(Weapon.TENTACLE to -1, Weapon.INK_BOMB to -1, Weapon.WATER_SPOUT to 2), knockback = 0.6f),
+    GARGOYLE("Gargoyle", 1, 140, 0.9f, 1.8f, "Floor boss. Glides down from any height",
+        listOf(Weapon.DIVE to -1, Weapon.STONE_SHARDS to -1, Weapon.SCREECH to 2), fallProof = true),
+    MAGMA_GOLEM("Magma Golem", 1, 170, 0.5f, 0.6f, "Floor boss. Molten, massive, barely movable",
+        listOf(Weapon.LAVA_BALL to -1, Weapon.MAGMA_FIST to -1, Weapon.ERUPTION to 2), knockback = 0.4f),
     ;
 
     val weapons: List<Weapon> get() = loadout.map { it.first }
-
-    companion object {
-        fun ofTeam(team: Int) = entries.filter { it.team == team }
-    }
 }
 
 /** One fighter. Still called a worm internally: it is the genre's word for a player-controlled unit. */
@@ -97,6 +141,16 @@ class Worm(var x: Float, var y: Float, val team: Int, val species: Species) {
 
     /** Mid-pounce: lands (or collides) with a bite. */
     var pouncing = false
+
+    /** Which attack a pounce in progress is using (Mongo's Pounce or the Gargoyle's Stone Dive). */
+    var pounceWith = Weapon.POUNCE
+
+    /** Protective Shell: the next hit is blocked. */
+    var shield = false
+
+    /** Loadout attacks, then any spells picked up from loot boxes that still have a use left. */
+    val available: List<Weapon>
+        get() = species.weapons + Weapon.entries.filter { it.spell && ammo[it.ordinal] > 0 }
 
     // Animation state, advanced by the game and read by the renderer.
     var walkPhase = 0f
@@ -156,7 +210,10 @@ class Gate(val id: Int, val x: Float, val y: Float, val effect: GateEffect, var 
     var flash = 0f
 }
 
-/** A loot box: 0 bronze, 1 silver, 2 gold. Falls until it lands; opened by whoever touches it. */
+/**
+ * A loot box. Tiers: 0 Bronze, 1 Silver, 2 Gold, 3 Legendary, 4 Fan Box (sent by the audience),
+ * 5 Benefactor Box (from a sponsor). Falls until it lands; opened by whoever touches it.
+ */
 class LootBox(var x: Float, var y: Float, val tier: Int) {
     var vy = 0f
     var landed = false
@@ -167,7 +224,7 @@ class LootBox(var x: Float, var y: Float, val tier: Int) {
 class Announcement(val header: String, val title: String, val body: String)
 
 /** Sound cues raised by the game logic and played by the view. */
-enum class Sfx { THROW, ZAP, KICK, WHIFF, BOOM_BIG, BOOM_SMALL, BOUNCE, JUMP, FALL, ACHIEVEMENT, LOOT, TURN, WIN, GATE, ROAR }
+enum class Sfx { THROW, ZAP, KICK, WHIFF, BOOM_BIG, BOOM_SMALL, BOUNCE, JUMP, FALL, ACHIEVEMENT, LOOT, TURN, WIN, GATE, ROAR, SPELL }
 
 object PKind {
     const val FIRE = 0

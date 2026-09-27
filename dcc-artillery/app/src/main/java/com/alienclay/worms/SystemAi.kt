@@ -37,7 +37,33 @@ object SystemAi {
         "Bulk Discount" to "Why kill one thing when you could kill several? Economists everywhere nod.",
     )
 
-    val tierNames = arrayOf("Bronze Box", "Silver Box", "Gold Box")
+    val tierNames = arrayOf(
+        "Bronze Adventurer Box", "Silver Adventurer Box", "Gold Adventurer Box",
+        "Legendary Adventurer Box", "Fan Box", "Benefactor Box",
+    )
+
+    private val fanNotes = listOf(
+        "KICK IT INTO THE PIT",
+        "My whole hab is rooting for the cat.",
+        "Please explode more. Love, your biggest fan.",
+        "I named my pet after you. It exploded too.",
+        "Do the thing with the satchel again!",
+    )
+    private val benefactorNotes = listOf(
+        "Your benefactor was entertained. Keep it up.",
+        "A sponsor believes in you. Financially.",
+        "Compliments of someone very rich and very bored.",
+    )
+
+    fun fanNote(rng: Random) = fanNotes[rng.nextInt(fanNotes.size)]
+    fun benefactorNote(rng: Random) = benefactorNotes[rng.nextInt(benefactorNotes.size)]
+
+    /** Announced once, the first turn a floor starts collapsing. */
+    fun collapse(floor: Floor): Announcement = Announcement(
+        "FLOOR ${floor.number} COLLAPSING",
+        if (floor.pit == PitStyle.SEWAGE) "The water is rising" else "The floor is collapsing",
+        "This floor is closing. Everything below the line is lost. Please continue fighting on the higher ground.",
+    )
 
     fun knockout(rng: Random, cause: Int, ownGoal: Boolean): Announcement {
         val pool = when {
