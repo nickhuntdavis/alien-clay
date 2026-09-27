@@ -1511,25 +1511,35 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
             shadowText(c, "> $hint$cursor", vw / 2, vh - 22 * dp - if (g.aiming) 34 * dp else 0f)
         }
 
-        // Turn banner
+        // Turn banner. If a System AI pop-up is showing on the right, the banner moves to the left half.
         if (g.phase == Phase.BANNER) {
             val a = min(1f, min(g.phaseTime * 4f, (1.3f - g.phaseTime) * 4f)).coerceIn(0f, 1f)
             val drop = (1f - min(1f, g.phaseTime * 5f)) * 12 * dp
             val y = vh * 0.4f - drop
+            val popUp = g.announcement != null && g.announceAge < Game.ANNOUNCE_TIME
+            val cx = if (popUp) vw * 0.3f else vw / 2
+            val maxW = if (popUp) vw * 0.52f else vw * 0.8f
+            val title = "${Game.TEAM_NAMES[g.team]}: ${g.active.name}"
             font(uiFont, 30 * dp, TEAM_COLORS[g.team])
+            val tw0 = text.measureText(title)
+            if (tw0 > maxW) text.textSize = text.textSize * maxW / tw0
+            val tw = text.measureText(title)
+            fill.color = 0xB00C0A12.toInt()
+            fill.alpha = (176 * a).toInt()
+            rect.set(cx - tw / 2 - 16 * dp, y - text.textSize - 6 * dp, cx + tw / 2 + 16 * dp, y + 58 * dp)
+            c.drawRoundRect(rect, 6 * dp, 6 * dp, fill)
             text.alpha = (255 * a).toInt()
-            shadowText(c, "${Game.TEAM_NAMES[g.team]}: ${g.active.name}", vw / 2, y)
-            val tw = text.measureText("${Game.TEAM_NAMES[g.team]}: ${g.active.name}")
+            shadowText(c, title, cx, y)
             fill.color = TEAM_COLORS[g.team]
             fill.alpha = (180 * a).toInt()
-            c.drawRect(vw / 2 - tw / 2, y + 8 * dp, vw / 2 + tw / 2, y + 9.5f * dp, fill)
+            c.drawRect(cx - tw / 2, y + 8 * dp, cx + tw / 2, y + 9.5f * dp, fill)
             fill.alpha = 255
             font(sysFont, 19 * dp, 0xFFFFFFFF.toInt())
             text.alpha = (255 * a).toInt()
-            shadowText(c, if (g.humanTurn) "Your move, crawler" else "The dungeon's move", vw / 2, y + 30 * dp)
+            shadowText(c, if (g.humanTurn) "Your move, crawler" else "The dungeon's move", cx, y + 30 * dp)
             font(sysFont, 17 * dp, GOLD)
             text.alpha = (255 * a).toInt()
-            shadowText(c, g.active.species.trait, vw / 2, y + 50 * dp)
+            shadowText(c, g.active.species.trait, cx, y + 50 * dp)
             text.alpha = 255
         }
 
