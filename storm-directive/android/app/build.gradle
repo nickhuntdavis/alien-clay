@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.stormdirective.game'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.stormdirective.game'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // Signed with the local debug key so the APK can be sideloaded directly.
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    sourceSets {
+        main {
+            // The game itself lives in storm-directive/web and is bundled as app assets.
+            assets.srcDirs = ['../../web']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}

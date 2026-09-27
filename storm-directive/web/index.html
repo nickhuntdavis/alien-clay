@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#07060f">
+<title>Storm Directive</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="safeProbe"></div>
+
+<div id="hud">
+  <div id="hudTop"><button id="pauseBtn" aria-label="Pause">II</button></div>
+  <div id="bottom">
+    <div id="wslots"></div>
+    <div id="row2"><div id="sslots"></div><button id="moveBtn">RUN: KITE</button></div>
+  </div>
+  <div id="toast"></div>
+</div>
+
+<div id="title" class="screen">
+  <div class="tbox">
+    <div class="logo">STORM<br><span>DIRECTIVE</span></div>
+    <p class="tag">Autorun. Autogun. You write the orders.</p>
+    <button id="playBtn" class="btn primary">DEPLOY</button>
+    <button id="howBtn" class="btn">HOW TO PLAY</button>
+    <div id="how">
+      <p><b>You don't aim.</b> Your ship runs and shoots by itself. You program it.</p>
+      <p><b>Targeting directives:</b> tap a weapon slot to cycle its directive (Nearest, Strongest, Weakest, Lowest Health, Highest Armour, Fastest, Densest Cluster, Elites, Shooters, and more). Pause for the full editor.</p>
+      <p><b>Autorun directive:</b> the RUN button switches movement: Kite, Collect, Orbit, Hunt, Hold. Drag anywhere to steer manually.</p>
+      <p><b>Loot boxes:</b> every level up opens a box. Pick 1 of 3: new weapons, spells, upgrades or power-ups. Up to 3 weapons and 2 spells.</p>
+      <p><b>Fusion:</b> get two compatible weapons to Lv 4 and a fusion card appears, merging them into a legendary weapon and freeing a slot.</p>
+      <p><b>Reactions:</b> mix elements. Fire on frozen = Thermal Shock. Shock on poison = Toxic Arc. Arcane on anything = Resonance. Own 2 of an element for a synergy bonus.</p>
+      <p><b>Armour</b> reduces every hit. Use Railguns, shred and damage-over-time on armoured foes.</p>
+      <p>A boss arrives every 3 minutes. Survive.</p>
+    </div>
+    <p id="bestLine" class="hint"></p>
+  </div>
+</div>
+
+<div id="loot" class="screen">
+  <div class="lwrap">
+    <div id="lootTitle" class="ltitle">LEVEL UP</div>
+    <div id="lootSub" class="hint"></div>
+    <div id="lootBox" class="box"><div class="lid"></div><div class="body"></div><div class="burst"></div></div>
+    <div id="lootCards"></div>
+    <button id="rerollBtn" class="btn">REROLL</button>
+  </div>
+</div>
+
+<div id="pause" class="screen">
+  <div class="pwrap">
+    <div class="ptitle">PAUSED</div>
+    <div id="pauseStats" class="hint"></div>
+    <div id="pauseBody"></div>
+    <div class="pbtns">
+      <button id="resumeBtn" class="btn primary">RESUME</button>
+      <button id="soundBtn" class="btn">SOUND</button>
+      <button id="quitBtn" class="btn">QUIT</button>
+    </div>
+  </div>
+</div>
+
+<div id="over" class="screen">
+  <div class="owrap">
+    <div class="ptitle">SIGNAL LOST</div>
+    <div id="overBody"></div>
+    <div class="pbtns">
+      <button id="againBtn" class="btn primary">REDEPLOY</button>
+      <button id="titleBtn" class="btn">TITLE</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

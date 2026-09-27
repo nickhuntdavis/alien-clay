@@ -1,0 +1,28 @@
+name: Storm Directive APK
+
+on:
+  push:
+    paths:
+      - 'storm-directive/**'
+      - '.github/workflows/storm-directive-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: storm-directive/android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Build release APK
+        run: ./gradlew assembleRelease --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StormDirective-apk
+          path: storm-directive/android/app/build/outputs/apk/release/app-release.apk
