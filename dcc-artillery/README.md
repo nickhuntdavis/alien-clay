@@ -111,6 +111,17 @@ thrown through one is changed, once per gate:
 
 The CPU doesn't plan around gates, so they can wreck its shots too.
 
+## Character art
+
+The fighters are drawn in code (`CreatureArt.kt`), then `SpriteCache.kt` bakes each pose into a sprite with an
+ink outline and cel shading. To use real artwork instead, add a PNG per fighter to
+`app/src/main/assets/sprites/`, named after the species in lower case: `carl.png`, `donut.png`, `mongo.png`,
+`katia.png`, `goblin.png`, `hobgoblin.png`, `ogre.png`, `kraken.png`, `gargoyle.png`, `magma_golem.png`.
+
+- Any size with an 11:10 aspect ratio (for example 264 x 240), transparent background.
+- The character faces right (the game mirrors it), centred horizontally, feet 87.5% of the way down.
+- Any fighter without a PNG keeps the built-in art, so they can be replaced one at a time.
+
 ## Build
 
 Requires JDK 17+ and the Android SDK (platform 34). Point `local.properties` at the SDK
@@ -135,7 +146,8 @@ The `DCC Artillery APK` GitHub Actions workflow builds the same APK on every pus
 | `Ai.kt` | CPU player: tries each of its fighter's attacks, replaying throws through the real physics |
 | `SystemAi.kt` | Achievement and loot box text |
 | `GameView.kt` | Game loop thread, camera, touch controls, rendering and HUD |
-| `CreatureArt.kt` | Draws the six fighters |
+| `CreatureArt.kt` | Draws the fighters as vector shapes |
+| `SpriteCache.kt` | Bakes poses into outlined, shaded sprites; loads drop-in PNG art |
 | `SoundFx.kt` | Synthesises the sound effects and ambience, plays them through a SoundPool |
 | `Entities.kt` | Fighter (`Worm`), species stats and loadouts, weapons and spells, gates, projectiles, loot boxes |
 | `Floors.kt` | The four floors: look, terrain style, pit, hazards, rosters, Mordecai's tips |

@@ -93,6 +93,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
     private val sky = Paint()
     private val pitGlow = Paint()
     private val art = CreatureArt()
+    private val sprites = SpriteCache(art, context.assets)
     private val wall = Paint()
     private var themeFloor: Floor? = null
     private val wallMatrix = Matrix()
@@ -1125,7 +1126,7 @@ class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
         if (w.spin != 0f) c.rotate(w.spin, x, y)
         val blinking = ((g.time + x * 0.37f) % 3.4f) < 0.12f
         val walking = (w.walkTimer / 0.12f).coerceIn(0f, 1f)
-        art.draw(c, w.species, x, y + bob, w.facing.toFloat(), g.time, !w.onGround,
+        sprites.draw(c, w.species, x, y + bob, w.facing, g.time, !w.onGround,
             w.walkPhase, walking, blinking, w.hitFlash > 0f && (w.hitFlash * 20f).toInt() % 2 == 0)
         c.restore()
 

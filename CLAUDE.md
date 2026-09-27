@@ -335,6 +335,7 @@ Before committing, verify:
 - HUD and menus share one panel style (`GameView.drawPanel`) and three bundled OFL fonts: `titleFont` (Cinzel Decorative), `uiFont` (Cinzel) and `sysFont` (VT323, the System AI voice). Their Latin subsets lack symbols such as the infinity sign; draw those with `plainFont`. Animated HUD numbers live in `updateHudAnimation`.
 - Floors (`Floors.kt`) drive terrain style, palette, pit style, hazards and rosters; the pit height is `Game.pitY` (it rises when a floor collapses), not the `WATER_Y` constant. Loot-box spells are `Weapon` entries with `spell = true`, carried as ammo on the `Worm` and listed by `Worm.available`.
 - Floor, boss and spell names are partly invented in the books' style (only some are canon); they are kept in `Floors.kt`, `Entities.kt` and `SystemAi.kt` so they are easy to rename.
+- Fighters are drawn through `SpriteCache`: poses from `CreatureArt` are quantised (walk step, blink, airborne, 6 animation phases), baked with an ink outline and cel shading, and LRU-cached. A PNG at `assets/sprites/<species>.png` (11:10, facing right, feet 87.5% down) replaces a fighter's generated art.
 - Units are called `Worm` in code (the genre term); what they look like comes from `Species` and `CreatureArt.kt`.
 - Build the APK with `./gradlew assembleDebug` (needs the Android SDK via `local.properties` or `ANDROID_HOME`).
 

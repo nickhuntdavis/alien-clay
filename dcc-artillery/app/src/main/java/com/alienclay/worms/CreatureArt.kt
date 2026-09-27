@@ -292,14 +292,9 @@ class CreatureArt {
         eye(c, x + f * 3f + 1.5f, y - 12f, 0.9f, 0xFFFF5A3A.toInt())
     }
 
-    /** Sturdy, armoured, with a faint shimmer at the edges where her shape is never quite settled. */
+    /** Sturdy and armoured, with short dark hair. */
     private fun katia(c: Canvas, x: Float, y: Float, f: Float, t: Float) {
         val skin = 0xFFD8A888.toInt()
-        // Faint shimmering outline: her shape is never quite settled.
-        line.color = ((60 + 40 * sin(t * 3f)).toInt() shl 24) or 0xB07CFF
-        line.strokeWidth = 0.8f
-        r.set(x - 9.5f, y - 18.5f, x + 9.5f, y + 10.5f)
-        c.drawOval(r, line)
         fill.color = 0xFF3A3040.toInt()
         c.drawRect(x - 4f + step * 2f, y + 3f, x - 1.3f + step * 2f, y + 9f, fill) // legs
         c.drawRect(x + 1.3f - step * 2f, y + 3f, x + 4f - step * 2f, y + 9f, fill)
