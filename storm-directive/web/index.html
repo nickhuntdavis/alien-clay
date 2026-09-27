@@ -17,7 +17,21 @@
     <div id="wslots"></div>
     <div id="row2"><div id="sslots"></div><button id="moveBtn">RUN: KITE</button></div>
   </div>
+  <div id="side">
+    <button id="rewindBtn"><span class="rl">&lt;&lt;</span><span class="rt">REWIND</span><span class="pips"></span></button>
+    <button id="buildBtn"><span>BUILD</span><b>0</b></button>
+  </div>
   <div id="toast"></div>
+</div>
+
+<div id="build" class="screen">
+  <div class="pwrap">
+    <div class="ptitle">CHRONO ANCHOR</div>
+    <div class="hint" style="text-align:center">Scrap: <b id="buildScrap" style="color:#ffb400">0</b> | Siege units march on the Anchor. Towers use their own targeting directives.</div>
+    <div id="buildMap"></div>
+    <div id="buildDetail" class="sec"></div>
+    <div class="pbtns"><button id="buildClose" class="btn primary">BACK TO THE STORM</button></div>
+  </div>
 </div>
 
 <div id="title" class="screen">
@@ -34,6 +48,8 @@
       <p><b>Fusion:</b> get two compatible weapons to Lv 4 and a fusion card appears, merging them into a legendary weapon and freeing a slot.</p>
       <p><b>Reactions:</b> mix elements. Fire on frozen = Thermal Shock. Shock on poison = Toxic Arc. Arcane on anything = Resonance. Own 2 of an element for a synergy bonus.</p>
       <p><b>Armour</b> reduces every hit. Use Railguns, shred and damage-over-time on armoured foes.</p>
+      <p><b>Chrono Anchor:</b> defend the crystal at the centre. Siege waves pour out of rifts and march on it. Spend scrap on 6 tower types at the build pads (tap BUILD, or tap a pad).</p>
+      <p><b>Rewind:</b> jump 4 seconds back in time. Your future self stays behind as a Paradox Echo that walks the erased timeline backwards, firing your weapons, then collapses in a blast. With a charge ready, death rewinds automatically.</p>
       <p>A boss arrives every 3 minutes. Survive.</p>
     </div>
     <p id="bestLine" class="hint"></p>
@@ -76,6 +92,8 @@
 
 <script src="js/data.js"></script>
 <script src="js/game.js"></script>
+<script src="js/td.js"></script>
+<script src="js/render.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>

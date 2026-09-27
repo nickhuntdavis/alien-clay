@@ -9,6 +9,8 @@ const UI = {
   hudT: 0,
   lootReq: null,
   lootOpts: null,
+  selPad: null,
+  buildOpen: false,
 
   init() {
     const probe = $('safeProbe');
@@ -26,6 +28,14 @@ const UI = {
       UI.refreshHud(true);
     });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
+    $('buildBtn').addEventListener('click', () => UI.openBuild(null));
+    $('buildClose').addEventListener('click', () => UI.closeBuild());
+    $('rewindBtn').addEventListener('click', () => {
+      if (!G || G.state !== 'play') return;
+      if (G.chrono.charges < 1) { UI.toast('No Rewind charges: kill enemies to charge the Chrono meter'); return; }
+      if (G.chrono.snaps.length < 2) { UI.toast('Timeline too short to rewind yet'); return; }
+      startRewind(false);
+    });
     $('playBtn').addEventListener('click', () => UI.startGame());
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
@@ -45,7 +55,7 @@ const UI = {
   },
 
   show(name) {
-    for (const id of ['title', 'loot', 'pause', 'over']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'build']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -103,6 +113,14 @@ const UI = {
     for (let i = 0; i < 3; i++) fill(wEls[i], G.weapons[i]);
     for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
     $('moveBtn').textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
+    // Chrono and build buttons.
+    const c = G.chrono, rb = $('rewindBtn');
+    rb.querySelector('.pips').innerHTML = Array.from({ length: c.max }, (_, i) => `<i class="${i < c.charges ? 'on' : ''}"></i>`).join('');
+    rb.style.setProperty('--e', (c.charges >= c.max ? 100 : c.energy / CHRONO.energyPerCharge * 100).toFixed(0) + '%');
+    rb.classList.toggle('ready', c.charges > 0);
+    const cheapest = Math.min(...Object.keys(TOWERS).map(towerCost));
+    $('buildBtn').querySelector('b').textContent = Math.floor(G.scrap);
+    $('buildBtn').classList.toggle('afford', G.scrap >= cheapest && G.pads.some(p => !p.tower));
   },
 
   tick(dt) {
@@ -115,6 +133,71 @@ const UI = {
     const t = $('toast');
     t.textContent = msg; t.classList.add('on');
     UI.toastT = 1.6;
+  },
+
+  // ---------------------------------------------------------------- tower defence build panel
+  openBuild(padId) {
+    if (!G || G.state !== 'play') return;
+    G.state = 'build';
+    UI.buildOpen = true;
+    INPUT.active = false; G.manual = null;
+    UI.selPad = padId != null ? padId : (G.pads.find(p => !p.tower) || G.pads[0]).id;
+    UI.renderBuild();
+    UI.show('build');
+  },
+  closeBuild() {
+    if (!G || G.state !== 'build') return;
+    G.state = 'play';
+    UI.buildOpen = false; UI.selPad = null;
+    UI.show('hud'); UI.refreshHud(true);
+    lastTs = performance.now();
+  },
+  renderBuild() {
+    const map = $('buildMap');
+    const size = Math.min(map.clientWidth || 320, 360), k = size / 2 / 420;
+    let h = `<div class="bcore" style="left:${size / 2}px;top:${size / 2}px"></div>`;
+    h += `<div class="bring" style="width:${CORE.sanctuary * 2 * k}px;height:${CORE.sanctuary * 2 * k}px;left:${size / 2}px;top:${size / 2}px"></div>`;
+    for (const pad of G.pads) {
+      const t = pad.tower, d = t && TOWERS[t.type];
+      h += `<button class="bpad ${t ? 'built' : ''} ${UI.selPad === pad.id ? 'sel' : ''}" data-pad="${pad.id}" style="left:${size / 2 + pad.x * k}px;top:${size / 2 + pad.y * k}px;${d ? '--c:' + d.color : ''}">${t ? esc(d.icon) + '<small>' + 'I'.repeat(t.lvl) + '</small>' : '+'}</button>`;
+    }
+    map.style.height = size + 'px';
+    map.innerHTML = h;
+    map.querySelectorAll('[data-pad]').forEach(b => b.addEventListener('click', () => { UI.selPad = +b.dataset.pad; UI.renderBuild(); }));
+    $('buildScrap').textContent = Math.floor(G.scrap);
+    const pad = G.pads[UI.selPad], t = pad && pad.tower;
+    let d = '';
+    if (!t) {
+      d += `<h3>Build on pad ${pad.id + 1}</h3><div class="tlist">`;
+      for (const id in TOWERS) {
+        const T = TOWERS[id], cost = towerCost(id), ok = G.scrap >= cost;
+        d += `<button class="tbtn" data-build="${id}" ${ok ? '' : 'disabled'} style="--c:${T.color}"><span class="ti">${esc(T.icon)}</span><b>${esc(T.name)}</b><em>${cost}</em><span class="td">${esc(T.desc)}${T.dir ? ' Uses a targeting directive.' : ''}</span></button>`;
+      }
+      d += `</div>`;
+    } else {
+      const T = TOWERS[t.type], st = towerStats(t);
+      const stats = [];
+      if (t.type === 'beacon') stats.push(`Repairs ${st.dmg.toFixed(0)}/s`);
+      else if (st.dmg) stats.push(`DMG ${st.dmg.toFixed(0)}`);
+      if (st.rate) stats.push(`every ${st.rate.toFixed(2)}s`);
+      stats.push(`Range ${Math.round(st.range)}`);
+      if (t.type === 'tesla') stats.push(`Chain ${st.chain}`);
+      d += `<h3 style="color:${T.color}">${esc(T.name)} <span class="lvl">Lv ${t.lvl}/${TOWER_MAX_LVL}</span></h3><div class="ws">${stats.join(' | ')}</div><div class="hint">${esc(T.desc)} Anchor resonance: towers grow stronger every minute.</div>`;
+      d += `<div class="pbtns">`;
+      if (t.lvl < TOWER_MAX_LVL) { const c = upgradeCost(t); d += `<button class="btn primary" id="tUp" ${G.scrap >= c ? '' : 'disabled'}>UPGRADE (${c})</button>`; }
+      d += `<button class="btn" id="tSell">SELL (+${Math.floor(t.spent * 0.5)})</button></div>`;
+      if (T.dir) {
+        d += `<div class="chips">`;
+        for (const dd of DIRECTIVES) d += `<button class="chip small ${t.dir === dd.id ? 'sel' : ''}" data-tdir="${dd.id}">${dd.name}</button>`;
+        d += `</div>`;
+      }
+    }
+    const box = $('buildDetail');
+    box.innerHTML = d;
+    box.querySelectorAll('[data-build]').forEach(b => b.addEventListener('click', () => { if (buildTower(UI.selPad, b.dataset.build)) UI.renderBuild(); }));
+    box.querySelectorAll('[data-tdir]').forEach(b => b.addEventListener('click', () => { t.dir = b.dataset.tdir; UI.renderBuild(); }));
+    if ($('tUp')) $('tUp').addEventListener('click', () => { if (upgradeTower(UI.selPad)) UI.renderBuild(); });
+    if ($('tSell')) $('tSell').addEventListener('click', () => { sellTower(UI.selPad); UI.renderBuild(); });
   },
 
   // ---------------------------------------------------------------- loot
@@ -203,6 +286,8 @@ const UI = {
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
 
+    h += `<div class="sec"><h3>Chrono Anchor and time</h3><p class="hint">Anchor ${Math.ceil(G.core.hp)}/${G.core.maxHp} | ${G.pads.filter(p => p.tower).length} towers | ${Math.floor(G.scrap)} scrap | Rewind charges ${G.chrono.charges}/${G.chrono.max}</p>
+      <p class="hint"><b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you or the Anchor would die with a charge ready, Rewind triggers automatically.</p></div>`;
     h += `<div class="sec"><h3>Loadout and targeting directives</h3>`;
     const all = G.weapons.map((w, i) => ['w', i, w]).concat(G.spells.map((w, i) => ['s', i, w]));
     for (const [k, i, w] of all) {
@@ -282,7 +367,8 @@ const UI = {
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
     let h = `<div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST!' : 'Best: ' + fmtTime(best.time || 0)}</div>
       <div class="hint">Killed by: <b style="color:#ff4d6d">${esc(G.stats.lastHit || 'the storm')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>
-      <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div></div>
+      <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
+      <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.siegeCount}</b>Sieges</div><div><b>${G.pads.filter(p => p.tower).length}</b>Towers</div><div><b>${G.stats.leaks}</b>Leaks</div></div>
       <h3>Damage breakdown</h3>`;
     for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
     $('overBody').innerHTML = h;
@@ -306,6 +392,7 @@ window.handleBack = function () {
   if (on('title')) return 'exit';
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot')) return 'ok';
+  if (on('build')) { UI.closeBuild(); return 'ok'; }
   UI.togglePause();
   return 'ok';
 };

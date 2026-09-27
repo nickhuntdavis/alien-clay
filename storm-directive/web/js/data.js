@@ -33,6 +33,7 @@ const MOVE_DIRECTIVES = [
   { id: 'orbit',   name: 'ORBIT',   desc: 'Circle around the horde' },
   { id: 'hunt',    name: 'HUNT',    desc: 'Close in on the primary target' },
   { id: 'hold',    name: 'HOLD',    desc: 'Stand ground, only dodge bullets' },
+  { id: 'defend',  name: 'DEFEND',  desc: 'Guard the Chrono Anchor and intercept siege lines' },
 ];
 
 // Level bonus keys: count, pierce, chain, bounce (additive); dmg, area, dur (additive %); cd (negative = faster).
@@ -125,6 +126,11 @@ const WEAPONS = {
     desc: 'Rains ice chunks around the target.',
     base: { dmg: 11, cd: 1.4, mag: 2, reload: 2.0, count: 5, spread: 90, range: 460, area: 36, flight: 0.7, explode: 1 },
     lv: { 3: { count: 2 }, 5: { area: 0.3 }, 7: { count: 3 } } },
+
+  paradox: { name: 'Paradox Rifle', icon: 'PX', elem: 'arcane', kind: 'gun', color: '#7df9ff', dir: 'strongest', style: 'bolt',
+    desc: 'Every hit repeats itself 1 second later, from the future.',
+    base: { dmg: 16, cd: 0.55, mag: 6, reload: 1.6, count: 1, spread: 0.04, speed: 760, pierce: 1, range: 480, size: 4, echoHit: 1 },
+    lv: { 3: { pierce: 1 }, 5: { count: 1 }, 7: { dmg: 0.4 } } },
 
   // ---- Merged weapons (not in the random pool; created by fusing two maxed-enough weapons) ----
   steam: { name: 'Steam Cannon', icon: 'ST', elem: 'fire', elem2: 'ice', kind: 'gun', color: '#ffc6ff', dir: 'nearest', style: 'flame', merged: 1,
@@ -273,6 +279,10 @@ const PASSIVES = {
   catalyst:  { name: 'Catalyst',         icon: 'CT', max: 5, v: 0.35, fmt: v => `+${pc(v)} elemental reaction damage`, apply: (P, v) => { P.react += v; } },
   echo:      { name: 'Spell Echo',       icon: 'SE', max: 5, v: 0.10, fmt: v => `-${pc(v)} spell cooldowns`, apply: (P, v) => { P.cdr = Math.max(0.4, P.cdr - v); } },
   scholar:   { name: 'Scholar',          icon: 'SH', max: 5, v: 0.12, fmt: v => `+${pc(v)} experience gained`, apply: (P, v) => { P.xp += v; } },
+  temporal:  { name: 'Temporal Loop',    icon: 'TL', max: 3, v: 1, minRarity: 1, fmt: () => `+1 max Rewind charge, +25% Chrono energy`, apply: (P, v, G) => { G.chrono.max += 1; P.chronoGain += 0.25; } },
+  engineer:  { name: 'Engineer',         icon: 'EN', max: 5, v: 0.2, fmt: v => `+${pc(v)} tower damage, towers cost ${pc(v / 2)} less`, apply: (P, v) => { P.tower += v; P.towerCost = Math.max(0.4, P.towerCost - v / 2); } },
+  salvage:   { name: 'Salvager',         icon: 'SV', max: 5, v: 0.25, fmt: v => `+${pc(v)} scrap from kills`, apply: (P, v) => { P.scrap += v; } },
+  bulwark:   { name: 'Anchor Plating',   icon: 'AP', max: 5, v: 150, fmt: v => `+${Math.round(v)} Anchor max HP (and repair it)`, apply: (P, v, G) => { G.core.maxHp += Math.round(v); G.core.hp += Math.round(v); } },
   evasion:   { name: 'Evasion',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.min(0.5, P.dodge + v); } },
 };
 function pc(v) { return Math.round(v * 100) + '%'; }
@@ -341,3 +351,27 @@ const POWERUPS = {
   freeze: { name: 'STASIS',  letter: 'F', color: '#a2d2ff', desc: 'Freeze all enemies' },
   chest:  { name: 'LOOT BOX', letter: '?', color: '#ffca3a', desc: 'Free upgrade' },
 };
+
+// ---------------------------------------------------------------- Tower defence
+// The Chrono Anchor sits at the world origin. Build pads ring it; siege waves march on it from rifts.
+const CORE = { hp: 900, r: 34, sanctuary: 230, arena: 1400, regen: 1.5 };
+const TOWERS = {
+  cannon: { name: 'Autocannon',   icon: 'AC', color: '#e8eef8', elem: 'phys',   cost: 40, dir: 'nearest',
+    desc: 'Rapid kinetic rounds.', dmg: 7, rate: 0.32, range: 330 },
+  tesla:  { name: 'Tesla Pylon',  icon: 'TP', color: '#ffe94a', elem: 'shock',  cost: 60, dir: 'cluster',
+    desc: 'Chain lightning across 4 targets.', dmg: 9, rate: 0.9, range: 270, chain: 3 },
+  cryo:   { name: 'Cryo Spire',   icon: 'CS', color: '#6fd8ff', elem: 'ice',    cost: 50, dir: null,
+    desc: 'Freezing pulse around the tower.', dmg: 4, rate: 1.1, range: 160 },
+  mortar: { name: 'Mortar Nest',  icon: 'MN', color: '#ff6b35', elem: 'fire',   cost: 80, dir: 'cluster',
+    desc: 'Long-range explosive shells.', dmg: 26, rate: 2.2, range: 520, area: 85 },
+  stasis: { name: 'Stasis Clock', icon: 'SC', color: '#b8c0ff', elem: 'arcane', cost: 70, dir: null,
+    desc: 'Time runs at 35% in its field: enemies and bullets crawl.', dmg: 0, rate: 0, range: 190 },
+  beacon: { name: 'Repair Beacon', icon: 'RB', color: '#80ffdb', elem: 'poison', cost: 65, dir: null,
+    desc: 'Repairs the Anchor and heals you nearby.', dmg: 6, rate: 0, range: 170 },
+};
+const TOWER_MAX_LVL = 3;
+const SIEGE_FIRST = 55, SIEGE_INTERVAL = 80, SIEGE_WARN = 4;
+const SIEGE_POOL = ['crawler', 'skitter', 'brute', 'splitter', 'bulwark', 'charger', 'wisp', 'juggernaut'];
+
+// ---------------------------------------------------------------- Chrono (time travel)
+const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 260, startCharges: 1, maxCharges: 2 };
