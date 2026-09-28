@@ -112,7 +112,7 @@ function targetScore(dir, e, d2) {
     case 'armour': return effArmour(e) * 1e6 - d2;
     case 'fastest': return e.speed * 1e6 - d2;
     case 'cluster': return e.crowd * 1e6 - d2;
-    case 'elite': return (e.boss ? 2 : e.elite ? 1 : 0) * 1e9 - d2;
+    case 'elite': return (e.boss ? 2 : e.rival ? 1.5 : e.elite ? 1 : 0) * 1e9 - d2;
     case 'shooters': return (e.boss || e.def.shoot || e.def.ai === 'summon' || e.def.ai === 'medic' ? 1 : 0) * 1e9 - d2;
     case 'random': return Math.random();
     case 'revenge': return (e === G.grudge ? 1e12 : 0) - d2;
@@ -123,7 +123,7 @@ function acquire(dir, range, x, y, exclude) {
   let best = null, bv = -Infinity;
   const r2 = range * range;
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e.charmed || e === exclude) continue;
+    if (e.dead || e.phased || e.charmed || e === exclude || (e.egg && G.level < EGG.level)) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     if (d2 > r2) continue;
     const v = targetScore(dir, e, d2);
@@ -134,7 +134,7 @@ function acquire(dir, range, x, y, exclude) {
 function acquireMany(dir, range, x, y, n) {
   const r2 = range * range, list = [];
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e.charmed) continue;
+    if (e.dead || e.phased || e.charmed || (e.egg && G.level < EGG.level)) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     if (d2 > r2) continue;
     list.push({ e, v: targetScore(dir, e, d2) });
@@ -435,6 +435,11 @@ function damageEnemy(e, dmg, src) {
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e));
   if (e.egg) {
+    // Sealed to you until you're big enough (a rival may have opened it early).
+    if (G.level < EGG.level) {
+      if (!(G.sealT > G.realT)) { G.sealT = G.realT + 1; floatText(e.x, e.y - e.r, 'SEALED: REACH LV ' + EGG.level, '#ffd6e8', 13, 0.8); }
+      return 0;
+    }
     // The membrane gives way slowly, no matter how big your build: at most 2.5% of it per second.
     const sec = Math.floor(G.t);
     if (e.capT !== sec) { e.capT = sec; e.capUsed = 0; }
@@ -579,6 +584,7 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
 }
 
 function killEnemy(e, src) {
+  if (e.rival) { rivalDown(e); return; }
   if (e.egg) { e.dead = true; G.eggE = null; spawnPart(e.x, e.y, '#ffd6e8', 60, 320, 0.9, 6); cam.shake = 16; victory(); return; }
   e.dead = true;
   G.kills++;
@@ -826,6 +832,7 @@ function updateEnemies(dt) {
       if (e.dead) continue;
     }
     if (e.egg) { eggAI(e, edt); continue; }
+    if (e.rival) { rivalAI(e, edt); continue; }
     if (e.charmed) {
       e.charmT -= dt;
       if (e.charmT <= 0) { e.charmed = false; ring(e.x, e.y, e.r + 10, '#ff8fab', 0.3); }
@@ -1469,6 +1476,12 @@ function autoSteer() {
     if (cdist > CORE.sanctuary * 0.8) goal(core.x, core.y, 1.4);
     else { gx += -(p.y - core.y) / (cdist || 1) * 0.5; gy += (p.x - core.x) / (cdist || 1) * 0.5; }
   }
+  // The race: head for the egg once it is yours to break, or to stop a rival breaking it.
+  if (G.eggE && !G.eggE.dead && mode !== 'hold') {
+    const thief = G.level < EGG.level && G.enemies.find(e => e.rival && !e.dead && e.mode === 'egg');
+    if (G.level >= EGG.level) { if (cdist > 330) goal(core.x, core.y, 1.1); }
+    else if (thief) goal(thief.x, thief.y, Math.hypot(thief.x - p.x, thief.y - p.y) > 300 ? 1.1 : -0.3);
+  }
   // Stay inside the womb.
   if (cdist > CORE.arena - 350) goal(core.x, core.y, (cdist - (CORE.arena - 350)) / 120);
   const gl = Math.hypot(gx, gy);
@@ -1579,24 +1592,34 @@ function gainXp(v) {
 
 // ---------------------------------------------------------------- the egg (win condition)
 // At EGG.level the egg's membrane becomes a target. Break it and you're born.
-function openEgg() {
+function openEgg(by) {
+  if (G.eggE && !G.eggE.dead) return announceEgg(by);
   const def = { id: 'egg', name: "THE EGG'S MEMBRANE", hp: 1, speed: 0, armour: EGG.armour, r: CORE.r, dmg: 0, xp: 0, color: '#ffd6e8', shape: 'none', patterns: [] };
   const e = makeEnemy(def, G.core.x, G.core.y);
   e.hp = e.maxHp = EGG.hpBase * hpMul(G.t);
   e.boss = true; e.egg = true; e.shootCd = 2; e.stT = 5;
   G.enemies.push(e);
   G.eggE = e;
-  if (!G.eggAnnounced) {
-    G.eggAnnounced = true; G.eggAt = G.t;
-    banner('THE EGG IS READY: BREAK IN!', '#ffd6e8');
-    sysLine('eggReady', true); achieve('eggready');
-    cam.shake = 10; vibrate(150); sfx('boss');
+  announceEgg(by);
+}
+// by: the rival that forced it open, or nothing when you reached EGG.level yourself.
+function announceEgg(by) {
+  if (by) {
+    if (!G.eggE.openedBy) { G.eggE.openedBy = by.name; banner(by.name.toUpperCase() + ' IS BREAKING INTO THE EGG!', '#ff4d6d'); cam.shake = 10; }
+    return;
   }
+  if (G.eggAnnounced) return;
+  G.eggAnnounced = true; G.eggAt = G.t;
+  banner('THE EGG IS READY: BREAK IN!', '#ffd6e8');
+  sysLine('eggReady', true); achieve('eggready');
+  cam.shake = 10; vibrate(150); sfx('boss');
 }
 function eggAI(e, dt) {
   e.x = G.core.x; e.y = G.core.y; e.kx = e.ky = 0; e.frozen = 0;
   // The membrane defends itself: rings of bullets, and immune cells budding off its surface.
   e.shootCd -= dt;
+  const pd = Math.hypot(me().x - e.x, me().y - e.y);
+  if (pd > 1100) return; // it saves its temper for whoever is close enough to see it
   if (e.shootCd <= 0) {
     // Weaker membrane = angrier egg: faster rings as it cracks, plus volleys aimed at you.
     const rage = 1 - e.hp / e.maxHp;
@@ -1680,11 +1703,12 @@ function update(dt) {
   // Director.
   const maxAlive = Math.min(CAPS.enemies - 30, 14 + G.t * 0.3);
   const rate = Math.min(5.5, 0.55 + G.t / 90 + Math.pow(G.t / 300, 2) * 0.9);
-  G.spawnAcc += rate * dt * G.P.spawnMult * (G.eggE ? 1.6 : 1); // every rival rushes the open egg
-  const hostile = G.enemies.reduce((n, e) => n + (e.charmed ? 0 : 1), 0);
+  G.spawnAcc += rate * dt * G.P.spawnMult * (G.eggE && G.level >= EGG.level ? 1.6 : 1); // every rival rushes the open egg
+  const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   if (G.t >= G.nextWave) { G.nextWave += 45; waveEvent(); }
-  if (!G.eggE && G.level >= EGG.level && G.state === 'play') openEgg();
+  updateRivals(dt);
+  if (!G.eggAnnounced && G.level >= EGG.level && G.state === 'play') openEgg();
   if (G.t >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.

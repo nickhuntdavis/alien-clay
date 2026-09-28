@@ -426,11 +426,24 @@ const POWERUPS = {
 
 // ---------------------------------------------------------------- The Egg
 // The egg sits at the world origin: the arena's centre. Standing in its glow heals you.
-const CORE = { r: 80, sanctuary: 290, arena: 1400 };
+const CORE = { r: 80, sanctuary: 290, arena: 2400 };
 // Break into the egg: reach EGG.level and its membrane becomes vulnerable. Destroy it to be born (you win).
 const EGG = { level: 60, hpBase: 600000, armour: 8 };
 // Extra weapon slots unlock at these levels (3 to start, 6 at most).
 const SLOT_LEVELS = [15, 30, 45];
+
+// ---------------------------------------------------------------- Rival champions
+// Other would-be babies grow elsewhere on the map. First to level 60 to break the membrane wins.
+// skill: how fast they grow. aggro: how keen they are to come and pick a fight with you.
+const RIVALS = [
+  { id: 'steve',  name: 'Big Steve',          color: '#ffb347', skill: 1.10, aggro: 0.6, title: 'Has been doing laps since the Tuesday before last' },
+  { id: 'chad',   name: 'Chad Flagellum',     color: '#9ef01a', skill: 1.00, aggro: 0.9, title: 'Tail day, every day' },
+  { id: 'wiggles',name: 'Professor Wiggles',  color: '#c77dff', skill: 1.15, aggro: 0.2, title: 'Holds a doctorate in swimming, self-awarded' },
+  { id: 'zygo',   name: "Lil' Zygo",          color: '#ff5d8f', skill: 0.90, aggro: 0.7, title: 'Small, angry, surprisingly aerodynamic' },
+  { id: 'kevin',  name: 'Kevin',              color: '#ffe94a', skill: 0.95, aggro: 0.4, title: 'Just Kevin' },
+];
+// finish: seconds for a skill-1.0 rival to reach EGG.level if nobody interferes.
+const RIVAL = { finish: 720, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 150 };
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600, startCharges: 1, maxCharges: 2 };
@@ -530,6 +543,10 @@ const SYSTEM_LINES = {
   mimic: ['Pattern copied. The original owner has been absorbed and cannot sue.'],
   grudge: ['Grudge settled. Therapy was cheaper, but this was faster.'],
   eggReady: ['The egg has decided you are big enough. Go and break in. Knocking is optional.', 'The egg is ready. Its membrane is not. Shoot it until it agrees.'],
+  rivalLevel: ['{n} just hit level {l}. They look insufferable about it.', '{n} is level {l}. The Committee would like to remind you that this is a race.'],
+  rivalEgg: ['{n} has reached the egg and is headbutting the membrane. If it breaks for them, you lose. Go and have words.', '{n} is knocking on the egg. Politely, with their face. Stop them.'],
+  rivalDead: ['{n} has been eliminated. {k}', 'Farewell, {n}. {k}'],
+  rivalWin: ['{n} got there first. Congratulations to {n}. You are now a statistic.'],
   born: ['Congratulations! It\'s you! Everyone else can go home. Everyone else is, technically, going nowhere.'],
   slot: ['You grew a new weapon mount. Biology is not supposed to work like this. Please enjoy it anyway.', 'Extra weapon slot unlocked. Evolution took millions of years. You took fifteen levels.'],
 };
@@ -550,6 +567,8 @@ const CARD_QUIPS = [
 const ACHIEVEMENTS = {
   firstblood: { name: "Baby's First Homicide", desc: 'Killed a rival. Only 399,999,999 to go.', reward: 'none' },
   born:       { name: "Congratulations, It's You", desc: 'Broke into the egg and got yourself born. Please enjoy the next eighty years.', reward: 'none' },
+  rivalkill:  { name: 'Survival of the Fittest', desc: 'Eliminated a rival champion personally. Biology is a contact sport.', reward: 'box' },
+  allrivals:  { name: 'Only Child', desc: 'Every rival champion is gone. The egg only has one option now.', reward: 'reroll' },
   eggready:   { name: 'Big Enough', desc: 'Grew strong enough for the egg to take you seriously.', reward: 'heal' },
   slot:       { name: 'Extra Limb', desc: 'Grew an extra weapon slot. The textbooks will need updating.', reward: 'none' },
   kills100:   { name: 'Pest Control', desc: '100 kills. The exterminators\' union has filed a complaint.', reward: 'reroll' },

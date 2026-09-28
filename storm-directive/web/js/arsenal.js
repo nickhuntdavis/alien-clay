@@ -227,7 +227,7 @@ function modProcs(e, dmg, src) {
     const ex = Object.assign({}, src, { noProc: true, noCrit: true, mult: 1, knock: 0, wname: 'Exploding modifier' });
     aoe(e.x, e.y, 42, dmg * (src.mult || 1) * src.modExplode, ex, '#ff7a2f');
   }
-  if (src.modCharm && !e.boss && !e.elite && !e.charmed && e.hp > 0 && Math.random() < src.modCharm && G.enemies.filter(o => o.charmed).length < MAX_ALLIES) {
+  if (src.modCharm && !e.boss && !e.elite && !e.rival && !e.charmed && e.hp > 0 && Math.random() < src.modCharm && G.enemies.filter(o => o.charmed).length < MAX_ALLIES) {
     e.charmed = true; e.charmT = src.charmDur; e.frozen = 0; e.allyT = null;
     G.stats.charms = (G.stats.charms || 0) + 1;
     floatText(e.x, e.y - e.r - 12, 'MINE NOW', '#ff8fab', 14);

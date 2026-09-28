@@ -429,6 +429,7 @@ function render() {
   for (const e of G.enemies) {
     if (!vis(e) || e.egg) continue;
     if (e.boss) glow(sx(e.x), sy(e.y), e.r * 3.2 * S, e.color, 0.5);
+    else if (e.rival) glow(sx(e.x), sy(e.y), e.r * 3 * S, e.color, 0.5);
     else if (e.elite) glow(sx(e.x), sy(e.y), e.r * 2.6 * S, '#ffd23f', 0.35);
     else if (e.charmed) glow(sx(e.x), sy(e.y), e.r * 2.4 * S, '#ff8fab', 0.45);
     if (e.burn > 0) glow(sx(e.x), sy(e.y), e.r * 2 * S, '#ff7a2f', 0.3);
@@ -443,7 +444,7 @@ function render() {
     if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
     if (e.aimT > 0) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 - e.aimT) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(e.aimA) * 700 * S, y + Math.sin(e.aimA) * 700 * S); ctx.stroke(); }
     const tgt = e.charmed && e.allyT ? e.allyT : G.player;
-    const face = e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
+    const face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
     const sh = e.def.shape;
     const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
     if (sh === 'sperm') {
@@ -478,9 +479,9 @@ function render() {
         drawShape(e.def.shape, x, y, r, rot);
       }
       if (sh === 'cell' && e.flash <= 0) { ctx.fillStyle = 'rgba(90,10,50,0.35)'; ctx.beginPath(); ctx.arc(x + r * 0.2, y + r * 0.1, r * 0.35, 0, TAU); ctx.fill(); drawShape(sh, x, y, r, rot); }
-      ctx.lineWidth = e.elite || e.boss ? 3 : 1.5;
+      ctx.lineWidth = e.elite || e.boss || e.rival ? 3 : 1.5;
       if (e.charmed) ctx.lineWidth = 3;
-      ctx.strokeStyle = e.charmed ? '#ff8fab' : e.elite ? '#ffd23f' : e.boss ? '#fff' : 'rgba(0,0,0,0.6)';
+      ctx.strokeStyle = e.charmed ? '#ff8fab' : e.rival ? '#fff' : e.elite ? '#ffd23f' : e.boss ? '#fff' : 'rgba(0,0,0,0.6)';
       ctx.stroke();
     }
     let si = 0;
@@ -501,7 +502,15 @@ function render() {
       ctx.fillStyle = '#ff4d6d'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('GRUDGE', x, y - gr - 6);
     }
     if ((e.auraArm > 0 || e.armour >= 8) && !e.boss) { ctx.strokeStyle = '#8da9c4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r + 1, -2.4, -0.7); ctx.stroke(); }
-    if ((e.elite || e.hp < e.maxHp) && !e.boss && e.maxHp > 30) {
+    if (e.rival) {
+      // Rival champions: name, level and a proper health bar.
+      const bw = Math.max(46, r * 3), by = y - r - 12;
+      ctx.fillStyle = '#000'; ctx.fillRect(x - bw / 2, by, bw, 5);
+      ctx.fillStyle = e.color; ctx.fillRect(x - bw / 2, by, bw * Math.max(0, e.hp / e.maxHp), 5);
+      ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+      const label = `${e.name}  LV ${e.lvl}` + (e.mode === 'hunt' ? '  !' : e.mode === 'flee' ? '  (fleeing)' : '');
+      ctx.strokeText(label, x, by - 5); ctx.fillStyle = e.color; ctx.fillText(label, x, by - 5);
+    } else if ((e.elite || e.hp < e.maxHp) && !e.boss && e.maxHp > 30) {
       const bw = Math.max(18, r * 2);
       ctx.fillStyle = '#000'; ctx.fillRect(x - bw / 2, y - r - 8, bw, 3);
       ctx.fillStyle = e.elite ? '#ffd23f' : '#ff4d6d'; ctx.fillRect(x - bw / 2, y - r - 8, bw * Math.max(0, e.hp / e.maxHp), 3);
@@ -761,27 +770,34 @@ function drawHud() {
   chips.forEach((ch, i) => { ctx.fillStyle = ch[1]; ctx.fillText(ch[0], 10 + i * 74, top + 74); });
   // Boss bar.
   if (G.boss && !G.boss.dead) {
-    const b = G.boss, bw = Math.min(360, W - 40), bx = (W - bw) / 2, by = top + 108;
+    const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + 108;
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
     const bg = ctx.createLinearGradient(bx, 0, bx + bw, 0); bg.addColorStop(0, '#ff4d6d'); bg.addColorStop(1, '#ff3df2');
     ctx.fillStyle = bg; ctx.fillRect(bx, by, bw * Math.max(0, b.hp / b.maxHp), 12);
     ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
     ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif';
-    ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), W / 2, by - 8);
+    ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), bx + bw / 2, by - 8);
   }
   // Egg membrane bar, or progress towards being big enough.
   {
-    const bw = Math.min(360, W - 40), bx = (W - bw) / 2, by = top + (G.boss && !G.boss.dead ? 138 : 108);
+    const bw = Math.min(360, W - 130), bx = 10, by = top + (G.boss && !G.boss.dead ? 138 : 108), mid = bx + bw / 2;
     ctx.textAlign = 'center'; ctx.font = 'bold 12px sans-serif';
-    if (G.eggE && !G.eggE.dead) {
+    if (G.eggE && !G.eggE.dead && G.level < EGG.level) {
+      const e = G.eggE, who = G.enemies.filter(o => o.rival && !o.dead && o.mode === 'egg').map(o => o.name);
+      ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
+      ctx.fillStyle = '#ff4d6d'; ctx.fillRect(bx, by, bw * Math.max(0, e.hp / e.maxHp), 12);
+      ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
+      ctx.fillStyle = '#ff8fab';
+      ctx.fillText((who.length ? who.join(' & ') + ' breaking in: ' : 'Egg membrane: ') + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
+    } else if (G.eggE && !G.eggE.dead) {
       const e = G.eggE;
       ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
       ctx.fillStyle = '#ffd6e8'; ctx.fillRect(bx, by, bw * Math.max(0, e.hp / e.maxHp), 12);
       ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
-      ctx.fillStyle = '#ffd6e8'; ctx.fillText("BREAK INTO THE EGG! " + Math.ceil(e.hp / e.maxHp * 100) + '%', W / 2, by - 8);
+      ctx.fillStyle = '#ffd6e8'; ctx.fillText("BREAK INTO THE EGG! " + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
     } else if (!G.boss && G.level < EGG.level) {
       ctx.fillStyle = 'rgba(255,214,232,0.75)'; ctx.font = 'bold 11px sans-serif';
-      ctx.fillText(`Grow to level ${EGG.level} to break into the egg (${G.level}/${EGG.level})`, W / 2, top + 108);
+      ctx.fillText(`Grow to LV ${EGG.level} to break into the egg`, mid, top + 108);
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).
@@ -793,6 +809,7 @@ function drawHud() {
     ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-8, 9); ctx.lineTo(-8, -9); ctx.fill(); ctx.restore();
   };
   if (G.boss && !G.boss.dead) pointer(G.boss.x, G.boss.y, '#ff4d6d');
+  for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   pointer(c.x, c.y, G.eggE ? '#ffffff' : '#ffb3d1');
   drawMinimap(top);
   // Banner.
@@ -822,9 +839,28 @@ function drawMinimap(top) {
   };
   for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? '#ff4d6d' : e.charmed ? '#ff8fab' : '#ffd23f');
   dot(G.core.x, G.core.y, 8, G.eggE ? '#ffffff' : '#ffb3d1');
+  for (const e of G.enemies) if (e.rival && !e.dead) dot(e.x, e.y, 5, e.color);
   for (const e of G.echoes) dot(e.x, e.y, 3, '#e0fbff');
   dot(G.player.x, G.player.y, 4, '#fff');
   // View rectangle.
   ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
+  drawRaceBoard(W - 10, my + R + 16);
+}
+
+// The race to the egg: you and the rival champions, by level.
+function drawRaceBoard(rx, y) {
+  if (!G.rivalsInit) return;
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.font = 'bold 10px sans-serif';
+  ctx.fillStyle = 'rgba(255,214,232,0.7)'; ctx.fillText('RACE TO THE EGG', rx, y);
+  rivalBoard().forEach((row, i) => {
+    const yy = y + 14 + i * 13;
+    ctx.globalAlpha = row.out ? 0.4 : 1;
+    ctx.font = row.you ? 'bold 11px sans-serif' : 'bold 10px sans-serif';
+    const tag = row.out ? 'OUT' : (row.egg ? 'EGG! ' : '') + 'LV ' + row.lvl;
+    ctx.fillStyle = row.egg ? '#ff4d6d' : '#fff'; ctx.fillText(tag, rx, yy);
+    const tw = ctx.measureText(tag).width;
+    ctx.fillStyle = row.color; ctx.fillText(row.name, rx - tw - 6, yy);
+  });
+  ctx.globalAlpha = 1;
 }

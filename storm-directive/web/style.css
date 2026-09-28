@@ -145,10 +145,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #title { background: radial-gradient(circle at 50% 38%, #ffd6e822 0%, #6a0f3566 30%, #14040d99 75%); }
 
 /* The Show */
-#sysmsg { position: absolute; left: 50%; top: calc(160px + env(safe-area-inset-top)); transform: translate(-50%, -12px); width: min(92vw, 420px);
+#sysmsg { position: absolute; left: 10px; top: calc(160px + env(safe-area-inset-top)); transform: translate(0, -12px); width: min(calc(100vw - 150px), 420px);
   background: linear-gradient(135deg, #0b0b22f2, #1a0b2ef2); border: 2px solid var(--mc, #7df9ff); border-radius: 12px; padding: 8px 12px;
   box-shadow: 0 0 18px color-mix(in srgb, var(--mc, #7df9ff) 45%, transparent); opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
-#sysmsg.on { opacity: 1; transform: translate(-50%, 0); }
+#sysmsg.on { opacity: 1; transform: translate(0, 0); }
 #sysmsg b { display: block; font-size: 11px; letter-spacing: 2px; font-weight: 900; }
 #sysmsg span { display: block; font-size: 13px; line-height: 1.35; color: #e8eef8; margin-top: 2px; }
 .card.cursed { background: linear-gradient(135deg, #1a0010, #2a0a3a 60%, #0e0e22); border-color: #9d4edd; box-shadow: 0 0 22px #9d4edd99; }

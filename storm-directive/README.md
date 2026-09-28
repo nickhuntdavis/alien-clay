@@ -6,6 +6,7 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 
 ## Features
 
+- **Rival champions race you to the egg.** Five named rivals (Big Steve, Chad Flagellum, Professor Wiggles, Lil' Zygo, Kevin) grow elsewhere on a much larger map, each with their own growth speed and temper. They zap monsters (stealing your XP), pick fights when they're close to your level, flee when hurt and regenerate, and give you a wide berth once you outgrow them. Their toughness tracks your recent damage output, so a rival your size is always a proper duel. If one reaches level 60 first it swims to the egg and starts breaking in: kill it before the membrane gives way or it's born instead of you ("BEATEN TO IT"). Killing one drops a Fan Box and about a level of XP; the host occasionally eliminates one off-screen. A race board under the minimap shows the standings, with rival dots on the minimap and pointers to anyone hunting you or breaking in.
 - **Win by being born.** At level 60 the egg opens up: its membrane fights back with bullet rings, aimed volleys and immune defenders while every rival rushes in, and it gives way at most 2.5% per second, so the finale is always a proper fight. Break it for the victory screen. Your best time to birth is saved.
 - **Autorun + autogun.** Weapons and spells fire on their own, each with its own cooldown, magazine and reload. You start with 3 weapon slots and grow new ones at levels 15, 30 and 45 (6 in total); each new slot comes with a box of three new weapons. Your swimmer visibly grows as you level up.
 - **Programmable targeting directives** per weapon/spell: Nearest, Strongest, Weakest, Lowest Health, Highest Health, Highest Armour, Fastest, Furthest, Densest Cluster, Elites & Bosses, Shooters First, Random, Revenge.
@@ -16,7 +17,7 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 - **Modifiers** install into one weapon (3 slots each), with power set by the card's rarity. Picking one you already have powers it up (to a cap). Seeking, Splitting (shots shatter into shards on first hit), Orbiting (shots circle you eating enemy bullets, then launch), Growing (shots swell in size and damage as they fly), Boomerang, Ricochet, Freezing, Exploding, Mind Control (monsters fight for you, up to 6 at once), Element Swap, Shrapnel.
 - **Show-season weapons:** Bullet Siphon (eats enemy bullets as ammo), Committee Cannon (3 barrels, 3 directives), Grudge Rifle (hunts whatever last hurt you, triple damage, REVENGE directive), Wake Blade (your flight path cuts), Scrap Cannon (fires your scrap), Mimic Core (copies the last dead shooter's pattern), Parasite Seeder (infected corpses become turrets), Thermal Lance (heat instead of ammo, vents a fireball), Tether Coil (leashes two monsters and slams them together), Gacha Blaster (every magazine rolls Bronze to Legendary), Prequel Launcher (explosion first, shell flies back afterwards). New fusions: Hailreturn, Plague Trail, Salvage Barrage.
 - **New power-ups:** Last Word, Tactical Reload, Focus Lock, Overkill Transfer, Crossfire Protocol, Momentum, Anchor Link, Future Rounds, Echo Inheritance. **Cursed cards** give big boons with real downsides.
-- **The Show:** a snarky System announcer, 33 achievements (some with real rewards: loot boxes, rerolls, scrap, healing), a live viewer counter, and sponsors who drop gifts at viewer milestones. Loot boxes come in Bronze, Silver, Gold and Legendary.
+- **The Show:** a snarky System announcer, 38 achievements (some with real rewards: loot boxes, rerolls, scrap, healing), a live viewer counter, and sponsors who drop gifts at viewer milestones. Loot boxes come in Bronze, Silver, Gold and Legendary.
 - **Fusion:** two compatible weapons at Lv 4+ merge into a legendary weapon and free a slot (e.g. Flamer + Frost Lance = Steam Cannon, Railgun + Prism Beam = Annihilator).
 - **Elemental reactions:** Thermal Shock, Steam Burst, Combustion, Toxic Arc, Superconduct, Resonance, Overload. Owning 2+ of an element unlocks a synergy bonus.
 - **Fewer, stronger enemies:** about half as many monsters on screen, each bigger and tougher, getting steadily nastier until 15:00.
@@ -37,6 +38,7 @@ storm-directive/            (the game is now called Spawn Storm)
     js/td.js           The egg's healing glow, Rewind and Paradox Echoes
     js/arsenal.js      Show-season weapons, weapon-wide power-ups, modifier procs, mind-controlled allies
     js/show.js         The System announcer, achievements, viewers, sponsors
+    js/rivals.js       Rival champions: growth, AI, the race to the egg
     js/render.js       Rendering: parallax, lighting, shadows, glow, HUD, minimap
     js/ui.js           HUD, loot boxes, Armoury, menus
   android/             Native WebView shell (Java, no AndroidX) that bundles web/ as assets
