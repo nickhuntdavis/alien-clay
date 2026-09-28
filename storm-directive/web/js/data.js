@@ -433,9 +433,18 @@ const POWERUPS = {
 // The egg sits at the world origin: the arena's centre. Standing in its glow heals you.
 const CORE = { r: 80, sanctuary: 290, arena: 2400 };
 // Break into the egg: reach EGG.level and its membrane becomes vulnerable. Destroy it to be born (you win).
-const EGG = { level: 60, hpBase: 350000, armour: 8 };
+const EGG = { level: 60, hpBase: 150000, armour: 8 };
 // Extra weapon slots unlock at these levels (3 to start, 6 at most).
 const SLOT_LEVELS = [15, 30, 45];
+
+// ---------------------------------------------------------------- Palette
+// Colour is rationed. Everything is greyscale except four meanings:
+//   you     - GFP green: you, your shots, your echoes and your mind-controlled allies
+//   danger  - red: anything that can hurt you (enemy bullets, acid, hits you take, low HP)
+//   reward  - gold: loot, big XP, elites (they carry loot), charged mitochondria
+//   rivals  - each rival champion's own fluorescent dye (their tag, track and name only)
+// The renderer greys out any other colour it is asked to draw.
+const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f' };
 
 // ---------------------------------------------------------------- Weapon upgrade trees
 // Every weapon has a tree: at these levels you pick one of two branch perks (the tree is fixed per weapon,
@@ -484,10 +493,10 @@ const SWIM = { turn: 3.8, pivot: 1.6, grip: 4, growth: 0.015, hitGrowth: 0.0075 
 // Things growing in the womb. solid: blocks bodies. shot: what happens to any projectile or bullet that hits it.
 const OBSTACLES = {
   ridge:   { name: 'Cartilage Nodule', solid: true,  shot: 'bounce', n: 16, r: [45, 110], color: '#f2d0c9' },
-  mito:    { name: 'Mitochondrion',    solid: true,  shot: 'absorb', n: 9,  r: [48, 72],  color: '#ff9e5e', charge: 45, burstR: 230 },
-  acid:    { name: 'Acid Crypt',       solid: true,  shot: 'melt',   n: 9,  r: [40, 80],  color: '#b8f35a', dps: 10 },
-  cilia:   { name: 'Cilia Bed',        solid: false, shot: 'repel',  n: 8,  r: [95, 150], color: '#ff8fab', push: 260 },
-  current: { name: 'Tubal Current',    solid: false, shot: 'drift',  n: 7,  r: [120, 180], color: '#8dffc0', push: 150 },
+  mito:    { name: 'Mitochondrion',    solid: true,  shot: 'absorb', n: 9,  r: [48, 72],  color: PAL.reward, charge: 45, burstR: 230 },
+  acid:    { name: 'Acid Crypt',       solid: true,  shot: 'melt',   n: 9,  r: [40, 80],  color: PAL.danger, dps: 10 },
+  cilia:   { name: 'Cilia Bed',        solid: false, shot: 'repel',  n: 8,  r: [95, 150], color: '#b0b0b0', push: 260 },
+  current: { name: 'Tubal Current',    solid: false, shot: 'drift',  n: 7,  r: [120, 180], color: '#b0b0b0', push: 150 },
   slick:   { name: 'Lubricant Slick',  solid: false, shot: 'none',   n: 8,  r: [90, 150], color: '#c8b6ff', traction: 0.3 },
 };
 
@@ -502,7 +511,7 @@ const RIVALS = [
   { id: 'kevin',  name: 'Kevin',              color: '#ffe94a', skill: 0.95, aggro: 0.4, title: 'Just Kevin' },
 ];
 // finish: seconds for a skill-1.0 rival to reach EGG.level if nobody interferes.
-const RIVAL = { finish: 780, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 150 };
+const RIVAL = { finish: 840, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 150 };
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600, startCharges: 1, maxCharges: 2 };
@@ -628,13 +637,13 @@ const ACHIEVEMENTS = {
   firstblood: { name: "Baby's First Homicide", desc: 'Killed a rival. Only 399,999,999 to go.', reward: 'none' },
   born:       { name: "Congratulations, It's You", desc: 'Broke into the egg and got yourself born. Please enjoy the next eighty years.', reward: 'none' },
   amoeba:     { name: 'Portion Control', desc: 'Let an amoeba eat so much it made the news.', reward: 'none' },
-  bigamoeba:  { name: 'Diet Plan', desc: 'Killed an amoeba bigger than a boss.', reward: 'box' },
-  rivalkill:  { name: 'Survival of the Fittest', desc: 'Eliminated a rival champion personally. Biology is a contact sport.', reward: 'box' },
+  bigamoeba:  { name: 'Diet Plan', desc: 'Killed an amoeba bigger than a boss.', reward: 'reroll' },
+  rivalkill:  { name: 'Survival of the Fittest', desc: 'Eliminated a rival champion personally. Biology is a contact sport.', reward: 'reroll' },
   allrivals:  { name: 'Only Child', desc: 'Every rival champion is gone. The egg only has one option now.', reward: 'reroll' },
   eggready:   { name: 'Big Enough', desc: 'Grew strong enough for the egg to take you seriously.', reward: 'heal' },
   slot:       { name: 'Extra Limb', desc: 'Grew an extra weapon slot. The textbooks will need updating.', reward: 'none' },
   kills100:   { name: 'Pest Control', desc: '100 kills. The exterminators\' union has filed a complaint.', reward: 'reroll' },
-  kills1000:  { name: 'Statistically Significant', desc: '1,000 kills. You are now a demographic.', reward: 'box' },
+  kills1000:  { name: 'Statistically Significant', desc: '1,000 kills. You are now a demographic.', reward: 'reroll' },
   kills5000:  { name: 'Extinction Event', desc: '5,000 kills. Several species have asked you to stop.', reward: 'bossbox' },
   firstloot:  { name: 'Unboxing Influencer', desc: 'Opened your first loot box. Please like and subscribe.', reward: 'none' },
   fusion:     { name: 'Frankenweapon', desc: 'Fused two weapons. It is alive. It is also on fire.', reward: 'reroll' },
@@ -645,7 +654,7 @@ const ACHIEVEMENTS = {
   friendly:   { name: 'Let Them Fight', desc: 'A Bomber killed another monster. Teamwork!', reward: 'none' },
   cursed:     { name: 'Bad Decision Maker', desc: 'Took a cursed card. We knew you would.', reward: 'none' },
   modded:     { name: 'Aftermarket Parts', desc: 'Installed a modifier. The warranty is now fully void.', reward: 'none' },
-  fullmods:   { name: 'Pimp My Death Machine', desc: 'Filled all three modifier slots on one weapon. Tasteful.', reward: 'box' },
+  fullmods:   { name: 'Pimp My Death Machine', desc: 'Filled all three modifier slots on one weapon. Tasteful.', reward: 'reroll' },
   mindctrl:   { name: 'Friends Forever', desc: 'Mind-controlled a monster. It was not consulted.', reward: 'none' },
   recycle:    { name: 'Circular Economy', desc: 'Recycled a weapon in the Armoury. Very eco. Very violent.', reward: 'none' },
   grudge:     { name: 'Petty', desc: 'Killed the thing that hurt you with the Grudge Rifle. Worth it.', reward: 'none' },
@@ -659,11 +668,14 @@ const ACHIEVEMENTS = {
   tethered:   { name: 'Forced Proximity', desc: 'Slammed two tethered monsters together. They did not consent.', reward: 'none' },
   siphoned:   { name: 'Return to Sender', desc: 'Absorbed 200 enemy bullets. The postal service is in awe.', reward: 'reroll' },
   echokill:   { name: 'Time Paradox Murder', desc: 'Your future self got a kill. Who gets the XP? You do. Don\'t ask.', reward: 'none' },
-  survive5:   { name: 'Still Here?', desc: 'Survived 5 minutes. The producers are surprised.', reward: 'box' },
-  survive10:  { name: 'Contractually Obligated', desc: 'Survived 10 minutes. We have to keep filming now.', reward: 'box' },
+  survive5:   { name: 'Still Here?', desc: 'Survived 5 minutes. The producers are surprised.', reward: 'reroll' },
+  survive10:  { name: 'Contractually Obligated', desc: 'Survived 10 minutes. We have to keep filming now.', reward: 'reroll' },
   surge:      { name: 'Ratings Spike', desc: 'Reached the Storm Surge. The audience is thrilled you will die soon.', reward: 'none' },
-  viewers1m:  { name: 'Celebrity', desc: 'One million viewers. Your agent has several questions.', reward: 'box' },
+  viewers1m:  { name: 'Celebrity', desc: 'One million viewers. Your agent has several questions.', reward: 'reroll' },
   lowhp:      { name: 'Flesh Wound', desc: 'Survived a hit with under 5% HP. The medic has fainted.', reward: 'heal' },
   sponsor:    { name: 'Sold Out', desc: 'Accepted a sponsor gift. Integrity was never on the table.', reward: 'none' },
 };
 const VIEWER_MILESTONES = [10e3, 50e3, 100e3, 250e3, 500e3, 1e6, 2.5e6, 5e6, 1e7, 2.5e7, 5e7];
+
+// Everything you fire is yours, so it's all GFP green.
+for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = PAL.you;

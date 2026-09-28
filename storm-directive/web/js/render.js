@@ -5,6 +5,41 @@
 function sx(x) { return (x - cam.x) * S + W / 2; }
 function sy(y) { return (y - cam.y) * S + H / 2; }
 
+// ---------------------------------------------------------------- palette enforcement
+// Any colour that isn't one of the rationed meanings (see PAL in data.js) or a rival's dye is drawn as
+// its greyscale equivalent. Aliases fold old accent colours into the meaning they stood for.
+const PAL_OK = new Set([PAL.you, PAL.danger, PAL.reward, '#ffffff', '#000000'].concat(RIVALS.map(r => r.color)));
+const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
+const COL = new Map();
+function col(c) {
+  if (typeof c !== 'string') return c;
+  let v = COL.get(c);
+  if (v !== undefined) return v;
+  let r, g, b, a = null;
+  const h = c.toLowerCase();
+  if (h[0] === '#' && (h.length === 7 || h.length === 9)) {
+    const base = h.slice(0, 7);
+    if (PAL_OK.has(base)) v = c;
+    else if (PAL_ALIAS[base]) v = PAL_ALIAS[base] + h.slice(7);
+    else { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
+  } else {
+    const m = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
+    if (!m) v = c;
+    else { r = +m[1]; g = +m[2]; b = +m[3]; if (m[4] != null) a = +m[4]; }
+  }
+  if (v === undefined) {
+    const l = Math.round(0.3 * r + 0.59 * g + 0.11 * b);
+    v = a == null ? `rgb(${l},${l},${l})` : `rgba(${l},${l},${l},${a})`;
+  }
+  if (COL.size > 4000) COL.clear();
+  COL.set(c, v);
+  return v;
+}
+for (const prop of ['fillStyle', 'strokeStyle']) {
+  const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, prop);
+  Object.defineProperty(ctx, prop, { get() { return d.get.call(this); }, set(v) { d.set.call(this, col(v)); } });
+}
+
 // ---------------------------------------------------------------- cached sprites
 const SPR = { glow: new Map(), layers: null, vignette: null, vigKey: '' };
 
@@ -12,6 +47,8 @@ function makeCanvas(w, h) { const c = document.createElement('canvas'); c.width 
 
 // Soft radial glow in a colour, drawn additively for cheap bloom.
 function glowSprite(color) {
+  color = col(color);
+  if (color[0] !== '#') { const l = color.match(/\d+/)[0]; color = '#' + (+l).toString(16).padStart(2, '0').repeat(3); }
   let c = SPR.glow.get(color);
   if (c) return c;
   c = makeCanvas(64, 64);
@@ -205,7 +242,7 @@ function drawBackground() {
   if (!SPR.layers) buildLayers();
   // Köhler illumination: an even field, a touch brighter in the middle of the frame.
   const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6);
-  bg.addColorStop(0, '#b3bab0'); bg.addColorStop(0.6, MIC.fluid); bg.addColorStop(1, '#8b9389');
+  bg.addColorStop(0, '#b6b6b6'); bg.addColorStop(0.6, '#a6a6a6'); bg.addColorStop(1, '#8c8c8c');
   ctx.fillStyle = bg; ctx.fillRect(-20, -20, W + 40, H + 40);
   for (const L of SPR.layers) {
     const T = L.T;
@@ -489,7 +526,7 @@ function drawTerrain() {
       }
       case 'mito': {
         const k = ob.charge / ob.def.charge, pulse = k > 0.8 ? 0.5 + 0.5 * Math.sin(t * 14) : 0;
-        if (k > 0.05 || ob.burstT > 0) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (1.7 + pulse * 0.5 + ob.burstT * 3), '#ff7a2f', k * 0.55 + pulse * 0.2 + ob.burstT); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+        if (k > 0.05 || ob.burstT > 0) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (1.7 + pulse * 0.5 + ob.burstT * 3), PAL.reward, k * 0.55 + pulse * 0.2 + ob.burstT); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
         ctx.save(); ctx.translate(x, y); ctx.rotate(ob.a);
         ctx.beginPath(); ctx.ellipse(0, 0, r * 1.25, r * 0.62, 0, 0, TAU);
         ctx.fillStyle = ob.flash > 0 ? 'rgb(200,205,200)' : `rgb(${Math.round(70 + 120 * k)},${Math.round(74 + 30 * k)},${Math.round(70 - 20 * k)})`; ctx.fill();
@@ -498,17 +535,17 @@ function drawTerrain() {
         for (let i = -3; i <= 3; i++) { const cx0 = i * r * 0.3; ctx.beginPath(); ctx.moveTo(cx0, -r * 0.5 * Math.cos(i * 0.4)); ctx.quadraticCurveTo(cx0 + r * 0.12, 0, cx0, r * 0.5 * Math.cos(i * 0.4)); ctx.stroke(); }
         ctx.restore();
         ctx.fillStyle = 'rgba(20,24,22,0.55)'; ctx.fillRect(x - r * 0.6, y + r * 0.8, r * 1.2, 4);
-        ctx.fillStyle = '#ff9e5e'; ctx.fillRect(x - r * 0.6, y + r * 0.8, r * 1.2 * k, 4);
+        ctx.fillStyle = PAL.reward; ctx.fillRect(x - r * 0.6, y + r * 0.8, r * 1.2 * k, 4);
         break;
       }
       case 'acid': {
-        ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.6, '#b8f35a', 0.35 + 0.1 * Math.sin(t * 3 + ob.seed)); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.6, PAL.danger, 0.3 + 0.1 * Math.sin(t * 3 + ob.seed)); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
         ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
         const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
         g.addColorStop(0, 'rgb(52,62,40)'); g.addColorStop(0.8, 'rgb(84,100,60)'); g.addColorStop(1, 'rgb(150,190,90)');
         ctx.fillStyle = g; ctx.fill();
         pcHalo(3, 0.6);
-        for (let i = 0; i < 14; i++) { const a = rnd() * TAU + t * 0.3, d = r * 0.8 * Math.sqrt(rnd()); ctx.fillStyle = 'rgba(210,255,140,0.55)'; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 2, 2); }
+        for (let i = 0; i < 14; i++) { const a = rnd() * TAU + t * 0.3, d = r * 0.8 * Math.sqrt(rnd()); ctx.fillStyle = PAL.danger; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 2, 2); }
         for (let i = 0; i < 4; i++) {
           const ph = (t * 0.7 + ob.seed + i * 0.37) % 1, a = ob.seed * 7 + i * 2.1, d = r * 0.5 * ((i * 0.31 + ob.seed) % 1);
           ctx.strokeStyle = `rgba(230,255,190,${1 - ph})`; ctx.lineWidth = 1.2;
@@ -690,7 +727,7 @@ function render() {
     if (e.boss) glow(sx(e.x), sy(e.y), e.r * 3.2 * S, e.color, 0.5);
     else if (e.rival) glow(sx(e.x), sy(e.y), e.r * 3 * S, e.color, 0.5);
     else if (e.elite) glow(sx(e.x), sy(e.y), e.r * 2.6 * S, '#ffd23f', 0.35);
-    else if (e.charmed) glow(sx(e.x), sy(e.y), e.r * 2.4 * S, '#ff8fab', 0.45);
+    else if (e.charmed) glow(sx(e.x), sy(e.y), e.r * 2.4 * S, PAL.you, 0.45);
     if (e.burn > 0) glow(sx(e.x), sy(e.y), e.r * 2 * S, '#ff7a2f', 0.3);
   }
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
@@ -710,7 +747,7 @@ function render() {
       // Swimmers are drawn like you: real sperm with dragging tails. Rivals carry their fluorescent dye.
       if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
       const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
-      const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? '#ff8fab' : e.rival ? e.color : e.elite ? '#ffd23f' : null;
+      const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : null;
       drawShip(x, y, face, tag, e.phased ? 0.25 : 1, e.r * squash / 8, e);
     } else if (e.def.shape === 'eye') {
       const eg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
@@ -753,7 +790,7 @@ function render() {
       }
       if (e.elite || e.charmed) {
         // Immunostained: a fluorescent rim marks elites (gold) and your allies (pink).
-        ctx.strokeStyle = e.charmed ? '#ff8fab' : '#ffd23f'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.strokeStyle = e.charmed ? PAL.you : PAL.reward; ctx.lineWidth = 3; ctx.stroke();
       } else pcHalo(e.boss ? 4 : Math.max(2, r * 0.14), e.boss ? 0.8 : 0.6);
     }
     let si = 0;
@@ -765,7 +802,7 @@ function render() {
     if (e.mark > 0) st('#c77dff');
     if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
     if (e.parasiteT > 0) st('#b5e48c');
-    if (e.charmed) { ctx.fillStyle = '#ff8fab'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
+    if (e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
     if (e === G.grudge) {
       // Grudge target: a rotating red crosshair.
       ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 2.5;
@@ -785,7 +822,7 @@ function render() {
     } else if ((e.elite || e.hp < e.maxHp) && !e.boss && e.maxHp > 30) {
       const bw = Math.max(18, r * 2);
       ctx.fillStyle = '#000'; ctx.fillRect(x - bw / 2, y - r - 8, bw, 3);
-      ctx.fillStyle = e.elite ? '#ffd23f' : '#ff4d6d'; ctx.fillRect(x - bw / 2, y - r - 8, bw * Math.max(0, e.hp / e.maxHp), 3);
+      ctx.fillStyle = e.elite ? PAL.reward : '#e6e6e6'; ctx.fillRect(x - bw / 2, y - r - 8, bw * Math.max(0, e.hp / e.maxHp), 3);
     }
   }
   ctx.globalAlpha = 1;
@@ -1002,7 +1039,7 @@ function drawRewindFx() {
 function drawTitleBackdrop() {
   if (!SPR.layers) buildLayers();
   const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6);
-  bg.addColorStop(0, '#b3bab0'); bg.addColorStop(0.6, MIC.fluid); bg.addColorStop(1, '#6e766d');
+  bg.addColorStop(0, '#b6b6b6'); bg.addColorStop(0.6, '#a6a6a6'); bg.addColorStop(1, '#6f6f6f');
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
   const t = performance.now() / 1000;
   for (const L of SPR.layers) {
@@ -1064,7 +1101,7 @@ function drawHud() {
   drawScaleBar();
   // XP bar.
   ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, top, W, 7);
-  const xg = ctx.createLinearGradient(0, 0, W, 0); xg.addColorStop(0, '#4cc9f0'); xg.addColorStop(1, '#c77dff');
+  const xg = ctx.createLinearGradient(0, 0, W, 0); xg.addColorStop(0, '#d8d8d8'); xg.addColorStop(1, '#ffffff');
   ctx.fillStyle = xg; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 7);
   const hw = Math.min(200, W * 0.34);
   const bar = (y, k, col, label) => {
@@ -1072,10 +1109,10 @@ function drawHud() {
     ctx.fillStyle = col; ctx.fillRect(10, y, hw * clamp(k, 0, 1), 13);
     ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(10, y, hw * clamp(k, 0, 1), 4);
     ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.strokeRect(10, y, hw, 13);
-    ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff';
-    ctx.fillText(label, 15, y + 7);
+    ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#111';
+    const sb = ctx.shadowBlur; ctx.shadowBlur = 0; ctx.fillText(label, 15, y + 7); ctx.shadowBlur = sb;
   };
-  bar(top + 13, p.hp / G.P.maxHp, p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926', `HP ${Math.ceil(p.hp)} / ${G.P.maxHp}`);
+  bar(top + 13, p.hp / G.P.maxHp, p.hp / G.P.maxHp < 0.3 ? PAL.danger : '#e6e6e6', `HP ${Math.ceil(p.hp)} / ${G.P.maxHp}`);
   const c = G.core;
   ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
   ctx.fillStyle = '#fff'; ctx.fillText(`LV ${G.level}`, 10, top + 40);
@@ -1101,7 +1138,7 @@ function drawHud() {
   if (G.boss && !G.boss.dead) {
     const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + 108;
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
-    const bg = ctx.createLinearGradient(bx, 0, bx + bw, 0); bg.addColorStop(0, '#ff4d6d'); bg.addColorStop(1, '#ff3df2');
+    const bg = ctx.createLinearGradient(bx, 0, bx + bw, 0); bg.addColorStop(0, '#e0e0e0'); bg.addColorStop(1, '#ffffff');
     ctx.fillStyle = bg; ctx.fillRect(bx, by, bw * Math.max(0, b.hp / b.maxHp), 12);
     ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
     ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif';
@@ -1169,7 +1206,7 @@ function drawMinimap(top) {
   };
   if (G.terrain) { ctx.globalAlpha = 0.45; for (const ob of G.terrain.list) if (ob.def.solid || ob.type === 'current') dot(ob.x, ob.y, 2, ob.def.color); ctx.globalAlpha = 1; }
   for (const e of G.enemies) if (e.def.spongy && e.r > 60) dot(e.x, e.y, Math.min(7, e.r / 20), e.color);
-  for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? '#ff4d6d' : e.charmed ? '#ff8fab' : '#ffd23f');
+  for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? PAL.danger : e.charmed ? PAL.you : '#ffd23f');
   dot(G.core.x, G.core.y, 8, G.eggE ? '#ffffff' : '#ffb3d1');
   for (const e of G.enemies) if (e.rival && !e.dead) dot(e.x, e.y, 5, e.color);
   for (const e of G.echoes) dot(e.x, e.y, 3, '#e0fbff');

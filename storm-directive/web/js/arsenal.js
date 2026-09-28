@@ -230,8 +230,8 @@ function modProcs(e, dmg, src) {
   if (src.modCharm && !e.boss && !e.elite && !e.rival && !e.charmed && e.hp > 0 && Math.random() < src.modCharm && G.enemies.filter(o => o.charmed).length < MAX_ALLIES) {
     e.charmed = true; e.charmT = src.charmDur; e.frozen = 0; e.allyT = null;
     G.stats.charms = (G.stats.charms || 0) + 1;
-    floatText(e.x, e.y - e.r - 12, 'MINE NOW', '#ff8fab', 14);
-    ring(e.x, e.y, e.r + 14, '#ff8fab', 0.4, 3);
+    floatText(e.x, e.y - e.r - 12, 'MINE NOW', PAL.you, 14);
+    ring(e.x, e.y, e.r + 14, PAL.you, 0.4, 3);
     if (!src.echo) achieve('mindctrl');
   }
 }
@@ -259,7 +259,7 @@ function allyAI(e, dt) {
   if (t && d < t.r + e.r + 6 && e.atkCd <= 0) {
     e.atkCd = 0.5;
     damageEnemy(t, e.maxHp * 0.2, { fromAlly: true, noCrit: true, wname: 'Mind-controlled allies', knock: 60, kx: dx, ky: dy });
-    spawnPart(t.x, t.y, '#ff8fab', 3, 90, 0.25);
+    spawnPart(t.x, t.y, PAL.you, 3, 90, 0.25);
   }
 }
 

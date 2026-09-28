@@ -282,7 +282,7 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
-  const minR = req.kind === 'boss' || req.kind === 'chest' ? 2 : 0; // boxes are rare, so they're always Gold+
+  const minR = req.kind === 'boss' || req.kind === 'chest' ? 2 : req.kind === 'level' && G.level > BOX_EVERY_FROM ? 2 : 0; // rare boxes, better contents
   if (req.kind === 'slot') {
     // A new weapon slot: three fresh weapons, Silver or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
@@ -469,7 +469,7 @@ function damageEnemy(e, dmg, src) {
   const key = src.wname || 'Other';
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + d;
   if (!src.dot && (crit || d >= 4 || Math.random() < 0.3)) {
-    floatText(e.x, e.y - e.r, Math.round(d) + (crit ? '!' : ''), crit ? '#ffd23f' : src.elem && src.elem !== 'phys' ? ELEMENTS[src.elem].color : '#ffffff', crit ? 17 : 12);
+    floatText(e.x, e.y - e.r, Math.round(d) + (crit ? '!' : ''), '#ffffff', crit ? 17 : 12);
   }
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
   if (src.knock && !e.boss && !e.def.spongy) {
@@ -669,7 +669,7 @@ function killEnemy(e, src) {
   }
 }
 // Loot boxes from kills are rationed: at most one every LOOT_GAP seconds (bosses and rivals don't count).
-const LOOT_GAP = 30;
+const LOOT_GAP = 90;
 function chestOr(alt) {
   if (G.t < (G.nextChest || 20)) return alt;
   G.nextChest = G.t + LOOT_GAP;
@@ -726,7 +726,7 @@ function hurtPlayer(dmg, from, ent) {
 // Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
 function enemyScale(t) {
   const k = Math.min(1, t / 900);
-  return { hp: 1.2 + 1.8 * k, dmg: 1.0 + 1.05 * k, xp: 1.9, r: 1.12, speed: 1 + 0.12 * k };
+  return { hp: 1.1 + 1.6 * k, dmg: 0.95 + 0.9 * k, xp: 2.4, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);
@@ -816,7 +816,7 @@ let shooterName = '', shooterEnt = null;
 function eBullet(x, y, a, speed, dmg, r, color) {
   if (G.ebul.length >= CAPS.ebul) return;
   speed *= (1 + Math.min(0.7, G.t / 1500)) * G.P.bulletSpeed;
-  G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: color || '#ff3df2', life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
+  G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
 }
 
 function shootPattern(e, pat, a0) {
@@ -868,7 +868,7 @@ function updateEnemies(dt) {
     if (e.rival) { rivalAI(e, edt); continue; }
     if (e.charmed) {
       e.charmT -= dt;
-      if (e.charmT <= 0) { e.charmed = false; ring(e.x, e.y, e.r + 10, '#ff8fab', 0.3); }
+      if (e.charmT <= 0) { e.charmed = false; ring(e.x, e.y, e.r + 10, PAL.you, 0.3); }
       else { allyAI(e, dt); continue; }
     }
     const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 1;
@@ -1194,7 +1194,7 @@ function spawnProj(w, x, y, a, src, over) {
   const pr = {
     x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, speed, r: s.size || 4, dmg: s.dmg, pierce: s.pierce || 0,
     life: (s.range || 400) / speed, max: 0, w, src: el !== src.elem ? Object.assign({}, src, { elem: el }) : src,
-    color: el !== d.elem ? ELEMENTS[el].color : d.color, style: d.style || 'bullet', explode: s.explode || 0, homing: s.homing || 0,
+    color: d.color, style: d.style || 'bullet', explode: s.explode || 0, homing: s.homing || 0,
     bounce: s.bounce || 0, boomerang: s.boomerang || 0, chainHit: s.chainHit || 0, aura: s.aura || 0, pull: s.pull || 0,
     hits: null, tick: 0, dead: false, tgt: null, back: false,
   };
@@ -1629,6 +1629,13 @@ function applyPickup(type) {
   }
 }
 
+const BOX_EVERY_FROM = 4;
+function levelGrowth() {
+  G.P.might += 0.06; G.P.haste += 0.03; G.P.maxHp += 4; me().hp += 4;
+  recomputeAll();
+  floatText(me().x, me().y - 34, 'LV ' + G.level + '  GROWTH', '#ffffff', 13, 1);
+  sfx('level');
+}
 function gainXp(v) {
   G.xp += v * G.P.xp;
   sfx('gem');
@@ -1636,7 +1643,10 @@ function gainXp(v) {
     G.xp -= G.xpNeed;
     G.level++;
     G.xpNeed = xpNeed(G.level);
-    G.lootQueue.push({ kind: 'level' });
+    // Boxes are rare: one every level to Lv 4, then every second level. The levels in between
+    // still make you grow (+6% damage, +3% fire rate, +4 max HP), just without a box.
+    if (G.level <= BOX_EVERY_FROM || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
+    else levelGrowth();
     // Growth milestones: a new weapon slot at 15, 30 and 45.
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < 3 + SLOT_LEVELS.length) {
       G.weapons.push(null);

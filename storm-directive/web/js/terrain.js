@@ -122,7 +122,7 @@ function terrainShot(s, hostile, dt) {
         return true;
       case 'melt':
         s.dead = true;
-        if (Math.random() < 0.4) spawnPart(s.x, s.y, '#b8f35a', 2, 50, 0.35, 2.5);
+        if (Math.random() < 0.4) spawnPart(s.x, s.y, PAL.danger, 2, 50, 0.35, 2.5);
         return true;
       case 'repel': {
         // Bend the shot away from the bed's centre, keeping its speed.
@@ -144,15 +144,15 @@ function terrainShot(s, hostile, dt) {
 function atpBurst(ob) {
   ob.charge = 0; ob.burstT = 0.6;
   const R = ob.def.burstR, dmg = Math.max(80 * hpMul(G.t), (G.dpsAvg || 0) * 1.2);
-  ring(ob.x, ob.y, R, '#ffb347', 0.5, 6);
-  addLight(ob.x, ob.y, R * 1.3, '#ff9e5e', 0.6);
+  ring(ob.x, ob.y, R, PAL.reward, 0.5, 6);
+  addLight(ob.x, ob.y, R * 1.3, PAL.reward, 0.6);
   spawnPart(ob.x, ob.y, '#ffd23f', 24, 260, 0.6, 4);
   forNear(ob.x, ob.y, R, e => { if (!e.egg && !e.charmed) damageEnemy(e, dmg, { elem: 'fire', noCrit: true, wname: 'ATP Burst' }); });
   for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - ob.x, b.y - ob.y) < R) b.dead = true;
   const p = me();
   if (Math.hypot(p.x - ob.x, p.y - ob.y) < R + 60) {
     p.atpT = 4; G.rage = Math.max(G.rage, 4);
-    floatText(p.x, p.y - 30, 'ATP RUSH!', '#ffb347', 16, 1.2);
+    floatText(p.x, p.y - 30, 'ATP RUSH!', PAL.reward, 16, 1.2);
   }
   if (!G.atpSeen) { G.atpSeen = true; sysMsg('SYSTEM MESSAGE', 'A mitochondrion just vented everything it absorbed. Stand near the next one when it pops for an ATP rush.', '#ffb347'); }
   cam.shake = Math.min(12, cam.shake + 6);
