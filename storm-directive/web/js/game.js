@@ -76,8 +76,10 @@ const grid = new Map();
 function gridKey(cx, cy) { return (cx + 50000) * 100000 + (cy + 50000); }
 function gridBuild() {
   grid.clear();
+  G.bigR = 0;
   for (const e of G.enemies) {
     if (e.dead) continue;
+    if (e.r > G.bigR) G.bigR = e.r;
     const k = gridKey(Math.floor(e.x / CELL), Math.floor(e.y / CELL));
     let c = grid.get(k);
     if (!c) { c = []; grid.set(k, c); }
@@ -86,7 +88,7 @@ function gridBuild() {
 }
 // Calls fn(e, d2) for every live enemy whose body overlaps circle (x,y,r). fn returns true to stop.
 function forNear(x, y, r, fn) {
-  const R = r + 60; // max enemy radius margin
+  const R = r + Math.max(60, G.bigR || 0); // max enemy radius margin
   const x0 = Math.floor((x - R) / CELL), x1 = Math.floor((x + R) / CELL);
   const y0 = Math.floor((y - R) / CELL), y1 = Math.floor((y + R) / CELL);
   for (let cx = x0; cx <= x1; cx++) for (let cy = y0; cy <= y1; cy++) {
@@ -151,13 +153,14 @@ function makeSlot(id, isSpell, lvl) {
   const def = isSpell ? SPELLS[id] : WEAPONS[id];
   const w = { uid: uidSeq++, id, def, isSpell, lvl: lvl || 1, dir: def.dir, cd: 0.3, ammo: 0, reloadT: 0, reloadMax: 1,
     spin: 0, active: 0, ang: 0, blades: [], beamT: 0, beamTick: 0, beams: [], s: null,
-    mods: [], dirs: def.committee ? [def.dir, 'nearest', 'shooters'] : null, heat: 0, stored: 0, gachaTier: 0, focusT: 0, lastTarget: null, curTarget: null };
+    mods: [], perks: {}, dirs: def.committee ? [def.dir, 'nearest', 'shooters'] : null, heat: 0, stored: 0, gachaTier: 0, focusT: 0, lastTarget: null, curTarget: null };
   if (def.gacha) rollGacha(w, true);
   computeStats(w);
   w.ammo = w.s.mag;
   return w;
 }
 
+const WEAPON_LV_DMG = 0.35; // damage gained per weapon level
 function computeStats(w) {
   const d = w.def, b = d.base, P = G.P, L = w.lvl, syn = G.synergy;
   const s = Object.assign({}, b);
@@ -175,7 +178,7 @@ function computeStats(w) {
   }
   const elemMult = d.elem2 ? (P.elem[d.elem] + P.elem[d.elem2]) / 2 : P.elem[d.elem];
   if (d.kind === 'heal') s.dmg = b.dmg * (1 + dmgB) + 0.012 * (L - 1);
-  else s.dmg = b.dmg * (1 + 0.25 * (L - 1) + dmgB) * P.might * elemMult;
+  else s.dmg = b.dmg * (1 + WEAPON_LV_DMG * (L - 1) + dmgB) * P.might * elemMult;
   const physBonus = syn.phys && d.elem === 'phys' ? 1.15 : 1;
   s.cd = (b.cd || 0) * Math.pow(0.95, L - 1) * (1 + cdB) / (w.isSpell ? 1 : P.haste * physBonus);
   if (w.isSpell) s.cd *= P.cdr;
@@ -208,6 +211,7 @@ function computeStats(w) {
     if (m.id === 'exploding') s.modExplode = 0.3 * mp;
     if (m.id === 'mindctrl') { s.modCharm = 0.05 * mp; s.charmDur = 6 * mp; }
   }
+  applyPerks(w, s);
   w.s = s;
 }
 
@@ -240,6 +244,7 @@ function doMerge(m) {
   G.weapons[ib] = null;
   const w = makeSlot(m.out, false, lvl);
   w.dir = dir; w.mods = mods;
+  setWeaponLevel(w, lvl, 1);
   G.weapons[ia] = w;
   G.stats.merges++;
   recomputeAll();
@@ -277,12 +282,17 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
-  const minR = req.kind === 'boss' ? 2 : req.kind === 'chest' ? 1 : 0;
+  const minR = req.kind === 'boss' || req.kind === 'chest' ? 2 : 0; // boxes are rare, so they're always Gold+
   if (req.kind === 'slot') {
     // A new weapon slot: three fresh weapons, Silver or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
     const ids = shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 3);
     return ids.map(id => optNewWeapon(id, Math.max(1, rollRarity(1))));
+  }
+  if (req.kind === 'branch') {
+    const w = G.weapons.find(x => x && x.uid === req.uid);
+    if (w && !w.perks[req.lvl]) return weaponTree(w.def)[req.lvl].map(id => optPerk(w, req.lvl, id));
+    req.kind = 'level'; return genLoot(req); // the weapon was fused or recycled meanwhile
   }
   if (req.kind === 'start') {
     const pool = ['blaster', 'smg', 'shotgun', 'flamer', 'frost', 'tesla', 'glaive', 'needler', 'seeker', 'rocket', 'railgun', 'venom'];
@@ -343,7 +353,7 @@ function optNewWeapon(id, r) {
   const def = WEAPONS[id], lvl = [1, 2, 3, 4][r];
   return { rarity: r, tag: 'NEW WEAPON', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
     sub: `${ELEMENTS[def.elem].name} | Lv ${lvl}`, desc: def.desc + (def.merged ? '' : fuseHint(id)),
-    apply: () => { const i = G.weapons.findIndex(w => !w); if (i >= 0) { G.weapons[i] = makeSlot(id, false, lvl); recomputeAll(); } } };
+    apply: () => { const i = G.weapons.findIndex(w => !w); if (i >= 0) { G.weapons[i] = makeSlot(id, false, lvl); setWeaponLevel(G.weapons[i], lvl, 1); recomputeAll(); } } };
 }
 function optNewSpell(id, r) {
   const def = SPELLS[id], lvl = [1, 2, 3, 4][r];
@@ -354,11 +364,11 @@ function optNewSpell(id, r) {
 function optUpgrade(w, r) {
   const n = RARITIES[r].lvls, to = Math.min(8, w.lvl + n);
   const bonus = lvBonusText(w.def, w.lvl, to);
-  let desc = `+${pc(0.25 * (to - w.lvl))} damage, faster cycling` + (bonus ? `. ${bonus}` : '');
+  let desc = `+${pc(WEAPON_LV_DMG * (to - w.lvl))} damage, faster cycling` + (bonus ? `. ${bonus}` : '');
   if (!w.isSpell && to >= MERGE_MIN_LEVEL && w.lvl < MERGE_MIN_LEVEL && !w.def.merged) desc += '. Unlocks fusion!';
   return { rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
     sub: `Lv ${w.lvl} > ${to}${to === 8 ? ' (MAX)' : ''}`, desc,
-    apply: () => { w.lvl = to; computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
+    apply: () => { setWeaponLevel(w, to); computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
 }
 function optPassive(id, r) {
   const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour'].includes(id);
@@ -430,6 +440,11 @@ function damageEnemy(e, dmg, src) {
   const P = G.P, syn = G.synergy;
   let d = dmg * (src.mult || 1);
   if (src.grudge && e === G.grudge) d *= 3;
+  if (src.w && src.w.s) {
+    const ws = src.w.s;
+    if (ws.pExec && e.hp < e.maxHp * 0.35) d *= 1 + ws.pExec;
+    if (ws.pGiant && (e.elite || e.boss || e.rival)) d *= 1 + ws.pGiant;
+  }
   if (src.parasite) { e.parasiteW = src.w; e.parasiteT = 6; }
   let crit = false;
   if (!src.noCrit && Math.random() < (src.crit != null ? src.crit : P.crit)) { crit = true; d *= P.critDmg; }
@@ -457,14 +472,14 @@ function damageEnemy(e, dmg, src) {
     floatText(e.x, e.y - e.r, Math.round(d) + (crit ? '!' : ''), crit ? '#ffd23f' : src.elem && src.elem !== 'phys' ? ELEMENTS[src.elem].color : '#ffffff', crit ? 17 : 12);
   }
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
-  if (src.knock && !e.boss) {
+  if (src.knock && !e.boss && !e.def.spongy) {
     const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1);
     const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
     const l = Math.hypot(kx, ky) || 1;
     e.kx += kx / l * k; e.ky += ky / l * k;
   }
   if (src.freezeHit && !e.boss) { e.frozen = Math.max(e.frozen, 1.2); }
-  if (src.w && !src.noProc && !src.dot) modProcs(e, dmg, src);
+  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); }
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   // Shocked enemies arc a portion of incoming damage to a neighbour.
   if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25)) {
@@ -600,6 +615,11 @@ function killEnemy(e, src) {
       spawnProj(src.w, e.x, e.y, a, ss, { noMods: true, speed: 420, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, life: 0.5, dmg: src.w.s.dmg * 0.4, pierce: 0, bounce: 0, homing: 0, explode: 0, r: 3, style: 'bullet', chainHit: 0, aura: 0 });
     }
   }
+  // Chain Reaction perk: the corpse goes off.
+  if (src.w && src.w.s && src.w.s.pBurst && !src.burst) {
+    const bs = Object.assign({}, src, { burst: true, noProc: true, noCrit: true, mult: 1, wname: 'Chain reaction' });
+    aoe(e.x, e.y, 60 + e.r, Math.max(src.w.s.dmg, e.maxHp * 0.3) * src.w.s.pBurst, bs, '#ff5a36');
+  }
   // Parasite Seeder: infected corpses become turrets.
   if (e.parasiteT > 0 && e.parasiteW && G.turrets.length < 24) {
     const pw = e.parasiteW;
@@ -628,7 +648,10 @@ function killEnemy(e, src) {
     }
   }
   if (e.def.ai === 'bomber') bomberBlast(e);
+  if (e.def.spongy && e.r > 140) achieve('bigamoeba');
   if (e.boss) {
+    // A boss stays dead even if you rewind past its death (no farming the same boss for boxes).
+    (G.bossDead || (G.bossDead = {}))[e.id] = true;
     G.boss = null;
     G.stats.bossKills++;
     G.lootQueue.push({ kind: 'boss' });
@@ -637,12 +660,20 @@ function killEnemy(e, src) {
     for (let i = 0; i < 12; i++) dropGem(e.x + rand(-60, 60), e.y + rand(-60, 60), e.xp / 12);
     cam.shake = 14;
     sfx('boss');
-  } else if (e.elite) {
-    G.pickups.push(makePickup('chest', e.x, e.y));
+  } else if (e.elite || (e.def.spongy && e.r > 100)) {
+    // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
+    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.3 ? chestOr('heal') : pick(['heal', 'magnet', 'rage']), e.x, e.y));
   } else if (Math.random() < 0.011 * (1 + P.luck)) {
     const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'];
-    G.pickups.push(makePickup(Math.random() < 0.12 ? 'chest' : pick(types), e.x, e.y));
+    G.pickups.push(makePickup(Math.random() < 0.12 ? chestOr(pick(types)) : pick(types), e.x, e.y));
   }
+}
+// Loot boxes from kills are rationed: at most one every LOOT_GAP seconds (bosses and rivals don't count).
+const LOOT_GAP = 30;
+function chestOr(alt) {
+  if (G.t < (G.nextChest || 20)) return alt;
+  G.nextChest = G.t + LOOT_GAP;
+  return 'chest';
 }
 
 function bomberBlast(e) {
@@ -695,7 +726,7 @@ function hurtPlayer(dmg, from, ent) {
 // Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
 function enemyScale(t) {
   const k = Math.min(1, t / 900);
-  return { hp: 1.9 + 2.8 * k, dmg: 1.1 + 1.2 * k, xp: 1.4, r: 1.12, speed: 1 + 0.12 * k };
+  return { hp: 1.2 + 1.8 * k, dmg: 1.0 + 1.05 * k, xp: 1.9, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);
@@ -866,6 +897,7 @@ function updateEnemies(dt) {
           e.shootCd -= edt;
           if (e.shootCd <= 0 && dist < 560) { shootPattern(e, 'spiral'); e.shootCd = e.def.shoot.cd; }
           break;
+        case 'engulf': { const m = engulfAI(e, edt, dist, ux, uy); mx = m.x; my = m.y; spd = e.speed; break; }
         case 'bomber':
           if (dist < e.r + p.r + 10) { e.hp = 0; killEnemy(e, {}); continue; }
           break;
@@ -1076,7 +1108,7 @@ function fireWeapon(w, target) {
             if (G.P.future > 0 && Math.random() < G.P.future) {
               // Future Rounds: this bullet was fired a moment from now, so it's already arriving.
               const fx = tg.x - Math.cos(a) * 40, fy = tg.y - Math.sin(a) * 40;
-              ring(fx, fy, 14, '#7df9ff', 0.25, 2);
+              ring(fx, fy, 14, '#8dffc0', 0.25, 2);
               spawnProj(w, fx, fy, a, fsrc, over);
             } else spawnProj(w, p.x, p.y, a, fsrc, over);
           }
@@ -1265,7 +1297,7 @@ function updateProjectiles(dt) {
     if (pr.orbitT > 0) {
       pr.orbitT -= dt; pr.oa += 6 * dt;
       pr.x = p.x + Math.cos(pr.oa) * pr.orad; pr.y = p.y + Math.sin(pr.oa) * pr.orad;
-      for (const b of G.ebul) { if (!b.dead && Math.abs(b.x - pr.x) < pr.r + b.r + 3 && Math.abs(b.y - pr.y) < pr.r + b.r + 3) { b.dead = true; spawnPart(b.x, b.y, '#7df9ff', 1, 40, 0.2); } }
+      for (const b of G.ebul) { if (!b.dead && Math.abs(b.x - pr.x) < pr.r + b.r + 3 && Math.abs(b.y - pr.y) < pr.r + b.r + 3) { b.dead = true; spawnPart(b.x, b.y, '#8dffc0', 1, 40, 0.2); } }
       if (pr.orbitT <= 0) {
         const t = acquire(pr.w.dir === 'revenge' ? 'nearest' : pr.w.dir, (pr.w.s.range || 400) * 1.2, pr.x, pr.y);
         const a = t ? Math.atan2(t.y - pr.y, t.x - pr.x) : pr.oa + Math.PI / 2;
@@ -1318,7 +1350,7 @@ function updateProjectiles(dt) {
         // Paradox Rifle: the same hit arrives again from one second in the future.
         const tgt = e, dmg = pr.dmg * 0.9;
         G.fx.push({ type: 'echoMark', x: e.x, y: e.y, e: tgt, life: 1, max: 1 });
-        after(1, () => { if (!tgt.dead) { ring(tgt.x, tgt.y, 22, '#7df9ff', 0.3, 2); damageEnemy(tgt, dmg, { elem: 'arcane', wname: 'Paradox Rifle (echo)', noStatus: true }); } });
+        after(1, () => { if (!tgt.dead) { ring(tgt.x, tgt.y, 22, '#8dffc0', 0.3, 2); damageEnemy(tgt, dmg, { elem: 'arcane', wname: 'Paradox Rifle (echo)', noStatus: true }); } });
       }
       spawnPart(pr.x, pr.y, pr.color, 1, 80, 0.2, 2);
       if (pr.splitHit && !pr.didSplit) {
@@ -1609,7 +1641,7 @@ function gainXp(v) {
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < 3 + SLOT_LEVELS.length) {
       G.weapons.push(null);
       G.lootQueue.push({ kind: 'slot' });
-      banner('NEW WEAPON SLOT!', '#7df9ff');
+      banner('NEW WEAPON SLOT!', '#8dffc0');
       sysLine('slot', true); achieve('slot');
     }
   }

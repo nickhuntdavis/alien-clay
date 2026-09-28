@@ -116,7 +116,8 @@ const UI = {
     for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
     $('moveBtn').textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
     // Keep the Rewind button clear of the HUD as extra weapon rows appear.
-    $('side').style.bottom = ($('bottom').offsetHeight + 12) + 'px';
+    UI.bottomH = $('bottom').offsetHeight;
+    $('side').style.bottom = (UI.bottomH + 12) + 'px';
     // Rewind button.
     const c = G.chrono, rb = $('rewindBtn');
     rb.querySelector('.pips').innerHTML = Array.from({ length: c.max }, (_, i) => `<i class="${i < c.charges ? 'on' : ''}"></i>`).join('');
@@ -221,6 +222,26 @@ const UI = {
     if (s.area && d.kind !== 'wake' && d.kind !== 'siphon') T('Area', Math.round(s.area));
     if (!w.isSpell) T('Crit', Math.round(s.crit * 100) + '%');
     h += `<div class="tiles">${tiles.join('')}</div>`;
+    // Upgrade tree: every level's gains, with a choice of two perks at each milestone.
+    if (!w.isSpell) {
+      const tree = weaponTree(d);
+      h += `<div class="sec"><h3>Upgrade tree</h3><div class="tree">`;
+      for (let l = 1; l <= 8; l++) {
+        const reached = w.lvl >= l;
+        if (tree[l]) {
+          const chosen = w.perks[l];
+          h += `<div class="trow br ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><div class="tps">` + tree[l].map(id => {
+            const K = PERKS[id], st = chosen ? (chosen === id ? 'chosen' : 'dim') : reached ? 'pending' : '';
+            return `<div class="tp ${st}" style="--c:${K.color}"><b><i>${esc(K.icon)}</i>${esc(K.name)}</b><span>${esc(K.desc)}</span></div>`;
+          }).join('<em>or</em>') + `</div></div>`;
+        } else {
+          const bonus = l > 1 ? lvBonusText(d, l - 1, l) : '';
+          const txt = l === 1 ? 'Base weapon' : `+${Math.round(WEAPON_LV_DMG * 100)}% damage, 5% faster, +12% magazine` + (bonus ? '. ' + bonus : '');
+          h += `<div class="trow ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><span class="tt">${esc(txt)}</span></div>`;
+        }
+      }
+      h += `</div><p class="hint">Branches at Lv ${PERK_LEVELS.join(', ')}: when this weapon reaches one, you choose which perk it gets.</p></div>`;
+    }
     // Modifiers.
     if (!w.isSpell) {
       h += `<div class="sec"><h3>Modifiers (${w.mods.length}/${MOD_SLOTS})</h3><div class="mods">`;
@@ -254,7 +275,7 @@ const UI = {
         for (const m of ms) {
           const other = m.a === w.id ? m.b : m.a, ow = G.weapons.find(x => x && x.id === other);
           const ready = ow && ow.lvl >= MERGE_MIN_LEVEL && w.lvl >= MERGE_MIN_LEVEL;
-          const status = ready ? '<b style="color:#7df9ff">READY: offered in your next loot box</b>' : ow ? `Owned at Lv ${ow.lvl}. Both need Lv ${MERGE_MIN_LEVEL}.` : 'Not owned.';
+          const status = ready ? '<b style="color:#8dffc0">READY: offered in your next loot box</b>' : ow ? `Owned at Lv ${ow.lvl}. Both need Lv ${MERGE_MIN_LEVEL}.` : 'Not owned.';
           h += `<div class="fuse" style="--c:${WEAPONS[m.out].color}"><b>+ ${esc(WEAPONS[other].name)}</b> = <b style="color:${WEAPONS[m.out].color}">${esc(WEAPONS[m.out].name)}</b><br><span>${status}</span></div>`;
         }
         h += `</div>`;
@@ -275,7 +296,7 @@ const UI = {
       if (!A.recycle) { A.recycle = true; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; return; }
       G.weapons[A.i] = null; G.rerolls += 2; recomputeAll();
       achieve('recycle');
-      sysMsg('SYSTEM MESSAGE', `${d.name} has been recycled into 2 reroll tokens and a faint smell of regret.`, '#7df9ff', true);
+      sysMsg('SYSTEM MESSAGE', `${d.name} has been recycled into 2 reroll tokens and a faint smell of regret.`, '#8dffc0', true);
       UI.arm = { k: 'w', i: G.weapons.findIndex(Boolean), bar: 0, recycle: false };
       UI.renderArmoury();
     });
@@ -290,9 +311,11 @@ const UI = {
       start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary Starter Box. Yes, sperm can have guns now. Do not ask the biology department.'],
       slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Silver or better.'],
       level: ['LEVEL ' + G.level + '!', pick(['Bronze-or-better Adventurer Box. Pick one. Choose wisely. Or quickly.', 'Adventurer Box! Contents may have shifted during your near-death experience.', 'Adventurer Box. The fans chipped in. Some of them twice.'])],
-      chest: ['FAN BOX', pick(['Silver or better. The fans sent this. Some of the fans are very strange.', 'Silver or better. It rattles. That is probably fine.'])],
+      chest: ['FAN BOX', pick(['Gold or better. The fans sent this. Some of the fans are very strange.', 'Gold or better. It rattles. That is probably fine.'])],
       boss: ['BOSS BOX', 'Gold or better. Pried from a still-warm corpse. Contents are yours. Smell is extra.'],
+      branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The other one goes in the bin. Forever. No pressure.'],
     };
+    if (req.kind === 'branch') { const bw = G.weapons.find(x => x && x.uid === req.uid); if (bw) titles.branch[0] = bw.def.name.toUpperCase() + ': LV ' + req.lvl + ' BRANCH'; }
     $('lootTitle').textContent = titles[req.kind][0];
     if (req.kind !== 'start') achieve('firstloot');
     if (req.kind === 'level' && Math.random() < 0.3) sysLine('level');
@@ -304,7 +327,7 @@ const UI = {
     $('lootCards').innerHTML = '';
     $('lootCards').classList.remove('ready');
     UI.renderLootCards();
-    $('rerollBtn').style.display = req.kind === 'start' ? 'none' : '';
+    $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' ? 'none' : '';
     UI.updateReroll();
     UI.show('loot');
     INPUT.active = false; G.manual = null;

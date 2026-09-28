@@ -26,64 +26,80 @@ function glow(x, y, r, color, alpha) {
   ctx.drawImage(glowSprite(color), x - r, y - r, r * 2, r * 2);
 }
 
-// Tileable parallax layers: nebula clouds (far) and two star fields.
+// ---------------------------------------------------------------- the microscope look
+// Reference: a wet mount of semen under positive phase contrast (the standard for semen analysis):
+// an even mid-grey field with a faint green cast from the interference filter, brightest in the middle
+// of the camera frame; objects are darker grey than the fluid and every edge wears a bright white halo;
+// out-of-focus specks show as soft discs with a light core and a dark ring; there are fine counting-
+// chamber grid lines; fluorescent labels (GFP and friends) glow in colour on top of the grey.
+const MIC = { fluid: '#a3aba1', edge: '#6e766d', body: 'rgb(74,80,76)', acro: 'rgb(128,136,130)', halo: 'rgba(255,255,255,', dark: 'rgba(24,28,26,' };
+const PC_TONE = new Map();
+// Phase-contrast tone for a colour: mostly grey, a hint of the original hue, a little darker than the fluid.
+function pcTone(hex, k) {
+  const key = hex + (k || 0);
+  let v = PC_TONE.get(key);
+  if (v) return v;
+  const n = parseInt(hex.slice(1, 7), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
+  const l = 0.3 * r + 0.59 * g + 0.11 * b, hue = 0.28, dk = k != null ? k : 0.62;
+  const f = c => Math.round((l * (1 - hue) + c * hue) * dk);
+  v = `rgb(${f(r)},${f(g)},${f(b)})`;
+  PC_TONE.set(key, v);
+  return v;
+}
+// Bright phase halo round the current path, then a thin dark edge.
+function pcHalo(width, alpha) {
+  ctx.strokeStyle = MIC.halo + (alpha != null ? alpha : 0.55) + ')'; ctx.lineWidth = width; ctx.stroke();
+  ctx.strokeStyle = MIC.dark + '0.55)'; ctx.lineWidth = Math.max(1, width * 0.35); ctx.stroke();
+}
+
+// Tileable depth layers for the fluid: gentle luminance mottling (far), defocused particles (mid),
+// fine sharp specks (near).
 function buildLayers() {
-  // Living tissue: deep crimson fluid, drifting cells at mid-depth, fine bubbles up close.
   let seed = 1337;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const T = 512, D = Math.min(2, DPR);
-  const neb = makeCanvas(T, T), ng = neb.getContext('2d');
-  const blobs = ['#6a0f35', '#8a1f4f', '#3d0b2a', '#a02a62', '#4a1340', '#2b0a24'];
-  for (let i = 0; i < 18; i++) {
-    const x = rnd() * T, y = rnd() * T, r = 60 + rnd() * 180, c = blobs[i % blobs.length];
-    for (const ox of [-T, 0, T]) for (const oy of [-T, 0, T]) {
-      const gr = ng.createRadialGradient(x + ox, y + oy, 0, x + ox, y + oy, r);
-      gr.addColorStop(0, c + '44'); gr.addColorStop(1, c + '00');
-      ng.fillStyle = gr; ng.fillRect(x + ox - r, y + oy - r, r * 2, r * 2);
-    }
+  const tile = () => { const c = makeCanvas(T * D, T * D), g = c.getContext('2d'); g.scale(D, D); return [c, g]; };
+  const wrap = (g, x, y, fn) => { for (const ox of [-T, 0, T]) for (const oy of [-T, 0, T]) fn(g, x + ox, y + oy); };
+  const [far, fg0] = tile();
+  for (let i = 0; i < 26; i++) {
+    const x = rnd() * T, y = rnd() * T, r = 50 + rnd() * 160, light = rnd() < 0.5;
+    wrap(fg0, x, y, (g, X, Y) => {
+      const gr = g.createRadialGradient(X, Y, 0, X, Y, r);
+      gr.addColorStop(0, light ? 'rgba(255,255,250,0.07)' : 'rgba(20,30,20,0.07)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr; g.fillRect(X - r, Y - r, r * 2, r * 2);
+    });
   }
-  // Wavy fibres through the far layer.
-  ng.strokeStyle = 'rgba(255,140,180,0.05)'; ng.lineWidth = 6;
-  for (let i = 0; i < 7; i++) {
-    const y0 = rnd() * T, amp = 20 + rnd() * 40, ph = rnd() * TAU;
-    ng.beginPath();
-    for (let x = 0; x <= T; x += 8) ng.lineTo(x, y0 + Math.sin(x / T * TAU * 2 + ph) * amp);
-    ng.stroke();
+  // Defocused particles: pale core, dark diffraction ring, faint outer bright ring.
+  const [mid, fg1] = tile();
+  for (let i = 0; i < 34; i++) {
+    const x = rnd() * T, y = rnd() * T, r = 4 + rnd() * 12;
+    wrap(fg1, x, y, (g, X, Y) => {
+      g.fillStyle = 'rgba(255,255,255,0.10)'; g.beginPath(); g.arc(X, Y, r * 0.6, 0, TAU); g.fill();
+      g.strokeStyle = 'rgba(30,36,32,0.22)'; g.lineWidth = r * 0.3; g.beginPath(); g.arc(X, Y, r, 0, TAU); g.stroke();
+      g.strokeStyle = 'rgba(255,255,255,0.10)'; g.lineWidth = r * 0.2; g.beginPath(); g.arc(X, Y, r * 1.35, 0, TAU); g.stroke();
+    });
   }
-  const cells = (n, big) => {
-    const c = makeCanvas(T * D, T * D), g = c.getContext('2d');
-    g.scale(D, D);
-    for (let i = 0; i < n; i++) {
-      const x = rnd() * T, y = rnd() * T;
-      if (big) {
-        const r = 6 + rnd() * 16;
-        g.globalAlpha = 0.12 + rnd() * 0.12;
-        g.fillStyle = '#ff9ecb'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
-        g.globalAlpha *= 1.8; g.strokeStyle = '#ffd1e3'; g.lineWidth = 1.2; g.stroke();
-        g.fillStyle = '#b5487a'; g.beginPath(); g.arc(x + r * 0.2, y - r * 0.15, r * 0.3, 0, TAU); g.fill();
-      } else {
-        const r = 0.6 + rnd() * 1.6;
-        g.globalAlpha = 0.25 + rnd() * 0.45; g.fillStyle = rnd() < 0.7 ? '#ffd6e8' : '#ff8fb8';
-        g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
-      }
-    }
-    return c;
-  };
-  // Depth of field: the further back a layer sits, the more out of focus it is.
+  // Fine specks and bits of debris, nearly in focus.
+  const [near, fg2] = tile();
+  for (let i = 0; i < 110; i++) {
+    const x = rnd() * T, y = rnd() * T, r = 0.5 + rnd() * 1.4, dark = rnd() < 0.6;
+    fg2.fillStyle = dark ? `rgba(30,36,32,${0.25 + rnd() * 0.35})` : `rgba(255,255,255,${0.3 + rnd() * 0.4})`;
+    fg2.beginPath(); fg2.arc(x, y, r, 0, TAU); fg2.fill();
+    if (dark && rnd() < 0.3) { fg2.strokeStyle = 'rgba(255,255,255,0.35)'; fg2.lineWidth = 0.8; fg2.stroke(); }
+  }
   SPR.layers = [
-    { f: 0.06, img: blurTile(neb, 7), T },
-    { f: 0.2, img: blurTile(cells(26, true), 3.5 * D), T },
-    { f: 0.45, img: blurTile(cells(90, false), 1.2 * D), T },
+    { f: 0.06, img: blurTile(far, 7), T },
+    { f: 0.25, img: blurTile(mid, 2.5 * D), T },
+    { f: 0.6, img: blurTile(near, 0.4 * D), T },
   ];
-  // Foreground: big soft debris drifting between the camera and the fight, badly out of focus.
+  // Foreground: debris drifting above the focal plane, badly out of focus.
   const fg = makeCanvas(T, T), fgc = fg.getContext('2d');
   for (let i = 0; i < 5; i++) {
     const x = rnd() * T, y = rnd() * T, r = 26 + rnd() * 40;
-    for (const ox of [-T, 0, T]) for (const oy of [-T, 0, T]) {
-      fgc.globalAlpha = 0.16 + rnd() * 0.08; fgc.fillStyle = i % 2 ? '#ff9ecb' : '#ffc2d9';
-      fgc.beginPath(); fgc.arc(x + ox, y + oy, r, 0, TAU); fgc.fill();
-      fgc.globalAlpha *= 0.8; fgc.fillStyle = '#7a1f4a'; fgc.beginPath(); fgc.arc(x + ox + r * 0.25, y + oy - r * 0.2, r * 0.3, 0, TAU); fgc.fill();
-    }
+    wrap(fgc, x, y, (g, X, Y) => {
+      g.fillStyle = 'rgba(40,46,42,0.16)'; g.beginPath(); g.arc(X, Y, r, 0, TAU); g.fill();
+      g.strokeStyle = 'rgba(255,255,255,0.14)'; g.lineWidth = r * 0.25; g.beginPath(); g.arc(X, Y, r * 1.15, 0, TAU); g.stroke();
+    });
   }
   SPR.fore = { f: 1.6, img: blurTile(fg, 14), T };
 }
@@ -132,7 +148,7 @@ function buildVignette() {
   SPR.vigKey = key;
   const c = makeCanvas(Math.ceil(W / 2), Math.ceil(H / 2)), g = c.getContext('2d');
   const gr = g.createRadialGradient(c.width / 2, c.height / 2, Math.min(c.width, c.height) * 0.35, c.width / 2, c.height / 2, Math.hypot(c.width, c.height) * 0.55);
-  gr.addColorStop(0, 'rgba(20,0,8,0)'); gr.addColorStop(1, 'rgba(25,0,10,0.66)');
+  gr.addColorStop(0, 'rgba(10,14,12,0)'); gr.addColorStop(1, 'rgba(12,16,14,0.62)');
   g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
   SPR.vignette = c;
 }
@@ -160,6 +176,18 @@ function drawShape(shape, x, y, r, rot) {
     case 'spike': for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + rot, rr = i % 2 ? r * 0.7 : r * 1.1; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } break;
     case 'cross': { const t = r * 0.38; ctx.rect(x - t, y - r, t * 2, r * 2); ctx.rect(x - r, y - t, r * 2, t * 2); break; }
     case 'sperm': ctx.ellipse(x, y, r, r * 0.72, rot, 0, TAU); break;
+    case 'amoeba': {
+      // A soft, slowly flowing outline with a few blunt lobopodia, drawn as a smooth closed curve.
+      const n = 36, pts = [];
+      for (let i = 0; i < n; i++) {
+        const a = i / n * TAU;
+        const rr = r * (1 + 0.08 * Math.sin(2 * a + rot) + 0.05 * Math.sin(3 * a - rot * 1.4) + 0.16 * Math.pow(Math.max(0, Math.sin(a + rot * 0.5)), 4) + 0.1 * Math.pow(Math.max(0, Math.sin(2 * a - rot * 0.3 + 1)), 6));
+        pts.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]);
+      }
+      ctx.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
+      for (let i = 0; i < n; i++) { const p0 = pts[i], p1 = pts[(i + 1) % n]; ctx.quadraticCurveTo(p0[0], p0[1], (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2); }
+      break;
+    }
     case 'cell': for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, rr = r * (1 + 0.09 * Math.sin(i * 3 + rot * 2.5)); ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } break;
     case 'antibody': {
       const w = r * 0.34, pts = [[-w / 2, r], [w / 2, r], [w / 2, 0.1 * r], [0.9 * r, -0.7 * r], [0.6 * r, -r], [0, -0.3 * r], [-0.6 * r, -r], [-0.9 * r, -0.7 * r], [-w / 2, 0.1 * r]];
@@ -175,48 +203,32 @@ function drawShape(shape, x, y, r, rot) {
 // ---------------------------------------------------------------- background & floor
 function drawBackground() {
   if (!SPR.layers) buildLayers();
-  ctx.fillStyle = '#14040d';
-  ctx.fillRect(-20, -20, W + 40, H + 40);
+  // Köhler illumination: an even field, a touch brighter in the middle of the frame.
+  const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6);
+  bg.addColorStop(0, '#b3bab0'); bg.addColorStop(0.6, MIC.fluid); bg.addColorStop(1, '#8b9389');
+  ctx.fillStyle = bg; ctx.fillRect(-20, -20, W + 40, H + 40);
   for (const L of SPR.layers) {
     const T = L.T;
     const ox = -((((cam.x * S * L.f) % T) + T) % T), oy = -((((cam.y * S * L.f) % T) + T) % T);
     for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
   }
-  // The womb: a warm, lit disc around the egg, dark tissue beyond.
   const core = G.core, cx = sx(core.x), cy = sy(core.y), R = CORE.arena * S;
-  const fl = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-  fl.addColorStop(0, 'rgba(255,120,170,0.26)'); fl.addColorStop(0.3, 'rgba(170,40,100,0.18)'); fl.addColorStop(0.95, 'rgba(90,15,50,0.12)'); fl.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = fl; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
-  ctx.save();
-  ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.clip();
-  // Cell-wall mesh.
-  const gs = 72, x0 = cam.x - W / 2 / S, y0 = cam.y - H / 2 / S;
-  ctx.strokeStyle = 'rgba(255,150,190,0.06)'; ctx.lineWidth = 1;
-  ctx.beginPath();
-  for (let gy = Math.floor(y0 / gs) * gs; gy < y0 + H / S + gs; gy += gs) {
-    const off = (Math.round(gy / gs) % 2) * gs / 2;
-    for (let gx = Math.floor(x0 / gs) * gs - off; gx < x0 + W / S + gs; gx += gs) { const x = sx(gx), y = sy(gy); ctx.moveTo(x + gs * S * 0.45, y); ctx.arc(x, y, gs * S * 0.45, 0, TAU); }
+  // Counting-chamber grid etched into the slide: fine lines every 100 units, heavier every 500.
+  const x0 = cam.x - W / 2 / S, y0 = cam.y - H / 2 / S, x1 = x0 + W / S, y1 = y0 + H / S;
+  for (const [step, a, lw] of [[100, 0.07, 1], [500, 0.13, 1.6]]) {
+    ctx.strokeStyle = `rgba(30,38,32,${a})`; ctx.lineWidth = lw; ctx.beginPath();
+    for (let gx = Math.ceil(x0 / step) * step; gx < x1; gx += step) { const X = Math.round(sx(gx)) + 0.5; ctx.moveTo(X, 0); ctx.lineTo(X, H); }
+    for (let gy = Math.ceil(y0 / step) * step; gy < y1; gy += step) { const Y = Math.round(sy(gy)) + 0.5; ctx.moveTo(0, Y); ctx.lineTo(W, Y); }
+    ctx.stroke();
   }
-  ctx.stroke();
-  // Heartbeat: a double pulse from the egg every 1.2 seconds.
-  const beat = (G.realT % 1.2) / 1.2;
-  for (const [ofs, a] of [[0, 0.14], [0.14, 0.09]]) {
-    const k = beat - ofs;
-    if (k < 0) continue;
-    const rr = k * CORE.arena;
-    ctx.strokeStyle = `rgba(255,143,184,${a * (1 - k)})`; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(cx, cy, rr * S, 0, TAU); ctx.stroke();
-  }
-  ctx.restore();
-  // Tissue beyond the arena edge.
-  ctx.fillStyle = 'rgba(20,0,8,0.55)';
+  // Beyond the chamber: the spacer's edge, darker and out of focus.
+  ctx.fillStyle = 'rgba(38,44,40,0.62)';
   ctx.beginPath(); ctx.rect(-20, -20, W + 40, H + 40); ctx.arc(cx, cy, R, 0, TAU, true); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,143,184,0.35)'; ctx.lineWidth = 3;
-  ctx.beginPath();
-  for (let i = 0; i <= 120; i++) { const a = i / 120 * TAU, rr = R + Math.sin(a * 14 + G.realT * 1.5) * 6 * S; ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); }
-  ctx.stroke();
-  // Warm glow zone.
-  ctx.strokeStyle = 'rgba(255,214,232,0.16)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 8]);
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU);
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 4; ctx.stroke();
+  ctx.strokeStyle = 'rgba(20,24,22,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
+  // The egg's warm zone, marked like a region of interest in the imaging software.
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.2; ctx.setLineDash([6, 8]);
   ctx.beginPath(); ctx.arc(cx, cy, CORE.sanctuary * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
 }
 
@@ -234,10 +246,10 @@ function drawDecals(vis) {
   for (const d of G.decals) {
     if (!vis(d)) continue;
     const a = Math.min(1, d.life / 4), x = sx(d.x), y = sy(d.y), r = d.r * S;
-    ctx.globalAlpha = a * 0.8;
+    ctx.globalAlpha = a * 0.22;
     ctx.drawImage(spr, x - r, y - r * 0.8, r * 2, r * 1.6);
     if (d.color !== '#000') {
-      ctx.globalAlpha = a * 0.22; ctx.fillStyle = d.color;
+      ctx.globalAlpha = a * 0.35; ctx.fillStyle = 'rgb(50,56,52)';
       for (let i = 0; i < 4; i++) { const an = d.rot + i * 1.7, rr = r * (0.25 + (i % 2) * 0.3); ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an) * rr * 0.8, 1.5 + (i % 3), 0, TAU); ctx.fill(); }
     }
   }
@@ -246,43 +258,79 @@ function drawDecals(vis) {
 
 // ---------------------------------------------------------------- the egg
 function drawCore() {
-  // The egg: pearly ovum, translucent zona, a ring of follicle cells, and cracks once you start breaking in.
+  // The oocyte, as it looks under phase contrast: a big granular sphere with a paler rim, a thick glassy
+  // zona pellucida, a polar body in the gap, and the corona radiata (small dark cells packed radially
+  // against the zona) fading out into the looser cumulus cloud.
   const c = G.core, x = sx(c.x), y = sy(c.y), r = c.r * S, t = G.realT;
   const egg = G.eggE, dmg = egg ? 1 - egg.hp / egg.maxHp : 0;
-  const beat = 1 + Math.max(0, Math.sin(t * TAU / 1.2)) * 0.025;
-  ctx.globalCompositeOperation = 'lighter';
-  glow(x, y, r * 3.2, egg ? '#ff6fa8' : '#ffb3d1', egg ? 0.55 + Math.sin(t * 6) * 0.1 : 0.4);
-  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-  ctx.fillStyle = 'rgba(40,0,15,0.45)'; ctx.beginPath(); ctx.ellipse(x + 6, y + r * 0.9, r * 1.1, r * 0.4, 0, 0, TAU); ctx.fill();
-  // Corona radiata: follicle cells orbiting slowly.
-  for (let i = 0; i < 26; i++) {
-    const a = t * 0.15 + i / 26 * TAU, rr = r * (1.36 + Math.sin(i * 1.7 + t) * 0.04);
-    ctx.fillStyle = i % 3 ? 'rgba(255,194,220,0.55)' : 'rgba(255,160,200,0.6)';
-    ctx.beginPath(); ctx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, r * 0.1, 0, TAU); ctx.fill();
+  if (!SPR.oocyte || SPR.oocyteR !== Math.round(r)) buildOocyte(r);
+  const O = SPR.oocyte, sz = O.width / (DPR > 1 ? Math.min(2, DPR) : 1);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(t * 0.02);
+  ctx.drawImage(O, -sz / 2, -sz / 2, sz, sz);
+  ctx.restore();
+  // Once breakable, the zona fluoresces (as if labelled) and pulses.
+  if (egg) {
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = `rgba(255,120,190,${0.35 + Math.sin(t * 6) * 0.15})`; ctx.lineWidth = r * 0.14;
+    ctx.beginPath(); ctx.arc(x, y, r * 1.12, 0, TAU); ctx.stroke();
+    ctx.globalCompositeOperation = 'source-over';
   }
-  // Zona pellucida.
-  ctx.strokeStyle = egg ? `rgba(255,120,170,${0.5 + Math.sin(t * 8) * 0.2})` : 'rgba(255,240,248,0.35)';
-  ctx.lineWidth = r * 0.16; ctx.beginPath(); ctx.arc(x, y, r * 1.1 * beat, 0, TAU); ctx.stroke();
-  // Ovum.
-  const og = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r * beat);
-  og.addColorStop(0, '#fffafc'); og.addColorStop(0.45, '#ffd1e3'); og.addColorStop(1, c.flash > 0 ? '#ff4d6d' : '#d9689d');
-  ctx.fillStyle = og; ctx.beginPath(); ctx.arc(x, y, r * beat, 0, TAU); ctx.fill();
-  // Nucleus.
-  ctx.fillStyle = 'rgba(160,40,100,0.35)'; ctx.beginPath(); ctx.arc(x + r * 0.2, y + r * 0.15, r * 0.3, 0, TAU); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.ellipse(x - r * 0.4, y - r * 0.45, r * 0.22, r * 0.12, -0.6, 0, TAU); ctx.fill();
+  if (c.flash > 0) { ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
   // Cracks spread as the membrane weakens.
   if (egg && dmg > 0.02) {
     let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
     const n = Math.ceil(dmg * 14);
-    for (let i = 0; i < n; i++) {
-      let a = rnd() * TAU, rr = r * (0.2 + rnd() * 0.3);
-      ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
-      for (let k = 0; k < 4; k++) { a += (rnd() - 0.5) * 0.7; rr += r * 0.2; ctx.lineTo(x + Math.cos(a) * Math.min(rr, r), y + Math.sin(a) * Math.min(rr, r)); }
-      ctx.stroke();
+    for (const [col, lw] of [['rgba(255,255,255,0.8)', 3], ['rgba(20,24,22,0.8)', 1.2]]) {
+      ctx.strokeStyle = col; ctx.lineWidth = lw; seed = 7;
+      for (let i = 0; i < n; i++) {
+        let a = rnd() * TAU, rr = r * (0.2 + rnd() * 0.3);
+        ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+        for (let k = 0; k < 4; k++) { a += (rnd() - 0.5) * 0.7; rr += r * 0.2; ctx.lineTo(x + Math.cos(a) * Math.min(rr, r * 1.15), y + Math.sin(a) * Math.min(rr, r * 1.15)); }
+        ctx.stroke();
+      }
     }
-    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.2, '#ffffff', dmg * 0.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   }
+}
+function buildOocyte(r) {
+  const D = Math.min(2, DPR), R = Math.round(r), size = Math.ceil(R * 4.2), c = makeCanvas(size * D, size * D), g = c.getContext('2d');
+  g.scale(D, D); g.translate(size / 2, size / 2);
+  let seed = 99; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  // Cumulus cloud: loose, faint cells.
+  for (let i = 0; i < 160; i++) {
+    const a = rnd() * TAU, d = R * (1.55 + rnd() * 0.5), cr = R * (0.035 + rnd() * 0.03);
+    g.fillStyle = `rgba(70,78,72,${0.15 + rnd() * 0.15})`; g.beginPath(); g.arc(Math.cos(a) * d, Math.sin(a) * d, cr, 0, TAU); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,0.18)'; g.lineWidth = 1; g.stroke();
+  }
+  // Corona radiata: elongated dark cells standing radially on the zona.
+  for (let i = 0; i < 70; i++) {
+    const a = i / 70 * TAU + rnd() * 0.05, d = R * (1.32 + rnd() * 0.06);
+    g.save(); g.rotate(a); g.translate(d, 0);
+    g.fillStyle = `rgba(60,68,62,${0.55 + rnd() * 0.2})`; g.beginPath(); g.ellipse(0, 0, R * 0.09, R * 0.045, 0, 0, TAU); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,0.45)'; g.lineWidth = 1; g.stroke();
+    g.restore();
+  }
+  // Zona pellucida: a thick, glassy, slightly lighter band with bright edges.
+  g.fillStyle = 'rgba(200,208,200,0.45)'; g.beginPath(); g.arc(0, 0, R * 1.24, 0, TAU); g.arc(0, 0, R * 1.03, 0, TAU, true); g.fill();
+  g.strokeStyle = 'rgba(255,255,255,0.8)'; g.lineWidth = 2; g.beginPath(); g.arc(0, 0, R * 1.24, 0, TAU); g.stroke();
+  g.strokeStyle = 'rgba(40,46,42,0.5)'; g.lineWidth = 1.2; g.beginPath(); g.arc(0, 0, R * 1.03, 0, TAU); g.stroke();
+  // Polar body in the perivitelline space.
+  g.fillStyle = 'rgb(96,104,98)'; g.beginPath(); g.arc(R * 0.72, -R * 0.66, R * 0.14, 0, TAU); g.fill();
+  g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = 1.5; g.stroke();
+  // Ooplasm: granular, darker in the middle, a clear cortical rim.
+  const og = g.createRadialGradient(0, 0, 0, 0, 0, R * 0.95);
+  og.addColorStop(0, 'rgb(98,106,100)'); og.addColorStop(0.75, 'rgb(122,130,124)'); og.addColorStop(1, 'rgb(158,166,160)');
+  g.fillStyle = og; g.beginPath(); g.arc(0, 0, R * 0.95, 0, TAU); g.fill();
+  for (let i = 0; i < 900; i++) {
+    const a = rnd() * TAU, d = Math.sqrt(rnd()) * R * 0.86;
+    g.fillStyle = rnd() < 0.65 ? `rgba(30,36,32,${0.12 + rnd() * 0.2})` : `rgba(255,255,255,${0.12 + rnd() * 0.18})`;
+    g.fillRect(Math.cos(a) * d, Math.sin(a) * d, 1 + rnd() * 1.4, 1 + rnd() * 1.4);
+  }
+  // Germinal vesicle with its nucleolus.
+  g.fillStyle = 'rgba(170,178,170,0.55)'; g.beginPath(); g.arc(-R * 0.18, R * 0.12, R * 0.26, 0, TAU); g.fill();
+  g.strokeStyle = 'rgba(40,46,42,0.5)'; g.lineWidth = 1.2; g.stroke();
+  g.fillStyle = 'rgb(60,66,62)'; g.beginPath(); g.arc(-R * 0.14, R * 0.1, R * 0.07, 0, TAU); g.fill();
+  g.strokeStyle = 'rgba(255,255,255,0.9)'; g.lineWidth = 2.2; g.beginPath(); g.arc(0, 0, R * 0.95, 0, TAU); g.stroke();
+  SPR.oocyte = c; SPR.oocyteR = R;
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
@@ -321,36 +369,50 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
   ctx.globalAlpha = 1;
 }
 
-function drawShip(x, y, face, bodyColor, alpha, scale, body) {
-  // A spermatozoon: glossy head, midpiece and a whipping tail. With a body, the tail is a physical
-  // chain that drags behind the head; without one (ghosts) it's a simple procedural wiggle.
-  const k = S * (scale || 1);
+function drawShip(x, y, face, tag, alpha, scale, body) {
+  // A spermatozoon under phase contrast, in true proportions: a flat oval head (about 5 x 3 um) that reads
+  // dark grey with a bright halo and a paler acrosome cap over its front half, a short thicker midpiece,
+  // and a hair-thin flagellum about ten head-lengths long, beating in a travelling wave.
+  // tag: a fluorescent label colour glowing on the acrosome (you are GFP-tagged; rivals wear other dyes).
+  const sc = scale || 1, k = S * sc;
   const ph = G.realT * 16;
   if (body) {
-    const wx = body.x - Math.cos(face) * 6 * (scale || 1), wy = body.y - Math.sin(face) * 6 * (scale || 1);
-    stepTail(body, wx, wy, face, 44 * (scale || 1), Math.hypot(body.vx || 0, body.vy || 0));
-    ctx.globalAlpha = alpha * 0.35; drawTail(body.tail, bodyColor, 4.4 * k);
-    ctx.globalAlpha = alpha; drawTail(body.tail, bodyColor, 2 * k);
+    const wx = body.x - Math.cos(face) * 9 * sc, wy = body.y - Math.sin(face) * 9 * sc;
+    stepTail(body, wx, wy, face, 78 * sc, body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0));
+    ctx.globalAlpha = alpha * 0.45; drawTail(body.tail, '#ffffff', 2.8 * k);
+    ctx.globalAlpha = alpha * 0.9; drawTail(body.tail, 'rgb(46,52,48)', 1.1 * k);
   }
   ctx.globalAlpha = alpha;
   ctx.save(); ctx.translate(x, y); ctx.rotate(face);
-  ctx.strokeStyle = bodyColor; ctx.lineCap = 'round';
-  const segs = 14, len = 34 * k;
-  for (let pass = 0; pass < 2 && !body; pass++) {
-    ctx.lineWidth = pass ? 1.4 * k : 3.2 * k;
-    ctx.globalAlpha = alpha * (pass ? 1 : 0.35);
-    ctx.beginPath(); ctx.moveTo(-6 * k, 0);
-    for (let i = 1; i <= segs; i++) { const f = i / segs; ctx.lineTo(-6 * k - f * len, Math.sin(ph - f * 7) * 5 * k * f); }
-    ctx.stroke();
+  ctx.lineCap = 'round';
+  if (!body) {
+    // Ghosts (echoes) keep a simple procedural tail.
+    const segs = 14, len = 70 * k;
+    for (let pass = 0; pass < 2; pass++) {
+      ctx.strokeStyle = pass ? 'rgb(46,52,48)' : '#ffffff'; ctx.lineWidth = pass ? 1.1 * k : 2.8 * k;
+      ctx.globalAlpha = alpha * (pass ? 0.9 : 0.45);
+      ctx.beginPath(); ctx.moveTo(-9 * k, 0);
+      for (let i = 1; i <= segs; i++) { const f = i / segs; ctx.lineTo(-9 * k - f * len, Math.sin(ph - f * 7) * 6 * k * f); }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = alpha;
   }
+  // Midpiece: short, a little thicker than the tail, dark.
+  ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = alpha * 0.5; ctx.lineWidth = 3.6 * k;
+  ctx.beginPath(); ctx.moveTo(-5 * k, 0); ctx.lineTo(-11 * k, 0); ctx.stroke();
+  ctx.globalAlpha = alpha; ctx.strokeStyle = 'rgb(58,64,60)'; ctx.lineWidth = 2 * k; ctx.stroke();
+  // Head with halo.
+  ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.5 * k, 5 * k, 0, 0, TAU);
+  ctx.fillStyle = MIC.body; ctx.fill();
+  pcHalo(2.2 * k, 0.75);
+  // Acrosome: paler cap over the front of the head, glowing when labelled.
+  ctx.beginPath(); ctx.ellipse(3.6 * k, 0, 4.4 * k, 4.3 * k, 0, 0, TAU);
+  ctx.fillStyle = tag || MIC.acro; ctx.globalAlpha = alpha * (tag ? 0.85 : 0.8); ctx.fill();
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = shade(bodyColor); ctx.fillRect(-9 * k, -1.6 * k, 5 * k, 3.2 * k);
-  const hg = ctx.createRadialGradient(3 * k, -2 * k, 0.5 * k, 2 * k, 0, 9 * k);
-  hg.addColorStop(0, '#ffffff'); hg.addColorStop(0.5, bodyColor); hg.addColorStop(1, shade(bodyColor));
-  ctx.fillStyle = hg; ctx.beginPath(); ctx.ellipse(2 * k, 0, 9 * k, 6.2 * k, 0, 0, TAU); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(6 * k, 0, 3.5 * k, 3.6 * k, 0, 0, TAU); ctx.fill();
+  // Post-acrosomal dark band and nucleus shading.
+  ctx.fillStyle = 'rgba(20,24,22,0.35)'; ctx.beginPath(); ctx.ellipse(-2.6 * k, 0, 2 * k, 4 * k, 0, 0, TAU); ctx.fill();
   ctx.restore();
+  if (tag) { ctx.globalCompositeOperation = 'lighter'; glow(x + Math.cos(face) * 3.6 * k, y + Math.sin(face) * 3.6 * k, 11 * k, tag, 0.55 * alpha); ctx.globalCompositeOperation = 'source-over'; }
   ctx.lineCap = 'butt';
   ctx.globalAlpha = 1;
 }
@@ -400,93 +462,102 @@ function drawTail(t, color, width) {
 }
 
 // ---------------------------------------------------------------- terrain
+// Drawn as they'd look in the same phase-contrast field: refractile debris (bright-edged, glassy),
+// mitochondria (dark rods with pale cristae, glowing orange as they charge, like a membrane-potential
+// dye), acidic vesicles (dark granular sacs lit by an acid-tracking green dye), patches of ciliated
+// epithelium, streams of drifting particles, and highly refractile lipid droplets.
 function drawTerrain() {
   if (!G.terrain) return;
   const t = G.realT, m = 200;
   const x0 = cam.x - W / 2 / S - m, x1 = cam.x + W / 2 / S + m, y0 = cam.y - H / 2 / S - m, y1 = cam.y + H / 2 / S + m;
   for (const ob of G.terrain.list) {
     if (ob.x < x0 || ob.x > x1 || ob.y < y0 || ob.y > y1) continue;
-    const x = sx(ob.x), y = sy(ob.y), r = ob.r * S, c = ob.def.color;
+    const x = sx(ob.x), y = sy(ob.y), r = ob.r * S;
+    let seed = Math.floor(ob.seed * 1000) + 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     switch (ob.type) {
       case 'ridge': {
-        ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(x + 5, y + r * 0.35, r, r * 0.55, 0, 0, TAU); ctx.fill();
-        const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
-        g.addColorStop(0, ob.flash > 0 ? '#ffffff' : '#fff4ee'); g.addColorStop(0.6, c); g.addColorStop(1, '#a8706c');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-        ctx.strokeStyle = 'rgba(120,60,60,0.45)'; ctx.lineWidth = 2;
-        for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + r * 0.1, y + r * 0.15, r * (0.35 + i * 0.2), ob.a + i, ob.a + i + 1.6); ctx.stroke(); }
-        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r - 1, -2.6, -1.2); ctx.stroke();
+        // Refractile debris: an irregular glassy clump.
+        ctx.beginPath();
+        for (let i = 0; i < 11; i++) { const a = ob.a + i / 11 * TAU, rr = r * (0.82 + rnd() * 0.3); ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+        ctx.closePath();
+        ctx.fillStyle = ob.flash > 0 ? 'rgb(235,240,235)' : 'rgb(150,158,150)'; ctx.fill();
+        pcHalo(4, 0.85);
+        ctx.strokeStyle = 'rgba(40,46,42,0.35)'; ctx.lineWidth = 1.5;
+        for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(x + (rnd() - 0.5) * r, y + (rnd() - 0.5) * r); ctx.lineTo(x + (rnd() - 0.5) * r, y + (rnd() - 0.5) * r); ctx.stroke(); }
+        ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(x - r * 0.25, y - r * 0.3, r * 0.3, r * 0.14, -0.6, 0, TAU); ctx.fill();
         break;
       }
       case 'mito': {
         const k = ob.charge / ob.def.charge, pulse = k > 0.8 ? 0.5 + 0.5 * Math.sin(t * 14) : 0;
+        if (k > 0.05 || ob.burstT > 0) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (1.7 + pulse * 0.5 + ob.burstT * 3), '#ff7a2f', k * 0.55 + pulse * 0.2 + ob.burstT); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
         ctx.save(); ctx.translate(x, y); ctx.rotate(ob.a);
-        ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(4, r * 0.3, r * 1.25, r * 0.7, 0, 0, TAU); ctx.fill();
-        const g = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r * 1.3);
-        g.addColorStop(0, '#ffe0c2'); g.addColorStop(0.7, c); g.addColorStop(1, '#8a3b1a');
-        ctx.fillStyle = ob.flash > 0 ? '#fff' : g; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.25, r * 0.7, 0, 0, TAU); ctx.fill();
-        ctx.strokeStyle = '#6b2a10'; ctx.lineWidth = 3; ctx.stroke();
-        // Cristae: the folded inner membrane, glowing as it charges.
-        ctx.strokeStyle = `rgba(255,${Math.round(200 + 55 * k)},${Math.round(120 * k)},${0.5 + 0.5 * k})`; ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        for (let i = 0; i <= 24; i++) { const f = i / 24, px = (f - 0.5) * r * 2.1, py = Math.sin(f * 16) * r * 0.42 * Math.sin(f * Math.PI); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
-        ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(0, 0, r * 1.25, r * 0.62, 0, 0, TAU);
+        ctx.fillStyle = ob.flash > 0 ? 'rgb(200,205,200)' : `rgb(${Math.round(70 + 120 * k)},${Math.round(74 + 30 * k)},${Math.round(70 - 20 * k)})`; ctx.fill();
+        pcHalo(3, 0.7);
+        ctx.strokeStyle = `rgba(${Math.round(190 + 65 * k)},${Math.round(200 - 40 * k)},${Math.round(190 - 120 * k)},0.7)`; ctx.lineWidth = 2;
+        for (let i = -3; i <= 3; i++) { const cx0 = i * r * 0.3; ctx.beginPath(); ctx.moveTo(cx0, -r * 0.5 * Math.cos(i * 0.4)); ctx.quadraticCurveTo(cx0 + r * 0.12, 0, cx0, r * 0.5 * Math.cos(i * 0.4)); ctx.stroke(); }
         ctx.restore();
-        ctx.globalCompositeOperation = 'lighter';
-        glow(x, y, r * (1.6 + pulse * 0.6 + ob.burstT * 3), '#ffb347', 0.12 + k * 0.4 + pulse * 0.2);
-        ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-        // Charge meter.
-        ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x - r * 0.6, y + r * 0.85, r * 1.2, 4);
-        ctx.fillStyle = '#ffd23f'; ctx.fillRect(x - r * 0.6, y + r * 0.85, r * 1.2 * k, 4);
+        ctx.fillStyle = 'rgba(20,24,22,0.55)'; ctx.fillRect(x - r * 0.6, y + r * 0.8, r * 1.2, 4);
+        ctx.fillStyle = '#ff9e5e'; ctx.fillRect(x - r * 0.6, y + r * 0.8, r * 1.2 * k, 4);
         break;
       }
       case 'acid': {
-        ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.8, c, 0.3); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.6, '#b8f35a', 0.35 + 0.1 * Math.sin(t * 3 + ob.seed)); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
         const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
-        g.addColorStop(0, '#1d2b05'); g.addColorStop(0.65, '#4d7a0c'); g.addColorStop(0.9, c); g.addColorStop(1, '#e9ff9e');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-        // Bubbles rise and pop.
-        for (let i = 0; i < 6; i++) {
-          const ph = (t * 0.7 + ob.seed + i * 0.37) % 1, a = ob.seed * 7 + i * 2.1, d = r * 0.55 * ((i * 0.31 + ob.seed) % 1);
-          ctx.strokeStyle = `rgba(233,255,158,${1 - ph})`; ctx.lineWidth = 1.5;
-          ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, (2 + ph * 7) * S, 0, TAU); ctx.stroke();
+        g.addColorStop(0, 'rgb(52,62,40)'); g.addColorStop(0.8, 'rgb(84,100,60)'); g.addColorStop(1, 'rgb(150,190,90)');
+        ctx.fillStyle = g; ctx.fill();
+        pcHalo(3, 0.6);
+        for (let i = 0; i < 14; i++) { const a = rnd() * TAU + t * 0.3, d = r * 0.8 * Math.sqrt(rnd()); ctx.fillStyle = 'rgba(210,255,140,0.55)'; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 2, 2); }
+        for (let i = 0; i < 4; i++) {
+          const ph = (t * 0.7 + ob.seed + i * 0.37) % 1, a = ob.seed * 7 + i * 2.1, d = r * 0.5 * ((i * 0.31 + ob.seed) % 1);
+          ctx.strokeStyle = `rgba(230,255,190,${1 - ph})`; ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, (2 + ph * 6) * S, 0, TAU); ctx.stroke();
         }
         break;
       }
       case 'cilia': {
-        ctx.fillStyle = 'rgba(255,143,171,0.08)'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,143,171,0.55)'; ctx.lineWidth = 1.5;
-        const n = Math.round(ob.r / 5);
+        // A patch of ciliated epithelium: pale cell outlines with a fringe of beating cilia.
+        ctx.fillStyle = 'rgba(120,128,122,0.35)'; ctx.beginPath(); ctx.arc(x, y, r * 0.62, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5;
+        for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + ob.a; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r * 0.62, y + Math.sin(a) * r * 0.62); ctx.stroke(); }
+        ctx.beginPath(); ctx.arc(x, y, r * 0.62, 0, TAU); ctx.stroke();
+        const n = Math.round(ob.r / 3);
+        ctx.strokeStyle = 'rgba(40,46,42,0.5)'; ctx.lineWidth = 1;
         ctx.beginPath();
         for (let i = 0; i < n; i++) {
-          const a = i / n * TAU, sw = Math.sin(t * 7 + i * 0.9) * 0.25, r0 = r * 0.55, r1 = r * 0.98;
+          const a = i / n * TAU, sw = Math.sin(t * 9 - i * 0.5) * 0.28, r0 = r * 0.62, r1 = r * 0.98;
           ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0);
           ctx.quadraticCurveTo(x + Math.cos(a + sw * 0.5) * (r0 + r1) / 2, y + Math.sin(a + sw * 0.5) * (r0 + r1) / 2, x + Math.cos(a + sw) * r1, y + Math.sin(a + sw) * r1);
         }
         ctx.stroke();
-        ctx.fillStyle = 'rgba(255,143,171,0.35)'; ctx.beginPath(); ctx.arc(x, y, r * 0.18, 0, TAU); ctx.fill();
         break;
       }
       case 'current': {
+        // A stream: particles drifting along, with a faint boundary.
         ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
-        ctx.fillStyle = 'rgba(125,249,255,0.07)'; ctx.fillRect(x - r, y - r, r * 2, r * 2);
-        ctx.translate(x, y); ctx.rotate(ob.a);
-        ctx.strokeStyle = 'rgba(125,249,255,0.45)'; ctx.lineWidth = 2;
-        const sp = 38 * S, off = (t * ob.def.push * S) % sp;
-        for (let row = -3; row <= 3; row++) for (let cx = -r - sp + off; cx < r + sp; cx += sp) {
-          const cy = row * r / 3.5 + Math.sin(cx * 0.03 + row) * 3;
-          ctx.beginPath(); ctx.moveTo(cx - 8 * S, cy - 6 * S); ctx.lineTo(cx, cy); ctx.lineTo(cx - 8 * S, cy + 6 * S); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+        const ca = Math.cos(ob.a), sa = Math.sin(ob.a);
+        for (let i = 0; i < 26; i++) {
+          const lane = (rnd() - 0.5) * 2 * r, ph = ((t * ob.def.push * S / (2 * r) + rnd()) % 1) * 2 * r - r;
+          const px = x + ca * ph - sa * lane, py = y + sa * ph + ca * lane, len = 10 * S;
+          ctx.strokeStyle = 'rgba(30,36,32,0.4)'; ctx.lineWidth = 1.6;
+          ctx.beginPath(); ctx.moveTo(px - ca * len, py - sa * len); ctx.lineTo(px, py); ctx.stroke();
+          ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillRect(px - 1, py - 1, 2, 2);
         }
         ctx.restore();
-        ctx.strokeStyle = 'rgba(125,249,255,0.25)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 6]); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
         break;
       }
       case 'slick': {
-        const g = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, r * 0.1, x, y, r);
-        g.addColorStop(0, 'rgba(255,255,255,0.4)'); g.addColorStop(0.5, 'rgba(200,182,255,0.3)'); g.addColorStop(1, 'rgba(125,249,255,0.08)');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.8, ob.a, 0, TAU); ctx.fill();
-        ctx.strokeStyle = `hsla(${(t * 40 + ob.seed * 50) % 360},90%,80%,0.6)`; ctx.lineWidth = 2.5;
-        ctx.beginPath(); ctx.ellipse(x, y, r * 0.7, r * 0.5, ob.a + t * 0.2, 0.3, 2.4); ctx.stroke();
+        // Lipid droplet: very refractile, bright with a hard dark ring and a wide halo.
+        ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
+        const g = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, r * 0.05, x, y, r);
+        g.addColorStop(0, 'rgba(255,255,250,0.55)'); g.addColorStop(0.7, 'rgba(215,222,212,0.35)'); g.addColorStop(1, 'rgba(160,168,160,0.3)');
+        ctx.fillStyle = g; ctx.fill();
+        ctx.strokeStyle = 'rgba(30,36,32,0.55)'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(x, y, r + 5, 0, TAU); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.ellipse(x - r * 0.3, y - r * 0.35, r * 0.25, r * 0.12, -0.6, 0, TAU); ctx.fill();
         break;
       }
     }
@@ -612,15 +683,6 @@ function render() {
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(t.face) * 16 * S, y + Math.sin(t.face) * 16 * S); ctx.lineWidth = 4; ctx.stroke();
   }
 
-  // Enemy drop shadows, batched.
-  ctx.fillStyle = 'rgba(0,0,0,0.38)';
-  ctx.beginPath();
-  for (const e of G.enemies) {
-    if (!vis(e) || e.phased || e.egg) continue;
-    const x = sx(e.x) + 3, y = sy(e.y) + e.r * S * 0.75, r = e.r * S;
-    ctx.moveTo(x + r, y); ctx.ellipse(x, y, r, r * 0.45, 0, 0, TAU);
-  }
-  ctx.fill();
   // Elite, boss and ally auras.
   ctx.globalCompositeOperation = 'lighter';
   for (const e of G.enemies) {
@@ -645,14 +707,12 @@ function render() {
     const sh = e.def.shape;
     const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
     if (sh === 'sperm') {
-      // Swimmers drag physical tails behind them.
-      const wr = e.r * 0.8;
+      // Swimmers are drawn like you: real sperm with dragging tails. Rivals carry their fluorescent dye.
       if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
       const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
-      stepTail(e, e.x - Math.cos(face) * wr, e.y - Math.sin(face) * wr, face, e.r * 3.2, e.tailV);
-      drawTail(e.tail, e.charmed ? '#ff8fab' : e.color, Math.max(1.2, r * 0.22));
-    }
-    if (e.def.shape === 'eye') {
+      const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? '#ff8fab' : e.rival ? e.color : e.elite ? '#ffd23f' : null;
+      drawShip(x, y, face, tag, e.phased ? 0.25 : 1, e.r * squash / 8, e);
+    } else if (e.def.shape === 'eye') {
       const eg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
       eg.addColorStop(0, '#5a1a8e'); eg.addColorStop(1, '#14002a');
       ctx.fillStyle = e.flash > 0 ? '#fff' : eg; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
@@ -661,22 +721,40 @@ function render() {
       ctx.fillStyle = '#ff3df2'; ctx.beginPath(); ctx.arc(x + Math.cos(la) * r * 0.4, y + Math.sin(la) * r * 0.4, r * 0.35, 0, TAU); ctx.fill();
       ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x + Math.cos(la) * r * 0.5, y + Math.sin(la) * r * 0.5, r * 0.15, 0, TAU); ctx.fill();
     } else {
+      // Phase contrast: a grey body (a hint of its hue), darker towards the middle, bright halo round the edge.
       drawShape(e.def.shape, x, y, r, rot);
-      ctx.fillStyle = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.color;
+      ctx.fillStyle = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, sh === 'amoeba' ? 0.85 : 0.62);
       ctx.fill();
-      // Lower-right shading and top-left highlight give each body volume.
-      if (e.flash <= 0) {
-        ctx.save(); ctx.clip();
-        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.arc(x + r * 0.75, y + r * 0.8, r * 0.95, 0, TAU); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.beginPath(); ctx.arc(x - r * 0.35, y - r * 0.4, r * 0.42, 0, TAU); ctx.fill();
-        ctx.restore();
+      if (e.flash <= 0 && sh !== 'amoeba') {
+        ctx.fillStyle = 'rgba(20,24,22,0.22)'; ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, TAU); ctx.fill();
         drawShape(e.def.shape, x, y, r, rot);
       }
-      if (sh === 'cell' && e.flash <= 0) { ctx.fillStyle = 'rgba(90,10,50,0.35)'; ctx.beginPath(); ctx.arc(x + r * 0.2, y + r * 0.1, r * 0.35, 0, TAU); ctx.fill(); drawShape(sh, x, y, r, rot); }
-      ctx.lineWidth = e.elite || e.boss || e.rival ? 3 : 1.5;
-      if (e.charmed) ctx.lineWidth = 3;
-      ctx.strokeStyle = e.charmed ? '#ff8fab' : e.rival ? '#fff' : e.elite ? '#ffd23f' : e.boss ? '#fff' : 'rgba(0,0,0,0.6)';
-      ctx.stroke();
+      if (sh === 'amoeba' && e.flash <= 0) {
+        // Amoeba: clear hyaline rim (ectoplasm), granular endoplasm streaming inside, a nucleus, a clear
+        // contractile vacuole, and the dark remains of whatever it has engulfed in food vacuoles.
+        ctx.save(); drawShape(sh, x, y, r, rot); ctx.clip();
+        ctx.fillStyle = 'rgba(70,78,72,0.55)'; drawShape(sh, x - r * 0.04, y, r * 0.82, rot + 0.3); ctx.fill();
+        for (let i = 0; i < 26; i++) { const a = i * 2.39 + e.id + e.age * 0.25, d = r * 0.72 * Math.sqrt((i * 0.618) % 1); ctx.fillStyle = i % 3 ? 'rgba(30,36,32,0.35)' : 'rgba(255,255,255,0.3)'; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, Math.max(1, r * 0.035), Math.max(1, r * 0.035)); }
+        for (let i = 0; i < Math.min(10, e.meals || 0); i++) { const a = i * 1.9 + e.age * 0.2, d = r * 0.5 * ((i * 0.53) % 1); ctx.fillStyle = 'rgba(30,34,32,0.5)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, r * 0.1, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.stroke(); }
+        ctx.fillStyle = 'rgba(150,158,150,0.7)'; ctx.beginPath(); ctx.arc(x - r * 0.15, y + r * 0.12, r * 0.2, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(30,36,32,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
+        const cv = 0.08 + 0.1 * ((e.age * 0.25 + e.id * 0.1) % 1);
+        ctx.fillStyle = 'rgba(225,232,225,0.8)'; ctx.beginPath(); ctx.arc(x + r * 0.35, y - r * 0.3, r * cv, 0, TAU); ctx.fill();
+        ctx.restore();
+        drawShape(sh, x, y, r, rot);
+      }
+      if (sh === 'cell' && e.flash <= 0) {
+        // White blood cell: granular cytoplasm and a dark lobed nucleus.
+        ctx.fillStyle = 'rgba(30,36,32,0.45)';
+        for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        for (let i = 0; i < 8; i++) { const a = i * 2.4 + e.id, d = r * 0.7 * ((i * 0.37) % 1); ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 1.5, 1.5); }
+        drawShape(sh, x, y, r, rot);
+      }
+      if (e.elite || e.charmed) {
+        // Immunostained: a fluorescent rim marks elites (gold) and your allies (pink).
+        ctx.strokeStyle = e.charmed ? '#ff8fab' : '#ffd23f'; ctx.lineWidth = 3; ctx.stroke();
+      } else pcHalo(e.boss ? 4 : Math.max(2, r * 0.14), e.boss ? 0.8 : 0.6);
     }
     let si = 0;
     const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
@@ -712,21 +790,22 @@ function render() {
   }
   ctx.globalAlpha = 1;
 
+  drawTracks(vis);
   // Paradox echoes: translucent ghosts with afterimages.
   for (const echo of G.echoes) {
     const fade = Math.min(1, (echo.dur - echo.t) / 0.6, echo.t / 0.3);
     const x = sx(echo.x), y = sy(echo.y), face = Math.hypot(echo.vx, echo.vy) > 10 ? Math.atan2(echo.vy, echo.vx) : echo.face;
     echo.face = face;
     ctx.globalCompositeOperation = 'lighter';
-    glow(x, y, 40 * S, '#7df9ff', 0.45 * fade);
+    glow(x, y, 40 * S, '#8dffc0', 0.45 * fade);
     ctx.globalCompositeOperation = 'source-over';
     for (let k = 3; k >= 1; k--) {
       const ex = echo.x - echo.vx * 0.05 * k, ey = echo.y - echo.vy * 0.05 * k;
-      drawShip(sx(ex), sy(ey), face, '#7df9ff', 0.12 * fade * (4 - k), playerScale());
+      drawShip(sx(ex), sy(ey), face, '#8dffc0', 0.12 * fade * (4 - k), playerScale());
     }
-    drawShip(x, y, face, '#7df9ff', 0.6 * fade, playerScale());
+    drawShip(x, y, face, '#8dffc0', 0.6 * fade, playerScale());
     drawWeaponFx(echo.weapons, echo.x, echo.y, 0.6 * fade);
-    ctx.globalAlpha = fade; ctx.strokeStyle = '#7df9ff'; ctx.lineWidth = 2;
+    ctx.globalAlpha = fade; ctx.strokeStyle = '#8dffc0'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(x, y, 22 * S, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0, 1 - echo.t / echo.dur)); ctx.stroke();
     ctx.globalAlpha = 1;
   }
@@ -736,13 +815,13 @@ function render() {
   ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(px + 3, py + 12 * S, 13 * S, 6 * S, 0, 0, TAU); ctx.fill();
   if (G.barrier > 0) { ctx.strokeStyle = 'rgba(72,202,228,0.8)'; ctx.fillStyle = 'rgba(72,202,228,0.10)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, G.barrierR * S, 0, TAU); ctx.fill(); ctx.stroke(); }
   ctx.globalCompositeOperation = 'lighter';
-  glow(px, py, 34 * S, G.rage > 0 ? '#ff924c' : '#3cf0ff', 0.45);
+  glow(px, py, 34 * S, G.rage > 0 ? '#ff924c' : '#4dff9a', 0.45);
   // Engine plume.
   const sp = Math.hypot(p.vx, p.vy);
   if (sp > 15 && !rewinding) {
     const ba = (p.hd != null ? p.hd : p.face) + Math.PI;
     glow(px + Math.cos(ba) * 12 * S, py + Math.sin(ba) * 12 * S, (8 + sp / 20) * S, '#ff9e00', 0.7);
-    if (Math.random() < 0.6) spawnPart(p.x + Math.cos(ba) * 10, p.y + Math.sin(ba) * 10, Math.random() < 0.5 ? '#ff9e00' : '#3cf0ff', 1, 40, 0.35, 2.5);
+    if (Math.random() < 0.6) spawnPart(p.x + Math.cos(ba) * 10, p.y + Math.sin(ba) * 10, Math.random() < 0.5 ? '#ff9e00' : '#4dff9a', 1, 40, 0.35, 2.5);
   }
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   if (G.shieldT > 0) { ctx.strokeStyle = '#48cae4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, 22 * S, 0, TAU); ctx.stroke(); }
@@ -754,7 +833,7 @@ function render() {
     }
     if (w.def.heat && w.heat > 0.6) { ctx.globalCompositeOperation = 'lighter'; glow(px, py, 30 * S, '#ff5400', (w.heat - 0.6) * 1.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   }
-  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : '#3cf0ff', p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale(), p);
+  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : '#4dff9a', p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale(), p);
   ctx.fillStyle = '#000'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S, 4);
   ctx.fillStyle = p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S * (p.hp / G.P.maxHp), 4);
 
@@ -846,7 +925,7 @@ function render() {
     } else if (f.type === 'echoMark' && f.e && !f.e.dead) {
       // Clock-hand countdown on enemies that will be hit again by the Paradox Rifle.
       const x = sx(f.e.x), y = sy(f.e.y), rr = (f.e.r + 7) * S;
-      ctx.globalAlpha = 0.8; ctx.strokeStyle = '#7df9ff'; ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.8; ctx.strokeStyle = '#8dffc0'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(x, y, rr, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - k)); ctx.stroke();
     }
   }
@@ -857,6 +936,9 @@ function render() {
   for (const b of G.ebul) { if (!vis(b)) continue; (byColor[b.color] || (byColor[b.color] = [])).push(b); }
   for (const c in byColor) { const spr = glowSprite(c); for (const b of byColor[c]) { const r = b.r * 3.4 * S; ctx.drawImage(spr, sx(b.x) - r, sy(b.y) - r, r * 2, r * 2); } }
   ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(20,24,22,0.7)'; ctx.beginPath();
+  for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = (b.r + 3) * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
+  ctx.fill();
   for (const c in byColor) {
     ctx.fillStyle = c; ctx.beginPath();
     for (const b of byColor[c]) { const x = sx(b.x), y = sy(b.y), r = (b.r + 1.5) * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
@@ -906,19 +988,22 @@ function drawRewindFx() {
   for (let y = (t * 120) % 4; y < H; y += 4) ctx.fillRect(0, y, W, 1.5);
   for (let i = 0; i < 3; i++) {
     const y = ((t * (300 + i * 170)) % (H + 80)) - 40, h = 10 + i * 8;
-    ctx.fillStyle = `rgba(125,249,255,${0.08 + i * 0.03})`; ctx.fillRect(0, y, W, h);
+    ctx.fillStyle = `rgba(141,255,192,${0.08 + i * 0.03})`; ctx.fillRect(0, y, W, h);
     try { ctx.drawImage(cv, 0, y * DPR, cv.width, h * DPR, 8 + i * 6, y, W, h); } catch (e) { /* ignore */ }
   }
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.font = `900 ${Math.min(44, W / 9)}px sans-serif`;
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText('<< REWIND', W / 2 + 3, H * 0.42 + 3);
-  ctx.fillStyle = Math.floor(t * 6) % 2 ? '#7df9ff' : '#e0fbff'; ctx.fillText('<< REWIND', W / 2, H * 0.42);
+  ctx.fillStyle = Math.floor(t * 6) % 2 ? '#8dffc0' : '#e0fbff'; ctx.fillText('<< REWIND', W / 2, H * 0.42);
   ctx.font = 'bold 14px sans-serif'; ctx.fillStyle = '#e0fbff';
   ctx.fillText(r.auto ? 'Fatal timeline detected. Your future self stays behind.' : 'Your future self becomes a Paradox Echo.', W / 2, H * 0.42 + 36);
 }
 
 function drawTitleBackdrop() {
   if (!SPR.layers) buildLayers();
+  const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6);
+  bg.addColorStop(0, '#b3bab0'); bg.addColorStop(0.6, MIC.fluid); bg.addColorStop(1, '#6e766d');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
   const t = performance.now() / 1000;
   for (const L of SPR.layers) {
     const T = L.T, ox = -(((t * 40 * L.f) % T) + T) % T, oy = -(((t * 15 * L.f) % T) + T) % T;
@@ -927,8 +1012,56 @@ function drawTitleBackdrop() {
 }
 
 // ---------------------------------------------------------------- HUD (canvas part)
+// CASA-style tracking overlay (as in computer-assisted sperm analysis software): each tracked swimmer
+// leaves a colour-coded path of its last few seconds, and rivals get detection brackets.
+function trackPoint(o) {
+  o.trk = o.trk || [];
+  const last = o.trk[o.trk.length - 1];
+  if (!last || G.realT - last.t > 0.12) { o.trk.push({ x: o.x, y: o.y, t: G.realT }); if (o.trk.length > 26) o.trk.shift(); }
+}
+function drawTrackLine(o, color) {
+  const t = o.trk;
+  if (!t || t.length < 2) return;
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+  for (let i = 1; i < t.length; i++) {
+    ctx.globalAlpha = 0.15 + 0.65 * i / t.length;
+    ctx.beginPath(); ctx.moveTo(sx(t[i - 1].x), sy(t[i - 1].y)); ctx.lineTo(sx(t[i].x), sy(t[i].y)); ctx.stroke();
+  }
+  ctx.globalAlpha = 1; ctx.lineJoin = 'miter';
+}
+function drawTracks(vis) {
+  const p = G.player;
+  trackPoint(p); drawTrackLine(p, '#4dff9a');
+  for (const e of G.enemies) {
+    if (!e.rival || e.dead) continue;
+    trackPoint(e);
+    if (!vis(e)) continue;
+    drawTrackLine(e, e.color);
+    const x = sx(e.x), y = sy(e.y), b = e.r * S * 1.9, c = b * 0.35;
+    ctx.strokeStyle = e.color; ctx.lineWidth = 1.5; ctx.beginPath();
+    for (const [dx, dy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      ctx.moveTo(x + dx * b, y + dy * (b - c)); ctx.lineTo(x + dx * b, y + dy * b); ctx.lineTo(x + dx * (b - c), y + dy * b);
+    }
+    ctx.stroke();
+  }
+}
+
+// Scale bar and objective readout, bottom-left, like the imaging software burns into a frame.
+// A sperm head is about 15 world units long and ~5 um in reality, so 30 units is 10 um.
+function drawScaleBar() {
+  const bh = (UI.bottomH || 230), y = H - bh - 22, x = 12, len = 30 * S * 2;
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, len, 3);
+  ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
+  ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#fff'; ctx.fillText('20 \u00b5m', x, y - 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fillText('PH2 40x  37\u00b0C', x + len + 10, y + 4);
+}
+
 function drawHud() {
   const p = G.player, top = UI.safeTop || 0;
+  // Everything on the HUD gets a soft dark drop so it reads against the pale field.
+  ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 4;
+  drawScaleBar();
   // XP bar.
   ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, top, W, 7);
   const xg = ctx.createLinearGradient(0, 0, W, 0); xg.addColorStop(0, '#4cc9f0'); xg.addColorStop(1, '#c77dff');
@@ -946,12 +1079,12 @@ function drawHud() {
   const c = G.core;
   ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
   ctx.fillStyle = '#fff'; ctx.fillText(`LV ${G.level}`, 10, top + 40);
-  ctx.fillStyle = '#ff8fab'; ctx.fillText(`${G.kills} kills`, 56, top + 40);
+  ctx.fillStyle = '#e8ece9'; ctx.fillText(`${G.kills} kills`, 56, top + 40);
   // Live broadcast counter (and scrap, when a weapon uses it).
   if (Math.floor(G.realT * 2) % 2) { ctx.fillStyle = '#ff2e4d'; ctx.beginPath(); ctx.arc(14, top + 57, 4, 0, TAU); ctx.fill(); }
   ctx.fillStyle = '#ffc2cc'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(`LIVE ${fmtViewers(G.show.viewers)}`, 22, top + 57);
   if (ownsScrapWeapon()) { ctx.fillStyle = '#ffb400'; ctx.fillText(`${Math.floor(G.scrap)} scrap`, 110, top + 57); }
-  ctx.textAlign = 'center'; ctx.fillStyle = G.state === 'rewind' ? '#7df9ff' : '#fff'; ctx.font = 'bold 18px sans-serif';
+  ctx.textAlign = 'center'; ctx.fillStyle = G.state === 'rewind' ? '#8dffc0' : '#fff'; ctx.font = 'bold 18px sans-serif';
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
   ctx.fillText(`${m}:${s < 10 ? '0' : ''}${s}`, W / 2, top + 24);
   // Status chips.
@@ -960,7 +1093,7 @@ function drawHud() {
   if (G.shieldT > 0) chips.push(['SHIELD', '#48cae4']);
   if (G.warp > 0) chips.push(['WARP', '#b8c0ff']);
   if (G.barrier > 0) chips.push(['AEGIS', '#48cae4']);
-  if (G.echoes.length) chips.push(['ECHO x' + G.echoes.length, '#7df9ff']);
+  if (G.echoes.length) chips.push(['ECHO x' + G.echoes.length, '#8dffc0']);
   if (G.manual) chips.push(['MANUAL', '#fff']);
   ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
   chips.forEach((ch, i) => { ctx.fillStyle = ch[1]; ctx.fillText(ch[0], 10 + i * 74, top + 74); });
@@ -1008,6 +1141,7 @@ function drawHud() {
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   pointer(c.x, c.y, G.eggE ? '#ffffff' : '#ffb3d1');
   drawMinimap(top);
+  ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.
   if (G.banner) {
     const b = G.banner, a = Math.min(1, b.t * 2), sc = 1 + Math.max(0, b.t - 2.1) * 1.5;
@@ -1026,14 +1160,15 @@ function drawHud() {
 function drawMinimap(top) {
   const R = 44, mx = W - R - 10, my = top + 70 + R;
   const k = R / CORE.arena;
-  ctx.fillStyle = 'rgba(5,5,20,0.75)'; ctx.beginPath(); ctx.arc(mx, my, R, 0, TAU); ctx.fill();
-  ctx.strokeStyle = 'rgba(125,249,255,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = 'rgba(18,22,20,0.78)'; ctx.beginPath(); ctx.arc(mx, my, R, 0, TAU); ctx.fill();
+  ctx.strokeStyle = 'rgba(200,210,200,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
   const dot = (x, y, r, col) => {
     let dx = (x - G.core.x) * k, dy = (y - G.core.y) * k; const d = Math.hypot(dx, dy);
     if (d > R - 2) { dx = dx / d * (R - 2); dy = dy / d * (R - 2); }
     ctx.fillStyle = col; ctx.fillRect(mx + dx - r / 2, my + dy - r / 2, r, r);
   };
   if (G.terrain) { ctx.globalAlpha = 0.45; for (const ob of G.terrain.list) if (ob.def.solid || ob.type === 'current') dot(ob.x, ob.y, 2, ob.def.color); ctx.globalAlpha = 1; }
+  for (const e of G.enemies) if (e.def.spongy && e.r > 60) dot(e.x, e.y, Math.min(7, e.r / 20), e.color);
   for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? '#ff4d6d' : e.charmed ? '#ff8fab' : '#ffd23f');
   dot(G.core.x, G.core.y, 8, G.eggE ? '#ffffff' : '#ffb3d1');
   for (const e of G.enemies) if (e.rival && !e.dead) dot(e.x, e.y, 5, e.color);

@@ -237,7 +237,7 @@ function updateRivals(dt) {
 
 // Sorted standings for the HUD: you and every rival, alive or not.
 function rivalBoard() {
-  const rows = [{ name: 'YOU', lvl: G.level, color: '#7df9ff', you: true }];
+  const rows = [{ name: 'YOU', lvl: G.level, color: '#8dffc0', you: true }];
   for (const R of RIVALS) {
     const e = G.enemies.find(o => o.rid === R.id && !o.dead);
     rows.push({ name: R.name, lvl: e ? e.lvl : 0, color: R.color, out: !e, egg: e && e.mode === 'egg', e });

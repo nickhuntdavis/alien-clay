@@ -12,10 +12,10 @@ function sysMsg(head, body, color, force) {
   if (!G) return;
   const q = G.show.msgQ;
   if (!force && q.length >= 2) return;
-  q.push({ head, body, color: color || '#7df9ff' });
+  q.push({ head, body, color: color || '#8dffc0' });
   if (q.length > 6) q.shift();
 }
-function sysLine(kind, force) { const L = SYSTEM_LINES[kind]; if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#7df9ff', force); }
+function sysLine(kind, force) { const L = SYSTEM_LINES[kind]; if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force); }
 
 function addViewers(n) {
   if (!G) return;
@@ -42,7 +42,7 @@ function achieve(id) {
   s.order.push(id);
   let reward;
   switch (A.reward) {
-    case 'box': G.lootQueue.push({ kind: 'chest' }); reward = 'Reward: a Silver Fan Box.'; break;
+    case 'box': G.lootQueue.push({ kind: 'chest' }); reward = 'Reward: a Gold Fan Box.'; break;
     case 'bossbox': G.lootQueue.push({ kind: 'boss' }); reward = 'Reward: a Gold Boss Box.'; break;
     case 'reroll': G.rerolls++; reward = 'Reward: +1 reroll token.'; break;
     case 'scrap': G.scrap += 40; reward = 'Reward: 40 scrap. Try not to spend it all at once.'; break;

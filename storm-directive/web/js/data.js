@@ -128,7 +128,7 @@ const WEAPONS = {
     base: { dmg: 11, cd: 1.4, mag: 2, reload: 2.0, count: 5, spread: 90, range: 460, area: 36, flight: 0.7, explode: 1 },
     lv: { 3: { count: 2 }, 5: { area: 0.3 }, 7: { count: 3 } } },
 
-  paradox: { name: 'Paradox Rifle', icon: 'PX', elem: 'arcane', kind: 'gun', color: '#7df9ff', dir: 'strongest', style: 'bolt',
+  paradox: { name: 'Paradox Rifle', icon: 'PX', elem: 'arcane', kind: 'gun', color: '#8dffc0', dir: 'strongest', style: 'bolt',
     desc: 'Every hit repeats itself 1 second later, from the future.',
     base: { dmg: 16, cd: 0.55, mag: 6, reload: 1.6, count: 1, spread: 0.04, speed: 760, pierce: 1, range: 480, size: 4, echoHit: 1 },
     lv: { 3: { pierce: 1 }, 5: { count: 1 }, 7: { dmg: 0.4 } } },
@@ -405,6 +405,9 @@ const ENEMIES = {
     shoot: { pattern: 'spiral', cd: 0.16, speed: 125, dmg: 7 } },
   lancer:   { name: 'Killer T-Cell', hp: 26, speed: 52, armour: 0, r: 13, dmg: 6, xp: 5, color: '#ff99c8', shape: 'antibody', ai: 'ranged', from: 260, w: 1.5,
     shoot: { pattern: 'snipe', cd: 3.6, speed: 430, dmg: 16 } },
+  // Spongy engulfers: slow, tough, knockback-proof, and they eat other monsters to grow (up to 'max' radius).
+  amoeba:   { name: 'Amoeba', hp: 150, speed: 30, armour: 1, r: 30, dmg: 14, xp: 10, color: '#7fd8b0', shape: 'amoeba', ai: 'engulf', from: 70, w: 0.9, spongy: true, max: 175 },
+  plasmod:  { name: 'Plasmodium', hp: 380, speed: 22, armour: 3, r: 42, dmg: 22, xp: 24, color: '#e9c46a', shape: 'amoeba', ai: 'engulf', from: 240, w: 0.7, spongy: true, max: 210, split: 'amoeba' },
   juggernaut: { name: 'Alpha Swimmer', hp: 420, speed: 34, armour: 12, r: 28, dmg: 30, xp: 20, color: '#d4c1a4', shape: 'sperm', ai: 'chase', from: 300, w: 0.6 },
 };
 
@@ -430,9 +433,47 @@ const POWERUPS = {
 // The egg sits at the world origin: the arena's centre. Standing in its glow heals you.
 const CORE = { r: 80, sanctuary: 290, arena: 2400 };
 // Break into the egg: reach EGG.level and its membrane becomes vulnerable. Destroy it to be born (you win).
-const EGG = { level: 60, hpBase: 600000, armour: 8 };
+const EGG = { level: 60, hpBase: 350000, armour: 8 };
 // Extra weapon slots unlock at these levels (3 to start, 6 at most).
 const SLOT_LEVELS = [15, 30, 45];
+
+// ---------------------------------------------------------------- Weapon upgrade trees
+// Every weapon has a tree: at these levels you pick one of two branch perks (the tree is fixed per weapon,
+// so you can plan ahead in the Armoury). tier: which milestone it can appear at. fit(d): which weapons it suits.
+const PERK_LEVELS = [3, 5, 8];
+const MULTI_KINDS = ['gun', 'lob', 'chain', 'mine', 'orbit', 'ring', 'strike', 'siphon', 'mimic', 'tether', 'prequel'];
+const hasArea = d => !!(d.base.area || d.base.explode > 1 || d.base.aura || d.base.radius || d.style === 'flame' || d.kind === 'orbit');
+const isProj = d => PROJ_KINDS.includes(d.kind);
+const PERKS = {
+  // Tier 1 (Lv 3): tune the gun.
+  power:    { tier: 1, icon: 'PW', color: '#ff924c', name: 'Hot Load',        desc: '+40% damage.' },
+  rapid:    { tier: 1, icon: 'RP', color: '#ffd23f', name: 'Hair Trigger',    desc: '25% faster cooldown and reload.' },
+  deepmag:  { tier: 1, icon: 'DM', color: '#9fb3c8', name: 'Deep Magazine',   desc: '+60% magazine size.', fit: d => (d.base.mag || 1) > 1 },
+  wide:     { tier: 1, icon: 'WD', color: '#c77dff', name: 'Wide Bore',       desc: '+35% area and +15% range.', fit: hasArea },
+  pierce:   { tier: 1, icon: 'PC', color: '#e0fbff', name: 'Drill Tips',      desc: 'Shots pierce 2 more enemies.', fit: d => d.kind === 'gun' || d.kind === 'ring' },
+  ricochet: { tier: 1, icon: 'RC', color: '#8dffc0', name: 'Rubber Rounds',   desc: 'Shots bounce to 2 more targets.', fit: isProj },
+  keen:     { tier: 1, icon: 'KN', color: '#fee440', name: 'Keen Edge',       desc: '+15% crit chance.' },
+  chill:    { tier: 1, icon: 'CH', color: '#6fd8ff', name: 'Cold Snap',       desc: 'Hits chill: enemies slow by 35% for 1.5s.' },
+  ignite:   { tier: 1, icon: 'IG', color: '#ff7a2f', name: 'Incendiary',      desc: 'Hits set enemies on fire for 25% of the hit per second.' },
+  // Tier 2 (Lv 5): change how it plays.
+  seek:     { tier: 2, icon: 'SK', color: '#d0a3ff', name: 'Smart Rounds',    desc: 'Shots home in on targets.', fit: isProj },
+  split:    { tier: 2, icon: 'SL', color: '#ffd166', name: 'Fragmenting',     desc: 'Shots burst into 3 shards on first hit.', fit: isProj },
+  arc:      { tier: 2, icon: 'AR', color: '#ffe94a', name: 'Static Charge',   desc: '30% of hits arc to a nearby enemy for 50% damage.' },
+  execute:  { tier: 2, icon: 'EX', color: '#ff4d6d', name: 'Finisher',        desc: '+60% damage to enemies under 35% health.' },
+  venom:    { tier: 2, icon: 'VN', color: '#8dff4a', name: 'Venom Glands',    desc: 'Hits add a stacking poison.' },
+  freeze:   { tier: 2, icon: 'FZ', color: '#bde0fe', name: 'Cryo Core',       desc: '12% of hits freeze non-boss enemies solid.' },
+  blast:    { tier: 2, icon: 'BL', color: '#ff5a36', name: 'Payload',         desc: 'Hits explode for 35% damage around the target.' },
+  volley:   { tier: 2, icon: 'VL', color: '#48cae4', name: 'Extra Barrel',    desc: '+1 projectile.', fit: d => MULTI_KINDS.includes(d.kind) },
+  vamp:     { tier: 2, icon: 'VP', color: '#ff8fab', name: 'Leech Rounds',    desc: 'Hits heal you a little (within the lifesteal limit).' },
+  giant:    { tier: 2, icon: 'GS', color: '#ffb347', name: 'Big Game',        desc: '+100% damage to elites, bosses and rival champions.' },
+  // Tier 3 (Lv 8): capstones.
+  overdrive:{ tier: 3, icon: 'OD', color: '#ff3df2', name: 'Overdrive',       desc: '+75% damage.' },
+  frenzy:   { tier: 3, icon: 'FR', color: '#ffd23f', name: 'Frenzy',          desc: '40% faster cooldown and reload.' },
+  chainburst:{ tier: 3, icon: 'CB', color: '#ff5a36', name: 'Chain Reaction', desc: 'Kills explode for 60% of the killing blow.' },
+  slayer:   { tier: 3, icon: 'SY', color: '#ffb347', name: 'Apex Predator',   desc: '+150% damage to elites, bosses and rival champions.' },
+  twin:     { tier: 3, icon: 'TW', color: '#48cae4', name: 'Twin Array',      desc: '+2 projectiles.', fit: d => MULTI_KINDS.includes(d.kind) },
+  storm:    { tier: 3, icon: 'ST', color: '#ffe94a', name: 'Thunderhead',     desc: '50% of hits arc to 2 nearby enemies for 60% damage.' },
+};
 
 // ---------------------------------------------------------------- Swimming
 // Your head turns at most turn rad/s (times traction), faster when you're nearly stopped.
@@ -446,7 +487,7 @@ const OBSTACLES = {
   mito:    { name: 'Mitochondrion',    solid: true,  shot: 'absorb', n: 9,  r: [48, 72],  color: '#ff9e5e', charge: 45, burstR: 230 },
   acid:    { name: 'Acid Crypt',       solid: true,  shot: 'melt',   n: 9,  r: [40, 80],  color: '#b8f35a', dps: 10 },
   cilia:   { name: 'Cilia Bed',        solid: false, shot: 'repel',  n: 8,  r: [95, 150], color: '#ff8fab', push: 260 },
-  current: { name: 'Tubal Current',    solid: false, shot: 'drift',  n: 7,  r: [120, 180], color: '#7df9ff', push: 150 },
+  current: { name: 'Tubal Current',    solid: false, shot: 'drift',  n: 7,  r: [120, 180], color: '#8dffc0', push: 150 },
   slick:   { name: 'Lubricant Slick',  solid: false, shot: 'none',   n: 8,  r: [90, 150], color: '#c8b6ff', traction: 0.3 },
 };
 
@@ -461,7 +502,7 @@ const RIVALS = [
   { id: 'kevin',  name: 'Kevin',              color: '#ffe94a', skill: 0.95, aggro: 0.4, title: 'Just Kevin' },
 ];
 // finish: seconds for a skill-1.0 rival to reach EGG.level if nobody interferes.
-const RIVAL = { finish: 720, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 150 };
+const RIVAL = { finish: 780, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 150 };
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600, startCharges: 1, maxCharges: 2 };
@@ -476,7 +517,7 @@ const PROJ_KINDS = ['gun', 'siphon', 'mimic'];
 const MODS = {
   seeking:   { name: 'Seeking',      icon: 'SE', color: '#d0a3ff', kinds: PROJ_KINDS, desc: p => `Shots hunt down targets (turn rate ${(3 + 2 * p).toFixed(1)})` },
   splitting: { name: 'Splitting',    icon: 'SP', color: '#ffd166', kinds: PROJ_KINDS, desc: p => `On first hit, shots split into ${2 + Math.round(p)} shards at 45% damage` },
-  orbiting:  { name: 'Orbiting',     icon: 'OR', color: '#7df9ff', kinds: PROJ_KINDS, desc: p => `Shots circle you for ${(1.2 * p).toFixed(1)}s, eating enemy bullets, then launch` },
+  orbiting:  { name: 'Orbiting',     icon: 'OR', color: '#8dffc0', kinds: PROJ_KINDS, desc: p => `Shots circle you for ${(1.2 * p).toFixed(1)}s, eating enemy bullets, then launch` },
   growing:   { name: 'Growing',      icon: 'GW', color: '#8ac926', kinds: PROJ_KINDS, desc: p => `Shots swell in flight: triple size and up to +${Math.round(100 * p)}% damage` },
   boomerang: { name: 'Boomerang',    icon: 'BM', color: '#f1f1f1', kinds: PROJ_KINDS, desc: () => 'Shots fly out and come back, hitting everything twice' },
   ricochet:  { name: 'Ricochet',     icon: 'RI', color: '#a0c4ff', kinds: PROJ_KINDS, desc: p => `+${1 + Math.round(p)} bounces between enemies` },
@@ -565,6 +606,7 @@ const SYSTEM_LINES = {
   rivalEgg: ['{n} has reached the egg and is headbutting the membrane. If it breaks for them, you lose. Go and have words.', '{n} is knocking on the egg. Politely, with their face. Stop them.'],
   rivalDead: ['{n} has been eliminated. {k}', 'Farewell, {n}. {k}'],
   rivalWin: ['{n} got there first. Congratulations to {n}. You are now a statistic.'],
+  amoebaHuge: ['An amoeba has eaten {n} of its colleagues and is now the size of a small opinion. Kill it before it becomes a large one.', 'Something spongy has had {n} meals and is getting ideas. Deal with it.'],
   born: ['Congratulations! It\'s you! Everyone else can go home. Everyone else is, technically, going nowhere.'],
   slot: ['You grew a new weapon mount. Biology is not supposed to work like this. Please enjoy it anyway.', 'Extra weapon slot unlocked. Evolution took millions of years. You took fifteen levels.'],
 };
@@ -585,6 +627,8 @@ const CARD_QUIPS = [
 const ACHIEVEMENTS = {
   firstblood: { name: "Baby's First Homicide", desc: 'Killed a rival. Only 399,999,999 to go.', reward: 'none' },
   born:       { name: "Congratulations, It's You", desc: 'Broke into the egg and got yourself born. Please enjoy the next eighty years.', reward: 'none' },
+  amoeba:     { name: 'Portion Control', desc: 'Let an amoeba eat so much it made the news.', reward: 'none' },
+  bigamoeba:  { name: 'Diet Plan', desc: 'Killed an amoeba bigger than a boss.', reward: 'box' },
   rivalkill:  { name: 'Survival of the Fittest', desc: 'Eliminated a rival champion personally. Biology is a contact sport.', reward: 'box' },
   allrivals:  { name: 'Only Child', desc: 'Every rival champion is gone. The egg only has one option now.', reward: 'reroll' },
   eggready:   { name: 'Big Enough', desc: 'Grew strong enough for the egg to take you seriously.', reward: 'heal' },

@@ -36,7 +36,7 @@ function gainChrono(v) {
   c.energy += v * G.P.chronoGain;
   if (c.energy >= CHRONO.energyPerCharge) {
     c.energy = 0; c.charges++;
-    banner('REWIND CHARGE READY', '#7df9ff');
+    banner('REWIND CHARGE READY', '#8dffc0');
     sfx('spell');
   }
 }
@@ -66,7 +66,7 @@ function startRewind(auto) {
   const echo = {
     path: c.path.filter(q => q.t >= target.t).map(q => ({ t: q.t - target.t, x: q.x, y: q.y })),
     t: 0, dur: span + 0.6, x: p.x, y: p.y, hp: 1, r: 12, face: p.face, vx: 0, vy: 0, iframes: 0, flash: 0,
-    weapons: G.weapons.filter(Boolean).map(w => { const k = makeSlot(w.id, false, w.lvl); k.dir = w.dir; k.echo = true; k.mods = w.mods.slice(); k.dirs = w.dirs && w.dirs.slice(); computeStats(k); return k; }),
+    weapons: G.weapons.filter(Boolean).map(w => { const k = makeSlot(w.id, false, w.lvl); k.dir = w.dir; k.echo = true; k.mods = w.mods.slice(); k.perks = Object.assign({}, w.perks); k.dirs = w.dirs && w.dirs.slice(); computeStats(k); return k; }),
     spells: G.P.echoInherit ? G.spells.filter(Boolean).map(w => { const k = makeSlot(w.id, true, w.lvl); k.dir = w.dir; k.echo = true; return k; }) : [],
     span,
   };
@@ -107,6 +107,7 @@ function updateRewind(dt) {
   applySnapForView(s);
   G.proj = []; G.timers = []; G.lights = [];
   G.nextBoss = s.nextBoss; G.nextWave = s.nextWave; G.bossCount = s.bossCount; G.surge = s.surge;
+  if (G.bossDead) G.enemies = G.enemies.filter(x => !(x.boss && G.bossDead[x.id]));
   G.boss = G.enemies.find(x => x.boss && !x.egg) || null;
   G.eggE = G.enemies.find(x => x.egg) || null;
   const P = G.P;
@@ -117,8 +118,8 @@ function updateRewind(dt) {
   G.chrono.snaps = []; G.chrono.path = []; G.chrono.snapT = 0;
   G.rewind = null;
   G.state = 'play';
-  banner(r.auto ? 'PARADOX SAVE: YOUR FUTURE SELF FIGHTS ON' : 'PARADOX ECHO DEPLOYED', '#7df9ff');
-  ring(G.player.x, G.player.y, 90, '#7df9ff', 0.6, 5);
+  banner(r.auto ? 'PARADOX SAVE: YOUR FUTURE SELF FIGHTS ON' : 'PARADOX ECHO DEPLOYED', '#8dffc0');
+  ring(G.player.x, G.player.y, 90, '#8dffc0', 0.6, 5);
 }
 
 function echoPos(echo) {
@@ -146,9 +147,9 @@ function updateEchoes(dt) {
       // Paradox collapse: the echo implodes, wiping nearby bullets and blasting enemies.
       echo.collapsed = true;
       const dmg = 30 * (1 + G.t / 90) * G.P.might;
-      aoe(echo.x, echo.y, 190, dmg, { elem: 'arcane', wname: 'Paradox collapse' }, '#7df9ff');
+      aoe(echo.x, echo.y, 190, dmg, { elem: 'arcane', wname: 'Paradox collapse' }, '#8dffc0');
       for (const b of G.ebul) if (Math.hypot(b.x - echo.x, b.y - echo.y) < 190) b.dead = true;
-      addLight(echo.x, echo.y, 260, '#7df9ff', 0.7);
+      addLight(echo.x, echo.y, 260, '#8dffc0', 0.7);
     }
     if (echo.t >= echo.dur) echo.dead = true;
   }

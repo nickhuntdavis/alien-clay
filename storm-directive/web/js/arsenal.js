@@ -262,3 +262,144 @@ function allyAI(e, dt) {
     spawnPart(t.x, t.y, '#ff8fab', 3, 90, 0.25);
   }
 }
+
+// ---------------------------------------------------------------- weapon upgrade trees
+// Each weapon's tree is fixed (seeded by its id): two perk choices at every PERK_LEVELS milestone.
+function weaponTree(def) {
+  if (def.tree) return def.tree;
+  let seed = 7;
+  for (const ch of def.id || def.name) seed = (seed * 31 + ch.charCodeAt(0)) % 2147483647;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const used = new Set(), tree = {};
+  PERK_LEVELS.forEach((lvl, ti) => {
+    const pool = Object.keys(PERKS).filter(id => PERKS[id].tier === ti + 1 && !used.has(id) && (!PERKS[id].fit || PERKS[id].fit(def)));
+    const pickOne = () => { const i = Math.floor(rnd() * pool.length); const id = pool.splice(i, 1)[0]; used.add(id); return id; };
+    tree[lvl] = [pickOne(), pickOne()];
+  });
+  def.tree = tree;
+  return tree;
+}
+
+// Raise a weapon's level, queueing a branch choice for every milestone it passes.
+function setWeaponLevel(w, to, from) {
+  from = from != null ? from : w.lvl;
+  w.lvl = to;
+  if (w.isSpell) return;
+  w.perks = w.perks || {};
+  for (const m of PERK_LEVELS) if (from < m && to >= m && !w.perks[m]) G.lootQueue.push({ kind: 'branch', uid: w.uid, lvl: m });
+}
+
+function optPerk(w, lvl, id) {
+  const K = PERKS[id];
+  return { rarity: lvl >= 8 ? 3 : lvl >= 5 ? 2 : 1, tag: 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
+    sub: `${w.def.name} | Lv ${lvl} branch`, desc: K.desc,
+    apply: () => { w.perks[lvl] = id; computeStats(w); floatText(me().x, me().y - 40, K.name.toUpperCase(), K.color, 15, 1.2); } };
+}
+
+// Stat side of perks (called from computeStats).
+function applyPerks(w, s) {
+  if (!w.perks) return;
+  const mulArea = k => { for (const f of ['area', 'aura', 'radius', 'size']) if (s[f]) s[f] *= k; if (s.explode > 1) s.explode *= k; };
+  for (const lvl in w.perks) {
+    switch (w.perks[lvl]) {
+      case 'power': s.dmg *= 1.4; break;
+      case 'overdrive': s.dmg *= 1.75; break;
+      case 'rapid': s.cd *= 0.75; s.reload *= 0.75; break;
+      case 'frenzy': s.cd *= 0.6; s.reload *= 0.6; break;
+      case 'deepmag': s.mag = Math.round(s.mag * 1.6); break;
+      case 'wide': mulArea(1.35); s.range *= 1.15; break;
+      case 'pierce': s.pierce = (s.pierce || 0) + 2; break;
+      case 'ricochet': s.bounce = (s.bounce || 0) + 2; break;
+      case 'keen': s.crit += 0.15; break;
+      case 'chill': s.pChill = 1; break;
+      case 'ignite': s.pIgnite = 0.25; break;
+      case 'seek': s.homing = Math.max(s.homing || 0, 5); break;
+      case 'split': s.splitHit = Math.max(s.splitHit || 0, 3); break;
+      case 'arc': s.pArc = 0.3; s.pArcDmg = 0.5; s.pArcN = 1; break;
+      case 'storm': s.pArc = 0.5; s.pArcDmg = 0.6; s.pArcN = 2; break;
+      case 'execute': s.pExec = 0.6; break;
+      case 'venom': s.pVenom = 1; break;
+      case 'freeze': s.modFreeze = (s.modFreeze || 0) + 0.12; break;
+      case 'blast': s.modExplode = (s.modExplode || 0) + 0.35; break;
+      case 'volley': s.count = (s.count || 1) + 1; break;
+      case 'twin': s.count = (s.count || 1) + 2; break;
+      case 'vamp': s.pVamp = 0.02; break;
+      case 'giant': s.pGiant = (s.pGiant || 0) + 1; break;
+      case 'slayer': s.pGiant = (s.pGiant || 0) + 1.5; break;
+      case 'chainburst': s.pBurst = 0.6; break;
+    }
+  }
+}
+
+// Hit side of perks (called from damageEnemy's proc step).
+function perkProcs(e, dmg, src) {
+  const s = src.w.s;
+  if (s.pChill && !e.boss) { e.chill = Math.max(e.chill, 1.5); e.chillAmt = Math.max(e.chillAmt, 0.35); }
+  if (s.pIgnite) { e.burn = Math.max(e.burn, 2); e.burnDps = Math.max(e.burnDps, dmg * s.pIgnite); }
+  if (s.pVenom) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); e.poisonDps = Math.max(e.poisonDps, dmg * 0.08); }
+  if (s.pVamp && G.lsBudget > 0) { const h = Math.min(G.lsBudget, dmg * s.pVamp); G.lsBudget -= h; healPlayer(h, true); }
+  if (s.pArc && Math.random() < s.pArc) {
+    let from = e;
+    for (let k = 0; k < s.pArcN; k++) {
+      const n = acquire('nearest', 150, from.x, from.y, from);
+      if (!n || n === e) break;
+      bolt(from.x, from.y, n.x, n.y, '#ffe94a', 0.12);
+      damageEnemy(n, dmg * s.pArcDmg, Object.assign({}, src, { noProc: true, noArc: true, noCrit: true, mult: 1, wname: 'Static arcs' }));
+      from = n;
+    }
+  }
+}
+
+// ---------------------------------------------------------------- amoebas
+// Engulfers drift towards whatever is closer and tastier: a smaller monster, or you. Anything they touch
+// that is smaller than them gets absorbed: its health, bulk and XP become theirs. Left alone they get huge.
+const ENGULF_SKIP = e => e.boss || e.rival || e.egg || e.charmed || e.dead;
+function engulfAI(e, dt, dist, ux, uy) {
+  const base = e.def.speed * (1 + Math.min(0.6, G.t / 2000));
+  e.speed = base * Math.max(0.45, Math.sqrt(e.def.r / e.r));
+  if (e.hp < e.maxHp) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.01 * dt); // spongy: slowly knits back together
+  e.stT -= dt;
+  if (e.stT <= 0 || (e.prey && e.prey.dead)) {
+    e.stT = 0.5; e.prey = null;
+    let bd = (e.r + 220) * (e.r + 220);
+    forNear(e.x, e.y, e.r + 220, (o, d2) => {
+      if (o === e || ENGULF_SKIP(o) || o.r >= e.r * 0.8) return false;
+      if (d2 < bd) { bd = d2; e.prey = o; }
+      return false;
+    });
+    // Only bother with food that's clearly closer than you.
+    if (e.prey && Math.sqrt(bd) > dist * 0.8) e.prey = null;
+  }
+  // Swallow anything small enough that it's overlapping.
+  forNear(e.x, e.y, e.r * 0.7, o => {
+    if (o === e || ENGULF_SKIP(o) || o.r >= e.r * 0.8) return false;
+    engulf(e, o);
+    return false;
+  });
+  if (e.prey && !e.prey.dead) {
+    const dx = e.prey.x - e.x, dy = e.prey.y - e.y, d = Math.hypot(dx, dy) || 1;
+    return { x: dx / d, y: dy / d };
+  }
+  return { x: ux, y: uy };
+}
+function engulf(e, o) {
+  o.dead = true;
+  const gain = o.maxHp * 1.2;
+  e.maxHp += gain; e.hp += gain;
+  e.xp += (o.xp || 1) * 1.5;
+  e.dmg += o.dmg * 0.12;
+  e.armour = Math.min(e.def.armour + 8, e.armour + 0.15);
+  e.r = Math.min(e.def.max, Math.sqrt(e.r * e.r + o.r * o.r * 0.9));
+  e.meals = (e.meals || 0) + 1;
+  e.flash = 0.05;
+  if (Math.abs(e.x - me().x) < 900 && Math.abs(e.y - me().y) < 900) {
+    spawnPart(o.x, o.y, e.color, 6, 60, 0.5, 3);
+    ring(e.x, e.y, e.r + 4, e.color, 0.3, 2);
+  }
+  G.stats.engulfed = (G.stats.engulfed || 0) + 1;
+  if (e.r > 95 && !e.bigNews) {
+    e.bigNews = true;
+    sysMsg('SYSTEM MESSAGE', pick(SYSTEM_LINES.amoebaHuge).replace('{n}', e.meals), '#7fd8b0');
+    achieve('amoeba');
+  }
+}
