@@ -18,7 +18,7 @@ function resize() {
   W = window.innerWidth; H = window.innerHeight;
   cv.width = Math.floor(W * DPR); cv.height = Math.floor(H * DPR);
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
-  S = Math.min(W, H) / 520;
+  S = Math.min(W, H) / 640; // world units across the short side of the screen
 }
 window.addEventListener('resize', resize);
 resize();
