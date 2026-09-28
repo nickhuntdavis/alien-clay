@@ -69,11 +69,61 @@ function buildLayers() {
     }
     return c;
   };
+  // Depth of field: the further back a layer sits, the more out of focus it is.
   SPR.layers = [
-    { f: 0.06, img: neb, T },
-    { f: 0.2, img: cells(26, true), T },
-    { f: 0.45, img: cells(90, false), T },
+    { f: 0.06, img: blurTile(neb, 7), T },
+    { f: 0.2, img: blurTile(cells(26, true), 3.5 * D), T },
+    { f: 0.45, img: blurTile(cells(90, false), 1.2 * D), T },
   ];
+  // Foreground: big soft debris drifting between the camera and the fight, badly out of focus.
+  const fg = makeCanvas(T, T), fgc = fg.getContext('2d');
+  for (let i = 0; i < 5; i++) {
+    const x = rnd() * T, y = rnd() * T, r = 26 + rnd() * 40;
+    for (const ox of [-T, 0, T]) for (const oy of [-T, 0, T]) {
+      fgc.globalAlpha = 0.16 + rnd() * 0.08; fgc.fillStyle = i % 2 ? '#ff9ecb' : '#ffc2d9';
+      fgc.beginPath(); fgc.arc(x + ox, y + oy, r, 0, TAU); fgc.fill();
+      fgc.globalAlpha *= 0.8; fgc.fillStyle = '#7a1f4a'; fgc.beginPath(); fgc.arc(x + ox + r * 0.25, y + oy - r * 0.2, r * 0.3, 0, TAU); fgc.fill();
+    }
+  }
+  SPR.fore = { f: 1.6, img: blurTile(fg, 14), T };
+}
+
+// Blur a seamless tile without its edges going soft: blur a 3x3 mosaic and keep the middle.
+const CAN_FILTER = (() => { try { const c = makeCanvas(2, 2).getContext('2d'); c.filter = 'blur(1px)'; return c.filter === 'blur(1px)'; } catch (e) { return false; } })();
+function blurTile(src, px) {
+  if (!CAN_FILTER || px <= 0) return src;
+  const w = src.width, h = src.height, out = makeCanvas(w, h), g = out.getContext('2d');
+  g.filter = `blur(${px}px)`;
+  for (const ox of [-w, 0, w]) for (const oy of [-h, 0, h]) g.drawImage(src, ox, oy);
+  return out;
+}
+
+// Lens blur towards the screen edges: a quarter-resolution copy of the frame, masked to the rim.
+const DOF = { on: true, c: null, key: '' };
+try { DOF.on = localStorage.getItem('sd_dof') !== '0'; } catch (e) { /* storage unavailable */ }
+function drawLensBlur() {
+  if (!DOF.on) return;
+  const w = Math.max(1, Math.ceil(W / 4)), h = Math.max(1, Math.ceil(H / 4)), key = w + 'x' + h;
+  if (DOF.key !== key) {
+    DOF.key = key; DOF.c = makeCanvas(w, h);
+    DOF.mask = makeCanvas(w, h);
+    const m = DOF.mask.getContext('2d'), gr = m.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.42, w / 2, h / 2, Math.hypot(w, h) * 0.55);
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,0.85)');
+    m.fillStyle = gr; m.fillRect(0, 0, w, h);
+  }
+  const g = DOF.c.getContext('2d');
+  g.globalCompositeOperation = 'copy'; g.imageSmoothingEnabled = true;
+  g.drawImage(cv, 0, 0, w, h);
+  g.globalCompositeOperation = 'destination-in'; g.drawImage(DOF.mask, 0, 0);
+  g.globalCompositeOperation = 'source-over';
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(DOF.c, 0, 0, W, H);
+}
+function drawForeground() {
+  const L = SPR.fore;
+  if (!L || !DOF.on) return;
+  const T = L.T, ox = -((((cam.x * S * L.f + G.realT * 6) % T) + T) % T), oy = -((((cam.y * S * L.f + G.realT * 3) % T) + T) % T);
+  for (let x = ox; x < W; x += T) for (let y = oy; y < H; y += T) ctx.drawImage(L.img, x, y, T, T);
 }
 
 function buildVignette() {
@@ -271,15 +321,22 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
   ctx.globalAlpha = 1;
 }
 
-function drawShip(x, y, face, bodyColor, alpha, scale) {
-  // A spermatozoon: glossy head, midpiece and a whipping tail.
+function drawShip(x, y, face, bodyColor, alpha, scale, body) {
+  // A spermatozoon: glossy head, midpiece and a whipping tail. With a body, the tail is a physical
+  // chain that drags behind the head; without one (ghosts) it's a simple procedural wiggle.
   const k = S * (scale || 1);
   const ph = G.realT * 16;
+  if (body) {
+    const wx = body.x - Math.cos(face) * 6 * (scale || 1), wy = body.y - Math.sin(face) * 6 * (scale || 1);
+    stepTail(body, wx, wy, face, 44 * (scale || 1), Math.hypot(body.vx || 0, body.vy || 0));
+    ctx.globalAlpha = alpha * 0.35; drawTail(body.tail, bodyColor, 4.4 * k);
+    ctx.globalAlpha = alpha; drawTail(body.tail, bodyColor, 2 * k);
+  }
   ctx.globalAlpha = alpha;
   ctx.save(); ctx.translate(x, y); ctx.rotate(face);
   ctx.strokeStyle = bodyColor; ctx.lineCap = 'round';
   const segs = 14, len = 34 * k;
-  for (let pass = 0; pass < 2; pass++) {
+  for (let pass = 0; pass < 2 && !body; pass++) {
     ctx.lineWidth = pass ? 1.4 * k : 3.2 * k;
     ctx.globalAlpha = alpha * (pass ? 1 : 0.35);
     ctx.beginPath(); ctx.moveTo(-6 * k, 0);
@@ -297,6 +354,145 @@ function drawShip(x, y, face, bodyColor, alpha, scale) {
   ctx.lineCap = 'butt';
   ctx.globalAlpha = 1;
 }
+// ---------------------------------------------------------------- flagellum physics
+// A tail is a chain of points in world space. The root is pinned behind the head and beats side to side;
+// every other link is dragged along by the one in front (so turns sweep the tail round behind you and
+// swimming leaves a travelling wave), with a little stiffness pulling it straight when you stop.
+const TAIL_N = 11;
+function stepTail(o, rx, ry, face, len, speed) {
+  const now = G.realT, dt = Math.min(0.05, Math.max(0, now - (o.tailT || now)));
+  o.tailT = now;
+  const seg = len / (TAIL_N - 1);
+  if (!o.tail || o.tail.length !== TAIL_N || Math.hypot(o.tail[0].x - rx, o.tail[0].y - ry) > len * 3) {
+    o.tail = [];
+    for (let i = 0; i < TAIL_N; i++) o.tail.push({ x: rx - Math.cos(face) * seg * i, y: ry - Math.sin(face) * seg * i });
+  }
+  o.beat = (o.beat || Math.random() * 10) + dt * (9 + Math.min(14, speed / 10));
+  const nx = -Math.sin(face), ny = Math.cos(face), amp = len * 0.11;
+  const t = o.tail;
+  t[0].x = rx + nx * Math.sin(o.beat) * amp * 0.5; t[0].y = ry + ny * Math.sin(o.beat) * amp * 0.5;
+  // The second link follows the head's axis more strictly so the tail leaves the head cleanly.
+  for (let i = 1; i < TAIL_N; i++) {
+    const a = t[i - 1], b = t[i];
+    // Water drag: links lag behind; stiffness: drift towards straight-back from the link ahead.
+    const pv = i > 1 ? t[i - 2] : { x: a.x + Math.cos(face) * seg, y: a.y + Math.sin(face) * seg };
+    let ax = a.x - pv.x, ay = a.y - pv.y; const al = Math.hypot(ax, ay) || 1; ax /= al; ay /= al;
+    const st = Math.min(1, dt * (i === 1 ? 30 : 6));
+    b.x = lerp(b.x, a.x + ax * seg, st); b.y = lerp(b.y, a.y + ay * seg, st);
+    // Idle wiggle so a stationary swimmer still looks alive.
+    const w = Math.sin(o.beat - i * 0.7) * amp * 0.06 * i / TAIL_N;
+    b.x += nx * w; b.y += ny * w;
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+    b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg;
+  }
+}
+function drawTail(t, color, width) {
+  ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  // Tapered: draw in three runs, thinning towards the tip.
+  for (let run = 0; run < 3; run++) {
+    const i0 = Math.floor(run * (TAIL_N - 1) / 3), i1 = Math.floor((run + 1) * (TAIL_N - 1) / 3);
+    ctx.lineWidth = Math.max(0.8, width * (1 - run * 0.3));
+    ctx.beginPath(); ctx.moveTo(sx(t[i0].x), sy(t[i0].y));
+    for (let i = i0 + 1; i <= i1; i++) ctx.lineTo(sx(t[i].x), sy(t[i].y));
+    ctx.stroke();
+  }
+  ctx.lineCap = 'butt'; ctx.lineJoin = 'miter';
+}
+
+// ---------------------------------------------------------------- terrain
+function drawTerrain() {
+  if (!G.terrain) return;
+  const t = G.realT, m = 200;
+  const x0 = cam.x - W / 2 / S - m, x1 = cam.x + W / 2 / S + m, y0 = cam.y - H / 2 / S - m, y1 = cam.y + H / 2 / S + m;
+  for (const ob of G.terrain.list) {
+    if (ob.x < x0 || ob.x > x1 || ob.y < y0 || ob.y > y1) continue;
+    const x = sx(ob.x), y = sy(ob.y), r = ob.r * S, c = ob.def.color;
+    switch (ob.type) {
+      case 'ridge': {
+        ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(x + 5, y + r * 0.35, r, r * 0.55, 0, 0, TAU); ctx.fill();
+        const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
+        g.addColorStop(0, ob.flash > 0 ? '#ffffff' : '#fff4ee'); g.addColorStop(0.6, c); g.addColorStop(1, '#a8706c');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(120,60,60,0.45)'; ctx.lineWidth = 2;
+        for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + r * 0.1, y + r * 0.15, r * (0.35 + i * 0.2), ob.a + i, ob.a + i + 1.6); ctx.stroke(); }
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r - 1, -2.6, -1.2); ctx.stroke();
+        break;
+      }
+      case 'mito': {
+        const k = ob.charge / ob.def.charge, pulse = k > 0.8 ? 0.5 + 0.5 * Math.sin(t * 14) : 0;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(ob.a);
+        ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(4, r * 0.3, r * 1.25, r * 0.7, 0, 0, TAU); ctx.fill();
+        const g = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r * 1.3);
+        g.addColorStop(0, '#ffe0c2'); g.addColorStop(0.7, c); g.addColorStop(1, '#8a3b1a');
+        ctx.fillStyle = ob.flash > 0 ? '#fff' : g; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.25, r * 0.7, 0, 0, TAU); ctx.fill();
+        ctx.strokeStyle = '#6b2a10'; ctx.lineWidth = 3; ctx.stroke();
+        // Cristae: the folded inner membrane, glowing as it charges.
+        ctx.strokeStyle = `rgba(255,${Math.round(200 + 55 * k)},${Math.round(120 * k)},${0.5 + 0.5 * k})`; ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        for (let i = 0; i <= 24; i++) { const f = i / 24, px = (f - 0.5) * r * 2.1, py = Math.sin(f * 16) * r * 0.42 * Math.sin(f * Math.PI); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+        ctx.stroke();
+        ctx.restore();
+        ctx.globalCompositeOperation = 'lighter';
+        glow(x, y, r * (1.6 + pulse * 0.6 + ob.burstT * 3), '#ffb347', 0.12 + k * 0.4 + pulse * 0.2);
+        ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+        // Charge meter.
+        ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x - r * 0.6, y + r * 0.85, r * 1.2, 4);
+        ctx.fillStyle = '#ffd23f'; ctx.fillRect(x - r * 0.6, y + r * 0.85, r * 1.2 * k, 4);
+        break;
+      }
+      case 'acid': {
+        ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.8, c, 0.3); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+        const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
+        g.addColorStop(0, '#1d2b05'); g.addColorStop(0.65, '#4d7a0c'); g.addColorStop(0.9, c); g.addColorStop(1, '#e9ff9e');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+        // Bubbles rise and pop.
+        for (let i = 0; i < 6; i++) {
+          const ph = (t * 0.7 + ob.seed + i * 0.37) % 1, a = ob.seed * 7 + i * 2.1, d = r * 0.55 * ((i * 0.31 + ob.seed) % 1);
+          ctx.strokeStyle = `rgba(233,255,158,${1 - ph})`; ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, (2 + ph * 7) * S, 0, TAU); ctx.stroke();
+        }
+        break;
+      }
+      case 'cilia': {
+        ctx.fillStyle = 'rgba(255,143,171,0.08)'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,143,171,0.55)'; ctx.lineWidth = 1.5;
+        const n = Math.round(ob.r / 5);
+        ctx.beginPath();
+        for (let i = 0; i < n; i++) {
+          const a = i / n * TAU, sw = Math.sin(t * 7 + i * 0.9) * 0.25, r0 = r * 0.55, r1 = r * 0.98;
+          ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0);
+          ctx.quadraticCurveTo(x + Math.cos(a + sw * 0.5) * (r0 + r1) / 2, y + Math.sin(a + sw * 0.5) * (r0 + r1) / 2, x + Math.cos(a + sw) * r1, y + Math.sin(a + sw) * r1);
+        }
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,143,171,0.35)'; ctx.beginPath(); ctx.arc(x, y, r * 0.18, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'current': {
+        ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
+        ctx.fillStyle = 'rgba(125,249,255,0.07)'; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+        ctx.translate(x, y); ctx.rotate(ob.a);
+        ctx.strokeStyle = 'rgba(125,249,255,0.45)'; ctx.lineWidth = 2;
+        const sp = 38 * S, off = (t * ob.def.push * S) % sp;
+        for (let row = -3; row <= 3; row++) for (let cx = -r - sp + off; cx < r + sp; cx += sp) {
+          const cy = row * r / 3.5 + Math.sin(cx * 0.03 + row) * 3;
+          ctx.beginPath(); ctx.moveTo(cx - 8 * S, cy - 6 * S); ctx.lineTo(cx, cy); ctx.lineTo(cx - 8 * S, cy + 6 * S); ctx.stroke();
+        }
+        ctx.restore();
+        ctx.strokeStyle = 'rgba(125,249,255,0.25)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
+        break;
+      }
+      case 'slick': {
+        const g = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, r * 0.1, x, y, r);
+        g.addColorStop(0, 'rgba(255,255,255,0.4)'); g.addColorStop(0.5, 'rgba(200,182,255,0.3)'); g.addColorStop(1, 'rgba(125,249,255,0.08)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.8, ob.a, 0, TAU); ctx.fill();
+        ctx.strokeStyle = `hsla(${(t * 40 + ob.seed * 50) % 360},90%,80%,0.6)`; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.ellipse(x, y, r * 0.7, r * 0.5, ob.a + t * 0.2, 0.3, 2.4); ctx.stroke();
+        break;
+      }
+    }
+  }
+}
+
 const SHADE = new Map();
 function shade(hex) {
   let v = SHADE.get(hex);
@@ -323,6 +519,7 @@ function render() {
   const vis = o => o.x > vx0 && o.x < vx1 && o.y > vy0 && o.y < vy1;
 
   drawDecals(vis);
+  drawTerrain();
   // Dynamic lights pooling on the floor.
   ctx.globalCompositeOperation = 'lighter';
   for (const l of G.lights) if (vis(l)) glow(sx(l.x), sy(l.y), l.r * S, l.color, 0.35 * (l.life / l.max));
@@ -448,15 +645,12 @@ function render() {
     const sh = e.def.shape;
     const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
     if (sh === 'sperm') {
-      // Rival swimmers get whipping tails.
-      const tl = r * 3.2, ph = G.realT * 14 + e.id;
-      ctx.strokeStyle = e.charmed ? '#ff8fab' : e.color; ctx.lineWidth = Math.max(1.2, r * 0.22); ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(x - Math.cos(face) * r * 0.8, y - Math.sin(face) * r * 0.8);
-      for (let i = 1; i <= 10; i++) {
-        const f = i / 10, bx = -r * 0.8 - f * tl, by = Math.sin(ph - f * 6) * r * 0.45 * f;
-        ctx.lineTo(x + bx * Math.cos(face) - by * Math.sin(face), y + bx * Math.sin(face) + by * Math.cos(face));
-      }
-      ctx.stroke(); ctx.lineCap = 'butt';
+      // Swimmers drag physical tails behind them.
+      const wr = e.r * 0.8;
+      if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
+      const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
+      stepTail(e, e.x - Math.cos(face) * wr, e.y - Math.sin(face) * wr, face, e.r * 3.2, e.tailV);
+      drawTail(e.tail, e.charmed ? '#ff8fab' : e.color, Math.max(1.2, r * 0.22));
     }
     if (e.def.shape === 'eye') {
       const eg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
@@ -546,7 +740,7 @@ function render() {
   // Engine plume.
   const sp = Math.hypot(p.vx, p.vy);
   if (sp > 15 && !rewinding) {
-    const ba = p.face + Math.PI;
+    const ba = (p.hd != null ? p.hd : p.face) + Math.PI;
     glow(px + Math.cos(ba) * 12 * S, py + Math.sin(ba) * 12 * S, (8 + sp / 20) * S, '#ff9e00', 0.7);
     if (Math.random() < 0.6) spawnPart(p.x + Math.cos(ba) * 10, p.y + Math.sin(ba) * 10, Math.random() < 0.5 ? '#ff9e00' : '#3cf0ff', 1, 40, 0.35, 2.5);
   }
@@ -560,7 +754,7 @@ function render() {
     }
     if (w.def.heat && w.heat > 0.6) { ctx.globalCompositeOperation = 'lighter'; glow(px, py, 30 * S, '#ff5400', (w.heat - 0.6) * 1.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   }
-  drawShip(px, py, p.face, p.flash > 0 ? '#ff4d6d' : '#3cf0ff', p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale());
+  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : '#3cf0ff', p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale(), p);
   ctx.fillStyle = '#000'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S, 4);
   ctx.fillStyle = p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S * (p.hp / G.P.maxHp), 4);
 
@@ -684,7 +878,9 @@ function render() {
   ctx.globalAlpha = 1;
   ctx.restore();
 
-  // Screen-space post effects.
+  // Screen-space post effects: out-of-focus foreground, lens blur at the rim, vignette.
+  drawForeground();
+  if (!rewinding) drawLensBlur();
   buildVignette();
   ctx.drawImage(SPR.vignette, 0, 0, W, H);
   if (G.warp > 0) { ctx.fillStyle = 'rgba(120,130,255,0.08)'; ctx.fillRect(0, 0, W, H); }
@@ -695,7 +891,7 @@ function render() {
 }
 
 // You grow as you level up: up to 1.8x at level 60.
-function playerScale() { return 1 + Math.min(0.8, (G.level - 1) / 75); }
+function playerScale() { return 1 + SWIM.growth * (G.level - 1); }
 
 function drawEdgeFlash() {
   const e = Math.min(W, H) * 0.08;
@@ -837,6 +1033,7 @@ function drawMinimap(top) {
     if (d > R - 2) { dx = dx / d * (R - 2); dy = dy / d * (R - 2); }
     ctx.fillStyle = col; ctx.fillRect(mx + dx - r / 2, my + dy - r / 2, r, r);
   };
+  if (G.terrain) { ctx.globalAlpha = 0.45; for (const ob of G.terrain.list) if (ob.def.solid || ob.type === 'current') dot(ob.x, ob.y, 2, ob.def.color); ctx.globalAlpha = 1; }
   for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? '#ff4d6d' : e.charmed ? '#ff8fab' : '#ffd23f');
   dot(G.core.x, G.core.y, 8, G.eggE ? '#ffffff' : '#ffb3d1');
   for (const e of G.enemies) if (e.rival && !e.dead) dot(e.x, e.y, 5, e.color);

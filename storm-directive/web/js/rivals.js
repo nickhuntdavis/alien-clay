@@ -138,6 +138,7 @@ function rivalMove(e, ux, uy, spd, dt) {
   e.x += (ux * spd * slow + e.kx * 0.3) * dt; e.y += (uy * spd * slow + e.ky * 0.3) * dt;
   const kd = Math.pow(0.02, dt); e.kx *= kd; e.ky *= kd;
   if (Math.abs(ux) + Math.abs(uy) > 0.1) e.face = Math.atan2(uy, ux);
+  pushOut(e, e.r, e.side || 1);
   const c = G.core, ox = e.x - c.x, oy = e.y - c.y, od = Math.hypot(ox, oy) || 1;
   if (od < CORE.r + e.r) { e.x = c.x + ox / od * (CORE.r + e.r); e.y = c.y + oy / od * (CORE.r + e.r); }
   if (od > CORE.arena) { e.x = c.x + ox / od * CORE.arena; e.y = c.y + oy / od * CORE.arena; }

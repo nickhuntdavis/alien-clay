@@ -46,6 +46,12 @@ const UI = {
       $('soundBtn').textContent = 'SOUND: ' + (AUDIO.on ? 'ON' : 'OFF');
     });
     $('soundBtn').textContent = 'SOUND: ' + (AUDIO.on ? 'ON' : 'OFF');
+    $('dofBtn').addEventListener('click', () => {
+      DOF.on = !DOF.on;
+      try { localStorage.setItem('sd_dof', DOF.on ? '1' : '0'); } catch (e) { /* ignore */ }
+      $('dofBtn').textContent = 'DEPTH OF FIELD: ' + (DOF.on ? 'ON' : 'OFF');
+    });
+    $('dofBtn').textContent = 'DEPTH OF FIELD: ' + (DOF.on ? 'ON' : 'OFF');
     $('againBtn').addEventListener('click', () => UI.startGame());
     $('titleBtn').addEventListener('click', () => { G = null; UI.show('title'); UI.renderBest(); });
     document.addEventListener('visibilitychange', () => { if (document.hidden && G && G.state === 'play') UI.togglePause(); });
@@ -386,7 +392,7 @@ const UI = {
     const ps = Object.keys(G.passives);
     h += `<div class="sec"><h3>Power-ups</h3>`;
     h += ps.length ? `<div class="list">${ps.map(id => `<div class="li on"><b>${esc(PASSIVES[id].name)}</b> x${G.passives[id]}</div>`).join('')}</div>` : `<p class="hint">None yet.</p>`;
-    h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}%</p></div>`;
+    h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%</p></div>`;
 
     // Reactions.
     h += `<div class="sec"><h3>Elemental reactions</h3><div class="list">`;

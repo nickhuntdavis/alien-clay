@@ -35,7 +35,7 @@ function newStats() {
     lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1 }, chain: 0,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, echoInherit: 0,
-    bulletSpeed: 1, spawnMult: 1, healMult: 1, viewers: 1, noArmour: false,
+    bulletSpeed: 1, spawnMult: 1, healMult: 1, viewers: 1, noArmour: false, traction: 1,
   };
 }
 
@@ -58,9 +58,11 @@ function newGame() {
     show: newShow(),
     stats: { dmg: {}, hurt: {}, lastHit: '', reactions: 0, reactBy: {}, merges: 0, bossKills: 0, maxCombo: 0, rewinds: 0, leaks: 0, absorbed: 0 },
   };
+  G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
 }
 
+function angDiff(a, b) { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU; return d; }
 function xpNeed(l) { return Math.floor(4 + (l - 1) * 2.5 + Math.pow(l - 1, 2.35) * 0.22); }
 function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? Math.pow(1.32, (t - 900) / 60) : 1); }
 const SURGE_T = 900; // Storm Surge: after 15 minutes enemy damage compounds every minute.
@@ -661,7 +663,7 @@ function dropGem(x, y, v, kind) {
   }
   G.gems.push({ x: x + rand(-5, 5), y: y + rand(-5, 5), v, kind, mag: false, vx: 0, vy: 0 });
 }
-function makePickup(type, x, y) { return { type, x, y, life: 25, bob: Math.random() * TAU }; }
+function makePickup(type, x, y) { return unstick({ type, x, y, life: 25, bob: Math.random() * TAU }, 14); }
 
 function healPlayer(n, silent) {
   const p = me(), P = G.P;
@@ -917,6 +919,8 @@ function updateEnemies(dt) {
     e.kx *= kd; e.ky *= kd;
     // Nothing swims through the egg.
     { const ox = e.x - G.core.x, oy = e.y - G.core.y, od = Math.hypot(ox, oy) || 1, mr = CORE.r + e.r; if (od < mr) { e.x = G.core.x + ox / od * mr; e.y = G.core.y + oy / od * mr; } }
+    terrainBody(e, dt);
+    if (e.dead) continue;
     // Contact damage.
     if (!e.phased && dist < e.r + p.r) {
       if (G.barrier > 0) {
@@ -1289,6 +1293,7 @@ function updateProjectiles(dt) {
     }
     if (!(pr.orbitT > 0)) { pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt; }
     if (pr.life <= 0) { pr.dead = true; if (pr.explode) aoe(pr.x, pr.y, pr.explode, pr.dmg, pr.src, pr.color); continue; }
+    if (!(pr.orbitT > 0) && !pr.back && terrainShot(pr, false, dt)) continue;
     // Aura projectiles (void orb): periodic area damage and pull.
     if (pr.aura) {
       pr.tick -= dt;
@@ -1416,15 +1421,33 @@ function updateTurrets(dt) {
 // ---------------------------------------------------------------- player
 function updatePlayer(dt) {
   const p = G.player, P = G.P;
-  const speed = 150 * P.speed;
+  const speed = 150 * P.speed * (p.atpT > 0 ? 1.3 : 1);
+  // You grow 1.5% per level (your hitbox grows half as fast).
+  p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
   if (G.manual) { dx = G.manual.x; dy = G.manual.y; }
   else { const s = autoSteer(); dx = s.x; dy = s.y; }
-  const m = Math.hypot(dx, dy);
-  if (m > 1) { dx /= m; dy /= m; }
-  const k = 1 - Math.pow(0.0005, dt);
-  p.vx = lerp(p.vx, dx * speed, k); p.vy = lerp(p.vy, dy * speed, k);
+  let m = Math.hypot(dx, dy);
+  if (m > 1) { dx /= m; dy /= m; m = 1; }
+  // Swim physics: the head can only turn so fast (traction), thrust drops mid-turn,
+  // and sideways momentum drifts off rather than stopping dead.
+  if (p.hd == null) p.hd = p.face;
+  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1);
+  const cur = Math.hypot(p.vx, p.vy);
+  let thrust = 0;
+  if (m > 0.05) {
+    const da = angDiff(Math.atan2(dy, dx), p.hd);
+    const turn = SWIM.turn * trac * (1 + SWIM.pivot * (1 - Math.min(1, cur / speed))) * dt;
+    p.hd = Math.atan2(Math.sin(p.hd + clamp(da, -turn, turn)), Math.cos(p.hd + clamp(da, -turn, turn)));
+    thrust = m * speed * (0.4 + 0.6 * Math.max(0, Math.cos(da)));
+  }
+  const hx = Math.cos(p.hd), hy = Math.sin(p.hd);
+  let fwd = p.vx * hx + p.vy * hy, lat = -p.vx * hy + p.vy * hx;
+  fwd = lerp(fwd, thrust, 1 - Math.pow(0.004, dt));
+  lat *= Math.exp(-SWIM.grip * trac * dt);
+  p.vx = fwd * hx - lat * hy; p.vy = fwd * hy + lat * hx;
   p.x += p.vx * dt; p.y += p.vy * dt;
+  terrainPlayer(p, dt);
   // The arena ends at the edge of the womb's field; the egg itself is solid.
   const cdx = p.x - G.core.x, cdy = p.y - G.core.y, cdist = Math.hypot(cdx, cdy) || 1;
   if (cdist > CORE.arena) { p.x = G.core.x + cdx / cdist * CORE.arena; p.y = G.core.y + cdy / cdist * CORE.arena; }
@@ -1512,7 +1535,9 @@ function autoSteer() {
         if (d < 16) danger += 2.5 + (16 - d) * 0.25;
       }
     }
-    const interest = dx * gx + dy * gy;
+    danger += terrainDanger(qx, qy, p.r) + terrainDanger(mx, my, p.r) * 0.5;
+    // Turning is slow, so mildly prefer directions close to where the head already points.
+    const interest = dx * gx + dy * gy + (i < 0 ? 0 : 0.18 * (Math.cos(p.hd || 0) * dx + Math.sin(p.hd || 0) * dy) / Math.max(0.6, G.P.traction));
     const score = interest - danger + (i < 0 ? (mode === 'hold' ? 0.4 : -0.1) : 0);
     if (score > best) { best = score; bx = dx; by = dy; }
   }
@@ -1675,6 +1700,7 @@ function update(dt) {
   updateTurrets(dt);
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
   updateEnemies(dt);
+  updateTerrain(dt);
   updateCore(dt);
   updateChrono(dt);
   // Enemy bullets.
@@ -1684,6 +1710,7 @@ function update(dt) {
     const bw = bw0 * (b.slowT > G.realT ? 0.35 : 1);
     b.x += b.vx * dt * bw; b.y += b.vy * dt * bw; b.life -= dt;
     if (b.life <= 0) { b.dead = true; continue; }
+    if (terrainShot(b, true, dt)) continue;
     const dx = b.x - p.x, dy = b.y - p.y, d2 = dx * dx + dy * dy;
     if (G.barrier > 0 && d2 < G.barrierR * G.barrierR) {
       b.dead = true;

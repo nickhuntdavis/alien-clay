@@ -329,6 +329,8 @@ const PASSIVES = {
   critdmg:   { name: 'Executioner',      icon: 'EX', max: 6, v: 0.25, fmt: v => `+${pc(v)} crit damage`, apply: (P, v) => { P.critDmg += v; } },
   vital:     { name: 'Vital Core',       icon: 'VC', max: 8, v: 15, fmt: v => `+${Math.round(v)} max HP (and heal it)`, apply: (P, v, G) => { P.maxHp += Math.round(v); G.player.hp += Math.round(v); } },
   regen:     { name: 'Nanites',          icon: 'NA', max: 5, v: 0.3, fmt: v => `+${v.toFixed(1)} HP/sec regen`, apply: (P, v) => { P.regen += v; } },
+  grip:      { name: 'Sticky Cilia',     icon: 'SC', max: 5, v: 0.22, fmt: v => `+${pc(v)} traction: sharper turns, less drift`, apply: (P, v) => { P.traction += v; } },
+  hydro:     { name: 'Hydrodynamic Head', icon: 'HH', max: 3, v: 0.12, fmt: v => `+${pc(v)} traction and +${pc(v / 2)} swim speed`, apply: (P, v) => { P.traction += v; P.speed += v / 2; } },
   speed:     { name: 'Sprint Servos',    icon: 'SP', max: 5, v: 0.08, fmt: v => `+${pc(v)} move speed`, apply: (P, v) => { P.speed += v; } },
   magnet:    { name: 'Tractor Field',    icon: 'TF', max: 5, v: 0.3, fmt: v => `+${pc(v)} pickup range`, apply: (P, v) => { P.magnet += v; } },
   armour:    { name: 'Plating',          icon: 'PT', max: 6, v: 1, fmt: v => `+${Math.round(v)} armour (flat damage reduction)`, apply: (P, v) => { P.armour += Math.round(v); } },
@@ -431,6 +433,22 @@ const CORE = { r: 80, sanctuary: 290, arena: 2400 };
 const EGG = { level: 60, hpBase: 600000, armour: 8 };
 // Extra weapon slots unlock at these levels (3 to start, 6 at most).
 const SLOT_LEVELS = [15, 30, 45];
+
+// ---------------------------------------------------------------- Swimming
+// Your head turns at most turn rad/s (times traction), faster when you're nearly stopped.
+// Sideways drift bleeds off at grip per second (times traction). Growth per level: +1.5% size.
+const SWIM = { turn: 3.8, pivot: 1.6, grip: 4, growth: 0.015, hitGrowth: 0.0075 };
+
+// ---------------------------------------------------------------- Terrain
+// Things growing in the womb. solid: blocks bodies. shot: what happens to any projectile or bullet that hits it.
+const OBSTACLES = {
+  ridge:   { name: 'Cartilage Nodule', solid: true,  shot: 'bounce', n: 16, r: [45, 110], color: '#f2d0c9' },
+  mito:    { name: 'Mitochondrion',    solid: true,  shot: 'absorb', n: 9,  r: [48, 72],  color: '#ff9e5e', charge: 45, burstR: 230 },
+  acid:    { name: 'Acid Crypt',       solid: true,  shot: 'melt',   n: 9,  r: [40, 80],  color: '#b8f35a', dps: 10 },
+  cilia:   { name: 'Cilia Bed',        solid: false, shot: 'repel',  n: 8,  r: [95, 150], color: '#ff8fab', push: 260 },
+  current: { name: 'Tubal Current',    solid: false, shot: 'drift',  n: 7,  r: [120, 180], color: '#7df9ff', push: 150 },
+  slick:   { name: 'Lubricant Slick',  solid: false, shot: 'none',   n: 8,  r: [90, 150], color: '#c8b6ff', traction: 0.3 },
+};
 
 // ---------------------------------------------------------------- Rival champions
 // Other would-be babies grow elsewhere on the map. First to level 60 to break the membrane wins.
