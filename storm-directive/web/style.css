@@ -1,5 +1,5 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; height: 100%; overflow: hidden; background: #07060f; color: #e8eef8;
+html, body { margin: 0; height: 100%; overflow: hidden; background: #14040d; color: #f3e8ee;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; user-select: none; -webkit-user-select: none; touch-action: none; }
 canvas { position: fixed; inset: 0; display: block; }
 button { font: inherit; color: inherit; cursor: pointer; }
@@ -39,18 +39,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #toast.on { opacity: 1; }
 
 /* Screens */
-.screen { position: fixed; inset: 0; display: none; background: #05040cd9; overflow-y: auto; touch-action: pan-y;
+.screen { position: fixed; inset: 0; display: none; background: #14040dd9; overflow-y: auto; touch-action: pan-y;
   padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
 .screen.on { display: flex; flex-direction: column; align-items: center; }
 .btn { display: block; width: 100%; max-width: 320px; margin: 8px auto; padding: 14px; border-radius: 12px; border: 2px solid #ffffff40;
   background: #12122a; font-weight: 900; letter-spacing: 1px; font-size: 15px; }
-.btn.primary { border-color: #3cf0ff; color: #07060f; background: linear-gradient(90deg, #3cf0ff, #c77dff); }
+.btn.primary { border-color: #3cf0ff; color: #14040d; background: linear-gradient(90deg, #3cf0ff, #ff8fb8); }
 .btn:disabled { opacity: 0.4; }
 
 #title { background: radial-gradient(circle at 50% 30%, #2a0f4a 0%, #07060f 70%); justify-content: center; }
 .tbox { width: 100%; max-width: 420px; text-align: center; margin: auto 0; }
 .logo { font-size: 54px; font-weight: 900; line-height: 0.95; letter-spacing: 3px; color: #3cf0ff; text-shadow: 0 0 24px #3cf0ff88; }
-.logo span { color: #ff3df2; text-shadow: 0 0 24px #ff3df288; font-size: 40px; }
+.logo span { color: #ff8fb8; text-shadow: 0 0 24px #ff8fb888; font-size: 54px; }
 .tag { color: #c9d1ee; margin: 14px 0 22px; }
 #how { display: none; text-align: left; font-size: 13px; line-height: 1.45; background: #0b0b1d; border: 1px solid #ffffff20; border-radius: 12px; padding: 4px 14px; margin: 8px 0; }
 #how.open { display: block; }
@@ -94,7 +94,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #rerollBtn { max-width: 220px; padding: 10px; font-size: 13px; }
 
 /* Pause */
-#pause, #over { background: #05040cf5; }
+#pause, #over { background: #14040df5; }
 .pwrap, .owrap { width: 100%; max-width: 620px; }
 .ptitle { font-size: 28px; font-weight: 900; text-align: center; color: #3cf0ff; letter-spacing: 3px; }
 #pauseStats { text-align: center; }
@@ -142,10 +142,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #rewindBtn .pips i { width: 7px; height: 7px; border-radius: 50%; background: #223; border: 1px solid #7df9ff; }
 #rewindBtn .pips i.on { background: #7df9ff; }
 
-#title { background: radial-gradient(circle at 50% 30%, #2a0f4a99 0%, #07060f55 75%); }
+#title { background: radial-gradient(circle at 50% 38%, #ffd6e822 0%, #6a0f3566 30%, #14040d99 75%); }
 
 /* The Show */
-#sysmsg { position: absolute; left: 50%; top: calc(128px + env(safe-area-inset-top)); transform: translate(-50%, -12px); width: min(92vw, 420px);
+#sysmsg { position: absolute; left: 50%; top: calc(160px + env(safe-area-inset-top)); transform: translate(-50%, -12px); width: min(92vw, 420px);
   background: linear-gradient(135deg, #0b0b22f2, #1a0b2ef2); border: 2px solid var(--mc, #7df9ff); border-radius: 12px; padding: 8px 12px;
   box-shadow: 0 0 18px color-mix(in srgb, var(--mc, #7df9ff) 45%, transparent); opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
 #sysmsg.on { opacity: 1; transform: translate(-50%, 0); }
@@ -163,7 +163,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .slot.spell .mp { display: none; }
 
 /* Armoury */
-#armoury { background: #05040cf5; }
+#armoury { background: #14040df5; }
 #armTabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
 .atab { position: relative; width: 62px; height: 66px; border-radius: 12px; border: 2px solid var(--c, #445); background: #0e0e22;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
@@ -206,3 +206,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .btn.danger { border-color: #ff4d6d; color: #ff4d6d; }
 .card .cfor { margin-top: 5px; font-size: 11px; color: #9aa6c4; }
 .card .cfor b { color: #fff; }
+
+/* Spawn Storm: extra weapon slots, locked tabs, victory */
+#wslots { flex-wrap: wrap; justify-content: center; max-width: 234px; }
+.atab.locked { border-style: dashed; opacity: 0.45; }
+.atab.locked b { font-size: 12px; color: #9aa6c4; }
+#overTitle.won { color: #ffd6e8; text-shadow: 0 0 24px #ff8fb8; }
+.big.born { color: #ffd6e8; text-shadow: 0 0 26px #ff8fb8; }

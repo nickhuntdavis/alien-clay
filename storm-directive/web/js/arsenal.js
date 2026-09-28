@@ -30,7 +30,7 @@ function updateCrossfire() {
   const P = G.P;
   const ws = G.weapons.filter(w => w && w.curTarget && !w.curTarget.dead);
   for (const w of G.weapons) if (w) w.cross = P.crossfire > 0 && !!w.curTarget && ws.some(o => o !== w && o.curTarget === w.curTarget);
-  G.scatter = P.crossfire > 0 && ws.length === 3 && new Set(ws.map(w => w.curTarget)).size === 3;
+  G.scatter = P.crossfire > 0 && ws.length >= 3 && new Set(ws.map(w => w.curTarget)).size === ws.length;
 }
 
 // Projectile overrides for special magazines (gacha tiers, Last Word rounds).

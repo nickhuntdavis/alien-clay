@@ -1,17 +1,17 @@
 'use strict';
-// Storm Directive - the Chrono Anchor sanctuary and the Rewind / Paradox Echo time-travel mechanic.
+// Spawn Storm - the egg's healing glow and the Rewind / Paradox Echo time-travel mechanic.
 
 // The real player, even while an echo temporarily stands in as G.player to fire its weapons.
 function me() { return G.realPlayer || G.player; }
 
-// ---------------------------------------------------------------- the Anchor (a sanctuary at the arena centre)
+// ---------------------------------------------------------------- the egg (heals you nearby)
 function makeCore() { return { x: 0, y: 0, r: CORE.r, flash: 0 }; }
 function newChrono() { return { energy: 0, charges: CHRONO.startCharges, max: CHRONO.maxCharges, snaps: [], snapT: 0, path: [] }; }
 
 function updateCore(dt) {
   const core = G.core, p = me();
   if (core.flash > 0) core.flash -= dt;
-  // Sanctuary: standing near the Anchor slowly heals you.
+  // Standing in the egg's glow slowly heals you.
   if (Math.hypot(p.x - core.x, p.y - core.y) < CORE.sanctuary) healPlayer(2.5 * dt, true);
 }
 
@@ -107,9 +107,10 @@ function updateRewind(dt) {
   applySnapForView(s);
   G.proj = []; G.timers = []; G.lights = [];
   G.nextBoss = s.nextBoss; G.nextWave = s.nextWave; G.bossCount = s.bossCount; G.surge = s.surge;
-  G.boss = G.enemies.find(x => x.boss) || null;
+  G.boss = G.enemies.find(x => x.boss && !x.egg) || null;
+  G.eggE = G.enemies.find(x => x.egg) || null;
   const P = G.P;
-  if (r.auto) G.player.hp = Math.max(G.player.hp, P.maxHp * 0.5);
+  if (r.auto) G.player.hp = Math.max(G.player.hp, P.maxHp * 0.3);
   G.player.hp = Math.max(1, G.player.hp);
   G.player.iframes = 1.5;
   G.echoes.push(r.echo);

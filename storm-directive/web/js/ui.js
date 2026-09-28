@@ -1,5 +1,5 @@
 'use strict';
-// Storm Directive - DOM UI: title, HUD slots, loot boxes, pause/directive editor, game over.
+// Spawn Storm - DOM UI: title, HUD slots, loot boxes, Armoury, pause, game over and victory.
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -17,7 +17,7 @@ const UI = {
     $('hudTop').style.top = UI.safeTop + 'px';
     // Build HUD slots.
     const ws = $('wslots'), ss = $('sslots');
-    for (let i = 0; i < 3; i++) ws.appendChild(UI.makeSlotEl('w', i));
+    for (let i = 0; i < 3 + SLOT_LEVELS.length; i++) ws.appendChild(UI.makeSlotEl('w', i));
     for (let i = 0; i < 2; i++) ss.appendChild(UI.makeSlotEl('s', i));
     $('moveBtn').addEventListener('click', () => {
       if (!G) return;
@@ -106,9 +106,11 @@ const UI = {
       el.classList.toggle('reloading', reloading);
       el.querySelector('.bar i').style.width = (clamp(frac, 0, 1) * 100).toFixed(0) + '%';
     };
-    for (let i = 0; i < 3; i++) fill(wEls[i], G.weapons[i]);
+    for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); }
     for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
     $('moveBtn').textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
+    // Keep the Rewind button clear of the HUD as extra weapon rows appear.
+    $('side').style.bottom = ($('bottom').offsetHeight + 12) + 'px';
     // Rewind button.
     const c = G.chrono, rb = $('rewindBtn');
     rb.querySelector('.pips').innerHTML = Array.from({ length: c.max }, (_, i) => `<i class="${i < c.charges ? 'on' : ''}"></i>`).join('');
@@ -149,8 +151,8 @@ const UI = {
     $('armQuip').textContent = pick([
       'Please do not lick the weapons. We have had complaints.',
       'Everything here is legally a gift, so no returns.',
-      'Set your directives. The ship does the rest. You do the blaming.',
-      'Tip: modifiers stack with anything. So do bad decisions.',
+      'Set your directives. Your tail does the rest. You do the blaming.',
+      'No other swimmer has an Armoury. That is not fair. That is the point.',
     ]);
     UI.renderArmoury();
     UI.show('armoury');
@@ -172,10 +174,15 @@ const UI = {
       return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${x.def.color}"><b>${esc(x.def.icon)}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
+    for (let i = G.weapons.length; i < 3 + SLOT_LEVELS.length; i++) t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${SLOT_LEVELS[i - 3]}</span></button>`;
     G.spells.forEach((x, i) => { t += tab('s', i, x); });
     $('armTabs').innerHTML = t;
     $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false }; UI.renderArmoury(); }));
     const body = $('armBody');
+    if (A.k === 'w' && A.i >= G.weapons.length) {
+      body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS[A.i - 3]} (you are level ${G.level}). The next loot box after that is all new weapons.</p></div>`;
+      return;
+    }
     if (!w) {
       body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon slot. New weapons show up in loot boxes while you have a free slot. Recycle a weapon to make room.' : 'Empty spell slot. Spells show up in loot boxes while you have a free slot.'}</p></div>`;
       return;
@@ -274,7 +281,8 @@ const UI = {
     UI.lootReq = req;
     UI.lootOpts = genLoot(req);
     const titles = {
-      start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary Starter Box. Every weapon fires itself. You just pick the directive and pray.'],
+      start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary Starter Box. Yes, sperm can have guns now. Do not ask the biology department.'],
+      slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Silver or better.'],
       level: ['LEVEL ' + G.level + '!', pick(['Bronze-or-better Adventurer Box. Pick one. Choose wisely. Or quickly.', 'Adventurer Box! Contents may have shifted during your near-death experience.', 'Adventurer Box. The fans chipped in. Some of them twice.'])],
       chest: ['FAN BOX', pick(['Silver or better. The fans sent this. Some of the fans are very strange.', 'Silver or better. It rattles. That is probably fine.'])],
       boss: ['BOSS BOX', 'Gold or better. Pried from a still-warm corpse. Contents are yours. Smell is extra.'],
@@ -356,7 +364,7 @@ const UI = {
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
 
-    h += `<div class="sec"><h3>Time and the Anchor</h3><p class="hint">Rewind charges ${G.chrono.charges}/${G.chrono.max}. The Anchor at the centre of the arena heals you while you stand in its sanctuary (GUARD autorun does this for you).</p>
+    h += `<div class="sec"><h3>The egg and time</h3><p class="hint">${G.eggE ? 'The egg is open for business: break its membrane to be born.' : `Reach level ${EGG.level} and the egg will let you try to break in (you are level ${G.level}).`} Weapon slots: ${G.weapons.length}/${3 + SLOT_LEVELS.length} (next at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}. The egg's warm glow heals you (NEST autorun keeps you in it).</p>
       <p class="hint"><b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you or the Anchor would die with a charge ready, Rewind triggers automatically.</p></div>`;
     // Achievements and the show.
     const got = G.show.order;
@@ -406,15 +414,22 @@ const UI = {
   },
 
   // ---------------------------------------------------------------- game over
-  showGameOver() {
+  showVictory() { UI.showGameOver(true); },
+  showGameOver(won) {
     const best = UI.loadBest();
-    const isBest = G.t > (best.time || 0);
-    if (isBest) UI.saveBest({ time: G.t, level: G.level, kills: G.kills });
+    const isBest = won ? !best.born || G.t < best.born : G.t > (best.time || 0);
+    if (won) UI.saveBest(Object.assign(best, { born: isBest ? G.t : best.born, births: (best.births || 0) + 1 }));
+    else if (isBest) UI.saveBest(Object.assign(best, { time: G.t, level: G.level, kills: G.kills }));
+    $('overTitle').textContent = won ? "IT'S YOU!" : 'SWIMMER ABSORBED';
+    $('overTitle').classList.toggle('won', !!won);
     const dmg = Object.entries(G.stats.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8);
     const tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
-    let h = `<div class="eulogy">${esc(pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
-      <div class="hint">Killed by: <b style="color:#ff4d6d">${esc(G.stats.lastHit || 'the storm')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>
+    let h = won
+      ? `<div class="eulogy">You broke into the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
+      : `<div class="eulogy">${esc(pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
+      <div class="hint">Absorbed by: <b style="color:#ff4d6d">${esc(G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
+    h += `
       <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
       <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.stats.charms || 0}</b>Allies won</div><div><b>${G.weapons.reduce((a, w) => a + (w ? w.mods.length : 0), 0)}</b>Modifiers</div><div><b>${G.stats.absorbed}</b>Bullets eaten</div></div>
       <h3>Damage breakdown</h3>`;
@@ -430,7 +445,10 @@ const UI = {
   saveBest(b) { try { localStorage.setItem('sd_best', JSON.stringify(b)); } catch (e) { /* ignore */ } },
   renderBest() {
     const b = UI.loadBest();
-    $('bestLine').textContent = b.time ? `Best run: ${fmtTime(b.time)} | Level ${b.level} | ${b.kills} kills` : 'No runs yet. The storm awaits.';
+    const parts = [];
+    if (b.time) parts.push(`Longest swim: ${fmtTime(b.time)} (Level ${b.level})`);
+    if (b.born) parts.push(`Born ${b.births} time${b.births === 1 ? '' : 's'}, fastest ${fmtTime(b.born)}`);
+    $('bestLine').textContent = parts.length ? parts.join(' | ') : 'No swims yet. The egg awaits.';
   },
 };
 

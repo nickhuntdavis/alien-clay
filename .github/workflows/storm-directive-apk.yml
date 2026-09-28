@@ -24,5 +24,5 @@ jobs:
         run: ./gradlew assembleRelease --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: StormDirective-apk
+          name: SpawnStorm-apk
           path: storm-directive/android/app/build/outputs/apk/release/app-release.apk

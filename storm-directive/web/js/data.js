@@ -1,5 +1,5 @@
 'use strict';
-// Storm Directive - game data: elements, weapons, spells, merges, passives, enemies, bosses, directives.
+// Spawn Storm - game data: elements, weapons, spells, merges, passives, enemies, bosses, directives.
 
 const ELEMENTS = {
   phys:   { name: 'Kinetic', color: '#e8eef8' },
@@ -34,7 +34,7 @@ const MOVE_DIRECTIVES = [
   { id: 'orbit',   name: 'ORBIT',   desc: 'Circle around the horde' },
   { id: 'hunt',    name: 'HUNT',    desc: 'Close in on the primary target' },
   { id: 'hold',    name: 'HOLD',    desc: 'Stand ground, only dodge bullets' },
-  { id: 'defend',  name: 'GUARD',   desc: 'Hover in the Anchor\'s sanctuary, which slowly heals you' },
+  { id: 'defend',  name: 'NEST',    desc: 'Hover in the egg\'s warm glow, which slowly heals you' },
 ];
 
 // Level bonus keys: count, pierce, chain, bounce (additive); dmg, area, dur (additive %); cd (negative = faster).
@@ -351,7 +351,7 @@ const PASSIVES = {
   overkill:  { name: 'Overkill Transfer', icon: 'OK', max: 3, v: 0.5, fmt: v => `${pc(v)} of excess kill damage jumps to the next enemy`, apply: (P, v) => { P.overkill += v; } },
   crossfire: { name: 'Crossfire Protocol', icon: 'CF', max: 3, v: 0.25, fmt: v => `Weapons sharing a target: +${pc(v)} damage. All three on different targets: +${pc(v)} fire rate`, apply: (P, v) => { P.crossfire += v; } },
   momentum:  { name: 'Momentum',         icon: 'MO', max: 4, v: 0.15, fmt: v => `Up to +${pc(v * 1.5)} damage the faster you are moving`, apply: (P, v) => { P.momentum += v; } },
-  anchorlink:{ name: 'Anchor Link',      icon: 'AL', max: 3, v: 0.3, fmt: v => `Near the Anchor: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
+  anchorlink:{ name: 'Egg Bond',         icon: 'EB', max: 3, v: 0.3, fmt: v => `Near the egg: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
   future:    { name: 'Future Rounds',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target`, apply: (P, v) => { P.future += v; } },
   echoinherit: { name: 'Echo Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 1, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
   evasion:   { name: 'Evasion',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.min(0.5, P.dodge + v); } },
@@ -381,54 +381,59 @@ const SYNERGIES = {
 
 // Enemies. from = seconds before they can spawn, w = spawn weight.
 const ENEMIES = {
-  crawler:  { name: 'Crawler', hp: 14, speed: 64, armour: 0, r: 12, dmg: 8, xp: 1, color: '#ff4d6d', shape: 'circle', ai: 'chase', from: 0, w: 10 },
-  skitter:  { name: 'Skitter', hp: 6, speed: 125, armour: 0, r: 8, dmg: 5, xp: 1, color: '#ffa94d', shape: 'tri', ai: 'chase', from: 15, w: 7 },
-  spitter:  { name: 'Spitter', hp: 20, speed: 58, armour: 0, r: 13, dmg: 6, xp: 3, color: '#e056fd', shape: 'diamond', ai: 'ranged', from: 35, w: 4,
+  // Rival swimmers (they have tails) and the host's immune system (they have opinions).
+  crawler:  { name: 'Rival Swimmer', hp: 14, speed: 64, armour: 0, r: 12, dmg: 8, xp: 1, color: '#f4ecd8', shape: 'sperm', ai: 'chase', from: 0, w: 10 },
+  skitter:  { name: 'Sprinter', hp: 6, speed: 125, armour: 0, r: 8, dmg: 5, xp: 1, color: '#ffd6a5', shape: 'sperm', ai: 'chase', from: 15, w: 7 },
+  spitter:  { name: 'Antibody', hp: 20, speed: 58, armour: 0, r: 13, dmg: 6, xp: 3, color: '#ffd23f', shape: 'antibody', ai: 'ranged', from: 35, w: 4,
     shoot: { pattern: 'aimed', cd: 2.6, speed: 170, dmg: 6 } },
-  brute:    { name: 'Brute', hp: 60, speed: 44, armour: 3, r: 20, dmg: 16, xp: 4, color: '#c77d4a', shape: 'square', ai: 'chase', from: 55, w: 4 },
-  bomber:   { name: 'Bomber', hp: 16, speed: 98, armour: 0, r: 12, dmg: 18, xp: 2, color: '#ff2e2e', shape: 'spike', ai: 'bomber', from: 100, w: 3 },
-  splitter: { name: 'Splitter', hp: 42, speed: 52, armour: 0, r: 17, dmg: 10, xp: 3, color: '#43e97b', shape: 'hex', ai: 'chase', from: 85, w: 3, split: 'splitling' },
-  splitling:{ name: 'Splitling', hp: 12, speed: 92, armour: 0, r: 9, dmg: 5, xp: 1, color: '#7af5a8', shape: 'hex', ai: 'chase', from: 99999, w: 0 },
-  wisp:     { name: 'Wisp', hp: 4, speed: 145, armour: 0, r: 6, dmg: 4, xp: 0.5, color: '#fee440', shape: 'circle', ai: 'chase', from: 95, w: 2, group: 9 },
-  blinker:  { name: 'Blinker', hp: 22, speed: 72, armour: 0, r: 12, dmg: 9, xp: 3, color: '#00f5d4', shape: 'diamond', ai: 'blink', from: 105, w: 2 },
-  medic:    { name: 'Mender', hp: 30, speed: 56, armour: 1, r: 13, dmg: 6, xp: 4, color: '#7bed9f', shape: 'cross', ai: 'medic', from: 120, w: 2 },
-  charger:  { name: 'Ram', hp: 50, speed: 56, armour: 2, r: 16, dmg: 18, xp: 4, color: '#f15bb5', shape: 'tri', ai: 'charge', from: 130, w: 3 },
-  bulwark:  { name: 'Bulwark', hp: 95, speed: 40, armour: 8, r: 20, dmg: 14, xp: 6, color: '#8da9c4', shape: 'square', ai: 'aura', from: 150, w: 2 },
-  warlock:  { name: 'Warlock', hp: 45, speed: 46, armour: 1, r: 15, dmg: 8, xp: 6, color: '#9b5de5', shape: 'star', ai: 'ranged', from: 170, w: 2,
+  brute:    { name: 'Macrophage', hp: 60, speed: 44, armour: 3, r: 20, dmg: 16, xp: 4, color: '#ff8fab', shape: 'cell', ai: 'chase', from: 55, w: 4 },
+  bomber:   { name: 'Acid Bubble', hp: 16, speed: 98, armour: 0, r: 12, dmg: 18, xp: 2, color: '#b8f35a', shape: 'spike', ai: 'bomber', from: 100, w: 3 },
+  splitter: { name: 'Mitotic Cell', hp: 42, speed: 52, armour: 0, r: 17, dmg: 10, xp: 3, color: '#43e97b', shape: 'cell', ai: 'chase', from: 85, w: 3, split: 'splitling' },
+  splitling:{ name: 'Daughter Cell', hp: 12, speed: 92, armour: 0, r: 9, dmg: 5, xp: 1, color: '#7af5a8', shape: 'cell', ai: 'chase', from: 99999, w: 0 },
+  wisp:     { name: 'Spermlet Swarm', hp: 4, speed: 145, armour: 0, r: 6, dmg: 4, xp: 0.5, color: '#fee9a0', shape: 'sperm', ai: 'chase', from: 95, w: 2, group: 9 },
+  blinker:  { name: 'Quantum Swimmer', hp: 22, speed: 72, armour: 0, r: 12, dmg: 9, xp: 3, color: '#00f5d4', shape: 'sperm', ai: 'blink', from: 105, w: 2 },
+  medic:    { name: 'Nurse Cell', hp: 30, speed: 56, armour: 1, r: 13, dmg: 6, xp: 4, color: '#7bed9f', shape: 'cross', ai: 'medic', from: 120, w: 2 },
+  charger:  { name: 'Headbutter', hp: 50, speed: 56, armour: 2, r: 16, dmg: 18, xp: 4, color: '#ffb4a2', shape: 'sperm', ai: 'charge', from: 130, w: 3 },
+  bulwark:  { name: 'Mucus Wall', hp: 95, speed: 40, armour: 8, r: 20, dmg: 14, xp: 6, color: '#c9d6e3', shape: 'cell', ai: 'aura', from: 150, w: 2 },
+  warlock:  { name: 'Cytokine Caster', hp: 45, speed: 46, armour: 1, r: 15, dmg: 8, xp: 6, color: '#9b5de5', shape: 'star', ai: 'ranged', from: 170, w: 2,
     shoot: { pattern: 'ring', count: 8, cd: 3.2, speed: 140, dmg: 9 } },
-  phantom:  { name: 'Phantom', hp: 35, speed: 82, armour: 0, r: 13, dmg: 10, xp: 5, color: '#caf0f8', shape: 'circle', ai: 'phase', from: 195, w: 2 },
-  summoner: { name: 'Broodmother', hp: 75, speed: 40, armour: 2, r: 18, dmg: 10, xp: 8, color: '#ff8fab', shape: 'oct', ai: 'summon', from: 210, w: 1.2 },
-  spire:    { name: 'Spire', hp: 85, speed: 16, armour: 4, r: 18, dmg: 10, xp: 8, color: '#ff006e', shape: 'hex', ai: 'turret', from: 240, w: 1.5,
+  phantom:  { name: 'Ghost Swimmer', hp: 35, speed: 82, armour: 0, r: 13, dmg: 10, xp: 5, color: '#caf0f8', shape: 'sperm', ai: 'phase', from: 195, w: 2 },
+  summoner: { name: 'Mother Cell', hp: 75, speed: 40, armour: 2, r: 18, dmg: 10, xp: 8, color: '#ff6fa8', shape: 'cell', ai: 'summon', from: 210, w: 1.2 },
+  spire:    { name: 'Enzyme Spire', hp: 85, speed: 16, armour: 4, r: 18, dmg: 10, xp: 8, color: '#ff006e', shape: 'hex', ai: 'turret', from: 240, w: 1.5,
     shoot: { pattern: 'spiral', cd: 0.16, speed: 125, dmg: 7 } },
-  lancer:   { name: 'Lancer', hp: 26, speed: 52, armour: 0, r: 13, dmg: 6, xp: 5, color: '#ff99c8', shape: 'tri', ai: 'ranged', from: 260, w: 1.5,
+  lancer:   { name: 'Killer T-Cell', hp: 26, speed: 52, armour: 0, r: 13, dmg: 6, xp: 5, color: '#ff99c8', shape: 'antibody', ai: 'ranged', from: 260, w: 1.5,
     shoot: { pattern: 'snipe', cd: 3.6, speed: 430, dmg: 16 } },
-  juggernaut: { name: 'Juggernaut', hp: 420, speed: 34, armour: 12, r: 28, dmg: 30, xp: 20, color: '#8d99ae', shape: 'oct', ai: 'chase', from: 300, w: 0.6 },
+  juggernaut: { name: 'Alpha Swimmer', hp: 420, speed: 34, armour: 12, r: 28, dmg: 30, xp: 20, color: '#d4c1a4', shape: 'sperm', ai: 'chase', from: 300, w: 0.6 },
 };
 
 const BOSSES = [
-  { id: 'queen',    name: 'THE HIVE QUEEN', hp: 2600, speed: 46, armour: 2, r: 44, dmg: 25, xp: 60, color: '#ff4d6d', shape: 'star', patterns: ['spiral', 'summon', 'ring', 'aimedFan'] },
-  { id: 'colossus', name: 'IRON COLOSSUS',  hp: 4200, speed: 36, armour: 10, r: 52, dmg: 35, xp: 90, color: '#adb5bd', shape: 'oct', patterns: ['ring', 'charge', 'aimedFan', 'doubleSpiral'] },
-  { id: 'voideye',  name: 'THE VOID EYE',   hp: 3400, speed: 52, armour: 4, r: 46, dmg: 30, xp: 80, color: '#7b2cbf', shape: 'eye', patterns: ['doubleSpiral', 'blink', 'ring', 'flower'] },
+  { id: 'queen',    name: 'THE MACROPHAGE QUEEN', hp: 2600, speed: 46, armour: 2, r: 44, dmg: 25, xp: 60, color: '#ff4d8d', shape: 'cell', patterns: ['spiral', 'summon', 'ring', 'aimedFan'] },
+  { id: 'colossus', name: 'THE ANTIBODY COLOSSUS', hp: 4200, speed: 36, armour: 10, r: 52, dmg: 35, xp: 90, color: '#ffd23f', shape: 'antibody', patterns: ['ring', 'charge', 'aimedFan', 'doubleSpiral'] },
+  { id: 'voideye',  name: 'THE IMMUNE EYE',   hp: 3400, speed: 52, armour: 4, r: 46, dmg: 30, xp: 80, color: '#7b2cbf', shape: 'eye', patterns: ['doubleSpiral', 'blink', 'ring', 'flower'] },
 ];
 const BOSS_INTERVAL = 180; // seconds
 
 // Field power-ups.
 const POWERUPS = {
   magnet: { name: 'MAGNET',  letter: 'M', color: '#4cc9f0', desc: 'All XP flies to you' },
-  nuke:   { name: 'NUKE',    letter: 'N', color: '#ff595e', desc: 'Obliterates nearby enemies' },
-  rage:   { name: 'OVERDRIVE', letter: 'O', color: '#ff924c', desc: 'Double fire rate, no reloads' },
-  heal:   { name: 'MEDKIT',  letter: '+', color: '#8ac926', desc: 'Restore 35% HP' },
+  nuke:   { name: 'ACID FLUSH',    letter: 'N', color: '#ff595e', desc: 'Obliterates nearby enemies' },
+  rage:   { name: 'ADRENALINE', letter: 'O', color: '#ff924c', desc: 'Double fire rate, no reloads' },
+  heal:   { name: 'GLUCOSE HIT',  letter: '+', color: '#8ac926', desc: 'Restore 35% HP' },
   shield: { name: 'SHIELD',  letter: 'S', color: '#48cae4', desc: 'Invulnerable for 5s' },
   freeze: { name: 'STASIS',  letter: 'F', color: '#a2d2ff', desc: 'Freeze all enemies' },
   chest:  { name: 'LOOT BOX', letter: '?', color: '#ffca3a', desc: 'Free upgrade' },
 };
 
-// ---------------------------------------------------------------- The Chrono Anchor
-// A crystal at the world origin: the arena's centre. Standing in its sanctuary heals you.
-const CORE = { r: 34, sanctuary: 230, arena: 1400 };
+// ---------------------------------------------------------------- The Egg
+// The egg sits at the world origin: the arena's centre. Standing in its glow heals you.
+const CORE = { r: 80, sanctuary: 290, arena: 1400 };
+// Break into the egg: reach EGG.level and its membrane becomes vulnerable. Destroy it to be born (you win).
+const EGG = { level: 60, hpBase: 600000, armour: 8 };
+// Extra weapon slots unlock at these levels (3 to start, 6 at most).
+const SLOT_LEVELS = [15, 30, 45];
 
 // ---------------------------------------------------------------- Chrono (time travel)
-const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 260, startCharges: 1, maxCharges: 2 };
+const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600, startCharges: 1, maxCharges: 2 };
 
 // ---------------------------------------------------------------- Modifiers (slot into one weapon, 3 per weapon)
 // Power (p) comes from the card's rarity. Picking a modifier a weapon already has boosts its power.
@@ -470,7 +475,7 @@ const GACHA_TIERS = [
   { name: 'GOLD MAG', mult: 1.8, color: '#ffd23f', w: 13 },
   { name: 'LEGENDARY MAG', mult: 3, color: '#ff3df2', w: 4 },
 ];
-const BOSS_TITLES = { queen: 'Tenured Mother of Thousands', colossus: 'Regional Manager of Crushing', voideye: 'Unblinking Critic of Your Life Choices' };
+const BOSS_TITLES = { queen: 'Eater of Hopefuls', colossus: 'Head of Border Control', voideye: 'Unblinking Critic of Your Genome' };
 const SPONSORS = [
   "Grundle's Discount Ordnance", "Madame Vex's Totally Legal Potions", 'The Committee for Unnecessary Explosions',
   "Big Barry's Scrap and Salvage", 'Glorp Cola: It Glows For A Reason', 'The Ancient Order of Slightly Sticky Relics',
@@ -478,51 +483,55 @@ const SPONSORS = [
 ];
 const SYSTEM_LINES = {
   start: [
-    'Welcome, Contestant. Please keep your limbs inside the ship at all times. Or don\'t. The ratings are better if you don\'t.',
-    'Good news: you have been selected for a fabulous new game show. Bad news: it is this one.',
-    'Reminder: the ship flies itself. Your job is to make bad decisions in the menus.',
+    'Welcome, Swimmer. Four hundred million of you entered. One gets to become a person. No pressure.',
+    'Today\'s prize: existence. Today\'s competition: literally everyone you arrived with.',
+    'Reminder: you swim yourself. Your job is to make bad decisions in the menus.',
+    'Good news: there is an egg. Bad news: so is everyone else\'s plan.',
   ],
   level: [
-    'Level up! Your body is changing. That is normal. The glowing is also normal.',
-    'Another level. At this rate you might survive until the adverts.',
+    'Level up! You are growing. Please stop sprouting weapons from your tail, it upsets the viewers.',
+    'Another level. The egg has noticed you. The egg is not impressed yet.',
     'Level up. Please enjoy this complimentary box of violence.',
-    'Congratulations on your promotion from "snack" to "slightly harder snack".',
+    'Congratulations on your promotion from "tadpole" to "slightly angrier tadpole".',
   ],
   boss: [
-    'It has read your file and is unimpressed.',
+    'It has read your genome and is unimpressed.',
     'It has been told you insulted its mother. You did not. We did. On your behalf.',
     'Please try to die slowly. The viewers paid for the full episode.',
   ],
   lowhp: [
-    'Your health is low. Have you tried not getting hit?',
+    'Your health is low. Have you tried not getting absorbed?',
     'Vital signs: concerning. Viewer engagement: excellent.',
-    'The medic has been notified. The medic has declined.',
+    'The immune system is winning. The immune system always thinks it is winning.',
   ],
   rewind: [
-    'Time has been rewound. The paperwork on this is going to be horrendous.',
+    'Time has been rewound. Biology has filed a formal complaint.',
     'Rewind successful. Your future self is now an unpaid intern.',
-    'Causality has filed a formal complaint. Noted. Ignored.',
+    'You swam backwards through time. Most swimmers can barely swim forwards.',
   ],
-  fusion: ['Fusion complete. It violates at least four treaties.', 'Two weapons became one. The other one is in a better place now.'],
-  cursed: ['You took the cursed card. We are not angry. We are just disappointed. And delighted.', 'Bold. Stupid, but bold.'],
-  surge: ['Storm Surge! Everything hits harder now. Please remain calm and panic.'],
+  fusion: ['Fusion complete. Two weapons became one. That is, ironically, the theme of the show.', 'Fusion complete. It violates at least four treaties and one textbook.'],
+  cursed: ['You took the cursed card. We are not angry. We are just disappointed. And delighted.', 'Bold. Stupid, but bold. Very on-brand for a swimmer.'],
+  surge: ['Immune Surge! The host has noticed you. Everything hits harder now. Please remain calm and panic.'],
   idle: [
-    'The audience is getting bored. Kill something interesting.',
-    'Fun fact: most contestants die within the next minute. Just saying.',
+    'The egg is right there. Just saying.',
+    'Fun fact: most swimmers never get past the first minute. Just saying.',
     'A reminder that screaming does not affect gameplay, but we do record it.',
-    'Our legal team would like to remind you that none of this is legally binding. Except the dying.',
-    'Viewer poll: 61% think you will die to a Skitter. Prove them right.',
-    'You are doing great! This message is automated and applies to all contestants equally.',
+    'Viewer poll: 61% think you will be eaten by a Macrophage. Prove them right.',
+    'You are doing great! This message is automated and applies to all four hundred million swimmers equally.',
+    'Current odds of becoming a person: low. Current odds of being a snack: excellent.',
   ],
   death: [
-    'Contestant eliminated. The audience has already forgotten your name.',
-    'You have died. Your loot will be redistributed to someone more competent.',
-    'And that is the show! Well, your show. The show continues without you.',
+    'Swimmer absorbed. Your DNA will be recycled into something more useful, like a toenail.',
+    'You have been eaten by the immune system. It was nothing personal. It was entirely personal.',
+    'And that is the show! Another swimmer gets to be a person. It was not you.',
     'Cause of death: optimism.',
   ],
   gacha: ['Legendary magazine! The house always wins. Except, apparently, now.'],
-  mimic: ['Pattern copied. The original owner is dead and cannot sue. Probably.'],
+  mimic: ['Pattern copied. The original owner has been absorbed and cannot sue.'],
   grudge: ['Grudge settled. Therapy was cheaper, but this was faster.'],
+  eggReady: ['The egg has decided you are big enough. Go and break in. Knocking is optional.', 'The egg is ready. Its membrane is not. Shoot it until it agrees.'],
+  born: ['Congratulations! It\'s you! Everyone else can go home. Everyone else is, technically, going nowhere.'],
+  slot: ['You grew a new weapon mount. Biology is not supposed to work like this. Please enjoy it anyway.', 'Extra weapon slot unlocked. Evolution took millions of years. You took fifteen levels.'],
 };
 const NO_REWARD = [
   'Reward: a sense of accomplishment. It is non-refundable.',
@@ -539,7 +548,10 @@ const CARD_QUIPS = [
   'Our focus group loved it. The focus group has since dissolved.',
 ];
 const ACHIEVEMENTS = {
-  firstblood: { name: "Baby's First Homicide", desc: 'Killed a monster. It had a family. Probably.', reward: 'none' },
+  firstblood: { name: "Baby's First Homicide", desc: 'Killed a rival. Only 399,999,999 to go.', reward: 'none' },
+  born:       { name: "Congratulations, It's You", desc: 'Broke into the egg and got yourself born. Please enjoy the next eighty years.', reward: 'none' },
+  eggready:   { name: 'Big Enough', desc: 'Grew strong enough for the egg to take you seriously.', reward: 'heal' },
+  slot:       { name: 'Extra Limb', desc: 'Grew an extra weapon slot. The textbooks will need updating.', reward: 'none' },
   kills100:   { name: 'Pest Control', desc: '100 kills. The exterminators\' union has filed a complaint.', reward: 'reroll' },
   kills1000:  { name: 'Statistically Significant', desc: '1,000 kills. You are now a demographic.', reward: 'box' },
   kills5000:  { name: 'Extinction Event', desc: '5,000 kills. Several species have asked you to stop.', reward: 'bossbox' },

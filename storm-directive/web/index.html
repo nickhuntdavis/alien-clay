@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#07060f">
-<title>Storm Directive</title>
+<meta name="theme-color" content="#14040d">
+<title>Spawn Storm</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -30,30 +30,28 @@
     <div class="hint" id="armQuip" style="text-align:center"></div>
     <div id="armTabs"></div>
     <div id="armBody"></div>
-    <div class="pbtns"><button id="armClose" class="btn primary">BACK TO THE SHOW</button></div>
+    <div class="pbtns"><button id="armClose" class="btn primary">BACK TO THE RACE</button></div>
   </div>
 </div>
 
 <div id="title" class="screen">
   <div class="tbox">
-    <div class="logo">STORM<br><span>DIRECTIVE</span></div>
-    <p class="tag">Autorun. Autogun. Broadcast live to an audience that is mostly hoping you explode.</p>
-    <button id="playBtn" class="btn primary">ENTER THE SHOW</button>
+    <div class="logo">SPAWN<br><span>STORM</span></div>
+    <p class="tag">One egg. Four hundred million rival swimmers. Only you have guns. Grow strong enough to break in and be born.</p>
+    <button id="playBtn" class="btn primary">START SWIMMING</button>
     <button id="howBtn" class="btn">HOW TO PLAY</button>
     <div id="how">
-      <p><b>You don't aim.</b> Your ship runs and shoots by itself. You program it.</p>
-      <p><b>Armoury:</b> tap any weapon slot to open the Armoury: stats, modifiers, fusion progress, and each weapon's targeting directive (Nearest, Strongest, Lowest Health, Highest Armour, Densest Cluster, Revenge and more). Recycle weapons you've outgrown for rerolls.</p>
-      <p><b>Autorun directive:</b> the RUN button switches movement: Kite, Collect, Orbit, Hunt, Hold, Guard. Drag anywhere to steer manually.</p>
-      <p><b>Loot boxes:</b> every level up opens a box. Pick 1 of 3: new weapons, spells, upgrades or power-ups. Up to 3 weapons and 2 spells.</p>
-      <p><b>Fusion:</b> get two compatible weapons to Lv 4 and a fusion card appears, merging them into a legendary weapon and freeing a slot.</p>
-      <p><b>Reactions:</b> mix elements. Fire on frozen = Thermal Shock. Shock on poison = Toxic Arc. Arcane on anything = Resonance. Own 2 of an element for a synergy bonus.</p>
-      <p><b>Armour</b> reduces every hit. Use Railguns, shred and damage-over-time on armoured foes.</p>
-      <p><b>Chrono Anchor:</b> the crystal at the centre of the arena. Stand in its sanctuary to heal.</p>
-      <p><b>Rewind:</b> jump 4 seconds back in time. Your future self stays behind as a Paradox Echo that walks the erased timeline backwards, firing your weapons, then collapses in a blast. With a charge ready, death rewinds automatically.</p>
-      <p><b>The Show:</b> you are a contestant. The System narrates your every mistake, hands out achievements (sometimes with real rewards), and sponsors send gifts when your viewer count hits milestones. Loot boxes come in Bronze, Silver, Gold and Legendary. Watch out for cursed cards.</p>
-      <p><b>Modifiers:</b> loot cards that install into one weapon (3 slots each): Seeking, Splitting, Orbiting, Growing, Boomerang, Ricochet, Freezing, Exploding, Mind Control, Element Swap, Shrapnel. Pick one you already have to power it up.</p>
-      <p><b>Enemies:</b> fewer of them, but every one is big, tough and worth a lot of XP.</p>
-      <p>A boss arrives every 3 minutes. Survive. Or don't. Both are good television.</p>
+      <p><b>You are an alien sperm.</b> So is everyone else, plus the host's entire immune system. There is one egg, in the middle of the arena. Grow to <b>level 50</b>, then break its membrane to be born and win.</p>
+      <p><b>You don't aim.</b> You swim and shoot by yourself. You program the directives.</p>
+      <p><b>Armoury:</b> tap any weapon slot: stats, modifiers, fusion progress, and each weapon's targeting directive (Nearest, Strongest, Lowest Health, Highest Armour, Densest Cluster, Revenge and more). Recycle weapons you've outgrown for rerolls.</p>
+      <p><b>Weapon slots:</b> you start with 3 and grow a new one at levels 15, 30 and 45 (6 in total). Each new slot comes with a box of new weapons.</p>
+      <p><b>Autorun directive:</b> the RUN button switches movement: Kite, Collect, Orbit, Hunt, Hold, Nest. Drag anywhere to steer manually.</p>
+      <p><b>Loot boxes:</b> every level up opens one. Pick 1 of 3: weapons, spells, upgrades, modifiers or power-ups. Bronze, Silver, Gold, Legendary. Watch out for cursed cards.</p>
+      <p><b>Modifiers:</b> install into one weapon (3 slots each): Seeking, Splitting, Orbiting, Growing, Boomerang, Ricochet, Freezing, Exploding, Mind Control, Element Swap, Shrapnel.</p>
+      <p><b>Fusion:</b> two compatible weapons at Lv 4 fuse into a legendary one and free a slot.</p>
+      <p><b>Reactions:</b> mix elements. Fire on frozen = Thermal Shock. Shock on poison = Toxic Arc. Arcane on anything = Resonance.</p>
+      <p><b>Rewind:</b> jump 4 seconds back. Your future self stays behind as a Paradox Echo that fights for you, then pops. With a charge ready, death rewinds automatically.</p>
+      <p><b>The egg's glow</b> heals you. A boss arrives every 3 minutes. From 15:00 the host's immune system surges. Swim fast.</p>
     </div>
     <p id="bestLine" class="hint"></p>
   </div>
@@ -85,10 +83,10 @@
 
 <div id="over" class="screen">
   <div class="owrap">
-    <div class="ptitle">CONTESTANT ELIMINATED</div>
+    <div class="ptitle" id="overTitle">SWIMMER ABSORBED</div>
     <div id="overBody"></div>
     <div class="pbtns">
-      <button id="againBtn" class="btn primary">REDEPLOY</button>
+      <button id="againBtn" class="btn primary">SWIM AGAIN</button>
       <button id="titleBtn" class="btn">TITLE</button>
     </div>
   </div>

@@ -1,6 +1,6 @@
 'use strict';
 // Storm Directive - rendering: parallax space, lit arena floor, decals, dynamic lights, shadows,
-// shaded entities, glow sprites, the Chrono Anchor, echoes, rewind effect, HUD, minimap.
+// shaded entities, glow sprites, the egg, swimmers, echoes, rewind effect, HUD, minimap.
 
 function sx(x) { return (x - cam.x) * S + W / 2; }
 function sy(y) { return (y - cam.y) * S + H / 2; }
@@ -28,35 +28,51 @@ function glow(x, y, r, color, alpha) {
 
 // Tileable parallax layers: nebula clouds (far) and two star fields.
 function buildLayers() {
+  // Living tissue: deep crimson fluid, drifting cells at mid-depth, fine bubbles up close.
   let seed = 1337;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const T = 512, D = Math.min(2, DPR);
   const neb = makeCanvas(T, T), ng = neb.getContext('2d');
-  const blobs = ['#3a0ca3', '#7209b7', '#1b3a8a', '#0b525b', '#560bad', '#3f37c9'];
-  for (let i = 0; i < 16; i++) {
-    const x = rnd() * T, y = rnd() * T, r = 60 + rnd() * 170, c = blobs[i % blobs.length];
+  const blobs = ['#6a0f35', '#8a1f4f', '#3d0b2a', '#a02a62', '#4a1340', '#2b0a24'];
+  for (let i = 0; i < 18; i++) {
+    const x = rnd() * T, y = rnd() * T, r = 60 + rnd() * 180, c = blobs[i % blobs.length];
     for (const ox of [-T, 0, T]) for (const oy of [-T, 0, T]) {
       const gr = ng.createRadialGradient(x + ox, y + oy, 0, x + ox, y + oy, r);
-      gr.addColorStop(0, c + '38'); gr.addColorStop(1, c + '00');
+      gr.addColorStop(0, c + '44'); gr.addColorStop(1, c + '00');
       ng.fillStyle = gr; ng.fillRect(x + ox - r, y + oy - r, r * 2, r * 2);
     }
   }
-  const stars = (n, big, tint) => {
+  // Wavy fibres through the far layer.
+  ng.strokeStyle = 'rgba(255,140,180,0.05)'; ng.lineWidth = 6;
+  for (let i = 0; i < 7; i++) {
+    const y0 = rnd() * T, amp = 20 + rnd() * 40, ph = rnd() * TAU;
+    ng.beginPath();
+    for (let x = 0; x <= T; x += 8) ng.lineTo(x, y0 + Math.sin(x / T * TAU * 2 + ph) * amp);
+    ng.stroke();
+  }
+  const cells = (n, big) => {
     const c = makeCanvas(T * D, T * D), g = c.getContext('2d');
     g.scale(D, D);
     for (let i = 0; i < n; i++) {
-      const x = rnd() * T, y = rnd() * T, s = (big ? 0.8 + rnd() * 1.6 : 0.4 + rnd() * 0.8);
-      const col = tint[Math.floor(rnd() * tint.length)];
-      g.globalAlpha = 0.35 + rnd() * 0.6; g.fillStyle = col;
-      g.beginPath(); g.arc(x, y, s, 0, TAU); g.fill();
-      if (big && rnd() < 0.25) { g.globalAlpha = 0.25; g.fillRect(x - s * 4, y - 0.4, s * 8, 0.8); g.fillRect(x - 0.4, y - s * 4, 0.8, s * 8); }
+      const x = rnd() * T, y = rnd() * T;
+      if (big) {
+        const r = 6 + rnd() * 16;
+        g.globalAlpha = 0.12 + rnd() * 0.12;
+        g.fillStyle = '#ff9ecb'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+        g.globalAlpha *= 1.8; g.strokeStyle = '#ffd1e3'; g.lineWidth = 1.2; g.stroke();
+        g.fillStyle = '#b5487a'; g.beginPath(); g.arc(x + r * 0.2, y - r * 0.15, r * 0.3, 0, TAU); g.fill();
+      } else {
+        const r = 0.6 + rnd() * 1.6;
+        g.globalAlpha = 0.25 + rnd() * 0.45; g.fillStyle = rnd() < 0.7 ? '#ffd6e8' : '#ff8fb8';
+        g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+      }
     }
     return c;
   };
   SPR.layers = [
     { f: 0.06, img: neb, T },
-    { f: 0.18, img: stars(160, false, ['#aab4ff', '#ffffff', '#c7b8ff']), T },
-    { f: 0.4, img: stars(45, true, ['#ffffff', '#9ef0ff', '#ffd6ff', '#ffe8a3']), T },
+    { f: 0.2, img: cells(26, true), T },
+    { f: 0.45, img: cells(90, false), T },
   ];
 }
 
@@ -66,7 +82,7 @@ function buildVignette() {
   SPR.vigKey = key;
   const c = makeCanvas(Math.ceil(W / 2), Math.ceil(H / 2)), g = c.getContext('2d');
   const gr = g.createRadialGradient(c.width / 2, c.height / 2, Math.min(c.width, c.height) * 0.35, c.width / 2, c.height / 2, Math.hypot(c.width, c.height) * 0.55);
-  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,0.62)');
+  gr.addColorStop(0, 'rgba(20,0,8,0)'); gr.addColorStop(1, 'rgba(25,0,10,0.66)');
   g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
   SPR.vignette = c;
 }
@@ -93,6 +109,14 @@ function drawShape(shape, x, y, r, rot) {
     case 'star': for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + rot * 0.3, rr = i % 2 ? r * 0.5 : r; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } break;
     case 'spike': for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + rot, rr = i % 2 ? r * 0.7 : r * 1.1; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } break;
     case 'cross': { const t = r * 0.38; ctx.rect(x - t, y - r, t * 2, r * 2); ctx.rect(x - r, y - t, r * 2, t * 2); break; }
+    case 'sperm': ctx.ellipse(x, y, r, r * 0.72, rot, 0, TAU); break;
+    case 'cell': for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, rr = r * (1 + 0.09 * Math.sin(i * 3 + rot * 2.5)); ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } break;
+    case 'antibody': {
+      const w = r * 0.34, pts = [[-w / 2, r], [w / 2, r], [w / 2, 0.1 * r], [0.9 * r, -0.7 * r], [0.6 * r, -r], [0, -0.3 * r], [-0.6 * r, -r], [-0.9 * r, -0.7 * r], [-w / 2, 0.1 * r]];
+      const c = Math.cos(rot), s2 = Math.sin(rot);
+      for (const [px, py] of pts) ctx.lineTo(x + px * c - py * s2, y + px * s2 + py * c);
+      break;
+    }
     default: ctx.arc(x, y, r, 0, TAU);
   }
   ctx.closePath();
@@ -101,44 +125,49 @@ function drawShape(shape, x, y, r, rot) {
 // ---------------------------------------------------------------- background & floor
 function drawBackground() {
   if (!SPR.layers) buildLayers();
-  ctx.fillStyle = '#05040b';
+  ctx.fillStyle = '#14040d';
   ctx.fillRect(-20, -20, W + 40, H + 40);
   for (const L of SPR.layers) {
     const T = L.T;
     const ox = -((((cam.x * S * L.f) % T) + T) % T), oy = -((((cam.y * S * L.f) % T) + T) % T);
     for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
   }
-  // Arena floor: a lit disc of the Anchor's field with a hex-ish grid, dark void beyond.
+  // The womb: a warm, lit disc around the egg, dark tissue beyond.
   const core = G.core, cx = sx(core.x), cy = sy(core.y), R = CORE.arena * S;
   const fl = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-  fl.addColorStop(0, 'rgba(70,50,150,0.30)'); fl.addColorStop(0.35, 'rgba(40,30,100,0.20)'); fl.addColorStop(0.95, 'rgba(20,20,60,0.12)'); fl.addColorStop(1, 'rgba(0,0,0,0)');
+  fl.addColorStop(0, 'rgba(255,120,170,0.26)'); fl.addColorStop(0.3, 'rgba(170,40,100,0.18)'); fl.addColorStop(0.95, 'rgba(90,15,50,0.12)'); fl.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = fl; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
-  // Grid, clipped to the arena.
   ctx.save();
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.clip();
-  const gs = 64, x0 = cam.x - W / 2 / S, y0 = cam.y - H / 2 / S;
-  ctx.strokeStyle = 'rgba(110,120,220,0.10)'; ctx.lineWidth = 1;
+  // Cell-wall mesh.
+  const gs = 72, x0 = cam.x - W / 2 / S, y0 = cam.y - H / 2 / S;
+  ctx.strokeStyle = 'rgba(255,150,190,0.06)'; ctx.lineWidth = 1;
   ctx.beginPath();
-  for (let gx = Math.floor(x0 / gs) * gs; gx < x0 + W / S + gs; gx += gs) { const x = sx(gx); ctx.moveTo(x, 0); ctx.lineTo(x, H); }
-  for (let gy = Math.floor(y0 / gs) * gs; gy < y0 + H / S + gs; gy += gs) { const y = sy(gy); ctx.moveTo(0, y); ctx.lineTo(W, y); }
+  for (let gy = Math.floor(y0 / gs) * gs; gy < y0 + H / S + gs; gy += gs) {
+    const off = (Math.round(gy / gs) % 2) * gs / 2;
+    for (let gx = Math.floor(x0 / gs) * gs - off; gx < x0 + W / S + gs; gx += gs) { const x = sx(gx), y = sy(gy); ctx.moveTo(x + gs * S * 0.45, y); ctx.arc(x, y, gs * S * 0.45, 0, TAU); }
+  }
   ctx.stroke();
-  // Pulse rings travelling out from the Anchor.
-  for (let k = 0; k < 3; k++) {
-    const rr = ((G.realT * 0.12 + k / 3) % 1) * CORE.arena;
-    ctx.strokeStyle = `rgba(125,249,255,${0.07 * (1 - rr / CORE.arena)})`; ctx.lineWidth = 2;
+  // Heartbeat: a double pulse from the egg every 1.2 seconds.
+  const beat = (G.realT % 1.2) / 1.2;
+  for (const [ofs, a] of [[0, 0.14], [0.14, 0.09]]) {
+    const k = beat - ofs;
+    if (k < 0) continue;
+    const rr = k * CORE.arena;
+    ctx.strokeStyle = `rgba(255,143,184,${a * (1 - k)})`; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(cx, cy, rr * S, 0, TAU); ctx.stroke();
   }
   ctx.restore();
-  // Void beyond the arena edge.
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  // Tissue beyond the arena edge.
+  ctx.fillStyle = 'rgba(20,0,8,0.55)';
   ctx.beginPath(); ctx.rect(-20, -20, W + 40, H + 40); ctx.arc(cx, cy, R, 0, TAU, true); ctx.fill();
-  ctx.setLineDash([10, 8]); ctx.lineDashOffset = -G.realT * 20;
-  ctx.strokeStyle = 'rgba(125,249,255,0.35)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
-  ctx.setLineDash([]);
-  // Sanctuary ring.
-  ctx.strokeStyle = 'rgba(128,255,219,0.18)'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.arc(cx, cy, CORE.sanctuary * S, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,143,184,0.35)'; ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let i = 0; i <= 120; i++) { const a = i / 120 * TAU, rr = R + Math.sin(a * 14 + G.realT * 1.5) * 6 * S; ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); }
+  ctx.stroke();
+  // Warm glow zone.
+  ctx.strokeStyle = 'rgba(255,214,232,0.16)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 8]);
+  ctx.beginPath(); ctx.arc(cx, cy, CORE.sanctuary * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
 }
 
 // Soft scorch marks with a faint tint of whatever died there.
@@ -165,32 +194,45 @@ function drawDecals(vis) {
   ctx.globalAlpha = 1;
 }
 
-// ---------------------------------------------------------------- the Anchor
+// ---------------------------------------------------------------- the egg
 function drawCore() {
+  // The egg: pearly ovum, translucent zona, a ring of follicle cells, and cracks once you start breaking in.
   const c = G.core, x = sx(c.x), y = sy(c.y), r = c.r * S, t = G.realT;
+  const egg = G.eggE, dmg = egg ? 1 - egg.hp / egg.maxHp : 0;
+  const beat = 1 + Math.max(0, Math.sin(t * TAU / 1.2)) * 0.025;
   ctx.globalCompositeOperation = 'lighter';
-  glow(x, y, r * 5, c.flash > 0 ? '#ff4d6d' : '#7df9ff', 0.35 + Math.sin(t * 2) * 0.08);
+  glow(x, y, r * 3.2, egg ? '#ff6fa8' : '#ffb3d1', egg ? 0.55 + Math.sin(t * 6) * 0.1 : 0.4);
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-  // Shadow and platform.
-  ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.ellipse(x + 4, y + 10, r * 1.9, r * 1.2, 0, 0, TAU); ctx.fill();
-  const pg = ctx.createLinearGradient(x, y - r * 1.6, x, y + r * 1.6);
-  pg.addColorStop(0, '#2b2f55'); pg.addColorStop(1, '#0d0f22');
-  ctx.fillStyle = pg; drawShape('oct', x, y, r * 1.6, 0); ctx.fill();
-  ctx.strokeStyle = '#4a5390'; ctx.lineWidth = 2; ctx.stroke();
-  // Rotating rune rings.
-  ctx.lineWidth = 3;
-  for (let k = 0; k < 2; k++) {
-    const rr = r * (1.25 + k * 0.4), dir = k ? -1 : 1;
-    ctx.strokeStyle = k ? 'rgba(199,125,255,0.8)' : 'rgba(125,249,255,0.85)';
-    for (let i = 0; i < 6; i++) { const a0 = t * 0.8 * dir + i / 6 * TAU; ctx.beginPath(); ctx.arc(x, y, rr, a0, a0 + 0.6); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(40,0,15,0.45)'; ctx.beginPath(); ctx.ellipse(x + 6, y + r * 0.9, r * 1.1, r * 0.4, 0, 0, TAU); ctx.fill();
+  // Corona radiata: follicle cells orbiting slowly.
+  for (let i = 0; i < 26; i++) {
+    const a = t * 0.15 + i / 26 * TAU, rr = r * (1.36 + Math.sin(i * 1.7 + t) * 0.04);
+    ctx.fillStyle = i % 3 ? 'rgba(255,194,220,0.55)' : 'rgba(255,160,200,0.6)';
+    ctx.beginPath(); ctx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, r * 0.1, 0, TAU); ctx.fill();
   }
-  // Crystal.
-  const pulse = 1 + Math.sin(t * 3) * 0.06;
-  const cg = ctx.createLinearGradient(x - r * 0.6, y - r, x + r * 0.6, y + r);
-  cg.addColorStop(0, '#e0fbff'); cg.addColorStop(0.5, c.flash > 0 ? '#ff4d6d' : '#7df9ff'); cg.addColorStop(1, '#3a0ca3');
-  ctx.fillStyle = cg;
-  ctx.beginPath(); ctx.moveTo(x, y - r * 1.05 * pulse); ctx.lineTo(x + r * 0.55, y); ctx.lineTo(x, y + r * 0.85 * pulse); ctx.lineTo(x - r * 0.55, y); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  // Zona pellucida.
+  ctx.strokeStyle = egg ? `rgba(255,120,170,${0.5 + Math.sin(t * 8) * 0.2})` : 'rgba(255,240,248,0.35)';
+  ctx.lineWidth = r * 0.16; ctx.beginPath(); ctx.arc(x, y, r * 1.1 * beat, 0, TAU); ctx.stroke();
+  // Ovum.
+  const og = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r * beat);
+  og.addColorStop(0, '#fffafc'); og.addColorStop(0.45, '#ffd1e3'); og.addColorStop(1, c.flash > 0 ? '#ff4d6d' : '#d9689d');
+  ctx.fillStyle = og; ctx.beginPath(); ctx.arc(x, y, r * beat, 0, TAU); ctx.fill();
+  // Nucleus.
+  ctx.fillStyle = 'rgba(160,40,100,0.35)'; ctx.beginPath(); ctx.arc(x + r * 0.2, y + r * 0.15, r * 0.3, 0, TAU); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.ellipse(x - r * 0.4, y - r * 0.45, r * 0.22, r * 0.12, -0.6, 0, TAU); ctx.fill();
+  // Cracks spread as the membrane weakens.
+  if (egg && dmg > 0.02) {
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    const n = Math.ceil(dmg * 14);
+    for (let i = 0; i < n; i++) {
+      let a = rnd() * TAU, rr = r * (0.2 + rnd() * 0.3);
+      ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+      for (let k = 0; k < 4; k++) { a += (rnd() - 0.5) * 0.7; rr += r * 0.2; ctx.lineTo(x + Math.cos(a) * Math.min(rr, r), y + Math.sin(a) * Math.min(rr, r)); }
+      ctx.stroke();
+    }
+    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.2, '#ffffff', dmg * 0.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  }
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
@@ -230,18 +272,29 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
 }
 
 function drawShip(x, y, face, bodyColor, alpha, scale) {
+  // A spermatozoon: glossy head, midpiece and a whipping tail.
   const k = S * (scale || 1);
+  const ph = G.realT * 16;
   ctx.globalAlpha = alpha;
   ctx.save(); ctx.translate(x, y); ctx.rotate(face);
-  // Two-tone hull for a bevelled look.
-  ctx.fillStyle = bodyColor;
-  ctx.beginPath(); ctx.moveTo(16 * k, 0); ctx.lineTo(-10 * k, -10 * k); ctx.lineTo(-5 * k, 0); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = shade(bodyColor);
-  ctx.beginPath(); ctx.moveTo(16 * k, 0); ctx.lineTo(-10 * k, 10 * k); ctx.lineTo(-5 * k, 0); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.moveTo(16 * k, 0); ctx.lineTo(-10 * k, 10 * k); ctx.lineTo(-5 * k, 0); ctx.lineTo(-10 * k, -10 * k); ctx.closePath(); ctx.stroke();
-  ctx.fillStyle = '#e0fbff'; ctx.beginPath(); ctx.ellipse(4 * k, 0, 4 * k, 2.2 * k, 0, 0, TAU); ctx.fill();
+  ctx.strokeStyle = bodyColor; ctx.lineCap = 'round';
+  const segs = 14, len = 34 * k;
+  for (let pass = 0; pass < 2; pass++) {
+    ctx.lineWidth = pass ? 1.4 * k : 3.2 * k;
+    ctx.globalAlpha = alpha * (pass ? 1 : 0.35);
+    ctx.beginPath(); ctx.moveTo(-6 * k, 0);
+    for (let i = 1; i <= segs; i++) { const f = i / segs; ctx.lineTo(-6 * k - f * len, Math.sin(ph - f * 7) * 5 * k * f); }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = shade(bodyColor); ctx.fillRect(-9 * k, -1.6 * k, 5 * k, 3.2 * k);
+  const hg = ctx.createRadialGradient(3 * k, -2 * k, 0.5 * k, 2 * k, 0, 9 * k);
+  hg.addColorStop(0, '#ffffff'); hg.addColorStop(0.5, bodyColor); hg.addColorStop(1, shade(bodyColor));
+  ctx.fillStyle = hg; ctx.beginPath(); ctx.ellipse(2 * k, 0, 9 * k, 6.2 * k, 0, 0, TAU); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(6 * k, 0, 3.5 * k, 3.6 * k, 0, 0, TAU); ctx.fill();
   ctx.restore();
+  ctx.lineCap = 'butt';
   ctx.globalAlpha = 1;
 }
 const SHADE = new Map();
@@ -366,7 +419,7 @@ function render() {
   ctx.fillStyle = 'rgba(0,0,0,0.38)';
   ctx.beginPath();
   for (const e of G.enemies) {
-    if (!vis(e) || e.phased) continue;
+    if (!vis(e) || e.phased || e.egg) continue;
     const x = sx(e.x) + 3, y = sy(e.y) + e.r * S * 0.75, r = e.r * S;
     ctx.moveTo(x + r, y); ctx.ellipse(x, y, r, r * 0.45, 0, 0, TAU);
   }
@@ -374,7 +427,7 @@ function render() {
   // Elite, boss and ally auras.
   ctx.globalCompositeOperation = 'lighter';
   for (const e of G.enemies) {
-    if (!vis(e)) continue;
+    if (!vis(e) || e.egg) continue;
     if (e.boss) glow(sx(e.x), sy(e.y), e.r * 3.2 * S, e.color, 0.5);
     else if (e.elite) glow(sx(e.x), sy(e.y), e.r * 2.6 * S, '#ffd23f', 0.35);
     else if (e.charmed) glow(sx(e.x), sy(e.y), e.r * 2.4 * S, '#ff8fab', 0.45);
@@ -383,13 +436,27 @@ function render() {
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   // Enemies.
   for (const e of G.enemies) {
-    if (!vis(e)) continue;
+    if (!vis(e) || e.egg) continue;
     const squash = 1 + Math.max(0, e.flash) * 2;
     const x = sx(e.x), y = sy(e.y), r = e.r * S * squash;
     ctx.globalAlpha = e.phased ? 0.25 : 1;
     if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
     if (e.aimT > 0) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 - e.aimT) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(e.aimA) * 700 * S, y + Math.sin(e.aimA) * 700 * S); ctx.stroke(); }
-    const rot = e.age * (e.def.shape === 'spike' ? 3 : 1) + (e.def.shape === 'tri' ? Math.atan2(G.player.y - e.y, G.player.x - e.x) : 0);
+    const tgt = e.charmed && e.allyT ? e.allyT : G.player;
+    const face = e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
+    const sh = e.def.shape;
+    const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
+    if (sh === 'sperm') {
+      // Rival swimmers get whipping tails.
+      const tl = r * 3.2, ph = G.realT * 14 + e.id;
+      ctx.strokeStyle = e.charmed ? '#ff8fab' : e.color; ctx.lineWidth = Math.max(1.2, r * 0.22); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x - Math.cos(face) * r * 0.8, y - Math.sin(face) * r * 0.8);
+      for (let i = 1; i <= 10; i++) {
+        const f = i / 10, bx = -r * 0.8 - f * tl, by = Math.sin(ph - f * 6) * r * 0.45 * f;
+        ctx.lineTo(x + bx * Math.cos(face) - by * Math.sin(face), y + bx * Math.sin(face) + by * Math.cos(face));
+      }
+      ctx.stroke(); ctx.lineCap = 'butt';
+    }
     if (e.def.shape === 'eye') {
       const eg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
       eg.addColorStop(0, '#5a1a8e'); eg.addColorStop(1, '#14002a');
@@ -410,6 +477,7 @@ function render() {
         ctx.restore();
         drawShape(e.def.shape, x, y, r, rot);
       }
+      if (sh === 'cell' && e.flash <= 0) { ctx.fillStyle = 'rgba(90,10,50,0.35)'; ctx.beginPath(); ctx.arc(x + r * 0.2, y + r * 0.1, r * 0.35, 0, TAU); ctx.fill(); drawShape(sh, x, y, r, rot); }
       ctx.lineWidth = e.elite || e.boss ? 3 : 1.5;
       if (e.charmed) ctx.lineWidth = 3;
       ctx.strokeStyle = e.charmed ? '#ff8fab' : e.elite ? '#ffd23f' : e.boss ? '#fff' : 'rgba(0,0,0,0.6)';
@@ -451,9 +519,9 @@ function render() {
     ctx.globalCompositeOperation = 'source-over';
     for (let k = 3; k >= 1; k--) {
       const ex = echo.x - echo.vx * 0.05 * k, ey = echo.y - echo.vy * 0.05 * k;
-      drawShip(sx(ex), sy(ey), face, '#7df9ff', 0.12 * fade * (4 - k));
+      drawShip(sx(ex), sy(ey), face, '#7df9ff', 0.12 * fade * (4 - k), playerScale());
     }
-    drawShip(x, y, face, '#7df9ff', 0.6 * fade);
+    drawShip(x, y, face, '#7df9ff', 0.6 * fade, playerScale());
     drawWeaponFx(echo.weapons, echo.x, echo.y, 0.6 * fade);
     ctx.globalAlpha = fade; ctx.strokeStyle = '#7df9ff'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(x, y, 22 * S, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0, 1 - echo.t / echo.dur)); ctx.stroke();
@@ -483,7 +551,7 @@ function render() {
     }
     if (w.def.heat && w.heat > 0.6) { ctx.globalCompositeOperation = 'lighter'; glow(px, py, 30 * S, '#ff5400', (w.heat - 0.6) * 1.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   }
-  drawShip(px, py, p.face, p.flash > 0 ? '#ff4d6d' : '#3cf0ff', p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1);
+  drawShip(px, py, p.face, p.flash > 0 ? '#ff4d6d' : '#3cf0ff', p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale());
   ctx.fillStyle = '#000'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S, 4);
   ctx.fillStyle = p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S * (p.hp / G.P.maxHp), 4);
 
@@ -617,6 +685,9 @@ function render() {
   drawHud();
 }
 
+// You grow as you level up: up to 1.8x at level 60.
+function playerScale() { return 1 + Math.min(0.8, (G.level - 1) / 75); }
+
 function drawEdgeFlash() {
   const e = Math.min(W, H) * 0.08;
   ctx.fillRect(0, 0, W, e); ctx.fillRect(0, H - e, W, e); ctx.fillRect(0, 0, e, H); ctx.fillRect(W - e, 0, e, H);
@@ -680,7 +751,7 @@ function drawHud() {
   ctx.fillText(`${m}:${s < 10 ? '0' : ''}${s}`, W / 2, top + 24);
   // Status chips.
   const chips = [];
-  if (G.rage > 0) chips.push(['OVERDRIVE', '#ff924c']);
+  if (G.rage > 0) chips.push(['ADRENALINE', '#ff924c']);
   if (G.shieldT > 0) chips.push(['SHIELD', '#48cae4']);
   if (G.warp > 0) chips.push(['WARP', '#b8c0ff']);
   if (G.barrier > 0) chips.push(['AEGIS', '#48cae4']);
@@ -698,7 +769,22 @@ function drawHud() {
     ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif';
     ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), W / 2, by - 8);
   }
-  // Off-screen pointers: boss (red) and the Anchor (cyan).
+  // Egg membrane bar, or progress towards being big enough.
+  {
+    const bw = Math.min(360, W - 40), bx = (W - bw) / 2, by = top + (G.boss && !G.boss.dead ? 138 : 108);
+    ctx.textAlign = 'center'; ctx.font = 'bold 12px sans-serif';
+    if (G.eggE && !G.eggE.dead) {
+      const e = G.eggE;
+      ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
+      ctx.fillStyle = '#ffd6e8'; ctx.fillRect(bx, by, bw * Math.max(0, e.hp / e.maxHp), 12);
+      ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
+      ctx.fillStyle = '#ffd6e8'; ctx.fillText("BREAK INTO THE EGG! " + Math.ceil(e.hp / e.maxHp * 100) + '%', W / 2, by - 8);
+    } else if (!G.boss && G.level < EGG.level) {
+      ctx.fillStyle = 'rgba(255,214,232,0.75)'; ctx.font = 'bold 11px sans-serif';
+      ctx.fillText(`Grow to level ${EGG.level} to break into the egg (${G.level}/${EGG.level})`, W / 2, top + 108);
+    }
+  }
+  // Off-screen pointers: boss (red) and the egg (pink).
   const pointer = (wx, wy, col) => {
     const dx = wx - cam.x, dy = wy - cam.y;
     if (Math.abs(dx * S) < W / 2 - 10 && Math.abs(dy * S) < H / 2 - 10) return;
@@ -707,7 +793,7 @@ function drawHud() {
     ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-8, 9); ctx.lineTo(-8, -9); ctx.fill(); ctx.restore();
   };
   if (G.boss && !G.boss.dead) pointer(G.boss.x, G.boss.y, '#ff4d6d');
-  pointer(c.x, c.y, c.flash > 0 ? '#ff4d6d' : '#7df9ff');
+  pointer(c.x, c.y, G.eggE ? '#ffffff' : '#ffb3d1');
   drawMinimap(top);
   // Banner.
   if (G.banner) {
@@ -735,7 +821,7 @@ function drawMinimap(top) {
     ctx.fillStyle = col; ctx.fillRect(mx + dx - r / 2, my + dy - r / 2, r, r);
   };
   for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? '#ff4d6d' : e.charmed ? '#ff8fab' : '#ffd23f');
-  dot(G.core.x, G.core.y, 6, '#7df9ff');
+  dot(G.core.x, G.core.y, 8, G.eggE ? '#ffffff' : '#ffb3d1');
   for (const e of G.echoes) dot(e.x, e.y, 3, '#e0fbff');
   dot(G.player.x, G.player.y, 4, '#fff');
   // View rectangle.

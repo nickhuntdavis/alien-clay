@@ -276,6 +276,12 @@ function lvBonusText(def, from, to) {
 function genLoot(req) {
   const opts = [];
   const minR = req.kind === 'boss' ? 2 : req.kind === 'chest' ? 1 : 0;
+  if (req.kind === 'slot') {
+    // A new weapon slot: three fresh weapons, Silver or better.
+    const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
+    const ids = shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 3);
+    return ids.map(id => optNewWeapon(id, Math.max(1, rollRarity(1))));
+  }
   if (req.kind === 'start') {
     const pool = ['blaster', 'smg', 'shotgun', 'flamer', 'frost', 'tesla', 'glaive', 'needler', 'seeker', 'rocket', 'railgun', 'venom'];
     const ids = shuffle(pool).slice(0, 3);
@@ -428,6 +434,14 @@ function damageEnemy(e, dmg, src) {
   if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e));
+  if (e.egg) {
+    // The membrane gives way slowly, no matter how big your build: at most 2.5% of it per second.
+    const sec = Math.floor(G.t);
+    if (e.capT !== sec) { e.capT = sec; e.capUsed = 0; }
+    d = Math.min(d, e.maxHp * 0.025 - e.capUsed);
+    if (d <= 0) return 0;
+    e.capUsed += d;
+  }
   e.hp -= d;
   e.flash = 0.07;
   const key = src.wname || 'Other';
@@ -565,6 +579,7 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
 }
 
 function killEnemy(e, src) {
+  if (e.egg) { e.dead = true; G.eggE = null; spawnPart(e.x, e.y, '#ffd6e8', 60, 320, 0.9, 6); cam.shake = 16; victory(); return; }
   e.dead = true;
   G.kills++;
   const P = G.P;
@@ -810,6 +825,7 @@ function updateEnemies(dt) {
       if (e.poison <= 0) e.poisonStacks = 0;
       if (e.dead) continue;
     }
+    if (e.egg) { eggAI(e, edt); continue; }
     if (e.charmed) {
       e.charmT -= dt;
       if (e.charmT <= 0) { e.charmed = false; ring(e.x, e.y, e.r + 10, '#ff8fab', 0.3); }
@@ -892,6 +908,8 @@ function updateEnemies(dt) {
     e.y += (my * spd * f * warpF + e.ky) * dt;
     const kd = Math.pow(0.02, dt);
     e.kx *= kd; e.ky *= kd;
+    // Nothing swims through the egg.
+    { const ox = e.x - G.core.x, oy = e.y - G.core.y, od = Math.hypot(ox, oy) || 1, mr = CORE.r + e.r; if (od < mr) { e.x = G.core.x + ox / od * mr; e.y = G.core.y + oy / od * mr; } }
     // Contact damage.
     if (!e.phased && dist < e.r + p.r) {
       if (G.barrier > 0) {
@@ -1400,9 +1418,10 @@ function updatePlayer(dt) {
   const k = 1 - Math.pow(0.0005, dt);
   p.vx = lerp(p.vx, dx * speed, k); p.vy = lerp(p.vy, dy * speed, k);
   p.x += p.vx * dt; p.y += p.vy * dt;
-  // The arena ends at the edge of the Anchor's field.
-  const cdx = p.x - G.core.x, cdy = p.y - G.core.y, cdist = Math.hypot(cdx, cdy);
+  // The arena ends at the edge of the womb's field; the egg itself is solid.
+  const cdx = p.x - G.core.x, cdy = p.y - G.core.y, cdist = Math.hypot(cdx, cdy) || 1;
   if (cdist > CORE.arena) { p.x = G.core.x + cdx / cdist * CORE.arena; p.y = G.core.y + cdy / cdist * CORE.arena; }
+  if (cdist < CORE.r + p.r) { p.x = G.core.x + cdx / cdist * (CORE.r + p.r); p.y = G.core.y + cdy / cdist * (CORE.r + p.r); }
   if (Math.hypot(p.vx, p.vy) > 20 && !acquire('nearest', 400, p.x, p.y)) p.face = Math.atan2(p.vy, p.vx);
   if (p.iframes > 0) p.iframes -= dt;
   if (p.flash > 0) p.flash -= dt;
@@ -1446,11 +1465,11 @@ function autoSteer() {
   }
   const core = G.core, cdist = Math.hypot(p.x - core.x, p.y - core.y);
   if (mode === 'defend') {
-    // GUARD: hold inside the Anchor's healing sanctuary, drifting around it.
+    // NEST: hold inside the egg's healing glow, drifting around it.
     if (cdist > CORE.sanctuary * 0.8) goal(core.x, core.y, 1.4);
     else { gx += -(p.y - core.y) / (cdist || 1) * 0.5; gy += (p.x - core.x) / (cdist || 1) * 0.5; }
   }
-  // Stay inside the Anchor's field.
+  // Stay inside the womb.
   if (cdist > CORE.arena - 350) goal(core.x, core.y, (cdist - (CORE.arena - 350)) / 120);
   const gl = Math.hypot(gx, gy);
   if (gl > 1.5) { gx = gx / gl * 1.5; gy = gy / gl * 1.5; }
@@ -1548,7 +1567,63 @@ function gainXp(v) {
     G.level++;
     G.xpNeed = xpNeed(G.level);
     G.lootQueue.push({ kind: 'level' });
+    // Growth milestones: a new weapon slot at 15, 30 and 45.
+    if (SLOT_LEVELS.includes(G.level) && G.weapons.length < 3 + SLOT_LEVELS.length) {
+      G.weapons.push(null);
+      G.lootQueue.push({ kind: 'slot' });
+      banner('NEW WEAPON SLOT!', '#7df9ff');
+      sysLine('slot', true); achieve('slot');
+    }
   }
+}
+
+// ---------------------------------------------------------------- the egg (win condition)
+// At EGG.level the egg's membrane becomes a target. Break it and you're born.
+function openEgg() {
+  const def = { id: 'egg', name: "THE EGG'S MEMBRANE", hp: 1, speed: 0, armour: EGG.armour, r: CORE.r, dmg: 0, xp: 0, color: '#ffd6e8', shape: 'none', patterns: [] };
+  const e = makeEnemy(def, G.core.x, G.core.y);
+  e.hp = e.maxHp = EGG.hpBase * hpMul(G.t);
+  e.boss = true; e.egg = true; e.shootCd = 2; e.stT = 5;
+  G.enemies.push(e);
+  G.eggE = e;
+  if (!G.eggAnnounced) {
+    G.eggAnnounced = true; G.eggAt = G.t;
+    banner('THE EGG IS READY: BREAK IN!', '#ffd6e8');
+    sysLine('eggReady', true); achieve('eggready');
+    cam.shake = 10; vibrate(150); sfx('boss');
+  }
+}
+function eggAI(e, dt) {
+  e.x = G.core.x; e.y = G.core.y; e.kx = e.ky = 0; e.frozen = 0;
+  // The membrane defends itself: rings of bullets, and immune cells budding off its surface.
+  e.shootCd -= dt;
+  if (e.shootCd <= 0) {
+    // Weaker membrane = angrier egg: faster rings as it cracks, plus volleys aimed at you.
+    const rage = 1 - e.hp / e.maxHp;
+    e.shootCd = 1.7 - rage * 0.7; e.spin += 0.3;
+    const n = 28, bd = 10 * dmgMul(G.t), p = me();
+    for (let i = 0; i < n; i++) eBullet(e.x + Math.cos(e.spin + i / n * TAU) * e.r, e.y + Math.sin(e.spin + i / n * TAU) * e.r, e.spin + i / n * TAU, 125, bd, 6, '#ff8fb8');
+    const aim = Math.atan2(p.y - e.y, p.x - e.x);
+    for (let i = -2; i <= 2; i++) eBullet(e.x + Math.cos(aim) * e.r, e.y + Math.sin(aim) * e.r, aim + i * 0.12, 200, bd * 1.3, 5, '#ffffff');
+  }
+  e.stT -= dt;
+  if (e.stT <= 0) {
+    e.stT = 5;
+    const pool = [ENEMIES.brute, ENEMIES.spitter, ENEMIES.lancer, ENEMIES.bulwark, ENEMIES.warlock];
+    for (let i = 0; i < 5 && G.enemies.length < CAPS.enemies; i++) {
+      const a = Math.random() * TAU;
+      G.enemies.push(makeEnemy(pick(pool), e.x + Math.cos(a) * (e.r + 30), e.y + Math.sin(a) * (e.r + 30), { elite: i === 0 }));
+    }
+    ring(e.x, e.y, e.r + 30, '#ff8fb8', 0.5, 5);
+  }
+}
+function victory() {
+  G.state = 'won';
+  G.banner = null;
+  achieve('born');
+  sysLine('born', true);
+  sfx('level'); vibrate([100, 60, 100, 60, 300]);
+  if (typeof UI !== 'undefined') UI.showVictory();
 }
 
 // ---------------------------------------------------------------- main update
@@ -1605,11 +1680,12 @@ function update(dt) {
   // Director.
   const maxAlive = Math.min(CAPS.enemies - 30, 14 + G.t * 0.3);
   const rate = Math.min(5.5, 0.55 + G.t / 90 + Math.pow(G.t / 300, 2) * 0.9);
-  G.spawnAcc += rate * dt * G.P.spawnMult;
+  G.spawnAcc += rate * dt * G.P.spawnMult * (G.eggE ? 1.6 : 1); // every rival rushes the open egg
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed ? 0 : 1), 0);
   while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   if (G.t >= G.nextWave) { G.nextWave += 45; waveEvent(); }
-  if (G.t >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('STORM SURGE: ENEMIES GROW EVERY MINUTE', '#ff3df2'); sfx('boss'); vibrate(200); }
+  if (!G.eggE && G.level >= EGG.level && G.state === 'play') openEgg();
+  if (G.t >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.
   for (const q of G.parts) { q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.92; q.vy *= 0.92; q.life -= dt; }

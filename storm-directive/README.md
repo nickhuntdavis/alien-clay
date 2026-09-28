@@ -1,15 +1,16 @@
-# Storm Directive
+# Spawn Storm
 
-Autorun, autogun bullet-storm roguelite for Android, framed as a lethal intergalactic game show. You don't aim or (usually) steer: you program your ship with targeting and movement directives, build it up through loot boxes, and a sardonic System narrates every mistake to millions of viewers.
+Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozoon in a race against four hundred million rival swimmers and the host's entire immune system. Grow strong enough (level 60) to break through the egg's membrane in the middle of the arena and be born. You don't aim or (usually) steer: you program your swimmer with targeting and movement directives, build it up through loot boxes, and a sardonic System narrates every mistake to millions of viewers.
 
-**Install:** sideload `release/StormDirective.apk` (Android 5.0+). Enable "Install unknown apps" for your browser or file manager when prompted.
+**Install:** sideload `release/SpawnStorm.apk` (Android 5.0+). Enable "Install unknown apps" for your browser or file manager when prompted.
 
 ## Features
 
-- **Autorun + autogun.** Up to 3 weapons and 2 spells fire on their own, each with its own cooldown, magazine and reload.
+- **Win by being born.** At level 60 the egg opens up: its membrane fights back with bullet rings, aimed volleys and immune defenders while every rival rushes in, and it gives way at most 2.5% per second, so the finale is always a proper fight. Break it for the victory screen. Your best time to birth is saved.
+- **Autorun + autogun.** Weapons and spells fire on their own, each with its own cooldown, magazine and reload. You start with 3 weapon slots and grow new ones at levels 15, 30 and 45 (6 in total); each new slot comes with a box of three new weapons. Your swimmer visibly grows as you level up.
 - **Programmable targeting directives** per weapon/spell: Nearest, Strongest, Weakest, Lowest Health, Highest Health, Highest Armour, Fastest, Furthest, Densest Cluster, Elites & Bosses, Shooters First, Random, Revenge.
-- **Armoury:** tap any weapon slot to open it. Tabs for all 5 slots, stat tiles, level pips, the 3 modifier slots with their power, a directive grid with a one-line explanation of each (per-barrel for the Committee Cannon), fusion partners and progress, and Recycle (frees the slot for 2 rerolls).
-- **Autorun directives:** Kite, Collect, Orbit, Hunt, Hold, Guard. The pilot scores 16 escape directions against predicted enemy and bullet positions. Drag anywhere to steer manually.
+- **Armoury:** tap any weapon slot to open it. Tabs for every slot (locked ones show the level they unlock at), stat tiles, level pips, the 3 modifier slots with their power, a directive grid with a one-line explanation of each (per-barrel for the Committee Cannon), fusion partners and progress, and Recycle (frees the slot for 2 rerolls).
+- **Autorun directives:** Kite, Collect, Orbit, Hunt, Hold, Nest. The pilot scores 16 escape directions against predicted enemy and bullet positions. Drag anywhere to steer manually.
 - **Loot box on every level up:** pick 1 of 3 (new weapon, new spell, upgrade, power-up or fusion), with Bronze/Silver/Gold/Legendary rarities and rerolls. Elites drop loot boxes; bosses drop Gold+ boxes.
 - **34 weapons, 15 fusion weapons, 10 spells, 39 stackable power-ups, 11 modifiers, 6 cursed cards.** All upgradable to Lv 8.
 - **Modifiers** install into one weapon (3 slots each), with power set by the card's rarity. Picking one you already have powers it up (to a cap). Seeking, Splitting (shots shatter into shards on first hit), Orbiting (shots circle you eating enemy bullets, then launch), Growing (shots swell in size and damage as they fly), Boomerang, Ricochet, Freezing, Exploding, Mind Control (monsters fight for you, up to 6 at once), Element Swap, Shrapnel.
@@ -19,21 +20,21 @@ Autorun, autogun bullet-storm roguelite for Android, framed as a lethal intergal
 - **Fusion:** two compatible weapons at Lv 4+ merge into a legendary weapon and free a slot (e.g. Flamer + Frost Lance = Steam Cannon, Railgun + Prism Beam = Annihilator).
 - **Elemental reactions:** Thermal Shock, Steam Burst, Combustion, Toxic Arc, Superconduct, Resonance, Overload. Owning 2+ of an element unlocks a synergy bonus.
 - **Fewer, stronger enemies:** about half as many monsters on screen, each bigger and tougher, getting steadily nastier until 15:00.
-- **18 monster types + 3 bosses** with bullet-hell patterns (spirals, rings, fans, charges, blinks). Armour, healers, shielders, splitters, bombers, phasers, summoners, snipers.
-- **Field power-ups:** Magnet, Nuke, Overdrive, Medkit, Shield, Stasis, Loot Box.
-- **The Chrono Anchor:** a crystal at the centre of the arena. Standing in its sanctuary heals you; the GUARD autorun directive keeps you there.
+- **18 monster types + 3 bosses** with bullet-hell patterns. Rival swimmers (Sprinters, Headbutters, Quantum and Ghost Swimmers, the armoured Alpha Swimmer, Spermlet swarms) and the immune system (Macrophages, Antibodies, Killer T-Cells, Mitotic Cells that split, Acid Bubbles, Nurse Cells, Mucus Walls, Cytokine Casters, Mother Cells, Enzyme Spires). Bosses: the Macrophage Queen, the Antibody Colossus and the Immune Eye.
+- **Field power-ups:** Magnet, Acid Flush, Adrenaline, Glucose Hit, Shield, Stasis, Loot Box.
+- **The egg's glow** heals you while you stay near it; the NEST autorun directive keeps you there.
 - **Time travel: Rewind and Paradox Echoes.** Tap REWIND to jump 4 seconds into the past (VHS-style rewind of the whole battle). Your future self does not vanish: it stays behind as a **Paradox Echo** that walks the erased timeline backwards, firing copies of your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically. Charges refill from kills and bosses. The **Paradox Rifle** lands every hit twice (the second arrives from 1 second in the future), and Temporal Loop adds charges.
-- **Visuals:** parallax nebula and star layers, a lit arena floor with pulse rings, dynamic light from explosions, soft scorch decals, drop shadows and shading on every body, additive glow on projectiles and enemy bullets, vignette, damage flashes and a minimap.
-- Boss every 3 minutes; from 15:00 the **Storm Surge** makes enemies tougher and deadlier every minute.
+- **Visuals:** living-tissue parallax (fluid, drifting cells, fibres), a warm womb floor that pulses with a heartbeat, a pearly egg that cracks as you break in, sperm with whipping tails, dynamic light from explosions, soft scorch decals, drop shadows and shading on every body, additive glow on projectiles and enemy bullets, vignette, damage flashes and a minimap.
+- Boss every 3 minutes; from 15:00 the **Immune Surge** makes enemies tougher and deadlier every minute.
 
 ## Project layout
 
 ```
-storm-directive/
+storm-directive/            (the game is now called Spawn Storm)
   web/                 The game (HTML5 canvas, no dependencies)
     js/data.js         All content: weapons, spells, fusions, passives, enemies, bosses
     js/game.js         Engine: simulation, combat, reactions, AI, spawning
-    js/td.js           Chrono Anchor sanctuary, Rewind and Paradox Echoes
+    js/td.js           The egg's healing glow, Rewind and Paradox Echoes
     js/arsenal.js      Show-season weapons, weapon-wide power-ups, modifier procs, mind-controlled allies
     js/show.js         The System announcer, achievements, viewers, sponsors
     js/render.js       Rendering: parallax, lighting, shadows, glow, HUD, minimap
