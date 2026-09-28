@@ -24,6 +24,7 @@ const DIRECTIVES = [
   { id: 'elite',     name: 'ELITES & BOSSES', short: 'ELITE' },
   { id: 'shooters',  name: 'SHOOTERS FIRST', short: 'SHOOT' },
   { id: 'random',    name: 'RANDOM',         short: 'RAND' },
+  { id: 'revenge',   name: 'REVENGE',        short: 'GRUDGE' },
 ];
 
 // Movement (autorun) directives.
@@ -181,6 +182,66 @@ const WEAPONS = {
     desc: 'Toxic lightning. Every arc spreads plague.',
     base: { dmg: 9, cd: 0.25, mag: 12, reload: 1.6, count: 1, chain: 6, range: 360, jump: 150 },
     lv: { 5: { chain: 3 }, 7: { count: 1 } } },
+
+  // ---- Show-season weapons
+  siphon: { name: 'Bullet Siphon', icon: 'BU', elem: 'arcane', kind: 'siphon', color: '#ff3df2', dir: 'nearest',
+    desc: 'Eats enemy bullets that come near you and spits them back. No reloads. No ammo either, until the screen is full of bullets.',
+    base: { dmg: 18, cd: 0.08, mag: 40, area: 90, speed: 640, range: 460, size: 4.5, pierce: 0, spread: 0.08, count: 1 },
+    lv: { 3: { count: 1 }, 5: { pierce: 1 }, 7: { dmg: 0.4 } } },
+  committee: { name: 'Committee Cannon', icon: 'CC', elem: 'phys', kind: 'gun', committee: 1, color: '#ffd6a5', dir: 'strongest',
+    desc: 'Three barrels, three directives, zero consensus. Set each barrel in the pause menu.',
+    base: { dmg: 9, cd: 0.45, mag: 9, reload: 1.6, count: 1, spread: 0.05, speed: 640, pierce: 0, range: 450, size: 4 },
+    lv: { 3: { pierce: 1 }, 5: { count: 1 }, 7: { dmg: 0.4 } } },
+  grudge: { name: 'Grudge Rifle', icon: 'GR', elem: 'phys', kind: 'gun', grudge: 1, color: '#ff4d6d', dir: 'revenge', style: 'bolt',
+    desc: 'Remembers whatever last hurt you. Hunts it across the whole map. Triple damage to it. Very healthy.',
+    base: { dmg: 20, cd: 0.6, mag: 5, reload: 1.5, count: 1, spread: 0.02, speed: 900, pierce: 0, range: 480, size: 4, homing: 3 },
+    lv: { 3: { pierce: 1 }, 5: { count: 1 }, 7: { dmg: 0.5 } } },
+  wake: { name: 'Wake Blade', icon: 'WB', elem: 'phys', kind: 'wake', color: '#e0fbfc', dir: 'nearest', noTarget: 1,
+    desc: 'Your flight path becomes a blade. Keep moving, or it is just very expensive litter.',
+    base: { dmg: 22, dur: 2.2, area: 22, range: 0 },
+    lv: { 3: { area: 0.3 }, 5: { dur: 0.5 }, 7: { dmg: 0.5 } } },
+  scrapcannon: { name: 'Scrap Cannon', icon: 'SK', elem: 'phys', kind: 'gun', scrapAmmo: 1, color: '#ffb400', dir: 'strongest', style: 'scrap',
+    desc: 'Fires your savings. 1 scrap per shot, enormous bang. Financial advisers weep.',
+    base: { dmg: 55, cd: 0.8, mag: 99, reload: 0.5, count: 1, spread: 0.1, speed: 520, pierce: 0, range: 480, size: 7, explode: 55, knock: 120 },
+    lv: { 3: { area: 0.25 }, 5: { count: 1 }, 7: { dmg: 0.5 } } },
+  mimic: { name: 'Mimic Core', icon: 'MI', elem: 'arcane', kind: 'mimic', color: '#f15bb5', dir: 'nearest',
+    desc: 'Copies the attack pattern of the last shooter you killed. It is not plagiarism if you win.',
+    base: { dmg: 10, cd: 0.9, mag: 6, reload: 1.8, count: 1, speed: 330, range: 430, size: 5, pierce: 1 },
+    lv: { 3: { dmg: 0.3 }, 5: { count: 1 }, 7: { dmg: 0.4 } } },
+  parasite: { name: 'Parasite Seeder', icon: 'PS', elem: 'poison', kind: 'gun', parasite: 1, color: '#b5e48c', dir: 'highhp', style: 'needle',
+    desc: 'Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green.',
+    base: { dmg: 11, cd: 0.4, mag: 8, reload: 1.6, count: 1, spread: 0.08, speed: 560, pierce: 0, range: 430, size: 3.5, dur: 8 },
+    lv: { 3: { count: 1 }, 5: { dur: 0.5 }, 7: { dmg: 0.4 } } },
+  thermal: { name: 'Thermal Lance', icon: 'TH', elem: 'fire', kind: 'beam', heat: 1, color: '#ff5400', dir: 'nearest',
+    desc: 'No magazine, just heat. Overheat and it vents a fireball around you. Warranty void.',
+    base: { dmg: 38, cd: 0, mag: 1, reload: 1.3, count: 1, dur: 3.2, range: 300, size: 5, area: 150 },
+    lv: { 3: { dur: 0.3 }, 5: { area: 0.3 }, 7: { dmg: 0.4 } } },
+  tether: { name: 'Tether Coil', icon: 'TE', elem: 'shock', kind: 'tether', color: '#9ef0ff', dir: 'highhp',
+    desc: 'Ties two monsters together with a lightning leash and makes them hug. Violently.',
+    base: { dmg: 16, cd: 1.1, mag: 3, reload: 1.8, count: 1, dur: 3, range: 380, pull: 170, jump: 240 },
+    lv: { 3: { count: 1 }, 5: { dur: 0.4 }, 7: { dmg: 0.5 } } },
+  gacha: { name: 'Gacha Blaster', icon: 'GB', elem: 'phys', kind: 'gun', gacha: 1, color: '#ffd23f', dir: 'nearest',
+    desc: 'Every magazine is a loot box. Every loot box is a lie. Except the Legendary ones. Those explode.',
+    base: { dmg: 12, cd: 0.22, mag: 12, reload: 1.3, count: 1, spread: 0.06, speed: 650, pierce: 0, range: 440, size: 4 },
+    lv: { 3: { pierce: 1 }, 5: { count: 1 }, 7: { dmg: 0.3 } } },
+  prequel: { name: 'Prequel Launcher', icon: 'PQ', elem: 'fire', kind: 'prequel', color: '#ff9e00', dir: 'cluster',
+    desc: 'The explosion happens first. The shell arrives afterwards, flying backwards into the barrel, still angry.',
+    base: { dmg: 34, cd: 1.1, mag: 3, reload: 2.0, count: 1, area: 70, speed: 520, range: 480, spread: 40 },
+    lv: { 3: { area: 0.25 }, 5: { count: 1 }, 7: { dmg: 0.5 } } },
+
+  // ---- Show-season fusions
+  hailreturn: { name: 'Hailreturn', icon: 'HR', elem: 'ice', kind: 'siphon', color: '#caf0f8', dir: 'nearest', style: 'shard', merged: 1,
+    desc: 'Their bullets. Your ice. Everyone else\'s problem. Returned shots freeze on hit.',
+    base: { dmg: 20, cd: 0.06, mag: 70, area: 105, speed: 700, range: 500, size: 5, pierce: 2, spread: 0.1, count: 1, freezeHit: 1 },
+    lv: { 5: { count: 1 }, 7: { dmg: 0.4 } } },
+  plaguetrail: { name: 'Plague Trail', icon: 'PT', elem: 'poison', kind: 'wake', color: '#70e000', dir: 'nearest', noTarget: 1, merged: 1,
+    desc: 'You leave a lane of plague behind you. Lead the siege through it and wave.',
+    base: { dmg: 30, dur: 4, area: 34, range: 0 },
+    lv: { 5: { area: 0.3 }, 7: { dmg: 0.5 } } },
+  salvage: { name: 'Salvage Barrage', icon: 'SB', elem: 'fire', kind: 'lob', scrapAmmo: 1, salvage: 1, color: '#ffb400', dir: 'cluster', merged: 1,
+    desc: 'Shells cost scrap. Shells make scrap. It is basically a pyramid scheme with explosions.',
+    base: { dmg: 50, cd: 0.9, mag: 99, reload: 0.5, count: 3, spread: 60, range: 540, area: 80, flight: 0.9, explode: 1 },
+    lv: { 5: { count: 1 }, 7: { area: 0.3 } } },
 };
 
 const MERGES = [
@@ -196,6 +257,9 @@ const MERGES = [
   { a: 'arbalest', b: 'gatling',  out: 'siege' },
   { a: 'frost',   b: 'hailstorm', out: 'zero' },
   { a: 'needler', b: 'tesla',     out: 'neuro' },
+  { a: 'siphon',  b: 'frost',     out: 'hailreturn' },
+  { a: 'wake',    b: 'venom',     out: 'plaguetrail' },
+  { a: 'scrapcannon', b: 'mortar', out: 'salvage' },
 ];
 const MERGE_MIN_LEVEL = 4;
 
@@ -244,10 +308,10 @@ const SPELLS = {
 };
 
 const RARITIES = [
-  { id: 'common',    name: 'Common',    color: '#b0bec5', mult: 1,   lvls: 1, w: 60 },
-  { id: 'rare',      name: 'Rare',      color: '#4dabf7', mult: 1.5, lvls: 1, w: 27 },
-  { id: 'epic',      name: 'Epic',      color: '#b565f6', mult: 2,   lvls: 2, w: 10 },
-  { id: 'legendary', name: 'Legendary', color: '#ffb400', mult: 3,   lvls: 3, w: 3 },
+  { id: 'common',    name: 'Bronze',    color: '#cd8a4a', mult: 1,   lvls: 1, w: 60 },
+  { id: 'rare',      name: 'Silver',    color: '#c9d6e3', mult: 1.5, lvls: 1, w: 27 },
+  { id: 'epic',      name: 'Gold',      color: '#ffd23f', mult: 2,   lvls: 2, w: 10 },
+  { id: 'legendary', name: 'Legendary', color: '#ff3df2', mult: 3,   lvls: 3, w: 3 },
 ];
 
 // Passive power-ups. v = value per stack at common rarity; rarity multiplies it.
@@ -283,6 +347,15 @@ const PASSIVES = {
   engineer:  { name: 'Engineer',         icon: 'EN', max: 5, v: 0.2, fmt: v => `+${pc(v)} tower damage, towers cost ${pc(v / 2)} less`, apply: (P, v) => { P.tower += v; P.towerCost = Math.max(0.4, P.towerCost - v / 2); } },
   salvage:   { name: 'Salvager',         icon: 'SV', max: 5, v: 0.25, fmt: v => `+${pc(v)} scrap from kills`, apply: (P, v) => { P.scrap += v; } },
   bulwark:   { name: 'Anchor Plating',   icon: 'AP', max: 5, v: 150, fmt: v => `+${Math.round(v)} Anchor max HP (and repair it)`, apply: (P, v, G) => { G.core.maxHp += Math.round(v); G.core.hp += Math.round(v); } },
+  lastround: { name: 'Last Word',        icon: 'LW', max: 3, v: 1, fmt: v => `Last bullet of every magazine deals x${3 + Math.round(v)} damage and explodes`, apply: (P, v) => { P.lastRound += Math.round(v); } },
+  tactical:  { name: 'Tactical Reload',  icon: 'TR', max: 4, v: 1, fmt: v => `Starting a reload sends out a shockwave that deletes nearby bullets (+${40 * Math.round(v)} radius)`, apply: (P, v) => { P.tactical += Math.round(v); } },
+  focus:     { name: 'Focus Lock',       icon: 'FL', max: 3, v: 0.3, fmt: v => `+3% damage per second on the same target, up to +${pc(v)} more`, apply: (P, v) => { P.focus += v; } },
+  overkill:  { name: 'Overkill Transfer', icon: 'OK', max: 3, v: 0.5, fmt: v => `${pc(v)} of excess kill damage jumps to the next enemy`, apply: (P, v) => { P.overkill += v; } },
+  crossfire: { name: 'Crossfire Protocol', icon: 'CF', max: 3, v: 0.25, fmt: v => `Weapons sharing a target: +${pc(v)} damage. All three on different targets: +${pc(v)} fire rate`, apply: (P, v) => { P.crossfire += v; } },
+  momentum:  { name: 'Momentum',         icon: 'MO', max: 4, v: 0.15, fmt: v => `Up to +${pc(v * 1.5)} damage the faster you are moving`, apply: (P, v) => { P.momentum += v; } },
+  anchorlink:{ name: 'Anchor Link',      icon: 'AL', max: 3, v: 0.3, fmt: v => `Near the Anchor: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
+  future:    { name: 'Future Rounds',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target`, apply: (P, v) => { P.future += v; } },
+  echoinherit: { name: 'Echo Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 1, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
   evasion:   { name: 'Evasion',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.min(0.5, P.dodge + v); } },
 };
 function pc(v) { return Math.round(v * 100) + '%'; }
@@ -375,3 +448,142 @@ const SIEGE_POOL = ['crawler', 'skitter', 'brute', 'splitter', 'bulwark', 'charg
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 260, startCharges: 1, maxCharges: 2 };
+
+// ---------------------------------------------------------------- Weapon mods (slot into one weapon, 2 per weapon)
+const MOD_SLOTS = 2;
+const MODS = {
+  split:     { name: 'Split on Kill',   icon: 'SK', desc: 'Kills burst into 3 shrapnel shards (40% damage).' },
+  ricochet:  { name: 'Ricochet Rounds', icon: 'RR', desc: '+2 bounces between enemies.', kinds: ['gun', 'siphon', 'mimic'] },
+  elemental: { name: 'Element Swap',    icon: 'EL', desc: 'Converts this weapon to a new element.' },
+  homing:    { name: 'Homing Guidance', icon: 'HG', desc: 'Projectiles steer towards targets.', kinds: ['gun', 'siphon', 'mimic'] },
+};
+
+// ---------------------------------------------------------------- Cursed loot cards
+const CURSES = [
+  { id: 'glass', name: 'Glass Cannon Deluxe', boon: 'x1.8 damage for everything', bane: 'Max HP halved',
+    apply: (P, G) => { P.might *= 1.8; P.maxHp = Math.max(30, Math.round(P.maxHp / 2)); G.player.hp = Math.min(G.player.hp, P.maxHp); } },
+  { id: 'speed', name: "Speedrunner's Regret", boon: '+50% fire rate', bane: 'Enemy bullets 20% faster', apply: P => { P.haste += 0.5; P.bulletSpeed *= 1.2; } },
+  { id: 'hoard', name: "Hoarder's Bargain", boon: 'Double scrap from everything', bane: 'Towers cost 50% more', apply: P => { P.scrap *= 2; P.towerCost *= 1.5; } },
+  { id: 'crowd', name: 'Crowd Pleaser', boon: '+50% XP and viewers', bane: '30% more enemies', apply: P => { P.xp += 0.5; P.viewers *= 1.5; P.spawnMult *= 1.3; } },
+  { id: 'paradox', name: 'Paradox Addict', boon: '+2 max Rewind charges, all refilled now', bane: 'All healing halved', apply: (P, G) => { G.chrono.max += 2; G.chrono.charges = G.chrono.max; P.healMult *= 0.5; } },
+  { id: 'naked', name: 'Clothing Optional', boon: '+25% move speed, +20% dodge', bane: 'Armour is zero. Forever.', apply: P => { P.speed += 0.25; P.dodge = Math.min(0.6, P.dodge + 0.2); P.noArmour = true; } },
+];
+
+// ---------------------------------------------------------------- The Show: announcer, achievements, viewers, sponsors
+// Original comedy writing for Storm Directive's sardonic game-show host, "the System".
+const GACHA_TIERS = [
+  { name: 'BRONZE MAG', mult: 0.7, color: '#cd8a4a', w: 55 },
+  { name: 'SILVER MAG', mult: 1.1, color: '#c9d6e3', w: 28 },
+  { name: 'GOLD MAG', mult: 1.8, color: '#ffd23f', w: 13 },
+  { name: 'LEGENDARY MAG', mult: 3, color: '#ff3df2', w: 4 },
+];
+const BOSS_TITLES = { queen: 'Tenured Mother of Thousands', colossus: 'Regional Manager of Crushing', voideye: 'Unblinking Critic of Your Life Choices' };
+const SPONSORS = [
+  "Grundle's Discount Ordnance", "Madame Vex's Totally Legal Potions", 'The Committee for Unnecessary Explosions',
+  "Big Barry's Scrap and Salvage", 'Glorp Cola: It Glows For A Reason', 'The Ancient Order of Slightly Sticky Relics',
+  "Dr Fizzwick's Regrettable Medicines", 'Hovercrab Insurance: We Probably Cover That',
+];
+const SYSTEM_LINES = {
+  start: [
+    'Welcome, Contestant. Please keep your limbs inside the ship at all times. Or don\'t. The ratings are better if you don\'t.',
+    'Good news: you have been selected for a fabulous new game show. Bad news: it is this one.',
+    'Reminder: the ship flies itself. Your job is to make bad decisions in the menus.',
+  ],
+  level: [
+    'Level up! Your body is changing. That is normal. The glowing is also normal.',
+    'Another level. At this rate you might survive until the adverts.',
+    'Level up. Please enjoy this complimentary box of violence.',
+    'Congratulations on your promotion from "snack" to "slightly harder snack".',
+  ],
+  boss: [
+    'It has read your file and is unimpressed.',
+    'It has been told you insulted its mother. You did not. We did. On your behalf.',
+    'Please try to die slowly. The viewers paid for the full episode.',
+  ],
+  siege: [
+    'Rifts are opening. The monsters would like a word with your crystal.',
+    'Siege incoming. Please do not let them lick the expensive rock.',
+  ],
+  lowhp: [
+    'Your health is low. Have you tried not getting hit?',
+    'Vital signs: concerning. Viewer engagement: excellent.',
+    'The medic has been notified. The medic has declined.',
+  ],
+  rewind: [
+    'Time has been rewound. The paperwork on this is going to be horrendous.',
+    'Rewind successful. Your future self is now an unpaid intern.',
+    'Causality has filed a formal complaint. Noted. Ignored.',
+  ],
+  fusion: ['Fusion complete. It violates at least four treaties.', 'Two weapons became one. The other one is in a better place now.'],
+  cursed: ['You took the cursed card. We are not angry. We are just disappointed. And delighted.', 'Bold. Stupid, but bold.'],
+  tower: ['Tower built. Anchor property values have increased by 3%.', 'Construction complete. No permits were filed. None will be.'],
+  anchorLow: ['The Anchor is cracking. That is the one thing you were asked to protect.', 'Anchor integrity critical. Please stop looking at the loot and look at the rock.'],
+  surge: ['Storm Surge! Everything hits harder now. Please remain calm and panic.'],
+  idle: [
+    'The audience is getting bored. Kill something interesting.',
+    'Fun fact: most contestants die within the next minute. Just saying.',
+    'A reminder that screaming does not affect gameplay, but we do record it.',
+    'Our legal team would like to remind you that none of this is legally binding. Except the dying.',
+    'Viewer poll: 61% think you will die to a Skitter. Prove them right.',
+    'You are doing great! This message is automated and applies to all contestants equally.',
+  ],
+  death: [
+    'Contestant eliminated. The audience has already forgotten your name.',
+    'You have died. Your loot will be redistributed to someone more competent.',
+    'And that is the show! Well, your show. The show continues without you.',
+    'Cause of death: optimism.',
+  ],
+  gacha: ['Legendary magazine! The house always wins. Except, apparently, now.'],
+  mimic: ['Pattern copied. The original owner is dead and cannot sue. Probably.'],
+  grudge: ['Grudge settled. Therapy was cheaper, but this was faster.'],
+};
+const NO_REWARD = [
+  'Reward: a sense of accomplishment. It is non-refundable.',
+  'Reward: nothing. We are not made of money.',
+  'Reward: our respect. It has no resale value.',
+  'Reward: exposure. You know how it is.',
+];
+const CARD_QUIPS = [
+  'The System recommends this one. The System is often wrong.',
+  'Viewers voted this "most likely to end in tears".',
+  'A previous contestant picked this. We don\'t talk about them.',
+  'Sponsored content. Probably.',
+  'This one comes with a free trial of hope.',
+  'Our focus group loved it. The focus group has since dissolved.',
+];
+const ACHIEVEMENTS = {
+  firstblood: { name: "Baby's First Homicide", desc: 'Killed a monster. It had a family. Probably.', reward: 'none' },
+  kills100:   { name: 'Pest Control', desc: '100 kills. The exterminators\' union has filed a complaint.', reward: 'reroll' },
+  kills1000:  { name: 'Statistically Significant', desc: '1,000 kills. You are now a demographic.', reward: 'box' },
+  kills5000:  { name: 'Extinction Event', desc: '5,000 kills. Several species have asked you to stop.', reward: 'bossbox' },
+  firstloot:  { name: 'Unboxing Influencer', desc: 'Opened your first loot box. Please like and subscribe.', reward: 'none' },
+  fusion:     { name: 'Frankenweapon', desc: 'Fused two weapons. It is alive. It is also on fire.', reward: 'reroll' },
+  rewind:     { name: 'Undo Button Enthusiast', desc: 'Rewound time. Causality has been notified.', reward: 'none' },
+  autorewind: { name: 'Not Today, Death', desc: 'Died, then un-died. Our lawyers are looking into it.', reward: 'heal' },
+  boss:       { name: 'Middle Management Removed', desc: 'Killed a boss. Someone will be promoted to replace it.', reward: 'none' },
+  tower:      { name: 'Property Developer', desc: 'Built a tower. Planning permission was not sought.', reward: 'scrap' },
+  sell:       { name: 'Flipper', desc: 'Sold a tower. The housing market is in shambles.', reward: 'none' },
+  anchorhit:  { name: 'That Was Load-Bearing', desc: 'Let something hit the Anchor. It was the one job.', reward: 'none' },
+  reactions:  { name: 'Mad Scientist', desc: 'Triggered 50 elemental reactions. Safety goggles were optional.', reward: 'reroll' },
+  friendly:   { name: 'Let Them Fight', desc: 'A Bomber killed another monster. Teamwork!', reward: 'none' },
+  cursed:     { name: 'Bad Decision Maker', desc: 'Took a cursed card. We knew you would.', reward: 'none' },
+  modded:     { name: 'Aftermarket Parts', desc: 'Installed a weapon mod. The warranty is now fully void.', reward: 'none' },
+  grudge:     { name: 'Petty', desc: 'Killed the thing that hurt you with the Grudge Rifle. Worth it.', reward: 'none' },
+  broke:      { name: 'Financially Ruined', desc: 'Ran the Scrap Cannon dry. Please consult a debt counsellor.', reward: 'scrap' },
+  gachagold:  { name: 'Gambling Problem', desc: 'Rolled a Legendary magazine. Do not tell your mother.', reward: 'none' },
+  parasite:   { name: 'Landlord of Flesh', desc: 'A corpse became your turret. Rent is due Tuesday.', reward: 'none' },
+  mimic:      { name: 'Identity Theft', desc: 'Stole a monster\'s attack pattern. It will be pressing charges.', reward: 'none' },
+  overkill:   { name: 'Excessive Force', desc: 'Dealt 1,000 overkill damage in one hit. The review board is concerned.', reward: 'none' },
+  lastword:   { name: 'The Last Word', desc: 'Killed something with the final round of a magazine. Dramatic.', reward: 'none' },
+  spoilers:   { name: 'Spoilers', desc: 'Killed something before the shell had even been fired.', reward: 'none' },
+  tethered:   { name: 'Forced Proximity', desc: 'Slammed two tethered monsters together. They did not consent.', reward: 'none' },
+  siphoned:   { name: 'Return to Sender', desc: 'Absorbed 200 enemy bullets. The postal service is in awe.', reward: 'reroll' },
+  echokill:   { name: 'Time Paradox Murder', desc: 'Your future self got a kill. Who gets the XP? You do. Don\'t ask.', reward: 'none' },
+  survive5:   { name: 'Still Here?', desc: 'Survived 5 minutes. The producers are surprised.', reward: 'box' },
+  survive10:  { name: 'Contractually Obligated', desc: 'Survived 10 minutes. We have to keep filming now.', reward: 'box' },
+  surge:      { name: 'Ratings Spike', desc: 'Reached the Storm Surge. The audience is thrilled you will die soon.', reward: 'none' },
+  viewers1m:  { name: 'Celebrity', desc: 'One million viewers. Your agent has several questions.', reward: 'box' },
+  lowhp:      { name: 'Flesh Wound', desc: 'Survived a hit with under 5% HP. The medic has fainted.', reward: 'heal' },
+  sponsor:    { name: 'Sold Out', desc: 'Accepted a sponsor gift. Integrity was never on the table.', reward: 'none' },
+};
+const VIEWER_MILESTONES = [10e3, 50e3, 100e3, 250e3, 500e3, 1e6, 2.5e6, 5e6, 1e7, 2.5e7, 5e7];

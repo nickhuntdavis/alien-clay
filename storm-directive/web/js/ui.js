@@ -62,6 +62,8 @@ const UI = {
   startGame() {
     initAudio();
     newGame();
+    sysLine('start', true);
+    UI.msgT = 0; $('sysmsg').classList.remove('on');
     UI.show('hud');
     UI.refreshHud(true);
   },
@@ -77,6 +79,7 @@ const UI = {
       if (w.def.noTarget) { UI.toast(w.def.name + ' is self-cast (no targeting)'); return; }
       const idx = DIRECTIVES.findIndex(d => d.id === w.dir);
       w.dir = DIRECTIVES[(idx + 1) % DIRECTIVES.length].id;
+      if (w.dirs) w.dirs[0] = w.dir;
       UI.toast(w.def.name + ' > ' + DIRECTIVES.find(d => d.id === w.dir).name);
       UI.refreshHud(true);
     });
@@ -92,19 +95,21 @@ const UI = {
         el.querySelector('.bar i').style.width = '0%';
         return;
       }
-      const key = w.uid + ':' + w.lvl + ':' + w.dir;
+      const key = w.uid + ':' + w.lvl + ':' + w.dir + ':' + w.mods.length + ':' + w.gachaTier;
       if (full || el.dataset.k !== key) {
         el.dataset.k = key;
         el.classList.remove('empty');
-        el.style.setProperty('--c', w.def.color);
+        el.style.setProperty('--c', w.def.gacha ? GACHA_TIERS[w.gachaTier].color : w.def.color);
         el.querySelector('.ico').textContent = w.def.icon;
-        el.querySelector('.lv').textContent = 'Lv' + w.lvl;
-        el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short;
+        el.querySelector('.lv').textContent = 'Lv' + w.lvl + (w.mods.length ? ' ' + '+'.repeat(w.mods.length) : '');
+        el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : '');
         el.classList.toggle('merged', !!w.def.merged);
       }
       let frac, reloading = false;
       if (w.isSpell) frac = 1 - Math.max(0, w.cd) / (w.reloadMax || 1);
       else if (w.def.kind === 'orbit') { reloading = w.reloadT > 0; frac = reloading ? 1 - w.reloadT / w.reloadMax : w.active / w.s.dur; }
+      else if (w.def.scrapAmmo) frac = Math.min(1, G.scrap / 30);
+      else if (w.def.heat) { reloading = w.reloadT > 0; frac = 1 - w.heat; }
       else if (w.reloadT > 0) { reloading = true; frac = 1 - w.reloadT / w.reloadMax; }
       else frac = w.ammo / w.s.mag;
       el.classList.toggle('reloading', reloading);
@@ -127,6 +132,18 @@ const UI = {
     UI.hudT -= dt;
     if (UI.hudT <= 0 && G && G.state === 'play') { UI.hudT = 0.08; UI.refreshHud(false); }
     if (UI.toastT > 0) { UI.toastT -= dt; if (UI.toastT <= 0) $('toast').classList.remove('on'); }
+    // System messages: one at a time, only while playing.
+    if (G && G.state === 'play') {
+      if (UI.msgT > 0) { UI.msgT -= dt; if (UI.msgT <= 0) $('sysmsg').classList.remove('on'); }
+      else if (G.show.msgQ.length) {
+        const m = G.show.msgQ.shift(), box = $('sysmsg');
+        box.querySelector('b').textContent = m.head; box.querySelector('b').style.color = m.color;
+        box.querySelector('span').textContent = m.body;
+        box.style.setProperty('--mc', m.color);
+        box.classList.remove('on'); void box.offsetWidth; box.classList.add('on');
+        UI.msgT = Math.min(6, 2.2 + m.body.length / 30);
+      }
+    }
   },
 
   toast(msg) {
@@ -206,12 +223,14 @@ const UI = {
     UI.lootReq = req;
     UI.lootOpts = genLoot(req);
     const titles = {
-      start: ['CHOOSE YOUR FIRST WEAPON', 'Every weapon auto-fires using its own targeting directive'],
-      level: ['LEVEL ' + G.level + '!', 'Crack open the loot box: pick one'],
-      chest: ['LOOT BOX', 'Rare or better guaranteed'],
-      boss: ['BOSS CACHE', 'Epic or better guaranteed'],
+      start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary Starter Box. Every weapon fires itself. You just pick the directive and pray.'],
+      level: ['LEVEL ' + G.level + '!', pick(['Bronze-or-better Adventurer Box. Pick one. Choose wisely. Or quickly.', 'Adventurer Box! Contents may have shifted during your near-death experience.', 'Adventurer Box. The fans chipped in. Some of them twice.'])],
+      chest: ['FAN BOX', pick(['Silver or better. The fans sent this. Some of the fans are very strange.', 'Silver or better. It rattles. That is probably fine.'])],
+      boss: ['BOSS BOX', 'Gold or better. Pried from a still-warm corpse. Contents are yours. Smell is extra.'],
     };
     $('lootTitle').textContent = titles[req.kind][0];
+    if (req.kind !== 'start') achieve('firstloot');
+    if (req.kind === 'level' && Math.random() < 0.3) sysLine('level');
     $('lootSub').textContent = titles[req.kind][1];
     const box = $('lootBox');
     box.className = 'box ' + req.kind;
@@ -235,7 +254,7 @@ const UI = {
     UI.lootOpts.forEach((o, i) => {
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
-      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '');
+      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag === 'WEAPON MOD' ? ' mod' : '');
       c.style.setProperty('--rc', r.color);
       c.style.setProperty('--ic', o.color);
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
@@ -244,7 +263,7 @@ const UI = {
         <div class="cico">${esc(o.icon)}</div>
         <div class="ctitle">${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(o.desc)}</div>`;
+        <div class="cdesc">${esc(o.desc)}</div>${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}`;
       c.addEventListener('click', () => {
         if (!$('lootCards').classList.contains('ready')) return;
         UI.pickLoot(i);
@@ -308,8 +327,16 @@ const UI = {
       const elName = ELEMENTS[d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
       h += `<div class="wcard" style="--c:${d.color}"><div class="wh"><span class="wi">${esc(d.icon)}</span><b>${esc(d.name)}</b> <span class="lvl">Lv ${w.lvl}/8</span> <span class="el" style="color:${ELEMENTS[d.elem].color}">${elName}</span>${d.merged ? ' <span class="fz">FUSED</span>' : ''}</div>
         <div class="ws">${stats.join(' | ')}</div>`;
+      if (w.mods && w.mods.length) h += `<div class="hint">Mods: ${w.mods.map(m => esc(MODS[m.id].name) + (m.elem ? ' (' + ELEMENTS[m.elem].name + ')' : '')).join(', ')}</div>`;
+      if (d.kind === 'mimic') h += `<div class="hint">Copied pattern: <b>${esc((G.mimicPat || 'ring (default)').toUpperCase())}</b></div>`;
       if (d.noTarget) h += `<div class="hint">Self-cast: fires automatically when useful.</div>`;
-      else {
+      else if (w.dirs) {
+        w.dirs.forEach((cur, bi) => {
+          h += `<div class="hint">Barrel ${bi + 1}</div><div class="chips">`;
+          for (const dd of DIRECTIVES) h += `<button class="chip small ${cur === dd.id ? 'sel' : ''}" data-k="${k}" data-i="${i}" data-bar="${bi}" data-dir="${dd.id}">${dd.name}</button>`;
+          h += `</div>`;
+        });
+      } else {
         h += `<div class="chips">`;
         for (const dd of DIRECTIVES) h += `<button class="chip small ${w.dir === dd.id ? 'sel' : ''}" data-k="${k}" data-i="${i}" data-dir="${dd.id}">${dd.name}</button>`;
         h += `</div>`;
@@ -320,6 +347,14 @@ const UI = {
       }
       h += `</div>`;
     }
+    h += `</div>`;
+
+    // Achievements and the show.
+    const got = G.show.order;
+    h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | Viewers ${fmtViewers(G.show.viewers)}</h3>`;
+    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b style="color:#ffd23f">${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The audience is waiting.</p>`;
+    const cur = Object.keys(G.curses);
+    if (cur.length) h += `<p class="hint">Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}</p>`;
     h += `</div>`;
 
     // Synergies.
@@ -352,7 +387,11 @@ const UI = {
     box.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => { G.moveDir = b.dataset.move; UI.renderPause(); }));
     box.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       const w = b.dataset.k === 'w' ? G.weapons[+b.dataset.i] : G.spells[+b.dataset.i];
-      if (w) { w.dir = b.dataset.dir; const y = box.scrollTop; UI.renderPause(); box.scrollTop = y; }
+      if (w) {
+        if (b.dataset.bar != null && w.dirs) { w.dirs[+b.dataset.bar] = b.dataset.dir; if (b.dataset.bar === '0') w.dir = b.dataset.dir; }
+        else w.dir = b.dataset.dir;
+        const y = box.scrollTop; UI.renderPause(); box.scrollTop = y;
+      }
     }));
     $('pauseStats').textContent = `Time ${fmtTime(G.t)} | Level ${G.level} | Kills ${G.kills} | Rerolls ${G.rerolls}`;
   },
@@ -365,12 +404,15 @@ const UI = {
     const dmg = Object.entries(G.stats.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8);
     const tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
-    let h = `<div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST!' : 'Best: ' + fmtTime(best.time || 0)}</div>
+    let h = `<div class="eulogy">${esc(pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
       <div class="hint">Killed by: <b style="color:#ff4d6d">${esc(G.stats.lastHit || 'the storm')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>
       <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
       <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.siegeCount}</b>Sieges</div><div><b>${G.pads.filter(p => p.tower).length}</b>Towers</div><div><b>${G.stats.leaks}</b>Leaks</div></div>
       <h3>Damage breakdown</h3>`;
     for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
+    const got = G.show.order;
+    h += `<h3>Achievements this run (${got.length})</h3>`;
+    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b style="color:#ffd23f">${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')}</div>` : `<p class="hint">None. Impressive, in its own way.</p>`;
     $('overBody').innerHTML = h;
     UI.show('over');
   },

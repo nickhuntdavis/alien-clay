@@ -43,6 +43,8 @@ function buildTower(padId, type) {
   G.scrap -= cost;
   pad.tower = { type, lvl: 1, dir: TOWERS[type].dir, cd: 0.4, face: -Math.PI / 2, flash: 0, spent: cost, w: makeTowerW(type), born: G.realT };
   ring(pad.x, pad.y, 60, TOWERS[type].color, 0.5, 4);
+  if (!G.show.achieved.tower || Math.random() < 0.3) sysLine('tower');
+  achieve('tower');
   addLight(pad.x, pad.y, 120, TOWERS[type].color, 0.6);
   sfx('level');
   return true;
@@ -61,6 +63,7 @@ function sellTower(padId) {
   const pad = G.pads[padId];
   if (!pad || !pad.tower) return;
   G.scrap += Math.floor(pad.tower.spent * 0.5);
+  achieve('sell');
   spawnPart(pad.x, pad.y, '#ffd23f', 12, 140, 0.5);
   pad.tower = null;
 }
@@ -139,6 +142,7 @@ function coreHit(dmg, from) {
   if (G.state !== 'play') return;
   core.hp -= dmg; core.flash = 0.25;
   G.stats.leaks++;
+  achieve('anchorhit');
   cam.shake = Math.min(12, cam.shake + 4);
   floatText(core.x, core.y - 50, '-' + Math.round(dmg), '#ff4d6d', 16);
   addLight(core.x, core.y, 160, '#ff4d6d', 0.4);
@@ -160,6 +164,7 @@ function updateSiege(dt) {
       G.rifts.push({ x: Math.cos(a) * 1080, y: Math.sin(a) * 1080, warn: SIEGE_WARN, queue: 5 + Math.floor(G.t / 28), spawnT: 0, close: 0, age: 0, dead: false });
     }
     banner(`SIEGE: ${n} RIFTS OPENING`, '#c77dff');
+    sysLine('siege', true);
     sfx('boss');
   }
   if (G.t >= G.nextSiege) { G.nextSiege += SIEGE_INTERVAL; G.siegePending = false; G.siegeCount++; }
@@ -229,9 +234,15 @@ function startRewind(auto) {
   const echo = {
     path: c.path.filter(q => q.t >= target.t).map(q => ({ t: q.t - target.t, x: q.x, y: q.y })),
     t: 0, dur: span + 0.6, x: p.x, y: p.y, hp: 1, r: 12, face: p.face, vx: 0, vy: 0, iframes: 0, flash: 0,
-    weapons: G.weapons.filter(Boolean).map(w => { const k = makeSlot(w.id, false, w.lvl); k.dir = w.dir; k.echo = true; return k; }),
+    weapons: G.weapons.filter(Boolean).map(w => { const k = makeSlot(w.id, false, w.lvl); k.dir = w.dir; k.echo = true; k.mods = w.mods.slice(); k.dirs = w.dirs && w.dirs.slice(); computeStats(k); return k; }),
+    spells: G.P.echoInherit ? G.spells.filter(Boolean).map(w => { const k = makeSlot(w.id, true, w.lvl); k.dir = w.dir; k.echo = true; return k; }) : [],
+    span,
   };
   if (!echo.path.length) echo.path.push({ t: 0, x: p.x, y: p.y });
+  if (G.P.echoInherit) echo.dur = span * 2 + 0.6;
+  achieve(auto ? 'autorewind' : 'rewind');
+  sysLine('rewind', true);
+  addViewers(3000);
   G.rewind = { frames: [now].concat(c.snaps.slice().reverse()), t: 0, dur: CHRONO.animDur, echo, auto, target };
   G.state = 'rewind';
   G.stats.rewinds++;
@@ -279,7 +290,7 @@ function updateRewind(dt) {
 
 function echoPos(echo) {
   // The echo walks the erased timeline in reverse: from where you were, back to where you are.
-  const tt = Math.max(0, echo.dur - 0.6 - echo.t), path = echo.path;
+  const tt = Math.max(0, echo.span * (1 - echo.t / (echo.dur - 0.6))), path = echo.path;
   let i = path.length - 1;
   while (i > 0 && path[i - 1].t >= tt) i--;
   const a = path[Math.max(0, i - 1)], b = path[i];
@@ -297,7 +308,7 @@ function updateEchoes(dt) {
     echo.x = pos.x; echo.y = pos.y;
     if (echo.t < echo.dur - 0.6) {
       G.realPlayer = real; G.player = echo;
-      try { for (const w of echo.weapons) updateWeapon(w, dt); } finally { G.player = real; G.realPlayer = null; }
+      try { for (const w of echo.weapons) updateWeapon(w, dt); updateSpellList(echo.spells, dt); } finally { G.player = real; G.realPlayer = null; }
     } else if (!echo.collapsed) {
       // Paradox collapse: the echo implodes, wiping nearby bullets and blasting enemies.
       echo.collapsed = true;

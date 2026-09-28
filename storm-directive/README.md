@@ -1,6 +1,6 @@
 # Storm Directive
 
-Autorun, autogun bullet-storm roguelite for Android. You don't aim or (usually) steer: you program your ship with targeting and movement directives, then build it up through loot boxes.
+Autorun, autogun bullet-storm roguelite for Android, framed as a lethal intergalactic game show. You don't aim or (usually) steer: you program your ship with targeting and movement directives, build it up through loot boxes, and a sardonic System narrates every mistake to millions of viewers.
 
 **Install:** sideload `release/StormDirective.apk` (Android 5.0+). Enable "Install unknown apps" for your browser or file manager when prompted.
 
@@ -10,7 +10,10 @@ Autorun, autogun bullet-storm roguelite for Android. You don't aim or (usually) 
 - **Programmable targeting directives** per weapon/spell: Nearest, Strongest, Weakest, Lowest Health, Highest Health, Highest Armour, Fastest, Furthest, Densest Cluster, Elites & Bosses, Shooters First, Random. Tap a slot to cycle, or pause for the full editor.
 - **Autorun directives:** Kite, Collect, Orbit, Hunt, Hold, Defend. The pilot scores 16 escape directions against predicted enemy and bullet positions. Drag anywhere to steer manually.
 - **Loot box on every level up:** pick 1 of 3 (new weapon, new spell, upgrade, power-up or fusion), with Common/Rare/Epic/Legendary rarities and rerolls. Elites drop loot boxes; bosses drop Epic+ caches.
-- **23 weapons, 12 fusion weapons, 10 spells, 32 stackable power-ups, 6 tower types.** All upgradable to Lv 8.
+- **34 weapons, 15 fusion weapons, 10 spells, 41 stackable power-ups, 4 weapon mods, 6 cursed cards, 6 tower types.** All upgradable to Lv 8.
+- **Show-season weapons:** Bullet Siphon (eats enemy bullets as ammo), Committee Cannon (3 barrels, 3 directives), Grudge Rifle (hunts whatever last hurt you, triple damage, REVENGE directive), Wake Blade (your flight path cuts), Scrap Cannon (fires your scrap), Mimic Core (copies the last dead shooter's pattern), Parasite Seeder (infected corpses become turrets), Thermal Lance (heat instead of ammo, vents a fireball), Tether Coil (leashes two monsters and slams them together), Gacha Blaster (every magazine rolls Bronze to Legendary), Prequel Launcher (explosion first, shell flies back afterwards). New fusions: Hailreturn, Plague Trail, Salvage Barrage.
+- **New power-ups:** Last Word, Tactical Reload, Focus Lock, Overkill Transfer, Crossfire Protocol, Momentum, Anchor Link, Future Rounds, Echo Inheritance. **Weapon mods** slot into one weapon (2 each): Split on Kill, Ricochet, Element Swap, Homing. **Cursed cards** give big boons with real downsides.
+- **The Show:** a snarky System announcer, 33 achievements (some with real rewards: loot boxes, rerolls, scrap, healing), a live viewer counter, and sponsors who drop gifts at viewer milestones. Loot boxes come in Bronze, Silver, Gold and Legendary.
 - **Fusion:** two compatible weapons at Lv 4+ merge into a legendary weapon and free a slot (e.g. Flamer + Frost Lance = Steam Cannon, Railgun + Prism Beam = Annihilator).
 - **Elemental reactions:** Thermal Shock, Steam Burst, Combustion, Toxic Arc, Superconduct, Resonance, Overload. Owning 2+ of an element unlocks a synergy bonus.
 - **18 monster types + 3 bosses** with bullet-hell patterns (spirals, rings, fans, charges, blinks). Armour, healers, shielders, splitters, bombers, phasers, summoners, snipers.
@@ -28,6 +31,8 @@ storm-directive/
     js/data.js         All content: weapons, spells, fusions, passives, enemies, bosses
     js/game.js         Engine: simulation, combat, reactions, AI, spawning
     js/td.js           Chrono Anchor tower defence, siege rifts, Rewind and Paradox Echoes
+    js/arsenal.js      Show-season weapons and weapon-wide power-ups
+    js/show.js         The System announcer, achievements, viewers, sponsors
     js/render.js       Rendering: parallax, lighting, shadows, glow, HUD, minimap
     js/ui.js           HUD, loot boxes, directive editor, menus
   android/             Native WebView shell (Java, no AndroidX) that bundles web/ as assets

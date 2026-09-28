@@ -22,6 +22,7 @@
     <button id="buildBtn"><span>BUILD</span><b>0</b></button>
   </div>
   <div id="toast"></div>
+  <div id="sysmsg"><b>SYSTEM MESSAGE</b><span></span></div>
 </div>
 
 <div id="build" class="screen">
@@ -37,8 +38,8 @@
 <div id="title" class="screen">
   <div class="tbox">
     <div class="logo">STORM<br><span>DIRECTIVE</span></div>
-    <p class="tag">Autorun. Autogun. You write the orders.</p>
-    <button id="playBtn" class="btn primary">DEPLOY</button>
+    <p class="tag">Autorun. Autogun. Broadcast live to an audience that is mostly hoping you explode.</p>
+    <button id="playBtn" class="btn primary">ENTER THE SHOW</button>
     <button id="howBtn" class="btn">HOW TO PLAY</button>
     <div id="how">
       <p><b>You don't aim.</b> Your ship runs and shoots by itself. You program it.</p>
@@ -50,7 +51,9 @@
       <p><b>Armour</b> reduces every hit. Use Railguns, shred and damage-over-time on armoured foes.</p>
       <p><b>Chrono Anchor:</b> defend the crystal at the centre. Siege waves pour out of rifts and march on it. Spend scrap on 6 tower types at the build pads (tap BUILD, or tap a pad).</p>
       <p><b>Rewind:</b> jump 4 seconds back in time. Your future self stays behind as a Paradox Echo that walks the erased timeline backwards, firing your weapons, then collapses in a blast. With a charge ready, death rewinds automatically.</p>
-      <p>A boss arrives every 3 minutes. Survive.</p>
+      <p><b>The Show:</b> you are a contestant. The System narrates your every mistake, hands out achievements (sometimes with real rewards), and sponsors send gifts when your viewer count hits milestones. Loot boxes come in Bronze, Silver, Gold and Legendary. Watch out for cursed cards.</p>
+      <p><b>Weapon mods:</b> some loot cards install directly into one weapon (2 slots each): Split on Kill, Ricochet, Element Swap, Homing.</p>
+      <p>A boss arrives every 3 minutes. Survive. Or don't. Both are good television.</p>
     </div>
     <p id="bestLine" class="hint"></p>
   </div>
@@ -81,7 +84,7 @@
 
 <div id="over" class="screen">
   <div class="owrap">
-    <div class="ptitle">SIGNAL LOST</div>
+    <div class="ptitle">CONTESTANT ELIMINATED</div>
     <div id="overBody"></div>
     <div class="pbtns">
       <button id="againBtn" class="btn primary">REDEPLOY</button>
@@ -93,6 +96,8 @@
 <script src="js/data.js"></script>
 <script src="js/game.js"></script>
 <script src="js/td.js"></script>
+<script src="js/arsenal.js"></script>
+<script src="js/show.js"></script>
 <script src="js/render.js"></script>
 <script src="js/ui.js"></script>
 </body>
