@@ -1,6 +1,6 @@
 'use strict';
 // Storm Directive - rendering: parallax space, lit arena floor, decals, dynamic lights, shadows,
-// shaded entities, glow sprites, the Chrono Anchor and towers, rifts, echoes, rewind effect, HUD, minimap.
+// shaded entities, glow sprites, the Chrono Anchor, echoes, rewind effect, HUD, minimap.
 
 function sx(x) { return (x - cam.x) * S + W / 2; }
 function sy(y) { return (y - cam.y) * S + H / 2; }
@@ -165,7 +165,7 @@ function drawDecals(vis) {
   ctx.globalAlpha = 1;
 }
 
-// ---------------------------------------------------------------- Anchor, pads, towers, rifts
+// ---------------------------------------------------------------- the Anchor
 function drawCore() {
   const c = G.core, x = sx(c.x), y = sy(c.y), r = c.r * S, t = G.realT;
   ctx.globalCompositeOperation = 'lighter';
@@ -191,78 +191,6 @@ function drawCore() {
   ctx.fillStyle = cg;
   ctx.beginPath(); ctx.moveTo(x, y - r * 1.05 * pulse); ctx.lineTo(x + r * 0.55, y); ctx.lineTo(x, y + r * 0.85 * pulse); ctx.lineTo(x - r * 0.55, y); ctx.closePath(); ctx.fill();
   ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
-  // Integrity ring.
-  const k = c.hp / c.maxHp;
-  ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(x, y, r * 2.2, 0, TAU); ctx.stroke();
-  ctx.strokeStyle = k < 0.3 ? '#ff4d6d' : '#80ffdb'; ctx.beginPath(); ctx.arc(x, y, r * 2.2, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke();
-}
-
-function drawPadsAndTowers(vis) {
-  const sel = typeof UI !== 'undefined' ? UI.selPad : null, showPads = typeof UI !== 'undefined' && UI.buildOpen;
-  for (const pad of G.pads) {
-    if (!vis(pad)) continue;
-    const x = sx(pad.x), y = sy(pad.y), r = 20 * S, t = pad.tower;
-    if (!t) {
-      ctx.fillStyle = 'rgba(20,24,50,0.55)'; drawShape('hex', x, y, r, 0); ctx.fill();
-      ctx.strokeStyle = showPads ? '#ffd23f' : 'rgba(125,249,255,0.35)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = 'rgba(125,249,255,0.35)'; ctx.fillRect(x - 5 * S, y - 1, 10 * S, 2); ctx.fillRect(x - 1, y - 5 * S, 2, 10 * S);
-      continue;
-    }
-    const d = TOWERS[t.type], st = towerStats(t);
-    if (sel === pad.id) { ctx.strokeStyle = d.color + '88'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.arc(x, y, st.range * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]); }
-    if (t.type === 'stasis') { ctx.fillStyle = 'rgba(184,192,255,0.07)'; ctx.beginPath(); ctx.arc(x, y, st.range * S, 0, TAU); ctx.fill(); }
-    // Shadow, base.
-    ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.ellipse(x + 3, y + 8, r * 1.1, r * 0.7, 0, 0, TAU); ctx.fill();
-    const bg = ctx.createLinearGradient(x, y - r, x, y + r); bg.addColorStop(0, '#3a3f6b'); bg.addColorStop(1, '#14162e');
-    ctx.fillStyle = bg; drawShape('oct', x, y, r, 0); ctx.fill();
-    ctx.strokeStyle = d.color; ctx.lineWidth = 2; ctx.stroke();
-    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (1.6 + (t.flash > 0 ? 0.8 : 0)), d.color, 0.35); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    ctx.fillStyle = d.color; ctx.strokeStyle = d.color;
-    switch (t.type) {
-      case 'cannon': case 'mortar': {
-        ctx.save(); ctx.translate(x, y); ctx.rotate(t.face);
-        const len = t.type === 'cannon' ? 18 : 11, wid = t.type === 'cannon' ? 5 : 10;
-        ctx.fillRect(0, -wid / 2 * S, len * S * (t.flash > 0 ? 0.8 : 1), wid * S);
-        ctx.beginPath(); ctx.arc(0, 0, 8 * S, 0, TAU); ctx.fill();
-        ctx.restore(); break;
-      }
-      case 'tesla':
-        for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x, y - (i * 6) * S, (8 - i * 2) * S, 0, TAU); ctx.stroke(); }
-        ctx.beginPath(); ctx.arc(x, y - 18 * S, 4 * S, 0, TAU); ctx.fill();
-        break;
-      case 'cryo': drawShape('diamond', x, y - 4 * S, 12 * S, 0); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); break;
-      case 'stasis':
-        ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 10 * S, 0, TAU); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(t.face) * 9 * S, y + Math.sin(t.face) * 9 * S); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(t.face / 12) * 6 * S, y + Math.sin(t.face / 12) * 6 * S); ctx.stroke();
-        break;
-      case 'beacon': { const pl = 1 + Math.sin(G.realT * 4) * 0.15; ctx.fillRect(x - 3 * S * pl, y - 10 * S * pl, 6 * S * pl, 20 * S * pl); ctx.fillRect(x - 10 * S * pl, y - 3 * S * pl, 20 * S * pl, 6 * S * pl); break; }
-    }
-    for (let i = 0; i < t.lvl; i++) { ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.arc(x - 8 * S + i * 8 * S, y + r + 5, 2.5, 0, TAU); ctx.fill(); }
-  }
-}
-
-function drawRifts() {
-  const core = G.core;
-  for (const r of G.rifts) {
-    const x = sx(r.x), y = sy(r.y), t = G.realT;
-    const open = r.warn > 0 ? 1 - r.warn / SIEGE_WARN : Math.max(0, 1 - r.close / 1.5);
-    // Lane towards the Anchor.
-    ctx.setLineDash([14, 10]); ctx.lineDashOffset = -t * 60;
-    ctx.strokeStyle = `rgba(199,125,255,${0.25 * open})`; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(sx(core.x), sy(core.y)); ctx.stroke(); ctx.setLineDash([]);
-    ctx.globalCompositeOperation = 'lighter';
-    glow(x, y, 90 * S * open, '#9d4edd', 0.6);
-    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    ctx.fillStyle = '#05000d'; ctx.beginPath(); ctx.ellipse(x, y, 34 * S * open, 44 * S * open, 0, 0, TAU); ctx.fill();
-    ctx.lineWidth = 3;
-    for (let k = 0; k < 4; k++) {
-      ctx.strokeStyle = k % 2 ? '#c77dff' : '#ff3df2';
-      const a0 = t * (2 + k * 0.6) * (k % 2 ? -1 : 1);
-      ctx.beginPath(); ctx.ellipse(x, y, (20 + k * 7) * S * open, (28 + k * 8) * S * open, 0, a0, a0 + 2.2); ctx.stroke();
-    }
-    if (r.warn > 0) { ctx.fillStyle = '#ffd6ff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(Math.ceil(r.warn) + '', x, y + 4); }
-  }
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
@@ -375,8 +303,6 @@ function render() {
   ctx.globalAlpha = 1;
 
   drawCore();
-  drawPadsAndTowers(vis);
-  drawRifts();
 
   // Gems and scrap.
   ctx.globalCompositeOperation = 'lighter';
@@ -445,13 +371,13 @@ function render() {
     ctx.moveTo(x + r, y); ctx.ellipse(x, y, r, r * 0.45, 0, 0, TAU);
   }
   ctx.fill();
-  // Elite, boss and siege auras.
+  // Elite, boss and ally auras.
   ctx.globalCompositeOperation = 'lighter';
   for (const e of G.enemies) {
     if (!vis(e)) continue;
     if (e.boss) glow(sx(e.x), sy(e.y), e.r * 3.2 * S, e.color, 0.5);
     else if (e.elite) glow(sx(e.x), sy(e.y), e.r * 2.6 * S, '#ffd23f', 0.35);
-    else if (e.siege) glow(sx(e.x), sy(e.y), e.r * 2.2 * S, '#9d4edd', 0.3);
+    else if (e.charmed) glow(sx(e.x), sy(e.y), e.r * 2.4 * S, '#ff8fab', 0.45);
     if (e.burn > 0) glow(sx(e.x), sy(e.y), e.r * 2 * S, '#ff7a2f', 0.3);
   }
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
@@ -485,7 +411,8 @@ function render() {
         drawShape(e.def.shape, x, y, r, rot);
       }
       ctx.lineWidth = e.elite || e.boss ? 3 : 1.5;
-      ctx.strokeStyle = e.elite ? '#ffd23f' : e.boss ? '#fff' : e.siege ? '#c77dff' : 'rgba(0,0,0,0.6)';
+      if (e.charmed) ctx.lineWidth = 3;
+      ctx.strokeStyle = e.charmed ? '#ff8fab' : e.elite ? '#ffd23f' : e.boss ? '#fff' : 'rgba(0,0,0,0.6)';
       ctx.stroke();
     }
     let si = 0;
@@ -497,6 +424,7 @@ function render() {
     if (e.mark > 0) st('#c77dff');
     if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
     if (e.parasiteT > 0) st('#b5e48c');
+    if (e.charmed) { ctx.fillStyle = '#ff8fab'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
     if (e === G.grudge) {
       // Grudge target: a rotating red crosshair.
       ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 2.5;
@@ -740,22 +668,16 @@ function drawHud() {
   };
   bar(top + 13, p.hp / G.P.maxHp, p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926', `HP ${Math.ceil(p.hp)} / ${G.P.maxHp}`);
   const c = G.core;
-  bar(top + 30, c.hp / c.maxHp, c.hp / c.maxHp < 0.3 ? '#ff4d6d' : '#48cae4', `ANCHOR ${Math.ceil(c.hp)} / ${c.maxHp}`);
   ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
-  ctx.fillStyle = '#fff'; ctx.fillText(`LV ${G.level}`, 10, top + 55);
-  ctx.fillStyle = '#ff8fab'; ctx.fillText(`${G.kills} kills`, 56, top + 55);
-  ctx.fillStyle = '#ffb400'; ctx.fillText(`${Math.floor(G.scrap)} scrap`, 10, top + 72);
-  // Live broadcast counter.
-  if (Math.floor(G.realT * 2) % 2) { ctx.fillStyle = '#ff2e4d'; ctx.beginPath(); ctx.arc(14, top + 89, 4, 0, TAU); ctx.fill(); }
-  ctx.fillStyle = '#ffc2cc'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(`LIVE ${fmtViewers(G.show.viewers)}`, 22, top + 89);
+  ctx.fillStyle = '#fff'; ctx.fillText(`LV ${G.level}`, 10, top + 40);
+  ctx.fillStyle = '#ff8fab'; ctx.fillText(`${G.kills} kills`, 56, top + 40);
+  // Live broadcast counter (and scrap, when a weapon uses it).
+  if (Math.floor(G.realT * 2) % 2) { ctx.fillStyle = '#ff2e4d'; ctx.beginPath(); ctx.arc(14, top + 57, 4, 0, TAU); ctx.fill(); }
+  ctx.fillStyle = '#ffc2cc'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(`LIVE ${fmtViewers(G.show.viewers)}`, 22, top + 57);
+  if (ownsScrapWeapon()) { ctx.fillStyle = '#ffb400'; ctx.fillText(`${Math.floor(G.scrap)} scrap`, 110, top + 57); }
   ctx.textAlign = 'center'; ctx.fillStyle = G.state === 'rewind' ? '#7df9ff' : '#fff'; ctx.font = 'bold 18px sans-serif';
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
   ctx.fillText(`${m}:${s < 10 ? '0' : ''}${s}`, W / 2, top + 24);
-  // Siege countdown.
-  const toSiege = G.nextSiege - G.t;
-  ctx.font = 'bold 11px sans-serif';
-  if (G.rifts.length) { ctx.fillStyle = '#c77dff'; ctx.fillText('SIEGE IN PROGRESS', W / 2 + 20, top + 72); }
-  else if (toSiege < 20) { ctx.fillStyle = '#c77dff'; ctx.fillText(`SIEGE IN ${Math.ceil(toSiege)}s`, W / 2 + 20, top + 72); }
   // Status chips.
   const chips = [];
   if (G.rage > 0) chips.push(['OVERDRIVE', '#ff924c']);
@@ -765,7 +687,7 @@ function drawHud() {
   if (G.echoes.length) chips.push(['ECHO x' + G.echoes.length, '#7df9ff']);
   if (G.manual) chips.push(['MANUAL', '#fff']);
   ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
-  chips.forEach((ch, i) => { ctx.fillStyle = ch[1]; ctx.fillText(ch[0], 100 + i * 74, top + 89); });
+  chips.forEach((ch, i) => { ctx.fillStyle = ch[1]; ctx.fillText(ch[0], 10 + i * 74, top + 74); });
   // Boss bar.
   if (G.boss && !G.boss.dead) {
     const b = G.boss, bw = Math.min(360, W - 40), bx = (W - bw) / 2, by = top + 108;
@@ -812,9 +734,7 @@ function drawMinimap(top) {
     if (d > R - 2) { dx = dx / d * (R - 2); dy = dy / d * (R - 2); }
     ctx.fillStyle = col; ctx.fillRect(mx + dx - r / 2, my + dy - r / 2, r, r);
   };
-  for (const e of G.enemies) if (e.siege || e.boss || e.elite) dot(e.x, e.y, e.boss ? 5 : 2.5, e.boss ? '#ff4d6d' : e.siege ? '#c77dff' : '#ffd23f');
-  for (const r of G.rifts) dot(r.x, r.y, 5, '#ff3df2');
-  for (const pad of G.pads) if (pad.tower) dot(pad.x, pad.y, 3, TOWERS[pad.tower.type].color);
+  for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? '#ff4d6d' : e.charmed ? '#ff8fab' : '#ffd23f');
   dot(G.core.x, G.core.y, 6, '#7df9ff');
   for (const e of G.echoes) dot(e.x, e.y, 3, '#e0fbff');
   dot(G.player.x, G.player.y, 4, '#fff');

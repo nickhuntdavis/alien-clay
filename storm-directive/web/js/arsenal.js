@@ -80,6 +80,9 @@ function updateSiphon(w, dt) {
       if (Math.random() < 0.3) spawnPart(b.x, b.y, d.color, 1, 60, 0.25, 2);
     }
   }
+  // A slow trickle so the Siphon is never completely dry in quiet moments.
+  w.trickle = (w.trickle || 0) + dt * 2;
+  if (w.trickle >= 1 && w.stored < s.mag) { w.trickle -= 1; w.stored++; } else if (w.trickle >= 1) w.trickle = 1;
   w.ammo = w.stored;
   if (w.lastTarget && !w.lastTarget.dead) w.focusT += dt;
   w.cd -= dt * (G.rage > 0 ? 2 : 1) * rateBonus();
@@ -210,5 +213,52 @@ function firePrequel(w, target, src) {
     const a = Math.atan2(p.y - ty, p.x - tx), dist = Math.hypot(p.x - tx, p.y - ty), sp = s.speed;
     spawnProj(w, tx, ty, a, Object.assign({}, src, { mult: src.mult * 0.35, prequel: true }),
       { speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: Math.max(0.1, (dist - 15) / sp), pierce: 99, r: 6, style: 'prequel', explode: 0, homing: 0, bounce: 0 });
+  }
+}
+
+// ---------------------------------------------------------------- Modifier procs (Freezing, Exploding, Mind Control)
+function modProcs(e, dmg, src) {
+  if (src.modFreeze && !e.boss && e.frozen <= 0 && Math.random() < src.modFreeze) {
+    e.frozen = 1.5;
+    ring(e.x, e.y, e.r + 8, '#bde0fe', 0.3, 2);
+  }
+  if (src.modExplode && !(src.w.expCd > G.realT)) {
+    src.w.expCd = G.realT + 0.15;
+    const ex = Object.assign({}, src, { noProc: true, noCrit: true, mult: 1, knock: 0, wname: 'Exploding modifier' });
+    aoe(e.x, e.y, 42, dmg * (src.mult || 1) * src.modExplode, ex, '#ff7a2f');
+  }
+  if (src.modCharm && !e.boss && !e.elite && !e.charmed && e.hp > 0 && Math.random() < src.modCharm && G.enemies.filter(o => o.charmed).length < MAX_ALLIES) {
+    e.charmed = true; e.charmT = src.charmDur; e.frozen = 0; e.allyT = null;
+    G.stats.charms = (G.stats.charms || 0) + 1;
+    floatText(e.x, e.y - e.r - 12, 'MINE NOW', '#ff8fab', 14);
+    ring(e.x, e.y, e.r + 14, '#ff8fab', 0.4, 3);
+    if (!src.echo) achieve('mindctrl');
+  }
+}
+
+// Mind-controlled monsters hunt the nearest free monster and maul it; with nobody to fight they heel by you.
+function allyAI(e, dt) {
+  let t = e.allyT;
+  if (!t || t.dead || t.charmed || Math.hypot(t.x - e.x, t.y - e.y) > 600) {
+    t = null;
+    let bd = 520 * 520;
+    for (const o of G.enemies) {
+      if (o.dead || o.charmed || o.phased) continue;
+      const dx = o.x - e.x, dy = o.y - e.y, d2 = dx * dx + dy * dy;
+      if (d2 < bd) { bd = d2; t = o; }
+    }
+    e.allyT = t;
+  }
+  const p = me(), tx = t ? t.x : p.x, ty = t ? t.y : p.y;
+  const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy) || 1;
+  const reach = t ? t.r + e.r - 2 : 80;
+  if (d > reach) { const sp = e.speed * 1.3; e.x += dx / d * sp * dt; e.y += dy / d * sp * dt; }
+  e.x += e.kx * dt; e.y += e.ky * dt;
+  const kd = Math.pow(0.02, dt); e.kx *= kd; e.ky *= kd;
+  e.atkCd = (e.atkCd || 0) - dt;
+  if (t && d < t.r + e.r + 6 && e.atkCd <= 0) {
+    e.atkCd = 0.5;
+    damageEnemy(t, e.maxHp * 0.2, { fromAlly: true, noCrit: true, wname: 'Mind-controlled allies', knock: 60, kx: dx, ky: dy });
+    spawnPart(t.x, t.y, '#ff8fab', 3, 90, 0.25);
   }
 }

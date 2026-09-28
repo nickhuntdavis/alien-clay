@@ -1,200 +1,32 @@
 'use strict';
-// Storm Directive - Chrono Anchor tower defence (pads, towers, siege rifts, scrap) and the
-// Rewind / Paradox Echo time-travel mechanic.
+// Storm Directive - the Chrono Anchor sanctuary and the Rewind / Paradox Echo time-travel mechanic.
 
 // The real player, even while an echo temporarily stands in as G.player to fire its weapons.
 function me() { return G.realPlayer || G.player; }
 
-// ---------------------------------------------------------------- setup
-function makeCore() { return { x: 0, y: 0, r: CORE.r, hp: CORE.hp, maxHp: CORE.hp, flash: 0 }; }
-function makePads() {
-  const pads = [];
-  const ringOf = (n, r, off) => { for (let i = 0; i < n; i++) { const a = off + i / n * TAU; pads.push({ id: pads.length, x: Math.cos(a) * r, y: Math.sin(a) * r, tower: null }); } };
-  ringOf(4, 150, Math.PI / 4);
-  ringOf(8, 330, 0);
-  return pads;
-}
+// ---------------------------------------------------------------- the Anchor (a sanctuary at the arena centre)
+function makeCore() { return { x: 0, y: 0, r: CORE.r, flash: 0 }; }
 function newChrono() { return { energy: 0, charges: CHRONO.startCharges, max: CHRONO.maxCharges, snaps: [], snapT: 0, path: [] }; }
 
-// ---------------------------------------------------------------- towers
-// Each tower you already own makes the next one 30% pricier.
-function towerCost(type) { return Math.round(TOWERS[type].cost * G.P.towerCost * (1 + 0.3 * G.pads.filter(p => p.tower).length)); }
-function upgradeCost(t) { return Math.round(TOWERS[t.type].cost * t.lvl * G.P.towerCost); }
-// Towers scale with level, the Engineer passive, half of Might, and "Anchor resonance" over time.
-function towerStats(t) {
-  const d = TOWERS[t.type], L = t.lvl, P = G.P;
-  const resonance = 1 + G.t / 360;
-  return {
-    dmg: d.dmg * (1 + 0.5 * (L - 1)) * P.tower * (1 + (P.might - 1) * 0.5) * (t.type === 'beacon' ? 1 : resonance),
-    rate: d.rate * (1 - 0.12 * (L - 1)),
-    range: d.range * (1 + 0.12 * (L - 1)),
-    area: (d.area || 0) * (1 + 0.15 * (L - 1)),
-    chain: (d.chain || 0) + (L - 1) * 0.5 | 0,
-  };
-}
-function makeTowerW(type) {
-  const d = TOWERS[type];
-  return { uid: uidSeq++, dir: d.dir || 'nearest', def: { name: d.name, elem: d.elem, color: d.color, style: 'bullet', base: { explode: 1 } },
-    s: { dmg: d.dmg, speed: 640, size: 4, range: d.range, pierce: 0, spread: 0, count: 1, area: d.area || 0, dur: 0 } };
-}
-function buildTower(padId, type) {
-  const pad = G.pads[padId], cost = towerCost(type);
-  if (!pad || pad.tower || G.scrap < cost) return false;
-  G.scrap -= cost;
-  pad.tower = { type, lvl: 1, dir: TOWERS[type].dir, cd: 0.4, face: -Math.PI / 2, flash: 0, spent: cost, w: makeTowerW(type), born: G.realT };
-  ring(pad.x, pad.y, 60, TOWERS[type].color, 0.5, 4);
-  if (!G.show.achieved.tower || Math.random() < 0.3) sysLine('tower');
-  achieve('tower');
-  addLight(pad.x, pad.y, 120, TOWERS[type].color, 0.6);
-  sfx('level');
-  return true;
-}
-function upgradeTower(padId) {
-  const t = G.pads[padId] && G.pads[padId].tower;
-  if (!t || t.lvl >= TOWER_MAX_LVL) return false;
-  const c = upgradeCost(t);
-  if (G.scrap < c) return false;
-  G.scrap -= c; t.spent += c; t.lvl++;
-  ring(G.pads[padId].x, G.pads[padId].y, 70, '#ffd23f', 0.5, 4);
-  sfx('level');
-  return true;
-}
-function sellTower(padId) {
-  const pad = G.pads[padId];
-  if (!pad || !pad.tower) return;
-  G.scrap += Math.floor(pad.tower.spent * 0.5);
-  achieve('sell');
-  spawnPart(pad.x, pad.y, '#ffd23f', 12, 140, 0.5);
-  pad.tower = null;
-}
-
-function updateTowers(dt) {
-  const core = G.core, p = me();
-  for (const pad of G.pads) {
-    const t = pad.tower;
-    if (!t) continue;
-    const d = TOWERS[t.type], st = towerStats(t);
-    t.cd -= dt; if (t.flash > 0) t.flash -= dt;
-    t.w.s.dmg = st.dmg; t.w.s.range = st.range; t.w.s.area = st.area; t.w.dir = t.dir || 'nearest';
-    const src = { elem: d.elem, wname: d.name + ' (tower)', crit: G.P.crit };
-    switch (t.type) {
-      case 'cannon': {
-        if (t.cd > 0) break;
-        const tg = acquire(t.dir, st.range, pad.x, pad.y);
-        if (!tg) break;
-        const a = Math.atan2(tg.y - pad.y, tg.x - pad.x);
-        t.face = a; t.cd = st.rate; t.flash = 0.08;
-        spawnProj(t.w, pad.x + Math.cos(a) * 16, pad.y + Math.sin(a) * 16, a + rand(-0.04, 0.04), src);
-        break;
-      }
-      case 'tesla': {
-        if (t.cd > 0) break;
-        const tg = acquire(t.dir, st.range, pad.x, pad.y);
-        if (!tg) break;
-        t.cd = st.rate; t.flash = 0.15;
-        doChain(pad.x, pad.y - 18, tg, st.dmg, st.chain, 150, src);
-        break;
-      }
-      case 'cryo': {
-        if (t.cd > 0) break;
-        let any = false;
-        forNear(pad.x, pad.y, st.range, () => { any = true; return true; });
-        if (!any) break;
-        t.cd = st.rate; t.flash = 0.2;
-        forNear(pad.x, pad.y, st.range, e => { damageEnemy(e, st.dmg, src); });
-        ring(pad.x, pad.y, st.range, '#bde0fe', 0.45, 3);
-        break;
-      }
-      case 'mortar': {
-        if (t.cd > 0) break;
-        const tg = acquire(t.dir, st.range, pad.x, pad.y);
-        if (!tg) break;
-        t.cd = st.rate; t.face = Math.atan2(tg.y - pad.y, tg.x - pad.x); t.flash = 0.15;
-        G.proj.push({ lob: true, sx: pad.x, sy: pad.y, tx: tg.x, ty: tg.y, x: pad.x, y: pad.y, t: 0, flight: 1.1, w: t.w, src, color: d.color, dead: false });
-        break;
-      }
-      case 'stasis': {
-        const until = G.realT + 0.15, r2 = st.range * st.range;
-        forNear(pad.x, pad.y, st.range, e => { e.stasisT = until; });
-        for (const b of G.ebul) { const dx = b.x - pad.x, dy = b.y - pad.y; if (dx * dx + dy * dy < r2) b.slowT = until; }
-        t.face += dt * 1.3;
-        break;
-      }
-      case 'beacon': {
-        core.hp = Math.min(core.maxHp, core.hp + st.dmg * dt);
-        if (Math.hypot(p.x - pad.x, p.y - pad.y) < st.range) healPlayer(st.dmg * 0.5 * dt, true);
-        break;
-      }
-    }
-  }
-}
-
-// ---------------------------------------------------------------- the Anchor
 function updateCore(dt) {
   const core = G.core, p = me();
   if (core.flash > 0) core.flash -= dt;
-  core.hp = Math.min(core.maxHp, core.hp + CORE.regen * dt);
   // Sanctuary: standing near the Anchor slowly heals you.
-  if (Math.hypot(p.x - core.x, p.y - core.y) < CORE.sanctuary) healPlayer(2 * dt, true);
-}
-function coreHit(dmg, from) {
-  const core = G.core;
-  if (G.state !== 'play') return;
-  core.hp -= dmg; core.flash = 0.25;
-  G.stats.leaks++;
-  achieve('anchorhit');
-  cam.shake = Math.min(12, cam.shake + 4);
-  floatText(core.x, core.y - 50, '-' + Math.round(dmg), '#ff4d6d', 16);
-  addLight(core.x, core.y, 160, '#ff4d6d', 0.4);
-  sfx('hurt');
-  if (core.hp <= 0) {
-    core.hp = 0;
-    G.stats.lastHit = 'Anchor overrun by ' + from;
-    if (!startRewind(true)) gameOver();
-  }
+  if (Math.hypot(p.x - core.x, p.y - core.y) < CORE.sanctuary) healPlayer(2.5 * dt, true);
 }
 
-// ---------------------------------------------------------------- siege
-function updateSiege(dt) {
-  if (G.t >= G.nextSiege - SIEGE_WARN && !G.siegePending) {
-    G.siegePending = true;
-    const n = G.t < 400 ? 2 : 3, a0 = Math.random() * TAU;
-    for (let i = 0; i < n; i++) {
-      const a = a0 + i / n * TAU + rand(-0.35, 0.35);
-      G.rifts.push({ x: Math.cos(a) * 1080, y: Math.sin(a) * 1080, warn: SIEGE_WARN, queue: 5 + Math.floor(G.t / 28), spawnT: 0, close: 0, age: 0, dead: false });
-    }
-    banner(`SIEGE: ${n} RIFTS OPENING`, '#c77dff');
-    sysLine('siege', true);
-    sfx('boss');
-  }
-  if (G.t >= G.nextSiege) { G.nextSiege += SIEGE_INTERVAL; G.siegePending = false; G.siegeCount++; }
-  const pool = SIEGE_POOL.filter(id => ENEMIES[id].from <= G.t + 40);
-  for (const r of G.rifts) {
-    r.age += dt;
-    if (r.warn > 0) { r.warn -= dt; continue; }
-    if (r.queue > 0) {
-      r.spawnT -= dt;
-      if (r.spawnT <= 0 && G.enemies.length < CAPS.enemies) {
-        r.spawnT = 0.42; r.queue--;
-        const e = makeEnemy(ENEMIES[pick(pool)], r.x + rand(-20, 20), r.y + rand(-20, 20));
-        e.siege = true; e.xp *= 1.5;
-        G.enemies.push(e);
-      }
-    } else if ((r.close += dt) > 1.5) r.dead = true;
-  }
-}
-
+// Scrap only matters to weapons that fire it.
+function ownsScrapWeapon() { return G.weapons.some(w => w && w.def.scrapAmmo); }
 function dropScrap(x, y, v) { dropGem(x + rand(-8, 8), y + rand(-8, 8), v * G.P.scrap, 's'); }
 
 // ---------------------------------------------------------------- chrono: rewind & paradox echoes
 function takeSnap() {
   const p = me();
   return {
-    t: G.t, px: p.x, py: p.y, hp: p.hp, coreHp: G.core.hp,
+    t: G.t, px: p.x, py: p.y, hp: p.hp,
     enemies: G.enemies.filter(e => !e.dead).map(e => Object.assign({}, e, { hitT: {} })),
     ebul: G.ebul.filter(b => !b.dead).map(b => Object.assign({}, b)),
-    rifts: G.rifts.map(r => Object.assign({}, r)),
-    nextBoss: G.nextBoss, nextWave: G.nextWave, nextSiege: G.nextSiege, siegePending: G.siegePending, bossCount: G.bossCount, surge: G.surge,
+    nextBoss: G.nextBoss, nextWave: G.nextWave, bossCount: G.bossCount, surge: G.surge,
   };
 }
 
@@ -252,8 +84,8 @@ function startRewind(auto) {
 }
 
 function applySnapForView(s) {
-  G.enemies = s.enemies; G.ebul = s.ebul; G.rifts = s.rifts;
-  G.player.x = s.px; G.player.y = s.py; G.player.hp = s.hp; G.core.hp = s.coreHp; G.t = s.t;
+  G.enemies = s.enemies; G.ebul = s.ebul;
+  G.player.x = s.px; G.player.y = s.py; G.player.hp = s.hp; G.t = s.t;
 }
 
 function updateRewind(dt) {
@@ -274,11 +106,11 @@ function updateRewind(dt) {
   const s = r.target;
   applySnapForView(s);
   G.proj = []; G.timers = []; G.lights = [];
-  G.nextBoss = s.nextBoss; G.nextWave = s.nextWave; G.nextSiege = s.nextSiege; G.siegePending = s.siegePending; G.bossCount = s.bossCount; G.surge = s.surge;
+  G.nextBoss = s.nextBoss; G.nextWave = s.nextWave; G.bossCount = s.bossCount; G.surge = s.surge;
   G.boss = G.enemies.find(x => x.boss) || null;
   const P = G.P;
-  if (r.auto) { G.player.hp = Math.max(G.player.hp, P.maxHp * 0.5); G.core.hp = Math.max(G.core.hp, G.core.maxHp * 0.35); }
-  G.player.hp = Math.max(1, G.player.hp); G.core.hp = Math.max(1, G.core.hp);
+  if (r.auto) G.player.hp = Math.max(G.player.hp, P.maxHp * 0.5);
+  G.player.hp = Math.max(1, G.player.hp);
   G.player.iframes = 1.5;
   G.echoes.push(r.echo);
   G.chrono.snaps = []; G.chrono.path = []; G.chrono.snapT = 0;

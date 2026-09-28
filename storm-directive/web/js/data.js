@@ -12,19 +12,19 @@ const ELEMENTS = {
 
 // Targeting directives. Each weapon/spell runs one of these.
 const DIRECTIVES = [
-  { id: 'nearest',   name: 'NEAREST',        short: 'NEAR' },
-  { id: 'strongest', name: 'STRONGEST',      short: 'STRG' },
-  { id: 'weakest',   name: 'WEAKEST',        short: 'WEAK' },
-  { id: 'lowhp',     name: 'LOWEST HEALTH',  short: 'LOW HP' },
-  { id: 'highhp',    name: 'HIGHEST HEALTH', short: 'HI HP' },
-  { id: 'armour',    name: 'HIGHEST ARMOUR', short: 'ARMR' },
-  { id: 'fastest',   name: 'FASTEST',        short: 'FAST' },
-  { id: 'furthest',  name: 'FURTHEST',       short: 'FAR' },
-  { id: 'cluster',   name: 'DENSEST CLUSTER', short: 'CLSTR' },
-  { id: 'elite',     name: 'ELITES & BOSSES', short: 'ELITE' },
-  { id: 'shooters',  name: 'SHOOTERS FIRST', short: 'SHOOT' },
-  { id: 'random',    name: 'RANDOM',         short: 'RAND' },
-  { id: 'revenge',   name: 'REVENGE',        short: 'GRUDGE' },
+  { id: 'nearest',   name: 'NEAREST',        short: 'NEAR',   desc: 'Whatever is closest. Safe, boring, effective.' },
+  { id: 'strongest', name: 'STRONGEST',      short: 'STRG',   desc: 'Biggest max health first. Tank busting.' },
+  { id: 'weakest',   name: 'WEAKEST',        short: 'WEAK',   desc: 'Smallest max health first. Clears fodder.' },
+  { id: 'lowhp',     name: 'LOWEST HEALTH',  short: 'LOW HP', desc: 'Finish off the wounded. Great for kills.' },
+  { id: 'highhp',    name: 'HIGHEST HEALTH', short: 'HI HP',  desc: 'Whoever has the most health left right now.' },
+  { id: 'armour',    name: 'HIGHEST ARMOUR', short: 'ARMR',   desc: 'Most armour first. Pair with shred.' },
+  { id: 'fastest',   name: 'FASTEST',        short: 'FAST',   desc: 'Chargers and skitters before they reach you.' },
+  { id: 'furthest',  name: 'FURTHEST',       short: 'FAR',    desc: 'Snipe the back line.' },
+  { id: 'cluster',   name: 'DENSEST CLUSTER', short: 'CLSTR', desc: 'The middle of the crowd. Best for splash.' },
+  { id: 'elite',     name: 'ELITES & BOSSES', short: 'ELITE', desc: 'Bosses, then elites, then nearest.' },
+  { id: 'shooters',  name: 'SHOOTERS FIRST', short: 'SHOOT',  desc: 'Ranged enemies, healers and summoners first.' },
+  { id: 'random',    name: 'RANDOM',         short: 'RAND',   desc: 'Chaos. The audience loves it.' },
+  { id: 'revenge',   name: 'REVENGE',        short: 'GRUDGE', desc: 'Whatever hurt you last. Otherwise nearest.' },
 ];
 
 // Movement (autorun) directives.
@@ -34,7 +34,7 @@ const MOVE_DIRECTIVES = [
   { id: 'orbit',   name: 'ORBIT',   desc: 'Circle around the horde' },
   { id: 'hunt',    name: 'HUNT',    desc: 'Close in on the primary target' },
   { id: 'hold',    name: 'HOLD',    desc: 'Stand ground, only dodge bullets' },
-  { id: 'defend',  name: 'DEFEND',  desc: 'Guard the Chrono Anchor and intercept siege lines' },
+  { id: 'defend',  name: 'GUARD',   desc: 'Hover in the Anchor\'s sanctuary, which slowly heals you' },
 ];
 
 // Level bonus keys: count, pierce, chain, bounce (additive); dmg, area, dur (additive %); cd (negative = faster).
@@ -344,9 +344,7 @@ const PASSIVES = {
   echo:      { name: 'Spell Echo',       icon: 'SE', max: 5, v: 0.10, fmt: v => `-${pc(v)} spell cooldowns`, apply: (P, v) => { P.cdr = Math.max(0.4, P.cdr - v); } },
   scholar:   { name: 'Scholar',          icon: 'SH', max: 5, v: 0.12, fmt: v => `+${pc(v)} experience gained`, apply: (P, v) => { P.xp += v; } },
   temporal:  { name: 'Temporal Loop',    icon: 'TL', max: 3, v: 1, minRarity: 1, fmt: () => `+1 max Rewind charge, +25% Chrono energy`, apply: (P, v, G) => { G.chrono.max += 1; P.chronoGain += 0.25; } },
-  engineer:  { name: 'Engineer',         icon: 'EN', max: 5, v: 0.2, fmt: v => `+${pc(v)} tower damage, towers cost ${pc(v / 2)} less`, apply: (P, v) => { P.tower += v; P.towerCost = Math.max(0.4, P.towerCost - v / 2); } },
-  salvage:   { name: 'Salvager',         icon: 'SV', max: 5, v: 0.25, fmt: v => `+${pc(v)} scrap from kills`, apply: (P, v) => { P.scrap += v; } },
-  bulwark:   { name: 'Anchor Plating',   icon: 'AP', max: 5, v: 150, fmt: v => `+${Math.round(v)} Anchor max HP (and repair it)`, apply: (P, v, G) => { G.core.maxHp += Math.round(v); G.core.hp += Math.round(v); } },
+  salvage:   { name: 'Salvager',         icon: 'SV', max: 5, needsScrap: 1, v: 0.25, fmt: v => `+${pc(v)} scrap from kills`, apply: (P, v) => { P.scrap += v; } },
   lastround: { name: 'Last Word',        icon: 'LW', max: 3, v: 1, fmt: v => `Last bullet of every magazine deals x${3 + Math.round(v)} damage and explodes`, apply: (P, v) => { P.lastRound += Math.round(v); } },
   tactical:  { name: 'Tactical Reload',  icon: 'TR', max: 4, v: 1, fmt: v => `Starting a reload sends out a shockwave that deletes nearby bullets (+${40 * Math.round(v)} radius)`, apply: (P, v) => { P.tactical += Math.round(v); } },
   focus:     { name: 'Focus Lock',       icon: 'FL', max: 3, v: 0.3, fmt: v => `+3% damage per second on the same target, up to +${pc(v)} more`, apply: (P, v) => { P.focus += v; } },
@@ -425,37 +423,32 @@ const POWERUPS = {
   chest:  { name: 'LOOT BOX', letter: '?', color: '#ffca3a', desc: 'Free upgrade' },
 };
 
-// ---------------------------------------------------------------- Tower defence
-// The Chrono Anchor sits at the world origin. Build pads ring it; siege waves march on it from rifts.
-const CORE = { hp: 900, r: 34, sanctuary: 230, arena: 1400, regen: 1.5 };
-const TOWERS = {
-  cannon: { name: 'Autocannon',   icon: 'AC', color: '#e8eef8', elem: 'phys',   cost: 40, dir: 'nearest',
-    desc: 'Rapid kinetic rounds.', dmg: 7, rate: 0.32, range: 330 },
-  tesla:  { name: 'Tesla Pylon',  icon: 'TP', color: '#ffe94a', elem: 'shock',  cost: 60, dir: 'cluster',
-    desc: 'Chain lightning across 4 targets.', dmg: 9, rate: 0.9, range: 270, chain: 3 },
-  cryo:   { name: 'Cryo Spire',   icon: 'CS', color: '#6fd8ff', elem: 'ice',    cost: 50, dir: null,
-    desc: 'Freezing pulse around the tower.', dmg: 4, rate: 1.1, range: 160 },
-  mortar: { name: 'Mortar Nest',  icon: 'MN', color: '#ff6b35', elem: 'fire',   cost: 80, dir: 'cluster',
-    desc: 'Long-range explosive shells.', dmg: 26, rate: 2.2, range: 520, area: 85 },
-  stasis: { name: 'Stasis Clock', icon: 'SC', color: '#b8c0ff', elem: 'arcane', cost: 70, dir: null,
-    desc: 'Time runs at 35% in its field: enemies and bullets crawl.', dmg: 0, rate: 0, range: 190 },
-  beacon: { name: 'Repair Beacon', icon: 'RB', color: '#80ffdb', elem: 'poison', cost: 65, dir: null,
-    desc: 'Repairs the Anchor and heals you nearby.', dmg: 6, rate: 0, range: 170 },
-};
-const TOWER_MAX_LVL = 3;
-const SIEGE_FIRST = 55, SIEGE_INTERVAL = 80, SIEGE_WARN = 4;
-const SIEGE_POOL = ['crawler', 'skitter', 'brute', 'splitter', 'bulwark', 'charger', 'wisp', 'juggernaut'];
+// ---------------------------------------------------------------- The Chrono Anchor
+// A crystal at the world origin: the arena's centre. Standing in its sanctuary heals you.
+const CORE = { r: 34, sanctuary: 230, arena: 1400 };
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 260, startCharges: 1, maxCharges: 2 };
 
-// ---------------------------------------------------------------- Weapon mods (slot into one weapon, 2 per weapon)
-const MOD_SLOTS = 2;
+// ---------------------------------------------------------------- Modifiers (slot into one weapon, 3 per weapon)
+// Power (p) comes from the card's rarity. Picking a modifier a weapon already has boosts its power.
+const MOD_SLOTS = 3;
+const MOD_POWER = [1, 1.25, 1.6, 2.2];
+const MOD_MAX_POWER = 3;
+const MAX_ALLIES = 6;
+const PROJ_KINDS = ['gun', 'siphon', 'mimic'];
 const MODS = {
-  split:     { name: 'Split on Kill',   icon: 'SK', desc: 'Kills burst into 3 shrapnel shards (40% damage).' },
-  ricochet:  { name: 'Ricochet Rounds', icon: 'RR', desc: '+2 bounces between enemies.', kinds: ['gun', 'siphon', 'mimic'] },
-  elemental: { name: 'Element Swap',    icon: 'EL', desc: 'Converts this weapon to a new element.' },
-  homing:    { name: 'Homing Guidance', icon: 'HG', desc: 'Projectiles steer towards targets.', kinds: ['gun', 'siphon', 'mimic'] },
+  seeking:   { name: 'Seeking',      icon: 'SE', color: '#d0a3ff', kinds: PROJ_KINDS, desc: p => `Shots hunt down targets (turn rate ${(3 + 2 * p).toFixed(1)})` },
+  splitting: { name: 'Splitting',    icon: 'SP', color: '#ffd166', kinds: PROJ_KINDS, desc: p => `On first hit, shots split into ${2 + Math.round(p)} shards at 45% damage` },
+  orbiting:  { name: 'Orbiting',     icon: 'OR', color: '#7df9ff', kinds: PROJ_KINDS, desc: p => `Shots circle you for ${(1.2 * p).toFixed(1)}s, eating enemy bullets, then launch` },
+  growing:   { name: 'Growing',      icon: 'GW', color: '#8ac926', kinds: PROJ_KINDS, desc: p => `Shots swell in flight: triple size and up to +${Math.round(100 * p)}% damage` },
+  boomerang: { name: 'Boomerang',    icon: 'BM', color: '#f1f1f1', kinds: PROJ_KINDS, desc: () => 'Shots fly out and come back, hitting everything twice' },
+  ricochet:  { name: 'Ricochet',     icon: 'RI', color: '#a0c4ff', kinds: PROJ_KINDS, desc: p => `+${1 + Math.round(p)} bounces between enemies` },
+  freezing:  { name: 'Freezing',     icon: 'FZ', color: '#6fd8ff', desc: p => `${Math.round(18 * p)}% chance per hit to freeze the target solid` },
+  exploding: { name: 'Exploding',    icon: 'EX', color: '#ff7a2f', desc: p => `Hits explode for ${Math.round(30 * p)}% damage in a small blast` },
+  mindctrl:  { name: 'Mind Control', icon: 'MC', color: '#ff8fab', desc: p => `${(5 * p).toFixed(0)}% chance per hit to make a monster fight for you for ${Math.round(6 * p)}s (max ${MAX_ALLIES} allies)` },
+  elemental: { name: 'Element Swap', icon: 'EL', color: '#c77dff', desc: () => 'Converts this weapon to a new element' },
+  shrapnel:  { name: 'Shrapnel',     icon: 'SH', color: '#e9c46a', desc: () => 'Kills burst into 3 shards at 40% damage' },
 };
 
 // ---------------------------------------------------------------- Cursed loot cards
@@ -463,7 +456,7 @@ const CURSES = [
   { id: 'glass', name: 'Glass Cannon Deluxe', boon: 'x1.8 damage for everything', bane: 'Max HP halved',
     apply: (P, G) => { P.might *= 1.8; P.maxHp = Math.max(30, Math.round(P.maxHp / 2)); G.player.hp = Math.min(G.player.hp, P.maxHp); } },
   { id: 'speed', name: "Speedrunner's Regret", boon: '+50% fire rate', bane: 'Enemy bullets 20% faster', apply: P => { P.haste += 0.5; P.bulletSpeed *= 1.2; } },
-  { id: 'hoard', name: "Hoarder's Bargain", boon: 'Double scrap from everything', bane: 'Towers cost 50% more', apply: P => { P.scrap *= 2; P.towerCost *= 1.5; } },
+  { id: 'hoard', name: "Hoarder's Bargain", boon: 'Double scrap, double viewers', bane: 'Pickup range halved', apply: P => { P.scrap *= 2; P.viewers *= 2; P.magnet *= 0.5; } },
   { id: 'crowd', name: 'Crowd Pleaser', boon: '+50% XP and viewers', bane: '30% more enemies', apply: P => { P.xp += 0.5; P.viewers *= 1.5; P.spawnMult *= 1.3; } },
   { id: 'paradox', name: 'Paradox Addict', boon: '+2 max Rewind charges, all refilled now', bane: 'All healing halved', apply: (P, G) => { G.chrono.max += 2; G.chrono.charges = G.chrono.max; P.healMult *= 0.5; } },
   { id: 'naked', name: 'Clothing Optional', boon: '+25% move speed, +20% dodge', bane: 'Armour is zero. Forever.', apply: P => { P.speed += 0.25; P.dodge = Math.min(0.6, P.dodge + 0.2); P.noArmour = true; } },
@@ -500,10 +493,6 @@ const SYSTEM_LINES = {
     'It has been told you insulted its mother. You did not. We did. On your behalf.',
     'Please try to die slowly. The viewers paid for the full episode.',
   ],
-  siege: [
-    'Rifts are opening. The monsters would like a word with your crystal.',
-    'Siege incoming. Please do not let them lick the expensive rock.',
-  ],
   lowhp: [
     'Your health is low. Have you tried not getting hit?',
     'Vital signs: concerning. Viewer engagement: excellent.',
@@ -516,8 +505,6 @@ const SYSTEM_LINES = {
   ],
   fusion: ['Fusion complete. It violates at least four treaties.', 'Two weapons became one. The other one is in a better place now.'],
   cursed: ['You took the cursed card. We are not angry. We are just disappointed. And delighted.', 'Bold. Stupid, but bold.'],
-  tower: ['Tower built. Anchor property values have increased by 3%.', 'Construction complete. No permits were filed. None will be.'],
-  anchorLow: ['The Anchor is cracking. That is the one thing you were asked to protect.', 'Anchor integrity critical. Please stop looking at the loot and look at the rock.'],
   surge: ['Storm Surge! Everything hits harder now. Please remain calm and panic.'],
   idle: [
     'The audience is getting bored. Kill something interesting.',
@@ -561,13 +548,13 @@ const ACHIEVEMENTS = {
   rewind:     { name: 'Undo Button Enthusiast', desc: 'Rewound time. Causality has been notified.', reward: 'none' },
   autorewind: { name: 'Not Today, Death', desc: 'Died, then un-died. Our lawyers are looking into it.', reward: 'heal' },
   boss:       { name: 'Middle Management Removed', desc: 'Killed a boss. Someone will be promoted to replace it.', reward: 'none' },
-  tower:      { name: 'Property Developer', desc: 'Built a tower. Planning permission was not sought.', reward: 'scrap' },
-  sell:       { name: 'Flipper', desc: 'Sold a tower. The housing market is in shambles.', reward: 'none' },
-  anchorhit:  { name: 'That Was Load-Bearing', desc: 'Let something hit the Anchor. It was the one job.', reward: 'none' },
   reactions:  { name: 'Mad Scientist', desc: 'Triggered 50 elemental reactions. Safety goggles were optional.', reward: 'reroll' },
   friendly:   { name: 'Let Them Fight', desc: 'A Bomber killed another monster. Teamwork!', reward: 'none' },
   cursed:     { name: 'Bad Decision Maker', desc: 'Took a cursed card. We knew you would.', reward: 'none' },
-  modded:     { name: 'Aftermarket Parts', desc: 'Installed a weapon mod. The warranty is now fully void.', reward: 'none' },
+  modded:     { name: 'Aftermarket Parts', desc: 'Installed a modifier. The warranty is now fully void.', reward: 'none' },
+  fullmods:   { name: 'Pimp My Death Machine', desc: 'Filled all three modifier slots on one weapon. Tasteful.', reward: 'box' },
+  mindctrl:   { name: 'Friends Forever', desc: 'Mind-controlled a monster. It was not consulted.', reward: 'none' },
+  recycle:    { name: 'Circular Economy', desc: 'Recycled a weapon in the Armoury. Very eco. Very violent.', reward: 'none' },
   grudge:     { name: 'Petty', desc: 'Killed the thing that hurt you with the Grudge Rifle. Worth it.', reward: 'none' },
   broke:      { name: 'Financially Ruined', desc: 'Ran the Scrap Cannon dry. Please consult a debt counsellor.', reward: 'scrap' },
   gachagold:  { name: 'Gambling Problem', desc: 'Rolled a Legendary magazine. Do not tell your mother.', reward: 'none' },

@@ -19,19 +19,18 @@
   </div>
   <div id="side">
     <button id="rewindBtn"><span class="rl">&lt;&lt;</span><span class="rt">REWIND</span><span class="pips"></span></button>
-    <button id="buildBtn"><span>BUILD</span><b>0</b></button>
   </div>
   <div id="toast"></div>
   <div id="sysmsg"><b>SYSTEM MESSAGE</b><span></span></div>
 </div>
 
-<div id="build" class="screen">
+<div id="armoury" class="screen">
   <div class="pwrap">
-    <div class="ptitle">CHRONO ANCHOR</div>
-    <div class="hint" style="text-align:center">Scrap: <b id="buildScrap" style="color:#ffb400">0</b> | Siege units march on the Anchor. Towers use their own targeting directives.</div>
-    <div id="buildMap"></div>
-    <div id="buildDetail" class="sec"></div>
-    <div class="pbtns"><button id="buildClose" class="btn primary">BACK TO THE STORM</button></div>
+    <div class="ptitle">ARMOURY</div>
+    <div class="hint" id="armQuip" style="text-align:center"></div>
+    <div id="armTabs"></div>
+    <div id="armBody"></div>
+    <div class="pbtns"><button id="armClose" class="btn primary">BACK TO THE SHOW</button></div>
   </div>
 </div>
 
@@ -43,16 +42,17 @@
     <button id="howBtn" class="btn">HOW TO PLAY</button>
     <div id="how">
       <p><b>You don't aim.</b> Your ship runs and shoots by itself. You program it.</p>
-      <p><b>Targeting directives:</b> tap a weapon slot to cycle its directive (Nearest, Strongest, Weakest, Lowest Health, Highest Armour, Fastest, Densest Cluster, Elites, Shooters, and more). Pause for the full editor.</p>
-      <p><b>Autorun directive:</b> the RUN button switches movement: Kite, Collect, Orbit, Hunt, Hold. Drag anywhere to steer manually.</p>
+      <p><b>Armoury:</b> tap any weapon slot to open the Armoury: stats, modifiers, fusion progress, and each weapon's targeting directive (Nearest, Strongest, Lowest Health, Highest Armour, Densest Cluster, Revenge and more). Recycle weapons you've outgrown for rerolls.</p>
+      <p><b>Autorun directive:</b> the RUN button switches movement: Kite, Collect, Orbit, Hunt, Hold, Guard. Drag anywhere to steer manually.</p>
       <p><b>Loot boxes:</b> every level up opens a box. Pick 1 of 3: new weapons, spells, upgrades or power-ups. Up to 3 weapons and 2 spells.</p>
       <p><b>Fusion:</b> get two compatible weapons to Lv 4 and a fusion card appears, merging them into a legendary weapon and freeing a slot.</p>
       <p><b>Reactions:</b> mix elements. Fire on frozen = Thermal Shock. Shock on poison = Toxic Arc. Arcane on anything = Resonance. Own 2 of an element for a synergy bonus.</p>
       <p><b>Armour</b> reduces every hit. Use Railguns, shred and damage-over-time on armoured foes.</p>
-      <p><b>Chrono Anchor:</b> defend the crystal at the centre. Siege waves pour out of rifts and march on it. Spend scrap on 6 tower types at the build pads (tap BUILD, or tap a pad).</p>
+      <p><b>Chrono Anchor:</b> the crystal at the centre of the arena. Stand in its sanctuary to heal.</p>
       <p><b>Rewind:</b> jump 4 seconds back in time. Your future self stays behind as a Paradox Echo that walks the erased timeline backwards, firing your weapons, then collapses in a blast. With a charge ready, death rewinds automatically.</p>
       <p><b>The Show:</b> you are a contestant. The System narrates your every mistake, hands out achievements (sometimes with real rewards), and sponsors send gifts when your viewer count hits milestones. Loot boxes come in Bronze, Silver, Gold and Legendary. Watch out for cursed cards.</p>
-      <p><b>Weapon mods:</b> some loot cards install directly into one weapon (2 slots each): Split on Kill, Ricochet, Element Swap, Homing.</p>
+      <p><b>Modifiers:</b> loot cards that install into one weapon (3 slots each): Seeking, Splitting, Orbiting, Growing, Boomerang, Ricochet, Freezing, Exploding, Mind Control, Element Swap, Shrapnel. Pick one you already have to power it up.</p>
+      <p><b>Enemies:</b> fewer of them, but every one is big, tough and worth a lot of XP.</p>
       <p>A boss arrives every 3 minutes. Survive. Or don't. Both are good television.</p>
     </div>
     <p id="bestLine" class="hint"></p>
@@ -76,6 +76,7 @@
     <div id="pauseBody"></div>
     <div class="pbtns">
       <button id="resumeBtn" class="btn primary">RESUME</button>
+      <button id="armOpen" class="btn">ARMOURY</button>
       <button id="soundBtn" class="btn">SOUND</button>
       <button id="quitBtn" class="btn">QUIT</button>
     </div>

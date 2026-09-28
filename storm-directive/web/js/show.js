@@ -3,7 +3,7 @@
 // rewards, a live viewer count and sponsors who send gifts at viewer milestones.
 
 function newShow() {
-  return { viewers: 1200, peak: 1200, lastKillT: 0, milestone: 0, idleT: 50, lowHpCd: 0, anchorWarned: false, achieved: {}, order: [], msgQ: [] };
+  return { viewers: 1200, peak: 1200, lastKillT: 0, milestone: 0, idleT: 50, lowHpCd: 0, achieved: {}, order: [], msgQ: [] };
 }
 
 function fmtViewers(v) { return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'K' : Math.round(v) + ''; }
@@ -77,8 +77,6 @@ function updateShow(dt) {
   if (s.idleT <= 0) { s.idleT = rand(45, 75); sysLine('idle'); }
   s.lowHpCd -= dt;
   if (p.hp < G.P.maxHp * 0.25 && s.lowHpCd <= 0) { s.lowHpCd = 40; sysLine('lowhp'); }
-  if (G.core.hp < G.core.maxHp * 0.3) { if (!s.anchorWarned) { s.anchorWarned = true; sysLine('anchorLow', true); } }
-  else if (G.core.hp > G.core.maxHp * 0.6) s.anchorWarned = false;
   if (G.t >= 300) achieve('survive5');
   if (G.t >= 600) achieve('survive10');
 }

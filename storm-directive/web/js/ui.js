@@ -9,8 +9,7 @@ const UI = {
   hudT: 0,
   lootReq: null,
   lootOpts: null,
-  selPad: null,
-  buildOpen: false,
+  arm: { k: 'w', i: 0, bar: 0, recycle: false },
 
   init() {
     const probe = $('safeProbe');
@@ -28,8 +27,8 @@ const UI = {
       UI.refreshHud(true);
     });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
-    $('buildBtn').addEventListener('click', () => UI.openBuild(null));
-    $('buildClose').addEventListener('click', () => UI.closeBuild());
+    $('armClose').addEventListener('click', () => UI.closeArmoury());
+    $('armOpen').addEventListener('click', () => { if (G && G.state === 'pause') { G.state = 'play'; UI.openArmoury('w', 0); } });
     $('rewindBtn').addEventListener('click', () => {
       if (!G || G.state !== 'play') return;
       if (G.chrono.charges < 1) { UI.toast('No Rewind charges: kill enemies to charge the Chrono meter'); return; }
@@ -55,7 +54,7 @@ const UI = {
   },
 
   show(name) {
-    for (const id of ['title', 'loot', 'pause', 'over', 'build']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -71,18 +70,9 @@ const UI = {
   makeSlotEl(kind, i) {
     const el = document.createElement('div');
     el.className = 'slot ' + (kind === 's' ? 'spell' : 'weapon');
-    el.innerHTML = '<div class="ico"></div><div class="lv"></div><div class="dir"></div><div class="bar"><i></i></div>';
-    el.addEventListener('click', () => {
-      if (!G) return;
-      const w = kind === 'w' ? G.weapons[i] : G.spells[i];
-      if (!w) { UI.toast(kind === 'w' ? 'Empty weapon slot: level up to fill it' : 'Empty spell slot: find a spell in a loot box'); return; }
-      if (w.def.noTarget) { UI.toast(w.def.name + ' is self-cast (no targeting)'); return; }
-      const idx = DIRECTIVES.findIndex(d => d.id === w.dir);
-      w.dir = DIRECTIVES[(idx + 1) % DIRECTIVES.length].id;
-      if (w.dirs) w.dirs[0] = w.dir;
-      UI.toast(w.def.name + ' > ' + DIRECTIVES.find(d => d.id === w.dir).name);
-      UI.refreshHud(true);
-    });
+    el.innerHTML = '<div class="ico"></div><div class="lv"></div><div class="mp"></div><div class="dir"></div><div class="bar"><i></i></div>';
+    // Tapping a slot opens the Armoury on that weapon or spell.
+    el.addEventListener('click', () => { if (G && G.state === 'play') UI.openArmoury(kind, i); });
     return el;
   },
 
@@ -91,7 +81,7 @@ const UI = {
     const wEls = $('wslots').children, sEls = $('sslots').children;
     const fill = (el, w) => {
       if (!w) {
-        if (el.dataset.k !== 'empty') { el.dataset.k = 'empty'; el.classList.add('empty'); el.querySelector('.ico').textContent = '+'; el.querySelector('.lv').textContent = ''; el.querySelector('.dir').textContent = 'EMPTY'; el.style.setProperty('--c', '#445'); }
+        if (el.dataset.k !== 'empty') { el.dataset.k = 'empty'; el.classList.add('empty'); el.querySelector('.ico').textContent = '+'; el.querySelector('.lv').textContent = ''; el.querySelector('.mp').innerHTML = ''; el.querySelector('.dir').textContent = 'EMPTY'; el.style.setProperty('--c', '#445'); }
         el.querySelector('.bar i').style.width = '0%';
         return;
       }
@@ -101,7 +91,8 @@ const UI = {
         el.classList.remove('empty');
         el.style.setProperty('--c', w.def.gacha ? GACHA_TIERS[w.gachaTier].color : w.def.color);
         el.querySelector('.ico').textContent = w.def.icon;
-        el.querySelector('.lv').textContent = 'Lv' + w.lvl + (w.mods.length ? ' ' + '+'.repeat(w.mods.length) : '');
+        el.querySelector('.lv').textContent = 'Lv' + w.lvl;
+        el.querySelector('.mp').innerHTML = w.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('');
         el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : '');
         el.classList.toggle('merged', !!w.def.merged);
       }
@@ -118,14 +109,11 @@ const UI = {
     for (let i = 0; i < 3; i++) fill(wEls[i], G.weapons[i]);
     for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
     $('moveBtn').textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
-    // Chrono and build buttons.
+    // Rewind button.
     const c = G.chrono, rb = $('rewindBtn');
     rb.querySelector('.pips').innerHTML = Array.from({ length: c.max }, (_, i) => `<i class="${i < c.charges ? 'on' : ''}"></i>`).join('');
     rb.style.setProperty('--e', (c.charges >= c.max ? 100 : c.energy / CHRONO.energyPerCharge * 100).toFixed(0) + '%');
     rb.classList.toggle('ready', c.charges > 0);
-    const cheapest = Math.min(...Object.keys(TOWERS).map(towerCost));
-    $('buildBtn').querySelector('b').textContent = Math.floor(G.scrap);
-    $('buildBtn').classList.toggle('afford', G.scrap >= cheapest && G.pads.some(p => !p.tower));
   },
 
   tick(dt) {
@@ -152,69 +140,132 @@ const UI = {
     UI.toastT = 1.6;
   },
 
-  // ---------------------------------------------------------------- tower defence build panel
-  openBuild(padId) {
+  // ---------------------------------------------------------------- Armoury (weapon management)
+  openArmoury(k, i) {
     if (!G || G.state !== 'play') return;
-    G.state = 'build';
-    UI.buildOpen = true;
+    G.state = 'armoury';
     INPUT.active = false; G.manual = null;
-    UI.selPad = padId != null ? padId : (G.pads.find(p => !p.tower) || G.pads[0]).id;
-    UI.renderBuild();
-    UI.show('build');
+    UI.arm = { k, i, bar: 0, recycle: false };
+    $('armQuip').textContent = pick([
+      'Please do not lick the weapons. We have had complaints.',
+      'Everything here is legally a gift, so no returns.',
+      'Set your directives. The ship does the rest. You do the blaming.',
+      'Tip: modifiers stack with anything. So do bad decisions.',
+    ]);
+    UI.renderArmoury();
+    UI.show('armoury');
   },
-  closeBuild() {
-    if (!G || G.state !== 'build') return;
+  closeArmoury() {
+    if (!G || G.state !== 'armoury') return;
     G.state = 'play';
-    UI.buildOpen = false; UI.selPad = null;
     UI.show('hud'); UI.refreshHud(true);
     lastTs = performance.now();
   },
-  renderBuild() {
-    const map = $('buildMap');
-    const size = Math.min(map.clientWidth || 320, 360), k = size / 2 / 420;
-    let h = `<div class="bcore" style="left:${size / 2}px;top:${size / 2}px"></div>`;
-    h += `<div class="bring" style="width:${CORE.sanctuary * 2 * k}px;height:${CORE.sanctuary * 2 * k}px;left:${size / 2}px;top:${size / 2}px"></div>`;
-    for (const pad of G.pads) {
-      const t = pad.tower, d = t && TOWERS[t.type];
-      h += `<button class="bpad ${t ? 'built' : ''} ${UI.selPad === pad.id ? 'sel' : ''}" data-pad="${pad.id}" style="left:${size / 2 + pad.x * k}px;top:${size / 2 + pad.y * k}px;${d ? '--c:' + d.color : ''}">${t ? esc(d.icon) + '<small>' + 'I'.repeat(t.lvl) + '</small>' : '+'}</button>`;
+  armSlot() { return UI.arm.k === 'w' ? G.weapons[UI.arm.i] : G.spells[UI.arm.i]; },
+  renderArmoury() {
+    const A = UI.arm, w = UI.armSlot();
+    // Slot tabs.
+    let t = '';
+    const tab = (k, i, x) => {
+      const sel = A.k === k && A.i === i;
+      if (!x) return `<button class="atab empty ${sel ? 'sel' : ''}" data-k="${k}" data-i="${i}"><b>+</b><span>${k === 'w' ? 'WEAPON' : 'SPELL'} ${i + 1}</span></button>`;
+      return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${x.def.color}"><b>${esc(x.def.icon)}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
+    };
+    G.weapons.forEach((x, i) => { t += tab('w', i, x); });
+    G.spells.forEach((x, i) => { t += tab('s', i, x); });
+    $('armTabs').innerHTML = t;
+    $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false }; UI.renderArmoury(); }));
+    const body = $('armBody');
+    if (!w) {
+      body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon slot. New weapons show up in loot boxes while you have a free slot. Recycle a weapon to make room.' : 'Empty spell slot. Spells show up in loot boxes while you have a free slot.'}</p></div>`;
+      return;
     }
-    map.style.height = size + 'px';
-    map.innerHTML = h;
-    map.querySelectorAll('[data-pad]').forEach(b => b.addEventListener('click', () => { UI.selPad = +b.dataset.pad; UI.renderBuild(); }));
-    $('buildScrap').textContent = Math.floor(G.scrap);
-    const pad = G.pads[UI.selPad], t = pad && pad.tower;
-    let d = '';
-    if (!t) {
-      d += `<h3>Build on pad ${pad.id + 1}</h3><div class="tlist">`;
-      for (const id in TOWERS) {
-        const T = TOWERS[id], cost = towerCost(id), ok = G.scrap >= cost;
-        d += `<button class="tbtn" data-build="${id}" ${ok ? '' : 'disabled'} style="--c:${T.color}"><span class="ti">${esc(T.icon)}</span><b>${esc(T.name)}</b><em>${cost}</em><span class="td">${esc(T.desc)}${T.dir ? ' Uses a targeting directive.' : ''}</span></button>`;
-      }
-      d += `</div>`;
-    } else {
-      const T = TOWERS[t.type], st = towerStats(t);
-      const stats = [];
-      if (t.type === 'beacon') stats.push(`Repairs ${st.dmg.toFixed(0)}/s`);
-      else if (st.dmg) stats.push(`DMG ${st.dmg.toFixed(0)}`);
-      if (st.rate) stats.push(`every ${st.rate.toFixed(2)}s`);
-      stats.push(`Range ${Math.round(st.range)}`);
-      if (t.type === 'tesla') stats.push(`Chain ${st.chain}`);
-      d += `<h3 style="color:${T.color}">${esc(T.name)} <span class="lvl">Lv ${t.lvl}/${TOWER_MAX_LVL}</span></h3><div class="ws">${stats.join(' | ')}</div><div class="hint">${esc(T.desc)} Anchor resonance: towers grow stronger every minute.</div>`;
-      d += `<div class="pbtns">`;
-      if (t.lvl < TOWER_MAX_LVL) { const c = upgradeCost(t); d += `<button class="btn primary" id="tUp" ${G.scrap >= c ? '' : 'disabled'}>UPGRADE (${c})</button>`; }
-      d += `<button class="btn" id="tSell">SELL (+${Math.floor(t.spent * 0.5)})</button></div>`;
-      if (T.dir) {
-        d += `<div class="chips">`;
-        for (const dd of DIRECTIVES) d += `<button class="chip small ${t.dir === dd.id ? 'sel' : ''}" data-tdir="${dd.id}">${dd.name}</button>`;
-        d += `</div>`;
-      }
+    const d = w.def, s = w.s;
+    const elName = ELEMENTS[w.mods.find(m => m.id === 'elemental') ? w.mods.find(m => m.id === 'elemental').elem : d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
+    let h = `<div class="ahead" style="--c:${d.color}"><div class="aico">${esc(d.icon)}</div><div class="ainfo">
+      <div class="aname">${esc(d.name)}${d.merged ? ' <span class="fz">FUSED</span>' : ''}</div>
+      <div class="asub">${esc(elName)} ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: 8 }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/8</div>
+      <div class="adesc">${esc(d.desc)}</div></div></div>`;
+    // Stats.
+    const tiles = [];
+    const T = (label, val) => tiles.push(`<div class="tile"><b>${val}</b><span>${label}</span></div>`);
+    if (d.kind === 'heal') T('Heals', Math.round(s.dmg * 100) + '%');
+    else if (s.dmg) T(d.kind === 'beam' || d.kind === 'zone' || d.kind === 'wake' ? 'Damage/s' : 'Damage', s.dmg.toFixed(s.dmg < 10 ? 1 : 0));
+    if (w.isSpell) T('Cooldown', s.cd.toFixed(1) + 's');
+    else if (d.kind === 'orbit') { T('Active', s.dur.toFixed(1) + 's'); T('Recharge', s.reload.toFixed(1) + 's'); }
+    else if (d.kind === 'siphon') { T('Fire rate', (1 / s.cd).toFixed(1) + '/s'); T('Bullet store', `${w.stored}/${s.mag}`); T('Absorb radius', Math.round(s.area)); }
+    else if (d.heat) { T('Overheat', s.dur.toFixed(1) + 's'); T('Vent cooldown', s.reload.toFixed(1) + 's'); }
+    else if (d.kind === 'wake') { T('Trail life', s.dur.toFixed(1) + 's'); T('Trail width', Math.round(s.area)); }
+    else {
+      if (s.cd) T('Fire rate', (1 / s.cd).toFixed(1) + '/s');
+      if (d.scrapAmmo) T('Ammo', Math.floor(G.scrap) + ' scrap'); else { T('Magazine', s.mag); T('Reload', s.reload.toFixed(1) + 's'); }
     }
-    const box = $('buildDetail');
-    box.innerHTML = d;
-    box.querySelectorAll('[data-build]').forEach(b => b.addEventListener('click', () => { if (buildTower(UI.selPad, b.dataset.build)) UI.renderBuild(); }));
-    box.querySelectorAll('[data-tdir]').forEach(b => b.addEventListener('click', () => { t.dir = b.dataset.tdir; UI.renderBuild(); }));
-    if ($('tUp')) $('tUp').addEventListener('click', () => { if (upgradeTower(UI.selPad)) UI.renderBuild(); });
-    if ($('tSell')) $('tSell').addEventListener('click', () => { sellTower(UI.selPad); UI.renderBuild(); });
+    if (s.range) T('Range', Math.round(s.range));
+    if (s.count > 1) T('Projectiles', s.count);
+    if (s.pierce && s.pierce < 90) T('Pierce', s.pierce);
+    if (s.bounce) T('Bounces', s.bounce);
+    if (s.chain) T('Chain', s.chain);
+    if (s.area && d.kind !== 'wake' && d.kind !== 'siphon') T('Area', Math.round(s.area));
+    if (!w.isSpell) T('Crit', Math.round(s.crit * 100) + '%');
+    h += `<div class="tiles">${tiles.join('')}</div>`;
+    // Modifiers.
+    if (!w.isSpell) {
+      h += `<div class="sec"><h3>Modifiers (${w.mods.length}/${MOD_SLOTS})</h3><div class="mods">`;
+      for (let i = 0; i < MOD_SLOTS; i++) {
+        const m = w.mods[i];
+        if (!m) { h += `<div class="modslot empty">Empty slot. Modifier cards drop from loot boxes.</div>`; continue; }
+        const M = MODS[m.id];
+        const desc = m.id === 'elemental' ? `Converts this weapon to ${ELEMENTS[m.elem].name} damage.` : M.desc(m.p || 1);
+        h += `<div class="modslot" style="--c:${M.color}"><span class="mi">${esc(M.icon)}</span><div><b>${esc(M.name)}</b> <em>power ${(m.p || 1).toFixed(2)}</em><br><span>${esc(desc)}</span></div></div>`;
+      }
+      const ok = Object.keys(MODS).filter(id => !MODS[id].kinds || MODS[id].kinds.includes(d.kind));
+      h += `</div><p class="hint">Can take: ${ok.map(id => MODS[id].name).join(', ')}.</p></div>`;
+    }
+    // Targeting.
+    h += `<div class="sec"><h3>Targeting directive</h3>`;
+    if (d.noTarget) h += `<p class="hint">Self-cast. It fires on its own when useful.</p>`;
+    else {
+      let cur = w.dir;
+      if (w.dirs) {
+        h += `<div class="chips">${w.dirs.map((dd, bi) => `<button class="chip ${A.bar === bi ? 'sel' : ''}" data-bar="${bi}">BARREL ${bi + 1}: ${DIRECTIVES.find(x => x.id === dd).short}</button>`).join('')}</div>`;
+        cur = w.dirs[A.bar];
+      }
+      h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
+    }
+    h += `</div>`;
+    // Fusion.
+    if (!w.isSpell) {
+      const ms = MERGES.filter(m => m.a === w.id || m.b === w.id);
+      if (ms.length) {
+        h += `<div class="sec"><h3>Fusion</h3>`;
+        for (const m of ms) {
+          const other = m.a === w.id ? m.b : m.a, ow = G.weapons.find(x => x && x.id === other);
+          const ready = ow && ow.lvl >= MERGE_MIN_LEVEL && w.lvl >= MERGE_MIN_LEVEL;
+          const status = ready ? '<b style="color:#7df9ff">READY: offered in your next loot box</b>' : ow ? `Owned at Lv ${ow.lvl}. Both need Lv ${MERGE_MIN_LEVEL}.` : 'Not owned.';
+          h += `<div class="fuse" style="--c:${WEAPONS[m.out].color}"><b>+ ${esc(WEAPONS[other].name)}</b> = <b style="color:${WEAPONS[m.out].color}">${esc(WEAPONS[m.out].name)}</b><br><span>${status}</span></div>`;
+        }
+        h += `</div>`;
+      } else if (d.merged) h += `<div class="sec"><p class="hint">Already fused. It cannot be fused again. We checked. There was a small fire.</p></div>`;
+    }
+    // Recycle.
+    if (A.k === 'w' && G.weapons.filter(Boolean).length > 1) {
+      h += `<div class="pbtns"><button class="btn ${A.recycle ? 'danger' : ''}" id="armRecycle">${A.recycle ? 'TAP AGAIN TO RECYCLE (+2 REROLLS)' : 'RECYCLE WEAPON (FREES THE SLOT)'}</button></div>`;
+    }
+    body.innerHTML = h;
+    body.querySelectorAll('[data-bar]').forEach(b => b.addEventListener('click', () => { A.bar = +b.dataset.bar; UI.renderArmoury(); }));
+    body.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
+      if (w.dirs) { w.dirs[A.bar] = b.dataset.dir; if (A.bar === 0) w.dir = b.dataset.dir; } else w.dir = b.dataset.dir;
+      const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y;
+    }));
+    const rb = $('armRecycle');
+    if (rb) rb.addEventListener('click', () => {
+      if (!A.recycle) { A.recycle = true; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; return; }
+      G.weapons[A.i] = null; G.rerolls += 2; recomputeAll();
+      achieve('recycle');
+      sysMsg('SYSTEM MESSAGE', `${d.name} has been recycled into 2 reroll tokens and a faint smell of regret.`, '#7df9ff', true);
+      UI.arm = { k: 'w', i: G.weapons.findIndex(Boolean), bar: 0, recycle: false };
+      UI.renderArmoury();
+    });
   },
 
   // ---------------------------------------------------------------- loot
@@ -254,7 +305,7 @@ const UI = {
     UI.lootOpts.forEach((o, i) => {
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
-      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag === 'WEAPON MOD' ? ' mod' : '');
+      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '');
       c.style.setProperty('--rc', r.color);
       c.style.setProperty('--ic', o.color);
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
@@ -263,7 +314,7 @@ const UI = {
         <div class="cico">${esc(o.icon)}</div>
         <div class="ctitle">${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(o.desc)}</div>${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}`;
+        <div class="cdesc">${esc(o.desc)}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}`;
       c.addEventListener('click', () => {
         if (!$('lootCards').classList.contains('ready')) return;
         UI.pickLoot(i);
@@ -305,50 +356,8 @@ const UI = {
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
 
-    h += `<div class="sec"><h3>Chrono Anchor and time</h3><p class="hint">Anchor ${Math.ceil(G.core.hp)}/${G.core.maxHp} | ${G.pads.filter(p => p.tower).length} towers | ${Math.floor(G.scrap)} scrap | Rewind charges ${G.chrono.charges}/${G.chrono.max}</p>
+    h += `<div class="sec"><h3>Time and the Anchor</h3><p class="hint">Rewind charges ${G.chrono.charges}/${G.chrono.max}. The Anchor at the centre of the arena heals you while you stand in its sanctuary (GUARD autorun does this for you).</p>
       <p class="hint"><b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you or the Anchor would die with a charge ready, Rewind triggers automatically.</p></div>`;
-    h += `<div class="sec"><h3>Loadout and targeting directives</h3>`;
-    const all = G.weapons.map((w, i) => ['w', i, w]).concat(G.spells.map((w, i) => ['s', i, w]));
-    for (const [k, i, w] of all) {
-      if (!w) { h += `<div class="wcard empty">${k === 'w' ? 'Weapon' : 'Spell'} slot ${i + 1}: empty</div>`; continue; }
-      const s = w.s, d = w.def;
-      const stats = [];
-      if (d.kind === 'heal') stats.push(`Heals ${Math.round(s.dmg * 100)}%`);
-      else if (s.dmg) stats.push(`DMG ${s.dmg.toFixed(1)}${d.kind === 'beam' || d.kind === 'zone' ? '/s' : ''}`);
-      if (s.count > 1) stats.push(`x${s.count}`);
-      if (w.isSpell) stats.push(`CD ${s.cd.toFixed(1)}s`);
-      else if (d.kind === 'orbit') stats.push(`Active ${s.dur.toFixed(1)}s`, `Recharge ${s.reload.toFixed(1)}s`);
-      else stats.push(`Rate ${(1 / s.cd).toFixed(1)}/s`, `Mag ${s.mag}`, `Reload ${s.reload.toFixed(1)}s`);
-      if (s.pierce && s.pierce < 90) stats.push(`Pierce ${s.pierce}`);
-      if (s.chain) stats.push(`Chain ${s.chain}`);
-      if (s.bounce) stats.push(`Bounce ${s.bounce}`);
-      if (s.shred) stats.push(`Shred ${s.shred}`);
-      if (s.range) stats.push(`Range ${Math.round(s.range)}`);
-      const elName = ELEMENTS[d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
-      h += `<div class="wcard" style="--c:${d.color}"><div class="wh"><span class="wi">${esc(d.icon)}</span><b>${esc(d.name)}</b> <span class="lvl">Lv ${w.lvl}/8</span> <span class="el" style="color:${ELEMENTS[d.elem].color}">${elName}</span>${d.merged ? ' <span class="fz">FUSED</span>' : ''}</div>
-        <div class="ws">${stats.join(' | ')}</div>`;
-      if (w.mods && w.mods.length) h += `<div class="hint">Mods: ${w.mods.map(m => esc(MODS[m.id].name) + (m.elem ? ' (' + ELEMENTS[m.elem].name + ')' : '')).join(', ')}</div>`;
-      if (d.kind === 'mimic') h += `<div class="hint">Copied pattern: <b>${esc((G.mimicPat || 'ring (default)').toUpperCase())}</b></div>`;
-      if (d.noTarget) h += `<div class="hint">Self-cast: fires automatically when useful.</div>`;
-      else if (w.dirs) {
-        w.dirs.forEach((cur, bi) => {
-          h += `<div class="hint">Barrel ${bi + 1}</div><div class="chips">`;
-          for (const dd of DIRECTIVES) h += `<button class="chip small ${cur === dd.id ? 'sel' : ''}" data-k="${k}" data-i="${i}" data-bar="${bi}" data-dir="${dd.id}">${dd.name}</button>`;
-          h += `</div>`;
-        });
-      } else {
-        h += `<div class="chips">`;
-        for (const dd of DIRECTIVES) h += `<button class="chip small ${w.dir === dd.id ? 'sel' : ''}" data-k="${k}" data-i="${i}" data-dir="${dd.id}">${dd.name}</button>`;
-        h += `</div>`;
-      }
-      if (!w.isSpell && !d.merged) {
-        const ms = MERGES.filter(m => m.a === w.id || m.b === w.id);
-        if (ms.length) h += `<div class="hint">Fuses with: ${ms.map(m => { const o = m.a === w.id ? m.b : m.a; return esc(WEAPONS[o].name) + ' > ' + esc(WEAPONS[m.out].name); }).join(', ')} (both Lv ${MERGE_MIN_LEVEL}+)</div>`;
-      }
-      h += `</div>`;
-    }
-    h += `</div>`;
-
     // Achievements and the show.
     const got = G.show.order;
     h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | Viewers ${fmtViewers(G.show.viewers)}</h3>`;
@@ -407,7 +416,7 @@ const UI = {
     let h = `<div class="eulogy">${esc(pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
       <div class="hint">Killed by: <b style="color:#ff4d6d">${esc(G.stats.lastHit || 'the storm')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>
       <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
-      <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.siegeCount}</b>Sieges</div><div><b>${G.pads.filter(p => p.tower).length}</b>Towers</div><div><b>${G.stats.leaks}</b>Leaks</div></div>
+      <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.stats.charms || 0}</b>Allies won</div><div><b>${G.weapons.reduce((a, w) => a + (w ? w.mods.length : 0), 0)}</b>Modifiers</div><div><b>${G.stats.absorbed}</b>Bullets eaten</div></div>
       <h3>Damage breakdown</h3>`;
     for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
     const got = G.show.order;
@@ -434,7 +443,7 @@ window.handleBack = function () {
   if (on('title')) return 'exit';
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot')) return 'ok';
-  if (on('build')) { UI.closeBuild(); return 'ok'; }
+  if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
   UI.togglePause();
   return 'ok';
 };

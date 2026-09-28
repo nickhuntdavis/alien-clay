@@ -26,14 +26,14 @@ resize();
 // ---------------------------------------------------------------- state
 let G = null;
 let uidSeq = 1;
-const CAPS = { enemies: 300, proj: 900, ebul: 800, parts: 450, texts: 60, gems: 350 };
+const CAPS = { enemies: 160, proj: 900, ebul: 800, parts: 450, texts: 60, gems: 350 };
 
 function newStats() {
   return {
     might: 1, haste: 1, reloadSpd: 1, magMult: 1, multishot: 0, projSpeed: 1, range: 1, area: 1, dur: 1,
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
     lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1 }, chain: 0,
-    poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, tower: 1, towerCost: 1, scrap: 1,
+    poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, echoInherit: 0,
     bulletSpeed: 1, spawnMult: 1, healMult: 1, viewers: 1, noArmour: false,
   };
@@ -52,7 +52,7 @@ function newGame() {
     warp: 0, rage: 0, shieldT: 0, barrier: 0, barrierR: 0, barrierDmg: 0,
     nextBoss: BOSS_INTERVAL, bossCount: 0, boss: null, nextWave: 40,
     spawnAcc: 0, crowdT: 0, synergy: {}, banner: null,
-    core: makeCore(), pads: makePads(), scrap: 30, rifts: [], nextSiege: SIEGE_FIRST, siegePending: false, siegeCount: 0,
+    core: makeCore(), scrap: 0,
     chrono: newChrono(), echoes: [], rewind: null, realPlayer: null, lights: [], decals: [],
     tethers: [], grudge: null, mimicPat: null, curses: {}, scatter: false,
     show: newShow(),
@@ -61,12 +61,12 @@ function newGame() {
   cam.x = 0; cam.y = 0; cam.shake = 0;
 }
 
-function xpNeed(l) { return Math.floor(4 + (l - 1) * 2.5 + Math.pow(l - 1, 2.15) * 0.28); }
-function hpMul(t) { return 1 + t / 120 + Math.pow(t / 220, 2.4); }
+function xpNeed(l) { return Math.floor(4 + (l - 1) * 2.5 + Math.pow(l - 1, 2.35) * 0.22); }
+function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? Math.pow(1.32, (t - 900) / 60) : 1); }
 const SURGE_T = 900; // Storm Surge: after 15 minutes enemy damage compounds every minute.
 function dmgMul(t) { return (1 + t / 240 + Math.pow(t / 600, 2)) * (t > SURGE_T ? Math.pow(1.3, (t - SURGE_T) / 60) : 1); }
 // Late-game fire-rate pressure for ranged enemies.
-function fireMul(t) { return 1 + t / 420; }
+function fireMul(t) { return 1.1 + t / 380; }
 
 // ---------------------------------------------------------------- spatial grid
 const CELL = 80;
@@ -123,7 +123,7 @@ function acquire(dir, range, x, y, exclude) {
   let best = null, bv = -Infinity;
   const r2 = range * range;
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e === exclude) continue;
+    if (e.dead || e.phased || e.charmed || e === exclude) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     if (d2 > r2) continue;
     const v = targetScore(dir, e, d2);
@@ -134,7 +134,7 @@ function acquire(dir, range, x, y, exclude) {
 function acquireMany(dir, range, x, y, n) {
   const r2 = range * range, list = [];
   for (const e of G.enemies) {
-    if (e.dead || e.phased) continue;
+    if (e.dead || e.phased || e.charmed) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     if (d2 > r2) continue;
     list.push({ e, v: targetScore(dir, e, d2) });
@@ -195,8 +195,16 @@ function computeStats(w) {
   s.chain = (s.chain || 0) + (d.elem === 'shock' || d.elem2 === 'shock' ? P.chain : 0);
   s.crit = P.crit + (b.critBonus || 0);
   for (const m of w.mods || []) {
-    if (m.id === 'ricochet') s.bounce = (s.bounce || 0) + 2;
-    if (m.id === 'homing') s.homing = Math.max(s.homing || 0, 4);
+    const mp = m.p || 1;
+    if (m.id === 'ricochet') s.bounce = (s.bounce || 0) + 1 + Math.round(mp);
+    if (m.id === 'seeking') s.homing = Math.max(s.homing || 0, 3 + 2 * mp);
+    if (m.id === 'boomerang') s.boomerangMod = 1;
+    if (m.id === 'growing') s.grow = mp;
+    if (m.id === 'orbiting') s.orbitMod = 1.2 * mp;
+    if (m.id === 'splitting') s.splitHit = 2 + Math.round(mp);
+    if (m.id === 'freezing') s.modFreeze = 0.18 * mp;
+    if (m.id === 'exploding') s.modExplode = 0.3 * mp;
+    if (m.id === 'mindctrl') { s.modCharm = 0.05 * mp; s.charmDur = 6 * mp; }
   }
   w.s = s;
 }
@@ -290,13 +298,15 @@ function genLoot(req) {
     for (const id of pool) cands.push({ w: G.t > 30 ? 6 : 3, key: 'sn' + id, make: r => optNewSpell(id, r) });
   }
   G.weapons.forEach(w => {
-    if (!w || w.mods.length >= MOD_SLOTS) return;
-    const ids = Object.keys(MODS).filter(id => !w.mods.some(m => m.id === id) && (!MODS[id].kinds || MODS[id].kinds.includes(w.def.kind)));
-    if (ids.length) { const id = pick(ids); cands.push({ w: 4, key: 'mod' + w.uid, make: r => optMod(w, id, r) }); }
+    if (!w) return;
+    // New modifiers while slots are free; otherwise offer to power up one it already has.
+    const fits = id => !MODS[id].kinds || MODS[id].kinds.includes(w.def.kind);
+    const ids = w.mods.length < MOD_SLOTS ? Object.keys(MODS).filter(id => fits(id) && !w.mods.some(m => m.id === id)) : w.mods.filter(m => m.id !== 'elemental' && m.id !== 'shrapnel' && m.id !== 'boomerang' && m.p < MOD_MAX_POWER).map(m => m.id);
+    if (ids.length) { const id = pick(ids); cands.push({ w: 8, key: 'mod' + w.uid, make: r => optMod(w, id, r) }); }
   });
   for (const id in PASSIVES) {
     const st = G.passives[id] || 0;
-    if (st >= PASSIVES[id].max) continue;
+    if (st >= PASSIVES[id].max || (PASSIVES[id].needsScrap && !ownsScrapWeapon())) continue;
     cands.push({ w: 3.2, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
   // Guarantee a fusion option when one is available.
@@ -350,11 +360,19 @@ function optPassive(id, r) {
     apply: () => { p.apply(G.P, v, G); G.passives[id] = st + 1; recomputeAll(); } };
 }
 function optMod(w, id, r) {
-  const M = MODS[id];
-  let elem = null, desc = M.desc;
+  const M = MODS[id], rr = Math.max(1, r), pw = MOD_POWER[rr];
+  const have = w.mods.find(m => m.id === id);
+  let elem = null, desc;
   if (id === 'elemental') { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem)); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.`; }
-  return { rarity: Math.max(1, r), tag: 'WEAPON MOD', icon: M.icon, color: w.def.color, elem: elem || w.def.elem, title: M.name, sub: `Installs into ${w.def.name} (${w.mods.length + 1}/${MOD_SLOTS})`, desc,
-    apply: () => { w.mods.push({ id, elem }); computeStats(w); achieve('modded'); } };
+  else { const np = have ? Math.min(MOD_MAX_POWER, have.p + pw * 0.5) : pw; desc = have ? `Power ${have.p.toFixed(2)} > ${np.toFixed(2)}: ${M.desc(np)}` : M.desc(pw); }
+  return { rarity: rr, tag: have ? 'MODIFIER BOOST' : 'MODIFIER', icon: M.icon, color: M.color, elem: elem || w.def.elem, title: M.name,
+    sub: have ? `Boosts ${w.def.name}'s ${M.name}` : `Installs into ${w.def.name} (slot ${w.mods.length + 1}/${MOD_SLOTS})`, desc, modFor: w.def.icon,
+    apply: () => {
+      if (have) have.p = Math.min(MOD_MAX_POWER, have.p + pw * 0.5);
+      else w.mods.push({ id, elem, p: pw });
+      computeStats(w); achieve('modded');
+      if (w.mods.length >= MOD_SLOTS) achieve('fullmods');
+    } };
 }
 function optCurse(c) {
   return { rarity: 3, cursed: true, tag: 'CURSED', icon: '!?', color: '#9d4edd', title: c.name, sub: 'Boon: ' + c.boon, desc: 'Bane: ' + c.bane + '.',
@@ -400,7 +418,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
-  if (e.dead || e.phased) return 0;
+  if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
   const P = G.P, syn = G.synergy;
   let d = dmg * (src.mult || 1);
   if (src.grudge && e === G.grudge) d *= 3;
@@ -425,6 +443,7 @@ function damageEnemy(e, dmg, src) {
     e.kx += kx / l * k; e.ky += ky / l * k;
   }
   if (src.freezeHit && !e.boss) { e.frozen = Math.max(e.frozen, 1.2); }
+  if (src.w && !src.noProc && !src.dot) modProcs(e, dmg, src);
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   // Shocked enemies arc a portion of incoming damage to a neighbour.
   if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25)) {
@@ -551,11 +570,11 @@ function killEnemy(e, src) {
   const P = G.P;
   onShowKill(e, src);
   // Split on Kill mod.
-  if (src.w && !src.noSplit && src.w.mods && src.w.mods.some(m => m.id === 'split')) {
+  if (src.w && !src.noSplit && src.w.mods && src.w.mods.some(m => m.id === 'shrapnel')) {
     const ss = Object.assign({}, src, { noSplit: true, mult: 1 });
     for (let i = 0; i < 3; i++) {
       const a = Math.random() * TAU;
-      spawnProj(src.w, e.x, e.y, a, ss, { speed: 420, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, life: 0.5, dmg: src.w.s.dmg * 0.4, pierce: 0, bounce: 0, homing: 0, explode: 0, r: 3, style: 'bullet', chainHit: 0, aura: 0 });
+      spawnProj(src.w, e.x, e.y, a, ss, { noMods: true, speed: 420, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, life: 0.5, dmg: src.w.s.dmg * 0.4, pierce: 0, bounce: 0, homing: 0, explode: 0, r: 3, style: 'bullet', chainHit: 0, aura: 0 });
     }
   }
   // Parasite Seeder: infected corpses become turrets.
@@ -574,8 +593,7 @@ function killEnemy(e, src) {
   spawnPart(e.x, e.y, e.def.color || e.color, e.boss ? 40 : 7, e.boss ? 260 : 130, 0.5, e.boss ? 5 : 3);
   // XP
   if (e.xp > 0) dropGem(e.x, e.y, e.xp);
-  const scrapChance = e.siege ? 0.85 : e.boss || e.elite ? 1 : 0.2;
-  if (Math.random() < scrapChance) dropScrap(e.x, e.y, e.boss ? 60 : e.elite ? 14 : e.siege ? 3 : 1 + (Math.random() < 0.2 ? 2 : 0));
+  if (ownsScrapWeapon() && Math.random() < (e.boss || e.elite ? 1 : 0.5)) dropScrap(e.x, e.y, e.boss ? 60 : e.elite ? 14 : 2 + (Math.random() < 0.25 ? 3 : 0));
   gainChrono(e.boss ? CHRONO.energyPerCharge : e.elite ? 25 : 1);
   if (e.boss) { G.chrono.charges = Math.min(G.chrono.max, G.chrono.charges + 1); }
   addDecal(e.x, e.y, e.r * (e.boss ? 2.2 : 1.4), e.def.color || e.color);
@@ -583,7 +601,6 @@ function killEnemy(e, src) {
   if (e.def.split) {
     for (let i = 0; i < 2; i++) {
       const s = makeEnemy(ENEMIES[e.def.split], e.x + rand(-12, 12), e.y + rand(-12, 12));
-      s.siege = e.siege;
       G.enemies.push(s);
     }
   }
@@ -652,6 +669,11 @@ function hurtPlayer(dmg, from, ent) {
 }
 
 // ---------------------------------------------------------------- enemies
+// Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
+function enemyScale(t) {
+  const k = Math.min(1, t / 900);
+  return { hp: 1.9 + 2.8 * k, dmg: 1.1 + 1.2 * k, xp: 1.4, r: 1.12, speed: 1 + 0.12 * k };
+}
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);
   const e = {
@@ -662,6 +684,8 @@ function makeEnemy(def, x, y, opts) {
     reactCd: 0, auraArm: 0, crowd: 0, shootCd: rand(0.5, 2), st: 0, stT: rand(1, 3), side: Math.random() < 0.5 ? 1 : -1, spin: Math.random() * TAU,
     phased: false, age: 0, dashX: 0, dashY: 0,
   };
+  // Fewer, stronger enemies: every monster is a bigger, tougher, more rewarding threat.
+  if (!def.patterns) { const K = enemyScale(t); e.hp *= K.hp; e.maxHp *= K.hp; e.dmg *= K.dmg; e.xp *= K.xp; e.r *= K.r; e.speed *= K.speed; }
   if (opts && opts.elite) {
     e.elite = true; e.hp *= 5; e.maxHp *= 5; e.r *= 1.35; e.armour += 2; e.dmg *= 1.4; e.xp *= 6;
   }
@@ -685,8 +709,8 @@ function spawnRandom() {
   let x = Math.random() * tot, def = pool[0];
   for (const d of pool) { x -= wOf(d); if (x <= 0) { def = d; break; } }
   const p = spawnPos();
-  const n = def.group || 1;
-  const eliteChance = Math.min(0.05, 0.004 + t / 7000);
+  const n = Math.ceil((def.group || 1) * 0.55);
+  const eliteChance = Math.min(0.12, 0.01 + t / 3000);
   for (let i = 0; i < n; i++) {
     if (G.enemies.length >= CAPS.enemies) return;
     G.enemies.push(makeEnemy(def, p.x + rand(-30, 30), p.y + rand(-30, 30), { elite: n === 1 && t > 45 && Math.random() < eliteChance }));
@@ -697,18 +721,18 @@ function waveEvent() {
   const t = G.t, p = G.player;
   const kind = pick(t < 120 ? ['ring', 'swarm'] : ['ring', 'swarm', 'elite', 'barrage']);
   if (kind === 'ring') {
-    const n = Math.min(36, 16 + Math.floor(t / 20)), d = Math.hypot(W / S, H / S) / 2 + 40;
+    const n = Math.min(18, 8 + Math.floor(t / 40)), d = Math.hypot(W / S, H / S) / 2 + 40;
     const def = t > 150 ? ENEMIES.skitter : ENEMIES.crawler;
     for (let i = 0; i < n; i++) { const a = i / n * TAU; G.enemies.push(makeEnemy(def, p.x + Math.cos(a) * d, p.y + Math.sin(a) * d)); }
     banner('ENCIRCLEMENT', '#ff4d6d');
   } else if (kind === 'swarm') {
-    for (let k = 0; k < 3; k++) { const s = spawnPos(); for (let i = 0; i < 10; i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-40, 40), s.y + rand(-40, 40))); }
+    for (let k = 0; k < 2; k++) { const s = spawnPos(); for (let i = 0; i < 6; i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-40, 40), s.y + rand(-40, 40))); }
     banner('SWARM INCOMING', '#fee440');
   } else if (kind === 'elite') {
     for (let k = 0; k < 2; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.warlock, ENEMIES.bulwark]), s.x, s.y, { elite: true })); }
     banner('ELITES APPROACH', '#ffd23f');
   } else {
-    for (let k = 0; k < 5; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y)); }
+    for (let k = 0; k < 3; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y)); }
     banner('BULLET STORM', '#e056fd');
   }
 }
@@ -786,17 +810,17 @@ function updateEnemies(dt) {
       if (e.poison <= 0) e.poisonStacks = 0;
       if (e.dead) continue;
     }
+    if (e.charmed) {
+      e.charmT -= dt;
+      if (e.charmT <= 0) { e.charmed = false; ring(e.x, e.y, e.r + 10, '#ff8fab', 0.3); }
+      else { allyAI(e, dt); continue; }
+    }
     const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 1;
     const ux = dx / dist, uy = dy / dist;
     let mx = ux, my = uy, spd = e.speed;
     const frozen = e.frozen > 0;
     const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1);
-    if (e.siege) {
-      // Siege units ignore you and march on the Chrono Anchor.
-      const cx = G.core.x - e.x, cy = G.core.y - e.y, cd = Math.hypot(cx, cy) || 1;
-      mx = cx / cd; my = cy / cd;
-      if (cd < e.r + G.core.r) { e.dead = true; ring(e.x, e.y, 40, '#ff4d6d', 0.3); coreHit(e.dmg * 1.5, e.name); continue; }
-    } else if (e.boss) {
+    if (e.boss) {
       bossAI(e, edt, dist, ux, uy);
       mx = e.mvx; my = e.mvy; spd = e.mvs;
     } else if (!frozen) {
@@ -856,7 +880,7 @@ function updateEnemies(dt) {
           e.shootCd -= edt;
           if (e.shootCd <= 0) {
             e.shootCd = 5;
-            for (let i = 0; i < 3 && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(ENEMIES.skitter, e.x + rand(-20, 20), e.y + rand(-20, 20)));
+            for (let i = 0; i < 2 && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(ENEMIES.skitter, e.x + rand(-20, 20), e.y + rand(-20, 20)));
             ring(e.x, e.y, 40, e.color, 0.3);
           }
           break;
@@ -876,7 +900,7 @@ function updateEnemies(dt) {
       } else if (!frozen) hurtPlayer(e.dmg, e.name + (e.elite ? ' (elite)' : ''), e);
     }
     // Leash: recycle enemies left far behind.
-    if (dist > 1500 && !e.boss && !e.siege) { const s = spawnPos(); e.x = s.x; e.y = s.y; }
+    if (dist > 1500 && !e.boss) { const s = spawnPos(); e.x = s.x; e.y = s.y; }
   }
   // Separation.
   for (const e of G.enemies) {
@@ -949,7 +973,8 @@ function weaponSrc(w) {
   const nearAnchor = Math.hypot(me().x - G.core.x, me().y - G.core.y) < 450;
   return { elem: mod ? mod.elem : d.elem, elem2: d.elem2, wname: (w.echo ? 'Echo ' : '') + d.name, crit: s.crit + (!nearAnchor ? P.anchorLink : 0),
     shred: s.shred || 0, knock: s.knock || 0, freezeHit: s.freezeHit, echoHit: s.echoHit, w, dir: w.dir, echo: !!w.echo,
-    grudge: !!d.grudge, parasite: !!d.parasite, mult: weaponMult(w) };
+    grudge: !!d.grudge, parasite: !!d.parasite, mult: weaponMult(w),
+    modFreeze: s.modFreeze || 0, modExplode: s.modExplode || 0, modCharm: s.modCharm || 0, charmDur: s.charmDur || 0 };
 }
 
 function updateWeapon(w, dt) {
@@ -1112,9 +1137,16 @@ function spawnProj(w, x, y, a, src, over) {
     bounce: s.bounce || 0, boomerang: s.boomerang || 0, chainHit: s.chainHit || 0, aura: s.aura || 0, pull: s.pull || 0,
     hits: null, tick: 0, dead: false, tgt: null, back: false,
   };
+  const mods = !(over && over.noMods);
+  if (mods && s.boomerangMod && !pr.boomerang && d.kind !== 'ring') pr.boomerang = 1;
   if (pr.boomerang) pr.life = s.range / speed * 2 + 0.3;
   pr.max = pr.life;
   if (over) Object.assign(pr, over);
+  if (mods) {
+    if (s.grow) { pr.grow = s.grow; pr.r0 = pr.r; pr.dmg0 = pr.dmg; pr.age = 0; }
+    if (s.orbitMod) { pr.orbitT = s.orbitMod; pr.oa = Math.random() * TAU; pr.orad = rand(42, 70); }
+    if (s.splitHit) pr.splitHit = s.splitHit;
+  }
   G.proj.push(pr);
   return pr;
 }
@@ -1200,8 +1232,21 @@ function updateProjectiles(dt) {
       }
       continue;
     }
+    // Orbiting modifier: circle the player eating enemy bullets, then launch.
+    if (pr.orbitT > 0) {
+      pr.orbitT -= dt; pr.oa += 6 * dt;
+      pr.x = p.x + Math.cos(pr.oa) * pr.orad; pr.y = p.y + Math.sin(pr.oa) * pr.orad;
+      for (const b of G.ebul) { if (!b.dead && Math.abs(b.x - pr.x) < pr.r + b.r + 3 && Math.abs(b.y - pr.y) < pr.r + b.r + 3) { b.dead = true; spawnPart(b.x, b.y, '#7df9ff', 1, 40, 0.2); } }
+      if (pr.orbitT <= 0) {
+        const t = acquire(pr.w.dir === 'revenge' ? 'nearest' : pr.w.dir, (pr.w.s.range || 400) * 1.2, pr.x, pr.y);
+        const a = t ? Math.atan2(t.y - pr.y, t.x - pr.x) : pr.oa + Math.PI / 2;
+        pr.vx = Math.cos(a) * pr.speed; pr.vy = Math.sin(a) * pr.speed; pr.hits = null;
+      }
+    }
+    // Growing modifier: bigger and nastier the longer it flies.
+    if (pr.grow) { pr.age += dt; const k = Math.min(1, pr.age / Math.max(0.3, pr.max * 0.8)); pr.r = pr.r0 * (1 + 2 * k); pr.dmg = pr.dmg0 * (1 + pr.grow * k); }
     // Homing.
-    if (pr.homing) {
+    if (pr.homing && !(pr.orbitT > 0)) {
       if (!pr.tgt || pr.tgt.dead) pr.tgt = acquire(pr.w.dir === 'random' ? 'nearest' : pr.w.dir, 380, pr.x, pr.y);
       if (pr.tgt) {
         const ta = Math.atan2(pr.tgt.y - pr.y, pr.tgt.x - pr.x), ca = Math.atan2(pr.vy, pr.vx);
@@ -1217,8 +1262,7 @@ function updateProjectiles(dt) {
       pr.vx = dx / d * pr.speed * 1.15; pr.vy = dy / d * pr.speed * 1.15;
       if (d < 18) { pr.dead = true; continue; }
     }
-    pr.x += pr.vx * dt; pr.y += pr.vy * dt;
-    pr.life -= dt;
+    if (!(pr.orbitT > 0)) { pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt; }
     if (pr.life <= 0) { pr.dead = true; if (pr.explode) aoe(pr.x, pr.y, pr.explode, pr.dmg, pr.src, pr.color); continue; }
     // Aura projectiles (void orb): periodic area damage and pull.
     if (pr.aura) {
@@ -1233,6 +1277,12 @@ function updateProjectiles(dt) {
     // Collision.
     forNear(pr.x, pr.y, pr.r, e => {
       if (pr.hits && pr.hits.includes(e.id)) return;
+      if (pr.orbitT > 0) {
+        // Orbiting shots slice through things without being used up.
+        damageEnemy(e, pr.dmg, pr.src);
+        (pr.hits || (pr.hits = [])).push(e.id);
+        return false;
+      }
       damageEnemy(e, pr.dmg, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
       if (pr.src.echoHit) {
         // Paradox Rifle: the same hit arrives again from one second in the future.
@@ -1241,6 +1291,16 @@ function updateProjectiles(dt) {
         after(1, () => { if (!tgt.dead) { ring(tgt.x, tgt.y, 22, '#7df9ff', 0.3, 2); damageEnemy(tgt, dmg, { elem: 'arcane', wname: 'Paradox Rifle (echo)', noStatus: true }); } });
       }
       spawnPart(pr.x, pr.y, pr.color, 1, 80, 0.2, 2);
+      if (pr.splitHit && !pr.didSplit) {
+        // Splitting modifier: the shot shatters into shards on its first hit.
+        pr.didSplit = true;
+        const n = pr.splitHit, a0 = Math.atan2(pr.vy, pr.vx), ss = Object.assign({}, pr.src, { noSplit: true });
+        for (let i = 0; i < n; i++) {
+          const a = a0 + (i / (n - 1 || 1) - 0.5) * 1.4;
+          spawnProj(pr.w, pr.x, pr.y, a, ss, { noMods: true, speed: 460, vx: Math.cos(a) * 460, vy: Math.sin(a) * 460, life: 0.5, dmg: pr.dmg * 0.45,
+            r: Math.max(2, pr.r * 0.6), pierce: 0, bounce: 0, homing: 0, explode: 0, chainHit: 0, aura: 0, boomerang: 0, hits: [e.id] });
+        }
+      }
       if (pr.explode) { pr.dead = true; aoe(pr.x, pr.y, pr.explode, pr.dmg * 0.8, pr.src, pr.color); return true; }
       if (pr.chainHit) doChain(e.x, e.y, acquire('nearest', 140, e.x, e.y, e) || e, pr.dmg * 0.55, pr.chainHit - 1, 140, Object.assign({}, pr.src, { noArc: true }));
       if (!pr.hits) pr.hits = [];
@@ -1322,7 +1382,7 @@ function updateTurrets(dt) {
       if (e) {
         t.cd = t.rate;
         const a = Math.atan2(e.y - t.y, e.x - t.x); t.face = a;
-        spawnProj(t.w, t.x, t.y, a, t.src, { r: 3.5, speed: 620, vx: Math.cos(a) * 620, vy: Math.sin(a) * 620, life: t.range / 620, dmg: t.dmg, pierce: 0, style: 'bullet', color: t.color || '#ffd60a', bounce: 0, homing: 0, explode: 0 });
+        spawnProj(t.w, t.x, t.y, a, t.src, { r: 3.5, speed: 620, vx: Math.cos(a) * 620, vy: Math.sin(a) * 620, life: t.range / 620, dmg: t.dmg, pierce: 0, style: 'bullet', color: t.color || '#ffd60a', bounce: 0, homing: 0, explode: 0, noMods: true });
       }
     }
   }
@@ -1371,7 +1431,7 @@ function autoSteer() {
     if (e.dead) continue;
     const dx = e.x - p.x, dy = e.y - p.y, d2 = dx * dx + dy * dy;
     if (d2 < 600 * 600) { cx += e.x; cy += e.y; cn++; }
-    if (d2 < 380 * 380 && !e.phased) near.push(e);
+    if (d2 < 380 * 380 && !e.phased && !e.charmed) near.push(e);
   }
   if (cn > 0) {
     cx /= cn; cy /= cn;
@@ -1386,11 +1446,9 @@ function autoSteer() {
   }
   const core = G.core, cdist = Math.hypot(p.x - core.x, p.y - core.y);
   if (mode === 'defend') {
-    let th = null, tb = Infinity;
-    for (const e of G.enemies) { if (!e.siege || e.dead) continue; const d = Math.hypot(e.x - core.x, e.y - core.y); if (d < tb) { tb = d; th = e; } }
-    if (th && tb < 800) { const d = Math.hypot(th.x - p.x, th.y - p.y); goal(th.x, th.y, d > 150 ? 1.3 : -0.3); }
-    else if (cdist > 290) goal(core.x, core.y, 1.2);
-    else { gx += -(p.y - core.y) / (cdist || 1) * 0.7; gy += (p.x - core.x) / (cdist || 1) * 0.7; }
+    // GUARD: hold inside the Anchor's healing sanctuary, drifting around it.
+    if (cdist > CORE.sanctuary * 0.8) goal(core.x, core.y, 1.4);
+    else { gx += -(p.y - core.y) / (cdist || 1) * 0.5; gy += (p.x - core.x) / (cdist || 1) * 0.5; }
   }
   // Stay inside the Anchor's field.
   if (cdist > CORE.arena - 350) goal(core.x, core.y, (cdist - (CORE.arena - 350)) / 120);
@@ -1518,10 +1576,8 @@ function update(dt) {
   updateZones(dt);
   updateTurrets(dt);
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
-  updateTowers(dt);
   updateEnemies(dt);
   updateCore(dt);
-  updateSiege(dt);
   updateChrono(dt);
   // Enemy bullets.
   const bw0 = G.warp > 0 ? 0.3 : 1;
@@ -1547,12 +1603,13 @@ function update(dt) {
   }
   updatePickups(dt);
   // Director.
-  const maxAlive = Math.min(CAPS.enemies - 30, 25 + G.t * 0.5);
-  const rate = Math.min(13, 1 + G.t / 40 + Math.pow(G.t / 300, 2) * 2);
+  const maxAlive = Math.min(CAPS.enemies - 30, 14 + G.t * 0.3);
+  const rate = Math.min(5.5, 0.55 + G.t / 90 + Math.pow(G.t / 300, 2) * 0.9);
   G.spawnAcc += rate * dt * G.P.spawnMult;
-  while (G.spawnAcc >= 1) { G.spawnAcc--; if (G.enemies.length < maxAlive) spawnRandom(); }
+  const hostile = G.enemies.reduce((n, e) => n + (e.charmed ? 0 : 1), 0);
+  while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   if (G.t >= G.nextWave) { G.nextWave += 45; waveEvent(); }
-  if (G.t >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('STORM SURGE: DAMAGE RISING EVERY MINUTE', '#ff3df2'); sfx('boss'); vibrate(200); }
+  if (G.t >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('STORM SURGE: ENEMIES GROW EVERY MINUTE', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.
   for (const q of G.parts) { q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.92; q.vy *= 0.92; q.life -= dt; }
@@ -1582,7 +1639,6 @@ function compact() {
   compactArr(G.timers, x => !x.done);
   compactArr(G.lights, x => x.life > 0);
   compactArr(G.decals, x => x.life > 0);
-  compactArr(G.rifts, x => !x.dead);
   compactArr(G.tethers, x => x.life > 0);
 }
 
@@ -1617,12 +1673,6 @@ const endTouch = ev => {
   INPUT.active = false; INPUT.id = null;
   if (!G) return;
   G.manual = null;
-  // A quick tap (not a drag) on a build pad opens the tower panel for it.
-  if (ev.type === 'pointerup' && !INPUT.moved && performance.now() - INPUT.t0 < 300 && G.state === 'play') {
-    const wx = (ev.clientX - W / 2) / S + cam.x, wy = (ev.clientY - H / 2) / S + cam.y;
-    const pad = G.pads.find(p => Math.hypot(p.x - wx, p.y - wy) < 34);
-    if (pad && typeof UI !== 'undefined') UI.openBuild(pad.id);
-  }
 };
 cv.addEventListener('pointerup', endTouch);
 cv.addEventListener('pointercancel', endTouch);
