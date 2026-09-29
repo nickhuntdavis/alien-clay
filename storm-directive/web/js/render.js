@@ -8,7 +8,9 @@ function sy(y) { return (y - cam.y) * S + H / 2; }
 // ---------------------------------------------------------------- palette enforcement
 // Any colour that isn't one of the rationed meanings (see PAL in data.js) or a rival's dye is drawn as
 // its greyscale equivalent. Aliases fold old accent colours into the meaning they stood for.
-const PAL_OK = new Set([PAL.you, PAL.danger, PAL.reward, '#ffffff', '#000000'].concat(RIVALS.map(r => r.color)));
+// X-ray film neutrals for the UI: a slightly blue white and a blue-grey.
+const XR = { white: '#d6e4f0', dim: '#8395a8', line: 'rgba(196,218,240,0.42)', halo: 'rgba(196,218,240,0.16)' };
+const PAL_OK = new Set([PAL.you, PAL.danger, PAL.reward, '#ffffff', '#000000', XR.white, XR.dim].concat(RIVALS.map(r => r.color)));
 const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
@@ -1077,17 +1079,46 @@ function drawTracks(vis) {
 // A sperm head is about 15 world units long and ~5 um in reality, so 30 units is 10 um.
 function drawScaleBar() {
   const bh = (UI.bottomH || 230), y = H - bh - 22, x = 12, len = 30 * S * 2;
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, len, 3);
+  ctx.fillStyle = XR.white; ctx.fillRect(x, y, len, 3);
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#fff'; ctx.fillText('20 \u00b5m', x, y - 4);
-  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fillText('PH2 40x  37\u00b0C', x + len + 10, y + 4);
+  ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
+  ctx.fillStyle = XR.white; ctx.fillText('PH2 40x  37\u00b0C', x + len + 10, y + 4);
   // Lead side marker, as on a radiograph.
   const mkx = W - 26, mky = H * 0.5;
-  ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1; ctx.strokeRect(mkx + 0.5, mky - 9.5, 16, 18);
-  ctx.font = 'bold 13px ' + MONO; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText('R', mkx + 8.5, mky + 5);
+  ctx.strokeStyle = XR.line; ctx.lineWidth = 1; ctx.strokeRect(mkx + 0.5, mky - 9.5, 16, 18);
+  ctx.font = 'bold 13px ' + MONO; ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.fillText('R', mkx + 8.5, mky + 5);
 }
 
+// Film grain: a small noise tile drawn at a new random offset every frame, so dark panels shimmer
+// like an X-ray on a lightbox instead of sitting flat black.
+let GRAIN = null;
+function grainPattern() {
+  if (GRAIN) return GRAIN;
+  const c = makeCanvas(96, 96), g = c.getContext('2d'), img = g.createImageData(96, 96);
+  for (let i = 0; i < img.data.length; i += 4) { const v = 150 + Math.random() * 105; img.data[i] = v * 0.9; img.data[i + 1] = v * 0.96; img.data[i + 2] = v; img.data[i + 3] = Math.random() < 0.5 ? Math.random() * 90 : 0; }
+  g.putImageData(img, 0, 0);
+  GRAIN = ctx.createPattern(c, 'repeat');
+  return GRAIN;
+}
+// A film panel: blue-black with a soft uneven exposure, grain that shimmers, and a hairline that bleeds.
+function filmPanel(x, y, w, h, round) {
+  const sb = ctx.shadowBlur; ctx.shadowBlur = 0;
+  ctx.save();
+  ctx.beginPath(); if (round) ctx.arc(x, y, w, 0, TAU); else ctx.rect(x, y, w, h); ctx.clip();
+  const cx = round ? x : x + w * 0.3, cy = round ? y : y + h * 0.3, R = round ? w * 1.3 : Math.max(w, h);
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  g.addColorStop(0, 'rgba(22,32,44,0.9)'); g.addColorStop(1, 'rgba(3,6,10,0.88)');
+  ctx.fillStyle = g; ctx.fillRect(round ? x - w : x, round ? y - w : y, round ? w * 2 : w, round ? w * 2 : h);
+  ctx.globalAlpha = 0.07 + Math.random() * 0.03;
+  ctx.translate(Math.random() * 96, Math.random() * 96);
+  ctx.fillStyle = grainPattern(); ctx.fillRect(-96 + (round ? x - w : x), -96 + (round ? y - w : y), (round ? w * 2 : w) + 192, (round ? w * 2 : h) + 192);
+  ctx.restore();
+  ctx.beginPath(); if (round) ctx.arc(x, y, w, 0, TAU); else ctx.rect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.strokeStyle = XR.halo; ctx.lineWidth = 3; ctx.stroke();
+  ctx.strokeStyle = XR.line; ctx.lineWidth = 1; ctx.stroke();
+  ctx.shadowBlur = sb;
+}
 const MONO = "ui-monospace, 'SF Mono', 'Roboto Mono', 'DejaVu Sans Mono', Menlo, Consolas, monospace";
 // One ECG beat as a function of phase 0..1: P wave, QRS spike, T wave.
 function ecgWave(ph) {
@@ -1105,30 +1136,30 @@ function drawVitals(top) {
   const p = G.player, P = G.P, k = clamp(p.hp / P.maxHp, 0, 1), low = k < 0.3, dead = p.hp <= 0;
   const x0 = 8, y0 = top + 10, w = Math.min(190, W * 0.46), h = 58;
   const sb = ctx.shadowBlur; ctx.shadowBlur = 0;
-  ctx.fillStyle = 'rgba(0,0,0,0.78)'; ctx.fillRect(x0, y0, w, h);
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  filmPanel(x0, y0, w, h);
   const hr = dead ? 0 : Math.round(62 + 98 * (1 - k) + (G.rage > 0 ? 25 : 0));
   const E = G.ecg || (G.ecg = { ph: 0, buf: new Array(80).fill(0), t: G.realT });
   const steps = Math.min(8, Math.max(0, Math.round((G.realT - E.t) * 60)));
   if (steps) E.t = G.realT;
   for (let i = 0; i < steps; i++) { E.ph = (E.ph + hr / 3600) % 1; E.buf.push(dead ? 0 : ecgWave(E.ph)); E.buf.shift(); }
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.font = '9px ' + MONO; ctx.fillStyle = '#9a9a9a'; ctx.fillText('HP', x0 + 6, y0 + 12);
-  ctx.font = 'bold 22px ' + MONO; ctx.fillStyle = low ? PAL.danger : '#ffffff';
+  ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('HP', x0 + 6, y0 + 12);
+  ctx.font = 'bold 22px ' + MONO; ctx.fillStyle = low ? PAL.danger : XR.white;
   const hv = String(Math.ceil(p.hp)); ctx.fillText(hv, x0 + 6, y0 + 34);
   const hw = ctx.measureText(hv).width;
-  ctx.font = '10px ' + MONO; ctx.fillStyle = '#9a9a9a'; ctx.fillText('/' + P.maxHp, x0 + 8 + hw, y0 + 34);
+  ctx.font = '10px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('/' + P.maxHp, x0 + 8 + hw, y0 + 34);
   ctx.fillText('HR ' + (dead ? '---' : hr), x0 + 6, y0 + 50);
   const tx = x0 + 74, tw = w - 80, ty = y0 + 32, n = E.buf.length;
   ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.beginPath();
   for (let gx = tx; gx < tx + tw; gx += 10) { ctx.moveTo(gx + 0.5, y0 + 4); ctx.lineTo(gx + 0.5, y0 + h - 4); }
   ctx.stroke();
-  ctx.strokeStyle = low || dead ? PAL.danger : PAL.you; ctx.lineWidth = 1.4; ctx.lineJoin = 'round'; ctx.beginPath();
+  ctx.lineJoin = 'round'; ctx.beginPath();
   for (let i = 0; i < n; i++) { const X = tx + i / (n - 1) * tw, Y = ty - E.buf[i] * 20; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
-  ctx.stroke(); ctx.lineJoin = 'miter';
+  ctx.strokeStyle = low || dead ? PAL.danger : PAL.you; ctx.globalAlpha = 0.25; ctx.lineWidth = 4; ctx.stroke();
+  ctx.globalAlpha = 1; ctx.lineWidth = 1.4; ctx.stroke(); ctx.lineJoin = 'miter';
   ctx.shadowBlur = sb;
   // Readouts under the module.
-  ctx.font = 'bold 10px ' + MONO; ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 10px ' + MONO; ctx.fillStyle = XR.white;
   let line = `LV ${G.level}   KILLS ${G.kills}   VIEWERS ${fmtViewers(G.show.viewers)}`;
   if (ownsScrapWeapon()) line += `   SCRAP ${Math.floor(G.scrap)}`;
   ctx.fillText(line, x0, y0 + h + 14);
@@ -1141,15 +1172,15 @@ function drawHud() {
   drawScaleBar();
   // XP: a thin calibration line across the very top.
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
+  ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
   const c = G.core;
   drawVitals(top);
   // Clock, like a monitor's elapsed-time readout.
   ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 15px ' + MONO;
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
-  ctx.fillStyle = G.state === 'rewind' ? PAL.you : '#ffffff';
+  ctx.fillStyle = G.state === 'rewind' ? PAL.you : XR.white;
   ctx.fillText(`${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`, W - 62, top + 32);
-  ctx.font = '9px ' + MONO; ctx.fillStyle = '#9a9a9a'; ctx.fillText('ELAPSED', W - 62, top + 44);
+  ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('ELAPSED', W - 62, top + 44);
   // Status chips.
   const chips = [];
   if (G.rage > 0) chips.push('ADRENALINE');
@@ -1160,15 +1191,15 @@ function drawHud() {
   if (G.manual) chips.push('MANUAL');
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
   let cxp = 8;
-  for (const ch of chips) { const tw = ctx.measureText(ch).width + 10; ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(cxp + 0.5, top + 92.5, tw, 14); ctx.fillStyle = '#e6e6e6'; ctx.fillText(ch, cxp + 5, top + 103); cxp += tw + 4; }
+  for (const ch of chips) { const tw = ctx.measureText(ch).width + 10; ctx.strokeStyle = XR.line; ctx.lineWidth = 1; ctx.strokeRect(cxp + 0.5, top + 92.5, tw, 14); ctx.fillStyle = XR.white; ctx.fillText(ch, cxp + 5, top + 103); cxp += tw + 4; }
   // Boss bar.
   if (G.boss && !G.boss.dead) {
     const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + 126;
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
-    const bg = ctx.createLinearGradient(bx, 0, bx + bw, 0); bg.addColorStop(0, '#e0e0e0'); bg.addColorStop(1, '#ffffff');
+    const bg = ctx.createLinearGradient(bx, 0, bx + bw, 0); bg.addColorStop(0, '#e0e0e0'); bg.addColorStop(1, XR.white);
     ctx.fillStyle = bg; ctx.fillRect(bx, by, bw * Math.max(0, b.hp / b.maxHp), 12);
-    ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
-    ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 11px ' + MONO;
+    ctx.strokeStyle = XR.white; ctx.strokeRect(bx, by, bw, 12);
+    ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
     ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), bx + bw / 2, by - 8);
   }
   // Egg membrane bar, or progress towards being big enough.
@@ -1179,17 +1210,17 @@ function drawHud() {
       const e = G.eggE, who = G.enemies.filter(o => o.rival && !o.dead && o.mode === 'egg').map(o => o.name);
       ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
       ctx.fillStyle = '#ff4d6d'; ctx.fillRect(bx, by, bw * Math.max(0, e.hp / e.maxHp), 12);
-      ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
+      ctx.strokeStyle = XR.white; ctx.strokeRect(bx, by, bw, 12);
       ctx.fillStyle = '#ff8fab';
       ctx.fillText((who.length ? who.join(' & ') + ' breaking in: ' : 'Egg membrane: ') + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
     } else if (G.eggE && !G.eggE.dead) {
       const e = G.eggE;
       ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
       ctx.fillStyle = '#ffd6e8'; ctx.fillRect(bx, by, bw * Math.max(0, e.hp / e.maxHp), 12);
-      ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
+      ctx.strokeStyle = XR.white; ctx.strokeRect(bx, by, bw, 12);
       ctx.fillStyle = '#ffd6e8'; ctx.fillText("BREAK INTO THE EGG! " + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
     } else if (!G.boss && G.level < EGG.level) {
-      ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 10px ' + MONO;
+      ctx.fillStyle = XR.white; ctx.font = 'bold 10px ' + MONO;
       ctx.fillText(`GROW TO LV ${EGG.level} TO BREAK INTO THE EGG`, mid, top + 126);
     }
   }
@@ -1203,7 +1234,7 @@ function drawHud() {
   };
   if (G.boss && !G.boss.dead) pointer(G.boss.x, G.boss.y, '#ff4d6d');
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
-  pointer(c.x, c.y, G.eggE ? '#ffffff' : '#ffb3d1');
+  pointer(c.x, c.y, G.eggE ? XR.white : '#ffb3d1');
   drawMinimap(top);
   ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.
@@ -1215,7 +1246,7 @@ function drawHud() {
     ctx.globalAlpha = 1;
   }
   if (INPUT.active && G.manual) {
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = XR.line; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(INPUT.ox, INPUT.oy, 50, 0, TAU); ctx.stroke();
     ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.arc(INPUT.ox + G.manual.x * 50, INPUT.oy + G.manual.y * 50, 20, 0, TAU); ctx.fill();
   }
@@ -1224,8 +1255,7 @@ function drawHud() {
 function drawMinimap(top) {
   const R = 44, mx = W - R - 10, my = top + 70 + R;
   const k = R / CORE.arena;
-  ctx.fillStyle = 'rgba(0,0,0,0.82)'; ctx.beginPath(); ctx.arc(mx, my, R, 0, TAU); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.stroke();
+  filmPanel(mx, my, R, 0, true);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath();
   ctx.arc(mx, my, R * 0.66, 0, TAU); ctx.moveTo(mx + R * 0.33, my); ctx.arc(mx, my, R * 0.33, 0, TAU);
   ctx.moveTo(mx - R, my); ctx.lineTo(mx + R, my); ctx.moveTo(mx, my - R); ctx.lineTo(mx, my + R); ctx.stroke();
@@ -1237,12 +1267,12 @@ function drawMinimap(top) {
   if (G.terrain) { ctx.globalAlpha = 0.45; for (const ob of G.terrain.list) if (ob.def.solid || ob.type === 'current') dot(ob.x, ob.y, 2, ob.def.color); ctx.globalAlpha = 1; }
   for (const e of G.enemies) if (e.def.spongy && e.r > 60) dot(e.x, e.y, Math.min(7, e.r / 20), e.color);
   for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? PAL.danger : e.charmed ? PAL.you : '#ffd23f');
-  dot(G.core.x, G.core.y, 8, G.eggE ? '#ffffff' : '#ffb3d1');
+  dot(G.core.x, G.core.y, 8, G.eggE ? XR.white : '#ffb3d1');
   for (const e of G.enemies) if (e.rival && !e.dead) dot(e.x, e.y, 5, e.color);
   for (const e of G.echoes) dot(e.x, e.y, 3, '#e0fbff');
-  dot(G.player.x, G.player.y, 4, '#fff');
+  dot(G.player.x, G.player.y, 4, XR.white);
   // View rectangle.
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
   drawRaceBoard(W - 10, my + R + 16);
 }
@@ -1251,13 +1281,13 @@ function drawMinimap(top) {
 function drawRaceBoard(rx, y) {
   if (!G.rivalsInit) return;
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.font = '9px ' + MONO;
-  ctx.fillStyle = '#9a9a9a'; ctx.fillText('RACE TO THE EGG', rx, y);
+  ctx.fillStyle = XR.dim; ctx.fillText('RACE TO THE EGG', rx, y);
   rivalBoard().forEach((row, i) => {
     const yy = y + 14 + i * 13;
     ctx.globalAlpha = row.out ? 0.4 : 1;
     ctx.font = (row.you ? 'bold 11px ' : 'bold 10px ') + MONO;
     const tag = row.out ? 'OUT' : (row.egg ? 'EGG! ' : '') + 'LV ' + row.lvl;
-    ctx.fillStyle = row.egg ? '#ff4d6d' : '#fff'; ctx.fillText(tag, rx, yy);
+    ctx.fillStyle = row.egg ? '#ff4d6d' : XR.white; ctx.fillText(tag, rx, yy);
     const tw = ctx.measureText(tag).width;
     ctx.fillStyle = row.color; ctx.fillText(row.name, rx - tw - 6, yy);
   });
