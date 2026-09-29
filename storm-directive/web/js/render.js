@@ -10,7 +10,7 @@ function sy(y) { return (y - cam.y) * S + H / 2; }
 // its greyscale equivalent. Aliases fold old accent colours into the meaning they stood for.
 // X-ray film neutrals for the UI: a slightly blue white and a blue-grey.
 const XR = { white: '#d6e4f0', dim: '#8395a8', line: 'rgba(196,218,240,0.42)', halo: 'rgba(196,218,240,0.16)' };
-const PAL_OK = new Set([PAL.you, PAL.danger, PAL.reward, PAL.upgrade, PAL.pickup, '#ffffff', '#000000', XR.white, XR.dim].concat(RIVALS.map(r => r.color)));
+const PAL_OK = new Set(Object.values(ELEM_UI).concat([PAL.you, PAL.danger, PAL.reward, PAL.upgrade, PAL.pickup, '#ffffff', '#000000', XR.white, XR.dim].concat(RIVALS.map(r => r.color))));
 const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
@@ -212,8 +212,10 @@ function drawLensBlur() {
 function drawForeground() {
   const L = SPR.fore;
   if (!L || !DOF.on) return;
+  if (SET.darkfield) ctx.globalAlpha = 0.25; // barely there on black
   const T = L.T, ox = -((((cam.x * S * L.f + G.realT * 6) % T) + T) % T), oy = -((((cam.y * S * L.f + G.realT * 3) % T) + T) % T);
   for (let x = ox; x < W; x += T) for (let y = oy; y < H; y += T) ctx.drawImage(L.img, x, y, T, T);
+  ctx.globalAlpha = 1;
 }
 
 function buildVignette() {
@@ -277,6 +279,7 @@ function drawShape(shape, x, y, r, rot) {
 // ---------------------------------------------------------------- background & floor
 function drawBackground() {
   if (!SPR.layers) buildLayers();
+  if (SET.darkfield) { drawDarkfieldBackground(); return; }
   // Köhler illumination: an even field, a touch brighter in the middle of the frame.
   const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6);
   bg.addColorStop(0, '#b6b6b6'); bg.addColorStop(0.6, '#a6a6a6'); bg.addColorStop(1, '#8c8c8c');
@@ -304,6 +307,27 @@ function drawBackground() {
   // The egg's warm zone, marked like a region of interest in the imaging software.
   ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.2; ctx.setLineDash([6, 8]);
   ctx.beginPath(); ctx.arc(cx, cy, CORE.sanctuary * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+}
+
+// Darkfield: a true black (AMOLED) field. Only the faintest out-of-focus specks and discs drift behind,
+// so the specimens are the only bright things on screen.
+function drawDarkfieldBackground() {
+  const df = WORLD_DF; WORLD_DF = false;
+  ctx.fillStyle = '#000000'; ctx.fillRect(-20, -20, W + 40, H + 40);
+  const alpha = [0.07, 0.06, 0.1];
+  SPR.layers.forEach((L, i) => {
+    const T = L.T;
+    ctx.globalAlpha = SPR.layers.length === 1 ? 0.08 : alpha[i];
+    const ox = -((((cam.x * S * L.f) % T) + T) % T), oy = -((((cam.y * S * L.f) % T) + T) % T);
+    for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
+  });
+  ctx.globalAlpha = 1;
+  const core = G.core, cx = sx(core.x), cy = sy(core.y);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, CORE.arena * S, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.setLineDash([6, 8]);
+  ctx.beginPath(); ctx.arc(cx, cy, CORE.sanctuary * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+  WORLD_DF = df;
 }
 
 // Soft scorch marks with a faint tint of whatever died there.
@@ -455,7 +479,41 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = prevOp;
 }
 
-function drawShip(x, y, face, tag, alpha, scale, body) {
+// ---------------------------------------------------------------- mutations
+// Your sperm upgrades (not weapon upgrades) show on your body: Multishot grows extra flagella, Vitality and
+// Armour make the head bigger and plated, Speed and Hydrodynamics stretch it and lengthen the tail, Haste
+// quickens the beat, Sticky Cilia and Grip sprout cilia, Crit grows a barb, Might swells the acrosome,
+// element passives dye the midpiece in their type colour, Magnet adds a receptor field, Regen and Vamp a
+// glowing droplet, Luck a gold speck.
+const NOLOOK = { tails: 1, head: 1, stretch: 1, tailLen: 1, beat: 1, armour: 0, cilia: 0, barb: 0, acro: 1, elem: null, field: 0, drop: 0, luck: 0 };
+const ELEM_PASSIVE = { pyro: 'fire', cryo: 'ice', storm: 'shock', toxin: 'poison', arcanum: 'arcane', kinetic: 'phys' };
+function shipLook() {
+  const P = G.passives, key = Object.entries(P).join();
+  if (G.lookKey === key && G.look) return G.look;
+  const n = id => Math.min(5, P[id] || 0);
+  let elem = null, best = 0;
+  for (const id in ELEM_PASSIVE) if ((P[id] || 0) > best) { best = P[id]; elem = ELEM_PASSIVE[id]; }
+  G.lookKey = key;
+  G.look = {
+    tails: 1 + Math.min(3, P.multishot || 0),
+    head: 1 + 0.07 * n('vital') + 0.04 * n('armour'),
+    stretch: 1 + 0.05 * (n('speed') + n('hydro')),
+    tailLen: 1 + 0.07 * (n('speed') + n('hydro')),
+    beat: 1 + 0.12 * (n('haste') + n('reload')),
+    armour: n('armour'),
+    cilia: Math.min(18, 5 * n('grip')),
+    barb: n('crit') + n('critdmg'),
+    acro: 1 + 0.06 * n('might'),
+    elem: elem ? ELEM_UI[elem] : null, glowElem: elem === 'fire' || elem === 'shock' || elem === 'arcane',
+    field: n('magnet'),
+    drop: n('regen') + n('vamp'),
+    luck: n('luck'),
+  };
+  return G.look;
+}
+
+function drawShip(x, y, face, tag, alpha, scale, body, look) {
+  const L = look || NOLOOK;
   // A spermatozoon under phase contrast, in true proportions: a flat oval head (about 5 x 3 um) that reads
   // dark grey with a bright halo and a paler acrosome cap over its front half, a short thicker midpiece,
   // and a hair-thin flagellum about ten head-lengths long, beating in a travelling wave.
@@ -463,14 +521,34 @@ function drawShip(x, y, face, tag, alpha, scale, body) {
   const sc = scale || 1, k = S * sc;
   const ph = G.realT * 16;
   if (body) {
-    const wx = body.x - Math.cos(face) * 9 * sc, wy = body.y - Math.sin(face) * 9 * sc;
-    stepTail(body, wx, wy, face, 78 * sc, body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0));
-    ctx.globalAlpha = alpha * 0.45; drawTail(body.tail, '#ffffff', 2.8 * k);
-    ctx.globalAlpha = alpha * 0.9; drawTail(body.tail, 'rgb(46,52,48)', 1.1 * k);
+    const back = 9 * sc * L.head * L.stretch, wx = body.x - Math.cos(face) * back, wy = body.y - Math.sin(face) * back;
+    const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0), len = 78 * sc * L.tailLen;
+    stepTail(body, wx, wy, face, len, v, L.beat);
+    const tails = [body.tail];
+    if (L.tails > 1) {
+      // Extra flagella sprout from either side of the neck and beat out of phase.
+      body.xt = body.xt || [];
+      const nx = -Math.sin(face), ny = Math.cos(face);
+      for (let j = 1; j < L.tails; j++) {
+        const sub = body.xt[j - 1] || (body.xt[j - 1] = { beat: j * 2.1 });
+        const off = (j % 2 ? 1 : -1) * Math.ceil(j / 2) * 3.4 * sc * L.head;
+        stepTail(sub, wx + nx * off, wy + ny * off, face + (j % 2 ? 0.3 : -0.3) * Math.ceil(j / 2), len * (0.9 - 0.05 * j), v, L.beat * (1 + 0.07 * j));
+        tails.push(sub.tail);
+      }
+    }
+    ctx.globalAlpha = alpha * 0.45; for (const t of tails) drawTail(t, '#ffffff', 2.8 * k);
+    ctx.globalAlpha = alpha * 0.9; for (const t of tails) drawTail(t, 'rgb(46,52,48)', 1.1 * k);
   }
   ctx.globalAlpha = alpha;
   ctx.save(); ctx.translate(x, y); ctx.rotate(face);
+  if (L !== NOLOOK) ctx.scale(L.head * L.stretch, L.head / Math.sqrt(L.stretch));
   ctx.lineCap = 'round';
+  if (L.field) {
+    // Chemoreceptor field: a faint rotating dashed ring.
+    ctx.save(); ctx.rotate(G.realT * 0.8); ctx.setLineDash([2 * k, 4 * k]);
+    ctx.strokeStyle = 'rgba(214,228,240,0.22)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(0, 0, (13 + 2.2 * L.field) * k, 0, TAU); ctx.stroke(); ctx.restore();
+  }
   if (!body) {
     // Ghosts (echoes) keep a simple procedural tail.
     const segs = 14, len = 70 * k;
@@ -486,13 +564,40 @@ function drawShip(x, y, face, tag, alpha, scale, body) {
   // Midpiece: short, a little thicker than the tail, dark.
   ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = alpha * 0.5; ctx.lineWidth = 3.6 * k;
   ctx.beginPath(); ctx.moveTo(-5 * k, 0); ctx.lineTo(-11 * k, 0); ctx.stroke();
-  ctx.globalAlpha = alpha; ctx.strokeStyle = 'rgb(58,64,60)'; ctx.lineWidth = 2 * k; ctx.stroke();
+  ctx.globalAlpha = alpha; ctx.strokeStyle = L.elem || 'rgb(58,64,60)'; ctx.lineWidth = (L.elem ? 2.4 : 2) * k; ctx.stroke();
+  if (L.drop) {
+    // Cytoplasmic droplet at the neck, pulsing with regeneration.
+    ctx.fillStyle = '#ffffff'; ctx.globalAlpha = alpha * (0.45 + 0.25 * Math.sin(G.realT * 4));
+    ctx.beginPath(); ctx.arc(-7 * k, 0, (1.2 + 0.25 * L.drop) * k, 0, TAU); ctx.fill(); ctx.globalAlpha = alpha;
+  }
+  if (L.cilia) {
+    // Cilia: short hairs round the back and sides of the head, rippling.
+    ctx.strokeStyle = 'rgba(40,46,42,0.85)'; ctx.lineWidth = Math.max(0.7, 0.45 * k);
+    ctx.beginPath();
+    for (let i = 0; i < L.cilia; i++) {
+      const a = Math.PI * 0.35 + (i / (L.cilia - 1 || 1)) * Math.PI * 1.3, ex = 1 * k + Math.cos(a) * 7.5 * k, ey = Math.sin(a) * 5 * k;
+      const w = Math.sin(G.realT * 10 + i) * 0.5;
+      ctx.moveTo(ex, ey); ctx.lineTo(ex + Math.cos(a + w) * 2.6 * k, ey + Math.sin(a + w) * 2.6 * k);
+    }
+    ctx.stroke();
+  }
+  if (L.barb) {
+    // Crit barb: a hardened point on the acrosome.
+    const bl = (2 + L.barb * 0.9) * k;
+    ctx.fillStyle = 'rgb(58,64,60)'; ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(7.6 * k + bl, 0); ctx.lineTo(7.8 * k, -1.8 * k); ctx.lineTo(7.8 * k, 1.8 * k); ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
   // Head with halo.
   ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.5 * k, 5 * k, 0, 0, TAU);
   ctx.fillStyle = MIC.body; ctx.fill();
   pcHalo(2.2 * k, 0.75);
+  if (L.armour) {
+    // Armour: a thickened, plated membrane.
+    ctx.strokeStyle = 'rgb(30,34,32)'; ctx.lineWidth = (0.5 + 0.4 * L.armour) * k; ctx.stroke();
+    if (L.armour >= 2) { ctx.setLineDash([2.2 * k, 1.4 * k]); ctx.strokeStyle = 'rgba(214,228,240,0.6)'; ctx.lineWidth = 0.6 * k; ctx.stroke(); ctx.setLineDash([]); }
+  }
   // Acrosome: paler cap over the front of the head, glowing when labelled.
-  ctx.beginPath(); ctx.ellipse(3.6 * k, 0, 4.4 * k, 4.3 * k, 0, 0, TAU);
+  ctx.beginPath(); ctx.ellipse(3.6 * k, 0, 4.4 * k * L.acro, 4.3 * k * L.acro, 0, 0, TAU);
   ctx.fillStyle = tag || MIC.acro; ctx.globalAlpha = alpha * (tag ? 0.85 : 0.8); ctx.fill();
   ctx.globalAlpha = alpha;
   // Post-acrosomal dark band and nucleus shading.
@@ -506,7 +611,9 @@ function drawShip(x, y, face, tag, alpha, scale, body) {
     ctx.fillStyle = 'rgba(230,236,232,0.55)';
     ctx.beginPath(); ctx.arc(-0.6 * k, -1.4 * k, 0.55 * k, 0, TAU); ctx.moveTo(0.4 * k + 0.5 * k, 1.6 * k); ctx.arc(0.4 * k, 1.6 * k, 0.45 * k, 0, TAU); ctx.fill();
   }
+  if (L.luck) { ctx.fillStyle = PAL.reward; ctx.beginPath(); ctx.arc(-0.8 * k, 0, (0.6 + 0.15 * L.luck) * k, 0, TAU); ctx.fill(); }
   ctx.restore();
+  if (L.elem && L.glowElem) { ctx.globalCompositeOperation = 'lighter'; glow(x - Math.cos(face) * 8 * k * L.head, y - Math.sin(face) * 8 * k * L.head, 8 * k, L.elem, 0.4 * alpha); ctx.globalCompositeOperation = 'source-over'; }
   if (tag) { ctx.globalCompositeOperation = 'lighter'; glow(x + Math.cos(face) * 3.6 * k, y + Math.sin(face) * 3.6 * k, 11 * k, tag, 0.55 * alpha); ctx.globalCompositeOperation = 'source-over'; }
   ctx.lineCap = 'butt';
   ctx.globalAlpha = 1;
@@ -516,7 +623,7 @@ function drawShip(x, y, face, tag, alpha, scale, body) {
 // every other link is dragged along by the one in front (so turns sweep the tail round behind you and
 // swimming leaves a travelling wave), with a little stiffness pulling it straight when you stop.
 const TAIL_N = 11;
-function stepTail(o, rx, ry, face, len, speed) {
+function stepTail(o, rx, ry, face, len, speed, beatMul) {
   const now = G.realT, dt = Math.min(0.05, Math.max(0, now - (o.tailT || now)));
   o.tailT = now;
   const seg = len / (TAIL_N - 1);
@@ -524,7 +631,7 @@ function stepTail(o, rx, ry, face, len, speed) {
     o.tail = [];
     for (let i = 0; i < TAIL_N; i++) o.tail.push({ x: rx - Math.cos(face) * seg * i, y: ry - Math.sin(face) * seg * i });
   }
-  o.beat = (o.beat || Math.random() * 10) + dt * (9 + Math.min(14, speed / 10));
+  o.beat = (o.beat || Math.random() * 10) + dt * (9 + Math.min(14, speed / 10)) * (beatMul || 1);
   const nx = -Math.sin(face), ny = Math.cos(face), amp = len * 0.11;
   const t = o.tail;
   t[0].x = rx + nx * Math.sin(o.beat) * amp * 0.5; t[0].y = ry + ny * Math.sin(o.beat) * amp * 0.5;
@@ -908,7 +1015,7 @@ function render() {
     }
     if (w.def.heat && w.heat > 0.6) { ctx.globalCompositeOperation = 'lighter'; glow(px, py, 30 * S, '#ff5400', (w.heat - 0.6) * 1.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   }
-  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : '#4dff9a', p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale(), p);
+  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale(), p, shipLook());
   ctx.fillStyle = '#000'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S, 4);
   ctx.fillStyle = p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S * (p.hp / G.P.maxHp), 4);
 
