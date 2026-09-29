@@ -116,11 +116,7 @@ function introSound() {
   INTRO_NODES.length = 0;
   if (!AUDIO.on || !AUDIO.ctx) return;
   const ac = AUDIO.ctx, t0 = ac.currentTime + 0.02;
-  if (!AUDIO.noise1) {
-    const b = ac.createBuffer(1, ac.sampleRate, ac.sampleRate), d = b.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    AUDIO.noise1 = b;
-  }
+  sndNoiseBuf();
   const keep = n => { INTRO_NODES.push(n); return n; };
   // Filtered noise with a frequency sweep and a gain envelope [[time, level], ...].
   const noise = (at, dur, type, f0, f1, q, env) => {

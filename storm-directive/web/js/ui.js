@@ -372,7 +372,7 @@ const UI = {
     UI.updateReroll();
     UI.show('loot');
     INPUT.active = false; G.manual = null;
-    sfx('level');
+    lootSound(req.kind, Math.max(...UI.lootOpts.map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
     clearTimeout(UI.lootTimer);
     UI.lootTimer = setTimeout(() => $('lootCards').classList.add('ready'), 650);
   },

@@ -2004,6 +2004,53 @@ function knobClick(dir, heavy) {
   og.gain.setValueAtTime(heavy ? 0.05 : 0.018, now); og.gain.exponentialRampToValueAtTime(0.0001, now + (heavy ? 0.09 : 0.04));
   o.connect(og); og.connect(ac.destination); o.start(now); o.stop(now + 0.1);
 }
+// Shared little synth helpers for one-off sound designs (loot box).
+function sndNoiseBuf() {
+  const ac = AUDIO.ctx;
+  if (!AUDIO.noise1 || AUDIO.noise1.sampleRate !== ac.sampleRate) {
+    const b = ac.createBuffer(1, ac.sampleRate, ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    AUDIO.noise1 = b;
+  }
+  return AUDIO.noise1;
+}
+function sndNoise(t, dur, type, f0, f1, q, vol) {
+  const ac = AUDIO.ctx, src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+  src.buffer = sndNoiseBuf(); f.type = type; f.Q.value = q;
+  f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.01, dur / 4)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(f); f.connect(g); g.connect(ac.destination); src.start(t); src.stop(t + dur + 0.05);
+}
+function sndTone(t, f0, f1, dur, vol, type) {
+  const ac = AUDIO.ctx, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type || 'sine'; o.frequency.setValueAtTime(f0, t); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
+}
+// Loot box: rattles while it shakes, the latch clicks and the lid pops (0.4 s, with the CSS animation), then
+// a glassy chime that gets longer and brighter with the best rarity inside (Bronze 2 notes up to Legendary 5
+// plus a shimmer), and a soft swish as each card flies in. Branch choices ring softer; boss boxes thud deeper;
+// a cursed card adds a sour low note.
+function lootSound(kind, best, cursed, cards) {
+  if (!AUDIO.on || !AUDIO.ctx || AUDIO.ctx.state !== 'running') return;
+  const t = AUDIO.ctx.currentTime + 0.01, deep = kind === 'boss' ? 0.7 : 1;
+  [0.02, 0.11, 0.2, 0.29].forEach((d, i) => {
+    sndNoise(t + d, 0.07, 'lowpass', 900 * deep, 300 * deep, 1, 0.16 - i * 0.02);
+    sndTone(t + d, 190 * deep, 120 * deep, 0.08, 0.05, 'triangle');
+  });
+  sndNoise(t + 0.38, 0.03, 'highpass', 2500, 2500, 0.7, 0.14);
+  sndTone(t + 0.4, 260, 820, 0.12, 0.09, 'sine');
+  sndNoise(t + 0.4, 0.22, 'bandpass', 1200, 3500, 1.5, 0.05);
+  const notes = [1047, 1319, 1568, 1760, 2093], n = 2 + Math.min(3, best), soft = kind === 'branch' ? 0.6 : 1;
+  for (let i = 0; i < n; i++) {
+    const at = t + 0.46 + i * 0.075, f = notes[i] * (kind === 'branch' ? 0.75 : 1);
+    sndTone(at, f, f, 0.5 + i * 0.05, 0.05 * soft, 'sine');
+    sndTone(at, f * 2.76, f * 2.76, 0.18, 0.012 * soft, 'sine');
+  }
+  if (best >= 3) sndNoise(t + 0.5, 1.1, 'highpass', 6000, 9000, 0.5, 0.03);
+  if (cursed) sndTone(t + 0.55, 98, 92, 0.7, 0.05, 'sawtooth');
+  for (let i = 0; i < cards; i++) sndNoise(t + 0.45 + i * 0.12, 0.16, 'bandpass', 700, 2200, 1.2, 0.035);
+}
 function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* unsupported */ } }
 
 // ---------------------------------------------------------------- loop
