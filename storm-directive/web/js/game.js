@@ -262,7 +262,7 @@ function computeStats(w) {
     if (m.id === 'exploding') s.modExplode = 0.3 * mp;
     if (m.id === 'mindctrl') { s.modCharm = 0.05 * mp; s.charmDur = 6 * mp; }
     if (m.id === 'chaining') { s.pArc = Math.max(s.pArc || 0, 0.25 * mp); s.pArcDmg = Math.max(s.pArcDmg || 0, 0.5); s.pArcN = Math.max(s.pArcN || 0, 1); }
-    if (m.id === 'pulsing') { s.pulse = 0.25 * mp; s.pulseRate = 0.45; }
+    if (m.id === 'pulsing') { s.pulse = 0.15 * mp; s.pulseRate = 0.6; }
     if (m.id === 'magnetic') s.magnet = 70 * mp;
     if (m.id === 'delayed') s.delay = 0.3 * mp;
     if (m.id === 'mirror') s.mirror = 0.5 * mp;
@@ -810,7 +810,7 @@ function hurtPlayer(dmg, from, ent) {
 // Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
 function enemyScale(t) {
   const k = Math.min(1, t / 900);
-  return { hp: 0.72 + 1.04 * k, dmg: 0.62 + 0.56 * k, xp: 0.88, r: 1.12, speed: 1 + 0.12 * k };
+  return { hp: 0.72 + 1.04 * k, dmg: 0.8 + 1.0 * k, xp: 0.88, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);

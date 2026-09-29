@@ -784,7 +784,7 @@ const MODS = {
   shrapnel:  { name: 'Shrapnel',     icon: 'SH', color: '#e9c46a', desc: () => 'Kills burst into 3 shards at 40% damage' },
   // The Modifier Forge.
   chaining:  { name: 'Chaining',     icon: 'CN', color: '#eee36a', desc: p => `${Math.round(25 * p)}% of hits chain to another enemy for 50% damage` },
-  pulsing:   { name: 'Pulsing',      icon: 'PU', color: '#cfe3ff', kinds: PROJ_KINDS, desc: p => `Shots pulse every 0.45s, hitting everything close by for ${Math.round(25 * p)}% damage` },
+  pulsing:   { name: 'Pulsing',      icon: 'PU', color: '#cfe3ff', kinds: PROJ_KINDS, desc: p => `Shots pulse every 0.6s, hitting everything close by for ${Math.round(15 * p)}% damage` },
   magnetic:  { name: 'Magnetic',     icon: 'MG', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots drag monsters within ${Math.round(70 * p)} units into their path` },
   delayed:   { name: 'Delayed',      icon: 'DL', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots hang for a moment, then launch 60% faster for +${Math.round(30 * p)}% damage` },
   mirror:    { name: 'Mirror',       icon: 'MR', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Every shot has a twin fired the opposite way at ${Math.round(50 * p)}% damage` },
