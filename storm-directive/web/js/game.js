@@ -124,6 +124,9 @@ function targetScore(dir, e, d2) {
   return -d2;
 }
 function acquire(dir, range, x, y, exclude) {
+  // Once the egg is yours to break, half of all target picks in range go to it, whatever the directive.
+  const egg = G.eggE;
+  if (egg && !egg.dead && G.level >= EGG.level && egg !== exclude && Math.random() < 0.5 && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg;
   let best = null, bv = -Infinity;
   const r2 = range * range;
   for (const e of G.enemies) {
@@ -282,7 +285,7 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
-  const minR = req.kind === 'boss' || req.kind === 'chest' ? 2 : req.kind === 'level' && G.level > BOX_EVERY_FROM ? 2 : 0; // rare boxes, better contents
+  const minR = req.kind === 'boss' || req.kind === 'chest' ? 2 : 0; // level boxes Bronze+, Fan and boss boxes Gold+
   if (req.kind === 'slot') {
     // A new weapon slot: three fresh weapons, Silver or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
@@ -662,14 +665,14 @@ function killEnemy(e, src) {
     sfx('boss');
   } else if (e.elite || (e.def.spongy && e.r > 100)) {
     // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
-    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.3 ? chestOr('heal') : pick(['heal', 'magnet', 'rage']), e.x, e.y));
+    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage']), e.x, e.y));
   } else if (Math.random() < 0.011 * (1 + P.luck)) {
     const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'];
-    G.pickups.push(makePickup(Math.random() < 0.12 ? chestOr(pick(types)) : pick(types), e.x, e.y));
+    G.pickups.push(makePickup(Math.random() < 0.5 ? chestOr(pick(types)) : pick(types), e.x, e.y));
   }
 }
 // Loot boxes from kills are rationed: at most one every LOOT_GAP seconds (bosses and rivals don't count).
-const LOOT_GAP = 90;
+const LOOT_GAP = 9; // with boss, rival and achievement boxes: about 45 extra boxes on a run to Lv 60
 function chestOr(alt) {
   if (G.t < (G.nextChest || 20)) return alt;
   G.nextChest = G.t + LOOT_GAP;
@@ -726,7 +729,7 @@ function hurtPlayer(dmg, from, ent) {
 // Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
 function enemyScale(t) {
   const k = Math.min(1, t / 900);
-  return { hp: 1.1 + 1.6 * k, dmg: 0.95 + 0.9 * k, xp: 2.4, r: 1.12, speed: 1 + 0.12 * k };
+  return { hp: 1.1 + 1.6 * k, dmg: 0.95 + 0.9 * k, xp: 1.9, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);
@@ -1629,13 +1632,6 @@ function applyPickup(type) {
   }
 }
 
-const BOX_EVERY_FROM = 4;
-function levelGrowth() {
-  G.P.might += 0.06; G.P.haste += 0.03; G.P.maxHp += 4; me().hp += 4;
-  recomputeAll();
-  floatText(me().x, me().y - 34, 'LV ' + G.level + '  GROWTH', PAL.upgrade, 13, 1);
-  sfx('level');
-}
 function gainXp(v) {
   G.xp += v * G.P.xp;
   sfx('gem');
@@ -1643,10 +1639,8 @@ function gainXp(v) {
     G.xp -= G.xpNeed;
     G.level++;
     G.xpNeed = xpNeed(G.level);
-    // Boxes are rare: one every level to Lv 4, then every second level. The levels in between
-    // still make you grow (+6% damage, +3% fire rate, +4 max HP), just without a box.
-    if (G.level <= BOX_EVERY_FROM || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
-    else levelGrowth();
+    // Every level up is rewarded with a box.
+    G.lootQueue.push({ kind: 'level' });
     // Growth milestones: a new weapon slot at 15, 30 and 45.
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < 3 + SLOT_LEVELS.length) {
       G.weapons.push(null);
