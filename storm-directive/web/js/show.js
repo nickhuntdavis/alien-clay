@@ -29,7 +29,7 @@ function addViewers(n) {
 function sponsorGift(milestone) {
   const sponsor = pick(SPONSORS), type = pick(['heal', 'rage', 'shield', 'magnet', 'chest', 'nuke', 'chest']);
   const p = me(), a = Math.random() * TAU;
-  G.pickups.push(makePickup(type, p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70));
+  G.pickups.push(makePickup(type, p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70, { t: 'sponsor', name: sponsor }));
   sysMsg('SPONSOR GIFT', `${fmtViewers(milestone)} viewers! ${sponsor} has sent you a ${POWERUPS[type].name}. Please thank them by not dying immediately.`, '#ffb400', true);
   achieve('sponsor');
 }
@@ -42,8 +42,8 @@ function achieve(id) {
   s.order.push(id);
   let reward;
   switch (A.reward) {
-    case 'box': G.lootQueue.push({ kind: 'chest' }); reward = 'Reward: a Gold Fan Box.'; break;
-    case 'bossbox': G.lootQueue.push({ kind: 'boss' }); reward = 'Reward: a Gold Boss Box.'; break;
+    case 'box': G.lootQueue.push({ kind: 'chest', src: { t: 'ach', name: A.name } }); reward = 'Reward: a Gold Fan Box.'; break;
+    case 'bossbox': G.lootQueue.push({ kind: 'boss', src: { t: 'ach', name: A.name } }); reward = 'Reward: a Gold Boss Box.'; break;
     case 'reroll': G.rerolls++; reward = 'Reward: +1 reroll token.'; break;
     case 'scrap': G.scrap += 40; reward = 'Reward: 40 scrap. Try not to spend it all at once.'; break;
     case 'heal': healPlayer(G.P.maxHp * 0.3, true); reward = 'Reward: 30% health. Use it responsibly.'; break;

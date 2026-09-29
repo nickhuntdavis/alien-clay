@@ -1485,13 +1485,31 @@ function drawHud() {
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).
-  const pointer = (wx, wy, col) => {
+  const pointer = (wx, wy, col, size, alpha, edge) => {
     const dx = wx - cam.x, dy = wy - cam.y;
     if (Math.abs(dx * S) < W / 2 - 10 && Math.abs(dy * S) < H / 2 - 10) return;
-    const a = Math.atan2(dy, dx), rr = Math.min(W, H) / 2 - 40;
-    ctx.save(); ctx.translate(W / 2 + Math.cos(a) * rr, H / 2 + Math.sin(a) * rr); ctx.rotate(a); ctx.fillStyle = col;
-    ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-8, 9); ctx.lineTo(-8, -9); ctx.fill(); ctx.restore();
+    const a = Math.atan2(dy, dx), k = size || 1;
+    let px, py;
+    if (edge) {
+      // Pinned to the actual screen edge (clear of the HUD bands), where the threat will come in.
+      const hw = W / 2 - 16, hh = H / 2 - 16, t = Math.min(hw / Math.abs(Math.cos(a) || 1e-6), hh / Math.abs(Math.sin(a) || 1e-6));
+      px = W / 2 + Math.cos(a) * t; py = clamp(H / 2 + Math.sin(a) * t, (UI.safeTop || 0) + 150, H - (UI.bottomH || 200) - 24);
+    } else { const rr = Math.min(W, H) / 2 - 40; px = W / 2 + Math.cos(a) * rr; py = H / 2 + Math.sin(a) * rr; }
+    ctx.save(); ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.translate(px, py); ctx.rotate(a); ctx.fillStyle = col;
+    ctx.beginPath(); ctx.moveTo(14 * k, 0); ctx.lineTo(-8 * k, 9 * k); ctx.lineTo(-8 * k, -9 * k); ctx.fill(); ctx.restore();
   };
+  // Off-screen shooters: red chevrons on the screen edge, flashing just before they fire.
+  const shooters = [];
+  for (const e of G.enemies) {
+    if (e.dead || e.boss || e.charmed || e.rival || !e.def.shoot) continue;
+    const d = Math.hypot(e.x - cam.x, e.y - cam.y);
+    if (d < 1100) shooters.push([d, e]);
+  }
+  shooters.sort((a, b) => a[0] - b[0]);
+  for (const [, e] of shooters.slice(0, 6)) {
+    const soon = (e.shootCd != null && e.shootCd < 0.6) || e.aimT > 0;
+    pointer(e.x, e.y, PAL.danger, 0.7, soon ? 0.55 + 0.45 * Math.sin(G.realT * 30) : 0.6, true);
+  }
   if (G.boss && !G.boss.dead) pointer(G.boss.x, G.boss.y, '#ff4d6d');
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   pointer(c.x, c.y, G.eggE ? XR.white : '#ffb3d1');

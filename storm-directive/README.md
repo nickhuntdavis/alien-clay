@@ -6,6 +6,10 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 
 ## Features
 
+- **Faster menus.** Action buttons stay pinned to the bottom of long screens. Tap acts, press-and-hold shows details: loot cards show a one-line summary (hold for the full text) and holding a weapon slot shows its stats without opening the Armoury. The pause screen opens on RUN (autorun and the egg) with BUILD, THE SHOW and CODEX tabs. The Armoury's upgrade tree shows only where you are and your next milestone (SHOW FULL TREE for the rest), and you can swipe left and right between slots.
+- **Where your loot came from.** Every box tells its own little story: the elite you went through the pockets of, the Amoeba it was fished out of, the rival whose mum wants it back, the sponsor, the boss's will, the achievement, the level.
+- **Edge warnings.** Red chevrons on the screen edge point at off-screen shooters and flash just before they fire.
+- **COPY THIS RUN** on the game-over screen copies that run's summary for balancing.
 - **You are Spermy.** The race board, game-over screens and the System all call you by name.
 - **Krill.** Tiny translucent crustaceans in shoals of a dozen, from 0:45: curled segmented bodies, big dark eyes, twitching antennae and swimmerets that paddle as they flick-swim in bursts, changing heading each kick. Fragile, fast and annoying. Nobody knows how they got in.
 - **Run log.** Every run (win, loss, or quit after 30 s) is summarised on the phone: result, time, level, kills, what ended it, what hurt most, damage share by weapon, the final build, rival outcomes, boxes opened and your level and HP% at every minute. Settings > Run log > COPY RUN LOG copies the last 60 runs as text for balancing. Nothing leaves the phone unless you copy it.

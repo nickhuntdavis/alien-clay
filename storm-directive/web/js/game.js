@@ -702,7 +702,7 @@ function killEnemy(e, src) {
     (G.bossDead || (G.bossDead = {}))[e.id] = true;
     G.boss = null;
     G.stats.bossKills++;
-    G.lootQueue.push({ kind: 'boss' });
+    G.lootQueue.push({ kind: 'boss', src: { t: 'boss', name: e.name } });
     healPlayer(P.maxHp * 0.3);
     banner(e.name + ' DESTROYED', '#ffd23f');
     for (let i = 0; i < 12; i++) dropGem(e.x + rand(-60, 60), e.y + rand(-60, 60), e.xp / 12);
@@ -710,10 +710,10 @@ function killEnemy(e, src) {
     sfx('boss');
   } else if (e.elite || (e.def.spongy && e.r > 100)) {
     // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
-    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage']), e.x, e.y));
+    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage']), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
   } else if (Math.random() < 0.011 * (1 + P.luck)) {
     const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'];
-    G.pickups.push(makePickup(Math.random() < 0.5 ? chestOr(pick(types)) : pick(types), e.x, e.y));
+    G.pickups.push(makePickup(Math.random() < 0.5 ? chestOr(pick(types)) : pick(types), e.x, e.y, { t: 'drop', name: e.name }));
   }
 }
 // Loot boxes from kills are rationed: at most one every LOOT_GAP seconds (bosses and rivals don't count).
@@ -742,7 +742,8 @@ function dropGem(x, y, v, kind) {
   }
   G.gems.push({ x: x + rand(-5, 5), y: y + rand(-5, 5), v, kind, mag: false, vx: 0, vy: 0 });
 }
-function makePickup(type, x, y) { return unstick({ type, x, y, life: 25, bob: Math.random() * TAU }, 14); }
+// src: where a box came from ({ t: 'elite' | 'amoeba' | 'drop' | 'rival' | 'sponsor', name }), for the loot screen's story line.
+function makePickup(type, x, y, src) { return unstick({ type, x, y, life: 25, bob: Math.random() * TAU, src }, 14); }
 
 function healPlayer(n, silent) {
   const p = me(), P = G.P;
@@ -1685,11 +1686,11 @@ function updatePickups(dt) {
     if (u.life <= 0) { u.dead = true; continue; }
     const dx = p.x - u.x, dy = p.y - u.y, d = Math.hypot(dx, dy) || 1;
     if (d < 55) { u.x += dx / d * 200 * dt; u.y += dy / d * 200 * dt; }
-    if (d < p.r + 14) { u.dead = true; applyPickup(u.type); }
+    if (d < p.r + 14) { u.dead = true; applyPickup(u.type, u.src); }
   }
 }
 
-function applyPickup(type) {
+function applyPickup(type, src) {
   const p = G.player, P = G.P;
   sfx('pickup');
   banner(POWERUPS[type].name, type === 'chest' ? PAL.reward : PAL.pickup);
@@ -1709,7 +1710,7 @@ function applyPickup(type) {
     case 'heal': healPlayer(P.maxHp * 0.35); break;
     case 'shield': G.shieldT = 5; break;
     case 'freeze': for (const e of G.enemies) e.frozen = e.boss ? 1.5 : 4; break;
-    case 'chest': G.lootQueue.push({ kind: 'chest' }); break;
+    case 'chest': G.lootQueue.push({ kind: 'chest', src }); break;
   }
 }
 

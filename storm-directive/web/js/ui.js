@@ -39,6 +39,13 @@ const UI = {
     });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
     $('armClose').addEventListener('click', () => UI.closeArmoury());
+    // Swipe left/right anywhere in the Armoury to move between slots.
+    { let sx = 0, sy = 0, t0 = 0;
+      $('armoury').addEventListener('touchstart', ev => { const t = ev.touches[0]; sx = t.clientX; sy = t.clientY; t0 = performance.now(); }, { passive: true });
+      $('armoury').addEventListener('touchend', ev => {
+        const t = ev.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+        if (performance.now() - t0 < 600 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.8) UI.armStep(dx < 0 ? 1 : -1);
+      }, { passive: true }); }
     $('armOpen').addEventListener('click', () => { if (G && G.state === 'pause') { G.state = 'play'; UI.openArmoury('w', 0); } });
     $('rewindBtn').addEventListener('click', () => {
       if (!G || G.state !== 'play') return;
@@ -58,6 +65,11 @@ const UI = {
     $('bankBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     UI.applySettings();
     $('againBtn').addEventListener('click', () => UI.startGame());
+    $('copyRunBtn').addEventListener('click', () => {
+      const b = $('copyRunBtn'), r = UI.lastRun;
+      if (!r) { b.textContent = 'TOO SHORT TO LOG'; return; }
+      copyText(`SPAWN PRAWN v${APP_VERSION} - one run\n` + runText(r)).then(ok => { b.textContent = ok ? 'COPIED: PASTE IT IN THE CHAT' : 'COPY BLOCKED: USE SETTINGS > RUN LOG'; });
+    });
     $('titleBtn').addEventListener('click', () => { G = null; UI.show('title'); UI.renderBest(); });
     document.addEventListener('visibilitychange', () => { if (document.hidden && G && G.state === 'play') UI.togglePause(); });
     UI.renderBest();
@@ -89,7 +101,14 @@ const UI = {
     el.className = 'slot ' + (kind === 's' ? 'spell' : 'weapon');
     el.innerHTML = '<div class="ico"></div><div class="lv"></div><div class="mp"></div><div class="dir"></div><div class="bar"><i></i></div>';
     // Tapping a slot opens the Armoury on that weapon or spell.
-    el.addEventListener('click', () => { if (G && G.state === 'play') UI.openArmoury(kind, i); });
+    holdable(el, () => {
+      const w = G && (kind === 's' ? G.spells[i] : G.weapons[i]);
+      if (!w) return `<b>Empty ${kind === 's' ? 'spell' : 'weapon'} slot</b><p>Tap to open the Armoury.</p>`;
+      const dr = DIRECTIVES.find(x => x.id === w.dir);
+      return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>Lv ${w.lvl}/${MAX_WLVL}</em><p>${esc(w.def.desc)}</p>`
+        + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name : ''}</p>` : '')
+        + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '');
+    }, () => { if (G && G.state === 'play') UI.openArmoury(kind, i); });
     return el;
   },
 
@@ -154,6 +173,12 @@ const UI = {
     }
   },
 
+  showInfo(html, x, y) {
+    const el = $('holdInfo'); el.innerHTML = html; el.classList.add('on');
+    const r = el.getBoundingClientRect(), top = Math.max(8 + UI.safeTop, y - r.height - 28);
+    el.style.top = (top < y - 40 ? top : Math.min(innerHeight - r.height - 8, y + 28)) + 'px';
+  },
+  hideInfo() { $('holdInfo').classList.remove('on'); },
   toast(msg) {
     const t = $('toast');
     t.textContent = msg; t.classList.add('on');
@@ -221,6 +246,15 @@ const UI = {
     UI.show('hud'); UI.refreshHud(true);
     lastTs = performance.now();
   },
+  armStep(dir) {
+    if (!G || G.state !== 'armoury') return;
+    const tabs = [...$('armTabs').querySelectorAll('.atab')].map(b => ({ k: b.dataset.k, i: +b.dataset.i }));
+    const cur = tabs.findIndex(t => t.k === UI.arm.k && t.i === UI.arm.i);
+    const nx = tabs[(cur + dir + tabs.length) % tabs.length];
+    UI.arm = { k: nx.k, i: nx.i, bar: 0, recycle: false };
+    UI.renderArmoury(); $('armoury').scrollTop = 0;
+    const b = $('armBody'); b.classList.remove('swipeL', 'swipeR'); void b.offsetWidth; b.classList.add(dir > 0 ? 'swipeL' : 'swipeR');
+  },
   armSlot() { return UI.arm.k === 'w' ? G.weapons[UI.arm.i] : G.spells[UI.arm.i]; },
   renderArmoury() {
     const A = UI.arm, w = UI.armSlot();
@@ -276,8 +310,12 @@ const UI = {
     // Upgrade tree: every level's gains, with a choice of two perks at each milestone.
     if (!w.isSpell) {
       const tree = weaponTree(d);
+      // Collapsed by default: where you are, anything waiting on a pick, and the next milestone.
+      const nextBranch = PERK_LEVELS.find(l => l > w.lvl);
+      const showRow = l => A.full || l === w.lvl || l === w.lvl + 1 || l === nextBranch || (tree[l] && w.lvl >= l && !w.perks[l]);
       h += `<div class="sec"><h3>Upgrade tree</h3><div class="tree">`;
       for (let l = 1; l <= MAX_WLVL; l++) {
+        if (!showRow(l)) continue;
         const reached = w.lvl >= l;
         if (tree[l]) {
           const chosen = w.perks[l];
@@ -291,7 +329,9 @@ const UI = {
           h += `<div class="trow ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><span class="tt">${esc(txt)}</span></div>`;
         }
       }
-      h += `</div><p class="hint">Branches at Lv ${PERK_LEVELS.slice(0, -1).join(', ')} and a mastery at Lv ${MAX_WLVL}: pick one of three each time.</p></div>`;
+      h += `</div><button class="chip small" id="treeToggle" style="margin-top:8px">${A.full ? 'SHOW LESS' : 'SHOW FULL TREE (LV 1 TO ' + MAX_WLVL + ')'}</button>`;
+      if (A.full) h += `<p class="hint">Branches at Lv ${PERK_LEVELS.slice(0, -1).join(', ')} and a mastery at Lv ${MAX_WLVL}: pick one of three each time.</p>`;
+      h += `</div>`;
     }
     // Modifiers.
     if (!w.isSpell) {
@@ -340,7 +380,7 @@ const UI = {
     }
     // Recycle.
     if (A.k === 'w' && G.weapons.filter(Boolean).length > 1) {
-      h += `<div class="pbtns"><button class="btn ${A.recycle ? 'danger' : ''}" id="armRecycle">${A.recycle ? 'TAP AGAIN TO RECYCLE (+2 REROLLS)' : 'RECYCLE WEAPON (FREES THE SLOT)'}</button></div>`;
+      h += `<div class="sec"><button class="btn ${A.recycle ? 'danger' : ''}" id="armRecycle">${A.recycle ? 'TAP AGAIN TO RECYCLE (+2 REROLLS)' : 'RECYCLE WEAPON (FREES THE SLOT)'}</button></div>`;
     }
     body.innerHTML = h;
     body.querySelectorAll('[data-bar]').forEach(b => b.addEventListener('click', () => { A.bar = +b.dataset.bar; UI.renderArmoury(); }));
@@ -348,6 +388,8 @@ const UI = {
       if (w.dirs) { w.dirs[A.bar] = b.dataset.dir; if (A.bar === 0) w.dir = b.dataset.dir; } else w.dir = b.dataset.dir;
       const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y;
     }));
+    const tt = $('treeToggle');
+    if (tt) tt.addEventListener('click', () => { A.full = !A.full; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; });
     const rb = $('armRecycle');
     if (rb) rb.addEventListener('click', () => {
       if (!A.recycle) { A.recycle = true; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; return; }
@@ -376,7 +418,7 @@ const UI = {
     $('lootTitle').textContent = titles[req.kind][0];
     if (req.kind !== 'start') achieve('firstloot');
     if (req.kind === 'level' && Math.random() < 0.3) sysLine('level');
-    $('lootSub').textContent = titles[req.kind][1];
+    $('lootSub').textContent = lootStory(req) || titles[req.kind][1];
     const box = $('lootBox');
     box.className = 'box ' + req.kind;
     // Loot boxes are gold; a branch choice is an upgrade, so it's cyan.
@@ -413,8 +455,9 @@ const UI = {
         <div class="cico"${o.def ? ` style="--ic:${elemCol(o.elem)}"` : ''}>${o.def ? iconSVG(o.def, 28, elemCol(o.elem)) : esc(o.icon)}</div>
         <div class="ctitle">${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(o.desc)}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}`;
-      c.addEventListener('click', () => {
+        <div class="cdesc">${esc(firstSentence(o.desc))}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}<div class="chold">Hold for details</div>`;
+      holdable(c, () => `<b>${esc(o.title)}</b> <em>${esc(o.tag)} | ${esc(r.name)}</em><p>${esc(o.sub)}</p><p>${esc(o.desc)}</p>`
+        + (o.modFor ? `<p>For weapon: <b>${esc(o.modFor)}</b></p>` : '') + (o.quip ? `<p><i>${esc(o.quip)}</i></p>` : ''), () => {
         if (!$('lootCards').classList.contains('ready')) return;
         // Only a tap that started on this screen picks a card (not one left over from skipping the intro
         // or steering when the box popped up).
@@ -447,19 +490,22 @@ const UI = {
   // ---------------------------------------------------------------- pause & directives
   togglePause() {
     if (!G) return;
-    if (G.state === 'play') { G.state = 'pause'; INPUT.active = false; G.manual = null; UI.renderPause(); UI.show('pause'); }
+    if (G.state === 'play') { G.state = 'pause'; INPUT.active = false; G.manual = null; UI.pauseTab = 'run'; UI.renderPause(); UI.show('pause'); }
     else if (G.state === 'pause') { G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now(); }
   },
 
   renderPause() {
-    const box = $('pauseBody');
-    let h = '';
+    const box = $('pauseBody'), tab = UI.pauseTab || 'run';
+    let h = `<div class="ptabs">${[['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE SHOW'], ['codex', 'CODEX']].map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-ptab="${id}">${l}</button>`).join('')}</div>`;
+    if (tab === 'run') {
     h += `<div class="sec"><h3>Autorun directive</h3><div class="chips">`;
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
 
     h += `<div class="sec"><h3>The egg and time</h3><p class="hint">${G.eggE && G.level >= EGG.level ? 'The egg is open for business: break its membrane to be born.' : `Reach level ${EGG.level} and the egg will let you try to break in (you are level ${G.level}).`} Weapon slots: ${G.weapons.length}/${3 + SLOT_LEVELS.length} (next at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}. The egg's warm glow heals you (NEST autorun keeps you in it).</p>
-      <p class="hint"><b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you or the Anchor would die with a charge ready, Rewind triggers automatically.</p></div>`;
+</div>`;
+    }
+    if (tab === 'show') {
     // Achievements and the show.
     const got = G.show.order;
     h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | Viewers ${fmtViewers(G.show.viewers)}</h3>`;
@@ -467,7 +513,8 @@ const UI = {
     const cur = Object.keys(G.curses);
     if (cur.length) h += `<p class="hint">Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}</p>`;
     h += `</div>`;
-
+    }
+    if (tab === 'build') {
     // Synergies.
     h += `<div class="sec"><h3>Element synergies (own 2+ of an element)</h3><div class="list">`;
     for (const el in SYNERGIES) {
@@ -482,6 +529,9 @@ const UI = {
     h += ps.length ? `<div class="list">${ps.map(id => `<div class="li on"><b>${esc(PASSIVES[id].name)}</b> x${G.passives[id]}</div>`).join('')}</div>` : `<p class="hint">None yet.</p>`;
     h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%</p></div>`;
 
+    }
+    if (tab === 'codex') {
+    h += `<div class="sec"><h3>Rewind</h3><p class="hint"><b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically.</p></div>`;
     // Reactions.
     h += `<div class="sec"><h3>Elemental reactions</h3><div class="list">`;
     for (const id in REACTIONS) h += `<div class="li"><b>${REACTIONS[id].name}</b> ${G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
@@ -494,7 +544,9 @@ const UI = {
       h += `<div class="li ${ha && hb ? 'on' : ''}"><b style="color:${PAL.upgrade}">${esc(WEAPONS[m.out].name)}</b><br><span>${esc(WEAPONS[m.a].name)}${ha ? ' (Lv ' + ha.lvl + ')' : ''} + ${esc(WEAPONS[m.b].name)}${hb ? ' (Lv ' + hb.lvl + ')' : ''}</span></div>`;
     }
     h += `</div></div>`;
+    }
     box.innerHTML = h;
+    box.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { UI.pauseTab = b.dataset.ptab; UI.renderPause(); $('pause').scrollTop = 0; }));
     box.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => { G.moveDir = b.dataset.move; UI.renderPause(); }));
     box.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       const w = b.dataset.k === 'w' ? G.weapons[+b.dataset.i] : G.spells[+b.dataset.i];
@@ -564,6 +616,7 @@ const UI = {
     h += `<h3>Achievements this run (${got.length})</h3>`;
     h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')}</div>` : `<p class="hint">None. Impressive, in its own way.</p>`;
     logRun(G, won ? 'WON' : G.rivalWinner ? 'BEATEN' : 'LOST');
+    UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
     const dna = bankRun(G, won);
     h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
     $('overBody').innerHTML = h;
@@ -581,6 +634,67 @@ const UI = {
     $('dnaLine').textContent = META.dna ? fmtNum(META.dna) + ' DNA' : '';
   },
 };
+
+// Where this box came from, told as a little story (falls back to the box's usual line).
+function lootStory(req) {
+  const src = req.src || {}, n = src.name || 'something', L = G.level;
+  const lines = {
+    elite: [
+      `Pried from the still-twitching ${n}. It won't be needing this where it's going, which is nowhere.`,
+      `The ${n} was carrying this in a pocket nobody knew it had. Finders keepers. Losers dissolved.`,
+      `You beat the ${n} fair and square, then went through its things. Standard practice.`,
+    ],
+    amoeba: [
+      `Recovered from inside an Amoeba that had eaten ${src.meals || 'several'} of its neighbours. It was wedged between two of them.`,
+      `The Amoeba swallowed this ages ago and never managed to digest it. Neither will you, but you can shoot with it.`,
+      `Fished out of a very full Amoeba. Please do not ask what else was in there. There was a lot else in there.`,
+    ],
+    drop: [
+      `A ${n} dropped this on its way out of existence. Rude not to take it.`,
+      `Lucky find: it fell out of a ${n}. The odds of that were low. The odds of you gloating are high.`,
+    ],
+    rival: [
+      `${n}'s personal effects. Their mum would like the box back. She is not getting the box back.`,
+      `${n} left this to you in a will they wrote about four seconds before you happened to them.`,
+      `Everything ${n} owned now fits in one box. Sad, really. Anyway: loot.`,
+    ],
+    sponsor: [
+      `A gift from ${n}, sponsor of today's race. Terms and conditions apply to your soul.`,
+      `${n} sent this with a note: "Please mention us when you are born." You will not remember any of this.`,
+    ],
+    boss: [
+      `${n} is dead. This was in its will. You were not in its will. You are now.`,
+      `You took this off ${n}'s body while the audience cheered. The audience has questionable values.`,
+      `${n} guarded this box with its life. That turned out to be a limited resource.`,
+    ],
+    ach: [
+      `For "${n}". The producers insisted. The lawyers wept. Here is your prize.`,
+      `Achievement unlocked: "${n}". The show sends a box and a small round of applause.`,
+    ],
+    level: [
+      `Level ${L}. You grew, and the womb noticed. It sends its regards, and a box.`,
+      `Level ${L}! Every time you get bigger, somebody leaves a box out for you. You have not asked who.`,
+      `Level ${L}. Your tail is longer, your head is harder, and here, for some reason, is a box.`,
+    ],
+  };
+  const pool = lines[src.t] || (req.kind === 'level' ? lines.level : null);
+  return pool ? pick(pool) : '';
+}
+
+// Tap acts; press and hold shows details in a popover (let go to close, nothing happens).
+function holdable(el, info, onTap) {
+  let timer = 0, held = false, sx = 0, sy = 0, suppress = false;
+  el.addEventListener('pointerdown', ev => {
+    held = false; sx = ev.clientX; sy = ev.clientY; clearTimeout(timer);
+    timer = setTimeout(() => { held = true; UI.showInfo(info(), sx, sy); }, 380);
+  });
+  el.addEventListener('pointermove', ev => { if (Math.hypot(ev.clientX - sx, ev.clientY - sy) > 14) clearTimeout(timer); });
+  el.addEventListener('pointerup', () => { clearTimeout(timer); if (held) { held = false; suppress = true; UI.hideInfo(); } });
+  el.addEventListener('pointercancel', () => { clearTimeout(timer); if (held) { held = false; UI.hideInfo(); } });
+  el.addEventListener('contextmenu', ev => ev.preventDefault());
+  el.addEventListener('click', ev => { if (suppress) { suppress = false; return; } onTap(ev); });
+}
+function firstSentence(t) { const m = String(t).match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : t; }
 
 function fmtTime(t) { const m = Math.floor(t / 60), s = Math.floor(t % 60); return `${m}:${s < 10 ? '0' : ''}${s}`; }
 function fmtNum(v) { return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'k' : Math.round(v) + ''; }

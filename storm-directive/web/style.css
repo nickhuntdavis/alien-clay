@@ -479,3 +479,21 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 .pbtns { justify-content: center; position: sticky; bottom: calc(-16px - env(safe-area-inset-bottom)); z-index: 6; margin: 12px 0 calc(-16px - env(safe-area-inset-bottom));
   padding: 18px 0 calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(to bottom, rgba(2,4,6,0), rgba(2,4,6,0.94) 28%, rgba(2,4,6,0.98)); }
 #rerollBtn { position: sticky; bottom: calc(4px + env(safe-area-inset-bottom)); z-index: 6; }
+.ptabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 8px 0 2px; }
+.ptabs .chip { flex: 1 1 0; min-width: 70px; }
+/* Press-and-hold details */
+#holdInfo { position: fixed; left: 50%; transform: translateX(-50%); width: min(92vw, 420px); z-index: 50; pointer-events: none; display: none;
+  padding: 12px 14px; border-radius: 12px; background: #05080cf2; box-shadow: 0 8px 28px rgba(0,0,0,0.7); border: 1px solid #ffffff22; font-size: 13px; line-height: 1.4; color: #d6e4f0; }
+#holdInfo.on { display: block; }
+#holdInfo b { font-size: 15px; }
+#holdInfo em { font-style: normal; font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: #8395a8; margin-left: 4px; }
+#holdInfo p { margin: 6px 0 0; }
+.card .chold { margin-top: 6px; font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; color: #8395a8; text-transform: uppercase; }
+#armBody.swipeL { animation: swl 0.22s ease-out; }
+#armBody.swipeR { animation: swr 0.22s ease-out; }
+@keyframes swl { from { transform: translateX(40px); opacity: 0.3; } to { transform: none; opacity: 1; } }
+@keyframes swr { from { transform: translateX(-40px); opacity: 0.3; } to { transform: none; opacity: 1; } }
+#over .pbtns { flex-wrap: wrap; }
+#copyRunBtn { flex: 1 1 100%; max-width: none; padding: 9px; font-size: 12px; }
+#pause .pbtns { flex-wrap: wrap; }
+#pause .pbtns .btn { flex: 1 1 40%; min-width: 0; max-width: none; padding: 12px 6px; font-size: 13px; }
