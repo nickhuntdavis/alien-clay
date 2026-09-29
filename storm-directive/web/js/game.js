@@ -781,7 +781,7 @@ function hurtPlayer(dmg, from, ent) {
 // Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
 function enemyScale(t) {
   const k = Math.min(1, t / 900);
-  return { hp: 0.72 + 1.04 * k, dmg: 0.62 + 0.56 * k, xp: 1.15, r: 1.12, speed: 1 + 0.12 * k };
+  return { hp: 0.72 + 1.04 * k, dmg: 0.62 + 0.56 * k, xp: 0.88, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);
@@ -813,7 +813,8 @@ function spawnRandom() {
   const pool = [];
   let tot = 0;
   // Shooters become more common as the storm builds.
-  const wOf = d => d.w * (d.shoot ? 1 + t / 300 : 1);
+  // Shooters stay as common as they were before the swarms got denser: the extra bodies are melee and swarmers.
+  const wOf = d => d.w * (d.shoot ? 0.6 * (1 + t / 300) : 1);
   for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t) { pool.push(d); tot += wOf(d); } }
   let x = Math.random() * tot, def = pool[0];
   for (const d of pool) { x -= wOf(d); if (x <= 0) { def = d; break; } }
