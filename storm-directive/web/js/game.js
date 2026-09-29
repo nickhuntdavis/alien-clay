@@ -1608,7 +1608,7 @@ function updatePickups(dt) {
 function applyPickup(type) {
   const p = G.player, P = G.P;
   sfx('pickup');
-  banner(POWERUPS[type].name, POWERUPS[type].color);
+  banner(POWERUPS[type].name, type === 'chest' ? PAL.reward : PAL.pickup);
   switch (type) {
     case 'magnet': for (const g of G.gems) g.mag = true; break;
     case 'nuke':
@@ -1633,7 +1633,7 @@ const BOX_EVERY_FROM = 4;
 function levelGrowth() {
   G.P.might += 0.06; G.P.haste += 0.03; G.P.maxHp += 4; me().hp += 4;
   recomputeAll();
-  floatText(me().x, me().y - 34, 'LV ' + G.level + '  GROWTH', '#ffffff', 13, 1);
+  floatText(me().x, me().y - 34, 'LV ' + G.level + '  GROWTH', PAL.upgrade, 13, 1);
   sfx('level');
 }
 function gainXp(v) {
@@ -1651,7 +1651,7 @@ function gainXp(v) {
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < 3 + SLOT_LEVELS.length) {
       G.weapons.push(null);
       G.lootQueue.push({ kind: 'slot' });
-      banner('NEW WEAPON SLOT!', '#8dffc0');
+      banner('NEW WEAPON SLOT!', PAL.upgrade);
       sysLine('slot', true); achieve('slot');
     }
   }

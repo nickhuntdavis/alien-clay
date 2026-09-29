@@ -1,4 +1,12 @@
 'use strict';
+// UI colour: X-ray neutrals, plus one colour per meaning (see PAL in data.js).
+const UI_MEAN = new Set([PAL.you, PAL.danger, PAL.reward, PAL.upgrade, PAL.pickup]);
+function uiCol(c) { const v = col(c); return UI_MEAN.has(v) ? v : XR.white; }
+function cardCat(o) {
+  if (o.cursed) return PAL.danger;
+  if (o.tag === 'SUPPLY') return XR.white;
+  return PAL.upgrade; // weapons, spells, levels, fusions, branches, modifiers, power-ups: all permanent build changes
+}
 // Spawn Storm - DOM UI: title, HUD slots, loot boxes, Armoury, pause, game over and victory.
 
 const $ = id => document.getElementById(id);
@@ -95,10 +103,10 @@ const UI = {
       if (full || el.dataset.k !== key) {
         el.dataset.k = key;
         el.classList.remove('empty');
-        el.style.setProperty('--c', w.def.gacha ? GACHA_TIERS[w.gachaTier].color : w.def.color);
+        el.style.setProperty('--c', XR.white);
         el.querySelector('.ico').textContent = w.def.icon;
         el.querySelector('.lv').textContent = 'Lv' + w.lvl;
-        el.querySelector('.mp').innerHTML = w.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('');
+        el.querySelector('.mp').innerHTML = w.mods.map(m => `<i style="background:${PAL.upgrade}"></i>`).join('');
         el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : '');
         el.classList.toggle('merged', !!w.def.merged);
       }
@@ -134,9 +142,9 @@ const UI = {
       if (UI.msgT > 0) { UI.msgT -= dt; if (UI.msgT <= 0) $('sysmsg').classList.remove('on'); }
       else if (G.show.msgQ.length) {
         const m = G.show.msgQ.shift(), box = $('sysmsg');
-        box.querySelector('b').textContent = m.head; box.querySelector('b').style.color = m.color;
+        box.querySelector('b').textContent = m.head; box.querySelector('b').style.color = col(m.color) === PAL.danger ? PAL.danger : XR.dim;
         box.querySelector('span').textContent = m.body;
-        box.style.setProperty('--mc', m.color);
+        box.style.setProperty('--mc', col(m.color) === PAL.danger ? PAL.danger : XR.white); // messages are neutral unless they warn you
         box.classList.remove('on'); void box.offsetWidth; box.classList.add('on');
         UI.msgT = Math.min(6, 2.2 + m.body.length / 30);
       }
@@ -178,7 +186,7 @@ const UI = {
     const tab = (k, i, x) => {
       const sel = A.k === k && A.i === i;
       if (!x) return `<button class="atab empty ${sel ? 'sel' : ''}" data-k="${k}" data-i="${i}"><b>+</b><span>${k === 'w' ? 'WEAPON' : 'SPELL'} ${i + 1}</span></button>`;
-      return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${x.def.color}"><b>${esc(x.def.icon)}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
+      return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${XR.white}"><b>${esc(x.def.icon)}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
     for (let i = G.weapons.length; i < 3 + SLOT_LEVELS.length; i++) t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${SLOT_LEVELS[i - 3]}</span></button>`;
@@ -196,7 +204,7 @@ const UI = {
     }
     const d = w.def, s = w.s;
     const elName = ELEMENTS[w.mods.find(m => m.id === 'elemental') ? w.mods.find(m => m.id === 'elemental').elem : d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
-    let h = `<div class="ahead" style="--c:${d.color}"><div class="aico">${esc(d.icon)}</div><div class="ainfo">
+    let h = `<div class="ahead" style="--c:${XR.white}"><div class="aico">${esc(d.icon)}</div><div class="ainfo">
       <div class="aname">${esc(d.name)}${d.merged ? ' <span class="fz">FUSED</span>' : ''}</div>
       <div class="asub">${esc(elName)} ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: 8 }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/8</div>
       <div class="adesc">${esc(d.desc)}</div></div></div>`;
@@ -232,7 +240,7 @@ const UI = {
           const chosen = w.perks[l];
           h += `<div class="trow br ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><div class="tps">` + tree[l].map(id => {
             const K = PERKS[id], st = chosen ? (chosen === id ? 'chosen' : 'dim') : reached ? 'pending' : '';
-            return `<div class="tp ${st}" style="--c:${K.color}"><b><i>${esc(K.icon)}</i>${esc(K.name)}</b><span>${esc(K.desc)}</span></div>`;
+            return `<div class="tp ${st}" style="--c:${PAL.upgrade}"><b><i>${esc(K.icon)}</i>${esc(K.name)}</b><span>${esc(K.desc)}</span></div>`;
           }).join('<em>or</em>') + `</div></div>`;
         } else {
           const bonus = l > 1 ? lvBonusText(d, l - 1, l) : '';
@@ -250,7 +258,7 @@ const UI = {
         if (!m) { h += `<div class="modslot empty">Empty slot. Modifier cards drop from loot boxes.</div>`; continue; }
         const M = MODS[m.id];
         const desc = m.id === 'elemental' ? `Converts this weapon to ${ELEMENTS[m.elem].name} damage.` : M.desc(m.p || 1);
-        h += `<div class="modslot" style="--c:${M.color}"><span class="mi">${esc(M.icon)}</span><div><b>${esc(M.name)}</b> <em>power ${(m.p || 1).toFixed(2)}</em><br><span>${esc(desc)}</span></div></div>`;
+        h += `<div class="modslot" style="--c:${PAL.upgrade}"><span class="mi">${esc(M.icon)}</span><div><b>${esc(M.name)}</b> <em>power ${(m.p || 1).toFixed(2)}</em><br><span>${esc(desc)}</span></div></div>`;
       }
       const ok = Object.keys(MODS).filter(id => !MODS[id].kinds || MODS[id].kinds.includes(d.kind));
       h += `</div><p class="hint">Can take: ${ok.map(id => MODS[id].name).join(', ')}.</p></div>`;
@@ -275,8 +283,8 @@ const UI = {
         for (const m of ms) {
           const other = m.a === w.id ? m.b : m.a, ow = G.weapons.find(x => x && x.id === other);
           const ready = ow && ow.lvl >= MERGE_MIN_LEVEL && w.lvl >= MERGE_MIN_LEVEL;
-          const status = ready ? '<b style="color:#8dffc0">READY: offered in your next loot box</b>' : ow ? `Owned at Lv ${ow.lvl}. Both need Lv ${MERGE_MIN_LEVEL}.` : 'Not owned.';
-          h += `<div class="fuse" style="--c:${WEAPONS[m.out].color}"><b>+ ${esc(WEAPONS[other].name)}</b> = <b style="color:${WEAPONS[m.out].color}">${esc(WEAPONS[m.out].name)}</b><br><span>${status}</span></div>`;
+          const status = ready ? `<b style="color:${PAL.upgrade}">READY: offered in your next loot box</b>` : ow ? `Owned at Lv ${ow.lvl}. Both need Lv ${MERGE_MIN_LEVEL}.` : 'Not owned.';
+          h += `<div class="fuse" style="--c:${PAL.upgrade}"><b>+ ${esc(WEAPONS[other].name)}</b> = <b style="color:${PAL.upgrade}">${esc(WEAPONS[m.out].name)}</b><br><span>${status}</span></div>`;
         }
         h += `</div>`;
       } else if (d.merged) h += `<div class="sec"><p class="hint">Already fused. It cannot be fused again. We checked. There was a small fire.</p></div>`;
@@ -322,6 +330,9 @@ const UI = {
     $('lootSub').textContent = titles[req.kind][1];
     const box = $('lootBox');
     box.className = 'box ' + req.kind;
+    // Loot boxes are gold; a branch choice is an upgrade, so it's cyan.
+    const kc = req.kind === 'branch' ? PAL.upgrade : PAL.reward;
+    box.style.setProperty('--bc', kc); $('lootTitle').style.color = kc;
     void box.offsetWidth; // restart animation
     box.classList.add('opening');
     $('lootCards').innerHTML = '';
@@ -343,10 +354,10 @@ const UI = {
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
       c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '');
-      c.style.setProperty('--rc', r.color);
-      c.style.setProperty('--ic', o.color);
+      c.style.setProperty('--rc', cardCat(o));
+      c.style.setProperty('--ic', cardCat(o));
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
-      const el = o.elem ? `<span class="el" style="color:${ELEMENTS[o.elem].color}">${ELEMENTS[o.elem].name}</span>` : '';
+      const el = o.elem ? `<span class="el" style="color:${XR.dim}">${ELEMENTS[o.elem].name}</span>` : '';
       c.innerHTML = `<div class="tag">${esc(o.tag)} <b>${esc(r.name)}</b></div>
         <div class="cico">${esc(o.icon)}</div>
         <div class="ctitle">${esc(o.title)}</div>
@@ -398,7 +409,7 @@ const UI = {
     // Achievements and the show.
     const got = G.show.order;
     h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | Viewers ${fmtViewers(G.show.viewers)}</h3>`;
-    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b style="color:#ffd23f">${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The audience is waiting.</p>`;
+    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The audience is waiting.</p>`;
     const cur = Object.keys(G.curses);
     if (cur.length) h += `<p class="hint">Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}</p>`;
     h += `</div>`;
@@ -407,7 +418,7 @@ const UI = {
     h += `<div class="sec"><h3>Element synergies (own 2+ of an element)</h3><div class="list">`;
     for (const el in SYNERGIES) {
       const on = !!G.synergy[el];
-      h += `<div class="li ${on ? 'on' : ''}"><b style="color:${ELEMENTS[el].color}">${SYNERGIES[el].name}</b> ${on ? '(ACTIVE)' : ''}<br><span>${ELEMENTS[el].name}: ${esc(SYNERGIES[el].desc)}</span></div>`;
+      h += `<div class="li ${on ? 'on' : ''}"><b>${SYNERGIES[el].name}</b> ${on ? '(ACTIVE)' : ''}<br><span>${ELEMENTS[el].name}: ${esc(SYNERGIES[el].desc)}</span></div>`;
     }
     h += `</div></div>`;
 
@@ -419,14 +430,14 @@ const UI = {
 
     // Reactions.
     h += `<div class="sec"><h3>Elemental reactions</h3><div class="list">`;
-    for (const id in REACTIONS) h += `<div class="li"><b style="color:${REACTIONS[id].color}">${REACTIONS[id].name}</b> ${G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
+    for (const id in REACTIONS) h += `<div class="li"><b>${REACTIONS[id].name}</b> ${G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
     h += `</div></div>`;
 
     // Fusion recipes.
     h += `<div class="sec"><h3>Fusion recipes</h3><div class="list">`;
     for (const m of MERGES) {
       const ha = G.weapons.find(w => w && w.id === m.a), hb = G.weapons.find(w => w && w.id === m.b);
-      h += `<div class="li ${ha && hb ? 'on' : ''}"><b style="color:${WEAPONS[m.out].color}">${esc(WEAPONS[m.out].name)}</b><br><span>${esc(WEAPONS[m.a].name)}${ha ? ' (Lv ' + ha.lvl + ')' : ''} + ${esc(WEAPONS[m.b].name)}${hb ? ' (Lv ' + hb.lvl + ')' : ''}</span></div>`;
+      h += `<div class="li ${ha && hb ? 'on' : ''}"><b style="color:${PAL.upgrade}">${esc(WEAPONS[m.out].name)}</b><br><span>${esc(WEAPONS[m.a].name)}${ha ? ' (Lv ' + ha.lvl + ')' : ''} + ${esc(WEAPONS[m.b].name)}${hb ? ' (Lv ' + hb.lvl + ')' : ''}</span></div>`;
     }
     h += `</div></div>`;
     box.innerHTML = h;
@@ -457,7 +468,7 @@ const UI = {
     let h = won
       ? `<div class="eulogy">You broke into the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
       : `<div class="eulogy">${esc(G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
-      <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:#ff4d6d">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
+      <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:${PAL.danger}">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
     h += `
       <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
       <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.stats.charms || 0}</b>Allies won</div><div><b>${G.weapons.reduce((a, w) => a + (w ? w.mods.length : 0), 0)}</b>Modifiers</div><div><b>${G.stats.absorbed}</b>Bullets eaten</div></div>
@@ -465,7 +476,7 @@ const UI = {
     for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
     const got = G.show.order;
     h += `<h3>Achievements this run (${got.length})</h3>`;
-    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b style="color:#ffd23f">${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')}</div>` : `<p class="hint">None. Impressive, in its own way.</p>`;
+    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')}</div>` : `<p class="hint">None. Impressive, in its own way.</p>`;
     $('overBody').innerHTML = h;
     UI.show('over');
   },

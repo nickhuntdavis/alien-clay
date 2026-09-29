@@ -10,7 +10,7 @@ function sy(y) { return (y - cam.y) * S + H / 2; }
 // its greyscale equivalent. Aliases fold old accent colours into the meaning they stood for.
 // X-ray film neutrals for the UI: a slightly blue white and a blue-grey.
 const XR = { white: '#d6e4f0', dim: '#8395a8', line: 'rgba(196,218,240,0.42)', halo: 'rgba(196,218,240,0.16)' };
-const PAL_OK = new Set([PAL.you, PAL.danger, PAL.reward, '#ffffff', '#000000', XR.white, XR.dim].concat(RIVALS.map(r => r.color)));
+const PAL_OK = new Set([PAL.you, PAL.danger, PAL.reward, PAL.upgrade, PAL.pickup, '#ffffff', '#000000', XR.white, XR.dim].concat(RIVALS.map(r => r.color)));
 const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
@@ -689,14 +689,14 @@ function render() {
     ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r * 0.5, y - r * 0.2); ctx.lineTo(x, y); ctx.fill();
   }
-  // Pickups.
+  // Pickups: temporary power-ups are monitor magenta; loot boxes are gold.
   for (const u of G.pickups) {
     if (!vis(u)) continue;
-    const d = POWERUPS[u.type], x = sx(u.x), y = sy(u.y) + Math.sin(u.bob) * 3, r = 13 * S;
+    const d = POWERUPS[u.type], x = sx(u.x), y = sy(u.y) + Math.sin(u.bob) * 3, r = 13 * S, pc = u.type === 'chest' ? PAL.reward : PAL.pickup;
     if (u.life < 5 && Math.floor(u.life * 6) % 2) continue;
-    ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(x + 2, sy(u.y) + r + 4, r * 0.8, r * 0.3, 0, 0, TAU); ctx.fill();
-    drawShape('hex', x, y, r, 0); ctx.fillStyle = '#111'; ctx.fill(); ctx.strokeStyle = d.color; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = d.color; ctx.font = `bold ${Math.round(14 * S)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    drawShape(u.type === 'chest' ? 'square' : 'hex', x, y, r, 0); ctx.fillStyle = '#0a0f14'; ctx.fill();
+    ctx.strokeStyle = pc; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = pc; ctx.font = `bold ${Math.round(14 * S)}px ` + "ui-monospace, Menlo, monospace"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(d.letter, x, y + 1);
   }
   // Mines & lob shadows.
@@ -1183,15 +1183,15 @@ function drawHud() {
   ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('ELAPSED', W - 62, top + 44);
   // Status chips.
   const chips = [];
-  if (G.rage > 0) chips.push('ADRENALINE');
-  if (G.shieldT > 0) chips.push('SHIELD');
-  if (G.warp > 0) chips.push('WARP');
-  if (G.barrier > 0) chips.push('AEGIS');
-  if (G.echoes.length) chips.push('ECHO x' + G.echoes.length);
-  if (G.manual) chips.push('MANUAL');
+  if (G.rage > 0) chips.push(['ADRENALINE', PAL.pickup]);
+  if (G.shieldT > 0) chips.push(['SHIELD', PAL.pickup]);
+  if (G.warp > 0) chips.push(['WARP', XR.white]);
+  if (G.barrier > 0) chips.push(['AEGIS', XR.white]);
+  if (G.echoes.length) chips.push(['ECHO x' + G.echoes.length, PAL.you]);
+  if (G.manual) chips.push(['MANUAL', XR.white]);
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
   let cxp = 8;
-  for (const ch of chips) { const tw = ctx.measureText(ch).width + 10; ctx.strokeStyle = XR.line; ctx.lineWidth = 1; ctx.strokeRect(cxp + 0.5, top + 92.5, tw, 14); ctx.fillStyle = XR.white; ctx.fillText(ch, cxp + 5, top + 103); cxp += tw + 4; }
+  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 10; ctx.strokeStyle = cc; ctx.lineWidth = 1; ctx.strokeRect(cxp + 0.5, top + 92.5, tw, 14); ctx.fillStyle = cc; ctx.fillText(ch, cxp + 5, top + 103); cxp += tw + 4; }
   // Boss bar.
   if (G.boss && !G.boss.dead) {
     const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + 126;

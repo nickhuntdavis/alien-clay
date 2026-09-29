@@ -443,8 +443,12 @@ const SLOT_LEVELS = [15, 30, 45];
 //   danger  - red: anything that can hurt you (enemy bullets, acid, hits you take, low HP)
 //   reward  - gold: loot, big XP, elites (they carry loot), charged mitochondria
 //   rivals  - each rival champion's own fluorescent dye (their tag, track and name only)
+// Loot boxes are reward-gold everywhere, in the world and in the UI.
 // The renderer greys out any other colour it is asked to draw.
-const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f' };
+// Two more for the interface, taken from patient-monitor conventions (each trace has its own fixed colour):
+//   upgrade - monitor cyan: anything that permanently changes your build (weapons, levels, perks, mods, stats)
+//   pickup  - monitor magenta: temporary field power-ups lying on the slide
+const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f', upgrade: '#5fd4e8', pickup: '#d983e8' };
 
 // ---------------------------------------------------------------- Weapon upgrade trees
 // Every weapon has a tree: at these levels you pick one of two branch perks (the tree is fixed per weapon,

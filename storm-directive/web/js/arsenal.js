@@ -293,7 +293,7 @@ function optPerk(w, lvl, id) {
   const K = PERKS[id];
   return { rarity: lvl >= 8 ? 3 : lvl >= 5 ? 2 : 1, tag: 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
     sub: `${w.def.name} | Lv ${lvl} branch`, desc: K.desc,
-    apply: () => { w.perks[lvl] = id; computeStats(w); floatText(me().x, me().y - 40, K.name.toUpperCase(), K.color, 15, 1.2); } };
+    apply: () => { w.perks[lvl] = id; computeStats(w); floatText(me().x, me().y - 40, K.name.toUpperCase(), PAL.upgrade, 15, 1.2); } };
 }
 
 // Stat side of perks (called from computeStats).
