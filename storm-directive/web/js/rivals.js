@@ -32,7 +32,7 @@ function makeRival(R, x, y) {
 function rivalStats(e, heal) {
   const L = e.lvl, t = G.t;
   const rel = Math.pow(Math.min(1.5, L / Math.max(1, G.level)), 1.5);
-  const maxHp = RIVAL.hpBase * hpMul(t) * (1 + L / 7) + (G.dpsAvg || 0) * RIVAL.duel * rel;
+  const maxHp = (RIVAL.hpBase * hpMul(t) * (1 + L / 7) + (G.dpsAvg || 0) * RIVAL.duel * rel) * (e.final ? 2.5 : 1); // the Final Five are built to last
   const k = e.maxHp > 0 ? e.hp / e.maxHp : 1;
   e.maxHp = maxHp;
   e.hp = Math.min(maxHp, maxHp * Math.min(1, k + heal));
@@ -80,8 +80,9 @@ function rivalAI(e, dt) {
   const hurt = e.hp < e.maxHp * 0.3;
   if (e.final) {
     // The Final Five: no running, no resting, just you.
-    const want = 230, side = e.side;
-    tx = p.x - dx / dist * want - dy / dist * 140 * side; ty = p.y - dy / dist * want + dx / dist * 140 * side; spd *= 1.1;
+    // They surround you, one to each side, slowly circling, so no single blast catches them all.
+    const a = e.slot + G.t * 0.25, want = 240;
+    tx = p.x + Math.cos(a) * want; ty = p.y + Math.sin(a) * want; spd *= 1.15;
   } else if (e.mode === 'flee') {
     tx = e.x - dx / dist * 400; ty = e.y - dy / dist * 400; spd *= 1.35;
     if (e.modeT <= 0 || dist > RIVAL.sight) { e.mode = 'roam'; newWaypoint(e); }
@@ -251,7 +252,7 @@ function startShowdown() {
     // They close in from all sides, fully grown and fully healed.
     const a = i / fin.length * TAU + Math.random() * 0.5;
     e.x = p.x + Math.cos(a) * 850; e.y = p.y + Math.sin(a) * 850;
-    e.final = true; e.mode = 'final'; e.lvl = Math.max(e.lvl, G.level);
+    e.final = true; e.mode = 'final'; e.slot = i / fin.length * TAU; e.lvl = Math.max(e.lvl, G.level);
     e.maxHp = 0; rivalStats(e, 1);
   });
   banner('THE FINAL FIVE', PAL.danger);
