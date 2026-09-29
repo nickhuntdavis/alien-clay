@@ -14,6 +14,7 @@ function cardCat(o) {
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+window.addEventListener('pointerdown', () => { UI.lastDown = performance.now(); }, true);
 const UI = {
   safeTop: 0,
   hudT: 0,
@@ -63,6 +64,7 @@ const UI = {
     UI.show('title');
   },
 
+  lastDown: 0, lootOpenT: 0,
   show(name) {
     for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
@@ -374,6 +376,7 @@ const UI = {
     INPUT.active = false; G.manual = null;
     lootSound(req.kind, Math.max(...UI.lootOpts.map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
     clearTimeout(UI.lootTimer);
+    UI.lootOpenT = performance.now();
     UI.lootTimer = setTimeout(() => $('lootCards').classList.add('ready'), 650);
   },
 
@@ -395,6 +398,9 @@ const UI = {
         <div class="cdesc">${esc(o.desc)}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}`;
       c.addEventListener('click', () => {
         if (!$('lootCards').classList.contains('ready')) return;
+        // Only a tap that started on this screen picks a card (not one left over from skipping the intro
+        // or steering when the box popped up).
+        if (!(UI.lastDown > UI.lootOpenT)) return;
         UI.pickLoot(i);
       });
       wrap.appendChild(c);

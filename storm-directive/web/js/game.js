@@ -1896,8 +1896,13 @@ const PTRS = new Map();
 let PINCH = null;
 const pinchDist = () => { const [a, b] = [...PTRS.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
 cv.addEventListener('pointerdown', ev => {
+  // A new first finger means a new gesture: forget any finger whose lift we never saw (e.g. one that
+  // skipped the intro and was lifted over the loot screen).
+  if (ev.isPrimary) { PTRS.clear(); PINCH = null; }
+  if (!G || (G.state !== 'play' && G.state !== 'pause')) return;
   PTRS.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
-  if (PTRS.size === 2 && G && (G.state === 'play' || G.state === 'pause')) {
+  try { cv.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
+  if (PTRS.size >= 2) {
     PINCH = { d0: pinchDist(), z0: ZOOM.z };
     INPUT.active = false; INPUT.id = null; if (G) G.manual = null;
     try { cv.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
@@ -1930,6 +1935,9 @@ const endTouch = ev => {
 };
 cv.addEventListener('pointerup', endTouch);
 cv.addEventListener('pointercancel', endTouch);
+// Fingers lifted over an overlay still count as lifted.
+window.addEventListener('pointerup', ev => { if (ev.target !== cv) PTRS.delete(ev.pointerId); });
+window.addEventListener('pointercancel', ev => { if (ev.target !== cv) PTRS.delete(ev.pointerId); });
 let wheelT = 0;
 cv.addEventListener('wheel', ev => {
   if (!G) return;
