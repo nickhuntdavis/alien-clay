@@ -37,10 +37,39 @@ function col(c) {
   COL.set(c, v);
   return v;
 }
+// Darkfield: while the world is drawn, every grey is inverted (black field, bright specimens); the meaning
+// colours and pure white stay as they are. The HUD is drawn with WORLD_DF off.
+let WORLD_DF = false;
+const COLDF = new Map();
+function colDF(c) {
+  if (typeof c !== 'string') return c;
+  let v = COLDF.get(c);
+  if (v !== undefined) return v;
+  v = col(c);
+  const m = typeof v === 'string' && v.match(/^rgba?\((\d+),(\d+),(\d+)(?:,([\d.]+))?\)$/);
+  if (m && m[1] === m[2] && m[2] === m[3]) { const l = Math.round(clamp((255 - +m[1] - 128) * 1.6 + 128, 0, 255)); v = m[4] != null ? `rgba(${l},${l},${l},${m[4]})` : `rgb(${l},${l},${l})`; }
+  if (COLDF.size > 4000) COLDF.clear();
+  COLDF.set(c, v);
+  return v;
+}
 for (const prop of ['fillStyle', 'strokeStyle']) {
   const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, prop);
-  Object.defineProperty(ctx, prop, { get() { return d.get.call(this); }, set(v) { d.set.call(this, col(v)); } });
+  Object.defineProperty(ctx, prop, { get() { return d.get.call(this); }, set(v) { d.set.call(this, WORLD_DF ? colDF(v) : col(v)); } });
 }
+// Gradients made on the main canvas go through the same gate (only while drawing the world in darkfield).
+for (const fn of ['createRadialGradient', 'createLinearGradient']) {
+  const orig = ctx[fn].bind(ctx);
+  ctx[fn] = (...a) => { const g = orig(...a); if (!WORLD_DF) return g; const add = g.addColorStop.bind(g); g.addColorStop = (o, c) => add(o, colDF(c)); return g; };
+}
+// Invert a baked sprite for darkfield (needs canvas filters; otherwise it's left as is).
+function invertCanvas(c) {
+  if (!CAN_FILTER) return c;
+  const o = makeCanvas(c.width, c.height), g = o.getContext('2d');
+  g.filter = 'invert(1) contrast(1.6)'; g.drawImage(c, 0, 0);
+  return o;
+}
+// Called when look settings change: drop every cached, pre-rendered asset.
+function resetLook() { SPR.layers = null; SPR.fore = null; SPR.oocyte = null; SPR.oocyteR = 0; SPR.vigKey = ''; if (typeof SHEETS !== 'undefined') SHEETS.clear(); }
 
 // ---------------------------------------------------------------- cached sprites
 const SPR = { glow: new Map(), layers: null, vignette: null, vigKey: '' };
@@ -92,7 +121,7 @@ function pcTone(hex, k) {
 }
 // Bright phase halo round the current path, then a thin dark edge.
 function pcHalo(width, alpha) {
-  ctx.strokeStyle = MIC.halo + (alpha != null ? alpha : 0.55) + ')'; ctx.lineWidth = width; ctx.stroke();
+  if (!SET.clinical) { ctx.strokeStyle = MIC.halo + (alpha != null ? alpha : 0.55) + ')'; ctx.lineWidth = width; ctx.stroke(); }
   ctx.strokeStyle = MIC.dark + '0.55)'; ctx.lineWidth = Math.max(1, width * 0.35); ctx.stroke();
 }
 
@@ -131,10 +160,11 @@ function buildLayers() {
     fg2.beginPath(); fg2.arc(x, y, r, 0, TAU); fg2.fill();
     if (dark && rnd() < 0.3) { fg2.strokeStyle = 'rgba(255,255,255,0.35)'; fg2.lineWidth = 0.8; fg2.stroke(); }
   }
-  SPR.layers = [
-    { f: 0.06, img: blurTile(far, 7), T },
-    { f: 0.25, img: blurTile(mid, 2.5 * D), T },
-    { f: 0.6, img: blurTile(near, 0.4 * D), T },
+  const lay = img => SET.darkfield ? invertCanvas(img) : img;
+  SPR.layers = SET.clinical ? [{ f: 0.6, img: lay(blurTile(near, 0.4 * D)), T }] : [
+    { f: 0.06, img: lay(blurTile(far, 7)), T },
+    { f: 0.25, img: lay(blurTile(mid, 2.5 * D)), T },
+    { f: 0.6, img: lay(blurTile(near, 0.4 * D)), T },
   ];
   // Foreground: debris drifting above the focal plane, badly out of focus.
   const fg = makeCanvas(T, T), fgc = fg.getContext('2d');
@@ -333,6 +363,16 @@ function drawCore() {
         ctx.stroke();
       }
     }
+  }  // High detail: the zona pellucida visibly breaches where the damage is worst, and granules leak out.
+  if (egg && SET.detail === 'high' && dmg > 0.35) {
+    const p = me(), ba = Math.atan2(p.y - c.y, p.x - c.x), span = 0.12 + (dmg - 0.35) * 0.9;
+    ctx.strokeStyle = 'rgba(20,24,22,0.85)'; ctx.lineWidth = r * 0.22;
+    ctx.beginPath(); ctx.arc(x, y, r * 1.13, ba - span, ba + span); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, r * 1.02, ba - span, ba + span); ctx.moveTo(x + Math.cos(ba + span) * r * 1.25, y + Math.sin(ba + span) * r * 1.25); ctx.arc(x, y, r * 1.25, ba + span, ba - span, true); ctx.stroke();
+    ctx.fillStyle = 'rgba(40,46,42,0.7)';
+    for (let i = 0; i < 10; i++) { const f = ((t * 0.35 + i * 0.1) % 1), a = ba + (i % 5 - 2) * span * 0.35, d = r * (1.05 + f * 0.6); ctx.globalAlpha = 1 - f; ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, 2 + (i % 3), 0, TAU); ctx.fill(); }
+    ctx.globalAlpha = 1;
   }
 }
 function buildOocyte(r) {
@@ -374,7 +414,7 @@ function buildOocyte(r) {
   g.strokeStyle = 'rgba(40,46,42,0.5)'; g.lineWidth = 1.2; g.stroke();
   g.fillStyle = 'rgb(60,66,62)'; g.beginPath(); g.arc(-R * 0.14, R * 0.1, R * 0.07, 0, TAU); g.fill();
   g.strokeStyle = 'rgba(255,255,255,0.9)'; g.lineWidth = 2.2; g.beginPath(); g.arc(0, 0, R * 0.95, 0, TAU); g.stroke();
-  SPR.oocyte = c; SPR.oocyteR = R;
+  SPR.oocyte = SET.darkfield ? invertCanvas(c) : c; SPR.oocyteR = R;
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
@@ -457,6 +497,15 @@ function drawShip(x, y, face, tag, alpha, scale, body) {
   ctx.globalAlpha = alpha;
   // Post-acrosomal dark band and nucleus shading.
   ctx.fillStyle = 'rgba(20,24,22,0.35)'; ctx.beginPath(); ctx.ellipse(-2.6 * k, 0, 2 * k, 4 * k, 0, 0, TAU); ctx.fill();
+  if (SET.detail === 'high' && k > 0.55) {
+    // Mitochondrial sheath: the midpiece's helix of mitochondria.
+    ctx.strokeStyle = 'rgba(210,216,212,0.55)'; ctx.lineWidth = Math.max(0.6, 0.5 * k);
+    ctx.beginPath(); for (let i = 0; i < 5; i++) { const hx = -5.5 * k - i * 1.2 * k; ctx.moveTo(hx, -1.3 * k); ctx.lineTo(hx - 0.8 * k, 1.3 * k); } ctx.stroke();
+    // Equatorial segment and a couple of small nuclear vacuoles.
+    ctx.strokeStyle = 'rgba(210,216,212,0.4)'; ctx.beginPath(); ctx.moveTo(1.2 * k, -4.4 * k); ctx.quadraticCurveTo(0.2 * k, 0, 1.2 * k, 4.4 * k); ctx.stroke();
+    ctx.fillStyle = 'rgba(230,236,232,0.55)';
+    ctx.beginPath(); ctx.arc(-0.6 * k, -1.4 * k, 0.55 * k, 0, TAU); ctx.moveTo(0.4 * k + 0.5 * k, 1.6 * k); ctx.arc(0.4 * k, 1.6 * k, 0.45 * k, 0, TAU); ctx.fill();
+  }
   ctx.restore();
   if (tag) { ctx.globalCompositeOperation = 'lighter'; glow(x + Math.cos(face) * 3.6 * k, y + Math.sin(face) * 3.6 * k, 11 * k, tag, 0.55 * alpha); ctx.globalCompositeOperation = 'source-over'; }
   ctx.lineCap = 'butt';
@@ -631,6 +680,7 @@ function render() {
   const shx = cam.shake ? rand(-cam.shake, cam.shake) : 0, shy = cam.shake ? rand(-cam.shake, cam.shake) : 0;
   ctx.save();
   ctx.translate(shx, shy);
+  WORLD_DF = !!SET.darkfield;
   drawBackground();
   const p = G.player;
   const vx0 = cam.x - W / 2 / S - 90, vx1 = cam.x + W / 2 / S + 90, vy0 = cam.y - H / 2 / S - 90, vy1 = cam.y + H / 2 / S + 90;
@@ -768,7 +818,7 @@ function render() {
         // contractile vacuole, and the dark remains of whatever it has engulfed in food vacuoles.
         ctx.save(); drawShape(sh, x, y, r, rot); ctx.clip();
         ctx.fillStyle = 'rgba(70,78,72,0.55)'; drawShape(sh, x - r * 0.04, y, r * 0.82, rot + 0.3); ctx.fill();
-        for (let i = 0; i < 26; i++) { const a = i * 2.39 + e.id + e.age * 0.25, d = r * 0.72 * Math.sqrt((i * 0.618) % 1); ctx.fillStyle = i % 3 ? 'rgba(30,36,32,0.35)' : 'rgba(255,255,255,0.3)'; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, Math.max(1, r * 0.035), Math.max(1, r * 0.035)); }
+        for (let i = 0, gn = SET.detail === 'high' ? 70 : 26; i < gn; i++) { const a = i * 2.39 + e.id + e.age * (SET.detail === 'high' ? 0.25 + (i % 5) * 0.04 : 0.25), d = r * 0.72 * Math.sqrt((i * 0.618) % 1); ctx.fillStyle = i % 3 ? 'rgba(30,36,32,0.35)' : 'rgba(255,255,255,0.3)'; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, Math.max(1, r * 0.035), Math.max(1, r * 0.035)); }
         for (let i = 0; i < Math.min(10, e.meals || 0); i++) { const a = i * 1.9 + e.age * 0.2, d = r * 0.5 * ((i * 0.53) % 1); ctx.fillStyle = 'rgba(30,34,32,0.5)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, r * 0.1, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.stroke(); }
         ctx.fillStyle = 'rgba(150,158,150,0.7)'; ctx.beginPath(); ctx.arc(x - r * 0.15, y + r * 0.12, r * 0.2, 0, TAU); ctx.fill();
         ctx.strokeStyle = 'rgba(30,36,32,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
@@ -782,7 +832,9 @@ function render() {
         ctx.fillStyle = 'rgba(30,36,32,0.45)';
         for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.fill(); }
         ctx.fillStyle = 'rgba(255,255,255,0.25)';
-        for (let i = 0; i < 8; i++) { const a = i * 2.4 + e.id, d = r * 0.7 * ((i * 0.37) % 1); ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 1.5, 1.5); }
+        const gn = SET.detail === 'high' ? 26 : 8;
+        for (let i = 0; i < gn; i++) { const a = i * 2.4 + e.id, d = r * 0.8 * ((i * 0.37) % 1); ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 1.5, 1.5); }
+        if (SET.detail === 'high') { ctx.strokeStyle = 'rgba(230,236,232,0.35)'; ctx.lineWidth = 1; for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.stroke(); } }
         drawShape(sh, x, y, r, rot);
       }
       if (e.elite || e.charmed) {
@@ -989,11 +1041,14 @@ function render() {
   ctx.globalAlpha = 1;
   ctx.restore();
 
-  // Screen-space post effects: out-of-focus foreground, lens blur at the rim, vignette.
-  drawForeground();
-  if (!rewinding) drawLensBlur();
-  buildVignette();
-  ctx.drawImage(SPR.vignette, 0, 0, W, H);
+  WORLD_DF = false;
+  // Screen-space post effects: out-of-focus foreground, lens blur at the rim, vignette (none in clinical view).
+  if (!SET.clinical) {
+    drawForeground();
+    if (!rewinding) drawLensBlur();
+    buildVignette();
+    ctx.drawImage(SPR.vignette, 0, 0, W, H);
+  }
   if (G.warp > 0) { ctx.fillStyle = 'rgba(120,130,255,0.08)'; ctx.fillRect(0, 0, W, H); }
   if (p.flash > 0) { ctx.globalAlpha = p.flash / 0.2 * 0.5; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
@@ -1125,7 +1180,7 @@ function bakeSheet(bw, bh, round, seed) {
   g.shadowColor = 'rgba(0,0,0,0)'; g.shadowBlur = 0; g.shadowOffsetY = 0;
   g.save(); shape(); g.clip();
   let sd = seed * 9301 + 49297; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
-  for (let i = 0, n = Math.floor(bw * bh / 9); i < n; i++) { const v = 170 + rnd() * 85; g.fillStyle = `rgba(${v * 0.9 | 0},${v * 0.96 | 0},${v | 0},${0.05 + rnd() * 0.07})`; g.fillRect(rnd() * bw, rnd() * bh, 1, 1); }
+  for (let i = 0, n = SET.clinical ? 0 : Math.floor(bw * bh / 9); i < n; i++) { const v = 170 + rnd() * 85; g.fillStyle = `rgba(${v * 0.9 | 0},${v * 0.96 | 0},${v | 0},${0.05 + rnd() * 0.07})`; g.fillRect(rnd() * bw, rnd() * bh, 1, 1); }
   g.restore();
   if (round) sheetPath(bw / 2, bh / 2, bw / 2 - 0.5, 0, true, 0, g); else sheetPath(0.5, 0.5, bw - 1, bh - 1, false, 10, g);
   const eg = g.createLinearGradient(0, 0, bw * 0.8, bh);
@@ -1162,6 +1217,23 @@ function ecgWave(ph) {
 }
 // Patient-monitor module: HP as a vital sign, heart rate that climbs as you get hurt, a live ECG trace
 // (your green; danger red when low; flat when you die), and level / kills / viewers underneath.
+// Minimal HUD: everything in one thin bar. HP (with a slim bar), level, time, race position, kills.
+function drawMiniBar(top, m, s) {
+  const p = G.player, k = clamp(p.hp / G.P.maxHp, 0, 1), w = W - 70, x = 8, y = top + 8, h = 24;
+  filmPanel(x, y, w, h);
+  const sb = ctx.shadowOffsetX; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 11px ' + MONO;
+  ctx.fillStyle = k < 0.3 ? PAL.danger : XR.white; ctx.fillText('HP ' + Math.ceil(p.hp), x + 8, y + 16);
+  const bx = x + 58, bw = Math.min(70, w * 0.2);
+  ctx.fillStyle = 'rgba(214,228,240,0.15)'; ctx.fillRect(bx, y + 10, bw, 4);
+  ctx.fillStyle = k < 0.3 ? PAL.danger : PAL.you; ctx.fillRect(bx, y + 10, bw * k, 4);
+  const board = G.rivalsInit ? rivalBoard() : [];
+  const place = board.findIndex(r => r.you) + 1, ord = ['', '1st', '2nd', '3rd', '4th', '5th', '6th'][place] || '';
+  ctx.fillStyle = XR.white;
+  const txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  RACE ${ord}  K ${G.kills}`;
+  ctx.fillText(txt, bx + bw + 10, y + 16);
+  ctx.shadowOffsetX = sb; ctx.shadowOffsetY = sb;
+}
 function drawVitals(top) {
   const p = G.player, P = G.P, k = clamp(p.hp / P.maxHp, 0, 1), low = k < 0.3, dead = p.hp <= 0;
   const x0 = 8, y0 = top + 10, w = Math.min(190, W * 0.46), h = 58;
@@ -1203,14 +1275,17 @@ function drawHud() {
   // XP: a thin calibration line across the very top.
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
   ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
-  const c = G.core;
-  drawVitals(top);
-  // Clock, like a monitor's elapsed-time readout.
-  ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 15px ' + MONO;
+  const c = G.core, mini = SET.hud === 'minimal', BY = mini ? 60 : 126;
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
-  ctx.fillStyle = G.state === 'rewind' ? PAL.you : XR.white;
-  ctx.fillText(`${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`, W - 62, top + 32);
-  ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('ELAPSED', W - 62, top + 44);
+  if (mini) drawMiniBar(top, m, s);
+  else {
+    drawVitals(top);
+    // Clock, like a monitor's elapsed-time readout.
+    ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 15px ' + MONO;
+    ctx.fillStyle = G.state === 'rewind' ? PAL.you : XR.white;
+    ctx.fillText(`${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`, W - 62, top + 32);
+    ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('ELAPSED', W - 62, top + 44);
+  }
   // Status chips.
   const chips = [];
   if (G.rage > 0) chips.push(['ADRENALINE', PAL.pickup]);
@@ -1221,17 +1296,18 @@ function drawHud() {
   if (G.manual) chips.push(['MANUAL', XR.white]);
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
   let cxp = 8;
-  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(cxp, top + 91, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, cxp + 7, top + 103); cxp += tw + 5; }
+  const cy = mini ? top + 38 : top + 91;
+  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(cxp, cy, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, cxp + 7, cy + 12); cxp += tw + 5; }
   // Boss bar.
   if (G.boss && !G.boss.dead) {
-    const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + 126;
+    const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + BY;
     softBar(bx, by, bw, b.hp / b.maxHp, XR.white);
     ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
     ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), bx + bw / 2, by - 8);
   }
   // Egg membrane bar, or progress towards being big enough.
   {
-    const bw = Math.min(360, W - 130), bx = 10, by = top + (G.boss && !G.boss.dead ? 152 : 126), mid = bx + bw / 2;
+    const bw = Math.min(360, W - 130), bx = 10, by = top + BY + (G.boss && !G.boss.dead ? 26 : 0), mid = bx + bw / 2;
     ctx.textAlign = 'center'; ctx.font = 'bold 11px ' + MONO;
     if (G.eggE && !G.eggE.dead && G.level < EGG.level) {
       const e = G.eggE, who = G.enemies.filter(o => o.rival && !o.dead && o.mode === 'egg').map(o => o.name);
@@ -1244,7 +1320,7 @@ function drawHud() {
       ctx.fillStyle = '#ffd6e8'; ctx.fillText("BREAK INTO THE EGG! " + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
     } else if (!G.boss && G.level < EGG.level) {
       ctx.fillStyle = XR.white; ctx.font = 'bold 10px ' + MONO;
-      ctx.fillText(`GROW TO LV ${EGG.level} TO BREAK INTO THE EGG`, mid, top + 126);
+      if (!mini) ctx.fillText(`GROW TO LV ${EGG.level} TO BREAK INTO THE EGG`, mid, top + BY);
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).
@@ -1297,7 +1373,7 @@ function drawMinimap(top) {
   // View rectangle.
   ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
-  drawRaceBoard(W - 10, my + R + 16);
+  if (SET.hud !== 'minimal') drawRaceBoard(W - 10, my + R + 16);
 }
 
 // The race to the egg: you and the rival champions, by level.

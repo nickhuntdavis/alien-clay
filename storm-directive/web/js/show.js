@@ -12,7 +12,7 @@ function sysMsg(head, body, color, force) {
   if (!G) return;
   const q = G.show.msgQ;
   if (!force && q.length >= 2) return;
-  q.push({ head, body, color: color || '#8dffc0' });
+  q.push({ head: narratorHead(head), body, color: color || '#8dffc0' });
   if (q.length > 6) q.shift();
 }
 function sysLine(kind, force) { const L = SYSTEM_LINES[kind]; if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force); }

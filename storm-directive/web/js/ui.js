@@ -50,18 +50,10 @@ const UI = {
     $('rerollBtn').addEventListener('click', () => UI.reroll());
     $('resumeBtn').addEventListener('click', () => UI.togglePause());
     $('quitBtn').addEventListener('click', () => { G = null; UI.show('title'); UI.renderBest(); });
-    $('soundBtn').addEventListener('click', () => {
-      AUDIO.on = !AUDIO.on;
-      try { localStorage.setItem('sd_sound', AUDIO.on ? '1' : '0'); } catch (e) { /* ignore */ }
-      $('soundBtn').textContent = 'SOUND: ' + (AUDIO.on ? 'ON' : 'OFF');
-    });
-    $('soundBtn').textContent = 'SOUND: ' + (AUDIO.on ? 'ON' : 'OFF');
-    $('dofBtn').addEventListener('click', () => {
-      DOF.on = !DOF.on;
-      try { localStorage.setItem('sd_dof', DOF.on ? '1' : '0'); } catch (e) { /* ignore */ }
-      $('dofBtn').textContent = 'DEPTH OF FIELD: ' + (DOF.on ? 'ON' : 'OFF');
-    });
-    $('dofBtn').textContent = 'DEPTH OF FIELD: ' + (DOF.on ? 'ON' : 'OFF');
+    $('setBtnTitle').addEventListener('click', () => UI.openSettings('title'));
+    $('setBtnPause').addEventListener('click', () => UI.openSettings('pause'));
+    $('setBack').addEventListener('click', () => UI.show(UI.setFrom || 'title'));
+    UI.applySettings();
     $('againBtn').addEventListener('click', () => UI.startGame());
     $('titleBtn').addEventListener('click', () => { G = null; UI.show('title'); UI.renderBest(); });
     document.addEventListener('visibilitychange', () => { if (document.hidden && G && G.state === 'play') UI.togglePause(); });
@@ -70,7 +62,7 @@ const UI = {
   },
 
   show(name) {
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -157,6 +149,29 @@ const UI = {
     const t = $('toast');
     t.textContent = msg; t.classList.add('on');
     UI.toastT = 1.6;
+  },
+
+  // ---------------------------------------------------------------- Settings
+  openSettings(from) { UI.setFrom = from; UI.renderSettings(); UI.show('settings'); },
+  renderSettings() {
+    const body = $('setBody');
+    body.innerHTML = SETTINGS_DEF.map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
+    body.querySelectorAll('[data-s]').forEach(b => b.addEventListener('click', () => {
+      const d = SETTINGS_DEF.find(x => x.id === b.dataset.s);
+      SET[d.id] = d.opts[+b.dataset.i][0];
+      saveSettings(); UI.applySettings();
+      const y = $('settings').scrollTop; UI.renderSettings(); $('settings').scrollTop = y;
+    }));
+  },
+  // Push settings into the systems that read them.
+  applySettings() {
+    AUDIO.on = SET.sound; DOF.on = SET.dof && !SET.clinical;
+    applyNarrator();
+    document.body.classList.toggle('clinical', !!SET.clinical);
+    document.body.classList.toggle('hudmin', SET.hud === 'minimal');
+    document.body.classList.toggle('darkfield', !!SET.darkfield);
+    if (typeof resetLook === 'function') resetLook();
+    if (typeof applyLayout === 'function') applyLayout();
   },
 
   // ---------------------------------------------------------------- Armoury (weapon management)

@@ -40,6 +40,7 @@
     <p class="tag">One egg. Four hundred million rival swimmers. Five of them are armed. Grow strong enough to break in and be born first.</p>
     <button id="playBtn" class="btn primary">START SWIMMING</button>
     <button id="howBtn" class="btn">HOW TO PLAY</button>
+    <button id="setBtnTitle" class="btn">SETTINGS</button>
     <div id="how">
       <p><b>You are an alien sperm.</b> So is everyone else, plus the host's entire immune system. There is one egg, in the middle of the arena. Grow to <b>level 60</b>, then break its membrane to be born and win.</p>
       <p><b>Weapon trees:</b> at Lv 3, 5 and 8 each weapon branches: pick one of two perks. See the whole tree in the Armoury. You get a box every level, and Fan Boxes (Gold+) drop from elites.</p>
@@ -79,10 +80,17 @@
     <div class="pbtns">
       <button id="resumeBtn" class="btn primary">RESUME</button>
       <button id="armOpen" class="btn">ARMOURY</button>
-      <button id="soundBtn" class="btn">SOUND</button>
-      <button id="dofBtn" class="btn">DEPTH OF FIELD</button>
+      <button id="setBtnPause" class="btn">SETTINGS</button>
       <button id="quitBtn" class="btn">QUIT</button>
     </div>
+  </div>
+</div>
+
+<div id="settings" class="screen">
+  <div class="pwrap">
+    <div class="ptitle">SETTINGS</div>
+    <div id="setBody"></div>
+    <div class="pbtns"><button id="setBack" class="btn primary">BACK</button></div>
   </div>
 </div>
 
@@ -98,6 +106,7 @@
 </div>
 
 <script src="js/data.js"></script>
+<script src="js/settings.js"></script>
 <script src="js/icons.js"></script>
 <script src="js/game.js"></script>
 <script src="js/td.js"></script>

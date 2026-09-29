@@ -425,3 +425,10 @@ html, body { background: #020406; color: var(--xw); }
 .atab b { display: flex; justify-content: center; }
 .aico { display: flex; align-items: center; justify-content: center; }
 .card .cico svg { display: block; }
+
+/* Settings modes */
+body.clinical .screen::before { display: none; }
+body.hudmin #sysmsg { top: calc(40px + env(safe-area-inset-top)); left: 8px; width: min(calc(100vw - 80px), 420px); padding: 5px 10px; }
+body.hudmin #sysmsg b { display: none; }
+body.hudmin #sysmsg span { font-size: 12px; line-height: 1.3; }
+.setrow h3 { margin-bottom: 4px; }
