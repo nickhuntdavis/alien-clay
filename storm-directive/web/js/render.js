@@ -1076,6 +1076,16 @@ function render() {
       case 'scrap':
         ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 10);
         drawShape('spike', 0, 0, r, 0); ctx.fill(); ctx.fillStyle = '#5a3a00'; ctx.beginPath(); ctx.arc(0, 0, r * 0.35, 0, TAU); ctx.fill(); ctx.restore(); break;
+      case 'sperm': {
+        // Seeker Siblings: little spermatozoa with a beating tail, swimming head-first at their target.
+        const ca = Math.cos(a), sa = Math.sin(a), nx = -sa, ny = ca, ph = G.realT * 26 + (pr.seed || (pr.seed = Math.random() * 10));
+        const hl = r * 1.3, tl = r * 5.5;
+        ctx.lineWidth = Math.max(1, r * 0.35); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - ca * hl, y - sa * hl);
+        for (let i = 1; i <= 6; i++) { const f = i / 6, w = Math.sin(ph - f * 6) * r * 0.9 * f; ctx.lineTo(x - ca * (hl + tl * f) + nx * w, y - sa * (hl + tl * f) + ny * w); }
+        ctx.stroke(); ctx.lineCap = 'butt';
+        ctx.beginPath(); ctx.ellipse(x, y, hl, r * 0.85, a, 0, TAU); ctx.fill();
+        break;
+      }
       case 'rocket': case 'missile':
         ctx.lineWidth = r * 1.2; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * 2.4, y - Math.sin(a) * r * 2.4); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke();
         if (Math.random() < 0.5 && !rewinding) spawnPart(pr.x - pr.vx * 0.02, pr.y - pr.vy * 0.02, '#ff9e00', 1, 20, 0.25, 2);

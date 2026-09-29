@@ -29,7 +29,7 @@ const IC = {
   bigbeam: '<path d="M2 12h20"/><path d="M2 8h20M2 16h20" stroke-dasharray="3 2"/><circle cx="4" cy="12" r="2.5"/>',
   mine: '<circle cx="12" cy="12" r="5"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.9 2.9M15.5 15.5l2.9 2.9M5.6 18.4l2.9-2.9M15.5 8.5l2.9-2.9"/>',
   singularity: '<circle cx="12" cy="12" r="3"/><path d="M12 5a7 7 0 017 7M12 19a7 7 0 01-7-7M19 12a7 7 0 01-4 6.3M5 12a7 7 0 014-6.3"/>',
-  seeker: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
+  seeker: '<ellipse cx="16" cy="7" rx="3.2" ry="2.3" transform="rotate(-35 16 7)"/><path d="M13.6 9c-2 1.5-1 3.5-3 4.5s-2.5 3-4.5 4"/><ellipse cx="8" cy="12" rx="2.2" ry="1.6" transform="rotate(-35 8 12)"/><path d="M6.3 13.3c-1.3 1-.7 2.5-2 3.3"/>',
   gatling: '<path d="M3 8h13M3 12h13M3 16h13"/><path d="M16 6v12h3a2 2 0 002-2V8a2 2 0 00-2-2z"/>',
   drone: '<rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 9L5 5M15 9l4-4M9 15l-4 4M15 15l4 4"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>',
   hive: '<path d="M8 3l4 2.3v4.6L8 12.2 4 9.9V5.3zM16 7.5l4 2.3v4.6l-4 2.3-4-2.3V9.8zM8 12.2l4 2.3v4.6L8 21.4l-4-2.3v-4.6z"/>',
