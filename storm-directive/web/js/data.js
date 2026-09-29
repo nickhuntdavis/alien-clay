@@ -606,7 +606,7 @@ const ENEMIES = {
   splitter: { name: 'Mitotic Cell', hp: 42, speed: 52, armour: 0, r: 17, dmg: 10, xp: 3, color: '#43e97b', shape: 'cell', ai: 'chase', from: 85, w: 3, split: 'splitling' },
   splitling:{ name: 'Daughter Cell', hp: 12, speed: 92, armour: 0, r: 9, dmg: 5, xp: 1, color: '#7af5a8', shape: 'cell', ai: 'chase', from: 99999, w: 0 },
   // Tiny krill: shoals of flick-swimming crustaceans that dart in bursts. Nobody knows how they got in here.
-  krill:    { name: 'Krill', hp: 3, speed: 150, armour: 0, r: 6, dmg: 3, xp: 0.5, color: '#e6ddd0', shape: 'krill', ai: 'krill', from: 45, w: 2, group: 12 },
+  krill:    { name: 'Krill', hp: 5, speed: 140, armour: 0, r: 10, dmg: 3, xp: 0.5, color: '#b9ad9c', shape: 'krill', ai: 'krill', from: 45, w: 2, group: 12 },
   wisp:     { name: 'Spermlet Swarm', hp: 4, speed: 145, armour: 0, r: 6, dmg: 4, xp: 0.5, color: '#fee9a0', shape: 'sperm', ai: 'chase', from: 95, w: 2, group: 9 },
   blinker:  { name: 'Quantum Swimmer', hp: 22, speed: 72, armour: 0, r: 12, dmg: 9, xp: 3, color: '#00f5d4', shape: 'sperm', ai: 'blink', from: 105, w: 2 },
   medic:    { name: 'Nurse Cell', hp: 30, speed: 56, armour: 1, r: 13, dmg: 6, xp: 4, color: '#7bed9f', shape: 'cross', ai: 'medic', from: 120, w: 2 },

@@ -81,7 +81,7 @@ function rivalAI(e, dt) {
   e.lastHp = e.hp;
   if (e.frozen > 0) { rivalMove(e, 0, 0, 0, dt); return; }
   e.modeT -= dt;
-  let tx = e.wx, ty = e.wy, spd = e.speed;
+  let tx = e.wx, ty = e.wy, spd = e.speed * (G.pill && inPill(e.x, e.y) ? 0.65 : 1);
   const hurt = e.hp < e.maxHp * 0.3;
   if (e.mode === 'egg') {
     const c = G.core, a = Math.atan2(e.y - c.y, e.x - c.x), rim = CORE.r + e.r + 6;

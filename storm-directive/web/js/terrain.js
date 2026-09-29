@@ -183,3 +183,55 @@ function updateTerrain(dt) {
     if (ob.burstT > 0) ob.burstT -= dt;
   }
 }
+
+// ---------------------------------------------------------------- the morning-after pill
+// Every so often a pill drops somewhere random in the womb, fizzes for a few seconds, then dissolves into
+// an organically shaped cloud that keeps growing until it covers about half the map, holds, and slowly
+// dissipates. Inside it you (and the rivals) swim 35% slower and gain half the XP. The shape is a cluster
+// of wobbling lobes, so it spreads unevenly like a real dissolving tablet.
+const PILL = { firstAt: [240, 420], every: [330, 450], fizz: 3.5, grow: 75, hold: 12, fade: 45, maxR: 0.82 };
+function schedulePill(t) { G.nextPill = t + rand(PILL.every[0], PILL.every[1]); }
+function dropPill() {
+  const a = Math.random() * TAU, d = rand(350, CORE.arena - 450);
+  const n = 9, lobes = [];
+  for (let k = 0; k < n; k++) lobes.push({ a: k / n * TAU + rand(-0.3, 0.3), d: rand(0.3, 0.55), rk: rand(0.5, 0.7), ph: Math.random() * TAU });
+  G.pill = { x: G.core.x + Math.cos(a) * d, y: G.core.y + Math.sin(a) * d, t: 0, lobes, alpha: 1 };
+  const p = me(), dir = Math.atan2(G.pill.y - p.y, G.pill.x - p.x), comp = ['east', 'south-east', 'south', 'south-west', 'west', 'north-west', 'north', 'north-east'][Math.round(((dir + TAU) % TAU) / (TAU / 8)) % 8];
+  banner('MORNING-AFTER PILL INCOMING', PAL.danger);
+  sysMsg('SYSTEM MESSAGE', `Someone upstairs has taken a morning-after pill. It's landing to the ${comp} of you. When it dissolves, everything inside the cloud swims slower and grows slower. The egg is choosing not to comment.`, PAL.danger, true);
+  sfx('boss');
+}
+function pillR() {
+  const q = G.pill; if (!q || q.t < PILL.fizz) return 0;
+  const t = q.t - PILL.fizz, max = CORE.arena * PILL.maxR;
+  return max * (1 - Math.exp(-t / (PILL.grow / 3)));
+}
+function updatePill(dt) {
+  if (G.nextPill == null) G.nextPill = rand(PILL.firstAt[0], PILL.firstAt[1]);
+  if (!G.pill) { if (G.t >= G.nextPill && G.state === 'play') dropPill(); return; }
+  const q = G.pill; q.t += dt;
+  const end = PILL.fizz + PILL.grow + PILL.hold;
+  if (q.t < PILL.fizz && Math.random() < 0.5) spawnPart(q.x + rand(-14, 14), q.y + rand(-14, 14), '#ffffff', 1, 60, 0.5, 2);
+  if (q.t > end) q.alpha = Math.max(0, 1 - (q.t - end) / PILL.fade);
+  if (q.t > end + PILL.fade) { G.pill = null; schedulePill(G.t); }
+}
+// Is (x, y) inside the cloud? (It stops counting once it has mostly faded.)
+function inPill(x, y) {
+  const q = G.pill, R = pillR();
+  if (!q || R <= 0 || q.alpha < 0.25) return false;
+  const dx0 = x - q.x, dy0 = y - q.y;
+  if (dx0 * dx0 + dy0 * dy0 > R * R * 1.7) return false;
+  if (dx0 * dx0 + dy0 * dy0 < R * R * 0.3) return true;
+  for (let k = 0; k < q.lobes.length; k++) {
+    const L = q.lobes[k], w = Math.sin(G.t * 0.25 + L.ph) * 0.15;
+    const cx = q.x + Math.cos(L.a + w) * L.d * R, cy = q.y + Math.sin(L.a + w) * L.d * R, rr = L.rk * R * (1 + 0.08 * Math.sin(G.t * 0.3 + k));
+    if ((x - cx) * (x - cx) + (y - cy) * (y - cy) < rr * rr) return true;
+  }
+  return false;
+}
+function pillLobes(fn) {
+  const q = G.pill, R = pillR();
+  if (!q || R <= 0) return;
+  fn(q.x, q.y, Math.sqrt(0.3) * R);
+  q.lobes.forEach((L, k) => { const w = Math.sin(G.t * 0.25 + L.ph) * 0.15; fn(q.x + Math.cos(L.a + w) * L.d * R, q.y + Math.sin(L.a + w) * L.d * R, L.rk * R * (1 + 0.08 * Math.sin(G.t * 0.3 + k))); });
+}

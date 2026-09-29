@@ -6,6 +6,9 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 
 ## Features
 
+- **The morning-after pill.** From about 4 to 7 minutes in (and every 5 to 7 minutes after), a pill drops somewhere random with a warning, fizzes, then dissolves into an organically shaped cloud of wobbling lobes that grows for over a minute until it covers about half the map, holds, and slowly dissipates. Inside it you and the rivals swim 35% slower and you gain half the XP. It shows on the minimap, the autopilot steers around it, and a PILL chip lights up while you're in it.
+- **Tail snipping.** Shots that cross a swimmer's flagellum, or hit it from behind, cut the tail off: the swimmer can only twitch and drift, and the severed tail wriggles away and fades. (Not rivals or bosses.)
+- **Your tail grows.** Spermy's flagellum gets longer every level, about 2.5x by level 60, with more links so it stays smooth.
 - **Denser swarms.** About 1.7x as many monsters on screen, each a bit weaker (65% health, 80% damage, 60% XP each), so it's a proper swarm without being harder.
 - **Six more pond creatures:**
   - **Pinworm** (from 2:20): a long ringed worm whose body follows its head through every turn.
@@ -20,7 +23,7 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 - **Edge warnings.** Red chevrons on the screen edge point at off-screen shooters and flash just before they fire.
 - **COPY THIS RUN** on the game-over screen copies that run's summary for balancing.
 - **You are Spermy.** The race board, game-over screens and the System all call you by name.
-- **Krill.** Tiny translucent crustaceans in shoals of a dozen, from 0:45: curled segmented bodies, big dark eyes, twitching antennae and swimmerets that paddle as they flick-swim in bursts, changing heading each kick. Fragile, fast and annoying. Nobody knows how they got in.
+- **Krill.** Small translucent crustaceans in shoals of a dozen, from 0:45: curled segmented bodies, big dark eyes, twitching antennae and swimmerets that paddle as they flick-swim in bursts, changing heading each kick. Fragile, fast and annoying. Nobody knows how they got in.
 - **Run log.** Every run (win, loss, or quit after 30 s) is summarised on the phone: result, time, level, kills, what ended it, what hurt most, damage share by weapon, the final build, rival outcomes, boxes opened and your level and HP% at every minute. Settings > Run log > COPY RUN LOG copies the last 60 runs as text for balancing. Nothing leaves the phone unless you copy it.
 - **Loot box sound.** The box rattles as it shakes, the latch clicks and the lid pops, then a glassy chime plays that gets longer and brighter with the best rarity inside (Bronze 2 notes up to Legendary 5 plus a shimmer), with a soft swish as each card flies in. Branch choices ring softer, Boss Boxes thud deeper, and a cursed card adds a sour low note.
 - **Pinch to zoom.** Two fingers (or the mouse wheel) zoom from 24x to 80x. A microscope objective gauge shows the magnification while you pinch, and the scale bar and readout follow it. Spawn distances ignore zoom, so zooming in never brings monsters closer. The image blurs and hunts back into focus after each change, like turning a real fine-focus knob, with ratchet clicks as it turns (brighter zooming in, lower zooming out) and a heavier click when it settles. Your zoom is remembered.

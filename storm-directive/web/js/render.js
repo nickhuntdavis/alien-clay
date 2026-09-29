@@ -488,7 +488,7 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
 const NOLOOK = { tails: 1, head: 1, stretch: 1, tailLen: 1, beat: 1, armour: 0, cilia: 0, barb: 0, acro: 1, elem: null, field: 0, drop: 0, luck: 0 };
 const ELEM_PASSIVE = { pyro: 'fire', cryo: 'ice', storm: 'shock', toxin: 'poison', arcanum: 'arcane', kinetic: 'phys' };
 function shipLook() {
-  const P = G.passives, key = Object.entries(P).join();
+  const P = G.passives, key = Object.entries(P).join() + '|' + G.level;
   if (G.lookKey === key && G.look) return G.look;
   const n = id => Math.min(5, P[id] || 0);
   let elem = null, best = 0;
@@ -500,6 +500,8 @@ function shipLook() {
     stretch: 1 + 0.05 * (n('speed') + n('hydro')),
     tailLen: 1 + 0.07 * (n('speed') + n('hydro')),
     beat: 1 + 0.12 * (n('haste') + n('reload')),
+    // Your flagellum keeps growing as you level: about 2.5x as long by level 60, with more links to stay smooth.
+    levelTail: 1 + 0.025 * (G.level - 1), tailN: TAIL_BASE + Math.floor((G.level - 1) / 8),
     armour: n('armour'),
     cilia: Math.min(18, 5 * n('grip')),
     barb: n('crit') + n('critdmg'),
@@ -520,10 +522,14 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
   // tag: a fluorescent label colour glowing on the acrosome (you are GFP-tagged; rivals wear other dyes).
   const sc = scale || 1, k = S * sc;
   const ph = G.realT * 16;
-  if (body) {
+  if (body && body.tailCut) {
+    // Snipped: a ragged stub where the flagellum was.
+    ctx.globalAlpha = alpha * 0.9; ctx.strokeStyle = 'rgb(46,52,48)'; ctx.lineWidth = 1.4 * k; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x - Math.cos(face) * 10 * k, y - Math.sin(face) * 10 * k); ctx.lineTo(x - Math.cos(face) * 15 * k + Math.sin(G.realT * 30 + (body.id || 0)) * k, y - Math.sin(face) * 15 * k); ctx.stroke();
+  } else if (body) {
     const back = 9 * sc * L.head * L.stretch, wx = body.x - Math.cos(face) * back, wy = body.y - Math.sin(face) * back;
-    const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0), len = 78 * sc * L.tailLen;
-    stepTail(body, wx, wy, face, len, v, L.beat);
+    const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0), len = 78 * sc * L.tailLen * (L.levelTail || 1);
+    stepTail(body, wx, wy, face, len, v, L.beat, L.tailN);
     const tails = [body.tail];
     if (L.tails > 1) {
       // Extra flagella sprout from either side of the neck and beat out of phase.
@@ -638,7 +644,7 @@ function drawKrill(e, x, y, r, face) {
   for (let i = 0; i < 5; i++) { const bx = r * (0.4 - i * 0.38), by = r * (0.35 + i * 0.05), a = 1.9 + Math.sin(t * 0.8 - i * 0.7) * (0.3 + fl * 0.6); ctx.moveTo(bx, by); ctx.lineTo(bx + Math.cos(a) * r * 0.55, by + Math.sin(a) * r * 0.55); }
   ctx.stroke();
   // Body: overlapping segments along a gentle curl, then the tail fan.
-  const body = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, 0.5);
+  const body = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, 0.3);
   const curl = 0.35 + 0.25 * (1 - fl);
   for (let i = 5; i >= 0; i--) {
     const u = i / 5, bx = r * (0.7 - u * 2.1), by = r * curl * u * u * 1.4, rr = r * (0.55 - u * 0.22);
@@ -762,8 +768,9 @@ const MICROBES = {
 // A tail is a chain of points in world space. The root is pinned behind the head and beats side to side;
 // every other link is dragged along by the one in front (so turns sweep the tail round behind you and
 // swimming leaves a travelling wave), with a little stiffness pulling it straight when you stop.
-const TAIL_N = 11;
-function stepTail(o, rx, ry, face, len, speed, beatMul) {
+const TAIL_BASE = 11;
+function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
+  const TAIL_N = nSeg || TAIL_BASE;
   const now = G.realT, dt = Math.min(0.05, Math.max(0, now - (o.tailT || now)));
   o.tailT = now;
   const seg = len / (TAIL_N - 1);
@@ -772,7 +779,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul) {
     for (let i = 0; i < TAIL_N; i++) o.tail.push({ x: rx - Math.cos(face) * seg * i, y: ry - Math.sin(face) * seg * i });
   }
   o.beat = (o.beat || Math.random() * 10) + dt * (9 + Math.min(14, speed / 10)) * (beatMul || 1);
-  const nx = -Math.sin(face), ny = Math.cos(face), amp = len * 0.11;
+  const nx = -Math.sin(face), ny = Math.cos(face), amp = Math.min(len * 0.11, 30);
   const t = o.tail;
   t[0].x = rx + nx * Math.sin(o.beat) * amp * 0.5; t[0].y = ry + ny * Math.sin(o.beat) * amp * 0.5;
   // The second link follows the head's axis more strictly so the tail leaves the head cleanly.
@@ -794,7 +801,7 @@ function drawTail(t, color, width) {
   ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   // Tapered: draw in three runs, thinning towards the tip.
   for (let run = 0; run < 3; run++) {
-    const i0 = Math.floor(run * (TAIL_N - 1) / 3), i1 = Math.floor((run + 1) * (TAIL_N - 1) / 3);
+    const n = t.length, i0 = Math.floor(run * (n - 1) / 3), i1 = Math.floor((run + 1) * (n - 1) / 3);
     ctx.lineWidth = Math.max(0.8, width * (1 - run * 0.3));
     ctx.beginPath(); ctx.moveTo(sx(t[i0].x), sy(t[i0].y));
     for (let i = i0 + 1; i <= i1; i++) ctx.lineTo(sx(t[i].x), sy(t[i].y));
@@ -935,6 +942,7 @@ function render() {
 
   drawDecals(vis);
   drawTerrain();
+  drawPill();
   // Dynamic lights pooling on the floor.
   ctx.globalCompositeOperation = 'lighter';
   for (const l of G.lights) if (vis(l)) glow(sx(l.x), sy(l.y), l.r * S, l.color, 0.35 * (l.life / l.max));
@@ -1159,6 +1167,12 @@ function render() {
     }
     if (w.def.heat && w.heat > 0.6) { ctx.globalCompositeOperation = 'lighter'; glow(px, py, 30 * S, '#ff5400', (w.heat - 0.6) * 1.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
   }
+  if (G.severed) for (const sv of G.severed) {
+    const a = Math.max(0, sv.life / sv.max);
+    ctx.globalAlpha = a * 0.45; drawTail(sv.pts, '#ffffff', 2.8 * S * sv.k);
+    ctx.globalAlpha = a * 0.9; drawTail(sv.pts, 'rgb(46,52,48)', 1.1 * S * sv.k);
+  }
+  ctx.globalAlpha = 1;
   drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale(), p, shipLook());
   ctx.fillStyle = '#000'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S, 4);
   ctx.fillStyle = p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S * (p.hp / G.P.maxHp), 4);
@@ -1557,6 +1571,7 @@ function drawHud() {
   if (G.warp > 0) chips.push(['WARP', XR.white]);
   if (G.barrier > 0) chips.push(['AEGIS', XR.white]);
   if (G.echoes.length) chips.push(['ECHO x' + G.echoes.length, PAL.you]);
+  if (G.inPill) chips.push(['PILL: SLOW, XP -50%', PAL.danger]);
   if (G.manual) chips.push(['MANUAL', XR.white]);
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
   let cxp = 8;
@@ -1654,11 +1669,53 @@ function drawMinimap(top) {
   dot(G.core.x, G.core.y, 8, G.eggE ? XR.white : '#ffb3d1');
   for (const e of G.enemies) if (e.rival && !e.dead) dot(e.x, e.y, 5, e.color);
   for (const e of G.echoes) dot(e.x, e.y, 3, '#e0fbff');
+  if (G.pill) {
+    ctx.globalAlpha = 0.25 * G.pill.alpha; ctx.fillStyle = PAL.danger;
+    pillLobes((wx, wy, wr) => { let dx = (wx - G.core.x) * k, dy = (wy - G.core.y) * k; ctx.beginPath(); ctx.arc(mx + dx, my + dy, Math.max(2, wr * k), 0, TAU); ctx.fill(); });
+    ctx.globalAlpha = 1;
+    if (pillR() <= 0) dot(G.pill.x, G.pill.y, 5, PAL.danger);
+  }
   dot(G.player.x, G.player.y, 4, XR.white);
   // View rectangle.
   ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
   if (SET.hud !== 'minimal') drawRaceBoard(W - 10, my + R + 16);
+}
+
+// ---------------------------------------------------------------- the pill's cloud
+// Drawn at low resolution: the lobes are unioned into one chalky blob with a thin red rim (it hurts).
+const PILLC = { a: null, b: null, key: '' };
+function drawPill() {
+  const q = G.pill;
+  if (!q) return;
+  if (q.t < PILL.fizz) {
+    // The pill itself, fizzing: a white capsule with a split seam.
+    const x = sx(q.x), y = sy(q.y), r = 30 * S, a = q.t * 0.6;
+    // Warning pulse where it will dissolve.
+    ctx.strokeStyle = PAL.danger; ctx.lineWidth = 2; ctx.globalAlpha = 0.6 * (1 - (q.t % 1));
+    ctx.beginPath(); ctx.arc(x, y, r * (2 + 4 * (q.t % 1)), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a);
+    ctx.fillStyle = '#e8eef4'; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.7, r, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = PAL.danger; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = 'rgba(40,46,52,0.6)'; ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(0, r); ctx.stroke();
+    ctx.restore();
+    return;
+  }
+  const w = Math.max(1, Math.ceil(W / 3)), h = Math.max(1, Math.ceil(H / 3)), key = w + 'x' + h;
+  if (PILLC.key !== key) { PILLC.key = key; PILLC.a = makeCanvas(w, h); PILLC.b = makeCanvas(w, h); }
+  const ga = PILLC.a.getContext('2d'), gb = PILLC.b.getContext('2d'), k = S / 3, ox = w / 2 - cam.x * k, oy = h / 2 - cam.y * k;
+  ga.clearRect(0, 0, w, h); gb.clearRect(0, 0, w, h);
+  ga.fillStyle = SET.darkfield ? '#e6edf3' : '#48525c'; gb.fillStyle = '#ff3b3b';
+  pillLobes((wx, wy, wr) => {
+    ga.beginPath(); ga.arc(ox + wx * k, oy + wy * k, wr * k, 0, TAU); ga.fill();
+    gb.beginPath(); gb.arc(ox + wx * k, oy + wy * k, wr * k + 2.5, 0, TAU); gb.fill();
+  });
+  gb.globalCompositeOperation = 'destination-out'; gb.drawImage(PILLC.a, 0, 0); gb.globalCompositeOperation = 'source-over';
+  const df = WORLD_DF; WORLD_DF = false;
+  ctx.imageSmoothingEnabled = true;
+  ctx.globalAlpha = (SET.darkfield ? 0.14 : 0.3) * q.alpha; ctx.drawImage(PILLC.a, 0, 0, W, H);
+  ctx.globalAlpha = 0.55 * q.alpha; ctx.drawImage(PILLC.b, 0, 0, W, H);
+  ctx.globalAlpha = 1; WORLD_DF = df;
 }
 
 // ---------------------------------------------------------------- refocus blur

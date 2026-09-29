@@ -111,6 +111,30 @@ function gridBuild() {
   }
 }
 // Calls fn(e, d2) for every live enemy whose body overlaps circle (x,y,r). fn returns true to stop.
+// ---------------------------------------------------------------- tail snipping
+// Swimmers (not rivals or bosses) lose their flagellum when a shot crosses it or hits them from behind:
+// they slow to a twitching drift, and the severed tail wriggles away and fades.
+const canSnip = e => !e.dead && !e.tailCut && !e.rival && !e.boss && !e.charmed && e.def.shape === 'sperm' && e.tail;
+function cutTail(e) {
+  e.tailCut = true;
+  (G.severed || (G.severed = [])).push({ pts: e.tail.map(q => ({ x: q.x, y: q.y })), life: 1.6, max: 1.6, k: e.r / 8, seed: Math.random() * 9 });
+  if (G.severed.length > 40) G.severed.shift();
+  if (!(G.snipT > G.realT)) { G.snipT = G.realT + 0.6; floatText(e.x, e.y - e.r - 8, 'SNIP!', XR.white, 12, 0.7); }
+  G.stats.snips = (G.stats.snips || 0) + 1;
+}
+function tailSnip(pr) {
+  forNear(pr.x, pr.y, pr.r + 70, e => {
+    if (!canSnip(e)) return;
+    const t = e.tail, rr = (pr.r || 3) + 6;
+    for (let i = 2; i < t.length - 1; i++) if (Math.abs(t[i].x - pr.x) < rr && Math.abs(t[i].y - pr.y) < rr) { cutTail(e); return; }
+  });
+}
+function updateSevered(dt) {
+  if (!G.severed) return;
+  for (const s of G.severed) { s.life -= dt; for (const q of s.pts) { q.x += Math.sin(G.realT * 9 + s.seed + q.x * 0.05) * 14 * dt; q.y += Math.cos(G.realT * 7 + s.seed) * 10 * dt; } }
+  G.severed = G.severed.filter(s => s.life > 0);
+}
+
 function forNear(x, y, r, fn) {
   const R = r + Math.max(60, G.bigR || 0); // max enemy radius margin
   const x0 = Math.floor((x - R) / CELL), x1 = Math.floor((x + R) / CELL);
@@ -1042,6 +1066,7 @@ function updateEnemies(dt) {
     }
     // Movement (knockback decays).
     const f = frozen || e.tunT > G.t ? 0 : slow;
+    if (e.tailCut) spd *= 0.15; // no flagellum: it can only twitch and drift
     e.x += (mx * spd * f * warpF + e.kx) * dt;
     e.y += (my * spd * f * warpF + e.ky) * dt;
     const kd = Math.pow(0.02, dt);
@@ -1457,9 +1482,13 @@ function updateProjectiles(dt) {
       if (pr.tick <= 0) pr.tick = 0.25;
       continue;
     }
+    // A shot that crosses a swimmer's flagellum snips it (checked every other frame; tails are thin).
+    tailSnip(pr);
     // Collision.
     forNear(pr.x, pr.y, pr.r, e => {
       if (pr.hits && pr.hits.includes(e.id)) return;
+      // Hit from behind: the tail takes it.
+      if (canSnip(e) && Math.random() < 0.5) { const fx = G.player.x - e.x, fy = G.player.y - e.y, fl = Math.hypot(fx, fy) || 1, vl = Math.hypot(pr.vx, pr.vy) || 1; if ((pr.vx * fx + pr.vy * fy) / (fl * vl) > 0.5) cutTail(e); }
       if (pr.orbitT > 0) {
         // Orbiting shots slice through things without being used up.
         damageEnemy(e, pr.dmg, pr.src);
@@ -1574,7 +1603,8 @@ function updateTurrets(dt) {
 // ---------------------------------------------------------------- player
 function updatePlayer(dt) {
   const p = G.player, P = G.P;
-  const speed = 150 * P.speed * (p.atpT > 0 ? 1.3 : 1);
+  G.inPill = inPill(p.x, p.y);
+  const speed = 150 * P.speed * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1);
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
@@ -1693,7 +1723,7 @@ function autoSteer() {
         if (d < 16) danger += 2.5 + (16 - d) * 0.25;
       }
     }
-    danger += terrainDanger(qx, qy, p.r) + terrainDanger(mx, my, p.r) * 0.5;
+    danger += terrainDanger(qx, qy, p.r) + terrainDanger(mx, my, p.r) * 0.5 + (G.pill && inPill(qx, qy) ? 1.2 : 0);
     // Turning is slow, so mildly prefer directions close to where the head already points.
     const interest = dx * gx + dy * gy + (i < 0 ? 0 : 0.18 * (Math.cos(p.hd || 0) * dx + Math.sin(p.hd || 0) * dy) / Math.max(0.6, G.P.traction));
     const score = interest - danger + (i < 0 ? (mode === 'hold' ? 0.4 : -0.1) : 0);
@@ -1756,7 +1786,7 @@ function applyPickup(type, src) {
 }
 
 function gainXp(v) {
-  G.xp += v * G.P.xp;
+  G.xp += v * G.P.xp * (G.inPill ? 0.5 : 1); // the morning-after pill halves growth
   sfx('gem');
   while (G.xp >= G.xpNeed) {
     G.xp -= G.xpNeed;
@@ -1836,7 +1866,7 @@ function victory() {
 
 // ---------------------------------------------------------------- main update
 function update(dt) {
-  G.t += dt; G.realT += dt;
+  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
   if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); }
   const p = G.player;
