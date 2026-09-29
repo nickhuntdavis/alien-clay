@@ -1898,7 +1898,8 @@ function update(dt) {
   while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   if (G.t >= G.nextWave) { G.nextWave += 45; waveEvent(); }
   updateRivals(dt);
-  if (!G.eggAnnounced && G.level >= EGG.level && G.state === 'play') openEgg();
+  // The egg exists whenever you're big enough, even if a Rewind jumped back past the moment it opened.
+  if (G.level >= EGG.level && G.state === 'play' && (!G.eggE || G.eggE.dead)) openEgg();
   if (G.t >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.
