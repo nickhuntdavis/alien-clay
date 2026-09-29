@@ -1133,14 +1133,14 @@ function drawTracks(vis) {
 // Scale bar and objective readout, bottom-left, like the imaging software burns into a frame.
 // A sperm head is about 15 world units long and ~5 um in reality, so 30 units is 10 um.
 function drawScaleBar() {
-  const bh = (UI.bottomH || 230), y = H - bh - 22, x = 12, len = 30 * S * 2;
+  const land = LAYOUT.land, bh = land ? 0 : (UI.bottomH || 230), y = H - bh - 22, x = land ? LAYOUT.colW + 12 : 12, len = 30 * S * 2;
   ctx.fillStyle = XR.white; ctx.fillRect(x, y, len, 3);
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
   ctx.fillStyle = XR.white; ctx.fillText('PH2 40x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS', x + len + 10, y + 4);
   // Lead side marker, as on a radiograph.
-  const mkx = W - 26, mky = H * 0.5;
+  const mkx = land ? W - 112 : W - 26, mky = land ? H - 40 : H * 0.5;
   filmPanel(mkx - 1, mky - 11, 19, 22);
   ctx.font = 'bold 13px ' + MONO; ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.fillText('R', mkx + 8.5, mky + 5);
 }
@@ -1275,7 +1275,9 @@ function drawHud() {
   // XP: a thin calibration line across the very top.
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
   ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
-  const c = G.core, mini = SET.hud === 'minimal', BY = mini ? 60 : 126;
+  const c = G.core, mini = SET.hud === 'minimal', land = LAYOUT.land, BY = land ? (mini ? 56 : 30) : mini ? 60 : 126;
+  // Landscape: the bars sit top centre, between the vitals and the bigger minimap.
+  const barX = land && !mini ? 210 : 10, barW = land && !mini ? Math.min(420, W - 210 - 190) : Math.min(360, W - 130);
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
   if (mini) drawMiniBar(top, m, s);
   else {
@@ -1300,14 +1302,14 @@ function drawHud() {
   for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(cxp, cy, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, cxp + 7, cy + 12); cxp += tw + 5; }
   // Boss bar.
   if (G.boss && !G.boss.dead) {
-    const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + BY;
+    const b = G.boss, bw = barW, bx = barX, by = top + BY;
     softBar(bx, by, bw, b.hp / b.maxHp, XR.white);
     ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
     ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), bx + bw / 2, by - 8);
   }
   // Egg membrane bar, or progress towards being big enough.
   {
-    const bw = Math.min(360, W - 130), bx = 10, by = top + BY + (G.boss && !G.boss.dead ? 26 : 0), mid = bx + bw / 2;
+    const bw = barW, bx = barX, by = top + BY + (G.boss && !G.boss.dead ? 26 : 0), mid = bx + bw / 2;
     ctx.textAlign = 'center'; ctx.font = 'bold 11px ' + MONO;
     if (G.eggE && !G.eggE.dead && G.level < EGG.level) {
       const e = G.eggE, who = G.enemies.filter(o => o.rival && !o.dead && o.mode === 'egg').map(o => o.name);
@@ -1335,6 +1337,7 @@ function drawHud() {
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   pointer(c.x, c.y, G.eggE ? XR.white : '#ffb3d1');
   drawMinimap(top);
+  if (SET.casa) drawCasa(top);
   ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.
   if (G.banner) {
@@ -1351,8 +1354,9 @@ function drawHud() {
   }
 }
 
+function mmR() { return LAYOUT.land ? Math.round(clamp(H * 0.15, 62, 120)) : 44; }
 function drawMinimap(top) {
-  const R = 44, mx = W - R - 10, my = top + 70 + R;
+  const R = mmR(), mx = W - R - 10, my = top + 70 + R;
   const k = R / CORE.arena;
   filmPanel(mx, my, R, 0, true);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath();
@@ -1374,6 +1378,85 @@ function drawMinimap(top) {
   ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
   if (SET.hud !== 'minimal') drawRaceBoard(W - 10, my + R + 16);
+}
+
+// ---------------------------------------------------------------- CASA Pro panel
+// Computer-assisted sperm analysis, live on yourself: the last second of your head track gives VCL (curvilinear
+// speed), VSL (straight-line speed), LIN, ALH (lateral head amplitude) and BCF (beat-cross frequency), with a
+// WHO motility grade, a histogram of what's on the slide and a log of tracked events.
+// 20 um on the scale bar = 60 world units, so 1 world unit = 1/3 um.
+const UM = 1 / 3;
+const CASA = { pts: [], lastT: -1, log: [], hist: [] , histT: 0 };
+function casaLog(text) {
+  if (!SET.casa || !G) return;
+  const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
+  CASA.log.unshift(`${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s} ${text}`);
+  if (CASA.log.length > 4) CASA.log.length = 4;
+}
+function casaStats() {
+  const P = CASA.pts;
+  if (P.length < 8) return null;
+  const T = P[P.length - 1].t - P[0].t || 1;
+  let vcl = 0;
+  for (let i = 1; i < P.length; i++) vcl += Math.hypot(P[i].x - P[i - 1].x, P[i].y - P[i - 1].y);
+  const vsl = Math.hypot(P[P.length - 1].x - P[0].x, P[P.length - 1].y - P[0].y);
+  // Average path: a 7-point running mean. ALH is twice the mean distance from it; BCF counts side crossings.
+  let dev = 0, n = 0, cross = 0, lastSide = 0;
+  for (let i = 3; i < P.length - 3; i++) {
+    let ax = 0, ay = 0;
+    for (let j = -3; j <= 3; j++) { ax += P[i + j].x; ay += P[i + j].y; }
+    ax /= 7; ay /= 7;
+    const tx = P[i + 1].x - P[i - 1].x, ty = P[i + 1].y - P[i - 1].y, tl = Math.hypot(tx, ty) || 1;
+    const side = ((P[i].x - ax) * ty - (P[i].y - ay) * tx) / tl;
+    dev += Math.abs(side); n++;
+    const sg = Math.sign(side);
+    if (sg && lastSide && sg !== lastSide) cross++;
+    if (sg) lastSide = sg;
+  }
+  const VCL = vcl / T * UM, VSL = vsl / T * UM;
+  return { VCL, VSL, LIN: VCL > 0.5 ? VSL / VCL * 100 : 0, ALH: n ? dev / n * 2 * UM : 0, BCF: cross / T,
+    grade: VSL >= 25 ? 'A  RAPID PROG.' : VSL >= 5 ? 'B  SLOW PROG.' : VCL >= 5 ? 'C  NON-PROG.' : 'D  IMMOTILE' };
+}
+function drawCasa(top) {
+  const p = G.player;
+  if (G.t !== CASA.lastT) {
+    CASA.lastT = G.t;
+    CASA.pts.push({ x: p.x, y: p.y, t: G.t });
+    while (CASA.pts.length && G.t - CASA.pts[0].t > 1) CASA.pts.shift();
+    if (G.t < CASA.pts[0].t) CASA.pts.length = 0; // rewound
+  }
+  // Population histogram, refreshed twice a second.
+  if (G.realT - CASA.histT > 0.5 || G.realT < CASA.histT) {
+    CASA.histT = G.realT;
+    const cnt = {};
+    for (const e of G.enemies) if (!e.dead && !e.rival && !e.egg) cnt[e.name] = (cnt[e.name] || 0) + 1;
+    CASA.hist = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  }
+  const st = casaStats(), w = 150, h = 22 + (6 + CASA.hist.length + CASA.log.length) * 12 + 14;
+  const x = LAYOUT.land ? W - mmR() * 2 - 20 - w - 10 : 8;
+  const y = LAYOUT.land ? top + 70 : Math.max(top + (SET.hud === 'minimal' ? 60 : 150), H * 0.36);
+  const osx = ctx.shadowOffsetX; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+  filmPanel(x, y, w, h);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.font = 'bold 9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('CASA  TRK #001  1.0 s', x + 8, y + 14);
+  let yy = y + 28;
+  const row = (k, v, col) => { ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText(k, x + 8, yy); ctx.font = 'bold 10px ' + MONO; ctx.fillStyle = col || XR.white; ctx.textAlign = 'right'; ctx.fillText(v, x + w - 8, yy); ctx.textAlign = 'left'; yy += 12; };
+  if (st) {
+    row('VCL um/s', st.VCL.toFixed(1)); row('VSL um/s', st.VSL.toFixed(1)); row('LIN %', st.LIN.toFixed(0));
+    row('ALH um', st.ALH.toFixed(2)); row('BCF Hz', st.BCF.toFixed(1));
+    ctx.font = 'bold 9px ' + MONO; ctx.fillStyle = st.grade[0] === 'A' ? PAL.you : XR.white; ctx.fillText('WHO ' + st.grade, x + 8, yy); yy += 12;
+  } else { row('TRACKING', '...'); yy += 12 * 5; }
+  const mx = CASA.hist.length ? CASA.hist[0][1] : 1;
+  for (const [name, n] of CASA.hist) {
+    ctx.fillStyle = 'rgba(214,228,240,0.28)'; ctx.fillRect(x + 8, yy - 7, (w - 46) * n / mx, 7);
+    ctx.font = '8px ' + MONO; ctx.fillStyle = XR.white; ctx.fillText(name.slice(0, 18), x + 10, yy - 1);
+    ctx.textAlign = 'right'; ctx.fillText(n, x + w - 8, yy - 1); ctx.textAlign = 'left';
+    yy += 12;
+  }
+  ctx.fillStyle = XR.line; ctx.fillRect(x + 8, yy - 6, w - 16, 1); yy += 6;
+  ctx.font = '8px ' + MONO;
+  CASA.log.forEach((l, i) => { ctx.globalAlpha = 1 - i * 0.13; ctx.fillStyle = XR.white; ctx.fillText(l.slice(0, 28), x + 8, yy); yy += 12; });
+  ctx.globalAlpha = 1; ctx.shadowOffsetX = osx; ctx.shadowOffsetY = osx;
 }
 
 // The race to the egg: you and the rival champions, by level.

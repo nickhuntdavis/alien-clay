@@ -61,6 +61,7 @@ function newGame() {
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
   applyMeta(G);
+  CASA.log.length = 0; CASA.pts.length = 0;
 }
 
 function angDiff(a, b) { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU; return d; }
@@ -625,10 +626,11 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
 }
 
 function killEnemy(e, src) {
-  if (e.rival) { rivalDown(e); return; }
+  if (e.rival) { casaLog(`${e.name} eliminated`); rivalDown(e); return; }
   if (e.egg) { e.dead = true; G.eggE = null; spawnPart(e.x, e.y, '#ffd6e8', 60, 320, 0.9, 6); cam.shake = 16; victory(); return; }
   e.dead = true;
   G.kills++;
+  if (e.boss || e.elite || (e.def.spongy && e.r > 60)) casaLog(`TRK#${e.id} ${e.name} lysed`);
   const P = G.P;
   onShowKill(e, src);
   // Split on Kill mod.
@@ -1684,6 +1686,7 @@ function gainXp(v) {
     G.xp -= G.xpNeed;
     G.level++;
     G.xpNeed = xpNeed(G.level);
+    casaLog(`LV ${G.level}  head +1.5%`);
     // Every level up is rewarded with a box.
     G.lootQueue.push({ kind: 'level' });
     // Growth milestones: a new weapon slot at 15, 30 and 45.

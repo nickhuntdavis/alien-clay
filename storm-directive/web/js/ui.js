@@ -121,7 +121,7 @@ const UI = {
     $('moveBtn').textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
     // Keep the Rewind button clear of the HUD as extra weapon rows appear.
     UI.bottomH = $('bottom').offsetHeight;
-    $('side').style.bottom = (UI.bottomH + 12) + 'px';
+    $('side').style.bottom = LAYOUT.land ? '' : (UI.bottomH + 12) + 'px';
     // Rewind button.
     const c = G.chrono, rb = $('rewindBtn');
     rb.querySelector('.pips').innerHTML = Array.from({ length: c.max }, (_, i) => `<i class="${i < c.charges ? 'on' : ''}"></i>`).join('');

@@ -20,6 +20,18 @@ try {
   if (localStorage.getItem('sd_dof') === '0') SET.dof = false;
   if (localStorage.getItem('sd_sound') === '0') SET.sound = false;
 } catch (e) { /* storage unavailable */ }
+// Landscape layout: weapons down the left, a bigger minimap. Auto switches when the screen is wide.
+const LAYOUT = { land: false, colW: 0 };
+function applyLayout() {
+  const w = window.innerWidth, h = window.innerHeight;
+  LAYOUT.land = SET.layout === 'landscape' ? w > h : SET.layout === 'portrait' ? false : w > h * 1.15;
+  LAYOUT.colW = LAYOUT.land ? 170 : 0;
+  document.body.classList.toggle('land', LAYOUT.land);
+  // The Android shell can lock the screen orientation to match.
+  try { if (window.AndroidShell && AndroidShell.setOrientation) AndroidShell.setOrientation(SET.layout); } catch (e) { /* not in the app */ }
+  if (typeof UI !== 'undefined' && typeof G !== 'undefined' && G) UI.refreshHud(true);
+}
+window.addEventListener('resize', () => applyLayout());
 function saveSettings() { try { localStorage.setItem('sd_settings', JSON.stringify(SET)); } catch (e) { /* ignore */ } }
 
 // ---------------------------------------------------------------- narrator packs

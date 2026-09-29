@@ -2,10 +2,12 @@ package com.stormdirective.game;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -32,6 +34,7 @@ public class MainActivity extends Activity {
         web.setVerticalScrollBarEnabled(false);
         web.setHorizontalScrollBarEnabled(false);
         web.setWebChromeClient(new WebChromeClient());
+        web.addJavascriptInterface(new Shell(), "AndroidShell");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             web.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         }
@@ -42,6 +45,17 @@ public class MainActivity extends Activity {
             web.restoreState(savedInstanceState);
         } else {
             web.loadUrl("file:///android_asset/index.html");
+        }
+    }
+
+    /** Lets the game's Layout setting pick the screen orientation. */
+    private class Shell {
+        @JavascriptInterface
+        public void setOrientation(String mode) {
+            final int o = "portrait".equals(mode) ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+                    : "landscape".equals(mode) ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                    : ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+            runOnUiThread(() -> { if (getRequestedOrientation() != o) setRequestedOrientation(o); });
         }
     }
 
