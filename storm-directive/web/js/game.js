@@ -48,7 +48,7 @@ resize();
 // ---------------------------------------------------------------- state
 let G = null;
 let uidSeq = 1;
-const CAPS = { enemies: 160, proj: 900, ebul: 800, parts: 450, texts: 60, gems: 350 };
+const CAPS = { enemies: 240, proj: 900, ebul: 800, parts: 450, texts: 60, gems: 350 };
 
 function newStats() {
   return {
@@ -486,6 +486,11 @@ function damageEnemy(e, dmg, src) {
   if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
   const P = G.P, syn = G.synergy;
   let d = dmg * (src.mult || 1);
+  // Water bears curl into a 'tun' once when badly hurt: nearly invulnerable for a few seconds.
+  if (e.def.tun) {
+    if (e.tunT > G.t) d *= 0.08;
+    else if (!e.tunUsed && e.hp - d < e.maxHp * 0.3) { e.tunUsed = true; e.tunT = G.t + 2.5; d *= 0.08; floatText(e.x, e.y - e.r - 10, 'TUN!', XR.white, 13); }
+  }
   if (src.grudge && e === G.grudge) d *= 3;
   if (src.w && src.w.s) {
     const ws = src.w.s;
@@ -519,7 +524,7 @@ function damageEnemy(e, dmg, src) {
     floatText(e.x, e.y - e.r, Math.round(d) + (crit ? '!' : ''), '#ffffff', crit ? 17 : 12);
   }
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
-  if (src.knock && !e.boss && !e.def.spongy) {
+  if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy) {
     const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1);
     const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
     const l = Math.hypot(kx, ky) || 1;
@@ -684,13 +689,14 @@ function killEnemy(e, src) {
   spawnPart(e.x, e.y, e.def.color || e.color, e.boss ? 40 : 7, e.boss ? 260 : 130, 0.5, e.boss ? 5 : 3);
   // XP
   if (e.xp > 0) dropGem(e.x, e.y, e.xp);
+  if (e.stolen > 0) for (let i = 0; i < 5; i++) dropGem(e.x + rand(-25, 25), e.y + rand(-25, 25), e.stolen * 1.3 / 5); // a rotifer gives back what it hoovered up, with interest
   if (ownsScrapWeapon() && Math.random() < (e.boss || e.elite ? 1 : 0.5)) dropScrap(e.x, e.y, e.boss ? 60 : e.elite ? 14 : 2 + (Math.random() < 0.25 ? 3 : 0));
   gainChrono(e.boss ? CHRONO.energyPerCharge : e.elite ? 25 : 1);
   if (e.boss) { G.chrono.charges = Math.min(G.chrono.max, G.chrono.charges + 1); }
   addDecal(e.x, e.y, e.r * (e.boss ? 2.2 : 1.4), e.def.color || e.color);
   if (P.lifesteal > 0 && G.lsBudget > 0) { const h = Math.min(P.lifesteal, G.lsBudget); G.lsBudget -= h; healPlayer(h, true); }
   if (e.def.split) {
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < (e.def.splitN || 2) && G.enemies.length < CAPS.enemies; i++) {
       const s = makeEnemy(ENEMIES[e.def.split], e.x + rand(-12, 12), e.y + rand(-12, 12));
       G.enemies.push(s);
     }
@@ -775,7 +781,7 @@ function hurtPlayer(dmg, from, ent) {
 // Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
 function enemyScale(t) {
   const k = Math.min(1, t / 900);
-  return { hp: 1.1 + 1.6 * k, dmg: 0.78 + 0.7 * k, xp: 1.9, r: 1.12, speed: 1 + 0.12 * k };
+  return { hp: 0.72 + 1.04 * k, dmg: 0.62 + 0.56 * k, xp: 1.15, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);
@@ -812,7 +818,7 @@ function spawnRandom() {
   let x = Math.random() * tot, def = pool[0];
   for (const d of pool) { x -= wOf(d); if (x <= 0) { def = d; break; } }
   const p = spawnPos();
-  const n = Math.ceil((def.group || 1) * 0.55);
+  const n = Math.ceil((def.group || 1) * 0.8);
   const eliteChance = Math.min(0.12, 0.01 + t / 3000);
   for (let i = 0; i < n; i++) {
     if (G.enemies.length >= CAPS.enemies) return;
@@ -822,7 +828,7 @@ function spawnRandom() {
 
 function waveEvent() {
   const t = G.t, p = G.player;
-  const kind = pick(t < 120 ? ['ring', 'swarm'] : ['ring', 'swarm', 'elite', 'barrage']);
+  const kind = pick(t < 120 ? ['ring', 'swarm', 'krill'] : t < 200 ? ['ring', 'swarm', 'elite', 'barrage', 'krill'] : ['ring', 'swarm', 'elite', 'barrage', 'pond']);
   if (kind === 'ring') {
     const n = Math.min(18, 8 + Math.floor(t / 40)), d = Math.hypot(W / S0, H / S0) / 2 + 40;
     const def = t > 150 ? ENEMIES.skitter : ENEMIES.crawler;
@@ -831,6 +837,15 @@ function waveEvent() {
   } else if (kind === 'swarm') {
     for (let k = 0; k < 2; k++) { const s = spawnPos(); for (let i = 0; i < 6; i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-40, 40), s.y + rand(-40, 40))); }
     banner('SWARM INCOMING', '#fee440');
+  } else if (kind === 'krill') {
+    for (let k = 0; k < 3; k++) { const s = spawnPos(); for (let i = 0; i < 10; i++) G.enemies.push(makeEnemy(ENEMIES.krill, s.x + rand(-45, 45), s.y + rand(-45, 45))); }
+    banner('KRILL SHOAL', '#fee440');
+  } else if (kind === 'pond') {
+    const s = spawnPos();
+    G.enemies.push(makeEnemy(ENEMIES.volvox, s.x, s.y));
+    for (let i = 0; i < 5; i++) { const q = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.paramecium, q.x, q.y)); }
+    for (let i = 0; i < 2; i++) { const q = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.rotifer, q.x, q.y)); }
+    banner('POND LIFE', '#fee440');
   } else if (kind === 'elite') {
     for (let k = 0; k < 2; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.warlock, ENEMIES.bulwark]), s.x, s.y, { elite: true })); }
     banner('ELITES APPROACH', '#ffd23f');
@@ -930,6 +945,31 @@ function updateEnemies(dt) {
       mx = e.mvx; my = e.mvy; spd = e.mvs;
     } else if (!frozen) {
       switch (e.def.ai) {
+        case 'ciliate': {
+          // Swims in long straight lines, turning slowly towards you; after a bump (or every few seconds)
+          // it backs up and swings off in a new direction, like a real paramecium's avoiding reaction.
+          if (e.hd == null) { e.hd = Math.atan2(uy, ux); e.stT = rand(2, 4); }
+          e.stT -= edt;
+          if (e.backT > 0) { e.backT -= edt; mx = -Math.cos(e.hd) * 0.6; my = -Math.sin(e.hd) * 0.6; break; }
+          if (e.stT <= 0 || dist < p.r + e.r + 4) { e.backT = 0.45; e.stT = rand(2.5, 4.5); e.hd += rand(-1.6, 1.6); break; }
+          let da = Math.atan2(uy, ux) - e.hd; da = Math.atan2(Math.sin(da), Math.cos(da));
+          e.hd += clamp(da, -1.1 * edt, 1.1 * edt);
+          mx = Math.cos(e.hd); my = Math.sin(e.hd);
+          break;
+        }
+        case 'thief': {
+          // Rotifer: its wheel organ sucks in XP granules nearby; it heads for the richest ones first.
+          let best = null, bd = 380;
+          for (const g of G.gems) { if (g.dead || g.mag || g.kind === 's') continue; const gd = Math.hypot(g.x - e.x, g.y - e.y); if (gd < bd) { bd = gd; best = g; } }
+          if (best) { const gx = best.x - e.x, gy = best.y - e.y, gl = Math.hypot(gx, gy) || 1; mx = gx / gl; my = gy / gl; }
+          for (const g of G.gems) {
+            if (g.dead || g.mag || g.kind === 's') continue;
+            const gx = e.x - g.x, gy = e.y - g.y, gd = Math.hypot(gx, gy);
+            if (gd < 150) { g.x += gx / (gd || 1) * 160 * edt; g.y += gy / (gd || 1) * 160 * edt; }
+            if (gd < e.r) { g.dead = true; e.stolen = (e.stolen || 0) + g.v; }
+          }
+          break;
+        }
         case 'krill': {
           // Flick-swimming: a sharp kick, a glide, a new heading off to one side, repeat.
           const ph = e.age * 5 + e.id, k = Math.max(0, Math.sin(ph)), w = Math.sin(Math.floor(ph / TAU) * 12.9898 + e.id) * 0.7;
@@ -1000,7 +1040,7 @@ function updateEnemies(dt) {
       }
     }
     // Movement (knockback decays).
-    const f = frozen ? 0 : slow;
+    const f = frozen || e.tunT > G.t ? 0 : slow;
     e.x += (mx * spd * f * warpF + e.kx) * dt;
     e.y += (my * spd * f * warpF + e.ky) * dt;
     const kd = Math.pow(0.02, dt);
@@ -1849,8 +1889,9 @@ function update(dt) {
   }
   updatePickups(dt);
   // Director.
-  const maxAlive = Math.min(CAPS.enemies - 30, 14 + G.t * 0.3);
-  const rate = Math.min(5.5, 0.55 + G.t / 90 + Math.pow(G.t / 300, 2) * 0.9);
+  // Dense swarms (each monster is weaker to match: see enemyScale).
+  const maxAlive = Math.min(CAPS.enemies - 30, 24 + G.t * 0.5);
+  const rate = Math.min(9, (0.55 + G.t / 90 + Math.pow(G.t / 300, 2) * 0.9) * 1.7);
   G.spawnAcc += rate * dt * G.P.spawnMult * (G.eggE && G.level >= EGG.level ? 1.6 : 1); // every rival rushes the open egg
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }

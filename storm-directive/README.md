@@ -6,6 +6,15 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 
 ## Features
 
+- **Denser swarms.** About 1.7x as many monsters on screen, each a bit weaker (65% health, 80% damage, 60% XP each), so it's a proper swarm without being harder.
+- **Six more pond creatures:**
+  - **Pinworm** (from 2:20): a long ringed worm whose body follows its head through every turn.
+  - **Diatom** (3:00): a glass pillbox with radial ribs; armoured, slow, fires rings of six.
+  - **Water Bear** (4:30): a plump tardigrade on eight stubby legs. Very tough, can't be knocked back, and once per life curls into a 'tun' for 2.5 s, taking almost no damage.
+  - **Paramecium** (1:15): a slipper-shaped ciliate that swims in long straight lines, then backs off and turns after bumping you.
+  - **Rotifer** (1:50): spinning wheel organs hoover up your XP off the floor. Kill it to get it all back with 30% interest.
+  - **Volvox** (2:40): a rolling hollow ball colony that bursts into four daughter colonies.
+- **New wave events:** KRILL SHOAL (three shoals at once) and POND LIFE (a Volvox, a school of Paramecia and two Rotifers).
 - **Faster menus.** Action buttons stay pinned to the bottom of long screens. Tap acts, press-and-hold shows details: loot cards show a one-line summary (hold for the full text) and holding a weapon slot shows its stats without opening the Armoury. The pause screen opens on RUN (autorun and the egg) with BUILD, THE SHOW and CODEX tabs. The Armoury's upgrade tree shows only where you are and your next milestone (SHOW FULL TREE for the rest), and you can swipe left and right between slots.
 - **Where your loot came from.** Every box tells its own little story: the elite you went through the pockets of, the Amoeba it was fished out of, the rival whose mum wants it back, the sponsor, the boss's will, the achievement, the level.
 - **Edge warnings.** Red chevrons on the screen edge point at off-screen shooters and flash just before they fire.
@@ -53,7 +62,7 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 - **Fusion:** two compatible weapons at Lv 4+ merge into a legendary weapon and free a slot (e.g. Heartburn + Cold Feet = Hot Flush Cold Sweat, Kidney Stone Railgun + Ultrasound Beam = Full-Body Scan).
 - **Elemental reactions:** Thermal Shock, Steam Burst, Combustion, Toxic Arc, Superconduct, Resonance, Overload. Owning 2+ of an element unlocks a synergy bonus.
 - **Fewer, stronger enemies:** about half as many monsters on screen, each bigger and tougher, getting steadily nastier until 15:00.
-- **19 monster types + 3 bosses** with bullet-hell patterns. Krill shoals, rival swimmers (Sprinters, Headbutters, Quantum and Ghost Swimmers, the armoured Alpha Swimmer, Spermlet swarms) and the immune system (Macrophages, Antibodies, Killer T-Cells, Mitotic Cells that split, Acid Bubbles, Nurse Cells, Mucus Walls, Cytokine Casters, Mother Cells, Enzyme Spires). Bosses: the Macrophage Queen, the Antibody Colossus and the Immune Eye.
+- **25 monster types + 3 bosses** with bullet-hell patterns. Krill shoals, rival swimmers (Sprinters, Headbutters, Quantum and Ghost Swimmers, the armoured Alpha Swimmer, Spermlet swarms) and the immune system (Macrophages, Antibodies, Killer T-Cells, Mitotic Cells that split, Acid Bubbles, Nurse Cells, Mucus Walls, Cytokine Casters, Mother Cells, Enzyme Spires). Bosses: the Macrophage Queen, the Antibody Colossus and the Immune Eye.
 - **Field power-ups:** Magnet, Acid Flush, Adrenaline, Glucose Hit, Shield, Stasis, Loot Box.
 - **The egg's glow** heals you while you stay near it; the NEST autorun directive keeps you there.
 - **Time travel: Rewind and Paradox Echoes.** Tap REWIND to jump 4 seconds into the past (VHS-style rewind of the whole battle). Your future self does not vanish: it stays behind as a **Paradox Echo** that walks the erased timeline backwards, firing copies of your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically. Charges refill from kills and bosses. The **Deja Vu Rifle** lands every hit twice (the second arrives from 1 second in the future), and Snooze Button adds charges.

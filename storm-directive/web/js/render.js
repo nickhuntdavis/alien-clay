@@ -657,6 +657,107 @@ function drawKrill(e, x, y, r, face) {
   ctx.restore(); ctx.lineCap = 'butt';
 }
 
+// ---------------------------------------------------------------- more pond life
+// Each drawn in the same phase-contrast style: grey body darker than the fluid, a bright halo, dark detail.
+function mBody(e, k) { return e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, k || 0.42); }
+function mHalo(w) { ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = Math.max(1, w); ctx.stroke(); }
+const MICROBES = {
+  // Pinworm: a long, tapering, ringed body that follows its head through every turn.
+  worm(e, x, y, r, face) {
+    stepTail(e, e.x - Math.cos(face) * e.r * 0.6, e.y - Math.sin(face) * e.r * 0.6, face, e.r * 7, Math.hypot(e.vx || 0, e.vy || 0) + 40);
+    const t = e.tail, n = t.length;
+    for (let i = n - 1; i >= 0; i--) {
+      const rr = r * (0.95 - i / n * 0.6);
+      ctx.beginPath(); ctx.arc(sx(t[i].x), sy(t[i].y), rr, 0, TAU); ctx.fillStyle = mBody(e); ctx.fill(); mHalo(rr * 0.12);
+    }
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = mBody(e, 0.36); ctx.fill(); mHalo(r * 0.14);
+    ctx.fillStyle = 'rgba(20,24,22,0.7)'; ctx.beginPath(); ctx.arc(x + Math.cos(face) * r * 0.55, y + Math.sin(face) * r * 0.55, r * 0.22, 0, TAU); ctx.fill();
+  },
+  // Diatom: a glass pillbox shell with radial ribs and a central pore, turning slowly.
+  diatom(e, x, y, r) {
+    const rot = e.age * 0.4;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = mBody(e, 0.55); ctx.fill(); mHalo(r * 0.16);
+    ctx.strokeStyle = 'rgba(30,36,32,0.5)'; ctx.lineWidth = Math.max(0.7, r * 0.05); ctx.beginPath();
+    for (let i = 0; i < 18; i++) { const a = rot + i / 18 * TAU; ctx.moveTo(x + Math.cos(a) * r * 0.3, y + Math.sin(a) * r * 0.3); ctx.lineTo(x + Math.cos(a) * r * 0.92, y + Math.sin(a) * r * 0.92); }
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, r * 0.62, 0, TAU); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.stroke();
+    ctx.fillStyle = 'rgba(20,24,22,0.6)'; ctx.beginPath(); ctx.arc(x, y, r * 0.18, 0, TAU); ctx.fill();
+  },
+  // Water bear: a plump, segmented tardigrade on eight stubby clawed legs. Curls into a round 'tun' when hurt.
+  tardigrade(e, x, y, r, face) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(face);
+    if (e.tunT > G.t) {
+      ctx.beginPath(); ctx.ellipse(0, 0, r * 0.8, r * 0.72, 0, 0, TAU); ctx.fillStyle = mBody(e, 0.3); ctx.fill(); mHalo(r * 0.14);
+      ctx.strokeStyle = 'rgba(30,36,32,0.5)'; ctx.lineWidth = r * 0.06;
+      for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.ellipse(i * r * 0.14, 0, r * 0.1, r * 0.66, 0, 0, TAU); ctx.stroke(); }
+      ctx.restore(); return;
+    }
+    const step = Math.sin(e.age * 6);
+    ctx.strokeStyle = 'rgba(40,46,42,0.85)'; ctx.lineWidth = Math.max(1.2, r * 0.16); ctx.lineCap = 'round';
+    for (let i = 0; i < 4; i++) for (const s of [-1, 1]) {
+      const lx = r * (0.6 - i * 0.42), sw = (i % 2 ? step : -step) * r * 0.12;
+      ctx.beginPath(); ctx.moveTo(lx, s * r * 0.45); ctx.lineTo(lx + sw, s * r * 0.82); ctx.stroke();
+    }
+    ctx.lineCap = 'butt';
+    ctx.beginPath(); ctx.ellipse(0, 0, r * 1.05, r * 0.62, 0, 0, TAU); ctx.fillStyle = mBody(e, 0.4); ctx.fill(); mHalo(r * 0.12);
+    ctx.strokeStyle = 'rgba(30,36,32,0.35)'; ctx.lineWidth = r * 0.05;
+    for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * r * 0.3, -r * 0.55); ctx.quadraticCurveTo(i * r * 0.3 + r * 0.08, 0, i * r * 0.3, r * 0.55); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(20,24,22,0.75)'; ctx.beginPath(); ctx.arc(r * 0.95, 0, r * 0.12, 0, TAU); ctx.fill();
+    for (const s of [-1, 1]) { ctx.beginPath(); ctx.arc(r * 0.72, s * r * 0.2, r * 0.07, 0, TAU); ctx.fill(); }
+    ctx.restore();
+  },
+  // Paramecium: a slipper-shaped ciliate with an oral groove and a beating fringe of cilia.
+  slipper(e, x, y, r) {
+    const a = e.hd != null ? e.hd : 0;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a);
+    ctx.strokeStyle = 'rgba(40,46,42,0.55)'; ctx.lineWidth = Math.max(0.6, r * 0.05); ctx.beginPath();
+    for (let i = 0; i < 26; i++) {
+      const u = i / 26 * TAU, px = Math.cos(u) * r * 1.35, py = Math.sin(u) * r * 0.62, w = Math.sin(e.age * 18 - i * 0.9) * 0.4;
+      ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(u + w) * r * 0.28, py + Math.sin(u + w) * r * 0.28);
+    }
+    ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(0, 0, r * 1.35, r * 0.62, 0, 0, TAU); ctx.fillStyle = mBody(e, 0.46); ctx.fill(); mHalo(r * 0.12);
+    ctx.strokeStyle = 'rgba(30,36,32,0.5)'; ctx.lineWidth = r * 0.07;
+    ctx.beginPath(); ctx.moveTo(r * 0.9, -r * 0.1); ctx.quadraticCurveTo(r * 0.1, r * 0.35, -r * 0.1, r * 0.05); ctx.stroke();
+    ctx.fillStyle = 'rgba(40,46,42,0.4)'; ctx.beginPath(); ctx.ellipse(-r * 0.2, -r * 0.05, r * 0.35, r * 0.22, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(230,236,232,0.7)';
+    for (const px of [-r * 0.85, r * 0.55]) { const cv = r * (0.1 + 0.07 * Math.sin(e.age * 3 + px)); ctx.beginPath(); ctx.arc(px, 0, cv, 0, TAU); ctx.fill(); }
+    ctx.restore();
+  },
+  // Rotifer: a trumpet-shaped body with two spinning ciliary wheels at the head, and a forked foot.
+  rotifer(e, x, y, r, face) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(face);
+    ctx.beginPath(); ctx.moveTo(r * 0.7, -r * 0.7); ctx.quadraticCurveTo(-r * 0.2, -r * 0.55, -r * 1.2, -r * 0.12); ctx.lineTo(-r * 1.6, -r * 0.28); ctx.lineTo(-r * 1.45, 0);
+    ctx.lineTo(-r * 1.6, r * 0.28); ctx.lineTo(-r * 1.2, r * 0.12); ctx.quadraticCurveTo(-r * 0.2, r * 0.55, r * 0.7, r * 0.7); ctx.closePath();
+    ctx.fillStyle = mBody(e, 0.44); ctx.fill(); mHalo(r * 0.12);
+    const spin = e.age * 14;
+    for (const s of [-1, 1]) {
+      const cx = r * 0.78, cy = s * r * 0.45;
+      ctx.beginPath(); ctx.arc(cx, cy, r * 0.36, 0, TAU); ctx.fillStyle = 'rgba(210,216,212,0.35)'; ctx.fill();
+      ctx.strokeStyle = 'rgba(40,46,42,0.6)'; ctx.lineWidth = Math.max(0.6, r * 0.05); ctx.beginPath();
+      for (let i = 0; i < 10; i++) { const a = spin * s + i / 10 * TAU; ctx.moveTo(cx + Math.cos(a) * r * 0.3, cy + Math.sin(a) * r * 0.3); ctx.lineTo(cx + Math.cos(a + 0.5 * s) * r * 0.5, cy + Math.sin(a + 0.5 * s) * r * 0.5); }
+      ctx.stroke();
+    }
+    // Whatever XP it has swallowed glints inside it.
+    if (e.stolen > 0) { ctx.fillStyle = PAL.reward; for (let i = 0; i < Math.min(6, 1 + e.stolen / 8); i++) { ctx.beginPath(); ctx.arc(-r * 0.3 + (i % 3) * r * 0.2, (i < 3 ? -1 : 1) * r * 0.12, r * 0.07, 0, TAU); ctx.fill(); } }
+    ctx.restore();
+  },
+  // Volvox: a hollow ball colony of hundreds of cells, rolling, with daughter colonies inside.
+  volvox(e, x, y, r) {
+    ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = mBody(e, 0.6); ctx.fill(); mHalo(r * 0.1);
+    const roll = e.age * 0.8, m = Math.min(40, Math.floor(r * 1.2)), n = Math.min(50, Math.floor(r * 1.4)), dot = Math.max(0.8, r * 0.045);
+    // Cells round the rim (seen edge-on, so they crowd together), then the near face, sparser.
+    ctx.fillStyle = 'rgba(40,46,42,0.6)';
+    for (let i = 0; i < m; i++) { const a = roll * 0.3 + i / m * TAU; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.86, y + Math.sin(a) * r * 0.86, dot, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = 'rgba(40,46,42,0.3)';
+    for (let i = 0; i < n; i++) { const a = i * 2.39996 + roll * 0.3, d = r * 0.8 * Math.sqrt((i + 0.5) / n); ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, dot * 0.8, 0, TAU); ctx.fill(); }
+    if (e.def.split) for (let i = 0; i < 3; i++) {
+      const a = roll * 0.5 + i * 2.1, cx = x + Math.cos(a) * r * 0.35, cy = y + Math.sin(a) * r * 0.35;
+      ctx.beginPath(); ctx.arc(cx, cy, r * 0.2, 0, TAU); ctx.fillStyle = 'rgba(60,68,62,0.45)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+  },
+};
+
 // ---------------------------------------------------------------- flagellum physics
 // A tail is a chain of points in world space. The root is pinned behind the head and beats side to side;
 // every other link is dragged along by the one in front (so turns sweep the tail round behind you and
@@ -944,6 +1045,8 @@ function render() {
       drawShip(x, y, face, tag, e.phased ? 0.25 : 1, e.r * squash / 8, e);
     } else if (sh === 'krill') {
       drawKrill(e, x, y, r, face);
+    } else if (MICROBES[sh]) {
+      MICROBES[sh](e, x, y, r, face);
     } else if (e.def.shape === 'eye') {
       const eg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
       eg.addColorStop(0, '#5a1a8e'); eg.addColorStop(1, '#14002a');
