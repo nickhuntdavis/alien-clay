@@ -117,7 +117,7 @@ function rivalAI(e, dt) {
   const riled = G.t > RIVAL.huntFrom || e.hp < e.maxHp * 0.95;
   if (e.shootCd <= 0 && dist < 520 && riled && G.state === 'play') {
     e.shootCd = e.final ? 1.6 : e.mode === 'hunt' ? 1.1 : 1.8;
-    const n = Math.min(e.final ? 4 : 9, 1 + Math.floor(e.lvl / 12)), a0 = Math.atan2(dy, dx), bd = 7 * dmgMul(G.t) * (1 + e.lvl / 40) * (e.final ? 1.5 : 1);
+    const n = Math.min(e.final ? 4 : 9, 1 + Math.floor(e.lvl / 12)), a0 = Math.atan2(dy, dx), bd = 7 * dmgMul(G.t) * (1 + e.lvl / 40) * (e.final ? 1.2 : 1);
     shooterName = e.name; shooterEnt = e;
     for (let i = 0; i < n; i++) eBullet(e.x, e.y, a0 + (i - (n - 1) / 2) * 0.16, 210, bd, 5.5, e.color);
   }

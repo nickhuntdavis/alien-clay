@@ -810,7 +810,7 @@ function hurtPlayer(dmg, from, ent) {
 // Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
 function enemyScale(t) {
   const k = Math.min(1, t / 900);
-  return { hp: 0.72 + 1.04 * k, dmg: 0.8 + 1.0 * k, xp: 0.88, r: 1.12, speed: 1 + 0.12 * k };
+  return { hp: 0.72 + 1.04 * k, dmg: 0.7 + 1.05 * k, xp: 0.88, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);
