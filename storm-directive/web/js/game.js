@@ -19,6 +19,14 @@ try { const z = +localStorage.getItem('sd_zoom'); if (z) ZOOM.z = Math.min(ZOOM.
 function setZoom(z, save) {
   const nz = Math.min(ZOOM.max, Math.max(ZOOM.min, z));
   // Changing objective throws the image out of focus for a moment (see drawRefocus in render.js).
+  if (nz !== ZOOM.z) {
+    // A click for every detent the knob passes (about every 4% of magnification), at most one per 22 ms.
+    ZOOM.turn = (ZOOM.turn || 0) + Math.log(nz / ZOOM.z);
+    const now = performance.now();
+    if (Math.abs(ZOOM.turn) > 0.04 && !(ZOOM.clickT > now - 22)) { knobClick(Math.sign(ZOOM.turn)); ZOOM.turn = 0; ZOOM.clickT = now; }
+  }
+  if (save && ZOOM.turned) { knobClick(0, true); ZOOM.turned = false; }
+  if (nz !== ZOOM.z) ZOOM.turned = true;
   if (nz !== ZOOM.z) { ZOOM.defocus = Math.min(1, (ZOOM.defocus || 0) * refocusLeft() + Math.abs(Math.log(nz / ZOOM.z)) * 7); ZOOM.lastT = performance.now(); }
   ZOOM.z = nz;
   S = S0 * ZOOM.z; ZOOM.until = performance.now() + 1600;
@@ -1922,7 +1930,12 @@ const endTouch = ev => {
 };
 cv.addEventListener('pointerup', endTouch);
 cv.addEventListener('pointercancel', endTouch);
-cv.addEventListener('wheel', ev => { if (G) { ev.preventDefault(); setZoom(ZOOM.z * Math.exp(-ev.deltaY * 0.0015), true); } }, { passive: false });
+let wheelT = 0;
+cv.addEventListener('wheel', ev => {
+  if (!G) return;
+  ev.preventDefault(); setZoom(ZOOM.z * Math.exp(-ev.deltaY * 0.0015));
+  clearTimeout(wheelT); wheelT = setTimeout(() => setZoom(ZOOM.z, true), 180); // settle click and save once the wheel stops
+}, { passive: false });
 window.addEventListener('keydown', ev => {
   INPUT.keys[ev.key.toLowerCase()] = true;
   if (ev.key === 'Escape' && typeof UI !== 'undefined') UI.togglePause();
@@ -1968,6 +1981,28 @@ function sfx(name) {
   g.gain.exponentialRampToValueAtTime(0.0001, now + d.dur);
   o.connect(g); g.connect(AUDIO.ctx.destination);
   o.start(now); o.stop(now + d.dur + 0.02);
+}
+// Focus knob: a filtered noise click with a tiny resonant body. dir > 0 zooming in (brighter), < 0 out;
+// heavy = the settling click when you let go.
+function knobClick(dir, heavy) {
+  if (!AUDIO.on || !AUDIO.ctx || AUDIO.ctx.state !== 'running') return;
+  const ac = AUDIO.ctx, now = ac.currentTime;
+  if (!AUDIO.noise) {
+    const b = ac.createBuffer(1, Math.floor(ac.sampleRate * 0.05), ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+    AUDIO.noise = b;
+  }
+  const src = ac.createBufferSource(), bp = ac.createBiquadFilter(), g = ac.createGain();
+  src.buffer = AUDIO.noise; src.playbackRate.value = 0.9 + Math.random() * 0.2;
+  bp.type = 'bandpass'; bp.Q.value = heavy ? 4 : 7; bp.frequency.value = (heavy ? 1500 : dir > 0 ? 3600 : 2600) * (0.95 + Math.random() * 0.1);
+  g.gain.setValueAtTime(heavy ? 0.22 : 0.12, now); g.gain.exponentialRampToValueAtTime(0.0001, now + (heavy ? 0.06 : 0.025));
+  src.connect(bp); bp.connect(g); g.connect(ac.destination);
+  src.start(now); src.stop(now + 0.07);
+  // The knob's little metallic ring.
+  const o = ac.createOscillator(), og = ac.createGain();
+  o.type = 'sine'; o.frequency.value = heavy ? 420 : dir > 0 ? 1250 : 980;
+  og.gain.setValueAtTime(heavy ? 0.05 : 0.018, now); og.gain.exponentialRampToValueAtTime(0.0001, now + (heavy ? 0.09 : 0.04));
+  o.connect(og); og.connect(ac.destination); o.start(now); o.stop(now + 0.1);
 }
 function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* unsupported */ } }
 
