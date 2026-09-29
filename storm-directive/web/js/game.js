@@ -354,13 +354,13 @@ function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { co
 
 function optNewWeapon(id, r) {
   const def = WEAPONS[id], lvl = [1, 2, 3, 4][r];
-  return { rarity: r, tag: 'NEW WEAPON', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
+  return { def, rarity: r, tag: 'NEW WEAPON', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
     sub: `${ELEMENTS[def.elem].name} | Lv ${lvl}`, desc: def.desc + (def.merged ? '' : fuseHint(id)),
     apply: () => { const i = G.weapons.findIndex(w => !w); if (i >= 0) { G.weapons[i] = makeSlot(id, false, lvl); setWeaponLevel(G.weapons[i], lvl, 1); recomputeAll(); } } };
 }
 function optNewSpell(id, r) {
   const def = SPELLS[id], lvl = [1, 2, 3, 4][r];
-  return { rarity: r, tag: 'NEW SPELL', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
+  return { def, rarity: r, tag: 'NEW SPELL', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
     sub: `${ELEMENTS[def.elem].name} spell | Lv ${lvl}`, desc: def.desc,
     apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); } } };
 }
@@ -369,7 +369,7 @@ function optUpgrade(w, r) {
   const bonus = lvBonusText(w.def, w.lvl, to);
   let desc = `+${pc(WEAPON_LV_DMG * (to - w.lvl))} damage, faster cycling` + (bonus ? `. ${bonus}` : '');
   if (!w.isSpell && to >= MERGE_MIN_LEVEL && w.lvl < MERGE_MIN_LEVEL && !w.def.merged) desc += '. Unlocks fusion!';
-  return { rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
+  return { def: w.def, rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
     sub: `Lv ${w.lvl} > ${to}${to === 8 ? ' (MAX)' : ''}`, desc,
     apply: () => { setWeaponLevel(w, to); computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
 }
@@ -401,7 +401,7 @@ function optCurse(c) {
 }
 function optMerge(m) {
   const def = WEAPONS[m.out];
-  return { rarity: 3, tag: 'FUSION', icon: def.icon, color: def.color, elem: def.elem, title: def.name, fusion: true,
+  return { def, rarity: 3, tag: 'FUSION', icon: def.icon, color: def.color, elem: def.elem, title: def.name, fusion: true,
     sub: `${WEAPONS[m.a].name} + ${WEAPONS[m.b].name}`, desc: def.desc + ' Frees a weapon slot.',
     apply: () => doMerge(m) };
 }

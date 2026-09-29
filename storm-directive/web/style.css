@@ -417,3 +417,11 @@ html, body { background: #020406; color: var(--xw); }
 .screen::before { border-radius: 0; }
 
 #bottom .slot, #moveBtn, #pauseBtn, #rewindBtn, #sysmsg { box-shadow: 0 3px 8px rgba(0,0,0,0.45) !important; }
+
+/* Weapon icons and type colours */
+.wicon { display: block; }
+.slot .ico { display: flex; align-items: center; }
+.slot .bar i { background: var(--c) !important; }
+.atab b { display: flex; justify-content: center; }
+.aico { display: flex; align-items: center; justify-content: center; }
+.card .cico svg { display: block; }

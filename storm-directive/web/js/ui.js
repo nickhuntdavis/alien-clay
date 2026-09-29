@@ -1,6 +1,8 @@
 'use strict';
 // UI colour: X-ray neutrals, plus one colour per meaning (see PAL in data.js).
 const UI_MEAN = new Set([PAL.you, PAL.danger, PAL.reward, PAL.upgrade, PAL.pickup]);
+// A weapon's current type (Element Swap changes it).
+function wElem(w) { const m = w.mods && w.mods.find(x => x.id === 'elemental'); return m ? m.elem : w.def.elem; }
 function uiCol(c) { const v = col(c); return UI_MEAN.has(v) ? v : XR.white; }
 function cardCat(o) {
   if (o.cursed) return PAL.danger;
@@ -103,8 +105,8 @@ const UI = {
       if (full || el.dataset.k !== key) {
         el.dataset.k = key;
         el.classList.remove('empty');
-        el.style.setProperty('--c', XR.white);
-        el.querySelector('.ico').textContent = w.def.icon;
+        el.style.setProperty('--c', elemCol(wElem(w)));
+        el.querySelector('.ico').innerHTML = iconSVG(w.def, w.isSpell ? 18 : 24, elemCol(wElem(w)));
         el.querySelector('.lv').textContent = 'Lv' + w.lvl;
         el.querySelector('.mp').innerHTML = w.mods.map(m => `<i style="background:${PAL.upgrade}"></i>`).join('');
         el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : '');
@@ -186,7 +188,7 @@ const UI = {
     const tab = (k, i, x) => {
       const sel = A.k === k && A.i === i;
       if (!x) return `<button class="atab empty ${sel ? 'sel' : ''}" data-k="${k}" data-i="${i}"><b>+</b><span>${k === 'w' ? 'WEAPON' : 'SPELL'} ${i + 1}</span></button>`;
-      return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${XR.white}"><b>${esc(x.def.icon)}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
+      return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${elemCol(wElem(x))}"><b>${iconSVG(x.def, 24, elemCol(wElem(x)))}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
     for (let i = G.weapons.length; i < 3 + SLOT_LEVELS.length; i++) t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${SLOT_LEVELS[i - 3]}</span></button>`;
@@ -204,9 +206,9 @@ const UI = {
     }
     const d = w.def, s = w.s;
     const elName = ELEMENTS[w.mods.find(m => m.id === 'elemental') ? w.mods.find(m => m.id === 'elemental').elem : d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
-    let h = `<div class="ahead" style="--c:${XR.white}"><div class="aico">${esc(d.icon)}</div><div class="ainfo">
+    let h = `<div class="ahead" style="--c:${elemCol(wElem(w))}"><div class="aico">${iconSVG(d, 34, elemCol(wElem(w)))}</div><div class="ainfo">
       <div class="aname">${esc(d.name)}${d.merged ? ' <span class="fz">FUSED</span>' : ''}</div>
-      <div class="asub">${esc(elName)} ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: 8 }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/8</div>
+      <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: 8 }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/8</div>
       <div class="adesc">${esc(d.desc)}</div></div></div>`;
     // Stats.
     const tiles = [];
@@ -357,9 +359,9 @@ const UI = {
       c.style.setProperty('--rc', cardCat(o));
       c.style.setProperty('--ic', cardCat(o));
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
-      const el = o.elem ? `<span class="el" style="color:${XR.dim}">${ELEMENTS[o.elem].name}</span>` : '';
+      const el = o.elem ? `<span class="el" style="color:${elemCol(o.elem)}">${ELEMENTS[o.elem].name}</span>` : '';
       c.innerHTML = `<div class="tag">${esc(o.tag)} <b>${esc(r.name)}</b></div>
-        <div class="cico">${esc(o.icon)}</div>
+        <div class="cico"${o.def ? ` style="--ic:${elemCol(o.elem)}"` : ''}>${o.def ? iconSVG(o.def, 28, elemCol(o.elem)) : esc(o.icon)}</div>
         <div class="ctitle">${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
         <div class="cdesc">${esc(o.desc)}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}`;
