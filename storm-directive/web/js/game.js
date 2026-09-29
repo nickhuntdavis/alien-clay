@@ -10,7 +10,16 @@ const lerp = (a, b, t) => a + (b - a) * t;
 
 const cv = document.getElementById('game');
 const ctx = cv.getContext('2d', { alpha: false });
-let W = 0, H = 0, DPR = 1, S = 1; // screen size (css px), pixel ratio, world->screen scale
+let W = 0, H = 0, DPR = 1, S = 1, S0 = 1; // screen size (css px), pixel ratio, world->screen scale (S0 before zoom)
+// Pinch (or mouse wheel) zoom, shown as the microscope's magnification. Gameplay (spawn distances) uses S0,
+// so zooming in never brings monsters closer.
+const ZOOM = { z: 1, min: 0.6, max: 2, until: 0 };
+try { const z = +localStorage.getItem('sd_zoom'); if (z) ZOOM.z = Math.min(ZOOM.max, Math.max(ZOOM.min, z)); } catch (e) { /* storage unavailable */ }
+function setZoom(z, save) {
+  ZOOM.z = Math.min(ZOOM.max, Math.max(ZOOM.min, z));
+  S = S0 * ZOOM.z; ZOOM.until = performance.now() + 1600;
+  if (save) { try { localStorage.setItem('sd_zoom', ZOOM.z.toFixed(3)); } catch (e) { /* ignore */ } }
+}
 const cam = { x: 0, y: 0, shake: 0 };
 
 function resize() {
@@ -18,7 +27,8 @@ function resize() {
   W = window.innerWidth; H = window.innerHeight;
   cv.width = Math.floor(W * DPR); cv.height = Math.floor(H * DPR);
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
-  S = Math.min(W, H) / 640; // world units across the short side of the screen
+  S0 = Math.min(W, H) / 640; // world units across the short side of the screen
+  S = S0 * ZOOM.z;
 }
 window.addEventListener('resize', resize);
 resize();
@@ -774,7 +784,7 @@ function makeEnemy(def, x, y, opts) {
 
 function spawnPos() {
   const a = Math.random() * TAU;
-  const vw = W / 2 / S, vh = H / 2 / S;
+  const vw = W / 2 / S0, vh = H / 2 / S0;
   const d = Math.hypot(vw, vh) + rand(30, 90);
   return { x: G.player.x + Math.cos(a) * d, y: G.player.y + Math.sin(a) * d, a };
 }
@@ -801,7 +811,7 @@ function waveEvent() {
   const t = G.t, p = G.player;
   const kind = pick(t < 120 ? ['ring', 'swarm'] : ['ring', 'swarm', 'elite', 'barrage']);
   if (kind === 'ring') {
-    const n = Math.min(18, 8 + Math.floor(t / 40)), d = Math.hypot(W / S, H / S) / 2 + 40;
+    const n = Math.min(18, 8 + Math.floor(t / 40)), d = Math.hypot(W / S0, H / S0) / 2 + 40;
     const def = t > 150 ? ENEMIES.skitter : ENEMIES.crawler;
     for (let i = 0; i < n; i++) { const a = i / n * TAU; G.enemies.push(makeEnemy(def, p.x + Math.cos(a) * d, p.y + Math.sin(a) * d)); }
     banner('ENCIRCLEMENT', '#ff4d6d');
@@ -1869,7 +1879,19 @@ function gameOver() {
 
 // ---------------------------------------------------------------- input
 const INPUT = { active: false, id: null, ox: 0, oy: 0, keys: {} };
+// Two fingers pinch to zoom; one finger steers.
+const PTRS = new Map();
+let PINCH = null;
+const pinchDist = () => { const [a, b] = [...PTRS.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
 cv.addEventListener('pointerdown', ev => {
+  PTRS.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  if (PTRS.size === 2 && G && (G.state === 'play' || G.state === 'pause')) {
+    PINCH = { d0: pinchDist(), z0: ZOOM.z };
+    INPUT.active = false; INPUT.id = null; if (G) G.manual = null;
+    try { cv.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
+    return;
+  }
+  if (PINCH) return;
   if (!G || G.state !== 'play') return;
   INPUT.active = true; INPUT.id = ev.pointerId; INPUT.ox = ev.clientX; INPUT.oy = ev.clientY;
   INPUT.sx = ev.clientX; INPUT.sy = ev.clientY; INPUT.t0 = performance.now(); INPUT.moved = false;
@@ -1877,6 +1899,8 @@ cv.addEventListener('pointerdown', ev => {
   try { cv.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
 });
 cv.addEventListener('pointermove', ev => {
+  if (PTRS.has(ev.pointerId)) PTRS.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  if (PINCH && PTRS.size >= 2) { setZoom(PINCH.z0 * pinchDist() / PINCH.d0); return; }
   if (!INPUT.active || ev.pointerId !== INPUT.id || !G.manual) return;
   if (Math.hypot(ev.clientX - INPUT.sx, ev.clientY - INPUT.sy) > 12) INPUT.moved = true;
   let dx = ev.clientX - INPUT.ox, dy = ev.clientY - INPUT.oy;
@@ -1885,6 +1909,8 @@ cv.addEventListener('pointermove', ev => {
   G.manual.x = dx / 50; G.manual.y = dy / 50;
 });
 const endTouch = ev => {
+  PTRS.delete(ev.pointerId);
+  if (PINCH && PTRS.size < 2) { PINCH = null; setZoom(ZOOM.z, true); }
   if (ev.pointerId !== INPUT.id) return;
   INPUT.active = false; INPUT.id = null;
   if (!G) return;
@@ -1892,6 +1918,7 @@ const endTouch = ev => {
 };
 cv.addEventListener('pointerup', endTouch);
 cv.addEventListener('pointercancel', endTouch);
+cv.addEventListener('wheel', ev => { if (G) { ev.preventDefault(); setZoom(ZOOM.z * Math.exp(-ev.deltaY * 0.0015), true); } }, { passive: false });
 window.addEventListener('keydown', ev => {
   INPUT.keys[ev.key.toLowerCase()] = true;
   if (ev.key === 'Escape' && typeof UI !== 'undefined') UI.togglePause();

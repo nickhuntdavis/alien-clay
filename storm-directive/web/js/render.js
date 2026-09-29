@@ -1255,7 +1255,7 @@ function drawScaleBar() {
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
-  ctx.fillStyle = XR.white; ctx.fillText('PH2 40x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS', x + len + 10, y + 4);
+  ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS', x + len + 10, y + 4);
   // Lead side marker, as on a radiograph.
   const mkx = land ? W - 112 : W - 26, mky = land ? H - 40 : H * 0.5;
   filmPanel(mkx - 1, mky - 11, 19, 22);
@@ -1455,6 +1455,7 @@ function drawHud() {
   pointer(c.x, c.y, G.eggE ? XR.white : '#ffb3d1');
   drawMinimap(top);
   if (SET.casa) drawCasa(top);
+  drawZoomGauge();
   ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.
   if (G.banner) {
@@ -1495,6 +1496,39 @@ function drawMinimap(top) {
   ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
   if (SET.hud !== 'minimal') drawRaceBoard(W - 10, my + R + 16);
+}
+
+// ---------------------------------------------------------------- magnification gauge
+// Shown while you pinch: a fine-focus style scale from 24x to 80x with the objective's reading.
+function zoomMag() { return Math.round(40 * ZOOM.z); }
+function drawZoomGauge() {
+  const left = ZOOM.until - performance.now();
+  if (left <= 0) return;
+  const a = Math.min(1, left / 400), gh = Math.min(220, H * 0.34), gw = 44;
+  const x = LAYOUT.land ? W - mmR() * 2 - 90 : W - 96, y = H * 0.5 - gh / 2;
+  const osx = ctx.shadowOffsetX; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+  ctx.globalAlpha = a;
+  filmPanel(x - 6, y - 30, gw + 12, gh + 58);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 9px ' + MONO; ctx.fillStyle = XR.dim;
+  ctx.fillText('OBJ', x + gw / 2, y - 14);
+  // Log scale, high magnification at the top.
+  const lo = Math.log(ZOOM.min), hi = Math.log(ZOOM.max), yOf = z => y + gh - (Math.log(z) - lo) / (hi - lo) * gh;
+  ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x + 10, y); ctx.lineTo(x + 10, y + gh); ctx.stroke();
+  ctx.textAlign = 'left'; ctx.font = '8px ' + MONO;
+  for (const m of [25, 32, 40, 50, 63, 80]) {
+    const ty = yOf(m / 40);
+    ctx.strokeStyle = XR.dim; ctx.beginPath(); ctx.moveTo(x + 6, ty); ctx.lineTo(x + 14, ty); ctx.stroke();
+    ctx.fillStyle = XR.dim; ctx.fillText(m + 'x', x + 18, ty + 3);
+  }
+  for (let z = ZOOM.min; z <= ZOOM.max; z *= 1.06) { const ty = yOf(z); ctx.fillStyle = XR.line; ctx.fillRect(x + 8, ty, 4, 1); }
+  // Pointer and reading.
+  const py = yOf(ZOOM.z);
+  ctx.fillStyle = XR.white; ctx.beginPath(); ctx.moveTo(x + 2, py); ctx.lineTo(x - 5, py - 5); ctx.lineTo(x - 5, py + 5); ctx.fill();
+  ctx.fillRect(x + 4, py - 1, 14, 2);
+  ctx.textAlign = 'center'; ctx.font = 'bold 13px ' + MONO; ctx.fillStyle = XR.white;
+  ctx.fillText(zoomMag() + 'x', x + gw / 2, y + gh + 20);
+  ctx.globalAlpha = 1; ctx.shadowOffsetX = osx; ctx.shadowOffsetY = osx;
 }
 
 // ---------------------------------------------------------------- CASA Pro panel
