@@ -60,6 +60,7 @@ function newGame() {
   };
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
+  applyMeta(G);
 }
 
 function angDiff(a, b) { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU; return d; }
@@ -316,8 +317,10 @@ function genLoot(req) {
     req.kind = 'level'; return genLoot(req); // the weapon was fused or recycled meanwhile
   }
   if (req.kind === 'start') {
-    const pool = ['blaster', 'smg', 'shotgun', 'flamer', 'frost', 'tesla', 'glaive', 'needler', 'seeker', 'rocket', 'railgun', 'venom'];
-    const ids = shuffle(pool).slice(0, 3);
+    // One of your Gene Bank starters is always on offer, if you've bought any.
+    const pool = starterPool(), own = pool.filter(id => META.starters[id]);
+    const first = own.length ? [pick(own)] : [];
+    const ids = first.concat(shuffle(pool.filter(id => !first.includes(id))).slice(0, 3 - first.length));
     for (const id of ids) opts.push(optNewWeapon(id, 0));
     return opts;
   }

@@ -40,6 +40,7 @@
     <p class="tag">One egg. Four hundred million rival swimmers. Five of them are armed. Grow strong enough to break in and be born first.</p>
     <button id="playBtn" class="btn primary">START SWIMMING</button>
     <button id="howBtn" class="btn">HOW TO PLAY</button>
+    <button id="bankBtn" class="btn">GENE BANK <span id="dnaLine" class="dna"></span></button>
     <button id="setBtnTitle" class="btn">SETTINGS</button>
     <div id="how">
       <p><b>You are an alien sperm.</b> So is everyone else, plus the host's entire immune system. There is one egg, in the middle of the arena. Grow to <b>level 60</b>, then break its membrane to be born and win.</p>
@@ -94,6 +95,14 @@
   </div>
 </div>
 
+<div id="bank" class="screen">
+  <div class="pwrap">
+    <div class="ptitle">GENE BANK</div>
+    <div id="bankBody"></div>
+    <div class="pbtns"><button id="bankBack" class="btn primary">BACK</button></div>
+  </div>
+</div>
+
 <div id="over" class="screen">
   <div class="owrap">
     <div class="ptitle" id="overTitle">SWIMMER ABSORBED</div>
@@ -107,6 +116,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/meta.js"></script>
 <script src="js/icons.js"></script>
 <script src="js/game.js"></script>
 <script src="js/td.js"></script>

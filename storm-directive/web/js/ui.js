@@ -53,6 +53,8 @@ const UI = {
     $('setBtnTitle').addEventListener('click', () => UI.openSettings('title'));
     $('setBtnPause').addEventListener('click', () => UI.openSettings('pause'));
     $('setBack').addEventListener('click', () => UI.show(UI.setFrom || 'title'));
+    $('bankBtn').addEventListener('click', () => { UI.renderBank(); UI.show('bank'); });
+    $('bankBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     UI.applySettings();
     $('againBtn').addEventListener('click', () => UI.startGame());
     $('titleBtn').addEventListener('click', () => { G = null; UI.show('title'); UI.renderBest(); });
@@ -62,7 +64,7 @@ const UI = {
   },
 
   show(name) {
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -476,6 +478,38 @@ const UI = {
     $('pauseStats').textContent = `Time ${fmtTime(G.t)} | Level ${G.level} | Kills ${G.kills} | Rerolls ${G.rerolls}`;
   },
 
+  // ---------------------------------------------------------------- Gene Bank (meta progression)
+  renderBank() {
+    const body = $('bankBody'), gold = PAL.reward, cyan = PAL.upgrade;
+    const buy = (kind, id, cost, owned, label) => owned
+      ? `<span class="bown" style="color:${cyan}">${label || 'OWNED'}</span>`
+      : `<button class="chip bbuy ${META.dna < cost ? 'poor' : ''}" data-k="${kind}" data-id="${id}">${cost} DNA</button>`;
+    let h = `<div class="bdna"><b style="color:${gold}">${fmtNum(META.dna)}</b> DNA banked <span class="hint">(${fmtNum(META.total)} earned in total)</span></div>
+      <p class="hint">Every run banks DNA: levels, bosses, rival kills, time survived, and a big bonus for being born. Spend it on permanent changes to every future swimmer.</p>`;
+    h += `<div class="sec"><h3>Inherited traits</h3>`;
+    for (const b of META_BONUSES) {
+      const r = META.ranks[b.id] || 0, pips = Array.from({ length: b.max }, (_, i) => `<i class="${i < r ? 'on' : ''}"></i>`).join('');
+      h += `<div class="brow"><div><b>${esc(b.name)}</b><span class="pips">${pips}</span><div class="hint">${esc(b.desc)}</div></div>${buy('rank', b.id, r < b.max ? b.cost(r) : 0, r >= b.max, 'MAX')}</div>`;
+    }
+    h += `</div><div class="sec"><h3>Starter weapons</h3><p class="hint">Unlocked weapons join the first box. One is always offered.</p>`;
+    for (const [id, cost] of META_STARTERS) {
+      const d = WEAPONS[id]; if (!d) continue;
+      h += `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b><div class="hint">${esc(d.desc || '')}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
+    }
+    h += `</div><div class="sec"><h3>Tag dyes</h3><p class="hint">Your fluorescent tag. All in the green family, so green still means you.</p>`;
+    for (const d of META_DYES) {
+      const owned = META.dyes[d.id], on = META.dye === d.id;
+      h += `<div class="brow"><div class="bdye" style="background:${d.color};box-shadow:0 0 10px ${d.color}"></div><div><b>${esc(d.name)}</b></div>${on ? `<span class="bown" style="color:${cyan}">WEARING</span>` : owned ? `<button class="chip bbuy" data-k="dye" data-id="${d.id}">WEAR</button>` : buy('dye', d.id, d.cost, false)}</div>`;
+    }
+    h += `</div>`;
+    body.innerHTML = h;
+    body.querySelectorAll('.bbuy').forEach(b => b.addEventListener('click', () => {
+      if (!metaBuy(b.dataset.k, b.dataset.id)) { UI.toast('Not enough DNA yet: swim again'); return; }
+      sfx('pickup');
+      const y = $('bank').scrollTop; UI.renderBank(); $('bank').scrollTop = y;
+    }));
+  },
+
   // ---------------------------------------------------------------- game over
   showVictory() { UI.showGameOver(true); },
   showGameOver(won) {
@@ -500,6 +534,8 @@ const UI = {
     const got = G.show.order;
     h += `<h3>Achievements this run (${got.length})</h3>`;
     h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')}</div>` : `<p class="hint">None. Impressive, in its own way.</p>`;
+    const dna = bankRun(G, won);
+    h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
     $('overBody').innerHTML = h;
     UI.show('over');
   },
@@ -512,6 +548,7 @@ const UI = {
     if (b.time) parts.push(`Longest swim: ${fmtTime(b.time)} (Level ${b.level})`);
     if (b.born) parts.push(`Born ${b.births} time${b.births === 1 ? '' : 's'}, fastest ${fmtTime(b.born)}`);
     $('bestLine').textContent = parts.length ? parts.join(' | ') : 'No swims yet. The egg awaits.';
+    $('dnaLine').textContent = META.dna ? fmtNum(META.dna) + ' DNA' : '';
   },
 };
 
@@ -525,6 +562,8 @@ window.handleBack = function () {
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
+  if (on('bank')) { UI.show('title'); UI.renderBest(); return 'ok'; }
+  if (on('settings')) { UI.show(UI.setFrom || 'title'); return 'ok'; }
   UI.togglePause();
   return 'ok';
 };
