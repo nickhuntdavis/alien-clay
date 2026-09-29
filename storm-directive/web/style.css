@@ -471,3 +471,6 @@ body.land #toast { bottom: 24px; left: calc(50% + 85px); }
 body.land #sysmsg { left: 184px; top: calc(96px + env(safe-area-inset-top)); width: min(calc(100vw - 530px), 440px); }
 body.land.hudmin #sysmsg { top: calc(40px + env(safe-area-inset-top)); }
 body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
+
+/* Title: the out-of-focus lab shows through behind the menu */
+#title { background: radial-gradient(ellipse at 50% 42%, #02040622 0%, #0204066e 55%, #020406c8 100%) !important; }

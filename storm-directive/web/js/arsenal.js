@@ -64,7 +64,7 @@ function startReload(w) {
   if (P.tactical <= 0) return;
   const r = 60 + 40 * P.tactical, r2 = r * r;
   for (const b of G.ebul) { const dx = b.x - p.x, dy = b.y - p.y; if (dx * dx + dy * dy < r2) { b.dead = true; spawnPart(b.x, b.y, '#e0fbff', 1, 50, 0.25); } }
-  forNear(p.x, p.y, r, e => { damageEnemy(e, 5 * (1 + G.t / 120), { elem: 'phys', wname: 'Tactical Reload', noCrit: true, knock: 220, kx: e.x - p.x, ky: e.y - p.y }); });
+  forNear(p.x, p.y, r, e => { damageEnemy(e, 5 * (1 + G.t / 120), { elem: 'phys', wname: 'Tactical Nap', noCrit: true, knock: 220, kx: e.x - p.x, ky: e.y - p.y }); });
   ring(p.x, p.y, r, '#e0fbff', 0.35, 4);
 }
 

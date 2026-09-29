@@ -45,7 +45,7 @@ const UI = {
       if (G.chrono.snaps.length < 2) { UI.toast('Timeline too short to rewind yet'); return; }
       startRewind(false);
     });
-    $('playBtn').addEventListener('click', () => UI.startGame());
+    $('playBtn').addEventListener('click', () => UI.startGame(true));
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
     $('resumeBtn').addEventListener('click', () => UI.togglePause());
@@ -68,11 +68,16 @@ const UI = {
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
-  startGame() {
+  // From the title, the camera dives into the microscope first; tap to skip.
+  startGame(intro) {
     initAudio();
     newGame();
-    sysLine('start', true);
     UI.msgT = 0; $('sysmsg').classList.remove('on');
+    if (intro) { startIntro(); UI.show('none'); return; }
+    UI.afterIntro();
+  },
+  afterIntro() {
+    sysLine('start', true);
     UI.show('hud');
     UI.refreshHud(true);
   },
@@ -559,6 +564,7 @@ function fmtNum(v) { return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (
 window.handleBack = function () {
   const on = id => $(id).classList.contains('on');
   if (on('title')) return 'exit';
+  if (G && G.state === 'intro') { endIntro(); return 'ok'; }
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }

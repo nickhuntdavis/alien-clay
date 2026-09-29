@@ -650,7 +650,7 @@ function killEnemy(e, src) {
   if (e.parasiteT > 0 && e.parasiteW && G.turrets.length < 24) {
     const pw = e.parasiteW;
     G.turrets.push({ x: e.x, y: e.y, life: pw.s.dur || 8, max: pw.s.dur || 8, cd: 0.3, rate: 0.35, dmg: pw.s.dmg * 1.2, range: 320, w: pw,
-      src: { elem: 'poison', wname: 'Parasite turrets', crit: G.P.crit }, face: 0, color: '#b5e48c' });
+      src: { elem: 'poison', wname: 'Tapeworm turrets', crit: G.P.crit }, face: 0, color: '#b5e48c' });
     achieve('parasite');
   }
   // Mimic Core learns attack patterns from dead shooters.
@@ -752,7 +752,7 @@ function hurtPlayer(dmg, from, ent) {
 // Fewer, stronger enemies. Strength ramps from "chunky" at the start to "brutal" by 15 minutes.
 function enemyScale(t) {
   const k = Math.min(1, t / 900);
-  return { hp: 1.1 + 1.6 * k, dmg: 0.95 + 0.9 * k, xp: 1.9, r: 1.12, speed: 1 + 0.12 * k };
+  return { hp: 1.1 + 1.6 * k, dmg: 0.78 + 0.7 * k, xp: 1.9, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
   const t = G.t, hm = hpMul(t), dm = dmgMul(t);
@@ -983,7 +983,7 @@ function updateEnemies(dt) {
     if (!e.phased && dist < e.r + p.r) {
       if (G.barrier > 0) {
         e.kx -= ux * 300; e.ky -= uy * 300;
-        if (!(e.hitT.b > G.t)) { e.hitT.b = G.t + 0.4; damageEnemy(e, G.barrierDmg, { elem: 'arcane', wname: 'Aegis Barrier' }); }
+        if (!(e.hitT.b > G.t)) { e.hitT.b = G.t + 0.4; damageEnemy(e, G.barrierDmg, { elem: 'arcane', wname: 'Latex Barrier' }); }
       } else if (!frozen) hurtPlayer(e.dmg, e.name + (e.elite ? ' (elite)' : ''), e);
     }
     // Leash: recycle enemies left far behind.
@@ -1400,7 +1400,7 @@ function updateProjectiles(dt) {
         // Paradox Rifle: the same hit arrives again from one second in the future.
         const tgt = e, dmg = pr.dmg * 0.9;
         G.fx.push({ type: 'echoMark', x: e.x, y: e.y, e: tgt, life: 1, max: 1 });
-        after(1, () => { if (!tgt.dead) { ring(tgt.x, tgt.y, 22, '#8dffc0', 0.3, 2); damageEnemy(tgt, dmg, { elem: 'arcane', wname: 'Paradox Rifle (echo)', noStatus: true }); } });
+        after(1, () => { if (!tgt.dead) { ring(tgt.x, tgt.y, 22, '#8dffc0', 0.3, 2); damageEnemy(tgt, dmg, { elem: 'arcane', wname: 'Deja Vu Rifle (echo)', noStatus: true }); } });
       }
       spawnPart(pr.x, pr.y, pr.color, 1, 80, 0.2, 2);
       if (pr.splitHit && !pr.didSplit) {
@@ -1584,7 +1584,12 @@ function autoSteer() {
   // The race: head for the egg once it is yours to break, or to stop a rival breaking it.
   if (G.eggE && !G.eggE.dead && mode !== 'hold') {
     const thief = G.level < EGG.level && G.enemies.find(e => e.rival && !e.dead && e.mode === 'egg');
-    if (G.level >= EGG.level) { if (cdist > 330) goal(core.x, core.y, 1.1); }
+    if (G.level >= EGG.level) {
+      // Close in far enough for most of your weapons to reach the membrane (short-range builds go closer).
+      const rs = G.weapons.filter(Boolean).map(w => (w.s && w.s.range) || 300).sort((a, b) => a - b);
+      const reach = rs.length ? rs[Math.floor(rs.length / 3)] : 300;
+      if (cdist > CORE.r + clamp(reach * 0.8, 70, 250)) goal(core.x, core.y, 1.1);
+    }
     else if (thief) goal(thief.x, thief.y, Math.hypot(thief.x - p.x, thief.y - p.y) > 300 ? 1.1 : -0.3);
   }
   // Stay inside the womb.
@@ -1803,7 +1808,7 @@ function update(dt) {
       if (bs && G.proj.length < CAPS.proj) {
         const a = Math.atan2(dy, dx);
         G.proj.push({ x: b.x, y: b.y, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, speed: 420, r: 5, dmg: G.barrierDmg, pierce: 1, life: 1, max: 1, w: bs,
-          src: { elem: 'arcane', wname: 'Aegis Barrier' }, color: '#48cae4', style: 'bullet', explode: 0, homing: 0, bounce: 0, boomerang: 0, chainHit: 0, aura: 0, pull: 0, hits: null, tick: 0, dead: false });
+          src: { elem: 'arcane', wname: 'Latex Barrier' }, color: '#48cae4', style: 'bullet', explode: 0, homing: 0, bounce: 0, boomerang: 0, chainHit: 0, aura: 0, pull: 0, hits: null, tick: 0, dead: false });
       }
       continue;
     }
@@ -1948,6 +1953,7 @@ function frame(ts) {
     if (G.lootQueue.length && typeof UI !== 'undefined') UI.openLoot(G.lootQueue.shift());
     else update(dt);
   } else if (G && G.state === 'rewind') updateRewind(dt);
+  else if (G && G.state === 'intro') updateIntro(dt);
   render();
   if (typeof UI !== 'undefined') UI.tick(dt);
   requestAnimationFrame(frame);

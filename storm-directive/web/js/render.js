@@ -782,7 +782,7 @@ function render() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.fillStyle = '#05040b';
   ctx.fillRect(0, 0, W, H);
-  if (!G) { drawTitleBackdrop(); return; }
+  if (!G) { drawTitleLab(); return; }
   const rewinding = G.state === 'rewind';
   const shx = cam.shake ? rand(-cam.shake, cam.shake) : 0, shy = cam.shake ? rand(-cam.shake, cam.shake) : 0;
   ctx.save();
@@ -1170,7 +1170,7 @@ function render() {
   if (p.flash > 0) { ctx.globalAlpha = p.flash / 0.2 * 0.5; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (rewinding) drawRewindFx();
-  drawHud();
+  if (G.state === 'intro') drawIntro(); else drawHud();
 }
 
 // You grow as you level up: up to 1.8x at level 60.
