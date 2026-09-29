@@ -655,6 +655,7 @@ function applyElement(e, elem, dmg, src) {
 
 function aoe(x, y, r, dmg, src, color) {
   forNear(x, y, r, e => { damageEnemy(e, dmg, src); });
+  popAmbient(x, y, r);
   ring(x, y, r, color || '#ffae42', 0.35, 4);
   addLight(x, y, r * 1.8, color || '#ffae42', 0.45);
   if (r > 50) addDecal(x, y, r * 0.8, '#000');
@@ -684,6 +685,7 @@ function killEnemy(e, src) {
   e.dead = true;
   G.kills++;
   if (e.def.shape === 'sperm') G.stats.spermKills = (G.stats.spermKills || 0) + 1;
+  countKill(e.x, e.y);
   if (e.boss || e.elite || (e.def.spongy && e.r > 60)) casaLog(`TRK#${e.id} ${e.name} lysed`);
   const P = G.P;
   onShowKill(e, src);
@@ -1499,6 +1501,7 @@ function updateProjectiles(dt) {
     }
     // A shot that crosses a swimmer's flagellum snips it (checked every other frame; tails are thin).
     tailSnip(pr);
+    popAmbient(pr.x, pr.y, (pr.r || 3) + 4);
     // Collision.
     forNear(pr.x, pr.y, pr.r, e => {
       if (pr.hits && pr.hits.includes(e.id)) return;
@@ -1930,6 +1933,7 @@ function update(dt) {
     if (d2 < rr * rr) { b.dead = true; hurtPlayer(b.dmg, b.from, b.owner); }
   }
   updatePickups(dt);
+  updateAmbient(dt);
   // Director.
   // Dense swarms (each monster is weaker to match: see enemyScale).
   const maxAlive = Math.min(CAPS.enemies - 30, 24 + G.t * 0.5);

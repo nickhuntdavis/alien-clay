@@ -145,7 +145,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #title { background: radial-gradient(circle at 50% 38%, #10131233 0%, #10131288 45%, #101312dd 80%); }
 
 /* The Show */
-#sysmsg { position: absolute; left: 10px; top: calc(160px + env(safe-area-inset-top)); transform: translate(0, -12px); width: min(calc(100vw - 150px), 420px);
+#sysmsg { position: absolute; left: 10px; top: calc(184px + env(safe-area-inset-top)); transform: translate(0, -12px); width: min(calc(100vw - 150px), 420px);
   background: linear-gradient(135deg, #121617f2, #1a1f20f2); border: 2px solid var(--mc, #c7d2e3); border-radius: 12px; padding: 8px 12px;
   box-shadow: 0 0 18px color-mix(in srgb, var(--mc, #c7d2e3) 45%, transparent); opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
 #sysmsg.on { opacity: 1; transform: translate(0, 0); }
@@ -513,3 +513,24 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 @keyframes snap { to { transform: scaleY(0); opacity: 0; } }
 @keyframes peelUp { to { transform: translateY(-22px) rotate(-6deg); opacity: 0; } }
 @keyframes peelDown { to { transform: translateY(22px) rotate(6deg); opacity: 0; } }
+
+/* Sample select: each level is a microscope slide with a frosted label and a drop under the coverslip */
+#sampleList { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; }
+.slide { display: flex; align-items: stretch; gap: 0; width: 100%; text-align: left; padding: 0; border-radius: 10px; overflow: hidden;
+  background: linear-gradient(135deg, rgba(214,228,240,0.10), rgba(214,228,240,0.03)); border: 1px solid rgba(214,228,240,0.28); box-shadow: 0 6px 18px rgba(0,0,0,0.5); color: inherit; }
+.slide .slabel { flex: 0 0 64px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px;
+  background: repeating-linear-gradient(45deg, rgba(230,236,242,0.20) 0 2px, rgba(230,236,242,0.12) 2px 4px); border-right: 1px solid rgba(214,228,240,0.25); }
+.slide .slabel b { font-family: var(--mono); font-size: 14px; color: #d6e4f0; }
+.slide .slabel i { font-style: normal; font-family: var(--mono); font-size: 7.5px; letter-spacing: 1px; color: #8395a8; text-align: center; }
+.slide .sglass { flex: 0 0 58px; display: grid; place-items: center; }
+.slide .sdrop { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.35), rgba(160,176,190,0.18) 60%, rgba(160,176,190,0.05));
+  box-shadow: inset 0 0 0 1px rgba(214,228,240,0.35); position: relative; }
+.slide .sdrop::after { content: ''; position: absolute; inset: 9px 12px; border-radius: 50%; border-top: 1.5px solid #4dff9a; transform: rotate(-30deg); opacity: 0.9; }
+.slide .sinfo { flex: 1; padding: 12px 12px 12px 4px; display: flex; flex-direction: column; gap: 4px; }
+.slide .sinfo b { font-size: 16px; }
+.slide .sinfo span { font-size: 12.5px; color: #b8c6d4; line-height: 1.35; }
+.slide .sinfo em { font-style: normal; font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px; color: #8395a8; }
+.slide.locked { opacity: 0.45; }
+.slide.locked .sdrop::after { display: none; }
+.slide.nope { animation: nope 0.3s; }
+@keyframes nope { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }

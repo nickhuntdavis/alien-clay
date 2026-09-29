@@ -223,14 +223,21 @@ function rivalBoard() {
 }
 
 // ---------------------------------------------------------------- the sperm count
-// About 400 million start the race. The count falls with time (0.5), with your growth (0.45, full at level
-// 60) and with every rival swimmer you kill (0.1, full at 1,200), on a log scale, and never goes back up.
-// 95% of that is enough, so kills only speed it up.
-// At the last six (you and five) the Final Five showdown begins; each finalist you kill takes one off.
-const COUNT = { start: 4e8, time: 720, kills: 1200 };
+// About 400 million start the race, and the count doesn't move until you kill something (a monster or one
+// of the crowd). From then on it falls with every kill (0.3: monsters, rival swimmers and popped crowd
+// sperm), with your growth (0.4, full at level 60) and a little with time (0.3), on a log scale, and never
+// goes back up. 95% of that is enough. At the last six (you and five) the Final Five showdown begins;
+// each finalist you kill takes one off.
+const COUNT = { start: 4e8, time: 720, cull: 2600 };
+function countKill(x, y) {
+  if (!G.countStartT && G.countStartT !== 0) { G.countStartT = G.t; }
+  G.lastKillX = x; G.lastKillY = y; G.lastKillT = G.realT;
+}
 function countProgress() {
-  const P = 0.5 * Math.min(1, G.t / COUNT.time) + 0.45 * Math.min(1, (G.level - 1) / (EGG.level - 1)) + 0.1 * Math.min(1, (G.stats.spermKills || 0) / COUNT.kills);
-  G.countP = Math.max(G.countP || 0, Math.min(1, P / 0.95)); // time and full growth alone get you there; kills get you there sooner
+  if (G.countStartT == null) return 0;
+  const cull = G.kills + (G.stats.spermKills || 0) + (G.ambKills || 0) * 0.5;
+  const P = 0.3 * Math.min(1, (G.t - G.countStartT) / COUNT.time) + 0.4 * Math.min(1, (G.level - 1) / (EGG.level - 1)) + 0.3 * Math.min(1, cull / COUNT.cull);
+  G.countP = Math.max(G.countP || 0, Math.min(1, P / 0.95));
   return G.countP;
 }
 function spermCount() {
@@ -239,6 +246,19 @@ function spermCount() {
   const P = countProgress();
   if (P >= 1) return 6;
   return Math.max(7, Math.round(Math.exp(Math.log(COUNT.start) * (1 - P) + Math.log(6) * P)));
+}
+// Show what your kills are doing to the count: the drop floats up from where you're killing things.
+function updateCountFx() {
+  const c = spermCount();
+  if (G.countShown == null) G.countShown = c;
+  if (c < G.countShown) { G.countDrop = (G.countDrop || 0) + (G.countShown - c); G.countShown = c; G.countFlash = 0.25; }
+  if (G.countFlash > 0) G.countFlash -= 1 / 60;
+  if (G.countDrop > 0 && !(G.countDropT > G.realT) && G.realT - (G.lastKillT || -9) < 0.5 && !G.showdown) {
+    G.countDropT = G.realT + 0.35;
+    const d = G.countDrop, txt = d >= 1e6 ? (d / 1e6).toFixed(1) + 'M' : d >= 1e3 ? (d / 1e3).toFixed(d >= 1e5 ? 0 : 1) + 'k' : Math.round(d);
+    floatText(G.lastKillX, G.lastKillY - 20, '-' + txt, XR.white, 12, 0.8);
+    G.countDrop = 0;
+  }
 }
 const FINALIST_NAMES = ['The Dark Horse', 'Anonymous Donor', 'The Favourite', 'Mr Motility', 'The Underdog'];
 function startShowdown() {
@@ -260,6 +280,7 @@ function startShowdown() {
   cam.shake = 12; sfx('boss'); vibrate([150, 80, 150]);
 }
 function updateShowdown() {
+  updateCountFx();
   if (!G.showdown && G.state === 'play' && countProgress() >= 1) startShowdown();
   if (G.showdown && !G.fertile && !G.enemies.some(e => e.final && !e.dead)) {
     G.fertile = true;

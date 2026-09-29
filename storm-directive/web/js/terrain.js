@@ -270,3 +270,54 @@ function startInfection() {
   ]), PAL.danger, true);
   sfx('boss');
 }
+
+// ---------------------------------------------------------------- the crowd (cosmetic)
+// A steady stream of tiny, harmless sperm swims in from beyond the arena and heads for the egg, where
+// they try to tunnel in. They don't fight and nothing targets them, but any shot or blast that touches
+// one pops it, and that takes a chunk off the sperm count. They're there to show the 400 million.
+const AMB = { rate: 10, cap: 300, rim: 80, cell: 48 };
+function updateAmbient(dt) {
+  const A = G.amb || (G.amb = []);
+  G.ambAcc = (G.ambAcc || 0) + AMB.rate * dt;
+  while (G.ambAcc >= 1) {
+    G.ambAcc--;
+    if (A.length >= AMB.cap) break;
+    const a = Math.random() * TAU, d = CORE.arena + rand(20, 120);
+    A.push({ x: G.core.x + Math.cos(a) * d, y: G.core.y + Math.sin(a) * d, sp: rand(38, 70), ph: Math.random() * TAU, rim: false, wob: rand(-0.35, 0.35) });
+  }
+  let rimN = 0;
+  const grid = G.ambGrid || (G.ambGrid = new Map());
+  grid.clear();
+  for (const s of A) {
+    if (s.dead) continue;
+    const dx = G.core.x - s.x, dy = G.core.y - s.y, d = Math.hypot(dx, dy) || 1;
+    s.ph += dt * (s.rim ? 26 : 14);
+    if (!s.rim) {
+      // A wandering, wiggling approach.
+      const a = Math.atan2(dy, dx) + s.wob * Math.sin(s.ph * 0.15);
+      s.x += Math.cos(a) * s.sp * dt; s.y += Math.sin(a) * s.sp * dt; s.a = a;
+      if (d < CORE.r + 8) { s.rim = true; s.a = Math.atan2(dy, dx); s.rimT = G.t; }
+    } else rimN++;
+    const k = Math.floor(s.x / AMB.cell) * 100003 + Math.floor(s.y / AMB.cell);
+    let c = grid.get(k); if (!c) grid.set(k, c = []); c.push(s);
+  }
+  // The egg's surface only holds so many hopefuls; the oldest give up.
+  if (rimN > AMB.rim) { let drop = rimN - AMB.rim; for (const s of A) { if (drop <= 0) break; if (s.rim && !s.dead) { s.dead = true; drop--; } } }
+  if (G.frameN % 30 === 0) G.amb = A.filter(s => !s.dead);
+}
+// Pop every crowd sperm within r of (x, y). Returns how many.
+function popAmbient(x, y, r) {
+  if (!G.ambGrid) return 0;
+  let n = 0;
+  const c0 = Math.floor((x - r) / AMB.cell), c1 = Math.floor((x + r) / AMB.cell), d0 = Math.floor((y - r) / AMB.cell), d1 = Math.floor((y + r) / AMB.cell);
+  for (let cx = c0; cx <= c1; cx++) for (let cy = d0; cy <= d1; cy++) {
+    const c = G.ambGrid.get(cx * 100003 + cy);
+    if (!c) continue;
+    for (const s of c) if (!s.dead && (s.x - x) * (s.x - x) + (s.y - y) * (s.y - y) < r * r) {
+      s.dead = true; n++;
+      if (Math.random() < 0.5) spawnPart(s.x, s.y, '#ffffff', 2, 50, 0.3, 1.5);
+    }
+  }
+  if (n) { G.ambKills = (G.ambKills || 0) + n; countKill(x, y); }
+  return n;
+}

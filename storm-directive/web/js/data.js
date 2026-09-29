@@ -677,6 +677,13 @@ const SLOT_LEVELS = [15, 30, 45];
 // Two more for the interface, taken from patient-monitor conventions (each trace has its own fixed colour):
 //   upgrade - monitor cyan: anything that permanently changes your build (weapons, levels, perks, mods, stats)
 //   pickup  - monitor magenta: temporary field power-ups lying on the slide
+// Sperm samples (levels). Only the first is in the fridge so far.
+const SAMPLES = [
+  { id: 's001', no: '001', name: 'Standard Issue', desc: 'One healthy donor, four hundred million hopefuls, one egg. The classic.', count: '400,000,000', motility: '62% progressive', open: true },
+  { id: 's002', no: '002', name: 'Frozen Donor Bank', desc: 'Thawed in a hurry. Everyone is sluggish, except the ones who are not.', open: false },
+  { id: 's003', no: '003', name: 'The Morning After', desc: 'The pill is already dissolving. Good luck.', open: false },
+  { id: 's004', no: '004', name: 'Vasectomy Reversal', desc: 'Low count, high stakes, very confused surgeon.', open: false },
+];
 const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f', upgrade: '#5fd4e8', pickup: '#d983e8' };
 
 // ---------------------------------------------------------------- Weapon upgrade trees

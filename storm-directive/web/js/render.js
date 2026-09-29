@@ -955,6 +955,7 @@ function render() {
   drawDecals(vis);
   drawTerrain();
   drawPill();
+  drawAmbient(vis);
   // Dynamic lights pooling on the floor.
   ctx.globalCompositeOperation = 'lighter';
   for (const l of G.lights) if (vis(l)) glow(sx(l.x), sy(l.y), l.r * S, l.color, 0.35 * (l.life / l.max));
@@ -1627,7 +1628,8 @@ function drawHud() {
     } else if (!mini) {
       const cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
       ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('SPERM COUNT', mid, cy2 - 14);
-      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(spermCount().toLocaleString('en-GB'), mid, cy2 + 4);
+      const fl = Math.max(0, G.countFlash || 0) * 4;
+      ctx.fillStyle = fl > 0 ? PAL.you : XR.white; ctx.font = `bold ${Math.round(16 + fl * 3)}px ` + MONO; ctx.fillText(spermCount().toLocaleString('en-GB'), mid, cy2 + 4);
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).
@@ -1708,6 +1710,33 @@ function drawMinimap(top) {
   ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
   if (SET.hud !== 'minimal') drawRaceBoard(W - 10, my + R + 16);
+}
+
+// ---------------------------------------------------------------- the crowd
+// Hundreds of tiny swimmers, batched into two paths (tails, then heads) so they cost almost nothing.
+function drawAmbient(vis) {
+  const A = G.amb;
+  if (!A || !A.length) return;
+  const k = S, hl = 3.2 * k, tl = 11 * k;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = SET.darkfield ? 'rgba(214,228,240,0.5)' : 'rgba(40,46,42,0.5)'; ctx.lineWidth = Math.max(0.7, 0.7 * k);
+  ctx.beginPath();
+  for (const s of A) {
+    if (s.dead || !vis(s)) continue;
+    const x = sx(s.x), y = sy(s.y), ca = Math.cos(s.a || 0), sa = Math.sin(s.a || 0), nx = -sa, ny = ca;
+    ctx.moveTo(x - ca * hl, y - sa * hl);
+    for (let i = 1; i <= 3; i++) { const f = i / 3, w = Math.sin(s.ph - f * 5) * 2.2 * k * f; ctx.lineTo(x - ca * (hl + tl * f) + nx * w, y - sa * (hl + tl * f) + ny * w); }
+  }
+  ctx.stroke();
+  ctx.fillStyle = SET.darkfield ? 'rgba(230,238,245,0.85)' : 'rgba(58,64,60,0.8)';
+  ctx.beginPath();
+  for (const s of A) {
+    if (s.dead || !vis(s)) continue;
+    const x = sx(s.x), y = sy(s.y), r = 2.4 * k;
+    ctx.moveTo(x + r, y); ctx.ellipse(x, y, r * 1.35, r, s.a || 0, 0, TAU);
+  }
+  ctx.fill();
+  ctx.lineCap = 'butt';
 }
 
 // ---------------------------------------------------------------- the pill's cloud

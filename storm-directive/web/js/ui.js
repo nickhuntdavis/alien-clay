@@ -53,7 +53,8 @@ const UI = {
       if (G.chrono.snaps.length < 2) { UI.toast('Timeline too short to rewind yet'); return; }
       startRewind(false);
     });
-    $('playBtn').addEventListener('click', () => UI.startGame(true));
+    $('playBtn').addEventListener('click', () => UI.openSamples());
+    $('sampleBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
     $('resumeBtn').addEventListener('click', () => UI.togglePause());
@@ -78,7 +79,7 @@ const UI = {
 
   lastDown: 0, lootOpenT: 0,
   show(name) {
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -559,6 +560,22 @@ const UI = {
     $('pauseStats').textContent = `Time ${fmtTime(G.t)} | Level ${G.level} | Kills ${G.kills} | Rerolls ${G.rerolls}`;
   },
 
+  // ---------------------------------------------------------------- sample select (levels)
+  openSamples() {
+    const best = UI.loadBest();
+    $('sampleList').innerHTML = SAMPLES.map(s => `<button class="slide ${s.open ? '' : 'locked'}" data-sample="${s.id}">
+      <span class="slabel"><b>#${s.no}</b><i>${s.open ? 'IN STOCK' : 'COMING SOON'}</i></span>
+      <span class="sglass"><span class="sdrop"></span></span>
+      <span class="sinfo"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span>${s.open ? `<em>Count ${s.count} | Motility ${s.motility}${best.born ? ' | Fastest fertilisation ' + fmtTime(best.born) : ''}</em>` : '<em>More to cum.</em>'}</span>
+    </button>`).join('');
+    $('sampleList').querySelectorAll('.slide').forEach(b => b.addEventListener('click', () => {
+      const s = SAMPLES.find(x => x.id === b.dataset.sample);
+      if (!s.open) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); return; }
+      UI.sample = s.id; UI.startGame(true);
+    }));
+    UI.show('samples');
+  },
+
   // ---------------------------------------------------------------- Gene Bank (meta progression)
   renderBank() {
     const body = $('bankBody'), gold = PAL.reward, cyan = PAL.upgrade;
@@ -711,7 +728,7 @@ window.handleBack = function () {
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
-  if (on('bank')) { UI.show('title'); UI.renderBest(); return 'ok'; }
+  if (on('bank') || on('samples')) { UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('settings')) { UI.show(UI.setFrom || 'title'); return 'ok'; }
   UI.togglePause();
   return 'ok';
