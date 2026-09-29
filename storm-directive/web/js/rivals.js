@@ -1,7 +1,8 @@
 'use strict';
-// Spawn Prawn - rival champions. Five other swimmers grow stronger elsewhere on the map and race you
-// to the egg. They farm the immune system, pick fights when they feel big, and if one of them reaches
-// EGG.level first it swims to the egg and starts breaking in. If the membrane gives way for them, you lose.
+// Spawn Prawn - rival champions and the sperm count. Five other swimmers grow stronger elsewhere on the
+// map. They farm the immune system and pick fights when they feel big. The sperm count falls as the race
+// goes on; when it reaches the last six (you and five), the Final Five showdown starts. Win it and the
+// count is 1: swim into the egg to fertilise it.
 
 // A rival's level follows its own clock, which runs at its skill (plus a little for every kill it steals).
 function rivalLevelAt(clock) { return Math.min(EGG.level, 1 + Math.floor((EGG.level - 1) * Math.pow(Math.max(0, clock) / RIVAL.finish, RIVAL.pow) + 1e-9)); }
@@ -54,12 +55,6 @@ function rivalGrow(e, dt) {
   // Overtaking you is news. So are round numbers.
   if (before <= G.level && L > G.level) rivalNews(e, `${e.name} has overtaken you (LV ${L}).`, true);
   else if (Math.floor(L / 10) > Math.floor(before / 10)) rivalNews(e, fill(pick(SYSTEM_LINES.rivalLevel), e, L));
-  if (L >= EGG.level) {
-    e.mode = 'egg';
-    banner(e.name.toUpperCase() + ' IS HEADING FOR THE EGG!', e.color);
-    sysMsg('SYSTEM MESSAGE', fill(pick(SYSTEM_LINES.rivalEgg), e), '#ff4d6d', true);
-    sfx('boss'); vibrate(150);
-  }
 }
 function fill(s, e, l, k) { return s.replace(/\{n\}/g, e.name).replace(/\{l\}/g, l).replace(/\{k\}/g, k || ''); }
 function rivalNews(e, text, force) {
@@ -77,16 +72,16 @@ function rivalAI(e, dt) {
   // Regenerate after a few quiet seconds.
   if (e.hp < e.lastHp - 0.5) e.calmT = 4;
   e.calmT -= dt;
-  if (e.calmT <= 0 && e.hp < e.maxHp) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.02 * dt);
+  if (e.calmT <= 0 && e.hp < e.maxHp && !e.final) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.02 * dt);
   e.lastHp = e.hp;
   if (e.frozen > 0) { rivalMove(e, 0, 0, 0, dt); return; }
   e.modeT -= dt;
   let tx = e.wx, ty = e.wy, spd = e.speed * (G.pill && inPill(e.x, e.y) ? 0.65 : 1);
   const hurt = e.hp < e.maxHp * 0.3;
-  if (e.mode === 'egg') {
-    const c = G.core, a = Math.atan2(e.y - c.y, e.x - c.x), rim = CORE.r + e.r + 6;
-    tx = c.x + Math.cos(a) * rim; ty = c.y + Math.sin(a) * rim; spd *= 1.5;
-    if (Math.hypot(e.x - c.x, e.y - c.y) < rim + 30) rivalBreakIn(e, dt);
+  if (e.final) {
+    // The Final Five: no running, no resting, just you.
+    const want = 230, side = e.side;
+    tx = p.x - dx / dist * want - dy / dist * 140 * side; ty = p.y - dy / dist * want + dx / dist * 140 * side; spd *= 1.1;
   } else if (e.mode === 'flee') {
     tx = e.x - dx / dist * 400; ty = e.y - dy / dist * 400; spd *= 1.35;
     if (e.modeT <= 0 || dist > RIVAL.sight) { e.mode = 'roam'; newWaypoint(e); }
@@ -120,8 +115,8 @@ function rivalAI(e, dt) {
   // Early on they mind their own business unless you start something.
   const riled = G.t > RIVAL.huntFrom || e.hp < e.maxHp * 0.95;
   if (e.shootCd <= 0 && dist < 520 && riled && G.state === 'play') {
-    e.shootCd = e.mode === 'hunt' ? 1.1 : 1.8;
-    const n = 1 + Math.floor(e.lvl / 12), a0 = Math.atan2(dy, dx), bd = 7 * dmgMul(G.t) * (1 + e.lvl / 40);
+    e.shootCd = e.final ? 1.6 : e.mode === 'hunt' ? 1.1 : 1.8;
+    const n = Math.min(e.final ? 3 : 9, 1 + Math.floor(e.lvl / 12)), a0 = Math.atan2(dy, dx), bd = 7 * dmgMul(G.t) * (1 + e.lvl / 40);
     shooterName = e.name; shooterEnt = e;
     for (let i = 0; i < n; i++) eBullet(e.x, e.y, a0 + (i - (n - 1) / 2) * 0.16, 210, bd, 5.5, e.color);
   }
@@ -159,28 +154,6 @@ function rivalZap(e) {
     }
     return ++n >= 3;
   });
-}
-
-// A rival on the rim of an open egg wears the membrane down. It ignores the per-second cap you face,
-// but it is slower than you at your best.
-function rivalBreakIn(e, dt) {
-  if (!G.eggE || G.eggE.dead) openEgg(e);
-  const egg = G.eggE;
-  egg.hp -= egg.maxHp * RIVAL.eggDps * dt;
-  egg.flash = 0.05;
-  e.face = Math.atan2(G.core.y - e.y, G.core.x - e.x);
-  if (Math.random() < dt * 6) spawnPart(e.x + Math.cos(e.face) * e.r, e.y + Math.sin(e.face) * e.r, '#ffd6e8', 2, 80, 0.4, 2.5);
-  if (egg.hp <= 0 && G.state === 'play') rivalWon(e);
-}
-
-function rivalWon(e) {
-  G.eggE.dead = true; G.eggE = null;
-  G.rivalWinner = e.name;
-  spawnPart(e.x, e.y, e.color, 60, 320, 0.9, 6); cam.shake = 16;
-  sysMsg('SYSTEM MESSAGE', fill(pick(SYSTEM_LINES.rivalWin), e), '#ff4d6d', true);
-  G.state = 'over'; G.banner = null;
-  sfx('boss'); vibrate(300);
-  if (typeof UI !== 'undefined') UI.showGameOver();
 }
 
 // Called from killEnemy when you (or your weapons, echoes and allies) finish off a rival.
@@ -225,6 +198,7 @@ function updateRivals(dt) {
   }
   if (G.t < G.rivalCullT) return;
   G.rivalCullT = G.t + 75;
+  if (G.showdown) return;
   const alive = G.enemies.filter(e => e.rival && !e.dead);
   if (alive.length <= 2 || G.rivalCulls >= 2) return;
   const p = me();
@@ -240,7 +214,60 @@ function rivalBoard() {
   const rows = [{ name: 'SPERMY', lvl: G.level, color: PAL.you, you: true }];
   for (const R of RIVALS) {
     const e = G.enemies.find(o => o.rid === R.id && !o.dead);
-    rows.push({ name: R.name, lvl: e ? e.lvl : 0, color: R.color, out: !e, egg: e && e.mode === 'egg', e });
+    rows.push({ name: R.name, lvl: e ? e.lvl : 0, color: R.color, out: !e, egg: e && e.final, e });
   }
+  // Stand-ins who joined the Final Five.
+  for (const e of G.enemies) if (e.final && !e.dead && !RIVALS.some(R => R.id === e.rid)) rows.push({ name: e.name, lvl: e.lvl, color: e.color, egg: true, e });
   return rows.sort((a, b) => (a.out ? 1 : 0) - (b.out ? 1 : 0) || b.lvl - a.lvl || (a.you ? -1 : 1));
+}
+
+// ---------------------------------------------------------------- the sperm count
+// About 400 million start the race. The count falls with time (0.5), with your growth (0.45, full at level
+// 60) and with every rival swimmer you kill (0.1, full at 1,200), on a log scale, and never goes back up.
+// 95% of that is enough, so kills only speed it up.
+// At the last six (you and five) the Final Five showdown begins; each finalist you kill takes one off.
+const COUNT = { start: 4e8, time: 720, kills: 1200 };
+function countProgress() {
+  const P = 0.5 * Math.min(1, G.t / COUNT.time) + 0.45 * Math.min(1, (G.level - 1) / (EGG.level - 1)) + 0.1 * Math.min(1, (G.stats.spermKills || 0) / COUNT.kills);
+  G.countP = Math.max(G.countP || 0, Math.min(1, P / 0.95)); // time and full growth alone get you there; kills get you there sooner
+  return G.countP;
+}
+function spermCount() {
+  if (G.fertile) return 1;
+  if (G.showdown) return 1 + G.enemies.filter(e => e.final && !e.dead).length;
+  const P = countProgress();
+  if (P >= 1) return 6;
+  return Math.max(7, Math.round(Math.exp(Math.log(COUNT.start) * (1 - P) + Math.log(6) * P)));
+}
+const FINALIST_NAMES = ['The Dark Horse', 'Anonymous Donor', 'The Favourite', 'Mr Motility', 'The Underdog'];
+function startShowdown() {
+  G.showdown = { t0: G.t }; G.eggAt = G.t;
+  const p = me(), fin = G.enemies.filter(e => e.rival && !e.dead);
+  for (let i = fin.length; i < 5; i++) {
+    const R = { id: 'fin' + i, name: FINALIST_NAMES[i], color: XR.white, skill: 1, aggro: 1 };
+    const e = makeRival(R, p.x, p.y); G.enemies.push(e); fin.push(e);
+  }
+  fin.forEach((e, i) => {
+    // They close in from all sides, fully grown and fully healed.
+    const a = i / fin.length * TAU + Math.random() * 0.5;
+    e.x = p.x + Math.cos(a) * 850; e.y = p.y + Math.sin(a) * 850;
+    e.final = true; e.mode = 'final'; e.lvl = Math.max(e.lvl, G.level);
+    e.maxHp = 0; rivalStats(e, 1);
+  });
+  banner('THE FINAL FIVE', PAL.danger);
+  sysLine('finalFive', true);
+  cam.shake = 12; sfx('boss'); vibrate([150, 80, 150]);
+}
+function updateShowdown() {
+  if (!G.showdown && G.state === 'play' && countProgress() >= 1) startShowdown();
+  if (G.showdown && !G.fertile && !G.enemies.some(e => e.final && !e.dead)) {
+    G.fertile = true;
+    banner('SPERM COUNT: 1. FERTILISE THE EGG!', PAL.reward);
+    sysLine('eggReady', true); achieve('eggready');
+    sfx('level'); vibrate(200);
+  }
+  if (G.fertile && G.state === 'play') {
+    const p = me();
+    if (Math.hypot(p.x - G.core.x, p.y - G.core.y) < CORE.r + p.r + 14) victory();
+  }
 }

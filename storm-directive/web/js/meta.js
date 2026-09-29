@@ -102,7 +102,7 @@ function runLogText() {
 }
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
-  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} egg@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}\n`;
+  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}\n`;
   out += ` ended by: ${r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   out += ` dmg: ${r.dmg.join(', ')}\n`;
   out += ` build: ${r.w.join(' ')} | spells: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;

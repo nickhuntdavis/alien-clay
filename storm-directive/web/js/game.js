@@ -681,6 +681,7 @@ function killEnemy(e, src) {
   if (e.egg) { e.dead = true; G.eggE = null; spawnPart(e.x, e.y, '#ffd6e8', 60, 320, 0.9, 6); cam.shake = 16; victory(); return; }
   e.dead = true;
   G.kills++;
+  if (e.def.shape === 'sperm') G.stats.spermKills = (G.stats.spermKills || 0) + 1;
   if (e.boss || e.elite || (e.def.spongy && e.r > 60)) casaLog(`TRK#${e.id} ${e.name} lysed`);
   const P = G.P;
   onShowKill(e, src);
@@ -1698,16 +1699,8 @@ function autoSteer() {
     else { gx += -(p.y - core.y) / (cdist || 1) * 0.5; gy += (p.x - core.x) / (cdist || 1) * 0.5; }
   }
   // The race: head for the egg once it is yours to break, or to stop a rival breaking it.
-  if (G.eggE && !G.eggE.dead && mode !== 'hold') {
-    const thief = G.level < EGG.level && G.enemies.find(e => e.rival && !e.dead && e.mode === 'egg');
-    if (G.level >= EGG.level) {
-      // Close in far enough for most of your weapons to reach the membrane (short-range builds go closer).
-      const rs = G.weapons.filter(Boolean).map(w => (w.s && w.s.range) || 300).sort((a, b) => a - b);
-      const reach = rs.length ? rs[Math.floor(rs.length / 3)] : 300;
-      if (cdist > CORE.r + clamp(reach * 0.8, 70, 250)) goal(core.x, core.y, 1.1);
-    }
-    else if (thief) goal(thief.x, thief.y, Math.hypot(thief.x - p.x, thief.y - p.y) > 300 ? 1.1 : -0.3);
-  }
+  // Sperm count 1: head straight into the egg.
+  if (G.fertile && mode !== 'hold') goal(core.x, core.y, 1.8);
   // Stay inside the womb.
   if (cdist > CORE.arena - 350) goal(core.x, core.y, (cdist - (CORE.arena - 350)) / 120);
   const gl = Math.hypot(gx, gy);
@@ -1938,13 +1931,12 @@ function update(dt) {
   // Dense swarms (each monster is weaker to match: see enemyScale).
   const maxAlive = Math.min(CAPS.enemies - 30, 24 + G.t * 0.5);
   const rate = Math.min(9, (0.55 + G.t / 90 + Math.pow(G.t / 300, 2) * 0.9) * 1.7);
-  G.spawnAcc += rate * dt * G.P.spawnMult;
+  G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1); // quieter while the Final Five fight you
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   if (G.t >= G.nextWave) { G.nextWave += 45; waveEvent(); }
   updateRivals(dt);
-  // The egg exists whenever you're big enough, even if a Rewind jumped back past the moment it opened.
-  if (G.level >= EGG.level && G.state === 'play' && (!G.eggE || G.eggE.dead)) openEgg();
+  updateShowdown();
   if (G.t >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.

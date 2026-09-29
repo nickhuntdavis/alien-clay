@@ -502,7 +502,7 @@ const UI = {
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
 
-    h += `<div class="sec"><h3>The egg and time</h3><p class="hint">${G.eggE && G.level >= EGG.level ? 'The egg is open for business: break its membrane to be born.' : `Reach level ${EGG.level} and the egg will let you try to break in (you are level ${G.level}).`} Weapon slots: ${G.weapons.length}/${3 + SLOT_LEVELS.length} (next at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}. The egg's warm glow heals you (NEST autorun keeps you in it).</p>
+    h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.fertile ? 'It is one. It is you. Swim into the egg.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon slots: ${G.weapons.length}/${3 + SLOT_LEVELS.length} (next at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}. The egg's warm glow heals you (NEST autorun keeps you in it).</p>
 </div>`;
     }
     if (tab === 'show') {

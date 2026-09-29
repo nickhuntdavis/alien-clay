@@ -360,7 +360,7 @@ function drawCore() {
   // zona pellucida, a polar body in the gap, and the corona radiata (small dark cells packed radially
   // against the zona) fading out into the looser cumulus cloud.
   const c = G.core, x = sx(c.x), y = sy(c.y), r = c.r * S, t = G.realT;
-  const egg = G.eggE, dmg = egg ? 1 - egg.hp / egg.maxHp : 0;
+  const egg = G.fertile, dmg = egg ? 0.45 : 0; // the zona opens for the last sperm standing
   if (!SPR.oocyte || SPR.oocyteR !== Math.round(r)) buildOocyte(r);
   const O = SPR.oocyte, sz = O.width / (DPR > 1 ? Math.min(2, DPR) : 1);
   ctx.save(); ctx.translate(x, y); ctx.rotate(t * 0.02);
@@ -1530,7 +1530,8 @@ function drawMiniBar(top, m, s) {
   const board = G.rivalsInit ? rivalBoard() : [];
   const place = board.findIndex(r => r.you) + 1, ord = ['', '1st', '2nd', '3rd', '4th', '5th', '6th'][place] || '';
   ctx.fillStyle = XR.white;
-  const txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  RACE ${ord}  K ${G.kills}`;
+  const sc = spermCount(), scs = sc >= 1e6 ? (sc / 1e6).toFixed(sc >= 1e8 ? 0 : 1) + 'M' : sc >= 1e3 ? Math.round(sc / 1e3) + 'k' : sc;
+  const txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  COUNT ${scs}  K ${G.kills}`;
   ctx.fillText(txt, bx + bw + 10, y + 16);
   ctx.shadowOffsetX = sb; ctx.shadowOffsetY = sb;
 }
@@ -1610,22 +1611,23 @@ function drawHud() {
     ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
     ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), bx + bw / 2, by - 8);
   }
-  // Egg membrane bar, or progress towards being big enough.
+  // The sperm count (always ticking down), then the Final Five, then the egg.
   {
     const bw = barW, bx = barX, by = top + BY + (G.boss && !G.boss.dead ? 26 : 0), mid = bx + bw / 2;
-    ctx.textAlign = 'center'; ctx.font = 'bold 11px ' + MONO;
-    if (G.eggE && !G.eggE.dead && G.level < EGG.level) {
-      const e = G.eggE, who = G.enemies.filter(o => o.rival && !o.dead && o.mode === 'egg').map(o => o.name);
-      softBar(bx, by, bw, e.hp / e.maxHp, PAL.danger);
-      ctx.fillStyle = '#ff8fab';
-      ctx.fillText((who.length ? who.join(' & ') + ' breaking in: ' : 'Egg membrane: ') + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
-    } else if (G.eggE && !G.eggE.dead) {
-      const e = G.eggE;
-      softBar(bx, by, bw, e.hp / e.maxHp, XR.white);
-      ctx.fillStyle = '#ffd6e8'; ctx.fillText("BREAK INTO THE EGG! " + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
-    } else if (!G.boss && G.level < EGG.level) {
-      ctx.fillStyle = XR.white; ctx.font = 'bold 10px ' + MONO;
-      if (!mini) ctx.fillText(`GROW TO LV ${EGG.level} TO BREAK INTO THE EGG`, mid, top + BY);
+    ctx.textAlign = 'center';
+    if (G.fertile) {
+      ctx.globalAlpha = 0.7 + 0.3 * Math.sin(G.realT * 6);
+      ctx.fillStyle = PAL.reward; ctx.font = 'bold 13px ' + MONO; ctx.fillText('SPERM COUNT: 1. SWIM INTO THE EGG!', mid, by - 4);
+      ctx.globalAlpha = 1;
+    } else if (G.showdown) {
+      const fin = G.enemies.filter(e => e.final && !e.dead), hp = fin.reduce((a, e) => a + e.hp, 0), mx = fin.reduce((a, e) => a + e.maxHp, 0) || 1;
+      softBar(bx, by, bw, fin.length ? hp / mx : 0, PAL.danger);
+      ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
+      ctx.fillText(`THE FINAL FIVE: ${fin.length} LEFT (SPERM COUNT ${spermCount()})`, mid, by - 8);
+    } else if (!mini) {
+      const cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
+      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('SPERM COUNT', mid, cy2 - 14);
+      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(spermCount().toLocaleString('en-GB'), mid, cy2 + 4);
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).
@@ -1656,7 +1658,7 @@ function drawHud() {
   }
   if (G.boss && !G.boss.dead) pointer(G.boss.x, G.boss.y, '#ff4d6d');
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
-  pointer(c.x, c.y, G.eggE ? XR.white : '#ffb3d1');
+  pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
   drawMinimap(top);
   if (SET.casa) drawCasa(top);
   drawZoomGauge();
@@ -1692,7 +1694,7 @@ function drawMinimap(top) {
   if (G.terrain) { ctx.globalAlpha = 0.45; for (const ob of G.terrain.list) if (ob.def.solid || ob.type === 'current') dot(ob.x, ob.y, 2, ob.def.color); ctx.globalAlpha = 1; }
   for (const e of G.enemies) if (e.def.spongy && e.r > 60) dot(e.x, e.y, Math.min(7, e.r / 20), e.color);
   for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? PAL.danger : e.charmed ? PAL.you : '#ffd23f');
-  dot(G.core.x, G.core.y, 8, G.eggE ? XR.white : '#ffb3d1');
+  dot(G.core.x, G.core.y, 8, G.fertile ? PAL.reward : '#ffb3d1');
   for (const e of G.enemies) if (e.rival && !e.dead) dot(e.x, e.y, 5, e.color);
   for (const e of G.echoes) dot(e.x, e.y, 3, '#e0fbff');
   if (G.pill) {
@@ -1885,7 +1887,7 @@ function drawRaceBoard(rx, y) {
     const yy = y + 14 + i * 13;
     ctx.globalAlpha = row.out ? 0.4 : 1;
     ctx.font = (row.you ? 'bold 11px ' : 'bold 10px ') + MONO;
-    const tag = row.out ? 'OUT' : (row.egg ? 'EGG! ' : '') + 'LV ' + row.lvl;
+    const tag = row.out ? 'OUT' : (row.egg ? 'FINAL ' : '') + 'LV ' + row.lvl;
     ctx.fillStyle = row.egg ? '#ff4d6d' : XR.white; ctx.fillText(tag, rx, yy);
     const tw = ctx.measureText(tag).width;
     ctx.fillStyle = row.color; ctx.fillText(row.name, rx - tw - 6, yy);
