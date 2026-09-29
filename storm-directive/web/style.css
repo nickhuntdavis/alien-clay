@@ -244,3 +244,86 @@ body { font-variant-numeric: tabular-nums; }
 /* Greyscale UI: colour is reserved for meaning in the game world (see PAL in data.js). */
 #bottom, #hudTop, #side, #sysmsg, #loot, #armoury, #pause, #over, #title { filter: grayscale(1); }
 .btn.primary { background: #f2f2f2; color: #111; border-color: #fff; }
+
+/* ================================================================ Medical-device / X-ray theme
+   Modelled on radiology workstations and patient monitors: black panels, thin 1px hairlines,
+   square corners, monospace uppercase readouts, no glows or gradients, film-sheet cards. */
+:root { --mono: ui-monospace, 'SF Mono', 'Roboto Mono', 'DejaVu Sans Mono', Menlo, Consolas, monospace;
+  --line: #ffffff38; --line2: #ffffff70; --dim: #8e8e8e; --txt: #e8e8e8; }
+html, body { background: #000; color: var(--txt); font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif; }
+.hint { color: var(--dim); }
+*, *::before, *::after { text-shadow: none !important; box-shadow: none !important; }
+.screen { background: #000000ee; }
+#loot { background: #000000e6; }
+#pause, #over { background: #000000f5; }
+.btn { border-radius: 2px; border: 1px solid var(--line2); background: #000; font-family: var(--mono); font-weight: 700; letter-spacing: 3px; font-size: 13px; text-transform: uppercase; }
+.btn.primary { background: #e8e8e8; color: #000; border-color: #e8e8e8; }
+.btn.danger { border-color: #fff; }
+.logo { font-family: var(--mono); font-weight: 700; letter-spacing: 10px; font-size: 44px; }
+.logo span { font-size: 44px; -webkit-text-stroke: 1px #ffffff; }
+.tag { font-size: 13px; color: #bdbdbd; }
+#how { background: #000; border: 1px solid var(--line); border-radius: 2px; }
+/* HUD hardware keys */
+.slot { border-radius: 2px; background: #000000d9; border: 1px solid var(--line2); }
+.slot.spell { border-radius: 2px; }
+.slot .ico { font-family: var(--mono); font-weight: 700; color: #fff; }
+.slot .lv, .slot .dir { font-family: var(--mono); letter-spacing: 1px; }
+.slot .bar { height: 3px; background: #ffffff22; }
+.slot .bar i { background: #fff; }
+.slot.reloading .bar i { background: #8e8e8e; }
+.slot.reloading .dir { color: #8e8e8e; }
+.slot.merged { border: 2px solid #fff; }
+#moveBtn { border-radius: 2px; border: 1px solid var(--line2); background: #000000d9; color: #fff; font-family: var(--mono); letter-spacing: 2px; font-weight: 700; }
+#pauseBtn { border-radius: 2px; background: #000000cc; border: 1px solid var(--line2); font-family: var(--mono); }
+#rewindBtn { border-radius: 2px; width: 64px; height: 64px; border: 1px solid var(--line2); background: conic-gradient(#ffffff40 var(--e, 0%), #000000d9 0); color: #fff; }
+#rewindBtn.ready { border: 2px solid #fff; animation: none; }
+#rewindBtn .rl { font-family: var(--mono); }
+#rewindBtn .pips i { border-radius: 0; border-color: #fff; background: #000; }
+#rewindBtn .pips i.on { background: #fff; }
+#toast { border-radius: 2px; font-family: var(--mono); letter-spacing: 1px; }
+/* System messages: a report box */
+#sysmsg { background: #000000e6; border: 1px solid var(--line2); border-radius: 2px; }
+#sysmsg b { font-family: var(--mono); letter-spacing: 3px; color: var(--dim); font-weight: 700; }
+/* Loot: an X-ray film cassette and film-sheet cards */
+.ltitle { font-family: var(--mono); font-weight: 700; color: #fff; letter-spacing: 4px; font-size: 22px; }
+.box .body { border-radius: 1px; background: #0c0c0c; border: 1px solid #fff; }
+.box .lid { border-radius: 1px; background: #1c1c1c; border: 1px solid #fff; }
+.box.boss .body, .box.chest .body, .box.branch .body { background: #0c0c0c; border: 2px solid #fff; }
+.box.boss .lid, .box.chest .lid, .box.branch .lid { background: #2a2a2a; border: 2px solid #fff; }
+.card { border-radius: 2px; background: #050505; border: 1px solid var(--rc); }
+.card.r-epic { background: #050505; border-width: 2px; }
+.card.r-legendary { background: #050505; border: 3px double #fff; }
+.card.fusion { background: #050505; border: 3px double #fff; }
+.card.cursed { background: #050505; border: 1px dashed #fff; }
+.card .tag { font-family: var(--mono); letter-spacing: 2px; color: var(--dim); }
+.card .cico { border-radius: 2px; border: 1px solid var(--ic); font-family: var(--mono); background: #000; }
+.card .ctitle { font-weight: 700; letter-spacing: 0.5px; }
+.card .csub { font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
+/* Armoury / pause / game over: workstation panels */
+.ptitle { font-family: var(--mono); color: #fff; font-weight: 700; letter-spacing: 6px; }
+.sec { background: #000; border: 1px solid var(--line); border-radius: 2px; }
+.sec h3 { font-family: var(--mono); color: var(--dim); letter-spacing: 3px; font-weight: 700; font-size: 11px; }
+.chip, .chip.small { border-radius: 2px; background: #000; font-family: var(--mono); letter-spacing: 1px; font-weight: 700; }
+.chip.sel { background: #e8e8e8; color: #000; border-color: #e8e8e8; }
+.tile { background: #000; border: 1px solid var(--line); border-radius: 2px; }
+.tile b { font-family: var(--mono); }
+.tile span { font-family: var(--mono); letter-spacing: 1px; }
+.li { border-radius: 2px; background: #000; border: 1px solid #ffffff18; }
+.dbtn { border-radius: 2px; background: #000; }
+.dbtn.sel { background: #e8e8e8; color: #000; }
+.modslot, .fuse, .tp { border-radius: 2px; }
+.trow .tl { border-radius: 2px; font-family: var(--mono); }
+.big { font-family: var(--mono); color: #fff; font-weight: 700; letter-spacing: 4px; }
+.ostats div, .dmgrow { background: #000; border: 1px solid #ffffff18; border-radius: 2px; }
+.ostats b { font-family: var(--mono); }
+.dmgrow i { background: #ffffff1c; }
+.fz { background: #fff; border-radius: 1px; }
+.atab { border-radius: 2px; border: 1px solid var(--line2); background: #000; }
+.atab.sel { background: #e8e8e8; }
+.atab.sel b, .atab.sel span { color: #000; }
+.atab b { font-family: var(--mono); color: #fff; }
+.atab span { font-family: var(--mono); }
+#overTitle { font-family: var(--mono); letter-spacing: 6px; }
+#overTitle.won { color: #fff; }
+.ahead { background: #000; border: 1px solid var(--line); border-radius: 2px; }
+.aico { border-radius: 2px; font-family: var(--mono); }

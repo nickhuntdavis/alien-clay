@@ -58,6 +58,11 @@ function glowSprite(color) {
   SPR.glow.set(color, c);
   return c;
 }
+// Only things that give off light glow: fire and heat, electricity, arcane / temporal energy, fluorescent
+// dye tags, laser beams and charged mitochondria. Bullets, needles, blades, drones, ice, poison, acid,
+// XP, pickups, enemy bullets and every creature's body do not.
+const EMISSIVE = new Set(['fire', 'shock', 'arcane']);
+const emits = elem => EMISSIVE.has(elem);
 function glow(x, y, r, color, alpha) {
   if (alpha != null) ctx.globalAlpha = alpha;
   ctx.drawImage(glowSprite(color), x - r, y - r, r * 2, r * 2);
@@ -69,7 +74,7 @@ function glow(x, y, r, color, alpha) {
 // of the camera frame; objects are darker grey than the fluid and every edge wears a bright white halo;
 // out-of-focus specks show as soft discs with a light core and a dark ring; there are fine counting-
 // chamber grid lines; fluorescent labels (GFP and friends) glow in colour on top of the grey.
-const MIC = { fluid: '#a3aba1', edge: '#6e766d', body: 'rgb(74,80,76)', acro: 'rgb(128,136,130)', halo: 'rgba(255,255,255,', dark: 'rgba(24,28,26,' };
+const MIC = { fluid: '#a3aba1', edge: '#6e766d', body: 'rgb(36,37,37)', acro: 'rgb(96,98,97)', halo: 'rgba(255,255,255,', dark: 'rgba(24,28,26,' };
 const PC_TONE = new Map();
 // Phase-contrast tone for a colour: mostly grey, a hint of the original hue, a little darker than the fluid.
 function pcTone(hex, k) {
@@ -77,7 +82,7 @@ function pcTone(hex, k) {
   let v = PC_TONE.get(key);
   if (v) return v;
   const n = parseInt(hex.slice(1, 7), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
-  const l = 0.3 * r + 0.59 * g + 0.11 * b, hue = 0.28, dk = k != null ? k : 0.62;
+  const l = 0.3 * r + 0.59 * g + 0.11 * b, hue = 0.28, dk = k != null ? k : 0.36;
   const f = c => Math.round((l * (1 - hue) + c * hue) * dk);
   v = `rgb(${f(r)},${f(g)},${f(b)})`;
   PC_TONE.set(key, v);
@@ -374,26 +379,28 @@ function buildOocyte(r) {
 function drawWeaponFx(weapons, ox, oy, alpha) {
   const px = sx(ox), py = sy(oy);
   ctx.globalAlpha = alpha;
+  const prevOp = ctx.globalCompositeOperation;
   for (const w of weapons) {
+    ctx.globalCompositeOperation = 'source-over';
     if (!w) continue;
     if (w.def.drones) {
       for (let i = 0; i < w.s.count; i++) {
         const a = G.realT * 1.6 + i / w.s.count * TAU, rr = 42 + (w.s.count > 2 ? 10 : 0);
         const x = px + Math.cos(a) * rr * S, y = py + Math.sin(a) * rr * S;
-        glow(x, y, 14 * S, w.def.color, 0.5 * alpha); ctx.globalAlpha = alpha;
         ctx.fillStyle = w.def.color; drawShape('diamond', x, y, 7 * S, 0); ctx.fill();
       }
     }
     if (w.blades.length) {
       for (let i = 0; i < w.blades.length; i += 3) {
         const x = sx(w.blades[i]), y = sy(w.blades[i + 1]);
-        glow(x, y, w.s.size * 2 * S, w.def.color, 0.35 * alpha); ctx.globalAlpha = alpha;
+        if (emits(w.def.elem)) { glow(x, y, w.s.size * 2 * S, w.def.color, 0.35 * alpha); ctx.globalAlpha = alpha; }
         ctx.save(); ctx.translate(x, y); ctx.rotate(w.blades[i + 2] + G.realT * 8);
         ctx.fillStyle = w.def.color; ctx.fillRect(-w.s.size * S, -2.5 * S, w.s.size * 2 * S, 5 * S); ctx.fillRect(-2.5 * S, -w.s.size * 0.6 * S, 5 * S, w.s.size * 1.2 * S);
         ctx.restore();
       }
     }
     if (w.beams.length && w.beamT > 0) {
+      ctx.globalCompositeOperation = 'lighter'; // beams are light
       for (const b of w.beams) {
         const L = w.s.range * S, x2 = px + Math.cos(b.a) * L, y2 = py + Math.sin(b.a) * L, fl = 0.8 + Math.random() * 0.4;
         ctx.strokeStyle = w.def.color; ctx.globalAlpha = 0.25 * alpha; ctx.lineWidth = w.s.size * 4 * S * fl; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(x2, y2); ctx.stroke();
@@ -403,7 +410,7 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
       }
     }
   }
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = prevOp;
 }
 
 function drawShip(x, y, face, tag, alpha, scale, body) {
@@ -539,12 +546,13 @@ function drawTerrain() {
         break;
       }
       case 'acid': {
-        ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.6, PAL.danger, 0.3 + 0.1 * Math.sin(t * 3 + ob.seed)); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+        
         ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
         const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
         g.addColorStop(0, 'rgb(52,62,40)'); g.addColorStop(0.8, 'rgb(84,100,60)'); g.addColorStop(1, 'rgb(150,190,90)');
         ctx.fillStyle = g; ctx.fill();
         pcHalo(3, 0.6);
+        ctx.strokeStyle = PAL.danger; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r - 1, 0, TAU); ctx.stroke();
         for (let i = 0; i < 14; i++) { const a = rnd() * TAU + t * 0.3, d = r * 0.8 * Math.sqrt(rnd()); ctx.fillStyle = PAL.danger; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 2, 2); }
         for (let i = 0; i < 4; i++) {
           const ph = (t * 0.7 + ob.seed + i * 0.37) % 1, a = ob.seed * 7 + i * 2.1, d = r * 0.5 * ((i * 0.31 + ob.seed) % 1);
@@ -639,14 +647,13 @@ function render() {
     const a = Math.min(1, z.life / 0.4);
     const x = sx(z.x), y = sy(z.y), r = z.r * S;
     if (z.trail) {
-      ctx.globalCompositeOperation = 'lighter';
-      glow(x, y, r * 1.5, z.color, 0.45 * Math.min(1, z.life / z.max * 2));
-      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+      const zk = Math.min(1, z.life / z.max * 2);
+      if (z.src && emits(z.src.elem)) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.5, z.color, 0.45 * zk); ctx.globalCompositeOperation = 'source-over'; }
+      else { ctx.globalAlpha = 0.35 * zk; ctx.fillStyle = z.color; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
+      ctx.globalAlpha = 1;
       continue;
     }
-    ctx.globalCompositeOperation = 'lighter';
-    glow(x, y, r * 1.1, z.color, 0.35 * a);
-    ctx.globalCompositeOperation = 'source-over';
+    if (z.pull || (z.src && emits(z.src.elem))) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.1, z.color, 0.35 * a); ctx.globalCompositeOperation = 'source-over'; }
     ctx.globalAlpha = a * 0.6; ctx.strokeStyle = z.color; ctx.lineWidth = 2;
     if (z.pull) {
       for (let k = 0; k < 4; k++) { const rr = ((G.realT * 0.9 + k / 4) % 1) * z.r; ctx.beginPath(); ctx.arc(x, y, (z.r - rr) * S, 0, TAU); ctx.stroke(); }
@@ -662,13 +669,7 @@ function render() {
 
   drawCore();
 
-  // Gems and scrap.
-  ctx.globalCompositeOperation = 'lighter';
-  for (const g of G.gems) {
-    if (!vis(g)) continue;
-    const col = g.kind === 's' ? '#ffb400' : g.v >= 20 ? '#ffd23f' : g.v >= 5 ? '#80ffdb' : '#4cc9f0';
-    glow(sx(g.x), sy(g.y), (g.v >= 5 ? 14 : 9) * S, col, 0.5);
-  }
+  // Gems and scrap (no glow: they're just granules).
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   for (const g of G.gems) {
     if (!vis(g)) continue;
@@ -691,7 +692,6 @@ function render() {
     if (!vis(u)) continue;
     const d = POWERUPS[u.type], x = sx(u.x), y = sy(u.y) + Math.sin(u.bob) * 3, r = 13 * S;
     if (u.life < 5 && Math.floor(u.life * 6) % 2) continue;
-    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 2.6, d.color, 0.6); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
     ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(x + 2, sy(u.y) + r + 4, r * 0.8, r * 0.3, 0, 0, TAU); ctx.fill();
     drawShape('hex', x, y, r, 0); ctx.fillStyle = '#111'; ctx.fill(); ctx.strokeStyle = d.color; ctx.lineWidth = 2.5; ctx.stroke();
     ctx.fillStyle = d.color; ctx.font = `bold ${Math.round(14 * S)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -705,7 +705,6 @@ function render() {
       const on = pr.arm > 0 || Math.floor(G.realT * 5) % 2;
       ctx.fillStyle = on ? pr.color : '#fff';
       ctx.beginPath(); ctx.arc(x, y, 3.5 * S, 0, TAU); ctx.fill();
-      if (!on) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, 16 * S, pr.color, 0.6); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
     } else if (pr.lob) {
       const k = pr.h ? pr.h / 90 : 0;
       ctx.fillStyle = `rgba(0,0,0,${0.45 - k * 0.25})`; ctx.beginPath(); ctx.ellipse(sx(pr.x), sy(pr.y), (6 + k * 4) * S, (3 + k * 2) * S, 0, 0, TAU); ctx.fill();
@@ -724,10 +723,6 @@ function render() {
   ctx.globalCompositeOperation = 'lighter';
   for (const e of G.enemies) {
     if (!vis(e) || e.egg) continue;
-    if (e.boss) glow(sx(e.x), sy(e.y), e.r * 3.2 * S, e.color, 0.5);
-    else if (e.rival) glow(sx(e.x), sy(e.y), e.r * 3 * S, e.color, 0.5);
-    else if (e.elite) glow(sx(e.x), sy(e.y), e.r * 2.6 * S, '#ffd23f', 0.35);
-    else if (e.charmed) glow(sx(e.x), sy(e.y), e.r * 2.4 * S, PAL.you, 0.45);
     if (e.burn > 0) glow(sx(e.x), sy(e.y), e.r * 2 * S, '#ff7a2f', 0.3);
   }
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
@@ -760,10 +755,10 @@ function render() {
     } else {
       // Phase contrast: a grey body (a hint of its hue), darker towards the middle, bright halo round the edge.
       drawShape(e.def.shape, x, y, r, rot);
-      ctx.fillStyle = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, sh === 'amoeba' ? 0.85 : 0.62);
+      ctx.fillStyle = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, sh === 'amoeba' ? 0.62 : 0.36);
       ctx.fill();
       if (e.flash <= 0 && sh !== 'amoeba') {
-        ctx.fillStyle = 'rgba(20,24,22,0.22)'; ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, TAU); ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, TAU); ctx.fill();
         drawShape(e.def.shape, x, y, r, rot);
       }
       if (sh === 'amoeba' && e.flash <= 0) {
@@ -791,7 +786,7 @@ function render() {
       if (e.elite || e.charmed) {
         // Immunostained: a fluorescent rim marks elites (gold) and your allies (pink).
         ctx.strokeStyle = e.charmed ? PAL.you : PAL.reward; ctx.lineWidth = 3; ctx.stroke();
-      } else pcHalo(e.boss ? 4 : Math.max(2, r * 0.14), e.boss ? 0.8 : 0.6);
+      } else pcHalo(e.boss ? 4.5 : Math.max(2.5, r * 0.16), e.boss ? 0.95 : 0.85);
     }
     let si = 0;
     const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
@@ -849,18 +844,7 @@ function render() {
 
   // Player.
   const px = sx(p.x), py = sy(p.y);
-  ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(px + 3, py + 12 * S, 13 * S, 6 * S, 0, 0, TAU); ctx.fill();
   if (G.barrier > 0) { ctx.strokeStyle = 'rgba(72,202,228,0.8)'; ctx.fillStyle = 'rgba(72,202,228,0.10)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, G.barrierR * S, 0, TAU); ctx.fill(); ctx.stroke(); }
-  ctx.globalCompositeOperation = 'lighter';
-  glow(px, py, 34 * S, G.rage > 0 ? '#ff924c' : '#4dff9a', 0.45);
-  // Engine plume.
-  const sp = Math.hypot(p.vx, p.vy);
-  if (sp > 15 && !rewinding) {
-    const ba = (p.hd != null ? p.hd : p.face) + Math.PI;
-    glow(px + Math.cos(ba) * 12 * S, py + Math.sin(ba) * 12 * S, (8 + sp / 20) * S, '#ff9e00', 0.7);
-    if (Math.random() < 0.6) spawnPart(p.x + Math.cos(ba) * 10, p.y + Math.sin(ba) * 10, Math.random() < 0.5 ? '#ff9e00' : '#4dff9a', 1, 40, 0.35, 2.5);
-  }
-  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   if (G.shieldT > 0) { ctx.strokeStyle = '#48cae4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, 22 * S, 0, TAU); ctx.stroke(); }
   for (const w of G.weapons) {
     if (!w) continue;
@@ -877,6 +861,7 @@ function render() {
   // Additive layer: weapon fx, projectiles, particles, fx.
   ctx.globalCompositeOperation = 'lighter';
   drawWeaponFx(G.weapons, p.x, p.y, 1);
+  ctx.globalCompositeOperation = 'lighter'; // tethers are electric
   for (const t of G.tethers) {
     const x1 = sx(t.a.x), y1 = sy(t.a.y), x2 = sx(t.b.x), y2 = sy(t.b.y), k = Math.min(1, t.life / 0.3);
     for (const [lw, al] of [[8, 0.25], [2.5, 1]]) {
@@ -889,15 +874,18 @@ function render() {
   }
   for (const pr of G.proj) {
     if (pr.mine || !vis(pr)) continue;
-    const x = sx(pr.x), y = sy(pr.y);
+    const x = sx(pr.x), y = sy(pr.y), hot = emits(pr.src && pr.src.elem) || pr.style === 'flame' || pr.style === 'void';
+    ctx.globalCompositeOperation = hot ? 'lighter' : 'source-over';
     if (pr.lob) {
       const yy = y - (pr.h || 0) * S;
-      glow(x, yy, 16 * S, pr.color, 0.8); ctx.globalAlpha = 1;
+      if (hot) { glow(x, yy, 16 * S, pr.color, 0.8); ctx.globalAlpha = 1; }
+      else { ctx.fillStyle = 'rgba(20,20,20,0.85)'; ctx.beginPath(); ctx.arc(x, yy, 7.5 * S, 0, TAU); ctx.fill(); }
       ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(x, yy, 6 * S, 0, TAU); ctx.fill();
       continue;
     }
     const a = Math.atan2(pr.vy, pr.vx), r = pr.r * S;
-    if (pr.style !== 'flame') glow(x, y, Math.max(8, r * 3.2), pr.color, 0.55);
+    if (hot && pr.style !== 'flame') glow(x, y, Math.max(8, r * 3.2), pr.color, 0.55);
+    else if (!hot) { ctx.fillStyle = 'rgba(20,20,20,0.8)'; ctx.beginPath(); ctx.arc(x, y, r + 1.5, 0, TAU); ctx.fill(); }
     ctx.globalAlpha = 1;
     ctx.fillStyle = pr.color; ctx.strokeStyle = pr.color;
     switch (pr.style) {
@@ -934,6 +922,8 @@ function render() {
       default: ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
     }
   }
+  // Debris particles are matter, not light.
+  ctx.globalCompositeOperation = 'source-over';
   for (const q of G.parts) {
     if (!vis(q)) continue;
     ctx.globalAlpha = Math.max(0, q.life / q.max);
@@ -942,6 +932,7 @@ function render() {
     ctx.fillRect(sx(q.x) - s / 2, sy(q.y) - s / 2, s, s);
   }
   ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'lighter'; // arcs, blasts and shockwaves are energy
   for (const f of G.fx) {
     const k = f.life / f.max;
     if (f.type === 'ring') {
@@ -968,10 +959,9 @@ function render() {
   }
   ctx.globalAlpha = 1;
 
-  // Enemy bullets on top: glow, coloured body and white-hot core.
+  // Enemy bullets on top: solid danger-red beads with a dark rim and a small highlight (no bloom).
   const byColor = {};
   for (const b of G.ebul) { if (!vis(b)) continue; (byColor[b.color] || (byColor[b.color] = [])).push(b); }
-  for (const c in byColor) { const spr = glowSprite(c); for (const b of byColor[c]) { const r = b.r * 3.4 * S; ctx.drawImage(spr, sx(b.x) - r, sy(b.y) - r, r * 2, r * 2); } }
   ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = 'rgba(20,24,22,0.7)'; ctx.beginPath();
   for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = (b.r + 3) * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
@@ -982,7 +972,7 @@ function render() {
     ctx.fill();
   }
   ctx.fillStyle = '#fff'; ctx.beginPath();
-  for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = b.r * 0.5 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
+  for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x) - b.r * 0.35 * S, y = sy(b.y) - b.r * 0.35 * S, r = b.r * 0.32 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
   ctx.fill();
 
   // Floating texts.
@@ -1092,6 +1082,56 @@ function drawScaleBar() {
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#fff'; ctx.fillText('20 \u00b5m', x, y - 4);
   ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fillText('PH2 40x  37\u00b0C', x + len + 10, y + 4);
+  // Lead side marker, as on a radiograph.
+  const mkx = W - 26, mky = H * 0.5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1; ctx.strokeRect(mkx + 0.5, mky - 9.5, 16, 18);
+  ctx.font = 'bold 13px ' + MONO; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText('R', mkx + 8.5, mky + 5);
+}
+
+const MONO = "ui-monospace, 'SF Mono', 'Roboto Mono', 'DejaVu Sans Mono', Menlo, Consolas, monospace";
+// One ECG beat as a function of phase 0..1: P wave, QRS spike, T wave.
+function ecgWave(ph) {
+  if (ph > 0.1 && ph < 0.2) return 0.14 * Math.sin((ph - 0.1) / 0.1 * Math.PI);
+  if (ph >= 0.28 && ph < 0.3) return -0.18 * (ph - 0.28) / 0.02;
+  if (ph >= 0.3 && ph < 0.315) return -0.18 + 1.18 * (ph - 0.3) / 0.015;
+  if (ph >= 0.315 && ph < 0.335) return 1 - 1.4 * (ph - 0.315) / 0.02;
+  if (ph >= 0.335 && ph < 0.36) return -0.4 + 0.4 * (ph - 0.335) / 0.025;
+  if (ph > 0.5 && ph < 0.68) return 0.28 * Math.sin((ph - 0.5) / 0.18 * Math.PI);
+  return 0;
+}
+// Patient-monitor module: HP as a vital sign, heart rate that climbs as you get hurt, a live ECG trace
+// (your green; danger red when low; flat when you die), and level / kills / viewers underneath.
+function drawVitals(top) {
+  const p = G.player, P = G.P, k = clamp(p.hp / P.maxHp, 0, 1), low = k < 0.3, dead = p.hp <= 0;
+  const x0 = 8, y0 = top + 10, w = Math.min(190, W * 0.46), h = 58;
+  const sb = ctx.shadowBlur; ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(0,0,0,0.78)'; ctx.fillRect(x0, y0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1; ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
+  const hr = dead ? 0 : Math.round(62 + 98 * (1 - k) + (G.rage > 0 ? 25 : 0));
+  const E = G.ecg || (G.ecg = { ph: 0, buf: new Array(80).fill(0), t: G.realT });
+  const steps = Math.min(8, Math.max(0, Math.round((G.realT - E.t) * 60)));
+  if (steps) E.t = G.realT;
+  for (let i = 0; i < steps; i++) { E.ph = (E.ph + hr / 3600) % 1; E.buf.push(dead ? 0 : ecgWave(E.ph)); E.buf.shift(); }
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.font = '9px ' + MONO; ctx.fillStyle = '#9a9a9a'; ctx.fillText('HP', x0 + 6, y0 + 12);
+  ctx.font = 'bold 22px ' + MONO; ctx.fillStyle = low ? PAL.danger : '#ffffff';
+  const hv = String(Math.ceil(p.hp)); ctx.fillText(hv, x0 + 6, y0 + 34);
+  const hw = ctx.measureText(hv).width;
+  ctx.font = '10px ' + MONO; ctx.fillStyle = '#9a9a9a'; ctx.fillText('/' + P.maxHp, x0 + 8 + hw, y0 + 34);
+  ctx.fillText('HR ' + (dead ? '---' : hr), x0 + 6, y0 + 50);
+  const tx = x0 + 74, tw = w - 80, ty = y0 + 32, n = E.buf.length;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.beginPath();
+  for (let gx = tx; gx < tx + tw; gx += 10) { ctx.moveTo(gx + 0.5, y0 + 4); ctx.lineTo(gx + 0.5, y0 + h - 4); }
+  ctx.stroke();
+  ctx.strokeStyle = low || dead ? PAL.danger : PAL.you; ctx.lineWidth = 1.4; ctx.lineJoin = 'round'; ctx.beginPath();
+  for (let i = 0; i < n; i++) { const X = tx + i / (n - 1) * tw, Y = ty - E.buf[i] * 20; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
+  ctx.stroke(); ctx.lineJoin = 'miter';
+  ctx.shadowBlur = sb;
+  // Readouts under the module.
+  ctx.font = 'bold 10px ' + MONO; ctx.fillStyle = '#ffffff';
+  let line = `LV ${G.level}   KILLS ${G.kills}   VIEWERS ${fmtViewers(G.show.viewers)}`;
+  if (ownsScrapWeapon()) line += `   SCRAP ${Math.floor(G.scrap)}`;
+  ctx.fillText(line, x0, y0 + h + 14);
 }
 
 function drawHud() {
@@ -1099,55 +1139,42 @@ function drawHud() {
   // Everything on the HUD gets a soft dark drop so it reads against the pale field.
   ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 4;
   drawScaleBar();
-  // XP bar.
-  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, top, W, 7);
-  const xg = ctx.createLinearGradient(0, 0, W, 0); xg.addColorStop(0, '#d8d8d8'); xg.addColorStop(1, '#ffffff');
-  ctx.fillStyle = xg; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 7);
-  const hw = Math.min(200, W * 0.34);
-  const bar = (y, k, col, label) => {
-    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(10, y, hw, 13);
-    ctx.fillStyle = col; ctx.fillRect(10, y, hw * clamp(k, 0, 1), 13);
-    ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(10, y, hw * clamp(k, 0, 1), 4);
-    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.strokeRect(10, y, hw, 13);
-    ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#111';
-    const sb = ctx.shadowBlur; ctx.shadowBlur = 0; ctx.fillText(label, 15, y + 7); ctx.shadowBlur = sb;
-  };
-  bar(top + 13, p.hp / G.P.maxHp, p.hp / G.P.maxHp < 0.3 ? PAL.danger : '#e6e6e6', `HP ${Math.ceil(p.hp)} / ${G.P.maxHp}`);
+  // XP: a thin calibration line across the very top.
+  ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
   const c = G.core;
-  ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
-  ctx.fillStyle = '#fff'; ctx.fillText(`LV ${G.level}`, 10, top + 40);
-  ctx.fillStyle = '#e8ece9'; ctx.fillText(`${G.kills} kills`, 56, top + 40);
-  // Live broadcast counter (and scrap, when a weapon uses it).
-  if (Math.floor(G.realT * 2) % 2) { ctx.fillStyle = '#ff2e4d'; ctx.beginPath(); ctx.arc(14, top + 57, 4, 0, TAU); ctx.fill(); }
-  ctx.fillStyle = '#ffc2cc'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(`LIVE ${fmtViewers(G.show.viewers)}`, 22, top + 57);
-  if (ownsScrapWeapon()) { ctx.fillStyle = '#ffb400'; ctx.fillText(`${Math.floor(G.scrap)} scrap`, 110, top + 57); }
-  ctx.textAlign = 'center'; ctx.fillStyle = G.state === 'rewind' ? '#8dffc0' : '#fff'; ctx.font = 'bold 18px sans-serif';
+  drawVitals(top);
+  // Clock, like a monitor's elapsed-time readout.
+  ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 15px ' + MONO;
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
-  ctx.fillText(`${m}:${s < 10 ? '0' : ''}${s}`, W / 2, top + 24);
+  ctx.fillStyle = G.state === 'rewind' ? PAL.you : '#ffffff';
+  ctx.fillText(`${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`, W - 62, top + 32);
+  ctx.font = '9px ' + MONO; ctx.fillStyle = '#9a9a9a'; ctx.fillText('ELAPSED', W - 62, top + 44);
   // Status chips.
   const chips = [];
-  if (G.rage > 0) chips.push(['ADRENALINE', '#ff924c']);
-  if (G.shieldT > 0) chips.push(['SHIELD', '#48cae4']);
-  if (G.warp > 0) chips.push(['WARP', '#b8c0ff']);
-  if (G.barrier > 0) chips.push(['AEGIS', '#48cae4']);
-  if (G.echoes.length) chips.push(['ECHO x' + G.echoes.length, '#8dffc0']);
-  if (G.manual) chips.push(['MANUAL', '#fff']);
-  ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
-  chips.forEach((ch, i) => { ctx.fillStyle = ch[1]; ctx.fillText(ch[0], 10 + i * 74, top + 74); });
+  if (G.rage > 0) chips.push('ADRENALINE');
+  if (G.shieldT > 0) chips.push('SHIELD');
+  if (G.warp > 0) chips.push('WARP');
+  if (G.barrier > 0) chips.push('AEGIS');
+  if (G.echoes.length) chips.push('ECHO x' + G.echoes.length);
+  if (G.manual) chips.push('MANUAL');
+  ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
+  let cxp = 8;
+  for (const ch of chips) { const tw = ctx.measureText(ch).width + 10; ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(cxp + 0.5, top + 92.5, tw, 14); ctx.fillStyle = '#e6e6e6'; ctx.fillText(ch, cxp + 5, top + 103); cxp += tw + 4; }
   // Boss bar.
   if (G.boss && !G.boss.dead) {
-    const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + 108;
+    const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + 126;
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
     const bg = ctx.createLinearGradient(bx, 0, bx + bw, 0); bg.addColorStop(0, '#e0e0e0'); bg.addColorStop(1, '#ffffff');
     ctx.fillStyle = bg; ctx.fillRect(bx, by, bw * Math.max(0, b.hp / b.maxHp), 12);
     ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
-    ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 11px ' + MONO;
     ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), bx + bw / 2, by - 8);
   }
   // Egg membrane bar, or progress towards being big enough.
   {
-    const bw = Math.min(360, W - 130), bx = 10, by = top + (G.boss && !G.boss.dead ? 138 : 108), mid = bx + bw / 2;
-    ctx.textAlign = 'center'; ctx.font = 'bold 12px sans-serif';
+    const bw = Math.min(360, W - 130), bx = 10, by = top + (G.boss && !G.boss.dead ? 152 : 126), mid = bx + bw / 2;
+    ctx.textAlign = 'center'; ctx.font = 'bold 11px ' + MONO;
     if (G.eggE && !G.eggE.dead && G.level < EGG.level) {
       const e = G.eggE, who = G.enemies.filter(o => o.rival && !o.dead && o.mode === 'egg').map(o => o.name);
       ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
@@ -1162,8 +1189,8 @@ function drawHud() {
       ctx.strokeStyle = '#fff'; ctx.strokeRect(bx, by, bw, 12);
       ctx.fillStyle = '#ffd6e8'; ctx.fillText("BREAK INTO THE EGG! " + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
     } else if (!G.boss && G.level < EGG.level) {
-      ctx.fillStyle = 'rgba(255,214,232,0.75)'; ctx.font = 'bold 11px sans-serif';
-      ctx.fillText(`Grow to LV ${EGG.level} to break into the egg`, mid, top + 108);
+      ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 10px ' + MONO;
+      ctx.fillText(`GROW TO LV ${EGG.level} TO BREAK INTO THE EGG`, mid, top + 126);
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).
@@ -1197,8 +1224,11 @@ function drawHud() {
 function drawMinimap(top) {
   const R = 44, mx = W - R - 10, my = top + 70 + R;
   const k = R / CORE.arena;
-  ctx.fillStyle = 'rgba(18,22,20,0.78)'; ctx.beginPath(); ctx.arc(mx, my, R, 0, TAU); ctx.fill();
-  ctx.strokeStyle = 'rgba(200,210,200,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = 'rgba(0,0,0,0.82)'; ctx.beginPath(); ctx.arc(mx, my, R, 0, TAU); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath();
+  ctx.arc(mx, my, R * 0.66, 0, TAU); ctx.moveTo(mx + R * 0.33, my); ctx.arc(mx, my, R * 0.33, 0, TAU);
+  ctx.moveTo(mx - R, my); ctx.lineTo(mx + R, my); ctx.moveTo(mx, my - R); ctx.lineTo(mx, my + R); ctx.stroke();
   const dot = (x, y, r, col) => {
     let dx = (x - G.core.x) * k, dy = (y - G.core.y) * k; const d = Math.hypot(dx, dy);
     if (d > R - 2) { dx = dx / d * (R - 2); dy = dy / d * (R - 2); }
@@ -1220,12 +1250,12 @@ function drawMinimap(top) {
 // The race to the egg: you and the rival champions, by level.
 function drawRaceBoard(rx, y) {
   if (!G.rivalsInit) return;
-  ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.font = 'bold 10px sans-serif';
-  ctx.fillStyle = 'rgba(255,214,232,0.7)'; ctx.fillText('RACE TO THE EGG', rx, y);
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.font = '9px ' + MONO;
+  ctx.fillStyle = '#9a9a9a'; ctx.fillText('RACE TO THE EGG', rx, y);
   rivalBoard().forEach((row, i) => {
     const yy = y + 14 + i * 13;
     ctx.globalAlpha = row.out ? 0.4 : 1;
-    ctx.font = row.you ? 'bold 11px sans-serif' : 'bold 10px sans-serif';
+    ctx.font = (row.you ? 'bold 11px ' : 'bold 10px ') + MONO;
     const tag = row.out ? 'OUT' : (row.egg ? 'EGG! ' : '') + 'LV ' + row.lvl;
     ctx.fillStyle = row.egg ? '#ff4d6d' : '#fff'; ctx.fillText(tag, rx, yy);
     const tw = ctx.measureText(tag).width;
