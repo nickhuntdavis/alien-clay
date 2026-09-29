@@ -106,10 +106,61 @@ function drawTitleLab() {
 
 // ---------------------------------------------------------------- the opening shot
 const INTRO = { t: 0, dur: 2.9, on: false };
-function startIntro() { INTRO.t = 0; INTRO.on = true; G.state = 'intro'; }
+function startIntro() { INTRO.t = 0; INTRO.on = true; G.state = 'intro'; introSound(); }
+
+// The intro's sound, scheduled against the picture: focus-knob ticks during the focus pull, a glass slide
+// sliding across the stage and clacking into the clips, the objective turret clunking into place, then an
+// airy swell as the field of view opens. Everything stops if you skip.
+const INTRO_NODES = [];
+function introSound() {
+  INTRO_NODES.length = 0;
+  if (!AUDIO.on || !AUDIO.ctx) return;
+  const ac = AUDIO.ctx, t0 = ac.currentTime + 0.02;
+  if (!AUDIO.noise1) {
+    const b = ac.createBuffer(1, ac.sampleRate, ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    AUDIO.noise1 = b;
+  }
+  const keep = n => { INTRO_NODES.push(n); return n; };
+  // Filtered noise with a frequency sweep and a gain envelope [[time, level], ...].
+  const noise = (at, dur, type, f0, f1, q, env) => {
+    const src = keep(ac.createBufferSource()), f = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = AUDIO.noise1; f.type = type; f.Q.value = q;
+    f.frequency.setValueAtTime(f0, t0 + at); f.frequency.exponentialRampToValueAtTime(f1, t0 + at + dur);
+    g.gain.setValueAtTime(0.0001, t0 + at);
+    for (const [tt, v] of env) g.gain.exponentialRampToValueAtTime(Math.max(0.0001, v), t0 + at + tt);
+    src.connect(f); f.connect(g); g.connect(ac.destination);
+    src.start(t0 + at); src.stop(t0 + at + dur + 0.05);
+  };
+  const tone = (at, freq, dur, vol, type) => {
+    const o = keep(ac.createOscillator()), g = ac.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t0 + at); g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + dur);
+    o.connect(g); g.connect(ac.destination); o.start(t0 + at); o.stop(t0 + at + dur + 0.02);
+  };
+  const tick = (at, heavy) => {
+    noise(at, heavy ? 0.06 : 0.025, 'bandpass', heavy ? 1500 : 3200, heavy ? 1300 : 3000, heavy ? 4 : 7, [[0.002, heavy ? 0.22 : 0.1], [heavy ? 0.06 : 0.025, 0.0001]]);
+    tone(at, heavy ? 420 : 1150, heavy ? 0.09 : 0.04, heavy ? 0.05 : 0.016);
+  };
+  // Focus pull: the fine-focus knob.
+  [0.05, 0.15, 0.24, 0.32, 0.39, 0.45].forEach(t => tick(t));
+  // The slide sliding across the stage (glass on metal), then clacking into the clips.
+  noise(0.5, 0.42, 'bandpass', 2400, 900, 2.2, [[0.06, 0.07], [0.3, 0.05], [0.42, 0.0001]]);
+  noise(0.93, 0.05, 'highpass', 3000, 3000, 0.7, [[0.002, 0.18], [0.05, 0.0001]]);
+  tone(0.93, 2650, 0.18, 0.035); tone(0.93, 3980, 0.12, 0.02);
+  // Objective turret clunks into place.
+  tick(1.3, true); tone(1.3, 140, 0.16, 0.06, 'triangle');
+  // The field of view opens: an airy swell.
+  noise(1.4, 1.3, 'lowpass', 250, 2200, 0.8, [[0.6, 0.06], [1.3, 0.0001]]);
+}
+function stopIntroSound() {
+  for (const n of INTRO_NODES) { try { n.stop(); } catch (e) { /* already stopped */ } }
+  INTRO_NODES.length = 0;
+}
 function endIntro() {
   if (!INTRO.on) return;
   INTRO.on = false;
+  if (INTRO.t < INTRO.dur - 0.1) stopIntroSound();
   if (G && G.state === 'intro') { G.state = 'play'; if (typeof UI !== 'undefined') UI.afterIntro(); }
 }
 function updateIntro(dt) { INTRO.t += dt; G.realT += dt; if (INTRO.t >= INTRO.dur) endIntro(); }
