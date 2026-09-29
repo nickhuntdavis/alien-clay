@@ -510,6 +510,8 @@ function damageEnemy(e, dmg, src) {
   if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
   const P = G.P, syn = G.synergy;
   let d = dmg * (src.mult || 1);
+  // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
+  if (e.final) d = Math.min(d, e.maxHp * 0.06);
   // Water bears curl into a 'tun' once when badly hurt: nearly invulnerable for a few seconds.
   if (e.def.tun) {
     if (e.tunT > G.t) d *= 0.08;
@@ -1781,6 +1783,7 @@ function applyPickup(type, src) {
       for (const e of G.enemies) {
         if (e.dead || Math.hypot(e.x - p.x, e.y - p.y) > 520) continue;
         if (e.boss) damageEnemy(e, e.maxHp * 0.15, { noCrit: true, dot: true, wname: 'Nuke' });
+        else if (e.rival) damageEnemy(e, e.maxHp * 0.15, { noCrit: true, dot: true, wname: 'Nuke' }); // rivals and the Final Five just take a big hit
         else { e.hp = 0; killEnemy(e, {}); }
       }
       G.ebul.length = 0;
