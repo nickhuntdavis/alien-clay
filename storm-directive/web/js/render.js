@@ -668,6 +668,18 @@ function drawKrill(e, x, y, r, face) {
 function mBody(e, k) { return e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, k || 0.42); }
 function mHalo(w) { ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = Math.max(1, w); ctx.stroke(); }
 const MICROBES = {
+  // Candida: oval budding cells, joined to their parent by a pseudohypha; buds swell as they grow.
+  yeast(e, x, y, r) {
+    const pa = e.parent;
+    if (pa && !pa.dead && Math.hypot(pa.x - e.x, pa.y - e.y) < 90) {
+      ctx.strokeStyle = 'rgba(60,66,62,0.55)'; ctx.lineWidth = Math.max(1.5, r * 0.35); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(sx(pa.x), sy(pa.y)); ctx.stroke(); ctx.lineCap = 'butt';
+    }
+    const a = e.id * 1.7;
+    ctx.beginPath(); ctx.ellipse(x, y, r * 1.12, r * 0.86, a, 0, TAU); ctx.fillStyle = mBody(e, 0.4); ctx.fill(); mHalo(r * 0.14);
+    ctx.fillStyle = 'rgba(230,236,232,0.55)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.3, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(30,36,32,0.45)'; ctx.beginPath(); ctx.arc(x - Math.cos(a) * r * 0.5, y - Math.sin(a) * r * 0.5, r * 0.12, 0, TAU); ctx.fill();
+  },
   // Pinworm: a long, tapering, ringed body that follows its head through every turn.
   worm(e, x, y, r, face) {
     stepTail(e, e.x - Math.cos(face) * e.r * 0.6, e.y - Math.sin(face) * e.r * 0.6, face, e.r * 7, Math.hypot(e.vx || 0, e.vy || 0) + 40);
@@ -994,12 +1006,24 @@ function render() {
     ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r * 0.5, y - r * 0.2); ctx.lineTo(x, y); ctx.fill();
   }
-  // Pickups: temporary power-ups are monitor magenta; loot boxes are gold.
+  // Pickups: temporary power-ups are monitor magenta; DNA strands (loot) are gold.
   for (const u of G.pickups) {
     if (!vis(u)) continue;
     const d = POWERUPS[u.type], x = sx(u.x), y = sy(u.y) + Math.sin(u.bob) * 3, r = 13 * S, pc = u.type === 'chest' ? PAL.reward : PAL.pickup;
     if (u.life < 5 && Math.floor(u.life * 6) % 2) continue;
-    drawShape(u.type === 'chest' ? 'square' : 'hex', x, y, r, 0); ctx.fillStyle = '#0a0f14'; ctx.fill();
+    if (u.type === 'chest') {
+      // A strand of DNA: a short spinning double helix, gold.
+      const ph = G.realT * 4 + u.bob, len = r * 1.6;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(-0.6);
+      ctx.strokeStyle = 'rgba(214,228,240,0.7)'; ctx.lineWidth = 1.2; ctx.beginPath();
+      for (let i = -3; i <= 3; i++) { const px = i * len / 3.5, a = Math.sin(ph + i * 0.9) * r * 0.55; ctx.moveTo(px, a); ctx.lineTo(px, -a); }
+      ctx.stroke();
+      ctx.strokeStyle = pc; ctx.lineWidth = 2.6; ctx.lineCap = 'round';
+      for (const sg of [1, -1]) { ctx.beginPath(); for (let i = 0; i <= 24; i++) { const px = -len + i / 24 * len * 2, a = sg * Math.sin(ph + (px / (len / 3.5)) * 0.9) * r * 0.55; i ? ctx.lineTo(px, a) : ctx.moveTo(px, a); } ctx.stroke(); }
+      ctx.restore(); ctx.lineCap = 'butt';
+      continue;
+    }
+    drawShape('hex', x, y, r, 0); ctx.fillStyle = '#0a0f14'; ctx.fill();
     ctx.strokeStyle = pc; ctx.lineWidth = 2.5; ctx.stroke();
     ctx.fillStyle = pc; ctx.font = `bold ${Math.round(14 * S)}px ` + "ui-monospace, Menlo, monospace"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(d.letter, x, y + 1);
@@ -1572,6 +1596,8 @@ function drawHud() {
   if (G.barrier > 0) chips.push(['AEGIS', XR.white]);
   if (G.echoes.length) chips.push(['ECHO x' + G.echoes.length, PAL.you]);
   if (G.inPill) chips.push(['PILL: SLOW, XP -50%', PAL.danger]);
+  if (G.sticky) chips.push(['STUCK IN YEAST', PAL.danger]);
+  if (G.yeastOn && G.yeastN) chips.push(['INFECTION: ' + G.yeastN + ' CELLS', PAL.danger]);
   if (G.manual) chips.push(['MANUAL', XR.white]);
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
   let cxp = 8;

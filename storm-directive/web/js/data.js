@@ -634,6 +634,9 @@ const ENEMIES = {
   rotifer:  { name: 'Rotifer', hp: 40, speed: 50, armour: 1, r: 14, dmg: 8, xp: 5, color: '#e3dccb', shape: 'rotifer', ai: 'thief', from: 110, w: 1.4 },
   volvox:   { name: 'Volvox', hp: 110, speed: 34, armour: 2, r: 26, dmg: 14, xp: 8, color: '#c8d9b8', shape: 'volvox', ai: 'chase', from: 160, w: 1.1, split: 'volvoxling', splitN: 4 },
   volvoxling:{ name: 'Daughter Colony', hp: 26, speed: 62, armour: 0, r: 12, dmg: 6, xp: 2, color: '#c8d9b8', shape: 'volvox', ai: 'chase', from: 99999, w: 0 },
+  // Yeast infection (Candida): only arrives as an infection event. Each cell buds a daughter every few
+  // seconds, joined by a pseudohypha, so an ignored colony doubles and doubles. Sticky to swim through.
+  yeast:    { name: 'Candida', hp: 18, speed: 22, armour: 0, r: 11, dmg: 5, xp: 1, color: '#e4dcc8', shape: 'yeast', ai: 'yeast', from: 99999, w: 0 },
   juggernaut: { name: 'Alpha Swimmer', hp: 420, speed: 34, armour: 12, r: 28, dmg: 30, xp: 20, color: '#d4c1a4', shape: 'sperm', ai: 'chase', from: 300, w: 0.6 },
 };
 
@@ -652,7 +655,7 @@ const POWERUPS = {
   heal:   { name: 'GLUCOSE HIT',  letter: '+', color: '#8ac926', desc: 'Restore 35% HP' },
   shield: { name: 'SHIELD',  letter: 'S', color: '#48cae4', desc: 'Invulnerable for 5s' },
   freeze: { name: 'STASIS',  letter: 'F', color: '#a2d2ff', desc: 'Freeze all enemies' },
-  chest:  { name: 'LOOT BOX', letter: '?', color: '#ffca3a', desc: 'Free upgrade' },
+  chest:  { name: 'DNA STRAND', letter: '?', color: '#ffca3a', desc: 'Free upgrade' },
 };
 
 // ---------------------------------------------------------------- The Egg
@@ -826,7 +829,7 @@ const SYSTEM_LINES = {
   level: [
     'Level up! You are growing. Please stop sprouting weapons from your tail, it upsets the viewers.',
     'Another level. The egg has noticed you. The egg is not impressed yet.',
-    'Level up. Please enjoy this complimentary box of violence.',
+    'Level up. Please enjoy this complimentary strand of violent DNA.',
     'Congratulations on your promotion from "tadpole" to "slightly angrier tadpole".',
   ],
   boss: [
@@ -899,7 +902,7 @@ const ACHIEVEMENTS = {
   kills100:   { name: 'Pest Control', desc: '100 kills. The exterminators\' union has filed a complaint.', reward: 'reroll' },
   kills1000:  { name: 'Statistically Significant', desc: '1,000 kills. You are now a demographic.', reward: 'box' },
   kills5000:  { name: 'Extinction Event', desc: '5,000 kills. Several species have asked you to stop.', reward: 'bossbox' },
-  firstloot:  { name: 'Unboxing Influencer', desc: 'Opened your first loot box. Please like and subscribe.', reward: 'none' },
+  firstloot:  { name: 'Gene Therapy Influencer', desc: 'Spliced in your first DNA strand. Please like and subscribe.', reward: 'none' },
   fusion:     { name: 'Frankenweapon', desc: 'Fused two weapons. It is alive. It is also on fire.', reward: 'reroll' },
   rewind:     { name: 'Undo Button Enthusiast', desc: 'Rewound time. Causality has been notified.', reward: 'none' },
   autorewind: { name: 'Not Today, Death', desc: 'Died, then un-died. Our lawyers are looking into it.', reward: 'heal' },

@@ -272,11 +272,11 @@ const UI = {
     $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false }; UI.renderArmoury(); }));
     const body = $('armBody');
     if (A.k === 'w' && A.i >= G.weapons.length) {
-      body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS[A.i - 3]} (you are level ${G.level}). The next loot box after that is all new weapons.</p></div>`;
+      body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS[A.i - 3]} (you are level ${G.level}). The next DNA strand after that is all new weapons.</p></div>`;
       return;
     }
     if (!w) {
-      body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon slot. New weapons show up in loot boxes while you have a free slot. Recycle a weapon to make room.' : 'Empty spell slot. Spells show up in loot boxes while you have a free slot.'}</p></div>`;
+      body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon slot. New weapons show up in DNA strands while you have a free slot. Recycle a weapon to make room.' : 'Empty spell slot. Spells show up in DNA strands while you have a free slot.'}</p></div>`;
       return;
     }
     const d = w.def, s = w.s;
@@ -338,7 +338,7 @@ const UI = {
       h += `<div class="sec"><h3>Modifiers (${w.mods.length}/${MOD_SLOTS})</h3><div class="mods">`;
       for (let i = 0; i < MOD_SLOTS; i++) {
         const m = w.mods[i];
-        if (!m) { h += `<div class="modslot empty">Empty slot. Modifier cards drop from loot boxes.</div>`; continue; }
+        if (!m) { h += `<div class="modslot empty">Empty slot. Modifier cards come in DNA strands.</div>`; continue; }
         const M = MODS[m.id];
         const desc = m.id === 'elemental' ? `Converts this weapon to ${ELEMENTS[m.elem].name} damage.` : M.desc(m.p || 1);
         h += `<div class="modslot" style="--c:${PAL.upgrade}"><span class="mi">${esc(M.icon)}</span><div><b>${esc(M.name)}</b> <em>power ${(m.p || 1).toFixed(2)}</em><br><span>${esc(desc)}</span></div></div>`;
@@ -372,7 +372,7 @@ const UI = {
         for (const m of ms) {
           const other = m.a === w.id ? m.b : m.a, ow = G.weapons.find(x => x && x.id === other);
           const ready = ow && ow.lvl >= MERGE_MIN_LEVEL && w.lvl >= MERGE_MIN_LEVEL;
-          const status = ready ? `<b style="color:${PAL.upgrade}">READY: offered in your next loot box</b>` : ow ? `Owned at Lv ${ow.lvl}. Both need Lv ${MERGE_MIN_LEVEL}.` : 'Not owned.';
+          const status = ready ? `<b style="color:${PAL.upgrade}">READY: offered in your next DNA strand</b>` : ow ? `Owned at Lv ${ow.lvl}. Both need Lv ${MERGE_MIN_LEVEL}.` : 'Not owned.';
           h += `<div class="fuse" style="--c:${PAL.upgrade}"><b>+ ${esc(WEAPONS[other].name)}</b> = <b style="color:${PAL.upgrade}">${esc(WEAPONS[m.out].name)}</b><br><span>${status}</span></div>`;
         }
         h += `</div>`;
@@ -407,11 +407,11 @@ const UI = {
     UI.lootReq = req;
     UI.lootOpts = genLoot(req);
     const titles = {
-      start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary Starter Box. Yes, sperm can have guns now. Do not ask the biology department.'],
+      start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary starter DNA. Yes, sperm can carry guns in their genes now. Do not ask the biology department.'],
       slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Silver or better.'],
-      level: ['LEVEL ' + G.level + '!', pick(['Bronze-or-better Adventurer Box. Pick one. Choose wisely. Or quickly.', 'Adventurer Box! Contents may have shifted during your near-death experience.', 'Adventurer Box. The fans chipped in. Some of them twice.'])],
-      chest: ['FAN BOX', pick(['Gold or better. The fans sent this. Some of the fans are very strange.', 'Gold or better. It rattles. That is probably fine.'])],
-      boss: ['BOSS BOX', 'Gold or better. Pried from a still-warm corpse. Contents are yours. Smell is extra.'],
+      level: ['LEVEL ' + G.level + '!', pick(['Bronze-or-better DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA! Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The fans chipped in. Some of them twice.'])],
+      chest: ['FAN DNA', pick(['Gold or better. The fans sent this. Some of the fans are very strange.', 'Gold or better. It wriggles. That is probably fine.'])],
+      boss: ['BOSS DNA', 'Gold or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
       branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The other one goes in the bin. Forever. No pressure.'],
     };
     if (req.kind === 'branch') { const bw = G.weapons.find(x => x && x.uid === req.uid); if (bw) titles.branch[0] = bw.def.name.toUpperCase() + ': LV ' + req.lvl + ' BRANCH'; }
@@ -572,7 +572,7 @@ const UI = {
       const r = META.ranks[b.id] || 0, pips = Array.from({ length: b.max }, (_, i) => `<i class="${i < r ? 'on' : ''}"></i>`).join('');
       h += `<div class="brow"><div><b>${esc(b.name)}</b><span class="pips">${pips}</span><div class="hint">${esc(b.desc)}</div></div>${buy('rank', b.id, r < b.max ? b.cost(r) : 0, r >= b.max, 'MAX')}</div>`;
     }
-    h += `</div><div class="sec"><h3>Starter weapons</h3><p class="hint">Unlocked weapons join the first box. One is always offered.</p>`;
+    h += `</div><div class="sec"><h3>Starter weapons</h3><p class="hint">Unlocked weapons join your starter DNA. One is always offered.</p>`;
     for (const [id, cost] of META_STARTERS) {
       const d = WEAPONS[id]; if (!d) continue;
       h += `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b><div class="hint">${esc(d.desc || '')}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
@@ -640,13 +640,13 @@ function lootStory(req) {
   const src = req.src || {}, n = src.name || 'something', L = G.level;
   const lines = {
     elite: [
-      `Pried from the still-twitching ${n}. It won't be needing this where it's going, which is nowhere.`,
-      `The ${n} was carrying this in a pocket nobody knew it had. Finders keepers. Losers dissolved.`,
-      `You beat the ${n} fair and square, then went through its things. Standard practice.`,
+      `Extracted from the still-twitching ${n}. It won't be needing this where it's going, which is nowhere.`,
+      `The ${n} was carrying these genes in a pocket nobody knew it had. Finders keepers. Losers dissolved.`,
+      `You beat the ${n} fair and square, then went through its chromosomes. Standard practice.`,
     ],
     amoeba: [
       `Recovered from inside an Amoeba that had eaten ${src.meals || 'several'} of its neighbours. It was wedged between two of them.`,
-      `The Amoeba swallowed this ages ago and never managed to digest it. Neither will you, but you can shoot with it.`,
+      `The Amoeba swallowed this DNA ages ago and never managed to digest it. Neither will you, but you can shoot with it.`,
       `Fished out of a very full Amoeba. Please do not ask what else was in there. There was a lot else in there.`,
     ],
     drop: [
@@ -654,9 +654,9 @@ function lootStory(req) {
       `Lucky find: it fell out of a ${n}. The odds of that were low. The odds of you gloating are high.`,
     ],
     rival: [
-      `${n}'s personal effects. Their mum would like the box back. She is not getting the box back.`,
+      `${n}'s personal effects. Their mum would like the DNA back. She is not getting the DNA back.`,
       `${n} left this to you in a will they wrote about four seconds before you happened to them.`,
-      `Everything ${n} owned now fits in one box. Sad, really. Anyway: loot.`,
+      `Everything ${n} was now fits on one strand of DNA. Sad, really. Anyway: splice it in.`,
     ],
     sponsor: [
       `A gift from ${n}, sponsor of today's race. Terms and conditions apply to your soul.`,
@@ -664,17 +664,21 @@ function lootStory(req) {
     ],
     boss: [
       `${n} is dead. This was in its will. You were not in its will. You are now.`,
-      `You took this off ${n}'s body while the audience cheered. The audience has questionable values.`,
-      `${n} guarded this box with its life. That turned out to be a limited resource.`,
+      `You spliced this out of ${n} while the audience cheered. The audience has questionable values.`,
+      `${n} guarded these genes with its life. That turned out to be a limited resource.`,
     ],
     ach: [
       `For "${n}". The producers insisted. The lawyers wept. Here is your prize.`,
-      `Achievement unlocked: "${n}". The show sends a box and a small round of applause.`,
+      `Achievement unlocked: "${n}". The show sends a strand of DNA and a small round of applause.`,
+    ],
+    cure: [
+      'For clearing up the yeast infection. The womb is grateful, and slightly embarrassed.',
+      'Infection cured. The doctor sends this DNA with a leaflet you will not read.',
     ],
     level: [
-      `Level ${L}. You grew, and the womb noticed. It sends its regards, and a box.`,
-      `Level ${L}! Every time you get bigger, somebody leaves a box out for you. You have not asked who.`,
-      `Level ${L}. Your tail is longer, your head is harder, and here, for some reason, is a box.`,
+      `Level ${L}. You grew, and the womb noticed. It sends its regards, and some spare DNA.`,
+      `Level ${L}! Every time you get bigger, somebody leaves a strand of DNA out for you. You have not asked whose.`,
+      `Level ${L}. Your tail is longer, your head is harder, and here, for some reason, is a strand of DNA.`,
     ],
   };
   const pool = lines[src.t] || (req.kind === 'level' ? lines.level : null);

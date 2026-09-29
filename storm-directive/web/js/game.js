@@ -970,6 +970,18 @@ function updateEnemies(dt) {
       mx = e.mvx; my = e.mvy; spd = e.mvs;
     } else if (!frozen) {
       switch (e.def.ai) {
+        case 'yeast': {
+          // Buds grow to full size over 3 s; every 5 to 7 s each cell buds again (the colony is capped).
+          if (e.grow < 1) { e.grow = Math.min(1, e.grow + edt / 3); e.r = e.baseR * (0.4 + 0.6 * e.grow); }
+          e.budT = (e.budT == null ? rand(4, 6) : e.budT) - edt;
+          if (e.budT <= 0 && e.grow >= 1 && (G.yeastN || 0) < YEAST.cap && G.enemies.length < CAPS.enemies) {
+            e.budT = rand(6, 8);
+            const a = Math.random() * TAU, c = makeEnemy(ENEMIES.yeast, e.x + Math.cos(a) * e.r * 1.7, e.y + Math.sin(a) * e.r * 1.7);
+            c.baseR = c.r; c.grow = 0; c.r = c.baseR * 0.4; c.parent = e; G.enemies.push(c); G.yeastN = (G.yeastN || 0) + 1;
+          }
+          spd = e.speed;
+          break;
+        }
         case 'ciliate': {
           // Swims in long straight lines, turning slowly towards you; after a bump (or every few seconds)
           // it backs up and swings off in a new direction, like a real paramecium's avoiding reaction.
@@ -1604,7 +1616,10 @@ function updateTurrets(dt) {
 function updatePlayer(dt) {
   const p = G.player, P = G.P;
   G.inPill = inPill(p.x, p.y);
-  const speed = 150 * P.speed * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1);
+  // Yeast colonies are sticky: brushing through one slows you.
+  G.sticky = false;
+  if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
+  const speed = 150 * P.speed * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1);
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
@@ -1866,7 +1881,7 @@ function victory() {
 
 // ---------------------------------------------------------------- main update
 function update(dt) {
-  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt);
+  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
   if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); }
   const p = G.player;
@@ -2118,20 +2133,17 @@ function sndTone(t, f0, f1, dur, vol, type) {
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
 }
-// Loot box: rattles while it shakes, the latch clicks and the lid pops (0.4 s, with the CSS animation), then
+// DNA strand (loot): wriggles, then unzips rung by rung (0.36 s, with the CSS animation), then
 // a glassy chime that gets longer and brighter with the best rarity inside (Bronze 2 notes up to Legendary 5
 // plus a shimmer), and a soft swish as each card flies in. Branch choices ring softer; boss boxes thud deeper;
 // a cursed card adds a sour low note.
 function lootSound(kind, best, cursed, cards) {
   if (!AUDIO.on || !AUDIO.ctx || AUDIO.ctx.state !== 'running') return;
   const t = AUDIO.ctx.currentTime + 0.01, deep = kind === 'boss' ? 0.7 : 1;
-  [0.02, 0.11, 0.2, 0.29].forEach((d, i) => {
-    sndNoise(t + d, 0.07, 'lowpass', 900 * deep, 300 * deep, 1, 0.16 - i * 0.02);
-    sndTone(t + d, 190 * deep, 120 * deep, 0.08, 0.05, 'triangle');
-  });
-  sndNoise(t + 0.38, 0.03, 'highpass', 2500, 2500, 0.7, 0.14);
-  sndTone(t + 0.4, 260, 820, 0.12, 0.09, 'sine');
-  sndNoise(t + 0.4, 0.22, 'bandpass', 1200, 3500, 1.5, 0.05);
+  // The strand wriggles (soft squelchy whooshes), then unzips: a fast run of tiny snaps as each rung breaks.
+  [0.02, 0.13, 0.24].forEach((d, i) => sndNoise(t + d, 0.1, 'bandpass', 500 * deep, 1400 * deep, 2, 0.1 - i * 0.02));
+  for (let i = 0; i < 14; i++) { const at = t + 0.36 + i * 0.022; sndNoise(at, 0.02, 'highpass', 3200 + i * 120, 3200 + i * 120, 0.8, 0.08); sndTone(at, 1800 + i * 90, 1800 + i * 90, 0.02, 0.012, 'square'); }
+  sndNoise(t + 0.45, 0.3, 'bandpass', 900, 3000, 1.2, 0.05);
   const notes = [1047, 1319, 1568, 1760, 2093], n = 2 + Math.min(3, best), soft = kind === 'branch' ? 0.6 : 1;
   for (let i = 0; i < n; i++) {
     const at = t + 0.46 + i * 0.075, f = notes[i] * (kind === 'branch' ? 0.75 : 1);

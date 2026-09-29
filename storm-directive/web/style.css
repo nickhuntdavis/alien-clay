@@ -497,3 +497,19 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #copyRunBtn { flex: 1 1 100%; max-width: none; padding: 9px; font-size: 12px; }
 #pause .pbtns { flex-wrap: wrap; }
 #pause .pbtns .btn { flex: 1 1 40%; min-width: 0; max-width: none; padding: 12px 6px; font-size: 13px; }
+
+/* The loot 'box' is a strand of DNA: it wriggles, then unzips (rungs snap one by one, the strands peel apart) */
+.box { width: 120px; height: 60px; }
+.box .helix { display: block; overflow: visible; }
+.box .helix path { fill: none; stroke: var(--bc, #ffd23f); stroke-width: 3.2; stroke-linecap: round; }
+.box .helix .s2 { stroke-opacity: 0.75; }
+.box .helix .rg { stroke: #d6e4f0; stroke-width: 1.6; stroke-opacity: 0.7; transform-box: fill-box; transform-origin: center; }
+.box.opening { animation: wriggle 0.45s ease-in-out; }
+.box.opening .helix .rg { animation: snap 0.18s calc(0.36s + var(--i) * 0.022s) forwards; }
+.box.opening .helix .s1 { animation: peelUp 0.5s 0.45s forwards; }
+.box.opening .helix .s2 { animation: peelDown 0.5s 0.45s forwards; }
+.box.opening .burst { animation: burst 0.6s 0.55s forwards; }
+@keyframes wriggle { 0%,100% { transform: none; } 25% { transform: skewX(-10deg) scaleY(1.08); } 50% { transform: skewX(9deg) scaleY(0.94); } 75% { transform: skewX(-6deg); } }
+@keyframes snap { to { transform: scaleY(0); opacity: 0; } }
+@keyframes peelUp { to { transform: translateY(-22px) rotate(-6deg); opacity: 0; } }
+@keyframes peelDown { to { transform: translateY(22px) rotate(6deg); opacity: 0; } }

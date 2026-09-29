@@ -235,3 +235,38 @@ function pillLobes(fn) {
   fn(q.x, q.y, Math.sqrt(0.3) * R);
   q.lobes.forEach((L, k) => { const w = Math.sin(G.t * 0.25 + L.ph) * 0.15; fn(q.x + Math.cos(L.a + w) * L.d * R, q.y + Math.sin(L.a + w) * L.d * R, L.rk * R * (1 + 0.08 * Math.sin(G.t * 0.3 + k))); });
 }
+
+// ---------------------------------------------------------------- yeast infection
+// From about 3:30 (then every 5 to 7 minutes) an infection takes hold somewhere just off screen: three
+// Candida cells that bud and bud. Wipe out every cell and you're cured, with a Gold strand of DNA for it.
+const YEAST = { first: [210, 330], every: [300, 420], seed: 3, cap: 70 };
+function updateYeast(dt) {
+  G.yeastN = 0;
+  for (const e of G.enemies) if (!e.dead && e.def.ai === 'yeast') G.yeastN++;
+  if (G.nextYeast == null) G.nextYeast = rand(YEAST.first[0], YEAST.first[1]);
+  if (!G.yeastOn) {
+    if (G.t >= G.nextYeast && G.state === 'play') startInfection();
+    return;
+  }
+  if (G.yeastN === 0 && G.t - G.yeastOn > 4) {
+    G.yeastOn = 0; G.nextYeast = G.t + rand(YEAST.every[0], YEAST.every[1]);
+    G.lootQueue.push({ kind: 'chest', src: { t: 'cure' } });
+    banner('INFECTION CURED', PAL.reward);
+    sysMsg('SYSTEM MESSAGE', 'The yeast infection has cleared up. The womb thanks you. It will not be discussing this with anyone.', PAL.reward, true);
+  }
+}
+function startInfection() {
+  const s = spawnPos();
+  G.yeastOn = G.t;
+  for (let i = 0; i < YEAST.seed; i++) {
+    const e = makeEnemy(ENEMIES.yeast, s.x + rand(-30, 30), s.y + rand(-30, 30));
+    e.baseR = e.r; e.grow = 1; e.budT = rand(1, 3); G.enemies.push(e);
+  }
+  banner('YEAST INFECTION!', PAL.danger);
+  sysMsg('SYSTEM MESSAGE', pick([
+    'Congratulations: a yeast infection. It is itchy, it is spreading, and it is now your problem. Kill every cell before it doubles again.',
+    'A yeast infection has broken out nearby. It buds every few seconds. Ignore it and it will not ignore you.',
+    'Candida has entered the chat. Each cell makes another cell. You do the maths. Then do the killing.',
+  ]), PAL.danger, true);
+  sfx('boss');
+}
