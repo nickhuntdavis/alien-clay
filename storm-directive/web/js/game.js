@@ -213,6 +213,24 @@ function computeStats(w) {
     if (m.id === 'freezing') s.modFreeze = 0.18 * mp;
     if (m.id === 'exploding') s.modExplode = 0.3 * mp;
     if (m.id === 'mindctrl') { s.modCharm = 0.05 * mp; s.charmDur = 6 * mp; }
+    if (m.id === 'chaining') { s.pArc = Math.max(s.pArc || 0, 0.25 * mp); s.pArcDmg = Math.max(s.pArcDmg || 0, 0.5); s.pArcN = Math.max(s.pArcN || 0, 1); }
+    if (m.id === 'pulsing') { s.pulse = 0.25 * mp; s.pulseRate = 0.45; }
+    if (m.id === 'magnetic') s.magnet = 70 * mp;
+    if (m.id === 'delayed') s.delay = 0.3 * mp;
+    if (m.id === 'mirror') s.mirror = 0.5 * mp;
+  }
+  // Duo combos.
+  const has = id => (w.mods || []).some(m => m.id === id);
+  s.duos = DUOS.filter(x => has(x.a) && has(x.b)).map(x => x.name);
+  for (const n of s.duos) {
+    if (n === 'Cluster Hunter') s.shardHome = 1;
+    if (n === 'Cryoblast') s.cryoblast = 1;
+    if (n === 'Halo') { s.pulse *= 2; s.pulseRate = 0.22; }
+    if (n === 'Snowball') s.grow = (s.grow || 0) * 2;
+    if (n === 'Pinball Wizard') s.pArcN = 3;
+    if (n === 'Pied Piper') s.charmDur *= 2;
+    if (n === 'Kaleidoscope') s.kaleido = 1;
+    if (n === 'Time Bomb') s.timeBomb = 1;
   }
   applyPerks(w, s);
   w.s = s;
@@ -241,7 +259,7 @@ function availableMerges() {
 function doMerge(m) {
   const ia = G.weapons.findIndex(w => w && w.id === m.a), ib = G.weapons.findIndex(w => w && w.id === m.b);
   if (ia < 0 || ib < 0) return;
-  const lvl = Math.min(8, Math.max(G.weapons[ia].lvl, G.weapons[ib].lvl));
+  const lvl = Math.min(MAX_WLVL, Math.max(G.weapons[ia].lvl, G.weapons[ib].lvl));
   const dir = G.weapons[ia].dir;
   const mods = G.weapons[ia].mods.concat(G.weapons[ib].mods).slice(0, MOD_SLOTS);
   G.weapons[ib] = null;
@@ -306,8 +324,8 @@ function genLoot(req) {
   const cands = [];
   const merges = availableMerges();
   for (const m of merges) cands.push({ w: 60, make: () => optMerge(m) , key: 'm' + m.out });
-  G.weapons.forEach((w, i) => { if (w && w.lvl < 8) cands.push({ w: 11, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
-  G.spells.forEach((w, i) => { if (w && w.lvl < 8) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
+  G.weapons.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 11, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
+  G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
   if (G.weapons.some(w => !w)) {
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
     const pool = shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 4);
@@ -365,12 +383,12 @@ function optNewSpell(id, r) {
     apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); } } };
 }
 function optUpgrade(w, r) {
-  const n = RARITIES[r].lvls, to = Math.min(8, w.lvl + n);
+  const n = RARITIES[r].lvls, to = Math.min(MAX_WLVL, w.lvl + n);
   const bonus = lvBonusText(w.def, w.lvl, to);
   let desc = `+${pc(WEAPON_LV_DMG * (to - w.lvl))} damage, faster cycling` + (bonus ? `. ${bonus}` : '');
   if (!w.isSpell && to >= MERGE_MIN_LEVEL && w.lvl < MERGE_MIN_LEVEL && !w.def.merged) desc += '. Unlocks fusion!';
   return { def: w.def, rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
-    sub: `Lv ${w.lvl} > ${to}${to === 8 ? ' (MAX)' : ''}`, desc,
+    sub: `Lv ${w.lvl} > ${to}${to === MAX_WLVL ? ' (MAX)' : ''}`, desc,
     apply: () => { setWeaponLevel(w, to); computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
 }
 function optPassive(id, r) {
@@ -1209,9 +1227,18 @@ function spawnProj(w, x, y, a, src, over) {
   if (mods) {
     if (s.grow) { pr.grow = s.grow; pr.r0 = pr.r; pr.dmg0 = pr.dmg; pr.age = 0; }
     if (s.orbitMod) { pr.orbitT = s.orbitMod; pr.oa = Math.random() * TAU; pr.orad = rand(42, 70); }
-    if (s.splitHit) pr.splitHit = s.splitHit;
+    if (s.splitHit && pr.splitHit == null) pr.splitHit = s.splitHit;
+    if (s.pulse) { pr.pulse = s.pulse; pr.pulseT = s.pulseRate; }
+    if (s.magnet) pr.magnet = s.magnet;
+    if (s.delay) { pr.delayAt = 0.15; pr.delayB = s.delay; }
   }
   G.proj.push(pr);
+  // Mirror: a twin fired the opposite way.
+  if (mods && s.mirror && !(over && over.mirrored)) {
+    const tw = Object.assign({}, over || {}, { mirrored: true, dmg: (over && over.dmg || s.dmg) * s.mirror });
+    if (s.kaleido && s.splitHit) tw.splitHit = s.splitHit * 2;
+    spawnProj(w, x, y, a + Math.PI, src, tw);
+  }
   return pr;
 }
 
@@ -1308,6 +1335,20 @@ function updateProjectiles(dt) {
       }
     }
     // Growing modifier: bigger and nastier the longer it flies.
+    // Forge modifiers: delayed launch, pulses, magnetic drag.
+    if (pr.delayAt != null && !pr.launched) {
+      pr.fAge = (pr.fAge || 0) + dt;
+      if (!pr.hold && pr.fAge > pr.delayAt) { pr.hold = 0.35; pr.hx = pr.x; pr.hy = pr.y; pr.life += 0.35; }
+      if (pr.hold) {
+        pr.hold -= dt;
+        if (pr.hold <= 0) {
+          pr.launched = true; pr.vx *= 1.6; pr.vy *= 1.6; pr.speed *= 1.6; pr.dmg *= 1 + pr.delayB;
+          if (pr.w.s.timeBomb) aoe(pr.x, pr.y, 55, pr.dmg * 0.6, Object.assign({}, pr.src, { noProc: true, noCrit: true, wname: 'Time Bomb' }), '#ff7a2f');
+        }
+      }
+    }
+    if (pr.pulse) { pr.pulseT -= dt; if (pr.pulseT <= 0) { pr.pulseT = pr.w.s.pulseRate || 0.45; aoe(pr.x, pr.y, 38, pr.dmg * pr.pulse, Object.assign({}, pr.src, { noProc: true, noCrit: true, wname: 'Pulse' }), '#cfe3ff'); } }
+    if (pr.magnet) forNear(pr.x, pr.y, pr.magnet, e => { if (!e.boss && !e.egg && !e.rival) { const dx = pr.x - e.x, dy = pr.y - e.y, dd = Math.hypot(dx, dy) || 1; e.x += dx / dd * 90 * dt; e.y += dy / dd * 90 * dt; } });
     if (pr.grow) { pr.age += dt; const k = Math.min(1, pr.age / Math.max(0.3, pr.max * 0.8)); pr.r = pr.r0 * (1 + 2 * k); pr.dmg = pr.dmg0 * (1 + pr.grow * k); }
     // Homing.
     if (pr.homing && !(pr.orbitT > 0)) {
@@ -1327,6 +1368,7 @@ function updateProjectiles(dt) {
       if (d < 18) { pr.dead = true; continue; }
     }
     if (!(pr.orbitT > 0)) { pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt; }
+    if (pr.hold > 0) { pr.x = pr.hx; pr.y = pr.hy; }
     if (pr.life <= 0) { pr.dead = true; if (pr.explode) aoe(pr.x, pr.y, pr.explode, pr.dmg, pr.src, pr.color); continue; }
     if (!(pr.orbitT > 0) && !pr.back && terrainShot(pr, false, dt)) continue;
     // Aura projectiles (void orb): periodic area damage and pull.
@@ -1363,7 +1405,7 @@ function updateProjectiles(dt) {
         for (let i = 0; i < n; i++) {
           const a = a0 + (i / (n - 1 || 1) - 0.5) * 1.4;
           spawnProj(pr.w, pr.x, pr.y, a, ss, { noMods: true, speed: 460, vx: Math.cos(a) * 460, vy: Math.sin(a) * 460, life: 0.5, dmg: pr.dmg * 0.45,
-            r: Math.max(2, pr.r * 0.6), pierce: 0, bounce: 0, homing: 0, explode: 0, chainHit: 0, aura: 0, boomerang: 0, hits: [e.id] });
+            r: Math.max(2, pr.r * 0.6), pierce: 0, bounce: 0, homing: pr.w.s.shardHome ? 6 : 0, explode: 0, chainHit: 0, aura: 0, boomerang: 0, hits: [e.id] });
         }
       }
       if (pr.explode) { pr.dead = true; aoe(pr.x, pr.y, pr.explode, pr.dmg * 0.8, pr.src, pr.color); return true; }

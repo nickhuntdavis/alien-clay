@@ -453,7 +453,8 @@ const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f', upgrade: '#5
 // ---------------------------------------------------------------- Weapon upgrade trees
 // Every weapon has a tree: at these levels you pick one of two branch perks (the tree is fixed per weapon,
 // so you can plan ahead in the Armoury). tier: which milestone it can appear at. fit(d): which weapons it suits.
-const PERK_LEVELS = [3, 5, 8];
+const PERK_LEVELS = [3, 5, 8, 10];
+const MAX_WLVL = 10; // weapons level to 10; Lv 10 is the mastery branch
 const MULTI_KINDS = ['gun', 'lob', 'chain', 'mine', 'orbit', 'ring', 'strike', 'siphon', 'mimic', 'tether', 'prequel'];
 const hasArea = d => !!(d.base.area || d.base.explode > 1 || d.base.aura || d.base.radius || d.style === 'flame' || d.kind === 'orbit');
 const isProj = d => PROJ_KINDS.includes(d.kind);
@@ -486,6 +487,12 @@ const PERKS = {
   slayer:   { tier: 3, icon: 'SY', color: '#ffb347', name: 'Apex Predator',   desc: '+150% damage to elites, bosses and rival champions.' },
   twin:     { tier: 3, icon: 'TW', color: '#48cae4', name: 'Twin Array',      desc: '+2 projectiles.', fit: d => MULTI_KINDS.includes(d.kind) },
   storm:    { tier: 3, icon: 'ST', color: '#ffe94a', name: 'Thunderhead',     desc: '50% of hits arc to 2 nearby enemies for 60% damage.' },
+  // Tier 4 (Lv 10): mastery.
+  apex:     { tier: 4, icon: 'AX', color: '#ffffff', name: 'Apex Form',       desc: '+100% damage and +20% crit chance.' },
+  overclock:{ tier: 4, icon: 'OC', color: '#ffffff', name: 'Overclock',       desc: '50% faster cooldown and reload, +50% magazine.' },
+  legion:   { tier: 4, icon: 'LG', color: '#ffffff', name: 'Legion',          desc: '+3 projectiles.', fit: d => MULTI_KINDS.includes(d.kind) },
+  lifeline: { tier: 4, icon: 'LF', color: '#ffffff', name: 'Lifeline',        desc: 'Hits heal you (up to four times the usual lifesteal limit).' },
+  executioner:{ tier: 4, icon: 'EX', color: '#ffffff', name: 'Executioner',   desc: 'Non-boss enemies under 20% health die instantly when hit.' },
 };
 
 // ---------------------------------------------------------------- Swimming
@@ -539,7 +546,24 @@ const MODS = {
   mindctrl:  { name: 'Mind Control', icon: 'MC', color: '#ff8fab', desc: p => `${(5 * p).toFixed(0)}% chance per hit to make a monster fight for you for ${Math.round(6 * p)}s (max ${MAX_ALLIES} allies)` },
   elemental: { name: 'Element Swap', icon: 'EL', color: '#c77dff', desc: () => 'Converts this weapon to a new element' },
   shrapnel:  { name: 'Shrapnel',     icon: 'SH', color: '#e9c46a', desc: () => 'Kills burst into 3 shards at 40% damage' },
+  // The Modifier Forge.
+  chaining:  { name: 'Chaining',     icon: 'CN', color: '#eee36a', desc: p => `${Math.round(25 * p)}% of hits chain to another enemy for 50% damage` },
+  pulsing:   { name: 'Pulsing',      icon: 'PU', color: '#cfe3ff', kinds: PROJ_KINDS, desc: p => `Shots pulse every 0.45s, hitting everything close by for ${Math.round(25 * p)}% damage` },
+  magnetic:  { name: 'Magnetic',     icon: 'MG', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots drag monsters within ${Math.round(70 * p)} units into their path` },
+  delayed:   { name: 'Delayed',      icon: 'DL', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots hang for a moment, then launch 60% faster for +${Math.round(30 * p)}% damage` },
+  mirror:    { name: 'Mirror',       icon: 'MR', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Every shot has a twin fired the opposite way at ${Math.round(50 * p)}% damage` },
 };
+// Duo combos: two specific modifiers on the same weapon unlock a named bonus.
+const DUOS = [
+  { a: 'seeking',   b: 'splitting', name: 'Cluster Hunter', desc: 'Split shards home in too.' },
+  { a: 'freezing',  b: 'exploding', name: 'Cryoblast',      desc: 'Explosions freeze whatever they hit.' },
+  { a: 'orbiting',  b: 'pulsing',   name: 'Halo',           desc: 'Pulses come twice as often and hit twice as hard.' },
+  { a: 'boomerang', b: 'growing',   name: 'Snowball',       desc: 'Shots grow twice as much on the way out and back.' },
+  { a: 'ricochet',  b: 'chaining',  name: 'Pinball Wizard', desc: 'Chains jump to 3 targets.' },
+  { a: 'mindctrl',  b: 'magnetic',  name: 'Pied Piper',     desc: 'Mind-controlled allies last twice as long.' },
+  { a: 'mirror',    b: 'splitting', name: 'Kaleidoscope',   desc: 'Mirrored twins split into twice as many shards.' },
+  { a: 'delayed',   b: 'exploding', name: 'Time Bomb',      desc: 'Delayed shots explode as they launch.' },
+];
 
 // ---------------------------------------------------------------- Cursed loot cards
 const CURSES = [

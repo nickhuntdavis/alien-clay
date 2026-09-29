@@ -226,6 +226,7 @@ function modProcs(e, dmg, src) {
     src.w.expCd = G.realT + 0.15;
     const ex = Object.assign({}, src, { noProc: true, noCrit: true, mult: 1, knock: 0, wname: 'Exploding modifier' });
     aoe(e.x, e.y, 42, dmg * (src.mult || 1) * src.modExplode, ex, '#ff7a2f');
+    if (src.w.s && src.w.s.cryoblast) forNear(e.x, e.y, 42, o => { if (!o.boss && !o.dead) o.frozen = Math.max(o.frozen, 1.2); });
   }
   if (src.modCharm && !e.boss && !e.elite && !e.rival && !e.charmed && e.hp > 0 && Math.random() < src.modCharm && G.enemies.filter(o => o.charmed).length < MAX_ALLIES) {
     e.charmed = true; e.charmT = src.charmDur; e.frozen = 0; e.allyT = null;
@@ -274,7 +275,7 @@ function weaponTree(def) {
   PERK_LEVELS.forEach((lvl, ti) => {
     const pool = Object.keys(PERKS).filter(id => PERKS[id].tier === ti + 1 && !used.has(id) && (!PERKS[id].fit || PERKS[id].fit(def)));
     const pickOne = () => { const i = Math.floor(rnd() * pool.length); const id = pool.splice(i, 1)[0]; used.add(id); return id; };
-    tree[lvl] = [pickOne(), pickOne()];
+    tree[lvl] = [pickOne(), pickOne(), pickOne()].filter(Boolean);
   });
   def.tree = tree;
   return tree;
@@ -291,7 +292,7 @@ function setWeaponLevel(w, to, from) {
 
 function optPerk(w, lvl, id) {
   const K = PERKS[id];
-  return { rarity: lvl >= 8 ? 3 : lvl >= 5 ? 2 : 1, tag: 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
+  return { rarity: lvl >= 8 ? 3 : lvl >= 5 ? 2 : 1, tag: lvl >= 10 ? 'MASTERY' : 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
     sub: `${w.def.name} | Lv ${lvl} branch`, desc: K.desc,
     apply: () => { w.perks[lvl] = id; computeStats(w); floatText(me().x, me().y - 40, K.name.toUpperCase(), PAL.upgrade, 15, 1.2); } };
 }
@@ -327,6 +328,11 @@ function applyPerks(w, s) {
       case 'giant': s.pGiant = (s.pGiant || 0) + 1; break;
       case 'slayer': s.pGiant = (s.pGiant || 0) + 1.5; break;
       case 'chainburst': s.pBurst = 0.6; break;
+      case 'apex': s.dmg *= 2; s.crit += 0.2; break;
+      case 'overclock': s.cd *= 0.5; s.reload *= 0.5; s.mag = Math.round(s.mag * 1.5); break;
+      case 'legion': s.count = (s.count || 1) + 3; break;
+      case 'lifeline': s.pVamp = 0.05; s.pVampCap = 4; break;
+      case 'executioner': s.pExecKill = 0.2; break;
     }
   }
 }
@@ -337,7 +343,8 @@ function perkProcs(e, dmg, src) {
   if (s.pChill && !e.boss) { e.chill = Math.max(e.chill, 1.5); e.chillAmt = Math.max(e.chillAmt, 0.35); }
   if (s.pIgnite) { e.burn = Math.max(e.burn, 2); e.burnDps = Math.max(e.burnDps, dmg * s.pIgnite); }
   if (s.pVenom) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); e.poisonDps = Math.max(e.poisonDps, dmg * 0.08); }
-  if (s.pVamp && G.lsBudget > 0) { const h = Math.min(G.lsBudget, dmg * s.pVamp); G.lsBudget -= h; healPlayer(h, true); }
+  if (s.pVamp && G.lsBudget > 0) { const h = Math.min(G.lsBudget * (s.pVampCap || 1), dmg * s.pVamp); G.lsBudget = Math.max(0, G.lsBudget - h / (s.pVampCap || 1)); healPlayer(h, true); }
+  if (s.pExecKill && !e.boss && !e.rival && !e.dead && e.hp > 0 && e.hp < e.maxHp * s.pExecKill) { e.hp = 0; floatText(e.x, e.y - e.r, 'EXECUTED', '#ffffff', 12); killEnemy(e, src); return; }
   if (s.pArc && Math.random() < s.pArc) {
     let from = e;
     for (let k = 0; k < s.pArcN; k++) {

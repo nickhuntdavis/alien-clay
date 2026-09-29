@@ -223,7 +223,7 @@ const UI = {
     const elName = ELEMENTS[w.mods.find(m => m.id === 'elemental') ? w.mods.find(m => m.id === 'elemental').elem : d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
     let h = `<div class="ahead" style="--c:${elemCol(wElem(w))}"><div class="aico">${iconSVG(d, 34, elemCol(wElem(w)))}</div><div class="ainfo">
       <div class="aname">${esc(d.name)}${d.merged ? ' <span class="fz">FUSED</span>' : ''}</div>
-      <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: 8 }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/8</div>
+      <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: MAX_WLVL }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/${MAX_WLVL}</div>
       <div class="adesc">${esc(d.desc)}</div></div></div>`;
     // Stats.
     const tiles = [];
@@ -251,21 +251,21 @@ const UI = {
     if (!w.isSpell) {
       const tree = weaponTree(d);
       h += `<div class="sec"><h3>Upgrade tree</h3><div class="tree">`;
-      for (let l = 1; l <= 8; l++) {
+      for (let l = 1; l <= MAX_WLVL; l++) {
         const reached = w.lvl >= l;
         if (tree[l]) {
           const chosen = w.perks[l];
           h += `<div class="trow br ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><div class="tps">` + tree[l].map(id => {
             const K = PERKS[id], st = chosen ? (chosen === id ? 'chosen' : 'dim') : reached ? 'pending' : '';
             return `<div class="tp ${st}" style="--c:${PAL.upgrade}"><b><i>${esc(K.icon)}</i>${esc(K.name)}</b><span>${esc(K.desc)}</span></div>`;
-          }).join('<em>or</em>') + `</div></div>`;
+          }).join('') + `</div></div>`;
         } else {
           const bonus = l > 1 ? lvBonusText(d, l - 1, l) : '';
           const txt = l === 1 ? 'Base weapon' : `+${Math.round(WEAPON_LV_DMG * 100)}% damage, 5% faster, +12% magazine` + (bonus ? '. ' + bonus : '');
           h += `<div class="trow ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><span class="tt">${esc(txt)}</span></div>`;
         }
       }
-      h += `</div><p class="hint">Branches at Lv ${PERK_LEVELS.join(', ')}: when this weapon reaches one, you choose which perk it gets.</p></div>`;
+      h += `</div><p class="hint">Branches at Lv ${PERK_LEVELS.slice(0, -1).join(', ')} and a mastery at Lv ${MAX_WLVL}: pick one of three each time.</p></div>`;
     }
     // Modifiers.
     if (!w.isSpell) {
@@ -278,7 +278,13 @@ const UI = {
         h += `<div class="modslot" style="--c:${PAL.upgrade}"><span class="mi">${esc(M.icon)}</span><div><b>${esc(M.name)}</b> <em>power ${(m.p || 1).toFixed(2)}</em><br><span>${esc(desc)}</span></div></div>`;
       }
       const ok = Object.keys(MODS).filter(id => !MODS[id].kinds || MODS[id].kinds.includes(d.kind));
-      h += `</div><p class="hint">Can take: ${ok.map(id => MODS[id].name).join(', ')}.</p></div>`;
+      const duoRows = DUOS.filter(x => ok.includes(x.a) && ok.includes(x.b)).map(x => {
+        const on = s.duos && s.duos.includes(x.name), half = w.mods.some(m => m.id === x.a || m.id === x.b);
+        return `<div class="li ${on ? 'on' : ''}"><b style="color:${on ? PAL.upgrade : 'inherit'}">${esc(x.name)}</b> ${on ? '(ACTIVE)' : half ? '(half there)' : ''}<br><span>${esc(MODS[x.a].name)} + ${esc(MODS[x.b].name)}: ${esc(x.desc)}</span></div>`;
+      });
+      h += `</div><p class="hint">Can take: ${ok.map(id => MODS[id].name).join(', ')}.</p>`;
+      if (duoRows.length) h += `<h3 style="margin-top:10px">Combos</h3><div class="list">${duoRows.join('')}</div>`;
+      h += `</div>`;
     }
     // Targeting.
     h += `<div class="sec"><h3>Targeting directive</h3>`;
