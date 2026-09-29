@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Storm - the lab. An out-of-focus desk and microscope sit behind the title screen; pressing
+// Spawn Prawn - the lab. An out-of-focus desk and microscope sit behind the title screen; pressing
 // START pulls focus, then the camera dives into the eyepiece and the slide opens up around you.
 
 // Scene space: 1600 x 1000, desk top at y 640, the microscope's eyepiece at EYE.

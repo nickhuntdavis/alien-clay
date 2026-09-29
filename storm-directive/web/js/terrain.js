@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Storm - terrain. Obstacles growing in the womb: nodules that shots bounce off, mitochondria that
+// Spawn Prawn - terrain. Obstacles growing in the womb: nodules that shots bounce off, mitochondria that
 // soak up shots and release it as an ATP burst, acid crypts that burn whatever touches them, cilia beds
 // that shove everything away, currents that carry everything along, and slicks that steal your grip.
 

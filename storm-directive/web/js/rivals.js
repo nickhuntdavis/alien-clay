@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Storm - rival champions. Five other swimmers grow stronger elsewhere on the map and race you
+// Spawn Prawn - rival champions. Five other swimmers grow stronger elsewhere on the map and race you
 // to the egg. They farm the immune system, pick fights when they feel big, and if one of them reaches
 // EGG.level first it swims to the egg and starts breaking in. If the membrane gives way for them, you lose.
 
@@ -237,7 +237,7 @@ function updateRivals(dt) {
 
 // Sorted standings for the HUD: you and every rival, alive or not.
 function rivalBoard() {
-  const rows = [{ name: 'YOU', lvl: G.level, color: '#8dffc0', you: true }];
+  const rows = [{ name: 'SPERMY', lvl: G.level, color: PAL.you, you: true }];
   for (const R of RIVALS) {
     const e = G.enemies.find(o => o.rid === R.id && !o.dead);
     rows.push({ name: R.name, lvl: e ? e.lvl : 0, color: R.color, out: !e, egg: e && e.mode === 'egg', e });

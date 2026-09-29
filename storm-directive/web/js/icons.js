@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Storm - weapon and spell icons (24x24 line icons, drawn in currentColor), and weapon-type colours.
+// Spawn Prawn - weapon and spell icons (24x24 line icons, drawn in currentColor), and weapon-type colours.
 
 // Weapon type = damage element. UI only (in the world, everything you fire stays GFP green).
 // Chosen to sit apart from the five meaning colours: you, danger, reward, upgrade, pickup.

@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Storm - the egg's healing glow and the Rewind / Paradox Echo time-travel mechanic.
+// Spawn Prawn - the egg's healing glow and the Rewind / Paradox Echo time-travel mechanic.
 
 // The real player, even while an echo temporarily stands in as G.player to fire its weapons.
 function me() { return G.realPlayer || G.player; }

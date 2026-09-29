@@ -929,6 +929,13 @@ function updateEnemies(dt) {
       mx = e.mvx; my = e.mvy; spd = e.mvs;
     } else if (!frozen) {
       switch (e.def.ai) {
+        case 'krill': {
+          // Flick-swimming: a sharp kick, a glide, a new heading off to one side, repeat.
+          const ph = e.age * 5 + e.id, k = Math.max(0, Math.sin(ph)), w = Math.sin(Math.floor(ph / TAU) * 12.9898 + e.id) * 0.7;
+          spd = e.speed * (0.25 + 1.7 * k * k); e.flick = k;
+          mx = ux * Math.cos(w) - uy * Math.sin(w); my = uy * Math.cos(w) + ux * Math.sin(w);
+          break;
+        }
         case 'ranged': {
           if (dist > 280) { mx = ux; my = uy; }
           else if (dist < 190) { mx = -ux; my = -uy; }
@@ -1788,6 +1795,8 @@ function victory() {
 // ---------------------------------------------------------------- main update
 function update(dt) {
   G.t += dt; G.realT += dt;
+  // Balancing timeline for the run log: level and HP% at every minute.
+  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); }
   const p = G.player;
   gridBuild();
   G.crowdT -= dt;

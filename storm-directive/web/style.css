@@ -207,7 +207,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card .cfor { margin-top: 5px; font-size: 11px; color: #a3aea9; }
 .card .cfor b { color: #fff; }
 
-/* Spawn Storm: extra weapon slots, locked tabs, victory */
+/* Spawn Prawn: extra weapon slots, locked tabs, victory */
 #wslots { flex-wrap: wrap; justify-content: center; max-width: 234px; }
 .atab.locked { border-style: dashed; opacity: 0.45; }
 .atab.locked b { font-size: 12px; color: #a3aea9; }

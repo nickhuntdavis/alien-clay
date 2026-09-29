@@ -1,11 +1,14 @@
-# Spawn Storm
+# Spawn Prawn
 
 Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozoon in a race against four hundred million rival swimmers and the host's entire immune system. Grow strong enough (level 60) to break through the egg's membrane in the middle of the arena and be born. You don't aim or (usually) steer: you program your swimmer with targeting and movement directives, build it up through loot boxes, and a sardonic System narrates every mistake to millions of viewers.
 
-**Install:** sideload `release/SpawnStorm.apk` (Android 5.0+). Enable "Install unknown apps" for your browser or file manager when prompted.
+**Install:** sideload `release/SpawnPrawn.apk` (Android 5.0+). Enable "Install unknown apps" for your browser or file manager when prompted.
 
 ## Features
 
+- **You are Spermy.** The race board, game-over screens and the System all call you by name.
+- **Krill.** Tiny translucent crustaceans in shoals of a dozen, from 0:45: curled segmented bodies, big dark eyes, twitching antennae and swimmerets that paddle as they flick-swim in bursts, changing heading each kick. Fragile, fast and annoying. Nobody knows how they got in.
+- **Run log.** Every run (win, loss, or quit after 30 s) is summarised on the phone: result, time, level, kills, what ended it, what hurt most, damage share by weapon, the final build, rival outcomes, boxes opened and your level and HP% at every minute. Settings > Run log > COPY RUN LOG copies the last 60 runs as text for balancing. Nothing leaves the phone unless you copy it.
 - **Loot box sound.** The box rattles as it shakes, the latch clicks and the lid pops, then a glassy chime plays that gets longer and brighter with the best rarity inside (Bronze 2 notes up to Legendary 5 plus a shimmer), with a soft swish as each card flies in. Branch choices ring softer, Boss Boxes thud deeper, and a cursed card adds a sour low note.
 - **Pinch to zoom.** Two fingers (or the mouse wheel) zoom from 24x to 80x. A microscope objective gauge shows the magnification while you pinch, and the scale bar and readout follow it. Spawn distances ignore zoom, so zooming in never brings monsters closer. The image blurs and hunts back into focus after each change, like turning a real fine-focus knob, with ratchet clicks as it turns (brighter zooming in, lower zooming out) and a heavier click when it settles. Your zoom is remembered.
 - **Opening shot.** The title screen sits in front of an out-of-focus lab (window blinds, shelf of flasks, petri dishes, a SPAWN-O-SCOPE 40x microscope). Press START and focus pulls onto the microscope, the camera dives into the eyepiece and the slide opens out into the game, with sound: focus-knob ticks, a glass slide sliding across the stage and clacking into its clips, the objective turret clunking into place and an airy swell as the view opens. Tap to skip.
@@ -46,7 +49,7 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 - **Fusion:** two compatible weapons at Lv 4+ merge into a legendary weapon and free a slot (e.g. Heartburn + Cold Feet = Hot Flush Cold Sweat, Kidney Stone Railgun + Ultrasound Beam = Full-Body Scan).
 - **Elemental reactions:** Thermal Shock, Steam Burst, Combustion, Toxic Arc, Superconduct, Resonance, Overload. Owning 2+ of an element unlocks a synergy bonus.
 - **Fewer, stronger enemies:** about half as many monsters on screen, each bigger and tougher, getting steadily nastier until 15:00.
-- **18 monster types + 3 bosses** with bullet-hell patterns. Rival swimmers (Sprinters, Headbutters, Quantum and Ghost Swimmers, the armoured Alpha Swimmer, Spermlet swarms) and the immune system (Macrophages, Antibodies, Killer T-Cells, Mitotic Cells that split, Acid Bubbles, Nurse Cells, Mucus Walls, Cytokine Casters, Mother Cells, Enzyme Spires). Bosses: the Macrophage Queen, the Antibody Colossus and the Immune Eye.
+- **19 monster types + 3 bosses** with bullet-hell patterns. Krill shoals, rival swimmers (Sprinters, Headbutters, Quantum and Ghost Swimmers, the armoured Alpha Swimmer, Spermlet swarms) and the immune system (Macrophages, Antibodies, Killer T-Cells, Mitotic Cells that split, Acid Bubbles, Nurse Cells, Mucus Walls, Cytokine Casters, Mother Cells, Enzyme Spires). Bosses: the Macrophage Queen, the Antibody Colossus and the Immune Eye.
 - **Field power-ups:** Magnet, Acid Flush, Adrenaline, Glucose Hit, Shield, Stasis, Loot Box.
 - **The egg's glow** heals you while you stay near it; the NEST autorun directive keeps you there.
 - **Time travel: Rewind and Paradox Echoes.** Tap REWIND to jump 4 seconds into the past (VHS-style rewind of the whole battle). Your future self does not vanish: it stays behind as a **Paradox Echo** that walks the erased timeline backwards, firing copies of your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically. Charges refill from kills and bosses. The **Deja Vu Rifle** lands every hit twice (the second arrives from 1 second in the future), and Snooze Button adds charges.
@@ -56,7 +59,7 @@ Autorun, autogun bullet-storm roguelite for Android. You are an alien spermatozo
 ## Project layout
 
 ```
-storm-directive/            (the game is now called Spawn Storm)
+storm-directive/            (the game is now called Spawn Prawn)
   web/                 The game (HTML5 canvas, no dependencies)
     js/data.js         All content: weapons, spells, fusions, passives, enemies, bosses
     js/settings.js     Settings, landscape layout switch, narrator packs

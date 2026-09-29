@@ -9,7 +9,7 @@ function cardCat(o) {
   if (o.tag === 'SUPPLY') return XR.white;
   return PAL.upgrade; // weapons, spells, levels, fusions, branches, modifiers, power-ups: all permanent build changes
 }
-// Spawn Storm - DOM UI: title, HUD slots, loot boxes, Armoury, pause, game over and victory.
+// Spawn Prawn - DOM UI: title, HUD slots, loot boxes, Armoury, pause, game over and victory.
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -50,7 +50,7 @@ const UI = {
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
     $('resumeBtn').addEventListener('click', () => UI.togglePause());
-    $('quitBtn').addEventListener('click', () => { G = null; UI.show('title'); UI.renderBest(); });
+    $('quitBtn').addEventListener('click', () => { logRun(G, 'QUIT'); G = null; UI.show('title'); UI.renderBest(); });
     $('setBtnTitle').addEventListener('click', () => UI.openSettings('title'));
     $('setBtnPause').addEventListener('click', () => UI.openSettings('pause'));
     $('setBack').addEventListener('click', () => UI.show(UI.setFrom || 'title'));
@@ -165,6 +165,23 @@ const UI = {
   renderSettings() {
     const body = $('setBody');
     body.innerHTML = SETTINGS_DEF.map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
+    body.innerHTML += `<div class="sec setrow"><h3>Run log</h3><p class="hint">${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.</p>
+      <div class="chips"><button class="chip" id="logCopy">COPY RUN LOG</button><button class="chip" id="logClear">CLEAR</button></div><p class="hint" id="logMsg"></p><textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea></div>`;
+    $('logCopy').addEventListener('click', () => {
+      const text = runLogText();
+      copyText(text).then(ok => {
+        if (ok) { $('logMsg').textContent = 'Copied. Paste it into the chat.'; return; }
+        // Clipboard blocked: show it so it can be selected by hand.
+        const ta = $('logText'); ta.style.display = ''; ta.value = text; ta.focus(); ta.select();
+        $('logMsg').textContent = 'Your phone blocked copying: select all the text below and copy it.';
+      });
+    });
+    $('logClear').addEventListener('click', ev => {
+      if (!RUNLOG.length) return;
+      // Clearing can't be undone: ask for a second tap.
+      if (!ev.target.dataset.armed) { ev.target.dataset.armed = '1'; ev.target.textContent = 'TAP AGAIN TO CLEAR'; return; }
+      RUNLOG = []; saveRunLog(); UI.renderSettings();
+    });
     body.querySelectorAll('[data-s]').forEach(b => b.addEventListener('click', () => {
       const d = SETTINGS_DEF.find(x => x.id === b.dataset.s);
       SET[d.id] = d.opts[+b.dataset.i][0];
@@ -377,6 +394,7 @@ const UI = {
     lootSound(req.kind, Math.max(...UI.lootOpts.map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
     clearTimeout(UI.lootTimer);
     UI.lootOpenT = performance.now();
+    G.stats.boxes = (G.stats.boxes || 0) + 1;
     UI.lootTimer = setTimeout(() => $('lootCards').classList.add('ready'), 650);
   },
 
@@ -528,7 +546,7 @@ const UI = {
     const isBest = won ? !best.born || G.t < best.born : G.t > (best.time || 0);
     if (won) UI.saveBest(Object.assign(best, { born: isBest ? G.t : best.born, births: (best.births || 0) + 1 }));
     else if (isBest) UI.saveBest(Object.assign(best, { time: G.t, level: G.level, kills: G.kills }));
-    $('overTitle').textContent = won ? "IT'S YOU!" : G.rivalWinner ? 'BEATEN TO IT' : 'SWIMMER ABSORBED';
+    $('overTitle').textContent = won ? "IT'S SPERMY!" : G.rivalWinner ? 'BEATEN TO IT' : 'SPERMY ABSORBED';
     $('overTitle').classList.toggle('won', !!won);
     const dmg = Object.entries(G.stats.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8);
     const tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
@@ -545,6 +563,7 @@ const UI = {
     const got = G.show.order;
     h += `<h3>Achievements this run (${got.length})</h3>`;
     h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')}</div>` : `<p class="hint">None. Impressive, in its own way.</p>`;
+    logRun(G, won ? 'WON' : G.rivalWinner ? 'BEATEN' : 'LOST');
     const dna = bankRun(G, won);
     h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
     $('overBody').innerHTML = h;

@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Storm - player settings (saved on the device) and the narrator packs.
+// Spawn Prawn - player settings (saved on the device) and the narrator packs.
 
 const SETTINGS_DEF = [
   { id: 'darkfield', label: 'Darkfield microscope', hint: 'Black field, bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
@@ -80,7 +80,7 @@ const NARRATORS = {
       rivalDead: ['{n}\'s out. {k}', 'Oh dear. {n}. {k}'],
       rivalWin: ['{n} made it. Lovely healthy baby. Not you, obviously.'],
       amoebaHuge: ['There\'s an amoeba out there that\'s had {n} dinners. Somebody deal with that.'],
-      born: ['There we are. Congratulations, it\'s you. Ten fingers, ten toes, one ridiculous arsenal.'],
+      born: ['There we are. Congratulations, it\'s Spermy. Ten fingers, ten toes, one ridiculous arsenal.'],
       slot: ['You\'ve grown an extra weapon mount. That is not in any textbook I own.'],
     },
   },

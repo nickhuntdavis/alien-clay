@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Storm - meta progression. Every run earns DNA; the Gene Bank spends it on permanent starting
+// Spawn Prawn - meta progression. Every run earns DNA; the Gene Bank spends it on permanent starting
 // bonuses, extra starter weapons and dye variants. Saved on the device.
 
 const META_BONUSES = [
@@ -66,4 +66,56 @@ function metaBuy(kind, id) {
   META.dna -= cost;
   saveMeta();
   return true;
+}
+
+// ---------------------------------------------------------------- run log
+// Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
+// copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
+const APP_VERSION = '4.0';
+let RUNLOG = [];
+try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
+function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
+function logRun(G, result) {
+  if (!G || G.logged || G.t < 30) return;
+  G.logged = true;
+  const top = (o, n) => Object.entries(o || {}).sort((a, b) => b[1] - a[1]).slice(0, n);
+  const dmgTot = Object.values(G.stats.dmg).reduce((a, b) => a + b, 0) || 1;
+  const d = new Date(), pad = n => (n < 10 ? '0' : '') + n;
+  RUNLOG.push({
+    n: (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1, v: APP_VERSION,
+    at: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`,
+    res: result, t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
+    egg: G.eggAt ? Math.round(G.eggAt) : 0, by: G.rivalWinner || G.stats.lastHit || '',
+    hurt: top(G.stats.hurt, 4).map(([k, v]) => k + ' ' + Math.round(v)),
+    dmg: top(G.stats.dmg, 6).map(([k, v]) => k + ' ' + Math.round(v / dmgTot * 100) + '%'),
+    w: G.weapons.filter(Boolean).map(w => w.id + w.lvl + (w.mods.length ? '[' + w.mods.map(m => m.id).join(',') + ']' : '')),
+    s: G.spells.filter(Boolean).map(w => w.id + w.lvl),
+    p: top(G.passives, 12).map(([k, v]) => k + v),
+    boxes: G.stats.boxes || 0, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
+    tl: G.tl || [], meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2),
+  });
+  saveRunLog();
+}
+function runLogText() {
+  const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
+  const wins = RUNLOG.filter(r => r.res === 'WON').length;
+  let out = `SPAWN PRAWN RUN LOG (v${APP_VERSION}) - ${RUNLOG.length} runs, ${wins} born\n`;
+  for (const r of RUNLOG) {
+    out += `\n#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} egg@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}\n`;
+    out += ` ended by: ${r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
+    out += ` dmg: ${r.dmg.join(', ')}\n`;
+    out += ` build: ${r.w.join(' ')} | spells: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;
+    out += ` rivals: ${r.rivals.join(' ') || '-'} | lv/hp% per min: ${r.tl.join(' ')}\n`;
+  }
+  return out;
+}
+function copyText(text) {
+  const fallback = () => {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove(); return ok;
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(() => true, () => fallback());
+  return Promise.resolve(fallback());
 }

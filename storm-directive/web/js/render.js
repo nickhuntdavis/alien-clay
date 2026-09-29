@@ -618,6 +618,45 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
   ctx.lineCap = 'butt';
   ctx.globalAlpha = 1;
 }
+// A krill in phase contrast: a translucent, curled, segmented body with a tail fan, a big dark compound
+// eye, long twitching antennae and swimmerets that paddle on every kick.
+function drawKrill(e, x, y, r, face) {
+  const fl = e.flick || 0, t = G.realT * 20 + e.id;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(face);
+  if (Math.cos(face) < 0) ctx.scale(1, -1); // keep its back up
+  ctx.lineCap = 'round';
+  // Antennae.
+  ctx.strokeStyle = 'rgba(40,46,42,0.75)'; ctx.lineWidth = Math.max(0.6, r * 0.07);
+  for (const s of [-1, 1]) {
+    ctx.beginPath(); ctx.moveTo(r * 0.95, -r * 0.2);
+    ctx.quadraticCurveTo(r * 2, -r * (0.5 + 0.25 * s) + Math.sin(t * 0.4 + s) * r * 0.2, r * 2.8, -r * (0.2 + 0.6 * s * 0.5) + Math.sin(t * 0.3 + s) * r * 0.35);
+    ctx.stroke();
+  }
+  // Swimmerets under the abdomen, paddling with each kick.
+  ctx.lineWidth = Math.max(0.6, r * 0.09);
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++) { const bx = r * (0.4 - i * 0.38), by = r * (0.35 + i * 0.05), a = 1.9 + Math.sin(t * 0.8 - i * 0.7) * (0.3 + fl * 0.6); ctx.moveTo(bx, by); ctx.lineTo(bx + Math.cos(a) * r * 0.55, by + Math.sin(a) * r * 0.55); }
+  ctx.stroke();
+  // Body: overlapping segments along a gentle curl, then the tail fan.
+  const body = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, 0.5);
+  const curl = 0.35 + 0.25 * (1 - fl);
+  for (let i = 5; i >= 0; i--) {
+    const u = i / 5, bx = r * (0.7 - u * 2.1), by = r * curl * u * u * 1.4, rr = r * (0.55 - u * 0.22);
+    ctx.beginPath(); ctx.ellipse(bx, by, rr * 1.15, rr, u * curl * 1.4, 0, TAU);
+    ctx.fillStyle = body; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = Math.max(0.6, r * 0.08); ctx.stroke();
+  }
+  const tx = r * -1.55, ty = r * curl * 1.45;
+  ctx.fillStyle = body; ctx.beginPath(); ctx.moveTo(tx + r * 0.2, ty); ctx.lineTo(tx - r * 0.5, ty - r * 0.35); ctx.lineTo(tx - r * 0.55, ty + r * 0.4); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.stroke();
+  // Gut line and the big compound eye.
+  ctx.strokeStyle = 'rgba(40,46,42,0.45)'; ctx.lineWidth = Math.max(0.5, r * 0.06);
+  ctx.beginPath(); ctx.moveTo(r * 0.5, 0); ctx.quadraticCurveTo(-r * 0.5, r * curl * 0.5, tx, ty); ctx.stroke();
+  ctx.fillStyle = '#0c0f0e'; ctx.beginPath(); ctx.arc(r * 0.8, -r * 0.15, r * 0.28, 0, TAU); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.arc(r * 0.86, -r * 0.24, r * 0.08, 0, TAU); ctx.fill();
+  ctx.restore(); ctx.lineCap = 'butt';
+}
+
 // ---------------------------------------------------------------- flagellum physics
 // A tail is a chain of points in world space. The root is pinned behind the head and beats side to side;
 // every other link is dragged along by the one in front (so turns sweep the tail round behind you and
@@ -903,6 +942,8 @@ function render() {
       const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
       const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : null;
       drawShip(x, y, face, tag, e.phased ? 0.25 : 1, e.r * squash / 8, e);
+    } else if (sh === 'krill') {
+      drawKrill(e, x, y, r, face);
     } else if (e.def.shape === 'eye') {
       const eg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
       eg.addColorStop(0, '#5a1a8e'); eg.addColorStop(1, '#14002a');
