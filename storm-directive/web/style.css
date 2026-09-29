@@ -252,7 +252,8 @@ body { font-variant-numeric: tabular-nums; }
   --line: #ffffff38; --line2: #ffffff70; --dim: #8e8e8e; --txt: #e8e8e8; }
 html, body { background: #000; color: var(--txt); font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif; }
 .hint { color: var(--dim); }
-*, *::before, *::after { box-shadow: none !important; text-shadow: 0 0 1.5px rgba(200,222,242,0.5) !important; }
+*, *::before, *::after { box-shadow: none !important; text-shadow: none !important; }
+.screen, .screen * { text-shadow: 0 0 1.5px rgba(200,222,242,0.5) !important; }
 .screen { background: #000000ee; }
 #loot { background: #000000e6; }
 #pause, #over { background: #000000f5; }
@@ -337,11 +338,12 @@ html, body { background: #000; color: var(--txt); font-family: 'Helvetica Neue',
 html, body { background: #020406; color: var(--xw); }
 .screen, #loot, #pause, #over { background: var(--film); }
 #title { background: radial-gradient(circle at 50% 38%, #0f101155 0%, #05090ecc 60%, #020406ee 100%); }
-.screen::before, #sysmsg::before, .sec::before, .card::before, .slot::before, #rewindBtn::before, #moveBtn::before, #pauseBtn::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none; background-image: var(--grain); opacity: 0.09; mix-blend-mode: screen; animation: grain 0.5s steps(3) infinite; }
-.screen::before { position: fixed; opacity: 0.07; }
+/* Performance: grain only on full-screen menus, no blend mode, and the shimmer is a GPU-only transform
+   (no repaint). Nothing over the live game canvas animates or blends. */
+.screen::before { content: ''; position: fixed; inset: -40px; pointer-events: none; background-image: var(--grain); opacity: 0.06;
+  will-change: transform; animation: grain 0.6s steps(3) infinite; }
 .sec, .card, #sysmsg { position: relative; }
-@keyframes grain { 0% { background-position: 0 0; } 33% { background-position: -37px 21px; } 66% { background-position: 19px -43px; } 100% { background-position: -11px 7px; } }
+@keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-17px, 11px); } 66% { transform: translate(13px, -19px); } 100% { transform: translate(-7px, 5px); } }
 /* Panels: blue-black, uneven, not flat. */
 .sec, .card, .tile, .li, .dbtn, .atab, .ostats div, .dmgrow, #how, .ahead, #sysmsg, .slot, #moveBtn, #pauseBtn, #rewindBtn, .btn {
   background-color: #060b10; background-image: radial-gradient(ellipse at 25% 15%, #1b1d1fcc 0%, #060b1000 70%); }
@@ -365,3 +367,53 @@ html, body { background: #020406; color: var(--xw); }
 .card .cico { color: var(--ic); border-color: var(--ic); }
 .card .tag b { color: var(--xw); }
 .tp.chosen { border-color: var(--c); }
+
+/* ================================================================ Soft film sheets
+   Rounded corners and drop shadows instead of hard outlines. Edges are a faint gradient that catches
+   the light on one side and fades out, like the rim of an X-ray sheet on a lightbox. */
+:root {
+  --r: 12px;
+  --sheet: radial-gradient(ellipse at 25% 12%, #16222ff0 0%, #0a1118f0 55%, #05090ef2 100%);
+  --edge: linear-gradient(155deg, rgba(214,228,240,0.34) 0%, rgba(214,228,240,0.08) 38%, rgba(214,228,240,0) 70%, rgba(214,228,240,0.10) 100%);
+  --drop: 0 10px 24px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.5);
+  --drop-sm: 0 5px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.5);
+}
+.btn, .slot, #moveBtn, #pauseBtn, #rewindBtn, .sec, .card, .tile, .li, .dbtn, .atab, .chip, .ostats div, .dmgrow,
+#how, .ahead, #sysmsg, .tp, .modslot, .fuse, .aico, .cico, #toast, .trow .tl {
+  border: 1px solid transparent !important;
+  background: var(--sheet) padding-box, var(--edge) border-box !important;
+  box-shadow: var(--drop-sm) !important;
+}
+.sec, .card, #sysmsg, .ahead, #how { border-radius: var(--r) !important; box-shadow: var(--drop) !important; }
+.btn, .slot, #moveBtn, .tile, .li, .dbtn, .atab, .tp, .modslot, .fuse, .ostats div, .dmgrow, #toast { border-radius: 10px !important; }
+.chip, .trow .tl { border-radius: 999px !important; }
+.aico, .cico { border-radius: 10px !important; }
+#pauseBtn { border-radius: 12px !important; }
+#rewindBtn { border-radius: 50% !important; width: 66px; height: 66px;
+  background: conic-gradient(rgba(214,228,240,0.30) var(--e, 0%), transparent 0) padding-box, var(--sheet) padding-box, var(--edge) border-box !important; }
+#rewindBtn.ready { box-shadow: var(--drop-sm), 0 0 0 2px rgba(214,228,240,0.55) inset !important; }
+.slot.spell { border-radius: 999px !important; }
+.slot.empty { opacity: 0.5; }
+.slot.merged { box-shadow: var(--drop-sm), 0 0 0 1px rgba(214,228,240,0.6) inset !important; }
+.modslot.empty, .tp:not(.chosen):not(.pending) { background: rgba(10,17,24,0.55) padding-box, var(--edge) border-box !important; box-shadow: none !important; }
+.tp.dim { opacity: 0.3; }
+/* Selected / primary: a lit sheet (light fill), still soft. */
+.btn.primary, .chip.sel, .dbtn.sel, .atab.sel, .trow.on .tl {
+  background: linear-gradient(170deg, #e2edf6, #b9cad9) padding-box, linear-gradient(155deg, #ffffff, #9fb2c4) border-box !important; color: #04070b !important; }
+.trow.br .tl { background: linear-gradient(170deg, #1c2a38, #0c141c) padding-box, var(--edge) border-box !important; }
+/* Meaning colours ride on the edge gradient rather than a hard ring. */
+.card { background: var(--sheet) padding-box, linear-gradient(155deg, var(--rc) 0%, color-mix(in srgb, var(--rc) 25%, transparent) 45%, transparent 75%, color-mix(in srgb, var(--rc) 20%, transparent) 100%) border-box !important; }
+.card.r-epic { border-width: 2px !important; }
+.card.r-legendary, .card.fusion { border-width: 3px !important; border-style: solid !important; }
+.card.cursed { border-style: solid !important; }
+.cico { background: #060b10 padding-box, linear-gradient(155deg, var(--ic), transparent 80%) border-box !important; }
+.tp.chosen, .tp.pending, .modslot:not(.empty), .fuse { background: var(--sheet) padding-box, linear-gradient(155deg, var(--c), color-mix(in srgb, var(--c) 15%, transparent) 60%, transparent) border-box !important; }
+.tp.chosen { border-width: 2px !important; }
+#sysmsg { background: var(--sheet) padding-box, linear-gradient(155deg, var(--mc, #d6e4f0) 0%, color-mix(in srgb, var(--mc, #d6e4f0) 20%, transparent) 40%, transparent 75%) border-box !important; }
+/* Loot box: a rounded film cassette in the box's meaning colour. */
+.box .body, .box .lid { border-radius: 10px !important; border: 1px solid transparent !important;
+  background: var(--sheet) padding-box, linear-gradient(155deg, var(--bc, #d6e4f0), color-mix(in srgb, var(--bc, #d6e4f0) 20%, transparent) 60%, transparent) border-box !important; }
+.box .body { box-shadow: var(--drop), 0 0 18px color-mix(in srgb, var(--bc, #d6e4f0) 25%, transparent) !important; }
+.screen::before { border-radius: 0; }
+
+#bottom .slot, #moveBtn, #pauseBtn, #rewindBtn, #sysmsg { box-shadow: 0 3px 8px rgba(0,0,0,0.45) !important; }

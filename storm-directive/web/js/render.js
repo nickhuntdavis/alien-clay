@@ -1083,10 +1083,10 @@ function drawScaleBar() {
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
-  ctx.fillStyle = XR.white; ctx.fillText('PH2 40x  37\u00b0C', x + len + 10, y + 4);
+  ctx.fillStyle = XR.white; ctx.fillText('PH2 40x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS', x + len + 10, y + 4);
   // Lead side marker, as on a radiograph.
   const mkx = W - 26, mky = H * 0.5;
-  ctx.strokeStyle = XR.line; ctx.lineWidth = 1; ctx.strokeRect(mkx + 0.5, mky - 9.5, 16, 18);
+  filmPanel(mkx - 1, mky - 11, 19, 22);
   ctx.font = 'bold 13px ' + MONO; ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.fillText('R', mkx + 8.5, mky + 5);
 }
 
@@ -1101,23 +1101,53 @@ function grainPattern() {
   GRAIN = ctx.createPattern(c, 'repeat');
   return GRAIN;
 }
-// A film panel: blue-black with a soft uneven exposure, grain that shimmers, and a hairline that bleeds.
+// A film sheet: rounded, lifted by a soft drop shadow, blue-black with an uneven exposure and shimmering
+// grain, and an edge that catches the light top-left and fades away (no hard outline).
+function sheetPath(x, y, w, h, round, rad, g) {
+  g = g || ctx;
+  g.beginPath();
+  if (round) { g.arc(x, y, w, 0, TAU); return; }
+  const r = Math.min(rad || 10, w / 2, h / 2);
+  g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+// Performance: each panel size is rendered once (shadow, exposure, edge and grain baked in) into three
+// cached frames with different grain; the shimmer is just cycling those frames. No per-frame blur.
+const SHEETS = new Map();
+function bakeSheet(bw, bh, round, seed) {
+  const pad = 14, D = Math.min(2, DPR), c = makeCanvas(Math.ceil((bw + pad * 2) * D), Math.ceil((bh + pad * 2) * D)), g = c.getContext('2d');
+  g.scale(D, D); g.translate(pad, pad);
+  const shape = () => round ? sheetPath(bw / 2, bh / 2, bw / 2, 0, true, 0, g) : sheetPath(0, 0, bw, bh, false, 10, g);
+  shape();
+  g.shadowColor = 'rgba(0,0,0,0.55)'; g.shadowBlur = 12; g.shadowOffsetY = 4;
+  const gr = g.createRadialGradient(bw * 0.28, bh * 0.15, 0, bw * 0.28, bh * 0.15, Math.max(bw, bh));
+  gr.addColorStop(0, 'rgba(24,35,48,0.94)'); gr.addColorStop(0.55, 'rgba(10,17,24,0.94)'); gr.addColorStop(1, 'rgba(4,8,12,0.95)');
+  g.fillStyle = gr; g.fill();
+  g.shadowColor = 'rgba(0,0,0,0)'; g.shadowBlur = 0; g.shadowOffsetY = 0;
+  g.save(); shape(); g.clip();
+  let sd = seed * 9301 + 49297; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+  for (let i = 0, n = Math.floor(bw * bh / 9); i < n; i++) { const v = 170 + rnd() * 85; g.fillStyle = `rgba(${v * 0.9 | 0},${v * 0.96 | 0},${v | 0},${0.05 + rnd() * 0.07})`; g.fillRect(rnd() * bw, rnd() * bh, 1, 1); }
+  g.restore();
+  if (round) sheetPath(bw / 2, bh / 2, bw / 2 - 0.5, 0, true, 0, g); else sheetPath(0.5, 0.5, bw - 1, bh - 1, false, 10, g);
+  const eg = g.createLinearGradient(0, 0, bw * 0.8, bh);
+  eg.addColorStop(0, 'rgba(214,228,240,0.38)'); eg.addColorStop(0.4, 'rgba(214,228,240,0.08)'); eg.addColorStop(0.75, 'rgba(214,228,240,0)'); eg.addColorStop(1, 'rgba(214,228,240,0.10)');
+  g.strokeStyle = eg; g.lineWidth = 1; g.stroke();
+  return { c, pad };
+}
 function filmPanel(x, y, w, h, round) {
-  const sb = ctx.shadowBlur; ctx.shadowBlur = 0;
-  ctx.save();
-  ctx.beginPath(); if (round) ctx.arc(x, y, w, 0, TAU); else ctx.rect(x, y, w, h); ctx.clip();
-  const cx = round ? x : x + w * 0.3, cy = round ? y : y + h * 0.3, R = round ? w * 1.3 : Math.max(w, h);
-  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-  g.addColorStop(0, 'rgba(22,32,44,0.9)'); g.addColorStop(1, 'rgba(3,6,10,0.88)');
-  ctx.fillStyle = g; ctx.fillRect(round ? x - w : x, round ? y - w : y, round ? w * 2 : w, round ? w * 2 : h);
-  ctx.globalAlpha = 0.07 + Math.random() * 0.03;
-  ctx.translate(Math.random() * 96, Math.random() * 96);
-  ctx.fillStyle = grainPattern(); ctx.fillRect(-96 + (round ? x - w : x), -96 + (round ? y - w : y), (round ? w * 2 : w) + 192, (round ? w * 2 : h) + 192);
-  ctx.restore();
-  ctx.beginPath(); if (round) ctx.arc(x, y, w, 0, TAU); else ctx.rect(x + 0.5, y + 0.5, w - 1, h - 1);
-  ctx.strokeStyle = XR.halo; ctx.lineWidth = 3; ctx.stroke();
-  ctx.strokeStyle = XR.line; ctx.lineWidth = 1; ctx.stroke();
-  ctx.shadowBlur = sb;
+  const bx = round ? x - w : x, by = round ? y - w : y, bw = Math.round(round ? w * 2 : w), bh = Math.round(round ? w * 2 : h);
+  const key = bw + 'x' + bh + (round ? 'o' : '');
+  let set = SHEETS.get(key);
+  if (!set) { set = [0, 1, 2].map(i => bakeSheet(bw, bh, round, i + 1)); SHEETS.set(key, set); if (SHEETS.size > 60) SHEETS.clear(); }
+  const f = set[Math.floor(G.realT * 8) % 3];
+  const sb = ctx.shadowColor; ctx.shadowColor = 'rgba(0,0,0,0)';
+  ctx.drawImage(f.c, bx - f.pad, by - f.pad, bw + f.pad * 2, bh + f.pad * 2);
+  ctx.shadowColor = sb;
+}
+// A rounded bar on a film sheet: dark rounded track with a soft shadow, rounded fill.
+function softBar(x, y, w, k, color) {
+  filmPanel(x - 2, y - 2, w + 4, 14, false);
+  const fw = Math.max(0, Math.min(1, k)) * w;
+  if (fw > 1) { sheetPath(x, y, Math.max(fw, 8), 10, false, 5); ctx.fillStyle = color; ctx.fill(); }
 }
 const MONO = "ui-monospace, 'SF Mono', 'Roboto Mono', 'DejaVu Sans Mono', Menlo, Consolas, monospace";
 // One ECG beat as a function of phase 0..1: P wave, QRS spike, T wave.
@@ -1168,7 +1198,7 @@ function drawVitals(top) {
 function drawHud() {
   const p = G.player, top = UI.safeTop || 0;
   // Everything on the HUD gets a soft dark drop so it reads against the pale field.
-  ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 4;
+  ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
   drawScaleBar();
   // XP: a thin calibration line across the very top.
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
@@ -1191,14 +1221,11 @@ function drawHud() {
   if (G.manual) chips.push(['MANUAL', XR.white]);
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
   let cxp = 8;
-  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 10; ctx.strokeStyle = cc; ctx.lineWidth = 1; ctx.strokeRect(cxp + 0.5, top + 92.5, tw, 14); ctx.fillStyle = cc; ctx.fillText(ch, cxp + 5, top + 103); cxp += tw + 4; }
+  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(cxp, top + 91, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, cxp + 7, top + 103); cxp += tw + 5; }
   // Boss bar.
   if (G.boss && !G.boss.dead) {
     const b = G.boss, bw = Math.min(360, W - 130), bx = 10, by = top + 126;
-    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
-    const bg = ctx.createLinearGradient(bx, 0, bx + bw, 0); bg.addColorStop(0, '#e0e0e0'); bg.addColorStop(1, XR.white);
-    ctx.fillStyle = bg; ctx.fillRect(bx, by, bw * Math.max(0, b.hp / b.maxHp), 12);
-    ctx.strokeStyle = XR.white; ctx.strokeRect(bx, by, bw, 12);
+    softBar(bx, by, bw, b.hp / b.maxHp, XR.white);
     ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
     ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), bx + bw / 2, by - 8);
   }
@@ -1208,16 +1235,12 @@ function drawHud() {
     ctx.textAlign = 'center'; ctx.font = 'bold 11px ' + MONO;
     if (G.eggE && !G.eggE.dead && G.level < EGG.level) {
       const e = G.eggE, who = G.enemies.filter(o => o.rival && !o.dead && o.mode === 'egg').map(o => o.name);
-      ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
-      ctx.fillStyle = '#ff4d6d'; ctx.fillRect(bx, by, bw * Math.max(0, e.hp / e.maxHp), 12);
-      ctx.strokeStyle = XR.white; ctx.strokeRect(bx, by, bw, 12);
+      softBar(bx, by, bw, e.hp / e.maxHp, PAL.danger);
       ctx.fillStyle = '#ff8fab';
       ctx.fillText((who.length ? who.join(' & ') + ' breaking in: ' : 'Egg membrane: ') + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
     } else if (G.eggE && !G.eggE.dead) {
       const e = G.eggE;
-      ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(bx, by, bw, 12);
-      ctx.fillStyle = '#ffd6e8'; ctx.fillRect(bx, by, bw * Math.max(0, e.hp / e.maxHp), 12);
-      ctx.strokeStyle = XR.white; ctx.strokeRect(bx, by, bw, 12);
+      softBar(bx, by, bw, e.hp / e.maxHp, XR.white);
       ctx.fillStyle = '#ffd6e8'; ctx.fillText("BREAK INTO THE EGG! " + Math.ceil(e.hp / e.maxHp * 100) + '%', mid, by - 8);
     } else if (!G.boss && G.level < EGG.level) {
       ctx.fillStyle = XR.white; ctx.font = 'bold 10px ' + MONO;
@@ -1236,7 +1259,7 @@ function drawHud() {
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   pointer(c.x, c.y, G.eggE ? XR.white : '#ffb3d1');
   drawMinimap(top);
-  ctx.shadowBlur = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
+  ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.
   if (G.banner) {
     const b = G.banner, a = Math.min(1, b.t * 2), sc = 1 + Math.max(0, b.t - 2.1) * 1.5;

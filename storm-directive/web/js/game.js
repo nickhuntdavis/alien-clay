@@ -1889,8 +1889,11 @@ function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } cat
 
 // ---------------------------------------------------------------- loop
 let lastTs = 0;
+const FPS = { v: 60 };
 function frame(ts) {
-  const dt = clamp((ts - lastTs) / 1000 || 0, 0, 1 / 30);
+  const raw = (ts - lastTs) / 1000;
+  if (raw > 0 && raw < 0.5) FPS.v += (1 / raw - FPS.v) * 0.05;
+  const dt = clamp(raw || 0, 0, 1 / 30);
   lastTs = ts;
   if (G && G.state === 'play') {
     keyboardSteer();
