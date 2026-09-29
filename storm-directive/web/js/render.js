@@ -1170,6 +1170,7 @@ function render() {
   if (p.flash > 0) { ctx.globalAlpha = p.flash / 0.2 * 0.5; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (rewinding) drawRewindFx();
+  drawRefocus();
   if (G.state === 'intro') drawIntro(); else drawHud();
 }
 
@@ -1496,6 +1497,26 @@ function drawMinimap(top) {
   ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
   if (SET.hud !== 'minimal') drawRaceBoard(W - 10, my + R + 16);
+}
+
+// ---------------------------------------------------------------- refocus blur
+// After a zoom the image goes soft and the focus hunts back in (a slight overshoot, like turning the fine
+// focus knob), over about 0.6 s. Cheap: the frame is shrunk twice and laid back over itself.
+const RF = { a: null, b: null, key: '' };
+function drawRefocus() {
+  const k = refocusLeft();
+  if (k <= 0 || !ZOOM.defocus) return;
+  const t = 1 - k, d = ZOOM.defocus * k * k * (0.8 + 0.2 * Math.cos(t * 20));
+  if (d < 0.03) return;
+  const w1 = Math.max(1, Math.ceil(W / 4)), h1 = Math.max(1, Math.ceil(H / 4)), w2 = Math.max(1, Math.ceil(W / 12)), h2 = Math.max(1, Math.ceil(H / 12)), key = w1 + 'x' + h1;
+  if (RF.key !== key) { RF.key = key; RF.a = makeCanvas(w1, h1); RF.b = makeCanvas(w2, h2); }
+  const ga = RF.a.getContext('2d'), gb = RF.b.getContext('2d');
+  ga.imageSmoothingEnabled = gb.imageSmoothingEnabled = true;
+  ga.drawImage(cv, 0, 0, w1, h1); gb.drawImage(RF.a, 0, 0, w2, h2);
+  ctx.imageSmoothingEnabled = true;
+  ctx.globalAlpha = Math.min(1, d * 1.3); ctx.drawImage(RF.a, 0, 0, W, H);
+  ctx.globalAlpha = Math.min(1, d); ctx.drawImage(RF.b, 0, 0, W, H);
+  ctx.globalAlpha = 1;
 }
 
 // ---------------------------------------------------------------- magnification gauge

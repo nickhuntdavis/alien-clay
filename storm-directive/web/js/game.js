@@ -13,10 +13,14 @@ const ctx = cv.getContext('2d', { alpha: false });
 let W = 0, H = 0, DPR = 1, S = 1, S0 = 1; // screen size (css px), pixel ratio, world->screen scale (S0 before zoom)
 // Pinch (or mouse wheel) zoom, shown as the microscope's magnification. Gameplay (spawn distances) uses S0,
 // so zooming in never brings monsters closer.
-const ZOOM = { z: 1, min: 0.6, max: 2, until: 0 };
+const ZOOM = { z: 1, min: 0.6, max: 2, until: 0, defocus: 0, lastT: 0 };
+function refocusLeft() { return Math.max(0, 1 - (performance.now() - ZOOM.lastT) / 600); }
 try { const z = +localStorage.getItem('sd_zoom'); if (z) ZOOM.z = Math.min(ZOOM.max, Math.max(ZOOM.min, z)); } catch (e) { /* storage unavailable */ }
 function setZoom(z, save) {
-  ZOOM.z = Math.min(ZOOM.max, Math.max(ZOOM.min, z));
+  const nz = Math.min(ZOOM.max, Math.max(ZOOM.min, z));
+  // Changing objective throws the image out of focus for a moment (see drawRefocus in render.js).
+  if (nz !== ZOOM.z) { ZOOM.defocus = Math.min(1, (ZOOM.defocus || 0) * refocusLeft() + Math.abs(Math.log(nz / ZOOM.z)) * 7); ZOOM.lastT = performance.now(); }
+  ZOOM.z = nz;
   S = S0 * ZOOM.z; ZOOM.until = performance.now() + 1600;
   if (save) { try { localStorage.setItem('sd_zoom', ZOOM.z.toFixed(3)); } catch (e) { /* ignore */ } }
 }
