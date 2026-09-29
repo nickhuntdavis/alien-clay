@@ -474,3 +474,8 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 
 /* Title: the out-of-focus lab shows through behind the menu */
 #title { background: radial-gradient(ellipse at 50% 42%, #02040622 0%, #0204066e 55%, #020406c8 100%) !important; }
+
+/* Action buttons stay pinned to the bottom of long screens (pause, Armoury, settings, Gene Bank, game over) */
+.pbtns { justify-content: center; position: sticky; bottom: calc(-16px - env(safe-area-inset-bottom)); z-index: 6; margin: 12px 0 calc(-16px - env(safe-area-inset-bottom));
+  padding: 18px 0 calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(to bottom, rgba(2,4,6,0), rgba(2,4,6,0.94) 28%, rgba(2,4,6,0.98)); }
+#rerollBtn { position: sticky; bottom: calc(4px + env(safe-area-inset-bottom)); z-index: 6; }
