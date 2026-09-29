@@ -1893,7 +1893,7 @@ function update(dt) {
   // Dense swarms (each monster is weaker to match: see enemyScale).
   const maxAlive = Math.min(CAPS.enemies - 30, 24 + G.t * 0.5);
   const rate = Math.min(9, (0.55 + G.t / 90 + Math.pow(G.t / 300, 2) * 0.9) * 1.7);
-  G.spawnAcc += rate * dt * G.P.spawnMult * (G.eggE && G.level >= EGG.level ? 1.6 : 1); // every rival rushes the open egg
+  G.spawnAcc += rate * dt * G.P.spawnMult;
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   if (G.t >= G.nextWave) { G.nextWave += 45; waveEvent(); }
