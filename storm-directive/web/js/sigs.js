@@ -339,7 +339,7 @@ function mirrorWomb(b) {
   return true;
 }
 
-// ---------------------------------------------------------------- Doting Relatives extras (per blade)
+// ---------------------------------------------------------------- Premature Evangelation extras (per blade)
 function bladeEats(w, bx, by, size) {
   const nan = hasSig(w, 'nan'), op = G.pair.overprotective;
   if (!nan && !op) return;

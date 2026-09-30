@@ -65,7 +65,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | [Tapeworm Seeder](#tapeworm-seeder) (Bank 90) | Toxic | Necromancer | HIGHEST HEALTH |
 | [Seeker Siblings](#seeker-siblings) (Start) | Arcane | Swarm | WEAKEST |
 | [Toddler Gravity](#toddler-gravity) (Bank 80) | Arcane | Crowd Control | DENSEST CLUSTER |
-| [Doting Relatives](#doting-relatives) (Bank 60) | Arcane | Bodyguard | NEAREST |
+| [Premature Evangelation](#premature-evangelation) (Bank 60) | Arcane | Bodyguard | NEAREST |
 | [Placental Siphon](#placental-siphon) (Bank 100) | Arcane | Counter | NEAREST |
 
 ### Spitball
@@ -158,7 +158,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 3.4, cd 0.05s, mag 50, reload 2.1s, x2, pierce all, range 200
 - **Level bonuses:** Lv3: +30% area; Lv6: +30% dmg; Lv9: +1 count
-- **Pairings:** **Hot Flush, Cold Sweat** (+ Cold Feet), **Family BBQ** (+ Doting Relatives)
+- **Pairings:** **Hot Flush, Cold Sweat** (+ Cold Feet), **Family BBQ** (+ Premature Evangelation)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -320,9 +320,9 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | Lv 10 mastery | **Big Bang** | When an orb ends it explodes for half of all the damage it dealt. |
 |  | **Tantrum Parking** | The orb parks wherever it catches 4 enemies, pulls 2.5 times harder and lasts twice as long. |
 
-### Doting Relatives
+### Premature Evangelation
 
-*Arcane orbit, Bodyguard.* Blades circle you, fussing. They need a sit-down every so often.
+*Arcane orbit, Bodyguard.* These guardian angels get started way too soon.
 
 - **Base stats:** dmg 23, reload 2.2s, x3, range 100 (dur 4.5, radius 72, spin 3.6)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +1 count
@@ -333,12 +333,12 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | Lv 3 | **Hot Load** | +40% damage. |
 |  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
-| Lv 5 signature | **Protective Nan** | Relatives eat any enemy bullet they touch. |
-|  | **Clingy** | Relatives never take a break, but hit 25% softer. |
+| Lv 5 signature | **Protective Nan** | The angels eat any enemy bullet they touch. |
+|  | **Clingy** | The angels never take a break, but hit 25% softer. |
 | Lv 8 | **Twins!** | +2 projectiles. |
 |  | **Toxic Relationship** | Hits add a stacking poison. |
 |  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
-| Lv 10 mastery | **Extended Family** | A second ring of relatives spins the other way at double the distance. |
+| Lv 10 mastery | **Extended Family** | A second ring of angels spins the other way at double the distance. |
 |  | **Guilt Trip** | Enemies they hit feel guilty for 4s: slowed by 40% and taking +35% damage from everything. |
 
 ### Placental Siphon
@@ -347,7 +347,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 18, cd 0.08s, mag 40, range 460 (area 90)
 - **Level bonuses:** Lv3: +1 count; Lv6: +1 pierce; Lv9: +40% dmg
-- **Pairings:** **Overprotective** (+ Doting Relatives), **Static Discharge** (+ Static Cling)
+- **Pairings:** **Overprotective** (+ Premature Evangelation), **Static Discharge** (+ Static Cling)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -372,12 +372,12 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Hot Flush, Cold Sweat** | Heartburn + Cold Feet | Thermal Shock and Steam Burst reactions have no cooldown and hit twice as hard. |
 | **Tetherball** | Yo-Yo Diet + Toddler Gravity | Yo-yos drag enemies back towards you on every throw. |
 | **Family Tree** | Seeker Siblings + Tapeworm Seeder | Tapeworm turrets fire homing Seeker Siblings. |
-| **Overprotective** | Placental Siphon + Doting Relatives | Relatives catch enemy bullets and feed them into the Siphon. |
+| **Overprotective** | Placental Siphon + Premature Evangelation | The angels catch enemy bullets and feed them into the Siphon. |
 | **Nappy Trail** | Slipstream Scalpel + Morning Sickness | Your scalpel trail oozes poison that stacks. |
 | **Conductive Spit** | Spitball + Static Cling | Spat-on enemies are wet: lightning deals double damage to them. |
 | **Sucker Punch** | Hiccup Scattergun + Toddler Gravity | Enemies caught in a gravity orb take double damage from the Scattergun. |
 | **Snow Globe** | Cold Feet + Toddler Gravity | Gravity orbs chill everything they hold and freeze it solid. |
-| **Family BBQ** | Doting Relatives + Heartburn | Relatives are on fire. Everything they touch catches. |
+| **Family BBQ** | Premature Evangelation + Heartburn | The angels are on fire. Everything they touch catches. |
 | **Sibling Yo-Yo** | Seeker Siblings + Yo-Yo Diet | Every yo-yo hit launches a Seeker Sibling. |
 | **Petri Dish** | Tapeworm Seeder + Morning Sickness | Anything that dies in a puddle was infected all along. |
 | **Static Discharge** | Static Cling + Placental Siphon | Every 12 bullets the Siphon eats fires a Static Cling chain at four enemies. |
@@ -758,7 +758,7 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 | Weapon | DNA |
 |---|---|
 | Nappy Mines | 60 |
-| Doting Relatives | 60 |
+| Premature Evangelation | 60 |
 | Toddler Gravity | 80 |
 | Slipstream Scalpel | 80 |
 | Tapeworm Seeder | 90 |
