@@ -534,3 +534,8 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 .slide.locked .sdrop::after { display: none; }
 .slide.nope { animation: nope 0.3s; }
 @keyframes nope { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* Greyscale until stained: menus, cards and HUD buttons lose their colour until the H&E Stain Kit is picked
+   up. Applied to small elements (not the whole HUD layer) so it stays cheap on phones. */
+body:not(.dye-ui) .screen, body:not(.dye-ui) .slot, body:not(.dye-ui) #moveBtn, body:not(.dye-ui) #rewindBtn,
+body:not(.dye-ui) #pauseBtn, body:not(.dye-ui) #sysmsg, body:not(.dye-ui) #toast, body:not(.dye-ui) #holdInfo { filter: grayscale(1); }

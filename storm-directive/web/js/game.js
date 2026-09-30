@@ -82,7 +82,9 @@ function newGame() {
   };
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
+  G.dyes = {};
   applyMeta(G);
+  refreshPalette(); // back to greyscale: colour comes from stains picked up during the run
   CASA.log.length = 0; CASA.pts.length = 0;
 }
 
@@ -373,7 +375,7 @@ function genLoot(req) {
   }
   const cands = [];
   const merges = availableMerges();
-  for (const m of merges) cands.push({ w: 60, make: () => optMerge(m) , key: 'm' + m.out });
+  for (const m of merges) cands.push({ w: 60, make: () => optMerge(m) , key: 'fuse' + m.out });
   G.weapons.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 11, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
   G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
   if (G.weapons.some(w => !w)) {
@@ -398,10 +400,14 @@ function genLoot(req) {
     if (st >= PASSIVES[id].max || (PASSIVES[id].needsScrap && !ownsScrapWeapon())) continue;
     cands.push({ w: 3.2, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
+  // Stains you don't have yet.
+  for (const id in DYES) if (!G.dyes[id]) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
   // Guarantee a fusion option when one is available.
   const chosen = [];
-  const mc = cands.filter(c => c.key[0] === 'm');
+  const mc = cands.filter(c => c.key.startsWith('fuse')); // (this used to match modifiers too, forcing one into every box)
   if (mc.length) chosen.push(mc[0]);
+  // The first level-ups always offer the GFP tag, so you can find yourself early.
+  else if (!G.dyes.gfp && req.kind === 'level' && G.level <= 3) chosen.push(cands.find(c => c.key === 'dyegfp'));
   while (chosen.length < 3) {
     const rest = cands.filter(c => !chosen.includes(c));
     if (!rest.length) break;
@@ -440,6 +446,11 @@ function optUpgrade(w, r) {
   return { def: w.def, rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
     sub: `Lv ${w.lvl} > ${to}${to === MAX_WLVL ? ' (MAX)' : ''}`, desc,
     apply: () => { setWeaponLevel(w, to); computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
+}
+function optDye(id) {
+  const D = DYES[id];
+  return { rarity: 1, tag: 'STAIN', icon: 'DY', color: '#9fb3c8', title: D.name, sub: 'Adds colour for the rest of the run', desc: D.desc,
+    apply: () => { G.dyes[id] = true; refreshPalette(); } };
 }
 function optPassive(id, r) {
   const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour'].includes(id);
@@ -843,7 +854,7 @@ function spawnRandom() {
   let tot = 0;
   // Shooters become more common as the storm builds.
   // Shooters stay as common as they were before the swarms got denser: the extra bodies are melee and swarmers.
-  const wOf = d => d.w * (d.shoot ? 0.6 * (1 + t / 300) : 1);
+  const wOf = d => d.w * (d.shoot ? 0.4 * (1 + t / 300) : 1);
   for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t) { pool.push(d); tot += wOf(d); } }
   let x = Math.random() * tot, def = pool[0];
   for (const d of pool) { x -= wOf(d); if (x <= 0) { def = d; break; } }
@@ -907,8 +918,14 @@ function spawnBoss() {
 }
 
 let shooterName = '', shooterEnt = null;
+// Fewer, heavier bullets: every volley keeps 3 of each 5 shots (evenly, so patterns keep their shape),
+// and each one that flies is bigger and hits 1.7x as hard.
+const BUL = { keep: [1, 0, 1, 0, 1], dmg: 1.7, size: 1.3 };
 function eBullet(x, y, a, speed, dmg, r, color) {
   if (G.ebul.length >= CAPS.ebul) return;
+  G.bulSeq = ((G.bulSeq || 0) + 1) % 5;
+  if (!BUL.keep[G.bulSeq]) return;
+  dmg *= BUL.dmg; r = (r || 5) * BUL.size;
   speed *= (1 + Math.min(0.7, G.t / 1500)) * G.P.bulletSpeed;
   G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
 }

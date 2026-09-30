@@ -23,6 +23,7 @@ const UI = {
   arm: { k: 'w', i: 0, bar: 0, recycle: false },
 
   init() {
+    refreshPalette();
     const probe = $('safeProbe');
     UI.safeTop = probe ? parseFloat(getComputedStyle(probe).paddingTop) || 0 : 0;
     $('hudTop').style.top = UI.safeTop + 'px';
@@ -79,6 +80,7 @@ const UI = {
 
   lastDown: 0, lootOpenT: 0,
   show(name) {
+    if (!G) refreshPalette(); // out of a run everything is greyscale
     for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
@@ -456,9 +458,8 @@ const UI = {
         <div class="cico"${o.def ? ` style="--ic:${elemCol(o.elem)}"` : ''}>${o.def ? iconSVG(o.def, 28, elemCol(o.elem)) : esc(o.icon)}</div>
         <div class="ctitle">${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(firstSentence(o.desc))}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}<div class="chold">Hold for details</div>`;
-      holdable(c, () => `<b>${esc(o.title)}</b> <em>${esc(o.tag)} | ${esc(r.name)}</em><p>${esc(o.sub)}</p><p>${esc(o.desc)}</p>`
-        + (o.modFor ? `<p>For weapon: <b>${esc(o.modFor)}</b></p>` : '') + (o.quip ? `<p><i>${esc(o.quip)}</i></p>` : ''), () => {
+        <div class="cdesc">${esc(o.desc)}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}`;
+      c.addEventListener('click', () => {
         if (!$('lootCards').classList.contains('ready')) return;
         // Only a tap that started on this screen picks a card (not one left over from skipping the intro
         // or steering when the box popped up).
@@ -526,6 +527,8 @@ const UI = {
 
     // Passives.
     const ps = Object.keys(G.passives);
+    const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
+    h += `<div class="sec"><h3>Stains (${st.length}/${Object.keys(DYES).length})</h3><p class="hint">${st.length ? st.map(id => '<b>' + esc(DYES[id].name) + '</b>').join(', ') + '.' : 'None yet: the slide is all greyscale.'} Stains turn up in DNA strands; each one brings back one kind of colour.</p></div>`;
     h += `<div class="sec"><h3>Power-ups</h3>`;
     h += ps.length ? `<div class="list">${ps.map(id => `<div class="li on"><b>${esc(PASSIVES[id].name)}</b> x${G.passives[id]}</div>`).join('')}</div>` : `<p class="hint">None yet.</p>`;
     h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%</p></div>`;

@@ -6,6 +6,9 @@ Autorun, autogun bullet-storm roguelite for Android. You are Spermy, an alien sp
 
 ## Features
 
+- **Greyscale until stained.** The whole game (the slide, the creatures, the HUD and the menus) is greyscale. Colour comes back one kind at a time through Stain cards in your DNA strands, the way a biologist adds a dye to see one protein: **GFP Tag** (you, your shots and allies glow green; always offered in your first level-ups), **Anti-Immune Stain** (anything that hurts you turns red), **Luciferase** (DNA, elites, bosses and big amoebas glow gold), **Motility Dye** (fast swimmers get a cyan label), **Rival Dyes** (each rival wears their colour) and the **H&E Stain Kit** (menus, cards and weapon types get their colours back). The pause BUILD tab lists what you've stained.
+- **Fewer, heavier bullets.** Shooters are rarer and every volley fires 3 of each 5 shots (patterns keep their shape), each bigger and 1.7x as damaging.
+- **Loot cards show everything.** No more hold for details: every card has its full description.
 - **Choose sperm sample.** START SWIMMING opens a sample rack styled as microscope slides (frosted label, a drop under the coverslip). Sample #001 Standard Issue is in stock; Frozen Donor Bank, The Morning After and Vasectomy Reversal are coming soon. More to cum.
 - **The crowd.** A steady stream of tiny, harmless sperm swims in from beyond the arena edge and heads for the egg, where they cluster and try to tunnel in. Nothing targets them, but any shot or blast that touches one pops it. They're there to make the 400 million feel real.
 - **You drive the sperm count.** It sits at 400,000,000 until your first kill (a monster or one of the crowd). After that every kill takes a chunk off: the count flashes green and the drop floats up from where you're fighting ("-2.4M"). It falls mostly through your kills and your growth, a little with time.

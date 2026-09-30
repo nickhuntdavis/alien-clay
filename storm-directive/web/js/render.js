@@ -10,8 +10,21 @@ function sy(y) { return (y - cam.y) * S + H / 2; }
 // its greyscale equivalent. Aliases fold old accent colours into the meaning they stood for.
 // X-ray film neutrals for the UI: a slightly blue white and a blue-grey.
 const XR = { white: '#d6e4f0', dim: '#8395a8', line: 'rgba(196,218,240,0.42)', halo: 'rgba(196,218,240,0.16)' };
-const PAL_OK = new Set(Object.values(ELEM_UI).concat([PAL.you, PAL.danger, PAL.reward, PAL.upgrade, PAL.pickup, '#ffffff', '#000000', XR.white, XR.dim].concat(RIVALS.map(r => r.color))));
-const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
+// Everything starts greyscale: only the colours of the stains you've picked up this run get through.
+const PAL_OK = new Set();
+const DYE_COLOURS = {
+  gfp: () => [PAL.you], immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST],
+  rival: () => RIVALS.map(r => r.color), he: () => [PAL.upgrade, PAL.pickup].concat(Object.values(ELEM_UI)),
+};
+function refreshPalette() {
+  PAL_OK.clear();
+  for (const c of ['#ffffff', '#000000', XR.white, XR.dim]) PAL_OK.add(c);
+  const dyes = (typeof G !== 'undefined' && G && G.dyes) || {};
+  for (const id in dyes) if (dyes[id] && DYE_COLOURS[id]) for (const c of DYE_COLOURS[id]()) PAL_OK.add(c.toLowerCase());
+  if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
+  document.body.classList.toggle('dye-ui', !!dyes.he);
+}
+const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ff0033': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
   if (typeof c !== 'string') return c;
@@ -22,7 +35,7 @@ function col(c) {
   if (h[0] === '#' && (h.length === 7 || h.length === 9)) {
     const base = h.slice(0, 7);
     if (PAL_OK.has(base)) v = c;
-    else if (PAL_ALIAS[base]) v = PAL_ALIAS[base] + h.slice(7);
+    else if (PAL_ALIAS[base] && PAL_OK.has(PAL_ALIAS[base])) v = PAL_ALIAS[base] + h.slice(7);
     else { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
   } else {
     const m = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
@@ -1069,6 +1082,11 @@ function render() {
     const tgt = e.charmed && e.allyT ? e.allyT : G.player;
     const face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
     const sh = e.def.shape;
+    // Motility Dye: fast swimmers get a cyan label.
+    if (G.dyes && G.dyes.motility && e.def.speed >= 95 && !e.rival && !e.boss) {
+      ctx.strokeStyle = DYE_FAST; ctx.lineWidth = 1.6; ctx.globalAlpha = 0.8;
+      ctx.beginPath(); ctx.arc(x, y, r * 1.3 + 3, 0, TAU); ctx.stroke(); ctx.globalAlpha = e.phased ? 0.25 : 1;
+    }
     const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
     if (sh === 'sperm') {
       // Swimmers are drawn like you: real sperm with dragging tails. Rivals carry their fluorescent dye.

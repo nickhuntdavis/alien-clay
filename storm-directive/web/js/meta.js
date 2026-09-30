@@ -49,10 +49,9 @@ function applyMeta(G) {
 }
 function setYouColour(c) {
   if (PAL.you === c) return;
-  if (typeof PAL_OK !== 'undefined') { PAL_OK.delete(PAL.you); PAL_OK.add(c); }
   PAL.you = c;
   for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = c;
-  if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
+  if (typeof refreshPalette === 'function') refreshPalette(); // only shows once you have the GFP stain
 }
 function starterPool() {
   const base = ['blaster', 'smg', 'shotgun', 'flamer', 'frost', 'tesla', 'glaive', 'needler', 'seeker', 'rocket', 'railgun', 'venom'];
@@ -71,7 +70,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '5.1';
+const APP_VERSION = '5.2';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

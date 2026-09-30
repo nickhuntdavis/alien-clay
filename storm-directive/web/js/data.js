@@ -685,6 +685,17 @@ const SAMPLES = [
   { id: 's004', no: '004', name: 'Vasectomy Reversal', desc: 'Low count, high stakes, very confused surgeon.', open: false },
 ];
 const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f', upgrade: '#5fd4e8', pickup: '#d983e8' };
+// Stains. The world and the UI are greyscale until you pick these up (like a biologist adding a dye to
+// see one protein better). Each one brings back one kind of colour.
+const DYE_FAST = '#46e0ff';
+const DYES = {
+  gfp:        { name: 'GFP Tag', desc: 'Green Fluorescent Protein. Tags you: your swimmer, your shots, echoes and allies glow green. Much easier to find yourself in a crowd.' },
+  immuno:     { name: 'Anti-Immune Stain', desc: 'Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings.' },
+  luciferase: { name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.' },
+  motility:   { name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) light up cyan, so you can see what is about to reach you.' },
+  rival:      { name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board.' },
+  he:         { name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Colours the instruments: menus, cards, weapon types and power-up effects get their colours back.' },
+};
 
 // ---------------------------------------------------------------- Weapon upgrade trees
 // Every weapon has a tree: at these levels you pick one of two branch perks (the tree is fixed per weapon,
