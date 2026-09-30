@@ -5,22 +5,22 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 ## Contents
 1. [How upgrades work](#how-upgrades-work)
 2. [Weapons](#weapons)
-3. [Fusions (weapon merges)](#fusions-weapon-merges)
-4. [Spells](#spells)
-5. [Power-ups (passives)](#power-ups-passives)
-6. [Weapon branch perks](#weapon-branch-perks)
-7. [Modifiers](#modifiers)
-8. [Duo combos](#duo-combos)
-9. [Stains](#stains)
-10. [Cursed cards](#cursed-cards)
-11. [Field pickups](#field-pickups)
-12. [Elemental reactions](#elemental-reactions)
-13. [Element synergies](#element-synergies)
-14. [Targeting directives](#targeting-directives)
-15. [Movement directives](#movement-directives)
-16. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
-17. [Enemies](#enemies)
-18. [Bosses](#bosses)
+3. [Pairings (secret combos)](#pairings-secret-combos)
+4. [Bosses and relics](#bosses-and-relics)
+5. [Spells](#spells)
+6. [Power-ups (passives)](#power-ups-passives)
+7. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
+8. [Modifiers](#modifiers)
+9. [Duo combos](#duo-combos)
+10. [Stains](#stains)
+11. [Cursed cards](#cursed-cards)
+12. [Field pickups](#field-pickups)
+13. [Elemental reactions](#elemental-reactions)
+14. [Element synergies](#element-synergies)
+15. [Targeting directives](#targeting-directives)
+16. [Movement directives](#movement-directives)
+17. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+18. [Enemies](#enemies)
 19. [Rival champions](#rival-champions)
 20. [Terrain](#terrain)
 21. [Sperm samples](#sperm-samples)
@@ -28,11 +28,15 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 ## How upgrades work
 
 1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, spells, power-ups, modifiers, stains and (rarely) curses.
-2. **Weapons** level up to Lv10. At Lv 3, 5, 8, 10 you pick one of three branch perks. Each weapon's tree is fixed, so you can plan it (listed per weapon below). Lv10 is the mastery pick.
-3. **Fusions:** two specific weapons, both at Lv4+, fuse into a stronger weapon.
+2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
+   - **Lv 3 and Lv 8:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it).
+   - **Lv 5 (signature):** pick one of two upgrades only that weapon has. This decides how it plays.
+   - **Lv 10 (mastery):** pick one of two more. Big, build-defining changes.
+3. **Pairings:** own two specific weapons, both at Lv5+, and they start working together. They are secret until you find them.
 4. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
 5. **Weapon slots:** 3 to start, one more at Lv 15, 30, 45.
-6. **Rarity** multiplies a card's value:
+6. **Bosses:** a boss every 3 minutes. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
+7. **Rarity** multiplies a card's value:
 
 | Rarity | Multiplier | Weapon levels granted | Drop weight |
 |---|---|---|---|
@@ -45,141 +49,463 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 ## Weapons
 
-74 base weapons. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). Every weapon can also drop from level-ups and DNA strands.
+14 weapons, each with its own play style. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). Every weapon can also drop from level-ups and DNA strands.
 
-### Kinetic weapons
+| Weapon | Element | Role | Aims at |
+|---|---|---|---|
+| [Spitball](#spitball) (Start) | Kinetic | Marksman | NEAREST |
+| [Hiccup Scattergun](#hiccup-scattergun) (Start) | Kinetic | Brawler | NEAREST |
+| [Yo-Yo Diet](#yo-yo-diet) (Start) | Kinetic | Boomerang | FURTHEST |
+| [Slipstream Scalpel](#slipstream-scalpel) (Bank 80) | Kinetic | Swim Path | NEAREST |
+| [Heartburn](#heartburn) (Start) | Fire | Flamethrower | NEAREST |
+| [Nappy Mines](#nappy-mines) (Bank 60) | Fire | Trapper | NEAREST |
+| [Cold Feet](#cold-feet) (Start) | Frost | Freezer | FASTEST |
+| [Static Cling](#static-cling) (Start) | Shock | Chain Lightning | DENSEST CLUSTER |
+| [Morning Sickness](#morning-sickness) (Start) | Toxic | Area Denial | DENSEST CLUSTER |
+| [Tapeworm Seeder](#tapeworm-seeder) (Bank 90) | Toxic | Necromancer | HIGHEST HEALTH |
+| [Seeker Siblings](#seeker-siblings) (Start) | Arcane | Swarm | WEAKEST |
+| [Toddler Gravity](#toddler-gravity) (Bank 80) | Arcane | Crowd Control | DENSEST CLUSTER |
+| [Doting Relatives](#doting-relatives) (Bank 60) | Arcane | Bodyguard | NEAREST |
+| [Placental Siphon](#placental-siphon) (Bank 100) | Arcane | Counter | NEAREST |
 
-| Weapon | What it does | Base stats | Level bonuses | Branch tree | Fuses with |
-|---|---|---|---|---|---|
-| **Spitball** (Start)<br>gun, aims NEAREST | Reliable, accurate single shots. Mildly unhygienic. | dmg 10, cd 0.3s, mag 12, reload 1.1s, range 430 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +30% dmg | **Lv3:** Extra Spicy / Pointy Head / Trampoline Rounds<br>**Lv5:** Plus One / Kick Them While Down / Cell Division<br>**Lv8:** Sugar Rush / Giant Killer / Due Date Panic<br>**Lv10:** Espresso Drip / Octuplets / Final Form | + Pass the Parcel = Bouncy Castle Magnum |
-| **Sneeze Gun** (Start)<br>gun, aims NEAREST | Sprays a hail of light droplets. Big magazine, long recovery. Bless you. | dmg 4.5, cd 0.075s, mag 36, reload 1.7s, range 370 | Lv3: 15% faster; Lv5: +1 pierce; Lv7: +1 count | **Lv3:** Trampoline Rounds / Nappy Bag / Pointy Head<br>**Lv5:** Carpet Shock / Ice Queen / Bloodsucker<br>**Lv8:** Domino Effect / Electric Personality / Sugar Rush<br>**Lv10:** Espresso Drip / Octuplets / Umbilical Cord | + Helicopter Parent = Grandparent Hive |
-| **Hiccup Scattergun** (Start)<br>gun, aims NEAREST | Close-range burst with knockback. Comes out whether you want it to or not. | dmg 8, cd 0.75s, mag 4, reload 1.6s, x6, range 270<br>knock 70 | Lv3: +2 count; Lv5: +1 pierce; Lv7: +3 count | **Lv3:** Extra Spicy / Nappy Bag / Cold Shoulder<br>**Lv5:** Kick Them While Down / Carpet Shock / Toxic Relationship<br>**Lv8:** Sugar Rush / Due Date Panic / Twins!<br>**Lv10:** Espresso Drip / No Survivors / Umbilical Cord | + Static Cling = Static Hiccups |
-| **Kidney Stone Railgun** (Start)<br>gun, aims HIGHEST ARMOUR | A hypersonic calcified slug. Pierces everything, shreds armour, hurts everyone involved. | dmg 42, cd 1.3s, mag 3, reload 2.2s, pierce 99, range 720<br>shred 3 | Lv3: +2 shred; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Nappy Bag / Hair Trigger / Cold Shoulder<br>**Lv5:** Toxic Relationship / Kick Them While Down / Special Delivery<br>**Lv8:** Electric Personality / Due Date Panic / Twins!<br>**Lv10:** Octuplets / Umbilical Cord / Espresso Drip | + Ultrasound Beam = Full-Body Scan |
-| **Yo-Yo Diet** (Start)<br>gun, aims FURTHEST | A spinning blade that flies out and always comes back. Like the weight. | dmg 15, cd 1s, mag 2, reload 1.3s, pierce 99, range 330<br>boomerang 1 | Lv3: +1 count; Lv5: +30% dmg; Lv7: +1 count | **Lv3:** Extra Spicy / Pointy Head / Hot Load<br>**Lv5:** Toxic Relationship / Ice Queen / Punching Up<br>**Lv8:** Domino Effect / Due Date Panic / Sugar Rush<br>**Lv10:** Final Form / Octuplets / Espresso Drip | + Doting Relatives = Tantrum Cyclone |
-| **Contraction Gatling**<br>gun, aims NEAREST | Spins up faster and faster and faster. Breathe through it. | dmg 5.5, cd 0.14s, mag 120, reload 3.2s, range 450 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +30% dmg | **Lv3:** Trampoline Rounds / Cold Shoulder / Extra Spicy<br>**Lv5:** Toxic Relationship / Special Delivery / Kick Them While Down<br>**Lv8:** Twins! / Giant Killer / Domino Effect<br>**Lv10:** Final Form / Octuplets / Umbilical Cord | + Tongue Depressor Crossbow = Forceps Repeater |
-| **Pass the Parcel**<br>gun, aims NEAREST | Discs bounce from enemy to enemy. Nobody wants to be holding one when the music stops. | dmg 13, cd 0.8s, mag 3, reload 1.5s, range 420<br>bounce 3 | Lv3: +2 bounce; Lv5: +1 count; Lv7: +3 bounce | **Lv3:** Trampoline Rounds / Sharp Tongue / Nappy Bag<br>**Lv5:** Special Delivery / Carpet Shock / Plus One<br>**Lv8:** Giant Killer / Sugar Rush / Domino Effect<br>**Lv10:** Umbilical Cord / Octuplets / No Survivors | + Spitball = Bouncy Castle Magnum |
-| **Tongue Depressor Crossbow**<br>gun, aims STRONGEST | Heavy bolts: massive knockback, light armour shred. Say "ahh". | dmg 24, cd 0.9s, mag 4, reload 1.6s, pierce 2, range 540<br>knock 220, shred 1 | Lv3: +2 pierce; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Cold Shoulder / Trampoline Rounds / Nappy Bag<br>**Lv5:** Special Delivery / Homing Instinct / Kick Them While Down<br>**Lv8:** Electric Personality / Sugar Rush / Giant Killer<br>**Lv10:** Umbilical Cord / No Survivors / Final Form | + Contraction Gatling = Forceps Repeater |
-| **Birth Plan Committee**<br>gun, aims STRONGEST | Three barrels, three directives, zero consensus. Nobody follows the birth plan. Set each barrel in the Armoury. | dmg 9, cd 0.45s, mag 9, reload 1.6s, range 450 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Cold Shoulder / Hot Load / Extra Spicy<br>**Lv5:** Plus One / Homing Instinct / Carpet Shock<br>**Lv8:** Due Date Panic / Domino Effect / Giant Killer<br>**Lv10:** Octuplets / Espresso Drip / No Survivors | - |
-| **Family Grudge**<br>gun, aims REVENGE | Remembers whatever last hurt you. Hunts it across the whole map. Triple damage to it. Very healthy. | dmg 20, cd 0.6s, mag 5, reload 1.5s, range 480<br>homing 3 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Extra Spicy / Trampoline Rounds / Hot Load<br>**Lv5:** Toxic Relationship / Special Delivery / Bloodsucker<br>**Lv8:** Twins! / Giant Killer / Domino Effect<br>**Lv10:** Final Form / No Survivors / Espresso Drip | - |
-| **Slipstream Scalpel**<br>wake, aims NEAREST | Your flight path becomes a blade. Keep moving, or it is just very expensive litter. | dmg 22<br>dur 2.2, area 22 | Lv3: +30% area; Lv5: +50% duration; Lv7: +50% dmg | **Lv3:** Hot Load / Extra Spicy / Cold Shoulder<br>**Lv5:** Bloodsucker / Special Delivery / Toxic Relationship<br>**Lv8:** Due Date Panic / Electric Personality / Giant Killer<br>**Lv10:** Umbilical Cord / Espresso Drip / Final Form | + Morning Sickness = Nappy Trail |
-| **Child Benefit Cannon**<br>gun, aims STRONGEST | Fires your savings. 1 scrap per shot, enormous bang. Financial advisers weep. | dmg 55, cd 0.8s, mag 99, reload 0.5s, range 480<br>explode 55, knock 120 | Lv3: +25% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Wide Hips / Sharp Tongue / Pointy Head<br>**Lv5:** Cell Division / Punching Up / Ice Queen<br>**Lv8:** Electric Personality / Giant Killer / Due Date Panic<br>**Lv10:** Final Form / Umbilical Cord / Octuplets | + Bedpan Mortar = Pyramid Scheme |
-| **Gender Reveal Blaster**<br>gun, aims NEAREST | Every magazine is a surprise. Every surprise is a letdown. Except the Legendary ones. Those explode and set fire to a forest. | dmg 12, cd 0.22s, mag 12, reload 1.3s, range 440 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +30% dmg | **Lv3:** Nappy Bag / Sharp Tongue / Pointy Head<br>**Lv5:** Toxic Relationship / Carpet Shock / Cell Division<br>**Lv8:** Due Date Panic / Electric Personality / Domino Effect<br>**Lv10:** No Survivors / Umbilical Cord / Final Form | - |
-| **Chromosome Whip** (Bank 80)<br>gun, aims FURTHEST | A coiled chromosome on a crack. Flies out, snaps back, hits everything twice. | dmg 17, cd 0.9s, mag 2, reload 1.2s, pierce 99, range 300<br>boomerang 1 | Lv3: +1 count; Lv5: +30% dmg; Lv7: +1 count | **Lv3:** Hot Load / Cold Shoulder / Sharp Tongue<br>**Lv5:** Plus One / Ice Queen / Punching Up<br>**Lv8:** Giant Killer / Twins! / Electric Personality<br>**Lv10:** Octuplets / Final Form / Umbilical Cord | + Cilia Flail = Spindle Apparatus |
-| **Keratin Nailgun** (Bank 60)<br>gun, aims NEAREST | Fires fingernail clippings at alarming speed. Please do not ask where it gets them. | dmg 5, cd 0.09s, mag 32, reload 1.5s, pierce 1, range 400 | Lv3: +1 pierce; Lv5: 15% faster; Lv7: +1 count | **Lv3:** Trampoline Rounds / Pointy Head / Nappy Bag<br>**Lv5:** Punching Up / Homing Instinct / Carpet Shock<br>**Lv8:** Giant Killer / Twins! / Due Date Panic<br>**Lv10:** Octuplets / No Survivors / Espresso Drip | - |
-| **Cilia Flail**<br>orbit, aims NEAREST | A ring of stiffened cilia sweeps around you. Very tidy. Very rude. | dmg 14, reload 2s, x4, range 90<br>dur 4, radius 64, spin 4.2 | Lv3: +1 count; Lv5: +30% area; Lv7: +2 count | **Lv3:** Extra Spicy / Sharp Tongue / Wide Hips<br>**Lv5:** Special Delivery / Carpet Shock / Ice Queen<br>**Lv8:** Domino Effect / Electric Personality / Giant Killer<br>**Lv10:** Espresso Drip / Final Form / No Survivors | + Chromosome Whip = Spindle Apparatus |
-| **Collagen Crossbow**<br>gun, aims STRONGEST | Tough protein bolts that pierce and push. Structural integrity as a weapon. | dmg 26, cd 0.8s, mag 4, reload 1.6s, pierce 2, range 560<br>knock 60 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Hot Load / Hair Trigger / Cold Shoulder<br>**Lv5:** Toxic Relationship / Homing Instinct / Carpet Shock<br>**Lv8:** Sugar Rush / Twins! / Giant Killer<br>**Lv10:** Final Form / Espresso Drip / Octuplets | - |
-| **Bone Marrow Mortar**<br>lob, aims DENSEST CLUSTER | Lobs dense marrow shells. Lands like a femur. | dmg 46, cd 1.7s, mag 2, reload 2.4s, range 520<br>area 78, flight 1, explode 1 | Lv3: +25% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Nappy Bag / Cold Shoulder / Hot Load<br>**Lv5:** Special Delivery / Kick Them While Down / Carpet Shock<br>**Lv8:** Domino Effect / Due Date Panic / Twins!<br>**Lv10:** Octuplets / No Survivors / Final Form | + Metabolic Flare = Osteoclast Barrage |
-| **Histone Hammer**<br>gun, aims NEAREST | A point-blank wall of packed DNA spools. Enormous knockback. | dmg 11, cd 0.9s, mag 3, reload 1.5s, x7, pierce 1, range 220<br>knock 130 | Lv3: +2 count; Lv5: +30% dmg; Lv7: +3 count | **Lv3:** Sharp Tongue / Hot Load / Pointy Head<br>**Lv5:** Ice Queen / Toxic Relationship / Homing Instinct<br>**Lv8:** Twins! / Electric Personality / Sugar Rush<br>**Lv10:** Umbilical Cord / No Survivors / Final Form | - |
-| **Tendon Railshot**<br>gun, aims HIGHEST ARMOUR | A tendon wound until it snaps. Pierces everything, shreds armour. | dmg 36, cd 1.1s, mag 3, reload 2s, pierce 99, range 680<br>shred 2.5 | Lv3: +2 shred; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Hair Trigger / Sharp Tongue / Extra Spicy<br>**Lv5:** Cell Division / Punching Up / Homing Instinct<br>**Lv8:** Sugar Rush / Domino Effect / Giant Killer<br>**Lv10:** Octuplets / Final Form / No Survivors | - |
-| **Zona Punch**<br>gun, aims NEAREST | A hardened glycoprotein disc that ricochets around like it owns the place. | dmg 16, cd 0.7s, mag 3, reload 1.4s, range 380<br>bounce 3 | Lv3: +2 bounce; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Nappy Bag / Pointy Head / Cold Shoulder<br>**Lv5:** Ice Queen / Toxic Relationship / Homing Instinct<br>**Lv8:** Electric Personality / Sugar Rush / Domino Effect<br>**Lv10:** Final Form / Espresso Drip / Octuplets | - |
+### Spitball
 
-### Fire weapons
+*Kinetic gun, Marksman.* Reliable, accurate single shots. Mildly unhygienic.
 
-| Weapon | What it does | Base stats | Level bonuses | Branch tree | Fuses with |
-|---|---|---|---|---|---|
-| **Bottle Rockets** (Start)<br>gun, aims DENSEST CLUSTER | Explosive baby bottles that set the blast zone alight. Test the temperature first. | dmg 24, cd 0.55s, mag 2, reload 2.4s, range 500<br>explode 62 | Lv3: +25% area; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Cold Shoulder / Hair Trigger / Trampoline Rounds<br>**Lv5:** Carpet Shock / Bloodsucker / Special Delivery<br>**Lv8:** Domino Effect / Giant Killer / Due Date Panic<br>**Lv10:** No Survivors / Espresso Drip / Octuplets | + Seeker Siblings = Sibling Rivalry |
-| **Heartburn** (Start)<br>gun, aims NEAREST | Short-range cone of fire. Every lick burns. Antacids not included. | dmg 3.2, cd 0.05s, mag 50, reload 2.1s, x2, pierce 99, range 200 | Lv3: +30% area; Lv5: +30% dmg; Lv7: +1 count | **Lv3:** Extra Spicy / Nappy Bag / Wide Hips<br>**Lv5:** Bloodsucker / Punching Up / Kick Them While Down<br>**Lv8:** Twins! / Domino Effect / Electric Personality<br>**Lv10:** Octuplets / Umbilical Cord / Final Form | + Cold Feet = Hot Flush Cold Sweat |
-| **Nappy Mines**<br>mine, aims NEAREST | Drops proximity mines in your wake. Nobody wants to change them. | dmg 32, cd 0.7s, mag 5, reload 2.4s, range 600<br>explode 72, life 14 | Lv3: +1 count; Lv5: +30% area; Lv7: +50% dmg | **Lv3:** Sharp Tongue / Cold Shoulder / Nappy Bag<br>**Lv5:** Bloodsucker / Punching Up / Plus One<br>**Lv8:** Due Date Panic / Giant Killer / Twins!<br>**Lv10:** Final Form / No Survivors / Umbilical Cord | + Toddler Gravity = Sleep Regression Mines |
-| **Bedpan Mortar**<br>lob, aims DENSEST CLUSTER | Slow, heavy shells with a huge blast. Contents best not discussed. | dmg 42, cd 1.6s, mag 2, reload 2.5s, range 540<br>area 82, flight 1, explode 1 | Lv3: +25% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Hot Load / Extra Spicy / Cold Shoulder<br>**Lv5:** Special Delivery / Kick Them While Down / Punching Up<br>**Lv8:** Electric Personality / Twins! / Giant Killer<br>**Lv10:** Umbilical Cord / Final Form / Octuplets | + Morning Sickness = Nappy Bomb<br>+ Child Benefit Cannon = Pyramid Scheme |
-| **Thermometer Lance**<br>beam, aims NEAREST | No magazine, just temperature. Overheat and it vents a fireball around you. Not for oral use. | dmg 38, cd 0s, mag 1, reload 1.3s, range 300<br>dur 3.2, area 150 | Lv3: +30% duration; Lv5: +30% area; Lv7: +40% dmg | **Lv3:** Hot Load / Extra Spicy / Wide Hips<br>**Lv5:** Ice Queen / Toxic Relationship / Kick Them While Down<br>**Lv8:** Due Date Panic / Sugar Rush / Electric Personality<br>**Lv10:** Final Form / Espresso Drip / No Survivors | - |
-| **Hindsight Launcher**<br>prequel, aims DENSEST CLUSTER | The explosion happens first. The shell arrives afterwards, flying backwards into the barrel, still angry. | dmg 34, cd 1.1s, mag 3, reload 2s, range 480<br>area 70 | Lv3: +25% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Cold Shoulder / Hot Load / Hair Trigger<br>**Lv5:** Kick Them While Down / Ice Queen / Special Delivery<br>**Lv8:** Due Date Panic / Twins! / Giant Killer<br>**Lv10:** No Survivors / Final Form / Espresso Drip | - |
-| **Enzyme Torch**<br>gun, aims NEAREST | Digestive enzymes, heated. It does not so much burn as disagree with you. | dmg 3.6, cd 0.05s, mag 44, reload 2s, x2, pierce 99, range 190<br>pIgnite 0.2 | Lv3: +30% area; Lv5: +30% dmg; Lv7: +1 count | **Lv3:** Sharp Tongue / Cold Shoulder / Pointy Head<br>**Lv5:** Special Delivery / Bloodsucker / Homing Instinct<br>**Lv8:** Giant Killer / Sugar Rush / Domino Effect<br>**Lv10:** Umbilical Cord / Final Form / Octuplets | + Liquid Nitrogen Spray = Thermal Cycler |
-| **Metabolic Flare** (Bank 90)<br>gun, aims DENSEST CLUSTER | Burns a week of calories in one rocket. Explodes in a satisfying way. | dmg 22, cd 0.5s, mag 3, reload 2.2s, range 520<br>explode 58 | Lv3: +25% area; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Hair Trigger / Pointy Head / Hot Load<br>**Lv5:** Special Delivery / Bloodsucker / Plus One<br>**Lv8:** Due Date Panic / Sugar Rush / Twins!<br>**Lv10:** Final Form / Umbilical Cord / Octuplets | + Bone Marrow Mortar = Osteoclast Barrage |
-| **Fever Pitch**<br>beam, aims NEAREST | A 41-degree beam. Overheat and you vent the whole fever around you. | dmg 34, cd 0s, mag 1, reload 1.2s, range 290<br>dur 3.4, area 140 | Lv3: +30% duration; Lv5: +30% area; Lv7: +40% dmg | **Lv3:** Hair Trigger / Extra Spicy / Sharp Tongue<br>**Lv5:** Special Delivery / Punching Up / Toxic Relationship<br>**Lv8:** Domino Effect / Sugar Rush / Giant Killer<br>**Lv10:** No Survivors / Final Form / Espresso Drip | - |
-| **Mitochondrial Grenade**<br>lob, aims DENSEST CLUSTER | The powerhouse of the cell, thrown. The school textbooks were right all along. | dmg 38, cd 1.3s, mag 3, reload 2.1s, range 480<br>area 70, flight 0.8, explode 1 | Lv3: +25% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Cold Shoulder / Wide Hips / Nappy Bag<br>**Lv5:** Plus One / Ice Queen / Toxic Relationship<br>**Lv8:** Due Date Panic / Sugar Rush / Domino Effect<br>**Lv10:** Espresso Drip / Final Form / Octuplets | - |
-| **Pyrogen Mines**<br>mine, aims NEAREST | Leaves little fever-inducing mines behind you. The host will feel it too. | dmg 30, cd 0.6s, mag 6, reload 2.2s, range 600<br>explode 66, life 14, pIgnite 0.3 | Lv3: +1 count; Lv5: +30% area; Lv7: +50% dmg | **Lv3:** Sharp Tongue / Wide Hips / Hair Trigger<br>**Lv5:** Plus One / Special Delivery / Ice Queen<br>**Lv8:** Due Date Panic / Giant Killer / Electric Personality<br>**Lv10:** Umbilical Cord / Espresso Drip / Octuplets | - |
-| **Acrosome Burst**<br>gun, aims NEAREST | The enzyme cap you were meant to use on the egg, fired at everything else instead. | dmg 12, cd 0.8s, mag 4, reload 1.4s, x5, range 240<br>explode 26 | Lv3: +2 count; Lv5: +30% area; Lv7: +40% dmg | **Lv3:** Wide Hips / Hair Trigger / Pointy Head<br>**Lv5:** Cell Division / Punching Up / Carpet Shock<br>**Lv8:** Domino Effect / Due Date Panic / Sugar Rush<br>**Lv10:** Final Form / Umbilical Cord / Espresso Drip | - |
+- **Base stats:** dmg 11, cd 0.3s, mag 12, reload 1.1s, range 440
+- **Level bonuses:** Lv3: +1 pierce; Lv6: +1 count; Lv9: +30% dmg
+- **Pairings:** **Conductive Spit** (+ Static Cling)
 
-### Frost weapons
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Pointy Head** | Shots pierce 2 more enemies. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+| Lv 5 signature | **Hock a Loogie** | Every 4th shot is a giant glob: triple damage, pierces everything, and bursts at the end of its flight. |
+|  | **Wet Willy** | Hits leave enemies Soggy for 3s. Soggy enemies take +30% damage from everything you own. |
+| Lv 8 | **Domino Effect** | Kills explode for 60% of the killing blow. |
+|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+|  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+| Lv 10 mastery | **Kidney Stone** | It becomes a railgun: x4 damage, pierces everything, shreds armour, fires half as often. |
+|  | **Projectile Vomit** | Fires four times as fast in a wide hose. Each droplet deals 45% damage and pierces once. |
 
-| Weapon | What it does | Base stats | Level bonuses | Branch tree | Fuses with |
-|---|---|---|---|---|---|
-| **Cold Feet** (Start)<br>gun, aims FASTEST | Piercing ice shards that chill and freeze. Commitment issues, weaponised. | dmg 15, cd 0.6s, mag 5, reload 1.5s, pierce 3, range 460 | Lv3: +1 count; Lv5: +3 pierce; Lv7: +2 count | **Lv3:** Hot Load / Cold Shoulder / Sharp Tongue<br>**Lv5:** Special Delivery / Ice Queen / Bloodsucker<br>**Lv8:** Giant Killer / Sugar Rush / Twins!<br>**Lv10:** Final Form / No Survivors / Umbilical Cord | + Heartburn = Hot Flush Cold Sweat<br>+ Frozen Peas = Egg Freezing Service<br>+ Placental Siphon = Return to Sender |
-| **Frozen Peas**<br>lob, aims DENSEST CLUSTER | Rains frozen peas around the target. Also good for swelling. | dmg 11, cd 1.4s, mag 2, reload 2s, x5, range 460<br>area 36, flight 0.7, explode 1 | Lv3: +2 count; Lv5: +30% area; Lv7: +3 count | **Lv3:** Hot Load / Nappy Bag / Extra Spicy<br>**Lv5:** Plus One / Carpet Shock / Kick Them While Down<br>**Lv8:** Electric Personality / Domino Effect / Sugar Rush<br>**Lv10:** Umbilical Cord / No Survivors / Octuplets | + Cold Feet = Egg Freezing Service |
-| **Cryo Pipette** (Bank 60)<br>gun, aims FASTEST | Precise drops of liquid cold. Lab-grade accuracy, very poor bedside manner. | dmg 14, cd 0.5s, mag 6, reload 1.4s, pierce 2, range 480<br>pChill 1 | Lv3: +1 count; Lv5: +2 pierce; Lv7: +1 count | **Lv3:** Nappy Bag / Cold Shoulder / Sharp Tongue<br>**Lv5:** Special Delivery / Homing Instinct / Toxic Relationship<br>**Lv8:** Giant Killer / Electric Personality / Sugar Rush<br>**Lv10:** Espresso Drip / Umbilical Cord / Final Form | + Hailstone Swarm = Cryobank |
-| **Liquid Nitrogen Spray**<br>gun, aims NEAREST | A cone of minus 196 degrees. Things that stay in it stay put. | dmg 2.6, cd 0.05s, mag 46, reload 2s, x2, pierce 99, range 190<br>pChill 1 | Lv3: +30% area; Lv5: +30% dmg; Lv7: +1 count | **Lv3:** Extra Spicy / Hot Load / Trampoline Rounds<br>**Lv5:** Toxic Relationship / Bloodsucker / Homing Instinct<br>**Lv8:** Giant Killer / Domino Effect / Electric Personality<br>**Lv10:** Umbilical Cord / Octuplets / No Survivors | + Enzyme Torch = Thermal Cycler |
-| **Frozen Embryo Mortar**<br>lob, aims DENSEST CLUSTER | Cryo-stored and very cross about it. Shatters into a freezing blast. | dmg 34, cd 1.4s, mag 2, reload 2.3s, range 500<br>area 76, flight 0.9, explode 1, pChill 1 | Lv3: +25% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Cold Shoulder / Hair Trigger / Extra Spicy<br>**Lv5:** Punching Up / Bloodsucker / Plus One<br>**Lv8:** Domino Effect / Twins! / Giant Killer<br>**Lv10:** Espresso Drip / Octuplets / No Survivors | - |
-| **Hailstone Swarm** (Bank 90)<br>gun, aims WEAKEST | Homing ice pellets. Small, cold and personal. | dmg 8, cd 0.4s, mag 8, reload 1.9s, x2, range 480<br>homing 5, pChill 1 | Lv3: +1 count; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Trampoline Rounds / Nappy Bag / Cold Shoulder<br>**Lv5:** Punching Up / Cell Division / Kick Them While Down<br>**Lv8:** Giant Killer / Sugar Rush / Twins!<br>**Lv10:** Octuplets / Final Form / Umbilical Cord | + Cryo Pipette = Cryobank |
-| **Glacial Orbit**<br>orbit, aims NEAREST | Ice crystals orbit you and chill whatever they touch. | dmg 13, reload 2.2s, x3, range 100<br>dur 4.5, radius 78, spin 3.2, pChill 1 | Lv3: +1 count; Lv5: +30% area; Lv7: +2 count | **Lv3:** Cold Shoulder / Hair Trigger / Hot Load<br>**Lv5:** Carpet Shock / Kick Them While Down / Ice Queen<br>**Lv8:** Sugar Rush / Domino Effect / Due Date Panic<br>**Lv10:** Final Form / Espresso Drip / Octuplets | - |
+### Hiccup Scattergun
 
-### Shock weapons
+*Kinetic gun, Brawler.* A close-range burst with knockback. Comes out whether you want it to or not.
 
-| Weapon | What it does | Base stats | Level bonuses | Branch tree | Fuses with |
-|---|---|---|---|---|---|
-| **Static Cling** (Start)<br>chain, aims DENSEST CLUSTER | Instant lightning that arcs between enemies, like a nylon onesie in winter. | dmg 13, cd 0.7s, mag 6, reload 1.8s, range 330<br>chain 3, jump 140 | Lv3: +2 chain; Lv5: +1 count; Lv7: +3 chain | **Lv3:** Hair Trigger / Extra Spicy / Nappy Bag<br>**Lv5:** Special Delivery / Toxic Relationship / Ice Queen<br>**Lv8:** Domino Effect / Sugar Rush / Twins!<br>**Lv10:** Final Form / No Survivors / Umbilical Cord | + Hiccup Scattergun = Static Hiccups<br>+ Booster Jab = Nervous Breakdown |
-| **Helicopter Parent**<br>gun, aims LOWEST HEALTH | Hovers beside you and fires shock bolts at anyone who looks at you funny. | dmg 8, cd 0.45s, mag 10, reload 1.5s, range 420 | Lv3: +1 count; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Sharp Tongue / Trampoline Rounds / Pointy Head<br>**Lv5:** Special Delivery / Ice Queen / Bloodsucker<br>**Lv8:** Due Date Panic / Sugar Rush / Giant Killer<br>**Lv10:** Espresso Drip / Final Form / No Survivors | + Sneeze Gun = Grandparent Hive |
-| **Umbilical Tether**<br>tether, aims HIGHEST HEALTH | Ties two monsters together with a lightning cord and makes them hug. Violently. | dmg 16, cd 1.1s, mag 3, reload 1.8s, range 380<br>dur 3, pull 170, jump 240 | Lv3: +1 count; Lv5: +40% duration; Lv7: +50% dmg | **Lv3:** Sharp Tongue / Extra Spicy / Nappy Bag<br>**Lv5:** Special Delivery / Kick Them While Down / Toxic Relationship<br>**Lv8:** Due Date Panic / Twins! / Sugar Rush<br>**Lv10:** Umbilical Cord / Final Form / No Survivors | - |
-| **Nerve Impulse** (Bank 70)<br>chain, aims DENSEST CLUSTER | An action potential, weaponised. Jumps from cell to cell faster than gossip. | dmg 12, cd 0.6s, mag 7, reload 1.7s, range 320<br>chain 4, jump 150 | Lv3: +2 chain; Lv5: +1 count; Lv7: +3 chain | **Lv3:** Sharp Tongue / Nappy Bag / Hair Trigger<br>**Lv5:** Special Delivery / Carpet Shock / Punching Up<br>**Lv8:** Sugar Rush / Giant Killer / Domino Effect<br>**Lv10:** No Survivors / Espresso Drip / Final Form | + Axon Rail = Action Potential |
-| **Axon Rail**<br>gun, aims STRONGEST | A myelinated slug down a very long nerve. Arcs to whatever it passes. | dmg 30, cd 1.2s, mag 3, reload 2s, pierce 99, range 700<br>pArc 0.35, pArcDmg 0.5, pArcN 1 | Lv3: +1 count; Lv5: +30% dmg; Lv7: +50% dmg | **Lv3:** Trampoline Rounds / Nappy Bag / Hot Load<br>**Lv5:** Plus One / Homing Instinct / Toxic Relationship<br>**Lv8:** Electric Personality / Twins! / Due Date Panic<br>**Lv10:** Final Form / Octuplets / No Survivors | + Nerve Impulse = Action Potential |
-| **Synapse Drone**<br>gun, aims LOWEST HEALTH | Tiny neurons in hover mode, firing sparks at whatever looks weakest. | dmg 7, cd 0.4s, mag 12, reload 1.5s, range 430 | Lv3: +1 count; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Hot Load / Trampoline Rounds / Nappy Bag<br>**Lv5:** Cell Division / Plus One / Kick Them While Down<br>**Lv8:** Domino Effect / Sugar Rush / Twins!<br>**Lv10:** Octuplets / Final Form / No Survivors | - |
-| **Pacemaker**<br>gun, aims STRONGEST | One steady, heavy jolt every beat. Stuns what it hits. | dmg 40, cd 1s, mag 6, reload 1.6s, pierce 1, range 520<br>freezeHit 1 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Sharp Tongue / Hot Load / Cold Shoulder<br>**Lv5:** Kick Them While Down / Ice Queen / Homing Instinct<br>**Lv8:** Twins! / Electric Personality / Sugar Rush<br>**Lv10:** Final Form / Umbilical Cord / No Survivors | + Defibrillator = Crash Cart |
-| **Defibrillator**<br>chain, aims NEAREST | CLEAR! Big, short-range shocks that leap through a crowd. | dmg 30, cd 1.8s, mag 2, reload 2.2s, range 220<br>chain 6, jump 120 | Lv3: +2 chain; Lv5: +30% dmg; Lv7: +1 count | **Lv3:** Sharp Tongue / Extra Spicy / Cold Shoulder<br>**Lv5:** Punching Up / Plus One / Kick Them While Down<br>**Lv8:** Due Date Panic / Giant Killer / Electric Personality<br>**Lv10:** Umbilical Cord / No Survivors / Final Form | + Pacemaker = Crash Cart |
-| **Ion Channel**<br>beam, aims STRONGEST | Opens a channel and lets the current flow straight through a line of foes. | dmg 28, cd 1.6s, mag 3, reload 2.1s, range 400<br>dur 1.2, pArc 0.25, pArcDmg 0.5, pArcN 1 | Lv3: +35% duration; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Cold Shoulder / Hot Load / Sharp Tongue<br>**Lv5:** Kick Them While Down / Punching Up / Ice Queen<br>**Lv8:** Sugar Rush / Due Date Panic / Domino Effect<br>**Lv10:** Umbilical Cord / Espresso Drip / No Survivors | - |
+- **Base stats:** dmg 8, cd 0.75s, mag 4, reload 1.6s, x6, range 270 (knock 70)
+- **Level bonuses:** Lv3: +2 count; Lv6: +1 pierce; Lv9: +2 count
+- **Pairings:** **Sucker Punch** (+ Toddler Gravity)
 
-### Toxic weapons
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **Point Blank** | Pellets hit up to +150% harder the closer the target is. Get in their face. |
+|  | **Slug** | All the pellets fuse into one heavy slug (90% of their total damage) that pierces 3 enemies and bowls them over. |
+| Lv 8 | **Special Delivery** | Hits explode for 35% damage around the target. |
+|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+|  | **Toxic Relationship** | Hits add a stacking poison. |
+| Lv 10 mastery | **Hiccup Fit** | Every 3rd blast is a full ring of pellets around you that also wipes out nearby enemy bullets. |
+|  | **Dragon's Breath** | Pellets turn to fire, set enemies alight and leave small burning puddles where they land. |
 
-| Weapon | What it does | Base stats | Level bonuses | Branch tree | Fuses with |
-|---|---|---|---|---|---|
-| **Morning Sickness** (Start)<br>lob, aims DENSEST CLUSTER | Lobs acid globs that leave toxic puddles. Worse before noon. | dmg 9, cd 0.9s, mag 4, reload 1.8s, range 390<br>area 55, dur 3, flight 0.6 | Lv3: +50% duration; Lv5: +1 count; Lv7: +40% area | **Lv3:** Cold Shoulder / Nappy Bag / Sharp Tongue<br>**Lv5:** Punching Up / Bloodsucker / Carpet Shock<br>**Lv8:** Twins! / Sugar Rush / Electric Personality<br>**Lv10:** Final Form / No Survivors / Octuplets | + Bedpan Mortar = Nappy Bomb<br>+ Slipstream Scalpel = Nappy Trail |
-| **Booster Jab** (Start)<br>gun, aims HIGHEST HEALTH | Rapid toxic needles. Poison stacks up. Side effects may include winning. | dmg 3.5, cd 0.1s, mag 30, reload 1.6s, range 410 | Lv3: +1 count; Lv5: +1 pierce; Lv7: 20% faster | **Lv3:** Hot Load / Extra Spicy / Pointy Head<br>**Lv5:** Toxic Relationship / Kick Them While Down / Cell Division<br>**Lv8:** Domino Effect / Electric Personality / Due Date Panic<br>**Lv10:** Octuplets / Espresso Drip / No Survivors | + Static Cling = Nervous Breakdown |
-| **Tapeworm Seeder**<br>gun, aims HIGHEST HEALTH | Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green. | dmg 11, cd 0.4s, mag 8, reload 1.6s, range 430<br>dur 8 | Lv3: +1 count; Lv5: +50% duration; Lv7: +40% dmg | **Lv3:** Cold Shoulder / Hot Load / Extra Spicy<br>**Lv5:** Bloodsucker / Kick Them While Down / Toxic Relationship<br>**Lv8:** Domino Effect / Due Date Panic / Giant Killer<br>**Lv10:** Octuplets / Espresso Drip / Final Form | - |
-| **Antibiotic Shotgun** (Bank 70)<br>gun, aims NEAREST | A broad-spectrum course, all at once. Finish the whole magazine. | dmg 7, cd 0.7s, mag 4, reload 1.5s, x6, range 270<br>pVenom 1 | Lv3: +2 count; Lv5: +1 pierce; Lv7: +3 count | **Lv3:** Hair Trigger / Nappy Bag / Extra Spicy<br>**Lv5:** Homing Instinct / Toxic Relationship / Special Delivery<br>**Lv8:** Twins! / Domino Effect / Sugar Rush<br>**Lv10:** Espresso Drip / No Survivors / Umbilical Cord | + Viral Payload = Superbug |
-| **Mucus Web**<br>lob, aims DENSEST CLUSTER | Lobs sticky globs that leave slowing, toxic puddles. Ew, but effective. | dmg 7, cd 0.9s, mag 4, reload 1.8s, range 380<br>area 62, dur 3.5, flight 0.6, pChill 1 | Lv3: +50% duration; Lv5: +1 count; Lv7: +40% area | **Lv3:** Wide Hips / Hair Trigger / Hot Load<br>**Lv5:** Punching Up / Bloodsucker / Toxic Relationship<br>**Lv8:** Due Date Panic / Domino Effect / Sugar Rush<br>**Lv10:** Final Form / Octuplets / Espresso Drip | - |
-| **Hormone Cloud**<br>gun, aims DENSEST CLUSTER | A slow drifting surge of hormones. Everything nearby gets confused and drawn in. | dmg 6, cd 1.7s, mag 2, reload 2.4s, pierce 99, range 400<br>aura 74, pull 70, pVenom 1 | Lv3: +30% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Pointy Head / Hair Trigger / Sharp Tongue<br>**Lv5:** Kick Them While Down / Ice Queen / Carpet Shock<br>**Lv8:** Sugar Rush / Domino Effect / Electric Personality<br>**Lv10:** Espresso Drip / Final Form / Octuplets | - |
-| **Spermicide Sprayer**<br>gun, aims NEAREST | You are, technically, immune. Probably. Do not check. | dmg 3.2, cd 0.05s, mag 48, reload 2s, x2, pierce 99, range 190<br>pVenom 1, pGiant 0.5 | Lv3: +30% area; Lv5: +30% dmg; Lv7: +1 count | **Lv3:** Sharp Tongue / Hair Trigger / Cold Shoulder<br>**Lv5:** Special Delivery / Punching Up / Plus One<br>**Lv8:** Sugar Rush / Electric Personality / Giant Killer<br>**Lv10:** Espresso Drip / Final Form / Octuplets | - |
-| **Enzyme Drill**<br>beam, aims HIGHEST ARMOUR | A beam of protease that eats through armour, then through whatever was under it. | dmg 26, cd 1.5s, mag 3, reload 2s, range 360<br>dur 1.3, shred 3, pVenom 1 | Lv3: +35% duration; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Cold Shoulder / Sharp Tongue / Extra Spicy<br>**Lv5:** Carpet Shock / Punching Up / Special Delivery<br>**Lv8:** Domino Effect / Giant Killer / Sugar Rush<br>**Lv10:** Final Form / No Survivors / Umbilical Cord | - |
-| **Toxin Needles**<br>gun, aims WEAKEST | Homing hypodermics. They always find a vein. | dmg 4, cd 0.14s, mag 24, reload 1.6s, range 420<br>homing 4 | Lv3: +1 count; Lv5: +1 pierce; Lv7: 20% faster | **Lv3:** Hair Trigger / Pointy Head / Sharp Tongue<br>**Lv5:** Carpet Shock / Bloodsucker / Toxic Relationship<br>**Lv8:** Due Date Panic / Sugar Rush / Electric Personality<br>**Lv10:** Umbilical Cord / Espresso Drip / Final Form | - |
-| **Viral Payload**<br>gun, aims STRONGEST | Missiles full of virus. Infected targets burst into turrets when they die. | dmg 11, cd 0.6s, mag 4, reload 2s, range 500<br>homing 4 | Lv3: +1 count; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Sharp Tongue / Extra Spicy / Nappy Bag<br>**Lv5:** Kick Them While Down / Toxic Relationship / Homing Instinct<br>**Lv8:** Domino Effect / Giant Killer / Electric Personality<br>**Lv10:** Espresso Drip / No Survivors / Octuplets | + Antibiotic Shotgun = Superbug |
+### Yo-Yo Diet
 
-### Arcane weapons
+*Kinetic gun, Boomerang.* A spinning blade that flies out and always comes back. Like the weight.
 
-| Weapon | What it does | Base stats | Level bonuses | Branch tree | Fuses with |
-|---|---|---|---|---|---|
-| **Doting Relatives**<br>orbit, aims NEAREST | Blades circle you, fussing. They need a sit-down every so often. | dmg 16, reload 2.2s, x3, range 100<br>dur 4.5, radius 72, spin 3.6 | Lv3: +1 count; Lv5: +30% area; Lv7: +2 count | **Lv3:** Hot Load / Extra Spicy / Hair Trigger<br>**Lv5:** Bloodsucker / Kick Them While Down / Carpet Shock<br>**Lv8:** Giant Killer / Electric Personality / Sugar Rush<br>**Lv10:** No Survivors / Umbilical Cord / Final Form | + Yo-Yo Diet = Tantrum Cyclone |
-| **Ultrasound Beam**<br>beam, aims STRONGEST | A channelled beam that burns through a line of foes. Would you like a printout? | dmg 32, cd 1.7s, mag 3, reload 2.2s, range 390<br>dur 1.2 | Lv3: +35% duration; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Nappy Bag / Sharp Tongue / Cold Shoulder<br>**Lv5:** Kick Them While Down / Toxic Relationship / Punching Up<br>**Lv8:** Electric Personality / Sugar Rush / Due Date Panic<br>**Lv10:** Espresso Drip / Final Form / No Survivors | + Kidney Stone Railgun = Full-Body Scan |
-| **Seeker Siblings** (Start)<br>gun, aims WEAKEST | Tiny homing siblings who swim for you and never miss. Family is complicated. | dmg 9, cd 0.45s, mag 6, reload 2s, x2, range 500<br>homing 5 | Lv3: +1 count; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Hot Load / Nappy Bag / Sharp Tongue<br>**Lv5:** Carpet Shock / Ice Queen / Bloodsucker<br>**Lv8:** Electric Personality / Domino Effect / Due Date Panic<br>**Lv10:** No Survivors / Final Form / Umbilical Cord | + Bottle Rockets = Sibling Rivalry |
-| **Toddler Gravity**<br>gun, aims DENSEST CLUSTER | A slow orb that drags everything into its mouth. Everything. | dmg 7, cd 1.8s, mag 2, reload 2.5s, pierce 99, range 400<br>aura 70, pull 90 | Lv3: +30% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Extra Spicy / Trampoline Rounds / Hot Load<br>**Lv5:** Bloodsucker / Carpet Shock / Ice Queen<br>**Lv8:** Twins! / Domino Effect / Sugar Rush<br>**Lv10:** Umbilical Cord / Final Form / No Survivors | + Nappy Mines = Sleep Regression Mines |
-| **Deja Vu Rifle**<br>gun, aims STRONGEST | Every hit repeats itself 1 second later, from the future. Every hit repeats itself 1 second later... | dmg 16, cd 0.55s, mag 6, reload 1.6s, pierce 1, range 480<br>echoHit 1 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Extra Spicy / Trampoline Rounds / Pointy Head<br>**Lv5:** Bloodsucker / Carpet Shock / Ice Queen<br>**Lv8:** Giant Killer / Sugar Rush / Due Date Panic<br>**Lv10:** Umbilical Cord / Octuplets / Final Form | - |
-| **Placental Siphon**<br>siphon, aims NEAREST | Eats enemy bullets that come near you and spits them back. No reloads. No ammo either, until the screen is full of bullets. | dmg 18, cd 0.08s, mag 40, range 460<br>area 90 | Lv3: +1 count; Lv5: +1 pierce; Lv7: +40% dmg | **Lv3:** Trampoline Rounds / Hot Load / Sharp Tongue<br>**Lv5:** Ice Queen / Bloodsucker / Carpet Shock<br>**Lv8:** Sugar Rush / Electric Personality / Twins!<br>**Lv10:** Final Form / Umbilical Cord / Espresso Drip | + Cold Feet = Return to Sender |
-| **Copycat Twin**<br>mimic, aims NEAREST | Copies the attack pattern of the last shooter you killed. It is not plagiarism if you win. | dmg 10, cd 0.9s, mag 6, reload 1.8s, pierce 1, range 430 | Lv3: +30% dmg; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Sharp Tongue / Trampoline Rounds / Extra Spicy<br>**Lv5:** Ice Queen / Toxic Relationship / Homing Instinct<br>**Lv8:** Sugar Rush / Giant Killer / Due Date Panic<br>**Lv10:** Umbilical Cord / Octuplets / No Survivors | - |
-| **Gene Splicer** (Bank 100)<br>gun, aims STRONGEST | Snips the target's genome at the worst possible place. Crits often. | dmg 22, cd 0.55s, mag 5, reload 1.5s, pierce 1, range 520<br>critBonus 0.25 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Trampoline Rounds / Hair Trigger / Hot Load<br>**Lv5:** Homing Instinct / Punching Up / Carpet Shock<br>**Lv8:** Twins! / Sugar Rush / Domino Effect<br>**Lv10:** Umbilical Cord / Final Form / Espresso Drip | + Mitosis Cannon = CRISPR Cannon |
-| **Mitosis Cannon** (Bank 120)<br>gun, aims DENSEST CLUSTER | Every shot divides on impact. Then the halves divide. Biology is relentless. | dmg 14, cd 0.6s, mag 5, reload 1.6s, range 450<br>splitHit 3 | Lv3: +1 count; Lv5: +30% dmg; Lv7: +1 count | **Lv3:** Pointy Head / Trampoline Rounds / Hot Load<br>**Lv5:** Kick Them While Down / Homing Instinct / Special Delivery<br>**Lv8:** Sugar Rush / Electric Personality / Domino Effect<br>**Lv10:** Final Form / Umbilical Cord / Octuplets | + Gene Splicer = CRISPR Cannon |
-| **Telomere Beam**<br>beam, aims FURTHEST | A very long beam that shortens everything it touches. Ageing, weaponised. | dmg 30, cd 1.8s, mag 3, reload 2.2s, range 540<br>dur 1.2, pExec 0.5 | Lv3: +35% duration; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Nappy Bag / Sharp Tongue / Cold Shoulder<br>**Lv5:** Toxic Relationship / Ice Queen / Special Delivery<br>**Lv8:** Domino Effect / Due Date Panic / Sugar Rush<br>**Lv10:** Final Form / Umbilical Cord / Espresso Drip | - |
-| **Epigenetic Orb**<br>gun, aims DENSEST CLUSTER | Switches genes off in a wide radius. Monsters drift in, confused about who they are. | dmg 8, cd 1.9s, mag 2, reload 2.5s, pierce 99, range 400<br>aura 80, pull 100 | Lv3: +30% area; Lv5: +1 count; Lv7: +50% dmg | **Lv3:** Sharp Tongue / Pointy Head / Trampoline Rounds<br>**Lv5:** Kick Them While Down / Plus One / Cell Division<br>**Lv8:** Twins! / Sugar Rush / Due Date Panic<br>**Lv10:** Espresso Drip / Octuplets / No Survivors | - |
-| **Placebo Pistol** (Bank 80)<br>gun, aims NEAREST | Contains no active ingredients. Works anyway, especially on big things. | dmg 11, cd 0.28s, mag 12, reload 1.1s, range 440<br>pGiant 1 | Lv3: +1 pierce; Lv5: +1 count; Lv7: +30% dmg | **Lv3:** Hair Trigger / Extra Spicy / Cold Shoulder<br>**Lv5:** Carpet Shock / Cell Division / Special Delivery<br>**Lv8:** Due Date Panic / Domino Effect / Twins!<br>**Lv10:** Octuplets / No Survivors / Umbilical Cord | - |
-| **Stem Cell Mines**<br>mine, aims NEAREST | Undifferentiated mines. They become whatever kills best, which is usually an explosion. | dmg 34, cd 0.7s, mag 5, reload 2.4s, range 600<br>explode 74, life 16, splitHit 3 | Lv3: +1 count; Lv5: +30% area; Lv7: +50% dmg | **Lv3:** Hair Trigger / Sharp Tongue / Wide Hips<br>**Lv5:** Bloodsucker / Plus One / Ice Queen<br>**Lv8:** Electric Personality / Giant Killer / Due Date Panic<br>**Lv10:** Final Form / Octuplets / Umbilical Cord | - |
-| **Retrovirus Swarm**<br>gun, aims WEAKEST | Homing viral particles that write themselves into the target. Leaves a poison. | dmg 8, cd 0.42s, mag 7, reload 2s, x2, range 500<br>homing 5, pVenom 1 | Lv3: +1 count; Lv5: +1 count; Lv7: +40% dmg | **Lv3:** Hair Trigger / Hot Load / Pointy Head<br>**Lv5:** Carpet Shock / Punching Up / Bloodsucker<br>**Lv8:** Sugar Rush / Due Date Panic / Twins!<br>**Lv10:** Umbilical Cord / Espresso Drip / Octuplets | - |
-| **Ribosome Printer**<br>orbit, aims NEAREST | Prints protein blades around you, one amino acid at a time. | dmg 15, reload 2s, x3, range 100<br>dur 4.2, radius 70, spin 3.8 | Lv3: +1 count; Lv5: +30% area; Lv7: +2 count | **Lv3:** Hair Trigger / Wide Hips / Sharp Tongue<br>**Lv5:** Toxic Relationship / Ice Queen / Kick Them While Down<br>**Lv8:** Giant Killer / Domino Effect / Twins!<br>**Lv10:** Final Form / Umbilical Cord / Espresso Drip | - |
+- **Base stats:** dmg 16, cd 1s, mag 2, reload 1.3s, pierce all, range 330 (boomerang 1)
+- **Level bonuses:** Lv3: +20% dmg; Lv6: +1 count; Lv9: +30% dmg
+- **Pairings:** **Tetherball** (+ Toddler Gravity), **Sibling Yo-Yo** (+ Seeker Siblings)
 
-## Fusions (weapon merges)
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Pointy Head** | Shots pierce 2 more enemies. |
+|  | **Hot Load** | +40% damage. |
+| Lv 5 signature | **Walk the Dog** | At full reach the yo-yo spins in place for a second, grinding everything it touches, then comes home. |
+|  | **Crash Diet** | The yo-yo grows every time it hits something: +10% size and damage per hit, every throw. |
+| Lv 8 | **Plus One** | +1 projectile. |
+|  | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+| Lv 10 mastery | **Around the World** | Three yo-yos per throw, and every catch heals you a little for each enemy it hit. |
+|  | **Black Hole Yo-Yo** | At full reach it becomes a gravity well for 1.5s, then snaps home dragging its catch with it. |
 
-Both ingredients must be Lv4 or higher.
+### Slipstream Scalpel
 
-| Fusion | Recipe | Element | What it does | Base stats | Branch tree |
-|---|---|---|---|---|---|
-| **Spindle Apparatus** | Chromosome Whip + Cilia Flail | Kinetic | Whips and cilia become a mitotic spindle that shreds anything in the division zone. | dmg 30, x6<br>dur 5, radius 88, spin 4.4, shred 2 | **Lv3:** Sharp Tongue / Wide Hips / Hot Load<br>**Lv5:** Carpet Shock / Punching Up / Toxic Relationship<br>**Lv8:** Sugar Rush / Due Date Panic / Domino Effect<br>**Lv10:** Final Form / Espresso Drip / Umbilical Cord |
-| **Thermal Cycler** | Enzyme Torch + Liquid Nitrogen Spray | Fire + Frost | PCR in cone form: denature, anneal, extend, repeat. Burns and freezes by turns. | dmg 7, cd 0.05s, mag 60, x3, pierce 99<br>pIgnite 0.25, pChill 1 | **Lv3:** Pointy Head / Extra Spicy / Cold Shoulder<br>**Lv5:** Kick Them While Down / Punching Up / Cell Division<br>**Lv8:** Due Date Panic / Giant Killer / Twins!<br>**Lv10:** Octuplets / Final Form / Espresso Drip |
-| **Action Potential** | Nerve Impulse + Axon Rail | Shock | All-or-nothing: a rail of pure nerve signal that arcs through everything in its path. | dmg 60, cd 0.9s, mag 4, pierce 99<br>pArc 0.6, pArcDmg 0.6, pArcN 2 | **Lv3:** Hair Trigger / Extra Spicy / Trampoline Rounds<br>**Lv5:** Toxic Relationship / Kick Them While Down / Special Delivery<br>**Lv8:** Domino Effect / Twins! / Electric Personality<br>**Lv10:** Umbilical Cord / Espresso Drip / Octuplets |
-| **Superbug** | Antibiotic Shotgun + Viral Payload | Toxic | Resistant to everything, including your conscience. Missiles that split and infect. | dmg 18, cd 0.5s, mag 6, x2<br>homing 5, pVenom 1, splitHit 3 | **Lv3:** Trampoline Rounds / Hot Load / Pointy Head<br>**Lv5:** Ice Queen / Homing Instinct / Plus One<br>**Lv8:** Twins! / Electric Personality / Due Date Panic<br>**Lv10:** Final Form / Umbilical Cord / No Survivors |
-| **CRISPR Cannon** | Gene Splicer + Mitosis Cannon | Arcane | Precision edits at scale. Every shot divides, and every piece crits. | dmg 34, cd 0.45s, mag 6, pierce 2<br>critBonus 0.35, splitHit 4 | **Lv3:** Hot Load / Sharp Tongue / Pointy Head<br>**Lv5:** Ice Queen / Carpet Shock / Toxic Relationship<br>**Lv8:** Electric Personality / Sugar Rush / Domino Effect<br>**Lv10:** Final Form / Umbilical Cord / No Survivors |
-| **Cryobank** | Cryo Pipette + Hailstone Swarm | Frost | The whole freezer, launched. Homing, piercing, freezing. | dmg 16, cd 0.35s, mag 10, x3, pierce 2<br>homing 6, pChill 1, freezeHit 1 | **Lv3:** Cold Shoulder / Trampoline Rounds / Hair Trigger<br>**Lv5:** Plus One / Punching Up / Carpet Shock<br>**Lv8:** Domino Effect / Electric Personality / Sugar Rush<br>**Lv10:** Espresso Drip / Umbilical Cord / Octuplets |
-| **Crash Cart** | Pacemaker + Defibrillator | Shock | The full resuscitation trolley. Enormous shocks through the whole crowd. | dmg 44, cd 1s, mag 4, x2<br>chain 8, jump 160 | **Lv3:** Nappy Bag / Hair Trigger / Hot Load<br>**Lv5:** Special Delivery / Punching Up / Carpet Shock<br>**Lv8:** Sugar Rush / Twins! / Domino Effect<br>**Lv10:** No Survivors / Umbilical Cord / Espresso Drip |
-| **Osteoclast Barrage** | Bone Marrow Mortar + Metabolic Flare | Kinetic + Fire | Bone-dissolving cells, burning, delivered by mortar. A lot of mortar. | dmg 52, cd 0.9s, mag 4, x2<br>area 84, flight 0.9, explode 1, pIgnite 0.25 | **Lv3:** Sharp Tongue / Hot Load / Nappy Bag<br>**Lv5:** Carpet Shock / Ice Queen / Kick Them While Down<br>**Lv8:** Giant Killer / Sugar Rush / Twins!<br>**Lv10:** Umbilical Cord / Final Form / Octuplets |
-| **Hot Flush Cold Sweat** | Heartburn + Cold Feet | Fire + Frost | A scalding fire-and-frost cone. Triggers reactions constantly. Menopause, but tactical. | dmg 8, cd 0.055s, mag 70, x3, pierce 99 | **Lv3:** Pointy Head / Trampoline Rounds / Extra Spicy<br>**Lv5:** Ice Queen / Special Delivery / Cell Division<br>**Lv8:** Electric Personality / Domino Effect / Sugar Rush<br>**Lv10:** Espresso Drip / Octuplets / No Survivors |
-| **Static Hiccups** | Hiccup Scattergun + Static Cling | Shock | Each pellet detonates into chain lightning. Try holding your breath. | dmg 11, cd 0.7s, mag 5, x8<br>chainHit 2, knock 60 | **Lv3:** Nappy Bag / Sharp Tongue / Hot Load<br>**Lv5:** Ice Queen / Cell Division / Toxic Relationship<br>**Lv8:** Domino Effect / Due Date Panic / Electric Personality<br>**Lv10:** Final Form / Espresso Drip / Umbilical Cord |
-| **Full-Body Scan** | Kidney Stone Railgun + Ultrasound Beam | Arcane | A colossal armour-shredding beam across the whole screen. Please remain very still. | dmg 130, cd 2.4s, mag 2<br>dur 1.5, shred 5 | **Lv3:** Nappy Bag / Sharp Tongue / Cold Shoulder<br>**Lv5:** Ice Queen / Toxic Relationship / Carpet Shock<br>**Lv8:** Sugar Rush / Electric Personality / Domino Effect<br>**Lv10:** Espresso Drip / Umbilical Cord / Final Form |
-| **Sibling Rivalry** | Bottle Rockets + Seeker Siblings | Fire | Volleys of homing explosive rockets that fight over who gets there first. | dmg 22, cd 0.5s, mag 4, x4<br>homing 6, explode 58 | **Lv3:** Hair Trigger / Hot Load / Extra Spicy<br>**Lv5:** Punching Up / Carpet Shock / Cell Division<br>**Lv8:** Electric Personality / Twins! / Due Date Panic<br>**Lv10:** No Survivors / Espresso Drip / Octuplets |
-| **Tantrum Cyclone** | Yo-Yo Diet + Doting Relatives | Kinetic | Six blades pulse outward and back in a screaming storm. It is about the blue cup. | dmg 30, x6<br>dur 6, radius 70, spin 4.2, pulse 1 | **Lv3:** Wide Hips / Sharp Tongue / Hot Load<br>**Lv5:** Toxic Relationship / Kick Them While Down / Bloodsucker<br>**Lv8:** Electric Personality / Twins! / Giant Killer<br>**Lv10:** Final Form / Umbilical Cord / No Survivors |
-| **Bouncy Castle Magnum** | Spitball + Pass the Parcel | Kinetic | Magnum rounds that ricochet 6 times and crit often. Shoes off. | dmg 22, cd 0.35s, mag 8<br>bounce 6, critBonus 0.2 | **Lv3:** Sharp Tongue / Hair Trigger / Pointy Head<br>**Lv5:** Homing Instinct / Special Delivery / Ice Queen<br>**Lv8:** Sugar Rush / Domino Effect / Due Date Panic<br>**Lv10:** Umbilical Cord / No Survivors / Espresso Drip |
-| **Nappy Bomb** | Morning Sickness + Bedpan Mortar | Toxic | Toxic shells: a huge blast plus a lingering pool. Nobody is volunteering. | dmg 46, cd 1.4s, mag 3<br>area 96, dur 5, flight 0.9, explode 1 | **Lv3:** Wide Hips / Nappy Bag / Hot Load<br>**Lv5:** Plus One / Kick Them While Down / Bloodsucker<br>**Lv8:** Domino Effect / Electric Personality / Twins!<br>**Lv10:** Final Form / Octuplets / Umbilical Cord |
-| **Sleep Regression Mines** | Nappy Mines + Toddler Gravity | Arcane | Mines open a black hole that swallows everything, then detonate. Like 4am. | dmg 55, cd 0.8s, mag 4<br>explode 95, life 16, singularity 1 | **Lv3:** Sharp Tongue / Wide Hips / Cold Shoulder<br>**Lv5:** Kick Them While Down / Bloodsucker / Toxic Relationship<br>**Lv8:** Due Date Panic / Sugar Rush / Twins!<br>**Lv10:** Espresso Drip / No Survivors / Umbilical Cord |
-| **Grandparent Hive** | Helicopter Parent + Sneeze Gun | Shock | Four drones with SMG fire rates. They insist on helping. | dmg 6.5, cd 0.12s, mag 40, x4 | **Lv3:** Sharp Tongue / Pointy Head / Hot Load<br>**Lv5:** Ice Queen / Carpet Shock / Kick Them While Down<br>**Lv8:** Domino Effect / Giant Killer / Electric Personality<br>**Lv10:** Umbilical Cord / Final Form / No Survivors |
-| **Forceps Repeater** | Tongue Depressor Crossbow + Contraction Gatling | Kinetic | Automatic heavy bolts. Pierce, shred, knockback. Gentle it is not. | dmg 17, cd 0.15s, mag 60, pierce 4<br>knock 140, shred 2 | **Lv3:** Extra Spicy / Cold Shoulder / Sharp Tongue<br>**Lv5:** Cell Division / Homing Instinct / Carpet Shock<br>**Lv8:** Twins! / Giant Killer / Electric Personality<br>**Lv10:** No Survivors / Octuplets / Umbilical Cord |
-| **Egg Freezing Service** | Cold Feet + Frozen Peas | Frost | Ice meteors that flash-freeze everything they hit. Very forward-planning. | dmg 18, cd 1.3s, mag 3, x8<br>area 48, flight 0.7, explode 1, freezeHit 1 | **Lv3:** Cold Shoulder / Nappy Bag / Sharp Tongue<br>**Lv5:** Bloodsucker / Ice Queen / Punching Up<br>**Lv8:** Due Date Panic / Twins! / Electric Personality<br>**Lv10:** Final Form / Umbilical Cord / No Survivors |
-| **Nervous Breakdown** | Booster Jab + Static Cling | Toxic + Shock | Toxic lightning. Every arc spreads plague. It has been a long week. | dmg 9, cd 0.25s, mag 12<br>chain 6, jump 150 | **Lv3:** Extra Spicy / Nappy Bag / Hair Trigger<br>**Lv5:** Special Delivery / Ice Queen / Plus One<br>**Lv8:** Sugar Rush / Twins! / Due Date Panic<br>**Lv10:** Octuplets / Espresso Drip / Umbilical Cord |
-| **Return to Sender** | Placental Siphon + Cold Feet | Frost | Their bullets. Your ice. Everyone else's problem. Returned shots freeze on hit. | dmg 20, cd 0.06s, mag 70, pierce 2<br>area 105, freezeHit 1 | **Lv3:** Extra Spicy / Cold Shoulder / Sharp Tongue<br>**Lv5:** Special Delivery / Homing Instinct / Cell Division<br>**Lv8:** Due Date Panic / Giant Killer / Domino Effect<br>**Lv10:** Umbilical Cord / Octuplets / No Survivors |
-| **Nappy Trail** | Slipstream Scalpel + Morning Sickness | Toxic | You leave a lane of plague behind you. Lead the siege through it and wave. | dmg 30<br>dur 4, area 34 | **Lv3:** Hot Load / Cold Shoulder / Sharp Tongue<br>**Lv5:** Carpet Shock / Special Delivery / Punching Up<br>**Lv8:** Giant Killer / Domino Effect / Due Date Panic<br>**Lv10:** Umbilical Cord / Espresso Drip / Final Form |
-| **Pyramid Scheme** | Child Benefit Cannon + Bedpan Mortar | Fire | Shells cost scrap. Shells make scrap. It is basically a pyramid scheme with explosions. | dmg 50, cd 0.9s, mag 99, x3<br>area 80, flight 0.9, explode 1 | **Lv3:** Hair Trigger / Cold Shoulder / Sharp Tongue<br>**Lv5:** Plus One / Special Delivery / Kick Them While Down<br>**Lv8:** Electric Personality / Due Date Panic / Giant Killer<br>**Lv10:** Umbilical Cord / Octuplets / Espresso Drip |
+*Kinetic wake, Swim Path.* Your swim path becomes a blade. Keep moving, or it is just very expensive litter.
+
+- **Base stats:** dmg 24 (dur 2.2, area 22)
+- **Level bonuses:** Lv3: +30% area; Lv6: +50% duration; Lv9: +50% dmg
+- **Pairings:** **Nappy Trail** (+ Morning Sickness), **Trail Mix** (+ Nappy Mines)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hot Load** | +40% damage. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **Closing the Loop** | Swim a loop around enemies and everything inside it takes a massive cut. Try the ORBIT autorun. |
+|  | **Razor Wire** | The trail lasts twice as long and slows whatever swims through it. |
+| Lv 8 | **Due Date Panic** | 40% faster cooldown and reload. |
+|  | **Sugar Rush** | +75% damage. |
+|  | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
+| Lv 10 mastery | **Surgical Team** | Two ghost scalpels circle you, each cutting its own trail. |
+|  | **Afterburner** | The trail catches fire, and the faster you swim the hotter it burns (up to x2.5). |
+
+### Heartburn
+
+*Fire gun, Flamethrower.* A short-range cone of fire. Every lick burns. Antacids not included.
+
+- **Base stats:** dmg 3.4, cd 0.05s, mag 50, reload 2.1s, x2, pierce all, range 200
+- **Level bonuses:** Lv3: +30% area; Lv6: +30% dmg; Lv9: +1 count
+- **Pairings:** **Hot Flush, Cold Sweat** (+ Cold Feet), **Family BBQ** (+ Doting Relatives)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Wide Hips** | +35% area and +15% range. |
+| Lv 5 signature | **Blue Flame** | Narrow and long: +70% range, a tight cone and +40% damage. |
+|  | **Indigestion** | Burning enemies explode in flames when they die, spreading the burn to everything nearby. |
+| Lv 8 | **Twins!** | +2 projectiles. |
+|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+|  | **Plus One** | +1 projectile. |
+| Lv 10 mastery | **Dragon** | Twice the flames, sweeping a full circle around you, forever. |
+|  | **Hell's Kitchen** | It never reloads, and the damage climbs the longer you keep firing (up to x3). Cools off when idle. |
+
+### Nappy Mines
+
+*Fire mine, Trapper.* Drops proximity mines in your wake. Nobody wants to change them.
+
+- **Base stats:** dmg 34, cd 0.7s, mag 5, reload 2.4s, range 600 (explode 72, life 14)
+- **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +50% dmg
+- **Pairings:** **Baby Monitor Network** (+ Static Cling), **Trail Mix** (+ Slipstream Scalpel)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sharp Tongue** | +15% crit chance. |
+|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **Domino Nappies** | A blast sets off every mine near it, and each one in the chain goes off 25% bigger than the last. |
+|  | **Sticky Nappies** | Mines are thrown onto enemies and stick to them, going off 1.2s later. |
+| Lv 8 | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+|  | **Domino Effect** | Kills explode for 60% of the killing blow. |
+| Lv 10 mastery | **Nuclear Nappy** | Every 6th mine is a nuke: three times the blast radius and six times the damage. |
+|  | **Minefield** | Three mines per drop, twice as often, and they last twice as long. |
+
+### Cold Feet
+
+*Frost gun, Freezer.* Piercing ice shards that chill and freeze. Commitment issues, weaponised.
+
+- **Base stats:** dmg 15, cd 0.6s, mag 5, reload 1.5s, pierce 3, range 460
+- **Level bonuses:** Lv3: +1 count; Lv6: +2 pierce; Lv9: +1 count
+- **Pairings:** **Hot Flush, Cold Sweat** (+ Heartburn), **Snow Globe** (+ Toddler Gravity)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hot Load** | +40% damage. |
+|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 5 signature | **Shatter** | A shard that hits a frozen enemy shatters it for 250% damage in an icy burst. |
+|  | **Icicle Lance** | +4 pierce, and each enemy a shard passes through makes it 25% stronger. |
+| Lv 8 | **Due Date Panic** | 40% faster cooldown and reload. |
+|  | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+| Lv 10 mastery | **Ice Age** | Shards leave frost patches behind that freeze anything that swims through. |
+|  | **Cold Snap** | Every 4s a freezing blast around you freezes every non-boss enemy within reach. |
+
+### Static Cling
+
+*Shock chain, Chain Lightning.* Instant lightning that arcs between enemies, like a nylon onesie in winter.
+
+- **Base stats:** dmg 13, cd 0.7s, mag 6, reload 1.8s, range 330 (chain 3, jump 140)
+- **Level bonuses:** Lv3: +2 chain; Lv6: +1 count; Lv9: +2 chain
+- **Pairings:** **Baby Monitor Network** (+ Nappy Mines), **Conductive Spit** (+ Spitball), **Static Discharge** (+ Placental Siphon)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **Short Circuit** | +3 jumps, and the lightning can bounce back to enemies it already hit. Brutal on big targets. |
+|  | **Umbilical Cord** | The first two enemies in each chain get tied together with lightning and slammed into each other. |
+| Lv 8 | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+|  | **Plus One** | +1 projectile. |
+|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+| Lv 10 mastery | **Overcharge** | Every jump hits 20% harder than the last, instead of weaker. |
+|  | **Power Grid** | 15% of hits from all your other weapons set off a Static Cling chain. |
+
+### Morning Sickness
+
+*Toxic lob, Area Denial.* Lobs acid globs that leave toxic puddles. Worse before noon.
+
+- **Base stats:** dmg 10, cd 0.9s, mag 4, reload 1.8s, range 390 (area 58, dur 3, flight 0.6)
+- **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +40% area
+- **Pairings:** **Nappy Trail** (+ Slipstream Scalpel), **Petri Dish** (+ Tapeworm Seeder)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 5 signature | **Nausea** | Enemies in a puddle are slowed by 45% and deal 40% less damage. |
+|  | **Toxic Spread** | Enemies that die in a puddle leave a new puddle behind. |
+| Lv 8 | **Twins!** | +2 projectiles. |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+|  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+| Lv 10 mastery | **Swamp** | Puddles last four times as long and slowly spread. |
+|  | **Acid Reflux** | When you get hit, you throw up eight puddles in a ring around you. |
+
+### Tapeworm Seeder
+
+*Toxic gun, Necromancer.* Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green.
+
+- **Base stats:** dmg 12, cd 0.4s, mag 8, reload 1.6s, range 430 (dur 8)
+- **Level bonuses:** Lv3: +1 count; Lv6: +50% duration; Lv9: +40% dmg
+- **Pairings:** **Family Tree** (+ Seeker Siblings), **Petri Dish** (+ Morning Sickness)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Hot Load** | +40% damage. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 5 signature | **Walking Dead** | Infected corpses get back up as zombie allies for 12s instead of turrets (up to 14 at once). |
+|  | **Big Worm** | Turrets last twice as long, fire 50% faster and hit twice as hard. |
+| Lv 8 | **Twins!** | +2 projectiles. |
+|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+|  | **Ice Queen** | 12% of hits freeze non-boss enemies solid. |
+| Lv 10 mastery | **Brood** | The infection spreads: every infected death infects the three nearest enemies. |
+|  | **Body Snatcher** | Elites killed while infected become permanent allies (three at most). |
+
+### Seeker Siblings
+
+*Arcane gun, Swarm.* Tiny homing siblings who swim for you and never miss. Family is complicated.
+
+- **Base stats:** dmg 9, cd 0.45s, mag 6, reload 2s, x2, range 500 (homing 5)
+- **Level bonuses:** Lv3: +1 count; Lv6: +1 count; Lv9: +40% dmg
+- **Pairings:** **Family Tree** (+ Tapeworm Seeder), **Sibling Yo-Yo** (+ Yo-Yo Diet)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hot Load** | +40% damage. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 5 signature | **Big Brother** | One sibling in every volley is huge: four times the size and damage, and pierces 3. |
+|  | **Sibling Rivalry** | Every kill adds a sibling to your volleys (up to +8). Reloading makes them all settle down again. |
+| Lv 8 | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+|  | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
+|  | **Domino Effect** | Kills explode for 60% of the killing blow. |
+| Lv 10 mastery | **Population Boom** | Every sibling splits into two more homing siblings on its first hit. |
+|  | **Family Reunion** | Siblings that miss swim back to circle you, eating bullets, then launch again. |
+
+### Toddler Gravity
+
+*Arcane gun, Crowd Control.* A slow orb that drags everything into its mouth. Everything.
+
+- **Base stats:** dmg 8, cd 1.8s, mag 2, reload 2.5s, pierce all, range 400 (aura 72, pull 95)
+- **Level bonuses:** Lv3: +30% area; Lv6: +1 count; Lv9: +50% dmg
+- **Pairings:** **Tetherball** (+ Yo-Yo Diet), **Sucker Punch** (+ Hiccup Scattergun), **Snow Globe** (+ Cold Feet)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Hot Load** | +40% damage. |
+| Lv 5 signature | **Event Horizon** | Non-boss enemies under 20% health that get dragged into the centre are swallowed whole. |
+|  | **Nom Nom** | The orb eats enemy bullets, growing with every one (up to twice its size). |
+| Lv 8 | **Twins!** | +2 projectiles. |
+|  | **Toxic Relationship** | Hits add a stacking poison. |
+|  | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+| Lv 10 mastery | **Big Bang** | When an orb ends it explodes for half of all the damage it dealt. |
+|  | **Tantrum Parking** | The orb parks wherever it catches 4 enemies, pulls 2.5 times harder and lasts twice as long. |
+
+### Doting Relatives
+
+*Arcane orbit, Bodyguard.* Blades circle you, fussing. They need a sit-down every so often.
+
+- **Base stats:** dmg 23, reload 2.2s, x3, range 100 (dur 4.5, radius 72, spin 3.6)
+- **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +1 count
+- **Pairings:** **Overprotective** (+ Placental Siphon), **Family BBQ** (+ Heartburn)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hot Load** | +40% damage. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Hair Trigger** | 25% faster cooldown and reload. |
+| Lv 5 signature | **Protective Nan** | Relatives eat any enemy bullet they touch. |
+|  | **Clingy** | Relatives never take a break, but hit 25% softer. |
+| Lv 8 | **Twins!** | +2 projectiles. |
+|  | **Toxic Relationship** | Hits add a stacking poison. |
+|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+| Lv 10 mastery | **Extended Family** | A second ring of relatives spins the other way at double the distance. |
+|  | **Guilt Trip** | Enemies they hit feel guilty for 4s: slowed by 40% and taking +35% damage from everything. |
+
+### Placental Siphon
+
+*Arcane siphon, Counter.* Eats enemy bullets that come near you and spits them back. No reloads. No ammo either, until the screen is full of bullets.
+
+- **Base stats:** dmg 18, cd 0.08s, mag 40, range 460 (area 90)
+- **Level bonuses:** Lv3: +1 count; Lv6: +1 pierce; Lv9: +40% dmg
+- **Pairings:** **Overprotective** (+ Doting Relatives), **Static Discharge** (+ Static Cling)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Hot Load** | +40% damage. |
+|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 5 signature | **Return to Sender** | Returned shots home in on whoever fired them, and hit them three times as hard. |
+|  | **Bullet Buffet** | +40% absorb radius, and every bullet eaten heals you a little. |
+| Lv 8 | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+|  | **Toxic Relationship** | Hits add a stacking poison. |
+| Lv 10 mastery | **Mirror Womb** | 30% of enemy bullets that reach you bounce back at whoever fired them. |
+|  | **Overflow** | When the store fills up, it all bursts out in a ring of returned bullets. |
+
+## Pairings (secret combos)
+
+Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hidden (???) until you find them once.
+
+| Pairing | Weapons | Effect |
+|---|---|---|
+| **Baby Monitor Network** | Static Cling + Nappy Mines | Lightning jumping through a crowd sets off any Nappy Mine near its path. |
+| **Hot Flush, Cold Sweat** | Heartburn + Cold Feet | Thermal Shock and Steam Burst reactions have no cooldown and hit twice as hard. |
+| **Tetherball** | Yo-Yo Diet + Toddler Gravity | Yo-yos drag enemies back towards you on every throw. |
+| **Family Tree** | Seeker Siblings + Tapeworm Seeder | Tapeworm turrets fire homing Seeker Siblings. |
+| **Overprotective** | Placental Siphon + Doting Relatives | Relatives catch enemy bullets and feed them into the Siphon. |
+| **Nappy Trail** | Slipstream Scalpel + Morning Sickness | Your scalpel trail oozes poison that stacks. |
+| **Conductive Spit** | Spitball + Static Cling | Spat-on enemies are wet: lightning deals double damage to them. |
+| **Sucker Punch** | Hiccup Scattergun + Toddler Gravity | Enemies caught in a gravity orb take double damage from the Scattergun. |
+| **Snow Globe** | Cold Feet + Toddler Gravity | Gravity orbs chill everything they hold and freeze it solid. |
+| **Family BBQ** | Doting Relatives + Heartburn | Relatives are on fire. Everything they touch catches. |
+| **Sibling Yo-Yo** | Seeker Siblings + Yo-Yo Diet | Every yo-yo hit launches a Seeker Sibling. |
+| **Petri Dish** | Tapeworm Seeder + Morning Sickness | Anything that dies in a puddle was infected all along. |
+| **Static Discharge** | Static Cling + Placental Siphon | Every 12 bullets the Siphon eats fires a Static Cling chain at four enemies. |
+| **Trail Mix** | Slipstream Scalpel + Nappy Mines | Your scalpel trail drops a Nappy Mine every 1.5s. |
+
+## Bosses and relics
+
+A boss arrives every 3 minutes. Each run draws 4 of these 8 at random; after all 4, they come round again, tougher. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
+
+### THE MACROPHAGE QUEEN: Eater of Hopefuls
+
+> "Oh good. Dessert swam in."
+
+A white blood cell who ate her way to the top. She summons swarms, then swallows them to heal. Base HP 2600, armour 2, speed 46.
+
+- **Strengths:** Devours her own minions to heal; Summons swarms of swimmers.
+- **Weaknesses:** Fire: +60% damage; Slow: kite her and clear the snacks.
+
+| Relic | Effect |
+|---|---|
+| **Second Stomach** | +60% max HP, and every kill heals 1 HP. Eat everything. |
+| **Swallow Whole** | Touching a small, ordinary enemy swallows it whole instead of hurting you, and heals you 3 HP. |
+| **The Queen's Court** | Three loyal macrophage guards follow you and fight for you. A fallen guard returns 15s later. |
+
+### THE ANTIBODY COLOSSUS: Head of Border Control
+
+> "Papers. Now. No, those are not papers. Those are bullets."
+
+A Y-shaped wall of protein. Heavily armoured, cannot be moved or frozen, and charges in straight lines. Base HP 3800, armour 12, speed 36.
+
+- **Strengths:** 12 armour: small hits barely scratch it; Cannot be knocked back or frozen.
+- **Weaknesses:** Shock: +60% damage; Armour shred sticks for longer; Charges are telegraphed: side-step.
+
+| Relic | Effect |
+|---|---|
+| **Border Wall** | +10 armour and +40% max HP, but you swim 10% slower. |
+| **Bouncer** | Enemies that touch you are hurled away and take ten times their own contact damage. You take 40% less from them. |
+| **Diplomatic Immunity** | Every 5s, a shield blocks the next hit completely. |
+
+### THE IMMUNE EYE: Unblinking Critic of Your Genome
+
+> "I've read your genome. I've seen better genomes on a crouton."
+
+It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink. Base HP 3400, armour 4, speed 52.
+
+- **Strengths:** Teleports right next to you; Death-stare beam that tracks you.
+- **Weaknesses:** Takes double damage while glaring; Arcane: +50% damage.
+
+| Relic | Effect |
+|---|---|
+| **Third Eye** | +25% crit chance and crits deal +100% more damage. |
+| **Death Stare** | Every 4s you glare at the toughest enemy on screen with a beam of your own for 1.5s. |
+| **Precognition** | +25% dodge. Every dodge sends out a pulse that wipes nearby enemy bullets. |
+
+### THE MATRON: Head of Ward Nine
+
+> "Visiting hours are over. Forever."
+
+Runs the ward with an iron bedpan. Heals every enemy on screen and hides behind a ring of nurses. Base HP 3000, armour 3, speed 40.
+
+- **Strengths:** Heals every enemy nearby on her rounds; Nurse cells orbit her and soak your shots.
+- **Weaknesses:** Poison: +60%, and halves her healing; Kill her nurses: she panics and takes +50%.
+
+| Relic | Effect |
+|---|---|
+| **Bedside Manner** | Regenerate 1.5% of your max HP every second. |
+| **Triage** | Dropping below 25% HP heals you to 70% and makes you untouchable for 2s. Once every 45s. |
+| **Transfusion** | Every hit you land heals you a little, and your lifesteal limit is three times higher. |
+
+### THE PEPSINATOR: Acid Reflux Incarnate
+
+> "Everything dissolves eventually. You're just early."
+
+A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller blobs when hurt. Base HP 3600, armour 0, speed 44.
+
+- **Strengths:** Acid puddles burn you; Splits off blobs at 60% and 30% health.
+- **Weaknesses:** Frost: +60% damage; Blasts and pools: +40% damage.
+
+| Relic | Effect |
+|---|---|
+| **Corrosive** | Every hit shreds armour and adds a stack of poison. |
+| **Acid Blood** | When you are hit, you splash acid around you for ten times the damage you took. |
+| **Ulcer** | Enemies you kill leave acid puddles that dissolve their friends. |
+
+### CHAD PRIME: Tail Day, Every Day
+
+> "Bro. Bro. You swim like a sneeze."
+
+The biggest swimmer anyone has ever seen. Dashes through you three times, then has to catch his breath. Base HP 3000, armour 5, speed 95.
+
+- **Strengths:** Lightning-fast triple dash; Flexes: dodges 30% of your shots.
+- **Weaknesses:** Winded after every dash: stunned, double damage; Blasts, beams and pools never miss him.
+
+| Relic | Effect |
+|---|---|
+| **Protein Shake Pro** | +35% swim speed, and every weapon hits up to 50% harder while you swim fast. |
+| **Tail Whip** | Your tail becomes a weapon: it lashes everything behind you twice a second. |
+| **Sprint Start** | Every 5s you surge forward, untouchable for a moment, leaving a shockwave behind you. |
+
+### THE FEVER: Pyrogen Prime, 41 Degrees
+
+> "Is it hot in here, or is it me? It's me. It's always me."
+
+A walking temperature spike. Rings of fire, burning ground, and it runs hotter and faster as it dies. Base HP 3200, armour 2, speed 48.
+
+- **Strengths:** Immune to fire; Rages below 35% health: twice as fast.
+- **Weaknesses:** Frost: double damage; Freezing it snuffs out its current attack.
+
+| Relic | Effect |
+|---|---|
+| **Running Hot** | Every weapon you own sets enemies on fire. |
+| **Fever Dream** | Every burning enemy near you makes all your weapons fire 3% faster (up to +60%). |
+| **Heatstroke** | Burning enemies explode when they die, spreading the fire. |
+
+### MITCH & OSIS: The Mitosis Twins
+
+> "We finish each other's... ...swimmers."
+
+Identical twins who fight as one. Kill one and the other rebuilds it in 8 seconds, unless you finish both. Base HP 1900 each, armour 2, speed 58.
+
+- **Strengths:** Revive each other; Crossfire from two sides.
+- **Weaknesses:** Finish both within 8 seconds; Blasts hit both when they huddle: +30%.
+
+| Relic | Effect |
+|---|---|
+| **Mirror Twin** | Every shot-firing weapon also fires a twin shot backwards at 50% damage. |
+| **Double Trouble** | +1 projectile, +1 pierce and +1 chain jump for every weapon. |
+| **Twin Pick** | From now on, every DNA strand lets you take two cards instead of one. |
 
 ## Spells
 
@@ -246,13 +572,13 @@ Stat boosts that stack. Value shown is per pick at Bronze rarity.
 | **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Silver or better only) | 1 |
 | **Wriggle Room** | +4% chance to dodge hits | 5 |
 
-## Weapon branch perks
+## Upgrades any weapon can take
 
-Offered at weapon levels 3, 5, 8 and 10 (mastery). Which ones a weapon gets is fixed per weapon (see the weapon tables).
+Offered at weapon levels 3 and 8. Which three a weapon is offered is fixed per weapon (see its table above).
 
-### Tier 1 (Lv3)
+### Lv 3 pool
 
-| Perk | Effect |
+| Upgrade | Effect |
 |---|---|
 | **Hot Load** | +40% damage. |
 | **Hair Trigger** | 25% faster cooldown and reload. |
@@ -264,9 +590,9 @@ Offered at weapon levels 3, 5, 8 and 10 (mastery). Which ones a weapon gets is f
 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
 
-### Tier 2 (Lv5)
+### Lv 8 pool
 
-| Perk | Effect |
+| Upgrade | Effect |
 |---|---|
 | **Homing Instinct** | Shots home in on targets. |
 | **Cell Division** | Shots burst into 3 shards on first hit. |
@@ -278,27 +604,12 @@ Offered at weapon levels 3, 5, 8 and 10 (mastery). Which ones a weapon gets is f
 | **Plus One** | +1 projectile. |
 | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
 | **Punching Up** | +100% damage to elites, bosses and rival champions. |
-
-### Tier 3 (Lv8)
-
-| Perk | Effect |
-|---|---|
 | **Sugar Rush** | +75% damage. |
 | **Due Date Panic** | 40% faster cooldown and reload. |
 | **Domino Effect** | Kills explode for 60% of the killing blow. |
 | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
 | **Twins!** | +2 projectiles. |
 | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
-
-### Tier 4 (Lv10)
-
-| Perk | Effect |
-|---|---|
-| **Final Form** | +100% damage and +20% crit chance. |
-| **Espresso Drip** | 50% faster cooldown and reload, +50% magazine. |
-| **Octuplets** | +3 projectiles. |
-| **Umbilical Cord** | Hits heal you (up to four times the usual lifesteal limit). |
-| **No Survivors** | Non-boss enemies under 20% health die instantly when hit. |
 
 ## Modifiers
 
@@ -446,16 +757,12 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 
 | Weapon | DNA |
 |---|---|
-| Keratin Nailgun | 60 |
-| Cryo Pipette | 60 |
-| Antibiotic Shotgun | 70 |
-| Nerve Impulse | 70 |
-| Placebo Pistol | 80 |
-| Chromosome Whip | 80 |
-| Metabolic Flare | 90 |
-| Gene Splicer | 100 |
-| Mitosis Cannon | 120 |
-| Hailstone Swarm | 90 |
+| Nappy Mines | 60 |
+| Doting Relatives | 60 |
+| Toddler Gravity | 80 |
+| Slipstream Scalpel | 80 |
+| Tapeworm Seeder | 90 |
+| Placental Siphon | 100 |
 
 ### GFP variants
 
@@ -501,16 +808,7 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Daughter Cell** | 12 | 5 | 92 | 0 | 1 | Spawned by others | Swims straight at you |
 | **Daughter Colony** | 26 | 6 | 62 | 0 | 2 | Spawned by others | Swims straight at you |
 | **Candida** | 18 | 5 | 22 | 0 | 1 | Spawned by others | Buds new yeast cells |
-
-## Bosses
-
-A boss arrives every 3 minutes.
-
-| Boss | HP | Damage | Armour | Attack patterns |
-|---|---|---|---|---|
-| **THE MACROPHAGE QUEEN** | 2600 | 25 | 2 | spiral, summon, ring, aimedFan |
-| **THE ANTIBODY COLOSSUS** | 4200 | 35 | 10 | ring, charge, aimedFan, doubleSpiral |
-| **THE IMMUNE EYE** | 3400 | 30 | 4 | doubleSpiral, blink, ring, flower |
+| **Pepsinator Jr** | 60 | 14 | 72 | 0 | 6 | Spawned by others | Swims straight at you |
 
 ## Rival champions
 

@@ -7,6 +7,7 @@ function uiCol(c) { const v = col(c); return UI_MEAN.has(v) ? v : XR.white; }
 function cardCat(o) {
   if (o.cursed) return PAL.danger;
   if (o.tag === 'SUPPLY') return XR.white;
+  if (o.relic) return PAL.reward;
   return PAL.upgrade; // weapons, spells, levels, fusions, branches, modifiers, power-ups: all permanent build changes
 }
 // Spawn Prawn - DOM UI: title, HUD slots, loot boxes, Armoury, pause, game over and victory.
@@ -67,6 +68,8 @@ const UI = {
     $('bankBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     UI.applySettings();
     $('againBtn').addEventListener('click', () => UI.startGame());
+    // Boss introductions: once the card is up, a tap anywhere starts the fight.
+    $('bossIntro').addEventListener('click', () => { if ($('bossIntro').classList.contains('ready')) endBossIntro(); });
     $('copyRunBtn').addEventListener('click', () => {
       const b = $('copyRunBtn'), r = UI.lastRun;
       if (!r) { b.textContent = 'TOO SHORT TO LOG'; return; }
@@ -81,7 +84,7 @@ const UI = {
   lastDown: 0, lootOpenT: 0,
   show(name) {
     if (!G) refreshPalette(); // out of a run everything is greyscale
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples', 'bossIntro']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -322,10 +325,12 @@ const UI = {
         const reached = w.lvl >= l;
         if (tree[l]) {
           const chosen = w.perks[l];
-          h += `<div class="trow br ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><div class="tps">` + tree[l].map(id => {
-            const K = PERKS[id], st = chosen ? (chosen === id ? 'chosen' : 'dim') : reached ? 'pending' : '';
+          const sigRow = d.sig && d.sig[l];
+          h += `<div class="trow br ${reached ? 'on' : ''}${sigRow ? ' sig' : ''}"><span class="tl">Lv ${l}${sigRow ? `<em>${l >= 10 ? 'MASTERY' : 'ONLY HERE'}</em>` : ''}</span><div class="tps">` + tree[l].map(id => {
+            const K = perkDef(id), st = chosen ? (chosen === id ? 'chosen' : 'dim') : reached ? 'pending' : '';
             return `<div class="tp ${st}" style="--c:${PAL.upgrade}"><b><i>${esc(K.icon)}</i>${esc(K.name)}</b><span>${esc(K.desc)}</span></div>`;
           }).join('') + `</div></div>`;
+
         } else {
           const bonus = l > 1 ? lvBonusText(d, l - 1, l) : '';
           const txt = l === 1 ? 'Base weapon' : `+${Math.round(WEAPON_LV_DMG * 100)}% damage, 5% faster, +12% magazine` + (bonus ? '. ' + bonus : '');
@@ -333,7 +338,7 @@ const UI = {
         }
       }
       h += `</div><button class="chip small" id="treeToggle" style="margin-top:8px">${A.full ? 'SHOW LESS' : 'SHOW FULL TREE (LV 1 TO ' + MAX_WLVL + ')'}</button>`;
-      if (A.full) h += `<p class="hint">Branches at Lv ${PERK_LEVELS.slice(0, -1).join(', ')} and a mastery at Lv ${MAX_WLVL}: pick one of three each time.</p>`;
+      if (A.full) h += `<p class="hint">Lv 3 and Lv 8: upgrades any weapon can take (pick one of three). Lv 5 and Lv 10: upgrades only this weapon has (pick one of two): they decide how it plays.</p>`;
       h += `</div>`;
     }
     // Modifiers.
@@ -367,19 +372,17 @@ const UI = {
       h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
     }
     h += `</div>`;
-    // Fusion.
+    // Pairings: secret until found once (on any run).
     if (!w.isSpell) {
-      const ms = MERGES.filter(m => m.a === w.id || m.b === w.id);
-      if (ms.length) {
-        h += `<div class="sec"><h3>Fusion</h3>`;
-        for (const m of ms) {
-          const other = m.a === w.id ? m.b : m.a, ow = G.weapons.find(x => x && x.id === other);
-          const ready = ow && ow.lvl >= MERGE_MIN_LEVEL && w.lvl >= MERGE_MIN_LEVEL;
-          const status = ready ? `<b style="color:${PAL.upgrade}">READY: offered in your next DNA strand</b>` : ow ? `Owned at Lv ${ow.lvl}. Both need Lv ${MERGE_MIN_LEVEL}.` : 'Not owned.';
-          h += `<div class="fuse" style="--c:${PAL.upgrade}"><b>+ ${esc(WEAPONS[other].name)}</b> = <b style="color:${PAL.upgrade}">${esc(WEAPONS[m.out].name)}</b><br><span>${status}</span></div>`;
+      const ps = PAIRINGS.filter(q => q.a === w.id || q.b === w.id);
+      if (ps.length) {
+        h += `<div class="sec"><h3>Pairings</h3><p class="hint">Own both weapons at Lv ${PAIR_LEVEL}+ and they start working together.</p><div class="list">`;
+        for (const q of ps) {
+          const other = q.a === w.id ? q.b : q.a, known = META.pairs[q.id], on = G.pair[q.id];
+          h += `<div class="li ${on ? 'on' : ''}"><b style="color:${on ? PAL.upgrade : 'inherit'}">${known ? esc(q.name) : '???'}</b> ${on ? '(ACTIVE)' : ''}<br><span>+ ${esc(WEAPONS[other].name)}${known ? ': ' + esc(q.desc) : ': a secret. Try it.'}</span></div>`;
         }
-        h += `</div>`;
-      } else if (d.merged) h += `<div class="sec"><p class="hint">Already fused. It cannot be fused again. We checked. There was a small fire.</p></div>`;
+        h += `</div></div>`;
+      }
     }
     // Recycle.
     if (A.k === 'w' && G.weapons.filter(Boolean).length > 1) {
@@ -404,6 +407,28 @@ const UI = {
     });
   },
 
+  // ---------------------------------------------------------------- boss introduction
+  openBossIntro(e, idx) {
+    const d = e.def, box = $('bossIntro');
+    box.style.setProperty('--bc', d.color);
+    const n = G.bossRoster.length, pips = Array.from({ length: n }, (_, i) => `<i class="${i < idx % n ? 'done' : i === idx % n ? 'now' : ''}"></i>`).join('');
+    $('biCount').innerHTML = `BOSS ${idx % n + 1} OF ${n} THIS RUN ${pips} <span>${BOSSES.length} IN THE WARD${idx >= n ? ' | ROUND ' + (Math.floor(idx / n) + 1) : ''}</span>`;
+    $('biTitle').textContent = d.title;
+    $('biName').textContent = d.twins ? 'MITCH & OSIS' : d.name;
+    $('biQuote').textContent = d.quote;
+    $('biDesc').textContent = d.desc;
+    const li = (arr, base) => arr.map((t, i) => `<li style="animation-delay:${(base + i * 0.18).toFixed(2)}s">${esc(t)}</li>`).join('');
+    $('biStr').innerHTML = li(d.strengths, 1.9);
+    $('biWeak').innerHTML = li(d.weaknesses, 2.1);
+    $('biReward').innerHTML = 'Beat it and choose one relic: ' + d.relics.map(id => `<b>${esc(RELICS[id].name)}</b>`).join(', ') + '.';
+    box.classList.remove('ready');
+    // Restart the animations.
+    box.querySelectorAll('.bi-bar, .bi-warn, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+    UI.show('bossIntro');
+    clearTimeout(UI.biTimer);
+    UI.biTimer = setTimeout(() => box.classList.add('ready'), 2600);
+  },
+
   // ---------------------------------------------------------------- loot
   openLoot(req) {
     G.state = 'loot';
@@ -415,13 +440,16 @@ const UI = {
       level: ['LEVEL ' + G.level + '!', pick(['Bronze-or-better DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA! Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The fans chipped in. Some of them twice.'])],
       chest: ['FAN DNA', pick(['Gold or better. The fans sent this. Some of the fans are very strange.', 'Gold or better. It wriggles. That is probably fine.'])],
       boss: ['BOSS DNA', 'Gold or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
-      branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The other one goes in the bin. Forever. No pressure.'],
+      branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The others go in the bin. Forever. No pressure.'],
+      relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
     };
-    if (req.kind === 'branch') { const bw = G.weapons.find(x => x && x.uid === req.uid); if (bw) titles.branch[0] = bw.def.name.toUpperCase() + ': LV ' + req.lvl + ' BRANCH'; }
+    UI.pickedOne = false;
+    if (req.kind === 'relic') titles.relic[0] = 'RELIC: ' + bossDef(req.boss).name.replace(/^THE /, '');
+    if (req.kind === 'branch') { const bw = G.weapons.find(x => x && x.uid === req.uid); if (bw) titles.branch[0] = bw.def.name.toUpperCase() + ': LV ' + req.lvl + (bw.def.sig && bw.def.sig[req.lvl] ? (req.lvl >= 10 ? ' MASTERY' : ' SIGNATURE') : ' BRANCH'); }
     $('lootTitle').textContent = titles[req.kind][0];
     if (req.kind !== 'start') achieve('firstloot');
     if (req.kind === 'level' && Math.random() < 0.3) sysLine('level');
-    $('lootSub').textContent = lootStory(req) || titles[req.kind][1];
+    $('lootSub').textContent = req.kind === 'relic' ? titles.relic[1] : (lootStory(req) || titles[req.kind][1]) + (G.relics.twinpick && req.kind !== 'start' && req.kind !== 'branch' ? ' TWIN PICK: take two.' : '');
     const box = $('lootBox');
     box.className = 'box ' + req.kind;
     // Loot boxes are gold; a branch choice is an upgrade, so it's cyan.
@@ -432,7 +460,7 @@ const UI = {
     $('lootCards').innerHTML = '';
     $('lootCards').classList.remove('ready');
     UI.renderLootCards();
-    $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' ? 'none' : '';
+    $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'relic' ? 'none' : '';
     UI.updateReroll();
     UI.show('loot');
     INPUT.active = false; G.manual = null;
@@ -472,8 +500,17 @@ const UI = {
 
   pickLoot(i) {
     const o = UI.lootOpts[i];
+    if (o.taken) return;
     o.apply();
     sfx('pickup');
+    // Twin Pick relic: DNA strands let you take a second card.
+    const k = UI.lootReq && UI.lootReq.kind;
+    if (G.relics.twinpick && !UI.pickedOne && k !== 'start' && k !== 'branch' && k !== 'relic' && UI.lootOpts.length > 1) {
+      UI.pickedOne = true; o.taken = true;
+      const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
+      $('lootSub').textContent = 'Twin Pick: take one more.';
+      return;
+    }
     G.state = 'play';
     UI.show('hud');
     UI.refreshHud(true);
@@ -529,6 +566,8 @@ const UI = {
     const ps = Object.keys(G.passives);
     const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
     h += `<div class="sec"><h3>Stains (${st.length}/${Object.keys(DYES).length})</h3><p class="hint">${st.length ? st.map(id => '<b>' + esc(DYES[id].name) + '</b>').join(', ') + '.' : 'None yet: the slide is all greyscale.'} Stains turn up in DNA strands; each one brings back one kind of colour.</p></div>`;
+    const rl = Object.keys(G.relics);
+    if (rl.length) h += `<div class="sec"><h3>Boss relics</h3><div class="list">${rl.map(id => `<div class="li on"><b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b><br><span>${esc(RELICS[id].desc)}</span></div>`).join('')}</div></div>`;
     h += `<div class="sec"><h3>Power-ups</h3>`;
     h += ps.length ? `<div class="list">${ps.map(id => `<div class="li on"><b>${esc(PASSIVES[id].name)}</b> x${G.passives[id]}</div>`).join('')}</div>` : `<p class="hint">None yet.</p>`;
     h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%</p></div>`;
@@ -541,11 +580,19 @@ const UI = {
     for (const id in REACTIONS) h += `<div class="li"><b>${REACTIONS[id].name}</b> ${G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
     h += `</div></div>`;
 
-    // Fusion recipes.
-    h += `<div class="sec"><h3>Fusion recipes</h3><div class="list">`;
-    for (const m of MERGES) {
-      const ha = G.weapons.find(w => w && w.id === m.a), hb = G.weapons.find(w => w && w.id === m.b);
-      h += `<div class="li ${ha && hb ? 'on' : ''}"><b style="color:${PAL.upgrade}">${esc(WEAPONS[m.out].name)}</b><br><span>${esc(WEAPONS[m.a].name)}${ha ? ' (Lv ' + ha.lvl + ')' : ''} + ${esc(WEAPONS[m.b].name)}${hb ? ' (Lv ' + hb.lvl + ')' : ''}</span></div>`;
+    // Pairings found so far (on any run).
+    const found = PAIRINGS.filter(q => META.pairs[q.id]);
+    h += `<div class="sec"><h3>Pairings found (${found.length}/${PAIRINGS.length})</h3><div class="list">`;
+    for (const q of PAIRINGS) {
+      const known = META.pairs[q.id];
+      h += `<div class="li ${G.pair[q.id] ? 'on' : ''}"><b style="color:${known ? PAL.upgrade : 'inherit'}">${known ? esc(q.name) : '???'}</b><br><span>${known ? esc(WEAPONS[q.a].name) + ' + ' + esc(WEAPONS[q.b].name) + ': ' + esc(q.desc) : 'Two weapons, both Lv ' + PAIR_LEVEL + '+. Nobody has told you which.'}</span></div>`;
+    }
+    h += `</div></div>`;
+    // The boss ward.
+    h += `<div class="sec"><h3>The boss ward (${Object.keys(META.bosses).length}/${BOSSES.length} met)</h3><p class="hint">Every run you meet ${BOSSES_PER_RUN} of them, in a random order.</p><div class="list">`;
+    for (const b of BOSSES) {
+      const met = META.bosses[b.id], now = G.bossRoster.indexOf(b.id) >= 0 && G.bossRoster.indexOf(b.id) < G.bossCount;
+      h += `<div class="li ${now ? 'on' : ''}"><b>${met ? esc(b.name) : '???'}</b>${met ? ' <em>' + esc(b.title) + '</em>' : ''}<br><span>${met ? 'Weak to: ' + esc(b.weaknesses.join('; ')) + '. Relics: ' + b.relics.map(id => esc(RELICS[id].name)).join(', ') : 'Not met yet.'}</span></div>`;
     }
     h += `</div></div>`;
     }
@@ -728,6 +775,7 @@ window.handleBack = function () {
   const on = id => $(id).classList.contains('on');
   if (on('title')) return 'exit';
   if (G && G.state === 'intro') { endIntro(); return 'ok'; }
+  if (G && G.state === 'bossIntro') { if ($('bossIntro').classList.contains('ready')) endBossIntro(); return 'ok'; }
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }

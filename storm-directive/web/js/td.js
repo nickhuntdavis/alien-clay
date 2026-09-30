@@ -109,6 +109,7 @@ function updateRewind(dt) {
   G.nextBoss = s.nextBoss; G.nextWave = s.nextWave; G.bossCount = s.bossCount; G.surge = s.surge;
   if (G.bossDead) G.enemies = G.enemies.filter(x => !(x.boss && G.bossDead[x.id]));
   G.boss = G.enemies.find(x => x.boss && !x.egg) || null;
+  relinkTwins(); G.revive = null;
   G.eggE = G.enemies.find(x => x.egg) || null;
   const P = G.P;
   if (r.auto) G.player.hp = Math.max(G.player.hp, P.maxHp * 0.3);

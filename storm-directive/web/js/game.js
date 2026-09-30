@@ -76,10 +76,11 @@ function newGame() {
     spawnAcc: 0, crowdT: 0, synergy: {}, banner: null,
     core: makeCore(), scrap: 0,
     chrono: newChrono(), echoes: [], rewind: null, realPlayer: null, lights: [], decals: [],
-    tethers: [], grudge: null, mimicPat: null, curses: {}, scatter: false,
+    tethers: [], grudge: null, mimicPat: null, curses: {}, scatter: false, pair: {}, relics: {}, hazards: [],
     show: newShow(),
     stats: { dmg: {}, hurt: {}, lastHit: '', reactions: 0, reactBy: {}, merges: 0, bossKills: 0, maxCombo: 0, rewinds: 0, leaks: 0, absorbed: 0 },
   };
+  G.bossRoster = bossRoster();
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
   G.dyes = {};
@@ -296,6 +297,7 @@ function recomputeAll() {
   G.synergy = {};
   for (const k in counts) if (counts[k] >= 2) G.synergy[k] = true;
   for (const w of G.weapons.concat(G.spells)) if (w) { computeStats(w); w.ammo = Math.min(w.ammo, w.s.mag); }
+  updatePairings();
 }
 
 function availableMerges() {
@@ -360,6 +362,7 @@ function genLoot(req) {
     const ids = shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 3);
     return ids.map(id => optNewWeapon(id, Math.max(1, rollRarity(1))));
   }
+  if (req.kind === 'relic') return bossDef(req.boss).relics.map(id => optRelic(id, req.boss));
   if (req.kind === 'branch') {
     const w = G.weapons.find(x => x && x.uid === req.uid);
     if (w && !w.perks[req.lvl]) return weaponTree(w.def)[req.lvl].map(id => optPerk(w, req.lvl, id));
@@ -529,6 +532,8 @@ function damageEnemy(e, dmg, src) {
     else if (!e.tunUsed && e.hp - d < e.maxHp * 0.3) { e.tunUsed = true; e.tunT = G.t + 2.5; d *= 0.08; floatText(e.x, e.y - e.r - 10, 'TUN!', XR.white, 13); }
   }
   if (src.grudge && e === G.grudge) d *= 3;
+  d *= sigDamageMul(e, src);
+  if (e.boss || e.bossDef) d *= bossDamageMul(e, src);
   if (src.w && src.w.s) {
     const ws = src.w.s;
     if (ws.pExec && e.hp < e.maxHp * 0.35) d *= 1 + ws.pExec;
@@ -568,7 +573,8 @@ function damageEnemy(e, dmg, src) {
     e.kx += kx / l * k; e.ky += ky / l * k;
   }
   if (src.freezeHit && !e.boss) { e.frozen = Math.max(e.frozen, 1.2); }
-  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); }
+  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); }
+  if (!src.dot) relicHit(e, d, src);
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   // Shocked enemies arc a portion of incoming damage to a neighbour.
   if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25)) {
@@ -589,7 +595,7 @@ function damageEnemy(e, dmg, src) {
 }
 
 function react(e, id, src) {
-  if (e.reactCd > 0) return false;
+  if (e.reactCd > 0 && !(G.pair.hotcold && (id === 'thermal' || id === 'steam'))) return false;
   e.reactCd = 0.35;
   G.stats.reactions++;
   addViewers(8);
@@ -610,7 +616,7 @@ function applyElement(e, elem, dmg, src) {
     case 'fire':
       if ((e.chill > 0 || e.frozen > 0) && react(e, 'thermal', src)) {
         e.chill = 0; e.chillAmt = 0; e.frozen = 0;
-        damageEnemy(e, dmg * 2.5 * rm + 10, rsrc);
+        damageEnemy(e, (dmg * 2.5 * rm + 10) * (G.pair.hotcold ? 2 : 1), rsrc);
         spawnPart(e.x, e.y, '#ffb3b3', 10, 160, 0.4);
       } else if (e.poison > 0 && e.poisonStacks >= 3 && react(e, 'combust', src)) {
         const boom = (e.poisonDps * e.poisonStacks * 2.5 + dmg) * rm;
@@ -626,7 +632,7 @@ function applyElement(e, elem, dmg, src) {
     case 'ice': {
       if (e.burn > 0 && react(e, 'steam', src)) {
         e.burn = 0;
-        aoe(e.x, e.y, 70, (dmg * 1.4 + 6) * rm, rsrc, '#e0fbfc');
+        aoe(e.x, e.y, 70, (dmg * 1.4 + 6) * rm * (G.pair.hotcold ? 2 : 1), rsrc, '#e0fbfc');
       }
       e.chill = 2.5;
       e.chillAmt = Math.min(0.6, e.chillAmt + 0.14 * P.elem.ice);
@@ -665,7 +671,9 @@ function applyElement(e, elem, dmg, src) {
 }
 
 function aoe(x, y, r, dmg, src, color) {
+  IN_AOE = true;
   forNear(x, y, r, e => { damageEnemy(e, dmg, src); });
+  IN_AOE = false;
   popAmbient(x, y, r);
   ring(x, y, r, color || '#ffae42', 0.35, 4);
   addLight(x, y, r * 1.8, color || '#ffae42', 0.45);
@@ -676,18 +684,23 @@ function aoe(x, y, r, dmg, src, color) {
 }
 
 function doChain(x, y, first, dmg, jumps, jumpR, src) {
-  let cur = first, px = x, py = y;
+  let cur = first, px = x, py = y, prev = null;
   const hit = [first];
   for (let k = 0; k <= jumps && cur; k++) {
     const el = src.elem2 && k % 2 ? src.elem2 : src.elem;
     bolt(px, py, cur.x, cur.y, ELEMENTS[el].color, 0.16);
-    damageEnemy(cur, dmg * Math.pow(0.88, k), Object.assign({}, src, { elem: el }));
+    const wet = G.pair.conductive && cur.wetT > G.t ? 2 : 1;
+    damageEnemy(cur, dmg * Math.pow(src.overcharge ? 1.2 : 0.88, k) * wet, Object.assign({}, src, { elem: el }));
+    if (G.pair.monitor) chainNearMine(cur.x, cur.y);
     px = cur.x; py = cur.y;
     let next = null, bd = jumpR * jumpR;
-    forNear(px, py, jumpR, (e, d2) => { if (!hit.includes(e) && d2 < bd) { bd = d2; next = e; } });
+    // Short Circuit: the lightning may bounce back to anything but the one it just left.
+    forNear(px, py, jumpR, (e, d2) => { if (e !== cur && e !== prev && (src.revisit || !hit.includes(e)) && d2 < bd) { bd = d2; next = e; } });
+    if (!next && src.revisit && prev && !prev.dead) next = prev;
     if (next) hit.push(next);
-    cur = next;
+    prev = cur; cur = next;
   }
+  return hit;
 }
 
 function killEnemy(e, src) {
@@ -700,6 +713,8 @@ function killEnemy(e, src) {
   if (e.boss || e.elite || (e.def.spongy && e.r > 60)) casaLog(`TRK#${e.id} ${e.name} lysed`);
   const P = G.P;
   onShowKill(e, src);
+  sigKill(e, src);
+  relicKill(e, src);
   // Split on Kill mod.
   if (src.w && !src.noSplit && src.w.mods && src.w.mods.some(m => m.id === 'shrapnel')) {
     const ss = Object.assign({}, src, { noSplit: true, mult: 1 });
@@ -714,10 +729,14 @@ function killEnemy(e, src) {
     aoe(e.x, e.y, 60 + e.r, Math.max(src.w.s.dmg, e.maxHp * 0.3) * src.w.s.pBurst, bs, '#ff5a36');
   }
   // Parasite Seeder: infected corpses become turrets.
-  if (e.parasiteT > 0 && e.parasiteW && G.turrets.length < 24) {
+  // Petri Dish pairing: anything that dies in a puddle was infected all along.
+  if (!(e.parasiteT > 0) && G.pair.petri && e.puddleT > G.t) { e.parasiteW = owned('parasite'); e.parasiteT = 1; }
+  if (e.parasiteT > 0 && e.parasiteW && G.weapons.includes(e.parasiteW) && !wormCorpse(e, e.parasiteW) && G.turrets.length < 24) {
     const pw = e.parasiteW;
-    G.turrets.push({ x: e.x, y: e.y, life: pw.s.dur || 8, max: pw.s.dur || 8, cd: 0.3, rate: 0.35, dmg: pw.s.dmg * 1.2, range: 320, w: pw,
-      src: { elem: 'poison', wname: 'Tapeworm turrets', crit: G.P.crit }, face: 0, color: '#b5e48c' });
+    const tu = { x: e.x, y: e.y, life: pw.s.dur || 8, max: pw.s.dur || 8, cd: 0.3, rate: 0.35, dmg: pw.s.dmg * 1.2, range: 320, w: pw,
+      src: { elem: 'poison', wname: 'Tapeworm turrets', crit: G.P.crit }, face: 0, color: '#b5e48c' };
+    wormTurret(tu, pw);
+    G.turrets.push(tu);
     achieve('parasite');
   }
   // Mimic Core learns attack patterns from dead shooters.
@@ -744,16 +763,8 @@ function killEnemy(e, src) {
   if (e.def.ai === 'bomber') bomberBlast(e);
   if (e.def.spongy && e.r > 140) achieve('bigamoeba');
   if (e.boss) {
-    // A boss stays dead even if you rewind past its death (no farming the same boss for boxes).
-    (G.bossDead || (G.bossDead = {}))[e.id] = true;
-    G.boss = null;
-    G.stats.bossKills++;
-    G.lootQueue.push({ kind: 'boss', src: { t: 'boss', name: e.name } });
-    healPlayer(P.maxHp * 0.3);
-    banner(e.name + ' DESTROYED', '#ffd23f');
-    for (let i = 0; i < 12; i++) dropGem(e.x + rand(-60, 60), e.y + rand(-60, 60), e.xp / 12);
-    cam.shake = 14;
-    sfx('boss');
+    // A boss stays dead even if you rewind past its death (no farming the same boss for relics).
+    bossDown(e);
   } else if (e.elite || (e.def.spongy && e.r > 100)) {
     // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
     G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage']), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
@@ -801,7 +812,10 @@ function healPlayer(n, silent) {
 function hurtPlayer(dmg, from, ent) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0) return;
-  if (Math.random() < P.dodge) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; return; }
+  if (Math.random() < P.dodge) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
+  if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
+  dmg = relicDamageIn(dmg, ent);
+  if (dmg <= 0) return;
   const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour));
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
@@ -814,6 +828,8 @@ function hurtPlayer(dmg, from, ent) {
   floatText(p.x, p.y - 24, '-' + Math.round(d), '#ff4d6d', 15);
   sfx('hurt');
   vibrate(25);
+  acidReflux();
+  relicHurt(d, ent);
   if (p.hp <= 0) { p.hp = 0; if (!startRewind(true)) gameOver(); }
 }
 
@@ -896,27 +912,6 @@ function waveEvent() {
   }
 }
 
-function spawnBoss() {
-  const def = BOSSES[G.bossCount % BOSSES.length];
-  const round = Math.floor(G.bossCount / BOSSES.length);
-  const s = spawnPos();
-  const e = makeEnemy(def, s.x, s.y);
-  e.boss = true;
-  e.hp = e.maxHp = def.hp * (1 + G.bossCount * 0.9) * (1 + G.t / 320) * (1 + round);
-  e.armour = def.armour + round * 4;
-  e.speed = def.speed;
-  e.dmg = def.dmg * dmgMul(G.t);
-  e.pat = 0; e.patT = 0; e.fireT = 0;
-  G.enemies.push(e);
-  G.boss = e;
-  G.bossCount++;
-  banner('WARNING: ' + def.name, '#ff4d6d');
-  sysMsg('SYSTEM MESSAGE', `${def.name}, ${BOSS_TITLES[def.id] || 'Unpaid Villain'}, has entered the arena. ${pick(SYSTEM_LINES.boss)}`, '#ff4d6d', true);
-  addViewers(5000);
-  sfx('boss');
-  vibrate(120);
-}
-
 let shooterName = '', shooterEnt = null;
 // Fewer, heavier bullets: every volley keeps 3 of each 5 shots (evenly, so patterns keep their shape),
 // and each one that flies hits 1.7x as hard.
@@ -925,7 +920,7 @@ function eBullet(x, y, a, speed, dmg, r, color) {
   if (G.ebul.length >= CAPS.ebul) return;
   G.bulSeq = ((G.bulSeq || 0) + 1) % 5;
   if (!BUL.keep[G.bulSeq]) return;
-  dmg *= BUL.dmg; r = (r || 5) * BUL.size;
+  dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
   speed *= (1 + Math.min(0.7, G.t / 1500)) * G.P.bulletSpeed;
   G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
 }
@@ -979,17 +974,19 @@ function updateEnemies(dt) {
     if (e.rival) { rivalAI(e, edt); continue; }
     if (e.charmed) {
       e.charmT -= dt;
-      if (e.charmT <= 0) { e.charmed = false; ring(e.x, e.y, e.r + 10, PAL.you, 0.3); }
+      if (e.charmT <= 0) { if (e.zombie) { e.dead = true; spawnPart(e.x, e.y, '#b5e48c', 8, 80, 0.5); continue; } e.charmed = false; ring(e.x, e.y, e.r + 10, PAL.you, 0.3); }
       else { allyAI(e, dt); continue; }
     }
     const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 1;
     const ux = dx / dist, uy = dy / dist;
     let mx = ux, my = uy, spd = e.speed;
     const frozen = e.frozen > 0;
-    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1);
+    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1);
     if (e.boss) {
       bossAI(e, edt, dist, ux, uy);
       mx = e.mvx; my = e.mvy; spd = e.mvs;
+    } else if (e.orbitBoss && orbitNurse(e, edt)) {
+      mx = 0; my = 0;
     } else if (!frozen) {
       switch (e.def.ai) {
         case 'yeast': {
@@ -1114,6 +1111,10 @@ function updateEnemies(dt) {
       if (G.barrier > 0) {
         e.kx -= ux * 300; e.ky -= uy * 300;
         if (!(e.hitT.b > G.t)) { e.hitT.b = G.t + 0.4; damageEnemy(e, G.barrierDmg, { elem: 'arcane', wname: 'Latex Barrier' }); }
+      } else if (G.relics.swallow && !e.elite && !e.boss && !e.rival && !e.bossDef && !e.charmed && !e.egg && e.r <= p.r * 1.3) {
+        e.hp = 0; killEnemy(e, { wname: 'Swallow Whole' }); healPlayer(3, true);
+        if (!(G.gulpT > G.realT)) { G.gulpT = G.realT + 0.5; floatText(p.x, p.y - 26, 'GULP', PAL.you, 13); }
+        continue;
       } else if (!frozen) hurtPlayer(e.dmg, e.name + (e.elite ? ' (elite)' : ''), e);
     }
     // Leash: recycle enemies left far behind.
@@ -1132,16 +1133,20 @@ function updateEnemies(dt) {
 
 function bossAI(e, dt, dist, ux, uy) {
   const pats = e.def.patterns;
+  dt *= bossUpkeep(e, dt);
   e.patT += dt;
-  if (e.patT > 5.5) { e.patT = 0; e.pat = (e.pat + 1) % pats.length; e.fireT = 0; e.st = 0; }
+  if (e.patT > 5.5) { e.patT = 0; e.pat = (e.pat + 1) % pats.length; e.fireT = 0; e.st = 0; e.glaring = false; }
   const pat = pats[e.pat];
   const p = G.player;
   const aim = Math.atan2(p.y - e.y, p.x - e.x);
   const bd = e.def.dmg * 0.35 * dmgMul(G.t);
   // Default movement: keep medium distance.
   e.mvx = dist > 230 ? ux : dist < 150 ? -ux : -uy; e.mvy = dist > 230 ? uy : dist < 150 ? -uy : ux; e.mvs = e.speed;
+  // Bosses don't let you kite them off screen: far away, they close in fast.
+  if (dist > 380) e.mvs = Math.max(e.speed, 140 * G.P.speed);
   if (e.patT < 0.6) return; // brief pause between patterns
   e.fireT -= dt;
+  if (bossSpecial(e, pat, dt, dist, ux, uy, aim, bd)) return;
   switch (pat) {
     case 'spiral':
       if (e.fireT <= 0) { e.fireT = 0.09; e.spin += 0.23; for (let k = 0; k < 3; k++) eBullet(e.x, e.y, e.spin + k * TAU / 3, 130, bd, 6, '#ff4d6d'); }
@@ -1188,7 +1193,7 @@ function weaponSrc(w) {
   const s = w.s, d = w.def, P = G.P;
   const mod = w.mods && w.mods.find(m => m.id === 'elemental');
   const nearAnchor = Math.hypot(me().x - G.core.x, me().y - G.core.y) < 450;
-  return { elem: mod ? mod.elem : d.elem, elem2: d.elem2, wname: (w.echo ? 'Echo ' : '') + d.name, crit: s.crit + (!nearAnchor ? P.anchorLink : 0),
+  return { elem: mod ? mod.elem : s.elem || d.elem, elem2: d.elem2, wname: (w.echo ? 'Echo ' : '') + d.name, crit: s.crit + (!nearAnchor ? P.anchorLink : 0),
     shred: s.shred || 0, knock: s.knock || 0, freezeHit: s.freezeHit, echoHit: s.echoHit, w, dir: w.dir, echo: !!w.echo,
     grudge: !!d.grudge, parasite: !!d.parasite, mult: weaponMult(w),
     modFreeze: s.modFreeze || 0, modExplode: s.modExplode || 0, modCharm: s.modCharm || 0, charmDur: s.charmDur || 0 };
@@ -1225,6 +1230,7 @@ function updateWeapon(w, dt) {
     if (d.kind === 'mine' && !acquire('nearest', s.range, G.player.x, G.player.y)) { w.cd = 0; return; }
     w.isLast = !rage && !d.scrapAmmo && G.P.lastRound > 0 && w.ammo === 1;
     fireWeapon(w, target);
+    w.firedT = G.t;
     w.isLast = false;
     shots++;
     w.cd += s.cd;
@@ -1257,18 +1263,22 @@ function fireWeapon(w, target) {
         const over = gunOver(w);
         const fsrc = w.isLast ? Object.assign({}, src, { last: true, mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src;
         for (const tg of barrels) {
-          const a0 = Math.atan2(tg.y - p.y, tg.x - p.x);
-          const n = s.count;
+          const V = sigVolley(w, Math.atan2(tg.y - p.y, tg.x - p.x));
+          const a0 = V.a0, vo = V.over ? Object.assign({}, over || {}, V.over) : over;
+          const n = s.count + V.extra;
           for (let i = 0; i < n; i++) {
             const a = n > 1 ? a0 + (i / (n - 1) - 0.5) * s.spread + rand(-0.04, 0.04) : a0 + rand(-s.spread, s.spread) * 0.5;
+            const o = V.big && i === 0 ? Object.assign({}, vo || {}, { dmg: s.dmg * 4, r: (s.size || 4) * 3, pierce: 3 }) : vo;
+            let pr;
             if (G.P.future > 0 && Math.random() < G.P.future) {
               // Future Rounds: this bullet was fired a moment from now, so it's already arriving.
               const fx = tg.x - Math.cos(a) * 40, fy = tg.y - Math.sin(a) * 40;
               ring(fx, fy, 14, '#8dffc0', 0.25, 2);
-              spawnProj(w, fx, fy, a, fsrc, over);
-            } else spawnProj(w, p.x, p.y, a, fsrc, over);
+              pr = spawnProj(w, fx, fy, a, fsrc, o);
+            } else pr = spawnProj(w, p.x, p.y, a, fsrc, o);
+            if (pr && V.owner) { pr.homing = Math.max(pr.homing, 8); pr.tgt = V.owner; pr.vsOwner = V.owner; }
           }
-          p.face = a0;
+          if (!hasSig(w, 'dragon')) p.face = a0;
         }
       }
       if (d.style !== 'flame' || Math.random() < 0.2) sfx('shot');
@@ -1276,7 +1286,7 @@ function fireWeapon(w, target) {
     }
     case 'chain': {
       const ts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count) : [target];
-      for (const t of ts) doChain(p.x, p.y, t, s.dmg, s.chain, s.jump, src);
+      for (const t of ts) afterChain(w, doChain(p.x, p.y, t, s.dmg, s.chain, s.jump, Object.assign(src, { overcharge: hasSig(w, 'overcharge'), revisit: hasSig(w, 'shortcircuit') })), src);
       sfx('zap');
       break;
     }
@@ -1294,7 +1304,7 @@ function fireWeapon(w, target) {
       break;
     case 'mine':
       for (let i = 0; i < s.count; i++) {
-        G.proj.push({ mine: true, x: p.x + rand(-26, 26), y: p.y + rand(-26, 26), life: s.life, arm: 0.5, r: 7, w, src, color: d.color, dead: false });
+        G.proj.push(mineDrop(w, p.x + rand(-26, 26), p.y + rand(-26, 26)));
       }
       break;
     // ---- spells
@@ -1350,7 +1360,7 @@ function spawnProj(w, x, y, a, src, over) {
   const pr = {
     x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, speed, r: s.size || 4, dmg: s.dmg, pierce: s.pierce || 0,
     life: (s.range || 400) / speed, max: 0, w, src: el !== src.elem ? Object.assign({}, src, { elem: el }) : src,
-    color: d.color, style: d.style || 'bullet', explode: s.explode || 0, homing: s.homing || 0,
+    color: d.color, style: s.style || d.style || 'bullet', explode: s.explode || 0, homing: s.homing || 0,
     bounce: s.bounce || 0, boomerang: s.boomerang || 0, chainHit: s.chainHit || 0, aura: s.aura || 0, pull: s.pull || 0,
     hits: null, tick: 0, dead: false, tgt: null, back: false,
   };
@@ -1359,6 +1369,7 @@ function spawnProj(w, x, y, a, src, over) {
   if (pr.boomerang) pr.life = s.range / speed * 2 + 0.3;
   pr.max = pr.life;
   if (over) Object.assign(pr, over);
+  if (w.perks && !(over && over.noMods)) sigProj(pr, w);
   if (mods) {
     if (s.grow) { pr.grow = s.grow; pr.r0 = pr.r; pr.dmg0 = pr.dmg; pr.age = 0; }
     if (s.orbitMod) { pr.orbitT = s.orbitMod; pr.oa = Math.random() * TAU; pr.orad = rand(42, 70); }
@@ -1388,15 +1399,21 @@ function updateOrbit(w, dt) {
     if (w.reloadT <= 0) { w.reloadT = 0; w.active = s.dur; }
     return;
   } else { w.active = s.dur; }
+  if (hasSig(w, 'clingy')) { w.active = s.dur; w.reloadT = 0; }
   w.ang += s.spin * dt;
   const rad = s.radius * (w.def.base.pulse ? 1 + 1.1 * (0.5 - 0.5 * Math.cos(G.realT * 2.2)) : 1);
   const src = weaponSrc(w);
   if (!w.hitKeys || w.hitKeys.length < s.count) w.hitKeys = Array.from({ length: s.count }, (_, i) => w.uid + '_' + i);
-  for (let i = 0; i < s.count; i++) {
-    const a = w.ang + i / s.count * TAU;
-    const bx = p.x + Math.cos(a) * rad, by = p.y + Math.sin(a) * rad;
-    const hk = w.hitKeys[i];
+  // Extended Family: a second ring, twice as far out, spinning the other way.
+  const rings = hasSig(w, 'extended') ? 2 : 1;
+  if (w.hitKeys.length < s.count * rings) w.hitKeys = Array.from({ length: s.count * rings }, (_, i) => w.uid + '_' + i);
+  for (let ri = 0; ri < rings; ri++) for (let i = 0; i < s.count; i++) {
+    const a = (ri ? -w.ang * 0.8 : w.ang) + i / s.count * TAU;
+    const rr = ri ? rad * 2 : rad;
+    const bx = p.x + Math.cos(a) * rr, by = p.y + Math.sin(a) * rr;
+    const hk = w.hitKeys[ri * s.count + i];
     w.blades.push(bx, by, a);
+    bladeEats(w, bx, by, s.size);
     forNear(bx, by, s.size, e => {
       if (e.hitT[hk] > G.t) return;
       e.hitT[hk] = G.t + 0.4;
@@ -1450,6 +1467,7 @@ function updateProjectiles(dt) {
       continue;
     }
     if (pr.mine) {
+      if (updateStickyMine(pr, dt)) continue;
       pr.life -= dt; pr.arm -= dt;
       if (pr.arm <= 0) {
         let trig = false;
@@ -1495,25 +1513,48 @@ function updateProjectiles(dt) {
         pr.vx = Math.cos(na) * pr.speed; pr.vy = Math.sin(na) * pr.speed;
       }
     }
-    // Boomerang return.
-    if (pr.boomerang && !pr.back && pr.life < pr.max / 2) { pr.back = true; pr.hits = null; }
+    // Boomerang return (Walk the Dog / Black Hole Yo-Yo: hang at full reach first).
+    if (pr.boomerang && !pr.back && pr.life < pr.max / 2) {
+      if (pr.hangT > 0) {
+        if (!pr.hanging) { pr.hanging = true; pr.hx = pr.x; pr.hy = pr.y; }
+        pr.hangT -= dt; pr.life += dt;
+        pr.hitReset = (pr.hitReset || 0) - dt;
+        if (pr.hitReset <= 0) { pr.hitReset = 0.2; pr.hits = null; }
+        if (pr.hangPull) forNear(pr.x, pr.y, 130, e => { if (!e.boss && !e.egg && !e.rival) { const dx = pr.x - e.x, dy = pr.y - e.y, dd = Math.hypot(dx, dy) || 1; e.x += dx / dd * Math.min(dd, pr.hangPull * dt); e.y += dy / dd * Math.min(dd, pr.hangPull * dt); } });
+      } else { pr.back = true; pr.hits = null; pr.hanging = false; if (pr.hangPull) pr.magnet = 140; }
+    }
     if (pr.back) {
       const dx = p.x - pr.x, dy = p.y - pr.y, d = Math.hypot(dx, dy) || 1;
       pr.vx = dx / d * pr.speed * 1.15; pr.vy = dy / d * pr.speed * 1.15;
-      if (d < 18) { pr.dead = true; continue; }
+      if (d < 18) {
+        pr.dead = true;
+        if (pr.catchHeal && pr.nHit && G.lsBudget > 0) { const h = Math.min(G.lsBudget * 2, pr.nHit * 0.6); G.lsBudget = Math.max(0, G.lsBudget - h / 2); healPlayer(h, true); }
+        continue;
+      }
     }
     if (!(pr.orbitT > 0)) { pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt; }
-    if (pr.hold > 0) { pr.x = pr.hx; pr.y = pr.hy; }
-    if (pr.life <= 0) { pr.dead = true; if (pr.explode) aoe(pr.x, pr.y, pr.explode, pr.dmg, pr.src, pr.color); continue; }
+    if (pr.hold > 0 || pr.hanging) { pr.x = pr.hx; pr.y = pr.hy; }
+    if (pr.life <= 0) {
+      // Family Reunion: a sibling that missed swims back to circle you, then goes again.
+      if (pr.reunion && !pr.reunited) { pr.reunited = true; pr.orbitT = 2; pr.oa = Math.atan2(pr.y - p.y, pr.x - p.x); pr.orad = rand(40, 70); pr.life = pr.max; pr.hits = null; continue; }
+      pr.dead = true;
+      if (pr.explode) aoe(pr.x, pr.y, pr.explode, pr.dmg, pr.src, pr.color);
+      projEnd(pr);
+      continue;
+    }
     if (!(pr.orbitT > 0) && !pr.back && terrainShot(pr, false, dt)) continue;
     // Aura projectiles (void orb): periodic area damage and pull.
     if (pr.aura) {
       pr.tick -= dt;
+      const tick = pr.tick <= 0;
+      let caught = 0;
       forNear(pr.x, pr.y, pr.aura, e => {
+        caught++;
+        e.pulledT = G.t + 0.3;
         if (!e.boss) { const dx = pr.x - e.x, dy = pr.y - e.y, d = Math.hypot(dx, dy) || 1; e.x += dx / d * pr.pull * dt; e.y += dy / d * pr.pull * dt; }
-        if (pr.tick <= 0) damageEnemy(e, pr.dmg, pr.src);
+        if (tick) { const dd = damageEnemy(e, pr.dmg, pr.src); if (pr.dealt != null) pr.dealt += dd || 0; gravityTick(pr, e); }
       });
-      if (pr.tick <= 0) pr.tick = 0.25;
+      if (tick) { pr.tick = 0.25; gravityOrb(pr, caught); }
       continue;
     }
     // A shot that crosses a swimmer's flagellum snips it (checked every other frame; tails are thin).
@@ -1522,6 +1563,7 @@ function updateProjectiles(dt) {
     // Collision.
     forNear(pr.x, pr.y, pr.r, e => {
       if (pr.hits && pr.hits.includes(e.id)) return;
+      if (e.boss && bossDodges(e)) { (pr.hits || (pr.hits = [])).push(e.id); return; }
       // Hit from behind: the tail takes it.
       if (canSnip(e) && Math.random() < 0.5) { const fx = G.player.x - e.x, fy = G.player.y - e.y, fl = Math.hypot(fx, fy) || 1, vl = Math.hypot(pr.vx, pr.vy) || 1; if ((pr.vx * fx + pr.vy * fy) / (fl * vl) > 0.5) cutTail(e); }
       if (pr.orbitT > 0) {
@@ -1530,7 +1572,9 @@ function updateProjectiles(dt) {
         (pr.hits || (pr.hits = [])).push(e.id);
         return false;
       }
-      damageEnemy(e, pr.dmg, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
+      const hm = (pr.pb ? 1 + 1.5 * clamp(pr.life / pr.max, 0, 1) : 1) * (pr.vsOwner === e ? 3 : 1);
+      damageEnemy(e, pr.dmg * hm, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
+      projHit(pr, e);
       if (pr.src.echoHit) {
         // Paradox Rifle: the same hit arrives again from one second in the future.
         const tgt = e, dmg = pr.dmg * 0.9;
@@ -1563,7 +1607,7 @@ function updateProjectiles(dt) {
         }
         pr.dead = true; return true;
       }
-      if (pr.pierce > 0) { pr.pierce--; return false; }
+      if (pr.pierce > 0) { pr.pierce--; if (pr.icicle) pr.dmg *= 1.25; return false; }
       pr.dead = true; return true;
     });
   }
@@ -1574,7 +1618,8 @@ function landLob(pr) {
   if (d.base.explode) aoe(pr.tx, pr.ty, s.area, s.dmg, pr.src, pr.color);
   else { forNear(pr.tx, pr.ty, s.area * 0.6, e => { damageEnemy(e, s.dmg, pr.src); }); spawnPart(pr.tx, pr.ty, pr.color, 8, 90, 0.4); }
   if (d.salvage && Math.random() < 0.5) dropScrap(pr.tx, pr.ty, 1);
-  if (s.dur > 0) G.zones.push({ x: pr.tx, y: pr.ty, r: s.area, life: s.dur, max: s.dur, dps: s.dmg * (d.base.explode ? 0.3 : 0.9), elem: d.elem, pull: 0, color: pr.color, tick: 0, src: pr.src });
+  if (pr.w.id === 'venom') { if (G.zones.length < 260) G.zones.push(venomZone(pr.w, pr.tx, pr.ty)); }
+  else if (s.dur > 0) G.zones.push({ x: pr.tx, y: pr.ty, r: s.area, life: s.dur, max: s.dur, dps: s.dmg * (d.base.explode ? 0.3 : 0.9), elem: d.elem, pull: 0, color: pr.color, tick: 0, src: pr.src });
 }
 
 function detonateMine(pr) {
@@ -1582,7 +1627,8 @@ function detonateMine(pr) {
   if (s.singularity) {
     G.zones.push({ x: pr.x, y: pr.y, r: s.explode * 1.2, life: 1.2, max: 1.2, dps: s.dmg * 0.3, elem: 'arcane', pull: 260, color: '#9d4edd', tick: 0, src: pr.src,
       onEnd: z => aoe(z.x, z.y, s.explode, s.dmg, pr.src, '#c77dff') });
-  } else aoe(pr.x, pr.y, s.explode, s.dmg, pr.src, pr.color);
+  } else { const k = mineScale(pr); aoe(pr.x, pr.y, s.explode * k.r, s.dmg * k.k, pr.src, pr.color); }
+  afterMine(pr);
 }
 
 function updateSpells(dt) { updateSpellList(G.spells, dt); }
@@ -1615,8 +1661,9 @@ function updateZones(dt) {
         const f = Math.min(d, z.pull * dt);
         e.x += dx / d * f; e.y += dy / d * f;
       }
-      if (doTick) damageEnemy(e, z.dps * 0.25, Object.assign({}, z.src, { noCrit: true, knock: 0 }));
+      if (doTick) { sigZone(z, e); damageEnemy(e, z.dps * 0.25, Object.assign({}, z.src, { noCrit: true, knock: 0, zoneHit: true })); }
     });
+    if (z.grow) z.r = Math.min(z.r0 * 1.9, z.r + z.grow * dt);
     if (z.life <= 0 && z.onEnd) z.onEnd(z);
   }
 }
@@ -1629,7 +1676,8 @@ function updateTurrets(dt) {
       if (e) {
         t.cd = t.rate;
         const a = Math.atan2(e.y - t.y, e.x - t.x); t.face = a;
-        spawnProj(t.w, t.x, t.y, a, t.src, { r: 3.5, speed: 620, vx: Math.cos(a) * 620, vy: Math.sin(a) * 620, life: t.range / 620, dmg: t.dmg, pierce: 0, style: 'bullet', color: t.color || '#ffd60a', bounce: 0, homing: 0, explode: 0, noMods: true });
+        if (t.sibs) spawnProj(t.w, t.x, t.y, a, t.src, { r: 4, speed: 330, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, life: 1.6, dmg: t.dmg, pierce: 0, style: 'sperm', color: '#d0a3ff', bounce: 0, homing: 6, explode: 0, noMods: true });
+        else spawnProj(t.w, t.x, t.y, a, t.src, { r: 3.5, speed: 620, vx: Math.cos(a) * 620, vy: Math.sin(a) * 620, life: t.range / 620, dmg: t.dmg, pierce: 0, style: 'bullet', color: t.color || '#ffd60a', bounce: 0, homing: 0, explode: 0, noMods: true });
       }
     }
   }
@@ -1642,7 +1690,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 150 * P.speed * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1);
+  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1);
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
@@ -1754,6 +1802,7 @@ function autoSteer() {
       }
     }
     danger += terrainDanger(qx, qy, p.r) + terrainDanger(mx, my, p.r) * 0.5 + (G.pill && inPill(qx, qy) ? 1.2 : 0);
+    if (G.hazards.length || G.boss) danger += hazardDanger(qx, qy, p.r) + hazardDanger(mx, my, p.r) * 0.5;
     // Turning is slow, so mildly prefer directions close to where the head already points.
     const interest = dx * gx + dy * gy + (i < 0 ? 0 : 0.18 * (Math.cos(p.hd || 0) * dx + Math.sin(p.hd || 0) * dy) / Math.max(0.6, G.P.traction));
     const score = interest - danger + (i < 0 ? (mode === 'hold' ? 0.4 : -0.1) : 0);
@@ -1908,13 +1957,15 @@ function update(dt) {
     for (const e of G.enemies) { if (e.dead) continue; let n = 0; forNear(e.x, e.y, 70, () => { n++; }); e.crowd = n + (e.boss ? 5 : 0); }
   }
   if (G.warp > 0) G.warp -= dt;
-  G.lsBudget = Math.min(3, (G.lsBudget || 0) + dt * 3); // lifesteal heals at most ~3 HP/s
+  const lsCap = G.relics.transfusion ? 9 : 3;
+  G.lsBudget = Math.min(lsCap, (G.lsBudget || 0) + dt * lsCap); // lifesteal heals at most ~3 HP/s
   if (G.rage > 0) G.rage -= dt;
   if (G.shieldT > 0) G.shieldT -= dt;
   if (G.barrier > 0) G.barrier -= dt;
   updatePlayer(dt);
   updateCrossfire();
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
+  sigTick(dt);
   updateTethers(dt);
   updateShow(dt);
   updateSpells(dt);
@@ -1925,6 +1976,7 @@ function update(dt) {
   updateEnemies(dt);
   updateTerrain(dt);
   updateCore(dt);
+  updateBosses(dt);
   updateChrono(dt);
   // Enemy bullets.
   const bw0 = G.warp > 0 ? 0.3 : 1;
@@ -1947,7 +1999,7 @@ function update(dt) {
       continue;
     }
     const rr = b.r + p.r * 0.6;
-    if (d2 < rr * rr) { b.dead = true; hurtPlayer(b.dmg, b.from, b.owner); }
+    if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; hurtPlayer(b.dmg, b.from, b.owner); }
   }
   updatePickups(dt);
   updateAmbient(dt);
@@ -2182,9 +2234,12 @@ function frame(ts) {
   lastTs = ts;
   if (G && G.state === 'play') {
     keyboardSteer();
-    if (G.lootQueue.length && typeof UI !== 'undefined') UI.openLoot(G.lootQueue.shift());
+    // A boss death plays out in slow motion before its relic box opens.
+    if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3); }
+    else if (G.lootQueue.length && typeof UI !== 'undefined') UI.openLoot(G.lootQueue.shift());
     else update(dt);
-  } else if (G && G.state === 'rewind') updateRewind(dt);
+  } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
+  else if (G && G.state === 'rewind') updateRewind(dt);
   else if (G && G.state === 'intro') updateIntro(dt);
   render();
   if (typeof UI !== 'undefined') UI.tick(dt);

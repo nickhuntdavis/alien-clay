@@ -13,8 +13,7 @@ const META_BONUSES = [
 ];
 // Starter weapons you can add to the first box.
 const META_STARTERS = [
-  ['nailgun', 60], ['cryopipette', 60], ['antibioticsg', 70], ['nerveimpulse', 70], ['placebo', 80],
-  ['chromowhip', 80], ['metaflare', 90], ['genesplicer', 100], ['mitosiscannon', 120], ['hailswarm', 90],
+  ['mines', 60], ['orbit', 60], ['void', 80], ['wake', 80], ['parasite', 90], ['siphon', 100],
 ];
 // Dye variants for your tag, kept in the green family so "green is you" still holds.
 const META_DYES = [
@@ -24,8 +23,12 @@ const META_DYES = [
   { id: 'aqua',    name: 'Aqua GFP',        color: '#4dffd2', cost: 160 },
 ];
 
-const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0 };
+const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0, pairs: {}, bosses: {} };
 try { Object.assign(META, JSON.parse(localStorage.getItem('sd_meta') || '{}')); } catch (e) { /* storage unavailable */ }
+META.pairs = META.pairs || {}; META.bosses = META.bosses || {};
+// v6 retired most weapons: starters bought for them are refunded in full.
+{ const OLD = { nailgun: 60, cryopipette: 60, antibioticsg: 70, nerveimpulse: 70, placebo: 80, chromowhip: 80, metaflare: 90, genesplicer: 100, mitosiscannon: 120, hailswarm: 90 };
+  for (const id in META.starters) if (!WEAPONS[id]) { META.dna += OLD[id] || 0; delete META.starters[id]; } }
 function saveMeta() { try { localStorage.setItem('sd_meta', JSON.stringify(META)); } catch (e) { /* ignore */ } }
 
 // DNA earned by a run.
@@ -54,7 +57,7 @@ function setYouColour(c) {
   if (typeof refreshPalette === 'function') refreshPalette(); // only shows once you have the GFP stain
 }
 function starterPool() {
-  const base = ['blaster', 'smg', 'shotgun', 'flamer', 'frost', 'tesla', 'glaive', 'needler', 'seeker', 'rocket', 'railgun', 'venom'];
+  const base = ['blaster', 'shotgun', 'glaive', 'flamer', 'frost', 'tesla', 'venom', 'seeker'];
   return base.concat(META_STARTERS.filter(([id]) => META.starters[id]).map(([id]) => id));
 }
 function metaBuy(kind, id) {
@@ -70,7 +73,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '5.4';
+const APP_VERSION = '6.0';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

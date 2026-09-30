@@ -13,6 +13,7 @@ function weaponMult(w) {
   if (P.momentum > 0) { const p = me(); bonus += P.momentum * Math.min(1.5, Math.hypot(p.vx || 0, p.vy || 0) / 150); }
   let m = 1 + Math.min(1.5, bonus);
   if (w.def.gacha) m *= GACHA_TIERS[w.gachaTier].mult;
+  if (w.hk) m *= 1 + 2 * w.hk; // Hell's Kitchen
   return m;
 }
 
@@ -22,6 +23,7 @@ function rateBonus() {
   let r = 1;
   if (G.scatter) r *= 1 + P.crossfire;
   if (P.anchorLink > 0 && Math.hypot(me().x - G.core.x, me().y - G.core.y) < 450) r *= 1 + P.anchorLink;
+  if (G.relics.feverdream) r *= 1 + Math.min(0.6, 0.03 * (G.feverN || 0));
   return r;
 }
 
@@ -61,6 +63,7 @@ function rollGacha(w, silent) {
 function startReload(w) {
   const P = G.P, p = G.player;
   w.reloadT = w.reloadMax = w.s.reload;
+  if (w.rivals) w.rivals = 0; // Sibling Rivalry: everyone settles down
   if (P.tactical <= 0) return;
   const r = 60 + 40 * P.tactical, r2 = r * r;
   for (const b of G.ebul) { const dx = b.x - p.x, dy = b.y - p.y; if (dx * dx + dy * dy < r2) { b.dead = true; spawnPart(b.x, b.y, '#e0fbff', 1, 50, 0.25); } }
@@ -75,7 +78,7 @@ function updateSiphon(w, dt) {
     if (b.dead || w.stored >= s.mag) continue;
     const dx = b.x - p.x, dy = b.y - p.y;
     if (dx * dx + dy * dy < r2) {
-      b.dead = true; w.stored++;
+      b.dead = true; w.stored++; siphonAte(w, b);
       if (!w.echo && ++G.stats.absorbed === 200) achieve('siphoned');
       if (Math.random() < 0.3) spawnPart(b.x, b.y, d.color, 1, 60, 0.25, 2);
     }
@@ -83,6 +86,7 @@ function updateSiphon(w, dt) {
   // A slow trickle so the Siphon is never completely dry in quiet moments.
   w.trickle = (w.trickle || 0) + dt * 2;
   if (w.trickle >= 1 && w.stored < s.mag) { w.trickle -= 1; w.stored++; } else if (w.trickle >= 1) w.trickle = 1;
+  siphonOverflow(w);
   w.ammo = w.stored;
   if (w.lastTarget && !w.lastTarget.dead) w.focusT += dt;
   w.cd -= dt * (G.rage > 0 ? 2 : 1) * rateBonus();
@@ -93,20 +97,24 @@ function updateSiphon(w, dt) {
   if (t !== w.lastTarget) { w.focusT = 0; w.lastTarget = t; }
   w.curTarget = t;
   const src = weaponSrc(w), a0 = Math.atan2(t.y - p.y, t.x - p.x), over = gunOver(w);
-  for (let i = 0; i < s.count; i++) spawnProj(w, p.x, p.y, a0 + (i - (s.count - 1) / 2) * 0.12 + rand(-s.spread, s.spread) * 0.5, src, over);
+  const V = sigVolley(w, a0), tg = V.owner || t, a1 = V.owner ? Math.atan2(tg.y - p.y, tg.x - p.x) : a0;
+  for (let i = 0; i < s.count; i++) {
+    const pr = spawnProj(w, p.x, p.y, a1 + (i - (s.count - 1) / 2) * 0.12 + rand(-s.spread, s.spread) * 0.5, src, over);
+    if (pr && V.owner) { pr.homing = 8; pr.tgt = V.owner; pr.vsOwner = V.owner; }
+  }
   sfx('shot');
 }
 
 // ---------------------------------------------------------------- Wake Blade / Plague Trail
 function updateWake(w, dt) {
-  const s = w.s, d = w.def, p = G.player;
+  const s = w.s, p = G.player;
   w.ammo = Math.min(1, Math.hypot(p.vx || 0, p.vy || 0) / 150) * s.mag;
+  surgicalTeam(w, dt);
   if (w.lx == null) { w.lx = p.x; w.ly = p.y; }
   if (Math.hypot(p.x - w.lx, p.y - w.ly) < 16) return;
   w.lx = p.x; w.ly = p.y;
-  if (G.zones.length < 260) {
-    G.zones.push({ x: p.x, y: p.y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg, elem: d.elem, pull: 0, color: d.color, tick: Math.random() * 0.25, src: weaponSrc(w), trail: true });
-  }
+  if (G.zones.length < 260) G.zones.push(wakeZone(w, p.x, p.y));
+  wakeExtras(w, p);
 }
 
 // ---------------------------------------------------------------- Thermal Lance
@@ -265,21 +273,32 @@ function allyAI(e, dt) {
 }
 
 // ---------------------------------------------------------------- weapon upgrade trees
-// Each weapon's tree is fixed (seeded by its id): two perk choices at every PERK_LEVELS milestone.
+// Lv 3 and Lv 8: three upgrades any weapon can take (fixed per weapon, seeded by its id, so you can plan
+// ahead in the Armoury). Lv 5 and Lv 10: the weapon's own two signature upgrades (SIGS).
 function weaponTree(def) {
   if (def.tree) return def.tree;
   let seed = 7;
   for (const ch of def.id || def.name) seed = (seed * 31 + ch.charCodeAt(0)) % 2147483647;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const used = new Set(), tree = {};
-  PERK_LEVELS.forEach((lvl, ti) => {
-    const pool = Object.keys(PERKS).filter(id => PERKS[id].tier === ti + 1 && !used.has(id) && (!PERKS[id].fit || PERKS[id].fit(def)));
-    const pickOne = () => { const i = Math.floor(rnd() * pool.length); const id = pool.splice(i, 1)[0]; used.add(id); return id; };
-    tree[lvl] = [pickOne(), pickOne(), pickOne()].filter(Boolean);
-  });
+  const tiers = { 3: [1], 8: [2, 3] }, tree = {};
+  for (const lvl of PERK_LEVELS) {
+    if (def.sig && def.sig[lvl]) { tree[lvl] = def.sig[lvl].slice(); continue; }
+    const pool = Object.keys(PERKS).filter(id => (tiers[lvl] || [4]).includes(PERKS[id].tier) && (!PERKS[id].fit || PERKS[id].fit(def)));
+    tree[lvl] = [];
+    while (tree[lvl].length < 3 && pool.length) tree[lvl].push(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+  }
   def.tree = tree;
   return tree;
 }
+// A branch perk or a signature upgrade, with what the UI needs to show it.
+function perkDef(id) {
+  if (PERKS[id]) return PERKS[id];
+  const g = SIGS[id];
+  if (!g) return { name: id, desc: '', icon: '?', color: PAL.upgrade };
+  if (!g.icon) { g.icon = g.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase(); g.color = PAL.upgrade; g.sig = true; }
+  return g;
+}
+const hasSig = (w, id) => !!(w && w.perks && (w.perks[5] === id || w.perks[10] === id));
 
 // Raise a weapon's level, queueing a branch choice for every milestone it passes.
 function setWeaponLevel(w, to, from) {
@@ -291,9 +310,9 @@ function setWeaponLevel(w, to, from) {
 }
 
 function optPerk(w, lvl, id) {
-  const K = PERKS[id];
-  return { rarity: lvl >= 8 ? 3 : lvl >= 5 ? 2 : 1, tag: lvl >= 10 ? 'MASTERY' : 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
-    sub: `${w.def.name} | Lv ${lvl} branch`, desc: K.desc,
+  const K = perkDef(id);
+  return { rarity: lvl >= 8 ? 3 : lvl >= 5 ? 2 : 1, tag: K.sig ? (lvl >= 10 ? 'MASTERY' : 'SIGNATURE') : 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
+    sub: `${w.def.name} | Lv ${lvl} ${K.sig ? 'only this weapon' : 'branch'}`, desc: K.desc,
     apply: () => { w.perks[lvl] = id; computeStats(w); floatText(me().x, me().y - 40, K.name.toUpperCase(), PAL.upgrade, 15, 1.2); } };
 }
 
@@ -335,6 +354,7 @@ function applyPerks(w, s) {
       case 'executioner': s.pExecKill = 0.2; break;
     }
   }
+  applySigStats(w, s);
 }
 
 // Hit side of perks (called from damageEnemy's proc step).

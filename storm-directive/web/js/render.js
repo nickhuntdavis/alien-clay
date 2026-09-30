@@ -1000,6 +1000,7 @@ function render() {
     }
   }
   ctx.globalAlpha = 1;
+  drawHazards(vis);
 
   drawCore();
 
@@ -1047,7 +1048,7 @@ function render() {
   for (const pr of G.proj) {
     if (pr.mine) {
       const x = sx(pr.x), y = sy(pr.y);
-      ctx.fillStyle = '#1a1a22'; ctx.beginPath(); ctx.arc(x, y, 7 * S, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#1a1a22'; ctx.beginPath(); ctx.arc(x, y, (pr.nuke ? 11 : 7) * S, 0, TAU); ctx.fill();
       const on = pr.arm > 0 || Math.floor(G.realT * 5) % 2;
       ctx.fillStyle = on ? pr.color : '#fff';
       ctx.beginPath(); ctx.arc(x, y, 3.5 * S, 0, TAU); ctx.fill();
@@ -1079,6 +1080,7 @@ function render() {
     const x = sx(e.x), y = sy(e.y), r = e.r * S * squash;
     ctx.globalAlpha = e.phased ? 0.25 : 1;
     if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
+    if (e.boss) drawBossTells(e, x, y, r);
     if (e.aimT > 0) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 - e.aimT) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(e.aimA) * 700 * S, y + Math.sin(e.aimA) * 700 * S); ctx.stroke(); }
     const tgt = e.charmed && e.allyT ? e.allyT : G.player;
     const face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
@@ -1154,6 +1156,8 @@ function render() {
     if (e.mark > 0) st('#c77dff');
     if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
     if (e.parasiteT > 0) st('#b5e48c');
+    if (e.soggyT > G.t) st('#cfe8ff');
+    if (e.guiltT > G.t) st('#c77dff');
     if (e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
     if (e === G.grudge) {
       // Grudge target: a rotating red crosshair.
@@ -1203,6 +1207,8 @@ function render() {
   const px = sx(p.x), py = sy(p.y);
   if (G.barrier > 0) { ctx.strokeStyle = 'rgba(72,202,228,0.8)'; ctx.fillStyle = 'rgba(72,202,228,0.10)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, G.barrierR * S, 0, TAU); ctx.fill(); ctx.stroke(); }
   if (G.shieldT > 0) { ctx.strokeStyle = '#48cae4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, 22 * S, 0, TAU); ctx.stroke(); }
+  if (G.relics.diplomatic && G.t >= (G.dipAt || 0)) { ctx.strokeStyle = PAL.reward; ctx.globalAlpha = 0.55 + 0.25 * Math.sin(G.realT * 4); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, py, 26 * S * playerScale(), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+  if (G.stare) { const L = 560 * S, a = G.stare.a; ctx.globalCompositeOperation = 'lighter'; for (const [lw, al] of [[12, 0.2], [3, 0.9]]) { ctx.globalAlpha = al * Math.min(1, G.stare.life * 3); ctx.strokeStyle = '#c77dff'; ctx.lineWidth = lw * S; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * L, py + Math.sin(a) * L); ctx.stroke(); } ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
   for (const w of G.weapons) {
     if (!w) continue;
     if (w.def.kind === 'siphon') {
@@ -1377,7 +1383,7 @@ function render() {
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (rewinding) drawRewindFx();
   drawRefocus();
-  if (G.state === 'intro') drawIntro(); else drawHud();
+  if (G.state === 'intro') drawIntro(); else if (G.state !== 'bossIntro') drawHud();
 }
 
 // You grow as you level up: up to 1.8x at level 60.
@@ -1631,9 +1637,13 @@ function drawHud() {
   // Boss bar.
   if (G.boss && !G.boss.dead) {
     const b = G.boss, bw = barW, bx = barX, by = top + BY;
-    softBar(bx, by, bw, b.hp / b.maxHp, XR.white);
+    const pair = b.twin ? [b, b.twin] : [b];
+    const hp = pair.reduce((a, o) => a + (o.dead ? 0 : Math.max(0, o.hp)), 0), mx = pair.reduce((a, o) => a + o.maxHp, 0);
+    softBar(bx, by, bw, hp / mx, XR.white);
     ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
-    ctx.fillText(b.name + (b.armour ? `  [ARMOUR ${Math.round(effArmour(b))}]` : ''), bx + bw / 2, by - 8);
+    const nm = b.twin ? b.def.name : b.name;
+    const tag = G.revive ? `  REBUILDING IN ${Math.max(0, Math.ceil(G.revive.t - G.t))}s` : b.winded > G.t ? '  WINDED: HIT IT!' : b.glaring ? '  GLARING: HIT IT!' : b.armour >= 6 ? `  [ARMOUR ${Math.round(effArmour(b))}]` : '';
+    ctx.fillText(nm + tag, bx + bw / 2, by - 8);
   }
   // The sperm count (always ticking down), then the Final Five, then the egg.
   {
@@ -1945,4 +1955,40 @@ function drawRaceBoard(rx, y) {
     ctx.fillStyle = row.color; ctx.fillText(row.name, rx - tw - 6, yy);
   });
   ctx.globalAlpha = 1;
+}
+
+// ---------------------------------------------------------------- bosses: telegraphs and ground hazards
+function drawBossTells(e, x, y, r) {
+  const pat = e.def.patterns[e.pat];
+  if (pat === 'glare' && (e.st === 1 || e.st === 2) && e.glareA != null) {
+    const L = 950 * S, cx = Math.cos(e.glareA), cy = Math.sin(e.glareA);
+    if (e.st === 1) {
+      ctx.setLineDash([6, 6]); ctx.strokeStyle = 'rgba(255,255,255,' + (0.35 + 0.4 * Math.sin(G.realT * 20) ** 2) + ')'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + cx * L, y + cy * L); ctx.stroke(); ctx.setLineDash([]);
+    } else {
+      ctx.globalCompositeOperation = 'lighter';
+      for (const [lw, al] of [[34, 0.18], [14, 0.5], [4, 1]]) { ctx.globalAlpha = al; ctx.strokeStyle = PAL.danger; ctx.lineWidth = lw * S; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + cx * L, y + cy * L); ctx.stroke(); }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+  if (pat === 'dash3' && e.st === 1) { ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 3; ctx.setLineDash([10, 6]); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 420 * S, y + e.dashY * 420 * S); ctx.stroke(); ctx.setLineDash([]); }
+  if (e.winded > G.t) { ctx.fillStyle = XR.white; ctx.font = `bold ${Math.round(14 * Math.max(0.8, S))}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('z z z', x + Math.sin(G.realT * 3) * 6, y - r - 14); }
+  if (pat === 'devour') { ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1; for (let k = 0; k < 3; k++) { const rr = ((G.realT * 0.8 + k / 3) % 1) * 290 * S; ctx.beginPath(); ctx.arc(x, y, 290 * S - rr, 0, TAU); ctx.stroke(); } }
+}
+function drawHazards(vis) {
+  for (const h of G.hazards) {
+    if (!vis(h)) continue;
+    const x = sx(h.x), y = sy(h.y), r = h.r * S;
+    if (h.warn > 0) {
+      ctx.strokeStyle = PAL.danger; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(G.realT * 18) ** 2; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    } else {
+      const a = Math.min(1, h.life / 0.5);
+      ctx.globalAlpha = 0.3 * a; ctx.fillStyle = PAL.danger; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 0.8 * a; ctx.strokeStyle = PAL.danger; ctx.lineWidth = 2;
+      for (let k = 0; k < 4; k++) { const an = G.realT * 0.9 + k * 1.6 + h.x, rr = r * (0.2 + ((k * 0.31 + G.realT * 0.4) % 0.7)); ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an) * rr, 2 + k % 3, 0, TAU); ctx.stroke(); }
+      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
 }

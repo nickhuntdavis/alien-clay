@@ -534,3 +534,50 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 .slide.locked .sdrop::after { display: none; }
 .slide.nope { animation: nope 0.3s; }
 @keyframes nope { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* ---------------------------------------------------------------- boss introduction */
+#bossIntro.screen { background: transparent !important; justify-content: flex-end; overflow: hidden; --bc: #ff3b3b; }
+#bossIntro.screen::before { display: none; }
+#bossIntro .bi-bar { position: fixed; left: 0; right: 0; height: 9vh; background: #000; z-index: 0; transform: scaleY(0); animation: biBar 0.5s ease-out forwards; }
+#bossIntro .bi-bar.top { top: 0; transform-origin: top; }
+#bossIntro .bi-bar.bot { bottom: 0; transform-origin: bottom; }
+@keyframes biBar { to { transform: scaleY(1); } }
+#bossIntro .bi-warn { position: fixed; top: calc(9vh + 6px); left: 0; right: 0; display: flex; gap: 22px; white-space: nowrap; overflow: hidden;
+  font-family: var(--mono, monospace); font-weight: 900; letter-spacing: 6px; font-size: 13px; color: #ff3b3b; opacity: 0;
+  border-top: 1px solid #ff3b3b88; border-bottom: 1px solid #ff3b3b88; padding: 3px 0; background: #1a0000aa; animation: biWarn 0.9s steps(2) 0.15s 3 forwards; }
+#bossIntro .bi-warn span { animation: biScroll 3s linear infinite; }
+@keyframes biWarn { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes biScroll { to { transform: translateX(-160px); } }
+#bossIntro .bi-card { position: relative; z-index: 1; width: min(560px, calc(100% - 24px)); margin: 0 12px calc(9vh + 10px + env(safe-area-inset-bottom));
+  padding: 14px 16px 16px; background: linear-gradient(180deg, #000000cc, #000000f0); border: 1px solid var(--bc); border-radius: 4px;
+  box-shadow: 0 0 30px color-mix(in srgb, var(--bc) 35%, transparent); opacity: 0; transform: translateY(40px); animation: biIn 0.5s ease-out 0.9s forwards; }
+@keyframes biIn { to { opacity: 1; transform: none; } }
+#bossIntro .bi-count { font-family: var(--mono, monospace); font-size: 10.5px; letter-spacing: 1px; color: #a3aea9; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+#bossIntro .bi-count span { margin-left: auto; color: #6f7a75; }
+#bossIntro .bi-count i { display: inline-block; width: 18px; height: 5px; background: #333; border-radius: 1px; }
+#bossIntro .bi-count i.done { background: #777; }
+#bossIntro .bi-count i.now { background: var(--bc); box-shadow: 0 0 8px var(--bc); }
+#bossIntro .bi-title { margin-top: 8px; font-family: var(--mono, monospace); font-size: 12px; letter-spacing: 3px; color: var(--bc); text-transform: uppercase; }
+#bossIntro .bi-name { font-size: 30px; font-weight: 900; letter-spacing: 1px; line-height: 1.05; color: #fff; margin: 2px 0 6px;
+  transform: scale(1.9); opacity: 0; filter: blur(6px); animation: biSlam 0.35s cubic-bezier(.2,1.6,.4,1) 1.15s forwards; }
+@keyframes biSlam { to { transform: none; opacity: 1; filter: none; } }
+#bossIntro .bi-quote { font-style: italic; font-size: 14px; color: #fff; opacity: 0; animation: biFade 0.4s 1.5s forwards; }
+#bossIntro .bi-quote::before { content: '\201C'; } #bossIntro .bi-quote::after { content: '\201D'; }
+#bossIntro .bi-desc { font-size: 12.5px; color: #cfd6d2; margin: 6px 0 8px; line-height: 1.35; opacity: 0; animation: biFade 0.4s 1.7s forwards; }
+@keyframes biFade { to { opacity: 1; } }
+#bossIntro .bi-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#bossIntro .bi-col h4 { margin: 0 0 4px; font-family: var(--mono, monospace); font-size: 10px; letter-spacing: 2px; }
+#bossIntro .bi-col.str h4 { color: #ff6b6b; } #bossIntro .bi-col.weak h4 { color: #ffd23f; }
+#bossIntro .bi-col ul { margin: 0; padding: 0; list-style: none; }
+#bossIntro .bi-col li { font-size: 12px; line-height: 1.3; margin-bottom: 4px; padding-left: 12px; position: relative; opacity: 0; transform: translateX(-8px);
+  animation: biItem 0.3s ease-out forwards; }
+#bossIntro .bi-col.str li::before { content: '+'; position: absolute; left: 0; color: #ff6b6b; font-weight: 900; }
+#bossIntro .bi-col.weak li::before { content: '!'; position: absolute; left: 1px; color: #ffd23f; font-weight: 900; }
+@keyframes biItem { to { opacity: 1; transform: none; } }
+#bossIntro .bi-reward { margin-top: 8px; font-size: 11.5px; color: #ffd23f; opacity: 0; animation: biFade 0.4s 2.4s forwards; }
+#bossIntro .bi-reward b { color: #fff; }
+#bossIntro #biFight { margin-top: 10px; width: 100%; opacity: 0; pointer-events: none; border-color: var(--bc); color: #fff; letter-spacing: 4px; font-weight: 900; }
+#bossIntro.ready #biFight { opacity: 1; pointer-events: auto; animation: biPulse 1s ease-in-out infinite; }
+@keyframes biPulse { 50% { box-shadow: 0 0 18px var(--bc); } }
+.trow .tl em { display: block; font-style: normal; font-size: 8px; letter-spacing: 1px; color: var(--c, #5fd4e8); }
+.trow.sig .tp { border-style: solid; }
