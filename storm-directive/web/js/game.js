@@ -916,7 +916,7 @@ function waveEvent() {
 let shooterName = '', shooterEnt = null;
 // Fewer, heavier bullets: every volley keeps 3 of each 5 shots (evenly, so patterns keep their shape),
 // and each one that flies hits 1.7x as hard.
-const BUL = { keep: [1, 0, 1, 0, 1], dmg: 1.7, size: 0.85 }; // small and dense, like real specks
+const BUL = { keep: [1, 0, 1, 0, 1], dmg: 1.7, size: 1 }; // small and dense, like real specks
 function eBullet(x, y, a, speed, dmg, r, color) {
   if (G.ebul.length >= CAPS.ebul) return;
   G.bulSeq = ((G.bulSeq || 0) + 1) % 5;
