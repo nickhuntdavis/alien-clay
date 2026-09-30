@@ -69,10 +69,11 @@ for (const prop of ['fillStyle', 'strokeStyle']) {
   const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, prop);
   Object.defineProperty(ctx, prop, { get() { return d.get.call(this); }, set(v) { d.set.call(this, WORLD_DF ? colDF(v) : col(v)); } });
 }
-// Gradients made on the main canvas go through the same gate (only while drawing the world in darkfield).
+// Gradients made on the main canvas go through the same gate (so unstained colours stay grey, and in
+// darkfield the greys invert).
 for (const fn of ['createRadialGradient', 'createLinearGradient']) {
   const orig = ctx[fn].bind(ctx);
-  ctx[fn] = (...a) => { const g = orig(...a); if (!WORLD_DF) return g; const add = g.addColorStop.bind(g); g.addColorStop = (o, c) => add(o, colDF(c)); return g; };
+  ctx[fn] = (...a) => { const g = orig(...a), df = WORLD_DF, add = g.addColorStop.bind(g); g.addColorStop = (o, c) => add(o, df ? colDF(c) : col(c)); return g; };
 }
 // Invert a baked sprite for darkfield (needs canvas filters; otherwise it's left as is).
 function invertCanvas(c) {
@@ -1331,21 +1332,25 @@ function render() {
   }
   ctx.globalAlpha = 1;
 
-  // Enemy bullets on top: solid danger-red beads with a dark rim and a small highlight (no bloom).
-  const byColor = {};
-  for (const b of G.ebul) { if (!vis(b)) continue; (byColor[b.color] || (byColor[b.color] = [])).push(b); }
+  // Enemy bullets on top, drawn like real debris under phase contrast: a small dark granule with a thin
+  // bright halo. With the Anti-Immune Stain the granule takes up the red dye at its core.
   ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = 'rgba(20,24,22,0.7)'; ctx.beginPath();
-  for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = (b.r + 3) * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
+  // A faint motion blur behind each one, which is how a moving particle looks on a live slide (and what
+  // tells it apart from the still debris in the background).
+  ctx.strokeStyle = 'rgba(28,32,30,0.35)'; ctx.lineCap = 'round'; ctx.beginPath();
+  for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y); ctx.moveTo(x, y); ctx.lineTo(x - b.vx * 0.06 * S, y - b.vy * 0.06 * S); }
+  ctx.lineWidth = Math.max(1.5, 5 * S); ctx.stroke(); ctx.lineCap = 'butt';
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = Math.max(1, 0.9 * S); ctx.beginPath();
+  for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = (b.r * 0.8 + 1.4) * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
+  ctx.stroke();
+  ctx.fillStyle = 'rgb(28,32,30)'; ctx.beginPath();
+  for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = b.r * 0.8 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
   ctx.fill();
-  for (const c in byColor) {
-    ctx.fillStyle = c; ctx.beginPath();
-    for (const b of byColor[c]) { const x = sx(b.x), y = sy(b.y), r = (b.r + 1.5) * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
+  if (G.dyes && G.dyes.immuno) {
+    ctx.fillStyle = PAL.danger; ctx.beginPath();
+    for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = b.r * 0.45 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
     ctx.fill();
   }
-  ctx.fillStyle = '#fff'; ctx.beginPath();
-  for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x) - b.r * 0.35 * S, y = sy(b.y) - b.r * 0.35 * S, r = b.r * 0.32 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
-  ctx.fill();
 
   // Floating texts.
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';

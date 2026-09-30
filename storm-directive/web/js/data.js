@@ -694,7 +694,7 @@ const DYES = {
   luciferase: { name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.' },
   motility:   { name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) light up cyan, so you can see what is about to reach you.' },
   rival:      { name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board.' },
-  he:         { name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Colours the instruments: menus, cards, weapon types and power-up effects get their colours back.' },
+  he:         { name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: power-up pickups and their effects, and your midpiece in your weapon-type colour.' },
 };
 
 // ---------------------------------------------------------------- Weapon upgrade trees
