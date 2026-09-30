@@ -758,7 +758,7 @@ const RIVALS = [
   { id: 'kevin',  name: 'Kevin',              color: '#ffe94a', skill: 0.95, aggro: 0.4, title: 'Just Kevin' },
 ];
 // finish: seconds for a skill-1.0 rival to reach EGG.level if nobody interferes.
-const RIVAL = { finish: 840, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 150 };
+const RIVAL = { finish: 840, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 240 };
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600, startCharges: 1, maxCharges: 2 };
