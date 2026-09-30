@@ -16,7 +16,8 @@ function spawnBoss() {
   const mk = (x, y) => {
     const e = makeEnemy(def, x, y);
     e.boss = true;
-    e.hp = e.maxHp = def.hp * (1 + idx * 0.9) * (1 + G.t / 320) * (1 + round);
+    // Proper fights: each boss in a run is much tougher than the last (your build grows fast too).
+    e.hp = e.maxHp = def.hp * 5 * (1 + (idx % BOSSES_PER_RUN) * 0.9) * Math.pow(2, idx % BOSSES_PER_RUN) * (1 + G.t / 320) * (1 + round * 2);
     e.armour = def.armour + round * 4;
     e.speed = def.speed;
     e.dmg = def.dmg * dmgMul(G.t);

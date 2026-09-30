@@ -526,6 +526,7 @@ function damageEnemy(e, dmg, src) {
   let d = dmg * (src.mult || 1);
   // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
   if (e.final) d = Math.min(d, e.maxHp * 0.06);
+  if (e.boss) d = Math.min(d, e.maxHp * 0.04); // no one-shotting a boss
   // Water bears curl into a 'tun' once when badly hurt: nearly invulnerable for a few seconds.
   if (e.def.tun) {
     if (e.tunT > G.t) d *= 0.08;
