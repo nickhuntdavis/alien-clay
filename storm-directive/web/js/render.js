@@ -1785,7 +1785,7 @@ function drawPill() {
   if (PILLC.key !== key) { PILLC.key = key; PILLC.a = makeCanvas(w, h); PILLC.b = makeCanvas(w, h); }
   const ga = PILLC.a.getContext('2d'), gb = PILLC.b.getContext('2d'), k = S / 3, ox = w / 2 - cam.x * k, oy = h / 2 - cam.y * k;
   ga.clearRect(0, 0, w, h); gb.clearRect(0, 0, w, h);
-  ga.fillStyle = SET.darkfield ? '#e6edf3' : '#48525c'; gb.fillStyle = '#ff3b3b';
+  ga.fillStyle = SET.darkfield ? '#e6edf3' : '#48525c'; gb.fillStyle = col(PAL.danger); // grey rim until the Anti-Immune Stain
   pillLobes((wx, wy, wr) => {
     ga.beginPath(); ga.arc(ox + wx * k, oy + wy * k, wr * k, 0, TAU); ga.fill();
     gb.beginPath(); gb.arc(ox + wx * k, oy + wy * k, wr * k + 2.5, 0, TAU); gb.fill();
