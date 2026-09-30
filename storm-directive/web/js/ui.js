@@ -56,11 +56,13 @@ const UI = {
       startRewind(false);
     });
     $('playBtn').addEventListener('click', () => UI.openSamples());
+    $('mpBtn').addEventListener('click', () => { UI.show('lobby'); UI.renderLobby(); });
+    $('lobbyBack').addEventListener('click', () => { netLeave(); UI.show('title'); UI.renderBest(); });
     $('sampleBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
     $('resumeBtn').addEventListener('click', () => UI.togglePause());
-    $('quitBtn').addEventListener('click', () => { logRun(G, 'QUIT'); G = null; UI.show('title'); UI.renderBest(); });
+    $('quitBtn').addEventListener('click', () => { netFinish(false); logRun(G, 'QUIT'); G = null; UI.show('title'); UI.renderBest(); });
     $('setBtnTitle').addEventListener('click', () => UI.openSettings('title'));
     $('setBtnPause').addEventListener('click', () => UI.openSettings('pause'));
     $('setBack').addEventListener('click', () => UI.show(UI.setFrom || 'title'));
@@ -84,7 +86,7 @@ const UI = {
   lastDown: 0, lootOpenT: 0,
   show(name) {
     if (!G) refreshPalette(); // out of a run everything is greyscale
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples', 'bossIntro']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples', 'bossIntro', 'lobby']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -162,6 +164,7 @@ const UI = {
   },
 
   tick(dt) {
+    netKeepAlive(dt);
     UI.hudT -= dt;
     if (UI.hudT <= 0 && G && G.state === 'play') { UI.hudT = 0.08; UI.refreshHud(false); }
     if (UI.toastT > 0) { UI.toastT -= dt; if (UI.toastT <= 0) $('toast').classList.remove('on'); }
@@ -405,6 +408,32 @@ const UI = {
       UI.arm = { k: 'w', i: G.weapons.findIndex(Boolean), bar: 0, recycle: false };
       UI.renderArmoury();
     });
+  },
+
+  // ---------------------------------------------------------------- multiplayer lobby
+  renderLobby() {
+    const body = $('lobbyBody');
+    if (!body || !$('lobby').classList.contains('on')) return;
+    const typed = $('mpCode') ? $('mpCode').value : '';
+    const inRoom = !!NET.code, isHost = NET.you === NET.host;
+    let h = `<div class="sec"><h3>You</h3><label class="mpl">Name<input id="mpName" maxlength="16" value="${esc(NET.name)}"></label>
+      <label class="mpl">Relay server<input id="mpUrl" placeholder="e.g. spawn-prawn.onrender.com" value="${esc(NET.url)}" autocapitalize="off" autocorrect="off" spellcheck="false"></label></div>`;
+    if (!inRoom) {
+      h += `<div class="sec"><h3>Start or join a race</h3><button id="mpCreate" class="btn primary">CREATE A ROOM</button>
+        <div class="mprow"><input id="mpCode" maxlength="4" placeholder="CODE" autocapitalize="characters" value="${esc(typed)}"><button id="mpJoin" class="btn">JOIN</button></div></div>`;
+    } else {
+      h += `<div class="sec"><h3>Room</h3><div class="mpcode">${esc(NET.code)}</div><p class="hint" style="text-align:center">Friends enter this code to join (2 to 5 swimmers).</p><div class="list">`;
+      for (const p of NET.players) h += `<div class="li on"><b style="color:${p.color}">${esc(p.name)}</b>${p.id === NET.you ? ' (you)' : ''}${p.id === NET.host ? ' <em>HOST</em>' : ''}</div>`;
+      h += `</div>${isHost ? `<button id="mpStart" class="btn primary" ${NET.players.length < 2 ? 'disabled' : ''}>START THE RACE</button>` : ''}<button id="mpLeave" class="btn">LEAVE ROOM</button></div>`;
+    }
+    h += `<p class="hint mpstatus">${esc(NET.status || '')}</p>`;
+    body.innerHTML = h;
+    const save = () => { NET.name = ($('mpName').value || 'Spermy').trim().slice(0, 16); NET.url = $('mpUrl').value.trim(); try { localStorage.setItem('sd_name', NET.name); localStorage.setItem('sd_server', NET.url); } catch (e) { /* ignore */ } };
+    $('mpName').addEventListener('change', save); $('mpUrl').addEventListener('change', save);
+    if ($('mpCreate')) $('mpCreate').addEventListener('click', () => { save(); initAudio(); netCreate(); });
+    if ($('mpJoin')) $('mpJoin').addEventListener('click', () => { save(); initAudio(); const c = $('mpCode').value.trim().toUpperCase(); if (c.length !== 4) { netStatus('Room codes are 4 letters.'); return; } netJoin(c); });
+    if ($('mpStart')) $('mpStart').addEventListener('click', () => netStart());
+    if ($('mpLeave')) $('mpLeave').addEventListener('click', () => netLeave());
   },
 
   // ---------------------------------------------------------------- boss introduction
@@ -780,6 +809,7 @@ window.handleBack = function () {
   if (on('loot')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
   if (on('bank') || on('samples')) { UI.show('title'); UI.renderBest(); return 'ok'; }
+  if (on('lobby')) { netLeave(); UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('settings')) { UI.show(UI.setFrom || 'title'); return 'ok'; }
   UI.togglePause();
   return 'ok';

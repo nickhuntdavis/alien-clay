@@ -39,6 +39,7 @@
     <div class="logo">SPAWN<br><span>PRAWN</span></div>
     <p class="tag">You are Spermy. One egg. Four hundred million swimmers. Get the sperm count down to one, win the Final Five, and fertilise the egg.</p>
     <button id="playBtn" class="btn primary">START SWIMMING</button>
+    <button id="mpBtn" class="btn">MULTIPLAYER RACE</button>
     <button id="howBtn" class="btn">HOW TO PLAY</button>
     <button id="bankBtn" class="btn">GENE BANK <span id="dnaLine" class="dna"></span></button>
     <button id="setBtnTitle" class="btn">SETTINGS</button>
@@ -123,6 +124,15 @@
   </div>
 </div>
 
+<div id="lobby" class="screen">
+  <div class="pwrap">
+    <div class="ptitle">MULTIPLAYER RACE</div>
+    <p class="hint" style="text-align:center">2 to 5 swimmers, one egg each. Same bosses, same race: the first to fertilise their egg wins. From 1:00 you can shoot each other.</p>
+    <div id="lobbyBody"></div>
+    <div class="pbtns"><button id="lobbyBack" class="btn">BACK</button></div>
+  </div>
+</div>
+
 <div id="samples" class="screen">
   <div class="pwrap">
     <div class="ptitle">CHOOSE SPERM SAMPLE</div>
@@ -163,6 +173,7 @@
 <script src="js/arsenal.js"></script>
 <script src="js/sigs.js"></script>
 <script src="js/bosses.js"></script>
+<script src="js/net.js"></script>
 <script src="js/show.js"></script>
 <script src="js/rivals.js"></script>
 <script src="js/render.js"></script>

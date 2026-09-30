@@ -522,6 +522,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
   if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
+  if (e.remote) return netHit(e, dmg * (src.mult || 1)); // another player: the hit is sent to them
   const P = G.P, syn = G.synergy;
   let d = dmg * (src.mult || 1);
   // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
@@ -1938,6 +1939,7 @@ function eggAI(e, dt) {
 }
 function victory() {
   G.state = 'won';
+  netFinish(true);
   G.banner = null;
   achieve('born');
   sysLine('born', true);
@@ -1967,6 +1969,7 @@ function update(dt) {
   updateCrossfire();
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
   sigTick(dt);
+  netTick(dt);
   updateTethers(dt);
   updateShow(dt);
   updateSpells(dt);
@@ -2049,6 +2052,7 @@ function compact() {
 
 function gameOver() {
   G.state = 'over';
+  netFinish(false);
   sysLine('death', true);
   G.banner = null;
   sfx('boss');
