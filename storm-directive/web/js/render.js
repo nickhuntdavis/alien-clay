@@ -1341,13 +1341,14 @@ function render() {
   // Enemy bullets on top, drawn like debris under phase contrast: a black granule with a solid white
   // halo, so they stand out on any background. With the Anti-Immune Stain the granule takes up the red dye at its core.
   ctx.globalCompositeOperation = 'source-over';
+  const df = WORLD_DF; WORLD_DF = false; // black stays black, even in darkfield
   // A faint motion blur behind each one, which is how a moving particle looks on a live slide (and what
   // tells it apart from the still debris in the background).
   ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineCap = 'round'; ctx.beginPath();
   for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y); ctx.moveTo(x, y); ctx.lineTo(x - b.vx * 0.06 * S, y - b.vy * 0.06 * S); }
   ctx.lineWidth = Math.max(1.5, 5 * S); ctx.stroke(); ctx.lineCap = 'butt';
   // High contrast on any background: a solid white ring round a black core (inverted in darkfield).
-  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1.5, 1.8 * S); ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = Math.max(1, 1.1 * S); ctx.beginPath();
   for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = (b.r * 0.8 + 1.6) * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
   ctx.stroke();
   ctx.fillStyle = '#000000'; ctx.beginPath();
@@ -1358,6 +1359,7 @@ function render() {
     for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = b.r * 0.45 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
     ctx.fill();
   }
+  WORLD_DF = df;
 
   // Floating texts.
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
