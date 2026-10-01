@@ -568,7 +568,7 @@ Stat boosts that stack. Value shown is per pick at Bronze rarity.
 | **Pincer Movement** | Weapons sharing a target: +25% damage. All three on different targets: +25% fire rate | 3 |
 | **Hurry Up** | Up to +22% damage the faster you are moving | 4 |
 | **Egg Bond** | Near the egg: +30% fire rate. Away from it: +30% crit chance | 3 |
-| **Spoilers** | 10% of shots appear already next to their target | 4 |
+| **Spoilers** | 10% of shots appear already next to their target (with the Slipstream Scalpel, you do) | 4 |
 | **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Silver or better only) | 1 |
 | **Wriggle Room** | +4% chance to dodge hits | 5 |
 

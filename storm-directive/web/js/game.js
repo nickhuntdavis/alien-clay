@@ -455,7 +455,8 @@ function optPassive(id, r) {
   const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour'].includes(id);
   const v = intish ? Math.max(1, Math.floor(RARITIES[r].mult)) * p.v : p.v * RARITIES[r].mult;
   const st = G.passives[id] || 0;
-  return { rarity: r, tag: 'POWER-UP', icon: p.icon, color: '#9fb3c8', title: p.name, sub: `Stack ${st + 1}/${p.max}`, desc: p.fmt(v),
+  const extra = id === 'future' && G.weapons.some(w => w && w.id === 'wake') ? " Your Slipstream Scalpel's shot is you: every few seconds you blink straight through an enemy, cutting everything on the way." : '';
+  return { rarity: r, tag: 'POWER-UP', icon: p.icon, color: '#9fb3c8', title: p.name, sub: `Stack ${st + 1}/${p.max}`, desc: p.fmt(v) + extra,
     apply: () => { p.apply(G.P, v, G); G.passives[id] = st + 1; recomputeAll(); } };
 }
 function optMod(w, id, r) {

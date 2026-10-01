@@ -288,7 +288,7 @@ const PASSIVES = {
   crossfire: { name: 'Pincer Movement', icon: 'CF', max: 3, v: 0.25, fmt: v => `Weapons sharing a target: +${pc(v)} damage. All three on different targets: +${pc(v)} fire rate`, apply: (P, v) => { P.crossfire += v; } },
   momentum:  { name: 'Hurry Up',         icon: 'MO', max: 4, v: 0.15, fmt: v => `Up to +${pc(v * 1.5)} damage the faster you are moving`, apply: (P, v) => { P.momentum += v; } },
   anchorlink:{ name: 'Egg Bond',         icon: 'EB', max: 3, v: 0.3, fmt: v => `Near the egg: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
-  future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target`, apply: (P, v) => { P.future += v; } },
+  future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Slipstream Scalpel, you do)`, apply: (P, v) => { P.future += v; } },
   echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 1, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
   evasion:   { name: 'Wriggle Room',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.min(0.5, P.dodge + v); } },
 };

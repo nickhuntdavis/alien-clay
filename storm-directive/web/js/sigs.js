@@ -173,6 +173,7 @@ function sigTick(dt) {
     if (hasSig(w, 'hellkitchen')) w.hk = G.t - (w.firedT || -9) < 0.25 ? Math.min(1, (w.hk || 0) + dt / 4) : Math.max(0, (w.hk || 0) - dt * 0.5);
   }
   if (G.relics) relicTick(dt);
+  spoilerBlink(dt);
 }
 
 // ---------------------------------------------------------------- Slipstream Scalpel extras (from updateWake)
@@ -414,4 +415,41 @@ function gravityOrb(pr, caught) {
     pr.parked = true; pr.vx = 0; pr.vy = 0; pr.pull *= 2.5; pr.life += pr.life + 1; pr.max = pr.life;
     ring(pr.x, pr.y, pr.aura, '#c77dff', 0.4, 4);
   }
+}
+
+// ---------------------------------------------------------------- Spoilers + Slipstream Scalpel
+// Spoilers makes shots appear next to their target. The Scalpel's "shot" is you, so every few seconds you
+// appear next to an enemy instead: you blink straight through it, and the whole line you skipped gets cut.
+function spoilerBlink(dt) {
+  const w = owned('wake'), f = G.P.future;
+  if (!w || f <= 0 || G.state !== 'play') return;
+  G.blinkT = (G.blinkT == null ? 2 : G.blinkT) - dt;
+  if (G.blinkT > 0) return;
+  G.blinkT = clamp(0.5 / f, 1.5, 6); // 10%: every 5s ... 33%+: every 1.5s
+  const p = me(), t = acquire('cluster', 520, p.x, p.y) || acquire('nearest', 520, p.x, p.y);
+  if (!t) { G.blinkT = 0.5; return; }
+  const dx = t.x - p.x, dy = t.y - p.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+  const L = d + t.r + p.r + 30; // land just past it
+  let ex = p.x + ux * L, ey = p.y + uy * L;
+  const c = G.core, od = Math.hypot(ex - c.x, ey - c.y);
+  if (od > CORE.arena - 40) { ex = c.x + (ex - c.x) / od * (CORE.arena - 40); ey = c.y + (ey - c.y) / od * (CORE.arena - 40); }
+  const sx0 = p.x, sy0 = p.y, src = Object.assign(weaponSrc(w), { wname: 'Spoiler Blink' });
+  // The cut: everything along the line takes a heavy slash, and the line stays sharp for a moment.
+  const hit = new Set(), len = Math.hypot(ex - sx0, ey - sy0);
+  for (let s = 0; s <= len; s += 18) {
+    const x = sx0 + ux * s, y = sy0 + uy * s;
+    forNear(x, y, w.s.area + 12, e => { if (!hit.has(e)) { hit.add(e); damageEnemy(e, w.s.dmg * 2, src); } });
+    if (G.zones.length < 300 && s % 36 < 18) G.zones.push(wakeZone(w, x, y));
+    if (Math.random() < 0.5) spawnPart(x, y, w.def.color, 1, 60, 0.35, 2);
+  }
+  ring(sx0, sy0, 28, w.def.color, 0.3, 3);
+  p.x = ex; p.y = ey; pushOut(p, p.r, 0);
+  p.vx = ux * 220; p.vy = uy * 220; p.hd = Math.atan2(uy, ux);
+  p.iframes = Math.max(p.iframes || 0, 0.35);
+  w.lx = p.x; w.ly = p.y; // the trail carries on from where you land
+  ring(p.x, p.y, 40, w.def.color, 0.35, 4);
+  addLight(p.x, p.y, 120, w.def.color, 0.4);
+  G.fx.push({ type: 'bolt', pts: [sx0, sy0, ex, ey], color: '#e0fbfc', life: 0.25, max: 0.25 });
+  if (!(G.blinkLblT > G.realT)) { G.blinkLblT = G.realT + 3; floatText(p.x, p.y - 30, hit.size >= 4 ? 'SPOILER: EVERYONE DIES' : 'SPOILER!', '#e0fbfc', 14, 0.8); }
+  sfx('zap');
 }
