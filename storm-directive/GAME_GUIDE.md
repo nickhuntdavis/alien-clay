@@ -374,7 +374,7 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Spoilers | Static Cling | some bolts start from the far side of the crowd. |
 | Spoilers | Premature Evangelation | angels pop up next to enemies to bless them early. |
 | Spoilers | Placental Siphon | some returned shots appear right next to their target. |
-| Split Personality | Slipstream Scalpel | a ghost lane of trail either side of you per stack. |
+| Split Personality | Slipstream Scalpel | a bigger, longer blade (+35% width and length per stack). |
 | Pushy | Static Cling | +1 chain jump. |
 | Pushy | Morning Sickness | puddles 12% bigger. |
 | Pushy | Nappy Mines | blasts shove enemies away. |
@@ -608,6 +608,7 @@ Stat boosts that stack. Value shown is per pick at Bronze rarity.
 | **Egg Bond** | Near the egg: +30% fire rate. Away from it: +30% crit chance | 3 |
 | **Spoilers** | 10% of shots appear already next to their target (with the Slipstream Scalpel, you do) | 4 |
 | **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Silver or better only) | 1 |
+| **Acrosome Ram** | Enemies you swim into take damage (ram power x1.0): a nudge when slow, 4 times as much at full speed. Try HUNT autorun. The head cap was always meant for breaking in. | 5 |
 | **Wriggle Room** | +4% chance to dodge hits | 5 |
 
 ## Upgrades any weapon can take

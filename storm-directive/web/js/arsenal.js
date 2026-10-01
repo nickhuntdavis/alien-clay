@@ -129,7 +129,6 @@ function updateWake(w, dt) {
   if (Math.hypot(p.x - w.lx, p.y - w.ly) < 16) return;
   w.lx = p.x; w.ly = p.y;
   if (G.zones.length < 260) G.zones.push(wakeZone(w, p.x, p.y));
-  wakeLanes(w, p);
   wakeExtras(w, p);
 }
 

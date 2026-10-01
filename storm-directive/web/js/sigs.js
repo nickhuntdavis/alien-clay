@@ -471,6 +471,8 @@ function applyAdapt(w, s) {
     case 'orbit': s.hitCd = 0.4 / (1 + 0.35 * P.pierce); s.spin *= P.haste; s.radius *= 1 + (P.projSpeed - 1) * 0.6; s.size *= P.magMult; break;
     case 'wake':
       s.knock = 60 * P.pierce; s.dmg *= P.haste; s.dur *= P.reloadSpd; s.area *= P.magMult;
+      // Split Personality: one bigger, longer blade rather than more of them.
+      s.area *= 1 + 0.35 * P.multishot; s.dur *= 1 + 0.35 * P.multishot;
       for (const l in w.perks || {}) { const k = w.perks[l]; if (k === 'rapid') s.dmg *= 1.33; if (k === 'frenzy') s.dmg *= 1.6; if (k === 'overclock') s.dmg *= 2; }
       break;
   }
@@ -480,13 +482,6 @@ function adaptNotes(map) {
   if (!map || !G) return '';
   const n = G.weapons.filter(w => w && map[w.id]).map(w => map[w.id]);
   return n.length ? ' ' + n.join(' ') : '';
-}
-// Split Personality + Scalpel: ghost lanes of trail either side of you.
-function wakeLanes(w, p) {
-  const n = G.P.multishot;
-  if (!n || G.zones.length > 280) return;
-  const h = p.hd != null ? p.hd : p.face, nx = -Math.sin(h), ny = Math.cos(h);
-  for (let k = 1; k <= n; k++) for (const sd of [1, -1]) G.zones.push(wakeZone(w, p.x + nx * 30 * k * sd, p.y + ny * 30 * k * sd));
 }
 // Premature Evangelation clocking off: Last Word burst and Tactical Nap shockwave.
 function angelsClockOff(w) {
@@ -506,4 +501,15 @@ function angelSpoilers(w, dt) {
   if (!t) return;
   bolt(p.x, p.y, t.x, t.y, '#c77dff', 0.15); ring(t.x, t.y, t.r + 12, '#c77dff', 0.3, 3);
   damageEnemy(t, w.s.dmg * 1.5, Object.assign(weaponSrc(w), { wname: 'Premature Evangelation' }));
+}
+
+// Acrosome Ram: enemies you swim into take damage, more the faster you're going (from updateEnemies).
+function ramHit(e, p) {
+  const P = G.P;
+  if (P.ram <= 0 || e.ramT > G.t || e.charmed || e.egg) return;
+  e.ramT = G.t + 0.25;
+  const v = Math.hypot(p.vx || 0, p.vy || 0), k = 0.25 + 0.75 * Math.min(1, v / 200); // a nudge at rest, 4x at full speed
+  const dmg = P.ram * (14 + G.level * 3) * P.might * k * 4;
+  damageEnemy(e, dmg, { elem: 'phys', wname: 'Acrosome Ram', noCrit: k < 0.6, knock: 120 + 260 * k, kx: e.x - p.x, ky: e.y - p.y });
+  if (k > 0.7) { ring(e.x, e.y, e.r + 10, PAL.you, 0.25, 3); if (!(G.ramLblT > G.realT)) { G.ramLblT = G.realT + 1.2; floatText(e.x, e.y - e.r - 8, 'RAMMED', PAL.you, 13, 0.6); } }
 }

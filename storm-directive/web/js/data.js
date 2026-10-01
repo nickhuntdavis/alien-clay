@@ -199,7 +199,7 @@ const ADAPT = {
                mines: 'Nappy Mines: some mines appear already under an enemy.', venom: 'Morning Sickness: some globs land before you throw them.',
                tesla: 'Static Cling: some bolts start from the far side of the crowd.', orbit: 'Premature Evangelation: angels pop up next to enemies to bless them early.',
                siphon: 'Placental Siphon: some returned shots appear right next to their target.' },
-  multishot: { wake: 'Slipstream Scalpel: a ghost lane of trail either side of you per stack.' },
+  multishot: { wake: 'Slipstream Scalpel: a bigger, longer blade (+35% width and length per stack).' },
   pierce:    { tesla: 'Static Cling: +1 chain jump.', venom: 'Morning Sickness: puddles 12% bigger.', mines: 'Nappy Mines: blasts shove enemies away.',
                orbit: 'Premature Evangelation: angels bless each enemy more often as they pass.', wake: 'Slipstream Scalpel: the trail shoves enemies aside.', siphon: 'Placental Siphon: returned shots pierce.' },
   haste:     { wake: 'Slipstream Scalpel: the trail cuts faster.', orbit: 'Premature Evangelation: angels circle faster.' },
@@ -314,6 +314,7 @@ const PASSIVES = {
   anchorlink:{ name: 'Egg Bond',         icon: 'EB', max: 3, v: 0.3, fmt: v => `Near the egg: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
   future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Slipstream Scalpel, you do)`, apply: (P, v) => { P.future += v; } },
   echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 1, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
+  ram:       { name: 'Acrosome Ram',          icon: 'AR', max: 5, v: 1, fmt: v => `Enemies you swim into take damage (ram power x${v.toFixed(1)}): a nudge when slow, 4 times as much at full speed. Try HUNT autorun. The head cap was always meant for breaking in.`, apply: (P, v) => { P.ram += v; } },
   evasion:   { name: 'Wriggle Room',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.min(0.5, P.dodge + v); } },
 };
 function pc(v) { return Math.round(v * 100) + '%'; }

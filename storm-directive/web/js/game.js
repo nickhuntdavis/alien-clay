@@ -56,7 +56,7 @@ function newStats() {
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
     lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1 }, chain: 0,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
-    lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, echoInherit: 0,
+    lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, echoInherit: 0,
     bulletSpeed: 1, spawnMult: 1, healMult: 1, viewers: 1, noArmour: false, traction: 1,
   };
 }
@@ -1118,7 +1118,11 @@ function updateEnemies(dt) {
         e.hp = 0; killEnemy(e, { wname: 'Swallow Whole' }); healPlayer(3, true);
         if (!(G.gulpT > G.realT)) { G.gulpT = G.realT + 0.5; floatText(p.x, p.y - 26, 'GULP', PAL.you, 13); }
         continue;
-      } else if (!frozen) hurtPlayer(e.dmg, e.name + (e.elite ? ' (elite)' : ''), e);
+      } else {
+        ramHit(e, p);
+        if (!frozen && !e.dead) hurtPlayer(e.dmg, e.name + (e.elite ? ' (elite)' : ''), e);
+        if (e.dead) continue;
+      }
     }
     // Leash: recycle enemies left far behind.
     if (dist > 1500 && !e.boss) { const s = spawnPos(); e.x = s.x; e.y = s.y; }
