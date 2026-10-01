@@ -797,9 +797,9 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 | **GFP Tag** | You can finally see where your shots land: +12% damage. | Green Fluorescent Protein. Tags you: your swimmer, your shots, echoes and allies glow green. Much easier to find yourself in a crowd. |
 | **Anti-Immune Stain** | You see it coming: +8% dodge. | Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings. |
 | **Luciferase** | You know what is worth chasing: +20% luck, and +25% damage to elites and bosses. | The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas. |
-| **Motility Dye** | Spot them early: +8% swim speed, and +30% damage to fast enemies. | Fast swimmers (sprinters, spermlets, krill, paramecia) light up cyan, so you can see what is about to reach you. |
+| **Motility Dye** | Spot them early: +8% swim speed, and +30% damage to fast enemies. | Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you. |
 | **Rival Dyes** | Know your enemy: +40% damage to rival champions and the Final Five. | Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board. |
-| **H&E Stain Kit** | Everything is easier to spot: +30% pickup range and +1 reroll. | Haematoxylin and eosin, the classic. Stains the rest of the slide: power-up pickups and their effects, and your midpiece in your weapon-type colour. |
+| **H&E Stain Kit** | Everything is easier to spot: +30% pickup range and +1 reroll. | Haematoxylin and eosin, the classic. Stains the rest of the slide: elemental effects in their own colours (fire orange, frost blue, toxic green, arcane violet), power-up pickups and their effects, and your midpiece in your weapon-type colour. |
 
 ## Cursed cards
 

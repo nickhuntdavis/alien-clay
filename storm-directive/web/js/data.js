@@ -556,14 +556,14 @@ const SAMPLES = [
 const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f', upgrade: '#5fd4e8', pickup: '#d983e8' };
 // Stains. The world and the UI are greyscale until you pick these up (like a biologist adding a dye to
 // see one protein better). Each one brings back one kind of colour.
-const DYE_FAST = '#46e0ff';
+const DYE_FAST = '#46e0ff', DYE_FAST_DK = '#1d7d96'; // Motility Dye: label, and the stained body
 const DYES = {
   gfp:        { name: 'GFP Tag', desc: 'Green Fluorescent Protein. Tags you: your swimmer, your shots, echoes and allies glow green. Much easier to find yourself in a crowd.', boon: 'You can finally see where your shots land: +12% damage.', apply: P => { P.might += 0.12; } },
   immuno:     { name: 'Anti-Immune Stain', desc: 'Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings.', boon: 'You see it coming: +8% dodge.', apply: P => { P.dodge = Math.min(0.7, P.dodge + 0.08); } },
   luciferase: { name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.', boon: 'You know what is worth chasing: +20% luck, and +25% damage to elites and bosses.', apply: P => { P.luck += 0.2; } },
-  motility:   { name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) light up cyan, so you can see what is about to reach you.', boon: 'Spot them early: +8% swim speed, and +30% damage to fast enemies.', apply: P => { P.speed += 0.08; } },
+  motility:   { name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you.', boon: 'Spot them early: +8% swim speed, and +30% damage to fast enemies.', apply: P => { P.speed += 0.08; } },
   rival:      { name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board.', boon: 'Know your enemy: +40% damage to rival champions and the Final Five.' },
-  he:         { name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: power-up pickups and their effects, and your midpiece in your weapon-type colour.', boon: 'Everything is easier to spot: +30% pickup range and +1 reroll.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
+  he:         { name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: elemental effects in their own colours (fire orange, frost blue, toxic green, arcane violet), power-up pickups and their effects, and your midpiece in your weapon-type colour.', boon: 'Everything is easier to spot: +30% pickup range and +1 reroll.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
 };
 
 // ---------------------------------------------------------------- Weapon upgrade trees

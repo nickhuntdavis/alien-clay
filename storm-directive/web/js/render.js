@@ -13,7 +13,7 @@ const XR = { white: '#d6e4f0', dim: '#8395a8', line: 'rgba(196,218,240,0.42)', h
 // Everything starts greyscale: only the colours of the stains you've picked up this run get through.
 const PAL_OK = new Set();
 const DYE_COLOURS = {
-  gfp: () => [PAL.you], immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST],
+  gfp: () => [PAL.you], immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST, DYE_FAST_DK],
   rival: () => RIVALS.map(r => r.color), he: () => [PAL.upgrade, PAL.pickup].concat(Object.values(ELEM_UI)),
 };
 function refreshPalette() {
@@ -24,6 +24,17 @@ function refreshPalette() {
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
+// Element effects. With the H&E stain, fire stays orange, frost blue, toxic green and arcane violet.
+// Lightning is always coloured, in a static-shock blue and pink; toxic effects keep a faint green unstained.
+const ELEM_HEX = {
+  fire: ['#ff7a2f', '#ff5400', '#ff9e00', '#ff9f1c', '#ffd166', '#ff5a36', '#ffba08'],
+  ice: ['#6fd8ff', '#90e0ef', '#caf0f8', '#bde0fe', '#c9e4f5'],
+  poison: ['#8dff4a', '#9ef01a', '#b5e48c', '#d4ff5c'],
+  arcane: ['#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'],
+};
+const STATIC_HEX = { '#ffe94a': '#6f9bff', '#fdf0d5': '#ff8ae0', '#9ef0ff': '#9fb0ff', '#fff3b0': '#ff8ae0' };
+const ELEM_OF = new Map();
+for (const el in ELEM_HEX) for (const h of ELEM_HEX[el]) ELEM_OF.set(h, el);
 const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ff0033': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
@@ -36,11 +47,21 @@ function col(c) {
     const base = h.slice(0, 7);
     if (PAL_OK.has(base)) v = c;
     else if (PAL_ALIAS[base] && PAL_OK.has(PAL_ALIAS[base])) v = PAL_ALIAS[base] + h.slice(7);
+    else if (STATIC_HEX[base]) v = STATIC_HEX[base] + h.slice(7);
+    else if (ELEM_OF.has(base) && G && G.dyes && G.dyes.he) v = c;
     else { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
   } else {
     const m = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
     if (!m) v = c;
     else { r = +m[1]; g = +m[2]; b = +m[3]; if (m[4] != null) a = +m[4]; }
+  }
+  if (v === undefined) {
+    const l = Math.round(0.3 * r + 0.59 * g + 0.11 * b);
+    if (h[0] === '#' && ELEM_OF.get(h.slice(0, 7)) === 'poison') {
+      // Unstained toxic: grey with a faint green cast.
+      const k = 0.28, m = x => Math.round(l + (x - l) * k);
+      v = a == null ? `rgb(${m(r)},${m(g)},${m(b)})` : `rgba(${m(r)},${m(g)},${m(b)},${a})`;
+    }
   }
   if (v === undefined) {
     const l = Math.round(0.3 * r + 0.59 * g + 0.11 * b);
@@ -109,7 +130,7 @@ function makeCanvas(w, h) { const c = document.createElement('canvas'); c.width 
 // Soft radial glow in a colour, drawn additively for cheap bloom.
 function glowSprite(color) {
   color = col(color);
-  if (color[0] !== '#') { const l = color.match(/\d+/)[0]; color = '#' + (+l).toString(16).padStart(2, '0').repeat(3); }
+  if (color[0] !== '#') { const m = color.match(/\d+/g); color = '#' + m.slice(0, 3).map(n => (+n).toString(16).padStart(2, '0')).join(''); }
   let c = SPR.glow.get(color);
   if (c) return c;
   c = makeCanvas(64, 64);
@@ -625,7 +646,7 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
   }
   // Head with halo.
   ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.5 * k, 5 * k, 0, 0, TAU);
-  ctx.fillStyle = MIC.body; ctx.fill();
+  ctx.fillStyle = body && body.def && fastDyed(body) ? DYE_FAST_DK : MIC.body; ctx.fill(); // Motility Dye
   pcHalo(2.2 * k, 0.75);
   if (L.armour) {
     // Armour: a thickened, plated membrane.
@@ -674,7 +695,7 @@ function drawKrill(e, x, y, r, face) {
   for (let i = 0; i < 5; i++) { const bx = r * (0.4 - i * 0.38), by = r * (0.35 + i * 0.05), a = 1.9 + Math.sin(t * 0.8 - i * 0.7) * (0.3 + fl * 0.6); ctx.moveTo(bx, by); ctx.lineTo(bx + Math.cos(a) * r * 0.55, by + Math.sin(a) * r * 0.55); }
   ctx.stroke();
   // Body: overlapping segments along a gentle curl, then the tail fan.
-  const body = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, 0.3);
+  const body = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : eTone(e, 0.3);
   const curl = 0.35 + 0.25 * (1 - fl);
   for (let i = 5; i >= 0; i--) {
     const u = i / 5, bx = r * (0.7 - u * 2.1), by = r * curl * u * u * 1.4, rr = r * (0.55 - u * 0.22);
@@ -695,7 +716,10 @@ function drawKrill(e, x, y, r, face) {
 
 // ---------------------------------------------------------------- more pond life
 // Each drawn in the same phase-contrast style: grey body darker than the fluid, a bright halo, dark detail.
-function mBody(e, k) { return e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, k || 0.42); }
+// Motility Dye: fast swimmers take up the stain, so their whole body turns cyan.
+function fastDyed(e) { return !!(G.dyes && G.dyes.motility && e.def.speed >= 95 && !e.rival && !e.boss && !e.charmed); }
+function eTone(e, k) { return fastDyed(e) ? DYE_FAST_DK : pcTone(e.color, k); }
+function mBody(e, k) { return e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : eTone(e, k || 0.42); }
 function mHalo(w) { ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = Math.max(1, w); ctx.stroke(); }
 const MICROBES = {
   // Candida: oval budding cells, joined to their parent by a pseudohypha; buds swell as they grow.
@@ -1167,17 +1191,12 @@ function render() {
     const tgt = e.charmed && e.allyT ? e.allyT : G.player;
     const face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
     const sh = e.def.shape;
-    // Motility Dye: fast swimmers get a cyan label.
-    if (G.dyes && G.dyes.motility && e.def.speed >= 95 && !e.rival && !e.boss) {
-      ctx.strokeStyle = DYE_FAST; ctx.lineWidth = 1.6; ctx.globalAlpha = 0.8;
-      ctx.beginPath(); ctx.arc(x, y, r * 1.3 + 3, 0, TAU); ctx.stroke(); ctx.globalAlpha = e.phased ? 0.25 : 1;
-    }
     const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
     if (sh === 'sperm') {
       // Swimmers are drawn like you: real sperm with dragging tails. Rivals carry their fluorescent dye.
       if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
       const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
-      const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : null;
+      const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : null;
       drawShip(x, y, face, tag, e.phased ? 0.25 : 1, e.r * squash / 8, e);
     } else if (sh === 'krill') {
       drawKrill(e, x, y, r, face);
@@ -1194,7 +1213,7 @@ function render() {
     } else {
       // Phase contrast: a grey body (a hint of its hue), darker towards the middle, bright halo round the edge.
       drawShape(e.def.shape, x, y, r, rot);
-      ctx.fillStyle = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : pcTone(e.color, sh === 'amoeba' ? 0.62 : 0.36);
+      ctx.fillStyle = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : eTone(e, sh === 'amoeba' ? 0.62 : 0.36);
       ctx.fill();
       if (e.flash <= 0 && sh !== 'amoeba') {
         ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, TAU); ctx.fill();
