@@ -51,7 +51,7 @@
       <p><b>Rival champions</b> (Big Steve, Chad Flagellum and friends) are growing elsewhere on the map. They steal your kills, pick fights when they feel big, and run when they don't. Any still alive at the end join the Final Five (stand-ins fill the gaps). Kill one early for Fan DNA and a level's worth of XP. The race board under the minimap shows who is ahead.</p>
       <p><b>You don't aim.</b> You swim and shoot by yourself. You program the directives.</p>
       <p><b>Armoury:</b> tap any weapon slot: stats, modifiers, fusion progress, and each weapon's targeting directive (Nearest, Strongest, Lowest Health, Highest Armour, Densest Cluster, Revenge and more). Recycle weapons you've outgrown for rerolls.</p>
-      <p><b>Weapon slots:</b> you start with 3 and grow a new one at levels 15, 30 and 45 (6 in total). Each new slot comes with a strand of new weapon DNA.</p>
+      <p><b>Weapon drafts:</b> you choose your first weapon at level 1 and draft a new one at levels 10, 20, 35 and 50 (5 in total). Ordinary DNA strands upgrade the weapons you have.</p>
       <p><b>Autorun directive:</b> the RUN button switches movement: Kite, Collect, Orbit, Hunt, Hold, Nest. Drag anywhere to steer manually.</p>
       <p><b>DNA strands:</b> every level up unzips one. Splice in 1 of 3: weapons, spells, upgrades, modifiers or power-ups. Bronze, Silver, Gold, Legendary. Watch out for cursed cards.</p>
       <p><b>Modifiers:</b> install into one weapon (3 slots each): Seeking, Splitting, Orbiting, Growing, Boomerang, Ricochet, Freezing, Exploding, Mind Control, Element Swap, Shrapnel.</p>
@@ -82,6 +82,20 @@
     <div id="lootCards"></div>
     <button id="rerollBtn" class="btn">REROLL</button>
   </div>
+</div>
+
+<div id="draft" class="screen">
+  <div class="dflash"></div>
+  <div class="dwrap">
+    <div class="dkick" id="dKick"></div>
+    <div class="dtitle" id="dTitle"></div>
+    <div class="dsub" id="dSub"></div>
+    <div class="dstage"><canvas id="dCanvas"></canvas><div class="dbadge" id="dBadge"></div>
+      <button class="darr l" id="dPrev">&lsaquo;</button><button class="darr r" id="dNext">&rsaquo;</button></div>
+    <div class="dtabs" id="dTabs"></div>
+    <div class="dinfo" id="dInfo"></div>
+  </div>
+  <div class="pbtns"><button id="dPick" class="btn primary">CHOOSE</button></div>
 </div>
 
 <div id="bossIntro" class="screen">
@@ -174,6 +188,7 @@
 <script src="js/sigs.js"></script>
 <script src="js/bosses.js"></script>
 <script src="js/net.js"></script>
+<script src="js/preview.js"></script>
 <script src="js/show.js"></script>
 <script src="js/rivals.js"></script>
 <script src="js/render.js"></script>

@@ -42,59 +42,59 @@ const MOVE_DIRECTIVES = [
 // Lv 3 and Lv 8 offer upgrades any weapon can take; Lv 5 and Lv 10 fork into two upgrades only that
 // weapon has (see SIGS). role: the play style in two words.
 const WEAPONS = {
-  blaster: { name: 'Spitball', icon: 'BL', elem: 'phys', kind: 'gun', color: '#e8f0ff', dir: 'nearest', role: 'Marksman',
+  blaster: { name: 'Spitball', stars: [3, 3, 4, 1], play: 'Picks targets off from range, one at a time. Grows into a railgun or a fire hose.', icon: 'BL', elem: 'phys', kind: 'gun', color: '#e8f0ff', dir: 'nearest', role: 'Marksman',
     desc: 'Reliable, accurate single shots. Mildly unhygienic.',
     base: { dmg: 11, cd: 0.3, mag: 12, reload: 1.1, count: 1, spread: 0.04, speed: 640, pierce: 0, range: 440, size: 4 },
     lv: { 3: { pierce: 1 }, 6: { count: 1 }, 9: { dmg: 0.3 } }, sig: { 5: ['loogie', 'wetwilly'], 10: ['kidneystone', 'vomit'] } },
-  shotgun: { name: 'Hiccup Scattergun', icon: 'SG', elem: 'phys', kind: 'gun', color: '#ffd6a5', dir: 'nearest', role: 'Brawler',
+  shotgun: { name: 'Hiccup Scattergun', stars: [4, 2, 1, 3], play: 'Get up close and blast. Point-blank damage, knockback and a ring of pellets later.', icon: 'SG', elem: 'phys', kind: 'gun', color: '#ffd6a5', dir: 'nearest', role: 'Brawler',
     desc: 'A close-range burst with knockback. Comes out whether you want it to or not.',
     base: { dmg: 8, cd: 0.75, mag: 4, reload: 1.6, count: 6, spread: 0.55, speed: 540, pierce: 0, range: 270, size: 3.5, knock: 70 },
     lv: { 3: { count: 2 }, 6: { pierce: 1 }, 9: { count: 2 } }, sig: { 5: ['pointblank', 'slug'], 10: ['hiccupfit', 'dragonbreath'] } },
-  glaive: { name: 'Yo-Yo Diet', icon: 'GL', elem: 'phys', kind: 'gun', color: '#f1f1f1', dir: 'furthest', style: 'glaive', role: 'Boomerang',
+  glaive: { name: 'Yo-Yo Diet', stars: [3, 2, 3, 3], play: 'Throws out and comes back, hitting everything twice. Can hang, grow or become a black hole.', icon: 'GL', elem: 'phys', kind: 'gun', color: '#f1f1f1', dir: 'furthest', style: 'glaive', role: 'Boomerang',
     desc: 'A spinning blade that flies out and always comes back. Like the weight.',
     base: { dmg: 16, cd: 1.0, mag: 2, reload: 1.3, count: 1, spread: 0.3, speed: 430, pierce: 99, range: 330, size: 10, boomerang: 1 },
     lv: { 3: { dmg: 0.2 }, 6: { count: 1 }, 9: { dmg: 0.3 } }, sig: { 5: ['walkdog', 'crashdiet'], 10: ['aroundworld', 'blackyoyo'] } },
-  wake: { name: 'Slipstream Scalpel', icon: 'WB', elem: 'phys', kind: 'wake', color: '#e0fbfc', dir: 'nearest', noTarget: 1, role: 'Swim Path',
+  wake: { name: 'Slipstream Scalpel', stars: [3, 5, 1, 3], play: 'No aiming: your swim path is the blade. Swim circles round crowds to cut them all at once.', icon: 'WB', elem: 'phys', kind: 'wake', color: '#e0fbfc', dir: 'nearest', noTarget: 1, role: 'Swim Path',
     desc: 'Your swim path becomes a blade. Keep moving, or it is just very expensive litter.',
     base: { dmg: 24, dur: 2.2, area: 22, range: 0 },
     lv: { 3: { area: 0.3 }, 6: { dur: 0.5 }, 9: { dmg: 0.5 } }, sig: { 5: ['closeloop', 'razorwire'], 10: ['surgicalteam', 'afterburner'] } },
-  flamer: { name: 'Heartburn', icon: 'FL', elem: 'fire', kind: 'gun', color: '#ff7a2f', dir: 'nearest', style: 'flame', role: 'Flamethrower',
+  flamer: { name: 'Heartburn', stars: [2, 5, 1, 4], play: 'A short cone of fire that melts crowds. Later it sweeps a full circle or never stops.', icon: 'FL', elem: 'fire', kind: 'gun', color: '#ff7a2f', dir: 'nearest', style: 'flame', role: 'Flamethrower',
     desc: 'A short-range cone of fire. Every lick burns. Antacids not included.',
     base: { dmg: 3.4, cd: 0.05, mag: 50, reload: 2.1, count: 2, spread: 0.45, speed: 310, pierce: 99, range: 200, size: 7 },
     lv: { 3: { area: 0.3 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['blueflame', 'indigestion'], 10: ['dragon', 'hellkitchen'] } },
-  mines: { name: 'Nappy Mines', icon: 'ML', elem: 'fire', kind: 'mine', color: '#ff9f1c', dir: 'nearest', role: 'Trapper',
+  mines: { name: 'Nappy Mines', stars: [4, 2, 2, 4], play: 'Leaves traps behind you. Chain reactions, sticky bombs and the occasional nuke.', icon: 'ML', elem: 'fire', kind: 'mine', color: '#ff9f1c', dir: 'nearest', role: 'Trapper',
     desc: 'Drops proximity mines in your wake. Nobody wants to change them.',
     base: { dmg: 34, cd: 0.7, mag: 5, reload: 2.4, count: 1, explode: 72, life: 14, range: 600 },
     lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { dmg: 0.5 } }, sig: { 5: ['domino', 'sticky'], 10: ['nuclear', 'minefield'] } },
-  frost: { name: 'Cold Feet', icon: 'FR', elem: 'ice', kind: 'gun', color: '#6fd8ff', dir: 'fastest', style: 'shard', role: 'Freezer',
+  frost: { name: 'Cold Feet', stars: [3, 2, 4, 3], play: 'Piercing shards that slow and freeze. Frozen things shatter.', icon: 'FR', elem: 'ice', kind: 'gun', color: '#6fd8ff', dir: 'fastest', style: 'shard', role: 'Freezer',
     desc: 'Piercing ice shards that chill and freeze. Commitment issues, weaponised.',
     base: { dmg: 15, cd: 0.6, mag: 5, reload: 1.5, count: 1, spread: 0.08, speed: 540, pierce: 3, range: 460, size: 5 },
     lv: { 3: { count: 1 }, 6: { pierce: 2 }, 9: { count: 1 } }, sig: { 5: ['shatter', 'icicle'], 10: ['iceage', 'coldsnap'] } },
-  tesla: { name: 'Static Cling', icon: 'TC', elem: 'shock', kind: 'chain', color: '#ffe94a', dir: 'cluster', role: 'Chain Lightning',
+  tesla: { name: 'Static Cling', stars: [3, 3, 3, 5], play: 'Lightning jumps through whole crowds. Can power every other weapon you own.', icon: 'TC', elem: 'shock', kind: 'chain', color: '#ffe94a', dir: 'cluster', role: 'Chain Lightning',
     desc: 'Instant lightning that arcs between enemies, like a nylon onesie in winter.',
     base: { dmg: 13, cd: 0.7, mag: 6, reload: 1.8, count: 1, chain: 3, range: 330, jump: 140 },
     lv: { 3: { chain: 2 }, 6: { count: 1 }, 9: { chain: 2 } }, sig: { 5: ['shortcircuit', 'umbilical'], 10: ['overcharge', 'powergrid'] } },
-  venom: { name: 'Morning Sickness', icon: 'VS', elem: 'poison', kind: 'lob', color: '#8dff4a', dir: 'cluster', role: 'Area Denial',
+  venom: { name: 'Morning Sickness', stars: [2, 2, 3, 4], play: 'Lobs puddles that keep hurting. Turns the floor into a swamp.', icon: 'VS', elem: 'poison', kind: 'lob', color: '#8dff4a', dir: 'cluster', role: 'Area Denial',
     desc: 'Lobs acid globs that leave toxic puddles. Worse before noon.',
     base: { dmg: 10, cd: 0.9, mag: 4, reload: 1.8, count: 1, spread: 40, range: 390, area: 58, dur: 3, flight: 0.6 },
     lv: { 3: { dur: 0.5 }, 6: { count: 1 }, 9: { area: 0.4 } }, sig: { 5: ['nausea', 'toxicspread'], 10: ['swamp', 'acidreflux'] } },
-  parasite: { name: 'Tapeworm Seeder', icon: 'PS', elem: 'poison', kind: 'gun', parasite: 1, color: '#b5e48c', dir: 'highhp', style: 'needle', role: 'Necromancer',
+  parasite: { name: 'Tapeworm Seeder', stars: [2, 3, 3, 3], play: 'Infects, then the dead fight for you as turrets or zombies.', icon: 'PS', elem: 'poison', kind: 'gun', parasite: 1, color: '#b5e48c', dir: 'highhp', style: 'needle', role: 'Necromancer',
     desc: 'Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green.',
     base: { dmg: 12, cd: 0.4, mag: 8, reload: 1.6, count: 1, spread: 0.08, speed: 560, pierce: 0, range: 430, size: 3.5, dur: 8 },
     lv: { 3: { count: 1 }, 6: { dur: 0.5 }, 9: { dmg: 0.4 } }, sig: { 5: ['walkingdead', 'bigworm'], 10: ['brood', 'bodysnatcher'] } },
-  seeker: { name: 'Seeker Siblings', icon: 'SS', elem: 'arcane', kind: 'gun', color: '#d0a3ff', dir: 'weakest', style: 'sperm', role: 'Swarm',
+  seeker: { name: 'Seeker Siblings', stars: [2, 3, 4, 2], play: 'Homing siblings that never miss. They multiply.', icon: 'SS', elem: 'arcane', kind: 'gun', color: '#d0a3ff', dir: 'weakest', style: 'sperm', role: 'Swarm',
     desc: 'Tiny homing siblings who swim for you and never miss. Family is complicated.',
     base: { dmg: 9, cd: 0.45, mag: 6, reload: 2.0, count: 2, spread: 1.2, speed: 320, pierce: 0, range: 500, size: 4, homing: 5 },
     lv: { 3: { count: 1 }, 6: { count: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['bigbrother', 'rivalry'], 10: ['boom', 'reunion'] } },
-  void: { name: 'Toddler Gravity', icon: 'VO', elem: 'arcane', kind: 'gun', color: '#7b2cbf', dir: 'cluster', style: 'void', role: 'Crowd Control',
+  void: { name: 'Toddler Gravity', stars: [2, 1, 3, 5], play: 'A slow black hole that drags everything in. Crowd control, then a Big Bang.', icon: 'VO', elem: 'arcane', kind: 'gun', color: '#7b2cbf', dir: 'cluster', style: 'void', role: 'Crowd Control',
     desc: 'A slow orb that drags everything into its mouth. Everything.',
     base: { dmg: 8, cd: 1.8, mag: 2, reload: 2.5, count: 1, spread: 0.2, speed: 115, pierce: 99, range: 400, size: 15, aura: 72, pull: 95 },
     lv: { 3: { area: 0.3 }, 6: { count: 1 }, 9: { dmg: 0.5 } }, sig: { 5: ['horizon', 'nomnom'], 10: ['bigbang', 'parking'] } },
-  orbit: { name: 'Premature Evangelation', icon: 'OB', elem: 'arcane', kind: 'orbit', color: '#c77dff', dir: 'nearest', role: 'Bodyguard',
+  orbit: { name: 'Premature Evangelation', stars: [3, 4, 1, 3], play: 'Guardian angels circle you and swat whatever comes close. Some eat bullets.', icon: 'OB', elem: 'arcane', kind: 'orbit', color: '#c77dff', dir: 'nearest', role: 'Bodyguard',
     desc: 'These guardian angels get started way too soon.',
     base: { dmg: 23, count: 3, dur: 4.5, reload: 2.2, radius: 72, spin: 3.6, size: 10, range: 100 },
     lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { count: 1 } }, sig: { 5: ['nan', 'clingy'], 10: ['extended', 'guilttrip'] } },
-  siphon: { name: 'Placental Siphon', icon: 'BU', elem: 'arcane', kind: 'siphon', color: '#ff3df2', dir: 'nearest', role: 'Counter',
+  siphon: { name: 'Placental Siphon', stars: [3, 5, 3, 2], play: 'Eats enemy bullets and fires them back. The busier the screen, the stronger it gets.', icon: 'BU', elem: 'arcane', kind: 'siphon', color: '#ff3df2', dir: 'nearest', role: 'Counter',
     desc: 'Eats enemy bullets that come near you and spits them back. No reloads. No ammo either, until the screen is full of bullets.',
     base: { dmg: 18, cd: 0.08, mag: 40, area: 90, speed: 640, range: 460, size: 4.5, pierce: 0, spread: 0.08, count: 1 },
     lv: { 3: { count: 1 }, 6: { pierce: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['sender', 'buffet'], 10: ['mirrorwomb', 'overflow'] } },
@@ -471,8 +471,10 @@ const POWERUPS = {
 const CORE = { r: 80, sanctuary: 290, arena: 2400 };
 // Break into the egg: reach EGG.level and its membrane becomes vulnerable. Destroy it to be born (you win).
 const EGG = { level: 60, hpBase: 150000, armour: 8 };
-// Extra weapon slots unlock at these levels (3 to start, 6 at most).
-const SLOT_LEVELS = [15, 30, 45];
+// Weapon drafts: a new weapon mount at level 1 and at these levels.
+const SLOT_LEVELS = [10, 20, 35, 50];
+const BASE_SLOTS = 1; // you choose a new weapon at level 1 and at every SLOT_LEVELS level (5 at most)
+const MAX_WEAPONS = BASE_SLOTS + SLOT_LEVELS.length;
 
 // ---------------------------------------------------------------- Palette
 // Colour is rationed. Everything is greyscale except four meanings:

@@ -67,7 +67,7 @@ function newGame() {
     player: { x: 0, y: 0, vx: 0, vy: 0, r: 12, hp: 120, iframes: 0, face: -Math.PI / 2, flash: 0 },
     P: newStats(),
     enemies: [], proj: [], ebul: [], gems: [], pickups: [], zones: [], fx: [], parts: [], texts: [], turrets: [], timers: [],
-    weapons: [null, null, null], spells: [null, null], passives: {},
+    weapons: Array(BASE_SLOTS).fill(null), spells: [null, null], passives: {},
     moveDir: 'kite', manual: null,
     kills: 0, level: 1, xp: 0, xpNeed: xpNeed(1),
     lootQueue: [{ kind: 'start' }], rerolls: 2,
@@ -357,7 +357,7 @@ function genLoot(req) {
   const opts = [];
   const minR = req.kind === 'boss' || req.kind === 'chest' ? 2 : 0; // level boxes Bronze+, Fan and boss boxes Gold+
   if (req.kind === 'slot') {
-    // A new weapon slot: three fresh weapons, Silver or better.
+    // A weapon draft for a new mount: three fresh weapons, Silver or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
     const ids = shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 3);
     return ids.map(id => optNewWeapon(id, Math.max(1, rollRarity(1))));
@@ -381,11 +381,7 @@ function genLoot(req) {
   for (const m of merges) cands.push({ w: 60, make: () => optMerge(m) , key: 'fuse' + m.out });
   G.weapons.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 11, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
   G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
-  if (G.weapons.some(w => !w)) {
-    const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
-    const pool = shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 4);
-    for (const id of pool) cands.push({ w: 7, key: 'wn' + id, make: r => optNewWeapon(id, r) });
-  }
+  // New weapons only come from weapon drafts (level 1, 10, 20, 35, 50), never from ordinary DNA.
   if (G.spells.some(w => !w)) {
     const owned = new Set(G.spells.filter(Boolean).map(w => w.id));
     const pool = shuffle(Object.keys(SPELLS).filter(id => !owned.has(id))).slice(0, 3);
@@ -446,7 +442,7 @@ function optUpgrade(w, r) {
   const bonus = lvBonusText(w.def, w.lvl, to);
   let desc = `+${pc(WEAPON_LV_DMG * (to - w.lvl))} damage, faster cycling` + (bonus ? `. ${bonus}` : '');
   if (!w.isSpell && to >= MERGE_MIN_LEVEL && w.lvl < MERGE_MIN_LEVEL && !w.def.merged) desc += '. Unlocks fusion!';
-  return { def: w.def, rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
+  return { def: w.def, w, wup: !w.isSpell, from: w.lvl, to, rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
     sub: `Lv ${w.lvl} > ${to}${to === MAX_WLVL ? ' (MAX)' : ''}`, desc,
     apply: () => { setWeaponLevel(w, to); computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
 }
@@ -1877,11 +1873,11 @@ function gainXp(v) {
     casaLog(`LV ${G.level}  head +1.5%`);
     // Every level up is rewarded with a box.
     G.lootQueue.push({ kind: 'level' });
-    // Growth milestones: a new weapon slot at 15, 30 and 45.
-    if (SLOT_LEVELS.includes(G.level) && G.weapons.length < 3 + SLOT_LEVELS.length) {
+    // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
+    if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS) {
       G.weapons.push(null);
       G.lootQueue.push({ kind: 'slot' });
-      banner('NEW WEAPON SLOT!', PAL.upgrade);
+      banner('WEAPON DRAFT!', PAL.upgrade);
       sysLine('slot', true); achieve('slot');
     }
   }

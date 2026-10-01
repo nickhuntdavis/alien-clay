@@ -593,3 +593,64 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #lobby .li em { font-style: normal; font-size: 10px; letter-spacing: 1px; color: #a3aea9; }
 #lobby .mpstatus { text-align: center; min-height: 16px; }
 #lobby #mpStart, #lobby #mpLeave { margin-top: 10px; }
+
+/* ---------------------------------------------------------------- weapon draft and upgrade paths */
+#draft.screen { --wc: #5fd4e8; background: radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--wc) 18%, #000) 0%, #000000f2 60%) !important; }
+#draft .dwrap { width: min(560px, calc(100% - 24px)); padding: calc(14px + env(safe-area-inset-top)) 0 120px; }
+#draft .dflash { position: fixed; inset: 0; background: var(--wc); opacity: 0; pointer-events: none; z-index: 5; }
+#draft.opening .dflash { animation: dFlash 0.6s ease-out; }
+@keyframes dFlash { 0% { opacity: 0.55; } 100% { opacity: 0; } }
+#draft .dkick { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 3px; color: var(--wc); text-align: center; }
+#draft .dtitle { font-size: 28px; font-weight: 900; letter-spacing: 3px; text-align: center; color: #fff; margin: 4px 0 2px; }
+#draft.opening .dtitle { animation: biSlam 0.4s cubic-bezier(.2,1.6,.4,1) both; }
+#draft .dsub { font-size: 12.5px; color: #cfd6d2; text-align: center; margin-bottom: 10px; line-height: 1.35; }
+#draft .dstage { position: relative; height: 34vh; min-height: 170px; max-height: 280px; border: 1px solid var(--wc); border-radius: 6px; overflow: hidden;
+  box-shadow: 0 0 30px color-mix(in srgb, var(--wc) 35%, transparent), inset 0 0 40px #000; }
+#draft.opening .dstage { animation: dZoom 0.5s ease-out both 0.1s; }
+@keyframes dZoom { from { transform: scale(0.85); opacity: 0; } to { transform: none; opacity: 1; } }
+#draft .dstage canvas { width: 100%; height: 100%; display: block; }
+#draft .dbadge { position: absolute; left: 10px; top: 8px; display: flex; align-items: center; gap: 8px; font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 2px; color: var(--wc);
+  background: #000a; padding: 4px 8px; border-radius: 3px; }
+#draft .dbadge svg { width: 22px; height: 22px; }
+#draft .darr { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 54px; border: 1px solid #ffffff30; background: #000a; color: #fff; font-size: 30px; line-height: 1; border-radius: 4px; }
+#draft .darr.l { left: 6px; } #draft .darr.r { right: 6px; }
+#draft .dtabs { display: flex; gap: 6px; margin: 10px 0; }
+#draft .dtab { flex: 1; min-width: 0; padding: 8px 6px; border-radius: 4px; border: 1px solid #ffffff25; background: #0b0e10; text-align: center; color: #cfd6d2; }
+#draft .dtab b { display: block; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#draft .dtab span { display: block; font-family: var(--mono, monospace); font-size: 9px; letter-spacing: 1.5px; color: #8a959a; margin-top: 2px; }
+#draft .dtab.sel { border-color: var(--tc); box-shadow: 0 0 12px color-mix(in srgb, var(--tc) 45%, transparent); background: color-mix(in srgb, var(--tc) 12%, #0b0e10); color: #fff; }
+#draft .dtab.sel span { color: var(--tc); }
+#draft .dinfo { animation: biFade 0.25s both; }
+#draft .drole { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 3px; color: var(--wc); }
+#draft .dname { font-size: 26px; font-weight: 900; color: #fff; line-height: 1.1; margin: 2px 0 6px; }
+#draft .dplay { font-size: 14px; color: #fff; line-height: 1.35; margin-bottom: 4px; }
+#draft .ddesc { font-size: 12px; color: #a3aea9; font-style: italic; margin-bottom: 10px; }
+#draft .dbars { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; margin: 8px 0 12px; font-family: var(--mono, monospace); font-size: 10px; letter-spacing: 1.5px; color: #a3aea9; }
+#draft .dbar { display: flex; gap: 3px; } #draft .dbar i { flex: 1; height: 7px; background: #ffffff14; border-radius: 1px; }
+#draft .dbar i.on { background: var(--wc); box-shadow: 0 0 6px var(--wc); }
+#draft h4 { margin: 12px 0 6px; font-family: var(--mono, monospace); font-size: 10px; letter-spacing: 2px; color: #a3aea9; }
+#draft .dpath { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+#draft .dp { border: 1px solid #ffffff20; border-radius: 4px; padding: 7px 8px; background: #0b0e10; }
+#draft .dp b { display: block; font-size: 12.5px; color: #fff; }
+#draft .dp span { display: block; font-size: 11px; color: #a3aea9; line-height: 1.3; margin-top: 2px; }
+#draft .dp em { font-style: normal; font-family: var(--mono, monospace); font-size: 9px; letter-spacing: 1.5px; color: var(--wc); }
+#draft .dpairs { font-size: 12px; color: #cfd6d2; line-height: 1.5; }
+#draft .dmounts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+#draft .dmount { display: flex; align-items: center; gap: 5px; border: 1px solid #ffffff20; border-radius: 3px; padding: 3px 7px 3px 4px; font-size: 11px; color: #cfd6d2; }
+#draft .dmount.new { border-color: var(--wc); color: #fff; border-style: dashed; }
+#draft .dmount svg { width: 18px; height: 18px; }
+#draft .dperk { border: 2px solid var(--wc); border-radius: 6px; padding: 12px; background: color-mix(in srgb, var(--wc) 8%, #050607); }
+#draft .dperk .pn { font-size: 22px; font-weight: 900; color: #fff; }
+#draft .dperk .pd { font-size: 14px; color: #e3e8e5; line-height: 1.4; margin-top: 6px; }
+#draft .dlv { display: flex; gap: 3px; margin: 8px 0 4px; } #draft .dlv i { flex: 1; height: 6px; background: #ffffff14; } #draft .dlv i.on { background: var(--wc); } #draft .dlv i.now { background: #fff; box-shadow: 0 0 8px #fff; }
+#draft #dPick { border-color: var(--wc); letter-spacing: 3px; }
+
+/* Weapon upgrade cards in ordinary DNA: their own section, with a live preview of the weapon. */
+#lootCards .lsec { font-family: var(--mono, monospace); font-size: 10px; letter-spacing: 2px; color: #a3aea9; margin: 4px 2px -4px; }
+.card.wup { padding-left: 104px; min-height: 104px; border-color: var(--wc) !important; }
+.card.wup .cico { display: none; }
+.card.wup canvas { position: absolute; left: 8px; top: 8px; bottom: 8px; width: 86px; height: calc(100% - 16px); border-radius: 4px; border: 1px solid #ffffff20; }
+.card.wup .ctitle { font-size: 18px; }
+.card.wup .wlv { display: flex; gap: 2px; margin: 5px 0 4px; } .card.wup .wlv i { flex: 1; height: 5px; background: #ffffff14; }
+.card.wup .wlv i.on { background: #ffffff70; } .card.wup .wlv i.up { background: var(--wc); box-shadow: 0 0 6px var(--wc); } .card.wup .wlv i.ms { outline: 1px solid #fff; }
+.card.wup .wnext { font-size: 11px; color: var(--wc); margin-top: 4px; }

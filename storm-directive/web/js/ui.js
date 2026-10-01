@@ -30,7 +30,7 @@ const UI = {
     $('hudTop').style.top = UI.safeTop + 'px';
     // Build HUD slots.
     const ws = $('wslots'), ss = $('sslots');
-    for (let i = 0; i < 3 + SLOT_LEVELS.length; i++) ws.appendChild(UI.makeSlotEl('w', i));
+    for (let i = 0; i < MAX_WEAPONS; i++) ws.appendChild(UI.makeSlotEl('w', i));
     for (let i = 0; i < 2; i++) ss.appendChild(UI.makeSlotEl('s', i));
     $('moveBtn').addEventListener('click', () => {
       if (!G) return;
@@ -56,6 +56,12 @@ const UI = {
       startRewind(false);
     });
     $('playBtn').addEventListener('click', () => UI.openSamples());
+    $('dPrev').addEventListener('click', () => UI.draftStep(-1));
+    $('dNext').addEventListener('click', () => UI.draftStep(1));
+    $('dPick').addEventListener('click', () => { if (!UI.draft || !(UI.lastDown > UI.lootOpenT) || performance.now() - UI.lootOpenT < 500) return; UI.pickLoot(UI.draft.i); });
+    { let sx = 0, sy = 0, t0 = 0; const st = $('draft');
+      st.addEventListener('touchstart', ev => { const t = ev.touches[0]; sx = t.clientX; sy = t.clientY; t0 = performance.now(); }, { passive: true });
+      st.addEventListener('touchend', ev => { const t = ev.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; if (performance.now() - t0 < 600 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.8) UI.draftStep(dx < 0 ? 1 : -1); }, { passive: true }); }
     $('mpBtn').addEventListener('click', () => { UI.show('lobby'); UI.renderLobby(); });
     $('lobbyBack').addEventListener('click', () => { netLeave(); UI.show('title'); UI.renderBest(); });
     $('sampleBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
@@ -86,7 +92,7 @@ const UI = {
   lastDown: 0, lootOpenT: 0,
   show(name) {
     if (!G) refreshPalette(); // out of a run everything is greyscale
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples', 'bossIntro', 'lobby']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples', 'bossIntro', 'lobby', 'draft']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -165,6 +171,7 @@ const UI = {
 
   tick(dt) {
     netKeepAlive(dt);
+    updatePreviews(dt);
     UI.hudT -= dt;
     if (UI.hudT <= 0 && G && G.state === 'play') { UI.hudT = 0.08; UI.refreshHud(false); }
     if (UI.toastT > 0) { UI.toastT -= dt; if (UI.toastT <= 0) $('toast').classList.remove('on'); }
@@ -275,17 +282,17 @@ const UI = {
       return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${elemCol(wElem(x))}"><b>${iconSVG(x.def, 24, elemCol(wElem(x)))}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
-    for (let i = G.weapons.length; i < 3 + SLOT_LEVELS.length; i++) t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${SLOT_LEVELS[i - 3]}</span></button>`;
+    for (let i = G.weapons.length; i < MAX_WEAPONS; i++) t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${SLOT_LEVELS[i - BASE_SLOTS]}</span></button>`;
     G.spells.forEach((x, i) => { t += tab('s', i, x); });
     $('armTabs').innerHTML = t;
     $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false }; UI.renderArmoury(); }));
     const body = $('armBody');
     if (A.k === 'w' && A.i >= G.weapons.length) {
-      body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS[A.i - 3]} (you are level ${G.level}). The next DNA strand after that is all new weapons.</p></div>`;
+      body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS[A.i - BASE_SLOTS]} (you are level ${G.level}) and draft a new weapon for it.</p></div>`;
       return;
     }
     if (!w) {
-      body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon slot. New weapons show up in DNA strands while you have a free slot. Recycle a weapon to make room.' : 'Empty spell slot. Spells show up in DNA strands while you have a free slot.'}</p></div>`;
+      body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon mount. You draft a new weapon for it as soon as you are back in the race.' : 'Empty spell slot. Spells show up in DNA strands while you have a free slot.'}</p></div>`;
       return;
     }
     const d = w.def, s = w.s;
@@ -389,7 +396,7 @@ const UI = {
     }
     // Recycle.
     if (A.k === 'w' && G.weapons.filter(Boolean).length > 1) {
-      h += `<div class="sec"><button class="btn ${A.recycle ? 'danger' : ''}" id="armRecycle">${A.recycle ? 'TAP AGAIN TO RECYCLE (+2 REROLLS)' : 'RECYCLE WEAPON (FREES THE SLOT)'}</button></div>`;
+      h += `<div class="sec"><button class="btn ${A.recycle ? 'danger' : ''}" id="armRecycle">${A.recycle ? 'TAP AGAIN TO RECYCLE (+2 REROLLS, THEN DRAFT A NEW ONE)' : 'RECYCLE WEAPON (DRAFT A REPLACEMENT)'}</button></div>`;
     }
     body.innerHTML = h;
     body.querySelectorAll('[data-bar]').forEach(b => b.addEventListener('click', () => { A.bar = +b.dataset.bar; UI.renderArmoury(); }));
@@ -403,11 +410,104 @@ const UI = {
     if (rb) rb.addEventListener('click', () => {
       if (!A.recycle) { A.recycle = true; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; return; }
       G.weapons[A.i] = null; G.rerolls += 2; recomputeAll();
+      G.lootQueue.push({ kind: 'slot', recycled: true }); // draft a replacement
       achieve('recycle');
       sysMsg('SYSTEM MESSAGE', `${d.name} has been recycled into 2 reroll tokens and a faint smell of regret.`, '#8dffc0', true);
       UI.arm = { k: 'w', i: G.weapons.findIndex(Boolean), bar: 0, recycle: false };
       UI.renderArmoury();
     });
+  },
+
+  // A weapon upgrade card: a live preview of the weapon, its level track and what the upgrade unlocks.
+  upgradeCard(o, i) {
+    const w = o.w, d = w.def, wc = elemCol(wElem(w)), r = RARITIES[o.rarity];
+    const c = document.createElement('button');
+    c.className = 'card wup r-' + r.id;
+    c.style.setProperty('--rc', wc); c.style.setProperty('--wc', wc);
+    c.style.animationDelay = (0.45 + i * 0.12) + 's';
+    const pips = Array.from({ length: MAX_WLVL }, (_, k) => `<i class="${k < o.from ? 'on' : k < o.to ? 'up' : ''} ${PERK_LEVELS.includes(k + 1) ? 'ms' : ''}"></i>`).join('');
+    const ms = PERK_LEVELS.filter(l => l > o.from && l <= o.to).map(l => d.sig && d.sig[l] ? (l >= 10 ? `Lv ${l}: choose its MASTERY` : `Lv ${l}: choose its SIGNATURE path`) : `Lv ${l}: choose an upgrade`);
+    c.innerHTML = `<canvas></canvas><div class="tag">WEAPON UPGRADE <b>${esc(r.name)}</b></div>
+      <div class="ctitle" style="color:${wc}">${esc(d.name)}</div>
+      <div class="csub">Lv ${o.from} &rsaquo; ${o.to}${o.to === MAX_WLVL ? ' (MAX)' : ''} | ${esc(d.role || '')}</div>
+      <div class="wlv">${pips}</div>
+      <div class="cdesc">${esc(o.desc)}</div>${ms.length ? `<div class="wnext">Unlocks ${esc(ms.join(', '))}</div>` : ''}`;
+    makePreview(c.querySelector('canvas'), d, { mini: true });
+    c.addEventListener('click', () => { if (!$('lootCards').classList.contains('ready') || !(UI.lastDown > UI.lootOpenT)) return; UI.pickLoot(i); });
+    return c;
+  },
+
+  // ---------------------------------------------------------------- weapon draft (new weapons) and upgrade paths
+  openDraft(req) {
+    G.state = 'loot';
+    UI.lootReq = req;
+    UI.lootOpts = genLoot(req);
+    if (req.kind === 'level') return; // the weapon for that branch is gone: an ordinary strand instead
+    UI.pickedOne = false;
+    const weap = req.kind === 'branch' ? G.weapons.find(x => x && x.uid === req.uid) : null;
+    UI.draft = { req, i: 0, weap, pv: null };
+    const box = $('draft'), mount = G.weapons.filter(Boolean).length + 1;
+    const sig = weap && weap.def.sig && weap.def.sig[req.lvl];
+    $('dKick').textContent = req.kind === 'start' ? 'LEVEL 1 | YOUR FIRST WEAPON' : req.kind === 'slot' ? `LEVEL ${G.level} | WEAPON MOUNT ${mount} OF ${MAX_WEAPONS}` : `${weap.def.name.toUpperCase()} | LV ${req.lvl}`;
+    $('dTitle').textContent = req.kind === 'branch' ? (sig ? (req.lvl >= 10 ? 'MASTERY' : 'SIGNATURE PATH') : 'UPGRADE PATH') : 'WEAPON DRAFT';
+    $('dSub').textContent = req.kind === 'start' ? "This is how you'll fight. Everything else you pick builds on it."
+      : req.kind === 'slot' ? (req.recycled ? 'A fresh weapon for the empty mount.' : 'A new weapon mount. Choose what your build is missing: reach, crowds, bosses or safety.')
+      : sig ? (req.lvl >= 10 ? `The last upgrade ${weap.def.name} ever gets. It changes how the weapon plays.` : `Only ${weap.def.name} can take these. Pick its path: the other one is gone for good.`)
+      : `Any weapon can take these. Pick one for ${weap.def.name}.`;
+    UI.renderDraft();
+    box.classList.remove('opening'); void box.offsetWidth; box.classList.add('opening');
+    UI.show('draft');
+    box.scrollTop = 0;
+    INPUT.active = false; G.manual = null;
+    lootSound(req.kind === 'branch' ? 'branch' : 'boss', 3, false, UI.lootOpts.length);
+    vibrate(80);
+    UI.lootOpenT = performance.now();
+    G.stats.boxes = (G.stats.boxes || 0) + 1;
+  },
+  draftStep(k) { const D = UI.draft, n = UI.lootOpts.length; D.i = (D.i + k + n) % n; UI.renderDraft(); },
+  renderDraft() {
+    const D = UI.draft, o = UI.lootOpts[D.i], box = $('draft');
+    const def = D.weap ? D.weap.def : o.def, wc = D.weap ? elemCol(wElem(D.weap)) : elemCol(def.elem);
+    box.style.setProperty('--wc', wc);
+    // Stage: the weapon in action.
+    const cv = $('dCanvas');
+    if (!D.pv || D.pv.def !== def) { if (D.pv) dropPreview(D.pv); D.pv = makePreview(cv, def); }
+    $('dBadge').innerHTML = iconSVG(def, 22, wc) + esc(D.weap ? 'LV ' + D.weap.lvl + ' ' + def.name.toUpperCase() : (def.role || '').toUpperCase());
+    // Tabs.
+    $('dTabs').innerHTML = UI.lootOpts.map((x, i) => {
+      const tc = D.weap ? wc : elemCol(x.def.elem);
+      return `<button class="dtab ${i === D.i ? 'sel' : ''}" data-i="${i}" style="--tc:${tc}"><b>${esc(x.title)}</b><span>${esc(D.weap ? (x.tag === 'BRANCH' ? 'ANY WEAPON' : x.tag) : (x.def.role || '').toUpperCase())}</span></button>`;
+    }).join('');
+    $('dTabs').querySelectorAll('.dtab').forEach(b => b.addEventListener('click', () => { D.i = +b.dataset.i; UI.renderDraft(); }));
+    // Details.
+    let h = '';
+    if (D.weap) {
+      const w = D.weap, lv = Array.from({ length: MAX_WLVL }, (_, k) => `<i class="${k + 1 === D.req.lvl ? 'now' : k < w.lvl ? 'on' : ''}"></i>`).join('');
+      h += `<div class="dperk"><div class="drole">${esc(o.tag === 'BRANCH' ? 'UPGRADE ANY WEAPON CAN TAKE' : o.tag === 'MASTERY' ? 'MASTERY: ONLY ' + w.def.name.toUpperCase() : 'SIGNATURE: ONLY ' + w.def.name.toUpperCase())}</div>
+        <div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc.replace(/^Mastery\. /, ''))}</div></div>
+        <h4>${esc(w.def.name.toUpperCase())}'S PATH</h4><div class="dlv">${lv}</div>`;
+      const tree = weaponTree(w.def), rest = PERK_LEVELS.filter(l => l > D.req.lvl && w.def.sig && w.def.sig[l]);
+      if (rest.length) h += `<h4>STILL TO COME</h4><div class="dpath">${rest.flatMap(l => tree[l].map(id => `<div class="dp"><em>LV ${l}</em><b>${esc(perkDef(id).name)}</b><span>${esc(perkDef(id).desc.replace(/^Mastery\. /, ''))}</span></div>`)).join('')}</div>`;
+    } else {
+      const d = def, st = d.stars || [3, 3, 3, 3], bar = n => `<div class="dbar">${Array.from({ length: 5 }, (_, k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div>`;
+      h += `<div class="drole">${esc((d.role || '').toUpperCase())} | ${esc(ELEMENTS[d.elem].name.toUpperCase())}</div><div class="dname">${esc(d.name)}</div>
+        <div class="dplay">${esc(d.play || '')}</div><div class="ddesc">${esc(d.desc)}</div>
+        <div class="dbars"><span>POWER</span>${bar(st[0])}<span>FIRE RATE</span>${bar(st[1])}<span>REACH</span>${bar(st[2])}<span>CROWDS</span>${bar(st[3])}</div>`;
+      if (d.sig) {
+        h += `<h4>PLAYSTYLES IT UNLOCKS</h4><div class="dpath">`;
+        for (const l of [5, 10]) for (const id of d.sig[l]) h += `<div class="dp"><em>LV ${l} ${l >= 10 ? 'MASTERY' : 'SIGNATURE'}</em><b>${esc(SIGS[id].name)}</b><span>${esc(SIGS[id].desc.replace(/^Mastery\. /, ''))}</span></div>`;
+        h += `</div>`;
+      }
+      const ps = PAIRINGS.filter(q => q.a === o.def.id || q.b === o.def.id || q.a === defId(o.def) || q.b === defId(o.def));
+      if (ps.length) {
+        const id0 = defId(o.def);
+        h += `<h4>PAIRS WITH</h4><div class="dpairs">${ps.map(q => { const oid = q.a === id0 ? q.b : q.a, have = G.weapons.some(x => x && x.id === oid); return `<b style="color:${have ? PAL.upgrade : '#fff'}">${esc(WEAPONS[oid].name)}</b>${have ? ' (you have it)' : ''}: ${META.pairs[q.id] ? esc(q.name) : '???'}`; }).join('<br>')}</div>`;
+      }
+      const mine = G.weapons.filter(Boolean);
+      if (mine.length) h += `<h4>YOUR MOUNTS</h4><div class="dmounts">${mine.map(x => `<span class="dmount">${iconSVG(x.def, 18, elemCol(wElem(x)))}${esc(x.def.name)} Lv ${x.lvl}</span>`).join('')}<span class="dmount new">${iconSVG(d, 18, elemCol(d.elem))}${esc(d.name)}?</span></div>`;
+    }
+    const info = $('dInfo'); info.innerHTML = h; info.style.animation = 'none'; void info.offsetWidth; info.style.animation = '';
+    $('dPick').textContent = 'CHOOSE ' + o.title.toUpperCase();
   },
 
   // ---------------------------------------------------------------- multiplayer lobby
@@ -460,9 +560,11 @@ const UI = {
 
   // ---------------------------------------------------------------- loot
   openLoot(req) {
+    // New weapons and upgrade paths get the full Weapon Draft treatment.
+    if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch') { UI.openDraft(req); if (req.kind !== 'level') return; }
     G.state = 'loot';
     UI.lootReq = req;
-    UI.lootOpts = genLoot(req);
+    UI.lootOpts = UI.sortLoot(genLoot(req));
     const titles = {
       start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary starter DNA. Yes, sperm can carry guns in their genes now. Do not ask the biology department.'],
       slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Silver or better.'],
@@ -500,10 +602,18 @@ const UI = {
     UI.lootTimer = setTimeout(() => $('lootCards').classList.add('ready'), 650);
   },
 
+  // Weapon upgrades first, in their own section.
+  sortLoot(opts) { return opts.filter(o => o.wup).concat(opts.filter(o => !o.wup)); },
+
   renderLootCards() {
     const wrap = $('lootCards');
+    clearPreviews(wrap);
     wrap.innerHTML = '';
+    const nW = UI.lootOpts.filter(o => o.wup).length;
     UI.lootOpts.forEach((o, i) => {
+      if (nW && i === 0) wrap.insertAdjacentHTML('beforeend', '<div class="lsec">UPGRADE A WEAPON</div>');
+      if (nW && i === nW && i < UI.lootOpts.length) wrap.insertAdjacentHTML('beforeend', '<div class="lsec">OR SPLICE IN</div>');
+      if (o.wup) { wrap.appendChild(UI.upgradeCard(o, i)); return; }
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
       c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '');
@@ -529,12 +639,13 @@ const UI = {
 
   pickLoot(i) {
     const o = UI.lootOpts[i];
-    if (o.taken) return;
+    if (!o || o.taken) return;
+    clearPreviews();
     o.apply();
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
     const k = UI.lootReq && UI.lootReq.kind;
-    if (G.relics.twinpick && !UI.pickedOne && k !== 'start' && k !== 'branch' && k !== 'relic' && UI.lootOpts.length > 1) {
+    if (G.relics.twinpick && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'relic' && UI.lootOpts.length > 1) {
       UI.pickedOne = true; o.taken = true;
       const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
       $('lootSub').textContent = 'Twin Pick: take one more.';
@@ -549,7 +660,7 @@ const UI = {
   reroll() {
     if (!G || G.rerolls <= 0 || !$('lootCards').classList.contains('ready')) return;
     G.rerolls--;
-    UI.lootOpts = genLoot(UI.lootReq);
+    UI.lootOpts = UI.sortLoot(genLoot(UI.lootReq));
     UI.renderLootCards();
     UI.updateReroll();
   },
@@ -570,7 +681,7 @@ const UI = {
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
 
-    h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.fertile ? 'It is one. It is you. Swim into the egg.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon slots: ${G.weapons.length}/${3 + SLOT_LEVELS.length} (next at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}. The egg's warm glow heals you (NEST autorun keeps you in it).</p>
+    h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.fertile ? 'It is one. It is you. Swim into the egg.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon mounts: ${G.weapons.length}/${MAX_WEAPONS} (next draft at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}. The egg's warm glow heals you (NEST autorun keeps you in it).</p>
 </div>`;
     }
     if (tab === 'show') {
@@ -806,7 +917,7 @@ window.handleBack = function () {
   if (G && G.state === 'intro') { endIntro(); return 'ok'; }
   if (G && G.state === 'bossIntro') { if ($('bossIntro').classList.contains('ready')) endBossIntro(); return 'ok'; }
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
-  if (on('loot')) return 'ok';
+  if (on('loot') || on('draft')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
   if (on('bank') || on('samples')) { UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('lobby')) { netLeave(); UI.show('title'); UI.renderBest(); return 'ok'; }
