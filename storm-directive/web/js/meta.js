@@ -57,7 +57,7 @@ function setYouColour(c) {
   if (typeof refreshPalette === 'function') refreshPalette(); // only shows once you have the GFP stain
 }
 function starterPool() {
-  const base = ['blaster', 'shotgun', 'glaive', 'flamer', 'frost', 'tesla', 'venom', 'seeker'];
+  const base = ['blaster', 'shotgun', 'glaive', 'flamer', 'frost', 'tesla', 'venom', 'seeker', 'paddle', 'flail', 'onesie'];
   return base.concat(META_STARTERS.filter(([id]) => META.starters[id]).map(([id]) => id));
 }
 function metaBuy(kind, id) {
@@ -73,7 +73,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.6';
+const APP_VERSION = '7.7';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

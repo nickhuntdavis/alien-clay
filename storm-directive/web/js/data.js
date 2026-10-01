@@ -98,6 +98,19 @@ const WEAPONS = {
     desc: 'Eats enemy bullets that come near you and spits them back. No reloads. No ammo either, until the screen is full of bullets.',
     base: { dmg: 18, cd: 0.08, mag: 40, area: 90, speed: 640, range: 460, size: 4.5, pierce: 0, spread: 0.08, count: 1 },
     lv: { 3: { count: 1 }, 6: { pierce: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['sender', 'buffet'], 10: ['mirrorwomb', 'overflow'] } },
+  // Melee: no projectiles at all. area scales the reach (Personal Space, Wide Hips); arc is the swing in radians.
+  paddle: { name: 'Placenta Paddle', stars: [4, 2, 1, 4], play: 'Big sweeping swings right in front of you that knock crowds flying. Get stuck in.', icon: 'PD', elem: 'phys', kind: 'melee', melee: 'sweep', color: '#ff8fab', dir: 'nearest', role: 'Cleaver',
+    desc: 'A heavy, slightly floppy paddle. Nobody asks where it came from.',
+    base: { dmg: 34, cd: 0.8, mag: 4, reload: 1.1, count: 1, range: 92, area: 1, arc: 2.4, knock: 220 },
+    lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['fullcircle', 'homerun'], 10: ['afterwave', 'smother'] } },
+  flail: { name: 'Flagellum Flail', stars: [3, 4, 3, 2], play: 'Your tail cracks like a whip in a long straight line, hitting everything along it.', icon: 'FF', elem: 'phys', kind: 'melee', melee: 'lash', color: '#e0fbfc', dir: 'nearest', role: 'Lasher',
+    desc: 'Turns out the tail was a weapon all along.',
+    base: { dmg: 19, cd: 0.38, mag: 6, reload: 1.0, count: 1, range: 190, area: 1, width: 15, spread: 0.32, knock: 60 },
+    lv: { 3: { dmg: 0.25 }, 6: { count: 1 }, 9: { area: 0.25 } }, sig: { 5: ['whipcrack', 'getoverhere'], 10: ['ninetails', 'spincycle'] } },
+  onesie: { name: 'Thorny Onesie', stars: [2, 3, 1, 4], play: 'Spikes pulse out all around you. The more max HP and armour you have, the harder they hit: the tank weapon.', icon: 'TO', elem: 'phys', kind: 'melee', melee: 'pulse', color: '#ffb3c6', dir: 'nearest', role: 'Tank',
+    desc: 'A babygro with spikes on the outside. Huggable, technically.',
+    base: { dmg: 12, cd: 0.55, mag: 8, reload: 0.9, count: 1, range: 80, area: 80, knock: 120 },
+    lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { area: 0.2 } }, sig: { 5: ['spiky', 'bearhug'], 10: ['bubblewrap', 'growthspurt'] } },
 };
 
 // Signature upgrades: only one weapon gets each. Lv 5 picks the weapon's path; Lv 10 is its mastery.
@@ -171,7 +184,21 @@ const SIGS = {
   sender:      { name: 'Return to Sender', desc: 'Returned shots home in on whoever fired them, and hit them three times as hard.' },
   buffet:      { name: 'Bullet Buffet', desc: '+40% absorb radius, and every bullet eaten heals you a little.' },
   mirrorwomb:  { name: 'Mirror Womb', desc: 'Mastery. 30% of enemy bullets that reach you bounce back at whoever fired them.' },
-  overflow:    { name: 'Overflow', desc: 'Mastery. When the store fills up, it all bursts out in a ring of returned bullets.' },
+  overflow:    { name: 'Overflow', desc: 'Mastery. When the store fills up, it all bursts out in a ring of returned bullets.' },  // Placenta Paddle
+  fullcircle:  { name: 'Full Circle', desc: 'Every swing goes all the way round you, at 85% damage. Nothing sneaks up behind you.' },
+  homerun:     { name: 'Home Run', desc: 'Every 3rd swing knocks enemies three times as far, and anything they crash into takes the hit too.' },
+  afterwave:   { name: 'Afterbirth Wave', desc: 'Mastery. Every swing sends a wave out to three times its reach for 60% damage.' },
+  smother:     { name: 'Smother', desc: 'Mastery. Every hit stacks Smothered. The 3rd stack crushes them for 400% damage (150% on bosses).' },
+  // Flagellum Flail
+  whipcrack:   { name: 'Whip Crack', desc: 'The last third of the lash is the sweet spot: three times the damage, and it always crits.' },
+  getoverhere: { name: 'Get Over Here', desc: 'Lashes drag enemies towards you instead of pushing them away. Lovely with a Paddle or a Ram.' },
+  ninetails:   { name: "Cat o' Nine Tails", desc: 'Mastery. Every lash is five lashes in a wide fan, each at 60% damage.' },
+  spincycle:   { name: 'Spin Cycle', desc: 'Mastery. Every 3rd lash spins a full circle of twelve lashes around you at 1.5 times the reach.' },
+  // Thorny Onesie
+  spiky:       { name: 'Spiky Personality', desc: 'Whatever hurts you gets hurt back hard (thorns x2), plus a jab to everything around you.' },
+  bearhug:     { name: 'Bear Hug', desc: 'Pulses pull enemies in instead of pushing them out, and every enemy in reach gives you +1 armour (up to +6).' },
+  bubblewrap:  { name: 'Bubble Wrap', desc: 'Mastery. Every 6th pulse is huge: twice the radius, 2.5 times the damage, and it pops every enemy bullet it touches.' },
+  growthspurt: { name: 'Growth Spurt', desc: 'Mastery. The pulse grows 10% wider for every 100 max HP you have, and heals you a little for each enemy it hits.' },
 };
 
 // Pairings: secret combos between two weapons you own (both Lv 5+). Found by playing; listed in the Codex once found.
@@ -190,22 +217,26 @@ const PAIRINGS = [
   { a: 'parasite', b: 'venom',    id: 'petri',     name: 'Petri Dish', desc: 'Anything that dies in a puddle was infected all along.' },
   { a: 'tesla',    b: 'siphon',   id: 'discharge', name: 'Static Discharge', desc: 'Every 12 bullets the Siphon eats fires a Static Cling chain at four enemies.' },
   { a: 'wake',     b: 'mines',    id: 'trailmix',  name: 'Trail Mix', desc: 'Your scalpel trail drops a Nappy Mine every 1.5s.' },
+  { a: 'flail',    b: 'paddle',   id: 'onetwo',    name: 'One-Two', desc: 'Enemies the Flail has lashed take double damage from the Paddle for 2s.' },
+  { a: 'flail',    b: 'tesla',    id: 'livewire',  name: 'Live Wire', desc: 'The tip of every lash sets off a Static Cling chain.' },
+  { a: 'onesie',   b: 'venom',    id: 'nappyrash', name: 'Nappy Rash', desc: 'Every Onesie pulse adds a stack of poison to what it hits.' },
+  { a: 'paddle',   b: 'frost',    id: 'icehockey', name: 'Ice Hockey', desc: 'The Paddle hits frozen enemies three times as hard.' },
 ];
 const PAIR_LEVEL = 5;
 
 // Upgrades that wouldn't do anything for a weapon get that weapon's own twist instead (shown on the card).
 const ADAPT = {
-  future:    { wake: 'Slipstream Scalpel: the shot is you. Every few seconds you blink straight through an enemy, cutting the line.',
+  future:    { paddle: 'Placenta Paddle: some swings also land on a second enemy further away.', flail: 'Flagellum Flail: some lashes also crack across a second enemy further away.', wake: 'Slipstream Scalpel: the shot is you. Every few seconds you blink straight through an enemy, cutting the line.',
                mines: 'Nappy Mines: some mines appear already under an enemy.', venom: 'Morning Sickness: some globs land before you throw them.',
                tesla: 'Static Cling: some bolts start from the far side of the crowd.', orbit: 'Premature Evangelation: angels pop up next to enemies to bless them early.',
                siphon: 'Placental Siphon: some returned shots appear right next to their target.' },
-  multishot: { wake: 'Slipstream Scalpel: a bigger, longer blade (+35% width and length per stack).' },
-  pierce:    { tesla: 'Static Cling: +1 chain jump.', venom: 'Morning Sickness: puddles 12% bigger.', mines: 'Nappy Mines: blasts shove enemies away.',
+  multishot: { wake: 'Slipstream Scalpel: a bigger, longer blade (+35% width and length per stack).', paddle: 'Placenta Paddle: +1 swing, aimed another way.', flail: 'Flagellum Flail: +1 lash in the fan.', onesie: 'Thorny Onesie: +35% pulse damage.' },
+  pierce:    { paddle: 'Placenta Paddle: a 15% wider swing.', flail: 'Flagellum Flail: a 12% longer lash.', onesie: 'Thorny Onesie: pulses shove harder.', tesla: 'Static Cling: +1 chain jump.', venom: 'Morning Sickness: puddles 12% bigger.', mines: 'Nappy Mines: blasts shove enemies away.',
                orbit: 'Premature Evangelation: angels bless each enemy more often as they pass.', wake: 'Slipstream Scalpel: the trail shoves enemies aside.', siphon: 'Placental Siphon: returned shots pierce.' },
   haste:     { wake: 'Slipstream Scalpel: the trail cuts faster.', orbit: 'Premature Evangelation: angels circle faster.' },
   reload:    { wake: 'Slipstream Scalpel: the trail lingers longer.' },
   mag:       { wake: 'Slipstream Scalpel: a wider trail.', orbit: 'Premature Evangelation: bigger angels.' },
-  velocity:  { venom: 'Morning Sickness: globs land sooner.', orbit: 'Premature Evangelation: angels circle further out.' },
+  velocity:  { paddle: 'Placenta Paddle: longer reach.', flail: 'Flagellum Flail: a longer lash.', venom: 'Morning Sickness: globs land sooner.', orbit: 'Premature Evangelation: angels circle further out.' },
   lastround: { orbit: 'Premature Evangelation: when the angels clock off, they burst outwards.', siphon: 'Placental Siphon: the last stored bullet hits like the rest put together.',
                tesla: 'Static Cling: the last bolt of each charge hits four times as hard.', mines: 'Nappy Mines: the last mine of each batch is a big one.' },
   tactical:  { orbit: 'Premature Evangelation: a bullet-clearing shockwave whenever the angels take their break.', siphon: 'Placental Siphon: a shockwave whenever the store runs dry.' },
@@ -314,7 +345,10 @@ const PASSIVES = {
   anchorlink:{ name: 'Egg Bond',         icon: 'EB', max: 3, v: 0.3, fmt: v => `Near the egg: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
   future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Slipstream Scalpel, you do)`, apply: (P, v) => { P.future += v; } },
   echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 1, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
-  ram:       { name: 'Acrosome Ram',          icon: 'AR', max: 5, v: 1, fmt: v => `Enemies you swim into take damage (ram power x${v.toFixed(1)}): a nudge when slow, 4 times as much at full speed. Try HUNT autorun. The head cap was always meant for breaking in.`, apply: (P, v) => { P.ram += v; } },
+  ram:       { name: 'Acrosome Ram',          icon: 'AR', max: 5, v: 1, fmt: v => `Enemies you swim into take big damage (ram power x${v.toFixed(1)}). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun.`, apply: (P, v) => { P.ram += v; } },
+  heft:      { name: 'Big Boned', icon: 'BB', max: 4, v: 1, fmt: v => `+${30 * v} max HP (and heal it). All your damage +${Math.round(4 * v)}% for every 100 max HP you have.`, apply: (P, v, G) => { P.heft += v; P.maxHp += 30 * v; G.player.hp += 30 * v; } },
+  thorns:    { name: 'Prickly Personality', icon: 'PP', max: 4, v: 1, fmt: v => `Whatever hurts you gets hurt back (thorns x${v}), plus a smaller jab to everything around you. Grows with max HP and armour.`, apply: (P, v) => { P.thorns += v; } },
+  grit:      { name: 'Stubborn Streak', icon: 'SB', max: 3, v: 1, fmt: v => `Below half health: take ${10 * v}% less damage and deal ${12 * v}% more.`, apply: (P, v) => { P.grit += v; } },
   evasion:   { name: 'Wriggle Room',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.min(0.5, P.dodge + v); } },
 };
 function pc(v) { return Math.round(v * 100) + '%'; }
@@ -537,7 +571,7 @@ const DYES = {
 // so you can plan ahead in the Armoury). tier: which milestone it can appear at. fit(d): which weapons it suits.
 const PERK_LEVELS = [3, 5, 8, 10];
 const MAX_WLVL = 10; // weapons level to 10; Lv 10 is the mastery branch
-const MULTI_KINDS = ['gun', 'lob', 'chain', 'mine', 'orbit', 'ring', 'strike', 'siphon', 'mimic', 'tether', 'prequel'];
+const MULTI_KINDS = ['gun', 'lob', 'chain', 'mine', 'orbit', 'ring', 'strike', 'siphon', 'mimic', 'tether', 'prequel', 'melee'];
 const hasArea = d => !!(d.base.area || d.base.explode > 1 || d.base.aura || d.base.radius || d.style === 'flame' || d.kind === 'orbit');
 const isProj = d => PROJ_KINDS.includes(d.kind);
 const isShot = d => isProj(d) && d.style !== 'flame'; // flames don't bounce, split or home

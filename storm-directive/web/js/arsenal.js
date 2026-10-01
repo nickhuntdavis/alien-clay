@@ -14,6 +14,7 @@ function weaponMult(w) {
   let m = 1 + Math.min(1.5, bonus);
   if (w.def.gacha) m *= GACHA_TIERS[w.gachaTier].mult;
   if (w.hk) m *= 1 + 2 * w.hk; // Hell's Kitchen
+  m *= tankDamageOut(); // Big Boned, Stubborn Streak
   // Few mounts, focused genome: with only one or two weapons, each one hits much harder.
   const nw = G.weapons.filter(Boolean).length;
   if (!w.isSpell) m *= nw <= 1 ? 1.9 : nw === 2 ? 1.4 : 1;
@@ -445,4 +446,137 @@ function engulf(e, o) {
     sysMsg('SYSTEM MESSAGE', pick(SYSTEM_LINES.amoebaHuge).replace('{n}', e.meals), '#7fd8b0');
     achieve('amoeba');
   }
+}
+
+// ---------------------------------------------------------------- melee: Placenta Paddle, Flagellum Flail, Thorny Onesie
+// No projectiles: every swing, lash or pulse hits whatever is in reach at that moment.
+function fireMelee(w, target, src) {
+  const s = w.s, p = me(), d = w.def;
+  const msrc = w.isLast ? Object.assign({}, src, { mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src;
+  if (d.melee === 'pulse') { onesiePulse(w, msrc); return; }
+  const a0 = target ? Math.atan2(target.y - p.y, target.x - p.x) : p.face;
+  p.face = a0;
+  w.swingN = (w.swingN || 0) + 1;
+  if (d.melee === 'sweep') {
+    for (let i = 0; i < s.count; i++) meleeSweep(w, p.x, p.y, a0 + i / s.count * TAU, msrc);
+  } else if (hasSig(w, 'spincycle') && w.swingN % 3 === 0) {
+    for (let i = 0; i < 12; i++) meleeLash(w, p.x, p.y, a0 + i / 12 * TAU, Object.assign({}, msrc, { mult: msrc.mult / (hasSig(w, 'ninetails') ? 0.6 : 1) }), 1.5);
+    floatText(p.x, p.y - 30, 'SPIN CYCLE', d.color, 13, 0.6);
+  } else {
+    for (let i = 0; i < s.count; i++) meleeLash(w, p.x, p.y, a0 + (i - (s.count - 1) / 2) * s.spread, msrc, 1);
+  }
+  // Spoilers: the same swing also lands on someone further off, as if you'd already been there.
+  if (G.P.future > 0 && Math.random() < G.P.future * 2) {
+    const far = acquire('random', s.reach * 3, p.x, p.y, target);
+    if (far) {
+      const a = Math.atan2(far.y - p.y, far.x - p.x), ox = far.x - Math.cos(a) * s.reach * 0.5, oy = far.y - Math.sin(a) * s.reach * 0.5;
+      ring(ox, oy, 14, '#8dffc0', 0.25, 2);
+      if (d.melee === 'sweep') meleeSweep(w, ox, oy, a, msrc); else meleeLash(w, ox, oy, a, msrc, 0.7);
+    }
+  }
+  sfx('shot');
+}
+
+// Inside a swing: within reach and inside the arc (allowing for the enemy's size).
+function inArc(e, x, y, a, arc) {
+  if (arc >= TAU - 0.01) return true;
+  const dd = Math.hypot(e.x - x, e.y - y) || 1;
+  return Math.abs(angDiff(Math.atan2(e.y - y, e.x - x), a)) <= arc / 2 + Math.atan(e.r / dd);
+}
+
+function meleeHit(w, e, dmg, src) {
+  let m = 1;
+  if (w.id === 'paddle') {
+    if (G.pair.icehockey && e.frozen > 0) m *= 3;
+    if (G.pair.onetwo && e.lashT > G.t) m *= 2;
+  } else if (w.id === 'flail') e.lashT = G.t + 2;
+  else if (w.id === 'onesie' && G.pair.nappyrash) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); e.poisonDps = Math.max(e.poisonDps, dmg * 0.1); }
+  damageEnemy(e, dmg * m, src);
+  if (hasSig(w, 'smother') && !e.dead) {
+    e.smother = (e.smother || 0) + 1;
+    if (e.smother >= 3) {
+      e.smother = 0;
+      damageEnemy(e, dmg * (e.boss ? 1.5 : 4), Object.assign({}, src, { noProc: true, noCrit: true, knock: 0, wname: 'Smother' }));
+      floatText(e.x, e.y - e.r - 10, 'SMOTHERED', w.def.color, 13);
+      ring(e.x, e.y, e.r + 12, w.def.color, 0.3, 4);
+    }
+  }
+}
+
+function meleeSweep(w, x, y, a, src) {
+  const s = w.s, R = s.reach, full = hasSig(w, 'fullcircle'), arc = full ? TAU : s.arc;
+  const homer = hasSig(w, 'homerun') && w.swingN % 3 === 0;
+  const dmg = s.dmg * (full ? 0.85 : 1);
+  forNear(x, y, R, e => {
+    if (e.charmed || !inArc(e, x, y, a, arc)) return;
+    if (homer && !e.boss && !e.egg) { e.homerT = G.t + 0.7; e.homerHit = new Set([e]); e.homerSrc = { w, dmg, src }; (G.homers || (G.homers = [])).push(e); }
+    meleeHit(w, e, dmg, Object.assign({}, src, { knock: (s.knock || 0) * (homer ? 3 : 1), kx: e.x - x, ky: e.y - y }));
+  });
+  G.fx.push({ type: 'swing', x, y, a, arc, r: R, color: w.def.color, life: 0.22, max: 0.22 });
+  if (homer) floatText(x, y - 30, 'HOME RUN', w.def.color, 12, 0.5);
+  if (hasSig(w, 'afterwave')) after(0.1, () => {
+    forNear(x, y, R * 3, e => {
+      if (e.charmed || Math.hypot(e.x - x, e.y - y) < R * 0.8 || !inArc(e, x, y, a, arc)) return;
+      meleeHit(w, e, dmg * 0.6, Object.assign({}, src, { knock: 90, kx: e.x - x, ky: e.y - y, wname: 'Afterbirth Wave' }));
+    });
+    G.fx.push({ type: 'swing', x, y, a, arc, r: R * 3, color: w.def.color, life: 0.3, max: 0.3, wave: 1 });
+  });
+}
+
+function meleeLash(w, x, y, a, src, scale) {
+  const s = w.s, L = s.reach * scale, wd = s.width, ca = Math.cos(a), sa = Math.sin(a);
+  const crack = hasSig(w, 'whipcrack'), pull = hasSig(w, 'getoverhere');
+  let tip = null, tipD = -1;
+  forNear(x + ca * L / 2, y + sa * L / 2, L / 2 + wd, e => {
+    if (e.charmed) return;
+    const dx = e.x - x, dy = e.y - y, along = dx * ca + dy * sa, side = Math.abs(-dx * sa + dy * ca);
+    if (along < -e.r || along > L + e.r || side > wd + e.r) return;
+    const o = Object.assign({}, src, pull && !e.boss ? { knock: 240, kx: -dx, ky: -dy } : { kx: ca, ky: sa });
+    if (crack && along > L * 0.67) { o.mult = (src.mult || 1) * 3; o.crit = 1; }
+    meleeHit(w, e, s.dmg, o);
+    if (along > tipD) { tipD = along; tip = e; }
+  });
+  G.fx.push({ type: 'lash', x, y, a, r: L, w: wd, color: w.def.color, life: 0.2, max: 0.2, seed: Math.random() * 10 });
+  if (G.pair.livewire && tip && !tip.dead && !(G.wireT > G.realT)) {
+    const tw = owned('tesla');
+    if (tw) { G.wireT = G.realT + 0.25; doChain(tip.x, tip.y, tip, tw.s.dmg, tw.s.chain, tw.s.jump, Object.assign(weaponSrc(tw), { wname: 'Live Wire' })); }
+  }
+}
+
+function onesiePulse(w, src) {
+  const s = w.s, p = me();
+  w.pulseN = (w.pulseN || 0) + 1;
+  const big = hasSig(w, 'bubblewrap') && w.pulseN % 6 === 0, hug = hasSig(w, 'bearhug');
+  const R = s.area * (big ? 2 : 1), dmg = s.dmg * (big ? 2.5 : 1) * (1 + 0.35 * (s.count - 1));
+  let n = 0;
+  forNear(p.x, p.y, R, e => {
+    if (e.charmed) return;
+    n++;
+    meleeHit(w, e, dmg, Object.assign({}, src, hug && !e.boss ? { knock: 160, kx: p.x - e.x, ky: p.y - e.y } : { kx: e.x - p.x, ky: e.y - p.y }));
+  });
+  if (hug) { G.hugArm = Math.min(6, n); G.hugT = G.t + 1.5; }
+  if (hasSig(w, 'growthspurt') && n) healPlayer(Math.min(3, n) * G.P.maxHp * 0.004, true);
+  if (big) {
+    for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < R) { b.dead = true; spawnPart(b.x, b.y, w.def.color, 1, 60, 0.3); }
+    floatText(p.x, p.y - 34, 'POP!', w.def.color, 15, 0.6);
+    cam.shake = Math.min(8, cam.shake + 3);
+  }
+  G.fx.push({ type: 'spikes', x: p.x, y: p.y, r: R, color: w.def.color, life: big ? 0.4 : 0.25, max: big ? 0.4 : 0.25, rot: Math.random() * TAU });
+}
+
+// Per frame: Home Run victims bowling into others, and Bear Hug's armour wearing off.
+function meleeTick(dt) {
+  if (G.hugArm && !(G.hugT > G.t)) G.hugArm = 0;
+  if (!G.homers || !G.homers.length) return;
+  for (const e of G.homers) {
+    if (e.dead || !(e.homerT > G.t)) continue;
+    const H = e.homerSrc;
+    forNear(e.x, e.y, e.r + 4, o => {
+      if (e.homerHit.has(o) || o.charmed || o.egg) return;
+      e.homerHit.add(o);
+      meleeHit(H.w, o, H.dmg, Object.assign({}, H.src, { knock: 260, kx: o.x - e.x, ky: o.y - e.y, wname: 'Home Run' }));
+      spawnPart(o.x, o.y, H.w.def.color, 4, 120, 0.3);
+    });
+  }
+  G.homers = G.homers.filter(e => !e.dead && e.homerT > G.t);
 }

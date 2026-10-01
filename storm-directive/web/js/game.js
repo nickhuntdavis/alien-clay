@@ -56,7 +56,7 @@ function newStats() {
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
     lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1 }, chain: 0,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
-    lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, echoInherit: 0,
+    lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, heft: 0, thorns: 0, grit: 0, echoInherit: 0,
     bulletSpeed: 1, spawnMult: 1, healMult: 1, viewers: 1, noArmour: false, traction: 1,
   };
 }
@@ -81,6 +81,7 @@ function newGame() {
     stats: { dmg: {}, hurt: {}, lastHit: '', reactions: 0, reactBy: {}, merges: 0, bossKills: 0, maxCombo: 0, rewinds: 0, leaks: 0, absorbed: 0 },
   };
   G.bossRoster = bossRoster();
+  G.ev = newEvents(); G.evm = Object.assign({}, EVM0);
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
   G.dyes = {};
@@ -184,7 +185,7 @@ function acquire(dir, range, x, y, exclude) {
     if (e.dead || e.phased || e.charmed || e === exclude || (e.egg && G.level < EGG.level)) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     if (d2 > r2) continue;
-    const v = targetScore(dir, e, d2);
+    const v = targetScore(dir, e, d2) + (e.evTag ? 1e13 : 0); // run-event targets come first
     if (v > bv) { bv = v; best = e; }
   }
   return best;
@@ -238,7 +239,7 @@ function computeStats(w) {
   if (w.isSpell) s.cd *= P.cdr;
   s.mag = Math.max(1, Math.round((b.mag || 1) * (1 + 0.12 * (L - 1)) * P.magMult));
   s.reload = (b.reload || 0) * Math.pow(0.95, L - 1) / P.reloadSpd;
-  const multi = ['gun', 'lob', 'chain', 'mine', 'orbit', 'ring', 'strike', 'siphon', 'mimic', 'tether', 'prequel'].includes(d.kind) ? P.multishot : 0;
+  const multi = MULTI_KINDS.includes(d.kind) ? P.multishot : 0;
   s.count = (s.count || 1) + multi * (d.kind === 'ring' ? 4 : 1);
   if (d.kind === 'gun' && s.pierce < 90) s.pierce = (s.pierce || 0) + P.pierce;
   if (d.kind === 'ring') s.pierce = (s.pierce || 0) + P.pierce;
@@ -452,7 +453,7 @@ function optDye(id) {
     apply: () => { G.dyes[id] = true; if (D.apply) D.apply(G.P, G); recomputeAll(); refreshPalette(); } };
 }
 function optPassive(id, r) {
-  const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour'].includes(id);
+  const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour', 'heft', 'thorns', 'grit'].includes(id);
   const v = intish ? Math.max(1, Math.floor(RARITIES[r].mult)) * p.v : p.v * RARITIES[r].mult;
   const st = G.passives[id] || 0;
   const extra = adaptNotes(ADAPT[id]);
@@ -520,7 +521,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 function damageEnemy(e, dmg, src) {
   if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
   const P = G.P, syn = G.synergy;
-  let d = dmg * (src.mult || 1);
+  let d = dmg * (src.mult || 1) * G.evm.out; // Glass Womb
   // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
   if (e.final) d = Math.min(d, e.maxHp * 0.06);
   if (e.boss) d = Math.min(d, e.maxHp * 0.04); // no one-shotting a boss
@@ -718,6 +719,7 @@ function killEnemy(e, src) {
   onShowKill(e, src);
   sigKill(e, src);
   relicKill(e, src);
+  eventKill(e);
   // Split on Kill mod.
   if (src.w && !src.noSplit && src.w.mods && src.w.mods.some(m => m.id === 'shrapnel')) {
     const ss = Object.assign({}, src, { noSplit: true, mult: 1 });
@@ -817,9 +819,10 @@ function hurtPlayer(dmg, from, ent) {
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0) return;
   if (Math.random() < P.dodge) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
+  dmg *= G.evm.in * tankDamageIn();
   dmg = relicDamageIn(dmg, ent);
   if (dmg <= 0) return;
-  const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour));
+  const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour + (G.hugArm || 0))); // Bear Hug adds armour
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
@@ -833,6 +836,7 @@ function hurtPlayer(dmg, from, ent) {
   vibrate(25);
   acidReflux();
   relicHurt(d, ent);
+  thornsHit(ent);
   if (p.hp <= 0) { p.hp = 0; if (!startRewind(true)) gameOver(); }
 }
 
@@ -924,7 +928,7 @@ function eBullet(x, y, a, speed, dmg, r, color) {
   G.bulSeq = ((G.bulSeq || 0) + 1) % BUL.keep.length;
   if (!BUL.keep[G.bulSeq]) return;
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
-  speed *= (1 + Math.min(0.7, G.t / 1500)) * G.P.bulletSpeed;
+  speed *= (1 + Math.min(0.7, G.t / 1500)) * G.P.bulletSpeed * G.evm.bulspd;
   G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
 }
 
@@ -1045,14 +1049,22 @@ function updateEnemies(dt) {
           if (sh.pattern === 'snipe') {
             if (e.aimT > 0) { e.aimT -= edt; spd = 0; if (e.aimT <= 0) { shootPattern(e, 'snipe', e.aimA); e.shootCd = sh.cd; } }
             else if (e.shootCd <= 0 && dist < 560) { e.aimT = 0.8; e.aimA = Math.atan2(dy, dx); }
-          } else if (e.shootCd <= 0 && dist < 520) { shootPattern(e, sh.pattern); e.shootCd = sh.cd * rand(0.85, 1.15) / fireMul(G.t); }
+          } else if (e.shootCd <= 0 && dist < 520) { shootPattern(e, sh.pattern); e.shootCd = sh.cd * rand(0.85, 1.15) / fireMul(G.t) / G.evm.fire; }
           break;
         }
         case 'turret':
           e.shootCd -= edt;
-          if (e.shootCd <= 0 && dist < 560) { shootPattern(e, 'spiral'); e.shootCd = e.def.shoot.cd; }
+          if (e.shootCd <= 0 && dist < 560) { shootPattern(e, 'spiral'); e.shootCd = e.def.shoot.cd / G.evm.fire; }
           break;
         case 'engulf': { const m = engulfAI(e, edt, dist, ux, uy); mx = m.x; my = m.y; spd = e.speed; break; }
+        case 'flee': {
+          // The Golden Swimmer: runs from you, weaving, and never quite leaves the screen.
+          const wv = Math.sin(e.age * 2.3 + e.id) * 0.7;
+          mx = -ux * Math.cos(wv) + uy * Math.sin(wv); my = -uy * Math.cos(wv) - ux * Math.sin(wv);
+          if (dist > 300) { mx = -mx * 0.3; my = -my * 0.3; }
+          if (Math.random() < edt * 8) spawnPart(e.x, e.y, '#ffd23f', 1, 30, 0.5, 2);
+          break;
+        }
         case 'bomber':
           if (dist < e.r + p.r + 10) { e.hp = 0; killEnemy(e, {}); continue; }
           break;
@@ -1101,8 +1113,9 @@ function updateEnemies(dt) {
     // Movement (knockback decays).
     const f = frozen || e.tunT > G.t ? 0 : slow;
     if (e.tailCut) spd *= 0.15; // no flagellum: it can only twitch and drift
-    e.x += (mx * spd * f * warpF + e.kx) * dt;
-    e.y += (my * spd * f * warpF + e.ky) * dt;
+    const tide = e.boss || e.egg ? 0 : 0.8;
+    e.x += (mx * spd * f * warpF * G.evm.espd + e.kx + G.evm.tideX * tide) * dt;
+    e.y += (my * spd * f * warpF * G.evm.espd + e.ky + G.evm.tideY * tide) * dt;
     const kd = Math.pow(0.02, dt);
     e.kx *= kd; e.ky *= kd;
     // Nothing swims through the egg.
@@ -1119,8 +1132,8 @@ function updateEnemies(dt) {
         if (!(G.gulpT > G.realT)) { G.gulpT = G.realT + 0.5; floatText(p.x, p.y - 26, 'GULP', PAL.you, 13); }
         continue;
       } else {
-        ramHit(e, p);
-        if (!frozen && !e.dead) hurtPlayer(e.dmg, e.name + (e.elite ? ' (elite)' : ''), e);
+        const rk = ramHit(e, p);
+        if (!frozen && !e.dead && e.dmg > 0) hurtPlayer(e.dmg * G.evm.contact * (1 - 0.4 * rk), e.name + (e.elite ? ' (elite)' : ''), e);
         if (e.dead) continue;
       }
     }
@@ -1304,6 +1317,7 @@ function fireWeapon(w, target) {
       w.beamT = s.dur; w.beamTick = 0; w.beams = [];
       break;
     case 'mimic': fireMimic(w, target, src); sfx('shot'); break;
+    case 'melee': fireMelee(w, target, src); break;
     case 'tether': fireTether(w, target, src); sfx('zap'); break;
     case 'prequel': firePrequel(w, target, src); break;
     case 'lob':
@@ -1703,7 +1717,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1);
+  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd;
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
@@ -1728,7 +1742,7 @@ function updatePlayer(dt) {
   fwd = lerp(fwd, thrust, 1 - Math.pow(0.004, dt));
   lat *= Math.exp(-SWIM.grip * trac * dt);
   p.vx = fwd * hx - lat * hy; p.vy = fwd * hy + lat * hx;
-  p.x += p.vx * dt; p.y += p.vy * dt;
+  p.x += (p.vx + G.evm.tideX) * dt; p.y += (p.vy + G.evm.tideY) * dt;
   terrainPlayer(p, dt);
   // The arena ends at the edge of the womb's field; the egg itself is solid.
   const cdx = p.x - G.core.x, cdy = p.y - G.core.y, cdist = Math.hypot(cdx, cdy) || 1;
@@ -1775,6 +1789,8 @@ function autoSteer() {
     const t = acquire(w0 ? w0.dir : 'nearest', 700, p.x, p.y);
     if (t) { const d = Math.hypot(t.x - p.x, t.y - p.y); if (d > 130) goal(t.x, t.y, 1.2); else goal(t.x, t.y, -0.4); }
   }
+  // Run events: chase the Golden Swimmer or the bounty.
+  if (mode !== 'hold') for (const e of G.enemies) if (e.evTag && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 1400) goal(e.x, e.y, e.evTag === 'golden' ? 1.3 : 0.7);
   const core = G.core, cdist = Math.hypot(p.x - core.x, p.y - core.y);
   if (mode === 'defend') {
     // NEST: hold inside the egg's healing glow, drifting around it.
@@ -1889,7 +1905,7 @@ function applyPickup(type, src) {
 }
 
 function gainXp(v) {
-  G.xp += v * G.P.xp * (G.inPill ? 0.5 : 1); // the morning-after pill halves growth
+  G.xp += v * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1); // the morning-after pill halves growth
   sfx('gem');
   while (G.xp >= G.xpNeed) {
     G.xp -= G.xpNeed;
@@ -1990,6 +2006,7 @@ function update(dt) {
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
   sigTick(dt);
   updateTethers(dt);
+  meleeTick(dt);
   updateShow(dt);
   updateSpells(dt);
   updateProjectiles(dt);
@@ -2000,6 +2017,8 @@ function update(dt) {
   updateTerrain(dt);
   updateCore(dt);
   updateBosses(dt);
+  updateEvents(dt);
+  if (G.evNote) { G.evNote.t -= dt; if (G.evNote.t <= 0) G.evNote = null; }
   updateChrono(dt);
   // Enemy bullets.
   const bw0 = G.warp > 0 ? 0.3 : 1;

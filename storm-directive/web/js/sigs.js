@@ -25,6 +25,7 @@ function applySigStats(w, s) {
   if (has('boom')) { s.splitHit = Math.max(s.splitHit || 0, 2); s.shardHome = 1; }
   if (has('clingy')) s.dmg *= 0.75;
   if (has('buffet')) s.area *= 1.4;
+  if (has('ninetails')) { s.count += 4; s.dmg *= 0.6; s.spread = 0.3; }
   // Boss relics that reach into every weapon.
   if (G.relics && G.relics.mirror && PROJ_KINDS.includes(w.def.kind)) s.mirror = Math.max(s.mirror || 0, 0.5);
 }
@@ -469,6 +470,21 @@ function applyAdapt(w, s) {
     case 'mines': s.knock = (s.knock || 0) + 120 * P.pierce; break;
     case 'siphon': s.pierce = (s.pierce || 0) + P.pierce; break;
     case 'orbit': s.hitCd = 0.4 / (1 + 0.35 * P.pierce); s.spin *= P.haste; s.radius *= 1 + (P.projSpeed - 1) * 0.6; s.size *= P.magMult; break;
+    case 'paddle': case 'flail': {
+      // The swing's reach grows with area; the target range covers the reach plus a body width.
+      s.reach = s.range * s.area * (w.id === 'flail' ? 1 + 0.12 * P.pierce : 1);
+      if (w.id === 'paddle') s.arc *= 1 + 0.15 * P.pierce;
+      s.width = (s.width || 15) * Math.sqrt(s.area);
+      s.range = s.reach + 18;
+      break;
+    }
+    case 'onesie':
+      // The tank weapon: hits harder the bigger and tougher you are.
+      s.dmg *= 1 + Math.max(0, P.maxHp - 120) / 250 + P.armour * 0.08;
+      if (hasSig(w, 'growthspurt')) s.area *= 1 + 0.1 * P.maxHp / 100;
+      s.knock = (s.knock || 0) + 80 * P.pierce;
+      s.range = s.area;
+      break;
     case 'wake':
       s.knock = 60 * P.pierce; s.dmg *= P.haste; s.dur *= P.reloadSpd; s.area *= P.magMult;
       // Split Personality: one bigger, longer blade rather than more of them.
@@ -504,12 +520,42 @@ function angelSpoilers(w, dt) {
 }
 
 // Acrosome Ram: enemies you swim into take damage, more the faster you're going (from updateEnemies).
+// It scales with your level, max HP and armour, so it's the tank build's main weapon. At speed it also
+// sends out a shockwave. Returns how hard you hit (0 to 1), which also softens their contact damage.
 function ramHit(e, p) {
   const P = G.P;
-  if (P.ram <= 0 || e.ramT > G.t || e.charmed || e.egg) return;
-  e.ramT = G.t + 0.25;
-  const v = Math.hypot(p.vx || 0, p.vy || 0), k = 0.25 + 0.75 * Math.min(1, v / 200); // a nudge at rest, 4x at full speed
-  const dmg = P.ram * (14 + G.level * 3) * P.might * k * 4;
-  damageEnemy(e, dmg, { elem: 'phys', wname: 'Acrosome Ram', noCrit: k < 0.6, knock: 120 + 260 * k, kx: e.x - p.x, ky: e.y - p.y });
-  if (k > 0.7) { ring(e.x, e.y, e.r + 10, PAL.you, 0.25, 3); if (!(G.ramLblT > G.realT)) { G.ramLblT = G.realT + 1.2; floatText(e.x, e.y - e.r - 8, 'RAMMED', PAL.you, 13, 0.6); } }
+  if (P.ram <= 0 || e.charmed || e.egg) return 0;
+  const v = Math.hypot(p.vx || 0, p.vy || 0), k = 0.25 + 0.75 * Math.min(1, v / 200);
+  if (e.ramT > G.t) return k;
+  e.ramT = G.t + 0.2;
+  const dmg = P.ram * (30 + G.level * 6 + P.maxHp * 0.3 + P.armour * 8) * P.might * k * 4 * G.evm.ram * tankDamageOut();
+  const src = { elem: 'phys', wname: 'Acrosome Ram', noCrit: k < 0.6, knock: 160 + 320 * k };
+  damageEnemy(e, dmg, Object.assign({ kx: e.x - p.x, ky: e.y - p.y }, src));
+  if (k > 0.7) {
+    const R = 60 + 12 * P.ram;
+    forNear(e.x, e.y, R, o => { if (o !== e && !o.charmed && !o.egg) damageEnemy(o, dmg * 0.5, Object.assign({ kx: o.x - p.x, ky: o.y - p.y, noCrit: true }, src)); });
+    ring(e.x, e.y, R, PAL.you, 0.25, 3); cam.shake = Math.min(6, cam.shake + 1.5);
+    if (!(G.ramLblT > G.realT)) { G.ramLblT = G.realT + 1.2; floatText(e.x, e.y - e.r - 8, 'RAMMED', PAL.you, 13, 0.6); }
+  }
+  return k;
+}
+
+// ---------------------------------------------------------------- tank builds
+// Big Boned: damage from your bulk. Stubborn Streak: below half health you hit harder and take less.
+const lowHp = () => G.player.hp < G.P.maxHp * 0.5;
+function tankDamageOut() {
+  const P = G.P;
+  return (1 + P.heft * 0.04 * P.maxHp / 100) * (P.grit > 0 && lowHp() ? 1 + 0.12 * P.grit : 1);
+}
+function tankDamageIn() { const P = G.P; return P.grit > 0 && lowHp() ? Math.max(0.4, 1 - 0.1 * P.grit) : 1; }
+// Prickly Personality (and the Thorny Onesie's Spiky Personality): whatever hurts you gets hurt back.
+function thornsHit(ent) {
+  const P = G.P, ow = ownSig('onesie', 'spiky');
+  const k = P.thorns + (ow ? 2 : 0);
+  if (k <= 0) return;
+  const p = me(), dmg = k * (15 + P.maxHp * 0.2 + P.armour * 6) * P.might * tankDamageOut();
+  const src = { elem: 'phys', wname: 'Thorns', noCrit: true, knock: 220 };
+  if (ent && !ent.dead && !ent.charmed && !ent.egg) damageEnemy(ent, dmg, Object.assign({ kx: ent.x - p.x, ky: ent.y - p.y }, src));
+  forNear(p.x, p.y, 90, o => { if (o !== ent && !o.charmed && !o.egg) damageEnemy(o, dmg * 0.4, Object.assign({ kx: o.x - p.x, ky: o.y - p.y }, src)); });
+  ring(p.x, p.y, 90, '#ff8fab', 0.3, 3);
 }

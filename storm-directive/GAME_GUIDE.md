@@ -7,23 +7,24 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 2. [Weapons](#weapons)
 3. [Pairings (secret combos)](#pairings-secret-combos)
 4. [Bosses and relics](#bosses-and-relics)
-5. [Spells](#spells)
-6. [Power-ups (passives)](#power-ups-passives)
-7. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
-8. [Modifiers](#modifiers)
-9. [Duo combos](#duo-combos)
-10. [Stains](#stains)
-11. [Cursed cards](#cursed-cards)
-12. [Field pickups](#field-pickups)
-13. [Elemental reactions](#elemental-reactions)
-14. [Element synergies](#element-synergies)
-15. [Targeting directives](#targeting-directives)
-16. [Movement directives](#movement-directives)
-17. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
-18. [Enemies](#enemies)
-19. [Rival champions](#rival-champions)
-20. [Terrain](#terrain)
-21. [Sperm samples](#sperm-samples)
+5. [Run events](#run-events)
+6. [Spells](#spells)
+7. [Power-ups (passives)](#power-ups-passives)
+8. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
+9. [Modifiers](#modifiers)
+10. [Duo combos](#duo-combos)
+11. [Stains](#stains)
+12. [Cursed cards](#cursed-cards)
+13. [Field pickups](#field-pickups)
+14. [Elemental reactions](#elemental-reactions)
+15. [Element synergies](#element-synergies)
+16. [Targeting directives](#targeting-directives)
+17. [Movement directives](#movement-directives)
+18. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+19. [Enemies](#enemies)
+20. [Rival champions](#rival-champions)
+21. [Terrain](#terrain)
+22. [Sperm samples](#sperm-samples)
 
 ## How upgrades work
 
@@ -49,7 +50,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 ## Weapons
 
-14 weapons, each with its own play style. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). 
+17 weapons, each with its own play style. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). 
 
 | Weapon | Element | Role | Aims at |
 |---|---|---|---|
@@ -67,6 +68,9 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | [Toddler Gravity](#toddler-gravity) (Bank 80) | Arcane | Crowd Control | DENSEST CLUSTER |
 | [Premature Evangelation](#premature-evangelation) (Bank 60) | Arcane | Bodyguard | NEAREST |
 | [Placental Siphon](#placental-siphon) (Bank 100) | Arcane | Counter | NEAREST |
+| [Placenta Paddle](#placenta-paddle) (Start) | Kinetic | Cleaver | NEAREST |
+| [Flagellum Flail](#flagellum-flail) (Start) | Kinetic | Lasher | NEAREST |
+| [Thorny Onesie](#thorny-onesie) (Start) | Kinetic | Tank | NEAREST |
 
 ### Spitball
 
@@ -200,7 +204,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 15, cd 0.6s, mag 5, reload 1.5s, pierce 3, range 460
 - **Level bonuses:** Lv3: +1 count; Lv6: +2 pierce; Lv9: +1 count
-- **Pairings:** **Hot Flush, Cold Sweat** (+ Heartburn), **Snow Globe** (+ Toddler Gravity)
+- **Pairings:** **Hot Flush, Cold Sweat** (+ Heartburn), **Snow Globe** (+ Toddler Gravity), **Ice Hockey** (+ Placenta Paddle)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -221,7 +225,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 13, cd 0.7s, mag 6, reload 1.8s, range 330 (chain 3, jump 140)
 - **Level bonuses:** Lv3: +2 chain; Lv6: +1 count; Lv9: +2 chain
-- **Pairings:** **Baby Monitor Network** (+ Nappy Mines), **Conductive Spit** (+ Spitball), **Static Discharge** (+ Placental Siphon)
+- **Pairings:** **Baby Monitor Network** (+ Nappy Mines), **Conductive Spit** (+ Spitball), **Static Discharge** (+ Placental Siphon), **Live Wire** (+ Flagellum Flail)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -242,7 +246,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 10, cd 0.9s, mag 4, reload 1.8s, range 390 (area 58, dur 3, flight 0.6)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +40% area
-- **Pairings:** **Nappy Trail** (+ Slipstream Scalpel), **Petri Dish** (+ Tapeworm Seeder)
+- **Pairings:** **Nappy Trail** (+ Slipstream Scalpel), **Petri Dish** (+ Tapeworm Seeder), **Nappy Rash** (+ Thorny Onesie)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -362,12 +366,77 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | Lv 10 mastery | **Mirror Womb** | 30% of enemy bullets that reach you bounce back at whoever fired them. |
 |  | **Overflow** | When the store fills up, it all bursts out in a ring of returned bullets. |
 
+### Placenta Paddle
+
+*Kinetic melee, Cleaver.* A heavy, slightly floppy paddle. Nobody asks where it came from.
+
+- **Base stats:** dmg 34, cd 0.8s, mag 4, reload 1.1s, range 92 (area 1, arc 2.4, knock 220)
+- **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
+- **Pairings:** **One-Two** (+ Flagellum Flail), **Ice Hockey** (+ Cold Feet)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sharp Tongue** | +15% crit chance. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Wide Hips** | +35% area and +15% range. |
+| Lv 5 signature | **Full Circle** | Every swing goes all the way round you, at 85% damage. Nothing sneaks up behind you. |
+|  | **Home Run** | Every 3rd swing knocks enemies three times as far, and anything they crash into takes the hit too. |
+| Lv 8 | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+|  | **Sugar Rush** | +75% damage. |
+|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+| Lv 10 mastery | **Afterbirth Wave** | Every swing sends a wave out to three times its reach for 60% damage. |
+|  | **Smother** | Every hit stacks Smothered. The 3rd stack crushes them for 400% damage (150% on bosses). |
+
+### Flagellum Flail
+
+*Kinetic melee, Lasher.* Turns out the tail was a weapon all along.
+
+- **Base stats:** dmg 19, cd 0.38s, mag 6, reload 1s, range 190 (area 1, width 15, knock 60)
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +25% area
+- **Pairings:** **One-Two** (+ Placenta Paddle), **Live Wire** (+ Static Cling)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sharp Tongue** | +15% crit chance. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Hot Load** | +40% damage. |
+| Lv 5 signature | **Whip Crack** | The last third of the lash is the sweet spot: three times the damage, and it always crits. |
+|  | **Get Over Here** | Lashes drag enemies towards you instead of pushing them away. Lovely with a Paddle or a Ram. |
+| Lv 8 | **Special Delivery** | Hits explode for 35% damage around the target. |
+|  | **Plus One** | +1 projectile. |
+|  | **Toxic Relationship** | Hits add a stacking poison. |
+| Lv 10 mastery | **Cat o' Nine Tails** | Every lash is five lashes in a wide fan, each at 60% damage. |
+|  | **Spin Cycle** | Every 3rd lash spins a full circle of twelve lashes around you at 1.5 times the reach. |
+
+### Thorny Onesie
+
+*Kinetic melee, Tank.* A babygro with spikes on the outside. Huggable, technically.
+
+- **Base stats:** dmg 12, cd 0.55s, mag 8, reload 0.9s, range 80 (area 80, knock 120)
+- **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +20% area
+- **Pairings:** **Nappy Rash** (+ Morning Sickness)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Wide Hips** | +35% area and +15% range. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **Spiky Personality** | Whatever hurts you gets hurt back hard (thorns x2), plus a jab to everything around you. |
+|  | **Bear Hug** | Pulses pull enemies in instead of pushing them out, and every enemy in reach gives you +1 armour (up to +6). |
+| Lv 8 | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+|  | **Sugar Rush** | +75% damage. |
+| Lv 10 mastery | **Bubble Wrap** | Every 6th pulse is huge: twice the radius, 2.5 times the damage, and it pops every enemy bullet it touches. |
+|  | **Growth Spurt** | The pulse grows 10% wider for every 100 max HP you have, and heals you a little for each enemy it hits. |
+
 ### Upgrades with a twist
 
 When an upgrade would do nothing for a weapon, that weapon does its own thing with it instead (the card tells you).
 
 | Upgrade | Weapon | What it does instead |
 |---|---|---|
+| Spoilers | Placenta Paddle | some swings also land on a second enemy further away. |
+| Spoilers | Flagellum Flail | some lashes also crack across a second enemy further away. |
 | Spoilers | Slipstream Scalpel | the shot is you. Every few seconds you blink straight through an enemy, cutting the line. |
 | Spoilers | Nappy Mines | some mines appear already under an enemy. |
 | Spoilers | Morning Sickness | some globs land before you throw them. |
@@ -375,6 +444,12 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Spoilers | Premature Evangelation | angels pop up next to enemies to bless them early. |
 | Spoilers | Placental Siphon | some returned shots appear right next to their target. |
 | Split Personality | Slipstream Scalpel | a bigger, longer blade (+35% width and length per stack). |
+| Split Personality | Placenta Paddle | +1 swing, aimed another way. |
+| Split Personality | Flagellum Flail | +1 lash in the fan. |
+| Split Personality | Thorny Onesie | +35% pulse damage. |
+| Pushy | Placenta Paddle | a 15% wider swing. |
+| Pushy | Flagellum Flail | a 12% longer lash. |
+| Pushy | Thorny Onesie | pulses shove harder. |
 | Pushy | Static Cling | +1 chain jump. |
 | Pushy | Morning Sickness | puddles 12% bigger. |
 | Pushy | Nappy Mines | blasts shove enemies away. |
@@ -386,6 +461,8 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Short Refractory Period | Slipstream Scalpel | the trail lingers longer. |
 | Bigger Load | Slipstream Scalpel | a wider trail. |
 | Bigger Load | Premature Evangelation | bigger angels. |
+| Early Arrival | Placenta Paddle | longer reach. |
+| Early Arrival | Flagellum Flail | a longer lash. |
 | Early Arrival | Morning Sickness | globs land sooner. |
 | Early Arrival | Premature Evangelation | angels circle further out. |
 | Last Word | Premature Evangelation | when the angels clock off, they burst outwards. |
@@ -420,6 +497,10 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Petri Dish** | Tapeworm Seeder + Morning Sickness | Anything that dies in a puddle was infected all along. |
 | **Static Discharge** | Static Cling + Placental Siphon | Every 12 bullets the Siphon eats fires a Static Cling chain at four enemies. |
 | **Trail Mix** | Slipstream Scalpel + Nappy Mines | Your scalpel trail drops a Nappy Mine every 1.5s. |
+| **One-Two** | Flagellum Flail + Placenta Paddle | Enemies the Flail has lashed take double damage from the Paddle for 2s. |
+| **Live Wire** | Flagellum Flail + Static Cling | The tip of every lash sets off a Static Cling chain. |
+| **Nappy Rash** | Thorny Onesie + Morning Sickness | Every Onesie pulse adds a stack of poison to what it hits. |
+| **Ice Hockey** | Placenta Paddle + Cold Feet | The Paddle hits frozen enemies three times as hard. |
 
 ## Bosses and relics
 
@@ -545,6 +626,24 @@ Identical twins who fight as one. Kill one and the other rebuilds it in 8 second
 | **Double Trouble** | +1 projectile, +1 pierce and +1 chain jump for every weapon. |
 | **Twin Pick** | From now on, every DNA strand lets you take two cards instead of one. |
 
+## Run events
+
+From level 6 (and about 100 seconds in), something unexpected happens every 80 to 110 seconds: never during a boss fight, the Final Five or the swim to the egg. From level 40 events turn **DIRE**: they come every 45 to 65 seconds, hit harder, pay out more, and 30% of the time two arrive at once. Run-event targets (the Golden Swimmer and bounties) get an arrow on screen, and every weapon and the autorun go after them first.
+
+| Event | Lasts | Normal | Dire |
+|---|---|---|---|
+| **FEEDING FRENZY** | 25s | Everything swims 40% faster. XP doubled. | Everything swims 70% faster. XP doubled. |
+| **GLASS WOMB** | 25s | You deal and take x2 damage. | You deal and take x2.5 damage. |
+| **SUGAR RUSH** | 20s | You swim 60% faster, ram x3, contact hurts half as much. | You swim 60% faster, ram x3, contact hurts half as much. So do they: enemies 30% faster. |
+| **BULLET HELL** | 20s | Shooters fire x2 as often. Survive: heal 30% and +1 reroll. | Shooters fire x2.6 as often. Survive: heal 30% and +2 rerolls. |
+| **KIDNEY STONE SHOWER** | 20s | Stones rain down. They crush everything they land on, you included. | Stones rain down. They crush everything they land on, you included. |
+| **THE HORDE** | 20s | Surrounded. Survive 20s for a gold chest. | Surrounded. Survive 20s for two gold chests. |
+| **GOLDEN SWIMMER** | 20s | A golden sperm is running off with a chest. Catch it within 20s. | A golden sperm is running off with two chests. Catch it within 20s. |
+| **MOST WANTED** | 60s | A bounty target is loose. Kill it within 60s: a chest and 2 rerolls. | A bounty target is loose. Kill it within 60s: two chests and 2 rerolls. |
+| **LIGHTS OUT** | 25s | Someone switched off the microscope lamp. XP doubled. | Someone switched off the microscope lamp. XP doubled. Elites are out hunting. |
+| **WATERS BREAKING** (Lv 25+) | 20s | A strong current sweeps everything one way. Swim with it and you ram for free. | A strong current sweeps everything one way. Swim with it and you ram for free. |
+| **MITOSIS** (Lv 40+) | 20s | Everything that dies splits in two. XP x1.5. | Everything that dies splits in two. XP x1.5. |
+
 ## Spells
 
 Spells autocast on cooldown and use spell slots. They level up like weapons but have no branch tree.
@@ -608,7 +707,10 @@ Stat boosts that stack. Value shown is per pick at Bronze rarity.
 | **Egg Bond** | Near the egg: +30% fire rate. Away from it: +30% crit chance | 3 |
 | **Spoilers** | 10% of shots appear already next to their target (with the Slipstream Scalpel, you do) | 4 |
 | **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Silver or better only) | 1 |
-| **Acrosome Ram** | Enemies you swim into take damage (ram power x1.0): a nudge when slow, 4 times as much at full speed. Try HUNT autorun. The head cap was always meant for breaking in. | 5 |
+| **Acrosome Ram** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | 5 |
+| **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | 4 |
+| **Prickly Personality** | Whatever hurts you gets hurt back (thorns x1), plus a smaller jab to everything around you. Grows with max HP and armour. | 4 |
+| **Stubborn Streak** | Below half health: take 10% less damage and deal 12% more. | 3 |
 | **Wriggle Room** | +4% chance to dodge hits | 5 |
 
 ## Upgrades any weapon can take

@@ -109,7 +109,7 @@ const ICON_OF = {
   toxinneedles: 'syringe', viralpayload: 'virus', genesplicer: 'scissors', mitosiscannon: 'mitosis', telomere: 'dna', epiorb: 'void',
   placebo: 'pill', stemmines: 'singularity', retrovirus: 'virus', ribosome: 'ribo',
   spindle: 'cyclone', thermocycler: 'cycler', actionpotential: 'spike', superbug: 'bacteria', crispr: 'dna', cryobank: 'snowflake',
-  crashcart: 'cart', osteoclast: 'bone',
+  crashcart: 'cart', osteoclast: 'bone', paddle: 'hammer', flail: 'whip', onesie: 'shield',
   meteor: 'comet', frostnova: 'nova', thunder: 'storm', blackhole: 'spiral', heal: 'cross', warp: 'clock',
   barrier: 'shield', bladestorm: 'shuriken', cloud: 'cloud', sentry: 'turret',
 };

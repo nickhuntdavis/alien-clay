@@ -1338,6 +1338,36 @@ function render() {
   ctx.globalCompositeOperation = 'lighter'; // arcs, blasts and shockwaves are energy
   for (const f of G.fx) {
     const k = f.life / f.max;
+    if (f.type === 'swing') {
+      // Placenta Paddle: a crescent sweeping through the arc.
+      const x = sx(f.x), y = sy(f.y), R = f.r * S, a0 = f.a - f.arc / 2, a1 = f.a + f.arc / 2, sweep = a0 + (a1 - a0) * Math.min(1, (1 - k) * 2.5);
+      ctx.globalAlpha = (f.wave ? 0.3 : 0.5) * k; ctx.fillStyle = f.color;
+      ctx.beginPath(); ctx.arc(x, y, R, a0, sweep); ctx.arc(x, y, R * (f.wave ? 0.85 : 0.5), sweep, a0, true); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = k; ctx.strokeStyle = f.color; ctx.lineWidth = f.wave ? 2 : 4;
+      ctx.beginPath(); ctx.arc(x, y, R, a0, sweep); ctx.stroke();
+      continue;
+    }
+    if (f.type === 'lash') {
+      // Flagellum Flail: a whip that cracks out straight and wobbles at the tip.
+      const ca = Math.cos(f.a), sa = Math.sin(f.a), L = f.r * Math.min(1, (1 - k) * 4);
+      ctx.strokeStyle = f.color; ctx.lineCap = 'round';
+      for (const [lw, al] of [[f.w * 1.6, 0.25], [Math.max(2, f.w * 0.45), 1]]) {
+        ctx.globalAlpha = al * k; ctx.lineWidth = lw * S; ctx.beginPath();
+        for (let i = 0; i <= 12; i++) { const t = i / 12, wob = Math.sin(t * 9 + f.seed + (1 - k) * 20) * f.w * 0.5 * t; const px = f.x + ca * L * t - sa * wob, py = f.y + sa * L * t + ca * wob; if (i) ctx.lineTo(sx(px), sy(py)); else ctx.moveTo(sx(px), sy(py)); }
+        ctx.stroke();
+      }
+      ctx.lineCap = 'butt';
+      continue;
+    }
+    if (f.type === 'spikes') {
+      // Thorny Onesie: a ring of spikes punching outwards.
+      const x = sx(f.x), y = sy(f.y), R = f.r * S * (0.55 + 0.45 * (1 - k)), n = 18;
+      ctx.globalAlpha = 0.7 * k; ctx.fillStyle = f.color; ctx.beginPath();
+      for (let i = 0; i < n; i++) { const a = f.rot + i / n * TAU, da = 0.12; ctx.moveTo(x + Math.cos(a - da) * R * 0.55, y + Math.sin(a - da) * R * 0.55); ctx.lineTo(x + Math.cos(a) * R, y + Math.sin(a) * R); ctx.lineTo(x + Math.cos(a + da) * R * 0.55, y + Math.sin(a + da) * R * 0.55); }
+      ctx.fill();
+      ctx.globalAlpha = 0.5 * k; ctx.strokeStyle = f.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, R * 0.55, 0, TAU); ctx.stroke();
+      continue;
+    }
     if (f.type === 'ring') {
       ctx.globalAlpha = k; ctx.strokeStyle = f.color; ctx.lineWidth = f.w * k + 1;
       ctx.beginPath(); ctx.arc(sx(f.x), sy(f.y), f.r * S * (1.1 - k * 0.4), 0, TAU); ctx.stroke();
@@ -1406,6 +1436,13 @@ function render() {
     ctx.drawImage(SPR.vignette, 0, 0, W, H);
   }
   if (G.warp > 0) { ctx.fillStyle = 'rgba(120,130,255,0.08)'; ctx.fillRect(0, 0, W, H); }
+  if (G.evm && G.evm.dark) {
+    // Lights Out: only a small pool of light round you.
+    const x = sx(p.x) + shx, y = sy(p.y) + shy, r0 = 70 * S, r1 = 210 * S;
+    const g = ctx.createRadialGradient(x, y, r0, x, y, r1);
+    g.addColorStop(0, 'rgba(2,2,6,0)'); g.addColorStop(1, 'rgba(2,2,6,0.94)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
   if (p.flash > 0) { ctx.globalAlpha = p.flash / 0.2 * 0.5; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (rewinding) drawRewindFx();
@@ -1719,8 +1756,10 @@ function drawHud() {
     pointer(e.x, e.y, PAL.danger, 0.7, soon ? 0.55 + 0.45 * Math.sin(G.realT * 30) : 0.6, true);
   }
   if (G.boss && !G.boss.dead) pointer(G.boss.x, G.boss.y, '#ff4d6d');
+  for (const e of G.enemies) if (e.evTag && !e.dead) pointer(e.x, e.y, PAL.reward, 1.1, 0.7 + 0.3 * Math.sin(G.realT * 8));
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
+  drawEventBar();
   drawMinimap(top);
   if (SET.casa) drawCasa(top);
   drawZoomGauge();
@@ -1733,11 +1772,34 @@ function drawHud() {
     ctx.fillStyle = b.color; ctx.fillText(b.text, W / 2, H * 0.3);
     ctx.globalAlpha = 1;
   }
+  if (G.evNote) {
+    // What the run event does, in a line or two under the banner.
+    ctx.globalAlpha = Math.min(1, G.evNote.t * 2); ctx.textAlign = 'center'; ctx.font = 'bold 13px ' + MONO;
+    const words = G.evNote.text.split(' '), lines = [''], maxW = Math.min(W - 40, 420);
+    for (const wd of words) { const t = lines[lines.length - 1] ? lines[lines.length - 1] + ' ' + wd : wd; if (ctx.measureText(t).width > maxW) lines.push(wd); else lines[lines.length - 1] = t; }
+    lines.forEach((l, i) => { const y = H * 0.3 + 28 + i * 17; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.85)'; ctx.strokeText(l, W / 2, y); ctx.fillStyle = XR.white; ctx.fillText(l, W / 2, y); });
+    ctx.globalAlpha = 1;
+  }
   if (INPUT.active && G.manual) {
     ctx.strokeStyle = XR.line; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(INPUT.ox, INPUT.oy, 50, 0, TAU); ctx.stroke();
     ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.arc(INPUT.ox + G.manual.x * 50, INPUT.oy + G.manual.y * 50, 20, 0, TAU); ctx.fill();
   }
+}
+
+// Run events: one chip each, above the weapon bar, with a timer running down underneath.
+function drawEventBar() {
+  if (!G.ev || !G.ev.active.length) return;
+  ctx.font = 'bold 11px ' + MONO; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  const items = G.ev.active.map(ev => { const E = RUN_EVENTS[ev.id], t = (ev.dire ? 'DIRE ' : '') + E.name + '  ' + Math.max(0, Math.ceil(ev.left)) + 's'; return { ev, E, t, w: ctx.measureText(t).width + 18 }; });
+  // Stacked bottom-left, clear of the scale bar and the Rewind button.
+  const x = 10, y0 = H - (UI.bottomH || 200) - 62;
+  items.forEach((it, i) => {
+    const y = y0 - i * 27;
+    filmPanel(x, y, it.w, 22);
+    ctx.fillStyle = it.E.color; ctx.fillText(it.t, x + 9, y + 15);
+    ctx.fillRect(x + 4, y + 19, (it.w - 8) * Math.max(0, it.ev.left / it.ev.max), 2);
+  });
 }
 
 function mmR() { return LAYOUT.land ? Math.round(clamp(H * 0.15, 62, 120)) : 44; }

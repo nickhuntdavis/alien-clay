@@ -33,6 +33,7 @@ function updatePreviews(dt) {
 function pvShooter(pv) {
   const d = pv.def;
   if (d.kind === 'mine' || d.kind === 'wake') { const a = pv.t * 1.3; return { x: 0.32 + Math.cos(a) * 0.16, y: 0.5 + Math.sin(a * 2) * 0.2, a: Math.atan2(Math.cos(a * 2) * 0.4, -Math.sin(a) * 0.16) }; }
+  if (d.kind === 'melee' && d.melee !== 'lash') return { x: 0.42, y: 0.5 + Math.sin(pv.t * 0.9) * 0.08, a: 0 };
   return { x: 0.2, y: 0.5 + Math.sin(pv.t * 0.9) * 0.06, a: 0 };
 }
 const pvAlive = pv => pv.targets.filter(t => t.hp > 0);
@@ -84,6 +85,25 @@ function stepPreview(pv, dt) {
       if (Math.random() < dt * 5 && live.length) { const s = pick(live); pv.shots.push({ enemy: true, x: s.x, y: s.y, vx: (me0.x - s.x) * 1.1, vy: (me0.y - s.y) * 1.1 }); }
       if (fire && pv.stored > 0 && tgt) { pv.stored--; pv.seq++; const a = Math.atan2(tgt.y - me0.y, tgt.x - me0.x); pv.shots.push({ x: me0.x, y: me0.y, vx: Math.cos(a) * 1.2, vy: Math.sin(a) * 1.2, r: 0.014, style: 'bullet' }); pv.cd = 0.12; }
       break;
+    case 'melee': {
+      // Targets drift in; every swing, lash or pulse hits whatever is in reach.
+      for (const t of live) { t.x -= dt * 0.07; if (t.x < me0.x - 0.25) t.x = 0.95; }
+      if (fire) {
+        pv.cd = d.melee === 'pulse' ? 0.6 : d.melee === 'lash' ? 0.45 : 0.75;
+        const near = live.slice().sort((p1, p2) => Math.hypot(p1.x - me0.x, p1.y - me0.y) - Math.hypot(p2.x - me0.x, p2.y - me0.y))[0];
+        const a = near ? Math.atan2((near.y - me0.y) / 1.6, near.x - me0.x) : 0;
+        const R = d.melee === 'pulse' ? 0.17 : d.melee === 'lash' ? 0.62 : 0.22, arc = d.melee === 'sweep' ? 2.4 : TAU;
+        pv.fx.push({ type: d.melee, x: me0.x, y: me0.y, a, r: R, life: 0.3 });
+        for (const t of live) {
+          const dx = t.x - me0.x, dy = (t.y - me0.y) / 1.6, dist = Math.hypot(dx, dy);
+          let hit;
+          if (d.melee === 'lash') { const al = dx * Math.cos(a) + dy * Math.sin(a), sd = Math.abs(-dx * Math.sin(a) + dy * Math.cos(a)); hit = al > -t.r && al < R && sd < t.r + 0.02; }
+          else hit = dist < R + t.r && (arc >= TAU || Math.abs(Math.atan2(Math.sin(Math.atan2(dy, dx) - a), Math.cos(Math.atan2(dy, dx) - a))) < arc / 2 + 0.3);
+          if (hit) { pvHit(pv, t, d.melee === 'pulse' ? 0.2 : 0.35); t.x += Math.cos(a) * 0.05; }
+        }
+      }
+      break;
+    }
     default: // guns
       if (fire && tgt) {
         pv.seq++;
@@ -206,6 +226,9 @@ function drawPreview(pv) {
   for (const f of pv.fx) {
     g.globalAlpha = Math.min(1, f.life * 5);
     if (f.type === 'bolt') { g.strokeStyle = c; for (const [lw, al] of [[6, 0.3], [2, 1]]) { g.globalAlpha = al * Math.min(1, f.life * 6); g.lineWidth = lw; g.beginPath(); g.moveTo(X(f.a.x), Y(f.a.y)); for (let i = 1; i < 5; i++) { const k = i / 5; g.lineTo(X(f.a.x + (f.b.x - f.a.x) * k) + (Math.random() - 0.5) * 10, Y(f.a.y + (f.b.y - f.a.y) * k) + (Math.random() - 0.5) * 10); } g.lineTo(X(f.b.x), Y(f.b.y)); g.stroke(); } }
+    else if (f.type === 'sweep') { const k = f.life / 0.3; g.globalAlpha = k * 0.6; g.fillStyle = c; g.beginPath(); g.arc(X(f.x), Y(f.y), U * f.r, f.a - 1.2, f.a + 1.2); g.arc(X(f.x), Y(f.y), U * f.r * 0.5, f.a + 1.2, f.a - 1.2, true); g.closePath(); g.fill(); g.globalAlpha = k; g.strokeStyle = c; g.lineWidth = 3; g.beginPath(); g.arc(X(f.x), Y(f.y), U * f.r, f.a - 1.2, f.a + 1.2); g.stroke(); }
+    else if (f.type === 'lash') { const k = f.life / 0.3, L = f.r * Math.min(1, (1 - k) * 4); g.globalAlpha = k; g.strokeStyle = c; g.lineWidth = 3; g.lineCap = 'round'; g.beginPath(); for (let i = 0; i <= 10; i++) { const t = i / 10, wob = Math.sin(t * 9 + pv.t * 20) * 0.015 * t; g.lineTo(X(f.x + Math.cos(f.a) * L * t - Math.sin(f.a) * wob), Y(f.y + (Math.sin(f.a) * L * t + Math.cos(f.a) * wob) * 1.6)); } g.stroke(); g.lineCap = 'butt'; }
+    else if (f.type === 'pulse') { const k = f.life / 0.3, R = U * f.r * (0.6 + 0.4 * (1 - k)); g.globalAlpha = k * 0.8; g.fillStyle = c; g.beginPath(); for (let i = 0; i < 16; i++) { const a = i / 16 * TAU; g.moveTo(X(f.x) + Math.cos(a - 0.12) * R * 0.55, Y(f.y) + Math.sin(a - 0.12) * R * 0.55); g.lineTo(X(f.x) + Math.cos(a) * R, Y(f.y) + Math.sin(a) * R); g.lineTo(X(f.x) + Math.cos(a + 0.12) * R * 0.55, Y(f.y) + Math.sin(a + 0.12) * R * 0.55); } g.fill(); }
     else { g.strokeStyle = c; g.lineWidth = 3; g.beginPath(); g.arc(X(f.x), Y(f.y), U * f.r * (1.2 - f.life), 0, TAU); g.stroke(); }
   }
   g.globalAlpha = 1;
