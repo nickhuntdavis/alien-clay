@@ -14,6 +14,9 @@ function weaponMult(w) {
   let m = 1 + Math.min(1.5, bonus);
   if (w.def.gacha) m *= GACHA_TIERS[w.gachaTier].mult;
   if (w.hk) m *= 1 + 2 * w.hk; // Hell's Kitchen
+  // Few mounts, focused genome: with only one or two weapons, each one hits much harder.
+  const nw = G.weapons.filter(Boolean).length;
+  if (!w.isSpell) m *= nw <= 1 ? 1.9 : nw === 2 ? 1.4 : 1;
   return m;
 }
 

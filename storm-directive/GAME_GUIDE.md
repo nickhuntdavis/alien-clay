@@ -34,7 +34,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
    - **Lv 10 (mastery):** pick one of two more. Big, build-defining changes.
 3. **Pairings:** own two specific weapons, both at Lv5+, and they start working together. They are secret until you find them.
 4. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
-5. **Weapon slots:** 3 to start, one more at Lv 15, 30, 45.
+5. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 10, 20, 35, 50 (5 in total). Ordinary DNA strands never offer new weapons.
 6. **Bosses:** a boss every 3 minutes. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
 7. **Rarity** multiplies a card's value:
 
@@ -49,7 +49,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 ## Weapons
 
-14 weapons, each with its own play style. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). Every weapon can also drop from level-ups and DNA strands.
+14 weapons, each with its own play style. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). 
 
 | Weapon | Element | Role | Aims at |
 |---|---|---|---|
