@@ -1799,13 +1799,23 @@ function autoSteer() {
         if (d < 16) danger += 2.5 + (16 - d) * 0.25;
       }
     }
-    danger += terrainDanger(qx, qy, p.r) + terrainDanger(mx, my, p.r) * 0.5 + (G.pill && inPill(qx, qy) ? 1.2 : 0);
+    // The slide itself: look along this heading at three distances (near counts most).
+    if (i >= 0) for (const [k, wgt] of [[0.5, 0.6], [1, 1], [2.2, 0.45]]) {
+      const tx = p.x + dx * step * k, ty = p.y + dy * step * k;
+      danger += steerTerrain(tx, ty, p.r, dx, dy) * wgt + (G.pill && inPill(tx, ty) ? 2.2 * wgt : 0);
+    } else danger += steerTerrain(p.x, p.y, p.r, 0, 0) + (G.pill && inPill(p.x, p.y) ? 2.2 : 0);
     if (G.hazards.length || G.boss) danger += hazardDanger(qx, qy, p.r) + hazardDanger(mx, my, p.r) * 0.5;
     // Turning is slow, so mildly prefer directions close to where the head already points.
     const interest = dx * gx + dy * gy + (i < 0 ? 0 : 0.18 * (Math.cos(p.hd || 0) * dx + Math.sin(p.hd || 0) * dy) / Math.max(0.6, G.P.traction));
     const score = interest - danger + (i < 0 ? (mode === 'hold' ? 0.4 : -0.1) : 0);
     if (score > best) { best = score; bx = dx; by = dy; }
   }
+  // Pinned against a wall (trying to swim but barely moving)? Slide along it for a moment.
+  const spd = Math.hypot(p.vx || 0, p.vy || 0);
+  G.stuckT = (bx || by) && spd < 25 ? (G.stuckT || 0) + 1 / 30 : 0;
+  if (G.stuckT > 0.5) { G.slideT = G.t + 1; G.slideSide = G.slideSide || (Math.random() < 0.5 ? 1 : -1); G.stuckT = 0; }
+  if (G.slideT > G.t) { const tx = -by * G.slideSide, ty = bx * G.slideSide; bx = bx * 0.3 + tx * 0.9; by = by * 0.3 + ty * 0.9; }
+  else if (!(G.slideT > G.t - 3)) G.slideSide = 0;
   // Smooth to avoid jitter.
   const sm = G.steer || (G.steer = { x: 0, y: 0 });
   sm.x = lerp(sm.x, bx, 0.35); sm.y = lerp(sm.y, by, 0.35);

@@ -173,6 +173,26 @@ function terrainDanger(x, y, r) {
   return dn;
 }
 
+// Autorun's view of the slide: how bad a spot is, and whether heading (dx, dy) through it is a good idea.
+// Solid walls are felt from 45 units out (so it steers round them early), acid from further, and the soft
+// zones (cilia that shove, slicks that make you slide, currents you'd swim against) cost a little.
+function steerTerrain(x, y, r, dx, dy) {
+  const c = tCell(x, y);
+  if (!c) return 0;
+  let dn = 0;
+  for (const ob of c) {
+    const d = Math.hypot(x - ob.x, y - ob.y) - ob.r - r;
+    if (ob.type === 'acid') { if (d < 50) dn += 3 + (50 - d) * 0.12; }
+    else if (ob.def.solid) { if (d < 45) { const k = 1 - Math.max(0, d) / 45; dn += 2.4 * k * k + (d < 4 ? 4 : 0); } }
+    else if (d < 0) {
+      if (ob.type === 'cilia') dn += 0.7;
+      else if (ob.type === 'slick') dn += 0.6;
+      else if (ob.type === 'current') dn += 0.5 * Math.max(0, -(Math.cos(ob.a) * dx + Math.sin(ob.a) * dy)); // against the flow
+    }
+  }
+  return dn;
+}
+
 // Keep things that need collecting out of the middle of solid obstacles.
 function unstick(o, r) { pushOut(o, r || 10, 0); return o; }
 
