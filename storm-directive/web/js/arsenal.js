@@ -67,6 +67,11 @@ function startReload(w) {
   const P = G.P, p = G.player;
   w.reloadT = w.reloadMax = w.s.reload;
   if (w.rivals) w.rivals = 0; // Sibling Rivalry: everyone settles down
+  tacticalWave();
+}
+// Tactical Nap's shockwave (reloads, and the angels' and the Siphon's own versions of a reload).
+function tacticalWave() {
+  const P = G.P, p = G.player;
   if (P.tactical <= 0) return;
   const r = 60 + 40 * P.tactical, r2 = r * r;
   for (const b of G.ebul) { const dx = b.x - p.x, dy = b.y - p.y; if (dx * dx + dy * dy < r2) { b.dead = true; spawnPart(b.x, b.y, '#e0fbff', 1, 50, 0.25); } }
@@ -97,12 +102,17 @@ function updateSiphon(w, dt) {
   const t = acquire(w.dir, s.range, p.x, p.y);
   if (!t) { w.cd = 0; w.curTarget = null; return; }
   w.cd = s.cd; w.stored--;
+  if (w.stored === 0 && !(w.dryT > G.t)) { w.dryT = G.t + 2; tacticalWave(); }
   if (t !== w.lastTarget) { w.focusT = 0; w.lastTarget = t; }
   w.curTarget = t;
   const src = weaponSrc(w), a0 = Math.atan2(t.y - p.y, t.x - p.x), over = gunOver(w);
   const V = sigVolley(w, a0), tg = V.owner || t, a1 = V.owner ? Math.atan2(tg.y - p.y, tg.x - p.x) : a0;
+  // Last Word: the last stored bullet hits like the rest put together.
+  const lsrc = w.stored === 0 && G.P.lastRound > 0 ? Object.assign({}, src, { mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src;
   for (let i = 0; i < s.count; i++) {
-    const pr = spawnProj(w, p.x, p.y, a1 + (i - (s.count - 1) / 2) * 0.12 + rand(-s.spread, s.spread) * 0.5, src, over);
+    const a = a1 + (i - (s.count - 1) / 2) * 0.12 + rand(-s.spread, s.spread) * 0.5;
+    const fut = G.P.future > 0 && Math.random() < G.P.future; // Spoilers: it's already there
+    const pr = spawnProj(w, fut ? tg.x - Math.cos(a) * 40 : p.x, fut ? tg.y - Math.sin(a) * 40 : p.y, a, lsrc, over);
     if (pr && V.owner) { pr.homing = 8; pr.tgt = V.owner; pr.vsOwner = V.owner; }
   }
   sfx('shot');
@@ -113,10 +123,13 @@ function updateWake(w, dt) {
   const s = w.s, p = G.player;
   w.ammo = Math.min(1, Math.hypot(p.vx || 0, p.vy || 0) / 150) * s.mag;
   surgicalTeam(w, dt);
+  // Tunnel Vision: the Scalpel's focus is how long you keep swimming fast.
+  if (Math.hypot(p.vx || 0, p.vy || 0) > 80) w.focusT = (w.focusT || 0) + dt; else w.focusT = 0;
   if (w.lx == null) { w.lx = p.x; w.ly = p.y; }
   if (Math.hypot(p.x - w.lx, p.y - w.ly) < 16) return;
   w.lx = p.x; w.ly = p.y;
   if (G.zones.length < 260) G.zones.push(wakeZone(w, p.x, p.y));
+  wakeLanes(w, p);
   wakeExtras(w, p);
 }
 
@@ -315,7 +328,7 @@ function setWeaponLevel(w, to, from) {
 function optPerk(w, lvl, id) {
   const K = perkDef(id);
   return { rarity: lvl >= 8 ? 3 : lvl >= 5 ? 2 : 1, tag: K.sig ? (lvl >= 10 ? 'MASTERY' : 'SIGNATURE') : 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
-    sub: `${w.def.name} | Lv ${lvl} ${K.sig ? 'only this weapon' : 'branch'}`, desc: K.desc,
+    sub: `${w.def.name} | Lv ${lvl} ${K.sig ? 'only this weapon' : 'branch'}`, desc: K.desc + (PERK_ADAPT[id] && PERK_ADAPT[id][w.id] ? ' ' + PERK_ADAPT[id][w.id] : ''),
     apply: () => { w.perks[lvl] = id; computeStats(w); floatText(me().x, me().y - 40, K.name.toUpperCase(), PAL.upgrade, 15, 1.2); } };
 }
 
@@ -358,6 +371,7 @@ function applyPerks(w, s) {
     }
   }
   applySigStats(w, s);
+  applyAdapt(w, s);
 }
 
 // Hit side of perks (called from damageEnemy's proc step).

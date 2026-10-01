@@ -362,6 +362,44 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | Lv 10 mastery | **Mirror Womb** | 30% of enemy bullets that reach you bounce back at whoever fired them. |
 |  | **Overflow** | When the store fills up, it all bursts out in a ring of returned bullets. |
 
+### Upgrades with a twist
+
+When an upgrade would do nothing for a weapon, that weapon does its own thing with it instead (the card tells you).
+
+| Upgrade | Weapon | What it does instead |
+|---|---|---|
+| Spoilers | Slipstream Scalpel | the shot is you. Every few seconds you blink straight through an enemy, cutting the line. |
+| Spoilers | Nappy Mines | some mines appear already under an enemy. |
+| Spoilers | Morning Sickness | some globs land before you throw them. |
+| Spoilers | Static Cling | some bolts start from the far side of the crowd. |
+| Spoilers | Premature Evangelation | angels pop up next to enemies to bless them early. |
+| Spoilers | Placental Siphon | some returned shots appear right next to their target. |
+| Split Personality | Slipstream Scalpel | a ghost lane of trail either side of you per stack. |
+| Pushy | Static Cling | +1 chain jump. |
+| Pushy | Morning Sickness | puddles 12% bigger. |
+| Pushy | Nappy Mines | blasts shove enemies away. |
+| Pushy | Premature Evangelation | angels bless each enemy more often as they pass. |
+| Pushy | Slipstream Scalpel | the trail shoves enemies aside. |
+| Pushy | Placental Siphon | returned shots pierce. |
+| Twitchy Tail | Slipstream Scalpel | the trail cuts faster. |
+| Twitchy Tail | Premature Evangelation | angels circle faster. |
+| Short Refractory Period | Slipstream Scalpel | the trail lingers longer. |
+| Bigger Load | Slipstream Scalpel | a wider trail. |
+| Bigger Load | Premature Evangelation | bigger angels. |
+| Early Arrival | Morning Sickness | globs land sooner. |
+| Early Arrival | Premature Evangelation | angels circle further out. |
+| Last Word | Premature Evangelation | when the angels clock off, they burst outwards. |
+| Last Word | Placental Siphon | the last stored bullet hits like the rest put together. |
+| Last Word | Static Cling | the last bolt of each charge hits four times as hard. |
+| Last Word | Nappy Mines | the last mine of each batch is a big one. |
+| Tactical Nap | Premature Evangelation | a bullet-clearing shockwave whenever the angels take their break. |
+| Tactical Nap | Placental Siphon | a shockwave whenever the store runs dry. |
+| Tunnel Vision | Slipstream Scalpel | the trail cuts harder the longer you keep swimming fast. |
+| Tunnel Vision | Premature Evangelation | angels hit harder the longer they stay on shift. |
+| Hair Trigger | Slipstream Scalpel | Slipstream Scalpel has no cooldown, so its trail cuts 33% harder instead. |
+| Due Date Panic | Slipstream Scalpel | Slipstream Scalpel has no cooldown, so its trail cuts 60% harder instead. |
+| Espresso Drip | Slipstream Scalpel | Slipstream Scalpel has no cooldown, so its trail cuts twice as hard instead. |
+
 ## Pairings (secret combos)
 
 Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hidden (???) until you find them once.

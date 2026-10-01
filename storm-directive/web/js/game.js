@@ -455,7 +455,7 @@ function optPassive(id, r) {
   const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour'].includes(id);
   const v = intish ? Math.max(1, Math.floor(RARITIES[r].mult)) * p.v : p.v * RARITIES[r].mult;
   const st = G.passives[id] || 0;
-  const extra = id === 'future' && G.weapons.some(w => w && w.id === 'wake') ? " Your Slipstream Scalpel's shot is you: every few seconds you blink straight through an enemy, cutting everything on the way." : '';
+  const extra = adaptNotes(ADAPT[id]);
   return { rarity: r, tag: 'POWER-UP', icon: p.icon, color: '#9fb3c8', title: p.name, sub: `Stack ${st + 1}/${p.max}`, desc: p.fmt(v) + extra,
     apply: () => { p.apply(G.P, v, G); G.passives[id] = st + 1; recomputeAll(); } };
 }
@@ -1285,7 +1285,10 @@ function fireWeapon(w, target) {
     }
     case 'chain': {
       const ts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count) : [target];
-      for (const t of ts) afterChain(w, doChain(p.x, p.y, t, s.dmg, s.chain, s.jump, Object.assign(src, { overcharge: hasSig(w, 'overcharge'), revisit: hasSig(w, 'shortcircuit') })), src);
+      const csrc = w.isLast ? Object.assign({}, src, { mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src;
+      // Spoilers: a bolt that starts from the far side of the crowd.
+      if (G.P.future > 0 && Math.random() < G.P.future) { const far = acquire('furthest', s.range, p.x, p.y); if (far) doChain(far.x, far.y, far, s.dmg, s.chain, s.jump, Object.assign({}, csrc)); }
+      for (const t of ts) afterChain(w, doChain(p.x, p.y, t, s.dmg, s.chain, s.jump, Object.assign(csrc, { overcharge: hasSig(w, 'overcharge'), revisit: hasSig(w, 'shortcircuit') })), src);
       sfx('zap');
       break;
     }
@@ -1298,7 +1301,8 @@ function fireWeapon(w, target) {
     case 'lob':
       for (let i = 0; i < s.count; i++) {
         const tx = target.x + (i === 0 && s.count < 3 ? 0 : rand(-s.spread, s.spread)), ty = target.y + (i === 0 && s.count < 3 ? 0 : rand(-s.spread, s.spread));
-        G.proj.push({ lob: true, sx: p.x, sy: p.y, tx, ty, x: p.x, y: p.y, t: 0, flight: s.flight * rand(0.9, 1.15), w, src: w.isLast ? Object.assign({}, src, { last: true, mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src, color: d.color, dead: false });
+        const fut = G.P.future > 0 && Math.random() < G.P.future; // Spoilers: it landed before you threw it
+        G.proj.push({ lob: true, sx: fut ? tx : p.x, sy: fut ? ty : p.y, tx, ty, x: p.x, y: p.y, t: 0, flight: fut ? 0.02 : s.flight * rand(0.9, 1.15), w, src: w.isLast ? Object.assign({}, src, { last: true, mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src, color: d.color, dead: false });
       }
       break;
     case 'mine':
@@ -1392,13 +1396,15 @@ function updateOrbit(w, dt) {
   w.blades.length = 0;
   if (w.active > 0) {
     w.active -= dt;
-    if (w.active <= 0) { w.reloadT = w.reloadMax = s.reload; }
+    if (w.active <= 0) { w.reloadT = w.reloadMax = s.reload; angelsClockOff(w); }
   } else if (w.reloadT > 0) {
     w.reloadT -= dt * (G.rage > 0 ? 3 : 1);
     if (w.reloadT <= 0) { w.reloadT = 0; w.active = s.dur; }
     return;
   } else { w.active = s.dur; }
   if (hasSig(w, 'clingy')) { w.active = s.dur; w.reloadT = 0; }
+  w.focusT = (w.focusT || 0) + dt; // Tunnel Vision: the longer the shift, the harder they hit
+  angelSpoilers(w, dt);
   w.ang += s.spin * dt;
   const rad = s.radius * (w.def.base.pulse ? 1 + 1.1 * (0.5 - 0.5 * Math.cos(G.realT * 2.2)) : 1);
   const src = weaponSrc(w);
@@ -1415,7 +1421,7 @@ function updateOrbit(w, dt) {
     bladeEats(w, bx, by, s.size);
     forNear(bx, by, s.size, e => {
       if (e.hitT[hk] > G.t) return;
-      e.hitT[hk] = G.t + 0.4;
+      e.hitT[hk] = G.t + (s.hitCd || 0.4);
       damageEnemy(e, s.dmg, Object.assign({}, src, { knock: 50, kx: e.x - p.x, ky: e.y - p.y }));
     });
   }

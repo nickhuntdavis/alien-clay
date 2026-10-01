@@ -152,6 +152,8 @@ function sigZone(z, e, dt) {
     if (hasSig(z.src.w, 'nausea')) { e.chill = Math.max(e.chill, 0.4); e.chillAmt = Math.max(e.chillAmt, 0.45); e.weakT = G.t + 0.4; }
   }
   if (z.freeze && !e.boss && !e.rival) e.frozen = Math.max(e.frozen, 1);
+  // Pushy + Scalpel: the trail shoves enemies aside.
+  if (z.trail && z.src && z.src.w && z.src.w.s.knock && !e.boss && !e.def.heavy) { const dx = e.x - z.x, dy = e.y - z.y, d = Math.hypot(dx, dy) || 1; e.kx += dx / d * z.src.w.s.knock; e.ky += dy / d * z.src.w.s.knock; }
 }
 
 // ---------------------------------------------------------------- per-frame
@@ -237,6 +239,9 @@ function surgicalTeam(w, dt) {
 // ---------------------------------------------------------------- Nappy Mines extras
 function mineDrop(w, x, y) {
   const s = w.s, pr = { mine: true, x, y, life: s.life, arm: 0.5, r: 7, w, src: weaponSrc(w), color: w.def.color, dead: false };
+  if (w.isLast) pr.big = true; // Last Word
+  // Spoilers: the mine was already under them.
+  if (G.P.future > 0 && Math.random() < G.P.future) { const t = acquire('cluster', 380, me().x, me().y); if (t) { pr.x = t.x; pr.y = t.y; pr.arm = 0; ring(t.x, t.y, 20, w.def.color, 0.3, 2); } }
   if (hasSig(w, 'nuclear')) { w.mineN = (w.mineN || 0) + 1; if (w.mineN % 6 === 0) { pr.nuke = true; pr.color = '#ffffff'; } }
   if (hasSig(w, 'sticky')) {
     const t = acquire('nearest', 280, me().x, me().y);
@@ -247,6 +252,7 @@ function mineDrop(w, x, y) {
 function mineScale(pr) {
   let k = pr.dominoK || 1, r = 1;
   if (pr.nuke) { k *= 6; r = 3; }
+  if (pr.big) { k *= 3 + Math.min(4, G.P.lastRound); r *= 1.5; }
   return { k, r: r * Math.sqrt(pr.dominoK || 1) };
 }
 function afterMine(pr) {
@@ -452,4 +458,52 @@ function spoilerBlink(dt) {
   G.fx.push({ type: 'bolt', pts: [sx0, sy0, ex, ey], color: '#e0fbfc', life: 0.25, max: 0.25 });
   if (!(G.blinkLblT > G.realT)) { G.blinkLblT = G.realT + 3; floatText(p.x, p.y - 30, hit.size >= 4 ? 'SPOILER: EVERYONE DIES' : 'SPOILER!', '#e0fbfc', 14, 0.8); }
   sfx('zap');
+}
+
+// ---------------------------------------------------------------- upgrades given a weapon's own twist (see ADAPT)
+function applyAdapt(w, s) {
+  const P = G.P;
+  switch (w.id) {
+    case 'tesla': s.chain += P.pierce; break;
+    case 'venom': s.area *= 1 + 0.12 * P.pierce; s.flight = (s.flight || 0.6) / P.projSpeed; break;
+    case 'mines': s.knock = (s.knock || 0) + 120 * P.pierce; break;
+    case 'siphon': s.pierce = (s.pierce || 0) + P.pierce; break;
+    case 'orbit': s.hitCd = 0.4 / (1 + 0.35 * P.pierce); s.spin *= P.haste; s.radius *= 1 + (P.projSpeed - 1) * 0.6; s.size *= P.magMult; break;
+    case 'wake':
+      s.knock = 60 * P.pierce; s.dmg *= P.haste; s.dur *= P.reloadSpd; s.area *= P.magMult;
+      for (const l in w.perks || {}) { const k = w.perks[l]; if (k === 'rapid') s.dmg *= 1.33; if (k === 'frenzy') s.dmg *= 1.6; if (k === 'overclock') s.dmg *= 2; }
+      break;
+  }
+}
+// The notes for the weapons you own, for an upgrade card.
+function adaptNotes(map) {
+  if (!map || !G) return '';
+  const n = G.weapons.filter(w => w && map[w.id]).map(w => map[w.id]);
+  return n.length ? ' ' + n.join(' ') : '';
+}
+// Split Personality + Scalpel: ghost lanes of trail either side of you.
+function wakeLanes(w, p) {
+  const n = G.P.multishot;
+  if (!n || G.zones.length > 280) return;
+  const h = p.hd != null ? p.hd : p.face, nx = -Math.sin(h), ny = Math.cos(h);
+  for (let k = 1; k <= n; k++) for (const sd of [1, -1]) G.zones.push(wakeZone(w, p.x + nx * 30 * k * sd, p.y + ny * 30 * k * sd));
+}
+// Premature Evangelation clocking off: Last Word burst and Tactical Nap shockwave.
+function angelsClockOff(w) {
+  const p = me();
+  w.focusT = 0;
+  if (G.P.lastRound > 0) aoe(p.x, p.y, w.s.radius + 40, w.s.dmg * (2 + Math.min(4, G.P.lastRound)), Object.assign(weaponSrc(w), { wname: 'Angels clocking off' }), '#c77dff');
+  tacticalWave();
+}
+// Spoilers + angels: now and then one pops up next to an enemy to bless it early.
+function angelSpoilers(w, dt) {
+  if (G.P.future <= 0) return;
+  w.spoilT = (w.spoilT || 1.2) - dt;
+  if (w.spoilT > 0) return;
+  w.spoilT = 1.2;
+  if (Math.random() > Math.min(1, G.P.future * 3)) return;
+  const p = me(), t = acquire('nearest', 280, p.x, p.y);
+  if (!t) return;
+  bolt(p.x, p.y, t.x, t.y, '#c77dff', 0.15); ring(t.x, t.y, t.r + 12, '#c77dff', 0.3, 3);
+  damageEnemy(t, w.s.dmg * 1.5, Object.assign(weaponSrc(w), { wname: 'Premature Evangelation' }));
 }

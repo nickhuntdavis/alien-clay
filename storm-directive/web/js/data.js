@@ -193,6 +193,30 @@ const PAIRINGS = [
 ];
 const PAIR_LEVEL = 5;
 
+// Upgrades that wouldn't do anything for a weapon get that weapon's own twist instead (shown on the card).
+const ADAPT = {
+  future:    { wake: 'Slipstream Scalpel: the shot is you. Every few seconds you blink straight through an enemy, cutting the line.',
+               mines: 'Nappy Mines: some mines appear already under an enemy.', venom: 'Morning Sickness: some globs land before you throw them.',
+               tesla: 'Static Cling: some bolts start from the far side of the crowd.', orbit: 'Premature Evangelation: angels pop up next to enemies to bless them early.',
+               siphon: 'Placental Siphon: some returned shots appear right next to their target.' },
+  multishot: { wake: 'Slipstream Scalpel: a ghost lane of trail either side of you per stack.' },
+  pierce:    { tesla: 'Static Cling: +1 chain jump.', venom: 'Morning Sickness: puddles 12% bigger.', mines: 'Nappy Mines: blasts shove enemies away.',
+               orbit: 'Premature Evangelation: angels bless each enemy more often as they pass.', wake: 'Slipstream Scalpel: the trail shoves enemies aside.', siphon: 'Placental Siphon: returned shots pierce.' },
+  haste:     { wake: 'Slipstream Scalpel: the trail cuts faster.', orbit: 'Premature Evangelation: angels circle faster.' },
+  reload:    { wake: 'Slipstream Scalpel: the trail lingers longer.' },
+  mag:       { wake: 'Slipstream Scalpel: a wider trail.', orbit: 'Premature Evangelation: bigger angels.' },
+  velocity:  { venom: 'Morning Sickness: globs land sooner.', orbit: 'Premature Evangelation: angels circle further out.' },
+  lastround: { orbit: 'Premature Evangelation: when the angels clock off, they burst outwards.', siphon: 'Placental Siphon: the last stored bullet hits like the rest put together.',
+               tesla: 'Static Cling: the last bolt of each charge hits four times as hard.', mines: 'Nappy Mines: the last mine of each batch is a big one.' },
+  tactical:  { orbit: 'Premature Evangelation: a bullet-clearing shockwave whenever the angels take their break.', siphon: 'Placental Siphon: a shockwave whenever the store runs dry.' },
+  focus:     { wake: 'Slipstream Scalpel: the trail cuts harder the longer you keep swimming fast.', orbit: 'Premature Evangelation: angels hit harder the longer they stay on shift.' },
+};
+const PERK_ADAPT = {
+  rapid: { wake: 'Slipstream Scalpel has no cooldown, so its trail cuts 33% harder instead.' },
+  frenzy: { wake: 'Slipstream Scalpel has no cooldown, so its trail cuts 60% harder instead.' },
+  overclock: { wake: 'Slipstream Scalpel has no cooldown, so its trail cuts twice as hard instead.' },
+};
+
 // Fusions were retired in favour of Pairings (both weapons stay).
 const MERGES = [];
 const MERGE_MIN_LEVEL = 4;

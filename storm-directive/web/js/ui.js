@@ -338,7 +338,7 @@ const UI = {
           const sigRow = d.sig && d.sig[l];
           h += `<div class="trow br ${reached ? 'on' : ''}${sigRow ? ' sig' : ''}"><span class="tl">Lv ${l}${sigRow ? `<em>${l >= 10 ? 'MASTERY' : 'ONLY HERE'}</em>` : ''}</span><div class="tps">` + tree[l].map(id => {
             const K = perkDef(id), st = chosen ? (chosen === id ? 'chosen' : 'dim') : reached ? 'pending' : '';
-            return `<div class="tp ${st}" style="--c:${PAL.upgrade}"><b><i>${esc(K.icon)}</i>${esc(K.name)}</b><span>${esc(K.desc)}</span></div>`;
+            return `<div class="tp ${st}" style="--c:${PAL.upgrade}"><b><i>${esc(K.icon)}</i>${esc(K.name)}</b><span>${esc(K.desc + (PERK_ADAPT[id] && PERK_ADAPT[id][w.id] ? ' ' + PERK_ADAPT[id][w.id] : ''))}</span></div>`;
           }).join('') + `</div></div>`;
 
         } else {
