@@ -69,6 +69,22 @@ for (const prop of ['fillStyle', 'strokeStyle']) {
   const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, prop);
   Object.defineProperty(ctx, prop, { get() { return d.get.call(this); }, set(v) { d.set.call(this, WORLD_DF ? colDF(v) : col(v)); } });
 }
+// Your own effects (shots, trails, puddles, sparks) fade back when the screen gets busy, so enemies and
+// their bullets stay readable. FX.dim is on only while those are drawn; FX.k is how faded they are.
+const FX = { dim: false, k: 1 };
+{ const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'globalAlpha');
+  Object.defineProperty(ctx, 'globalAlpha', { get() { return d.get.call(this); }, set(v) { d.set.call(this, FX.dim ? v * FX.k : v); } }); }
+function fxDim(on) { FX.dim = on; ctx.globalAlpha = 1; }
+// How busy the screen is with your own stuff decides FX.k (and the Effects setting caps it).
+function updateFxK(vis) {
+  let n = 0;
+  for (const pr of G.proj) if (!pr.mine && vis(pr)) n += pr.style === 'flame' ? 0.5 : 1;
+  for (const z of G.zones) if (vis(z)) n += z.trail ? 0.35 : 0.8;
+  n += G.parts.length * 0.1 + G.fx.length * 0.3;
+  const auto = clamp(1 - (n - 30) / 170, 0.25, 1);
+  const want = SET.fx === 'full' ? 1 : SET.fx === 'faded' ? Math.min(auto, 0.45) : auto;
+  FX.k = lerp(FX.k, want, 0.08);
+}
 // Gradients made on the main canvas go through the same gate (so unstained colours stay grey, and in
 // darkfield the greys invert).
 for (const fn of ['createRadialGradient', 'createLinearGradient']) {
@@ -975,7 +991,9 @@ function render() {
   for (const l of G.lights) if (vis(l)) glow(sx(l.x), sy(l.y), l.r * S, l.color, 0.35 * (l.life / l.max));
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
 
-  // Zones.
+  updateFxK(vis);
+  // Zones (yours: faded when busy).
+  fxDim(true);
   for (const z of G.zones) {
     if (!vis(z)) continue;
     const a = Math.min(1, z.life / 0.4);
@@ -994,12 +1012,12 @@ function render() {
       ctx.globalAlpha = a; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, 14 * S, 0, TAU); ctx.fill();
       ctx.strokeStyle = '#e0aaff'; ctx.beginPath(); ctx.arc(x, y, 15 * S, 0, TAU); ctx.stroke();
     } else {
-      // Bubbling pool.
-      for (let k = 0; k < 5; k++) { const an = G.realT * 0.7 + k * 1.3, rr = r * (0.2 + ((k * 0.37 + G.realT * 0.3) % 0.7)); ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an) * rr, 3 + k % 3, 0, TAU); ctx.stroke(); }
+      // Bubbling pool (just the rim when the screen is busy).
+      if (FX.k > 0.75) for (let k = 0; k < 5; k++) { const an = G.realT * 0.7 + k * 1.3, rr = r * (0.2 + ((k * 0.37 + G.realT * 0.3) % 0.7)); ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an) * rr, 3 + k % 3, 0, TAU); ctx.stroke(); }
       ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
     }
   }
-  ctx.globalAlpha = 1;
+  fxDim(false);
   drawHazards(vis);
 
   drawCore();
@@ -1066,6 +1084,70 @@ function render() {
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(t.face) * 16 * S, y + Math.sin(t.face) * 16 * S); ctx.lineWidth = 4; ctx.stroke();
   }
 
+  // Your shots go under the enemies (enemies and their bullets must stay readable), faded when busy.
+  fxDim(true);
+  for (const pr of G.proj) {
+    if (pr.mine || !vis(pr)) continue;
+    const x = sx(pr.x), y = sy(pr.y), hot = emits(pr.src && pr.src.elem) || pr.style === 'flame' || pr.style === 'void';
+    ctx.globalCompositeOperation = hot ? 'lighter' : 'source-over';
+    if (pr.lob) {
+      const yy = y - (pr.h || 0) * S;
+      if (hot) { glow(x, yy, 16 * S, pr.color, 0.8); ctx.globalAlpha = 1; }
+      else { ctx.fillStyle = 'rgba(20,20,20,0.85)'; ctx.beginPath(); ctx.arc(x, yy, 7.5 * S, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(x, yy, 6 * S, 0, TAU); ctx.fill();
+      continue;
+    }
+    const a = Math.atan2(pr.vy, pr.vx), r = pr.r * S;
+    if (hot && pr.style !== 'flame') glow(x, y, Math.max(8, r * 3.2), pr.color, 0.55);
+    else if (!hot) { ctx.fillStyle = 'rgba(20,20,20,0.8)'; ctx.beginPath(); ctx.arc(x, y, r + 1.5, 0, TAU); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = pr.color; ctx.strokeStyle = pr.color;
+    switch (pr.style) {
+      case 'flame': {
+        const k = 1 - pr.life / pr.max;
+        glow(x, y, r * (1.4 + k * 2.6) * (0.55 + 0.45 * FX.k), k < 0.35 && pr.src.elem === 'fire' ? '#ffd166' : pr.color, 0.75 * (1 - k));
+        ctx.globalAlpha = 1;
+        break;
+      }
+      case 'rail': ctx.lineWidth = 3 * S; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * 60 * S, y - Math.sin(a) * 60 * S); ctx.lineTo(x, y); ctx.stroke(); break;
+      case 'bolt': case 'needle': case 'shard':
+        ctx.lineWidth = (pr.style === 'shard' ? 4 : 2.5) * S; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * 3.5, y - Math.sin(a) * r * 3.5); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke(); break;
+      case 'glaive': case 'disc':
+        ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 18);
+        drawShape(pr.style === 'glaive' ? 'star' : 'hex', 0, 0, r, 0); ctx.fill(); ctx.restore(); break;
+      case 'void':
+        glow(x, y, pr.aura * S, pr.color, 0.35); ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); ctx.lineWidth = 3; ctx.stroke();
+        ctx.globalCompositeOperation = 'lighter';
+        break;
+      case 'prequel':
+        // A shell flying backwards: the flame trail is in front of it.
+        ctx.lineWidth = r * 1.1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3); ctx.stroke();
+        glow(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3, r * 2.5, '#ffd166', 0.8); ctx.globalAlpha = 1;
+        break;
+      case 'scrap':
+        ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 10);
+        drawShape('spike', 0, 0, r, 0); ctx.fill(); ctx.fillStyle = '#5a3a00'; ctx.beginPath(); ctx.arc(0, 0, r * 0.35, 0, TAU); ctx.fill(); ctx.restore(); break;
+      case 'sperm': {
+        // Seeker Siblings: little spermatozoa with a beating tail, swimming head-first at their target.
+        const ca = Math.cos(a), sa = Math.sin(a), nx = -sa, ny = ca, ph = G.realT * 26 + (pr.seed || (pr.seed = Math.random() * 10));
+        const hl = r * 1.3, tl = r * 5.5;
+        ctx.lineWidth = Math.max(1, r * 0.35); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - ca * hl, y - sa * hl);
+        for (let i = 1; i <= 6; i++) { const f = i / 6, w = Math.sin(ph - f * 6) * r * 0.9 * f; ctx.lineTo(x - ca * (hl + tl * f) + nx * w, y - sa * (hl + tl * f) + ny * w); }
+        ctx.stroke(); ctx.lineCap = 'butt';
+        ctx.beginPath(); ctx.ellipse(x, y, hl, r * 0.85, a, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'rocket': case 'missile':
+        ctx.lineWidth = r * 1.2; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * 2.4, y - Math.sin(a) * r * 2.4); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke();
+        if (Math.random() < 0.5 && !rewinding) spawnPart(pr.x - pr.vx * 0.02, pr.y - pr.vy * 0.02, '#ff9e00', 1, 20, 0.25, 2);
+        break;
+      default: ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+    }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  fxDim(false);
   // Elite, boss and ally auras.
   ctx.globalCompositeOperation = 'lighter';
   for (const e of G.enemies) {
@@ -1229,7 +1311,8 @@ function render() {
 
   // Additive layer: weapon fx, projectiles, particles, fx.
   ctx.globalCompositeOperation = 'lighter';
-  drawWeaponFx(G.weapons, p.x, p.y, 1);
+  fxDim(true); drawWeaponFx(G.weapons, p.x, p.y, 1); fxDim(false);
+  ctx.globalCompositeOperation = 'lighter';
   ctx.globalCompositeOperation = 'lighter'; // tethers are electric
   for (const t of G.tethers) {
     const x1 = sx(t.a.x), y1 = sy(t.a.y), x2 = sx(t.b.x), y2 = sy(t.b.y), k = Math.min(1, t.life / 0.3);
@@ -1241,68 +1324,9 @@ function render() {
     }
     ctx.globalAlpha = 1;
   }
-  for (const pr of G.proj) {
-    if (pr.mine || !vis(pr)) continue;
-    const x = sx(pr.x), y = sy(pr.y), hot = emits(pr.src && pr.src.elem) || pr.style === 'flame' || pr.style === 'void';
-    ctx.globalCompositeOperation = hot ? 'lighter' : 'source-over';
-    if (pr.lob) {
-      const yy = y - (pr.h || 0) * S;
-      if (hot) { glow(x, yy, 16 * S, pr.color, 0.8); ctx.globalAlpha = 1; }
-      else { ctx.fillStyle = 'rgba(20,20,20,0.85)'; ctx.beginPath(); ctx.arc(x, yy, 7.5 * S, 0, TAU); ctx.fill(); }
-      ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(x, yy, 6 * S, 0, TAU); ctx.fill();
-      continue;
-    }
-    const a = Math.atan2(pr.vy, pr.vx), r = pr.r * S;
-    if (hot && pr.style !== 'flame') glow(x, y, Math.max(8, r * 3.2), pr.color, 0.55);
-    else if (!hot) { ctx.fillStyle = 'rgba(20,20,20,0.8)'; ctx.beginPath(); ctx.arc(x, y, r + 1.5, 0, TAU); ctx.fill(); }
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = pr.color; ctx.strokeStyle = pr.color;
-    switch (pr.style) {
-      case 'flame': {
-        const k = 1 - pr.life / pr.max;
-        glow(x, y, r * (1.4 + k * 2.6), k < 0.35 && pr.src.elem === 'fire' ? '#ffd166' : pr.color, 0.75 * (1 - k));
-        ctx.globalAlpha = 1;
-        break;
-      }
-      case 'rail': ctx.lineWidth = 3 * S; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * 60 * S, y - Math.sin(a) * 60 * S); ctx.lineTo(x, y); ctx.stroke(); break;
-      case 'bolt': case 'needle': case 'shard':
-        ctx.lineWidth = (pr.style === 'shard' ? 4 : 2.5) * S; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * 3.5, y - Math.sin(a) * r * 3.5); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke(); break;
-      case 'glaive': case 'disc':
-        ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 18);
-        drawShape(pr.style === 'glaive' ? 'star' : 'hex', 0, 0, r, 0); ctx.fill(); ctx.restore(); break;
-      case 'void':
-        glow(x, y, pr.aura * S, pr.color, 0.35); ctx.globalAlpha = 1;
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); ctx.lineWidth = 3; ctx.stroke();
-        ctx.globalCompositeOperation = 'lighter';
-        break;
-      case 'prequel':
-        // A shell flying backwards: the flame trail is in front of it.
-        ctx.lineWidth = r * 1.1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3); ctx.stroke();
-        glow(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3, r * 2.5, '#ffd166', 0.8); ctx.globalAlpha = 1;
-        break;
-      case 'scrap':
-        ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 10);
-        drawShape('spike', 0, 0, r, 0); ctx.fill(); ctx.fillStyle = '#5a3a00'; ctx.beginPath(); ctx.arc(0, 0, r * 0.35, 0, TAU); ctx.fill(); ctx.restore(); break;
-      case 'sperm': {
-        // Seeker Siblings: little spermatozoa with a beating tail, swimming head-first at their target.
-        const ca = Math.cos(a), sa = Math.sin(a), nx = -sa, ny = ca, ph = G.realT * 26 + (pr.seed || (pr.seed = Math.random() * 10));
-        const hl = r * 1.3, tl = r * 5.5;
-        ctx.lineWidth = Math.max(1, r * 0.35); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - ca * hl, y - sa * hl);
-        for (let i = 1; i <= 6; i++) { const f = i / 6, w = Math.sin(ph - f * 6) * r * 0.9 * f; ctx.lineTo(x - ca * (hl + tl * f) + nx * w, y - sa * (hl + tl * f) + ny * w); }
-        ctx.stroke(); ctx.lineCap = 'butt';
-        ctx.beginPath(); ctx.ellipse(x, y, hl, r * 0.85, a, 0, TAU); ctx.fill();
-        break;
-      }
-      case 'rocket': case 'missile':
-        ctx.lineWidth = r * 1.2; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * 2.4, y - Math.sin(a) * r * 2.4); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke();
-        if (Math.random() < 0.5 && !rewinding) spawnPart(pr.x - pr.vx * 0.02, pr.y - pr.vy * 0.02, '#ff9e00', 1, 20, 0.25, 2);
-        break;
-      default: ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-    }
-  }
   // Debris particles are matter, not light.
   ctx.globalCompositeOperation = 'source-over';
+  fxDim(true);
   for (const q of G.parts) {
     if (!vis(q)) continue;
     ctx.globalAlpha = Math.max(0, q.life / q.max);
@@ -1336,7 +1360,7 @@ function render() {
       ctx.beginPath(); ctx.arc(x, y, rr, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - k)); ctx.stroke();
     }
   }
-  ctx.globalAlpha = 1;
+  fxDim(false);
 
   // Enemy bullets on top, drawn like debris under phase contrast: a black granule with a solid white
   // halo, so they stand out on any background. With the Anti-Immune Stain the granule takes up the red dye at its core.

@@ -561,7 +561,8 @@ function damageEnemy(e, dmg, src) {
   e.flash = 0.07;
   const key = src.wname || 'Other';
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + d;
-  if (!src.dot && (crit || d >= 4 || Math.random() < 0.3)) {
+  // Damage numbers thin out when the screen is busy (crits always show).
+  if (!src.dot && (crit || d >= 4 || Math.random() < 0.3) && (crit || typeof FX === 'undefined' || FX.k > 0.6 || Math.random() < FX.k * 0.5)) {
     floatText(e.x, e.y - e.r, Math.round(d) + (crit ? '!' : ''), '#ffffff', crit ? 17 : 12);
   }
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
