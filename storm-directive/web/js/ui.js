@@ -705,7 +705,7 @@ const UI = {
     // Passives.
     const ps = Object.keys(G.passives);
     const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
-    h += `<div class="sec"><h3>Stains (${st.length}/${Object.keys(DYES).length})</h3><p class="hint">${st.length ? st.map(id => '<b>' + esc(DYES[id].name) + '</b>').join(', ') + '.' : 'None yet: the slide is all greyscale.'} Stains turn up in DNA strands; each one brings back one kind of colour.</p></div>`;
+    h += `<div class="sec"><h3>Stains (${st.length}/${Object.keys(DYES).length})</h3><p class="hint">${st.length ? st.map(id => '<b>' + esc(DYES[id].name) + '</b>: ' + esc(DYES[id].boon)).join('<br>') : 'None yet: the slide is all greyscale.'}<br>Stains turn up in DNA strands; each one brings back one kind of colour, and a boon.</p></div>`;
     const rl = Object.keys(G.relics);
     if (rl.length) h += `<div class="sec"><h3>Boss relics</h3><div class="list">${rl.map(id => `<div class="li on"><b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b><br><span>${esc(RELICS[id].desc)}</span></div>`).join('')}</div></div>`;
     h += `<div class="sec"><h3>Power-ups</h3>`;

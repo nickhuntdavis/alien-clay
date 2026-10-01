@@ -448,8 +448,8 @@ function optUpgrade(w, r) {
 }
 function optDye(id) {
   const D = DYES[id];
-  return { rarity: 1, tag: 'STAIN', icon: 'DY', color: '#9fb3c8', title: D.name, sub: 'Adds colour for the rest of the run', desc: D.desc,
-    apply: () => { G.dyes[id] = true; refreshPalette(); } };
+  return { rarity: 1, tag: 'STAIN', icon: 'DY', color: '#9fb3c8', title: D.name, sub: 'Colour and a boon, for the rest of the run', desc: D.boon + ' ' + D.desc,
+    apply: () => { G.dyes[id] = true; if (D.apply) D.apply(G.P, G); recomputeAll(); refreshPalette(); } };
 }
 function optPassive(id, r) {
   const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour'].includes(id);
@@ -532,6 +532,10 @@ function damageEnemy(e, dmg, src) {
   }
   if (src.grudge && e === G.grudge) d *= 3;
   d *= sigDamageMul(e, src);
+  // Stain boons: you can see who matters.
+  if (G.dyes.luciferase && (e.elite || e.boss)) d *= 1.25;
+  if (G.dyes.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
+  if (G.dyes.rival && e.rival && !e.remote) d *= 1.4;
   if (e.boss || e.bossDef) d *= bossDamageMul(e, src);
   if (src.w && src.w.s) {
     const ws = src.w.s;
