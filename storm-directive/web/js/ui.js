@@ -487,7 +487,7 @@ const UI = {
         <div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc.replace(/^Mastery\. /, ''))}</div></div>
         <h4>${esc(w.def.name.toUpperCase())}'S PATH</h4><div class="dlv">${lv}</div>`;
       const tree = weaponTree(w.def), rest = PERK_LEVELS.filter(l => l > D.req.lvl && w.def.sig && w.def.sig[l]);
-      if (rest.length) h += `<h4>STILL TO COME</h4><div class="dpath">${rest.flatMap(l => tree[l].map(id => `<div class="dp"><em>LV ${l}</em><b>${esc(perkDef(id).name)}</b><span>${esc(perkDef(id).desc.replace(/^Mastery\. /, ''))}</span></div>`)).join('')}</div>`;
+      if (rest.length) h += `<h4>STILL TO COME</h4><div class="dpath">${rest.map(l => tree[l].map(id => `<div class="dp"><em>LV ${l}</em><b>${esc(perkDef(id).name)}</b><span>${esc(perkDef(id).desc.replace(/^Mastery\. /, ''))}</span></div>`).join('')).join('')}</div>`;
     } else {
       const d = def, st = d.stars || [3, 3, 3, 3], bar = n => `<div class="dbar">${Array.from({ length: 5 }, (_, k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div>`;
       h += `<div class="drole">${esc((d.role || '').toUpperCase())} | ${esc(ELEMENTS[d.elem].name.toUpperCase())}</div><div class="dname">${esc(d.name)}</div>

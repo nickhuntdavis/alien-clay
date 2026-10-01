@@ -417,7 +417,7 @@ const BOSSES = [
 ];
 const BOSS_INTERVAL = 180; // seconds
 const BOSSES_PER_RUN = 4;
-const BOSS_TITLES = Object.fromEntries(BOSSES.map(b => [b.id, b.title]));
+const BOSS_TITLES = {}; for (const b of BOSSES) BOSS_TITLES[b.id] = b.title;
 
 // Boss relics: one of three, chosen after the kill.
 const RELICS = {

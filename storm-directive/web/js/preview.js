@@ -25,8 +25,7 @@ function updatePreviews(dt) {
   for (const pv of PREVIEWS) {
     if (!pv.canvas.isConnected) { PREVIEWS.delete(pv); continue; }
     if (!pv.canvas.offsetParent) continue; // hidden
-    stepPreview(pv, Math.min(dt, 1 / 20));
-    drawPreview(pv);
+    try { stepPreview(pv, Math.min(dt, 1 / 20)); drawPreview(pv); } catch (e) { PREVIEWS.delete(pv); safely('preview ' + defId(pv.def), () => { throw e; }); }
   }
 }
 

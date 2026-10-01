@@ -2229,20 +2229,37 @@ function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } cat
 let lastTs = 0;
 const FPS = { v: 60 };
 function frame(ts) {
+  // Schedule the next frame first, and keep each stage separate, so one error can never freeze the game.
+  requestAnimationFrame(frame);
   const raw = (ts - lastTs) / 1000;
   if (raw > 0 && raw < 0.5) FPS.v += (1 / raw - FPS.v) * 0.05;
   const dt = clamp(raw || 0, 0, 1 / 30);
   lastTs = ts;
-  if (G && G.state === 'play') {
-    keyboardSteer();
-    // A boss death plays out in slow motion before its relic box opens.
-    if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3); }
-    else if (G.lootQueue.length && typeof UI !== 'undefined') UI.openLoot(G.lootQueue.shift());
-    else update(dt);
-  } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
-  else if (G && G.state === 'rewind') updateRewind(dt);
-  else if (G && G.state === 'intro') updateIntro(dt);
-  render();
-  if (typeof UI !== 'undefined') UI.tick(dt);
-  requestAnimationFrame(frame);
+  safely('update', () => {
+    if (G && G.state === 'play') {
+      keyboardSteer();
+      // A boss death plays out in slow motion before its relic box opens.
+      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3); }
+      else if (G.lootQueue.length && typeof UI !== 'undefined') UI.openLoot(G.lootQueue.shift());
+      else update(dt);
+    } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
+    else if (G && G.state === 'rewind') updateRewind(dt);
+    else if (G && G.state === 'intro') updateIntro(dt);
+  });
+  safely('render', render);
+  if (typeof UI !== 'undefined') safely('ui', () => UI.tick(dt));
+}
+// Errors are shown once on screen (and kept for the run log) instead of silently stopping the game.
+const ERRS = { seen: {}, last: '' };
+function safely(where, fn) {
+  try { fn(); } catch (e) {
+    const msg = where + ': ' + (e && e.message || e) + ' @ ' + ((e && e.stack || '').split('\n')[1] || '').trim().replace(/^at /, '').replace(/.*\/js\//, '');
+    if (ERRS.seen[msg]) return;
+    ERRS.seen[msg] = true; ERRS.last = msg;
+    try { localStorage.setItem('sd_err', msg); } catch (e2) { /* ignore */ }
+    let el = document.getElementById('errBox');
+    if (!el) { el = document.createElement('div'); el.id = 'errBox'; el.style.cssText = 'position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:99;background:#300;color:#fff;font:12px monospace;padding:8px;border:1px solid #f55;border-radius:4px;pointer-events:none;white-space:pre-wrap'; document.body.appendChild(el); }
+    el.textContent = 'Something broke (the game kept going). Please send this: v' + APP_VERSION + ' ' + msg;
+    setTimeout(() => { el.remove(); }, 12000);
+  }
 }

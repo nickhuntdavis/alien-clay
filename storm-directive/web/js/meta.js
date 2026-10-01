@@ -73,7 +73,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '6.6';
+const APP_VERSION = '6.7';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -100,7 +100,8 @@ function logRun(G, result) {
 }
 function runLogText() {
   const wins = RUNLOG.filter(r => r.res === 'WON').length;
-  return `SPAWN PRAWN RUN LOG (v${APP_VERSION}) - ${RUNLOG.length} runs, ${wins} born\n` + RUNLOG.map(r => '\n' + runText(r)).join('');
+  let err = ''; try { err = localStorage.getItem('sd_err') || ''; } catch (e) { /* ignore */ }
+  return `SPAWN PRAWN RUN LOG (v${APP_VERSION}) - ${RUNLOG.length} runs, ${wins} born\n` + (err ? 'Last error: ' + err + '\n' : '') + RUNLOG.map(r => '\n' + runText(r)).join('');
 }
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
