@@ -582,18 +582,6 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 .trow .tl em { display: block; font-style: normal; font-size: 8px; letter-spacing: 1px; color: var(--c, #5fd4e8); }
 .trow.sig .tp { border-style: solid; }
 
-/* ---------------------------------------------------------------- multiplayer lobby */
-#lobby input { user-select: text; -webkit-user-select: text; touch-action: auto; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 10px 12px;
-  background: #000; color: #fff; border: 1px solid #ffffff40; border-radius: 4px; font: inherit; font-size: 15px; }
-#lobby .mpl { display: block; font-size: 11px; letter-spacing: 1px; color: #a3aea9; margin-bottom: 10px; }
-#lobby .mprow { display: flex; gap: 8px; margin-top: 10px; }
-#lobby .mprow input { margin: 0; flex: 1; text-transform: uppercase; letter-spacing: 6px; text-align: center; font-family: var(--mono, monospace); }
-#lobby .mprow .btn { width: auto; margin: 0; }
-#lobby .mpcode { text-align: center; font-family: var(--mono, monospace); font-size: 42px; letter-spacing: 12px; color: #fff; margin: 6px 0; }
-#lobby .li em { font-style: normal; font-size: 10px; letter-spacing: 1px; color: #a3aea9; }
-#lobby .mpstatus { text-align: center; min-height: 16px; }
-#lobby #mpStart, #lobby #mpLeave { margin-top: 10px; }
-
 /* ---------------------------------------------------------------- weapon draft and upgrade paths */
 #draft.screen { --wc: #5fd4e8; background: radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--wc) 18%, #000) 0%, #000000f2 60%) !important; }
 #draft .dwrap { width: min(560px, calc(100% - 24px)); padding: calc(14px + env(safe-area-inset-top)) 0 120px; }

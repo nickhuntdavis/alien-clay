@@ -12,10 +12,8 @@ function initRivals() {
   G.rivalOut = {}; // id -> how they were eliminated
   G.rivalMsgT = 0; G.rivalCullT = 200; G.rivalCulls = 0;
   const off = Math.random() * TAU;
-  // In a multiplayer race the other players take some of the rival slots.
-  G.rivalDefs = RIVALS.slice(0, Math.max(0, RIVALS.length - (G.mp ? G.mp.others.length : 0)));
-  G.rivalDefs.forEach((R, i) => {
-    const a = off + i / G.rivalDefs.length * TAU;
+  RIVALS.forEach((R, i) => {
+    const a = off + i / RIVALS.length * TAU;
     G.enemies.push(makeRival(R, Math.cos(a) * RIVAL.spawnR, Math.sin(a) * RIVAL.spawnR));
   });
 }
@@ -66,7 +64,6 @@ function rivalNews(e, text, force) {
 }
 
 function rivalAI(e, dt) {
-  if (e.remote) { remoteAI(e, dt); return; }
   if (G.rivalOut[e.rid]) { e.dead = true; return; } // eliminated in a timeline you rewound past
   const p = me();
   const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 1;
@@ -179,7 +176,7 @@ function rivalDown(e) {
   sysMsg('SYSTEM MESSAGE', fill(pick(SYSTEM_LINES.rivalDead), e, 0, 'You did that. The crowd loved it.'), e.color, true);
   addViewers(20000);
   achieve('rivalkill');
-  if ((G.rivalDefs || RIVALS).every(R => G.rivalOut[R.id])) achieve('allrivals');
+  if (RIVALS.every(R => G.rivalOut[R.id])) achieve('allrivals');
   sfx('boss'); vibrate(120);
 }
 
@@ -198,12 +195,12 @@ function updateRivals(dt) {
     const cur = Math.max(0, tot - (G.dpsLast || 0)) / 5;
     G.dpsLast = tot;
     G.dpsAvg = G.dpsAvg ? G.dpsAvg * 0.8 + cur * 0.2 : cur;
-    for (const e of G.enemies) if (e.rival && !e.remote && !e.dead) rivalStats(e, 0);
+    for (const e of G.enemies) if (e.rival && !e.dead) rivalStats(e, 0);
   }
   if (G.t < G.rivalCullT) return;
   G.rivalCullT = G.t + 75;
   if (G.showdown) return;
-  const alive = G.enemies.filter(e => e.rival && !e.remote && !e.dead);
+  const alive = G.enemies.filter(e => e.rival && !e.dead);
   if (alive.length <= 2 || G.rivalCulls >= 2) return;
   const p = me();
   const pool = alive.filter(e => e.mode !== 'egg' && Math.hypot(e.x - p.x, e.y - p.y) > 1200);
@@ -215,9 +212,8 @@ function updateRivals(dt) {
 
 // Sorted standings for the HUD: you and every rival, alive or not.
 function rivalBoard() {
-  const rows = [{ name: G.mp ? NET.name.toUpperCase() : 'SPERMY', lvl: G.level, color: PAL.you, you: true }];
-  for (const e of G.enemies) if (e.remote && !e.dead) rows.push({ name: e.name, lvl: e.lvl, color: e.color, e, player: true });
-  for (const R of G.rivalDefs || RIVALS) {
+  const rows = [{ name: 'SPERMY', lvl: G.level, color: PAL.you, you: true }];
+  for (const R of RIVALS) {
     const e = G.enemies.find(o => o.rid === R.id && !o.dead);
     rows.push({ name: R.name, lvl: e ? e.lvl : 0, color: R.color, out: !e, egg: e && e.final, e });
   }
@@ -267,8 +263,7 @@ function updateCountFx() {
 const FINALIST_NAMES = ['The Dark Horse', 'Anonymous Donor', 'The Favourite', 'Mr Motility', 'The Underdog'];
 function startShowdown() {
   G.showdown = { t0: G.t }; G.eggAt = G.t;
-  if (G.mp) netSend({ t: 'ev', kind: 'final' });
-  const p = me(), fin = G.enemies.filter(e => e.rival && !e.remote && !e.dead);
+  const p = me(), fin = G.enemies.filter(e => e.rival && !e.dead);
   for (let i = fin.length; i < 5; i++) {
     const R = { id: 'fin' + i, name: FINALIST_NAMES[i], color: XR.white, skill: 1, aggro: 1 };
     const e = makeRival(R, p.x, p.y); G.enemies.push(e); fin.push(e);
