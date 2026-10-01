@@ -109,6 +109,7 @@ function stepPreview(pv, dt) {
       if (Math.hypot(s.x - me0.x, (s.y - me0.y) / 1.6) < 0.11) { s.dead = true; pv.stored++; pv.fx.push({ type: 'ring', x: me0.x, y: me0.y, r: 0.11, life: 0.2 }); }
       continue;
     }
+    if (!s.hit) s.hit = new Set(); // every shot keeps a list of what it already hit
     if (s.home && s.home.hp > 0) { const a = Math.atan2(s.home.y - s.y, s.home.x - s.x), c = Math.atan2(s.vy, s.vx), dd = Math.atan2(Math.sin(a - c), Math.cos(a - c)), na = c + Math.max(-4 * dt, Math.min(4 * dt, dd)), v = Math.hypot(s.vx, s.vy); s.vx = Math.cos(na) * v; s.vy = Math.sin(na) * v; }
     if (s.boom && !s.back && Math.hypot(s.x - me0.x, s.y - me0.y) > 0.5) { s.back = true; s.hit.clear(); }
     if (s.back) { const a = Math.atan2(me0.y - s.y, me0.x - s.x), v = Math.hypot(s.vx, s.vy); s.vx = Math.cos(a) * v; s.vy = Math.sin(a) * v; if (Math.hypot(me0.x - s.x, me0.y - s.y) < 0.03) s.dead = true; }
