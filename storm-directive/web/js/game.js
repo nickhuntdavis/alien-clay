@@ -1413,7 +1413,7 @@ function updateOrbit(w, dt) {
   const rad = s.radius * (w.def.base.pulse ? 1 + 1.1 * (0.5 - 0.5 * Math.cos(G.realT * 2.2)) : 1);
   const src = weaponSrc(w);
   if (!w.hitKeys || w.hitKeys.length < s.count) w.hitKeys = Array.from({ length: s.count }, (_, i) => w.uid + '_' + i);
-  // Extended Family: a second ring, twice as far out, spinning the other way.
+  // Heavenly Host: a second ring, twice as far out, spinning the other way.
   const rings = hasSig(w, 'extended') ? 2 : 1;
   if (w.hitKeys.length < s.count * rings) w.hitKeys = Array.from({ length: s.count * rings }, (_, i) => w.uid + '_' + i);
   for (let ri = 0; ri < rings; ri++) for (let i = 0; i < s.count; i++) {

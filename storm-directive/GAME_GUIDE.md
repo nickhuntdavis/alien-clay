@@ -158,7 +158,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 3.4, cd 0.05s, mag 50, reload 2.1s, x2, pierce all, range 200
 - **Level bonuses:** Lv3: +30% area; Lv6: +30% dmg; Lv9: +1 count
-- **Pairings:** **Hot Flush, Cold Sweat** (+ Cold Feet), **Family BBQ** (+ Premature Evangelation)
+- **Pairings:** **Hot Flush, Cold Sweat** (+ Cold Feet), **Holy Smoke** (+ Premature Evangelation)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -326,20 +326,20 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 23, reload 2.2s, x3, range 100 (dur 4.5, radius 72, spin 3.6)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +1 count
-- **Pairings:** **Overprotective** (+ Placental Siphon), **Family BBQ** (+ Heartburn)
+- **Pairings:** **Collection Plate** (+ Placental Siphon), **Holy Smoke** (+ Heartburn)
 
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Hot Load** | +40% damage. |
 |  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
-| Lv 5 signature | **Protective Nan** | The angels eat any enemy bullet they touch. |
-|  | **Clingy** | The angels never take a break, but hit 25% softer. |
+| Lv 5 signature | **Guardian Angel** | The angels eat any enemy bullet they touch. |
+|  | **Eternal Vigil** | The angels never take a break, but hit 25% softer. Amen. |
 | Lv 8 | **Twins!** | +2 projectiles. |
 |  | **Toxic Relationship** | Hits add a stacking poison. |
 |  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
-| Lv 10 mastery | **Extended Family** | A second ring of angels spins the other way at double the distance. |
-|  | **Guilt Trip** | Enemies they hit feel guilty for 4s: slowed by 40% and taking +35% damage from everything. |
+| Lv 10 mastery | **Heavenly Host** | A second ring of angels spins the other way at double the distance. |
+|  | **Holier Than Thou** | Enemies they hit are made to feel guilty for 4s: slowed by 40% and taking +35% damage from everything. |
 
 ### Placental Siphon
 
@@ -347,7 +347,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 18, cd 0.08s, mag 40, range 460 (area 90)
 - **Level bonuses:** Lv3: +1 count; Lv6: +1 pierce; Lv9: +40% dmg
-- **Pairings:** **Overprotective** (+ Premature Evangelation), **Static Discharge** (+ Static Cling)
+- **Pairings:** **Collection Plate** (+ Premature Evangelation), **Static Discharge** (+ Static Cling)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -410,12 +410,12 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Hot Flush, Cold Sweat** | Heartburn + Cold Feet | Thermal Shock and Steam Burst reactions have no cooldown and hit twice as hard. |
 | **Tetherball** | Yo-Yo Diet + Toddler Gravity | Yo-yos drag enemies back towards you on every throw. |
 | **Family Tree** | Seeker Siblings + Tapeworm Seeder | Tapeworm turrets fire homing Seeker Siblings. |
-| **Overprotective** | Placental Siphon + Premature Evangelation | The angels catch enemy bullets and feed them into the Siphon. |
+| **Collection Plate** | Placental Siphon + Premature Evangelation | The angels catch enemy bullets and feed them into the Siphon. |
 | **Nappy Trail** | Slipstream Scalpel + Morning Sickness | Your scalpel trail oozes poison that stacks. |
 | **Conductive Spit** | Spitball + Static Cling | Spat-on enemies are wet: lightning deals double damage to them. |
 | **Sucker Punch** | Hiccup Scattergun + Toddler Gravity | Enemies caught in a gravity orb take double damage from the Scattergun. |
 | **Snow Globe** | Cold Feet + Toddler Gravity | Gravity orbs chill everything they hold and freeze it solid. |
-| **Family BBQ** | Premature Evangelation + Heartburn | The angels are on fire. Everything they touch catches. |
+| **Holy Smoke** | Premature Evangelation + Heartburn | The angels are on fire. Everything they touch catches. |
 | **Sibling Yo-Yo** | Seeker Siblings + Yo-Yo Diet | Every yo-yo hit launches a Seeker Sibling. |
 | **Petri Dish** | Tapeworm Seeder + Morning Sickness | Anything that dies in a puddle was infected all along. |
 | **Static Discharge** | Static Cling + Placental Siphon | Every 12 bullets the Siphon eats fires a Static Cling chain at four enemies. |
