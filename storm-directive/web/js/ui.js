@@ -167,6 +167,7 @@ const UI = {
     rb.classList.toggle('ready', c.charges > 0);
   },
 
+  menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
   tick(dt) {
     updatePreviews(dt);
     UI.hudT -= dt;

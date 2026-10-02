@@ -2284,6 +2284,7 @@ function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } cat
 // ---------------------------------------------------------------- loop
 let lastTs = 0;
 const FPS = { v: 60 };
+let frameFrozen = false;
 function frame(ts) {
   // Schedule the next frame first, and keep each stage separate, so one error can never freeze the game.
   requestAnimationFrame(frame);
@@ -2302,7 +2303,11 @@ function frame(ts) {
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);
   });
-  safely('render', render);
+  // While a menu (weapon draft, loot, pause...) covers the paused game, the world can't change: draw it once,
+  // then leave the canvas alone so the menu and its previews get the whole frame budget.
+  const covered = G && G.state !== 'play' && G.state !== 'intro' && G.state !== 'rewind' && G.state !== 'bossIntro' && typeof UI !== 'undefined' && UI.menuOn();
+  if (!covered || !frameFrozen) safely('render', render);
+  frameFrozen = !!covered;
   if (typeof UI !== 'undefined') safely('ui', () => UI.tick(dt));
 }
 // Errors are shown once on screen (and kept for the run log) instead of silently stopping the game.
