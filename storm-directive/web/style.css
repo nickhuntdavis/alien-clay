@@ -642,3 +642,41 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 .card.wup .wlv { display: flex; gap: 2px; margin: 5px 0 4px; } .card.wup .wlv i { flex: 1; height: 5px; background: #ffffff14; }
 .card.wup .wlv i.on { background: #ffffff70; } .card.wup .wlv i.up { background: var(--wc); box-shadow: 0 0 6px var(--wc); } .card.wup .wlv i.ms { outline: 1px solid #fff; }
 .card.wup .wnext { font-size: 11px; color: var(--wc); margin-top: 4px; }
+
+/* ---------------------------------------------------------------- rarity tiers
+   Common, Uncommon, Rare, Epic, Legendary, Mythical, Celestial: each its own colour on the border and the tag.
+   Legendary and up get a glow, a ribbon and a light sweep; Mythical pulses; Celestial is prismatic. */
+.card[style*="--rar"] { border-color: var(--rar); overflow: hidden; }
+.card .tag b { color: var(--rar, var(--rc)); }
+.card.r-uncommon { border-width: 1px; }
+.card.r-rare { border-width: 2px; }
+.card.r-epic { border-width: 2px; box-shadow: 0 0 10px color-mix(in srgb, var(--rar) 45%, transparent) !important; }
+.card.r-legendary, .card.r-mythical, .card.r-celestial { border: 3px solid var(--rar); box-shadow: 0 0 20px color-mix(in srgb, var(--rar) 60%, transparent), inset 0 0 18px color-mix(in srgb, var(--rar) 18%, transparent) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--rar) 22%, #050505), #050505 55%) padding-box, var(--rar) border-box !important; }
+.card.r-mythical::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 26px var(--rar); opacity: 0; animation: mythPulse 1.4s ease-in-out 0.8s infinite; }
+@keyframes mythPulse { 50% { opacity: 0.8; } }
+.card.r-celestial { background: linear-gradient(135deg, #1d2a3a, #120f22 45%, #2a1a2e 75%, #0d1a24) padding-box, linear-gradient(120deg, #7fd8ff, #ff9ae8, #fff3b0, #7fd8ff) border-box !important;
+  box-shadow: 0 0 26px #b9a8ff, inset 0 0 20px #7fd8ff44 !important; }
+.card.r-celestial::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 20% 30%, #ffffff 0 1px, transparent 2px), radial-gradient(circle at 70% 60%, #ffffff 0 1px, transparent 2px), radial-gradient(circle at 85% 20%, #fff3b0 0 1px, transparent 2px), radial-gradient(circle at 40% 80%, #ff9ae8 0 1px, transparent 2px);
+  opacity: 0.6; animation: twinkle 1.8s ease-in-out infinite; }
+@keyframes twinkle { 50% { opacity: 1; } }
+.card .sheen { position: absolute; top: -20%; bottom: -20%; left: 0; width: 40%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--rar) 35%, #ffffff55), transparent);
+  transform: translateX(-160%) skewX(-12deg); animation: sheen 2.6s ease-in-out 0.9s infinite; will-change: transform; }
+@keyframes sheen { 0% { transform: translateX(-160%) skewX(-12deg); } 45%, 100% { transform: translateX(380%) skewX(-12deg); } }
+.card .rrib { position: absolute; top: 9px; right: -30px; width: 116px; text-align: center; transform: rotate(35deg); font: 900 9px/16px var(--mono, monospace);
+  letter-spacing: 1.5px; color: #050505; background: var(--rar); box-shadow: 0 0 10px var(--rar); pointer-events: none; }
+.card.r-celestial .rrib { background: linear-gradient(90deg, #7fd8ff, #ff9ae8, #fff3b0); }
+.card .cboon { margin-top: 7px; padding: 6px 8px; border: 1px solid var(--rar); background: color-mix(in srgb, var(--rar) 12%, #000); }
+.card .cboon b { display: block; font: 800 10px var(--mono, monospace); letter-spacing: 1px; color: var(--rar); }
+.card .cboon span { font-size: 12px; color: #fff; line-height: 1.3; }
+.card.r-celestial .cboon b { color: #fff; text-shadow: 0 0 8px #7fd8ff; }
+#rarBanner { height: 0; overflow: visible; text-align: center; font: 900 26px/1 sans-serif; letter-spacing: 3px; color: var(--rar); opacity: 0; pointer-events: none; }
+#rarBanner.on { height: 34px; margin-top: 4px; animation: rarIn 0.6s cubic-bezier(.2,1.6,.4,1) 0.3s forwards; text-shadow: 0 0 18px var(--rar), 0 0 4px #000; }
+#rarBanner.on.r-celestial { background: linear-gradient(90deg, #7fd8ff, #ff9ae8, #fff3b0, #7fd8ff); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 10px #ffffffaa); }
+@keyframes rarIn { 0% { opacity: 0; transform: scale(2.2); } 100% { opacity: 1; transform: none; } }
+
+/* The Petri Dish: the next-wave button, centred above the weapon bar. */
+#waveBtn { pointer-events: auto; position: fixed; left: 50%; bottom: calc(150px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 6; display: none;
+  font-size: 18px; letter-spacing: 3px; padding: 14px 26px; animation: biPulse 1s ease-in-out infinite; }
+#waveBtn.on { display: block; }

@@ -62,6 +62,7 @@ function newStats() {
 }
 
 function newGame() {
+  CORE.arena = typeof UI !== 'undefined' && UI.sample === 's002' ? DISH.arena : CORE.arena0;
   G = {
     state: 'play', t: 0, realT: 0,
     player: { x: 0, y: 0, vx: 0, vy: 0, r: 12, hp: 120, iframes: 0, face: -Math.PI / 2, flash: 0 },
@@ -82,6 +83,7 @@ function newGame() {
   };
   G.bossRoster = bossRoster();
   G.ev = newEvents(); G.evm = Object.assign({}, EVM0);
+  if (CORE.arena === DISH.arena) initWaves();
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
   G.dyes = {};
@@ -96,10 +98,10 @@ function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? M
 const SURGE_T = 900; // Storm Surge: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
 // A run lasts about 10 minutes: the difficulty clock runs 1.5 times faster than real time.
 const PACE = 1.5;
-function PT() { return G.t * PACE; }
+function PT() { return G.wave ? wavePT() : G.t * PACE; }
 // Ahead of the curve? Enemies keep up. Levels you are past where a 10-minute run expects you to be
 // (level 60 at 9 minutes) add 5% enemy health and 3% enemy damage each.
-function levelsAhead() { return Math.max(0, G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
+function levelsAhead() { if (G.wave) return 0; return Math.max(0, G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
 function hpNow() { return hpMul(PT()) * (1 + 0.05 * levelsAhead()); }
 function dmgNow() { return dmgMul(PT()) * (1 + 0.03 * levelsAhead()); }
 function dmgMul(t) { return (1 + t / 240 + Math.pow(t / 600, 2)) * (t > SURGE_T ? Math.pow(1.3, (t - SURGE_T) / 60) : 1); }
@@ -336,12 +338,18 @@ function doMerge(m) {
 }
 
 // ---------------------------------------------------------------- loot
-function rollRarity(min) {
+// special: this card may come out Mythical or Celestial (ordinary DNA only, three a run at most).
+function rollRarity(min, special) {
   const luck = G.P.luck;
-  const ws = RARITIES.map((r, i) => (i < min ? 0 : r.w * (1 + luck * i * 1.2)));
+  if (special && (G.mythN || 0) < 3) {
+    const k = 1 + luck * 2;
+    if (Math.random() < 0.0018 * k) return 6;
+    if (Math.random() < 0.0055 * k) return 5;
+  }
+  const ws = RARITIES.map((r, i) => (i < min ? 0 : r.w * (1 + luck * i * 0.8)));
   let tot = ws.reduce((a, b) => a + b, 0), x = Math.random() * tot;
   for (let i = 0; i < ws.length; i++) { x -= ws[i]; if (x <= 0) return i; }
-  return ws.length - 1;
+  return 4;
 }
 
 function lvBonusText(def, from, to) {
@@ -364,12 +372,12 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
-  const minR = req.kind === 'boss' || req.kind === 'chest' ? 2 : 0; // level boxes Bronze+, Fan and boss boxes Gold+
+  const minR = req.kind === 'boss' || req.kind === 'chest' ? 3 : 0; // level boxes Common+, Fan and boss boxes Epic+
   if (req.kind === 'slot') {
-    // A weapon draft for a new mount: three fresh weapons, Silver or better.
+    // A weapon draft for a new mount: three fresh weapons, Rare or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
     const ids = shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 3);
-    return ids.map(id => optNewWeapon(id, Math.max(1, rollRarity(1))));
+    return ids.map(id => optNewWeapon(id, Math.max(2, rollRarity(2))));
   }
   if (req.kind === 'relic') return bossDef(req.boss).relics.map(id => optRelic(id, req.boss));
   if (req.kind === 'branch') {
@@ -422,7 +430,7 @@ function genLoot(req) {
     let tot = rest.reduce((a, c) => a + c.w, 0), x = Math.random() * tot;
     for (const c of rest) { x -= c.w; if (x <= 0) { chosen.push(c); break; } }
   }
-  for (const c of chosen) opts.push(c.make(Math.max(rollRarity(minR), c.pmin || 0)));
+  for (const c of chosen) opts.push(withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))));
   // Occasionally the System slips a cursed card into the box.
   const curses = CURSES.filter(c => !G.curses[c.id]);
   if (curses.length && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses));
@@ -462,7 +470,7 @@ function optUpgrade(w, r) {
 }
 function optDye(id) {
   const D = DYES[id];
-  return { rarity: 1, tag: 'STAIN', icon: 'DY', color: '#9fb3c8', title: D.name, sub: 'Colour and a boon, for the rest of the run', desc: D.boon + ' ' + D.desc,
+  return { rarity: 2, tag: 'STAIN', icon: 'DY', color: '#9fb3c8', title: D.name, sub: 'Colour and a boon, for the rest of the run', desc: D.boon + ' ' + D.desc,
     apply: () => { G.dyes[id] = true; if (D.apply) D.apply(G.P, G); recomputeAll(); refreshPalette(); } };
 }
 function optPassive(id, r) {
@@ -489,18 +497,18 @@ function optMod(w, id, r) {
     } };
 }
 function optCurse(c) {
-  return { rarity: 3, cursed: true, tag: 'CURSED', icon: '!?', color: '#9d4edd', title: c.name, sub: 'Boon: ' + c.boon, desc: 'Bane: ' + c.bane + '.',
+  return { rarity: 4, cursed: true, tag: 'CURSED', icon: '!?', color: '#9d4edd', title: c.name, sub: 'Boon: ' + c.boon, desc: 'Bane: ' + c.bane + '.',
     apply: () => { G.curses[c.id] = true; c.apply(G.P, G); recomputeAll(); achieve('cursed'); sysLine('cursed'); } };
 }
 function optMerge(m) {
   const def = WEAPONS[m.out];
-  return { def, rarity: 3, tag: 'FUSION', icon: def.icon, color: def.color, elem: def.elem, title: def.name, fusion: true,
+  return { def, rarity: 4, tag: 'FUSION', icon: def.icon, color: def.color, elem: def.elem, title: def.name, fusion: true,
     sub: `${WEAPONS[m.a].name} + ${WEAPONS[m.b].name}`, desc: def.desc + ' Frees a weapon slot.',
     apply: () => doMerge(m) };
 }
 function optHeal() { return { rarity: 0, tag: 'SUPPLY', icon: '+', color: '#8ac926', title: 'Field Medkit', sub: 'Instant', desc: 'Restore 50% of max HP.', apply: () => healPlayer(G.P.maxHp * 0.5) }; }
-function optRerolls() { return { rarity: 1, tag: 'SUPPLY', icon: 'RR', color: '#ffca3a', title: 'Reroll Tokens', sub: 'Instant', desc: '+2 loot rerolls.', apply: () => { G.rerolls += 2; } }; }
-function optOvercharge() { return { rarity: 1, tag: 'SUPPLY', icon: 'OC', color: '#ff924c', title: 'Overcharge Core', sub: 'Permanent', desc: '+5% damage for everything.', apply: () => { G.P.might += 0.05; recomputeAll(); } }; }
+function optRerolls() { return { rarity: 2, tag: 'SUPPLY', icon: 'RR', color: '#ffca3a', title: 'Reroll Tokens', sub: 'Instant', desc: '+2 loot rerolls.', apply: () => { G.rerolls += 2; } }; }
+function optOvercharge() { return { rarity: 2, tag: 'SUPPLY', icon: 'OC', color: '#ff924c', title: 'Overcharge Core', sub: 'Permanent', desc: '+5% damage for everything.', apply: () => { G.P.might += 0.05; recomputeAll(); } }; }
 function fuseHint(id) {
   const m = MERGES.filter(m => m.a === id || m.b === id);
   if (!m.length) return '';
@@ -733,6 +741,7 @@ function killEnemy(e, src) {
   sigKill(e, src);
   relicKill(e, src);
   eventKill(e);
+  boonKill();
   // Split on Kill mod.
   if (src.w && !src.noSplit && src.w.mods && src.w.mods.some(m => m.id === 'shrapnel')) {
     const ss = Object.assign({}, src, { noSplit: true, mult: 1 });
@@ -851,7 +860,8 @@ function hurtPlayer(dmg, from, ent) {
   relicHurt(d, ent);
   thornsHit(ent);
   sigHurt();
-  if (p.hp <= 0) { p.hp = 0; if (!startRewind(true)) gameOver(); }
+  boonHurt();
+  if (p.hp <= 0) { p.hp = 0; if (!boonSave() && !startRewind(true)) gameOver(); }
 }
 
 // ---------------------------------------------------------------- enemies
@@ -2020,6 +2030,7 @@ function update(dt) {
   updateCrossfire();
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
   sigTick(dt);
+  boonTick(dt);
   updateTethers(dt);
   meleeTick(dt);
   updateShow(dt);
@@ -2064,12 +2075,15 @@ function update(dt) {
   // Dense swarms (each monster is weaker to match: see enemyScale).
   const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, 24 + T * 0.5);
   const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE;
-  G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1); // quieter while the Final Five fight you
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
-  while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
+  if (G.wave) { waveSpawn(rate * G.P.spawnMult, dt, maxAlive, hostile); waveTick(dt); } // the Petri Dish: a set number per wave
+  else {
+    G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1); // quieter while the Final Five fight you
+    while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
+  }
   if (G.t >= G.nextWave) { G.nextWave += 30; waveEvent(); }
   updateRivals(dt);
-  updateShowdown();
+  if (!G.wave) updateShowdown();
   if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.
@@ -2269,13 +2283,14 @@ function lootSound(kind, best, cursed, cards) {
   [0.02, 0.13, 0.24].forEach((d, i) => sndNoise(t + d, 0.1, 'bandpass', 500 * deep, 1400 * deep, 2, 0.1 - i * 0.02));
   for (let i = 0; i < 14; i++) { const at = t + 0.36 + i * 0.022; sndNoise(at, 0.02, 'highpass', 3200 + i * 120, 3200 + i * 120, 0.8, 0.08); sndTone(at, 1800 + i * 90, 1800 + i * 90, 0.02, 0.012, 'square'); }
   sndNoise(t + 0.45, 0.3, 'bandpass', 900, 3000, 1.2, 0.05);
-  const notes = [1047, 1319, 1568, 1760, 2093], n = 2 + Math.min(3, best), soft = kind === 'branch' ? 0.6 : 1;
+  const notes = [1047, 1319, 1568, 1760, 2093], n = 2 + Math.min(3, Math.floor(best * 0.75)), soft = kind === 'branch' ? 0.6 : 1;
   for (let i = 0; i < n; i++) {
     const at = t + 0.46 + i * 0.075, f = notes[i] * (kind === 'branch' ? 0.75 : 1);
     sndTone(at, f, f, 0.5 + i * 0.05, 0.05 * soft, 'sine');
     sndTone(at, f * 2.76, f * 2.76, 0.18, 0.012 * soft, 'sine');
   }
-  if (best >= 3) sndNoise(t + 0.5, 1.1, 'highpass', 6000, 9000, 0.5, 0.03);
+  if (best >= 4) sndNoise(t + 0.5, 1.1, 'highpass', 6000, 9000, 0.5, 0.03);
+  if (best >= 5) { for (let i = 0; i < 6; i++) sndTone(t + 0.9 + i * 0.06, 2093 * (1 + i * 0.12), 2093 * (1 + i * 0.12), 0.6, 0.03, 'sine'); sndTone(t + 0.85, 130, 65, 1.2, 0.08, 'triangle'); }
   if (cursed) sndTone(t + 0.55, 98, 92, 0.7, 0.05, 'sawtooth');
   for (let i = 0; i < cards; i++) sndNoise(t + 0.45 + i * 0.12, 0.16, 'bandpass', 700, 2200, 1.2, 0.035);
 }
@@ -2297,7 +2312,7 @@ function frame(ts) {
       keyboardSteer();
       // A boss death plays out in slow motion before its relic box opens.
       if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3); }
-      else if (G.lootQueue.length && typeof UI !== 'undefined') UI.openLoot(G.lootQueue.shift());
+      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot()) UI.openLoot(G.lootQueue.shift());
       else update(dt);
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);

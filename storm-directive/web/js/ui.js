@@ -74,6 +74,7 @@ const UI = {
     $('bankBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     UI.applySettings();
     $('againBtn').addEventListener('click', () => UI.startGame());
+    $('waveBtn').addEventListener('click', () => { if (G && waveReady()) { waveBegin(); $('waveBtn').classList.remove('on'); } });
     // Boss introductions: once the card is up, a tap anywhere starts the fight.
     $('bossIntro').addEventListener('click', () => { if ($('bossIntro').classList.contains('ready')) endBossIntro(); });
     $('copyRunBtn').addEventListener('click', () => {
@@ -103,7 +104,8 @@ const UI = {
     UI.afterIntro();
   },
   afterIntro() {
-    sysLine('start', true);
+    if (G.wave) sysMsg('THE SCIENTIST', '"Subject in the dish. One drop at a time. Let us see what you become." Clear a wave, open your DNA, then start the next.', XR.dim, true);
+    else sysLine('start', true);
     UI.show('hud');
     UI.refreshHud(true);
   },
@@ -170,6 +172,8 @@ const UI = {
   menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
   tick(dt) {
     updatePreviews(dt);
+    // The Petri Dish: the next drop waits for you.
+    { const wb = $('waveBtn'), on = G && waveReady(); if (wb && wb.classList.contains('on') !== !!on) { wb.classList.toggle('on', !!on); if (on) wb.textContent = 'START WAVE ' + (G.wave.n + 1); } }
     UI.hudT -= dt;
     if (UI.hudT <= 0 && G && G.state === 'play') { UI.hudT = 0.08; UI.refreshHud(false); }
     if (UI.toastT > 0) { UI.toastT -= dt; if (UI.toastT <= 0) $('toast').classList.remove('on'); }
@@ -421,7 +425,7 @@ const UI = {
     const w = o.w, d = w.def, wc = elemCol(wElem(w)), r = RARITIES[o.rarity];
     const c = document.createElement('button');
     c.className = 'card wup r-' + r.id;
-    c.style.setProperty('--rc', wc); c.style.setProperty('--wc', wc);
+    c.style.setProperty('--rc', r.color); c.style.setProperty('--wc', wc); c.style.setProperty('--rar', r.color);
     c.style.animationDelay = (0.45 + i * 0.12) + 's';
     const pips = Array.from({ length: MAX_WLVL }, (_, k) => `<i class="${k < o.from ? 'on' : k < o.to ? 'up' : ''} ${PERK_LEVELS.includes(k + 1) ? 'ms' : ''}"></i>`).join('');
     const ms = PERK_LEVELS.filter(l => l > o.from && l <= o.to).map(l => d.sig && d.sig[l] ? (l >= 10 ? `Lv ${l}: choose its MASTERY` : `Lv ${l}: choose its SIGNATURE path`) : `Lv ${l}: choose an upgrade`);
@@ -429,7 +433,7 @@ const UI = {
       <div class="ctitle" style="color:${wc}">${esc(d.name)}</div>
       <div class="csub">Lv ${o.from} &rsaquo; ${o.to}${o.to === MAX_WLVL ? ' (MAX)' : ''} | ${esc(d.role || '')}</div>
       <div class="wlv">${pips}</div>
-      <div class="cdesc">${esc(o.desc)}</div>${ms.length ? `<div class="wnext">Unlocks ${esc(ms.join(', '))}</div>` : ''}`;
+      <div class="cdesc">${esc(o.desc)}</div>${ms.length ? `<div class="wnext">Unlocks ${esc(ms.join(', '))}</div>` : ''}${UI.boonHtml(o)}${UI.rarityFlair(o)}`;
     makePreview(c.querySelector('canvas'), d, { mini: true });
     c.addEventListener('click', () => { if (!$('lootCards').classList.contains('ready') || !(UI.lastDown > UI.lootOpenT)) return; UI.pickLoot(i); });
     return c;
@@ -469,7 +473,8 @@ const UI = {
     box.style.setProperty('--wc', wc);
     // Stage: the weapon in action.
     const cv = $('dCanvas');
-    if (!D.pv || D.pv.def !== def) { if (D.pv) dropPreview(D.pv); D.pv = makePreview(cv, def); }
+    // Upgrade paths: the preview shows the highlighted upgrade in action.
+    if (!D.pv || D.pv.def !== def || D.pv.opts.perk !== o.perk) { if (D.pv) dropPreview(D.pv); D.pv = makePreview(cv, def, { perk: o.perk }); }
     $('dBadge').innerHTML = iconSVG(def, 22, wc) + esc(D.weap ? 'LV ' + D.weap.lvl + ' ' + def.name.toUpperCase() : (def.role || '').toUpperCase());
     // Tabs.
     $('dTabs').innerHTML = UI.lootOpts.map((x, i) => {
@@ -539,10 +544,10 @@ const UI = {
     UI.lootOpts = UI.sortLoot(genLoot(req));
     const titles = {
       start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary starter DNA. Yes, sperm can carry guns in their genes now. Do not ask the biology department.'],
-      slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Silver or better.'],
-      level: ['LEVEL ' + G.level + '!', pick(['Bronze-or-better DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA! Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The fans chipped in. Some of them twice.'])],
-      chest: ['FAN DNA', pick(['Gold or better. The fans sent this. Some of the fans are very strange.', 'Gold or better. It wriggles. That is probably fine.'])],
-      boss: ['BOSS DNA', 'Gold or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
+      slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Rare or better.'],
+      level: ['LEVEL ' + G.level + '!', pick(['Fresh DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA! Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The fans chipped in. Some of them twice.'])],
+      chest: ['FAN DNA', pick(['Epic or better. The fans sent this. Some of the fans are very strange.', 'Epic or better. It wriggles. That is probably fine.'])],
+      boss: ['BOSS DNA', 'Epic or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
       branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The others go in the bin. Forever. No pressure.'],
       relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
     };
@@ -563,6 +568,7 @@ const UI = {
     $('lootCards').innerHTML = '';
     $('lootCards').classList.remove('ready');
     UI.renderLootCards();
+    UI.rarityBanner();
     $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'relic' ? 'none' : '';
     UI.updateReroll();
     UI.show('loot');
@@ -574,6 +580,20 @@ const UI = {
     UI.lootTimer = setTimeout(() => $('lootCards').classList.add('ready'), 650);
   },
 
+  // Legendary and up: a ribbon and a light sweep. Mythical and Celestial also show their bonus effect.
+  rarityFlair(o) { return o.rarity >= 4 && !o.cursed ? `<i class="sheen"></i><span class="rrib">${RARITIES[o.rarity].name.toUpperCase()}</span>` : ''; },
+  boonHtml(o) { if (!o.boon) return ''; const B = BOONS[o.boon]; return `<div class="cboon"><b>${RARITIES[o.rarity].name.toUpperCase()} BONUS: ${esc(B.name)}</b><span>${esc(B.desc)}</span></div>`; },
+  // The box announces its best card when it's Legendary or better.
+  rarityBanner() {
+    const el = $('rarBanner'), best = Math.max(...UI.lootOpts.filter(o => !o.cursed).map(o => o.rarity || 0));
+    el.className = '';
+    if (best < 4) { el.textContent = ''; return; }
+    const R = RARITIES[best];
+    el.textContent = R.name.toUpperCase() + (best >= 6 ? ' DNA!!!' : best >= 5 ? ' DNA!!' : ' DNA!');
+    el.style.setProperty('--rar', R.color);
+    void el.offsetWidth; el.className = 'on r-' + R.id;
+    if (best >= 5) { vibrate([80, 50, 160]); cam.shake = 10; }
+  },
   // Weapon upgrades first, in their own section.
   sortLoot(opts) { return opts.filter(o => o.wup).concat(opts.filter(o => !o.wup)); },
 
@@ -589,7 +609,8 @@ const UI = {
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
       c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '');
-      c.style.setProperty('--rc', cardCat(o));
+      c.style.setProperty('--rar', r.color);
+      c.style.setProperty('--rc', o.cursed ? cardCat(o) : r.color); // the border is the rarity colour
       c.style.setProperty('--ic', cardCat(o));
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
       const el = o.elem ? `<span class="el" style="color:${elemCol(o.elem)}">${ELEMENTS[o.elem].name}</span>` : '';
@@ -597,7 +618,7 @@ const UI = {
         <div class="cico"${o.def ? ` style="--ic:${elemCol(o.elem)}"` : ''}>${o.def ? iconSVG(o.def, 28, elemCol(o.elem)) : esc(o.icon)}</div>
         <div class="ctitle">${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(o.desc)}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}`;
+        <div class="cdesc">${esc(o.desc)}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
       c.addEventListener('click', () => {
         if (!$('lootCards').classList.contains('ready')) return;
         // Only a tap that started on this screen picks a card (not one left over from skipping the intro
@@ -634,6 +655,7 @@ const UI = {
     G.rerolls--;
     UI.lootOpts = UI.sortLoot(genLoot(UI.lootReq));
     UI.renderLootCards();
+    UI.rarityBanner();
     UI.updateReroll();
   },
   updateReroll() { $('rerollBtn').textContent = `REROLL (${G.rerolls})`; $('rerollBtn').disabled = G.rerolls <= 0; },
@@ -774,6 +796,7 @@ const UI = {
   showVictory() { UI.showGameOver(true); },
   showGameOver(won) {
     const best = UI.loadBest();
+    if (G.wave) return UI.showDishOver(best);
     const isBest = won ? !best.born || G.t < best.born : G.t > (best.time || 0);
     if (won) UI.saveBest(Object.assign(best, { born: isBest ? G.t : best.born, births: (best.births || 0) + 1 }));
     else if (isBest) UI.saveBest(Object.assign(best, { time: G.t, level: G.level, kills: G.kills }));
@@ -802,6 +825,23 @@ const UI = {
     UI.show('over');
   },
 
+  // The Petri Dish: how many waves you survived.
+  showDishOver(best) {
+    const n = G.wave.best, isBest = n > (best.wave || 0);
+    if (isBest) UI.saveBest(Object.assign(best, { wave: n }));
+    $('overTitle').textContent = 'THE DISH WINS'; $('overTitle').classList.remove('won');
+    const dmg = Object.entries(G.stats.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8), tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
+    let h = `<div class="eulogy">The scientist makes a note: "Subject expired during wave ${G.wave.n}. Promising. Get me another one."</div><div class="big">WAVE ${n}</div>
+      <div class="hint">${isBest ? 'NEW BEST! The grant has been renewed.' : 'Best: wave ' + (best.wave || 0)} | ${fmtTime(G.t)} in the dish</div>
+      <div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the experiment')}</b></div>
+      <div class="ostats"><div><b>${n}</b>Waves cleared</div><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.bossKills}</b>Bosses</div></div><h3>Damage breakdown</h3>`;
+    for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
+    logRun(G, 'WAVE ' + n);
+    UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
+    const dna = bankRun(G, false);
+    $('overBody').innerHTML = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked</div>` + h;
+    UI.show('over');
+  },
   loadBest() { try { return JSON.parse(localStorage.getItem('sd_best') || '{}'); } catch (e) { return {}; } },
   saveBest(b) { try { localStorage.setItem('sd_best', JSON.stringify(b)); } catch (e) { /* ignore */ } },
   renderBest() {

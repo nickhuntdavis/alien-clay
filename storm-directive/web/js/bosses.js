@@ -307,7 +307,7 @@ function updateRevive() {
 
 function optRelic(id, boss) {
   const R = RELICS[id], B = bossDef(boss);
-  return { rarity: 3, tag: 'BOSS RELIC', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: PAL.reward, title: R.name,
+  return { rarity: 4, tag: 'BOSS RELIC', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: PAL.reward, title: R.name,
     sub: 'From ' + B.name.replace(/^THE /, 'the ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()), desc: R.desc, relic: true,
     apply: () => applyRelic(id) };
 }

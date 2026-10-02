@@ -39,10 +39,13 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 | Rarity | Multiplier | Weapon levels granted | Drop weight |
 |---|---|---|---|
-| Bronze | x1 | +1 | 60% |
-| Silver | x1.5 | +1 | 27% |
-| Gold | x2 | +2 | 10% |
-| Legendary | x3 | +3 | 3% |
+| Common | x1 | +1 | 56% |
+| Uncommon | x1.25 | +1 | 26% |
+| Rare | x1.5 | +1 | 12% |
+| Epic | x2 | +2 | 5% |
+| Legendary | x2.5 | +2 | 1.6% |
+| Mythical | x3 | +3 | 0% |
+| Celestial | x4 | +3 | 0% |
 
 **Level bonus key:** "+N count/pierce" is additive; "+N% dmg/area/duration" adds to the base; "N% faster" cuts the cooldown.
 
@@ -644,7 +647,7 @@ Spells autocast on cooldown and use spell slots. They level up like weapons but 
 
 ## Power-ups (passives)
 
-Stat boosts that stack. Value shown is per pick at Bronze rarity.
+Stat boosts that stack. Value shown is per pick at Common rarity.
 
 | Power-up | Per pick | Max stacks |
 |---|---|---|
@@ -652,7 +655,7 @@ Stat boosts that stack. Value shown is per pick at Bronze rarity.
 | **Twitchy Tail** | +10% fire rate | 8 |
 | **Short Refractory Period** | +15% reload speed | 6 |
 | **Bigger Load** | +20% magazine size | 6 |
-| **Split Personality** | +1 projectile for all weapons (Silver or better only) | 3 |
+| **Split Personality** | +1 projectile for all weapons (Rare or better only) | 3 |
 | **Early Arrival** | +12% projectile speed and range | 5 |
 | **Personal Space** | +12% area of effect | 6 |
 | **Stamina** | +15% effect duration | 5 |
@@ -677,7 +680,7 @@ Stat boosts that stack. Value shown is per pick at Bronze rarity.
 | **Chemistry** | +35% elemental reaction damage | 5 |
 | **Repeat Prescription** | -10% spell cooldowns | 5 |
 | **Antenatal Classes** | +12% experience gained | 5 |
-| **Snooze Button** | +1 max Rewind charge, +25% Chrono energy (Silver or better only) | 3 |
+| **Snooze Button** | +1 max Rewind charge, +25% Chrono energy (Rare or better only) | 3 |
 | **Hand-Me-Downs** | +25% scrap from kills | 5 |
 | **Last Word** | Last bullet of every magazine deals x4 damage and explodes | 3 |
 | **Tactical Nap** | Starting a reload sends out a shockwave that deletes nearby bullets (+40 radius) | 4 |
@@ -687,7 +690,7 @@ Stat boosts that stack. Value shown is per pick at Bronze rarity.
 | **Hurry Up** | Up to +22% damage the faster you are moving | 4 |
 | **Egg Bond** | Near the egg: +30% fire rate. Away from it: +30% crit chance | 3 |
 | **Spoilers** | 10% of shots appear already next to their target (with the Slipstream Scalpel, you do) | 4 |
-| **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Silver or better only) | 1 |
+| **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Rare or better only) | 1 |
 | **Acrosome Ram** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | 5 |
 | **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | 4 |
 | **Prickly Personality** | Whatever hurts you gets hurt back (thorns x1), plus a smaller jab to everything around you. Grows with max HP and armour. | 4 |
@@ -735,9 +738,9 @@ Offered at weapon levels 3 and 8. Which three a weapon is offered is fixed per w
 
 ## Modifiers
 
-Slot into one weapon (3 per weapon). Power by rarity: Bronze x1, Silver x1.25, Gold x1.6, Legendary x2.2. Values below are at Bronze. "Projectile only" means guns and other shot-firing weapons.
+Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12, Rare x1.25, Epic x1.6, Legendary x2.2, Mythical x2.6, Celestial x3. Values below are at Common. "Projectile only" means guns and other shot-firing weapons.
 
-| Modifier | Effect (Bronze) | Effect (Legendary) | Fits |
+| Modifier | Effect (Common) | Effect (Legendary) | Fits |
 |---|---|---|---|
 | **Seeking** | Shots hunt down targets (turn rate 5.0) | Shots hunt down targets (turn rate 7.4) | Projectile only |
 | **Splitting** | On first hit, shots split into 3 shards at 45% damage | On first hit, shots split into 4 shards at 45% damage | Projectile only |
@@ -962,6 +965,7 @@ Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to 
 | Sample | Name | Status | Description |
 |---|---|---|---|
 | 001 | **Standard Issue** | Playable | One healthy donor, four hundred million hopefuls, one egg. The classic. |
-| 002 | **Frozen Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
+| 002 | **The Petri Dish** | Playable | A mad scientist is breeding super sperm. One drop at a time, wave after wave, each nastier than the last. How many can you take? |
+| 005 | **Frozen Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
 | 003 | **The Morning After** | Coming soon | The pill is already dissolving. Good luck. |
 | 004 | **Vasectomy Reversal** | Coming soon | Low count, high stakes, very confused surgeon. |

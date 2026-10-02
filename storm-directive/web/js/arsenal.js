@@ -28,6 +28,7 @@ function rateBonus() {
   if (G.scatter) r *= 1 + P.crossfire;
   if (P.anchorLink > 0 && Math.hypot(me().x - G.core.x, me().y - G.core.y) < 450) r *= 1 + P.anchorLink;
   if (G.relics.feverdream) r *= 1 + Math.min(0.6, 0.03 * (G.feverN || 0));
+  r *= boonRate(); // Twin Soul
   return r;
 }
 
@@ -329,7 +330,7 @@ function setWeaponLevel(w, to, from) {
 
 function optPerk(w, lvl, id) {
   const K = perkDef(id);
-  return { rarity: lvl >= 8 ? 3 : lvl >= 5 ? 2 : 1, tag: K.sig ? (lvl >= 10 ? 'MASTERY' : 'SIGNATURE') : 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
+  return { perk: id, rarity: lvl >= 10 ? 4 : lvl >= 8 ? 3 : lvl >= 5 ? 3 : 2, tag: K.sig ? (lvl >= 10 ? 'MASTERY' : 'SIGNATURE') : 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
     sub: `${w.def.name} | Lv ${lvl} ${K.sig ? 'only this weapon' : 'branch'}`, desc: K.desc + (PERK_ADAPT[id] && PERK_ADAPT[id][w.id] ? ' ' + PERK_ADAPT[id][w.id] : ''),
     apply: () => { w.perks[lvl] = id; computeStats(w); floatText(me().x, me().y - 40, K.name.toUpperCase(), PAL.upgrade, 15, 1.2); } };
 }

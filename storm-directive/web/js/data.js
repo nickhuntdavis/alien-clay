@@ -331,10 +331,15 @@ const SPELLS = {
 };
 
 const RARITIES = [
-  { id: 'common',    name: 'Bronze',    color: '#cd8a4a', mult: 1,   lvls: 1, w: 60 },
-  { id: 'rare',      name: 'Silver',    color: '#c9d6e3', mult: 1.5, lvls: 1, w: 27 },
-  { id: 'epic',      name: 'Gold',      color: '#ffd23f', mult: 2,   lvls: 2, w: 10 },
-  { id: 'legendary', name: 'Legendary', color: '#ff3df2', mult: 3,   lvls: 3, w: 3 },
+  { id: 'common',    name: 'Common',    color: '#b9c2cc', mult: 1,    lvls: 1, w: 56 },
+  { id: 'uncommon',  name: 'Uncommon',  color: '#4ade80', mult: 1.25, lvls: 1, w: 26 },
+  { id: 'rare',      name: 'Rare',      color: '#3b9dff', mult: 1.5,  lvls: 1, w: 12 },
+  { id: 'epic',      name: 'Epic',      color: '#b25cff', mult: 2,    lvls: 2, w: 5 },
+  { id: 'legendary', name: 'Legendary', color: '#ff9f1c', mult: 2.5,  lvls: 2, w: 1.6 },
+  // Mythical and Celestial never come from the weights: a separate tiny chance per card (about one or two
+  // a run, three at most), and each brings a unique bonus effect on top (see BOONS).
+  { id: 'mythical',  name: 'Mythical',  color: '#ff2d6f', mult: 3,    lvls: 3, w: 0 },
+  { id: 'celestial', name: 'Celestial', color: '#e8f6ff', mult: 4,    lvls: 3, w: 0 },
 ];
 
 // Passive power-ups. v = value per stack at common rarity; rarity multiplies it.
@@ -343,7 +348,7 @@ const PASSIVES = {
   haste:     { name: 'Twitchy Tail', icon: 'TD', max: 8, v: 0.10, fmt: v => `+${pc(v)} fire rate`, apply: (P, v) => { P.haste += v; } },
   reload:    { name: 'Short Refractory Period',      icon: 'QH', max: 6, v: 0.15, fmt: v => `+${pc(v)} reload speed`, apply: (P, v) => { P.reloadSpd += v; } },
   mag:       { name: 'Bigger Load',    icon: 'EM', max: 6, v: 0.20, fmt: v => `+${pc(v)} magazine size`, apply: (P, v) => { P.magMult += v; } },
-  multishot: { name: 'Split Personality',        icon: 'MS', max: 3, v: 1, minRarity: 2, fmt: v => `+${Math.round(v)} projectile for all weapons`, apply: (P, v) => { P.multishot += Math.round(v); } },
+  multishot: { name: 'Split Personality',        icon: 'MS', max: 3, v: 1, minRarity: 3, fmt: v => `+${Math.round(v)} projectile for all weapons`, apply: (P, v) => { P.multishot += Math.round(v); } },
   velocity:  { name: 'Early Arrival',         icon: 'VE', max: 5, v: 0.12, fmt: v => `+${pc(v)} projectile speed and range`, apply: (P, v) => { P.projSpeed += v; P.range += v * 0.6; } },
   area:      { name: 'Personal Space',     icon: 'BR', max: 6, v: 0.12, fmt: v => `+${pc(v)} area of effect`, apply: (P, v) => { P.area += v; } },
   duration:  { name: 'Stamina',        icon: 'LG', max: 5, v: 0.15, fmt: v => `+${pc(v)} effect duration`, apply: (P, v) => { P.dur += v; } },
@@ -368,7 +373,7 @@ const PASSIVES = {
   catalyst:  { name: 'Chemistry',         icon: 'CT', max: 5, v: 0.35, fmt: v => `+${pc(v)} elemental reaction damage`, apply: (P, v) => { P.react += v; } },
   echo:      { name: 'Repeat Prescription',       icon: 'SE', max: 5, v: 0.10, fmt: v => `-${pc(v)} spell cooldowns`, apply: (P, v) => { P.cdr = Math.max(0.4, P.cdr - v); } },
   scholar:   { name: 'Antenatal Classes',          icon: 'SH', max: 5, v: 0.12, fmt: v => `+${pc(v)} experience gained`, apply: (P, v) => { P.xp += v; } },
-  temporal:  { name: 'Snooze Button',    icon: 'TL', max: 3, v: 1, minRarity: 1, fmt: () => `+1 max Rewind charge, +25% Chrono energy`, apply: (P, v, G) => { G.chrono.max += 1; P.chronoGain += 0.25; } },
+  temporal:  { name: 'Snooze Button',    icon: 'TL', max: 3, v: 1, minRarity: 2, fmt: () => `+1 max Rewind charge, +25% Chrono energy`, apply: (P, v, G) => { G.chrono.max += 1; P.chronoGain += 0.25; } },
   salvage:   { name: 'Hand-Me-Downs',         icon: 'SV', max: 5, needsScrap: 1, v: 0.25, fmt: v => `+${pc(v)} scrap from kills`, apply: (P, v) => { P.scrap += v; } },
   lastround: { name: 'Last Word',        icon: 'LW', max: 3, v: 1, fmt: v => `Last bullet of every magazine deals x${3 + Math.round(v)} damage and explodes`, apply: (P, v) => { P.lastRound += Math.round(v); } },
   tactical:  { name: 'Tactical Nap',  icon: 'TR', max: 4, v: 1, fmt: v => `Starting a reload sends out a shockwave that deletes nearby bullets (+${40 * Math.round(v)} radius)`, apply: (P, v) => { P.tactical += Math.round(v); } },
@@ -378,7 +383,7 @@ const PASSIVES = {
   momentum:  { name: 'Hurry Up',         icon: 'MO', max: 4, v: 0.15, fmt: v => `Up to +${pc(v * 1.5)} damage the faster you are moving`, apply: (P, v) => { P.momentum += v; } },
   anchorlink:{ name: 'Egg Bond',         icon: 'EB', max: 3, v: 0.3, fmt: v => `Near the egg: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
   future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Slipstream Scalpel, you do)`, apply: (P, v) => { P.future += v; } },
-  echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 1, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
+  echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 2, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
   ram:       { name: 'Acrosome Ram',          icon: 'AR', max: 5, v: 1, fmt: v => `Enemies you swim into take big damage (ram power x${v.toFixed(1)}). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun.`, apply: (P, v) => { P.ram += v; } },
   heft:      { name: 'Big Boned', icon: 'BB', max: 4, v: 1, fmt: v => `+${30 * v} max HP (and heal it). All your damage +${Math.round(4 * v)}% for every 100 max HP you have.`, apply: (P, v, G) => { P.heft += v; P.maxHp += 30 * v; G.player.hp += 30 * v; } },
   thorns:    { name: 'Prickly Personality', icon: 'PP', max: 4, v: 1, fmt: v => `Whatever hurts you gets hurt back (thorns x${v}), plus a smaller jab to everything around you. Grows with max HP and armour.`, apply: (P, v) => { P.thorns += v; } },
@@ -561,7 +566,7 @@ const POWERUPS = {
 
 // ---------------------------------------------------------------- The Egg
 // The egg sits at the world origin: the arena's centre. Standing in its glow heals you.
-const CORE = { r: 80, sanctuary: 290, arena: 2400 };
+const CORE = { r: 80, sanctuary: 290, arena: 2400, arena0: 2400 }; // arena shrinks to the dish in the Petri Dish
 // Break into the egg: reach EGG.level and its membrane becomes vulnerable. Destroy it to be born (you win).
 const EGG = { level: 60, hpBase: 150000, armour: 8 };
 // Weapon drafts: a new weapon mount at level 1 and at these levels.
@@ -583,7 +588,8 @@ const MAX_WEAPONS = BASE_SLOTS + SLOT_LEVELS.length;
 // Sperm samples (levels). Only the first is in the fridge so far.
 const SAMPLES = [
   { id: 's001', no: '001', name: 'Standard Issue', desc: 'One healthy donor, four hundred million hopefuls, one egg. The classic.', count: '400,000,000', motility: '62% progressive', open: true },
-  { id: 's002', no: '002', name: 'Frozen Donor Bank', desc: 'Thawed in a hurry. Everyone is sluggish, except the ones who are not.', open: false },
+  { id: 's002', no: '002', name: 'The Petri Dish', desc: 'A mad scientist is breeding super sperm. One drop at a time, wave after wave, each nastier than the last. How many can you take?', count: 'one, for now', motility: 'under observation', open: true, waves: true },
+  { id: 's005', no: '005', name: 'Frozen Donor Bank', desc: 'Thawed in a hurry. Everyone is sluggish, except the ones who are not.', open: false },
   { id: 's003', no: '003', name: 'The Morning After', desc: 'The pill is already dissolving. Good luck.', open: false },
   { id: 's004', no: '004', name: 'Vasectomy Reversal', desc: 'Low count, high stakes, very confused surgeon.', open: false },
 ];
@@ -681,7 +687,7 @@ const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600,
 // ---------------------------------------------------------------- Modifiers (slot into one weapon, 3 per weapon)
 // Power (p) comes from the card's rarity. Picking a modifier a weapon already has boosts its power.
 const MOD_SLOTS = 3;
-const MOD_POWER = [1, 1.25, 1.6, 2.2];
+const MOD_POWER = [1, 1.12, 1.25, 1.6, 2.2, 2.6, 3];
 const MOD_MAX_POWER = 3;
 const MAX_ALLIES = 6;
 const PROJ_KINDS = ['gun', 'siphon', 'mimic'];

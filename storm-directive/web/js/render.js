@@ -1008,6 +1008,7 @@ function render() {
 
   drawDecals(vis);
   drawTerrain();
+  if (G.wave) drawDish();
   drawPill();
   drawAmbient(vis);
   // Dynamic lights pooling on the floor.
@@ -1357,6 +1358,13 @@ function render() {
   ctx.globalCompositeOperation = 'lighter'; // arcs, blasts and shockwaves are energy
   for (const f of G.fx) {
     const k = f.life / f.max;
+    if (f.type === 'drop') {
+      // The Petri Dish: the scientist's pipette drop falling into the dish.
+      const fall = (k) * 520 * S, x = sx(f.x), y = sy(f.y) - fall, r = f.r * S * (1.2 - 0.4 * k);
+      ctx.globalAlpha = 0.9; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(x, y - r * 2.2); ctx.quadraticCurveTo(x + r * 1.1, y - r * 0.2, x, y + r); ctx.quadraticCurveTo(x - r * 1.1, y - r * 0.2, x, y - r * 2.2); ctx.fill();
+      ctx.globalAlpha = 0.5 * (1 - k); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(sx(f.x), sy(f.y), r * 2 * (1 - k * 0.5), r * (1 - k * 0.5), 0, 0, TAU); ctx.stroke();
+      continue;
+    }
     if (f.type === 'swing') {
       // Placenta Paddle: a crescent sweeping through the arc.
       const x = sx(f.x), y = sy(f.y), R = f.r * S, a0 = f.a - f.arc / 2, a1 = f.a + f.arc / 2, sweep = a0 + (a1 - a0) * Math.min(1, (1 - k) * 2.5);
@@ -1741,6 +1749,12 @@ function drawHud() {
       softBar(bx, by, bw, fin.length ? hp / mx : 0, PAL.danger);
       ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
       ctx.fillText(`THE FINAL FIVE: ${fin.length} LEFT (SPERM COUNT ${spermCount()})`, mid, by - 8);
+    } else if (G.wave) {
+      // The Petri Dish: the wave and how much of it is left.
+      const V = G.wave, cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
+      const left = V.active ? Math.max(0, V.budget - V.spawned) + G.enemies.filter(e => !e.dead && !e.charmed && !e.egg).length : 0;
+      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.active ? 'THE PETRI DISH' : V.n ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
+      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
     } else if (!mini) {
       const cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
       ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('SPERM COUNT', mid, cy2 - 14);
@@ -1776,6 +1790,8 @@ function drawHud() {
   }
   if (G.boss && !G.boss.dead) pointer(G.boss.x, G.boss.y, '#ff4d6d');
   for (const e of G.enemies) if (e.evTag && !e.dead) pointer(e.x, e.y, PAL.reward, 1.1, 0.7 + 0.3 * Math.sin(G.realT * 8));
+  // The Petri Dish: the last few of a wave get arrows.
+  if (G.wave && G.wave.active && G.wave.spawned >= G.wave.budget) { const rest = G.enemies.filter(e => !e.dead && !e.charmed && !e.egg); if (rest.length <= 10) for (const e of rest) pointer(e.x, e.y, XR.white, 0.8, 0.8); }
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
   drawEventBar();
@@ -2050,7 +2066,7 @@ function drawCasa(top) {
 
 // The race to the egg: you and the rival champions, by level.
 function drawRaceBoard(rx, y) {
-  if (!G.rivalsInit) return;
+  if (!G.rivalsInit || G.wave) return;
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.font = '9px ' + MONO;
   ctx.fillStyle = XR.dim; ctx.fillText('RACE TO THE EGG', rx, y);
   rivalBoard().forEach((row, i) => {
@@ -2099,4 +2115,22 @@ function drawHazards(vis) {
     }
     ctx.globalAlpha = 1;
   }
+}
+
+// The Petri Dish: the glass rim of the dish, printed graduations, and a faint agar ripple.
+function drawDish() {
+  const c = G.core, x = sx(c.x), y = sy(c.y), R = CORE.arena * S;
+  ctx.globalAlpha = 0.85; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(3, 14 * S);
+  ctx.beginPath(); ctx.arc(x, y, R + 30 * S, 0, TAU); ctx.stroke();
+  ctx.globalAlpha = 0.35; ctx.lineWidth = Math.max(1, 3 * S); ctx.beginPath(); ctx.arc(x, y, R + 50 * S, 0, TAU); ctx.stroke();
+  // Outside the dish: the bench.
+  ctx.globalAlpha = 0.55; ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.rect(-10, -10, W + 20, H + 20); ctx.arc(x, y, R + 58 * S, 0, TAU, true); ctx.fill();
+  ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.font = `${Math.max(9, 18 * S)}px ` + MONO; ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
+  for (let i = 0; i < 72; i++) {
+    const a = i / 72 * TAU, r0 = R + 30 * S, r1 = r0 - (i % 6 ? 14 : 34) * S;
+    ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); ctx.lineTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1); ctx.stroke();
+  }
+  ctx.globalAlpha = 0.12; ctx.lineWidth = 1;
+  for (let k = 1; k <= 4; k++) { ctx.beginPath(); ctx.arc(x, y, R * k / 5 + Math.sin(G.realT * 0.6 + k) * 6 * S, 0, TAU); ctx.stroke(); }
+  ctx.globalAlpha = 1;
 }

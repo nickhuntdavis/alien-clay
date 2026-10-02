@@ -187,6 +187,7 @@ const RIVAL_FATES = ['A Macrophage ate them. It did not even chew.', 'They took 
 // Every tick: the host thins out the field (away from you), and bookkeeping for the race board.
 function updateRivals(dt) {
   if (!G.rivalsInit) initRivals();
+  const dish = !!G.wave; // no rivals in the Petri Dish, but rival-free code below still tracks your damage
   // Rolling average of your damage per second (drives rival toughness).
   G.dpsT = (G.dpsT || 0) - dt;
   if (G.dpsT <= 0) {
@@ -197,7 +198,7 @@ function updateRivals(dt) {
     G.dpsAvg = G.dpsAvg ? G.dpsAvg * 0.8 + cur * 0.2 : cur;
     for (const e of G.enemies) if (e.rival && !e.dead) rivalStats(e, 0);
   }
-  if (G.t < G.rivalCullT) return;
+  if (dish || G.t < G.rivalCullT) return;
   G.rivalCullT = G.t + 75;
   if (G.showdown) return;
   const alive = G.enemies.filter(e => e.rival && !e.dead);
