@@ -84,32 +84,41 @@ function tacticalWave() {
 }
 
 // ---------------------------------------------------------------- Bullet Siphon / Hailreturn
+// The store is a queue of bullets, each remembering how hard it hit: a returned shot hits with that strength
+// (half to twice normal), so heavy fire comes back heavy. With nothing to eat, it only dribbles out a weak
+// spit (40%) every 1.5s: the Siphon is a counter, and it needs bullets to be any good.
+const SIPHON = { trickle: 1 / 1.5, dry: 0.4, min: 0.5, max: 2 };
+function siphonStrength(b) { return clamp(b.dmg / (12 * BUL.dmg * dmgNow()), SIPHON.min, SIPHON.max); }
+function siphonStore(w, k) { const q = w.q || (w.q = []); if (q.length >= w.s.mag) return false; q.push(k); w.stored = q.length; return true; }
 function updateSiphon(w, dt) {
   const s = w.s, d = w.def, p = G.player, r2 = s.area * s.area;
+  w.q = w.q || [];
   for (const b of G.ebul) {
-    if (b.dead || w.stored >= s.mag) continue;
+    if (b.dead || w.q.length >= s.mag) continue;
     const dx = b.x - p.x, dy = b.y - p.y;
     if (dx * dx + dy * dy < r2) {
-      b.dead = true; w.stored++; siphonAte(w, b);
+      b.dead = true; siphonStore(w, siphonStrength(b)); siphonAte(w, b);
       if (!w.echo && ++G.stats.absorbed === 200) achieve('siphoned');
       if (Math.random() < 0.3) spawnPart(b.x, b.y, d.color, 1, 60, 0.25, 2);
     }
   }
-  // A slow trickle so the Siphon is never completely dry in quiet moments.
-  w.trickle = (w.trickle || 0) + dt * 2;
-  if (w.trickle >= 1 && w.stored < s.mag) { w.trickle -= 1; w.stored++; } else if (w.trickle >= 1) w.trickle = 1;
+  // Dry: a weak spit now and then, so it's never completely useless.
+  if (!w.q.length) { w.trickle = (w.trickle || 0) + dt * SIPHON.trickle; if (w.trickle >= 1) { w.trickle = 0; siphonStore(w, SIPHON.dry); } } else w.trickle = 0;
   siphonOverflow(w);
+  w.stored = w.q.length;
   w.ammo = w.stored;
   if (w.lastTarget && !w.lastTarget.dead) w.focusT += dt;
   w.cd -= dt * (G.rage > 0 ? 2 : 1) * rateBonus();
   if (w.cd > 0 || w.stored < 1) { if (w.cd < 0) w.cd = 0; return; }
   const t = acquire(w.dir, s.range, p.x, p.y);
   if (!t) { w.cd = 0; w.curTarget = null; return; }
-  w.cd = s.cd; w.stored--;
+  w.cd = s.cd;
+  const k = w.q.shift(); w.stored = w.q.length;
   if (w.stored === 0 && !(w.dryT > G.t)) { w.dryT = G.t + 2; tacticalWave(); }
   if (t !== w.lastTarget) { w.focusT = 0; w.lastTarget = t; }
   w.curTarget = t;
   const src = weaponSrc(w), a0 = Math.atan2(t.y - p.y, t.x - p.x), over = gunOver(w);
+  src.mult *= k;
   const V = sigVolley(w, a0), tg = V.owner || t, a1 = V.owner ? Math.atan2(tg.y - p.y, tg.x - p.x) : a0;
   // Last Word: the last stored bullet hits like the rest put together.
   if (hasSig(w, 'savings')) src.mult *= 1 + Math.min(0.8, 0.02 * w.stored); // Savings Account

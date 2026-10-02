@@ -385,9 +385,10 @@ function siphonAte(w, b) {
 }
 function siphonOverflow(w) {
   if (!hasSig(w, 'overflow') || w.stored < w.s.mag) return;
-  const p = me(), src = weaponSrc(w), n = Math.min(48, w.stored);
+  const p = me(), src = weaponSrc(w), q = w.q || [], n = Math.min(48, q.length);
+  src.mult *= q.reduce((a, b) => a + b, 0) / (q.length || 1);
   for (let i = 0; i < n; i++) spawnProj(w, p.x, p.y, i / n * TAU, src);
-  w.stored = 0;
+  w.q = []; w.stored = 0;
   ring(p.x, p.y, 90, '#ff3df2', 0.4, 5);
   floatText(p.x, p.y - 30, 'OVERFLOW', '#ff3df2', 15);
 }
@@ -411,7 +412,7 @@ function bladeEats(w, bx, by, size) {
   for (const b of G.ebul) {
     if (b.dead || Math.abs(b.x - bx) > size + b.r || Math.abs(b.y - by) > size + b.r) continue;
     b.dead = true; spawnPart(b.x, b.y, '#c77dff', 1, 40, 0.2);
-    if (sw && sw.stored < sw.s.mag) sw.stored++;
+    if (sw) siphonStore(sw, siphonStrength(b));
   }
 }
 

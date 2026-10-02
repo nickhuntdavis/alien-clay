@@ -345,8 +345,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 *Arcane siphon, Counter.* Eats enemy bullets that come near you and spits them back. No reloads. No ammo either, until the screen is full of bullets.
 
-- **Base stats:** dmg 18, cd 0.08s, mag 40, range 460 (area 90)
-- **Level bonuses:** Lv3: +1 count; Lv6: +1 pierce; Lv9: +40% dmg
+- **Base stats:** dmg 15, cd 0.08s, mag 40, range 460 (area 90)
+- **Level bonuses:** Lv3: +25% area; Lv6: +1 pierce; Lv9: +40% dmg
 - **Pairings:** **Collection Plate** (+ Premature Evangelation), **Static Discharge** (+ Static Cling)
 
 | Level | Choice | Effect |

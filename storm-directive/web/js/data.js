@@ -94,10 +94,10 @@ const WEAPONS = {
     desc: 'These guardian angels get started way too soon.',
     base: { dmg: 23, count: 3, dur: 4.5, reload: 2.2, radius: 72, spin: 3.6, size: 10, range: 100 },
     lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { count: 1 } }, sig: { 5: ['nan', 'clingy'], 8: ['smite', 'martyr'], 10: ['extended', 'guilttrip'] } },
-  siphon: { name: 'Placental Siphon', stars: [3, 5, 3, 2], play: 'Eats enemy bullets and fires them back. The busier the screen, the stronger it gets.', icon: 'BU', elem: 'arcane', kind: 'siphon', color: '#ff3df2', dir: 'nearest', role: 'Counter',
+  siphon: { name: 'Placental Siphon', stars: [3, 5, 3, 2], play: 'Eats enemy bullets near you and fires them back, as hard as they hit you. With nothing to eat it only dribbles out a weak spit: it needs a busy screen.', icon: 'BU', elem: 'arcane', kind: 'siphon', color: '#ff3df2', dir: 'nearest', role: 'Counter',
     desc: 'Eats enemy bullets that come near you and spits them back. No reloads. No ammo either, until the screen is full of bullets.',
-    base: { dmg: 18, cd: 0.08, mag: 40, area: 90, speed: 640, range: 460, size: 4.5, pierce: 0, spread: 0.08, count: 1 },
-    lv: { 3: { count: 1 }, 6: { pierce: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['sender', 'buffet'], 8: ['spreadlove', 'savings'], 10: ['mirrorwomb', 'overflow'] } },
+    base: { dmg: 15, cd: 0.08, mag: 40, area: 90, speed: 640, range: 460, size: 4.5, pierce: 0, spread: 0.08, count: 1 },
+    lv: { 3: { area: 0.25 }, 6: { pierce: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['sender', 'buffet'], 8: ['spreadlove', 'savings'], 10: ['mirrorwomb', 'overflow'] } },
   // Melee: no projectiles at all. area scales the reach (Personal Space, Wide Hips); arc is the swing in radians.
   paddle: { name: 'Placenta Paddle', stars: [4, 2, 1, 4], play: 'Big sweeping swings right in front of you that knock crowds flying. Get stuck in.', icon: 'PD', elem: 'phys', kind: 'melee', melee: 'sweep', color: '#ff8fab', dir: 'nearest', role: 'Cleaver',
     desc: 'A heavy, slightly floppy paddle. Nobody asks where it came from.',
