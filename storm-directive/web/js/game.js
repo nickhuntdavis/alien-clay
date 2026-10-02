@@ -583,7 +583,7 @@ function damageEnemy(e, dmg, src) {
     else if (!e.tunUsed && e.hp - d < e.maxHp * 0.3) { e.tunUsed = true; e.tunT = G.t + 2.5; d *= 0.08; floatText(e.x, e.y - e.r - 10, 'TUN!', XR.white, 13); }
   }
   if (src.grudge && e === G.grudge) d *= 3;
-  d *= sigDamageMul(e, src);
+  d *= sigDamageMul(e, src) * toyDamageMul(e);
   // Stain boons: you can see who matters.
   if (G.dyes.luciferase && (e.elite || e.boss)) d *= 1.25;
   if (G.dyes.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
@@ -613,6 +613,7 @@ function damageEnemy(e, dmg, src) {
     if (d <= 0) return 0;
     e.capUsed += d;
   }
+  const hp0 = e.hp;
   e.hp -= d;
   if (!src.dot && !src.zoneHit) e.flash = 0.07; // ticks don't blink
   const key = src.wname || 'Other';
@@ -639,6 +640,7 @@ function damageEnemy(e, dmg, src) {
     const n = acquire('nearest', 130, e.x, e.y, e);
     if (n) { bolt(e.x, e.y, n.x, n.y, ELEMENTS.shock.color, 0.12); damageEnemy(n, dmg * 0.45, { elem: 'shock', noStatus: true, noArc: true, noCrit: true, wname: 'Shock arcs' }); }
   }
+  if (G.toy) toyHurt(e, Math.min(d, Math.max(0, hp0)), src); // Due Date keeps count; Red Tape shares it
   if (e.hp <= 0 && !e.dead) {
     const excess = -e.hp;
     killEnemy(e, src);
@@ -778,6 +780,7 @@ function killEnemy(e, src) {
   const P = G.P;
   onShowKill(e, src);
   sigKill(e, src);
+  toyKill(e, src);
   relicKill(e, src);
   eventKill(e);
   boonKill();
@@ -882,6 +885,7 @@ function hurtPlayer(dmg, from, ent) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
   if (Math.random() < P.dodge) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
+  if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1);
   dmg = relicDamageIn(dmg, ent);
@@ -902,6 +906,7 @@ function hurtPlayer(dmg, from, ent) {
   relicHurt(d, ent);
   thornsHit(ent);
   sigHurt();
+  toyPlayerHurt();
   boonHurt();
   if (p.hp <= 0) { p.hp = 0; if (!boonSave() && !startRewind(true)) gameOver(); }
 }
@@ -990,7 +995,7 @@ let shooterName = '', shooterEnt = null;
 // and each one that flies hits 1.7x as hard.
 const BUL = { keep: [1, 1, 1, 1, 0, 1, 1, 1, 1, 1], dmg: 1.7, size: 1 }; // 9 of every 10 shots fly (was 3 of 5) // small and dense, like real specks
 function eBullet(x, y, a, speed, dmg, r, color) {
-  if (G.ebul.length >= CAPS.ebul) return;
+  if (G.ebul.length >= CAPS.ebul || (G.toy && tapeGagged(shooterEnt))) return;
   G.bulSeq = ((G.bulSeq || 0) + 1) % BUL.keep.length;
   if (!BUL.keep[G.bulSeq]) return;
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
@@ -1002,7 +1007,7 @@ function eBullet(x, y, a, speed, dmg, r, color) {
 
 function shootPattern(e, pat, a0) {
   const p = G.player, sh = e.def.shoot || {};
-  const aim = Math.atan2(p.y - e.y, p.x - e.x);
+  const aim = (G.toy && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
   const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
   switch (pat) {
     case 'aimed': {
@@ -1046,6 +1051,7 @@ function updateEnemies(dt) {
       if (e.poison <= 0) e.poisonStacks = 0;
       if (e.dead) continue;
     }
+    if ((e.bubT || e.thrownT > G.t) && toyHold(e, dt)) continue; // in a bubble, or flung
     if (e.egg) { eggAI(e, edt); continue; }
     if (e.rival) { rivalAI(e, edt); continue; }
     if (e.charmed) {
@@ -1183,6 +1189,8 @@ function updateEnemies(dt) {
     const f = frozen || e.tunT > G.t ? 0 : slow;
     if (e.tailCut) spd *= 0.15; // no flagellum: it can only twitch and drift
     const tide = e.boss || e.egg ? 0 : 0.8;
+    // Scared, lured, stuck in the lines, or looking for you where you vanished (toys.js).
+    if (G.toy) { const ts = toySteer(e); if (ts) { mx = ts.x; my = ts.y; } }
     // On an ice rink, steering becomes shoving: they slide about. (svx/svy: how it is swimming, for head-on rams.)
     if (e.iceT > G.t && !e.boss) { e.kx += mx * spd * 3 * dt; e.ky += my * spd * 3 * dt; spd *= 0.2; }
     e.svx = mx * spd * f * warpF * G.evm.espd; e.svy = my * spd * f * warpF * G.evm.espd;
@@ -1230,7 +1238,7 @@ function bossAI(e, dt, dist, ux, uy) {
   if (e.patT > 5.5) { e.patT = 0; e.pat = (e.pat + 1) % pats.length; e.fireT = 0; e.st = 0; e.glaring = false; }
   const pat = pats[e.pat];
   const p = G.player;
-  const aim = Math.atan2(p.y - e.y, p.x - e.x);
+  const aim = (G.toy && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
   const bd = e.def.dmg * 0.35 * dmgNow();
   // Default movement: keep medium distance.
   e.mvx = dist > 230 ? ux : dist < 150 ? -ux : -uy; e.mvy = dist > 230 ? uy : dist < 150 ? -uy : ux; e.mvs = e.speed;
@@ -1342,6 +1350,7 @@ function dronePos(w, i, n) {
 
 function fireWeapon(w, target) {
   const s = w.s, d = w.def, p = G.player, src = weaponSrc(w);
+  if (d.toy) { toyFire(w, target, src); return; }
   switch (d.kind) {
     case 'gun': {
       if (d.drones) {
@@ -1796,7 +1805,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1);
+  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1);
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
@@ -2040,7 +2049,7 @@ function eggAI(e, dt) {
     e.shootCd = 1.7 - rage * 0.7; e.spin += 0.3;
     const n = 28, bd = 10 * dmgNow(), p = me();
     for (let i = 0; i < n; i++) eBullet(e.x + Math.cos(e.spin + i / n * TAU) * e.r, e.y + Math.sin(e.spin + i / n * TAU) * e.r, e.spin + i / n * TAU, 125, bd, 6, '#ff8fb8');
-    const aim = Math.atan2(p.y - e.y, p.x - e.x);
+    const aim = (G.toy && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
     for (let i = -2; i <= 2; i++) eBullet(e.x + Math.cos(aim) * e.r, e.y + Math.sin(aim) * e.r, aim + i * 0.12, 200, bd * 1.3, 5, '#ffffff');
   }
   e.stT -= dt;

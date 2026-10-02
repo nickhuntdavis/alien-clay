@@ -1195,6 +1195,7 @@ function render() {
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   }
   fxDim(false);
+  drawToysUnder();
   // Elite, boss and ally auras.
   ctx.globalCompositeOperation = 'lighter';
   for (const e of G.enemies) {
@@ -1347,6 +1348,7 @@ function render() {
     ctx.globalAlpha = 1;
   }
 
+  drawToysOver();
   // Player.
   const px = sx(p.x), py = sy(p.y);
   if (G.barrier > 0) {
@@ -1378,7 +1380,7 @@ function render() {
     ctx.globalAlpha = a * 0.9; drawTail(sv.pts, 'rgb(46,52,48)', 1.1 * S * sv.k);
   }
   ctx.globalAlpha = 1;
-  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1, playerScale(), p, shipLook());
+  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
   ctx.fillStyle = '#000'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S, 4);
   ctx.fillStyle = p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S * (p.hp / G.P.maxHp), 4);
 

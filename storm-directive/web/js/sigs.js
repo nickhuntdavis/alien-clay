@@ -213,6 +213,7 @@ function sigTick(dt) {
   sig8Tick(dt);
   voidMerge(dt);
   quirkTick(dt);
+  toyTick(dt);
 }
 
 // ---------------------------------------------------------------- Slipstream Scalpel extras (from updateWake)
@@ -552,6 +553,7 @@ function applyAdapt(w, s) {
       for (const l in w.perks || {}) { const k = w.perks[l]; if (k === 'rapid') s.dmg *= 1.33; if (k === 'frenzy') s.dmg *= 1.6; if (k === 'overclock') s.dmg *= 2; }
       break;
   }
+  if (w.def.toy) toyAdapt(w, s);
 }
 // The notes for the weapons you own, for an upgrade card.
 function adaptNotes(map) {

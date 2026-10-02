@@ -40,6 +40,8 @@ const UI = {
       UI.refreshHud(true);
     });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
+    $('autoBtn').addEventListener('click', e => { e.stopPropagation(); SET.auto = !SET.auto; saveSettings(); UI.syncAuto(); if (G) floatText(me().x, me().y - 40, SET.auto ? 'FULL AUTO ON' : 'FULL AUTO OFF', PAL.you, 14, 1); });
+    UI.syncAuto();
     $('armClose').addEventListener('click', () => UI.closeArmoury());
     // Swipe left/right anywhere in the Armoury to move between slots.
     { let sx = 0, sy = 0, t0 = 0;
@@ -170,9 +172,30 @@ const UI = {
     rb.classList.toggle('ready', c.charges > 0);
   },
 
+  // Full Auto: picks for you at random (DNA strands, drafts, branches, relics), skips the intros, and starts waves.
+  syncAuto() { const b = $('autoBtn'); if (b) b.classList.toggle('on', !!SET.auto); },
+  autoTick() {
+    if (!SET.auto || !G) return;
+    const now = performance.now();
+    if (G.state === 'intro') { if (typeof INTRO !== 'undefined' && INTRO.t > 1) endIntro(); return; }
+    if (G.state === 'bossIntro') { if ($('bossIntro').classList.contains('ready')) endBossIntro(); return; }
+    if (G.state === 'loot') {
+      if (now - UI.lootOpenT < 1100 || now - (UI.autoAt || 0) < 700) return;
+      const opts = (UI.lootOpts || []).map((o, i) => [o, i]).filter(([o]) => o && !o.taken);
+      if (!opts.length) return;
+      UI.autoAt = now;
+      UI.pickLoot(pick(opts)[1]);
+      return;
+    }
+    if (G.state === 'play' && SET.autoWaves && waveReady()) {
+      if (!UI.autoWaveT) UI.autoWaveT = now;
+      else if (now - UI.autoWaveT > 1500) { UI.autoWaveT = 0; waveBegin(); $('waveBtn').classList.remove('on'); }
+    } else UI.autoWaveT = 0;
+  },
   menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
   tick(dt) {
     updatePreviews(dt);
+    UI.autoTick();
     { const db = $('dbgBtn'); if (db) db.classList.toggle('on', !!(G && G.debug && (G.state === 'play'))); if (DBG.open && !(G && G.debug)) { DBG.open = false; $('dbgPanel').classList.remove('on'); } }
     // The Petri Dish: the next drop waits for you.
     { const wb = $('waveBtn'), on = G && waveReady(); if (wb && wb.classList.contains('on') !== !!on) { wb.classList.toggle('on', !!on); if (on) wb.textContent = 'START WAVE ' + (G.wave.n + 1); } }
@@ -236,7 +259,7 @@ const UI = {
   },
   // Push settings into the systems that read them.
   applySettings() {
-    AUDIO.on = SET.sound; DOF.on = SET.dof && !SET.clinical;
+    AUDIO.on = SET.sound; DOF.on = SET.dof && !SET.clinical; UI.syncAuto();
     applyNarrator();
     document.body.classList.toggle('clinical', !!SET.clinical);
     document.body.classList.toggle('hudmin', SET.hud === 'minimal');
@@ -319,6 +342,7 @@ const UI = {
       if (s.cd) T('Fire rate', (1 / s.cd).toFixed(1) + '/s');
       if (d.scrapAmmo) T('Ammo', Math.floor(G.scrap) + ' scrap'); else { T('Magazine', s.mag); T('Reload', s.reload.toFixed(1) + 's'); }
     }
+    if (d.toy) toyStats(w, T);
     if (s.range) T('Range', Math.round(s.range));
     if (s.count > 1) T('Projectiles', s.count);
     if (s.pierce && s.pierce < 90) T('Pierce', s.pierce);

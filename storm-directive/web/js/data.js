@@ -111,6 +111,39 @@ const WEAPONS = {
     desc: 'A babygro with spikes on the outside. Huggable, technically.',
     base: { dmg: 18, cd: 0.55, mag: 8, reload: 0.9, count: 1, range: 90, area: 90, knock: 120 },
     lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { area: 0.2 } }, sig: { 5: ['spiky', 'bearhug'], 8: ['porcupine', 'fortress'], 10: ['bubblewrap', 'growthspurt'] } },
+  // Toys: eight weapons that play unlike anything above (logic in toys.js). toy: fired through toyFire.
+  crayon: { name: 'Colouring In', stars: [4, 1, 3, 4], play: 'Your swim path is a crayon line. Swim a loop round enemies and everything inside gets coloured in (half as hard again). Every few seconds it closes the shape for you.', icon: 'CI', elem: 'phys', kind: 'crayon', toy: 1, color: '#f4a261', dir: 'nearest', role: 'Lasso',
+    desc: 'A fat wax crayon held in the tail. Stay inside the lines? Never.',
+    base: { dmg: 44, cd: 2.2, mag: 3, reload: 1.2, count: 1, range: 600, dur: 2.6 },
+    lv: { 3: { dmg: 0.3 }, 6: { dur: 0.4 }, 9: { dmg: 0.5 } }, sig: { 5: ['scribble', 'stayinlines'], 8: ['paintbynumbers', 'fridgeart'], 10: ['masterpiece', 'jointhedots'] } },
+  duedate: { name: 'Due Date', stars: [5, 2, 4, 2], play: 'Sticks a countdown on a big target. When it runs out, the target takes 40% of everything it took while marked, all over again. If it dies early, the damage bursts out of it.', icon: 'DD', elem: 'arcane', kind: 'duedate', toy: 1, color: '#e5383b', dir: 'highhp', role: 'Delayed Doom',
+    desc: 'A little calendar stuck to an enemy, with the date circled in red. They will not enjoy it.',
+    base: { dmg: 20, cd: 0.9, mag: 3, reload: 2.0, count: 1, range: 480, dur: 4, repeat: 0.4 },
+    lv: { 3: { repeat: 0.15 }, 6: { count: 1 }, 9: { repeat: 0.2 } }, sig: { 5: ['overdue', 'earlyarrival'], 8: ['babyshower', 'rebooked'], 10: ['labourday', 'bigday'] } },
+  redtape: { name: 'Red Tape', stars: [2, 3, 3, 5], play: 'Stamps a target and tapes it to the enemies around it. Whatever hurts one of them hurts the rest of the bundle too (35% of it).', icon: 'RT', elem: 'poison', kind: 'tape', toy: 1, color: '#d62828', dir: 'cluster', role: 'Bureaucrat',
+    desc: 'Forms in triplicate, stapled to the enemy. Paperwork is the deadliest poison.',
+    base: { dmg: 18, cd: 1.4, mag: 3, reload: 2.0, count: 1, range: 420, chain: 3, jump: 170, dur: 5, share: 0.35 },
+    lv: { 3: { chain: 1 }, 6: { share: 0.1 }, 9: { chain: 2 } }, sig: { 5: ['triplicate', 'jointliability'], 8: ['stapled', 'redacted'], 10: ['bureaucracy', 'referral'] } },
+  friend: { name: 'Imaginary Friend', stars: [3, 3, 3, 3], play: 'A friend only you can see swims your exact path two seconds behind you, firing copies of your other weapons at 35% damage. On its own it just pokes things.', icon: 'IF', elem: 'arcane', kind: 'friend', toy: 1, color: '#bdb2ff', dir: 'nearest', role: 'Echo',
+    desc: 'Its name is Gerald. Gerald is very real. Gerald has your weapons.',
+    base: { dmg: 24, cd: 0.7, mag: 6, reload: 1.4, count: 1, range: 230, delay: 2, copy: 0.35 },
+    lv: { 3: { copy: 0.1 }, 6: { count: 1 }, 9: { copy: 0.1 } }, sig: { 5: ['sharing', 'blameit'], 8: ['longmemory', 'playdate'], 10: ['tooreal', 'secretclub'] } },
+  peekaboo: { name: 'Peekaboo', stars: [3, 1, 3, 4], play: 'You vanish. Enemies lose you, swarm the spot where you were and shoot each other by mistake. Then BOO: the more of them were looking, the bigger the scare.', icon: 'PB', elem: 'ice', kind: 'peek', toy: 1, color: '#a8dadc', dir: 'nearest', role: 'Trickster',
+    desc: 'Hands over the eyes. You are now invisible. Science agrees, if the science is three years old.',
+    base: { dmg: 20, cd: 5.5, mag: 1, reload: 0.1, count: 1, range: 420, dur: 1.8, area: 230 },
+    lv: { 3: { dur: 0.25 }, 6: { area: 0.25 }, 9: { dmg: 0.5 } }, sig: { 5: ['hideandseek', 'jumpscare'], 8: ['whosthere', 'decoydoll'], 10: ['objectperm', 'bigboo'] } },
+  twin: { name: 'Twin Telepathy', stars: [3, 5, 4, 3], play: 'Your twin mirrors you across an anchor on the crowd, and a beam always joins the two of you. Swim to sweep the beam through them.', icon: 'TT', elem: 'shock', kind: 'twin', toy: 1, color: '#90e0ef', dir: 'cluster', role: 'Geometry',
+    desc: 'You always know what the other one is thinking. Mostly it is "zap".',
+    base: { dmg: 24, cd: 1.6, mag: 3, reload: 2.0, count: 1, range: 520, area: 90, width: 10 },
+    lv: { 3: { dmg: 0.3 }, 6: { count: 1 }, 9: { area: 0.3 } }, sig: { 5: ['mindmeld', 'switcheroo'], 8: ['sympathy', 'wavelength'], 10: ['quads', 'psychic'] } },
+  bubble: { name: 'Bubble Wand', stars: [2, 3, 3, 4], play: 'Blows bubbles that trap small enemies. Trapped ones drift towards you and cannot fight back. Swim into a bubble to pop it and fling the enemy into its friends.', icon: 'BW', elem: 'phys', kind: 'bubble', toy: 1, color: '#cdb4db', dir: 'nearest', role: 'Trap & Throw',
+    desc: 'A plastic wand and a pot of slightly toxic bubble mix. Hold your breath.',
+    base: { dmg: 18, cd: 1.1, mag: 4, reload: 2.0, count: 1, range: 380, speed: 170, size: 20, dur: 5, hold: 34 },
+    lv: { 3: { count: 1 }, 6: { dmg: 0.4 }, 9: { count: 1 } }, sig: { 5: ['extrasoapy', 'bubblebath'], 8: ['cannonball', 'chainpop'], 10: ['hamsterball', 'bubbleboy'] } },
+  toothfairy: { name: 'Tooth Fairy', stars: [4, 2, 3, 3], play: 'Drops baby teeth near the crowd. Greedy enemies swim off to grab them, and the Fairy smites whoever takes one: harder for every tooth they hold.', icon: 'TF', elem: 'arcane', kind: 'tooth', toy: 1, color: '#fff3b0', dir: 'cluster', role: 'Lure',
+    desc: 'She pays for teeth. She also collects debts.',
+    base: { dmg: 34, cd: 1.1, mag: 3, reload: 2.0, count: 1, range: 420, dur: 6, lure: 230 },
+    lv: { 3: { count: 1 }, 6: { dmg: 0.4 }, 9: { lure: 60 } }, sig: { 5: ['goldtooth', 'wisdomteeth'], 8: ['underpillow', 'dentures'], 10: ['fairyring', 'toothdecay'] } },
 };
 
 // Signature upgrades: only one weapon gets each. Lv 5 picks the weapon's path; Lv 10 is its mastery.
@@ -233,6 +266,62 @@ const SIGS = {
   snapback:    { name: 'Snap Back', desc: 'Lashes yank you towards the far end of the lash, and you cannot be hurt mid-yank. Hit and run.' },
   porcupine:   { name: 'Porcupine', desc: 'Every pulse also shoots 8 spines outwards at 50% damage.' },
   fortress:    { name: 'Fortress', desc: 'When you slow down or stop: +4 armour and pulses come 50% faster.' },
+  // Colouring In
+  scribble:      { name: 'Scribble', desc: 'The crayon line itself hits four times as hard and slows what it touches.' },
+  stayinlines:   { name: 'Stay Inside the Lines', desc: 'Anything you colour in is stuck where it is for 1.5s and takes +30% damage from everything.' },
+  paintbynumbers:{ name: 'Paint by Numbers', desc: 'The more enemies inside a shape, the harder it hits: +15% for each one (up to +150%).' },
+  fridgeart:     { name: 'Fridge Art', desc: 'Every shape you colour in stays on the floor for 3s, hurting anything inside.' },
+  masterpiece:   { name: 'Masterpiece', desc: 'Mastery. Every 5th shape is framed: triple damage, and it wipes every enemy bullet inside it.' },
+  jointhedots:   { name: 'Join the Dots', desc: 'Mastery. Everything a shape hits becomes a dot for 2s. The dots are joined by lines that cut whatever crosses them.' },
+  // Due Date
+  overdue:       { name: 'Overdue', desc: 'The countdown is twice as long, and the repeat is twice as big.' },
+  earlyarrival:  { name: 'Early Arrival', desc: 'A marked enemy that drops below 30% health goes off straight away.' },
+  babyshower:    { name: 'Baby Shower', desc: 'When a date goes off, half of it splashes onto everything nearby.' },
+  rebooked:      { name: 'Rebooked', desc: 'When a date goes off, the two nearest enemies get marked for free.' },
+  labourday:     { name: 'Labour Day', desc: 'Mastery. A date that goes off marks the same enemy again, straight away. Bosses never get a day off.' },
+  bigday:        { name: 'The Big Day', desc: 'Mastery. Marked enemies take +30% damage from everything you own.' },
+  // Red Tape
+  triplicate:    { name: 'In Triplicate', desc: 'Every bundle tapes 3 more enemies together.' },
+  jointliability:{ name: 'Joint Liability', desc: 'When a taped enemy dies, the rest of its bundle takes 30% of its max health.' },
+  stapled:       { name: 'Stapled', desc: 'Bundles are pulled together tight and slowed by 40%.' },
+  redacted:      { name: 'Redacted', desc: 'Taped enemies cannot shoot.' },
+  bureaucracy:   { name: 'Bureaucracy', desc: 'Mastery. Bundles share 70% of every hit instead of 35%.' },
+  referral:      { name: 'Referred Elsewhere', desc: 'Mastery. When a bundle runs out, the four enemies nearest to it are taped up for free.' },
+  // Imaginary Friend
+  sharing:       { name: 'Sharing Is Caring', desc: "Your friend's copies hit 35% harder." },
+  blameit:       { name: 'It Was Them', desc: 'Your friend soaks up any enemy bullet it swims into.' },
+  longmemory:    { name: 'Long Memory', desc: 'Your friend swims four seconds behind you instead of two, and hits 30% harder.' },
+  playdate:      { name: 'Playdate', desc: 'Swimming into your friend heals you 4% of your max health (every 6s at most).' },
+  tooreal:       { name: 'Too Real', desc: 'Mastery. Your friend is solid: it bowls through enemies, and its copies hit 35% harder.' },
+  secretclub:    { name: 'Secret Club', desc: 'Mastery. One more friend, further behind.' },
+  // Peekaboo
+  hideandseek:   { name: 'Hide and Seek', desc: 'While hidden you swim 40% faster.' },
+  jumpscare:     { name: 'Jump Scare', desc: 'BOO freezes enemies solid for 1.2s instead of scaring them off (not bosses).' },
+  whosthere:     { name: "Who's There?", desc: 'While you are hidden, enemy bullets hit other enemies three times as hard.' },
+  decoydoll:     { name: 'Decoy Doll', desc: 'A doll stays where you vanished for 4s. Enemies keep attacking it, and it bursts for BOO damage at the end.' },
+  objectperm:    { name: 'Object Permanence', desc: 'Mastery. You stay hidden twice as long.' },
+  bigboo:        { name: 'Big Boo', desc: 'Mastery. BOO reaches everything on screen, and the scare lasts twice as long.' },
+  // Twin Telepathy
+  mindmeld:      { name: 'Mind Meld', desc: 'The beam is twice as wide and chills what it touches.' },
+  switcheroo:    { name: 'Switcheroo', desc: 'Every 6s you swap places with your twin, cutting everything along the way.' },
+  sympathy:      { name: 'Sympathetic Pain', desc: "When you get hurt, your twin's end erupts for 300% damage (every 1.5s at most)." },
+  wavelength:    { name: 'Same Wavelength', desc: 'The beam wipes out any enemy bullet that crosses it.' },
+  quads:         { name: 'Quadruplets', desc: 'Mastery. Two more twins, each with its own beam fanning out through the crowd.' },
+  psychic:       { name: 'Psychic Link', desc: 'Mastery. Every pulse also hits everything along the beam for 200% damage.' },
+  // Bubble Wand
+  extrasoapy:    { name: 'Extra Soapy', desc: 'Bubbles hold enemies twice the size, elites included.' },
+  bubblebath:    { name: 'Bubble Bath', desc: 'Every popped bubble leaves a soapy patch for 3s that slows enemies by 40%.' },
+  cannonball:    { name: 'Cannonball', desc: 'Flung enemies explode where they land.' },
+  chainpop:      { name: 'Chain Pop', desc: 'A flung enemy that hits another bubble pops it and flings that one too.' },
+  hamsterball:   { name: 'Hamster Ball', desc: 'Mastery. Trapped enemies roll after other enemies and bowl them over instead of coming to you.' },
+  bubbleboy:     { name: 'Bubble Boy', desc: 'Mastery. Every 8s you are wrapped in a bubble that blocks the next 3 hits.' },
+  // Tooth Fairy
+  goldtooth:     { name: 'Gold Tooth', desc: 'Every 4th tooth is gold: it lures from twice as far, and whoever takes it is smitten along with everything near them.' },
+  wisdomteeth:   { name: 'Wisdom Teeth', desc: 'Teeth lure from 60% further and last twice as long.' },
+  underpillow:   { name: 'Under the Pillow', desc: 'A tooth nobody takes within 4s turns into a big XP coin.' },
+  dentures:      { name: 'Dentures', desc: 'Teeth bite anything that comes close, for 50% damage every half second.' },
+  fairyring:     { name: 'Fairy Ring', desc: 'Mastery. Every smite also hits everything within 140 of the victim for 50%.' },
+  toothdecay:    { name: 'Tooth Decay', desc: 'Mastery. Enemies holding teeth take +12% damage from everything for each tooth.' },
 };
 
 // Pairings: secret combos between two weapons you own (both Lv 5+). Found by playing; listed in the Codex once found.
@@ -255,6 +344,14 @@ const PAIRINGS = [
   { a: 'flail',    b: 'tesla',    id: 'livewire',  name: 'Live Wire', desc: 'The tip of every lash sets off a Static Cling chain.' },
   { a: 'onesie',   b: 'venom',    id: 'nappyrash', name: 'Nappy Rash', desc: 'Every Onesie pulse adds a stack of poison to what it hits.' },
   { a: 'paddle',   b: 'frost',    id: 'icehockey', name: 'Ice Hockey', desc: 'The Paddle hits frozen enemies three times as hard.' },
+  { a: 'duedate',  b: 'redtape',  id: 'finalnotice', name: 'Final Notice', desc: 'When a Due Date goes off on a taped enemy, the whole bundle takes all of it, not just a share.' },
+  { a: 'redtape',  b: 'tesla',    id: 'livepaper', name: 'Live Paperwork', desc: 'Lightning that hits a taped enemy is shared through the bundle twice over.' },
+  { a: 'friend',   b: 'peekaboo', id: 'hidenseek', name: 'Hide and Seek', desc: 'While you are hidden, enemies chase your Imaginary Friend instead of the empty spot.' },
+  { a: 'bubble',   b: 'paddle',   id: 'bubblehockey', name: 'Bubble Hockey', desc: 'The Paddle pops bubbles it touches and fires the enemy inside the way it swung.' },
+  { a: 'toothfairy', b: 'mines',  id: 'baitswitch', name: 'Bait and Switch', desc: 'Every tooth has a Nappy Mine under it.' },
+  { a: 'crayon',   b: 'venom',    id: 'colouringbook', name: 'Colouring Book', desc: 'Every shape you colour in fills with a toxic puddle.' },
+  { a: 'twin',     b: 'frost',    id: 'coldread', name: 'Cold Read', desc: 'Anything that stays in the telepathy beam for a second freezes solid.' },
+  { a: 'bubble',   b: 'venom',    id: 'toiltrouble', name: 'Toil and Trouble', desc: 'Flung enemies leave a toxic puddle where they land.' },
 ];
 const PAIR_LEVEL = 5;
 
@@ -264,9 +361,13 @@ const ADAPT = {
                mines: 'Nappy Mines: some mines appear already under an enemy.', venom: 'Morning Sickness: some globs land before you throw them.',
                tesla: 'Static Cling: some bolts start from the far side of the crowd.', orbit: 'Premature Evangelation: angels pop up next to enemies to bless them early.',
                siphon: 'Placental Siphon: some returned shots appear right next to their target.' },
-  multishot: { void: 'Toddler Gravity: more orbs, which pull together and merge into bigger ones (twenty merged go supernova).', wake: 'Slipstream Scalpel: a bigger, longer blade (+35% width and length per stack).', paddle: 'Placenta Paddle: +1 swing, aimed another way.', flail: 'Flagellum Flail: +1 lash in the fan.', onesie: 'Thorny Onesie: +35% pulse damage.' },
+  multishot: { void: 'Toddler Gravity: more orbs, which pull together and merge into bigger ones (twenty merged go supernova).', wake: 'Slipstream Scalpel: a bigger, longer blade (+35% width and length per stack).', paddle: 'Placenta Paddle: +1 swing, aimed another way.', flail: 'Flagellum Flail: +1 lash in the fan.', onesie: 'Thorny Onesie: +35% pulse damage.',
+               crayon: 'Colouring In: +35% shape damage.', peekaboo: 'Peekaboo: +35% BOO damage.', duedate: 'Due Date: +1 mark.', redtape: 'Red Tape: +1 bundle.', friend: 'Imaginary Friend: +1 friend, further behind.',
+               twin: 'Twin Telepathy: +1 twin, with its own beam.', bubble: 'Bubble Wand: +1 bubble.', toothfairy: 'Tooth Fairy: +1 tooth.' },
   pierce:    { paddle: 'Placenta Paddle: a 15% wider swing.', flail: 'Flagellum Flail: a 12% longer lash.', onesie: 'Thorny Onesie: pulses shove harder.', tesla: 'Static Cling: +1 chain jump.', venom: 'Morning Sickness: puddles 12% bigger.', mines: 'Nappy Mines: blasts shove enemies away.',
-               orbit: 'Premature Evangelation: angels bless each enemy more often as they pass.', wake: 'Slipstream Scalpel: the trail shoves enemies aside.', siphon: 'Placental Siphon: returned shots pierce.' },
+               orbit: 'Premature Evangelation: angels bless each enemy more often as they pass.', wake: 'Slipstream Scalpel: the trail shoves enemies aside.', siphon: 'Placental Siphon: returned shots pierce.',
+               crayon: 'Colouring In: a thicker line.', duedate: 'Due Date: +10% repeat.', redtape: 'Red Tape: +1 enemy per bundle.', friend: 'Imaginary Friend: its pokes reach 15% further.', peekaboo: 'Peekaboo: BOO shoves harder.',
+               twin: 'Twin Telepathy: a 15% wider beam.', bubble: 'Bubble Wand: bubbles hold 12% bigger enemies.', toothfairy: 'Tooth Fairy: teeth lure from 12% further.' },
   haste:     { wake: 'Slipstream Scalpel: the trail cuts faster.', orbit: 'Premature Evangelation: angels circle faster.' },
   reload:    { wake: 'Slipstream Scalpel: the trail lingers longer.' },
   mag:       { wake: 'Slipstream Scalpel: a wider trail.', orbit: 'Premature Evangelation: bigger angels.' },
@@ -611,7 +712,7 @@ const DYES = {
 // so you can plan ahead in the Armoury). tier: which milestone it can appear at. fit(d): which weapons it suits.
 const PERK_LEVELS = [3, 5, 8, 10];
 const MAX_WLVL = 10; // weapons level to 10; Lv 10 is the mastery branch
-const MULTI_KINDS = ['gun', 'lob', 'chain', 'mine', 'orbit', 'ring', 'strike', 'siphon', 'mimic', 'tether', 'prequel', 'melee'];
+const MULTI_KINDS = ['gun', 'lob', 'chain', 'mine', 'orbit', 'ring', 'strike', 'siphon', 'mimic', 'tether', 'prequel', 'melee', 'duedate', 'tape', 'friend', 'twin', 'bubble', 'tooth'];
 const hasArea = d => !!(d.base.area || d.base.explode > 1 || d.base.aura || d.base.radius || d.style === 'flame' || d.kind === 'orbit');
 const isProj = d => PROJ_KINDS.includes(d.kind);
 const isShot = d => isProj(d) && d.style !== 'flame'; // flames don't bounce, split or home

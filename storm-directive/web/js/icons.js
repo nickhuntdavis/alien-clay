@@ -90,6 +90,14 @@ const IC = {
   shuriken: '<path d="M12 2l2 8 8 2-8 2-2 8-2-8-8-2 8-2z"/><circle cx="12" cy="12" r="1.5"/>',
   cloud: '<path d="M7 17a4 4 0 01.5-8 5.5 5.5 0 0110.5 2 3 3 0 01-.5 6z"/><circle cx="9" cy="20" r=".8"/><circle cx="14" cy="21" r=".8"/>',
   turret: '<rect x="6" y="12" width="12" height="7" rx="2"/><circle cx="12" cy="11" r="3"/><path d="M14 9l6-4M8 19l-2 3M16 19l2 3"/>',
+  crayon: '<path d="M4 20l3-1 11-11-2-2L5 17z"/><path d="M14 6l2-2 4 4-2 2"/><path d="M3 21c3-2 6 0 9-2s5-3 9-1"/>',
+  calendar: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/><circle cx="14" cy="15" r="2.5"/>',
+  tape: '<path d="M3 9l18-4v6L3 15z"/><path d="M7 8v6M11 7v6M15 6v6"/><path d="M5 19h7"/>',
+  ghost: '<path d="M6 20V11a6 6 0 0112 0v9l-2-2-2 2-2-2-2 2-2-2z"/><circle cx="10" cy="11" r="1"/><circle cx="14" cy="11" r="1"/>',
+  peek: '<circle cx="12" cy="13" r="7"/><path d="M5 11h5v4H5zM14 11h5v4h-5z"/><path d="M10 18c1 1 3 1 4 0"/>',
+  twins: '<circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><path d="M9 12h6"/><path d="M12 5v2M12 17v2"/>',
+  bubble: '<circle cx="14" cy="10" r="6"/><path d="M11.5 7.5a3 3 0 012-1"/><circle cx="6" cy="17" r="2.5"/><path d="M3 21l3-2"/>',
+  tooth: '<path d="M7 4c2 0 3 1 5 1s3-1 5-1 3 2 3 5c0 3-2 4-2 8 0 2-1 3-2 3s-1-5-4-5-3 5-4 5-2-1-2-3c0-4-2-5-2-8s1-5 3-5z"/>',
 };
 
 const ICON_OF = {
@@ -110,6 +118,7 @@ const ICON_OF = {
   placebo: 'pill', stemmines: 'singularity', retrovirus: 'virus', ribosome: 'ribo',
   spindle: 'cyclone', thermocycler: 'cycler', actionpotential: 'spike', superbug: 'bacteria', crispr: 'dna', cryobank: 'snowflake',
   crashcart: 'cart', osteoclast: 'bone', paddle: 'hammer', flail: 'whip', onesie: 'shield',
+  crayon: 'crayon', duedate: 'calendar', redtape: 'tape', friend: 'ghost', peekaboo: 'peek', twin: 'twins', bubble: 'bubble', toothfairy: 'tooth',
   meteor: 'comet', frostnova: 'nova', thunder: 'storm', blackhole: 'spiral', heal: 'cross', warp: 'clock',
   barrier: 'shield', bladestorm: 'shuriken', cloud: 'cloud', sentry: 'turret',
 };

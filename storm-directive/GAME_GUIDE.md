@@ -51,7 +51,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 ## Weapons
 
-17 weapons, each with its own play style. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). 
+25 weapons, each with its own play style. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). 
 
 | Weapon | Element | Role | Aims at |
 |---|---|---|---|
@@ -72,6 +72,14 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | [Placenta Paddle](#placenta-paddle) (Start) | Kinetic | Cleaver | NEAREST |
 | [Flagellum Flail](#flagellum-flail) (Start) | Kinetic | Lasher | NEAREST |
 | [Thorny Onesie](#thorny-onesie) (Start) | Kinetic | Tank | NEAREST |
+| [Colouring In](#colouring-in) | Kinetic | Lasso | NEAREST |
+| [Due Date](#due-date) | Arcane | Delayed Doom | HIGHEST HEALTH |
+| [Red Tape](#red-tape) | Toxic | Bureaucrat | DENSEST CLUSTER |
+| [Imaginary Friend](#imaginary-friend) | Arcane | Echo | NEAREST |
+| [Peekaboo](#peekaboo) | Frost | Trickster | NEAREST |
+| [Twin Telepathy](#twin-telepathy) | Shock | Geometry | DENSEST CLUSTER |
+| [Bubble Wand](#bubble-wand) | Kinetic | Trap & Throw | NEAREST |
+| [Tooth Fairy](#tooth-fairy) | Arcane | Lure | DENSEST CLUSTER |
 
 ### Spitball
 
@@ -179,7 +187,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 34, cd 0.7s, mag 5, reload 2.4s, range 600 (explode 72, life 14)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +50% dmg
-- **Pairings:** **Baby Monitor Network** (+ Static Cling), **Trail Mix** (+ Slipstream Scalpel)
+- **Pairings:** **Baby Monitor Network** (+ Static Cling), **Trail Mix** (+ Slipstream Scalpel), **Bait and Switch** (+ Tooth Fairy)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -199,7 +207,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 15, cd 0.6s, mag 5, reload 1.5s, pierce 3, range 460
 - **Level bonuses:** Lv3: +1 count; Lv6: +2 pierce; Lv9: +1 count
-- **Pairings:** **Hot Flush, Cold Sweat** (+ Heartburn), **Snow Globe** (+ Toddler Gravity), **Ice Hockey** (+ Placenta Paddle)
+- **Pairings:** **Hot Flush, Cold Sweat** (+ Heartburn), **Snow Globe** (+ Toddler Gravity), **Ice Hockey** (+ Placenta Paddle), **Cold Read** (+ Twin Telepathy)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -219,7 +227,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 13, cd 0.7s, mag 6, reload 1.8s, range 330 (chain 3, jump 140)
 - **Level bonuses:** Lv3: +2 chain; Lv6: +1 count; Lv9: +2 chain
-- **Pairings:** **Baby Monitor Network** (+ Nappy Mines), **Conductive Spit** (+ Spitball), **Static Discharge** (+ Placental Siphon), **Live Wire** (+ Flagellum Flail)
+- **Pairings:** **Baby Monitor Network** (+ Nappy Mines), **Conductive Spit** (+ Spitball), **Static Discharge** (+ Placental Siphon), **Live Wire** (+ Flagellum Flail), **Live Paperwork** (+ Red Tape)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -239,7 +247,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 10, cd 0.9s, mag 4, reload 1.8s, range 390 (area 58, dur 3, flight 0.6)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +40% area
-- **Pairings:** **Nappy Trail** (+ Slipstream Scalpel), **Petri Dish** (+ Tapeworm Seeder), **Nappy Rash** (+ Thorny Onesie)
+- **Pairings:** **Nappy Trail** (+ Slipstream Scalpel), **Petri Dish** (+ Tapeworm Seeder), **Nappy Rash** (+ Thorny Onesie), **Colouring Book** (+ Colouring In), **Toil and Trouble** (+ Bubble Wand)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -359,7 +367,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 34, cd 0.8s, mag 4, reload 1.1s, range 92 (area 1, arc 2.4, knock 220)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
-- **Pairings:** **One-Two** (+ Flagellum Flail), **Ice Hockey** (+ Cold Feet)
+- **Pairings:** **One-Two** (+ Flagellum Flail), **Ice Hockey** (+ Cold Feet), **Bubble Hockey** (+ Bubble Wand)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -413,6 +421,166 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | Lv 10 mastery | **Bubble Wrap** | Every 6th pulse is huge: twice the radius, 2.5 times the damage, and it pops every enemy bullet it touches. |
 |  | **Growth Spurt** | The pulse grows 10% wider for every 100 max HP you have, and heals you a little for each enemy it hits. |
 
+### Colouring In
+
+*Kinetic crayon, Lasso.* A fat wax crayon held in the tail. Stay inside the lines? Never.
+
+- **Base stats:** dmg 44, cd 2.2s, mag 3, reload 1.2s, range 600 (dur 2.6)
+- **Level bonuses:** Lv3: +30% dmg; Lv6: +40% duration; Lv9: +50% dmg
+- **Pairings:** **Colouring Book** (+ Morning Sickness)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 5 signature | **Scribble** | The crayon line itself hits four times as hard and slows what it touches. |
+|  | **Stay Inside the Lines** | Anything you colour in is stuck where it is for 1.5s and takes +30% damage from everything. |
+| Lv 8 signature | **Paint by Numbers** | The more enemies inside a shape, the harder it hits: +15% for each one (up to +150%). |
+|  | **Fridge Art** | Every shape you colour in stays on the floor for 3s, hurting anything inside. |
+| Lv 10 mastery | **Masterpiece** | Every 5th shape is framed: triple damage, and it wipes every enemy bullet inside it. |
+|  | **Join the Dots** | Everything a shape hits becomes a dot for 2s. The dots are joined by lines that cut whatever crosses them. |
+
+### Due Date
+
+*Arcane duedate, Delayed Doom.* A little calendar stuck to an enemy, with the date circled in red. They will not enjoy it.
+
+- **Base stats:** dmg 20, cd 0.9s, mag 3, reload 2s, range 480 (dur 4, repeat 0.4)
+- **Level bonuses:** Lv3: +0.15 repeat; Lv6: +1 count; Lv9: +0.2 repeat
+- **Pairings:** **Final Notice** (+ Red Tape)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 5 signature | **Overdue** | The countdown is twice as long, and the repeat is twice as big. |
+|  | **Early Arrival** | A marked enemy that drops below 30% health goes off straight away. |
+| Lv 8 signature | **Baby Shower** | When a date goes off, half of it splashes onto everything nearby. |
+|  | **Rebooked** | When a date goes off, the two nearest enemies get marked for free. |
+| Lv 10 mastery | **Labour Day** | A date that goes off marks the same enemy again, straight away. Bosses never get a day off. |
+|  | **The Big Day** | Marked enemies take +30% damage from everything you own. |
+
+### Red Tape
+
+*Toxic tape, Bureaucrat.* Forms in triplicate, stapled to the enemy. Paperwork is the deadliest poison.
+
+- **Base stats:** dmg 18, cd 1.4s, mag 3, reload 2s, range 420 (chain 3, jump 170, dur 5, share 0.35)
+- **Level bonuses:** Lv3: +1 chain; Lv6: +0.1 share; Lv9: +2 chain
+- **Pairings:** **Final Notice** (+ Due Date), **Live Paperwork** (+ Static Cling)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **In Triplicate** | Every bundle tapes 3 more enemies together. |
+|  | **Joint Liability** | When a taped enemy dies, the rest of its bundle takes 30% of its max health. |
+| Lv 8 signature | **Stapled** | Bundles are pulled together tight and slowed by 40%. |
+|  | **Redacted** | Taped enemies cannot shoot. |
+| Lv 10 mastery | **Bureaucracy** | Bundles share 70% of every hit instead of 35%. |
+|  | **Referred Elsewhere** | When a bundle runs out, the four enemies nearest to it are taped up for free. |
+
+### Imaginary Friend
+
+*Arcane friend, Echo.* Its name is Gerald. Gerald is very real. Gerald has your weapons.
+
+- **Base stats:** dmg 24, cd 0.7s, mag 6, reload 1.4s, range 230 (delay 2, copy 0.35)
+- **Level bonuses:** Lv3: +0.1 copy; Lv6: +1 count; Lv9: +0.1 copy
+- **Pairings:** **Hide and Seek** (+ Peekaboo)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hot Load** | +40% damage. |
+|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **Sharing Is Caring** | Your friend's copies hit 35% harder. |
+|  | **It Was Them** | Your friend soaks up any enemy bullet it swims into. |
+| Lv 8 signature | **Long Memory** | Your friend swims four seconds behind you instead of two, and hits 30% harder. |
+|  | **Playdate** | Swimming into your friend heals you 4% of your max health (every 6s at most). |
+| Lv 10 mastery | **Too Real** | Your friend is solid: it bowls through enemies, and its copies hit 35% harder. |
+|  | **Secret Club** | One more friend, further behind. |
+
+### Peekaboo
+
+*Frost peek, Trickster.* Hands over the eyes. You are now invisible. Science agrees, if the science is three years old.
+
+- **Base stats:** dmg 20, cd 5.5s, mag 1, reload 0.1s, range 420 (dur 1.8, area 230)
+- **Level bonuses:** Lv3: +25% duration; Lv6: +25% area; Lv9: +50% dmg
+- **Pairings:** **Hide and Seek** (+ Imaginary Friend)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 5 signature | **Hide and Seek** | While hidden you swim 40% faster. |
+|  | **Jump Scare** | BOO freezes enemies solid for 1.2s instead of scaring them off (not bosses). |
+| Lv 8 signature | **Who's There?** | While you are hidden, enemy bullets hit other enemies three times as hard. |
+|  | **Decoy Doll** | A doll stays where you vanished for 4s. Enemies keep attacking it, and it bursts for BOO damage at the end. |
+| Lv 10 mastery | **Object Permanence** | You stay hidden twice as long. |
+|  | **Big Boo** | BOO reaches everything on screen, and the scare lasts twice as long. |
+
+### Twin Telepathy
+
+*Shock twin, Geometry.* You always know what the other one is thinking. Mostly it is "zap".
+
+- **Base stats:** dmg 24, cd 1.6s, mag 3, reload 2s, range 520 (area 90, width 10)
+- **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +30% area
+- **Pairings:** **Cold Read** (+ Cold Feet)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Wide Hips** | +35% area and +15% range. |
+|  | **Hot Load** | +40% damage. |
+|  | **Hair Trigger** | 25% faster cooldown and reload. |
+| Lv 5 signature | **Mind Meld** | The beam is twice as wide and chills what it touches. |
+|  | **Switcheroo** | Every 6s you swap places with your twin, cutting everything along the way. |
+| Lv 8 signature | **Sympathetic Pain** | When you get hurt, your twin's end erupts for 300% damage (every 1.5s at most). |
+|  | **Same Wavelength** | The beam wipes out any enemy bullet that crosses it. |
+| Lv 10 mastery | **Quadruplets** | Two more twins, each with its own beam fanning out through the crowd. |
+|  | **Psychic Link** | Every pulse also hits everything along the beam for 200% damage. |
+
+### Bubble Wand
+
+*Kinetic bubble, Trap & Throw.* A plastic wand and a pot of slightly toxic bubble mix. Hold your breath.
+
+- **Base stats:** dmg 18, cd 1.1s, mag 4, reload 2s, range 380 (dur 5, hold 34)
+- **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +1 count
+- **Pairings:** **Bubble Hockey** (+ Placenta Paddle), **Toil and Trouble** (+ Morning Sickness)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Hot Load** | +40% damage. |
+| Lv 5 signature | **Extra Soapy** | Bubbles hold enemies twice the size, elites included. |
+|  | **Bubble Bath** | Every popped bubble leaves a soapy patch for 3s that slows enemies by 40%. |
+| Lv 8 signature | **Cannonball** | Flung enemies explode where they land. |
+|  | **Chain Pop** | A flung enemy that hits another bubble pops it and flings that one too. |
+| Lv 10 mastery | **Hamster Ball** | Trapped enemies roll after other enemies and bowl them over instead of coming to you. |
+|  | **Bubble Boy** | Every 8s you are wrapped in a bubble that blocks the next 3 hits. |
+
+### Tooth Fairy
+
+*Arcane tooth, Lure.* She pays for teeth. She also collects debts.
+
+- **Base stats:** dmg 34, cd 1.1s, mag 3, reload 2s, range 420 (dur 6, lure 230)
+- **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +60 lure
+- **Pairings:** **Bait and Switch** (+ Nappy Mines)
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Hot Load** | +40% damage. |
+| Lv 5 signature | **Gold Tooth** | Every 4th tooth is gold: it lures from twice as far, and whoever takes it is smitten along with everything near them. |
+|  | **Wisdom Teeth** | Teeth lure from 60% further and last twice as long. |
+| Lv 8 signature | **Under the Pillow** | A tooth nobody takes within 4s turns into a big XP coin. |
+|  | **Dentures** | Teeth bite anything that comes close, for 50% damage every half second. |
+| Lv 10 mastery | **Fairy Ring** | Every smite also hits everything within 140 of the victim for 50%. |
+|  | **Tooth Decay** | Enemies holding teeth take +12% damage from everything for each tooth. |
+
 ### Upgrades with a twist
 
 When an upgrade would do nothing for a weapon, that weapon does its own thing with it instead (the card tells you).
@@ -432,6 +600,14 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Split Personality | Placenta Paddle | +1 swing, aimed another way. |
 | Split Personality | Flagellum Flail | +1 lash in the fan. |
 | Split Personality | Thorny Onesie | +35% pulse damage. |
+| Split Personality | Colouring In | +35% shape damage. |
+| Split Personality | Peekaboo | +35% BOO damage. |
+| Split Personality | Due Date | +1 mark. |
+| Split Personality | Red Tape | +1 bundle. |
+| Split Personality | Imaginary Friend | +1 friend, further behind. |
+| Split Personality | Twin Telepathy | +1 twin, with its own beam. |
+| Split Personality | Bubble Wand | +1 bubble. |
+| Split Personality | Tooth Fairy | +1 tooth. |
 | Pushy | Placenta Paddle | a 15% wider swing. |
 | Pushy | Flagellum Flail | a 12% longer lash. |
 | Pushy | Thorny Onesie | pulses shove harder. |
@@ -441,6 +617,14 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Pushy | Premature Evangelation | angels bless each enemy more often as they pass. |
 | Pushy | Slipstream Scalpel | the trail shoves enemies aside. |
 | Pushy | Placental Siphon | returned shots pierce. |
+| Pushy | Colouring In | a thicker line. |
+| Pushy | Due Date | +10% repeat. |
+| Pushy | Red Tape | +1 enemy per bundle. |
+| Pushy | Imaginary Friend | its pokes reach 15% further. |
+| Pushy | Peekaboo | BOO shoves harder. |
+| Pushy | Twin Telepathy | a 15% wider beam. |
+| Pushy | Bubble Wand | bubbles hold 12% bigger enemies. |
+| Pushy | Tooth Fairy | teeth lure from 12% further. |
 | Twitchy Tail | Slipstream Scalpel | the trail cuts faster. |
 | Twitchy Tail | Premature Evangelation | angels circle faster. |
 | Short Refractory Period | Slipstream Scalpel | the trail lingers longer. |
@@ -486,6 +670,14 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Live Wire** | Flagellum Flail + Static Cling | The tip of every lash sets off a Static Cling chain. |
 | **Nappy Rash** | Thorny Onesie + Morning Sickness | Every Onesie pulse adds a stack of poison to what it hits. |
 | **Ice Hockey** | Placenta Paddle + Cold Feet | The Paddle hits frozen enemies three times as hard. |
+| **Final Notice** | Due Date + Red Tape | When a Due Date goes off on a taped enemy, the whole bundle takes all of it, not just a share. |
+| **Live Paperwork** | Red Tape + Static Cling | Lightning that hits a taped enemy is shared through the bundle twice over. |
+| **Hide and Seek** | Imaginary Friend + Peekaboo | While you are hidden, enemies chase your Imaginary Friend instead of the empty spot. |
+| **Bubble Hockey** | Bubble Wand + Placenta Paddle | The Paddle pops bubbles it touches and fires the enemy inside the way it swung. |
+| **Bait and Switch** | Tooth Fairy + Nappy Mines | Every tooth has a Nappy Mine under it. |
+| **Colouring Book** | Colouring In + Morning Sickness | Every shape you colour in fills with a toxic puddle. |
+| **Cold Read** | Twin Telepathy + Cold Feet | Anything that stays in the telepathy beam for a second freezes solid. |
+| **Toil and Trouble** | Bubble Wand + Morning Sickness | Flung enemies leave a toxic puddle where they land. |
 
 ## Bosses and relics
 

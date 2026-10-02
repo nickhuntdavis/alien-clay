@@ -34,7 +34,7 @@ function updatePreviews(dt) {
 function pvShooter(pv) {
   const d = pv.def;
   const o = pv.dx || 0, q = pv.dy || 0, sp = pv.m && pv.m.speed ? 1.7 : 1;
-  if (d.kind === 'mine' || d.kind === 'wake') { const a = pv.t * 1.3 * sp; return { x: 0.32 + Math.cos(a) * 0.16 + o, y: 0.5 + Math.sin(a * 2) * 0.2 + q, a: Math.atan2(Math.cos(a * 2) * 0.4, -Math.sin(a) * 0.16) }; }
+  if (d.kind === 'mine' || d.kind === 'wake' || d.kind === 'crayon' || d.kind === 'friend' || d.kind === 'twin') { const a = pv.t * 1.3 * sp; return { x: 0.32 + Math.cos(a) * 0.16 + o, y: 0.5 + Math.sin(a * 2) * 0.2 + q, a: Math.atan2(Math.cos(a * 2) * 0.4, -Math.sin(a) * 0.16) }; }
   if (d.kind === 'melee' && d.melee !== 'lash') return { x: 0.42 + o, y: 0.5 + Math.sin(pv.t * 0.9) * 0.08 + q, a: 0 };
   return { x: 0.2 + o, y: 0.5 + Math.sin(pv.t * 0.9) * 0.06 + q, a: 0 };
 }
@@ -131,6 +131,7 @@ function stepPreview(pv, dt) {
       break;
     }
     default: // guns
+      if (d.toy) { pvToy(pv, dt, me0, live, fire, tgt); break; }
       if (fire && tgt) {
         pv.seq++;
         const M = pv.m, style = M.rail ? 'rail' : d.style || 'bullet'; // (void fires three, to show them merge)
@@ -255,6 +256,7 @@ function drawPreview(pv) {
     for (let ri = 0; ri < (pv.m.orbit2 ? 2 : 1); ri++) for (let i = 0; i < n; i++) { const a = (ri ? -pv.ang * 0.8 : pv.ang) + i / n * TAU, rr = ri ? 0.26 : 0.13, x = X(me0.x) + Math.cos(a) * U * rr, y = Y(me0.y) + Math.sin(a) * U * rr; pvGlow(g, x, y, U * 0.05, c); g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, U * 0.014, 0, TAU); g.fill(); }
   }
   pvDrawExtras(pv, g, X, Y, U, c, me0);
+  if (d.toy) pvDrawToy(pv, g, X, Y, U, c, me0);
   // Projectiles.
   for (const s of pv.shots) {
     if (s.lob) { const x = X(s.sx + (s.tx - s.sx) * s.k), y = Y(s.sy + (s.ty - s.sy) * s.k) - Math.sin(s.k * Math.PI) * H2 * 0.18; pvGlow(g, x, y, U * 0.03, c); g.fillStyle = c; g.beginPath(); g.arc(x, y, U * 0.012, 0, TAU); g.fill(); continue; }
@@ -336,6 +338,22 @@ const PV_TAGS = {
   whipcrack: 'crit', getoverhere: 'pull', ninetails: 'fan5', spincycle: 'spin', barbed: 'bleed', snapback: 'dashFwd',
   // Thorny Onesie
   spiky: 'thorns', bearhug: 'pull armour', bubblewrap: 'pulseBig', growthspurt: 'wide heal', porcupine: 'spines', fortress: 'armour rapid',
+  // Colouring In
+  scribble: 'slow power', stayinlines: 'root crit', paintbynumbers: 'power', fridgeart: 'linger', masterpiece: 'frame', jointhedots: 'dots',
+  // Due Date
+  overdue: 'power', earlyarrival: 'execute', babyshower: 'explode', rebooked: 'spreadMark', labourday: 'remark', bigday: 'crit',
+  // Red Tape
+  triplicate: 'bigBundle', jointliability: 'explode', stapled: 'slow', redacted: 'clearBul', bureaucracy: 'power', referral: 'spreadMark',
+  // Imaginary Friend
+  sharing: 'power', blameit: 'eatBul', longmemory: 'power', playdate: 'heal', tooreal: 'crit', secretclub: 'count1',
+  // Peekaboo
+  hideandseek: 'speed', jumpscare: 'freeze', whosthere: 'crit', decoydoll: 'explode', objectperm: 'rapid', bigboo: 'wide',
+  // Twin Telepathy
+  mindmeld: 'wide slow', switcheroo: 'swap', sympathy: 'martyr', wavelength: 'eatBul', quads: 'count2', psychic: 'power',
+  // Bubble Wand
+  extrasoapy: 'wide', bubblebath: 'slow', cannonball: 'explode', chainpop: 'chain1', hamsterball: 'knock', bubbleboy: 'armour',
+  // Tooth Fairy
+  goldtooth: 'explode', wisdomteeth: 'wide', underpillow: 'heal', dentures: 'crit', fairyring: 'chain2', toothdecay: 'power',
 };
 function pvTags(id) {
   const m = {};

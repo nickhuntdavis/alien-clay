@@ -682,6 +682,8 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #waveBtn.on { display: block; }
 
 /* Lab Bench (debug): the DEBUG button and its panel. */
+#autoBtn { pointer-events: auto; display: block; margin-top: 6px; width: 42px; height: 26px; border-radius: 8px; border: 1px solid #ffffff40; background: #0009; color: #ffffff99; font: 800 9px var(--mono, monospace); letter-spacing: 1px; padding: 0; }
+#autoBtn.on { color: #4dff9a; border-color: #4dff9a; background: #4dff9a22; box-shadow: 0 0 8px #4dff9a55 !important; }
 #dbgBtn { pointer-events: auto; position: fixed; right: 10px; top: calc(168px + env(safe-area-inset-top)); z-index: 7; display: none; font: 800 11px var(--mono, monospace); letter-spacing: 2px;
   padding: 6px 10px; background: #000c; color: #fff; border: 1px solid #fff; border-radius: 4px; }
 #dbgBtn.on { display: block; }

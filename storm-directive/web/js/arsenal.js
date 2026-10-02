@@ -14,6 +14,7 @@ function weaponMult(w) {
   let m = 1 + Math.min(1.5, bonus);
   if (w.def.gacha) m *= GACHA_TIERS[w.gachaTier].mult;
   if (w.hk) m *= 1 + 2 * w.hk; // Hell's Kitchen
+  if (w.copyK) m *= w.copyK; // an Imaginary Friend's copy
   m *= tankDamageOut(); // Big Boned, Stubborn Streak
   // Few mounts, focused genome: with only one or two weapons, each one hits much harder.
   const nw = G.weapons.filter(Boolean).length;
@@ -521,6 +522,7 @@ function meleeSweep(w, x, y, a, src) {
     meleeHit(w, e, dmg, Object.assign({}, src, { knock: (s.knock || 0) * (homer ? 3 : 1), kx: e.x - x, ky: e.y - y }));
   });
   G.fx.push({ type: 'swing', x, y, a, arc, r: R, color: w.def.color, life: 0.22, max: 0.22 });
+  G.lastSwing = { x, y, a, r: R, t: G.t };
   if (homer) floatText(x, y - 30, 'HOME RUN', w.def.color, 12, 0.5);
   if (hasSig(w, 'afterwave')) after(0.1, () => {
     forNear(x, y, R * 3, e => {
