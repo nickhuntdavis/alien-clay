@@ -724,6 +724,11 @@ const UI = {
       h += `<div class="li ${G.pair[q.id] ? 'on' : ''}"><b style="color:${known ? PAL.upgrade : 'inherit'}">${known ? esc(q.name) : '???'}</b><br><span>${known ? esc(WEAPONS[q.a].name) + ' + ' + esc(WEAPONS[q.b].name) + ': ' + esc(q.desc) : 'Two weapons, both Lv ' + PAIR_LEVEL + '+. Nobody has told you which.'}</span></div>`;
     }
     h += `</div></div>`;
+    // Secrets: nobody tells you about these until you stumble on them.
+    const qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
+    h += `<div class="sec"><h3>Secrets found (${qf.length}/${qs.length})</h3><p class="hint">Things that happen when the rules collide. Nobody will tell you what they are.</p><div class="list">`;
+    for (const id of qs) { const known = META.quirks[id], Q = QUIRKS[id]; h += `<div class="li ${G.quirks && G.quirks[id] ? 'on' : ''}"><b style="color:${known ? PAL.upgrade : 'inherit'}">${known ? esc(Q.name) : '???'}</b><br><span>${known ? esc(Q.desc) : 'Undiscovered.'}</span></div>`; }
+    h += `</div></div>`;
     // The boss ward.
     h += `<div class="sec"><h3>The boss ward (${Object.keys(META.bosses).length}/${BOSSES.length} met)</h3><p class="hint">Every run you meet ${BOSSES_PER_RUN} of them, in a random order.</p><div class="list">`;
     for (const b of BOSSES) {

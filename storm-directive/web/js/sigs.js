@@ -179,7 +179,9 @@ function venomZone(w, x, y) {
 // Called for every enemy standing in a zone, each zone tick.
 function sigZone(z, e, dt) {
   if (z.venom || (z.src && z.src.w && z.src.w.id === 'venom')) {
-    e.puddleT = G.t + 0.4;
+    e.puddleT = G.t + 0.4; e.puddleZ = z;
+    if (z.ice) e.iceT = G.t + 0.4;
+    if (e.burn > 0 && !z.burning && !z.ice) puddleQuirks(e, { elem: 'fire' }, 0);
     if (hasSig(z.src.w, 'corrosive')) { e.shred = Math.max(e.shred, e.armour); e.corrT = G.t + 0.4; }
     if (hasSig(z.src.w, 'nausea')) { e.chill = Math.max(e.chill, 0.4); e.chillAmt = Math.max(e.chillAmt, 0.45); e.weakT = G.t + 0.4; }
   }
@@ -210,6 +212,7 @@ function sigTick(dt) {
   spoilerBlink(dt);
   sig8Tick(dt);
   voidMerge(dt);
+  quirkTick(dt);
 }
 
 // ---------------------------------------------------------------- Slipstream Scalpel extras (from updateWake)
@@ -437,6 +440,7 @@ function projHit(pr, e) {
 }
 // A projectile reaching the end of its flight.
 function projEnd(pr) {
+  if (isOrb(pr) || (pr.style === 'void' && pr.w && pr.w.id === 'void')) orbCollapse(pr);
   if (pr.style === 'flame' && Math.random() < 0.12) fxParts('smoke', pr.x, pr.y, '#2e3330', 1, 25, 0.8, 5, -Math.PI / 2, 0.8); // flames leave smoke
   if (pr.w.id === 'flamer' && hasSig(pr.w, 'napalm') && Math.random() < 0.2 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 26, life: 2, max: 2, dps: pr.dmg * 3, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: Object.assign({}, pr.src, { wname: 'Napalm' }) });
   if (pr.dragonB && Math.random() < 0.35 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 24, life: 1.6, max: 1.6, dps: pr.dmg * 0.8, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: pr.src });
@@ -581,19 +585,37 @@ function angelSpoilers(w, dt) {
 function ramHit(e, p) {
   const P = G.P;
   if (P.ram <= 0 || e.charmed || e.egg) return 0;
-  const v = Math.hypot(p.vx || 0, p.vy || 0), k = 0.25 + 0.75 * Math.min(1, v / 200);
-  if (e.ramT > G.t) return k;
+  const v = Math.hypot(p.vx || 0, p.vy || 0);
+  let k = 0.25 + 0.75 * Math.min(1, v / 200);
+  // Head-on: what counts is how fast you're closing on each other, not just your own speed.
+  // (At full speed you can pass through each other inside one frame, so it's the relative speed whenever you're swimming at each other.)
+  const dx = e.x - p.x, dy = e.y - p.y, dl = Math.hypot(dx, dy) || 1, pvx = p.vx || 0, pvy = p.vy || 0, evx = e.svx || 0, evy = e.svy || 0;
+  const closing = pvx * evx + pvy * evy < 0 ? Math.hypot(pvx - evx, pvy - evy) : 0;
+  const head = closing > 230 && Math.hypot(e.svx || 0, e.svy || 0) > 60 ? Math.min(1.9, closing / 230) : 1;
+  k *= head;
+  if (e.ramT > G.t) return Math.min(1, k);
   e.ramT = G.t + 0.2;
+  // Frozen things are brittle: a fast ram shatters them, and the shards fly on.
+  if (e.frozen > 0 && k > 0.6 && !e.boss && !e.rival) {
+    const ux = dx / dl, uy = dy / dl;
+    e.hp = 0; killEnemy(e, { wname: 'Icebreaker' });
+    fxParts('shard', e.x, e.y, '#e6f4ff', 14, 420, 0.5, 4, Math.atan2(uy, ux), 0.6);
+    forNear(e.x + ux * 70, e.y + uy * 70, 75, o => { if (o !== e && !o.charmed && !o.egg) damageEnemy(o, (30 + G.level * 6) * P.might * 3, { elem: 'ice', wname: 'Icebreaker', noCrit: true, knock: 260, kx: ux, ky: uy }); });
+    ring(e.x, e.y, e.r + 20, '#e6f4ff', 0.3, 4);
+    quirkFound('icebreaker', e.x, e.y);
+    return 1;
+  }
   const dmg = P.ram * (30 + G.level * 6 + P.maxHp * 0.3 + P.armour * 8) * P.might * k * 4 * G.evm.ram * tankDamageOut();
-  const src = { elem: 'phys', wname: 'Acrosome Ram', noCrit: k < 0.6, knock: 160 + 320 * k };
-  damageEnemy(e, dmg, Object.assign({ kx: e.x - p.x, ky: e.y - p.y }, src));
+  const src = { elem: 'phys', wname: 'Acrosome Ram', noCrit: k < 0.6, knock: 160 + 320 * Math.min(1.5, k) };
+  damageEnemy(e, dmg, Object.assign({ kx: dx, ky: dy }, src));
+  if (head > 1.3) { floatText(e.x, e.y - e.r - 8, 'HEAD-ON!', PAL.you, 15, 0.6); quirkFound('headon', e.x, e.y); }
   if (k > 0.7) {
     const R = 60 + 12 * P.ram;
     forNear(e.x, e.y, R, o => { if (o !== e && !o.charmed && !o.egg) damageEnemy(o, dmg * 0.5, Object.assign({ kx: o.x - p.x, ky: o.y - p.y, noCrit: true }, src)); });
     ring(e.x, e.y, R, PAL.you, 0.25, 3); cam.shake = Math.min(6, cam.shake + 1.5);
-    if (!(G.ramLblT > G.realT)) { G.ramLblT = G.realT + 1.2; floatText(e.x, e.y - e.r - 8, 'RAMMED', PAL.you, 13, 0.6); }
+    if (!(G.ramLblT > G.realT) && head <= 1.3) { G.ramLblT = G.realT + 1.2; floatText(e.x, e.y - e.r - 8, 'RAMMED', PAL.you, 13, 0.6); }
   }
-  return k;
+  return Math.min(1, k);
 }
 
 // ---------------------------------------------------------------- tank builds
@@ -708,6 +730,9 @@ function voidMerge(dt) {
 function voidCombine(a, b) {
   const ma = a.mass || 1, mb = b.mass || 1, m = ma + mb, k = Math.cbrt(Math.pow(a.r, 3) + Math.pow(b.r, 3)) / a.r;
   a.mass = m; b.dead = true;
+  // Whatever either had swallowed comes along (see quirks.js).
+  if (b.mines) { a.mines = (a.mines || 0) + b.mines; a.mineDmg = (a.mineDmg || 0) + b.mineDmg; a.mineSrc = a.mineSrc || b.mineSrc; }
+  if (b.loot) a.loot = (a.loot || []).concat(b.loot);
   a.r *= k; a.aura = (a.aura || 0) * k; a.r0 = (a.r0 || a.r / k) * k; a.aura0 = (a.aura0 || a.aura / k) * k;
   a.dmg += b.dmg; a.pull = Math.max(a.pull, b.pull) * 1.12;
   a.dealt = (a.dealt || 0) + (b.dealt || 0);
@@ -724,6 +749,7 @@ function voidCombine(a, b) {
 }
 function voidSupernova(a) {
   a.dead = true;
+  orbCollapse(a);
   const R = Math.max(220, a.aura * 3.5), src = Object.assign({}, a.src, { noProc: true, noCrit: true, mult: 1, wname: 'Supernova' });
   aoe(a.x, a.y, R, a.dmg * (a.mass || 10) * 2 + (a.dealt || 0) * 0.5, src, '#e0aaff');
   for (const b of G.ebul) if (Math.hypot(b.x - a.x, b.y - a.y) < R) b.dead = true;

@@ -616,6 +616,7 @@ function damageEnemy(e, dmg, src) {
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + d;
   // Damage numbers thin out when the screen is busy (crits always show).
   if (!src.dot && !IN_AOE) hitFx(e, src, crit, d);
+  if (!src.dot && e.puddleT > G.t) puddleQuirks(e, src, dmg); // lightning, fire and frost meet a puddle
   if (!src.dot && (crit || d >= 4 || Math.random() < 0.3) && (crit || typeof FX === 'undefined' || FX.k > 0.6 || Math.random() < FX.k * 0.5)) {
     floatText(e.x, e.y - e.r, Math.round(d) + (crit ? '!' : ''), '#ffffff', crit ? 17 : 12);
   }
@@ -1179,6 +1180,9 @@ function updateEnemies(dt) {
     const f = frozen || e.tunT > G.t ? 0 : slow;
     if (e.tailCut) spd *= 0.15; // no flagellum: it can only twitch and drift
     const tide = e.boss || e.egg ? 0 : 0.8;
+    // On an ice rink, steering becomes shoving: they slide about. (svx/svy: how it is swimming, for head-on rams.)
+    if (e.iceT > G.t && !e.boss) { e.kx += mx * spd * 3 * dt; e.ky += my * spd * 3 * dt; spd *= 0.2; }
+    e.svx = mx * spd * f * warpF * G.evm.espd; e.svy = my * spd * f * warpF * G.evm.espd;
     e.x += (mx * spd * f * warpF * G.evm.espd + e.kx + G.evm.tideX * tide) * dt;
     e.y += (my * spd * f * warpF * G.evm.espd + e.ky + G.evm.tideY * tide) * dt;
     const kd = Math.pow(0.02, dt);
@@ -1789,7 +1793,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1);
+  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1);
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
@@ -1800,7 +1804,7 @@ function updatePlayer(dt) {
   // Swim physics: the head can only turn so fast (traction), thrust drops mid-turn,
   // and sideways momentum drifts off rather than stopping dead.
   if (p.hd == null) p.hd = p.face;
-  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1);
+  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1) * (G.onIce ? 0.35 : 1);
   const cur = Math.hypot(p.vx, p.vy);
   let thrust = 0;
   if (m > 0.05) {

@@ -25,7 +25,7 @@ const META_DYES = [
 
 const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0, pairs: {}, bosses: {} };
 try { Object.assign(META, JSON.parse(localStorage.getItem('sd_meta') || '{}')); } catch (e) { /* storage unavailable */ }
-META.pairs = META.pairs || {}; META.bosses = META.bosses || {};
+META.pairs = META.pairs || {}; META.bosses = META.bosses || {}; META.quirks = META.quirks || {};
 // v6 retired most weapons: starters bought for them are refunded in full.
 { const OLD = { nailgun: 60, cryopipette: 60, antibioticsg: 70, nerveimpulse: 70, placebo: 80, chromowhip: 80, metaflare: 90, genesplicer: 100, mitosiscannon: 120, hailswarm: 90 };
   for (const id in META.starters) if (!WEAPONS[id]) { META.dna += OLD[id] || 0; delete META.starters[id]; } }
@@ -73,7 +73,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.15';
+const APP_VERSION = '7.16';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

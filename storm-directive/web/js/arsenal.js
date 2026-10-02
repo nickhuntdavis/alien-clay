@@ -418,6 +418,7 @@ function engulfAI(e, dt, dist, ux, uy) {
     // Only bother with food that's clearly closer than you.
     if (e.prey && Math.sqrt(bd) > dist * 0.8) e.prey = null;
   }
+  amoebaIndigestion(e); // mines and black holes don't agree with it (quirks.js)
   // Swallow anything small enough that it's overlapping.
   forNear(e.x, e.y, e.r * 0.7, o => {
     if (o === e || ENGULF_SKIP(o) || o.r >= e.r * 0.8) return false;
@@ -431,6 +432,7 @@ function engulfAI(e, dt, dist, ux, uy) {
   return { x: ux, y: uy };
 }
 function engulf(e, o) {
+  amoebaAteInfected(e, o);
   o.dead = true;
   const gain = o.maxHp * 1.2;
   e.maxHp += gain; e.hp += gain;

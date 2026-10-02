@@ -1594,11 +1594,8 @@ function render() {
   }
   if (G.flashT > 0) { ctx.fillStyle = '#ffffff'; ctx.globalAlpha = Math.min(0.28, G.flashT * 2); ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   if (G.evm && G.evm.dark) {
-    // Lights Out: only a small pool of light round you.
-    const x = sx(p.x) + shx, y = sy(p.y) + shy, r0 = 70 * S, r1 = 210 * S;
-    const g = ctx.createRadialGradient(x, y, r0, x, y, r1);
-    g.addColorStop(0, 'rgba(2,2,6,0)'); g.addColorStop(1, 'rgba(2,2,6,0.94)');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    // Lights Out: only a small pool of light round you... and fire, which gives off light of its own.
+    drawDarkness(p, shx, shy);
   }
   if (p.flash > 0) { ctx.globalAlpha = p.flash / 0.2 * 0.5; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
@@ -2393,4 +2390,25 @@ function drawEnemyDetail(e, x, y, r, rot) {
       break;
     }
   }
+}
+
+// Lights Out: a darkness layer with holes cut where there's light (you, and anything on fire).
+const DARK = { c: null, puff: null };
+function drawDarkness(p, shx, shy) {
+  const dw = Math.ceil(W / 2), dh = Math.ceil(H / 2);
+  if (!DARK.c || DARK.c.width !== dw || DARK.c.height !== dh) DARK.c = makeCanvas(dw, dh);
+  if (!DARK.puff) { DARK.puff = makeCanvas(64, 64); const q = DARK.puff.getContext('2d'), gr = q.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.45, 'rgba(0,0,0,0.85)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = gr; q.fillRect(0, 0, 64, 64); }
+  const g = DARK.c.getContext('2d');
+  g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(2,2,6,0.94)'; g.fillRect(0, 0, dw, dh);
+  g.globalCompositeOperation = 'destination-out';
+  const hole = (wx, wy, r) => { const x = (sx(wx) + shx) / 2, y = (sy(wy) + shy) / 2, rr = r * S / 2; if (x < -rr || y < -rr || x > dw + rr || y > dh + rr) return false; g.drawImage(DARK.puff, x - rr, y - rr, rr * 2, rr * 2); return true; };
+  hole(p.x, p.y, 230);
+  let lit = 0;
+  for (const e of G.enemies) if (!e.dead && e.burn > 0 && hole(e.x, e.y, e.r * 2 + 70)) lit++;
+  for (const pr of G.proj) if (!pr.dead && (pr.style === 'flame' || (pr.src && pr.src.elem === 'fire')) && hole(pr.x, pr.y, 60)) lit++;
+  for (const z of G.zones) if (z.elem === 'fire' && hole(z.x, z.y, z.r * 1.8)) lit++;
+  for (const f of G.fx) if (f.type === 'flash' && hole(f.x, f.y, f.r * 1.6 * (f.life / f.max))) lit++;
+  g.globalCompositeOperation = 'source-over';
+  ctx.drawImage(DARK.c, 0, 0, W, H);
+  if (lit >= 3) quirkFound('firelight');
 }

@@ -147,6 +147,7 @@ function eventKill(e) {
   for (let i = 0; i < 2 && G.enemies.length < CAPS.enemies; i++) {
     const a = Math.random() * TAU, k = makeEnemy(e.def, e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r);
     k.hp = k.maxHp = e.maxHp * 0.4; k.r = e.r * 0.75; k.xp = 0; k.mitoKid = true; k.kx = Math.cos(a) * 160; k.ky = Math.sin(a) * 160;
+    if (e.parasiteT > 0 && e.parasiteW) { k.parasiteW = e.parasiteW; k.parasiteT = 6; quirkFound('contagion', e.x, e.y); } // both halves keep the infection
     G.enemies.push(k);
   }
 }
