@@ -1184,6 +1184,16 @@ function render() {
     }
   }
   ctx.globalCompositeOperation = 'source-over';
+  // Toddler Gravity: the rubber bands of gravity between orbs about to merge.
+  if (G.voidBands && G.voidBands.length) {
+    ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = '#c77dff';
+    for (let i = 0; i < G.voidBands.length; i += 2) {
+      const a = G.voidBands[i], b = G.voidBands[i + 1], ax = sx(a.x), ay = sy(a.y), bx = sx(b.x), by = sy(b.y), d = Math.hypot(bx - ax, by - ay), tight = Math.min(1, 140 * S / Math.max(1, d));
+      const nx = -(by - ay) / (d || 1), ny = (bx - ax) / (d || 1), sag = Math.sin(G.realT * 9 + i) * 10 * S * (1 - tight);
+      for (const [lw, al] of [[6, 0.15], [2, 0.6 + 0.3 * tight]]) { ctx.globalAlpha = al; ctx.lineWidth = lw * Math.max(0.7, S); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.quadraticCurveTo((ax + bx) / 2 + nx * sag, (ay + by) / 2 + ny * sag, bx, by); ctx.stroke(); }
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  }
   fxDim(false);
   // Elite, boss and ally auras.
   ctx.globalCompositeOperation = 'lighter';

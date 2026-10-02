@@ -133,8 +133,8 @@ function stepPreview(pv, dt) {
     default: // guns
       if (fire && tgt) {
         pv.seq++;
-        const M = pv.m, style = M.rail ? 'rail' : d.style || 'bullet';
-        const n = M.slug ? 1 : Math.min(9, (b.count || 1) + (M.count || 0) + (M.hose ? 2 : 0)), sp = (d.style === 'flame' ? (M.narrow ? 0.15 : 0.5) : Math.min(0.8, b.spread || 0.06)) * (M.fan ? 2.2 : 1) + (M.hose ? 0.5 : 0);
+        const M = pv.m, style = M.rail ? 'rail' : d.style || 'bullet'; // (void fires three, to show them merge)
+        const n = M.slug ? 1 : Math.min(9, (d.style === 'void' ? 3 : b.count || 1) + (M.count || 0) + (M.hose ? 2 : 0)), sp = (d.style === 'flame' ? (M.narrow ? 0.15 : 0.5) : Math.min(0.8, b.spread || 0.06)) * (M.fan ? 2.2 : 1) + (M.hose ? 0.5 : 0);
         let a0 = Math.atan2(tgt.y - me0.y, tgt.x - me0.x);
         if (M.dragon) { pv.dragA = (pv.dragA || 0) + 0.5; a0 = pv.dragA; }
         const spd = (style === 'flame' ? 0.7 * (M.narrow ? 1.6 : 1) : style === 'rail' ? 3 : d.style === 'void' ? 0.18 * (M.bigger ? 0.6 : 1) : d.style === 'sperm' ? 0.55 : 1.1);
@@ -184,6 +184,15 @@ function stepPreview(pv, dt) {
         else { s.dead = true; break; }
       }
     }
+  }
+  // Black holes pull together and merge (Toddler Gravity).
+  const voids = pv.shots.filter(s => s.style === 'void' && !s.dead);
+  for (let i = 0; i < voids.length; i++) for (let j = i + 1; j < voids.length; j++) {
+    const A = voids[i], B = voids[j]; if (A.dead || B.dead) continue;
+    const dx = B.x - A.x, dy = B.y - A.y, dd = Math.hypot(dx, dy) || 1;
+    if (dd < (A.r + B.r) * 0.5) { B.dead = true; A.r = Math.cbrt(A.r ** 3 + B.r ** 3); A.mass = (A.mass || 1) + (B.mass || 1); A.vx = (A.vx + B.vx) / 2; A.vy = (A.vy + B.vy) / 2; pv.fx.push({ type: 'boom', x: A.x, y: A.y, r: A.r * 1.5, life: 0.3 }); continue; }
+    const k = (0.2 + dd * 3) * dt; A.x += dx / dd * k; A.y += dy / dd * k; B.x -= dx / dd * k; B.y -= dy / dd * k;
+    pv.fx.push({ type: 'line', a: { x: A.x, y: A.y }, b: { x: B.x, y: B.y }, life: 0.04 });
   }
   pv.shots = pv.shots.filter(s => !s.dead);
   pvExtras(pv, dt, me0, live, fire, tgt);

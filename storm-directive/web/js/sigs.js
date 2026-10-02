@@ -209,6 +209,7 @@ function sigTick(dt) {
   if (G.relics) relicTick(dt);
   spoilerBlink(dt);
   sig8Tick(dt);
+  voidMerge(dt);
 }
 
 // ---------------------------------------------------------------- Slipstream Scalpel extras (from updateWake)
@@ -680,4 +681,58 @@ function sig8Tick(dt) {
     if (w.id === 'paddle' && hasSig(w, 'tantrum')) { if (!(w.tantT > G.t)) w.tant = Math.max(0, (w.tant || 0) - dt * 6); w.rateK = 1 + 0.05 * (w.tant || 0); }
     if (w.id === 'onesie' && hasSig(w, 'fortress') && Math.hypot(p.vx || 0, p.vy || 0) < 60) { G.fortArm = 4; w.rateK = 1.5; }
   }
+}
+
+// ---------------------------------------------------------------- Toddler Gravity: black holes merge
+// Orbs fire out as usual, but they're black holes: any two near each other are pulled together like a
+// rubber band (harder the further apart they are) and merge into one bigger orb. Volumes add (the radius
+// grows with the cube root), damage adds up, and the pull and lifetime grow. Ten or more merged: SUPERNOVA.
+const VOID_MERGE = { reach: 260, band: 1.6, supernova: 10 };
+function voidMerge(dt) {
+  G.voidBands = [];
+  const orbs = G.proj.filter(pr => pr.style === 'void' && !pr.dead && pr.w && pr.w.id === 'void' && !pr.lob);
+  if (orbs.length < 2) return;
+  for (let i = 0; i < orbs.length; i++) for (let j = i + 1; j < orbs.length; j++) {
+    const a = orbs[i], b = orbs[j];
+    if (a.dead || b.dead) continue;
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+    if (d > VOID_MERGE.reach) continue;
+    if (d < (a.r + b.r) * 0.65) { voidCombine(a.r >= b.r ? a : b, a.r >= b.r ? b : a); continue; }
+    // The rubber band: each is dragged towards the other, the heavier one less.
+    const ma = a.mass || 1, mb = b.mass || 1, pull = (40 + d * VOID_MERGE.band) * dt, ux = dx / d, uy = dy / d;
+    a.x += ux * pull * mb / (ma + mb) * 2; a.y += uy * pull * mb / (ma + mb) * 2;
+    b.x -= ux * pull * ma / (ma + mb) * 2; b.y -= uy * pull * ma / (ma + mb) * 2;
+    G.voidBands.push(a, b);
+  }
+}
+function voidCombine(a, b) {
+  const ma = a.mass || 1, mb = b.mass || 1, m = ma + mb, k = Math.cbrt(Math.pow(a.r, 3) + Math.pow(b.r, 3)) / a.r;
+  a.mass = m; b.dead = true;
+  a.r *= k; a.aura = (a.aura || 0) * k; a.r0 = (a.r0 || a.r / k) * k; a.aura0 = (a.aura0 || a.aura / k) * k;
+  a.dmg += b.dmg; a.pull = Math.max(a.pull, b.pull) * 1.12;
+  a.dealt = (a.dealt || 0) + (b.dealt || 0);
+  a.life = Math.max(a.life, b.life) + 0.6; a.max = Math.max(a.max, a.life);
+  // Momentum: the merged orb keeps drifting the weighted-average way.
+  a.vx = (a.vx * ma + b.vx * mb) / m; a.vy = (a.vy * ma + b.vy * mb) / m;
+  if (b.hits) for (const id of b.hits) (a.hits || (a.hits = [])).includes(id) || a.hits.push(id);
+  G.fx.push({ type: 'flash', x: a.x, y: a.y, r: a.aura * 0.8, color: '#c77dff', life: 0.25, max: 0.25 });
+  ring(a.x, a.y, a.aura, '#e0aaff', 0.4, 4);
+  fxParts('ember', a.x, a.y, '#e0aaff', 6, 160, 0.5, 3);
+  cam.shake = Math.min(8, cam.shake + 1 + m * 0.3);
+  if (m >= 3) floatText(a.x, a.y - a.r - 12, 'MERGE x' + m, '#e0aaff', 12 + Math.min(8, m), 0.7);
+  if (m >= VOID_MERGE.supernova) voidSupernova(a);
+}
+function voidSupernova(a) {
+  a.dead = true;
+  const R = Math.max(220, a.aura * 3.5), src = Object.assign({}, a.src, { noProc: true, noCrit: true, mult: 1, wname: 'Supernova' });
+  aoe(a.x, a.y, R, a.dmg * (a.mass || 10) * 2 + (a.dealt || 0) * 0.5, src, '#e0aaff');
+  for (const b of G.ebul) if (Math.hypot(b.x - a.x, b.y - a.y) < R) b.dead = true;
+  G.fx.push({ type: 'flash', x: a.x, y: a.y, r: R * 1.4, color: '#ffffff', life: 0.6, max: 0.6 });
+  G.fx.push({ type: 'pillar', x: a.x, y: a.y, r: 120, color: '#e0aaff', life: 1.2, max: 1.2 });
+  for (const [rr, w, l] of [[R * 0.5, 14, 0.6], [R, 9, 0.9], [R * 1.5, 4, 1.2]]) ring(a.x, a.y, rr, '#ffffff', l, w);
+  fxParts('spark', a.x, a.y, '#ffffff', 40, R * 4, 0.7, 3); fxParts('ember', a.x, a.y, '#e0aaff', 24, R * 1.5, 1.2, 4);
+  addLight(a.x, a.y, R * 2.5, '#ffffff', 1);
+  floatText(a.x, a.y - 40, 'SUPERNOVA', '#ffffff', 26, 1.4);
+  banner('SUPERNOVA', '#e0aaff');
+  G.flashT = 0.3; cam.shake = 22; sfx('boss'); vibrate([100, 50, 200]);
 }

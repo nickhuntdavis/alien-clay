@@ -427,6 +427,7 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Spoilers | Static Cling | some bolts start from the far side of the crowd. |
 | Spoilers | Premature Evangelation | angels pop up next to enemies to bless them early. |
 | Spoilers | Placental Siphon | some returned shots appear right next to their target. |
+| Split Personality | Toddler Gravity | more orbs, which pull together and merge into bigger ones (ten merged go supernova). |
 | Split Personality | Slipstream Scalpel | a bigger, longer blade (+35% width and length per stack). |
 | Split Personality | Placenta Paddle | +1 swing, aimed another way. |
 | Split Personality | Flagellum Flail | +1 lash in the fan. |
@@ -965,6 +966,7 @@ Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to 
 |---|---|---|---|
 | 001 | **Standard Issue** | Playable | One healthy donor, four hundred million hopefuls, one egg. The classic. |
 | 002 | **The Petri Dish** | Playable | A mad scientist is breeding super sperm. One drop at a time, wave after wave, each nastier than the last. How many can you take? |
+| 000 | **Lab Bench (Debug)** | Playable | For testing: god mode, send in any enemy, boss or event, switch any weapon or spell on and off. Open the DEBUG panel. |
 | 005 | **Frozen Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
 | 003 | **The Morning After** | Coming soon | The pill is already dissolving. Good luck. |
 | 004 | **Vasectomy Reversal** | Coming soon | Low count, high stakes, very confused surgeon. |
