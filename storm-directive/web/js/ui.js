@@ -78,7 +78,7 @@ const UI = {
     $('setBtnTitle').addEventListener('click', () => UI.openSettings('title'));
     $('setBtnPause').addEventListener('click', () => UI.openSettings('pause'));
     $('setBack').addEventListener('click', () => UI.show(UI.setFrom || 'title'));
-    $('bankBtn').addEventListener('click', () => { UI.bankClear = false; UI.renderBank(); UI.show('bank'); $('bank').scrollTop = 0; });
+    $('bankBtn').addEventListener('click', () => { UI.bankClear = false; UI.bornArm = false; UI.renderBank(); UI.show('bank'); $('bank').scrollTop = 0; });
     $('bankBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     $('codexBtn').addEventListener('click', () => { UI.openCodex(); $('codex').scrollTop = 0; });
     $('codexBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
@@ -102,7 +102,7 @@ const UI = {
   lastDown: 0, lootOpenT: 0,
   show(name) {
     if (!G) refreshPalette(); // out of a run everything is greyscale
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel', 'bossIntro', 'draft']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel', 'born', 'bossIntro', 'draft']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -117,6 +117,7 @@ const UI = {
   afterIntro() {
     if (G.wave) sysMsg('THE SCIENTIST', '"Subject in the dish. One drop at a time. Let us see what you become." Clear a wave, open your DNA, then start the next.', XR.dim, true);
     else sysLine('start', true);
+    if (G.heat) sysMsg('IMMUNE RESPONSE ' + G.heat, IMMUNE.slice(0, G.heat).map(x => x.name).join(', ') + '. +' + Math.round(IMMUNE_DNA * G.heat * 100) + '% DNA if you survive it.', PAL.danger, true);
     UI.show('hud');
     UI.refreshHud(true);
   },
@@ -209,10 +210,11 @@ const UI = {
       else if (now - UI.autoWaveT > 1500) { UI.autoWaveT = 0; waveBegin(); $('waveBtn').classList.remove('on'); }
     } else UI.autoWaveT = 0;
   },
-  menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
+  menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel', 'born']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
   tick(dt) {
     updatePreviews(dt);
     seqTick(dt);
+    drawBaby(dt);
     UI.autoTick();
     { const db = $('dbgBtn'); if (db) db.classList.toggle('on', !!(G && G.debug && (G.state === 'play'))); if (DBG.open && !(G && G.debug)) { DBG.open = false; $('dbgPanel').classList.remove('on'); } }
     // The Petri Dish: the next drop waits for you.
@@ -925,8 +927,14 @@ const UI = {
     h += `<div class="sec"><h3>Records</h3><div class="tiles">
       <div class="tile"><b>${runs}</b><span>Runs logged</span></div><div class="tile"><b>${born}</b><span>Born</span></div>
       <div class="tile"><b>${best.born ? fmtTime(best.born) : '-'}</b><span>Fastest birth</span></div><div class="tile"><b>${topLv || '-'}</b><span>Highest level</span></div>
-      <div class="tile"><b>${best.wave || '-'}</b><span>Best Petri Dish wave</span></div><div class="tile"><b>${fmtNum(META.total)}</b><span>DNA earned</span></div></div>
+      <div class="tile"><b>${best.wave || '-'}</b><span>Best Petri Dish wave</span></div><div class="tile"><b>${fmtNum(META.total)}</b><span>DNA earned</span></div>
+      <div class="tile"><b>${META.gen || 0}</b><span>Generation</span></div><div class="tile"><b>${META.heatBest || 0} / ${META.heatMax || 0}</b><span>Immune Response: best born / unlocked</span></div></div>
       ${fav.length ? `<p class="hint">Most used: ${esc(fav.join(', '))}.</p>` : ''}</div>`;
+    // Being born: the prestige.
+    { const g = META.gen || 0, bt = (META.baby || []).map(id => BABY_TRAITS[id] ? BABY_TRAITS[id].name : id);
+      h += `<div class="sec"><h3>Be born (Generation ${g + 1})</h3><p class="hint">You are Generation <b>${g}</b> (${esc(genName(g))}): +${g * 10}% DNA, +${g * 3}% damage and +${g * 5} max HP on every run.${bt.length ? ' Baby Traits: ' + esc(bt.join(', ')) + '.' : ''}</p>
+        <p class="hint">Being born wipes your DNA, traits, wildcards and dyes. You keep your Generation (one more), a new Baby Trait of your choice, the Codex, your sequences and their ranks, Immune Response levels and records.${META.wonSinceBirth ? '' : ' <b>Win a run first.</b>'}</p>
+        <button class="btn ${UI.bornArm ? 'danger' : 'primary'}" id="bankBorn" ${META.wonSinceBirth ? '' : 'disabled'}>${UI.bornArm ? 'TAP AGAIN: BE BORN (THIS WIPES YOUR BANK)' : 'BE BORN'}</button></div>`; }
     // Clear: a full refund, so you can spend it all again. Two taps.
     h += `<div class="sec"><h3>Clear the bank</h3><p class="hint">Refunds every DNA you have spent (${fmtNum(spent)}) and removes all traits, starters and dyes, so you can spend it again differently. Your Codex discoveries and records stay.</p>
       <button class="btn ${UI.bankClear ? 'danger' : ''}" id="bankClear" ${spent ? '' : 'disabled'}>${UI.bankClear ? `TAP AGAIN: CLEAR AND REFUND ${fmtNum(spent)} DNA` : 'CLEAR GENE BANK'}</button></div>`;
@@ -936,6 +944,8 @@ const UI = {
       sfx('pickup'); UI.bankClear = false;
       const y = $('bank').scrollTop; UI.renderBank(); $('bank').scrollTop = y;
     }));
+    const bb = $('bankBorn');
+    if (bb) bb.addEventListener('click', () => { if (!UI.bornArm) { UI.bornArm = true; const y = $('bank').scrollTop; UI.renderBank(); $('bank').scrollTop = y; return; } UI.bornArm = false; openBirth(); });
     const cb = $('bankClear');
     if (cb) cb.addEventListener('click', () => {
       const y = $('bank').scrollTop;
@@ -976,6 +986,8 @@ const UI = {
     UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
     const dna = bankRun(G, won);
     h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
+    if (G.heatUnlocked) h = `<div class="bdna" style="color:#ff3b3b">IMMUNE RESPONSE ${G.heatUnlocked} UNLOCKED: ${esc(IMMUNE[G.heatUnlocked - 1].name)}</div>` + h;
+    if (won && META.wonSinceBirth) h = `<p class="hint">You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.</p>` + h;
     $('overBody').innerHTML = h;
     UI.show('over');
   },
@@ -1087,6 +1099,7 @@ window.handleBack = function () {
   if (on('loot') || on('draft')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
   if (on('seqsel')) { UI.openSamples(); return 'ok'; }
+  if (on('born')) { UI.show('bank'); return 'ok'; }
   if (on('bank') || on('samples') || on('codex')) { UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('settings')) { UI.show(UI.setFrom || 'title'); return 'ok'; }
   UI.togglePause();

@@ -45,7 +45,7 @@ function saveMeta() { try { localStorage.setItem('sd_meta', JSON.stringify(META)
 // DNA earned by a run.
 function runDna(G, won) {
   const rivals = Object.values(G.rivalOut || {}).filter(v => v === 'you').length;
-  return Math.round(G.level * 2 + G.kills / 80 + G.stats.bossKills * 15 + rivals * 12 + (won ? 120 : 0) + G.t / 30);
+  return Math.round((G.level * 2 + G.kills / 80 + G.stats.bossKills * 15 + rivals * 12 + (won ? 120 : 0) + G.t / 30) * (typeof prestigeDna === 'function' ? prestigeDna(G) : 1));
 }
 function bankRun(G, won) {
   if (G.banked) return META.lastEarned;
@@ -60,6 +60,7 @@ function bankRun(G, won) {
   }
   for (const id in G.relics || {}) if (RELICS[id]) META.relics[id] = true;
   if (typeof genesBank === 'function') genesBank(G);
+  if (typeof prestigeBank === 'function') prestigeBank(G, won);
   saveMeta();
   return n;
 }
@@ -81,6 +82,8 @@ function metaClear() {
 // Called from newGame(): apply ranks and the chosen dye.
 function applyMeta(G) {
   for (const b of META_BONUSES) { const r = META.ranks[b.id] || 0; if (r) b.apply(G, r); }
+  if (typeof babyApply === 'function') babyApply(G); // Generations and Baby Traits
+  G.heat = Math.min(META.heat || 0, META.heatMax || 0); // Immune Response
   const dye = META_DYES.find(d => d.id === META.dye) || META_DYES[0];
   setYouColour(dye.color);
 }
@@ -107,7 +110,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.29';
+const APP_VERSION = '7.30';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -132,7 +135,7 @@ function runSummary(G, result) {
   return {
     n: (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1, v: APP_VERSION,
     at: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`,
-    res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
+    res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
     egg: G.eggAt ? Math.round(G.eggAt) : 0, by: G.rivalWinner || G.stats.lastHit || '',
     hurt: top(G.stats.hurt, 4).map(([k, v]) => k + ' ' + Math.round(v)),
     dmg: top(G.stats.dmg, 6).map(([k, v]) => k + ' ' + Math.round(v / dmgTot * 100) + '%'),
@@ -152,7 +155,7 @@ function runLogText() {
 }
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
-  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}\n`;
+  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}\n`;
   out += ` ended by: ${r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   out += ` dmg: ${r.dmg.join(', ')}\n`;
   out += ` build: ${r.w.join(' ')} | spells: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;

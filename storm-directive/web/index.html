@@ -143,11 +143,22 @@
   </div>
 </div>
 
+<div id="born" class="screen">
+  <div class="sqwrap" style="text-align:center">
+    <div class="sqkick" id="bornKick"></div>
+    <div class="sqtitle" style="--sc:#ffd6e8">IT'S A BABY!</div>
+    <p class="hint">Congratulations. It screams, it leaks, and it is yours. Your traits, wildcards, dyes and DNA are gone; your Generation and everything you have learnt stay. Pick one Baby Trait to keep forever.</p>
+    <div class="bornhero"><canvas id="bornCanvas"></canvas></div>
+    <div id="bornCards"></div>
+  </div>
+</div>
+
 <div id="seqsel" class="screen">
   <div class="sqwrap">
     <div class="sqtop"><div class="sqkick">STEP 2 OF 2 | SAMPLE: <b id="sqSample"></b></div><div class="sqtitle">CHOOSE YOUR SEQUENCE</div><div class="sqcount" id="sqCount"></div></div>
     <div class="sqhero" id="sqHero"><canvas id="sqCanvas"></canvas><div class="sqbadge" id="sqBadge"></div><button class="sqnav l" id="sqPrev" aria-label="Previous">&#8249;</button><button class="sqnav r" id="sqNext" aria-label="Next">&#8250;</button></div>
     <div class="sqinfo" id="sqInfo"></div>
+    <div id="sqHeat"></div>
     <div class="sqh">THE COLLECTION</div>
     <div class="sqgrid" id="sqGrid"></div>
     <div class="pbtns sqbtns"><button id="sqBack" class="btn">BACK</button><button id="sqGo" class="btn primary">EXPRESS</button></div>
@@ -210,6 +221,7 @@
 <script src="js/quirks.js"></script>
 <script src="js/toys.js"></script>
 <script src="js/genes.js"></script>
+<script src="js/prestige.js"></script>
 <script src="js/seqsel.js"></script>
 <script src="js/preview.js"></script>
 <script src="js/show.js"></script>

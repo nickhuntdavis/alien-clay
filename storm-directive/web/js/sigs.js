@@ -215,6 +215,7 @@ function sigTick(dt) {
   quirkTick(dt);
   toyTick(dt);
   genesTick(dt);
+  babyTick(dt);
 }
 
 // ---------------------------------------------------------------- Incompatible Viral Load extras (from updateWake)

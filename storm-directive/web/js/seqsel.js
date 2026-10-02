@@ -173,6 +173,7 @@ function seqRender(anim) {
   if (syn.length) h += `<div class="sqh">SPLICE SYNERGIES</div><div class="sqsyn">${syn.map(q => { const o = q.a === id ? q.b : q.a; return `<div class="sqs" style="--oc:${SEQ_LOOK[o].color}"><b>${esc(q.name)}</b><span>+ ${esc(PROFILES[o].name)}: ${esc(q.desc)}</span></div>`; }).join('')}</div>`;
   const info = $('sqInfo');
   info.innerHTML = h;
+  seqHeat();
   const go = $('sqGo');
   go.disabled = !open;
   go.textContent = open ? `EXPRESS ${Pr.name.replace(/^The /, '').toUpperCase()}` : 'LOCKED';
@@ -202,4 +203,14 @@ function seqGo() {
   const hero = $('sqHero'); hero.classList.remove('sqgo'); void hero.offsetWidth; hero.classList.add('sqgo');
   sfx('level');
   setTimeout(() => UI.startGame(true), 450);
+}
+
+// Immune Response: how hard the host fights back this run.
+function seqHeat() {
+  const max = META.heatMax || 0, lv = Math.min(META.heat || 0, max), box = $('sqHeat');
+  META.heat = lv;
+  let h = `<div class="sqh">IMMUNE RESPONSE</div><div class="sqheat"><button class="sqhb" data-h="-1" ${lv <= 0 ? 'disabled' : ''}>&minus;</button><div class="sqhv"><b>${lv}</b><span>${lv ? '+' + Math.round(IMMUNE_DNA * lv * 100) + '% DNA' : 'NORMAL'}</span></div><button class="sqhb" data-h="1" ${lv >= max ? 'disabled' : ''}>+</button></div>`;
+  h += `<div class="sqhl">${IMMUNE.map((x, i) => `<div class="${i < lv ? 'on' : i < max ? '' : 'locked'}"><b>${i + 1}</b> ${i < max ? `${esc(x.name)}: ${esc(x.desc)}` : 'Locked: be born at level ' + i + ' to unlock.'}</div>`).join('')}</div>`;
+  box.innerHTML = h;
+  box.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => { META.heat = clamp(lv + +b.dataset.h, 0, max); saveMeta(); seqHeat(); sfx('pickup'); }));
 }

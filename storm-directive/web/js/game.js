@@ -794,6 +794,7 @@ function killEnemy(e, src) {
   sigKill(e, src);
   toyKill(e, src);
   genesKill(e, src);
+  heatKill(e);
   relicKill(e, src);
   eventKill(e);
   boonKill();
@@ -946,6 +947,7 @@ function makeEnemy(def, x, y, opts) {
   if (opts && opts.elite) {
     e.elite = true; e.hp *= 5; e.maxHp *= 5; e.r *= 1.35; e.armour += 2; e.dmg *= 1.4; e.xp *= 6;
   }
+  heatEnemy(e); // Immune Response
   return e;
 }
 
@@ -968,7 +970,7 @@ function spawnRandom() {
   for (const d of pool) { x -= wOf(d); if (x <= 0) { def = d; break; } }
   const p = spawnPos();
   const n = Math.ceil((def.group || 1) * 0.8);
-  const eliteChance = Math.min(0.12, 0.01 + t / 3000);
+  const eliteChance = Math.min(0.24, (0.01 + t / 3000) * heatElite());
   for (let i = 0; i < n; i++) {
     if (G.enemies.length >= CAPS.enemies) return;
     G.enemies.push(makeEnemy(def, p.x + rand(-30, 30), p.y + rand(-30, 30), { elite: n === 1 && t > 45 && Math.random() < eliteChance }));
@@ -1013,7 +1015,7 @@ function eBullet(x, y, a, speed, dmg, r, color) {
   G.bulSeq = ((G.bulSeq || 0) + 1) % BUL.keep.length;
   if (!BUL.keep[G.bulSeq]) return;
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
-  speed *= (1 + Math.min(0.7, PT() / 1500)) * G.P.bulletSpeed * G.evm.bulspd;
+  speed *= (1 + Math.min(0.7, PT() / 1500)) * G.P.bulletSpeed * G.evm.bulspd * heatBullet();
   G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
   // A boss opening fire flares up.
   if (shooterEnt && shooterEnt.boss && !shooterEnt.egg && !(shooterEnt.fireFxT > G.realT)) { shooterEnt.fireFxT = G.realT + 0.15; G.fx.push({ type: 'flash', x: shooterEnt.x, y: shooterEnt.y, r: shooterEnt.r * 1.8, color: shooterEnt.bphase ? '#ff3b3b' : shooterEnt.def.color, life: 0.15, max: 0.15 }); }
@@ -2004,7 +2006,7 @@ function applyPickup(type, src) {
       G.ebul.length = 0;
       break;
     case 'rage': G.rage = 8; break;
-    case 'heal': healPlayer(P.maxHp * 0.35); break;
+    case 'heal': healPlayer(P.maxHp * 0.35 * heatHeal()); break;
     case 'shield': G.shieldT = 5; break;
     case 'freeze': for (const e of G.enemies) e.frozen = e.boss ? 1.5 : 4; break;
     case 'chest': G.lootQueue.push({ kind: 'chest', src }); break;
@@ -2160,7 +2162,7 @@ function update(dt) {
   // Director.
   // Dense swarms (each monster is weaker to match: see enemyScale).
   const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, 24 + T * 0.5);
-  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE;
+  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE * heatSpawn();
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   if (G.debug) debugTick(); // the Lab Bench: only what you send in
   else if (G.wave) { waveSpawn(rate * G.P.spawnMult, dt, maxAlive, hostile); waveTick(dt); } // the Petri Dish: a set number per wave

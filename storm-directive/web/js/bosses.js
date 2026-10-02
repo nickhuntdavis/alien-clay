@@ -21,6 +21,7 @@ function spawnBoss() {
     e.armour = def.armour + round * 4;
     e.speed = def.speed;
     e.dmg = def.dmg * dmgNow();
+    heatBoss(e); // Immune Response
     e.pat = 0; e.patT = 0; e.fireT = 0; e.st = 0;
     return e;
   };
