@@ -81,6 +81,7 @@ function endBossIntro() {
   ZOOM.z = G.bossIntro.z0; S = S0 * ZOOM.z;
   G.bossIntro = null;
   G.state = 'play';
+  bossArrive(e);
   banner('FIGHT: ' + e.def.name, PAL.danger);
   sysMsg('SYSTEM MESSAGE', `${e.def.name}, ${e.def.title}, has entered the arena. ${pick(SYSTEM_LINES.boss)}`, PAL.danger, true);
   lastTs = performance.now();
@@ -281,12 +282,20 @@ function bossDown(e) {
   healPlayer(P.maxHp * 0.3);
   banner(e.def.name + ' DEFEATED', PAL.reward);
   for (let i = 0; i < 12; i++) dropGem(e.x + rand(-60, 60), e.y + rand(-60, 60), e.xp / 12);
-  // Slow motion, and a chain of bursts across its body.
-  G.slowmo = 1.8;
-  for (let i = 0; i < 7; i++) after(i * 0.12, () => {
+  // Slow motion, a chain of bursts across its body, then one last blast and a pillar of light.
+  G.slowmo = 2.2;
+  for (let i = 0; i < 10; i++) after(i * 0.1, () => {
     const x = e.x + rand(-e.r, e.r), y = e.y + rand(-e.r, e.r);
-    ring(x, y, rand(40, 90), e.def.color, 0.5, 6); spawnPart(x, y, e.def.color, 14, 240, 0.7, 4); addLight(x, y, 200, e.def.color, 0.6);
+    G.fx.push({ type: 'flash', x, y, r: rand(50, 100), color: e.def.color, life: 0.2, max: 0.2 });
+    ring(x, y, rand(40, 90), e.def.color, 0.5, 6); fxParts('spark', x, y, '#ffffff', 10, 420, 0.4, 2.2); spawnPart(x, y, e.def.color, 8, 240, 0.7, 4); addLight(x, y, 200, e.def.color, 0.6);
     cam.shake = Math.min(16, cam.shake + 5); sfx('boom');
+  });
+  after(1.05, () => {
+    G.fx.push({ type: 'flash', x: e.x, y: e.y, r: e.r * 8, color: '#ffffff', life: 0.6, max: 0.6 });
+    G.fx.push({ type: 'pillar', x: e.x, y: e.y, r: e.r * 1.8, color: '#ffffff', life: 1.6, max: 1.6 });
+    for (const [rr, w, l] of [[e.r * 4, 12, 0.6], [e.r * 8, 8, 0.9], [e.r * 13, 4, 1.2]]) ring(e.x, e.y, rr, '#ffffff', l, w);
+    fxParts('drop', e.x, e.y, e.def.color, 40, 520, 0.9, 6); fxParts('smoke', e.x, e.y, '#2e3330', 10, 260, 1.6, e.r * 0.7); fxParts('ember', e.x, e.y, '#ffffff', 20, 300, 1.2, 3);
+    addLight(e.x, e.y, 900, '#ffffff', 1); G.flashT = 0.3; cam.shake = 22; sfx('boss'); vibrate(250);
   });
   cam.shake = 16;
   sfx('boss'); vibrate(200);
@@ -441,6 +450,46 @@ function relicTick(dt) {
 function updateBosses(dt) {
   updateHazards(dt);
   updateRevive();
+  bossFx(dt);
+}
+
+// ---------------------------------------------------------------- boss spectacle
+// The arrival: a pillar of light, a shockwave that shoves everything back, and a flash.
+function bossArrive(e) {
+  for (const o of [e, e.twin].filter(Boolean)) {
+    G.fx.push({ type: 'pillar', x: o.x, y: o.y, r: o.r * 1.4, color: o.def.color, life: 1.1, max: 1.1 });
+    G.fx.push({ type: 'flash', x: o.x, y: o.y, r: o.r * 4, color: o.def.color, life: 0.4, max: 0.4 });
+    ring(o.x, o.y, o.r * 6, '#ffffff', 0.9, 10); ring(o.x, o.y, o.r * 3.5, o.def.color, 0.7, 6);
+    fxParts('spark', o.x, o.y, '#ffffff', 26, 700, 0.6, 2.5);
+    fxParts('smoke', o.x, o.y, '#2e3330', 8, 220, 1.4, o.r * 0.6);
+    forNear(o.x, o.y, o.r * 6, n => { if (n !== o && !n.boss && !n.charmed) { const dx = n.x - o.x, dy = n.y - o.y, d = Math.hypot(dx, dy) || 1; n.kx += dx / d * 520; n.ky += dy / d * 520; } });
+  }
+  G.flashT = 0.2; cam.shake = 18; vibrate([80, 40, 160]);
+}
+// Per frame: energy drawn into the boss (more as it gets angry), and the enrage at 66% and 33%.
+function bossFx(dt) {
+  for (const e of [G.boss, G.boss && G.boss.twin]) {
+    if (!e || e.dead || e.egg) continue;
+    const frac = e.hp / e.maxHp, ph = frac < 0.33 ? 2 : frac < 0.66 ? 1 : 0;
+    if (ph > (e.bphase || 0)) bossEnrage(e, ph);
+    e.moteT = (e.moteT || 0) - dt;
+    if (e.moteT <= 0 && G.parts.length < CAPS.parts - 40) {
+      e.moteT = 0.06 / (1 + (e.bphase || 0)) / (0.4 + 0.6 * FX.k);
+      const a = Math.random() * TAU, R = e.r * rand(2.2, 3.2), v = rand(120, 200);
+      // Spiralling in: aimed at the boss, swung a little sideways.
+      const ia = a + Math.PI + 0.6;
+      G.parts.push({ k: 'ember', x: e.x + Math.cos(a) * R, y: e.y + Math.sin(a) * R, vx: Math.cos(ia) * v, vy: Math.sin(ia) * v, life: 0.7, max: 0.7, color: e.bphase ? '#ff3b3b' : e.def.color, size: 2.5 });
+    }
+  }
+}
+function bossEnrage(e, ph) {
+  e.bphase = ph;
+  banner(ph === 2 ? e.name + ': FINAL PHASE' : e.name + ' IS ENRAGED', PAL.danger);
+  G.fx.push({ type: 'flash', x: e.x, y: e.y, r: e.r * 5, color: '#ff3b3b', life: 0.5, max: 0.5 });
+  ring(e.x, e.y, e.r * 7, '#ffffff', 1, 12); ring(e.x, e.y, e.r * 4, '#ff3b3b', 0.8, 8);
+  fxParts('spark', e.x, e.y, '#ff3b3b', 30, 800, 0.7, 3);
+  forNear(e.x, e.y, e.r * 7, n => { if (n !== e && !n.boss && !n.charmed) { const dx = n.x - e.x, dy = n.y - e.y, d = Math.hypot(dx, dy) || 1; n.kx += dx / d * 600; n.ky += dy / d * 600; } });
+  G.flashT = 0.16; cam.shake = 16; sfx('boss'); vibrate([60, 30, 120]);
 }
 
 // Autorun: how dangerous a spot is because of boss ground hazards and the Eye's glare (from autoSteer).

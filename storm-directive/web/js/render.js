@@ -1199,6 +1199,7 @@ function render() {
     const x = sx(e.x), y = sy(e.y), r = e.r * S * squash;
     ctx.globalAlpha = e.phased ? 0.25 : 1;
     if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
+    if (e.boss && !e.egg) drawBossAura(e, x, y, r);
     if (e.boss) drawBossTells(e, x, y, r);
     if (e.aimT > 0) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 - e.aimT) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(e.aimA) * 700 * S, y + Math.sin(e.aimA) * 700 * S); ctx.stroke(); }
     const tgt = e.charmed && e.allyT ? e.allyT : G.player;
@@ -1410,6 +1411,13 @@ function render() {
   ctx.globalCompositeOperation = 'lighter'; // arcs, blasts and shockwaves are energy
   for (const f of G.fx) {
     const k = f.life / f.max;
+    if (f.type === 'pillar') {
+      // A column of light from above (boss arrivals and deaths).
+      const x = sx(f.x), y = sy(f.y), wd = f.r * S * (0.4 + 0.6 * k), top = y - H;
+      for (const [m, al] of [[1.8, 0.18], [1, 0.4], [0.35, 0.9]]) { ctx.globalAlpha = al * k; ctx.fillStyle = al > 0.5 ? '#ffffff' : f.color; ctx.fillRect(x - wd * m / 2, top, wd * m, y - top); }
+      glow(x, y, wd * 2.5, '#ffffff', 0.8 * k);
+      continue;
+    }
     if (f.type === 'flash') {
       // The white-hot core of a blast: big and bright for a few frames.
       const e = 1 - k, q = 0.4 + 0.6 * FX.k; glow(sx(f.x), sy(f.y), f.r * S * (0.45 + e * 0.5), '#ffffff', 0.55 * k * q); glow(sx(f.x), sy(f.y), f.r * S * (0.8 + e * 0.7), f.color, 0.45 * k * q);
@@ -1559,6 +1567,13 @@ function render() {
     ctx.strokeStyle = 'rgba(184,192,255,0.35)'; ctx.lineWidth = 2;
     for (let i = 0; i < 3; i++) { const ph = (G.realT * 0.6 + i / 3) % 1; ctx.globalAlpha = 1 - ph; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (40 + ph * 420) * S, 0, TAU); ctx.stroke(); }
     ctx.globalAlpha = 1;
+  }
+  if (G.boss && !G.boss.dead && !G.boss.egg) {
+    // Dread: the edges of the slide darken and pulse while a boss is alive (harder when it's enraged).
+    const ph = G.boss.bphase || 0, pulse = 0.5 + 0.5 * Math.sin(G.realT * (2 + ph * 1.5));
+    const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.22, W / 2, H / 2, Math.hypot(W, H) * 0.52);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${(0.42 + 0.14 * ph + 0.12 * pulse).toFixed(3)})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   }
   if (G.flashT > 0) { ctx.fillStyle = '#ffffff'; ctx.globalAlpha = Math.min(0.28, G.flashT * 2); ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   if (G.evm && G.evm.dark) {
@@ -1828,7 +1843,15 @@ function drawHud() {
     const b = G.boss, bw = barW, bx = barX, by = top + BY;
     const pair = b.twin ? [b, b.twin] : [b];
     const hp = pair.reduce((a, o) => a + (o.dead ? 0 : Math.max(0, o.hp)), 0), mx = pair.reduce((a, o) => a + o.maxHp, 0);
-    softBar(bx, by, bw, hp / mx, XR.white);
+    // A trailing "damage taken" chunk, phase marks at 66% and 33%, and a jolt on big hits.
+    const k = hp / mx;
+    if (G.bossGhost == null || G.bossGhostOf !== b) { G.bossGhost = k; G.bossGhostOf = b; }
+    if (G.bossGhost - k > 0.02) G.bossJolt = 0.25;
+    G.bossGhost = Math.max(k, G.bossGhost - 0.004);
+    const jx = G.bossJolt > 0 ? (Math.random() - 0.5) * 6 * G.bossJolt * 4 : 0; if (G.bossJolt > 0) G.bossJolt -= 1 / 60;
+    softBar(bx + jx, by, bw, G.bossGhost, 'rgba(255,255,255,0.35)');
+    { const fw = Math.max(0, Math.min(1, k)) * bw; if (fw > 1) { sheetPath(bx + jx, by, Math.max(fw, 8), 10, false, 5); ctx.fillStyle = b.bphase ? PAL.danger : XR.white; ctx.fill(); } }
+    ctx.fillStyle = '#000000'; for (const m of [0.33, 0.66]) ctx.fillRect(bx + jx + bw * m - 1, by - 2, 2, 14);
     ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
     const nm = b.twin ? b.def.name : b.name;
     const tag = G.revive ? `  REBUILDING IN ${Math.max(0, Math.ceil(G.revive.t - G.t))}s` : b.winded > G.t ? '  WINDED: HIT IT!' : b.glaring ? '  GLARING: HIT IT!' : b.armour >= 6 ? `  [ARMOUR ${Math.round(effArmour(b))}]` : '';
@@ -2231,4 +2254,34 @@ function drawDish() {
   ctx.globalAlpha = 0.12; ctx.lineWidth = 1;
   for (let k = 1; k <= 4; k++) { ctx.beginPath(); ctx.arc(x, y, R * k / 5 + Math.sin(G.realT * 0.6 + k) * 6 * S, 0, TAU); ctx.stroke(); }
   ctx.globalAlpha = 1;
+}
+
+// ---------------------------------------------------------------- boss presence
+// Under every boss: a dark halo so it looms, a ground sigil of counter-rotating rings (spinning faster as
+// it enrages), and once it's angry, glowing cracks across its body.
+function drawBossAura(e, x, y, r) {
+  const ph = e.bphase || 0, t = G.realT, R = r * 1.9;
+  ctx.save();
+  ctx.globalAlpha = 0.5; ctx.fillStyle = '#000000';
+  const g = ctx.createRadialGradient(x, y, r * 0.6, x, y, r * 3.2); g.addColorStop(0, 'rgba(0,0,0,0.45)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(x, y, r * 3.2, 0, TAU); ctx.fill();
+  const col1 = ph ? '#ff3b3b' : '#ffffff', spd = 0.4 + ph * 0.5;
+  ctx.strokeStyle = col1; ctx.lineWidth = 2; ctx.globalAlpha = 0.45 + 0.15 * ph;
+  ctx.setLineDash([R * 0.18, R * 0.1]); ctx.lineDashOffset = -t * 40 * spd;
+  ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
+  ctx.setLineDash([R * 0.06, R * 0.14]); ctx.lineDashOffset = t * 60 * spd;
+  ctx.beginPath(); ctx.arc(x, y, R * 1.25, 0, TAU); ctx.stroke();
+  ctx.setLineDash([]);
+  // Runic ticks round the outer ring.
+  ctx.lineWidth = 1.5; ctx.beginPath();
+  for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + t * 0.3 * spd, r0 = R * 1.36, r1 = R * (i % 4 ? 1.44 : 1.55); ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); ctx.lineTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1); }
+  ctx.stroke();
+  ctx.restore();
+  if (ph) {
+    // Enraged: cracks of light across the body (drawn as additive light, flickering).
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = '#ff3b3b'; ctx.lineWidth = 2 + ph; ctx.globalAlpha = 0.55 + 0.35 * Math.sin(t * 13);
+    ctx.beginPath();
+    for (let c = 0; c < 2 + ph * 2; c++) { let a = e.id * 1.3 + c * 2.1, qx = x, qy = y; ctx.moveTo(qx, qy); for (let i = 0; i < 4; i++) { a += Math.sin(e.id + c * 3 + i) * 0.7; qx += Math.cos(a) * r * 0.26; qy += Math.sin(a) * r * 0.26; ctx.lineTo(qx, qy); } }
+    ctx.stroke(); ctx.restore();
+  }
 }

@@ -324,6 +324,7 @@ function setWeaponLevel(w, to, from) {
   from = from != null ? from : w.lvl;
   w.lvl = to;
   if (w.isSpell) return;
+  if (to >= MAX_WLVL) achieve('mastery');
   w.perks = w.perks || {};
   for (const m of PERK_LEVELS) if (from < m && to >= m && !w.perks[m]) G.lootQueue.push({ kind: 'branch', uid: w.uid, lvl: m });
 }

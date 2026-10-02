@@ -33,6 +33,7 @@ function withBoon(o) {
 function grantBoon(id) {
   const B = BOONS[id], P = G.P, p = me();
   (G.boons || (G.boons = {}))[id] = true;
+  achieve('mythic');
   banner(B.name.toUpperCase() + '!', RARITIES[B.tier].color);
   sysMsg(RARITIES[B.tier].name.toUpperCase() + ' BONUS', `${B.name}: ${B.desc}`, PAL.upgrade, true);
   sfx('level'); vibrate([60, 40, 120]);

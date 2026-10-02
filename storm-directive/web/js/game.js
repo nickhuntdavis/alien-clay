@@ -417,7 +417,7 @@ function genLoot(req) {
     cands.push({ w: 3.2, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
   // Stains you don't have yet.
-  for (const id in DYES) if (!G.dyes[id]) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
+  for (const id in DYES) if (!G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
   // Guarantee a fusion option when one is available.
   const chosen = [];
   const mc = cands.filter(c => c.key.startsWith('fuse')); // (this used to match modifiers too, forcing one into every box)
@@ -443,13 +443,13 @@ function genLoot(req) {
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 function optNewWeapon(id, r) {
-  const def = WEAPONS[id], lvl = [1, 2, 3, 4][r];
+  const def = WEAPONS[id], lvl = [1, 1, 2, 3, 4, 4, 4][r] || 1;
   return { def, rarity: r, tag: 'NEW WEAPON', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
     sub: `${ELEMENTS[def.elem].name} | Lv ${lvl}`, desc: def.desc + (def.merged ? '' : fuseHint(id)),
     apply: () => { const i = G.weapons.findIndex(w => !w); if (i >= 0) { G.weapons[i] = makeSlot(id, false, lvl); setWeaponLevel(G.weapons[i], lvl, 1); recomputeAll(); } } };
 }
 function optNewSpell(id, r) {
-  const def = SPELLS[id], lvl = [1, 2, 3, 4][r];
+  const def = SPELLS[id], lvl = [1, 1, 2, 3, 4, 4, 4][r] || 1;
   return { def, rarity: r, tag: 'NEW SPELL', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
     sub: `${ELEMENTS[def.elem].name} spell | Lv ${lvl}`, desc: def.desc,
     apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); } } };
@@ -991,6 +991,8 @@ function eBullet(x, y, a, speed, dmg, r, color) {
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
   speed *= (1 + Math.min(0.7, PT() / 1500)) * G.P.bulletSpeed * G.evm.bulspd;
   G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
+  // A boss opening fire flares up.
+  if (shooterEnt && shooterEnt.boss && !shooterEnt.egg && !(shooterEnt.fireFxT > G.realT)) { shooterEnt.fireFxT = G.realT + 0.15; G.fx.push({ type: 'flash', x: shooterEnt.x, y: shooterEnt.y, r: shooterEnt.r * 1.8, color: shooterEnt.bphase ? '#ff3b3b' : shooterEnt.def.color, life: 0.15, max: 0.15 }); }
 }
 
 function shootPattern(e, pat, a0) {
@@ -2357,7 +2359,7 @@ function frame(ts) {
   // Schedule the next frame first, and keep each stage separate, so one error can never freeze the game.
   requestAnimationFrame(frame);
   const raw = (ts - lastTs) / 1000;
-  if (raw > 0 && raw < 0.5) FPS.v += (1 / raw - FPS.v) * 0.05;
+  if (raw > 0.004 && raw < 0.5) FPS.v += (1 / raw - FPS.v) * 0.05; // (a just-reset clock gives tiny gaps: skip them)
   const dt = clamp(raw || 0, 0, 1 / 30);
   lastTs = ts;
   safely('update', () => {

@@ -681,7 +681,6 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Repeat Prescription** | -10% spell cooldowns | 5 |
 | **Antenatal Classes** | +12% experience gained | 5 |
 | **Snooze Button** | +1 max Rewind charge, +25% Chrono energy (Rare or better only) | 3 |
-| **Hand-Me-Downs** | +25% scrap from kills | 5 |
 | **Last Word** | Last bullet of every magazine deals x4 damage and explodes | 3 |
 | **Tactical Nap** | Starting a reload sends out a shockwave that deletes nearby bullets (+40 radius) | 4 |
 | **Tunnel Vision** | +3% damage per second on the same target, up to +30% more | 3 |
@@ -791,8 +790,8 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 |---|---|---|
 | **Glass Cannon Deluxe** | x1.8 damage for everything | Max HP halved |
 | **Speedrunner's Regret** | +50% fire rate | Enemy bullets 20% faster |
-| **Hoarder's Bargain** | Double scrap, double viewers | Pickup range halved |
-| **Crowd Pleaser** | +50% XP and viewers | 30% more enemies |
+| **Hoarder's Bargain** | +4 rerolls right now, double viewers | Pickup range halved |
+| **Crowd Pleaser** | +50% XP and viewers | 30% more enemies (30% bigger waves in the dish) |
 | **Paradox Addict** | +2 max Rewind charges, all refilled now | All healing halved |
 | **Clothing Optional** | +25% move speed, +20% dodge | Armour is zero. Forever. |
 

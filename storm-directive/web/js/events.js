@@ -68,7 +68,7 @@ const RUN_EVENTS = {
       return e;
     },
     end: (d, ev) => { const e = ev.target; if (e && !e.dead) { e.elite = false; e.evTag = null; floatText(e.x, e.y - e.r - 12, 'GOT AWAY', '#ffffff', 14); } return null; },
-    reward: (d, e) => { for (let i = 0; i < (d ? 2 : 1); i++) G.pickups.push(makePickup('chest', e.x + i * 24, e.y)); G.rerolls += 2; return 'BOUNTY PAID'; } },
+    reward: (d, e) => { for (let i = 0; i < (d ? 2 : 1); i++) G.pickups.push(makePickup('chest', e.x + i * 24, e.y)); G.rerolls += 2; achieve('bounty'); return 'BOUNTY PAID'; } },
   blackout: { name: 'LIGHTS OUT', color: '#b8c0ff', dur: 25, w: 2,
     desc: d => `Someone switched off the microscope lamp. +30% XP.${d ? ' Elites are out hunting.' : ''}`,
     mods: () => ({ dark: 1, xp: 1.3 }),
