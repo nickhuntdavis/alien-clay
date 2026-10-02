@@ -72,8 +72,10 @@ const UI = {
     $('setBtnTitle').addEventListener('click', () => UI.openSettings('title'));
     $('setBtnPause').addEventListener('click', () => UI.openSettings('pause'));
     $('setBack').addEventListener('click', () => UI.show(UI.setFrom || 'title'));
-    $('bankBtn').addEventListener('click', () => { UI.renderBank(); UI.show('bank'); });
+    $('bankBtn').addEventListener('click', () => { UI.bankClear = false; UI.renderBank(); UI.show('bank'); $('bank').scrollTop = 0; });
     $('bankBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
+    $('codexBtn').addEventListener('click', () => { UI.openCodex(); $('codex').scrollTop = 0; });
+    $('codexBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     UI.applySettings();
     $('againBtn').addEventListener('click', () => UI.startGame());
     $('dbgBtn').addEventListener('click', e => { e.stopPropagation(); if (G && G.debug) toggleDebugPanel(); });
@@ -94,7 +96,7 @@ const UI = {
   lastDown: 0, lootOpenT: 0,
   show(name) {
     if (!G) refreshPalette(); // out of a run everything is greyscale
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples', 'bossIntro', 'draft']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'bossIntro', 'draft']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -192,7 +194,7 @@ const UI = {
       else if (now - UI.autoWaveT > 1500) { UI.autoWaveT = 0; waveBegin(); $('waveBtn').classList.remove('on'); }
     } else UI.autoWaveT = 0;
   },
-  menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'samples']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
+  menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
   tick(dt) {
     updatePreviews(dt);
     UI.autoTick();
@@ -328,6 +330,25 @@ const UI = {
       <div class="aname">${esc(d.name)}${d.merged ? ' <span class="fz">FUSED</span>' : ''}</div>
       <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: MAX_WLVL }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/${MAX_WLVL}</div>
       <div class="adesc">${esc(d.desc)}</div></div></div>`;
+    // How it plays.
+    if (!w.isSpell && d.play) {
+      const st = d.stars || [3, 3, 3, 3], bar = n => `<div class="dbar">${Array.from({ length: 5 }, (_, k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div>`;
+      h += `<div class="sec"><div class="drole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</div><p class="hint atplay">${esc(d.play)}</p>
+        <div class="dbars"><span>POWER</span>${bar(st[0])}<span>FIRE RATE</span>${bar(st[1])}<span>REACH</span>${bar(st[2])}<span>CROWDS</span>${bar(st[3])}</div></div>`;
+    }
+    // This run, and every run.
+    if (!w.isSpell) {
+      const W = G.stats.wdmg || {}, mine = W[w.uid] || 0, tot = G.weapons.reduce((a, x) => a + (x ? W[x.uid] || 0 : 0), 0) || 1, life = META.wstats[w.id];
+      const mo = masterOf(w), note = w.lvl >= MAX_WLVL ? 'This is your mastery weapon this run.' : mo ? `${mo.def.name} took this run's mastery: this one stops at Lv ${MAX_WLVL - 1}.` : 'Mastery (Lv 10) is still open: the first weapon to get there takes it.';
+      h += `<div class="sec"><h3>Record</h3><div class="tiles"><div class="tile"><b>${fmtNum(mine)}</b><span>Damage this run</span></div><div class="tile"><b>${Math.round(mine / tot * 100)}%</b><span>Of your weapons' damage</span></div>
+        <div class="tile"><b>${life ? life.runs : 0}</b><span>Earlier runs</span></div><div class="tile"><b>${life ? life.born : 0}</b><span>Born with it</span></div></div><p class="hint">${esc(note)}</p></div>`;
+    }
+    // Your upgrades, with this weapon's own twist on them.
+    if (!w.isSpell) {
+      const tw = Object.keys(ADAPT).filter(k => ADAPT[k][w.id] && (G.passives[k] || 0) > 0).map(k => `<div class="li on"><b>${esc(PASSIVES[k] ? PASSIVES[k].name : k)}</b> x${G.passives[k]}<br><span>${esc(ADAPT[k][w.id])}</span></div>`);
+      const soon = Object.keys(ADAPT).filter(k => ADAPT[k][w.id] && !(G.passives[k] > 0)).map(k => PASSIVES[k] ? PASSIVES[k].name : k);
+      if (tw.length || soon.length) h += `<div class="sec"><h3>Upgrade twists</h3>${tw.length ? `<div class="list">${tw.join('')}</div>` : ''}${soon.length ? `<p class="hint">These upgrades work differently on ${esc(d.name)}: ${esc(soon.join(', '))}.</p>` : ''}</div>`;
+    }
     // Stats.
     const tiles = [];
     const T = (label, val) => tiles.push(`<div class="tile"><b>${val}</b><span>${label}</span></div>`);
@@ -733,36 +754,10 @@ const UI = {
     h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%</p></div>`;
 
     }
-    if (tab === 'codex') {
-    h += `<div class="sec"><h3>Rewind</h3><p class="hint"><b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically.</p></div>`;
-    // Reactions.
-    h += `<div class="sec"><h3>Elemental reactions</h3><div class="list">`;
-    for (const id in REACTIONS) h += `<div class="li"><b>${REACTIONS[id].name}</b> ${G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
-    h += `</div></div>`;
-
-    // Pairings found so far (on any run).
-    const found = PAIRINGS.filter(q => META.pairs[q.id]);
-    h += `<div class="sec"><h3>Pairings found (${found.length}/${PAIRINGS.length})</h3><div class="list">`;
-    for (const q of PAIRINGS) {
-      const known = META.pairs[q.id];
-      h += `<div class="li ${G.pair[q.id] ? 'on' : ''}"><b style="color:${known ? PAL.upgrade : 'inherit'}">${known ? esc(q.name) : '???'}</b><br><span>${known ? esc(WEAPONS[q.a].name) + ' + ' + esc(WEAPONS[q.b].name) + ': ' + esc(q.desc) : 'Two weapons, both Lv ' + PAIR_LEVEL + '+. Nobody has told you which.'}</span></div>`;
-    }
-    h += `</div></div>`;
-    // Secrets: nobody tells you about these until you stumble on them.
-    const qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
-    h += `<div class="sec"><h3>Secrets found (${qf.length}/${qs.length})</h3><p class="hint">Things that happen when the rules collide. Nobody will tell you what they are.</p><div class="list">`;
-    for (const id of qs) { const known = META.quirks[id], Q = QUIRKS[id]; h += `<div class="li ${G.quirks && G.quirks[id] ? 'on' : ''}"><b style="color:${known ? PAL.upgrade : 'inherit'}">${known ? esc(Q.name) : '???'}</b><br><span>${known ? esc(Q.desc) : 'Undiscovered.'}</span></div>`; }
-    h += `</div></div>`;
-    // The boss ward.
-    h += `<div class="sec"><h3>The boss ward (${Object.keys(META.bosses).length}/${BOSSES.length} met)</h3><p class="hint">Every run you meet ${BOSSES_PER_RUN} of them, in a random order.</p><div class="list">`;
-    for (const b of BOSSES) {
-      const met = META.bosses[b.id], now = G.bossRoster.indexOf(b.id) >= 0 && G.bossRoster.indexOf(b.id) < G.bossCount;
-      h += `<div class="li ${now ? 'on' : ''}"><b>${met ? esc(b.name) : '???'}</b>${met ? ' <em>' + esc(b.title) + '</em>' : ''}<br><span>${met ? 'Weak to: ' + esc(b.weaknesses.join('; ')) + '. Relics: ' + b.relics.map(id => esc(RELICS[id].name)).join(', ') : 'Not met yet.'}</span></div>`;
-    }
-    h += `</div></div>`;
-    }
+    if (tab === 'codex') h += UI.codexHtml();
     box.innerHTML = h;
     box.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { UI.pauseTab = b.dataset.ptab; UI.renderPause(); $('pause').scrollTop = 0; }));
+    UI.bindCodex(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     box.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => { G.moveDir = b.dataset.move; UI.renderPause(); }));
     box.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       const w = b.dataset.k === 'w' ? G.weapons[+b.dataset.i] : G.spells[+b.dataset.i];
@@ -791,36 +786,118 @@ const UI = {
     UI.show('samples');
   },
 
+  // ---------------------------------------------------------------- Codex (from the pause menu, or the title screen between runs)
+  codexHtml() {
+    const run = !!G, cyan = PAL.upgrade, sec = UI.codexSec || 'all', box = (title, inner, hint) => `<div class="sec"><h3>${title}</h3>${hint ? `<p class="hint">${hint}</p>` : ''}${inner}</div>`;
+    const wids = Object.keys(WEAPONS), used = wids.filter(id => META.wstats[id]);
+    const pf = PAIRINGS.filter(q => META.pairs[q.id]), qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
+    const met = Object.keys(META.bosses).length, rel = Object.keys(RELICS).filter(id => META.relics[id]);
+    const got = used.length + pf.length + qf.length + met + rel.length, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length;
+    let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>CODEX COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
+      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Relics ${rel.length}/${Object.keys(RELICS).length}</span></div></div>`;
+    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['pairs', 'PAIRINGS'], ['secrets', 'SECRETS'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
+    const show = id => sec === 'all' || sec === id;
+    if (show('weapons')) {
+      let l = '';
+      for (const id of wids) {
+        const d = WEAPONS[id], r = META.wstats[id], own = run && G.weapons.some(w => w && w.id === id);
+        l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, r ? elemCol(d.elem) : '#ffffff40')}</span><div><b style="color:${r ? 'inherit' : '#ffffff80'}">${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</span><br><span>${esc(d.play || d.desc)}</span><br><em>${r ? `${r.runs} run${r.runs > 1 ? 's' : ''}, born ${r.born}, best Lv ${r.best}` : 'Never taken into a run.'}</em></div></div>`;
+      }
+      h += box(`Weapons (${used.length}/${wids.length} used)`, `<div class="list">${l}</div>`, 'Every weapon in the fridge. Take one into a run to log it.');
+    }
+    if (show('pairs')) {
+      let l = '';
+      for (const q of PAIRINGS) {
+        const known = META.pairs[q.id], on = run && G.pair && G.pair[q.id];
+        l += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? cyan : 'inherit'}">${known ? esc(q.name) : '???'}</b>${on ? ' (ACTIVE)' : ''}<br><span>${known ? esc(WEAPONS[q.a].name) + ' + ' + esc(WEAPONS[q.b].name) + ': ' + esc(q.desc) : 'Two weapons, both Lv ' + PAIR_LEVEL + '+. Nobody has told you which.'}</span></div>`;
+      }
+      h += box(`Pairings found (${pf.length}/${PAIRINGS.length})`, `<div class="list">${l}</div>`);
+    }
+    if (show('secrets')) {
+      let l = '';
+      for (const id of qs) { const known = META.quirks[id], Q = QUIRKS[id]; l += `<div class="li ${run && G.quirks && G.quirks[id] ? 'on' : ''}"><b style="color:${known ? cyan : 'inherit'}">${known ? esc(Q.name) : '???'}</b><br><span>${known ? esc(Q.desc) : 'Undiscovered.'}</span></div>`; }
+      h += box(`Secrets found (${qf.length}/${qs.length})`, `<div class="list">${l}</div>`, 'Things that happen when the rules collide. Nobody will tell you what they are.');
+    }
+    if (show('bosses')) {
+      let l = '';
+      for (const b of BOSSES) {
+        const m = META.bosses[b.id], now = run && G.bossRoster && G.bossRoster.indexOf(b.id) >= 0 && G.bossRoster.indexOf(b.id) < G.bossCount;
+        const rl = b.relics.map(id => (META.relics[id] ? `<b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b>` : esc(RELICS[id].name))).join(', ');
+        l += `<div class="li ${now ? 'on' : ''}"><b>${m ? esc(b.name) : '???'}</b>${m ? ' <em>' + esc(b.title) + '</em>' : ''}<br><span>${m ? 'Weak to: ' + esc(b.weaknesses.join('; ')) + '. Relics: ' + rl : 'Not met yet.'}</span></div>`;
+      }
+      h += box(`The boss ward (${met}/${BOSSES.length} met, ${rel.length}/${Object.keys(RELICS).length} relics taken)`, `<div class="list">${l}</div>`, `Every run you meet ${BOSSES_PER_RUN} of them, in a random order. Relics you have taken are in gold.`);
+    }
+    if (show('rules')) {
+      h += box('Rewind', '', `<b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically.`);
+      let l = '';
+      for (const id in REACTIONS) l += `<div class="li"><b>${REACTIONS[id].name}</b> ${run && G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
+      h += box('Elemental reactions', `<div class="list">${l}</div>`);
+    }
+    return h;
+  },
+  // Codex tabs inside a screen: re-render whichever screen holds it.
+  bindCodex(root, rerender) { root.querySelectorAll('[data-cdx]').forEach(b => b.addEventListener('click', () => { UI.codexSec = b.dataset.cdx; rerender(); })); },
+  openCodex() { UI.codexSec = UI.codexSec || 'all'; $('codexBody').innerHTML = UI.codexHtml(); UI.bindCodex($('codexBody'), () => UI.openCodex()); UI.show('codex'); },
+
   // ---------------------------------------------------------------- Gene Bank (meta progression)
   renderBank() {
-    const body = $('bankBody'), gold = PAL.reward, cyan = PAL.upgrade;
+    const body = $('bankBody'), gold = PAL.reward, cyan = PAL.upgrade, best = UI.loadBest();
     const buy = (kind, id, cost, owned, label) => owned
       ? `<span class="bown" style="color:${cyan}">${label || 'OWNED'}</span>`
       : `<button class="chip bbuy ${META.dna < cost ? 'poor' : ''}" data-k="${kind}" data-id="${id}">${cost} DNA</button>`;
-    let h = `<div class="bdna"><b style="color:${gold}">${fmtNum(META.dna)}</b> DNA banked <span class="hint">(${fmtNum(META.total)} earned in total)</span></div>
+    const spent = metaSpent();
+    let h = `<div class="bdna"><b style="color:${gold}">${fmtNum(META.dna)}</b> DNA banked <span class="hint">(${fmtNum(META.total)} earned, ${fmtNum(spent)} spent)</span></div>
       <p class="hint">Every run banks DNA: levels, bosses, rival kills, time survived, and a big bonus for being born. Spend it on permanent changes to every future swimmer.</p>`;
+    // What the next swimmer starts with.
+    const now = META_BONUSES.filter(b => META.ranks[b.id]).map(b => META_NOW[b.id](META.ranks[b.id]));
+    const st = META_STARTERS.filter(([id]) => META.starters[id] && WEAPONS[id]).map(([id]) => WEAPONS[id].name);
+    h += `<div class="sec bnext"><h3>Your next swimmer</h3><p class="hint">${now.length ? esc(now.join(', ')) : 'Nothing inherited yet.'}${st.length ? '<br>Extra starters: ' + esc(st.join(', ')) : ''}<br>Tag: ${esc((META_DYES.find(d => d.id === META.dye) || META_DYES[0]).name)}</p></div>`;
     h += `<div class="sec"><h3>Inherited traits</h3>`;
     for (const b of META_BONUSES) {
       const r = META.ranks[b.id] || 0, pips = Array.from({ length: b.max }, (_, i) => `<i class="${i < r ? 'on' : ''}"></i>`).join('');
-      h += `<div class="brow"><div><b>${esc(b.name)}</b><span class="pips">${pips}</span><div class="hint">${esc(b.desc)}</div></div>${buy('rank', b.id, r < b.max ? b.cost(r) : 0, r >= b.max, 'MAX')}</div>`;
+      h += `<div class="brow"><div><b>${esc(b.name)}</b><span class="pips">${pips}</span><div class="hint">${esc(b.desc)}${r ? ` <span style="color:${cyan}">(now ${esc(META_NOW[b.id](r))})</span>` : ''}</div></div>${buy('rank', b.id, r < b.max ? b.cost(r) : 0, r >= b.max, 'MAX')}</div>`;
     }
-    h += `</div><div class="sec"><h3>Starter weapons</h3><p class="hint">Unlocked weapons join your starter DNA. One is always offered.</p>`;
-    for (const [id, cost] of META_STARTERS) {
-      const d = WEAPONS[id]; if (!d) continue;
-      h += `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b><div class="hint">${esc(d.desc || '')}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
-    }
+    const starterRow = ([id, cost]) => {
+      const d = WEAPONS[id]; if (!d) return '';
+      const ws = META.wstats[id];
+      return `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
+    };
+    h += `</div><div class="sec"><h3>Starter weapons</h3><p class="hint">Unlocked weapons join your starter DNA. One of them is always offered.</p>`;
+    h += META_STARTERS.filter(([id]) => !WEAPONS[id] || !WEAPONS[id].toy).map(starterRow).join('');
+    h += `<h3 style="margin-top:12px">Toys</h3><p class="hint">The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.</p>`;
+    h += META_STARTERS.filter(([id]) => WEAPONS[id] && WEAPONS[id].toy).map(starterRow).join('');
     h += `</div><div class="sec"><h3>Tag dyes</h3><p class="hint">Your fluorescent tag. All in the green family, so green still means you.</p>`;
     for (const d of META_DYES) {
       const owned = META.dyes[d.id], on = META.dye === d.id;
       h += `<div class="brow"><div class="bdye" style="background:${d.color};box-shadow:0 0 10px ${d.color}"></div><div><b>${esc(d.name)}</b></div>${on ? `<span class="bown" style="color:${cyan}">WEARING</span>` : owned ? `<button class="chip bbuy" data-k="dye" data-id="${d.id}">WEAR</button>` : buy('dye', d.id, d.cost, false)}</div>`;
     }
     h += `</div>`;
+    // Records.
+    const runs = RUNLOG.length, born = RUNLOG.filter(r => r.res === 'WON').length, topLv = RUNLOG.reduce((m, r) => Math.max(m, r.lvl || 0), 0);
+    const fav = Object.entries(META.wstats).sort((a, b) => b[1].runs - a[1].runs).slice(0, 3).filter(([id]) => WEAPONS[id]).map(([id, r]) => `${WEAPONS[id].name} (${r.runs})`);
+    h += `<div class="sec"><h3>Records</h3><div class="tiles">
+      <div class="tile"><b>${runs}</b><span>Runs logged</span></div><div class="tile"><b>${born}</b><span>Born</span></div>
+      <div class="tile"><b>${best.born ? fmtTime(best.born) : '-'}</b><span>Fastest birth</span></div><div class="tile"><b>${topLv || '-'}</b><span>Highest level</span></div>
+      <div class="tile"><b>${best.wave || '-'}</b><span>Best Petri Dish wave</span></div><div class="tile"><b>${fmtNum(META.total)}</b><span>DNA earned</span></div></div>
+      ${fav.length ? `<p class="hint">Most used: ${esc(fav.join(', '))}.</p>` : ''}</div>`;
+    // Clear: a full refund, so you can spend it all again. Two taps.
+    h += `<div class="sec"><h3>Clear the bank</h3><p class="hint">Refunds every DNA you have spent (${fmtNum(spent)}) and removes all traits, starters and dyes, so you can spend it again differently. Your Codex discoveries and records stay.</p>
+      <button class="btn ${UI.bankClear ? 'danger' : ''}" id="bankClear" ${spent ? '' : 'disabled'}>${UI.bankClear ? `TAP AGAIN: CLEAR AND REFUND ${fmtNum(spent)} DNA` : 'CLEAR GENE BANK'}</button></div>`;
     body.innerHTML = h;
     body.querySelectorAll('.bbuy').forEach(b => b.addEventListener('click', () => {
       if (!metaBuy(b.dataset.k, b.dataset.id)) { UI.toast('Not enough DNA yet: swim again'); return; }
-      sfx('pickup');
+      sfx('pickup'); UI.bankClear = false;
       const y = $('bank').scrollTop; UI.renderBank(); $('bank').scrollTop = y;
     }));
+    const cb = $('bankClear');
+    if (cb) cb.addEventListener('click', () => {
+      const y = $('bank').scrollTop;
+      if (!UI.bankClear) { UI.bankClear = true; UI.renderBank(); $('bank').scrollTop = y; return; }
+      UI.bankClear = false;
+      const n = metaClear();
+      UI.toast(`Gene Bank cleared: ${fmtNum(n)} DNA refunded`); sfx('pickup');
+      UI.renderBank(); $('bank').scrollTop = y; UI.renderBest();
+    });
   },
 
   // ---------------------------------------------------------------- game over
@@ -962,7 +1039,7 @@ window.handleBack = function () {
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot') || on('draft')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
-  if (on('bank') || on('samples')) { UI.show('title'); UI.renderBest(); return 'ok'; }
+  if (on('bank') || on('samples') || on('codex')) { UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('settings')) { UI.show(UI.setFrom || 'title'); return 'ok'; }
   UI.togglePause();
   return 'ok';

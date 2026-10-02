@@ -10,10 +10,18 @@ const META_BONUSES = [
   { id: 'grip',     name: 'Pre-Sticky Cilia',   desc: '+10% traction per rank',          max: 3, cost: r => 30 + r * 25, apply: (G, r) => { G.P.traction += 0.1 * r; } },
   { id: 'magnet',   name: 'Chemotaxis',         desc: '+15% pickup range per rank',      max: 3, cost: r => 25 + r * 20, apply: (G, r) => { G.P.magnet += 0.15 * r; } },
   { id: 'rewind',   name: 'Deja Vu',            desc: 'Start with an extra Rewind charge', max: 1, cost: () => 150, apply: (G, r) => { G.chrono.charges = Math.min(G.chrono.max, G.chrono.charges + r); } },
+  { id: 'armour',   name: 'Thick Zona',         desc: '+1 armour per rank',              max: 3, cost: r => 45 + r * 35, apply: (G, r) => { G.P.armour += r; } },
+  { id: 'luck',     name: 'Lucky Genes',        desc: '+5% luck per rank (rarer DNA strands)', max: 3, cost: r => 35 + r * 30, apply: (G, r) => { G.P.luck += 0.05 * r; } },
+  { id: 'crit',     name: 'Sharp Acrosome',     desc: '+3% crit chance per rank',        max: 3, cost: r => 40 + r * 30, apply: (G, r) => { G.P.crit += 0.03 * r; } },
 ];
+// What a rank adds, in words, for the Gene Bank's "next swimmer" line.
+const META_NOW = { hp: r => `+${10 * r} max HP`, dmg: r => `+${4 * r}% damage`, xp: r => `+${5 * r}% XP`, reroll: r => `+${r} reroll${r > 1 ? 's' : ''}`, grip: r => `+${10 * r}% traction`,
+  magnet: r => `+${15 * r}% pickup range`, rewind: () => '+1 Rewind charge', armour: r => `+${r} armour`, luck: r => `+${5 * r}% luck`, crit: r => `+${3 * r}% crit` };
 // Starter weapons you can add to the first box.
 const META_STARTERS = [
   ['mines', 60], ['orbit', 60], ['void', 80], ['wake', 80], ['parasite', 90], ['siphon', 100],
+  // The toys.
+  ['crayon', 90], ['bubble', 90], ['redtape', 90], ['duedate', 100], ['peekaboo', 100], ['toothfairy', 100], ['twin', 110], ['friend', 120],
 ];
 // Dye variants for your tag, kept in the green family so "green is you" still holds.
 const META_DYES = [
@@ -25,7 +33,7 @@ const META_DYES = [
 
 const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0, pairs: {}, bosses: {} };
 try { Object.assign(META, JSON.parse(localStorage.getItem('sd_meta') || '{}')); } catch (e) { /* storage unavailable */ }
-META.pairs = META.pairs || {}; META.bosses = META.bosses || {}; META.quirks = META.quirks || {};
+META.pairs = META.pairs || {}; META.bosses = META.bosses || {}; META.quirks = META.quirks || {}; META.wstats = META.wstats || {}; META.relics = META.relics || {};
 // v6 retired most weapons: starters bought for them are refunded in full.
 { const OLD = { nailgun: 60, cryopipette: 60, antibioticsg: 70, nerveimpulse: 70, placebo: 80, chromowhip: 80, metaflare: 90, genesplicer: 100, mitosiscannon: 120, hailswarm: 90 };
   for (const id in META.starters) if (!WEAPONS[id]) { META.dna += OLD[id] || 0; delete META.starters[id]; } }
@@ -41,6 +49,28 @@ function bankRun(G, won) {
   G.banked = true;
   const n = runDna(G, won);
   META.dna += n; META.total += n; META.lastEarned = n;
+  // Lifetime record per weapon, for the Codex and the Gene Bank.
+  for (const w of G.weapons) {
+    if (!w) continue;
+    const r = META.wstats[w.id] || (META.wstats[w.id] = { runs: 0, born: 0, best: 0 });
+    r.runs++; if (won) r.born++; r.best = Math.max(r.best, w.lvl);
+  }
+  for (const id in G.relics || {}) if (RELICS[id]) META.relics[id] = true;
+  saveMeta();
+  return n;
+}
+// DNA spent so far, and a full refund (the Gene Bank's CLEAR). Discoveries and records are kept.
+function metaSpent() {
+  let n = 0;
+  for (const b of META_BONUSES) for (let r = 0; r < (META.ranks[b.id] || 0); r++) n += b.cost(r);
+  for (const [id, c] of META_STARTERS) if (META.starters[id]) n += c;
+  for (const d of META_DYES) if (META.dyes[d.id]) n += d.cost;
+  return n;
+}
+function metaClear() {
+  const n = metaSpent();
+  META.dna += n; META.ranks = {}; META.starters = {}; META.dyes = { egfp: true }; META.dye = 'egfp';
+  setYouColour(META_DYES[0].color);
   saveMeta();
   return n;
 }
@@ -73,7 +103,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.21';
+const APP_VERSION = '7.22';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

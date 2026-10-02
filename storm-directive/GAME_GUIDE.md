@@ -72,14 +72,14 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | [Placenta Paddle](#placenta-paddle) (Start) | Kinetic | Cleaver | NEAREST |
 | [Flagellum Flail](#flagellum-flail) (Start) | Kinetic | Lasher | NEAREST |
 | [Thorny Onesie](#thorny-onesie) (Start) | Kinetic | Tank | NEAREST |
-| [Colouring In](#colouring-in) | Kinetic | Lasso | NEAREST |
-| [Due Date](#due-date) | Arcane | Delayed Doom | HIGHEST HEALTH |
-| [Red Tape](#red-tape) | Toxic | Bureaucrat | DENSEST CLUSTER |
-| [Imaginary Friend](#imaginary-friend) | Arcane | Echo | NEAREST |
-| [Peekaboo](#peekaboo) | Frost | Trickster | NEAREST |
-| [Twin Telepathy](#twin-telepathy) | Shock | Geometry | DENSEST CLUSTER |
-| [Bubble Wand](#bubble-wand) | Kinetic | Trap & Throw | NEAREST |
-| [Tooth Fairy](#tooth-fairy) | Arcane | Lure | DENSEST CLUSTER |
+| [Colouring In](#colouring-in) (Bank 90) | Kinetic | Lasso | NEAREST |
+| [Due Date](#due-date) (Bank 100) | Arcane | Delayed Doom | HIGHEST HEALTH |
+| [Red Tape](#red-tape) (Bank 90) | Toxic | Bureaucrat | DENSEST CLUSTER |
+| [Imaginary Friend](#imaginary-friend) (Bank 120) | Arcane | Echo | NEAREST |
+| [Peekaboo](#peekaboo) (Bank 100) | Frost | Trickster | NEAREST |
+| [Twin Telepathy](#twin-telepathy) (Bank 110) | Shock | Geometry | DENSEST CLUSTER |
+| [Bubble Wand](#bubble-wand) (Bank 90) | Kinetic | Trap & Throw | NEAREST |
+| [Tooth Fairy](#tooth-fairy) (Bank 100) | Arcane | Lure | DENSEST CLUSTER |
 
 ### Spitball
 
@@ -455,7 +455,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
 |  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
 | Lv 5 signature | **Overdue** | The countdown is twice as long, and the repeat is twice as big. |
-|  | **Early Arrival** | A marked enemy that drops below 30% health goes off straight away. |
+|  | **Early Delivery** | A marked enemy that drops below 30% health goes off straight away. |
 | Lv 8 signature | **Baby Shower** | When a date goes off, half of it splashes onto everything nearby. |
 |  | **Rebooked** | When a date goes off, the two nearest enemies get marked for free. |
 | Lv 10 mastery | **Labour Day** | A date that goes off marks the same enemy again, straight away. Bosses never get a day off. |
@@ -1069,6 +1069,9 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 | **Pre-Sticky Cilia** | +10% traction per rank | 3 | 30 / 55 / 80 |
 | **Chemotaxis** | +15% pickup range per rank | 3 | 25 / 45 / 65 |
 | **Deja Vu** | Start with an extra Rewind charge | 1 | 150 |
+| **Thick Zona** | +1 armour per rank | 3 | 45 / 80 / 115 |
+| **Lucky Genes** | +5% luck per rank (rarer DNA strands) | 3 | 35 / 65 / 95 |
+| **Sharp Acrosome** | +3% crit chance per rank | 3 | 40 / 70 / 100 |
 
 ### Starter weapons
 
@@ -1080,6 +1083,14 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 | Slipstream Scalpel | 80 |
 | Tapeworm Seeder | 90 |
 | Placental Siphon | 100 |
+| Colouring In | 90 |
+| Bubble Wand | 90 |
+| Red Tape | 90 |
+| Due Date | 100 |
+| Peekaboo | 100 |
+| Tooth Fairy | 100 |
+| Twin Telepathy | 110 |
+| Imaginary Friend | 120 |
 
 ### GFP variants
 

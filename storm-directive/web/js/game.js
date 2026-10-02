@@ -618,6 +618,7 @@ function damageEnemy(e, dmg, src) {
   if (!src.dot && !src.zoneHit) e.flash = 0.07; // ticks don't blink
   const key = src.wname || 'Other';
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + d;
+  if (src.w) { const wk = (src.w.friendOf || src.w).uid, W = G.stats.wdmg || (G.stats.wdmg = {}); W[wk] = (W[wk] || 0) + d; } // per weapon, for the Armoury
   // Damage numbers thin out when the screen is busy (crits always show).
   if (!src.dot && !IN_AOE) hitFx(e, src, crit, d);
   if (!src.dot && e.puddleT > G.t) puddleQuirks(e, src, dmg); // lightning, fire and frost meet a puddle

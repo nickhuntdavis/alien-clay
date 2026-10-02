@@ -275,7 +275,7 @@ const SIGS = {
   jointhedots:   { name: 'Join the Dots', desc: 'Mastery. Everything a shape hits becomes a dot for 2s. The dots are joined by lines that cut whatever crosses them.' },
   // Due Date
   overdue:       { name: 'Overdue', desc: 'The countdown is twice as long, and the repeat is twice as big.' },
-  earlyarrival:  { name: 'Early Arrival', desc: 'A marked enemy that drops below 30% health goes off straight away.' },
+  earlyarrival:  { name: 'Early Delivery', desc: 'A marked enemy that drops below 30% health goes off straight away.' },
   babyshower:    { name: 'Baby Shower', desc: 'When a date goes off, half of it splashes onto everything nearby.' },
   rebooked:      { name: 'Rebooked', desc: 'When a date goes off, the two nearest enemies get marked for free.' },
   labourday:     { name: 'Labour Day', desc: 'Mastery. A date that goes off marks the same enemy again, straight away. Bosses never get a day off.' },
