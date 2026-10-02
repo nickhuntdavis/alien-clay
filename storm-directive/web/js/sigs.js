@@ -708,8 +708,9 @@ function sig8Tick(dt) {
 // ---------------------------------------------------------------- Toddler Gravity: black holes merge
 // Orbs fire out as usual, but they're black holes: any two near each other are pulled together like a
 // rubber band (harder the further apart they are) and merge into one bigger orb. Volumes add (the radius
-// grows with the cube root), damage adds up, and the pull and lifetime grow. Ten or more merged: SUPERNOVA.
-const VOID_MERGE = { reach: 260, band: 1.6, supernova: 10 };
+// grows with the cube root), damage adds up and the pull grows. Twenty merged: SUPERNOVA, at most once
+// every 40 s. Until one is allowed, orbs that would reach twenty don't pull together.
+const VOID_MERGE = { reach: 200, band: 1.6, supernova: 20, gap: 40 };
 function voidMerge(dt) {
   G.voidBands = [];
   const orbs = G.proj.filter(pr => pr.style === 'void' && !pr.dead && pr.w && pr.w.id === 'void' && !pr.lob);
@@ -719,6 +720,7 @@ function voidMerge(dt) {
     if (a.dead || b.dead) continue;
     const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
     if (d > VOID_MERGE.reach) continue;
+    if ((a.mass || 1) + (b.mass || 1) >= VOID_MERGE.supernova && G.t < (G.novaT || 0)) continue;
     if (d < (a.r + b.r) * 0.65) { voidCombine(a.r >= b.r ? a : b, a.r >= b.r ? b : a); continue; }
     // The rubber band: each is dragged towards the other, the heavier one less.
     const ma = a.mass || 1, mb = b.mass || 1, pull = (40 + d * VOID_MERGE.band) * dt, ux = dx / d, uy = dy / d;
@@ -736,7 +738,7 @@ function voidCombine(a, b) {
   a.r *= k; a.aura = (a.aura || 0) * k; a.r0 = (a.r0 || a.r / k) * k; a.aura0 = (a.aura0 || a.aura / k) * k;
   a.dmg += b.dmg; a.pull = Math.max(a.pull, b.pull) * 1.12;
   a.dealt = (a.dealt || 0) + (b.dealt || 0);
-  a.life = Math.max(a.life, b.life) + 0.6; a.max = Math.max(a.max, a.life);
+  a.life = (a.life * ma + b.life * mb) / m; // fresh orbs barely extend a big one's life
   // Momentum: the merged orb keeps drifting the weighted-average way.
   a.vx = (a.vx * ma + b.vx * mb) / m; a.vy = (a.vy * ma + b.vy * mb) / m;
   if (b.hits) for (const id of b.hits) (a.hits || (a.hits = [])).includes(id) || a.hits.push(id);
@@ -745,7 +747,7 @@ function voidCombine(a, b) {
   fxParts('ember', a.x, a.y, '#e0aaff', 6, 160, 0.5, 3);
   cam.shake = Math.min(8, cam.shake + 1 + m * 0.3);
   if (m >= 3) floatText(a.x, a.y - a.r - 12, 'MERGE x' + m, '#e0aaff', 12 + Math.min(8, m), 0.7);
-  if (m >= VOID_MERGE.supernova) voidSupernova(a);
+  if (m >= VOID_MERGE.supernova && G.t >= (G.novaT || 0)) { G.novaT = G.t + VOID_MERGE.gap; voidSupernova(a); }
 }
 function voidSupernova(a) {
   a.dead = true;

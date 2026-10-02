@@ -427,7 +427,7 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Spoilers | Static Cling | some bolts start from the far side of the crowd. |
 | Spoilers | Premature Evangelation | angels pop up next to enemies to bless them early. |
 | Spoilers | Placental Siphon | some returned shots appear right next to their target. |
-| Split Personality | Toddler Gravity | more orbs, which pull together and merge into bigger ones (ten merged go supernova). |
+| Split Personality | Toddler Gravity | more orbs, which pull together and merge into bigger ones (twenty merged go supernova). |
 | Split Personality | Slipstream Scalpel | a bigger, longer blade (+35% width and length per stack). |
 | Split Personality | Placenta Paddle | +1 swing, aimed another way. |
 | Split Personality | Flagellum Flail | +1 lash in the fan. |
