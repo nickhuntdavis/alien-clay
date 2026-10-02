@@ -45,72 +45,72 @@ const WEAPONS = {
   blaster: { name: 'Spitball', stars: [3, 3, 4, 1], play: 'Picks targets off from range, one at a time. Grows into a railgun or a fire hose.', icon: 'BL', elem: 'phys', kind: 'gun', color: '#e8f0ff', dir: 'nearest', role: 'Marksman',
     desc: 'Reliable, accurate single shots. Mildly unhygienic.',
     base: { dmg: 11, cd: 0.3, mag: 12, reload: 1.1, count: 1, spread: 0.04, speed: 640, pierce: 0, range: 440, size: 4 },
-    lv: { 3: { pierce: 1 }, 6: { count: 1 }, 9: { dmg: 0.3 } }, sig: { 5: ['loogie', 'wetwilly'], 10: ['kidneystone', 'vomit'] } },
+    lv: { 3: { pierce: 1 }, 6: { count: 1 }, 9: { dmg: 0.3 } }, sig: { 5: ['loogie', 'wetwilly'], 8: ['farsight', 'phlegmfan'], 10: ['kidneystone', 'vomit'] } },
   shotgun: { name: 'Hiccup Scattergun', stars: [4, 2, 1, 3], play: 'Get up close and blast. Point-blank damage, knockback and a ring of pellets later.', icon: 'SG', elem: 'phys', kind: 'gun', color: '#ffd6a5', dir: 'nearest', role: 'Brawler',
     desc: 'A close-range burst with knockback. Comes out whether you want it to or not.',
     base: { dmg: 8, cd: 0.75, mag: 4, reload: 1.6, count: 6, spread: 0.55, speed: 540, pierce: 0, range: 270, size: 3.5, knock: 70 },
-    lv: { 3: { count: 2 }, 6: { pierce: 1 }, 9: { count: 2 } }, sig: { 5: ['pointblank', 'slug'], 10: ['hiccupfit', 'dragonbreath'] } },
+    lv: { 3: { count: 2 }, 6: { pierce: 1 }, 9: { count: 2 } }, sig: { 5: ['pointblank', 'slug'], 8: ['buckshot', 'recoil'], 10: ['hiccupfit', 'dragonbreath'] } },
   glaive: { name: 'Yo-Yo Diet', stars: [3, 2, 3, 3], play: 'Throws out and comes back, hitting everything twice. Can hang, grow or become a black hole.', icon: 'GL', elem: 'phys', kind: 'gun', color: '#f1f1f1', dir: 'furthest', style: 'glaive', role: 'Boomerang',
     desc: 'A spinning blade that flies out and always comes back. Like the weight.',
     base: { dmg: 16, cd: 1.0, mag: 2, reload: 1.3, count: 1, spread: 0.3, speed: 430, pierce: 99, range: 330, size: 10, boomerang: 1 },
-    lv: { 3: { dmg: 0.2 }, 6: { count: 1 }, 9: { dmg: 0.3 } }, sig: { 5: ['walkdog', 'crashdiet'], 10: ['aroundworld', 'blackyoyo'] } },
+    lv: { 3: { dmg: 0.2 }, 6: { count: 1 }, 9: { dmg: 0.3 } }, sig: { 5: ['walkdog', 'crashdiet'], 8: ['yoyoshield', 'cradle'], 10: ['aroundworld', 'blackyoyo'] } },
   wake: { name: 'Slipstream Scalpel', stars: [3, 5, 1, 3], play: 'No aiming: your swim path is the blade. Swim circles round crowds to cut them all at once.', icon: 'WB', elem: 'phys', kind: 'wake', color: '#e0fbfc', dir: 'nearest', noTarget: 1, role: 'Swim Path',
     desc: 'Your swim path becomes a blade. Keep moving, or it is just very expensive litter.',
     base: { dmg: 24, dur: 2.2, area: 22, range: 0 },
-    lv: { 3: { area: 0.3 }, 6: { dur: 0.5 }, 9: { dmg: 0.5 } }, sig: { 5: ['closeloop', 'razorwire'], 10: ['surgicalteam', 'afterburner'] } },
+    lv: { 3: { area: 0.3 }, 6: { dur: 0.5 }, 9: { dmg: 0.5 } }, sig: { 5: ['closeloop', 'razorwire'], 8: ['bloodletting', 'slipstream'], 10: ['surgicalteam', 'afterburner'] } },
   flamer: { name: 'Heartburn', stars: [2, 5, 1, 4], play: 'A short cone of fire that melts crowds. Later it sweeps a full circle or never stops.', icon: 'FL', elem: 'fire', kind: 'gun', color: '#ff7a2f', dir: 'nearest', style: 'flame', role: 'Flamethrower',
     desc: 'A short-range cone of fire. Every lick burns. Antacids not included.',
     base: { dmg: 3.4, cd: 0.05, mag: 50, reload: 2.1, count: 2, spread: 0.45, speed: 310, pierce: 99, range: 200, size: 7 },
-    lv: { 3: { area: 0.3 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['blueflame', 'indigestion'], 10: ['dragon', 'hellkitchen'] } },
+    lv: { 3: { area: 0.3 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['blueflame', 'indigestion'], 8: ['napalm', 'heatwave'], 10: ['dragon', 'hellkitchen'] } },
   mines: { name: 'Nappy Mines', stars: [4, 2, 2, 4], play: 'Leaves traps behind you. Chain reactions, sticky bombs and the occasional nuke.', icon: 'ML', elem: 'fire', kind: 'mine', color: '#ff9f1c', dir: 'nearest', role: 'Trapper',
     desc: 'Drops proximity mines in your wake. Nobody wants to change them.',
     base: { dmg: 34, cd: 0.7, mag: 5, reload: 2.4, count: 1, explode: 72, life: 14, range: 600 },
-    lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { dmg: 0.5 } }, sig: { 5: ['domino', 'sticky'], 10: ['nuclear', 'minefield'] } },
+    lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { dmg: 0.5 } }, sig: { 5: ['domino', 'sticky'], 8: ['claymore', 'homingnappy'], 10: ['nuclear', 'minefield'] } },
   frost: { name: 'Cold Feet', stars: [3, 2, 4, 3], play: 'Piercing shards that slow and freeze. Frozen things shatter.', icon: 'FR', elem: 'ice', kind: 'gun', color: '#6fd8ff', dir: 'fastest', style: 'shard', role: 'Freezer',
     desc: 'Piercing ice shards that chill and freeze. Commitment issues, weaponised.',
     base: { dmg: 15, cd: 0.6, mag: 5, reload: 1.5, count: 1, spread: 0.08, speed: 540, pierce: 3, range: 460, size: 5 },
-    lv: { 3: { count: 1 }, 6: { pierce: 2 }, 9: { count: 1 } }, sig: { 5: ['shatter', 'icicle'], 10: ['iceage', 'coldsnap'] } },
+    lv: { 3: { count: 1 }, 6: { pierce: 2 }, 9: { count: 1 } }, sig: { 5: ['shatter', 'icicle'], 8: ['brainfreeze', 'hailstorm'], 10: ['iceage', 'coldsnap'] } },
   tesla: { name: 'Static Cling', stars: [3, 3, 3, 5], play: 'Lightning jumps through whole crowds. Can power every other weapon you own.', icon: 'TC', elem: 'shock', kind: 'chain', color: '#ffe94a', dir: 'cluster', role: 'Chain Lightning',
     desc: 'Instant lightning that arcs between enemies, like a nylon onesie in winter.',
     base: { dmg: 13, cd: 0.7, mag: 6, reload: 1.8, count: 1, chain: 3, range: 330, jump: 140 },
-    lv: { 3: { chain: 2 }, 6: { count: 1 }, 9: { chain: 2 } }, sig: { 5: ['shortcircuit', 'umbilical'], 10: ['overcharge', 'powergrid'] } },
+    lv: { 3: { chain: 2 }, 6: { count: 1 }, 9: { chain: 2 } }, sig: { 5: ['shortcircuit', 'umbilical'], 8: ['balllightning', 'grounded'], 10: ['overcharge', 'powergrid'] } },
   venom: { name: 'Morning Sickness', stars: [2, 2, 3, 4], play: 'Lobs puddles that keep hurting. Turns the floor into a swamp.', icon: 'VS', elem: 'poison', kind: 'lob', color: '#8dff4a', dir: 'cluster', role: 'Area Denial',
     desc: 'Lobs acid globs that leave toxic puddles. Worse before noon.',
     base: { dmg: 10, cd: 0.9, mag: 4, reload: 1.8, count: 1, spread: 40, range: 390, area: 58, dur: 3, flight: 0.6 },
-    lv: { 3: { dur: 0.5 }, 6: { count: 1 }, 9: { area: 0.4 } }, sig: { 5: ['nausea', 'toxicspread'], 10: ['swamp', 'acidreflux'] } },
+    lv: { 3: { dur: 0.5 }, 6: { count: 1 }, 9: { area: 0.4 } }, sig: { 5: ['nausea', 'toxicspread'], 8: ['corrosive', 'geyser'], 10: ['swamp', 'acidreflux'] } },
   parasite: { name: 'Tapeworm Seeder', stars: [2, 3, 3, 3], play: 'Infects, then the dead fight for you as turrets or zombies.', icon: 'PS', elem: 'poison', kind: 'gun', parasite: 1, color: '#b5e48c', dir: 'highhp', style: 'needle', role: 'Necromancer',
     desc: 'Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green.',
     base: { dmg: 12, cd: 0.4, mag: 8, reload: 1.6, count: 1, spread: 0.08, speed: 560, pierce: 0, range: 430, size: 3.5, dur: 8 },
-    lv: { 3: { count: 1 }, 6: { dur: 0.5 }, 9: { dmg: 0.4 } }, sig: { 5: ['walkingdead', 'bigworm'], 10: ['brood', 'bodysnatcher'] } },
+    lv: { 3: { count: 1 }, 6: { dur: 0.5 }, 9: { dmg: 0.4 } }, sig: { 5: ['walkingdead', 'bigworm'], 8: ['hivemind', 'feedingtube'], 10: ['brood', 'bodysnatcher'] } },
   seeker: { name: 'Seeker Siblings', stars: [2, 3, 4, 2], play: 'Homing siblings that never miss. They multiply.', icon: 'SS', elem: 'arcane', kind: 'gun', color: '#d0a3ff', dir: 'weakest', style: 'sperm', role: 'Swarm',
     desc: 'Tiny homing siblings who swim for you and never miss. Family is complicated.',
     base: { dmg: 9, cd: 0.45, mag: 6, reload: 2.0, count: 2, spread: 1.2, speed: 320, pierce: 0, range: 500, size: 4, homing: 5 },
-    lv: { 3: { count: 1 }, 6: { count: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['bigbrother', 'rivalry'], 10: ['boom', 'reunion'] } },
+    lv: { 3: { count: 1 }, 6: { count: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['bigbrother', 'rivalry'], 8: ['kamikaze', 'swarmsmart'], 10: ['boom', 'reunion'] } },
   void: { name: 'Toddler Gravity', stars: [2, 1, 3, 5], play: 'A slow black hole that drags everything in. Crowd control, then a Big Bang.', icon: 'VO', elem: 'arcane', kind: 'gun', color: '#7b2cbf', dir: 'cluster', style: 'void', role: 'Crowd Control',
     desc: 'A slow orb that drags everything into its mouth. Everything.',
     base: { dmg: 8, cd: 1.8, mag: 2, reload: 2.5, count: 1, spread: 0.2, speed: 115, pierce: 99, range: 400, size: 15, aura: 72, pull: 95 },
-    lv: { 3: { area: 0.3 }, 6: { count: 1 }, 9: { dmg: 0.5 } }, sig: { 5: ['horizon', 'nomnom'], 10: ['bigbang', 'parking'] } },
+    lv: { 3: { area: 0.3 }, 6: { count: 1 }, 9: { dmg: 0.5 } }, sig: { 5: ['horizon', 'nomnom'], 8: ['supermassive', 'crushdepth'], 10: ['bigbang', 'parking'] } },
   orbit: { name: 'Premature Evangelation', stars: [3, 4, 1, 3], play: 'Guardian angels circle you and swat whatever comes close. Some eat bullets.', icon: 'OB', elem: 'arcane', kind: 'orbit', color: '#c77dff', dir: 'nearest', role: 'Bodyguard',
     desc: 'These guardian angels get started way too soon.',
     base: { dmg: 23, count: 3, dur: 4.5, reload: 2.2, radius: 72, spin: 3.6, size: 10, range: 100 },
-    lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { count: 1 } }, sig: { 5: ['nan', 'clingy'], 10: ['extended', 'guilttrip'] } },
+    lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { count: 1 } }, sig: { 5: ['nan', 'clingy'], 8: ['smite', 'martyr'], 10: ['extended', 'guilttrip'] } },
   siphon: { name: 'Placental Siphon', stars: [3, 5, 3, 2], play: 'Eats enemy bullets and fires them back. The busier the screen, the stronger it gets.', icon: 'BU', elem: 'arcane', kind: 'siphon', color: '#ff3df2', dir: 'nearest', role: 'Counter',
     desc: 'Eats enemy bullets that come near you and spits them back. No reloads. No ammo either, until the screen is full of bullets.',
     base: { dmg: 18, cd: 0.08, mag: 40, area: 90, speed: 640, range: 460, size: 4.5, pierce: 0, spread: 0.08, count: 1 },
-    lv: { 3: { count: 1 }, 6: { pierce: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['sender', 'buffet'], 10: ['mirrorwomb', 'overflow'] } },
+    lv: { 3: { count: 1 }, 6: { pierce: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['sender', 'buffet'], 8: ['spreadlove', 'savings'], 10: ['mirrorwomb', 'overflow'] } },
   // Melee: no projectiles at all. area scales the reach (Personal Space, Wide Hips); arc is the swing in radians.
   paddle: { name: 'Placenta Paddle', stars: [4, 2, 1, 4], play: 'Big sweeping swings right in front of you that knock crowds flying. Get stuck in.', icon: 'PD', elem: 'phys', kind: 'melee', melee: 'sweep', color: '#ff8fab', dir: 'nearest', role: 'Cleaver',
     desc: 'A heavy, slightly floppy paddle. Nobody asks where it came from.',
     base: { dmg: 34, cd: 0.8, mag: 4, reload: 1.1, count: 1, range: 92, area: 1, arc: 2.4, knock: 220 },
-    lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['fullcircle', 'homerun'], 10: ['afterwave', 'smother'] } },
+    lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['fullcircle', 'homerun'], 8: ['tantrum', 'groundpound'], 10: ['afterwave', 'smother'] } },
   flail: { name: 'Flagellum Flail', stars: [3, 4, 3, 2], play: 'Your tail cracks like a whip in a long straight line, hitting everything along it.', icon: 'FF', elem: 'phys', kind: 'melee', melee: 'lash', color: '#e0fbfc', dir: 'nearest', role: 'Lasher',
     desc: 'Turns out the tail was a weapon all along.',
     base: { dmg: 19, cd: 0.38, mag: 6, reload: 1.0, count: 1, range: 190, area: 1, width: 15, spread: 0.32, knock: 60 },
-    lv: { 3: { dmg: 0.25 }, 6: { count: 1 }, 9: { area: 0.25 } }, sig: { 5: ['whipcrack', 'getoverhere'], 10: ['ninetails', 'spincycle'] } },
+    lv: { 3: { dmg: 0.25 }, 6: { count: 1 }, 9: { area: 0.25 } }, sig: { 5: ['whipcrack', 'getoverhere'], 8: ['barbed', 'snapback'], 10: ['ninetails', 'spincycle'] } },
   onesie: { name: 'Thorny Onesie', stars: [2, 3, 1, 4], play: 'Spikes pulse out all around you. The more max HP and armour you have, the harder they hit: the tank weapon.', icon: 'TO', elem: 'phys', kind: 'melee', melee: 'pulse', color: '#ffb3c6', dir: 'nearest', role: 'Tank',
     desc: 'A babygro with spikes on the outside. Huggable, technically.',
-    base: { dmg: 12, cd: 0.55, mag: 8, reload: 0.9, count: 1, range: 80, area: 80, knock: 120 },
-    lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { area: 0.2 } }, sig: { 5: ['spiky', 'bearhug'], 10: ['bubblewrap', 'growthspurt'] } },
+    base: { dmg: 18, cd: 0.55, mag: 8, reload: 0.9, count: 1, range: 90, area: 90, knock: 120 },
+    lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { area: 0.2 } }, sig: { 5: ['spiky', 'bearhug'], 8: ['porcupine', 'fortress'], 10: ['bubblewrap', 'growthspurt'] } },
 };
 
 // Signature upgrades: only one weapon gets each. Lv 5 picks the weapon's path; Lv 10 is its mastery.
@@ -198,7 +198,41 @@ const SIGS = {
   spiky:       { name: 'Spiky Personality', desc: 'Whatever hurts you gets hurt back hard (thorns x2), plus a jab to everything around you.' },
   bearhug:     { name: 'Bear Hug', desc: 'Pulses pull enemies in instead of pushing them out, and every enemy in reach gives you +1 armour (up to +6).' },
   bubblewrap:  { name: 'Bubble Wrap', desc: 'Mastery. Every 6th pulse is huge: twice the radius, 2.5 times the damage, and it pops every enemy bullet it touches.' },
-  growthspurt: { name: 'Growth Spurt', desc: 'Mastery. The pulse grows 10% wider for every 100 max HP you have, and heals you a little for each enemy it hits.' },
+  growthspurt: { name: 'Growth Spurt', desc: 'Mastery. The pulse grows 10% wider for every 100 max HP you have, and heals you a little for each enemy it hits.' },  // ---- Lv 8 signature forks: the second build-defining choice every weapon gets.
+  farsight:    { name: "Sniper's Nest", desc: '+60% range, and shots hit twice as hard on anything more than 250 away.' },
+  phlegmfan:   { name: 'Phlegm Fan', desc: 'Every reload sprays a ring of 12 spitballs all around you.' },
+  buckshot:    { name: 'Buckshot', desc: '+4 pellets per blast, each at 75% damage. A wall of lead.' },
+  recoil:      { name: 'Recoil Jump', desc: 'Every blast kicks you backwards, away from the target, and you cannot be hurt mid-kick. Hit and run.' },
+  yoyoshield:  { name: 'Yo-Yo Shield', desc: 'Yo-yos eat every enemy bullet they pass through.' },
+  cradle:      { name: "Cat's Cradle", desc: 'A string runs from you to every yo-yo in flight, cutting whatever crosses it.' },
+  bloodletting:{ name: 'Bloodletting', desc: 'Anything the trail cuts bleeds for 60% of the cut again over 3s.' },
+  slipstream:  { name: 'Slipstream', desc: 'Swimming through your own trail: +35% swim speed and 25% less damage taken.' },
+  napalm:      { name: 'Napalm', desc: 'Flames leave burning puddles where they land.' },
+  heatwave:    { name: 'Heatwave', desc: 'Burning enemies take +50% damage from everything you own.' },
+  claymore:    { name: 'Claymore', desc: 'Every mine also fires a fan of 8 shrapnel shots at the nearest enemy when it goes off.' },
+  homingnappy: { name: 'Homing Nappies', desc: 'Mines crawl after the nearest enemy instead of waiting.' },
+  brainfreeze: { name: 'Brain Freeze', desc: 'Every 3rd shard that hits the same enemy freezes it solid (not bosses).' },
+  hailstorm:   { name: 'Hailstorm', desc: 'Every 3rd volley also drops 6 hailstones on enemies around the target.' },
+  balllightning:{ name: 'Ball Lightning', desc: 'Every 4th bolt leaves a ball of lightning on its target that zaps everything near it for 3s.' },
+  grounded:    { name: 'Grounded', desc: 'Every chain earths through you: heal a little for each enemy it hit (within the lifesteal limit, doubled).' },
+  corrosive:   { name: 'Corrosive', desc: 'Puddles strip armour: enemies standing in them lose their armour and take +25% damage from everything.' },
+  geyser:      { name: 'Geyser', desc: 'When a puddle dries up it erupts for 300% damage.' },
+  hivemind:    { name: 'Hive Mind', desc: 'Your turrets and zombies hit twice as hard and last 50% longer.' },
+  feedingtube: { name: 'Feeding Tube', desc: 'Every infected enemy that dies heals you 1% of your max HP.' },
+  kamikaze:    { name: 'Kamikaze Kids', desc: 'Siblings explode when they hit, for 70% damage in a small blast.' },
+  swarmsmart:  { name: 'Swarm Intelligence', desc: 'Every sibling in a volley picks a different target. Nobody gets left out.' },
+  supermassive:{ name: 'Supermassive', desc: 'Orbs are 60% bigger and pull twice as hard, but drift half as fast.' },
+  crushdepth:  { name: 'Crush Depth', desc: 'The longer an orb holds an enemy, the harder it squeezes: up to triple damage after 2s.' },
+  smite:       { name: 'Smite', desc: 'Every 2.5s each angel throws a holy bolt at an enemy within reach.' },
+  martyr:      { name: 'Martyrdom', desc: 'When you get hit, the angels burst out for 300% damage around you (every 2s at most).' },
+  spreadlove:  { name: 'Spread the Love', desc: 'Every returned shot splits into three, each at 45% damage.' },
+  savings:     { name: 'Savings Account', desc: 'Returned shots hit +2% harder for every bullet in the store (up to +80%).' },
+  tantrum:     { name: 'Tantrum', desc: 'Every hit speeds up your swings by 5% for 3s (up to +60%). It builds.' },
+  groundpound: { name: 'Ground Pound', desc: 'Every 4th swing slams the ground all around you at 1.6 times the reach and stuns what it hits.' },
+  barbed:      { name: 'Barbed Tail', desc: 'Lashes make enemies bleed for 60% of the hit again over 3s.' },
+  snapback:    { name: 'Snap Back', desc: 'Lashes yank you towards the far end of the lash, and you cannot be hurt mid-yank. Hit and run.' },
+  porcupine:   { name: 'Porcupine', desc: 'Every pulse also shoots 8 spines outwards at 50% damage.' },
+  fortress:    { name: 'Fortress', desc: 'When you slow down or stop: +4 armour and pulses come 50% faster.' },
 };
 
 // Pairings: secret combos between two weapons you own (both Lv 5+). Found by playing; listed in the Codex once found.
@@ -474,7 +508,7 @@ const BOSSES = [
     strengths: ['Revive each other', 'Crossfire from two sides'], weaknesses: ['Finish both within 8 seconds', 'Blasts hit both when they huddle: +30%'],
     weakAoe: 1.3, relics: ['mirror', 'doubletrouble', 'twinpick'] },
 ];
-const BOSS_INTERVAL = 180; // seconds
+const BOSS_INTERVAL = 120; // seconds (4 bosses in a 10-minute run)
 const BOSSES_PER_RUN = 4;
 const BOSS_TITLES = {}; for (const b of BOSSES) BOSS_TITLES[b.id] = b.title;
 
@@ -531,7 +565,7 @@ const CORE = { r: 80, sanctuary: 290, arena: 2400 };
 // Break into the egg: reach EGG.level and its membrane becomes vulnerable. Destroy it to be born (you win).
 const EGG = { level: 60, hpBase: 150000, armour: 8 };
 // Weapon drafts: a new weapon mount at level 1 and at these levels.
-const SLOT_LEVELS = [10, 20, 35, 50];
+const SLOT_LEVELS = [8, 22]; // three weapons a run: one at level 1, then drafts at 8 and 22
 const BASE_SLOTS = 1; // you choose a new weapon at level 1 and at every SLOT_LEVELS level (5 at most)
 const MAX_WEAPONS = BASE_SLOTS + SLOT_LEVELS.length;
 
@@ -639,7 +673,7 @@ const RIVALS = [
   { id: 'kevin',  name: 'Kevin',              color: '#ffe94a', skill: 0.95, aggro: 0.4, title: 'Just Kevin' },
 ];
 // finish: seconds for a skill-1.0 rival to reach EGG.level if nobody interferes.
-const RIVAL = { finish: 840, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 240 };
+const RIVAL = { finish: 560, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 160 };
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600, startCharges: 1, maxCharges: 2 };

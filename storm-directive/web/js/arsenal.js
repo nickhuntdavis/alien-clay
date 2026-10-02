@@ -68,6 +68,7 @@ function startReload(w) {
   const P = G.P, p = G.player;
   w.reloadT = w.reloadMax = w.s.reload;
   if (w.rivals) w.rivals = 0; // Sibling Rivalry: everyone settles down
+  sigReload(w);
   tacticalWave();
 }
 // Tactical Nap's shockwave (reloads, and the angels' and the Siphon's own versions of a reload).
@@ -109,6 +110,7 @@ function updateSiphon(w, dt) {
   const src = weaponSrc(w), a0 = Math.atan2(t.y - p.y, t.x - p.x), over = gunOver(w);
   const V = sigVolley(w, a0), tg = V.owner || t, a1 = V.owner ? Math.atan2(tg.y - p.y, tg.x - p.x) : a0;
   // Last Word: the last stored bullet hits like the rest put together.
+  if (hasSig(w, 'savings')) src.mult *= 1 + Math.min(0.8, 0.02 * w.stored); // Savings Account
   const lsrc = w.stored === 0 && G.P.lastRound > 0 ? Object.assign({}, src, { mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src;
   for (let i = 0; i < s.count; i++) {
     const a = a1 + (i - (s.count - 1) / 2) * 0.12 + rand(-s.spread, s.spread) * 0.5;
@@ -314,7 +316,7 @@ function perkDef(id) {
   if (!g.icon) { g.icon = g.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase(); g.color = PAL.upgrade; g.sig = true; }
   return g;
 }
-const hasSig = (w, id) => !!(w && w.perks && (w.perks[5] === id || w.perks[10] === id));
+const hasSig = (w, id) => !!(w && w.perks && (w.perks[5] === id || w.perks[8] === id || w.perks[10] === id));
 
 // Raise a weapon's level, queueing a branch choice for every milestone it passes.
 function setWeaponLevel(w, to, from) {
@@ -457,7 +459,8 @@ function fireMelee(w, target, src) {
   const a0 = target ? Math.atan2(target.y - p.y, target.x - p.x) : p.face;
   p.face = a0;
   w.swingN = (w.swingN || 0) + 1;
-  if (d.melee === 'sweep') {
+  if (d.melee === 'sweep' && hasSig(w, 'groundpound') && w.swingN % 4 === 0) groundPound(w, msrc);
+  else if (d.melee === 'sweep') {
     for (let i = 0; i < s.count; i++) meleeSweep(w, p.x, p.y, a0 + i / s.count * TAU, msrc);
   } else if (hasSig(w, 'spincycle') && w.swingN % 3 === 0) {
     for (let i = 0; i < 12; i++) meleeLash(w, p.x, p.y, a0 + i / 12 * TAU, Object.assign({}, msrc, { mult: msrc.mult / (hasSig(w, 'ninetails') ? 0.6 : 1) }), 1.5);
@@ -489,6 +492,7 @@ function meleeHit(w, e, dmg, src) {
   if (w.id === 'paddle') {
     if (G.pair.icehockey && e.frozen > 0) m *= 3;
     if (G.pair.onetwo && e.lashT > G.t) m *= 2;
+    if (hasSig(w, 'tantrum')) { w.tant = Math.min(12, (w.tant || 0) + 1); w.tantT = G.t + 3; }
   } else if (w.id === 'flail') e.lashT = G.t + 2;
   else if (w.id === 'onesie' && G.pair.nappyrash) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); e.poisonDps = Math.max(e.poisonDps, dmg * 0.1); }
   damageEnemy(e, dmg * m, src);
@@ -537,6 +541,8 @@ function meleeLash(w, x, y, a, src, scale) {
     if (along > tipD) { tipD = along; tip = e; }
   });
   G.fx.push({ type: 'lash', x, y, a, r: L, w: wd, color: w.def.color, life: 0.2, max: 0.2, seed: Math.random() * 10 });
+  // Snap Back: the lash yanks you along it.
+  if (hasSig(w, 'snapback') && tip && tipD > 70 && !(w.snapT > G.t)) { w.snapT = G.t + 0.8; dashPlayer(Math.cos(a), Math.sin(a), Math.min(560, tipD * 2.4)); }
   if (G.pair.livewire && tip && !tip.dead && !(G.wireT > G.realT)) {
     const tw = owned('tesla');
     if (tw) { G.wireT = G.realT + 0.25; doChain(tip.x, tip.y, tip, tw.s.dmg, tw.s.chain, tw.s.jump, Object.assign(weaponSrc(tw), { wname: 'Live Wire' })); }
@@ -561,6 +567,10 @@ function onesiePulse(w, src) {
     floatText(p.x, p.y - 34, 'POP!', w.def.color, 15, 0.6);
     cam.shake = Math.min(8, cam.shake + 3);
   }
+  if (hasSig(w, 'porcupine')) for (let i = 0; i < 8; i++) {
+    const a = i / 8 * TAU + w.pulseN * 0.4, sp = 480;
+    spawnProj(w, p.x, p.y, a, src, { speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.55, max: 0.55, r: 3, dmg: dmg * 0.5, pierce: 1, style: 'needle', explode: 0, homing: 0, bounce: 0, boomerang: 0, noMods: true });
+  }
   G.fx.push({ type: 'spikes', x: p.x, y: p.y, r: R, color: w.def.color, life: big ? 0.4 : 0.25, max: big ? 0.4 : 0.25, rot: Math.random() * TAU });
 }
 
@@ -579,4 +589,17 @@ function meleeTick(dt) {
     });
   }
   G.homers = G.homers.filter(e => !e.dead && e.homerT > G.t);
+}
+
+// Ground Pound (Placenta Paddle): a slam all the way round you that stuns.
+function groundPound(w, src) {
+  const s = w.s, p = me(), R = s.reach * 1.6;
+  forNear(p.x, p.y, R, e => {
+    if (e.charmed) return;
+    meleeHit(w, e, s.dmg * 1.2, Object.assign({}, src, { knock: 140, kx: e.x - p.x, ky: e.y - p.y, wname: 'Ground Pound' }));
+    if (!e.boss && !e.dead) e.frozen = Math.max(e.frozen, 0.8);
+  });
+  G.fx.push({ type: 'swing', x: p.x, y: p.y, a: 0, arc: TAU, r: R, color: w.def.color, life: 0.3, max: 0.3 });
+  floatText(p.x, p.y - 30, 'POUND', w.def.color, 13, 0.5);
+  cam.shake = Math.min(8, cam.shake + 3);
 }

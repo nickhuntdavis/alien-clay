@@ -72,7 +72,7 @@ function newGame() {
     kills: 0, level: 1, xp: 0, xpNeed: xpNeed(1),
     lootQueue: [{ kind: 'start' }], rerolls: 2,
     warp: 0, rage: 0, shieldT: 0, barrier: 0, barrierR: 0, barrierDmg: 0,
-    nextBoss: BOSS_INTERVAL, bossCount: 0, boss: null, nextWave: 40,
+    nextBoss: BOSS_INTERVAL + 30, bossCount: 0, boss: null, nextWave: 27,
     spawnAcc: 0, crowdT: 0, synergy: {}, banner: null,
     core: makeCore(), scrap: 0,
     chrono: newChrono(), echoes: [], rewind: null, realPlayer: null, lights: [], decals: [],
@@ -93,7 +93,15 @@ function newGame() {
 function angDiff(a, b) { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU; return d; }
 function xpNeed(l) { return Math.floor(4 + (l - 1) * 2.5 + Math.pow(l - 1, 2.35) * 0.22); }
 function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? Math.pow(1.32, (t - 900) / 60) : 1); }
-const SURGE_T = 900; // Storm Surge: after 15 minutes enemy damage compounds every minute.
+const SURGE_T = 900; // Storm Surge: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
+// A run lasts about 10 minutes: the difficulty clock runs 1.5 times faster than real time.
+const PACE = 1.5;
+function PT() { return G.t * PACE; }
+// Ahead of the curve? Enemies keep up. Levels you are past where a 10-minute run expects you to be
+// (level 60 at 9 minutes) add 5% enemy health and 3% enemy damage each.
+function levelsAhead() { return Math.max(0, G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
+function hpNow() { return hpMul(PT()) * (1 + 0.05 * levelsAhead()); }
+function dmgNow() { return dmgMul(PT()) * (1 + 0.03 * levelsAhead()); }
 function dmgMul(t) { return (1 + t / 240 + Math.pow(t / 600, 2)) * (t > SURGE_T ? Math.pow(1.3, (t - SURGE_T) / 60) : 1); }
 // Late-game fire-rate pressure for ranged enemies.
 function fireMul(t) { return 1.1 + t / 380; }
@@ -380,9 +388,9 @@ function genLoot(req) {
   const cands = [];
   const merges = availableMerges();
   for (const m of merges) cands.push({ w: 60, make: () => optMerge(m) , key: 'fuse' + m.out });
-  G.weapons.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 11, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
+  G.weapons.forEach((w, i) => { if (w && w.lvl < wCap(w)) cands.push({ w: 11, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
   G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
-  // New weapons only come from weapon drafts (level 1, 10, 20, 35, 50), never from ordinary DNA.
+  // New weapons only come from weapon drafts (level 1, 8 and 22), never from ordinary DNA.
   if (G.spells.some(w => !w)) {
     const owned = new Set(G.spells.filter(Boolean).map(w => w.id));
     const pool = shuffle(Object.keys(SPELLS).filter(id => !owned.has(id))).slice(0, 3);
@@ -438,11 +446,16 @@ function optNewSpell(id, r) {
     sub: `${ELEMENTS[def.elem].name} spell | Lv ${lvl}`, desc: def.desc,
     apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); } } };
 }
+// Only one weapon a run can reach mastery (Lv 10): once one has, the others stop at Lv 9.
+function masterOf(w) { return G.weapons.find(o => o && o !== w && o.lvl >= MAX_WLVL) || null; }
+function wCap(w) { return !w.isSpell && masterOf(w) ? MAX_WLVL - 1 : MAX_WLVL; }
 function optUpgrade(w, r) {
-  const n = RARITIES[r].lvls, to = Math.min(MAX_WLVL, w.lvl + n);
+  const n = RARITIES[r].lvls, to = Math.min(wCap(w), w.lvl + n);
   const bonus = lvBonusText(w.def, w.lvl, to);
   let desc = `+${pc(WEAPON_LV_DMG * (to - w.lvl))} damage, faster cycling` + (bonus ? `. ${bonus}` : '');
   if (!w.isSpell && to >= MERGE_MIN_LEVEL && w.lvl < MERGE_MIN_LEVEL && !w.def.merged) desc += '. Unlocks fusion!';
+  if (!w.isSpell && to === MAX_WLVL) desc += '. MASTERY: only one weapon a run can reach Lv 10, and this takes it.';
+  else if (!w.isSpell && to === MAX_WLVL - 1 && masterOf(w)) desc += `. Stops at Lv 9: ${masterOf(w).def.name} is your mastery weapon.`;
   return { def: w.def, w, wup: !w.isSpell, from: w.lvl, to, rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
     sub: `Lv ${w.lvl} > ${to}${to === MAX_WLVL ? ' (MAX)' : ''}`, desc,
     apply: () => { setWeaponLevel(w, to); computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
@@ -819,10 +832,10 @@ function hurtPlayer(dmg, from, ent) {
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0) return;
   if (Math.random() < P.dodge) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
-  dmg *= G.evm.in * tankDamageIn();
+  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1);
   dmg = relicDamageIn(dmg, ent);
   if (dmg <= 0) return;
-  const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour + (G.hugArm || 0))); // Bear Hug adds armour
+  const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour + (G.hugArm || 0) + (G.fortArm || 0))); // Bear Hug and Fortress add armour
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
@@ -837,6 +850,7 @@ function hurtPlayer(dmg, from, ent) {
   acidReflux();
   relicHurt(d, ent);
   thornsHit(ent);
+  sigHurt();
   if (p.hp <= 0) { p.hp = 0; if (!startRewind(true)) gameOver(); }
 }
 
@@ -847,7 +861,7 @@ function enemyScale(t) {
   return { hp: 0.72 + 1.04 * k, dmg: 0.62 + 1.13 * Math.pow(k, 1.5), xp: 0.88, r: 1.12, speed: 1 + 0.12 * k };
 }
 function makeEnemy(def, x, y, opts) {
-  const t = G.t, hm = hpMul(t), dm = dmgMul(t);
+  const t = PT(), hm = hpNow(), dm = dmgNow();
   const e = {
     id: uidSeq++, def, name: def.name, x, y, vx: 0, vy: 0, kx: 0, ky: 0,
     hp: def.hp * hm, maxHp: def.hp * hm, armour: def.armour, r: def.r, speed: def.speed * (1 + Math.min(0.6, t / 2000)),
@@ -872,7 +886,7 @@ function spawnPos() {
 }
 
 function spawnRandom() {
-  const t = G.t;
+  const t = PT();
   const pool = [];
   let tot = 0;
   // Shooters become more common as the storm builds.
@@ -891,7 +905,7 @@ function spawnRandom() {
 }
 
 function waveEvent() {
-  const t = G.t, p = G.player;
+  const t = PT(), p = G.player;
   const kind = pick(t < 120 ? ['ring', 'swarm', 'krill'] : t < 200 ? ['ring', 'swarm', 'elite', 'barrage', 'krill'] : ['ring', 'swarm', 'elite', 'barrage', 'pond']);
   if (kind === 'ring') {
     const n = Math.min(18, 8 + Math.floor(t / 40)), d = Math.hypot(W / S0, H / S0) / 2 + 40;
@@ -928,17 +942,17 @@ function eBullet(x, y, a, speed, dmg, r, color) {
   G.bulSeq = ((G.bulSeq || 0) + 1) % BUL.keep.length;
   if (!BUL.keep[G.bulSeq]) return;
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
-  speed *= (1 + Math.min(0.7, G.t / 1500)) * G.P.bulletSpeed * G.evm.bulspd;
+  speed *= (1 + Math.min(0.7, PT() / 1500)) * G.P.bulletSpeed * G.evm.bulspd;
   G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
 }
 
 function shootPattern(e, pat, a0) {
   const p = G.player, sh = e.def.shoot || {};
   const aim = Math.atan2(p.y - e.y, p.x - e.x);
-  const dm = dmgMul(G.t), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
+  const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
   switch (pat) {
     case 'aimed': {
-      const n = G.t > 600 ? 5 : G.t > 300 ? 3 : 1;
+      const n = PT() > 600 ? 5 : PT() > 300 ? 3 : 1;
       for (let i = 0; i < n; i++) eBullet(e.x, e.y, aim + (i - (n - 1) / 2) * 0.22, sh.speed || 170, bd, 5, '#ff5df2');
       break;
     }
@@ -1049,7 +1063,7 @@ function updateEnemies(dt) {
           if (sh.pattern === 'snipe') {
             if (e.aimT > 0) { e.aimT -= edt; spd = 0; if (e.aimT <= 0) { shootPattern(e, 'snipe', e.aimA); e.shootCd = sh.cd; } }
             else if (e.shootCd <= 0 && dist < 560) { e.aimT = 0.8; e.aimA = Math.atan2(dy, dx); }
-          } else if (e.shootCd <= 0 && dist < 520) { shootPattern(e, sh.pattern); e.shootCd = sh.cd * rand(0.85, 1.15) / fireMul(G.t) / G.evm.fire; }
+          } else if (e.shootCd <= 0 && dist < 520) { shootPattern(e, sh.pattern); e.shootCd = sh.cd * rand(0.85, 1.15) / fireMul(PT()) / G.evm.fire; }
           break;
         }
         case 'turret':
@@ -1159,7 +1173,7 @@ function bossAI(e, dt, dist, ux, uy) {
   const pat = pats[e.pat];
   const p = G.player;
   const aim = Math.atan2(p.y - e.y, p.x - e.x);
-  const bd = e.def.dmg * 0.35 * dmgMul(G.t);
+  const bd = e.def.dmg * 0.35 * dmgNow();
   // Default movement: keep medium distance.
   e.mvx = dist > 230 ? ux : dist < 150 ? -ux : -uy; e.mvy = dist > 230 ? uy : dist < 150 ? -uy : ux; e.mvs = e.speed;
   // Bosses don't let you kite them off screen: far away, they close in fast.
@@ -1236,7 +1250,7 @@ function updateWeapon(w, dt) {
   }
   if (d.scrapAmmo && G.scrap < 1) { if (!w.broke) { w.broke = true; achieve('broke'); } w.cd = Math.max(w.cd, 0); return; }
   w.broke = false;
-  const rate = (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus();
+  const rate = (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1);
   w.cd -= dt * rate;
   let shots = 0;
   while (w.cd <= 0 && shots < 3) {
@@ -1717,7 +1731,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd;
+  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1);
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
@@ -1904,8 +1918,9 @@ function applyPickup(type, src) {
   }
 }
 
+const XP_PACE = 1.35; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
-  G.xp += v * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1); // the morning-after pill halves growth
+  G.xp += v * XP_PACE * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1); // the morning-after pill halves growth
   sfx('gem');
   while (G.xp >= G.xpNeed) {
     G.xp -= G.xpNeed;
@@ -1930,7 +1945,7 @@ function openEgg(by) {
   if (G.eggE && !G.eggE.dead) return announceEgg(by);
   const def = { id: 'egg', name: "THE EGG'S MEMBRANE", hp: 1, speed: 0, armour: EGG.armour, r: CORE.r, dmg: 0, xp: 0, color: '#ffd6e8', shape: 'none', patterns: [] };
   const e = makeEnemy(def, G.core.x, G.core.y);
-  e.hp = e.maxHp = EGG.hpBase * hpMul(G.t);
+  e.hp = e.maxHp = EGG.hpBase * hpNow();
   e.boss = true; e.egg = true; e.shootCd = 2; e.stT = 5;
   G.enemies.push(e);
   G.eggE = e;
@@ -1958,7 +1973,7 @@ function eggAI(e, dt) {
     // Weaker membrane = angrier egg: faster rings as it cracks, plus volleys aimed at you.
     const rage = 1 - e.hp / e.maxHp;
     e.shootCd = 1.7 - rage * 0.7; e.spin += 0.3;
-    const n = 28, bd = 10 * dmgMul(G.t), p = me();
+    const n = 28, bd = 10 * dmgNow(), p = me();
     for (let i = 0; i < n; i++) eBullet(e.x + Math.cos(e.spin + i / n * TAU) * e.r, e.y + Math.sin(e.spin + i / n * TAU) * e.r, e.spin + i / n * TAU, 125, bd, 6, '#ff8fb8');
     const aim = Math.atan2(p.y - e.y, p.x - e.x);
     for (let i = -2; i <= 2; i++) eBullet(e.x + Math.cos(aim) * e.r, e.y + Math.sin(aim) * e.r, aim + i * 0.12, 200, bd * 1.3, 5, '#ffffff');
@@ -2047,15 +2062,15 @@ function update(dt) {
   updateAmbient(dt);
   // Director.
   // Dense swarms (each monster is weaker to match: see enemyScale).
-  const maxAlive = Math.min(CAPS.enemies - 30, 24 + G.t * 0.5);
-  const rate = Math.min(9, (0.55 + G.t / 90 + Math.pow(G.t / 300, 2) * 0.9) * 1.7);
+  const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, 24 + T * 0.5);
+  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE;
   G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1); // quieter while the Final Five fight you
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
-  if (G.t >= G.nextWave) { G.nextWave += 45; waveEvent(); }
+  if (G.t >= G.nextWave) { G.nextWave += 30; waveEvent(); }
   updateRivals(dt);
   updateShowdown();
-  if (G.t >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
+  if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.
   for (const q of G.parts) { q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.92; q.vy *= 0.92; q.life -= dt; }

@@ -80,7 +80,7 @@ function terrainPlayer(p, dt) {
   const z = zoneForce(p.x, p.y, p.r);
   p.x += z.fx * dt; p.y += z.fy * dt;
   p.slick = z.slick;
-  if (z.acid && G.state === 'play') hurtPlayer(z.acid.def.dps * dmgMul(G.t), 'Acid Crypt');
+  if (z.acid && G.state === 'play') hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt');
   const hit = pushOut(p, p.r, 0);
   if (hit) {
     // Lose the velocity that points into the surface (you slide along it instead).
@@ -143,7 +143,7 @@ function terrainShot(s, hostile, dt) {
 // and if you're close you get a speed and fire-rate kick.
 function atpBurst(ob) {
   ob.charge = 0; ob.burstT = 0.6;
-  const R = ob.def.burstR, dmg = Math.max(80 * hpMul(G.t), (G.dpsAvg || 0) * 0.5);
+  const R = ob.def.burstR, dmg = Math.max(80 * hpNow(), (G.dpsAvg || 0) * 0.5);
   ring(ob.x, ob.y, R, PAL.reward, 0.5, 6);
   addLight(ob.x, ob.y, R * 1.3, PAL.reward, 0.6);
   spawnPart(ob.x, ob.y, '#ffd23f', 24, 260, 0.6, 4);

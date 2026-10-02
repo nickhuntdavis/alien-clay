@@ -492,7 +492,7 @@ const UI = {
         <div class="dbars"><span>POWER</span>${bar(st[0])}<span>FIRE RATE</span>${bar(st[1])}<span>REACH</span>${bar(st[2])}<span>CROWDS</span>${bar(st[3])}</div>`;
       if (d.sig) {
         h += `<h4>PLAYSTYLES IT UNLOCKS</h4><div class="dpath">`;
-        for (const l of [5, 10]) for (const id of d.sig[l]) h += `<div class="dp"><em>LV ${l} ${l >= 10 ? 'MASTERY' : 'SIGNATURE'}</em><b>${esc(SIGS[id].name)}</b><span>${esc(SIGS[id].desc.replace(/^Mastery\. /, ''))}</span></div>`;
+        for (const l of [5, 8, 10]) for (const id of d.sig[l] || []) h += `<div class="dp"><em>LV ${l} ${l >= 10 ? 'MASTERY (ONE WEAPON A RUN)' : 'SIGNATURE'}</em><b>${esc(SIGS[id].name)}</b><span>${esc(SIGS[id].desc.replace(/^Mastery\. /, ''))}</span></div>`;
         h += `</div>`;
       }
       const ps = PAIRINGS.filter(q => q.a === o.def.id || q.b === o.def.id || q.a === defId(o.def) || q.b === defId(o.def));

@@ -13,7 +13,7 @@ const BOUNTY_NAMES = ['Gary From Accounts', 'The Other Twin', 'Big Kev', 'Tadpol
 // mods(dire): multipliers while it runs. start/tick/end(dire, ev): what it does. win: what decides a payout.
 const RUN_EVENTS = {
   frenzy: { name: 'FEEDING FRENZY', color: '#ff4d6d', dur: 25, w: 3,
-    desc: d => `Everything swims ${d ? 70 : 40}% faster. XP doubled.`, mods: d => ({ espd: d ? 1.7 : 1.4, xp: 2 }) },
+    desc: d => `Everything swims ${d ? 70 : 40}% faster. +30% XP.`, mods: d => ({ espd: d ? 1.7 : 1.4, xp: 1.3 }) },
   glass: { name: 'GLASS WOMB', color: '#9ef0ff', dur: 25, w: 2.5,
     desc: d => `You deal and take x${d ? 2.5 : 2} damage.`, mods: d => ({ out: d ? 2.5 : 2, in: d ? 2.5 : 2 }) },
   sugar: { name: 'SUGAR RUSH', color: '#ffd23f', dur: 20, w: 2.5,
@@ -33,9 +33,9 @@ const RUN_EVENTS = {
         ev.acc -= gap;
         const p = me(), a = Math.random() * TAU, r = Math.random() < 0.3 ? rand(0, 40) : rand(60, 300);
         const x = p.x + Math.cos(a) * r + (p.vx || 0) * 0.6, y = p.y + Math.sin(a) * r + (p.vy || 0) * 0.6, R = rand(42, 64);
-        addHazard(x, y, R, 0.2, 16 * dmgMul(G.t) * (d ? 1.4 : 1), '#ffb347', 'Kidney stones', 0.9);
+        addHazard(x, y, R, 0.2, 16 * dmgNow() * (d ? 1.4 : 1), '#ffb347', 'Kidney stones', 0.9);
         after(0.9, () => {
-          forNear(x, y, R, e => { if (!e.charmed && !e.egg) damageEnemy(e, (e.boss ? 0.02 : 0.45) * e.maxHp + 30 * hpMul(G.t), { elem: 'phys', wname: 'Kidney stones', noCrit: true, knock: 160, kx: e.x - x, ky: e.y - y }); });
+          forNear(x, y, R, e => { if (!e.charmed && !e.egg) damageEnemy(e, (e.boss ? 0.02 : 0.45) * e.maxHp + 30 * hpNow(), { elem: 'phys', wname: 'Kidney stones', noCrit: true, knock: 160, kx: e.x - x, ky: e.y - y }); });
           ring(x, y, R, '#ffb347', 0.3, 4); spawnPart(x, y, '#ffd6a5', 6, 140, 0.4, 3);
           cam.shake = Math.min(6, cam.shake + 1);
         });
@@ -70,15 +70,15 @@ const RUN_EVENTS = {
     end: (d, ev) => { const e = ev.target; if (e && !e.dead) { e.elite = false; e.evTag = null; floatText(e.x, e.y - e.r - 12, 'GOT AWAY', '#ffffff', 14); } return null; },
     reward: (d, e) => { for (let i = 0; i < (d ? 2 : 1); i++) G.pickups.push(makePickup('chest', e.x + i * 24, e.y)); G.rerolls += 2; return 'BOUNTY PAID'; } },
   blackout: { name: 'LIGHTS OUT', color: '#b8c0ff', dur: 25, w: 2,
-    desc: d => `Someone switched off the microscope lamp. XP doubled.${d ? ' Elites are out hunting.' : ''}`,
-    mods: () => ({ dark: 1, xp: 2 }),
+    desc: d => `Someone switched off the microscope lamp. +30% XP.${d ? ' Elites are out hunting.' : ''}`,
+    mods: () => ({ dark: 1, xp: 1.3 }),
     start: d => { if (d) for (let k = 0; k < 3; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.lancer]), s.x, s.y, { elite: true })); } } },
   tide: { name: 'WATERS BREAKING', color: '#48cae4', dur: 20, w: 2, minLv: 25,
     desc: () => 'A strong current sweeps everything one way. Swim with it and you ram for free.',
     mods: (d, ev) => ({ tideX: Math.cos(ev.ang) * (d ? 120 : 85), tideY: Math.sin(ev.ang) * (d ? 120 : 85), ram: 1.5 }),
     start: (d, ev) => { ev.ang = Math.random() * TAU; } },
   mitosis: { name: 'MITOSIS', color: '#43e97b', dur: 20, w: 2.5, minLv: DIRE_LV,
-    desc: () => 'Everything that dies splits in two. XP x1.5.', mods: () => ({ mitosis: 1, xp: 1.5 }) },
+    desc: () => 'Everything that dies splits in two (the halves give no XP).', mods: () => ({ mitosis: 1 }) },
 };
 
 function newEvents() { return { next: 0, active: [], recent: [], n: 0 }; }
@@ -116,10 +116,10 @@ function updateEvents(dt) {
   }
   G.evm = m;
   // Schedule the next one (never during a boss, the Final Five or the swim to the egg).
-  if (!V.next) V.next = G.t + 100;
+  if (!V.next) V.next = G.t + 70;
   if (G.level < EVENT_FIRST_LV || G.t < V.next) return;
   if (G.boss || G.showdown || G.fertile || V.active.length) { V.next = G.t + 8; return; }
-  V.next = G.t + (dire ? rand(45, 65) : rand(80, 110));
+  V.next = G.t + (dire ? rand(35, 50) : rand(55, 75));
   startEvent(dire);
   if (dire && Math.random() < 0.3) startEvent(dire, true);
 }
@@ -146,7 +146,7 @@ function eventKill(e) {
   if (!G.evm || !G.evm.mitosis || e.boss || e.rival || e.egg || e.charmed || e.final || e.mitoKid || e.bossDef || e.evTag) return;
   for (let i = 0; i < 2 && G.enemies.length < CAPS.enemies; i++) {
     const a = Math.random() * TAU, k = makeEnemy(e.def, e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r);
-    k.hp = k.maxHp = e.maxHp * 0.4; k.r = e.r * 0.75; k.xp = e.xp * 0.5; k.mitoKid = true; k.kx = Math.cos(a) * 160; k.ky = Math.sin(a) * 160;
+    k.hp = k.maxHp = e.maxHp * 0.4; k.r = e.r * 0.75; k.xp = 0; k.mitoKid = true; k.kx = Math.cos(a) * 160; k.ky = Math.sin(a) * 160;
     G.enemies.push(k);
   }
 }

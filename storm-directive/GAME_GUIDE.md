@@ -30,13 +30,11 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, spells, power-ups, modifiers, stains and (rarely) curses.
 2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
-   - **Lv 3 and Lv 8:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it).
-   - **Lv 5 (signature):** pick one of two upgrades only that weapon has. This decides how it plays.
-   - **Lv 10 (mastery):** pick one of two more. Big, build-defining changes.
+   - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.
 3. **Pairings:** own two specific weapons, both at Lv5+, and they start working together. They are secret until you find them.
 4. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
-5. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 10, 20, 35, 50 (5 in total). Ordinary DNA strands never offer new weapons.
-6. **Bosses:** a boss every 3 minutes. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
+5. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total). Ordinary DNA strands never offer new weapons.
+6. **Bosses:** a boss every 2 minutes. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
 7. **Rarity** multiplies a card's value:
 
 | Rarity | Multiplier | Weapon levels granted | Drop weight |
@@ -87,9 +85,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
 | Lv 5 signature | **Hock a Loogie** | Every 4th shot is a giant glob: triple damage, pierces everything, and bursts at the end of its flight. |
 |  | **Wet Willy** | Hits leave enemies Soggy for 3s. Soggy enemies take +30% damage from everything you own. |
-| Lv 8 | **Domino Effect** | Kills explode for 60% of the killing blow. |
-|  | **Special Delivery** | Hits explode for 35% damage around the target. |
-|  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+| Lv 8 signature | **Sniper's Nest** | +60% range, and shots hit twice as hard on anything more than 250 away. |
+|  | **Phlegm Fan** | Every reload sprays a ring of 12 spitballs all around you. |
 | Lv 10 mastery | **Kidney Stone** | It becomes a railgun: x4 damage, pierces everything, shreds armour, fires half as often. |
 |  | **Projectile Vomit** | Fires four times as fast in a wide hose. Each droplet deals 45% damage and pierces once. |
 
@@ -108,9 +105,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
 | Lv 5 signature | **Point Blank** | Pellets hit up to +150% harder the closer the target is. Get in their face. |
 |  | **Slug** | All the pellets fuse into one heavy slug (90% of their total damage) that pierces 3 enemies and bowls them over. |
-| Lv 8 | **Special Delivery** | Hits explode for 35% damage around the target. |
-|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
-|  | **Toxic Relationship** | Hits add a stacking poison. |
+| Lv 8 signature | **Buckshot** | +4 pellets per blast, each at 75% damage. A wall of lead. |
+|  | **Recoil Jump** | Every blast kicks you backwards, away from the target, and you cannot be hurt mid-kick. Hit and run. |
 | Lv 10 mastery | **Hiccup Fit** | Every 3rd blast is a full ring of pellets around you that also wipes out nearby enemy bullets. |
 |  | **Dragon's Breath** | Pellets turn to fire, set enemies alight and leave small burning puddles where they land. |
 
@@ -129,9 +125,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Walk the Dog** | At full reach the yo-yo spins in place for a second, grinding everything it touches, then comes home. |
 |  | **Crash Diet** | The yo-yo grows every time it hits something: +10% size and damage per hit, every throw. |
-| Lv 8 | **Plus One** | +1 projectile. |
-|  | **Punching Up** | +100% damage to elites, bosses and rival champions. |
-|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+| Lv 8 signature | **Yo-Yo Shield** | Yo-yos eat every enemy bullet they pass through. |
+|  | **Cat's Cradle** | A string runs from you to every yo-yo in flight, cutting whatever crosses it. |
 | Lv 10 mastery | **Around the World** | Three yo-yos per throw, and every catch heals you a little for each enemy it hit. |
 |  | **Black Hole Yo-Yo** | At full reach it becomes a gravity well for 1.5s, then snaps home dragging its catch with it. |
 
@@ -150,9 +145,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
 | Lv 5 signature | **Closing the Loop** | Swim a loop around enemies and everything inside it takes a massive cut. Try the ORBIT autorun. |
 |  | **Razor Wire** | The trail lasts twice as long and slows whatever swims through it. |
-| Lv 8 | **Due Date Panic** | 40% faster cooldown and reload. |
-|  | **Sugar Rush** | +75% damage. |
-|  | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
+| Lv 8 signature | **Bloodletting** | Anything the trail cuts bleeds for 60% of the cut again over 3s. |
+|  | **Slipstream** | Swimming through your own trail: +35% swim speed and 25% less damage taken. |
 | Lv 10 mastery | **Surgical Team** | Two ghost scalpels circle you, each cutting its own trail. |
 |  | **Afterburner** | The trail catches fire, and the faster you swim the hotter it burns (up to x2.5). |
 
@@ -171,9 +165,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Wide Hips** | +35% area and +15% range. |
 | Lv 5 signature | **Blue Flame** | Narrow and long: +70% range, a tight cone and +40% damage. |
 |  | **Indigestion** | Burning enemies explode in flames when they die, spreading the burn to everything nearby. |
-| Lv 8 | **Twins!** | +2 projectiles. |
-|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
-|  | **Plus One** | +1 projectile. |
+| Lv 8 signature | **Napalm** | Flames leave burning puddles where they land. |
+|  | **Heatwave** | Burning enemies take +50% damage from everything you own. |
 | Lv 10 mastery | **Dragon** | Twice the flames, sweeping a full circle around you, forever. |
 |  | **Hell's Kitchen** | It never reloads, and the damage climbs the longer you keep firing (up to x3). Cools off when idle. |
 
@@ -192,9 +185,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Nappy Bag** | +60% magazine size. |
 | Lv 5 signature | **Domino Nappies** | A blast sets off every mine near it, and each one in the chain goes off 25% bigger than the last. |
 |  | **Sticky Nappies** | Mines are thrown onto enemies and stick to them, going off 1.2s later. |
-| Lv 8 | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
-|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
-|  | **Domino Effect** | Kills explode for 60% of the killing blow. |
+| Lv 8 signature | **Claymore** | Every mine also fires a fan of 8 shrapnel shots at the nearest enemy when it goes off. |
+|  | **Homing Nappies** | Mines crawl after the nearest enemy instead of waiting. |
 | Lv 10 mastery | **Nuclear Nappy** | Every 6th mine is a nuke: three times the blast radius and six times the damage. |
 |  | **Minefield** | Three mines per drop, twice as often, and they last twice as long. |
 
@@ -213,9 +205,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Sharp Tongue** | +15% crit chance. |
 | Lv 5 signature | **Shatter** | A shard that hits a frozen enemy shatters it for 250% damage in an icy burst. |
 |  | **Icicle Lance** | +4 pierce, and each enemy a shard passes through makes it 25% stronger. |
-| Lv 8 | **Due Date Panic** | 40% faster cooldown and reload. |
-|  | **Punching Up** | +100% damage to elites, bosses and rival champions. |
-|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+| Lv 8 signature | **Brain Freeze** | Every 3rd shard that hits the same enemy freezes it solid (not bosses). |
+|  | **Hailstorm** | Every 3rd volley also drops 6 hailstones on enemies around the target. |
 | Lv 10 mastery | **Ice Age** | Shards leave frost patches behind that freeze anything that swims through. |
 |  | **Cold Snap** | Every 4s a freezing blast around you freezes every non-boss enemy within reach. |
 
@@ -234,9 +225,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Nappy Bag** | +60% magazine size. |
 | Lv 5 signature | **Short Circuit** | +3 jumps, and the lightning can bounce back to enemies it already hit. Brutal on big targets. |
 |  | **Umbilical Cord** | The first two enemies in each chain get tied together with lightning and slammed into each other. |
-| Lv 8 | **Punching Up** | +100% damage to elites, bosses and rival champions. |
-|  | **Plus One** | +1 projectile. |
-|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+| Lv 8 signature | **Ball Lightning** | Every 4th bolt leaves a ball of lightning on its target that zaps everything near it for 3s. |
+|  | **Grounded** | Every chain earths through you: heal a little for each enemy it hit (within the lifesteal limit, doubled). |
 | Lv 10 mastery | **Overcharge** | Every jump hits 20% harder than the last, instead of weaker. |
 |  | **Power Grid** | 15% of hits from all your other weapons set off a Static Cling chain. |
 
@@ -255,9 +245,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Sharp Tongue** | +15% crit chance. |
 | Lv 5 signature | **Nausea** | Enemies in a puddle are slowed by 45% and deal 40% less damage. |
 |  | **Toxic Spread** | Enemies that die in a puddle leave a new puddle behind. |
-| Lv 8 | **Twins!** | +2 projectiles. |
-|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
-|  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+| Lv 8 signature | **Corrosive** | Puddles strip armour: enemies standing in them lose their armour and take +25% damage from everything. |
+|  | **Geyser** | When a puddle dries up it erupts for 300% damage. |
 | Lv 10 mastery | **Swamp** | Puddles last four times as long and slowly spread. |
 |  | **Acid Reflux** | When you get hit, you throw up eight puddles in a ring around you. |
 
@@ -276,9 +265,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
 | Lv 5 signature | **Walking Dead** | Infected corpses get back up as zombie allies for 12s instead of turrets (up to 14 at once). |
 |  | **Big Worm** | Turrets last twice as long, fire 50% faster and hit twice as hard. |
-| Lv 8 | **Twins!** | +2 projectiles. |
-|  | **Special Delivery** | Hits explode for 35% damage around the target. |
-|  | **Ice Queen** | 12% of hits freeze non-boss enemies solid. |
+| Lv 8 signature | **Hive Mind** | Your turrets and zombies hit twice as hard and last 50% longer. |
+|  | **Feeding Tube** | Every infected enemy that dies heals you 1% of your max HP. |
 | Lv 10 mastery | **Brood** | The infection spreads: every infected death infects the three nearest enemies. |
 |  | **Body Snatcher** | Elites killed while infected become permanent allies (three at most). |
 
@@ -297,9 +285,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Sharp Tongue** | +15% crit chance. |
 | Lv 5 signature | **Big Brother** | One sibling in every volley is huge: four times the size and damage, and pierces 3. |
 |  | **Sibling Rivalry** | Every kill adds a sibling to your volleys (up to +8). Reloading makes them all settle down again. |
-| Lv 8 | **Kick Them While Down** | +60% damage to enemies under 35% health. |
-|  | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
-|  | **Domino Effect** | Kills explode for 60% of the killing blow. |
+| Lv 8 signature | **Kamikaze Kids** | Siblings explode when they hit, for 70% damage in a small blast. |
+|  | **Swarm Intelligence** | Every sibling in a volley picks a different target. Nobody gets left out. |
 | Lv 10 mastery | **Population Boom** | Every sibling splits into two more homing siblings on its first hit. |
 |  | **Family Reunion** | Siblings that miss swim back to circle you, eating bullets, then launch again. |
 
@@ -318,9 +305,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Event Horizon** | Non-boss enemies under 20% health that get dragged into the centre are swallowed whole. |
 |  | **Nom Nom** | The orb eats enemy bullets, growing with every one (up to twice its size). |
-| Lv 8 | **Twins!** | +2 projectiles. |
-|  | **Toxic Relationship** | Hits add a stacking poison. |
-|  | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+| Lv 8 signature | **Supermassive** | Orbs are 60% bigger and pull twice as hard, but drift half as fast. |
+|  | **Crush Depth** | The longer an orb holds an enemy, the harder it squeezes: up to triple damage after 2s. |
 | Lv 10 mastery | **Big Bang** | When an orb ends it explodes for half of all the damage it dealt. |
 |  | **Tantrum Parking** | The orb parks wherever it catches 4 enemies, pulls 2.5 times harder and lasts twice as long. |
 
@@ -339,9 +325,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
 | Lv 5 signature | **Guardian Angel** | The angels eat any enemy bullet they touch. |
 |  | **Eternal Vigil** | The angels never take a break, but hit 25% softer. Amen. |
-| Lv 8 | **Twins!** | +2 projectiles. |
-|  | **Toxic Relationship** | Hits add a stacking poison. |
-|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+| Lv 8 signature | **Smite** | Every 2.5s each angel throws a holy bolt at an enemy within reach. |
+|  | **Martyrdom** | When you get hit, the angels burst out for 300% damage around you (every 2s at most). |
 | Lv 10 mastery | **Heavenly Host** | A second ring of angels spins the other way at double the distance. |
 |  | **Holier Than Thou** | Enemies they hit are made to feel guilty for 4s: slowed by 40% and taking +35% damage from everything. |
 
@@ -360,9 +345,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Sharp Tongue** | +15% crit chance. |
 | Lv 5 signature | **Return to Sender** | Returned shots home in on whoever fired them, and hit them three times as hard. |
 |  | **Bullet Buffet** | +40% absorb radius, and every bullet eaten heals you a little. |
-| Lv 8 | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
-|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
-|  | **Toxic Relationship** | Hits add a stacking poison. |
+| Lv 8 signature | **Spread the Love** | Every returned shot splits into three, each at 45% damage. |
+|  | **Savings Account** | Returned shots hit +2% harder for every bullet in the store (up to +80%). |
 | Lv 10 mastery | **Mirror Womb** | 30% of enemy bullets that reach you bounce back at whoever fired them. |
 |  | **Overflow** | When the store fills up, it all bursts out in a ring of returned bullets. |
 
@@ -381,9 +365,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Wide Hips** | +35% area and +15% range. |
 | Lv 5 signature | **Full Circle** | Every swing goes all the way round you, at 85% damage. Nothing sneaks up behind you. |
 |  | **Home Run** | Every 3rd swing knocks enemies three times as far, and anything they crash into takes the hit too. |
-| Lv 8 | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
-|  | **Sugar Rush** | +75% damage. |
-|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+| Lv 8 signature | **Tantrum** | Every hit speeds up your swings by 5% for 3s (up to +60%). It builds. |
+|  | **Ground Pound** | Every 4th swing slams the ground all around you at 1.6 times the reach and stuns what it hits. |
 | Lv 10 mastery | **Afterbirth Wave** | Every swing sends a wave out to three times its reach for 60% damage. |
 |  | **Smother** | Every hit stacks Smothered. The 3rd stack crushes them for 400% damage (150% on bosses). |
 
@@ -402,9 +385,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Whip Crack** | The last third of the lash is the sweet spot: three times the damage, and it always crits. |
 |  | **Get Over Here** | Lashes drag enemies towards you instead of pushing them away. Lovely with a Paddle or a Ram. |
-| Lv 8 | **Special Delivery** | Hits explode for 35% damage around the target. |
-|  | **Plus One** | +1 projectile. |
-|  | **Toxic Relationship** | Hits add a stacking poison. |
+| Lv 8 signature | **Barbed Tail** | Lashes make enemies bleed for 60% of the hit again over 3s. |
+|  | **Snap Back** | Lashes yank you towards the far end of the lash, and you cannot be hurt mid-yank. Hit and run. |
 | Lv 10 mastery | **Cat o' Nine Tails** | Every lash is five lashes in a wide fan, each at 60% damage. |
 |  | **Spin Cycle** | Every 3rd lash spins a full circle of twelve lashes around you at 1.5 times the reach. |
 
@@ -412,7 +394,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 *Kinetic melee, Tank.* A babygro with spikes on the outside. Huggable, technically.
 
-- **Base stats:** dmg 12, cd 0.55s, mag 8, reload 0.9s, range 80 (area 80, knock 120)
+- **Base stats:** dmg 18, cd 0.55s, mag 8, reload 0.9s, range 90 (area 90, knock 120)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +20% area
 - **Pairings:** **Nappy Rash** (+ Morning Sickness)
 
@@ -423,9 +405,8 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 |  | **Nappy Bag** | +60% magazine size. |
 | Lv 5 signature | **Spiky Personality** | Whatever hurts you gets hurt back hard (thorns x2), plus a jab to everything around you. |
 |  | **Bear Hug** | Pulses pull enemies in instead of pushing them out, and every enemy in reach gives you +1 armour (up to +6). |
-| Lv 8 | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
-|  | **Special Delivery** | Hits explode for 35% damage around the target. |
-|  | **Sugar Rush** | +75% damage. |
+| Lv 8 signature | **Porcupine** | Every pulse also shoots 8 spines outwards at 50% damage. |
+|  | **Fortress** | When you slow down or stop: +4 armour and pulses come 50% faster. |
 | Lv 10 mastery | **Bubble Wrap** | Every 6th pulse is huge: twice the radius, 2.5 times the damage, and it pops every enemy bullet it touches. |
 |  | **Growth Spurt** | The pulse grows 10% wider for every 100 max HP you have, and heals you a little for each enemy it hits. |
 
@@ -504,7 +485,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 ## Bosses and relics
 
-A boss arrives every 3 minutes. Each run draws 4 of these 8 at random; after all 4, they come round again, tougher. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
+A boss arrives every 2 minutes. Each run draws 4 of these 8 at random; after all 4, they come round again, tougher. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
 
 ### THE MACROPHAGE QUEEN: Eater of Hopefuls
 
@@ -628,11 +609,11 @@ Identical twins who fight as one. Kill one and the other rebuilds it in 8 second
 
 ## Run events
 
-From level 6 (and about 100 seconds in), something unexpected happens every 80 to 110 seconds: never during a boss fight, the Final Five or the swim to the egg. From level 40 events turn **DIRE**: they come every 45 to 65 seconds, hit harder, pay out more, and 30% of the time two arrive at once. Run-event targets (the Golden Swimmer and bounties) get an arrow on screen, and every weapon and the autorun go after them first.
+From level 6 (and about 70 seconds in), something unexpected happens every 55 to 75 seconds: never during a boss fight, the Final Five or the swim to the egg. From level 40 events turn **DIRE**: they come every 35 to 50 seconds, hit harder, pay out more, and 30% of the time two arrive at once. Run-event targets (the Golden Swimmer and bounties) get an arrow on screen, and every weapon and the autorun go after them first.
 
 | Event | Lasts | Normal | Dire |
 |---|---|---|---|
-| **FEEDING FRENZY** | 25s | Everything swims 40% faster. XP doubled. | Everything swims 70% faster. XP doubled. |
+| **FEEDING FRENZY** | 25s | Everything swims 40% faster. +30% XP. | Everything swims 70% faster. +30% XP. |
 | **GLASS WOMB** | 25s | You deal and take x2 damage. | You deal and take x2.5 damage. |
 | **SUGAR RUSH** | 20s | You swim 60% faster, ram x3, contact hurts half as much. | You swim 60% faster, ram x3, contact hurts half as much. So do they: enemies 30% faster. |
 | **BULLET HELL** | 20s | Shooters fire x2 as often. Survive: heal 30% and +1 reroll. | Shooters fire x2.6 as often. Survive: heal 30% and +2 rerolls. |
@@ -640,9 +621,9 @@ From level 6 (and about 100 seconds in), something unexpected happens every 80 t
 | **THE HORDE** | 20s | Surrounded. Survive 20s for a gold chest. | Surrounded. Survive 20s for two gold chests. |
 | **GOLDEN SWIMMER** | 20s | A golden sperm is running off with a chest. Catch it within 20s. | A golden sperm is running off with two chests. Catch it within 20s. |
 | **MOST WANTED** | 60s | A bounty target is loose. Kill it within 60s: a chest and 2 rerolls. | A bounty target is loose. Kill it within 60s: two chests and 2 rerolls. |
-| **LIGHTS OUT** | 25s | Someone switched off the microscope lamp. XP doubled. | Someone switched off the microscope lamp. XP doubled. Elites are out hunting. |
+| **LIGHTS OUT** | 25s | Someone switched off the microscope lamp. +30% XP. | Someone switched off the microscope lamp. +30% XP. Elites are out hunting. |
 | **WATERS BREAKING** (Lv 25+) | 20s | A strong current sweeps everything one way. Swim with it and you ram for free. | A strong current sweeps everything one way. Swim with it and you ram for free. |
-| **MITOSIS** (Lv 40+) | 20s | Everything that dies splits in two. XP x1.5. | Everything that dies splits in two. XP x1.5. |
+| **MITOSIS** (Lv 40+) | 20s | Everything that dies splits in two (the halves give no XP). | Everything that dies splits in two (the halves give no XP). |
 
 ## Spells
 

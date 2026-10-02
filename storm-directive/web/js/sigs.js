@@ -26,6 +26,12 @@ function applySigStats(w, s) {
   if (has('clingy')) s.dmg *= 0.75;
   if (has('buffet')) s.area *= 1.4;
   if (has('ninetails')) { s.count += 4; s.dmg *= 0.6; s.spread = 0.3; }
+  if (has('farsight')) s.range *= 1.6;
+  if (has('buckshot')) { s.count += 4; s.dmg *= 0.75; }
+  if (has('supermassive')) { s.size *= 1.6; s.aura *= 1.6; s.pull *= 2; s.speed *= 0.5; }
+  if (has('spreadlove')) { s.count *= 3; s.dmg *= 0.45; }
+  if (has('kamikaze')) s.explode = Math.max(s.explode || 0, 42);
+  if (has('hivemind')) s.dur *= 1.5;
   // Boss relics that reach into every weapon.
   if (G.relics && G.relics.mirror && PROJ_KINDS.includes(w.def.kind)) s.mirror = Math.max(s.mirror || 0, 0.5);
 }
@@ -71,6 +77,19 @@ function sigVolley(w, a0) {
   if (hasSig(w, 'dragon')) { w.dragA = (w.dragA || 0) + 0.42; out.a0 = w.dragA; }
   if (hasSig(w, 'rivalry')) out.extra = w.rivals || 0;
   if (hasSig(w, 'bigbrother')) out.big = true;
+  // Recoil Jump: the blast kicks you away from the target.
+  if (hasSig(w, 'recoil') && !(w.recoilT > G.t)) { w.recoilT = G.t + 0.3; dashPlayer(-Math.cos(a0), -Math.sin(a0), 420); }
+  // Hailstorm: every 3rd volley, hail on the crowd round the target.
+  if (hasSig(w, 'hailstorm') && (w.hailN = (w.hailN || 0) + 1) % 3 === 0 && w.curTarget) {
+    const t = w.curTarget, src = Object.assign(weaponSrc(w), { wname: 'Hailstorm' });
+    acquireMany('random', 220, t.x, t.y, 6).forEach((e, i) => after(0.08 * i, () => {
+      if (e.dead) return;
+      G.fx.push({ type: 'warn', x: e.x, y: e.y, r: 30, color: '#bde0fe', life: 0.15, max: 0.15 });
+      aoe(e.x, e.y, 34, s.dmg * 0.9, src, '#bde0fe');
+    }));
+  }
+  // Swarm Intelligence: a different target for every sibling.
+  if (hasSig(w, 'swarmsmart')) { w.swarmL = acquireMany('nearest', s.range, me().x, me().y, 12); w.swarmI = 0; }
   if (hasSig(w, 'sender') && w.owners && w.owners.length) {
     const o = w.owners.shift();
     if (o && !o.dead) out.owner = o;
@@ -88,7 +107,7 @@ function sigProj(pr, w) {
     if (hasSig(w, 'aroundworld')) pr.catchHeal = 1;
     if (G.pair.tetherball) pr.magnet = 90;
   } else if (id === 'frost') { if (hasSig(w, 'icicle')) pr.icicle = 1; if (hasSig(w, 'iceage')) pr.iceAge = 1; }
-  else if (id === 'seeker') { if (hasSig(w, 'reunion')) pr.reunion = 1; }
+  else if (id === 'seeker') { if (hasSig(w, 'reunion')) pr.reunion = 1; if (w.swarmL && w.swarmL.length) { pr.tgt = w.swarmL[(w.swarmI++) % w.swarmL.length]; pr.homing = Math.max(pr.homing, 6); } }
   else if (id === 'void') { pr.dealt = 0; pr.r0 = pr.r; pr.aura0 = pr.aura; }
 }
 
@@ -99,6 +118,10 @@ function sigDamageMul(e, src) {
   if (e.soggyT > G.t) m *= 1.3;
   if (e.guiltT > G.t) m *= 1.35;
   if (src.w && src.w.id === 'shotgun' && G.pair.suckerpunch && e.pulledT > G.t) m *= 2;
+  if (e.corrT > G.t) m *= 1.25; // Corrosive
+  if (e.burn > 0 && ownSig('flamer', 'heatwave')) m *= 1.5;
+  if (src.w && src.w.id === 'blaster' && hasSig(src.w, 'farsight') && Math.hypot(e.x - me().x, e.y - me().y) > 250) m *= 2;
+  if (src.w && src.w.id === 'void' && e.holdLast > G.t - 0.3 && hasSig(src.w, 'crushdepth')) m *= 1 + Math.min(2, G.t - e.holdT0);
   return m;
 }
 // On-hit effects (from damageEnemy's proc step).
@@ -109,6 +132,7 @@ function sigHit(e, dmg, src) {
     if (hasSig(w, 'wetwilly')) e.soggyT = G.t + 3;
     if (G.pair.conductive) e.wetT = G.t + 3;
   } else if (w.id === 'frost') {
+    if (hasSig(w, 'brainfreeze') && !e.boss && !e.rival && (e.bfN = (e.bfN || 0) + 1) % 3 === 0) { e.frozen = Math.max(e.frozen, 1.5); ring(e.x, e.y, e.r + 8, '#bde0fe', 0.3, 2); }
     if (hasSig(w, 'shatter') && e.frozen > 0 && !e.dead) {
       e.frozen = 0;
       aoe(e.x, e.y, 62, dmg * 2.5, Object.assign({}, src, { noProc: true, noCrit: true, mult: 1, wname: 'Shatter' }), '#bde0fe');
@@ -118,6 +142,8 @@ function sigHit(e, dmg, src) {
     if (hasSig(w, 'guilttrip')) e.guiltT = G.t + 4;
     if (G.pair.bbq) { e.burn = Math.max(e.burn, 3); e.burnDps = Math.max(e.burnDps, dmg * 0.5); }
   }
+  // Bloodletting and Barbed Tail: 60% of the hit bleeds out again over the next few seconds.
+  if ((w.id === 'wake' && hasSig(w, 'bloodletting')) || (w.id === 'flail' && hasSig(w, 'barbed'))) e.bleed = Math.min(e.maxHp, (e.bleed || 0) + dmg * (src.mult || 1) * 0.6);
   // Power Grid: other weapons' hits set off a Static Cling chain now and then.
   if (G.gridW && w !== G.gridW && !src.grid && Math.random() < 0.15 && !(G.gridCd > G.realT)) {
     G.gridCd = G.realT + 0.05;
@@ -128,6 +154,9 @@ function sigHit(e, dmg, src) {
 function sigKill(e, src) {
   const w = src.w;
   if (w && w.id === 'seeker' && hasSig(w, 'rivalry')) w.rivals = Math.min(8, (w.rivals || 0) + 1);
+  // Bleeding enemies pass what's left of it on to the nearest one.
+  if (e.bleed > 1) { const n = acquire('nearest', 160, e.x, e.y, e); if (n) { n.bleed = Math.min(n.maxHp, (n.bleed || 0) + e.bleed); bolt(e.x, e.y, n.x, n.y, '#ff3b3b', 0.12); } e.bleed = 0; }
+  if (e.parasiteT > 0 && e.parasiteW && hasSig(e.parasiteW, 'feedingtube')) healPlayer(G.P.maxHp * 0.01, true); // Feeding Tube
   // Indigestion: burning enemies go up in flames (a few per frame, so chains stay readable).
   const fw = e.burn > 0 && ownSig('flamer', 'indigestion');
   if (fw && (G.indiF !== G.frameN || (G.indiN || 0) < 6)) {
@@ -144,12 +173,14 @@ function sigKill(e, src) {
 function venomZone(w, x, y) {
   const s = w.s, z = { x, y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg * 0.9, elem: 'poison', pull: 0, color: w.def.color, tick: 0, src: weaponSrc(w), venom: true };
   if (hasSig(w, 'swamp')) { z.grow = s.area * 0.12; z.r0 = s.area; }
+  if (hasSig(w, 'geyser')) z.onEnd = q => { aoe(q.x, q.y, q.r * 1.15, s.dmg * 3, Object.assign(weaponSrc(w), { wname: 'Geyser' }), '#8dff4a'); spawnPart(q.x, q.y, '#8dff4a', 8, 160, 0.5); };
   return z;
 }
 // Called for every enemy standing in a zone, each zone tick.
 function sigZone(z, e, dt) {
   if (z.venom || (z.src && z.src.w && z.src.w.id === 'venom')) {
     e.puddleT = G.t + 0.4;
+    if (hasSig(z.src.w, 'corrosive')) { e.shred = Math.max(e.shred, e.armour); e.corrT = G.t + 0.4; }
     if (hasSig(z.src.w, 'nausea')) { e.chill = Math.max(e.chill, 0.4); e.chillAmt = Math.max(e.chillAmt, 0.45); e.weakT = G.t + 0.4; }
   }
   if (z.freeze && !e.boss && !e.rival) e.frozen = Math.max(e.frozen, 1);
@@ -177,6 +208,7 @@ function sigTick(dt) {
   }
   if (G.relics) relicTick(dt);
   spoilerBlink(dt);
+  sig8Tick(dt);
 }
 
 // ---------------------------------------------------------------- Slipstream Scalpel extras (from updateWake)
@@ -257,6 +289,11 @@ function mineScale(pr) {
   return { k, r: r * Math.sqrt(pr.dominoK || 1) };
 }
 function afterMine(pr) {
+  if (hasSig(pr.w, 'claymore')) {
+    // Claymore: a fan of shrapnel at the nearest enemy.
+    const t = acquire('nearest', 400, pr.x, pr.y), a0 = t ? Math.atan2(t.y - pr.y, t.x - pr.x) : Math.random() * TAU;
+    for (let i = 0; i < 8; i++) { const a = a0 + (i / 7 - 0.5) * 0.9, sp = 520; spawnProj(pr.w, pr.x, pr.y, a, Object.assign({}, pr.src, { wname: 'Claymore' }), { speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.6, max: 0.6, r: 3, dmg: pr.w.s.dmg * 0.35, pierce: 1, style: 'bullet', explode: 0, homing: 0, bounce: 0, boomerang: 0, noMods: true }); }
+  }
   if (pr.nuke) { cam.shake = 18; floatText(pr.x, pr.y - 30, 'NUCLEAR NAPPY', '#ffffff', 20, 1.2); addLight(pr.x, pr.y, 500, '#ffffff', 0.8); sfx('boss'); vibrate(80); }
   if (hasSig(pr.w, 'domino')) {
     const k = (pr.dominoK || 1) * 1.25;
@@ -268,6 +305,11 @@ function afterMine(pr) {
   }
 }
 function updateStickyMine(pr, dt) {
+  if (!pr.stick && pr.w && hasSig(pr.w, 'homingnappy')) {
+    // Homing Nappies: crawl after the nearest enemy.
+    const t = acquire('nearest', 320, pr.x, pr.y);
+    if (t) { const dx = t.x - pr.x, dy = t.y - pr.y, d = Math.hypot(dx, dy) || 1; pr.x += dx / d * Math.min(d, 150 * dt); pr.y += dy / d * Math.min(d, 150 * dt); }
+  }
   if (!pr.stick) return false;
   if (!pr.stick.dead) { pr.x = pr.stick.x; pr.y = pr.stick.y; }
   pr.fuse -= dt;
@@ -281,6 +323,14 @@ function chainNearMine(x, y) {
 
 // ---------------------------------------------------------------- Static Cling extras (after a chain)
 function afterChain(w, hit, src) {
+  // Grounded: the chain earths through you.
+  if (hasSig(w, 'grounded') && G.lsBudget > 0) { const h = Math.min(G.lsBudget * 2, hit.length * G.P.maxHp * 0.004); G.lsBudget = Math.max(0, G.lsBudget - h / 2); healPlayer(h, true); }
+  // Ball Lightning: every 4th bolt leaves a crackling ball where it struck.
+  if (hasSig(w, 'balllightning') && (w.ballN = (w.ballN || 0) + 1) % 4 === 0 && hit.length && G.zones.length < 200) {
+    const t = hit[hit.length - 1];
+    G.zones.push({ x: t.x, y: t.y, r: 90, life: 3, max: 3, dps: w.s.dmg * 1.5, elem: 'shock', pull: 0, color: '#ffe94a', tick: 0, src: Object.assign({}, src, { wname: 'Ball Lightning' }) });
+    ring(t.x, t.y, 90, '#ffe94a', 0.4, 3);
+  }
   if (hasSig(w, 'umbilical') && hit.length >= 2 && G.tethers.length < 12) {
     const [a, b] = hit;
     if (!a.dead && !b.dead && a !== b && !G.tethers.some(t => t.a === a || t.b === a || t.a === b || t.b === b))
@@ -315,6 +365,7 @@ function wormCorpse(e, pw) {
 }
 function wormTurret(t, pw) {
   if (hasSig(pw, 'bigworm')) { t.life *= 2; t.max *= 2; t.rate *= 0.67; t.dmg *= 2; }
+  if (hasSig(pw, 'hivemind')) t.dmg *= 2;
   if (G.pair.familytree) t.sibs = true;
 }
 
@@ -385,6 +436,7 @@ function projHit(pr, e) {
 }
 // A projectile reaching the end of its flight.
 function projEnd(pr) {
+  if (pr.w.id === 'flamer' && hasSig(pr.w, 'napalm') && Math.random() < 0.2 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 26, life: 2, max: 2, dps: pr.dmg * 3, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: Object.assign({}, pr.src, { wname: 'Napalm' }) });
   if (pr.dragonB && Math.random() < 0.35 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 24, life: 1.6, max: 1.6, dps: pr.dmg * 0.8, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: pr.src });
   if (pr.iceAge && !pr.patched) frostPatch(pr.w, pr.x, pr.y);
   if (pr.dealt > 0 && hasSig(pr.w, 'bigbang')) {
@@ -400,6 +452,8 @@ function frostPatch(w, x, y) {
 // Toddler Gravity: per enemy caught, per tick.
 function gravityTick(pr, e) {
   const w = pr.w;
+  if (e.holdPr !== pr || !(e.holdLast > G.t - 0.3)) { e.holdPr = pr; e.holdT0 = G.t; }
+  e.holdLast = G.t; // Crush Depth
   if (hasSig(w, 'horizon') && !e.dead && !e.boss && !e.rival && !e.egg && e.hp < e.maxHp * 0.2 && Math.hypot(e.x - pr.x, e.y - pr.y) < pr.r + e.r * 0.6 + 8) {
     e.hp = 0; floatText(e.x, e.y - e.r, 'GULP', '#e0aaff', 13); killEnemy(e, pr.src);
   }
@@ -558,4 +612,71 @@ function thornsHit(ent) {
   if (ent && !ent.dead && !ent.charmed && !ent.egg) damageEnemy(ent, dmg, Object.assign({ kx: ent.x - p.x, ky: ent.y - p.y }, src));
   forNear(p.x, p.y, 90, o => { if (o !== ent && !o.charmed && !o.egg) damageEnemy(o, dmg * 0.4, Object.assign({ kx: o.x - p.x, ky: o.y - p.y }, src)); });
   ring(p.x, p.y, 90, '#ff8fab', 0.3, 3);
+}
+
+// ---------------------------------------------------------------- Lv 8 signatures: per-frame and helpers
+// A burst of speed in a direction, untouchable while it lasts (Recoil Jump, Snap Back).
+function dashPlayer(ux, uy, v) {
+  const p = G.player;
+  p.vx += ux * v; p.vy += uy * v; p.x += ux * v * 0.06; p.y += uy * v * 0.06;
+  p.iframes = Math.max(p.iframes, 0.35);
+}
+function sigReload(w) {
+  if (!hasSig(w, 'phlegmfan')) return;
+  // Phlegm Fan: a ring of spit every reload.
+  const p = me(), src = Object.assign(weaponSrc(w), { wname: 'Phlegm Fan' });
+  for (let i = 0; i < 12; i++) spawnProj(w, p.x, p.y, i / 12 * TAU + Math.random() * 0.2, src);
+}
+// From hurtPlayer: Martyrdom.
+function sigHurt() {
+  const ow = ownSig('orbit', 'martyr');
+  if (!ow || G.martyrT > G.t) return;
+  G.martyrT = G.t + 2;
+  const p = me();
+  aoe(p.x, p.y, ow.s.radius + 70, ow.s.dmg * 3, Object.assign(weaponSrc(ow), { wname: 'Martyrdom' }), '#c77dff');
+  floatText(p.x, p.y - 34, 'MARTYRDOM', '#c77dff', 14, 0.6);
+}
+const segDist = (px, py, ax, ay, bx, by) => { const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy || 1, t = clamp(((px - ax) * dx + (py - ay) * dy) / l2, 0, 1); return Math.hypot(px - ax - dx * t, py - ay - dy * t); };
+function sig8Tick(dt) {
+  const p = me();
+  // Bleeding (Bloodletting, Barbed Tail).
+  for (const e of G.enemies) {
+    if (!(e.bleed > 0) || e.dead) continue;
+    const d = Math.max(e.bleed * dt / 1.5, Math.min(e.bleed, 2 * dt));
+    e.bleed -= d;
+    damageEnemy(e, d, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: 'Bleed' });
+    if (Math.random() < dt * 4) spawnPart(e.x, e.y, '#ff3b3b', 1, 30, 0.4, 2);
+  }
+  G.slip = false; G.fortArm = 0;
+  for (const w of G.weapons) {
+    if (!w) continue;
+    w.rateK = 1;
+    if (w.id === 'glaive' && (hasSig(w, 'yoyoshield') || hasSig(w, 'cradle'))) {
+      const shield = hasSig(w, 'yoyoshield'), cradle = hasSig(w, 'cradle');
+      const tick = cradle && !(w.cradleT > G.t);
+      if (tick) w.cradleT = G.t + 0.2;
+      for (const pr of G.proj) {
+        if (pr.w !== w || pr.dead || pr.mine) continue;
+        if (shield) for (const b of G.ebul) if (!b.dead && Math.abs(b.x - pr.x) < pr.r + 8 && Math.abs(b.y - pr.y) < pr.r + 8) { b.dead = true; spawnPart(b.x, b.y, '#f1f1f1', 1, 50, 0.2); }
+        if (tick) {
+          const mx = (p.x + pr.x) / 2, my = (p.y + pr.y) / 2, half = Math.hypot(pr.x - p.x, pr.y - p.y) / 2;
+          forNear(mx, my, half + 10, e => { if (!e.charmed && segDist(e.x, e.y, p.x, p.y, pr.x, pr.y) < e.r + 6) damageEnemy(e, w.s.dmg * 0.3, Object.assign(weaponSrc(w), { wname: "Cat's Cradle", noCrit: true })); });
+          G.fx.push({ type: 'bolt', pts: [p.x, p.y, pr.x, pr.y], color: '#f1f1f1', life: 0.15, max: 0.15 });
+        }
+      }
+    }
+    if (w.id === 'orbit' && hasSig(w, 'smite') && w.blades.length) {
+      w.smiteT = (w.smiteT == null ? 2.5 : w.smiteT) - dt;
+      if (w.smiteT <= 0) {
+        w.smiteT = 2.5;
+        const n = w.blades.length / 3, ts = acquireMany('random', 340, p.x, p.y, n), src = Object.assign(weaponSrc(w), { wname: 'Smite' });
+        ts.forEach((t, i) => { bolt(w.blades[i * 3], w.blades[i * 3 + 1], t.x, t.y, '#e0aaff', 0.2); damageEnemy(t, w.s.dmg * 1.5, src); });
+      }
+    }
+    if (w.id === 'wake' && hasSig(w, 'slipstream') && !G.slip) {
+      for (const z of G.zones) if (z.trail && z.src && z.src.w === w && z.max - z.life > 0.5 && Math.abs(z.x - p.x) < z.r && Math.abs(z.y - p.y) < z.r) { G.slip = true; break; }
+    }
+    if (w.id === 'paddle' && hasSig(w, 'tantrum')) { if (!(w.tantT > G.t)) w.tant = Math.max(0, (w.tant || 0) - dt * 6); w.rateK = 1 + 0.05 * (w.tant || 0); }
+    if (w.id === 'onesie' && hasSig(w, 'fortress') && Math.hypot(p.vx || 0, p.vy || 0) < 60) { G.fortArm = 4; w.rateK = 1.5; }
+  }
 }

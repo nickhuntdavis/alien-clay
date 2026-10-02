@@ -17,10 +17,10 @@ function spawnBoss() {
     const e = makeEnemy(def, x, y);
     e.boss = true;
     // Proper fights: each boss in a run is much tougher than the last (your build grows fast too).
-    e.hp = e.maxHp = def.hp * 5 * (1 + (idx % BOSSES_PER_RUN) * 0.9) * Math.pow(2.4, idx % BOSSES_PER_RUN) * (1 + G.t / 320) * (1 + round * 4);
+    e.hp = e.maxHp = def.hp * 5 * (1 + (idx % BOSSES_PER_RUN) * 0.9) * Math.pow(2.4, idx % BOSSES_PER_RUN) * (1 + PT() / 320) * (1 + 0.05 * levelsAhead()) * (1 + round * 4);
     e.armour = def.armour + round * 4;
     e.speed = def.speed;
-    e.dmg = def.dmg * dmgMul(G.t);
+    e.dmg = def.dmg * dmgNow();
     e.pat = 0; e.patT = 0; e.fireT = 0; e.st = 0;
     return e;
   };
