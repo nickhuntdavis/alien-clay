@@ -597,6 +597,8 @@ const UI = {
       boss: ['BOSS DNA', 'Epic or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
       branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The others go in the bin. Forever. No pressure.'],
       relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
+      vesicle: ['ENZYME VESICLE', 'Four horribly unstable mutations. Staple one to your genome. You only have room for so many before you pop.'],
+      splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
     };
     UI.pickedOne = false;
     if (req.kind === 'relic') titles.relic[0] = 'RELIC: ' + bossDef(req.boss).name.replace(/^THE /, '');
@@ -622,7 +624,7 @@ const UI = {
     INPUT.active = false; G.manual = null;
     lootSound(req.kind, Math.max(...UI.lootOpts.map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
     clearTimeout(UI.lootTimer);
-    UI.lootOpenT = performance.now();
+    UI.lootOpenT = performance.now(); UI.freeRerollUsed = false;
     G.stats.boxes = (G.stats.boxes || 0) + 1;
     UI.lootTimer = setTimeout(() => $('lootCards').classList.add('ready'), 650);
   },
@@ -685,7 +687,7 @@ const UI = {
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
     const k = UI.lootReq && UI.lootReq.kind;
-    if (G.relics.twinpick && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'relic' && UI.lootOpts.length > 1) {
+    if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo)) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'relic' && UI.lootOpts.length > 1) {
       UI.pickedOne = true; o.taken = true;
       const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
       $('lootSub').textContent = 'Twin Pick: take one more.';
@@ -698,14 +700,18 @@ const UI = {
   },
 
   reroll() {
-    if (!G || G.rerolls <= 0 || !$('lootCards').classList.contains('ready')) return;
-    G.rerolls--;
+    if (!G || !$('lootCards').classList.contains('ready')) return;
+    // The Re-Roller of Dice: the first one per screen is free. Water Bear Armour: sometimes it isn't used up.
+    const free = (mutOn('rerolldice') && !UI.freeRerollUsed) || (mutOn('waterbear') && Math.random() < 0.35);
+    if (!free && G.rerolls <= 0) return;
+    if (mutOn('rerolldice') && !UI.freeRerollUsed) UI.freeRerollUsed = true;
+    if (!free) G.rerolls--;
     UI.lootOpts = UI.sortLoot(genLoot(UI.lootReq));
     UI.renderLootCards();
     UI.rarityBanner();
     UI.updateReroll();
   },
-  updateReroll() { $('rerollBtn').textContent = `REROLL (${G.rerolls})`; $('rerollBtn').disabled = G.rerolls <= 0; },
+  updateReroll() { const free = mutOn('rerolldice') && !UI.freeRerollUsed; $('rerollBtn').textContent = free ? 'REROLL (FREE)' : `REROLL (${G.rerolls})`; $('rerollBtn').disabled = !free && G.rerolls <= 0 && !mutOn('waterbear'); },
 
   // ---------------------------------------------------------------- pause & directives
   togglePause() {
@@ -735,6 +741,13 @@ const UI = {
     h += `</div>`;
     }
     if (tab === 'build') {
+    // Your genome: sequences and mutations.
+    if (G.genes) {
+      const gs = G.genes.active.map(id => `<div class="li on"><b>${esc(PROFILES[id].name)}</b> ${id === G.genes.primary ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}<br><span>${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes.k[id] || 0))}</span></div>`).join('');
+      const sy = PROFILE_SYNERGIES.filter(q => synOn(q.a, q.b)).map(q => `<div class="li on"><b style="color:${PAL.upgrade}">${esc(q.name)}</b><br><span>${esc(q.desc)}</span></div>`).join('');
+      const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? `<div class="li"><b>Mystery Meat</b><br><span>Something inside is doing something.</span></div>` : `<div class="li"><b>${esc(MUTATIONS[id].name)}</b><br><span>${esc(MUTATIONS[id].desc)}</span></div>`).join('');
+      h += `<div class="sec"><h3>Your genome</h3><div class="list">${gs}${sy}</div><h3 style="margin-top:10px">Mutations (${mutCount()}/${mutCap()})</h3>${ms ? `<div class="list">${ms}</div>` : '<p class="hint">None yet. Burst an Enzyme Vesicle: follow the glow at the edge of the screen.</p>'}</div>`;
+    }
     // Synergies.
     h += `<div class="sec"><h3>Element synergies (own 2+ of an element)</h3><div class="list">`;
     for (const el in SYNERGIES) {
@@ -771,7 +784,27 @@ const UI = {
   },
 
   // ---------------------------------------------------------------- sample select (levels)
+  // One Epigenetic Profile: its trait at its current rank, how far to the next rank, or what unlocks it.
+  profileHtml(id, opts) {
+    const Pr = PROFILES[id], u = Pr.unlock, open = profUnlocked(id), r = profRank(id), kills = profKills(id), next = PROFILE_RANKS[r] || 0;
+    const prog = !open ? `<em>LOCKED: ${esc(u.text)} (${fmtNum(Math.min(u.have(), u.need))}/${fmtNum(u.need)})</em>`
+      : `<em>Rank ${r}${next ? ` | ${fmtNum(kills)}/${fmtNum(next)} kills to Rank ${r + 1}` : ' (max)'}</em>`;
+    const syn = PROFILE_SYNERGIES.filter(q => q.a === id || q.b === id).map(q => `${esc(PROFILES[q.a === id ? q.b : q.a].name)}: ${esc(q.name)}`).join('; ');
+    return `<b>${esc(Pr.name)}</b> <span class="brole">${esc(Pr.trait.toUpperCase())}</span><br><span>${esc(Pr.desc)} ${open ? esc(Pr.fmt(profK(id, true))) + ' as your Primary.' : ''}</span><br>${prog}`
+      + (opts && opts.full ? `<br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
+  },
+  renderProfilePick() {
+    const box = $('profilePick'); if (!box) return;
+    if (!PROFILES[META.profile] || !profUnlocked(META.profile)) META.profile = 'vanguard';
+    box.innerHTML = `<div class="sec"><h3>Primary Sequence</h3><p class="hint">Your dominant gene for this run. Up to two more can be spliced in later (at Lv ${SPLICE_LEVELS.join(' and ')}) at half strength. Each ranks up with the kills it's expressed for.</p><div class="list">`
+      + Object.keys(PROFILES).map(id => `<button class="li prof ${META.profile === id ? 'on' : ''} ${profUnlocked(id) ? '' : 'locked'}" data-prof="${id}">${UI.profileHtml(id, { full: META.profile === id })}</button>`).join('') + `</div></div>`;
+    box.querySelectorAll('[data-prof]').forEach(b => b.addEventListener('click', () => {
+      if (!profUnlocked(b.dataset.prof)) { UI.toast('Locked: ' + PROFILES[b.dataset.prof].unlock.text); return; }
+      META.profile = b.dataset.prof; saveMeta(); UI.renderProfilePick();
+    }));
+  },
   openSamples() {
+    UI.renderProfilePick();
     const best = UI.loadBest();
     $('sampleList').innerHTML = SAMPLES.map(s => `<button class="slide ${s.open ? '' : 'locked'}" data-sample="${s.id}">
       <span class="slabel"><b>#${s.no}</b><i>${s.open ? 'IN STOCK' : 'COMING SOON'}</i></span>
@@ -792,10 +825,11 @@ const UI = {
     const wids = Object.keys(WEAPONS), used = wids.filter(id => META.wstats[id]);
     const pf = PAIRINGS.filter(q => META.pairs[q.id]), qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
     const met = Object.keys(META.bosses).length, rel = Object.keys(RELICS).filter(id => META.relics[id]);
-    const got = used.length + pf.length + qf.length + met + rel.length, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length;
+    const pids = Object.keys(PROFILES), pu = pids.filter(profUnlocked), mids = Object.keys(MUTATIONS), mf = mids.filter(id => META.muts[id]);
+    const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length;
     let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>CODEX COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
-      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Relics ${rel.length}/${Object.keys(RELICS).length}</span></div></div>`;
-    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['pairs', 'PAIRINGS'], ['secrets', 'SECRETS'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
+      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Relics ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
+    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'PAIRINGS'], ['secrets', 'SECRETS'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
     const show = id => sec === 'all' || sec === id;
     if (show('weapons')) {
       let l = '';
@@ -804,6 +838,13 @@ const UI = {
         l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, r ? elemCol(d.elem) : '#ffffff40')}</span><div><b style="color:${r ? 'inherit' : '#ffffff80'}">${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</span><br><span>${esc(d.play || d.desc)}</span><br><em>${r ? `${r.runs} run${r.runs > 1 ? 's' : ''}, born ${r.born}, best Lv ${r.best}` : 'Never taken into a run.'}</em></div></div>`;
       }
       h += box(`Weapons (${used.length}/${wids.length} used)`, `<div class="list">${l}</div>`, 'Every weapon in the fridge. Take one into a run to log it.');
+    }
+    if (show('genes')) {
+      h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, `<div class="list">${pids.map(id => `<div class="li ${run && genesOn(id) ? 'on' : ''}">${UI.profileHtml(id, { full: true })}</div>`).join('')}</div>`, 'Pick your Primary Sequence on the sample screen before a run.');
+      h += box('Sequence synergies', `<div class="list">${PROFILE_SYNERGIES.map(q => `<div class="li ${run && synOn(q.a, q.b) ? 'on' : ''}"><b>${esc(q.name)}</b><br><span>${esc(PROFILES[q.a].name)} + ${esc(PROFILES[q.b].name)}: ${esc(q.desc)}</span></div>`).join('')}</div>`);
+    }
+    if (show('muts')) {
+      h += box(`Mutations found (${mf.length}/${mids.length})`, `<div class="list">${mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')}</div>`, 'They come out of Enzyme Vesicles: burst one, pick one of four.');
     }
     if (show('pairs')) {
       let l = '';
@@ -862,6 +903,7 @@ const UI = {
       const ws = META.wstats[id];
       return `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
     };
+    h += `</div><div class="sec"><h3>Epigenetic Profiles</h3><p class="hint">Your Primary Sequence (chosen on the sample screen) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Vanguard')}</b>. Ranks come from kills, unlocks from what you do across all your runs.</p><div class="list">${Object.keys(PROFILES).map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join('')}</div>`;
     h += `</div><div class="sec"><h3>Starter weapons</h3><p class="hint">Unlocked weapons join your starter DNA. One of them is always offered.</p>`;
     h += META_STARTERS.filter(([id]) => !WEAPONS[id] || !WEAPONS[id].toy).map(starterRow).join('');
     h += `<h3 style="margin-top:12px">Toys</h3><p class="hint">The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.</p>`;

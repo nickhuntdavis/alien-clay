@@ -1072,6 +1072,7 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 | **Thick Zona** | +1 armour per rank | 3 | 45 / 80 / 115 |
 | **Lucky Genes** | +5% luck per rank (rarer DNA strands) | 3 | 35 / 65 / 95 |
 | **Sharp Acrosome** | +3% crit chance per rank | 3 | 40 / 70 / 100 |
+| **Well-Incubated** | +1 mutation slot per rank (Enzyme Vesicles) | 2 | 80 / 140 |
 
 ### Starter weapons
 

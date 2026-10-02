@@ -13,10 +13,11 @@ const META_BONUSES = [
   { id: 'armour',   name: 'Thick Zona',         desc: '+1 armour per rank',              max: 3, cost: r => 45 + r * 35, apply: (G, r) => { G.P.armour += r; } },
   { id: 'luck',     name: 'Lucky Genes',        desc: '+5% luck per rank (rarer DNA strands)', max: 3, cost: r => 35 + r * 30, apply: (G, r) => { G.P.luck += 0.05 * r; } },
   { id: 'crit',     name: 'Sharp Acrosome',     desc: '+3% crit chance per rank',        max: 3, cost: r => 40 + r * 30, apply: (G, r) => { G.P.crit += 0.03 * r; } },
+  { id: 'incubated', name: 'Well-Incubated',    desc: '+1 mutation slot per rank (Enzyme Vesicles)', max: 2, cost: r => 80 + r * 60, apply: () => {} },
 ];
 // What a rank adds, in words, for the Gene Bank's "next swimmer" line.
 const META_NOW = { hp: r => `+${10 * r} max HP`, dmg: r => `+${4 * r}% damage`, xp: r => `+${5 * r}% XP`, reroll: r => `+${r} reroll${r > 1 ? 's' : ''}`, grip: r => `+${10 * r}% traction`,
-  magnet: r => `+${15 * r}% pickup range`, rewind: () => '+1 Rewind charge', armour: r => `+${r} armour`, luck: r => `+${5 * r}% luck`, crit: r => `+${3 * r}% crit` };
+  magnet: r => `+${15 * r}% pickup range`, rewind: () => '+1 Rewind charge', armour: r => `+${r} armour`, luck: r => `+${5 * r}% luck`, crit: r => `+${3 * r}% crit`, incubated: r => `+${r} mutation slot${r > 1 ? 's' : ''}` };
 // Starter weapons you can add to the first box.
 const META_STARTERS = [
   ['mines', 60], ['orbit', 60], ['void', 80], ['wake', 80], ['parasite', 90], ['siphon', 100],
@@ -34,6 +35,8 @@ const META_DYES = [
 const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0, pairs: {}, bosses: {} };
 try { Object.assign(META, JSON.parse(localStorage.getItem('sd_meta') || '{}')); } catch (e) { /* storage unavailable */ }
 META.pairs = META.pairs || {}; META.bosses = META.bosses || {}; META.quirks = META.quirks || {}; META.wstats = META.wstats || {}; META.relics = META.relics || {};
+META.prof = META.prof || {}; META.muts = META.muts || {}; META.profile = META.profile || 'vanguard';
+META.life = Object.assign({ bestT: 0, bosses: 0, pickups: 0, elem: 0, casts: 0 }, META.life || {});
 // v6 retired most weapons: starters bought for them are refunded in full.
 { const OLD = { nailgun: 60, cryopipette: 60, antibioticsg: 70, nerveimpulse: 70, placebo: 80, chromowhip: 80, metaflare: 90, genesplicer: 100, mitosiscannon: 120, hailswarm: 90 };
   for (const id in META.starters) if (!WEAPONS[id]) { META.dna += OLD[id] || 0; delete META.starters[id]; } }
@@ -56,6 +59,7 @@ function bankRun(G, won) {
     r.runs++; if (won) r.born++; r.best = Math.max(r.best, w.lvl);
   }
   for (const id in G.relics || {}) if (RELICS[id]) META.relics[id] = true;
+  if (typeof genesBank === 'function') genesBank(G);
   saveMeta();
   return n;
 }
@@ -103,7 +107,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.24';
+const APP_VERSION = '7.25';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

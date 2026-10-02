@@ -717,3 +717,7 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #armoury .dbar i.on { background: #5fd4e8; box-shadow: 0 0 6px #5fd4e8; }
 #bankClear.danger { border-color: #ff3b3b !important; color: #ff3b3b !important; background: #ff3b3b18 !important; }
 #bankClear:disabled { opacity: 0.35; }
+#profilePick .li.prof { display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+#profilePick .li.prof.on { border-color: #5fd4e8; }
+.li.locked { opacity: 0.45; }
+.li em { font-style: normal; font-family: var(--mono, monospace); font-size: 10px; opacity: 0.75; }

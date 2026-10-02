@@ -89,6 +89,7 @@ function newGame() {
   cam.x = 0; cam.y = 0; cam.shake = 0;
   G.dyes = {};
   applyMeta(G);
+  genesStart(G);
   refreshPalette(); // back to greyscale: colour comes from stains picked up during the run
   CASA.log.length = 0; CASA.pts.length = 0;
 }
@@ -247,7 +248,7 @@ function computeStats(w) {
   else s.dmg = b.dmg * (1 + WEAPON_LV_DMG * (L - 1) + dmgB) * P.might * elemMult;
   const physBonus = syn.phys && d.elem === 'phys' ? 1.15 : 1;
   s.cd = (b.cd || 0) * Math.pow(0.95, L - 1) * (1 + cdB) / (w.isSpell ? 1 : P.haste * physBonus);
-  if (w.isSpell) s.cd *= P.cdr;
+  if (w.isSpell) s.cd *= Math.max(0.4, P.cdr);
   s.mag = Math.max(1, Math.round((b.mag || 1) * (1 + 0.12 * (L - 1)) * P.magMult));
   s.reload = (b.reload || 0) * Math.pow(0.95, L - 1) / P.reloadSpd;
   const multi = MULTI_KINDS.includes(d.kind) ? P.multishot : 0;
@@ -298,6 +299,7 @@ function computeStats(w) {
   }
   s.perkCount = 0;
   applyPerks(w, s);
+  genesAdapt(w, s);
   // Extra projectiles (Split Personality, Plus One, Twins!, Octuplets) share the damage, and add half what they
   // used to: 3 extra shots on a one-shot weapon give about 1.65x damage in all (it was 2.3x).
   const n1 = baseCount + extraMulti + s.perkCount;
@@ -383,10 +385,12 @@ function genLoot(req) {
   if (req.kind === 'slot') {
     // A weapon draft for a new mount: three fresh weapons, Rare or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
-    const ids = shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 3);
+    const ids = genesDraft(shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 3), owned);
     return ids.map(id => optNewWeapon(id, Math.max(2, rollRarity(2))));
   }
   if (req.kind === 'relic') return bossDef(req.boss).relics.map(id => optRelic(id, req.boss));
+  if (req.kind === 'vesicle') return vesicleOpts();
+  if (req.kind === 'splice') return spliceOpts();
   if (req.kind === 'branch') {
     const w = G.weapons.find(x => x && x.uid === req.uid);
     if (w && !w.perks[req.lvl]) return weaponTree(w.def)[req.lvl].map(id => optPerk(w, req.lvl, id));
@@ -396,7 +400,10 @@ function genLoot(req) {
     // One of your Gene Bank starters is always on offer, if you've bought any.
     const pool = starterPool(), own = pool.filter(id => META.starters[id]);
     const first = own.length ? [pick(own)] : [];
-    const ids = first.concat(shuffle(pool.filter(id => !first.includes(id))).slice(0, 3 - first.length));
+    let ids = first.concat(shuffle(pool.filter(id => !first.includes(id))).slice(0, 3 - first.length));
+    // Your Primary Sequence always puts one of its weapons on offer.
+    const fav = G.genes ? PROFILES[G.genes.primary].weapons.filter(id => WEAPONS[id]) : [];
+    if (fav.length && !ids.some(id => fav.includes(id))) ids[ids.length - 1] = pick(fav.filter(id => !ids.includes(id)).concat(fav));
     for (const id of ids) opts.push(optNewWeapon(id, 0));
     return opts;
   }
@@ -586,7 +593,7 @@ function damageEnemy(e, dmg, src) {
     else if (!e.tunUsed && e.hp - d < e.maxHp * 0.3) { e.tunUsed = true; e.tunT = G.t + 2.5; d *= 0.08; floatText(e.x, e.y - e.r - 10, 'TUN!', XR.white, 13); }
   }
   if (src.grudge && e === G.grudge) d *= 3;
-  d *= sigDamageMul(e, src) * toyDamageMul(e);
+  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src);
   // Stain boons: you can see who matters.
   if (G.dyes.luciferase && (e.elite || e.boss)) d *= 1.25;
   if (G.dyes.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
@@ -599,7 +606,7 @@ function damageEnemy(e, dmg, src) {
   }
   if (src.parasite) { e.parasiteW = src.w; e.parasiteT = 6; }
   let crit = false;
-  if (!src.noCrit && Math.random() < (src.crit != null ? src.crit : P.crit)) { crit = true; d *= P.critDmg; }
+  if (!src.noCrit && Math.random() < (src.crit != null ? src.crit : P.crit) + genesCrit(e, src)) { crit = true; d *= P.critDmg; }
   if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e));
@@ -645,6 +652,8 @@ function damageEnemy(e, dmg, src) {
     if (n) { bolt(e.x, e.y, n.x, n.y, ELEMENTS.shock.color, 0.12); damageEnemy(n, dmg * 0.45, { elem: 'shock', noStatus: true, noArc: true, noCrit: true, wname: 'Shock arcs' }); }
   }
   if (G.toy) toyHurt(e, Math.min(d, Math.max(0, hp0)), src); // Due Date keeps count; Red Tape shares it
+  if (src.elem && src.elem !== 'phys') G.stats.elemDmg = (G.stats.elemDmg || 0) + d; // for the Acid-Burner unlock
+  if (src.w) genesHit(e, d, src, crit);
   if (e.hp <= 0 && !e.dead) {
     const excess = -e.hp;
     killEnemy(e, src);
@@ -785,6 +794,7 @@ function killEnemy(e, src) {
   onShowKill(e, src);
   sigKill(e, src);
   toyKill(e, src);
+  genesKill(e, src);
   relicKill(e, src);
   eventKill(e);
   boonKill();
@@ -844,7 +854,7 @@ function killEnemy(e, src) {
   } else if (e.elite || (e.def.spongy && e.r > 100)) {
     // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
     G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage']), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
-  } else if (Math.random() < 0.011 * (1 + P.luck)) {
+  } else if (Math.random() < 0.011 * (1 + P.luck) * (G.mut && G.mut.heavymetal ? 2 : 1)) {
     const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'];
     G.pickups.push(makePickup(Math.random() < 0.5 ? chestOr(pick(types)) : pick(types), e.x, e.y, { t: 'drop', name: e.name }));
   }
@@ -894,7 +904,7 @@ function hurtPlayer(dmg, from, ent) {
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1);
   dmg = relicDamageIn(dmg, ent);
   if (dmg <= 0) return;
-  const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour + (G.hugArm || 0) + (G.fortArm || 0))); // Bear Hug and Fortress add armour
+  const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour())); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
@@ -911,8 +921,9 @@ function hurtPlayer(dmg, from, ent) {
   thornsHit(ent);
   sigHurt();
   toyPlayerHurt();
+  genesHurt(d);
   boonHurt();
-  if (p.hp <= 0) { p.hp = 0; if (!boonSave() && !startRewind(true)) gameOver(); }
+  if (p.hp <= 0) { p.hp = 0; if (!genesLethal() && !boonSave() && !startRewind(true)) gameOver(); }
 }
 
 // ---------------------------------------------------------------- enemies
@@ -1743,6 +1754,7 @@ function landLob(pr) {
 
 function detonateMine(pr) {
   const s = pr.w.s;
+  genesMine(pr); // Acid Mines (Bruiser + Acid-Burner)
   if (s.singularity) {
     G.zones.push({ x: pr.x, y: pr.y, r: s.explode * 1.2, life: 1.2, max: 1.2, dps: s.dmg * 0.3, elem: 'arcane', pull: 260, color: '#9d4edd', tick: 0, src: pr.src,
       onEnd: z => aoe(z.x, z.y, s.explode, s.dmg, pr.src, '#c77dff') });
@@ -1754,7 +1766,7 @@ function updateSpells(dt) { updateSpellList(G.spells, dt); }
 function updateSpellList(list, dt) {
   for (const w of list) {
     if (!w) continue;
-    w.cd -= dt;
+    w.cd -= dt * genesSpellRate();
     if (w.cd > 0) continue;
     let target = null;
     if (!w.def.noTarget) {
@@ -1764,6 +1776,8 @@ function updateSpellList(list, dt) {
     else if ((w.def.kind === 'warp' || w.def.kind === 'barrier' || w.def.kind === 'ring') && !acquire('nearest', 300, G.player.x, G.player.y)) { w.cd = 0; continue; }
     fireWeapon(w, target);
     w.cd = w.s.cd;
+    genesCast(w); // Turbo-chondrial Engine
+    if (!w.echo) G.stats.casts = (G.stats.casts || 0) + 1;
     w.reloadMax = w.s.cd;
     sfx('spell');
   }
@@ -1809,7 +1823,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1);
+  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed();
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
   let dx = 0, dy = 0;
@@ -1973,6 +1987,8 @@ function updatePickups(dt) {
 
 function applyPickup(type, src) {
   const p = G.player, P = G.P;
+  if (G.mutT) G.mutT.prevHp = p.hp;
+  G.stats.pickups = (G.stats.pickups || 0) + 1;
   sfx('pickup');
   banner(POWERUPS[type].name, type === 'chest' ? PAL.reward : PAL.pickup);
   switch (type) {
@@ -1994,6 +2010,7 @@ function applyPickup(type, src) {
     case 'freeze': for (const e of G.enemies) e.frozen = e.boss ? 1.5 : 4; break;
     case 'chest': G.lootQueue.push({ kind: 'chest', src }); break;
   }
+  genesPickup(type);
 }
 
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
@@ -2007,6 +2024,7 @@ function gainXp(v) {
     casaLog(`LV ${G.level}  head +1.5%`);
     // Every level up is rewarded with a box until Lv 20, then every second level.
     if (G.level <= 20 || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
+    genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS) {
       G.weapons.push(null);

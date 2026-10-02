@@ -214,6 +214,7 @@ function sigTick(dt) {
   voidMerge(dt);
   quirkTick(dt);
   toyTick(dt);
+  genesTick(dt);
 }
 
 // ---------------------------------------------------------------- Slipstream Scalpel extras (from updateWake)

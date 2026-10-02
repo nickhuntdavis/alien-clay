@@ -30,6 +30,7 @@ function rateBonus() {
   if (P.anchorLink > 0 && Math.hypot(me().x - G.core.x, me().y - G.core.y) < 450) r *= 1 + P.anchorLink;
   if (G.relics.feverdream) r *= 1 + Math.min(0.6, 0.03 * (G.feverN || 0));
   r *= boonRate(); // Twin Soul
+  r *= genesRate(); // Hackerman, Powerhouse, Sugar Rush
   return r;
 }
 
@@ -71,6 +72,7 @@ function startReload(w) {
   w.reloadT = w.reloadMax = w.s.reload;
   if (w.rivals) w.rivals = 0; // Sibling Rivalry: everyone settles down
   sigReload(w);
+  genesReload(w);
   tacticalWave();
 }
 // Tactical Nap's shockwave (reloads, and the angels' and the Siphon's own versions of a reload).

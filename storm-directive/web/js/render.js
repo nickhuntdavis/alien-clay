@@ -1349,6 +1349,7 @@ function render() {
   }
 
   drawToysOver();
+  drawVesicles();
   // Player.
   const px = sx(p.x), py = sy(p.y);
   if (G.barrier > 0) {
