@@ -715,7 +715,7 @@ function sig8Tick(dt) {
 // rubber band (harder the further apart they are) and merge into one bigger orb. Volumes add (the radius
 // grows with the cube root), damage adds up and the pull grows. Twenty merged: SUPERNOVA, at most once
 // every 40 s. Until one is allowed, orbs that would reach twenty don't pull together.
-const VOID_MERGE = { reach: 200, band: 1.6, supernova: 20, gap: 40 };
+const VOID_MERGE = { reach: 200, band: 1.6, supernova: 20, gap: 55 };
 function voidMerge(dt) {
   G.voidBands = [];
   const orbs = G.proj.filter(pr => pr.style === 'void' && !pr.dead && pr.w && pr.w.id === 'void' && !pr.lob);
@@ -758,7 +758,7 @@ function voidSupernova(a) {
   a.dead = true;
   orbCollapse(a);
   const R = Math.max(220, a.aura * 3.5), src = Object.assign({}, a.src, { noProc: true, noCrit: true, mult: 1, wname: 'Supernova' });
-  aoe(a.x, a.y, R, a.dmg * (a.mass || 10) * 2 + (a.dealt || 0) * 0.5, src, '#e0aaff');
+  aoe(a.x, a.y, R, a.dmg * (a.mass || 10) * 2 + (a.dealt || 0) * 0.25, src, '#e0aaff');
   for (const b of G.ebul) if (Math.hypot(b.x - a.x, b.y - a.y) < R) b.dead = true;
   G.fx.push({ type: 'flash', x: a.x, y: a.y, r: R * 1.4, color: '#ffffff', life: 0.6, max: 0.6 });
   G.fx.push({ type: 'pillar', x: a.x, y: a.y, r: 120, color: '#e0aaff', life: 1.2, max: 1.2 });

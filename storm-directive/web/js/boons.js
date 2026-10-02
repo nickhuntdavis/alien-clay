@@ -11,7 +11,7 @@ const BOONS = {
   pocketvoid: { tier: 5, name: 'Pocket Black Hole', desc: 'A small black hole circles you for the rest of the run, dragging enemies in and crushing them.' },
   bullettime: { tier: 5, name: 'Bullet Time', desc: 'When you drop below 30% health, time slows for 4s (every 20s at most).' },
   // Celestial
-  supernova:  { tier: 6, name: 'Supernova', desc: 'Every 12s a blast fills the screen: every enemy takes 25% of its max HP and every enemy bullet is wiped.' },
+  supernova:  { tier: 6, name: 'Supernova', desc: 'Every 12s a blast fills the screen: every enemy takes 18% of its max HP and every enemy bullet is wiped.' },
   godhand:    { tier: 6, name: 'Hand of God', desc: 'Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP.' },
   twinsoul:   { tier: 6, name: 'Twin Soul', desc: 'Every weapon you own fires 60% faster. Forever.' },
   grace:      { tier: 6, name: 'State of Grace', desc: 'Every 15s: 2s of invulnerability and a 15% heal.' },
@@ -91,7 +91,7 @@ function boonTick(dt) {
   }
   if (hasBoon('supernova') && T('supernova') >= 12) {
     reset('supernova');
-    for (const e of onScreen(240)) damageEnemy(e, smiteDmg(e, 0.25, 0.02), { elem: 'fire', wname: 'Supernova', noCrit: true, knock: 300, kx: e.x - p.x, ky: e.y - p.y });
+    for (const e of onScreen(240)) damageEnemy(e, smiteDmg(e, 0.18, 0.02), { elem: 'fire', wname: 'Supernova', noCrit: true, knock: 300, kx: e.x - p.x, ky: e.y - p.y });
     for (const b of G.ebul) b.dead = true;
     ring(p.x, p.y, 600, RARITIES[6].color, 1, 14); addLight(p.x, p.y, 900, '#ffffff', 0.6);
     banner('SUPERNOVA', RARITIES[6].color); cam.shake = 14; sfx('boom');
