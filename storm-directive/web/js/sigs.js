@@ -186,7 +186,7 @@ function sigZone(z, e, dt) {
     if (hasSig(z.src.w, 'nausea')) { e.chill = Math.max(e.chill, 0.4); e.chillAmt = Math.max(e.chillAmt, 0.45); e.weakT = G.t + 0.4; }
   }
   if (z.freeze && !e.boss && !e.rival) e.frozen = Math.max(e.frozen, 1);
-  // Pushy + Scalpel: the trail shoves enemies aside.
+  // Pushy + Viral Load: the trail shoves enemies aside.
   if (z.trail && z.src && z.src.w && z.src.w.s.knock && !e.boss && !e.def.heavy) { const dx = e.x - z.x, dy = e.y - z.y, d = Math.hypot(dx, dy) || 1; e.kx += dx / d * z.src.w.s.knock; e.ky += dy / d * z.src.w.s.knock; }
 }
 
@@ -217,7 +217,7 @@ function sigTick(dt) {
   genesTick(dt);
 }
 
-// ---------------------------------------------------------------- Slipstream Scalpel extras (from updateWake)
+// ---------------------------------------------------------------- Incompatible Viral Load extras (from updateWake)
 function wakeExtras(w, p) {
   const s = w.s;
   // Closing the Loop: the path crosses itself, and everything inside the loop gets cut.
@@ -259,10 +259,10 @@ function wakeZone(w, x, y) {
   const s = w.s, src = weaponSrc(w), p = me();
   let dps = s.dmg;
   if (hasSig(w, 'afterburner')) dps *= 1 + 1.5 * Math.min(1, Math.hypot(p.vx || 0, p.vy || 0) / 200);
-  if (G.pair.nappytrail) { src.elem = 'poison'; }
-  return { x, y, r: s.area, life: s.dur, max: s.dur, dps, elem: src.elem, pull: 0, color: src.elem === 'fire' ? '#ff7a2f' : src.elem === 'poison' ? '#8dff4a' : w.def.color, tick: Math.random() * 0.25, src, trail: true };
+  if (G.pair.nappytrail) dps *= 1.5; // Nappy Trail
+  return { x, y, r: s.area, life: s.dur, max: s.dur, dps, elem: src.elem, pull: 0, color: src.elem === 'fire' ? '#ff7a2f' : w.def.color, tick: Math.random() * 0.25, src, trail: true };
 }
-// Surgical Team: two ghost scalpels orbit you, each cutting its own trail.
+// Surgical Team: two ghost carriers orbit you, each cutting its own trail.
 function surgicalTeam(w, dt) {
   if (!hasSig(w, 'surgicalteam')) return;
   const p = me();
@@ -487,8 +487,8 @@ function gravityOrb(pr, caught) {
   }
 }
 
-// ---------------------------------------------------------------- Spoilers + Slipstream Scalpel
-// Spoilers makes shots appear next to their target. The Scalpel's "shot" is you, so every few seconds you
+// ---------------------------------------------------------------- Spoilers + Incompatible Viral Load
+// Spoilers makes shots appear next to their target. The Viral Load's "shot" is you, so every few seconds you
 // appear next to an enemy instead: you blink straight through it, and the whole line you skipped gets cut.
 function spoilerBlink(dt) {
   const w = owned('wake'), f = G.P.future;

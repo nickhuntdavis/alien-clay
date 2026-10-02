@@ -493,6 +493,57 @@ function buildOocyte(r) {
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
+// Viral trails (Incompatible Viral Load): the trail is a run of small zones dropped as you swim. Draw each run
+// as one smooth ribbon that tapers and fades with age (in a few age bands, so overlaps never double up), with a
+// dark core and virus specks drifting in it, instead of a row of stamped circles.
+function drawTrails() {
+  // Link each trail point to the open run (same weapon) whose end it continues; ghost trails interleave.
+  const chains = [];
+  for (const z of G.zones) {
+    if (!z.trail) continue;
+    let cur = null;
+    for (let i = chains.length - 1; i >= 0 && i >= chains.length - 6; i--) { const C = chains[i], l = C[C.length - 1]; if (l.src.w === z.src.w && Math.abs(z.x - l.x) < 60 && Math.abs(z.y - l.y) < 60) { cur = C; break; } }
+    if (!cur) { cur = []; chains.push(cur); }
+    cur.push(z);
+  }
+  const BANDS = 6;
+  for (const C of chains) {
+    if (C.length < 2) { const z = C[0], k = Math.max(0, z.life / z.max); ctx.globalAlpha = 0.34 * k; ctx.fillStyle = col(z.color); ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), z.r * S * (0.45 + 0.55 * k), 0, TAU); ctx.fill(); continue; }
+    const c = col(C[C.length - 1].color), hot = C[0].src && emits(C[0].src.elem);
+    const pts = C.map(z => ({ x: sx(z.x), y: sy(z.y), r: z.r * S, k: Math.max(0, Math.min(1, z.life / z.max)) }));
+    // Each band: the stretch of trail within an age range, stroked in one go (a little overlap so the joins don't gap).
+    const band = (b, draw) => {
+      const lo = b / BANDS, hi = (b + 1) / BANDS;
+      let i = 0;
+      while (i < pts.length) {
+        while (i < pts.length && !(pts[i].k >= lo && pts[i].k <= hi + 0.06)) i++;
+        const s0 = Math.max(0, i - 1);
+        while (i < pts.length && pts[i].k >= lo - 0.06 && pts[i].k <= hi + 0.06) i++;
+        const s1 = Math.min(pts.length - 1, i);
+        if (s1 - s0 >= 1) draw(pts.slice(s0, s1 + 1), (lo + hi) / 2);
+        if (i === s0) i++;
+      }
+    };
+    const path = seg => { ctx.beginPath(); ctx.moveTo(seg[0].x, seg[0].y); for (let j = 1; j < seg.length - 1; j++) ctx.quadraticCurveTo(seg[j].x, seg[j].y, (seg[j].x + seg[j + 1].x) / 2, (seg[j].y + seg[j + 1].y) / 2); ctx.lineTo(seg[seg.length - 1].x, seg[seg.length - 1].y); };
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let b = 0; b < BANDS; b++) band(b, (seg, k) => {
+      const w = seg[0].r * 2 * (0.45 + 0.55 * k);
+      if (hot || FX.k > 0.5) { ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = c; ctx.globalAlpha = 0.12 * k; ctx.lineWidth = w * 1.5; path(seg); ctx.stroke(); ctx.globalCompositeOperation = 'source-over'; }
+      ctx.strokeStyle = c; ctx.globalAlpha = 0.34 * k; ctx.lineWidth = w; path(seg); ctx.stroke();
+      ctx.strokeStyle = '#06140b'; ctx.globalAlpha = 0.45 * k; ctx.lineWidth = Math.max(1, w * 0.18); path(seg); ctx.stroke();
+    });
+    // Virus specks drifting in the smear.
+    if (FX.k > 0.6) {
+      ctx.fillStyle = c;
+      for (let j = 0; j < pts.length; j += 2) {
+        const q = pts[j], a = G.realT * 1.7 + j * 2.3, d = q.r * 0.55 * Math.sin(G.realT * 1.1 + j);
+        ctx.globalAlpha = 0.7 * q.k; ctx.beginPath(); ctx.arc(q.x + Math.cos(a) * d, q.y + Math.sin(a) * d, Math.max(1, q.r * 0.13), 0, TAU); ctx.fill();
+      }
+    }
+  }
+  ctx.globalAlpha = 1; ctx.lineCap = 'butt'; ctx.lineJoin = 'miter';
+}
+
 function drawWeaponFx(weapons, ox, oy, alpha) {
   const px = sx(ox), py = sy(oy);
   ctx.globalAlpha = alpha;
@@ -1019,17 +1070,11 @@ function render() {
   updateFxK(vis);
   // Zones (yours: faded when busy).
   fxDim(true);
+  drawTrails();
   for (const z of G.zones) {
-    if (!vis(z)) continue;
+    if (z.trail || !vis(z)) continue;
     const a = Math.min(1, z.life / 0.4);
     const x = sx(z.x), y = sy(z.y), r = z.r * S;
-    if (z.trail) {
-      const zk = Math.min(1, z.life / z.max * 2);
-      if (z.src && emits(z.src.elem)) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.5, z.color, 0.45 * zk); ctx.globalCompositeOperation = 'source-over'; }
-      else { ctx.globalAlpha = 0.35 * zk; ctx.fillStyle = z.color; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
-      ctx.globalAlpha = 1;
-      continue;
-    }
     if (z.pull || (z.src && emits(z.src.elem))) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.1, z.color, 0.35 * a); ctx.globalCompositeOperation = 'source-over'; }
     ctx.globalAlpha = a * 0.6; ctx.strokeStyle = z.color; ctx.lineWidth = 2;
     if (z.pull) {

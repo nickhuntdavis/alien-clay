@@ -58,7 +58,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | [Spitball](#spitball) (Start) | Kinetic | Marksman | NEAREST |
 | [Hiccup Scattergun](#hiccup-scattergun) (Start) | Kinetic | Brawler | NEAREST |
 | [Yo-Yo Diet](#yo-yo-diet) (Start) | Kinetic | Boomerang | FURTHEST |
-| [Slipstream Scalpel](#slipstream-scalpel) (Bank 80) | Kinetic | Swim Path | NEAREST |
+| [Incompatible Viral Load](#incompatible-viral-load) (Bank 80) | Toxic | Toxic Trail | NEAREST |
 | [Heartburn](#heartburn) (Start) | Fire | Flamethrower | NEAREST |
 | [Nappy Mines](#nappy-mines) (Bank 60) | Fire | Trapper | NEAREST |
 | [Cold Feet](#cold-feet) (Start) | Frost | Freezer | FASTEST |
@@ -141,11 +141,11 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | Lv 10 mastery | **Around the World** | Three yo-yos per throw, and every catch heals you a little for each enemy it hit. |
 |  | **Black Hole Yo-Yo** | At full reach it becomes a gravity well for 1.5s, then snaps home dragging its catch with it. |
 
-### Slipstream Scalpel
+### Incompatible Viral Load
 
-*Kinetic wake, Swim Path.* Your swim path becomes a blade. Keep moving, or it is just very expensive litter.
+*Toxic wake, Toxic Trail.* A viral load nothing in here is compatible with, smeared behind you. Keep moving, or it is just a very expensive puddle.
 
-- **Base stats:** dmg 24 (dur 2.2, area 22)
+- **Base stats:** dmg 20 (dur 2.2, area 22)
 - **Level bonuses:** Lv3: +30% area; Lv6: +50% duration; Lv9: +50% dmg
 - **Pairings:** **Nappy Trail** (+ Morning Sickness), **Trail Mix** (+ Nappy Mines)
 
@@ -154,12 +154,12 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 | Lv 3 | **Hot Load** | +40% damage. |
 |  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
 |  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
-| Lv 5 signature | **Closing the Loop** | Swim a loop around enemies and everything inside it takes a massive cut. Try the ORBIT autorun. |
-|  | **Razor Wire** | The trail lasts twice as long and slows whatever swims through it. |
-| Lv 8 signature | **Bloodletting** | Anything the trail cuts bleeds for 60% of the cut again over 3s. |
+| Lv 5 signature | **Closing the Loop** | Swim a loop around enemies and everything inside it takes a massive dose. Try the ORBIT autorun. |
+|  | **Sticky Residue** | The trail lasts twice as long and slows whatever swims through it. |
+| Lv 8 signature | **Viral Shedding** | Anything the trail touches keeps suffering: 60% of the hit again over 3s. |
 |  | **Slipstream** | Swimming through your own trail: +35% swim speed and 25% less damage taken. |
-| Lv 10 mastery | **Surgical Team** | Two ghost scalpels circle you, each cutting its own trail. |
-|  | **Afterburner** | The trail catches fire, and the faster you swim the hotter it burns (up to x2.5). |
+| Lv 10 mastery | **Patient Zeroes** | Two ghost carriers circle you, each shedding its own trail. |
+|  | **Fever Trail** | The trail runs a fever and catches fire: the faster you swim, the hotter it burns (up to x2.5). |
 
 ### Heartburn
 
@@ -187,7 +187,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 34, cd 0.7s, mag 5, reload 2.4s, range 600 (explode 72, life 14)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +50% dmg
-- **Pairings:** **Baby Monitor Network** (+ Static Cling), **Trail Mix** (+ Slipstream Scalpel), **Bait and Switch** (+ Tooth Fairy)
+- **Pairings:** **Baby Monitor Network** (+ Static Cling), **Trail Mix** (+ Incompatible Viral Load), **Bait and Switch** (+ Tooth Fairy)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -247,7 +247,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 10, cd 0.9s, mag 4, reload 1.8s, range 390 (area 58, dur 3, flight 0.6)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +40% area
-- **Pairings:** **Nappy Trail** (+ Slipstream Scalpel), **Petri Dish** (+ Tapeworm Seeder), **Nappy Rash** (+ Thorny Onesie), **Colouring Book** (+ Colouring In), **Toil and Trouble** (+ Bubble Wand)
+- **Pairings:** **Nappy Trail** (+ Incompatible Viral Load), **Petri Dish** (+ Tapeworm Seeder), **Nappy Rash** (+ Thorny Onesie), **Colouring Book** (+ Colouring In), **Toil and Trouble** (+ Bubble Wand)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -589,14 +589,14 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 |---|---|---|
 | Spoilers | Placenta Paddle | some swings also land on a second enemy further away. |
 | Spoilers | Flagellum Flail | some lashes also crack across a second enemy further away. |
-| Spoilers | Slipstream Scalpel | the shot is you. Every few seconds you blink straight through an enemy, cutting the line. |
+| Spoilers | Incompatible Viral Load | the shot is you. Every few seconds you blink straight through an enemy, cutting the line. |
 | Spoilers | Nappy Mines | some mines appear already under an enemy. |
 | Spoilers | Morning Sickness | some globs land before you throw them. |
 | Spoilers | Static Cling | some bolts start from the far side of the crowd. |
 | Spoilers | Premature Evangelation | angels pop up next to enemies to bless them early. |
 | Spoilers | Placental Siphon | some returned shots appear right next to their target. |
 | Split Personality | Toddler Gravity | more orbs, which pull together and merge into bigger ones (twenty merged go supernova). |
-| Split Personality | Slipstream Scalpel | a bigger, longer blade (+18% width and length per stack). |
+| Split Personality | Incompatible Viral Load | a bigger, longer blade (+18% width and length per stack). |
 | Split Personality | Placenta Paddle | +1 swing, aimed another way. |
 | Split Personality | Flagellum Flail | +1 lash in the fan. |
 | Split Personality | Thorny Onesie | +18% pulse damage. |
@@ -615,7 +615,7 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Pushy | Morning Sickness | puddles 12% bigger. |
 | Pushy | Nappy Mines | blasts shove enemies away. |
 | Pushy | Premature Evangelation | angels bless each enemy more often as they pass. |
-| Pushy | Slipstream Scalpel | the trail shoves enemies aside. |
+| Pushy | Incompatible Viral Load | the trail shoves enemies aside. |
 | Pushy | Placental Siphon | returned shots pierce. |
 | Pushy | Colouring In | a thicker line. |
 | Pushy | Due Date | +10% repeat. |
@@ -625,10 +625,10 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Pushy | Twin Telepathy | a 15% wider beam. |
 | Pushy | Bubble Wand | bubbles hold 12% bigger enemies. |
 | Pushy | Tooth Fairy | teeth lure from 12% further. |
-| Twitchy Tail | Slipstream Scalpel | the trail cuts faster. |
+| Twitchy Tail | Incompatible Viral Load | the trail hits faster. |
 | Twitchy Tail | Premature Evangelation | angels circle faster. |
-| Short Refractory Period | Slipstream Scalpel | the trail lingers longer. |
-| Bigger Load | Slipstream Scalpel | a wider trail. |
+| Short Refractory Period | Incompatible Viral Load | the trail lingers longer. |
+| Bigger Load | Incompatible Viral Load | a wider trail. |
 | Bigger Load | Premature Evangelation | bigger angels. |
 | Early Arrival | Placenta Paddle | longer reach. |
 | Early Arrival | Flagellum Flail | a longer lash. |
@@ -640,11 +640,11 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Last Word | Nappy Mines | the last mine of each batch is a big one. |
 | Tactical Nap | Premature Evangelation | a bullet-clearing shockwave whenever the angels take their break. |
 | Tactical Nap | Placental Siphon | a shockwave whenever the store runs dry. |
-| Tunnel Vision | Slipstream Scalpel | the trail cuts harder the longer you keep swimming fast. |
+| Tunnel Vision | Incompatible Viral Load | the trail hits harder the longer you keep swimming fast. |
 | Tunnel Vision | Premature Evangelation | angels hit harder the longer they stay on shift. |
-| Hair Trigger | Slipstream Scalpel | Slipstream Scalpel has no cooldown, so its trail cuts 33% harder instead. |
-| Due Date Panic | Slipstream Scalpel | Slipstream Scalpel has no cooldown, so its trail cuts 60% harder instead. |
-| Espresso Drip | Slipstream Scalpel | Slipstream Scalpel has no cooldown, so its trail cuts twice as hard instead. |
+| Hair Trigger | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits 33% harder instead. |
+| Due Date Panic | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits 60% harder instead. |
+| Espresso Drip | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits twice as hard instead. |
 
 ## Pairings (secret combos)
 
@@ -657,7 +657,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Tetherball** | Yo-Yo Diet + Toddler Gravity | Yo-yos drag enemies back towards you on every throw. |
 | **Family Tree** | Seeker Siblings + Tapeworm Seeder | Tapeworm turrets fire homing Seeker Siblings. |
 | **Collection Plate** | Placental Siphon + Premature Evangelation | The angels catch enemy bullets and feed them into the Siphon. |
-| **Nappy Trail** | Slipstream Scalpel + Morning Sickness | Your scalpel trail oozes poison that stacks. |
+| **Nappy Trail** | Incompatible Viral Load + Morning Sickness | Your viral trail is extra toxic: it hits 50% harder. |
 | **Conductive Spit** | Spitball + Static Cling | Spat-on enemies are wet: lightning deals double damage to them. |
 | **Sucker Punch** | Hiccup Scattergun + Toddler Gravity | Enemies caught in a gravity orb take double damage from the Scattergun. |
 | **Snow Globe** | Cold Feet + Toddler Gravity | Gravity orbs chill everything they hold and freeze it solid. |
@@ -665,7 +665,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Sibling Yo-Yo** | Seeker Siblings + Yo-Yo Diet | Every yo-yo hit launches a Seeker Sibling. |
 | **Petri Dish** | Tapeworm Seeder + Morning Sickness | Anything that dies in a puddle was infected all along. |
 | **Static Discharge** | Static Cling + Placental Siphon | Every 12 bullets the Siphon eats fires a Static Cling chain at four enemies. |
-| **Trail Mix** | Slipstream Scalpel + Nappy Mines | Your scalpel trail drops a Nappy Mine every 1.5s. |
+| **Trail Mix** | Incompatible Viral Load + Nappy Mines | Your viral trail drops a Nappy Mine every 1.5s. |
 | **One-Two** | Flagellum Flail + Placenta Paddle | Enemies the Flail has lashed take double damage from the Paddle for 2s. |
 | **Live Wire** | Flagellum Flail + Static Cling | The tip of every lash sets off a Static Cling chain. |
 | **Nappy Rash** | Thorny Onesie + Morning Sickness | Every Onesie pulse adds a stack of poison to what it hits. |
@@ -881,7 +881,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Pincer Movement** | Weapons sharing a target: +25% damage. All three on different targets: +25% fire rate | 3 |
 | **Hurry Up** | Up to +22% damage the faster you are moving | 4 |
 | **Egg Bond** | Near the egg: +30% fire rate. Away from it: +30% crit chance | 3 |
-| **Spoilers** | 10% of shots appear already next to their target (with the Slipstream Scalpel, you do) | 4 |
+| **Spoilers** | 10% of shots appear already next to their target (with the Incompatible Viral Load, you do) | 4 |
 | **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Rare or better only) | 1 |
 | **Acrosome Ram** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | 5 |
 | **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | 4 |
@@ -1081,7 +1081,7 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 | Nappy Mines | 60 |
 | Premature Evangelation | 60 |
 | Toddler Gravity | 80 |
-| Slipstream Scalpel | 80 |
+| Incompatible Viral Load | 80 |
 | Tapeworm Seeder | 90 |
 | Placental Siphon | 100 |
 | Colouring In | 90 |

@@ -65,6 +65,11 @@ const UI = {
       st.addEventListener('touchstart', ev => { const t = ev.touches[0]; sx = t.clientX; sy = t.clientY; t0 = performance.now(); }, { passive: true });
       st.addEventListener('touchend', ev => { const t = ev.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; if (performance.now() - t0 < 600 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.8) UI.draftStep(dx < 0 ? 1 : -1); }, { passive: true }); }
     $('sampleBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
+    $('sqBack').addEventListener('click', () => UI.openSamples());
+    $('sqGo').addEventListener('click', () => seqGo());
+    $('sqPrev').addEventListener('click', () => seqStep(-1));
+    $('sqNext').addEventListener('click', () => seqStep(1));
+    { let x0 = 0; const h = $('sqHero'); h.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true }); h.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) seqStep(dx < 0 ? 1 : -1); }, { passive: true }); }
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
     $('resumeBtn').addEventListener('click', () => UI.togglePause());
@@ -96,7 +101,7 @@ const UI = {
   lastDown: 0, lootOpenT: 0,
   show(name) {
     if (!G) refreshPalette(); // out of a run everything is greyscale
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'bossIntro', 'draft']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel', 'bossIntro', 'draft']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -194,9 +199,10 @@ const UI = {
       else if (now - UI.autoWaveT > 1500) { UI.autoWaveT = 0; waveBegin(); $('waveBtn').classList.remove('on'); }
     } else UI.autoWaveT = 0;
   },
-  menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
+  menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
   tick(dt) {
     updatePreviews(dt);
+    seqTick(dt);
     UI.autoTick();
     { const db = $('dbgBtn'); if (db) db.classList.toggle('on', !!(G && G.debug && (G.state === 'play'))); if (DBG.open && !(G && G.debug)) { DBG.open = false; $('dbgPanel').classList.remove('on'); } }
     // The Petri Dish: the next drop waits for you.
@@ -793,18 +799,7 @@ const UI = {
     return `<b>${esc(Pr.name)}</b> <span class="brole">${esc(Pr.trait.toUpperCase())}</span><br><span>${esc(Pr.desc)} ${open ? esc(Pr.fmt(profK(id, true))) + ' as your Primary.' : ''}</span><br>${prog}`
       + (opts && opts.full ? `<br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
   },
-  renderProfilePick() {
-    const box = $('profilePick'); if (!box) return;
-    if (!PROFILES[META.profile] || !profUnlocked(META.profile)) META.profile = 'vanguard';
-    box.innerHTML = `<div class="sec"><h3>Primary Sequence</h3><p class="hint">Your dominant gene for this run. Up to two more can be spliced in later (at Lv ${SPLICE_LEVELS.join(' and ')}) at half strength. Each ranks up with the kills it's expressed for.</p><div class="list">`
-      + Object.keys(PROFILES).map(id => `<button class="li prof ${META.profile === id ? 'on' : ''} ${profUnlocked(id) ? '' : 'locked'}" data-prof="${id}">${UI.profileHtml(id, { full: META.profile === id })}</button>`).join('') + `</div></div>`;
-    box.querySelectorAll('[data-prof]').forEach(b => b.addEventListener('click', () => {
-      if (!profUnlocked(b.dataset.prof)) { UI.toast('Locked: ' + PROFILES[b.dataset.prof].unlock.text); return; }
-      META.profile = b.dataset.prof; saveMeta(); UI.renderProfilePick();
-    }));
-  },
   openSamples() {
-    UI.renderProfilePick();
     const best = UI.loadBest();
     $('sampleList').innerHTML = SAMPLES.map(s => `<button class="slide ${s.open ? '' : 'locked'}" data-sample="${s.id}">
       <span class="slabel"><b>#${s.no}</b><i>${s.open ? 'IN STOCK' : 'COMING SOON'}</i></span>
@@ -814,7 +809,7 @@ const UI = {
     $('sampleList').querySelectorAll('.slide').forEach(b => b.addEventListener('click', () => {
       const s = SAMPLES.find(x => x.id === b.dataset.sample);
       if (!s.open) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); return; }
-      UI.sample = s.id; UI.startGame(true);
+      UI.sample = s.id; openSeq();
     }));
     UI.show('samples');
   },
@@ -840,7 +835,7 @@ const UI = {
       h += box(`Weapons (${used.length}/${wids.length} used)`, `<div class="list">${l}</div>`, 'Every weapon in the fridge. Take one into a run to log it.');
     }
     if (show('genes')) {
-      h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, `<div class="list">${pids.map(id => `<div class="li ${run && genesOn(id) ? 'on' : ''}">${UI.profileHtml(id, { full: true })}</div>`).join('')}</div>`, 'Pick your Primary Sequence on the sample screen before a run.');
+      h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, `<div class="list">${pids.map(id => `<div class="li ${run && genesOn(id) ? 'on' : ''}">${UI.profileHtml(id, { full: true })}</div>`).join('')}</div>`, 'Pick your Primary Sequence after choosing a sample, before a run.');
       h += box('Sequence synergies', `<div class="list">${PROFILE_SYNERGIES.map(q => `<div class="li ${run && synOn(q.a, q.b) ? 'on' : ''}"><b>${esc(q.name)}</b><br><span>${esc(PROFILES[q.a].name)} + ${esc(PROFILES[q.b].name)}: ${esc(q.desc)}</span></div>`).join('')}</div>`);
     }
     if (show('muts')) {
@@ -903,7 +898,7 @@ const UI = {
       const ws = META.wstats[id];
       return `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
     };
-    h += `</div><div class="sec"><h3>Epigenetic Profiles</h3><p class="hint">Your Primary Sequence (chosen on the sample screen) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Vanguard')}</b>. Ranks come from kills, unlocks from what you do across all your runs.</p><div class="list">${Object.keys(PROFILES).map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join('')}</div>`;
+    h += `</div><div class="sec"><h3>Epigenetic Profiles</h3><p class="hint">Your Primary Sequence (chosen just before a run) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Vanguard')}</b>. Ranks come from kills, unlocks from what you do across all your runs.</p><div class="list">${Object.keys(PROFILES).map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join('')}</div>`;
     h += `</div><div class="sec"><h3>Starter weapons</h3><p class="hint">Unlocked weapons join your starter DNA. One of them is always offered.</p>`;
     h += META_STARTERS.filter(([id]) => !WEAPONS[id] || !WEAPONS[id].toy).map(starterRow).join('');
     h += `<h3 style="margin-top:12px">Toys</h3><p class="hint">The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.</p>`;
@@ -1081,6 +1076,7 @@ window.handleBack = function () {
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot') || on('draft')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
+  if (on('seqsel')) { UI.openSamples(); return 'ok'; }
   if (on('bank') || on('samples') || on('codex')) { UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('settings')) { UI.show(UI.setFrom || 'title'); return 'ok'; }
   UI.togglePause();
