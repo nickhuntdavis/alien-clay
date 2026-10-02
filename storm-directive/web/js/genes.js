@@ -13,25 +13,25 @@
 const PROFILE_RANKS = [0, 5000, 25000]; // kills while expressed: Rank 2 at 5,000, Rank 3 after 20,000 more
 const PROFILES = {
   vanguard: { name: 'The Vanguard', trait: 'Quick Reflexes', fmt: k => `+${pc(0.12 * k)} reload speed`, apply: (P, k) => { P.reloadSpd += 0.12 * k; },
-    desc: 'The default sequence. Simple, honest flagellar violence.', weapons: ['blaster', 'shotgun', 'glaive', 'seeker'] },
+    desc: 'The default sequence. Simple, honest flagellar violence.', weapons: ['blaster', 'seeker', 'glaive'] },
   bruiser: { name: 'The Bruiser', trait: 'Cellular Armour', fmt: k => `+${+(1 * k).toFixed(1)} armour`, apply: (P, k) => { P.armour += 1 * k; },
     desc: 'A thick, disgusting layer of armour on the outer membrane. Built to take a beating.', weapons: ['shotgun', 'paddle', 'onesie', 'mines'] },
   nerd: { name: 'The Mitochondrial Nerd', trait: 'Overclocked Organelles', fmt: k => `+${pc(0.06 * k)} fire rate, spells recharge ${pc(0.06 * k)} faster`, apply: (P, k) => { P.haste += 0.06 * k; P.cdr -= 0.06 * k; },
-    desc: 'Lets the mitochondria do the work. Static, sparks and things that hum.', weapons: ['tesla', 'twin', 'void', 'redtape'] },
+    desc: 'Lets the mitochondria do the work. Static, sparks and things that hum.', weapons: ['tesla', 'twin', 'void'] },
   eggseeker: { name: 'The Egg-Seeker', trait: 'Killer Instinct', fmt: k => `+${pc(0.04 * k)} crit chance, +${pc(0.15 * k)} crit damage`, apply: (P, k) => { P.crit += 0.04 * k; P.critDmg += 0.15 * k; },
-    desc: 'Slow, heavy, precise. Built to execute bosses, not to chew through crowds.', weapons: ['duedate', 'frost', 'crayon', 'glaive'],
+    desc: 'Slow, heavy, precise. Built to execute bosses, not to chew through crowds.', weapons: ['duedate', 'frost', 'toothfairy'],
     unlock: { text: 'Survive 10 minutes in a single run', have: () => Math.floor(META.life.bestT / 60), need: 10 } },
-  stealth: { name: 'The Stealth-Tadpole', trait: 'Up Close and Personal', fmt: k => `+${pc(0.12 * k)} melee damage, +${pc(0.02 * k)} dodge`, apply: (P, k) => { P.meleeK += 0.12 * k; P.dodge += 0.02 * k; },
-    desc: 'No spitting. Grows something sharp and swims straight through the meat grinder.', weapons: ['flail', 'paddle', 'wake', 'peekaboo'],
+  stealth: { name: 'The Stealth-Tadpole', trait: 'Up Close and Personal', fmt: k => `+${pc(0.12 * k)} melee and trail damage, +${pc(0.02 * k)} dodge`, apply: (P, k) => { P.meleeK += 0.12 * k; P.dodge += 0.02 * k; },
+    desc: 'No spitting. Grows something sharp and swims straight through the meat grinder.', weapons: ['flail', 'wake', 'peekaboo'],
     unlock: { text: 'Beat 25 bosses (all runs)', have: () => META.life.bosses, need: 25 } },
   pusher: { name: 'The Enzyme-Pusher', trait: 'Self-Repair', fmt: k => `+${+(0.5 * k).toFixed(1)} HP/s regeneration`, apply: (P, k) => { P.regen += 0.5 * k; },
-    desc: 'Aggressive self-healing, infections and freezing spit.', weapons: ['parasite', 'venom', 'bubble', 'frost'],
+    desc: 'Aggressive self-healing, infections and freezing spit.', weapons: ['parasite', 'bubble', 'orbit'],
     unlock: { text: 'Pick up 100 power-ups (all runs)', have: () => META.life.pickups, need: 100 } },
   acid: { name: 'The Acid-Burner', trait: 'Burning Membrane', fmt: k => `up to +${pc(0.12 * k)} damage, the closer you are to bursting`, apply: () => {},
-    desc: 'Melts things. Gets angrier the more you are hurt.', weapons: ['venom', 'flamer', 'flail', 'redtape'],
+    desc: 'Melts things. Gets angrier the more you are hurt.', weapons: ['venom', 'flamer', 'redtape'],
     unlock: { text: 'Deal 2,000,000 elemental damage (all runs)', have: () => Math.floor(META.life.elem), need: 2e6 } },
   splicer: { name: 'The Gene-Splicer', trait: 'Fluid Amplifier', fmt: k => `your other sequences' traits are ${pc(Math.min(1, 0.25 * k))} stronger, +${pc(0.05 * k)} area`, apply: (P, k) => { P.area += 0.05 * k; },
-    desc: 'Cold, clever and a bit of everything. Makes every other gene work harder.', weapons: ['frost', 'paddle', 'friend', 'toothfairy'],
+    desc: 'Clever, strange and a bit of everything. Makes every other gene work harder.', weapons: ['friend', 'crayon', 'siphon'],
     unlock: { text: 'Cast 1,500 spells (all runs)', have: () => META.life.casts, need: 1500 } },
 };
 // Two sequences expressed together unlock a little extra.
@@ -182,7 +182,7 @@ function spliceOpts() {
   return shuffle(ids).slice(0, 3).map(id => {
     const Pr = PROFILES[id], r = profRank(id);
     return { rarity: 4, tag: 'SPLICE A SEQUENCE', icon: Pr.name.replace(/^The /, '').slice(0, 2).toUpperCase(), color: PAL.upgrade, title: Pr.name,
-      sub: `Rank ${r} | spliced in at half strength`, desc: `${Pr.trait}: ${Pr.fmt(profK(id, false))}. Drafts lean towards ${Pr.weapons.map(w => WEAPONS[w].name).join(', ')}.` + profSynText(id),
+      sub: `Rank ${r} | spliced in at half strength`, desc: `${Pr.trait}: ${Pr.fmt(profK(id, false))}. Adds its exclusive weapons to your drafts: ${Pr.weapons.map(w => WEAPONS[w].name).join(', ')}.` + profSynText(id),
       apply: () => genesSplice(id) };
   });
 }
@@ -191,19 +191,18 @@ function profSynText(id) {
   return s.length ? ' With what you already express: ' + s.map(q => q.name + ' (' + q.desc + ')').join(' ') : '';
 }
 // Splice offers come at these levels while you have room for another sequence.
-const SPLICE_LEVELS = [12, 30];
+const SPLICE_LEVELS = [6, 18]; // just before the weapon drafts at 8 and 22, so a splice widens them
 function genesLevel(lvl) {
   if (!SPLICE_LEVELS.includes(lvl) || G.genes.active.length >= 3 || G.debug) return;
   if (Object.keys(PROFILES).some(id => profUnlocked(id) && !G.genes.active.includes(id))) { G.lootQueue.push({ kind: 'splice' }); banner('SEQUENCE SPLICE AVAILABLE', PAL.upgrade); }
 }
-// Weapon drafts lean towards what you're expressing: at least one of the three is from your sequences.
-function genesDraft(ids, owned) {
-  if (!G.genes) return ids;
-  const fav = shuffle([...new Set(G.genes.active.flatMap(id => PROFILES[id].weapons))].filter(id => WEAPONS[id] && !owned.has(id)));
-  if (!fav.length || ids.some(id => fav.includes(id))) return ids;
-  ids[ids.length - 1] = fav[0];
-  return ids;
+// Every weapon belongs to exactly one sequence. Drafts only offer weapons from the sequences you express, plus
+// any you've unlocked in the Gene Bank (those are wildcards: any sequence can draft them).
+function seqPool(primaryOnly) {
+  const ids = primaryOnly ? PROFILES[G.genes.primary].weapons : G.genes.active.flatMap(id => PROFILES[id].weapons);
+  return [...new Set(ids.concat(Object.keys(META.starters || {}).filter(id => META.starters[id])))].filter(id => WEAPONS[id]);
 }
+const weaponSeq = id => Object.keys(PROFILES).find(p => PROFILES[p].weapons.includes(id));
 
 // ================================================================ per frame (from update)
 function genesTick(dt) {
@@ -366,7 +365,7 @@ function genesAdapt(w, s) {
   const P = G.P;
   if (!G.genes) return;
   s.dmg *= w.isSpell ? (P.sDmg || 1) : (P.wDmg || 1);
-  if (!w.isSpell && w.def.kind === 'melee') s.dmg *= P.meleeK || 1;
+  if (!w.isSpell && (w.def.kind === 'melee' || w.def.kind === 'wake')) s.dmg *= P.meleeK || 1;
   if (!w.isSpell && mutOn('payload') && (w.def.base.mag || 1) > 1) s.mag *= 2;
 }
 // Static Reload (Vanguard + Nerd), from startReload.

@@ -166,8 +166,8 @@ function seqRender(anim) {
     h += `<div class="sqxp"><div class="sqxpb"><i style="width:${(have / u.need * 100).toFixed(1)}%"></i></div></div>`;
   }
   h += `<div class="sqstats"><span>POWER</span>${bar(L.stats[0])}<span>TOUGHNESS</span>${bar(L.stats[1])}<span>SPEED</span>${bar(L.stats[2])}<span>SUPPORT</span>${bar(L.stats[3])}</div>`;
-  h += `<p class="sqdesc">${esc(Pr.desc)} ${open ? 'Spliced in later, it works at half strength.' : ''}</p>`;
-  h += `<div class="sqh">SIGNATURE WEAPONS</div><div class="sqweps">${Pr.weapons.map(w => `<div class="sqwep">${iconSVG(WEAPONS[w], 26, open ? L.color : '#5c6670')}<span>${esc(WEAPONS[w].name)}</span></div>`).join('')}</div>`;
+  h += `<p class="sqdesc">${esc(Pr.desc)} Only this sequence can draft its weapons. ${open ? 'Spliced in later, it works at half strength and adds them to your drafts.' : ''}</p>`;
+  h += `<div class="sqh">EXCLUSIVE WEAPONS</div><div class="sqweps" style="grid-template-columns:repeat(${Pr.weapons.length}, 1fr)">${Pr.weapons.map(w => `<div class="sqwep">${iconSVG(WEAPONS[w], 26, open ? L.color : '#5c6670')}<span>${esc(WEAPONS[w].name)}</span></div>`).join('')}</div>`;
   const syn = PROFILE_SYNERGIES.filter(q => q.a === id || q.b === id);
   if (syn.length) h += `<div class="sqh">SPLICE SYNERGIES</div><div class="sqsyn">${syn.map(q => { const o = q.a === id ? q.b : q.a; return `<div class="sqs" style="--oc:${SEQ_LOOK[o].color}"><b>${esc(q.name)}</b><span>+ ${esc(PROFILES[o].name)}: ${esc(q.desc)}</span></div>`; }).join('')}</div>`;
   const info = $('sqInfo');

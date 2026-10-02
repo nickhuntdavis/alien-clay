@@ -629,10 +629,10 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
     ctx.globalAlpha = alpha * 0.9; ctx.strokeStyle = 'rgb(46,52,48)'; ctx.lineWidth = 1.4 * k; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(x - Math.cos(face) * 10 * k, y - Math.sin(face) * 10 * k); ctx.lineTo(x - Math.cos(face) * 15 * k + Math.sin(G.realT * 30 + (body.id || 0)) * k, y - Math.sin(face) * 15 * k); ctx.stroke();
   } else if (body) {
-    const back = 9 * sc * L.head * L.stretch, wx = body.x - Math.cos(face) * back, wy = body.y - Math.sin(face) * back;
+    const back = 10.5 * sc * L.head * L.stretch, wx = body.x - Math.cos(face) * back, wy = body.y - Math.sin(face) * back;
     const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0), len = 78 * sc * L.tailLen * (L.levelTail || 1);
     stepTail(body, wx, wy, face, len, v, L.beat, L.tailN);
-    const tails = [body.tail];
+    const tails = [body.tailDraw];
     if (L.tails > 1) {
       // Extra flagella sprout from either side of the neck and beat out of phase.
       body.xt = body.xt || [];
@@ -641,11 +641,13 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
         const sub = body.xt[j - 1] || (body.xt[j - 1] = { beat: j * 2.1 });
         const off = (j % 2 ? 1 : -1) * Math.ceil(j / 2) * 3.4 * sc * L.head;
         stepTail(sub, wx + nx * off, wy + ny * off, face + (j % 2 ? 0.3 : -0.3) * Math.ceil(j / 2), len * (0.9 - 0.05 * j), v, L.beat * (1 + 0.07 * j));
-        tails.push(sub.tail);
+        tails.push(sub.tailDraw);
       }
     }
-    ctx.globalAlpha = alpha * 0.45; for (const t of tails) drawTail(t, '#ffffff', 2.8 * k);
-    ctx.globalAlpha = alpha * 0.9; for (const t of tails) drawTail(t, 'rgb(46,52,48)', 1.1 * k);
+    // The tail grows out of the midpiece: same width at the neck, then the thin principal piece.
+    const hk = k * L.head;
+    ctx.globalAlpha = alpha * 0.45; for (const t of tails) drawTail(t, '#ffffff', 2.8 * k, 3.6 * hk);
+    ctx.globalAlpha = alpha * 0.9; for (const t of tails) drawTail(t, 'rgb(46,52,48)', 1.1 * k, 2 * hk);
   }
   ctx.globalAlpha = alpha;
   ctx.save(); ctx.translate(x, y); ctx.rotate(face);
@@ -886,6 +888,9 @@ const MICROBES = {
 // every other link is dragged along by the one in front (so turns sweep the tail round behind you and
 // swimming leaves a travelling wave), with a little stiffness pulling it straight when you stop.
 const TAIL_BASE = 11;
+// The flagellum. o.tail is its spine: anchored to the end of the midpiece and dragged through the water, so it
+// curves when the swimmer turns. o.tailDraw is what you see: the spine plus a travelling wave whose amplitude
+// grows from nothing at the root (so the tail always leaves the body cleanly) to its widest near the tip.
 function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   const TAIL_N = nSeg || TAIL_BASE;
   const now = G.realT, dt = Math.min(0.05, Math.max(0, now - (o.tailT || now)));
@@ -896,35 +901,48 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     for (let i = 0; i < TAIL_N; i++) o.tail.push({ x: rx - Math.cos(face) * seg * i, y: ry - Math.sin(face) * seg * i });
   }
   o.beat = (o.beat || Math.random() * 10) + dt * (9 + Math.min(14, speed / 10)) * (beatMul || 1);
-  const nx = -Math.sin(face), ny = Math.cos(face), amp = Math.min(len * 0.11, 30);
   const t = o.tail;
-  t[0].x = rx + nx * Math.sin(o.beat) * amp * 0.5; t[0].y = ry + ny * Math.sin(o.beat) * amp * 0.5;
-  // The second link follows the head's axis more strictly so the tail leaves the head cleanly.
+  t[0].x = rx; t[0].y = ry;
   for (let i = 1; i < TAIL_N; i++) {
     const a = t[i - 1], b = t[i];
-    // Water drag: links lag behind; stiffness: drift towards straight-back from the link ahead.
+    // Water drag: links lag behind; stiffness: drift towards straight back from the link ahead (the first
+    // link is held firmly on the body's axis).
     const pv = i > 1 ? t[i - 2] : { x: a.x + Math.cos(face) * seg, y: a.y + Math.sin(face) * seg };
     let ax = a.x - pv.x, ay = a.y - pv.y; const al = Math.hypot(ax, ay) || 1; ax /= al; ay /= al;
-    const st = Math.min(1, dt * (i === 1 ? 30 : 6));
+    const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 14 : 6));
     b.x = lerp(b.x, a.x + ax * seg, st); b.y = lerp(b.y, a.y + ay * seg, st);
-    // Idle wiggle so a stationary swimmer still looks alive.
-    const w = Math.sin(o.beat - i * 0.7) * amp * 0.06 * i / TAIL_N;
-    b.x += nx * w; b.y += ny * w;
     const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
     b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg;
   }
-}
-function drawTail(t, color, width) {
-  ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  // Tapered: draw in three runs, thinning towards the tip.
-  for (let run = 0; run < 3; run++) {
-    const n = t.length, i0 = Math.floor(run * (n - 1) / 3), i1 = Math.floor((run + 1) * (n - 1) / 3);
-    ctx.lineWidth = Math.max(0.8, width * (1 - run * 0.3));
-    ctx.beginPath(); ctx.moveTo(sx(t[i0].x), sy(t[i0].y));
-    for (let i = i0 + 1; i <= i1; i++) ctx.lineTo(sx(t[i].x), sy(t[i].y));
-    ctx.stroke();
+  // The visible wave, perpendicular to the spine.
+  const amp = Math.min(len * 0.1, 26) * (0.75 + 0.25 * Math.min(1, speed / 150));
+  const D = o.tailDraw && o.tailDraw.length === TAIL_N ? o.tailDraw : (o.tailDraw = t.map(q => ({ x: q.x, y: q.y })));
+  for (let i = 0; i < TAIL_N; i++) {
+    const a = t[Math.max(0, i - 1)], c = t[Math.min(TAIL_N - 1, i + 1)], f = i / (TAIL_N - 1);
+    let nx = -(c.y - a.y), ny = c.x - a.x; const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+    const w = Math.sin(o.beat - f * 6.5) * amp * Math.pow(f, 1.2);
+    D[i].x = t[i].x + nx * w; D[i].y = t[i].y + ny * w;
   }
-  ctx.lineCap = 'butt'; ctx.lineJoin = 'miter';
+}
+// A smooth, filled ribbon along the tail: rootWidth at the neck (matching the midpiece), easing quickly to the
+// tail's own width and tapering to a hair at the tip.
+function drawTail(t, color, width, rootWidth) {
+  const n = t.length;
+  if (n < 2) return;
+  const r0 = (rootWidth || width) / 2, r1 = width / 2;
+  const L = [], R = [];
+  for (let i = 0; i < n; i++) {
+    const a = t[Math.max(0, i - 1)], c = t[Math.min(n - 1, i + 1)], f = i / (n - 1);
+    let nx = -(c.y - a.y), ny = c.x - a.x; const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+    const h = Math.max(0.35, (f < 0.12 ? lerp(r0, r1, f / 0.12) : r1 * (1 - 0.7 * (f - 0.12) / 0.88)));
+    const x = sx(t[i].x), y = sy(t[i].y);
+    L.push({ x: x + nx * h, y: y + ny * h }); R.push({ x: x - nx * h, y: y - ny * h });
+  }
+  const side = P => { for (let i = 1; i < P.length - 1; i++) ctx.quadraticCurveTo(P[i].x, P[i].y, (P[i].x + P[i + 1].x) / 2, (P[i].y + P[i + 1].y) / 2); ctx.lineTo(P[P.length - 1].x, P[P.length - 1].y); };
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.moveTo(L[0].x, L[0].y); side(L);
+  R.reverse(); ctx.lineTo(R[0].x, R[0].y); side(R);
+  ctx.closePath(); ctx.fill();
 }
 
 // ---------------------------------------------------------------- terrain

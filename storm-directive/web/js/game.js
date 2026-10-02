@@ -385,7 +385,9 @@ function genLoot(req) {
   if (req.kind === 'slot') {
     // A weapon draft for a new mount: three fresh weapons, Rare or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
-    const ids = genesDraft(shuffle(Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id))).slice(0, 3), owned);
+    let pool = G.genes && !G.debug ? seqPool().filter(id => !owned.has(id)) : [];
+    if (!pool.length) pool = Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id)); // nothing left in your sequences
+    const ids = shuffle(pool).slice(0, 3);
     return ids.map(id => optNewWeapon(id, Math.max(2, rollRarity(2))));
   }
   if (req.kind === 'relic') return bossDef(req.boss).relics.map(id => optRelic(id, req.boss));
@@ -397,13 +399,10 @@ function genLoot(req) {
     req.kind = 'level'; return genLoot(req); // the weapon was fused or recycled meanwhile
   }
   if (req.kind === 'start') {
-    // One of your Gene Bank starters is always on offer, if you've bought any.
-    const pool = starterPool(), own = pool.filter(id => META.starters[id]);
-    const first = own.length ? [pick(own)] : [];
-    let ids = first.concat(shuffle(pool.filter(id => !first.includes(id))).slice(0, 3 - first.length));
-    // Your Primary Sequence always puts one of its weapons on offer.
-    const fav = G.genes ? PROFILES[G.genes.primary].weapons.filter(id => WEAPONS[id]) : [];
-    if (fav.length && !ids.some(id => fav.includes(id))) ids[ids.length - 1] = pick(fav.filter(id => !ids.includes(id)).concat(fav));
+    // Your Primary Sequence's own weapons, plus one Gene Bank wildcard if you've unlocked any.
+    const own = G.genes ? PROFILES[G.genes.primary].weapons.filter(id => WEAPONS[id]) : starterPool().slice(0, 3);
+    const wild = Object.keys(META.starters || {}).filter(id => META.starters[id] && WEAPONS[id] && !own.includes(id));
+    const ids = own.concat(wild.length ? [pick(wild)] : []);
     for (const id of ids) opts.push(optNewWeapon(id, 0));
     return opts;
   }
