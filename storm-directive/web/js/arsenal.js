@@ -558,6 +558,7 @@ function meleeLash(w, x, y, a, src, scale) {
     if (along > tipD) { tipD = along; tip = e; }
   });
   G.fx.push({ type: 'lash', x, y, a, r: L, w: wd, color: w.def.color, life: 0.2, max: 0.2, seed: Math.random() * 10 });
+  comboLash(w, x, y, a, L);
   // Snap Back: the lash yanks you along it.
   if (hasSig(w, 'snapback') && tip && tipD > 70 && !(w.snapT > G.t)) { w.snapT = G.t + 0.8; dashPlayer(Math.cos(a), Math.sin(a), Math.min(560, tipD * 2.4)); }
   if (G.pair.livewire && tip && !tip.dead && !(G.wireT > G.realT)) {
@@ -588,6 +589,7 @@ function onesiePulse(w, src) {
     const a = i / 8 * TAU + w.pulseN * 0.4, sp = 480;
     spawnProj(w, p.x, p.y, a, src, { speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.55, max: 0.55, r: 3, dmg: dmg * 0.5, pierce: 1, style: 'needle', explode: 0, homing: 0, bounce: 0, boomerang: 0, noMods: true });
   }
+  comboPulse(w);
   G.fx.push({ type: 'spikes', x: p.x, y: p.y, r: R, color: w.def.color, life: big ? 0.4 : 0.25, max: big ? 0.4 : 0.25, rot: Math.random() * TAU });
 }
 

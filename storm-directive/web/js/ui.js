@@ -30,7 +30,7 @@ const UI = {
     $('hudTop').style.top = UI.safeTop + 'px';
     // Build HUD slots.
     const ws = $('wslots'), ss = $('sslots');
-    for (let i = 0; i < MAX_WEAPONS; i++) ws.appendChild(UI.makeSlotEl('w', i));
+    for (let i = 0; i < MAX_WEAPONS + COMBO_MOUNTS; i++) ws.appendChild(UI.makeSlotEl('w', i));
     for (let i = 0; i < 2; i++) ss.appendChild(UI.makeSlotEl('s', i));
     $('moveBtn').addEventListener('click', () => {
       if (!G) return;
@@ -156,7 +156,7 @@ const UI = {
         el.querySelector('.lv').textContent = 'Lv' + w.lvl;
         el.querySelector('.mp').innerHTML = w.mods.map(m => `<i style="background:${PAL.upgrade}"></i>`).join('');
         el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : '');
-        el.classList.toggle('merged', !!w.def.merged);
+        el.classList.toggle('merged', !!(w.combos && w.combos.length));
       }
       let frac, reloading = false;
       if (w.isSpell) frac = 1 - Math.max(0, w.cd) / (w.reloadMax || 1);
@@ -168,6 +168,7 @@ const UI = {
       el.classList.toggle('reloading', reloading);
       el.querySelector('.bar i').style.width = (clamp(frac, 0, 1) * 100).toFixed(0) + '%';
     };
+    $('wslots').classList.toggle('many', G.weapons.length > 3);
     for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); }
     for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
     $('moveBtn').textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
@@ -329,13 +330,13 @@ const UI = {
       return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${elemCol(wElem(x))}"><b>${iconSVG(x.def, 24, elemCol(wElem(x)))}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
-    for (let i = G.weapons.length; i < MAX_WEAPONS; i++) t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${SLOT_LEVELS[i - BASE_SLOTS]}</span></button>`;
+    SLOT_LEVELS.filter(l => l > G.level).forEach((l, j) => { const i = G.weapons.length + j; t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${l}</span></button>`; });
     G.spells.forEach((x, i) => { t += tab('s', i, x); });
     $('armTabs').innerHTML = t;
     $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false }; UI.renderArmoury(); }));
     const body = $('armBody');
     if (A.k === 'w' && A.i >= G.weapons.length) {
-      body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS[A.i - BASE_SLOTS]} (you are level ${G.level}) and draft a new weapon for it.</p></div>`;
+      body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS.filter(l => l > G.level)[A.i - G.weapons.length] || '?'} (you are level ${G.level}) and draft a new weapon for it.</p></div>`;
       return;
     }
     if (!w) {
@@ -345,7 +346,7 @@ const UI = {
     const d = w.def, s = w.s;
     const elName = ELEMENTS[w.mods.find(m => m.id === 'elemental') ? w.mods.find(m => m.id === 'elemental').elem : d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
     let h = `<div class="ahead" style="--c:${elemCol(wElem(w))}"><div class="aico">${iconSVG(d, 34, elemCol(wElem(w)))}</div><div class="ainfo">
-      <div class="aname">${esc(d.name)}${d.merged ? ' <span class="fz">FUSED</span>' : ''}</div>
+      <div class="aname">${esc(d.name)}${w.combos && w.combos.length ? ` <span class="fz">COMBO: ${esc(w.combos.map(id => COMBO_BY[id].name).join(', '))}</span>` : ''}</div>
       <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: MAX_WLVL }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/${MAX_WLVL}</div>
       <div class="adesc">${esc(d.desc)}</div></div></div>`;
     // How it plays.
@@ -449,6 +450,18 @@ const UI = {
       h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
     }
     h += `</div>`;
+    // Combos: always shown, so you know what to build towards.
+    if (!w.isSpell) {
+      const cs = COMBOS.filter(c => c.a === w.id || c.b === w.id);
+      if (cs.length) {
+        h += `<div class="sec"><h3>Combos</h3><p class="hint">Get both weapons to Lv ${COMBO_LEVEL}+ and a COMBO card turns up in your next box: both keep firing, they gain a new power, and (twice a run) you get a bonus weapon mount.</p><div class="list">`;
+        for (const c of cs) {
+          const other = c.a === w.id ? c.b : c.a, on = G.combo && G.combo[c.id], ow = owned(other);
+          h += `<div class="li ${on ? 'on' : ''}"><b style="color:${on ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b> ${on ? '(FUSED)' : ow ? `(you have it, Lv ${ow.lvl})` : ''}<br><span>+ ${esc(WEAPONS[other].name)}: ${esc(c.desc)}</span></div>`;
+        }
+        h += `</div></div>`;
+      }
+    }
     // Pairings: secret until found once (on any run).
     if (!w.isSpell) {
       const ps = PAIRINGS.filter(q => q.a === w.id || q.b === w.id);
@@ -515,7 +528,7 @@ const UI = {
     UI.draft = { req, i: 0, weap, pv: null };
     const box = $('draft'), mount = G.weapons.filter(Boolean).length + 1;
     const sig = weap && weap.def.sig && weap.def.sig[req.lvl];
-    $('dKick').textContent = req.kind === 'start' ? 'LEVEL 1 | YOUR FIRST WEAPON' : req.kind === 'slot' ? `LEVEL ${G.level} | WEAPON MOUNT ${mount} OF ${MAX_WEAPONS}` : `${weap.def.name.toUpperCase()} | LV ${req.lvl}`;
+    $('dKick').textContent = req.kind === 'start' ? 'LEVEL 1 | YOUR FIRST WEAPON' : req.kind === 'slot' ? `LEVEL ${G.level} | WEAPON MOUNT ${mount} OF ${MAX_WEAPONS + (G.comboMounts || 0)}` : `${weap.def.name.toUpperCase()} | LV ${req.lvl}`;
     $('dTitle').textContent = req.kind === 'branch' ? (sig ? (req.lvl >= 10 ? 'MASTERY' : 'SIGNATURE PATH') : 'UPGRADE PATH') : 'WEAPON DRAFT';
     $('dSub').textContent = req.kind === 'start' ? "This is how you'll fight. Everything else you pick builds on it."
       : req.kind === 'slot' ? (req.recycled ? 'A fresh weapon for the empty mount.' : 'A new weapon mount. Choose what your build is missing: reach, crowds, bosses or safety.')
@@ -571,6 +584,8 @@ const UI = {
         const id0 = defId(o.def);
         h += `<h4>PAIRS WITH</h4><div class="dpairs">${ps.map(q => { const oid = q.a === id0 ? q.b : q.a, have = G.weapons.some(x => x && x.id === oid); return `<b style="color:${have ? PAL.upgrade : '#fff'}">${esc(WEAPONS[oid].name)}</b>${have ? ' (you have it)' : ''}: ${META.pairs[q.id] ? esc(q.name) : '???'}`; }).join('<br>')}</div>`;
       }
+      const cid = defId(o.def), cs = COMBOS.filter(c => c.a === cid || c.b === cid);
+      if (cs.length) h += `<h4>COMBOS WITH</h4><div class="dpairs">${cs.map(c => { const oid = c.a === cid ? c.b : c.a, have = G.weapons.some(x => x && x.id === oid); return `<b style="color:${have ? '#ff3df2' : '#fff'}">${esc(WEAPONS[oid].name)}</b>${have ? ' (you have it)' : ''}: ${esc(c.name)}`; }).join('<br>')}</div>`;
       const mine = G.weapons.filter(Boolean);
       if (mine.length) h += `<h4>YOUR MOUNTS</h4><div class="dmounts">${mine.map(x => `<span class="dmount">${iconSVG(x.def, 18, elemCol(wElem(x)))}${esc(x.def.name)} Lv ${x.lvl}</span>`).join('')}<span class="dmount new">${iconSVG(d, 18, elemCol(d.elem))}${esc(d.name)}?</span></div>`;
     }
@@ -835,8 +850,8 @@ const UI = {
     const pids = Object.keys(PROFILES), pu = pids.filter(profUnlocked), mids = Object.keys(MUTATIONS), mf = mids.filter(id => META.muts[id]);
     const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length;
     let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>CODEX COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
-      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Relics ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
-    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'PAIRINGS'], ['secrets', 'SECRETS'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
+      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Relics ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
+    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
     const show = id => sec === 'all' || sec === id;
     if (show('weapons')) {
       let l = '';
@@ -854,6 +869,14 @@ const UI = {
       h += box(`Mutations found (${mf.length}/${mids.length})`, `<div class="list">${mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')}</div>`, 'They come out of Enzyme Vesicles: burst one, pick one of four.');
     }
     if (show('pairs')) {
+      let lc = '';
+      for (const c of COMBOS) {
+        const known = META.combos && META.combos[c.id], on = run && G.combo && G.combo[c.id];
+        const seqOf = id => { const k = Object.keys(PROFILES).find(p => PROFILES[p].weapons.includes(id)); return k ? SEQ_LOOK[k].short : 'Wildcard'; };
+        const sa = seqOf(c.a), sb = seqOf(c.b);
+        lc += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b>${on ? ' (FUSED)' : known ? '' : ' (not fused yet)'}<br><span>${esc(WEAPONS[c.a].name)} + ${esc(WEAPONS[c.b].name)} (${sa === sb ? esc(sa) : esc(sa) + ' + ' + esc(sb) + ', needs a splice'}): ${esc(c.desc)}</span></div>`;
+      }
+      h += box(`Combos fused (${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length})`, `<div class="list">${lc}</div>`, `Both weapons at Lv ${COMBO_LEVEL}+: a COMBO card turns up in your next box. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
       let l = '';
       for (const q of PAIRINGS) {
         const known = META.pairs[q.id], on = run && G.pair && G.pair[q.id];

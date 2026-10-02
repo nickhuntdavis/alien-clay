@@ -384,8 +384,6 @@ const PERK_ADAPT = {
 };
 
 // Fusions were retired in favour of Pairings (both weapons stay).
-const MERGES = [];
-const MERGE_MIN_LEVEL = 4;
 
 // Spells: autocast on cooldown, occupy spell slots.
 const SPELLS = {

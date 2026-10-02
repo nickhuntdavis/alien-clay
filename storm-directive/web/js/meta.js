@@ -34,7 +34,7 @@ const META_DYES = [
 
 const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0, pairs: {}, bosses: {} };
 try { Object.assign(META, JSON.parse(localStorage.getItem('sd_meta') || '{}')); } catch (e) { /* storage unavailable */ }
-META.pairs = META.pairs || {}; META.bosses = META.bosses || {}; META.quirks = META.quirks || {}; META.wstats = META.wstats || {}; META.relics = META.relics || {};
+META.pairs = META.pairs || {}; META.combos = META.combos || {}; META.bosses = META.bosses || {}; META.quirks = META.quirks || {}; META.wstats = META.wstats || {}; META.relics = META.relics || {};
 META.prof = META.prof || {}; META.muts = META.muts || {}; META.profile = META.profile || 'vanguard';
 META.life = Object.assign({ bestT: 0, bosses: 0, pickups: 0, elem: 0, casts: 0 }, META.life || {});
 // v6 retired most weapons: starters bought for them are refunded in full.
@@ -110,7 +110,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.32';
+const APP_VERSION = '7.33';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -135,7 +135,7 @@ function runSummary(G, result) {
   return {
     n: (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1, v: APP_VERSION,
     at: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`,
-    res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
+    res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', combos: Object.keys(G.combo || {}).join('+'), t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
     egg: G.eggAt ? Math.round(G.eggAt) : 0, by: G.rivalWinner || G.stats.lastHit || '',
     hurt: top(G.stats.hurt, 4).map(([k, v]) => k + ' ' + Math.round(v)),
     dmg: top(G.stats.dmg, 6).map(([k, v]) => k + ' ' + Math.round(v / dmgTot * 100) + '%'),
@@ -155,7 +155,7 @@ function runLogText() {
 }
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
-  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}\n`;
+  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''}${r.combos ? ' combos:' + r.combos : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}\n`;
   out += ` ended by: ${r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   out += ` dmg: ${r.dmg.join(', ')}\n`;
   out += ` build: ${r.w.join(' ')} | spells: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;

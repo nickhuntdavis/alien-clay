@@ -320,31 +320,6 @@ function recomputeAll() {
   updatePairings();
 }
 
-function availableMerges() {
-  const out = [];
-  for (const m of MERGES) {
-    const a = G.weapons.find(w => w && w.id === m.a), b = G.weapons.find(w => w && w.id === m.b);
-    if (a && b && a.lvl >= MERGE_MIN_LEVEL && b.lvl >= MERGE_MIN_LEVEL) out.push(m);
-  }
-  return out;
-}
-function doMerge(m) {
-  const ia = G.weapons.findIndex(w => w && w.id === m.a), ib = G.weapons.findIndex(w => w && w.id === m.b);
-  if (ia < 0 || ib < 0) return;
-  const lvl = Math.min(MAX_WLVL, Math.max(G.weapons[ia].lvl, G.weapons[ib].lvl));
-  const dir = G.weapons[ia].dir;
-  const mods = G.weapons[ia].mods.concat(G.weapons[ib].mods).slice(0, MOD_SLOTS);
-  G.weapons[ib] = null;
-  const w = makeSlot(m.out, false, lvl);
-  w.dir = dir; w.mods = mods;
-  setWeaponLevel(w, lvl, 1);
-  G.weapons[ia] = w;
-  G.stats.merges++;
-  recomputeAll();
-  banner('FUSION: ' + w.def.name.toUpperCase(), w.def.color);
-  sfx('level');
-  achieve('fusion'); sysLine('fusion'); addViewers(8000);
-}
 
 // ---------------------------------------------------------------- loot
 // special: this card may come out Mythical or Celestial (ordinary DNA only, three a run at most).
@@ -407,8 +382,7 @@ function genLoot(req) {
     return opts;
   }
   const cands = [];
-  const merges = availableMerges();
-  for (const m of merges) cands.push({ w: 60, make: () => optMerge(m) , key: 'fuse' + m.out });
+  for (const c of availableCombos()) cands.push({ w: 60, make: () => optCombo(c), key: 'fuse' + c.id });
   G.weapons.forEach((w, i) => { if (w && w.lvl < wCap(w)) cands.push({ w: 11, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
   G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
   // New weapons only come from weapon drafts (level 1, 8 and 22), never from ordinary DNA.
@@ -458,7 +432,7 @@ function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { co
 function optNewWeapon(id, r) {
   const def = WEAPONS[id], lvl = [1, 1, 2, 3, 4, 4, 4][r] || 1;
   return { def, rarity: r, tag: 'NEW WEAPON', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
-    sub: `${ELEMENTS[def.elem].name} | Lv ${lvl}`, desc: def.desc + (def.merged ? '' : fuseHint(id)),
+    sub: `${ELEMENTS[def.elem].name} | Lv ${lvl}`, desc: def.desc + comboHint(id),
     apply: () => { const i = G.weapons.findIndex(w => !w); if (i >= 0) { G.weapons[i] = makeSlot(id, false, lvl); setWeaponLevel(G.weapons[i], lvl, 1); recomputeAll(); } } };
 }
 function optNewSpell(id, r) {
@@ -474,7 +448,7 @@ function optUpgrade(w, r) {
   const n = RARITIES[r].lvls, to = Math.min(wCap(w), w.lvl + n);
   const bonus = lvBonusText(w.def, w.lvl, to);
   let desc = `+${pc(WEAPON_LV_DMG * (to - w.lvl))} damage, faster cycling` + (bonus ? `. ${bonus}` : '');
-  if (!w.isSpell && to >= MERGE_MIN_LEVEL && w.lvl < MERGE_MIN_LEVEL && !w.def.merged) desc += '. Unlocks fusion!';
+  if (!w.isSpell && to >= COMBO_LEVEL && w.lvl < COMBO_LEVEL && COMBOS.some(c => (c.a === w.id || c.b === w.id) && !(G.combo && G.combo[c.id]) && (owned(c.a === w.id ? c.b : c.a) || {}).lvl >= COMBO_LEVEL)) desc += '. Unlocks a COMBO!';
   if (!w.isSpell && to === MAX_WLVL) desc += '. MASTERY: only one weapon a run can reach Lv 10, and this takes it.';
   else if (!w.isSpell && to === MAX_WLVL - 1 && masterOf(w)) desc += `. Stops at Lv 9: ${masterOf(w).def.name} is your mastery weapon.`;
   return { def: w.def, w, wup: !w.isSpell, from: w.lvl, to, rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
@@ -513,20 +487,9 @@ function optCurse(c) {
   return { rarity: 4, cursed: true, tag: 'CURSED', icon: '!?', color: '#9d4edd', title: c.name, sub: 'Boon: ' + c.boon, desc: 'Bane: ' + c.bane + '.',
     apply: () => { G.curses[c.id] = true; c.apply(G.P, G); recomputeAll(); achieve('cursed'); sysLine('cursed'); } };
 }
-function optMerge(m) {
-  const def = WEAPONS[m.out];
-  return { def, rarity: 4, tag: 'FUSION', icon: def.icon, color: def.color, elem: def.elem, title: def.name, fusion: true,
-    sub: `${WEAPONS[m.a].name} + ${WEAPONS[m.b].name}`, desc: def.desc + ' Frees a weapon slot.',
-    apply: () => doMerge(m) };
-}
 function optHeal() { return { rarity: 0, tag: 'SUPPLY', icon: '+', color: '#8ac926', title: 'Field Medkit', sub: 'Instant', desc: 'Restore 50% of max HP.', apply: () => healPlayer(G.P.maxHp * 0.5) }; }
 function optRerolls() { return { rarity: 2, tag: 'SUPPLY', icon: 'RR', color: '#ffca3a', title: 'Reroll Tokens', sub: 'Instant', desc: '+2 loot rerolls.', apply: () => { G.rerolls += 2; } }; }
 function optOvercharge() { return { rarity: 2, tag: 'SUPPLY', icon: 'OC', color: '#ff924c', title: 'Overcharge Core', sub: 'Permanent', desc: '+5% damage for everything.', apply: () => { G.P.might += 0.05; recomputeAll(); } }; }
-function fuseHint(id) {
-  const m = MERGES.filter(m => m.a === id || m.b === id);
-  if (!m.length) return '';
-  return ' Fuses with ' + m.map(x => WEAPONS[x.a === id ? x.b : x.a].name).join(' / ') + '.';
-}
 
 // ---------------------------------------------------------------- effects helpers
 function spawnPart(x, y, color, n, spd, life, size) {
@@ -592,7 +555,7 @@ function damageEnemy(e, dmg, src) {
     else if (!e.tunUsed && e.hp - d < e.maxHp * 0.3) { e.tunUsed = true; e.tunT = G.t + 2.5; d *= 0.08; floatText(e.x, e.y - e.r - 10, 'TUN!', XR.white, 13); }
   }
   if (src.grudge && e === G.grudge) d *= 3;
-  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src);
+  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src);
   // Stain boons: you can see who matters.
   if (G.dyes.luciferase && (e.elite || e.boss)) d *= 1.25;
   if (G.dyes.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
@@ -642,7 +605,7 @@ function damageEnemy(e, dmg, src) {
     e.kx += kx / l * k; e.ky += ky / l * k;
   }
   if (src.freezeHit && !e.boss) { e.frozen = Math.max(e.frozen, 1.2); }
-  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); }
+  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); }
   if (!src.dot) relicHit(e, d, src);
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   // Shocked enemies arc a portion of incoming damage to a neighbour.
@@ -1346,6 +1309,7 @@ function updateWeapon(w, dt) {
     if (d.kind === 'mine' && !acquire('nearest', s.range, G.player.x, G.player.y)) { w.cd = 0; return; }
     w.isLast = !rage && !d.scrapAmmo && G.P.lastRound > 0 && w.ammo === 1;
     fireWeapon(w, target);
+    comboFire(w, target);
     w.firedT = G.t;
     w.isLast = false;
     shots++;
@@ -2045,7 +2009,7 @@ function gainXp(v) {
     if (G.level <= 20 || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
-    if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS) {
+    if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS + (G.comboMounts || 0)) {
       G.weapons.push(null);
       G.lootQueue.push({ kind: 'slot' });
       banner('WEAPON DRAFT!', PAL.upgrade);
@@ -2136,6 +2100,7 @@ function update(dt) {
   updateCrossfire();
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
   sigTick(dt);
+  comboTick(dt);
   boonTick(dt);
   updateTethers(dt);
   meleeTick(dt);

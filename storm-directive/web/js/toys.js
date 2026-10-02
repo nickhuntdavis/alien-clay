@@ -426,6 +426,7 @@ function peekBoo(w, x, y, minLook, quiet) {
   // A double bluff: two BOOs in quick succession (you and your Imaginary Friend).
   if (G.lastBooT && G.t - G.lastBooT < 3 && G.lastBooW !== w) quirkFound('doublebluff', x, y);
   G.lastBooT = G.t; G.lastBooW = w;
+  comboBoo(w, x, y);
 }
 
 // ================================================================ Twin Telepathy

@@ -805,3 +805,8 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #bornCards { display: grid; gap: 8px; }
 .bcard { text-align: left; padding: 12px; border: 1px solid #ffd6e888; border-radius: 6px; background: #ffd6e810; color: #fff; display: grid; gap: 4px; }
 .bcard b { font-size: 16px; color: #ffd6e8; } .bcard span { font-size: 13px; opacity: 0.85; }
+/* Weapon Combos: bonus mounts squeeze the row; fused weapons wear a pink outline. */
+#wslots.many { max-width: 330px; flex-wrap: nowrap; }
+#wslots.many .slot:not(.spell) { width: 58px; }
+body.land #wslots.many { max-width: 158px; flex-wrap: wrap; }
+.slot.merged { outline: 2px solid #ff3df2; outline-offset: -2px; }
