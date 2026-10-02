@@ -214,3 +214,110 @@ function seqHeat() {
   box.innerHTML = h;
   box.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => { META.heat = clamp(lv + +b.dataset.h, 0, max); saveMeta(); seqHeat(); sfx('pickup'); }));
 }
+
+// ---------------------------------------------------------------- the swimmer in play
+// The active swimmer wears its sequences: the primary's colour rims the head, and every sequence you carry
+// (the primary and each one you splice in) adds its own mutation, the same ones as on the portraits.
+function drawSeqMods(x, y, face, alpha, scale, body, look) {
+  if (!G || !G.genes || !G.genes.active || !G.genes.active.length) return;
+  const L = look || NOLOOK, k = S * (scale || 1), t = G.realT, ids = G.genes.active, pc = SEQ_LOOK[ids[0]].color;
+  const sxs = L.head * L.stretch, sys = L.head / Math.sqrt(L.stretch);
+  ctx.save(); ctx.globalAlpha = alpha; RAW_COL = true;
+  // Behind the body: afterimages (Stealth).
+  if (ids.includes('stealth')) {
+    const c = SEQ_LOOK.stealth.color, vx = (body && body.vx) || 0, vy = (body && body.vy) || 0;
+    for (let j = 3; j >= 1; j--) {
+      ctx.globalAlpha = alpha * 0.1 * (4 - j);
+      ctx.save(); ctx.translate(x - vx * 0.035 * j * S, y - vy * 0.035 * j * S); ctx.rotate(face); ctx.scale(sxs, sys);
+      ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.5 * k, 5 * k, 0, 0, TAU); ctx.fill(); ctx.restore();
+    }
+    // A fin on the tail tip.
+    const D = body && body.tailDraw;
+    if (D && D.length > 3) {
+      const a = D[D.length - 1], b = D[D.length - 4], ang = Math.atan2(sy(a.y) - sy(b.y), sx(a.x) - sx(b.x)), tx = sx(a.x), ty = sy(a.y);
+      ctx.globalAlpha = alpha * 0.85; ctx.fillStyle = c; ctx.save(); ctx.translate(tx, ty); ctx.rotate(ang);
+      ctx.beginPath(); ctx.moveTo(-2 * k, 0); ctx.lineTo(5 * k, -3.5 * k); ctx.lineTo(3 * k, 0); ctx.lineTo(5 * k, 3.5 * k); ctx.closePath(); ctx.fill(); ctx.restore();
+    }
+  }
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y); ctx.rotate(face); ctx.scale(sxs, sys);
+  // The primary's colour: a glowing rim round the head.
+  ctx.globalCompositeOperation = 'lighter';
+  const gl = ctx.createRadialGradient(1 * k, 0, 4 * k, 1 * k, 0, 14 * k); gl.addColorStop(0, pc + '55'); gl.addColorStop(1, pc + '00');
+  ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(1 * k, 0, 14 * k, 0, TAU); ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.strokeStyle = pc; ctx.lineWidth = Math.max(1, 0.9 * k); ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.9 * k, 5.4 * k, 0, 0, TAU); ctx.stroke();
+  ctx.lineCap = 'round';
+  for (const id of ids) {
+    const c = SEQ_LOOK[id].color;
+    switch (id) {
+      case 'vanguard': {
+        // A headband with tails streaming behind.
+        ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(-1.5 * k, 0, 1.3 * k, 5.3 * k, 0, 0, TAU); ctx.fill();
+        for (const s of [-1, 1]) { const w = Math.sin(t * 9 + s) * 1.6 * k; ctx.beginPath(); ctx.moveTo(-2 * k, s * 4 * k); ctx.quadraticCurveTo(-7 * k, s * 6 * k + w, -12 * k, s * 7.5 * k + w * 1.5); ctx.lineTo(-11 * k, s * 5 * k + w); ctx.closePath(); ctx.fill(); }
+        break;
+      }
+      case 'bruiser': {
+        // Hexagonal armour plates bolted round the rim.
+        ctx.fillStyle = c + 'dd'; ctx.strokeStyle = '#1b1e22'; ctx.lineWidth = Math.max(0.8, 0.5 * k);
+        for (let i = 0; i < 5; i++) { const a = -1.3 + i * 0.65, px = 1 * k + Math.cos(a) * 7.4 * k, py = Math.sin(a) * 5 * k; ctx.beginPath(); for (let j = 0; j < 6; j++) { const b = j / 6 * TAU; ctx.lineTo(px + Math.cos(b) * 2 * k, py + Math.sin(b) * 2 * k); } ctx.closePath(); ctx.fill(); ctx.stroke(); }
+        break;
+      }
+      case 'nerd': {
+        // Glowing mitochondria packed round the midpiece, and the odd spark.
+        for (let i = 0; i < 3; i++) { ctx.fillStyle = c; ctx.globalAlpha = alpha * (0.6 + 0.4 * Math.sin(t * 6 + i * 2)); ctx.beginPath(); ctx.ellipse((-6.5 - i * 2.4) * k, (i % 2 ? 1.2 : -1.2) * k, 1.5 * k, 0.85 * k, 0.3, 0, TAU); ctx.fill(); }
+        ctx.globalAlpha = alpha; ctx.strokeStyle = c; ctx.lineWidth = Math.max(1, 0.5 * k);
+        if (Math.sin(t * 13) > 0.3) { const a0 = t * 2.3; let px = 1 * k + Math.cos(a0) * 9 * k, py = Math.sin(a0) * 7 * k; ctx.beginPath(); ctx.moveTo(px, py); for (let j = 0; j < 3; j++) { px += Math.cos(a0) * 2 * k + rand(-1.5, 1.5) * k; py += Math.sin(a0) * 2 * k + rand(-1.5, 1.5) * k; ctx.lineTo(px, py); } ctx.stroke(); }
+        break;
+      }
+      case 'eggseeker': {
+        // A targeting visor with a scanning light, and a crosshair out front.
+        ctx.fillStyle = '#10141a'; ctx.fillRect(0, -2.6 * k, 7 * k, 1.9 * k);
+        ctx.fillStyle = c; ctx.fillRect((0.3 + ((t * 1.5) % 1) * 5.2) * k, -2.4 * k, 1.4 * k, 1.5 * k);
+        ctx.strokeStyle = c + 'aa'; ctx.lineWidth = Math.max(1, 0.5 * k);
+        ctx.save(); ctx.translate(22 * k, 0); ctx.rotate(t * 0.9);
+        ctx.beginPath(); ctx.arc(0, 0, 3.5 * k, 0, TAU); ctx.stroke();
+        for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(2 * k, 0); ctx.lineTo(5.5 * k, 0); ctx.stroke(); }
+        ctx.restore();
+        break;
+      }
+      case 'stealth': {
+        // A shadowed head with a white slit of an eye.
+        ctx.fillStyle = '#2b2440cc'; ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.5 * k, 5 * k, 0, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(4.5 * k, -1.2 * k, 1.8 * k, 0.55 * k, -0.15, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'pusher': {
+        // Healing motes rising off the body: little crosses and rings.
+        ctx.fillStyle = c; ctx.strokeStyle = c; ctx.lineWidth = Math.max(0.8, 0.45 * k);
+        for (let i = 0; i < 4; i++) {
+          const q = (t * 0.5 + i / 4) % 1, px = Math.sin(i * 2.3) * 9 * k, py = (7 - q * 18) * k, s = 1.4 * k;
+          ctx.globalAlpha = alpha * Math.sin(q * Math.PI);
+          if (i % 2) { ctx.fillRect(px - s, py - s * 0.3, s * 2, s * 0.6); ctx.fillRect(px - s * 0.3, py - s, s * 0.6, s * 2); } else { ctx.beginPath(); ctx.arc(px, py, s * 0.8, 0, TAU); ctx.stroke(); }
+        }
+        ctx.globalAlpha = alpha;
+        break;
+      }
+      case 'acid': {
+        // Drips falling from the head and little flames licking along its back.
+        ctx.fillStyle = c;
+        for (let i = 0; i < 3; i++) { const q = (t * 0.9 + i / 3) % 1; ctx.globalAlpha = alpha * (1 - q); ctx.beginPath(); ctx.ellipse((-2 + i * 3) * k, (5.5 + q * 7) * k, 0.7 * k, 1.1 * k, 0, 0, TAU); ctx.fill(); }
+        // Flames are drawn solid so they read on a pale field as well as a dark one.
+        for (let i = 0; i < 3; i++) {
+          const fx = (-3 + i * 3.5) * k, fl = (2.6 + 0.9 * Math.sin(t * 12 + i * 2)) * k, sw = Math.sin(t * 9 + i) * 0.8 * k;
+          for (const [cc, kk] of [['#ff5400', 1], ['#ffd166', 0.55]]) { ctx.globalAlpha = alpha * 0.9; ctx.fillStyle = cc; ctx.beginPath(); ctx.moveTo(fx - 1.3 * k * kk, -4.6 * k); ctx.quadraticCurveTo(fx - 1.1 * k * kk, -4.6 * k - fl * kk, fx + sw, -4.6 * k - fl * 1.5 * kk); ctx.quadraticCurveTo(fx + 1.1 * k * kk, -4.6 * k - fl * kk, fx + 1.3 * k * kk, -4.6 * k); ctx.closePath(); ctx.fill(); }
+        }
+        ctx.globalAlpha = alpha;
+        break;
+      }
+      case 'splicer': {
+        // A twisting double helix hovering over the head.
+        ctx.lineWidth = Math.max(0.8, 0.5 * k);
+        for (let s = 0; s < 2; s++) { ctx.strokeStyle = s ? c : '#ffffff'; ctx.beginPath(); for (let i = 0; i <= 16; i++) { const f = i / 16, a = f * TAU * 1.5 + t * 3 + s * Math.PI; const px = (-7 + f * 16) * k, py = (-9.5 + Math.sin(a) * 1.8) * k; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.stroke(); }
+        break;
+      }
+    }
+  }
+  RAW_COL = false;
+  ctx.restore();
+}

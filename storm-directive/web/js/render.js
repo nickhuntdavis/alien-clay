@@ -74,6 +74,8 @@ function col(c) {
 // Darkfield: while the world is drawn, every grey is inverted (black field, bright specimens); the meaning
 // colours and pure white stay as they are. The HUD is drawn with WORLD_DF off.
 let WORLD_DF = false;
+// Sequence marks on your swimmer keep their true colours, like a second fluorescent label.
+let RAW_COL = false;
 const COLDF = new Map();
 function colDF(c) {
   if (typeof c !== 'string') return c;
@@ -88,7 +90,7 @@ function colDF(c) {
 }
 for (const prop of ['fillStyle', 'strokeStyle']) {
   const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, prop);
-  Object.defineProperty(ctx, prop, { get() { return d.get.call(this); }, set(v) { d.set.call(this, WORLD_DF ? colDF(v) : col(v)); } });
+  Object.defineProperty(ctx, prop, { get() { return d.get.call(this); }, set(v) { d.set.call(this, RAW_COL ? v : WORLD_DF ? colDF(v) : col(v)); } });
 }
 // Your own effects (shots, trails, puddles, sparks) fade back when the screen gets busy, so enemies and
 // their bullets stay readable. FX.dim is on only while those are drawn; FX.k is how faded they are.
@@ -110,7 +112,7 @@ function updateFxK(vis) {
 // darkfield the greys invert).
 for (const fn of ['createRadialGradient', 'createLinearGradient']) {
   const orig = ctx[fn].bind(ctx);
-  ctx[fn] = (...a) => { const g = orig(...a), df = WORLD_DF, add = g.addColorStop.bind(g); g.addColorStop = (o, c) => add(o, df ? colDF(c) : col(c)); return g; };
+  ctx[fn] = (...a) => { const g = orig(...a), df = WORLD_DF, raw = RAW_COL, add = g.addColorStop.bind(g); g.addColorStop = (o, c) => add(o, raw ? c : df ? colDF(c) : col(c)); return g; };
 }
 // Invert a baked sprite for darkfield (needs canvas filters; otherwise it's left as is).
 function invertCanvas(c) {
@@ -1455,6 +1457,7 @@ function render() {
   }
   ctx.globalAlpha = 1;
   drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
+  drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
   ctx.fillStyle = '#000'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S, 4);
   ctx.fillStyle = p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S * (p.hp / G.P.maxHp), 4);
 
