@@ -7,7 +7,7 @@ const TCELL = 300;
 function tKey(cx, cy) { return (cx + 1000) * 10000 + (cy + 1000); }
 
 function makeTerrain() {
-  const list = [], grid = new Map();
+  const list = [];
   const ok = (x, y, r) => {
     const d = Math.hypot(x, y);
     if (d < CORE.sanctuary + 200 + r || d > CORE.arena - 120 - r) return false;
@@ -26,7 +26,11 @@ function makeTerrain() {
       }
     }
   }
-  // Bucket each obstacle into every cell its circle (plus a margin for bodies) touches.
+  return { list, grid: terrainGrid(list), regridT: 0 };
+}
+// Bucket each obstacle into every cell its circle (plus a margin for bodies) touches.
+function terrainGrid(list) {
+  const grid = new Map();
   for (const o of list) {
     const m = o.r + 60;
     for (let cx = Math.floor((o.x - m) / TCELL); cx <= Math.floor((o.x + m) / TCELL); cx++)
@@ -37,7 +41,7 @@ function makeTerrain() {
         c.push(o);
       }
   }
-  return { list, grid };
+  return grid;
 }
 function tCell(x, y) { return G.terrain ? G.terrain.grid.get(tKey(Math.floor(x / TCELL), Math.floor(y / TCELL))) : null; }
 
@@ -196,11 +200,39 @@ function steerTerrain(x, y, r, dx, dy) {
 // Keep things that need collecting out of the middle of solid obstacles.
 function unstick(o, r) { pushOut(o, r || 10, 0); return o; }
 
+// Everything in the womb drifts: solid growths creep (6 to 12 a second), currents, cilia and slicks wander a
+// little faster. They wander, keep out of the egg's glow and inside the arena, and steer round each other.
+const DRIFT = { solid: [6, 12], soft: [10, 20], gap: 120, regrid: 0.25 };
 function updateTerrain(dt) {
-  if (!G.terrain) return;
-  for (const ob of G.terrain.list) {
+  const T = G.terrain;
+  if (!T) return;
+  const L = T.list;
+  for (const ob of L) {
     if (ob.flash > 0) ob.flash -= dt;
     if (ob.burstT > 0) ob.burstT -= dt;
+    if (ob.sp == null) { const r = ob.def.solid ? DRIFT.solid : DRIFT.soft; ob.sp = rand(r[0], r[1]); ob.h = Math.random() * TAU; ob.fixed = Math.hypot(ob.x, ob.y) > CORE.arena - 100; }
+    if (ob.fixed) continue; // outside the Petri Dish wall: leave it be
+    let turn = Math.sin(G.t * 0.13 + ob.seed) * 0.25; // a lazy wander
+    // Stay in the band between the egg's glow and the arena wall.
+    const d = Math.hypot(ob.x, ob.y) || 1, inner = CORE.sanctuary + 200 + ob.r, outer = CORE.arena - 120 - ob.r;
+    if (d < inner || d > outer) turn += angDiff(Math.atan2(ob.y, ob.x) + (d < inner ? 0 : Math.PI), ob.h) * 1.5;
+    // Steer away from neighbours.
+    for (const o of L) {
+      if (o === ob) continue;
+      const dx = ob.x - o.x, dy = ob.y - o.y, gap = ob.r + o.r + DRIFT.gap;
+      if (Math.abs(dx) > gap || Math.abs(dy) > gap || dx * dx + dy * dy > gap * gap) continue;
+      turn += angDiff(Math.atan2(dy, dx), ob.h) * 0.8;
+    }
+    ob.h += clamp(turn, -0.8, 0.8) * dt;
+    ob.x += Math.cos(ob.h) * ob.sp * dt; ob.y += Math.sin(ob.h) * ob.sp * dt;
+  }
+  T.regridT = (T.regridT || 0) - dt;
+  if (T.regridT <= 0) {
+    T.regridT = DRIFT.regrid;
+    T.grid = terrainGrid(L);
+    // Nothing collectable gets buried under a growth that crept over it.
+    for (const k of G.pickups) pushOut(k, 14, 0);
+    for (const g of G.gems) if (!g.mag) pushOut(g, 6, 0);
   }
 }
 

@@ -35,8 +35,8 @@ function toySrc(w, name, extra) { return Object.assign(weaponSrc(w), { wname: na
 function toyAdapt(w, s) {
   const P = G.P, has = id => hasSig(w, id);
   switch (w.def.kind) {
-    case 'crayon': s.dmg *= 1 + 0.35 * P.multishot; s.lineW = 9 * (1 + 0.2 * P.pierce); break;
-    case 'peek': s.dmg *= 1 + 0.35 * P.multishot; s.knock = 140 * (1 + 0.4 * P.pierce); if (has('objectperm')) s.dur *= 2; break;
+    case 'crayon': s.dmg *= 1 + 0.18 * P.multishot; s.lineW = 9 * (1 + 0.2 * P.pierce); break;
+    case 'peek': s.dmg *= 1 + 0.18 * P.multishot; s.knock = 140 * (1 + 0.4 * P.pierce); if (has('objectperm')) s.dur *= 2; break;
     case 'duedate': s.repeat += 0.1 * P.pierce; if (has('overdue')) { s.dur *= 2; s.repeat *= 2; } s.repeat = Math.min(1.2, s.repeat); break;
     case 'tape': s.chain += P.pierce + (has('triplicate') ? 3 : 0); s.share = has('bureaucracy') ? 0.7 + (s.share - 0.35) : s.share; break;
     case 'friend': s.range *= 1 + 0.15 * P.pierce; s.count = Math.min(3, s.count + (has('secretclub') ? 1 : 0)); s.delay *= has('longmemory') ? 2 : 1;

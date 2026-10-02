@@ -251,10 +251,8 @@ function computeStats(w) {
   s.mag = Math.max(1, Math.round((b.mag || 1) * (1 + 0.12 * (L - 1)) * P.magMult));
   s.reload = (b.reload || 0) * Math.pow(0.95, L - 1) / P.reloadSpd;
   const multi = MULTI_KINDS.includes(d.kind) ? P.multishot : 0;
-  const baseCount = s.count || 1;
-  s.count = baseCount + multi * (d.kind === 'ring' ? 4 : 1);
-  // Extra projectiles share the damage: 3 extra shots give about 2.3x, not 4x.
-  if (s.count > baseCount) s.dmg *= Math.pow(baseCount / s.count, 0.4);
+  const baseCount = s.count || 1, extraMulti = multi * (d.kind === 'ring' ? 4 : 1);
+  s.count = baseCount + extraMulti;
   if (d.kind === 'gun' && s.pierce < 90) s.pierce = (s.pierce || 0) + P.pierce;
   if (d.kind === 'ring') s.pierce = (s.pierce || 0) + P.pierce;
   s.speed = (b.speed || 0) * P.projSpeed;
@@ -298,7 +296,12 @@ function computeStats(w) {
     if (n === 'Kaleidoscope') s.kaleido = 1;
     if (n === 'Time Bomb') s.timeBomb = 1;
   }
+  s.perkCount = 0;
   applyPerks(w, s);
+  // Extra projectiles (Split Personality, Plus One, Twins!, Octuplets) share the damage, and add half what they
+  // used to: 3 extra shots on a one-shot weapon give about 1.65x damage in all (it was 2.3x).
+  const n1 = baseCount + extraMulti + s.perkCount;
+  if (n1 > baseCount && d.melee !== 'pulse') { const k = n1 / baseCount; s.dmg *= (1 + (Math.pow(k, 0.6) - 1) / 2) / k; }
   w.s = s;
 }
 
@@ -2372,6 +2375,8 @@ function lootSound(kind, best, cursed, cards) {
 function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* unsupported */ } }
 
 // ---------------------------------------------------------------- loop
+// The whole game runs at 70% speed: everything moves, fires and spawns 30% slower than real time.
+const GAME_SPEED = 0.7;
 let lastTs = 0;
 const FPS = { v: 60 };
 let frameFrozen = false;
@@ -2386,9 +2391,9 @@ function frame(ts) {
     if (G && G.state === 'play') {
       keyboardSteer();
       // A boss death plays out in slow motion before its relic box opens.
-      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3); }
+      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED); }
       else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot()) UI.openLoot(G.lootQueue.shift());
-      else if (!(G.debug && G.debug.freeze)) update(dt);
+      else if (!(G.debug && G.debug.freeze)) update(dt * GAME_SPEED);
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);

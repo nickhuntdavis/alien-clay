@@ -549,7 +549,7 @@ function applyAdapt(w, s) {
     case 'wake':
       s.knock = 60 * P.pierce; s.dmg *= P.haste; s.dur *= P.reloadSpd; s.area *= P.magMult;
       // Split Personality: one bigger, longer blade rather than more of them.
-      s.area *= 1 + 0.35 * P.multishot; s.dur *= 1 + 0.35 * P.multishot;
+      s.area *= 1 + 0.18 * P.multishot; s.dur *= 1 + 0.18 * P.multishot;
       for (const l in w.perks || {}) { const k = w.perks[l]; if (k === 'rapid') s.dmg *= 1.33; if (k === 'frenzy') s.dmg *= 1.6; if (k === 'overclock') s.dmg *= 2; }
       break;
   }

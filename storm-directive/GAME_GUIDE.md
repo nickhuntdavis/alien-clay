@@ -596,12 +596,12 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Spoilers | Premature Evangelation | angels pop up next to enemies to bless them early. |
 | Spoilers | Placental Siphon | some returned shots appear right next to their target. |
 | Split Personality | Toddler Gravity | more orbs, which pull together and merge into bigger ones (twenty merged go supernova). |
-| Split Personality | Slipstream Scalpel | a bigger, longer blade (+35% width and length per stack). |
+| Split Personality | Slipstream Scalpel | a bigger, longer blade (+18% width and length per stack). |
 | Split Personality | Placenta Paddle | +1 swing, aimed another way. |
 | Split Personality | Flagellum Flail | +1 lash in the fan. |
-| Split Personality | Thorny Onesie | +35% pulse damage. |
-| Split Personality | Colouring In | +35% shape damage. |
-| Split Personality | Peekaboo | +35% BOO damage. |
+| Split Personality | Thorny Onesie | +18% pulse damage. |
+| Split Personality | Colouring In | +18% shape damage. |
+| Split Personality | Peekaboo | +18% BOO damage. |
 | Split Personality | Due Date | +1 mark. |
 | Split Personality | Red Tape | +1 bundle. |
 | Split Personality | Imaginary Friend | +1 friend, further behind. |
@@ -848,7 +848,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Twitchy Tail** | +10% fire rate | 8 |
 | **Short Refractory Period** | +15% reload speed | 6 |
 | **Bigger Load** | +20% magazine size | 6 |
-| **Split Personality** | +1 projectile for all weapons (shots share the damage) (Rare or better only) | 3 |
+| **Split Personality** | +1 projectile for all weapons (shots share the damage: about +25% in all) (Rare or better only) | 3 |
 | **Early Arrival** | +12% projectile speed and range | 5 |
 | **Personal Space** | +12% area of effect | 6 |
 | **Stamina** | +15% effect duration | 5 |
@@ -918,14 +918,14 @@ Offered at weapon levels 3 and 8. Which three a weapon is offered is fixed per w
 | **Toxic Relationship** | Hits add a stacking poison. |
 | **Ice Queen** | 12% of hits freeze non-boss enemies solid. |
 | **Special Delivery** | Hits explode for 35% damage around the target. |
-| **Plus One** | +1 projectile. |
+| **Plus One** | +1 projectile (shots share the damage). |
 | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
 | **Punching Up** | +100% damage to elites, bosses and rival champions. |
 | **Sugar Rush** | +75% damage. |
 | **Due Date Panic** | 40% faster cooldown and reload. |
 | **Domino Effect** | Kills explode for 60% of the killing blow. |
 | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
-| **Twins!** | +2 projectiles. |
+| **Twins!** | +2 projectiles (shots share the damage). |
 | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
 
 ## Modifiers

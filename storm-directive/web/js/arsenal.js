@@ -362,15 +362,15 @@ function applyPerks(w, s) {
       case 'venom': s.pVenom = 1; break;
       case 'freeze': s.modFreeze = (s.modFreeze || 0) + 0.12; break;
       case 'blast': s.modExplode = (s.modExplode || 0) + 0.35; break;
-      case 'volley': s.count = (s.count || 1) + 1; break;
-      case 'twin': s.count = (s.count || 1) + 2; break;
+      case 'volley': s.count = (s.count || 1) + 1; s.perkCount += 1; break;
+      case 'twin': s.count = (s.count || 1) + 2; s.perkCount += 2; break;
       case 'vamp': s.pVamp = 0.02; break;
       case 'giant': s.pGiant = (s.pGiant || 0) + 1; break;
       case 'slayer': s.pGiant = (s.pGiant || 0) + 1.5; break;
       case 'chainburst': s.pBurst = 0.6; break;
       case 'apex': s.dmg *= 2; s.crit += 0.2; break;
       case 'overclock': s.cd *= 0.5; s.reload *= 0.5; s.mag = Math.round(s.mag * 1.5); break;
-      case 'legion': s.count = (s.count || 1) + 3; break;
+      case 'legion': s.count = (s.count || 1) + 3; s.perkCount += 3; break;
       case 'lifeline': s.pVamp = 0.05; s.pVampCap = 4; break;
       case 'executioner': s.pExecKill = 0.2; break;
     }
@@ -559,7 +559,7 @@ function onesiePulse(w, src) {
   const s = w.s, p = me();
   w.pulseN = (w.pulseN || 0) + 1;
   const big = hasSig(w, 'bubblewrap') && w.pulseN % 6 === 0, hug = hasSig(w, 'bearhug');
-  const R = s.area * (big ? 2 : 1), dmg = s.dmg * (big ? 2.5 : 1) * (1 + 0.35 * (s.count - 1));
+  const R = s.area * (big ? 2 : 1), dmg = s.dmg * (big ? 2.5 : 1) * (1 + 0.18 * (s.count - 1));
   let n = 0;
   forNear(p.x, p.y, R, e => {
     if (e.charmed) return;
