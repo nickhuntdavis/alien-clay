@@ -207,6 +207,7 @@ const weaponSeq = id => Object.keys(PROFILES).find(p => PROFILES[p].weapons.incl
 // ================================================================ per frame (from update)
 function genesTick(dt) {
   if (!G.genes) return;
+  abilityTick();
   const p = G.player, P = G.P, T = G.mutT, sp = Math.hypot(p.vx || 0, p.vy || 0);
   // Vesicles.
   if (G.t >= G.nextVesicle && !G.debug) {
@@ -274,6 +275,7 @@ function genesDamageMul(e, src) {
   if (mutOn('sludge')) m *= 1 + 0.3 * (G.sludge || 0);
   if (mutOn('velcro') && G.velcro === 'mid') m *= 1.1;
   if (G.mutT.roidT > G.t) m *= 1.5;
+  if (G.mutT.furyT > G.t) m *= 1.5; // Hormonal Fury
   if (G.mutT.peerT > G.t) m *= 1 + 0.05 * (G.mutT.peerN || 0);
   if (genesOn('acid')) m *= 1 + (G.genes.k.acid || 0) * 0.12 * (1 - clamp(G.player.hp / G.P.maxHp, 0, 1));
   return m;
@@ -334,7 +336,7 @@ function genesLethal() {
   }
   return false;
 }
-const genesArmour = () => (mutOn('velcro') && G.velcro === 'crowd' ? 3 : 0);
+const genesArmour = () => (mutOn('velcro') && G.velcro === 'crowd' ? 3 : 0) + (G.mutT && G.mutT.furyT > G.t ? 5 : 0);
 const genesSpeed = () => (mutOn('velcro') && G.velcro === 'alone' ? 1.15 : 1);
 function genesRate() {
   if (!G || !G.genes) return 1;
@@ -414,3 +416,103 @@ function drawVesicles() {
     }
   }
 }
+
+// ================================================================ Starting abilities (Primary Sequence only)
+// Each sequence comes with one ability of its own. It fires by itself whenever it's ready and has something to
+// do (the game is autorun); tap its button to fire it the moment it's ready. Stronger with each rank.
+const abilDmg = () => (15 + G.level * 2.5) * G.P.might * (1 + 0.25 * (profRank(G.genes.primary) - 1));
+const abilSrc = (name, extra) => Object.assign({ wname: name, noProc: true }, extra || {});
+const SEQ_ABILITY = {
+  vanguard: { name: 'Acrosomal Charge', short: 'CHARGE', cd: 8, desc: 'Every 8s: headbutt-dash through whatever is in front of you, hitting everything along the way. You cannot be hurt mid-charge.',
+    fire(manual) {
+      const p = G.player, t = acquire('nearest', 240, p.x, p.y);
+      if (!t && !manual) return false;
+      const a = t ? Math.atan2(t.y - p.y, t.x - p.x) : p.face || 0, from = { x: p.x, y: p.y }, to = { x: p.x + Math.cos(a) * 200, y: p.y + Math.sin(a) * 200 };
+      if (Math.hypot(to.x, to.y) > CORE.arena - 40) return false;
+      p.x = to.x; p.y = to.y; p.vx = Math.cos(a) * 260; p.vy = Math.sin(a) * 260; p.iframes = Math.max(p.iframes, 0.5); p.face = a;
+      alongLine(from, to, 26, e => damageEnemy(e, abilDmg() * 3, abilSrc('Acrosomal Charge', { knock: 260, kx: Math.cos(a), ky: Math.sin(a) })));
+      for (let i = 0; i < 6; i++) G.fx.push({ type: 'flash', x: lerp(from.x, to.x, i / 5), y: lerp(from.y, to.y, i / 5), r: 26 - i * 2, color: SEQ_LOOK.vanguard.color, life: 0.25, max: 0.25 });
+      cam.shake = Math.min(10, cam.shake + 4); return true;
+    } },
+  bruiser: { name: 'Hormonal Fury', short: 'FURY', cd: 30, desc: 'Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s.',
+    fire(manual) {
+      const p = G.player;
+      if (!manual && p.hp > G.P.maxHp * 0.5) return false;
+      G.mutT.furyT = G.t + 6;
+      aoe(p.x, p.y, 170, abilDmg() * 1.5, abilSrc('Hormonal Fury', { knock: 420 }), SEQ_LOOK.bruiser.color);
+      floatText(p.x, p.y - 40, 'HORMONAL FURY', SEQ_LOOK.bruiser.color, 16, 1); return true;
+    } },
+  nerd: { name: 'Bio-EMP Cyst', short: 'EMP', cd: 10, desc: 'Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets.',
+    fire(manual) {
+      const p = G.player;
+      if (!manual && !acquire('nearest', 260, p.x, p.y)) return false;
+      const x = p.x, y = p.y;
+      G.fx.push({ type: 'warn', x, y, r: 220, color: SEQ_LOOK.nerd.color, life: 1, max: 1 });
+      after(1, () => {
+        IN_AOE = true; forNear(x, y, 220, e => { damageEnemy(e, abilDmg() * 1.2, abilSrc('Bio-EMP Cyst', { elem: 'shock' })); e.shock = Math.max(e.shock, 2.5); }); IN_AOE = false;
+        for (const b of G.ebul) if (Math.hypot(b.x - x, b.y - y) < 220) b.dead = true;
+        ring(x, y, 220, SEQ_LOOK.nerd.color, 0.5, 6); G.fx.push({ type: 'flash', x, y, r: 160, color: '#ffffff', life: 0.2, max: 0.2 });
+        for (let i = 0; i < 6; i++) { const a = i / 6 * TAU; bolt(x, y, x + Math.cos(a) * 200, y + Math.sin(a) * 200, ELEMENTS.shock.color, 0.25); }
+        sfx('zap');
+      });
+      return true;
+    } },
+  eggseeker: { name: 'Precision Strike', short: 'SNIPE', cd: 7, desc: 'Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage.',
+    fire() {
+      const p = G.player, t = acquire('highhp', 480, p.x, p.y);
+      if (!t) return false;
+      G.fx.push({ type: 'warn', x: t.x, y: t.y, r: t.r + 20, color: SEQ_LOOK.eggseeker.color, life: 1, max: 1 });
+      floatText(t.x, t.y - t.r - 14, 'MARKED', SEQ_LOOK.eggseeker.color, 12, 0.8);
+      after(1, () => { if (t.dead) return; bolt(G.player.x, G.player.y, t.x, t.y, SEQ_LOOK.eggseeker.color, 0.2); damageEnemy(t, abilDmg() * 5, abilSrc('Precision Strike', { crit: 1 })); ring(t.x, t.y, t.r + 30, SEQ_LOOK.eggseeker.color, 0.4, 4); });
+      return true;
+    } },
+  stealth: { name: 'Shadow Slip', short: 'SLIP', cd: 9, desc: 'Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment.',
+    fire(manual) {
+      const p = G.player, t = acquire('nearest', manual ? 260 : 130, p.x, p.y);
+      if (!t) return false;
+      const a = Math.atan2(t.y - p.y, t.x - p.x), from = { x: p.x, y: p.y }, to = { x: t.x + Math.cos(a) * (t.r + 90), y: t.y + Math.sin(a) * (t.r + 90) };
+      if (Math.hypot(to.x, to.y) > CORE.arena - 40) return false;
+      p.x = to.x; p.y = to.y; p.iframes = Math.max(p.iframes, 0.8);
+      alongLine(from, to, 20, e => damageEnemy(e, abilDmg() * 3.3, abilSrc('Shadow Slip', { crit: 0.5 })));
+      G.fx.push({ type: 'lash', x: from.x, y: from.y, a, r: Math.hypot(to.x - from.x, to.y - from.y), w: 6, color: SEQ_LOOK.stealth.color, life: 0.25, max: 0.25, seed: 1 });
+      fxParts('smoke', from.x, from.y, '#2b2440', 6, 60, 0.6, 8); return true;
+    } },
+  pusher: { name: 'Biomass Drain', short: 'DRAIN', cd: 10, desc: 'Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took.',
+    fire() {
+      const p = G.player, ts = acquireMany('nearest', 250, p.x, p.y, 6);
+      if (!ts.length) return false;
+      let got = 0;
+      for (const t of ts) { got += damageEnemy(t, abilDmg() * 1.2, abilSrc('Biomass Drain', { elem: 'poison' })) || 0; bolt(t.x, t.y, p.x, p.y, SEQ_LOOK.pusher.color, 0.3); }
+      healPlayer(Math.min(G.P.maxHp * 0.15, got * 0.2)); return true;
+    } },
+  acid: { name: 'Gastric Eruption', short: 'ERUPT', cd: 9, desc: 'Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are.',
+    fire(manual) {
+      const p = G.player;
+      if (!manual && !acquire('nearest', 220, p.x, p.y)) return false;
+      const hurt = 1 + (1 - clamp(p.hp / G.P.maxHp, 0, 1));
+      for (let i = 0; i < 6; i++) { const a = i / 6 * TAU, x = p.x + Math.cos(a) * 90, y = p.y + Math.sin(a) * 90; G.zones.push({ x, y, r: 55, life: 3, max: 3, dps: abilDmg() * 0.8 * hurt, elem: 'fire', pull: 0, color: SEQ_LOOK.acid.color, tick: 0, src: abilSrc('Gastric Eruption', { elem: 'fire', noCrit: true }) }); fxParts('drop', x, y, SEQ_LOOK.acid.color, 4, 120, 0.5, 3); }
+      ring(p.x, p.y, 140, SEQ_LOOK.acid.color, 0.4, 5); return true;
+    } },
+  splicer: { name: 'Liquid Nitrogen Vacuole', short: 'CRYO', cd: 11, desc: 'Every 11s: a vacuole of liquid nitrogen bursts on the biggest crowd within 320, freezing everything in it (bosses only briefly).',
+    fire() {
+      const p = G.player, t = acquire('cluster', 320, p.x, p.y);
+      if (!t) return false;
+      const x = t.x, y = t.y;
+      IN_AOE = true; forNear(x, y, 130, e => { damageEnemy(e, abilDmg() * 1.3, abilSrc('Liquid Nitrogen', { elem: 'ice' })); e.frozen = Math.max(e.frozen, e.boss ? 0.4 : 1.6); }); IN_AOE = false;
+      G.fx.push({ type: 'frost', x, y, r: 130, color: SEQ_LOOK.splicer.color, life: 0.6, max: 0.6 }); ring(x, y, 130, SEQ_LOOK.splicer.color, 0.5, 5); fxParts('shard', x, y, '#caf0f8', 12, 260, 0.6, 4);
+      return true;
+    } },
+};
+// From genesTick: keep the ability ticking; from the HUD button: fire it now.
+function abilityTick() {
+  const g = G.genes, A = g && SEQ_ABILITY[g.primary];
+  if (!A || G.debug) return;
+  if (g.abilT == null) g.abilT = G.t + 3;
+  if (G.t >= g.abilT && A.fire(false)) { g.abilT = G.t + A.cd; abilityCast(A); }
+}
+function abilityTap() {
+  const g = G && G.genes, A = g && SEQ_ABILITY[g.primary];
+  if (!A || G.state !== 'play' || G.t < (g.abilT || 0)) return;
+  if (A.fire(true)) { g.abilT = G.t + A.cd; abilityCast(A); }
+}
+function abilityCast(A) { const p = G.player; floatText(p.x, p.y - 34, A.name.toUpperCase(), SEQ_LOOK[G.genes.primary].color, 12, 0.7); sfx('spell'); }

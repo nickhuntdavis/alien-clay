@@ -40,6 +40,7 @@ const UI = {
       UI.refreshHud(true);
     });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
+    $('abilBtn').addEventListener('click', e => { e.stopPropagation(); abilityTap(); });
     $('autoBtn').addEventListener('click', e => { e.stopPropagation(); SET.auto = !SET.auto; saveSettings(); UI.syncAuto(); if (G) floatText(me().x, me().y - 40, SET.auto ? 'FULL AUTO ON' : 'FULL AUTO OFF', PAL.you, 14, 1); });
     UI.syncAuto();
     $('armClose').addEventListener('click', () => UI.closeArmoury());
@@ -177,6 +178,15 @@ const UI = {
     rb.querySelector('.pips').innerHTML = Array.from({ length: c.max }, (_, i) => `<i class="${i < c.charges ? 'on' : ''}"></i>`).join('');
     rb.style.setProperty('--e', (c.charges >= c.max ? 100 : c.energy / CHRONO.energyPerCharge * 100).toFixed(0) + '%');
     rb.classList.toggle('ready', c.charges > 0);
+    // Starting ability: its colour, name and cooldown sweep.
+    const ab = $('abilBtn'), A = G.genes && SEQ_ABILITY[G.genes.primary];
+    ab.style.display = A && !G.debug ? '' : 'none';
+    if (A) {
+      const left = Math.max(0, (G.genes.abilT || 0) - G.t), pct = left > 0 ? (1 - left / A.cd) * 100 : 100;
+      ab.style.setProperty('--ac', SEQ_LOOK[G.genes.primary].color); ab.style.setProperty('--e', pct.toFixed(0) + '%');
+      ab.querySelector('b').textContent = A.short; ab.querySelector('span').textContent = left > 0 ? Math.ceil(left) + 's' : 'READY';
+      ab.classList.toggle('ready', left <= 0);
+    }
   },
 
   // Full Auto: picks for you at random (DNA strands, drafts, branches, relics), skips the intros, and starts waves.
@@ -797,7 +807,7 @@ const UI = {
       : `<em>Rank ${r}${next ? ` | ${fmtNum(kills)}/${fmtNum(next)} kills to Rank ${r + 1}` : ' (max)'}</em>`;
     const syn = PROFILE_SYNERGIES.filter(q => q.a === id || q.b === id).map(q => `${esc(PROFILES[q.a === id ? q.b : q.a].name)}: ${esc(q.name)}`).join('; ');
     return `<b>${esc(Pr.name)}</b> <span class="brole">${esc(Pr.trait.toUpperCase())}</span><br><span>${esc(Pr.desc)} ${open ? esc(Pr.fmt(profK(id, true))) + ' as your Primary.' : ''}</span><br>${prog}`
-      + (opts && opts.full ? `<br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
+      + (opts && opts.full ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
   },
   openSamples() {
     const best = UI.loadBest();

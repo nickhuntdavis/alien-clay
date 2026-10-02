@@ -783,3 +783,11 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 @keyframes sqgo { 0% { filter: brightness(1); } 40% { filter: brightness(2.5); transform: scale(1.03); } 100% { filter: brightness(4); opacity: 0; transform: scale(1.12); } }
 @keyframes sqnew { from { opacity: 0.6; } to { opacity: 1; } }
 .sqrank b span { display: block; transform: rotate(-45deg); }
+#abilBtn { pointer-events: auto; position: relative; width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--ac, #5fd4e8); color: #fff; font-family: var(--mono, monospace);
+  background: conic-gradient(color-mix(in srgb, var(--ac, #5fd4e8) 45%, transparent) var(--e, 0%), #000000d9 0); display: grid; place-content: center; gap: 1px; opacity: 0.75; }
+#abilBtn b { font-size: 11px; letter-spacing: 1px; } #abilBtn span { font-size: 9px; opacity: 0.8; }
+#abilBtn.ready { opacity: 1; box-shadow: 0 0 12px var(--ac, #5fd4e8) !important; animation: abilpulse 1.2s infinite alternate; }
+@keyframes abilpulse { from { box-shadow: 0 0 6px var(--ac); } to { box-shadow: 0 0 16px var(--ac); } }
+.sqabil { margin-top: 8px; border-left: 3px solid var(--sc); background: #ffffff08; padding: 8px 10px; display: grid; gap: 2px; }
+.sqabil span { font-family: var(--mono, monospace); font-size: 9px; letter-spacing: 3px; opacity: 0.7; }
+.sqabil b { font-size: 15px; color: var(--sc); } .sqabil em { font-style: normal; font-size: 12px; opacity: 0.85; }

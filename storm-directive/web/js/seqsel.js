@@ -165,6 +165,7 @@ function seqRender(anim) {
     h += `<div class="sqtrait locked"><span>TO DECODE THIS SEQUENCE</span><b>${esc(u.text)}</b><em>${fmtNum(have)} / ${fmtNum(u.need)}</em></div>`;
     h += `<div class="sqxp"><div class="sqxpb"><i style="width:${(have / u.need * 100).toFixed(1)}%"></i></div></div>`;
   }
+  { const A = SEQ_ABILITY[id]; h += `<div class="sqabil"><span>STARTING ABILITY</span><b>${esc(A.name)}</b><em>${esc(A.desc)}</em></div>`; }
   h += `<div class="sqstats"><span>POWER</span>${bar(L.stats[0])}<span>TOUGHNESS</span>${bar(L.stats[1])}<span>SPEED</span>${bar(L.stats[2])}<span>SUPPORT</span>${bar(L.stats[3])}</div>`;
   h += `<p class="sqdesc">${esc(Pr.desc)} Only this sequence can draft its weapons. ${open ? 'Spliced in later, it works at half strength and adds them to your drafts.' : ''}</p>`;
   h += `<div class="sqh">EXCLUSIVE WEAPONS</div><div class="sqweps" style="grid-template-columns:repeat(${Pr.weapons.length}, 1fr)">${Pr.weapons.map(w => `<div class="sqwep">${iconSVG(WEAPONS[w], 26, open ? L.color : '#5c6670')}<span>${esc(WEAPONS[w].name)}</span></div>`).join('')}</div>`;
