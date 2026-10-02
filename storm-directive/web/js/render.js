@@ -506,39 +506,49 @@ function drawTrails() {
     if (!cur) { cur = []; chains.push(cur); }
     cur.push(z);
   }
-  const BANDS = 6;
+  // One filled outline per run: a fill paints every pixel once, so where the trail crosses itself or bends
+  // nothing doubles up (no blobs). Its fade is a single gradient from the oldest end to the newest.
+  // #rrggbb plus an alpha byte: the fill filters (stains, darkfield) understand 8-digit hex.
+  const rgba = (cs, a) => cs.slice(0, 7) + Math.round(Math.max(0, Math.min(1, a)) * 255).toString(16).padStart(2, '0');
   for (const C of chains) {
-    if (C.length < 2) { const z = C[0], k = Math.max(0, z.life / z.max); ctx.globalAlpha = 0.34 * k; ctx.fillStyle = col(z.color); ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), z.r * S * (0.45 + 0.55 * k), 0, TAU); ctx.fill(); continue; }
-    const c = col(C[C.length - 1].color), hot = C[0].src && emits(C[0].src.elem);
+    if (C.length < 2) { const z = C[0], k = Math.max(0, z.life / z.max); ctx.globalAlpha = 0.3 * k; ctx.fillStyle = col(z.color); ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), z.r * S * (0.4 + 0.6 * k), 0, TAU); ctx.fill(); ctx.globalAlpha = 1; continue; }
+    const c = C[C.length - 1].color; // raw, like other zones (the darkfield view handles it)
     const pts = C.map(z => ({ x: sx(z.x), y: sy(z.y), r: z.r * S, k: Math.max(0, Math.min(1, z.life / z.max)) }));
-    // Each band: the stretch of trail within an age range, stroked in one go (a little overlap so the joins don't gap).
-    const band = (b, draw) => {
-      const lo = b / BANDS, hi = (b + 1) / BANDS;
-      let i = 0;
-      while (i < pts.length) {
-        while (i < pts.length && !(pts[i].k >= lo && pts[i].k <= hi + 0.06)) i++;
-        const s0 = Math.max(0, i - 1);
-        while (i < pts.length && pts[i].k >= lo - 0.06 && pts[i].k <= hi + 0.06) i++;
-        const s1 = Math.min(pts.length - 1, i);
-        if (s1 - s0 >= 1) draw(pts.slice(s0, s1 + 1), (lo + hi) / 2);
-        if (i === s0) i++;
+    const n = pts.length, a0 = pts[0], a1 = pts[n - 1];
+    const ribbon = wk => {
+      const L = [], R = [];
+      for (let i = 0; i < n; i++) {
+        const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)];
+        let nx = -(b.y - a.y), ny = b.x - a.x; const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+        const h = pts[i].r * wk * (0.35 + 0.65 * pts[i].k);
+        L.push({ x: pts[i].x + nx * h, y: pts[i].y + ny * h }); R.push({ x: pts[i].x - nx * h, y: pts[i].y - ny * h });
       }
+      const side = P => { for (let i = 1; i < P.length - 1; i++) ctx.quadraticCurveTo(P[i].x, P[i].y, (P[i].x + P[i + 1].x) / 2, (P[i].y + P[i + 1].y) / 2); ctx.lineTo(P[P.length - 1].x, P[P.length - 1].y); };
+      ctx.beginPath(); ctx.moveTo(L[0].x, L[0].y); side(L);
+      // Round the fresh end.
+      const e = pts[n - 1], ang = Math.atan2(L[n - 1].y - e.y, L[n - 1].x - e.x);
+      ctx.arc(e.x, e.y, Math.hypot(L[n - 1].x - e.x, L[n - 1].y - e.y), ang, ang + Math.PI, false);
+      R.reverse(); side(R); ctx.closePath();
     };
-    const path = seg => { ctx.beginPath(); ctx.moveTo(seg[0].x, seg[0].y); for (let j = 1; j < seg.length - 1; j++) ctx.quadraticCurveTo(seg[j].x, seg[j].y, (seg[j].x + seg[j + 1].x) / 2, (seg[j].y + seg[j + 1].y) / 2); ctx.lineTo(seg[seg.length - 1].x, seg[seg.length - 1].y); };
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    for (let b = 0; b < BANDS; b++) band(b, (seg, k) => {
-      const w = seg[0].r * 2 * (0.45 + 0.55 * k);
-      if (hot || FX.k > 0.5) { ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = c; ctx.globalAlpha = 0.12 * k; ctx.lineWidth = w * 1.5; path(seg); ctx.stroke(); ctx.globalCompositeOperation = 'source-over'; }
-      ctx.strokeStyle = c; ctx.globalAlpha = 0.34 * k; ctx.lineWidth = w; path(seg); ctx.stroke();
-      ctx.strokeStyle = '#06140b'; ctx.globalAlpha = 0.45 * k; ctx.lineWidth = Math.max(1, w * 0.18); path(seg); ctx.stroke();
-    });
+    const grad = (lo, hi) => { const g = ctx.createLinearGradient(a0.x, a0.y, a1.x, a1.y); g.addColorStop(0, rgba(c, lo)); g.addColorStop(1, rgba(c, hi)); return g; };
+    const kNew = a1.k;
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    if (FX.k > 0.5) { ribbon(1.6); ctx.fillStyle = grad(0.04, 0.22 * kNew); ctx.fill(); }
+    ribbon(1); ctx.fillStyle = grad(0.14, 0.6 * kNew); ctx.fill();
+    // A thin dark core down the middle (one stroke, so it can't double up either).
+    ctx.beginPath(); ctx.moveTo(a0.x, a0.y);
+    for (let i = 1; i < n - 1; i++) ctx.quadraticCurveTo(pts[i].x, pts[i].y, (pts[i].x + pts[i + 1].x) / 2, (pts[i].y + pts[i + 1].y) / 2);
+    ctx.lineTo(a1.x, a1.y);
+    const cg = ctx.createLinearGradient(a0.x, a0.y, a1.x, a1.y); cg.addColorStop(0, 'rgba(6,20,11,0)'); cg.addColorStop(1, rgba('#06140b', 0.5 * kNew));
+    ctx.strokeStyle = cg; ctx.lineWidth = Math.max(1, a1.r * 0.16); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
     // Virus specks drifting in the smear.
     if (FX.k > 0.6) {
       ctx.fillStyle = c;
-      for (let j = 0; j < pts.length; j += 2) {
-        const q = pts[j], a = G.realT * 1.7 + j * 2.3, d = q.r * 0.55 * Math.sin(G.realT * 1.1 + j);
-        ctx.globalAlpha = 0.7 * q.k; ctx.beginPath(); ctx.arc(q.x + Math.cos(a) * d, q.y + Math.sin(a) * d, Math.max(1, q.r * 0.13), 0, TAU); ctx.fill();
+      for (let j = 0; j < n; j += 2) {
+        const q = pts[j], a = G.realT * 1.7 + j * 2.3, d = q.r * 0.5 * Math.sin(G.realT * 1.1 + j);
+        ctx.globalAlpha = 0.6 * q.k; ctx.beginPath(); ctx.arc(q.x + Math.cos(a) * d, q.y + Math.sin(a) * d, Math.max(1, q.r * 0.12), 0, TAU); ctx.fill();
       }
+      ctx.globalAlpha = 1;
     }
   }
   ctx.globalAlpha = 1; ctx.lineCap = 'butt'; ctx.lineJoin = 'miter';
