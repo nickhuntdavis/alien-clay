@@ -1196,7 +1196,10 @@ function render() {
   for (const e of G.enemies) {
     if (!vis(e) || e.egg) continue;
     const squash = 1 + Math.max(0, e.flash) * 2;
-    const x = sx(e.x), y = sy(e.y), r = e.r * S * squash;
+    // Individuals vary a little in size, and soft-bodied things breathe.
+    if (e.vs == null) e.vs = e.boss || e.rival ? 1 : 0.9 + ((e.id * 9301 + 49297) % 233280) / 233280 * 0.2;
+    const breathe = e.def.shape === 'cell' || e.def.shape === 'amoeba' || e.def.shape === 'spike' ? 1 + 0.035 * Math.sin(G.realT * 2.6 + e.id) : 1;
+    const x = sx(e.x), y = sy(e.y), r = e.r * S * squash * e.vs * breathe;
     ctx.globalAlpha = e.phased ? 0.25 : 1;
     if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
     if (e.boss && !e.egg) drawBossAura(e, x, y, r);
@@ -1211,7 +1214,9 @@ function render() {
       if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
       const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
       const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : null;
-      drawShip(x, y, face, tag, e.phased ? 0.25 : 1, e.r * squash / 8, e);
+      const lk = enemyLook(e);
+      if (lk && lk.flicker && Math.random() < 0.08) ctx.globalAlpha = 0.3; // Quantum Swimmer: not entirely here
+      drawShip(x, y, face, tag, e.phased ? 0.25 : ctx.globalAlpha, e.r * squash * e.vs / 8, e, lk);
     } else if (sh === 'krill') {
       drawKrill(e, x, y, r, face);
     } else if (MICROBES[sh]) {
@@ -1262,6 +1267,8 @@ function render() {
         ctx.strokeStyle = e.charmed ? PAL.you : PAL.reward; ctx.lineWidth = 3; ctx.stroke();
       } else pcHalo(e.boss ? 4.5 : Math.max(2.5, r * 0.16), e.boss ? 0.95 : 0.85);
     }
+    if (sh !== 'sperm' && !e.boss) drawEnemyDetail(e, x, y, r, rot);
+    if (e.elite && !e.boss) { ctx.fillStyle = PAL.reward; for (let i = 0; i < 3; i++) { const a = G.realT * 2 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (r + 9), y + Math.sin(a) * (r + 9), 2.5, 0, TAU); ctx.fill(); } }
     let si = 0;
     const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
     // Frozen: a crust of ice crystals. Shocked: a crackle across the body.
@@ -1870,6 +1877,10 @@ function drawHud() {
       softBar(bx, by, bw, fin.length ? hp / mx : 0, PAL.danger);
       ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
       ctx.fillText(`THE FINAL FIVE: ${fin.length} LEFT (SPERM COUNT ${spermCount()})`, mid, by - 8);
+    } else if (G.debug) {
+      const cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
+      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('LAB BENCH' + (G.debug.god ? ' | GOD MODE' : '') + (G.debug.freeze ? ' | FROZEN' : ''), mid, cy2 - 14);
+      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(G.enemies.filter(e => !e.dead && !e.charmed).length + ' ENEMIES', mid, cy2 + 4);
     } else if (G.wave) {
       // The Petri Dish: the wave and how much of it is left.
       const V = G.wave, cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
@@ -2187,7 +2198,7 @@ function drawCasa(top) {
 
 // The race to the egg: you and the rival champions, by level.
 function drawRaceBoard(rx, y) {
-  if (!G.rivalsInit || G.wave) return;
+  if (!G.rivalsInit || G.wave || G.debug) return;
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.font = '9px ' + MONO;
   ctx.fillStyle = XR.dim; ctx.fillText('RACE TO THE EGG', rx, y);
   rivalBoard().forEach((row, i) => {
@@ -2283,5 +2294,93 @@ function drawBossAura(e, x, y, r) {
     ctx.beginPath();
     for (let c = 0; c < 2 + ph * 2; c++) { let a = e.id * 1.3 + c * 2.1, qx = x, qy = y; ctx.moveTo(qx, qy); for (let i = 0; i < 4; i++) { a += Math.sin(e.id + c * 3 + i) * 0.7; qx += Math.cos(a) * r * 0.26; qy += Math.sin(a) * r * 0.26; ctx.lineTo(qx, qy); } }
     ctx.stroke(); ctx.restore();
+  }
+}
+
+// ---------------------------------------------------------------- enemy variety
+// Sperm-shaped enemies share a body, so each type gets its own build: head shape, tails, armour, fields.
+const ENEMY_KEY = new Map(Object.entries(ENEMIES).map(([k, d]) => [d, k]));
+const SPERM_LOOKS = {
+  skitter:    { stretch: 1.5, head: 0.9, tailLen: 1.35, beat: 1.9 },
+  wisp:       { head: 0.8, tailLen: 0.7, beat: 2.3, acro: 0.7 },
+  blinker:    { field: 3, acro: 1.4, flicker: 1 },
+  charger:    { head: 1.4, barb: 5, armour: 1, acro: 1.25, beat: 0.8 },
+  phantom:    { tails: 2, tailLen: 1.25, field: 1, beat: 0.7 },
+  juggernaut: { head: 1.45, armour: 4, tails: 3, cilia: 12, barb: 2, beat: 0.6 },
+};
+const LOOK_CACHE = {};
+function enemyLook(e) {
+  if (e.rival) return null;
+  const k = ENEMY_KEY.get(e.def);
+  if (!SPERM_LOOKS[k]) return null;
+  return LOOK_CACHE[k] || (LOOK_CACHE[k] = Object.assign({}, NOLOOK, SPERM_LOOKS[k]));
+}
+// Extra detail drawn over each type's body, so no two look alike.
+function drawEnemyDetail(e, x, y, r, rot) {
+  const k = ENEMY_KEY.get(e.def), t = G.realT + e.id;
+  if (!k || e.flash > 0) return;
+  const halo = (w, a) => { ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = w; ctx.stroke(); };
+  switch (k) {
+    case 'brute': { // Macrophage: pseudopods reaching out, and the dark remains of its meals
+      ctx.fillStyle = mBody(e, 0.42);
+      for (let i = 0; i < 5; i++) { const a = e.id + i * 1.26 + Math.sin(t * 0.8 + i) * 0.3, L = r * (1.05 + 0.18 * Math.sin(t * 1.3 + i * 2)); ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * L * 0.82, y + Math.sin(a) * L * 0.82, r * 0.34, r * 0.22, a, 0, TAU); ctx.fill(); halo(1.2, 0.45); }
+      ctx.fillStyle = 'rgba(25,28,26,0.55)'; for (let i = 0; i < 4; i++) { const a = e.id * 2 + i * 1.7, d = r * 0.45; ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, r * 0.1, 0, TAU); ctx.fill(); }
+      break;
+    }
+    case 'splitter': { // Mitotic Cell: pinching in two, two nuclei pulled apart by spindle fibres
+      const a = e.id * 0.7 + t * 0.2, ca = Math.cos(a), sa = Math.sin(a), d = r * (0.38 + 0.06 * Math.sin(t * 3));
+      ctx.strokeStyle = 'rgba(25,28,26,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - sa * r * 0.9, y + ca * r * 0.9); ctx.quadraticCurveTo(x, y, x + sa * r * 0.9, y - ca * r * 0.9); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 0.8; ctx.beginPath(); for (let i = -2; i <= 2; i++) { ctx.moveTo(x - ca * d, y - sa * d); ctx.quadraticCurveTo(x - sa * i * r * 0.12, y + ca * i * r * 0.12, x + ca * d, y + sa * d); } ctx.stroke();
+      ctx.fillStyle = 'rgba(25,28,26,0.6)'; for (const s of [-1, 1]) { ctx.beginPath(); ctx.arc(x + ca * d * s, y + sa * d * s, r * 0.2, 0, TAU); ctx.fill(); }
+      break;
+    }
+    case 'splitling': ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.beginPath(); ctx.arc(x + r * 0.15, y - r * 0.15, r * 0.25, 0, TAU); ctx.fill(); break;
+    case 'bulwark': { // Mucus Wall: thick layered slime, oozing
+      for (let i = 1; i <= 2; i++) { ctx.beginPath(); for (let j = 0; j <= 24; j++) { const a = j / 24 * TAU, rr = r * (1 + 0.16 * i + 0.05 * Math.sin(a * 4 + t * (1 + i * 0.4))); j ? ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } halo(2.2 - i * 0.6, 0.35 - i * 0.1); }
+      ctx.fillStyle = 'rgba(255,255,255,0.35)'; for (let i = 0; i < 3; i++) { const ph = (t * 0.5 + i / 3) % 1, a = e.id + i * 2.1; ctx.globalAlpha = 1 - ph; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 1.2, y + Math.sin(a) * r * 1.2 + ph * r * 0.8, 2 + 2 * (1 - ph), 0, TAU); ctx.fill(); }
+      ctx.globalAlpha = e.phased ? 0.25 : 1;
+      break;
+    }
+    case 'summoner': { // Mother Cell: buds swelling round the rim, bigger as the next brood nears
+      const ripe = 1 - Math.max(0, Math.min(1, (e.shootCd || 0) / 5));
+      ctx.fillStyle = mBody(e, 0.48);
+      for (let i = 0; i < 6; i++) { const a = e.id + i * TAU / 6 + t * 0.15, br = r * (0.15 + 0.2 * ripe); ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 1.02, y + Math.sin(a) * r * 1.02, br, 0, TAU); ctx.fill(); halo(1, 0.55); }
+      break;
+    }
+    case 'lancer': { // Killer T-Cell: blades on its arms
+      ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 2; ctx.beginPath();
+      for (const s of [-1, 1]) { const a = rot - Math.PI / 2 + s * 0.55; ctx.moveTo(x + Math.cos(a) * r * 0.9, y + Math.sin(a) * r * 0.9); ctx.lineTo(x + Math.cos(a) * r * 1.7, y + Math.sin(a) * r * 1.7); }
+      ctx.stroke(); break;
+    }
+    case 'plasmod': { // Plasmodium: a pulsing vein network
+      ctx.strokeStyle = 'rgba(25,28,26,0.45)'; ctx.lineWidth = 1.4; ctx.beginPath();
+      for (let i = 0; i < 6; i++) { let a = e.id + i * 1.05, qx = x, qy = y; ctx.moveTo(qx, qy); for (let j = 0; j < 4; j++) { a += Math.sin(i * 3 + j + t * 0.4) * 0.6; qx += Math.cos(a) * r * 0.2; qy += Math.sin(a) * r * 0.2; ctx.lineTo(qx, qy); } }
+      ctx.stroke(); break;
+    }
+    case 'pepsinjr': { // Pepsinator Jr: fizzing with acid
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1;
+      for (let i = 0; i < 6; i++) { const ph = (t * 0.7 + i / 6) % 1, a = e.id * 3 + i * 1.9; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.5, y + Math.sin(a) * r * 0.5 - ph * r * 0.4, 1.5 + ph * 3, 0, TAU); ctx.stroke(); }
+      break;
+    }
+    case 'bomber': { // Acid Bubble: a hot core that throbs faster the closer you are
+      const d = Math.hypot(e.x - me().x, e.y - me().y), rate = d < 200 ? 14 : 5, k2 = 0.5 + 0.5 * Math.sin(t * rate);
+      ctx.fillStyle = `rgba(255,255,255,${(0.35 + 0.45 * k2).toFixed(2)})`; ctx.beginPath(); ctx.arc(x, y, r * (0.28 + 0.12 * k2), 0, TAU); ctx.fill();
+      break;
+    }
+    case 'medic': { // Nurse Cell: a halo that pulses when it heals
+      ctx.setLineDash([4, 5]); ctx.lineDashOffset = -t * 20; ctx.beginPath(); ctx.arc(x, y, r * 1.45, 0, TAU); halo(1.5, 0.55); ctx.setLineDash([]);
+      break;
+    }
+    case 'warlock': { // Cytokine Caster: motes orbiting, an inner star turning the other way
+      ctx.fillStyle = 'rgba(255,255,255,0.8)'; for (let i = 0; i < 3; i++) { const a = -t * 2.4 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 1.5, y + Math.sin(a) * r * 1.5, 2.5, 0, TAU); ctx.fill(); }
+      drawShape('star', x, y, r * 0.45, -t * 1.5); ctx.fillStyle = 'rgba(25,28,26,0.5)'; ctx.fill();
+      break;
+    }
+    case 'spire': { // Enzyme Spire: crystal facets and a turning inner hex
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1; ctx.beginPath();
+      for (let i = 0; i < 6; i++) { const a = rot + i * TAU / 6; ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } ctx.stroke();
+      drawShape('hex', x, y, r * 0.45, -t); halo(2, 0.7);
+      break;
+    }
   }
 }

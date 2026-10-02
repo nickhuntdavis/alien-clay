@@ -84,6 +84,7 @@ function newGame() {
   G.bossRoster = bossRoster();
   G.ev = newEvents(); G.evm = Object.assign({}, EVM0);
   if (CORE.arena === DISH.arena) initWaves();
+  if (typeof UI !== 'undefined' && UI.sample === 's000') initDebug();
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
   G.dyes = {};
@@ -875,7 +876,7 @@ function healPlayer(n, silent) {
 
 function hurtPlayer(dmg, from, ent) {
   const p = me(), P = G.P;
-  if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0) return;
+  if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
   if (Math.random() < P.dodge) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1);
@@ -2123,14 +2124,15 @@ function update(dt) {
   const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, 24 + T * 0.5);
   const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE;
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
-  if (G.wave) { waveSpawn(rate * G.P.spawnMult, dt, maxAlive, hostile); waveTick(dt); } // the Petri Dish: a set number per wave
+  if (G.debug) debugTick(); // the Lab Bench: only what you send in
+  else if (G.wave) { waveSpawn(rate * G.P.spawnMult, dt, maxAlive, hostile); waveTick(dt); } // the Petri Dish: a set number per wave
   else {
     G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1); // quieter while the Final Five fight you
     while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   }
-  if (G.t >= G.nextWave) { G.nextWave += 30; waveEvent(); }
+  if (G.t >= G.nextWave && !G.debug) { G.nextWave += 30; waveEvent(); }
   updateRivals(dt);
-  if (!G.wave) updateShowdown();
+  if (!G.wave && !G.debug) updateShowdown();
   if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.
@@ -2368,7 +2370,7 @@ function frame(ts) {
       // A boss death plays out in slow motion before its relic box opens.
       if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3); }
       else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot()) UI.openLoot(G.lootQueue.shift());
-      else update(dt);
+      else if (!(G.debug && G.debug.freeze)) update(dt);
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);

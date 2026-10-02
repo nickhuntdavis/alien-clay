@@ -588,6 +588,7 @@ const MAX_WEAPONS = BASE_SLOTS + SLOT_LEVELS.length;
 const SAMPLES = [
   { id: 's001', no: '001', name: 'Standard Issue', desc: 'One healthy donor, four hundred million hopefuls, one egg. The classic.', count: '400,000,000', motility: '62% progressive', open: true },
   { id: 's002', no: '002', name: 'The Petri Dish', desc: 'A mad scientist is breeding super sperm. One drop at a time, wave after wave, each nastier than the last. How many can you take?', count: 'one, for now', motility: 'under observation', open: true, waves: true },
+  { id: 's000', no: '000', name: 'Lab Bench (Debug)', desc: 'For testing: god mode, send in any enemy, boss or event, switch any weapon or spell on and off. Open the DEBUG panel.', count: 'whatever you send', motility: 'on command', open: true, debug: true },
   { id: 's005', no: '005', name: 'Frozen Donor Bank', desc: 'Thawed in a hurry. Everyone is sluggish, except the ones who are not.', open: false },
   { id: 's003', no: '003', name: 'The Morning After', desc: 'The pill is already dissolving. Good luck.', open: false },
   { id: 's004', no: '004', name: 'Vasectomy Reversal', desc: 'Low count, high stakes, very confused surgeon.', open: false },
