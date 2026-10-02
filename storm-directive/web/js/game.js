@@ -1894,7 +1894,15 @@ function autoSteer() {
   if (mode === 'hunt') {
     const w0 = G.weapons.find(Boolean);
     const t = acquire(w0 ? w0.dir : 'nearest', 700, p.x, p.y);
-    if (t) { const d = Math.hypot(t.x - p.x, t.y - p.y); if (d > 130) goal(t.x, t.y, 1.2); else goal(t.x, t.y, -0.4); }
+    if (t) {
+      const dx = t.x - p.x, dy = t.y - p.y, d = Math.hypot(dx, dy) || 1;
+      if (d > 130) goal(t.x, t.y, 1.2);
+      else {
+        // Close enough: sweep past it on whichever side we're already turning, instead of backing off.
+        const side = Math.sign(Math.cos(p.hd || 0) * -dy / d + Math.sin(p.hd || 0) * dx / d) || 1;
+        gx += -dy / d * side * 1.0 - dx / d * 0.2; gy += dx / d * side * 1.0 - dy / d * 0.2;
+      }
+    }
   }
   // Run events: chase the Golden Swimmer or the bounty.
   if (mode !== 'hold') for (const e of G.enemies) if (e.evTag && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 1400) goal(e.x, e.y, e.evTag === 'golden' ? 1.3 : 0.7);
@@ -1909,6 +1917,12 @@ function autoSteer() {
   if (G.fertile && mode !== 'hold') goal(core.x, core.y, 1.8);
   // Stay inside the womb.
   if (cdist > CORE.arena - 350) goal(core.x, core.y, (cdist - (CORE.arena - 350)) / 120);
+  // Cruise: with nothing much to aim for, keep swimming the way you're heading (with a slow lazy curve)
+  // rather than dithering on the spot.
+  if (mode !== 'hold' && mode !== 'defend') {
+    const gl0 = Math.hypot(gx, gy), hd = (p.hd || 0) + Math.sin(G.t * 0.35) * 0.35, cw = Math.max(0, 0.6 - gl0 * 0.4);
+    gx += Math.cos(hd) * cw; gy += Math.sin(hd) * cw;
+  }
   const gl = Math.hypot(gx, gy);
   if (gl > 1.5) { gx = gx / gl * 1.5; gy = gy / gl * 1.5; }
   // Danger sampling.
@@ -1917,7 +1931,7 @@ function autoSteer() {
   for (const b of G.ebul) { const dx = b.x - p.x, dy = b.y - p.y; if (dx * dx + dy * dy < 300 * 300) bul.push(b); }
   const threatR = mode === 'hold' ? 80 : mode === 'hunt' ? 120 : 250;
   const step = 150 * G.P.speed * 0.45;
-  let best = -Infinity, bx = 0, by = 0;
+  let best = -Infinity, bx = 0, by = 0, pick = -1;
   for (let i = -1; i < 16; i++) {
     const dx = i < 0 ? 0 : STEER_DIRS[i][0], dy = i < 0 ? 0 : STEER_DIRS[i][1];
     const qx = p.x + dx * step, qy = p.y + dy * step, mx = p.x + dx * step * 0.5, my = p.y + dy * step * 0.5;
@@ -1944,10 +1958,14 @@ function autoSteer() {
     } else danger += steerTerrain(p.x, p.y, p.r, 0, 0) + (G.pill && inPill(p.x, p.y) ? 2.2 : 0);
     if (G.hazards.length || G.boss) danger += hazardDanger(qx, qy, p.r) + hazardDanger(mx, my, p.r) * 0.5;
     // Turning is slow, so mildly prefer directions close to where the head already points.
-    const interest = dx * gx + dy * gy + (i < 0 ? 0 : 0.18 * (Math.cos(p.hd || 0) * dx + Math.sin(p.hd || 0) * dy) / Math.max(0.6, G.P.traction));
-    const score = interest - danger + (i < 0 ? (mode === 'hold' ? 0.4 : -0.1) : 0);
-    if (score > best) { best = score; bx = dx; by = dy; }
+    // Forward momentum: favour the heading and the last pick (so it doesn't flip between near-equal
+    // options), and only stop dead when holding.
+    const mom = mode === 'hold' ? 0.18 : 0.42;
+    const interest = dx * gx + dy * gy + (i < 0 ? 0 : mom * (Math.cos(p.hd || 0) * dx + Math.sin(p.hd || 0) * dy) / Math.max(0.6, G.P.traction)) + (i === G.steerPick ? 0.12 : 0);
+    const score = interest - danger + (i < 0 ? (mode === 'hold' ? 0.4 : -0.35) : 0);
+    if (score > best) { best = score; bx = dx; by = dy; pick = i; }
   }
+  G.steerPick = pick;
   // Pinned against a wall (trying to swim but barely moving)? Slide along it for a moment.
   const spd = Math.hypot(p.vx || 0, p.vy || 0);
   G.stuckT = (bx || by) && spd < 25 ? (G.stuckT || 0) + 1 / 30 : 0;
