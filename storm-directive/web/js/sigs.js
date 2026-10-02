@@ -436,6 +436,7 @@ function projHit(pr, e) {
 }
 // A projectile reaching the end of its flight.
 function projEnd(pr) {
+  if (pr.style === 'flame' && Math.random() < 0.12) fxParts('smoke', pr.x, pr.y, '#2e3330', 1, 25, 0.8, 5, -Math.PI / 2, 0.8); // flames leave smoke
   if (pr.w.id === 'flamer' && hasSig(pr.w, 'napalm') && Math.random() < 0.2 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 26, life: 2, max: 2, dps: pr.dmg * 3, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: Object.assign({}, pr.src, { wname: 'Napalm' }) });
   if (pr.dragonB && Math.random() < 0.35 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 24, life: 1.6, max: 1.6, dps: pr.dmg * 0.8, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: pr.src });
   if (pr.iceAge && !pr.patched) frostPatch(pr.w, pr.x, pr.y);

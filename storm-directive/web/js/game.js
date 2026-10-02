@@ -529,12 +529,39 @@ function floatText(x, y, txt, color, size, life) {
 }
 function banner(text, color) { G.banner = { text, color: color || '#fff', t: 2.4 }; }
 function ring(x, y, r, color, life, width) { G.fx.push({ type: 'ring', x, y, r, color, life: life || 0.35, max: life || 0.35, w: width || 3 }); }
+// Shaped particles. k: 'spark' (a hot streak along its motion), 'ember' (a rising glow), 'smoke' (a growing
+// puff), 'drop' (goo), 'shard' (a spinning splinter), 'bubble' and 'plus' (rise and fade). dir/spread aim them.
+// Counts thin out when the screen is busy (FX.k).
+function fxParts(k, x, y, color, n, spd, life, size, dir, spread) {
+  n = Math.max(1, Math.round(n * (typeof FX !== 'undefined' ? 0.35 + 0.65 * FX.k : 1)));
+  for (let i = 0; i < n; i++) {
+    if (G.parts.length >= CAPS.parts) return;
+    const a = dir == null ? Math.random() * TAU : dir + rand(-1, 1) * (spread == null ? 0.5 : spread), v = rand(0.35, 1) * spd;
+    G.parts.push({ k, x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: life * rand(0.6, 1), max: life, color, size: size || 3, rot: Math.random() * TAU, vr: rand(-8, 8) });
+  }
+}
+// What a hit looks like in each element.
+const HIT_FX = { phys: ['spark', '#ffffff'], fire: ['ember', '#ff7a2f'], ice: ['shard', '#bde0fe'], shock: ['spark', '#ffe94a'], poison: ['drop', '#8dff4a'], arcane: ['ember', '#d0a3ff'] };
+function hitFx(e, src, crit, d) {
+  if ((G.hitFxN = (G.hitFxN || 0) + 1) > 14) return; // a handful a frame is plenty
+  const H = HIT_FX[src.elem] || HIT_FX.phys, kx = src.kx != null ? src.kx : e.x - me().x, ky = src.ky != null ? src.ky : e.y - me().y;
+  const a = Math.atan2(ky, kx) || 0, n = crit ? 7 : d > e.maxHp * 0.25 ? 5 : 3;
+  fxParts(H[0], e.x - Math.cos(a) * e.r * 0.6, e.y - Math.sin(a) * e.r * 0.6, H[1], n, crit ? 300 : 200, crit ? 0.35 : 0.25, H[0] === 'spark' ? 2 : 3, a + Math.PI, 1.1);
+  if (crit) G.fx.push({ type: 'star', x: e.x, y: e.y, r: e.r + 14, color: '#ffffff', life: 0.22, max: 0.22, rot: Math.random() });
+}
 function bolt(x1, y1, x2, y2, color, life) {
   const pts = [x1, y1];
-  const n = 6, dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
-  for (let i = 1; i < n; i++) { const t = i / n, o = rand(-1, 1) * Math.min(18, len * 0.12); pts.push(x1 + dx * t + nx * o, y1 + dy * t + ny * o); }
+  const n = 7, dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+  for (let i = 1; i < n; i++) { const t = i / n, o = rand(-1, 1) * Math.min(20, len * 0.12); pts.push(x1 + dx * t + nx * o, y1 + dy * t + ny * o); }
   pts.push(x2, y2);
-  G.fx.push({ type: 'bolt', pts, color, life: life || 0.15, max: life || 0.15 });
+  // A fork or two off the main channel, like real lightning.
+  const forks = [];
+  if (len > 60) for (let f = 0; f < (len > 200 ? 2 : 1); f++) {
+    const i = 1 + Math.floor(Math.random() * (n - 2)), bx = pts[i * 2], by = pts[i * 2 + 1], fa = Math.atan2(dy, dx) + rand(-1, 1) * 0.9, fl = len * rand(0.15, 0.3);
+    forks.push([bx, by, bx + Math.cos(fa) * fl * 0.5 + rand(-6, 6), by + Math.sin(fa) * fl * 0.5 + rand(-6, 6), bx + Math.cos(fa) * fl, by + Math.sin(fa) * fl]);
+  }
+  G.fx.push({ type: 'bolt', pts, forks, color, life: life || 0.15, max: life || 0.15 });
+  if (G.fx.length < 260) fxParts('spark', x2, y2, color, 2, 160, 0.18, 1.6);
 }
 function after(t, fn) { G.timers.push({ t, fn }); }
 
@@ -583,10 +610,11 @@ function damageEnemy(e, dmg, src) {
     e.capUsed += d;
   }
   e.hp -= d;
-  e.flash = 0.07;
+  if (!src.dot && !src.zoneHit) e.flash = 0.07; // ticks don't blink
   const key = src.wname || 'Other';
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + d;
   // Damage numbers thin out when the screen is busy (crits always show).
+  if (!src.dot && !IN_AOE) hitFx(e, src, crit, d);
   if (!src.dot && (crit || d >= 4 || Math.random() < 0.3) && (crit || typeof FX === 'undefined' || FX.k > 0.6 || Math.random() < FX.k * 0.5)) {
     floatText(e.x, e.y - e.r, Math.round(d) + (crit ? '!' : ''), '#ffffff', crit ? 17 : 12);
   }
@@ -700,10 +728,16 @@ function aoe(x, y, r, dmg, src, color) {
   forNear(x, y, r, e => { damageEnemy(e, dmg, src); });
   IN_AOE = false;
   popAmbient(x, y, r);
-  ring(x, y, r, color || '#ffae42', 0.35, 4);
-  addLight(x, y, r * 1.8, color || '#ffae42', 0.45);
+  const c = color || '#ffae42', el = src && src.elem;
+  // A white-hot flash, the shockwave, flying sparks, then smoke (and embers when it's fire).
+  G.fx.push({ type: 'flash', x, y, r: r * 0.9, color: c, life: 0.14, max: 0.14 });
+  ring(x, y, r, c, 0.35, 4);
+  addLight(x, y, r * 1.8, c, 0.45);
   if (r > 50) addDecal(x, y, r * 0.8, '#000');
-  spawnPart(x, y, color || '#ffae42', Math.min(18, 6 + r / 8), r * 2.4, 0.45, 3.5);
+  fxParts('spark', x, y, c, Math.min(14, 5 + r / 9), r * 4.5, 0.3, 2.2);
+  spawnPart(x, y, c, Math.min(10, 3 + r / 12), r * 2.4, 0.45, 3.5);
+  if (r > 45) fxParts('smoke', x, y, '#2e3330', Math.min(5, 2 + r / 40), r * 0.9, 0.9, r * 0.22);
+  if (el === 'fire') fxParts('ember', x, y, '#ff9e00', Math.min(8, 3 + r / 15), r * 1.6, 0.8, 3);
   cam.shake = Math.min(8, cam.shake + r / 40);
   sfx('boom');
 }
@@ -772,7 +806,10 @@ function killEnemy(e, src) {
     G.mimicPat = pat;
     if (G.weapons.some(w => w && w.def.kind === 'mimic')) floatText(me().x, me().y - 40, 'COPIED: ' + pat.toUpperCase(), '#f15bb5', 14, 1.2);
   }
-  spawnPart(e.x, e.y, e.def.color || e.color, e.boss ? 40 : 7, e.boss ? 260 : 130, 0.5, e.boss ? 5 : 3);
+  // The pop: goo flies, a little flash, and elites and bosses go out with a shockwave.
+  spawnPart(e.x, e.y, e.def.color || e.color, e.boss ? 24 : 3, e.boss ? 260 : 130, 0.5, e.boss ? 5 : 3);
+  fxParts('drop', e.x, e.y, e.def.color || e.color, e.boss ? 24 : e.elite ? 10 : 5, e.boss ? 320 : 170, 0.55, e.boss ? 6 : 3.5);
+  if (e.elite || e.boss) { G.fx.push({ type: 'flash', x: e.x, y: e.y, r: e.r * 2.5, color: '#ffffff', life: 0.18, max: 0.18 }); ring(e.x, e.y, e.r * 3, '#ffffff', 0.4, 5); }
   // XP
   if (e.xp > 0) dropGem(e.x, e.y, e.xp);
   if (e.stolen > 0) for (let i = 0; i < 5; i++) dropGem(e.x + rand(-25, 25), e.y + rand(-25, 25), e.stolen * 1.3 / 5); // a rotifer gives back what it hoovered up, with interest
@@ -992,12 +1029,13 @@ function updateEnemies(dt) {
     if (e.burn > 0) {
       e.burn -= dt;
       damageEnemy(e, e.burnDps * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: 'Burn' });
-      if (Math.random() < dt * 6) spawnPart(e.x + rand(-e.r, e.r), e.y, '#ff7a2f', 1, 30, 0.4, 2.5);
+      if (Math.random() < dt * 6) fxParts('ember', e.x + rand(-e.r, e.r), e.y + rand(-e.r, e.r) * 0.5, '#ff7a2f', 1, 25, 0.6, 2.5, -Math.PI / 2, 0.6);
       if (e.dead) continue;
     }
     if (e.poison > 0) {
       e.poison -= dt;
       damageEnemy(e, e.poisonDps * e.poisonStacks * (syn.poison ? 2 : 1) * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: 'Poison' });
+      if (Math.random() < dt * 3) fxParts('bubble', e.x + rand(-e.r, e.r) * 0.6, e.y, '#8dff4a', 1, 18, 0.9, 2.5, -Math.PI / 2, 0.4);
       if (e.poison <= 0) e.poisonStacks = 0;
       if (e.dead) continue;
     }
@@ -1323,6 +1361,8 @@ function fireWeapon(w, target) {
             if (pr && V.owner) { pr.homing = Math.max(pr.homing, 8); pr.tgt = V.owner; pr.vsOwner = V.owner; }
           }
           if (!hasSig(w, 'dragon')) p.face = a0;
+          // Muzzle flash (flames are their own flash).
+          if (d.style !== 'flame' && !(w.muzT > G.realT)) { w.muzT = G.realT + 0.06; G.fx.push({ type: 'muzzle', x: p.x, y: p.y, a: a0, color: d.color, life: 0.08, max: 0.08 }); }
         }
       }
       if (d.style !== 'flame' || Math.random() < 0.2) sfx('shot');
@@ -1362,6 +1402,7 @@ function fireWeapon(w, target) {
       for (const t of ts) {
         const tx = t.x + t.vx * 0, ty = t.y;
         G.fx.push({ type: 'warn', x: tx, y: ty, r: s.area, color: d.color, life: s.delay, max: s.delay });
+        G.fx.push({ type: 'fall', x: tx, y: ty, r: s.area, color: d.color, life: s.delay, max: s.delay });
         after(s.delay, () => {
           aoe(tx, ty, s.area, s.dmg, src, d.color);
           G.zones.push({ x: tx, y: ty, r: s.area * 0.7, life: s.dur, max: s.dur, dps: s.dmg * 0.15, elem: 'fire', pull: 0, color: '#ff5400', tick: 0, src });
@@ -1374,19 +1415,23 @@ function fireWeapon(w, target) {
       forNear(p.x, p.y, s.area, e => { if (!e.boss) e.frozen = Math.max(e.frozen, 1.6); });
       for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < s.area) { b.dead = true; spawnPart(b.x, b.y, '#90e0ef', 1, 60, 0.3); }
       ring(p.x, p.y, s.area, '#caf0f8', 0.5, 6);
+      fxParts('shard', p.x, p.y, '#caf0f8', 22, s.area * 3, 0.55, 4.5);
+      G.fx.push({ type: 'frost', x: p.x, y: p.y, r: s.area, color: '#caf0f8', life: 0.6, max: 0.6 });
       break;
     case 'thunder': {
       const ts = acquireMany(w.dir, s.range, p.x, p.y, s.count);
       ts.forEach((t, i) => after(i * 0.07, () => {
-        bolt(t.x + rand(-30, 30), t.y - 500, t.x, t.y, '#fdf0d5', 0.25);
+        bolt(t.x + rand(-30, 30), t.y - 500, t.x, t.y, '#fdf0d5', 0.3);
+        bolt(t.x + rand(-60, 60), t.y - 420, t.x, t.y, '#ffe94a', 0.2);
         aoe(t.x, t.y, s.area, s.dmg, src, '#ffe94a');
+        G.flashT = Math.max(G.flashT || 0, 0.12); // the sky lights up
       }));
       break;
     }
     case 'zone':
       G.zones.push({ x: target.x, y: target.y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg, elem: d.elem, pull: s.pull, color: d.color, tick: 0, src, spell: w.id });
       break;
-    case 'heal': healPlayer(G.P.maxHp * s.dmg); ring(p.x, p.y, 60, '#80ffdb', 0.5, 4); break;
+    case 'heal': healPlayer(G.P.maxHp * s.dmg); ring(p.x, p.y, 60, '#80ffdb', 0.5, 4); fxParts('plus', p.x, p.y, '#80ffdb', 10, 70, 1.1, 7); G.fx.push({ type: 'flash', x: p.x, y: p.y, r: 70, color: '#80ffdb', life: 0.3, max: 0.3 }); break;
     case 'warp': G.warp = s.dur; banner('TIME WARP', '#b8c0ff'); break;
     case 'barrier': G.barrier = s.dur; G.barrierR = s.area; G.barrierDmg = s.dmg; break;
     case 'ring':
@@ -2087,7 +2132,15 @@ function update(dt) {
   if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
   // FX.
-  for (const q of G.parts) { q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.92; q.vy *= 0.92; q.life -= dt; }
+  G.hitFxN = 0;
+  if (G.flashT > 0) G.flashT -= dt;
+  for (const q of G.parts) {
+    q.x += q.vx * dt; q.y += q.vy * dt; q.life -= dt;
+    const drag = q.k === 'spark' ? 0.86 : q.k === 'smoke' ? 0.9 : 0.92; q.vx *= drag; q.vy *= drag;
+    if (q.k === 'ember' || q.k === 'bubble' || q.k === 'plus') q.vy -= 60 * dt; // they rise
+    if (q.k === 'smoke') q.size += 30 * dt;
+    if (q.rot != null) q.rot += (q.vr || 0) * dt;
+  }
   for (const f of G.fx) f.life -= dt;
   for (const l of G.lights) l.life -= dt;
   for (const d of G.decals) d.life -= dt;

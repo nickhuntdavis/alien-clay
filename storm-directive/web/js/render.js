@@ -1034,9 +1034,15 @@ function render() {
     ctx.globalAlpha = a * 0.6; ctx.strokeStyle = z.color; ctx.lineWidth = 2;
     if (z.pull) {
       for (let k = 0; k < 4; k++) { const rr = ((G.realT * 0.9 + k / 4) % 1) * z.r; ctx.beginPath(); ctx.arc(x, y, (z.r - rr) * S, 0, TAU); ctx.stroke(); }
+      // Spiral arms winding into the middle.
+      ctx.lineWidth = 2.5; ctx.globalAlpha = a * 0.7;
+      for (let arm = 0; arm < 3; arm++) { ctx.beginPath(); for (let i = 0; i <= 14; i++) { const t = i / 14, ang = -G.realT * 3 + arm * TAU / 3 + t * 4.2, rr = r * (1 - t * 0.85); i ? ctx.lineTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr) : ctx.moveTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr); } ctx.stroke(); }
+      ctx.lineWidth = 2; ctx.globalAlpha = a * 0.6;
       ctx.globalAlpha = a; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, 14 * S, 0, TAU); ctx.fill();
       ctx.strokeStyle = '#e0aaff'; ctx.beginPath(); ctx.arc(x, y, 15 * S, 0, TAU); ctx.stroke();
     } else {
+      // Gas clouds (Dutch Oven) roll in soft puffs.
+      if (z.spell === 'cloud' && FX.k > 0.5) { ctx.fillStyle = z.color; for (let k = 0; k < 6; k++) { const an = G.realT * 0.5 + k * 1.05, rr = r * 0.55; ctx.globalAlpha = a * 0.12; ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an * 1.3) * rr * 0.7, r * 0.45, 0, TAU); ctx.fill(); } ctx.globalAlpha = a * 0.6; }
       // Bubbling pool (just the rim when the screen is busy).
       if (FX.k > 0.75) for (let k = 0; k < 5; k++) { const an = G.realT * 0.7 + k * 1.3, rr = r * (0.2 + ((k * 0.37 + G.realT * 0.3) % 0.7)); ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an) * rr, 3 + k % 3, 0, TAU); ctx.stroke(); }
       ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
@@ -1123,6 +1129,12 @@ function render() {
       continue;
     }
     const a = Math.atan2(pr.vy, pr.vx), r = pr.r * S;
+    // A motion streak behind anything fast (thins out when the screen is busy).
+    if (FX.k > 0.4 && pr.style !== 'flame' && pr.style !== 'void' && pr.style !== 'glaive' && pr.style !== 'disc' && pr.style !== 'needle' && !pr.orbitT) {
+      const L = Math.min(70, Math.hypot(pr.vx, pr.vy) * 0.05) * S;
+      ctx.globalAlpha = 0.45; ctx.strokeStyle = pr.color; ctx.lineWidth = Math.max(1, r * 1.3); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - Math.cos(a) * L, y - Math.sin(a) * L); ctx.stroke(); ctx.lineCap = 'butt'; ctx.globalAlpha = 1;
+    }
     if (hot && pr.style !== 'flame') glow(x, y, Math.max(8, r * 3.2), pr.color, 0.55);
     else if (!hot) { ctx.fillStyle = 'rgba(20,20,20,0.8)'; ctx.beginPath(); ctx.arc(x, y, r + 1.5, 0, TAU); ctx.fill(); }
     ctx.globalAlpha = 1;
@@ -1251,6 +1263,18 @@ function render() {
     }
     let si = 0;
     const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
+    // Frozen: a crust of ice crystals. Shocked: a crackle across the body.
+    if (e.frozen > 0) {
+      ctx.fillStyle = '#e6f4ff'; ctx.globalAlpha = 0.6; ctx.beginPath();
+      for (let i = 0; i < 7; i++) { const an = i / 7 * TAU + e.id, L = r * (1.2 + (i % 3) * 0.12); ctx.moveTo(x + Math.cos(an - 0.12) * r * 0.95, y + Math.sin(an - 0.12) * r * 0.95); ctx.lineTo(x + Math.cos(an) * L, y + Math.sin(an) * L); ctx.lineTo(x + Math.cos(an + 0.12) * r * 0.95, y + Math.sin(an + 0.12) * r * 0.95); }
+      ctx.fill(); ctx.globalAlpha = e.phased ? 0.25 : 1;
+    }
+    if (e.shock > 0 && Math.random() < 0.6) {
+      ctx.strokeStyle = '#ffe94a'; ctx.lineWidth = 1.5; ctx.beginPath();
+      const an = Math.random() * TAU; let qx = x + Math.cos(an) * r, qy = y + Math.sin(an) * r; ctx.moveTo(qx, qy);
+      for (let i = 0; i < 4; i++) { qx += (x - qx) * 0.5 + (Math.random() - 0.5) * r; qy += (y - qy) * 0.5 + (Math.random() - 0.5) * r; ctx.lineTo(qx, qy); }
+      ctx.stroke();
+    }
     if (e.burn > 0) st('#ff7a2f');
     if (e.chill > 0) st('#6fd8ff');
     if (e.poison > 0) st('#8dff4a');
@@ -1307,7 +1331,18 @@ function render() {
 
   // Player.
   const px = sx(p.x), py = sy(p.y);
-  if (G.barrier > 0) { ctx.strokeStyle = 'rgba(72,202,228,0.8)'; ctx.fillStyle = 'rgba(72,202,228,0.10)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, G.barrierR * S, 0, TAU); ctx.fill(); ctx.stroke(); }
+  if (G.barrier > 0) {
+    // Latex Barrier: a stretchy hexagonal membrane with a shimmer running round it.
+    const R = G.barrierR * S, wob = 1 + Math.sin(G.realT * 5) * 0.02;
+    ctx.fillStyle = 'rgba(72,202,228,0.08)'; ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(72,202,228,0.8)'; ctx.lineWidth = 3; ctx.beginPath();
+    for (let i = 0; i <= 6; i++) { const a = i / 6 * TAU + G.realT * 0.4; i ? ctx.lineTo(px + Math.cos(a) * R * wob, py + Math.sin(a) * R * wob) : ctx.moveTo(px + Math.cos(a) * R * wob, py + Math.sin(a) * R * wob); }
+    ctx.stroke();
+    ctx.lineWidth = 1; ctx.globalAlpha = 0.35; ctx.beginPath();
+    for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + G.realT * 0.4; ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * R * wob, py + Math.sin(a) * R * wob); }
+    ctx.stroke();
+    const sa = G.realT * 2.2; ctx.globalAlpha = 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, R, sa, sa + 0.5); ctx.stroke(); ctx.globalAlpha = 1;
+  }
   if (G.shieldT > 0) { ctx.strokeStyle = '#48cae4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, 22 * S, 0, TAU); ctx.stroke(); }
   if (G.relics.diplomatic && G.t >= (G.dipAt || 0)) { ctx.strokeStyle = PAL.reward; ctx.globalAlpha = 0.55 + 0.25 * Math.sin(G.realT * 4); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, py, 26 * S * playerScale(), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
   if (G.stare) { const L = 560 * S, a = G.stare.a; ctx.globalCompositeOperation = 'lighter'; for (const [lw, al] of [[12, 0.2], [3, 0.9]]) { ctx.globalAlpha = al * Math.min(1, G.stare.life * 3); ctx.strokeStyle = '#c77dff'; ctx.lineWidth = lw * S; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * L, py + Math.sin(a) * L); ctx.stroke(); } ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
@@ -1347,17 +1382,71 @@ function render() {
   // Debris particles are matter, not light.
   ctx.globalCompositeOperation = 'source-over';
   fxDim(true);
+  const hot = [];
   for (const q of G.parts) {
     if (!vis(q)) continue;
-    ctx.globalAlpha = Math.max(0, q.life / q.max);
-    ctx.fillStyle = q.color;
-    const s = q.size * S;
-    ctx.fillRect(sx(q.x) - s / 2, sy(q.y) - s / 2, s, s);
+    const k = Math.max(0, q.life / q.max), x = sx(q.x), y = sy(q.y), s = q.size * S;
+    switch (q.k) {
+      case 'spark': case 'ember': hot.push(q); continue; // drawn as light, below
+      case 'smoke': ctx.globalAlpha = 0.28 * k; ctx.fillStyle = q.color; ctx.beginPath(); ctx.arc(x, y, s, 0, TAU); ctx.fill(); continue;
+      case 'drop': ctx.globalAlpha = k; ctx.fillStyle = q.color; ctx.beginPath(); ctx.ellipse(x, y, s * 0.75, s * 0.55, Math.atan2(q.vy, q.vx), 0, TAU); ctx.fill(); continue;
+      case 'shard': ctx.globalAlpha = k; ctx.fillStyle = q.color; ctx.beginPath(); ctx.moveTo(x + Math.cos(q.rot) * s * 1.6, y + Math.sin(q.rot) * s * 1.6); ctx.lineTo(x + Math.cos(q.rot + 2.4) * s * 0.6, y + Math.sin(q.rot + 2.4) * s * 0.6); ctx.lineTo(x + Math.cos(q.rot - 2.4) * s * 0.6, y + Math.sin(q.rot - 2.4) * s * 0.6); ctx.fill(); continue;
+      case 'bubble': ctx.globalAlpha = k; ctx.strokeStyle = q.color; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, s * (1.3 - k * 0.5), 0, TAU); ctx.stroke(); continue;
+      case 'plus': ctx.globalAlpha = k; ctx.fillStyle = q.color; ctx.fillRect(x - s / 2, y - s / 6, s, s / 3); ctx.fillRect(x - s / 6, y - s / 2, s / 3, s); continue;
+      default: ctx.globalAlpha = k; ctx.fillStyle = q.color; ctx.fillRect(x - s / 2, y - s / 2, s, s);
+    }
   }
+  // Sparks and embers are light: additive streaks and glows.
+  ctx.globalCompositeOperation = 'lighter';
+  for (const q of hot) {
+    const k = Math.max(0, q.life / q.max), x = sx(q.x), y = sy(q.y), s = q.size * S;
+    if (q.k === 'spark') {
+      ctx.globalAlpha = k; ctx.strokeStyle = q.color; ctx.lineWidth = Math.max(1, s); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - q.vx * 0.035 * S, y - q.vy * 0.035 * S); ctx.stroke();
+    } else glow(x, y, s * 2.2, q.color, 0.8 * k);
+  }
+  ctx.lineCap = 'butt'; ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'lighter'; // arcs, blasts and shockwaves are energy
   for (const f of G.fx) {
     const k = f.life / f.max;
+    if (f.type === 'flash') {
+      // The white-hot core of a blast: big and bright for a few frames.
+      const e = 1 - k, q = 0.4 + 0.6 * FX.k; glow(sx(f.x), sy(f.y), f.r * S * (0.45 + e * 0.5), '#ffffff', 0.55 * k * q); glow(sx(f.x), sy(f.y), f.r * S * (0.8 + e * 0.7), f.color, 0.45 * k * q);
+      continue;
+    }
+    if (f.type === 'star') {
+      // Crit: a four-point star flare.
+      const x = sx(f.x), y = sy(f.y), L = f.r * S * (1.2 - k * 0.4);
+      ctx.globalAlpha = k; ctx.strokeStyle = f.color; ctx.lineWidth = 2;
+      ctx.beginPath(); for (let i = 0; i < 4; i++) { const a = f.rot + i * Math.PI / 2; ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * L, y + Math.sin(a) * L); } ctx.stroke();
+      glow(x, y, L * 0.5, f.color, 0.6 * k);
+      continue;
+    }
+    if (f.type === 'muzzle') {
+      // A short cone of flash at the gun.
+      const x = sx(f.x), y = sy(f.y), ca = Math.cos(f.a), sa = Math.sin(f.a), L = 26 * S, Wd = 8 * S, o = 10 * S;
+      ctx.globalAlpha = k; ctx.fillStyle = f.color;
+      ctx.beginPath(); ctx.moveTo(x + ca * o - sa * Wd, y + sa * o + ca * Wd); ctx.lineTo(x + ca * (o + L), y + sa * (o + L)); ctx.lineTo(x + ca * o + sa * Wd, y + sa * o - ca * Wd); ctx.fill();
+      glow(x + ca * o, y + sa * o, 16 * S, '#ffffff', 0.7 * k);
+      continue;
+    }
+    if (f.type === 'fall') {
+      // Stork Drop: something heavy falls out of the sky onto the warning circle.
+      const e = 1 - k, x = sx(f.x), y = sy(f.y), h = k * k * 520 * S, rr = Math.max(4, f.r * 0.22 * S);
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 0.35 * e; ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.ellipse(x, y, rr * (0.6 + e), rr * 0.5 * (0.6 + e), 0, 0, TAU); ctx.fill();
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.5; ctx.strokeStyle = f.color; ctx.lineWidth = rr * 0.8; ctx.beginPath(); ctx.moveTo(x, y - h - 90 * S); ctx.lineTo(x, y - h); ctx.stroke();
+      glow(x, y - h, rr * 2.6, f.color, 0.9); ctx.globalAlpha = 1; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y - h, rr * 0.7, 0, TAU); ctx.fill();
+      continue;
+    }
+    if (f.type === 'frost') {
+      // Cold Shower: a ring of ice spikes punching outwards.
+      const x = sx(f.x), y = sy(f.y), R = f.r * S * (0.3 + 0.7 * (1 - k)), n = 20;
+      ctx.globalAlpha = 0.8 * k; ctx.fillStyle = f.color; ctx.beginPath();
+      for (let i = 0; i < n; i++) { const a = i / n * TAU + (i % 2) * 0.1, L = (i % 2 ? 0.75 : 1) * R; ctx.moveTo(x + Math.cos(a - 0.06) * L * 0.6, y + Math.sin(a - 0.06) * L * 0.6); ctx.lineTo(x + Math.cos(a) * L, y + Math.sin(a) * L); ctx.lineTo(x + Math.cos(a + 0.06) * L * 0.6, y + Math.sin(a + 0.06) * L * 0.6); }
+      ctx.fill();
+      continue;
+    }
     if (f.type === 'drop') {
       // The Petri Dish: the scientist's pipette drop falling into the dish.
       const fall = (k) * 520 * S, x = sx(f.x), y = sy(f.y) - fall, r = f.r * S * (1.2 - 0.4 * k);
@@ -1399,13 +1488,15 @@ function render() {
       ctx.globalAlpha = k; ctx.strokeStyle = f.color; ctx.lineWidth = f.w * k + 1;
       ctx.beginPath(); ctx.arc(sx(f.x), sy(f.y), f.r * S * (1.1 - k * 0.4), 0, TAU); ctx.stroke();
     } else if (f.type === 'bolt') {
-      ctx.strokeStyle = f.color;
-      for (const [lw, al] of [[7, 0.25], [2.5, 1]]) {
-        ctx.globalAlpha = k * al; ctx.lineWidth = lw;
-        ctx.beginPath(); ctx.moveTo(sx(f.pts[0]), sy(f.pts[1]));
-        for (let i = 2; i < f.pts.length; i += 2) ctx.lineTo(sx(f.pts[i]), sy(f.pts[i + 1]));
-        ctx.stroke();
+      // Lightning: a wide faint glow, the coloured channel, then a white-hot core, crackling every frame.
+      const P = f.pts, j = () => (Math.random() - 0.5) * 6 * S, path = () => { ctx.beginPath(); ctx.moveTo(sx(P[0]), sy(P[1])); for (let i = 2; i < P.length - 2; i += 2) ctx.lineTo(sx(P[i]) + j(), sy(P[i + 1]) + j()); ctx.lineTo(sx(P[P.length - 2]), sy(P[P.length - 1])); };
+      ctx.lineJoin = 'round';
+      for (const [lw, al, c] of [[10, 0.18, f.color], [3.5, 0.9, f.color], [1.4, 1, '#ffffff']]) {
+        ctx.globalAlpha = k * al; ctx.lineWidth = lw * Math.max(0.7, S); ctx.strokeStyle = c; path(); ctx.stroke();
       }
+      if (f.forks) for (const F of f.forks) { ctx.globalAlpha = k * 0.7; ctx.strokeStyle = f.color; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(sx(F[0]), sy(F[1])); ctx.lineTo(sx(F[2]) + j(), sy(F[3]) + j()); ctx.lineTo(sx(F[4]), sy(F[5])); ctx.stroke(); }
+      ctx.lineJoin = 'miter';
+      glow(sx(P[P.length - 2]), sy(P[P.length - 1]), 18 * S, f.color, 0.7 * k);
     } else if (f.type === 'warn') {
       ctx.globalAlpha = 0.5; ctx.strokeStyle = f.color; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(sx(f.x), sy(f.y), f.r * S, 0, TAU); ctx.stroke();
@@ -1462,7 +1553,14 @@ function render() {
     buildVignette();
     ctx.drawImage(SPR.vignette, 0, 0, W, H);
   }
-  if (G.warp > 0) { ctx.fillStyle = 'rgba(120,130,255,0.08)'; ctx.fillRect(0, 0, W, H); }
+  if (G.warp > 0) {
+    // Nap Time: slow ripples spreading from you while time crawls.
+    ctx.fillStyle = 'rgba(120,130,255,0.08)'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(184,192,255,0.35)'; ctx.lineWidth = 2;
+    for (let i = 0; i < 3; i++) { const ph = (G.realT * 0.6 + i / 3) % 1; ctx.globalAlpha = 1 - ph; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (40 + ph * 420) * S, 0, TAU); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+  }
+  if (G.flashT > 0) { ctx.fillStyle = '#ffffff'; ctx.globalAlpha = Math.min(0.28, G.flashT * 2); ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   if (G.evm && G.evm.dark) {
     // Lights Out: only a small pool of light round you.
     const x = sx(p.x) + shx, y = sy(p.y) + shy, r0 = 70 * S, r1 = 210 * S;
