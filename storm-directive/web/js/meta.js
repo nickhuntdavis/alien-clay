@@ -73,17 +73,29 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.18';
+const APP_VERSION = '7.19';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
 function logRun(G, result) {
   if (!G || G.logged || G.t < 30) return;
   G.logged = true;
+  try { localStorage.removeItem('sd_live'); } catch (e) { /* ignore */ }
+  RUNLOG.push(runSummary(G, result));
+  saveRunLog();
+}
+// A run in progress is saved every 20 s and whenever the app is hidden. If the app is closed mid-run,
+// the next launch logs it as CLOSED, so runs that never reach a death, win or Quit still show up.
+function liveSave(G) {
+  if (!G || G.logged || G.t < 30 || G.debug) return;
+  try { localStorage.setItem('sd_live', JSON.stringify(runSummary(G, 'CLOSED'))); } catch (e) { /* ignore */ }
+}
+try { const live = JSON.parse(localStorage.getItem('sd_live') || 'null'); if (live) { live.n = (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1; RUNLOG.push(live); saveRunLog(); } localStorage.removeItem('sd_live'); } catch (e) { /* ignore */ }
+function runSummary(G, result) {
   const top = (o, n) => Object.entries(o || {}).sort((a, b) => b[1] - a[1]).slice(0, n);
   const dmgTot = Object.values(G.stats.dmg).reduce((a, b) => a + b, 0) || 1;
   const d = new Date(), pad = n => (n < 10 ? '0' : '') + n;
-  RUNLOG.push({
+  return {
     n: (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1, v: APP_VERSION,
     at: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`,
     res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
@@ -95,8 +107,7 @@ function logRun(G, result) {
     p: top(G.passives, 12).map(([k, v]) => k + v),
     boxes: G.stats.boxes || 0, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
     tl: G.tl || [], meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2),
-  });
-  saveRunLog();
+  };
 }
 function runLogText() {
   const wins = RUNLOG.filter(r => r.res === 'WON').length;

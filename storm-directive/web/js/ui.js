@@ -84,7 +84,7 @@ const UI = {
       copyText(`SPAWN PRAWN v${APP_VERSION} - one run\n` + runText(r)).then(ok => { b.textContent = ok ? 'COPIED: PASTE IT IN THE CHAT' : 'COPY BLOCKED: USE SETTINGS > RUN LOG'; });
     });
     $('titleBtn').addEventListener('click', () => { G = null; UI.show('title'); UI.renderBest(); });
-    document.addEventListener('visibilitychange', () => { if (document.hidden && G && G.state === 'play') UI.togglePause(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && G) liveSave(G); if (document.hidden && G && G.state === 'play') UI.togglePause(); });
     UI.renderBest();
     UI.show('title');
   },
