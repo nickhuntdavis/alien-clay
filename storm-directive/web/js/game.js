@@ -2393,7 +2393,7 @@ function safely(where, fn) {
     const msg = where + ': ' + (e && e.message || e) + ' @ ' + ((e && e.stack || '').split('\n')[1] || '').trim().replace(/^at /, '').replace(/.*\/js\//, '');
     if (ERRS.seen[msg]) return;
     ERRS.seen[msg] = true; ERRS.last = msg;
-    try { localStorage.setItem('sd_err', msg); } catch (e2) { /* ignore */ }
+    try { const d = new Date(), pad = n => (n < 10 ? '0' : '') + n; localStorage.setItem('sd_err', 'v' + APP_VERSION + ' ' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + msg); } catch (e2) { /* ignore */ }
     let el = document.getElementById('errBox');
     if (!el) { el = document.createElement('div'); el.id = 'errBox'; el.style.cssText = 'position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:99;background:#300;color:#fff;font:12px monospace;padding:8px;border:1px solid #f55;border-radius:4px;pointer-events:none;white-space:pre-wrap'; document.body.appendChild(el); }
     el.textContent = 'Something broke (the game kept going). Please send this: v' + APP_VERSION + ' ' + msg;
