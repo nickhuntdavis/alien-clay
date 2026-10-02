@@ -251,7 +251,10 @@ function computeStats(w) {
   s.mag = Math.max(1, Math.round((b.mag || 1) * (1 + 0.12 * (L - 1)) * P.magMult));
   s.reload = (b.reload || 0) * Math.pow(0.95, L - 1) / P.reloadSpd;
   const multi = MULTI_KINDS.includes(d.kind) ? P.multishot : 0;
-  s.count = (s.count || 1) + multi * (d.kind === 'ring' ? 4 : 1);
+  const baseCount = s.count || 1;
+  s.count = baseCount + multi * (d.kind === 'ring' ? 4 : 1);
+  // Extra projectiles share the damage: 3 extra shots give about 2.3x, not 4x.
+  if (s.count > baseCount) s.dmg *= Math.pow(baseCount / s.count, 0.4);
   if (d.kind === 'gun' && s.pierce < 90) s.pierce = (s.pierce || 0) + P.pierce;
   if (d.kind === 'ring') s.pierce = (s.pierce || 0) + P.pierce;
   s.speed = (b.speed || 0) * P.projSpeed;
@@ -280,7 +283,7 @@ function computeStats(w) {
     if (m.id === 'pulsing') { s.pulse = 0.15 * mp; s.pulseRate = 0.6; }
     if (m.id === 'magnetic') s.magnet = 70 * mp;
     if (m.id === 'delayed') s.delay = 0.3 * mp;
-    if (m.id === 'mirror') s.mirror = 0.5 * mp;
+    if (m.id === 'mirror') s.mirror = 0.35 * mp;
   }
   // Duo combos.
   const has = id => (w.mods || []).some(m => m.id === id);
@@ -783,7 +786,7 @@ function killEnemy(e, src) {
     const ss = Object.assign({}, src, { noSplit: true, mult: 1 });
     for (let i = 0; i < 3; i++) {
       const a = Math.random() * TAU;
-      spawnProj(src.w, e.x, e.y, a, ss, { noMods: true, speed: 420, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, life: 0.5, dmg: src.w.s.dmg * 0.4, pierce: 0, bounce: 0, homing: 0, explode: 0, r: 3, style: 'bullet', chainHit: 0, aura: 0 });
+      spawnProj(src.w, e.x, e.y, a, ss, { noMods: true, speed: 420, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, life: 0.5, dmg: src.w.s.dmg * 0.3, pierce: 0, bounce: 0, homing: 0, explode: 0, r: 3, style: 'bullet', chainHit: 0, aura: 0 });
     }
   }
   // Chain Reaction perk: the corpse goes off.
@@ -840,9 +843,9 @@ function killEnemy(e, src) {
   }
 }
 // Loot boxes from kills are rationed: at most one every LOOT_GAP seconds (bosses and rivals don't count).
-const LOOT_GAP = 9; // with boss, rival and achievement boxes: about 45 extra boxes on a run to Lv 60
+const LOOT_GAP = 22; // with boss, rival and achievement boxes: about 25 extra boxes on a run
 function chestOr(alt) {
-  if (G.t < (G.nextChest || 20)) return alt;
+  if (G.t < (G.nextChest || 45)) return alt;
   G.nextChest = G.t + LOOT_GAP;
   return 'chest';
 }
@@ -1691,7 +1694,7 @@ function updateProjectiles(dt) {
         const n = pr.splitHit, a0 = Math.atan2(pr.vy, pr.vx), ss = Object.assign({}, pr.src, { noSplit: true });
         for (let i = 0; i < n; i++) {
           const a = a0 + (i / (n - 1 || 1) - 0.5) * 1.4;
-          spawnProj(pr.w, pr.x, pr.y, a, ss, { noMods: true, speed: 460, vx: Math.cos(a) * 460, vy: Math.sin(a) * 460, life: 0.5, dmg: pr.dmg * 0.45,
+          spawnProj(pr.w, pr.x, pr.y, a, ss, { noMods: true, speed: 460, vx: Math.cos(a) * 460, vy: Math.sin(a) * 460, life: 0.5, dmg: pr.dmg * 0.3,
             r: Math.max(2, pr.r * 0.6), pierce: 0, bounce: 0, homing: pr.w.s.shardHome ? 6 : 0, explode: 0, chainHit: 0, aura: 0, boomerang: 0, hits: [e.id] });
         }
       }
@@ -1980,7 +1983,7 @@ function applyPickup(type, src) {
   }
 }
 
-const XP_PACE = 1.35; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
+const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
   G.xp += v * XP_PACE * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1); // the morning-after pill halves growth
   sfx('gem');
@@ -1989,8 +1992,8 @@ function gainXp(v) {
     G.level++;
     G.xpNeed = xpNeed(G.level);
     casaLog(`LV ${G.level}  head +1.5%`);
-    // Every level up is rewarded with a box.
-    G.lootQueue.push({ kind: 'level' });
+    // Every level up is rewarded with a box until Lv 20, then every second level.
+    if (G.level <= 20 || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS) {
       G.weapons.push(null);

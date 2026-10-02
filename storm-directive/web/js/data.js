@@ -348,7 +348,7 @@ const PASSIVES = {
   haste:     { name: 'Twitchy Tail', icon: 'TD', max: 8, v: 0.10, fmt: v => `+${pc(v)} fire rate`, apply: (P, v) => { P.haste += v; } },
   reload:    { name: 'Short Refractory Period',      icon: 'QH', max: 6, v: 0.15, fmt: v => `+${pc(v)} reload speed`, apply: (P, v) => { P.reloadSpd += v; } },
   mag:       { name: 'Bigger Load',    icon: 'EM', max: 6, v: 0.20, fmt: v => `+${pc(v)} magazine size`, apply: (P, v) => { P.magMult += v; } },
-  multishot: { name: 'Split Personality',        icon: 'MS', max: 3, v: 1, minRarity: 3, fmt: v => `+${Math.round(v)} projectile for all weapons`, apply: (P, v) => { P.multishot += Math.round(v); } },
+  multishot: { name: 'Split Personality',        icon: 'MS', max: 3, v: 1, minRarity: 3, fmt: v => `+${Math.round(v)} projectile for all weapons (shots share the damage)`, apply: (P, v) => { P.multishot += Math.round(v); } },
   velocity:  { name: 'Early Arrival',         icon: 'VE', max: 5, v: 0.12, fmt: v => `+${pc(v)} projectile speed and range`, apply: (P, v) => { P.projSpeed += v; P.range += v * 0.6; } },
   area:      { name: 'Personal Space',     icon: 'BR', max: 6, v: 0.12, fmt: v => `+${pc(v)} area of effect`, apply: (P, v) => { P.area += v; } },
   duration:  { name: 'Stamina',        icon: 'LG', max: 5, v: 0.15, fmt: v => `+${pc(v)} effect duration`, apply: (P, v) => { P.dur += v; } },
@@ -693,7 +693,7 @@ const MAX_ALLIES = 6;
 const PROJ_KINDS = ['gun', 'siphon', 'mimic'];
 const MODS = {
   seeking:   { name: 'Seeking',      icon: 'SE', color: '#d0a3ff', kinds: PROJ_KINDS, desc: p => `Shots hunt down targets (turn rate ${(3 + 2 * p).toFixed(1)})` },
-  splitting: { name: 'Splitting',    icon: 'SP', color: '#ffd166', kinds: PROJ_KINDS, desc: p => `On first hit, shots split into ${2 + Math.round(p)} shards at 45% damage` },
+  splitting: { name: 'Splitting',    icon: 'SP', color: '#ffd166', kinds: PROJ_KINDS, desc: p => `On first hit, shots split into ${2 + Math.round(p)} shards at 30% damage` },
   orbiting:  { name: 'Orbiting',     icon: 'OR', color: '#8dffc0', kinds: PROJ_KINDS, desc: p => `Shots circle you for ${(1.2 * p).toFixed(1)}s, eating enemy bullets, then launch` },
   growing:   { name: 'Growing',      icon: 'GW', color: '#8ac926', kinds: PROJ_KINDS, desc: p => `Shots swell in flight: triple size and up to +${Math.round(100 * p)}% damage` },
   boomerang: { name: 'Boomerang',    icon: 'BM', color: '#f1f1f1', kinds: PROJ_KINDS, desc: () => 'Shots fly out and come back, hitting everything twice' },
@@ -702,13 +702,13 @@ const MODS = {
   exploding: { name: 'Exploding',    icon: 'EX', color: '#ff7a2f', desc: p => `Hits explode for ${Math.round(30 * p)}% damage in a small blast` },
   mindctrl:  { name: 'Mind Control', icon: 'MC', color: '#ff8fab', desc: p => `${(5 * p).toFixed(0)}% chance per hit to make a monster fight for you for ${Math.round(6 * p)}s (max ${MAX_ALLIES} allies)` },
   elemental: { name: 'Element Swap', icon: 'EL', color: '#c77dff', desc: () => 'Converts this weapon to a new element' },
-  shrapnel:  { name: 'Shrapnel',     icon: 'SH', color: '#e9c46a', desc: () => 'Kills burst into 3 shards at 40% damage' },
+  shrapnel:  { name: 'Shrapnel',     icon: 'SH', color: '#e9c46a', desc: () => 'Kills burst into 3 shards at 30% damage' },
   // The Modifier Forge.
   chaining:  { name: 'Chaining',     icon: 'CN', color: '#eee36a', desc: p => `${Math.round(25 * p)}% of hits chain to another enemy for 50% damage` },
   pulsing:   { name: 'Pulsing',      icon: 'PU', color: '#cfe3ff', kinds: PROJ_KINDS, desc: p => `Shots pulse every 0.6s, hitting everything close by for ${Math.round(15 * p)}% damage` },
   magnetic:  { name: 'Magnetic',     icon: 'MG', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots drag monsters within ${Math.round(70 * p)} units into their path` },
   delayed:   { name: 'Delayed',      icon: 'DL', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots hang for a moment, then launch 60% faster for +${Math.round(30 * p)}% damage` },
-  mirror:    { name: 'Mirror',       icon: 'MR', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Every shot has a twin fired the opposite way at ${Math.round(50 * p)}% damage` },
+  mirror:    { name: 'Mirror',       icon: 'MR', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Every shot has a twin fired the opposite way at ${Math.round(35 * p)}% damage` },
 };
 // Duo combos: two specific modifiers on the same weapon unlock a named bonus.
 const DUOS = [

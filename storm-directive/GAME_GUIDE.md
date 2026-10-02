@@ -656,7 +656,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Twitchy Tail** | +10% fire rate | 8 |
 | **Short Refractory Period** | +15% reload speed | 6 |
 | **Bigger Load** | +20% magazine size | 6 |
-| **Split Personality** | +1 projectile for all weapons (Rare or better only) | 3 |
+| **Split Personality** | +1 projectile for all weapons (shots share the damage) (Rare or better only) | 3 |
 | **Early Arrival** | +12% projectile speed and range | 5 |
 | **Personal Space** | +12% area of effect | 6 |
 | **Stamina** | +15% effect duration | 5 |
@@ -743,7 +743,7 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 | Modifier | Effect (Common) | Effect (Legendary) | Fits |
 |---|---|---|---|
 | **Seeking** | Shots hunt down targets (turn rate 5.0) | Shots hunt down targets (turn rate 7.4) | Projectile only |
-| **Splitting** | On first hit, shots split into 3 shards at 45% damage | On first hit, shots split into 4 shards at 45% damage | Projectile only |
+| **Splitting** | On first hit, shots split into 3 shards at 30% damage | On first hit, shots split into 4 shards at 30% damage | Projectile only |
 | **Orbiting** | Shots circle you for 1.2s, eating enemy bullets, then launch | Shots circle you for 2.6s, eating enemy bullets, then launch | Projectile only |
 | **Growing** | Shots swell in flight: triple size and up to +100% damage | Shots swell in flight: triple size and up to +220% damage | Projectile only |
 | **Boomerang** | Shots fly out and come back, hitting everything twice | Shots fly out and come back, hitting everything twice | Projectile only |
@@ -752,12 +752,12 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 | **Exploding** | Hits explode for 30% damage in a small blast | Hits explode for 66% damage in a small blast | Any weapon |
 | **Mind Control** | 5% chance per hit to make a monster fight for you for 6s (max 6 allies) | 11% chance per hit to make a monster fight for you for 13s (max 6 allies) | Any weapon |
 | **Element Swap** | Converts this weapon to a new element | Converts this weapon to a new element | Any weapon |
-| **Shrapnel** | Kills burst into 3 shards at 40% damage | Kills burst into 3 shards at 40% damage | Any weapon |
+| **Shrapnel** | Kills burst into 3 shards at 30% damage | Kills burst into 3 shards at 30% damage | Any weapon |
 | **Chaining** | 25% of hits chain to another enemy for 50% damage | 55% of hits chain to another enemy for 50% damage | Any weapon |
 | **Pulsing** | Shots pulse every 0.6s, hitting everything close by for 15% damage | Shots pulse every 0.6s, hitting everything close by for 33% damage | Projectile only |
 | **Magnetic** | Shots drag monsters within 70 units into their path | Shots drag monsters within 154 units into their path | Projectile only |
 | **Delayed** | Shots hang for a moment, then launch 60% faster for +30% damage | Shots hang for a moment, then launch 60% faster for +66% damage | Projectile only |
-| **Mirror** | Every shot has a twin fired the opposite way at 50% damage | Every shot has a twin fired the opposite way at 110% damage | Projectile only |
+| **Mirror** | Every shot has a twin fired the opposite way at 35% damage | Every shot has a twin fired the opposite way at 77% damage | Projectile only |
 
 ## Duo combos
 
