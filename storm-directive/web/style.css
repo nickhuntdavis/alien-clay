@@ -816,4 +816,8 @@ body.land #wslots.many { max-width: 158px; flex-wrap: wrap; }
 #skipBtn { max-width: 220px; padding: 10px; font-size: 11px; opacity: 0.9; }
 /* Full Technicolour: the HUD goes full colour too, cycling through the rainbow. */
 @keyframes techni { from { filter: sepia(1) saturate(4) hue-rotate(0deg); } to { filter: sepia(1) saturate(4) hue-rotate(360deg); } }
-body.technicolour #hudTop, body.technicolour #wslots, body.technicolour #row2, body.technicolour #rewindBtn, body.technicolour #abilBtn, body.technicolour .screen .card { animation: techni 6s linear infinite; }
+body.technicolour #hudTop, body.technicolour #wslots, body.technicolour #row2, body.technicolour #rewindBtn, body.technicolour #abilBtn { animation: techni 6s linear infinite; }
+/* Cards keep their deal-in animation (it is what makes them visible) and add the rainbow on top. */
+body.technicolour .screen .card { animation: cardin 0.35s forwards, techni 6s linear infinite; }
+body.technicolour #rewindBtn.ready { animation: rpulse 1.6s infinite, techni 6s linear infinite; }
+body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate, techni 6s linear infinite; }
