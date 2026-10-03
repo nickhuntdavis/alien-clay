@@ -500,7 +500,8 @@ function hazardDanger(x, y, r) {
   const b = G.boss;
   if (b && !b.dead && b.glareA != null && (b.st === 1 || b.st === 2) && b.def.patterns[b.pat] === 'glare') {
     const cx = Math.cos(b.glareA), cy = Math.sin(b.glareA), px = x - b.x, py = y - b.y;
-    if (px * cx + py * cy > 0 && Math.abs(px * cy - py * cx) < 30 + r) d += 3;
+    // The death stare: autorun keeps well clear of the beam (it tracks you, so give it a wide berth).
+    if (px * cx + py * cy > 0 && Math.abs(px * cy - py * cx) < 55 + r) d += 7;
   }
   return d;
 }

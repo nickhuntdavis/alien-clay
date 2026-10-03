@@ -244,6 +244,7 @@ function makeSlot(id, isSpell, lvl) {
 
 const WEAPON_LV_DMG = 0.35; // damage gained per weapon level
 const REACH_START = 300;
+const BOSS_HIT_CAP = 0.22;
 const REACH_FREE = new Set(['mine', 'crayon', 'wake', 'orbit', 'melee', 'friend', 'heal']); // range means something else for these
 function computeStats(w) {
   const d = w.def, b = d.base, P = G.P, L = w.lvl, syn = G.synergy;
@@ -893,6 +894,8 @@ function hurtPlayer(dmg, from, ent) {
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1);
   dmg = relicDamageIn(dmg, ent);
   if (dmg <= 0) return;
+  // No one-shots from a boss: a single boss hit (body, beam or bullet) takes at most 22% of your max HP.
+  if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * BOSS_HIT_CAP);
   const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour())); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
