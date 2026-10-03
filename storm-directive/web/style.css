@@ -34,6 +34,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .slot.reloading .dir { color: #7d838e; }
 #moveBtn { pointer-events: auto; border-radius: 25px; border: 2px solid #4dff9a; background: #0e1112d9; color: #4dff9a;
   font-weight: 900; font-size: 12px; padding: 0 14px; min-width: 104px; }
+#armBtn { pointer-events: auto; color: #fff; font-weight: 900; font-size: 11px; padding: 0 10px; border-radius: 2px; border: 1px solid var(--line2); background: #000000d9; font-family: var(--mono); letter-spacing: 1px; }
 #toast { position: absolute; left: 50%; bottom: 150px; transform: translateX(-50%); background: #000c; border: 1px solid #ffffff30;
   padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
 #toast.on { opacity: 1; }
@@ -345,11 +346,11 @@ html, body { background: #020406; color: var(--xw); }
 .sec, .card, #sysmsg { position: relative; }
 @keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-17px, 11px); } 66% { transform: translate(13px, -19px); } 100% { transform: translate(-7px, 5px); } }
 /* Panels: blue-black, uneven, not flat. */
-.sec, .card, .tile, .li, .dbtn, .atab, .ostats div, .dmgrow, #how, .ahead, #sysmsg, .slot, #moveBtn, #pauseBtn, #rewindBtn, .btn {
+.sec, .card, .tile, .li, .dbtn, .atab, .ostats div, .dmgrow, #how, .ahead, #sysmsg, .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, .btn {
   background-color: #060b10; background-image: radial-gradient(ellipse at 25% 15%, #1b1d1fcc 0%, #060b1000 70%); }
-.slot, #moveBtn, #pauseBtn { background-color: #060b10d9; }
+.slot, #moveBtn, #armBtn, #pauseBtn { background-color: #060b10d9; }
 /* Lines bleed a little. */
-.btn, .sec, .card, .slot, .tile, .atab, .chip, .dbtn, #sysmsg, #moveBtn, #pauseBtn, #rewindBtn, .tp, .modslot, .trow .tl, .cico { box-shadow: 0 0 3px rgba(196,218,240,0.18) !important; }
+.btn, .sec, .card, .slot, .tile, .atab, .chip, .dbtn, #sysmsg, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, .tp, .modslot, .trow .tl, .cico { box-shadow: 0 0 3px rgba(196,218,240,0.18) !important; }
 .btn.primary, .chip.sel, .dbtn.sel, .atab.sel, .trow.on .tl { background: #c9d4e5; color: #03060a; border-color: #d1ddef; }
 .hint, .card .tag, .sec h3, .card .csub, .lvl, .li span { color: var(--xdim); }
 .ltitle, .ptitle, .big, .logo, #overTitle { color: var(--xw); text-shadow: 0 0 4px rgba(196,218,240,0.45) !important; }
@@ -378,14 +379,14 @@ html, body { background: #020406; color: var(--xw); }
   --drop: 0 10px 24px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.5);
   --drop-sm: 0 5px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.5);
 }
-.btn, .slot, #moveBtn, #pauseBtn, #rewindBtn, .sec, .card, .tile, .li, .dbtn, .atab, .chip, .ostats div, .dmgrow,
+.btn, .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, .sec, .card, .tile, .li, .dbtn, .atab, .chip, .ostats div, .dmgrow,
 #how, .ahead, #sysmsg, .tp, .modslot, .fuse, .aico, .cico, #toast, .trow .tl {
   border: 1px solid transparent !important;
   background: var(--sheet) padding-box, var(--edge) border-box !important;
   box-shadow: var(--drop-sm) !important;
 }
 .sec, .card, #sysmsg, .ahead, #how { border-radius: var(--r) !important; box-shadow: var(--drop) !important; }
-.btn, .slot, #moveBtn, .tile, .li, .dbtn, .atab, .tp, .modslot, .fuse, .ostats div, .dmgrow, #toast { border-radius: 10px !important; }
+.btn, .slot, #moveBtn, #armBtn, .tile, .li, .dbtn, .atab, .tp, .modslot, .fuse, .ostats div, .dmgrow, #toast { border-radius: 10px !important; }
 .chip, .trow .tl { border-radius: 999px !important; }
 .aico, .cico { border-radius: 10px !important; }
 #pauseBtn { border-radius: 12px !important; }
@@ -416,7 +417,7 @@ html, body { background: #020406; color: var(--xw); }
 .box .body { box-shadow: var(--drop), 0 0 18px color-mix(in srgb, var(--bc, #d6e4f0) 25%, transparent) !important; }
 .screen::before { border-radius: 0; }
 
-#bottom .slot, #moveBtn, #pauseBtn, #rewindBtn, #sysmsg { box-shadow: 0 3px 8px rgba(0,0,0,0.45) !important; }
+#bottom .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, #sysmsg { box-shadow: 0 3px 8px rgba(0,0,0,0.45) !important; }
 
 /* Weapon icons and type colours */
 .wicon { display: block; }
@@ -465,7 +466,7 @@ body.land .slot { height: 54px; }
 body.land .slot.spell { height: 44px; }
 body.land .slot .dir { bottom: 8px; }
 body.land #row2 { flex-wrap: wrap; width: 158px; }
-body.land #moveBtn { width: 158px; padding: 10px 0; }
+body.land #moveBtn, body.land #armBtn { width: 158px; padding: 10px 0; }
 body.land #side { bottom: calc(12px + env(safe-area-inset-bottom)); right: calc(10px + env(safe-area-inset-right)); }
 body.land #toast { bottom: 24px; left: calc(50% + 85px); }
 body.land #sysmsg { left: 184px; top: calc(96px + env(safe-area-inset-top)); width: min(calc(100vw - 530px), 440px); }

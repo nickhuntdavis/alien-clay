@@ -39,6 +39,7 @@ const UI = {
       UI.toast('AUTORUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name);
       UI.refreshHud(true);
     });
+    $('armBtn').addEventListener('click', e => { e.stopPropagation(); if (G && G.state === 'play') UI.openArmoury('w', 0); });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
     $('abilBtn').addEventListener('click', e => { e.stopPropagation(); abilityTap(); });
     $('autoBtn').addEventListener('click', e => { e.stopPropagation(); SET.auto = !SET.auto; saveSettings(); UI.syncAuto(); if (G) floatText(me().x, me().y - 40, SET.auto ? 'FULL AUTO ON' : 'FULL AUTO OFF', PAL.you, 14, 1); });
@@ -132,15 +133,25 @@ const UI = {
     const el = document.createElement('div');
     el.className = 'slot ' + (kind === 's' ? 'spell' : 'weapon');
     el.innerHTML = '<div class="ico"></div><div class="lv"></div><div class="mp"></div><div class="dir"></div><div class="bar"><i></i></div>';
-    // Tapping a slot opens the Armoury on that weapon or spell.
+    // Tapping a weapon slot switches its target; slots with nothing to aim open the Armoury on it.
     holdable(el, () => {
       const w = G && (kind === 's' ? G.spells[i] : G.weapons[i]);
       if (!w) return `<b>Empty ${kind === 's' ? 'spell' : 'weapon'} slot</b><p>Tap to open the Armoury.</p>`;
       const dr = DIRECTIVES.find(x => x.id === w.dir);
       return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>Lv ${w.lvl}/${MAX_WLVL}</em><p>${esc(w.def.desc)}</p>`
         + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name : ''}</p>` : '')
-        + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '');
-    }, () => { if (G && G.state === 'play') UI.openArmoury(kind, i); });
+        + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '')
+        + `<p>${w.def.noTarget ? 'Tap to open the Armoury.' : 'Tap to switch target. ARMOURY button for the rest.'}</p>`;
+    }, () => {
+      if (!G || G.state !== 'play') return;
+      const w = kind === 's' ? G.spells[i] : G.weapons[i];
+      if (!w || w.def.noTarget) { UI.openArmoury(kind, i); return; }
+      const idx = DIRECTIVES.findIndex(d => d.id === w.dir);
+      w.dir = DIRECTIVES[(idx + 1) % DIRECTIVES.length].id;
+      if (w.dirs) w.dirs[0] = w.dir;
+      UI.toast(w.def.name + ' > ' + DIRECTIVES.find(d => d.id === w.dir).name);
+      UI.refreshHud(true);
+    });
     return el;
   },
 
