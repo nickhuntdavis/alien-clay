@@ -228,7 +228,8 @@ function acquireMany(dir, range, x, y, n) {
   list.sort((a, b) => b.v - a.v);
   return list.slice(0, n).map(o => o.e);
 }
-function effArmour(e) { return Math.max(0, e.armour + (e.auraArm > 0 ? 4 : 0) - e.shred); }
+// Enemy armour scales with the square root of the enemy health clock, so armour and shred still matter late.
+function effArmour(e) { return Math.max(0, e.armour + (e.auraArm > 0 ? 4 : 0) - e.shred) * (e.armK || 1); }
 
 // ---------------------------------------------------------------- inventory & stats
 function makeSlot(id, isSpell, lvl) {
@@ -245,6 +246,10 @@ function makeSlot(id, isSpell, lvl) {
 const WEAPON_LV_DMG = 0.35; // damage gained per weapon level
 const REACH_START = 300;
 const BOSS_HIT_CAP = 0.22;
+const DODGE_CAP = 0.75; // one global ceiling, applied when dodge is rolled
+// Defence keeps pace with the run: armour, regeneration and the lifesteal pool scale with the enemy damage clock
+// (armour) or your max HP (pools), so they still matter at minute 10.
+const defClock = () => Math.max(1, dmgNow());
 const REACH_FREE = new Set(['mine', 'crayon', 'wake', 'orbit', 'melee', 'friend', 'heal']); // range means something else for these
 function computeStats(w) {
   // Per-weapon tuning: the weapon sees your stats plus its own tuning while its stats are worked out.
@@ -410,7 +415,7 @@ function genLoot(req) {
   }
   const cands = [];
   for (const c of availableCombos()) cands.push({ w: 60, make: () => optCombo(c), key: 'fuse' + c.id });
-  G.weapons.forEach((w, i) => { if (w && w.lvl < wCap(w)) cands.push({ w: 11, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
+  G.weapons.forEach((w, i) => { if (w && w.lvl < wCap(w)) cands.push({ w: 14, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
   G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
   // New weapons only come from weapon drafts (level 1, 8 and 22), never from ordinary DNA.
   if (G.spells.some(w => !w)) {
@@ -425,12 +430,15 @@ function genLoot(req) {
     const ids = w.mods.length < MOD_SLOTS ? Object.keys(MODS).filter(id => fits(id) && !w.mods.some(m => m.id === id)) : w.mods.filter(m => m.id !== 'elemental' && m.id !== 'shrapnel' && m.id !== 'boomerang' && m.p < MOD_MAX_POWER).map(m => m.id);
     if (ids.length) { const id = pick(ids); cands.push({ w: 8, key: 'mod' + w.uid, make: r => optMod(w, id, r) }); }
   });
+  const ownedElems = new Set(); for (const w of G.weapons.concat(G.spells)) if (w) { ownedElems.add(w.def.elem); if (w.def.elem2) ownedElems.add(w.def.elem2); }
   for (const id in PASSIVES) {
     const st = G.passives[id] || 0;
     // Weapon tuning (fire rate, projectiles, area...) has its own stacks on every weapon.
     const full = PER_WEAPON.has(id) ? !G.weapons.some(w => w && (w.wpN && w.wpN[id] || 0) < PASSIVES[id].max) && st >= PASSIVES[id].max : st >= PASSIVES[id].max;
     if (full || (PASSIVES[id].needsScrap && !ownsScrapWeapon())) continue;
-    cands.push({ w: 3.2, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
+    // Element cards only for elements you actually use.
+    if (ELEM_PASSIVE_OF[id] && !ownedElems.has(ELEM_PASSIVE_OF[id])) continue;
+    cands.push({ w: 1.8, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
   // Stains you don't have yet.
   for (const id in DYES) if (!G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
@@ -491,6 +499,7 @@ function optDye(id) {
 }
 // Weapon tuning: below Legendary these power-ups go on ONE weapon you choose (on the card); Legendary and up
 // tune every weapon at once. Each weapon keeps its own stacks.
+const ELEM_PASSIVE_OF = { pyro: 'fire', cryo: 'ice', storm: 'shock', toxin: 'poison', arcanum: 'arcane', kinetic: 'phys' };
 const PER_WEAPON = new Set(['haste', 'reload', 'mag', 'multishot', 'velocity', 'area', 'duration', 'pierce']);
 const WP_KEYS = ['haste', 'reloadSpd', 'magMult', 'multishot', 'projSpeed', 'range', 'area', 'dur', 'pierce'];
 function weaponP(w) {
@@ -499,7 +508,17 @@ function weaponP(w) {
   for (const k in w.wp) o[k] = G.P[k] + w.wp[k];
   return o;
 }
-function wpTargets(id) { const max = PASSIVES[id].max; return G.weapons.filter(w => w && (w.wpN && w.wpN[id] || 0) < max); }
+// Only weapons the tuning actually does something for (or that turn it into their own twist).
+function wpRelevant(w, id) {
+  const d = w.def, b = d.base, tw = ADAPT[id] && ADAPT[id][w.id];
+  if (tw) return true;
+  if (id === 'pierce') return (d.kind === 'gun' || d.kind === 'ring') && (b.pierce || 0) < 90;
+  if (id === 'mag') return (b.mag || 1) > 1;
+  if (id === 'reload') return (b.reload || 0) > 0;
+  if (id === 'multishot') return MULTI_KINDS.includes(d.kind);
+  return true;
+}
+function wpTargets(id) { const max = PASSIVES[id].max; return G.weapons.filter(w => w && (w.wpN && w.wpN[id] || 0) < max && wpRelevant(w, id)); }
 function wpApply(w, id, v) {
   const d = {}; for (const k of WP_KEYS) d[k] = 0;
   d.elem = G.P.elem; PASSIVES[id].apply(d, v, G);
@@ -521,7 +540,7 @@ function optPassive(id, r) {
       desc: p.fmt(v).replace(/ for all weapons/, '') + extra, pickW: targets.map(w => ({ uid: w.uid, def: w.def, lvl: w.lvl, n: w.wpN && w.wpN[id] || 0, max: p.max })),
       apply: uid => { const w = targets.find(x => x.uid === uid) || pick(targets); wpApply(w, id, v); } };
   }
-  if (PER_WEAPON.has(id) && st >= p.max) return optHeal(); // every weapon is full and so is the global stack
+  if (PER_WEAPON.has(id) && (st >= p.max || r < 4)) return optHeal(); // no weapon it would help (or all full)
   return { rarity: r, tag: 'POWER-UP', icon: p.icon, color: '#9fb3c8', title: p.name, sub: `Stack ${st + 1}/${p.max}`, desc: p.fmt(v) + extra,
     apply: () => { p.apply(G.P, v, G); G.passives[id] = st + 1; recomputeAll(); } };
 }
@@ -625,7 +644,9 @@ function damageEnemy(e, dmg, src) {
   }
   if (src.parasite) { e.parasiteW = src.w; e.parasiteT = 6; }
   let crit = false;
-  if (!src.noCrit && Math.random() < (src.crit != null ? src.crit : P.crit) + genesCrit(e, src)) { crit = true; d *= P.critDmg; }
+  // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
+  const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src);
+  if (!src.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
   if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e));
@@ -906,6 +927,7 @@ function bomberBlast(e) {
 // kind: 'x' = experience gem, 's' = scrap (tower currency).
 function dropGem(x, y, v, kind) {
   kind = kind || 'x';
+  if (kind === 'x') G.stats.xpDrop = (G.stats.xpDrop || 0) + v;
   if (G.gems.length >= CAPS.gems) {
     // Merge into a random existing gem of the same kind to keep counts bounded.
     for (let k = 0; k < 8; k++) { const g = G.gems[Math.floor(Math.random() * G.gems.length)]; if (g.kind === kind) { g.v += v; return; } }
@@ -925,7 +947,7 @@ function healPlayer(n, silent) {
 function hurtPlayer(dmg, from, ent) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
-  if (Math.random() < P.dodge) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
+  if (Math.random() < Math.min(DODGE_CAP, P.dodge)) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt();
@@ -933,7 +955,9 @@ function hurtPlayer(dmg, from, ent) {
   if (dmg <= 0) return;
   // No one-shots from a boss: a single boss hit (body, beam or bullet) takes at most 22% of your max HP.
   if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * BOSS_HIT_CAP);
-  const d = Math.max(1, dmg - (P.noArmour ? 0 : P.armour + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour())); // Bear Hug, Fortress and Clingy Cell Velcro add armour
+  // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
+  const arm = P.noArmour ? 0 : (P.armour + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
+  const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
@@ -976,6 +1000,7 @@ function makeEnemy(def, x, y, opts) {
   if (opts && opts.elite) {
     e.elite = true; e.hp *= 5; e.maxHp *= 5; e.r *= 1.35; e.armour += 2; e.dmg *= 1.4; e.xp *= 6;
   }
+  e.armK = Math.min(3, Math.pow(hpMul(t), 0.3)); // armour keeps pace a little (x1 at the start, about x2.8 by minute 9)
   heatEnemy(e); // Immune Response
   return e;
 }
@@ -1892,7 +1917,7 @@ function updatePlayer(dt) {
   if (Math.hypot(p.vx, p.vy) > 20 && !acquire('nearest', 400, p.x, p.y)) p.face = Math.atan2(p.vy, p.vx);
   if (p.iframes > 0) p.iframes -= dt;
   if (p.flash > 0) p.flash -= dt;
-  if (P.regen > 0) p.hp = Math.min(P.maxHp, p.hp + P.regen * dt);
+  if (P.regen > 0) p.hp = Math.min(P.maxHp, p.hp + P.regen * Math.max(1, P.maxHp / 120) * dt); // regeneration grows with your max HP
 }
 
 // Autorun steering (context steering): scores 16 candidate directions plus "stay" by
@@ -2075,7 +2100,9 @@ function applyPickup(type, src) {
 
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
-  G.xp += v * XP_PACE * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp(); // the morning-after pill halves growth
+  const xk = XP_PACE * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp();
+  G.xp += v * xk;
+  G.stats.xpRaw = (G.stats.xpRaw || 0) + v; G.stats.xpGot = (G.stats.xpGot || 0) + v * xk; // run-log telemetry // the morning-after pill halves growth
   sfx('gem');
   while (G.xp >= G.xpNeed) {
     G.xp -= G.xpNeed;
@@ -2168,7 +2195,7 @@ function update(dt) {
     for (const e of G.enemies) { if (e.dead) continue; let n = 0; forNear(e.x, e.y, 70, () => { n++; }); e.crowd = n + (e.boss ? 5 : 0); }
   }
   if (G.warp > 0) G.warp -= dt;
-  const lsCap = G.relics.transfusion ? 9 : 3;
+  const lsCap = (G.relics.transfusion ? 9 : 3) * Math.max(1, G.P.maxHp / 120); // the lifesteal pool grows with your max HP
   G.lsBudget = Math.min(lsCap, (G.lsBudget || 0) + dt * lsCap); // lifesteal heals at most ~3 HP/s
   if (G.rage > 0) G.rage -= dt;
   if (G.shieldT > 0) G.shieldT -= dt;

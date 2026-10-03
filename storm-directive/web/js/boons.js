@@ -5,15 +5,15 @@
 const BOONS = {
   // Mythical
   bloodmoon:  { tier: 5, name: 'Blood Moon', desc: 'Every 40th kill sends you into ADRENALINE for 5s (double fire rate, no reloads) and heals 10%.' },
-  stormcrown: { tier: 5, name: 'Storm Crown', desc: 'Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP.' },
+  stormcrown: { tier: 5, name: 'Storm Crown', desc: 'Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP (bosses take at most 4%, the Final Five 6%).' },
   phoenix:    { tier: 5, name: 'Phoenix Down', desc: 'The first time you would die, you burst into flames and come back at full health.' },
   hormone:    { tier: 5, name: 'Growth Hormone', desc: '+50% max HP (and heal it), and +2 Acrosome Ram: you are the weapon now.' },
   pocketvoid: { tier: 5, name: 'Pocket Black Hole', desc: 'A small black hole circles you for the rest of the run, dragging enemies in and crushing them.' },
   technicolour: { tier: 5, name: 'Full Technicolour', desc: 'The stains are off. EVERYTHING goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD, the lot. Also +10% damage, because colour is power.' },
   bullettime: { tier: 5, name: 'Bullet Time', desc: 'When you drop below 30% health, time slows for 4s (every 20s at most).' },
   // Celestial
-  supernova:  { tier: 6, name: 'Supernova', desc: 'Every 12s a blast fills the screen: every enemy takes 18% of its max HP and every enemy bullet is wiped.' },
-  godhand:    { tier: 6, name: 'Hand of God', desc: 'Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP.' },
+  supernova:  { tier: 6, name: 'Supernova', desc: 'Every 12s a blast fills the screen: every enemy takes 18% of its max HP (bosses at most 4%, the Final Five 6%) and every enemy bullet is wiped.' },
+  godhand:    { tier: 6, name: 'Hand of God', desc: 'Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP (bosses at most 4%, the Final Five 6%).' },
   twinsoul:   { tier: 6, name: 'Twin Soul', desc: 'Every weapon you own fires 60% faster. Forever.' },
   grace:      { tier: 6, name: 'State of Grace', desc: 'Every 15s: 2s of invulnerability and a 15% heal.' },
   starfall:   { tier: 6, name: 'Starfall', desc: 'Stars fall on enemies near you, one every 0.4s, each for three times your best weapon\'s damage.' },

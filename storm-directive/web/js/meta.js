@@ -110,7 +110,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.51';
+const APP_VERSION = '7.52';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -142,7 +142,7 @@ function runSummary(G, result) {
     w: G.weapons.filter(Boolean).map(w => w.id + w.lvl + (w.mods.length ? '[' + w.mods.map(m => m.id).join(',') + ']' : '')),
     s: G.spells.filter(Boolean).map(w => w.id + w.lvl),
     p: top(G.passives, 12).map(([k, v]) => k + v),
-    boxes: G.stats.boxes || 0, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
+    boxes: G.stats.boxes || 0, xp: Math.round(G.stats.xpGot || 0), xpRaw: Math.round(G.stats.xpRaw || 0), xpDrop: Math.round(G.stats.xpDrop || 0), xpFloor: Math.round(G.gems.filter(g => g.kind !== 's').reduce((a, g) => a + g.v, 0)), xpK: +(G.P.xp * XP_PACE).toFixed(2), curve: Math.round((G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))) * 10) / 10, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
     tl: G.tl || [], fps: G.fpsTl || [], meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2),
   };
 }
@@ -159,6 +159,7 @@ function runText(r) {
   out += ` ended by: ${r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   out += ` dmg: ${r.dmg.join(', ')}\n`;
   out += ` build: ${r.w.join(' ')} | spells: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;
+  if (r.xp != null) out += ` xp: ${r.xp} gained (x${r.xpK} bonus on ${r.xpRaw} collected of ${r.xpDrop} dropped, ${r.xpFloor} left on the floor) | vs level curve: ${r.curve >= 0 ? '+' : ''}${r.curve} levels\n`;
   out += ` rivals: ${r.rivals.join(' ') || '-'} | lv/hp% per min: ${r.tl.join(' ')}${r.fps && r.fps.length ? ' | fps avg/low per min: ' + r.fps.join(' ') : ''}\n`;
   return out;
 }

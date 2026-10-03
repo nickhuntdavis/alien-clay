@@ -38,8 +38,8 @@ const MOVE_DIRECTIVES = [
 ];
 
 // Level bonus keys: count, pierce, chain, bounce (additive); dmg, area, dur (additive %); cd (negative = faster).
-// Fourteen signature weapons. Each one plays differently, and each has its own upgrade path:
-// Lv 3 and Lv 8 offer upgrades any weapon can take; Lv 5 and Lv 10 fork into two upgrades only that
+// Twenty-five signature weapons. Each one plays differently, and each has its own upgrade path:
+// Lv 3 offers upgrades any weapon can take; Lv 5, Lv 8 and Lv 10 fork into two upgrades only that
 // weapon has (see SIGS). role: the play style in two words.
 const WEAPONS = {
   blaster: { name: 'Spitball', stars: [3, 3, 4, 1], play: 'Picks targets off from range, one at a time. Grows into a railgun or a fire hose.', icon: 'BL', elem: 'phys', kind: 'gun', color: '#e8f0ff', dir: 'nearest', role: 'Marksman',
@@ -447,7 +447,7 @@ const PASSIVES = {
   haste:     { name: 'Twitchy Tail', icon: 'TD', max: 8, v: 0.10, fmt: v => `+${pc(v)} fire rate`, apply: (P, v) => { P.haste += v; } },
   reload:    { name: 'Short Refractory Period',      icon: 'QH', max: 6, v: 0.15, fmt: v => `+${pc(v)} reload speed`, apply: (P, v) => { P.reloadSpd += v; } },
   mag:       { name: 'Bigger Load',    icon: 'EM', max: 6, v: 0.20, fmt: v => `+${pc(v)} magazine size`, apply: (P, v) => { P.magMult += v; } },
-  multishot: { name: 'Split Personality',        icon: 'MS', max: 3, v: 1, minRarity: 3, fmt: v => `+${Math.round(v)} projectile for all weapons (shots share the damage: about +25% in all)`, apply: (P, v) => { P.multishot += Math.round(v); } },
+  multishot: { name: 'Split Personality',        icon: 'MS', max: 3, v: 1, minRarity: 3, fmt: v => `+${Math.round(v)} projectile${Math.round(v) > 1 ? 's' : ''} (shots share the damage: about +25% on a one-shot weapon, less on weapons that already fire several; more hits for on-hit effects)`, apply: (P, v) => { P.multishot += Math.round(v); } },
   velocity:  { name: 'Early Arrival',         icon: 'VE', max: 5, v: 0.12, fmt: v => `+${pc(v)} projectile speed and range`, apply: (P, v) => { P.projSpeed += v; P.range += v * 0.6; } },
   area:      { name: 'Personal Space',     icon: 'BR', max: 6, v: 0.12, fmt: v => `+${pc(v)} area of effect`, apply: (P, v) => { P.area += v; } },
   duration:  { name: 'Stamina',        icon: 'LG', max: 5, v: 0.15, fmt: v => `+${pc(v)} effect duration`, apply: (P, v) => { P.dur += v; } },
@@ -477,16 +477,16 @@ const PASSIVES = {
   tactical:  { name: 'Tactical Nap',  icon: 'TR', max: 4, v: 1, fmt: v => `Starting a reload sends out a shockwave that deletes nearby bullets (+${40 * Math.round(v)} radius)`, apply: (P, v) => { P.tactical += Math.round(v); } },
   focus:     { name: 'Tunnel Vision',       icon: 'FL', max: 3, v: 0.3, fmt: v => `+3% damage per second on the same target, up to +${pc(v)} more`, apply: (P, v) => { P.focus += v; } },
   overkill:  { name: 'Overachiever', icon: 'OK', max: 3, v: 0.5, fmt: v => `${pc(v)} of excess kill damage jumps to the next enemy`, apply: (P, v) => { P.overkill += v; } },
-  crossfire: { name: 'Pincer Movement', icon: 'CF', max: 3, v: 0.25, fmt: v => `Weapons sharing a target: +${pc(v)} damage. All three on different targets: +${pc(v)} fire rate`, apply: (P, v) => { P.crossfire += v; } },
+  crossfire: { name: 'Pincer Movement', icon: 'CF', max: 3, v: 0.15, fmt: v => `Weapons sharing a target: +${pc(v)} damage. Three or more weapons all on different targets: +${pc(v)} fire rate`, apply: (P, v) => { P.crossfire += v; } },
   momentum:  { name: 'Hurry Up',         icon: 'MO', max: 4, v: 0.15, fmt: v => `Up to +${pc(v * 1.5)} damage the faster you are moving`, apply: (P, v) => { P.momentum += v; } },
-  anchorlink:{ name: 'Egg Bond',         icon: 'EB', max: 3, v: 0.3, fmt: v => `${typeof G !== 'undefined' && G && G.wave ? 'Near the middle of the dish (where the egg sits)' : 'Near the egg'}: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
+  anchorlink:{ name: 'Egg Bond',         icon: 'EB', max: 3, v: 0.12, fmt: v => `${typeof G !== 'undefined' && G && G.wave ? 'Near the middle of the dish (where the egg sits)' : 'Near the egg'}: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
   future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Incompatible Viral Load, you do)`, apply: (P, v) => { P.future += v; } },
   echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 2, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
   ram:       { name: 'Acrosome Ram',          icon: 'AR', max: 5, v: 1, fmt: v => `Enemies you swim into take big damage (ram power x${v.toFixed(1)}). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun.`, apply: (P, v) => { P.ram += v; } },
   heft:      { name: 'Big Boned', icon: 'BB', max: 4, v: 1, fmt: v => `+${30 * v} max HP (and heal it). All your damage +${Math.round(4 * v)}% for every 100 max HP you have.`, apply: (P, v, G) => { P.heft += v; P.maxHp += 30 * v; G.player.hp += 30 * v; } },
   thorns:    { name: 'Prickly Personality', icon: 'PP', max: 4, v: 1, fmt: v => `Whatever hurts you gets hurt back (thorns x${v}), plus a smaller jab to everything around you. Grows with max HP and armour.`, apply: (P, v) => { P.thorns += v; } },
   grit:      { name: 'Stubborn Streak', icon: 'SB', max: 3, v: 1, fmt: v => `Below half health: take ${10 * v}% less damage and deal ${12 * v}% more.`, apply: (P, v) => { P.grit += v; } },
-  evasion:   { name: 'Wriggle Room',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.min(0.5, P.dodge + v); } },
+  evasion:   { name: 'Wriggle Room',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.max(P.dodge, Math.min(0.5, P.dodge + v)); } },
 };
 function pc(v) { return Math.round(v * 100) + '%'; }
 
@@ -669,7 +669,7 @@ const CORE = { r: 80, sanctuary: 290, arena: 2400, arena0: 2400 }; // arena shri
 const EGG = { level: 60, hpBase: 150000, armour: 8 };
 // Weapon drafts: a new weapon mount at level 1 and at these levels.
 const SLOT_LEVELS = [8, 22]; // three weapons a run: one at level 1, then drafts at 8 and 22
-const BASE_SLOTS = 1; // you choose a new weapon at level 1 and at every SLOT_LEVELS level (5 at most)
+const BASE_SLOTS = 1; // you choose a new weapon at level 1 and at every SLOT_LEVELS level (3 mounts, plus up to 2 bonus mounts from combos)
 const MAX_WEAPONS = BASE_SLOTS + SLOT_LEVELS.length;
 
 // ---------------------------------------------------------------- Palette
@@ -683,7 +683,7 @@ const MAX_WEAPONS = BASE_SLOTS + SLOT_LEVELS.length;
 // Two more for the interface, taken from patient-monitor conventions (each trace has its own fixed colour):
 //   upgrade - monitor cyan: anything that permanently changes your build (weapons, levels, perks, mods, stats)
 //   pickup  - monitor magenta: temporary field power-ups lying on the slide
-// Sperm samples (levels). Only the first is in the fridge so far.
+// Sperm samples (levels): the playable ones, the Lab Bench (debug) and the ones still to come.
 const SAMPLES = [
   { id: 's001', no: '001', name: 'Standard Issue', desc: 'One healthy donor, four hundred million hopefuls, one egg. The classic.', count: '400,000,000', motility: '62% progressive', open: true },
   { id: 's002', no: '002', name: 'The Petri Dish', desc: 'A mad scientist is breeding super sperm. One drop at a time, wave after wave, each nastier than the last. How many can you take?', count: 'one, for now', motility: 'under observation', open: true, waves: true },
@@ -698,7 +698,7 @@ const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f', upgrade: '#5
 const DYE_FAST = '#46e0ff', DYE_FAST_DK = '#1d7d96'; // Motility Dye: label, and the stained body
 const DYES = {
   gfp:        { name: 'GFP Tag', desc: 'Green Fluorescent Protein. Tags you: your swimmer, your shots, echoes and allies glow green. Much easier to find yourself in a crowd. Also puts a health ring round you whenever you are hurt.', boon: 'You can finally see where your shots land: +12% damage.', apply: P => { P.might += 0.12; } },
-  immuno:     { name: 'Anti-Immune Stain', desc: 'Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings. Also shows a health ring round every hurt enemy (and an armour ring when its armour has been stripped).', boon: 'You see it coming: +8% dodge.', apply: P => { P.dodge = Math.min(0.7, P.dodge + 0.08); } },
+  immuno:     { name: 'Anti-Immune Stain', desc: 'Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings. Also shows a health ring round every hurt enemy (and an armour ring when its armour has been stripped).', boon: 'You see it coming: +8% dodge.', apply: P => { P.dodge = Math.max(P.dodge, Math.min(0.7, P.dodge + 0.08)); } },
   luciferase: { name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.', boon: 'You know what is worth chasing: +20% luck, and +25% damage to elites and bosses.', apply: P => { P.luck += 0.2; } },
   motility:   { name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you.', boon: 'Spot them early: +8% swim speed, and +30% damage to fast enemies.', apply: P => { P.speed += 0.08; } },
   rival:      { name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt.', boon: 'Know your enemy: +40% damage to rival champions and the Final Five.' },
@@ -720,11 +720,11 @@ const PERKS = {
   rapid:    { tier: 1, icon: 'RP', color: '#ffd23f', name: 'Hair Trigger',    desc: '25% faster cooldown and reload.' },
   deepmag:  { tier: 1, icon: 'DM', color: '#9fb3c8', name: 'Nappy Bag',   desc: '+60% magazine size.', fit: d => (d.base.mag || 1) > 1 },
   wide:     { tier: 1, icon: 'WD', color: '#c77dff', name: 'Wide Hips',       desc: '+35% area and +15% range.', fit: hasArea },
-  pierce:   { tier: 1, icon: 'PC', color: '#e0fbff', name: 'Pointy Head',      desc: 'Shots pierce 2 more enemies.', fit: d => d.kind === 'gun' || d.kind === 'ring' },
+  pierce:   { tier: 1, icon: 'PC', color: '#e0fbff', name: 'Pointy Head',      desc: 'Shots pierce 2 more enemies.', fit: d => (d.kind === 'gun' || d.kind === 'ring') && (d.base.pierce || 0) < 90 },
   ricochet: { tier: 1, icon: 'RC', color: '#8dffc0', name: 'Trampoline Rounds',   desc: 'Shots bounce to 2 more targets.', fit: isShot },
   keen:     { tier: 1, icon: 'KN', color: '#fee440', name: 'Sharp Tongue',       desc: '+15% crit chance.' },
-  chill:    { tier: 1, icon: 'CH', color: '#6fd8ff', name: 'Cold Shoulder',       desc: 'Hits chill: enemies slow by 35% for 1.5s.' },
-  ignite:   { tier: 1, icon: 'IG', color: '#ff7a2f', name: 'Extra Spicy',      desc: 'Hits set enemies on fire for 25% of the hit per second.' },
+  chill:    { tier: 1, icon: 'CH', color: '#6fd8ff', name: 'Cold Shoulder',       desc: 'Hits chill: enemies slow by 35% for 1.5s.', fit: d => d.elem !== 'ice' },
+  ignite:   { tier: 1, icon: 'IG', color: '#ff7a2f', name: 'Extra Spicy',      desc: 'Hits set enemies on fire for 25% of the hit per second.', fit: d => d.elem !== 'fire' && d.style !== 'flame' },
   // Tier 2 (Lv 5): change how it plays.
   seek:     { tier: 2, icon: 'SK', color: '#d0a3ff', name: 'Homing Instinct',    desc: 'Shots home in on targets.', fit: isShot },
   split:    { tier: 2, icon: 'SL', color: '#ffd166', name: 'Cell Division',     desc: 'Shots burst into 3 shards on first hit.', fit: isShot },
@@ -829,11 +829,11 @@ const CURSES = [
   { id: 'hoard', name: "Hoarder's Bargain", boon: '+4 rerolls right now, double viewers', bane: 'Pickup range halved', apply: (P, G) => { G.rerolls += 4; P.viewers *= 2; P.magnet *= 0.5; } },
   { id: 'crowd', name: 'Crowd Pleaser', boon: '+50% XP and viewers', bane: '30% more enemies (30% bigger waves in the dish)', apply: P => { P.xp += 0.5; P.viewers *= 1.5; P.spawnMult *= 1.3; } },
   { id: 'paradox', name: 'Paradox Addict', boon: '+2 max Rewind charges, all refilled now', bane: 'All healing halved', apply: (P, G) => { G.chrono.max += 2; G.chrono.charges = G.chrono.max; P.healMult *= 0.5; } },
-  { id: 'naked', name: 'Clothing Optional', boon: '+25% move speed, +20% dodge', bane: 'Armour is zero. Forever.', apply: P => { P.speed += 0.25; P.dodge = Math.min(0.6, P.dodge + 0.2); P.noArmour = true; } },
+  { id: 'naked', name: 'Clothing Optional', boon: '+25% move speed, +20% dodge', bane: 'Armour is zero. Forever.', apply: P => { P.speed += 0.25; P.dodge = Math.max(P.dodge, Math.min(0.6, P.dodge + 0.2)); P.noArmour = true; } },
 ];
 
 // ---------------------------------------------------------------- The Show: announcer, achievements, viewers, sponsors
-// Original comedy writing for Storm Directive's sardonic game-show host, "the System".
+// Original comedy writing for Spawn Prawn's sardonic game-show host, "the System".
 const GACHA_TIERS = [
   { name: 'BRONZE MAG', mult: 0.7, color: '#cd8a4a', w: 55 },
   { name: 'SILVER MAG', mult: 1.1, color: '#c9d6e3', w: 28 },
@@ -873,7 +873,7 @@ const SYSTEM_LINES = {
     'Rewind successful. Your future self is now an unpaid intern.',
     'You swam backwards through time. Most swimmers can barely swim forwards.',
   ],
-  fusion: ['Fusion complete. Two weapons became one. That is, ironically, the theme of the show.', 'Fusion complete. It violates at least four treaties and one textbook.'],
+  fusion: ['Combo complete. Two weapons, working together. That is, ironically, the theme of the show.', 'Combo complete. It violates at least four treaties and one textbook.'],
   cursed: ['You took the cursed card. We are not angry. We are just disappointed. And delighted.', 'Bold. Stupid, but bold. Very on-brand for a swimmer.'],
   surge: ['Immune Surge! The host has noticed you. Everything hits harder now. Please remain calm and panic.'],
   idle: [
@@ -901,7 +901,7 @@ const SYSTEM_LINES = {
   rivalWin: ['{n} got there first. Congratulations to {n}. You are now a statistic.'],
   amoebaHuge: ['An amoeba has eaten {n} of its colleagues and is now the size of a small opinion. Kill it before it becomes a large one.', 'Something spongy has had {n} meals and is getting ideas. Deal with it.'],
   born: ['Congratulations! It\'s you! Everyone else can go home. Everyone else is, technically, going nowhere.'],
-  slot: ['You grew a new weapon mount. Biology is not supposed to work like this. Please enjoy it anyway.', 'Extra weapon slot unlocked. Evolution took millions of years. You took fifteen levels.'],
+  slot: ['You grew a new weapon mount. Biology is not supposed to work like this. Please enjoy it anyway.', 'Extra weapon slot unlocked. Evolution took millions of years. You took a few levels.'],
 };
 const NO_REWARD = [
   'Reward: a sense of accomplishment. It is non-refundable.',

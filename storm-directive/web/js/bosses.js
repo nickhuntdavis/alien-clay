@@ -328,7 +328,7 @@ function applyRelic(id) {
     case 'secondstomach': { const add = Math.round(P.maxHp * 0.6); P.maxHp += add; p.hp += add; break; }
     case 'borderwall': { P.armour += 10; const add = Math.round(P.maxHp * 0.4); P.maxHp += add; p.hp += add; P.speed -= 0.1; break; }
     case 'thirdeye': P.crit += 0.25; P.critDmg += 1; break;
-    case 'precog': P.dodge = Math.min(0.7, P.dodge + 0.25); break;
+    case 'precog': P.dodge = Math.max(P.dodge, Math.min(0.7, P.dodge + 0.25)); break;
     case 'proteinpro': P.speed += 0.35; P.momentum += 0.5; break;
     case 'doubletrouble': P.multishot += 1; P.pierce += 1; P.chain += 1; break;
     case 'diplomatic': G.dipAt = 0; break;

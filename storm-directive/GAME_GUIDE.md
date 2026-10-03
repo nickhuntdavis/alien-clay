@@ -42,20 +42,22 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 4. **Weapon tuning:** fire rate, reload, magazine, extra projectiles, projectile speed and range, area, duration and pierce cards go on ONE weapon you choose (tap it on the card); each weapon keeps its own stacks. Legendary and better versions tune every weapon at once.
 5. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
 6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
-7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 26, 46 you can splice in another at half strength (three at most), or skip and take a mutation instead.
+7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 20, 40 you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).
 8. **Mutations:** Enzyme Vesicles bulge up on the slide (the first at 40s, then every 45 to 70s). Swim into one to pick one of four mutations; you have 6 slots.
 9. **Bosses:** a boss every 2 minutes. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
 10. **Rarity** multiplies a card's value:
 
-| Rarity | Multiplier | Weapon levels granted | Drop weight |
-|---|---|---|---|
-| Common | x1 | +1 | 56% |
-| Uncommon | x1.25 | +1 | 26% |
-| Rare | x1.5 | +1 | 12% |
-| Epic | x2 | +2 | 5% |
-| Legendary | x2.5 | +2 | 1.6% |
-| Mythical | x3 | +3 | 0% |
-| Celestial | x4 | +3 | 0% |
+| Rarity | Multiplier | Weapon levels granted | Roll weight (relative) | Share of cards offered (mid-run) |
+|---|---|---|---|---|
+| Common | x1 | +1 | 56 | 41% |
+| Uncommon | x1.25 | +1 | 26 | 27% |
+| Rare | x1.5 | +1 | 12 | 21% |
+| Epic | x2 | +2 | 5 | 5.3% |
+| Legendary | x2.5 | +2 | 1.6 | 5.6% |
+| Mythical | x3 | +3 | separate roll | 0.45% |
+| Celestial | x4 | +3 | separate roll | 0.12% |
+
+Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Celestial skip the table: every card first rolls 0.55% for Mythical and 0.18% for Celestial (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses, combos) add to it.
 
 **Level bonus key:** "+N count/pierce" is additive; "+N% dmg/area/duration" adds to the base; "N% faster" cuts the cooldown.
 
@@ -170,7 +172,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
-|  | **Pointy Head** | Shots pierce 2 more enemies. |
+|  | **Nappy Bag** | +60% magazine size. |
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Walk the Dog** | At full reach the yo-yo spins in place for a second, grinding everything it touches, then comes home. |
 |  | **Crash Diet** | The yo-yo grows every time it hits something: +10% size and damage per hit, every throw. |
@@ -211,9 +213,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Hair Trigger** | 25% faster cooldown and reload. |
 |  | **Nappy Bag** | +60% magazine size. |
-|  | **Wide Hips** | +35% area and +15% range. |
 | Lv 5 signature | **Blue Flame** | Narrow and long: +70% range, a tight cone and +40% damage. |
 |  | **Indigestion** | Burning enemies explode in flames when they die, spreading the burn to everything nearby. |
 | Lv 8 signature | **Napalm** | Flames leave burning puddles where they land. |
@@ -232,7 +234,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Sharp Tongue** | +15% crit chance. |
+| Lv 3 | **Wide Hips** | +35% area and +15% range. |
 |  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
 |  | **Nappy Bag** | +60% magazine size. |
 | Lv 5 signature | **Domino Nappies** | A blast sets off every mine near it, and each one in the chain goes off 25% bigger than the last. |
@@ -254,7 +256,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Hot Load** | +40% damage. |
-|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
 |  | **Sharp Tongue** | +15% crit chance. |
 | Lv 5 signature | **Shatter** | A shard that hits a frozen enemy shatters it for 250% damage in an icy burst. |
 |  | **Icicle Lance** | +4 pierce, and each enemy a shard passes through makes it 25% stronger. |
@@ -359,7 +361,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
-|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Sharp Tongue** | +15% crit chance. |
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Event Horizon** | Non-boss enemies under 20% health that get dragged into the centre are swallowed whole. |
 |  | **Nom Nom** | The orb eats enemy bullets, growing with every one (up to twice its size). |
@@ -568,9 +570,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
-|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 3 | **Sharp Tongue** | +15% crit chance. |
 |  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Wide Hips** | +35% area and +15% range. |
 | Lv 5 signature | **Hide and Seek** | While hidden you swim 40% faster. |
 |  | **Jump Scare** | BOO freezes enemies solid for 1.2s instead of scaring them off (not bosses). |
 | Lv 8 signature | **Who's There?** | While you are hidden, enemy bullets hit other enemies three times as hard. |
@@ -764,7 +766,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 ## Bosses and relics
 
-A boss arrives every 2 minutes. Each run draws 4 of these 8 at random; after all 4, they come round again, tougher. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
+A boss arrives every 2 minutes. Each run draws 4 of these 8 at random; a run that goes past 8 minutes starts the loop again with tougher versions (in practice that is inside the Storm Surge). Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
 
 ### THE MACROPHAGE QUEEN: Eater of Hopefuls
 
@@ -914,7 +916,7 @@ Spells autocast on cooldown and use spell slots. They level up like weapons but 
 | **Cold Shower** | Frost | A freezing blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
 | **Brainstorm** | Shock | Lightning strikes several targets at once. None of the ideas are good. | dmg 36, cd 6s, count 5, area 48 | Lv3: +2 count; Lv5: +40% dmg; Lv7: +3 count |
 | **Sofa Crevice** | Arcane | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
-| **Kiss It Better** | Toxic | Restores a portion of your health. Medically dubious. Works anyway. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% dmg; Lv7: 20% faster |
+| **Kiss It Better** | Toxic | Restores a portion of your health. Medically dubious. Works anyway. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% healing; Lv7: 20% faster |
 | **Nap Time** | Arcane | Slows every enemy and bullet to a crawl. Rare. Precious. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
 | **Latex Barrier** | Arcane | A shield that reflects enemy bullets and blocks contact. 98% effective. | dmg 12, cd 12s, dur 3s, area 80 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
 | **Running With Scissors** | Kinetic | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
@@ -933,7 +935,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Twitchy Tail** | +10% fire rate | Tunes one weapon | 8 per weapon |
 | **Short Refractory Period** | +15% reload speed | Tunes one weapon | 6 per weapon |
 | **Bigger Load** | +20% magazine size | Tunes one weapon | 6 per weapon |
-| **Split Personality** | +1 projectile (shots share the damage: about +25% in all) (Epic or better only) | Tunes one weapon | 3 per weapon |
+| **Split Personality** | +1 projectile (shots share the damage: about +25% on a one-shot weapon, less on weapons that already fire several; more hits for on-hit effects) (Epic or better only) | Tunes one weapon | 3 per weapon |
 | **Early Arrival** | +12% projectile speed and range | Tunes one weapon | 5 per weapon |
 | **Personal Space** | +12% area of effect | Tunes one weapon | 6 per weapon |
 | **Stamina** | +15% effect duration | Tunes one weapon | 5 per weapon |
@@ -963,9 +965,9 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Tactical Nap** | Starting a reload sends out a shockwave that deletes nearby bullets (+40 radius) | You | 4 |
 | **Tunnel Vision** | +3% damage per second on the same target, up to +30% more | You | 3 |
 | **Overachiever** | 50% of excess kill damage jumps to the next enemy | You | 3 |
-| **Pincer Movement** | Weapons sharing a target: +25% damage. All three on different targets: +25% fire rate | You | 3 |
+| **Pincer Movement** | Weapons sharing a target: +15% damage. Three or more weapons all on different targets: +15% fire rate | You | 3 |
 | **Hurry Up** | Up to +22% damage the faster you are moving | You | 4 |
-| **Egg Bond** | Near the egg: +30% fire rate. Away from it: +30% crit chance | You | 3 |
+| **Egg Bond** | Near the egg: +12% fire rate. Away from it: +12% crit chance | You | 3 |
 | **Spoilers** | 10% of shots appear already next to their target (with the Incompatible Viral Load, you do) | You | 4 |
 | **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Rare or better only) | You | 1 |
 | **Acrosome Ram** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | You | 5 |
@@ -1049,21 +1051,21 @@ A Mythical or Celestial card carries one of these on top of its own effect, for 
 | Bonus | Rarity | Effect |
 |---|---|---|
 | **Blood Moon** | Mythical | Every 40th kill sends you into ADRENALINE for 5s (double fire rate, no reloads) and heals 10%. |
-| **Storm Crown** | Mythical | Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP. |
+| **Storm Crown** | Mythical | Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP (bosses take at most 4%, the Final Five 6%). |
 | **Phoenix Down** | Mythical | The first time you would die, you burst into flames and come back at full health. |
 | **Growth Hormone** | Mythical | +50% max HP (and heal it), and +2 Acrosome Ram: you are the weapon now. |
 | **Pocket Black Hole** | Mythical | A small black hole circles you for the rest of the run, dragging enemies in and crushing them. |
 | **Full Technicolour** | Mythical | The stains are off. EVERYTHING goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD, the lot. Also +10% damage, because colour is power. |
 | **Bullet Time** | Mythical | When you drop below 30% health, time slows for 4s (every 20s at most). |
-| **Supernova** | Celestial | Every 12s a blast fills the screen: every enemy takes 18% of its max HP and every enemy bullet is wiped. |
-| **Hand of God** | Celestial | Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP. |
+| **Supernova** | Celestial | Every 12s a blast fills the screen: every enemy takes 18% of its max HP (bosses at most 4%, the Final Five 6%) and every enemy bullet is wiped. |
+| **Hand of God** | Celestial | Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP (bosses at most 4%, the Final Five 6%). |
 | **Twin Soul** | Celestial | Every weapon you own fires 60% faster. Forever. |
 | **State of Grace** | Celestial | Every 15s: 2s of invulnerability and a 15% heal. |
 | **Starfall** | Celestial | Stars fall on enemies near you, one every 0.4s, each for three times your best weapon's damage. |
 
 ## Upgrades any weapon can take
 
-Offered at weapon levels 3 and 8. Which three a weapon is offered is fixed per weapon (see its table above).
+Offered at weapon level 3. Which three a weapon is offered is fixed per weapon (see its table above). Levels 5, 8 and 10 are always the weapon's own signature choices.
 
 ### Lv 3 pool
 
@@ -1078,27 +1080,6 @@ Offered at weapon levels 3 and 8. Which three a weapon is offered is fixed per w
 | **Sharp Tongue** | +15% crit chance. |
 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
-
-### Lv 8 pool
-
-| Upgrade | Effect |
-|---|---|
-| **Homing Instinct** | Shots home in on targets. |
-| **Cell Division** | Shots burst into 3 shards on first hit. |
-| **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
-| **Kick Them While Down** | +60% damage to enemies under 35% health. |
-| **Toxic Relationship** | Hits add a stacking poison. |
-| **Ice Queen** | 12% of hits freeze non-boss enemies solid. |
-| **Special Delivery** | Hits explode for 35% damage around the target. |
-| **Plus One** | +1 projectile (shots share the damage). |
-| **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
-| **Punching Up** | +100% damage to elites, bosses and rival champions. |
-| **Sugar Rush** | +75% damage. |
-| **Due Date Panic** | 40% faster cooldown and reload. |
-| **Domino Effect** | Kills explode for 60% of the killing blow. |
-| **Giant Killer** | +150% damage to elites, bosses and rival champions. |
-| **Twins!** | +2 projectiles (shots share the damage). |
-| **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
 
 ## Modifiers
 
@@ -1397,6 +1378,33 @@ Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to 
 | 005 | **Frozen Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
 | 003 | **The Morning After** | Coming soon | The pill is already dissolving. Good luck. |
 | 004 | **Vasectomy Reversal** | Coming soon | Low count, high stakes, very confused surgeon. |
+
+## Hidden rules
+
+Rules the cards do not spell out, but that change what is worth picking.
+
+- **Boss damage cap:** No single hit takes more than 4% of a boss's max HP, or 6% of a Final Five rival's. Percentage effects (Storm Crown, Hand of God, Supernova, Acid Flush) are capped the same way.
+- **Boss hits on you:** A single hit from a boss takes at most 22% of your max HP.
+- **Your armour:** Each point blocks about 1 damage at the start of a run and about 7 by minute 10 (it scales with the enemy damage clock). It never blocks more than 75% of a hit.
+- **Enemy armour:** Flat, but it grows a little with the enemy health clock (about x2.8 by minute 9, x3 at most). At least 15% of every hit gets through. Damage over time ignores armour; shred removes it.
+- **Regeneration and lifesteal:** Regeneration and the lifesteal pool (about 3 HP/s, 9 with Transfusion) both grow with your max HP.
+- **Dodge:** Capped at 75% when rolled. Cards that clamp their own bonus never lower dodge you already have.
+- **Crit overflow:** Crit chance above 100% is added to crit damage one for one.
+- **Extra projectiles:** Shots share damage: k times the projectiles deal (1 + (k^0.6 - 1)/2) in total, about +25% for one extra on a one-shot weapon.
+- **Level curve:** The game expects Lv 60 at 9:00. Each level you are ahead adds 5% enemy health and 3% enemy damage. Each level behind shows BEHIND PACE on the HUD.
+- **Storm Surge:** From 10:00 (difficulty minute 15) enemy health and damage compound every minute. Win before it.
+- **Mythical and Celestial:** A separate roll on every card, three a run at most.
+- **Weapon tuning:** Tuning cards only offer weapons the stat actually helps (no pierce for weapons that already pierce everything, no magazine for one-shot weapons).
+
+## Glossary
+
+- **Rewind and Chrono energy:** Rewind fires by itself on a lethal hit, rolls you back about 4s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with 1 charge (max 2, more with Snooze Button). Charges refill from Chrono energy (600 per charge), earned by fighting.
+- **Viewers and sponsors:** The race is a live show. Kills, combos, bosses and achievements raise viewers; viewer milestones bring sponsor gifts (a heal, Adrenaline, a shield, a magnet, a nuke or a DNA strand).
+- **The egg:** Opens at Lv 60: its membrane has 150,000 base HP and 8 armour, and a rival can break in first. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.
+- **Spell slots:** Two. Spells cast themselves on cooldown.
+- **Element set:** Two weapons or spells of the same element turn on its set bonus.
+- **Weapon mounts:** Three (Lv 1 and drafts at 8 and 22), plus up to 2 bonus mounts from combos.
+- **Player base stats:** 120 HP, 150 swim speed, 5% crit, x1.6 crit damage, 105 pickup radius, 0 armour, 0 dodge. You grow with max HP.
 
 ## Secret Codex entries (spoilers)
 

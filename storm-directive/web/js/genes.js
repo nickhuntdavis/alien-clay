@@ -200,7 +200,7 @@ function profSynText(id) {
   return s.length ? ' With what you already express: ' + s.map(q => q.name + ' (' + q.desc + ')').join(' ') : '';
 }
 // Splice offers come at these levels while you have room for another sequence.
-const SPLICE_LEVELS = [6, 26, 46]; // well spread: early (just before the Lv 8 draft), mid-run and late; two splices at most
+const SPLICE_LEVELS = [6, 20, 40]; // spread out, and the first two land just before the Lv 8 and Lv 22 weapon drafts so a splice's weapons can be drafted; two splices at most
 function genesLevel(lvl) {
   if (!SPLICE_LEVELS.includes(lvl) || G.genes.active.length >= 3 || G.debug) return;
   if (Object.keys(PROFILES).some(id => profUnlocked(id) && !G.genes.active.includes(id))) { G.lootQueue.push({ kind: 'splice' }); banner('SEQUENCE SPLICE AVAILABLE', PAL.upgrade); }
@@ -239,7 +239,8 @@ function genesTick(dt) {
     if (G.t - v.born > VESICLE.life) { v.dead = true; continue; }
     if (Math.hypot(p.x - v.x, p.y - v.y) < p.r + 24) {
       v.dead = true;
-      if (mutCount() >= mutCap()) { floatText(v.x, v.y - 20, 'GENOME FULL', PAL.danger, 14); continue; }
+      // A full genome can't take another mutation, so the vesicle's enzymes become a DNA strand instead.
+      if (mutCount() >= mutCap()) { floatText(v.x, v.y - 20, 'GENOME FULL: DNA STRAND', PAL.reward, 14); G.lootQueue.push({ kind: 'chest', src: { t: 'drop', name: 'Enzyme Vesicle' } }); continue; }
       G.lootQueue.push({ kind: 'vesicle' });
       G.vesTwo = mutOn('skeletonkey') && Math.random() < 0.3;
       fxParts('drop', v.x, v.y, '#e9f5db', 14, 220, 0.6, 4); ring(v.x, v.y, 70, PAL.upgrade, 0.4, 4); sfx('pickup');

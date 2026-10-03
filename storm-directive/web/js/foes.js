@@ -251,7 +251,7 @@ function drawHealthRing(x, y, R, hpK, armK, color) {
 }
 function enemyRing(e, x, y, r) {
   if (e.boss || e.egg || !ringStain(e)) return;
-  const hpK = e.hp / e.maxHp, armK = e.armour > 0 ? effArmour(e) / (e.armour + (e.auraArm > 0 ? 4 : 0)) : null;
+  const hpK = e.hp / e.maxHp, armK = e.armour > 0 ? effArmour(e) / ((e.armour + (e.auraArm > 0 ? 4 : 0)) * (e.armK || 1)) : null;
   if (hpK >= 0.995 && !(armK != null && armK < 0.995)) return; // untouched: no ring at all
   drawHealthRing(x, y, r + 7, hpK, armK, e.rival ? e.color : e.elite ? PAL.reward : hpK < 0.3 ? PAL.danger : '#ffffff');
 }
