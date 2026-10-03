@@ -1692,10 +1692,23 @@ function render() {
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const t of G.texts) {
     ctx.globalAlpha = Math.min(1, t.life / t.max * 2);
-    const pop = 1 + Math.max(0, (t.life / t.max - 0.8)) * 2;
+    const f = t.life / t.max, X = sx(t.x), Y = sy(t.y);
+    if (t.big) {
+      // Big hits slam in oversized, settle, then hang; huge ones get a coloured halo and a white core.
+      const pop = 1 + Math.max(0, f - 0.82) * (t.big === 3 ? 7 : 4);
+      ctx.font = `900 ${Math.round(t.size * Math.max(0.8, S) * pop)}px sans-serif`;
+      ctx.lineJoin = 'round';
+      ctx.globalAlpha *= 0.45; ctx.lineWidth = t.big === 3 ? 12 : 8; ctx.strokeStyle = t.color; ctx.strokeText(t.txt, X, Y);
+      ctx.globalAlpha = Math.min(1, f * 2);
+      ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,0.9)'; ctx.strokeText(t.txt, X, Y);
+      ctx.fillStyle = t.big === 3 && f > 0.6 ? '#ffffff' : t.color; ctx.fillText(t.txt, X, Y);
+      ctx.lineJoin = 'miter';
+      continue;
+    }
+    const pop = 1 + Math.max(0, (f - 0.8)) * 2;
     ctx.font = `900 ${Math.round(t.size * Math.max(0.8, S) * pop)}px sans-serif`;
-    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.85)'; ctx.strokeText(t.txt, sx(t.x), sy(t.y));
-    ctx.fillStyle = t.color; ctx.fillText(t.txt, sx(t.x), sy(t.y));
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.85)'; ctx.strokeText(t.txt, X, Y);
+    ctx.fillStyle = t.color; ctx.fillText(t.txt, X, Y);
   }
   ctx.globalAlpha = 1;
   ctx.restore();

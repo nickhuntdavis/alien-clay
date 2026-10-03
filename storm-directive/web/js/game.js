@@ -77,6 +77,7 @@ function newStats() {
 }
 
 function newGame() {
+  DMGNUM.log = null; DMGNUM.bigT = -9; // damage numbers re-learn the scale each run
   CORE.arena = typeof UI !== 'undefined' && UI.sample === 's002' ? DISH.arena : CORE.arena0;
   G = {
     state: 'play', t: 0, realT: 0,
@@ -605,10 +606,46 @@ function spawnPart(x, y, color, n, spd, life, size) {
     G.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: life * rand(0.6, 1), max: life, color, size: size || 3 });
   }
 }
-function floatText(x, y, txt, color, size, life) {
-  while (G.texts.length >= qualTexts()) G.texts.shift();
-  G.texts.push({ x: x + rand(-6, 6), y, txt, color, size: size || 13, life: life || 0.7, max: life || 0.7 });
+function floatText(x, y, txt, color, size, life, big) {
+  // When full, drop the oldest ordinary text first, so a big hit isn't pushed off by small ones.
+  while (G.texts.length >= qualTexts()) { const i = G.texts.findIndex(t => !t.big); G.texts.splice(i < 0 ? 0 : i, 1); }
+  G.texts.push({ x: x + rand(-6, 6), y, txt, color, size: size || 13, life: life || 0.7, max: life || 0.7, big: big || 0 });
 }
+// Damage numbers sized by how the hit compares with your typical hit right now (a running average in log
+// terms), coloured by damage type. Small hits don't show; big ones grow; huge ones get the full show,
+// but only one huge number at a time (the bigger one wins).
+const DMGNUM = { log: null, bigT: -9, bigD: 0, busyT: 0, busyN: 0 };
+function dmgNumber(e, d, src, crit) {
+  if (!(d > 0)) return;
+  const L = Math.log(d);
+  DMGNUM.log = DMGNUM.log == null ? L : DMGNUM.log + (L - DMGNUM.log) * 0.015;
+  const r = d / Math.exp(DMGNUM.log), now = G.realT;
+  if (r < 0.75 && !crit) return; // everyday chip damage stays quiet
+  // A small budget for ordinary numbers: about 10 every quarter second, fewer when the screen is busy.
+  if (now - DMGNUM.busyT > 0.25) { DMGNUM.busyT = now; DMGNUM.busyN = 0; }
+  let tier = r >= 12 ? 3 : r >= 4 ? 2 : 1;
+  if (tier >= 2) {
+    // Big numbers are rationed: at most two on screen, and a new one inside half a second only shows if it's bigger.
+    const live = G.texts.filter(t => t.big && t.life > 0.2);
+    if ((now - DMGNUM.bigT < 0.5 || live.length >= 2) && d <= DMGNUM.bigD) tier = 1;
+    else {
+      DMGNUM.bigT = now; DMGNUM.bigD = d;
+      if (live.length >= 2) live[0].life = Math.min(live[0].life, 0.2); // a bigger one bumps the oldest off
+    }
+  }
+  if (now - DMGNUM.bigT > 1.5) DMGNUM.bigD = 0; // the bar resets once the last big one has gone
+  if (tier === 1) {
+    const cap = (typeof FX === 'undefined' ? 1 : FX.k) * 10;
+    if (DMGNUM.busyN >= cap && !(crit && DMGNUM.busyN < cap + 4)) return;
+    DMGNUM.busyN++;
+  }
+  const el = src.elem || (src.w && src.w.def.elem) || 'phys', c = (ELEMENTS[el] || ELEMENTS.phys).color;
+  const size = clamp(11 + 6 * Math.log2(Math.max(1, r)), 11, 44) + (crit ? 3 : 0);
+  const txt = fmtDmg(d) + (crit ? '!' : '');
+  floatText(e.x, e.y - e.r, txt, c, size, tier === 3 ? 1.5 : tier === 2 ? 1.0 : 0.7, tier >= 2 ? tier : 0);
+  if (tier === 3) { ring(e.x, e.y, e.r + 40, c, 0.4, 5); cam.shake = Math.min(10, cam.shake + 3); }
+}
+const fmtDmg = v => v >= 1e6 ? (v / 1e6).toFixed(v >= 1e7 ? 0 : 1) + 'M' : v >= 1e4 ? Math.round(v / 1e3) + 'k' : Math.round(v) + '';
 function banner(text, color) { G.banner = { text, color: color || '#fff', t: 2.4 }; }
 function ring(x, y, r, color, life, width) { G.fx.push({ type: 'ring', x, y, r, color, life: life || 0.35, max: life || 0.35, w: width || 3 }); }
 // Shaped particles. k: 'spark' (a hot streak along its motion), 'ember' (a rising glow), 'smoke' (a growing
@@ -707,9 +744,7 @@ function damageEnemy(e, dmg, src) {
   // Damage numbers thin out when the screen is busy (crits always show).
   if (!src.dot && !IN_AOE) hitFx(e, src, crit, d);
   if (!src.dot && e.puddleT > G.t) puddleQuirks(e, src, dmg); // lightning, fire and frost meet a puddle
-  if (!src.dot && (crit || d >= 4 || Math.random() < 0.3) && (crit || typeof FX === 'undefined' || FX.k > 0.6 || Math.random() < FX.k * 0.5)) {
-    floatText(e.x, e.y - e.r, Math.round(d) + (crit ? '!' : ''), '#ffffff', crit ? 17 : 12);
-  }
+  if (!src.dot) dmgNumber(e, d, src, crit);
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
   if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy) {
     const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1);
@@ -2314,7 +2349,7 @@ function update(dt) {
   for (const f of G.fx) f.life -= dt;
   for (const l of G.lights) l.life -= dt;
   for (const d of G.decals) d.life -= dt;
-  for (const t of G.texts) { t.life -= dt; t.y -= 32 * dt; }
+  for (const t of G.texts) { t.life -= dt; t.y -= (t.big ? 18 : 32) * dt; }
   if (G.banner) { G.banner.t -= dt; if (G.banner.t <= 0) G.banner = null; }
   compact();
   // Camera.
