@@ -1384,6 +1384,8 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 
 The first time you ever see each kind of enemy (once ever, not once a run), the slide stops and it gets a short introduction: what it is and how to beat it. It then goes in the Codex under ENEMIES. Settings > Tutorial resets them so you can see them again. Bosses always get their full introduction.
 
+**Spotlight.** That first meeting also gets the stage for about 17 seconds: it arrives as a pack, most new spawns are more of it, the rest of the crowd near you backs off and scripted waves wait, so you can get a feel for it. Types you have already met just join the run as normal.
+
 | Enemy | What it is | How to beat it |
 |---|---|---|
 | **Also-Ran** | One of the four hundred million. Not a threat on its own. There is never one on its own. | Anything that hits a crowd. Keep swimming and let your weapons mow them down. |

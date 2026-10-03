@@ -1110,6 +1110,34 @@ function spawnPos() {
   return { x: G.player.x + Math.cos(a) * d, y: G.player.y + Math.sin(a) * d, a };
 }
 
+// Spotlight: the first time you ever meet an enemy type (the same moment as its introduction card, intro.js),
+// it gets the stage for about 17 seconds. It arrives as a pack, 90% of new spawns are more of it in small
+// groups, the rest of the crowd near you backs off, and scripted waves wait, so you get a feel for it.
+// One at a time (others queue). Types you have already met just join the run as normal.
+const SPOT = { until: 300, len: 25, share: 0.9, back: 420 };
+function spotTick() {
+  const t = PT(), S2 = G.spot || (G.spot = { q: [], done: {}, cur: null, end: 0 });
+  if (t > SPOT.until + 30) { S2.cur = null; return; }
+  for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from > 10 && d.from <= SPOT.until && d.from <= t && !S2.done[id]) { S2.done[id] = 1; if (typeof seenFoe !== 'function' || !seenFoe(id)) S2.q.push(id); } }
+  if (S2.cur && t < S2.end) {
+    // Keep it in view: fewer than 5 of them near you and another group swims in (every 1.5s at most).
+    if (!(S2.refT > t)) {
+      S2.refT = t + 1.5;
+      let near = 0; const p = G.player;
+      for (const e of G.enemies) if (e.def === S2.cur && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 700) near++;
+      if (near < 5) { const q = spawnPos(); for (let i = 0; i < 3 && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(S2.cur, q.x + rand(-40, 40), q.y + rand(-40, 40))); }
+    }
+    return;
+  }
+  S2.cur = null;
+  const id = S2.q.shift();
+  if (!id) return;
+  S2.cur = ENEMIES[id]; S2.end = t + SPOT.len;
+  // It arrives as a pack, together, from one side (smaller packs of the big ones).
+  const d = S2.cur, n = Math.max(2, Math.min(8, Math.round(10 - d.hp / 15))), p = spawnPos();
+  for (let i = 0; i < n && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(d, p.x + rand(-50, 50), p.y + rand(-50, 50)));
+}
+const spotOn = () => !!(G.spot && G.spot.cur && PT() < G.spot.end);
 function spawnRandom() {
   const t = PT();
   const pool = [];
@@ -1120,8 +1148,11 @@ function spawnRandom() {
   for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t) { pool.push(d); tot += wOf(d); } }
   let x = Math.random() * tot, def = pool[0];
   for (const d of pool) { x -= wOf(d); if (x <= 0) { def = d; break; } }
+  const spot = spotOn() && Math.random() < SPOT.share;
+  if (spot) def = G.spot.cur; // the newcomer's turn
   const p = spawnPos();
-  const n = Math.ceil((def.group || 1) * 0.8);
+  const n0 = Math.ceil((def.group || 1) * 0.8), n = Math.max(n0, spot && def.hp < 100 ? 3 : 1); // (a bunch of them, unless they're big)
+  if (n > n0) G.spawnAcc = (G.spawnAcc || 0) - (n - n0); // ...charged to the spawn budget, so the slide is no busier than usual
   const eliteChance = Math.min(0.24, (0.01 + t / 3000) * heatElite());
   for (let i = 0; i < n; i++) {
     if (G.enemies.length >= CAPS.enemies) return;
@@ -1365,6 +1396,8 @@ function updateEnemies(dt) {
     const tide = e.boss || e.egg ? 0 : 0.8;
     // Scared, lured, stuck in the lines, or looking for you where you vanished (toys.js).
     if (G.toy) { const ts = toySteer(e); if (ts) { mx = ts.x; my = ts.y; } }
+    // Spotlight on a newcomer: the rest of the crowd near you backs off and gives it the stage.
+    if (G.spot && G.spot.cur && e.def !== G.spot.cur && !e.boss && !e.rival && !e.final && !e.egg && dist < SPOT.back && spotOn()) { mx = -ux; my = -uy; spd *= 0.7; }
     // On an ice rink, steering becomes shoving: they slide about. (svx/svy: how it is swimming, for head-on rams.)
     if (e.iceT > G.t && !e.boss) { e.kx += mx * spd * 3 * dt; e.ky += my * spd * 3 * dt; spd *= 0.2; }
     e.svx = mx * spd * f * warpF * G.evm.espd; e.svy = my * spd * f * warpF * G.evm.espd;
@@ -2377,7 +2410,8 @@ function update(dt) {
     G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1); // quieter while the Final Five fight you
     while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   }
-  if (G.t >= G.nextWave && !G.debug) { G.nextWave += 30; waveEvent(); }
+  spotTick();
+  if (G.t >= G.nextWave && !G.debug) { if (spotOn()) G.nextWave += 6; else { G.nextWave += 30; waveEvent(); } } // (scripted waves wait for a spotlight to finish)
   updateRivals(dt);
   if (!G.wave && !G.debug) updateShowdown();
   if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('STORM SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
