@@ -931,7 +931,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     o.tail = [];
     for (let i = 0; i < TAIL_N; i++) o.tail.push({ x: rx - Math.cos(face) * seg * i, y: ry - Math.sin(face) * seg * i });
   }
-  o.beat = (o.beat || Math.random() * 10) + dt * (15 + Math.min(20, speed / 7)) * (beatMul || 1); // a brisk, fast beat
+  o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * (beatMul || 1); // a fast, whippy beat
   const t = o.tail;
   t[0].x = rx; t[0].y = ry;
   for (let i = 1; i < TAIL_N; i++) {

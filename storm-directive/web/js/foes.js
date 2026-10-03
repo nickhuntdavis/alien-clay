@@ -239,7 +239,7 @@ function drawStatusFx(e, x, y, r) {
 const ringStain = e => (e === G.player ? !!G.dyes.gfp : e.rival || e.final ? !!(G.dyes.rival || G.dyes.immuno) : !!G.dyes.immuno);
 function drawHealthRing(x, y, R, hpK, armK, color) {
   const a0 = ctx.globalAlpha, top = -Math.PI / 2, lw = Math.max(2, 2.2 * Math.min(1.6, S));
-  if (hpK < 1) {
+  if (hpK < 0.995) {
     ctx.lineCap = 'butt';
     ctx.globalAlpha = a0; ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.beginPath(); ctx.arc(x, y, R, top, top + TAU * Math.max(0, hpK)); ctx.stroke();
   }
@@ -252,12 +252,13 @@ function drawHealthRing(x, y, R, hpK, armK, color) {
 function enemyRing(e, x, y, r) {
   if (e.boss || e.egg || !ringStain(e)) return;
   const hpK = e.hp / e.maxHp, armK = e.armour > 0 ? effArmour(e) / (e.armour + (e.auraArm > 0 ? 4 : 0)) : null;
-  if (hpK >= 1 && !(armK != null && armK < 1)) return;
+  if (hpK >= 0.995 && !(armK != null && armK < 0.995)) return; // untouched: no ring at all
   drawHealthRing(x, y, r + 7, hpK, armK, e.rival ? e.color : e.elite ? PAL.reward : hpK < 0.3 ? PAL.danger : '#ffffff');
 }
 function playerRing(px, py) {
   if (!ringStain(G.player)) return;
   const p = G.player, P = G.P, hpK = p.hp / P.maxHp;
+  if (p.hp >= P.maxHp - 0.5) return; // not wounded: no ring at all
   // Player armour: Bear Hug and other temporary plating count towards its max while it lasts.
   const armMax = (P.armour || 0) + (G.hugArmMax || 0), armK = armMax > 0 && G.armourLost ? Math.max(0, 1 - G.armourLost / armMax) : null;
   drawHealthRing(px, py, 24 * S * playerScale(), hpK, armK, hpK < 0.3 ? PAL.danger : PAL.you);
