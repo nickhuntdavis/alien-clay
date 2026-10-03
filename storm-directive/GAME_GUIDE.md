@@ -1,41 +1,50 @@
 # Spawn Prawn: complete game guide
 
-Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with its numbers. Generated from the game data (`web/js/data.js`), so the figures match the build. Numbers are base values at level 1 and common rarity; rarer cards multiply them.
+Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse in the game, with its numbers. Generated from the game data (`web/js/data.js`), so the figures match the build. Numbers are base values at level 1 and common rarity; rarer cards multiply them.
 
 ## Contents
 1. [How upgrades work](#how-upgrades-work)
-2. [Weapons](#weapons)
-3. [Pairings (secret combos)](#pairings-secret-combos)
-4. [Bosses and relics](#bosses-and-relics)
-5. [Run events](#run-events)
-6. [Spells](#spells)
-7. [Power-ups (passives)](#power-ups-passives)
-8. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
-9. [Modifiers](#modifiers)
-10. [Duo combos](#duo-combos)
-11. [Stains](#stains)
-12. [Cursed cards](#cursed-cards)
-13. [Field pickups](#field-pickups)
-14. [Elemental reactions](#elemental-reactions)
-15. [Element synergies](#element-synergies)
-16. [Targeting directives](#targeting-directives)
-17. [Movement directives](#movement-directives)
-18. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
-19. [Enemies](#enemies)
-20. [Rival champions](#rival-champions)
-21. [Terrain](#terrain)
-22. [Sperm samples](#sperm-samples)
+2. [Epigenetic Profiles (sequences)](#epigenetic-profiles-sequences)
+3. [Weapons](#weapons)
+4. [Weapon combos](#weapon-combos)
+5. [Pairings (secret combos)](#pairings-secret-combos)
+6. [Bosses and relics](#bosses-and-relics)
+7. [Run events](#run-events)
+8. [Spells](#spells)
+9. [Power-ups (passives)](#power-ups-passives)
+10. [Mutations (Enzyme Vesicles)](#mutations-enzyme-vesicles)
+11. [Mythical and Celestial bonuses](#mythical-and-celestial-bonuses)
+12. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
+13. [Modifiers](#modifiers)
+14. [Duo combos](#duo-combos)
+15. [Stains](#stains)
+16. [Cursed cards](#cursed-cards)
+17. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
+18. [Elemental reactions](#elemental-reactions)
+19. [Element synergies](#element-synergies)
+20. [Targeting directives](#targeting-directives)
+21. [Movement directives](#movement-directives)
+22. [Immune Response (difficulty)](#immune-response-difficulty)
+23. [Being born (prestige)](#being-born-prestige)
+24. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+25. [Enemies](#enemies)
+26. [Rival champions](#rival-champions)
+27. [Terrain](#terrain)
+28. [Sperm samples](#sperm-samples)
 
 ## How upgrades work
 
 1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, spells, power-ups, modifiers, stains and (rarely) curses.
 2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
    - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.
-3. **Pairings:** own two specific weapons, both at Lv5+, and they start working together. They are secret until you find them.
-4. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
-5. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total). Ordinary DNA strands never offer new weapons.
-6. **Bosses:** a boss every 2 minutes. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
-7. **Rarity** multiplies a card's value:
+3. **Combos:** get two specific weapons to Lv 5+ and a COMBO card turns up in your next box. Fuse them and both keep firing, gain a new power, and (2 times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv5+.
+4. **Weapon tuning:** fire rate, reload, magazine, extra projectiles, projectile speed and range, area, duration and pierce cards go on ONE weapon you choose (tap it on the card); each weapon keeps its own stacks. Legendary and better versions tune every weapon at once.
+5. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
+6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
+7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 26, 46 you can splice in another at half strength (three at most), or skip and take a mutation instead.
+8. **Mutations:** Enzyme Vesicles bulge up on the slide (the first at 40s, then every 45 to 70s). Swim into one to pick one of four mutations; you have 6 slots.
+9. **Bosses:** a boss every 2 minutes. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
+10. **Rarity** multiplies a card's value:
 
 | Rarity | Multiplier | Weapon levels granted | Drop weight |
 |---|---|---|---|
@@ -49,37 +58,62 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 **Level bonus key:** "+N count/pierce" is additive; "+N% dmg/area/duration" adds to the base; "N% faster" cuts the cooldown.
 
+## Epigenetic Profiles (sequences)
+
+Choose your Primary Sequence before each run. It gives its trait at full strength, its exclusive weapons and a starting ability that fires by itself (or tap its button). Spliced-in sequences give their trait at half strength and add their weapons to your drafts. Each sequence ranks up with kills while you carry it (Rank 2 at 5,000, Rank 3 at 25,000), doubling its trait each time. Your weapons take your primary's colour (with the GFP Tag).
+
+| Sequence | Trait (Rank 1) | Weapons | Starting ability | Unlock |
+|---|---|---|---|---|
+| **The Vanguard** | Quick Reflexes: +12% reload speed | Spitball, Seeker Siblings, Yo-Yo Diet | **Acrosomal Charge** (8s): Every 8s: headbutt-dash through whatever is in front of you, hitting everything along the way. You cannot be hurt mid-charge. | Always |
+| **The Bruiser** | Cellular Armour: +1 armour | Hiccup Scattergun, Placenta Paddle, Thorny Onesie, Nappy Mines | **Hormonal Fury** (30s): Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s. | Always |
+| **The Mitochondrial Nerd** | Overclocked Organelles: +6% fire rate, spells recharge 6% faster | Static Cling, Twin Telepathy, Toddler Gravity | **Bio-EMP Cyst** (10s): Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets. | Always |
+| **The Egg-Seeker** | Killer Instinct: +4% crit chance, +15% crit damage | Due Date, Cold Feet, Tooth Fairy | **Precision Strike** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Survive 10 minutes in a single run |
+| **The Stealth-Tadpole** | Up Close and Personal: +12% melee and trail damage, +2% dodge | Flagellum Flail, Incompatible Viral Load, Peekaboo | **Shadow Slip** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Beat 25 bosses (all runs) |
+| **The Enzyme-Pusher** | Self-Repair: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Biomass Drain** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Pick up 100 power-ups (all runs) |
+| **The Acid-Burner** | Burning Membrane: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Gastric Eruption** (9s): Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are. | Deal 2,000,000 elemental damage (all runs) |
+| **The Gene-Splicer** | Fluid Amplifier: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon | **Liquid Nitrogen Vacuole** (11s): Every 11s: a vacuole of liquid nitrogen bursts on the biggest crowd within 320, freezing everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
+
+### Sequence synergies
+
+| Synergy | Sequences | Effect |
+|---|---|---|
+| **Static Reload** | The Vanguard + The Mitochondrial Nerd | Every reload sends a spark into the two nearest enemies. |
+| **Scorched Trail** | The Vanguard + The Acid-Burner | You leave small burning patches behind you as you swim. |
+| **Fury Mends** | The Bruiser + The Enzyme-Pusher | Below half health, your regeneration doubles (and you get +1 HP/s). |
+| **Acid Mines** | The Bruiser + The Acid-Burner | Nappy Mines leave a burning puddle where they go off. |
+| **Assassin** | The Egg-Seeker + The Stealth-Tadpole | Hits on enemies at full health always crit. |
+
 ## Weapons
 
-25 weapons, each with its own play style. **Start** = can appear in your first box. **Bank** = add it to the first box from the Gene Bank (DNA cost shown). 
+25 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
 
-| Weapon | Element | Role | Aims at |
-|---|---|---|---|
-| [Spitball](#spitball) (Start) | Kinetic | Marksman | NEAREST |
-| [Hiccup Scattergun](#hiccup-scattergun) (Start) | Kinetic | Brawler | NEAREST |
-| [Yo-Yo Diet](#yo-yo-diet) (Start) | Kinetic | Boomerang | FURTHEST |
-| [Incompatible Viral Load](#incompatible-viral-load) (Bank 80) | Toxic | Toxic Trail | NEAREST |
-| [Heartburn](#heartburn) (Start) | Fire | Flamethrower | NEAREST |
-| [Nappy Mines](#nappy-mines) (Bank 60) | Fire | Trapper | NEAREST |
-| [Cold Feet](#cold-feet) (Start) | Frost | Freezer | FASTEST |
-| [Static Cling](#static-cling) (Start) | Shock | Chain Lightning | DENSEST CLUSTER |
-| [Morning Sickness](#morning-sickness) (Start) | Toxic | Area Denial | DENSEST CLUSTER |
-| [Tapeworm Seeder](#tapeworm-seeder) (Bank 90) | Toxic | Necromancer | HIGHEST HEALTH |
-| [Seeker Siblings](#seeker-siblings) (Start) | Arcane | Swarm | WEAKEST |
-| [Toddler Gravity](#toddler-gravity) (Bank 80) | Arcane | Crowd Control | DENSEST CLUSTER |
-| [Premature Evangelation](#premature-evangelation) (Bank 60) | Arcane | Bodyguard | NEAREST |
-| [Placental Siphon](#placental-siphon) (Bank 100) | Arcane | Counter | NEAREST |
-| [Placenta Paddle](#placenta-paddle) (Start) | Kinetic | Cleaver | NEAREST |
-| [Flagellum Flail](#flagellum-flail) (Start) | Kinetic | Lasher | NEAREST |
-| [Thorny Onesie](#thorny-onesie) (Start) | Kinetic | Tank | NEAREST |
-| [Colouring In](#colouring-in) (Bank 90) | Kinetic | Lasso | NEAREST |
-| [Due Date](#due-date) (Bank 100) | Arcane | Delayed Doom | HIGHEST HEALTH |
-| [Red Tape](#red-tape) (Bank 90) | Toxic | Bureaucrat | DENSEST CLUSTER |
-| [Imaginary Friend](#imaginary-friend) (Bank 120) | Arcane | Echo | NEAREST |
-| [Peekaboo](#peekaboo) (Bank 100) | Frost | Trickster | NEAREST |
-| [Twin Telepathy](#twin-telepathy) (Bank 110) | Shock | Geometry | DENSEST CLUSTER |
-| [Bubble Wand](#bubble-wand) (Bank 90) | Kinetic | Trap & Throw | NEAREST |
-| [Tooth Fairy](#tooth-fairy) (Bank 100) | Arcane | Lure | DENSEST CLUSTER |
+| Weapon | Sequence | Element | Role | Aims at | Wildcard |
+|---|---|---|---|---|---|
+| [Spitball](#spitball) | Vanguard | Kinetic | Marksman | NEAREST | - |
+| [Hiccup Scattergun](#hiccup-scattergun) | Bruiser | Kinetic | Brawler | NEAREST | - |
+| [Yo-Yo Diet](#yo-yo-diet) | Vanguard | Kinetic | Boomerang | FURTHEST | - |
+| [Incompatible Viral Load](#incompatible-viral-load) | Stealth-Tadpole | Toxic | Toxic Trail | NEAREST | 80 DNA |
+| [Heartburn](#heartburn) | Acid-Burner | Fire | Flamethrower | NEAREST | - |
+| [Nappy Mines](#nappy-mines) | Bruiser | Fire | Trapper | NEAREST | 60 DNA |
+| [Cold Feet](#cold-feet) | Egg-Seeker | Frost | Freezer | FASTEST | - |
+| [Static Cling](#static-cling) | Mitochondrial Nerd | Shock | Chain Lightning | DENSEST CLUSTER | - |
+| [Morning Sickness](#morning-sickness) | Acid-Burner | Toxic | Area Denial | DENSEST CLUSTER | - |
+| [Tapeworm Seeder](#tapeworm-seeder) | Enzyme-Pusher | Toxic | Necromancer | HIGHEST HEALTH | 90 DNA |
+| [Seeker Siblings](#seeker-siblings) | Vanguard | Arcane | Swarm | WEAKEST | - |
+| [Toddler Gravity](#toddler-gravity) | Mitochondrial Nerd | Arcane | Crowd Control | DENSEST CLUSTER | 80 DNA |
+| [Premature Evangelation](#premature-evangelation) | Enzyme-Pusher | Arcane | Bodyguard | NEAREST | 60 DNA |
+| [Placental Siphon](#placental-siphon) | Gene-Splicer | Arcane | Counter | NEAREST | 100 DNA |
+| [Placenta Paddle](#placenta-paddle) | Bruiser | Kinetic | Cleaver | NEAREST | - |
+| [Flagellum Flail](#flagellum-flail) | Stealth-Tadpole | Kinetic | Lasher | NEAREST | - |
+| [Thorny Onesie](#thorny-onesie) | Bruiser | Kinetic | Tank | NEAREST | - |
+| [Colouring In](#colouring-in) | Gene-Splicer | Kinetic | Lasso | NEAREST | 90 DNA |
+| [Due Date](#due-date) | Egg-Seeker | Arcane | Delayed Doom | HIGHEST HEALTH | 100 DNA |
+| [Red Tape](#red-tape) | Acid-Burner | Toxic | Bureaucrat | DENSEST CLUSTER | 90 DNA |
+| [Imaginary Friend](#imaginary-friend) | Gene-Splicer | Arcane | Echo | NEAREST | 120 DNA |
+| [Peekaboo](#peekaboo) | Stealth-Tadpole | Frost | Trickster | NEAREST | 100 DNA |
+| [Twin Telepathy](#twin-telepathy) | Mitochondrial Nerd | Shock | Geometry | DENSEST CLUSTER | 110 DNA |
+| [Bubble Wand](#bubble-wand) | Enzyme-Pusher | Kinetic | Trap & Throw | NEAREST | 90 DNA |
+| [Tooth Fairy](#tooth-fairy) | Egg-Seeker | Arcane | Lure | DENSEST CLUSTER | 100 DNA |
 
 ### Spitball
 
@@ -87,6 +121,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 11, cd 0.3s, mag 12, reload 1.1s, range 440
 - **Level bonuses:** Lv3: +1 pierce; Lv6: +1 count; Lv9: +30% dmg
+- **Combos:** **Big Sibling** (+ Seeker Siblings), **Spit Yo-Yo** (+ Yo-Yo Diet)
 - **Pairings:** **Conductive Spit** (+ Static Cling)
 
 | Level | Choice | Effect |
@@ -107,6 +142,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 8, cd 0.75s, mag 4, reload 1.6s, x6, range 270 (knock 70)
 - **Level bonuses:** Lv3: +2 count; Lv6: +1 pierce; Lv9: +2 count
+- **Combos:** **Porcupine Hug** (+ Thorny Onesie)
 - **Pairings:** **Sucker Punch** (+ Toddler Gravity)
 
 | Level | Choice | Effect |
@@ -127,6 +163,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 16, cd 1s, mag 2, reload 1.3s, pierce all, range 330 (boomerang 1)
 - **Level bonuses:** Lv3: +20% dmg; Lv6: +1 count; Lv9: +30% dmg
+- **Combos:** **Spit Yo-Yo** (+ Spitball)
 - **Pairings:** **Tetherball** (+ Toddler Gravity), **Sibling Yo-Yo** (+ Seeker Siblings)
 
 | Level | Choice | Effect |
@@ -147,6 +184,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 20 (dur 2.2, area 22)
 - **Level bonuses:** Lv3: +30% area; Lv6: +50% duration; Lv9: +50% dmg
+- **Combos:** **Whiplash** (+ Flagellum Flail), **Ghost Trail** (+ Peekaboo)
 - **Pairings:** **Nappy Trail** (+ Morning Sickness), **Trail Mix** (+ Nappy Mines)
 
 | Level | Choice | Effect |
@@ -167,6 +205,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 3.4, cd 0.05s, mag 50, reload 2.1s, x2, pierce all, range 200
 - **Level bonuses:** Lv3: +30% area; Lv6: +30% dmg; Lv9: +1 count
+- **Combos:** **Flash Point** (+ Morning Sickness)
 - **Pairings:** **Hot Flush, Cold Sweat** (+ Cold Feet), **Holy Smoke** (+ Premature Evangelation)
 
 | Level | Choice | Effect |
@@ -187,6 +226,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 34, cd 0.7s, mag 5, reload 2.4s, range 600 (explode 72, life 14)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +50% dmg
+- **Combos:** **Whack-a-Mole** (+ Placenta Paddle)
 - **Pairings:** **Baby Monitor Network** (+ Static Cling), **Trail Mix** (+ Incompatible Viral Load), **Bait and Switch** (+ Tooth Fairy)
 
 | Level | Choice | Effect |
@@ -207,6 +247,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 15, cd 0.6s, mag 5, reload 1.5s, pierce 3, range 460
 - **Level bonuses:** Lv3: +1 count; Lv6: +2 pierce; Lv9: +1 count
+- **Combos:** **Cold Case** (+ Due Date), **Cold Comfort** (+ Tooth Fairy)
 - **Pairings:** **Hot Flush, Cold Sweat** (+ Heartburn), **Snow Globe** (+ Toddler Gravity), **Ice Hockey** (+ Placenta Paddle), **Cold Read** (+ Twin Telepathy)
 
 | Level | Choice | Effect |
@@ -227,6 +268,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 13, cd 0.7s, mag 6, reload 1.8s, range 330 (chain 3, jump 140)
 - **Level bonuses:** Lv3: +2 chain; Lv6: +1 count; Lv9: +2 chain
+- **Combos:** **Storm in a Teacup** (+ Toddler Gravity), **Party Line** (+ Twin Telepathy)
 - **Pairings:** **Baby Monitor Network** (+ Nappy Mines), **Conductive Spit** (+ Spitball), **Static Discharge** (+ Placental Siphon), **Live Wire** (+ Flagellum Flail), **Live Paperwork** (+ Red Tape)
 
 | Level | Choice | Effect |
@@ -247,6 +289,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 10, cd 0.9s, mag 4, reload 1.8s, range 390 (area 58, dur 3, flight 0.6)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +40% area
+- **Combos:** **Flash Point** (+ Heartburn), **Sticky Situation** (+ Red Tape)
 - **Pairings:** **Nappy Trail** (+ Incompatible Viral Load), **Petri Dish** (+ Tapeworm Seeder), **Nappy Rash** (+ Thorny Onesie), **Colouring Book** (+ Colouring In), **Toil and Trouble** (+ Bubble Wand)
 
 | Level | Choice | Effect |
@@ -267,6 +310,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 12, cd 0.4s, mag 8, reload 1.6s, range 430 (dur 8)
 - **Level bonuses:** Lv3: +1 count; Lv6: +50% duration; Lv9: +40% dmg
+- **Combos:** **Worm Farm** (+ Bubble Wand)
 - **Pairings:** **Family Tree** (+ Seeker Siblings), **Petri Dish** (+ Morning Sickness)
 
 | Level | Choice | Effect |
@@ -287,6 +331,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 9, cd 0.45s, mag 6, reload 2s, x2, range 500 (homing 5)
 - **Level bonuses:** Lv3: +1 count; Lv6: +1 count; Lv9: +40% dmg
+- **Combos:** **Big Sibling** (+ Spitball)
 - **Pairings:** **Family Tree** (+ Tapeworm Seeder), **Sibling Yo-Yo** (+ Yo-Yo Diet)
 
 | Level | Choice | Effect |
@@ -307,6 +352,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 8, cd 1.8s, mag 2, reload 2.5s, pierce all, range 400 (aura 72, pull 95)
 - **Level bonuses:** Lv3: +30% area; Lv6: +1 count; Lv9: +50% dmg
+- **Combos:** **Storm in a Teacup** (+ Static Cling)
 - **Pairings:** **Tetherball** (+ Yo-Yo Diet), **Sucker Punch** (+ Hiccup Scattergun), **Snow Globe** (+ Cold Feet)
 
 | Level | Choice | Effect |
@@ -327,6 +373,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 23, reload 2.2s, x3, range 100 (dur 4.5, radius 72, spin 3.6)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +1 count
+- **Combos:** **Bubble Halo** (+ Bubble Wand)
 - **Pairings:** **Collection Plate** (+ Placental Siphon), **Holy Smoke** (+ Heartburn)
 
 | Level | Choice | Effect |
@@ -347,6 +394,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 15, cd 0.08s, mag 40, range 460 (area 90)
 - **Level bonuses:** Lv3: +25% area; Lv6: +1 pierce; Lv9: +40% dmg
+- **Combos:** **Invisible Shield** (+ Imaginary Friend)
 - **Pairings:** **Collection Plate** (+ Premature Evangelation), **Static Discharge** (+ Static Cling)
 
 | Level | Choice | Effect |
@@ -367,6 +415,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 34, cd 0.8s, mag 4, reload 1.1s, range 92 (area 1, arc 2.4, knock 220)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
+- **Combos:** **Whack-a-Mole** (+ Nappy Mines)
 - **Pairings:** **One-Two** (+ Flagellum Flail), **Ice Hockey** (+ Cold Feet), **Bubble Hockey** (+ Bubble Wand)
 
 | Level | Choice | Effect |
@@ -387,6 +436,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 19, cd 0.38s, mag 6, reload 1s, range 190 (area 1, width 15, knock 60)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +25% area
+- **Combos:** **Whiplash** (+ Incompatible Viral Load)
 - **Pairings:** **One-Two** (+ Placenta Paddle), **Live Wire** (+ Static Cling)
 
 | Level | Choice | Effect |
@@ -407,6 +457,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 18, cd 0.55s, mag 8, reload 0.9s, range 90 (area 90, knock 120)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +20% area
+- **Combos:** **Porcupine Hug** (+ Hiccup Scattergun)
 - **Pairings:** **Nappy Rash** (+ Morning Sickness)
 
 | Level | Choice | Effect |
@@ -427,6 +478,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 44, cd 2.2s, mag 3, reload 1.2s, range 600 (dur 2.6)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +40% duration; Lv9: +50% dmg
+- **Combos:** **Join the Dots** (+ Imaginary Friend)
 - **Pairings:** **Colouring Book** (+ Morning Sickness)
 
 | Level | Choice | Effect |
@@ -447,6 +499,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 20, cd 0.9s, mag 3, reload 2s, range 480 (dur 4, repeat 0.4)
 - **Level bonuses:** Lv3: +0.15 repeat; Lv6: +1 count; Lv9: +0.2 repeat
+- **Combos:** **Cold Case** (+ Cold Feet)
 - **Pairings:** **Final Notice** (+ Red Tape)
 
 | Level | Choice | Effect |
@@ -467,6 +520,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 18, cd 1.4s, mag 3, reload 2s, range 420 (chain 3, jump 170, dur 5, share 0.35)
 - **Level bonuses:** Lv3: +1 chain; Lv6: +0.1 share; Lv9: +2 chain
+- **Combos:** **Sticky Situation** (+ Morning Sickness)
 - **Pairings:** **Final Notice** (+ Due Date), **Live Paperwork** (+ Static Cling)
 
 | Level | Choice | Effect |
@@ -487,6 +541,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 24, cd 0.7s, mag 6, reload 1.4s, range 230 (delay 2, copy 0.35)
 - **Level bonuses:** Lv3: +0.1 copy; Lv6: +1 count; Lv9: +0.1 copy
+- **Combos:** **Join the Dots** (+ Colouring In), **Invisible Shield** (+ Placental Siphon)
 - **Pairings:** **Hide and Seek** (+ Peekaboo)
 
 | Level | Choice | Effect |
@@ -507,6 +562,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 20, cd 5.5s, mag 1, reload 0.1s, range 420 (dur 1.8, area 230)
 - **Level bonuses:** Lv3: +25% duration; Lv6: +25% area; Lv9: +50% dmg
+- **Combos:** **Ghost Trail** (+ Incompatible Viral Load)
 - **Pairings:** **Hide and Seek** (+ Imaginary Friend)
 
 | Level | Choice | Effect |
@@ -527,6 +583,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 24, cd 1.6s, mag 3, reload 2s, range 520 (area 90, width 10)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +30% area
+- **Combos:** **Party Line** (+ Static Cling)
 - **Pairings:** **Cold Read** (+ Cold Feet)
 
 | Level | Choice | Effect |
@@ -547,6 +604,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 18, cd 1.1s, mag 4, reload 2s, range 380 (dur 5, hold 34)
 - **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +1 count
+- **Combos:** **Worm Farm** (+ Tapeworm Seeder), **Bubble Halo** (+ Premature Evangelation)
 - **Pairings:** **Bubble Hockey** (+ Placenta Paddle), **Toil and Trouble** (+ Morning Sickness)
 
 | Level | Choice | Effect |
@@ -567,6 +625,7 @@ Every weapon, spell, power-up, perk, modifier, stain and curse in the game, with
 
 - **Base stats:** dmg 34, cd 1.1s, mag 3, reload 2s, range 420 (dur 6, lure 230)
 - **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +60 lure
+- **Combos:** **Cold Comfort** (+ Cold Feet)
 - **Pairings:** **Bait and Switch** (+ Nappy Mines)
 
 | Level | Choice | Effect |
@@ -645,6 +704,29 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Hair Trigger | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits 33% harder instead. |
 | Due Date Panic | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits 60% harder instead. |
 | Espresso Drip | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits twice as hard instead. |
+
+## Weapon combos
+
+Both weapons at Lv 5+: a COMBO card is guaranteed in your next box. Both keep firing, gain the power below, and the first 2 combos a run open a bonus weapon mount with a draft.
+
+| Combo | Weapons | Sequence | Power |
+|---|---|---|---|
+| **Big Sibling** | Spitball + Seeker Siblings | Vanguard | Every 5th Spitball volley also launches a huge homing Big Sibling that explodes on impact. |
+| **Spit Yo-Yo** | Spitball + Yo-Yo Diet | Vanguard | Yo-yos spit Spitballs at whatever is near them while they fly. |
+| **Whack-a-Mole** | Placenta Paddle + Nappy Mines | Bruiser | Paddle hits plant a Nappy Mine under the enemy, armed almost at once. |
+| **Porcupine Hug** | Thorny Onesie + Hiccup Scattergun | Bruiser | Every Onesie pulse fires a ring of Scattergun pellets outwards. |
+| **Storm in a Teacup** | Toddler Gravity + Static Cling | Mitochondrial Nerd | Gravity orbs crackle: each one throws a Static Cling chain at what it is pulling in. |
+| **Party Line** | Twin Telepathy + Static Cling | Mitochondrial Nerd | Every second, each twin sends a Static Cling chain into the crowd. |
+| **Cold Case** | Due Date + Cold Feet | Egg-Seeker | When a Due Date goes off, everything near it freezes solid and takes a burst of frost. |
+| **Cold Comfort** | Tooth Fairy + Cold Feet | Egg-Seeker | Tooth Fairy smites freeze their victim. A frozen victim takes double. |
+| **Whiplash** | Flagellum Flail + Incompatible Viral Load | Stealth-Tadpole | Every lash leaves a strip of viral trail along its length. |
+| **Ghost Trail** | Peekaboo + Incompatible Viral Load | Stealth-Tadpole | While you are hidden, your viral trail hits 2.5x as hard. The BOO leaves a ring of it round the spot. |
+| **Worm Farm** | Bubble Wand + Tapeworm Seeder | Enzyme-Pusher | Anything trapped in a bubble catches Tapeworm. Bubble pops hit infected enemies 50% harder. |
+| **Bubble Halo** | Premature Evangelation + Bubble Wand | Enzyme-Pusher | Your angels blow bubbles at small enemies near them. |
+| **Flash Point** | Morning Sickness + Heartburn | Acid-Burner | Heartburn ignites your puddles: each one in range erupts in a fireball every second. |
+| **Sticky Situation** | Red Tape + Morning Sickness | Acid-Burner | Taped bundles drip: a toxic puddle forms under each one every second. |
+| **Join the Dots** | Colouring In + Imaginary Friend | Gene-Splicer | Every 3s, the shape between you and your Imaginary Friend is coloured in. |
+| **Invisible Shield** | Imaginary Friend + Placental Siphon | Gene-Splicer | Your Imaginary Friend catches enemy bullets and feeds them to the Siphon. |
 
 ## Pairings (secret combos)
 
@@ -842,52 +924,141 @@ Spells autocast on cooldown and use spell slots. They level up like weapons but 
 
 Stat boosts that stack. Value shown is per pick at Common rarity.
 
-| Power-up | Per pick | Max stacks |
+**Tunes one weapon** means the card goes on one weapon you choose (each weapon has its own max stacks), unless it is Legendary or better, which tunes every weapon.
+
+| Power-up | Per pick | Applies to | Max stacks |
+|---|---|---|---|
+| **Protein Shake** | +12% damage | You | 8 |
+| **Twitchy Tail** | +10% fire rate | Tunes one weapon | 8 per weapon |
+| **Short Refractory Period** | +15% reload speed | Tunes one weapon | 6 per weapon |
+| **Bigger Load** | +20% magazine size | Tunes one weapon | 6 per weapon |
+| **Split Personality** | +1 projectile (shots share the damage: about +25% in all) (Epic or better only) | Tunes one weapon | 3 per weapon |
+| **Early Arrival** | +12% projectile speed and range | Tunes one weapon | 5 per weapon |
+| **Personal Space** | +12% area of effect | Tunes one weapon | 6 per weapon |
+| **Stamina** | +15% effect duration | Tunes one weapon | 5 per weapon |
+| **Pushy** | +1 pierce | Tunes one weapon | 4 per weapon |
+| **Sharp Elbows** | +5% crit chance | You | 6 |
+| **Low Blow** | +25% crit damage | You | 6 |
+| **Thick Skin** | +15 max HP (and heal it) | You | 8 |
+| **Pregnancy Vitamins** | +0.3 HP/sec regen | You | 5 |
+| **Sticky Cilia** | +22% traction: sharper turns, less drift | You | 5 |
+| **Hydrodynamic Head** | +12% traction and +6% swim speed | You | 3 |
+| **Leg Day (Tail Day)** | +8% move speed | You | 5 |
+| **Clingy** | +30% pickup range | You | 5 |
+| **Shell Suit** | +1 armour (flat damage reduction) | You | 6 |
+| **Lucky Swimmer** | +15% luck (rarer loot, more drops) | You | 5 |
+| **Leech Mode** | Heal 0.08 HP per kill | You | 5 |
+| **Hot-Blooded** | +25% fire damage and burn | You | 5 |
+| **Cold-Blooded** | +25% frost damage and chill | You | 5 |
+| **Static Hair** | +25% shock damage, +1 chain | You | 5 |
+| **Bad Breath** | +25% poison damage, +3 max stacks | You | 5 |
+| **Weird Aura** | +25% arcane damage | You | 5 |
+| **Headbutt Training** | +25% kinetic damage | You | 5 |
+| **Chemistry** | +35% elemental reaction damage | You | 5 |
+| **Repeat Prescription** | -10% spell cooldowns | You | 5 |
+| **Antenatal Classes** | +12% experience gained | You | 5 |
+| **Snooze Button** | +1 max Rewind charge, +25% Chrono energy (Rare or better only) | You | 3 |
+| **Last Word** | Last bullet of every magazine deals x4 damage and explodes | You | 3 |
+| **Tactical Nap** | Starting a reload sends out a shockwave that deletes nearby bullets (+40 radius) | You | 4 |
+| **Tunnel Vision** | +3% damage per second on the same target, up to +30% more | You | 3 |
+| **Overachiever** | 50% of excess kill damage jumps to the next enemy | You | 3 |
+| **Pincer Movement** | Weapons sharing a target: +25% damage. All three on different targets: +25% fire rate | You | 3 |
+| **Hurry Up** | Up to +22% damage the faster you are moving | You | 4 |
+| **Egg Bond** | Near the egg: +30% fire rate. Away from it: +30% crit chance | You | 3 |
+| **Spoilers** | 10% of shots appear already next to their target (with the Incompatible Viral Load, you do) | You | 4 |
+| **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Rare or better only) | You | 1 |
+| **Acrosome Ram** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | You | 5 |
+| **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | You | 4 |
+| **Prickly Personality** | Whatever hurts you gets hurt back (thorns x1), plus a smaller jab to everything around you. Grows with max HP and armour. | You | 4 |
+| **Stubborn Streak** | Below half health: take 10% less damage and deal 12% more. | You | 3 |
+| **Wriggle Room** | +4% chance to dodge hits | You | 5 |
+
+## Mutations (Enzyme Vesicles)
+
+Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slots (more with the Gene Bank's Well-Incubated). Tier 0 are common, tier 2 rare.
+
+| Mutation | Tier | Effect |
 |---|---|---|
-| **Protein Shake** | +12% damage | 8 |
-| **Twitchy Tail** | +10% fire rate | 8 |
-| **Short Refractory Period** | +15% reload speed | 6 |
-| **Bigger Load** | +20% magazine size | 6 |
-| **Split Personality** | +1 projectile for all weapons (shots share the damage: about +25% in all) (Rare or better only) | 3 |
-| **Early Arrival** | +12% projectile speed and range | 5 |
-| **Personal Space** | +12% area of effect | 6 |
-| **Stamina** | +15% effect duration | 5 |
-| **Pushy** | +1 pierce | 4 |
-| **Sharp Elbows** | +5% crit chance | 6 |
-| **Low Blow** | +25% crit damage | 6 |
-| **Thick Skin** | +15 max HP (and heal it) | 8 |
-| **Pregnancy Vitamins** | +0.3 HP/sec regen | 5 |
-| **Sticky Cilia** | +22% traction: sharper turns, less drift | 5 |
-| **Hydrodynamic Head** | +12% traction and +6% swim speed | 3 |
-| **Leg Day (Tail Day)** | +8% move speed | 5 |
-| **Clingy** | +30% pickup range | 5 |
-| **Shell Suit** | +1 armour (flat damage reduction) | 6 |
-| **Lucky Swimmer** | +15% luck (rarer loot, more drops) | 5 |
-| **Leech Mode** | Heal 0.08 HP per kill | 5 |
-| **Hot-Blooded** | +25% fire damage and burn | 5 |
-| **Cold-Blooded** | +25% frost damage and chill | 5 |
-| **Static Hair** | +25% shock damage, +1 chain | 5 |
-| **Bad Breath** | +25% poison damage, +3 max stacks | 5 |
-| **Weird Aura** | +25% arcane damage | 5 |
-| **Headbutt Training** | +25% kinetic damage | 5 |
-| **Chemistry** | +35% elemental reaction damage | 5 |
-| **Repeat Prescription** | -10% spell cooldowns | 5 |
-| **Antenatal Classes** | +12% experience gained | 5 |
-| **Snooze Button** | +1 max Rewind charge, +25% Chrono energy (Rare or better only) | 3 |
-| **Last Word** | Last bullet of every magazine deals x4 damage and explodes | 3 |
-| **Tactical Nap** | Starting a reload sends out a shockwave that deletes nearby bullets (+40 radius) | 4 |
-| **Tunnel Vision** | +3% damage per second on the same target, up to +30% more | 3 |
-| **Overachiever** | 50% of excess kill damage jumps to the next enemy | 3 |
-| **Pincer Movement** | Weapons sharing a target: +25% damage. All three on different targets: +25% fire rate | 3 |
-| **Hurry Up** | Up to +22% damage the faster you are moving | 4 |
-| **Egg Bond** | Near the egg: +30% fire rate. Away from it: +30% crit chance | 3 |
-| **Spoilers** | 10% of shots appear already next to their target (with the Incompatible Viral Load, you do) | 4 |
-| **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Rare or better only) | 1 |
-| **Acrosome Ram** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | 5 |
-| **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | 4 |
-| **Prickly Personality** | Whatever hurts you gets hurt back (thorns x1), plus a smaller jab to everything around you. Grows with max HP and armour. | 4 |
-| **Stubborn Streak** | Below half health: take 10% less damage and deal 12% more. | 3 |
-| **Wriggle Room** | +4% chance to dodge hits | 5 |
+| **Ripped-Off Macrophage Jaw** | 0 | Weapons +10% damage and +5% crit chance. Spells -10% damage. You pulled the mouth off a white blood cell, you absolute sicko. |
+| **The "Nuh-Uh" Suppressor** | 0 | +2 rerolls right now and +10% luck, which you need, because your genetics are rubbish. |
+| **Jittery Lil' Flagella** | 0 | +5% dodge chance, +2.5% swim speed. Wiggle, little microbe, wiggle. |
+| **Forbidden Soup** | 0 | +2 HP/s regeneration, but -15% max HP. Tastes like dirty foot water. Delicious. |
+| **Greedy Little Receptors** | 0 | +30% pickup range, for when you are too lazy to swim over to your food. |
+| **Creepy Magnetic Bacteria** | 0 | +5% swim speed, and you hit up to 15% harder the faster you swim. How do magnets work? Nobody knows. |
+| **Zappy Grabbers** | 0 | +30% pickup range, and picking up any power-up pulls in every XP granule near you. Zap zap, give me the snacks. |
+| **Blunt Force Phage Trauma** | 0 | Physical hits have a 4% chance to stun what they hit (1% on bosses, briefly). Bonk. |
+| **Bone Hurting Juice** | 0 | +1 max HP for every 15 kills (elites count as 5), up to +100. Drink your milk, you invertebrate. |
+| **Pulsing Protein Chug** | 0 | Glucose Hits heal three times as much, and all healing is 20% stronger. Chug! Chug! Chug! |
+| **Heavy Metal Poisoning** | 0 | Power-ups drop from enemies twice as often. Aggressive cellular headbanging. |
+| **Lube-Tastic Myelin** | 0 | +10% swim speed and +30% grip. Slippery little sucker, aren't you? |
+| **Gassy Corpse Farts** | 0 | Poisoned enemies leave a cloud of toxic gas when they die. Blue cheese, despair and a changing room. |
+| **The Cold Shoulder** | 0 | Frozen enemies chill everything near them. |
+| **Spicy Brain Chemicals** | 0 | Shock damage +30%. |
+| **The Buffet Bounty** | 0 | +10% XP. You greedy little germ. |
+| **Turbo-chondrial Engine** | 0 | Every spell cast has a 15% chance to recharge twice as fast. Tweak it out. |
+| **Plague Doctor's Snot Rag** | 0 | Poison +30%, shock -20%. |
+| **All-Nighter Override** | 0 | Timed power-ups (Adrenaline, Shield, Stasis) last twice as long. Who needs sleep? |
+| **Peer Pressure Ring** | 0 | Every elite or boss that dies near you: +5% damage for 10s, stacking 5 times. All the cool germs are doing it. |
+| **The Re-Roller of Dice** | 0 | The first reroll on every card screen is free. |
+| **Wet Slappy Pseudopod** | 0 | +20% crit chance against enemies that are slowed, frozen, poisoned or burning. Slap them while they are down. |
+| **Stolen Salad Parts** | 0 | +5% fire rate, and spells recharge 5% faster. You are part plant now. Go photosynthesise. |
+| **Brain-Freeze Protein** | 0 | Ice +30%, fire -20%. |
+| **Disgusting Popping Pustule** | 0 | Fire +30%, ice -20%. Don't squeeze it. Or do. I want to watch. |
+| **Running Juice** | 0 | +2 HP/s regeneration while you swim fast. Keep running, little swimmer. |
+| **Sugar Rush** | 0 | Killing an elite: 3s of +25% fire rate. |
+| **Surprise Package** | 0 | Popping an Enzyme Vesicle blows everything near you away. A Trojan virus, but rude. |
+| **Snot Trail** | 0 | +5% swim speed, poison +5%. You are leaving a sticky mess all over my nice clean floor. |
+| **Stiff as a Board** | 0 | +10% dodge chance, -20% swim speed. |
+| **The Leechy Parasite** | 0 | Hits heal you a little (within the lifesteal limit). |
+| **Wooden Toothpick** | 0 | Weapons and spells -5% damage. +25% XP. It is literally just a piece of wood. |
+| **Origami Protein** | 0 | Spells +15% damage. Weapons -10% damage. |
+| **The Squelching Spore of Spite** | 1 | Get hit and you burst: a blast of gross inside-juice hits everything near you and shoves it away. Clean-up on aisle everywhere. |
+| **Wet Noodle of Life** | 1 | +1 HP/s regeneration for every 200 max HP you have. It throbs. Do not look directly at it. |
+| **Murder-Happy T-Cells** | 1 | +30% damage to elites, bosses and rival champions. They carry tiny microscopic shivs. |
+| **Sticky Floor Sludge** | 1 | Stay still and a crust of grossness builds up around you: up to +30% damage after 3s. Swimming wears it off. |
+| **Sugar Daddy Vacuole** | 1 | +1% crit chance for every 100 max HP you have. Sweet, sweet diabetic energy. |
+| **The Mitochondria Is the Powerhouse** | 1 | Killing a boss: 6s of +25% fire rate, and your spells recharge 25% faster. Say it with me. |
+| **VIP DNA Pass** | 1 | +20% luck, so your DNA strands come out rarer. Oh, aren't you a special little germ. |
+| **Bipolar Metabolism** | 1 | Fire, ice and shock +40%. Physical, poison and arcane -10%. You run hot, you run cold. |
+| **Clingy Cell Velcro** | 1 | Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. |
+| **Frostbitten Cell Wall** | 1 | Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits. You cold, unfeeling monster. |
+| **The Skeleton Key-Protein** | 1 | Every Enzyme Vesicle has a 30% chance to let you take two mutations. |
+| **Sniper RNA** | 1 | Your spells always crit on enemies at full health, and crits hit 25% harder. Boom. Headshot. |
+| **The Taser Noodle** | 1 | Shocked enemies pass a jolt to a neighbour every second. Dance, little cells, dance. |
+| **Spontaneous Combustion Core** | 1 | Burning enemies can burst (about 1 in 10 each second) in a small fiery blast. Pop, pop, squelch. |
+| **Massive Spermatozoa Payload** | 1 | Weapons with a magazine bigger than 1 hold twice as much. That is a lot of squirming little swimmers. |
+| **Miracle Phage Ointment** | 1 | Heals you fully now, +40 max HP, and every 5th Glucose Hit heals you fully. Ahh, refreshing. |
+| **Hackerman RNA** | 1 | Every crit gives +0.5% fire rate for 2s (up to +25%). You are in the mainframe now. |
+| **Swarm of Greedy Hands** | 1 | Every timed power-up also gives you another random one. +20% pickup range. Mine. Mine. Mine. |
+| **Roid-Rage Vesicles** | 1 | A Glucose Hit picked up at full health: +50% damage for 20s. Do you even divide, bro? |
+| **Toxic Co-Dependency** | 1 | Getting hit instantly reloads a random weapon and recharges a random spell (every 2s at most). Stop hitting yourself! |
+| **Mystery Meat Cyst** | 1 | This one is a secret. Maybe it does something cool. Maybe it gives you space herpes. |
+| **Sharp Pointy Bits** | 1 | Physical +40%. Fire, ice and shock -10%. Stab stab stab. |
+| **Indestructible Water Bear Armour** | 1 | Rerolls have a 35% chance not to be used up. +5% luck. |
+| **The Overachieving Leukocyte** | 2 | Weapon hits on enemies at full health always crit. Because forget that guy in particular. |
+| **Chernobyl Juice** | 2 | Double damage. Half max HP. Live fast, die violently in a puddle of your own dissolving cytoplasm. |
+| **Zombie Cell Core** | 2 | Once, when you would die, you come back on 50% health. After that you are a zombie: -50% max HP for the rest of the run. Surprise! |
+| **Too Angry to Die** | 2 | A hit that would burst you leaves you on 1 HP instead. Once every 90s. |
+| **The "Oh No" Button** | 2 | Every element at normal strength or weaker gets +25%; any already boosted loses 10%. Absolute cellular chaos. |
+
+## Mythical and Celestial bonuses
+
+A Mythical or Celestial card carries one of these on top of its own effect, for the rest of the run (three at most a run).
+
+| Bonus | Rarity | Effect |
+|---|---|---|
+| **Blood Moon** | Mythical | Every 40th kill sends you into ADRENALINE for 5s (double fire rate, no reloads) and heals 10%. |
+| **Storm Crown** | Mythical | Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP. |
+| **Phoenix Down** | Mythical | The first time you would die, you burst into flames and come back at full health. |
+| **Growth Hormone** | Mythical | +50% max HP (and heal it), and +2 Acrosome Ram: you are the weapon now. |
+| **Pocket Black Hole** | Mythical | A small black hole circles you for the rest of the run, dragging enemies in and crushing them. |
+| **Full Technicolour** | Mythical | The stains are off. EVERYTHING goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD, the lot. Also +10% damage, because colour is power. |
+| **Bullet Time** | Mythical | When you drop below 30% health, time slows for 4s (every 20s at most). |
+| **Supernova** | Celestial | Every 12s a blast fills the screen: every enemy takes 18% of its max HP and every enemy bullet is wiped. |
+| **Hand of God** | Celestial | Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP. |
+| **Twin Soul** | Celestial | Every weapon you own fires 60% faster. Forever. |
+| **State of Grace** | Celestial | Every 15s: 2s of invulnerability and a 15% heal. |
+| **Starfall** | Celestial | Stars fall on enemies near you, one every 0.4s, each for three times your best weapon's damage. |
 
 ## Upgrades any weapon can take
 
@@ -970,11 +1141,11 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 
 | Stain | Boon | What it colours |
 |---|---|---|
-| **GFP Tag** | You can finally see where your shots land: +12% damage. | Green Fluorescent Protein. Tags you: your swimmer, your shots, echoes and allies glow green. Much easier to find yourself in a crowd. |
-| **Anti-Immune Stain** | You see it coming: +8% dodge. | Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings. |
+| **GFP Tag** | You can finally see where your shots land: +12% damage. | Green Fluorescent Protein. Tags you: your swimmer, your shots, echoes and allies glow green. Much easier to find yourself in a crowd. Also puts a health ring round you whenever you are hurt. |
+| **Anti-Immune Stain** | You see it coming: +8% dodge. | Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings. Also shows a health ring round every hurt enemy (and an armour ring when its armour has been stripped). |
 | **Luciferase** | You know what is worth chasing: +20% luck, and +25% damage to elites and bosses. | The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas. |
 | **Motility Dye** | Spot them early: +8% swim speed, and +30% damage to fast enemies. | Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you. |
-| **Rival Dyes** | Know your enemy: +40% damage to rival champions and the Final Five. | Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board. |
+| **Rival Dyes** | Know your enemy: +40% damage to rival champions and the Final Five. | Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt. |
 | **H&E Stain Kit** | Everything is easier to spot: +30% pickup range and +1 reroll. | Haematoxylin and eosin, the classic. Stains the rest of the slide: elemental effects in their own colours (fire orange, frost blue, toxic green, arcane violet), power-up pickups and their effects, and your midpiece in your weapon-type colour. |
 
 ## Cursed cards
@@ -988,7 +1159,9 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 | **Paradox Addict** | +2 max Rewind charges, all refilled now | All healing halved |
 | **Clothing Optional** | +25% move speed, +20% dodge | Armour is zero. Forever. |
 
-## Field pickups
+## Field pickups (temporary power-ups)
+
+Dropped by kills and elites. Timed ones show a countdown chip.
 
 | Pickup | Letter | Effect |
 |---|---|---|
@@ -999,6 +1172,15 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 | **SHIELD** | S | Invulnerable for 5s |
 | **STASIS** | F | Freeze all enemies |
 | **DNA STRAND** | ? | Free upgrade |
+| **HIRED HELP** | H | Three bodyguard swimmers fight for you for 14s |
+| **CENTRIFUGE** | C | For 6s everything near you is flung round you in a grinding vortex |
+| **HYPERTROPHY** | G | For 8s you are huge: you crush what you touch and take half damage |
+| **CHAIN REACTION** | X | For 10s every kill explodes |
+| **REFLUX** | R | For 7s bullets near you are swallowed and spat back as sparks |
+| **GOLD RUSH** | $ | For 12s double XP, and XP flies to you |
+| **LEECH** | L | For 10s your hits heal you |
+| **LIGHTNING ROD** | Z | For 8s lightning strikes enemies on screen twice a second |
+| **TAILWIND** | W | For 8s you swim 60% faster and leave a burning wake |
 
 ## Elemental reactions
 
@@ -1048,11 +1230,46 @@ Own several weapons or spells of one element to unlock its set bonus.
 | Directive | Behaviour |
 |---|---|
 | **KITE** | Keep distance from threats, dodge bullets |
-| **COLLECT** | Hoover up XP and power-ups |
+| **COLLECT** | Hoover up XP, power-ups and mutation vesicles |
 | **ORBIT** | Circle around the horde |
 | **HUNT** | Close in on the primary target |
 | **HOLD** | Stand ground, only dodge bullets |
 | **NEST** | Hover in the egg's warm glow, which slowly heals you |
+
+## Immune Response (difficulty)
+
+Set on the sequence screen. Each level adds its rule on top of the ones before and +15% DNA. Win at your highest level to unlock the next.
+
+| Level | Name | Rule |
+|---|---|---|
+| 1 | **Inflammation** | Enemies have 20% more health. |
+| 2 | **Fever** | Enemies swim 10% faster. |
+| 3 | **Antibody Surge** | Elites turn up twice as often. |
+| 4 | **Opsonisation** | Enemy bullets fly 15% faster. |
+| 5 | **Complement Cascade** | Bosses have 25% more health. |
+| 6 | **Cytokine Storm** | Enemies hit 20% harder. |
+| 7 | **Starvation** | Glucose Hits heal half as much. |
+| 8 | **Leukocytosis** | 20% more enemies. |
+| 9 | **Memory B-Cells** | Bosses hit 25% harder. |
+| 10 | **Antibody Rain** | Elites burst into a ring of bullets when they die. |
+
+## Being born (prestige)
+
+After a win, the Gene Bank lets you be born: your bonuses, wildcards, dyes and DNA reset, but your Generation goes up for good (+10% DNA, +3% damage and +5 max HP each) and you keep a Baby Trait forever. The Codex, sequences, ranks and records stay.
+
+| Baby Trait | Effect |
+|---|---|
+| **Colic** | Every 20s you scream: everything within 200 is knocked flying and takes damage. |
+| **Chubby Cheeks** | +25 max HP. |
+| **Teething** | +20% crit damage. |
+| **Terrible Twos** | +8% damage. |
+| **Baby Talk** | +10% XP. |
+| **Cradle Cap** | +1 armour. |
+| **Grabby Hands** | +25% pickup range. |
+| **Nap Time** | +0.6 HP/s regeneration. |
+| **Projectile Vomit** | +6% fire rate. |
+| **Silver Spoon** | +1 reroll every run and +10% luck. |
+| **The Dummy** | +5% dodge chance. Suck on that. |
 
 ## Gene Bank (permanent upgrades)
 
@@ -1074,7 +1291,9 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 | **Sharp Acrosome** | +3% crit chance per rank | 3 | 40 / 70 / 100 |
 | **Well-Incubated** | +1 mutation slot per rank (Enzyme Vesicles) | 2 | 80 / 140 |
 
-### Starter weapons
+### Wildcard weapons
+
+Unlocked wildcards can be drafted by any sequence.
 
 | Weapon | DNA |
 |---|---|
@@ -1127,6 +1346,7 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Volvox** | 110 | 14 | 34 | 2 | 8 | 2:40 | Swims straight at you |
 | **Cytokine Caster** | 45 | 8 | 46 | 1 | 6 | 2:50 | Keeps distance and shoots |
 | **Diatom** | 55 | 8 | 24 | 6 | 6 | 3:00 | Keeps distance and shoots |
+| **Alien Sperm** | 48 | 13 | 70 | 2 | 6 | 3:00 | Weaves, crouches, pounces; acid blood |
 | **Ghost Swimmer** | 35 | 10 | 82 | 0 | 5 | 3:15 | Phases in and out |
 | **Mother Cell** | 75 | 10 | 40 | 2 | 8 | 3:30 | Spawns minions |
 | **Enzyme Spire** | 85 | 10 | 16 | 4 | 8 | 4:00 | Sits still and shoots |
@@ -1134,10 +1354,12 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Killer T-Cell** | 26 | 6 | 52 | 0 | 5 | 4:20 | Keeps distance and shoots |
 | **Water Bear** | 240 | 20 | 30 | 10 | 14 | 4:30 | Swims straight at you |
 | **Alpha Swimmer** | 420 | 30 | 34 | 12 | 20 | 5:00 | Swims straight at you |
+| **Sperminator** | 120 | 14 | 62 | 6 | 10 | 5:00 | Laser lock-on, burst fire, rebuilds once as an endoskeleton |
 | **Daughter Cell** | 12 | 5 | 92 | 0 | 1 | Spawned by others | Swims straight at you |
 | **Daughter Colony** | 26 | 6 | 62 | 0 | 2 | Spawned by others | Swims straight at you |
 | **Candida** | 18 | 5 | 22 | 0 | 1 | Spawned by others | Buds new yeast cells |
 | **Pepsinator Jr** | 60 | 14 | 72 | 0 | 6 | Spawned by others | Swims straight at you |
+| **Sperminator Endoskeleton** | 45 | 12 | 92 | 0 | 6 | Spawned by others | Laser lock-on, burst fire, rebuilds once as an endoskeleton |
 
 ## Rival champions
 
