@@ -233,6 +233,7 @@ const UI = {
     updatePreviews(dt);
     seqTick(dt);
     drawBaby(dt);
+    UI.youTick(dt);
     UI.autoTick();
     { const db = $('dbgBtn'); if (db) db.classList.toggle('on', !!(G && G.debug && (G.state === 'play'))); if (DBG.open && !(G && G.debug)) { DBG.open = false; $('dbgPanel').classList.remove('on'); } }
     // The Petri Dish: the next drop waits for you.
@@ -815,13 +816,13 @@ const UI = {
   // ---------------------------------------------------------------- pause & directives
   togglePause() {
     if (!G) return;
-    if (G.state === 'play') { G.state = 'pause'; INPUT.active = false; G.manual = null; UI.pauseTab = 'run'; UI.renderPause(); UI.show('pause'); }
+    if (G.state === 'play') { G.state = 'pause'; INPUT.active = false; G.manual = null; UI.pauseTab = 'you'; UI.renderPause(); UI.show('pause'); }
     else if (G.state === 'pause') { G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now(); }
   },
 
   renderPause() {
-    const box = $('pauseBody'), tab = UI.pauseTab || 'run';
-    let h = `<div class="ptabs">${[['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE SHOW'], ['codex', 'CODEX']].map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-ptab="${id}">${l}</button>`).join('')}</div>`;
+    const box = $('pauseBody'), tab = UI.pauseTab || 'you';
+    let h = `<div class="ptabs">${[['you', 'YOU'], ['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE SHOW'], ['codex', 'CODEX']].map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-ptab="${id}">${l}</button>`).join('')}</div>`;
     if (tab === 'run') {
     h += `<div class="sec"><h3>Autorun directive</h3><div class="chips">`;
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
@@ -866,10 +867,12 @@ const UI = {
     h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%</p></div>`;
 
     }
+    if (tab === 'you') h += UI.youHtml();
     if (tab === 'codex') h += UI.codexHtml();
     box.innerHTML = h;
     box.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { UI.pauseTab = b.dataset.ptab; UI.renderPause(); $('pause').scrollTop = 0; }));
     UI.bindCodex(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
+    box.querySelectorAll('[data-yk]').forEach(b => b.addEventListener('click', () => { G.state = 'play'; UI.openArmoury(b.dataset.yk, +b.dataset.yi); }));
     box.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => { G.moveDir = b.dataset.move; UI.renderPause(); }));
     box.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       const w = b.dataset.k === 'w' ? G.weapons[+b.dataset.i] : G.spells[+b.dataset.i];
@@ -880,6 +883,86 @@ const UI = {
       }
     }));
     $('pauseStats').textContent = `Time ${fmtTime(G.t)} | Level ${G.level} | Kills ${G.kills} | Rerolls ${G.rerolls}`;
+  },
+
+  // ---------------------------------------------------------------- pause: you, on one page
+  // Your swimmer: a big portrait, then its sequences and ability, stats, spells, weapons and everything else.
+  youHtml() {
+    const P = G.P, p = G.player, pr = G.genes ? G.genes.primary : 'vanguard', L = SEQ_LOOK[pr] || SEQ_LOOK.vanguard;
+    const pc0 = v => Math.round(v * 100) + '%', plus = v => (v >= 0 ? '+' : '') + Math.round(v * 100) + '%';
+    const li = (name, body, color, on) => `<div class="li ${on === false ? '' : 'on'}"><b${color ? ` style="color:${color}"` : ''}>${name}</b>${body ? `<br><span>${body}</span>` : ''}</div>`;
+    const seqs = G.genes ? G.genes.active : [pr];
+    let h = `<div class="youTop" style="--c:${L.color}"><canvas id="youCan"></canvas><div class="youCap"><b>${esc((PROFILES[pr] || {}).name || '')}</b><span>${esc(L.tag)} | Level ${G.level} | HP ${Math.ceil(p.hp)}/${Math.round(P.maxHp)}</span></div></div>`;
+    // Sequences and abilities.
+    const A = SEQ_ABILITY[pr];
+    let sq = A ? li(`${esc(A.name)} <em class="ycd">every ${A.cd}s</em>`, esc(A.desc), L.color) : '';
+    for (const id of seqs) if (PROFILES[id]) sq += li(`${esc(PROFILES[id].name)} ${id === pr ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}`, `${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes ? G.genes.k[id] || 0 : 0))}`);
+    for (const q of PROFILE_SYNERGIES.filter(q => synOn(q.a, q.b))) sq += li(esc(q.name), esc(q.desc), PAL.upgrade);
+    h += `<div class="sec"><h3>Sequences and abilities</h3><div class="list">${sq}</div></div>`;
+    // Stats.
+    const T = [];
+    const t = (label, val) => T.push(`<div class="tile"><b>${val}</b><span>${label}</span></div>`);
+    t('Max HP', Math.round(P.maxHp)); t('Damage', plus(P.might - 1)); t('Fire rate', plus(P.haste - 1));
+    t('Reload speed', plus(P.reloadSpd - 1)); t('Crit chance', pc0(P.crit)); t('Crit damage', pc0(P.critDmg));
+    t('Armour', P.noArmour ? 'none' : P.armour); t('Dodge', pc0(P.dodge)); t('Regen', (P.regen * Math.max(1, P.maxHp / 120)).toFixed(1) + '/s');
+    t('Heal per kill', P.lifesteal.toFixed(2)); t('Speed', pc0(P.speed)); t('Traction', pc0(P.traction));
+    t('Pickup range', pc0(P.magnet)); t('Luck', plus(P.luck)); t('XP gain', pc0(P.xp));
+    t('Area', pc0(P.area)); t('Duration', pc0(P.dur)); t('Range', pc0(P.range));
+    t('Extra shots', '+' + P.multishot); t('Pierce', '+' + P.pierce); t('Spell cooldown', pc0(P.cdr));
+    const el = Object.keys(P.elem).filter(k => Math.abs(P.elem[k] - 1) > 0.001 && ELEMENTS[k]);
+    h += `<div class="sec"><h3>Stats</h3><div class="tiles">${T.join('')}</div>${el.length ? `<p class="hint">Element damage: ${el.map(k => `<b style="color:${elemCol(k)}">${esc(ELEMENTS[k].name)}</b> ${plus(P.elem[k] - 1)}`).join(' | ')}</p>` : ''}</div>`;
+    // Spells and weapons.
+    const slot = (w, i, k) => {
+      const c = elemCol(wElem(w)), sub = [];
+      if (w.isSpell) {
+        sub.push(`Cooldown ${w.s.cd.toFixed(1)}s`);
+        const f = w.fork && SPELL_FORKS[w.id] ? SPELL_FORKS[w.id][w.fork === 'a' ? 0 : 1] : null;
+        if (f) sub.push(`<b>${esc(f.name)}</b>: ${esc(f.desc)}`); else if (w.lvl < SPELL_FORK_LV && SPELL_FORKS[w.id]) sub.push(`Picks a path at Lv ${SPELL_FORK_LV}`);
+      } else {
+        if (!w.def.noTarget) sub.push('Targets ' + esc((w.dirs ? w.dirs.map(d => DIRECTIVES.find(x => x.id === d).short).join(' / ') : (DIRECTIVES.find(x => x.id === w.dir) || {}).name || '')));
+        const pk = Object.keys(w.perks || {}).sort((a, b) => a - b).map(l => `<b>${esc(perkDef(w.perks[l]).name)}</b> (Lv ${l})`);
+        if (pk.length) sub.push(pk.join(', '));
+        if (w.mods.length) sub.push('Mods: ' + w.mods.map(m => esc(MODS[m.id].name)).join(', '));
+        if (w.wpN && Object.keys(w.wpN).length) sub.push('Tuned: ' + Object.entries(w.wpN).map(([id, n]) => esc(PASSIVES[id].name) + ' x' + n).join(', '));
+        const dm = (G.stats.wdmg || {})[w.uid]; if (dm) sub.push(`${fmtNum(dm)} damage this run`);
+      }
+      return `<button class="yslot" data-yk="${k}" data-yi="${i}" style="--c:${c}"><i>${iconSVG(w.def, 30, c)}</i><div><b>${esc(w.def.name)}</b> <em>Lv ${w.lvl}${!w.isSpell && w.lvl >= MAX_WLVL ? ' MASTERY' : ''}</em><br><span>${sub.join('<br>')}</span></div></button>`;
+    };
+    const sp = G.spells.map((w, i) => w && slot(w, i, 's')).filter(Boolean), wp = G.weapons.map((w, i) => w && slot(w, i, 'w')).filter(Boolean);
+    h += `<div class="sec"><h3>Spells (${sp.length}/${G.spells.length})</h3>${sp.length ? sp.join('') : '<p class="hint">None yet. Spells show up in DNA strands while you have a free slot.</p>'}</div>`;
+    h += `<div class="sec"><h3>Weapons (${wp.length}/${MAX_WEAPONS})</h3>${wp.join('')}<p class="hint">Tap one to open it in the Armoury.</p></div>`;
+    // The rest.
+    let r = '';
+    const cb = Object.keys(G.combo || {}).filter(id => COMBO_BY[id]).map(id => li(esc(COMBO_BY[id].name), esc(COMBO_BY[id].desc), PAL.upgrade));
+    const pa = PAIRINGS.filter(q => G.pair && G.pair[q.id]).map(q => li(esc(q.name), esc(q.desc), PAL.upgrade));
+    if (cb.length || pa.length) r += `<h3>Combos and pairings</h3><div class="list">${cb.join('')}${pa.join('')}</div>`;
+    const sy = Object.keys(SYNERGIES).filter(e => G.synergy[e]).map(e => li(esc(SYNERGIES[e].name), `${ELEMENTS[e].name}: ${esc(SYNERGIES[e].desc)}`));
+    if (sy.length) r += `<h3>Element synergies</h3><div class="list">${sy.join('')}</div>`;
+    const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? li('Mystery Meat', 'Something inside is doing something.') : li(esc(MUTATIONS[id].name), esc(MUTATIONS[id].desc)));
+    r += `<h3>Mutations (${mutCount()}/${mutCap()})</h3>${ms.length ? `<div class="list">${ms.join('')}</div>` : '<p class="hint">None yet.</p>'}`;
+    const rl = Object.keys(G.relics || {}).filter(id => RELICS[id]).map(id => li(esc(RELICS[id].name), esc(RELICS[id].desc), PAL.reward));
+    if (rl.length) r += `<h3>Relics</h3><div class="list">${rl.join('')}</div>`;
+    const bn = Object.keys(G.boons || {}).filter(id => BOONS[id]).map(id => li(esc(BOONS[id].name), esc(BOONS[id].desc), PAL.reward));
+    if (bn.length) r += `<h3>Boons</h3><div class="list">${bn.join('')}</div>`;
+    const ps = Object.keys(G.passives).filter(id => PASSIVES[id] && G.passives[id] > 0);
+    r += `<h3>Power-ups</h3>${ps.length ? `<div class="list">${ps.map(id => li(`${esc(PASSIVES[id].name)} x${G.passives[id]}`, esc(PASSIVES[id].fmt(PASSIVES[id].v * G.passives[id])))).join('')}</div>` : '<p class="hint">None yet.</p>'}`;
+    const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
+    if (st.length) r += `<h3>Stains</h3><div class="list">${st.map(id => li(esc(DYES[id].name), esc(DYES[id].boon))).join('')}</div>`;
+    const cu = Object.keys(G.curses || {}).map(id => CURSES.find(c => c.id === id)).filter(Boolean);
+    if (cu.length) r += `<h3>Curses</h3><div class="list">${cu.map(c => li(esc(c.name), `${esc(c.boon)}. ${esc(c.bane)}.`, PAL.danger)).join('')}</div>`;
+    h += `<div class="sec you-rest">${r}</div>`;
+    return h;
+  },
+  // From UI.tick: animate the portrait while the YOU page is open.
+  youTick(dt) {
+    const cv = $('youCan');
+    if (!cv || !G || G.state !== 'pause' || UI.pauseTab !== 'you') return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+    if (!W || !H) return;
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    UI.youT = (UI.youT || 0) + dt;
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawSeqPortrait(g, W, H, G.genes ? G.genes.primary : 'vanguard', UI.youT, false, false);
   },
 
   // ---------------------------------------------------------------- sample select (levels)
