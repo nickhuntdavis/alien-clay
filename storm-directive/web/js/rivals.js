@@ -33,7 +33,7 @@ function rivalStats(e, heal) {
   const L = e.lvl, t = PT();
   const rel = Math.pow(Math.min(1.5, L / Math.max(1, G.level)), 1.5);
   const M = rivalMod(e);
-  const maxHp = (RIVAL.hpBase * hpMul(t) * (1 + L / 7) + (G.dpsAvg || 0) * RIVAL.duel * rel) * (e.final ? 1.4 : 1) * (M.hp || 1); // the Final Five are built to last
+  const maxHp = (RIVAL.hpBase * hpMul(t) * (1 + L / 7) + (G.dpsAvg || 0) * RIVAL.duel * rel) * (e.final ? 1.4 : 1) * (M.hp || 1) * (1 + VET.big * vetK()); // the Final Five are built to last
   const k = e.maxHp > 0 ? e.hp / e.maxHp : 1;
   e.maxHp = maxHp;
   e.hp = Math.min(maxHp, maxHp * Math.min(1, k + heal));

@@ -23,13 +23,24 @@ const heatLv = () => (G && G.heat) || 0;
 const heatOn = n => heatLv() >= n;
 
 // Hooks.
+// Veterans: permanent Gene Bank upgrades make you much stronger, and a fully upgraded profile was winning
+// three runs in four. Past 10 ranks (of 36) the monsters scale up to match: up to +30% HP and +15% damage
+// (bosses and rivals +20% HP). New profiles never see it. vetK: 0 to 1.
+const VET = { from: 10, hp: 0.3, dmg: 0.15, big: 0.2 };
+function vetK() { const r = typeof META !== 'undefined' && META.ranks ? Object.values(META.ranks).reduce((a, b) => a + b, 0) : 0; const all = META_BONUSES.reduce((a, b) => a + b.max, 0); return Math.max(0, Math.min(1, (r - VET.from) / (all - VET.from))); }
+function vetEnemy(e) { // (bosses and rivals: heatBoss, rivalStats)
+  const k = vetK(); if (!k || e.def.patterns) return;
+  e.hp *= 1 + VET.hp * k; e.maxHp *= 1 + VET.hp * k; e.dmg *= 1 + VET.dmg * k;
+}
 function heatEnemy(e) {
+  vetEnemy(e);
   if (!heatLv()) return;
   if (heatOn(1)) { e.hp *= 1.2; e.maxHp *= 1.2; }
   if (heatOn(2)) e.speed *= 1.1;
   if (heatOn(6)) e.dmg *= 1.2;
 }
 function heatBoss(e) {
+  { const k = vetK(); if (k) { e.hp *= 1 + VET.big * k; e.maxHp *= 1 + VET.big * k; e.dmg *= 1 + VET.dmg * k; } }
   if (heatOn(5)) { e.hp *= 1.25; e.maxHp *= 1.25; }
   if (heatOn(9)) e.dmg *= 1.25;
 }
