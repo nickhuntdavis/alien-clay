@@ -943,34 +943,42 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     o.tail = [];
     for (let i = 0; i < TAIL_N; i++) { const x = rx - Math.cos(face) * seg * i, y = ry - Math.sin(face) * seg * i; o.tail.push({ x, y, px: x, py: y }); }
   }
-  // Turning hard? The beat all but stops while the tail arcs round (it drops fast and comes back slowly), so
-  // the flail of the tip reads clearly. turnK: 1 = swimming straight, down to 0.12 mid-turn.
+  // Turning more than a gentle arc? The wag relaxes right down, and slows, while the tail swings round (it
+  // drops fast and comes back slowly), so the arc reads clearly. turnK: 1 = straight, 0.06 mid-turn.
   if (dt > 0) {
     let df = face - (o.lastFace ?? face); while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU;
-    const want = Math.max(0.12, 1 - Math.abs(df / dt) / 2.5), cur = o.turnK ?? 1;
-    o.turnK = want < cur ? lerp(cur, want, Math.min(1, dt * 14)) : lerp(cur, want, Math.min(1, dt * 2.2));
+    const rate = Math.abs(df / dt), want = rate < 0.5 ? 1 : Math.max(0.06, 1 - (rate - 0.5) / 1.1), cur = o.turnK ?? 1;
+    o.turnK = want < cur ? lerp(cur, want, Math.min(1, dt * 18)) : lerp(cur, want, Math.min(1, dt * 1.4));
   }
   o.lastFace = face;
   const tk = o.turnK ?? 1;
-  o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1) * (0.25 + 0.75 * tk); // a strong, deliberate beat
+  o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1) * (0.1 + 0.9 * tk); // a strong, deliberate beat (nearly still mid-turn)
   const t = o.tail;
   t[0].x = rx; t[0].y = ry;
   // A tiny weight at the tip: every link keeps some of its momentum, more towards the tip, so when you turn
   // the end of the tail carries on, swings out wide and whips round after you in an arc.
-  const keep = dt > 0 ? Math.pow(0.5, dt * 60 / 18) : 0; // (momentum half-life of about 18 frames at 60 FPS: a flail)
+  const keep = dt > 0 ? Math.pow(0.5, dt * 60 / 12) : 0; // (momentum half-life of about 12 frames at 60 FPS: a flail)
   for (let i = 1; i < TAIL_N; i++) {
-    const a = t[i - 1], b = t[i], f = i / (TAIL_N - 1), m = keep * (0.2 + 0.8 * f * f * f); // (the weight is all at the end)
+    const a = t[i - 1], b = t[i], f = i / (TAIL_N - 1), m = keep * (0.15 + 0.75 * f * f); // (the weight is towards the end)
     const vx = (b.x - (b.px ?? b.x)) * m, vy = (b.y - (b.py ?? b.y)) * m;
     b.px = b.x; b.py = b.y; b.x += vx; b.y += vy;
     // Water drag: links lag behind; stiffness: drift towards straight back from the link ahead (the first
     // link is held firmly on the body's axis).
     const pv = i > 1 ? t[i - 2] : { x: a.x + Math.cos(face) * seg, y: a.y + Math.sin(face) * seg };
     let ax = a.x - pv.x, ay = a.y - pv.y; const al = Math.hypot(ax, ay) || 1; ax /= al; ay /= al;
-    const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 14 : 6 * (1 - 0.9 * f))); // (barely any pull straightening the tip: it drags behind and swings)
+    const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 14 : 6 * (1 - 0.7 * f))); // (a light pull straightening the tip: it drags behind and swings)
     b.x = lerp(b.x, a.x + ax * seg, st); b.y = lerp(b.y, a.y + ay * seg, st);
     const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
     b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg;
   }
+  // Smooth out kinks (a hooked or jittering tip): ease each link towards the middle of its neighbours (the
+  // last one towards carrying on straight), then put the lengths back, root to tip.
+  for (let i = 2; i < TAIL_N; i++) {
+    const a = t[i - 1], b = t[i];
+    if (i < TAIL_N - 1) { const c = t[i + 1]; b.x = lerp(b.x, (a.x + c.x) / 2, 0.25); b.y = lerp(b.y, (a.y + c.y) / 2, 0.25); }
+    else { const z = t[i - 2]; b.x = lerp(b.x, a.x + (a.x - z.x), 0.2); b.y = lerp(b.y, a.y + (a.y - z.y), 0.2); }
+  }
+  for (let i = 1; i < TAIL_N; i++) { const a = t[i - 1], b = t[i], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1; b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg; }
   // The visible wave, perpendicular to the spine.
   const amp = Math.min(len * 0.15, 38) * (0.75 + 0.25 * Math.min(1, speed / 150)) * tk; // big, sweeping strokes (quiet while turning)
   const D = o.tailDraw && o.tailDraw.length === TAIL_N ? o.tailDraw : (o.tailDraw = t.map(q => ({ x: q.x, y: q.y })));
