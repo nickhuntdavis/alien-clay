@@ -113,7 +113,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.80';
+const APP_VERSION = '7.81';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -149,7 +149,7 @@ function runSummary(G, result) {
     s: G.spells.filter(Boolean).map(w => w.id + w.lvl),
     p: top(G.passives, 12).map(([k, v]) => k + v),
     boxes: G.stats.boxes || 0, xp: Math.round(G.stats.xpGot || 0), xpRaw: Math.round(G.stats.xpRaw || 0), xpDrop: Math.round(G.stats.xpDrop || 0), xpFloor: Math.round(G.gems.filter(g => g.kind !== 's').reduce((a, g) => a + g.v, 0)), xpK: +(G.P.xp * XP_PACE).toFixed(2), curve: Math.round((G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))) * 10) / 10, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
-    tl: G.tl || [], fps: G.fpsTl || [], perf: G.perfTl || [], dev: typeof deviceTag === 'function' ? deviceTag() : '', cap: (typeof SET !== 'undefined' && SET.fpsCap) || 0, meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2), spd: (() => { const u = G.spdUse || [1, 0, 0], t = u.reduce((a, b) => a + b, 0) || 1; return u.map((v, i) => v / t >= 0.05 ? SPEED_LABELS[i] + ' ' + Math.round(v / t * 100) + '%' : '').filter(Boolean).join(' '); })(),
+    tl: G.tl || [], fps: G.fpsTl || [], perf: G.perfTl || [], dev: typeof deviceTag === 'function' ? deviceTag() : '', cap: (typeof SET !== 'undefined' && SET.fpsCap) || 0, meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2),
   };
 }
 function runLogText() {
@@ -166,7 +166,7 @@ function winTally() {
 }
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
-  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''}${r.combos ? ' combos:' + r.combos : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}${r.spd ? ' speed ' + r.spd : ''}${r.dev ? ' | device ' + r.dev : ''}\n`;
+  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''}${r.combos ? ' combos:' + r.combos : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes} metaRanks${r.meta} zoom${r.zoom}${r.dev ? ' | device ' + r.dev : ''}\n`;
   out += ` ended by: ${r.res === 'WON' ? 'the egg (you won)' : r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   if (r.hurtK) { const t = Object.values(r.hurtK).reduce((a, b) => a + b, 0) || 1; out += ` hurt by type: ${Object.entries(r.hurtK).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v} (${Math.round(v / t * 100)}%)`).join(', ') || '-'}\n`; }
   out += ` dmg: ${r.dmg.join(', ')}\n`;

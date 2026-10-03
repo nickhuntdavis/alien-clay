@@ -2370,7 +2370,7 @@ function update(dt) {
   meleeTick(dt);
   updateShow(dt);
   updateSpells(dt);
-  updateProjectiles(dt);
+  updateProjectiles(dt * PROJ_K);
   updateZones(dt);
   updateTurrets(dt);
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
@@ -2386,7 +2386,7 @@ function update(dt) {
   for (const b of G.ebul) {
     if (b.dead) continue;
     const bw = bw0 * (b.slowT > G.realT ? 0.35 : 1);
-    b.x += b.vx * dt * bw; b.y += b.vy * dt * bw; b.life -= dt;
+    b.x += b.vx * dt * bw * PROJ_K; b.y += b.vy * dt * bw * PROJ_K; b.life -= dt * PROJ_K;
     if (b.life <= 0) { b.dead = true; continue; }
     if (terrainShot(b, true, dt)) continue;
     const dx = b.x - p.x, dy = b.y - p.y, d2 = dx * dx + dy * dy;
@@ -2643,11 +2643,9 @@ function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } cat
 
 // ---------------------------------------------------------------- loop
 // The whole game runs at 70% speed: everything moves, fires and spawns 30% slower than real time.
-const GAME_SPEED = 0.7;
-// The speed button: the game runs at half its old pace by default, and one tap steps it up to 75%, then back
-// to the full old pace (labelled 1x, 1.5x and 2x). It scales game time only; menus and animations are unaffected.
-const SPEED_STEPS = [0.5, 0.75, 1], SPEED_LABELS = ['1x', '1.5x', '2x'];
-const speedMul = () => SPEED_STEPS[(typeof SET !== 'undefined' && SET.speed) || 0] || 0.5;
+// Game pace: 77% of the old 0.7. Projectiles (yours and enemy bullets) run on a slightly faster clock, so
+// they fly at 85% of their old speed (same range, they just get there sooner).
+const GAME_SPEED = 0.7 * 0.77, PROJ_K = 0.85 / 0.77;
 let lastTs = 0;
 // Frame-rate meter: frames counted over each real second (v), plus the slowest frame in that second as an FPS
 // (low), so hitches show up instead of being smoothed away. The run log keeps a per-minute average and low.
@@ -2705,9 +2703,9 @@ function frame(ts) {
     if (G && G.state === 'play') {
       keyboardSteer();
       // A boss death plays out in slow motion before its relic box opens.
-      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * speedMul()); }
+      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED); }
       else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot()) UI.openLoot(G.lootQueue.shift());
-      else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * speedMul()); const su = G.spdUse || (G.spdUse = [0, 0, 0]); su[SET.speed || 0] += dt; } // (time at each speed, for the run log)
+      else if (!(G.debug && G.debug.freeze)) update(dt * GAME_SPEED);
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);

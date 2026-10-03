@@ -878,5 +878,3 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 .li .rbars .dbar i.on { background: #d9e2ec; box-shadow: none; }
 .youTop::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 45%; background: linear-gradient(to bottom, #0000, #000000b0); pointer-events: none; }
 .youCap { z-index: 1; }
-#spdBtn { pointer-events: auto; display: block; margin-top: 6px; width: 42px; height: 26px; border-radius: 8px; border: 1px solid #ffffff40; background: #0009; color: #ffffff99; font: 800 10px var(--mono, monospace); letter-spacing: 0.5px; padding: 0; }
-#spdBtn.on { color: #ffd23f; border-color: #ffd23f; background: #ffd23f22; }
