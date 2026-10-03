@@ -615,7 +615,7 @@ function damageEnemy(e, dmg, src) {
     e.hitRT = G.realT; e.hitA = Math.atan2(hy, hx) || 0; e.hitK = crit || d > e.maxHp * 0.2 ? 1.7 : 1;
   } else if (!(G.realT - (e.tickRT || -9) < 0.3)) e.tickRT = G.realT; // ticks get a soft flicker, at most every 0.3s
   const key = src.wname || 'Other';
-  G.stats.dmg[key] = (G.stats.dmg[key] || 0) + d;
+  G.stats.dmg[key] = (G.stats.dmg[key] || 0) + Math.min(d, Math.max(0, hp0)); // damage actually dealt (overkill isn't counted)
   if (src.w) { const wk = (src.w.friendOf || src.w).uid, W = G.stats.wdmg || (G.stats.wdmg = {}); W[wk] = (W[wk] || 0) + d; } // per weapon, for the Armoury
   // Damage numbers thin out when the screen is busy (crits always show).
   if (!src.dot && !IN_AOE) hitFx(e, src, crit, d);

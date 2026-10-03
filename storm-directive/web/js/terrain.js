@@ -147,7 +147,9 @@ function terrainShot(s, hostile, dt) {
 // and if you're close you get a speed and fire-rate kick.
 function atpBurst(ob) {
   ob.charge = 0; ob.burstT = 0.6;
-  const R = ob.def.burstR, dmg = Math.max(80 * hpNow(), (G.dpsAvg || 0) * 0.25);
+  // Scales with the clock and your level, never with your own damage (that fed back on itself: every burst
+  // raised the next one, into the billions).
+  const R = ob.def.burstR, dmg = 80 * hpNow() * (1 + 0.04 * G.level);
   ring(ob.x, ob.y, R, PAL.reward, 0.5, 6);
   addLight(ob.x, ob.y, R * 1.3, PAL.reward, 0.6);
   spawnPart(ob.x, ob.y, '#ffd23f', 24, 260, 0.6, 4);
