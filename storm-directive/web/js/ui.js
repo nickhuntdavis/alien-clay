@@ -579,7 +579,9 @@ const UI = {
     // Tabs.
     $('dTabs').innerHTML = UI.lootOpts.map((x, i) => {
       const tc = D.weap ? wc : elemCol(x.def.elem);
-      return `<button class="dtab ${i === D.i ? 'sel' : ''}" data-i="${i}" style="--tc:${tc}"><b>${esc(x.title)}</b><span>${esc(D.weap ? (x.tag === 'BRANCH' ? 'ANY WEAPON' : x.tag) : (x.def.role || '').toUpperCase())}</span></button>`;
+      // Weapon drafts: the weapon's icon in its element colour (the names didn't fit); its name and role are in the panel below.
+      if (!D.weap) return `<button class="dtab dico ${i === D.i ? 'sel' : ''}" data-i="${i}" title="${esc(x.title)}" style="--tc:${tc}">${iconSVG(x.def, 30, tc)}</button>`;
+      return `<button class="dtab ${i === D.i ? 'sel' : ''}" data-i="${i}" style="--tc:${tc}"><b>${esc(x.title)}</b><span>${esc(x.tag === 'BRANCH' ? 'ANY WEAPON' : x.tag)}</span></button>`;
     }).join('');
     $('dTabs').querySelectorAll('.dtab').forEach(b => b.addEventListener('click', () => { D.i = +b.dataset.i; UI.renderDraft(); }));
     // Details.

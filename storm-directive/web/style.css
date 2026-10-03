@@ -844,3 +844,7 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 #bossIntro.foe .bi-col.str h4 { color: var(--bc); }
 #bossIntro.foe .bi-col.str li::before { content: '>'; color: var(--bc); }
 #bossIntro.foe .bi-reward { animation-delay: 1.1s; color: #a3aea9; }
+
+#draft .dtab.dico { display: flex; align-items: center; justify-content: center; height: 52px; padding: 0; }
+#draft .dtab.dico svg { display: block; opacity: 0.75; }
+#draft .dtab.dico.sel svg { opacity: 1; }
