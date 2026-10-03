@@ -943,16 +943,23 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     o.tail = [];
     for (let i = 0; i < TAIL_N; i++) { const x = rx - Math.cos(face) * seg * i, y = ry - Math.sin(face) * seg * i; o.tail.push({ x, y, px: x, py: y }); }
   }
-  // Turning more than a gentle arc? The wag relaxes right down, and slows, while the tail swings round (it
-  // drops fast and comes back slowly), so the arc reads clearly. turnK: 1 = straight, 0.06 mid-turn.
+  // Turning (anything more than a slight curve)? The wag slows and eases to a stop over about a third of a
+  // second while the tail swings round. The moment the turn ends it leaps back to life, with a burst of extra
+  // vigour (kick) that settles back to the normal beat. turnK: 1 = straight, 0.04 mid-turn.
   if (dt > 0) {
     let df = face - (o.lastFace ?? face); while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU;
-    const rate = Math.abs(df / dt), want = rate < 0.5 ? 1 : Math.max(0.06, 1 - (rate - 0.5) / 1.1), cur = o.turnK ?? 1;
-    o.turnK = want < cur ? lerp(cur, want, Math.min(1, dt * 18)) : lerp(cur, want, Math.min(1, dt * 1.4));
+    const rate = Math.abs(df / dt), want = rate < 0.35 ? 1 : Math.max(0.04, 1 - (rate - 0.35) / 0.9), cur = o.turnK ?? 1;
+    if (want < cur) o.turnK = lerp(cur, want, Math.min(1, dt * 5)); // easing into the stop
+    else {
+      if (o.turned && want > 0.9) { o.kick = 1; o.turned = false; } // the turn is over: back to life
+      o.turnK = lerp(cur, want, Math.min(1, dt * 12));
+    }
+    if (o.turnK < 0.45) o.turned = true;
+    o.kick = (o.kick || 0) * Math.pow(0.5, dt / 0.22);
   }
   o.lastFace = face;
-  const tk = o.turnK ?? 1;
-  o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1) * (0.1 + 0.9 * tk); // a strong, deliberate beat (nearly still mid-turn)
+  const kick = o.kick || 0, tk = (o.turnK ?? 1) * (1 + 0.5 * kick);
+  o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1) * (0.08 + 0.92 * Math.min(1, o.turnK ?? 1)) * (1 + 0.6 * kick); // a strong, deliberate beat (nearly still mid-turn, quick just after)
   const t = o.tail;
   t[0].x = rx; t[0].y = ry;
   // A tiny weight at the tip: every link keeps some of its momentum, more towards the tip, so when you turn
