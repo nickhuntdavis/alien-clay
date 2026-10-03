@@ -228,6 +228,12 @@ function drawStatusFx(e, x, y, r) {
     ctx.stroke();
     ctx.globalAlpha = a0;
   }
+  if (e.dazeT > G.t) {
+    // Dazed (out of a popped bubble): little stars circling over its head.
+    ctx.globalAlpha = a0; ctx.fillStyle = '#ffffff'; ctx.beginPath();
+    for (let i = 0; i < 3; i++) { const an = t * 5 + i / 3 * TAU, sx2 = x + Math.cos(an) * r * 0.8, sy2 = y - r * 1.25 + Math.sin(an) * r * 0.25, sr = Math.max(1.5, r * 0.12); ctx.moveTo(sx2 + sr, sy2); ctx.arc(sx2, sy2, sr, 0, TAU); }
+    ctx.fill();
+  }
   if (e.shock > 0) {
     // Arcs crawling round it, re-drawn every frame, with a few sparks thrown off.
     ctx.lineCap = 'round';

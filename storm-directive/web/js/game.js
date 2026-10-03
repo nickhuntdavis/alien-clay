@@ -687,6 +687,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
   if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
+  if (e.bubT > G.t && !src.dot && bubbleHit(e, src)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
   let d = dmg * (src.mult || 1) * G.evm.out; // Glass Womb
   // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
@@ -1205,8 +1206,8 @@ function updateEnemies(dt) {
     const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 1;
     const ux = dx / dist, uy = dy / dist;
     let mx = ux, my = uy, spd = e.speed;
-    const frozen = e.frozen > 0;
-    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1);
+    const frozen = e.frozen > 0 || e.dazeT > G.t; // (dazed out of a popped bubble: stopped, like frozen)
+    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1);
     if (e.boss) {
       bossAI(e, edt, dist, ux, uy);
       mx = e.mvx; my = e.mvy; spd = e.mvs;

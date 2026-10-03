@@ -507,7 +507,7 @@ function bubbleFire(w, target) {
   sfx('shot');
 }
 function canBubble(w, e) {
-  if (!toyCan(e) || !small(e) || e.bubT > G.t || e.thrownT > G.t || e.def.ai === 'phase') return false;
+  if (!toyCan(e) || !small(e) || e.bubT > G.t || e.thrownT > G.t || e.dazeT > G.t || e.def.ai === 'phase') return false;
   if (e.elite && !hasSig(w, 'extrasoapy')) return false;
   return e.r <= w.s.hold;
 }
@@ -518,15 +518,30 @@ function toyHold(e, dt) {
   if (e.bubT) { e.bubT = 0; e.phased = false; }
   return false;
 }
-function bubblePop(b, throwA) {
+// A pop: the bubble bursts and the blast hits everything near it, except the enemy that was inside, which
+// comes out dazed (stopped for a moment, then slowed). The longer a bubble held its enemy, the bigger the pop.
+// throwA: the direction whatever popped it was going (Cannonball and Bubble Hockey fling the enemy that way).
+function bubblePop(b, throwA, fling) {
+  if (b.dead) return;
   const e = b.e, w = b.w, s = w.s, T = TOYS();
   b.dead = true;
   fxParts('bubble', b.x, b.y, w.def.color, 8, 90, 0.5, 3);
   if (hasSig(w, 'bubblebath') && T.soap.length < 12) T.soap.push({ x: b.x, y: b.y, r: 60, end: G.t + 3 });
   if (!e) return;
   e.bubT = 0; e.phased = false;
+  const held = clamp((G.t - (b.heldAt || G.t)) / 3, 0, 1), R = 70 + b.r * 1.2, dmg = s.dmg * 2.2 * (1 + held);
+  IN_AOE = true;
+  forNear(b.x, b.y, R, o => { if (o !== e && toyCan(o)) damageEnemy(o, dmg, toySrc(w, 'Bubble pop', { knock: 140, kx: o.x - b.x, ky: o.y - b.y })); });
+  IN_AOE = false;
+  ring(b.x, b.y, R, w.def.color, 0.3, 3);
+  floatText(b.x, b.y - b.r - 6, held >= 1 ? 'BIG POP' : 'POP', w.def.color, held >= 1 ? 15 : 12, 0.5);
+  sfx('boom');
+  // Chain Pop: the blast pops every other bubble it reaches.
+  if (hasSig(w, 'chainpop')) for (const o of T.bubbles) if (!o.dead && o !== b && o.e && Math.hypot(o.x - b.x, o.y - b.y) < R + o.r) after(0.08, () => bubblePop(o, Math.atan2(o.y - b.y, o.x - b.x)));
+  if (G.pair.toiltrouble) { const vw = owned('venom'); if (vw) G.zones.push(venomZone(vw, b.x, b.y)); }
   if (e.dead) return;
-  if (throwA == null) { damageEnemy(e, s.dmg, toySrc(w, 'Bubble pop')); return; }
+  e.dazeT = G.t + 1.2; e.dazeSlowT = G.t + 3.5;
+  if (!(fling || hasSig(w, 'cannonball')) || throwA == null) return;
   // Flung: a heavy, living projectile.
   const v = 560;
   e.thrownT = G.t + 0.6; e.thrown = { vx: Math.cos(throwA) * v, vy: Math.sin(throwA) * v, dmg: s.dmg * 2 + Math.min(e.maxHp * 0.2, s.dmg * 6), hit: new Set([e]), w };
@@ -537,6 +552,7 @@ function bubbleTick(dt) {
   const T = TOYS(), p = G.player;
   for (const b of T.bubbles) {
     if (b.dead) continue;
+    if (b.e && b.e.bubT <= G.t) { bubblePop(b); continue; } // (already popped by a hit, see bubbleHit)
     const w = b.w, s = w.s;
     if (!s || !G.weapons.includes(w) && !w.echo) { if (b.e) { b.e.bubT = 0; b.e.phased = false; } b.dead = true; continue; }
     b.life -= dt;
@@ -547,32 +563,32 @@ function bubbleTick(dt) {
       let caught = null, bump = null;
       forNear(b.x, b.y, b.r, e => { if (!toyCan(e)) return; if (canBubble(w, e)) { caught = e; return true; } bump = bump || e; });
       if (caught) {
-        b.e = caught; caught.bubT = G.t + s.dur; caught.phased = true; b.life = s.dur; b.r = caught.r + 12; b.x = caught.x; b.y = caught.y;
+        b.e = caught; caught.bubT = G.t + s.dur; b.heldAt = G.t; b.life = s.dur; b.r = caught.r + 12; b.x = caught.x; b.y = caught.y;
         caught.kx = 0; caught.ky = 0;
         if (caught.teeth && caught.teeth > 0) floatText(caught.x, caught.y - caught.r - 10, 'GOT IT', w.def.color, 11, 0.5);
       } else if (bump) { damageEnemy(bump, s.dmg, toySrc(w, 'Bubble Wand')); if (!bump.boss) { bump.chill = Math.max(bump.chill, 1); bump.chillAmt = Math.max(bump.chillAmt, 0.3); } bubblePop(b); continue; }
       if (b.life <= 0) bubblePop(b);
       continue;
     }
-    // Holding something: drift towards you (Hamster Ball: roll at the nearest other enemy instead).
+    // Holding something: the enemy keeps coming, at a crawl, and can't hurt anyone from inside.
+    // (Hamster Ball: it rolls at the nearest other enemy instead, fast.)
     const e = b.e;
     if (e.dead) { b.e = null; bubblePop(b); continue; }
-    let tx = p.x, ty = p.y, sp = 55;
-    if (hasSig(w, 'hamsterball')) {
-      const o = acquire('nearest', 400, b.x, b.y, e);
-      if (o) { tx = o.x; ty = o.y; sp = 150; }
-      if (!(b.rollT > G.t)) { b.rollT = G.t + 0.4; forNear(b.x, b.y, b.r, o2 => { if (o2 !== e && toyCan(o2)) damageEnemy(o2, s.dmg * 0.7, toySrc(w, 'Hamster Ball', { knock: 160, kx: o2.x - b.x, ky: o2.y - b.y })); }); }
-    }
+    let tx = p.x, ty = p.y, sp = Math.min(60, e.speed * 0.3);
+    if (hasSig(w, 'hamsterball')) { const o = acquire('nearest', 400, b.x, b.y, e); if (o) { tx = o.x; ty = o.y; sp = 170; } }
     const dx = tx - b.x, dy = ty - b.y, dd = Math.hypot(dx, dy) || 1;
     b.x += dx / dd * sp * dt + Math.cos(G.realT * 2 + b.seed) * 8 * dt; b.y += dy / dd * sp * dt + Math.sin(G.realT * 2.3 + b.seed) * 8 * dt;
     e.x = b.x; e.y = b.y;
-    // Swim into it: pop and fling, the way you were swimming.
+    // Anything that touches it pops it: you (the way you were swimming), another enemy, an enemy bullet.
     if (Math.hypot(p.x - b.x, p.y - b.y) < b.r + p.r) {
       const sp2 = Math.hypot(p.vx || 0, p.vy || 0), a = sp2 > 30 ? Math.atan2(p.vy, p.vx) : Math.atan2(b.y - p.y, b.x - p.x);
       bubblePop(b, a); continue;
     }
-    // Bubble Hockey: the Paddle bats bubbles away.
-    if (G.pair.bubblehockey && G.lastSwing && G.lastSwing.t > G.t - 0.05 && Math.hypot(G.lastSwing.x - b.x, G.lastSwing.y - b.y) < G.lastSwing.r + b.r) { bubblePop(b, G.lastSwing.a); continue; }
+    let bumped = null;
+    forNear(b.x, b.y, b.r + 4, o => { if (o !== e && !o.dead && !o.charmed && !o.egg && Math.hypot(o.x - b.x, o.y - b.y) < b.r + o.r * 0.7) { bumped = o; return true; } });
+    if (bumped) { bubblePop(b, Math.atan2(b.y - bumped.y, b.x - bumped.x)); continue; }
+    for (const q of G.ebul) if (!q.dead && Math.abs(q.x - b.x) < b.r && Math.abs(q.y - b.y) < b.r && Math.hypot(q.x - b.x, q.y - b.y) < b.r + q.r) { q.dead = true; bumped = q; break; }
+    if (bumped) { bubblePop(b, Math.atan2(bumped.vy, bumped.vx)); continue; }
     if (b.life <= 0) bubblePop(b);
   }
   compactArr(T.bubbles, b => !b.dead);
@@ -599,6 +615,16 @@ function bubbleTick(dt) {
     if (hasSig(F.w, 'cannonball')) aoe(e.x, e.y, 80 + e.r, F.dmg * 0.8, toySrc(F.w, 'Cannonball'), F.w.def.color);
     if (G.pair.toiltrouble) { const vw = owned('venom'); if (vw) G.zones.push(venomZone(vw, e.x, e.y)); }
   }
+}
+// From damageEnemy: a hit on an enemy in a bubble hits the bubble instead, and pops it (the enemy inside
+// is untouched). Returns true if the hit was taken by a bubble. The Paddle (Bubble Hockey) bats it away.
+function bubbleHit(e, src) {
+  const T = TOYS(), b = T.bubbles.find(o => o.e === e && !o.dead);
+  if (!b) { e.bubT = 0; return false; }
+  const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
+  const hockey = G.pair.bubblehockey && src.w && src.w.id === 'paddle';
+  bubblePop(b, Math.atan2(ky, kx), hockey);
+  return true;
 }
 // From hurtPlayer: Bubble Boy blocks a hit.
 function toyBlock() {

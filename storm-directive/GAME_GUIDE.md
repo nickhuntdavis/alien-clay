@@ -603,7 +603,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Bubble Wand
 
-*Kinetic bubble, Trap & Throw.* Blows bubbles that trap small enemies. Pop one to fling the enemy into its friends. Do not drink the mix.
+*Kinetic bubble, Trap & Throw.* Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.
 
 - **Base stats:** dmg 18, cd 1.1s, mag 4, reload 2s, range 380 (dur 5, hold 34)
 - **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +1 count
@@ -617,9 +617,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Extra Soapy** | Bubbles hold enemies twice the size, elites included. |
 |  | **Bubble Bath** | Every popped bubble leaves a soapy patch for 3s that slows enemies by 40%. |
-| Lv 8 signature | **Cannonball** | Flung enemies explode where they land. |
-|  | **Chain Pop** | A flung enemy that hits another bubble pops it and flings that one too. |
-| Lv 10 mastery | **Hamster Ball** | Trapped enemies roll after other enemies and bowl them over instead of coming to you. |
+| Lv 8 signature | **Cannonball** | A pop launches the enemy inside away from whatever popped it. It bowls through its friends and explodes where it lands. |
+|  | **Chain Pop** | A pop's blast pops every other bubble it reaches, one after another. |
+| Lv 10 mastery | **Hamster Ball** | Trapped enemies roll fast at the nearest other enemy and pop on it. |
 |  | **Cotton Wool** | Every 8s you are wrapped in a bubble that blocks the next 3 hits. |
 
 ### Tooth Fairy
@@ -764,11 +764,11 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Final Notice** | Due Date + Red Tape | When a Due Date goes off on a taped enemy, the whole bundle takes all of it, not just a share. |
 | **Live Paperwork** | Red Tape + Static Cling | Lightning that hits a taped enemy is shared through the bundle twice over. |
 | **He Went That Way** | Imaginary Friend + Peekaboo | While you are hidden, enemies chase your Imaginary Friend instead of the empty spot. |
-| **Bubble Hockey** | Bubble Wand + Placenta Paddle | The Paddle pops bubbles it touches and fires the enemy inside the way it swung. |
+| **Bubble Hockey** | Bubble Wand + Placenta Paddle | When the Paddle pops a bubble, the enemy inside flies off the way it swung and bowls through its friends. |
 | **Bait and Switch** | Tooth Fairy + Nappy Mines | Every tooth has a Nappy Mine under it. |
 | **Colouring Book** | Colouring In + Morning Sickness | Every shape you colour in fills with a toxic puddle. |
 | **Cold Read** | Twin Telepathy + Cold Feet | Anything that stays in the telepathy beam for a second freezes solid. |
-| **Toil and Trouble** | Bubble Wand + Morning Sickness | Flung enemies leave a toxic puddle where they land. |
+| **Toil and Trouble** | Bubble Wand + Morning Sickness | Every pop leaves a toxic puddle. |
 
 ## Bosses and relics
 

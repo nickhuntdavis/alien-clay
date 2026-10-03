@@ -136,8 +136,8 @@ const WEAPONS = {
     desc: 'A beam joins you and your twin across the crowd. You both think "zap".',
     base: { dmg: 24, cd: 1.6, mag: 3, reload: 2.0, count: 1, range: 520, area: 90, width: 10 },
     lv: { 3: { dmg: 0.3 }, 6: { count: 1 }, 9: { area: 0.3 } }, sig: { 5: ['mindmeld', 'switcheroo'], 8: ['sympathy', 'wavelength'], 10: ['quads', 'psychic'] } },
-  bubble: { name: 'Bubble Wand', stars: [2, 3, 3, 4], play: 'Blows bubbles that trap small enemies. Trapped ones drift towards you and cannot fight back. Swim into a bubble to pop it and fling the enemy into its friends.', icon: 'BW', elem: 'phys', kind: 'bubble', toy: 1, color: '#cdb4db', dir: 'nearest', role: 'Trap & Throw',
-    desc: 'Blows bubbles that trap small enemies. Pop one to fling the enemy into its friends. Do not drink the mix.',
+  bubble: { name: 'Bubble Wand', stars: [2, 3, 3, 4], play: 'Blows bubbles that trap small enemies. A trapped enemy crawls along and cannot fight back. Anything that touches the bubble (you, another enemy, a shot, a bullet) pops it, and the pop hits everything nearby except the enemy inside, which comes out dazed. The longer a bubble holds, the bigger the pop.', icon: 'BW', elem: 'phys', kind: 'bubble', toy: 1, color: '#cdb4db', dir: 'nearest', role: 'Trap & Throw',
+    desc: 'Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.',
     base: { dmg: 18, cd: 1.1, mag: 4, reload: 2.0, count: 1, range: 380, speed: 170, size: 20, dur: 5, hold: 34 },
     lv: { 3: { count: 1 }, 6: { dmg: 0.4 }, 9: { count: 1 } }, sig: { 5: ['extrasoapy', 'bubblebath'], 8: ['cannonball', 'chainpop'], 10: ['hamsterball', 'bubbleboy'] } },
   toothfairy: { name: 'Tooth Fairy', stars: [4, 2, 3, 3], play: 'Drops baby teeth near the crowd. Greedy enemies swim off to grab them, and the Fairy smites whoever takes one: harder for every tooth they hold.', icon: 'TF', elem: 'arcane', kind: 'tooth', toy: 1, color: '#fff3b0', dir: 'cluster', role: 'Lure',
@@ -311,9 +311,9 @@ const SIGS = {
   // Bubble Wand
   extrasoapy:    { name: 'Extra Soapy', desc: 'Bubbles hold enemies twice the size, elites included.' },
   bubblebath:    { name: 'Bubble Bath', desc: 'Every popped bubble leaves a soapy patch for 3s that slows enemies by 40%.' },
-  cannonball:    { name: 'Cannonball', desc: 'Flung enemies explode where they land.' },
-  chainpop:      { name: 'Chain Pop', desc: 'A flung enemy that hits another bubble pops it and flings that one too.' },
-  hamsterball:   { name: 'Hamster Ball', desc: 'Mastery. Trapped enemies roll after other enemies and bowl them over instead of coming to you.' },
+  cannonball:    { name: 'Cannonball', desc: 'A pop launches the enemy inside away from whatever popped it. It bowls through its friends and explodes where it lands.' },
+  chainpop:      { name: 'Chain Pop', desc: 'A pop\'s blast pops every other bubble it reaches, one after another.' },
+  hamsterball:   { name: 'Hamster Ball', desc: 'Mastery. Trapped enemies roll fast at the nearest other enemy and pop on it.' },
   bubbleboy:     { name: 'Cotton Wool', desc: 'Mastery. Every 8s you are wrapped in a bubble that blocks the next 3 hits.' },
   // Tooth Fairy
   goldtooth:     { name: 'Gold Tooth', desc: 'Every 4th tooth is gold: it lures from twice as far, and whoever takes it is smitten along with everything near them.' },
@@ -347,11 +347,11 @@ const PAIRINGS = [
   { a: 'duedate',  b: 'redtape',  id: 'finalnotice', name: 'Final Notice', desc: 'When a Due Date goes off on a taped enemy, the whole bundle takes all of it, not just a share.' },
   { a: 'redtape',  b: 'tesla',    id: 'livepaper', name: 'Live Paperwork', desc: 'Lightning that hits a taped enemy is shared through the bundle twice over.' },
   { a: 'friend',   b: 'peekaboo', id: 'hidenseek', name: 'He Went That Way', desc: 'While you are hidden, enemies chase your Imaginary Friend instead of the empty spot.' },
-  { a: 'bubble',   b: 'paddle',   id: 'bubblehockey', name: 'Bubble Hockey', desc: 'The Paddle pops bubbles it touches and fires the enemy inside the way it swung.' },
+  { a: 'bubble',   b: 'paddle',   id: 'bubblehockey', name: 'Bubble Hockey', desc: 'When the Paddle pops a bubble, the enemy inside flies off the way it swung and bowls through its friends.' },
   { a: 'toothfairy', b: 'mines',  id: 'baitswitch', name: 'Bait and Switch', desc: 'Every tooth has a Nappy Mine under it.' },
   { a: 'crayon',   b: 'venom',    id: 'colouringbook', name: 'Colouring Book', desc: 'Every shape you colour in fills with a toxic puddle.' },
   { a: 'twin',     b: 'frost',    id: 'coldread', name: 'Cold Read', desc: 'Anything that stays in the telepathy beam for a second freezes solid.' },
-  { a: 'bubble',   b: 'venom',    id: 'toiltrouble', name: 'Toil and Trouble', desc: 'Flung enemies leave a toxic puddle where they land.' },
+  { a: 'bubble',   b: 'venom',    id: 'toiltrouble', name: 'Toil and Trouble', desc: 'Every pop leaves a toxic puddle.' },
 ];
 const PAIR_LEVEL = 5;
 
