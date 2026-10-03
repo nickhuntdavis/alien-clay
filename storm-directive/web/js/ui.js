@@ -354,7 +354,7 @@ const UI = {
     let h = `<div class="ahead" style="--c:${elemCol(wElem(w))}"><div class="aico">${iconSVG(d, 34, elemCol(wElem(w)))}</div><div class="ainfo">
       <div class="aname">${esc(d.name)}${w.combos && w.combos.length ? ` <span class="fz">COMBO: ${esc(w.combos.map(id => COMBO_BY[id].name).join(', '))}</span>` : ''}</div>
       <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: MAX_WLVL }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/${MAX_WLVL}</div>
-      <div class="adesc">${esc(d.desc)}</div></div></div>`;
+      <div class="adesc">${esc(d.desc)}</div>${w.wpN && Object.keys(w.wpN).length ? `<div class="adesc"><b>Tuned:</b> ${Object.entries(w.wpN).map(([id, n]) => esc(PASSIVES[id].name) + ' x' + n).join(', ')}</div>` : ''}</div></div>`;
     // How it plays.
     if (!w.isSpell && d.play) {
       const st = d.stars || [3, 3, 3, 3], bar = n => `<div class="dbar">${Array.from({ length: 5 }, (_, k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div>`;
@@ -708,23 +708,34 @@ const UI = {
         <div class="cico"${o.def ? ` style="--ic:${elemCol(o.elem)}"` : ''}>${o.def ? iconSVG(o.def, 28, elemCol(o.elem)) : esc(o.icon)}</div>
         <div class="ctitle">${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(o.desc)}</div>${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
-      c.addEventListener('click', () => {
+        <div class="cdesc">${esc(o.desc)}</div>${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
+      c.addEventListener('click', ev => {
         if (!$('lootCards').classList.contains('ready')) return;
         // Only a tap that started on this screen picks a card (not one left over from skipping the intro
         // or steering when the box popped up).
         if (!(UI.lastDown > UI.lootOpenT)) return;
+        if (o.pickW) {
+          // Tuning cards: tap the weapon to tune (or anywhere, if there is only one).
+          const chip = ev.target.closest('.wchip');
+          if (chip) { UI.pickLoot(i, +chip.dataset.w); return; }
+          if (o.pickW.length === 1) { UI.pickLoot(i, o.pickW[0].uid); return; }
+          c.classList.remove('nudge'); void c.offsetWidth; c.classList.add('nudge');
+          return;
+        }
         UI.pickLoot(i);
       });
       wrap.appendChild(c);
     });
   },
 
-  pickLoot(i) {
+  pickChips(o) {
+    return `<div class="wpick"><span class="wpl">TAP A WEAPON:</span>${o.pickW.map(t => `<span class="wchip" data-w="${t.uid}">${iconSVG(t.def, 16, elemCol(t.def.elem))}<b>${esc(t.def.name)}</b><em>${t.n}/${t.max}</em></span>`).join('')}</div>`;
+  },
+  pickLoot(i, wuid) {
     const o = UI.lootOpts[i];
     if (!o || o.taken) return;
     clearPreviews();
-    o.apply();
+    o.apply(wuid);
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
     const k = UI.lootReq && UI.lootReq.kind;

@@ -322,7 +322,7 @@ function friendTick(w, dt) {
       f.sig = sig;
       f.weapons = G.weapons.filter(x => x && x !== w && !NOCOPY.has(x.def.kind)).map(x => {
         const k = makeSlot(x.id, false, x.lvl); k.dir = x.dir; k.echo = true; k.copyK = s.copy; k.friendOf = w;
-        k.mods = x.mods.slice(); k.perks = Object.assign({}, x.perks); computeStats(k); k.ammo = k.s.mag; return k;
+        k.mods = x.mods.slice(); k.perks = Object.assign({}, x.perks); k.wp = x.wp; computeStats(k); k.ammo = k.s.mag; return k;
       });
     }
     const delay = s.delay * (1 + 0.75 * i), pos = pathAt(P, G.t - delay);

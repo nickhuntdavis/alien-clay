@@ -247,6 +247,12 @@ const REACH_START = 300;
 const BOSS_HIT_CAP = 0.22;
 const REACH_FREE = new Set(['mine', 'crayon', 'wake', 'orbit', 'melee', 'friend', 'heal']); // range means something else for these
 function computeStats(w) {
+  // Per-weapon tuning: the weapon sees your stats plus its own tuning while its stats are worked out.
+  const realP = G.P;
+  if (w.wp) G.P = weaponP(w);
+  try { computeStatsInner(w); } finally { G.P = realP; }
+}
+function computeStatsInner(w) {
   const d = w.def, b = d.base, P = G.P, L = w.lvl, syn = G.synergy;
   const s = Object.assign({}, b);
   let dmgB = 0, areaB = 0, durB = 0, cdB = 0;
@@ -421,7 +427,9 @@ function genLoot(req) {
   });
   for (const id in PASSIVES) {
     const st = G.passives[id] || 0;
-    if (st >= PASSIVES[id].max || (PASSIVES[id].needsScrap && !ownsScrapWeapon())) continue;
+    // Weapon tuning (fire rate, projectiles, area...) has its own stacks on every weapon.
+    const full = PER_WEAPON.has(id) ? !G.weapons.some(w => w && (w.wpN && w.wpN[id] || 0) < PASSIVES[id].max) && st >= PASSIVES[id].max : st >= PASSIVES[id].max;
+    if (full || (PASSIVES[id].needsScrap && !ownsScrapWeapon())) continue;
     cands.push({ w: 3.2, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
   // Stains you don't have yet.
@@ -481,11 +489,39 @@ function optDye(id) {
   return { rarity: 2, tag: 'STAIN', icon: 'DY', color: '#9fb3c8', title: D.name, sub: 'Colour and a boon, for the rest of the run', desc: D.boon + ' ' + D.desc,
     apply: () => { G.dyes[id] = true; if (D.apply) D.apply(G.P, G); recomputeAll(); refreshPalette(); } };
 }
+// Weapon tuning: below Legendary these power-ups go on ONE weapon you choose (on the card); Legendary and up
+// tune every weapon at once. Each weapon keeps its own stacks.
+const PER_WEAPON = new Set(['haste', 'reload', 'mag', 'multishot', 'velocity', 'area', 'duration', 'pierce']);
+const WP_KEYS = ['haste', 'reloadSpd', 'magMult', 'multishot', 'projSpeed', 'range', 'area', 'dur', 'pierce'];
+function weaponP(w) {
+  if (!w || !w.wp) return G.P;
+  const o = Object.create(G.P);
+  for (const k in w.wp) o[k] = G.P[k] + w.wp[k];
+  return o;
+}
+function wpTargets(id) { const max = PASSIVES[id].max; return G.weapons.filter(w => w && (w.wpN && w.wpN[id] || 0) < max); }
+function wpApply(w, id, v) {
+  const d = {}; for (const k of WP_KEYS) d[k] = 0;
+  d.elem = G.P.elem; PASSIVES[id].apply(d, v, G);
+  w.wp = w.wp || {}; w.wpN = w.wpN || {};
+  for (const k of WP_KEYS) if (d[k]) w.wp[k] = (w.wp[k] || 0) + d[k];
+  w.wpN[id] = (w.wpN[id] || 0) + 1;
+  G.passives[id] = (G.passives[id] || 0); // (the global count is for Legendary, all-weapon tuning)
+  recomputeAll();
+  floatText(me().x, me().y - 34, w.def.name.toUpperCase() + ' TUNED', PAL.upgrade, 13, 0.8);
+}
 function optPassive(id, r) {
   const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour', 'heft', 'thorns', 'grit'].includes(id);
   const v = intish ? Math.max(1, Math.floor(RARITIES[r].mult)) * p.v : p.v * RARITIES[r].mult;
   const st = G.passives[id] || 0;
   const extra = adaptNotes(ADAPT[id]);
+  const targets = PER_WEAPON.has(id) && r < 4 ? wpTargets(id) : null;
+  if (targets && targets.length) {
+    return { rarity: r, tag: 'TUNE A WEAPON', icon: p.icon, color: '#9fb3c8', title: p.name, sub: 'One weapon you choose (Legendary: all of them)',
+      desc: p.fmt(v).replace(/ for all weapons/, '') + extra, pickW: targets.map(w => ({ uid: w.uid, def: w.def, lvl: w.lvl, n: w.wpN && w.wpN[id] || 0, max: p.max })),
+      apply: uid => { const w = targets.find(x => x.uid === uid) || pick(targets); wpApply(w, id, v); } };
+  }
+  if (PER_WEAPON.has(id) && st >= p.max) return optHeal(); // every weapon is full and so is the global stack
   return { rarity: r, tag: 'POWER-UP', icon: p.icon, color: '#9fb3c8', title: p.name, sub: `Stack ${st + 1}/${p.max}`, desc: p.fmt(v) + extra,
     apply: () => { p.apply(G.P, v, G); G.passives[id] = st + 1; recomputeAll(); } };
 }
