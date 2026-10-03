@@ -1851,10 +1851,6 @@ function drawScaleBar() {
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
   ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS (low ' + Math.round(FPS.low) + ')' + (QUAL.lv ? '  Q' + (4 - QUAL.lv) : ''), x + len + 10, y + 4);
-  // Lead side marker, as on a radiograph.
-  const mkx = land ? W - 112 : W - 26, mky = land ? H - 40 : H * 0.5;
-  filmPanel(mkx - 1, mky - 11, 19, 22);
-  ctx.font = 'bold 13px ' + MONO; ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.fillText('R', mkx + 8.5, mky + 5);
 }
 
 // Film grain: a small noise tile drawn at a new random offset every frame, so dark panels shimmer
