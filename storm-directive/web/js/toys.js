@@ -786,9 +786,11 @@ function drawToysOver() {
     const c = col(w.def.color), fl = 0.8 + Math.random() * 0.3;
     for (const [a, b] of twinSegs(w)) {
       ctx.strokeStyle = c;
-      for (const [lw, al] of [[w.s.width * 2.4 * fl, 0.18], [w.s.width * 0.9, 0.5], [w.s.width * 0.25, 1]]) {
-        ctx.globalAlpha = al; ctx.lineWidth = lw * S; ctx.beginPath(); ctx.moveTo(sx(a.x), sy(a.y));
-        const n = 6; for (let i = 1; i <= n; i++) { const k = i / n, wob = i < n ? Math.sin(G.realT * 30 + i * 2) * 4 * S : 0; ctx.lineTo(sx(lerp(a.x, b.x, k)) + wob, sy(lerp(a.y, b.y, k)) - wob); }
+      // A thin, wavy thread of telepathy: a wave travels along it, pinned at both ends.
+      const L = Math.hypot(b.x - a.x, b.y - a.y) || 1, nx = -(b.y - a.y) / L, ny = (b.x - a.x) / L, waves = Math.max(2, L / 70);
+      for (const [lw, al] of [[Math.max(1.5, w.s.width * 0.3 * fl), 0.15], [Math.max(0.8, w.s.width * 0.07), 1]]) {
+        ctx.globalAlpha = al; ctx.lineWidth = lw * Math.min(S, 1.2); ctx.beginPath(); ctx.moveTo(sx(a.x), sy(a.y));
+        const n = 40; for (let i = 1; i <= n; i++) { const k = i / n, wob = Math.sin(k * TAU * waves - G.realT * 14) * Math.sin(k * Math.PI) * 9; ctx.lineTo(sx(lerp(a.x, b.x, k) + nx * wob), sy(lerp(a.y, b.y, k) + ny * wob)); }
         ctx.stroke();
       }
     }
@@ -974,7 +976,7 @@ function pvDrawToy(pv, g, X, Y, U, c, me0) {
   if (d.kind === 'friend' && pv.friend) { const f = pv.friend; g.globalAlpha = 0.45; pvGlow(g, X(f.x), Y(f.y), U * 0.06, c, 0.6); g.fillStyle = c; g.beginPath(); g.ellipse(X(f.x), Y(f.y), U * 0.036, U * 0.026, 0, 0, TAU); g.fill(); g.globalAlpha = 1; }
   if (d.kind === 'peek' && pv.hidden && pv.spot) { g.fillStyle = '#fff'; g.font = `900 ${Math.round(U * 0.07)}px sans-serif`; g.textAlign = 'center'; g.fillText('?', X(pv.spot.x), Y(pv.spot.y) + U * 0.02); g.globalCompositeOperation = 'source-over'; g.fillStyle = '#05070acc'; g.beginPath(); g.arc(X(me0.x), Y(me0.y), U * 0.05, 0, TAU); g.fill(); g.globalCompositeOperation = 'lighter'; }
   if (d.kind === 'twin' && pv.twins) {
-    g.strokeStyle = c; for (const [lw, al] of [[8, 0.25], [2.5, 1]]) { g.globalAlpha = al; g.lineWidth = lw; g.beginPath(); for (const t of pv.twins) { g.moveTo(X(me0.x), Y(me0.y)); g.lineTo(X(t.x), Y(t.y)); } g.stroke(); }
+    g.strokeStyle = c; for (const [lw, al] of [[3, 0.25], [1, 1]]) { g.globalAlpha = al; g.lineWidth = lw; g.beginPath(); for (const t of pv.twins) { const x0 = X(me0.x), y0 = Y(me0.y), x1 = X(t.x), y1 = Y(t.y), L = Math.hypot(x1 - x0, y1 - y0) || 1, nx = -(y1 - y0) / L, ny = (x1 - x0) / L; g.moveTo(x0, y0); for (let i = 1; i <= 30; i++) { const k = i / 30, wob = Math.sin(k * TAU * 3 - pv.t * 14) * Math.sin(k * Math.PI) * 5; g.lineTo(x0 + (x1 - x0) * k + nx * wob, y0 + (y1 - y0) * k + ny * wob); } } g.stroke(); }
     g.globalAlpha = 0.7; g.fillStyle = c; for (const t of pv.twins) { g.beginPath(); g.ellipse(X(t.x), Y(t.y), U * 0.036, U * 0.026, 0, 0, TAU); g.fill(); } g.globalAlpha = 1;
   }
   if (d.kind === 'bubble' && pv.bubs) for (const b of pv.bubs) { g.strokeStyle = '#ffffff'; g.lineWidth = 1.5; g.globalAlpha = 0.8; g.beginPath(); g.arc(X(b.x), Y(b.y), U * (b.held ? 0.07 : 0.03), 0, TAU); g.stroke(); g.globalAlpha = 0.15; g.fillStyle = c; g.fill(); g.globalAlpha = 1; }

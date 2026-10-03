@@ -931,7 +931,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     o.tail = [];
     for (let i = 0; i < TAIL_N; i++) o.tail.push({ x: rx - Math.cos(face) * seg * i, y: ry - Math.sin(face) * seg * i });
   }
-  o.beat = (o.beat || Math.random() * 10) + dt * (9 + Math.min(14, speed / 10)) * (beatMul || 1);
+  o.beat = (o.beat || Math.random() * 10) + dt * (15 + Math.min(20, speed / 7)) * (beatMul || 1); // a brisk, fast beat
   const t = o.tail;
   t[0].x = rx; t[0].y = ry;
   for (let i = 1; i < TAIL_N; i++) {
@@ -1160,10 +1160,12 @@ function render() {
       continue;
     }
     const r = (g.v >= 20 ? 7 : g.v >= 5 ? 5.5 : 4) * S;
-    const col = g.v >= 20 ? '#ffd23f' : g.v >= 5 ? '#80ffdb' : '#4cc9f0';
+    // Dark granules with a crisp edge, so they stand out on the pale slide.
+    const col = g.v >= 20 ? '#7a5a00' : g.v >= 5 ? '#14594a' : '#0f3d55';
     ctx.fillStyle = col;
-    ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r * 0.5, y - r * 0.2); ctx.lineTo(x, y); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgb(12,14,16)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r * 0.5, y - r * 0.2); ctx.lineTo(x, y); ctx.fill();
   }
   // Pickups: temporary power-ups are monitor magenta; DNA strands (loot) are gold.
   for (const u of G.pickups) {
