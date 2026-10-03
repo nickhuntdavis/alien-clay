@@ -516,8 +516,8 @@ function meleeHit(w, e, dmg, src) {
     e.smother = (e.smother || 0) + 1;
     if (e.smother >= 3) {
       e.smother = 0;
-      damageEnemy(e, dmg * (e.boss ? 1.5 : 4), Object.assign({}, src, { noProc: true, noCrit: true, knock: 0, wname: 'Smother' }));
-      floatText(e.x, e.y - e.r - 10, 'SMOTHERED', w.def.color, 13);
+      damageEnemy(e, dmg * (e.boss ? 1.5 : 4), Object.assign({}, src, { noProc: true, noCrit: true, knock: 0, wname: 'Counting to Three' }));
+      floatText(e.x, e.y - e.r - 10, 'THREE', w.def.color, 13);
       ring(e.x, e.y, e.r + 12, w.def.color, 0.3, 4);
     }
   }
@@ -615,7 +615,7 @@ function groundPound(w, src) {
   const s = w.s, p = me(), R = s.reach * 1.6;
   forNear(p.x, p.y, R, e => {
     if (e.charmed) return;
-    meleeHit(w, e, s.dmg * 1.2, Object.assign({}, src, { knock: 140, kx: e.x - p.x, ky: e.y - p.y, wname: 'Ground Pound' }));
+    meleeHit(w, e, s.dmg * 1.2, Object.assign({}, src, { knock: 140, kx: e.x - p.x, ky: e.y - p.y, wname: 'Putting Your Foot Down' }));
     if (!e.boss && !e.dead) e.frozen = Math.max(e.frozen, 0.8);
   });
   G.fx.push({ type: 'swing', x: p.x, y: p.y, a: 0, arc: TAU, r: R, color: w.def.color, life: 0.3, max: 0.3 });

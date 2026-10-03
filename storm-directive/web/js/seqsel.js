@@ -4,14 +4,14 @@
 // its weapons and synergies, and a collection grid (locked ones are silhouettes with their unlock progress).
 
 const SEQ_LOOK = {
-  vanguard:  { short: 'Vanguard', color: '#5fd4e8', tag: 'THE DEFAULT GENE', quote: 'Simple. Honest. Violent.', stats: [3, 3, 3, 3] },
-  bruiser:   { short: 'Bruiser', color: '#ff924c', tag: 'THE WALL OF MEAT', quote: 'Hit me. No, really. Go on.', stats: [3, 5, 2, 2] },
-  nerd:      { short: 'Mito Nerd', color: '#ffe94a', tag: 'POWERED BY ORGANELLES', quote: 'The mitochondria are doing the work.', stats: [3, 2, 3, 5] },
-  eggseeker: { short: 'Egg-Seeker', color: '#ff4d6d', tag: 'THE BOSS EXECUTIONER', quote: 'One shot. One very large hole.', stats: [5, 2, 3, 2] },
-  stealth:   { short: 'Stealth', color: '#c77dff', tag: 'SHARP AND SILENT', quote: 'You will not hear it coming. It has no ears either.', stats: [4, 2, 5, 1] },
-  pusher:    { short: 'Pusher', color: '#8ac926', tag: 'IT HEALS ITSELF', quote: 'Cuts? Bruises? Gone. Mostly.', stats: [2, 4, 3, 4] },
-  acid:      { short: 'Acid-Burner', color: '#d4ff5c', tag: 'ANGRIER WHEN HURT', quote: 'Every scratch makes it worse. For you.', stats: [5, 1, 3, 2] },
-  splicer:   { short: 'Splicer', color: '#90e0ef', tag: 'MAKES EVERY GENE BETTER', quote: 'Cold, clever, and a bit of everything.', stats: [2, 3, 3, 5] },
+  vanguard:  { short: 'Firstborn', color: '#5fd4e8', tag: 'THE DEFAULT GENE', quote: 'Simple. Honest. Violent.', stats: [3, 3, 3, 3] },
+  bruiser:   { short: 'Ten-Pounder', color: '#ff924c', tag: 'THE WALL OF MEAT', quote: 'Hit me. No, really. Go on.', stats: [3, 5, 2, 2] },
+  nerd:      { short: 'Bright Spark', color: '#ffe94a', tag: 'POWERED BY ORGANELLES', quote: 'The mitochondria are doing the work.', stats: [3, 2, 3, 5] },
+  eggseeker: { short: 'Favourite', color: '#ff4d6d', tag: 'THE BOSS EXECUTIONER', quote: 'One shot. One very large hole.', stats: [5, 2, 3, 2] },
+  stealth:   { short: 'Quiet One', color: '#c77dff', tag: 'SHARP AND SILENT', quote: 'You will not hear it coming. It has no ears either.', stats: [4, 2, 5, 1] },
+  pusher:    { short: 'Good Eater', color: '#8ac926', tag: 'IT HEALS ITSELF', quote: 'Cuts? Bruises? Gone. Mostly.', stats: [2, 4, 3, 4] },
+  acid:      { short: 'Problem Child', color: '#d4ff5c', tag: 'ANGRIER WHEN HURT', quote: 'Every scratch makes it worse. For you.', stats: [5, 1, 3, 2] },
+  splicer:   { short: 'Designer Baby', color: '#90e0ef', tag: 'MAKES EVERY GENE BETTER', quote: 'Cold, clever, and a bit of everything.', stats: [2, 3, 3, 5] },
 };
 const SEQ = { id: 'vanguard', t: 0, parts: [], tiles: [] };
 const ROMAN = ['I', 'II', 'III'];

@@ -5,13 +5,13 @@
 Object.assign(POWERUPS, {
   hired:     { name: 'HIRED HELP',     letter: 'H', color: '#8dffc0', desc: 'Three bodyguard swimmers fight for you for 14s' },
   centrifuge:{ name: 'CENTRIFUGE',     letter: 'C', color: '#bde0fe', desc: 'For 6s everything near you is flung round you in a grinding vortex' },
-  giant:     { name: 'HYPERTROPHY',    letter: 'G', color: '#ffb4a2', desc: 'For 8s you are huge: you crush what you touch and take half damage' },
+  giant:     { name: 'GROWING PAINS',    letter: 'G', color: '#ffb4a2', desc: 'For 8s you are huge: you crush what you touch and take half damage' },
   chain:     { name: 'CHAIN REACTION', letter: 'X', color: '#ff7a2f', desc: 'For 10s every kill explodes' },
   reflux:    { name: 'REFLUX',         letter: 'R', color: '#c77dff', desc: 'For 7s bullets near you are swallowed and spat back as sparks' },
   goldrush:  { name: 'GOLD RUSH',      letter: '$', color: '#ffd23f', desc: 'For 12s double XP, and XP flies to you' },
   leech:     { name: 'LEECH',          letter: 'L', color: '#ff4d6d', desc: 'For 10s your hits heal you' },
   rod:       { name: 'LIGHTNING ROD',  letter: 'Z', color: '#ffe94a', desc: 'For 8s lightning strikes enemies on screen twice a second' },
-  tailwind:  { name: 'TAILWIND',       letter: 'W', color: '#ff9e00', desc: 'For 8s you swim 60% faster and leave a burning wake' },
+  tailwind:  { name: 'BREAKING WIND',       letter: 'W', color: '#ff9e00', desc: 'For 8s you swim 60% faster and leave a burning wake' },
 });
 const PU_TIME = { hired: 14, centrifuge: 6, giant: 8, chain: 10, reflux: 7, goldrush: 12, leech: 10, rod: 8, tailwind: 8 };
 const PU_NEW = Object.keys(PU_TIME);

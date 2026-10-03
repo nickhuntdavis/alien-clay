@@ -8,7 +8,7 @@
 
 const IMMUNE = [
   { name: 'Inflammation',        desc: 'Enemies have 20% more health.' },
-  { name: 'Fever',               desc: 'Enemies swim 10% faster.' },
+  { name: 'Running a Temperature',               desc: 'Enemies swim 10% faster.' },
   { name: 'Antibody Surge',      desc: 'Elites turn up twice as often.' },
   { name: 'Opsonisation',        desc: 'Enemy bullets fly 15% faster.' },
   { name: 'Complement Cascade',  desc: 'Bosses have 25% more health.' },
@@ -61,8 +61,8 @@ const BABY_TRAITS = {
   babytalk:   { name: 'Baby Talk', desc: '+10% XP.', apply: P => { P.xp += 0.1; } },
   cradlecap:  { name: 'Cradle Cap', desc: '+1 armour.', apply: P => { P.armour += 1; } },
   grabby:     { name: 'Grabby Hands', desc: '+25% pickup range.', apply: P => { P.magnet += 0.25; } },
-  naptime:    { name: 'Nap Time', desc: '+0.6 HP/s regeneration.', apply: P => { P.regen += 0.6; } },
-  vomit:      { name: 'Projectile Vomit', desc: '+6% fire rate.', apply: P => { P.haste += 0.06; } },
+  naptime:    { name: 'Sleeps Through', desc: '+0.6 HP/s regeneration.', apply: P => { P.regen += 0.6; } },
+  vomit:      { name: 'Chatterbox', desc: '+6% fire rate.', apply: P => { P.haste += 0.06; } },
   silverspoon:{ name: 'Silver Spoon', desc: '+1 reroll every run and +10% luck.', apply: (P, G) => { P.luck += 0.1; G.rerolls += 1; } },
   dummy:      { name: 'The Dummy', desc: '+5% dodge chance. Suck on that.', apply: P => { P.dodge += 0.05; } },
 };

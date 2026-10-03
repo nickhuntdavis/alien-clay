@@ -645,7 +645,7 @@ const UI = {
     $('lootTitle').textContent = titles[req.kind][0];
     if (req.kind !== 'start') achieve('firstloot');
     if (req.kind === 'level' && Math.random() < 0.3) sysLine('level');
-    $('lootSub').textContent = req.kind === 'relic' ? titles.relic[1] : (lootStory(req) || titles[req.kind][1]) + (G.relics.twinpick && req.kind !== 'start' && req.kind !== 'branch' ? ' TWIN PICK: take two.' : '');
+    $('lootSub').textContent = req.kind === 'relic' ? titles.relic[1] : (lootStory(req) || titles[req.kind][1]) + (G.relics.twinpick && req.kind !== 'start' && req.kind !== 'branch' ? ' SECONDS: take two.' : '');
     const box = $('lootBox');
     box.className = 'box ' + req.kind;
     // Loot boxes are gold; a branch choice is an upgrade, so it's cyan.
@@ -742,7 +742,7 @@ const UI = {
     if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo)) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'relic' && UI.lootOpts.length > 1) {
       UI.pickedOne = true; o.taken = true;
       const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
-      $('lootSub').textContent = 'Twin Pick: take one more.';
+      $('lootSub').textContent = 'Seconds: take one more.';
       return;
     }
     G.state = 'play';
@@ -952,7 +952,7 @@ const UI = {
       const ws = META.wstats[id];
       return `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
     };
-    h += `</div><div class="sec"><h3>Epigenetic Profiles</h3><p class="hint">Your Primary Sequence (chosen just before a run) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Vanguard')}</b>. Ranks come from kills, unlocks from what you do across all your runs.</p><div class="list">${Object.keys(PROFILES).map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join('')}</div>`;
+    h += `</div><div class="sec"><h3>Epigenetic Profiles</h3><p class="hint">Your Primary Sequence (chosen just before a run) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Firstborn')}</b>. Ranks come from kills, unlocks from what you do across all your runs.</p><div class="list">${Object.keys(PROFILES).map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join('')}</div>`;
     h += `</div><div class="sec"><h3>Wildcard weapons</h3><p class="hint">Every weapon belongs to one sequence, and only that sequence can draft it. Unlock one here and it becomes a wildcard: any sequence can draft it, and one is offered at the start of every run.</p>`;
     h += META_STARTERS.filter(([id]) => !WEAPONS[id] || !WEAPONS[id].toy).map(starterRow).join('');
     h += `<h3 style="margin-top:12px">Toys</h3><p class="hint">The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.</p>`;

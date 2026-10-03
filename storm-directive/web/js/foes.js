@@ -6,18 +6,18 @@
 Object.assign(ENEMIES, {
   // A nanobot hunter-killer built in a lab to win the race. Locks on with a red laser, fires a burst, and
   // when you destroy it, it isn't finished: the chrome endoskeleton climbs out and keeps coming.
-  sperminator: { name: 'Sperminator', hp: 120, speed: 62, armour: 6, r: 14, dmg: 14, xp: 10, color: '#b8c4cc', shape: 'sperminator', ai: 'sperminator', from: 300, w: 1.1, rebuild: 'endoskeleton',
+  sperminator: { name: 'Booster', hp: 120, speed: 62, armour: 6, r: 14, dmg: 14, xp: 10, color: '#b8c4cc', shape: 'sperminator', ai: 'sperminator', from: 300, w: 1.1, rebuild: 'endoskeleton',
     shoot: { pattern: 'aimed', cd: 4, speed: 360, dmg: 9 } },
-  endoskeleton: { name: 'Sperminator Endoskeleton', hp: 45, speed: 92, armour: 0, r: 12, dmg: 12, xp: 6, color: '#dfe7ec', shape: 'sperminator', ai: 'sperminator', from: 99999, w: 0, endo: true,
+  endoskeleton: { name: 'Second Dose', hp: 45, speed: 92, armour: 0, r: 12, dmg: 12, xp: 6, color: '#dfe7ec', shape: 'sperminator', ai: 'sperminator', from: 99999, w: 0, endo: true,
     shoot: { pattern: 'aimed', cd: 3, speed: 360, dmg: 7 } },
   // From somewhere a long way from here. It weaves in, crouches and pounces, and bleeds acid when it dies.
-  alien: { name: 'Alien Sperm', hp: 48, speed: 70, armour: 2, r: 13, dmg: 13, xp: 6, color: '#3a3d4a', shape: 'alien', ai: 'alien', from: 180, w: 1.3 },
+  alien: { name: 'Natural Killer', hp: 48, speed: 70, armour: 2, r: 13, dmg: 13, xp: 6, color: '#3a3d4a', shape: 'alien', ai: 'alien', from: 180, w: 1.3 },
 });
 
 // Behaviour (from updateEnemies' switch): returns the swim direction and speed, or nothing for a plain chase.
 const FOE_INTRO = {
-  sperminator: ['SPERMINATOR', 'A nanobot hunter-killer. It locks on with a red laser before it fires, so move when you see the beam. Destroying it is only half the job.'],
-  alien: ['ALIEN SPERM', 'Not from round here. It weaves in, crouches, then pounces: get clear when it crouches. Its blood is acid.'],
+  sperminator: ['BOOSTER', 'A nanobot hunter-killer. It locks on with a red laser before it fires, so move when you see the beam. Destroying it is only half the job.'],
+  alien: ['NATURAL KILLER', 'Not from round here. It weaves in, crouches, then pounces: get clear when it crouches. Its blood is acid.'],
 };
 function foeIntro(e) {
   const k = e.def.endo ? null : e.def.ai, seen = G.foeSeen || (G.foeSeen = {});
@@ -69,7 +69,7 @@ function foeKill(e) {
   }
   if (e.def.ai === 'alien') {
     // Acid for blood: a sizzling pool where it fell.
-    addHazard(e.x, e.y, 30 + e.r, 3, e.dmg * 0.6, '#9ef01a', 'Alien acid', 0.35);
+    addHazard(e.x, e.y, 30 + e.r, 3, e.dmg * 0.6, '#9ef01a', 'Acid blood', 0.35);
     fxParts('drop', e.x, e.y, '#9ef01a', 10, 180, 0.5, 3);
   }
 }

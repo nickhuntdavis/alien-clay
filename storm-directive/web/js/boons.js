@@ -4,19 +4,19 @@
 
 const BOONS = {
   // Mythical
-  bloodmoon:  { tier: 5, name: 'Blood Moon', desc: 'Every 40th kill sends you into ADRENALINE for 5s (double fire rate, no reloads) and heals 10%.' },
-  stormcrown: { tier: 5, name: 'Storm Crown', desc: 'Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP (bosses take at most 4%, the Final Five 6%).' },
-  phoenix:    { tier: 5, name: 'Phoenix Down', desc: 'The first time you would die, you burst into flames and come back at full health.' },
-  hormone:    { tier: 5, name: 'Growth Hormone', desc: '+50% max HP (and heal it), and +2 Acrosome Ram: you are the weapon now.' },
-  pocketvoid: { tier: 5, name: 'Pocket Black Hole', desc: 'A small black hole circles you for the rest of the run, dragging enemies in and crushing them.' },
+  bloodmoon:  { tier: 5, name: 'Second Wind', desc: 'Every 40th kill sends you into OXYTOCIN for 5s (double fire rate, no reloads) and heals 10%.' },
+  stormcrown: { tier: 5, name: 'Act of God', desc: 'Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP (4% on bosses, 6% on the Final Five).' },
+  phoenix:    { tier: 5, name: 'Second Coming', desc: 'The first time you would die, you come back at full health. Unplanned.' },
+  hormone:    { tier: 5, name: 'Growth Hormone', desc: '+50% max HP (and heal it), and +2 Headstrong. You are the weapon now.' },
+  pocketvoid: { tier: 5, name: 'Bottomless Pit', desc: 'A small black hole circles you for the rest of the run, dragging enemies in and crushing them.' },
   technicolour: { tier: 5, name: 'Full Technicolour', desc: 'The stains are off. EVERYTHING goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD, the lot. Also +10% damage, because colour is power.' },
-  bullettime: { tier: 5, name: 'Bullet Time', desc: 'When you drop below 30% health, time slows for 4s (every 20s at most).' },
+  bullettime: { tier: 5, name: 'Tantric', desc: 'When you drop below 30% health, time slows for 4s (every 20s at most). Breathe.' },
   // Celestial
-  supernova:  { tier: 6, name: 'Supernova', desc: 'Every 12s a blast fills the screen: every enemy takes 18% of its max HP (bosses at most 4%, the Final Five 6%) and every enemy bullet is wiped.' },
-  godhand:    { tier: 6, name: 'Hand of God', desc: 'Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP (bosses at most 4%, the Final Five 6%).' },
-  twinsoul:   { tier: 6, name: 'Twin Soul', desc: 'Every weapon you own fires 60% faster. Forever.' },
+  supernova:  { tier: 6, name: 'Gender Reveal', desc: 'Every 12s a blast fills the screen: every enemy takes 18% of its max HP (4% on bosses, 6% on the Final Five) and every enemy bullet is wiped. Everyone finds out.' },
+  godhand:    { tier: 6, name: 'Hand of God', desc: 'Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP (4% on bosses, 6% on the Final Five).' },
+  twinsoul:   { tier: 6, name: 'In Quick Succession', desc: 'Every weapon you own fires 60% faster. Forever.' },
   grace:      { tier: 6, name: 'State of Grace', desc: 'Every 15s: 2s of invulnerability and a 15% heal.' },
-  starfall:   { tier: 6, name: 'Starfall', desc: 'Stars fall on enemies near you, one every 0.4s, each for three times your best weapon\'s damage.' },
+  starfall:   { tier: 6, name: 'Twinkle, Twinkle', desc: 'Stars fall on enemies near you, one every 0.4s, each for three times your best weapon\'s damage.' },
 };
 
 // Give a Mythical or Celestial card its bonus (from genLoot). Shown on the card; granted when taken.
@@ -41,7 +41,7 @@ function grantBoon(id) {
   ring(p.x, p.y, 120, RARITIES[B.tier].color, 0.8, 8);
   if (id === 'hormone') { const add = Math.round(P.maxHp * 0.5); P.maxHp += add; G.player.hp += add; P.ram += 2; }
   if (id === 'technicolour') { P.might += 0.1; refreshPalette(); }
-  if (id === 'pocketvoid') G.zones.push({ x: p.x, y: p.y, r: 70, life: 1e9, max: 1e9, dps: 0, elem: 'arcane', pull: 160, color: '#7b2cbf', tick: 0, src: { elem: 'arcane', wname: 'Pocket Black Hole', noCrit: true }, pocket: true });
+  if (id === 'pocketvoid') G.zones.push({ x: p.x, y: p.y, r: 70, life: 1e9, max: 1e9, dps: 0, elem: 'arcane', pull: 160, color: '#7b2cbf', tick: 0, src: { elem: 'arcane', wname: 'Bottomless Pit', noCrit: true }, pocket: true });
 }
 
 const hasBoon = id => !!(G.boons && G.boons[id]);
@@ -54,7 +54,7 @@ function boonKill() {
   G.bloodN = (G.bloodN || 0) + 1;
   if (G.bloodN % 40) return;
   G.rage = Math.max(G.rage, 5); healPlayer(G.P.maxHp * 0.1);
-  floatText(me().x, me().y - 34, 'BLOOD MOON', RARITIES[5].color, 15, 0.8);
+  floatText(me().x, me().y - 34, 'SECOND WIND', RARITIES[5].color, 15, 0.8);
 }
 
 // From hurtPlayer, before death is final. Returns true if it saved you.
@@ -63,13 +63,13 @@ function boonSave() {
   G.phoenixUsed = true;
   const p = me();
   p.hp = G.P.maxHp; p.iframes = 2;
-  aoe(p.x, p.y, 260, 60 * hpNow(), { elem: 'fire', wname: 'Phoenix Down', noCrit: true, knock: 400 }, '#ff7a2f');
+  aoe(p.x, p.y, 260, 60 * hpNow(), { elem: 'fire', wname: 'Second Coming', noCrit: true, knock: 400 }, '#ff7a2f');
   for (const b of G.ebul) b.dead = true;
-  ring(p.x, p.y, 260, '#ff7a2f', 1, 10); banner('PHOENIX DOWN!', '#ff7a2f'); cam.shake = 16; sfx('boss');
+  ring(p.x, p.y, 260, '#ff7a2f', 1, 10); banner('SECOND COMING', '#ff7a2f'); cam.shake = 16; sfx('boss');
   return true;
 }
 function boonHurt() {
-  if (hasBoon('bullettime') && G.player.hp < G.P.maxHp * 0.3 && !(G.btT > G.t)) { G.btT = G.t + 20; G.warp = Math.max(G.warp, 4); banner('BULLET TIME', RARITIES[5].color); }
+  if (hasBoon('bullettime') && G.player.hp < G.P.maxHp * 0.3 && !(G.btT > G.t)) { G.btT = G.t + 20; G.warp = Math.max(G.warp, 4); banner('TANTRIC', RARITIES[5].color); }
 }
 
 // Strongest things on screen (for the smiting boons).
@@ -84,7 +84,7 @@ function boonTick(dt) {
   const p = me(), T = id => { G.boonT = G.boonT || {}; G.boonT[id] = (G.boonT[id] || 0) + dt; return G.boonT[id]; }, reset = id => { G.boonT[id] = 0; };
   if (hasBoon('stormcrown') && T('stormcrown') >= 3) {
     reset('stormcrown');
-    for (const e of onScreen(1)) { bolt(e.x + rand(-40, 40), e.y - 500, e.x, e.y, '#ffe94a', 0.3); damageEnemy(e, smiteDmg(e, 0.08, 0.015), { elem: 'shock', wname: 'Storm Crown', noCrit: true }); }
+    for (const e of onScreen(1)) { bolt(e.x + rand(-40, 40), e.y - 500, e.x, e.y, '#ffe94a', 0.3); damageEnemy(e, smiteDmg(e, 0.08, 0.015), { elem: 'shock', wname: 'Act of God', noCrit: true }); }
   }
   if (hasBoon('godhand') && T('godhand') >= 5) {
     reset('godhand');
@@ -93,10 +93,10 @@ function boonTick(dt) {
   }
   if (hasBoon('supernova') && T('supernova') >= 12) {
     reset('supernova');
-    for (const e of onScreen(240)) damageEnemy(e, smiteDmg(e, 0.18, 0.02), { elem: 'fire', wname: 'Supernova', noCrit: true, knock: 300, kx: e.x - p.x, ky: e.y - p.y });
+    for (const e of onScreen(240)) damageEnemy(e, smiteDmg(e, 0.18, 0.02), { elem: 'fire', wname: 'Gender Reveal', noCrit: true, knock: 300, kx: e.x - p.x, ky: e.y - p.y });
     for (const b of G.ebul) b.dead = true;
     ring(p.x, p.y, 600, RARITIES[6].color, 1, 14); addLight(p.x, p.y, 900, '#ffffff', 0.6);
-    banner('SUPERNOVA', RARITIES[6].color); cam.shake = 14; sfx('boom');
+    banner('GENDER REVEAL', RARITIES[6].color); cam.shake = 14; sfx('boom');
   }
   if (hasBoon('grace') && T('grace') >= 15) {
     reset('grace');
@@ -109,7 +109,7 @@ function boonTick(dt) {
     const best = G.weapons.reduce((m, w) => Math.max(m, w ? w.s.dmg * weaponMult(w) : 0), 10);
     if (t) {
       G.fx.push({ type: 'warn', x: t.x, y: t.y, r: 34, color: '#fff3b0', life: 0.25, max: 0.25 });
-      after(0.25, () => { if (!t.dead) { bolt(t.x - 120, t.y - 420, t.x, t.y, '#ffffff', 0.2); aoe(t.x, t.y, 40, best * 3, { elem: 'arcane', wname: 'Starfall', noCrit: true }, '#fff3b0'); } });
+      after(0.25, () => { if (!t.dead) { bolt(t.x - 120, t.y - 420, t.x, t.y, '#ffffff', 0.2); aoe(t.x, t.y, 40, best * 3, { elem: 'arcane', wname: 'Twinkle, Twinkle', noCrit: true }, '#fff3b0'); } });
     }
   }
   // The Pocket Black Hole circles you.

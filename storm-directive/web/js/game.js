@@ -320,14 +320,14 @@ function computeStatsInner(w) {
   const has = id => (w.mods || []).some(m => m.id === id);
   s.duos = DUOS.filter(x => has(x.a) && has(x.b)).map(x => x.name);
   for (const n of s.duos) {
-    if (n === 'Cluster Hunter') s.shardHome = 1;
-    if (n === 'Cryoblast') s.cryoblast = 1;
+    if (n === 'Follow the Leader') s.shardHome = 1;
+    if (n === 'Freezer Burn') s.cryoblast = 1;
     if (n === 'Halo') { s.pulse *= 2; s.pulseRate = 0.22; }
     if (n === 'Snowball') s.grow = (s.grow || 0) * 2;
-    if (n === 'Pinball Wizard') s.pArcN = 3;
+    if (n === 'Bouncing Off the Walls') s.pArcN = 3;
     if (n === 'Pied Piper') s.charmDur *= 2;
     if (n === 'Kaleidoscope') s.kaleido = 1;
-    if (n === 'Time Bomb') s.timeBomb = 1;
+    if (n === 'Biological Clock') s.timeBomb = 1;
   }
   s.perkCount = 0;
   applyPerks(w, s);
@@ -1686,7 +1686,7 @@ function updateProjectiles(dt) {
         pr.hold -= dt;
         if (pr.hold <= 0) {
           pr.launched = true; pr.vx *= 1.6; pr.vy *= 1.6; pr.speed *= 1.6; pr.dmg *= 1 + pr.delayB;
-          if (pr.w.s.timeBomb) aoe(pr.x, pr.y, 55, pr.dmg * 0.6, Object.assign({}, pr.src, { noProc: true, noCrit: true, wname: 'Time Bomb' }), '#ff7a2f');
+          if (pr.w.s.timeBomb) aoe(pr.x, pr.y, 55, pr.dmg * 0.6, Object.assign({}, pr.src, { noProc: true, noCrit: true, wname: 'Biological Clock' }), '#ff7a2f');
         }
       }
     }

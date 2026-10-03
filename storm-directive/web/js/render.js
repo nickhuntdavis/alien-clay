@@ -1971,11 +1971,11 @@ function drawHud() {
   }
   // Status chips.
   const chips = [];
-  if (G.rage > 0) chips.push(['ADRENALINE', PAL.pickup]);
+  if (G.rage > 0) chips.push(['OXYTOCIN', PAL.pickup]);
   puChips(chips);
   // Falling behind the level curve is what loses runs: say so.
   if (!G.wave) { const behind = (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85)) - G.level; if (behind >= 3) chips.push(['BEHIND PACE: ' + Math.round(behind) + ' LV', PAL.danger]); }
-  if (G.shieldT > 0) chips.push(['SHIELD', PAL.pickup]);
+  if (G.shieldT > 0) chips.push(['STAIR GATE', PAL.pickup]);
   if (G.warp > 0) chips.push(['WARP', XR.white]);
   if (G.barrier > 0) chips.push(['AEGIS', XR.white]);
   if (G.echoes.length) chips.push(['ECHO x' + G.echoes.length, PAL.you]);

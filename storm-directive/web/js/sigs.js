@@ -81,7 +81,7 @@ function sigVolley(w, a0) {
   if (hasSig(w, 'recoil') && !(w.recoilT > G.t)) { w.recoilT = G.t + 0.3; dashPlayer(-Math.cos(a0), -Math.sin(a0), 420); }
   // Hailstorm: every 3rd volley, hail on the crowd round the target.
   if (hasSig(w, 'hailstorm') && (w.hailN = (w.hailN || 0) + 1) % 3 === 0 && w.curTarget) {
-    const t = w.curTarget, src = Object.assign(weaponSrc(w), { wname: 'Hailstorm' });
+    const t = w.curTarget, src = Object.assign(weaponSrc(w), { wname: 'Confetti' });
     acquireMany('random', 220, t.x, t.y, 6).forEach((e, i) => after(0.08 * i, () => {
       if (e.dead) return;
       G.fx.push({ type: 'warn', x: e.x, y: e.y, r: 30, color: '#bde0fe', life: 0.15, max: 0.15 });
@@ -135,7 +135,7 @@ function sigHit(e, dmg, src) {
     if (hasSig(w, 'brainfreeze') && !e.boss && !e.rival && (e.bfN = (e.bfN || 0) + 1) % 3 === 0) { e.frozen = Math.max(e.frozen, 1.5); ring(e.x, e.y, e.r + 8, '#bde0fe', 0.3, 2); }
     if (hasSig(w, 'shatter') && e.frozen > 0 && !e.dead) {
       e.frozen = 0;
-      aoe(e.x, e.y, 62, dmg * 2.5, Object.assign({}, src, { noProc: true, noCrit: true, mult: 1, wname: 'Shatter' }), '#bde0fe');
+      aoe(e.x, e.y, 62, dmg * 2.5, Object.assign({}, src, { noProc: true, noCrit: true, mult: 1, wname: 'Breaking It Off' }), '#bde0fe');
       floatText(e.x, e.y - e.r - 10, 'SHATTER', '#bde0fe', 13);
     }
   } else if (w.id === 'orbit') {
@@ -173,7 +173,7 @@ function sigKill(e, src) {
 function venomZone(w, x, y) {
   const s = w.s, z = { x, y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg * 0.9, elem: 'poison', pull: 0, color: w.def.color, tick: 0, src: weaponSrc(w), venom: true };
   if (hasSig(w, 'swamp')) { z.grow = s.area * 0.12; z.r0 = s.area; }
-  if (hasSig(w, 'geyser')) z.onEnd = q => { aoe(q.x, q.y, q.r * 1.15, s.dmg * 3, Object.assign(weaponSrc(w), { wname: 'Geyser' }), '#8dff4a'); spawnPart(q.x, q.y, '#8dff4a', 8, 160, 0.5); };
+  if (hasSig(w, 'geyser')) z.onEnd = q => { aoe(q.x, q.y, q.r * 1.15, s.dmg * 3, Object.assign(weaponSrc(w), { wname: 'Comes in Waves' }), '#8dff4a'); spawnPart(q.x, q.y, '#8dff4a', 8, 160, 0.5); };
   return z;
 }
 // Called for every enemy standing in a zone, each zone tick.
@@ -299,7 +299,7 @@ function afterMine(pr) {
   if (hasSig(pr.w, 'claymore')) {
     // Claymore: a fan of shrapnel at the nearest enemy.
     const t = acquire('nearest', 400, pr.x, pr.y), a0 = t ? Math.atan2(t.y - pr.y, t.x - pr.x) : Math.random() * TAU;
-    for (let i = 0; i < 8; i++) { const a = a0 + (i / 7 - 0.5) * 0.9, sp = 520; spawnProj(pr.w, pr.x, pr.y, a, Object.assign({}, pr.src, { wname: 'Claymore' }), { speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.6, max: 0.6, r: 3, dmg: pr.w.s.dmg * 0.35, pierce: 1, style: 'bullet', explode: 0, homing: 0, bounce: 0, boomerang: 0, noMods: true }); }
+    for (let i = 0; i < 8; i++) { const a = a0 + (i / 7 - 0.5) * 0.9, sp = 520; spawnProj(pr.w, pr.x, pr.y, a, Object.assign({}, pr.src, { wname: 'Pebbledash' }), { speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.6, max: 0.6, r: 3, dmg: pr.w.s.dmg * 0.35, pierce: 1, style: 'bullet', explode: 0, homing: 0, bounce: 0, boomerang: 0, noMods: true }); }
   }
   if (pr.nuke) { cam.shake = 18; floatText(pr.x, pr.y - 30, 'NUCLEAR NAPPY', '#ffffff', 20, 1.2); addLight(pr.x, pr.y, 500, '#ffffff', 0.8); sfx('boss'); vibrate(80); }
   if (hasSig(pr.w, 'domino')) {
@@ -335,7 +335,7 @@ function afterChain(w, hit, src) {
   // Ball Lightning: every 4th bolt leaves a crackling ball where it struck.
   if (hasSig(w, 'balllightning') && (w.ballN = (w.ballN || 0) + 1) % 4 === 0 && hit.length && G.zones.length < 200) {
     const t = hit[hit.length - 1];
-    G.zones.push({ x: t.x, y: t.y, r: 90, life: 3, max: 3, dps: w.s.dmg * 1.5, elem: 'shock', pull: 0, color: '#ffe94a', tick: 0, src: Object.assign({}, src, { wname: 'Ball Lightning' }) });
+    G.zones.push({ x: t.x, y: t.y, r: 90, life: 3, max: 3, dps: w.s.dmg * 1.5, elem: 'shock', pull: 0, color: '#ffe94a', tick: 0, src: Object.assign({}, src, { wname: 'Party Balloon' }) });
     ring(t.x, t.y, 90, '#ffe94a', 0.4, 3);
   }
   if (hasSig(w, 'umbilical') && hit.length >= 2 && G.tethers.length < 12) {
@@ -446,7 +446,7 @@ function projHit(pr, e) {
 function projEnd(pr) {
   if (isOrb(pr) || (pr.style === 'void' && pr.w && pr.w.id === 'void')) orbCollapse(pr);
   if (pr.style === 'flame' && Math.random() < 0.12) fxParts('smoke', pr.x, pr.y, '#2e3330', 1, 25, 0.8, 5, -Math.PI / 2, 0.8); // flames leave smoke
-  if (pr.w.id === 'flamer' && hasSig(pr.w, 'napalm') && Math.random() < 0.2 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 26, life: 2, max: 2, dps: pr.dmg * 3, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: Object.assign({}, pr.src, { wname: 'Napalm' }) });
+  if (pr.w.id === 'flamer' && hasSig(pr.w, 'napalm') && Math.random() < 0.2 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 26, life: 2, max: 2, dps: pr.dmg * 3, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: Object.assign({}, pr.src, { wname: 'Repeating On You' }) });
   if (pr.dragonB && Math.random() < 0.35 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 24, life: 1.6, max: 1.6, dps: pr.dmg * 0.8, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: pr.src });
   if (pr.iceAge && !pr.patched) frostPatch(pr.w, pr.x, pr.y);
   if (pr.dealt > 0 && hasSig(pr.w, 'bigbang')) {
@@ -611,7 +611,7 @@ function ramHit(e, p) {
     return 1;
   }
   const dmg = P.ram * (30 + G.level * 6 + P.maxHp * 0.3 + P.armour * 8) * P.might * k * 4 * G.evm.ram * tankDamageOut();
-  const src = { elem: 'phys', wname: 'Acrosome Ram', noCrit: k < 0.6, knock: 160 + 320 * Math.min(1.5, k) };
+  const src = { elem: 'phys', wname: 'Headstrong', noCrit: k < 0.6, knock: 160 + 320 * Math.min(1.5, k) };
   damageEnemy(e, dmg, Object.assign({ kx: dx, ky: dy }, src));
   if (head > 1.3) { floatText(e.x, e.y - e.r - 8, 'HEAD-ON!', PAL.you, 15, 0.6); quirkFound('headon', e.x, e.y); }
   if (k > 0.7) {

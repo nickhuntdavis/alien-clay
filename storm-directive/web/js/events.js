@@ -19,7 +19,7 @@ const RUN_EVENTS = {
   sugar: { name: 'SUGAR RUSH', color: '#ffd23f', dur: 20, w: 2.5,
     desc: d => `You swim 60% faster, ram x3, contact hurts half as much.${d ? ' So do they: enemies 30% faster.' : ''}`,
     mods: d => ({ pspd: 1.6, ram: 3, contact: 0.5, espd: d ? 1.3 : 1 }) },
-  bullethell: { name: 'BULLET HELL', color: '#e056fd', dur: 20, w: 2.5,
+  bullethell: { name: 'WITCHING HOUR', color: '#e056fd', dur: 20, w: 2.5,
     desc: d => `Shooters fire x${d ? 2.6 : 2} as often. Survive: heal 30% and +${d ? '2 rerolls' : '1 reroll'}.`,
     mods: d => ({ fire: d ? 2.6 : 2, bulspd: 1.2 }),
     start: d => { for (let k = 0; k < (d ? 6 : 3); k++) { const s = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y, { elite: d && k === 0 })); } },
@@ -41,7 +41,7 @@ const RUN_EVENTS = {
         });
       }
     } },
-  horde: { name: 'THE HORDE', color: '#ff4d6d', dur: 20, w: 2.5,
+  horde: { name: 'SOFT PLAY', color: '#ff4d6d', dur: 20, w: 2.5,
     desc: d => `Surrounded. Survive 20s for ${d ? 'two gold chests' : 'a gold chest'}.`,
     tick: (d, ev, dt) => {
       ev.acc = (ev.acc == null ? 99 : ev.acc) + dt;
@@ -77,7 +77,7 @@ const RUN_EVENTS = {
     desc: () => 'A strong current sweeps everything one way. Swim with it and you ram for free.',
     mods: (d, ev) => ({ tideX: Math.cos(ev.ang) * (d ? 120 : 85), tideY: Math.sin(ev.ang) * (d ? 120 : 85), ram: 1.5 }),
     start: (d, ev) => { ev.ang = Math.random() * TAU; } },
-  mitosis: { name: 'MITOSIS', color: '#43e97b', dur: 20, w: 2.5, minLv: DIRE_LV,
+  mitosis: { name: 'IDENTICAL TWINS', color: '#43e97b', dur: 20, w: 2.5, minLv: DIRE_LV,
     desc: () => 'Everything that dies splits in two (the halves give no XP).', mods: () => ({ mitosis: 1 }) },
 };
 

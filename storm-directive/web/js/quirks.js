@@ -14,7 +14,7 @@ const QUIRKS = {
   driftmines: { name: 'Downstream', desc: 'Waters Breaking swept your mines, puddles and black holes along with everything else.' },
   firelight:  { name: 'Firelight', desc: 'In the dark, fire gives off light. Burning things light up their surroundings during Lights Out.' },
   headon:     { name: 'Head-On', desc: 'Ramming counts closing speed: swim straight at something fast and it hits much harder.' },
-  indigestion:{ name: 'Indigestion', desc: 'An amoeba swallowed something it should not have: a mine, a black hole, or an infected cell.' },
+  indigestion:{ name: 'Something It Ate', desc: 'An amoeba swallowed something it should not have: a mine, a black hole, or an infected cell.' },
   hoover:     { name: 'Pocket Hoover', desc: 'A black hole sucked up loot lying on the floor, then spat it all out to you when it collapsed.' },
 };
 
@@ -145,12 +145,12 @@ function amoebaIndigestion(e) {
     pr.dead = true;
     if (pr.mine) {
       // It exploded from the inside: the membrane doesn't help.
-      damageEnemy(e, pr.w.s.dmg * mineScale(pr).k * 3 + e.maxHp * 0.15, Object.assign({}, pr.src, { noProc: true, wname: 'Indigestion' }));
+      damageEnemy(e, pr.w.s.dmg * mineScale(pr).k * 3 + e.maxHp * 0.15, Object.assign({}, pr.src, { noProc: true, wname: 'Something It Ate' }));
       G.fx.push({ type: 'flash', x: e.x, y: e.y, r: e.r * 1.4, color: '#ff9f1c', life: 0.3, max: 0.3 });
       fxParts('drop', e.x, e.y, e.color, 12, 260, 0.6, 4);
     } else {
       // It swallowed a black hole: it implodes.
-      damageEnemy(e, e.maxHp * 0.35 + pr.dmg * 4, Object.assign({}, pr.src, { noProc: true, wname: 'Indigestion' }));
+      damageEnemy(e, e.maxHp * 0.35 + pr.dmg * 4, Object.assign({}, pr.src, { noProc: true, wname: 'Something It Ate' }));
       e.r = Math.max(e.def.r, e.r * 0.7);
       ring(e.x, e.y, e.r * 2, '#c77dff', 0.5, 6);
     }

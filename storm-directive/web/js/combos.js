@@ -9,7 +9,7 @@ const COMBO_MOUNTS = 2; // bonus mounts a run can earn from combos
 const COMBOS = [
   // Vanguard
   { id: 'bigsib',     a: 'blaster', b: 'seeker',  name: 'Big Sibling',        desc: 'Every 5th Spitball volley also launches a huge homing Big Sibling that explodes on impact.' },
-  { id: 'spityoyo',   a: 'blaster', b: 'glaive',  name: 'Spit Yo-Yo',         desc: 'Yo-yos spit Spitballs at whatever is near them while they fly.' },
+  { id: 'spityoyo',   a: 'blaster', b: 'glaive',  name: 'Swapping Spit',         desc: 'Yo-yos spit Spitballs at whatever is near them while they fly.' },
   // Bruiser
   { id: 'whackamole', a: 'paddle',  b: 'mines',   name: 'Whack-a-Mole',       desc: 'Paddle hits plant a Nappy Mine under the enemy, armed almost at once.' },
   { id: 'porcupine',  a: 'onesie',  b: 'shotgun', name: 'Porcupine Hug',      desc: 'Every Onesie pulse fires a ring of Scattergun pellets outwards.' },
@@ -21,7 +21,7 @@ const COMBOS = [
   { id: 'coldcomfort', a: 'toothfairy', b: 'frost', name: 'Cold Comfort',     desc: 'Tooth Fairy smites freeze their victim. A frozen victim takes double.' },
   // Stealth-Tadpole
   { id: 'whiplash',   a: 'flail',   b: 'wake',    name: 'Whiplash',           desc: 'Every lash leaves a strip of viral trail along its length.' },
-  { id: 'ghosttrail', a: 'peekaboo', b: 'wake',   name: 'Ghost Trail',        desc: 'While you are hidden, your viral trail hits 2.5x as hard. The BOO leaves a ring of it round the spot.' },
+  { id: 'ghosttrail', a: 'peekaboo', b: 'wake',   name: 'Silent but Deadly',        desc: 'While you are hidden, your viral trail hits 2.5x as hard. The BOO leaves a ring of it round the spot.' },
   // Enzyme-Pusher
   { id: 'wormfarm',   a: 'bubble',  b: 'parasite', name: 'Worm Farm',         desc: 'Anything trapped in a bubble catches Tapeworm. Bubble pops hit infected enemies 50% harder.' },
   { id: 'bubblehalo', a: 'orbit',   b: 'bubble',  name: 'Bubble Halo',        desc: 'Your angels blow bubbles at small enemies near them.' },
@@ -29,8 +29,8 @@ const COMBOS = [
   { id: 'flashpoint', a: 'venom',   b: 'flamer',  name: 'Flash Point',        desc: 'Heartburn ignites your puddles: each one in range erupts in a fireball every second.' },
   { id: 'sticky',     a: 'redtape', b: 'venom',   name: 'Sticky Situation',   desc: 'Taped bundles drip: a toxic puddle forms under each one every second.' },
   // Gene-Splicer
-  { id: 'jointhedots', a: 'crayon', b: 'friend',  name: 'Join the Dots',      desc: 'Every 3s, the shape between you and your Imaginary Friend is coloured in.' },
-  { id: 'invisishield', a: 'friend', b: 'siphon', name: 'Invisible Shield',   desc: 'Your Imaginary Friend catches enemy bullets and feeds them to the Siphon.' },
+  { id: 'jointhedots', a: 'crayon', b: 'friend',  name: 'Drawn Together',      desc: 'Every 3s, the shape between you and your Imaginary Friend is coloured in.' },
+  { id: 'invisishield', a: 'friend', b: 'siphon', name: 'Fall Guy',   desc: 'Your Imaginary Friend catches enemy bullets and feeds them to the Siphon.' },
 ];
 const COMBO_BY = Object.fromEntries(COMBOS.map(c => [c.id, c]));
 
@@ -161,7 +161,7 @@ function comboTick(dt) {
         const t = acquire('nearest', 260, pr.x, pr.y);
         if (!t) continue;
         n++;
-        spawnProj(bw, pr.x, pr.y, Math.atan2(t.y - pr.y, t.x - pr.x), comboSrc(bw, 'Spit Yo-Yo'), { dmg: bw.s.dmg * 0.6, noMods: true });
+        spawnProj(bw, pr.x, pr.y, Math.atan2(t.y - pr.y, t.x - pr.x), comboSrc(bw, 'Swapping Spit'), { dmg: bw.s.dmg * 0.6, noMods: true });
       }
     }
   }

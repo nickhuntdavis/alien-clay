@@ -374,7 +374,7 @@ function relicDamageIn(dmg, ent) {
 }
 function relicHurt(d) {
   const R = G.relics, p = me(), P = G.P;
-  if (R.acidblood) aoe(p.x, p.y, 130, d * 10, { elem: 'poison', wname: 'Acid Blood', noCrit: true }, '#b8f35a');
+  if (R.acidblood) aoe(p.x, p.y, 130, d * 10, { elem: 'poison', wname: 'Bad Blood', noCrit: true }, '#b8f35a');
   if (R.triage && p.hp < P.maxHp * 0.25 && G.t >= (G.triageAt || 0)) {
     G.triageAt = G.t + 45;
     p.hp = P.maxHp * 0.7; p.iframes = 2;
@@ -437,7 +437,7 @@ function relicTick(dt) {
     G.sprintCd = (G.sprintCd == null ? 3 : G.sprintCd) - dt;
     if (G.sprintCd <= 0 && G.state === 'play') {
       G.sprintCd = 5; G.sprintT = G.t + 0.6; p.iframes = Math.max(p.iframes || 0, 0.6);
-      aoe(p.x, p.y, 110, (30 + G.level * 8) * P.might, { elem: 'phys', wname: 'Sprint Start', knock: 300 }, '#e0fbfc');
+      aoe(p.x, p.y, 110, (30 + G.level * 8) * P.might, { elem: 'phys', wname: 'Flying Start', knock: 300 }, '#e0fbfc');
     }
   }
   // Fever Dream: count the burning enemies near you.
