@@ -943,7 +943,16 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     o.tail = [];
     for (let i = 0; i < TAIL_N; i++) { const x = rx - Math.cos(face) * seg * i, y = ry - Math.sin(face) * seg * i; o.tail.push({ x, y, px: x, py: y }); }
   }
-  o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1); // a strong, deliberate beat
+  // Turning hard? The beat all but stops while the tail arcs round (it drops fast and comes back slowly), so
+  // the flail of the tip reads clearly. turnK: 1 = swimming straight, down to 0.12 mid-turn.
+  if (dt > 0) {
+    let df = face - (o.lastFace ?? face); while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU;
+    const want = Math.max(0.12, 1 - Math.abs(df / dt) / 2.5), cur = o.turnK ?? 1;
+    o.turnK = want < cur ? lerp(cur, want, Math.min(1, dt * 14)) : lerp(cur, want, Math.min(1, dt * 2.2));
+  }
+  o.lastFace = face;
+  const tk = o.turnK ?? 1;
+  o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1) * (0.25 + 0.75 * tk); // a strong, deliberate beat
   const t = o.tail;
   t[0].x = rx; t[0].y = ry;
   // A tiny weight at the tip: every link keeps some of its momentum, more towards the tip, so when you turn
@@ -963,7 +972,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg;
   }
   // The visible wave, perpendicular to the spine.
-  const amp = Math.min(len * 0.15, 38) * (0.75 + 0.25 * Math.min(1, speed / 150)); // big, sweeping strokes
+  const amp = Math.min(len * 0.15, 38) * (0.75 + 0.25 * Math.min(1, speed / 150)) * tk; // big, sweeping strokes (quiet while turning)
   const D = o.tailDraw && o.tailDraw.length === TAIL_N ? o.tailDraw : (o.tailDraw = t.map(q => ({ x: q.x, y: q.y })));
   for (let i = 0; i < TAIL_N; i++) {
     const a = t[Math.max(0, i - 1)], c = t[Math.min(TAIL_N - 1, i + 1)], f = i / (TAIL_N - 1);
