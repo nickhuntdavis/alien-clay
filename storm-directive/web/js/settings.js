@@ -11,11 +11,12 @@ const SETTINGS_DEF = [
   { id: 'casa', label: 'CASA Pro panel', hint: 'Live motility stats, an enemy histogram and a track log, like sperm-analysis software.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'layout', label: 'Layout', hint: 'Landscape puts your weapons down the side. Auto follows the screen.', opts: [['auto', 'AUTO'], ['portrait', 'PORTRAIT'], ['landscape', 'LANDSCAPE']] },
   { id: 'narrator', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE SYSTEM'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
+  { id: 'fpsCap', label: 'Frame rate', hint: '60 is smoother over a whole run: on a 90 or 120 Hz screen it halves the work, so the phone stays cooler and has room for busy moments.', opts: [[60, '60'], [0, 'UNCAPPED']] },
   { id: 'sound', label: 'Sound', hint: '', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'auto', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button under pause.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'autoWaves', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, hud: 'full', casa: false, layout: 'auto', narrator: 'system', sound: true, auto: false, autoWaves: true };
+const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, hud: 'full', casa: false, layout: 'auto', narrator: 'system', sound: true, auto: false, autoWaves: true };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
   for (const k in SET) if (k in s) SET[k] = s[k];

@@ -2296,7 +2296,7 @@ function victory() {
 function update(dt) {
   G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
-  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (3 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
+  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (3 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }
   const p = G.player;
   gridBuild();
@@ -2610,10 +2610,31 @@ function fpsTick(raw) {
   }
 }
 let frameFrozen = false;
+// Frame cap (Settings > Frame rate, 60 by default): on a 90 or 120 Hz screen the game skips display frames
+// to draw about 60 a second, half the work, so the phone runs cooler and has headroom for busy moments.
+let capNext = 0;
+// Run-log telemetry: the worst frame of each minute, split into update and draw time, with what was on screen.
+const PERF = { w: null, long: 0 };
+function perfNote(gap, u, r) {
+  if (!G || G.state !== 'play') return;
+  if (gap > 50) PERF.long++;
+  if (PERF.w && gap <= PERF.w.gap) return;
+  PERF.w = { gap, u, r, e: G.enemies.length, b: G.ebul.length, s: G.proj.length, p: G.parts.length, z: G.zones.length, q: QUAL.lv };
+}
+function perfMinute() {
+  const W2 = PERF.w, out = W2 ? `${Math.round(W2.gap)}(u${Math.round(W2.u)} d${Math.round(W2.r)}) e${W2.e} b${W2.b} s${W2.s} p${W2.p} z${W2.z} L${PERF.long}` : '-';
+  PERF.w = null; PERF.long = 0;
+  return out;
+}
 function frame(ts) {
   // Schedule the next frame first, and keep each stage separate, so one error can never freeze the game.
   requestAnimationFrame(frame);
-  const raw = (ts - lastTs) / 1000;
+  const cap = typeof SET !== 'undefined' && SET.fpsCap ? 1000 / SET.fpsCap : 0;
+  if (cap && lastTs) {
+    if (ts < capNext - 2) return; // not time for a frame yet
+    capNext = Math.max(capNext + cap, ts - cap);
+  }
+  const raw = (ts - lastTs) / 1000, t0 = performance.now();
   if (raw > 0.004) fpsTick(raw); // (a just-reset clock gives tiny or negative gaps: skip them)
   const dt = clamp(raw || 0, 0, 1 / 30);
   lastTs = ts;
@@ -2629,11 +2650,15 @@ function frame(ts) {
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);
   });
+  const t1 = performance.now();
   // While a menu (weapon draft, loot, pause...) covers the paused game, the world can't change: draw it once,
   // then leave the canvas alone so the menu and its previews get the whole frame budget.
   const covered = G && G.state !== 'play' && G.state !== 'intro' && G.state !== 'rewind' && G.state !== 'bossIntro' && typeof UI !== 'undefined' && UI.menuOn();
   if (!covered || !frameFrozen) safely('render', render);
   frameFrozen = !!covered;
+  // (A frame's gap mostly holds the previous frame's work, so the gap is paired with that frame's update and draw times.)
+  if (raw > 0.004 && raw < 2) perfNote(raw * 1000, PERF.lu || 0, PERF.ld || 0);
+  PERF.lu = t1 - t0; PERF.ld = performance.now() - t1;
   if (typeof UI !== 'undefined') safely('ui', () => UI.tick(dt));
 }
 // Errors are shown once on screen (and kept for the run log) instead of silently stopping the game.
