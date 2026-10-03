@@ -939,18 +939,23 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   const seg = len / (TAIL_N - 1);
   if (!o.tail || o.tail.length !== TAIL_N || Math.hypot(o.tail[0].x - rx, o.tail[0].y - ry) > len * 3) {
     o.tail = [];
-    for (let i = 0; i < TAIL_N; i++) o.tail.push({ x: rx - Math.cos(face) * seg * i, y: ry - Math.sin(face) * seg * i });
+    for (let i = 0; i < TAIL_N; i++) { const x = rx - Math.cos(face) * seg * i, y = ry - Math.sin(face) * seg * i; o.tail.push({ x, y, px: x, py: y }); }
   }
   o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1); // a strong, deliberate beat
   const t = o.tail;
   t[0].x = rx; t[0].y = ry;
+  // A tiny weight at the tip: every link keeps some of its momentum, more towards the tip, so when you turn
+  // the end of the tail carries on, swings out wide and whips round after you in an arc.
+  const keep = dt > 0 ? Math.pow(0.5, dt * 60 / 8) : 0; // (momentum half-life of about 8 frames at 60 FPS)
   for (let i = 1; i < TAIL_N; i++) {
-    const a = t[i - 1], b = t[i];
+    const a = t[i - 1], b = t[i], f = i / (TAIL_N - 1), m = keep * (0.35 + 0.65 * f * f);
+    const vx = (b.x - (b.px ?? b.x)) * m, vy = (b.y - (b.py ?? b.y)) * m;
+    b.px = b.x; b.py = b.y; b.x += vx; b.y += vy;
     // Water drag: links lag behind; stiffness: drift towards straight back from the link ahead (the first
     // link is held firmly on the body's axis).
     const pv = i > 1 ? t[i - 2] : { x: a.x + Math.cos(face) * seg, y: a.y + Math.sin(face) * seg };
     let ax = a.x - pv.x, ay = a.y - pv.y; const al = Math.hypot(ax, ay) || 1; ax /= al; ay /= al;
-    const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 14 : 6));
+    const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 14 : 6 * (1 - 0.6 * f))); // (looser towards the weighted tip)
     b.x = lerp(b.x, a.x + ax * seg, st); b.y = lerp(b.y, a.y + ay * seg, st);
     const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
     b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg;
