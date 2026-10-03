@@ -243,6 +243,8 @@ function makeSlot(id, isSpell, lvl) {
 }
 
 const WEAPON_LV_DMG = 0.35; // damage gained per weapon level
+const REACH_START = 300;
+const REACH_FREE = new Set(['mine', 'crayon', 'wake', 'orbit', 'melee', 'friend', 'heal']); // range means something else for these
 function computeStats(w) {
   const d = w.def, b = d.base, P = G.P, L = w.lvl, syn = G.synergy;
   const s = Object.assign({}, b);
@@ -273,7 +275,10 @@ function computeStats(w) {
   if (d.kind === 'ring') s.pierce = (s.pierce || 0) + P.pierce;
   s.speed = (b.speed || 0) * P.projSpeed;
   const areaMult = P.area * (1 + areaB);
-  s.range = (b.range || 0) * P.range * (d.style === 'flame' ? 1 + areaB * 0.5 : 1);
+  // Starting reach: long-range weapons begin at what you can see on screen (about 300) and grow 30 a
+  // level to their full range; Range upgrades multiply it as before.
+  const reach = b.range > REACH_START && !REACH_FREE.has(d.kind) ? Math.min(b.range, REACH_START + 30 * (L - 1)) : (b.range || 0);
+  s.range = reach * P.range * (d.style === 'flame' ? 1 + areaB * 0.5 : 1);
   if (s.area) s.area *= areaMult;
   if (s.explode && s.explode > 1) s.explode *= areaMult;
   if (s.aura) s.aura *= areaMult;
