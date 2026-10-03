@@ -2064,9 +2064,23 @@ function updatePlayer(dt) {
     p.hd = Math.atan2(Math.sin(p.hd + clamp(da, -turn, turn)), Math.cos(p.hd + clamp(da, -turn, turn)));
     thrust = m * speed * (0.4 + 0.6 * Math.max(0, Math.cos(da)));
   }
+  // The tail is the engine. p.stroke: how hard it's beating (1 = normal, near 0 mid-turn, eased to a stop
+  // over a few frames); p.kick: the burst of extra-strong strokes the moment a turn ends. The tail you see
+  // draws from these too (stepTail). Thrust follows the stroke: through a hard turn you coast on momentum,
+  // and those first big strokes after it get you back up to speed fast.
+  { const rt = dt / GAME_SPEED; // (real seconds: the easing is in screen frames)
+    const rate = Math.abs(angDiff(p.hd, p.hdPrev ?? p.hd)) / Math.max(1e-4, dt); p.hdPrev = p.hd;
+    const want = rate < 0.35 ? 1 : Math.max(0.04, 1 - (rate - 0.35) / 0.9), cur = p.stroke ?? 1;
+    if (want < cur) p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 25)); // to a stop in about 4 frames
+    else { if (p.turned && want > 0.9) { p.kick = 1; p.turned = false; } p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 12)); }
+    if (p.stroke < 0.45) p.turned = true;
+    p.kick = (p.kick || 0) * Math.pow(0.5, rt / 0.22); }
+  const power = 0.3 + 0.7 * p.stroke; // (never quite zero: sperm still drift forward on the last stroke)
   const hx = Math.cos(p.hd), hy = Math.sin(p.hd);
   let fwd = p.vx * hx + p.vy * hy, lat = -p.vx * hy + p.vy * hx;
-  fwd = lerp(fwd, thrust, 1 - Math.pow(0.004, dt));
+  const want = thrust * power * (1 + 0.12 * p.kick);
+  fwd = want >= fwd ? lerp(fwd, want, 1 - Math.pow(0.004, dt * (1 + 2.5 * p.kick))) // stroke: quick, quicker after a turn
+    : lerp(fwd, want, 1 - Math.pow(0.15, dt)); // no stroke: glide on momentum
   lat *= Math.exp(-SWIM.grip * trac * dt);
   p.vx = fwd * hx - lat * hy; p.vy = fwd * hy + lat * hx;
   p.x += (p.vx + G.evm.tideX) * dt; p.y += (p.vy + G.evm.tideY) * dt;

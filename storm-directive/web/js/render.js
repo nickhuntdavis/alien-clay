@@ -943,13 +943,14 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     o.tail = [];
     for (let i = 0; i < TAIL_N; i++) { const x = rx - Math.cos(face) * seg * i, y = ry - Math.sin(face) * seg * i; o.tail.push({ x, y, px: x, py: y }); }
   }
-  // Turning (anything more than a slight curve)? The wag slows and eases to a stop over about a third of a
-  // second while the tail swings round. The moment the turn ends it leaps back to life, with a burst of extra
+  // Turning (anything more than a slight curve)? The wag eases to a stop over a few frames while the tail
+  // swings round. The moment the turn ends it leaps back to life, with a burst of extra
   // vigour (kick) that settles back to the normal beat. turnK: 1 = straight, 0.04 mid-turn.
-  if (dt > 0) {
+  if (o.stroke != null) { o.turnK = o.stroke; } // the player: the swim physics drives the stroke (game.js updatePlayer)
+  else if (dt > 0) {
     let df = face - (o.lastFace ?? face); while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU;
     const rate = Math.abs(df / dt), want = rate < 0.35 ? 1 : Math.max(0.04, 1 - (rate - 0.35) / 0.9), cur = o.turnK ?? 1;
-    if (want < cur) o.turnK = lerp(cur, want, Math.min(1, dt * 5)); // easing into the stop
+    if (want < cur) o.turnK = lerp(cur, want, 1 - Math.exp(-dt * 25)); // easing into the stop (about 4 frames)
     else {
       if (o.turned && want > 0.9) { o.kick = 1; o.turned = false; } // the turn is over: back to life
       o.turnK = lerp(cur, want, Math.min(1, dt * 12));
