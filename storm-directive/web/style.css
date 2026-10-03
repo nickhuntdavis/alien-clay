@@ -876,3 +876,5 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 .rbars .dbar { display: flex; gap: 3px; } .rbars .dbar i { flex: 1; height: 7px; background: #ffffff14; border-radius: 1px; }
 .rbars .dbar i.on { background: var(--bc, #5fd4e8); box-shadow: 0 0 6px var(--bc, #5fd4e8); }
 .li .rbars .dbar i.on { background: #d9e2ec; box-shadow: none; }
+.youTop::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 45%; background: linear-gradient(to bottom, #0000, #000000b0); pointer-events: none; }
+.youCap { z-index: 1; }

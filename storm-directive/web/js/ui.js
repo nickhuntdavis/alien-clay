@@ -918,7 +918,7 @@ const UI = {
     const pc0 = v => Math.round(v * 100) + '%', plus = v => (v >= 0 ? '+' : '') + Math.round(v * 100) + '%';
     const li = (name, body, color, on) => `<div class="li ${on === false ? '' : 'on'}"><b${color ? ` style="color:${color}"` : ''}>${name}</b>${body ? `<br><span>${body}</span>` : ''}</div>`;
     const seqs = G.genes ? G.genes.active : [pr];
-    let h = `<div class="youTop" style="--c:${L.color}"><canvas id="youCan"></canvas><div class="youCap"><b>${esc((PROFILES[pr] || {}).name || '')}</b><span>${esc(L.tag)} | Level ${G.level} | HP ${Math.ceil(p.hp)}/${Math.round(P.maxHp)}</span></div></div>`;
+    let h = `<div class="youTop" style="--c:${L.color}"><canvas id="youCan"></canvas><div class="youCap"><b>${esc((PROFILES[pr] || {}).name || '')}</b><span>${seqs.length > 1 ? 'Spliced with ' + seqs.filter(id => id !== pr && PROFILES[id]).map(id => esc(PROFILES[id].name)).join(' and ') : esc(L.tag)} | Level ${G.level} | HP ${Math.ceil(p.hp)}/${Math.round(P.maxHp)}</span></div></div>`;
     // Sequences and abilities.
     const A = SEQ_ABILITY[pr];
     let sq = A ? li(`${esc(A.name)} <em class="ycd">every ${A.cd}s</em>`, esc(A.desc), L.color) : '';
@@ -988,7 +988,8 @@ const UI = {
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     UI.youT = (UI.youT || 0) + dt;
     const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawSeqPortrait(g, W, H, G.genes ? G.genes.primary : 'vanguard', UI.youT, false, false);
+    UI.youBody = UI.youBody || { x: 0, y: 0, vx: 0, vy: 0, id: -1 };
+    drawYouPortrait(g, W, H, UI.youBody, 1000 + UI.youT);
   },
 
   // ---------------------------------------------------------------- sample select (levels)

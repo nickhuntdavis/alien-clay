@@ -9,7 +9,7 @@ const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
 
 const cv = document.getElementById('game');
-const ctx = cv.getContext('2d', { alpha: false });
+let ctx = cv.getContext('2d', { alpha: false }); // (let: the pause menu borrows it to draw your portrait, render.js drawYouPortrait)
 let W = 0, H = 0, DPR = 1, S = 1, S0 = 1; // screen size (css px), pixel ratio, world->screen scale (S0 before zoom)
 const QUAL = { lv: 0, slow: 0, fast: 0 }; // adaptive quality level (see qualTick)
 // Start one step above where this phone settled last time, so a weak phone doesn't stutter through every step

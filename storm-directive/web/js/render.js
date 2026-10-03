@@ -1770,6 +1770,24 @@ function render() {
 // You grow as you level up: up to 1.8x at level 60.
 // Your swimmer grows with its max HP (not its level): +60% size at 400 max HP, up to double.
 function hpScale(k) { return 1 + Math.min(1, Math.max(0, (G.P.maxHp - 120) / 470)) * (k == null ? 1 : k); }
+// The pause menu's YOU portrait: your sperm exactly as it looks in play (upgrades and every active sequence's
+// marks), drawn big on canvas context g (css size Wc x Hc) on a patch of slide. Borrows the world drawing
+// globals for the length of the call. body: a stand-in that keeps its own tail, so yours isn't disturbed.
+function drawYouPortrait(g, Wc, Hc, body, t) {
+  const keep = { ctx, W, H, S, cx: cam.x, cy: cam.y, rt: G.realT }, L = shipLook(), ps = playerScale();
+  const bg = g.createRadialGradient(Wc * 0.55, Hc * 0.5, 0, Wc * 0.55, Hc * 0.5, Math.max(Wc, Hc) * 0.75);
+  bg.addColorStop(0, '#c4cbc2'); bg.addColorStop(0.65, MIC.fluid); bg.addColorStop(1, MIC.edge);
+  g.fillStyle = bg; g.fillRect(0, 0, Wc, Hc);
+  try {
+    ctx = g; W = Wc; H = Hc; G.realT = t; // (the game clock stands still while paused; the portrait keeps swimming)
+    S = Math.min(Wc * 0.8 / ((78 * L.tailLen + 18) * ps * L.head), Hc * 0.55 / (16 * ps * L.head));
+    body.vx = 140; body.vy = 0; body.tailV = 140; body.hd = 0; body.face = 0;
+    cam.x = body.x - 32 * ps * L.head; cam.y = body.y + Math.sin(t * 1.3) * 2;
+    const x = sx(body.x), y = sy(body.y);
+    drawShip(x, y, 0, PAL.you, 1, ps, body, L);
+    drawSeqMods(x, y, 0, 1, ps, body, L);
+  } finally { ctx = keep.ctx; W = keep.W; H = keep.H; S = keep.S; cam.x = keep.cx; cam.y = keep.cy; G.realT = keep.rt; g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
+}
 function playerScale() { return hpScale() * puScale(); }
 
 function drawEdgeFlash() {
