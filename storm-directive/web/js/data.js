@@ -30,7 +30,7 @@ const DIRECTIVES = [
 // Movement (autorun) directives.
 const MOVE_DIRECTIVES = [
   { id: 'kite',    name: 'KITE',    desc: 'Keep distance from threats, dodge bullets' },
-  { id: 'collect', name: 'COLLECT', desc: 'Hoover up XP and power-ups' },
+  { id: 'collect', name: 'COLLECT', desc: 'Hoover up XP, power-ups and mutation vesicles' },
   { id: 'orbit',   name: 'ORBIT',   desc: 'Circle around the horde' },
   { id: 'hunt',    name: 'HUNT',    desc: 'Close in on the primary target' },
   { id: 'hold',    name: 'HOLD',    desc: 'Stand ground, only dodge bullets' },

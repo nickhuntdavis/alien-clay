@@ -1841,6 +1841,12 @@ function autoSteer() {
   let bestPick = null, bpd = Infinity;
   for (const u of G.pickups) { const d = Math.hypot(u.x - p.x, u.y - p.y); if (d < bpd) { bpd = d; bestPick = u; } }
   if (bestPick && bpd < (mode === 'collect' ? 900 : 380)) goal(bestPick.x, bestPick.y, mode === 'hold' ? 0.3 : 1.2);
+  // COLLECT also goes for Enzyme Vesicles (mutations), the nearest first, ahead of gems.
+  if (mode === 'collect' && G.vesicles && G.vesicles.length && mutCount() < mutCap()) {
+    let bv = null, bvd = Infinity;
+    for (const v of G.vesicles) { const d = Math.hypot(v.x - p.x, v.y - p.y); if (d < bvd) { bvd = d; bv = v; } }
+    if (bv) goal(bv.x, bv.y, 1.6);
+  }
   if (mode === 'collect' || mode === 'kite' || mode === 'defend') {
     let bg = null, bgd = Infinity;
     for (const g of G.gems) { const d = Math.hypot(g.x - p.x, g.y - p.y); const sc = d / Math.sqrt(g.v); if (sc < bgd && d < (mode === 'collect' ? 800 : 400)) { bgd = sc; bg = g; } }
