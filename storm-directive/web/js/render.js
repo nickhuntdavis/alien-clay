@@ -965,18 +965,17 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   // The tail as a springy rubber rod. phi: how far it's swung off straight-back (radians), om: how fast it's
   // swinging. When the body turns, the tail stays where it was in the water (phi grows), then springs round
   // quickly, with a little overshoot, to trail straight behind again. It bends in a clean arc, more towards
-  // the tip, and can never swing more than about 130 degrees off, so it stays stretched out and the tip never
-  // reaches the head.
+  // the tip, and its bend is capped (the tip stays at least a third of the tail's length from the head).
   if (o.phi == null) { o.phi = 0; o.om = 0; o.f0 = face; }
   { let df = face - o.f0; while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU; o.f0 = face;
     o.phi -= df;
     const w0 = 13, z = 0.5; // (springiness: about a third of a second to swing back; z: a little overshoot)
     if (dt > 0) { o.om += (-w0 * w0 * o.phi - 2 * z * w0 * o.om) * dt; o.phi += o.om * dt; }
     const lim = 2.3; if (Math.abs(o.phi) > lim) { o.phi = Math.sign(o.phi) * lim; if (o.om * o.phi > 0) o.om = 0; } }
-  const back = face + Math.PI;
+  const back = face + Math.PI, bend = o.phi * 2; // (the visible bend is twice the swing: a deeper, whippier arc)
   t[0].x = rx; t[0].y = ry;
   for (let i = 1; i < TAIL_N; i++) {
-    const f = (i - 0.5) / (TAIL_N - 1), d = back + o.phi * Math.pow(f, 1.25);
+    const f = (i - 0.5) / (TAIL_N - 1), d = back + bend * Math.pow(f, 1.8);
     t[i].x = t[i - 1].x + Math.cos(d) * seg; t[i].y = t[i - 1].y + Math.sin(d) * seg;
   }
   // How stretched out it is (1 = straight), and whether it's behind you (1 when the tip trails straight back,
