@@ -394,8 +394,8 @@ function applyPerks(w, s) {
 function perkProcs(e, dmg, src) {
   const s = src.w.s;
   if (s.pChill && !e.boss) { e.chill = Math.max(e.chill, 1.5); e.chillAmt = Math.max(e.chillAmt, 0.35); }
-  if (s.pIgnite) { e.burn = Math.max(e.burn, 2); e.burnDps = Math.max(e.burnDps, dmg * s.pIgnite); }
-  if (s.pVenom) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); e.poisonDps = Math.max(e.poisonDps, dmg * 0.08); }
+  if (s.pIgnite) { e.burn = Math.max(e.burn, 2); setBurn(e, dmg * s.pIgnite, src); }
+  if (s.pVenom) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, dmg * 0.08, src); }
   if (s.pVamp && G.lsBudget > 0) { const h = Math.min(G.lsBudget * (s.pVampCap || 1), dmg * s.pVamp); G.lsBudget = Math.max(0, G.lsBudget - h / (s.pVampCap || 1)); healPlayer(h, true); }
   if (s.pExecKill && !e.boss && !e.rival && !e.dead && e.hp > 0 && e.hp < e.maxHp * s.pExecKill) { e.hp = 0; floatText(e.x, e.y - e.r, 'EXECUTED', '#ffffff', 12); killEnemy(e, src); return; }
   if (s.pArc && Math.random() < s.pArc) {
@@ -510,7 +510,7 @@ function meleeHit(w, e, dmg, src) {
     if (G.pair.onetwo && e.lashT > G.t) m *= 2;
     if (hasSig(w, 'tantrum')) { w.tant = Math.min(12, (w.tant || 0) + 1); w.tantT = G.t + 3; }
   } else if (w.id === 'flail') e.lashT = G.t + 2;
-  else if (w.id === 'onesie' && G.pair.nappyrash) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); e.poisonDps = Math.max(e.poisonDps, dmg * 0.1); }
+  else if (w.id === 'onesie' && G.pair.nappyrash) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, dmg * 0.1, src); }
   damageEnemy(e, dmg * m, src);
   if (hasSig(w, 'smother') && !e.dead) {
     e.smother = (e.smother || 0) + 1;

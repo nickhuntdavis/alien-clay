@@ -342,8 +342,8 @@ function relicHit(e, d, src) {
   const R = G.relics;
   if (!src.w || e.dead) return;
   if (R.transfusion && G.lsBudget > 0) { const h = Math.min(G.lsBudget, d * 0.01); G.lsBudget -= h; healPlayer(h, true); }
-  if (R.corrosive) { e.shred = Math.min(e.armour + 4, e.shred + 1); e.poison = Math.max(e.poison, 3); e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); e.poisonDps = Math.max(e.poisonDps, d * 0.05); }
-  if (R.runninghot && !(e.boss && e.def.resist && e.def.resist.fire === 0)) { e.burn = Math.max(e.burn, 2.5); e.burnDps = Math.max(e.burnDps, d * 0.3); }
+  if (R.corrosive) { e.shred = Math.min(e.armour + 4, e.shred + 1); e.poison = Math.max(e.poison, 3); e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, d * 0.05, 'Acid Tongue'); }
+  if (R.runninghot && !(e.boss && e.def.resist && e.def.resist.fire === 0)) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Running Hot'); }
 }
 function relicKill(e, src) {
   const R = G.relics, P = G.P;

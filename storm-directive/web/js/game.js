@@ -94,7 +94,7 @@ function newGame() {
     chrono: newChrono(), echoes: [], rewind: null, realPlayer: null, lights: [], decals: [],
     tethers: [], grudge: null, mimicPat: null, curses: {}, scatter: false, pair: {}, relics: {}, hazards: [],
     show: newShow(),
-    stats: { dmg: {}, hurt: {}, lastHit: '', reactions: 0, reactBy: {}, merges: 0, bossKills: 0, maxCombo: 0, rewinds: 0, leaks: 0, absorbed: 0 },
+    stats: { dmg: {}, hurt: {}, hurtKind: { bullets: 0, contact: 0, blast: 0, other: 0 }, lastHit: '', reactions: 0, reactBy: {}, merges: 0, bossKills: 0, maxCombo: 0, rewinds: 0, leaks: 0, absorbed: 0 },
   };
   G.bossRoster = bossRoster();
   G.ev = newEvents(); G.evm = Object.assign({}, EVM0);
@@ -745,7 +745,7 @@ function applyElement(e, elem, dmg, src) {
         aoe(e.x, e.y, 65, (dmg * 1.6 + 8) * rm, rsrc, '#fff3b0');
       }
       e.burn = syn.fire ? 4.5 : 3;
-      e.burnDps = Math.max(e.burnDps, dmg * 0.4 * (syn.fire ? 1.5 : 1) * P.elem.fire);
+      setBurn(e, dmg * 0.4 * (syn.fire ? 1.5 : 1) * P.elem.fire, src);
       break;
     case 'ice': {
       if (e.burn > 0 && react(e, 'steam', src)) {
@@ -763,7 +763,7 @@ function applyElement(e, elem, dmg, src) {
         const ns = acquireMany('nearest', 140, e.x, e.y, 4).filter(n => n !== e);
         for (const n of ns) {
           bolt(e.x, e.y, n.x, n.y, '#d4ff5c', 0.2);
-          n.poison = 4; n.poisonStacks = Math.min(P.poisonCap, n.poisonStacks + Math.ceil(e.poisonStacks / 2)); n.poisonDps = Math.max(n.poisonDps, e.poisonDps);
+          n.poison = 4; n.poisonStacks = Math.min(P.poisonCap, n.poisonStacks + Math.ceil(e.poisonStacks / 2)); setPoison(n, e.poisonDps, e.poisonBy);
         }
       } else if ((e.chill > 0 || e.frozen > 0) && react(e, 'supercon', src)) {
         e.shred = Math.min(e.armour + 6, e.shred + 6 * rm);
@@ -774,7 +774,7 @@ function applyElement(e, elem, dmg, src) {
     case 'poison':
       e.poison = 4;
       e.poisonStacks = Math.min(P.poisonCap, e.poisonStacks + 1);
-      e.poisonDps = Math.max(e.poisonDps, dmg * 0.14 * P.elem.poison);
+      setPoison(e, dmg * 0.14 * P.elem.poison, src);
       break;
     case 'arcane':
       if ((e.burn > 0 || e.chill > 0 || e.poison > 0 || e.shock > 0) && react(e, 'resonance', src)) {
@@ -921,7 +921,7 @@ function bomberBlast(e) {
   spawnPart(e.x, e.y, '#ff5a36', 14, 220, 0.45, 4);
   forNear(e.x, e.y, r, o => { if (o !== e) damageEnemy(o, dmg * 2, { elem: 'fire', noCrit: true, wname: 'Bomber friendly fire', friendly: true }); });
   const p = me();
-  if (Math.hypot(p.x - e.x, p.y - e.y) < r + p.r) hurtPlayer(dmg, 'Bomber blast');
+  if (Math.hypot(p.x - e.x, p.y - e.y) < r + p.r) hurtPlayer(dmg, 'Bomber blast', null, 'blast');
 }
 
 // kind: 'x' = experience gem, 's' = scrap (tower currency).
@@ -944,7 +944,13 @@ function healPlayer(n, silent) {
   if (!silent && p.hp - before >= 1) floatText(p.x, p.y - 24, '+' + Math.round(p.hp - before), '#8ac926', 15);
 }
 
-function hurtPlayer(dmg, from, ent) {
+// Burn and poison keep the name of whatever applied the strongest dose, so the run log can credit the weapon.
+const dotName = src => typeof src === 'string' ? src : (src && src.wname) || '?';
+function setBurn(e, dps, src) { if (!(dps < (e.burnDps || 0))) e.burnBy = dotName(src); e.burnDps = Math.max(e.burnDps || 0, dps); }
+function setPoison(e, dps, src) { if (!(dps < (e.poisonDps || 0))) e.poisonBy = dotName(src); e.poisonDps = Math.max(e.poisonDps || 0, dps); }
+
+// kind: 'bullets', 'contact', 'blast' or 'other' (beams, hazards), for the run log.
+function hurtPlayer(dmg, from, ent, kind) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
   if (Math.random() < Math.min(DODGE_CAP, P.dodge)) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
@@ -963,6 +969,7 @@ function hurtPlayer(dmg, from, ent) {
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
   const k = from || 'Unknown';
   G.stats.hurt[k] = (G.stats.hurt[k] || 0) + d;
+  const hk = G.stats.hurtKind; hk[kind || 'other'] = (hk[kind || 'other'] || 0) + d;
   G.stats.lastHit = k;
   p.iframes = 0.7; p.flash = 0.2;
   cam.shake = Math.min(10, cam.shake + 5);
@@ -1111,13 +1118,13 @@ function updateEnemies(dt) {
     if (e.chill > 0) { e.chill -= dt; if (e.chill <= 0) e.chillAmt = 0; }
     if (e.burn > 0) {
       e.burn -= dt;
-      damageEnemy(e, e.burnDps * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: 'Burn' });
+      damageEnemy(e, e.burnDps * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.burnBy || '?') + ' (burn)' });
       if (Math.random() < dt * 6) fxParts('ember', e.x + rand(-e.r, e.r), e.y + rand(-e.r, e.r) * 0.5, '#ff7a2f', 1, 25, 0.6, 2.5, -Math.PI / 2, 0.6);
       if (e.dead) continue;
     }
     if (e.poison > 0) {
       e.poison -= dt;
-      damageEnemy(e, e.poisonDps * e.poisonStacks * (syn.poison ? 2 : 1) * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: 'Poison' });
+      damageEnemy(e, e.poisonDps * e.poisonStacks * (syn.poison ? 2 : 1) * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.poisonBy || '?') + ' (poison)' });
       if (Math.random() < dt * 3) fxParts('bubble', e.x + rand(-e.r, e.r) * 0.6, e.y, '#8dff4a', 1, 18, 0.9, 2.5, -Math.PI / 2, 0.4);
       if (e.poison <= 0) e.poisonStacks = 0;
       if (e.dead) continue;
@@ -1287,7 +1294,7 @@ function updateEnemies(dt) {
         continue;
       } else {
         const rk = ramHit(e, p);
-        if (!frozen && !e.dead && e.dmg > 0) hurtPlayer(e.dmg * G.evm.contact * (1 - 0.4 * rk), e.name + (e.elite ? ' (elite)' : ''), e);
+        if (!frozen && !e.dead && e.dmg > 0) hurtPlayer(e.dmg * G.evm.contact * (1 - 0.4 * rk), e.name + (e.elite ? ' (elite)' : ''), e, 'contact');
         if (e.dead) continue;
       }
     }
@@ -2244,7 +2251,7 @@ function update(dt) {
       continue;
     }
     const rr = b.r + p.r * 0.6;
-    if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; hurtPlayer(b.dmg, b.from, b.owner); }
+    if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; hurtPlayer(b.dmg, b.from, b.owner, 'bullets'); }
   }
   updatePickups(dt);
   updateAmbient(dt);

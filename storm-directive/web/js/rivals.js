@@ -108,7 +108,7 @@ function rivalAI(e, dt) {
   const mx = tx - e.x, my = ty - e.y, md = Math.hypot(mx, my);
   rivalMove(e, md > 4 ? mx / md : 0, md > 4 ? my / md : 0, Math.min(spd, md / Math.max(dt, 1e-3)), dt);
   // Contact.
-  if (dist < e.r + p.r && G.state === 'play') hurtPlayer(e.dmg, e.name, e);
+  if (dist < e.r + p.r && G.state === 'play') hurtPlayer(e.dmg, e.name, e, 'contact');
   // Weapons: zap monsters nearby (stealing your XP), shoot you when you're in range.
   e.zapT -= dt;
   if (e.zapT <= 0) { e.zapT = 0.7; rivalZap(e); }

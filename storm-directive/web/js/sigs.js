@@ -140,7 +140,7 @@ function sigHit(e, dmg, src) {
     }
   } else if (w.id === 'orbit') {
     if (hasSig(w, 'guilttrip')) e.guiltT = G.t + 4;
-    if (G.pair.bbq) { e.burn = Math.max(e.burn, 3); e.burnDps = Math.max(e.burnDps, dmg * 0.5); }
+    if (G.pair.bbq) { e.burn = Math.max(e.burn, 3); setBurn(e, dmg * 0.5, src); }
   }
   // Bloodletting and Barbed Tail: 60% of the hit bleeds out again over the next few seconds.
   if ((w.id === 'wake' && hasSig(w, 'bloodletting')) || (w.id === 'flail' && hasSig(w, 'barbed'))) e.bleed = Math.min(e.maxHp, (e.bleed || 0) + dmg * (src.mult || 1) * 0.6);
