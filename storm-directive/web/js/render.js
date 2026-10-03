@@ -965,9 +965,9 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   t[0].x = rx; t[0].y = ry;
   // A tiny weight at the tip: every link keeps some of its momentum, more towards the tip, so when you turn
   // the end of the tail carries on, swings out wide and whips round after you in an arc.
-  const keep = dt > 0 ? Math.pow(0.5, dt * 60 / 12) : 0; // (momentum half-life of about 12 frames at 60 FPS: a flail)
+  const keep = dt > 0 ? Math.pow(0.5, dt * 60 / 10) : 0; // (momentum half-life of about 10 frames at 60 FPS)
   for (let i = 1; i < TAIL_N; i++) {
-    const a = t[i - 1], b = t[i], f = i / (TAIL_N - 1), m = keep * (0.15 + 0.75 * f * f); // (the weight is towards the end)
+    const a = t[i - 1], b = t[i], f = i / (TAIL_N - 1), m = keep * (0.15 + 0.6 * f * f); // (the weight is towards the end)
     const vx = (b.x - (b.px ?? b.x)) * m, vy = (b.y - (b.py ?? b.y)) * m;
     b.px = b.x; b.py = b.y; b.x += vx; b.y += vy;
     // Water drag: links lag behind; stiffness: drift towards straight back from the link ahead (the first
@@ -978,7 +978,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     // go, and more along the tail), so after the tip swings out it comes back round to trail behind you.
     const fl = Math.min(0.45, (0.12 + 0.33 * Math.min(1, speed / 150)) * f);
     ax = lerp(ax, -Math.cos(face), fl); ay = lerp(ay, -Math.sin(face), fl); { const n = Math.hypot(ax, ay) || 1; ax /= n; ay /= n; }
-    const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 14 : 6 * (1 - 0.7 * f))); // (a light pull straightening the tip: it drags behind and swings)
+    const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 22 : 15 * (1 - 0.45 * f))); // (springy, like rubber: bends, then pulls itself straight)
     b.x = lerp(b.x, a.x + ax * seg, st); b.y = lerp(b.y, a.y + ay * seg, st);
     const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
     b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg;
@@ -987,7 +987,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   // last one towards carrying on straight), then put the lengths back, root to tip.
   for (let i = 2; i < TAIL_N; i++) {
     const a = t[i - 1], b = t[i];
-    if (i < TAIL_N - 1) { const c = t[i + 1]; b.x = lerp(b.x, (a.x + c.x) / 2, 0.25); b.y = lerp(b.y, (a.y + c.y) / 2, 0.25); }
+    if (i < TAIL_N - 1) { const c = t[i + 1]; b.x = lerp(b.x, (a.x + c.x) / 2, 0.4); b.y = lerp(b.y, (a.y + c.y) / 2, 0.4); } // (bending stiffness)
     else { const z = t[i - 2]; b.x = lerp(b.x, a.x + (a.x - z.x), 0.2); b.y = lerp(b.y, a.y + (a.y - z.y), 0.2); }
   }
   for (let i = 1; i < TAIL_N; i++) { const a = t[i - 1], b = t[i], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1; b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg; }
