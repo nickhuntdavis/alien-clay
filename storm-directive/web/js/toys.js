@@ -496,6 +496,13 @@ function toyPlayerHurt() {
 }
 
 // ================================================================ Bubble Wand
+// A bubble traps a small enemy: it crawls (30% speed) and can't fight back. Anything that touches the bubble
+// pops it, and the pop blasts everything nearby except whoever is inside (they come out dazed).
+// - Lv 3 and Lv 6 thicken the film: hits soak in up to a limit, and everything soaked is added to the pop.
+// - Lv 9 (Rainbow): every pop takes a random element, so pops set off reactions.
+// - Two trapped bubbles that touch may merge (35%): one bigger bubble holding both, with a bigger pop.
+const BUB_ELEMS = ['phys', 'fire', 'ice', 'shock', 'poison', 'arcane'];
+const bubIn = b => (b.e ? [b.e] : []).concat(b.extra || []);
 function bubbleFire(w, target) {
   const s = w.s, p = G.player, T = TOYS();
   const a0 = Math.atan2(target.y - p.y, target.x - p.x);
@@ -518,35 +525,64 @@ function toyHold(e, dt) {
   if (e.bubT) { e.bubT = 0; e.phased = false; }
   return false;
 }
-// A pop: the bubble bursts and the blast hits everything near it, except the enemy that was inside, which
-// comes out dazed (stopped for a moment, then slowed). The longer a bubble held its enemy, the bigger the pop.
+// How much more the film can take before it bursts.
+const bubFilm = b => Math.max(0, (b.film || 0) - (b.soaked || 0));
+// Something soaks into the film: returns true if the bubble held (false: it's time to pop).
+function bubbleSoak(b, d) {
+  if (!(b.film > 0) || b.soaked + d >= b.film) { b.soaked = b.film > 0 ? b.film : 0; return false; } // bursts: it carries a full film's worth, no more
+  b.soaked += d; b.wob = G.realT;
+  return true;
+}
+// A pop: the bubble bursts and the blast hits everything near it, except the enemies that were inside,
+// which come out dazed (stopped for a moment, then slowed). The pop grows with how long the bubble held (up
+// to double after 3s), plus everything its film soaked up, and merged bubbles pop harder.
 // throwA: the direction whatever popped it was going (Cannonball and Bubble Hockey fling the enemy that way).
 function bubblePop(b, throwA, fling) {
   if (b.dead) return;
-  const e = b.e, w = b.w, s = w.s, T = TOYS();
+  const w = b.w, s = w.s, T = TOYS(), inside = bubIn(b);
   b.dead = true;
   fxParts('bubble', b.x, b.y, w.def.color, 8, 90, 0.5, 3);
   if (hasSig(w, 'bubblebath') && T.soap.length < 12) T.soap.push({ x: b.x, y: b.y, r: 60, end: G.t + 3 });
-  if (!e) return;
-  e.bubT = 0; e.phased = false;
-  const held = clamp((G.t - (b.heldAt || G.t)) / 3, 0, 1), R = 70 + b.r * 1.2, dmg = s.dmg * 2.2 * (1 + held);
+  if (!inside.length) return;
+  for (const e of inside) { e.bubT = 0; e.phased = false; }
+  const boost = b.boost || 1, held = clamp((G.t - (b.heldAt || G.t)) / 3, 0, 1);
+  const R = (70 + b.r * 1.2) * Math.sqrt(boost), dmg = (s.dmg * 2.2 * (1 + held) + (b.soaked || 0)) * boost;
+  const elem = s.rainbow ? pick(BUB_ELEMS) : 'phys', c = s.rainbow ? ELEMENTS[elem].color : w.def.color;
+  const out = new Set(inside);
   IN_AOE = true;
-  forNear(b.x, b.y, R, o => { if (o !== e && toyCan(o)) damageEnemy(o, dmg, toySrc(w, 'Bubble pop', { knock: 140, kx: o.x - b.x, ky: o.y - b.y })); });
+  forNear(b.x, b.y, R, o => {
+    if (out.has(o) || !toyCan(o)) return;
+    damageEnemy(o, dmg, toySrc(w, 'Bubble pop', { elem, knock: 140, kx: o.x - b.x, ky: o.y - b.y }));
+    // Bubble Bath: the soap sticks. Whoever is caught in the blast is slowed and can't shoot for 3s.
+    if (hasSig(w, 'bubblebath') && !o.dead && !o.boss) o.soapT = G.t + 3;
+  });
   IN_AOE = false;
-  ring(b.x, b.y, R, w.def.color, 0.3, 3);
-  floatText(b.x, b.y - b.r - 6, held >= 1 ? 'BIG POP' : 'POP', w.def.color, held >= 1 ? 15 : 12, 0.5);
+  ring(b.x, b.y, R, c, 0.3, 3);
+  const big = held >= 1 || b.soaked > s.dmg * 3 || boost > 1;
+  floatText(b.x, b.y - b.r - 6, big ? 'BIG POP' : 'POP', c, big ? 15 : 12, 0.5);
   sfx('boom');
   // Chain Pop: the blast pops every other bubble it reaches.
   if (hasSig(w, 'chainpop')) for (const o of T.bubbles) if (!o.dead && o !== b && o.e && Math.hypot(o.x - b.x, o.y - b.y) < R + o.r) after(0.08, () => bubblePop(o, Math.atan2(o.y - b.y, o.x - b.x)));
   if (G.pair.toiltrouble) { const vw = owned('venom'); if (vw) G.zones.push(venomZone(vw, b.x, b.y)); }
-  if (e.dead) return;
-  e.dazeT = G.t + 1.2; e.dazeSlowT = G.t + 3.5;
-  if (!(fling || hasSig(w, 'cannonball')) || throwA == null) return;
+  for (const e of inside) if (!e.dead) { e.dazeT = G.t + 1.2; e.dazeSlowT = G.t + 3.5; }
+  const e = b.e;
+  if (!e || e.dead || !(fling || hasSig(w, 'cannonball')) || throwA == null) return;
   // Flung: a heavy, living projectile.
   const v = 560;
   e.thrownT = G.t + 0.6; e.thrown = { vx: Math.cos(throwA) * v, vy: Math.sin(throwA) * v, dmg: s.dmg * 2 + Math.min(e.maxHp * 0.2, s.dmg * 6), hit: new Set([e]), w };
   floatText(e.x, e.y - e.r - 10, 'YEET', w.def.color, 13, 0.5);
   sfx('shot');
+}
+// Two trapped bubbles meet: b swallows o. One bigger bubble, both enemies inside, film and soak combined.
+function bubbleMerge(b, o) {
+  b.extra = (b.extra || []).concat(bubIn(o));
+  b.r = Math.hypot(b.r, o.r) + 4; b.film = (b.film || 0) + (o.film || 0); b.soaked = (b.soaked || 0) + (o.soaked || 0);
+  b.heldAt = Math.min(b.heldAt || G.t, o.heldAt || G.t); b.boost = Math.min(3, (b.boost || 1) + (o.boost || 1) * 0.5);
+  b.life = Math.max(b.life, o.life);
+  for (const e of bubIn(o)) e.bubT = G.t + b.life;
+  o.dead = true;
+  ring(b.x, b.y, b.r + 10, b.w.def.color, 0.3, 2);
+  floatText(b.x, b.y - b.r - 8, 'MERGE', b.w.def.color, 13, 0.6);
 }
 function bubbleTick(dt) {
   const T = TOYS(), p = G.player;
@@ -554,7 +590,7 @@ function bubbleTick(dt) {
     if (b.dead) continue;
     if (b.e && b.e.bubT <= G.t) { bubblePop(b); continue; } // (already popped by a hit, see bubbleHit)
     const w = b.w, s = w.s;
-    if (!s || !G.weapons.includes(w) && !w.echo) { if (b.e) { b.e.bubT = 0; b.e.phased = false; } b.dead = true; continue; }
+    if (!s || !G.weapons.includes(w) && !w.echo) { for (const e of bubIn(b)) { e.bubT = 0; e.phased = false; } b.dead = true; continue; }
     b.life -= dt;
     const wob = Math.sin(G.realT * 3 + b.seed) * 20;
     if (!b.e) {
@@ -564,31 +600,49 @@ function bubbleTick(dt) {
       forNear(b.x, b.y, b.r, e => { if (!toyCan(e)) return; if (canBubble(w, e)) { caught = e; return true; } bump = bump || e; });
       if (caught) {
         b.e = caught; caught.bubT = G.t + s.dur; b.heldAt = G.t; b.life = s.dur; b.r = caught.r + 12; b.x = caught.x; b.y = caught.y;
+        b.film = (s.film || 0) * s.dmg; b.soaked = 0;
         caught.kx = 0; caught.ky = 0;
         if (caught.teeth && caught.teeth > 0) floatText(caught.x, caught.y - caught.r - 10, 'GOT IT', w.def.color, 11, 0.5);
       } else if (bump) { damageEnemy(bump, s.dmg, toySrc(w, 'Bubble Wand')); if (!bump.boss) { bump.chill = Math.max(bump.chill, 1); bump.chillAmt = Math.max(bump.chillAmt, 0.3); } bubblePop(b); continue; }
       if (b.life <= 0) bubblePop(b);
       continue;
     }
-    // Holding something: the enemy keeps coming, at a crawl, and can't hurt anyone from inside.
+    // Holding something: it keeps coming, at a crawl, and can't hurt anyone from inside.
     // (Hamster Ball: it rolls at the nearest other enemy instead, fast.)
     const e = b.e;
-    if (e.dead) { b.e = null; bubblePop(b); continue; }
-    let tx = p.x, ty = p.y, sp = Math.min(60, e.speed * 0.3);
+    if (e.dead) { b.extra = (b.extra || []).filter(x => !x.dead); if (b.extra.length) { b.e = b.extra.shift(); continue; } b.e = null; bubblePop(b); continue; }
+    let tx = p.x, ty = p.y, sp = Math.min(60, e.speed * 0.3) / Math.sqrt(b.boost || 1);
     if (hasSig(w, 'hamsterball')) { const o = acquire('nearest', 400, b.x, b.y, e); if (o) { tx = o.x; ty = o.y; sp = 170; } }
     const dx = tx - b.x, dy = ty - b.y, dd = Math.hypot(dx, dy) || 1;
     b.x += dx / dd * sp * dt + Math.cos(G.realT * 2 + b.seed) * 8 * dt; b.y += dy / dd * sp * dt + Math.sin(G.realT * 2.3 + b.seed) * 8 * dt;
     e.x = b.x; e.y = b.y;
-    // Anything that touches it pops it: you (the way you were swimming), another enemy, an enemy bullet.
+    if (b.extra) b.extra.forEach((x, i) => { const a = G.realT * 1.5 + i * 2.4; x.x = b.x + Math.cos(a) * b.r * 0.45; x.y = b.y + Math.sin(a) * b.r * 0.45; x.bubT = Math.max(x.bubT, e.bubT); });
+    // You always pop it, the way you were swimming.
     if (Math.hypot(p.x - b.x, p.y - b.y) < b.r + p.r) {
       const sp2 = Math.hypot(p.vx || 0, p.vy || 0), a = sp2 > 30 ? Math.atan2(p.vy, p.vx) : Math.atan2(b.y - p.y, b.x - p.x);
       bubblePop(b, a); continue;
     }
-    let bumped = null;
-    forNear(b.x, b.y, b.r + 4, o => { if (o !== e && !o.dead && !o.charmed && !o.egg && Math.hypot(o.x - b.x, o.y - b.y) < b.r + o.r * 0.7) { bumped = o; return true; } });
-    if (bumped) { bubblePop(b, Math.atan2(b.y - bumped.y, b.x - bumped.x)); continue; }
-    for (const q of G.ebul) if (!q.dead && Math.abs(q.x - b.x) < b.r && Math.abs(q.y - b.y) < b.r && Math.hypot(q.x - b.x, q.y - b.y) < b.r + q.r) { q.dead = true; bumped = q; break; }
-    if (bumped) { bubblePop(b, Math.atan2(bumped.vy, bumped.vx)); continue; }
+    // Another trapped bubble: maybe merge (one roll per pair). Anything else that bumps it soaks into the film
+    // (at most every 0.3s) or pops it.
+    const inside = bubIn(b);
+    let bumped = null, other = null;
+    forNear(b.x, b.y, b.r + 30, o => {
+      if (inside.includes(o) || o.dead || o.charmed || o.egg) return;
+      if (o.bubT > G.t) { const ob = T.bubbles.find(q => !q.dead && q !== b && bubIn(q).includes(o)); if (ob && Math.hypot(ob.x - b.x, ob.y - b.y) < ob.r + b.r) { other = ob; return true; } return; }
+      if (Math.hypot(o.x - b.x, o.y - b.y) < b.r + o.r * 0.7) { bumped = o; return true; }
+    });
+    if (other) {
+      b.tried = b.tried || new Set();
+      if (!b.tried.has(other)) { b.tried.add(other); (other.tried || (other.tried = new Set())).add(b); if (Math.random() < 0.35) { bubbleMerge(b, other); continue; } }
+      bumped = bumped || other.e;
+    }
+    if (bumped && !(b.bumpT > G.t)) {
+      b.bumpT = G.t + 0.3;
+      if (!bubbleSoak(b, s.dmg * 1.5)) { bubblePop(b, Math.atan2(b.y - bumped.y, b.x - bumped.x)); continue; }
+    }
+    let shot = null;
+    for (const q of G.ebul) if (!q.dead && Math.abs(q.x - b.x) < b.r && Math.abs(q.y - b.y) < b.r && Math.hypot(q.x - b.x, q.y - b.y) < b.r + q.r) { q.dead = true; shot = q; break; }
+    if (shot && !bubbleSoak(b, shot.dmg * 3)) { bubblePop(b, Math.atan2(shot.vy, shot.vx)); continue; }
     if (b.life <= 0) bubblePop(b);
   }
   compactArr(T.bubbles, b => !b.dead);
@@ -618,11 +672,13 @@ function bubbleTick(dt) {
 }
 // From damageEnemy: a hit on an enemy in a bubble hits the bubble instead, and pops it (the enemy inside
 // is untouched). Returns true if the hit was taken by a bubble. The Paddle (Bubble Hockey) bats it away.
-function bubbleHit(e, src) {
-  const T = TOYS(), b = T.bubbles.find(o => o.e === e && !o.dead);
+function bubbleHit(e, src, dmg) {
+  const T = TOYS(), b = T.bubbles.find(o => !o.dead && (o.e === e || (o.extra && o.extra.includes(e))));
   if (!b) { e.bubT = 0; return false; }
   const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
   const hockey = G.pair.bubblehockey && src.w && src.w.id === 'paddle';
+  // A thick film soaks the hit up (and it all comes back out in the pop). The Paddle always pops it.
+  if (!hockey && bubbleSoak(b, (dmg || 0) * (src.mult || 1))) return true;
   bubblePop(b, Math.atan2(ky, kx), hockey);
   return true;
 }
@@ -830,9 +886,13 @@ function drawToysOver() {
   // Bubbles: a thin iridescent film with a highlight.
   for (const b of T.bubbles) {
     const x = sx(b.x), y = sy(b.y), r = b.r * S * (1 + Math.sin(G.realT * 6 + b.seed) * 0.04);
-    ctx.globalAlpha = 0.12; ctx.fillStyle = col(b.w.def.color); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-    ctx.globalAlpha = 0.8; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.globalAlpha = 0.5; ctx.strokeStyle = col(b.w.def.color); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r * 0.92, G.realT + b.seed, G.realT + b.seed + 1.4); ctx.stroke();
+    // A thick film (Lv 3+) draws a heavier rim that thins as it soaks up hits, and fogs as it fills.
+    const fk = b.film > 0 ? clamp(1 - (b.soaked || 0) / b.film, 0, 1) : 0, wobK = b.wob && G.realT - b.wob < 0.2 ? 1.08 : 1;
+    ctx.globalAlpha = 0.12 + (b.film > 0 ? 0.18 * (1 - fk) : 0); ctx.fillStyle = col(b.w.def.color); ctx.beginPath(); ctx.arc(x, y, r * wobK, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 0.8; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5 + 2.5 * fk; ctx.stroke();
+    // Rainbow (Lv 9): the sheen cycles through the element colours, as in sunlight.
+    const sheen = b.w.s && b.w.s.rainbow ? ELEMENTS[BUB_ELEMS[Math.floor(G.realT * 3 + b.seed) % BUB_ELEMS.length]].color : b.w.def.color;
+    ctx.globalAlpha = 0.5; ctx.strokeStyle = col(sheen); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r * 0.92, G.realT + b.seed, G.realT + b.seed + 1.4); ctx.stroke();
     ctx.globalAlpha = 0.9; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(x - r * 0.4, y - r * 0.45, r * 0.18, r * 0.1, -0.7, 0, TAU); ctx.fill();
   }
   ctx.globalAlpha = 1;

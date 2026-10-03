@@ -228,6 +228,12 @@ function drawStatusFx(e, x, y, r) {
     ctx.stroke();
     ctx.globalAlpha = a0;
   }
+  if (e.soapT > G.t) {
+    // Soaped (Bubble Bath): a sheen and a few clinging suds.
+    ctx.globalAlpha = a0 * 0.7; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.beginPath();
+    for (let i = 0; i < 4; i++) { const an = i * 1.6 + id, br = Math.max(1.5, r * 0.16), cx = x + Math.cos(an) * r * 0.85, cy = y + Math.sin(an) * r * 0.85; ctx.moveTo(cx + br, cy); ctx.arc(cx, cy, br, 0, TAU); }
+    ctx.stroke(); ctx.globalAlpha = a0;
+  }
   if (e.dazeT > G.t) {
     // Dazed (out of a popped bubble): little stars circling over its head.
     ctx.globalAlpha = a0; ctx.fillStyle = '#ffffff'; ctx.beginPath();

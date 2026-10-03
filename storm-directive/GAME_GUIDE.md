@@ -606,7 +606,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 *Kinetic bubble, Trap & Throw.* Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.
 
 - **Base stats:** dmg 18, cd 1.1s, mag 4, reload 2s, range 380 (dur 5, hold 34)
-- **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +1 count
+- **Level bonuses:** Lv3: +1 count, +4 film; Lv6: +40% dmg, +4 film; Lv9: +1 count, +1 rainbow
 - **Combos:** **Worm Farm** (+ Tapeworm Seeder), **Bubble Halo** (+ Premature Evangelation)
 - **Pairings:** **Bubble Hockey** (+ Placenta Paddle), **Toil and Trouble** (+ Morning Sickness)
 
@@ -616,7 +616,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |  | **Sharp Tongue** | +15% crit chance. |
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Extra Soapy** | Bubbles hold enemies twice the size, elites included. |
-|  | **Bubble Bath** | Every popped bubble leaves a soapy patch for 3s that slows enemies by 40%. |
+|  | **Bubble Bath** | The soap sticks: everything caught in a pop is slowed by half and can't shoot for 3s. Every pop also leaves a soapy patch that slows enemies by 40%. |
 | Lv 8 signature | **Cannonball** | A pop launches the enemy inside away from whatever popped it. It bowls through its friends and explodes where it lands. |
 |  | **Chain Pop** | A pop's blast pops every other bubble it reaches, one after another. |
 | Lv 10 mastery | **Hamster Ball** | Trapped enemies roll fast at the nearest other enemy and pop on it. |

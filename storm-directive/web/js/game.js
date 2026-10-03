@@ -384,6 +384,8 @@ function lvBonusText(def, from, to) {
       else if (k === 'area') parts.push(`+${pc(v)} area`);
       else if (k === 'dur') parts.push(`+${pc(v)} duration`);
       else if (k === 'cd') parts.push(`${pc(-v)} faster`);
+      else if (k === 'film') parts.push('thicker bubbles (they soak up hits and add them to the pop)');
+      else if (k === 'rainbow') parts.push('rainbow pops (a random element each time)');
     }
   }
   return parts.join(', ');
@@ -687,7 +689,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
   if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
-  if (e.bubT > G.t && !src.dot && bubbleHit(e, src)) return 0; // Bubble Wand: the bubble takes the hit and pops
+  if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
   let d = dmg * (src.mult || 1) * G.evm.out; // Glass Womb
   // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
@@ -1149,6 +1151,7 @@ function eBullet(x, y, a, speed, dmg, r, color) {
 }
 
 function shootPattern(e, pat, a0) {
+  if (e.soapT > G.t && !e.boss) return; // soaped up (Bubble Bath): can't shoot
   const p = G.player, sh = e.def.shoot || {};
   const aim = (G.toy && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
   const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
@@ -1207,7 +1210,7 @@ function updateEnemies(dt) {
     const ux = dx / dist, uy = dy / dist;
     let mx = ux, my = uy, spd = e.speed;
     const frozen = e.frozen > 0 || e.dazeT > G.t; // (dazed out of a popped bubble: stopped, like frozen)
-    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1);
+    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1); // dazed or soaped (Bubble Wand)
     if (e.boss) {
       bossAI(e, edt, dist, ux, uy);
       mx = e.mvx; my = e.mvy; spd = e.mvs;
