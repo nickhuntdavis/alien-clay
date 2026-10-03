@@ -15,7 +15,7 @@ const PAL_OK = new Set();
 // Full Technicolour (a Mythical bonus): no more greyscale, anywhere.
 let FULL_COL = false;
 const DYE_COLOURS = {
-  gfp: () => [PAL.you], immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST, DYE_FAST_DK],
+  gfp: () => [PAL.you].concat(typeof G !== 'undefined' && G && G.seqCol ? [G.seqCol] : []), // you, and your weapons in your sequence's colour immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST, DYE_FAST_DK],
   rival: () => RIVALS.map(r => r.color), he: () => [PAL.upgrade, PAL.pickup].concat(Object.values(ELEM_UI)),
 };
 function refreshPalette() {
@@ -1247,12 +1247,44 @@ function render() {
       case 'glaive': case 'disc':
         ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 18);
         drawShape(pr.style === 'glaive' ? 'star' : 'hex', 0, 0, r, 0); ctx.fill(); ctx.restore(); break;
-      case 'void':
-        glow(x, y, pr.aura * S, pr.color, 0.35); ctx.globalAlpha = 1;
+      case 'void': {
+        // Every merge makes it more unstable: the glow flickers and swells, the core shudders, arcs crackle off
+        // it, and near supernova mass it is white-hot, cracked open and visibly about to burst.
+        const v = clamp(((pr.mass || 1) - 1) / (VOID_MERGE.supernova - 1), 0, 1), t = G.realT + (pr.seed || (pr.seed = Math.random() * 10));
+        const flick = 1 + (Math.random() - 0.5) * 0.5 * v, swell = 1 + Math.sin(t * (3 + 18 * v)) * 0.1 * v;
+        glow(x, y, pr.aura * S * swell, pr.color, Math.min(0.9, (0.35 + 0.3 * v) * flick)); ctx.globalAlpha = 1;
+        const jx = v > 0.2 ? (Math.random() - 0.5) * r * 0.25 * v : 0, jy = v > 0.2 ? (Math.random() - 0.5) * r * 0.25 * v : 0, cx = x + jx, cy = y + jy;
+        // Accretion arcs, spinning faster with mass.
+        if (v > 0) {
+          ctx.strokeStyle = pr.color; ctx.lineWidth = Math.max(1, r * 0.12);
+          for (let i = 0; i < 3; i++) { const a0 = t * (2 + 9 * v) + i * TAU / 3; ctx.globalAlpha = 0.4 + 0.5 * v; ctx.beginPath(); ctx.arc(cx, cy, r * (1.35 + 0.15 * i), a0, a0 + 0.9 + v); ctx.stroke(); }
+          // Crackling arcs leaping off it: more of them, more often, as it fills up.
+          const nArc = Math.floor(v * 7);
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.2;
+          for (let k = 0; k < nArc; k++) {
+            if (Math.random() > 0.35 + 0.5 * v) continue;
+            const an = Math.random() * TAU; let px2 = cx + Math.cos(an) * r, py2 = cy + Math.sin(an) * r;
+            ctx.globalAlpha = 0.5 + 0.5 * v; ctx.beginPath(); ctx.moveTo(px2, py2);
+            for (let j = 0; j < 4; j++) { px2 += Math.cos(an) * r * 0.35 + (Math.random() - 0.5) * r * 0.4; py2 += Math.sin(an) * r * 0.35 + (Math.random() - 0.5) * r * 0.4; ctx.lineTo(px2, py2); }
+            ctx.stroke();
+          }
+          ctx.globalAlpha = 1;
+        }
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); ctx.lineWidth = 3; ctx.stroke();
+        ctx.fillStyle = '#000'; ctx.strokeStyle = pr.color; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill(); ctx.lineWidth = 3; ctx.stroke();
+        if (v >= 0.7) {
+          // Ready to burst: a white-hot rim pulsing faster and faster, and cracks of light across the core.
+          const hot = (v - 0.7) / 0.3, beat = 0.5 + 0.5 * Math.sin(t * (14 + 26 * hot));
+          ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.5 + 0.5 * beat; ctx.lineWidth = Math.max(1.5, r * (0.08 + 0.1 * hot)); ctx.beginPath(); ctx.arc(cx, cy, r * 0.97, 0, TAU); ctx.stroke();
+          ctx.lineWidth = Math.max(1, r * 0.06); ctx.beginPath();
+          for (let k = 0; k < 3 + Math.round(hot * 4); k++) { const an = (pr.seed * 7 + k * 2.4) % TAU; ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(an) * r * 0.5 + jx, cy + Math.sin(an) * r * 0.5 + jy); ctx.lineTo(cx + Math.cos(an + 0.3) * r * 0.95, cy + Math.sin(an + 0.3) * r * 0.95); }
+          ctx.globalAlpha = 0.4 + 0.6 * beat; ctx.stroke();
+          ctx.globalAlpha = 1;
+          if (hot > 0.5 && Math.random() < 0.3) { const an = Math.random() * TAU; ctx.globalCompositeOperation = 'lighter'; glow(cx + Math.cos(an) * r, cy + Math.sin(an) * r, r * 0.8, '#ffffff', 0.6); ctx.globalAlpha = 1; }
+        }
         ctx.globalCompositeOperation = 'lighter';
         break;
+      }
       case 'prequel':
         // A shell flying backwards: the flame trail is in front of it.
         ctx.lineWidth = r * 1.1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3); ctx.stroke();

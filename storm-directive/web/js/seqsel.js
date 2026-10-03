@@ -321,3 +321,13 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
   RAW_COL = false;
   ctx.restore();
 }
+
+// Your weapons' shots and effects take your Primary Sequence's colour for the run (seen once you have the GFP Tag).
+function seqWeaponColour(id) {
+  let c = (SEQ_LOOK[id] || SEQ_LOOK.vanguard).color;
+  // Keep it out of the colours the slide treats specially (elements, static, alerts), so it's only ever "yours".
+  const special = h => (typeof ELEM_OF !== 'undefined' && ELEM_OF.has(h)) || (typeof STATIC_HEX !== 'undefined' && STATIC_HEX[h]) || (typeof PAL_ALIAS !== 'undefined' && PAL_ALIAS[h]);
+  while (special(c)) c = c.slice(0, 6) + ((parseInt(c[6], 16) + 1) % 16).toString(16);
+  G.seqCol = c;
+  for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = c;
+}

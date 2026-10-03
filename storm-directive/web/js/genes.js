@@ -145,6 +145,7 @@ function genesStart(G) {
   G.mut = {}; G.mutHidden = {}; G.mutT = {}; G.vesicles = []; G.nextVesicle = VESICLE.first;
   const id = PROFILES[META.profile] && profUnlocked(META.profile) ? META.profile : 'vanguard';
   G.genes = { primary: id, active: [id], applied: [], k: {} };
+  seqWeaponColour(id);
   G.P.wDmg = 1; G.P.sDmg = 1; G.P.meleeK = 1;
   const P = G.P;
   for (const [pid, k] of G.genes.applied) PROFILES[pid].apply(P, -k);
