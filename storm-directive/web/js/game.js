@@ -2075,7 +2075,10 @@ function updatePlayer(dt) {
     else { if (p.turned && want > 0.9) { p.kick = 1; p.turned = false; } p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 12)); }
     if (p.stroke < 0.45) p.turned = true;
     p.kick = (p.kick || 0) * Math.pow(0.5, rt / 0.22); }
-  const power = 0.3 + 0.7 * p.stroke; // (never quite zero: sperm still drift forward on the last stroke)
+  // (never quite zero: sperm still drift forward on the last stroke). A tail swung round or curled up close to
+  // the body pushes little water: thrust needs it stretched out behind you.
+  const reach = p.ext == null ? 1 : clamp((p.ext - 0.45) / 0.4, 0, 1);
+  const power = (0.3 + 0.7 * p.stroke) * (0.35 + 0.65 * reach);
   const hx = Math.cos(p.hd), hy = Math.sin(p.hd);
   let fwd = p.vx * hx + p.vy * hy, lat = -p.vx * hy + p.vy * hx;
   const want = thrust * power * (1 + 0.12 * p.kick);
