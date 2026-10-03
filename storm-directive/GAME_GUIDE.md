@@ -1367,7 +1367,9 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Diatom** | 55 | 8 | 24 | 6 | 6 | 3:00 | Keeps distance and shoots |
 | **Natural Killer** | 48 | 13 | 70 | 2 | 6 | 3:00 | Weaves, crouches, pounces; acid blood |
 | **Ghost Swimmer** | 35 | 10 | 82 | 0 | 5 | 3:15 | Phases in and out |
+| **Brood Cyst** | 140 | 14 | 30 | 2 | 10 | 3:20 | brood |
 | **Mother Cell** | 75 | 10 | 40 | 2 | 8 | 3:30 | Spawns minions |
+| **Planarian** | 34 | 10 | 72 | 1 | 2 | 3:50 | planarian |
 | **Enzyme Spire** | 85 | 10 | 16 | 4 | 8 | 4:00 | Sits still and shoots |
 | **Plasmodium** | 380 | 22 | 22 | 3 | 24 | 4:00 | Swallows you if it touches |
 | **Killer T-Cell** | 26 | 6 | 52 | 0 | 5 | 4:20 | Keeps distance and shoots |
@@ -1379,6 +1381,7 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Candida** | 18 | 5 | 22 | 0 | 1 | Spawned by others | Buds new yeast cells |
 | **Pepsinator Jr** | 60 | 14 | 72 | 0 | 6 | Spawned by others | Swims straight at you |
 | **Second Dose** | 45 | 12 | 92 | 0 | 6 | Spawned by others | Laser lock-on, burst fire |
+| **Broodling** | 10 | 6 | 108 | 0 | 0.5 | Spawned by others | broodling |
 
 ### First sightings
 
@@ -1420,6 +1423,9 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Alpha Swimmer** | A huge rival swimmer, armoured and hard-hitting. | Shred its armour and keep your distance. Its charge is slow to start. |
 | **Booster** | A booster shot. It locks on with a red sight line before firing a burst, and killing it is only half the job. | Move as soon as the line settles on you. A Second Dose follows it. |
 | **Second Dose** | What comes after a Booster: lighter, faster and still coming. | It has no armour left. Finish it before it reaches you. |
+| **Brood Cyst** | A see-through sac full of Broodlings. It swells, then fires one out at you, and slowly grows more. Kill it and everyone left inside scatters and comes back as kamikazes. | Kill it from range, then back off: the burst blows up on contact. Area damage clears the scatter. |
+| **Broodling** | A little passenger from a Brood Cyst. Fired at you, it just chases. From a burst cyst, it blinks red and dives at you to blow up. | Anything that hits a crowd. Keep moving when a cyst bursts. |
+| **Planarian** | A looping flatworm. Destroy a segment and it splits in two there, and each half slowly grows back to full length. | Kill the head end first, or hit it all at once. Chipping the middle makes more worms. |
 | **Natural Killer** | A Natural Killer: it weaves in, crouches, then pounces. Its blood is acid. | When it crouches, get clear. Don't stand where it dies. |
 
 ## Rival champions

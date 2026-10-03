@@ -39,6 +39,9 @@ const ENEMY_INTRO = {
   juggernaut: { what: 'A huge rival swimmer, armoured and hard-hitting.', tip: 'Shred its armour and keep your distance. Its charge is slow to start.' },
   sperminator:{ what: 'A booster shot. It locks on with a red sight line before firing a burst, and killing it is only half the job.', tip: 'Move as soon as the line settles on you. A Second Dose follows it.' },
   endoskeleton:{ what: 'What comes after a Booster: lighter, faster and still coming.', tip: 'It has no armour left. Finish it before it reaches you.' },
+  brood:      { what: 'A see-through sac full of Broodlings. It swells, then fires one out at you, and slowly grows more. Kill it and everyone left inside scatters and comes back as kamikazes.', tip: 'Kill it from range, then back off: the burst blows up on contact. Area damage clears the scatter.' },
+  broodling:  { what: 'A little passenger from a Brood Cyst. Fired at you, it just chases. From a burst cyst, it blinks red and dives at you to blow up.', tip: 'Anything that hits a crowd. Keep moving when a cyst bursts.' },
+  planarian:  { what: 'A looping flatworm. Destroy a segment and it splits in two there, and each half slowly grows back to full length.', tip: 'Kill the head end first, or hit it all at once. Chipping the middle makes more worms.' },
   alien:      { what: 'A Natural Killer: it weaves in, crouches, then pounces. Its blood is acid.', tip: 'When it crouches, get clear. Don\'t stand where it dies.' },
 };
 const INTRO_GAP = 12; // seconds between introductions in a run, so a first run isn't all pauses

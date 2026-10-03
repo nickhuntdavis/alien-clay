@@ -1125,7 +1125,7 @@ function spotTick() {
       S2.refT = t + 1.5;
       let near = 0; const p = G.player;
       for (const e of G.enemies) if (e.def === S2.cur && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 700) near++;
-      if (near < 5) { const q = spawnPos(); for (let i = 0; i < 3 && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(S2.cur, q.x + rand(-40, 40), q.y + rand(-40, 40))); }
+      if (near < (S2.cur.pack ? S2.cur.pack * 4 : 5)) { const q = spawnPos(); for (let i = 0; i < (S2.cur.pack || 3) && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(S2.cur, q.x + rand(-40, 40), q.y + rand(-40, 40))); }
     }
     return;
   }
@@ -1134,7 +1134,7 @@ function spotTick() {
   if (!id) return;
   S2.cur = ENEMIES[id]; S2.end = t + SPOT.len;
   // It arrives as a pack, together, from one side (smaller packs of the big ones).
-  const d = S2.cur, n = Math.max(2, Math.min(8, Math.round(10 - d.hp / 15))), p = spawnPos();
+  const d = S2.cur, n = d.pack || Math.max(2, Math.min(8, Math.round(10 - d.hp / 15))), p = spawnPos();
   for (let i = 0; i < n && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(d, p.x + rand(-50, 50), p.y + rand(-50, 50)));
 }
 const spotOn = () => !!(G.spot && G.spot.cur && PT() < G.spot.end);
@@ -1151,7 +1151,7 @@ function spawnRandom() {
   const spot = spotOn() && Math.random() < SPOT.share;
   if (spot) def = G.spot.cur; // the newcomer's turn
   const p = spawnPos();
-  const n0 = Math.ceil((def.group || 1) * 0.8), n = Math.max(n0, spot && def.hp < 100 ? 3 : 1); // (a bunch of them, unless they're big)
+  const n0 = Math.ceil((def.group || 1) * 0.8), n = Math.max(n0, spot && def.hp < 100 && !def.pack ? 3 : 1); // (a bunch of them, unless they're big)
   if (n > n0) G.spawnAcc = (G.spawnAcc || 0) - (n - n0); // ...charged to the spawn budget, so the slide is no busier than usual
   const eliteChance = Math.min(0.24, (0.01 + t / 3000) * heatElite());
   for (let i = 0; i < n; i++) {
@@ -1425,13 +1425,13 @@ function updateEnemies(dt) {
       }
     }
     // Leash: recycle enemies left far behind.
-    if (dist > 1500 && !e.boss) { const s = spawnPos(); e.x = s.x; e.y = s.y; }
+    if (dist > 1500 && !e.boss && !wormBody(e)) { const s = spawnPos(); e.x = s.x; e.y = s.y; } // (a worm's body follows its head)
   }
   // Separation.
   for (const e of G.enemies) {
     if (e.dead || e.boss) continue;
     forNear(e.x, e.y, e.r * 0.8, o => {
-      if (o === e) return;
+      if (o === e || wormMate(e, o)) return;
       const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 0.01, ov = e.r + o.r - d;
       if (ov > 0) { const push = Math.min(ov, 4) * 0.5; e.x += dx / d * push; e.y += dy / d * push; }
     });
