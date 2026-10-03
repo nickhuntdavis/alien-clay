@@ -851,3 +851,8 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 
 /* Cards without a real icon (everything but weapons and spells) use the full width. */
 .card.noico { padding-left: 14px; min-height: 0; }
+/* Card spacing: the title screen's .tag margins (14px above, 22px below) leaked into cards, leaving a big gap
+   at the top; take them out and give the weapon picker more room below the text instead. */
+.card .tag { margin: 0 0 4px; }
+.card .wpick { margin-top: 14px; }
+.card { padding-bottom: 14px; }
