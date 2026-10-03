@@ -42,6 +42,7 @@ const UI = {
     $('armBtn').addEventListener('click', e => { e.stopPropagation(); if (G && G.state === 'play') UI.openArmoury('w', 0); });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
     $('abilBtn').addEventListener('click', e => { e.stopPropagation(); abilityTap(); });
+    $('spdBtn').addEventListener('click', e => { e.stopPropagation(); SET.speed = ((SET.speed || 0) + 1) % SPEED_STEPS.length; saveSettings(); UI.syncSpeed(); if (G) floatText(me().x, me().y - 40, 'SPEED ' + SPEED_LABELS[SET.speed], PAL.you, 14, 1); });
     $('autoBtn').addEventListener('click', e => { e.stopPropagation(); SET.auto = !SET.auto; saveSettings(); UI.syncAuto(); if (G) floatText(me().x, me().y - 40, SET.auto ? 'FULL AUTO ON' : 'FULL AUTO OFF', PAL.you, 14, 1); });
     UI.syncAuto();
     $('armClose').addEventListener('click', () => UI.closeArmoury());
@@ -209,7 +210,8 @@ const UI = {
   },
 
   // Full Auto: picks for you at random (DNA strands, drafts, branches, relics), skips the intros, and starts waves.
-  syncAuto() { const b = $('autoBtn'); if (b) b.classList.toggle('on', !!SET.auto); },
+  syncAuto() { const b = $('autoBtn'); if (b) b.classList.toggle('on', !!SET.auto); UI.syncSpeed(); },
+  syncSpeed() { const b = $('spdBtn'); if (b) { b.textContent = SPEED_LABELS[SET.speed || 0]; b.classList.toggle('on', (SET.speed || 0) > 0); } },
   autoTick() {
     if (!SET.auto || !G) return;
     const now = performance.now();

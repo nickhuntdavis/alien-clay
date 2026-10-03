@@ -2644,6 +2644,10 @@ function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } cat
 // ---------------------------------------------------------------- loop
 // The whole game runs at 70% speed: everything moves, fires and spawns 30% slower than real time.
 const GAME_SPEED = 0.7;
+// The speed button: the game runs at half its old pace by default, and one tap steps it up to 75%, then back
+// to the full old pace (labelled 1x, 1.5x and 2x). It scales game time only; menus and animations are unaffected.
+const SPEED_STEPS = [0.5, 0.75, 1], SPEED_LABELS = ['1x', '1.5x', '2x'];
+const speedMul = () => SPEED_STEPS[(typeof SET !== 'undefined' && SET.speed) || 0] || 0.5;
 let lastTs = 0;
 // Frame-rate meter: frames counted over each real second (v), plus the slowest frame in that second as an FPS
 // (low), so hitches show up instead of being smoothed away. The run log keeps a per-minute average and low.
@@ -2701,9 +2705,9 @@ function frame(ts) {
     if (G && G.state === 'play') {
       keyboardSteer();
       // A boss death plays out in slow motion before its relic box opens.
-      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED); }
+      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * speedMul()); }
       else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot()) UI.openLoot(G.lootQueue.shift());
-      else if (!(G.debug && G.debug.freeze)) update(dt * GAME_SPEED);
+      else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * speedMul()); const su = G.spdUse || (G.spdUse = [0, 0, 0]); su[SET.speed || 0] += dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);
