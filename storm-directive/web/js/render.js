@@ -1759,6 +1759,7 @@ function render() {
     // Lights Out: only a small pool of light round you... and fire, which gives off light of its own.
     drawDarkness(p, shx, shy);
   }
+  if (G.state === 'bossIntro' && G.bossIntro) drawIntroSpot(G.bossIntro, shx, shy);
   if (p.flash > 0) { ctx.globalAlpha = p.flash / 0.2 * 0.5; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (rewinding) drawRewindFx();
@@ -2562,6 +2563,31 @@ function drawEnemyDetail(e, x, y, r, rot) {
   }
 }
 
+// Introductions: a stage spotlight on whoever is being introduced. The rest of the slide dims, and a beam
+// of light comes down on them from above, fading in over the first half second.
+function drawIntroSpot(I, shx, shy) {
+  const k = Math.min(1, I.t / 0.5), ents = [I.e, I.e.twin].filter(Boolean);
+  for (const e of ents) {
+    const x = sx(e.x) + shx, y = sy(e.y) + shy, r = (e.r * 2.2 + 40) * S;
+    // Dim everything outside the pool of light.
+    if (e === I.e) {
+      const g = ctx.createRadialGradient(x, y, r * 0.8, x, y, r * 1.9);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${(0.7 * k).toFixed(3)})`);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    }
+    // The beam and the pool.
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.5 * k;
+    const top = Math.max(-40, y - H * 0.6), bw = r * 0.35;
+    const bg = ctx.createLinearGradient(0, top, 0, y);
+    bg.addColorStop(0, 'rgba(255,250,230,0)'); bg.addColorStop(1, 'rgba(255,250,230,0.22)');
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.moveTo(x - bw, top); ctx.lineTo(x + bw, top); ctx.lineTo(x + r, y); ctx.lineTo(x - r, y); ctx.closePath(); ctx.fill();
+    const pg = ctx.createRadialGradient(x, y, 0, x, y, r);
+    pg.addColorStop(0, 'rgba(255,250,230,0.35)'); pg.addColorStop(0.7, 'rgba(255,250,230,0.12)'); pg.addColorStop(1, 'rgba(255,250,230,0)');
+    ctx.fillStyle = pg; ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.9, 0, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+}
+
 // Lights Out: a darkness layer with holes cut where there's light (you, and anything on fire).
 const DARK = { c: null, puff: null };
 function drawDarkness(p, shx, shy) {
@@ -2573,6 +2599,9 @@ function drawDarkness(p, shx, shy) {
   g.globalCompositeOperation = 'destination-out';
   const hole = (wx, wy, r) => { const x = (sx(wx) + shx) / 2, y = (sy(wy) + shy) / 2, rr = r * S / 2; if (x < -rr || y < -rr || x > dw + rr || y > dh + rr) return false; g.drawImage(DARK.puff, x - rr, y - rr, rr * 2, rr * 2); return true; };
   hole(p.x, p.y, 230);
+  // Introductions: whoever is being introduced is always lit, even in the dark.
+  const I = G.state === 'bossIntro' && G.bossIntro;
+  if (I) for (const b of [I.e, I.e.twin].filter(Boolean)) hole(b.x, b.y, b.r * 3 + 90);
   let lit = 0;
   for (const e of G.enemies) if (!e.dead && e.burn > 0 && hole(e.x, e.y, e.r * 2 + 70)) lit++;
   for (const pr of G.proj) if (!pr.dead && (pr.style === 'flame' || (pr.src && pr.src.elem === 'fire')) && hole(pr.x, pr.y, 60)) lit++;
