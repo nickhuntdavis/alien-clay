@@ -31,6 +31,7 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 26. [Rival champions](#rival-champions)
 27. [Terrain](#terrain)
 28. [Sperm samples](#sperm-samples)
+29. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
 
 ## How upgrades work
 
@@ -1396,3 +1397,28 @@ Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to 
 | 005 | **Frozen Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
 | 003 | **The Morning After** | Coming soon | The pill is already dissolving. Good luck. |
 | 004 | **Vasectomy Reversal** | Coming soon | Low count, high stakes, very confused surgeon. |
+
+## Secret Codex entries (spoilers)
+
+**Spoiler warning.** 18 hidden interactions. In the game each one stays ??? in the Codex until it happens to you for the first time; each line below says what sets it off.
+
+| Secret | How it happens |
+|---|---|
+| **Belly Full of Nappies** | A Toddler Gravity orb swallowed your Nappy Mines. They all went off together when it collapsed. |
+| **Gravity Assist** | Your shots curved round a black hole and flew out faster and harder. Ask a space probe. |
+| **Live Puddle** | Lightning hit something standing in a toxic puddle, and everyone else in the puddle got it too. |
+| **Flammable Fumes** | Something burning touched a toxic puddle and set the whole thing alight. |
+| **Ice Rink** | Frost froze a toxic puddle solid. Enemies slide about on it; you skate across it faster. |
+| **Icebreaker** | You rammed a frozen enemy at speed. It shattered, and the shards hit what was behind it. |
+| **Hereditary** | An infected enemy split during Mitosis, and both halves kept the infection. |
+| **Downstream** | Waters Breaking swept your mines, puddles and black holes along with everything else. |
+| **Firelight** | In the dark, fire gives off light. Burning things light up their surroundings during Lights Out. |
+| **Head-On** | Ramming counts closing speed: swim straight at something fast and it hits much harder. |
+| **Indigestion** | An amoeba swallowed something it should not have: a mine, a black hole, or an infected cell. |
+| **Pocket Hoover** | A black hole sucked up loot lying on the floor, then spat it all out to you when it collapsed. |
+| **Double Booked** | Two Due Dates landed on the same enemy. The dates merged: the countdown started again, owing half as much more. |
+| **Contagious Paperwork** | Red Tape bundled an infected enemy with healthy ones. The infection travelled along the tape to all of them. |
+| **Scared Stiff** | BOO! hit something that was already frozen solid. It shattered from the fright. |
+| **Double Bluff** | Your Imaginary Friend copied Peekaboo. Two BOOs, back to back, from two places at once. |
+| **Hole in One** | A flung enemy sailed over a baby tooth and grabbed it mid-air. The Tooth Fairy noticed. |
+| **Tooth Thief** | A rival champion picked up one of your baby teeth. The Tooth Fairy does not check whose tooth it was. |
