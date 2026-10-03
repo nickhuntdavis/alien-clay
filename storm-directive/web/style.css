@@ -848,3 +848,6 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 #draft .dtab.dico { display: flex; align-items: center; justify-content: center; height: 52px; padding: 0; }
 #draft .dtab.dico svg { display: block; opacity: 0.75; }
 #draft .dtab.dico.sel svg { opacity: 1; }
+
+/* Cards without a real icon (everything but weapons and spells) use the full width. */
+.card.noico { padding-left: 14px; min-height: 0; }
