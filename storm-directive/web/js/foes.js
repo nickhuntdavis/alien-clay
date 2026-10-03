@@ -175,27 +175,33 @@ function drawStatusFx(e, x, y, r) {
   if (e.poison > 0) {
     ctx.globalAlpha = a0 * 0.3; ctx.fillStyle = '#8dff4a'; ctx.beginPath(); ctx.arc(x, y, r * 0.95, 0, TAU); ctx.fill();
     ctx.globalAlpha = a0;
-    ctx.strokeStyle = '#b5e48c'; ctx.lineWidth = Math.max(1, r * 0.07);
+    // (Batched: the bubbles share one path and one stroke.)
+    ctx.strokeStyle = '#b5e48c'; ctx.lineWidth = Math.max(1, r * 0.07); ctx.globalAlpha = a0 * 0.6; ctx.beginPath();
     for (let i = 0; i < 3; i++) {
-      const k = (t * 0.7 + i / 3 + id * 0.13) % 1, bx = x + Math.sin(i * 2.1 + id) * r * 0.6, by = y - r * 0.2 - k * r * 1.6;
-      ctx.globalAlpha = a0 * (1 - k); ctx.beginPath(); ctx.arc(bx, by, Math.max(1.2, r * (0.1 + 0.1 * k)), 0, TAU); ctx.stroke();
+      const k = (t * 0.7 + i / 3 + id * 0.13) % 1, bx = x + Math.sin(i * 2.1 + id) * r * 0.6, by = y - r * 0.2 - k * r * 1.6, br = Math.max(1.2, r * (0.1 + 0.1 * k));
+      ctx.moveTo(bx + br, by); ctx.arc(bx, by, br, 0, TAU);
     }
+    ctx.stroke();
     const dk = (t * 0.9 + id * 0.31) % 1;
     ctx.globalAlpha = a0 * (1 - dk); ctx.fillStyle = '#8dff4a'; ctx.beginPath(); ctx.ellipse(x + r * 0.3, y + r * (0.9 + dk), Math.max(1, r * 0.07), Math.max(1.5, r * 0.13), 0, 0, TAU); ctx.fill();
     ctx.globalAlpha = a0;
   }
   if (e.burn > 0) {
     // Solid flames (not additive) so they read on a pale slide too.
-    for (let i = 0; i < 5; i++) {
-      const an = -Math.PI / 2 + (i - 2) * 0.42, fx = x + Math.cos(an) * r * 0.8, fy = y + Math.sin(an) * r * 0.8;
-      const fl = r * (0.45 + 0.25 * Math.sin(t * 13 + i * 2.3 + id)), sw = Math.sin(t * 9 + i + id) * r * 0.12;
-      for (const [c, k] of [['#ff5a36', 1], ['#ffd166', 0.55]]) {
-        ctx.globalAlpha = a0 * 0.9; ctx.fillStyle = c; ctx.beginPath();
-        ctx.moveTo(fx - r * 0.16 * k, fy); ctx.quadraticCurveTo(fx - r * 0.14 * k, fy - fl * k, fx + sw, fy - fl * 1.5 * k); ctx.quadraticCurveTo(fx + r * 0.14 * k, fy - fl * k, fx + r * 0.16 * k, fy); ctx.closePath(); ctx.fill();
+    // (Batched: all five outer tongues in one fill, all five cores in another.)
+    ctx.globalAlpha = a0 * 0.9;
+    for (const [c, k] of [['#ff5a36', 1], ['#ffd166', 0.55]]) {
+      ctx.fillStyle = c; ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const an = -Math.PI / 2 + (i - 2) * 0.42, fx = x + Math.cos(an) * r * 0.8, fy = y + Math.sin(an) * r * 0.8;
+        const fl = r * (0.45 + 0.25 * Math.sin(t * 13 + i * 2.3 + id)), sw = Math.sin(t * 9 + i + id) * r * 0.12;
+        ctx.moveTo(fx - r * 0.16 * k, fy); ctx.quadraticCurveTo(fx - r * 0.14 * k, fy - fl * k, fx + sw, fy - fl * 1.5 * k); ctx.quadraticCurveTo(fx + r * 0.14 * k, fy - fl * k, fx + r * 0.16 * k, fy); ctx.closePath();
       }
+      ctx.fill();
     }
-    ctx.fillStyle = '#ffba08';
-    for (let i = 0; i < 3; i++) { const k = (t * 1.1 + i / 3 + id * 0.17) % 1; ctx.globalAlpha = a0 * (1 - k); ctx.beginPath(); ctx.arc(x + Math.sin(i * 3 + id + t) * r * 0.7, y - r - k * r * 1.8, Math.max(1, r * 0.06), 0, TAU); ctx.fill(); }
+    ctx.fillStyle = '#ffba08'; ctx.globalAlpha = a0 * 0.6; ctx.beginPath();
+    for (let i = 0; i < 3; i++) { const k = (t * 1.1 + i / 3 + id * 0.17) % 1, ex = x + Math.sin(i * 3 + id + t) * r * 0.7, ey = y - r - k * r * 1.8, er = Math.max(1, r * 0.06); ctx.moveTo(ex + er, ey); ctx.arc(ex, ey, er, 0, TAU); }
+    ctx.fill();
     ctx.globalAlpha = a0;
   }
   if (e.frozen > 0) {
@@ -213,7 +219,13 @@ function drawStatusFx(e, x, y, r) {
   } else if (e.chill > 0) {
     // Chilled: frost specks circling slowly.
     ctx.fillStyle = '#caf0f8';
-    for (let i = 0; i < 5; i++) { const an = t * 0.8 + i / 5 * TAU + id, rr = r * 1.15; ctx.globalAlpha = a0 * 0.85; ctx.save(); ctx.translate(x + Math.cos(an) * rr, y + Math.sin(an) * rr); ctx.rotate(t * 2 + i); const s = Math.max(1.5, r * 0.12); ctx.fillRect(-s, -s * 0.25, s * 2, s * 0.5); ctx.fillRect(-s * 0.25, -s, s * 0.5, s * 2); ctx.restore(); }
+    // Little crosses, turning; drawn as one path (no save/rotate per speck).
+    ctx.globalAlpha = a0 * 0.85; ctx.strokeStyle = '#caf0f8'; ctx.lineWidth = Math.max(1, r * 0.06); ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const an = t * 0.8 + i / 5 * TAU + id, rr = r * 1.15, cx = x + Math.cos(an) * rr, cy = y + Math.sin(an) * rr, s = Math.max(1.5, r * 0.12), ro = t * 2 + i, c = Math.cos(ro) * s, sn = Math.sin(ro) * s;
+      ctx.moveTo(cx - c, cy - sn); ctx.lineTo(cx + c, cy + sn); ctx.moveTo(cx + sn, cy - c); ctx.lineTo(cx - sn, cy + c);
+    }
+    ctx.stroke();
     ctx.globalAlpha = a0;
   }
   if (e.shock > 0) {

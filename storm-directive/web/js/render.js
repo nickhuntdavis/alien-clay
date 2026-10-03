@@ -249,8 +249,11 @@ function blurTile(src, px) {
 // Lens blur towards the screen edges: a quarter-resolution copy of the frame, masked to the rim.
 const DOF = { on: true, c: null, key: '' };
 try { DOF.on = localStorage.getItem('sd_dof') !== '0'; } catch (e) { /* storage unavailable */ }
+// The rim blur copies the finished frame back off the screen, which stalls a phone's GPU every frame, so
+// Android skips it (the out-of-focus foreground layer stays).
+const LENS_OK = !/Android/i.test(navigator.userAgent || '');
 function drawLensBlur() {
-  if (!DOF.on || QUAL.lv >= 1) return;
+  if (!DOF.on || !LENS_OK || QUAL.lv >= 1) return;
   const w = Math.max(1, Math.ceil(W / 4)), h = Math.max(1, Math.ceil(H / 4)), key = w + 'x' + h;
   if (DOF.key !== key) {
     DOF.key = key; DOF.c = makeCanvas(w, h);
@@ -418,11 +421,15 @@ function drawDecals(vis) {
     const a = Math.min(1, d.life / 4), x = sx(d.x), y = sy(d.y), r = d.r * S;
     ctx.globalAlpha = a * 0.22;
     ctx.drawImage(spr, x - r, y - r * 0.8, r * 2, r * 1.6);
-    if (d.color !== '#000') {
-      ctx.globalAlpha = a * 0.35; ctx.fillStyle = 'rgb(50,56,52)';
-      for (let i = 0; i < 4; i++) { const an = d.rot + i * 1.7, rr = r * (0.25 + (i % 2) * 0.3); ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an) * rr * 0.8, 1.5 + (i % 3), 0, TAU); ctx.fill(); }
-    }
   }
+  // The specks of everything that died here go in one path (one fill, not four per mark).
+  ctx.globalAlpha = 0.3; ctx.fillStyle = 'rgb(50,56,52)'; ctx.beginPath();
+  for (const d of G.decals) {
+    if (d.color === '#000' || d.life < 1 || !vis(d)) continue;
+    const x = sx(d.x), y = sy(d.y), r = d.r * S;
+    for (let i = 0; i < 4; i++) { const an = d.rot + i * 1.7, rr = r * (0.25 + (i % 2) * 0.3), cx = x + Math.cos(an) * rr, cy = y + Math.sin(an) * rr * 0.8, sr = 1.5 + (i % 3); ctx.moveTo(cx + sr, cy); ctx.arc(cx, cy, sr, 0, TAU); }
+  }
+  ctx.fill();
   ctx.globalAlpha = 1;
 }
 
@@ -433,8 +440,10 @@ function drawCore() {
   // against the zona) fading out into the looser cumulus cloud.
   const c = G.core, x = sx(c.x), y = sy(c.y), r = c.r * S, t = G.realT;
   const egg = G.fertile, dmg = egg ? 0.45 : 0; // the zona opens for the last sperm standing
-  if (!SPR.oocyte || SPR.oocyteR !== Math.round(r)) buildOocyte(r);
-  const O = SPR.oocyte, sz = O.width / (DPR > 1 ? Math.min(2, DPR) : 1);
+  // Built at a size step (about 12% apart) and scaled to fit, so zooming doesn't rebuild it every frame.
+  const rq = Math.max(8, Math.round(Math.pow(1.12, Math.round(Math.log(Math.max(8, r)) / Math.log(1.12)))));
+  if (!SPR.oocyte || SPR.oocyteR !== rq) buildOocyte(rq);
+  const O = SPR.oocyte, sz = O.width / (DPR > 1 ? Math.min(2, DPR) : 1) * (r / rq);
   ctx.save(); ctx.translate(x, y); ctx.rotate(t * 0.02);
   ctx.drawImage(O, -sz / 2, -sz / 2, sz, sz);
   ctx.restore();
@@ -1158,14 +1167,23 @@ function render() {
       ctx.fillStyle = '#5a3a00'; ctx.beginPath(); ctx.arc(x, y, r * 0.35, 0, TAU); ctx.fill();
       continue;
     }
-    const r = (g.v >= 20 ? 7 : g.v >= 5 ? 5.5 : 4) * S;
-    // Dark granules with a crisp edge, so they stand out on the pale slide.
-    const col = g.v >= 20 ? '#7a5a00' : g.v >= 5 ? '#14594a' : '#0f3d55';
-    ctx.fillStyle = col;
-    ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = 'rgb(12,14,16)'; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r * 0.5, y - r * 0.2); ctx.lineTo(x, y); ctx.fill();
   }
+  // XP granules: dark diamonds with a crisp edge and a glint, so they stand out on the pale slide.
+  // Batched by size (one fill per colour, one outline, one glint) rather than three draws per granule.
+  const GEM_TIERS = [[20, 7, '#7a5a00'], [5, 5.5, '#14594a'], [0, 4, '#0f3d55']];
+  const gemOf = g => (g.v >= 20 ? 0 : g.v >= 5 ? 1 : 2);
+  const diamond = (x, y, r) => { ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.closePath(); };
+  const gemVis = G.gems.filter(g => g.kind !== 's' && vis(g));
+  ctx.strokeStyle = 'rgb(12,14,16)'; ctx.lineWidth = 1;
+  for (let ti = 0; ti < 3; ti++) {
+    const r = GEM_TIERS[ti][1] * S; let any = false;
+    ctx.beginPath();
+    for (const g of gemVis) if (gemOf(g) === ti) { diamond(sx(g.x), sy(g.y), r); any = true; }
+    if (any) { ctx.fillStyle = GEM_TIERS[ti][2]; ctx.fill(); ctx.stroke(); }
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath();
+  for (const g of gemVis) { const r = GEM_TIERS[gemOf(g)][1] * S, x = sx(g.x), y = sy(g.y); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r * 0.5, y - r * 0.2); ctx.lineTo(x, y); ctx.closePath(); }
+  ctx.fill();
   // Pickups: temporary power-ups are monitor magenta; DNA strands (loot) are gold.
   for (const u of G.pickups) {
     if (!vis(u)) continue;
@@ -1331,7 +1349,7 @@ function render() {
   }
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   // Enemies. (Lower quality with a crowd: common enemies skip their halo and surface detail.)
-  const lod = QUAL.lv >= 2 && G.enemies.length > 90;
+  const lod = (QUAL.lv >= 1 && G.enemies.length > 90) || G.enemies.length > 170;
   for (const e of G.enemies) {
     if (!vis(e) || e.egg) continue;
     const plain = !e.elite && !e.boss && !e.rival && !e.charmed;
@@ -1883,9 +1901,16 @@ function bakeSheet(bw, bh, round, seed) {
 }
 function filmPanel(x, y, w, h, round) {
   const bx = round ? x - w : x, by = round ? y - w : y, bw = Math.round(round ? w * 2 : w), bh = Math.round(round ? w * 2 : h);
-  const key = bw + 'x' + bh + (round ? 'o' : '');
+  // Sizes are baked in steps (and stretched the last few pixels), so a chip whose text changes width every
+  // second (a countdown, BEHIND PACE) reuses one bake instead of baking a new panel each time.
+  const qw = round ? bw : Math.max(8, Math.ceil(bw / 16) * 16), qh = round ? bh : Math.max(8, Math.ceil(bh / 4) * 4);
+  const key = qw + 'x' + qh + (round ? 'o' : '');
   let set = SHEETS.get(key);
-  if (!set) { set = [0, 1, 2].map(i => bakeSheet(bw, bh, round, i + 1)); SHEETS.set(key, set); if (SHEETS.size > 60) SHEETS.clear(); }
+  if (set) { SHEETS.delete(key); SHEETS.set(key, set); } // most recently used goes to the back
+  else {
+    set = [0, 1, 2].map(i => bakeSheet(qw, qh, round, i + 1)); SHEETS.set(key, set);
+    if (SHEETS.size > 80) SHEETS.delete(SHEETS.keys().next().value); // drop the least recently used, not the lot
+  }
   const f = set[Math.floor(G.realT * 8) % 3];
   const sb = ctx.shadowColor; ctx.shadowColor = 'rgba(0,0,0,0)';
   ctx.drawImage(f.c, bx - f.pad, by - f.pad, bw + f.pad * 2, bh + f.pad * 2);
@@ -2225,7 +2250,7 @@ function drawPill() {
 const RF = { a: null, b: null, key: '' };
 function drawRefocus() {
   const k = refocusLeft();
-  if (k <= 0 || !ZOOM.defocus) return;
+  if (k <= 0 || !ZOOM.defocus || !LENS_OK) return; // (copies the frame back: skipped on Android, like the rim blur)
   const t = 1 - k, d = ZOOM.defocus * k * k * (0.8 + 0.2 * Math.cos(t * 20));
   if (d < 0.03) return;
   const w1 = Math.max(1, Math.ceil(W / 4)), h1 = Math.max(1, Math.ceil(H / 4)), w2 = Math.max(1, Math.ceil(W / 12)), h2 = Math.max(1, Math.ceil(H / 12)), key = w1 + 'x' + h1;
