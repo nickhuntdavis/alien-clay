@@ -915,7 +915,7 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
 }
 
 function killEnemy(e, src) {
-  if (e.rival) { casaLog(`${e.name} eliminated`); rivalDown(e); return; }
+  if (e.rival) { if (rivalSurvives(e)) return; casaLog(`${e.name} eliminated`); rivalDown(e); return; }
   if (e.egg) { e.dead = true; G.eggE = null; spawnPart(e.x, e.y, '#ffd6e8', 60, 320, 0.9, 6); cam.shake = 16; victory(); return; }
   e.dead = true;
   G.kills++;

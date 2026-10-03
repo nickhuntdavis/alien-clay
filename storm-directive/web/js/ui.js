@@ -641,9 +641,35 @@ const UI = {
     clearTimeout(UI.biTimer);
     UI.biTimer = setTimeout(() => box.classList.add('ready'), 1500);
   },
+  // A named rival, the first time you ever meet them: who they are, five attributes and two specialities.
+  openRivalIntro(e) {
+    const R = e.R, box = $('bossIntro'), met = RIVALS.filter(r => META.seen && META.seen['rival_' + r.id]).length;
+    box.classList.add('foe');
+    box.style.setProperty('--bc', R.color);
+    $('biCount').innerHTML = `RIVAL SWIMMER <span>${met} OF ${RIVALS.length} MET</span>`;
+    $('biTitle').textContent = R.nick;
+    $('biName').textContent = R.name;
+    $('biQuote').textContent = '"' + R.quote + '"';
+    $('biDesc').innerHTML = `${esc(R.bio)}${UI.rivalBars(R)}`;
+    box.querySelector('.bi-col.str h4').textContent = 'SPECIALITIES';
+    box.querySelector('.bi-col.weak').style.display = '';
+    box.querySelector('.bi-col.weak h4').textContent = 'HOW TO BEAT THEM';
+    $('biStr').innerHTML = R.specs.map((x, i) => `<li style="animation-delay:${(0.9 + i * 0.18).toFixed(2)}s"><b>${esc(x.name)}</b>: ${esc(x.desc)}</li>`).join('');
+    $('biWeak').innerHTML = `<li style="animation-delay:1.3s">${esc(R.tip)}</li>`;
+    const rr = RIVAL_RELICS[R.id];
+    $('biReward').innerHTML = rr ? 'Knock them out and choose one relic: ' + rr.map(id => `<b>${esc(RELICS[id].name)}</b>`).join(' or ') + '.' : '';
+    box.classList.remove('ready');
+    box.querySelectorAll('.bi-bar, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+    UI.show('bossIntro');
+    clearTimeout(UI.biTimer);
+    UI.biTimer = setTimeout(() => box.classList.add('ready'), 1800);
+  },
+  rivalBars(R) {
+    return `<div class="rbars">${RIVAL_ATTRS.map((a, i) => `<span>${a}</span><div class="dbar">${Array.from({ length: 5 }, (_, k) => `<i class="${k < R.attrs[i] ? 'on' : ''}"></i>`).join('')}</div>`).join('')}</div>`;
+  },
   openBossIntro(e, idx) {
     const d = e.def, box = $('bossIntro');
-    box.classList.remove('foe'); box.querySelector('.bi-col.str h4').textContent = 'STRENGTHS'; box.querySelector('.bi-col.weak').style.display = '';
+    box.classList.remove('foe'); box.querySelector('.bi-col.str h4').textContent = 'STRENGTHS'; box.querySelector('.bi-col.weak').style.display = ''; box.querySelector('.bi-col.weak h4').textContent = 'WEAKNESSES';
     box.style.setProperty('--bc', d.color);
     const n = G.bossRoster.length, pips = Array.from({ length: n }, (_, i) => `<i class="${i < idx % n ? 'done' : i === idx % n ? 'now' : ''}"></i>`).join('');
     $('biCount').innerHTML = `BOSS ${idx % n + 1} OF ${n} THIS RUN ${pips} <span>${BOSSES.length} IN THE WARD${idx >= n ? ' | ROUND ' + (Math.floor(idx / n) + 1) : ''}</span>`;
@@ -1060,6 +1086,12 @@ const UI = {
         const d = ENEMIES[id], I = ENEMY_INTRO[id], m = META.seen && META.seen[id];
         l += `<div class="li"><b${m ? ` style="color:${col(d.color)}"` : ''}>${m ? esc(d.name) : '???'}</b><br><span>${m ? esc(I.what) + ' <i>' + esc(I.tip) + '</i>' : 'Not met yet.'}</span></div>`;
       }
+      let rv = '';
+      for (const R of RIVALS) {
+        const m = META.seen && META.seen['rival_' + R.id];
+        rv += `<div class="li"><b${m ? ` style="color:${R.color}"` : ''}>${m ? esc(R.name) : '???'}</b>${m ? ' <em>' + esc(R.nick) + '</em>' : ''}<br><span>${m ? esc(R.bio) + UI.rivalBars(R) + R.specs.map(x => '<b>' + esc(x.name) + '</b>: ' + esc(x.desc)).join('<br>') + '<br><i>' + esc(R.tip) + '</i>' : 'Not met yet.'}</span></div>`;
+      }
+      h += box(`Rivals (${RIVALS.filter(R => META.seen && META.seen['rival_' + R.id]).length}/${RIVALS.length} met)`, `<div class="list">${rv}</div>`, 'The other swimmers in the race, with their specialities.');
       h += box(`Enemies (${beasts}/${Object.keys(ENEMY_INTRO).length} met)`, `<div class="list">${l}</div>`, 'Every enemy type you have met, with how to beat it. Settings > Tutorial lets you meet them again.');
     }
     if (show('bosses')) {

@@ -1,6 +1,7 @@
 'use strict';
 // Spawn Prawn - first sightings. The first time you ever see an enemy type, the slide stops and it gets a
 // short version of the boss treatment: the camera swims over, it flinches, and its file card comes up.
+// Named rivals get the same, with their personality, attributes and specialities.
 // Once ever (saved in META.seen), not once a run. Settings > Tutorial resets it. Bosses always get the
 // full introduction (bosses.js). Everything you've met goes in the Codex.
 
@@ -50,6 +51,13 @@ function introTick() {
   if (G.t < 3 || G.t < (G.introNext || 0) || G.introCheck > G.t) return;
   G.introCheck = G.t + 0.5;
   for (const e of onScreen(999)) {
+    // Named rivals get their own introduction, once ever (key 'rival_<id>').
+    if (e.rival && !e.final && e.R && e.R.nick && !seenFoe('rival_' + e.R.id)) {
+      markSeen('rival_' + e.R.id);
+      G.introNext = G.t + INTRO_GAP;
+      startFoeIntro(e, e.R.id, true);
+      return;
+    }
     if (e.dead || e.boss || e.rival || e.final || e.egg || e.charmed || e.hired || e.bossDef) continue;
     const id = introKey(e);
     if (!id || seenFoe(id) || !ENEMY_INTRO[id]) continue;
@@ -59,12 +67,12 @@ function introTick() {
     return;
   }
 }
-function startFoeIntro(e, id) {
-  G.bossIntro = { e, t: 0, idx: 0, roar: false, z0: ZOOM.z, foe: id };
+function startFoeIntro(e, id, rival) {
+  G.bossIntro = { e, t: 0, idx: 0, roar: false, z0: ZOOM.z, foe: id, rival: !!rival };
   G.state = 'bossIntro';
   INPUT.active = false; G.manual = null;
   sfx('level'); vibrate(60);
-  if (typeof UI !== 'undefined') UI.openFoeIntro(e, id);
+  if (typeof UI !== 'undefined') { if (rival) UI.openRivalIntro(e); else UI.openFoeIntro(e, id); }
 }
 // Settings > Tutorial: see the introductions (and the first-time tips) again.
 function resetTutorial() { META.seen = {}; saveMeta(); }

@@ -870,3 +870,9 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 .yslot span { color: #a3aea9; font-size: 11px; line-height: 1.4; }
 .you-rest h3 { margin-top: 10px; }
 .you-rest h3:first-child { margin-top: 0; }
+/* Rival attributes: five bars (intro card and Codex). */
+.rbars { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; margin: 8px 0 6px; max-width: 280px; }
+.rbars span { font-family: var(--mono, ui-monospace, monospace); font-size: 10px; letter-spacing: 1px; color: #a3aea9; }
+.rbars .dbar { display: flex; gap: 3px; } .rbars .dbar i { flex: 1; height: 7px; background: #ffffff14; border-radius: 1px; }
+.rbars .dbar i.on { background: var(--bc, #5fd4e8); box-shadow: 0 0 6px var(--bc, #5fd4e8); }
+.li .rbars .dbar i.on { background: #d9e2ec; box-shadow: none; }

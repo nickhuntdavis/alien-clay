@@ -790,12 +790,41 @@ const OBSTACLES = {
 // ---------------------------------------------------------------- Rival champions
 // Other would-be babies grow elsewhere on the map. First to level 60 to break the membrane wins.
 // skill: how fast they grow. aggro: how keen they are to come and pick a fight with you.
+// Each rival has a personality, five attributes (1 to 5: SPEED, TOUGHNESS, FIREPOWER, AGGRESSION, GROWTH)
+// and two specialities that change how they fight (rivals.js). mod: their body against the standard rival.
+// You meet each one properly once ever, on first sighting (intro.js).
+const RIVAL_ATTRS = ['SPEED', 'TOUGHNESS', 'FIREPOWER', 'AGGRESSION', 'GROWTH'];
 const RIVALS = [
-  { id: 'steve',  name: 'Big Steve',          color: '#ffb347', skill: 1.10, aggro: 0.6, title: 'Has been doing laps since the Tuesday before last' },
-  { id: 'chad',   name: 'Chad Flagellum',     color: '#9ef01a', skill: 1.00, aggro: 0.9, title: 'Has a protein shake named after him' },
-  { id: 'wiggles',name: 'Professor Wiggles',  color: '#c77dff', skill: 1.15, aggro: 0.2, title: 'Holds a doctorate in swimming, self-awarded' },
-  { id: 'zygo',   name: "Lil' Zygo",          color: '#ff5d8f', skill: 0.90, aggro: 0.7, title: 'Small, angry, surprisingly aerodynamic' },
-  { id: 'kevin',  name: 'Kevin',              color: '#ffe94a', skill: 0.95, aggro: 0.4, title: 'Just Kevin' },
+  { id: 'steve',  name: 'Big Steve',          color: '#ffb347', skill: 1.10, aggro: 0.6, title: 'Has been doing laps since the Tuesday before last',
+    nick: 'THE MARATHON MAN', quote: 'It is not a race. Well, it is. But I pace myself.',
+    bio: 'Steady, polite and impossible to shake off. Never sprints, never stops, and has a split time for everything.',
+    attrs: [4, 3, 2, 3, 4], mod: { hp: 1, speed: 1.2 },
+    specs: [{ name: 'Pacing', desc: 'Swims 20% faster than other rivals.' }, { name: 'Second Wind', desc: 'Starts healing after 2 quiet seconds (not 4), twice as fast.' }],
+    tip: 'Chip damage is wasted on him. Save your burst and finish him in one go.' },
+  { id: 'chad',   name: 'Chad Flagellum',     color: '#9ef01a', skill: 1.00, aggro: 0.9, title: 'Has a protein shake named after him',
+    nick: 'THE GYM BRO', quote: 'Never skip tail day.',
+    bio: 'Loud, huge and always looking for a fight. Thinks every other swimmer is checking him out. They are not.',
+    attrs: [2, 5, 3, 5, 3], mod: { hp: 1.3, speed: 0.9, contact: 1.5 },
+    specs: [{ name: 'Bulking', desc: '30% more HP, 10% slower, and running into him hurts 50% more.' }, { name: 'Shoulder Barge', desc: 'When he is close, he plants himself, glows, then charges straight at you.' }],
+    tip: 'When he stops and glows, sidestep. He can\'t turn mid-barge.' },
+  { id: 'wiggles',name: 'Professor Wiggles',  color: '#c77dff', skill: 1.15, aggro: 0.2, title: 'Holds a doctorate in swimming, self-awarded',
+    nick: 'THE ACADEMIC', quote: 'Fascinating. Please hold still while I shoot you.',
+    bio: 'Would rather study you than fight you. Farms the immune system from a safe distance and writes it all down.',
+    attrs: [3, 2, 4, 1, 5], mod: { hp: 0.85, zapN: 5, zapR: 1.3 },
+    specs: [{ name: 'Field Research', desc: 'Clears enemies in a wider circle, five at a time, so he grows fastest.' }, { name: 'Sabbatical', desc: 'Duels from long range. When badly hurt, he vanishes and reappears far away (every 20s at most).' }],
+    tip: 'He is fragile up close. Get in his face, and chase him early before he outgrows you.' },
+  { id: 'zygo',   name: "Lil' Zygo",          color: '#ff5d8f', skill: 0.90, aggro: 0.7, title: 'Small, angry, surprisingly aerodynamic',
+    nick: 'THE TANTRUM', quote: 'WHO ARE YOU LOOKING AT.',
+    bio: 'Smallest swimmer in the race and furious about it. Too angry to run away, ever.',
+    attrs: [5, 1, 3, 4, 2], mod: { hp: 0.75, speed: 1.3, r: 0.8 },
+    specs: [{ name: 'Small Target', desc: '20% smaller, 30% faster, 25% less HP.' }, { name: 'Tantrum', desc: 'Never runs away. Below half HP he fires twice as often.' }],
+    tip: 'One big hit does it. Don\'t let him reach half HP at close range.' },
+  { id: 'kevin',  name: 'Kevin',              color: '#ffe94a', skill: 0.95, aggro: 0.4, title: 'Just Kevin',
+    nick: 'JUST KEVIN', quote: 'Hi. I\'m Kevin.',
+    bio: 'Completely average in every way. Nobody knows how he got this far. Nobody knows how he keeps getting this far.',
+    attrs: [3, 3, 3, 3, 3], mod: {},
+    specs: [{ name: 'Unremarkable', desc: 'Nothing special about him at all.' }, { name: 'Somehow Fine', desc: 'The first time you knock him out, he gets back up with 30% HP and swims off.' }],
+    tip: 'You have to beat him twice. Don\'t stop shooting when he goes down.' },
 ];
 // Rival relics: knock a named rival out of the race and choose one of two relics themed on them.
 const RIVAL_RELICS = {

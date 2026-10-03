@@ -1428,13 +1428,15 @@ Named rivals race you to the egg. When the sperm count reaches 6, the strongest 
 
 Knock a named rival out of the race and you choose one of their two relics.
 
-| Rival | Growth speed | Aggression | Bio | Relics (choose one) |
-|---|---|---|---|---|
-| **Big Steve** | x1.1 | 0.6 | Has been doing laps since the Tuesday before last | **Personal Best**: +20% swim speed, and +10% dodge while you are swimming fast.<br>**Marathon**: While you keep swimming fast you heal 1% of your max HP every second. |
-| **Chad Flagellum** | x1 | 0.9 | Has a protein shake named after him | **Gains**: +30% max HP (and heal it).<br>**Head Coach**: +2 Headstrong: enemies you swim into take big damage. |
-| **Professor Wiggles** | x1.15 | 0.2 | Holds a doctorate in swimming, self-awarded | **Honorary Degree**: +25% XP for the rest of the run.<br>**Thesis Defence**: Your crits hit 75% harder. |
-| **Lil' Zygo** | x0.9 | 0.7 | Small, angry, surprisingly aerodynamic | **Small Mercies**: Your hitbox is 25% smaller, so more bullets miss you.<br>**Throwing a Wobbly**: Below half health: take 20% less damage and deal 24% more. |
-| **Kevin** | x0.95 | 0.4 | Just Kevin | **Just Kevin**: A little of everything: +6% damage, fire rate, swim speed, max HP and crit chance.<br>**Kevin's Mum**: Every 45s she drops off a power-up next to you. She worries. |
+The first time you ever meet each named rival, the slide stops to introduce them: personality, five attributes (1 to 5) and two specialities that change how they fight.
+
+| Rival | Growth speed | Aggression | Speed / Tough / Fire / Aggro / Growth | Specialities | How to beat them | Relics (choose one) |
+|---|---|---|---|---|---|---|
+| **Big Steve** (THE MARATHON MAN) | x1.1 | 0.6 | 4 / 3 / 2 / 3 / 4 | **Pacing**: Swims 20% faster than other rivals.<br>**Second Wind**: Starts healing after 2 quiet seconds (not 4), twice as fast. | Chip damage is wasted on him. Save your burst and finish him in one go. | **Personal Best**: +20% swim speed, and +10% dodge while you are swimming fast.<br>**Marathon**: While you keep swimming fast you heal 1% of your max HP every second. |
+| **Chad Flagellum** (THE GYM BRO) | x1 | 0.9 | 2 / 5 / 3 / 5 / 3 | **Bulking**: 30% more HP, 10% slower, and running into him hurts 50% more.<br>**Shoulder Barge**: When he is close, he plants himself, glows, then charges straight at you. | When he stops and glows, sidestep. He can't turn mid-barge. | **Gains**: +30% max HP (and heal it).<br>**Head Coach**: +2 Headstrong: enemies you swim into take big damage. |
+| **Professor Wiggles** (THE ACADEMIC) | x1.15 | 0.2 | 3 / 2 / 4 / 1 / 5 | **Field Research**: Clears enemies in a wider circle, five at a time, so he grows fastest.<br>**Sabbatical**: Duels from long range. When badly hurt, he vanishes and reappears far away (every 20s at most). | He is fragile up close. Get in his face, and chase him early before he outgrows you. | **Honorary Degree**: +25% XP for the rest of the run.<br>**Thesis Defence**: Your crits hit 75% harder. |
+| **Lil' Zygo** (THE TANTRUM) | x0.9 | 0.7 | 5 / 1 / 3 / 4 / 2 | **Small Target**: 20% smaller, 30% faster, 25% less HP.<br>**Tantrum**: Never runs away. Below half HP he fires twice as often. | One big hit does it. Don't let him reach half HP at close range. | **Small Mercies**: Your hitbox is 25% smaller, so more bullets miss you.<br>**Throwing a Wobbly**: Below half health: take 20% less damage and deal 24% more. |
+| **Kevin** (JUST KEVIN) | x0.95 | 0.4 | 3 / 3 / 3 / 3 / 3 | **Unremarkable**: Nothing special about him at all.<br>**Somehow Fine**: The first time you knock him out, he gets back up with 30% HP and swims off. | You have to beat him twice. Don't stop shooting when he goes down. | **Just Kevin**: A little of everything: +6% damage, fire rate, swim speed, max HP and crit chance.<br>**Kevin's Mum**: Every 45s she drops off a power-up next to you. She worries. |
 
 ## Terrain
 

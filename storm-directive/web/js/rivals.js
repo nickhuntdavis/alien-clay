@@ -32,16 +32,21 @@ function makeRival(R, x, y) {
 function rivalStats(e, heal) {
   const L = e.lvl, t = PT();
   const rel = Math.pow(Math.min(1.5, L / Math.max(1, G.level)), 1.5);
-  const maxHp = (RIVAL.hpBase * hpMul(t) * (1 + L / 7) + (G.dpsAvg || 0) * RIVAL.duel * rel) * (e.final ? 1.4 : 1); // the Final Five are built to last
+  const M = rivalMod(e);
+  const maxHp = (RIVAL.hpBase * hpMul(t) * (1 + L / 7) + (G.dpsAvg || 0) * RIVAL.duel * rel) * (e.final ? 1.4 : 1) * (M.hp || 1); // the Final Five are built to last
   const k = e.maxHp > 0 ? e.hp / e.maxHp : 1;
   e.maxHp = maxHp;
   e.hp = Math.min(maxHp, maxHp * Math.min(1, k + heal));
   e.armour = 2 + Math.floor(L / 8);
-  e.r = 14 + L * 0.28;
-  e.speed = RIVAL.speed * (1 + L / 90);
+  e.r = (14 + L * 0.28) * (M.r || 1);
+  e.speed = RIVAL.speed * (1 + L / 90) * (M.speed || 1);
   e.dmg = 10 * dmgMul(t) * (1 + L / 40);
   e.lastHp = e.hp;
 }
+
+// A rival's body against the standard one (their personality, data.js RIVALS). Stand-ins have none.
+const rivalMod = e => (e.R && e.R.mod) || {};
+const rivalIs = (e, id) => !!(e.R && e.R.id === id);
 
 function rivalGrow(e, dt) {
   if (e.lvl >= EGG.level) return;
@@ -70,11 +75,13 @@ function rivalAI(e, dt) {
   e.vis = dist < 900;
   rivalGrow(e, dt);
   // Regenerate after a few quiet seconds.
-  if (e.hp < e.lastHp - 0.5) e.calmT = 4;
+  const steve = rivalIs(e, 'steve');
+  if (e.hp < e.lastHp - 0.5) e.calmT = steve ? 2 : 4; // Second Wind
   e.calmT -= dt;
-  if (e.calmT <= 0 && e.hp < e.maxHp && !e.final) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.02 * dt);
+  if (e.calmT <= 0 && e.hp < e.maxHp && !e.final) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * (steve ? 0.04 : 0.02) * dt);
   e.lastHp = e.hp;
   if (e.frozen > 0) { rivalMove(e, 0, 0, 0, dt); return; }
+  if (rivalBarge(e, dx, dy, dist, dt)) return;
   e.modeT -= dt;
   let tx = e.wx, ty = e.wy, spd = e.speed * (G.pill && inPill(e.x, e.y) ? 0.65 : 1);
   const hurt = e.hp < e.maxHp * 0.3;
@@ -88,9 +95,11 @@ function rivalAI(e, dt) {
     if (e.modeT <= 0 || dist > RIVAL.sight) { e.mode = 'roam'; newWaypoint(e); }
   } else if (e.mode === 'hunt') {
     // Circle you at shooting range.
-    const want = 250, side = e.side;
+    const want = rivalIs(e, 'wiggles') ? 380 : 250, side = e.side;
     tx = p.x - dx / dist * want - dy / dist * 120 * side; ty = p.y - dy / dist * want + dx / dist * 120 * side;
-    if (hurt) { e.mode = 'flee'; e.modeT = 8; rivalNews(e, `${e.name} is running away. Coward. Chase them if you're feeling mean.`); }
+    if (hurt && rivalIs(e, 'zygo')) { /* Tantrum: too angry to run */ }
+    else if (hurt && rivalIs(e, 'wiggles') && !(e.blinkT > G.t)) rivalBlink(e, dx, dy, dist);
+    else if (hurt) { e.mode = 'flee'; e.modeT = 8; rivalNews(e, `${e.name} is running away. Coward. Chase them if you're feeling mean.`); }
     else if (e.modeT <= 0 || dist > RIVAL.sight * 1.3) { e.mode = 'roam'; newWaypoint(e); }
   } else {
     if (Math.hypot(e.wx - e.x, e.wy - e.y) < 60 || e.modeT <= 0) newWaypoint(e);
@@ -108,7 +117,7 @@ function rivalAI(e, dt) {
   const mx = tx - e.x, my = ty - e.y, md = Math.hypot(mx, my);
   rivalMove(e, md > 4 ? mx / md : 0, md > 4 ? my / md : 0, Math.min(spd, md / Math.max(dt, 1e-3)), dt);
   // Contact.
-  if (dist < e.r + p.r && G.state === 'play') hurtPlayer(e.dmg, e.name, e, 'contact');
+  if (dist < e.r + p.r && G.state === 'play') hurtPlayer(e.dmg * (rivalMod(e).contact || 1), e.name, e, 'contact');
   // Weapons: zap monsters nearby (stealing your XP), shoot you when you're in range.
   e.zapT -= dt;
   if (e.zapT <= 0) { e.zapT = 0.7; rivalZap(e); }
@@ -116,7 +125,7 @@ function rivalAI(e, dt) {
   // Early on they mind their own business unless you start something.
   const riled = G.t > RIVAL.huntFrom || e.hp < e.maxHp * 0.95;
   if (e.shootCd <= 0 && dist < 520 && riled && G.state === 'play') {
-    e.shootCd = e.final ? 1.6 : e.mode === 'hunt' ? 1.1 : 1.8;
+    e.shootCd = (e.final ? 1.6 : e.mode === 'hunt' ? 1.1 : 1.8) * (rivalIs(e, 'zygo') && e.hp < e.maxHp * 0.5 ? 0.5 : 1); // Tantrum
     // Late-game rivals were the deadliest thing on the slide: their fans grow more slowly now and each bullet
     // gains less from the rival's level (about a third less fire at level 50).
     const n = Math.min(e.final ? 4 : 6, 1 + Math.floor(e.lvl / 14)), a0 = Math.atan2(dy, dx), bd = 7 * dmgNow() * (1 + e.lvl / 60) * (e.final ? 1.2 : 1);
@@ -145,7 +154,8 @@ function rivalMove(e, ux, uy, spd, dt) {
 // Rivals clear monsters around themselves. Those kills feed them, not you.
 function rivalZap(e) {
   let n = 0;
-  forNear(e.x, e.y, RIVAL.zapR, o => {
+  const M = rivalMod(e), cap = M.zapN || 3;
+  forNear(e.x, e.y, RIVAL.zapR * (M.zapR || 1), o => {
     if (o === e || o.rival || o.egg || o.boss || o.charmed || o.dead) return false;
     const d = o.maxHp * (0.25 + e.lvl / 200);
     o.hp -= d; o.flash = 0.07;
@@ -155,8 +165,54 @@ function rivalZap(e) {
       if (e.vis) spawnPart(o.x, o.y, o.color, 6, 120, 0.4, 3);
       if (o.def.split) for (let i = 0; i < 2 && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(ENEMIES[o.def.split], o.x + rand(-12, 12), o.y + rand(-12, 12)));
     }
-    return ++n >= 3;
+    return ++n >= cap;
   });
+}
+
+// Chad's Shoulder Barge: when he is close, he plants himself and glows (0.6s), then charges in a straight
+// line. Returns true while it is happening (it replaces his normal movement).
+function rivalBarge(e, dx, dy, dist, dt) {
+  if (!rivalIs(e, 'chad') || e.frozen > 0) return false;
+  e.bargeCd = (e.bargeCd == null ? 3 : e.bargeCd) - dt;
+  if (e.bargeWind > 0) {
+    e.bargeWind -= dt; e.flash = Math.max(e.flash, 0.04);
+    if (e.vis && Math.random() < dt * 8) ring(e.x, e.y, e.r * 1.8, e.color, 0.3, 2);
+    if (e.bargeWind <= 0) { e.bargeT = 0.55; e.bargeA = Math.atan2(dy, dx); if (e.vis) sfx('zap'); }
+    rivalMove(e, 0, 0, 0, dt); return true;
+  }
+  if (e.bargeT > 0) {
+    e.bargeT -= dt;
+    rivalMove(e, Math.cos(e.bargeA), Math.sin(e.bargeA), e.speed * 3.6, dt);
+    const p = me();
+    if (Math.hypot(p.x - e.x, p.y - e.y) < e.r + p.r && G.state === 'play') { hurtPlayer(e.dmg * 1.5, e.name + ' (Shoulder Barge)', e, 'contact'); e.bargeT = 0; }
+    return true;
+  }
+  if (e.bargeCd <= 0 && dist < 340 && dist > 60 && (e.mode === 'hunt' || e.final) && G.state === 'play') {
+    e.bargeCd = e.final ? 6 : 5; e.bargeWind = 0.6;
+    if (e.vis) floatText(e.x, e.y - e.r - 18, 'BARGE!', e.color, 14, 0.7);
+    return true;
+  }
+  return false;
+}
+// Professor Wiggles' Sabbatical: badly hurt, he vanishes and reappears far from you.
+function rivalBlink(e, dx, dy, dist) {
+  e.blinkT = G.t + 20;
+  if (e.vis) { ring(e.x, e.y, e.r * 2.5, e.color, 0.5, 3); spawnPart(e.x, e.y, e.color, 14, 200, 0.5, 3); }
+  e.x -= dx / dist * 450; e.y -= dy / dist * 450;
+  rivalMove(e, 0, 0, 0, 0.001);
+  ring(e.x, e.y, e.r * 2.5, e.color, 0.5, 3);
+  e.mode = 'flee'; e.modeT = 6;
+  rivalNews(e, `${e.name} has gone on sabbatical. He'll be back.`);
+}
+// Kevin's Somehow Fine: the first knockout doesn't take. From killEnemy, before rivalDown.
+function rivalSurvives(e) {
+  if (!rivalIs(e, 'kevin') || e.fine || e.final) return false;
+  e.fine = true; e.dead = false; e.hp = e.maxHp * 0.3; e.lastHp = e.hp;
+  e.mode = 'flee'; e.modeT = 8;
+  ring(e.x, e.y, e.r * 3, e.color, 0.6, 4);
+  floatText(e.x, e.y - e.r - 22, 'KEVIN IS FINE', e.color, 16, 1.4);
+  rivalNews(e, 'Kevin is fine. Somehow. He is swimming off.', true);
+  return true;
 }
 
 // Called from killEnemy when you (or your weapons, echoes and allies) finish off a rival.
