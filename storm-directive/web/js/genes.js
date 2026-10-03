@@ -10,7 +10,7 @@
 // ================================================================ Epigenetic Profiles
 // k is the trait's strength: 1 at Rank 1 as your Primary Sequence, half that when spliced in, doubling with
 // each rank. Every apply() is additive, so a trait can be taken off again (-k) and re-applied.
-const PROFILE_RANKS = [0, 5000, 25000]; // kills while expressed: Rank 2 at 5,000, Rank 3 after 20,000 more
+const PROFILE_RANKS = [0, 12000, 60000]; // kills while expressed: Rank 2 at 12,000 (about a run and a half), Rank 3 at 60,000 (about six runs)
 const PROFILES = {
   vanguard: { name: 'The Firstborn', trait: 'Quick Recovery', fmt: k => `+${pc(0.12 * k)} reload speed`, apply: (P, k) => { P.reloadSpd += 0.12 * k; },
     desc: 'The default sequence. Simple, honest flagellar violence.', weapons: ['blaster', 'seeker', 'glaive'] },
@@ -41,10 +41,13 @@ const PROFILE_SYNERGIES = [
   { a: 'bruiser', b: 'pusher', name: 'Comfort Eating', desc: 'Below half health, your regeneration doubles (and you get +1 HP/s).' },
   { a: 'bruiser', b: 'acid', name: 'Blowout', desc: 'Nappy Mines leave a burning puddle where they go off.' },
   { a: 'eggseeker', b: 'stealth', name: 'First Impressions', desc: 'Hits on enemies at full health always crit.' },
+  { a: 'splicer', b: 'eggseeker', name: 'Fresh Frozen', desc: 'Frozen or chilled enemies take 30% more damage from you.' },
+  { a: 'splicer', b: 'pusher', name: 'Batch Cooking', desc: 'Cold Storage heals you 3% of your max HP for every enemy it freezes (up to 15%).' },
 ];
 const profUnlocked = id => { const u = PROFILES[id].unlock; return !u || u.have() >= u.need; };
 const profKills = id => (META.prof[id] && META.prof[id].kills) || 0;
-const profRank = id => profKills(id) >= PROFILE_RANKS[2] ? 3 : profKills(id) >= PROFILE_RANKS[1] ? 2 : 1;
+// Ranks already earned under the old, lower thresholds (5,000 and 25,000) are kept (see meta.js: keep).
+const profRank = id => Math.max(profKills(id) >= PROFILE_RANKS[2] ? 3 : profKills(id) >= PROFILE_RANKS[1] ? 2 : 1, (META.prof[id] && META.prof[id].keep) || 1);
 const genesOn = id => !!(G && G.genes && G.genes.active.includes(id));
 const synOn = (a, b) => genesOn(a) && genesOn(b);
 function profK(id, primary) { return [1, 2, 4][profRank(id) - 1] * (primary ? 1 : 0.5); }
@@ -103,7 +106,7 @@ const MUTATIONS = {
   tasernoodle: { tier: 1, name: 'Pass the Parcel', desc: 'Shocked enemies pass a jolt to a neighbour every second.' },
   combustion:  { tier: 1, name: 'Flare-Up', desc: 'Burning enemies can burst (about 1 in 10 each second) in a small fiery blast.' },
   coldshoulder:{ tier: 0, name: 'Catching a Chill', desc: 'Frozen enemies chill everything near them.' },
-  spicybrain:  { tier: 0, name: 'Highly Strung', desc: 'Shock damage +30%.', apply: P => { P.elem.shock += 0.3; } },
+  spicybrain:  { tier: 0, name: 'Highly Strung', desc: 'Shock +30%, Toxic -20%.', apply: P => { P.elem.shock += 0.3; P.elem.poison -= 0.2; } },
   zombiecore:  { tier: 2, name: 'Dropped as a Baby', desc: 'Once, when you would die, you come back on 50% health. After that: -50% max HP for the rest of the run. Never quite the same.' },
   buffet:      { tier: 0, name: 'Gold Star', desc: '+10% XP.', apply: P => { P.xp += 0.1; } },
   payload:     { tier: 1, name: 'Backed Up', desc: 'Weapons with a magazine bigger than 1 hold twice as much.' },
@@ -237,7 +240,7 @@ function genesTick(dt) {
   }
   for (const v of G.vesicles) {
     if (G.t - v.born > VESICLE.life) { v.dead = true; continue; }
-    if (Math.hypot(p.x - v.x, p.y - v.y) < p.r + 24) {
+    if (Math.hypot(p.x - v.x, p.y - v.y) < p.r + 36) { // (generous: brushing it is enough)
       v.dead = true;
       // A full genome can't take another mutation, so the vesicle's enzymes become a DNA strand instead.
       if (mutCount() >= mutCap()) { floatText(v.x, v.y - 20, 'GENOME FULL: DNA STRAND', PAL.reward, 14); G.lootQueue.push({ kind: 'chest', src: { t: 'drop', name: 'Enzyme Vesicle' } }); continue; }
@@ -285,6 +288,7 @@ function genesDamageMul(e, src) {
   if (!G.genes) return 1;
   let m = 1;
   if (mutOn('tcells') && (e.elite || e.boss || e.rival)) m *= 1.3;
+  if ((e.frozen > 0 || e.chill > 0) && synOn('splicer', 'eggseeker')) m *= 1.3; // Fresh Frozen
   if (mutOn('sludge')) m *= 1 + 0.3 * (G.sludge || 0);
   if (mutOn('velcro') && G.velcro === 'mid') m *= 1.1;
   if (G.mutT.roidT > G.t) m *= 1.5;
@@ -538,7 +542,9 @@ const SEQ_ABILITY = {
       const p = G.player, t = acquire('cluster', 320, p.x, p.y);
       if (!t) return false;
       const x = t.x, y = t.y;
-      IN_AOE = true; forNear(x, y, 130, e => { damageEnemy(e, abilDmg() * 1.3, abilSrc('Liquid Nitrogen', { elem: 'ice' })); e.frozen = Math.max(e.frozen, e.boss ? 0.4 : 1.6); }); IN_AOE = false;
+      let n = 0;
+      IN_AOE = true; forNear(x, y, 130, e => { damageEnemy(e, abilDmg() * 1.3, abilSrc('Cold Storage', { elem: 'ice' })); e.frozen = Math.max(e.frozen, e.boss ? 0.4 : 1.6); n++; }); IN_AOE = false;
+      if (n && synOn('splicer', 'pusher')) healPlayer(G.P.maxHp * Math.min(0.15, 0.03 * n)); // Batch Cooking
       G.fx.push({ type: 'frost', x, y, r: 130, color: SEQ_LOOK.splicer.color, life: 0.6, max: 0.6 }); ring(x, y, 130, SEQ_LOOK.splicer.color, 0.5, 5); fxParts('shard', x, y, '#caf0f8', 12, 260, 0.6, 4);
       return true;
     } },

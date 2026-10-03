@@ -36,6 +36,8 @@ const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, 
 try { Object.assign(META, JSON.parse(localStorage.getItem('sd_meta') || '{}')); } catch (e) { /* storage unavailable */ }
 META.pairs = META.pairs || {}; META.combos = META.combos || {}; META.bosses = META.bosses || {}; META.quirks = META.quirks || {}; META.wstats = META.wstats || {}; META.relics = META.relics || {};
 META.prof = META.prof || {}; META.muts = META.muts || {}; META.profile = META.profile || 'vanguard';
+// v7.63 raised the sequence rank thresholds: whatever rank you'd already reached is kept.
+if (!META.rankMig) { META.rankMig = 1; for (const id in META.prof) { const k = META.prof[id].kills || 0; META.prof[id].keep = k >= 25000 ? 3 : k >= 5000 ? 2 : 1; } }
 META.life = Object.assign({ bestT: 0, bosses: 0, pickups: 0, elem: 0, casts: 0 }, META.life || {});
 // v6 retired most weapons: starters bought for them are refunded in full.
 { const OLD = { nailgun: 60, cryopipette: 60, antibioticsg: 70, nerveimpulse: 70, placebo: 80, chromowhip: 80, metaflare: 90, genesplicer: 100, mitosiscannon: 120, hailswarm: 90 };
@@ -45,7 +47,8 @@ function saveMeta() { try { localStorage.setItem('sd_meta', JSON.stringify(META)
 // DNA earned by a run.
 function runDna(G, won) {
   const rivals = Object.values(G.rivalOut || {}).filter(v => v === 'you').length;
-  return Math.round((G.level * 2 + G.kills / 80 + G.stats.bossKills * 15 + rivals * 12 + (won ? 120 : 0) + G.t / 30) * (typeof prestigeDna === 'function' ? prestigeDna(G) : 1));
+  // About 450 for a win (the Gene Bank takes about 10), and beating a named rival is worth more than before.
+  return Math.round((G.level * 1.2 + G.kills / 150 + G.stats.bossKills * 12 + rivals * 25 + (won ? 100 : 0) + G.t / 40) * (typeof prestigeDna === 'function' ? prestigeDna(G) : 1));
 }
 function bankRun(G, won) {
   if (G.banked) return META.lastEarned;
@@ -110,7 +113,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.62';
+const APP_VERSION = '7.63';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

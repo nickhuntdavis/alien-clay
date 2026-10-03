@@ -195,7 +195,7 @@ const UI = {
     // Rewind button.
     const c = G.chrono, rb = $('rewindBtn');
     rb.querySelector('.pips').innerHTML = Array.from({ length: c.max }, (_, i) => `<i class="${i < c.charges ? 'on' : ''}"></i>`).join('');
-    rb.style.setProperty('--e', (c.charges >= c.max ? 100 : c.energy / CHRONO.energyPerCharge * 100).toFixed(0) + '%');
+    rb.style.setProperty('--e', (c.charges >= c.max ? 100 : c.energy / chronoCost() * 100).toFixed(0) + '%');
     rb.classList.toggle('ready', c.charges > 0);
     // Starting ability: its colour, name and cooldown sweep.
     const ab = $('abilBtn'), A = G.genes && SEQ_ABILITY[G.genes.primary];
@@ -858,7 +858,11 @@ const UI = {
   },
   openSamples() {
     const best = UI.loadBest();
-    $('sampleList').innerHTML = SAMPLES.map(s => `<button class="slide ${s.open ? '' : 'locked'}" data-sample="${s.id}">
+    // Only samples you can play, in number order. The Lab Bench (debug) is hidden unless developer mode is
+    // on: tap the CHOOSE SPERM SAMPLE heading five times to switch it on or off.
+    let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
+    const list = SAMPLES.filter(s => s.open && (s.id !== 's000' || dev)).sort((a, b) => a.no.localeCompare(b.no));
+    $('sampleList').innerHTML = list.map(s => `<button class="slide ${s.open ? '' : 'locked'}" data-sample="${s.id}">
       <span class="slabel"><b>#${s.no}</b><i>${s.open ? 'IN STOCK' : 'COMING SOON'}</i></span>
       <span class="sglass"><span class="sdrop"></span></span>
       <span class="sinfo"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span>${s.open ? `<em>Count ${s.count} | Motility ${s.motility}${best.born ? ' | Fastest fertilisation ' + fmtTime(best.born) : ''}</em>` : '<em>More to cum.</em>'}</span>
@@ -869,6 +873,16 @@ const UI = {
       UI.sample = s.id; openSeq();
     }));
     UI.show('samples');
+    const st = $('sampTitle');
+    if (st && !st.dataset.dev) {
+      st.dataset.dev = '1'; let taps = 0, last = 0;
+      st.addEventListener('click', () => {
+        const now = performance.now(); taps = now - last < 600 ? taps + 1 : 1; last = now;
+        if (taps < 5) return;
+        taps = 0; let on = false; try { on = localStorage.getItem('sd_dev') !== '1'; localStorage.setItem('sd_dev', on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+        UI.toast(on ? 'DEVELOPER MODE: LAB BENCH ON' : 'DEVELOPER MODE OFF'); UI.openSamples();
+      });
+    }
   },
 
   // ---------------------------------------------------------------- Codex (from the pause menu, or the title screen between runs)
@@ -1117,7 +1131,7 @@ function lootStory(req) {
     level: [
       `Level ${L}. You grew, and the womb noticed. It sends its regards, and some spare DNA.`,
       `Level ${L}! Every time you get bigger, somebody leaves a strand of DNA out for you. You have not asked whose.`,
-      `Level ${L}. Your tail is longer, your head is harder, and here, for some reason, is a strand of DNA.`,
+      `Level ${L}. You are bigger, your head is harder, and here, for some reason, is a strand of DNA.`,
     ],
   };
   const pool = lines[src.t] || (req.kind === 'level' ? lines.level : null);

@@ -466,9 +466,9 @@ const PASSIVES = {
   vamp:      { name: 'Latching On',  icon: 'VR', max: 5, v: 0.08, fmt: v => `Heal ${v.toFixed(2)} HP per kill`, apply: (P, v) => { P.lifesteal += v; } },
   pyro:      { name: 'Hot-Blooded',        icon: 'PY', max: 5, v: 0.25, fmt: v => `+${pc(v)} fire damage and burn`, apply: (P, v) => { P.elem.fire += v; } },
   cryo:      { name: 'Cold-Blooded',        icon: 'CY', max: 5, v: 0.25, fmt: v => `+${pc(v)} frost damage and chill`, apply: (P, v) => { P.elem.ice += v; } },
-  storm:     { name: 'Static Hair',      icon: 'SC', max: 5, v: 0.25, fmt: v => `+${pc(v)} shock damage, +1 chain`, apply: (P, v) => { P.elem.shock += v; P.chain += 1; } },
+  storm:     { name: 'Static Hair',      icon: 'ST', max: 5, v: 0.25, fmt: v => `+${pc(v)} shock damage, +1 chain`, apply: (P, v) => { P.elem.shock += v; P.chain += 1; } },
   toxin:     { name: 'Bad Breath',       icon: 'TX', max: 5, v: 0.25, fmt: v => `+${pc(v)} poison damage, +3 max stacks`, apply: (P, v) => { P.elem.poison += v; P.poisonCap += 3; } },
-  arcanum:   { name: 'Weird Aura',          icon: 'AR', max: 5, v: 0.25, fmt: v => `+${pc(v)} arcane damage`, apply: (P, v) => { P.elem.arcane += v; } },
+  arcanum:   { name: 'Weird Aura',          icon: 'WA', max: 5, v: 0.25, fmt: v => `+${pc(v)} arcane damage`, apply: (P, v) => { P.elem.arcane += v; } },
   kinetic:   { name: 'Headbutt Training',       icon: 'BA', max: 5, v: 0.25, fmt: v => `+${pc(v)} kinetic damage`, apply: (P, v) => { P.elem.phys += v; } },
   catalyst:  { name: 'Chemistry',         icon: 'CT', max: 5, v: 0.35, fmt: v => `+${pc(v)} elemental reaction damage`, apply: (P, v) => { P.react += v; } },
   echo:      { name: 'Repeat Prescription',       icon: 'SE', max: 5, v: 0.10, fmt: v => `-${pc(v)} spell cooldowns`, apply: (P, v) => { P.cdr = Math.max(0.4, P.cdr - v); } },
@@ -482,7 +482,7 @@ const PASSIVES = {
   momentum:  { name: 'Hurry Up',         icon: 'MO', max: 4, v: 0.15, fmt: v => `Up to +${pc(v * 1.5)} damage the faster you are moving`, apply: (P, v) => { P.momentum += v; } },
   anchorlink:{ name: 'Separation Anxiety',         icon: 'EB', max: 3, v: 0.12, fmt: v => `${typeof G !== 'undefined' && G && G.wave ? 'Near the middle of the dish (where the egg sits)' : 'Near the egg'}: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
   future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Incompatible Viral Load, you do)`, apply: (P, v) => { P.future += v; } },
-  echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 2, fmt: () => `Paradox Echoes also cast your spells and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
+  echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 2, fmt: () => `When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your spells too and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
   ram:       { name: 'Headstrong',          icon: 'AR', max: 5, v: 1, fmt: v => `Enemies you swim into take big damage (ram power x${v.toFixed(1)}). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun.`, apply: (P, v) => { P.ram += v; } },
   heft:      { name: 'Big Boned', icon: 'BB', max: 4, v: 1, fmt: v => `+${30 * v} max HP (and heal it). All your damage +${Math.round(4 * v)}% for every 100 max HP you have.`, apply: (P, v, G) => { P.heft += v; P.maxHp += 30 * v; G.player.hp += 30 * v; } },
   thorns:    { name: 'Prickly Personality', icon: 'PP', max: 4, v: 1, fmt: v => `Whatever hurts you gets hurt back (thorns x${v}), plus a smaller jab to everything around you. Grows with max HP and armour.`, apply: (P, v) => { P.thorns += v; } },
@@ -500,6 +500,7 @@ const REACTIONS = {
   supercon:  { name: 'SUPERCONDUCT',  color: '#bde0fe', desc: 'Shock on a chilled enemy: armour shredded' },
   resonance: { name: 'RESONANCE',     color: '#e0aaff', desc: 'Arcane on any status: bonus damage, mark spreads' },
   overload:  { name: 'OVERLOAD',      color: '#fff3b0', desc: 'Fire on a shocked enemy: lightning explosion' },
+  shatter:   { name: 'SHATTER',       color: '#e6f4ff', desc: 'Kinetic on a frozen enemy: it shatters, and the shards hit everything near it' },
 };
 
 // Elemental synergy set bonuses: owning N weapons/spells of one element.
@@ -612,7 +613,7 @@ const BOSSES = [
     strengths: ['Revive each other', 'Crossfire from two sides'], weaknesses: ['Finish both within 8 seconds', 'Blasts hit both when they huddle: +30%'],
     weakAoe: 1.3, relics: ['mirror', 'doubletrouble', 'twinpick'] },
 ];
-const BOSS_INTERVAL = 120; // seconds (4 bosses in a 10-minute run)
+const BOSS_INTERVAL = 105; // seconds: bosses at 125, 230, 335 and 440, so the fourth relic still has a few minutes to work; the fifth waits for the Storm Surge
 const BOSSES_PER_RUN = 4;
 const BOSS_TITLES = {}; for (const b of BOSSES) BOSS_TITLES[b.id] = b.title;
 
@@ -796,13 +797,13 @@ const MODS = {
   splitting: { name: 'Cell Division',    icon: 'SP', color: '#ffd166', kinds: PROJ_KINDS, desc: p => `On first hit, shots split into ${2 + Math.round(p)} shards at 30% damage` },
   orbiting:  { name: 'Holding Pattern',     icon: 'OR', color: '#8dffc0', kinds: PROJ_KINDS, desc: p => `Shots circle you for ${(1.2 * p).toFixed(1)}s, eating enemy bullets, then launch` },
   growing:   { name: 'Swelling',      icon: 'GW', color: '#8ac926', kinds: PROJ_KINDS, desc: p => `Shots swell in flight: triple size and up to +${Math.round(100 * p)}% damage` },
-  boomerang: { name: 'Boomerang Kid',    icon: 'BM', color: '#f1f1f1', kinds: PROJ_KINDS, desc: () => 'Shots fly out and come back, hitting everything twice' },
+  boomerang: { name: 'Boomerang Kid',    icon: 'BM', color: '#f1f1f1', kinds: PROJ_KINDS, desc: p => `Shots fly out and come back, hitting everything twice${p > 1.01 ? ` (+${Math.round(35 * (p - 1))}% damage on the way back)` : ''}` },
   ricochet:  { name: 'Bouncing Baby',     icon: 'RI', color: '#a0c4ff', kinds: PROJ_KINDS, desc: p => `+${1 + Math.round(p)} bounces between enemies` },
   freezing:  { name: 'Frozen Stiff',     icon: 'FZ', color: '#6fd8ff', desc: p => `${Math.round(18 * p)}% chance per hit to freeze the target solid` },
   exploding: { name: 'With a Bang',    icon: 'EX', color: '#ff7a2f', desc: p => `Hits explode for ${Math.round(30 * p)}% damage in a small blast` },
   mindctrl:  { name: 'Bad Influence', icon: 'MC', color: '#ff8fab', desc: p => `${(5 * p).toFixed(0)}% chance per hit to make a monster fight for you for ${Math.round(6 * p)}s (max ${MAX_ALLIES} allies)` },
-  elemental: { name: 'Switched at Birth', icon: 'EL', color: '#c77dff', desc: () => 'Converts this weapon to a new element' },
-  shrapnel:  { name: 'Going to Pieces',     icon: 'SH', color: '#e9c46a', desc: () => 'Kills burst into 3 shards at 30% damage' },
+  elemental: { name: 'Switched at Birth', icon: 'EL', color: '#c77dff', desc: p => `Converts this weapon to a new element${p > 1.01 ? `, +${Math.round(15 * (p - 1))}% damage` : ''}` },
+  shrapnel:  { name: 'Going to Pieces',     icon: 'SH', color: '#e9c46a', desc: p => `Kills burst into ${2 + Math.round(p)} shards at ${Math.round(30 + 10 * (p - 1))}% damage` },
   // The Modifier Forge.
   chaining:  { name: 'Daisy Chain',     icon: 'CN', color: '#eee36a', desc: p => `${Math.round(25 * p)}% of hits chain to another enemy for 50% damage` },
   pulsing:   { name: 'Contractions',      icon: 'PU', color: '#cfe3ff', kinds: PROJ_KINDS, desc: p => `Shots pulse every 0.6s, hitting everything close by for ${Math.round(15 * p)}% damage` },
@@ -824,13 +825,14 @@ const DUOS = [
 
 // ---------------------------------------------------------------- Cursed loot cards
 const CURSES = [
-  { id: 'glass', name: 'Delicate Condition', boon: 'x1.8 damage for everything', bane: 'Max HP halved',
-    apply: (P, G) => { P.might *= 1.8; P.maxHp = Math.max(30, Math.round(P.maxHp / 2)); G.player.hp = Math.min(G.player.hp, P.maxHp); } },
+  { id: 'glass', name: 'Delicate Condition', boon: '+80% damage for everything', bane: 'Max HP halved',
+    apply: (P, G) => { P.might += 0.8; // adds, like every other damage bonus (it used to multiply, so it was worth more the later you took it)
+      P.maxHp = Math.max(30, Math.round(P.maxHp / 2)); G.player.hp = Math.min(G.player.hp, P.maxHp); } },
   { id: 'speed', name: "Shotgun Wedding", boon: '+50% fire rate', bane: 'Enemy bullets 20% faster', apply: P => { P.haste += 0.5; P.bulletSpeed *= 1.2; } },
   { id: 'hoard', name: "Hands Full", boon: '+4 rerolls right now, double viewers', bane: 'Pickup range halved', apply: (P, G) => { G.rerolls += 4; P.viewers *= 2; P.magnet *= 0.5; } },
   { id: 'crowd', name: 'The More the Merrier', boon: '+50% XP and viewers', bane: '30% more enemies (30% bigger waves in the dish)', apply: P => { P.xp += 0.5; P.viewers *= 1.5; P.spawnMult *= 1.3; } },
   { id: 'paradox', name: 'Living in the Past', boon: '+2 max Rewind charges, all refilled now', bane: 'All healing halved', apply: (P, G) => { G.chrono.max += 2; G.chrono.charges = G.chrono.max; P.healMult *= 0.5; } },
-  { id: 'naked', name: 'Clothing Optional', boon: '+25% move speed, +20% dodge', bane: 'Armour is zero. Forever.', apply: P => { P.speed += 0.25; P.dodge = Math.max(P.dodge, Math.min(0.6, P.dodge + 0.2)); P.noArmour = true; } },
+  { id: 'naked', name: 'Clothing Optional', boon: '+25% move speed, +20% dodge', bane: 'Armour is zero, forever, and every hit hurts 15% more', apply: P => { P.speed += 0.25; P.dodge = Math.max(P.dodge, Math.min(0.6, P.dodge + 0.2)); P.noArmour = true; P.takenMul = (P.takenMul || 1) * 1.15; } },
 ];
 
 // ---------------------------------------------------------------- The Show: announcer, achievements, viewers, sponsors
@@ -876,7 +878,7 @@ const SYSTEM_LINES = {
   ],
   fusion: ['Combo complete. Two weapons, working together. That is, ironically, the theme of the show.', 'Combo complete. It violates at least four treaties and one textbook.'],
   cursed: ['You took the cursed card. We are not angry. We are just disappointed. And delighted.', 'Bold. Stupid, but bold. Very on-brand for a swimmer.'],
-  surge: ['Immune Surge! The host has noticed you. Everything hits harder now. Please remain calm and panic.'],
+  surge: ['Storm Surge! The host has noticed you. Everything hits harder now. Please remain calm and panic.'],
   idle: [
     'The egg is right there. Just saying.',
     'Fun fact: most swimmers never get past the first minute. Just saying.',

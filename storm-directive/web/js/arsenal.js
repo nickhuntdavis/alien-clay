@@ -341,10 +341,13 @@ function setWeaponLevel(w, to, from) {
   for (const m of PERK_LEVELS) if (from < m && to >= m && !w.perks[m]) G.lootQueue.push({ kind: 'branch', uid: w.uid, lvl: m });
 }
 
+// Upgrades that work best with a particular targeting directive say so on the card (if the weapon isn't
+// already set to it).
+const SIG_HINT = { farsight: 'furthest', bigbrother: 'strongest', walkingdead: 'lowhp', hivemind: 'lowhp', bodysnatcher: 'elite', icicle: 'cluster' };
 function optPerk(w, lvl, id) {
-  const K = perkDef(id);
+  const K = perkDef(id), hd = SIG_HINT[id] && SIG_HINT[id] !== w.dir && DIRECTIVES.find(d => d.id === SIG_HINT[id]);
   return { perk: id, rarity: lvl >= 10 ? 4 : lvl >= 8 ? 3 : lvl >= 5 ? 3 : 2, tag: K.sig ? (lvl >= 10 ? 'MASTERY' : 'SIGNATURE') : 'BRANCH', icon: K.icon, color: K.color, elem: w.def.elem, title: K.name,
-    sub: `${w.def.name} | Lv ${lvl} ${K.sig ? 'only this weapon' : 'branch'}`, desc: K.desc + (PERK_ADAPT[id] && PERK_ADAPT[id][w.id] ? ' ' + PERK_ADAPT[id][w.id] : ''),
+    sub: `${w.def.name} | Lv ${lvl} ${K.sig ? 'only this weapon' : 'branch'}`, desc: K.desc + (PERK_ADAPT[id] && PERK_ADAPT[id][w.id] ? ' ' + PERK_ADAPT[id][w.id] : '') + (hd ? ` Tip: tap the weapon to switch it to ${hd.name}.` : ''),
     apply: () => { w.perks[lvl] = id; computeStats(w); floatText(me().x, me().y - 40, K.name.toUpperCase(), PAL.upgrade, 15, 1.2); } };
 }
 

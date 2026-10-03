@@ -44,7 +44,7 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
 7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 20, 40 you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).
 8. **Mutations:** Enzyme Vesicles bulge up on the slide (the first at 40s, then every 45 to 70s). Swim into one to pick one of four mutations; you have 6 slots.
-9. **Bosses:** a boss every 2 minutes. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
+9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Storm Surge. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
 10. **Rarity** multiplies a card's value:
 
 | Rarity | Multiplier | Weapon levels granted | Roll weight (relative) | Share of cards offered (mid-run) |
@@ -63,7 +63,7 @@ Weights are relative, not percentages, and luck tilts them towards the rarer row
 
 ## Epigenetic Profiles (sequences)
 
-Choose your Primary Sequence before each run. It gives its trait at full strength, its exclusive weapons and a starting ability that fires by itself (or tap its button). Spliced-in sequences give their trait at half strength and add their weapons to your drafts. Each sequence ranks up with kills while you carry it (Rank 2 at 5,000, Rank 3 at 25,000), doubling its trait each time. Your weapons take your primary's colour (with the GFP Tag).
+Choose your Primary Sequence before each run. It gives its trait at full strength, its exclusive weapons and a starting ability that fires by itself (or tap its button). Spliced-in sequences give their trait at half strength and add their weapons to your drafts. Each sequence ranks up with kills while you carry it (Rank 2 at 12,000, Rank 3 at 60,000), doubling its trait each time. Your weapons take your primary's colour (with the GFP Tag).
 
 | Sequence | Trait (Rank 1) | Weapons | Starting ability | Unlock |
 |---|---|---|---|---|
@@ -85,6 +85,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **Comfort Eating** | The Ten-Pounder + The Good Eater | Below half health, your regeneration doubles (and you get +1 HP/s). |
 | **Blowout** | The Ten-Pounder + The Problem Child | Nappy Mines leave a burning puddle where they go off. |
 | **First Impressions** | The Favourite + The Quiet One | Hits on enemies at full health always crit. |
+| **Fresh Frozen** | The Designer Baby + The Favourite | Frozen or chilled enemies take 30% more damage from you. |
+| **Batch Cooking** | The Designer Baby + The Good Eater | Cold Storage heals you 3% of your max HP for every enemy it freezes (up to 15%). |
 
 ## Weapons
 
@@ -772,7 +774,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 ## Bosses and relics
 
-A boss arrives every 2 minutes. Each run draws 4 of these 8 at random; a run that goes past 8 minutes starts the loop again with tougher versions (in practice that is inside the Storm Surge). Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
+A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 8 at random; a fifth (a tougher repeat) waits until the Storm Surge. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
 
 ### THE MACROPHAGE QUEEN: Eater of Hopefuls
 
@@ -975,7 +977,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Hurry Up** | Up to +22% damage the faster you are moving | You | 4 |
 | **Separation Anxiety** | Near the egg: +12% fire rate. Away from it: +12% crit chance | You | 3 |
 | **Spoilers** | 10% of shots appear already next to their target (with the Incompatible Viral Load, you do) | You | 4 |
-| **Inheritance** | Paradox Echoes also cast your spells and last twice as long (Rare or better only) | You | 1 |
+| **Inheritance** | When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your spells too and last twice as long (Rare or better only) | You | 1 |
 | **Headstrong** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | You | 5 |
 | **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | You | 4 |
 | **Prickly Personality** | Whatever hurts you gets hurt back (thorns x1), plus a smaller jab to everything around you. Grows with max HP and armour. | You | 4 |
@@ -1002,7 +1004,7 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Non-Slip Socks** | 0 | +10% swim speed and +30% traction. |
 | **Trapped Wind** | 0 | Poisoned enemies leave a cloud of toxic gas when they die. Better out than in. |
 | **Catching a Chill** | 0 | Frozen enemies chill everything near them. |
-| **Highly Strung** | 0 | Shock damage +30%. |
+| **Highly Strung** | 0 | Shock +30%, Toxic -20%. |
 | **Gold Star** | 0 | +10% XP. |
 | **Short Attention Span** | 0 | Every spell cast has a 15% chance to recharge twice as fast. |
 | **Runny Nose** | 0 | Toxic +30%, Shock -20%. |
@@ -1097,13 +1099,13 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 | **Cell Division** | On first hit, shots split into 3 shards at 30% damage | On first hit, shots split into 4 shards at 30% damage | Projectile only |
 | **Holding Pattern** | Shots circle you for 1.2s, eating enemy bullets, then launch | Shots circle you for 2.6s, eating enemy bullets, then launch | Projectile only |
 | **Swelling** | Shots swell in flight: triple size and up to +100% damage | Shots swell in flight: triple size and up to +220% damage | Projectile only |
-| **Boomerang Kid** | Shots fly out and come back, hitting everything twice | Shots fly out and come back, hitting everything twice | Projectile only |
+| **Boomerang Kid** | Shots fly out and come back, hitting everything twice | Shots fly out and come back, hitting everything twice (+42% damage on the way back) | Projectile only |
 | **Bouncing Baby** | +2 bounces between enemies | +3 bounces between enemies | Projectile only |
 | **Frozen Stiff** | 18% chance per hit to freeze the target solid | 40% chance per hit to freeze the target solid | Any weapon |
 | **With a Bang** | Hits explode for 30% damage in a small blast | Hits explode for 66% damage in a small blast | Any weapon |
 | **Bad Influence** | 5% chance per hit to make a monster fight for you for 6s (max 6 allies) | 11% chance per hit to make a monster fight for you for 13s (max 6 allies) | Any weapon |
-| **Switched at Birth** | Converts this weapon to a new element | Converts this weapon to a new element | Any weapon |
-| **Going to Pieces** | Kills burst into 3 shards at 30% damage | Kills burst into 3 shards at 30% damage | Any weapon |
+| **Switched at Birth** | Converts this weapon to a new element | Converts this weapon to a new element, +18% damage | Any weapon |
+| **Going to Pieces** | Kills burst into 3 shards at 30% damage | Kills burst into 4 shards at 42% damage | Any weapon |
 | **Daisy Chain** | 25% of hits chain to another enemy for 50% damage | 55% of hits chain to another enemy for 50% damage | Any weapon |
 | **Contractions** | Shots pulse every 0.6s, hitting everything close by for 15% damage | Shots pulse every 0.6s, hitting everything close by for 33% damage | Projectile only |
 | **Animal Magnetism** | Shots drag monsters within 70 units into their path | Shots drag monsters within 154 units into their path | Projectile only |
@@ -1140,12 +1142,12 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 
 | Curse | Boon | Bane |
 |---|---|---|
-| **Delicate Condition** | x1.8 damage for everything | Max HP halved |
+| **Delicate Condition** | +80% damage for everything | Max HP halved |
 | **Shotgun Wedding** | +50% fire rate | Enemy bullets 20% faster |
 | **Hands Full** | +4 rerolls right now, double viewers | Pickup range halved |
 | **The More the Merrier** | +50% XP and viewers | 30% more enemies (30% bigger waves in the dish) |
 | **Living in the Past** | +2 max Rewind charges, all refilled now | All healing halved |
-| **Clothing Optional** | +25% move speed, +20% dodge | Armour is zero. Forever. |
+| **Clothing Optional** | +25% move speed, +20% dodge | Armour is zero, forever, and every hit hurts 15% more |
 
 ## Field pickups (temporary power-ups)
 
@@ -1163,11 +1165,11 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 | **HIRED HELP** | H | Three bodyguard swimmers fight for you for 14s |
 | **CENTRIFUGE** | C | For 6s everything near you is flung round you in a grinding vortex |
 | **GROWING PAINS** | G | For 8s you are huge: you crush what you touch and take half damage |
-| **CHAIN REACTION** | X | For 10s every kill explodes |
+| **KNOCK-ON EFFECT** | K | For 10s every kill explodes |
 | **REFLUX** | R | For 7s bullets near you are swallowed and spat back as sparks |
 | **GOLD RUSH** | $ | For 12s double XP, and XP flies to you |
 | **LEECH** | L | For 10s your hits heal you |
-| **LIGHTNING ROD** | Z | For 8s lightning strikes enemies on screen twice a second |
+| **BOLT FROM THE BLUE** | B | For 8s lightning strikes enemies on screen twice a second |
 | **BREAKING WIND** | W | For 8s you swim 60% faster and leave a burning wake |
 
 ## Elemental reactions
@@ -1181,6 +1183,7 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 | **SUPERCONDUCT** | Shock on a chilled enemy: armour shredded |
 | **RESONANCE** | Arcane on any status: bonus damage, mark spreads |
 | **OVERLOAD** | Fire on a shocked enemy: lightning explosion |
+| **SHATTER** | Kinetic on a frozen enemy: it shatters, and the shards hit everything near it |
 
 ## Element synergies
 
@@ -1390,7 +1393,7 @@ Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to 
 Rules the cards do not spell out, but that change what is worth picking.
 
 - **Boss damage cap:** No single hit takes more than 4% of a boss's max HP, or 6% of a Final Five rival's. Percentage effects (Act of God, Hand of God, Gender Reveal, Nit Comb) are capped the same way.
-- **Boss hits on you:** A single hit from a boss takes at most 22% of your max HP.
+- **Boss hits on you:** A single hit from a boss is capped at 15% of your max HP plus a fixed part (about 8 HP at the start, growing with the clock), so more max HP means more hits to go down.
 - **Your armour:** Each point blocks about 1 damage at the start of a run and about 7 by minute 10 (it scales with the enemy damage clock). It never blocks more than 75% of a hit.
 - **Enemy armour:** Flat, but it grows a little with the enemy health clock (about x2.8 by minute 9, x3 at most). At least 15% of every hit gets through. Damage over time ignores armour; shred removes it.
 - **Regeneration and lifesteal:** Regeneration and the lifesteal pool (about 3 HP/s, 9 with Transfusion) both grow with your max HP.
@@ -1404,7 +1407,7 @@ Rules the cards do not spell out, but that change what is worth picking.
 
 ## Glossary
 
-- **Rewind and Chrono energy:** Rewind fires by itself on a lethal hit, rolls you back about 4s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with 1 charge (max 2, more with Snooze Button). Charges refill from Chrono energy (600 per charge), earned by fighting.
+- **Rewind and Chrono energy:** Rewind fires by itself on a lethal hit, rolls you back about 4s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with 1 charge (max 2, more with Snooze Button). Charges refill from Chrono energy (600 per charge, 15% more for every Rewind already used this run), earned by fighting.
 - **Viewers and sponsors:** The race is a live show. Kills, combos, bosses and achievements raise viewers; viewer milestones bring sponsor gifts (a heal, Oxytocin, a stair gate, a magnet, a nuke or a DNA strand).
 - **The egg:** Opens at Lv 60: its membrane has 150,000 base HP and 8 armour, and a rival can break in first. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.
 - **Spell slots:** Two. Spells cast themselves on cooldown.

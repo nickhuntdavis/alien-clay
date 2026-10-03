@@ -30,11 +30,14 @@ function takeSnap() {
   };
 }
 
+// Each Rewind you use makes the next charge 15% dearer, so a run that is already lost can't be dragged out
+// on rewinds forever (losing runs used to burn 20 or more).
+const chronoCost = () => CHRONO.energyPerCharge * (1 + 0.15 * ((G && G.stats && G.stats.rewinds) || 0));
 function gainChrono(v) {
-  const c = G.chrono;
-  if (c.charges >= c.max) { c.energy = Math.min(c.energy, CHRONO.energyPerCharge); return; }
+  const c = G.chrono, cost = chronoCost();
+  if (c.charges >= c.max) { c.energy = Math.min(c.energy, cost); return; }
   c.energy += v * G.P.chronoGain;
-  if (c.energy >= CHRONO.energyPerCharge) {
+  if (c.energy >= cost) {
     c.energy = 0; c.charges++;
     banner('REWIND CHARGE READY', '#8dffc0');
     sfx('spell');

@@ -89,7 +89,7 @@ function newGame() {
     kills: 0, level: 1, xp: 0, xpNeed: xpNeed(1),
     lootQueue: [{ kind: 'start' }], rerolls: 2,
     warp: 0, rage: 0, shieldT: 0, barrier: 0, barrierR: 0, barrierDmg: 0,
-    nextBoss: BOSS_INTERVAL + 30, bossCount: 0, boss: null, nextWave: 27,
+    nextBoss: BOSS_INTERVAL + 20, bossCount: 0, boss: null, nextWave: 27,
     spawnAcc: 0, crowdT: 0, synergy: {}, banner: null,
     core: makeCore(), scrap: 0,
     chrono: newChrono(), echoes: [], rewind: null, realPlayer: null, lights: [], decals: [],
@@ -306,7 +306,7 @@ function computeStatsInner(w) {
     const mp = m.p || 1;
     if (m.id === 'ricochet') s.bounce = (s.bounce || 0) + 1 + Math.round(mp);
     if (m.id === 'seeking') s.homing = Math.max(s.homing || 0, 3 + 2 * mp);
-    if (m.id === 'boomerang') s.boomerangMod = 1;
+    if (m.id === 'boomerang') s.boomerangMod = mp; // (power: harder on the way back)
     if (m.id === 'growing') s.grow = mp;
     if (m.id === 'orbiting') s.orbitMod = 1.2 * mp;
     if (m.id === 'splitting') s.splitHit = 2 + Math.round(mp);
@@ -380,7 +380,7 @@ function lvBonusText(def, from, to) {
       const v = bo[k];
       const label = { count: 'projectiles', pierce: 'pierce', chain: 'chain jumps', bounce: 'bounces', shred: 'armour shred' }[k];
       if (label) parts.push(`+${v} ${label}`);
-      else if (k === 'dmg') parts.push(`+${pc(v)} damage`);
+      else if (k === 'dmg') parts.push(`+${pc(v)} ${def.kind === 'heal' ? 'healing' : 'damage'}`);
       else if (k === 'area') parts.push(`+${pc(v)} area`);
       else if (k === 'dur') parts.push(`+${pc(v)} duration`);
       else if (k === 'cd') parts.push(`${pc(-v)} faster`);
@@ -432,7 +432,7 @@ function genLoot(req) {
     if (!w) return;
     // New modifiers while slots are free; otherwise offer to power up one it already has.
     const fits = id => !MODS[id].kinds || MODS[id].kinds.includes(w.def.kind);
-    const ids = w.mods.length < MOD_SLOTS ? Object.keys(MODS).filter(id => fits(id) && !w.mods.some(m => m.id === id)) : w.mods.filter(m => m.id !== 'elemental' && m.id !== 'shrapnel' && m.id !== 'boomerang' && m.p < MOD_MAX_POWER).map(m => m.id);
+    const ids = w.mods.length < MOD_SLOTS ? Object.keys(MODS).filter(id => fits(id) && !w.mods.some(m => m.id === id)) : w.mods.filter(m => m.p < MOD_MAX_POWER).map(m => m.id);
     if (ids.length) { const id = pick(ids); cands.push({ w: 8, key: 'mod' + w.uid, make: r => optMod(w, id, r) }); }
   });
   const ownedElems = new Set(); for (const w of G.weapons.concat(G.spells)) if (w) { ownedElems.add(w.def.elem); if (w.def.elem2) ownedElems.add(w.def.elem2); }
@@ -581,7 +581,7 @@ function optMod(w, id, r) {
   const M = MODS[id], rr = Math.max(1, r), pw = MOD_POWER[rr];
   const have = w.mods.find(m => m.id === id);
   let elem = null, desc;
-  if (id === 'elemental') { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem)); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.`; }
+  if (id === 'elemental' && !have) { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem)); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.${pw > 1 ? ` +${Math.round(15 * (pw - 1))}% damage.` : ''}`; }
   else { const np = have ? Math.min(MOD_MAX_POWER, have.p + pw * 0.5) : pw; desc = have ? `Power ${have.p.toFixed(2)} > ${np.toFixed(2)}: ${M.desc(np)}` : M.desc(pw); }
   return { rarity: rr, tag: have ? 'MODIFIER BOOST' : 'MODIFIER', icon: M.icon, color: M.color, elem: elem || w.def.elem, title: M.name,
     sub: have ? `Boosts ${w.def.name}'s ${M.name}` : `Installs into ${w.def.name} (slot ${w.mods.length + 1}/${MOD_SLOTS})`, desc, modFor: w.def.icon,
@@ -759,6 +759,12 @@ function damageEnemy(e, dmg, src) {
   if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); puHit(e, d, src); }
   if (!src.dot) relicHit(e, d, src);
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
+  // Kinetic's reaction, SHATTER: a solid hit on something frozen breaks it, and the shards fly.
+  else if ((src.elem || 'phys') === 'phys' && !src.noStatus && !src.dot && e.frozen > 0 && !e.boss && !e.dead && react(e, 'shatter', src)) {
+    e.frozen = 0; e.chillAmt = 0;
+    aoe(e.x, e.y, 70 + e.r, (dmg * 1.5 + 8) * G.P.react, { elem: 'ice', noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' }, '#e6f4ff');
+    fxParts('shard', e.x, e.y, '#e6f4ff', 10, 260, 0.5, 4);
+  }
   // Shocked enemies arc a portion of incoming damage to a neighbour.
   if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25)) {
     const n = acquire('nearest', 130, e.x, e.y, e);
@@ -915,11 +921,13 @@ function killEnemy(e, src) {
   eventKill(e);
   boonKill();
   // Split on Kill mod.
-  if (src.w && !src.noSplit && src.w.mods && src.w.mods.some(m => m.id === 'shrapnel')) {
-    const ss = Object.assign({}, src, { noSplit: true, mult: 1 });
-    for (let i = 0; i < 3; i++) {
+  const shrap = src.w && !src.noSplit && src.w.mods && src.w.mods.find(m => m.id === 'shrapnel');
+  if (shrap) {
+    // Power: more shards (3 at Common, up to 5) that hit harder (30% up to 50%).
+    const ss = Object.assign({}, src, { noSplit: true, mult: 1 }), sp = shrap.p || 1, sk = 0.3 + 0.1 * (sp - 1);
+    for (let i = 0, n = 2 + Math.round(sp); i < n; i++) {
       const a = Math.random() * TAU;
-      spawnProj(src.w, e.x, e.y, a, ss, { noMods: true, speed: 420, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, life: 0.5, dmg: src.w.s.dmg * 0.3, pierce: 0, bounce: 0, homing: 0, explode: 0, r: 3, style: 'bullet', chainHit: 0, aura: 0 });
+      spawnProj(src.w, e.x, e.y, a, ss, { noMods: true, speed: 420, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, life: 0.5, dmg: src.w.s.dmg * sk, pierce: 0, bounce: 0, homing: 0, explode: 0, r: 3, style: 'bullet', chainHit: 0, aura: 0 });
     }
   }
   // Chain Reaction perk: the corpse goes off.
@@ -1024,11 +1032,13 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (Math.random() < Math.min(DODGE_CAP, P.dodge)) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
-  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt();
+  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1);
   dmg = relicDamageIn(dmg, ent);
   if (dmg <= 0) return;
   // No one-shots from a boss: a single boss hit (body, beam or bullet) takes at most 22% of your max HP.
-  if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * BOSS_HIT_CAP);
+  // The cap has a fixed part (22% of a 120 HP swimmer, growing with the clock) and a part from your own max HP,
+  // so more max HP still means more boss hits to go down (it used to be 22% of yours, so HP made no difference).
+  if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * 0.15 + 120 * 0.07 * defClock());
   // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
   const arm = P.noArmour ? 0 : (P.armour + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
@@ -1445,7 +1455,7 @@ function weaponSrc(w) {
   const nearAnchor = Math.hypot(me().x - G.core.x, me().y - G.core.y) < 450;
   return { elem: mod ? mod.elem : s.elem || d.elem, elem2: d.elem2, wname: (w.echo ? 'Echo ' : '') + d.name, crit: s.crit + (!nearAnchor ? P.anchorLink : 0),
     shred: s.shred || 0, knock: s.knock || 0, freezeHit: s.freezeHit, echoHit: s.echoHit, w, dir: w.dir, echo: !!w.echo,
-    grudge: !!d.grudge, parasite: !!d.parasite, mult: weaponMult(w),
+    grudge: !!d.grudge, parasite: !!d.parasite, mult: weaponMult(w) * (mod ? 1 + 0.15 * ((mod.p || 1) - 1) : 1), // (Switched at Birth: power adds damage)
     modFreeze: s.modFreeze || 0, modExplode: s.modExplode || 0, modCharm: s.modCharm || 0, charmDur: s.charmDur || 0 };
 }
 
@@ -1629,7 +1639,7 @@ function spawnProj(w, x, y, a, src, over) {
     hits: null, tick: 0, dead: false, tgt: null, back: false,
   };
   const mods = !(over && over.noMods);
-  if (mods && s.boomerangMod && !pr.boomerang && d.kind !== 'ring') pr.boomerang = 1;
+  if (mods && s.boomerangMod && !pr.boomerang && d.kind !== 'ring') { pr.boomerang = 1; pr.backK = 1 + 0.35 * (s.boomerangMod - 1); }
   if (pr.boomerang) pr.life = s.range / speed * 2 + 0.3;
   pr.max = pr.life;
   if (over) Object.assign(pr, over);
@@ -1787,7 +1797,7 @@ function updateProjectiles(dt) {
         pr.hitReset = (pr.hitReset || 0) - dt;
         if (pr.hitReset <= 0) { pr.hitReset = 0.2; pr.hits = null; }
         if (pr.hangPull) forNear(pr.x, pr.y, 130, e => { if (!e.boss && !e.egg && !e.rival) { const dx = pr.x - e.x, dy = pr.y - e.y, dd = Math.hypot(dx, dy) || 1; e.x += dx / dd * Math.min(dd, pr.hangPull * dt); e.y += dy / dd * Math.min(dd, pr.hangPull * dt); } });
-      } else { pr.back = true; pr.hits = null; pr.hanging = false; if (pr.hangPull) pr.magnet = 140; }
+      } else { pr.back = true; pr.hits = null; pr.hanging = false; if (pr.hangPull) pr.magnet = 140; if (pr.backK) pr.dmg *= pr.backK; }
     }
     if (pr.back) {
       const dx = p.x - pr.x, dy = p.y - pr.y, d = Math.hypot(dx, dy) || 1;
@@ -2008,11 +2018,15 @@ function autoSteer() {
   for (const u of G.pickups) { const d = Math.hypot(u.x - p.x, u.y - p.y); if (d < bpd) { bpd = d; bestPick = u; } }
   if (bestPick && bpd < (mode === 'collect' ? 900 : 380)) goal(bestPick.x, bestPick.y, mode === 'hold' ? 0.3 : 1.2);
   // COLLECT also goes for Enzyme Vesicles (mutations), the nearest first, ahead of gems.
-  if (mode === 'collect' && G.vesicles && G.vesicles.length && mutCount() < mutCap()) {
+  // (A full genome still wants them: they turn into DNA strands.) Close in, it commits: a much stronger pull,
+  // little momentum bias and no cap, so the swimmer turns into it instead of circling round it.
+  let homing = false;
+  if (mode === 'collect' && G.vesicles && G.vesicles.length) {
     let bv = null, bvd = Infinity;
     for (const v of G.vesicles) { const d = Math.hypot(v.x - p.x, v.y - p.y); if (d < bvd) { bvd = d; bv = v; } }
-    if (bv) goal(bv.x, bv.y, 1.6);
+    if (bv) { homing = bvd < 260; goal(bv.x, bv.y, homing ? 4 : 1.6); }
   }
+  if (mode === 'collect' && !homing && bestPick && bpd < 200) { homing = true; goal(bestPick.x, bestPick.y, 2.5); }
   if (mode === 'collect' || mode === 'kite' || mode === 'defend') {
     let bg = null, bgd = Infinity;
     for (const g of G.gems) { const d = Math.hypot(g.x - p.x, g.y - p.y); const sc = d / Math.sqrt(g.v); if (sc < bgd && d < (mode === 'collect' ? 800 : 400)) { bgd = sc; bg = g; } }
@@ -2060,12 +2074,13 @@ function autoSteer() {
   if (cdist > CORE.arena - 350) goal(core.x, core.y, (cdist - (CORE.arena - 350)) / 120);
   // Cruise: with nothing much to aim for, keep swimming the way you're heading (with a slow lazy curve)
   // rather than dithering on the spot.
-  if (mode !== 'hold' && mode !== 'defend') {
+  if (mode !== 'hold' && mode !== 'defend' && !homing) {
     const gl0 = Math.hypot(gx, gy), hd = (p.hd || 0) + Math.sin(G.t * 0.35) * 0.35, cw = Math.max(0, 0.6 - gl0 * 0.4);
     gx += Math.cos(hd) * cw; gy += Math.sin(hd) * cw;
   }
   const gl = Math.hypot(gx, gy);
-  if (gl > 1.5) { gx = gx / gl * 1.5; gy = gy / gl * 1.5; }
+  const gcap = homing ? 4 : 1.5;
+  if (gl > gcap) { gx = gx / gl * gcap; gy = gy / gl * gcap; }
   // Danger sampling.
   const bw = G.warp > 0 ? 0.3 : 1;
   const bul = [];
@@ -2101,7 +2116,7 @@ function autoSteer() {
     // Turning is slow, so mildly prefer directions close to where the head already points.
     // Forward momentum: favour the heading and the last pick (so it doesn't flip between near-equal
     // options), and only stop dead when holding.
-    const mom = mode === 'hold' ? 0.18 : 0.42;
+    const mom = mode === 'hold' ? 0.18 : homing ? 0.08 : 0.42;
     const interest = dx * gx + dy * gy + (i < 0 ? 0 : mom * (Math.cos(p.hd || 0) * dx + Math.sin(p.hd || 0) * dy) / Math.max(0.6, G.P.traction)) + (i === G.steerPick ? 0.12 : 0);
     const score = interest - danger + (i < 0 ? (mode === 'hold' ? 0.4 : -0.35) : 0);
     if (score > best) { best = score; bx = dx; by = dy; pick = i; }
@@ -2338,8 +2353,8 @@ function update(dt) {
   if (G.t >= G.nextWave && !G.debug) { G.nextWave += 30; waveEvent(); }
   updateRivals(dt);
   if (!G.wave && !G.debug) updateShowdown();
-  if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('IMMUNE SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
-  if (G.t >= G.nextBoss) { G.nextBoss += BOSS_INTERVAL; spawnBoss(); }
+  if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('STORM SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
+  if (G.t >= G.nextBoss) { G.nextBoss += G.bossCount >= 3 ? BOSS_INTERVAL * 2 : BOSS_INTERVAL; spawnBoss(); }
   // FX.
   G.hitFxN = 0;
   if (G.flashT > 0) G.flashT -= dt;
