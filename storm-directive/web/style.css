@@ -825,9 +825,9 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 /* Weapon tuning cards: pick the weapon on the card. */
 .wpick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
 .wpick .wpl { font-size: 10px; letter-spacing: 1px; color: #8395a8; width: 100%; }
-.wchip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border-radius: 10px; border: 1.5px solid #5fd4e8; background: #0b1418; font-size: 12px; cursor: pointer; }
-.wchip b { font-weight: 700; color: #e6eef5; }
-.wchip em { font-style: normal; font-size: 10px; color: #8395a8; }
+.wchip { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 52px; height: 52px; padding: 0; border-radius: 10px; border: 1.5px solid var(--c, #5fd4e8); background: #0b1418; font-size: 12px; cursor: pointer; }
+.wchip svg { display: block; }
+.wchip em { font-style: normal; font-size: 10px; color: #8395a8; line-height: 1; }
 .wchip:active { background: #173039; }
 .card.nudge { animation: cardnudge 0.3s; opacity: 1; transform: none; }
 @keyframes cardnudge { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }

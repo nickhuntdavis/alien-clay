@@ -740,7 +740,7 @@ const UI = {
   },
 
   pickChips(o) {
-    return `<div class="wpick"><span class="wpl">TAP A WEAPON:</span>${o.pickW.map(t => `<span class="wchip" data-w="${t.uid}">${iconSVG(t.def, 16, elemCol(t.def.elem))}<b>${esc(t.def.name)}</b><em>${t.n}/${t.max}</em></span>`).join('')}</div>`;
+    return `<div class="wpick"><span class="wpl">TAP A WEAPON:</span>${o.pickW.map(t => `<span class="wchip" data-w="${t.uid}" title="${esc(t.def.name)}" style="--c:${elemCol(t.def.elem)}">${iconSVG(t.def, 28, elemCol(t.def.elem))}<em>${t.n}/${t.max}</em></span>`).join('')}</div>`;
   },
   pickLoot(i, wuid) {
     const o = UI.lootOpts[i];

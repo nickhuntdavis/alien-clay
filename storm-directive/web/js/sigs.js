@@ -562,7 +562,7 @@ function applyAdapt(w, s) {
 function adaptNotes(map) {
   if (!map || !G) return '';
   const n = G.weapons.filter(w => w && map[w.id]).map(w => map[w.id]);
-  return n.length ? ' ' + n.join(' ') : '';
+  return n.length ? '. ' + n.join(' ') : ''; // (after the effect line, which has no full stop of its own)
 }
 // Premature Evangelation clocking off: Last Word burst and Tactical Nap shockwave.
 function angelsClockOff(w) {
