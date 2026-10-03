@@ -186,17 +186,20 @@ function spliceOpts() {
       apply: () => genesSplice(id) };
   });
 }
-// The SKIP button on a splice screen: keep your genome as it is, for two rerolls.
+// The SKIP button on a splice screen: keep your genome as it is and take a mutation instead (two rerolls
+// if your genome is already full of them).
+const spliceSkipMut = () => mutCount() < mutCap();
 function spliceSkip() {
-  G.rerolls += 2;
   floatText(G.player.x, G.player.y - 30, 'STAYING PURE', '#adb5bd', 14, 0.8);
+  if (spliceSkipMut()) G.lootQueue.unshift({ kind: 'vesicle' });
+  else G.rerolls += 2;
 }
 function profSynText(id) {
   const s = PROFILE_SYNERGIES.filter(q => (q.a === id && genesOn(q.b)) || (q.b === id && genesOn(q.a)));
   return s.length ? ' With what you already express: ' + s.map(q => q.name + ' (' + q.desc + ')').join(' ') : '';
 }
 // Splice offers come at these levels while you have room for another sequence.
-const SPLICE_LEVELS = [6, 18]; // just before the weapon drafts at 8 and 22, so a splice widens them
+const SPLICE_LEVELS = [6, 26, 46]; // well spread: early (just before the Lv 8 draft), mid-run and late; two splices at most
 function genesLevel(lvl) {
   if (!SPLICE_LEVELS.includes(lvl) || G.genes.active.length >= 3 || G.debug) return;
   if (Object.keys(PROFILES).some(id => profUnlocked(id) && !G.genes.active.includes(id))) { G.lootQueue.push({ kind: 'splice' }); banner('SEQUENCE SPLICE AVAILABLE', PAL.upgrade); }

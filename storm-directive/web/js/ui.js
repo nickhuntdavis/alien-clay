@@ -659,7 +659,7 @@ const UI = {
     UI.rarityBanner();
     $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'relic' ? 'none' : '';
     $('skipBtn').style.display = req.kind === 'splice' ? '' : 'none';
-    $('skipBtn').textContent = 'SKIP (+2 REROLLS)';
+    $('skipBtn').textContent = spliceSkipMut() ? 'SKIP: TAKE A MUTATION' : 'SKIP (+2 REROLLS)';
     UI.updateReroll();
     UI.show('loot');
     INPUT.active = false; G.manual = null;

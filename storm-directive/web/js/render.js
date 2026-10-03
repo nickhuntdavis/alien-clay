@@ -12,6 +12,8 @@ function sy(y) { return (y - cam.y) * S + H / 2; }
 const XR = { white: '#d6e4f0', dim: '#8395a8', line: 'rgba(196,218,240,0.42)', halo: 'rgba(196,218,240,0.16)' };
 // Everything starts greyscale: only the colours of the stains you've picked up this run get through.
 const PAL_OK = new Set();
+// Full Technicolour (a Mythical bonus): no more greyscale, anywhere.
+let FULL_COL = false;
 const DYE_COLOURS = {
   gfp: () => [PAL.you], immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST, DYE_FAST_DK],
   rival: () => RIVALS.map(r => r.color), he: () => [PAL.upgrade, PAL.pickup].concat(Object.values(ELEM_UI)),
@@ -20,6 +22,9 @@ function refreshPalette() {
   PAL_OK.clear();
   for (const c of ['#ffffff', '#000000', XR.white, XR.dim]) PAL_OK.add(c);
   const dyes = (typeof G !== 'undefined' && G && G.dyes) || {};
+  FULL_COL = !!(typeof G !== 'undefined' && G && G.boons && G.boons.technicolour);
+  if (typeof PC_TONE !== 'undefined') PC_TONE.clear();
+  document.body.classList.toggle('technicolour', FULL_COL);
   for (const id in dyes) if (dyes[id] && DYE_COLOURS[id]) for (const c of DYE_COLOURS[id]()) PAL_OK.add(c.toLowerCase());
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
@@ -38,7 +43,7 @@ for (const el in ELEM_HEX) for (const h of ELEM_HEX[el]) ELEM_OF.set(h, el);
 const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ff0033': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
-  if (typeof c !== 'string') return c;
+  if (typeof c !== 'string' || FULL_COL) return c;
   let v = COL.get(c);
   if (v !== undefined) return v;
   let r, g, b, a = null;
@@ -166,7 +171,7 @@ function pcTone(hex, k) {
   let v = PC_TONE.get(key);
   if (v) return v;
   const n = parseInt(hex.slice(1, 7), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
-  const l = 0.3 * r + 0.59 * g + 0.11 * b, hue = 0.28, dk = k != null ? k : 0.36;
+  const l = 0.3 * r + 0.59 * g + 0.11 * b, hue = FULL_COL ? 1 : 0.28, dk = FULL_COL ? Math.min(1, (k != null ? k : 0.36) * 2.2) : k != null ? k : 0.36;
   const f = c => Math.round((l * (1 - hue) + c * hue) * dk);
   v = `rgb(${f(r)},${f(g)},${f(b)})`;
   PC_TONE.set(key, v);
@@ -330,6 +335,19 @@ function drawShape(shape, x, y, r, rot) {
 }
 
 // ---------------------------------------------------------------- background & floor
+// Full Technicolour: a slowly turning rainbow laid over whatever is drawn so far with the 'color' blend
+// (it takes its hue from the rainbow and its light and dark from what's underneath), so even the greys
+// (tails, the slide, the grid, the terrain) come up in colour.
+function technicolourWash(alpha) {
+  const cx = W / 2, cy = H / 2, t = G.realT * 0.25;
+  let g;
+  if (ctx.createConicGradient) { g = ctx.createConicGradient(t, cx, cy); for (let i = 0; i <= 6; i++) g.addColorStop(i / 6, `hsl(${i * 60},100%,50%)`); }
+  else { g = ctx.createLinearGradient(0, 0, W, H); for (let i = 0; i <= 6; i++) g.addColorStop(i / 6, `hsl(${(i * 60 + t * 57) % 360},100%,50%)`); }
+  const op = ctx.globalCompositeOperation, a0 = ctx.globalAlpha;
+  ctx.globalCompositeOperation = 'color'; ctx.globalAlpha = alpha;
+  ctx.fillStyle = g; ctx.fillRect(-40, -40, W + 80, H + 80);
+  ctx.globalCompositeOperation = op; ctx.globalAlpha = a0;
+}
 function drawBackground() {
   if (!SPR.layers) buildLayers();
   if (SET.darkfield) { drawDarkfieldBackground(); return; }
@@ -342,6 +360,7 @@ function drawBackground() {
     const ox = -((((cam.x * S * L.f) % T) + T) % T), oy = -((((cam.y * S * L.f) % T) + T) % T);
     for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
   }
+  if (FULL_COL) technicolourWash(0.75);
   const core = G.core, cx = sx(core.x), cy = sy(core.y), R = CORE.arena * S;
   // Counting-chamber grid etched into the slide: fine lines every 100 units, heavier every 500.
   const x0 = cam.x - W / 2 / S, y0 = cam.y - H / 2 / S, x1 = x0 + W / S, y1 = y0 + H / S;
@@ -1652,6 +1671,7 @@ function render() {
   }
   WORLD_DF = df;
 
+  if (FULL_COL) technicolourWash(0.32);
   // Floating texts.
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const t of G.texts) {
