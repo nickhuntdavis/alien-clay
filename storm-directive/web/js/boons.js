@@ -9,7 +9,7 @@ const BOONS = {
   phoenix:    { tier: 5, name: 'Second Coming', desc: 'The first time you would die, you come back at full health. Unplanned.' },
   hormone:    { tier: 5, name: 'Growth Hormone', desc: '+50% max HP (and heal it), and +2 Headstrong. You are the weapon now.' },
   pocketvoid: { tier: 5, name: 'Bottomless Pit', desc: 'A small black hole circles you for the rest of the run, dragging enemies in and crushing them.' },
-  technicolour: { tier: 5, name: 'Full Technicolour', desc: 'The stains are off. EVERYTHING goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD, the lot. Also +10% damage, because colour is power.' },
+  technicolour: { tier: 5, name: 'Full Technicolour', desc: 'Everything goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD. Also +10% damage.' },
   bullettime: { tier: 5, name: 'Tantric', desc: 'When you drop below 30% health, time slows for 4s (every 20s at most). Breathe.' },
   // Celestial
   supernova:  { tier: 6, name: 'Gender Reveal', desc: 'Every 12s a blast fills the screen: every enemy takes 18% of its max HP (4% on bosses, 6% on the Final Five) and every enemy bullet is wiped. Everyone finds out.' },

@@ -5,16 +5,19 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 ## Contents
 1. [How upgrades work](#how-upgrades-work)
 2. [Epigenetic Profiles (sequences)](#epigenetic-profiles-sequences)
+   - [Sequence synergies](#sequence-synergies)
 3. [Weapons](#weapons)
 4. [Weapon combos](#weapon-combos)
 5. [Pairings (secret combos)](#pairings-secret-combos)
 6. [Bosses and relics](#bosses-and-relics)
 7. [Run events](#run-events)
 8. [Spells](#spells)
+   - [Spell paths (Lv 4)](#spell-paths-lv-4)
 9. [Power-ups (passives)](#power-ups-passives)
 10. [Mutations (Enzyme Vesicles)](#mutations-enzyme-vesicles)
 11. [Mythical and Celestial bonuses](#mythical-and-celestial-bonuses)
 12. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
+   - [Lv 3 pool](#lv-3-pool)
 13. [Modifiers](#modifiers)
 14. [Duo combos](#duo-combos)
 15. [Stains](#stains)
@@ -27,11 +30,17 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 22. [Immune Response (difficulty)](#immune-response-difficulty)
 23. [Being born (prestige)](#being-born-prestige)
 24. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+   - [Bonuses](#bonuses)
+   - [Wildcard weapons](#wildcard-weapons)
+   - [GFP variants](#gfp-variants)
 25. [Enemies](#enemies)
+   - [First sightings](#first-sightings)
 26. [Rival champions](#rival-champions)
 27. [Terrain](#terrain)
 28. [Sperm samples](#sperm-samples)
-29. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
+29. [Hidden rules](#hidden-rules)
+30. [Glossary](#glossary)
+31. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
 
 ## How upgrades work
 
@@ -86,7 +95,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **Blowout** | The Ten-Pounder + The Problem Child | Nappy Mines leave a burning puddle where they go off. |
 | **First Impressions** | The Favourite + The Quiet One | Hits on enemies at full health always crit. |
 | **Fresh Frozen** | The Designer Baby + The Favourite | Frozen or chilled enemies take 30% more damage from you. |
-| **Batch Cooking** | The Designer Baby + The Good Eater | Cold Storage heals you 3% of your max HP for every enemy it freezes (up to 15%). |
+| **Batch Cooking** | The Designer Baby + The Good Eater | Your starting ability (Cold Storage or Cluster Feeding, whichever is your primary's) heals you 3% of your max HP for every enemy it hits (up to 15%). |
 
 ## Weapons
 
@@ -96,7 +105,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |---|---|---|---|---|---|
 | [Spitball](#spitball) | Firstborn | Kinetic | Marksman | NEAREST | - |
 | [Hiccup Scattergun](#hiccup-scattergun) | Ten-Pounder | Kinetic | Brawler | NEAREST | - |
-| [Yo-Yo Diet](#yo-yo-diet) | Firstborn | Kinetic | Boomerang Kid | FURTHEST | - |
+| [Yo-Yo Diet](#yo-yo-diet) | Firstborn | Kinetic | Boomerang | FURTHEST | - |
 | [Incompatible Viral Load](#incompatible-viral-load) | Quiet One | Toxic | Toxic Trail | NEAREST | 80 DNA |
 | [Heartburn](#heartburn) | Problem Child | Fire | Flamethrower | NEAREST | - |
 | [Nappy Mines](#nappy-mines) | Ten-Pounder | Fire | Trapper | NEAREST | 60 DNA |
@@ -164,7 +173,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Yo-Yo Diet
 
-*Kinetic gun, Boomerang Kid.* A spinning blade that flies out and always comes back. Like the weight.
+*Kinetic gun, Boomerang.* A spinning blade that flies out and always comes back. Like the weight.
 
 - **Base stats:** dmg 16, cd 1s, mag 2, reload 1.3s, pierce all, range 330 (boomerang 1)
 - **Level bonuses:** Lv3: +20% dmg; Lv6: +1 count; Lv9: +30% dmg
@@ -608,7 +617,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 *Kinetic bubble, Trap & Throw.* Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.
 
 - **Base stats:** dmg 18, cd 1.1s, mag 4, reload 2s, range 380 (dur 5, hold 34)
-- **Level bonuses:** Lv3: +1 count, +4 film; Lv6: +40% dmg, +4 film; Lv9: +1 count, +1 rainbow
+- **Level bonuses:** Lv3: +1 count, thicker bubbles (each holds 4 more times the wand's damage before it pops, and adds what it soaked to the pop); Lv6: +40% dmg, thicker bubbles (each holds 4 more times the wand's damage before it pops, and adds what it soaked to the pop); Lv9: +1 count, rainbow pops (each pop takes a random element)
 - **Combos:** **Worm Farm** (+ Tapeworm Seeder), **Bubble Halo** (+ Premature Evangelation)
 - **Pairings:** **Bubble Hockey** (+ Placenta Paddle), **Toil and Trouble** (+ Morning Sickness)
 
@@ -713,8 +722,6 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Tunnel Vision | Incompatible Viral Load | the trail hits harder the longer you keep swimming fast. |
 | Tunnel Vision | Premature Evangelation | angels hit harder the longer they stay on shift. |
 | Hair Trigger | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits 33% harder instead. |
-| Due Date Panic | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits 60% harder instead. |
-| Espresso Drip | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits twice as hard instead. |
 
 ## Weapon combos
 
@@ -1035,11 +1042,11 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Salt in the Wound** | 0 | +20% crit chance against enemies that are slowed, frozen, poisoned or burning. |
 | **Eat Your Greens** | 0 | +5% fire rate, and spells recharge 5% faster. |
 | **Cold Hands** | 0 | Frost +30%, Fire -20%. Warm heart. |
-| **Hot Head** | 0 | Fire +30%, ice -20%. Don't squeeze it. Or do. I want to watch. |
+| **Hot Head** | 0 | Fire +30%, Frost -20%. |
 | **Runner's High** | 0 | +2 HP/s regeneration while you swim fast. |
 | **E Numbers** | 0 | Killing an elite: 3s of +25% fire rate. The blue ones are worst. |
-| **Surprise Package** | 0 | Popping an Enzyme Vesicle blows everything near you away. A Trojan virus, but rude. |
-| **Snot Trail** | 0 | +5% swim speed, poison +5%. You are leaving a sticky mess all over my nice clean floor. |
+| **Surprise Package** | 0 | Popping an Enzyme Vesicle blows everything near you away. |
+| **Snot Trail** | 0 | +5% swim speed, Toxic +5%. |
 | **Stiff as a Board** | 0 | +10% dodge chance, -20% swim speed. |
 | **Biting Phase** | 0 | Hits heal you a little (within the lifesteal limit). It is just a phase. |
 | **Teacher's Pet** | 0 | Weapons and spells -5% damage. +25% XP. |
@@ -1084,7 +1091,7 @@ A Mythical or Celestial card carries one of these on top of its own effect, for 
 | **Second Coming** | Mythical | The first time you would die, you come back at full health. Unplanned. |
 | **Growth Hormone** | Mythical | +50% max HP (and heal it), and +2 Headstrong. You are the weapon now. |
 | **Bottomless Pit** | Mythical | A small black hole circles you for the rest of the run, dragging enemies in and crushing them. |
-| **Full Technicolour** | Mythical | The stains are off. EVERYTHING goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD, the lot. Also +10% damage, because colour is power. |
+| **Full Technicolour** | Mythical | Everything goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD. Also +10% damage. |
 | **Tantric** | Mythical | When you drop below 30% health, time slows for 4s (every 20s at most). Breathe. |
 | **Gender Reveal** | Celestial | Every 12s a blast fills the screen: every enemy takes 18% of its max HP (4% on bosses, 6% on the Final Five) and every enemy bullet is wiped. Everyone finds out. |
 | **Hand of God** | Celestial | Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP (4% on bosses, 6% on the Final Five). |
@@ -1208,7 +1215,7 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 
 ## Element synergies
 
-Own several weapons or spells of one element to unlock its set bonus.
+Own two or more weapons or spells of one element to unlock its set bonus.
 
 | Element | Bonus name | Effect |
 |---|---|---|
@@ -1371,7 +1378,7 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Daughter Colony** | 26 | 6 | 62 | 0 | 2 | Spawned by others | Swims straight at you |
 | **Candida** | 18 | 5 | 22 | 0 | 1 | Spawned by others | Buds new yeast cells |
 | **Pepsinator Jr** | 60 | 14 | 72 | 0 | 6 | Spawned by others | Swims straight at you |
-| **Second Dose** | 45 | 12 | 92 | 0 | 6 | Spawned by others | Laser lock-on, burst fire, comes back once as a Second Dose |
+| **Second Dose** | 45 | 12 | 92 | 0 | 6 | Spawned by others | Laser lock-on, burst fire |
 
 ### First sightings
 
@@ -1409,8 +1416,8 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Candida** | Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through. | Burn it out early, before it spreads. Fire and poison clouds work well. |
 | **Pepsinator Jr** | A small Pepsinator. All the stomach, half the size. | Treat it like a mini boss: keep moving and hit it hard. |
 | **Alpha Swimmer** | A huge rival swimmer, armoured and hard-hitting. | Shred its armour and keep your distance. Its charge is slow to start. |
-| **Booster** | A nanobot. It locks on with a red laser before firing a burst, and destroying it is only half the job. | Move as soon as the laser settles on you. Something comes out of the wreck. |
-| **Second Dose** | What climbs out of a wrecked Booster: lighter, faster and still coming. | It has no armour left. Finish it before it reaches you. |
+| **Booster** | A booster shot. It locks on with a red sight line before firing a burst, and killing it is only half the job. | Move as soon as the line settles on you. A Second Dose follows it. |
+| **Second Dose** | What comes after a Booster: lighter, faster and still coming. | It has no armour left. Finish it before it reaches you. |
 | **Natural Killer** | A Natural Killer: it weaves in, crouches, then pounces. Its blood is acid. | When it crouches, get clear. Don't stand where it dies. |
 
 ## Rival champions
@@ -1422,7 +1429,7 @@ Knock a named rival out of the race and you choose one of their two relics.
 | Rival | Growth speed | Aggression | Bio | Relics (choose one) |
 |---|---|---|---|---|
 | **Big Steve** | x1.1 | 0.6 | Has been doing laps since the Tuesday before last | **Personal Best**: +20% swim speed, and +10% dodge while you are swimming fast.<br>**Marathon**: While you keep swimming fast you heal 1% of your max HP every second. |
-| **Chad Flagellum** | x1 | 0.9 | Has a protein shake named after him | **Gains**: +30% max HP (and heal it).<br>**Tail Day**: +2 Headstrong: enemies you swim into take big damage. |
+| **Chad Flagellum** | x1 | 0.9 | Has a protein shake named after him | **Gains**: +30% max HP (and heal it).<br>**Head Coach**: +2 Headstrong: enemies you swim into take big damage. |
 | **Professor Wiggles** | x1.15 | 0.2 | Holds a doctorate in swimming, self-awarded | **Honorary Degree**: +25% XP for the rest of the run.<br>**Thesis Defence**: Your crits hit 75% harder. |
 | **Lil' Zygo** | x0.9 | 0.7 | Small, angry, surprisingly aerodynamic | **Small Mercies**: Your hitbox is 25% smaller, so more bullets miss you.<br>**Throwing a Wobbly**: Below half health: take 20% less damage and deal 24% more. |
 | **Kevin** | x0.95 | 0.4 | Just Kevin | **Just Kevin**: A little of everything: +6% damage, fire rate, swim speed, max HP and crit chance.<br>**Kevin's Mum**: Every 45s she drops off a power-up next to you. She worries. |
@@ -1465,15 +1472,15 @@ Rules the cards do not spell out, but that change what is worth picking.
 - **Dodge:** Capped at 75% when rolled. Cards that clamp their own bonus never lower dodge you already have.
 - **Crit overflow:** Crit chance above 100% is added to crit damage one for one.
 - **Extra projectiles:** Shots share damage: k times the projectiles deal (1 + (k^0.6 - 1)/2) in total, about +25% for one extra on a one-shot weapon.
-- **Level curve:** The game expects Lv 60 at 9:00. Each level you are ahead adds 5% enemy health and 3% enemy damage. Each level behind shows BEHIND PACE on the HUD.
-- **Storm Surge:** From 10:00 (difficulty minute 15) enemy health and damage compound every minute. Win before it.
+- **Level curve:** The game expects Lv 60 at 9:00. Each level you are ahead adds 5% enemy health and 3% enemy damage. Three or more levels behind, BEHIND PACE shows on the HUD.
+- **Storm Surge:** From 10:00 (difficulty minute 15) enemy health and damage compound every minute. Every win so far has finished in its first 2 minutes (10:15 to 11:35), so it is the final sprint, not a wall: the longer you stay in it, the harder every minute gets.
 - **Mythical and Celestial:** A separate roll on every card, three a run at most.
 - **Weapon tuning:** Tuning cards only offer weapons the stat actually helps (no pierce for weapons that already pierce everything, no magazine for one-shot weapons).
 
 ## Glossary
 
 - **Rewind and Chrono energy:** Rewind fires by itself on a lethal hit, rolls you back about 4s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with 1 charge (max 2, more with Snooze Button). Charges refill from Chrono energy (600 per charge, 15% more for every Rewind already used this run), earned by fighting.
-- **Viewers and sponsors:** The race is a live show. Kills, combos, bosses and achievements raise viewers; viewer milestones bring sponsor gifts (a heal, Oxytocin, a stair gate, a magnet, a nuke or a DNA strand).
+- **Viewers and sponsors:** The race is a live show. Kills, combos, bosses and achievements raise viewers; viewer milestones bring sponsor gifts (a heal, Oxytocin, a stair gate, a magnet, a Nit Comb or a DNA strand).
 - **The egg:** Opens at Lv 60: its membrane has 150,000 base HP and 8 armour, and a rival can break in first. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.
 - **Spell slots:** Two. Spells cast themselves on cooldown.
 - **Element set:** Two weapons or spells of the same element turn on its set bonus.
@@ -1492,7 +1499,7 @@ Rules the cards do not spell out, but that change what is worth picking.
 | **Flammable Fumes** | Something burning touched a toxic puddle and set the whole thing alight. |
 | **Ice Rink** | Frost froze a toxic puddle solid. Enemies slide about on it; you skate across it faster. |
 | **Icebreaker** | You rammed a frozen enemy at speed. It shattered, and the shards hit what was behind it. |
-| **Hereditary** | An infected enemy split during Mitosis, and both halves kept the infection. |
+| **Hereditary** | An infected enemy split during Identical Twins, and both halves kept the infection. |
 | **Downstream** | Waters Breaking swept your mines, puddles and black holes along with everything else. |
 | **Firelight** | In the dark, fire gives off light. Burning things light up their surroundings during Lights Out. |
 | **Head-On** | Ramming counts closing speed: swim straight at something fast and it hits much harder. |

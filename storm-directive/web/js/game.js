@@ -766,7 +766,8 @@ function damageEnemy(e, dmg, src) {
   if (!src.dot) relicHit(e, d, src);
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   // Kinetic's reaction, SHATTER: a solid hit on something frozen breaks it, and the shards fly.
-  else if ((src.elem || 'phys') === 'phys' && !src.noStatus && !src.dot && e.frozen > 0 && !e.boss && !e.dead && react(e, 'shatter', src)) {
+  // (Not the Paddle with Ice Hockey: that pairing is its own frozen-enemy trick, and a shatter would unfreeze them after the first swing.)
+  else if ((src.elem || 'phys') === 'phys' && !src.noStatus && !src.dot && e.frozen > 0 && !e.boss && !e.dead && !(G.pair.icehockey && src.w && src.w.id === 'paddle') && react(e, 'shatter', src)) {
     e.frozen = 0; e.chillAmt = 0;
     aoe(e.x, e.y, 70 + e.r, (dmg * 1.5 + 8) * G.P.react, { elem: 'ice', noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' }, '#e6f4ff');
     fxParts('shard', e.x, e.y, '#e6f4ff', 10, 260, 0.5, 4);
@@ -2091,6 +2092,8 @@ function autoSteer() {
   if (cdist > CORE.arena - 350) goal(core.x, core.y, (cdist - (CORE.arena - 350)) / 120);
   // Cruise: with nothing much to aim for, keep swimming the way you're heading (with a slow lazy curve)
   // rather than dithering on the spot.
+  // Terrain upgrades: drift towards the terrain they use.
+  if (mode !== 'hold' && mode !== 'defend' && !homing) { const tl = terrainLure(p); if (tl) goal(tl.x, tl.y, tl.w); }
   if (mode !== 'hold' && mode !== 'defend' && !homing) {
     const gl0 = Math.hypot(gx, gy), hd = (p.hd || 0) + Math.sin(G.t * 0.35) * 0.35, cw = Math.max(0, 0.6 - gl0 * 0.4);
     gx += Math.cos(hd) * cw; gy += Math.sin(hd) * cw;

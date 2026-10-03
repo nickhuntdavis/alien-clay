@@ -36,8 +36,8 @@ const ENEMY_INTRO = {
   yeast:      { what: 'Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through.', tip: 'Burn it out early, before it spreads. Fire and poison clouds work well.' },
   pepsinjr:   { what: 'A small Pepsinator. All the stomach, half the size.', tip: 'Treat it like a mini boss: keep moving and hit it hard.' },
   juggernaut: { what: 'A huge rival swimmer, armoured and hard-hitting.', tip: 'Shred its armour and keep your distance. Its charge is slow to start.' },
-  sperminator:{ what: 'A nanobot. It locks on with a red laser before firing a burst, and destroying it is only half the job.', tip: 'Move as soon as the laser settles on you. Something comes out of the wreck.' },
-  endoskeleton:{ what: 'What climbs out of a wrecked Booster: lighter, faster and still coming.', tip: 'It has no armour left. Finish it before it reaches you.' },
+  sperminator:{ what: 'A booster shot. It locks on with a red sight line before firing a burst, and killing it is only half the job.', tip: 'Move as soon as the line settles on you. A Second Dose follows it.' },
+  endoskeleton:{ what: 'What comes after a Booster: lighter, faster and still coming.', tip: 'It has no armour left. Finish it before it reaches you.' },
   alien:      { what: 'A Natural Killer: it weaves in, crouches, then pounces. Its blood is acid.', tip: 'When it crouches, get clear. Don\'t stand where it dies.' },
 };
 const INTRO_GAP = 12; // seconds between introductions in a run, so a first run isn't all pauses

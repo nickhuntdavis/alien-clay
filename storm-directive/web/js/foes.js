@@ -4,7 +4,7 @@
 
 // ================================================================ new enemies
 Object.assign(ENEMIES, {
-  // A nanobot hunter-killer built in a lab to win the race. Locks on with a red laser, fires a burst, and
+  // A booster shot built in a lab to win the race. Locks on with a red sight line, fires a burst, and
   // when you destroy it, it isn't finished: the chrome endoskeleton climbs out and keeps coming.
   sperminator: { name: 'Booster', hp: 120, speed: 62, armour: 6, r: 14, dmg: 14, xp: 10, color: '#b8c4cc', shape: 'sperminator', ai: 'sperminator', from: 300, w: 1.1, rebuild: 'endoskeleton',
     shoot: { pattern: 'aimed', cd: 4, speed: 360, dmg: 9 } },
@@ -16,7 +16,7 @@ Object.assign(ENEMIES, {
 
 // Behaviour (from updateEnemies' switch): returns the swim direction and speed, or nothing for a plain chase.
 const FOE_INTRO = {
-  sperminator: ['BOOSTER', 'A nanobot hunter-killer. It locks on with a red laser before it fires, so move when you see the beam. Destroying it is only half the job.'],
+  sperminator: ['BOOSTER', 'A booster shot. It locks on with a red sight line before it fires, so move when you see it. Killing it is only half the job.'],
   alien: ['NATURAL KILLER', 'Not from round here. It weaves in, crouches, then pounces: get clear when it crouches. Its blood is acid.'],
 };
 function foeIntro(e) {

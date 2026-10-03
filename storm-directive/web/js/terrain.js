@@ -196,17 +196,39 @@ function steerTerrain(x, y, r, dx, dy) {
   let dn = 0;
   for (const ob of c) {
     const d = Math.hypot(x - ob.x, y - ob.y) - ob.r - r;
-    if (ob.type === 'acid') { if (d < 50) dn += 3 + (50 - d) * 0.12; }
+    if (ob.type === 'acid' && !G.P.ironGut) { if (d < 50) dn += 3 + (50 - d) * 0.12; } // (Cast-Iron Stomach: just a wall)
     else if (ob.def.solid) { if (d < 45) { const k = 1 - Math.max(0, d) / 45; dn += 2.4 * k * k + (d < 4 ? 4 : 0); } }
     else if (d < 0) {
-      if (ob.type === 'cilia') dn += 0.7;
-      else if (ob.type === 'slick') dn += 0.6;
-      else if (ob.type === 'current') dn += 0.5 * Math.max(0, -(Math.cos(ob.a) * dx + Math.sin(ob.a) * dy)); // against the flow
+      // With that terrain's upgrade, autorun no longer minds it.
+      if (ob.type === 'cilia') dn += G.P.brushOff ? 0 : 0.7;
+      else if (ob.type === 'slick') dn += G.P.skid ? 0 : 0.6;
+      else if (ob.type === 'current') dn += 0.5 * Math.max(0, -(Math.cos(ob.a) * dx + Math.sin(ob.a) * dy)) * (G.P.flow ? 0.3 : 1); // against the flow
     }
   }
   return dn;
 }
 
+// Terrain upgrades, for autorun: the nearest piece of terrain your upgrades use (within 700), and how keen
+// to be on it. Currents and slicks you want to be in; nodules, mitochondria, acid and cilia beds you want
+// to fight next to (enemies chasing you round them get bounced shots, ATP, acid and cilia).
+const TERRAIN_WANT = { withflow: ['current', 'in'], skidmarks: ['slick', 'in'], bankshot: ['ridge', 'near'], batteries: ['mito', 'near'], castiron: ['acid', 'near'], brushoff: ['cilia', 'near'] };
+function terrainLure(p) {
+  if (!G.terrain) return null;
+  let best = null, bd = 700;
+  for (const id in TERRAIN_WANT) {
+    if (!G.passives[id]) continue;
+    const [type, how] = TERRAIN_WANT[id];
+    for (const ob of G.terrain.list) {
+      if (ob.type !== type) continue;
+      // Inside a current or slick: stay (aim back at the middle, gently, against the drift). Near the rest: fine.
+      const d = Math.hypot(ob.x - p.x, ob.y - p.y), edge = how === 'in' ? ob.r * 0.75 : ob.r + 70, k = G.passives[id] || 1;
+      if (how === 'in' && d < ob.r) { const up = ob.type === 'current' ? 60 : 0; return { x: ob.x - Math.cos(ob.a) * up, y: ob.y - Math.sin(ob.a) * up, w: d < ob.r * 0.5 ? 0.3 : 0.9 }; }
+      if (d <= edge) return null; // already where it wants to be
+      if (d - edge < bd) { bd = d - edge; best = { x: ob.x, y: ob.y, w: how === 'in' ? 0.9 + 0.3 * k : 0.35 + 0.25 * k }; }
+    }
+  }
+  return best;
+}
 // Keep things that need collecting out of the middle of solid obstacles.
 function unstick(o, r) { pushOut(o, r || 10, 0); return o; }
 

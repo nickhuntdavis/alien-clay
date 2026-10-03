@@ -10,7 +10,7 @@ const QUIRKS = {
   flammable:  { name: 'Flammable Fumes', desc: 'Something burning touched a toxic puddle and set the whole thing alight.' },
   icerink:    { name: 'Ice Rink', desc: 'Frost froze a toxic puddle solid. Enemies slide about on it; you skate across it faster.' },
   icebreaker: { name: 'Icebreaker', desc: 'You rammed a frozen enemy at speed. It shattered, and the shards hit what was behind it.' },
-  contagion:  { name: 'Hereditary', desc: 'An infected enemy split during Mitosis, and both halves kept the infection.' },
+  contagion:  { name: 'Hereditary', desc: 'An infected enemy split during Identical Twins, and both halves kept the infection.' },
   driftmines: { name: 'Downstream', desc: 'Waters Breaking swept your mines, puddles and black holes along with everything else.' },
   firelight:  { name: 'Firelight', desc: 'In the dark, fire gives off light. Burning things light up their surroundings during Lights Out.' },
   headon:     { name: 'Head-On', desc: 'Ramming counts closing speed: swim straight at something fast and it hits much harder.' },

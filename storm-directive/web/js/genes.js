@@ -42,7 +42,7 @@ const PROFILE_SYNERGIES = [
   { a: 'bruiser', b: 'acid', name: 'Blowout', desc: 'Nappy Mines leave a burning puddle where they go off.' },
   { a: 'eggseeker', b: 'stealth', name: 'First Impressions', desc: 'Hits on enemies at full health always crit.' },
   { a: 'splicer', b: 'eggseeker', name: 'Fresh Frozen', desc: 'Frozen or chilled enemies take 30% more damage from you.' },
-  { a: 'splicer', b: 'pusher', name: 'Batch Cooking', desc: 'Cold Storage heals you 3% of your max HP for every enemy it freezes (up to 15%).' },
+  { a: 'splicer', b: 'pusher', name: 'Batch Cooking', desc: 'Your starting ability (Cold Storage or Cluster Feeding, whichever is your primary\'s) heals you 3% of your max HP for every enemy it hits (up to 15%).' },
 ];
 const profUnlocked = id => { const u = PROFILES[id].unlock; return !u || u.have() >= u.need; };
 const profKills = id => (META.prof[id] && META.prof[id].kills) || 0;
@@ -126,12 +126,12 @@ const MUTATIONS = {
   slappy:      { tier: 0, name: 'Salt in the Wound', desc: '+20% crit chance against enemies that are slowed, frozen, poisoned or burning.' },
   salad:       { tier: 0, name: 'Eat Your Greens', desc: '+5% fire rate, and spells recharge 5% faster.', apply: P => { P.haste += 0.05; P.cdr -= 0.05; } },
   brainfreeze: { tier: 0, name: 'Cold Hands', desc: 'Frost +30%, Fire -20%. Warm heart.', apply: P => { P.elem.ice += 0.3; P.elem.fire -= 0.2; } },
-  pustule:     { tier: 0, name: 'Hot Head', desc: "Fire +30%, ice -20%. Don't squeeze it. Or do. I want to watch.", apply: P => { P.elem.fire += 0.3; P.elem.ice -= 0.2; } },
+  pustule:     { tier: 0, name: 'Hot Head', desc: 'Fire +30%, Frost -20%.', apply: P => { P.elem.fire += 0.3; P.elem.ice -= 0.2; } },
   runningjuice:{ tier: 0, name: 'Runner\'s High', desc: '+2 HP/s regeneration while you swim fast.' },
   sugarrush:   { tier: 0, name: 'E Numbers', desc: 'Killing an elite: 3s of +25% fire rate. The blue ones are worst.' },
-  trojan:      { tier: 0, name: 'Surprise Package', desc: 'Popping an Enzyme Vesicle blows everything near you away. A Trojan virus, but rude.' },
+  trojan:      { tier: 0, name: 'Surprise Package', desc: 'Popping an Enzyme Vesicle blows everything near you away.' },
   waterbear:   { tier: 1, name: 'Finders Keepers', desc: 'Rerolls have a 35% chance not to be used up. +5% luck.', apply: P => { P.luck += 0.05; } },
-  snottrail:   { tier: 0, name: 'Snot Trail', desc: '+5% swim speed, poison +5%. You are leaving a sticky mess all over my nice clean floor.', apply: P => { P.speed += 0.05; P.elem.poison += 0.05; } },
+  snottrail:   { tier: 0, name: 'Snot Trail', desc: '+5% swim speed, Toxic +5%.', apply: P => { P.speed += 0.05; P.elem.poison += 0.05; } },
   stiff:       { tier: 0, name: 'Stiff as a Board', desc: '+10% dodge chance, -20% swim speed.', apply: P => { P.dodge += 0.1; P.speed -= 0.2; } },
   leech:       { tier: 0, name: 'Biting Phase', desc: 'Hits heal you a little (within the lifesteal limit). It is just a phase.', apply: P => { P.lifesteal += 0.6; } },
   toothpick:   { tier: 0, name: 'Teacher\'s Pet', desc: 'Weapons and spells -5% damage. +25% XP.', apply: P => { P.wDmg -= 0.05; P.sDmg -= 0.05; P.xp += 0.25; } },
@@ -527,7 +527,9 @@ const SEQ_ABILITY = {
       if (!ts.length) return false;
       let got = 0;
       for (const t of ts) { got += damageEnemy(t, abilDmg() * 1.2, abilSrc('Cluster Feeding', { elem: 'poison' })) || 0; bolt(t.x, t.y, p.x, p.y, SEQ_LOOK.pusher.color, 0.3); }
-      healPlayer(Math.min(G.P.maxHp * 0.15, got * 0.2)); return true;
+      healPlayer(Math.min(G.P.maxHp * 0.15, got * 0.2));
+      if (synOn('splicer', 'pusher')) healPlayer(G.P.maxHp * Math.min(0.15, 0.03 * ts.length)); // Batch Cooking
+      return true;
     } },
   acid: { name: 'Bringing It Up', short: 'ERUPT', cd: 9, desc: 'Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are.',
     fire(manual) {
