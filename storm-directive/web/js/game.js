@@ -55,7 +55,13 @@ resize();
 // ---------------------------------------------------------------- state
 let G = null;
 let uidSeq = 1;
-const CAPS = { enemies: 240, proj: 900, ebul: 800, parts: 450, texts: 40, gems: 350 };
+const CAPS = { enemies: 170, proj: 900, ebul: 800, parts: 300, texts: 40, gems: 350 }; // (was 240 enemies, 450 particles)
+// Fewer, tougher monsters: 75% of the spawns, each worth 1.8x the XP, and up to a third more HP, so the
+// work per minute and the levelling stay where they were (you kill about half as many: XP_K was tuned in
+// simulated runs to keep the old level curve), with a calmer screen. The extra HP builds up over
+// the first four minutes (on the difficulty clock): early on your weapons are weak, and tougher fodder there
+// just slowed your levelling and let crowds swamp you.
+const SPAWN_K = 0.75, XP_K = 1.8, toughK = t => 1 + (1 / SPAWN_K - 1) * Math.min(1, t / 240);
 // Adaptive quality: when frames run slow for a while (busy late game, slower phones), step the costly
 // extras down; step back up once there's headroom again. 0: everything. 1: no lens blur or foreground
 // debris, fewer floating numbers. 2: 1.5x resolution, plainer common enemies, fewer particles. 3: 1x resolution.
@@ -1094,7 +1100,7 @@ function makeEnemy(def, x, y, opts) {
     phased: false, age: 0, dashX: 0, dashY: 0,
   };
   // Fewer, stronger enemies: every monster is a bigger, tougher, more rewarding threat.
-  if (!def.patterns) { const K = enemyScale(t); e.hp *= K.hp; e.maxHp *= K.hp; e.dmg *= K.dmg; e.xp *= K.xp; e.r *= K.r; e.speed *= K.speed; }
+  if (!def.patterns) { const K = enemyScale(t); const tk = toughK(t); e.hp *= K.hp * tk; e.maxHp *= K.hp * tk; e.dmg *= K.dmg; e.xp *= K.xp * XP_K; e.r *= K.r; e.speed *= K.speed; }
   if (opts && opts.elite) {
     e.elite = true; e.hp *= 5; e.maxHp *= 5; e.r *= 1.35; e.armour += 2; e.dmg *= 1.4; e.xp *= 6;
   }
@@ -2408,8 +2414,8 @@ function update(dt) {
   updateAmbient(dt);
   // Director.
   // Dense swarms (each monster is weaker to match: see enemyScale).
-  const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, 24 + T * 0.5);
-  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE * heatSpawn();
+  const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, (24 + T * 0.5) * SPAWN_K);
+  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE * heatSpawn() * SPAWN_K;
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   if (G.debug) debugTick(); // the Lab Bench: only what you send in
   else if (G.wave) { waveSpawn(rate * G.P.spawnMult, dt, maxAlive, hostile); waveTick(dt); } // the Petri Dish: a set number per wave

@@ -288,7 +288,7 @@ function rivalBoard() {
 // sperm), with your growth (0.4, full at level 60) and a little with time (0.3), on a log scale, and never
 // goes back up. 95% of that is enough. At the last six (you and five) the Final Five showdown begins;
 // each finalist you kill takes one off.
-const COUNT = { start: 4e8, time: 540, cull: 9000 }; // about a full run's worth of kills, so kills keep counting to the end
+const COUNT = { start: 4e8, time: 540, cull: 9000 * 0.75 }; // (x0.75: there are a quarter fewer monsters to kill) // about a full run's worth of kills, so kills keep counting to the end
 function countKill(x, y) {
   if (!G.countStartT && G.countStartT !== 0) { G.countStartT = G.t; }
   G.lastKillX = x; G.lastKillY = y; G.lastKillT = G.realT;
