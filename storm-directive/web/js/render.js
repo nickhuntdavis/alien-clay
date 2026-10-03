@@ -1393,22 +1393,7 @@ function render() {
     }
     let si = 0;
     const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
-    // Frozen: a crust of ice crystals. Shocked: a crackle across the body.
-    if (e.frozen > 0) {
-      ctx.fillStyle = '#e6f4ff'; ctx.globalAlpha = 0.6; ctx.beginPath();
-      for (let i = 0; i < 7; i++) { const an = i / 7 * TAU + e.id, L = r * (1.2 + (i % 3) * 0.12); ctx.moveTo(x + Math.cos(an - 0.12) * r * 0.95, y + Math.sin(an - 0.12) * r * 0.95); ctx.lineTo(x + Math.cos(an) * L, y + Math.sin(an) * L); ctx.lineTo(x + Math.cos(an + 0.12) * r * 0.95, y + Math.sin(an + 0.12) * r * 0.95); }
-      ctx.fill(); ctx.globalAlpha = e.phased ? 0.25 : 1;
-    }
-    if (e.shock > 0 && Math.random() < 0.6) {
-      ctx.strokeStyle = '#ffe94a'; ctx.lineWidth = 1.5; ctx.beginPath();
-      const an = Math.random() * TAU; let qx = x + Math.cos(an) * r, qy = y + Math.sin(an) * r; ctx.moveTo(qx, qy);
-      for (let i = 0; i < 4; i++) { qx += (x - qx) * 0.5 + (Math.random() - 0.5) * r; qy += (y - qy) * 0.5 + (Math.random() - 0.5) * r; ctx.lineTo(qx, qy); }
-      ctx.stroke();
-    }
-    if (e.burn > 0) st('#ff7a2f');
-    if (e.chill > 0) st('#6fd8ff');
-    if (e.poison > 0) st('#8dff4a');
-    if (e.shock > 0) st('#ffe94a');
+    drawStatusFx(e, x, y, r);
     if (e.mark > 0) st('#c77dff');
     if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
     if (e.parasiteT > 0) st('#b5e48c');
@@ -1424,18 +1409,13 @@ function render() {
     }
     if ((e.auraArm > 0 || e.armour >= 8) && !e.boss) { ctx.strokeStyle = '#8da9c4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r + 1, -2.4, -0.7); ctx.stroke(); }
     if (e.rival) {
-      // Rival champions: name, level and a proper health bar.
-      const bw = Math.max(46, r * 3), by = y - r - 12;
-      ctx.fillStyle = '#000'; ctx.fillRect(x - bw / 2, by, bw, 5);
-      ctx.fillStyle = e.color; ctx.fillRect(x - bw / 2, by, bw * Math.max(0, e.hp / e.maxHp), 5);
+      // Rival champions: name and level (their health ring comes with the Rival Dyes or the Anti-Immune Stain).
+      const by = y - r - 12;
       ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
       const label = `${e.name}  LV ${e.lvl}` + (e.mode === 'hunt' ? '  !' : e.mode === 'flee' ? '  (fleeing)' : '');
       ctx.strokeText(label, x, by - 5); ctx.fillStyle = e.color; ctx.fillText(label, x, by - 5);
-    } else if ((e.elite || e.hp < e.maxHp) && !e.boss && e.maxHp > 30) {
-      const bw = Math.max(18, r * 2);
-      ctx.fillStyle = '#000'; ctx.fillRect(x - bw / 2, y - r - 8, bw, 3);
-      ctx.fillStyle = e.elite ? PAL.reward : '#e6e6e6'; ctx.fillRect(x - bw / 2, y - r - 8, bw * Math.max(0, e.hp / e.maxHp), 3);
     }
+    enemyRing(e, x, y, r);
   }
   ctx.globalAlpha = 1;
 
@@ -1494,8 +1474,7 @@ function render() {
   ctx.globalAlpha = 1;
   drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
   drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
-  ctx.fillStyle = '#000'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S, 4);
-  ctx.fillStyle = p.hp / G.P.maxHp < 0.3 ? '#ff4d6d' : '#8ac926'; ctx.fillRect(px - 16 * S, py + 18 * S, 32 * S * (p.hp / G.P.maxHp), 4);
+  playerRing(px, py); // only with the GFP Tag, and only when you're hurt
 
   // Additive layer: weapon fx, projectiles, particles, fx.
   ctx.globalCompositeOperation = 'lighter';
@@ -1673,6 +1652,7 @@ function render() {
   }
   WORLD_DF = df;
 
+  drawOverkill();
   if (FULL_COL) technicolourWash(0.32);
   // Floating texts.
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';

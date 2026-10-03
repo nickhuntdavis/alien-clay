@@ -643,7 +643,7 @@ function damageEnemy(e, dmg, src) {
     // Overkill Transfer: the leftover damage jumps to the next victim.
     if (P.overkill > 0 && !src.ok && !src.dot && excess > 1) {
       const n = acquire(src.dir || 'nearest', 260, e.x, e.y, e);
-      if (n) { bolt(e.x, e.y, n.x, n.y, '#ff924c', 0.15); damageEnemy(n, Math.min(excess, e.maxHp) * Math.min(1, P.overkill), Object.assign({}, src, { ok: true, mult: 1, noStatus: true, noCrit: true, wname: 'Overkill transfer' })); }
+      if (n) overkillJump(e, n, Math.min(excess, e.maxHp) * Math.min(1, P.overkill), Object.assign({}, src, { ok: true, mult: 1, noStatus: true, noCrit: true, wname: 'Overkill transfer' }));
     }
   }
   return d;
@@ -775,6 +775,7 @@ function killEnemy(e, src) {
   const P = G.P;
   onShowKill(e, src);
   sigKill(e, src);
+  foeKill(e);
   toyKill(e, src);
   genesKill(e, src);
   heatKill(e);
@@ -1172,6 +1173,9 @@ function updateEnemies(dt) {
         case 'phase':
           e.stT -= edt;
           if (e.stT <= 0) { e.phased = !e.phased; e.stT = e.phased ? 1.4 : 2.2; }
+          break;
+        default:
+          if (FOE_AI[e.def.ai]) { const m = FOE_AI[e.def.ai](e, edt, dist, ux, uy, dx, dy); if (m) { mx = m.x; my = m.y; if (m.s != null) spd = m.s; } }
           break;
         case 'summon':
           if (dist < 260) { mx = -ux; my = -uy; }
@@ -2127,6 +2131,7 @@ function update(dt) {
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
   sigTick(dt);
   comboTick(dt);
+  overkillTick(dt);
   boonTick(dt);
   updateTethers(dt);
   meleeTick(dt);
