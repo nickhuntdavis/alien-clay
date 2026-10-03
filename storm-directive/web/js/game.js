@@ -12,6 +12,10 @@ const cv = document.getElementById('game');
 const ctx = cv.getContext('2d', { alpha: false });
 let W = 0, H = 0, DPR = 1, S = 1, S0 = 1; // screen size (css px), pixel ratio, world->screen scale (S0 before zoom)
 const QUAL = { lv: 0, slow: 0, fast: 0 }; // adaptive quality level (see qualTick)
+// Start one step above where this phone settled last time, so a weak phone doesn't stutter through every step
+// in minute 1 (a strong one climbs back to full quality within seconds anyway).
+try { QUAL.lv = Math.max(0, Math.min(4, (+localStorage.getItem('sd_qual') || 0) - 1)); } catch (e) { /* storage unavailable */ }
+const qualSave = () => { try { localStorage.setItem('sd_qual', String(QUAL.lv)); } catch (e) { /* ignore */ } };
 // Pinch (or mouse wheel) zoom, shown as the microscope's magnification. Gameplay (spawn distances) uses S0,
 // so zooming in never brings monsters closer.
 const ZOOM = { z: 1, min: 0.6, max: 2, until: 0, defocus: 0, lastT: 0 };
@@ -36,7 +40,9 @@ function setZoom(z, save) {
 const cam = { x: 0, y: 0, shake: 0 };
 
 function resize() {
-  DPR = Math.min(window.devicePixelRatio || 1, QUAL.lv < 2 ? 2 : QUAL.lv < 3 ? 1.5 : 1);
+  // Quality 4 (the lowest) draws at 75% resolution and lets the screen stretch it: about 44% fewer pixels for a
+  // weak graphics chip, at the cost of slightly softer edges.
+  DPR = Math.min(window.devicePixelRatio || 1, QUAL.lv < 2 ? 2 : QUAL.lv < 3 ? 1.5 : QUAL.lv < 4 ? 1 : 0.75);
   W = window.innerWidth; H = window.innerHeight;
   cv.width = Math.floor(W * DPR); cv.height = Math.floor(H * DPR);
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -58,11 +64,11 @@ const qualTexts = () => (QUAL.lv >= 1 ? 20 : CAPS.texts);
 function qualTick(raw) {
   if (raw > 1 / 40) { QUAL.slow += raw; QUAL.fast = 0; } else if (raw < 1 / 54) { QUAL.fast += raw; QUAL.slow = Math.max(0, QUAL.slow - raw * 0.5); }
   const now = performance.now();
-  if (QUAL.slow > 1.5 && QUAL.lv < 3) {
+  if (QUAL.slow > 1.5 && QUAL.lv < 4) {
     // Stepping straight back down after stepping up means that level is too much: stay put for a minute.
     if (now - (QUAL.upAt || -1e9) < 6000) QUAL.lockUntil = now + 60000;
-    QUAL.lv++; QUAL.slow = 0; QUAL.fast = 0; if (QUAL.lv >= 2) resize();
-  } else if (QUAL.fast > 10 && QUAL.lv > 0 && now > (QUAL.lockUntil || 0)) { QUAL.lv--; QUAL.upAt = now; QUAL.slow = 0; QUAL.fast = 0; if (QUAL.lv >= 1) resize(); }
+    QUAL.lv++; QUAL.slow = 0; QUAL.fast = 0; if (QUAL.lv >= 2) resize(); qualSave();
+  } else if (QUAL.fast > 10 && QUAL.lv > 0 && now > (QUAL.lockUntil || 0)) { QUAL.lv--; QUAL.upAt = now; QUAL.slow = 0; QUAL.fast = 0; if (QUAL.lv >= 1) resize(); qualSave(); }
 }
 
 function newStats() {
@@ -2296,7 +2302,7 @@ function victory() {
 function update(dt) {
   G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
-  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (3 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
+  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (4 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }
   const p = G.player;
   gridBuild();
@@ -2626,9 +2632,20 @@ function perfMinute() {
   PERF.w = null; PERF.long = 0;
   return out;
 }
+// Device tag for the run log, so logs from different phones can be told apart: screen size (CSS px), pixel
+// ratio, the screen's refresh rate (measured from the display's own frame timing, before the cap), cores, memory.
+const DEVICE = { iv: [], last: 0 };
+function deviceTag() {
+  const iv = DEVICE.iv.slice().sort((a, b) => a - b), med = iv.length ? iv[iv.length >> 1] : 0;
+  const hz = med ? [60, 72, 90, 120, 144].reduce((a, b) => Math.abs(1000 / med - b) < Math.abs(1000 / med - a) ? b : a) : '?';
+  const n = navigator || {}, sc = typeof screen !== 'undefined' ? screen : { width: W, height: H };
+  return `${sc.width}x${sc.height} dpr${+(window.devicePixelRatio || 1).toFixed(2)} ${hz}Hz ${n.hardwareConcurrency || '?'}cpu ${n.deviceMemory ? n.deviceMemory + 'GB' : '?GB'}`;
+}
 function frame(ts) {
   // Schedule the next frame first, and keep each stage separate, so one error can never freeze the game.
   requestAnimationFrame(frame);
+  if (DEVICE.last) { const g = ts - DEVICE.last; if (g > 3 && g < 40) { DEVICE.iv.push(g); if (DEVICE.iv.length > 120) DEVICE.iv.shift(); } }
+  DEVICE.last = ts;
   const cap = typeof SET !== 'undefined' && SET.fpsCap ? 1000 / SET.fpsCap : 0;
   if (cap && lastTs) {
     if (ts < capNext - 2) return; // not time for a frame yet

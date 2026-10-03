@@ -355,10 +355,12 @@ function drawBackground() {
   if (!SPR.layers) buildLayers();
   if (SET.darkfield) { drawDarkfieldBackground(); return; }
   // Köhler illumination: an even field, a touch brighter in the middle of the frame.
-  const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6);
-  bg.addColorStop(0, '#b6b6b6'); bg.addColorStop(0.6, '#a6a6a6'); bg.addColorStop(1, '#8c8c8c');
+  // (The two lowest quality steps: a flat fill and one depth layer instead of three, fewer full-screen passes.)
+  const lite = QUAL.lv >= 3;
+  let bg = '#a6a6a6';
+  if (!lite) { bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6); bg.addColorStop(0, '#b6b6b6'); bg.addColorStop(0.6, '#a6a6a6'); bg.addColorStop(1, '#8c8c8c'); }
   ctx.fillStyle = bg; ctx.fillRect(-20, -20, W + 40, H + 40);
-  for (const L of SPR.layers) {
+  for (const L of lite ? SPR.layers.slice(-1) : SPR.layers) {
     const T = L.T;
     const ox = -((((cam.x * S * L.f) % T) + T) % T), oy = -((((cam.y * S * L.f) % T) + T) % T);
     for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
@@ -1736,8 +1738,7 @@ function render() {
   if (!SET.clinical) {
     drawForeground();
     if (!rewinding) drawLensBlur();
-    buildVignette();
-    ctx.drawImage(SPR.vignette, 0, 0, W, H);
+    if (QUAL.lv < 3) { buildVignette(); ctx.drawImage(SPR.vignette, 0, 0, W, H); } // (no vignette on the two lowest steps)
   }
   if (G.warp > 0) {
     // Nap Time: slow ripples spreading from you while time crawls.
@@ -1849,7 +1850,7 @@ function drawScaleBar() {
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
-  ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS (low ' + Math.round(FPS.low) + ')' + (QUAL.lv ? '  Q' + (3 - QUAL.lv) : ''), x + len + 10, y + 4);
+  ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS (low ' + Math.round(FPS.low) + ')' + (QUAL.lv ? '  Q' + (4 - QUAL.lv) : ''), x + len + 10, y + 4);
   // Lead side marker, as on a radiograph.
   const mkx = land ? W - 112 : W - 26, mky = land ? H - 40 : H * 0.5;
   filmPanel(mkx - 1, mky - 11, 19, 22);
