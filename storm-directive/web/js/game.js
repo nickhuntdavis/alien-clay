@@ -2072,17 +2072,23 @@ function updatePlayer(dt) {
     const rate = Math.abs(angDiff(p.hd, p.hdPrev ?? p.hd)) / Math.max(1e-4, dt); p.hdPrev = p.hd;
     const want = rate < 0.35 ? 1 : Math.max(0.04, 1 - (rate - 0.35) / 0.9), cur = p.stroke ?? 1;
     if (want < cur) p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 25)); // to a stop in about 4 frames
-    else { if (p.turned && want > 0.9) { p.kick = 1; p.turned = false; } p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 12)); }
+    else p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 12));
     if (p.stroke < 0.45) p.turned = true;
-    p.kick = (p.kick || 0) * Math.pow(0.5, rt / 0.22); }
+    // The big first strokes: once a hard turn is over AND the tail has swung back behind you, or when you set
+    // off from (nearly) still. They fade over about two wags.
+    if (Math.hypot(p.vx, p.vy) < speed * 0.25) p.rested = true;
+    const behind = p.behind ?? 1;
+    if ((p.turned && want > 0.9 && behind > 0.8) || (p.rested && m > 0.05 && behind > 0.8)) { p.kick = 1; p.turned = false; p.rested = false; }
+    p.kick = (p.kick || 0) * Math.pow(0.5, rt / 0.15); }
   // (never quite zero: sperm still drift forward on the last stroke). A tail swung round or curled up close to
   // the body pushes little water: thrust needs it stretched out behind you.
-  const reach = p.ext == null ? 1 : clamp((p.ext - 0.45) / 0.4, 0, 1);
-  const power = (0.3 + 0.7 * p.stroke) * (0.35 + 0.65 * reach);
+  // Only a tail trailing behind you pushes you forward: swung out to the side, or curled up, it can't.
+  const reach = (p.ext == null ? 1 : clamp((p.ext - 0.45) / 0.4, 0, 1)) * (p.behind ?? 1);
+  const power = (0.3 + 0.7 * p.stroke) * (0.2 + 0.8 * reach);
   const hx = Math.cos(p.hd), hy = Math.sin(p.hd);
   let fwd = p.vx * hx + p.vy * hy, lat = -p.vx * hy + p.vy * hx;
   const want = thrust * power * (1 + 0.12 * p.kick);
-  fwd = want >= fwd ? lerp(fwd, want, 1 - Math.pow(0.004, dt * (1 + 2.5 * p.kick))) // stroke: quick, quicker after a turn
+  fwd = want >= fwd ? lerp(fwd, want, 1 - Math.pow(0.004, dt * (1 + 4 * p.kick))) // stroke: quick; the big first strokes, much quicker
     : lerp(fwd, want, 1 - Math.pow(0.15, dt)); // no stroke: glide on momentum
   lat *= Math.exp(-SWIM.grip * trac * dt);
   p.vx = fwd * hx - lat * hy; p.vy = fwd * hy + lat * hx;

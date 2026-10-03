@@ -959,7 +959,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     o.kick = (o.kick || 0) * Math.pow(0.5, dt / 0.22);
   }
   o.lastFace = face;
-  const kick = o.kick || 0, tk = (o.turnK ?? 1) * (1 + 0.5 * kick);
+  const kick = o.kick || 0, tk = (o.turnK ?? 1) * (1 + 0.9 * kick); // (the first strokes are big and exaggerated)
   o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1) * (0.08 + 0.92 * Math.min(1, o.turnK ?? 1)) * (1 + 0.6 * kick); // a strong, deliberate beat (nearly still mid-turn, quick just after)
   const t = o.tail;
   t[0].x = rx; t[0].y = ry;
@@ -976,7 +976,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     let ax = a.x - pv.x, ay = a.y - pv.y; const al = Math.hypot(ax, ay) || 1; ax /= al; ay /= al;
     // Flow: water streaming past a swimming body drags the tail out straight behind it (more the faster you
     // go, and more along the tail), so after the tip swings out it comes back round to trail behind you.
-    const fl = Math.min(0.45, (0.12 + 0.33 * Math.min(1, speed / 150)) * f);
+    const fl = Math.min(0.5, (0.3 + 0.2 * Math.min(1, speed / 150)) * f); // (and the beat itself straightens it, even from still)
     ax = lerp(ax, -Math.cos(face), fl); ay = lerp(ay, -Math.sin(face), fl); { const n = Math.hypot(ax, ay) || 1; ax /= n; ay /= n; }
     const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 22 : 15 * (1 - 0.45 * f))); // (springy, like rubber: bends, then pulls itself straight)
     b.x = lerp(b.x, a.x + ax * seg, st); b.y = lerp(b.y, a.y + ay * seg, st);
@@ -999,6 +999,8 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   }
   // How stretched out it is (1 = straight). A curled-up tail can't push much water: the swim physics reads this.
   o.ext = Math.hypot(t[TAIL_N - 1].x - t[0].x, t[TAIL_N - 1].y - t[0].y) / len;
+  // ...and whether it's behind you: 1 when the tip trails straight back, 0 when it's off to the side.
+  { const bx = t[0].x - t[TAIL_N - 1].x, by = t[0].y - t[TAIL_N - 1].y, bl = Math.hypot(bx, by) || 1; o.behind = clamp(((bx * Math.cos(face) + by * Math.sin(face)) / bl - 0.55) / 0.4, 0, 1); }
   // The visible wave, perpendicular to the spine.
   const amp = Math.min(len * 0.15, 38) * (0.75 + 0.25 * Math.min(1, speed / 150)) * tk; // big, sweeping strokes (quiet while turning)
   const D = o.tailDraw && o.tailDraw.length === TAIL_N ? o.tailDraw : (o.tailDraw = t.map(q => ({ x: q.x, y: q.y })));
