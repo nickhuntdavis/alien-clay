@@ -505,13 +505,16 @@ const BUB_ELEMS = ['phys', 'fire', 'ice', 'shock', 'poison', 'arcane'];
 const bubIn = b => (b.e ? [b.e] : []).concat(b.extra || []);
 function bubbleFire(w, target) {
   const s = w.s, p = G.player, T = TOYS();
-  const a0 = Math.atan2(target.y - p.y, target.x - p.x);
-  for (let i = 0; i < s.count; i++) {
-    if (T.bubbles.length >= 40) break;
-    const a = a0 + (s.count > 1 ? (i / (s.count - 1) - 0.5) * 0.7 : 0) + rand(-0.08, 0.08);
-    T.bubbles.push({ x: p.x, y: p.y, vx: Math.cos(a) * s.speed, vy: Math.sin(a) * s.speed, r: s.size, life: 2.6, w, e: null, seed: Math.random() * 10 });
-  }
-  sfx('shot');
+  // Blown in a stream, one after another like a child with a wand, each from wherever you are by then and
+  // swaying gently across the target (it used to blow the whole volley at once).
+  const n = s.count, gap = Math.min(0.16, (s.cd || 1) * 0.6 / Math.max(1, n)), sway = Math.random() < 0.5 ? 1 : -1;
+  for (let i = 0; i < n; i++) after(i * gap, () => {
+    if (T.bubbles.length >= 40 || !w.s) return;
+    const q = G.player, tx = target.dead ? q.x + Math.cos(q.hd || 0) * 200 : target.x, ty = target.dead ? q.y + Math.sin(q.hd || 0) * 200 : target.y;
+    const a = Math.atan2(ty - q.y, tx - q.x) + (n > 1 ? (i / (n - 1) - 0.5) * 0.5 * sway : 0) + rand(-0.06, 0.06), sp = s.speed * rand(0.9, 1.1);
+    T.bubbles.push({ x: q.x, y: q.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: s.size * rand(0.85, 1.15), life: 2.6, w, e: null, seed: Math.random() * 10 });
+    if (i === 0 || i === n - 1) sfx('shot');
+  });
 }
 function canBubble(w, e) {
   if (!toyCan(e) || !small(e) || e.bubT > G.t || e.thrownT > G.t || e.dazeT > G.t || e.def.ai === 'phase') return false;

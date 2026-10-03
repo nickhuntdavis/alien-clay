@@ -1174,7 +1174,8 @@ function shootPattern(e, pat, a0) {
   switch (pat) {
     case 'aimed': {
       // Antibodies fan out as the run goes on, but a fan's bullets are lighter (late fans were the top killer).
-      const n = PT() > 600 ? 4 : PT() > 300 ? 3 : 1, fk = n > 1 ? 0.75 : 1;
+      // (v7.65: 3 then 2 bullets instead of 4 then 3, still the top source of damage taken in most runs.)
+      const n = PT() > 600 ? 3 : PT() > 300 ? 2 : 1, fk = n > 2 ? 0.7 : n > 1 ? 0.8 : 1;
       for (let i = 0; i < n; i++) eBullet(e.x, e.y, aim + (i - (n - 1) / 2) * 0.22, sh.speed || 170, bd * fk, 5, '#ff5df2');
       break;
     }
