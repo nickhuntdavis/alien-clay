@@ -631,10 +631,9 @@ function shipLook() {
     tails: 1 + Math.min(3, P.multishot || 0),
     head: 1 + 0.07 * n('vital') + 0.04 * n('armour'),
     stretch: 1 + 0.05 * (n('speed') + n('hydro')),
-    tailLen: 1 + 0.07 * (n('speed') + n('hydro')),
+    tailLen: 1, // the flagellum no longer grows
     beat: 1 + 0.12 * (n('haste') + n('reload')),
-    // Your flagellum keeps growing as you level: about 2.5x as long by level 60, with more links to stay smooth.
-    levelTail: 1 + 0.025 * (G.level - 1), tailN: TAIL_BASE + Math.floor((G.level - 1) / 8),
+    levelTail: 1, tailN: TAIL_BASE,
     armour: n('armour'),
     cilia: Math.min(18, 5 * n('grip')),
     barb: n('crit') + n('critdmg'),
@@ -1655,6 +1654,7 @@ function render() {
   WORLD_DF = df;
 
   drawOverkill();
+  puDraw();
   if (FULL_COL) technicolourWash(0.32);
   // Floating texts.
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -1703,7 +1703,9 @@ function render() {
 }
 
 // You grow as you level up: up to 1.8x at level 60.
-function playerScale() { return 1 + SWIM.growth * (G.level - 1); }
+// Your swimmer grows with its max HP (not its level): +60% size at 400 max HP, up to double.
+function hpScale(k) { return 1 + Math.min(1, Math.max(0, (G.P.maxHp - 120) / 470)) * (k == null ? 1 : k); }
+function playerScale() { return hpScale() * puScale(); }
 
 function drawEdgeFlash() {
   const e = Math.min(W, H) * 0.08;
@@ -1938,6 +1940,7 @@ function drawHud() {
   // Status chips.
   const chips = [];
   if (G.rage > 0) chips.push(['ADRENALINE', PAL.pickup]);
+  puChips(chips);
   if (G.shieldT > 0) chips.push(['SHIELD', PAL.pickup]);
   if (G.warp > 0) chips.push(['WARP', XR.white]);
   if (G.barrier > 0) chips.push(['AEGIS', XR.white]);

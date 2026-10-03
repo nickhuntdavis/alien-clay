@@ -631,7 +631,7 @@ function damageEnemy(e, dmg, src) {
     e.kx += kx / l * k; e.ky += ky / l * k;
   }
   if (src.freezeHit && !e.boss) { e.frozen = Math.max(e.frozen, 1.2); }
-  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); }
+  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); puHit(e, d, src); }
   if (!src.dot) relicHit(e, d, src);
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   // Shocked enemies arc a portion of incoming damage to a neighbour.
@@ -782,6 +782,7 @@ function killEnemy(e, src) {
   onShowKill(e, src);
   sigKill(e, src);
   foeKill(e);
+  puKill(e);
   toyKill(e, src);
   genesKill(e, src);
   heatKill(e);
@@ -843,9 +844,9 @@ function killEnemy(e, src) {
     bossDown(e);
   } else if (e.elite || (e.def.spongy && e.r > 100)) {
     // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
-    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage']), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
+    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage'].concat(PU_NEW)), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
   } else if (Math.random() < 0.011 * (1 + P.luck) * (G.mut && G.mut.heavymetal ? 2 : 1)) {
-    const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'];
+    const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'].concat(PU_NEW, PU_NEW);
     G.pickups.push(makePickup(Math.random() < 0.5 ? chestOr(pick(types)) : pick(types), e.x, e.y, { t: 'drop', name: e.name }));
   }
 }
@@ -891,7 +892,7 @@ function hurtPlayer(dmg, from, ent) {
   if (Math.random() < P.dodge) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
-  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1);
+  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt();
   dmg = relicDamageIn(dmg, ent);
   if (dmg <= 0) return;
   // No one-shots from a boss: a single boss hit (body, beam or bullet) takes at most 22% of your max HP.
@@ -1820,9 +1821,9 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed();
+  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
   // You grow 1.5% per level (your hitbox grows half as fast).
-  p.r = 12 * (1 + SWIM.hitGrowth * (G.level - 1));
+  p.r = 12 * hpScale(0.5) * puScale(); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
   if (G.manual) { dx = G.manual.x; dy = G.manual.y; }
   else { const s = autoSteer(); dx = s.x; dy = s.y; }
@@ -2012,6 +2013,7 @@ function applyPickup(type, src) {
   G.stats.pickups = (G.stats.pickups || 0) + 1;
   sfx('pickup');
   banner(POWERUPS[type].name, type === 'chest' ? PAL.reward : PAL.pickup);
+  if (puApply(type)) { genesPickup(type); return; }
   switch (type) {
     case 'magnet': for (const g of G.gems) g.mag = true; break;
     case 'nuke':
@@ -2036,13 +2038,13 @@ function applyPickup(type, src) {
 
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
-  G.xp += v * XP_PACE * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1); // the morning-after pill halves growth
+  G.xp += v * XP_PACE * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp(); // the morning-after pill halves growth
   sfx('gem');
   while (G.xp >= G.xpNeed) {
     G.xp -= G.xpNeed;
     G.level++;
     G.xpNeed = xpNeed(G.level);
-    casaLog(`LV ${G.level}  head +1.5%`);
+    casaLog(`LV ${G.level}`);
     // Every level up is rewarded with a box until Lv 20, then every second level.
     if (G.level <= 20 || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
@@ -2140,6 +2142,7 @@ function update(dt) {
   sigTick(dt);
   comboTick(dt);
   overkillTick(dt);
+  puTick(dt);
   boonTick(dt);
   updateTethers(dt);
   meleeTick(dt);
