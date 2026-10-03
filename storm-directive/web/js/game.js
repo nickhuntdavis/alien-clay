@@ -1985,13 +1985,20 @@ function updateSpellList(list, dt) {
   }
 }
 
+// Too many ground effects at once (long trails plus burning and poison pools) made the update the slow part
+// of late-game frames. Past the cap, the oldest ones fade out early; permanent ones (Bottomless Pit) stay.
+const ZONE_CAP = 150;
 function updateZones(dt) {
+  if (G.zones.length > ZONE_CAP) {
+    let over = G.zones.length - ZONE_CAP;
+    for (const z of G.zones) { if (over <= 0) break; if (z.life > 0 && z.life < 1e6) { z.life = Math.min(z.life, 0.001); over--; } }
+  }
   for (const z of G.zones) {
     z.life -= dt; z.tick -= dt;
     if (z.follow) { const q = me(); z.x += (q.x - z.x) * Math.min(1, dt * 3); z.y += (q.y - z.y) * Math.min(1, dt * 3); } // Hotbox
     const doTick = z.tick <= 0;
     if (doTick) z.tick = 0.25;
-    forNear(z.x, z.y, z.r, e => {
+    if (doTick || z.pull) forNear(z.x, z.y, z.r, e => { // (nothing to do between damage ticks unless it pulls)
       if (z.pull && !e.boss) {
         const dx = z.x - e.x, dy = z.y - e.y, d = Math.hypot(dx, dy) || 1;
         const f = Math.min(d, z.pull * dt);
