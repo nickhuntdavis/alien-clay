@@ -1020,8 +1020,9 @@ function shootPattern(e, pat, a0) {
   const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
   switch (pat) {
     case 'aimed': {
-      const n = PT() > 600 ? 5 : PT() > 300 ? 3 : 1;
-      for (let i = 0; i < n; i++) eBullet(e.x, e.y, aim + (i - (n - 1) / 2) * 0.22, sh.speed || 170, bd, 5, '#ff5df2');
+      // Antibodies fan out as the run goes on, but a fan's bullets are lighter (late fans were the top killer).
+      const n = PT() > 600 ? 4 : PT() > 300 ? 3 : 1, fk = n > 1 ? 0.75 : 1;
+      for (let i = 0; i < n; i++) eBullet(e.x, e.y, aim + (i - (n - 1) / 2) * 0.22, sh.speed || 170, bd * fk, 5, '#ff5df2');
       break;
     }
     case 'ring': { const n = sh.count || 8, off = Math.random() * TAU; for (let i = 0; i < n; i++) eBullet(e.x, e.y, off + i / n * TAU, sh.speed || 140, bd, 5, '#b388ff'); break; }
