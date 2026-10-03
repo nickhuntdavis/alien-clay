@@ -72,6 +72,7 @@ function newStats() {
     lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1 }, chain: 0,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, heft: 0, thorns: 0, grit: 0, echoInherit: 0,
+    bankShot: 0, atpK: 0, ironGut: 0, brushOff: 0, flow: 0, skid: 0,
     bulletSpeed: 1, spawnMult: 1, healMult: 1, viewers: 1, noArmour: false, traction: 1,
   };
 }
@@ -339,6 +340,7 @@ function computeStatsInner(w) {
   // used to: 3 extra shots on a one-shot weapon give about 1.65x damage in all (it was 2.3x).
   const n1 = baseCount + extraMulti + s.perkCount;
   if (n1 > baseCount && d.melee !== 'pulse') { const k = n1 / baseCount; s.dmg *= (1 + (Math.pow(k, 0.6) - 1) / 2) / k; }
+  spellForkStats(w, s); // (a spell's Lv 4 path)
   w.s = s;
 }
 
@@ -403,6 +405,8 @@ function genLoot(req) {
     return ids.map(id => optNewWeapon(id, Math.max(2, rollRarity(2))));
   }
   if (req.kind === 'relic') return bossDef(req.boss).relics.map(id => optRelic(id, req.boss));
+  if (req.kind === 'rrelic') { const o = RIVAL_RELICS[req.rid].filter(id => !G.relics[id]).map(id => optRivalRelic(id, req.rid)); if (o.length) return o; req.kind = 'chest'; return genLoot(req); }
+  if (req.kind === 'sfork') { const w = G.spells.find(x => x && x.uid === req.uid); if (w && !w.fork) return spellForkOpts(w); req.kind = 'level'; return genLoot(req); }
   if (req.kind === 'vesicle') return vesicleOpts();
   if (req.kind === 'splice') return spliceOpts();
   if (req.kind === 'branch') {
@@ -441,9 +445,10 @@ function genLoot(req) {
     // Weapon tuning (fire rate, projectiles, area...) has its own stacks on every weapon.
     const full = PER_WEAPON.has(id) ? !G.weapons.some(w => w && (w.wpN && w.wpN[id] || 0) < PASSIVES[id].max) && st >= PASSIVES[id].max : st >= PASSIVES[id].max;
     if (full || (PASSIVES[id].needsScrap && !ownsScrapWeapon()) || !passiveUseful(id)) continue;
+    if (PASSIVES[id].terrain && !(G.terrain && G.terrain.list.some(o => o.type === PASSIVES[id].terrain))) continue; // terrain upgrades need that terrain
     // Element cards only for elements you actually use.
     if (ELEM_PASSIVE_OF[id] && !ownedElems.has(ELEM_PASSIVE_OF[id])) continue;
-    cands.push({ w: 1.8, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
+    cands.push({ w: PASSIVES[id].terrain ? 1 : 1.8, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
   // Stains you don't have yet.
   for (const id in DYES) if (!G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
@@ -563,7 +568,7 @@ function wpApply(w, id, v) {
   floatText(me().x, me().y - 34, w.def.name.toUpperCase() + ' TUNED', PAL.upgrade, 13, 0.8);
 }
 function optPassive(id, r) {
-  const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour', 'heft', 'thorns', 'grit'].includes(id);
+  const p = PASSIVES[id], intish = ['multishot', 'pierce', 'armour', 'heft', 'thorns', 'grit', 'bankshot', 'batteries', 'castiron', 'brushoff', 'withflow', 'skidmarks'].includes(id);
   const v = intish ? Math.max(1, Math.floor(RARITIES[r].mult)) * p.v : p.v * RARITIES[r].mult;
   const st = G.passives[id] || 0;
   const extra = adaptNotes(ADAPT[id]);
@@ -701,6 +706,7 @@ function damageEnemy(e, dmg, src) {
     else if (!e.tunUsed && e.hp - d < e.maxHp * 0.3) { e.tunUsed = true; e.tunT = G.t + 2.5; d *= 0.08; floatText(e.x, e.y - e.r - 10, 'TUN!', XR.white, 13); }
   }
   if (src.grudge && e === G.grudge) d *= 3;
+  if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
   d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src);
   // Stain boons: you can see who matters.
   if (G.dyes.luciferase && (e.elite || e.boss)) d *= 1.25;
@@ -1029,7 +1035,7 @@ function setPoison(e, dps, src) { if (!(dps < (e.poisonDps || 0))) e.poisonBy = 
 function hurtPlayer(dmg, from, ent, kind) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
-  if (Math.random() < Math.min(DODGE_CAP, P.dodge)) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
+  if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1);
@@ -1585,14 +1591,16 @@ function fireWeapon(w, target) {
         G.fx.push({ type: 'fall', x: tx, y: ty, r: s.area, color: d.color, life: s.delay, max: s.delay });
         after(s.delay, () => {
           aoe(tx, ty, s.area, s.dmg, src, d.color);
-          G.zones.push({ x: tx, y: ty, r: s.area * 0.7, life: s.dur, max: s.dur, dps: s.dmg * 0.15, elem: 'fire', pull: 0, color: '#ff5400', tick: 0, src });
+          const hw = spellFork(w, 'b') ? 1 : 0; // Hot Water Bottle
+          G.zones.push({ x: tx, y: ty, r: s.area * 0.7 * (hw ? 1.4 : 1), life: s.dur * (hw ? 2 : 1), max: s.dur * (hw ? 2 : 1), dps: s.dmg * 0.15, elem: 'fire', pull: 0, color: '#ff5400', tick: 0, src });
         });
       }
       break;
     }
     case 'nova':
       aoe(p.x, p.y, s.area, s.dmg, src, d.color);
-      forNear(p.x, p.y, s.area, e => { if (!e.boss) e.frozen = Math.max(e.frozen, 1.6); });
+      forNear(p.x, p.y, s.area, e => { if (!e.boss) e.frozen = Math.max(e.frozen, spellFork(w, 'a') ? 3.2 : 1.6); }); // (Ice Bath: twice as long)
+      if (spellFork(w, 'b') && !src.again) after(1, () => { const q = me(); aoe(q.x, q.y, s.area, s.dmg, Object.assign({}, src, { again: true }), d.color); forNear(q.x, q.y, s.area, e => { if (!e.boss) e.frozen = Math.max(e.frozen, 1.6); }); ring(q.x, q.y, s.area, '#caf0f8', 0.5, 6); }); // Power Shower
       for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < s.area) { b.dead = true; spawnPart(b.x, b.y, '#90e0ef', 1, 60, 0.3); }
       ring(p.x, p.y, s.area, '#caf0f8', 0.5, 6);
       fxParts('shard', p.x, p.y, '#caf0f8', 22, s.area * 3, 0.55, 4.5);
@@ -1605,13 +1613,20 @@ function fireWeapon(w, target) {
         bolt(t.x + rand(-60, 60), t.y - 420, t.x, t.y, '#ffe94a', 0.2);
         aoe(t.x, t.y, s.area, s.dmg, src, '#ffe94a');
         G.flashT = Math.max(G.flashT || 0, 0.12); // the sky lights up
+        if (spellFork(w, 'a')) for (const n of acquireMany('nearest', 220, t.x, t.y, 3).filter(n => n !== t).slice(0, 2)) { bolt(t.x, t.y, n.x, n.y, '#ffe94a', 0.15); damageEnemy(n, s.dmg * 0.5, src); } // Brainwave
+        if (spellFork(w, 'b')) forNear(t.x, t.y, s.area, e => { if (!e.boss) e.dazeT = Math.max(e.dazeT || 0, G.t + 1); }); // Thunderclap
       }));
       break;
     }
     case 'zone':
-      G.zones.push({ x: target.x, y: target.y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg, elem: d.elem, pull: s.pull, color: d.color, tick: 0, src, spell: w.id });
+      G.zones.push({ x: target.x, y: target.y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg, elem: d.elem, pull: s.pull, color: d.color, tick: 0, src, spell: w.id,
+        follow: w.id === 'cloud' && spellFork(w, 'b'), // Hotbox
+        onEnd: w.id === 'blackhole' && spellFork(w, 'b') ? z => { aoe(z.x, z.y, z.r * 1.3, s.dmg * 4, src, d.color); ring(z.x, z.y, z.r * 1.3, d.color, 0.5, 6); } : null }); // Loose Change
       break;
-    case 'heal': healPlayer(G.P.maxHp * s.dmg); ring(p.x, p.y, 60, '#80ffdb', 0.5, 4); fxParts('plus', p.x, p.y, '#80ffdb', 10, 70, 1.1, 7); G.fx.push({ type: 'flash', x: p.x, y: p.y, r: 70, color: '#80ffdb', life: 0.3, max: 0.3 }); break;
+    case 'heal':
+      if (spellFork(w, 'a')) p.iframes = Math.max(p.iframes, 1.5); // Plaster
+      if (spellFork(w, 'b')) aoe(p.x, p.y, 180, G.P.maxHp * s.dmg * 1.5, src, '#80ffdb'); // Kiss Chase
+      healPlayer(G.P.maxHp * s.dmg); ring(p.x, p.y, 60, '#80ffdb', 0.5, 4); fxParts('plus', p.x, p.y, '#80ffdb', 10, 70, 1.1, 7); G.fx.push({ type: 'flash', x: p.x, y: p.y, r: 70, color: '#80ffdb', life: 0.3, max: 0.3 }); break;
     case 'warp': G.warp = s.dur; banner('TIME WARP', '#b8c0ff'); break;
     case 'barrier': G.barrier = s.dur; G.barrierR = s.area; G.barrierDmg = s.dmg; break;
     case 'ring':
@@ -1932,6 +1947,7 @@ function updateSpellList(list, dt) {
 function updateZones(dt) {
   for (const z of G.zones) {
     z.life -= dt; z.tick -= dt;
+    if (z.follow) { const q = me(); z.x += (q.x - z.x) * Math.min(1, dt * 3); z.y += (q.y - z.y) * Math.min(1, dt * 3); } // Hotbox
     const doTick = z.tick <= 0;
     if (doTick) z.tick = 0.25;
     forNear(z.x, z.y, z.r, e => {
@@ -1969,9 +1985,9 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 150 * P.speed * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+  const speed = 150 * P.speed * (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
   // You grow 1.5% per level (your hitbox grows half as fast).
-  p.r = 12 * hpScale(0.5) * puScale(); // bigger with more max HP (the hitbox grows half as fast as the body)
+  p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
   if (G.manual) { dx = G.manual.x; dy = G.manual.y; }
   else { const s = autoSteer(); dx = s.x; dy = s.y; }
@@ -2285,7 +2301,7 @@ function update(dt) {
     G.crowdT = 0.25;
     for (const e of G.enemies) { if (e.dead) continue; let n = 0; forNear(e.x, e.y, 70, () => { n++; }); e.crowd = n + (e.boss ? 5 : 0); }
   }
-  if (G.warp > 0) G.warp -= dt;
+  if (G.warp > 0) { G.warp -= dt; if (G.spells.some(x => spellFork(x, 'b') && x.id === 'warp')) healPlayer(G.P.maxHp * 0.03 * dt, true); } // Power Nap
   const lsCap = (G.relics.transfusion ? 9 : 3) * Math.max(1, G.P.maxHp / 120); // the lifesteal pool grows with your max HP
   G.lsBudget = Math.min(lsCap, (G.lsBudget || 0) + dt * lsCap); // lifesteal heals at most ~3 HP/s
   if (G.rage > 0) G.rage -= dt;
@@ -2298,6 +2314,7 @@ function update(dt) {
   comboTick(dt);
   overkillTick(dt);
   puTick(dt);
+  introTick(); // first sightings
   boonTick(dt);
   updateTethers(dt);
   meleeTick(dt);

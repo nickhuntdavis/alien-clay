@@ -488,6 +488,13 @@ const PASSIVES = {
   thorns:    { name: 'Prickly Personality', icon: 'PP', max: 4, v: 1, fmt: v => `Whatever hurts you gets hurt back (thorns x${v}), plus a smaller jab to everything around you. Grows with max HP and armour.`, apply: (P, v) => { P.thorns += v; } },
   grit:      { name: 'Stubborn Streak', icon: 'SB', max: 3, v: 1, fmt: v => `Below half health: take ${10 * v}% less damage and deal ${12 * v}% more.`, apply: (P, v) => { P.grit += v; } },
   evasion:   { name: 'Wriggle Room',          icon: 'EV', max: 5, v: 0.04, fmt: v => `+${pc(v)} chance to dodge hits`, apply: (P, v) => { P.dodge = Math.max(P.dodge, Math.min(0.5, P.dodge + v)); } },
+  // Terrain upgrades: only offered when the slide has that kind of terrain (see genLoot).
+  bankshot:  { name: 'Bank Shot', icon: 'BK', max: 2, v: 1, terrain: 'ridge', fmt: v => `Shots that bounce off a Cartilage Nodule hit ${pc(0.5 * v)} harder for the rest of their flight`, apply: (P, v) => { P.bankShot += v; } },
+  batteries: { name: 'Batteries Included', icon: 'BI', max: 2, v: 1, terrain: 'mito', fmt: v => `ATP bursts from Mitochondria hit ${pc(0.5 * v)} harder and ${pc(0.25 * v)} wider, and the Mitochondria fill ${pc(0.25 * v)} faster`, apply: (P, v) => { P.atpK += v; } },
+  castiron:  { name: 'Cast-Iron Stomach', icon: 'CS', max: 2, v: 1, terrain: 'acid', fmt: v => `Acid Crypts no longer burn you, and burn enemies ${v > 1 ? 'three' : 'twice'} as hard`, apply: (P, v) => { P.ironGut += v; } },
+  brushoff:  { name: 'Brush-Off', icon: 'BO', max: 2, v: 1, terrain: 'cilia', fmt: v => `Cilia Beds sting everything they shove${v > 1 ? ', twice as hard' : ''}`, apply: (P, v) => { P.brushOff += v; } },
+  withflow:  { name: 'Go With the Flow', icon: 'GF', max: 2, v: 1, terrain: 'current', fmt: v => `In a Tubal Current: +${pc(0.3 * v)} damage and +${pc(0.2 * v)} swim speed`, apply: (P, v) => { P.flow += v; } },
+  skidmarks: { name: 'Skid Marks', icon: 'SM', max: 2, v: 1, terrain: 'slick', fmt: v => `On a Lubricant Slick you swim ${pc(0.4 * v)} faster and leave a toxic trail`, apply: (P, v) => { P.skid += v; } },
 };
 function pc(v) { return Math.round(v * 100) + '%'; }
 
@@ -651,6 +658,17 @@ const RELICS = {
   mirror:        { name: 'Mirror Twin', desc: 'Every shot-firing weapon also fires a twin shot backwards at 50% damage.' },
   doubletrouble: { name: 'Double Trouble', desc: '+1 projectile, +1 pierce and +1 chain jump for every weapon.' },
   twinpick:      { name: 'Seconds', desc: 'From now on, every DNA strand pickup lets you take two cards instead of one.' },
+  // Rival relics (RIVAL_RELICS).
+  personalbest:  { name: 'Personal Best', desc: '+20% swim speed, and +10% dodge while you are swimming fast.' },
+  marathon:      { name: 'Marathon', desc: 'While you keep swimming fast you heal 1% of your max HP every second.' },
+  gains:         { name: 'Gains', desc: '+30% max HP (and heal it).' },
+  tailday:       { name: 'Tail Day', desc: '+2 Headstrong: enemies you swim into take big damage.' },
+  honorary:      { name: 'Honorary Degree', desc: '+25% XP for the rest of the run.' },
+  thesis:        { name: 'Thesis Defence', desc: 'Your crits hit 75% harder.' },
+  smallmercies:  { name: 'Small Mercies', desc: 'Your hitbox is 25% smaller, so more bullets miss you.' },
+  wobbly:        { name: 'Throwing a Wobbly', desc: 'Below half health: take 20% less damage and deal 24% more.' },
+  justkevin:     { name: 'Just Kevin', desc: 'A little of everything: +6% damage, fire rate, swim speed, max HP and crit chance.' },
+  kevinsmum:     { name: "Kevin's Mum", desc: 'Every 45s she drops off a power-up next to you. She worries.' },
 };
 
 // Field power-ups.
@@ -779,6 +797,14 @@ const RIVALS = [
   { id: 'zygo',   name: "Lil' Zygo",          color: '#ff5d8f', skill: 0.90, aggro: 0.7, title: 'Small, angry, surprisingly aerodynamic' },
   { id: 'kevin',  name: 'Kevin',              color: '#ffe94a', skill: 0.95, aggro: 0.4, title: 'Just Kevin' },
 ];
+// Rival relics: knock a named rival out of the race and choose one of two relics themed on them.
+const RIVAL_RELICS = {
+  steve:   ['personalbest', 'marathon'],
+  chad:    ['gains', 'tailday'],
+  wiggles: ['honorary', 'thesis'],
+  zygo:    ['smallmercies', 'wobbly'],
+  kevin:   ['justkevin', 'kevinsmum'],
+};
 // finish: seconds for a skill-1.0 rival to reach EGG.level if nobody interferes.
 const RIVAL = { finish: 560, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 160 };
 

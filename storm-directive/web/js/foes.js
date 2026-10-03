@@ -22,7 +22,7 @@ const FOE_INTRO = {
 function foeIntro(e) {
   const k = e.def.endo ? null : e.def.ai, seen = G.foeSeen || (G.foeSeen = {});
   if (!k || seen[k] || !FOE_INTRO[k]) return;
-  seen[k] = true; sysMsg(FOE_INTRO[k][0], FOE_INTRO[k][1], PAL.danger, true);
+  seen[k] = true; // (introductions are now the first-sighting cards in intro.js)
 }
 const FOE_AI = {
   sperminator(e, dt, dist, ux, uy, dx, dy) {

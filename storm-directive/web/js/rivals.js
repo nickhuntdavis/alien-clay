@@ -172,6 +172,7 @@ function rivalDown(e) {
   const xp = xpNeed(G.level) * 1.2;
   for (let i = 0; i < 10; i++) dropGem(e.x + rand(-50, 50), e.y + rand(-50, 50), xp / 10);
   G.pickups.push(makePickup('chest', e.x, e.y, { t: 'rival', name: e.name }));
+  if (RIVAL_RELICS[e.rid]) G.lootQueue.push({ kind: 'rrelic', rid: e.rid }); // their relic: a choice of two
   healPlayer(P.maxHp * 0.2);
   gainChrono(CHRONO.energyPerCharge * 0.5);
   banner(e.name.toUpperCase() + ' ELIMINATED', e.color);

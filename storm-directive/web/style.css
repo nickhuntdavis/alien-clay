@@ -831,3 +831,16 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 .wchip:active { background: #173039; }
 .card.nudge { animation: cardnudge 0.3s; opacity: 1; transform: none; }
 @keyframes cardnudge { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* First sightings (intro.js): the boss card, lighter and quicker. */
+#bossIntro.foe .bi-warn { display: none; }
+#bossIntro.foe .bi-bar { height: 6vh; }
+#bossIntro.foe .bi-card { animation-delay: 0.35s; }
+#bossIntro.foe .bi-name { animation-delay: 0.55s; font-size: 26px; }
+#bossIntro.foe .bi-quote { font-style: normal; animation-delay: 0.75s; }
+#bossIntro.foe .bi-quote::before, #bossIntro.foe .bi-quote::after { content: none; }
+#bossIntro.foe .bi-desc { animation-delay: 0.85s; color: #a3aea9; }
+#bossIntro.foe .bi-cols { grid-template-columns: 1fr; }
+#bossIntro.foe .bi-col.str h4 { color: var(--bc); }
+#bossIntro.foe .bi-col.str li::before { content: '>'; color: var(--bc); }
+#bossIntro.foe .bi-reward { animation-delay: 1.1s; color: #a3aea9; }

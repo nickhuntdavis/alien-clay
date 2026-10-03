@@ -916,7 +916,7 @@ From level 6 (and about 70 seconds in), something unexpected happens every 55 to
 
 ## Spells
 
-Spells autocast on cooldown and use spell slots. They level up like weapons but have no branch tree.
+Spells autocast on cooldown and use spell slots. They level up like weapons, and at Lv 4 each one asks you to choose one of two paths (below).
 
 | Spell | Element | What it does | Base stats | Level bonuses |
 |---|---|---|---|---|
@@ -930,6 +930,21 @@ Spells autocast on cooldown and use spell slots. They level up like weapons but 
 | **Running With Scissors** | Kinetic | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
 | **Dutch Oven** | Toxic | A drifting cloud of stacking poison. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Baby Monitor** | Shock | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
+
+### Spell paths (Lv 4)
+
+| Spell | Path A | Path B |
+|---|---|---|
+| **Stork Drop** | **Double Delivery**: One more stork every cast, each dropping 80% as hard. | **Hot Water Bottle**: The burning ground it leaves is 40% wider and burns twice as long. |
+| **Cold Shower** | **Ice Bath**: Everything it catches stays frozen twice as long. | **Power Shower**: A second blast goes off a second later, wherever you are by then. |
+| **Brainstorm** | **Brainwave**: Every strike jumps on to the two nearest enemies for half its damage. | **Thunderclap**: Every strike leaves the enemies it hits dazed for a second (not bosses). |
+| **Sofa Crevice** | **Down the Back**: It pulls twice as hard. | **Loose Change**: When it closes, it spits everything out in a blast worth four seconds of its damage. |
+| **Kiss It Better** | **Plaster**: You also get 1.5s in which nothing can hurt you. | **Kiss Chase**: The kiss also blasts nearby enemies for one and a half times what it heals. |
+| **Nap Time** | **Lie-In**: Time stays slow 50% longer. | **Power Nap**: You heal 3% of your max HP every second while time is slowed. |
+| **Latex Barrier** | **Extra Large**: The barrier is 50% wider. | **Ribbed**: Whatever touches the barrier, or is hit by what it bounces back, takes 2.5 times the damage. |
+| **Running With Scissors** | **Safety Scissors**: The blades fly out and come back, cutting everything twice. | **Pinking Shears**: Four more blades in every ring. |
+| **Dutch Oven** | **Lingering Smell**: The cloud lasts twice as long. | **Hotbox**: The cloud follows you around. |
+| **Baby Monitor** | **Night Light**: Turrets shoot twice as fast. | **Twin Pack**: One more turret every cast. |
 
 ## Power-ups (passives)
 
@@ -983,6 +998,12 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Prickly Personality** | Whatever hurts you gets hurt back (thorns x1), plus a smaller jab to everything around you. Grows with max HP and armour. | You | 4 |
 | **Stubborn Streak** | Below half health: take 10% less damage and deal 12% more. | You | 3 |
 | **Wriggle Room** | +4% chance to dodge hits | You | 5 |
+| **Bank Shot** | Shots that bounce off a Cartilage Nodule hit 50% harder for the rest of their flight | You | 2 |
+| **Batteries Included** | ATP bursts from Mitochondria hit 50% harder and 25% wider, and the Mitochondria fill 25% faster | You | 2 |
+| **Cast-Iron Stomach** | Acid Crypts no longer burn you, and burn enemies twice as hard | You | 2 |
+| **Brush-Off** | Cilia Beds sting everything they shove | You | 2 |
+| **Go With the Flow** | In a Tubal Current: +30% damage and +20% swim speed | You | 2 |
+| **Skid Marks** | On a Lubricant Slick you swim 40% faster and leave a toxic trail | You | 2 |
 
 ## Mutations (Enzyme Vesicles)
 
@@ -1352,28 +1373,72 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Pepsinator Jr** | 60 | 14 | 72 | 0 | 6 | Spawned by others | Swims straight at you |
 | **Second Dose** | 45 | 12 | 92 | 0 | 6 | Spawned by others | Laser lock-on, burst fire, comes back once as a Second Dose |
 
+### First sightings
+
+The first time you ever see each kind of enemy (once ever, not once a run), the slide stops and it gets a short introduction: what it is and how to beat it. It then goes in the Codex under ENEMIES. Settings > Tutorial resets them so you can see them again. Bosses always get their full introduction.
+
+| Enemy | What it is | How to beat it |
+|---|---|---|
+| **Also-Ran** | One of the four hundred million. Not a threat on its own. There is never one on its own. | Anything that hits a crowd. Keep swimming and let your weapons mow them down. |
+| **Sprinter** | Small, fast and fragile. It reaches you before you have noticed it. | Fast fire and wide shots. One hit is enough. |
+| **Antibody** | Part of the host's immune system. Keeps its distance and spits at you. | Its shots are slow. Swim across them, not along them. SHOOTERS FIRST targeting helps. |
+| **Macrophage** | A big eater with a little armour. Swallows whatever it catches. | Armour shred and big single hits. Don't let it pin you against a wall. |
+| **Acid Bubble** | A bubble of stomach acid that rushes you and bursts. | Kill it at range, or swim clear when it swells. Its blast hurts other enemies too. |
+| **Mitotic Cell** | Divides when it dies: two smaller, faster cells come out. | Splash damage handles the halves. Kill it where your blasts can catch them. |
+| **Daughter Cell** | Half of a cell that just divided. Quick and angry. | It is fragile. Anything that hits more than one target. |
+| **Krill** | Shoals of tiny crustaceans that dart in bursts. Nobody knows how they got in here. | Wide, sweeping weapons. They scatter, then regroup. |
+| **Spermlet Swarm** | A swarm of spermlets: tiny, fast and everywhere at once. | Area damage and auras. Single shots waste time on them. |
+| **Quantum Swimmer** | Teleports short distances when you aim at it. | Homing shots and chaining lightning don't care where it went. |
+| **Nurse Cell** | Heals the enemies around it. | Kill it first: set a weapon to SHOOTERS FIRST, which counts healers. |
+| **Headbutter** | Lowers its head, winds up, then charges in a straight line. | When it stops and shakes, sidestep. It can't turn mid-charge. |
+| **Mucus Wall** | A slow wall of mucus with heavy armour that shields the enemies behind it. | Armour shred, damage over time (it ignores armour) and HIGHEST ARMOUR targeting. |
+| **Cytokine Caster** | Fires rings of cytokines in every direction. | Find the gaps in the ring and slip through them. Kill it before the rings stack up. |
+| **Ghost Swimmer** | Fades out of phase: shots pass straight through it while it is faded. | Hit it when it is solid. Auras and trails catch it as it comes back. |
+| **Mother Cell** | Keeps budding new enemies until it dies. | It is the source: kill it, not the children. STRONGEST targeting helps. |
+| **Enzyme Spire** | Rooted to the spot, spraying a spiral of enzymes. | Stay out of its reach or kill it fast. The spiral has gaps: time your way through. |
+| **Killer T-Cell** | A sniper. A thin line shows where it is aiming, then a fast, heavy shot. | Move when you see the line. Kill it from the side. |
+| **Amoeba** | Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback. | Fire and big blasts. Don't let it eat its way to a giant size. |
+| **Plasmodium** | A giant amoeba made of many. It splits into amoebas when it dies. | Save your area damage for when it bursts. |
+| **Pinworm** | A wriggling worm. Tougher than it looks and hard to hit side on. | Piercing shots go down its length. |
+| **Diatom** | A glass-shelled turret: heavy armour and a ring of shots. | Armour shred and big hits. Its rings have gaps. |
+| **Water Bear** | A tardigrade: very tough, very armoured, and it curls into a near-indestructible ball when hurt. | Back off while it is curled up, then finish it. Damage over time ignores its armour. |
+| **Paramecium** | Swims in long straight lines and backs off when it bumps into you. | Predictable: put a trap or a mine in its path. |
+| **Rotifer** | A hoover. It goes for your XP granules and eats them before you can. | Kill it quickly: it drops what it ate. Collect XP before it does. |
+| **Volvox** | A hollow colony that bursts into daughter colonies when it dies. | Area damage cleans up the burst. |
+| **Daughter Colony** | A daughter colony from a burst Volvox. Small and quick. | Splash damage. |
+| **Candida** | Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through. | Burn it out early, before it spreads. Fire and poison clouds work well. |
+| **Pepsinator Jr** | A small Pepsinator. All the stomach, half the size. | Treat it like a mini boss: keep moving and hit it hard. |
+| **Alpha Swimmer** | A huge rival swimmer, armoured and hard-hitting. | Shred its armour and keep your distance. Its charge is slow to start. |
+| **Booster** | A nanobot. It locks on with a red laser before firing a burst, and destroying it is only half the job. | Move as soon as the laser settles on you. Something comes out of the wreck. |
+| **Second Dose** | What climbs out of a wrecked Booster: lighter, faster and still coming. | It has no armour left. Finish it before it reaches you. |
+| **Natural Killer** | A Natural Killer: it weaves in, crouches, then pounces. Its blood is acid. | When it crouches, get clear. Don't stand where it dies. |
+
 ## Rival champions
 
 Named rivals race you to the egg. When the sperm count reaches 6, the strongest five survivors (rivals first, stand-ins after) become the Final Five. Beat them and the egg opens.
 
-| Rival | Growth speed | Aggression | Bio |
-|---|---|---|---|
-| **Big Steve** | x1.1 | 0.6 | Has been doing laps since the Tuesday before last |
-| **Chad Flagellum** | x1 | 0.9 | Has a protein shake named after him |
-| **Professor Wiggles** | x1.15 | 0.2 | Holds a doctorate in swimming, self-awarded |
-| **Lil' Zygo** | x0.9 | 0.7 | Small, angry, surprisingly aerodynamic |
-| **Kevin** | x0.95 | 0.4 | Just Kevin |
+Knock a named rival out of the race and you choose one of their two relics.
+
+| Rival | Growth speed | Aggression | Bio | Relics (choose one) |
+|---|---|---|---|---|
+| **Big Steve** | x1.1 | 0.6 | Has been doing laps since the Tuesday before last | **Personal Best**: +20% swim speed, and +10% dodge while you are swimming fast.<br>**Marathon**: While you keep swimming fast you heal 1% of your max HP every second. |
+| **Chad Flagellum** | x1 | 0.9 | Has a protein shake named after him | **Gains**: +30% max HP (and heal it).<br>**Tail Day**: +2 Headstrong: enemies you swim into take big damage. |
+| **Professor Wiggles** | x1.15 | 0.2 | Holds a doctorate in swimming, self-awarded | **Honorary Degree**: +25% XP for the rest of the run.<br>**Thesis Defence**: Your crits hit 75% harder. |
+| **Lil' Zygo** | x0.9 | 0.7 | Small, angry, surprisingly aerodynamic | **Small Mercies**: Your hitbox is 25% smaller, so more bullets miss you.<br>**Throwing a Wobbly**: Below half health: take 20% less damage and deal 24% more. |
+| **Kevin** | x0.95 | 0.4 | Just Kevin | **Just Kevin**: A little of everything: +6% damage, fire rate, swim speed, max HP and crit chance.<br>**Kevin's Mum**: Every 45s she drops off a power-up next to you. She worries. |
 
 ## Terrain
 
-| Feature | Solid | Effect on shots | Notes |
-|---|---|---|---|
-| **Cartilage Nodule** | Yes | bounce | - |
-| **Mitochondrion** | Yes | absorb | absorbs 45 shots then bursts (radius 230) |
-| **Acid Crypt** | Yes | melt | 10 damage/s on contact |
-| **Cilia Bed** | No | repel | pushes 260 |
-| **Tubal Current** | No | drift | pushes 150 |
-| **Lubricant Slick** | No | none | traction x0.3 |
+Each kind of terrain has an upgrade of its own, offered only when that terrain is on the slide.
+
+| Feature | Solid | Effect on shots | Notes | Upgrade |
+|---|---|---|---|---|
+| **Cartilage Nodule** | Yes | bounce | - | **Bank Shot**: Shots that bounce off a Cartilage Nodule hit 50% harder for the rest of their flight |
+| **Mitochondrion** | Yes | absorb | absorbs 45 shots then bursts (radius 230) | **Batteries Included**: ATP bursts from Mitochondria hit 50% harder and 25% wider, and the Mitochondria fill 25% faster |
+| **Acid Crypt** | Yes | melt | 10 damage/s on contact | **Cast-Iron Stomach**: Acid Crypts no longer burn you, and burn enemies twice as hard |
+| **Cilia Bed** | No | repel | pushes 260 | **Brush-Off**: Cilia Beds sting everything they shove |
+| **Tubal Current** | No | drift | pushes 150 | **Go With the Flow**: In a Tubal Current: +30% damage and +20% swim speed |
+| **Lubricant Slick** | No | none | traction x0.3 | **Skid Marks**: On a Lubricant Slick you swim 40% faster and leave a toxic trail |
 
 Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to about half the map, then fades), **yeast infections** (colonies that bud more yeast) and the ambient crowd of harmless swimmers outside the arena.
 

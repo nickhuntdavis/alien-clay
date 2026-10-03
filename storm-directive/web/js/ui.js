@@ -271,6 +271,7 @@ const UI = {
   renderSettings() {
     const body = $('setBody');
     body.innerHTML = SETTINGS_DEF.map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
+    body.innerHTML += `<div class="sec setrow"><h3>Tutorial</h3><p class="hint">The first time you meet each kind of enemy, the slide stops to introduce it (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Reset to see the introductions again. Your Codex keeps what you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIAL</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Run log</h3><p class="hint">${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.</p>
       <div class="chips"><button class="chip" id="logCopy">COPY RUN LOG</button><button class="chip" id="logClear">CLEAR</button></div><p class="hint" id="logMsg"></p><textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea></div>`;
     $('logCopy').addEventListener('click', () => {
@@ -281,6 +282,10 @@ const UI = {
         const ta = $('logText'); ta.style.display = ''; ta.value = text; ta.focus(); ta.select();
         $('logMsg').textContent = 'Your phone blocked copying: select all the text below and copy it.';
       });
+    });
+    $('tutReset').addEventListener('click', ev => {
+      if (!ev.target.dataset.armed) { ev.target.dataset.armed = '1'; ev.target.textContent = 'TAP AGAIN TO RESET'; return; }
+      resetTutorial(); ev.target.textContent = 'DONE: YOU WILL MEET THEM ALL AGAIN';
     });
     $('logClear').addEventListener('click', ev => {
       if (!RUNLOG.length) return;
@@ -611,8 +616,31 @@ const UI = {
   },
 
   // ---------------------------------------------------------------- boss introduction
+  // A first sighting (intro.js): the same screen, lighter. No warning band, a quicker card, and what it
+  // does and how to beat it instead of a boss's strengths and weaknesses.
+  openFoeIntro(e, id) {
+    const d = e.def, I = ENEMY_INTRO[id], box = $('bossIntro'), seen = Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length;
+    box.classList.add('foe');
+    box.style.setProperty('--bc', d.color);
+    const word = (v, lo, hi, a, b, c) => (v < lo ? a : v < hi ? b : c);
+    $('biCount').innerHTML = `FIRST SIGHTING <span>${seen} OF ${Object.keys(ENEMY_INTRO).length} IN YOUR CODEX</span>`;
+    $('biTitle').textContent = 'NEW ON THE SLIDE';
+    $('biName').textContent = d.name;
+    $('biQuote').textContent = I.what;
+    $('biDesc').textContent = `Toughness: ${word(d.hp, 25, 90, 'low', 'medium', 'high')}. Speed: ${word(d.speed, 45, 90, 'slow', 'medium', 'fast')}. Armour: ${word(d.armour, 1, 5, 'none', 'light', 'heavy')}.${d.shoot ? ' Shoots.' : ''}${d.split ? ' Splits when it dies.' : ''}`;
+    box.querySelector('.bi-col.str h4').textContent = 'HOW TO BEAT IT';
+    box.querySelector('.bi-col.weak').style.display = 'none';
+    $('biStr').innerHTML = `<li style="animation-delay:0.9s">${esc(I.tip)}</li>`;
+    $('biReward').innerHTML = 'Added to your Codex.';
+    box.classList.remove('ready');
+    box.querySelectorAll('.bi-bar, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+    UI.show('bossIntro');
+    clearTimeout(UI.biTimer);
+    UI.biTimer = setTimeout(() => box.classList.add('ready'), 1500);
+  },
   openBossIntro(e, idx) {
     const d = e.def, box = $('bossIntro');
+    box.classList.remove('foe'); box.querySelector('.bi-col.str h4').textContent = 'STRENGTHS'; box.querySelector('.bi-col.weak').style.display = '';
     box.style.setProperty('--bc', d.color);
     const n = G.bossRoster.length, pips = Array.from({ length: n }, (_, i) => `<i class="${i < idx % n ? 'done' : i === idx % n ? 'now' : ''}"></i>`).join('');
     $('biCount').innerHTML = `BOSS ${idx % n + 1} OF ${n} THIS RUN ${pips} <span>${BOSSES.length} IN THE WARD${idx >= n ? ' | ROUND ' + (Math.floor(idx / n) + 1) : ''}</span>`;
@@ -646,21 +674,25 @@ const UI = {
       chest: ['FAN DNA', pick(['Epic or better. The fans sent this. Some of the fans are very strange.', 'Epic or better. It wriggles. That is probably fine.'])],
       boss: ['BOSS DNA', 'Epic or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
       branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The others go in the bin. Forever. No pressure.'],
+      sfork: ['SPELL PATH', 'Your spell hit Lv 4. Pick how it grows up. The other one goes in the bin.'],
+      rrelic: ['RIVAL RELIC', 'They will not be needing it. Choose one; the other goes with them.'],
       relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
       vesicle: ['ENZYME VESICLE', 'Four horribly unstable mutations. Staple one to your genome. You only have room for so many before you pop.'],
       splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
     };
     UI.pickedOne = false;
     if (req.kind === 'relic') titles.relic[0] = 'RELIC: ' + bossDef(req.boss).name.replace(/^THE /, '');
+    if (req.kind === 'rrelic') { const V = RIVALS.find(x => x.id === req.rid); if (V) titles.rrelic[0] = 'RELIC: ' + V.name.toUpperCase(); }
+    if (req.kind === 'sfork') { const sw = G.spells.find(x => x && x.uid === req.uid); if (sw) titles.sfork[0] = sw.def.name.toUpperCase() + ': LV ' + SPELL_FORK_LV + ' PATH'; }
     if (req.kind === 'branch') { const bw = G.weapons.find(x => x && x.uid === req.uid); if (bw) titles.branch[0] = bw.def.name.toUpperCase() + ': LV ' + req.lvl + (bw.def.sig && bw.def.sig[req.lvl] ? (req.lvl >= 10 ? ' MASTERY' : ' SIGNATURE') : ' BRANCH'); }
     $('lootTitle').textContent = titles[req.kind][0];
     if (req.kind !== 'start') achieve('firstloot');
     if (req.kind === 'level' && Math.random() < 0.3) sysLine('level');
-    $('lootSub').textContent = req.kind === 'relic' ? titles.relic[1] : (lootStory(req) || titles[req.kind][1]) + (G.relics.twinpick && req.kind !== 'start' && req.kind !== 'branch' ? ' SECONDS: take two.' : '');
+    $('lootSub').textContent = req.kind === 'relic' ? titles.relic[1] : (lootStory(req) || titles[req.kind][1]) + (G.relics.twinpick && req.kind !== 'start' && req.kind !== 'branch' && req.kind !== 'sfork' && req.kind !== 'rrelic' ? ' SECONDS: take two.' : '');
     const box = $('lootBox');
     box.className = 'box ' + req.kind;
     // Loot boxes are gold; a branch choice is an upgrade, so it's cyan.
-    const kc = req.kind === 'branch' ? PAL.upgrade : PAL.reward;
+    const kc = req.kind === 'branch' || req.kind === 'sfork' ? PAL.upgrade : PAL.reward;
     box.style.setProperty('--bc', kc); $('lootTitle').style.color = kc;
     void box.offsetWidth; // restart animation
     box.classList.add('opening');
@@ -668,7 +700,7 @@ const UI = {
     $('lootCards').classList.remove('ready');
     UI.renderLootCards();
     UI.rarityBanner();
-    $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'relic' ? 'none' : '';
+    $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'sfork' || req.kind === 'relic' || req.kind === 'rrelic' ? 'none' : '';
     $('skipBtn').style.display = req.kind === 'splice' ? '' : 'none';
     $('skipBtn').textContent = spliceSkipMut() ? 'SKIP: TAKE A MUTATION' : 'SKIP (+2 REROLLS)';
     UI.updateReroll();
@@ -750,7 +782,7 @@ const UI = {
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
     const k = UI.lootReq && UI.lootReq.kind;
-    if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo)) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'relic' && UI.lootOpts.length > 1) {
+    if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo)) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'sfork' && k !== 'relic' && k !== 'rrelic' && UI.lootOpts.length > 1) {
       UI.pickedOne = true; o.taken = true;
       const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
       $('lootSub').textContent = 'Seconds: take one more.';
@@ -890,12 +922,13 @@ const UI = {
     const run = !!G, cyan = PAL.upgrade, sec = UI.codexSec || 'all', box = (title, inner, hint) => `<div class="sec"><h3>${title}</h3>${hint ? `<p class="hint">${hint}</p>` : ''}${inner}</div>`;
     const wids = Object.keys(WEAPONS), used = wids.filter(id => META.wstats[id]);
     const pf = PAIRINGS.filter(q => META.pairs[q.id]), qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
+    const beasts = Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length;
     const met = Object.keys(META.bosses).length, rel = Object.keys(RELICS).filter(id => META.relics[id]);
     const pids = Object.keys(PROFILES), pu = pids.filter(profUnlocked), mids = Object.keys(MUTATIONS), mf = mids.filter(id => META.muts[id]);
-    const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length;
+    const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + Object.keys(ENEMY_INTRO).length;
     let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>CODEX COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
-      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Relics ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
-    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
+      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Relics ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
+    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
     const show = id => sec === 'all' || sec === id;
     if (show('weapons')) {
       let l = '';
@@ -932,6 +965,15 @@ const UI = {
       let l = '';
       for (const id of qs) { const known = META.quirks[id], Q = QUIRKS[id]; l += `<div class="li ${run && G.quirks && G.quirks[id] ? 'on' : ''}"><b style="color:${known ? cyan : 'inherit'}">${known ? esc(Q.name) : '???'}</b><br><span>${known ? esc(Q.desc) : 'Undiscovered.'}</span></div>`; }
       h += box(`Secrets found (${qf.length}/${qs.length})`, `<div class="list">${l}</div>`, 'Things that happen when the rules collide. Nobody will tell you what they are.');
+    }
+    if (show('beasts')) {
+      // The bestiary: every enemy type you have met (introduced on first sighting, see intro.js).
+      let l = '';
+      for (const id in ENEMY_INTRO) {
+        const d = ENEMIES[id], I = ENEMY_INTRO[id], m = META.seen && META.seen[id];
+        l += `<div class="li"><b${m ? ` style="color:${col(d.color)}"` : ''}>${m ? esc(d.name) : '???'}</b><br><span>${m ? esc(I.what) + ' <i>' + esc(I.tip) + '</i>' : 'Not met yet.'}</span></div>`;
+      }
+      h += box(`Enemies (${beasts}/${Object.keys(ENEMY_INTRO).length} met)`, `<div class="list">${l}</div>`, 'Every enemy type you have met, with how to beat it. Settings > Tutorial lets you meet them again.');
     }
     if (show('bosses')) {
       let l = '';

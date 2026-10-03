@@ -64,17 +64,17 @@ function pushOut(o, r, side) {
 }
 
 // Zone forces (cilia push, current flow) on a body at (x, y); returns {fx, fy, slick}.
-const ZF = { fx: 0, fy: 0, slick: false, acid: null };
+const ZF = { fx: 0, fy: 0, slick: false, acid: null, cilia: null, current: null };
 function zoneForce(x, y, r) {
-  ZF.fx = 0; ZF.fy = 0; ZF.slick = false; ZF.acid = null;
+  ZF.fx = 0; ZF.fy = 0; ZF.slick = false; ZF.acid = null; ZF.cilia = null; ZF.current = null;
   const c = tCell(x, y);
   if (!c) return ZF;
   for (const ob of c) {
     const dx = x - ob.x, dy = y - ob.y, d = Math.hypot(dx, dy) || 0.01;
     if (ob.type === 'acid') { if (d < ob.r + r + 3) ZF.acid = ob; continue; }
     if (d > ob.r + r || ob.def.solid) continue;
-    if (ob.type === 'cilia') { const k = ob.def.push * (0.4 + 0.6 * (1 - d / (ob.r + r))); ZF.fx += dx / d * k; ZF.fy += dy / d * k; }
-    else if (ob.type === 'current') { ZF.fx += Math.cos(ob.a) * ob.def.push; ZF.fy += Math.sin(ob.a) * ob.def.push; }
+    if (ob.type === 'cilia') { ZF.cilia = ob; const k = ob.def.push * (0.4 + 0.6 * (1 - d / (ob.r + r))); ZF.fx += dx / d * k; ZF.fy += dy / d * k; }
+    else if (ob.type === 'current') { ZF.current = ob; ZF.fx += Math.cos(ob.a) * ob.def.push; ZF.fy += Math.sin(ob.a) * ob.def.push; }
     else if (ob.type === 'slick') ZF.slick = true;
   }
   return ZF;
@@ -84,7 +84,13 @@ function terrainPlayer(p, dt) {
   const z = zoneForce(p.x, p.y, p.r);
   p.x += z.fx * dt; p.y += z.fy * dt;
   p.slick = z.slick;
-  if (z.acid && G.state === 'play') hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt');
+  G.inCurrent = !!z.current; // Go With the Flow
+  if (z.acid && G.state === 'play' && !G.P.ironGut) hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt'); // (Cast-Iron Stomach: not any more)
+  // Skid Marks: a toxic trail across the slick.
+  if (p.slick && G.P.skid && !(G.skidT > G.t) && G.zones.length < 300 && Math.hypot(p.vx || 0, p.vy || 0) > 40) {
+    G.skidT = G.t + 0.1;
+    G.zones.push({ x: p.x, y: p.y, r: 24, life: 1.6, max: 1.6, dps: (10 + G.level * 2) * G.P.might * G.P.skid, elem: 'poison', pull: 0, color: '#9ef01a', tick: 0, src: { wname: 'Skid Marks', elem: 'poison', noCrit: true } });
+  }
   const hit = pushOut(p, p.r, 0);
   if (hit) {
     // Lose the velocity that points into the surface (you slide along it instead).
@@ -99,8 +105,10 @@ function terrainBody(e, dt) {
   if (!e.boss) { e.x += z.fx * dt * 0.8; e.y += z.fy * dt * 0.8; }
   if (z.acid && !e.egg && !(e.acidT > G.t)) {
     e.acidT = G.t + 0.5;
-    damageEnemy(e, e.maxHp * 0.08 + 4, { dot: true, noCrit: true, noStatus: true, noArc: true, elem: 'poison', wname: 'Acid Crypt' });
+    damageEnemy(e, (e.maxHp * 0.08 + 4) * (1 + G.P.ironGut), { dot: true, noCrit: true, noStatus: true, noArc: true, elem: 'poison', wname: 'Acid Crypt' });
   }
+  // Brush-Off: cilia beds sting what they shove.
+  if (z.cilia && G.P.brushOff && !e.egg && !e.charmed && !(e.ciliaT > G.t)) { e.ciliaT = G.t + 0.5; damageEnemy(e, (12 + G.level * 2.5) * G.P.might * G.P.brushOff, { elem: 'phys', noCrit: true, noProc: true, wname: 'Brush-Off' }); }
   pushOut(e, e.r, e.side || 1);
 }
 
@@ -115,13 +123,13 @@ function terrainShot(s, hostile, dt) {
     switch (ob.def.shot) {
       case 'bounce': {
         const vn = s.vx * nx + s.vy * ny;
-        if (vn < 0) { s.vx -= 2 * vn * nx; s.vy -= 2 * vn * ny; ob.flash = 0.12; if (!hostile) s.hits = null; }
+        if (vn < 0) { s.vx -= 2 * vn * nx; s.vy -= 2 * vn * ny; ob.flash = 0.12; if (!hostile) s.hits = null; if (!hostile && G.P.bankShot && !s.banked && s.dmg) { s.banked = true; s.dmg *= 1 + 0.5 * G.P.bankShot; } } // (Bank Shot)
         s.x = ob.x + nx * (ob.r + (s.r || 4) + 1); s.y = ob.y + ny * (ob.r + (s.r || 4) + 1);
         if (Math.random() < 0.3) spawnPart(s.x, s.y, '#fff', 1, 60, 0.2, 2);
         return false;
       }
       case 'absorb':
-        s.dead = true; ob.charge++; ob.flash = 0.08;
+        s.dead = true; ob.charge += 1 + 0.25 * G.P.atpK; ob.flash = 0.08; // (Batteries Included: fills faster)
         if (ob.charge >= ob.def.charge) atpBurst(ob);
         return true;
       case 'melt':
@@ -149,7 +157,7 @@ function atpBurst(ob) {
   ob.charge = 0; ob.burstT = 0.6;
   // Scales with the clock and your level, never with your own damage (that fed back on itself: every burst
   // raised the next one, into the billions).
-  const R = ob.def.burstR, dmg = 80 * hpNow() * (1 + 0.04 * G.level);
+  const R = ob.def.burstR * (1 + 0.25 * G.P.atpK), dmg = 80 * hpNow() * (1 + 0.04 * G.level) * (1 + 0.5 * G.P.atpK); // (Batteries Included)
   ring(ob.x, ob.y, R, PAL.reward, 0.5, 6);
   addLight(ob.x, ob.y, R * 1.3, PAL.reward, 0.6);
   spawnPart(ob.x, ob.y, '#ffd23f', 24, 260, 0.6, 4);

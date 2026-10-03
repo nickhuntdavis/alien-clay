@@ -60,16 +60,17 @@ function updateBossIntro(dt) {
   const e = I.e, off = H * 0.16 / S;
   const k = 1 - Math.pow(0.015, dt);
   // Push the objective in on the boss (no knob clicks: this is the camera, not you).
-  ZOOM.z = lerp(ZOOM.z, Math.min(ZOOM.max, I.z0 * 1.45), 1 - Math.pow(0.05, dt)); S = S0 * ZOOM.z;
+  ZOOM.z = lerp(ZOOM.z, Math.min(ZOOM.max, I.z0 * (I.foe ? 1.6 : 1.45)), 1 - Math.pow(0.05, dt)); S = S0 * ZOOM.z;
   cam.x = lerp(cam.x, e.x, k); cam.y = lerp(cam.y, e.y + off, k);
   e.age += dt; e.flash = Math.max(0, e.flash - dt);
   if (e.twin) e.twin.age += dt;
+  if (I.foe && I.t > 0.45 && !I.roar) { I.roar = true; ring(e.x, e.y, e.r * 2.5, e.def.color, 0.6, 4); e.flash = 0.12; sfx('pickup'); }
   if (I.t > 0.7 && !I.roar) {
     I.roar = true;
     for (const b of [e, e.twin].filter(Boolean)) { ring(b.x, b.y, b.r * 3, b.def.color, 0.9, 10); spawnPart(b.x, b.y, b.def.color, 30, 260, 0.8, 4); addLight(b.x, b.y, b.r * 5, b.def.color, 1.2); b.flash = 0.15; }
     cam.shake = 14; sfx('boom'); vibrate(90);
   }
-  if (I.roar && Math.random() < dt * 3) ring(e.x, e.y, e.r * (1.6 + Math.random()), e.def.color, 0.6, 3);
+  if (I.roar && !I.foe && Math.random() < dt * 3) ring(e.x, e.y, e.r * (1.6 + Math.random()), e.def.color, 0.6, 3);
   for (const q of G.parts) { q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.92; q.vy *= 0.92; q.life -= dt; }
   for (const f of G.fx) f.life -= dt;
   for (const l of G.lights) l.life -= dt;
@@ -78,10 +79,11 @@ function updateBossIntro(dt) {
 }
 function endBossIntro() {
   if (!G || G.state !== 'bossIntro') return;
-  const e = G.bossIntro.e;
+  const e = G.bossIntro.e, foe = G.bossIntro.foe;
   ZOOM.z = G.bossIntro.z0; S = S0 * ZOOM.z;
   G.bossIntro = null;
   G.state = 'play';
+  if (foe) { lastTs = performance.now(); if (typeof UI !== 'undefined') { UI.show('hud'); UI.refreshHud(true); } return; } // a first sighting: just carry on
   bossArrive(e);
   banner('FIGHT: ' + e.def.name, PAL.danger);
   sysMsg('SYSTEM MESSAGE', `${e.def.name}, ${e.def.title}, has entered the arena. ${pick(SYSTEM_LINES.boss)}`, PAL.danger, true);
@@ -321,6 +323,11 @@ function optRelic(id, boss) {
     sub: 'From ' + B.name.replace(/^THE /, 'the ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()), desc: R.desc, relic: true,
     apply: () => applyRelic(id) };
 }
+function optRivalRelic(id, rid) {
+  const R = RELICS[id], V = RIVALS.find(x => x.id === rid);
+  return { rarity: 4, tag: 'RIVAL RELIC', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: V.color, title: R.name,
+    sub: 'Taken from ' + V.name, desc: R.desc, relic: true, apply: () => applyRelic(id) };
+}
 function applyRelic(id) {
   const P = G.P, p = me();
   G.relics[id] = true;
@@ -332,6 +339,15 @@ function applyRelic(id) {
     case 'proteinpro': P.speed += 0.35; P.momentum += 0.5; break;
     case 'doubletrouble': P.multishot += 1; P.pierce += 1; P.chain += 1; break;
     case 'diplomatic': G.dipAt = 0; break;
+    // Rival relics.
+    case 'personalbest': P.speed += 0.2; break;
+    case 'gains': { const add = Math.round(P.maxHp * 0.3); P.maxHp += add; p.hp += add; break; }
+    case 'tailday': P.ram += 2; break;
+    case 'honorary': P.xp += 0.25; break;
+    case 'thesis': P.critDmg += 0.75; break;
+    case 'wobbly': P.grit += 2; break;
+    case 'justkevin': { P.might += 0.06; P.haste += 0.06; P.speed += 0.06; P.crit += 0.06; const add = Math.round(P.maxHp * 0.06); P.maxHp += add; p.hp += add; break; }
+    case 'kevinsmum': G.mumT = G.t + 10; break;
   }
   recomputeAll();
   banner('RELIC: ' + RELICS[id].name.toUpperCase(), PAL.reward);
@@ -391,6 +407,10 @@ function relicDodge() {
 function relicTick(dt) {
   const R = G.relics, p = me(), P = G.P;
   if (R.bedside) healPlayer(P.maxHp * 0.015 * dt, true);
+  const fast = Math.hypot(p.vx || 0, p.vy || 0) > 110;
+  if (R.marathon && fast) healPlayer(P.maxHp * 0.01 * dt, true);
+  if (R.personalbest) G.pbDodge = fast; // (read by hurtPlayer's dodge roll)
+  if (R.kevinsmum && G.t >= (G.mumT || 0)) { G.mumT = G.t + 45; const a = Math.random() * TAU; G.pickups.push(makePickup(pick(['heal', 'magnet', 'rage', 'shield', 'freeze']), p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70)); floatText(p.x, p.y - 36, "KEVIN'S MUM", PAL.reward, 13, 0.8); }
   // The Queen's Court: three guards, each back 15 s after it falls.
   if (R.court) {
     G.court = (G.court || []).filter(g => !g.dead && g.charmed);
