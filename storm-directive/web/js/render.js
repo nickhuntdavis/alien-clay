@@ -1285,7 +1285,11 @@ function render() {
     // Individuals vary a little in size, and soft-bodied things breathe.
     if (e.vs == null) e.vs = e.boss || e.rival ? 1 : 0.9 + ((e.id * 9301 + 49297) % 233280) / 233280 * 0.2;
     const breathe = e.def.shape === 'cell' || e.def.shape === 'amoeba' || e.def.shape === 'spike' ? 1 + 0.035 * Math.sin(G.realT * 2.6 + e.id) : 1;
-    const x = sx(e.x), y = sy(e.y), r = e.r * S * squash * e.vs * breathe;
+    // Hit stutter: a quick recoil away from the hit, with a shiver, springing back in 0.14s.
+    const hk = e.hitRT != null ? 1 - (G.realT - e.hitRT) / 0.14 : 0, big = e.boss || e.rival ? 0.4 : 1;
+    let jx = 0, jy = 0;
+    if (hk > 0) { const kick = 3.2 * hk * hk * (e.hitK || 1) * big * S, sh = 1.4 * hk * big * S * (Math.floor(G.realT * 60) % 2 ? 1 : -1); jx = Math.cos(e.hitA) * kick - Math.sin(e.hitA) * sh; jy = Math.sin(e.hitA) * kick + Math.cos(e.hitA) * sh; }
+    const x = sx(e.x) + jx, y = sy(e.y) + jy, r = e.r * S * squash * e.vs * breathe;
     ctx.globalAlpha = e.phased ? 0.25 : 1;
     if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
     if (e.boss && !e.egg) drawBossAura(e, x, y, r);
@@ -1355,6 +1359,17 @@ function render() {
     }
     if (sh !== 'sperm' && !e.boss) drawEnemyDetail(e, x, y, r, rot);
     if (e.elite && !e.boss) { ctx.fillStyle = PAL.reward; for (let i = 0; i < 3; i++) { const a = G.realT * 2 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (r + 9), y + Math.sin(a) * (r + 9), 2.5, 0, TAU); ctx.fill(); } }
+    // Hit flash: the body goes bright white with a crisp rim, and a ring snaps outwards. Ticks get a faint flicker.
+    if (hk > 0 || G.realT - (e.tickRT || -9) < 0.08) {
+      const k = hk > 0 ? Math.min(1, hk * 1.4) : 0.3 * (1 - (G.realT - e.tickRT) / 0.08), a0 = ctx.globalAlpha;
+      ctx.globalAlpha = a0 * 0.7 * k * (big < 1 ? 0.45 : 1); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, r * 0.98, 0, TAU); ctx.fill();
+      if (hk > 0 && big === 1) {
+        ctx.globalAlpha = a0 * k; ctx.lineWidth = Math.max(1.5, 1.2 * S); ctx.strokeStyle = 'rgb(20,24,22)'; ctx.stroke();
+        const rr = r * (1.05 + 0.45 * (1 - hk)) + 2;
+        ctx.globalAlpha = a0 * hk * 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, 2 * hk * S * (e.hitK || 1) * 0.6); ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.stroke();
+      }
+      ctx.globalAlpha = a0;
+    }
     let si = 0;
     const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
     // Frozen: a crust of ice crystals. Shocked: a crackle across the body.

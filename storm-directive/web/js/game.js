@@ -587,7 +587,12 @@ function damageEnemy(e, dmg, src) {
   }
   const hp0 = e.hp;
   e.hp -= d;
-  if (!src.dot && !src.zoneHit) e.flash = 0.07; // ticks don't blink
+  if (!src.dot && !src.zoneHit) {
+    e.flash = 0.07;
+    // Hit feedback (drawn in real time): a recoil stutter away from the hit and a flash. Big hits and crits kick harder.
+    const hx = src.kx != null ? src.kx : e.x - me().x, hy = src.ky != null ? src.ky : e.y - me().y;
+    e.hitRT = G.realT; e.hitA = Math.atan2(hy, hx) || 0; e.hitK = crit || d > e.maxHp * 0.2 ? 1.7 : 1;
+  } else if (!(G.realT - (e.tickRT || -9) < 0.3)) e.tickRT = G.realT; // ticks get a soft flicker, at most every 0.3s
   const key = src.wname || 'Other';
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + d;
   if (src.w) { const wk = (src.w.friendOf || src.w).uid, W = G.stats.wdmg || (G.stats.wdmg = {}); W[wk] = (W[wk] || 0) + d; } // per weapon, for the Armoury
