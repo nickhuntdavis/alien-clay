@@ -15,7 +15,9 @@ const PAL_OK = new Set();
 // Full Technicolour (a Mythical bonus): no more greyscale, anywhere.
 let FULL_COL = false;
 const DYE_COLOURS = {
-  gfp: () => [PAL.you].concat(typeof G !== 'undefined' && G && G.seqCol ? [G.seqCol] : []), // you, and your weapons in your sequence's colour immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST, DYE_FAST_DK],
+  gfp: () => [PAL.you].concat(typeof G !== 'undefined' && G && G.seqCol ? [G.seqCol] : []), // you, and your weapons in your sequence's colour
+  // (These three used to sit at the end of the comment above, so their colours never switched on.)
+  immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST, DYE_FAST_DK],
   rival: () => RIVALS.map(r => r.color), he: () => [PAL.upgrade, PAL.pickup].concat(Object.values(ELEM_UI)),
 };
 function refreshPalette() {

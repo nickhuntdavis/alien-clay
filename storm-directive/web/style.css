@@ -878,3 +878,8 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 .li .rbars .dbar i.on { background: #d9e2ec; box-shadow: none; }
 .youTop::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 45%; background: linear-gradient(to bottom, #0000, #000000b0); pointer-events: none; }
 .youCap { z-index: 1; }
+/* Stains: a colour key (pause menu). The swatches always show in colour, so you know what to look for. */
+.li.stain { display: flex; gap: 10px; align-items: flex-start; opacity: 1; }
+.li.stain .sw { flex: 0 0 16px; height: 16px; border-radius: 50%; margin-top: 2px; box-shadow: 0 0 8px currentColor; display: flex; overflow: hidden; }
+.li.stain .sw.multi u { flex: 1; height: 100%; }
+.li.stain .sb { color: #d9e2ec; }

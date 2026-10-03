@@ -516,8 +516,13 @@ function optUpgrade(w, r) {
 }
 function optDye(id) {
   const D = DYES[id];
-  return { rarity: 2, tag: 'STAIN', icon: 'DY', color: '#9fb3c8', title: D.name, sub: 'Colour and a boon, for the rest of the run', desc: D.boon + ' ' + D.desc,
-    apply: () => { G.dyes[id] = true; if (D.apply) D.apply(G.P, G); recomputeAll(); refreshPalette(); } };
+  // The card says the two things that matter: what you'll see, and what you get.
+  return { rarity: 2, tag: 'STAIN', icon: 'DY', color: D.key || '#9fb3c8', title: D.name, sub: 'For the rest of the run', desc: `Shows: ${D.see}. Boon: ${D.boon}`,
+    apply: () => {
+      G.dyes[id] = true; if (D.apply) D.apply(G.P, G); recomputeAll(); refreshPalette();
+      banner('STAIN: ' + D.name.toUpperCase(), D.key || PAL.upgrade);
+      sysMsg('STAIN APPLIED', D.see + '. ' + D.boon, D.key || PAL.upgrade, true);
+    } };
 }
 // Weapon tuning: below Legendary these power-ups go on ONE weapon you choose (on the card); Legendary and up
 // tune every weapon at once. Each weapon keeps its own stacks.
