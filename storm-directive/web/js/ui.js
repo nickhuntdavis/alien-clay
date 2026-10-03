@@ -73,6 +73,12 @@ const UI = {
     { let x0 = 0; const h = $('sqHero'); h.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true }); h.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) seqStep(dx < 0 ? 1 : -1); }, { passive: true }); }
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
+    // Splice screens can be skipped: stay pure, take two rerolls.
+    $('skipBtn').addEventListener('click', () => {
+      if (!G || !$('lootCards').classList.contains('ready') || !UI.lootReq || UI.lootReq.kind !== 'splice') return;
+      clearPreviews(); spliceSkip(); sfx('pickup');
+      G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now();
+    });
     $('resumeBtn').addEventListener('click', () => UI.togglePause());
     $('quitBtn').addEventListener('click', () => { logRun(G, 'QUIT'); G = null; UI.show('title'); UI.renderBest(); });
     $('setBtnTitle').addEventListener('click', () => UI.openSettings('title'));
@@ -652,6 +658,8 @@ const UI = {
     UI.renderLootCards();
     UI.rarityBanner();
     $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'relic' ? 'none' : '';
+    $('skipBtn').style.display = req.kind === 'splice' ? '' : 'none';
+    $('skipBtn').textContent = 'SKIP (+2 REROLLS)';
     UI.updateReroll();
     UI.show('loot');
     INPUT.active = false; G.manual = null;

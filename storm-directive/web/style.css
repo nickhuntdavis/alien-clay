@@ -810,3 +810,7 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #wslots.many .slot:not(.spell) { width: 58px; }
 body.land #wslots.many { max-width: 158px; flex-wrap: wrap; }
 .slot.merged { outline: 2px solid #ff3df2; outline-offset: -2px; }
+/* Loot screen buttons: Reroll, and Skip on splice screens. */
+#lootBtns { position: sticky; bottom: calc(4px + env(safe-area-inset-bottom)); z-index: 6; display: flex; gap: 8px; justify-content: center; width: 100%; }
+#lootBtns #rerollBtn { position: static; }
+#skipBtn { max-width: 220px; padding: 10px; font-size: 11px; opacity: 0.9; }

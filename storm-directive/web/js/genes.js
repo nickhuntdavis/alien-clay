@@ -186,6 +186,11 @@ function spliceOpts() {
       apply: () => genesSplice(id) };
   });
 }
+// The SKIP button on a splice screen: keep your genome as it is, for two rerolls.
+function spliceSkip() {
+  G.rerolls += 2;
+  floatText(G.player.x, G.player.y - 30, 'STAYING PURE', '#adb5bd', 14, 0.8);
+}
 function profSynText(id) {
   const s = PROFILE_SYNERGIES.filter(q => (q.a === id && genesOn(q.b)) || (q.b === id && genesOn(q.a)));
   return s.length ? ' With what you already express: ' + s.map(q => q.name + ' (' + q.desc + ')').join(' ') : '';
@@ -218,7 +223,10 @@ function genesTick(dt) {
         if (Math.hypot(x, y) > CORE.arena - 80 || Math.hypot(x - G.core.x, y - G.core.y) < CORE.r + 60) continue;
         const v = unstick({ x, y, born: G.t, seed: Math.random() * 10 }, 26);
         G.vesicles.push(v);
-        if (!G.vesSeen) { G.vesSeen = true; sysMsg('ENZYME VESICLE', 'A vesicle has bulged up somewhere on the slide. Follow the glow at the edge of the screen and burst it for a mutation.', PAL.upgrade, true); }
+        // A bold announcement every time: a banner, a ping from the vesicle and a chime.
+        banner('MUTATION VESICLE!', '#c7f9cc'); sfx('level'); vibrate(40);
+        v.pingT = G.realT;
+        if (!G.vesSeen) { G.vesSeen = true; sysMsg('ENZYME VESICLE', 'A vesicle has bulged up somewhere on the slide. Follow the green arrows and swim into it to burst it for a mutation. It pops by itself after a minute.', PAL.upgrade, true); }
         break;
       }
     }
@@ -392,6 +400,14 @@ function genesBank(G) {
 }
 
 // ================================================================ drawing
+// A bold green chevron with a dark outline, so it reads on a pale slide and a dark one.
+function vesArrow(x, y, a, sz, alpha) {
+  const c = Math.cos(a), sn = Math.sin(a), pt = (u, v) => [x + c * u - sn * v, y + sn * u + c * v];
+  ctx.globalAlpha = alpha; ctx.beginPath();
+  for (const [u, v] of [[sz, 0], [-sz * 0.6, sz * 0.85], [-sz * 0.2, 0], [-sz * 0.6, -sz * 0.85]]) { const [X, Y] = pt(u, v); ctx.lineTo(X, Y); }
+  ctx.closePath(); ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#0b1a10'; ctx.stroke(); ctx.fillStyle = '#9ef01a'; ctx.fill();
+  ctx.globalAlpha = 1;
+}
 function drawVesicles() {
   if (!G.vesicles || !G.vesicles.length) return;
   const p = G.player;
@@ -399,21 +415,40 @@ function drawVesicles() {
     const x = sx(v.x), y = sy(v.y), pulse = 1 + Math.sin(G.realT * 4 + v.seed) * 0.08, r = 20 * S * pulse;
     const left = VESICLE.life - (G.t - v.born);
     ctx.globalAlpha = left < 8 && Math.floor(G.realT * 6) % 2 ? 0.4 : 1;
+    RAW_COL = true; // the vesicle keeps its green on the grey slide
     ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 3, '#c7f9cc', 0.45); ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#e9f5db'; ctx.strokeStyle = col('#b5e48c'); ctx.lineWidth = 2;
+    ctx.fillStyle = '#c7f9cc'; ctx.strokeStyle = '#2d6a1f'; ctx.lineWidth = 2.5;
     ctx.beginPath(); for (let i = 0; i <= 18; i++) { const a = i / 18 * TAU, rr = r * (1 + 0.1 * Math.sin(a * 3 + G.realT * 3 + v.seed)); i ? ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
     ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = col('#b5e48c'); ctx.beginPath(); ctx.arc(x - r * 0.25, y - r * 0.2, r * 0.25, 0, TAU); ctx.arc(x + r * 0.3, y + r * 0.15, r * 0.18, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#9ef01a'; ctx.beginPath(); ctx.arc(x - r * 0.25, y - r * 0.2, r * 0.25, 0, TAU); ctx.arc(x + r * 0.3, y + r * 0.15, r * 0.18, 0, TAU); ctx.fill();
     ctx.globalAlpha = 1;
-    // Off screen: a glowing marker at the edge of your vision, pointing to it.
-    const m = 26;
-    if (x < 0 || x > W || y < 0 || y > H) {
-      const cx = W / 2, cy = H / 2, a = Math.atan2(y - cy, x - cx), k = Math.min((W / 2 - m) / Math.abs(Math.cos(a) || 1e-6), (H / 2 - m) / Math.abs(Math.sin(a) || 1e-6));
-      const ex = cx + Math.cos(a) * k, ey = cy + Math.sin(a) * k;
-      ctx.globalCompositeOperation = 'lighter'; glow(ex, ey, 40, '#c7f9cc', 0.55 + 0.25 * Math.sin(G.realT * 5)); ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = '#e9f5db'; ctx.beginPath(); ctx.moveTo(ex + Math.cos(a) * 12, ey + Math.sin(a) * 12); ctx.lineTo(ex + Math.cos(a + 2.5) * 9, ey + Math.sin(a + 2.5) * 9); ctx.lineTo(ex + Math.cos(a - 2.5) * 9, ey + Math.sin(a - 2.5) * 9); ctx.closePath(); ctx.fill();
-      ctx.font = '700 10px monospace'; ctx.textAlign = 'center'; ctx.fillText(Math.round(Math.hypot(v.x - p.x, v.y - p.y) / 10) * 10 + '', ex - Math.cos(a) * 18, ey - Math.sin(a) * 18 + 3);
+    // Spawn ping: three rings rippling out from it.
+    const pk = (G.realT - (v.pingT || -9)) / 1.6;
+    if (pk >= 0 && pk < 1) for (let q = 0; q < 3; q++) { const f = (pk * 1.6 - q * 0.25); if (f <= 0 || f >= 1) continue; ctx.globalAlpha = 1 - f; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4 * (1 - f) + 1; ctx.beginPath(); ctx.arc(x, y, r + f * 260 * S, 0, TAU); ctx.stroke(); }
+    // A beacon: a bobbing chevron and its countdown above it.
+    RAW_COL = true;
+    const by = y - r - 18 - Math.abs(Math.sin(G.realT * 4)) * 8;
+    ctx.globalAlpha = 1; vesArrow(x, by, Math.PI / 2, 11, 1);
+    ctx.font = '900 12px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#0b1a10'; ctx.fillStyle = '#c7f9cc';
+    const lbl = 'MUTATION ' + Math.ceil(left) + 's'; ctx.strokeText(lbl, x, by - 16); ctx.fillText(lbl, x, by - 16);
+    // Floating arrows round you, pointing the way (until you're nearly there).
+    const dW = Math.hypot(v.x - p.x, v.y - p.y), a = Math.atan2(v.y - p.y, v.x - p.x), px = sx(p.x), py = sy(p.y);
+    if (dW > 120) for (let q = 0; q < 3; q++) {
+      const ph = (G.realT * 1.8 + q / 3) % 1, rr = 44 * Math.max(1, S * 0.6) + ph * 34;
+      vesArrow(px + Math.cos(a) * rr, py + Math.sin(a) * rr, a, 9, Math.sin(ph * Math.PI));
     }
+    // Off screen: a big arrow at the edge with the distance.
+    const m = 34;
+    if (x < 0 || x > W || y < 0 || y > H) {
+      const cx = W / 2, cy = H / 2, ea = Math.atan2(y - cy, x - cx), k = Math.min((W / 2 - m) / Math.abs(Math.cos(ea) || 1e-6), (H / 2 - m) / Math.abs(Math.sin(ea) || 1e-6));
+      const bob = Math.sin(G.realT * 6) * 5, ex = cx + Math.cos(ea) * (k + bob), ey = cy + Math.sin(ea) * (k + bob);
+      ctx.globalCompositeOperation = 'lighter'; glow(ex, ey, 50, '#c7f9cc', 0.6 + 0.3 * Math.sin(G.realT * 5)); ctx.globalCompositeOperation = 'source-over';
+      vesArrow(ex, ey, ea, 17, 1);
+      ctx.font = '900 11px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#0b1a10'; ctx.fillStyle = '#c7f9cc';
+      const t2 = Math.round(dW / 10) * 10 + 'um';
+      ctx.strokeText(t2, ex - Math.cos(ea) * 28, ey - Math.sin(ea) * 28 + 4); ctx.fillText(t2, ex - Math.cos(ea) * 28, ey - Math.sin(ea) * 28 + 4);
+    }
+    RAW_COL = false; ctx.globalAlpha = 1;
   }
 }
 
