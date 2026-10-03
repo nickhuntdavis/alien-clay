@@ -110,7 +110,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.52';
+const APP_VERSION = '7.53';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -151,7 +151,12 @@ function runLogText() {
   // Only errors from this version: anything older has been fixed or is out of date.
   let err = ''; try { err = localStorage.getItem('sd_err') || ''; } catch (e) { /* ignore */ }
   if (!err.startsWith('v' + APP_VERSION + ' ')) err = '';
-  return `SPAWN PRAWN RUN LOG (v${APP_VERSION}) - ${RUNLOG.length} runs, ${wins} born\n` + (err ? 'Last error: ' + err + '\n' : '') + RUNLOG.map(r => '\n' + runText(r)).join('');
+  return `SPAWN PRAWN RUN LOG (v${APP_VERSION}) - ${RUNLOG.length} runs, ${wins} born | ${winTally()}\n` + (err ? 'Last error: ' + err + '\n' : '') + RUNLOG.map(r => '\n' + runText(r)).join('');
+}
+// Win rate over the last 9 finished runs (wins and losses only; quits and closed runs don't count). Target: 1 in 3.
+function winTally() {
+  const done = RUNLOG.filter(r => r.res === 'WON' || r.res === 'LOST').slice(-9), w = done.filter(r => r.res === 'WON').length;
+  return `last ${done.length} finished: ${w} won (target 1 in 3)`;
 }
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
