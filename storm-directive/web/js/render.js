@@ -962,44 +962,26 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   const kick = o.kick || 0, tk = (o.turnK ?? 1) * (1 + 0.9 * kick); // (the first strokes are big and exaggerated)
   o.beat = (o.beat || Math.random() * 10) + dt * (24 + Math.min(28, speed / 5)) * 0.78 * (beatMul || 1) * (0.08 + 0.92 * Math.min(1, o.turnK ?? 1)) * (1 + 0.6 * kick); // a strong, deliberate beat (nearly still mid-turn, quick just after)
   const t = o.tail;
+  // The tail as a springy rubber rod. phi: how far it's swung off straight-back (radians), om: how fast it's
+  // swinging. When the body turns, the tail stays where it was in the water (phi grows), then springs round
+  // quickly, with a little overshoot, to trail straight behind again. It bends in a clean arc, more towards
+  // the tip, and can never swing more than about 130 degrees off, so it stays stretched out and the tip never
+  // reaches the head.
+  if (o.phi == null) { o.phi = 0; o.om = 0; o.f0 = face; }
+  { let df = face - o.f0; while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU; o.f0 = face;
+    o.phi -= df;
+    const w0 = 13, z = 0.5; // (springiness: about a third of a second to swing back; z: a little overshoot)
+    if (dt > 0) { o.om += (-w0 * w0 * o.phi - 2 * z * w0 * o.om) * dt; o.phi += o.om * dt; }
+    const lim = 2.3; if (Math.abs(o.phi) > lim) { o.phi = Math.sign(o.phi) * lim; if (o.om * o.phi > 0) o.om = 0; } }
+  const back = face + Math.PI;
   t[0].x = rx; t[0].y = ry;
-  // A tiny weight at the tip: every link keeps some of its momentum, more towards the tip, so when you turn
-  // the end of the tail carries on, swings out wide and whips round after you in an arc.
-  const keep = dt > 0 ? Math.pow(0.5, dt * 60 / 10) : 0; // (momentum half-life of about 10 frames at 60 FPS)
   for (let i = 1; i < TAIL_N; i++) {
-    const a = t[i - 1], b = t[i], f = i / (TAIL_N - 1), m = keep * (0.15 + 0.6 * f * f); // (the weight is towards the end)
-    const vx = (b.x - (b.px ?? b.x)) * m, vy = (b.y - (b.py ?? b.y)) * m;
-    b.px = b.x; b.py = b.y; b.x += vx; b.y += vy;
-    // Water drag: links lag behind; stiffness: drift towards straight back from the link ahead (the first
-    // link is held firmly on the body's axis).
-    const pv = i > 1 ? t[i - 2] : { x: a.x + Math.cos(face) * seg, y: a.y + Math.sin(face) * seg };
-    let ax = a.x - pv.x, ay = a.y - pv.y; const al = Math.hypot(ax, ay) || 1; ax /= al; ay /= al;
-    // Flow: water streaming past a swimming body drags the tail out straight behind it (more the faster you
-    // go, and more along the tail), so after the tip swings out it comes back round to trail behind you.
-    const fl = Math.min(0.5, (0.3 + 0.2 * Math.min(1, speed / 150)) * f); // (and the beat itself straightens it, even from still)
-    ax = lerp(ax, -Math.cos(face), fl); ay = lerp(ay, -Math.sin(face), fl); { const n = Math.hypot(ax, ay) || 1; ax /= n; ay /= n; }
-    const st = Math.min(1, dt * (i === 1 ? 40 : i === 2 ? 22 : 15 * (1 - 0.45 * f))); // (springy, like rubber: bends, then pulls itself straight)
-    b.x = lerp(b.x, a.x + ax * seg, st); b.y = lerp(b.y, a.y + ay * seg, st);
-    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
-    b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg;
+    const f = (i - 0.5) / (TAIL_N - 1), d = back + o.phi * Math.pow(f, 1.25);
+    t[i].x = t[i - 1].x + Math.cos(d) * seg; t[i].y = t[i - 1].y + Math.sin(d) * seg;
   }
-  // Smooth out kinks (a hooked or jittering tip): ease each link towards the middle of its neighbours (the
-  // last one towards carrying on straight), then put the lengths back, root to tip.
-  for (let i = 2; i < TAIL_N; i++) {
-    const a = t[i - 1], b = t[i];
-    if (i < TAIL_N - 1) { const c = t[i + 1]; b.x = lerp(b.x, (a.x + c.x) / 2, 0.4); b.y = lerp(b.y, (a.y + c.y) / 2, 0.4); } // (bending stiffness)
-    else { const z = t[i - 2]; b.x = lerp(b.x, a.x + (a.x - z.x), 0.2); b.y = lerp(b.y, a.y + (a.y - z.y), 0.2); }
-  }
-  for (let i = 1; i < TAIL_N; i++) { const a = t[i - 1], b = t[i], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1; b.x = a.x + dx / d * seg; b.y = a.y + dy / d * seg; }
-  // The tail can't fold back onto the body: past the first few links, each stays at least half its length
-  // along the tail away from the head (pushed straight out from it), then the lengths are put back.
-  for (let i = 3; i < TAIL_N; i++) {
-    const b = t[i], dx = b.x - t[0].x, dy = b.y - t[0].y, d = Math.hypot(dx, dy) || 1, min = seg * i * 0.6;
-    if (d < min) { b.x = t[0].x + dx / d * min; b.y = t[0].y + dy / d * min; const a = t[i - 1], ex = b.x - a.x, ey = b.y - a.y, e = Math.hypot(ex, ey) || 1; b.x = a.x + ex / e * seg; b.y = a.y + ey / e * seg; }
-  }
-  // How stretched out it is (1 = straight). A curled-up tail can't push much water: the swim physics reads this.
+  // How stretched out it is (1 = straight), and whether it's behind you (1 when the tip trails straight back,
+  // 0 when it's off to the side). The swim physics reads both: a swung-out tail can't push you forward.
   o.ext = Math.hypot(t[TAIL_N - 1].x - t[0].x, t[TAIL_N - 1].y - t[0].y) / len;
-  // ...and whether it's behind you: 1 when the tip trails straight back, 0 when it's off to the side.
   { const bx = t[0].x - t[TAIL_N - 1].x, by = t[0].y - t[TAIL_N - 1].y, bl = Math.hypot(bx, by) || 1; o.behind = clamp(((bx * Math.cos(face) + by * Math.sin(face)) / bl - 0.55) / 0.4, 0, 1); }
   // The visible wave, perpendicular to the spine.
   const amp = Math.min(len * 0.15, 38) * (0.75 + 0.25 * Math.min(1, speed / 150)) * tk; // big, sweeping strokes (quiet while turning)
