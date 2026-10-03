@@ -11,6 +11,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const cv = document.getElementById('game');
 const ctx = cv.getContext('2d', { alpha: false });
 let W = 0, H = 0, DPR = 1, S = 1, S0 = 1; // screen size (css px), pixel ratio, world->screen scale (S0 before zoom)
+const QUAL = { lv: 0, slow: 0, fast: 0 }; // adaptive quality level (see qualTick)
 // Pinch (or mouse wheel) zoom, shown as the microscope's magnification. Gameplay (spawn distances) uses S0,
 // so zooming in never brings monsters closer.
 const ZOOM = { z: 1, min: 0.6, max: 2, until: 0, defocus: 0, lastT: 0 };
@@ -35,7 +36,7 @@ function setZoom(z, save) {
 const cam = { x: 0, y: 0, shake: 0 };
 
 function resize() {
-  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  DPR = Math.min(window.devicePixelRatio || 1, QUAL.lv < 2 ? 2 : QUAL.lv < 3 ? 1.5 : 1);
   W = window.innerWidth; H = window.innerHeight;
   cv.width = Math.floor(W * DPR); cv.height = Math.floor(H * DPR);
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -48,7 +49,21 @@ resize();
 // ---------------------------------------------------------------- state
 let G = null;
 let uidSeq = 1;
-const CAPS = { enemies: 240, proj: 900, ebul: 800, parts: 450, texts: 60, gems: 350 };
+const CAPS = { enemies: 240, proj: 900, ebul: 800, parts: 450, texts: 40, gems: 350 };
+// Adaptive quality: when frames run slow for a while (busy late game, slower phones), step the costly
+// extras down; step back up once there's headroom again. 0: everything. 1: no lens blur or foreground
+// debris, fewer floating numbers. 2: 1.5x resolution, plainer common enemies, fewer particles. 3: 1x resolution.
+const qualParts = () => (QUAL.lv >= 2 ? 220 : CAPS.parts);
+const qualTexts = () => (QUAL.lv >= 1 ? 20 : CAPS.texts);
+function qualTick(raw) {
+  if (raw > 1 / 40) { QUAL.slow += raw; QUAL.fast = 0; } else if (raw < 1 / 54) { QUAL.fast += raw; QUAL.slow = Math.max(0, QUAL.slow - raw * 0.5); }
+  const now = performance.now();
+  if (QUAL.slow > 1.5 && QUAL.lv < 3) {
+    // Stepping straight back down after stepping up means that level is too much: stay put for a minute.
+    if (now - (QUAL.upAt || -1e9) < 6000) QUAL.lockUntil = now + 60000;
+    QUAL.lv++; QUAL.slow = 0; QUAL.fast = 0; if (QUAL.lv >= 2) resize();
+  } else if (QUAL.fast > 10 && QUAL.lv > 0 && now > (QUAL.lockUntil || 0)) { QUAL.lv--; QUAL.upAt = now; QUAL.slow = 0; QUAL.fast = 0; if (QUAL.lv >= 1) resize(); }
+}
 
 function newStats() {
   return {
@@ -494,13 +509,13 @@ function optOvercharge() { return { rarity: 2, tag: 'SUPPLY', icon: 'OC', color:
 // ---------------------------------------------------------------- effects helpers
 function spawnPart(x, y, color, n, spd, life, size) {
   for (let i = 0; i < n; i++) {
-    if (G.parts.length >= CAPS.parts) return;
+    if (G.parts.length >= qualParts()) return;
     const a = Math.random() * TAU, v = rand(0.3, 1) * spd;
     G.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: life * rand(0.6, 1), max: life, color, size: size || 3 });
   }
 }
 function floatText(x, y, txt, color, size, life) {
-  if (G.texts.length >= CAPS.texts) G.texts.shift();
+  while (G.texts.length >= qualTexts()) G.texts.shift();
   G.texts.push({ x: x + rand(-6, 6), y, txt, color, size: size || 13, life: life || 0.7, max: life || 0.7 });
 }
 function banner(text, color) { G.banner = { text, color: color || '#fff', t: 2.4 }; }
@@ -511,7 +526,7 @@ function ring(x, y, r, color, life, width) { G.fx.push({ type: 'ring', x, y, r, 
 function fxParts(k, x, y, color, n, spd, life, size, dir, spread) {
   n = Math.max(1, Math.round(n * (typeof FX !== 'undefined' ? 0.35 + 0.65 * FX.k : 1)));
   for (let i = 0; i < n; i++) {
-    if (G.parts.length >= CAPS.parts) return;
+    if (G.parts.length >= qualParts()) return;
     const a = dir == null ? Math.random() * TAU : dir + rand(-1, 1) * (spread == null ? 0.5 : spread), v = rand(0.35, 1) * spd;
     G.parts.push({ k, x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: life * rand(0.6, 1), max: life, color, size: size || 3, rot: Math.random() * TAU, vr: rand(-8, 8) });
   }
@@ -2400,6 +2415,7 @@ function frame(ts) {
   if (raw > 0.004 && raw < 0.5) FPS.v += (1 / raw - FPS.v) * 0.05; // (a just-reset clock gives tiny gaps: skip them)
   const dt = clamp(raw || 0, 0, 1 / 30);
   lastTs = ts;
+  if (G && G.state === 'play' && raw > 0.004 && raw < 0.5) qualTick(raw);
   safely('update', () => {
     if (G && G.state === 'play') {
       keyboardSteer();

@@ -250,7 +250,7 @@ function blurTile(src, px) {
 const DOF = { on: true, c: null, key: '' };
 try { DOF.on = localStorage.getItem('sd_dof') !== '0'; } catch (e) { /* storage unavailable */ }
 function drawLensBlur() {
-  if (!DOF.on) return;
+  if (!DOF.on || QUAL.lv >= 1) return;
   const w = Math.max(1, Math.ceil(W / 4)), h = Math.max(1, Math.ceil(H / 4)), key = w + 'x' + h;
   if (DOF.key !== key) {
     DOF.key = key; DOF.c = makeCanvas(w, h);
@@ -269,7 +269,7 @@ function drawLensBlur() {
 }
 function drawForeground() {
   const L = SPR.fore;
-  if (!L || !DOF.on) return;
+  if (!L || !DOF.on || QUAL.lv >= 1) return;
   if (SET.darkfield) ctx.globalAlpha = 0.25; // barely there on black
   const T = L.T, ox = -((((cam.x * S * L.f + G.realT * 6) % T) + T) % T), oy = -((((cam.y * S * L.f + G.realT * 3) % T) + T) % T);
   for (let x = ox; x < W; x += T) for (let y = oy; y < H; y += T) ctx.drawImage(L.img, x, y, T, T);
@@ -1297,9 +1297,11 @@ function render() {
     if (e.burn > 0) glow(sx(e.x), sy(e.y), e.r * 2 * S, '#ff7a2f', 0.3);
   }
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-  // Enemies.
+  // Enemies. (Lower quality with a crowd: common enemies skip their halo and surface detail.)
+  const lod = QUAL.lv >= 2 && G.enemies.length > 90;
   for (const e of G.enemies) {
     if (!vis(e) || e.egg) continue;
+    const plain = !e.elite && !e.boss && !e.rival && !e.charmed;
     const squash = 1 + Math.max(0, e.flash) * 2;
     // Individuals vary a little in size, and soft-bodied things breathe.
     if (e.vs == null) e.vs = e.boss || e.rival ? 1 : 0.9 + ((e.id * 9301 + 49297) % 233280) / 233280 * 0.2;
@@ -1374,9 +1376,9 @@ function render() {
       if (e.elite || e.charmed) {
         // Immunostained: a fluorescent rim marks elites (gold) and your allies (pink).
         ctx.strokeStyle = e.charmed ? PAL.you : PAL.reward; ctx.lineWidth = 3; ctx.stroke();
-      } else pcHalo(e.boss ? 4.5 : Math.max(2.5, r * 0.16), e.boss ? 0.95 : 0.85);
+      } else if (!(lod && plain)) pcHalo(e.boss ? 4.5 : Math.max(2.5, r * 0.16), e.boss ? 0.95 : 0.85);
     }
-    if (sh !== 'sperm' && !e.boss) drawEnemyDetail(e, x, y, r, rot);
+    if (sh !== 'sperm' && !e.boss && !(lod && plain)) drawEnemyDetail(e, x, y, r, rot);
     if (e.elite && !e.boss) { ctx.fillStyle = PAL.reward; for (let i = 0; i < 3; i++) { const a = G.realT * 2 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (r + 9), y + Math.sin(a) * (r + 9), 2.5, 0, TAU); ctx.fill(); } }
     // Hit flash: the body goes bright white with a crisp rim, and a ring snaps outwards. Ticks get a faint flicker.
     if (hk > 0 || G.realT - (e.tickRT || -9) < 0.08) {
@@ -1800,7 +1802,7 @@ function drawScaleBar() {
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
-  ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS', x + len + 10, y + 4);
+  ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS' + (QUAL.lv ? '  Q' + (3 - QUAL.lv) : ''), x + len + 10, y + 4);
   // Lead side marker, as on a radiograph.
   const mkx = land ? W - 112 : W - 26, mky = land ? H - 40 : H * 0.5;
   filmPanel(mkx - 1, mky - 11, 19, 22);
