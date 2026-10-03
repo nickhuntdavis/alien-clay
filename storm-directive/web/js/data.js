@@ -368,6 +368,7 @@ const ADAPT = {
                orbit: 'Premature Evangelation: angels bless each enemy more often as they pass.', wake: 'Incompatible Viral Load: the trail shoves enemies aside.', siphon: 'Placental Siphon: returned shots pierce.',
                crayon: 'Colouring In: a thicker line.', duedate: 'Due Date: +10% repeat.', redtape: 'Red Tape: +1 enemy per bundle.', friend: 'Imaginary Friend: its pokes reach 15% further.', peekaboo: 'Peekaboo: BOO shoves harder.',
                twin: 'Twin Telepathy: a 15% wider beam.', bubble: 'Bubble Wand: bubbles hold 12% bigger enemies.', toothfairy: 'Tooth Fairy: teeth lure from 12% further.' },
+  area:      { blaster: 'Spitball: bigger shots, easier to land.', shotgun: 'Hiccup Scattergun: bigger pellets.', glaive: 'Yo-Yo Diet: a bigger yo-yo.', frost: 'Cold Feet: bigger shards.', seeker: 'Seeker Siblings: bigger siblings.', parasite: 'Tapeworm Seeder: bigger worms.' },
   haste:     { wake: 'Incompatible Viral Load: the trail hits faster.', orbit: 'Premature Evangelation: angels circle faster.' },
   reload:    { wake: 'Incompatible Viral Load: the trail lingers longer.' },
   mag:       { wake: 'Incompatible Viral Load: a wider trail.', orbit: 'Premature Evangelation: bigger angels.' },

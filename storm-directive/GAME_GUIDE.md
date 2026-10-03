@@ -687,6 +687,12 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Pushy | Twin Telepathy | a 15% wider beam. |
 | Pushy | Bubble Wand | bubbles hold 12% bigger enemies. |
 | Pushy | Tooth Fairy | teeth lure from 12% further. |
+| Personal Space | Spitball | bigger shots, easier to land. |
+| Personal Space | Hiccup Scattergun | bigger pellets. |
+| Personal Space | Yo-Yo Diet | a bigger yo-yo. |
+| Personal Space | Cold Feet | bigger shards. |
+| Personal Space | Seeker Siblings | bigger siblings. |
+| Personal Space | Tapeworm Seeder | bigger worms. |
 | Twitchy Tail | Incompatible Viral Load | the trail hits faster. |
 | Twitchy Tail | Premature Evangelation | angels circle faster. |
 | Short Refractory Period | Incompatible Viral Load | the trail lingers longer. |

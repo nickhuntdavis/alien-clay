@@ -296,6 +296,8 @@ function computeStatsInner(w) {
   if (s.aura) s.aura *= areaMult;
   if (s.radius) s.radius *= areaMult;
   if (d.style === 'flame' || d.kind === 'orbit' || d.style === 'void') s.size *= areaMult;
+  // Guns with nothing area-shaped get bigger shots instead (easier to land, wider pass through a crowd).
+  else if (d.kind === 'gun' && s.size && !s.area && !(s.explode > 1) && !s.aura && !s.radius) s.size *= 1 + (areaMult - 1) * 0.7;
   s.dur = (b.dur || 0) * P.dur * (1 + durB);
   s.chain = (s.chain || 0) + (d.elem === 'shock' || d.elem2 === 'shock' ? P.chain : 0);
   s.crit = P.crit + (b.critBonus || 0);
@@ -435,7 +437,7 @@ function genLoot(req) {
     const st = G.passives[id] || 0;
     // Weapon tuning (fire rate, projectiles, area...) has its own stacks on every weapon.
     const full = PER_WEAPON.has(id) ? !G.weapons.some(w => w && (w.wpN && w.wpN[id] || 0) < PASSIVES[id].max) && st >= PASSIVES[id].max : st >= PASSIVES[id].max;
-    if (full || (PASSIVES[id].needsScrap && !ownsScrapWeapon())) continue;
+    if (full || (PASSIVES[id].needsScrap && !ownsScrapWeapon()) || !passiveUseful(id)) continue;
     // Element cards only for elements you actually use.
     if (ELEM_PASSIVE_OF[id] && !ownedElems.has(ELEM_PASSIVE_OF[id])) continue;
     cands.push({ w: 1.8, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
@@ -512,10 +514,38 @@ function weaponP(w) {
 function wpRelevant(w, id) {
   const d = w.def, b = d.base, tw = ADAPT[id] && ADAPT[id][w.id];
   if (tw) return true;
-  if (id === 'pierce') return (d.kind === 'gun' || d.kind === 'ring') && (b.pierce || 0) < 90;
-  if (id === 'mag') return (b.mag || 1) > 1;
-  if (id === 'reload') return (b.reload || 0) > 0;
-  if (id === 'multishot') return MULTI_KINDS.includes(d.kind);
+  if (id === 'pierce' && !((d.kind === 'gun' || d.kind === 'ring') && (b.pierce || 0) < 90)) return false;
+  if (id === 'mag' && !((b.mag || 1) > 1)) return false;
+  if (id === 'reload' && !((b.reload || 0) > 0)) return false;
+  if (id === 'multishot' && !MULTI_KINDS.includes(d.kind)) return false;
+  return wpChanges(w, id);
+}
+// Dry run: would this upgrade change anything about the weapon's stats? (Cached per level, upgrades and mods.)
+function wpChanges(w, id) {
+  if (!w.s) return true;
+  const key = id + ':' + w.lvl + ':' + Object.values(w.perks || {}).join() + ':' + (w.mods || []).map(m => m.id).join();
+  w.relC = w.relC || {};
+  if (key in w.relC) return w.relC[key];
+  const d = {}; for (const k of WP_KEYS) d[k] = 0;
+  d.elem = G.P.elem; PASSIVES[id].apply(d, PASSIVES[id].v, G);
+  const wp0 = w.wp, before = JSON.stringify(w.s);
+  w.wp = Object.assign({}, wp0); for (const k of WP_KEYS) if (d[k]) w.wp[k] = (w.wp[k] || 0) + d[k];
+  computeStats(w);
+  const changed = JSON.stringify(w.s) !== before;
+  w.wp = wp0; computeStats(w);
+  return (w.relC[key] = changed);
+}
+// Upgrades that only do something with certain weapons: offer them only when you own one.
+const FUTURE_KINDS = ['gun', 'chain', 'lob', 'mine', 'melee', 'orbit', 'siphon', 'wake'];
+const PASSIVE_NEEDS = {
+  lastround: w => (w.s.mag > 1 && !w.def.scrapAmmo) || !!ADAPT.lastround[w.id],
+  tactical: w => w.s.reload > 0 || !!ADAPT.tactical[w.id],
+  future: w => FUTURE_KINDS.includes(w.def.kind) || !!ADAPT.future[w.id],
+};
+function passiveUseful(id) {
+  const ws = G.weapons.filter(w => w && w.s);
+  if (PER_WEAPON.has(id)) return ws.some(w => wpRelevant(w, id));
+  if (PASSIVE_NEEDS[id]) return ws.some(PASSIVE_NEEDS[id]);
   return true;
 }
 function wpTargets(id) { const max = PASSIVES[id].max; return G.weapons.filter(w => w && (w.wpN && w.wpN[id] || 0) < max && wpRelevant(w, id)); }
