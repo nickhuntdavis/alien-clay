@@ -110,7 +110,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '7.48';
+const APP_VERSION = '7.49';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -143,7 +143,7 @@ function runSummary(G, result) {
     s: G.spells.filter(Boolean).map(w => w.id + w.lvl),
     p: top(G.passives, 12).map(([k, v]) => k + v),
     boxes: G.stats.boxes || 0, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
-    tl: G.tl || [], meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2),
+    tl: G.tl || [], fps: G.fpsTl || [], meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2),
   };
 }
 function runLogText() {
@@ -159,7 +159,7 @@ function runText(r) {
   out += ` ended by: ${r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   out += ` dmg: ${r.dmg.join(', ')}\n`;
   out += ` build: ${r.w.join(' ')} | spells: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;
-  out += ` rivals: ${r.rivals.join(' ') || '-'} | lv/hp% per min: ${r.tl.join(' ')}\n`;
+  out += ` rivals: ${r.rivals.join(' ') || '-'} | lv/hp% per min: ${r.tl.join(' ')}${r.fps && r.fps.length ? ' | fps avg/low per min: ' + r.fps.join(' ') : ''}\n`;
   return out;
 }
 function copyText(text) {

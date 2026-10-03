@@ -2122,7 +2122,7 @@ function victory() {
 function update(dt) {
   G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
-  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); }
+  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (3 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }
   const p = G.player;
   gridBuild();
@@ -2423,13 +2423,23 @@ function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } cat
 // The whole game runs at 70% speed: everything moves, fires and spawns 30% slower than real time.
 const GAME_SPEED = 0.7;
 let lastTs = 0;
-const FPS = { v: 60 };
+// Frame-rate meter: frames counted over each real second (v), plus the slowest frame in that second as an FPS
+// (low), so hitches show up instead of being smoothed away. The run log keeps a per-minute average and low.
+const FPS = { v: 60, low: 60, n: 0, acc: 0, worst: 0, runN: 0, runSum: 0, runLow: 999 };
+function fpsTick(raw) {
+  if (!(raw > 0) || raw > 2) return;
+  FPS.n++; FPS.acc += raw; FPS.worst = Math.max(FPS.worst, raw);
+  if (FPS.acc >= 1) {
+    FPS.v = FPS.n / FPS.acc; FPS.low = 1 / FPS.worst; FPS.n = 0; FPS.acc = 0; FPS.worst = 0;
+    if (G && G.state === 'play') { FPS.runN++; FPS.runSum += FPS.v; FPS.runLow = Math.min(FPS.runLow, FPS.low); }
+  }
+}
 let frameFrozen = false;
 function frame(ts) {
   // Schedule the next frame first, and keep each stage separate, so one error can never freeze the game.
   requestAnimationFrame(frame);
   const raw = (ts - lastTs) / 1000;
-  if (raw > 0.004 && raw < 0.5) FPS.v += (1 / raw - FPS.v) * 0.05; // (a just-reset clock gives tiny gaps: skip them)
+  if (raw > 0.004) fpsTick(raw); // (a just-reset clock gives tiny or negative gaps: skip them)
   const dt = clamp(raw || 0, 0, 1 / 30);
   lastTs = ts;
   if (G && G.state === 'play' && raw > 0.004 && raw < 0.5) qualTick(raw);

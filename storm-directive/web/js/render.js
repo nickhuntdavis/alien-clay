@@ -1786,7 +1786,7 @@ function drawScaleBar() {
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
-  ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS' + (QUAL.lv ? '  Q' + (3 - QUAL.lv) : ''), x + len + 10, y + 4);
+  ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS (low ' + Math.round(FPS.low) + ')' + (QUAL.lv ? '  Q' + (3 - QUAL.lv) : ''), x + len + 10, y + 4);
   // Lead side marker, as on a radiograph.
   const mkx = land ? W - 112 : W - 26, mky = land ? H - 40 : H * 0.5;
   filmPanel(mkx - 1, mky - 11, 19, 22);
