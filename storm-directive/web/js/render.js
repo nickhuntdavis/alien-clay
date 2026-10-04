@@ -1725,7 +1725,7 @@ function drawEnemy(e, lod) {
   let face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
   // Peekaboo: you're gone, so they look where they think you went, and once there they look around,
   // confused, turning their heads this way and that (with the odd "?").
-  const spot = (G.peek || G.toy) && !e.boss && !e.rival && !e.egg && !e.charmed ? peekSpot() : null;
+  const spot = (G.peek || G.toy || G.decoy) && !e.boss && !e.rival && !e.egg && !e.charmed ? peekSpot() : null;
   if (spot) {
     const sd = Math.hypot(spot.x - e.x, spot.y - e.y);
     let a = Math.atan2(spot.y - e.y, spot.x - e.x);

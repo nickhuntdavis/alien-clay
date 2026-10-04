@@ -22,6 +22,7 @@ const puSrc = (name, extra) => Object.assign({ wname: name, noProc: true, noCrit
 
 // From applyPickup: returns true if it handled the type.
 function puApply(type) {
+  if (typeof sillyApply === 'function' && sillyApply(type)) return true; // (silly.js)
   if (!PU_TIME[type]) return false;
   const p = me(), pu = G.pu || (G.pu = {});
   pu[type] = PU_TIME[type];
@@ -80,6 +81,7 @@ function puTick(dt) {
     if (Math.hypot(p.vx || 0, p.vy || 0) > 40) G.zones.push({ x: p.x, y: p.y, r: 26, life: 1.6, max: 1.6, dps: puDmg(2), elem: 'fire', pull: 0, color: '#ff9e00', tick: 0, src: puSrc('Tailwind', { elem: 'fire' }) });
   }
   if (puOn('goldrush')) for (const g of G.gems) g.mag = true;
+  if (typeof sillyTick === 'function') sillyTick(dt);
 }
 // Multipliers and event hooks.
 const puSpeed = () => (puOn('tailwind') ? 1.6 : 1) * (puOn('giant') ? 0.9 : 1);
@@ -104,6 +106,7 @@ function puChips(chips) {
 // The vortex and the reflux zone, drawn round you.
 function puDraw() {
   if (!G.pu) return;
+  if (typeof sillyDraw === 'function') sillyDraw();
   const p = G.player, x = sx(p.x), y = sy(p.y);
   if (puOn('centrifuge')) {
     ctx.lineCap = 'round';

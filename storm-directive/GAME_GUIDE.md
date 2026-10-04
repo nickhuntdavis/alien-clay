@@ -1214,6 +1214,12 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 | **Animal Magnetism** | Shots drag monsters within 70 units into their path | Shots drag monsters within 154 units into their path | Projectile only |
 | **Delayed Gratification** | Shots hang for a moment, then launch 60% faster for +30% damage | Shots hang for a moment, then launch 60% faster for +66% damage | Projectile only |
 | **Both Ends** | Every shot has a twin fired the opposite way at 35% damage | Every shot has a twin fired the opposite way at 77% damage | Projectile only |
+| **Trash Talk** | Kills give this weapon +6% damage (up to 10 stacks). Getting hit loses the lot | Kills give this weapon +13% damage (up to 10 stacks). Getting hit loses the lot | Any weapon |
+| **Passive Aggressive** | 2s after a hit, the target takes another 40% of it. As per your last email | 2s after a hit, the target takes another 88% of it. As per your last email | Any weapon |
+| **Participation Trophy** | Every 10th hit deals 300% damage and drops a little XP. Everyone is a winner | Every 10th hit deals 420% damage and drops a little XP. Everyone is a winner | Any weapon |
+| **Inheritance** | Kills pass 25% of the victim's max HP to the nearest enemy as damage. Next of kin | Kills pass 55% of the victim's max HP to the nearest enemy as damage. Next of kin | Any weapon |
+| **Separation Anxiety** | +50% damage to anything within 150 of you, -20% beyond 450. Do not leave | +110% damage to anything within 150 of you, -20% beyond 450. Do not leave | Any weapon |
+| **Snitch** | 20% of hits grass the target up: every weapon deals +30% to it for 3s | 44% of hits grass the target up: every weapon deals +30% to it for 3s | Any weapon |
 
 ## Duo combos
 
@@ -1227,6 +1233,8 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 | **Pied Piper** | Bad Influence + Animal Magnetism | Mind-controlled allies last twice as long. |
 | **Kaleidoscope** | Both Ends + Cell Division | Mirrored twins split into twice as many shards. |
 | **Biological Clock** | Delayed Gratification + With a Bang | Delayed shots explode as they launch. |
+| **Sore Winner** | Trash Talk + Participation Trophy | Trophy hits add two Trash Talk stacks, and say so. |
+| **Office Politics** | Passive Aggressive + Snitch | Passive-aggressive follow-ups always grass the target up, and spread to one neighbour. |
 
 ## Stains
 
@@ -1274,6 +1282,14 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 | **LEECH** | L | For 15s your hits heal you |
 | **BOLT FROM THE BLUE** | B | For 12s lightning strikes enemies on screen twice a second |
 | **BREAKING WIND** | W | For 12s you swim 60% faster and leave a burning wake |
+| **CARDBOARD CUTOUT** | D | For 10s a life-size cardboard you stands where you were. Everything attacks it. It does not mind |
+| **IDLE GOSSIP** | T | For 12s a rumour spreads: cells near you turn on each other |
+| **CONGA LINE** | P | For 15s everything you kill joins a conga line behind you. The line hurts |
+| **HICCUPS** | U | For 12s you hiccup: a little jump forward and a shockwave, every 1.3s |
+| **PAPERWORK** | E | For 10s every enemy must fill in a form first: 60% slower (bosses 25%) |
+| **LIFE INSURANCE** | I | For 30s one fatal hit is covered. You wake up on 40% HP and a small payout. Excess applies |
+| **THE HOST SNEEZES** | A | Everything is flung across the slide and enemy bullets are wiped. Bless you |
+| **TAX REFUND** | £ | Overpaid damage, returned as XP. Nobody knows how it was calculated |
 
 ## Elemental reactions
 

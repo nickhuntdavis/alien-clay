@@ -367,6 +367,7 @@ function peekFire(w) {
 }
 // Where enemies think you are.
 function peekSpot() {
+  if (G.decoy && G.decoy.end > G.t) return G.decoy; // (the Cardboard Cutout power-up)
   const k = G.peek;
   if (k && k.t > G.t) {
     if (G.pair.hidenseek) { const fw = toyOwned('friend'), f = fw && fw.friends && fw.friends[0]; if (f) return f; }

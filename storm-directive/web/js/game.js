@@ -734,6 +734,7 @@ function damageEnemy(e, dmg, src) {
   if (G.dyeBoon.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
   if (G.dyeBoon.rival && e.rival) d *= 1.4;
   if (e.boss || e.bossDef) d *= bossDamageMul(e, src);
+  if (src.w && src.w.mods && src.w.mods.length) d *= sillyModMul(e, src); // (silly.js modifiers)
   if (src.w && src.w.s) {
     const ws = src.w.s;
     if (ws.pExec && e.hp < e.maxHp * 0.35) d *= 1 + ws.pExec;
@@ -945,6 +946,7 @@ function killEnemy(e, src) {
   sigKill(e, src);
   foeKill(e, src);
   puKill(e);
+  sillyKill(e, src);
   toyKill(e, src);
   genesKill(e, src);
   heatKill(e);
@@ -1073,7 +1075,9 @@ function hurtPlayer(dmg, from, ent, kind) {
   // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
   const arm = P.noArmour ? 0 : (P.armour + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
+  if (sillyInsure(d)) return; // (Life Insurance)
   p.hp -= d;
+  sillyHurt();
   if (ent && !ent.dead) G.grudge = ent;
   G.lastHitEnt = ent || null;
   rebornHurt(d); // (Karma)
@@ -1228,7 +1232,7 @@ function eBullet(x, y, a, speed, dmg, r, color) {
 function shootPattern(e, pat, a0) {
   if (e.soapT > G.t && !e.boss) return; // soaped up (Bubble Bath): can't shoot
   const p = G.player, sh = e.def.shoot || {};
-  const aim = (G.toy && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
+  const aim = ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
   const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
   switch (pat) {
     case 'aimed': {
@@ -1286,7 +1290,7 @@ function updateEnemies(dt) {
     const ux = dx / dist, uy = dy / dist;
     let mx = ux, my = uy, spd = e.speed;
     const frozen = e.frozen > 0 || e.dazeT > G.t; // (dazed out of a popped bubble: stopped, like frozen)
-    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1); // dazed or soaped (Bubble Wand)
+    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1) * (e.formT > G.t ? (e.boss ? 0.75 : 0.4) : 1); // dazed or soaped (Bubble Wand)
     if (e.boss) {
       bossAI(e, edt, dist, ux, uy);
       mx = e.mvx; my = e.mvy; spd = e.mvs;
@@ -1416,7 +1420,7 @@ function updateEnemies(dt) {
     if (e.tailCut) spd *= 0.15; // no flagellum: it can only twitch and drift
     const tide = e.boss || e.egg ? 0 : 0.8;
     // Scared, lured, stuck in the lines, or looking for you where you vanished (toys.js).
-    if (G.toy) { const ts = toySteer(e); if (ts) { mx = ts.x; my = ts.y; } }
+    if (G.toy || G.decoy) { const ts = toySteer(e); if (ts) { mx = ts.x; my = ts.y; } }
     // Spotlight on a newcomer: the rest of the crowd near you backs off and gives it the stage.
     if (G.spot && G.spot.cur && e.def !== G.spot.cur && !e.boss && !e.rival && !e.final && !e.egg && dist < SPOT.back && spotOn()) { mx = -ux; my = -uy; spd *= 0.7; }
     // On an ice rink, steering becomes shoving: they slide about. (svx/svy: how it is swimming, for head-on rams.)
@@ -1466,7 +1470,7 @@ function bossAI(e, dt, dist, ux, uy) {
   if (e.patT > 5.5) { e.patT = 0; e.pat = (e.pat + 1) % pats.length; e.fireT = 0; e.st = 0; e.glaring = false; }
   const pat = pats[e.pat];
   const p = G.player;
-  const aim = (G.toy && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
+  const aim = ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
   const bd = e.def.dmg * 0.35 * dmgNow();
   // Default movement: keep medium distance.
   e.mvx = dist > 230 ? ux : dist < 150 ? -ux : -uy; e.mvy = dist > 230 ? uy : dist < 150 ? -uy : ux; e.mvs = e.speed;
@@ -2399,7 +2403,7 @@ function eggAI(e, dt) {
     e.shootCd = 1.7 - rage * 0.7; e.spin += 0.3;
     const n = 28, bd = 10 * dmgNow(), p = me();
     for (let i = 0; i < n; i++) eBullet(e.x + Math.cos(e.spin + i / n * TAU) * e.r, e.y + Math.sin(e.spin + i / n * TAU) * e.r, e.spin + i / n * TAU, 125, bd, 6, '#ff8fb8');
-    const aim = (G.toy && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
+    const aim = ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
     for (let i = -2; i <= 2; i++) eBullet(e.x + Math.cos(aim) * e.r, e.y + Math.sin(aim) * e.r, aim + i * 0.12, 200, bd * 1.3, 5, '#ffffff');
   }
   e.stT -= dt;

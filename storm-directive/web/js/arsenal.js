@@ -257,6 +257,7 @@ function firePrequel(w, target, src) {
 
 // ---------------------------------------------------------------- Modifier procs (Freezing, Exploding, Mind Control)
 function modProcs(e, dmg, src) {
+  sillyProcs(e, dmg, src);
   if (src.modFreeze && !e.boss && e.frozen <= 0 && Math.random() < src.modFreeze) {
     e.frozen = 1.5;
     ring(e.x, e.y, e.r + 8, '#bde0fe', 0.3, 2);
