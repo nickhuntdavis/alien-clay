@@ -61,6 +61,7 @@ const UI = {
     });
     $('playBtn').addEventListener('click', () => UI.openSamples());
     $('quickBtn').addEventListener('click', () => UI.quickStart());
+    $('dailyBtn').addEventListener('click', () => startDaily());
     $('dPrev').addEventListener('click', () => UI.draftStep(-1));
     $('dNext').addEventListener('click', () => UI.draftStep(1));
     $('dPick').addEventListener('click', () => { if (!UI.draft || !(UI.lastDown > UI.lootOpenT) || performance.now() - UI.lootOpenT < 500) return; UI.pickLoot(UI.draft.i); });
@@ -559,7 +560,7 @@ const UI = {
   openDraft(req) {
     G.state = 'loot';
     UI.lootReq = req;
-    UI.lootOpts = genLoot(req);
+    UI.lootOpts = req.fixed || genLoot(req); // (the Daily Challenge's starting weapons are fixed for the day)
     if (req.kind === 'level') return; // the weapon for that branch is gone: an ordinary strand instead
     UI.pickedOne = false;
     const weap = req.kind === 'branch' ? G.weapons.find(x => x && x.uid === req.uid) : null;
@@ -1240,6 +1241,8 @@ const UI = {
       ? `<div class="eulogy">Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
       : `<div class="eulogy">${esc(G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
       <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:${PAL.danger}">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
+    const dr = dailyRecord(won);
+    if (dr) h += `<div class="hint daily"><b>DAILY ${G.daily}</b>: ${dr.isBest ? 'NEW BEST FOR TODAY! ' : ''}Best ${dailyFmt(dr.best)} | Attempt ${dr.tries} | ${dr.streak}-day streak</div>`;
     h += `
       <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
       <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.stats.charms || 0}</b>Allies won</div><div><b>${G.weapons.reduce((a, w) => a + (w ? w.mods.length : 0), 0)}</b>Modifiers</div><div><b>${G.stats.absorbed}</b>Bullets eaten</div></div>
@@ -1330,6 +1333,7 @@ const UI = {
     if (b.born) parts.push(`Born ${b.births} time${b.births === 1 ? '' : 's'}, fastest ${fmtTime(b.born)}`);
     $('bestLine').textContent = parts.length ? parts.join(' | ') : 'No swims yet. The egg awaits.';
     $('dnaLine').textContent = META.dna ? fmtNum(META.dna) + ' DNA' : '';
+    $('dailyLine').textContent = dailyLine();
   },
 };
 

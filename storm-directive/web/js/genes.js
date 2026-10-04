@@ -50,7 +50,7 @@ const profKills = id => (META.prof[id] && META.prof[id].kills) || 0;
 const profRank = id => Math.max(profKills(id) >= PROFILE_RANKS[2] ? 3 : profKills(id) >= PROFILE_RANKS[1] ? 2 : 1, (META.prof[id] && META.prof[id].keep) || 1);
 const genesOn = id => !!(G && G.genes && G.genes.active.includes(id));
 const synOn = (a, b) => genesOn(a) && genesOn(b);
-function profK(id, primary) { return [1, 2, 4][profRank(id) - 1] * (primary ? 1 : 0.5); }
+function profK(id, primary) { return [1, 2, 4][Math.max(1, profRank(id)) - 1] * (primary ? 1 : 0.5); } // (a locked sequence, in the Daily Challenge, plays at rank I)
 
 // Re-apply every active trait (after a splice or a rank-up).
 function genesReapply() {
@@ -146,7 +146,7 @@ const mutCount = () => Object.keys(G.mut || {}).filter(id => !G.mutHidden || !G.
 // ================================================================ run start (from newGame, after applyMeta)
 function genesStart(G) {
   G.mut = {}; G.mutHidden = {}; G.mutT = {}; G.vesicles = []; G.nextVesicle = VESICLE.first;
-  const id = PROFILES[META.profile] && profUnlocked(META.profile) ? META.profile : 'vanguard';
+  const id = PROFILES[META.profile] && (profUnlocked(META.profile) || (typeof DAILY !== 'undefined' && DAILY.on)) ? META.profile : 'vanguard';
   G.genes = { primary: id, active: [id], applied: [], k: {} };
   seqWeaponColour(id);
   G.P.wDmg = 1; G.P.sDmg = 1; G.P.meleeK = 1;
