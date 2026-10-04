@@ -2087,7 +2087,7 @@ function updatePlayer(dt) {
     const rMin = SWIM.arc / Math.pow(trac, 1.4), wMax = SWIM.turn * trac * (1 + SWIM.pivot * Math.max(0, trac - 1));
     const turn = clamp(Math.max(cur, speed * 0.25) / rMin, SWIM.pivotMin * trac, wMax) * dt;
     p.hd = Math.atan2(Math.sin(p.hd + clamp(da, -turn, turn)), Math.cos(p.hd + clamp(da, -turn, turn)));
-    thrust = m * speed * (0.6 + 0.4 * Math.max(0, Math.cos(da))); // (still swimming along the arc)
+    thrust = m * speed * (0.85 + 0.15 * Math.max(0, Math.cos(da))); // (still swimming along the arc)
   }
   // The tail is the engine. p.stroke: how hard it's beating (1 = normal, near 0 mid-turn, eased to a stop
   // over a few frames); p.kick: the burst of extra-strong strokes the moment a turn ends. The tail you see
@@ -2112,13 +2112,15 @@ function updatePlayer(dt) {
   // the body pushes little water: thrust needs it stretched out behind you.
   // Only a tail trailing behind you pushes you forward: swung out to the side, or curled up, it can't.
   const reach = (p.ext == null ? 1 : clamp((p.ext - 0.45) / 0.4, 0, 1)) * (p.behind ?? 1);
-  const power = (0.3 + 0.7 * p.stroke) * (0.2 + 0.8 * reach);
+  const power = (0.55 + 0.45 * p.stroke) * (0.5 + 0.5 * reach); // (turns cost some speed, not most of it)
   const hx = Math.cos(p.hd), hy = Math.sin(p.hd);
   let fwd = p.vx * hx + p.vy * hy, lat = -p.vx * hy + p.vy * hx;
   const want = thrust * power * (1 + 0.12 * p.kick);
   fwd = want >= fwd ? lerp(fwd, want, 1 - Math.pow(0.004, dt * (1 + 4 * p.kick))) // stroke: quick; the big first strokes, much quicker
-    : lerp(fwd, want, 1 - Math.pow(0.15, dt)); // no stroke: glide on momentum
-  lat *= Math.exp(-SWIM.grip * trac * dt);
+    : lerp(fwd, want, 1 - Math.pow(0.4, dt)); // no stroke: glide on momentum, slowly bleeding speed
+  // Carving: the grip that stops you sliding sideways turns part of that sideways momentum into forward
+  // speed, so you come out of a turn still moving instead of having to build up from nothing.
+  { const bled = Math.abs(lat) * (1 - Math.exp(-SWIM.grip * trac * dt)); lat *= Math.exp(-SWIM.grip * trac * dt); fwd = Math.min(fwd + bled * 0.55, Math.max(fwd, speed)); } // (never past top speed)
   p.vx = fwd * hx - lat * hy; p.vy = fwd * hy + lat * hx;
   p.x += (p.vx + G.evm.tideX) * dt; p.y += (p.vy + G.evm.tideY) * dt;
   terrainPlayer(p, dt);
