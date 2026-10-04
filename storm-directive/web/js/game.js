@@ -1002,7 +1002,7 @@ function killEnemy(e, src) {
   } else if (e.elite || (e.def.spongy && e.r > 100)) {
     // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
     G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage'].concat(PU_NEW)), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
-  } else if (Math.random() < 0.011 * (1 + P.luck) * (G.mut && G.mut.heavymetal ? 2 : 1)) {
+  } else if (Math.random() < 0.0055 * (1 + P.luck) * (G.mut && G.mut.heavymetal ? 2 : 1)) { // (half as many power-ups as before, each about 1.5x as strong)
     const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'].concat(PU_NEW, PU_NEW);
     G.pickups.push(makePickup(Math.random() < 0.5 ? chestOr(pick(types)) : pick(types), e.x, e.y, { t: 'drop', name: e.name }));
   }
@@ -2291,20 +2291,20 @@ function applyPickup(type, src) {
   switch (type) {
     case 'magnet': for (const g of G.gems) g.mag = true; break;
     case 'nuke':
-      ring(p.x, p.y, 480, '#ff595e', 0.7, 10);
+      ring(p.x, p.y, 600, '#ff595e', 0.7, 10);
       cam.shake = 16;
       for (const e of G.enemies) {
-        if (e.dead || Math.hypot(e.x - p.x, e.y - p.y) > 520) continue;
-        if (e.boss) damageEnemy(e, e.maxHp * 0.15, { noCrit: true, dot: true, wname: 'Nuke' });
-        else if (e.rival) damageEnemy(e, e.maxHp * 0.15, { noCrit: true, dot: true, wname: 'Nuke' }); // rivals and the Final Five just take a big hit
+        if (e.dead || Math.hypot(e.x - p.x, e.y - p.y) > 650) continue;
+        if (e.boss) damageEnemy(e, e.maxHp * 0.22, { noCrit: true, dot: true, wname: 'Nuke' });
+        else if (e.rival) damageEnemy(e, e.maxHp * 0.22, { noCrit: true, dot: true, wname: 'Nuke' }); // rivals and the Final Five just take a big hit
         else { e.hp = 0; killEnemy(e, {}); }
       }
       G.ebul.length = 0;
       break;
-    case 'rage': G.rage = 8; break;
-    case 'heal': healPlayer(P.maxHp * 0.35 * heatHeal()); break;
-    case 'shield': G.shieldT = 5; break;
-    case 'freeze': for (const e of G.enemies) e.frozen = e.boss ? 1.5 : 4; break;
+    case 'rage': G.rage = 12; break;
+    case 'heal': healPlayer(P.maxHp * 0.5 * heatHeal()); break;
+    case 'shield': G.shieldT = 7.5; break;
+    case 'freeze': for (const e of G.enemies) e.frozen = e.boss ? 2.2 : 6; break;
     case 'chest': G.lootQueue.push({ kind: 'chest', src }); break;
   }
   genesPickup(type);

@@ -1185,20 +1185,20 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 |---|---|---|
 | **MAGNET** | M | All XP flies to you |
 | **NIT COMB** | N | Obliterates nearby enemies |
-| **OXYTOCIN** | O | Double fire rate, no reloads |
-| **GLUCOSE HIT** | + | Restore 35% HP |
-| **STAIR GATE** | S | Invulnerable for 5s |
-| **FREEZE TAG** | F | Freeze all enemies |
+| **OXYTOCIN** | O | For 12s double fire rate, no reloads |
+| **GLUCOSE HIT** | + | Restore 50% HP |
+| **STAIR GATE** | S | Invulnerable for 7.5s |
+| **FREEZE TAG** | F | Freeze every enemy for 6s (bosses 2s) |
 | **DNA STRAND** | ? | Free upgrade |
-| **HIRED HELP** | H | Three bodyguard swimmers fight for you for 14s |
-| **CENTRIFUGE** | C | For 6s everything near you is flung round you in a grinding vortex |
-| **GROWING PAINS** | G | For 8s you are huge: you crush what you touch and take half damage |
-| **KNOCK-ON EFFECT** | K | For 10s every kill explodes |
-| **REFLUX** | R | For 7s bullets near you are swallowed and spat back as sparks |
-| **GOLD RUSH** | $ | For 12s double XP, and XP flies to you |
-| **LEECH** | L | For 10s your hits heal you |
-| **BOLT FROM THE BLUE** | B | For 8s lightning strikes enemies on screen twice a second |
-| **BREAKING WIND** | W | For 8s you swim 60% faster and leave a burning wake |
+| **HIRED HELP** | H | Three bodyguard swimmers fight for you for 21s |
+| **CENTRIFUGE** | C | For 9s everything near you is flung round you in a grinding vortex |
+| **GROWING PAINS** | G | For 12s you are huge: you crush what you touch and take half damage |
+| **KNOCK-ON EFFECT** | K | For 15s every kill explodes |
+| **REFLUX** | R | For 10s bullets near you are swallowed and spat back as sparks |
+| **GOLD RUSH** | $ | For 18s double XP, and XP flies to you |
+| **LEECH** | L | For 15s your hits heal you |
+| **BOLT FROM THE BLUE** | B | For 12s lightning strikes enemies on screen twice a second |
+| **BREAKING WIND** | W | For 12s you swim 60% faster and leave a burning wake |
 
 ## Elemental reactions
 
