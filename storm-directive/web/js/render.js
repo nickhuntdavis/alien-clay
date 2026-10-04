@@ -1419,7 +1419,18 @@ function render() {
     if (e.boss) drawBossTells(e, x, y, r);
     if (e.aimT > 0) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 - e.aimT) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(e.aimA) * 700 * S, y + Math.sin(e.aimA) * 700 * S); ctx.stroke(); }
     const tgt = e.charmed && e.allyT ? e.allyT : G.player;
-    const face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
+    let face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
+    // Peekaboo: you're gone, so they look where they think you went, and once there they look around,
+    // confused, turning their heads this way and that (with the odd "?").
+    const spot = (G.peek || G.toy) && !e.boss && !e.rival && !e.egg && !e.charmed ? peekSpot() : null;
+    if (spot) {
+      const sd = Math.hypot(spot.x - e.x, spot.y - e.y);
+      let a = Math.atan2(spot.y - e.y, spot.x - e.x);
+      if (sd < 80) a += Math.sin(G.realT * 2.4 + e.id * 1.7) * 1.4 + Math.sin(G.realT * 5.1 + e.id) * 0.35;
+      let da = a - (e.lookA ?? a); while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
+      e.lookA = (e.lookA ?? a) + da * 0.18; face = e.lookA;
+      if (sd < 80 && Math.sin(G.realT * 1.3 + e.id * 2.3) > 0.85) { ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.round(13 * Math.max(0.8, S))}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('?', x, y - r - 10 * S); }
+    } else e.lookA = face;
     const sh = e.def.shape;
     const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
     if (sh === 'sperm') {
