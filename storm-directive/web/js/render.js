@@ -693,7 +693,11 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
     ctx.globalAlpha = alpha * 0.9; for (const t of tails) drawTail(t, 'rgb(46,52,48)', 1.1 * k, 2 * hk);
   }
   ctx.globalAlpha = alpha;
-  ctx.save(); ctx.translate(x, y); ctx.rotate(face);
+  // The head rocks from side to side with each stroke of the tail (real sperm heads do), less when the wag
+  // dies down in a turn: it reads as swimming rather than gliding on rails.
+  const yaw = body && body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) : 0;
+  if (body) body.yaw = yaw;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw);
   if (L !== NOLOOK) ctx.scale(L.head * L.stretch, L.head / Math.sqrt(L.stretch));
   ctx.lineCap = 'round';
   if (L.field) {
@@ -973,7 +977,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     if (dt > 0 && Math.abs(df / dt) > 0.6 && Math.sign(df) === (o.ldir || Math.sign(df))) o.load = (o.load || 0) + Math.abs(df);
     else if (dt > 0) o.load = (o.load || 0) * Math.pow(0.5, dt / 0.15);
     if (df) o.ldir = Math.sign(df);
-    const ld = Math.min(1, (o.load || 0) / 2.5), w0 = 13 / (1 + 1.1 * ld), z = 0.5; // (springiness: about a third of a second to swing back, softer when loaded; z: a little overshoot)
+    const ld = Math.min(1, (o.load || 0) / 2.5), w0 = 10.5 / (1 + 1.1 * ld), z = 0.45; // (springiness: about a third of a second to swing back, softer when loaded; z: a little overshoot)
     if (dt > 0) { o.om += (-w0 * w0 * o.phi - 2 * z * w0 * o.om) * dt; o.phi += o.om * dt; }
     const lim = 2.3; if (Math.abs(o.phi) > lim) { o.phi = Math.sign(o.phi) * lim; if (o.om * o.phi > 0) o.om = 0; } }
   const back = face + Math.PI, bend = clamp(o.phi * (2 + 1.6 * Math.min(1, (o.load || 0) / 2.5)), -6, 6); // (the visible bend: twice the swing, up to 3.6x in a long, sharp turn)
