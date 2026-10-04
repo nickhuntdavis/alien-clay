@@ -969,10 +969,14 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   if (o.phi == null) { o.phi = 0; o.om = 0; o.f0 = face; }
   { let df = face - o.f0; while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU; o.f0 = face;
     o.phi -= df;
-    const w0 = 13, z = 0.5; // (springiness: about a third of a second to swing back; z: a little overshoot)
+    // A sharp or long turn loads the tail up: the longer you keep turning one way, the deeper it bends.
+    if (dt > 0 && Math.abs(df / dt) > 0.6 && Math.sign(df) === (o.ldir || Math.sign(df))) o.load = (o.load || 0) + Math.abs(df);
+    else if (dt > 0) o.load = (o.load || 0) * Math.pow(0.5, dt / 0.15);
+    if (df) o.ldir = Math.sign(df);
+    const ld = Math.min(1, (o.load || 0) / 2.5), w0 = 13 / (1 + 1.1 * ld), z = 0.5; // (springiness: about a third of a second to swing back, softer when loaded; z: a little overshoot)
     if (dt > 0) { o.om += (-w0 * w0 * o.phi - 2 * z * w0 * o.om) * dt; o.phi += o.om * dt; }
     const lim = 2.3; if (Math.abs(o.phi) > lim) { o.phi = Math.sign(o.phi) * lim; if (o.om * o.phi > 0) o.om = 0; } }
-  const back = face + Math.PI, bend = o.phi * 2; // (the visible bend is twice the swing: a deeper, whippier arc)
+  const back = face + Math.PI, bend = clamp(o.phi * (2 + 1.6 * Math.min(1, (o.load || 0) / 2.5)), -6, 6); // (the visible bend: twice the swing, up to 3.6x in a long, sharp turn)
   t[0].x = rx; t[0].y = ry;
   for (let i = 1; i < TAIL_N; i++) {
     const f = (i - 0.5) / (TAIL_N - 1), d = back + bend * Math.pow(f, 1.8);
