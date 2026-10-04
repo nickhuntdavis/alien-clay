@@ -113,7 +113,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '8.04';
+const APP_VERSION = '8.05';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -143,7 +143,9 @@ function runSummary(G, result) {
     hurt: top(G.stats.hurt, 4).map(([k, v]) => k + ' ' + Math.round(v)),
     hurtK: Object.fromEntries(Object.entries(G.stats.hurtKind || {}).map(([k, v]) => [k, Math.round(v)])),
     dots: ['burn', 'poison'].map(t => { const e = Object.entries(G.stats.dmg).filter(([k]) => k.endsWith(' (' + t + ')')).sort((a, b) => b[1] - a[1]), tot = e.reduce((a, x) => a + x[1], 0);
-      return tot / dmgTot >= 0.005 ? `${t} ${Math.round(tot / dmgTot * 100)}% (${e.filter(([, v]) => v / dmgTot >= 0.005).slice(0, 4).map(([k, v]) => k.slice(0, -t.length - 3) + ' ' + Math.round(v / dmgTot * 100) + '%').join(', ')})` : ''; }).filter(Boolean),
+      if (tot / dmgTot < 0.005) return '';
+      const src = e.filter(([, v]) => v / dmgTot >= 0.005).slice(0, 4).map(([k, v]) => k.slice(0, -t.length - 3) + ' ' + Math.round(v / dmgTot * 100) + '%').join(', ');
+      return `${t} ${Math.round(tot / dmgTot * 100)}%${src ? ' (' + src + ')' : ''}`; // (no empty brackets when every source is under 0.5%) }).filter(Boolean),
     dmg: top(G.stats.dmg, 6).map(([k, v]) => k + ' ' + Math.round(v / dmgTot * 100) + '%'),
     w: G.weapons.filter(Boolean).map(w => w.id + w.lvl + (w.mods.length ? '[' + w.mods.map(m => m.id).join(',') + ']' : '')),
     s: G.spells.filter(Boolean).map(w => w.id + w.lvl),
