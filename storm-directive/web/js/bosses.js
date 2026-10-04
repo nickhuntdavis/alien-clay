@@ -300,8 +300,8 @@ function bossDown(e) {
     fxParts('drop', e.x, e.y, e.def.color, 40, 520, 0.9, 6); fxParts('smoke', e.x, e.y, '#2e3330', 10, 260, 1.6, e.r * 0.7); fxParts('ember', e.x, e.y, '#ffffff', 20, 300, 1.2, 3);
     addLight(e.x, e.y, 900, '#ffffff', 1); G.flashT = 0.3; cam.shake = 22; sfx('boss'); vibrate(250);
   });
-  cam.shake = 16;
-  sfx('boss'); vibrate(200);
+  cam.shake = 16; G.hitStop = 0.16; G.hsNext = 0; // (a beat of stillness, then the slow motion)
+  sfx('boss'); buzz('bossKill');
 }
 function updateRevive() {
   const R = G.revive;

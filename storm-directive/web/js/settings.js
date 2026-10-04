@@ -15,10 +15,11 @@ const SETTINGS_DEF = [
   { id: 'intros', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet. Everything still goes in your Codex. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
   { id: 'fpsCap', label: 'Frame rate', hint: '60 is smoother over a whole run: on a 90 or 120 Hz screen it halves the work, so the phone stays cooler and has room for busy moments.', opts: [[60, '60'], [0, 'UNCAPPED']] },
   { id: 'sound', label: 'Sound', hint: '', opts: [[true, 'ON'], [false, 'OFF']] },
+  { id: 'vibe', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'auto', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button under pause.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'autoWaves', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, hud: 'full', casa: false, layout: 'auto', narrator: 'system', sound: true, auto: false, autoWaves: true, intros: 'auto', speed: 1 };
+const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, hud: 'full', casa: false, layout: 'auto', narrator: 'system', sound: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1 };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
   for (const k in SET) if (k in s) SET[k] = s[k];

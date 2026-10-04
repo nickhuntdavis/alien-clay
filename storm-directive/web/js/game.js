@@ -762,6 +762,7 @@ function damageEnemy(e, dmg, src) {
   }
   const hp0 = e.hp;
   e.hp -= d;
+  if (e.boss && !src.dot && !src.zoneHit && (crit || d >= e.maxHp * 0.02) && hitStop(0.035, 0.8)) buzz('bossHit');
   if (!src.dot && !src.zoneHit) {
     e.flash = 0.07;
     // Hit feedback (drawn in real time): a recoil stutter away from the hit and a flash. Big hits and crits kick harder.
@@ -930,10 +931,11 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
 }
 
 function killEnemy(e, src) {
-  if (e.rival) { if (rivalSurvives(e)) return; casaLog(`${e.name} eliminated`); rivalDown(e); return; }
+  if (e.rival) { if (rivalSurvives(e)) return; casaLog(`${e.name} eliminated`); rivalDown(e); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
   G.kills++;
+  if (e.elite && !e.boss && hitStop(0.05)) buzz('elite');
   if (e.def.shape === 'sperm') G.stats.spermKills = (G.stats.spermKills || 0) + 1;
   countKill(e.x, e.y);
   if (e.boss || e.elite || (e.def.spongy && e.r > 60)) casaLog(`TRK#${e.id} ${e.name} lysed`);
@@ -1084,7 +1086,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   cam.shake = Math.min(10, cam.shake + 5);
   floatText(p.x, p.y - 24, '-' + Math.round(d), '#ff4d6d', 15);
   sfx('hurt');
-  vibrate(25);
+  if (d > P.maxHp * 0.15) { hitStop(0.07, 0.4); buzz('bigHurt'); } else buzz('hurt');
   acidReflux();
   relicHurt(d, ent);
   thornsHit(ent);
@@ -2339,6 +2341,7 @@ function gainXp(v) {
   G.xp += v * xk;
   G.stats.xpRaw = (G.stats.xpRaw || 0) + v; G.stats.xpGot = (G.stats.xpGot || 0) + v * xk; // run-log telemetry // the morning-after pill halves growth
   sfx('gem');
+  const lv0 = G.level;
   while (G.xp >= G.xpNeed) {
     G.xp -= G.xpNeed;
     G.level++;
@@ -2356,6 +2359,7 @@ function gainXp(v) {
       sysLine('slot', true); achieve('slot');
     }
   }
+  if (G.level > lv0 && G.player) levelJuice(G.level);
 }
 
 // ---------------------------------------------------------------- the egg (win condition)
@@ -2719,7 +2723,7 @@ function lootSound(kind, best, cursed, cards) {
   if (cursed) sndTone(t + 0.55, 98, 92, 0.7, 0.05, 'sawtooth');
   for (let i = 0; i < cards; i++) sndNoise(t + 0.45 + i * 0.12, 0.16, 'bandpass', 700, 2200, 1.2, 0.035);
 }
-function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* unsupported */ } }
+function vibrate(ms) { if (typeof SET !== 'undefined' && SET.vibe === false) return; try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* unsupported */ } }
 
 // ---------------------------------------------------------------- loop
 // The whole game runs at 70% speed: everything moves, fires and spawns 30% slower than real time.
@@ -2786,8 +2790,11 @@ function frame(ts) {
     if (G && G.state === 'play') {
       keyboardSteer();
       // A boss death plays out in slow motion before its relic box opens.
-      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed()); }
-      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot()) UI.openLoot(G.lootQueue.shift());
+      // Hit-stop: a big moment freezes the slide for a few hundredths of a second (juice.js).
+      if (G.lootHold > 0) G.lootHold -= dt;
+      if (G.hitStop > 0) G.hitStop -= dt;
+      else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed()); }
+      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0)) UI.openLoot(G.lootQueue.shift());
       else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);

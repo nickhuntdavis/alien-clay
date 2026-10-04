@@ -336,7 +336,7 @@ function setWeaponLevel(w, to, from) {
   from = from != null ? from : w.lvl;
   w.lvl = to;
   if (w.isSpell) { if (from < SPELL_FORK_LV && to >= SPELL_FORK_LV && !w.fork && SPELL_FORKS[w.id]) G.lootQueue.push({ kind: 'sfork', uid: w.uid }); return; }
-  if (to >= MAX_WLVL) achieve('mastery');
+  if (to >= MAX_WLVL) { achieve('mastery'); if (from < MAX_WLVL && G.player && typeof masteryJuice === 'function') masteryJuice(w); }
   w.perks = w.perks || {};
   for (const m of PERK_LEVELS) if (from < m && to >= m && !w.perks[m]) G.lootQueue.push({ kind: 'branch', uid: w.uid, lvl: m });
 }
