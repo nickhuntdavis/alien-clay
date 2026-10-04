@@ -429,7 +429,8 @@ html, body { background: #020406; color: var(--xw); }
 
 /* Settings modes */
 body.clinical .screen::before { display: none; }
-body.hudmin #sysmsg { top: calc(40px + env(safe-area-inset-top)); left: 8px; width: min(calc(100vw - 80px), 420px); padding: 5px 10px; }
+/* Minimal HUD: narrator lines sit low, just above the weapon dock and left of the ability buttons, so they never cover the bar, chips or health bars at the top. */
+body.hudmin #sysmsg { position: fixed; top: auto; bottom: calc(150px + env(safe-area-inset-bottom)); left: 8px; width: min(calc(100vw - 110px), 420px); padding: 5px 10px; background: #000000b8; }
 body.hudmin #sysmsg b { display: none; }
 body.hudmin #sysmsg span { font-size: 12px; line-height: 1.3; }
 .setrow h3 { margin-bottom: 4px; }
@@ -470,7 +471,7 @@ body.land #moveBtn, body.land #armBtn { width: 158px; padding: 10px 0; }
 body.land #side { bottom: calc(12px + env(safe-area-inset-bottom)); right: calc(10px + env(safe-area-inset-right)); }
 body.land #toast { bottom: 24px; left: calc(50% + 85px); }
 body.land #sysmsg { left: 184px; top: calc(96px + env(safe-area-inset-top)); width: min(calc(100vw - 530px), 440px); }
-body.land.hudmin #sysmsg { top: calc(40px + env(safe-area-inset-top)); }
+body.land.hudmin #sysmsg { top: auto; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%, 0); width: min(calc(100vw - 520px), 440px); }
 body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 
 /* Title: the out-of-focus lab shows through behind the menu */
