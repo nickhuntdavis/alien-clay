@@ -1073,7 +1073,8 @@ function hurtPlayer(dmg, from, ent, kind) {
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
   G.lastHitEnt = ent || null;
-  rebornHurt(d); // (Karma) // (the end-of-run screen shows whoever finished you off)
+  rebornHurt(d); // (Karma)
+  rivalLeech(ent); // (rivals with the leech trait) // (the end-of-run screen shows whoever finished you off)
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
   const k = from || 'Unknown';
   G.stats.hurt[k] = (G.stats.hurt[k] || 0) + d;

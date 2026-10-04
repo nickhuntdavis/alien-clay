@@ -7,13 +7,19 @@
 // A rival's level follows its own clock, which runs at its skill (plus a little for every kill it steals).
 function rivalLevelAt(clock) { return Math.min(EGG.level, 1 + Math.floor((EGG.level - 1) * Math.pow(Math.max(0, clock) / RIVAL.finish, RIVAL.pow) + 1e-9)); }
 
+// Each run draws five of the twenty rivals (G.rivalSet, chosen at the start of the run).
+function runRivals() {
+  if (!G.rivalSet) G.rivalSet = shuffle(RIVALS.slice()).slice(0, 5);
+  return G.rivalSet;
+}
 function initRivals() {
   G.rivalsInit = true;
   G.rivalOut = {}; // id -> how they were eliminated
   G.rivalMsgT = 0; G.rivalCullT = 200; G.rivalCulls = 0;
   const off = Math.random() * TAU;
-  RIVALS.forEach((R, i) => {
-    const a = off + i / RIVALS.length * TAU;
+  const set = runRivals();
+  set.forEach((R, i) => {
+    const a = off + i / set.length * TAU;
     G.enemies.push(makeRival(R, Math.cos(a) * RIVAL.spawnR, Math.sin(a) * RIVAL.spawnR));
   });
 }
@@ -37,7 +43,7 @@ function rivalStats(e, heal) {
   const k = e.maxHp > 0 ? e.hp / e.maxHp : 1;
   e.maxHp = maxHp;
   e.hp = Math.min(maxHp, maxHp * Math.min(1, k + heal));
-  e.armour = 2 + Math.floor(L / 8);
+  e.armour = 2 + Math.floor(L / 8) + (M.armour || 0);
   e.r = (14 + L * 0.28) * (M.r || 1);
   e.speed = RIVAL.speed * (1 + L / 90) * (M.speed || 1);
   e.dmg = 10 * dmgMul(t) * (1 + L / 40);
@@ -47,6 +53,9 @@ function rivalStats(e, heal) {
 // A rival's body against the standard one (their personality, data.js RIVALS). Stand-ins have none.
 const rivalMod = e => (e.R && e.R.mod) || {};
 const rivalIs = (e, id) => !!(e.R && e.R.id === id);
+// Traits (data.js RIVALS mod): regen, ranged, tantrum, blink, barge, revive, sprint, magpie, sniper, spread,
+// cloak, escort, leech, slime, plus body numbers (hp, speed, r, contact, armour, zapN, zapR).
+const rivalHas = (e, k) => !!(e.R && e.R.mod && e.R.mod[k]);
 
 function rivalGrow(e, dt) {
   if (e.lvl >= EGG.level) return;
@@ -75,7 +84,7 @@ function rivalAI(e, dt) {
   e.vis = dist < 900;
   rivalGrow(e, dt);
   // Regenerate after a few quiet seconds.
-  const steve = rivalIs(e, 'steve');
+  const steve = rivalHas(e, 'regen');
   if (e.hp < e.lastHp - 0.5) e.calmT = steve ? 2 : 4; // Second Wind
   e.calmT -= dt;
   if (e.calmT <= 0 && e.hp < e.maxHp && !e.final) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * (steve ? 0.04 : 0.02) * dt);
@@ -95,10 +104,10 @@ function rivalAI(e, dt) {
     if (e.modeT <= 0 || dist > RIVAL.sight) { e.mode = 'roam'; newWaypoint(e); }
   } else if (e.mode === 'hunt') {
     // Circle you at shooting range.
-    const want = rivalIs(e, 'wiggles') ? 380 : 250, side = e.side;
+    const want = rivalHas(e, 'sniper') ? 420 : rivalHas(e, 'ranged') ? 380 : 250, side = e.side;
     tx = p.x - dx / dist * want - dy / dist * 120 * side; ty = p.y - dy / dist * want + dx / dist * 120 * side;
-    if (hurt && rivalIs(e, 'zygo')) { /* Tantrum: too angry to run */ }
-    else if (hurt && rivalIs(e, 'wiggles') && !(e.blinkT > G.t)) rivalBlink(e, dx, dy, dist);
+    if (hurt && rivalHas(e, 'tantrum')) { /* Tantrum: too angry to run */ }
+    else if (hurt && rivalHas(e, 'blink') && !(e.blinkT > G.t)) rivalBlink(e, dx, dy, dist);
     else if (hurt) { e.mode = 'flee'; e.modeT = 8; rivalNews(e, `${e.name} is running away. Coward. Chase them if you're feeling mean.`); }
     else if (e.modeT <= 0 || dist > RIVAL.sight * 1.3) { e.mode = 'roam'; newWaypoint(e); }
   } else {
@@ -114,6 +123,7 @@ function rivalAI(e, dt) {
       }
     }
   }
+  spd *= rivalTraits(e, dt, dist);
   const mx = tx - e.x, my = ty - e.y, md = Math.hypot(mx, my);
   rivalMove(e, md > 4 ? mx / md : 0, md > 4 ? my / md : 0, Math.min(spd, md / Math.max(dt, 1e-3)), dt);
   // Contact.
@@ -124,13 +134,14 @@ function rivalAI(e, dt) {
   e.shootCd -= dt;
   // Early on they mind their own business unless you start something.
   const riled = G.t > RIVAL.huntFrom || e.hp < e.maxHp * 0.95;
-  if (e.shootCd <= 0 && dist < 520 && riled && G.state === 'play') {
-    e.shootCd = (e.final ? 1.6 : e.mode === 'hunt' ? 1.1 : 1.8) * (rivalIs(e, 'zygo') && e.hp < e.maxHp * 0.5 ? 0.5 : 1); // Tantrum
+  if (e.shootCd <= 0 && dist < (rivalHas(e, 'sniper') ? 700 : 520) && riled && G.state === 'play') {
+    e.shootCd = (e.final ? 1.6 : e.mode === 'hunt' ? 1.1 : 1.8) * (rivalHas(e, 'tantrum') && e.hp < e.maxHp * 0.5 ? 0.5 : 1) * (rivalHas(e, 'sniper') ? 1.7 : 1); // Tantrum; a sniper takes its time
     // Late-game rivals were the deadliest thing on the slide: their fans grow more slowly now and each bullet
     // gains less from the rival's level (about a third less fire at level 50).
     const n = Math.min(e.final ? 4 : 6, 1 + Math.floor(e.lvl / 14)), a0 = Math.atan2(dy, dx), bd = 7 * dmgNow() * (1 + e.lvl / 60) * (e.final ? 1.2 : 1);
     shooterName = e.name; shooterEnt = e;
-    for (let i = 0; i < n; i++) eBullet(e.x, e.y, a0 + (i - (n - 1) / 2) * 0.16, 210, bd, 5.5, e.color);
+    if (rivalHas(e, 'sniper')) eBullet(e.x, e.y, a0, 430, bd * 2.4, 6.5, e.color); // one heavy, fast shot
+    else { const m = n + (rivalHas(e, 'spread') ? 2 : 0), gap = rivalHas(e, 'spread') ? 0.2 : 0.16; for (let i = 0; i < m; i++) eBullet(e.x, e.y, a0 + (i - (m - 1) / 2) * gap, 210, bd, 5.5, e.color); }
   }
 }
 
@@ -169,10 +180,49 @@ function rivalZap(e) {
   });
 }
 
+// The traits that act every frame. Returns a speed multiplier.
+function rivalTraits(e, dt, dist) {
+  let k = 1;
+  const busy = e.mode === 'hunt' || e.final || e.mode === 'flee';
+  if (rivalHas(e, 'sprint')) { // bursts of speed every 7s
+    e.sprintCd = (e.sprintCd ?? 4) - dt;
+    if (e.sprintCd <= 0) { e.sprintCd = 7; e.sprintEnd = G.t + 1.2; if (e.vis) ring(e.x, e.y, e.r * 2, e.color, 0.3, 2); }
+    if (e.sprintEnd > G.t) k *= 2.2;
+  }
+  if (rivalHas(e, 'cloak')) { // fades out of phase: shots pass through it
+    e.cloakCd = (e.cloakCd ?? 6) - dt;
+    if (e.cloakCd <= 0) { e.cloakCd = 9; e.cloakEnd = G.t + 2; }
+    e.phased = e.cloakEnd > G.t;
+  }
+  if (rivalHas(e, 'magpie') && e.vis) { // hoovers up your XP
+    for (const g of G.gems) {
+      if (g.dead || g.kind === 's') continue;
+      const dx = e.x - g.x, dy = e.y - g.y, d = Math.hypot(dx, dy);
+      if (d < 220) { g.x += dx / (d || 1) * 320 * dt; g.y += dy / (d || 1) * 320 * dt; if (d < e.r + 8) { g.dead = true; e.clock += 0.05 * (g.v || 1); } }
+    }
+  }
+  if (rivalHas(e, 'escort') && busy) { // brings friends to a fight
+    e.escortCd = (e.escortCd ?? 3) - dt;
+    if (e.escortCd <= 0 && G.enemies.length < CAPS.enemies - 10) {
+      e.escortCd = 12;
+      for (let i = 0; i < 2; i++) G.enemies.push(makeEnemy(ENEMIES.skitter, e.x + rand(-30, 30), e.y + rand(-30, 30)));
+      if (e.vis) floatText(e.x, e.y - e.r - 16, 'BACKUP!', e.color, 12, 0.8);
+    }
+  }
+  if (rivalHas(e, 'slime') && busy) { // leaves a sticky acid trail
+    e.slimeCd = (e.slimeCd ?? 1) - dt;
+    if (e.slimeCd <= 0) { e.slimeCd = 2.2; addHazard(e.x, e.y, 34, 4, e.dmg * 0.4, e.color, e.name + ' slime', 0.35); }
+  }
+  return k;
+}
+// From hurtPlayer: a rival with the leech trait heals off the hits it lands on you.
+function rivalLeech(ent) {
+  if (ent && ent.rival && !ent.dead && rivalHas(ent, 'leech')) { ent.hp = Math.min(ent.maxHp, ent.hp + ent.maxHp * 0.025); if (ent.vis) floatText(ent.x, ent.y - ent.r - 14, '+', ent.color, 12, 0.6); }
+}
 // Chad's Shoulder Barge: when he is close, he plants himself and glows (0.6s), then charges in a straight
 // line. Returns true while it is happening (it replaces his normal movement).
 function rivalBarge(e, dx, dy, dist, dt) {
-  if (!rivalIs(e, 'chad') || e.frozen > 0) return false;
+  if (!rivalHas(e, 'barge') || e.frozen > 0) return false;
   e.bargeCd = (e.bargeCd == null ? 3 : e.bargeCd) - dt;
   if (e.bargeWind > 0) {
     e.bargeWind -= dt; e.flash = Math.max(e.flash, 0.04);
@@ -202,16 +252,16 @@ function rivalBlink(e, dx, dy, dist) {
   rivalMove(e, 0, 0, 0, 0.001);
   ring(e.x, e.y, e.r * 2.5, e.color, 0.5, 3);
   e.mode = 'flee'; e.modeT = 6;
-  rivalNews(e, `${e.name} has gone on sabbatical. He'll be back.`);
+  rivalNews(e, `${e.name} has vanished. They'll be back.`);
 }
 // Kevin's Somehow Fine: the first knockout doesn't take. From killEnemy, before rivalDown.
 function rivalSurvives(e) {
-  if (!rivalIs(e, 'kevin') || e.fine || e.final) return false;
+  if (!rivalHas(e, 'revive') || e.fine || e.final) return false;
   e.fine = true; e.dead = false; e.hp = e.maxHp * 0.3; e.lastHp = e.hp;
   e.mode = 'flee'; e.modeT = 8;
   ring(e.x, e.y, e.r * 3, e.color, 0.6, 4);
-  floatText(e.x, e.y - e.r - 22, 'KEVIN IS FINE', e.color, 16, 1.4);
-  rivalNews(e, 'Kevin is fine. Somehow. He is swimming off.', true);
+  floatText(e.x, e.y - e.r - 22, e.name.toUpperCase() + ' IS FINE', e.color, 16, 1.4);
+  rivalNews(e, `${e.name} is fine. Somehow. Swimming off.`, true);
   return true;
 }
 
@@ -235,7 +285,7 @@ function rivalDown(e) {
   sysMsg('SYSTEM MESSAGE', fill(pick(SYSTEM_LINES.rivalDead), e, 0, 'You did that. The crowd loved it.'), e.color, true);
   addViewers(20000);
   achieve('rivalkill');
-  if (RIVALS.every(R => G.rivalOut[R.id])) achieve('allrivals');
+  if (runRivals().every(R => G.rivalOut[R.id])) achieve('allrivals');
   sfx('boss'); vibrate(120);
 }
 
@@ -273,12 +323,12 @@ function updateRivals(dt) {
 // Sorted standings for the HUD: you and every rival, alive or not.
 function rivalBoard() {
   const rows = [{ name: 'SPERMY', lvl: G.level, color: PAL.you, you: true }];
-  for (const R of RIVALS) {
+  for (const R of runRivals()) {
     const e = G.enemies.find(o => o.rid === R.id && !o.dead);
     rows.push({ name: R.name, lvl: e ? e.lvl : 0, color: R.color, out: !e, egg: e && e.final, e });
   }
   // Stand-ins who joined the Final Five.
-  for (const e of G.enemies) if (e.final && !e.dead && !RIVALS.some(R => R.id === e.rid)) rows.push({ name: e.name, lvl: e.lvl, color: e.color, egg: true, e });
+  for (const e of G.enemies) if (e.final && !e.dead && !runRivals().some(R => R.id === e.rid)) rows.push({ name: e.name, lvl: e.lvl, color: e.color, egg: true, e });
   return rows.sort((a, b) => (a.out ? 1 : 0) - (b.out ? 1 : 0) || b.lvl - a.lvl || (a.you ? -1 : 1));
 }
 
