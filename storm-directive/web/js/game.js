@@ -61,7 +61,7 @@ const CAPS = { enemies: 170, proj: 600, ebul: 800, parts: 300, texts: 40, gems: 
 // simulated runs to keep the old level curve), with a calmer screen. The extra HP builds up over
 // the first four minutes (on the difficulty clock): early on your weapons are weak, and tougher fodder there
 // just slowed your levelling and let crowds swamp you.
-const SPAWN_K = 0.75, XP_K = 1.8, toughK = t => 1 + (1 / SPAWN_K - 1) * Math.min(1, t / 240);
+const SPAWN_K = 0.75, XP_K = 1.4, toughK = t => 1 + (1 / SPAWN_K - 1) * Math.min(1, t / 240);
 // Adaptive quality: when frames run slow for a while (busy late game, slower phones), step the costly
 // extras down; step back up once there's headroom again. 0: everything. 1: no lens blur or foreground
 // debris, fewer floating numbers. 2: 1.5x resolution, plainer common enemies, fewer particles. 3: 1x resolution.
