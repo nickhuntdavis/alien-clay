@@ -132,7 +132,7 @@ const WEAPONS = {
     desc: 'You vanish. Enemies swarm the empty spot, then BOO. The science is three years old.',
     base: { dmg: 20, cd: 5.5, mag: 1, reload: 0.1, count: 1, range: 420, dur: 1.8, area: 230 },
     lv: { 3: { dur: 0.25 }, 6: { area: 0.25 }, 9: { dmg: 0.5 } }, sig: { 5: ['hideandseek', 'jumpscare'], 8: ['whosthere', 'decoydoll'], 10: ['objectperm', 'bigboo'] } },
-  twin: { name: 'Twin Telepathy', stars: [3, 5, 4, 3], play: 'Your twin mirrors you across an anchor on the crowd, and a beam always joins the two of you. Swim to sweep the beam through them.', icon: 'TT', elem: 'shock', kind: 'twin', toy: 1, color: '#90e0ef', dir: 'cluster', role: 'Geometry',
+  twin: { name: 'Twin Telepathy', stars: [3, 5, 4, 3], play: 'Your twin mirrors you across an anchor on the crowd, and a beam always joins the two of you. Swim to sweep the beam through them. With Imaginary Friend, your friends are wired into the beam too.', icon: 'TT', elem: 'shock', kind: 'twin', toy: 1, color: '#90e0ef', dir: 'cluster', role: 'Geometry',
     desc: 'A beam joins you and your twin across the crowd. You both think "zap".',
     base: { dmg: 24, cd: 1.6, mag: 3, reload: 2.0, count: 1, range: 520, area: 90, width: 10 },
     lv: { 3: { dmg: 0.3 }, 6: { count: 1 }, 9: { area: 0.3 } }, sig: { 5: ['mindmeld', 'switcheroo'], 8: ['sympathy', 'wavelength'], 10: ['quads', 'psychic'] } },

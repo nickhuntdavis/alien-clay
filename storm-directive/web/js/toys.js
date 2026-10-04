@@ -441,7 +441,14 @@ function twinPoints(w) {
   }
   return pts;
 }
-function twinSegs(w) { const p = G.player; return twinPoints(w).map(t => [p, t]); }
+// The beams: you to each twin, and (with Imaginary Friend) you to your friends, one after another, so the
+// whole imaginary family is wired together and every thread hurts.
+function twinSegs(w) {
+  const p = G.player, segs = twinPoints(w).map(t => [p, t]);
+  const fw = toyOwned('friend');
+  if (fw && fw.friends) { let prev = p; for (const f of fw.friends) { if (G.t - f.born < (f.delay || 2)) continue; segs.push([prev, f]); prev = f; } }
+  return segs;
+}
 function twinTick(w, dt) {
   const p = G.player, s = w.s;
   if (!w.anchor) w.anchor = { x: p.x + Math.cos(p.face || 0) * 120, y: p.y + Math.sin(p.face || 0) * 120 };
