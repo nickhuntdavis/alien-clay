@@ -2081,9 +2081,13 @@ function updatePlayer(dt) {
   let thrust = 0;
   if (m > 0.05) {
     const da = angDiff(Math.atan2(dy, dx), p.hd);
-    const turn = SWIM.turn * trac * (1 + SWIM.pivot * (1 - Math.min(1, cur / speed))) * dt;
+    // Turning circle: the head can only turn as fast as your speed over the tightest arc your traction allows
+    // (low traction: a wide sweeping arc; every point in grip tightens it), plus a slow pivot when nearly still
+    // that also grows with traction. High traction turns almost on a dime.
+    const rMin = SWIM.arc / Math.pow(trac, 1.4), wMax = SWIM.turn * trac * (1 + SWIM.pivot * Math.max(0, trac - 1));
+    const turn = clamp(Math.max(cur, speed * 0.25) / rMin, SWIM.pivotMin * trac, wMax) * dt;
     p.hd = Math.atan2(Math.sin(p.hd + clamp(da, -turn, turn)), Math.cos(p.hd + clamp(da, -turn, turn)));
-    thrust = m * speed * (0.4 + 0.6 * Math.max(0, Math.cos(da)));
+    thrust = m * speed * (0.6 + 0.4 * Math.max(0, Math.cos(da))); // (still swimming along the arc)
   }
   // The tail is the engine. p.stroke: how hard it's beating (1 = normal, near 0 mid-turn, eased to a stop
   // over a few frames); p.kick: the burst of extra-strong strokes the moment a turn ends. The tail you see
@@ -2091,7 +2095,8 @@ function updatePlayer(dt) {
   // and those first big strokes after it get you back up to speed fast.
   { const rt = dt / GAME_SPEED; // (real seconds: the easing is in screen frames)
     const rate = Math.abs(angDiff(p.hd, p.hdPrev ?? p.hd)) / Math.max(1e-4, dt); p.hdPrev = p.hd;
-    const want = rate < 0.35 ? 1 : Math.max(0.04, 1 - (rate - 0.35) / 0.9), cur = p.stroke ?? 1;
+    const radius = Math.hypot(p.vx, p.vy) / Math.max(1e-3, rate); // (how tight the turn is: a wide arc keeps the beat, a tight one stops it)
+    const want = rate < 0.35 ? 1 : clamp((radius - 25) / 55, 0.04, 1), cur = p.stroke ?? 1;
     if (want < cur) p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 25)); // to a stop in about 4 frames
     else p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 12));
     if (p.stroke < 0.45) p.turned = true;

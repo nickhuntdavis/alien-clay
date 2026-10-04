@@ -774,7 +774,7 @@ const PERKS = {
 // ---------------------------------------------------------------- Swimming
 // Your head turns at most turn rad/s (times traction), faster when you're nearly stopped.
 // Sideways drift bleeds off at grip per second (times traction). Growth per level: +1.5% size.
-const SWIM = { turn: 3.8, pivot: 1.6, grip: 4, growth: 0.015, hitGrowth: 0.0075 };
+const SWIM = { turn: 3.8, pivot: 1.6, grip: 4, growth: 0.015, hitGrowth: 0.0075, arc: 50, pivotMin: 1.1 }; // arc: tightest turning radius at traction 1
 
 // ---------------------------------------------------------------- Terrain
 // Things growing in the womb. solid: blocks bodies. shot: what happens to any projectile or bullet that hits it.
