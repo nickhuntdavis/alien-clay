@@ -742,6 +742,7 @@ function damageEnemy(e, dmg, src) {
   if (G.dyeBoon.rival && e.rival) d *= 1.4;
   if (e.boss || e.bossDef) d *= bossDamageMul(e, src);
   if (src.w && src.w.mods && src.w.mods.length) d *= sillyModMul(e, src); // (silly.js modifiers)
+  if (src.w) d *= rrelicDmgMul(e, src); // (rival relics, rrelics.js)
   if (src.w && src.w.s) {
     const ws = src.w.s;
     if (ws.pExec && e.hp < e.maxHp * 0.35) d *= 1 + ws.pExec;
@@ -1083,7 +1084,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
   const arm = P.noArmour ? 0 : (P.armour + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
-  if (sillyInsure(d)) return; // (Life Insurance)
+  if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d;
   sillyHurt();
   if (ent && !ent.dead) G.grudge = ent;
@@ -1556,7 +1557,7 @@ function updateWeapon(w, dt) {
   }
   if (d.scrapAmmo && G.scrap < 1) { if (!w.broke) { w.broke = true; achieve('broke'); } w.cd = Math.max(w.cd, 0); return; }
   w.broke = false;
-  const rate = (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1);
+  const rate = (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste();
   w.cd -= dt * rate;
   let shots = 0;
   while (w.cd <= 0 && shots < 3) {
@@ -2376,7 +2377,7 @@ function gainXp(v) {
       sysLine('slot', true); achieve('slot');
     }
   }
-  if (G.level > lv0 && G.player) levelJuice(G.level);
+  if (G.level > lv0 && G.player) { levelJuice(G.level); rrelicLevel(); }
 }
 
 // ---------------------------------------------------------------- the egg (win condition)

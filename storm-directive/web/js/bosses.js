@@ -348,6 +348,7 @@ function applyRelic(id) {
     case 'wobbly': P.grit += 2; break;
     case 'justkevin': { P.might += 0.06; P.haste += 0.06; P.speed += 0.06; P.crit += 0.06; const add = Math.round(P.maxHp * 0.06); P.maxHp += add; p.hp += add; break; }
     case 'kevinsmum': G.mumT = G.t + 10; break;
+    default: rrelicApply(id); // (the newer rivals' relics, rrelics.js)
   }
   recomputeAll();
   banner('RELIC: ' + RELICS[id].name.toUpperCase(), PAL.reward);
@@ -360,10 +361,12 @@ function relicHit(e, d, src) {
   if (R.transfusion && G.lsBudget > 0) { const h = Math.min(G.lsBudget, d * 0.01); G.lsBudget -= h; healPlayer(h, true); }
   if (R.corrosive) { e.shred = Math.min(e.armour + 4, e.shred + 1); e.poison = Math.max(e.poison, 3); e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, d * 0.05, 'Acid Tongue'); }
   if (R.runninghot && !(e.boss && e.def.resist && e.def.resist.fire === 0)) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Running Hot'); }
+  rrelicHit(e, d, src);
 }
 function relicKill(e, src) {
   const R = G.relics, P = G.P;
   if (R.secondstomach) healPlayer(1, true);
+  rrelicKill(e, src);
   if (R.ulcer && G.zones.length < 200 && Math.random() < 0.5) G.zones.push({ x: e.x, y: e.y, r: 46, life: 3, max: 3, dps: (8 + G.level * 3) * P.might, elem: 'poison', pull: 0, color: '#b8f35a', tick: 0, src: { elem: 'poison', wname: 'Ulcer' } });
   if (R.heatstroke && e.burn > 0 && (G.heatF !== G.frameN || (G.heatN || 0) < 6)) {
     if (G.heatF !== G.frameN) { G.heatF = G.frameN; G.heatN = 0; }
@@ -386,7 +389,7 @@ function relicDamageIn(dmg, ent) {
     damageEnemy(ent, ent.dmg * 10, { elem: 'phys', wname: 'Bouncer', noCrit: true });
     dmg *= 0.6;
   }
-  return dmg;
+  return rrelicDamageIn(dmg, ent);
 }
 function relicHurt(d) {
   const R = G.relics, p = me(), P = G.P;
@@ -407,6 +410,7 @@ function relicDodge() {
 function relicTick(dt) {
   const R = G.relics, p = me(), P = G.P;
   if (R.bedside) healPlayer(P.maxHp * 0.015 * dt, true);
+  rrelicTick(dt);
   const fast = Math.hypot(p.vx || 0, p.vy || 0) > 110;
   if (R.marathon && fast) healPlayer(P.maxHp * 0.01 * dt, true);
   if (R.personalbest) G.pbDodge = fast; // (read by hurtPlayer's dodge roll)
