@@ -746,6 +746,7 @@ function damageEnemy(e, dmg, src) {
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src);
   if (!src.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
   if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
+  if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e));
   if (e.egg) {
@@ -1585,6 +1586,7 @@ function fireWeapon(w, target) {
   const s = w.s, d = w.def, p = G.player, src = weaponSrc(w);
   if (d.toy) { toyFire(w, target, src); return; }
   if (d.reborn && rebornFire(w, target, src)) return; // (Prawn Again's weapons, reborn.js)
+  if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
@@ -1915,6 +1917,7 @@ function updateProjectiles(dt) {
         continue;
       }
     }
+    if (pr.helix && !(pr.orbitT > 0) && !(pr.hold > 0) && !pr.hanging) geneStep(pr, dt); // (Gene Gun strands twist round each other)
     if (!(pr.orbitT > 0)) { pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt; }
     if (pr.hold > 0 || pr.hanging) { pr.x = pr.hx; pr.y = pr.hy; }
     if (pr.life <= 0) {
@@ -1959,6 +1962,7 @@ function updateProjectiles(dt) {
       damageEnemy(e, pr.dmg * hm, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
       projHit(pr, e);
       if (pr.ghost) rebornHit(pr, e); // (Ghosts of You: reborn.js)
+      if (pr.pair) geneHit(pr, e); // (Gene Gun: edits)
       if (pr.src.echoHit) {
         // Paradox Rifle: the same hit arrives again from one second in the future.
         const tgt = e, dmg = pr.dmg * 0.9;

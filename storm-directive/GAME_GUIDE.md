@@ -83,7 +83,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Incompatible Viral Load, Peekaboo | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Beat 25 bosses (all runs) |
 | **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Pick up 100 power-ups (all runs) |
 | **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are. | Deal 2,000,000 elemental damage (all runs) |
-| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon | **Cold Storage** (11s): Every 11s: a burst of liquid nitrogen hits the biggest crowd within 320, freezing everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
+| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Cold Storage** (11s): Every 11s: a burst of liquid nitrogen hits the biggest crowd within 320, freezing everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
 | **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Reach Rank 3 with every other sequence |
 
 ### Sequence synergies
@@ -100,7 +100,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ## Weapons
 
-28 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
+29 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
 
 | Weapon | Sequence | Element | Role | Aims at | Wildcard |
 |---|---|---|---|---|---|
@@ -132,6 +132,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Déjà Vu](#dj-vu) | Prawn Again | Arcane | Repeater | NEAREST | - |
 | [Ghosts of You](#ghosts-of-you) | Prawn Again | Frost | Haunter | NEAREST | - |
 | [Karma](#karma) | Prawn Again | Kinetic | Payback | NEAREST | - |
+| [Gene Gun](#gene-gun) | Designer Baby | Arcane | Splicer | NEAREST | - |
 
 ### Spitball
 
@@ -723,6 +724,28 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
 | Lv 10 mastery | **Wheel of Life** | Every ring is followed by a second, turned half a step, 0.25s later. |
 |  | **Nirvana** | A fully charged ring also heals you 8% of your max HP. |
+
+### Gene Gun
+
+*Arcane gun, Splicer.* Precision gene therapy, delivered at speed. Side effects include exploding.
+
+- **Base stats:** dmg 11.5, cd 0.5s, mag 8, reload 1.3s, pierce 1, range 480
+- **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +2 pierce
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Pointy Head** | Shots pierce 2 more enemies. |
+| Lv 5 signature | **Triple Helix** | A third strand, with a third element. Edits need any two strands to land. |
+|  | **CRISPR** | Edits are cleaner: edited enemies take +60% damage (not +30%) for 4s, and the edit burst is twice as big. |
+| Lv 8 | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
+|  | **Sugar Rush** | +75% damage. |
+|  | **Plus One** | +1 projectile (shots share the damage). |
+| Lv 10 mastery | **Chimera** | Every strand carries two elements at once and applies both. |
+|  | **Recombination** | A strand that kills splits into a fresh helix aimed at the nearest enemy (once per strand). |
 
 ### Upgrades with a twist
 
