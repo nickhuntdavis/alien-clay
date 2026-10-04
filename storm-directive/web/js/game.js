@@ -1917,8 +1917,9 @@ function updateProjectiles(dt) {
         continue;
       }
     }
-    if (pr.helix && !(pr.orbitT > 0) && !(pr.hold > 0) && !pr.hanging) geneStep(pr, dt); // (Gene Gun strands twist round each other)
-    if (!(pr.orbitT > 0)) { pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt; }
+    if (pr.helix && pr.pair && !(pr.orbitT > 0) && !(pr.hold > 0) && !pr.hanging) geneStep(pr, dt); // (Gene Gun strands twist round each other)
+    else if (!(pr.orbitT > 0)) { pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt; }
+    if (pr.helix && pr.pair && (pr.orbitT > 0 || pr.hold > 0 || pr.hanging) && pr.pair.strands[0] === pr) { pr.pair.cx = pr.x; pr.pair.cy = pr.y; } // (a held or orbiting helix picks up where its lead strand is)
     if (pr.hold > 0 || pr.hanging) { pr.x = pr.hx; pr.y = pr.hy; }
     if (pr.life <= 0) {
       // Family Reunion: a sibling that missed swims back to circle you, then goes again.

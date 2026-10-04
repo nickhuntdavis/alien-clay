@@ -1294,7 +1294,7 @@ function render() {
     }
     const a = Math.atan2(pr.vy, pr.vx), r = pr.r * S;
     // A motion streak behind anything fast (thins out when the screen is busy).
-    if (FX.k > 0.4 && pr.style !== 'flame' && pr.style !== 'void' && pr.style !== 'glaive' && pr.style !== 'disc' && pr.style !== 'needle' && !pr.orbitT) {
+    if (FX.k > 0.4 && pr.style !== 'flame' && pr.style !== 'void' && pr.style !== 'glaive' && pr.style !== 'disc' && pr.style !== 'needle' && pr.style !== 'helix' && !pr.orbitT) {
       const L = Math.min(70, Math.hypot(pr.vx, pr.vy) * 0.05) * S;
       ctx.globalAlpha = 0.45; ctx.strokeStyle = pr.color; ctx.lineWidth = Math.max(1, r * 1.3); ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - Math.cos(a) * L, y - Math.sin(a) * L); ctx.stroke(); ctx.lineCap = 'butt'; ctx.globalAlpha = 1;

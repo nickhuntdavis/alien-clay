@@ -49,13 +49,23 @@ function geneHelix(w, x, y, a, src, els, n, chim, child) {
     const pr = spawnProj(w, x, y, a, Object.assign({}, src, { elem: el }), { helix: { ph: i / n * TAU, amp: 15, f: 10, t: 0 }, pair, elem2: el2, color: ELEMENTS[el].color, recombined: child });
     if (pr) pair.strands.push(pr);
   }
+  const q = pair.strands[0];
+  Object.assign(pair, { cx: x, cy: y, t: 0, vx: q ? q.vx : 0, vy: q ? q.vy : 0 });
 }
-// From updateProjectiles: the twist (sideways wobble round the line of flight).
+// From updateProjectiles (instead of the usual straight move): the strands of one helix share an axis that
+// flies straight (steered by the lead strand: homing, bounces), and each sits on it at its own phase, so they
+// twist round each other like DNA.
 function geneStep(pr, dt) {
-  const h = pr.helix, sp = Math.hypot(pr.vx, pr.vy) || 1;
-  h.t += dt;
-  const lat = h.amp * h.f * Math.cos(h.t * h.f + h.ph);
-  pr.x += -pr.vy / sp * lat * dt; pr.y += pr.vx / sp * lat * dt;
+  let P = pr.pair;
+  // (A copy that isn't one of its helix's strands, e.g. a Both Ends mirror twin, becomes its own helix.)
+  if (!P.strands.includes(pr)) P = pr.pair = { strands: [pr], id: (G.geneId = (G.geneId || 0) + 1), cx: pr.x, cy: pr.y, t: P.t || 0, vx: pr.vx, vy: pr.vy };
+  const lead = P.strands.find(q => !q.dead) || pr;
+  if (lead === pr) { P.vx = pr.vx; P.vy = pr.vy; P.cx += P.vx * dt; P.cy += P.vy * dt; P.t += dt; }
+  else { pr.vx = P.vx; pr.vy = P.vy; }
+  pr.life -= dt;
+  const h = pr.helix, sp = Math.hypot(P.vx, P.vy) || 1, ph = P.t * h.f + h.ph, o = h.amp * Math.sin(ph);
+  pr.x = P.cx - P.vy / sp * o; pr.y = P.cy + P.vx / sp * o;
+  pr.depth = Math.cos(ph); // (front or back of the twist, for drawing)
 }
 // From the projectile collision: chimera's second element, edits, recombination.
 function geneHit(pr, e) {
@@ -82,12 +92,33 @@ function geneHit(pr, e) {
 // From damageEnemy: edited enemies take more from everything.
 const geneDamageMul = e => (e.edited > G.t ? 1 + (e.editK || 0.3) : 1);
 // Drawing (render.js projectile switch): a bead, with a rung to the next strand of the same helix.
+// The lead strand draws the whole short stretch of DNA behind the heads: each strand's backbone as a thin
+// curve, joined by rungs, fading out behind.
 function drawHelix(pr, x, y, r) {
   const P = pr.pair;
-  if (P && P.strands[0] === pr) {
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = Math.max(1, 1.2 * S);
-    for (let i = 1; i < P.strands.length; i++) { const q = P.strands[i]; if (q.dead) continue; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(sx(q.x), sy(q.y)); ctx.stroke(); }
+  if (P && P.cx != null && P.strands.find(q => !q.dead) === pr) {
+    const live = P.strands.filter(q => !q.dead && q.helix), sp = Math.hypot(P.vx, P.vy) || 1, ux = P.vx / sp, uy = P.vy / sp;
+    const len = Math.min(70, sp * P.t), N = 14;
+    const at = (q, d) => { const o = q.helix.amp * Math.sin((P.t - d / sp) * q.helix.f + q.helix.ph); return [sx(P.cx - ux * d - uy * o), sy(P.cy - uy * d + ux * o)]; };
+    ctx.lineWidth = Math.max(0.8, 0.9 * S);
+    for (const q of live) {
+      ctx.strokeStyle = q.color; ctx.beginPath();
+      for (let i = 0; i <= N; i++) { const [px, py] = at(q, len * i / N); ctx.globalAlpha = 1; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+      ctx.globalAlpha = 0.55; ctx.stroke();
+    }
+    if (live.length > 1) {
+      ctx.strokeStyle = '#ffffff';
+      for (let i = 0; i <= N; i += 2) {
+        const d = len * i / N, [ax, ay] = at(live[0], d), [bx, by] = at(live[1], d);
+        ctx.globalAlpha = 0.6 * (1 - i / (N + 2)); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+        if (live[2]) { const [cx2, cy2] = at(live[2], d); ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(cx2, cy2); ctx.stroke(); }
+      }
+    }
+    ctx.globalAlpha = 1;
   }
-  ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  // The head of each strand: bigger and brighter on the near side of the twist.
+  const dk = pr.depth == null ? 1 : 0.8 + 0.25 * pr.depth;
+  ctx.globalAlpha = pr.depth == null ? 1 : 0.7 + 0.3 * pr.depth;
+  ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(x, y, r * dk, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
   if (pr.elem2) { ctx.strokeStyle = ELEMENTS[pr.elem2].color; ctx.lineWidth = Math.max(1, 1.5 * S); ctx.stroke(); }
 }
