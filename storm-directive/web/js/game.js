@@ -773,7 +773,7 @@ function damageEnemy(e, dmg, src) {
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + Math.min(d, Math.max(0, hp0)); // damage actually dealt (overkill isn't counted)
   if (src.w) { const wk = (src.w.friendOf || src.w).uid, W = G.stats.wdmg || (G.stats.wdmg = {}); W[wk] = (W[wk] || 0) + d; } // per weapon, for the Armoury
   // Damage numbers thin out when the screen is busy (crits always show).
-  if (!src.dot && !IN_AOE) hitFx(e, src, crit, d);
+  if (!src.dot && !IN_AOE) { hitFx(e, src, crit, d); sfx(crit ? 'crit' : 'hit'); }
   if (!src.dot && e.puddleT > G.t) puddleQuirks(e, src, dmg); // lightning, fire and frost meet a puddle
   if (!src.dot) dmgNumber(e, d, src, crit);
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
@@ -931,11 +931,12 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
 }
 
 function killEnemy(e, src) {
-  if (e.rival) { if (rivalSurvives(e)) return; casaLog(`${e.name} eliminated`); rivalDown(e); if (hitStop(0.08)) buzz('elite'); return; }
+  if (e.rival) { if (rivalSurvives(e)) return; casaLog(`${e.name} eliminated`); rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
   G.kills++;
   if (e.elite && !e.boss && hitStop(0.05)) buzz('elite');
+  sfx(e.elite || e.boss ? 'killBig' : 'kill');
   if (e.def.shape === 'sperm') G.stats.spermKills = (G.stats.spermKills || 0) + 1;
   countKill(e.x, e.y);
   if (e.boss || e.elite || (e.def.spongy && e.r > 60)) casaLog(`TRK#${e.id} ${e.name} lysed`);
@@ -2417,7 +2418,7 @@ function victory(at) {
   G.banner = null;
   achieve('born');
   sysLine('born', true);
-  sfx('level'); vibrate([100, 60, 100, 60, 300]);
+  vibrate(60);
   startFinale('win', at); // (the egg cracks and hatches, then the end screen)
 }
 
@@ -2550,7 +2551,7 @@ function gameOver() {
   if (G.state === 'finale' || G.state === 'over') return;
   sysLine('death', true);
   G.banner = null;
-  sfx('boss');
+  sfx('death');
   vibrate(300);
   startFinale('death'); // (slow motion on whatever got you, then the end screen)
 }
@@ -2629,33 +2630,7 @@ function initAudio() {
   if (AUDIO.ctx) { if (AUDIO.ctx.state === 'suspended') AUDIO.ctx.resume(); return; }
   try { AUDIO.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AUDIO.ctx = null; }
 }
-const SFX = {
-  shot:   { gap: 0.07, type: 'square',   f0: 880, f1: 420, dur: 0.045, vol: 0.025 },
-  zap:    { gap: 0.08, type: 'sawtooth', f0: 1400, f1: 300, dur: 0.08, vol: 0.03 },
-  boom:   { gap: 0.09, type: 'sawtooth', f0: 140, f1: 40, dur: 0.25, vol: 0.07 },
-  gem:    { gap: 0.05, type: 'sine',     f0: 1200, f1: 1600, dur: 0.05, vol: 0.03 },
-  pickup: { gap: 0.1,  type: 'triangle', f0: 500, f1: 1400, dur: 0.2, vol: 0.08 },
-  hurt:   { gap: 0.15, type: 'square',   f0: 220, f1: 70, dur: 0.18, vol: 0.08 },
-  react:  { gap: 0.1,  type: 'sine',     f0: 600, f1: 1300, dur: 0.12, vol: 0.05 },
-  spell:  { gap: 0.2,  type: 'triangle', f0: 300, f1: 900, dur: 0.2, vol: 0.05 },
-  level:  { gap: 0.2,  type: 'triangle', f0: 520, f1: 1560, dur: 0.35, vol: 0.09 },
-  boss:   { gap: 0.5,  type: 'sawtooth', f0: 90, f1: 45, dur: 0.8, vol: 0.12 },
-  rewind: { gap: 0.5,  type: 'sawtooth', f0: 1800, f1: 120, dur: 1.0, vol: 0.09 },
-};
-function sfx(name) {
-  if (!AUDIO.on || !AUDIO.ctx || AUDIO.ctx.state !== 'running') return;
-  const d = SFX[name], now = AUDIO.ctx.currentTime;
-  if (!d || (AUDIO.last[name] && now - AUDIO.last[name] < d.gap)) return;
-  AUDIO.last[name] = now;
-  const o = AUDIO.ctx.createOscillator(), g = AUDIO.ctx.createGain();
-  o.type = d.type;
-  o.frequency.setValueAtTime(d.f0, now);
-  o.frequency.exponentialRampToValueAtTime(d.f1, now + d.dur);
-  g.gain.setValueAtTime(d.vol, now);
-  g.gain.exponentialRampToValueAtTime(0.0001, now + d.dur);
-  o.connect(g); g.connect(AUDIO.ctx.destination);
-  o.start(now); o.stop(now + d.dur + 0.02);
-}
+// (Sound effects and music: audio.js.)
 // Focus knob: a filtered noise click with a tiny resonant body. dir > 0 zooming in (brighter), < 0 out;
 // heavy = the settling click when you let go.
 function knobClick(dir, heavy) {
@@ -2811,6 +2786,7 @@ function frame(ts) {
   if (raw > 0.004 && raw < 2) perfNote(raw * 1000, PERF.lu || 0, PERF.ld || 0);
   PERF.lu = t1 - t0; PERF.ld = performance.now() - t1;
   if (typeof UI !== 'undefined') safely('ui', () => UI.tick(dt));
+  if (typeof musicTick === 'function') safely('music', () => musicTick(dt));
 }
 // Errors are shown once on screen (and kept for the run log) instead of silently stopping the game.
 const ERRS = { seen: {}, last: '' };

@@ -10,8 +10,8 @@ android {
         applicationId 'com.stormdirective.game'
         minSdk 21
         targetSdk 34
-        versionCode 168
-        versionName '8.18'
+        versionCode 169
+        versionName '8.19'
     }
 
     buildTypes {

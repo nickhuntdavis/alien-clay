@@ -38,5 +38,5 @@ function masteryJuice(w) {
   floatText(p.x, p.y - 60, w.def.name.toUpperCase(), PAL.reward, 24, 1.6, true);
   G.flashT = 0.3; cam.shake = 18;
   G.hitStop = 0.14; // (a freeze as the upgrade screen closes)
-  sfx('level'); buzz('mastery');
+  sfx('mastery'); buzz('mastery');
 }

@@ -301,7 +301,7 @@ function bossDown(e) {
     addLight(e.x, e.y, 900, '#ffffff', 1); G.flashT = 0.3; cam.shake = 22; sfx('boss'); vibrate(250);
   });
   cam.shake = 16; G.hitStop = 0.16; G.hsNext = 0; // (a beat of stillness, then the slow motion)
-  sfx('boss'); buzz('bossKill');
+  sfx('bossKill'); buzz('bossKill');
 }
 function updateRevive() {
   const R = G.revive;

@@ -54,10 +54,10 @@ function updateFinale(dt) {
       spawnPart(E.x, E.y, '#ffd6e8', 70, 380, 1.1, 6); spawnPart(E.x, E.y, '#ffd23f', 40, 260, 1.3, 4);
       ring(E.x, E.y, E.r * 2, '#ffffff', 0.6, 8); ring(E.x, E.y, E.r * 4, '#ffd6e8', 0.9, 5); ring(E.x, E.y, E.r * 7, '#ffd23f', 1.2, 3);
       addLight(E.x, E.y, E.r * 6, '#ffe8c0', 1.6);
-      cam.shake = 18; sfx('boom'); vibrate([0, 30, 40, 220]);
+      cam.shake = 18; sfx('boom'); sfx('win'); vibrate([0, 30, 40, 220]);
     } else if (!F.burst && Math.random() < dt * (2 + t * 6)) {
       ring(E.x, E.y, E.r * (1.05 + Math.random() * 0.3), '#ffd6e8', 0.4, 2);
-      if (Math.random() < 0.3) vibrate(12);
+      sfx('crack'); if (Math.random() < 0.3) vibrate(12);
     }
   }
   ZOOM.z = lerp(ZOOM.z, zt, 1 - Math.pow(0.08, dt)); S = S0 * ZOOM.z;
