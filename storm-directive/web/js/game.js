@@ -56,7 +56,7 @@ resize();
 let G = null;
 let uidSeq = 1;
 const CAPS = { enemies: 170, proj: 600, ebul: 800, parts: 300, texts: 40, gems: 350 }; // (was 240 enemies, 450 particles)
-// Fewer, tougher monsters: 75% of the spawns, each worth 1.8x the XP, and up to a third more HP, so the
+// Fewer, tougher monsters: 75% of the spawns, each worth 1.4x the XP (it was 1.8x: level-ups came so often they felt like speed bumps), and up to a third more HP, so the
 // work per minute and the levelling stay where they were (you kill about half as many: XP_K was tuned in
 // simulated runs to keep the old level curve), with a calmer screen. The extra HP builds up over
 // the first four minutes (on the difficulty clock): early on your weapons are weak, and tougher fodder there

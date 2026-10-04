@@ -1234,10 +1234,17 @@ function render() {
       ctx.restore(); ctx.lineCap = 'butt';
       continue;
     }
-    drawShape('hex', x, y, r, 0); ctx.fillStyle = '#0a0f14'; ctx.fill();
-    ctx.strokeStyle = pc; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = pc; ctx.font = `bold ${Math.round(14 * S)}px ` + "ui-monospace, Menlo, monospace"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    // Power-ups are bright and always in colour (enemy bullets are dark specks, so the two never mix up):
+    // a glowing magenta halo that pulses, a pale turning hexagon, and the letter.
+    RAW_COL = true;
+    const pu = 0.5 + 0.5 * Math.sin(G.realT * 5 + u.bob);
+    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (2 + 0.4 * pu), PAL.pickup, 0.55); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    ctx.strokeStyle = PAL.pickup; ctx.globalAlpha = 0.35 + 0.4 * (1 - pu); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r * (1.35 + 0.35 * pu), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+    drawShape('hex', x, y, r, G.realT * 0.8 + u.bob); ctx.fillStyle = '#fbf1ff'; ctx.fill();
+    ctx.strokeStyle = PAL.pickup; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = '#7a1f8c'; ctx.font = `900 ${Math.round(14 * S)}px ` + "ui-monospace, Menlo, monospace"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(d.letter, x, y + 1);
+    RAW_COL = false;
   }
   // Mines & lob shadows.
   for (const pr of G.proj) {

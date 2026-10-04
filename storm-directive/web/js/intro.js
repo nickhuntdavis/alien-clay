@@ -70,7 +70,24 @@ function introTick() {
     return;
   }
 }
+// Settings > New enemy introductions: full (the card), quiet (a message, no stop), off, or auto (full for
+// your first five, then quiet).
+function introMode() {
+  const m = (typeof SET !== 'undefined' && SET.intros) || 'auto';
+  if (m !== 'auto') return m;
+  return Object.keys(META.seen || {}).length <= 5 ? 'full' : 'quiet';
+}
 function startFoeIntro(e, id, rival) {
+  const mode = introMode();
+  if (mode !== 'full') {
+    if (mode === 'quiet') {
+      const name = rival ? e.R.name : e.def.name, I = rival ? null : ENEMY_INTRO[id];
+      floatText(e.x, e.y - e.r - 18, 'NEW', rival ? e.R.color : PAL.upgrade, 13, 1.2);
+      ring(e.x, e.y, e.r * 2.2, rival ? e.R.color : PAL.upgrade, 0.5, 3);
+      sysMsg(rival ? 'RIVAL: ' + e.R.nick : 'NEW: ' + name.toUpperCase(), rival ? `${e.R.name}. ${e.R.specs.map(x => x.name).join(', ')}. ${e.R.tip}` : `${I.what} ${I.tip}`, rival ? e.R.color : PAL.upgrade, true);
+    }
+    return;
+  }
   G.bossIntro = { e, t: 0, idx: 0, roar: false, z0: ZOOM.z, foe: id, rival: !!rival };
   G.state = 'bossIntro';
   INPUT.active = false; G.manual = null;
