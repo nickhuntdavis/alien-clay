@@ -867,6 +867,7 @@ const UI = {
     h += `<div class="sec"><h3>Autorun directive</h3><div class="chips">`;
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
+    h += `<div class="sec"><h3>Game speed</h3><div class="chips">${SPEED_OPTS.map(v => `<button class="chip ${gameSpeed() === v ? 'sel' : ''}" data-spd="${v}">x${v}</button>`).join('')}</div></div>`;
 
     h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.fertile ? 'It is one. It is you. Swim into the egg.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon mounts: ${G.weapons.length}/${MAX_WEAPONS} (next draft at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}.${vetK() ? ` Veteran: your Gene Bank upgrades are strong, so monsters have +${Math.round(vetK() * VET.hp * 100)}% HP and +${Math.round(vetK() * VET.dmg * 100)}% damage (bosses and rivals +${Math.round(vetK() * VET.big * 100)}% HP).` : ''} The egg's warm glow heals you (NEST autorun keeps you in it).</p>
 </div>`;
@@ -913,6 +914,14 @@ const UI = {
     box.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { UI.pauseTab = b.dataset.ptab; UI.renderPause(); $('pause').scrollTop = 0; }));
     UI.bindCodex(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     box.querySelectorAll('[data-yk]').forEach(b => b.addEventListener('click', () => { G.state = 'play'; UI.openArmoury(b.dataset.yk, +b.dataset.yi); }));
+    box.querySelectorAll('[data-spd]').forEach(b => b.addEventListener('click', () => { SET.speed = +b.dataset.spd; saveSettings(); UI.renderPause(); }));
+    box.querySelectorAll('[data-pst]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.pst, off = META.pstainOff || (META.pstainOff = {});
+      if (off[id]) delete off[id]; else off[id] = 1;
+      saveMeta();
+      if (!G.dyeBoon[id]) { if (off[id]) delete G.dyes[id]; else G.dyes[id] = true; refreshPalette(); }
+      const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y;
+    }));
     box.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => { G.moveDir = b.dataset.move; UI.renderPause(); }));
     box.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       const w = b.dataset.k === 'w' ? G.weapons[+b.dataset.i] : G.spells[+b.dataset.i];
@@ -997,8 +1006,10 @@ const UI = {
   stainsHtml() {
     const ids = Object.keys(DYES), got = ids.filter(id => G.dyes && G.dyes[id]), miss = ids.filter(id => !(G.dyes && G.dyes[id]) && !(G.wave && id === 'rival'));
     const sw = id => id === 'rival' ? `<i class="sw multi">${RIVALS.map(r => `<u style="background:${r.color}"></u>`).join('')}</i>` : `<i class="sw" style="background:${DYES[id].key}"></i>`;
-    let h = got.length ? `<div class="list">${got.map(id => `<div class="li on stain">${sw(id)}<div><b>${esc(DYES[id].name)}</b><br><span>${esc(DYES[id].see)}.</span><br><span class="sb">${esc(DYES[id].boon)}</span></div></div>`).join('')}</div>`
+    let h = got.length ? `<div class="list">${got.map(id => `<div class="li on stain">${sw(id)}<div><b>${esc(DYES[id].name)}</b><br><span>${esc(DYES[id].see)}.</span><br><span class="sb">${G.dyeBoon && G.dyeBoon[id] ? esc(DYES[id].boon) : 'Permanent stain: colour only (find it in a DNA strand for its boon).'}</span></div></div>`).join('')}</div>`
       : '<p class="hint">None yet: the slide is all greyscale. Each stain brings back one kind of colour, and a boon.</p>';
+    const perm = Object.keys(META.pstains || {}).filter(id => DYES[id]);
+    if (perm.length) h += `<h3 style="margin-top:10px">Permanent stains</h3><div class="chips">${perm.map(id => { const on = !(META.pstainOff || {})[id]; return `<button class="chip ${on ? 'sel' : ''}" data-pst="${id}">${esc(DYES[id].name)}: ${on ? 'ON' : 'OFF'}</button>`; }).join('')}</div><p class="hint">Kept from earlier runs. Switch any off if you'd rather not see its colour.</p>`;
     if (miss.length) h += `<p class="hint">Still to find (in DNA strands): ${miss.map(id => `<b>${esc(DYES[id].name)}</b>`).join(', ')}. Each brings back one kind of colour, and a boon.</p>`;
     return h;
   },
@@ -1240,8 +1251,54 @@ const UI = {
     h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
     if (G.heatUnlocked) h = `<div class="bdna" style="color:#ff3b3b">IMMUNE RESPONSE ${G.heatUnlocked} UNLOCKED: ${esc(IMMUNE[G.heatUnlocked - 1].name)}</div>` + h;
     if (won && META.wonSinceBirth) h = `<p class="hint">You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.</p>` + h;
+    if (!won) h = UI.killerHtml() + h;
+    h += UI.keepStainHtml();
     $('overBody').innerHTML = h;
+    if (!won) UI.drawKiller();
+    UI.bindKeepStain();
     UI.show('over');
+  },
+  // Lost: whoever finished you off, big, close up and red, with a word for you.
+  killerHtml() {
+    const e = G.rivalWinner ? G.enemies.find(x => x.rival && x.name === G.rivalWinner) : G.lastHitEnt;
+    UI.killer = e || null;
+    const name = G.rivalWinner || (e ? (e.rival ? e.R.name : e.bossDef ? e.bossDef.name : e.def.name) + (e.elite ? ' (elite)' : '') : (G.stats.lastHit || 'The immune system'));
+    const key = e && !e.rival && !e.boss ? Object.keys(ENEMIES).find(k => ENEMIES[k] === e.def) : null;
+    const lines = e && e.rival && e.R ? KILL_LINES.rival[e.R.id] : e && (e.boss || e.bossDef) ? (e.bossDef || e.def).quote ? [(e.bossDef || e.def).quote].concat(KILL_LINES.boss) : KILL_LINES.boss : key && KILL_LINES.foe[key] ? KILL_LINES.foe[key] : null;
+    const line = pick(lines || KILL_LINES.any);
+    return `<div class="killer"><canvas id="killCan"></canvas><div class="kcap"><span>FINISHED OFF BY</span><b>${esc(name)}</b><em>"${esc(line)}"</em></div></div>`;
+  },
+  // A close-up of the killer, cut from the last frame of the slide, tinted red.
+  drawKiller() {
+    const c = $('killCan'), e = UI.killer;
+    if (!c) return;
+    const W2 = c.clientWidth || 320, H2 = c.clientHeight || 180, dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = Math.round(W2 * dpr); c.height = Math.round(H2 * dpr);
+    const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = '#100204'; g.fillRect(0, 0, W2, H2);
+    if (e) {
+      const ex = sx(e.x), ey = sy(e.y), R = Math.max(55, e.r * S * 2.6);
+      if (ex > -R && ey > -R && ex < W + R && ey < H + R) {
+        const k = cv.width / W, sw = R * 2 * (W2 / H2), sh = R * 2;
+        try { g.drawImage(cv, (ex - sw / 2) * k, (ey - sh / 2) * k, sw * k, sh * k, 0, 0, W2, H2); } catch (err) { /* canvas unavailable */ }
+      }
+    }
+    g.globalCompositeOperation = 'multiply'; g.fillStyle = '#ff5050'; g.fillRect(0, 0, W2, H2);
+    g.globalCompositeOperation = 'source-over';
+    const v = g.createRadialGradient(W2 / 2, H2 / 2, H2 * 0.25, W2 / 2, H2 / 2, W2 * 0.7); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.85)');
+    g.fillStyle = v; g.fillRect(0, 0, W2, H2);
+  },
+  // Every finished run: keep one stain for good (its colour, on by default from now on).
+  keepStainHtml() {
+    const left = Object.keys(DYES).filter(id => !(META.pstains || {})[id]);
+    if (!left.length) return '';
+    return `<div class="sec keepst"><h3>Keep a stain</h3><p class="hint">Pick one stain to keep for good. Its colour is on in every run from now on (switch it off in the pause menu). The boon still comes from finding it in a run.</p><div class="list">${left.map(id => `<button class="li stain pick" data-keep="${id}"><i class="sw" style="background:${DYES[id].key}"></i><div><b>${esc(DYES[id].name)}</b><br><span>${esc(DYES[id].see)}.</span></div></button>`).join('')}</div></div>`;
+  },
+  bindKeepStain() {
+    document.querySelectorAll('[data-keep]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.keep; (META.pstains || (META.pstains = {}))[id] = 1; saveMeta();
+      const box = document.querySelector('.keepst'); if (box) box.innerHTML = `<h3>Stain kept</h3><p class="hint"><b style="color:${DYES[id].key}">${esc(DYES[id].name)}</b> is yours for good. ${esc(DYES[id].see)}.</p>`;
+    }));
   },
 
   // The Petri Dish: how many waves you survived.

@@ -116,10 +116,13 @@ function newGame() {
   if (typeof UI !== 'undefined' && UI.sample === 's000') initDebug();
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
-  G.dyes = {};
+  // G.dyes: which colours show. G.dyeBoon: which stains you found this run (their boons). Permanent stains
+  // (one kept at the end of each finished run) start switched on, colour only; the pause menu toggles them.
+  G.dyes = {}; G.dyeBoon = {};
+  for (const id in (META.pstains || {})) if (DYES[id] && !(META.pstainOff || {})[id] && !(G.wave && id === 'rival')) G.dyes[id] = true;
   applyMeta(G);
   genesStart(G);
-  refreshPalette(); // back to greyscale: colour comes from stains picked up during the run
+  refreshPalette(); // greyscale apart from your permanent stains: colour comes from stains picked up during the run
   CASA.log.length = 0; CASA.pts.length = 0;
 }
 
@@ -463,13 +466,13 @@ function genLoot(req) {
     cands.push({ w: PASSIVES[id].terrain ? 1 : 1.8, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
   // Stains you don't have yet.
-  for (const id in DYES) if (!G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
+  for (const id in DYES) if (!G.dyeBoon[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
   // Guarantee a fusion option when one is available.
   const chosen = [];
   const mc = cands.filter(c => c.key.startsWith('fuse')); // (this used to match modifiers too, forcing one into every box)
   if (mc.length) chosen.push(mc[0]);
   // The first level-ups always offer the GFP tag, so you can find yourself early.
-  else if (!G.dyes.gfp && req.kind === 'level' && G.level <= 3) chosen.push(cands.find(c => c.key === 'dyegfp'));
+  else if (!G.dyeBoon.gfp && !G.dyes.gfp && req.kind === 'level' && G.level <= 3) chosen.push(cands.find(c => c.key === 'dyegfp'));
   while (chosen.length < 3) {
     const rest = cands.filter(c => !chosen.includes(c));
     if (!rest.length) break;
@@ -519,7 +522,7 @@ function optDye(id) {
   // The card says the two things that matter: what you'll see, and what you get.
   return { rarity: 2, tag: 'STAIN', icon: 'DY', color: D.key || '#9fb3c8', title: D.name, sub: 'For the rest of the run', desc: `Shows: ${D.see}. Boon: ${D.boon}`,
     apply: () => {
-      G.dyes[id] = true; if (D.apply) D.apply(G.P, G); recomputeAll(); refreshPalette();
+      G.dyes[id] = true; G.dyeBoon[id] = true; if (D.apply) D.apply(G.P, G); recomputeAll(); refreshPalette();
       banner('STAIN: ' + D.name.toUpperCase(), D.key || PAL.upgrade);
       sysMsg('STAIN APPLIED', D.see + '. ' + D.boon, D.key || PAL.upgrade, true);
     } };
@@ -726,9 +729,9 @@ function damageEnemy(e, dmg, src) {
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
   d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src);
   // Stain boons: you can see who matters.
-  if (G.dyes.luciferase && (e.elite || e.boss)) d *= 1.25;
-  if (G.dyes.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
-  if (G.dyes.rival && e.rival) d *= 1.4;
+  if (G.dyeBoon.luciferase && (e.elite || e.boss)) d *= 1.25; // (boons only from stains found this run)
+  if (G.dyeBoon.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
+  if (G.dyeBoon.rival && e.rival) d *= 1.4;
   if (e.boss || e.bossDef) d *= bossDamageMul(e, src);
   if (src.w && src.w.s) {
     const ws = src.w.s;
@@ -1068,6 +1071,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
+  G.lastHitEnt = ent || null; // (the end-of-run screen shows whoever finished you off)
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
   const k = from || 'Unknown';
   G.stats.hurt[k] = (G.stats.hurt[k] || 0) + d;
@@ -2711,6 +2715,9 @@ function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } cat
 // Game pace: 77% of the old 0.7. Projectiles (yours and enemy bullets) run on a slightly faster clock, so
 // they fly at 85% of their old speed (same range, they just get there sooner).
 const GAME_SPEED = 0.7 * 0.77, PROJ_K = 0.85 / 0.77;
+// Settings > Game speed (x0.5 to x2) scales all of that.
+const SPEED_OPTS = [0.5, 0.75, 1, 1.5, 2];
+const gameSpeed = () => (typeof SET !== 'undefined' && SPEED_OPTS.includes(SET.speed) ? SET.speed : 1);
 let lastTs = 0;
 // Frame-rate meter: frames counted over each real second (v), plus the slowest frame in that second as an FPS
 // (low), so hitches show up instead of being smoothed away. The run log keeps a per-minute average and low.
@@ -2768,9 +2775,9 @@ function frame(ts) {
     if (G && G.state === 'play') {
       keyboardSteer();
       // A boss death plays out in slow motion before its relic box opens.
-      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED); }
+      if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed()); }
       else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot()) UI.openLoot(G.lootQueue.shift());
-      else if (!(G.debug && G.debug.freeze)) update(dt * GAME_SPEED);
+      else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);

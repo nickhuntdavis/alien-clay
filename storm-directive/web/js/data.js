@@ -826,6 +826,33 @@ const RIVALS = [
     specs: [{ name: 'Unremarkable', desc: 'Nothing special about him at all.' }, { name: 'Somehow Fine', desc: 'The first time you knock him out, he gets back up with 30% HP and swims off.' }],
     tip: 'You have to beat him twice. Don\'t stop shooting when he goes down.' },
 ];
+// What whoever finished you off has to say about it (end-of-run screen).
+const KILL_LINES = {
+  rival: {
+    steve: ['Personal best. For me, obviously.', 'Pace yourself next time. Or at all.', 'I lapped you twice. You did not notice either time.'],
+    chad: ['Never skip tail day, mate.', 'Was that a swim or a warm-up?', 'Do you even flagellum?'],
+    wiggles: ['Fascinating. I shall write you up as a footnote.', 'Peer review: rejected.', 'Hold still. Oh, you are. Permanently.'],
+    zygo: ['WHO IS SMALL NOW.', 'I WAS NEVER ANGRY. THIS IS JUST MY FACE.', 'GET LITTLE\'D.'],
+    kevin: ['Hi. Sorry. I am Kevin.', 'I did not think that would work either.', 'Nobody ever sees Kevin coming.'],
+  },
+  boss: ['That is what happens when you swim into the ward.', 'Another one for the specimen jar.', 'You were very brave. Briefly.'],
+  foe: {
+    crawler: ['There were four hundred million of us. You only needed to beat one.'],
+    brute: ['Mm. Tastes like ambition.', 'Thank you for swimming into my mouth.'],
+    bomber: ['Worth it.'],
+    spitter: ['Ptoo.', 'Should have swum across it, not along it.'],
+    lancer: ['I saw the line. Did you?'],
+    charger: ['Should have sidestepped.'],
+    alien: ['Hssss. Next.'],
+    sperminator: ['I told you I would be back.'],
+    brood: ['The kids say hello.'],
+    broodling: ['Mum says hi.'],
+    planarian: ['Cut me in half and I still win.'],
+    amoeba: ['Om nom.'],
+    yeast: ['There are more of us now. There are always more of us now.'],
+  },
+  any: ['Nothing personal. Well, a bit personal.', 'Back to the start with you.', 'The egg was never going to be yours.', 'You swam well. Just not well enough.', 'That will leave a mark. On you. Forever.'],
+};
 // Rival relics: knock a named rival out of the race and choose one of two relics themed on them.
 const RIVAL_RELICS = {
   steve:   ['personalbest', 'marathon'],
