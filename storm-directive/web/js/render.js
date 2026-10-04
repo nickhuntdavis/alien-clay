@@ -1149,7 +1149,8 @@ function render() {
   ctx.fillRect(0, 0, W, H);
   if (!G) { drawTitleLab(); return; }
   const rewinding = G.state === 'rewind';
-  const shx = cam.shake ? rand(-cam.shake, cam.shake) : 0, shy = cam.shake ? rand(-cam.shake, cam.shake) : 0;
+  const shk = SET.shake === false ? 0 : cam.shake; // (Settings > Screen shake)
+  const shx = shk ? rand(-shk, shk) : 0, shy = shk ? rand(-shk, shk) : 0;
   ctx.save();
   ctx.translate(shx, shy);
   WORLD_DF = !!SET.darkfield;
