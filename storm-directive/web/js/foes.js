@@ -172,8 +172,15 @@ MICROBES.alien = (e, x, y, r, face) => {
 // ================================================================ status effects
 // Burning: flame tongues licking up off it and embers rising. Poisoned: a sickly film, bubbles and a drip.
 // Chilled: frost specks circling; frozen: a block of ice with a glint. Electrocuted: arcs crawling round it.
+let STATUS_LOD = false; // (set by render: a big crowd on screen)
 function drawStatusFx(e, x, y, r) {
   const t = G.realT, id = e.id, a0 = ctx.globalAlpha;
+  if (STATUS_LOD && !e.boss && !e.elite && !e.rival) {
+    // In a crowd: one tinted disc for the most important status, nothing else.
+    const c = e.frozen > 0 ? '#bde0fe' : e.burn > 0 ? '#ff7a2f' : e.poison > 0 ? '#8dff4a' : e.chill > 0 ? '#caf0f8' : null;
+    if (c) { ctx.globalAlpha = a0 * (e.frozen > 0 ? 0.55 : 0.35); ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r * (e.frozen > 0 ? 1.2 : 1), 0, TAU); ctx.fill(); ctx.globalAlpha = a0; }
+    return;
+  }
   if (e.poison > 0) {
     ctx.globalAlpha = a0 * 0.3; ctx.fillStyle = '#8dff4a'; ctx.beginPath(); ctx.arc(x, y, r * 0.95, 0, TAU); ctx.fill();
     ctx.globalAlpha = a0;

@@ -55,7 +55,7 @@ resize();
 // ---------------------------------------------------------------- state
 let G = null;
 let uidSeq = 1;
-const CAPS = { enemies: 170, proj: 600, ebul: 800, parts: 300, texts: 40, gems: 350 }; // (was 240 enemies, 450 particles)
+const CAPS = { enemies: 170, proj: 380, ebul: 800, parts: 300, texts: 40, gems: 350 }; // (was 240 enemies, 450 particles)
 // Fewer, tougher monsters: 75% of the spawns, each worth 1.4x the XP (it was 1.8x: level-ups came so often they felt like speed bumps), and up to a third more HP, so the
 // work per minute and the levelling stay where they were (you kill about half as many: XP_K was tuned in
 // simulated runs to keep the old level curve), with a calmer screen. The extra HP builds up over
@@ -297,7 +297,7 @@ function computeStatsInner(w) {
   if (w.isSpell) s.cd *= Math.max(0.4, P.cdr);
   s.mag = Math.max(1, Math.round((b.mag || 1) * (1 + 0.12 * (L - 1)) * P.magMult));
   s.reload = (b.reload || 0) * Math.pow(0.95, L - 1) / P.reloadSpd;
-  const multi = MULTI_KINDS.includes(d.kind) ? P.multishot : 0;
+  const multi = MULTI_KINDS.includes(d.kind) ? Math.min(2, P.multishot) : 0; // (all sources together add at most 2 projectiles)
   const baseCount = s.count || 1, extraMulti = multi * (d.kind === 'ring' ? 4 : 1);
   s.count = baseCount + extraMulti;
   if (d.kind === 'gun' && s.pierce < 90) s.pierce = (s.pierce || 0) + P.pierce;
@@ -1026,7 +1026,7 @@ function killEnemy(e, src) {
   }
 }
 // Loot boxes from kills are rationed: at most one every LOOT_GAP seconds (bosses and rivals don't count).
-const LOOT_GAP = 22; // with boss, rival and achievement boxes: about 25 extra boxes on a run
+const LOOT_GAP = 45; // with boss, rival and achievement boxes: about 25 extra boxes on a run
 function chestOr(alt) {
   if (G.t < (G.nextChest || 45)) return alt;
   G.nextChest = G.t + LOOT_GAP;
@@ -1725,7 +1725,7 @@ function fireWeapon(w, target) {
 // Past PROJ_SOFT shots in the air, shots are merged: only every 2nd (past 1.6x, every 3rd) one flies, carrying
 // the damage of the ones it replaces and a little bigger. Same damage, a fraction of the work (a Scattergun
 // with its echoes put nearly 900 shots up at once and the frame rate fell apart).
-const PROJ_SOFT = 300, MINE_CAP = 90;
+const PROJ_SOFT = 170, MINE_CAP = 90; // (past PROJ_SOFT shots merge: fewer, harder ones, same damage)
 // Mines lie about for a long time and bypassed every limit: a big mine build left 800+ on the slide. Past
 // MINE_CAP, the oldest ones fold into the newest: they vanish, and the newest mines blow up harder
 // (charge: 60% of each one folded in, so a huge field is still worth having, just not 800 objects).
@@ -2366,8 +2366,8 @@ function gainXp(v) {
     G.level++;
     G.xpNeed = xpNeed(G.level);
     casaLog(`LV ${G.level}`);
-    // Every level up is rewarded with a box until Lv 20, then every second level.
-    if (G.level <= 20 || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
+    // A box every level to Lv 8, every second level to Lv 24, then every third.
+    if (G.level <= 8 || (G.level <= 24 ? G.level % 2 === 0 : G.level % 3 === 0)) G.lootQueue.push({ kind: 'level' });
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     rebornLevel(G.level); // (Prawn Again: memories of a past life)
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.

@@ -18,7 +18,7 @@ Object.assign(RELICS, {
   eagleeye:    { name: 'Eagle Eye', desc: '+45% damage to enemies more than 350 away from you.' },
   steadyhand:  { name: 'Steady Hand', desc: '+35% range and +20% shot speed for every weapon.' },
   // Buckshot Bev: more is more.
-  buckshot:    { name: 'Buckshot', desc: '+2 projectiles for every weapon, at 8% less damage.' },
+  buckshot:    { name: 'Buckshot', desc: '+1 projectile for every weapon and +10% fire rate.' },
   triggerhappy:{ name: 'Trigger Happy', desc: '+15% fire rate and +25% reload speed.' },
   // Casper Flagella: was there a moment ago.
   ectoplasm:   { name: 'Ectoplasm', desc: 'Bullets sometimes pass straight through you: +15% dodge.' },
@@ -65,7 +65,7 @@ function rrelicApply(id) {
     case 'pickpocket': P.magnet += 0.5; break;
     case 'mucuswall': P.armour += 6; P.speed -= 0.05; break;
     case 'steadyhand': P.range += 0.35; P.projSpeed += 0.2; break;
-    case 'buckshot': P.multishot += 2; P.might -= 0.08; break;
+    case 'buckshot': P.multishot += 1; P.haste += 0.1; break;
     case 'triggerhappy': P.haste += 0.15; P.reloadSpd += 0.25; break;
     case 'ectoplasm': P.dodge = Math.min(0.7, P.dodge + 0.15); break;
     case 'peptalk': P.might += 0.12; P.haste += 0.12; break;

@@ -33,9 +33,12 @@ function geneFire(w, target, src) {
   if (w.id !== 'genegun') return false;
   const s = w.s, p = G.player, els = geneElems(w), n = hasSig(w, 'ggtriple') ? 3 : 2, chim = hasSig(w, 'ggchimera');
   const a0 = Math.atan2(target.y - p.y, target.x - p.x);
-  for (let k = 0; k < s.count; k++) {
-    const a = a0 + (s.count > 1 ? (k / (s.count - 1) - 0.5) * s.spread * 2 : rand(-s.spread, s.spread) * 0.4);
-    geneHelix(w, p.x, p.y, a, src, els, n, chim, false);
+  // Extra projectiles don't add whole helices one for one (each is 2-3 strands): every second one adds a helix,
+  // and the rest goes into the strands' damage, so the screen stays readable and the frame rate holds.
+  const helices = Math.min(3, 1 + Math.floor((s.count - 1) / 2)), hsrc = Object.assign({}, src, { mult: (src.mult || 1) * s.count / helices });
+  for (let k = 0; k < helices; k++) {
+    const a = a0 + (helices > 1 ? (k / (helices - 1) - 0.5) * s.spread * 2 : rand(-s.spread, s.spread) * 0.4);
+    geneHelix(w, p.x, p.y, a, hsrc, els, n, chim, false);
   }
   w.geneI = ((w.geneI || 0) + 1) % 60;
   sfx('shot');
@@ -98,7 +101,7 @@ function drawHelix(pr, x, y, r) {
   const P = pr.pair;
   if (P && P.cx != null && P.strands.find(q => !q.dead) === pr) {
     const live = P.strands.filter(q => !q.dead && q.helix), sp = Math.hypot(P.vx, P.vy) || 1, ux = P.vx / sp, uy = P.vy / sp;
-    const len = Math.min(70, sp * P.t), N = 14;
+    const busy = G.proj.length > 110 || (typeof QUAL !== 'undefined' && QUAL.lv >= 1), len = Math.min(busy ? 40 : 70, sp * P.t), N = busy ? 4 : 10;
     const at = (q, d) => { const o = q.helix.amp * Math.sin((P.t - d / sp) * q.helix.f + q.helix.ph); return [sx(P.cx - ux * d - uy * o), sy(P.cy - uy * d + ux * o)]; };
     ctx.lineWidth = Math.max(0.8, 0.9 * S);
     for (const q of live) {
@@ -107,12 +110,14 @@ function drawHelix(pr, x, y, r) {
       ctx.globalAlpha = 0.55; ctx.stroke();
     }
     if (live.length > 1) {
-      ctx.strokeStyle = '#ffffff';
+      // All the rungs in one path, one draw call.
+      ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.45; ctx.beginPath();
       for (let i = 0; i <= N; i += 2) {
         const d = len * i / N, [ax, ay] = at(live[0], d), [bx, by] = at(live[1], d);
-        ctx.globalAlpha = 0.6 * (1 - i / (N + 2)); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-        if (live[2]) { const [cx2, cy2] = at(live[2], d); ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(cx2, cy2); ctx.stroke(); }
+        ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+        if (live[2]) { const [cx2, cy2] = at(live[2], d); ctx.moveTo(bx, by); ctx.lineTo(cx2, cy2); }
       }
+      ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }

@@ -1402,7 +1402,9 @@ function render() {
   }
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   // Enemies. (Lower quality with a crowd: common enemies skip their halo and surface detail.)
-  const lod = (QUAL.lv >= 1 && G.enemies.length > 90) || G.enemies.length > 170;
+  // (A crowd: common enemies drop their halo and surface detail, and status effects draw as a single tint.)
+  const lod = (QUAL.lv >= 1 && G.enemies.length > 60) || G.enemies.length > 80;
+  STATUS_LOD = lod;
   for (const e of G.enemies) if (vis(e) && !e.egg) drawEnemy(e, lod);
   ctx.globalAlpha = 1;
 
@@ -1772,7 +1774,12 @@ function drawEnemy(e, lod) {
       // contractile vacuole, and the dark remains of whatever it has engulfed in food vacuoles.
       ctx.save(); drawShape(sh, x, y, r, rot); ctx.clip();
       ctx.fillStyle = 'rgba(70,78,72,0.55)'; drawShape(sh, x - r * 0.04, y, r * 0.82, rot + 0.3); ctx.fill();
-      for (let i = 0, gn = SET.detail === 'high' ? 70 : 26; i < gn; i++) { const a = i * 2.39 + e.id + e.age * (SET.detail === 'high' ? 0.25 + (i % 5) * 0.04 : 0.25), d = r * 0.72 * Math.sqrt((i * 0.618) % 1); ctx.fillStyle = i % 3 ? 'rgba(30,36,32,0.35)' : 'rgba(255,255,255,0.3)'; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, Math.max(1, r * 0.035), Math.max(1, r * 0.035)); }
+      // (Batched: the dark granules in one path, the light ones in another: two draw calls, not dozens.)
+      for (const lite of [0, 1]) {
+        ctx.fillStyle = lite ? 'rgba(255,255,255,0.3)' : 'rgba(30,36,32,0.35)'; ctx.beginPath();
+        for (let i = 0, gn = SET.detail === 'high' ? 70 : 26; i < gn; i++) { if ((i % 3 === 0) !== !!lite) continue; const a = i * 2.39 + e.id + e.age * (SET.detail === 'high' ? 0.25 + (i % 5) * 0.04 : 0.25), d = r * 0.72 * Math.sqrt((i * 0.618) % 1); ctx.rect(x + Math.cos(a) * d, y + Math.sin(a) * d, Math.max(1, r * 0.035), Math.max(1, r * 0.035)); }
+        ctx.fill();
+      }
       for (let i = 0; i < Math.min(10, e.meals || 0); i++) { const a = i * 1.9 + e.age * 0.2, d = r * 0.5 * ((i * 0.53) % 1); ctx.fillStyle = 'rgba(30,34,32,0.5)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, r * 0.1, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.stroke(); }
       ctx.fillStyle = 'rgba(150,158,150,0.7)'; ctx.beginPath(); ctx.arc(x - r * 0.15, y + r * 0.12, r * 0.2, 0, TAU); ctx.fill();
       ctx.strokeStyle = 'rgba(30,36,32,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
@@ -1787,7 +1794,7 @@ function drawEnemy(e, lod) {
       for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.fill(); }
       ctx.fillStyle = 'rgba(255,255,255,0.25)';
       const gn = SET.detail === 'high' ? 26 : 8;
-      for (let i = 0; i < gn; i++) { const a = i * 2.4 + e.id, d = r * 0.8 * ((i * 0.37) % 1); ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 1.5, 1.5); }
+      ctx.beginPath(); for (let i = 0; i < gn; i++) { const a = i * 2.4 + e.id, d = r * 0.8 * ((i * 0.37) % 1); ctx.rect(x + Math.cos(a) * d, y + Math.sin(a) * d, 1.5, 1.5); } ctx.fill(); // (one draw call)
       if (SET.detail === 'high') { ctx.strokeStyle = 'rgba(230,236,232,0.35)'; ctx.lineWidth = 1; for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.stroke(); } }
       drawShape(sh, x, y, r, rot);
     }

@@ -259,6 +259,13 @@ function tapeTick(dt) {
       }
       B.dead = true; continue;
     }
+    if (B.pool && B.pool.size && !(B.payT > G.t)) {
+      B.payT = G.t + 0.15;
+      const ssrc = toySrc(B.w, 'Red Tape', { taped: true, due: B.poolDue, dot: true, noCrit: true, noProc: true });
+      for (const [o, v] of B.pool) if (!o.dead && v > 0) damageEnemy(o, v, ssrc);
+      B.pool.clear(); B.poolDue = false;
+      B.flashT = G.t + 0.1; // (the tape flashes as the damage travels along it)
+    }
     if (hasSig(B.w, 'stapled')) {
       let cx = 0, cy = 0; for (const e of B.members) { cx += e.x; cy += e.y; } cx /= B.members.length; cy /= B.members.length;
       for (const e of B.members) { if (e.boss) continue; e.x += (cx - e.x) * Math.min(1, dt * 1.5); e.y += (cy - e.y) * Math.min(1, dt * 1.5); e.chill = Math.max(e.chill, 0.3); e.chillAmt = Math.max(e.chillAmt, 0.4); }
@@ -282,9 +289,10 @@ function toyHurt(e, lost, src) {
     let k = B.w.s.share;
     if (src.due && G.pair.finalnotice) k = 1;
     if (src.elem === 'shock' && G.pair.livepaper) k *= 2;
-    const ssrc = toySrc(B.w, 'Red Tape', { taped: true, due: src.due, dot: true, noCrit: true, noProc: true });
-    for (const o of B.members) if (o !== e && !o.dead) damageEnemy(o, lost * k * (o.boss ? 0.5 : 1), ssrc);
-    B.flashT = G.t + 0.1; // (the tape flashes as the damage travels along it)
+    // (Pooled per member and paid out every 0.15s in tapeTick: one hit each, not one for every incoming hit.)
+    const pool = B.pool || (B.pool = new Map());
+    for (const o of B.members) if (o !== e && !o.dead) pool.set(o, (pool.get(o) || 0) + lost * k * (o.boss ? 0.5 : 1));
+    if (src.due) B.poolDue = true;
   }
 }
 function toyKill(e, src) {
