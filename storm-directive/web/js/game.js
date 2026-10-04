@@ -55,7 +55,7 @@ resize();
 // ---------------------------------------------------------------- state
 let G = null;
 let uidSeq = 1;
-const CAPS = { enemies: 170, proj: 900, ebul: 800, parts: 300, texts: 40, gems: 350 }; // (was 240 enemies, 450 particles)
+const CAPS = { enemies: 170, proj: 600, ebul: 800, parts: 300, texts: 40, gems: 350 }; // (was 240 enemies, 450 particles)
 // Fewer, tougher monsters: 75% of the spawns, each worth 1.8x the XP, and up to a third more HP, so the
 // work per minute and the levelling stay where they were (you kill about half as many: XP_K was tuned in
 // simulated runs to keep the old level curve), with a calmer screen. The extra HP builds up over
@@ -1633,6 +1633,7 @@ function fireWeapon(w, target) {
       for (let i = 0; i < s.count; i++) {
         G.proj.push(mineDrop(w, p.x + rand(-26, 26), p.y + rand(-26, 26)));
       }
+      mineTrim();
       break;
     // ---- spells
     case 'strike': {
@@ -1693,8 +1694,27 @@ function fireWeapon(w, target) {
   }
 }
 
+// Past PROJ_SOFT shots in the air, shots are merged: only every 2nd (past 1.6x, every 3rd) one flies, carrying
+// the damage of the ones it replaces and a little bigger. Same damage, a fraction of the work (a Scattergun
+// with its echoes put nearly 900 shots up at once and the frame rate fell apart).
+const PROJ_SOFT = 300, MINE_CAP = 90;
+// Mines lie about for a long time and bypassed every limit: a big mine build left 800+ on the slide. Past
+// MINE_CAP, the oldest ones fold into the newest: they vanish, and the newest mines blow up harder
+// (charge: 60% of each one folded in, so a huge field is still worth having, just not 800 objects).
+function mineTrim() {
+  const ms = []; for (const q of G.proj) if (q.mine && !q.dead) ms.push(q);
+  let over = ms.length - MINE_CAP;
+  if (over <= 0) return;
+  for (let i = 0, j = ms.length - 1; i < ms.length && over > 0; i++) {
+    const q = ms[i]; if (q.stick) continue;
+    q.dead = true; over--;
+    const to = ms[j]; to.charge = (to.charge || 1) + 0.6 * (q.charge || 1); j = j > ms.length - 10 ? j - 1 : ms.length - 1; // (spread over the 10 newest)
+  }
+}
 function spawnProj(w, x, y, a, src, over) {
   if (G.proj.length >= CAPS.proj) return;
+  let merge = 1;
+  if (G.proj.length >= PROJ_SOFT) { merge = G.proj.length >= PROJ_SOFT * 1.6 ? 3 : 2; G.projSkip = ((G.projSkip || 0) + 1) % merge; if (G.projSkip) return; }
   const s = w.s, d = w.def;
   let speed = s.speed * (d.style === 'flame' ? rand(0.75, 1.1) : 1);
   const el = d.elem2 && Math.random() < 0.5 ? d.elem2 : src.elem || d.elem;
@@ -1710,6 +1730,7 @@ function spawnProj(w, x, y, a, src, over) {
   if (pr.boomerang) pr.life = s.range / speed * 2 + 0.3;
   pr.max = pr.life;
   if (over) Object.assign(pr, over);
+  if (merge > 1) { pr.dmg *= 1 + 0.5 * (merge - 1); pr.r *= 1 + 0.15 * (merge - 1); } // (half the merged damage: one big hit loses far less to armour than several small ones)
   if (w.perks && !(over && over.noMods)) sigProj(pr, w);
   if (mods) {
     if (s.grow) { pr.grow = s.grow; pr.r0 = pr.r; pr.dmg0 = pr.dmg; pr.age = 0; }
@@ -1971,7 +1992,7 @@ function detonateMine(pr) {
   if (s.singularity) {
     G.zones.push({ x: pr.x, y: pr.y, r: s.explode * 1.2, life: 1.2, max: 1.2, dps: s.dmg * 0.3, elem: 'arcane', pull: 260, color: '#9d4edd', tick: 0, src: pr.src,
       onEnd: z => aoe(z.x, z.y, s.explode, s.dmg, pr.src, '#c77dff') });
-  } else { const k = mineScale(pr); aoe(pr.x, pr.y, s.explode * k.r, s.dmg * k.k, pr.src, pr.color); }
+  } else { const k = mineScale(pr), ch = pr.charge || 1; aoe(pr.x, pr.y, s.explode * k.r * Math.min(1.6, Math.sqrt(ch)), s.dmg * k.k * ch, pr.src, pr.color); }
   afterMine(pr);
 }
 
