@@ -980,10 +980,10 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
     const ld = Math.min(1, (o.load || 0) / 2.5), w0 = 10.5 / (1 + 1.1 * ld), z = 0.45; // (springiness: about a third of a second to swing back, softer when loaded; z: a little overshoot)
     if (dt > 0) { o.om += (-w0 * w0 * o.phi - 2 * z * w0 * o.om) * dt; o.phi += o.om * dt; }
     const lim = 2.3; if (Math.abs(o.phi) > lim) { o.phi = Math.sign(o.phi) * lim; if (o.om * o.phi > 0) o.om = 0; } }
-  const back = face + Math.PI, bend = clamp(o.phi * (2 + 1.6 * Math.min(1, (o.load || 0) / 2.5)), -6, 6); // (the visible bend: twice the swing, up to 3.6x in a long, sharp turn)
+  const back = face + Math.PI, bend = clamp(o.phi * (1.7 + 1.3 * Math.min(1, (o.load || 0) / 2.5)), -3.8, 3.8); // (the visible bend: twice the swing, up to 3.6x in a long, sharp turn)
   t[0].x = rx; t[0].y = ry;
   for (let i = 1; i < TAIL_N; i++) {
-    const f = (i - 0.5) / (TAIL_N - 1), d = back + bend * Math.pow(f, 1.8);
+    const f = (i - 0.5) / (TAIL_N - 1), d = back + bend * Math.pow(f, 1.15); // (bends along its whole length, from just behind the head)
     t[i].x = t[i - 1].x + Math.cos(d) * seg; t[i].y = t[i - 1].y + Math.sin(d) * seg;
   }
   // How stretched out it is (1 = straight), and whether it's behind you (1 when the tip trails straight back,
@@ -996,7 +996,7 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
   for (let i = 0; i < TAIL_N; i++) {
     const a = t[Math.max(0, i - 1)], c = t[Math.min(TAIL_N - 1, i + 1)], f = i / (TAIL_N - 1);
     let nx = -(c.y - a.y), ny = c.x - a.x; const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
-    const w = Math.sin(o.beat - f * 4.8) * amp * Math.pow(f, 1.1); // (a longer wave: fewer, fuller bends)
+    const w = Math.sin(o.beat - f * 4.8) * amp * Math.pow(f, 0.6); // (a longer wave: fewer, fuller bends; it starts right behind the head, not halfway down)
     D[i].x = t[i].x + nx * w; D[i].y = t[i].y + ny * w;
   }
 }
