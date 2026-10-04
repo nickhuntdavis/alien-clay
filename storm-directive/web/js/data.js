@@ -99,7 +99,7 @@ const WEAPONS = {
     base: { dmg: 15, cd: 0.08, mag: 40, area: 90, speed: 640, range: 460, size: 4.5, pierce: 0, spread: 0.08, count: 1 },
     lv: { 3: { area: 0.25 }, 6: { pierce: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['sender', 'buffet'], 8: ['spreadlove', 'savings'], 10: ['mirrorwomb', 'overflow'] } },
   // Melee: no projectiles at all. area scales the reach (Personal Space, Wide Hips); arc is the swing in radians.
-  paddle: { name: 'Placenta Paddle', stars: [4, 2, 1, 4], play: 'Big sweeping swings right in front of you that knock crowds flying. Get stuck in.', icon: 'PD', elem: 'phys', kind: 'melee', melee: 'sweep', color: '#ff8fab', dir: 'nearest', role: 'Cleaver',
+  paddle: { name: 'Placenta Paddle', stars: [4, 2, 1, 4], play: 'Big sweeping swings right in front of you that knock crowds flying. Starts short and grows into its full reach as it levels. Get stuck in.', icon: 'PD', elem: 'phys', kind: 'melee', melee: 'sweep', color: '#ff8fab', dir: 'nearest', role: 'Cleaver',
     desc: 'Heavy sweeping swings that knock crowds flying. Nobody asks where it came from.',
     base: { dmg: 34, cd: 0.8, mag: 4, reload: 1.1, count: 1, range: 92, area: 1, arc: 2.4, knock: 220 },
     lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['fullcircle', 'homerun'], 8: ['tantrum', 'groundpound'], 10: ['afterwave', 'smother'] } },

@@ -537,6 +537,9 @@ function applyAdapt(w, s) {
     case 'paddle': case 'flail': {
       // The swing's reach grows with area; the target range covers the reach plus a body width.
       s.reach = s.range * s.area * (w.id === 'flail' ? 1 + 0.12 * P.pierce : 1);
+      // The Paddle starts short and grows into its full reach on an exponential curve: 60% at Lv 1, about
+      // two thirds at Lv 5, 81% at Lv 8, full at Lv 10.
+      if (w.id === 'paddle') { const c = 2.5, x = (Math.min(MAX_WLVL, w.lvl) - 1) / (MAX_WLVL - 1); s.reach *= 0.6 + 0.4 * (Math.exp(c * x) - 1) / (Math.exp(c) - 1); }
       if (w.id === 'paddle') s.arc *= 1 + 0.15 * P.pierce;
       s.width = (s.width || 15) * Math.sqrt(s.area);
       s.range = s.reach + 18;
