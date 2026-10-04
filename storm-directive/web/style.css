@@ -710,6 +710,10 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 .cdxcount { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; font-family: var(--mono); font-size: 10px; opacity: 0.8; }
 .cdxtabs { margin: 8px 0; flex-wrap: wrap; }
 .cdxw { display: flex; gap: 8px; align-items: flex-start; }
+.cdxe { display: flex; gap: 10px; align-items: flex-start; }
+.cdxe > div { flex: 1; min-width: 0; }
+canvas.cdxp { position: relative; inset: auto; display: block; flex: none; width: 64px; height: 64px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(196,218,240,0.25); }
+.cdxe.boss canvas.cdxp { width: 84px; height: 84px; }
 .cdxw em { font-style: normal; font-family: var(--mono); font-size: 10px; opacity: 0.7; }
 .atplay { margin: 6px 0 0; }
 #armoury .drole { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: 3px; color: #5fd4e8; }

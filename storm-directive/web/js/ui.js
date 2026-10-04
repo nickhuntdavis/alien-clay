@@ -914,6 +914,7 @@ const UI = {
     box.innerHTML = h;
     box.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { UI.pauseTab = b.dataset.ptab; UI.renderPause(); $('pause').scrollTop = 0; }));
     UI.bindCodex(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
+    if (tab === 'codex') portraitsStart(box);
     box.querySelectorAll('[data-yk]').forEach(b => b.addEventListener('click', () => { G.state = 'play'; UI.openArmoury(b.dataset.yk, +b.dataset.yi); }));
     box.querySelectorAll('[data-spd]').forEach(b => b.addEventListener('click', () => { SET.speed = +b.dataset.spd; saveSettings(); UI.renderPause(); }));
     box.querySelectorAll('[data-pst]').forEach(b => b.addEventListener('click', () => {
@@ -1121,12 +1122,12 @@ const UI = {
       let l = '';
       for (const id in ENEMY_INTRO) {
         const d = ENEMIES[id], I = ENEMY_INTRO[id], m = META.seen && META.seen[id];
-        l += `<div class="li"><b${m ? ` style="color:${col(d.color)}"` : ''}>${m ? esc(d.name) : '???'}</b><br><span>${m ? esc(I.what) + ' <i>' + esc(I.tip) + '</i>' : 'Not met yet.'}</span></div>`;
+        l += `<div class="li cdxe">${portraitTag('foe', id, m)}<div><b${m ? ` style="color:${col(d.color)}"` : ''}>${m ? esc(d.name) : '???'}</b><br><span>${m ? esc(I.what) + ' <i>' + esc(I.tip) + '</i>' : 'Not met yet.'}</span></div></div>`;
       }
       let rv = '';
       for (const R of RIVALS) {
         const m = META.seen && META.seen['rival_' + R.id];
-        rv += `<div class="li"><b${m ? ` style="color:${R.color}"` : ''}>${m ? esc(R.name) : '???'}</b>${m ? ' <em>' + esc(R.nick) + '</em>' : ''}<br><span>${m ? esc(R.bio) + UI.rivalBars(R) + R.specs.map(x => '<b>' + esc(x.name) + '</b>: ' + esc(x.desc)).join('<br>') + '<br><i>' + esc(R.tip) + '</i>' : 'Not met yet.'}</span></div>`;
+        rv += `<div class="li cdxe">${portraitTag('rival', R.id, m)}<div><b${m ? ` style="color:${R.color}"` : ''}>${m ? esc(R.name) : '???'}</b>${m ? ' <em>' + esc(R.nick) + '</em>' : ''}<br><span>${m ? esc(R.bio) + UI.rivalBars(R) + R.specs.map(x => '<b>' + esc(x.name) + '</b>: ' + esc(x.desc)).join('<br>') + '<br><i>' + esc(R.tip) + '</i>' : 'Not met yet.'}</span></div></div>`;
       }
       h += box(`Rivals (${RIVALS.filter(R => META.seen && META.seen['rival_' + R.id]).length}/${RIVALS.length} met)`, `<div class="list">${rv}</div>`, 'The other swimmers in the race, with their specialities.');
       h += box(`Enemies (${beasts}/${Object.keys(ENEMY_INTRO).length} met)`, `<div class="list">${l}</div>`, 'Every enemy type you have met, with how to beat it. Settings > Tutorial lets you meet them again.');
@@ -1136,7 +1137,7 @@ const UI = {
       for (const b of BOSSES) {
         const m = META.bosses[b.id], now = run && G.bossRoster && G.bossRoster.indexOf(b.id) >= 0 && G.bossRoster.indexOf(b.id) < G.bossCount;
         const rl = b.relics.map(id => (META.relics[id] ? `<b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b>` : esc(RELICS[id].name))).join(', ');
-        l += `<div class="li ${now ? 'on' : ''}"><b>${m ? esc(b.name) : '???'}</b>${m ? ' <em>' + esc(b.title) + '</em>' : ''}<br><span>${m ? 'Weak to: ' + esc(b.weaknesses.join('; ')) + '. Relics: ' + rl : 'Not met yet.'}</span></div>`;
+        l += `<div class="li cdxe boss ${now ? 'on' : ''}">${portraitTag('boss', b.id, m)}<div><b>${m ? esc(b.name) : '???'}</b>${m ? ' <em>' + esc(b.title) + '</em>' : ''}<br><span>${m ? 'Weak to: ' + esc(b.weaknesses.join('; ')) + '. Relics: ' + rl : 'Not met yet.'}</span></div></div>`;
       }
       h += box(`The boss ward (${met}/${BOSSES.length} met, ${rel.length}/${Object.keys(RELICS).length} relics taken)`, `<div class="list">${l}</div>`, `Every run you meet ${BOSSES_PER_RUN} of them, in a random order. Relics you have taken are in gold.`);
     }
@@ -1150,7 +1151,7 @@ const UI = {
   },
   // Codex tabs inside a screen: re-render whichever screen holds it.
   bindCodex(root, rerender) { root.querySelectorAll('[data-cdx]').forEach(b => b.addEventListener('click', () => { UI.codexSec = b.dataset.cdx; rerender(); })); },
-  openCodex() { UI.codexSec = UI.codexSec || 'all'; $('codexBody').innerHTML = UI.codexHtml(); UI.bindCodex($('codexBody'), () => UI.openCodex()); UI.show('codex'); },
+  openCodex() { UI.codexSec = UI.codexSec || 'all'; $('codexBody').innerHTML = UI.codexHtml(); UI.bindCodex($('codexBody'), () => UI.openCodex()); UI.show('codex'); portraitsStart($('codexBody')); },
 
   // ---------------------------------------------------------------- Gene Bank (meta progression)
   renderBank() {

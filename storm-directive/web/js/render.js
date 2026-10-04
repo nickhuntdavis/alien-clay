@@ -1401,135 +1401,7 @@ function render() {
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   // Enemies. (Lower quality with a crowd: common enemies skip their halo and surface detail.)
   const lod = (QUAL.lv >= 1 && G.enemies.length > 90) || G.enemies.length > 170;
-  for (const e of G.enemies) {
-    if (!vis(e) || e.egg) continue;
-    const plain = !e.elite && !e.boss && !e.rival && !e.charmed;
-    const squash = 1 + Math.max(0, e.flash) * 2;
-    // Individuals vary a little in size, and soft-bodied things breathe.
-    if (e.vs == null) e.vs = e.boss || e.rival ? 1 : 0.9 + ((e.id * 9301 + 49297) % 233280) / 233280 * 0.2;
-    const breathe = e.def.shape === 'cell' || e.def.shape === 'amoeba' || e.def.shape === 'spike' ? 1 + 0.035 * Math.sin(G.realT * 2.6 + e.id) : 1;
-    // Hit stutter: a quick recoil away from the hit, with a shiver, springing back in 0.14s.
-    const hk = e.hitRT != null ? 1 - (G.realT - e.hitRT) / 0.14 : 0, big = e.boss || e.rival ? 0.4 : 1;
-    let jx = 0, jy = 0;
-    if (hk > 0) { const kick = 3.2 * hk * hk * (e.hitK || 1) * big * S, sh = 1.4 * hk * big * S * (Math.floor(G.realT * 60) % 2 ? 1 : -1); jx = Math.cos(e.hitA) * kick - Math.sin(e.hitA) * sh; jy = Math.sin(e.hitA) * kick + Math.cos(e.hitA) * sh; }
-    const x = sx(e.x) + jx, y = sy(e.y) + jy, r = e.r * S * squash * e.vs * breathe;
-    ctx.globalAlpha = e.phased ? 0.25 : 1;
-    if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
-    if (e.boss && !e.egg) drawBossAura(e, x, y, r);
-    if (e.boss) drawBossTells(e, x, y, r);
-    if (e.aimT > 0) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 - e.aimT) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(e.aimA) * 700 * S, y + Math.sin(e.aimA) * 700 * S); ctx.stroke(); }
-    const tgt = e.charmed && e.allyT ? e.allyT : G.player;
-    let face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
-    // Peekaboo: you're gone, so they look where they think you went, and once there they look around,
-    // confused, turning their heads this way and that (with the odd "?").
-    const spot = (G.peek || G.toy) && !e.boss && !e.rival && !e.egg && !e.charmed ? peekSpot() : null;
-    if (spot) {
-      const sd = Math.hypot(spot.x - e.x, spot.y - e.y);
-      let a = Math.atan2(spot.y - e.y, spot.x - e.x);
-      if (sd < 80) a += Math.sin(G.realT * 2.4 + e.id * 1.7) * 1.4 + Math.sin(G.realT * 5.1 + e.id) * 0.35;
-      let da = a - (e.lookA ?? a); while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
-      e.lookA = (e.lookA ?? a) + da * 0.18; face = e.lookA;
-      if (sd < 80 && Math.sin(G.realT * 1.3 + e.id * 2.3) > 0.85) { ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.round(13 * Math.max(0.8, S))}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('?', x, y - r - 10 * S); }
-    } else e.lookA = face;
-    const sh = e.def.shape;
-    const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
-    if (sh === 'sperm') {
-      // Swimmers are drawn like you: real sperm with dragging tails. Rivals carry their fluorescent dye.
-      if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
-      const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
-      const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : null;
-      const lk = enemyLook(e);
-      if (lk && lk.flicker && Math.random() < 0.08) ctx.globalAlpha = 0.3; // Quantum Swimmer: not entirely here
-      drawShip(x, y, face, tag, e.phased ? 0.25 : ctx.globalAlpha, e.r * squash * e.vs / 8, e, lk);
-    } else if (sh === 'krill') {
-      drawKrill(e, x, y, r, face);
-    } else if (MICROBES[sh]) {
-      MICROBES[sh](e, x, y, r, face);
-    } else if (e.def.shape === 'eye') {
-      const eg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
-      eg.addColorStop(0, '#5a1a8e'); eg.addColorStop(1, '#14002a');
-      ctx.fillStyle = e.flash > 0 ? '#fff' : eg; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-      ctx.strokeStyle = e.color; ctx.lineWidth = 4; ctx.stroke();
-      const la = Math.atan2(G.player.y - e.y, G.player.x - e.x);
-      ctx.fillStyle = '#ff3df2'; ctx.beginPath(); ctx.arc(x + Math.cos(la) * r * 0.4, y + Math.sin(la) * r * 0.4, r * 0.35, 0, TAU); ctx.fill();
-      ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x + Math.cos(la) * r * 0.5, y + Math.sin(la) * r * 0.5, r * 0.15, 0, TAU); ctx.fill();
-    } else {
-      // Phase contrast: a grey body (a hint of its hue), darker towards the middle, bright halo round the edge.
-      drawShape(e.def.shape, x, y, r, rot);
-      ctx.fillStyle = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : eTone(e, sh === 'amoeba' ? 0.62 : 0.36);
-      ctx.fill();
-      if (e.flash <= 0 && sh !== 'amoeba') {
-        ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, TAU); ctx.fill();
-        drawShape(e.def.shape, x, y, r, rot);
-      }
-      if (sh === 'amoeba' && e.flash <= 0) {
-        // Amoeba: clear hyaline rim (ectoplasm), granular endoplasm streaming inside, a nucleus, a clear
-        // contractile vacuole, and the dark remains of whatever it has engulfed in food vacuoles.
-        ctx.save(); drawShape(sh, x, y, r, rot); ctx.clip();
-        ctx.fillStyle = 'rgba(70,78,72,0.55)'; drawShape(sh, x - r * 0.04, y, r * 0.82, rot + 0.3); ctx.fill();
-        for (let i = 0, gn = SET.detail === 'high' ? 70 : 26; i < gn; i++) { const a = i * 2.39 + e.id + e.age * (SET.detail === 'high' ? 0.25 + (i % 5) * 0.04 : 0.25), d = r * 0.72 * Math.sqrt((i * 0.618) % 1); ctx.fillStyle = i % 3 ? 'rgba(30,36,32,0.35)' : 'rgba(255,255,255,0.3)'; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, Math.max(1, r * 0.035), Math.max(1, r * 0.035)); }
-        for (let i = 0; i < Math.min(10, e.meals || 0); i++) { const a = i * 1.9 + e.age * 0.2, d = r * 0.5 * ((i * 0.53) % 1); ctx.fillStyle = 'rgba(30,34,32,0.5)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, r * 0.1, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.stroke(); }
-        ctx.fillStyle = 'rgba(150,158,150,0.7)'; ctx.beginPath(); ctx.arc(x - r * 0.15, y + r * 0.12, r * 0.2, 0, TAU); ctx.fill();
-        ctx.strokeStyle = 'rgba(30,36,32,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
-        const cv = 0.08 + 0.1 * ((e.age * 0.25 + e.id * 0.1) % 1);
-        ctx.fillStyle = 'rgba(225,232,225,0.8)'; ctx.beginPath(); ctx.arc(x + r * 0.35, y - r * 0.3, r * cv, 0, TAU); ctx.fill();
-        ctx.restore();
-        drawShape(sh, x, y, r, rot);
-      }
-      if (sh === 'cell' && e.flash <= 0) {
-        // White blood cell: granular cytoplasm and a dark lobed nucleus.
-        ctx.fillStyle = 'rgba(30,36,32,0.45)';
-        for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.fill(); }
-        ctx.fillStyle = 'rgba(255,255,255,0.25)';
-        const gn = SET.detail === 'high' ? 26 : 8;
-        for (let i = 0; i < gn; i++) { const a = i * 2.4 + e.id, d = r * 0.8 * ((i * 0.37) % 1); ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 1.5, 1.5); }
-        if (SET.detail === 'high') { ctx.strokeStyle = 'rgba(230,236,232,0.35)'; ctx.lineWidth = 1; for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.stroke(); } }
-        drawShape(sh, x, y, r, rot);
-      }
-      if (e.elite || e.charmed) {
-        // Immunostained: a fluorescent rim marks elites (gold) and your allies (pink).
-        ctx.strokeStyle = e.charmed ? PAL.you : PAL.reward; ctx.lineWidth = 3; ctx.stroke();
-      } else if (!(lod && plain)) pcHalo(e.boss ? 4.5 : Math.max(2.5, r * 0.16), e.boss ? 0.95 : 0.85);
-    }
-    if (sh !== 'sperm' && !e.boss && !(lod && plain)) drawEnemyDetail(e, x, y, r, rot);
-    if (e.elite && !e.boss) { ctx.fillStyle = PAL.reward; for (let i = 0; i < 3; i++) { const a = G.realT * 2 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (r + 9), y + Math.sin(a) * (r + 9), 2.5, 0, TAU); ctx.fill(); } }
-    // Hit flash: the body goes bright white with a crisp rim, and a ring snaps outwards. Ticks get a faint flicker.
-    if (hk > 0 || G.realT - (e.tickRT || -9) < 0.08) {
-      const k = hk > 0 ? Math.min(1, hk * 1.4) : 0.3 * (1 - (G.realT - e.tickRT) / 0.08), a0 = ctx.globalAlpha;
-      ctx.globalAlpha = a0 * 0.7 * k * (big < 1 ? 0.45 : 1); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, r * 0.98, 0, TAU); ctx.fill();
-      if (hk > 0 && big === 1) {
-        ctx.globalAlpha = a0 * k; ctx.lineWidth = Math.max(1.5, 1.2 * S); ctx.strokeStyle = 'rgb(20,24,22)'; ctx.stroke();
-        const rr = r * (1.05 + 0.45 * (1 - hk)) + 2;
-        ctx.globalAlpha = a0 * hk * 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, 2 * hk * S * (e.hitK || 1) * 0.6); ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.stroke();
-      }
-      ctx.globalAlpha = a0;
-    }
-    let si = 0;
-    const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
-    drawStatusFx(e, x, y, r);
-    if (e.mark > 0) st('#c77dff');
-    if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
-    if (e.parasiteT > 0) st('#b5e48c');
-    if (e.soggyT > G.t) st('#cfe8ff');
-    if (e.guiltT > G.t) st('#c77dff');
-    if (e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
-    if (e === G.grudge) {
-      // Grudge target: a rotating red crosshair.
-      ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 2.5;
-      const gr = r + 10 + Math.sin(G.realT * 8) * 2, ga = G.realT * 2;
-      for (let i = 0; i < 4; i++) { const a = ga + i * Math.PI / 2; ctx.beginPath(); ctx.arc(x, y, gr, a, a + 0.9); ctx.stroke(); }
-      ctx.fillStyle = '#ff4d6d'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('GRUDGE', x, y - gr - 6);
-    }
-    if ((e.auraArm > 0 || e.armour >= 8) && !e.boss) { ctx.strokeStyle = '#8da9c4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r + 1, -2.4, -0.7); ctx.stroke(); }
-    if (e.rival) {
-      // Rival champions: name and level (their health ring comes with the Rival Dyes or the Anti-Immune Stain).
-      const by = y - r - 12;
-      ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
-      const label = `${e.name}  LV ${e.lvl}` + (e.mode === 'hunt' ? '  !' : e.mode === 'flee' ? '  (fleeing)' : '');
-      ctx.strokeText(label, x, by - 5); ctx.fillStyle = e.color; ctx.fillText(label, x, by - 5);
-    }
-    enemyRing(e, x, y, r);
-  }
+  for (const e of G.enemies) if (vis(e) && !e.egg) drawEnemy(e, lod);
   ctx.globalAlpha = 1;
 
   drawTracks(vis);
@@ -1831,6 +1703,136 @@ function render() {
 // You grow as you level up: up to 1.8x at level 60.
 // Your swimmer grows with its max HP (not its level): +60% size at 400 max HP, up to double.
 function hpScale(k) { return 1 + Math.min(1, Math.max(0, (G.P.maxHp - 120) / 470)) * (k == null ? 1 : k); }
+// One enemy, drawn at its place on the slide (also used for the Codex portraits). lod: a crowd, so common
+// enemies skip their halo and surface detail.
+function drawEnemy(e, lod) {
+  const plain = !e.elite && !e.boss && !e.rival && !e.charmed;
+  const squash = 1 + Math.max(0, e.flash) * 2;
+  // Individuals vary a little in size, and soft-bodied things breathe.
+  if (e.vs == null) e.vs = e.boss || e.rival ? 1 : 0.9 + ((e.id * 9301 + 49297) % 233280) / 233280 * 0.2;
+  const breathe = e.def.shape === 'cell' || e.def.shape === 'amoeba' || e.def.shape === 'spike' ? 1 + 0.035 * Math.sin(G.realT * 2.6 + e.id) : 1;
+  // Hit stutter: a quick recoil away from the hit, with a shiver, springing back in 0.14s.
+  const hk = e.hitRT != null ? 1 - (G.realT - e.hitRT) / 0.14 : 0, big = e.boss || e.rival ? 0.4 : 1;
+  let jx = 0, jy = 0;
+  if (hk > 0) { const kick = 3.2 * hk * hk * (e.hitK || 1) * big * S, sh = 1.4 * hk * big * S * (Math.floor(G.realT * 60) % 2 ? 1 : -1); jx = Math.cos(e.hitA) * kick - Math.sin(e.hitA) * sh; jy = Math.sin(e.hitA) * kick + Math.cos(e.hitA) * sh; }
+  const x = sx(e.x) + jx, y = sy(e.y) + jy, r = e.r * S * squash * e.vs * breathe;
+  ctx.globalAlpha = e.phased ? 0.25 : 1;
+  if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
+  if (e.boss && !e.egg) drawBossAura(e, x, y, r);
+  if (e.boss) drawBossTells(e, x, y, r);
+  if (e.aimT > 0) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 - e.aimT) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(e.aimA) * 700 * S, y + Math.sin(e.aimA) * 700 * S); ctx.stroke(); }
+  const tgt = e.charmed && e.allyT ? e.allyT : G.player;
+  let face = e.rival ? (e.face || 0) : e.def.ai === 'charge' && e.st === 2 ? Math.atan2(e.dashY, e.dashX) : Math.atan2(tgt.y - e.y, tgt.x - e.x);
+  // Peekaboo: you're gone, so they look where they think you went, and once there they look around,
+  // confused, turning their heads this way and that (with the odd "?").
+  const spot = (G.peek || G.toy) && !e.boss && !e.rival && !e.egg && !e.charmed ? peekSpot() : null;
+  if (spot) {
+    const sd = Math.hypot(spot.x - e.x, spot.y - e.y);
+    let a = Math.atan2(spot.y - e.y, spot.x - e.x);
+    if (sd < 80) a += Math.sin(G.realT * 2.4 + e.id * 1.7) * 1.4 + Math.sin(G.realT * 5.1 + e.id) * 0.35;
+    let da = a - (e.lookA ?? a); while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
+    e.lookA = (e.lookA ?? a) + da * 0.18; face = e.lookA;
+    if (sd < 80 && Math.sin(G.realT * 1.3 + e.id * 2.3) > 0.85) { ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.round(13 * Math.max(0.8, S))}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('?', x, y - r - 10 * S); }
+  } else e.lookA = face;
+  const sh = e.def.shape;
+  const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
+  if (sh === 'sperm') {
+    // Swimmers are drawn like you: real sperm with dragging tails. Rivals carry their fluorescent dye.
+    if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
+    const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
+    const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : null;
+    const lk = enemyLook(e);
+    if (lk && lk.flicker && Math.random() < 0.08) ctx.globalAlpha = 0.3; // Quantum Swimmer: not entirely here
+    drawShip(x, y, face, tag, e.phased ? 0.25 : ctx.globalAlpha, e.r * squash * e.vs / 8, e, lk);
+  } else if (sh === 'krill') {
+    drawKrill(e, x, y, r, face);
+  } else if (MICROBES[sh]) {
+    MICROBES[sh](e, x, y, r, face);
+  } else if (e.def.shape === 'eye') {
+    const eg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
+    eg.addColorStop(0, '#5a1a8e'); eg.addColorStop(1, '#14002a');
+    ctx.fillStyle = e.flash > 0 ? '#fff' : eg; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+    ctx.strokeStyle = e.color; ctx.lineWidth = 4; ctx.stroke();
+    const la = Math.atan2(G.player.y - e.y, G.player.x - e.x);
+    ctx.fillStyle = '#ff3df2'; ctx.beginPath(); ctx.arc(x + Math.cos(la) * r * 0.4, y + Math.sin(la) * r * 0.4, r * 0.35, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x + Math.cos(la) * r * 0.5, y + Math.sin(la) * r * 0.5, r * 0.15, 0, TAU); ctx.fill();
+  } else {
+    // Phase contrast: a grey body (a hint of its hue), darker towards the middle, bright halo round the edge.
+    drawShape(e.def.shape, x, y, r, rot);
+    ctx.fillStyle = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : eTone(e, sh === 'amoeba' ? 0.62 : 0.36);
+    ctx.fill();
+    if (e.flash <= 0 && sh !== 'amoeba') {
+      ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, TAU); ctx.fill();
+      drawShape(e.def.shape, x, y, r, rot);
+    }
+    if (sh === 'amoeba' && e.flash <= 0) {
+      // Amoeba: clear hyaline rim (ectoplasm), granular endoplasm streaming inside, a nucleus, a clear
+      // contractile vacuole, and the dark remains of whatever it has engulfed in food vacuoles.
+      ctx.save(); drawShape(sh, x, y, r, rot); ctx.clip();
+      ctx.fillStyle = 'rgba(70,78,72,0.55)'; drawShape(sh, x - r * 0.04, y, r * 0.82, rot + 0.3); ctx.fill();
+      for (let i = 0, gn = SET.detail === 'high' ? 70 : 26; i < gn; i++) { const a = i * 2.39 + e.id + e.age * (SET.detail === 'high' ? 0.25 + (i % 5) * 0.04 : 0.25), d = r * 0.72 * Math.sqrt((i * 0.618) % 1); ctx.fillStyle = i % 3 ? 'rgba(30,36,32,0.35)' : 'rgba(255,255,255,0.3)'; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, Math.max(1, r * 0.035), Math.max(1, r * 0.035)); }
+      for (let i = 0; i < Math.min(10, e.meals || 0); i++) { const a = i * 1.9 + e.age * 0.2, d = r * 0.5 * ((i * 0.53) % 1); ctx.fillStyle = 'rgba(30,34,32,0.5)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, r * 0.1, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.stroke(); }
+      ctx.fillStyle = 'rgba(150,158,150,0.7)'; ctx.beginPath(); ctx.arc(x - r * 0.15, y + r * 0.12, r * 0.2, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(30,36,32,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
+      const cv = 0.08 + 0.1 * ((e.age * 0.25 + e.id * 0.1) % 1);
+      ctx.fillStyle = 'rgba(225,232,225,0.8)'; ctx.beginPath(); ctx.arc(x + r * 0.35, y - r * 0.3, r * cv, 0, TAU); ctx.fill();
+      ctx.restore();
+      drawShape(sh, x, y, r, rot);
+    }
+    if (sh === 'cell' && e.flash <= 0) {
+      // White blood cell: granular cytoplasm and a dark lobed nucleus.
+      ctx.fillStyle = 'rgba(30,36,32,0.45)';
+      for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      const gn = SET.detail === 'high' ? 26 : 8;
+      for (let i = 0; i < gn; i++) { const a = i * 2.4 + e.id, d = r * 0.8 * ((i * 0.37) % 1); ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 1.5, 1.5); }
+      if (SET.detail === 'high') { ctx.strokeStyle = 'rgba(230,236,232,0.35)'; ctx.lineWidth = 1; for (let i = 0; i < 3; i++) { const a = e.id + i * 2.1; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.24, 0, TAU); ctx.stroke(); } }
+      drawShape(sh, x, y, r, rot);
+    }
+    if (e.elite || e.charmed) {
+      // Immunostained: a fluorescent rim marks elites (gold) and your allies (pink).
+      ctx.strokeStyle = e.charmed ? PAL.you : PAL.reward; ctx.lineWidth = 3; ctx.stroke();
+    } else if (!(lod && plain)) pcHalo(e.boss ? 4.5 : Math.max(2.5, r * 0.16), e.boss ? 0.95 : 0.85);
+  }
+  if (sh !== 'sperm' && !e.boss && !(lod && plain)) drawEnemyDetail(e, x, y, r, rot);
+  if (e.elite && !e.boss) { ctx.fillStyle = PAL.reward; for (let i = 0; i < 3; i++) { const a = G.realT * 2 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (r + 9), y + Math.sin(a) * (r + 9), 2.5, 0, TAU); ctx.fill(); } }
+  // Hit flash: the body goes bright white with a crisp rim, and a ring snaps outwards. Ticks get a faint flicker.
+  if (hk > 0 || G.realT - (e.tickRT || -9) < 0.08) {
+    const k = hk > 0 ? Math.min(1, hk * 1.4) : 0.3 * (1 - (G.realT - e.tickRT) / 0.08), a0 = ctx.globalAlpha;
+    ctx.globalAlpha = a0 * 0.7 * k * (big < 1 ? 0.45 : 1); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, r * 0.98, 0, TAU); ctx.fill();
+    if (hk > 0 && big === 1) {
+      ctx.globalAlpha = a0 * k; ctx.lineWidth = Math.max(1.5, 1.2 * S); ctx.strokeStyle = 'rgb(20,24,22)'; ctx.stroke();
+      const rr = r * (1.05 + 0.45 * (1 - hk)) + 2;
+      ctx.globalAlpha = a0 * hk * 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, 2 * hk * S * (e.hitK || 1) * 0.6); ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.stroke();
+    }
+    ctx.globalAlpha = a0;
+  }
+  let si = 0;
+  const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
+  drawStatusFx(e, x, y, r);
+  if (e.mark > 0) st('#c77dff');
+  if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
+  if (e.parasiteT > 0) st('#b5e48c');
+  if (e.soggyT > G.t) st('#cfe8ff');
+  if (e.guiltT > G.t) st('#c77dff');
+  if (e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
+  if (e === G.grudge) {
+    // Grudge target: a rotating red crosshair.
+    ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 2.5;
+    const gr = r + 10 + Math.sin(G.realT * 8) * 2, ga = G.realT * 2;
+    for (let i = 0; i < 4; i++) { const a = ga + i * Math.PI / 2; ctx.beginPath(); ctx.arc(x, y, gr, a, a + 0.9); ctx.stroke(); }
+    ctx.fillStyle = '#ff4d6d'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('GRUDGE', x, y - gr - 6);
+  }
+  if ((e.auraArm > 0 || e.armour >= 8) && !e.boss) { ctx.strokeStyle = '#8da9c4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r + 1, -2.4, -0.7); ctx.stroke(); }
+  if (e.rival && !e.portrait) {
+    // Rival champions: name and level (their health ring comes with the Rival Dyes or the Anti-Immune Stain).
+    const by = y - r - 12;
+    ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+    const label = `${e.name}  LV ${e.lvl}` + (e.mode === 'hunt' ? '  !' : e.mode === 'flee' ? '  (fleeing)' : '');
+    ctx.strokeText(label, x, by - 5); ctx.fillStyle = e.color; ctx.fillText(label, x, by - 5);
+  }
+  enemyRing(e, x, y, r);
+}
 // The pause menu's YOU portrait: your sperm exactly as it looks in play (upgrades and every active sequence's
 // marks), drawn big on canvas context g (css size Wc x Hc) on a patch of slide. Borrows the world drawing
 // globals for the length of the call. body: a stand-in that keeps its own tail, so yours isn't disturbed.
