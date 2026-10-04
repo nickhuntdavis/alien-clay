@@ -84,6 +84,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Pick up 100 power-ups (all runs) |
 | **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are. | Deal 2,000,000 elemental damage (all runs) |
 | **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon | **Cold Storage** (11s): Every 11s: a burst of liquid nitrogen hits the biggest crowd within 320, freezing everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
+| **Born Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are born again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Reach Rank 3 with every other sequence |
 
 ### Sequence synergies
 
@@ -99,7 +100,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ## Weapons
 
-25 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
+28 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
 
 | Weapon | Sequence | Element | Role | Aims at | Wildcard |
 |---|---|---|---|---|---|
@@ -128,6 +129,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Twin Telepathy](#twin-telepathy) | Bright Spark | Shock | Geometry | DENSEST CLUSTER | 110 DNA |
 | [Bubble Wand](#bubble-wand) | Good Eater | Kinetic | Trap & Throw | NEAREST | 90 DNA |
 | [Tooth Fairy](#tooth-fairy) | Favourite | Arcane | Lure | DENSEST CLUSTER | 100 DNA |
+| [Déjà Vu](#dj-vu) | Born Again | Arcane | Repeater | NEAREST | - |
+| [Ghosts of You](#ghosts-of-you) | Born Again | Frost | Haunter | NEAREST | - |
+| [Karma](#karma) | Born Again | Kinetic | Payback | NEAREST | - |
 
 ### Spitball
 
@@ -654,6 +658,72 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Lv 10 mastery | **Fairy Ring** | Every smite also hits everything within 140 of the victim for 50%. |
 |  | **Tooth Decay** | Enemies holding teeth take +12% damage from everything for each tooth. |
 
+### Déjà Vu
+
+*Arcane gun, Repeater.* Every shot happens twice. The second time, it is a memory.
+
+- **Base stats:** dmg 20, cd 0.8s, mag 6, reload 1.3s, pierce 1, range 420 (replay 1)
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +2 pierce
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Hot Load** | +40% damage. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 5 signature | **Third Time Lucky** | Every memory replays once more, at 70% damage. |
+|  | **Premonition** | The replay arrives sooner (0.5s), flies 50% faster and pierces 2 more enemies. |
+| Lv 8 | **Sugar Rush** | +75% damage. |
+|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+|  | **Plus One** | +1 projectile (shots share the damage). |
+| Lv 10 mastery | **Groundhog Day** | Memories keep replaying, each at 60% of the last, until they fade (up to four times). |
+|  | **Same Dream** | Replays fire from wherever you are now, at the nearest enemy, at full damage. |
+
+### Ghosts of You
+
+*Frost gun, Haunter.* The ones who came before you never really left.
+
+- **Base stats:** dmg 15, cd 1.1s, mag 4, reload 1.6s, range 460 (homing 6)
+- **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +40% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Nappy Bag** | +60% magazine size. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 5 signature | **Unfinished Business** | An enemy killed by a ghost leaves two ghosts behind. |
+|  | **Gave Me Chills** | Ghosts chill what they hit: 40% slower for 1.5s. |
+| Lv 8 | **Homing Instinct** | Shots home in on targets. |
+|  | **Ice Queen** | 12% of hits freeze non-boss enemies solid. |
+|  | **Toxic Relationship** | Hits add a stacking poison. |
+| Lv 10 mastery | **We Are Legion** | Store twice as many ghosts, and every volley sends two extra. |
+|  | **Family Reunion** | Every ghost that hits heals you 0.4% of your max HP. |
+
+### Karma
+
+*Kinetic ring, Payback.* Every hit you take comes back around. With interest.
+
+- **Base stats:** dmg 18, cd 1.6s, mag 3, reload 1.8s, x10, pierce 2, range 240
+- **Level bonuses:** Lv3: +4 count; Lv6: +40% dmg; Lv9: +2 pierce
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Nappy Bag** | +60% magazine size. |
+|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Hot Load** | +40% damage. |
+| Lv 5 signature | **Instant Karma** | Getting hit fires a ring straight back at once (every 1.5s at most). |
+|  | **Good Karma** | Kills near you charge Karma too, not just hits you take. |
+| Lv 8 | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+|  | **Due Date Panic** | 40% faster cooldown and reload. |
+|  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+| Lv 10 mastery | **Wheel of Life** | Every ring is followed by a second, turned half a step, 0.25s later. |
+|  | **Nirvana** | A fully charged ring also heals you 8% of your max HP. |
+
 ### Upgrades with a twist
 
 When an upgrade would do nothing for a weapon, that weapon does its own thing with it instead (the card tells you).
@@ -937,6 +1007,7 @@ Spells autocast on cooldown and use spell slots. They level up like weapons, and
 | **Running With Scissors** | Kinetic | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
 | **Dutch Oven** | Toxic | A drifting cloud of stacking poison. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Baby Monitor** | Shock | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
+| **Out of Body** | Arcane | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
 
 ### Spell paths (Lv 4)
 
@@ -952,6 +1023,7 @@ Spells autocast on cooldown and use spell slots. They level up like weapons, and
 | **Running With Scissors** | **Safety Scissors**: The blades fly out and come back, cutting everything twice. | **Pinking Shears**: Four more blades in every ring. |
 | **Dutch Oven** | **Lingering Smell**: The cloud lasts twice as long. | **Hotbox**: The cloud follows you around. |
 | **Baby Monitor** | **Night Light**: Turrets shoot twice as fast. | **Twin Pack**: One more turret every cast. |
+| **Out of Body** | **Astral Projection**: You stay out of your body 60% longer. | **Poltergeist**: When you snap back, your body bursts, blasting everything near it for four times the touch damage. |
 
 ## Power-ups (passives)
 
@@ -1011,6 +1083,9 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Brush-Off** | Cilia Beds sting everything they shove | You | 2 |
 | **Go With the Flow** | In a Tubal Current: +30% damage and +20% swim speed | You | 2 |
 | **Skid Marks** | On a Lubricant Slick you swim 40% faster and leave a toxic trail | You | 2 |
+| **Old Soul** | +10% experience and +5% damage | You | 5 |
+| **Muscle Memory** | +8% fire rate and reload speed | You | 5 |
+| **Nine Lives** | +5% dodge and +10 max HP | You | 3 |
 
 ## Mutations (Enzyme Vesicles)
 

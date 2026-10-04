@@ -415,7 +415,7 @@ function genLoot(req) {
     // A weapon draft for a new mount: three fresh weapons, Rare or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
     let pool = G.genes && !G.debug ? seqPool().filter(id => !owned.has(id)) : [];
-    if (!pool.length) pool = Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !owned.has(id)); // nothing left in your sequences
+    if (!pool.length) pool = Object.keys(WEAPONS).filter(id => !WEAPONS[id].merged && !WEAPONS[id].seqOnly && !owned.has(id)); // nothing left in your sequences
     const ids = shuffle(pool).slice(0, 3);
     return ids.map(id => optNewWeapon(id, Math.max(2, rollRarity(2))));
   }
@@ -444,7 +444,7 @@ function genLoot(req) {
   // New weapons only come from weapon drafts (level 1, 8 and 22), never from ordinary DNA.
   if (G.spells.some(w => !w)) {
     const owned = new Set(G.spells.filter(Boolean).map(w => w.id));
-    const pool = shuffle(Object.keys(SPELLS).filter(id => !owned.has(id))).slice(0, 3);
+    const pool = shuffle(Object.keys(SPELLS).filter(id => !owned.has(id) && (!SPELLS[id].seqOnly || (G.genes && G.genes.active.includes(SPELLS[id].seqOnly))))).slice(0, 3);
     for (const id of pool) cands.push({ w: G.t > 30 ? 6 : 3, key: 'sn' + id, make: r => optNewSpell(id, r) });
   }
   G.weapons.forEach(w => {
@@ -460,6 +460,7 @@ function genLoot(req) {
     // Weapon tuning (fire rate, projectiles, area...) has its own stacks on every weapon.
     const full = PER_WEAPON.has(id) ? !G.weapons.some(w => w && (w.wpN && w.wpN[id] || 0) < PASSIVES[id].max) && st >= PASSIVES[id].max : st >= PASSIVES[id].max;
     if (full || (PASSIVES[id].needsScrap && !ownsScrapWeapon()) || !passiveUseful(id)) continue;
+    if (PASSIVES[id].seq && !(G.genes && G.genes.active.includes(PASSIVES[id].seq))) continue; // (a sequence's own upgrades)
     if (PASSIVES[id].terrain && !(G.terrain && G.terrain.list.some(o => o.type === PASSIVES[id].terrain))) continue; // terrain upgrades need that terrain
     // Element cards only for elements you actually use.
     if (ELEM_PASSIVE_OF[id] && !ownedElems.has(ELEM_PASSIVE_OF[id])) continue;
@@ -939,7 +940,7 @@ function killEnemy(e, src) {
   const P = G.P;
   onShowKill(e, src);
   sigKill(e, src);
-  foeKill(e);
+  foeKill(e, src);
   puKill(e);
   toyKill(e, src);
   genesKill(e, src);
@@ -1071,7 +1072,8 @@ function hurtPlayer(dmg, from, ent, kind) {
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   p.hp -= d;
   if (ent && !ent.dead) G.grudge = ent;
-  G.lastHitEnt = ent || null; // (the end-of-run screen shows whoever finished you off)
+  G.lastHitEnt = ent || null;
+  rebornHurt(d); // (Karma) // (the end-of-run screen shows whoever finished you off)
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
   const k = from || 'Unknown';
   G.stats.hurt[k] = (G.stats.hurt[k] || 0) + d;
@@ -1574,6 +1576,8 @@ function dronePos(w, i, n) {
 function fireWeapon(w, target) {
   const s = w.s, d = w.def, p = G.player, src = weaponSrc(w);
   if (d.toy) { toyFire(w, target, src); return; }
+  if (d.reborn && rebornFire(w, target, src)) return; // (Born Again's weapons, reborn.js)
+  if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
       if (d.drones) {
@@ -1686,6 +1690,7 @@ function fireWeapon(w, target) {
       healPlayer(G.P.maxHp * s.dmg); ring(p.x, p.y, 60, '#80ffdb', 0.5, 4); fxParts('plus', p.x, p.y, '#80ffdb', 10, 70, 1.1, 7); G.fx.push({ type: 'flash', x: p.x, y: p.y, r: 70, color: '#80ffdb', life: 0.3, max: 0.3 }); break;
     case 'warp': G.warp = s.dur; banner('TIME WARP', '#b8c0ff'); break;
     case 'barrier': G.barrier = s.dur; G.barrierR = s.area; G.barrierDmg = s.dmg; break;
+    case 'oob': rebornOOB(w); break;
     case 'ring':
       for (let i = 0; i < s.count; i++) spawnProj(w, p.x, p.y, i / s.count * TAU + G.realT, src);
       break;
@@ -1734,6 +1739,7 @@ function spawnProj(w, x, y, a, src, over) {
   if (pr.boomerang) pr.life = s.range / speed * 2 + 0.3;
   pr.max = pr.life;
   if (over) Object.assign(pr, over);
+  if (w.def.reborn && w.id === 'karma') pr.dmg *= karmaMul(); // (Karma: charged by the hits you take, reborn.js)
   if (merge > 1) { pr.dmg *= 1 + 0.5 * (merge - 1); pr.r *= 1 + 0.15 * (merge - 1); } // (half the merged damage: one big hit loses far less to armour than several small ones)
   if (w.perks && !(over && over.noMods)) sigProj(pr, w);
   if (mods) {
@@ -1745,6 +1751,7 @@ function spawnProj(w, x, y, a, src, over) {
     if (s.delay) { pr.delayAt = 0.15; pr.delayB = s.delay; }
   }
   G.proj.push(pr);
+  if (w.def.replay) rebornReplay(w, x, y, a, src, over, pr); // (Deja Vu: the same shot again, later)
   // Mirror: a twin fired the opposite way.
   if (mods && s.mirror && !(over && over.mirrored)) {
     const tw = Object.assign({}, over || {}, { mirrored: true, dmg: (over && over.dmg || s.dmg) * s.mirror });
@@ -1943,6 +1950,7 @@ function updateProjectiles(dt) {
       const hm = (pr.pb ? 1 + 1.5 * clamp(pr.life / pr.max, 0, 1) : 1) * (pr.vsOwner === e ? 3 : 1);
       damageEnemy(e, pr.dmg * hm, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
       projHit(pr, e);
+      if (pr.ghost) rebornHit(pr, e); // (Ghosts of You: reborn.js)
       if (pr.src.echoHit) {
         // Paradox Rifle: the same hit arrives again from one second in the future.
         const tgt = e, dmg = pr.dmg * 0.9;
@@ -2069,7 +2077,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 165 * P.speed * // (base 165: was 150)
+  const speed = 165 * P.speed * oobSpeed() * // (base 165: was 150; Out of Body: faster)
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
@@ -2338,6 +2346,7 @@ function gainXp(v) {
     // Every level up is rewarded with a box until Lv 20, then every second level.
     if (G.level <= 20 || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
+    rebornLevel(G.level); // (Born Again: memories of a past life)
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS + (G.comboMounts || 0)) {
       G.weapons.push(null);
@@ -2433,6 +2442,7 @@ function update(dt) {
   comboTick(dt);
   overkillTick(dt);
   puTick(dt);
+  rebornTick(dt);
   introTick(); // first sightings
   boonTick(dt);
   updateTethers(dt);

@@ -54,8 +54,9 @@ const FOE_AI = {
   },
 };
 // From killEnemy.
-function foeKill(e) {
+function foeKill(e, src) {
   broodKill(e); wormKill(e); // (brood.js)
+  rebornKill(e, src); // (reborn.js)
   if (e.def.rebuild && !e.charmed && G.enemies.length < CAPS.enemies) {
     const x = e.x, y = e.y, elite = e.elite;
     floatText(x, y - 30, "I'LL BE BACK", '#ff3b3b', 15, 1.4);

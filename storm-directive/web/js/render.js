@@ -1574,7 +1574,8 @@ function render() {
     ctx.globalAlpha = a * 0.9; drawTail(sv.pts, 'rgb(46,52,48)', 1.1 * S * sv.k);
   }
   ctx.globalAlpha = 1;
-  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
+  rebornDrawOOB(); // (Out of Body: your empty body)
+  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
   drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
 

@@ -28,16 +28,23 @@ const SPELL_FORKS = {
 const spellFork = (w, k) => !!(w && w.isSpell && w.fork === k);
 // From computeStats.
 function spellForkStats(w, s) {
+  if (w.id === 'warp') { // (after its path, below)
+    if (w.fork === 'a') s.dur *= 1.5;
+    // Nap Time can't be up more than 40% of the time: at Lv 10 with cooldown upgrades it used to slow the
+    // whole slide almost permanently (Reece: "easy mode").
+    s.cd = Math.max(s.cd, s.dur * 2.5);
+    return;
+  }
   if (!w.isSpell || !w.fork) return;
   const a = w.fork === 'a';
   switch (w.id) {
     case 'meteor': if (a) { s.count = (s.count || 1) + 1; s.dmg *= 0.8; } break;
     case 'blackhole': if (a) s.pull = (s.pull || 0) * 2; break;
-    case 'warp': if (a) s.dur *= 1.5; break;
     case 'barrier': if (a) s.area *= 1.5; else s.dmg *= 2.5; break;
     case 'bladestorm': if (a) s.boomerang = 1; else s.count = (s.count || 1) + 4; break;
     case 'cloud': if (a) s.dur *= 2; break;
     case 'sentry': if (a) s.rate *= 0.5; else s.count = (s.count || 1) + 1; break;
+    case 'oob': if (a) s.dur *= 1.6; break;
   }
 }
 // The Lv 4 choice, from setWeaponLevel's spell branch.

@@ -105,6 +105,7 @@ const UI = {
     document.addEventListener('visibilitychange', () => { if (document.hidden && G) liveSave(G); if (document.hidden && G && G.state === 'play') UI.togglePause(); });
     UI.renderBest();
     UI.show('title');
+    splashStart(); // (the opening splash over the title; a tap skips it)
   },
 
   lastDown: 0, lootOpenT: 0,
@@ -947,6 +948,7 @@ const UI = {
     let sq = A ? li(`${esc(A.name)} <em class="ycd">every ${A.cd}s</em>`, esc(A.desc), L.color) : '';
     for (const id of seqs) if (PROFILES[id]) sq += li(`${esc(PROFILES[id].name)} ${id === pr ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}`, `${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes ? G.genes.k[id] || 0 : 0))}`);
     for (const q of PROFILE_SYNERGIES.filter(q => synOn(q.a, q.b))) sq += li(esc(q.name), esc(q.desc), PAL.upgrade);
+    if (rebornK()) { const n = G.memories || 0; sq += li(`Memories of a past life (${n}/6)`, n ? MEMORIES.slice(0, n).map(m => esc(m.text) + ' <i>' + esc(m.gift) + '</i>').join('<br>') : 'None yet: the first surfaces at level 6.', REBORN.color); }
     h += `<div class="sec"><h3>Sequences and abilities</h3><div class="list">${sq}</div></div>`;
     // Stats.
     const T = [];

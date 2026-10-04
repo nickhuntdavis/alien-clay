@@ -106,6 +106,7 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
       g.globalCompositeOperation = 'source-over';
       break;
     }
+    case 'reborn': rebornPortrait(g, hx, hy, R, c, t); break;
     case 'splicer': {
       g.lineWidth = Math.max(1.5, R * 0.06);
       for (let s = 0; s < 2; s++) { g.strokeStyle = s ? c : '#ffffff'; g.beginPath(); for (let i = 0; i <= 40; i++) { const f = i / 40, a = f * TAU * 1.5 + t * 2 + s * Math.PI; g.lineTo(hx - R * 1.6 + f * R * 3.2, hy - R * 1.35 + Math.sin(a) * R * 0.3); } g.stroke(); }
@@ -311,6 +312,7 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
         ctx.globalAlpha = alpha;
         break;
       }
+      case 'reborn': rebornMods(k, c, t); break;
       case 'splicer': {
         // A twisting double helix hovering over the head.
         ctx.lineWidth = Math.max(0.8, 0.5 * k);
