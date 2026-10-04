@@ -2096,7 +2096,9 @@ function updatePlayer(dt) {
   { const rt = dt / GAME_SPEED; // (real seconds: the easing is in screen frames)
     const rate = Math.abs(angDiff(p.hd, p.hdPrev ?? p.hd)) / Math.max(1e-4, dt); p.hdPrev = p.hd;
     const radius = Math.hypot(p.vx, p.vy) / Math.max(1e-3, rate); // (how tight the turn is: a wide arc keeps the beat, a tight one stops it)
-    const want = rate < 0.35 ? 1 : clamp((radius - 25) / 55, 0.04, 1), cur = p.stroke ?? 1;
+    // Wide arcs: the wag carries on at near full beat. As the arc tightens it drops off slowly at first, then
+    // ever faster, to almost nothing on the tightest turns (tight: 0 at radius 70 or more, 1 at 15).
+    const tight = clamp((70 - radius) / 55, 0, 1), want = rate < 0.35 ? 1 : Math.max(0.04, 1 - Math.pow(tight, 2.5)), cur = p.stroke ?? 1;
     if (want < cur) p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 25)); // to a stop in about 4 frames
     else p.stroke = lerp(cur, want, 1 - Math.exp(-rt * 12));
     if (p.stroke < 0.45) p.turned = true;
