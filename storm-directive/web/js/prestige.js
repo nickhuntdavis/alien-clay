@@ -140,7 +140,11 @@ function drawBaby(dt) {
   g.save(); g.translate(W2 / 2, H2 / 2); g.rotate(t * 0.2);
   for (let i = 0; i < 12; i++) { g.rotate(TAU / 12); g.fillStyle = i % 2 ? '#ffd23f18' : '#ffd6e812'; g.beginPath(); g.moveTo(0, 0); g.lineTo(W2, -40); g.lineTo(W2, 40); g.fill(); }
   g.restore();
-  const cx = W2 / 2, cy = H2 / 2 + 10, wob = Math.sin(t * 14) * 2, R = Math.min(W2, H2) * 0.18;
+  paintBaby(g, W2 / 2, H2 / 2 + 10, Math.min(W2, H2) * 0.18, t);
+}
+// The baby itself (head radius about R), on any canvas: the Gene Bank's birth screen and the winning finale.
+function paintBaby(g, cx, cy, R, t) {
+  const wob = Math.sin(t * 14) * R / 35;
   // Blanket.
   g.fillStyle = '#bde0fe'; g.beginPath(); g.ellipse(cx, cy + R * 0.9, R * 1.05, R * 1.25, 0, 0, TAU); g.fill();
   g.strokeStyle = '#90b8e0'; g.lineWidth = 3; g.beginPath(); g.moveTo(cx - R, cy + R * 0.3); g.quadraticCurveTo(cx, cy + R * 1.1, cx + R, cy + R * 0.3); g.stroke();

@@ -931,7 +931,7 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
 
 function killEnemy(e, src) {
   if (e.rival) { if (rivalSurvives(e)) return; casaLog(`${e.name} eliminated`); rivalDown(e); return; }
-  if (e.egg) { e.dead = true; G.eggE = null; spawnPart(e.x, e.y, '#ffd6e8', 60, 320, 0.9, 6); cam.shake = 16; victory(); return; }
+  if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
   G.kills++;
   if (e.def.shape === 'sperm') G.stats.spermKills = (G.stats.spermKills || 0) + 1;
@@ -2408,13 +2408,13 @@ function eggAI(e, dt) {
     ring(e.x, e.y, e.r + 30, '#ff8fb8', 0.5, 5);
   }
 }
-function victory() {
-  G.state = 'won';
+function victory(at) {
+  if (G.state === 'finale' || G.state === 'won') return;
   G.banner = null;
   achieve('born');
   sysLine('born', true);
   sfx('level'); vibrate([100, 60, 100, 60, 300]);
-  if (typeof UI !== 'undefined') UI.showVictory();
+  startFinale('win', at); // (the egg cracks and hatches, then the end screen)
 }
 
 // ---------------------------------------------------------------- main update
@@ -2543,12 +2543,12 @@ function compact() {
 }
 
 function gameOver() {
-  G.state = 'over';
+  if (G.state === 'finale' || G.state === 'over') return;
   sysLine('death', true);
   G.banner = null;
   sfx('boss');
   vibrate(300);
-  if (typeof UI !== 'undefined') UI.showGameOver();
+  startFinale('death'); // (slow motion on whatever got you, then the end screen)
 }
 
 // ---------------------------------------------------------------- input
@@ -2792,11 +2792,12 @@ function frame(ts) {
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);
+    else if (G && G.state === 'finale') updateFinale(dt);
   });
   const t1 = performance.now();
   // While a menu (weapon draft, loot, pause...) covers the paused game, the world can't change: draw it once,
   // then leave the canvas alone so the menu and its previews get the whole frame budget.
-  const covered = G && G.state !== 'play' && G.state !== 'intro' && G.state !== 'rewind' && G.state !== 'bossIntro' && typeof UI !== 'undefined' && UI.menuOn();
+  const covered = G && G.state !== 'play' && G.state !== 'intro' && G.state !== 'rewind' && G.state !== 'bossIntro' && G.state !== 'finale' && typeof UI !== 'undefined' && UI.menuOn();
   if (!covered || !frameFrozen) safely('render', render);
   frameFrozen = !!covered;
   // (A frame's gap mostly holds the previous frame's work, so the gap is paired with that frame's update and draw times.)

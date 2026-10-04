@@ -1406,6 +1406,7 @@ window.handleBack = function () {
   if (on('title')) return 'exit';
   if (G && G.state === 'intro') { endIntro(); return 'ok'; }
   if (G && G.state === 'bossIntro') { if ($('bossIntro').classList.contains('ready')) endBossIntro(); return 'ok'; }
+  if (G && G.state === 'finale') { endFinale(); return 'ok'; }
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot') || on('draft')) return 'ok';
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }

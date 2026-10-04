@@ -24,7 +24,7 @@ function refreshPalette() {
   PAL_OK.clear();
   for (const c of ['#ffffff', '#000000', XR.white, XR.dim]) PAL_OK.add(c);
   const dyes = (typeof G !== 'undefined' && G && G.dyes) || {};
-  FULL_COL = !!(typeof G !== 'undefined' && G && G.boons && G.boons.technicolour);
+  FULL_COL = !!(typeof G !== 'undefined' && G && ((G.boons && G.boons.technicolour) || G.finaleCol)); // (and while the egg hatches)
   if (typeof PC_TONE !== 'undefined') PC_TONE.clear();
   document.body.classList.toggle('technicolour', FULL_COL);
   for (const id in dyes) if (dyes[id] && DYE_COLOURS[id]) for (const c of DYE_COLOURS[id]()) PAL_OK.add(c.toLowerCase());
@@ -1586,8 +1586,8 @@ function render() {
   }
   ctx.globalAlpha = 1;
   rebornDrawOOB(); // (Out of Body: your empty body)
-  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
-  drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1), playerScale(), p, shipLook());
+  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
+  drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
 
   // Additive layer: weapon fx, projectiles, particles, fx.
@@ -1825,7 +1825,7 @@ function render() {
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (rewinding) drawRewindFx();
   drawRefocus();
-  if (G.state === 'intro') drawIntro(); else if (G.state !== 'bossIntro') drawHud();
+  if (G.state === 'finale') drawFinale(shx, shy); else if (G.state === 'intro') drawIntro(); else if (G.state !== 'bossIntro') drawHud();
 }
 
 // You grow as you level up: up to 1.8x at level 60.
