@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - Born Again, the ninth sequence (for Reece, who helped build this game).
+// Spawn Prawn - Prawn Again, the ninth sequence (for Reece, who helped build this game).
 // A reincarnation of ?????. Every few levels a memory of a past life surfaces, and with it something it used
 // to be good at; the sixth memory says who it was. Unlocked by reaching Rank 3 with every other sequence.
 // Its own kit: three weapons (Deja Vu, Ghosts of You, Karma), a spell (Out of Body), three upgrades that
@@ -58,7 +58,7 @@ const REBORN = { color: '#d9c6ff', who: 'Reece' };
 const memMax = () => (typeof META !== 'undefined' && META.memMax) || 0;
 const pastLife = () => (memMax() >= 6 ? REBORN.who : '?????');
 PROFILES.reborn = {
-  name: 'Born Again', trait: 'Past Life', fmt: k => `memories of a past life surface as you level (${Math.round(100 * k)}% strength), +${pc(0.05 * k)} experience`,
+  name: 'Prawn Again', trait: 'Past Life', fmt: k => `memories of a past life surface as you level (${Math.round(100 * k)}% strength), +${pc(0.05 * k)} experience`,
   apply: (P, k) => { P.xp += 0.05 * k; },
   get desc() { return `A reincarnation of ${pastLife()}. Every few levels a memory of a past life surfaces, and with it something it used to be good at.`; },
   weapons: ['dejavu', 'ghosts', 'karma'],
@@ -66,14 +66,14 @@ PROFILES.reborn = {
 };
 if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK.reborn = { short: 'Old Soul', color: REBORN.color, tag: 'REMEMBERS A PAST LIFE', quote: 'Have we met? I feel like I have done this before.', stats: [3, 3, 3, 4] };
 SEQ_ABILITY.reborn = { name: 'Second Life', short: 'REBORN', cd: 45,
-  desc: 'When your health drops below 25%, you die a little and are born again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most.',
+  desc: 'When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most.',
   fire(manual) {
     const p = G.player, P = G.P;
     if (!manual && p.hp > P.maxHp * 0.25) return false;
     healPlayer(P.maxHp * 0.4); p.iframes = Math.max(p.iframes, 2);
     IN_AOE = true; forNear(p.x, p.y, 230, e => { if (!e.charmed && !e.egg) damageEnemy(e, abilDmg() * 2.5, abilSrc('Second Life', { elem: 'arcane', knock: 300, kx: e.x - p.x, ky: e.y - p.y })); }); IN_AOE = false;
     ring(p.x, p.y, 230, REBORN.color, 0.7, 8); G.fx.push({ type: 'flash', x: p.x, y: p.y, r: 200, color: '#ffffff', life: 0.4, max: 0.4 });
-    floatText(p.x, p.y - 40, 'BORN AGAIN', REBORN.color, 18, 1.4); cam.shake = Math.min(14, cam.shake + 8); sfx('level');
+    floatText(p.x, p.y - 40, 'PRAWN AGAIN', REBORN.color, 18, 1.4); cam.shake = Math.min(14, cam.shake + 8); sfx('level');
     return true;
   } };
 

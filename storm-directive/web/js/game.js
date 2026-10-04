@@ -1576,7 +1576,7 @@ function dronePos(w, i, n) {
 function fireWeapon(w, target) {
   const s = w.s, d = w.def, p = G.player, src = weaponSrc(w);
   if (d.toy) { toyFire(w, target, src); return; }
-  if (d.reborn && rebornFire(w, target, src)) return; // (Born Again's weapons, reborn.js)
+  if (d.reborn && rebornFire(w, target, src)) return; // (Prawn Again's weapons, reborn.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
@@ -2346,7 +2346,7 @@ function gainXp(v) {
     // Every level up is rewarded with a box until Lv 20, then every second level.
     if (G.level <= 20 || G.level % 2 === 0) G.lootQueue.push({ kind: 'level' });
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
-    rebornLevel(G.level); // (Born Again: memories of a past life)
+    rebornLevel(G.level); // (Prawn Again: memories of a past life)
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS + (G.comboMounts || 0)) {
       G.weapons.push(null);

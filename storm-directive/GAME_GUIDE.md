@@ -84,7 +84,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Pick up 100 power-ups (all runs) |
 | **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are. | Deal 2,000,000 elemental damage (all runs) |
 | **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon | **Cold Storage** (11s): Every 11s: a burst of liquid nitrogen hits the biggest crowd within 320, freezing everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
-| **Born Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are born again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Reach Rank 3 with every other sequence |
+| **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Reach Rank 3 with every other sequence |
 
 ### Sequence synergies
 
@@ -129,9 +129,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Twin Telepathy](#twin-telepathy) | Bright Spark | Shock | Geometry | DENSEST CLUSTER | 110 DNA |
 | [Bubble Wand](#bubble-wand) | Good Eater | Kinetic | Trap & Throw | NEAREST | 90 DNA |
 | [Tooth Fairy](#tooth-fairy) | Favourite | Arcane | Lure | DENSEST CLUSTER | 100 DNA |
-| [Déjà Vu](#dj-vu) | Born Again | Arcane | Repeater | NEAREST | - |
-| [Ghosts of You](#ghosts-of-you) | Born Again | Frost | Haunter | NEAREST | - |
-| [Karma](#karma) | Born Again | Kinetic | Payback | NEAREST | - |
+| [Déjà Vu](#dj-vu) | Prawn Again | Arcane | Repeater | NEAREST | - |
+| [Ghosts of You](#ghosts-of-you) | Prawn Again | Frost | Haunter | NEAREST | - |
+| [Karma](#karma) | Prawn Again | Kinetic | Payback | NEAREST | - |
 
 ### Spitball
 
