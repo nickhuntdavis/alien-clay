@@ -563,13 +563,14 @@ const UI = {
     UI.lootOpts = req.fixed || genLoot(req); // (the Daily Challenge's starting weapons are fixed for the day)
     if (req.kind === 'level') return; // the weapon for that branch is gone: an ordinary strand instead
     UI.pickedOne = false;
-    const weap = req.kind === 'branch' ? G.weapons.find(x => x && x.uid === req.uid) : null;
+    const weap = req.kind === 'branch' ? G.weapons.find(x => x && x.uid === req.uid) : req.kind === 'sfork' ? G.spells.find(x => x && x.uid === req.uid) : null;
     UI.draft = { req, i: 0, weap, pv: null };
     const box = $('draft'), mount = G.weapons.filter(Boolean).length + 1;
     const sig = weap && weap.def.sig && weap.def.sig[req.lvl];
-    $('dKick').textContent = req.kind === 'start' ? 'LEVEL 1 | YOUR FIRST WEAPON' : req.kind === 'slot' ? `LEVEL ${G.level} | WEAPON MOUNT ${mount} OF ${MAX_WEAPONS + (G.comboMounts || 0)}` : `${weap.def.name.toUpperCase()} | LV ${req.lvl}`;
-    $('dTitle').textContent = req.kind === 'branch' ? (sig ? (req.lvl >= 10 ? 'MASTERY' : 'SIGNATURE PATH') : 'UPGRADE PATH') : 'WEAPON DRAFT';
-    $('dSub').textContent = req.kind === 'start' ? "This is how you'll fight. Everything else you pick builds on it."
+    $('dKick').textContent = req.kind === 'start' ? 'LEVEL 1 | YOUR FIRST WEAPON' : req.kind === 'slot' ? `LEVEL ${G.level} | WEAPON MOUNT ${mount} OF ${MAX_WEAPONS + (G.comboMounts || 0)}` : `${weap.def.name.toUpperCase()} | LV ${req.lvl || weap.lvl}`;
+    $('dTitle').textContent = req.kind === 'sfork' ? 'SPELL PATH' : req.kind === 'branch' ? (sig ? (req.lvl >= 10 ? 'MASTERY' : 'SIGNATURE PATH') : 'UPGRADE PATH') : 'WEAPON DRAFT';
+    $('dSub').textContent = req.kind === 'sfork' ? `${weap.def.name} hit Lv ${SPELL_FORK_LV}. Pick how it grows up: the other path goes in the bin.`
+      : req.kind === 'start' ? "This is how you'll fight. Everything else you pick builds on it."
       : req.kind === 'slot' ? (req.recycled ? 'A fresh weapon for the empty mount.' : 'A new weapon mount. Choose what your build is missing: reach, crowds, bosses or safety.')
       : sig ? (req.lvl >= 10 ? `The last upgrade ${weap.def.name} ever gets. It changes how the weapon plays.` : `Only ${weap.def.name} can take these. Pick its path: the other one is gone for good.`)
       : `Any weapon can take these. Pick one for ${weap.def.name}.`;
@@ -597,13 +598,18 @@ const UI = {
     $('dTabs').innerHTML = UI.lootOpts.map((x, i) => {
       const tc = D.weap ? wc : elemCol(x.def.elem);
       // Weapon drafts: the weapon's icon in its element colour (the names didn't fit); its name and role are in the panel below.
-      if (!D.weap) return `<button class="dtab dico ${i === D.i ? 'sel' : ''}" data-i="${i}" title="${esc(x.title)}" style="--tc:${tc}">${iconSVG(x.def, 30, tc)}</button>`;
+      if (!D.weap) return `<button class="dtab dwep ${i === D.i ? 'sel' : ''}" data-i="${i}" style="--tc:${tc}">${iconSVG(x.def, 24, tc)}<b>${esc(x.title)}</b><span>${esc((x.def.role || '').toUpperCase())}</span></button>`;
       return `<button class="dtab ${i === D.i ? 'sel' : ''}" data-i="${i}" style="--tc:${tc}"><b>${esc(x.title)}</b><span>${esc(x.tag === 'BRANCH' ? 'ANY WEAPON' : x.tag)}</span></button>`;
     }).join('');
     $('dTabs').querySelectorAll('.dtab').forEach(b => b.addEventListener('click', () => { D.i = +b.dataset.i; UI.renderDraft(); }));
     // Details.
     let h = '';
-    if (D.weap) {
+    if (D.req.kind === 'sfork') {
+      const w = D.weap, other = UI.lootOpts.filter(x => x !== o);
+      h += `<div class="dperk"><div class="drole">SPELL PATH: ONLY ${esc(w.def.name.toUpperCase())}</div><div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc)}</div></div>
+        <h4>${esc(w.def.name.toUpperCase())}</h4><div class="ddesc">${esc(w.def.desc || '')}</div>`;
+      if (other.length) h += `<h4>THE PATH YOU WOULD LOSE</h4><div class="dpath">${other.map(x => `<div class="dp"><em>LV ${SPELL_FORK_LV}</em><b>${esc(x.title)}</b><span>${esc(x.desc)}</span></div>`).join('')}</div>`;
+    } else if (D.weap) {
       const w = D.weap, lv = Array.from({ length: MAX_WLVL }, (_, k) => `<i class="${k + 1 === D.req.lvl ? 'now' : k < w.lvl ? 'on' : ''}"></i>`).join('');
       h += `<div class="dperk"><div class="drole">${esc(o.tag === 'BRANCH' ? 'UPGRADE ANY WEAPON CAN TAKE' : o.tag === 'MASTERY' ? 'MASTERY: ONLY ' + w.def.name.toUpperCase() : 'SIGNATURE: ONLY ' + w.def.name.toUpperCase())}</div>
         <div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc.replace(/^Mastery\. /, ''))}</div></div>
@@ -708,7 +714,7 @@ const UI = {
   // ---------------------------------------------------------------- loot
   openLoot(req) {
     // New weapons and upgrade paths get the full Weapon Draft treatment.
-    if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch') { UI.openDraft(req); if (req.kind !== 'level') return; }
+    if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch' || req.kind === 'sfork') { UI.openDraft(req); if (req.kind !== 'level') return; } // (every weapon and spell choice gets the draft screen)
     G.state = 'loot';
     UI.lootReq = req;
     UI.lootOpts = UI.sortLoot(genLoot(req));

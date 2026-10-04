@@ -237,6 +237,7 @@ function tapeUp(w, first, n) {
   // Only the first one is stamped; the rest of the bundle feels it through the tape.
   damageEnemy(first, s.dmg * 1.5, toySrc(w, 'Red Tape'));
   floatText(first.x, first.y - first.r - 12, 'STAMPED', w.def.color, 12, 0.5);
+  B.stampT = G.t + 0.35;
   return B;
 }
 function tapeTick(dt) {
@@ -276,6 +277,7 @@ function toyHurt(e, lost, src) {
     if (src.elem === 'shock' && G.pair.livepaper) k *= 2;
     const ssrc = toySrc(B.w, 'Red Tape', { taped: true, due: src.due, dot: true, noCrit: true, noProc: true });
     for (const o of B.members) if (o !== e && !o.dead) damageEnemy(o, lost * k * (o.boss ? 0.5 : 1), ssrc);
+    B.flashT = G.t + 0.1; // (the tape flashes as the damage travels along it)
   }
 }
 function toyKill(e, src) {
@@ -853,14 +855,32 @@ function drawToysOver() {
       drawWeaponFx(f.weapons, f.x, f.y, 0.35);
     }
   }
-  // Red Tape: taut strips between bundled enemies.
+  // Red Tape: taut red strips between bundled enemies (always in red: it's red tape), dark-edged so they read
+  // on the grey slide, flashing white when damage travels along them, and an APPROVED stamp on each one.
+  ctx.globalCompositeOperation = 'source-over';
+  RAW_COL = true;
   for (const B of T.tapes) {
-    const k = Math.min(1, (B.end - G.t) / 0.5), c = col(B.w.def.color);
-    ctx.globalAlpha = 0.9 * k; ctx.strokeStyle = c; ctx.lineWidth = Math.max(3, 4 * S); ctx.setLineDash([9, 4]);
-    ctx.beginPath(); B.members.forEach((e, i) => i ? ctx.lineTo(sx(e.x), sy(e.y)) : ctx.moveTo(sx(e.x), sy(e.y))); ctx.stroke(); ctx.setLineDash([]);
-    // A little stamp on each one.
-    ctx.fillStyle = c; for (const e of B.members) { const q = Math.max(4, 5 * S); ctx.fillRect(sx(e.x) - q, sy(e.y) - e.r * S - q * 2.6, q * 2, q * 1.4); }
+    if (B.members.length < 1) continue;
+    const k = Math.min(1, (B.end - G.t) / 0.5), fl = Math.max(0, (B.flashT || 0) - G.t) / 0.1, lw = Math.max(4, 5 * S);
+    const path = () => { ctx.beginPath(); B.members.forEach((e, i) => i ? ctx.lineTo(sx(e.x), sy(e.y)) : ctx.moveTo(sx(e.x), sy(e.y))); };
+    if (B.members.length > 1) {
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.globalAlpha = 0.75 * k; ctx.strokeStyle = '#1a0507'; ctx.lineWidth = lw + 4; path(); ctx.stroke();
+      ctx.globalAlpha = k; ctx.strokeStyle = fl > 0 ? '#ff6b78' : '#e01e2b'; ctx.lineWidth = lw; path(); ctx.stroke();
+      // The sheen down the middle of the tape, with the printed dashes.
+      ctx.globalAlpha = 0.55 * k; ctx.strokeStyle = '#ff9aa2'; ctx.lineWidth = Math.max(1, lw * 0.22); ctx.setLineDash([6 * S, 7 * S]); ctx.lineDashOffset = -G.realT * 20; path(); ctx.stroke(); ctx.setLineDash([]); ctx.lineDashOffset = 0;
+      ctx.lineJoin = 'miter'; ctx.lineCap = 'butt';
+    }
+    // A stamp on each one (the first, freshly stamped, lands big and settles).
+    for (let i = 0; i < B.members.length; i++) {
+      const e = B.members[i], st = i === 0 ? Math.max(0, (B.stampT || 0) - G.t) / 0.35 : 0, q = Math.max(5, 6 * S) * (1 + 2.5 * st * st);
+      const x = sx(e.x), y = sy(e.y) - e.r * S - q * 1.6;
+      ctx.globalAlpha = k * (1 - 0.5 * st); ctx.fillStyle = '#1a0507'; ctx.fillRect(x - q * 1.25 - 1.5, y - q * 0.6 - 1.5, q * 2.5 + 3, q * 1.2 + 3);
+      ctx.fillStyle = '#e01e2b'; ctx.fillRect(x - q * 1.25, y - q * 0.6, q * 2.5, q * 1.2);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x - q * 0.85, y - q * 0.12, q * 1.7, Math.max(1, q * 0.24));
+    }
   }
+  RAW_COL = false;
   ctx.globalAlpha = 1;
   ctx.globalAlpha = 1;
   // Teeth: little white molars (gold ones glow).

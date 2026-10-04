@@ -467,27 +467,34 @@ function genLoot(req) {
     cands.push({ w: PASSIVES[id].terrain ? 1 : 1.8, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
   // Stains you don't have yet.
-  for (const id in DYES) if (!G.dyeBoon[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
+  // (Not one you already see: a permanent stain switched on in the pause menu counts.)
+  for (const id in DYES) if (!G.dyeBoon[id] && !G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
   // Guarantee a fusion option when one is available.
   const chosen = [];
   const mc = cands.filter(c => c.key.startsWith('fuse')); // (this used to match modifiers too, forcing one into every box)
   if (mc.length) chosen.push(mc[0]);
   // The first level-ups always offer the GFP tag, so you can find yourself early.
   else if (!G.dyeBoon.gfp && !G.dyes.gfp && req.kind === 'level' && G.level <= 3) chosen.push(cands.find(c => c.key === 'dyegfp'));
-  while (chosen.length < 3) {
-    const rest = cands.filter(c => !chosen.includes(c));
+  // Never the same upgrade twice in one box (say, at two rarities): a card that matches one already in it is
+  // thrown back and another drawn.
+  const same = (o, q) => o.title === q.title && (o.modFor || '') === (q.modFor || '');
+  const tried = new Set();
+  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) opts.push(o); }
+  while (opts.length < 3) {
+    const rest = cands.filter(c => !tried.has(c));
     if (!rest.length) break;
-    let tot = rest.reduce((a, c) => a + c.w, 0), x = Math.random() * tot;
-    for (const c of rest) { x -= c.w; if (x <= 0) { chosen.push(c); break; } }
+    let tot = rest.reduce((a, c) => a + c.w, 0), x = Math.random() * tot, c = rest[rest.length - 1];
+    for (const r of rest) { x -= r.w; if (x <= 0) { c = r; break; } }
+    tried.add(c);
+    const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0)));
+    if (!opts.some(q => same(o, q))) opts.push(o);
   }
-  for (const c of chosen) opts.push(withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))));
   // Occasionally the System slips a cursed card into the box.
   const curses = CURSES.filter(c => !G.curses[c.id]);
   if (curses.length && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses));
   if (opts.length && Math.random() < 0.45) pick(opts).quip = pick(CARD_QUIPS);
   const fillers = [optHeal, optRerolls, optOvercharge];
-  let fi = 0;
-  while (opts.length < 3) opts.push(fillers[fi++ % 3]());
+  for (const f of fillers) { if (opts.length >= 3) break; const o = f(); if (!opts.some(q => q.title === o.title)) opts.push(o); }
   return opts;
 }
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
