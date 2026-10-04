@@ -695,7 +695,14 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
   ctx.globalAlpha = alpha;
   // The head rocks from side to side with each stroke of the tail (real sperm heads do), less when the wag
   // dies down in a turn: it reads as swimming rather than gliding on rails.
-  const yaw = body && body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) : 0;
+  // While turning at all, the head holds steady (eases out fast, back in gently once straight).
+  if (body && body.tail) {
+    const now = G.realT, dtr = Math.min(0.05, Math.max(0, now - (body.yawT ?? now))); body.yawT = now;
+    let df = face - (body.yawF ?? face); while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU; body.yawF = face;
+    const turning = dtr > 0 && Math.abs(df / dtr) > 0.3, k = body.yawK ?? 1;
+    body.yawK = turning ? lerp(k, 0, Math.min(1, dtr * 15)) : lerp(k, 1, Math.min(1, dtr * 4));
+  }
+  const yaw = body && body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) * (body.yawK ?? 1) : 0;
   if (body) body.yaw = yaw;
   ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw);
   if (L !== NOLOOK) ctx.scale(L.head * L.stretch, L.head / Math.sqrt(L.stretch));
