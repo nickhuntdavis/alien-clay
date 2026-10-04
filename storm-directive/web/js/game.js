@@ -1557,7 +1557,8 @@ function updateWeapon(w, dt) {
   }
   if (d.scrapAmmo && G.scrap < 1) { if (!w.broke) { w.broke = true; achieve('broke'); } w.cd = Math.max(w.cd, 0); return; }
   w.broke = false;
-  const rate = (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste();
+  let rate = (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste();
+  if (d.kind === 'crayon') { w.durK = Math.max(1, rate); rate = 1 / Math.max(1, rate); } // (Colouring In: fire rate works backwards, toys.js)
   w.cd -= dt * rate;
   let shots = 0;
   while (w.cd <= 0 && shots < 3) {

@@ -35,7 +35,14 @@ function toySrc(w, name, extra) { return Object.assign(weaponSrc(w), { wname: na
 function toyAdapt(w, s) {
   const P = G.P, has = id => hasSig(w, id);
   switch (w.def.kind) {
-    case 'crayon': s.dmg *= 1 + 0.18 * P.multishot; s.lineW = 9 * (1 + 0.2 * P.pierce); break;
+    case 'crayon': {
+      s.dmg *= 1 + 0.18 * P.multishot; s.lineW = 9 * (1 + 0.2 * P.pierce);
+      // Fire rate works backwards here: the faster your weapons fire, the longer the crayon waits before it closes
+      // the shape for you, and the longer the line lasts, so you draw bigger shapes.
+      const base = (w.def.base.cd || 2.2) * Math.pow(0.95, w.lvl - 1), f = Math.max(1, base / Math.max(0.05, s.cd));
+      s.cd = base * f; s.dur *= f; s.drawK = f;
+      break;
+    }
     case 'peek': s.dmg *= 1 + 0.18 * P.multishot; s.knock = 140 * (1 + 0.4 * P.pierce); if (has('objectperm')) s.dur *= 2; break;
     case 'duedate': s.repeat += 0.1 * P.pierce; if (has('overdue')) { s.dur *= 2; s.repeat *= 2; } s.repeat = Math.min(1.2, s.repeat); break;
     case 'tape': s.chain += P.pierce + (has('triplicate') ? 3 : 0); s.share = has('bureaucracy') ? 0.7 + (s.share - 0.35) : s.share; break;
@@ -114,7 +121,7 @@ function crayonTick(w, dt) {
       }
     }
   }
-  while (L.length && G.t - L[0].t > s.dur) L.shift();
+  while (L.length && G.t - L[0].t > s.dur * (w.durK || 1)) L.shift(); // (durK: fire-rate boosts right now, e.g. Oxytocin, stretch the line too)
   // The line itself nicks what it touches.
   w.lineT = (w.lineT || 0) - dt;
   if (w.lineT <= 0 && L.length > 2) {

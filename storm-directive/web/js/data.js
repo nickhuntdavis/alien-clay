@@ -112,7 +112,7 @@ const WEAPONS = {
     base: { dmg: 18, cd: 0.55, mag: 8, reload: 0.9, count: 1, range: 90, area: 90, knock: 120 },
     lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { area: 0.2 } }, sig: { 5: ['spiky', 'bearhug'], 8: ['porcupine', 'fortress'], 10: ['bubblewrap', 'growthspurt'] } },
   // Toys: eight weapons that play unlike anything above (logic in toys.js). toy: fired through toyFire.
-  crayon: { name: 'Colouring In', stars: [4, 1, 3, 4], play: 'Your swim path is a crayon line. Swim a loop round enemies and everything inside gets coloured in (half as hard again). Every few seconds it closes the shape for you.', icon: 'CI', elem: 'phys', kind: 'crayon', toy: 1, color: '#f4a261', dir: 'nearest', role: 'Lasso',
+  crayon: { name: 'Colouring In', stars: [4, 1, 3, 4], play: 'Your swim path is a crayon line. Swim a loop round enemies and everything inside gets coloured in (half as hard again). Every few seconds it closes the shape for you. Fire rate works backwards: it makes the crayon wait longer and the line last longer, so you draw bigger shapes.', icon: 'CI', elem: 'phys', kind: 'crayon', toy: 1, color: '#f4a261', dir: 'nearest', role: 'Lasso',
     desc: 'Swim a loop round enemies and everything inside gets coloured in. Never inside the lines.',
     base: { dmg: 44, cd: 2.2, mag: 3, reload: 1.2, count: 1, range: 600, dur: 2.6 },
     lv: { 3: { dmg: 0.3 }, 6: { dur: 0.4 }, 9: { dmg: 0.5 } }, sig: { 5: ['scribble', 'stayinlines'], 8: ['paintbynumbers', 'fridgeart'], 10: ['masterpiece', 'jointhedots'] } },
