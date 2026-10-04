@@ -108,9 +108,13 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
     }
     case 'reborn': rebornPortrait(g, hx, hy, R, c, t); break;
     case 'splicer': {
-      g.lineWidth = Math.max(1.5, R * 0.06);
-      for (let s = 0; s < 2; s++) { g.strokeStyle = s ? c : '#ffffff'; g.beginPath(); for (let i = 0; i <= 40; i++) { const f = i / 40, a = f * TAU * 1.5 + t * 2 + s * Math.PI; g.lineTo(hx - R * 1.6 + f * R * 3.2, hy - R * 1.35 + Math.sin(a) * R * 0.3); } g.stroke(); }
-      g.strokeStyle = c + '88'; for (let i = 0; i <= 12; i++) { const f = i / 12, a = f * TAU * 1.5 + t * 2; g.beginPath(); g.moveTo(hx - R * 1.6 + f * R * 3.2, hy - R * 1.35 + Math.sin(a) * R * 0.3); g.lineTo(hx - R * 1.6 + f * R * 3.2, hy - R * 1.35 - Math.sin(a) * R * 0.3); g.stroke(); }
+      // The double helix inside the head (clipped to it).
+      g.save(); g.beginPath(); g.ellipse(hx, hy, R * 1.12, R * 0.74, 0, 0, TAU); g.clip();
+      const px = f => hx - R * 0.95 + f * R * 1.9, py = (f, s) => hy + Math.sin(f * TAU * 1.25 + t * 2 + s * Math.PI) * R * 0.42;
+      g.lineWidth = Math.max(1, R * 0.04); g.strokeStyle = c + '99'; for (let i = 1; i < 12; i++) { const f = i / 12; g.beginPath(); g.moveTo(px(f), py(f, 0)); g.lineTo(px(f), py(f, 1)); g.stroke(); }
+      g.lineWidth = Math.max(1.5, R * 0.07);
+      for (let s = 0; s < 2; s++) { g.strokeStyle = s ? c : '#ffffff'; g.beginPath(); for (let i = 0; i <= 40; i++) { const f = i / 40; g.lineTo(px(f), py(f, s)); } g.stroke(); }
+      g.restore();
       break;
     }
   }
@@ -314,9 +318,14 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
       }
       case 'reborn': rebornMods(k, c, t); break;
       case 'splicer': {
-        // A twisting double helix hovering over the head.
-        ctx.lineWidth = Math.max(0.8, 0.5 * k);
-        for (let s = 0; s < 2; s++) { ctx.strokeStyle = s ? c : '#ffffff'; ctx.beginPath(); for (let i = 0; i <= 16; i++) { const f = i / 16, a = f * TAU * 1.5 + t * 3 + s * Math.PI; const px = (-7 + f * 16) * k, py = (-9.5 + Math.sin(a) * 1.8) * k; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.stroke(); }
+        // A twisting double helix inside the head (clipped to it), with rungs.
+        ctx.save(); ctx.beginPath(); ctx.ellipse(1 * k, 0, 6.6 * k, 4.3 * k, 0, 0, TAU); ctx.clip();
+        const hxy = (f, s) => [(-4.5 + f * 11) * k, Math.sin(f * TAU * 1.25 + t * 3 + s * Math.PI) * 2.4 * k];
+        ctx.lineWidth = Math.max(0.6, 0.3 * k); ctx.strokeStyle = c; ctx.globalAlpha = alpha * 0.6;
+        for (let i = 1; i < 9; i++) { const [ax, ay] = hxy(i / 9, 0), [, by] = hxy(i / 9, 1); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, by); ctx.stroke(); }
+        ctx.globalAlpha = alpha; ctx.lineWidth = Math.max(0.8, 0.55 * k);
+        for (let s = 0; s < 2; s++) { ctx.strokeStyle = s ? c : '#ffffff'; ctx.beginPath(); for (let i = 0; i <= 18; i++) { const [px, py] = hxy(i / 18, s); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.stroke(); }
+        ctx.restore();
         break;
       }
     }
