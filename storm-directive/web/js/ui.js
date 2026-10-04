@@ -60,6 +60,7 @@ const UI = {
       startRewind(false);
     });
     $('playBtn').addEventListener('click', () => UI.openSamples());
+    $('quickBtn').addEventListener('click', () => UI.quickStart());
     $('dPrev').addEventListener('click', () => UI.draftStep(-1));
     $('dNext').addEventListener('click', () => UI.draftStep(1));
     $('dPick').addEventListener('click', () => { if (!UI.draft || !(UI.lastDown > UI.lootOpenT) || performance.now() - UI.lootOpenT < 500) return; UI.pickLoot(UI.draft.i); });
@@ -113,6 +114,19 @@ const UI = {
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
+  // Quick start (for testing): straight into the standard slide with a random unlocked sequence and a random
+  // starting weapon. No sample screen, no sequence screen, no microscope dive, no weapon draft. Your chosen
+  // sequence for normal runs is left as it was.
+  quickStart() {
+    const keep = META.profile, seqs = Object.keys(PROFILES).filter(id => profUnlocked(id));
+    META.profile = pick(seqs.length ? seqs : ['vanguard']);
+    UI.sample = 's001';
+    UI.startGame(false);
+    META.profile = keep;
+    const i = G.lootQueue.findIndex(q => q.kind === 'start');
+    if (i >= 0) { const [req] = G.lootQueue.splice(i, 1); const o = pick(genLoot(req)); if (o) { o.apply(); floatText(me().x, me().y - 40, o.title.toUpperCase(), PAL.upgrade, 15, 1.4); } }
+    UI.refreshHud(true);
+  },
   // From the title, the camera dives into the microscope first; tap to skip.
   startGame(intro) {
     initAudio();
