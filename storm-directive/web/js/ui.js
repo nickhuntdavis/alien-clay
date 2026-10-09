@@ -773,7 +773,7 @@ const UI = {
       rrelic: ['RIVAL RELIC', 'They will not be needing it. Choose one; the other goes with them.'],
       relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
       spoils: ['SPOILS', 'Picked from the wreckage. Choose one.'],
-      vesicle: ['ENZYME VESICLE', 'Four horribly unstable mutations. Staple one to your genome. You only have room for so many before you pop.'],
+      vesicle: ['LATERAL GENE TRANSFER', 'Four horribly unstable mutations, borrowed from a passing stranger. Staple one to your genome. You only have room for so many before you pop.'],
       splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
     };
     UI.pickedOne = false;
@@ -953,7 +953,7 @@ const UI = {
       const gs = G.genes.active.map(id => `<div class="li on"><b>${esc(PROFILES[id].name)}</b> ${id === G.genes.primary ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}<br><span>${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes.k[id] || 0))}</span></div>`).join('');
       const sy = PROFILE_SYNERGIES.filter(q => synOn(q.a, q.b)).map(q => `<div class="li on"><b style="color:${PAL.upgrade}">${esc(q.name)}</b><br><span>${esc(q.desc)}</span></div>`).join('');
       const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? `<div class="li"><b>Mystery Meat</b><br><span>Something inside is doing something.</span></div>` : `<div class="li"><b>${esc(MUTATIONS[id].name)}</b><br><span>${esc(MUTATIONS[id].desc)}</span></div>`).join('');
-      h += `<div class="sec"><h3>Your genome</h3><div class="list">${gs}${sy}</div><h3 style="margin-top:10px">Mutations (${mutCount()}/${mutCap()})</h3>${ms ? `<div class="list">${ms}</div>` : '<p class="hint">None yet. Burst an Enzyme Vesicle: follow the glow at the edge of the screen.</p>'}</div>`;
+      h += `<div class="sec"><h3>Your genome</h3><div class="list">${gs}${sy}</div><h3 style="margin-top:10px">Mutations (${mutCount()}/${mutCap()})</h3>${ms ? `<div class="list">${ms}</div>` : '<p class="hint">None yet. Swim into a Lateral Gene Transfer: follow the glow at the edge of the screen.</p>'}</div>`;
     }
     // Synergies.
     h += `<div class="sec"><h3>Element synergies (own 2+ of an element)</h3><div class="list">`;
@@ -1162,7 +1162,7 @@ const UI = {
       h += box('Sequence synergies', `<div class="list">${PROFILE_SYNERGIES.map(q => `<div class="li ${run && synOn(q.a, q.b) ? 'on' : ''}"><b>${esc(q.name)}</b><br><span>${esc(PROFILES[q.a].name)} + ${esc(PROFILES[q.b].name)}: ${esc(q.desc)}</span></div>`).join('')}</div>`);
     }
     if (show('muts')) {
-      h += box(`Mutations found (${mf.length}/${mids.length})`, `<div class="list">${mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')}</div>`, 'They come out of Enzyme Vesicles: burst one, pick one of four.');
+      h += box(`Mutations found (${mf.length}/${mids.length})`, `<div class="list">${mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')}</div>`, 'They come from Lateral Gene Transfers: swim into one, pick one of four.');
     }
     if (show('pairs')) {
       let lc = '';

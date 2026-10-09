@@ -1,6 +1,6 @@
 'use strict';
 // Spawn Prawn - genes: Epigenetic Profiles (pick a Primary Sequence before a run, splice in up to two more
-// at half strength, each one ranks up with the kills it's expressed for) and Enzyme Vesicles (they pop up
+// at half strength, each one ranks up with the kills it's expressed for) and Lateral Gene Transfers (they pop up
 // around the slide; burst one to staple one of four Mutations into your genome, up to a limited number).
 // Hooks, called from the game: genesStart (newGame), genesTick (update), genesDamageMul / genesCrit /
 // genesHit (damageEnemy), genesKill (killEnemy), genesHurt / genesLethal / genesArmour (hurtPlayer),
@@ -72,7 +72,7 @@ function genesSplice(id) {
   banner('SPLICED: ' + PROFILES[id].name.toUpperCase(), PAL.upgrade);
 }
 
-// ================================================================ Mutations (from Enzyme Vesicles)
+// ================================================================ Mutations (from Lateral Gene Transfers)
 // tier: 0 common, 1 rare, 2 epic (the card's rarity). apply: once, when you take it. Everything else is a hook
 // that looks at G.mut.
 const MUTATIONS = {
@@ -97,7 +97,7 @@ const MUTATIONS = {
   overachiever:{ tier: 2, name: 'First Dibs', desc: 'Weapon hits on enemies at full health always crit.' },
   chernobyl:   { tier: 2, name: 'Small but Mighty', desc: 'Double damage. Half max HP.', apply: P => { P.might *= 2; P.maxHp = Math.round(P.maxHp * 0.5); G.player.hp = Math.min(G.player.hp, P.maxHp); } },
   bonejuice:   { tier: 0, name: 'Strong Bones', desc: '+1 max HP for every 15 kills (elites count as 5), up to +100. Milk helps.' },
-  skeletonkey: { tier: 1, name: 'Double Yolk', desc: 'Every Enzyme Vesicle has a 30% chance to let you take two mutations.' },
+  skeletonkey: { tier: 1, name: 'Double Yolk', desc: 'Every Lateral Gene Transfer has a 30% chance to let you take two mutations.' },
   proteinchug: { tier: 0, name: 'Sweet Tooth', desc: 'Glucose Hits heal three times as much, and all healing is 20% stronger.', apply: P => { P.healMult += 0.2; } },
   heavymetal:  { tier: 0, name: 'Spoilt Rotten', desc: 'Power-ups drop from enemies twice as often.' },
   lube:        { tier: 0, name: 'Non-Slip Socks', desc: '+10% swim speed and +30% traction.', apply: P => { P.speed += 0.1; P.traction += 0.3; } },
@@ -129,7 +129,7 @@ const MUTATIONS = {
   pustule:     { tier: 0, name: 'Sour Face', desc: 'Acid +30%, Base -20%.', apply: P => { P.elem.fire += 0.3; P.elem.ice -= 0.2; } },
   runningjuice:{ tier: 0, name: 'Runner\'s High', desc: '+2 HP/s regeneration while you swim fast.' },
   sugarrush:   { tier: 0, name: 'E Numbers', desc: 'Killing an elite: 3s of +25% fire rate. The blue ones are worst.' },
-  trojan:      { tier: 0, name: 'Surprise Package', desc: 'Popping an Enzyme Vesicle blows everything near you away.' },
+  trojan:      { tier: 0, name: 'Surprise Package', desc: 'Popping a Lateral Gene Transfer blows everything near you away.' },
   waterbear:   { tier: 1, name: 'Finders Keepers', desc: 'Rerolls have a 35% chance not to be used up. +5% luck.', apply: P => { P.luck += 0.05; } },
   snottrail:   { tier: 0, name: 'Snot Trail', desc: '+5% swim speed, Ethanol +5%.', apply: P => { P.speed += 0.05; P.elem.poison += 0.05; } },
   stiff:       { tier: 0, name: 'Stiff as a Board', desc: '+10% dodge chance, -20% swim speed.', apply: P => { P.dodge += 0.1; P.speed -= 0.2; } },
@@ -158,13 +158,27 @@ function genesStart(G) {
   G.player.hp = Math.max(G.player.hp, P.maxHp);
 }
 
+// Bursting one queues its mutation box. (A full genome can't take another mutation, so its genes become a DNA strand instead.)
+function vesBurst(v) {
+  v.dead = true;
+  fxParts('drop', v.x, v.y, '#e9f5db', 14, 220, 0.6, 4); ring(v.x, v.y, 70, PAL.upgrade, 0.4, 4); sfx('pickup');
+  if (mutCount() >= mutCap()) { floatText(v.x, v.y - 20, 'GENOME FULL: DNA STRAND', PAL.reward, 14); G.lootQueue.push({ kind: 'chest', src: { t: 'drop', name: 'Lateral Gene Transfer' } }); return; }
+  G.lootQueue.push({ kind: 'vesicle' });
+  G.vesTwo = mutOn('skeletonkey') && Math.random() < 0.3;
+}
+// Wave clear (waves.js): any still on the slide burst for you, so they open with the wave's other boxes.
+function vesWaveClear() {
+  if (!G.vesicles || !G.vesicles.length) return;
+  for (const v of G.vesicles) if (!v.dead) vesBurst(v);
+  compactArr(G.vesicles, v => !v.dead);
+}
 // ================================================================ loot: vesicles and splices (from genLoot)
 function vesicleOpts() {
   const pool = shuffle(Object.keys(MUTATIONS).filter(id => !G.mut[id]));
   return pool.slice(0, 4).map(id => {
     const M = MUTATIONS[id];
     return { rarity: [1, 3, 4][M.tier], tag: 'MUTATION', icon: M.name.replace(/^The /, '').replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: PAL.upgrade,
-      title: M.name, sub: `Enzyme Vesicle | genome ${mutCount()}/${mutCap()}`, desc: M.desc, apply: () => mutTake(id) };
+      title: M.name, sub: `Lateral Gene Transfer | genome ${mutCount()}/${mutCap()}`, desc: M.desc, apply: () => mutTake(id) };
   });
 }
 function mutTake(id) {
@@ -222,7 +236,8 @@ function genesTick(dt) {
   abilityTick();
   const p = G.player, P = G.P, T = G.mutT, sp = Math.hypot(p.vx || 0, p.vy || 0);
   // Vesicles.
-  if (G.t >= G.nextVesicle && !G.debug) {
+  // (In the dish, only while a wave is on: between waves they would open at once instead of with the wave's boxes.)
+  if (G.t >= G.nextVesicle && !G.debug && !(typeof wavesMode === 'function' && wavesMode() && !G.wave.active)) {
     G.nextVesicle = G.t + rand(VESICLE.every[0], VESICLE.every[1]);
     if (G.vesicles.length < VESICLE.max && mutCount() < mutCap()) {
       for (let tries = 0; tries < 12; tries++) {
@@ -231,9 +246,9 @@ function genesTick(dt) {
         const v = unstick({ x, y, born: G.t, seed: Math.random() * 10 }, 26);
         G.vesicles.push(v);
         // A bold announcement every time: a banner, a ping from the vesicle and a chime.
-        banner('MUTATION VESICLE!', '#c7f9cc'); sfx('level'); vibrate(40);
+        banner('LATERAL GENE TRANSFER!', '#c7f9cc'); sfx('level'); vibrate(40);
         v.pingT = G.realT;
-        if (!G.vesSeen) { G.vesSeen = true; sysMsg('ENZYME VESICLE', 'A vesicle has bulged up somewhere on the slide. Follow the green arrows and swim into it to burst it for a mutation. It pops by itself after a minute.', PAL.upgrade, true); }
+        if (!G.vesSeen) { G.vesSeen = true; sysMsg('LATERAL GENE TRANSFER', 'A bubble of stray genes has bulged up somewhere on the slide. Follow the green arrows and swim into it to take in a mutation. It pops by itself after a minute.' + (typeof wavesMode === 'function' && wavesMode() ? ' Its mutations open with the boxes at the end of the wave.' : ''), PAL.upgrade, true); }
         break;
       }
     }
@@ -241,12 +256,7 @@ function genesTick(dt) {
   for (const v of G.vesicles) {
     if (G.t - v.born > VESICLE.life) { v.dead = true; continue; }
     if (Math.hypot(p.x - v.x, p.y - v.y) < p.r + 36) { // (generous: brushing it is enough)
-      v.dead = true;
-      // A full genome can't take another mutation, so the vesicle's enzymes become a DNA strand instead.
-      if (mutCount() >= mutCap()) { floatText(v.x, v.y - 20, 'GENOME FULL: DNA STRAND', PAL.reward, 14); G.lootQueue.push({ kind: 'chest', src: { t: 'drop', name: 'Enzyme Vesicle' } }); continue; }
-      G.lootQueue.push({ kind: 'vesicle' });
-      G.vesTwo = mutOn('skeletonkey') && Math.random() < 0.3;
-      fxParts('drop', v.x, v.y, '#e9f5db', 14, 220, 0.6, 4); ring(v.x, v.y, 70, PAL.upgrade, 0.4, 4); sfx('pickup');
+      vesBurst(v);
       if (mutOn('trojan')) { aoe(p.x, p.y, 180, 40 * (1 + G.level * 0.12) * P.might, { elem: 'phys', wname: 'Surprise Package', knock: 400, noCrit: true }, '#e9f5db'); }
     }
   }

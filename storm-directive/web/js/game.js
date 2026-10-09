@@ -2168,7 +2168,7 @@ function autoSteer() {
   let bestPick = null, bpd = Infinity;
   for (const u of G.pickups) { const d = Math.hypot(u.x - p.x, u.y - p.y); if (d < bpd) { bpd = d; bestPick = u; } }
   if (bestPick && bpd < (mode === 'collect' ? 900 : 380)) goal(bestPick.x, bestPick.y, mode === 'hold' ? 0.3 : 1.2);
-  // COLLECT also goes for Enzyme Vesicles (mutations), the nearest first, ahead of gems.
+  // COLLECT also goes for Lateral Gene Transfers (mutations), the nearest first, ahead of gems.
   // (A full genome still wants them: they turn into DNA strands.) Close in, it commits: a much stronger pull,
   // little momentum bias and no cap, so the swimmer turns into it instead of circling round it.
   let homing = false;

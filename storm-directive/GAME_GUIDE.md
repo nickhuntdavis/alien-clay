@@ -14,7 +14,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 8. [Feats](#feats)
    - [Feat paths (Lv 4)](#feat-paths-lv-4)
 9. [Power-ups (passives)](#power-ups-passives)
-10. [Mutations (Enzyme Vesicles)](#mutations-enzyme-vesicles)
+10. [Mutations (Lateral Gene Transfers)](#mutations-lateral-gene-transfers)
 11. [Mythical and Celestial bonuses](#mythical-and-celestial-bonuses)
 12. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
    - [Lv 3 pool](#lv-3-pool)
@@ -58,7 +58,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 5. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
 6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
 7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 20, 40 you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).
-8. **Mutations:** Enzyme Vesicles bulge up on the slide (the first at 40s, then every 45 to 70s). Swim into one to pick one of four mutations; you have 6 slots.
+8. **Mutations:** Lateral Gene Transfers (bubbles of stray genes) bulge up on the slide (the first at 40s, then every 45 to 70s). Swim into one to pick one of four mutations; you have 6 slots.
 9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Storm Surge. Each run meets 4 of the 9, in a random order. Beat one and choose one of its three relics.
 10. **Rarity** multiplies a card's value:
 
@@ -1229,9 +1229,9 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Homebrew** | +8% fire rate and +8% damage, -2% swim speed | You | 4 |
 | **Thick as Thieves** | +2 armour and +6% luck | You | 3 |
 
-## Mutations (Enzyme Vesicles)
+## Mutations (Lateral Gene Transfers)
 
-Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slots (more with the Gene Bank's Well-Incubated). Tier 0 are common, tier 2 rare.
+Swim into one (COLLECT autorun goes for them) and pick one of four. 6 slots (more with the Gene Bank's Well-Incubated). Tier 0 are common, tier 2 rare.
 
 | Mutation | Tier | Effect |
 |---|---|---|
@@ -1262,7 +1262,7 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Sour Face** | 0 | Acid +30%, Base -20%. |
 | **Runner's High** | 0 | +2 HP/s regeneration while you swim fast. |
 | **E Numbers** | 0 | Killing an elite: 3s of +25% fire rate. The blue ones are worst. |
-| **Surprise Package** | 0 | Popping an Enzyme Vesicle blows everything near you away. |
+| **Surprise Package** | 0 | Popping a Lateral Gene Transfer blows everything near you away. |
 | **Snot Trail** | 0 | +5% swim speed, Ethanol +5%. |
 | **Stiff as a Board** | 0 | +10% dodge chance, -20% swim speed. |
 | **Biting Phase** | 0 | Hits heal you a little (within the lifesteal limit). It is just a phase. |
@@ -1278,7 +1278,7 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Mood Swings** | 1 | Acid, Base and Static +40%. Force, Ethanol and Voodoo -10%. |
 | **Middle Child** | 1 | Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts. |
 | **Character Building** | 1 | Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits. |
-| **Double Yolk** | 1 | Every Enzyme Vesicle has a 30% chance to let you take two mutations. |
+| **Double Yolk** | 1 | Every Lateral Gene Transfer has a 30% chance to let you take two mutations. |
 | **First Word** | 1 | Your Feats always crit on enemies at full health, and crits hit 25% harder. |
 | **Pass the Parcel** | 1 | Charged enemies pass a jolt to a neighbour every second. |
 | **Flare-Up** | 1 | Corroding enemies can burst (about 1 in 10 each second) in a small acid blast. |
@@ -1562,7 +1562,7 @@ Own two or more weapons or Feats of one element to unlock its set bonus.
 | Directive | Behaviour |
 |---|---|
 | **KITE** | Keep distance from threats, dodge bullets |
-| **COLLECT** | Hoover up XP, power-ups and mutation vesicles |
+| **COLLECT** | Hoover up XP, power-ups and Lateral Gene Transfers |
 | **ORBIT** | Circle around the horde |
 | **HUNT** | Close in on the primary target |
 | **HOLD** | Stand ground, only dodge bullets |
@@ -1621,7 +1621,7 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 | **Thick Zona** | +1 armour per rank | 3 | 45 / 80 / 115 |
 | **Lucky Genes** | +5% luck per rank (rarer DNA strands) | 3 | 35 / 65 / 95 |
 | **Sharp Acrosome** | +3% crit chance per rank | 3 | 40 / 70 / 100 |
-| **Well-Incubated** | +1 mutation slot per rank (Enzyme Vesicles) | 2 | 80 / 140 |
+| **Well-Incubated** | +1 mutation slot per rank (Lateral Gene Transfers) | 2 | 80 / 140 |
 
 ### Wildcard weapons
 

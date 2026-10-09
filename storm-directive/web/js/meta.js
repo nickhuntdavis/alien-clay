@@ -13,7 +13,7 @@ const META_BONUSES = [
   { id: 'armour',   name: 'Thick Zona',         desc: '+1 armour per rank',              max: 3, cost: r => 45 + r * 35, apply: (G, r) => { G.P.armour += r; } },
   { id: 'luck',     name: 'Lucky Genes',        desc: '+5% luck per rank (rarer DNA strands)', max: 3, cost: r => 35 + r * 30, apply: (G, r) => { G.P.luck += 0.05 * r; } },
   { id: 'crit',     name: 'Sharp Acrosome',     desc: '+3% crit chance per rank',        max: 3, cost: r => 40 + r * 30, apply: (G, r) => { G.P.crit += 0.03 * r; } },
-  { id: 'incubated', name: 'Well-Incubated',    desc: '+1 mutation slot per rank (Enzyme Vesicles)', max: 2, cost: r => 80 + r * 60, apply: () => {} },
+  { id: 'incubated', name: 'Well-Incubated',    desc: '+1 mutation slot per rank (Lateral Gene Transfers)', max: 2, cost: r => 80 + r * 60, apply: () => {} },
 ];
 // What a rank adds, in words, for the Gene Bank's "next swimmer" line.
 const META_NOW = { hp: r => `+${10 * r} max HP`, dmg: r => `+${4 * r}% damage`, xp: r => `+${5 * r}% XP`, reroll: r => `+${r} reroll${r > 1 ? 's' : ''}`, grip: r => `+${10 * r}% traction`,
@@ -113,7 +113,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '8.44';
+const APP_VERSION = '8.45';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
