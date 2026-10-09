@@ -5,7 +5,7 @@
 //  - Feats (what used to be spells): the attacking ones cost stamina instead of waiting on a cooldown, so you can
 //    spend it on speed or on Feats. The rest (Kiss It Better, Nap Time, Latex Barrier, Baby Monitor) keep cooldowns.
 // Hooks: stamTick (update), sprintMul (player speed), featCost / featPay (updateSpellList), drawStamina (HUD).
-const STAM = { max: 100, regen: 14, sprintCost: 30, sprintK: 1.55, rest: 0.6, featK: 9, windedAt: 0.3, push: 58, stick: 70 };
+const STAM = { max: 60, regen: 14, sprintCost: 30, sprintK: 1.55, rest: 0.6, featK: 9, windedAt: 0.3, push: 58, stick: 70 };
 const STAM_FEATS = new Set(['meteor', 'frostnova', 'thunder', 'blackhole', 'bladestorm', 'cloud']);
 const stamMax = () => Math.max(20, STAM.max + (G.P.stamMax || 0));
 function stamInit() { G.stam = { cur: stamMax(), restT: 0, sprint: false, winded: false }; }
@@ -24,7 +24,8 @@ function stamTick(dt) {
 }
 const sprintMul = () => (G.stam && G.stam.sprint ? STAM.sprintK + (G.P.sprintSpd || 0) : 1);
 // What a Feat costs (0: it runs on a cooldown). Scales with the Feat's cooldown, so cooldown upgrades make it cheaper.
-const featCost = w => (!w.echo && STAM_FEATS.has(w.id) ? Math.max(10, Math.round(w.s.cd * STAM.featK * (G.P.featCost || 1))) : 0);
+// (Never more than 90% of a full bar, so a small bar can still afford its biggest Feat.)
+const featCost = w => (!w.echo && STAM_FEATS.has(w.id) ? Math.max(10, Math.min(Math.round(stamMax() * 0.9), Math.round(w.s.cd * STAM.featK * (G.P.featCost || 1)))) : 0);
 // Can it go now? (true: pay and cast). Feats that cost stamina still wait a short beat between casts.
 function featPay(w) {
   const c = featCost(w);

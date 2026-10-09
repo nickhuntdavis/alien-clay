@@ -1126,7 +1126,7 @@ From level 6 (and about 70 seconds in), something unexpected happens every 55 to
 
 ## Feats
 
-Feats (what used to be Feats) cast themselves and use the two Feat slots. The attacking ones (Stork Drop, Power Shower, Brainstorm, Sofa Crevice, Running With Scissors, Dutch Oven) are paid for from your stamina instead of waiting on a cooldown; the rest keep cooldowns. They level up like weapons, and at Lv 4 each one asks you to choose one of two paths (below).
+Feats (what used to be spells) cast themselves and use the two Feat slots. The attacking ones (Stork Drop, Power Shower, Brainstorm, Sofa Crevice, Running With Scissors, Dutch Oven) are paid for from your stamina instead of waiting on a cooldown; the rest keep cooldowns. They level up like weapons, and at Lv 4 each one asks you to choose one of two paths (below).
 
 | Feat | Element | What it does | Base stats | Level bonuses |
 |---|---|---|---|---|
@@ -1437,7 +1437,7 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 
 ## Stamina
 
-One bar, under your health. In manual control, push the stick past its edge (or hold Shift) to sprint: 55% faster, burning 30 stamina a second. Run dry and you are winded until it is back to 30%. Stamina refills at 14 a second after a short pause. The attacking Feats cost stamina (9 per second of their old cooldown), so sprinting and casting share it. Upgrades: Big Lungs (+25 max), Second Wind (refills 30% faster), Cardio (sprinting cheaper and faster), Muscle Memory (Feats cheaper). Curses: Smoker's Cough and Couch Potato.
+One bar of 60 (shown as a thin ring inside your health ring). In manual control, push the stick past its edge (or hold Shift) to sprint: 55% faster, burning 30 stamina a second. Run dry and you are winded until it is back to 30%. Stamina refills at 14 a second after a short pause. The attacking Feats cost stamina (9 per second of their old cooldown, never more than 90% of a full bar), so sprinting and casting share it. Upgrades: Big Lungs (+25 max), Second Wind (refills 30% faster), Cardio (sprinting cheaper and faster), Muscle Memory (Feats cheaper). Curses: Smoker's Cough and Couch Potato.
 
 ## Sequence evolutions
 
