@@ -88,7 +88,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **The Chonker** | Puppy Fat: +1 armour | Hiccup Scattergun, Placenta Paddle, Thorny Onesie, Nappy Mines | **Mood Swing** (30s): Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s. | Always |
 | **The Bright Spark** | Early Developer: +6% fire rate, Feats recharge 6% faster | Static Cling, Twin Telepathy, Toddler Gravity | **Short Fuse** (10s): Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets. | Always |
 | **The Favourite** | Favouritism: +4% crit chance, +15% crit damage | Due Date, Antacid, Tooth Fairy | **Telling Tales** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Survive 10 minutes in a single run |
-| **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Incompatible Viral Load, Peekaboo | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Beat 25 bosses (all runs) |
+| **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Pub Crawl, Peekaboo | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Beat 25 bosses (all runs) |
 | **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Pick up 100 power-ups (all runs) |
 | **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six acid pools erupts around you. They corrode harder the more hurt you are. | Deal 2,000,000 chemical damage (all runs) |
 | **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, saponifying everything in it (bosses only briefly). | Cast 1,500 Feats (all runs) |
@@ -116,7 +116,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Spitball](#spitball) | Firstborn | Force | Marksman | NEAREST | - |
 | [Hiccup Scattergun](#hiccup-scattergun) | Chonker | Force | Brawler | NEAREST | - |
 | [Yo-Yo Diet](#yo-yo-diet) | Firstborn | Force | Boomerang | FURTHEST | - |
-| [Incompatible Viral Load](#incompatible-viral-load) | Quiet One | Ethanol | Boozy Trail | NEAREST | 80 DNA |
+| [Pub Crawl](#incompatible-viral-load) | Quiet One | Ethanol | Boozy Trail | NEAREST | 80 DNA |
 | [Heartburn](#heartburn) | Problem Child | Acid | Acid Spray | NEAREST | - |
 | [Nappy Mines](#nappy-mines) | Chonker | Acid | Trapper | NEAREST | 60 DNA |
 | [Antacid](#antacid) | Favourite | Base | Saponifier | FASTEST | - |
@@ -209,7 +209,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Lv 10 mastery | **Around the World** | Three yo-yos per throw, and every catch heals you a little for each enemy it hit. |
 |  | **Gravity Pull** | At full reach it becomes a gravity well for 1.5s, then snaps home dragging its catch with it. |
 
-### Incompatible Viral Load
+### Pub Crawl
 
 *Ethanol wake, Boozy Trail.* A boozy trail smeared behind you as you swim. Stop, and it is just a puddle.
 
@@ -258,7 +258,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 34, cd 0.7s, mag 5, reload 2.4s, range 600 (explode 72, life 14)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +50% dmg
 - **Combos:** **Whack-a-Mole** (+ Placenta Paddle)
-- **Pairings:** **Baby Monitor Network** (+ Static Cling), **Trail Mix** (+ Incompatible Viral Load), **Bait and Switch** (+ Tooth Fairy)
+- **Pairings:** **Baby Monitor Network** (+ Static Cling), **Trail Mix** (+ Pub Crawl), **Bait and Switch** (+ Tooth Fairy)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -321,7 +321,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 10, cd 0.9s, mag 4, reload 1.8s, range 390 (area 58, dur 3, flight 0.6)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +40% area
 - **Combos:** **Flash Point** (+ Heartburn), **Sticky Situation** (+ Red Tape)
-- **Pairings:** **Nappy Trail** (+ Incompatible Viral Load), **Something Going Round** (+ Tapeworm Seeder), **Nappy Rash** (+ Thorny Onesie), **Colouring Book** (+ Colouring In), **Toil and Trouble** (+ Bubble Wand)
+- **Pairings:** **Nappy Trail** (+ Pub Crawl), **Something Going Round** (+ Tapeworm Seeder), **Nappy Rash** (+ Thorny Onesie), **Colouring Book** (+ Colouring In), **Toil and Trouble** (+ Bubble Wand)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -467,7 +467,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 19, cd 0.38s, mag 6, reload 1s, range 190 (area 1, width 15, knock 60)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +25% area
-- **Combos:** **Whiplash** (+ Incompatible Viral Load)
+- **Combos:** **Whiplash** (+ Pub Crawl)
 - **Pairings:** **One-Two** (+ Placenta Paddle), **Live Wire** (+ Static Cling), **Lashing Out** (+ Karma)
 
 | Level | Choice | Effect |
@@ -593,7 +593,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 20, cd 5.5s, mag 1, reload 0.1s, range 420 (dur 1.8, area 230)
 - **Level bonuses:** Lv3: +25% duration; Lv6: +25% area; Lv9: +50% dmg
-- **Combos:** **Silent but Deadly** (+ Incompatible Viral Load)
+- **Combos:** **Silent but Deadly** (+ Pub Crawl)
 - **Pairings:** **He Went That Way** (+ Imaginary Friend), **Who You Gonna Call** (+ Ghosts of You), **Shotgun Surprise** (+ Shotgun Wedding)
 
 | Level | Choice | Effect |
@@ -833,14 +833,14 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 |---|---|---|
 | Spoilers | Placenta Paddle | some swings also land on a second enemy further away. |
 | Spoilers | Flagellum Flail | some lashes also crack across a second enemy further away. |
-| Spoilers | Incompatible Viral Load | the shot is you. Every few seconds you blink straight through an enemy, cutting the line. |
+| Spoilers | Pub Crawl | the shot is you. Every few seconds you blink straight through an enemy, cutting the line. |
 | Spoilers | Nappy Mines | some mines appear already under an enemy. |
 | Spoilers | Morning Sickness | some globs land before you throw them. |
 | Spoilers | Static Cling | some bolts start from the far side of the crowd. |
 | Spoilers | Premature Evangelation | angels pop up next to enemies to bless them early. |
 | Spoilers | Placental Siphon | some returned shots appear right next to their target. |
 | Split Personality | Toddler Gravity | more orbs, which pull together and merge into bigger ones (twenty merged go supernova). |
-| Split Personality | Incompatible Viral Load | a bigger, longer blade (+18% width and length per stack). |
+| Split Personality | Pub Crawl | a bigger, longer blade (+18% width and length per stack). |
 | Split Personality | Placenta Paddle | +1 swing, aimed another way. |
 | Split Personality | Flagellum Flail | +1 lash in the fan. |
 | Split Personality | Thorny Onesie | +18% pulse damage. |
@@ -859,7 +859,7 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Pushy | Morning Sickness | puddles 12% bigger. |
 | Pushy | Nappy Mines | blasts shove enemies away. |
 | Pushy | Premature Evangelation | angels bless each enemy more often as they pass. |
-| Pushy | Incompatible Viral Load | the trail shoves enemies aside. |
+| Pushy | Pub Crawl | the trail shoves enemies aside. |
 | Pushy | Placental Siphon | returned shots pierce. |
 | Pushy | Colouring In | a thicker line. |
 | Pushy | Due Date | +10% repeat. |
@@ -875,10 +875,10 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Personal Space | Antacid | bigger shards. |
 | Personal Space | Seeker Siblings | bigger siblings. |
 | Personal Space | Tapeworm Seeder | bigger worms. |
-| Twitchy Tail | Incompatible Viral Load | the trail hits faster. |
+| Twitchy Tail | Pub Crawl | the trail hits faster. |
 | Twitchy Tail | Premature Evangelation | angels circle faster. |
-| Short Refractory Period | Incompatible Viral Load | the trail lingers longer. |
-| Bigger Load | Incompatible Viral Load | a wider trail. |
+| Short Refractory Period | Pub Crawl | the trail lingers longer. |
+| Bigger Load | Pub Crawl | a wider trail. |
 | Bigger Load | Premature Evangelation | bigger angels. |
 | Early Arrival | Placenta Paddle | longer reach. |
 | Early Arrival | Flagellum Flail | a longer lash. |
@@ -890,9 +890,9 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Last Word | Nappy Mines | the last mine of each batch is a big one. |
 | Tactical Nap | Premature Evangelation | a bullet-clearing shockwave whenever the angels take their break. |
 | Tactical Nap | Placental Siphon | a shockwave whenever the store runs dry. |
-| Tunnel Vision | Incompatible Viral Load | the trail hits harder the longer you keep swimming fast. |
+| Tunnel Vision | Pub Crawl | the trail hits harder the longer you keep swimming fast. |
 | Tunnel Vision | Premature Evangelation | angels hit harder the longer they stay on shift. |
-| Hair Trigger | Incompatible Viral Load | Incompatible Viral Load has no cooldown, so its trail hits 33% harder instead. |
+| Hair Trigger | Pub Crawl | Pub Crawl has no cooldown, so its trail hits 33% harder instead. |
 
 ## Weapon combos
 
@@ -908,8 +908,8 @@ Both weapons at Lv 5+: a COMBO card is guaranteed in your next box. Both keep fi
 | **Party Line** | Twin Telepathy + Static Cling | Bright Spark | Every second, each twin sends a Static Cling chain into the crowd. |
 | **Clean Slate** | Due Date + Antacid | Favourite | When a Due Date goes off, everything near it is saponified and takes a burst of antacid. |
 | **Soap in the Mouth** | Tooth Fairy + Antacid | Favourite | Tooth Fairy smites saponify their victim. A saponified victim takes double. |
-| **Whiplash** | Flagellum Flail + Incompatible Viral Load | Quiet One | Every lash leaves a strip of viral trail along its length. |
-| **Silent but Deadly** | Peekaboo + Incompatible Viral Load | Quiet One | While you are hidden, your viral trail hits 2.5x as hard. The BOO leaves a ring of it round the spot. |
+| **Whiplash** | Flagellum Flail + Pub Crawl | Quiet One | Every lash leaves a strip of viral trail along its length. |
+| **Silent but Deadly** | Peekaboo + Pub Crawl | Quiet One | While you are hidden, your viral trail hits 2.5x as hard. The BOO leaves a ring of it round the spot. |
 | **Worm Farm** | Bubble Wand + Tapeworm Seeder | Good Eater | Anything trapped in a bubble catches Tapeworm. Bubble pops hit infected enemies 50% harder. |
 | **Bubble Halo** | Premature Evangelation + Bubble Wand | Good Eater | Your angels blow bubbles at small enemies near them. |
 | **Flash Point** | Morning Sickness + Heartburn | Problem Child | Heartburn reacts with your puddles: each one in range erupts in an acid burst every second. |
@@ -933,7 +933,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Tetherball** | Yo-Yo Diet + Toddler Gravity | Yo-yos drag enemies back towards you on every throw. |
 | **Family Tree** | Seeker Siblings + Tapeworm Seeder | Tapeworm turrets fire homing Seeker Siblings. |
 | **Collection Plate** | Placental Siphon + Premature Evangelation | The angels catch enemy bullets and feed them into the Siphon. |
-| **Nappy Trail** | Incompatible Viral Load + Morning Sickness | Your viral trail is extra strong: it hits 50% harder. |
+| **Nappy Trail** | Pub Crawl + Morning Sickness | Your viral trail is extra strong: it hits 50% harder. |
 | **Conductive Spit** | Spitball + Static Cling | Spat-on enemies are wet: static deals double damage to them. |
 | **Sucker Punch** | Hiccup Scattergun + Toddler Gravity | Enemies caught in a gravity orb take double damage from the Scattergun. |
 | **Plughole** | Antacid + Toddler Gravity | Gravity orbs lather everything they hold and saponify it. |
@@ -941,7 +941,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Tagging Along** | Seeker Siblings + Yo-Yo Diet | Every yo-yo hit launches a Seeker Sibling. |
 | **Something Going Round** | Tapeworm Seeder + Morning Sickness | Anything that dies in a puddle was infected all along. |
 | **Static Discharge** | Static Cling + Placental Siphon | Every 12 bullets the Siphon eats fires a Static Cling chain at four enemies. |
-| **Trail Mix** | Incompatible Viral Load + Nappy Mines | Your viral trail drops a Nappy Mine every 1.5s. |
+| **Trail Mix** | Pub Crawl + Nappy Mines | Your viral trail drops a Nappy Mine every 1.5s. |
 | **One-Two** | Flagellum Flail + Placenta Paddle | Enemies the Flail has lashed take double damage from the Paddle for 2s. |
 | **Live Wire** | Flagellum Flail + Static Cling | The tip of every lash sets off a Static Cling chain. |
 | **Nappy Rash** | Thorny Onesie + Morning Sickness | Every Onesie pulse adds a round of Ethanol to what it hits. |
@@ -1212,7 +1212,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Pincer Movement** | Weapons sharing a target: +15% damage. Three or more weapons all on different targets: +15% fire rate | You | 3 |
 | **Hurry Up** | Up to +22% damage the faster you are moving | You | 4 |
 | **Separation Anxiety** | Near the egg: +12% fire rate. Away from it: +12% crit chance | You | 3 |
-| **Spoilers** | 10% of shots appear already next to their target (with the Incompatible Viral Load, you do) | You | 4 |
+| **Spoilers** | 10% of shots appear already next to their target (with the Pub Crawl, you do) | You | 4 |
 | **Inheritance** | When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your Feats too and last twice as long (Rare or better only) | You | 1 |
 | **Headstrong** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | You | 5 |
 | **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | You | 4 |
@@ -1634,7 +1634,7 @@ Unlocked wildcards can be drafted by any sequence.
 | Nappy Mines | 60 |
 | Premature Evangelation | 60 |
 | Toddler Gravity | 80 |
-| Incompatible Viral Load | 80 |
+| Pub Crawl | 80 |
 | Tapeworm Seeder | 90 |
 | Placental Siphon | 100 |
 | Colouring In | 90 |

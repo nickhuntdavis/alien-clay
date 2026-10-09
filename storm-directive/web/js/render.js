@@ -536,7 +536,7 @@ function buildOocyte(r) {
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
-// Viral trails (Incompatible Viral Load): the trail is a run of small zones dropped as you swim. Draw each run
+// Pub Crawl trails (Pub Crawl): the trail is a run of small zones dropped as you swim. Draw each run
 // as one smooth ribbon that tapers and fades with age (in a few age bands, so overlaps never double up), with a
 // dark core and virus specks drifting in it, instead of a row of stamped circles.
 function drawTrails() {
@@ -643,7 +643,7 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
 const NOLOOK = { tails: 1, head: 1, stretch: 1, tailLen: 1, beat: 1, armour: 0, cilia: 0, barb: 0, acro: 1, elem: null, field: 0, drop: 0, luck: 0 };
 const ELEM_PASSIVE = { pyro: 'fire', cryo: 'ice', storm: 'shock', toxin: 'poison', arcanum: 'arcane', kinetic: 'phys' };
 function shipLook() {
-  const P = G.passives, key = Object.entries(P).join() + '|' + G.level;
+  const P = G.passives, key = Object.entries(P).join() + '|' + G.level + '|' + (G.genes ? G.genes.active.join('+') : '');
   if (G.lookKey === key && G.look) return G.look;
   const n = id => Math.min(5, P[id] || 0);
   let elem = null, best = 0;
@@ -651,7 +651,7 @@ function shipLook() {
   G.lookKey = key;
   G.look = {
     tails: 1 + Math.min(3, P.multishot || 0),
-    head: 1 + 0.07 * n('vital') + 0.04 * n('armour'),
+    head: (1 + 0.07 * n('vital') + 0.04 * n('armour')) * (G.genes && G.genes.active.includes('bruiser') ? 1.3 : 1), // (the Chonker is just fatter)
     stretch: 1 + 0.05 * (n('speed') + n('hydro')),
     tailLen: 1, // the flagellum no longer grows
     beat: 1 + 0.12 * (n('haste') + n('reload')),
@@ -668,8 +668,24 @@ function shipLook() {
   return G.look;
 }
 
+// Squash and stretch on your head: it lengthens as you accelerate, flattens when you brake, and squashes down
+// into a sharp turn, then springs back past rest and settles (a spring, so it overshoots a little). Only for you.
+const SQ_MAX = 0.3;
+function squashStep(body, face) {
+  const now = G.realT, dt = Math.min(0.05, now - (body.sqT ?? now)); body.sqT = now;
+  if (!(dt > 0)) return body.sq || 0;
+  const v = Math.hypot(body.vx || 0, body.vy || 0), acc = (v - (body.sqV ?? v)) / dt; body.sqV = v;
+  let df = face - (body.sqF ?? face); while (df > Math.PI) df -= TAU; while (df < -Math.PI) df += TAU; body.sqF = face;
+  const turn = Math.min(1, Math.abs(df / dt) / 9) * Math.min(1, v / 60); // (a spin on the spot is not a sharp turn)
+  const target = 0.26 * clamp(acc / 800, -1, 1) - 0.2 * turn;
+  let q = body.sq || 0, qv = body.sqVel || 0;
+  qv += ((target - q) * 320 - qv * 17) * dt; q = clamp(q + qv * dt, -SQ_MAX, SQ_MAX);
+  body.sq = q; body.sqVel = qv;
+  return q;
+}
 function drawShip(x, y, face, tag, alpha, scale, body, look) {
   const L = look || NOLOOK;
+  const sqz = body && body === G.player ? 1 + squashStep(body, face) : 1;
   // A spermatozoon under phase contrast, in true proportions: a flat oval head (about 5 x 3 um) that reads
   // dark grey with a bright halo and a paler acrosome cap over its front half, a short thicker midpiece,
   // and a hair-thin flagellum about ten head-lengths long, beating in a travelling wave.
@@ -681,7 +697,7 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
     ctx.globalAlpha = alpha * 0.9; ctx.strokeStyle = 'rgb(46,52,48)'; ctx.lineWidth = 1.4 * k; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(x - Math.cos(face) * 10 * k, y - Math.sin(face) * 10 * k); ctx.lineTo(x - Math.cos(face) * 15 * k + Math.sin(G.realT * 30 + (body.id || 0)) * k, y - Math.sin(face) * 15 * k); ctx.stroke();
   } else if (body) {
-    const back = 10.5 * sc * L.head * L.stretch, wx = body.x - Math.cos(face) * back, wy = body.y - Math.sin(face) * back;
+    const back = 10.5 * sc * L.head * L.stretch * sqz, wx = body.x - Math.cos(face) * back, wy = body.y - Math.sin(face) * back;
     const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0), len = 78 * sc * L.tailLen * (L.levelTail || 1);
     stepTail(body, wx, wy, face, len, v, L.beat, L.tailN);
     const tails = [body.tailDraw];
@@ -714,7 +730,7 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
   const yaw = body && body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) * (body.yawK ?? 1) : 0;
   if (body) body.yaw = yaw;
   ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw);
-  if (L !== NOLOOK) ctx.scale(L.head * L.stretch, L.head / Math.sqrt(L.stretch));
+  if (L !== NOLOOK || sqz !== 1) ctx.scale(L.head * L.stretch * sqz, L.head / Math.sqrt(L.stretch) / sqz);
   ctx.lineCap = 'round';
   if (L.field) {
     // Chemoreceptor field: a faint rotating dashed ring.

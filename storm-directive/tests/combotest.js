@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => { if (typeof splashEnd === 'function') (window.TUT_OFF = 1, splashEnd()); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const R = {};
-    const NAME = { bigsib: 'Big Sibling', spityoyo: 'Spit Yo-Yo', whackamole: 'Nappy Mines', porcupine: 'Porcupine Hug', teacup: 'Storm in a Teacup', partyline: 'Party Line', coldcase: 'Cold Case', coldcomfort: 'Tooth Fairy', whiplash: 'Whiplash', ghosttrail: 'Incompatible Viral Load', wormfarm: 'Bubble pop', bubblehalo: 'Bubble pop', flashpoint: 'Flash Point', sticky: 'Morning Sickness', jointhedots: 'Colouring In', invisishield: 'Placental Siphon' };
+    const NAME = { bigsib: 'Big Sibling', spityoyo: 'Spit Yo-Yo', whackamole: 'Nappy Mines', porcupine: 'Porcupine Hug', teacup: 'Storm in a Teacup', partyline: 'Party Line', coldcase: 'Cold Case', coldcomfort: 'Tooth Fairy', whiplash: 'Whiplash', ghosttrail: 'Pub Crawl', wormfarm: 'Bubble pop', bubblehalo: 'Bubble pop', flashpoint: 'Flash Point', sticky: 'Morning Sickness', jointhedots: 'Colouring In', invisishield: 'Placental Siphon' };
     for (const c of COMBOS) {
       UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 200; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies = [];
       G.weapons = [makeSlot(c.a, false, 6), makeSlot(c.b, false, 6), null]; recomputeAll();

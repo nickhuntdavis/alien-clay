@@ -708,7 +708,9 @@ const UI = {
     $('biTitle').textContent = I.buff ? 'NEW BUFF' : 'NEW DEBUFF';
     $('biName').textContent = key;
     $('biQuote').textContent = I.what;
-    $('biDesc').textContent = I.buff ? 'It shows as a chip down the left of your screen while it lasts.' : 'It shows as a chip down the left of your screen while it lasts. Get rid of it if you can.';
+    // (Where chips live is said once, on the very first card; this one is already in the seen count.)
+    const where = seen <= 1 ? 'It shows as a chip down the left of your screen while it lasts.' : 'It shows as a chip while it lasts.';
+    $('biDesc').textContent = I.buff ? where : where + ' Get rid of it if you can.';
     box.querySelector('.bi-col.str h4').textContent = I.buff ? 'MAKE THE MOST OF IT' : 'WHAT TO DO';
     box.querySelector('.bi-col.weak').style.display = 'none';
     $('biStr').innerHTML = `<li style="animation-delay:0.9s">${esc(I.tip)}</li>`;
@@ -885,7 +887,7 @@ const UI = {
       const el = o.elem ? `<span class="el" style="color:${elemCol(o.elem)}">${ELEMENTS[o.elem].name}</span>` : '';
       c.innerHTML = `<div class="tag">${esc(o.tag)} <b>${esc(r.name)}</b></div>
         ${o.def ? `<div class="cico" style="--ic:${elemCol(o.elem)}">${iconSVG(o.def, 28, elemCol(o.elem))}</div>` : ''}
-        <div class="ctitle">${esc(o.title)}</div>
+        <div class="ctitle"${o.def && o.elem ? ` style="color:${elemCol(o.elem)}"` : ''}>${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
         <div class="cdesc">${esc(o.desc)}</div>${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
       // Tap to take it; press and hold for the card in full, with every bit of jargon explained (glossary.js).
