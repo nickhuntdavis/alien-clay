@@ -1475,6 +1475,7 @@ function render() {
   drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
+  stamRing(px, py); // stamina: a thinner, fainter ring just inside it, only when it isn't full (stamina.js)
 
   // Additive layer: weapon fx, projectiles, particles, fx.
   ctx.globalCompositeOperation = 'lighter';
@@ -2040,7 +2041,6 @@ function drawTopBar(top, m, s) {
   const bx = x + 14 + Math.max(28, ctx.measureText(hv).width), bw = Math.min(84, w * 0.24);
   ctx.fillStyle = 'rgba(214,228,240,0.15)'; ctx.fillRect(bx, y + 11, bw, 7);
   ctx.fillStyle = low ? PAL.danger : PAL.you; ctx.fillRect(bx, y + 11, bw * k, 7);
-  drawStamina(bx, y + 20, bw); // (stamina, just under: stamina.js)
   if (G.shieldT > 0 || G.absorbOn) { ctx.strokeStyle = PAL.pickup; ctx.lineWidth = 1.5; ctx.strokeRect(bx - 1.5, y + 9.5, bw + 3, 10); }
   ctx.font = 'bold 11px ' + MONO; ctx.fillStyle = XR.white;
   let txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  K ${G.kills}`;
@@ -2103,7 +2103,7 @@ function drawHud() {
     softBar(bx + jx, by, bw, G.bossGhost, 'rgba(255,255,255,0.35)');
     { const fw = Math.max(0, Math.min(1, k)) * bw; if (fw > 1) { sheetPath(bx + jx, by, Math.max(fw, 8), 10, false, 5); ctx.fillStyle = b.bphase ? PAL.danger : XR.white; ctx.fill(); } }
     ctx.fillStyle = '#000000'; for (const m of [0.33, 0.66]) ctx.fillRect(bx + jx + bw * m - 1, by - 2, 2, 14);
-    ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
+    ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 15px ' + MONO;
     const nm = b.twin ? b.def.name : b.name;
     const tag = G.revive ? `  REBUILDING IN ${Math.max(0, Math.ceil(G.revive.t - G.t))}s` : b.winded > G.t ? '  WINDED: HIT IT!' : b.glaring ? '  GLARING: HIT IT!' : b.armour >= 6 ? `  [ARMOUR ${Math.round(effArmour(b))}]` : '';
     ctx.fillText(nm + tag, bx + bw / 2, by - 8);
