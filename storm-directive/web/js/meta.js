@@ -113,7 +113,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '8.37';
+const APP_VERSION = '8.38';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -138,7 +138,7 @@ function runSummary(G, result) {
   return {
     n: (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1, v: APP_VERSION,
     at: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`,
-    res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', combos: Object.keys(G.combo || {}).join('+'), t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
+    res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', wave: G.wave ? (G.wave.camp ? `wave ${G.wave.n}/${CAMP.waves}` + (G.wave.boss ? ' ' + G.wave.boss : '') : `endless wave ${G.wave.n}`) : null, ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', combos: Object.keys(G.combo || {}).join('+'), t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
     egg: G.eggAt ? Math.round(G.eggAt) : 0, by: G.rivalWinner || G.stats.lastHit || '',
     hurt: top(G.stats.hurt, 4).map(([k, v]) => k + ' ' + Math.round(v)),
     hurtK: Object.fromEntries(Object.entries(G.stats.hurtKind || {}).map(([k, v]) => [k, Math.round(v)])),
@@ -168,13 +168,13 @@ function winTally() {
 }
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
-  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''}${r.combos ? ' combos:' + r.combos : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes}${r.boxBy && Object.keys(r.boxBy).length ? '(' + Object.entries(r.boxBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + v).join(' ') + ')' : ''} metaRanks${r.meta}${r.spd ? ' speed ' + r.spd : ''}${r.vet ? ' vet+' + r.vet + '%' : ''} zoom${r.zoom}${r.dev ? ' | device ' + r.dev : ''}\n`;
+  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.wave ? ' [' + r.wave + ']' : ''}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''}${r.combos ? ' combos:' + r.combos : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes}${r.boxBy && Object.keys(r.boxBy).length ? '(' + Object.entries(r.boxBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + v).join(' ') + ')' : ''} metaRanks${r.meta}${r.spd ? ' speed ' + r.spd : ''}${r.vet ? ' vet+' + r.vet + '%' : ''} zoom${r.zoom}${r.dev ? ' | device ' + r.dev : ''}\n`;
   out += ` ended by: ${r.res === 'WON' ? 'the egg (you won)' : r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   if (r.hurtK) { const t = Object.values(r.hurtK).reduce((a, b) => a + b, 0) || 1; out += ` hurt by type: ${Object.entries(r.hurtK).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v} (${Math.round(v / t * 100)}%)`).join(', ') || '-'}\n`; }
   out += ` dmg: ${r.dmg.join(', ')}\n`;
   if (r.dots && r.dots.length) out += ` dots: ${r.dots.join(' | ')}\n`;
   out += ` build: ${r.w.join(' ')} | spells: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;
-  if (r.xp != null) out += ` xp: ${r.xp} gained (x${r.xpK} bonus on ${r.xpRaw} collected of ${r.xpDrop} dropped, ${r.xpFloor} left on the floor) | vs level curve: ${r.curve >= 0 ? '+' : ''}${r.curve} levels\n`;
+  if (r.xp != null) out += ` xp: ${r.xp} gained (x${r.xpK} bonus on ${r.xpRaw} collected of ${r.xpDrop} dropped, ${r.xpFloor} left on the floor) ${r.wave ? '' : ` | vs level curve: ${r.curve >= 0 ? '+' : ''}${r.curve} levels`}\n`;
   out += ` rivals: ${r.rivals.join(' ') || '-'} | lv/hp% per min: ${r.tl.join(' ')}${r.fps && r.fps.length ? ' | fps avg/low per min: ' + r.fps.join(' ') : ''}\n`;
   if (r.perf && r.perf.length) out += ` worst frame per min (cap ${r.cap || 'off'}; ms total(u update d draw) e enemies b bullets s shots p particles z zones L frames over 50ms): ${r.perf.join(' ')}\n`;
   return out;

@@ -1734,7 +1734,7 @@ The default mode. 8 waves, one boss in each (all eight bosses, in a random order
 |---|---|---|---|---|
 | THE MACROPHAGE QUEEN | Feeding Time | Also-Ran, Sprinter, Spermlet Swarm, Krill | near | summon, devour |
 | THE ANTIBODY COLOSSUS | Border Control | Antibody, Mucus Wall, Also-Ran | behind | charge |
-| THE IMMUNE EYE | Peer Review | Quantum Swimmer, Antibody, Sprinter, Ghost Swimmer | ring | glare, blink |
+| THE IMMUNE EYE | Peer Review | Quantum Swimmer, Antibody, Sprinter, Ghost Swimmer | behind | blink |
 | THE MATRON | Ward Nine | Macrophage, Nurse Cell, Mucus Wall, Headbutter | near | wardround |
 | THE PEPSINATOR | Indigestion | Acid Bubble, Mitotic Cell, Also-Ran | flank | acidrain |
 | CHAD PRIME | Leg Day | Headbutter, Sprinter, Spermlet Swarm | ring | dash3 |

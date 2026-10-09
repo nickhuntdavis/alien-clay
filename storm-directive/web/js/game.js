@@ -1447,7 +1447,7 @@ function bossAI(e, dt, dist, ux, uy) {
   const pat = pats[e.pat];
   const p = G.player;
   const aim = ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
-  const bd = e.def.dmg * 0.35 * dmgNow();
+  const bd = e.def.dmg * 0.35 * dmgNow() * (e.campK || 1); // (wave mode: the first bosses hit softer)
   // Default movement: keep medium distance.
   e.mvx = dist > 230 ? ux : dist < 150 ? -ux : -uy; e.mvy = dist > 230 ? uy : dist < 150 ? -uy : ux; e.mvs = e.speed;
   // Bosses don't let you kite them off screen: far away, they close in fast.

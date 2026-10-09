@@ -17,7 +17,7 @@ const CAMP = {
 const ENTOURAGE = {
   queen:    { mix: ['crawler', 'crawler', 'skitter', 'wisp', 'krill'], at: 'near', on: ['summon', 'devour'], line: 'Snacks for the Queen. She eats her own to heal: get to them before she does.' },
   colossus: { mix: ['spitter', 'spitter', 'bulwark', 'crawler'], at: 'behind', on: ['charge'], line: 'Antibodies, shooting from behind the wall. He charges; they cover him.' },
-  eye:      { mix: ['blinker', 'spitter', 'skitter', 'phantom'], at: 'ring', on: ['glare', 'blink'], line: 'While the Eye glares at you, everything else closes in.' },
+  eye:      { mix: ['blinker', 'spitter', 'skitter', 'phantom'], at: 'behind', on: ['blink'], line: 'Every time the Eye blinks, more of its watchers turn up behind it.' },
   matron:   { mix: ['brute', 'medic', 'bulwark', 'charger'], at: 'near', on: ['wardround'], line: 'Patients for her ward round. Everything she heals comes back for more.' },
   pepsin:   { mix: ['bomber', 'bomber', 'splitter', 'crawler'], at: 'flank', on: ['acidrain'], line: 'Acid bubbles roll in from the sides whenever it rains acid.' },
   alpha:    { mix: ['charger', 'skitter', 'skitter', 'wisp'], at: 'ring', on: ['dash3'], line: 'His gym buddies charge in while he dashes. Do not skip leg day.' },
@@ -127,6 +127,7 @@ function campBoss(V) {
     if (!e) continue;
     e.hp = e.maxHp = e.def.hp * k * (1 + PT() / 600);
     e.armour = e.def.armour + Math.floor(V.n / 3);
+    e.campK = [0.65, 0.75, 0.85, 0.95][V.n - 1] || 1; // (its attacks: softer in the first waves, while your build is thin)
   }
   V.lastPat = G.boss ? G.boss.pat : -1;
 }
