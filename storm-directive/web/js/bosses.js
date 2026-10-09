@@ -285,7 +285,7 @@ function bossDown(e) {
   G.nextBoss = Math.max(G.nextBoss, G.t + 25); // (a breather before the next one)
   G.stats.bossKills++;
   (G.stats.bossesBeaten || (G.stats.bossesBeaten = [])).push(e.def.id);
-  G.lootQueue.push({ kind: 'relic', boss: e.def.id, src: { t: 'boss', name: e.def.name } }, { kind: 'spoils', boss: e.def.id, src: { t: 'boss', name: e.def.name } });
+  G.lootQueue.unshift({ kind: 'relic', boss: e.def.id, now: true, src: { t: 'boss', name: e.def.name } }, { kind: 'spoils', boss: e.def.id, now: true, src: { t: 'boss', name: e.def.name } }); // (now: wave mode opens a boss reward at once, not at the wave end)
   healPlayer(P.maxHp * 0.4);
   banner(e.def.name + ' DEFEATED', PAL.reward);
   for (let i = 0; i < 12; i++) dropGem(e.x + rand(-60, 60), e.y + rand(-60, 60), e.xp / 12);

@@ -215,6 +215,7 @@ function fireTether(w, target, src) {
     }
     bolt(p.x, p.y, a.x, a.y, '#9ef0ff', 0.15);
     if (!b) { damageEnemy(a, s.dmg, src); continue; }
+    tutShow('tether');
     G.tethers.push({ a, b, life: s.dur, max: s.dur, dmg: s.dmg, pull: s.pull, src, tick: 0, slamCd: 0 });
   }
 }
@@ -269,6 +270,7 @@ function modProcs(e, dmg, src) {
     if (src.w.s && src.w.s.cryoblast) forNear(e.x, e.y, 42, o => { if (!o.boss && !o.dead) o.frozen = Math.max(o.frozen, 1.2); });
   }
   if (src.modCharm && !e.boss && !e.elite && !e.rival && !e.charmed && e.hp > 0 && Math.random() < src.modCharm && G.enemies.filter(o => o.charmed).length < MAX_ALLIES) {
+    tutShow('charm');
     e.charmed = true; e.charmT = src.charmDur; e.frozen = 0; e.allyT = null;
     G.stats.charms = (G.stats.charms || 0) + 1;
     floatText(e.x, e.y - e.r - 12, 'MINE NOW', PAL.you, 14);

@@ -541,7 +541,7 @@ function optNewSpell(id, r) {
   const def = SPELLS[id], lvl = [1, 1, 2, 3, 4, 4, 4][r] || 1;
   return { def, rarity: r, tag: 'NEW FEAT', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
     sub: `${ELEMENTS[def.elem].name} Feat | Lv ${lvl}`, desc: def.desc,
-    apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); } } };
+    apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); tutShow('feats', true); } } };
 }
 // Only one weapon a run can reach mastery (Lv 10): once one has, the others stop at Lv 9.
 function masterOf(w) { return G.weapons.find(o => o && o !== w && o.lvl >= MAX_WLVL) || null; }
@@ -1103,7 +1103,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d;
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
-  if (ent && !ent.dead) G.grudge = ent;
+  if (ent && !ent.dead) { G.grudge = ent; tutShow('grudge'); }
   G.lastHitEnt = ent || null;
   rebornHurt(d); // (Karma)
   rivalLeech(ent); // (rivals with the leech trait) // (the end-of-run screen shows whoever finished you off)

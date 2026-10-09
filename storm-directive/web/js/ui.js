@@ -310,7 +310,8 @@ const UI = {
     const TAB_OF = { immersive: 'view', darkfield: 'view', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
     const tabsHtml = `<div class="ptabs">${TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
     body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => (TAB_OF[d.id] || 'play') === tab).map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
-    body.querySelectorAll('[data-stab]').forEach(b => b.addEventListener('click', () => { UI.setTab = b.dataset.stab; UI.renderSettings(); $('settings').scrollTop = 0; }));
+    // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
+    body.onclick = ev => { const b = ev.target.closest('[data-stab]'); if (b) { UI.setTab = b.dataset.stab; UI.renderSettings(); $('settings').scrollTop = 0; } };
     if (tab !== 'data') { UI.bindSettingChips(body); return; }
     body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, stains, generations, bests, achievements, the Codex and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Tutorial</h3><p class="hint">The first time you meet each kind of enemy, the slide stops to introduce it (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Reset to see the introductions again. Your Codex keeps what you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIAL</button></div></div>`;
@@ -686,7 +687,9 @@ const UI = {
     $('biCount').innerHTML = `FIRST SIGHTING <span>${seen} OF ${Object.keys(ENEMY_INTRO).length} IN YOUR CODEX</span>`;
     $('biTitle').textContent = 'NEW ON THE SLIDE';
     $('biName').textContent = d.name;
-    $('biQuote').textContent = I.what;
+    // The first shooter you ever meet is told, in as many words, that shooters shoot.
+    const firstShooter = d.shoot && !META.seenShooter; if (d.shoot && !META.seenShooter) { META.seenShooter = 1; saveMeta(); }
+    $('biQuote').textContent = I.what + (firstShooter && !/dodge/i.test(I.what) ? ' It SHOOTS: dodge!' : '');
     $('biDesc').textContent = `Toughness: ${word(d.hp, 25, 90, 'low', 'medium', 'high')}. Speed: ${word(d.speed, 45, 90, 'slow', 'medium', 'fast')}. Armour: ${word(d.armour, 1, 5, 'none', 'light', 'heavy')}.${d.shoot ? ' Shoots.' : ''}${d.split ? ' Splits when it dies.' : ''}`;
     box.querySelector('.bi-col.str h4').textContent = 'HOW TO BEAT IT';
     box.querySelector('.bi-col.weak').style.display = 'none';
