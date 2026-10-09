@@ -163,10 +163,11 @@ const UI = {
       return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>Lv ${w.lvl}/${MAX_WLVL}</em><p>${esc(w.def.desc)}</p>`
         + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name : ''}</p>` : '')
         + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '')
-        + `<p>${w.def.noTarget ? 'Tap to open the Armoury.' : 'Tap to switch target. ARMOURY button for the rest.'}</p>`;
+        + `<p>${kind === 's' ? 'Tap to cast it now. Its target and the rest are in the Armoury.' : w.def.noTarget ? 'Tap to open the Armoury.' : 'Tap to switch target. ARMOURY button for the rest.'}</p>`;
     }, () => {
       if (!G || G.state !== 'play') return;
       const w = kind === 's' ? G.spells[i] : G.weapons[i];
+      if (kind === 's' && w) { featTap(w); return; } // (Feats: tap to cast)
       if (!w || w.def.noTarget) { UI.openArmoury(kind, i); return; }
       const idx = DIRECTIVES.findIndex(d => d.id === w.dir);
       w.dir = DIRECTIVES[(idx + 1) % DIRECTIVES.length].id;

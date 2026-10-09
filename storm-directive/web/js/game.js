@@ -2042,6 +2042,7 @@ function updateSpellList(list, dt) {
     if (!w) continue;
     w.cd -= dt * genesSpellRate();
     if (w.cd > 0) continue;
+    if (SET.featAuto === false && !w.echo) { w.cd = 0; continue; } // (Settings > Feats: ON TAP)
     let target = null;
     if (!w.def.noTarget) {
       target = acquire(w.dir, w.s.range, G.player.x, G.player.y);
@@ -2049,13 +2050,26 @@ function updateSpellList(list, dt) {
     } else if (w.def.kind === 'heal' && G.player.hp > G.P.maxHp * 0.85) { w.cd = 0; continue; }
     else if ((w.def.kind === 'warp' || w.def.kind === 'barrier' || w.def.kind === 'ring') && !acquire('nearest', 300, G.player.x, G.player.y)) { w.cd = 0; continue; }
     if (!featPay(w)) { w.cd = 0.2; continue; } // (stamina Feats: not enough in the bar yet)
-    fireWeapon(w, target);
-    w.cd = featCost(w) ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat)
-    genesCast(w); // Turbo-chondrial Engine
-    if (!w.echo) G.stats.casts = (G.stats.casts || 0) + 1;
-    w.reloadMax = w.s.cd;
-    sfx('spell');
+    featFire(w, target);
   }
+}
+function featFire(w, target) {
+  fireWeapon(w, target);
+  w.cd = featCost(w) ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat)
+  genesCast(w); // Turbo-chondrial Engine
+  if (!w.echo) G.stats.casts = (G.stats.casts || 0) + 1;
+  w.reloadMax = w.s.cd;
+  sfx('spell');
+}
+// A tap on a Feat's slot: cast it now if it can go (ready, something to aim at, stamina in the bar).
+function featTap(w) {
+  const p = me(), say = t => floatText(p.x, p.y - 36, t, XR.white, 12, 0.7);
+  if (w.cd > 0) { say(`${w.def.name.toUpperCase()}: ${Math.ceil(w.cd)}s`); return false; }
+  let target = null;
+  if (!w.def.noTarget) { target = acquire(w.dir, w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
+  if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }
+  featFire(w, target); vibrate(25);
+  return true;
 }
 
 // Too many ground effects at once (long trails plus burning and poison pools) made the update the slow part

@@ -16,10 +16,11 @@ const SETTINGS_DEF = [
   { id: 'music', label: 'Music', hint: 'Builds with the fight: busier swarms, bosses and the Final Five each change it.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'shake', label: 'Screen shake', hint: 'The slide jolts on explosions, big hits and bosses. Off keeps the view perfectly still.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'vibe', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
+  { id: 'featAuto', label: 'Feats', hint: 'AUTO: Feats cast themselves when ready (tap a Feat to cast it early). ON TAP: they wait for you to tap them, so you can save one for the right moment.', opts: [[true, 'AUTO'], [false, 'ON TAP']] },
   { id: 'auto', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button under pause.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'autoWaves', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1 };
+const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1, featAuto: true };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
   for (const k in SET) if (k in s) SET[k] = s[k];

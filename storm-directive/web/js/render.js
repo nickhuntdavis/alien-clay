@@ -1957,7 +1957,6 @@ function drawScaleBar() {
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
-  ctx.fillStyle = XR.white; ctx.fillText('PH2 ' + zoomMag() + 'x  37\u00b0C  ' + Math.round(FPS.v) + ' FPS (low ' + Math.round(FPS.low) + ')' + (QUAL.lv ? '  Q' + (4 - QUAL.lv) : ''), x + len + 10, y + 4);
 }
 
 // Film grain: a small noise tile drawn at a new random offset every frame, so dark panels shimmer
@@ -2034,7 +2033,7 @@ const MONO = "ui-monospace, 'SF Mono', 'Roboto Mono', 'DejaVu Sans Mono', Menlo,
 // The HUD's one bar across the top: health (number and bar), level, the clock, kills, and your place in the
 // race (or the sperm count). Everything else lives in the readout under it or on chips down the left.
 function drawTopBar(top, m, s) {
-  const p = G.player, k = clamp(p.hp / G.P.maxHp, 0, 1), low = k < 0.3, w = W - 70, x = 8, y = top + 8, h = 28;
+  const p = G.player, k = clamp(p.hp / G.P.maxHp, 0, 1), low = k < 0.3, w = W - 16, x = 8, y = top + 8, h = 28;
   filmPanel(x, y, w, h);
   const sb = ctx.shadowOffsetX; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -2052,6 +2051,12 @@ function drawTopBar(top, m, s) {
   }
   if (ownsScrapWeapon()) txt += `  SCRAP ${Math.floor(G.scrap)}`;
   ctx.fillText(txt, bx + bw + 10, y + 18);
+  // The scope's readout on the right: objective, temperature, frame rate.
+  const tw = ctx.measureText(txt).width;
+  ctx.textAlign = 'right'; ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim;
+  const ro = [`PH2 ${zoomMag()}x  37\u00b0C  ${Math.round(FPS.v)} FPS`, `${Math.round(FPS.v)} FPS`].find(r => ctx.measureText(r).width < w - (bx + bw + 10 + tw - x) - 14);
+  if (ro) ctx.fillText(ro, x + w - 8, y + 18);
+  ctx.textAlign = 'left';
   ctx.shadowOffsetX = sb; ctx.shadowOffsetY = sb;
 }
 
@@ -2113,7 +2118,7 @@ function drawHud() {
   }
   // The sperm count (always ticking down), then the Final Five, then the egg.
   {
-    const bw = barW, bx = barX, by = top + BY, mid = bx + bw / 2;
+    const bw = barW, bx = barX, by = top + BY + 88, mid = W / 2; // (centred, below the boss bar)
     ctx.textAlign = 'center';
     if (G.fertile) {
       ctx.globalAlpha = 0.7 + 0.3 * Math.sin(G.realT * 6);
@@ -2133,8 +2138,8 @@ function drawHud() {
       // The Petri Dish: the wave and how much of it is left.
       const V = G.wave, cy2 = by;
       const left = V.active ? Math.max(0, V.budget - V.spawned) + G.enemies.filter(e => !e.dead && !e.charmed && !e.egg).length : 0;
-      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.camp && V.active ? (V.phase === 'mobs' ? (V.n === 0 ? `${left} LEFT | PRACTICE` : `${left} LEFT | BOSS AT WAVE ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}`) : V.phase === 'lead' ? `${bossDef(V.boss).name} IN ${Math.max(0, Math.ceil(V.leadT))}s` : V.boss ? bossDef(V.boss).name : '') : V.active ? 'THE PETRI DISH' : V.started ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
-      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(V.camp ? (V.n === 0 && V.started ? (V.active ? TUT_NAME : 'PRE-SCHOOL PASSED') : V.n > 0 ? `WAVE ${V.n} OF ${CAMP.waves}${V.active ? '' : ' BEATEN'}` : `${CAMP.waves} WAVES`) : V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
+      ctx.fillStyle = XR.dim; ctx.font = '10px ' + MONO; ctx.fillText(V.camp && V.active ? (V.phase === 'mobs' ? (V.n === 0 ? `${left} LEFT | PRACTICE` : `${left} LEFT | BOSS AT WAVE ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}`) : V.phase === 'lead' ? `${bossDef(V.boss).name} IN ${Math.max(0, Math.ceil(V.leadT))}s` : V.boss ? bossDef(V.boss).name : '') : V.active ? 'THE PETRI DISH' : V.started ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 18);
+      ctx.fillStyle = XR.white; ctx.font = 'bold 21px ' + MONO; ctx.fillText(V.camp ? (V.n === 0 && V.started ? (V.active ? TUT_NAME : 'PRE-SCHOOL PASSED') : V.n > 0 ? `WAVE ${V.n} OF ${CAMP.waves}${V.active ? '' : ' BEATEN'}` : `${CAMP.waves} WAVES`) : V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).

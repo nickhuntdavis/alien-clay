@@ -919,3 +919,9 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 /* Cursed cards: the boon leads, the bane is the small print. */
 .card.cursed .csub { font-family: inherit; font-size: 14px; font-weight: 700; line-height: 1.3; color: #fff; margin: 4px 0 5px; }
 .card.cursed .cdesc { font-size: 11px; color: #a3aea9; }
+/* HUD: pause and the Armoury as icon buttons at the end of the bottom row; AUTO and speed sit under the top bar. */
+#autoBtn { margin-top: 44px; }
+#row2 #armBtn, #row2 #pauseBtn { flex: 0 0 46px; width: 46px; min-height: 44px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; color: #fff; }
+#row2 #pauseBtn { gap: 5px; }
+#row2 #pauseBtn i { display: block; width: 5px; height: 16px; border-radius: 1.5px; background: currentColor; }
+body.land #row2 #armBtn, body.land #row2 #pauseBtn { width: 46px; padding: 0; }

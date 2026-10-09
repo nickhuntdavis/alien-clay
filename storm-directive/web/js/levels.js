@@ -791,8 +791,8 @@ function drawLevelHud(mid, by) {
   if (R) sub = `${R.A.name}: ${Math.max(0, R.A.quota - R.killed)} TO GO`;
   else if (V.boss && !V.bossDead && G.boss) sub = G.boss.def.name;
   else if (G.t > V.L.par - 30 && !V.won) sub = V.brush.y != null ? 'THE TOOTHBRUSH! MOVE!' : `TOOTHBRUSH IN ${Math.max(0, Math.ceil(V.L.par - G.t))}s`;
-  ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(sub, mid, by - 14);
-  ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(`${V.L.name}  ${pct}%`, mid, by + 4);
+  ctx.fillStyle = XR.dim; ctx.font = '10px ' + MONO; ctx.fillText(sub, mid, by - 18);
+  ctx.fillStyle = XR.white; ctx.font = 'bold 21px ' + MONO; ctx.fillText(`${V.L.name}  ${pct}%`, mid, by + 4);
 }
 // The minimap: the maze round you.
 function drawLevelMap(mx, my, R) {
