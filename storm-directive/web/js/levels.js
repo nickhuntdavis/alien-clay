@@ -18,6 +18,7 @@
 // drawLevelHud / drawLevelMap (render.js), lvOver (the end screen).
 
 const LV_C = 80;
+const LV_LOST = 40; // seconds without getting any further before the way-on chevron shows
 const LV_T = { floor: 0, wall: 1, tooth: 2, plaque: 3, saliva: 4, gate: 5, exit: 6 };
 const LV_SAMPLE = { s007: 0 };
 // Where a level is set is a surprise: it is just "Level N" until you have beaten it once.
@@ -267,7 +268,9 @@ function lvRoutePlayer() {
 // Progress through the level, 0 at the start to 1 at the exit.
 function lvProgress() {
   const V = G.lvl, i = lvIdx(me().x, me().y), d = i >= 0 && V.dEx[i] >= 0 ? V.dEx[i] : V.startD;
-  V.maxP = Math.max(V.maxP, clamp(1 - d / V.startD, 0, 1));
+  const pr = clamp(1 - d / V.startD, 0, 1);
+  if (pr > V.maxP + 0.004 || V.lastGainT == null) V.lastGainT = G.t; // (getting further: not lost)
+  V.maxP = Math.max(V.maxP, pr);
   return V.maxP;
 }
 function lvPT() { const L = G.lvl.L; return L.pt[0] + (L.pt[1] - L.pt[0]) * lvProgress() + G.t * 0.1; }
@@ -487,7 +490,7 @@ function lvTick(dt, maxAlive, hostile) {
     const R = V.arena, A = R.A;
     R.t += dt; R.killed = G.kills - V.kills0;
     if (R.killed >= A.quota) {
-      V.done[A.name] = true; V.arena = null;
+      V.done[A.name] = true; V.arena = null; V.lastGainT = G.t;
       lvUnlock(); if (A.gate) lvOpenGate(A.gate);
       banner('THE WAY IS OPEN', '#ffb3c6');
       // A drop pod for your trouble.
@@ -501,7 +504,7 @@ function lvTick(dt, maxAlive, hostile) {
     // Its entourage, lightly.
     G.spawnAcc += 0.9 * dt * G.P.spawnMult;
     while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < 18) hostile += lvSpawn(L.boss.mix, lvRectPos(L.boss.rect, 300)); }
-    if (!G.boss || G.boss.dead) { V.bossDead = true; lvUnlock(); lvOpenGate(L.boss.gate); banner('THE WAY IS CLEAR', '#ffb3c6'); }
+    if (!G.boss || G.boss.dead) { V.bossDead = true; V.lastGainT = G.t; lvUnlock(); lvOpenGate(L.boss.gate); banner('THE WAY IS CLEAR', '#ffb3c6'); }
   } else {
     // Out in the corridors: a steady trickle from ahead and behind, out of sight round the bends.
     G.spawnAcc += Z.rate * (1 + lvProgress() * 0.6) * dt * G.P.spawnMult;
@@ -773,14 +776,16 @@ function drawLevelOver() {
     ctx.globalAlpha = 1; ctx.strokeStyle = '#7fd8ff'; ctx.lineWidth = Math.max(2, 4 * S);
     ctx.beginPath(); for (let x = 0; x < W; x += 10 * S) { ctx.moveTo(x, y); ctx.lineTo(x + Math.sin(G.realT * 8 + x) * 4 * S, y - 26 * S); } ctx.stroke();
   }
-  // Which way: a faint chevron a little way along the route (not during a fight).
-  const p = me();
-  if (!V.arena && !(V.boss && !V.bossDead) && !V.won) {
+  // Which way: a faint chevron a little way along the route, only once you have been lost a while (40s without
+  // getting any further, outside a fight). It fades out again as soon as you make headway.
+  const p = me(), lost = G.t - (V.lastGainT ?? G.t) - LV_LOST;
+  if (lost > 0 && !V.arena && !(V.boss && !V.bossDead) && !V.won) {
+    if (!V.msg.lost) { V.msg.lost = 1; floatText(p.x, p.y - 40, 'LOST? THIS WAY', '#ffffff', 13, 1.6); }
     let i = lvIdx(p.x, p.y);
     for (let k = 0; k < 3 && i >= 0; k++) { const j = lvNext(V.dEx, i); if (j < 0) break; i = j; }
     if (i >= 0) {
       const c = lvCentre(i), a = Math.atan2(c.y - p.y, c.x - p.x), X = sx(p.x) + Math.cos(a) * 46 * S, Y = sy(p.y) + Math.sin(a) * 46 * S;
-      ctx.globalAlpha = 0.35 + 0.15 * Math.sin(G.realT * 3); ctx.fillStyle = '#ffffff';
+      ctx.globalAlpha = Math.min(1, lost / 3) * (0.35 + 0.15 * Math.sin(G.realT * 3)); ctx.fillStyle = '#ffffff';
       ctx.save(); ctx.translate(X, Y); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(9 * S, 0); ctx.lineTo(-5 * S, 7 * S); ctx.lineTo(-2 * S, 0); ctx.lineTo(-5 * S, -7 * S); ctx.closePath(); ctx.fill(); ctx.restore();
     }
   }
