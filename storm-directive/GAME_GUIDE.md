@@ -145,7 +145,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 11, cd 0.3s, mag 12, reload 1.1s, range 440
 - **Level bonuses:** Lv3: +1 pierce; Lv6: +1 count; Lv9: +30% dmg
 - **Combos:** **Big Sibling** (+ Seeker Siblings), **Swapping Spit** (+ Yo-Yo Diet)
-- **Pairings:** **Conductive Spit** (+ Static Cling)
+- **Pairings:** **Conductive Spit** (+ Static Cling), **Seen It Before** (+ Déjà Vu)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -166,7 +166,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 8, cd 0.75s, mag 4, reload 1.6s, x6, range 270 (knock 70)
 - **Level bonuses:** Lv3: +2 count; Lv6: +1 pierce; Lv9: +2 count
 - **Combos:** **Porcupine Hug** (+ Thorny Onesie)
-- **Pairings:** **Sucker Punch** (+ Toddler Gravity)
+- **Pairings:** **Sucker Punch** (+ Toddler Gravity), **Shotgun Reception** (+ Shotgun Wedding)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -355,7 +355,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 9, cd 0.45s, mag 6, reload 2s, x2, range 500 (homing 5)
 - **Level bonuses:** Lv3: +1 count; Lv6: +1 count; Lv9: +40% dmg
 - **Combos:** **Big Sibling** (+ Spitball)
-- **Pairings:** **Family Tree** (+ Tapeworm Seeder), **Tagging Along** (+ Yo-Yo Diet)
+- **Pairings:** **Family Tree** (+ Tapeworm Seeder), **Tagging Along** (+ Yo-Yo Diet), **Lost Siblings** (+ Ghosts of You)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -417,8 +417,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 15, cd 0.08s, mag 40, range 460 (area 90)
 - **Level bonuses:** Lv3: +25% area; Lv6: +1 pierce; Lv9: +40% dmg
-- **Combos:** **Fall Guy** (+ Imaginary Friend)
-- **Pairings:** **Collection Plate** (+ Premature Evangelation), **Static Discharge** (+ Static Cling)
+- **Combos:** **Fall Guy** (+ Imaginary Friend), **Gene Splice** (+ Gene Gun)
+- **Pairings:** **Collection Plate** (+ Premature Evangelation), **Static Discharge** (+ Static Cling), **Gene Therapy** (+ Gene Gun)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -460,7 +460,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 19, cd 0.38s, mag 6, reload 1s, range 190 (area 1, width 15, knock 60)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +25% area
 - **Combos:** **Whiplash** (+ Incompatible Viral Load)
-- **Pairings:** **One-Two** (+ Placenta Paddle), **Live Wire** (+ Static Cling)
+- **Pairings:** **One-Two** (+ Placenta Paddle), **Live Wire** (+ Static Cling), **Lashing Out** (+ Karma)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -481,7 +481,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 18, cd 0.55s, mag 8, reload 0.9s, range 90 (area 90, knock 120)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +20% area
 - **Combos:** **Porcupine Hug** (+ Hiccup Scattergun)
-- **Pairings:** **Nappy Rash** (+ Morning Sickness)
+- **Pairings:** **Nappy Rash** (+ Morning Sickness), **Flammable Fabric** (+ Moonshine Jug)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -502,7 +502,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 44, cd 2.2s, mag 3, reload 1.2s, range 600 (dur 2.6)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +40% duration; Lv9: +50% dmg
 - **Combos:** **Drawn Together** (+ Imaginary Friend)
-- **Pairings:** **Colouring Book** (+ Morning Sickness)
+- **Pairings:** **Colouring Book** (+ Morning Sickness), **Campfire Song** (+ Duelling Banjo)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -523,7 +523,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 20, cd 0.9s, mag 3, reload 2s, range 480 (dur 4, repeat 0.4)
 - **Level bonuses:** Lv3: +0.15 repeat; Lv6: +1 count; Lv9: +0.2 repeat
 - **Combos:** **Cold Case** (+ Cold Feet)
-- **Pairings:** **Final Notice** (+ Red Tape)
+- **Pairings:** **Final Notice** (+ Red Tape), **Last Orders** (+ Moonshine Jug), **Been Here Before** (+ Déjà Vu)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -586,7 +586,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 20, cd 5.5s, mag 1, reload 0.1s, range 420 (dur 1.8, area 230)
 - **Level bonuses:** Lv3: +25% duration; Lv6: +25% area; Lv9: +50% dmg
 - **Combos:** **Silent but Deadly** (+ Incompatible Viral Load)
-- **Pairings:** **He Went That Way** (+ Imaginary Friend)
+- **Pairings:** **He Went That Way** (+ Imaginary Friend), **Who You Gonna Call** (+ Ghosts of You), **Shotgun Surprise** (+ Shotgun Wedding)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -607,7 +607,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 24, cd 1.6s, mag 3, reload 2s, range 520 (area 90, width 10)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +30% area
 - **Combos:** **Party Line** (+ Static Cling)
-- **Pairings:** **Cold Read** (+ Cold Feet)
+- **Pairings:** **Cold Read** (+ Cold Feet), **Mind the Gap** (+ Gene Gun)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -628,7 +628,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 18, cd 1.1s, mag 4, reload 2s, range 380 (dur 5, hold 34)
 - **Level bonuses:** Lv3: +1 count, thicker bubbles (each holds 4 more times the wand's damage before it pops, and adds what it soaked to the pop); Lv6: +40% dmg, thicker bubbles (each holds 4 more times the wand's damage before it pops, and adds what it soaked to the pop); Lv9: +1 count, rainbow pops (each pop takes a random element)
 - **Combos:** **Worm Farm** (+ Tapeworm Seeder), **Bubble Halo** (+ Premature Evangelation)
-- **Pairings:** **Bubble Hockey** (+ Placenta Paddle), **Toil and Trouble** (+ Morning Sickness)
+- **Pairings:** **Bubble Hockey** (+ Placenta Paddle), **Toil and Trouble** (+ Morning Sickness), **Bubble Band** (+ Duelling Banjo)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -649,7 +649,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 - **Base stats:** dmg 34, cd 1.1s, mag 3, reload 2s, range 420 (dur 6, lure 230)
 - **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +60 lure
 - **Combos:** **Cold Comfort** (+ Cold Feet)
-- **Pairings:** **Bait and Switch** (+ Nappy Mines)
+- **Pairings:** **Bait and Switch** (+ Nappy Mines), **A Tooth for a Tooth** (+ Karma)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -669,8 +669,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 20, cd 0.8s, mag 6, reload 1.3s, pierce 1, range 420 (replay 1)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +2 pierce
-- **Combos:** -
-- **Pairings:** -
+- **Combos:** **Haunting Memory** (+ Ghosts of You), **Karmic Loop** (+ Karma)
+- **Pairings:** **Been Here Before** (+ Due Date), **Seen It Before** (+ Spitball)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -691,8 +691,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 15, cd 1.1s, mag 4, reload 1.6s, range 460 (homing 6)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +40% dmg
-- **Combos:** -
-- **Pairings:** -
+- **Combos:** **Haunting Memory** (+ Déjà Vu)
+- **Pairings:** **Who You Gonna Call** (+ Peekaboo), **Lost Siblings** (+ Seeker Siblings)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -713,8 +713,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 18, cd 1.6s, mag 3, reload 1.8s, x10, pierce 2, range 240
 - **Level bonuses:** Lv3: +4 count; Lv6: +40% dmg; Lv9: +2 pierce
-- **Combos:** -
-- **Pairings:** -
+- **Combos:** **Karmic Loop** (+ Déjà Vu)
+- **Pairings:** **A Tooth for a Tooth** (+ Tooth Fairy), **Lashing Out** (+ Flagellum Flail)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -735,8 +735,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 11.5, cd 0.5s, mag 8, reload 1.3s, pierce 1, range 480
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +2 pierce
-- **Combos:** -
-- **Pairings:** -
+- **Combos:** **Gene Splice** (+ Placental Siphon)
+- **Pairings:** **Mind the Gap** (+ Twin Telepathy), **Gene Therapy** (+ Placental Siphon)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -757,8 +757,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 6, cd 0.55s, mag 2, reload 1.3s, x7, range 300 (knock 90, bounce 1)
 - **Level bonuses:** Lv3: +2 count; Lv6: +30% dmg; Lv9: +2 count
-- **Combos:** -
-- **Pairings:** -
+- **Combos:** **Hoedown Throwdown** (+ Duelling Banjo), **Shotgun Shine** (+ Moonshine Jug)
+- **Pairings:** **Shotgun Reception** (+ Hiccup Scattergun), **Shotgun Surprise** (+ Peekaboo)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -779,8 +779,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 15, cd 1.2s, mag 3, reload 2s, range 380 (area 70, explode 1, dur 2.4, flight 0.65)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +35% area
-- **Combos:** -
-- **Pairings:** -
+- **Combos:** **Shotgun Shine** (+ Shotgun Wedding)
+- **Pairings:** **Flammable Fabric** (+ Thorny Onesie), **Last Orders** (+ Due Date)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -801,8 +801,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 12, cd 1.3s, mag 3, reload 1.6s, x10, pierce 2, range 240
 - **Level bonuses:** Lv3: +4 count; Lv6: +40% dmg; Lv9: +2 pierce
-- **Combos:** -
-- **Pairings:** -
+- **Combos:** **Hoedown Throwdown** (+ Shotgun Wedding)
+- **Pairings:** **Campfire Song** (+ Colouring In), **Bubble Band** (+ Bubble Wand)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -908,6 +908,11 @@ Both weapons at Lv 5+: a COMBO card is guaranteed in your next box. Both keep fi
 | **Sticky Situation** | Red Tape + Morning Sickness | Problem Child | Taped bundles drip: a toxic puddle forms under each one every second. |
 | **Drawn Together** | Colouring In + Imaginary Friend | Designer Baby | Every 3s, the shape between you and your Imaginary Friend is coloured in. |
 | **Fall Guy** | Imaginary Friend + Placental Siphon | Designer Baby | Your Imaginary Friend catches enemy bullets and feeds them to the Siphon. |
+| **Haunting Memory** | Déjà Vu + Ghosts of You | Prawn Again | One Deja Vu hit in four leaves a ghost behind for Ghosts of You. |
+| **Karmic Loop** | Karma + Déjà Vu | Prawn Again | Every Karma ring happens again a second later, at 70%. |
+| **Hoedown Throwdown** | Shotgun Wedding + Duelling Banjo | Redtail | Every Both Barrels blast also plays a ring of low notes. |
+| **Shotgun Shine** | Moonshine Jug + Shotgun Wedding | Redtail | Shotgun Wedding pellets set enemies alight, and hit burning enemies 50% harder. |
+| **Gene Splice** | Gene Gun + Placental Siphon | Designer Baby | Every 10 bullets the Siphon eats fires a free Gene Gun helix at the nearest enemy. |
 
 ## Pairings (secret combos)
 
@@ -941,6 +946,20 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 | **Colouring Book** | Colouring In + Morning Sickness | Every shape you colour in fills with a toxic puddle. |
 | **Cold Read** | Twin Telepathy + Cold Feet | Anything that stays in the telepathy beam for a second freezes solid. |
 | **Toil and Trouble** | Bubble Wand + Morning Sickness | Every pop leaves a toxic puddle. |
+| **Shotgun Reception** | Hiccup Scattergun + Shotgun Wedding | Enemies the Hiccup Scattergun hits take 35% more from Shotgun Wedding for 2s. |
+| **Flammable Fabric** | Thorny Onesie + Moonshine Jug | Burning enemies the Thorny Onesie has pricked burst into a fire puddle when they die. |
+| **Campfire Song** | Colouring In + Duelling Banjo | Enemies touched by the crayon line take 40% more from Duelling Banjo notes for 2s. |
+| **Last Orders** | Due Date + Moonshine Jug | Moonshine hits enemies with a Due Date 40% harder. |
+| **Who You Gonna Call** | Peekaboo + Ghosts of You | Every enemy a BOO! hits adds a ghost to Ghosts of You. |
+| **Mind the Gap** | Twin Telepathy + Gene Gun | Enemies in the telepathy beam take 30% more from the Gene Gun. |
+| **A Tooth for a Tooth** | Tooth Fairy + Karma | Karma hits enemies carrying teeth 35% harder. |
+| **Been Here Before** | Déjà Vu + Due Date | Every Deja Vu hit on a marked enemy adds a quarter of itself to its Due Date. |
+| **Lost Siblings** | Ghosts of You + Seeker Siblings | Every kill by Seeker Siblings adds a ghost to Ghosts of You. |
+| **Lashing Out** | Karma + Flagellum Flail | Enemies the Flail has lashed take 35% more from Karma for 2s. |
+| **Gene Therapy** | Gene Gun + Placental Siphon | Every Gene Edit heals you 1% of your max HP. |
+| **Seen It Before** | Déjà Vu + Spitball | Enemies a Spitball has hit take 40% more from Deja Vu for 2s. |
+| **Shotgun Surprise** | Shotgun Wedding + Peekaboo | Enemies a BOO! has hit take 40% more from Shotgun Wedding for 2s. |
+| **Bubble Band** | Duelling Banjo + Bubble Wand | Duelling Banjo notes hit bubbled enemies 50% harder. |
 
 ## Bosses and relics
 

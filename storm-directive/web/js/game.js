@@ -735,7 +735,7 @@ function damageEnemy(e, dmg, src) {
   }
   if (src.grudge && e === G.grudge) d *= 3;
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
-  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src);
+  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src) * pair2Mul(e, src);
   // Stain boons: you can see who matters.
   if (G.dyeBoon.luciferase && (e.elite || e.boss)) d *= 1.25; // (boons only from stains found this run)
   if (G.dyeBoon.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
@@ -794,7 +794,7 @@ function damageEnemy(e, dmg, src) {
     e.kx += kx / l * k; e.ky += ky / l * k;
   }
   if (src.freezeHit && !e.boss) { e.frozen = Math.max(e.frozen, 1.2); }
-  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); puHit(e, d, src); }
+  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); pair2Hit(e, dmg, src); puHit(e, d, src); }
   if (!src.dot) relicHit(e, d, src);
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   // Kinetic's reaction, SHATTER: a solid hit on something frozen breaks it, and the shards fly.
@@ -956,6 +956,7 @@ function killEnemy(e, src) {
   foeKill(e, src);
   puKill(e);
   sillyKill(e, src);
+  pair2Kill(e, src);
   toyKill(e, src);
   genesKill(e, src);
   heatKill(e);
@@ -1572,7 +1573,7 @@ function updateWeapon(w, dt) {
     if (d.kind === 'mine' && !acquire('nearest', s.range, G.player.x, G.player.y)) { w.cd = 0; return; }
     w.isLast = !rage && !d.scrapAmmo && G.P.lastRound > 0 && w.ammo === 1;
     fireWeapon(w, target);
-    comboFire(w, target);
+    comboFire(w, target); pair2Fire(w, target);
     w.firedT = G.t;
     w.isLast = false;
     shots++;
@@ -1851,7 +1852,7 @@ function updateBeam(w, dt) {
 }
 
 function updateProjectiles(dt) {
-  const p = G.player;
+  const p = G.player, wells = aimHoles(); // (gravity wells your shots can slingshot round, aim.js)
   for (const pr of G.proj) {
     if (pr.dead) continue;
     if (pr.lob) {
@@ -1929,6 +1930,7 @@ function updateProjectiles(dt) {
         continue;
       }
     }
+    if (wells) aimBend(pr, dt);
     if (pr.helix && pr.pair && !(pr.orbitT > 0) && !(pr.hold > 0) && !pr.hanging) geneStep(pr, dt); // (Gene Gun strands twist round each other)
     else if (!(pr.orbitT > 0)) { pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt; }
     if (pr.helix && pr.pair && (pr.orbitT > 0 || pr.hold > 0 || pr.hanging) && pr.pair.strands[0] === pr) { pr.pair.cx = pr.x; pr.pair.cy = pr.y; } // (a held or orbiting helix picks up where its lead strand is)
@@ -1971,7 +1973,7 @@ function updateProjectiles(dt) {
         (pr.hits || (pr.hits = [])).push(e.id);
         return false;
       }
-      const hm = (pr.pb ? 1 + 1.5 * clamp(pr.life / pr.max, 0, 1) : 1) * (pr.vsOwner === e ? 3 : 1);
+      const hm = (pr.pb ? 1 + 1.5 * clamp(pr.life / pr.max, 0, 1) : 1) * (pr.vsOwner === e ? 3 : 1) * aimMul(pr, e); // (range falloff, sniper shots: aim.js)
       damageEnemy(e, pr.dmg * hm, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
       projHit(pr, e);
       if (pr.ghost) rebornHit(pr, e); // (Ghosts of You: reborn.js)

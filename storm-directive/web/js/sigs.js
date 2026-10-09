@@ -378,6 +378,7 @@ function wormTurret(t, pw) {
 
 // ---------------------------------------------------------------- Placental Siphon extras
 function siphonAte(w, b) {
+  pair2Ate(w); // (Gene Splice, pairs2.js)
   if (hasSig(w, 'sender') && b.owner) { (w.owners || (w.owners = [])).push(b.owner); if (w.owners.length > 60) w.owners.shift(); }
   if (hasSig(w, 'buffet') && G.lsBudget > 0) { const h = Math.min(G.lsBudget, 0.35); G.lsBudget -= h; healPlayer(h, true); }
   if (G.pair.discharge && (w.eaten = (w.eaten || 0) + 1) % 12 === 0) {

@@ -90,6 +90,7 @@ function redFire(w, target, src) {
     w.blastN = (w.blastN || 0) + 1;
     const both = hasSig(w, 'rtboth') || w.blastN % 3 === 0, n = s.count * (both ? 2 : 1);
     for (let i = 0; i < n; i++) spawnProj(w, p.x, p.y, a0 + (Math.random() - 0.5) * s.spread * (both ? 1.3 : 1), src, both ? { knock: (s.knock || 90) * 2 } : null);
+    if (both) pair2Both(w); // (Hoedown Throwdown, pairs2.js)
     if (both) { cam.shake = Math.min(10, cam.shake + 3); if (!(G.bothSayT > G.t)) { G.bothSayT = G.t + 3; floatText(p.x, p.y - 30, 'BOTH BARRELS', '#ffb703', 12, 0.6); } }
     if (hasSig(w, 'rtrice')) for (let i = 0; i < 8; i++) spawnProj(w, p.x, p.y, i / 8 * TAU, src, { noMods: true, dmg: s.dmg * 0.4, r: 2.5, color: '#fff3e0', bounce: 0 });
     if (hasSig(w, 'rtreception') && w.blastN % 4 === 0) for (let i = 0; i < 16; i++) spawnProj(w, p.x, p.y, i / 16 * TAU, src, { noMods: true });
