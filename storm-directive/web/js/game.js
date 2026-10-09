@@ -116,6 +116,8 @@ function newGame() {
   if (typeof UI !== 'undefined' && UI.sample === 's000') initDebug();
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
+  // In the Petri Dish you start at the bottom of the dish, facing the egg (not sitting on it).
+  if (G.wave) { const p = G.player; p.y = DISH.arena * 0.72; unstick(p, p.r + 6); cam.x = p.x; cam.y = p.y; }
   // G.dyes: which colours show. G.dyeBoon: which stains you found this run (their boons). Permanent stains
   // (one kept at the end of each finished run) start switched on, colour only; the pause menu toggles them.
   G.dyes = {}; G.dyeBoon = {};
