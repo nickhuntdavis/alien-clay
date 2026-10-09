@@ -1,360 +1,78 @@
-# CLAUDE.md - AI Assistant Guide for alien-clay
-
-This document provides comprehensive guidance for AI assistants (like Claude) working on the alien-clay project. It covers codebase structure, development workflows, conventions, and best practices.
-
-## Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Repository Structure](#repository-structure)
-3. [Development Environment](#development-environment)
-4. [Git Workflow](#git-workflow)
-5. [Code Conventions](#code-conventions)
-6. [Testing Strategy](#testing-strategy)
-7. [AI Assistant Guidelines](#ai-assistant-guidelines)
-8. [Common Tasks](#common-tasks)
-9. [Troubleshooting](#troubleshooting)
-
----
-
-## Project Overview
-
-**Project Name:** alien-clay
-**Repository:** nickhuntdavis/alien-clay
-**Status:** New/In Development
-
-### Purpose
-[To be filled: Brief description of what this project does and its primary goals]
-
-### Key Technologies
-[To be filled as project develops]
-- Language(s):
-- Framework(s):
-- Build Tools:
-- Testing Frameworks:
-- Other Dependencies:
-
----
-
-## Repository Structure
-
-```
-alien-clay/
-├── .git/                  # Git repository data
-├── CLAUDE.md             # This file - AI assistant guide
-├── README.md             # [To be created] Project documentation
-├── LICENSE               # [To be created] Project license
-├── .gitignore            # [To be created] Git ignore rules
-└── [Additional structure to be defined as project develops]
-```
-
-### Key Directories
-[To be documented as the project structure develops]
-
----
-
-## Development Environment
-
-### Prerequisites
-[To be documented]
-- Required software and versions
-- Environment variables
-- Configuration files
-
-### Setup Instructions
-
-```bash
-# Clone the repository
-git clone [repository-url]
-cd alien-clay
-
-# [Additional setup steps to be documented]
-```
-
-### Environment Configuration
-[Document any .env files, configuration requirements, or environment-specific settings]
-
----
-
-## Git Workflow
-
-### Branch Strategy
-
-**Main Branch:** [To be determined - typically `main` or `master`]
-
-**Branch Naming Conventions:**
-- Feature branches: `feature/descriptive-name`
-- Bug fixes: `fix/descriptive-name`
-- AI assistant branches: `claude/claude-md-[session-id]`
-- Hotfixes: `hotfix/descriptive-name`
-
-### Commit Guidelines
-
-**Commit Message Format:**
-```
-<type>: <subject>
-
-<body (optional)>
-
-<footer (optional)>
-```
-
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-
-**Examples:**
-```bash
-feat: add user authentication module
-
-fix: resolve null pointer exception in data parser
-
-docs: update API documentation for v2 endpoints
-```
-
-### Pull Request Process
-
-1. **Create Feature Branch:** Branch from main/master
-2. **Develop:** Make changes following code conventions
-3. **Test:** Ensure all tests pass
-4. **Commit:** Use conventional commit messages
-5. **Push:** Push to remote branch
-6. **PR:** Create pull request with description
-7. **Review:** Address review comments
-8. **Merge:** Merge after approval
-
----
-
-## Code Conventions
-
-### General Principles
-
-1. **Clarity over Cleverness:** Write code that is easy to understand
-2. **Consistency:** Follow existing patterns in the codebase
-3. **Documentation:** Comment complex logic and public APIs
-4. **Testing:** Write tests for new functionality
-5. **Security:** Never commit secrets, credentials, or sensitive data
-
-### Code Style
-
-[To be defined based on project language and team preferences]
-
-**Formatting:**
-- Indentation: [tabs/spaces and size]
-- Line length: [maximum characters]
-- Naming conventions: [camelCase, snake_case, PascalCase, etc.]
-
-**File Organization:**
-- Imports/requires at top
-- Constants after imports
-- Main logic follows
-- Helper functions at end or in separate modules
-
-### Security Best Practices
-
-- ✅ Use environment variables for sensitive configuration
-- ✅ Validate and sanitize all user inputs
-- ✅ Use parameterized queries to prevent SQL injection
-- ✅ Implement proper authentication and authorization
-- ✅ Keep dependencies updated
-- ❌ Never commit API keys, passwords, or tokens
-- ❌ Never log sensitive information
-- ❌ Avoid eval() or similar dangerous functions
-
----
-
-## Testing Strategy
-
-### Test Structure
-[To be defined]
-
-### Running Tests
-```bash
-# [To be documented based on testing framework]
-# Example: npm test, pytest, cargo test, etc.
-```
-
-### Test Coverage
-[Document coverage goals and how to check coverage]
-
-### Testing Guidelines
-
-1. **Unit Tests:** Test individual functions/methods
-2. **Integration Tests:** Test component interactions
-3. **E2E Tests:** Test complete user workflows
-4. **Test Naming:** Use descriptive names that explain what is being tested
-5. **Test Independence:** Tests should not depend on each other
-
----
-
-## AI Assistant Guidelines
-
-### General Approach
-
-When working on this project, AI assistants should:
-
-1. **Understand First:** Read relevant code before making changes
-2. **Plan Before Acting:** Use TodoWrite tool for multi-step tasks
-3. **Be Conservative:** Prefer editing existing files over creating new ones
-4. **Follow Patterns:** Match existing code style and architecture
-5. **Verify Changes:** Test changes before committing
-6. **Communicate Clearly:** Explain reasoning for decisions
-
-### Tool Usage Recommendations
-
-**For Exploration:**
-- Use `Task` tool with `subagent_type=Explore` for broad codebase exploration
-- Use `Grep` for searching specific patterns or keywords
-- Use `Glob` for finding files by pattern
-
-**For File Operations:**
-- Use `Read` to understand existing code
-- Use `Edit` for modifying existing files (preferred over Write)
-- Use `Write` only when creating new files is necessary
-
-**For Task Management:**
-- Use `TodoWrite` for complex multi-step tasks
-- Keep todos updated and mark completed immediately
-- One task in_progress at a time
-
-**For Git Operations:**
-- Always check git status before committing
-- Use descriptive commit messages
-- Push to designated branch only
-
-### Code Review Checklist
-
-Before committing, verify:
-
-- [ ] Code follows project conventions
-- [ ] No security vulnerabilities introduced
-- [ ] No secrets or sensitive data in code
-- [ ] Tests pass (if applicable)
-- [ ] Documentation updated (if needed)
-- [ ] No unnecessary files created
-- [ ] Changes are minimal and focused
-- [ ] Error handling is appropriate
-- [ ] Edge cases are considered
-
-### Common Pitfalls to Avoid
-
-1. **Don't create unnecessary documentation:** Only create docs when explicitly requested
-2. **Don't use emojis:** Unless explicitly requested by user
-3. **Don't commit untracked files blindly:** Review what files are being added
-4. **Don't make assumptions:** Ask for clarification when requirements are ambiguous
-5. **Don't skip testing:** Always verify changes work as expected
-6. **Don't push to wrong branch:** Always push to the designated feature branch
-
----
-
-## Common Tasks
-
-### Adding a New Feature
-
-1. Create feature branch or use assigned branch
-2. Plan implementation using TodoWrite
-3. Implement feature following code conventions
-4. Write tests for new functionality
-5. Update documentation if needed
-6. Commit with descriptive message
-7. Push to remote branch
-8. Create pull request
-
-### Fixing a Bug
-
-1. Reproduce the bug
-2. Identify root cause
-3. Write test that exposes the bug (if applicable)
-4. Implement fix
-5. Verify test passes
-6. Commit with fix message
-7. Push and create PR
-
-### Refactoring Code
-
-1. Understand current implementation
-2. Ensure tests exist for current behavior
-3. Make incremental changes
-4. Run tests after each change
-5. Commit frequently with clear messages
-6. Document any API changes
-
-### Adding Documentation
-
-1. Identify what needs documentation
-2. Write clear, concise documentation
-3. Include examples where helpful
-4. Update relevant README or docs
-5. Commit with docs message
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue:** Git push fails with 403 error
-**Solution:** Ensure branch name starts with 'claude/' and ends with matching session ID
-
-**Issue:** Tests failing after changes
-**Solution:** Review test output, check for breaking changes, update tests if API changed intentionally
-
-**Issue:** Merge conflicts
-**Solution:** Fetch latest from main, resolve conflicts carefully, test thoroughly
-
-**Issue:** Can't find specific code/functionality
-**Solution:** Use Explore agent for broad searches, Grep for specific patterns
-
-### Getting Help
-
-[Document how to get help - team contacts, documentation links, etc.]
-
----
-
-## Project-Specific Notes
-
-[This section should be updated as the project develops with any project-specific conventions, gotchas, or important information]
-
-### Architecture Decisions
-[Document key architectural decisions and rationale]
-
-### Dependencies Management
-[Document how dependencies are managed and updated]
-
-### Deployment
-[Document deployment process when established]
-
-### Performance Considerations
-[Document any performance requirements or optimization strategies]
-
----
-
-## Changelog
-
-This document should be updated as the project evolves.
-
-**Version History:**
-- 2025-11-15: Initial creation - Comprehensive guide for new repository
-- [Future updates to be logged here]
-
----
-
-## Additional Resources
-
-[Links to additional documentation, external resources, etc.]
-
-- Project README: [To be created]
-- API Documentation: [If applicable]
-- Team Wiki: [If applicable]
-- Issue Tracker: GitHub Issues
-
----
-
-**Last Updated:** 2025-11-15
-**Maintained By:** AI Assistants working on alien-clay project
-
-**Note to Future AI Assistants:** Please keep this document updated as you learn more about the project structure, conventions, and workflows. This living document should reflect the current state of the project.
+# CLAUDE.md: Spawn Prawn (alien-clay)
+
+Read this, then `storm-directive/NOTES.md` (current state and open threads), before exploring. Only grep the code for what you are changing.
+
+## What it is
+Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, and the game is crude, British, biology-joke humour. It is vanilla JS on a canvas, wrapped in an Android WebView.
+- Game: `storm-directive/web/` (`index.html`, `style.css`, `js/*.js`, about 20k lines, no build step and no modules: plain globals in script order).
+- Android wrapper: `storm-directive/android/`. Released APK: `storm-directive/release/SpawnPrawn.apk`.
+- Player guide (generated): `storm-directive/GAME_GUIDE.md`, from `storm-directive/tests/tools/guide.js`.
+- Tests: `storm-directive/tests/` (Playwright, headless Chromium).
+
+## Working with the user
+- British English. Use () rather than em dashes. The first line is the answer. No preamble or recap. Numbered steps and ranked lists. When asked for options, give 2 to 4, recommendation first. End with one action under 2 minutes, with real time estimates.
+- No accessibility or WCAG work. Answer in chat (ask before making docs). Confirm risky actions.
+- After every build, send the APK with SendUserFile.
+- Use "Separately: X. Handle that next?" for second issues.
+- Win-rate target: about 1 in 3 for a human. The autorun bot dodges worse, so 20 to 50% bot wins is fine.
+- Be token-conscious. Run only the relevant tests while iterating, and the full suite once before shipping. Take screenshots only for visual changes. Run balance sims only when difficulty is in question.
+
+## Git
+- Work and push only on the branch the session names (it has been `claude/autorun-bullet-storm-game-blptu8`). Use `git push -q origin <branch>`.
+- Conventional commits (`feat:`, `fix:` and so on), ending with the attribution lines from the session's system reminder. Never put model IDs in commits. No PR unless asked.
+
+## Ship checklist (in order)
+1. `cd storm-directive/tests && ./run.sh` (the full suite, about 8 min). Everything must pass.
+2. Bump `APP_VERSION` in `web/js/meta.js`, and `versionCode` (+1) and `versionName` (single-quoted) in `android/app/build.gradle`.
+3. `node storm-directive/tests/tools/guide.js` regenerates `GAME_GUIDE.md`. Update its text when features change.
+4. `cd storm-directive/android && ./gradlew assembleRelease -q && cp app/build/outputs/apk/release/app-release.apk ../release/SpawnPrawn.apk`
+5. Commit, push, then SendUserFile the APK.
+
+## Tests
+- `./run.sh` runs everything. `./run.sh lvshot quick` runs just those. Only failures and a summary are printed. Screenshots go to `tests/out/` (git-ignored).
+- Each test loads `web/index.html`, then calls `splashEnd()`. It sets `window.TUT_OFF = 1` (no tutorial cards) and usually marks `META.seen`/`META.seenSt` so intro cards don't pause it.
+- Simulations in `tests/sim/`:
+  - `node sim/wave20.js 4 mortal`: wave-mode bot runs, with win and death causes.
+  - `node sim/lvsim.js 2 mortal kite steer`: a campaign level run by a bot that steers itself.
+  - `node sim/variety.js 6`: which cards get offered.
+  - `node sim/boxrate.js 3 s002`: boxes per minute.
+  - `node sim/eggbump.js`: how often autorun touches the egg.
+- Node and Playwright: `NODE_PATH=/opt/node22/lib/node_modules` (`run.sh` sets it). Chromium comes pre-installed; never run `playwright install`.
+
+## Architecture (the hook-file pattern)
+- Each feature lives in its own file with small hook calls into `game.js`, `render.js`, `ui.js` and `bosses.js`. Each file's header comment lists its hooks. Follow the pattern: add a file, add it to `index.html` in the right order, then add one-line hooks.
+- Script order matters (globals). `data.js` and `game.js` come first. Later files include … `chem`, `spoils`, `campaign`, `statusintro`, `tutorial`, `levels`, `glossary`, `evolve`, `stamina` …, `splash`, `finale`, `juice`, `audio`, `daily`, `portraits`, `lab`, `ui`.
+- Globals:
+  - `G` is the run state; `null` on the title screen.
+  - `META` is persistent: `localStorage sd_meta`. `SET` is settings: `sd_settings`, defined in `settings.js` `SETTINGS_DEF` with Play/View/Sound/Data tabs.
+  - `UI` is the DOM UI (`ui.js`).
+  - `ctx`, `W`, `H` and `S` (world→screen scale), `cam`, and `PAL` (colours).
+  - `col()` greyscales colours unless `RAW_COL` is true. The world is greyscale until stains are found; campaign levels draw with `RAW_COL` on, in pink.
+- Main loop (`game.js`): `update(dt)` runs systems; the director spawns; `G.lootQueue` holds boxes, opened via `UI.openLoot(req)` and `genLoot(req)`.
+- Game modes (`UI.sample`):
+  - `s002` Petri Dish wave mode (`waves.js` and `campaign.js`): 20 waves, a boss every 5th. Optional wave 0 tutorial is in `tutorial.js`.
+  - `s001` standard race to the egg.
+  - `s006` Endless.
+  - `s007` campaign Level 1 (`levels.js`); `s008` Level 2 is a locked placeholder.
+  - `s000` Lab Bench debug (tap the samples title 5 times).
+- Damage types (internal id → name): `phys`=Force, `fire`=Acid, `ice`=Base, `shock`=Static, `poison`=Ethanol, `arcane`=Voodoo, `oxi`=Peroxide, `salt`=Brine.
+  - In player-facing text say "damage type" and "chemical reaction". Never say "element" or "elemental".
+  - Internal names stay as they are (`ELEMENTS`, `elem`, the mod id `elemental`).
+- Spells are called "Feats" in all player-facing text. Internals stay `G.spells`, `SPELLS`, `isSpell`.
+- Feats and stamina: `stamina.js`. Attacking Feats cost stamina. Tapping a Feat slot casts it (`featTap`). `SET.featAuto=false` means Feats cast on tap only.
+- Loot (`game.js` `genLoot`):
+  - Novelty weighting (`novK`/`novSeen`, `META.offered`) rotates the pool.
+  - `rollRarity`. Achievement DNA (`kind:'myth'`) is all Mythical or Celestial.
+  - Skipping a level box raises the next one's rarity floor (`G.rarBoost`, `RAR_SKIP`).
+- Campaign levels (`levels.js`):
+  - A level is data: an ASCII map (`LV_C`=80-unit cells), zones, arenas, boss and hazards.
+  - Breadth-first route maps run to the exit (`dEx`) and to the player (`dPl`). They drive enemy chasing round walls, out-of-sight spawning and the "lost" chevron.
+  - Autorun does not solve the maze (by the user's request).
+  - Arenas seal (`lvLock`) until their quota is killed.
+  - The level stays "Level N" until it has been beaten (`lvKnown`/`lvName`); keep the setting a surprise in all text.
+  - Map source: `tests/tools/mouth.py`, which generates the ASCII and checks connectivity.
+- Tutorials:
+  - `intro.js` (enemy first sightings), `statusintro.js` (buffs and debuffs), `tutorial.js` (sprint, Feats, Lateral Gene Transfer, damage types, wave 0).
+  - Cards come at least 25 s apart and carry a "skip tutorial" link.
+  - `resetTutorial()` brings them all back.
+- Lateral Gene Transfer (old name "vesicle", internal `G.vesicles` and `kind:'vesicle'`): mutation boxes from `genes.js`. In wave mode they open at the end of the wave.

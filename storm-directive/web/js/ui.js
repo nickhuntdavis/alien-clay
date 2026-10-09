@@ -1240,7 +1240,8 @@ const UI = {
       // The bestiary: every enemy type you have met (introduced on first sighting, see intro.js).
       let l = '';
       for (const id in ENEMY_INTRO) {
-        const d = ENEMIES[id], I = ENEMY_INTRO[id], m = META.seen && META.seen[id];
+        const d = ENEMIES[id] || (typeof LV_FOES !== 'undefined' && LV_FOES[id]), I = ENEMY_INTRO[id], m = META.seen && META.seen[id]; // (campaign germs live in LV_FOES)
+        if (!d) continue;
         l += `<div class="li cdxe">${portraitTag('foe', id, m)}<div><b${m ? ` style="color:${col(d.color)}"` : ''}>${m ? esc(d.name) : '???'}</b><br><span>${m ? esc(I.what) + ' <i>' + esc(I.tip) + '</i>' : 'Not met yet.'}</span></div></div>`;
       }
       let rv = '';
