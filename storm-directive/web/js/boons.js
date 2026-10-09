@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - Mythical and Celestial cards. On top of their (big) stats, each carries a unique bonus
+// Spawn Prawn - Mythical and Immaculate cards. On top of their (big) stats, each carries a unique bonus
 // effect for the rest of the run. One or two turn up in a typical run, three at most (see rollRarity).
 
 const BOONS = {
@@ -19,7 +19,7 @@ const BOONS = {
   starfall:   { tier: 6, name: 'Twinkle, Twinkle', desc: 'Stars fall on enemies near you, one every 0.4s, each for three times your best weapon\'s damage.' },
 };
 
-// Give a Mythical or Celestial card its bonus (from genLoot). Shown on the card; granted when taken.
+// Give a Mythical or Immaculate card its bonus (from genLoot). Shown on the card; granted when taken.
 function withBoon(o) {
   if (!o || !(o.rarity >= 5) || o.cursed) return o;
   const have = G.boons || {}, pool = Object.keys(BOONS).filter(id => BOONS[id].tier === o.rarity && !have[id]);

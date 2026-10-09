@@ -63,7 +63,7 @@ function rollGacha(w, silent) {
   if (silent || w.echo) return;
   const T = GACHA_TIERS[tier], p = me();
   floatText(p.x, p.y - 34, T.name + '!', T.color, tier >= 2 ? 16 : 12, 1);
-  if (tier === 3) { banner('LEGENDARY MAG!', T.color); achieve('gachagold'); sysLine('gacha'); sfx('level'); }
+  if (tier === 3) { banner('LEGENDARY LOAD!', T.color); achieve('gachagold'); sysLine('gacha'); sfx('level'); }
 }
 
 // Every reload goes through here so Tactical Reload can fire its shockwave.
@@ -308,7 +308,7 @@ function allyAI(e, dt) {
 
 // ---------------------------------------------------------------- weapon upgrade trees
 // Lv 3 and Lv 8: three upgrades any weapon can take (fixed per weapon, seeded by its id, so you can plan
-// ahead in the Armoury). Lv 5 and Lv 10: the weapon's own two signature upgrades (SIGS).
+// ahead in the Tackle Box). Lv 5 and Lv 10: the weapon's own two signature upgrades (SIGS).
 function weaponTree(def) {
   if (def.tree) return def.tree;
   let seed = 7;

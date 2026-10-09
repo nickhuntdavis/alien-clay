@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - quirks: twelve interactions nobody announces. They fall out of how things already work (a
 // black hole doesn't care whose mine it swallows; static conducts through a puddle) and each unlocks a
-// Codex entry the first time it happens. Until then the Codex only says "???".
+// Field Guide entry the first time it happens. Until then the Field Guide only says "???".
 
 const QUIRKS = {
   minebelly:  { name: 'Belly Full of Nappies', desc: 'A Toddler Gravity orb swallowed your Nappy Mines. They all went off together when it collapsed.' },
@@ -29,7 +29,7 @@ function quirkFound(id, x, y) {
   if (!META.quirks[id]) {
     META.quirks[id] = true; saveMeta();
     banner('SECRET FOUND: ' + Q.name.toUpperCase(), PAL.upgrade);
-    sysMsg('SECRET FOUND (' + Object.keys(META.quirks).length + '/' + Object.keys(QUIRKS).length + ')', Q.name + '. ' + Q.desc + ' (Now in the Codex.)', PAL.upgrade, true);
+    sysMsg('SECRET FOUND (' + Object.keys(META.quirks).length + '/' + Object.keys(QUIRKS).length + ')', Q.name + '. ' + Q.desc + ' (Now in the Field Guide.)', PAL.upgrade, true);
     sfx('level'); addViewers(6000);
     ring(x, y, 80, PAL.upgrade, 0.6, 5);
   } else floatText(x, y - 40, Q.name.toUpperCase(), PAL.upgrade, 13, 1);

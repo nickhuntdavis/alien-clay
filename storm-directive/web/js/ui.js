@@ -10,7 +10,7 @@ function cardCat(o) {
   if (o.relic) return PAL.reward;
   return PAL.upgrade; // weapons, spells, levels, fusions, branches, modifiers, power-ups: all permanent build changes
 }
-// Spawn Prawn - DOM UI: title, HUD slots, loot boxes, Armoury, pause, game over and victory.
+// Spawn Prawn - DOM UI: title, HUD slots, loot boxes, Tackle Box, pause, game over and victory.
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -48,7 +48,7 @@ const UI = {
     $('autoBtn').addEventListener('click', e => { e.stopPropagation(); SET.auto = !SET.auto; saveSettings(); UI.syncAuto(); if (G) floatText(me().x, me().y - 40, SET.auto ? 'FULL AUTO ON' : 'FULL AUTO OFF', PAL.you, 14, 1); });
     UI.syncAuto();
     $('armClose').addEventListener('click', () => UI.closeArmoury());
-    // Swipe left/right anywhere in the Armoury to move between slots.
+    // Swipe left/right anywhere in the Tackle Box to move between slots.
     { let sx = 0, sy = 0, t0 = 0;
       $('armoury').addEventListener('touchstart', ev => { const t = ev.touches[0]; sx = t.clientX; sy = t.clientY; t0 = performance.now(); }, { passive: true });
       $('armoury').addEventListener('touchend', ev => {
@@ -58,7 +58,7 @@ const UI = {
     $('armOpen').addEventListener('click', () => { if (G && G.state === 'pause') { G.state = 'play'; UI.openArmoury('w', 0); } });
     $('rewindBtn').addEventListener('click', () => {
       if (!G || G.state !== 'play') return;
-      if (G.chrono.charges < 1) { UI.toast('No Rewind charges: kill enemies to charge the Chrono meter'); return; }
+      if (G.chrono.charges < 1) { UI.toast('No Rewind charges: kill enemies to charge your Body Clock'); return; }
       if (G.chrono.snaps.length < 2) { UI.toast('Timeline too short to rewind yet'); return; }
       startRewind(false);
     });
@@ -163,15 +163,15 @@ const UI = {
     const el = document.createElement('div');
     el.className = 'slot ' + (kind === 's' ? 'spell' : 'weapon');
     el.innerHTML = '<div class="ico"></div><div class="lv"></div><div class="mp"></div><div class="dir"></div><div class="bar"><i></i></div>';
-    // Tapping a weapon slot switches its target; slots with nothing to aim open the Armoury on it.
+    // Tapping a weapon slot switches its target; slots with nothing to aim open the Tackle Box on it.
     holdable(el, () => {
       const w = G && (kind === 's' ? G.spells[i] : G.weapons[i]);
-      if (!w) return `<b>Empty ${kind === 's' ? 'spell' : 'weapon'} slot</b><p>Tap to open the Armoury.</p>`;
+      if (!w) return `<b>Empty ${kind === 's' ? 'spell' : 'weapon'} slot</b><p>Tap to open the Tackle Box.</p>`;
       const dr = DIRECTIVES.find(x => x.id === w.dir);
       return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>Lv ${w.lvl}/${MAX_WLVL}</em><p>${esc(w.def.desc)}</p>`
         + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name : ''}</p>` : '')
         + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '')
-        + `<p>${kind === 's' ? 'Tap to cast it now. Its target and the rest are in the Armoury.' : w.def.noTarget ? 'Tap to open the Armoury.' : 'Tap to switch target. ARMOURY button for the rest.'}</p>`;
+        + `<p>${kind === 's' ? 'Tap to cast it now. Its target and the rest are in the Tackle Box.' : w.def.noTarget ? 'Tap to open the Tackle Box.' : 'Tap to switch target. TACKLE BOX button for the rest.'}</p>`;
     }, () => {
       if (!G || G.state !== 'play') return;
       const w = kind === 's' ? G.spells[i] : G.weapons[i];
@@ -313,8 +313,8 @@ const UI = {
     // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
     body.onclick = ev => { const b = ev.target.closest('[data-stab]'); if (b) { UI.setTab = b.dataset.stab; UI.renderSettings(); $('settings').scrollTop = 0; } };
     if (tab !== 'data') { UI.bindSettingChips(body); return; }
-    body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, stains, generations, bests, achievements, the Codex and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
-    body.innerHTML += `<div class="sec setrow"><h3>Tutorial</h3><p class="hint">The first time you meet each kind of enemy, the slide stops to introduce it (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Reset to see the introductions again. Your Codex keeps what you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIAL</button></div></div>`;
+    body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, stains, generations, bests, achievements, the Field Guide and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
+    body.innerHTML += `<div class="sec setrow"><h3>Tutorial</h3><p class="hint">The first time you meet each kind of enemy, the slide stops to introduce it (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Reset to see the introductions again. Your Field Guide keeps what you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIAL</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Run log</h3><p class="hint">${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.</p>
       <div class="chips"><button class="chip" id="logCopy">COPY RUN LOG</button><button class="chip" id="logClear">CLEAR</button></div><p class="hint" id="logMsg"></p><textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea></div>`;
     $('logCopy').addEventListener('click', () => {
@@ -364,7 +364,7 @@ const UI = {
     if (typeof applyLayout === 'function') applyLayout();
   },
 
-  // ---------------------------------------------------------------- Armoury (weapon management)
+  // ---------------------------------------------------------------- Tackle Box (weapon management)
   openArmoury(k, i) {
     if (!G || G.state !== 'play') return;
     G.state = 'armoury';
@@ -374,7 +374,7 @@ const UI = {
       'Please do not lick the weapons. We have had complaints.',
       'Everything here is legally a gift, so no returns.',
       'Set your directives. Your tail does the rest. You do the blaming.',
-      'No other swimmer has an Armoury. That is not fair. That is the point.',
+      'No other swimmer has a Tackle Box. That is not fair. That is the point.',
     ]);
     UI.renderArmoury();
     UI.show('armoury');
@@ -662,7 +662,7 @@ const UI = {
         for (const l of [5, 8, 10]) for (const id of d.sig[l] || []) h += `<div class="dp"><em>LV ${l} ${l >= 10 ? 'MASTERY (ONE WEAPON A RUN)' : 'SIGNATURE'}</em><b>${esc(SIGS[id].name)}</b><span>${esc(SIGS[id].desc.replace(/^Mastery\. /, ''))}</span></div>`;
         h += `</div>`;
       }
-      // Only what matters to this build: pairings and combos with weapons you already own (the rest is in the Codex).
+      // Only what matters to this build: pairings and combos with weapons you already own (the rest is in the Field Guide).
       const id0 = defId(o.def), ownsW = oid => G.weapons.some(x => x && x.id === oid);
       const ps = PAIRINGS.filter(q => (q.a === id0 && ownsW(q.b)) || (q.b === id0 && ownsW(q.a)));
       if (ps.length) h += `<h4>PAIRS WITH YOUR</h4><div class="dpairs">${ps.map(q => { const oid = q.a === id0 ? q.b : q.a; return `<b style="color:${PAL.upgrade}">${esc(WEAPONS[oid].name)}</b>: ${esc(q.name)}. ${esc(q.desc)}`; }).join('<br>')}</div>`;
@@ -684,7 +684,7 @@ const UI = {
     box.classList.add('foe');
     box.style.setProperty('--bc', d.color);
     const word = (v, lo, hi, a, b, c) => (v < lo ? a : v < hi ? b : c);
-    $('biCount').innerHTML = `FIRST SIGHTING <span>${seen} OF ${Object.keys(ENEMY_INTRO).length} IN YOUR CODEX</span>`;
+    $('biCount').innerHTML = `FIRST SIGHTING <span>${seen} OF ${Object.keys(ENEMY_INTRO).length} IN YOUR FIELD GUIDE</span>`;
     $('biTitle').textContent = 'NEW ON THE SLIDE';
     $('biName').textContent = d.name;
     // The first shooter you ever meet is told, in as many words, that shooters shoot.
@@ -694,7 +694,7 @@ const UI = {
     box.querySelector('.bi-col.str h4').textContent = 'HOW TO BEAT IT';
     box.querySelector('.bi-col.weak').style.display = 'none';
     $('biStr').innerHTML = `<li style="animation-delay:0.9s">${esc(I.tip)}</li>`;
-    $('biReward').innerHTML = 'Added to your Codex.';
+    $('biReward').innerHTML = 'Added to your Field Guide.';
     box.classList.remove('ready');
     box.querySelectorAll('.bi-bar, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
     UI.show('bossIntro');
@@ -760,7 +760,7 @@ const UI = {
     $('biStr').innerHTML = R.specs.map((x, i) => `<li style="animation-delay:${(0.9 + i * 0.18).toFixed(2)}s"><b>${esc(x.name)}</b>: ${esc(x.desc)}</li>`).join('');
     $('biWeak').innerHTML = `<li style="animation-delay:1.3s">${esc(R.tip)}</li>`;
     const rr = RIVAL_RELICS[R.id];
-    $('biReward').innerHTML = rr ? 'Knock them out and choose one relic: ' + rr.map(id => `<b>${esc(RELICS[id].name)}</b>`).join(' or ') + '.' : '';
+    $('biReward').innerHTML = rr ? 'Knock them out and choose one trophy: ' + rr.map(id => `<b>${esc(RELICS[id].name)}</b>`).join(' or ') + '.' : '';
     box.classList.remove('ready');
     box.querySelectorAll('.bi-bar, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
     UI.show('bossIntro');
@@ -784,7 +784,7 @@ const UI = {
     const li = (arr, base) => arr.map((t, i) => `<li style="animation-delay:${(base + i * 0.18).toFixed(2)}s">${esc(t)}</li>`).join('');
     $('biStr').innerHTML = li(d.strengths, 1.9);
     $('biWeak').innerHTML = li(d.weaknesses, 2.1);
-    $('biReward').innerHTML = 'Beat it and choose one relic: ' + d.relics.map(id => `<b>${esc(RELICS[id].name)}</b>`).join(', ') + '.';
+    $('biReward').innerHTML = 'Beat it and choose one trophy: ' + d.relics.map(id => `<b>${esc(RELICS[id].name)}</b>`).join(', ') + '.';
     box.classList.remove('ready');
     // Restart the animations.
     box.querySelectorAll('.bi-bar, .bi-warn, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
@@ -805,14 +805,14 @@ const UI = {
     const titles = {
       start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary starter DNA. Yes, sperm can carry guns in their genes now. Do not ask the biology department.'],
       slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Rare or better.'],
-      level: ['LEVEL ' + G.level + '!', pick(['Fresh DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA! Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The fans chipped in. Some of them twice.'])],
-      chest: ['FAN DNA', pick(['Epic or better. The fans sent this. Some of the fans are very strange.', 'Epic or better. It wriggles. That is probably fine.'])],
-      myth: ['ACHIEVEMENT DNA', 'Mythical or Celestial, every card. Earned, not given. Do not waste it.'],
+      level: ['LEVEL ' + G.level + '!', pick(['Fresh DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA! Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The lab had some spare. Do not ask where from.'])],
+      chest: ['DONOR DNA', pick(['Epic or better. From an anonymous donor. Do not ask which one.', 'Epic or better. It wriggles. That is probably fine.'])],
+      myth: ['ACHIEVEMENT DNA', 'Mythical or Immaculate, every card. Earned, not given. Do not waste it.'],
       boss: ['BOSS DNA', 'Epic or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
       branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The others go in the bin. Forever. No pressure.'],
       sfork: ['FEAT PATH', 'Your Feat hit Lv 4. Pick how it grows up. The other one goes in the bin.'],
-      rrelic: ['RIVAL RELIC', 'They will not be needing it. Choose one; the other goes with them.'],
-      relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
+      rrelic: ['RIVAL TROPHY', 'They will not be needing it. Choose one; the other goes with them.'],
+      relic: ['BOSS TROPHY', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
       spoils: ['SPOILS', 'Picked from the wreckage. Choose one.'],
       vesicle: ['LATERAL GENE TRANSFER', 'Four horribly unstable mutations, borrowed from a passing stranger. Staple one to your genome. You only have room for so many before you pop.'],
       splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
@@ -850,7 +850,7 @@ const UI = {
     UI.lootTimer = setTimeout(() => $('lootCards').classList.add('ready'), 650);
   },
 
-  // Legendary and up: a ribbon and a light sweep. Mythical and Celestial also show their bonus effect.
+  // Legendary and up: a ribbon and a light sweep. Mythical and Immaculate also show their bonus effect.
   rarityFlair(o) { return o.rarity >= 4 && !o.cursed ? `<i class="sheen"></i><span class="rrib">${RARITIES[o.rarity].name.toUpperCase()}</span>` : ''; },
   boonHtml(o) { if (!o.boon) return ''; const B = BOONS[o.boon]; return `<div class="cboon"><b>${RARITIES[o.rarity].name.toUpperCase()} BONUS: ${esc(B.name)}</b><span>${esc(B.desc)}</span></div>`; },
   // The box announces its best card when it's Legendary or better.
@@ -969,21 +969,21 @@ const UI = {
 
   renderPause() {
     const box = $('pauseBody'), tab = UI.pauseTab || 'you';
-    let h = `<div class="ptabs">${[['you', 'YOU'], ['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE SHOW'], ['codex', 'CODEX']].map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-ptab="${id}">${l}</button>`).join('')}</div>`;
+    let h = `<div class="ptabs">${[['you', 'YOU'], ['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE LAB'], ['codex', 'GUIDE']].map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-ptab="${id}">${l}</button>`).join('')}</div>`;
     if (tab === 'run') {
     h += `<div class="sec"><h3>Autorun directive</h3><div class="chips">`;
     for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
     h += `<div class="sec"><h3>Game speed</h3><div class="chips">${SPEED_OPTS.map(v => `<button class="chip ${gameSpeed() === v ? 'sel' : ''}" data-spd="${v}">x${v}</button>`).join('')}</div></div>`;
 
-    h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.fertile ? 'It is one. It is you. Swim into the egg.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon mounts: ${G.weapons.length}/${MAX_WEAPONS} (next draft at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}.${vetK() ? ` Veteran: your Gene Bank upgrades are strong, so monsters have +${Math.round(vetK() * VET.hp * 100)}% HP and +${Math.round(vetK() * VET.dmg * 100)}% damage (bosses and rivals +${Math.round(vetK() * VET.big * 100)}% HP).` : ''} The egg's warm glow heals you (NEST autorun keeps you in it).</p>
+    h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.fertile ? 'It is one. It is you. Swim into the egg.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon mounts: ${G.weapons.length}/${MAX_WEAPONS} (next draft at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}.${vetK() ? ` Veteran: your Gene Bank upgrades are strong, so germs have +${Math.round(vetK() * VET.hp * 100)}% HP and +${Math.round(vetK() * VET.dmg * 100)}% damage (bosses and rivals +${Math.round(vetK() * VET.big * 100)}% HP).` : ''} The egg's warm glow heals you (NEST autorun keeps you in it).</p>
 </div>`;
     }
     if (tab === 'show') {
     // Achievements and the show.
     const got = G.show.order;
-    h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | Viewers ${fmtViewers(G.show.viewers)}</h3>`;
-    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The audience is waiting.</p>`;
+    h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | ${showWord()} ${fmtViewers(G.show.viewers)}</h3>`;
+    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The lab is waiting.</p>`;
     const cur = Object.keys(G.curses);
     if (cur.length) h += `<p class="hint">Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}</p>`;
     h += `</div>`;
@@ -1009,7 +1009,7 @@ const UI = {
     const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
     h += `<div class="sec"><h3>Stains (${st.length}/${Object.keys(DYES).length})</h3>${UI.stainsHtml()}</div>`;
     const rl = Object.keys(G.relics);
-    if (rl.length) h += `<div class="sec"><h3>Boss relics</h3><div class="list">${rl.map(id => `<div class="li on"><b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b><br><span>${esc(RELICS[id].desc)}</span></div>`).join('')}</div></div>`;
+    if (rl.length) h += `<div class="sec"><h3>Boss trophies</h3><div class="list">${rl.map(id => `<div class="li on"><b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b><br><span>${esc(RELICS[id].desc)}</span></div>`).join('')}</div></div>`;
     h += `<div class="sec"><h3>Power-ups</h3>`;
     h += ps.length ? `<div class="list">${ps.map(id => `<div class="li on"><b>${esc(PASSIVES[id].name)}</b> x${G.passives[id]}</div>`).join('')}</div>` : `<p class="hint">None yet.</p>`;
     h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%</p></div>`;
@@ -1088,7 +1088,7 @@ const UI = {
     };
     const sp = G.spells.map((w, i) => w && slot(w, i, 's')).filter(Boolean), wp = G.weapons.map((w, i) => w && slot(w, i, 'w')).filter(Boolean);
     h += `<div class="sec"><h3>Feats (${sp.length}/${G.spells.length})</h3>${sp.length ? sp.join('') : '<p class="hint">None yet. Feats show up in DNA strands while you have a free slot.</p>'}</div>`;
-    h += `<div class="sec"><h3>Weapons (${wp.length}/${MAX_WEAPONS})</h3>${wp.join('')}<p class="hint">Tap one to open it in the Armoury.</p></div>`;
+    h += `<div class="sec"><h3>Weapons (${wp.length}/${MAX_WEAPONS})</h3>${wp.join('')}<p class="hint">Tap one to open it in the Tackle Box.</p></div>`;
     // The rest.
     let r = '';
     const cb = Object.keys(G.combo || {}).filter(id => COMBO_BY[id]).map(id => li(esc(COMBO_BY[id].name), esc(COMBO_BY[id].desc), PAL.upgrade));
@@ -1099,7 +1099,7 @@ const UI = {
     const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? li('Mystery Meat', 'Something inside is doing something.') : li(esc(MUTATIONS[id].name), esc(MUTATIONS[id].desc)));
     r += `<h3>Mutations (${mutCount()}/${mutCap()})</h3>${ms.length ? `<div class="list">${ms.join('')}</div>` : '<p class="hint">None yet.</p>'}`;
     const rl = Object.keys(G.relics || {}).filter(id => RELICS[id]).map(id => li(esc(RELICS[id].name), esc(RELICS[id].desc), PAL.reward));
-    if (rl.length) r += `<h3>Relics</h3><div class="list">${rl.join('')}</div>`;
+    if (rl.length) r += `<h3>Trophies</h3><div class="list">${rl.join('')}</div>`;
     const bn = Object.keys(G.boons || {}).filter(id => BOONS[id]).map(id => li(esc(BOONS[id].name), esc(BOONS[id].desc), PAL.reward));
     if (bn.length) r += `<h3>Boons</h3><div class="list">${bn.join('')}</div>`;
     const ps = Object.keys(G.passives).filter(id => PASSIVES[id] && G.passives[id] > 0);
@@ -1190,7 +1190,7 @@ const UI = {
     }
   },
 
-  // ---------------------------------------------------------------- Codex (from the pause menu, or the title screen between runs)
+  // ---------------------------------------------------------------- Field Guide (from the pause menu, or the title screen between runs)
   codexHtml() {
     const run = !!G, cyan = PAL.upgrade, sec = UI.codexSec || 'all', box = (title, inner, hint) => `<div class="sec"><h3>${title}</h3>${hint ? `<p class="hint">${hint}</p>` : ''}${inner}</div>`;
     const wids = Object.keys(WEAPONS), used = wids.filter(id => META.wstats[id]);
@@ -1199,8 +1199,8 @@ const UI = {
     const met = Object.keys(META.bosses).length, rel = Object.keys(RELICS).filter(id => META.relics[id]);
     const pids = Object.keys(PROFILES), pu = pids.filter(profUnlocked), mids = Object.keys(MUTATIONS), mf = mids.filter(id => META.muts[id]);
     const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + Object.keys(ENEMY_INTRO).length;
-    let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>CODEX COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
-      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Relics ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
+    let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>FIELD GUIDE COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
+      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
     h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
     const show = id => sec === 'all' || sec === id;
     if (show('weapons')) {
@@ -1262,7 +1262,7 @@ const UI = {
         const rl = b.relics.map(id => (META.relics[id] ? `<b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b>` : esc(RELICS[id].name))).join(', ');
         l += `<div class="li cdxe boss ${now ? 'on' : ''}">${portraitTag('boss', b.id, m)}<div><b>${m ? esc(b.name) : '???'}</b>${m ? ' <em>' + esc(b.title) + '</em>' : ''}<br><span>${m ? 'Weak to: ' + esc(b.weaknesses.join('; ')) + '. Relics: ' + rl : 'Not met yet.'}</span></div></div>`;
       }
-      h += box(`The boss ward (${met}/${BOSSES.length} met, ${rel.length}/${Object.keys(RELICS).length} relics taken)`, `<div class="list">${l}</div>`, `Every run you meet ${BOSSES_PER_RUN} of them, in a random order. Relics you have taken are in gold.`);
+      h += box(`The boss ward (${met}/${BOSSES.length} met, ${rel.length}/${Object.keys(RELICS).length} trophies taken)`, `<div class="list">${l}</div>`, `Every run you meet ${BOSSES_PER_RUN} of them, in a random order. Trophies you have taken are in gold.`);
     }
     if (show('rules')) {
       h += box('Rewind', '', `<b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically.`);
@@ -1279,7 +1279,7 @@ const UI = {
     }
     return h;
   },
-  // Codex tabs inside a screen: re-render whichever screen holds it.
+  // Field Guide tabs inside a screen: re-render whichever screen holds it.
   bindCodex(root, rerender) { root.querySelectorAll('[data-cdx]').forEach(b => b.addEventListener('click', () => { UI.codexSec = b.dataset.cdx; rerender(); })); },
   openCodex() { UI.codexSec = UI.codexSec || 'all'; $('codexBody').innerHTML = UI.codexHtml(); UI.bindCodex($('codexBody'), () => UI.openCodex()); UI.show('codex'); portraitsStart($('codexBody')); },
 
@@ -1329,10 +1329,10 @@ const UI = {
     // Being born: the prestige.
     { const g = META.gen || 0, bt = (META.baby || []).map(id => BABY_TRAITS[id] ? BABY_TRAITS[id].name : id);
       h += `<div class="sec"><h3>Be born (Generation ${g + 1})</h3><p class="hint">You are Generation <b>${g}</b> (${esc(genName(g))}): +${g * 10}% DNA, +${g * 3}% damage and +${g * 5} max HP on every run.${bt.length ? ' Baby Traits: ' + esc(bt.join(', ')) + '.' : ''}</p>
-        <p class="hint">Being born wipes your DNA, traits, wildcards and dyes. You keep your Generation (one more), a new Baby Trait of your choice, the Codex, your sequences and their ranks, Immune Response levels and records.${META.wonSinceBirth ? '' : ' <b>Win a run first.</b>'}</p>
+        <p class="hint">Being born wipes your DNA, traits, wildcards and dyes. You keep your Generation (one more), a new Baby Trait of your choice, the Field Guide, your sequences and their ranks, Immune Response levels and records.${META.wonSinceBirth ? '' : ' <b>Win a run first.</b>'}</p>
         <button class="btn ${UI.bornArm ? 'danger' : 'primary'}" id="bankBorn" ${META.wonSinceBirth ? '' : 'disabled'}>${UI.bornArm ? 'TAP AGAIN: BE BORN (THIS WIPES YOUR BANK)' : 'BE BORN'}</button></div>`; }
     // Clear: a full refund, so you can spend it all again. Two taps.
-    h += `<div class="sec"><h3>Clear the bank</h3><p class="hint">Refunds every DNA you have spent (${fmtNum(spent)}) and removes all traits, starters and dyes, so you can spend it again differently. Your Codex discoveries and records stay.</p>
+    h += `<div class="sec"><h3>Clear the bank</h3><p class="hint">Refunds every DNA you have spent (${fmtNum(spent)}) and removes all traits, starters and dyes, so you can spend it again differently. Your Field Guide discoveries and records stay.</p>
       <button class="btn ${UI.bankClear ? 'danger' : ''}" id="bankClear" ${spent ? '' : 'disabled'}>${UI.bankClear ? `TAP AGAIN: CLEAR AND REFUND ${fmtNum(spent)} DNA` : 'CLEAR GENE BANK'}</button></div>`;
     body.innerHTML = h;
     body.querySelectorAll('.bbuy').forEach(b => b.addEventListener('click', () => {
@@ -1370,7 +1370,7 @@ const UI = {
     let h = G.lvl ? `<div class="eulogy">${won ? `Lips to throat, through the plaque and the mouthwash, to a pale glowing ball at the back of the throat. It was a tonsil stone. It stinks. The egg is in another castle.${G.lvl.L.next ? ' LEVEL 1 WAS THE MOUTH. LEVEL 2 UNLOCKED (coming soon).' : ''}` : `Swallowed ${Math.round(lvProgress() * 100)}% of the way through ${esc(lvName(G.lvl.L).toLowerCase().replace(/\b\w/g, c => c.toUpperCase()))}.`}</div><div class="big">${fmtTime(G.t)}</div>` + (won ? '' : `<div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the immune system')}</b></div>`)
       : won
       ? `<div class="eulogy">${G.wave ? 'Twenty drops, four bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
-      : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
+      : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(sysPool('death')))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The lab is cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
       <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:${PAL.danger}">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
     const dr = dailyRecord(won);
     if (dr) h += `<div class="hint daily"><b>DAILY ${G.daily}</b>: ${dr.isBest ? 'NEW BEST FOR TODAY! ' : ''}Best ${dailyFmt(dr.best)} | Attempt ${dr.tries} | ${dr.streak}-day streak</div>`;
@@ -1491,18 +1491,21 @@ function lootStory(req) {
       `${n} left this to you in a will they wrote about four seconds before you happened to them.`,
       `Everything ${n} was now fits on one strand of DNA. Sad, really. Anyway: splice it in.`,
     ],
-    sponsor: [
-      `A gift from ${n}, sponsor of today's race. Terms and conditions apply to your soul.`,
-      `${n} sent this with a note: "Please mention us when you are born." You will not remember any of this.`,
+    sponsor: lvOn() ? [
+      `The egg sent this. You are certain of it. Nobody can tell you otherwise.`,
+      `A token from the egg, surely. It knows you are coming. It must.`,
+    ] : [
+      `A research grant from ${n}. Terms and conditions apply to your soul.`,
+      `${n} funded this with a note: "Please cite us when you are born." You will not remember any of this.`,
     ],
     boss: [
       `${n} is dead. This was in its will. You were not in its will. You are now.`,
-      `You spliced this out of ${n} while the audience cheered. The audience has questionable values.`,
+      `You spliced this out of ${n} while the lab took notes. The lab has questionable ethics.`,
       `${n} guarded these genes with its life. That turned out to be a limited resource.`,
     ],
     ach: [
-      `For "${n}". The producers insisted. The lawyers wept. Here is your prize.`,
-      `Achievement unlocked: "${n}". The show sends a strand of DNA and a small round of applause.`,
+      `For "${n}". The doctor insisted. The ethics board wept. Here is your prize.`,
+      `Achievement unlocked: "${n}". The lab sends a strand of DNA and a small round of applause.`,
     ],
     cure: [
       'For clearing up the yeast infection. The womb is grateful, and slightly embarrassed.',

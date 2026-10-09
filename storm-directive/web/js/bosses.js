@@ -87,7 +87,7 @@ function endBossIntro() {
   if (foe) { lastTs = performance.now(); if (typeof UI !== 'undefined') { UI.show('hud'); UI.refreshHud(true); } return; } // a first sighting: just carry on
   bossArrive(e);
   banner('FIGHT: ' + e.def.name, PAL.danger);
-  sysMsg('SYSTEM MESSAGE', `${e.def.name}, ${e.def.title}, has entered the arena. ${pick(SYSTEM_LINES.boss)}`, PAL.danger, true);
+  sysMsg('SYSTEM MESSAGE', `${e.def.name}, ${e.def.title}, has entered the arena. ${pick(sysPool('boss'))}`, PAL.danger, true);
   lastTs = performance.now();
   if (typeof UI !== 'undefined') { UI.show('hud'); UI.refreshHud(true); }
 }
@@ -323,13 +323,13 @@ function updateRevive() {
 
 function optRelic(id, boss) {
   const R = RELICS[id], B = bossDef(boss);
-  return { rarity: 4, tag: 'BOSS RELIC', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: PAL.reward, title: R.name,
+  return { rarity: 4, tag: 'BOSS TROPHY', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: PAL.reward, title: R.name,
     sub: 'From ' + B.name.replace(/^THE /, 'the ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()), desc: R.desc, relic: true,
     apply: () => applyRelic(id) };
 }
 function optRivalRelic(id, rid) {
   const R = RELICS[id], V = RIVALS.find(x => x.id === rid);
-  return { rarity: 4, tag: 'RIVAL RELIC', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: V.color, title: R.name,
+  return { rarity: 4, tag: 'RIVAL TROPHY', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: V.color, title: R.name,
     sub: 'Taken from ' + V.name, desc: R.desc, relic: true, apply: () => applyRelic(id) };
 }
 function applyRelic(id) {

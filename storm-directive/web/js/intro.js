@@ -3,7 +3,7 @@
 // short version of the boss treatment: the camera swims over, it flinches, and its file card comes up.
 // Named rivals get the same, with their personality, attributes and specialities.
 // Once ever (saved in META.seen), not once a run. Settings > Tutorial resets it. Bosses always get the
-// full introduction (bosses.js). Everything you've met goes in the Codex.
+// full introduction (bosses.js). Everything you've met goes in the Field Guide.
 
 // what: what it is and does. tip: how to deal with it.
 const ENEMY_INTRO = {

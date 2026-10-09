@@ -15,7 +15,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
    - [Feat paths (Lv 4)](#feat-paths-lv-4)
 9. [Power-ups (passives)](#power-ups-passives)
 10. [Mutations (Lateral Gene Transfers)](#mutations-lateral-gene-transfers)
-11. [Mythical and Celestial bonuses](#mythical-and-celestial-bonuses)
+11. [Mythical and Immaculate bonuses](#mythical-and-immaculate-bonuses)
 12. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
    - [Lv 3 pool](#lv-3-pool)
 13. [Modifiers](#modifiers)
@@ -48,7 +48,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 36. [Sperm samples](#sperm-samples)
 37. [Hidden rules](#hidden-rules)
 38. [Glossary](#glossary)
-39. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
+39. [Secret Field Guide entries (spoilers)](#secret-field-guide-entries-spoilers)
 
 ## How upgrades work
 
@@ -61,7 +61,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
 7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 20, 40 you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).
 8. **Mutations:** Lateral Gene Transfers (bubbles of stray genes) bulge up on the slide (the first at 50s, then every 60 to 90s). Swim into one to pick one of four mutations; you have 6 slots.
-9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Storm Surge. Each run meets 4 of the 9, in a random order. Beat one and choose one of its three relics.
+9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Fever Pitch. Each run meets 4 of the 9, in a random order. Beat one and choose one of its three relics.
 10. **Rarity** multiplies a card's value:
 
 | Rarity | Multiplier | Weapon levels granted | Roll weight (relative) | Share of cards offered (mid-run) |
@@ -72,9 +72,9 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 | Epic | x2 | +2 | 5 | 5.3% |
 | Legendary | x2.5 | +2 | 1.6 | 5.6% |
 | Mythical | x3 | +3 | separate roll | 0.45% |
-| Celestial | x4 | +3 | separate roll | 0.12% |
+| Immaculate | x4 | +3 | separate roll | 0.12% |
 
-Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Celestial skip the table: every card first rolls 0.55% for Mythical and 0.18% for Celestial (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses, combos) add to it.
+Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Immaculate skip the table: every card first rolls 0.55% for Mythical and 0.18% for Immaculate (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses, combos) add to it.
 
 **Level bonus key:** "+N count/pierce" is additive; "+N% dmg/area/duration" adds to the base; "N% faster" cuts the cooldown.
 
@@ -123,25 +123,25 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Static Cling](#static-cling) | Bright Spark | Static | Chain Static | DENSEST CLUSTER | - |
 | [Morning Sickness](#morning-sickness) | Problem Child | Ethanol | Area Denial | DENSEST CLUSTER | - |
 | [Tapeworm Seeder](#tapeworm-seeder) | Good Eater | Ethanol | Necromancer | HIGHEST HEALTH | 90 DNA |
-| [Seeker Siblings](#seeker-siblings) | Firstborn | Voodoo | Swarm | WEAKEST | - |
-| [Toddler Gravity](#toddler-gravity) | Bright Spark | Voodoo | Crowd Control | DENSEST CLUSTER | 80 DNA |
-| [Premature Evangelation](#premature-evangelation) | Good Eater | Voodoo | Bodyguard | NEAREST | 60 DNA |
+| [Seeker Siblings](#seeker-siblings) | Firstborn | Histamine | Swarm | WEAKEST | - |
+| [Toddler Gravity](#toddler-gravity) | Bright Spark | Histamine | Crowd Control | DENSEST CLUSTER | 80 DNA |
+| [Premature Evangelation](#premature-evangelation) | Good Eater | Histamine | Bodyguard | NEAREST | 60 DNA |
 | [Placental Siphon](#placental-siphon) | Designer Baby | Brine | Counter | NEAREST | 100 DNA |
 | [Placenta Paddle](#placenta-paddle) | Chonker | Force | Cleaver | NEAREST | - |
 | [Flagellum Flail](#flagellum-flail) | Quiet One | Force | Lasher | NEAREST | - |
 | [Thorny Onesie](#thorny-onesie) | Chonker | Force | Tank | NEAREST | - |
 | [Colouring In](#colouring-in) | Designer Baby | Force | Lasso | NEAREST | 90 DNA |
-| [Due Date](#due-date) | Favourite | Voodoo | Delayed Doom | HIGHEST HEALTH | 100 DNA |
+| [Due Date](#due-date) | Favourite | Histamine | Delayed Doom | HIGHEST HEALTH | 100 DNA |
 | [Red Tape](#red-tape) | Problem Child | Ethanol | Bureaucrat | DENSEST CLUSTER | 90 DNA |
-| [Imaginary Friend](#imaginary-friend) | Designer Baby | Voodoo | Echo | NEAREST | 120 DNA |
+| [Imaginary Friend](#imaginary-friend) | Designer Baby | Histamine | Echo | NEAREST | 120 DNA |
 | [Peekaboo](#peekaboo) | Quiet One | Base | Trickster | NEAREST | 100 DNA |
 | [Twin Telepathy](#twin-telepathy) | Bright Spark | Static | Geometry | DENSEST CLUSTER | 110 DNA |
 | [Bubble Wand](#bubble-wand) | Good Eater | Peroxide | Trap & Throw | NEAREST | 90 DNA |
-| [Tooth Fairy](#tooth-fairy) | Favourite | Voodoo | Lure | DENSEST CLUSTER | 100 DNA |
-| [Déjà Vu](#dj-vu) | Prawn Again | Voodoo | Repeater | NEAREST | - |
+| [Tooth Fairy](#tooth-fairy) | Favourite | Histamine | Lure | DENSEST CLUSTER | 100 DNA |
+| [Déjà Vu](#dj-vu) | Prawn Again | Histamine | Repeater | NEAREST | - |
 | [Ghosts of You](#ghosts-of-you) | Prawn Again | Base | Haunter | NEAREST | - |
 | [Karma](#karma) | Prawn Again | Force | Payback | NEAREST | - |
-| [Gene Gun](#gene-gun) | Designer Baby | Voodoo | Splicer | NEAREST | - |
+| [Gene Gun](#gene-gun) | Designer Baby | Histamine | Splicer | NEAREST | - |
 | [Shotgun Wedding](#shotgun-wedding) | Redtail | Force | Brawler | NEAREST | - |
 | [Moonshine Jug](#moonshine-jug) | Redtail | Ethanol | Firebomber | DENSEST CLUSTER | - |
 | [Duelling Banjo](#duelling-banjo) | Redtail | Static | Ring | NEAREST | - |
@@ -358,7 +358,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Seeker Siblings
 
-*Voodoo gun, Swarm.* Tiny homing siblings who swim for you and never miss. Family is complicated.
+*Histamine gun, Swarm.* Tiny homing siblings who swim for you and never miss. Family is complicated.
 
 - **Base stats:** dmg 9, cd 0.45s, mag 6, reload 2s, x2, range 500 (homing 5)
 - **Level bonuses:** Lv3: +1 count; Lv6: +1 count; Lv9: +40% dmg
@@ -379,7 +379,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Toddler Gravity
 
-*Voodoo gun, Crowd Control.* A slow orb that drags everything into its mouth. Everything.
+*Histamine gun, Crowd Control.* A slow orb that drags everything into its mouth. Everything.
 
 - **Base stats:** dmg 8, cd 1.8s, mag 2, reload 2.5s, pierce all, range 400 (aura 72, pull 95)
 - **Level bonuses:** Lv3: +30% area; Lv6: +1 count; Lv9: +50% dmg
@@ -400,7 +400,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Premature Evangelation
 
-*Voodoo orbit, Bodyguard.* Guardian angels circle you and hit whatever comes close. They always start too soon.
+*Histamine orbit, Bodyguard.* Guardian angels circle you and hit whatever comes close. They always start too soon.
 
 - **Base stats:** dmg 23, reload 2.2s, x3, range 100 (dur 4.5, radius 72, spin 3.6)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +1 count
@@ -526,7 +526,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Due Date
 
-*Voodoo duedate, Delayed Doom.* Sticks a countdown on an enemy. When it runs out, 40% of the damage it took lands again. Circled in red.
+*Histamine duedate, Delayed Doom.* Sticks a countdown on an enemy. When it runs out, 40% of the damage it took lands again. Circled in red.
 
 - **Base stats:** dmg 20, cd 0.9s, mag 3, reload 2s, range 480 (dur 4, repeat 0.4)
 - **Level bonuses:** Lv3: +0.15 repeat; Lv6: +1 count; Lv9: +0.2 repeat
@@ -568,7 +568,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Imaginary Friend
 
-*Voodoo friend, Echo.* Its name is Gerald. Gerald is very real. Gerald has your weapons.
+*Histamine friend, Echo.* Its name is Gerald. Gerald is very real. Gerald has your weapons.
 
 - **Base stats:** dmg 24, cd 0.7s, mag 6, reload 1.4s, range 230 (delay 2, copy 0.35)
 - **Level bonuses:** Lv3: +0.1 copy; Lv6: +1 count; Lv9: +0.1 copy
@@ -652,7 +652,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Tooth Fairy
 
-*Voodoo tooth, Lure.* Drops baby teeth near the crowd and smites whoever takes one. She collects debts.
+*Histamine tooth, Lure.* Drops baby teeth near the crowd and smites whoever takes one. She collects debts.
 
 - **Base stats:** dmg 34, cd 1.1s, mag 3, reload 2s, range 420 (dur 6, lure 230)
 - **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +60 lure
@@ -673,7 +673,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Déjà Vu
 
-*Voodoo gun, Repeater.* Every shot happens twice. The second time, it is a memory.
+*Histamine gun, Repeater.* Every shot happens twice. The second time, it is a memory.
 
 - **Base stats:** dmg 20, cd 0.8s, mag 6, reload 1.3s, pierce 1, range 420 (replay 1)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +2 pierce
@@ -739,7 +739,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Gene Gun
 
-*Voodoo gun, Splicer.* Precision gene therapy, delivered at speed. Side effects include exploding.
+*Histamine gun, Splicer.* Precision gene therapy, delivered at speed. Side effects include exploding.
 
 - **Base stats:** dmg 11.5, cd 0.5s, mag 8, reload 1.3s, pierce 1, range 480
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +2 pierce
@@ -971,7 +971,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 ## Bosses and relics
 
-A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 9 at random; a fifth (a tougher repeat) waits until the Storm Surge. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
+A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 9 at random; a fifth (a tougher repeat) waits until the Fever Pitch. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
 
 ### THE MACROPHAGE QUEEN: Eater of Hopefuls
 
@@ -982,7 +982,7 @@ A white blood cell who ate her way to the top. She summons swarms, then swallows
 - **Strengths:** Devours her own minions to heal; Summons swarms of swimmers.
 - **Weaknesses:** Acid: +60% damage; Slow: kite her and clear the snacks.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **Second Stomach** | +60% max HP, and every kill heals 1 HP. Eat everything. |
 | **Swallow Whole** | Touching a small, ordinary enemy swallows it whole instead of hurting you, and heals you 3 HP. |
@@ -997,7 +997,7 @@ A Y-shaped wall of protein. Heavily armoured, cannot be moved or saponified, and
 - **Strengths:** 12 armour: small hits barely scratch it; Cannot be knocked back or saponified.
 - **Weaknesses:** Static: +60% damage; Armour shred sticks for longer; Charges are telegraphed: side-step.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **Border Wall** | +10 armour and +40% max HP, but you swim 10% slower. |
 | **Bouncer** | Enemies that touch you are hurled away and take ten times their own contact damage. You take 40% less from them. |
@@ -1010,9 +1010,9 @@ A Y-shaped wall of protein. Heavily armoured, cannot be moved or saponified, and
 It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink. Base HP 3400, armour 4, speed 52.
 
 - **Strengths:** Teleports right next to you; Death-stare beam that tracks you.
-- **Weaknesses:** Takes double damage while glaring; Voodoo: +50% damage.
+- **Weaknesses:** Takes double damage while glaring; Histamine: +50% damage.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **Third Eye** | +25% crit chance and crits deal +100% more damage. |
 | **Death Stare** | Every 4s you glare at the toughest enemy on screen with a beam of your own for 1.5s. |
@@ -1027,7 +1027,7 @@ Runs the ward with an iron bedpan. Heals every enemy on screen and hides behind 
 - **Strengths:** Heals every enemy nearby on her rounds; Nurse cells orbit her and soak your shots.
 - **Weaknesses:** Ethanol: +60%, and halves her healing (she never touches the stuff); Kill her nurses: she panics and takes +50%.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **Bedside Manner** | Regenerate 1.5% of your max HP every second. |
 | **Triage** | Dropping below 25% HP heals you to 70% and makes you untouchable for 2s. Once every 45s. |
@@ -1042,7 +1042,7 @@ A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller
 - **Strengths:** Acid puddles eat into you; Acid only does half damage to it; Splits off blobs at 60% and 30% health.
 - **Weaknesses:** Base: +60% damage (an antacid); Blasts and pools: +40% damage.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **Acid Tongue** | Every hit shreds armour and adds a round of Ethanol. |
 | **Bad Blood** | When you are hit, you splash acid around you for ten times the damage you took. |
@@ -1057,7 +1057,7 @@ The biggest swimmer anyone has ever seen. Dashes through you three times, then h
 - **Strengths:** Blindingly fast triple dash; Flexes: dodges 30% of your shots.
 - **Weaknesses:** Winded after every dash: stunned, double damage; Blasts, beams and pools never miss him.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **Pre-Workout** | +35% swim speed, and every weapon hits up to 50% harder while you swim fast. |
 | **Tail Whip** | Your tail becomes a weapon: it lashes everything behind you twice a second. |
@@ -1072,7 +1072,7 @@ A walking temperature spike. Rings of heat, scalding ground, and it runs hotter 
 - **Strengths:** Immune to Acid: sweats it straight off; Rages below 35% health: twice as fast.
 - **Weaknesses:** Base: double damage; Saponifying it snuffs out its current attack.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **Running Hot** | Every weapon you own corrodes what it hits. |
 | **Fever Dream** | Every corroding enemy near you makes all your weapons fire 3% faster (up to +60%). |
@@ -1087,7 +1087,7 @@ Identical twins who fight as one. Kill one and the other rebuilds it in 8 second
 - **Strengths:** Revive each other; Crossfire from two sides.
 - **Weaknesses:** Finish both within 8 seconds; Blasts hit both when they huddle: +30%.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **Mirror Twin** | Every shot-firing weapon also fires a twin shot backwards at 50% damage. |
 | **Double Trouble** | +1 projectile, +1 pierce and +1 chain jump for every weapon. |
@@ -1100,9 +1100,9 @@ Identical twins who fight as one. Kill one and the other rebuilds it in 8 second
 A pregnancy that was never really there. It drifts straight through walls and growths, and Force passes through it as if it were mist. The womb itself still hurts it. Base HP 3000, armour 0, speed 50.
 
 - **Strengths:** Immune to Force damage; Swims through obstacles.
-- **Weaknesses:** Voodoo: +50% damage; Terrain still hurts it: Acid Crypts, cilia and ATP bursts.
+- **Weaknesses:** Histamine: +50% damage; Terrain still hurts it: Acid Crypts, cilia and ATP bursts.
 
-| Relic | Effect |
+| Trophy | Effect |
 |---|---|
 | **See-Through** | +20% dodge. Half the bullets that should hit you go straight through. |
 | **Poltergeist** | Every 3s the nearest enemy is picked up and thrown at the toughest one nearby. Both take a beating. |
@@ -1119,9 +1119,9 @@ From level 6 (and about 70 seconds in), something unexpected happens every 55 to
 | **SUGAR RUSH** | 20s | You swim 60% faster, ram x3, contact hurts half as much. | You swim 60% faster, ram x3, contact hurts half as much. So do they: enemies 30% faster. |
 | **WITCHING HOUR** | 20s | Shooters fire x2 as often. Survive: heal 30% and +1 reroll. | Shooters fire x2.6 as often. Survive: heal 30% and +2 rerolls. |
 | **KIDNEY STONE SHOWER** | 20s | Stones rain down. They crush everything they land on, you included. | Stones rain down. They crush everything they land on, you included. |
-| **SOFT PLAY** | 20s | Surrounded. Survive 20s for a gold chest. | Surrounded. Survive 20s for two gold chests. |
-| **GOLDEN SWIMMER** | 20s | A golden sperm is running off with a chest. Catch it within 20s. | A golden sperm is running off with two chests. Catch it within 20s. |
-| **MOST WANTED** | 60s | A bounty target is loose. Kill it within 60s: a chest and 2 rerolls. | A bounty target is loose. Kill it within 60s: two chests and 2 rerolls. |
+| **SOFT PLAY** | 20s | Surrounded. Survive 20s for a strand of Donor DNA. | Surrounded. Survive 20s for two strands of Donor DNA. |
+| **GOLDEN SWIMMER** | 20s | A golden sperm is running off with a DNA strand. Catch it within 20s. | A golden sperm is running off with two DNA strands. Catch it within 20s. |
+| **TAGGED SPECIMEN** | 60s | The lab tagged a specimen and it got loose. Kill it within 60s: a DNA strand and 2 rerolls. | The lab tagged a specimen and it got loose. Kill it within 60s: two DNA strands and 2 rerolls. |
 | **LIGHTS OUT** | 25s | Someone switched off the microscope lamp. +30% XP. | Someone switched off the microscope lamp. +30% XP. Elites are out hunting. |
 | **WATERS BREAKING** (Lv 25+) | 20s | A strong current sweeps everything one way. Swim with it and you ram for free. | A strong current sweeps everything one way. Swim with it and you ram for free. |
 | **IDENTICAL TWINS** (Lv 40+) | 20s | Everything that dies splits in two (the halves give no XP). | Everything that dies splits in two (the halves give no XP). |
@@ -1135,14 +1135,14 @@ Feats (what used to be spells) cast themselves and use the two Feat slots. The a
 | **Stork Drop** | Acid | A stork drops something heavy on the target and leaves acid on the ground. Not a baby. | dmg 65, cd 5s, count 1, area 88, delay 0.7s, dur 2s | Lv3: +1 count; Lv5: +30% area; Lv7: +1 count |
 | **Power Shower** | Base | A soapy blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
 | **Brainstorm** | Static | Static strikes several targets at once. None of the ideas are good. | dmg 36, cd 6s, count 5, area 48 | Lv3: +2 count; Lv5: +40% dmg; Lv7: +3 count |
-| **Sofa Crevice** | Voodoo | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
+| **Sofa Crevice** | Histamine | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Kiss It Better** | Ethanol | Restores 15% of your health. Medically dubious. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% healing; Lv7: 20% faster |
-| **Nap Time** | Voodoo | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
-| **Latex Barrier** | Voodoo | A shield that reflects enemy bullets and blocks contact. 98% effective. | dmg 12, cd 12s, dur 3s, area 80 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
+| **Nap Time** | Histamine | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
+| **Latex Barrier** | Histamine | A shield that reflects enemy bullets and blocks contact. 98% effective. | dmg 12, cd 12s, dur 3s, area 80 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
 | **Running With Scissors** | Force | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
 | **Dutch Oven** | Ethanol | A drifting cloud of stacking Ethanol fumes. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Baby Monitor** | Static | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
-| **Out of Body** | Voodoo | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
+| **Out of Body** | Histamine | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
 
 ### Feat paths (Lv 4)
 
@@ -1192,7 +1192,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Alkaline Diet** | +25% Base damage and lather | You | 5 |
 | **Static Hair** | +25% Static damage, +1 chain | You | 5 |
 | **Hip Flask** | +25% Ethanol damage, +3 max rounds | You | 5 |
-| **Pins and Needles** | +25% Voodoo damage | You | 5 |
+| **Pins and Needles** | +25% Histamine damage | You | 5 |
 | **Headbutt Training** | +25% Force damage | You | 5 |
 | **Big Lungs** | +25 max stamina (sprint longer, cast more Feats) | You | 3 |
 | **Second Wind** | Stamina refills 30% faster | You | 3 |
@@ -1204,7 +1204,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Chemistry** | +35% chemical reaction damage | You | 5 |
 | **Repeat Prescription** | -10% Feat cooldowns | You | 5 |
 | **Antenatal Classes** | +12% experience gained | You | 5 |
-| **Snooze Button** | +1 max Rewind charge, +25% Chrono energy (Rare or better only) | You | 3 |
+| **Snooze Button** | +1 max Rewind charge, +25% Body Clock energy (Rare or better only) | You | 3 |
 | **Last Word** | Last bullet of every magazine deals x4 damage and explodes | You | 3 |
 | **Tactical Nap** | Starting a reload sends out a shockwave that deletes nearby bullets (+40 radius) | You | 4 |
 | **Tunnel Vision** | +3% damage per second on the same target, up to +30% more | You | 3 |
@@ -1277,7 +1277,7 @@ Swim into one (COLLECT autorun goes for them) and pick one of four. 6 slots (mor
 | **Heavy-Handed** | 1 | +1% crit chance for every 100 max HP you have. |
 | **Sticker Chart** | 1 | Killing a boss: 6s of +25% fire rate, and your Feats recharge 25% faster. |
 | **Lucky Dip** | 1 | +20% luck, so your DNA strands come out rarer. |
-| **Mood Swings** | 1 | Acid, Base and Static +40%. Force, Ethanol and Voodoo -10%. |
+| **Mood Swings** | 1 | Acid, Base and Static +40%. Force, Ethanol and Histamine -10%. |
 | **Middle Child** | 1 | Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts. |
 | **Character Building** | 1 | Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits. |
 | **Double Yolk** | 1 | Every Lateral Gene Transfer has a 30% chance to let you take two mutations. |
@@ -1299,9 +1299,9 @@ Swim into one (COLLECT autorun goes for them) and pick one of four. 6 slots (mor
 | **Five More Minutes** | 2 | A hit that would burst you leaves you on 1 HP instead. Once every 90s. |
 | **Fair's Fair** | 2 | Every damage type at normal strength or weaker gets +25%. Any already boosted loses 10%. |
 
-## Mythical and Celestial bonuses
+## Mythical and Immaculate bonuses
 
-A Mythical or Celestial card carries one of these on top of its own effect, for the rest of the run (three at most a run).
+A Mythical or Immaculate card carries one of these on top of its own effect, for the rest of the run (three at most a run).
 
 | Bonus | Rarity | Effect |
 |---|---|---|
@@ -1312,11 +1312,11 @@ A Mythical or Celestial card carries one of these on top of its own effect, for 
 | **Bottomless Pit** | Mythical | A small black hole circles you for the rest of the run, dragging enemies in and crushing them. |
 | **Full Technicolour** | Mythical | Everything goes full colour for the rest of the run: you, them, the bullets, the slide, the HUD. Also +10% damage. |
 | **Tantric** | Mythical | When you drop below 30% health, time slows for 4s (every 20s at most). Breathe. |
-| **Gender Reveal** | Celestial | Every 12s a blast fills the screen: every enemy takes 18% of its max HP (4% on bosses, 6% on the Final Five) and every enemy bullet is wiped. Everyone finds out. |
-| **Hand of God** | Celestial | Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP (4% on bosses, 6% on the Final Five). |
-| **In Quick Succession** | Celestial | Every weapon you own fires 60% faster. Forever. |
-| **State of Grace** | Celestial | Every 15s: 2s of invulnerability and a 15% heal. |
-| **Twinkle, Twinkle** | Celestial | Stars fall on enemies near you, one every 0.4s, each for three times your best weapon's damage. |
+| **Gender Reveal** | Immaculate | Every 12s a blast fills the screen: every enemy takes 18% of its max HP (4% on bosses, 6% on the Final Five) and every enemy bullet is wiped. Everyone finds out. |
+| **Hand of God** | Immaculate | Every 5s, the three toughest enemies on screen are smitten for 15% of their max HP (4% on bosses, 6% on the Final Five). |
+| **In Quick Succession** | Immaculate | Every weapon you own fires 60% faster. Forever. |
+| **State of Grace** | Immaculate | Every 15s: 2s of invulnerability and a 15% heal. |
+| **Twinkle, Twinkle** | Immaculate | Stars fall on enemies near you, one every 0.4s, each for three times your best weapon's damage. |
 
 ## Upgrades any weapon can take
 
@@ -1338,7 +1338,7 @@ Offered at weapon level 3. Which three a weapon is offered is fixed per weapon (
 
 ## Modifiers
 
-Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12, Rare x1.25, Epic x1.6, Legendary x2.2, Mythical x2.6, Celestial x3. Values below are at Common. "Projectile only" means guns and other shot-firing weapons.
+Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12, Rare x1.25, Epic x1.6, Legendary x2.2, Mythical x2.6, Immaculate x3. Values below are at Common. "Projectile only" means guns and other shot-firing weapons.
 
 | Modifier | Effect (Common) | Effect (Legendary) | Fits |
 |---|---|---|---|
@@ -1350,12 +1350,12 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 | **Bouncing Baby** | +2 bounces between enemies | +3 bounces between enemies | Projectile only |
 | **Soaped Up** | 18% chance per hit to saponify the target | 40% chance per hit to saponify the target | Any weapon |
 | **With a Bang** | Hits explode for 30% damage in a small blast | Hits explode for 66% damage in a small blast | Any weapon |
-| **Bad Influence** | 5% chance per hit to make a monster fight for you for 6s (max 6 allies) | 11% chance per hit to make a monster fight for you for 13s (max 6 allies) | Any weapon |
+| **Bad Influence** | 5% chance per hit to make a germ fight for you for 6s (max 6 allies) | 11% chance per hit to make a germ fight for you for 13s (max 6 allies) | Any weapon |
 | **Switched at Birth** | Converts this weapon to a new damage type | Converts this weapon to a new damage type, +18% damage | Any weapon |
 | **Going to Pieces** | Kills burst into 3 shards at 30% damage | Kills burst into 4 shards at 42% damage | Any weapon |
 | **Daisy Chain** | 25% of hits chain to another enemy for 50% damage | 55% of hits chain to another enemy for 50% damage | Any weapon |
 | **Contractions** | Shots pulse every 0.6s, hitting everything close by for 15% damage | Shots pulse every 0.6s, hitting everything close by for 33% damage | Projectile only |
-| **Animal Magnetism** | Shots drag monsters within 70 units into their path | Shots drag monsters within 154 units into their path | Projectile only |
+| **Animal Magnetism** | Shots drag germs within 70 units into their path | Shots drag germs within 154 units into their path | Projectile only |
 | **Delayed Gratification** | Shots hang for a moment, then launch 60% faster for +30% damage | Shots hang for a moment, then launch 60% faster for +66% damage | Projectile only |
 | **Both Ends** | Every shot has a twin fired the opposite way at 35% damage | Every shot has a twin fired the opposite way at 77% damage | Projectile only |
 | **Trash Talk** | Kills give this weapon +6% damage (up to 10 stacks). Getting hit loses the lot | Kills give this weapon +13% damage (up to 10 stacks). Getting hit loses the lot | Any weapon |
@@ -1391,7 +1391,7 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 | **Luciferase** | +20% luck, and +25% damage to elites and bosses. You know what is worth chasing. | The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas. |
 | **Motility Dye** | +8% swim speed, and +30% damage to fast enemies. You spot them early. | Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you. |
 | **Rival Dyes** | +40% damage to rival champions and the Final Five. Know your enemy. | Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt. |
-| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Voodoo violet), power-up pickups and their effects, and your midpiece in your weapon-type colour. |
+| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Histamine violet), power-up pickups and their effects, and your midpiece in your weapon-type colour. |
 
 ## Cursed cards
 
@@ -1401,8 +1401,8 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 | **Couch Potato** | +30% max HP (and heal it) | Sprinting costs twice the stamina |
 | **Delicate Condition** | +80% damage for everything | Max HP halved |
 | **Shotgun Wedding** | +50% fire rate | Enemy bullets 20% faster |
-| **Hands Full** | +4 rerolls right now, double viewers | Pickup range halved |
-| **The More the Merrier** | +50% XP and viewers | 30% more enemies (30% bigger waves in the dish) |
+| **Hands Full** | +4 rerolls right now, double funding | Pickup range halved |
+| **The More the Merrier** | +50% XP and funding | 30% more enemies (30% bigger waves in the dish) |
 | **Living in the Past** | +2 max Rewind charges, all refilled now | All healing halved |
 | **Clothing Optional** | +25% move speed, +20% dodge | Armour is zero, forever, and every hit hurts 15% more |
 
@@ -1471,7 +1471,7 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **Ethanol** | drunk | Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out. |
 | **Peroxide** | fizzing | An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit. |
 | **Brine** | pickled | Salt water. Pickled enemies shrivel: they swim 15% slower, hit you 25% softer, and conduct Static twice as well. |
-| **Voodoo** | hexed | Hexes enemies: they take more from everything. When a hexed enemy dies the hex passes to the nearest one. |
+| **Histamine** | swollen | Makes enemies swell up: they take more from everything. When a swollen enemy dies the swelling passes to the nearest one. |
 
 ## Chemical reactions
 
@@ -1483,14 +1483,14 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **FLASHPOINT** | Static on a drunk enemy (2+ rounds): the fumes go up. Every round of Ethanol in it explodes at once. |
 | **ELECTROLYSIS** | Static on a lathered enemy: splits it into hydrogen. Armour stripped, and a small pop. |
 | **SANITISED** | Base on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright. |
-| **SYMPATHY** | Voodoo on any status: bonus damage, and the dolls: its status copies onto two neighbours, which are hexed too. |
+| **HIVES** | Histamine on any status: bonus damage, and it breaks out: its status copies onto two neighbours, which swell up too. |
 | **SUDS** | Force on a saponified enemy: the soap bursts, and the suds hit everything near it. |
 | **PUSHOVER** | Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far. |
 | **BLEACHED** | Peroxide meets Acid (either way round): all its armour is stripped for 4s, and its corrosion burns twice as hard. |
 | **ELEPHANT TOOTHPASTE** | Peroxide meets Base (either way round): a column of foam erupts, lathering and shoving everything nearby. |
 | **ROCKET FUEL** | Peroxide meets Ethanol (either way round): the enemy is launched away from you and explodes where it lands. |
 | **OZONE** | Peroxide meets Static (either way round): static jumps to three neighbours and sets them fizzing. |
-| **EXORCISM** | Peroxide meets Voodoo (either way round): the hex is burned out of it in one hit (15% of its health; 6% on bosses). |
+| **ANTIHISTAMINE** | Peroxide meets Histamine (either way round): the swelling is burned out of it in one hit (15% of its health; 6% on bosses). |
 | **ELECTROLYTE** | Brine meets Static (either way round): the charge runs through the salt water to four neighbours, charging them all. |
 | **SALT IN THE WOUND** | Brine meets Acid (either way round): its corrosion does double damage for the rest of the dose. |
 | **MARGARITA** | Brine meets Ethanol (either way round): a salted rim. It nods off for 2.5s, and so do the drunks around it. |
@@ -1507,23 +1507,23 @@ A combo whose two weapons are on their usual damage types does what its card say
 | Acid + Base | **Neutral Ground** | Combo hits neutralise: a hot burst round the target, and the salt water heals you a little. |
 | Acid + Static | **Car Battery** | Combo hits turn the target into a battery that zaps its neighbours for 2s. |
 | Acid + Ethanol | **Pear Drops** | Combo hits make the target smell of pear drops: everything nearby is drawn in for a sniff. |
-| Voodoo + Acid | **Curdled Curse** | Combo hits hex the target and corrode it, hard. |
+| Histamine + Acid | **Weeping Rash** | Combo hits swell the target and corrode it, hard. |
 | Acid + Force | **Acid Wash** | Combo hits strip 2 armour for good (1 from bosses). |
 | Base + Static | **Hydrogen Pop** | Combo hits split water: a small pop round the target that strips armour. |
 | Base + Ethanol | **Hand Sanitiser** | Combo hits kill 99.9% of germs: ordinary enemies near the target on 15% health or less die. |
-| Voodoo + Base | **Soap Opera** | Combo hits are so dramatic the target faints for a second (not bosses). |
+| Histamine + Base | **Soap Opera** | Combo hits are so dramatic the target faints for a second (not bosses). |
 | Base + Force | **Slip and Slide** | Combo hits lather the target and send it skidding a long way. |
 | Ethanol + Static | **Lit Up** | Combo hits light the fumes: a small blast that gets everything in it a round drunker. |
-| Voodoo + Static | **Seance** | Combo hits possess badly hurt enemies (under 30% health): they fight for you for 5s. |
+| Histamine + Static | **Brain Fog** | Combo hits fog the minds of badly hurt enemies (under 30% health): they fight for you for 5s. |
 | Force + Static | **Crumple Zone** | Combo hits charge a barrier that blocks the next hit you take (recharges after 8s). |
-| Voodoo + Ethanol | **Spirits** | Enemies the combo kills give up their spirit: it flies into the nearest enemy for a share of their health. |
+| Histamine + Ethanol | **Spirits** | Enemies the combo kills give up their spirit: it flies into the nearest enemy for a share of their health. |
 | Force + Ethanol | **Bar Fight** | Combo hits start a bar fight: the target swings at everything next to it. |
-| Voodoo + Force | **Pin Cushion** | Every 4th combo hit on the same enemy deals triple damage. |
+| Histamine + Force | **Pin Cushion** | Every 4th combo hit on the same enemy deals triple damage. |
 | Acid + Acid | **Concentrated** | Combo hits deal +35% damage and eat 1 armour. |
 | Base + Base | **Lye** | Combo hits saponify ordinary enemies on the spot. |
 | Static + Static | **Supercharged** | Combo hits arc on to three more enemies. |
 | Ethanol + Ethanol | **Double Shot** | Combo hits pour two rounds of Ethanol at once. |
-| Voodoo + Voodoo | **Hex Bomb** | Hexed enemies the combo kills explode. |
+| Histamine + Histamine | **Anaphylaxis** | Swollen enemies the combo kills explode. |
 | Force + Force | **Brute Squad** | Combo hits deal +25% damage and knock enemies flying. |
 
 ## Damage-type synergies
@@ -1539,7 +1539,7 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 | Ethanol | **Open Bar** | Ethanol ticks twice as fast |
 | Peroxide | **Bubbly** | Fizz pops 50% harder |
 | Brine | **Seasoned** | Pickling lasts 50% longer |
-| Voodoo | **Old Wives' Tale** | Hexes amplify damage by +50% instead of +30% |
+| Histamine | **Hay Fever** | Swelling amplifies damage by +50% instead of +30% |
 
 ## Targeting directives
 
@@ -1556,7 +1556,7 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 | **DENSEST CLUSTER** | The middle of the crowd. Best for splash. |
 | **ELITES & BOSSES** | Bosses, then elites, then nearest. |
 | **SHOOTERS FIRST** | Ranged enemies, healers and summoners first. |
-| **RANDOM** | Chaos. The audience loves it. |
+| **RANDOM** | Chaos. The lab loves it. |
 | **REVENGE** | Whatever hurt you last. Otherwise nearest. |
 
 ## Movement directives
@@ -1589,7 +1589,7 @@ Set on the sequence screen. Each level adds its rule on top of the ones before a
 
 ## Being born (prestige)
 
-After a win, the Gene Bank lets you be born: your bonuses, wildcards, dyes and DNA reset, but your Generation goes up for good (+10% DNA, +3% damage and +5 max HP each) and you keep a Baby Trait forever. The Codex, sequences, ranks and records stay.
+After a win, the Gene Bank lets you be born: your bonuses, wildcards, dyes and DNA reset, but your Generation goes up for good (+10% DNA, +3% damage and +5 max HP each) and you keep a Baby Trait forever. The Field Guide, sequences, ranks and records stay.
 
 | Baby Trait | Effect |
 |---|---|
@@ -1700,7 +1700,7 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 
 ### First sightings
 
-The first time you ever see each kind of enemy (once ever, not once a run), the slide stops and it gets a short introduction: what it is and how to beat it. It then goes in the Codex under ENEMIES. Settings > Tutorial resets them so you can see them again. Bosses always get their full introduction.
+The first time you ever see each kind of enemy (once ever, not once a run), the slide stops and it gets a short introduction: what it is and how to beat it. It then goes in the Field Guide under ENEMIES. Settings > Tutorial resets them so you can see them again. Bosses always get their full introduction.
 
 **Spotlight.** That first meeting also gets the stage for about 17 seconds: it arrives as a pack, most new spawns are more of it, the rest of the crowd near you backs off and scripted waves wait, so you can get a feel for it. Types you have already met just join the run as normal.
 
@@ -1802,7 +1802,7 @@ Arenas seal behind you until the quota is cleared. Food scraps in the corridors 
 
 ## Achievement DNA
 
-The hardest achievements (Chemical Warfare: ten different reactions in a run; Breaking Bad: 1,000 reactions in a run; Flawless Specimen: a boss killed without taking a hit) pay out a box where every card is Mythical or Celestial.
+The hardest achievements (Chemical Warfare: ten different reactions in a run; Breaking Bad: 1,000 reactions in a run; Flawless Specimen: a boss killed without taking a hit) pay out a box where every card is Mythical or Immaculate.
 
 ## Wave mode (The Petri Dish)
 
@@ -1838,7 +1838,7 @@ Every boss pays twice: a relic (its own three, plus one smuggled relic from a bo
 | **Trophy Hide** | +4 armour and +6% dodge. |
 | **Lab Notes** | Reactions hit 40% harder, and your damage types +10%. |
 | **Victory Lap** | +12% swim speed and +30% pickup range. |
-| **Bounty** | +3 rerolls and +15% luck. |
+| **Finder's Fee** | +3 rerolls and +15% luck. |
 | **Killer Instinct** | +10% crit chance and +40% crit damage. |
 
 ## Sperm samples
@@ -1868,23 +1868,23 @@ Rules the cards do not spell out, but that change what is worth picking.
 - **Crit overflow:** Crit chance above 100% is added to crit damage one for one.
 - **Extra projectiles:** Shots share damage: k times the projectiles deal (1 + (k^0.6 - 1)/2) in total, about +25% for one extra on a one-shot weapon.
 - **Level curve:** The game expects Lv 60 at 9:00. Each level you are ahead adds 5% enemy health and 3% enemy damage. Three or more levels behind, BEHIND PACE shows on the HUD.
-- **Storm Surge:** From 10:00 (difficulty minute 15) enemy health and damage compound every minute. Every win so far has finished in its first 2 minutes (10:15 to 11:35), so it is the final sprint, not a wall: the longer you stay in it, the harder every minute gets.
-- **Mythical and Celestial:** A separate roll on every card, three a run at most.
+- **Fever Pitch:** From 10:00 (difficulty minute 15) enemy health and damage compound every minute. Every win so far has finished in its first 2 minutes (10:15 to 11:35), so it is the final sprint, not a wall: the longer you stay in it, the harder every minute gets.
+- **Mythical and Immaculate:** A separate roll on every card, three a run at most.
 - **Weapon tuning:** Tuning cards only offer weapons the stat actually helps (no pierce for weapons that already pierce everything, no magazine for one-shot weapons).
 
 ## Glossary
 
 - **Rewind and Chrono energy:** Rewind fires by itself on a lethal hit, rolls you back about 4s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with 1 charge (max 2, more with Snooze Button). Charges refill from Chrono energy (600 per charge, 15% more for every Rewind already used this run), earned by fighting.
-- **Viewers and sponsors:** The race is a live show. Kills, combos, bosses and achievements raise viewers; viewer milestones bring sponsor gifts (a heal, Oxytocin, a stair gate, a magnet, a Nit Comb or a DNA strand).
+- **Funding and grants:** Every sample is an experiment, and the lab is watching. Kills, combos, bosses and achievements raise its funding; funding milestones bring research grants (a heal, Oxytocin, a stair gate, a magnet, a Nit Comb or a DNA strand). In the campaign the same meter is your devotion to the egg, and the gifts are signs from it.
 - **The egg:** Opens at Lv 60: its membrane has 150,000 base HP and 8 armour, and a rival can break in first. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.
 - **Feat slots:** Two. Feats cast themselves on cooldown.
 - **Damage-type set:** Two weapons or Feats of the same damage type turn on its set bonus.
 - **Weapon mounts:** Three (Lv 1 and drafts at 8 and 22), plus up to 2 bonus mounts from combos.
 - **Player base stats:** 120 HP, 150 swim speed, 5% crit, x1.6 crit damage, 105 pickup radius, 0 armour, 0 dodge. You grow with max HP.
 
-## Secret Codex entries (spoilers)
+## Secret Field Guide entries (spoilers)
 
-**Spoiler warning.** 18 hidden interactions. In the game each one stays ??? in the Codex until it happens to you for the first time; each line below says what sets it off.
+**Spoiler warning.** 18 hidden interactions. In the game each one stays ??? in the Field Guide until it happens to you for the first time; each line below says what sets it off.
 
 | Secret | How it happens |
 |---|---|

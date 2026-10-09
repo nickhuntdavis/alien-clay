@@ -55,7 +55,7 @@ function bankRun(G, won) {
   G.banked = true;
   const n = runDna(G, won);
   META.dna += n; META.total += n; META.lastEarned = n;
-  // Lifetime record per weapon, for the Codex and the Gene Bank.
+  // Lifetime record per weapon, for the Field Guide and the Gene Bank.
   for (const w of G.weapons) {
     if (!w) continue;
     const r = META.wstats[w.id] || (META.wstats[w.id] = { runs: 0, born: 0, best: 0 });
@@ -113,7 +113,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '8.56';
+const APP_VERSION = '8.58';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

@@ -78,7 +78,7 @@ SEQ_ABILITY.reborn = { name: 'Second Life', short: 'REBORN', cd: 45,
   } };
 
 // Memories: at these levels a memory of the past life surfaces, with a small gift. Strength follows the
-// sequence (half when it's spliced in). The sixth says who it was; your Codex and the sequence screen
+// sequence (half when it's spliced in). The sixth says who it was; your Field Guide and the sequence screen
 // remember how far you've ever got (META.memMax).
 const MEMORIES = [
   { lv: 6, text: 'Warm water, and a heartbeat that was not yours.', gift: '+6% damage', apply: (P, k) => { P.might += 0.06 * k; } },

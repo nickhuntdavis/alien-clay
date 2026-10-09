@@ -42,14 +42,14 @@ p(`5. **Modifiers:** up to ${D.MOD_SLOTS} per weapon. Picking one a weapon alrea
 p(`6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv ${D.SLOT_LEVELS.join(', ')} (${D.MAX_WEAPONS} in total, plus up to ${D.COMBO_MOUNTS} bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.`);
 p(`7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv ${D.SPLICE_LEVELS.join(', ')} you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).`);
 p(`8. **Mutations:** Lateral Gene Transfers (bubbles of stray genes) bulge up on the slide (the first at ${D.VESICLE.first}s, then every ${D.VESICLE.every.join(' to ')}s). Swim into one to pick one of four mutations; you have ${D.VESICLE.slots} slots.`);
-p(`9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Storm Surge. Each run meets ${D.BOSSES_PER_RUN} of the ${D.BOSSES.length}, in a random order. Beat one and choose one of its three relics.`);
+p(`9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Fever Pitch. Each run meets ${D.BOSSES_PER_RUN} of the ${D.BOSSES.length}, in a random order. Beat one and choose one of its three relics.`);
 p('10. **Rarity** multiplies a card\'s value:');
 p('');
 p('| Rarity | Multiplier | Weapon levels granted | Roll weight (relative) | Share of cards offered (mid-run) |'); p('|---|---|---|---|---|');
-const OFFER = { Common: '41%', Uncommon: '27%', Rare: '21%', Epic: '5.3%', Legendary: '5.6%', Mythical: '0.45%', Celestial: '0.12%' };
+const OFFER = { Common: '41%', Uncommon: '27%', Rare: '21%', Epic: '5.3%', Legendary: '5.6%', Mythical: '0.45%', Immaculate: '0.12%' };
 D.RARITIES.forEach(r => p(`| ${r.name} | x${r.mult} | +${r.lvls} | ${r.w || 'separate roll'} | ${OFFER[r.name] || ''} |`));
 p('');
-p('Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Celestial skip the table: every card first rolls 0.55% for Mythical and 0.18% for Celestial (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses, combos) add to it.');
+p('Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Immaculate skip the table: every card first rolls 0.55% for Mythical and 0.18% for Immaculate (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses, combos) add to it.');
 p('');
 p('**Level bonus key:** "+N count/pierce" is additive; "+N% dmg/area/duration" adds to the base; "N% faster" cuts the cooldown.');
 p('');
@@ -107,7 +107,7 @@ p('| Pairing | Weapons | Effect |'); p('|---|---|---|');
 for (const q of D.PAIRINGS) p(`| **${esc(q.name)}** | ${D.WEAPONS[q.a].name} + ${D.WEAPONS[q.b].name} | ${esc(q.desc)} |`);
 p('');
 p('## Bosses and relics'); p('');
-p(`A boss arrives every ${(D.BOSS_INTERVAL / 60).toFixed(2).replace(/0$/, '')} minutes of game time, four in all. Each run draws ${D.BOSSES_PER_RUN} of these ${D.BOSSES.length} at random; a fifth (a tougher repeat) waits until the Storm Surge. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.`); p('');
+p(`A boss arrives every ${(D.BOSS_INTERVAL / 60).toFixed(2).replace(/0$/, '')} minutes of game time, four in all. Each run draws ${D.BOSSES_PER_RUN} of these ${D.BOSSES.length} at random; a fifth (a tougher repeat) waits until the Fever Pitch. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.`); p('');
 for (const b of D.BOSSES) {
   p(`### ${b.name}: ${b.title}`); p('');
   p(`> "${b.quote}"`); p('');
@@ -115,7 +115,7 @@ for (const b of D.BOSSES) {
   p(`- **Strengths:** ${b.strengths.join('; ')}.`);
   p(`- **Weaknesses:** ${b.weaknesses.join('; ')}.`);
   p('');
-  p('| Relic | Effect |'); p('|---|---|');
+  p('| Trophy | Effect |'); p('|---|---|');
   for (const id of b.relics) p(`| **${esc(D.RELICS[id].name)}** | ${esc(D.RELICS[id].desc)} |`);
   p('');
 }
@@ -147,8 +147,8 @@ p(`Swim into one (COLLECT autorun goes for them) and pick one of four. ${D.VESIC
 p('| Mutation | Tier | Effect |'); p('|---|---|---|');
 for (const m of Object.values(D.MUTATIONS).sort((a, b) => (a.tier || 0) - (b.tier || 0))) p(`| **${esc(m.name)}** | ${m.tier || 0} | ${esc(m.desc)} |`);
 p('');
-p('## Mythical and Celestial bonuses'); p('');
-p('A Mythical or Celestial card carries one of these on top of its own effect, for the rest of the run (three at most a run).'); p('');
+p('## Mythical and Immaculate bonuses'); p('');
+p('A Mythical or Immaculate card carries one of these on top of its own effect, for the rest of the run (three at most a run).'); p('');
 p('| Bonus | Rarity | Effect |'); p('|---|---|---|');
 for (const b of Object.values(D.BOONS)) p(`| **${esc(b.name)}** | ${D.RARITIES[b.tier].name} | ${esc(b.desc)} |`);
 p('');
@@ -219,7 +219,7 @@ p('| Level | Name | Rule |'); p('|---|---|---|');
 D.IMMUNE.forEach((q, i) => p(`| ${i + 1} | **${esc(q.name)}** | ${esc(q.desc)} |`));
 p('');
 p('## Being born (prestige)'); p('');
-p('After a win, the Gene Bank lets you be born: your bonuses, wildcards, dyes and DNA reset, but your Generation goes up for good (+10% DNA, +3% damage and +5 max HP each) and you keep a Baby Trait forever. The Codex, sequences, ranks and records stay.'); p('');
+p('After a win, the Gene Bank lets you be born: your bonuses, wildcards, dyes and DNA reset, but your Generation goes up for good (+10% DNA, +3% damage and +5 max HP each) and you keep a Baby Trait forever. The Field Guide, sequences, ranks and records stay.'); p('');
 p('| Baby Trait | Effect |'); p('|---|---|');
 for (const b of Object.values(D.BABY_TRAITS)) p(`| **${esc(b.name)}** | ${esc(b.desc)} |`);
 p('');
@@ -244,7 +244,7 @@ const mm = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 for (const [id, e] of Object.entries(D.ENEMIES).sort((a, b) => a[1].from - b[1].from)) p(`| **${esc(e.name)}** | ${e.hp} | ${e.dmg} | ${e.speed} | ${e.armour || 0} | ${e.xp} | ${e.from >= 9999 ? 'Spawned by others' : mm(e.from)} | ${e.endo ? 'Laser lock-on, burst fire' : AI[e.ai] || e.ai} |`);
 p('');
 p('### First sightings'); p('');
-p('The first time you ever see each kind of enemy (once ever, not once a run), the slide stops and it gets a short introduction: what it is and how to beat it. It then goes in the Codex under ENEMIES. Settings > Tutorial resets them so you can see them again. Bosses always get their full introduction.'); p('');
+p('The first time you ever see each kind of enemy (once ever, not once a run), the slide stops and it gets a short introduction: what it is and how to beat it. It then goes in the Field Guide under ENEMIES. Settings > Tutorial resets them so you can see them again. Bosses always get their full introduction.'); p('');
 p('**Spotlight.** That first meeting also gets the stage for about 17 seconds: it arrives as a pack, most new spawns are more of it, the rest of the crowd near you backs off and scripted waves wait, so you can get a feel for it. Types you have already met just join the run as normal.'); p('');
 p('| Enemy | What it is | How to beat it |'); p('|---|---|---|');
 for (const [id, I] of Object.entries(D.ENEMY_INTRO)) p(`| **${esc(D.ENEMIES[id].name)}** | ${esc(I.what)} | ${esc(I.tip)} |`);
@@ -271,7 +271,7 @@ p('3. **The Tongue:** open ground, saliva pools that slow everything, coughs tha
 p('4. **The Throat:** the Tartar Colony (a mini-boss in calcified plaque). Beat it and the way to the egg opens. Except it is a tonsil stone. It stinks. The Egg is in another castle, and Level 2 unlocks.'); p('');
 p('Arenas seal behind you until the quota is cleared. Food scraps in the corridors break for pick-ups. After 9 minutes the toothbrush starts sweeping up from the lips (it waits while you fight the boss). Local germs: Cavity Creep, Strep Chain, Thrush Spore, Amylase Droplet, Tartar Crust.'); p('');
 p('## Achievement DNA'); p('');
-p('The hardest achievements (Chemical Warfare: ten different reactions in a run; Breaking Bad: 1,000 reactions in a run; Flawless Specimen: a boss killed without taking a hit) pay out a box where every card is Mythical or Celestial.'); p('');
+p('The hardest achievements (Chemical Warfare: ten different reactions in a run; Breaking Bad: 1,000 reactions in a run; Flawless Specimen: a boss killed without taking a hit) pay out a box where every card is Mythical or Immaculate.'); p('');
 p('## Wave mode (The Petri Dish)'); p('');
 p(`The default mode. ${D.CAMP.waves} waves. It starts easy: each ordinary wave brings in ${D.CAMP.newPerWave} enemy types you have not met yet this run (in the order they appear in a standard run), on top of the ones you have. Every ${D.CAMP.bossEvery}th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave ${D.CAMP.bossEvery} is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave ${D.CAMP.waves} and you win (it counts as a birth). Winning once unlocks Endless.`); p('');
 p('Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a Lateral Gene Transfer to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfers (on your first) and each damage type and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.'); p('');
@@ -301,15 +301,15 @@ p('Rules the cards do not spell out, but that change what is worth picking.'); p
   ['Crit overflow', 'Crit chance above 100% is added to crit damage one for one.'],
   ['Extra projectiles', 'Shots share damage: k times the projectiles deal (1 + (k^0.6 - 1)/2) in total, about +25% for one extra on a one-shot weapon.'],
   ['Level curve', 'The game expects Lv 60 at 9:00. Each level you are ahead adds 5% enemy health and 3% enemy damage. Three or more levels behind, BEHIND PACE shows on the HUD.'],
-  ['Storm Surge', `From 10:00 (difficulty minute ${15}) enemy health and damage compound every minute. Every win so far has finished in its first 2 minutes (10:15 to 11:35), so it is the final sprint, not a wall: the longer you stay in it, the harder every minute gets.`],
-  ['Mythical and Celestial', 'A separate roll on every card, three a run at most.'],
+  ['Fever Pitch', `From 10:00 (difficulty minute ${15}) enemy health and damage compound every minute. Every win so far has finished in its first 2 minutes (10:15 to 11:35), so it is the final sprint, not a wall: the longer you stay in it, the harder every minute gets.`],
+  ['Mythical and Immaculate', 'A separate roll on every card, three a run at most.'],
   ['Weapon tuning', 'Tuning cards only offer weapons the stat actually helps (no pierce for weapons that already pierce everything, no magazine for one-shot weapons).'],
 ].forEach(([a, b]) => p(`- **${a}:** ${b}`));
 p('');
 p('## Glossary'); p('');
 [
   ['Rewind and Chrono energy', `Rewind fires by itself on a lethal hit, rolls you back about ${D.CHRONO.window}s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with ${D.CHRONO.startCharges} charge (max ${D.CHRONO.maxCharges}, more with Snooze Button). Charges refill from Chrono energy (${D.CHRONO.energyPerCharge} per charge, 15% more for every Rewind already used this run), earned by fighting.`],
-  ['Viewers and sponsors', 'The race is a live show. Kills, combos, bosses and achievements raise viewers; viewer milestones bring sponsor gifts (a heal, Oxytocin, a stair gate, a magnet, a Nit Comb or a DNA strand).'],
+  ['Funding and grants', 'Every sample is an experiment, and the lab is watching. Kills, combos, bosses and achievements raise its funding; funding milestones bring research grants (a heal, Oxytocin, a stair gate, a magnet, a Nit Comb or a DNA strand). In the campaign the same meter is your devotion to the egg, and the gifts are signs from it.'],
   ['The egg', 'Opens at Lv 60: its membrane has 150,000 base HP and 8 armour, and a rival can break in first. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.'],
   ['Feat slots', 'Two. Feats cast themselves on cooldown.'],
   ['Damage-type set', 'Two weapons or Feats of the same damage type turn on its set bonus.'],
@@ -317,8 +317,8 @@ p('## Glossary'); p('');
   ['Player base stats', '120 HP, 150 swim speed, 5% crit, x1.6 crit damage, 105 pickup radius, 0 armour, 0 dodge. You grow with max HP.'],
 ].forEach(([a, b]) => p(`- **${a}:** ${b}`));
 p('');
-p('## Secret Codex entries (spoilers)'); p('');
-p(`**Spoiler warning.** ${Object.keys(D.QUIRKS).length} hidden interactions. In the game each one stays ??? in the Codex until it happens to you for the first time; each line below says what sets it off.`); p('');
+p('## Secret Field Guide entries (spoilers)'); p('');
+p(`**Spoiler warning.** ${Object.keys(D.QUIRKS).length} hidden interactions. In the game each one stays ??? in the Field Guide until it happens to you for the first time; each line below says what sets it off.`); p('');
 p('| Secret | How it happens |'); p('|---|---|');
 for (const q of Object.values(D.QUIRKS)) p(`| **${esc(q.name)}** | ${esc(q.desc)} |`);
 p('');
