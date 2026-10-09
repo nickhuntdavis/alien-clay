@@ -17,8 +17,8 @@ const COMBOS = [
   { id: 'teacup',     a: 'void',    b: 'tesla',   name: 'Storm in a Teacup',  desc: 'Gravity orbs crackle: each one throws a Static Cling chain at what it is pulling in.' },
   { id: 'partyline',  a: 'twin',    b: 'tesla',   name: 'Party Line',         desc: 'Every second, each twin sends a Static Cling chain into the crowd.' },
   // Egg-Seeker
-  { id: 'coldcase',   a: 'duedate', b: 'frost',   name: 'Cold Case',          desc: 'When a Due Date goes off, everything near it freezes solid and takes a burst of frost.' },
-  { id: 'coldcomfort', a: 'toothfairy', b: 'frost', name: 'Cold Comfort',     desc: 'Tooth Fairy smites freeze their victim. A frozen victim takes double.' },
+  { id: 'coldcase',   a: 'duedate', b: 'frost',   name: 'Clean Slate',          desc: 'When a Due Date goes off, everything near it is saponified and takes a burst of antacid.' },
+  { id: 'coldcomfort', a: 'toothfairy', b: 'frost', name: 'Soap in the Mouth',     desc: 'Tooth Fairy smites saponify their victim. A saponified victim takes double.' },
   // Stealth-Tadpole
   { id: 'whiplash',   a: 'flail',   b: 'wake',    name: 'Whiplash',           desc: 'Every lash leaves a strip of viral trail along its length.' },
   { id: 'ghosttrail', a: 'peekaboo', b: 'wake',   name: 'Silent but Deadly',        desc: 'While you are hidden, your viral trail hits 2.5x as hard. The BOO leaves a ring of it round the spot.' },
@@ -26,8 +26,8 @@ const COMBOS = [
   { id: 'wormfarm',   a: 'bubble',  b: 'parasite', name: 'Worm Farm',         desc: 'Anything trapped in a bubble catches Tapeworm. Bubble pops hit infected enemies 50% harder.' },
   { id: 'bubblehalo', a: 'orbit',   b: 'bubble',  name: 'Bubble Halo',        desc: 'Your angels blow bubbles at small enemies near them.' },
   // Acid-Burner
-  { id: 'flashpoint', a: 'venom',   b: 'flamer',  name: 'Flash Point',        desc: 'Heartburn ignites your puddles: each one in range erupts in a fireball every second.' },
-  { id: 'sticky',     a: 'redtape', b: 'venom',   name: 'Sticky Situation',   desc: 'Taped bundles drip: a toxic puddle forms under each one every second.' },
+  { id: 'flashpoint', a: 'venom',   b: 'flamer',  name: 'Flash Point',        desc: 'Heartburn reacts with your puddles: each one in range erupts in an acid burst every second.' },
+  { id: 'sticky',     a: 'redtape', b: 'venom',   name: 'Sticky Situation',   desc: 'Taped bundles drip: a boozy puddle forms under each one every second.' },
   // Gene-Splicer
   { id: 'jointhedots', a: 'crayon', b: 'friend',  name: 'Drawn Together',      desc: 'Every 3s, the shape between you and your Imaginary Friend is coloured in.' },
   { id: 'invisishield', a: 'friend', b: 'siphon', name: 'Fall Guy',   desc: 'Your Imaginary Friend catches enemy bullets and feeds them to the Siphon.' },
@@ -36,7 +36,8 @@ const COMBO_BY = Object.fromEntries(COMBOS.map(c => [c.id, c]));
 
 const comboOn = id => !!(G && G.combo && G.combo[id]);
 const comboW = id => owned(id);
-const comboSrc = (w, name, extra) => Object.assign(weaponSrc(w), { wname: name, noProc: true }, extra || {});
+const comboIdOf = name => { const c = COMBOS.find(x => x.name === name); return c ? c.id : null; };
+const comboSrc = (w, name, extra) => Object.assign(weaponSrc(w), { wname: name, noProc: true, combo: comboIdOf(name) }, extra || {});
 
 // ---------------------------------------------------------------- offering and fusing
 function availableCombos() {
@@ -50,9 +51,9 @@ function availableCombos() {
   return out;
 }
 function optCombo(c) {
-  const A = WEAPONS[c.a], B = WEAPONS[c.b], mount = (G.comboMounts || 0) < COMBO_MOUNTS;
+  const A = WEAPONS[c.a], B = WEAPONS[c.b], mount = (G.comboMounts || 0) < COMBO_MOUNTS, tw = comboTwist(c);
   return { def: A, rarity: 4, tag: 'COMBO', icon: A.icon + B.icon, color: '#ff3df2', elem: A.elem, title: c.name, fusion: true,
-    sub: `${A.name} + ${B.name}`, desc: c.desc + (mount ? ' Both keep firing, and you get a bonus weapon mount.' : ' Both keep firing.'),
+    sub: `${A.name} + ${B.name}`, desc: c.desc + (tw ? ` ${twistLabel(tw)}: ${tw.desc}` : '') + (mount ? ' Both keep firing, and you get a bonus weapon mount.' : ' Both keep firing.'),
     apply: () => comboFuse(c) };
 }
 function comboFuse(c) {
@@ -63,7 +64,9 @@ function comboFuse(c) {
   META.combos = META.combos || {}; META.combos[c.id] = true; saveMeta();
   G.stats.merges = (G.stats.merges || 0) + 1;
   banner('COMBO: ' + c.name.toUpperCase(), '#ff3df2');
-  sysMsg(first ? 'NEW COMBO' : 'COMBO', `${WEAPONS[c.a].name} + ${WEAPONS[c.b].name}: ${c.desc}`, '#ff3df2', true);
+  const tw = comboTwist(c);
+  sysMsg(first ? 'NEW COMBO' : 'COMBO', `${WEAPONS[c.a].name} + ${WEAPONS[c.b].name}: ${c.desc}` + (tw ? ` ${twistLabel(tw)}: ${tw.desc}` : ''), '#ff3df2', true);
+  if (tw) { META.twists = META.twists || {}; META.twists[tw.key] = true; G.twistAt = 0; }
   const p = me();
   ring(p.x, p.y, 160, '#ff3df2', 0.6, 8); addLight(p.x, p.y, 300, '#ff3df2', 0.6);
   cam.shake = Math.min(12, cam.shake + 6); sfx('level'); vibrate([40, 30, 80]);
@@ -107,7 +110,7 @@ function comboHit(e, dmg, src) {
   if (id === 'duedate' && src.due && comboOn('coldcase')) {
     const fw = comboW('frost');
     if (fw) {
-      const fs = comboSrc(fw, 'Cold Case');
+      const fs = comboSrc(fw, 'Clean Slate');
       IN_AOE = true;
       forNear(e.x, e.y, 150, o => { if (!o.charmed) { if (!o.boss && !o.rival) o.frozen = Math.max(o.frozen, 1.8); damageEnemy(o, fw.s.dmg, fs); } });
       IN_AOE = false;

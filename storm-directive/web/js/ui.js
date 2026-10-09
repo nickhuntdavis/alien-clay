@@ -138,7 +138,8 @@ const UI = {
     UI.afterIntro();
   },
   afterIntro() {
-    if (G.wave) sysMsg('THE SCIENTIST', '"Subject in the dish. One drop at a time. Let us see what you become." Clear a wave, open your DNA, then start the next.', XR.dim, true);
+    if (G.wave && G.wave.camp) sysMsg('THE SCIENTIST', `"Subject in the dish. Eight drops, one boss in each. Beat all eight and you get the egg." Beat a wave's boss to beat the wave, open your DNA, then start the next.`, XR.dim, true);
+    else if (G.wave) sysMsg('THE SCIENTIST', '"Subject in the dish. One drop at a time. Let us see what you become." Clear a wave, open your DNA, then start the next.', XR.dim, true);
     else sysLine('start', true);
     if (G.heat) sysMsg('IMMUNE RESPONSE ' + G.heat, IMMUNE.slice(0, G.heat).map(x => x.name).join(', ') + '. +' + Math.round(IMMUNE_DNA * G.heat * 100) + '% DNA if you survive it.', PAL.danger, true);
     UI.show('hud');
@@ -253,7 +254,7 @@ const UI = {
     UI.autoTick();
     { const db = $('dbgBtn'); if (db) db.classList.toggle('on', !!(G && G.debug && (G.state === 'play'))); if (DBG.open && !(G && G.debug)) { DBG.open = false; $('dbgPanel').classList.remove('on'); } }
     // The Petri Dish: the next drop waits for you.
-    { const wb = $('waveBtn'), on = G && waveReady(); if (wb && wb.classList.contains('on') !== !!on) { wb.classList.toggle('on', !!on); if (on) wb.textContent = 'START WAVE ' + (G.wave.n + 1); } }
+    { const wb = $('waveBtn'), on = G && waveReady(); if (wb && wb.classList.contains('on') !== !!on) { wb.classList.toggle('on', !!on); if (on) wb.textContent = 'START WAVE ' + (G.wave.n + 1) + (G.wave.camp ? ' OF ' + CAMP.waves : ''); } }
     UI.hudT -= dt;
     if (UI.hudT <= 0 && G && G.state === 'play') { UI.hudT = 0.08; UI.refreshHud(false); }
     if (UI.toastT > 0) { UI.toastT -= dt; if (UI.toastT <= 0) $('toast').classList.remove('on'); }
@@ -663,6 +664,26 @@ const UI = {
     clearTimeout(UI.biTimer);
     UI.biTimer = setTimeout(() => box.classList.add('ready'), 1500);
   },
+  // A buff or debuff, the first time it ever turns up on your HUD (statusintro.js).
+  openStatusIntro(key, I, colour) {
+    const box = $('bossIntro'), seen = Object.keys(META.seenSt || {}).length;
+    box.classList.add('foe');
+    box.style.setProperty('--bc', colour);
+    $('biCount').innerHTML = `FIRST TIME <span>${seen} MET SO FAR</span>`;
+    $('biTitle').textContent = I.buff ? 'NEW BUFF' : 'NEW DEBUFF';
+    $('biName').textContent = key;
+    $('biQuote').textContent = I.what;
+    $('biDesc').textContent = I.buff ? 'It shows as a chip down the left of your screen while it lasts.' : 'It shows as a chip down the left of your screen while it lasts. Get rid of it if you can.';
+    box.querySelector('.bi-col.str h4').textContent = I.buff ? 'MAKE THE MOST OF IT' : 'WHAT TO DO';
+    box.querySelector('.bi-col.weak').style.display = 'none';
+    $('biStr').innerHTML = `<li style="animation-delay:0.9s">${esc(I.tip)}</li>`;
+    $('biReward').innerHTML = 'You will not see this card again.';
+    box.classList.remove('ready');
+    box.querySelectorAll('.bi-bar, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+    UI.show('bossIntro');
+    clearTimeout(UI.biTimer);
+    UI.biTimer = setTimeout(() => box.classList.add('ready'), 1200);
+  },
   // A named rival, the first time you ever meet them: who they are, five attributes and two specialities.
   openRivalIntro(e) {
     const R = e.R, box = $('bossIntro'), met = RIVALS.filter(r => META.seen && META.seen['rival_' + r.id]).length;
@@ -728,6 +749,7 @@ const UI = {
       sfork: ['SPELL PATH', 'Your spell hit Lv 4. Pick how it grows up. The other one goes in the bin.'],
       rrelic: ['RIVAL RELIC', 'They will not be needing it. Choose one; the other goes with them.'],
       relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
+      spoils: ['SPOILS', 'Picked from the wreckage. Choose one.'],
       vesicle: ['ENZYME VESICLE', 'Four horribly unstable mutations. Staple one to your genome. You only have room for so many before you pop.'],
       splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
     };
@@ -751,7 +773,7 @@ const UI = {
     $('lootCards').classList.remove('ready');
     UI.renderLootCards();
     UI.rarityBanner();
-    $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'sfork' || req.kind === 'relic' || req.kind === 'rrelic' ? 'none' : '';
+    $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'sfork' || req.kind === 'relic' || req.kind === 'rrelic' || req.kind === 'spoils' ? 'none' : '';
     $('skipBtn').style.display = req.kind === 'splice' ? '' : 'none';
     $('skipBtn').textContent = spliceSkipMut() ? 'SKIP: TAKE A MUTATION' : 'SKIP (+2 REROLLS)';
     UI.updateReroll();
@@ -1051,15 +1073,18 @@ const UI = {
     // Only samples you can play, in number order. The Lab Bench (debug) is hidden unless developer mode is
     // on: tap the CHOOSE SPERM SAMPLE heading five times to switch it on or off.
     let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
-    const list = SAMPLES.filter(s => s.open && (s.id !== 's000' || dev)).sort((a, b) => a.no.localeCompare(b.no));
-    $('sampleList').innerHTML = list.map(s => `<button class="slide ${s.open ? '' : 'locked'}" data-sample="${s.id}">
-      <span class="slabel"><b>#${s.no}</b><i>${s.open ? 'IN STOCK' : 'COMING SOON'}</i></span>
+    // Wave mode first (the default), then the rest in number order. Endless stays locked until wave mode is beaten.
+    const list = SAMPLES.filter(s => s.open && (s.id !== 's000' || dev)).sort((a, b) => (b.first ? 1 : 0) - (a.first ? 1 : 0) || a.no.localeCompare(b.no));
+    const shut = s => !s.open || (s.locked && s.locked());
+    const extra = s => s.id === 's002' ? (best.campBest ? ` | Best: ${best.campBest >= CAMP.waves ? 'beaten' : 'wave ' + best.campBest + ' of ' + CAMP.waves}` : '') : s.id === 's006' ? (best.wave ? ' | Best: wave ' + best.wave : '') : best.born ? ' | Fastest fertilisation ' + fmtTime(best.born) : '';
+    $('sampleList').innerHTML = list.map(s => `<button class="slide ${shut(s) ? 'locked' : ''}" data-sample="${s.id}">
+      <span class="slabel"><b>#${s.no}</b><i>${shut(s) ? (s.open ? 'LOCKED' : 'COMING SOON') : s.tag || 'IN STOCK'}</i></span>
       <span class="sglass"><span class="sdrop"></span></span>
-      <span class="sinfo"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span>${s.open ? `<em>Count ${s.count} | Motility ${s.motility}${best.born ? ' | Fastest fertilisation ' + fmtTime(best.born) : ''}</em>` : '<em>More to cum.</em>'}</span>
+      <span class="sinfo"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span>${!s.open ? '<em>More to cum.</em>' : shut(s) ? `<em>${esc(s.lockText || 'Locked.')}</em>` : `<em>Count ${s.count} | Motility ${s.motility}${extra(s)}</em>`}</span>
     </button>`).join('');
     $('sampleList').querySelectorAll('.slide').forEach(b => b.addEventListener('click', () => {
       const s = SAMPLES.find(x => x.id === b.dataset.sample);
-      if (!s.open) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); return; }
+      if (!s.open || (s.locked && s.locked())) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); if (s.lockText) UI.toast(s.lockText.toUpperCase()); return; }
       UI.sample = s.id; openSeq();
     }));
     UI.show('samples');
@@ -1153,6 +1178,13 @@ const UI = {
       let l = '';
       for (const id in REACTIONS) l += `<div class="li"><b>${REACTIONS[id].name}</b> ${run && G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
       h += box('Elemental reactions', `<div class="list">${l}</div>`);
+      let el = '';
+      for (const id in ELEMENTS) el += `<div class="li"><b style="color:${ELEM_UI[id]}">${ELEMENTS[id].name}</b> <em>${esc(ELEMENTS[id].status)}</em><br><span>${esc(ELEMENTS[id].blurb)}</span></div>`;
+      h += box('Elements', `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it.');
+      let tl = '';
+      const live = run ? activeTwists() : [];
+      for (const k in TWISTS) { const on = live.some(x => x.tw.key === k); tl += `<div class="li"><b${on ? ' style="color:#ff3df2"' : ''}>${esc(TWISTS[k].name)}</b> <em>${k.split('+').map(x => ELEMENTS[x].name).join(' + ')}</em>${on ? ' (active)' : ''}<br><span>${esc(TWISTS[k].desc)}</span></div>`; }
+      h += box('Combo twists', `<div class="list">${tl}</div>`, 'A combo whose two weapons are on their usual elements does what it says. Change either element with Switched at Birth and the combo picks up the twist for its new pair of elements, on top.');
     }
     return h;
   },
@@ -1234,8 +1266,9 @@ const UI = {
   showVictory() { UI.showGameOver(true); },
   showGameOver(won) {
     const best = UI.loadBest();
-    if (G.wave) return UI.showDishOver(best);
+    if (G.wave && !G.wave.camp) return UI.showDishOver(best);
     const isBest = won ? !best.born || G.t < best.born : G.t > (best.time || 0);
+    if (G.wave && G.wave.camp) UI.saveBest(Object.assign(best, { campBest: Math.max(best.campBest || 0, won ? CAMP.waves : G.wave.n - 1) }));
     if (won) UI.saveBest(Object.assign(best, { born: isBest ? G.t : best.born, births: (best.births || 0) + 1 }));
     else if (isBest) UI.saveBest(Object.assign(best, { time: G.t, level: G.level, kills: G.kills }));
     $('overTitle').textContent = won ? "IT'S SPERMY!" : G.rivalWinner ? 'BEATEN TO IT' : 'SPERMY ABSORBED';
@@ -1244,8 +1277,8 @@ const UI = {
     const tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
     let h = won
-      ? `<div class="eulogy">Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
-      : `<div class="eulogy">${esc(G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
+      ? `<div class="eulogy">${G.wave ? 'Eight drops, eight bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
+      : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
       <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:${PAL.danger}">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
     const dr = dailyRecord(won);
     if (dr) h += `<div class="hint daily"><b>DAILY ${G.daily}</b>: ${dr.isBest ? 'NEW BEST FOR TODAY! ' : ''}Best ${dailyFmt(dr.best)} | Attempt ${dr.tries} | ${dr.streak}-day streak</div>`;

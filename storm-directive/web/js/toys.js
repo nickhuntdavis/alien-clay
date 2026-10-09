@@ -974,7 +974,7 @@ function toyStats(w, T) {
 Object.assign(QUIRKS, {
   doublebooked: { name: 'Double Booked', desc: 'Two Due Dates landed on the same enemy. The dates merged: the countdown started again, owing half as much more.' },
   paperworm:    { name: 'Contagious Paperwork', desc: 'Red Tape bundled an infected enemy with healthy ones. The infection travelled along the tape to all of them.' },
-  scaredstiff:  { name: 'Scared Stiff', desc: 'BOO! hit something that was already frozen solid. It shattered from the fright.' },
+  scaredstiff:  { name: 'Scared Stiff', desc: 'BOO! hit something that was already saponified. It burst from the fright.' },
   doublebluff:  { name: 'Double Bluff', desc: 'Your Imaginary Friend copied Peekaboo. Two BOOs, back to back, from two places at once.' },
   holeinone:    { name: 'Hole in One', desc: 'A flung enemy sailed over a baby tooth and grabbed it mid-air. The Tooth Fairy noticed.' },
   tooththief:   { name: 'Tooth Thief', desc: 'A rival champion picked up one of your baby teeth. The Tooth Fairy does not check whose tooth it was.' },

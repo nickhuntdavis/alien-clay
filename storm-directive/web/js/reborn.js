@@ -34,7 +34,7 @@ Object.assign(SIGS, {
   rbgroundhog: { name: 'Groundhog Day', desc: 'Mastery. Memories keep replaying, each at 60% of the last, until they fade (up to four times).' },
   rbsamedream: { name: 'Same Dream', desc: 'Mastery. Replays fire from wherever you are now, at the nearest enemy, at full damage.' },
   rbunfinished: { name: 'Unfinished Business', desc: 'An enemy killed by a ghost leaves two ghosts behind.' },
-  rbchills: { name: 'Gave Me Chills', desc: 'Ghosts chill what they hit: 40% slower for 1.5s.' },
+  rbchills: { name: 'Gave Me the Creeps', desc: 'Ghosts lather what they hit: 40% slower for 1.5s.' },
   rblegion: { name: 'We Are Legion', desc: 'Mastery. Store twice as many ghosts, and every volley sends two extra.' },
   rbreunion: { name: 'Family Reunion', desc: 'Mastery. Every ghost that hits heals you 0.4% of your max HP.' },
   rbinstant: { name: 'Instant Karma', desc: 'Getting hit fires a ring straight back at once (every 1.5s at most).' },

@@ -25,10 +25,10 @@ const PROFILES = {
     desc: 'No spitting. Grows something sharp and swims straight through the meat grinder.', weapons: ['flail', 'wake', 'peekaboo'],
     unlock: { text: 'Beat 25 bosses (all runs)', have: () => META.life.bosses, need: 25 } },
   pusher: { name: 'The Good Eater', trait: 'Healthy Appetite', fmt: k => `+${+(0.5 * k).toFixed(1)} HP/s regeneration`, apply: (P, k) => { P.regen += 0.5 * k; },
-    desc: 'Aggressive self-healing, infections and freezing spit.', weapons: ['parasite', 'bubble', 'orbit'],
+    desc: 'Aggressive self-healing, infections and soapy spit.', weapons: ['parasite', 'bubble', 'orbit'],
     unlock: { text: 'Pick up 100 power-ups (all runs)', have: () => META.life.pickups, need: 100 } },
   acid: { name: 'The Problem Child', trait: 'Overtired', fmt: k => `up to +${pc(0.12 * k)} damage, the closer you are to bursting`, apply: () => {},
-    desc: 'Melts things. Gets angrier the more you are hurt.', weapons: ['venom', 'flamer', 'redtape'],
+    desc: 'Dissolves things. Gets angrier the more you are hurt.', weapons: ['venom', 'flamer', 'redtape'],
     unlock: { text: 'Deal 2,000,000 elemental damage (all runs)', have: () => Math.floor(META.life.elem), need: 2e6 } },
   splicer: { name: 'The Designer Baby', trait: 'Good Genes', fmt: k => `your other sequences' traits are ${pc(Math.min(1, 0.25 * k))} stronger, +${pc(0.05 * k)} area`, apply: (P, k) => { P.area += 0.05 * k; },
     desc: 'Clever, strange and a bit of everything. Makes every other gene work harder.', weapons: ['friend', 'crayon', 'siphon'],
@@ -37,12 +37,12 @@ const PROFILES = {
 // Two sequences expressed together unlock a little extra.
 const PROFILE_SYNERGIES = [
   { a: 'vanguard', b: 'nerd', name: 'Rubbing Off', desc: 'Every reload sends a spark into the two nearest enemies.' },
-  { a: 'vanguard', b: 'acid', name: 'Trail of Destruction', desc: 'You leave small burning patches behind you as you swim.' },
+  { a: 'vanguard', b: 'acid', name: 'Trail of Destruction', desc: 'You leave small acid patches behind you as you swim.' },
   { a: 'bruiser', b: 'pusher', name: 'Comfort Eating', desc: 'Below half health, your regeneration doubles (and you get +1 HP/s).' },
-  { a: 'bruiser', b: 'acid', name: 'Blowout', desc: 'Nappy Mines leave a burning puddle where they go off.' },
+  { a: 'bruiser', b: 'acid', name: 'Blowout', desc: 'Nappy Mines leave an acid puddle where they go off.' },
   { a: 'eggseeker', b: 'stealth', name: 'First Impressions', desc: 'Hits on enemies at full health always crit.' },
-  { a: 'splicer', b: 'eggseeker', name: 'Fresh Frozen', desc: 'Frozen or chilled enemies take 30% more damage from you.' },
-  { a: 'splicer', b: 'pusher', name: 'Batch Cooking', desc: 'Your starting ability (Cold Storage or Cluster Feeding, whichever is your primary\'s) heals you 3% of your max HP for every enemy it hits (up to 15%).' },
+  { a: 'splicer', b: 'eggseeker', name: 'Clean Living', desc: 'Lathered or saponified enemies take 30% more damage from you.' },
+  { a: 'splicer', b: 'pusher', name: 'Batch Cooking', desc: 'Your starting ability (Soap Dispenser or Cluster Feeding, whichever is your primary\'s) heals you 3% of your max HP for every enemy it hits (up to 15%).' },
 ];
 const profUnlocked = id => { const u = PROFILES[id].unlock; return !u || u.have() >= u.need; };
 const profKills = id => (META.prof[id] && META.prof[id].kills) || 0;
@@ -89,11 +89,11 @@ const MUTATIONS = {
   powerhouse:  { tier: 1, name: 'Sticker Chart', desc: 'Killing a boss: 6s of +25% fire rate, and your spells recharge 25% faster.' },
   magbact:     { tier: 0, name: 'Runs in the Family', desc: '+5% swim speed, and you hit up to 15% harder the faster you swim.', apply: P => { P.speed += 0.05; P.momentum += 0.1; } },
   vippass:     { tier: 1, name: 'Lucky Dip', desc: '+20% luck, so your DNA strands come out rarer.', apply: P => { P.luck += 0.2; } },
-  bipolar:     { tier: 1, name: 'Hot and Cold', desc: 'Fire, Frost and Shock +40%. Kinetic, Toxic and Arcane -10%.', apply: P => { P.elem.fire += 0.4; P.elem.ice += 0.4; P.elem.shock += 0.4; P.elem.phys -= 0.1; P.elem.poison -= 0.1; P.elem.arcane -= 0.1; } },
+  bipolar:     { tier: 1, name: 'Mood Swings', desc: 'Acid, Base and Static +40%. Force, Ethanol and Voodoo -10%.', apply: P => { P.elem.fire += 0.4; P.elem.ice += 0.4; P.elem.shock += 0.4; P.elem.phys -= 0.1; P.elem.poison -= 0.1; P.elem.arcane -= 0.1; } },
   velcro:      { tier: 1, name: 'Middle Child', desc: 'Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts.' },
   zappy:       { tier: 0, name: 'Little Magpie', desc: '+30% pickup range, and picking up any power-up pulls in every XP granule near you.', apply: P => { P.magnet += 0.3; } },
   frostbitten: { tier: 1, name: 'Character Building', desc: 'Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits.' },
-  bonk:        { tier: 0, name: 'Soft Spot', desc: 'Kinetic hits have a 4% chance to stun what they hit (1% on bosses, briefly). Everyone has one.' },
+  bonk:        { tier: 0, name: 'Soft Spot', desc: 'Force hits have a 4% chance to stun what they hit (1% on bosses, briefly). Everyone has one.' },
   overachiever:{ tier: 2, name: 'First Dibs', desc: 'Weapon hits on enemies at full health always crit.' },
   chernobyl:   { tier: 2, name: 'Small but Mighty', desc: 'Double damage. Half max HP.', apply: P => { P.might *= 2; P.maxHp = Math.round(P.maxHp * 0.5); G.player.hp = Math.min(G.player.hp, P.maxHp); } },
   bonejuice:   { tier: 0, name: 'Strong Bones', desc: '+1 max HP for every 15 kills (elites count as 5), up to +100. Milk helps.' },
@@ -102,11 +102,11 @@ const MUTATIONS = {
   heavymetal:  { tier: 0, name: 'Spoilt Rotten', desc: 'Power-ups drop from enemies twice as often.' },
   lube:        { tier: 0, name: 'Non-Slip Socks', desc: '+10% swim speed and +30% traction.', apply: P => { P.speed += 0.1; P.traction += 0.3; } },
   sniperrna:   { tier: 1, name: 'First Word', desc: 'Your spells always crit on enemies at full health, and crits hit 25% harder.', apply: P => { P.critDmg += 0.25; } },
-  corpsefarts: { tier: 0, name: 'Trapped Wind', desc: 'Poisoned enemies leave a cloud of toxic gas when they die. Better out than in.' },
-  tasernoodle: { tier: 1, name: 'Pass the Parcel', desc: 'Shocked enemies pass a jolt to a neighbour every second.' },
-  combustion:  { tier: 1, name: 'Flare-Up', desc: 'Burning enemies can burst (about 1 in 10 each second) in a small fiery blast.' },
-  coldshoulder:{ tier: 0, name: 'Catching a Chill', desc: 'Frozen enemies chill everything near them.' },
-  spicybrain:  { tier: 0, name: 'Highly Strung', desc: 'Shock +30%, Toxic -20%.', apply: P => { P.elem.shock += 0.3; P.elem.poison -= 0.2; } },
+  corpsefarts: { tier: 0, name: 'Trapped Wind', desc: 'Drunk enemies leave a cloud of Ethanol fumes when they die. Better out than in.' },
+  tasernoodle: { tier: 1, name: 'Pass the Parcel', desc: 'Charged enemies pass a jolt to a neighbour every second.' },
+  combustion:  { tier: 1, name: 'Flare-Up', desc: 'Corroding enemies can burst (about 1 in 10 each second) in a small acid blast.' },
+  coldshoulder:{ tier: 0, name: 'Contagious Lather', desc: 'Saponified enemies lather everything near them.' },
+  spicybrain:  { tier: 0, name: 'Highly Strung', desc: 'Static +30%, Ethanol -20%.', apply: P => { P.elem.shock += 0.3; P.elem.poison -= 0.2; } },
   zombiecore:  { tier: 2, name: 'Dropped as a Baby', desc: 'Once, when you would die, you come back on 50% health. After that: -50% max HP for the rest of the run. Never quite the same.' },
   buffet:      { tier: 0, name: 'Gold Star', desc: '+10% XP.', apply: P => { P.xp += 0.1; } },
   payload:     { tier: 1, name: 'Backed Up', desc: 'Weapons with a magazine bigger than 1 hold twice as much.' },
@@ -115,23 +115,23 @@ const MUTATIONS = {
   turbo:       { tier: 0, name: 'Short Attention Span', desc: 'Every spell cast has a 15% chance to recharge twice as fast.' },
   greedyhands: { tier: 1, name: 'One in Each Hand', desc: 'Every timed power-up also gives you another random one. +20% pickup range.', apply: P => { P.magnet += 0.2; } },
   roidrage:    { tier: 1, name: 'Too Many Sweets', desc: 'A Glucose Hit picked up at full health: +50% damage for 20s.' },
-  plaguemask:  { tier: 0, name: "Runny Nose", desc: 'Toxic +30%, Shock -20%.', apply: P => { P.elem.poison += 0.3; P.elem.shock -= 0.2; } },
+  plaguemask:  { tier: 0, name: "Runny Nose", desc: 'Ethanol +30%, Static -20%.', apply: P => { P.elem.poison += 0.3; P.elem.shock -= 0.2; } },
   tooangry:    { tier: 2, name: 'Five More Minutes', desc: 'A hit that would burst you leaves you on 1 HP instead. Once every 90s.' },
   allnighter:  { tier: 0, name: 'Past Bedtime', desc: 'Timed power-ups last twice as long.' },
   codependency:{ tier: 1, name: 'Attention Seeker', desc: 'Getting hit instantly reloads a random weapon and recharges a random spell (every 2s at most).' },
   mystery:     { tier: 1, name: 'Keeping It a Surprise', desc: 'Hidden until you take it.' },
-  pointy:      { tier: 1, name: 'Rough and Tumble', desc: 'Kinetic +40%. Fire, Frost and Shock -10%.', apply: P => { P.elem.phys += 0.4; P.elem.fire -= 0.1; P.elem.ice -= 0.1; P.elem.shock -= 0.1; } },
+  pointy:      { tier: 1, name: 'Rough and Tumble', desc: 'Force +40%. Acid, Base and Static -10%.', apply: P => { P.elem.phys += 0.4; P.elem.fire -= 0.1; P.elem.ice -= 0.1; P.elem.shock -= 0.1; } },
   peerpressure:{ tier: 0, name: 'Showing Off', desc: 'Every elite or boss that dies near you: +5% damage for 10s, stacking 5 times.' },
   rerolldice:  { tier: 0, name: 'Do-Over', desc: 'The first reroll on every card screen is free.' },
-  slappy:      { tier: 0, name: 'Salt in the Wound', desc: '+20% crit chance against enemies that are slowed, frozen, poisoned or burning.' },
+  slappy:      { tier: 0, name: 'Salt in the Wound', desc: '+20% crit chance against enemies that are lathered, saponified, drunk or corroding.' },
   salad:       { tier: 0, name: 'Eat Your Greens', desc: '+5% fire rate, and spells recharge 5% faster.', apply: P => { P.haste += 0.05; P.cdr -= 0.05; } },
-  brainfreeze: { tier: 0, name: 'Cold Hands', desc: 'Frost +30%, Fire -20%. Warm heart.', apply: P => { P.elem.ice += 0.3; P.elem.fire -= 0.2; } },
-  pustule:     { tier: 0, name: 'Hot Head', desc: 'Fire +30%, Frost -20%.', apply: P => { P.elem.fire += 0.3; P.elem.ice -= 0.2; } },
+  brainfreeze: { tier: 0, name: 'Soft Hands', desc: 'Base +30%, Acid -20%. Washes up nicely.', apply: P => { P.elem.ice += 0.3; P.elem.fire -= 0.2; } },
+  pustule:     { tier: 0, name: 'Sour Face', desc: 'Acid +30%, Base -20%.', apply: P => { P.elem.fire += 0.3; P.elem.ice -= 0.2; } },
   runningjuice:{ tier: 0, name: 'Runner\'s High', desc: '+2 HP/s regeneration while you swim fast.' },
   sugarrush:   { tier: 0, name: 'E Numbers', desc: 'Killing an elite: 3s of +25% fire rate. The blue ones are worst.' },
   trojan:      { tier: 0, name: 'Surprise Package', desc: 'Popping an Enzyme Vesicle blows everything near you away.' },
   waterbear:   { tier: 1, name: 'Finders Keepers', desc: 'Rerolls have a 35% chance not to be used up. +5% luck.', apply: P => { P.luck += 0.05; } },
-  snottrail:   { tier: 0, name: 'Snot Trail', desc: '+5% swim speed, Toxic +5%.', apply: P => { P.speed += 0.05; P.elem.poison += 0.05; } },
+  snottrail:   { tier: 0, name: 'Snot Trail', desc: '+5% swim speed, Ethanol +5%.', apply: P => { P.speed += 0.05; P.elem.poison += 0.05; } },
   stiff:       { tier: 0, name: 'Stiff as a Board', desc: '+10% dodge chance, -20% swim speed.', apply: P => { P.dodge += 0.1; P.speed -= 0.2; } },
   leech:       { tier: 0, name: 'Biting Phase', desc: 'Hits heal you a little (within the lifesteal limit). It is just a phase.', apply: P => { P.lifesteal += 0.6; } },
   toothpick:   { tier: 0, name: 'Teacher\'s Pet', desc: 'Weapons and spells -5% damage. +25% XP.', apply: P => { P.wDmg -= 0.05; P.sDmg -= 0.05; P.xp += 0.25; } },
@@ -272,7 +272,7 @@ function genesTick(dt) {
     for (const e of G.enemies) {
       if (e.dead || e.charmed) continue;
       if (mutOn('tasernoodle') && e.shock > 0 && jolts < 20) { const n = acquire('nearest', 140, e.x, e.y, e); if (n) { jolts++; bolt(e.x, e.y, n.x, n.y, ELEMENTS.shock.color, 0.12); damageEnemy(n, 6 + G.level * 0.8, { elem: 'shock', noArc: true, noCrit: true, wname: 'Taser Noodle' }); } }
-      if (mutOn('combustion') && e.burn > 0 && pops < 6 && Math.random() < 0.1) { pops++; aoe(e.x, e.y, 70, e.burnDps * 3 + 10, { elem: 'fire', noStatus: true, noCrit: true, wname: 'Spontaneous Combustion' }, '#ff7a2f'); }
+      if (mutOn('combustion') && e.burn > 0 && pops < 6 && Math.random() < 0.1) { pops++; aoe(e.x, e.y, 70, e.burnDps * 3 + 10, { elem: 'fire', noStatus: true, noCrit: true, wname: 'Flare-Up' }, '#ff7a2f'); }
       if (mutOn('coldshoulder') && e.frozen > 0) forNear(e.x, e.y, 90, o => { if (o !== e && !o.boss) { o.chill = Math.max(o.chill, 1.2); o.chillAmt = Math.max(o.chillAmt, 0.3); } });
     }
   }
@@ -531,7 +531,7 @@ const SEQ_ABILITY = {
       if (synOn('splicer', 'pusher')) healPlayer(G.P.maxHp * Math.min(0.15, 0.03 * ts.length)); // Batch Cooking
       return true;
     } },
-  acid: { name: 'Bringing It Up', short: 'ERUPT', cd: 9, desc: 'Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are.',
+  acid: { name: 'Bringing It Up', short: 'ERUPT', cd: 9, desc: 'Every 9s: a ring of six acid pools erupts around you. They corrode harder the more hurt you are.',
     fire(manual) {
       const p = G.player;
       if (!manual && !acquire('nearest', 220, p.x, p.y)) return false;
@@ -539,13 +539,13 @@ const SEQ_ABILITY = {
       for (let i = 0; i < 6; i++) { const a = i / 6 * TAU, x = p.x + Math.cos(a) * 90, y = p.y + Math.sin(a) * 90; G.zones.push({ x, y, r: 55, life: 3, max: 3, dps: abilDmg() * 0.8 * hurt, elem: 'fire', pull: 0, color: SEQ_LOOK.acid.color, tick: 0, src: abilSrc('Bringing It Up', { elem: 'fire', noCrit: true }) }); fxParts('drop', x, y, SEQ_LOOK.acid.color, 4, 120, 0.5, 3); }
       ring(p.x, p.y, 140, SEQ_LOOK.acid.color, 0.4, 5); return true;
     } },
-  splicer: { name: 'Cold Storage', short: 'CRYO', cd: 11, desc: 'Every 11s: a burst of liquid nitrogen hits the biggest crowd within 320, freezing everything in it (bosses only briefly).',
+  splicer: { name: 'Soap Dispenser', short: 'SOAP', cd: 11, desc: 'Every 11s: a squirt of lye hits the biggest crowd within 320, saponifying everything in it (bosses only briefly).',
     fire() {
       const p = G.player, t = acquire('cluster', 320, p.x, p.y);
       if (!t) return false;
       const x = t.x, y = t.y;
       let n = 0;
-      IN_AOE = true; forNear(x, y, 130, e => { damageEnemy(e, abilDmg() * 1.3, abilSrc('Cold Storage', { elem: 'ice' })); e.frozen = Math.max(e.frozen, e.boss ? 0.4 : 1.6); n++; }); IN_AOE = false;
+      IN_AOE = true; forNear(x, y, 130, e => { damageEnemy(e, abilDmg() * 1.3, abilSrc('Soap Dispenser', { elem: 'ice' })); e.frozen = Math.max(e.frozen, e.boss ? 0.4 : 1.6); n++; }); IN_AOE = false;
       if (n && synOn('splicer', 'pusher')) healPlayer(G.P.maxHp * Math.min(0.15, 0.03 * n)); // Batch Cooking
       G.fx.push({ type: 'frost', x, y, r: 130, color: SEQ_LOOK.splicer.color, life: 0.6, max: 0.6 }); ring(x, y, 130, SEQ_LOOK.splicer.color, 0.5, 5); fxParts('shard', x, y, '#caf0f8', 12, 260, 0.6, 4);
       return true;

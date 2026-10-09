@@ -11,7 +11,7 @@ const SEQ_LOOK = {
   stealth:   { short: 'Quiet One', color: '#c77dff', tag: 'SHARP AND SILENT', quote: 'You will not hear it coming. It has no ears either.', stats: [4, 2, 5, 1] },
   pusher:    { short: 'Good Eater', color: '#8ac926', tag: 'IT HEALS ITSELF', quote: 'Cuts? Bruises? Gone. Mostly.', stats: [2, 4, 3, 4] },
   acid:      { short: 'Problem Child', color: '#d4ff5c', tag: 'ANGRIER WHEN HURT', quote: 'Every scratch makes it worse. For you.', stats: [5, 1, 3, 2] },
-  splicer:   { short: 'Designer Baby', color: '#90e0ef', tag: 'MAKES EVERY GENE BETTER', quote: 'Cold, clever, and a bit of everything.', stats: [2, 3, 3, 5] },
+  splicer:   { short: 'Designer Baby', color: '#90e0ef', tag: 'MAKES EVERY GENE BETTER', quote: 'Clever, calculating, and a bit of everything.', stats: [2, 3, 3, 5] },
 };
 const SEQ = { id: 'vanguard', t: 0, parts: [], tiles: [] };
 const ROMAN = ['I', 'II', 'III'];

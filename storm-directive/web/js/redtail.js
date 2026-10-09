@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - The Redtail, the tenth sequence (Reece's idea). Bred for luck, from a very small family tree.
 // Level-up boxes roll luckier, but every level up brings a little bane. Its own kit: Shotgun Wedding (a
-// double-barrelled blunderbuss), Moonshine Jug (lobbed firebombs) and Duelling Banjo (rings of notes), two
+// double-barrelled blunderbuss), Moonshine Jug (lobbed jugs of homebrew) and Duelling Banjo (rings of notes), two
 // upgrades that only turn up while it's in your genome, and the ability Sister-Cousin.
 // Hooks: redFire (fireWeapon), redLand (landLob), redLevel (gainXp), redHurt (hurtPlayer), redTick (update),
 // redDraw (render), redDmgMul (damageEnemy), redHaste (weapon fire rate), redLoot (genLoot).
@@ -12,7 +12,7 @@ Object.assign(WEAPONS, {
     desc: 'Something old, something new, something double-barrelled.',
     base: { dmg: 6, cd: 0.55, mag: 2, reload: 1.3, count: 7, spread: 0.6, speed: 520, pierce: 0, range: 300, size: 3.5, knock: 90, bounce: 1 },
     lv: { 3: { count: 2 }, 6: { dmg: 0.3 }, 9: { count: 2 } }, sig: { 5: ['rtrice', 'rtboth'], 10: ['rtreception', 'rtelope'] } },
-  moonshine: { name: 'Moonshine Jug', stars: [4, 2, 3, 4], play: 'Lobs a jug of homebrew that bursts into a burning puddle. One jug in six is a bad batch and goes up in a much bigger blast.', icon: 'MJ', elem: 'fire', kind: 'lob', color: '#f48c06', dir: 'cluster', role: 'Firebomber', redtail: 1, seqOnly: 'redtail',
+  moonshine: { name: 'Moonshine Jug', stars: [4, 2, 3, 4], play: 'Lobs a jug of homebrew that bursts into a boozy puddle. One jug in six is a bad batch and goes up in a much bigger blast.', icon: 'MJ', elem: 'poison', kind: 'lob', color: '#f48c06', dir: 'cluster', role: 'Firebomber', redtail: 1, seqOnly: 'redtail',
     desc: 'Grandpappy\'s recipe. Do not drink. Do not stand near.',
     base: { dmg: 15, cd: 1.2, mag: 3, reload: 2.0, count: 1, spread: 40, range: 380, area: 70, explode: 1, dur: 2.4, flight: 0.65 },
     lv: { 3: { dur: 0.5 }, 6: { count: 1 }, 9: { area: 0.35 } }, sig: { 5: ['rtproof', 'rtstill'], 10: ['rtbadbatch', 'rthooch'] } },
@@ -26,10 +26,10 @@ Object.assign(SIGS, {
   rtboth: { name: 'Both Barrels, Always', desc: 'Every blast is both barrels: double the pellets, but 30% slower to fire.' },
   rtreception: { name: 'The Reception', desc: 'Mastery. Every fourth blast fires a full ring of pellets all around you as well.' },
   rtelope: { name: 'Elope', desc: 'Mastery. Every reload, you dash forward and nothing can hurt you for half a second.' },
-  rtproof: { name: '200 Proof', desc: 'Puddles burn 50% longer and 25% wider.' },
+  rtproof: { name: '200 Proof', desc: 'Puddles last 50% longer and spread 25% wider.' },
   rtstill: { name: 'Backyard Still', desc: 'Every third jug lands as three jugs.' },
   rtbadbatch: { name: 'Every Batch Is Bad', desc: 'Mastery. Every jug is a bad batch.' },
-  rthooch: { name: 'Hooch Hour', desc: 'Mastery. Standing in your own fire heals you 2% of your max HP a second. You are used to it.' },
+  rthooch: { name: 'Hooch Hour', desc: 'Mastery. Standing in your own puddles heals you 2% of your max HP a second. You are used to it.' },
   rtpick: { name: 'Fingerpicking', desc: '+6 notes in every ring.' },
   rtduel: { name: 'Duelling', desc: 'Every ring is answered a moment later by a second ring: from your Sister-Cousin if she is out, otherwise from you.' },
   rthoedown: { name: 'Hoedown', desc: 'Mastery. Low notes knock enemies back hard and leave them dazed for a moment.' },
@@ -156,7 +156,7 @@ function redHurt() {
 }
 function redTick(dt) {
   const C = G.cousin, p = G.player;
-  // Hooch Hour: your own fire is good for you.
+  // Hooch Hour: your own puddles are good for you.
   if (G.weapons.some(w => w && w.id === 'moonshine' && hasSig(w, 'rthooch')) && !(G.hoochT > G.t)) {
     G.hoochT = G.t + 0.5;
     if (G.zones.some(z => z.src && z.src.wname === 'Moonshine Jug' && Math.hypot(z.x - p.x, z.y - p.y) < z.r)) healPlayer(G.P.maxHp * 0.01, true);

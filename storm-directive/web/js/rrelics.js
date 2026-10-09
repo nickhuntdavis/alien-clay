@@ -30,7 +30,7 @@ Object.assign(RELICS, {
   bloodbank:   { name: 'Blood Bank', desc: '2% of the damage you deal heals you.' },
   undying:     { name: 'Undead Membership', desc: 'Every 90s, a hit that would kill you leaves you on 1 HP instead.' },
   // Sticky Ricky: leaves a mess.
-  slimetrail:  { name: 'Slime Trail', desc: 'You leave a toxic slime trail behind you as you swim.' },
+  slimetrail:  { name: 'Slime Trail', desc: 'You leave a boozy slime trail behind you as you swim.' },
   stickysit:   { name: 'Sticky Situation', desc: 'Anything that touches you is stuck: half speed for 3s.' },
   // Coach Kenny: has a whistle.
   peptalk:     { name: 'Pep Talk', desc: '+12% damage and +12% fire rate. Come on, then.' },

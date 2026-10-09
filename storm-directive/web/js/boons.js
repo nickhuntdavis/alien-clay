@@ -5,7 +5,7 @@
 const BOONS = {
   // Mythical
   bloodmoon:  { tier: 5, name: 'Second Wind', desc: 'Every 40th kill sends you into OXYTOCIN for 5s (double fire rate, no reloads) and heals 10%.' },
-  stormcrown: { tier: 5, name: 'Act of God', desc: 'Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP (4% on bosses, 6% on the Final Five).' },
+  stormcrown: { tier: 5, name: 'Act of God', desc: 'Every 3s, a bolt of static strikes the toughest enemy on screen for 8% of its max HP (4% on bosses, 6% on the Final Five).' },
   phoenix:    { tier: 5, name: 'Second Coming', desc: 'The first time you would die, you come back at full health. Unplanned.' },
   hormone:    { tier: 5, name: 'Growth Hormone', desc: '+50% max HP (and heal it), and +2 Headstrong. You are the weapon now.' },
   pocketvoid: { tier: 5, name: 'Bottomless Pit', desc: 'A small black hole circles you for the rest of the run, dragging enemies in and crushing them.' },

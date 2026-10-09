@@ -31,12 +31,17 @@ function refreshPalette() {
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
-// Element effects. With the H&E stain, fire stays orange, frost blue, toxic green and arcane violet.
-// Lightning is always coloured, in a static-shock blue and pink; toxic effects keep a faint green unstained.
+// Element effects. With the H&E stain, Acid shows green, Base blue, Ethanol amber and Voodoo violet.
+// Static is always coloured, in a static-shock blue and pink.
+// (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
+const ELEM_SWAP = new Map([
+  ['#ff7a2f', '#c6ff3d'], ['#ff5400', '#a8e61d'], ['#ff9e00', '#d4ff6b'], ['#ff9f1c', '#b5f23a'], ['#ffd166', '#e2ff9a'], ['#ff5a36', '#9fd61a'], ['#ffba08', '#ccff4d'],
+  ['#8dff4a', '#e8a33d'], ['#9ef01a', '#d98c2b'], ['#b5e48c', '#f0c27a'], ['#d4ff5c', '#f2b552'],
+]);
 const ELEM_HEX = {
-  fire: ['#ff7a2f', '#ff5400', '#ff9e00', '#ff9f1c', '#ffd166', '#ff5a36', '#ffba08'],
-  ice: ['#6fd8ff', '#90e0ef', '#caf0f8', '#bde0fe', '#c9e4f5'],
-  poison: ['#8dff4a', '#9ef01a', '#b5e48c', '#d4ff5c'],
+  fire: ['#c6ff3d', '#a8e61d', '#d4ff6b', '#b5f23a', '#e2ff9a', '#9fd61a', '#ccff4d'],
+  ice: ['#5b8cff', '#6fd8ff', '#90e0ef', '#caf0f8', '#bde0fe', '#c9e4f5'],
+  poison: ['#e8a33d', '#d98c2b', '#f0c27a', '#f2b552'],
   arcane: ['#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'],
 };
 const STATIC_HEX = { '#ffe94a': '#6f9bff', '#fdf0d5': '#ff8ae0', '#9ef0ff': '#9fb0ff', '#fff3b0': '#ff8ae0' };
@@ -45,7 +50,9 @@ for (const el in ELEM_HEX) for (const h of ELEM_HEX[el]) ELEM_OF.set(h, el);
 const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ff0033': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
-  if (typeof c !== 'string' || FULL_COL) return c;
+  if (typeof c !== 'string') return c;
+  if (c[0] === '#' && ELEM_SWAP.has(c.slice(0, 7).toLowerCase())) c = ELEM_SWAP.get(c.slice(0, 7).toLowerCase()) + c.slice(7);
+  if (FULL_COL) return c;
   let v = COL.get(c);
   if (v !== undefined) return v;
   let r, g, b, a = null;
@@ -1549,7 +1556,7 @@ function render() {
       continue;
     }
     if (f.type === 'frost') {
-      // Cold Shower: a ring of ice spikes punching outwards.
+      // Power Shower: a ring of ice spikes punching outwards.
       const x = sx(f.x), y = sy(f.y), R = f.r * S * (0.3 + 0.7 * (1 - k)), n = 20;
       ctx.globalAlpha = 0.8 * k; ctx.fillStyle = f.color; ctx.beginPath();
       for (let i = 0; i < n; i++) { const a = i / n * TAU + (i % 2) * 0.1, L = (i % 2 ? 0.75 : 1) * R; ctx.moveTo(x + Math.cos(a - 0.06) * L * 0.6, y + Math.sin(a - 0.06) * L * 0.6); ctx.lineTo(x + Math.cos(a) * L, y + Math.sin(a) * L); ctx.lineTo(x + Math.cos(a + 0.06) * L * 0.6, y + Math.sin(a + 0.06) * L * 0.6); }
@@ -2109,14 +2116,17 @@ function drawHud() {
   if (G.inPill) chips.push(['PILL: SLOW, XP -50%', PAL.danger]);
   if (G.sticky) chips.push(['STUCK IN YEAST', PAL.danger]);
   if (G.yeastOn && G.yeastN) chips.push(['INFECTION: ' + G.yeastN + ' CELLS', PAL.danger]);
+  if (G.chargeUpT > G.t) chips.push(['CHARGED UP', '#f4ff8a']);
+  if (G.absorbOn) chips.push(['CRUMPLE ZONE', '#ffe94a']);
   if (G.manual) chips.push(['MANUAL', XR.white]);
+  statusIntroCheck(chips); // first time ever for a buff or debuff: a tutorial card (statusintro.js)
+  // Stacked down the left edge, below the boss bar.
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
-  let cxp = 8;
-  const cy = mini ? top + 38 : top + 91;
-  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(cxp, cy, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, cxp + 7, cy + 12); cxp += tw + 5; }
-  // Boss bar.
+  let cyp = land ? top + BY + 72 : Math.max(top + BY + 72, H * 0.38); // (portrait: clear of the narrator's box)
+  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); cyp += 20; }
+  // Boss bar: centred, under the sperm count / wave readout.
   if (G.boss && !G.boss.dead) {
-    const b = G.boss, bw = barW, bx = barX, by = top + BY;
+    const b = G.boss, bw = Math.min(360, W - 40), bx = (W - bw) / 2, by = top + BY + 46;
     const pair = b.twin ? [b, b.twin] : [b];
     const hp = pair.reduce((a, o) => a + (o.dead ? 0 : Math.max(0, o.hp)), 0), mx = pair.reduce((a, o) => a + o.maxHp, 0);
     // A trailing "damage taken" chunk, phase marks at 66% and 33%, and a jolt on big hits.
@@ -2135,7 +2145,7 @@ function drawHud() {
   }
   // The sperm count (always ticking down), then the Final Five, then the egg.
   {
-    const bw = barW, bx = barX, by = top + BY + (G.boss && !G.boss.dead ? 26 : 0), mid = bx + bw / 2;
+    const bw = barW, bx = barX, by = top + BY, mid = bx + bw / 2;
     ctx.textAlign = 'center';
     if (G.fertile) {
       ctx.globalAlpha = 0.7 + 0.3 * Math.sin(G.realT * 6);
@@ -2147,17 +2157,17 @@ function drawHud() {
       ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
       ctx.fillText(`THE FINAL FIVE: ${fin.length} LEFT (SPERM COUNT ${spermCount()})`, mid, by - 8);
     } else if (G.debug) {
-      const cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
-      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('LAB BENCH' + (G.debug.god ? ' | GOD MODE' : '') + (G.debug.freeze ? ' | FROZEN' : ''), mid, cy2 - 14);
+      const cy2 = by;
+      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('LAB BENCH' + (G.debug.god ? ' | GOD MODE' : '') + (G.debug.freeze ? ' | TIME STOPPED' : ''), mid, cy2 - 14);
       ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(G.enemies.filter(e => !e.dead && !e.charmed).length + ' ENEMIES', mid, cy2 + 4);
     } else if (G.wave) {
       // The Petri Dish: the wave and how much of it is left.
-      const V = G.wave, cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
+      const V = G.wave, cy2 = by;
       const left = V.active ? Math.max(0, V.budget - V.spawned) + G.enemies.filter(e => !e.dead && !e.charmed && !e.egg).length : 0;
-      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.active ? 'THE PETRI DISH' : V.n ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
-      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
+      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.camp && V.active ? (V.phase === 'lead' ? `${bossDef(V.boss).name} IN ${Math.max(0, Math.ceil(V.leadT))}s` : bossDef(V.boss).name) : V.active ? 'THE PETRI DISH' : V.n ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
+      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(V.camp ? (V.n ? `WAVE ${V.n} OF ${CAMP.waves}${V.active ? '' : ' BEATEN'}` : `${CAMP.waves} WAVES`) : V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
     } else if (!mini) {
-      const cy2 = by + (G.boss && !G.boss.dead ? 8 : 0);
+      const cy2 = by;
       ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('SPERM COUNT', mid, cy2 - 14);
       const fl = Math.max(0, G.countFlash || 0) * 4;
       ctx.fillStyle = fl > 0 ? PAL.you : XR.white; ctx.font = `bold ${Math.round(16 + fl * 3)}px ` + MONO; ctx.fillText(spermCount().toLocaleString('en-GB'), mid, cy2 + 4);

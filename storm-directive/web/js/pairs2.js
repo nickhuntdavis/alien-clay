@@ -7,7 +7,7 @@
 
 PAIRINGS.push(
   { a: 'shotgun',    b: 'wedding',   id: 'reception',   name: 'Shotgun Reception',  desc: 'Enemies the Hiccup Scattergun hits take 35% more from Shotgun Wedding for 2s.' },
-  { a: 'onesie',     b: 'moonshine', id: 'flammable',   name: 'Flammable Fabric',   desc: 'Burning enemies the Thorny Onesie has pricked burst into a fire puddle when they die.' },
+  { a: 'onesie',     b: 'moonshine', id: 'flammable',   name: 'Flammable Fabric',   desc: 'Drunk enemies the Thorny Onesie has pricked burst into a puddle of moonshine when they die.' },
   { a: 'crayon',     b: 'banjo',     id: 'campfire',    name: 'Campfire Song',      desc: 'Enemies touched by the crayon line take 40% more from Duelling Banjo notes for 2s.' },
   { a: 'duedate',    b: 'moonshine', id: 'lastorders',  name: 'Last Orders',        desc: 'Moonshine hits enemies with a Due Date 40% harder.' },
   { a: 'peekaboo',   b: 'ghosts',    id: 'spooked',     name: 'Who You Gonna Call', desc: 'Every enemy a BOO! hits adds a ghost to Ghosts of You.' },
@@ -27,7 +27,7 @@ COMBOS.push(
   { id: 'karmaloop', a: 'karma',   b: 'dejavu',   name: 'Karmic Loop',         desc: 'Every Karma ring happens again a second later, at 70%.' },
   // The Redtail
   { id: 'throwdown', a: 'wedding', b: 'banjo',    name: 'Hoedown Throwdown',   desc: 'Every Both Barrels blast also plays a ring of low notes.' },
-  { id: 'shine',     a: 'moonshine', b: 'wedding', name: 'Shotgun Shine',      desc: 'Shotgun Wedding pellets set enemies alight, and hit burning enemies 50% harder.' },
+  { id: 'shine',     a: 'moonshine', b: 'wedding', name: 'Shotgun Shine',      desc: 'Shotgun Wedding pellets pour enemies a round of Ethanol, and hit drunk enemies 50% harder.' },
   // The Designer Baby
   { id: 'genesplice', a: 'genegun', b: 'siphon',  name: 'Gene Splice',         desc: 'Every 10 bullets the Siphon eats fires a free Gene Gun helix at the nearest enemy.' },
 );
@@ -52,7 +52,7 @@ function pair2Hit(e, dmg, src) {
     if (P.beenhere && e.due) e.due.stored += dmg * 0.25;
     if (comboOn('hauntmem') && Math.random() < 0.25) addGhost(1);
   }
-  if (id === 'wedding' && comboOn('shine') && !e.dead) { e.burn = Math.max(e.burn, 2); setBurn(e, dmg * 0.25, Object.assign({}, src, { wname: 'Shotgun Shine' })); }
+  if (id === 'wedding' && comboOn('shine') && !e.dead) { e.poison = 4; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, dmg * 0.1, Object.assign({}, src, { wname: 'Shotgun Shine' })); }
 }
 // Damage multipliers for these pairings and combos (every hit, including ones that don't proc).
 function pair2Mul(e, src) {
@@ -60,7 +60,7 @@ function pair2Mul(e, src) {
   if (src.wname === 'Gene Edit' && P.genetherapy && G.lsBudget > 0) { const h = Math.min(G.lsBudget, G.P.maxHp * 0.01); G.lsBudget -= h; healPlayer(h, true); }
   if (!id) return 1;
   let m = 1;
-  if (id === 'wedding') { if (P.reception && ptagged(e, 'hic')) m *= 1.35; if (P.surprise && ptagged(e, 'boo')) m *= 1.4; if (comboOn('shine') && e.burn > 0) m *= 1.5; }
+  if (id === 'wedding') { if (P.reception && ptagged(e, 'hic')) m *= 1.35; if (P.surprise && ptagged(e, 'boo')) m *= 1.4; if (comboOn('shine') && e.poison > 0) m *= 1.5; }
   if (id === 'banjo') { if (P.campfire && ptagged(e, 'cray')) m *= 1.4; if (P.bubbleband && e.bubT > G.t) m *= 1.5; }
   if (id === 'moonshine' && P.lastorders && e.due) m *= 1.4;
   if (id === 'genegun' && P.mindthegap && ptagged(e, 'beam')) m *= 1.3;
@@ -71,9 +71,9 @@ function pair2Mul(e, src) {
 function pair2Kill(e, src) {
   const P = G.pair || {};
   if (!P) return;
-  if (P.flammable && e.burn > 0 && ptagged(e, 'thorn') && G.zones.length < 220) {
+  if (P.flammable && e.poison > 0 && ptagged(e, 'thorn') && G.zones.length < 220) {
     const mw = owned('moonshine');
-    if (mw && mw.s) G.zones.push({ x: e.x, y: e.y, r: 50, life: 2, max: 2, dps: mw.s.dmg * 0.4, elem: 'fire', pull: 0, color: '#f48c06', tick: 0, src: Object.assign(weaponSrc(mw), { wname: 'Flammable Fabric' }) });
+    if (mw && mw.s) G.zones.push({ x: e.x, y: e.y, r: 50, life: 2, max: 2, dps: mw.s.dmg * 0.4, elem: 'poison', pull: 0, color: '#f48c06', tick: 0, src: Object.assign(weaponSrc(mw), { wname: 'Flammable Fabric' }) });
   }
   if (P.lostsibs && src && src.w && src.w.id === 'seeker') addGhost(1);
 }

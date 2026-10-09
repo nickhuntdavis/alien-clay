@@ -23,24 +23,28 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 15. [Stains](#stains)
 16. [Cursed cards](#cursed-cards)
 17. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
-18. [Elemental reactions](#elemental-reactions)
-19. [Element synergies](#element-synergies)
-20. [Targeting directives](#targeting-directives)
-21. [Movement directives](#movement-directives)
-22. [Immune Response (difficulty)](#immune-response-difficulty)
-23. [Being born (prestige)](#being-born-prestige)
-24. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+18. [Elements](#elements)
+19. [Elemental reactions](#elemental-reactions)
+20. [Combo twists](#combo-twists)
+21. [Element synergies](#element-synergies)
+22. [Targeting directives](#targeting-directives)
+23. [Movement directives](#movement-directives)
+24. [Immune Response (difficulty)](#immune-response-difficulty)
+25. [Being born (prestige)](#being-born-prestige)
+26. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
    - [Bonuses](#bonuses)
    - [Wildcard weapons](#wildcard-weapons)
    - [GFP variants](#gfp-variants)
-25. [Enemies](#enemies)
+27. [Enemies](#enemies)
    - [First sightings](#first-sightings)
-26. [Rival champions](#rival-champions)
-27. [Terrain](#terrain)
-28. [Sperm samples](#sperm-samples)
-29. [Hidden rules](#hidden-rules)
-30. [Glossary](#glossary)
-31. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
+28. [Rival champions](#rival-champions)
+29. [Terrain](#terrain)
+30. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
+31. [Boss rewards](#boss-rewards)
+32. [Sperm samples](#sperm-samples)
+33. [Hidden rules](#hidden-rules)
+34. [Glossary](#glossary)
+35. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
 
 ## How upgrades work
 
@@ -79,11 +83,11 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **The Firstborn** | Quick Recovery: +12% reload speed | Spitball, Seeker Siblings, Yo-Yo Diet | **Head First** (8s): Every 8s: headbutt-dash through whatever is in front of you, hitting everything along the way. You cannot be hurt mid-charge. | Always |
 | **The Ten-Pounder** | Puppy Fat: +1 armour | Hiccup Scattergun, Placenta Paddle, Thorny Onesie, Nappy Mines | **Mood Swing** (30s): Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s. | Always |
 | **The Bright Spark** | Early Developer: +6% fire rate, spells recharge 6% faster | Static Cling, Twin Telepathy, Toddler Gravity | **Short Fuse** (10s): Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets. | Always |
-| **The Favourite** | Favouritism: +4% crit chance, +15% crit damage | Due Date, Cold Feet, Tooth Fairy | **Telling Tales** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Survive 10 minutes in a single run |
+| **The Favourite** | Favouritism: +4% crit chance, +15% crit damage | Due Date, Antacid, Tooth Fairy | **Telling Tales** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Survive 10 minutes in a single run |
 | **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Incompatible Viral Load, Peekaboo | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Beat 25 bosses (all runs) |
 | **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Pick up 100 power-ups (all runs) |
-| **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are. | Deal 2,000,000 elemental damage (all runs) |
-| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Cold Storage** (11s): Every 11s: a burst of liquid nitrogen hits the biggest crowd within 320, freezing everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
+| **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six acid pools erupts around you. They corrode harder the more hurt you are. | Deal 2,000,000 elemental damage (all runs) |
+| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, saponifying everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
 | **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Reach Rank 3 with every other sequence |
 | **The Redtail** | Inbred Luck: +25% luck; level-up boxes are never Common. Every level up also brings a small bane (at most 4 of each) | Shotgun Wedding, Moonshine Jug, Duelling Banjo | **Sister-Cousin** (12s): When you are hit, there is a 35% chance a copy of you splits off and fights beside you for 12s. Swim into her to recombine for Keeping It in the Family: +30% damage and +20% fire rate for 8s, and 10% of your health back. Tap to split on purpose. | Play 20 runs (any result) |
 
@@ -92,12 +96,12 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Synergy | Sequences | Effect |
 |---|---|---|
 | **Rubbing Off** | The Firstborn + The Bright Spark | Every reload sends a spark into the two nearest enemies. |
-| **Trail of Destruction** | The Firstborn + The Problem Child | You leave small burning patches behind you as you swim. |
+| **Trail of Destruction** | The Firstborn + The Problem Child | You leave small acid patches behind you as you swim. |
 | **Comfort Eating** | The Ten-Pounder + The Good Eater | Below half health, your regeneration doubles (and you get +1 HP/s). |
-| **Blowout** | The Ten-Pounder + The Problem Child | Nappy Mines leave a burning puddle where they go off. |
+| **Blowout** | The Ten-Pounder + The Problem Child | Nappy Mines leave an acid puddle where they go off. |
 | **First Impressions** | The Favourite + The Quiet One | Hits on enemies at full health always crit. |
-| **Fresh Frozen** | The Designer Baby + The Favourite | Frozen or chilled enemies take 30% more damage from you. |
-| **Batch Cooking** | The Designer Baby + The Good Eater | Your starting ability (Cold Storage or Cluster Feeding, whichever is your primary's) heals you 3% of your max HP for every enemy it hits (up to 15%). |
+| **Clean Living** | The Designer Baby + The Favourite | Lathered or saponified enemies take 30% more damage from you. |
+| **Batch Cooking** | The Designer Baby + The Good Eater | Your starting ability (Soap Dispenser or Cluster Feeding, whichever is your primary's) heals you 3% of your max HP for every enemy it hits (up to 15%). |
 
 ## Weapons
 
@@ -105,42 +109,42 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Weapon | Sequence | Element | Role | Aims at | Wildcard |
 |---|---|---|---|---|---|
-| [Spitball](#spitball) | Firstborn | Kinetic | Marksman | NEAREST | - |
-| [Hiccup Scattergun](#hiccup-scattergun) | Ten-Pounder | Kinetic | Brawler | NEAREST | - |
-| [Yo-Yo Diet](#yo-yo-diet) | Firstborn | Kinetic | Boomerang | FURTHEST | - |
-| [Incompatible Viral Load](#incompatible-viral-load) | Quiet One | Toxic | Toxic Trail | NEAREST | 80 DNA |
-| [Heartburn](#heartburn) | Problem Child | Fire | Flamethrower | NEAREST | - |
-| [Nappy Mines](#nappy-mines) | Ten-Pounder | Fire | Trapper | NEAREST | 60 DNA |
-| [Cold Feet](#cold-feet) | Favourite | Frost | Freezer | FASTEST | - |
-| [Static Cling](#static-cling) | Bright Spark | Shock | Chain Lightning | DENSEST CLUSTER | - |
-| [Morning Sickness](#morning-sickness) | Problem Child | Toxic | Area Denial | DENSEST CLUSTER | - |
-| [Tapeworm Seeder](#tapeworm-seeder) | Good Eater | Toxic | Necromancer | HIGHEST HEALTH | 90 DNA |
-| [Seeker Siblings](#seeker-siblings) | Firstborn | Arcane | Swarm | WEAKEST | - |
-| [Toddler Gravity](#toddler-gravity) | Bright Spark | Arcane | Crowd Control | DENSEST CLUSTER | 80 DNA |
-| [Premature Evangelation](#premature-evangelation) | Good Eater | Arcane | Bodyguard | NEAREST | 60 DNA |
-| [Placental Siphon](#placental-siphon) | Designer Baby | Arcane | Counter | NEAREST | 100 DNA |
-| [Placenta Paddle](#placenta-paddle) | Ten-Pounder | Kinetic | Cleaver | NEAREST | - |
-| [Flagellum Flail](#flagellum-flail) | Quiet One | Kinetic | Lasher | NEAREST | - |
-| [Thorny Onesie](#thorny-onesie) | Ten-Pounder | Kinetic | Tank | NEAREST | - |
-| [Colouring In](#colouring-in) | Designer Baby | Kinetic | Lasso | NEAREST | 90 DNA |
-| [Due Date](#due-date) | Favourite | Arcane | Delayed Doom | HIGHEST HEALTH | 100 DNA |
-| [Red Tape](#red-tape) | Problem Child | Toxic | Bureaucrat | DENSEST CLUSTER | 90 DNA |
-| [Imaginary Friend](#imaginary-friend) | Designer Baby | Arcane | Echo | NEAREST | 120 DNA |
-| [Peekaboo](#peekaboo) | Quiet One | Frost | Trickster | NEAREST | 100 DNA |
-| [Twin Telepathy](#twin-telepathy) | Bright Spark | Shock | Geometry | DENSEST CLUSTER | 110 DNA |
-| [Bubble Wand](#bubble-wand) | Good Eater | Kinetic | Trap & Throw | NEAREST | 90 DNA |
-| [Tooth Fairy](#tooth-fairy) | Favourite | Arcane | Lure | DENSEST CLUSTER | 100 DNA |
-| [Déjà Vu](#dj-vu) | Prawn Again | Arcane | Repeater | NEAREST | - |
-| [Ghosts of You](#ghosts-of-you) | Prawn Again | Frost | Haunter | NEAREST | - |
-| [Karma](#karma) | Prawn Again | Kinetic | Payback | NEAREST | - |
-| [Gene Gun](#gene-gun) | Designer Baby | Arcane | Splicer | NEAREST | - |
-| [Shotgun Wedding](#shotgun-wedding) | Redtail | Kinetic | Brawler | NEAREST | - |
-| [Moonshine Jug](#moonshine-jug) | Redtail | Fire | Firebomber | DENSEST CLUSTER | - |
-| [Duelling Banjo](#duelling-banjo) | Redtail | Shock | Ring | NEAREST | - |
+| [Spitball](#spitball) | Firstborn | Force | Marksman | NEAREST | - |
+| [Hiccup Scattergun](#hiccup-scattergun) | Ten-Pounder | Force | Brawler | NEAREST | - |
+| [Yo-Yo Diet](#yo-yo-diet) | Firstborn | Force | Boomerang | FURTHEST | - |
+| [Incompatible Viral Load](#incompatible-viral-load) | Quiet One | Ethanol | Boozy Trail | NEAREST | 80 DNA |
+| [Heartburn](#heartburn) | Problem Child | Acid | Acid Spray | NEAREST | - |
+| [Nappy Mines](#nappy-mines) | Ten-Pounder | Acid | Trapper | NEAREST | 60 DNA |
+| [Antacid](#antacid) | Favourite | Base | Saponifier | FASTEST | - |
+| [Static Cling](#static-cling) | Bright Spark | Static | Chain Static | DENSEST CLUSTER | - |
+| [Morning Sickness](#morning-sickness) | Problem Child | Ethanol | Area Denial | DENSEST CLUSTER | - |
+| [Tapeworm Seeder](#tapeworm-seeder) | Good Eater | Ethanol | Necromancer | HIGHEST HEALTH | 90 DNA |
+| [Seeker Siblings](#seeker-siblings) | Firstborn | Voodoo | Swarm | WEAKEST | - |
+| [Toddler Gravity](#toddler-gravity) | Bright Spark | Voodoo | Crowd Control | DENSEST CLUSTER | 80 DNA |
+| [Premature Evangelation](#premature-evangelation) | Good Eater | Voodoo | Bodyguard | NEAREST | 60 DNA |
+| [Placental Siphon](#placental-siphon) | Designer Baby | Voodoo | Counter | NEAREST | 100 DNA |
+| [Placenta Paddle](#placenta-paddle) | Ten-Pounder | Force | Cleaver | NEAREST | - |
+| [Flagellum Flail](#flagellum-flail) | Quiet One | Force | Lasher | NEAREST | - |
+| [Thorny Onesie](#thorny-onesie) | Ten-Pounder | Force | Tank | NEAREST | - |
+| [Colouring In](#colouring-in) | Designer Baby | Force | Lasso | NEAREST | 90 DNA |
+| [Due Date](#due-date) | Favourite | Voodoo | Delayed Doom | HIGHEST HEALTH | 100 DNA |
+| [Red Tape](#red-tape) | Problem Child | Ethanol | Bureaucrat | DENSEST CLUSTER | 90 DNA |
+| [Imaginary Friend](#imaginary-friend) | Designer Baby | Voodoo | Echo | NEAREST | 120 DNA |
+| [Peekaboo](#peekaboo) | Quiet One | Base | Trickster | NEAREST | 100 DNA |
+| [Twin Telepathy](#twin-telepathy) | Bright Spark | Static | Geometry | DENSEST CLUSTER | 110 DNA |
+| [Bubble Wand](#bubble-wand) | Good Eater | Force | Trap & Throw | NEAREST | 90 DNA |
+| [Tooth Fairy](#tooth-fairy) | Favourite | Voodoo | Lure | DENSEST CLUSTER | 100 DNA |
+| [Déjà Vu](#dj-vu) | Prawn Again | Voodoo | Repeater | NEAREST | - |
+| [Ghosts of You](#ghosts-of-you) | Prawn Again | Base | Haunter | NEAREST | - |
+| [Karma](#karma) | Prawn Again | Force | Payback | NEAREST | - |
+| [Gene Gun](#gene-gun) | Designer Baby | Voodoo | Splicer | NEAREST | - |
+| [Shotgun Wedding](#shotgun-wedding) | Redtail | Force | Brawler | NEAREST | - |
+| [Moonshine Jug](#moonshine-jug) | Redtail | Ethanol | Firebomber | DENSEST CLUSTER | - |
+| [Duelling Banjo](#duelling-banjo) | Redtail | Static | Ring | NEAREST | - |
 
 ### Spitball
 
-*Kinetic gun, Marksman.* Reliable, accurate single shots. Mildly unhygienic.
+*Force gun, Marksman.* Reliable, accurate single shots. Mildly unhygienic.
 
 - **Base stats:** dmg 11, cd 0.3s, mag 12, reload 1.1s, range 440
 - **Level bonuses:** Lv3: +1 pierce; Lv6: +1 count; Lv9: +30% dmg
@@ -149,7 +153,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 3 | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Pointy Head** | Shots pierce 2 more enemies. |
 |  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
 | Lv 5 signature | **Hock a Loogie** | Every 4th shot is a giant glob: triple damage, pierces everything, and bursts at the end of its flight. |
@@ -161,7 +165,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Hiccup Scattergun
 
-*Kinetic gun, Brawler.* A close-range burst with knockback. Comes out whether you want it to or not.
+*Force gun, Brawler.* A close-range burst with knockback. Comes out whether you want it to or not.
 
 - **Base stats:** dmg 8, cd 0.75s, mag 4, reload 1.6s, x6, range 270 (knock 70)
 - **Level bonuses:** Lv3: +2 count; Lv6: +1 pierce; Lv9: +2 count
@@ -170,19 +174,19 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 3 | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Nappy Bag** | +60% magazine size. |
-|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 | Lv 5 signature | **Skin to Skin** | Pellets hit up to +150% harder the closer the target is. |
 |  | **Slug** | All the pellets fuse into one heavy slug (90% of their total damage) that pierces 3 enemies and bowls them over. |
 | Lv 8 signature | **Buckshot** | +4 pellets per blast, each at 75% damage. A wall of lead. |
 |  | **Withdrawal Method** | Every blast kicks you backwards, away from the target, and you cannot be hurt mid-kick. 78% effective. |
 | Lv 10 mastery | **Hiccup Fit** | Every 3rd blast is a full ring of pellets around you that also wipes out nearby enemy bullets. |
-|  | **Dragon's Breath** | Pellets turn to fire, set enemies alight and leave small burning puddles where they land. |
+|  | **Dragon's Breath** | Pellets turn to acid, corrode enemies and leave small acid puddles where they land. |
 
 ### Yo-Yo Diet
 
-*Kinetic gun, Boomerang.* A spinning blade that flies out and always comes back. Like the weight.
+*Force gun, Boomerang.* A spinning blade that flies out and always comes back. Like the weight.
 
 - **Base stats:** dmg 16, cd 1s, mag 2, reload 1.3s, pierce all, range 330 (boomerang 1)
 - **Level bonuses:** Lv3: +20% dmg; Lv6: +1 count; Lv9: +30% dmg
@@ -191,7 +195,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 3 | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Nappy Bag** | +60% magazine size. |
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Walk the Dog** | At full reach the yo-yo spins in place for a second, grinding everything it touches, then comes home. |
@@ -203,7 +207,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Incompatible Viral Load
 
-*Toxic wake, Toxic Trail.* A toxic trail smeared behind you as you swim. Stop, and it is just a puddle.
+*Ethanol wake, Boozy Trail.* A boozy trail smeared behind you as you swim. Stop, and it is just a puddle.
 
 - **Base stats:** dmg 20 (dur 2.2, area 22)
 - **Level bonuses:** Lv3: +30% area; Lv6: +50% duration; Lv9: +50% dmg
@@ -213,39 +217,39 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Hot Load** | +40% damage. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
-|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
+|  | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 | Lv 5 signature | **Closing the Loop** | Swim a loop around enemies and everything inside it takes a massive dose. Try the ORBIT autorun. |
 |  | **Sticky Residue** | The trail lasts twice as long and slows whatever swims through it. |
 | Lv 8 signature | **Viral Shedding** | Anything the trail touches keeps suffering: 60% of the hit again over 3s. |
 |  | **Slipstream** | Swimming through your own trail: +35% swim speed and 25% less damage taken. |
 | Lv 10 mastery | **Patient Zeroes** | Two ghost carriers circle you, each shedding its own trail. |
-|  | **Fever Trail** | The trail runs a fever and catches fire: the faster you swim, the hotter it burns (up to x2.5). |
+|  | **Fever Trail** | The trail runs a fever and turns acidic: the faster you swim, the harder it corrodes (up to x2.5). |
 
 ### Heartburn
 
-*Fire gun, Flamethrower.* A short-range cone of fire that sets everything alight. Antacids not included.
+*Acid gun, Acid Spray.* A short-range spray of reflux that corrodes everything it touches. Antacids not included.
 
 - **Base stats:** dmg 3.4, cd 0.05s, mag 50, reload 2.1s, x2, pierce all, range 200
 - **Level bonuses:** Lv3: +30% area; Lv6: +30% dmg; Lv9: +1 count
 - **Combos:** **Flash Point** (+ Morning Sickness)
-- **Pairings:** **Hot Flush, Cold Sweat** (+ Cold Feet), **Holy Smoke** (+ Premature Evangelation)
+- **Pairings:** **Indigestion Remedy** (+ Antacid), **Holy Water** (+ Premature Evangelation)
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 3 | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
 |  | **Nappy Bag** | +60% magazine size. |
-| Lv 5 signature | **Blue Flame** | Narrow and long: +70% range, a tight cone and +40% damage. |
-|  | **Indigestion** | Burning enemies explode in flames when they die, spreading the burn to everything nearby. |
-| Lv 8 signature | **Repeating On You** | Flames leave burning puddles where they land. |
-|  | **Burning Sensation** | Burning enemies take +50% damage from everything you own. |
-| Lv 10 mastery | **Ring of Fire** | Twice the flames, sweeping a full circle around you, forever. |
+| Lv 5 signature | **Projectile Reflux** | Narrow and long: +70% range, a tight cone and +40% damage. |
+|  | **Indigestion** | Corroding enemies burst when they die, splashing their acid onto everything nearby. |
+| Lv 8 signature | **Repeating On You** | The spray leaves acid puddles where it lands. |
+|  | **Sour Stomach** | Corroding enemies take +50% damage from everything you own. |
+| Lv 10 mastery | **Total Reflux** | Twice the spray, sweeping a full circle around you, forever. |
 |  | **Slow Cooker** | It never reloads, and the damage climbs the longer you keep firing (up to x3). Cools off when idle. |
 
 ### Nappy Mines
 
-*Fire mine, Trapper.* Drops proximity mines in your wake. Nobody wants to change them.
+*Acid mine, Trapper.* Drops proximity mines in your wake. Nobody wants to change them.
 
 - **Base stats:** dmg 34, cd 0.7s, mag 5, reload 2.4s, range 600 (explode 72, life 14)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +50% dmg
@@ -255,7 +259,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Wide Hips** | +35% area and +15% range. |
-|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 |  | **Nappy Bag** | +60% magazine size. |
 | Lv 5 signature | **Domino Nappies** | A blast sets off every mine near it, and each one in the chain goes off 25% bigger than the last. |
 |  | **Sticky Nappies** | Mines are thrown onto enemies and stick to them, going off 1.2s later. |
@@ -264,30 +268,30 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Lv 10 mastery | **Nuclear Nappy** | Every 6th mine is a nuke: three times the blast radius and six times the damage. |
 |  | **Minefield** | Three mines per drop, twice as often, and they last twice as long. |
 
-### Cold Feet
+### Antacid
 
-*Frost gun, Freezer.* Piercing ice shards that chill and freeze. Commitment issues, weaponised.
+*Base gun, Saponifier.* Piercing shards of antacid that lather enemies up and turn them to soap. Neutralises everything, including the mood.
 
 - **Base stats:** dmg 15, cd 0.6s, mag 5, reload 1.5s, pierce 3, range 460
 - **Level bonuses:** Lv3: +1 count; Lv6: +2 pierce; Lv9: +1 count
-- **Combos:** **Cold Case** (+ Due Date), **Cold Comfort** (+ Tooth Fairy)
-- **Pairings:** **Hot Flush, Cold Sweat** (+ Heartburn), **Snow Globe** (+ Toddler Gravity), **Ice Hockey** (+ Placenta Paddle), **Cold Read** (+ Twin Telepathy)
+- **Combos:** **Clean Slate** (+ Due Date), **Soap in the Mouth** (+ Tooth Fairy)
+- **Pairings:** **Indigestion Remedy** (+ Heartburn), **Plughole** (+ Toddler Gravity), **Soap Hockey** (+ Placenta Paddle), **Brainwashed** (+ Twin Telepathy)
 
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Hot Load** | +40% damage. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Sharp Tongue** | +15% crit chance. |
-| Lv 5 signature | **Breaking It Off** | A shard that hits a frozen enemy shatters it for 250% damage in an icy burst. |
+| Lv 5 signature | **Breaking It Off** | A shard that hits a saponified enemy bursts it for 250% damage in a cloud of suds. |
 |  | **Long Engagement** | +4 pierce, and each enemy a shard passes through makes it 25% stronger. |
-| Lv 8 signature | **Brain Freeze** | Every 3rd shard that hits the same enemy freezes it solid (not bosses). |
+| Lv 8 signature | **Soft Soap** | Every 3rd shard that hits the same enemy saponifies it on the spot (not bosses). |
 |  | **Confetti** | Every 3rd volley also drops 6 hailstones on enemies around the target. |
-| Lv 10 mastery | **Frosty Reception** | Shards leave frost patches behind that freeze anything that swims through. |
-|  | **Cold Snap** | Every 4s a freezing blast around you freezes every non-boss enemy within reach. |
+| Lv 10 mastery | **Bubble Bath** | Shards leave patches of lather behind that saponify anything that swims through. |
+|  | **Soap Snap** | Every 4s a blast of lye around you saponifies every non-boss enemy within reach. |
 
 ### Static Cling
 
-*Shock chain, Chain Lightning.* Instant lightning that arcs between enemies, like a nylon onesie in winter.
+*Static chain, Chain Static.* Instant static that arcs between enemies, like a nylon onesie in winter.
 
 - **Base stats:** dmg 13, cd 0.7s, mag 6, reload 1.8s, range 330 (chain 3, jump 140)
 - **Level bonuses:** Lv3: +2 chain; Lv6: +1 count; Lv9: +2 chain
@@ -297,18 +301,18 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Nappy Bag** | +60% magazine size. |
-| Lv 5 signature | **Short Circuit** | +3 jumps, and the lightning can bounce back to enemies it already hit. Brutal on big targets. |
-|  | **Umbilical Cord** | The first two enemies in each chain get tied together with lightning and slammed into each other. |
-| Lv 8 signature | **Party Balloon** | Every 4th bolt leaves a ball of lightning on its target that zaps everything near it for 3s. |
+| Lv 5 signature | **Short Circuit** | +3 jumps, and the static can bounce back to enemies it already hit. Brutal on big targets. |
+|  | **Umbilical Cord** | The first two enemies in each chain get tied together with static and slammed into each other. |
+| Lv 8 signature | **Party Balloon** | Every 4th bolt leaves a ball of static on its target that zaps everything near it for 3s. |
 |  | **Grounded** | Every chain earths through you: heal a little for each enemy it hit (within the lifesteal limit, doubled). |
 | Lv 10 mastery | **Worked Up** | Every jump hits 20% harder than the last, instead of weaker. |
 |  | **Tumble Dryer** | 15% of hits from all your other weapons set off a Static Cling chain. |
 
 ### Morning Sickness
 
-*Toxic lob, Area Denial.* Lobs acid globs that leave toxic puddles. Worse before noon.
+*Ethanol lob, Area Denial.* Lobs globs of last night that leave boozy puddles. Worse before noon.
 
 - **Base stats:** dmg 10, cd 0.9s, mag 4, reload 1.8s, range 390 (area 58, dur 3, flight 0.6)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +40% area
@@ -317,7 +321,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 3 | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 |  | **Nappy Bag** | +60% magazine size. |
 |  | **Sharp Tongue** | +15% crit chance. |
 | Lv 5 signature | **Nausea** | Enemies in a puddle are slowed by 45% and deal 40% less damage. |
@@ -329,7 +333,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Tapeworm Seeder
 
-*Toxic gun, Necromancer.* Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green.
+*Ethanol gun, Necromancer.* Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green.
 
 - **Base stats:** dmg 12, cd 0.4s, mag 8, reload 1.6s, range 430 (dur 8)
 - **Level bonuses:** Lv3: +1 count; Lv6: +50% duration; Lv9: +40% dmg
@@ -338,9 +342,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 3 | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 |  | **Hot Load** | +40% damage. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 | Lv 5 signature | **Up and About** | Infected corpses get back up as zombie allies for 12s instead of turrets (up to 14 at once). |
 |  | **Big Worm** | Turrets last twice as long, fire 50% faster and hit twice as hard. |
 | Lv 8 signature | **Eating for Two** | Your turrets and zombies hit twice as hard and last 50% longer. |
@@ -350,7 +354,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Seeker Siblings
 
-*Arcane gun, Swarm.* Tiny homing siblings who swim for you and never miss. Family is complicated.
+*Voodoo gun, Swarm.* Tiny homing siblings who swim for you and never miss. Family is complicated.
 
 - **Base stats:** dmg 9, cd 0.45s, mag 6, reload 2s, x2, range 500 (homing 5)
 - **Level bonuses:** Lv3: +1 count; Lv6: +1 count; Lv9: +40% dmg
@@ -371,16 +375,16 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Toddler Gravity
 
-*Arcane gun, Crowd Control.* A slow orb that drags everything into its mouth. Everything.
+*Voodoo gun, Crowd Control.* A slow orb that drags everything into its mouth. Everything.
 
 - **Base stats:** dmg 8, cd 1.8s, mag 2, reload 2.5s, pierce all, range 400 (aura 72, pull 95)
 - **Level bonuses:** Lv3: +30% area; Lv6: +1 count; Lv9: +50% dmg
 - **Combos:** **Storm in a Teacup** (+ Static Cling)
-- **Pairings:** **Tetherball** (+ Yo-Yo Diet), **Sucker Punch** (+ Hiccup Scattergun), **Snow Globe** (+ Cold Feet)
+- **Pairings:** **Tetherball** (+ Yo-Yo Diet), **Sucker Punch** (+ Hiccup Scattergun), **Plughole** (+ Antacid)
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 3 | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Sharp Tongue** | +15% crit chance. |
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Choking Hazard** | Non-boss enemies under 20% health that get dragged into the centre are swallowed whole. |
@@ -392,17 +396,17 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Premature Evangelation
 
-*Arcane orbit, Bodyguard.* Guardian angels circle you and hit whatever comes close. They always start too soon.
+*Voodoo orbit, Bodyguard.* Guardian angels circle you and hit whatever comes close. They always start too soon.
 
 - **Base stats:** dmg 23, reload 2.2s, x3, range 100 (dur 4.5, radius 72, spin 3.6)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +1 count
 - **Combos:** **Bubble Halo** (+ Bubble Wand)
-- **Pairings:** **Collection Plate** (+ Placental Siphon), **Holy Smoke** (+ Heartburn)
+- **Pairings:** **Collection Plate** (+ Placental Siphon), **Holy Water** (+ Heartburn)
 
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Hot Load** | +40% damage. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
 | Lv 5 signature | **Guardian Angel** | The angels eat any enemy bullet they touch. |
 |  | **Eternal Vigil** | The angels never take a break, but hit 25% softer. Amen. |
@@ -413,7 +417,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Placental Siphon
 
-*Arcane siphon, Counter.* Eats enemy bullets that come near you and spits them back. No reloads. Feeds on demand.
+*Voodoo siphon, Counter.* Eats enemy bullets that come near you and spits them back. No reloads. Feeds on demand.
 
 - **Base stats:** dmg 15, cd 0.08s, mag 40, range 460 (area 90)
 - **Level bonuses:** Lv3: +25% area; Lv6: +1 pierce; Lv9: +40% dmg
@@ -434,12 +438,12 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Placenta Paddle
 
-*Kinetic melee, Cleaver.* Heavy sweeping swings that knock crowds flying. Nobody asks where it came from.
+*Force melee, Cleaver.* Heavy sweeping swings that knock crowds flying. Nobody asks where it came from.
 
 - **Base stats:** dmg 34, cd 0.8s, mag 4, reload 1.1s, range 92 (area 1, arc 2.4, knock 220)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
 - **Combos:** **Whack-a-Mole** (+ Nappy Mines)
-- **Pairings:** **One-Two** (+ Flagellum Flail), **Ice Hockey** (+ Cold Feet), **Bubble Hockey** (+ Bubble Wand)
+- **Pairings:** **One-Two** (+ Flagellum Flail), **Soap Hockey** (+ Antacid), **Bubble Hockey** (+ Bubble Wand)
 
 | Level | Choice | Effect |
 |---|---|---|
@@ -455,7 +459,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Flagellum Flail
 
-*Kinetic melee, Lasher.* Your tail cracks like a whip in a long straight line. It was a weapon all along.
+*Force melee, Lasher.* Your tail cracks like a whip in a long straight line. It was a weapon all along.
 
 - **Base stats:** dmg 19, cd 0.38s, mag 6, reload 1s, range 190 (area 1, width 15, knock 60)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +25% area
@@ -476,7 +480,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Thorny Onesie
 
-*Kinetic melee, Tank.* Spikes pulse out all around you. Huggable, technically.
+*Force melee, Tank.* Spikes pulse out all around you. Huggable, technically.
 
 - **Base stats:** dmg 18, cd 0.55s, mag 8, reload 0.9s, range 90 (area 90, knock 120)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +20% area
@@ -485,7 +489,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 3 | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Wide Hips** | +35% area and +15% range. |
 |  | **Nappy Bag** | +60% magazine size. |
 | Lv 5 signature | **Look, Don't Touch** | Whatever hurts you gets hurt back hard (thorns x2), plus a jab to everything around you. |
@@ -497,7 +501,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Colouring In
 
-*Kinetic crayon, Lasso.* Swim a loop round enemies and everything inside gets coloured in. Never inside the lines.
+*Force crayon, Lasso.* Swim a loop round enemies and everything inside gets coloured in. Never inside the lines.
 
 - **Base stats:** dmg 44, cd 2.2s, mag 3, reload 1.2s, range 600 (dur 2.6)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +40% duration; Lv9: +50% dmg
@@ -508,7 +512,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |---|---|---|
 | Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
 |  | **Nappy Bag** | +60% magazine size. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 | Lv 5 signature | **Scribble** | The crayon line itself hits four times as hard and slows what it touches. |
 |  | **Stay Inside the Lines** | Anything you colour in is stuck where it is for 1.5s and takes +30% damage from everything. |
 | Lv 8 signature | **Paint by Numbers** | The more enemies inside a shape, the harder it hits: +15% for each one (up to +150%). |
@@ -518,18 +522,18 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Due Date
 
-*Arcane duedate, Delayed Doom.* Sticks a countdown on an enemy. When it runs out, 40% of the damage it took lands again. Circled in red.
+*Voodoo duedate, Delayed Doom.* Sticks a countdown on an enemy. When it runs out, 40% of the damage it took lands again. Circled in red.
 
 - **Base stats:** dmg 20, cd 0.9s, mag 3, reload 2s, range 480 (dur 4, repeat 0.4)
 - **Level bonuses:** Lv3: +0.15 repeat; Lv6: +1 count; Lv9: +0.2 repeat
-- **Combos:** **Cold Case** (+ Cold Feet)
+- **Combos:** **Clean Slate** (+ Antacid)
 - **Pairings:** **Final Notice** (+ Red Tape), **Last Orders** (+ Moonshine Jug), **Been Here Before** (+ Déjà Vu)
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 3 | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 | Lv 5 signature | **Overdue** | The countdown is twice as long, and the repeat is twice as big. |
 |  | **Early Delivery** | A marked enemy that drops below 30% health goes off straight away. |
 | Lv 8 signature | **Baby Shower** | When a date goes off, half of it splashes onto everything nearby. |
@@ -539,7 +543,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Red Tape
 
-*Toxic tape, Bureaucrat.* Tapes a target to the enemies around it, so a hit on one hurts the rest (35% of it). Sign here.
+*Ethanol tape, Bureaucrat.* Tapes a target to the enemies around it, so a hit on one hurts the rest (35% of it). Sign here.
 
 - **Base stats:** dmg 18, cd 1.4s, mag 3, reload 2s, range 420 (chain 3, jump 170, dur 5, share 0.35)
 - **Level bonuses:** Lv3: +1 chain; Lv6: +0.1 share; Lv9: +2 chain
@@ -550,7 +554,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |---|---|---|
 | Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
 |  | **Sharp Tongue** | +15% crit chance. |
-|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 | Lv 5 signature | **In Triplicate** | Every bundle tapes 3 more enemies together. |
 |  | **Joint Liability** | When a taped enemy dies, the rest of its bundle takes 30% of its max health. |
 | Lv 8 signature | **Stapled** | Bundles are pulled together tight and slowed by 40%. |
@@ -560,7 +564,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Imaginary Friend
 
-*Arcane friend, Echo.* Its name is Gerald. Gerald is very real. Gerald has your weapons.
+*Voodoo friend, Echo.* Its name is Gerald. Gerald is very real. Gerald has your weapons.
 
 - **Base stats:** dmg 24, cd 0.7s, mag 6, reload 1.4s, range 230 (delay 2, copy 0.35)
 - **Level bonuses:** Lv3: +0.1 copy; Lv6: +1 count; Lv9: +0.1 copy
@@ -571,7 +575,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |---|---|---|
 | Lv 3 | **Hot Load** | +40% damage. |
 |  | **Sharp Tongue** | +15% crit chance. |
-|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 | Lv 5 signature | **Sharing Is Caring** | Your friend's copies hit 35% harder. |
 |  | **It Was Them** | Your friend soaks up any enemy bullet it swims into. |
 | Lv 8 signature | **Long Memory** | Your friend swims four seconds behind you instead of two, and hits 30% harder. |
@@ -581,7 +585,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Peekaboo
 
-*Frost peek, Trickster.* You vanish. Enemies swarm the empty spot, then BOO. The science is three years old.
+*Base peek, Trickster.* You vanish. Enemies swarm the empty spot, then BOO. The science is three years old.
 
 - **Base stats:** dmg 20, cd 5.5s, mag 1, reload 0.1s, range 420 (dur 1.8, area 230)
 - **Level bonuses:** Lv3: +25% duration; Lv6: +25% area; Lv9: +50% dmg
@@ -591,10 +595,10 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Sharp Tongue** | +15% crit chance. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Wide Hips** | +35% area and +15% range. |
 | Lv 5 signature | **Hide and Seek** | While hidden you swim 40% faster. |
-|  | **Jump Scare** | BOO freezes enemies solid for 1.2s instead of scaring them off (not bosses). |
+|  | **Jump Scare** | BOO scares enemies stiff for 1.2s instead of scaring them off (not bosses). |
 | Lv 8 signature | **Who's There?** | While you are hidden, enemy bullets hit other enemies three times as hard. |
 |  | **Decoy Doll** | A doll stays where you vanished for 4s. Enemies keep attacking it, and it bursts for BOO damage at the end. |
 | Lv 10 mastery | **Object Permanence** | You stay hidden twice as long. |
@@ -602,19 +606,19 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Twin Telepathy
 
-*Shock twin, Geometry.* A beam joins you and your twin across the crowd. You both think "zap".
+*Static twin, Geometry.* A beam joins you and your twin across the crowd. You both think "zap".
 
 - **Base stats:** dmg 24, cd 1.6s, mag 3, reload 2s, range 520 (area 90, width 10)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +30% area
 - **Combos:** **Party Line** (+ Static Cling)
-- **Pairings:** **Cold Read** (+ Cold Feet), **Mind the Gap** (+ Gene Gun)
+- **Pairings:** **Brainwashed** (+ Antacid), **Mind the Gap** (+ Gene Gun)
 
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Wide Hips** | +35% area and +15% range. |
 |  | **Hot Load** | +40% damage. |
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
-| Lv 5 signature | **Joined at the Hip** | The beam is twice as wide and chills what it touches. |
+| Lv 5 signature | **Joined at the Hip** | The beam is twice as wide and lathers what it touches. |
 |  | **Switcheroo** | Every 6s you swap places with your twin, cutting everything along the way. |
 | Lv 8 signature | **Sympathetic Pain** | When you get hurt, your twin's end erupts for 300% damage (every 1.5s at most). |
 |  | **Same Wavelength** | The beam wipes out any enemy bullet that crosses it. |
@@ -623,7 +627,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Bubble Wand
 
-*Kinetic bubble, Trap & Throw.* Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.
+*Force bubble, Trap & Throw.* Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.
 
 - **Base stats:** dmg 18, cd 1.1s, mag 4, reload 2s, range 380 (dur 5, hold 34)
 - **Level bonuses:** Lv3: +1 count, thicker bubbles (each holds 4 more times the wand's damage before it pops, and adds what it soaked to the pop); Lv6: +40% dmg, thicker bubbles (each holds 4 more times the wand's damage before it pops, and adds what it soaked to the pop); Lv9: +1 count, rainbow pops (each pop takes a random element)
@@ -632,7 +636,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 3 | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Sharp Tongue** | +15% crit chance. |
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Extra Soapy** | Bubbles hold enemies twice the size, elites included. |
@@ -644,17 +648,17 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Tooth Fairy
 
-*Arcane tooth, Lure.* Drops baby teeth near the crowd and smites whoever takes one. She collects debts.
+*Voodoo tooth, Lure.* Drops baby teeth near the crowd and smites whoever takes one. She collects debts.
 
 - **Base stats:** dmg 34, cd 1.1s, mag 3, reload 2s, range 420 (dur 6, lure 230)
 - **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +60 lure
-- **Combos:** **Cold Comfort** (+ Cold Feet)
+- **Combos:** **Soap in the Mouth** (+ Antacid)
 - **Pairings:** **Bait and Switch** (+ Nappy Mines), **A Tooth for a Tooth** (+ Karma)
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| Lv 3 | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Gold Tooth** | Every 4th tooth is gold: it lures from twice as far, and whoever takes it is smitten along with everything near them. |
 |  | **Wisdom Teeth** | Teeth lure from 60% further and last twice as long. |
@@ -665,7 +669,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Déjà Vu
 
-*Arcane gun, Repeater.* Every shot happens twice. The second time, it is a memory.
+*Voodoo gun, Repeater.* Every shot happens twice. The second time, it is a memory.
 
 - **Base stats:** dmg 20, cd 0.8s, mag 6, reload 1.3s, pierce 1, range 420 (replay 1)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +2 pierce
@@ -676,18 +680,18 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |---|---|---|
 | Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
 |  | **Hot Load** | +40% damage. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 | Lv 5 signature | **Third Time Lucky** | Every memory replays once more, at 70% damage. |
 |  | **Premonition** | The replay arrives sooner (0.5s), flies 50% faster and pierces 2 more enemies. |
 | Lv 8 | **Sugar Rush** | +75% damage. |
-|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+|  | **Magnetic Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
 |  | **Plus One** | +1 projectile (shots share the damage). |
 | Lv 10 mastery | **Groundhog Day** | Memories keep replaying, each at 60% of the last, until they fade (up to four times). |
 |  | **Same Dream** | Replays fire from wherever you are now, at the nearest enemy, at full damage. |
 
 ### Ghosts of You
 
-*Frost gun, Haunter.* The ones who came before you never really left.
+*Base gun, Haunter.* The ones who came before you never really left.
 
 - **Base stats:** dmg 15, cd 1.1s, mag 4, reload 1.6s, range 460 (homing 6)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +40% dmg
@@ -698,18 +702,18 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |---|---|---|
 | Lv 3 | **Nappy Bag** | +60% magazine size. |
 |  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
-|  | **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+|  | **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 | Lv 5 signature | **Unfinished Business** | An enemy killed by a ghost leaves two ghosts behind. |
-|  | **Gave Me Chills** | Ghosts chill what they hit: 40% slower for 1.5s. |
+|  | **Gave Me the Creeps** | Ghosts lather what they hit: 40% slower for 1.5s. |
 | Lv 8 | **Homing Instinct** | Shots home in on targets. |
-|  | **Ice Queen** | 12% of hits freeze non-boss enemies solid. |
-|  | **Toxic Relationship** | Hits add a stacking poison. |
+|  | **Soap Queen** | 12% of hits saponify non-boss enemies. |
+|  | **One for the Road** | Hits add a round of Ethanol. |
 | Lv 10 mastery | **We Are Legion** | Store twice as many ghosts, and every volley sends two extra. |
 |  | **Family Reunion** | Every ghost that hits heals you 0.4% of your max HP. |
 
 ### Karma
 
-*Kinetic ring, Payback.* Every hit you take comes back around. With interest.
+*Force ring, Payback.* Every hit you take comes back around. With interest.
 
 - **Base stats:** dmg 18, cd 1.6s, mag 3, reload 1.8s, x10, pierce 2, range 240
 - **Level bonuses:** Lv3: +4 count; Lv6: +40% dmg; Lv9: +2 pierce
@@ -719,19 +723,19 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Level | Choice | Effect |
 |---|---|---|
 | Lv 3 | **Nappy Bag** | +60% magazine size. |
-|  | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+|  | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 |  | **Hot Load** | +40% damage. |
 | Lv 5 signature | **Instant Karma** | Getting hit fires a ring straight back at once (every 1.5s at most). |
 |  | **Good Karma** | Kills near you charge Karma too, not just hits you take. |
 | Lv 8 | **Kick Them While Down** | +60% damage to enemies under 35% health. |
 |  | **Due Date Panic** | 40% faster cooldown and reload. |
-|  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+|  | **Rubbed the Wrong Way** | 30% of hits arc to a nearby enemy for 50% damage. |
 | Lv 10 mastery | **Wheel of Life** | Every ring is followed by a second, turned half a step, 0.25s later. |
 |  | **Nirvana** | A fully charged ring also heals you 8% of your max HP. |
 
 ### Gene Gun
 
-*Arcane gun, Splicer.* Precision gene therapy, delivered at speed. Side effects include exploding.
+*Voodoo gun, Splicer.* Precision gene therapy, delivered at speed. Side effects include exploding.
 
 - **Base stats:** dmg 11.5, cd 0.5s, mag 8, reload 1.3s, pierce 1, range 480
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +2 pierce
@@ -740,7 +744,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
+| Lv 3 | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 |  | **Hair Trigger** | 25% faster cooldown and reload. |
 |  | **Pointy Head** | Shots pierce 2 more enemies. |
 | Lv 5 signature | **Triple Helix** | A third strand, with a third element. Edits need any two strands to land. |
@@ -753,7 +757,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Shotgun Wedding
 
-*Kinetic gun, Brawler.* Something old, something new, something double-barrelled.
+*Force gun, Brawler.* Something old, something new, something double-barrelled.
 
 - **Base stats:** dmg 6, cd 0.55s, mag 2, reload 1.3s, x7, range 300 (knock 90, bounce 1)
 - **Level bonuses:** Lv3: +2 count; Lv6: +30% dmg; Lv9: +2 count
@@ -767,15 +771,15 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |  | **Sharp Tongue** | +15% crit chance. |
 | Lv 5 signature | **Throwing Rice** | Every blast also scatters a ring of 8 grains of rice all around you at 40% damage. |
 |  | **Both Barrels, Always** | Every blast is both barrels: double the pellets, but 30% slower to fire. |
-| Lv 8 | **Ice Queen** | 12% of hits freeze non-boss enemies solid. |
+| Lv 8 | **Soap Queen** | 12% of hits saponify non-boss enemies. |
 |  | **Special Delivery** | Hits explode for 35% damage around the target. |
-|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+|  | **Magnetic Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
 | Lv 10 mastery | **The Reception** | Every fourth blast fires a full ring of pellets all around you as well. |
 |  | **Elope** | Every reload, you dash forward and nothing can hurt you for half a second. |
 
 ### Moonshine Jug
 
-*Fire lob, Firebomber.* Grandpappy's recipe. Do not drink. Do not stand near.
+*Ethanol lob, Firebomber.* Grandpappy's recipe. Do not drink. Do not stand near.
 
 - **Base stats:** dmg 15, cd 1.2s, mag 3, reload 2s, range 380 (area 70, explode 1, dur 2.4, flight 0.65)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +35% area
@@ -784,20 +788,20 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Hot Load** | +40% damage. |
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
 |  | **Wide Hips** | +35% area and +15% range. |
 |  | **Nappy Bag** | +60% magazine size. |
-| Lv 5 signature | **200 Proof** | Puddles burn 50% longer and 25% wider. |
+| Lv 5 signature | **200 Proof** | Puddles last 50% longer and spread 25% wider. |
 |  | **Backyard Still** | Every third jug lands as three jugs. |
-| Lv 8 | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+| Lv 8 | **Magnetic Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
 |  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
 |  | **Twins!** | +2 projectiles (shots share the damage). |
 | Lv 10 mastery | **Every Batch Is Bad** | Every jug is a bad batch. |
-|  | **Hooch Hour** | Standing in your own fire heals you 2% of your max HP a second. You are used to it. |
+|  | **Hooch Hour** | Standing in your own puddles heals you 2% of your max HP a second. You are used to it. |
 
 ### Duelling Banjo
 
-*Shock ring, Ring.* Only knows one song. Plays it with feeling.
+*Static ring, Ring.* Only knows one song. Plays it with feeling.
 
 - **Base stats:** dmg 12, cd 1.3s, mag 3, reload 1.6s, x10, pierce 2, range 240
 - **Level bonuses:** Lv3: +4 count; Lv6: +40% dmg; Lv9: +2 pierce
@@ -812,7 +816,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Lv 5 signature | **Fingerpicking** | +6 notes in every ring. |
 |  | **Duelling** | Every ring is answered a moment later by a second ring: from your Sister-Cousin if she is out, otherwise from you. |
 | Lv 8 | **Sugar Rush** | +75% damage. |
-|  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+|  | **Rubbed the Wrong Way** | 30% of hits arc to a nearby enemy for 50% damage. |
 |  | **Plus One** | +1 projectile (shots share the damage). |
 | Lv 10 mastery | **Hoedown** | Low notes knock enemies back hard and leave them dazed for a moment. |
 |  | **Bluegrass Encore** | Every third ring plays both notes at once. |
@@ -864,7 +868,7 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 | Personal Space | Spitball | bigger shots, easier to land. |
 | Personal Space | Hiccup Scattergun | bigger pellets. |
 | Personal Space | Yo-Yo Diet | a bigger yo-yo. |
-| Personal Space | Cold Feet | bigger shards. |
+| Personal Space | Antacid | bigger shards. |
 | Personal Space | Seeker Siblings | bigger siblings. |
 | Personal Space | Tapeworm Seeder | bigger worms. |
 | Twitchy Tail | Incompatible Viral Load | the trail hits faster. |
@@ -898,20 +902,20 @@ Both weapons at Lv 5+: a COMBO card is guaranteed in your next box. Both keep fi
 | **Porcupine Hug** | Thorny Onesie + Hiccup Scattergun | Ten-Pounder | Every Onesie pulse fires a ring of Scattergun pellets outwards. |
 | **Storm in a Teacup** | Toddler Gravity + Static Cling | Bright Spark | Gravity orbs crackle: each one throws a Static Cling chain at what it is pulling in. |
 | **Party Line** | Twin Telepathy + Static Cling | Bright Spark | Every second, each twin sends a Static Cling chain into the crowd. |
-| **Cold Case** | Due Date + Cold Feet | Favourite | When a Due Date goes off, everything near it freezes solid and takes a burst of frost. |
-| **Cold Comfort** | Tooth Fairy + Cold Feet | Favourite | Tooth Fairy smites freeze their victim. A frozen victim takes double. |
+| **Clean Slate** | Due Date + Antacid | Favourite | When a Due Date goes off, everything near it is saponified and takes a burst of antacid. |
+| **Soap in the Mouth** | Tooth Fairy + Antacid | Favourite | Tooth Fairy smites saponify their victim. A saponified victim takes double. |
 | **Whiplash** | Flagellum Flail + Incompatible Viral Load | Quiet One | Every lash leaves a strip of viral trail along its length. |
 | **Silent but Deadly** | Peekaboo + Incompatible Viral Load | Quiet One | While you are hidden, your viral trail hits 2.5x as hard. The BOO leaves a ring of it round the spot. |
 | **Worm Farm** | Bubble Wand + Tapeworm Seeder | Good Eater | Anything trapped in a bubble catches Tapeworm. Bubble pops hit infected enemies 50% harder. |
 | **Bubble Halo** | Premature Evangelation + Bubble Wand | Good Eater | Your angels blow bubbles at small enemies near them. |
-| **Flash Point** | Morning Sickness + Heartburn | Problem Child | Heartburn ignites your puddles: each one in range erupts in a fireball every second. |
-| **Sticky Situation** | Red Tape + Morning Sickness | Problem Child | Taped bundles drip: a toxic puddle forms under each one every second. |
+| **Flash Point** | Morning Sickness + Heartburn | Problem Child | Heartburn reacts with your puddles: each one in range erupts in an acid burst every second. |
+| **Sticky Situation** | Red Tape + Morning Sickness | Problem Child | Taped bundles drip: a boozy puddle forms under each one every second. |
 | **Drawn Together** | Colouring In + Imaginary Friend | Designer Baby | Every 3s, the shape between you and your Imaginary Friend is coloured in. |
 | **Fall Guy** | Imaginary Friend + Placental Siphon | Designer Baby | Your Imaginary Friend catches enemy bullets and feeds them to the Siphon. |
 | **Haunting Memory** | Déjà Vu + Ghosts of You | Prawn Again | One Deja Vu hit in four leaves a ghost behind for Ghosts of You. |
 | **Karmic Loop** | Karma + Déjà Vu | Prawn Again | Every Karma ring happens again a second later, at 70%. |
 | **Hoedown Throwdown** | Shotgun Wedding + Duelling Banjo | Redtail | Every Both Barrels blast also plays a ring of low notes. |
-| **Shotgun Shine** | Moonshine Jug + Shotgun Wedding | Redtail | Shotgun Wedding pellets set enemies alight, and hit burning enemies 50% harder. |
+| **Shotgun Shine** | Moonshine Jug + Shotgun Wedding | Redtail | Shotgun Wedding pellets pour enemies a round of Ethanol, and hit drunk enemies 50% harder. |
 | **Gene Splice** | Gene Gun + Placental Siphon | Designer Baby | Every 10 bullets the Siphon eats fires a free Gene Gun helix at the nearest enemy. |
 
 ## Pairings (secret combos)
@@ -920,34 +924,34 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 | Pairing | Weapons | Effect |
 |---|---|---|
-| **Baby Monitor Network** | Static Cling + Nappy Mines | Lightning jumping through a crowd sets off any Nappy Mine near its path. |
-| **Hot Flush, Cold Sweat** | Heartburn + Cold Feet | Thermal Shock and Steam Burst reactions have no cooldown and hit twice as hard. |
+| **Baby Monitor Network** | Static Cling + Nappy Mines | Static jumping through a crowd sets off any Nappy Mine near its path. |
+| **Indigestion Remedy** | Heartburn + Antacid | Neutralised reactions have no cooldown and hit twice as hard. |
 | **Tetherball** | Yo-Yo Diet + Toddler Gravity | Yo-yos drag enemies back towards you on every throw. |
 | **Family Tree** | Seeker Siblings + Tapeworm Seeder | Tapeworm turrets fire homing Seeker Siblings. |
 | **Collection Plate** | Placental Siphon + Premature Evangelation | The angels catch enemy bullets and feed them into the Siphon. |
-| **Nappy Trail** | Incompatible Viral Load + Morning Sickness | Your viral trail is extra toxic: it hits 50% harder. |
-| **Conductive Spit** | Spitball + Static Cling | Spat-on enemies are wet: lightning deals double damage to them. |
+| **Nappy Trail** | Incompatible Viral Load + Morning Sickness | Your viral trail is extra strong: it hits 50% harder. |
+| **Conductive Spit** | Spitball + Static Cling | Spat-on enemies are wet: static deals double damage to them. |
 | **Sucker Punch** | Hiccup Scattergun + Toddler Gravity | Enemies caught in a gravity orb take double damage from the Scattergun. |
-| **Snow Globe** | Cold Feet + Toddler Gravity | Gravity orbs chill everything they hold and freeze it solid. |
-| **Holy Smoke** | Premature Evangelation + Heartburn | The angels are on fire. Everything they touch catches. |
+| **Plughole** | Antacid + Toddler Gravity | Gravity orbs lather everything they hold and saponify it. |
+| **Holy Water** | Premature Evangelation + Heartburn | The angels drip acid. Everything they touch corrodes. |
 | **Tagging Along** | Seeker Siblings + Yo-Yo Diet | Every yo-yo hit launches a Seeker Sibling. |
 | **Something Going Round** | Tapeworm Seeder + Morning Sickness | Anything that dies in a puddle was infected all along. |
 | **Static Discharge** | Static Cling + Placental Siphon | Every 12 bullets the Siphon eats fires a Static Cling chain at four enemies. |
 | **Trail Mix** | Incompatible Viral Load + Nappy Mines | Your viral trail drops a Nappy Mine every 1.5s. |
 | **One-Two** | Flagellum Flail + Placenta Paddle | Enemies the Flail has lashed take double damage from the Paddle for 2s. |
 | **Live Wire** | Flagellum Flail + Static Cling | The tip of every lash sets off a Static Cling chain. |
-| **Nappy Rash** | Thorny Onesie + Morning Sickness | Every Onesie pulse adds a stack of poison to what it hits. |
-| **Ice Hockey** | Placenta Paddle + Cold Feet | The Paddle hits frozen enemies three times as hard. |
+| **Nappy Rash** | Thorny Onesie + Morning Sickness | Every Onesie pulse adds a round of Ethanol to what it hits. |
+| **Soap Hockey** | Placenta Paddle + Antacid | The Paddle hits saponified enemies three times as hard. |
 | **Final Notice** | Due Date + Red Tape | When a Due Date goes off on a taped enemy, the whole bundle takes all of it, not just a share. |
-| **Live Paperwork** | Red Tape + Static Cling | Lightning that hits a taped enemy is shared through the bundle twice over. |
+| **Live Paperwork** | Red Tape + Static Cling | Static that hits a taped enemy is shared through the bundle twice over. |
 | **He Went That Way** | Imaginary Friend + Peekaboo | While you are hidden, enemies chase your Imaginary Friend instead of the empty spot. |
 | **Bubble Hockey** | Bubble Wand + Placenta Paddle | When the Paddle pops a bubble, the enemy inside flies off the way it swung and bowls through its friends. |
 | **Bait and Switch** | Tooth Fairy + Nappy Mines | Every tooth has a Nappy Mine under it. |
-| **Colouring Book** | Colouring In + Morning Sickness | Every shape you colour in fills with a toxic puddle. |
-| **Cold Read** | Twin Telepathy + Cold Feet | Anything that stays in the telepathy beam for a second freezes solid. |
-| **Toil and Trouble** | Bubble Wand + Morning Sickness | Every pop leaves a toxic puddle. |
+| **Colouring Book** | Colouring In + Morning Sickness | Every shape you colour in fills with a boozy puddle. |
+| **Brainwashed** | Twin Telepathy + Antacid | Anything that stays in the telepathy beam for a second saponifies. |
+| **Toil and Trouble** | Bubble Wand + Morning Sickness | Every pop leaves a boozy puddle. |
 | **Shotgun Reception** | Hiccup Scattergun + Shotgun Wedding | Enemies the Hiccup Scattergun hits take 35% more from Shotgun Wedding for 2s. |
-| **Flammable Fabric** | Thorny Onesie + Moonshine Jug | Burning enemies the Thorny Onesie has pricked burst into a fire puddle when they die. |
+| **Flammable Fabric** | Thorny Onesie + Moonshine Jug | Drunk enemies the Thorny Onesie has pricked burst into a puddle of moonshine when they die. |
 | **Campfire Song** | Colouring In + Duelling Banjo | Enemies touched by the crayon line take 40% more from Duelling Banjo notes for 2s. |
 | **Last Orders** | Due Date + Moonshine Jug | Moonshine hits enemies with a Due Date 40% harder. |
 | **Who You Gonna Call** | Peekaboo + Ghosts of You | Every enemy a BOO! hits adds a ghost to Ghosts of You. |
@@ -972,7 +976,7 @@ A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of
 A white blood cell who ate her way to the top. She summons swarms, then swallows them to heal. Base HP 2600, armour 2, speed 46.
 
 - **Strengths:** Devours her own minions to heal; Summons swarms of swimmers.
-- **Weaknesses:** Fire: +60% damage; Slow: kite her and clear the snacks.
+- **Weaknesses:** Acid: +60% damage; Slow: kite her and clear the snacks.
 
 | Relic | Effect |
 |---|---|
@@ -984,10 +988,10 @@ A white blood cell who ate her way to the top. She summons swarms, then swallows
 
 > "Papers. Now. No, those are not papers. Those are bullets."
 
-A Y-shaped wall of protein. Heavily armoured, cannot be moved or frozen, and charges in straight lines. Base HP 3800, armour 12, speed 36.
+A Y-shaped wall of protein. Heavily armoured, cannot be moved or saponified, and charges in straight lines. Base HP 3800, armour 12, speed 36.
 
-- **Strengths:** 12 armour: small hits barely scratch it; Cannot be knocked back or frozen.
-- **Weaknesses:** Shock: +60% damage; Armour shred sticks for longer; Charges are telegraphed: side-step.
+- **Strengths:** 12 armour: small hits barely scratch it; Cannot be knocked back or saponified.
+- **Weaknesses:** Static: +60% damage; Armour shred sticks for longer; Charges are telegraphed: side-step.
 
 | Relic | Effect |
 |---|---|
@@ -1002,7 +1006,7 @@ A Y-shaped wall of protein. Heavily armoured, cannot be moved or frozen, and cha
 It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink. Base HP 3400, armour 4, speed 52.
 
 - **Strengths:** Teleports right next to you; Death-stare beam that tracks you.
-- **Weaknesses:** Takes double damage while glaring; Arcane: +50% damage.
+- **Weaknesses:** Takes double damage while glaring; Voodoo: +50% damage.
 
 | Relic | Effect |
 |---|---|
@@ -1017,7 +1021,7 @@ It teleports next to you, then glares: a beam that follows you around. While it 
 Runs the ward with an iron bedpan. Heals every enemy on screen and hides behind a ring of nurses. Base HP 3000, armour 3, speed 40.
 
 - **Strengths:** Heals every enemy nearby on her rounds; Nurse cells orbit her and soak your shots.
-- **Weaknesses:** Poison: +60%, and halves her healing; Kill her nurses: she panics and takes +50%.
+- **Weaknesses:** Ethanol: +60%, and halves her healing (she never touches the stuff); Kill her nurses: she panics and takes +50%.
 
 | Relic | Effect |
 |---|---|
@@ -1031,12 +1035,12 @@ Runs the ward with an iron bedpan. Heals every enemy on screen and hides behind 
 
 A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller blobs when hurt. Base HP 3600, armour 0, speed 44.
 
-- **Strengths:** Acid puddles burn you; Splits off blobs at 60% and 30% health.
-- **Weaknesses:** Frost: +60% damage; Blasts and pools: +40% damage.
+- **Strengths:** Acid puddles eat into you; Acid only does half damage to it; Splits off blobs at 60% and 30% health.
+- **Weaknesses:** Base: +60% damage (an antacid); Blasts and pools: +40% damage.
 
 | Relic | Effect |
 |---|---|
-| **Acid Tongue** | Every hit shreds armour and adds a stack of poison. |
+| **Acid Tongue** | Every hit shreds armour and adds a round of Ethanol. |
 | **Bad Blood** | When you are hit, you splash acid around you for ten times the damage you took. |
 | **Ulcer** | Enemies you kill leave acid puddles that dissolve their friends. |
 
@@ -1046,7 +1050,7 @@ A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller
 
 The biggest swimmer anyone has ever seen. Dashes through you three times, then has to catch his breath. Base HP 3000, armour 5, speed 95.
 
-- **Strengths:** Lightning-fast triple dash; Flexes: dodges 30% of your shots.
+- **Strengths:** Blindingly fast triple dash; Flexes: dodges 30% of your shots.
 - **Weaknesses:** Winded after every dash: stunned, double damage; Blasts, beams and pools never miss him.
 
 | Relic | Effect |
@@ -1059,16 +1063,16 @@ The biggest swimmer anyone has ever seen. Dashes through you three times, then h
 
 > "Is it hot in here, or is it me? It's me. It's always me."
 
-A walking temperature spike. Rings of fire, burning ground, and it runs hotter and faster as it dies. Base HP 3200, armour 2, speed 48.
+A walking temperature spike. Rings of heat, scalding ground, and it runs hotter and faster as it dies. Base HP 3200, armour 2, speed 48.
 
-- **Strengths:** Immune to fire; Rages below 35% health: twice as fast.
-- **Weaknesses:** Frost: double damage; Freezing it snuffs out its current attack.
+- **Strengths:** Immune to Acid: sweats it straight off; Rages below 35% health: twice as fast.
+- **Weaknesses:** Base: double damage; Saponifying it snuffs out its current attack.
 
 | Relic | Effect |
 |---|---|
-| **Running Hot** | Every weapon you own sets enemies on fire. |
-| **Fever Dream** | Every burning enemy near you makes all your weapons fire 3% faster (up to +60%). |
-| **Heatstroke** | Burning enemies explode when they die, spreading the fire. |
+| **Running Hot** | Every weapon you own corrodes what it hits. |
+| **Fever Dream** | Every corroding enemy near you makes all your weapons fire 3% faster (up to +60%). |
+| **Heatstroke** | Corroding enemies explode when they die, spreading the acid. |
 
 ### MITCH & OSIS: The Mitosis Twins
 
@@ -1109,24 +1113,24 @@ Spells autocast on cooldown and use spell slots. They level up like weapons, and
 
 | Spell | Element | What it does | Base stats | Level bonuses |
 |---|---|---|---|---|
-| **Stork Drop** | Fire | A stork drops something heavy on the target and leaves burning ground. Not a baby. | dmg 65, cd 5s, count 1, area 88, delay 0.7s, dur 2s | Lv3: +1 count; Lv5: +30% area; Lv7: +1 count |
-| **Cold Shower** | Frost | A freezing blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
-| **Brainstorm** | Shock | Lightning strikes several targets at once. None of the ideas are good. | dmg 36, cd 6s, count 5, area 48 | Lv3: +2 count; Lv5: +40% dmg; Lv7: +3 count |
-| **Sofa Crevice** | Arcane | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
-| **Kiss It Better** | Toxic | Restores 15% of your health. Medically dubious. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% healing; Lv7: 20% faster |
-| **Nap Time** | Arcane | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
-| **Latex Barrier** | Arcane | A shield that reflects enemy bullets and blocks contact. 98% effective. | dmg 12, cd 12s, dur 3s, area 80 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
-| **Running With Scissors** | Kinetic | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
-| **Dutch Oven** | Toxic | A drifting cloud of stacking poison. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
-| **Baby Monitor** | Shock | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
-| **Out of Body** | Arcane | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
+| **Stork Drop** | Acid | A stork drops something heavy on the target and leaves acid on the ground. Not a baby. | dmg 65, cd 5s, count 1, area 88, delay 0.7s, dur 2s | Lv3: +1 count; Lv5: +30% area; Lv7: +1 count |
+| **Power Shower** | Base | A soapy blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
+| **Brainstorm** | Static | Static strikes several targets at once. None of the ideas are good. | dmg 36, cd 6s, count 5, area 48 | Lv3: +2 count; Lv5: +40% dmg; Lv7: +3 count |
+| **Sofa Crevice** | Voodoo | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
+| **Kiss It Better** | Ethanol | Restores 15% of your health. Medically dubious. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% healing; Lv7: 20% faster |
+| **Nap Time** | Voodoo | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
+| **Latex Barrier** | Voodoo | A shield that reflects enemy bullets and blocks contact. 98% effective. | dmg 12, cd 12s, dur 3s, area 80 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
+| **Running With Scissors** | Force | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
+| **Dutch Oven** | Ethanol | A drifting cloud of stacking Ethanol fumes. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
+| **Baby Monitor** | Static | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
+| **Out of Body** | Voodoo | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
 
 ### Spell paths (Lv 4)
 
 | Spell | Path A | Path B |
 |---|---|---|
-| **Stork Drop** | **Double Delivery**: One more stork every cast, each dropping 80% as hard. | **Hot Water Bottle**: The burning ground it leaves is 40% wider and burns twice as long. |
-| **Cold Shower** | **Ice Bath**: Everything it catches stays frozen twice as long. | **Power Shower**: A second blast goes off a second later, wherever you are by then. |
+| **Stork Drop** | **Double Delivery**: One more stork every cast, each dropping 80% as hard. | **Hot Water Bottle**: The acid it leaves on the ground is 40% wider and lasts twice as long. |
+| **Power Shower** | **Soap Bath**: Everything it catches stays saponified twice as long. | **Power Shower**: A second blast goes off a second later, wherever you are by then. |
 | **Brainstorm** | **Brainwave**: Every strike jumps on to the two nearest enemies for half its damage. | **Thunderclap**: Every strike leaves the enemies it hits dazed for a second (not bosses). |
 | **Sofa Crevice** | **Down the Back**: It pulls twice as hard. | **Loose Change**: When it closes, it spits everything out in a blast worth four seconds of its damage. |
 | **Kiss It Better** | **Plaster**: You also get 1.5s in which nothing can hurt you. | **Kiss Chase**: The kiss also blasts nearby enemies for one and a half times what it heals. |
@@ -1165,12 +1169,12 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Shell Suit** | +1 armour (flat damage reduction) | You | 6 |
 | **Lucky Swimmer** | +15% luck (rarer loot, more drops) | You | 5 |
 | **Latching On** | Heal 0.08 HP per kill | You | 5 |
-| **Hot-Blooded** | +25% fire damage and burn | You | 5 |
-| **Cold-Blooded** | +25% frost damage and chill | You | 5 |
-| **Static Hair** | +25% shock damage, +1 chain | You | 5 |
-| **Bad Breath** | +25% poison damage, +3 max stacks | You | 5 |
-| **Weird Aura** | +25% arcane damage | You | 5 |
-| **Headbutt Training** | +25% kinetic damage | You | 5 |
+| **Hot-Blooded** | +25% Acid damage and corrosion | You | 5 |
+| **Alkaline Diet** | +25% Base damage and lather | You | 5 |
+| **Static Hair** | +25% Static damage, +1 chain | You | 5 |
+| **Hip Flask** | +25% Ethanol damage, +3 max rounds | You | 5 |
+| **Pins and Needles** | +25% Voodoo damage | You | 5 |
+| **Headbutt Training** | +25% Force damage | You | 5 |
 | **Chemistry** | +35% elemental reaction damage | You | 5 |
 | **Repeat Prescription** | -10% spell cooldowns | You | 5 |
 | **Antenatal Classes** | +12% experience gained | You | 5 |
@@ -1191,10 +1195,10 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Wriggle Room** | +4% chance to dodge hits | You | 5 |
 | **Bank Shot** | Shots that bounce off a Cartilage Nodule hit 50% harder for the rest of their flight | You | 2 |
 | **Batteries Included** | ATP bursts from Mitochondria hit 50% harder and 25% wider, and the Mitochondria fill 25% faster | You | 2 |
-| **Cast-Iron Stomach** | Acid Crypts no longer burn you, and burn enemies twice as hard | You | 2 |
+| **Cast-Iron Stomach** | Acid Crypts no longer hurt you, and corrode enemies twice as hard | You | 2 |
 | **Brush-Off** | Cilia Beds sting everything they shove | You | 2 |
 | **Go With the Flow** | In a Tubal Current: +30% damage and +20% swim speed | You | 2 |
-| **Skid Marks** | On a Lubricant Slick you swim 40% faster and leave a toxic trail | You | 2 |
+| **Skid Marks** | On a Lubricant Slick you swim 40% faster and leave a boozy trail | You | 2 |
 | **Old Soul** | +10% experience and +5% damage | You | 5 |
 | **Muscle Memory** | +8% fire rate and reload speed | You | 5 |
 | **Nine Lives** | +5% dodge and +10 max HP | You | 3 |
@@ -1214,28 +1218,28 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Sticky Fingers** | 0 | +30% pickup range. |
 | **Runs in the Family** | 0 | +5% swim speed, and you hit up to 15% harder the faster you swim. |
 | **Little Magpie** | 0 | +30% pickup range, and picking up any power-up pulls in every XP granule near you. |
-| **Soft Spot** | 0 | Kinetic hits have a 4% chance to stun what they hit (1% on bosses, briefly). Everyone has one. |
+| **Soft Spot** | 0 | Force hits have a 4% chance to stun what they hit (1% on bosses, briefly). Everyone has one. |
 | **Strong Bones** | 0 | +1 max HP for every 15 kills (elites count as 5), up to +100. Milk helps. |
 | **Sweet Tooth** | 0 | Glucose Hits heal three times as much, and all healing is 20% stronger. |
 | **Spoilt Rotten** | 0 | Power-ups drop from enemies twice as often. |
 | **Non-Slip Socks** | 0 | +10% swim speed and +30% traction. |
-| **Trapped Wind** | 0 | Poisoned enemies leave a cloud of toxic gas when they die. Better out than in. |
-| **Catching a Chill** | 0 | Frozen enemies chill everything near them. |
-| **Highly Strung** | 0 | Shock +30%, Toxic -20%. |
+| **Trapped Wind** | 0 | Drunk enemies leave a cloud of Ethanol fumes when they die. Better out than in. |
+| **Contagious Lather** | 0 | Saponified enemies lather everything near them. |
+| **Highly Strung** | 0 | Static +30%, Ethanol -20%. |
 | **Gold Star** | 0 | +10% XP. |
 | **Short Attention Span** | 0 | Every spell cast has a 15% chance to recharge twice as fast. |
-| **Runny Nose** | 0 | Toxic +30%, Shock -20%. |
+| **Runny Nose** | 0 | Ethanol +30%, Static -20%. |
 | **Past Bedtime** | 0 | Timed power-ups last twice as long. |
 | **Showing Off** | 0 | Every elite or boss that dies near you: +5% damage for 10s, stacking 5 times. |
 | **Do-Over** | 0 | The first reroll on every card screen is free. |
-| **Salt in the Wound** | 0 | +20% crit chance against enemies that are slowed, frozen, poisoned or burning. |
+| **Salt in the Wound** | 0 | +20% crit chance against enemies that are lathered, saponified, drunk or corroding. |
 | **Eat Your Greens** | 0 | +5% fire rate, and spells recharge 5% faster. |
-| **Cold Hands** | 0 | Frost +30%, Fire -20%. Warm heart. |
-| **Hot Head** | 0 | Fire +30%, Frost -20%. |
+| **Soft Hands** | 0 | Base +30%, Acid -20%. Washes up nicely. |
+| **Sour Face** | 0 | Acid +30%, Base -20%. |
 | **Runner's High** | 0 | +2 HP/s regeneration while you swim fast. |
 | **E Numbers** | 0 | Killing an elite: 3s of +25% fire rate. The blue ones are worst. |
 | **Surprise Package** | 0 | Popping an Enzyme Vesicle blows everything near you away. |
-| **Snot Trail** | 0 | +5% swim speed, Toxic +5%. |
+| **Snot Trail** | 0 | +5% swim speed, Ethanol +5%. |
 | **Stiff as a Board** | 0 | +10% dodge chance, -20% swim speed. |
 | **Biting Phase** | 0 | Hits heal you a little (within the lifesteal limit). It is just a phase. |
 | **Teacher's Pet** | 0 | Weapons and spells -5% damage. +25% XP. |
@@ -1247,13 +1251,13 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Heavy-Handed** | 1 | +1% crit chance for every 100 max HP you have. |
 | **Sticker Chart** | 1 | Killing a boss: 6s of +25% fire rate, and your spells recharge 25% faster. |
 | **Lucky Dip** | 1 | +20% luck, so your DNA strands come out rarer. |
-| **Hot and Cold** | 1 | Fire, Frost and Shock +40%. Kinetic, Toxic and Arcane -10%. |
+| **Mood Swings** | 1 | Acid, Base and Static +40%. Force, Ethanol and Voodoo -10%. |
 | **Middle Child** | 1 | Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts. |
 | **Character Building** | 1 | Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits. |
 | **Double Yolk** | 1 | Every Enzyme Vesicle has a 30% chance to let you take two mutations. |
 | **First Word** | 1 | Your spells always crit on enemies at full health, and crits hit 25% harder. |
-| **Pass the Parcel** | 1 | Shocked enemies pass a jolt to a neighbour every second. |
-| **Flare-Up** | 1 | Burning enemies can burst (about 1 in 10 each second) in a small fiery blast. |
+| **Pass the Parcel** | 1 | Charged enemies pass a jolt to a neighbour every second. |
+| **Flare-Up** | 1 | Corroding enemies can burst (about 1 in 10 each second) in a small acid blast. |
 | **Backed Up** | 1 | Weapons with a magazine bigger than 1 hold twice as much. |
 | **Magic Cream** | 1 | Heals you fully now, +40 max HP, and every 5th Glucose Hit heals you fully. Fixes everything. |
 | **Overexcited** | 1 | Every crit gives +0.5% fire rate for 2s (up to +25%). |
@@ -1261,7 +1265,7 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Too Many Sweets** | 1 | A Glucose Hit picked up at full health: +50% damage for 20s. |
 | **Attention Seeker** | 1 | Getting hit instantly reloads a random weapon and recharges a random spell (every 2s at most). |
 | **Keeping It a Surprise** | 1 | Hidden until you take it. |
-| **Rough and Tumble** | 1 | Kinetic +40%. Fire, Frost and Shock -10%. |
+| **Rough and Tumble** | 1 | Force +40%. Acid, Base and Static -10%. |
 | **Finders Keepers** | 1 | Rerolls have a 35% chance not to be used up. +5% luck. |
 | **First Dibs** | 2 | Weapon hits on enemies at full health always crit. |
 | **Small but Mighty** | 2 | Double damage. Half max HP. |
@@ -1276,7 +1280,7 @@ A Mythical or Celestial card carries one of these on top of its own effect, for 
 | Bonus | Rarity | Effect |
 |---|---|---|
 | **Second Wind** | Mythical | Every 40th kill sends you into OXYTOCIN for 5s (double fire rate, no reloads) and heals 10%. |
-| **Act of God** | Mythical | Every 3s, lightning strikes the toughest enemy on screen for 8% of its max HP (4% on bosses, 6% on the Final Five). |
+| **Act of God** | Mythical | Every 3s, a bolt of static strikes the toughest enemy on screen for 8% of its max HP (4% on bosses, 6% on the Final Five). |
 | **Second Coming** | Mythical | The first time you would die, you come back at full health. Unplanned. |
 | **Growth Hormone** | Mythical | +50% max HP (and heal it), and +2 Headstrong. You are the weapon now. |
 | **Bottomless Pit** | Mythical | A small black hole circles you for the rest of the run, dragging enemies in and crushing them. |
@@ -1303,8 +1307,8 @@ Offered at weapon level 3. Which three a weapon is offered is fixed per weapon (
 | **Pointy Head** | Shots pierce 2 more enemies. |
 | **Trampoline Rounds** | Shots bounce to 2 more targets. |
 | **Sharp Tongue** | +15% crit chance. |
-| **Cold Shoulder** | Hits chill: enemies slow by 35% for 1.5s. |
-| **Extra Spicy** | Hits set enemies on fire for 25% of the hit per second. |
+| **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
+| **Sour Note** | Hits corrode enemies for 25% of the hit per second. |
 
 ## Modifiers
 
@@ -1318,7 +1322,7 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 | **Swelling** | Shots swell in flight: triple size and up to +100% damage | Shots swell in flight: triple size and up to +220% damage | Projectile only |
 | **Boomerang Kid** | Shots fly out and come back, hitting everything twice | Shots fly out and come back, hitting everything twice (+42% damage on the way back) | Projectile only |
 | **Bouncing Baby** | +2 bounces between enemies | +3 bounces between enemies | Projectile only |
-| **Frozen Stiff** | 18% chance per hit to freeze the target solid | 40% chance per hit to freeze the target solid | Any weapon |
+| **Soaped Up** | 18% chance per hit to saponify the target | 40% chance per hit to saponify the target | Any weapon |
 | **With a Bang** | Hits explode for 30% damage in a small blast | Hits explode for 66% damage in a small blast | Any weapon |
 | **Bad Influence** | 5% chance per hit to make a monster fight for you for 6s (max 6 allies) | 11% chance per hit to make a monster fight for you for 13s (max 6 allies) | Any weapon |
 | **Switched at Birth** | Converts this weapon to a new element | Converts this weapon to a new element, +18% damage | Any weapon |
@@ -1340,7 +1344,7 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 | Combo | Modifiers | Bonus |
 |---|---|---|
 | **Follow the Leader** | Homing Instinct + Cell Division | Split shards home in too. |
-| **Freezer Burn** | Frozen Stiff + With a Bang | Explosions freeze whatever they hit. |
+| **Bath Bomb** | Soaped Up + With a Bang | Explosions saponify whatever they hit. |
 | **Halo** | Holding Pattern + Contractions | Pulses come twice as often and hit twice as hard. |
 | **Snowball** | Boomerang Kid + Swelling | Shots grow twice as much on the way out and back. |
 | **Bouncing Off the Walls** | Bouncing Baby + Daisy Chain | Chains jump to 3 targets. |
@@ -1361,7 +1365,7 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 | **Luciferase** | +20% luck, and +25% damage to elites and bosses. You know what is worth chasing. | The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas. |
 | **Motility Dye** | +8% swim speed, and +30% damage to fast enemies. You spot them early. | Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you. |
 | **Rival Dyes** | +40% damage to rival champions and the Final Five. Know your enemy. | Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt. |
-| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: elemental effects in their own colours (fire orange, frost blue, toxic green, arcane violet), power-up pickups and their effects, and your midpiece in your weapon-type colour. |
+| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: elemental effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Voodoo violet), power-up pickups and their effects, and your midpiece in your weapon-type colour. |
 
 ## Cursed cards
 
@@ -1385,7 +1389,7 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 | **OXYTOCIN** | O | For 12s double fire rate, no reloads. Then 6s of Post-Nut Clarity: slower fire, but +40% crit chance |
 | **GLUCOSE HIT** | + | Restore 50% HP |
 | **STAIR GATE** | S | Invulnerable for 7.5s |
-| **FREEZE TAG** | F | Freeze every enemy for 6s (bosses 2s) |
+| **MUSICAL STATUES** | F | The music stops: every enemy stands stock still for 6s (bosses 2s) |
 | **DNA STRAND** | ? | Free upgrade |
 | **HIRED HELP** | H | Three bodyguard swimmers fight for you for 21s |
 | **CENTRIFUGE** | C | For 9s everything near you is flung round you in a grinding vortex |
@@ -1394,8 +1398,8 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 | **REFLUX** | R | For 10s bullets near you are swallowed and spat back as sparks |
 | **GOLD RUSH** | $ | For 18s double XP, and XP flies to you |
 | **LEECH** | L | For 15s your hits heal you |
-| **BOLT FROM THE BLUE** | B | For 12s lightning strikes enemies on screen twice a second |
-| **BREAKING WIND** | W | For 12s you swim 60% faster and leave a burning wake |
+| **BOLT FROM THE BLUE** | B | For 12s bolts of static strike enemies on screen twice a second |
+| **BREAKING WIND** | W | For 12s you swim 60% faster and leave an acid wake |
 | **CARDBOARD CUTOUT** | D | For 10s a life-size cardboard you stands where you were. Everything attacks it. It does not mind |
 | **IDLE GOSSIP** | T | For 12s a rumour spreads: cells near you turn on each other |
 | **CONGA LINE** | P | For 15s everything you kill joins a conga line behind you. The line hurts |
@@ -1405,18 +1409,61 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 | **THE HOST SNEEZES** | A | Everything is flung across the slide and enemy bullets are wiped. Bless you |
 | **TAX REFUND** | £ | Overpaid damage, returned as XP. Nobody knows how it was calculated |
 
+## Elements
+
+Every weapon and spell has one. Switched at Birth changes it.
+
+| Element | Status it leaves | What it does |
+|---|---|---|
+| **Force** | shoved | Plain physics. Knocks things about, and knocks over anything drunk or saponified. |
+| **Acid** | corroding | Low pH. Corrodes: damage over time that eats a little armour as it goes. |
+| **Base** | lathered | High pH. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid. |
+| **Static** | charged | Charges enemies: some of the damage they take arcs to a neighbour and drags it closer (static cling). |
+| **Ethanol** | drunk | Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out. |
+| **Voodoo** | hexed | Hexes enemies: they take more from everything. When a hexed enemy dies the hex passes to the nearest one. |
+
 ## Elemental reactions
 
 | Reaction | Trigger and effect |
 |---|---|
-| **THERMAL SHOCK** | Fire on a chilled/frozen enemy: big burst damage |
-| **STEAM BURST** | Frost on a burning enemy: scalding area blast |
-| **COMBUSTION** | Fire on a poisoned enemy: poison stacks explode |
-| **TOXIC ARC** | Shock on a poisoned enemy: poison spreads to neighbours |
-| **SUPERCONDUCT** | Shock on a chilled enemy: armour shredded |
-| **RESONANCE** | Arcane on any status: bonus damage, mark spreads |
-| **OVERLOAD** | Fire on a shocked enemy: lightning explosion |
-| **SHATTER** | Kinetic on a frozen enemy: it shatters, and the shards hit everything near it |
+| **NEUTRALISED** | Acid meets Base (either way round): both cancel out in a hot burst that hits everything nearby, and the salt water heals you 1% of your max HP. pH 7. Refreshing. |
+| **BATTERY** | Acid meets Static (either way round): the enemy becomes a battery for 2s, zapping two neighbours every half second. You get CHARGED UP: +12% fire rate for 3s. |
+| **PEAR DROPS** | Acid on a drunk enemy: it makes an ester and smells of pear drops. Everything nearby is drawn in for a sniff. |
+| **FLASHPOINT** | Static on a drunk enemy (2+ rounds): the fumes go up. Every round of Ethanol in it explodes at once. |
+| **ELECTROLYSIS** | Static on a lathered enemy: splits it into hydrogen. Armour stripped, and a small pop. |
+| **SANITISED** | Base on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright. |
+| **SYMPATHY** | Voodoo on any status: bonus damage, and the dolls: its status copies onto two neighbours, which are hexed too. |
+| **SUDS** | Force on a saponified enemy: the soap bursts, and the suds hit everything near it. |
+| **PUSHOVER** | Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far. |
+| **BLACKOUT** | An enemy topped up to its Ethanol limit passes out for 2s, and wakes up hungover: +25% damage taken for 5s. |
+
+## Combo twists
+
+A combo whose two weapons are on their usual elements does what its card says. Change either weapon's element (Switched at Birth) and the combo also picks up the twist for its new pair of elements. The twist fires on every hit the combo itself deals, and on about 1 in 8 of either weapon's own hits. The Switched at Birth card says which twist you would get.
+
+| Element pair | Twist | Effect |
+|---|---|---|
+| Acid + Base | **Neutral Ground** | Combo hits neutralise: a hot burst round the target, and the salt water heals you a little. |
+| Acid + Static | **Car Battery** | Combo hits turn the target into a battery that zaps its neighbours for 2s. |
+| Acid + Ethanol | **Pear Drops** | Combo hits make the target smell of pear drops: everything nearby is drawn in for a sniff. |
+| Voodoo + Acid | **Curdled Curse** | Combo hits hex the target and corrode it, hard. |
+| Acid + Force | **Acid Wash** | Combo hits strip 2 armour for good (1 from bosses). |
+| Base + Static | **Hydrogen Pop** | Combo hits split water: a small pop round the target that strips armour. |
+| Base + Ethanol | **Hand Sanitiser** | Combo hits kill 99.9% of germs: ordinary enemies near the target on 15% health or less die. |
+| Voodoo + Base | **Soap Opera** | Combo hits are so dramatic the target faints for a second (not bosses). |
+| Base + Force | **Slip and Slide** | Combo hits lather the target and send it skidding a long way. |
+| Ethanol + Static | **Lit Up** | Combo hits light the fumes: a small blast that gets everything in it a round drunker. |
+| Voodoo + Static | **Seance** | Combo hits possess badly hurt enemies (under 30% health): they fight for you for 5s. |
+| Force + Static | **Crumple Zone** | Combo hits charge a barrier that blocks the next hit you take (recharges after 8s). |
+| Voodoo + Ethanol | **Spirits** | Enemies the combo kills give up their spirit: it flies into the nearest enemy for a share of their health. |
+| Force + Ethanol | **Bar Fight** | Combo hits start a bar fight: the target swings at everything next to it. |
+| Voodoo + Force | **Pin Cushion** | Every 4th combo hit on the same enemy deals triple damage. |
+| Acid + Acid | **Concentrated** | Combo hits deal +35% damage and eat 1 armour. |
+| Base + Base | **Lye** | Combo hits saponify ordinary enemies on the spot. |
+| Static + Static | **Supercharged** | Combo hits arc on to three more enemies. |
+| Ethanol + Ethanol | **Double Shot** | Combo hits pour two rounds of Ethanol at once. |
+| Voodoo + Voodoo | **Hex Bomb** | Hexed enemies the combo kills explode. |
+| Force + Force | **Brute Squad** | Combo hits deal +25% damage and knock enemies flying. |
 
 ## Element synergies
 
@@ -1424,12 +1471,12 @@ Own two or more weapons or spells of one element to unlock its set bonus.
 
 | Element | Bonus name | Effect |
 |---|---|---|
-| Kinetic | **Trigger Happy** | +15% fire rate for kinetic weapons |
-| Fire | **Playing With Matches** | Burns last longer and deal +50% damage |
-| Frost | **Winter Baby** | Freeze threshold halved, frozen take +25% |
-| Shock | **Carpet Shock** | Shocked enemies arc twice as often |
-| Toxic | **Stomach Bug** | Poison ticks twice as fast |
-| Arcane | **Old Wives' Tale** | Marks amplify damage by +50% instead of +30% |
+| Force | **Brute Force** | +15% fire rate for Force weapons |
+| Acid | **Reflux** | Corrosion lasts longer and deals +50% damage |
+| Base | **Bath Time** | Saponify threshold halved, saponified enemies take +25% |
+| Static | **Balloon Hair** | Charged enemies arc twice as often |
+| Ethanol | **Open Bar** | Ethanol ticks twice as fast |
+| Voodoo | **Old Wives' Tale** | Hexes amplify damage by +50% instead of +30% |
 
 ## Targeting directives
 
@@ -1605,7 +1652,7 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Daughter Cell** | Half of a cell that just divided. Quick and angry. | It is fragile. Anything that hits more than one target. |
 | **Krill** | Shoals of tiny crustaceans that dart in bursts. Nobody knows how they got in here. | Wide, sweeping weapons. They scatter, then regroup. |
 | **Spermlet Swarm** | A swarm of spermlets: tiny, fast and everywhere at once. | Area damage and auras. Single shots waste time on them. |
-| **Quantum Swimmer** | Teleports short distances when you aim at it. | Homing shots and chaining lightning don't care where it went. |
+| **Quantum Swimmer** | Teleports short distances when you aim at it. | Homing shots and chaining static don't care where it went. |
 | **Nurse Cell** | Heals the enemies around it. | Kill it first: set a weapon to SHOOTERS FIRST, which counts healers. |
 | **Headbutter** | Lowers its head, winds up, then charges in a straight line. | When it stops and shakes, sidestep. It can't turn mid-charge. |
 | **Mucus Wall** | A slow wall of mucus with heavy armour that shields the enemies behind it. | Armour shred, damage over time (it ignores armour) and HIGHEST ARMOUR targeting. |
@@ -1614,7 +1661,7 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Mother Cell** | Keeps budding new enemies until it dies. | It is the source: kill it, not the children. STRONGEST targeting helps. |
 | **Enzyme Spire** | Rooted to the spot, spraying a spiral of enzymes. | Stay out of its reach or kill it fast. The spiral has gaps: time your way through. |
 | **Killer T-Cell** | A sniper. A thin line shows where it is aiming, then a fast, heavy shot. | Move when you see the line. Kill it from the side. |
-| **Amoeba** | Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback. | Fire and big blasts. Don't let it eat its way to a giant size. |
+| **Amoeba** | Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback. | Acid and big blasts. Don't let it eat its way to a giant size. |
 | **Plasmodium** | A giant amoeba made of many. It splits into amoebas when it dies. | Save your area damage for when it bursts. |
 | **Pinworm** | A wriggling worm. Tougher than it looks and hard to hit side on. | Piercing shots go down its length. |
 | **Diatom** | A glass-shelled turret: heavy armour and a ring of shots. | Armour shred and big hits. Its rings have gaps. |
@@ -1623,7 +1670,7 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Rotifer** | A hoover. It goes for your XP granules and eats them before you can. | Kill it quickly: it drops what it ate. Collect XP before it does. |
 | **Volvox** | A hollow colony that bursts into daughter colonies when it dies. | Area damage cleans up the burst. |
 | **Daughter Colony** | A daughter colony from a burst Volvox. Small and quick. | Splash damage. |
-| **Candida** | Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through. | Burn it out early, before it spreads. Fire and poison clouds work well. |
+| **Candida** | Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through. | Clear it out early, before it spreads. Acid and Ethanol clouds work well. |
 | **Pepsinator Jr** | A small Pepsinator. All the stomach, half the size. | Treat it like a mini boss: keep moving and hit it hard. |
 | **Alpha Swimmer** | A huge rival swimmer, armoured and hard-hitting. | Shred its armour and keep your distance. Its charge is slow to start. |
 | **Booster** | A booster shot. It locks on with a red sight line before firing a burst, and killing it is only half the job. | Move as soon as the line settles on you. A Second Dose follows it. |
@@ -1656,7 +1703,7 @@ The first time you ever meet each named rival, the slide stops to introduce them
 | **Casper Flagella** (THE PHANTOM) | x1 | 0.5 | 3 / 2 / 3 / 3 / 3 | **Fade**: Every 9s he fades out for 2s: shots pass straight through him.<br>**Unsettling**: Very polite about it. | Save big hits for when he is solid. Auras and trails catch him as he comes back. | **Ectoplasm**: Bullets sometimes pass straight through you: +15% dodge.<br>**Now You See Me**: Every 12s you fade out for 2s: nothing can touch you. |
 | **Big Mama Morula** (THE MOTHER HEN) | x0.95 | 0.6 | 2 / 4 / 2 / 3 / 3 | **Backup**: In a fight, two of her boys swim in to help every 12s.<br>**Well Fed**: 15% more HP. | Kill her, not the boys: they stop coming when she stops calling. | **Her Boys**: Two of Mama's boys escort you for the rest of the run. One that falls is back 20s later.<br>**Packed Lunch**: Every level up heals you 12% of your max HP. |
 | **Vlad the Inhaler** (THE BLOODSUCKER) | x1 | 0.7 | 3 / 3 / 3 / 4 / 3 | **Drain**: Every hit he lands on you heals him 2.5% of his max HP.<br>**Undying**: Starts healing after 2 quiet seconds, twice as fast. | Do not trade hits. Burst him down, or stay out of reach. | **Blood Bank**: 2% of the damage you deal heals you.<br>**Undead Membership**: Every 90s, a hit that would kill you leaves you on 1 HP instead. |
-| **Sticky Ricky** (THE LITTERBUG) | x0.95 | 0.6 | 3 / 3 / 2 / 3 / 3 | **Slime Trail**: In a fight, drops a puddle of acid every couple of seconds.<br>**Messy**: He will not clean it up. | Fight him side on, never follow his tail. | **Slime Trail**: You leave a toxic slime trail behind you as you swim.<br>**Sticky Situation**: Anything that touches you is stuck: half speed for 3s. |
+| **Sticky Ricky** (THE LITTERBUG) | x0.95 | 0.6 | 3 / 3 / 2 / 3 / 3 | **Slime Trail**: In a fight, drops a puddle of acid every couple of seconds.<br>**Messy**: He will not clean it up. | Fight him side on, never follow his tail. | **Slime Trail**: You leave a boozy slime trail behind you as you swim.<br>**Sticky Situation**: Anything that touches you is stuck: half speed for 3s. |
 | **Coach Kenny** (THE MOTIVATOR) | x1 | 0.9 | 3 / 4 / 3 / 5 / 3 | **Shoulder Barge**: When he is close, he plants himself, glows, then charges straight at you.<br>**Pads On**: +2 armour and 10% more HP. | When he glows, sidestep. Hit him while he recovers. | **Pep Talk**: +12% damage and +12% fire rate. Come on, then.<br>**The Whistle**: Every 15s a whistle blast knocks back and dazes everything near you. |
 | **Diva Delores** (THE SHOW-OFF) | x1.1 | 0.6 | 3 / 2 / 4 / 3 / 4 | **Encore**: Two more bullets in every fan.<br>**Exit Stage Left**: When badly hurt, she vanishes and reappears far away (every 20s at most). | Finish her fast once she is low, before she blinks away. | **Encore**: One kill in ten takes a bow: a burst of damage all round it.<br>**Exit Stage Left**: Hit while under half health, you blink away from the trouble (every 8s). |
 | **Nana Nucleus** (THE OLD HAND) | x0.85 | 0.3 | 2 / 4 / 2 / 2 / 2 | **Not Today**: The first time you knock her out, she gets back up with 30% HP.<br>**Second Wind**: Starts healing sooner, twice as fast. | You have to beat her twice. Keep the pressure on so she cannot heal. | **Knitted Cardigan**: +2 HP every second, and +10% max HP.<br>**Not Today, Dear**: Once this run, when you would die, you get back up on 50% HP. |
@@ -1672,21 +1719,54 @@ Each kind of terrain has an upgrade of its own, offered only when that terrain i
 |---|---|---|---|---|
 | **Cartilage Nodule** | Yes | bounce | - | **Bank Shot**: Shots that bounce off a Cartilage Nodule hit 50% harder for the rest of their flight |
 | **Mitochondrion** | Yes | absorb | absorbs 45 shots then bursts (radius 230) | **Batteries Included**: ATP bursts from Mitochondria hit 50% harder and 25% wider, and the Mitochondria fill 25% faster |
-| **Acid Crypt** | Yes | melt | 10 damage/s on contact | **Cast-Iron Stomach**: Acid Crypts no longer burn you, and burn enemies twice as hard |
+| **Acid Crypt** | Yes | melt | 10 damage/s on contact | **Cast-Iron Stomach**: Acid Crypts no longer hurt you, and corrode enemies twice as hard |
 | **Cilia Bed** | No | repel | pushes 260 | **Brush-Off**: Cilia Beds sting everything they shove |
 | **Tubal Current** | No | drift | pushes 150 | **Go With the Flow**: In a Tubal Current: +30% damage and +20% swim speed |
-| **Lubricant Slick** | No | none | traction x0.3 | **Skid Marks**: On a Lubricant Slick you swim 40% faster and leave a toxic trail |
+| **Lubricant Slick** | No | none | traction x0.3 | **Skid Marks**: On a Lubricant Slick you swim 40% faster and leave a boozy trail |
 
 Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to about half the map, then fades), **yeast infections** (colonies that bud more yeast) and the ambient crowd of harmless swimmers outside the arena.
+
+## Wave mode (The Petri Dish)
+
+The default mode. 8 waves, one boss in each (all eight bosses, in a random order: the first two from the Pepsinator, the Twins and the Eye; Chad Prime and the Fever always in the back half). Each wave opens with the boss's entourage for a while, then the boss drops in, and its supporting cast keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten: anything left is rinsed out and your boxes open. Beat all 8 and you win (it counts as a birth). Winning once unlocks Endless.
+
+| Boss | Drop name | Entourage | Arrives | Cued by |
+|---|---|---|---|---|
+| THE MACROPHAGE QUEEN | Feeding Time | Also-Ran, Sprinter, Spermlet Swarm, Krill | near | summon, devour |
+| THE ANTIBODY COLOSSUS | Border Control | Antibody, Mucus Wall, Also-Ran | behind | charge |
+| THE IMMUNE EYE | Peer Review | Quantum Swimmer, Antibody, Sprinter, Ghost Swimmer | ring | glare, blink |
+| THE MATRON | Ward Nine | Macrophage, Nurse Cell, Mucus Wall, Headbutter | near | wardround |
+| THE PEPSINATOR | Indigestion | Acid Bubble, Mitotic Cell, Also-Ran | flank | acidrain |
+| CHAD PRIME | Leg Day | Headbutter, Sprinter, Spermlet Swarm | ring | dash3 |
+| THE FEVER | Forty-One Degrees | Antibody, Acid Bubble, Also-Ran, Cytokine Caster | ring | firering |
+| MITCH & OSIS | Double Dose | Mitotic Cell, Also-Ran, Nurse Cell | near | charge, spiral |
+
+Warm-up before each boss (seconds): 30, 18, 15, 14, 12, 12, 11, 10. Boss health (times its base): 0.45, 3.5, 11, 26, 58, 110, 190, 320.
+
+## Boss rewards
+
+Every boss pays twice: a relic (its own three, plus one smuggled relic from a boss you will not meet this run), then a SPOILS box. It also heals you 40%. Spoils are three of these (usually including a full-power Switched at Birth on one of your weapons):
+
+| Spoils | Effect |
+|---|---|
+| **Trophy Polish** | Every weapon you own goes up a level. |
+| **Boss Blood** | +15% max HP, and heal to full. |
+| **Adrenal Gland** | +8% damage and +8% fire rate, for good. |
+| **Trophy Hide** | +4 armour and +6% dodge. |
+| **Lab Notes** | Reactions hit 40% harder, and your elements +10%. |
+| **Victory Lap** | +12% swim speed and +30% pickup range. |
+| **Bounty** | +3 rerolls and +15% luck. |
+| **Killer Instinct** | +10% crit chance and +40% crit damage. |
 
 ## Sperm samples
 
 | Sample | Name | Status | Description |
 |---|---|---|---|
 | 001 | **Standard Issue** | Playable | One healthy donor, four hundred million hopefuls, one egg. The classic. |
-| 002 | **The Petri Dish** | Playable | A mad scientist is breeding super sperm. One drop at a time, wave after wave, each nastier than the last. How many can you take? |
+| 002 | **The Petri Dish** | Playable | A mad scientist is breeding super sperm. Eight drops into the dish, each built around one boss and its entourage. Beat the boss, beat the wave. Beat all eight and you get the egg. |
+| 006 | **Petri Dish: Endless** | Locked: Beat wave mode (The Petri Dish) to unlock. | No egg, no end. Wave after wave, each nastier than the last, with something big every fifth. How many can you take? |
 | 000 | **Lab Bench (Debug)** | Playable | For testing: god mode, send in any enemy, boss or event, switch any weapon or spell on and off. Open the DEBUG panel. |
-| 005 | **Frozen Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
+| 005 | **Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
 | 003 | **The Morning After** | Coming soon | The pill is already dissolving. Good luck. |
 | 004 | **Vasectomy Reversal** | Coming soon | Low count, high stakes, very confused surgeon. |
 
@@ -1725,19 +1805,19 @@ Rules the cards do not spell out, but that change what is worth picking.
 |---|---|
 | **Belly Full of Nappies** | A Toddler Gravity orb swallowed your Nappy Mines. They all went off together when it collapsed. |
 | **Gravity Assist** | Your shots curved round a black hole and flew out faster and harder. Ask a space probe. |
-| **Live Puddle** | Lightning hit something standing in a toxic puddle, and everyone else in the puddle got it too. |
-| **Flammable Fumes** | Something burning touched a toxic puddle and set the whole thing alight. |
-| **Ice Rink** | Frost froze a toxic puddle solid. Enemies slide about on it; you skate across it faster. |
-| **Icebreaker** | You rammed a frozen enemy at speed. It shattered, and the shards hit what was behind it. |
+| **Live Puddle** | Static hit something standing in a boozy puddle, and everyone else in the puddle got it too. |
+| **Flammable Fumes** | Something corroding touched a boozy puddle and the whole thing went up. |
+| **Slip Hazard** | Base turned a boozy puddle to soap. Enemies slide about on it; you skate across it faster. |
+| **Bar of Soap** | You rammed a saponified enemy at speed. It burst, and the suds hit what was behind it. |
 | **Hereditary** | An infected enemy split during Identical Twins, and both halves kept the infection. |
 | **Downstream** | Waters Breaking swept your mines, puddles and black holes along with everything else. |
-| **Firelight** | In the dark, fire gives off light. Burning things light up their surroundings during Lights Out. |
+| **Glow in the Dark** | In the dark, acid glows. Corroding things light up their surroundings during Lights Out. |
 | **Head-On** | Ramming counts closing speed: swim straight at something fast and it hits much harder. |
 | **Something It Ate** | An amoeba swallowed something it should not have: a mine, a black hole, or an infected cell. |
 | **Pocket Hoover** | A black hole sucked up loot lying on the floor, then spat it all out to you when it collapsed. |
 | **Double Booked** | Two Due Dates landed on the same enemy. The dates merged: the countdown started again, owing half as much more. |
 | **Contagious Paperwork** | Red Tape bundled an infected enemy with healthy ones. The infection travelled along the tape to all of them. |
-| **Scared Stiff** | BOO! hit something that was already frozen solid. It shattered from the fright. |
+| **Scared Stiff** | BOO! hit something that was already saponified. It burst from the fright. |
 | **Double Bluff** | Your Imaginary Friend copied Peekaboo. Two BOOs, back to back, from two places at once. |
 | **Hole in One** | A flung enemy sailed over a baby tooth and grabbed it mid-air. The Tooth Fairy noticed. |
 | **Tooth Thief** | A rival champion picked up one of your baby teeth. The Tooth Fairy does not check whose tooth it was. |

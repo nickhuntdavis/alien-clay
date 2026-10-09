@@ -10,8 +10,8 @@ Object.assign(POWERUPS, {
   reflux:    { name: 'REFLUX',         letter: 'R', color: '#c77dff', desc: 'For 10s bullets near you are swallowed and spat back as sparks' },
   goldrush:  { name: 'GOLD RUSH',      letter: '$', color: '#ffd23f', desc: 'For 18s double XP, and XP flies to you' },
   leech:     { name: 'LEECH',          letter: 'L', color: '#ff4d6d', desc: 'For 15s your hits heal you' },
-  rod:       { name: 'BOLT FROM THE BLUE', letter: 'B', color: '#ffe94a', desc: 'For 12s lightning strikes enemies on screen twice a second' },
-  tailwind:  { name: 'BREAKING WIND',       letter: 'W', color: '#ff9e00', desc: 'For 12s you swim 60% faster and leave a burning wake' },
+  rod:       { name: 'BOLT FROM THE BLUE', letter: 'B', color: '#ffe94a', desc: 'For 12s bolts of static strike enemies on screen twice a second' },
+  tailwind:  { name: 'BREAKING WIND',       letter: 'W', color: '#ff9e00', desc: 'For 12s you swim 60% faster and leave an acid wake' },
 });
 // (Half as many power-ups drop as before, so each one lasts 1.5x as long and hits 1.5x as hard.)
 const PU_TIME = { hired: 21, centrifuge: 9, giant: 12, chain: 15, reflux: 10.5, goldrush: 18, leech: 15, rod: 12, tailwind: 12 };

@@ -16,7 +16,7 @@ const ENEMY_INTRO = {
   splitling:  { what: 'Half of a cell that just divided. Quick and angry.', tip: 'It is fragile. Anything that hits more than one target.' },
   krill:      { what: 'Shoals of tiny crustaceans that dart in bursts. Nobody knows how they got in here.', tip: 'Wide, sweeping weapons. They scatter, then regroup.' },
   wisp:       { what: 'A swarm of spermlets: tiny, fast and everywhere at once.', tip: 'Area damage and auras. Single shots waste time on them.' },
-  blinker:    { what: 'Teleports short distances when you aim at it.', tip: 'Homing shots and chaining lightning don\'t care where it went.' },
+  blinker:    { what: 'Teleports short distances when you aim at it.', tip: 'Homing shots and chaining static don\'t care where it went.' },
   medic:      { what: 'Heals the enemies around it.', tip: 'Kill it first: set a weapon to SHOOTERS FIRST, which counts healers.' },
   charger:    { what: 'Lowers its head, winds up, then charges in a straight line.', tip: 'When it stops and shakes, sidestep. It can\'t turn mid-charge.' },
   bulwark:    { what: 'A slow wall of mucus with heavy armour that shields the enemies behind it.', tip: 'Armour shred, damage over time (it ignores armour) and HIGHEST ARMOUR targeting.' },
@@ -25,7 +25,7 @@ const ENEMY_INTRO = {
   summoner:   { what: 'Keeps budding new enemies until it dies.', tip: 'It is the source: kill it, not the children. STRONGEST targeting helps.' },
   spire:      { what: 'Rooted to the spot, spraying a spiral of enzymes.', tip: 'Stay out of its reach or kill it fast. The spiral has gaps: time your way through.' },
   lancer:     { what: 'A sniper. A thin line shows where it is aiming, then a fast, heavy shot.', tip: 'Move when you see the line. Kill it from the side.' },
-  amoeba:     { what: 'Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback.', tip: 'Fire and big blasts. Don\'t let it eat its way to a giant size.' },
+  amoeba:     { what: 'Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback.', tip: 'Acid and big blasts. Don\'t let it eat its way to a giant size.' },
   plasmod:    { what: 'A giant amoeba made of many. It splits into amoebas when it dies.', tip: 'Save your area damage for when it bursts.' },
   pinworm:    { what: 'A wriggling worm. Tougher than it looks and hard to hit side on.', tip: 'Piercing shots go down its length.' },
   diatom:     { what: 'A glass-shelled turret: heavy armour and a ring of shots.', tip: 'Armour shred and big hits. Its rings have gaps.' },
@@ -34,7 +34,7 @@ const ENEMY_INTRO = {
   rotifer:    { what: 'A hoover. It goes for your XP granules and eats them before you can.', tip: 'Kill it quickly: it drops what it ate. Collect XP before it does.' },
   volvox:     { what: 'A hollow colony that bursts into daughter colonies when it dies.', tip: 'Area damage cleans up the burst.' },
   volvoxling: { what: 'A daughter colony from a burst Volvox. Small and quick.', tip: 'Splash damage.' },
-  yeast:      { what: 'Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through.', tip: 'Burn it out early, before it spreads. Fire and poison clouds work well.' },
+  yeast:      { what: 'Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through.', tip: 'Clear it out early, before it spreads. Acid and Ethanol clouds work well.' },
   pepsinjr:   { what: 'A small Pepsinator. All the stomach, half the size.', tip: 'Treat it like a mini boss: keep moving and hit it hard.' },
   juggernaut: { what: 'A huge rival swimmer, armoured and hard-hitting.', tip: 'Shred its armour and keep your distance. Its charge is slow to start.' },
   sperminator:{ what: 'A booster shot. It locks on with a red sight line before firing a burst, and killing it is only half the job.', tip: 'Move as soon as the line settles on you. A Second Dose follows it.' },
@@ -95,4 +95,4 @@ function startFoeIntro(e, id, rival) {
   if (typeof UI !== 'undefined') { if (rival) UI.openRivalIntro(e); else UI.openFoeIntro(e, id); }
 }
 // Settings > Tutorial: see the introductions (and the first-time tips) again.
-function resetTutorial() { META.seen = {}; saveMeta(); }
+function resetTutorial() { META.seen = {}; META.seenSt = {}; saveMeta(); }

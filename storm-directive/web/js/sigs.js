@@ -136,7 +136,7 @@ function sigHit(e, dmg, src) {
     if (hasSig(w, 'shatter') && e.frozen > 0 && !e.dead) {
       e.frozen = 0;
       aoe(e.x, e.y, 62, dmg * 2.5, Object.assign({}, src, { noProc: true, noCrit: true, mult: 1, wname: 'Breaking It Off' }), '#bde0fe');
-      floatText(e.x, e.y - e.r - 10, 'SHATTER', '#bde0fe', 13);
+      floatText(e.x, e.y - e.r - 10, 'SUDS', '#bde0fe', 13);
     }
   } else if (w.id === 'orbit') {
     if (hasSig(w, 'guilttrip')) e.guiltT = G.t + 4;
@@ -201,7 +201,7 @@ function sigTick(dt) {
       if (w.snapT <= 0) {
         w.snapT = 4;
         const r = 170 * G.P.area;
-        forNear(p.x, p.y, r, e => { if (!e.boss && !e.rival && !e.egg && !e.charmed) e.frozen = Math.max(e.frozen, 1.5); damageEnemy(e, w.s.dmg * 1.5, Object.assign(weaponSrc(w), { noProc: true, wname: 'Cold Snap' })); });
+        forNear(p.x, p.y, r, e => { if (!e.boss && !e.rival && !e.egg && !e.charmed) e.frozen = Math.max(e.frozen, 1.5); damageEnemy(e, w.s.dmg * 1.5, Object.assign(weaponSrc(w), { noProc: true, wname: 'Soap Snap' })); });
         ring(p.x, p.y, r, '#caf0f8', 0.5, 6);
         spawnPart(p.x, p.y, '#caf0f8', 16, r * 2, 0.5);
       }
@@ -604,7 +604,7 @@ function ramHit(e, p) {
   k *= head;
   if (e.ramT > G.t) return Math.min(1, k);
   e.ramT = G.t + 0.2;
-  // Frozen things are brittle: a fast ram shatters them, and the shards fly on.
+  // Saponified things are brittle: a fast ram shatters them, and the shards fly on.
   if (e.frozen > 0 && k > 0.6 && !e.boss && !e.rival) {
     const ux = dx / dl, uy = dy / dl;
     e.hp = 0; killEnemy(e, { wname: 'Icebreaker' });

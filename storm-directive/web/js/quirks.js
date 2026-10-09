@@ -1,18 +1,18 @@
 'use strict';
 // Spawn Prawn - quirks: twelve interactions nobody announces. They fall out of how things already work (a
-// black hole doesn't care whose mine it swallows; lightning conducts through a puddle) and each unlocks a
+// black hole doesn't care whose mine it swallows; static conducts through a puddle) and each unlocks a
 // Codex entry the first time it happens. Until then the Codex only says "???".
 
 const QUIRKS = {
   minebelly:  { name: 'Belly Full of Nappies', desc: 'A Toddler Gravity orb swallowed your Nappy Mines. They all went off together when it collapsed.' },
   slingshot:  { name: 'Gravity Assist', desc: 'Your shots curved round a black hole and flew out faster and harder. Ask a space probe.' },
-  wetwire:    { name: 'Live Puddle', desc: 'Lightning hit something standing in a toxic puddle, and everyone else in the puddle got it too.' },
-  flammable:  { name: 'Flammable Fumes', desc: 'Something burning touched a toxic puddle and set the whole thing alight.' },
-  icerink:    { name: 'Ice Rink', desc: 'Frost froze a toxic puddle solid. Enemies slide about on it; you skate across it faster.' },
-  icebreaker: { name: 'Icebreaker', desc: 'You rammed a frozen enemy at speed. It shattered, and the shards hit what was behind it.' },
+  wetwire:    { name: 'Live Puddle', desc: 'Static hit something standing in a boozy puddle, and everyone else in the puddle got it too.' },
+  flammable:  { name: 'Flammable Fumes', desc: 'Something corroding touched a boozy puddle and the whole thing went up.' },
+  icerink:    { name: 'Slip Hazard', desc: 'Base turned a boozy puddle to soap. Enemies slide about on it; you skate across it faster.' },
+  icebreaker: { name: 'Bar of Soap', desc: 'You rammed a saponified enemy at speed. It burst, and the suds hit what was behind it.' },
   contagion:  { name: 'Hereditary', desc: 'An infected enemy split during Identical Twins, and both halves kept the infection.' },
   driftmines: { name: 'Downstream', desc: 'Waters Breaking swept your mines, puddles and black holes along with everything else.' },
-  firelight:  { name: 'Firelight', desc: 'In the dark, fire gives off light. Burning things light up their surroundings during Lights Out.' },
+  firelight:  { name: 'Glow in the Dark', desc: 'In the dark, acid glows. Corroding things light up their surroundings during Lights Out.' },
   headon:     { name: 'Head-On', desc: 'Ramming counts closing speed: swim straight at something fast and it hits much harder.' },
   indigestion:{ name: 'Something It Ate', desc: 'An amoeba swallowed something it should not have: a mine, a black hole, or an infected cell.' },
   hoover:     { name: 'Pocket Hoover', desc: 'A black hole sucked up loot lying on the floor, then spat it all out to you when it collapsed.' },

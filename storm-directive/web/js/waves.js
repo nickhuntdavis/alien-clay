@@ -1,7 +1,10 @@
 'use strict';
-// Spawn Prawn - Sample 002: The Petri Dish. A mad scientist is breeding super sperm. One drop goes into the
-// dish at a time, wave after wave, each nastier than the last. No boxes open mid-wave: clear it, open
-// everything you earned, then call the next drop. How many waves can you take?
+// Spawn Prawn - the Petri Dish. A mad scientist is breeding super sperm. One drop goes into the dish at a
+// time. No boxes open mid-wave: clear it, open everything you earned, then call the next drop.
+//  - Wave mode (Sample 002, the default): eight drops, each built around one boss (campaign.js). Beat the
+//    boss and the wave is beaten. Beat all eight and the scientist fertilises you in the dish: you win.
+//  - Endless (Sample 006, unlocked by winning wave mode): wave after wave, each nastier than the last, with
+//    something big every fifth. How many can you take?
 
 const DISH = { arena: 1150, waveSec: 75 };
 const DROPS = ['Saline', 'Agar Broth', 'Growth Serum', 'Hormone Cocktail', 'Mutagen', 'Steroid Drip', 'Spicy Reagent', 'Unlabelled Vial',
@@ -16,6 +19,7 @@ function initWaves() {
   G.nextBoss = 1e12; G.nextWave = 1e12;
   G.nextPill = 1e12; G.nextYeast = 1e12; // the yeast and the pill are Sample 001's hazards (budding yeast would never let a wave end)
   G.rivalsInit = true; // no race in the dish: just you and whatever she drops in
+  if (typeof UI === 'undefined' || UI.sample !== 's006') campInit(); // wave mode (campaign.js); Endless otherwise
 }
 
 // The difficulty clock in the dish follows the waves, not the stopwatch.
@@ -25,6 +29,7 @@ function waveBegin() {
   const V = G.wave;
   if (V.active) return;
   V.n++; V.active = true; V.t = 0; V.spawned = 0;
+  if (V.camp) { campBegin(V); UI.refreshHud(true); return; }
   // Bigger waves, fed in over 45 to 90 seconds rather than all at once.
   V.budget = Math.round((50 + V.n * 20 + Math.pow(V.n, 1.5) * 4) * G.P.spawnMult);
   V.dur = Math.min(100, 55 + V.n * 3);
@@ -45,6 +50,7 @@ function waveBegin() {
 // Called from the director instead of its usual spawning while in the dish.
 function waveSpawn(rate, dt, maxAlive, hostile) {
   const V = G.wave;
+  if (V.camp) { campSpawn(dt, maxAlive, hostile); return; }
   if (!V.active || V.spawned >= V.budget) return;
   G.spawnAcc += V.budget / V.dur * dt * (V.t < 4 ? 2 : 1); // a burst from the splash, then a steady feed
   while (G.spawnAcc >= 1 && V.spawned < V.budget) {
@@ -61,6 +67,7 @@ function waveTick(dt) {
   G.ev.next = 1e12; // events only come with the drops
   if (!V.active) { if (V.restT > 0) V.restT -= dt; return; }
   V.t += dt;
+  if (V.camp) { campTick(dt); return; }
   if (V.spawned < V.budget) return;
   // Everything is in the dish: stragglers (turrets, shy shooters, anything lost at the rim) get pipetted
   // back next to you every few seconds, so a wave can always be finished.
@@ -74,14 +81,17 @@ function waveTick(dt) {
     }
   }
   if (G.boss || G.enemies.some(e => !e.dead && !e.charmed && !e.egg)) return;
-  // Wave clear: everything you dropped flies to you, then the boxes open.
+  waveClear(V);
+}
+// Wave clear: everything you dropped flies to you, then the boxes open.
+function waveClear(V) {
   V.active = false; V.restT = 1.6; V.best = V.n;
   for (const g of G.gems) g.mag = true;
   for (const b of G.ebul) b.dead = true;
   for (const ev of G.ev.active) ev.left = 0;
   G.hazards.length = 0;
   healPlayer(G.P.maxHp * (0.25 + (G.P.magnet - 1) / 3)); // Clingy heals a little more in the dish
-  banner(`WAVE ${V.n} CLEAR`, PAL.upgrade);
+  banner(V.camp ? `WAVE ${V.n} OF ${CAMP.waves} BEATEN` : `WAVE ${V.n} CLEAR`, PAL.upgrade);
   sfx('level'); vibrate([60, 40, 60]);
   addViewers(3000 * V.n);
   if (V.n === 5) achieve('wave5');

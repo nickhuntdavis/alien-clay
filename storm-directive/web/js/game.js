@@ -91,7 +91,7 @@ function newStats() {
 
 function newGame() {
   DMGNUM.log = null; DMGNUM.bigT = -9; // damage numbers re-learn the scale each run
-  CORE.arena = typeof UI !== 'undefined' && UI.sample === 's002' ? DISH.arena : CORE.arena0;
+  CORE.arena = typeof UI !== 'undefined' && (UI.sample === 's002' || UI.sample === 's006') ? DISH.arena : CORE.arena0;
   G = {
     state: 'play', t: 0, realT: 0,
     player: { x: 0, y: 0, vx: 0, vy: 0, r: 12, hp: 120, iframes: 0, face: -Math.PI / 2, flash: 0 },
@@ -340,7 +340,7 @@ function computeStatsInner(w) {
   s.duos = DUOS.filter(x => has(x.a) && has(x.b)).map(x => x.name);
   for (const n of s.duos) {
     if (n === 'Follow the Leader') s.shardHome = 1;
-    if (n === 'Freezer Burn') s.cryoblast = 1;
+    if (n === 'Bath Bomb') s.cryoblast = 1;
     if (n === 'Halo') { s.pulse *= 2; s.pulseRate = 0.22; }
     if (n === 'Snowball') s.grow = (s.grow || 0) * 2;
     if (n === 'Bouncing Off the Walls') s.pArcN = 3;
@@ -419,7 +419,8 @@ function genLoot(req) {
     const ids = shuffle(pool).slice(0, 3);
     return ids.map(id => optNewWeapon(id, Math.max(2, rollRarity(2))));
   }
-  if (req.kind === 'relic') return bossDef(req.boss).relics.map(id => optRelic(id, req.boss));
+  if (req.kind === 'relic') return spoilsRelics(req.boss);
+  if (req.kind === 'spoils') return spoilsOpts();
   if (req.kind === 'rrelic') { const o = RIVAL_RELICS[req.rid].filter(id => !G.relics[id]).map(id => optRivalRelic(id, req.rid)); if (o.length) return o; req.kind = 'chest'; return genLoot(req); }
   if (req.kind === 'sfork') { const w = G.spells.find(x => x && x.uid === req.uid); if (w && !w.fork) return spellForkOpts(w); req.kind = 'level'; return genLoot(req); }
   if (req.kind === 'vesicle') return vesicleOpts();
@@ -614,7 +615,7 @@ function optMod(w, id, r) {
   const M = MODS[id], rr = Math.max(1, r), pw = MOD_POWER[rr];
   const have = w.mods.find(m => m.id === id);
   let elem = null, desc;
-  if (id === 'elemental' && !have) { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem)); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.${pw > 1 ? ` +${Math.round(15 * (pw - 1))}% damage.` : ''}`; }
+  if (id === 'elemental' && !have) { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem)); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.${pw > 1 ? ` +${Math.round(15 * (pw - 1))}% damage.` : ''}` + elemTwistNote(w, elem); }
   else { const np = have ? Math.min(MOD_MAX_POWER, have.p + pw * 0.5) : pw; desc = have ? `Power ${have.p.toFixed(2)} > ${np.toFixed(2)}: ${M.desc(np)}` : M.desc(pw); }
   return { rarity: rr, tag: have ? 'MODIFIER BOOST' : 'MODIFIER', icon: M.icon, color: M.color, elem: elem || w.def.elem, title: M.name,
     sub: have ? `Boosts ${w.def.name}'s ${M.name}` : `Installs into ${w.def.name} (slot ${w.mods.length + 1}/${MOD_SLOTS})`, desc, modFor: w.def.name,
@@ -735,7 +736,7 @@ function damageEnemy(e, dmg, src) {
   }
   if (src.grudge && e === G.grudge) d *= 3;
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
-  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src) * pair2Mul(e, src);
+  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src) * pair2Mul(e, src) * chemMul(e) * twistMul(e, src);
   // Stain boons: you can see who matters.
   if (G.dyeBoon.luciferase && (e.elite || e.boss)) d *= 1.25; // (boons only from stains found this run)
   if (G.dyeBoon.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
@@ -788,26 +789,24 @@ function damageEnemy(e, dmg, src) {
   if (!src.dot) dmgNumber(e, d, src, crit);
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
   if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy) {
-    const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1);
+    const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * (e.chill > 0 ? 1.5 : 1); // (lathered enemies slide further)
     const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
     const l = Math.hypot(kx, ky) || 1;
     e.kx += kx / l * k; e.ky += ky / l * k;
   }
   if (src.freezeHit && !e.boss) { e.frozen = Math.max(e.frozen, 1.2); }
   if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); pair2Hit(e, dmg, src); puHit(e, d, src); }
+  if ((src.combo || (src.w && !src.noProc)) && !src.dot) chemComboHit(e, dmg, src); // combo twists (chem.js)
   if (!src.dot) relicHit(e, d, src);
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
-  // Kinetic's reaction, SHATTER: a solid hit on something frozen breaks it, and the shards fly.
-  // (Not the Paddle with Ice Hockey: that pairing is its own frozen-enemy trick, and a shatter would unfreeze them after the first swing.)
-  else if ((src.elem || 'phys') === 'phys' && !src.noStatus && !src.dot && e.frozen > 0 && !e.boss && !e.dead && !(G.pair.icehockey && src.w && src.w.id === 'paddle') && react(e, 'shatter', src)) {
-    e.frozen = 0; e.chillAmt = 0;
-    aoe(e.x, e.y, 70 + e.r, (dmg * 1.5 + 8) * G.P.react, { elem: 'ice', noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' }, '#e6f4ff');
-    fxParts('shard', e.x, e.y, '#e6f4ff', 10, 260, 0.5, 4);
-  }
-  // Shocked enemies arc a portion of incoming damage to a neighbour.
+  else if ((src.elem || 'phys') === 'phys') chemForce(e, dmg, src); // Force: soap bursts, drunks fall over (chem.js)
+  // Charged enemies arc a portion of incoming damage to a neighbour.
   if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25)) {
     const n = acquire('nearest', 130, e.x, e.y, e);
-    if (n) { bolt(e.x, e.y, n.x, n.y, ELEMENTS.shock.color, 0.12); damageEnemy(n, dmg * 0.45, { elem: 'shock', noStatus: true, noArc: true, noCrit: true, wname: 'Shock arcs' }); }
+    if (n) {
+      bolt(e.x, e.y, n.x, n.y, ELEMENTS.shock.color, 0.12); damageEnemy(n, dmg * 0.45, { elem: 'shock', noStatus: true, noArc: true, noCrit: true, wname: 'Static arcs' });
+      if (!n.boss && !n.dead) { const cx = e.x - n.x, cy = e.y - n.y, cl = Math.hypot(cx, cy) || 1; n.kx += cx / cl * 90; n.ky += cy / cl * 90; } // (static cling)
+    }
   }
   if (G.toy) toyHurt(e, Math.min(d, Math.max(0, hp0)), src); // Due Date keeps count; Red Tape shares it
   if (src.elem && src.elem !== 'phys') G.stats.elemDmg = (G.stats.elemDmg || 0) + d; // for the Acid-Burner unlock
@@ -826,7 +825,7 @@ function damageEnemy(e, dmg, src) {
 }
 
 function react(e, id, src) {
-  if (e.reactCd > 0 && !(G.pair.hotcold && (id === 'thermal' || id === 'steam'))) return false;
+  if (e.reactCd > 0 && !(G.pair.hotcold && id === 'neutral')) return false;
   e.reactCd = 0.35;
   G.stats.reactions++;
   addViewers(8);
@@ -840,66 +839,7 @@ function react(e, id, src) {
   return true;
 }
 
-function applyElement(e, elem, dmg, src) {
-  const P = G.P, syn = G.synergy, rm = P.react;
-  const rsrc = { elem, noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' };
-  switch (elem) {
-    case 'fire':
-      if ((e.chill > 0 || e.frozen > 0) && react(e, 'thermal', src)) {
-        e.chill = 0; e.chillAmt = 0; e.frozen = 0;
-        damageEnemy(e, (dmg * 2.5 * rm + 10) * (G.pair.hotcold ? 2 : 1), rsrc);
-        spawnPart(e.x, e.y, '#ffb3b3', 10, 160, 0.4);
-      } else if (e.poison > 0 && e.poisonStacks >= 3 && react(e, 'combust', src)) {
-        const boom = (e.poisonDps * e.poisonStacks * 2.5 + dmg) * rm;
-        e.poison = 0; e.poisonStacks = 0;
-        aoe(e.x, e.y, 75, boom, rsrc, '#ffba08');
-      } else if (e.shock > 0 && react(e, 'overload', src)) {
-        e.shock = 0;
-        aoe(e.x, e.y, 65, (dmg * 1.6 + 8) * rm, rsrc, '#fff3b0');
-      }
-      e.burn = syn.fire ? 4.5 : 3;
-      setBurn(e, dmg * 0.4 * (syn.fire ? 1.5 : 1) * P.elem.fire, src);
-      break;
-    case 'ice': {
-      if (e.burn > 0 && react(e, 'steam', src)) {
-        e.burn = 0;
-        aoe(e.x, e.y, 70, (dmg * 1.4 + 6) * rm * (G.pair.hotcold ? 2 : 1), rsrc, '#e0fbfc');
-      }
-      e.chill = 2.5;
-      e.chillAmt = Math.min(0.6, e.chillAmt + 0.14 * P.elem.ice);
-      const thresh = syn.ice ? 0.3 : 0.58;
-      if (e.chillAmt >= thresh && e.frozen <= 0) { e.frozen = e.boss ? 0.4 : 1.3; e.chillAmt = 0.2; }
-      break;
-    }
-    case 'shock':
-      if (e.poison > 0 && react(e, 'toxicarc', src)) {
-        const ns = acquireMany('nearest', 140, e.x, e.y, 4).filter(n => n !== e);
-        for (const n of ns) {
-          bolt(e.x, e.y, n.x, n.y, '#d4ff5c', 0.2);
-          n.poison = 4; n.poisonStacks = Math.min(P.poisonCap, n.poisonStacks + Math.ceil(e.poisonStacks / 2)); setPoison(n, e.poisonDps, e.poisonBy);
-        }
-      } else if ((e.chill > 0 || e.frozen > 0) && react(e, 'supercon', src)) {
-        e.shred = Math.min(e.armour + 6, e.shred + 6 * rm);
-        damageEnemy(e, dmg * 0.8 * rm, rsrc);
-      }
-      e.shock = 2.2;
-      break;
-    case 'poison':
-      e.poison = 4;
-      e.poisonStacks = Math.min(P.poisonCap, e.poisonStacks + 1);
-      setPoison(e, dmg * 0.14 * P.elem.poison, src);
-      break;
-    case 'arcane':
-      if ((e.burn > 0 || e.chill > 0 || e.poison > 0 || e.shock > 0) && react(e, 'resonance', src)) {
-        damageEnemy(e, dmg * 1.0 * rm, rsrc);
-        const ns = acquireMany('nearest', 120, e.x, e.y, 3);
-        for (const n of ns) if (n !== e) n.mark = 3;
-        ring(e.x, e.y, 50, '#e0aaff', 0.3);
-      }
-      e.mark = 3;
-      break;
-  }
-}
+// (applyElement: chem.js)
 
 function aoe(x, y, r, dmg, src, color) {
   IN_AOE = true;
@@ -957,6 +897,7 @@ function killEnemy(e, src) {
   puKill(e);
   sillyKill(e, src);
   pair2Kill(e, src);
+  chemKill(e, src);
   toyKill(e, src);
   genesKill(e, src);
   heatKill(e);
@@ -1275,15 +1216,16 @@ function updateEnemies(dt) {
     if (e.shock > 0) e.shock -= dt;
     if (e.frozen > 0) e.frozen -= dt;
     if (e.chill > 0) { e.chill -= dt; if (e.chill <= 0) e.chillAmt = 0; }
+    chemTick(e, dt); // corrosion eats armour; batteries zap (chem.js)
     if (e.burn > 0) {
       e.burn -= dt;
-      damageEnemy(e, e.burnDps * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.burnBy || '?') + ' (burn)' });
+      damageEnemy(e, e.burnDps * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.burnBy || '?') + ' (corrosion)' });
       if (Math.random() < dt * 6) fxParts('ember', e.x + rand(-e.r, e.r), e.y + rand(-e.r, e.r) * 0.5, '#ff7a2f', 1, 25, 0.6, 2.5, -Math.PI / 2, 0.6);
       if (e.dead) continue;
     }
     if (e.poison > 0) {
       e.poison -= dt;
-      damageEnemy(e, e.poisonDps * e.poisonStacks * (syn.poison ? 2 : 1) * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.poisonBy || '?') + ' (poison)' });
+      damageEnemy(e, e.poisonDps * e.poisonStacks * (syn.poison ? 2 : 1) * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.poisonBy || '?') + ' (ethanol)' });
       if (Math.random() < dt * 3) fxParts('bubble', e.x + rand(-e.r, e.r) * 0.6, e.y, '#8dff4a', 1, 18, 0.9, 2.5, -Math.PI / 2, 0.4);
       if (e.poison <= 0) e.poisonStacks = 0;
       if (e.dead) continue;
@@ -1425,6 +1367,9 @@ function updateEnemies(dt) {
           break;
       }
     }
+    // Drunks weave about (chem.js).
+    const wob = chemWobble(e);
+    if (wob) { const c = Math.cos(wob), sn = Math.sin(wob), x0 = mx; mx = mx * c - my * sn; my = x0 * sn + my * c; }
     // Movement (knockback decays).
     const f = frozen || e.tunT > G.t ? 0 : slow;
     if (e.tailCut) spd *= 0.15; // no flagellum: it can only twitch and drift
@@ -1558,7 +1503,7 @@ function updateWeapon(w, dt) {
   }
   if (d.scrapAmmo && G.scrap < 1) { if (!w.broke) { w.broke = true; achieve('broke'); } w.cd = Math.max(w.cd, 0); return; }
   w.broke = false;
-  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste() * redHaste();
+  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste() * redHaste() * chemHaste();
   if (d.kind === 'crayon') { w.durK = Math.max(1, rate); rate = 1 / Math.max(1, rate); } // (Colouring In: fire rate works backwards, toys.js)
   w.cd -= dt * rate;
   let shots = 0;

@@ -8,8 +8,8 @@ const bossDef = id => BOSSES.find(b => b.id === id);
 
 function spawnBoss() {
   if (!G.bossRoster) G.bossRoster = bossRoster();
-  const idx = G.bossCount, round = Math.floor(idx / BOSSES_PER_RUN);
-  const def = bossDef(G.bossRoster[idx % BOSSES_PER_RUN]);
+  const nR = G.bossRoster.length, idx = G.bossCount, round = Math.floor(idx / nR);
+  const def = bossDef(G.bossRoster[idx % nR]);
   // Close enough to see: the introduction pans to it, and the fight starts right away.
   const a0 = Math.random() * TAU, p = me();
   const s = { x: p.x + Math.cos(a0) * 380, y: p.y + Math.sin(a0) * 380, a: a0 };
@@ -123,12 +123,13 @@ function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
     case 'devour': {
       // The Queen pulls her own minions in and eats them.
       e.mvs = e.speed * 0.4;
+      if (e.st === 0) { e.st = 1; e.nomLeft = 6; } // (at most six snacks a feed: 18% of her health)
       forNear(e.x, e.y, 290, o => {
-        if (o === e || o.boss || o.rival || o.charmed || o.egg || o.dead) return;
+        if (o === e || o.boss || o.rival || o.charmed || o.egg || o.dead || !(e.nomLeft > 0)) return;
         const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1;
         o.x += dx / d * 180 * dt; o.y += dy / d * 180 * dt;
         if (d < e.r + o.r) {
-          o.dead = true;
+          o.dead = true; e.nomLeft--;
           e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.03);
           spawnPart(o.x, o.y, e.def.color, 6, 120, 0.4);
           if (!(e.healLblT > G.realT)) { e.healLblT = G.realT + 0.8; floatText(e.x, e.y - e.r - 10, 'NOM (+HEALTH)', PAL.danger, 13); }
@@ -160,7 +161,7 @@ function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
         const k = e.poison > 0 ? 0.5 : 1;
         forNear(e.x, e.y, 650, o => { if (o.rival || o.charmed || o.egg || (o.boss && o !== e)) return; o.hp = Math.min(o.maxHp, o.hp + o.maxHp * (o === e ? 0.05 : 0.2) * k); });
         ring(e.x, e.y, 650, e.def.color, 0.9, 3);
-        floatText(e.x, e.y - e.r - 12, k < 1 ? 'WARD ROUND (POISONED: HALF)' : 'WARD ROUND', PAL.danger, 14, 1);
+        floatText(e.x, e.y - e.r - 12, k < 1 ? 'WARD ROUND (TIPSY: HALF)' : 'WARD ROUND', PAL.danger, 14, 1);
         e.nurses = (e.nurses || []).filter(n => !n.dead);
         while (e.nurses.length < 4 && G.enemies.length < CAPS.enemies) {
           const n = makeEnemy(ENEMIES.medic, e.x, e.y);
@@ -206,7 +207,7 @@ function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
         e.fireT = 1.0; e.st++;
         const n = 20, off = e.st % 2 ? Math.PI / n : 0;
         for (let i = 0; i < n; i++) eBullet(e.x, e.y, off + i / n * TAU, 150, bd, 6);
-        addHazard(e.x, e.y, e.r * 2.2, 3.5, bd * 0.8, '#ff7a2f', e.name + ' burning ground', 0.4);
+        addHazard(e.x, e.y, e.r * 2.2, 3.5, bd * 0.8, '#ff6b35', e.name + ' scalding ground', 0.4);
       }
       return true;
     }
@@ -282,8 +283,8 @@ function bossDown(e) {
   G.nextBoss = Math.max(G.nextBoss, G.t + 25); // (a breather before the next one)
   G.stats.bossKills++;
   (G.stats.bossesBeaten || (G.stats.bossesBeaten = [])).push(e.def.id);
-  G.lootQueue.push({ kind: 'relic', boss: e.def.id, src: { t: 'boss', name: e.def.name } });
-  healPlayer(P.maxHp * 0.3);
+  G.lootQueue.push({ kind: 'relic', boss: e.def.id, src: { t: 'boss', name: e.def.name } }, { kind: 'spoils', boss: e.def.id, src: { t: 'boss', name: e.def.name } });
+  healPlayer(P.maxHp * 0.4);
   banner(e.def.name + ' DEFEATED', PAL.reward);
   for (let i = 0; i < 12; i++) dropGem(e.x + rand(-60, 60), e.y + rand(-60, 60), e.xp / 12);
   // Slow motion, a chain of bursts across its body, then one last blast and a pillar of light.
@@ -390,7 +391,7 @@ function relicDamageIn(dmg, ent) {
     damageEnemy(ent, ent.dmg * 10, { elem: 'phys', wname: 'Bouncer', noCrit: true });
     dmg *= 0.6;
   }
-  return rrelicDamageIn(dmg, ent);
+  return rrelicDamageIn(chemDamageIn(dmg), ent);
 }
 function relicHurt(d) {
   const R = G.relics, p = me(), P = G.P;

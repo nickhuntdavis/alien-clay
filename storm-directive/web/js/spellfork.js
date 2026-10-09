@@ -5,8 +5,8 @@
 const SPELL_FORK_LV = 4;
 const SPELL_FORKS = {
   meteor:     [{ name: 'Double Delivery', desc: 'One more stork every cast, each dropping 80% as hard.' },
-               { name: 'Hot Water Bottle', desc: 'The burning ground it leaves is 40% wider and burns twice as long.' }],
-  frostnova:  [{ name: 'Ice Bath', desc: 'Everything it catches stays frozen twice as long.' },
+               { name: 'Hot Water Bottle', desc: 'The acid it leaves on the ground is 40% wider and lasts twice as long.' }],
+  frostnova:  [{ name: 'Soap Bath', desc: 'Everything it catches stays saponified twice as long.' },
                { name: 'Power Shower', desc: 'A second blast goes off a second later, wherever you are by then.' }],
   thunder:    [{ name: 'Brainwave', desc: 'Every strike jumps on to the two nearest enemies for half its damage.' },
                { name: 'Thunderclap', desc: 'Every strike leaves the enemies it hits dazed for a second (not bosses).' }],

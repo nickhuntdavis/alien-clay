@@ -317,7 +317,7 @@ const PV_TAGS = {
   blueflame: 'narrow', indigestion: 'burn explode', dragon: 'dragon', hellkitchen: 'rapid power', napalm: 'firePud', heatwave: 'burn crit',
   // Nappy Mines
   domino: 'domino', sticky: 'sticky', nuclear: 'nuke', minefield: 'multiMine', claymore: 'shrapnel', homingnappy: 'homingMine',
-  // Cold Feet
+  // Antacid
   shatter: 'freeze shatter', icicle: 'pierce', iceage: 'freeze icePatch', coldsnap: 'nova', brainfreeze: 'freeze', hailstorm: 'hail',
   // Static Cling
   shortcircuit: 'chain3', umbilical: 'tether', overcharge: 'power chain1', powergrid: 'chain2', balllightning: 'zone', grounded: 'heal',
@@ -376,7 +376,7 @@ function pvOnHit(pv, t, k) {
   if (M.execute && t.hp < 0.35) { k = t.hp + 1; pvTxt(pv, t.x, t.y, 'EXECUTED'); }
   if (M.swallow && t.hp < 0.4) { k = t.hp + 1; pvTxt(pv, t.x, t.y, 'GULP'); }
   if (M.freeze) { t.frozen = 1.2; }
-  if (M.shatter && t.frozen > 0.9 && Math.random() < 0.5) { pv.fx.push({ type: 'boom', x: t.x, y: t.y, r: 0.1, life: 0.35 }); pvTxt(pv, t.x, t.y, 'SHATTER'); for (const o of pvNear(pv, t, 0.12)) pvHit(pv, o, 0.3, true); }
+  if (M.shatter && t.frozen > 0.9 && Math.random() < 0.5) { pv.fx.push({ type: 'boom', x: t.x, y: t.y, r: 0.1, life: 0.35 }); pvTxt(pv, t.x, t.y, 'SUDS'); for (const o of pvNear(pv, t, 0.12)) pvHit(pv, o, 0.3, true); }
   if (M.burn) t.burn = 1.5;
   if (M.bleed) { t.bleed = 2; for (let i = 0; i < 3; i++) pv.parts.push({ x: t.x, y: t.y, vx: (Math.random() - 0.5) * 0.2, vy: Math.random() * 0.3, life: 0.6, red: true }); }
   if (M.poison) t.poison = 2;
