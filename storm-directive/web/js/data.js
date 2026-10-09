@@ -56,7 +56,7 @@ const WEAPONS = {
     desc: 'A spinning blade that flies out and always comes back. Like the weight.',
     base: { dmg: 16, cd: 1.0, mag: 2, reload: 1.3, count: 1, spread: 0.3, speed: 430, pierce: 99, range: 330, size: 10, boomerang: 1 },
     lv: { 3: { dmg: 0.2 }, 6: { count: 1 }, 9: { dmg: 0.3 } }, sig: { 5: ['walkdog', 'crashdiet'], 8: ['yoyoshield', 'cradle'], 10: ['aroundworld', 'blackyoyo'] } },
-  wake: { name: 'Incompatible Viral Load', stars: [3, 5, 1, 3], play: 'No aiming: you shed a boozy viral trail wherever you swim. Swim circles round crowds to infect them all at once.', icon: 'VL', elem: 'poison', kind: 'wake', color: '#e0fbfc', dir: 'nearest', noTarget: 1, role: 'Boozy Trail',
+  wake: { name: 'Pub Crawl', stars: [3, 5, 1, 3], play: 'No aiming: you shed a boozy viral trail wherever you swim. Swim circles round crowds to infect them all at once.', icon: 'VL', elem: 'poison', kind: 'wake', color: '#e0fbfc', dir: 'nearest', noTarget: 1, role: 'Boozy Trail',
     desc: 'A boozy trail smeared behind you as you swim. Stop, and it is just a puddle.',
     base: { dmg: 20, dur: 2.2, area: 22, range: 0 },
     lv: { 3: { area: 0.3 }, 6: { dur: 0.5 }, 9: { dmg: 0.5 } }, sig: { 5: ['closeloop', 'razorwire'], 8: ['bloodletting', 'slipstream'], 10: ['surgicalteam', 'afterburner'] } },
@@ -165,7 +165,7 @@ const SIGS = {
   crashdiet:   { name: 'Crash Diet', desc: 'The yo-yo grows every time it hits something: +10% size and damage per hit, every throw.' },
   aroundworld: { name: 'Around the World', desc: 'Mastery. Three yo-yos per throw, and every catch heals you a little for each enemy it hit.' },
   blackyoyo:   { name: 'Gravity Pull', desc: 'Mastery. At full reach it becomes a gravity well for 1.5s, then snaps home dragging its catch with it.' },
-  // Incompatible Viral Load
+  // Pub Crawl
   closeloop:   { name: 'Closing the Loop', desc: 'Swim a loop around enemies and everything inside it takes a massive dose. Try the ORBIT autorun.' },
   razorwire:   { name: 'Sticky Residue', desc: 'The trail lasts twice as long and slows whatever swims through it.' },
   surgicalteam:{ name: 'Patient Zeroes', desc: 'Mastery. Two ghost carriers circle you, each shedding its own trail.' },
@@ -359,31 +359,31 @@ const PAIR_LEVEL = 5;
 
 // Upgrades that wouldn't do anything for a weapon get that weapon's own twist instead (shown on the card).
 const ADAPT = {
-  future:    { paddle: 'Placenta Paddle: some swings also land on a second enemy further away.', flail: 'Flagellum Flail: some lashes also crack across a second enemy further away.', wake: 'Incompatible Viral Load: the shot is you. Every few seconds you blink straight through an enemy, cutting the line.',
+  future:    { paddle: 'Placenta Paddle: some swings also land on a second enemy further away.', flail: 'Flagellum Flail: some lashes also crack across a second enemy further away.', wake: 'Pub Crawl: the shot is you. Every few seconds you blink straight through an enemy, cutting the line.',
                mines: 'Nappy Mines: some mines appear already under an enemy.', venom: 'Morning Sickness: some globs land before you throw them.',
                tesla: 'Static Cling: some bolts start from the far side of the crowd.', orbit: 'Premature Evangelation: angels pop up next to enemies to bless them early.',
                siphon: 'Placental Siphon: some returned shots appear right next to their target.' },
-  multishot: { void: 'Toddler Gravity: more orbs, which pull together and merge into bigger ones (twenty merged go supernova).', wake: 'Incompatible Viral Load: a bigger, longer blade (+18% width and length per stack).', paddle: 'Placenta Paddle: +1 swing, aimed another way.', flail: 'Flagellum Flail: +1 lash in the fan.', onesie: 'Thorny Onesie: +18% pulse damage.',
+  multishot: { void: 'Toddler Gravity: more orbs, which pull together and merge into bigger ones (twenty merged go supernova).', wake: 'Pub Crawl: a bigger, longer blade (+18% width and length per stack).', paddle: 'Placenta Paddle: +1 swing, aimed another way.', flail: 'Flagellum Flail: +1 lash in the fan.', onesie: 'Thorny Onesie: +18% pulse damage.',
                crayon: 'Colouring In: +18% shape damage.', peekaboo: 'Peekaboo: +18% BOO damage.', duedate: 'Due Date: +1 mark.', redtape: 'Red Tape: +1 bundle.', friend: 'Imaginary Friend: +1 friend, further behind.',
                twin: 'Twin Telepathy: +1 twin, with its own beam.', bubble: 'Bubble Wand: +1 bubble.', toothfairy: 'Tooth Fairy: +1 tooth.' },
   pierce:    { paddle: 'Placenta Paddle: a 15% wider swing.', flail: 'Flagellum Flail: a 12% longer lash.', onesie: 'Thorny Onesie: pulses shove harder.', tesla: 'Static Cling: +1 chain jump.', venom: 'Morning Sickness: puddles 12% bigger.', mines: 'Nappy Mines: blasts shove enemies away.',
-               orbit: 'Premature Evangelation: angels bless each enemy more often as they pass.', wake: 'Incompatible Viral Load: the trail shoves enemies aside.', siphon: 'Placental Siphon: returned shots pierce.',
+               orbit: 'Premature Evangelation: angels bless each enemy more often as they pass.', wake: 'Pub Crawl: the trail shoves enemies aside.', siphon: 'Placental Siphon: returned shots pierce.',
                crayon: 'Colouring In: a thicker line.', duedate: 'Due Date: +10% repeat.', redtape: 'Red Tape: +1 enemy per bundle.', friend: 'Imaginary Friend: its pokes reach 15% further.', peekaboo: 'Peekaboo: BOO shoves harder.',
                twin: 'Twin Telepathy: a 15% wider beam.', bubble: 'Bubble Wand: bubbles hold 12% bigger enemies.', toothfairy: 'Tooth Fairy: teeth lure from 12% further.' },
   area:      { blaster: 'Spitball: bigger shots, easier to land.', shotgun: 'Hiccup Scattergun: bigger pellets.', glaive: 'Yo-Yo Diet: a bigger yo-yo.', frost: 'Antacid: bigger shards.', seeker: 'Seeker Siblings: bigger siblings.', parasite: 'Tapeworm Seeder: bigger worms.' },
-  haste:     { wake: 'Incompatible Viral Load: the trail hits faster.', orbit: 'Premature Evangelation: angels circle faster.' },
-  reload:    { wake: 'Incompatible Viral Load: the trail lingers longer.' },
-  mag:       { wake: 'Incompatible Viral Load: a wider trail.', orbit: 'Premature Evangelation: bigger angels.' },
+  haste:     { wake: 'Pub Crawl: the trail hits faster.', orbit: 'Premature Evangelation: angels circle faster.' },
+  reload:    { wake: 'Pub Crawl: the trail lingers longer.' },
+  mag:       { wake: 'Pub Crawl: a wider trail.', orbit: 'Premature Evangelation: bigger angels.' },
   velocity:  { paddle: 'Placenta Paddle: longer reach.', flail: 'Flagellum Flail: a longer lash.', venom: 'Morning Sickness: globs land sooner.', orbit: 'Premature Evangelation: angels circle further out.' },
   lastround: { orbit: 'Premature Evangelation: when the angels clock off, they burst outwards.', siphon: 'Placental Siphon: the last stored bullet hits like the rest put together.',
                tesla: 'Static Cling: the last bolt of each charge hits four times as hard.', mines: 'Nappy Mines: the last mine of each batch is a big one.' },
   tactical:  { orbit: 'Premature Evangelation: a bullet-clearing shockwave whenever the angels take their break.', siphon: 'Placental Siphon: a shockwave whenever the store runs dry.' },
-  focus:     { wake: 'Incompatible Viral Load: the trail hits harder the longer you keep swimming fast.', orbit: 'Premature Evangelation: angels hit harder the longer they stay on shift.' },
+  focus:     { wake: 'Pub Crawl: the trail hits harder the longer you keep swimming fast.', orbit: 'Premature Evangelation: angels hit harder the longer they stay on shift.' },
 };
 const PERK_ADAPT = {
-  rapid: { wake: 'Incompatible Viral Load has no cooldown, so its trail hits 33% harder instead.' },
-  frenzy: { wake: 'Incompatible Viral Load has no cooldown, so its trail hits 60% harder instead.' },
-  overclock: { wake: 'Incompatible Viral Load has no cooldown, so its trail hits twice as hard instead.' },
+  rapid: { wake: 'Pub Crawl has no cooldown, so its trail hits 33% harder instead.' },
+  frenzy: { wake: 'Pub Crawl has no cooldown, so its trail hits 60% harder instead.' },
+  overclock: { wake: 'Pub Crawl has no cooldown, so its trail hits twice as hard instead.' },
 };
 
 // Fusions were retired in favour of Pairings (both weapons stay).
@@ -490,7 +490,7 @@ const PASSIVES = {
   crossfire: { name: 'Pincer Movement', icon: 'CF', max: 3, v: 0.15, fmt: v => `Weapons sharing a target: +${pc(v)} damage. Three or more weapons all on different targets: +${pc(v)} fire rate`, apply: (P, v) => { P.crossfire += v; } },
   momentum:  { name: 'Hurry Up',         icon: 'MO', max: 4, v: 0.15, fmt: v => `Up to +${pc(v * 1.5)} damage the faster you are moving`, apply: (P, v) => { P.momentum += v; } },
   anchorlink:{ name: 'Separation Anxiety',         icon: 'EB', max: 3, v: 0.12, fmt: v => `${typeof G !== 'undefined' && G && G.wave ? 'Near the middle of the dish (where the egg sits)' : 'Near the egg'}: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
-  future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Incompatible Viral Load, you do)`, apply: (P, v) => { P.future += v; } },
+  future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Pub Crawl, you do)`, apply: (P, v) => { P.future += v; } },
   echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 2, fmt: () => `When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your Feats too and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
   ram:       { name: 'Headstrong',          icon: 'AR', max: 5, v: 1, fmt: v => `Enemies you swim into take big damage (ram power x${v.toFixed(1)}). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun.`, apply: (P, v) => { P.ram += v; } },
   heft:      { name: 'Big Boned', icon: 'BB', max: 4, v: 1, fmt: v => `+${30 * v} max HP (and heal it). All your damage +${Math.round(4 * v)}% for every 100 max HP you have.`, apply: (P, v, G) => { P.heft += v; P.maxHp += 30 * v; G.player.hp += 30 * v; } },
@@ -1179,5 +1179,5 @@ const ACHIEVEMENTS = {
 };
 const VIEWER_MILESTONES = [10e3, 50e3, 100e3, 250e3, 500e3, 1e6, 2.5e6, 5e6, 1e7, 2.5e7, 5e7];
 
-// Everything you fire is yours, so it's all GFP green.
-for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = PAL.you;
+// Weapons keep their damage-type colours; anything else is yours (GFP green, or your Primary Sequence's colour): see weaponColours() in meta.js.
+for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) { d.col0 = d.color; d.color = PAL.you; }

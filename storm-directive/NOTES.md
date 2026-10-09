@@ -1,10 +1,11 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.56 (versionCode 206), branch `claude/autorun-bullet-storm-game-blptu8`. All 46 suite tests pass.
+- Version v8.57 (versionCode 207), branch `claude/autorun-bullet-storm-game-blptu8`. All 46 suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.57: Incompatible Viral Load renamed Pub Crawl; weapons keep damage-type colours, others take the Primary Sequence colour (`weaponColours` in meta.js); loot card titles coloured by damage type; Chonker is just fat (no plates, no chin); head squash and stretch on the player (`headSquash` in render.js); only the first status card says where the chips are.
 - v8.56: Codex enemy list crash fixed (campaign germs had no ENEMIES entry); tests, CLAUDE.md and these notes moved into the repo.
 - v8.55: the campaign's way-on chevron only shows after 40 s without headway (`LV_LOST`).
 - v8.54: autorun no longer solves campaign mazes (no route pull, no corridor wandering).

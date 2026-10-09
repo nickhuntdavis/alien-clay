@@ -536,7 +536,7 @@ function buildOocyte(r) {
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
-// Viral trails (Incompatible Viral Load): the trail is a run of small zones dropped as you swim. Draw each run
+// Viral trails (Pub Crawl): the trail is a run of small zones dropped as you swim. Draw each run
 // as one smooth ribbon that tapers and fades with age (in a few age bands, so overlaps never double up), with a
 // dark core and virus specks drifting in it, instead of a row of stamped circles.
 function drawTrails() {
@@ -651,7 +651,7 @@ function shipLook() {
   G.lookKey = key;
   G.look = {
     tails: 1 + Math.min(3, P.multishot || 0),
-    head: 1 + 0.07 * n('vital') + 0.04 * n('armour'),
+    head: (1 + 0.07 * n('vital') + 0.04 * n('armour')) * (G.genes && G.genes.primary === 'bruiser' ? 1.18 : 1), // (the Chonker is fat)
     stretch: 1 + 0.05 * (n('speed') + n('hydro')),
     tailLen: 1, // the flagellum no longer grows
     beat: 1 + 0.12 * (n('haste') + n('reload')),
@@ -668,6 +668,22 @@ function shipLook() {
   return G.look;
 }
 
+// Squash and stretch on the player's head: a quick burst of acceleration stretches it along the swim, a sharp turn
+// squashes it. Small and fast to settle (about 100 ms), so it reads as snap rather than rubber. Cached per frame.
+function headSquash(b) {
+  const now = G.realT;
+  if (b.sqT === now && b.sq) return b.sq;
+  const dt = Math.min(0.05, Math.max(0.001, now - (b.sqT ?? now - 0.016))), v = Math.hypot(b.vx || 0, b.vy || 0);
+  b.sqT = now;
+  b.sqTop = Math.max(v, (b.sqTop || 0) * (1 - dt * 0.2)); // a rolling top speed, so the numbers suit any build
+  const top = Math.max(120, b.sqTop), acc = Math.max(0, (v - (b.sqV ?? v)) / dt) / (top * 4); b.sqV = v;
+  const turn = v > top * 0.3 ? Math.max(0, 1 - (b.turnK ?? 1)) : 0; // (turnK: 1 straight, 0.04 mid-turn)
+  const wantS = Math.min(1, acc) * 0.1, wantQ = Math.min(1, turn * 1.3) * 0.085;
+  b.sqS = (b.sqS || 0) + (wantS - (b.sqS || 0)) * Math.min(1, dt * (wantS > (b.sqS || 0) ? 40 : 14));
+  b.sqQ = (b.sqQ || 0) + (wantQ - (b.sqQ || 0)) * Math.min(1, dt * (wantQ > (b.sqQ || 0) ? 30 : 12));
+  const st = 1 + b.sqS, sqz = b.sqQ;
+  return (b.sq = { x: st * (1 - sqz * 0.7), y: (1 / st) * (1 + sqz) });
+}
 function drawShip(x, y, face, tag, alpha, scale, body, look) {
   const L = look || NOLOOK;
   // A spermatozoon under phase contrast, in true proportions: a flat oval head (about 5 x 3 um) that reads
@@ -713,8 +729,10 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
   }
   const yaw = body && body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) * (body.yawK ?? 1) : 0;
   if (body) body.yaw = yaw;
+  const sq = body && body === G.player ? headSquash(body) : null; // squash and stretch on your own head (below)
   ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw);
-  if (L !== NOLOOK) ctx.scale(L.head * L.stretch, L.head / Math.sqrt(L.stretch));
+  if (L !== NOLOOK) ctx.scale(L.head * L.stretch * (sq ? sq.x : 1), L.head / Math.sqrt(L.stretch) * (sq ? sq.y : 1));
+  else if (sq) ctx.scale(sq.x, sq.y);
   ctx.lineCap = 'round';
   if (L.field) {
     // Chemoreceptor field: a faint rotating dashed ring.

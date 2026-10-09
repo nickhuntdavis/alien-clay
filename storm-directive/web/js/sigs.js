@@ -186,7 +186,7 @@ function sigZone(z, e, dt) {
     if (hasSig(z.src.w, 'nausea')) { e.chill = Math.max(e.chill, 0.4); e.chillAmt = Math.max(e.chillAmt, 0.45); e.weakT = G.t + 0.4; }
   }
   if (z.freeze && !e.boss && !e.rival) e.frozen = Math.max(e.frozen, 1);
-  // Pushy + Viral Load: the trail shoves enemies aside.
+  // Pushy + Pub Crawl: the trail shoves enemies aside.
   if (z.trail && z.src && z.src.w && z.src.w.s.knock && !e.boss && !e.def.heavy) { const dx = e.x - z.x, dy = e.y - z.y, d = Math.hypot(dx, dy) || 1; e.kx += dx / d * z.src.w.s.knock; e.ky += dy / d * z.src.w.s.knock; }
 }
 
@@ -218,7 +218,7 @@ function sigTick(dt) {
   babyTick(dt);
 }
 
-// ---------------------------------------------------------------- Incompatible Viral Load extras (from updateWake)
+// ---------------------------------------------------------------- Pub Crawl extras (from updateWake)
 function wakeExtras(w, p) {
   const s = w.s;
   // Closing the Loop: the path crosses itself, and everything inside the loop gets cut.
@@ -489,8 +489,8 @@ function gravityOrb(pr, caught) {
   }
 }
 
-// ---------------------------------------------------------------- Spoilers + Incompatible Viral Load
-// Spoilers makes shots appear next to their target. The Viral Load's "shot" is you, so every few seconds you
+// ---------------------------------------------------------------- Spoilers + Pub Crawl
+// Spoilers makes shots appear next to their target. Pub Crawl's "shot" is you, so every few seconds you
 // appear next to an enemy instead: you blink straight through it, and the whole line you skipped gets cut.
 function spoilerBlink(dt) {
   const w = owned('wake'), f = G.P.future;
