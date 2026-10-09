@@ -17,6 +17,12 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - Win-rate target: about 1 in 3 for a human. The autorun bot dodges worse, so 20 to 50% bot wins is fine.
 - Be token-conscious. Run only the relevant tests while iterating, and the full suite once before shipping. Take screenshots only for visual changes. Run balance sims only when difficulty is in question.
 
+## Model choice (suggest it, don't lecture)
+At the start of each request, check whether the model fits the job, and if not, say so in ONE line before starting (e.g. "This is a big new system: Opus would suit it better. Carrying on unless you switch."). You cannot switch models yourself; the user does it in the model picker. Use `get_session` to see which model you are on if unsure. Say nothing when the fit is fine.
+- **Sonnet** (default): batches of clear changes (renames, copy, colours, CSS/HUD, tutorial text), small features with a clear spec, bugs with an obvious cause, build/ship, skimming run logs.
+- **Opus**: new systems touching many files (a campaign level, a mode, a mechanic), balance work that needs sims designed and several numbers tuned together, bugs with no clear cause (hitches, rare crashes), design conversations, Level 2.
+- Effort: Medium for batches; higher for gnarly bugs and new systems. If Sonnet takes two tries at the same fix, suggest Opus.
+
 ## Git
 - Work and push only on the branch the session names (it has been `claude/autorun-bullet-storm-game-blptu8`). Use `git push -q origin <branch>`.
 - Conventional commits (`feat:`, `fix:` and so on), ending with the attribution lines from the session's system reminder. Never put model IDs in commits. No PR unless asked.
