@@ -31,7 +31,7 @@ function refreshPalette() {
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
-// Element effects. With the H&E stain (or the Tracer Dye grant), Acid shows green, Base blue, Ethanol amber and Voodoo violet.
+// Element effects. With the H&E stain (or the Tracer Dye grant), Acid shows green, Base blue, Ethanol amber and Histamine violet.
 // Static is always coloured, in a static-shock blue and pink.
 // (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
 const ELEM_SWAP = new Map([
@@ -713,8 +713,21 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
   }
   const yaw = body && body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) * (body.yawK ?? 1) : 0;
   if (body) body.yaw = yaw;
+  // Squash and stretch (your head only): it elongates along the heading when you surge, shortens and widens when you brake
+  // or whip round a sharp turn. A quick ease, not a spring, so it snaps back without wobbling.
+  let sq = 0;
+  if (body && body === G.player) {
+    const nowq = G.realT, dtq = Math.min(0.05, Math.max(0.004, nowq - (body.sqT ?? nowq - 0.016))); body.sqT = nowq;
+    const spq = Math.hypot(body.vx || 0, body.vy || 0), acc = (spq - (body.sqSp ?? spq)) / dtq; body.sqSp = spq;
+    let dfq = face - (body.sqF ?? face); while (dfq > Math.PI) dfq -= TAU; while (dfq < -Math.PI) dfq += TAU; body.sqF = face;
+    const turnq = clamp((Math.abs(dfq / dtq) - 3) / 12, 0, 1) * Math.min(1, spq / 80);
+    const tgt = clamp(acc / 1200, -0.3, 0.4) - turnq * 0.34;
+    body.sqK = lerp(body.sqK || 0, tgt, 1 - Math.exp(-dtq * 30));
+    sq = body.sqK;
+  }
   ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw);
   if (L !== NOLOOK) ctx.scale(L.head * L.stretch, L.head / Math.sqrt(L.stretch));
+  if (sq) ctx.scale(1 + sq, 1 / (1 + sq));
   ctx.lineCap = 'round';
   if (L.field) {
     // Chemoreceptor field: a faint rotating dashed ring.
@@ -1723,7 +1736,7 @@ function render() {
 // You grow as you level up: up to 1.8x at level 60.
 // Your swimmer grows with its max HP (not its level): +60% size at 400 max HP, up to double.
 function hpScale(k) { return 1 + Math.min(1, Math.max(0, (G.P.maxHp - 120) / 470)) * (k == null ? 1 : k); }
-// One enemy, drawn at its place on the slide (also used for the Codex portraits). lod: a crowd, so common
+// One enemy, drawn at its place on the slide (also used for the Field Guide portraits). lod: a crowd, so common
 // enemies skip their halo and surface detail.
 function drawEnemy(e, lod) {
   const plain = !e.elite && !e.boss && !e.rival && !e.charmed;
@@ -2072,6 +2085,13 @@ function drawHud() {
   // XP: a thin calibration line across the very top.
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
   ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
+  // Health: the same line along the very bottom edge (Immersive mode keeps it), with a trailing chunk for damage taken.
+  { const hk = clamp(p.hp / G.P.maxHp, 0, 1), low = hk < 0.3;
+    G.hpGhost = G.hpGhost == null ? hk : Math.max(hk, G.hpGhost - 0.004);
+    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, H - 3, W, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(0, H - 3, W * G.hpGhost, 3);
+    const rawc = RAW_COL; RAW_COL = true; // (true red even on the greyscale slide: it is the one thing you must read at a glance)
+    ctx.fillStyle = low ? '#ff2d4d' : '#ff5a72'; ctx.globalAlpha = low ? 0.7 + 0.3 * Math.sin(G.realT * 8) : 1; ctx.fillRect(0, H - 3, W * hk, 3); ctx.globalAlpha = 1; RAW_COL = rawc; }
   const c = G.core, land = LAYOUT.land, BY = land ? 56 : 60;
   const barX = 10, barW = Math.min(360, W - 130);
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);

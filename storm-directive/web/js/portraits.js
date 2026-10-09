@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - Codex portraits: every enemy, rival and boss, alive and moving on its own little patch of
+// Spawn Prawn - Field Guide portraits: every enemy, rival and boss, alive and moving on its own little patch of
 // slide, drawn by the game's own enemy renderer (drawEnemy). Ones you haven't met are dark silhouettes.
 const PORT = { on: false, root: null, ents: {}, last: 0 };
 // A stand-in enemy for a portrait: the shape of a real one, none of the run behind it.
@@ -19,7 +19,7 @@ function portraitFoe(kind, id) {
   };
   return Object.assign(e, extra);
 }
-// A run-less world for the title screen's Codex, just enough for the enemy renderer.
+// A run-less world for the title screen's Field Guide, just enough for the enemy renderer.
 function portraitWorld() {
   return { realT: 0, t: 0, player: { x: 1e5, y: 0, r: 10 }, enemies: [], dyes: {}, dyeBoon: {}, boons: {}, evm: {}, P: {}, pair: {}, synergy: {}, fx: [], parts: [], lights: [], peek: null, toy: null, grudge: null, debug: null };
 }
@@ -53,7 +53,7 @@ function drawFoePortrait(g, Wc, Hc, e, t, dark) {
     g.fillStyle = 'rgba(255,255,255,0.75)'; g.font = `900 ${Math.round(Hc * 0.3)}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('?', Wc / 2, Hc / 2);
   }
 }
-// Start animating the portraits inside root (the Codex screen, or the pause menu's Codex tab).
+// Start animating the portraits inside root (the Field Guide screen, or the pause menu's Field Guide tab).
 function portraitsStart(root) {
   PORT.root = root;
   if (!PORT.on) { PORT.on = true; requestAnimationFrame(portraitFrame); }

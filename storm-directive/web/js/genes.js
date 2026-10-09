@@ -89,7 +89,7 @@ const MUTATIONS = {
   powerhouse:  { tier: 1, name: 'Sticker Chart', desc: 'Killing a boss: 6s of +25% fire rate, and your Feats recharge 25% faster.' },
   magbact:     { tier: 0, name: 'Runs in the Family', desc: '+5% swim speed, and you hit up to 15% harder the faster you swim.', apply: P => { P.speed += 0.05; P.momentum += 0.1; } },
   vippass:     { tier: 1, name: 'Lucky Dip', desc: '+20% luck, so your DNA strands come out rarer.', apply: P => { P.luck += 0.2; } },
-  bipolar:     { tier: 1, name: 'Mood Swings', desc: 'Acid, Base and Static +40%. Force, Ethanol and Voodoo -10%.', apply: P => { P.elem.fire += 0.4; P.elem.ice += 0.4; P.elem.shock += 0.4; P.elem.phys -= 0.1; P.elem.poison -= 0.1; P.elem.arcane -= 0.1; } },
+  bipolar:     { tier: 1, name: 'Mood Swings', desc: 'Acid, Base and Static +40%. Force, Ethanol and Histamine -10%.', apply: P => { P.elem.fire += 0.4; P.elem.ice += 0.4; P.elem.shock += 0.4; P.elem.phys -= 0.1; P.elem.poison -= 0.1; P.elem.arcane -= 0.1; } },
   velcro:      { tier: 1, name: 'Middle Child', desc: 'Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts.' },
   zappy:       { tier: 0, name: 'Little Magpie', desc: '+30% pickup range, and picking up any power-up pulls in every XP granule near you.', apply: P => { P.magnet += 0.3; } },
   frostbitten: { tier: 1, name: 'Character Building', desc: 'Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits.' },
@@ -189,7 +189,7 @@ function mutTake(id) {
   META.muts = META.muts || {}; META.muts[id] = true;
   if (M.apply) M.apply(G.P);
   if (id === 'mystery') {
-    // A hidden mutation, revealed in the Codex once you've had it.
+    // A hidden mutation, revealed in the Field Guide once you've had it.
     const pool = Object.keys(MUTATIONS).filter(x => x !== 'mystery' && !G.mut[x] && !['zombiecore', 'chernobyl'].includes(x));
     const h = pick(pool); G.mut[h] = true; G.mutHidden[h] = true; META.muts[h] = true;
     if (MUTATIONS[h].apply) MUTATIONS[h].apply(G.P);

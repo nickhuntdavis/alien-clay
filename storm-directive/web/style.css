@@ -562,7 +562,7 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #bossIntro .bi-count i { display: inline-block; width: 18px; height: 5px; background: #333; border-radius: 1px; }
 #bossIntro .bi-count i.done { background: #777; }
 #bossIntro .bi-count i.now { background: var(--bc); box-shadow: 0 0 8px var(--bc); }
-#bossIntro .bi-title { margin-top: 8px; font-family: var(--mono, monospace); font-size: 12px; letter-spacing: 3px; color: var(--bc); text-transform: uppercase; }
+#bossIntro .bi-title { margin-top: 8px; font-family: var(--mono, monospace); font-size: 19px; font-weight: 900; letter-spacing: 3px; color: var(--bc); text-transform: uppercase; text-shadow: 0 0 12px var(--bc); border-left: 5px solid var(--bc); padding-left: 9px; line-height: 1.1; }
 #bossIntro .bi-name { font-size: 30px; font-weight: 900; letter-spacing: 1px; line-height: 1.05; color: #fff; margin: 2px 0 6px;
   transform: scale(1.9); opacity: 0; filter: blur(6px); animation: biSlam 0.35s cubic-bezier(.2,1.6,.4,1) 1.15s forwards; }
 @keyframes biSlam { to { transform: none; opacity: 1; filter: none; } }

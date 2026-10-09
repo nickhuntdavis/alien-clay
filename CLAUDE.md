@@ -32,6 +32,9 @@ At the start of each request, check whether the model fits the job, and if not, 
 2. Bump `APP_VERSION` in `web/js/meta.js`, and `versionCode` (+1) and `versionName` (single-quoted) in `android/app/build.gradle`.
 3. `node storm-directive/tests/tools/guide.js` regenerates `GAME_GUIDE.md`. Update its text when features change.
 4. `cd storm-directive/android && ./gradlew assembleRelease -q && cp app/build/outputs/apk/release/app-release.apk ../release/SpawnPrawn.apk`
+   - Release builds are signed with `android/spawnprawn.keystore` (in the repo, so every session's APK installs over the last). Never switch back to the debug key.
+   - A fresh container has no Android SDK. Install it into `/home/user/android-sdk` (the command-line tools zip from dl.google.com, then `sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"`) and `export ANDROID_HOME=/home/user/android-sdk`.
+   - If Maven Central rate-limits (429) the lint step, add `-x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease`.
 5. Commit, push, then SendUserFile the APK.
 
 ## Tests

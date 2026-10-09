@@ -18,7 +18,7 @@
   <div id="dbgPanel"></div>
   <div id="bottom">
     <div id="wslots"></div>
-    <div id="row2"><div id="sslots"></div><button id="moveBtn">RUN: KITE</button><button id="armBtn" aria-label="Armoury"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M2 9.5h14.5l1.6-1.8H22v4.6h-3.2v1.6h-4.6l-1.1 4.4H9.6l1.1-4.4H2z"/><rect x="4" y="11" width="9" height="1.2" fill="#000" opacity=".45"/></svg></button><button id="pauseBtn" aria-label="Pause"><i></i><i></i></button></div>
+    <div id="row2"><div id="sslots"></div><button id="moveBtn">RUN: KITE</button><button id="armBtn" aria-label="Tackle Box"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M2 9.5h14.5l1.6-1.8H22v4.6h-3.2v1.6h-4.6l-1.1 4.4H9.6l1.1-4.4H2z"/><rect x="4" y="11" width="9" height="1.2" fill="#000" opacity=".45"/></svg></button><button id="pauseBtn" aria-label="Pause"><i></i><i></i></button></div>
   </div>
   <div id="side">
     <button id="abilBtn"><b></b><span></span></button>
@@ -30,7 +30,7 @@
 
 <div id="armoury" class="screen">
   <div class="pwrap">
-    <div class="ptitle">ARMOURY</div>
+    <div class="ptitle">TACKLE BOX</div>
     <div class="hint" id="armQuip" style="text-align:center"></div>
     <div id="armTabs"></div>
     <div id="armBody"></div>
@@ -47,32 +47,32 @@
     <button id="quickBtn" class="btn">QUICK START <span class="dna">random everything</span></button>
     <button id="howBtn" class="btn">HOW TO PLAY</button>
     <button id="bankBtn" class="btn">GENE BANK <span id="dnaLine" class="dna"></span></button>
-    <button id="codexBtn" class="btn">CODEX</button>
+    <button id="codexBtn" class="btn">FIELD GUIDE</button>
     <button id="setBtnTitle" class="btn">SETTINGS</button>
     <div id="how">
       <p><b>You are Spermy, an alien sperm.</b> So is everyone else, plus the host's entire immune system. There is one egg, in the middle of the arena. The <b>sperm count</b> starts at 400 million and falls as time passes, as you grow and as you kill rival swimmers. At six, the <b>Final Five</b> (the strongest swimmers left) come for you all at once. Beat them and the count is one: swim into the egg to fertilise it and win.</p>
-      <p><b>Weapon trees:</b> at Lv 3, 5, 8 and 10 each weapon branches: pick one of three perks. See the whole tree in the Armoury. You get a strand of DNA every level, and Fan DNA (Gold+) drops from elites.</p>
-      <p><b>Amoebas</b> eat other monsters and grow. Kill them early, or kill them big for their DNA.</p>
+      <p><b>Weapon trees:</b> at Lv 3, 5, 8 and 10 each weapon branches: pick one of three perks. See the whole tree in the Tackle Box. You get a strand of DNA every level, and Donor DNA (Gold+) drops from elites.</p>
+      <p><b>Amoebas</b> eat other germs and grow. Kill them early, or kill them big for their DNA.</p>
       <p><b>Swimming takes skill:</b> you turn slowly at speed and drift in turns. Traction upgrades (Sticky Cilia, Hydrodynamic Head) fix that. Shots bounce off cartilage, mitochondria absorb them and burst, acid eats into you, cilia shove, currents carry and slicks make you slide.</p>
-      <p><b>Rival champions</b> (Big Steve, Chad Flagellum and friends) are growing elsewhere on the map. They steal your kills, pick fights when they feel big, and run when they don't. Any still alive at the end join the Final Five (stand-ins fill the gaps). Kill one early for Fan DNA and a level's worth of XP. The race board under the minimap shows who is ahead.</p>
+      <p><b>Rival champions</b> (Big Steve, Chad Flagellum and friends) are growing elsewhere on the map. They steal your kills, pick fights when they feel big, and run when they don't. Any still alive at the end join the Final Five (stand-ins fill the gaps). Kill one early for Donor DNA and a level's worth of XP. The race board under the minimap shows who is ahead.</p>
       <p><b>You don't aim.</b> You swim and shoot by yourself. You program the directives.</p>
-      <p><b>Armoury:</b> tap a weapon slot to switch its target, or tap the ARMOURY button for stats, modifiers, fusion progress, and each weapon's targeting directive (Nearest, Strongest, Lowest Health, Highest Armour, Densest Cluster, Revenge and more). Recycle weapons you've outgrown for rerolls.</p>
+      <p><b>Tackle Box:</b> tap a weapon slot to switch its target, or tap the TACKLE BOX button for stats, modifiers, fusion progress, and each weapon's targeting directive (Nearest, Strongest, Lowest Health, Highest Armour, Densest Cluster, Revenge and more). Recycle weapons you've outgrown for rerolls.</p>
       <p><b>Weapon drafts:</b> you choose your first weapon at level 1 and draft a new one at levels 10, 20, 35 and 50 (5 in total). Ordinary DNA strands upgrade the weapons you have.</p>
       <p><b>Autorun directive:</b> the RUN button switches movement: Kite, Collect, Orbit, Hunt, Hold, Nest. Drag anywhere to steer manually.</p>
       <p><b>DNA strands:</b> every level up unzips one. Splice in 1 of 3: weapons, Feats, upgrades, modifiers or power-ups. <b>Stamina:</b> in manual control, push the stick past its edge to sprint; attacking Feats are paid for from the same bar. Bronze, Silver, Gold, Legendary. Watch out for cursed cards.</p>
       <p><b>Modifiers:</b> install into one weapon (3 slots each): Homing Instinct, Cell Division, Holding Pattern, Swelling, Boomerang Kid, Bouncing Baby, Soaped Up, With a Bang, Bad Influence, Switched at Birth, Going to Pieces.</p>
       <p><b>Fusion:</b> two compatible weapons at Lv 4 fuse into a legendary one and free a slot.</p>
-      <p><b>Damage types:</b> Force, Acid, Base, Static, Ethanol, Peroxide, Brine and Voodoo. <b>Chemical reactions:</b> land one damage type on an enemy carrying another's status. Acid + Base = Neutralised (a burst, and it heals you). Static on a drunk enemy = Flashpoint. Base on a drunk enemy = Sanitised. Voodoo on anything = Sympathy. The full list is in the Codex.</p>
+      <p><b>Damage types:</b> Force, Acid, Base, Static, Ethanol, Peroxide, Brine and Histamine. <b>Chemical reactions:</b> land one damage type on an enemy carrying another's status. Acid + Base = Neutralised (a burst, and it heals you). Static on a drunk enemy = Flashpoint. Base on a drunk enemy = Sanitised. Histamine on anything = Hives. The full list is in the Field Guide.</p>
       <p><b>Rewind:</b> jump 4 seconds back. Your future self stays behind as a Paradox Echo that fights for you, then pops. With a charge ready, death rewinds automatically.</p>
       <p><b>Deep trees:</b> each weapon now branches at Lv 3, 5, 8 and 10 (mastery), with three perks to choose from each time. Weapons go to Lv 10.</p>
-      <p><b>Modifier Forge:</b> five new modifiers (Chaining, Pulsing, Magnetic, Delayed, Mirror). Certain pairs on one weapon form Duo Combos, listed in the Armoury.</p>
+      <p><b>Modifier Forge:</b> five new modifiers (Chaining, Pulsing, Magnetic, Delayed, Mirror). Certain pairs on one weapon form Duo Combos, listed in the Tackle Box.</p>
       <p><b>Krill</b> come in shoals and dart in bursts. <b>Rotifers</b> steal your XP off the floor (kill them to get it back with interest). <b>Water Bears</b> curl up and shrug off damage once. <b>Volvox</b> bursts into four.</p>
       <p><b>Run log:</b> Settings keeps a log of your runs. COPY RUN LOG and paste it to get the game balanced for you.</p>
       <p><b>Yeast infections</b> bud and double every few seconds and are sticky to swim through. Kill every cell to be cured (and get Gold DNA for it).</p>
       <p><b>The morning-after pill</b> drops somewhere random and dissolves into a huge cloud: inside it you swim slower and grow slower. Go around. <b>Snip tails:</b> shots that cross a swimmer's tail cut it off and leave it drifting.</p>
       <p><b>Zoom:</b> pinch with two fingers to change magnification (24x to 80x).</p>
       <p><b>Mutations:</b> your sperm upgrades change your body: Split Personality grows extra tails, Thick Skin and Shell Suit a bigger plated head, Sticky Cilia grows cilia, damage-type upgrades dye your midpiece.</p>
-      <p><b>Gene Bank:</b> every run banks DNA. Spend it on inherited traits, extra starter weapons and tag dyes (CLEAR refunds it all). The <b>Codex</b> keeps everything you have found.</p>
+      <p><b>Gene Bank:</b> every run banks DNA. Spend it on inherited traits, extra starter weapons and tag dyes (CLEAR refunds it all). The <b>Field Guide</b> keeps everything you have found.</p>
       <p><b>Settings:</b> darkfield microscope, high specimen detail, clean clinical view, landscape layout and four narrators.</p>
       <p><b>The egg's glow</b> heals you. A boss arrives every 3 minutes. From 15:00 the host's immune system surges. Swim fast.</p>
     </div>
@@ -139,7 +139,7 @@
     <div id="pauseBody"></div>
     <div class="pbtns">
       <button id="resumeBtn" class="btn primary">RESUME</button>
-      <button id="armOpen" class="btn">ARMOURY</button>
+      <button id="armOpen" class="btn">TACKLE BOX</button>
       <button id="setBtnPause" class="btn">SETTINGS</button>
       <button id="quitBtn" class="btn">QUIT</button>
     </div>
@@ -188,7 +188,7 @@
 
 <div id="codex" class="screen">
   <div class="pwrap">
-    <div class="ptitle">CODEX</div>
+    <div class="ptitle">FIELD GUIDE</div>
     <div id="codexBody"></div>
     <div class="pbtns"><button id="codexBack" class="btn primary">BACK</button></div>
   </div>

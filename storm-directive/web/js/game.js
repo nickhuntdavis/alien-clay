@@ -133,7 +133,7 @@ function newGame() {
 function angDiff(a, b) { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU; return d; }
 function xpNeed(l) { return Math.floor((6 + (l - 1) * 2.5 + Math.pow(l - 1, 2.35) * 0.22) * 1.3); } // (x1.3: fewer, chunkier level-ups)
 function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? Math.pow(1.32, (t - 900) / 60) : 1); }
-const SURGE_T = 900; // Storm Surge: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
+const SURGE_T = 900; // Fever Pitch: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
 // A run lasts about 10 minutes: the difficulty clock runs 1.5 times faster than real time.
 const PACE = 1.5;
 function PT() { return G.lvl ? lvPT() : G.wave ? wavePT() : G.t * PACE; }
@@ -378,7 +378,7 @@ function recomputeAll() {
 
 
 // ---------------------------------------------------------------- loot
-// special: this card may come out Mythical or Celestial (ordinary DNA only, three a run at most).
+// special: this card may come out Mythical or Immaculate (ordinary DNA only, three a run at most).
 // Novelty: so every Feat, upgrade and modifier turns up over a few runs instead of the same favourites.
 // Cards you have been offered least (over all your runs) are up to 2.5x as likely; ones already offered this
 // run, and passed over, fade so the boxes rotate.
@@ -434,7 +434,7 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
-  if (req.kind === 'myth') { // Achievement DNA: Mythical or Celestial cards only
+  if (req.kind === 'myth') { // Achievement DNA: Mythical or Immaculate cards only
     G.mythBox = true;
     try {
       const out = [];
@@ -541,7 +541,7 @@ function optNewSpell(id, r) {
   const def = SPELLS[id], lvl = [1, 1, 2, 3, 4, 4, 4][r] || 1;
   return { def, rarity: r, tag: 'NEW FEAT', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
     sub: `${ELEMENTS[def.elem].name} Feat | Lv ${lvl}`, desc: def.desc,
-    apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); } } };
+    apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); tutShow('feats', true); } } };
 }
 // Only one weapon a run can reach mastery (Lv 10): once one has, the others stop at Lv 9.
 function masterOf(w) { return G.weapons.find(o => o && o !== w && o.lvl >= MAX_WLVL) || null; }
@@ -813,7 +813,7 @@ function damageEnemy(e, dmg, src) {
   } else if (!(G.realT - (e.tickRT || -9) < 0.3)) e.tickRT = G.realT; // ticks get a soft flicker, at most every 0.3s
   const key = src.wname || 'Other';
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + Math.min(d, Math.max(0, hp0)); // damage actually dealt (overkill isn't counted)
-  if (src.w) { const wk = (src.w.friendOf || src.w).uid, W = G.stats.wdmg || (G.stats.wdmg = {}); W[wk] = (W[wk] || 0) + d; } // per weapon, for the Armoury
+  if (src.w) { const wk = (src.w.friendOf || src.w).uid, W = G.stats.wdmg || (G.stats.wdmg = {}); W[wk] = (W[wk] || 0) + d; } // per weapon, for the Tackle Box
   // Damage numbers thin out when the screen is busy (crits always show).
   if (!src.dot && !IN_AOE) { hitFx(e, src, crit, d); sfx(crit ? 'crit' : 'hit'); }
   if (!src.dot && e.puddleT > G.t) puddleQuirks(e, src, dmg); // lightning, fire and frost meet a puddle
@@ -1105,7 +1105,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d;
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
-  if (ent && !ent.dead) G.grudge = ent;
+  if (ent && !ent.dead) { G.grudge = ent; tutShow('grudge'); }
   G.lastHitEnt = ent || null;
   rebornHurt(d); // (Karma)
   rivalLeech(ent); // (rivals with the leech trait) // (the end-of-run screen shows whoever finished you off)
@@ -2587,7 +2587,7 @@ function update(dt) {
   if (G.t >= G.nextWave && !G.debug) { if (spotOn()) G.nextWave += 6; else { G.nextWave += 30; waveEvent(); } } // (scripted waves wait for a spotlight to finish)
   updateRivals(dt);
   if (!G.wave && !G.lvl && !G.debug) updateShowdown();
-  if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('STORM SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
+  if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('FEVER PITCH: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   // (Never two bosses at once: the next one waits until the current one is dead, then 25s more; bosses.js sets that.)
   if (G.t >= G.nextBoss && !(G.boss && !G.boss.dead)) { G.nextBoss += G.bossCount >= 3 ? BOSS_INTERVAL * 2 : BOSS_INTERVAL; spawnBoss(); }
   // FX.

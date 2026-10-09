@@ -87,7 +87,7 @@ function endBossIntro() {
   if (foe) { lastTs = performance.now(); if (typeof UI !== 'undefined') { UI.show('hud'); UI.refreshHud(true); } return; } // a first sighting: just carry on
   bossArrive(e);
   banner('FIGHT: ' + e.def.name, PAL.danger);
-  sysMsg('SYSTEM MESSAGE', `${e.def.name}, ${e.def.title}, has entered the arena. ${pick(SYSTEM_LINES.boss)}`, PAL.danger, true);
+  sysMsg('SYSTEM MESSAGE', `${e.def.name}, ${e.def.title}, has entered the arena. ${pick(sysPool('boss'))}`, PAL.danger, true);
   lastTs = performance.now();
   if (typeof UI !== 'undefined') { UI.show('hud'); UI.refreshHud(true); }
 }
@@ -285,7 +285,7 @@ function bossDown(e) {
   G.nextBoss = Math.max(G.nextBoss, G.t + 25); // (a breather before the next one)
   G.stats.bossKills++;
   (G.stats.bossesBeaten || (G.stats.bossesBeaten = [])).push(e.def.id);
-  G.lootQueue.push({ kind: 'relic', boss: e.def.id, src: { t: 'boss', name: e.def.name } }, { kind: 'spoils', boss: e.def.id, src: { t: 'boss', name: e.def.name } });
+  G.lootQueue.unshift({ kind: 'relic', boss: e.def.id, now: true, src: { t: 'boss', name: e.def.name } }, { kind: 'spoils', boss: e.def.id, now: true, src: { t: 'boss', name: e.def.name } }); // (now: wave mode opens a boss reward at once, not at the wave end)
   healPlayer(P.maxHp * 0.4);
   banner(e.def.name + ' DEFEATED', PAL.reward);
   for (let i = 0; i < 12; i++) dropGem(e.x + rand(-60, 60), e.y + rand(-60, 60), e.xp / 12);
@@ -323,13 +323,13 @@ function updateRevive() {
 
 function optRelic(id, boss) {
   const R = RELICS[id], B = bossDef(boss);
-  return { rarity: 4, tag: 'BOSS RELIC', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: PAL.reward, title: R.name,
+  return { rarity: 4, tag: 'BOSS TROPHY', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: PAL.reward, title: R.name,
     sub: 'From ' + B.name.replace(/^THE /, 'the ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()), desc: R.desc, relic: true,
     apply: () => applyRelic(id) };
 }
 function optRivalRelic(id, rid) {
   const R = RELICS[id], V = RIVALS.find(x => x.id === rid);
-  return { rarity: 4, tag: 'RIVAL RELIC', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: V.color, title: R.name,
+  return { rarity: 4, tag: 'RIVAL TROPHY', icon: R.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), color: V.color, title: R.name,
     sub: 'Taken from ' + V.name, desc: R.desc, relic: true, apply: () => applyRelic(id) };
 }
 function applyRelic(id) {

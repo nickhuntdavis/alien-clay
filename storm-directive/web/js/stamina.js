@@ -39,16 +39,16 @@ function featPay(w) {
   S.cur -= c; S.restT = Math.max(S.restT, 0.3);
   return true;
 }
-// The ring: thin and translucent, just inside your health ring, only while stamina isn't full.
+// The ring: very thin and almost invisible, just inside your health ring, only while stamina isn't full.
 function stamRing(px, py) {
   const S = G.stam;
   if (!S) return;
   const k = clamp(S.cur / stamMax(), 0, 1);
   if (k >= 0.995) return;
   const R = 24 * S0 * ZOOM.z * playerScale() * 0.8, top = -Math.PI / 2, a0 = ctx.globalAlpha;
-  ctx.lineCap = 'butt'; ctx.lineWidth = Math.max(1.2, 1.4 * Math.min(1.6, S0 * ZOOM.z));
-  ctx.globalAlpha = a0 * 0.18; ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.stroke();
-  ctx.globalAlpha = a0 * (S.sprint ? 0.75 : 0.5); ctx.strokeStyle = S.winded ? PAL.danger : S.sprint ? '#ffe94a' : '#d6e4f0';
+  ctx.lineCap = 'butt'; ctx.lineWidth = Math.max(1, 1.1 * Math.min(1.6, S0 * ZOOM.z));
+  ctx.globalAlpha = a0 * 0.04; ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.stroke();
+  ctx.globalAlpha = a0 * (S.sprint ? 0.3 : 0.14); ctx.strokeStyle = S.winded ? PAL.danger : S.sprint ? '#ffe94a' : '#d6e4f0';
   ctx.beginPath(); ctx.arc(px, py, R, top, top + TAU * k); ctx.stroke();
   ctx.globalAlpha = a0;
 }

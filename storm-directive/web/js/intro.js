@@ -3,13 +3,13 @@
 // short version of the boss treatment: the camera swims over, it flinches, and its file card comes up.
 // Named rivals get the same, with their personality, attributes and specialities.
 // Once ever (saved in META.seen), not once a run. Settings > Tutorial resets it. Bosses always get the
-// full introduction (bosses.js). Everything you've met goes in the Codex.
+// full introduction (bosses.js). Everything you've met goes in the Field Guide.
 
 // what: what it is and does. tip: how to deal with it.
 const ENEMY_INTRO = {
   crawler:    { what: 'One of the four hundred million. Not a threat on its own. There is never one on its own.', tip: 'Anything that hits a crowd. Keep swimming and let your weapons mow them down.' },
   skitter:    { what: 'Small, fast and fragile. It reaches you before you have noticed it.', tip: 'Fast fire and wide shots. One hit is enough.' },
-  spitter:    { what: 'Part of the host\'s immune system. Keeps its distance and spits at you.', tip: 'Its shots are slow. Swim across them, not along them. SHOOTERS FIRST targeting helps.' },
+  spitter:    { what: 'Part of the host\'s immune system. Keeps its distance and shoots at you: dodge!', tip: 'Its shots are slow. Swim across them, not along them. SHOOTERS FIRST targeting helps.' },
   brute:      { what: 'A big eater with a little armour. Swallows whatever it catches.', tip: 'Armour shred and big single hits. Don\'t let it pin you against a wall.' },
   bomber:     { what: 'A bubble of stomach acid that rushes you and bursts.', tip: 'Kill it at range, or swim clear when it swells. Its blast hurts other enemies too.' },
   splitter:   { what: 'Divides when it dies: two smaller, faster cells come out.', tip: 'Splash damage handles the halves. Kill it where your blasts can catch them.' },
@@ -97,6 +97,6 @@ function startFoeIntro(e, id, rival) {
 }
 // Settings > Tutorial: see the introductions (and the first-time tips) again.
 function resetTutorial() {
-  META.seen = {}; META.seenSt = {}; META.seenTut = {}; META.tutWave = 0; saveMeta(); // (and wave 0 again)
+  META.seen = {}; META.seenSt = {}; META.seenTut = {}; META.seenShooter = 0; META.tutWave = 0; saveMeta(); // (and wave 0 again)
   if (typeof SET !== 'undefined' && SET.intros === 'off') { SET.intros = 'auto'; saveSettings(); }
 }

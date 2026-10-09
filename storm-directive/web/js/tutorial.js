@@ -2,13 +2,13 @@
 // Spawn Prawn - first-time tutorial cards, and wave 0 (Pre-pre-pre-pre-school).
 // Each card shows once ever (Settings > Tutorial brings them back), on the same stage as a first sighting.
 // So as not to bury a new player, cards queue up and come at least TUT_GAP seconds of play apart; only a few
-// (wave 0's welcome, Feats before your first upgrade, your first sprint, your first junk DNA, the egg and your first stain)
+// (wave 0's welcome, Feats when you take your first one, your first sprint, your first junk DNA, the egg and your first stain)
 // jump the queue, because they explain something happening right now.
 // Wave 0 runs before wave 1 the first time you play wave mode (and again after a tutorial reset): a handful of
 // slow cells, a junk DNA carrier to kill and a box of upgrades at the end. Damage-type cards wait until
 // it is over.
 // Hooks: tutTick (update; also the egg's first meeting, eggMeetTick), eggKnown (render.js, the egg arrow), tutSprintEnd (stamTick), tutBeforeLoot (main loop), tutElem (damageEnemy),
-// tutReact (react), tutShow('lgt') (junkAbsorb), tutWaveInit (campInit), tutWave0Begin (campBegin),
+// tutReact (react), tutShow('grudge'|'tether'|'charm') (game.js, arsenal.js, chem.js), tutTerrainSeen (tutTick), tutShow('lgt') (junkAbsorb), tutWaveInit (campInit), tutWave0Begin (campBegin),
 // tutWave0Clear (waveClear), tutSkip (the "skip tutorial" link).
 
 const TUT_GAP = 25;
@@ -41,8 +41,8 @@ const TUT_CARDS = {
       'Attacking Feats spend the same stamina, so keep a little back.'] }),
   feats: () => {
     const att = Object.keys(SPELLS).filter(id => STAM_FEATS.has(id)).map(id => SPELLS[id].name);
-    return { title: 'BEFORE YOUR FIRST UPGRADE', name: 'FEATS', colour: PAL.upgrade,
-      what: 'Some upgrade cards are Feats: big moves that go off by themselves. You have two Feat slots.',
+    return { title: 'YOU FOUND A FEAT', name: 'FEATS', colour: PAL.upgrade,
+      what: 'You just took your first Feat: a big move that goes off by itself. You have two Feat slots.',
       head: 'HOW THEY WORK', tips: [
         `The attacking ones (${att.join(', ')}) are paid for with stamina, the ring sprinting uses.`,
         'The rest (healing, slowing time, shields) wait on a cooldown.',
@@ -55,11 +55,26 @@ const TUT_CARDS = {
       `Each kind of enemy gives its own power. The same kind again stacks it, up to ${JUNK.stacks} times.`,
       'The pause menu lists what you have absorbed.'] }),
   react: () => ({ title: 'MIXING DAMAGE TYPES', name: 'REACTIONS', colour: '#ffd166',
-    what: `Two different damage types on one enemy react. You just made ${G.tutReactName || 'one'}.`,
+    what: `Two different damage types on one enemy react. You just made ${G.tutReactName || 'one'}${G.tutReactPair ? ': ' + G.tutReactPair : ''}.`,
     head: 'WHY IT MATTERS', tips: [
       'Reactions hit hard, and some spread to the enemies nearby.',
       'A mixed build usually beats a pure one through utility and damage over time (slows, stuns, armour stripping, corrosion), not raw damage.',
-      `There are ${Object.keys(REACTIONS).length}. The Codex lists them all.`] }),
+      `There are ${Object.keys(REACTIONS).length}. The Field Guide lists them all.`] }),
+  grudge: () => ({ title: 'NEW MECHANIC', name: 'GRUDGE', colour: '#ff4d6d',
+    what: 'Whatever hurt you last gets a red crosshair and the word GRUDGE over it.',
+    head: 'WHY IT MATTERS', tips: [
+      'Grudge Rifle and any weapon set to GRUDGE targeting go for it first.',
+      'Grudge Rifle shots do triple damage to it. Settle it and the crosshair goes.'] }),
+  tether: () => ({ title: 'NEW MECHANIC', name: 'TETHERS', colour: PAL.upgrade,
+    what: 'A glowing line now joins two enemies, or an enemy and you.',
+    head: 'WHAT IT DOES', tips: [
+      'It pulls the two together and damages them while it lasts.',
+      'Slam them into each other, or break the line by killing one end.'] }),
+  charm: () => ({ title: 'NEW MECHANIC', name: 'ALLIES', colour: PAL.you,
+    what: 'An enemy just switched sides. For a few seconds it fights for you.',
+    head: 'WHAT IT DOES', tips: [
+      'Allies draw fire and hit their old friends. They are not yours for long.',
+      'Do not shoot them: your weapons ignore them anyway.'] }),
   stains: () => ({ title: 'YOUR FIRST STAIN', name: 'STAINS', colour: PAL.you,
     what: 'Everything on the slide starts in greyscale, you included. Stains bring the colour back, one kind at a time.',
     head: 'HOW THEY WORK', tips: [
@@ -86,12 +101,28 @@ function eggMeetTick() {
   tutShow('egg', true);
 }
 const eggKnown = () => !!(META.eggMet || (G && (G.fertile || G.eggAnnounced)));
+// The two damage types behind each reaction, for the card.
+const TUT_PAIR = { neutral: 'Acid + Base', battery: 'Acid + Static', ester: 'Acid + Ethanol', flashpoint: 'Static + Ethanol', electro: 'Static + Base',
+  sanitiser: 'Base + Ethanol', sympathy: 'Voodoo + anything', suds: 'Force + Base', pushover: 'Force + Ethanol', bleach: 'Peroxide + Acid',
+  toothpaste: 'Peroxide + Base', rocket: 'Peroxide + Ethanol', ozone: 'Peroxide + Static', exorcism: 'Peroxide + Voodoo', electrolyte: 'Brine + Static',
+  wound: 'Brine + Acid', margarita: 'Brine + Ethanol', crust: 'Brine + Base', seafoam: 'Peroxide + Brine', blackout: 'Ethanol + Ethanol' };
+// Terrain: one card the first time each kind comes on screen.
+const TUT_TERRAIN = {
+  ridge:   { what: 'A hard lump of cartilage growing in the womb.', tips: ['Nothing can swim through it: you, the swarm and bosses slide round it.', 'Shots bounce off it. Use it as cover.'] },
+  mito:    { what: 'The cell\'s power plant. It is the only thing here that wants your bullets.', tips: ['It soaks up shots, yours and theirs, until it is full.', 'Then it bursts: enemies in range are hurt, enemy bullets vanish and you get a rush of speed and fire rate. Stand close.'] },
+  acid:    { what: 'A pit of stomach acid. It burns whatever touches it.', tips: ['It hurts you, and it hurts enemies that wander in.', 'Shots that hit it melt away. Lure enemies through it.'] },
+  cilia:   { what: 'A bed of waving hairs that shoves everything away from its middle.', tips: ['It pushes you and the swarm outwards, so you can use it to shake pursuers.', 'You can fight the push, but sprinting through the middle is slow.'] },
+  current: { what: 'A current in the tube that carries everything along with it.', tips: ['You, enemies and shots all drift with the flow.', 'Ride it to cover ground, or swim across it with care.'] },
+  slick:   { what: 'A patch of lubricant. Smooth.', tips: ['You lose most of your grip: you keep sliding and turn slowly.', 'Enemies are not affected. Cross it in straight lines.'] },
+};
+for (const type in TUT_TERRAIN) TUT_CARDS['tr_' + type] = () => ({ title: 'NEW TERRAIN', name: OBSTACLES[type].name.toUpperCase(), colour: OBSTACLES[type].color === '#b0b0b0' ? '#cfd8e3' : OBSTACLES[type].color,
+  what: TUT_TERRAIN[type].what, head: 'WHAT IT DOES', tips: TUT_TERRAIN[type].tips });
 for (const id in ELEMENTS) TUT_CARDS['el_' + id] = () => {
   const E = ELEMENTS[id], mix = tutMixes(id);
   return { title: 'NEW DAMAGE TYPE', name: E.name.toUpperCase(), colour: E.color, what: E.blurb,
     head: mix.length ? 'MIX IT WITH' : 'HOW IT WORKS',
     tips: mix.length ? mix.slice(0, 3) : ['It leaves enemies ' + E.status + '.'],
-    foot: mix.length > 3 ? `And ${mix.length - 3} more in the Codex.` : '' };
+    foot: mix.length > 3 ? `And ${mix.length - 3} more in the Field Guide.` : '' };
 };
 
 // Ask for a card. now: it explains something happening this moment, so it skips the queue.
@@ -102,9 +133,17 @@ function tutShow(key, now) {
   if (now) G.tutQ.unshift(key); else G.tutQ.push(key);
   if (now) G.tutNow = key;
 }
+// Each kind of terrain gets a card the first time one is on screen.
+function tutTerrainSeen() {
+  if (!G || !G.terrain || G.lvl || G.state !== 'play' || G.debug || tutOff() || G.t < 3 || G.tutTerrCheck > G.t) return;
+  G.tutTerrCheck = G.t + 0.5;
+  const p = me(), R = Math.hypot(W / S, H / S) / 2;
+  for (const o of G.terrain.list) if (TUT_TERRAIN[o.type] && !tutSeen('tr_' + o.type) && Math.hypot(o.x - p.x, o.y - p.y) < R + o.r * 0.5) tutShow('tr_' + o.type);
+}
 // From update: the next card in the queue, when the moment is right.
 function tutTick() {
   eggMeetTick();
+  tutTerrainSeen();
   if (!G || !G.tutQ || !G.tutQ.length || G.state !== 'play' || G.debug || tutOff()) return;
   const key = G.tutQ[0], now = G.tutNow === key;
   if (!now) {
@@ -131,14 +170,11 @@ function tutOpen(key) {
 }
 // Your first sprint, once you let go of it.
 function tutSprintEnd() { tutShow('sprint', true); }
-// Before the first upgrade box (not the starting pick): what Feats are. true: a card went up, open the box next frame.
-function tutBeforeLoot(req) {
-  if (!req || req.kind === 'start' || tutOff() || tutSeen('feats') || G.debug) return false;
-  return tutOpen('feats');
-}
+// (Feats are introduced by tutShow('feats') the moment the first one is taken, not before a box.)
+function tutBeforeLoot(req) { return false; } // (the Feats card now comes when you take your first Feat: game.js, optNewSpell)
 // The first time one of your hits carries each chemical, and the first reaction.
 function tutElem(elem) { if (!tutSeen('el_' + elem)) tutShow('el_' + elem); }
-function tutReact(id) { if (!tutSeen('react')) { G.tutReactName = REACTIONS[id] ? REACTIONS[id].name : null; tutShow('react'); } }
+function tutReact(id) { if (!tutSeen('react')) { G.tutReactName = REACTIONS[id] ? REACTIONS[id].name : null; G.tutReactPair = TUT_PAIR[id] || ''; tutShow('react'); } }
 
 // ---------------------------------------------------------------- wave 0
 // At the start of a wave-mode run: does it open with pre-school?

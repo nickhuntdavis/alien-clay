@@ -99,7 +99,7 @@ function waveClear(V) {
   if (V.n === 15) achieve('wave15');
 }
 
-// Boxes wait until the wave is over.
-const waveHoldsLoot = () => wavesMode() && (G.wave.active || G.wave.restT > 0);
+// Boxes wait until the wave is over, except a boss's reward, which opens as soon as it dies.
+const waveHoldsLoot = () => wavesMode() && (G.wave.active || G.wave.restT > 0) && !(G.lootQueue[0] && G.lootQueue[0].now);
 // Ready for the next drop: wave over, boxes all opened.
 const waveReady = () => wavesMode() && !G.wave.active && G.wave.restT <= 0 && !G.lootQueue.length && G.state === 'play';

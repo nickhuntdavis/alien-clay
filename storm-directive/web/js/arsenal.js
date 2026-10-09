@@ -64,7 +64,7 @@ function rollGacha(w, silent) {
   if (silent || w.echo) return;
   const T = GACHA_TIERS[tier], p = me();
   floatText(p.x, p.y - 34, T.name + '!', T.color, tier >= 2 ? 16 : 12, 1);
-  if (tier === 3) { banner('LEGENDARY MAG!', T.color); achieve('gachagold'); sysLine('gacha'); sfx('level'); }
+  if (tier === 3) { banner('LEGENDARY LOAD!', T.color); achieve('gachagold'); sysLine('gacha'); sfx('level'); }
 }
 
 // Every reload goes through here so Tactical Reload can fire its shockwave.
@@ -216,6 +216,7 @@ function fireTether(w, target, src) {
     }
     bolt(p.x, p.y, a.x, a.y, '#9ef0ff', 0.15);
     if (!b) { damageEnemy(a, s.dmg, src); continue; }
+    tutShow('tether');
     G.tethers.push({ a, b, life: s.dur, max: s.dur, dmg: s.dmg, pull: s.pull, src, tick: 0, slamCd: 0 });
   }
 }
@@ -270,6 +271,7 @@ function modProcs(e, dmg, src) {
     if (src.w.s && src.w.s.cryoblast) forNear(e.x, e.y, 42, o => { if (!o.boss && !o.dead) o.frozen = Math.max(o.frozen, 1.2); });
   }
   if (src.modCharm && !e.boss && !e.elite && !e.rival && !e.charmed && e.hp > 0 && Math.random() < src.modCharm && G.enemies.filter(o => o.charmed).length < MAX_ALLIES) {
+    tutShow('charm');
     e.charmed = true; e.charmT = src.charmDur; e.frozen = 0; e.allyT = null;
     G.stats.charms = (G.stats.charms || 0) + 1;
     floatText(e.x, e.y - e.r - 12, 'MINE NOW', PAL.you, 14);
@@ -307,7 +309,7 @@ function allyAI(e, dt) {
 
 // ---------------------------------------------------------------- weapon upgrade trees
 // Lv 3 and Lv 8: three upgrades any weapon can take (fixed per weapon, seeded by its id, so you can plan
-// ahead in the Armoury). Lv 5 and Lv 10: the weapon's own two signature upgrades (SIGS).
+// ahead in the Tackle Box). Lv 5 and Lv 10: the weapon's own two signature upgrades (SIGS).
 function weaponTree(def) {
   if (def.tree) return def.tree;
   let seed = 7;

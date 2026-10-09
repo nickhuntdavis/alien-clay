@@ -274,7 +274,7 @@ function rivalDown(e) {
   spawnPart(e.x, e.y, e.color, 50, 300, 0.8, 5);
   addDecal(e.x, e.y, e.r * 2.4, e.color);
   cam.shake = 14;
-  // Their growth is yours now: about a level of XP, a Fan Box and a snack.
+  // Their growth is yours now: about a level of XP, a strand of Donor DNA and a snack.
   const xp = xpNeed(G.level) * 1.2;
   for (let i = 0; i < 10; i++) dropGem(e.x + rand(-50, 50), e.y + rand(-50, 50), xp / 10);
   G.pickups.push(makePickup('chest', e.x, e.y, { t: 'rival', name: e.name }));
@@ -282,7 +282,7 @@ function rivalDown(e) {
   healPlayer(P.maxHp * 0.2);
   gainChrono(CHRONO.energyPerCharge * 0.5);
   banner(e.name.toUpperCase() + ' ELIMINATED', e.color);
-  sysMsg('SYSTEM MESSAGE', fill(pick(SYSTEM_LINES.rivalDead), e, 0, 'You did that. The crowd loved it.'), e.color, true);
+  sysMsg('SYSTEM MESSAGE', fill(pick(SYSTEM_LINES.rivalDead), e, 0, 'You did that. The lab is taking notes.'), e.color, true);
   addViewers(20000);
   achieve('rivalkill');
   if (runRivals().every(R => G.rivalOut[R.id])) achieve('allrivals');

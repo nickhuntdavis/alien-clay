@@ -1,12 +1,15 @@
 'use strict';
-// Storm Directive - the Show: a sardonic System announcer, achievements with (occasionally real)
-// rewards, a live viewer count and sponsors who send gifts at viewer milestones.
+// Spawn Prawn - the Experiment: a sardonic lab tech narrating, achievements with (occasionally real)
+// rewards, and lab funding (G.show.viewers, internally) with research grants at funding milestones.
+// In the campaign the same meter is your devotion to the egg, and the narrator is your inner voice.
 
 function newShow() {
   return { viewers: 1200, peak: 1200, lastKillT: 0, milestone: 0, idleT: 50, lowHpCd: 0, achieved: {}, order: [], msgQ: [] };
 }
 
-function fmtViewers(v) { return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'K' : Math.round(v) + ''; }
+function fmtViewers(v) { return (lvOn() ? '' : '£') + (v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'K' : Math.round(v) + ''); }
+// What the meter is called: the lab's funding, or (in the campaign) your devotion to the egg.
+const showWord = () => lvOn() ? 'Devotion' : 'Funding';
 
 function sysMsg(head, body, color, force) {
   if (!G) return;
@@ -17,7 +20,9 @@ function sysMsg(head, body, color, force) {
   q.push({ head: narratorHead(head), body, color: color || '#8dffc0' });
   if (q.length > 6) q.shift();
 }
-function sysLine(kind, force) { const L = SYSTEM_LINES[kind]; if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force); }
+// In the campaign the default narrator gives way to your own inner voice (LONGING_LINES).
+const sysPool = kind => (lvOn() && SET.narrator === 'system' && LONGING_LINES[kind]) || SYSTEM_LINES[kind];
+function sysLine(kind, force) { const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force); }
 
 function addViewers(n) {
   if (!G) return;
@@ -31,9 +36,10 @@ function addViewers(n) {
 function sponsorGift(milestone) {
   const sponsor = pick(SPONSORS), type = pick(['heal', 'rage', 'shield', 'magnet', 'chest', 'nuke', 'chest']);
   const p = me(), a = Math.random() * TAU;
-  G.pickups.push(makePickup(type, p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70, { t: 'sponsor', name: sponsor }));
-  sysMsg('SPONSOR GIFT', `${fmtViewers(milestone)} viewers! ${sponsor} has sent you a ${POWERUPS[type].name}. Please thank them by not dying immediately.`, '#ffb400', true);
-  achieve('sponsor');
+  G.pickups.push(makePickup(type, p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70, { t: 'sponsor', name: lvOn() ? 'the egg' : sponsor }));
+  if (lvOn()) sysMsg('A SIGN FROM THE EGG', `Devotion ${fmtViewers(milestone)}. The egg is calling, and you are sure it has sent you a ${POWERUPS[type].name}. Who else would?`, '#ffb400', true);
+  else sysMsg('RESEARCH GRANT', `${fmtViewers(milestone)} in funding! ${sponsor} has sent you a ${POWERUPS[type].name}. Please thank them by not dying immediately.`, '#ffb400', true);
+  if (!lvOn()) achieve('sponsor');
 }
 
 function achieve(id) {
@@ -44,8 +50,8 @@ function achieve(id) {
   s.order.push(id);
   let reward;
   switch (A.reward) {
-    case 'box': G.lootQueue.push({ kind: 'chest', src: { t: 'ach', name: A.name } }); reward = 'Reward: a Gold strand of Fan DNA.'; break;
-    case 'myth': G.lootQueue.push({ kind: 'myth', src: { t: 'ach', name: A.name } }); reward = 'Reward: ACHIEVEMENT DNA. Every card in it is Mythical or Celestial.'; break;
+    case 'box': G.lootQueue.push({ kind: 'chest', src: { t: 'ach', name: A.name } }); reward = 'Reward: a Gold strand of Donor DNA.'; break;
+    case 'myth': G.lootQueue.push({ kind: 'myth', src: { t: 'ach', name: A.name } }); reward = 'Reward: ACHIEVEMENT DNA. Every card in it is Mythical or Immaculate.'; break;
     case 'bossbox': G.lootQueue.push({ kind: 'boss', src: { t: 'ach', name: A.name } }); reward = 'Reward: a Gold strand of Boss DNA.'; break;
     case 'reroll': G.rerolls++; reward = 'Reward: +1 reroll token.'; break;
     case 'scrap': G.scrap += 40; reward = 'Reward: 40 scrap. Try not to spend it all at once.'; break;
