@@ -1643,7 +1643,7 @@ function render() {
   WORLD_DF = df;
 
   drawOverkill();
-  puDraw();
+  puDraw(); redDraw();
   if (FULL_COL) technicolourWash(0.32);
   // Floating texts.
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';

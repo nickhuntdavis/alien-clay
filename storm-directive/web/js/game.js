@@ -410,7 +410,7 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
-  const minR = req.kind === 'boss' || req.kind === 'chest' ? 3 : 0; // level boxes Common+, Fan and boss boxes Epic+
+  const minR = redLoot(req, req.kind === 'boss' || req.kind === 'chest' ? 3 : 0); // level boxes Common+ (the Redtail: Uncommon+), Fan and boss boxes Epic+
   if (req.kind === 'slot') {
     // A weapon draft for a new mount: three fresh weapons, Rare or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
@@ -742,7 +742,7 @@ function damageEnemy(e, dmg, src) {
   if (G.dyeBoon.rival && e.rival) d *= 1.4;
   if (e.boss || e.bossDef) d *= bossDamageMul(e, src);
   if (src.w && src.w.mods && src.w.mods.length) d *= sillyModMul(e, src); // (silly.js modifiers)
-  if (src.w) d *= rrelicDmgMul(e, src); // (rival relics, rrelics.js)
+  if (src.w) d *= rrelicDmgMul(e, src) * redDmgMul(); // (rival relics, rrelics.js; Keeping It in the Family, redtail.js)
   if (src.w && src.w.s) {
     const ws = src.w.s;
     if (ws.pExec && e.hp < e.maxHp * 0.35) d *= 1 + ws.pExec;
@@ -1086,7 +1086,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d;
-  sillyHurt();
+  sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
   if (ent && !ent.dead) G.grudge = ent;
   G.lastHitEnt = ent || null;
   rebornHurt(d); // (Karma)
@@ -1557,7 +1557,7 @@ function updateWeapon(w, dt) {
   }
   if (d.scrapAmmo && G.scrap < 1) { if (!w.broke) { w.broke = true; achieve('broke'); } w.cd = Math.max(w.cd, 0); return; }
   w.broke = false;
-  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste();
+  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste() * redHaste();
   if (d.kind === 'crayon') { w.durK = Math.max(1, rate); rate = 1 / Math.max(1, rate); } // (Colouring In: fire rate works backwards, toys.js)
   w.cd -= dt * rate;
   let shots = 0;
@@ -1596,6 +1596,7 @@ function fireWeapon(w, target) {
   if (d.toy) { toyFire(w, target, src); return; }
   if (d.reborn && rebornFire(w, target, src)) return; // (Prawn Again's weapons, reborn.js)
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
+  if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
@@ -1975,6 +1976,7 @@ function updateProjectiles(dt) {
       projHit(pr, e);
       if (pr.ghost) rebornHit(pr, e); // (Ghosts of You: reborn.js)
       if (pr.pair) geneHit(pr, e); // (Gene Gun: edits)
+      if (pr.note) redNoteHit(pr, e); // (Duelling Banjo: Hoedown)
       if (pr.src.echoHit) {
         // Paradox Rifle: the same hit arrives again from one second in the future.
         const tgt = e, dmg = pr.dmg * 0.9;
@@ -2020,6 +2022,7 @@ function landLob(pr) {
   if (d.salvage && Math.random() < 0.5) dropScrap(pr.tx, pr.ty, 1);
   if (pr.w.id === 'venom') { if (G.zones.length < 260) G.zones.push(venomZone(pr.w, pr.tx, pr.ty)); }
   else if (s.dur > 0) G.zones.push({ x: pr.tx, y: pr.ty, r: s.area, life: s.dur, max: s.dur, dps: s.dmg * (d.base.explode ? 0.3 : 0.9), elem: d.elem, pull: 0, color: pr.color, tick: 0, src: pr.src });
+  if (d.redtail) redLand(pr); // (Moonshine Jug: bad batches and the rest, redtail.js)
 }
 
 function detonateMine(pr) {
@@ -2374,6 +2377,7 @@ function gainXp(v) {
     if (G.level <= 8 || (G.level <= 24 ? G.level % 2 === 0 : G.level % 3 === 0)) G.lootQueue.push({ kind: 'level' });
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     rebornLevel(G.level); // (Prawn Again: memories of a past life)
+    redLevel(); // (the Redtail: a bane every level)
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS + (G.comboMounts || 0)) {
       G.weapons.push(null);
@@ -2469,7 +2473,7 @@ function update(dt) {
   sigTick(dt);
   comboTick(dt);
   overkillTick(dt);
-  puTick(dt);
+  puTick(dt); redTick(dt);
   rebornTick(dt);
   introTick(); // first sightings
   boonTick(dt);

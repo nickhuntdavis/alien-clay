@@ -107,6 +107,7 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
       break;
     }
     case 'reborn': rebornPortrait(g, hx, hy, R, c, t); break;
+    case 'redtail': redPortrait(g, hx, hy, R, c, t); break;
     case 'splicer': {
       // The double helix inside the head (clipped to it).
       g.save(); g.beginPath(); g.ellipse(hx, hy, R * 1.12, R * 0.74, 0, 0, TAU); g.clip();
@@ -317,6 +318,7 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
         break;
       }
       case 'reborn': rebornMods(k, c, t); break;
+      case 'redtail': redMods(k, c, t); break;
       case 'splicer': {
         // A twisting double helix inside the head (clipped to it), with rungs.
         ctx.save(); ctx.beginPath(); ctx.ellipse(1 * k, 0, 6.6 * k, 4.3 * k, 0, 0, TAU); ctx.clip();

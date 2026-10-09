@@ -101,6 +101,7 @@ function puHit(e, d, src) {
 // Status chips for the HUD.
 function puChips(chips) {
   if (G.clarityT > G.t) chips.push(['POST-NUT CLARITY ' + Math.ceil(G.clarityT - G.t), XR.dim]);
+  redChips(chips);
   if (!G.pu) return;
   for (const k of PU_NEW) if (G.pu[k] > 0) chips.push([POWERUPS[k].name + ' ' + Math.ceil(G.pu[k]), PAL.pickup]);
 }

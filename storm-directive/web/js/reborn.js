@@ -208,9 +208,14 @@ function rebornPortrait(g, hx, hy, R, c, t) {
   g.globalAlpha = 0.5; g.lineWidth = Math.max(1, R * 0.04); g.beginPath(); g.ellipse(hx, hy - R * 1.25 + Math.sin(t * 2) * R * 0.06, R * 1.0, R * 0.32, 0, 0, TAU); g.stroke(); g.globalAlpha = 1;
 }
 // In play (drawSeqMods, already turned to the head): a little halo over the head.
+// The halo stays level and above the head on screen, however the head is turned: find where the head is in
+// screen pixels, then draw without the head's rotation.
 function rebornMods(k, c, t) {
-  ctx.strokeStyle = c; ctx.lineWidth = Math.max(0.8, 0.7 * k);
-  ctx.beginPath(); ctx.ellipse(1 * k, -8.5 * k + Math.sin(t * 2) * 0.5 * k, 5 * k, 1.6 * k, 0, 0, TAU); ctx.stroke();
+  const m = ctx.getTransform(), hp = m.transformPoint(new DOMPoint(1 * k, 0)), u = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 1;
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.strokeStyle = c; ctx.lineWidth = Math.max(0.8, 0.7 * k) * u;
+  ctx.beginPath(); ctx.ellipse(hp.x, hp.y - (9 * k + Math.sin(t * 2) * 0.5 * k) * u, 5 * k * u, 1.6 * k * u, 0, 0, TAU); ctx.stroke();
+  ctx.restore();
 }
 // Out of Body: your empty body, left behind where you slipped out.
 function rebornDrawOOB() {

@@ -85,6 +85,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six burning acid pools erupts around you. They burn hotter the more hurt you are. | Deal 2,000,000 elemental damage (all runs) |
 | **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Cold Storage** (11s): Every 11s: a burst of liquid nitrogen hits the biggest crowd within 320, freezing everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
 | **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Reach Rank 3 with every other sequence |
+| **The Redtail** | Inbred Luck: +25% luck; level-up boxes are never Common. Every level up also brings a small bane (at most 4 of each) | Shotgun Wedding, Moonshine Jug, Duelling Banjo | **Sister-Cousin** (12s): When you are hit, there is a 35% chance a copy of you splits off and fights beside you for 12s. Swim into her to recombine for Keeping It in the Family: +30% damage and +20% fire rate for 8s, and 10% of your health back. Tap to split on purpose. | Play 20 runs (any result) |
 
 ### Sequence synergies
 
@@ -100,7 +101,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ## Weapons
 
-29 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
+32 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
 
 | Weapon | Sequence | Element | Role | Aims at | Wildcard |
 |---|---|---|---|---|---|
@@ -133,6 +134,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Ghosts of You](#ghosts-of-you) | Prawn Again | Frost | Haunter | NEAREST | - |
 | [Karma](#karma) | Prawn Again | Kinetic | Payback | NEAREST | - |
 | [Gene Gun](#gene-gun) | Designer Baby | Arcane | Splicer | NEAREST | - |
+| [Shotgun Wedding](#shotgun-wedding) | Redtail | Kinetic | Brawler | NEAREST | - |
+| [Moonshine Jug](#moonshine-jug) | Redtail | Fire | Firebomber | DENSEST CLUSTER | - |
+| [Duelling Banjo](#duelling-banjo) | Redtail | Shock | Ring | NEAREST | - |
 
 ### Spitball
 
@@ -747,6 +751,72 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Lv 10 mastery | **Chimera** | Every strand carries two elements at once and applies both. |
 |  | **Recombination** | A strand that kills splits into a fresh helix aimed at the nearest enemy (once per strand). |
 
+### Shotgun Wedding
+
+*Kinetic gun, Brawler.* Something old, something new, something double-barrelled.
+
+- **Base stats:** dmg 6, cd 0.55s, mag 2, reload 1.3s, x7, range 300 (knock 90, bounce 1)
+- **Level bonuses:** Lv3: +2 count; Lv6: +30% dmg; Lv9: +2 count
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 5 signature | **Throwing Rice** | Every blast also scatters a ring of 8 grains of rice all around you at 40% damage. |
+|  | **Both Barrels, Always** | Every blast is both barrels: double the pellets, but 30% slower to fire. |
+| Lv 8 | **Ice Queen** | 12% of hits freeze non-boss enemies solid. |
+|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+|  | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+| Lv 10 mastery | **The Reception** | Every fourth blast fires a full ring of pellets all around you as well. |
+|  | **Elope** | Every reload, you dash forward and nothing can hurt you for half a second. |
+
+### Moonshine Jug
+
+*Fire lob, Firebomber.* Grandpappy's recipe. Do not drink. Do not stand near.
+
+- **Base stats:** dmg 15, cd 1.2s, mag 3, reload 2s, range 380 (area 70, explode 1, dur 2.4, flight 0.65)
+- **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +35% area
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hot Load** | +40% damage. |
+|  | **Wide Hips** | +35% area and +15% range. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **200 Proof** | Puddles burn 50% longer and 25% wider. |
+|  | **Backyard Still** | Every third jug lands as three jugs. |
+| Lv 8 | **Electric Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+|  | **Twins!** | +2 projectiles (shots share the damage). |
+| Lv 10 mastery | **Every Batch Is Bad** | Every jug is a bad batch. |
+|  | **Hooch Hour** | Standing in your own fire heals you 2% of your max HP a second. You are used to it. |
+
+### Duelling Banjo
+
+*Shock ring, Ring.* Only knows one song. Plays it with feeling.
+
+- **Base stats:** dmg 12, cd 1.3s, mag 3, reload 1.6s, x10, pierce 2, range 240
+- **Level bonuses:** Lv3: +4 count; Lv6: +40% dmg; Lv9: +2 pierce
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Pointy Head** | Shots pierce 2 more enemies. |
+| Lv 5 signature | **Fingerpicking** | +6 notes in every ring. |
+|  | **Duelling** | Every ring is answered a moment later by a second ring: from your Sister-Cousin if she is out, otherwise from you. |
+| Lv 8 | **Sugar Rush** | +75% damage. |
+|  | **Carpet Shock** | 30% of hits arc to a nearby enemy for 50% damage. |
+|  | **Plus One** | +1 projectile (shots share the damage). |
+| Lv 10 mastery | **Hoedown** | Low notes knock enemies back hard and leave them dazed for a moment. |
+|  | **Bluegrass Encore** | Every third ring plays both notes at once. |
+
 ### Upgrades with a twist
 
 When an upgrade would do nothing for a weapon, that weapon does its own thing with it instead (the card tells you).
@@ -1109,6 +1179,8 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Old Soul** | +10% experience and +5% damage | You | 5 |
 | **Muscle Memory** | +8% fire rate and reload speed | You | 5 |
 | **Nine Lives** | +5% dodge and +10 max HP | You | 3 |
+| **Homebrew** | +8% fire rate and +8% damage, -2% swim speed | You | 4 |
+| **Thick as Thieves** | +2 armour and +6% luck | You | 3 |
 
 ## Mutations (Enzyme Vesicles)
 
