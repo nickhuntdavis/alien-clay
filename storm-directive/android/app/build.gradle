@@ -14,11 +14,21 @@ android {
         versionName '8.57'
     }
 
+    // A fixed key, kept in the repo, so every build (from any session) installs over the last one.
+    // The old per-machine debug key changed with each fresh container, which forced an uninstall.
+    signingConfigs {
+        release {
+            storeFile file('../spawnprawn.keystore')
+            storePassword 'spawnprawn'
+            keyAlias 'spawnprawn'
+            keyPassword 'spawnprawn'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
-            // Signed with the local debug key so the APK can be sideloaded directly.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 
