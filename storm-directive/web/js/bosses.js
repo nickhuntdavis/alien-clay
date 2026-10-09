@@ -279,6 +279,7 @@ function bossDown(e) {
   (G.bossDead || (G.bossDead = {}))[e.id] = true;
   if (e.twin) G.bossDead[e.twin.id] = true;
   G.boss = null;
+  G.nextBoss = Math.max(G.nextBoss, G.t + 25); // (a breather before the next one)
   G.stats.bossKills++;
   (G.stats.bossesBeaten || (G.stats.bossesBeaten = [])).push(e.def.id);
   G.lootQueue.push({ kind: 'relic', boss: e.def.id, src: { t: 'boss', name: e.def.name } });

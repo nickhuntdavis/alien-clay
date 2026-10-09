@@ -2358,7 +2358,9 @@ function applyPickup(type, src) {
 
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
-  const xk = XP_PACE * G.P.xp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp();
+  // XP bonuses from upgrades count half (they stacked up to x1.9 and runs finished 10-30 levels ahead of the curve).
+  const xpUp = G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp;
+  const xk = XP_PACE * xpUp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp();
   G.xp += v * xk;
   G.stats.xpRaw = (G.stats.xpRaw || 0) + v; G.stats.xpGot = (G.stats.xpGot || 0) + v * xk; // run-log telemetry // the morning-after pill halves growth
   sfx('gem');
@@ -2527,7 +2529,8 @@ function update(dt) {
   updateRivals(dt);
   if (!G.wave && !G.debug) updateShowdown();
   if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('STORM SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
-  if (G.t >= G.nextBoss) { G.nextBoss += G.bossCount >= 3 ? BOSS_INTERVAL * 2 : BOSS_INTERVAL; spawnBoss(); }
+  // (Never two bosses at once: the next one waits until the current one is dead, then 25s more; bosses.js sets that.)
+  if (G.t >= G.nextBoss && !(G.boss && !G.boss.dead)) { G.nextBoss += G.bossCount >= 3 ? BOSS_INTERVAL * 2 : BOSS_INTERVAL; spawnBoss(); }
   // FX.
   G.hitFxN = 0;
   if (G.flashT > 0) G.flashT -= dt;
