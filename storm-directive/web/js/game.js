@@ -129,7 +129,7 @@ function newGame() {
 }
 
 function angDiff(a, b) { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU; return d; }
-function xpNeed(l) { return Math.floor(4 + (l - 1) * 2.5 + Math.pow(l - 1, 2.35) * 0.22); }
+function xpNeed(l) { return Math.floor((6 + (l - 1) * 2.5 + Math.pow(l - 1, 2.35) * 0.22) * 1.3); } // (x1.3: fewer, chunkier level-ups)
 function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? Math.pow(1.32, (t - 900) / 60) : 1); }
 const SURGE_T = 900; // Storm Surge: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
 // A run lasts about 10 minutes: the difficulty clock runs 1.5 times faster than real time.
@@ -137,7 +137,7 @@ const PACE = 1.5;
 function PT() { return G.lvl ? lvPT() : G.wave ? wavePT() : G.t * PACE; }
 // Ahead of the curve? Enemies keep up. Levels you are past where a 10-minute run expects you to be
 // (level 60 at 9 minutes) add 5% enemy health and 3% enemy damage each.
-function levelsAhead() { if (G.wave || G.lvl) return 0; return Math.max(0, G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
+function levelsAhead() { if (G.wave || G.lvl) return 0; return Math.max(0, G.level - (1 + 52 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
 function hpNow() { return hpMul(PT()) * (1 + 0.05 * levelsAhead()); }
 function dmgNow() { return dmgMul(PT()) * (1 + 0.03 * levelsAhead()); }
 function dmgMul(t) { return (1 + t / 240 + Math.pow(t / 600, 2)) * (t > SURGE_T ? Math.pow(1.3, (t - SURGE_T) / 60) : 1); }
@@ -424,7 +424,7 @@ function lvBonusText(def, from, to) {
       else if (k === 'dur') parts.push(`+${pc(v)} duration`);
       else if (k === 'cd') parts.push(`${pc(-v)} faster`);
       else if (k === 'film') parts.push('thicker bubbles (they soak up hits and add them to the pop)');
-      else if (k === 'rainbow') parts.push('rainbow pops (a random element each time)');
+      else if (k === 'rainbow') parts.push('rainbow pops (a random damage type each time)');
     }
   }
   return parts.join(', ');
@@ -440,7 +440,7 @@ function genLoot(req) {
       return out.length ? out : genLoot(Object.assign({}, req, { kind: 'chest' }));
     } finally { G.mythBox = false; }
   }
-  const minR = redLoot(req, req.kind === 'boss' || req.kind === 'chest' ? 3 : 0); // level boxes Common+ (the Redtail: Uncommon+), Fan and boss boxes Epic+
+  const minR = Math.min(4, redLoot(req, req.kind === 'boss' || req.kind === 'chest' ? 3 : 0) + (req.boost || 0)); // (+ a rarity per box skipped before it) // level boxes Common+ (the Redtail: Uncommon+), Fan and boss boxes Epic+
   if (req.kind === 'slot') {
     // A weapon draft for a new mount: three fresh weapons, Rare or better.
     const owned = new Set(G.weapons.filter(Boolean).map(w => w.id));
@@ -1000,14 +1000,16 @@ function killEnemy(e, src) {
     bossDown(e);
   } else if (e.elite || (e.def.spongy && e.r > 100)) {
     // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
-    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.85 ? chestOr('heal') : pick(['heal', 'magnet', 'rage'].concat(PU_NEW)), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
+    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.55 ? chestOr('heal') : pick(['heal', 'magnet', 'rage'].concat(PU_NEW)), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
   } else if (Math.random() < 0.0055 * (1 + P.luck) * (G.mut && G.mut.heavymetal ? 2 : 1)) { // (half as many power-ups as before, each about 1.5x as strong)
     const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'].concat(PU_NEW, PU_NEW);
     G.pickups.push(makePickup(Math.random() < 0.5 ? chestOr(pick(types)) : pick(types), e.x, e.y, { t: 'drop', name: e.name }));
   }
 }
 // Loot boxes from kills are rationed: at most one every LOOT_GAP seconds (bosses and rivals don't count).
-const LOOT_GAP = 45; // with boss, rival and achievement boxes: about 25 extra boxes on a run
+// Boxes you can skip, and their usual rarity floor (skipping raises the next one's).
+const RAR_SKIP = { level: 0 };
+const LOOT_GAP = 70; // with boss, rival and achievement boxes: about 25 extra boxes on a run
 function chestOr(alt) {
   if (G.t < (G.nextChest || 45)) return alt;
   G.nextChest = G.t + LOOT_GAP;
@@ -1096,7 +1098,8 @@ function hurtPlayer(dmg, from, ent, kind) {
   const armBase = Math.max(0, P.armour - (G.armourLost || 0));
   const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
-  if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20) }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
+  const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
+  if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d;
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
@@ -2557,7 +2560,7 @@ function update(dt) {
       continue;
     }
     const rr = b.r + p.r * 0.6;
-    if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; hurtPlayer(b.dmg, b.from, b.owner, 'bullets'); }
+    if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; G.hitFrom = b; hurtPlayer(b.dmg, b.from, b.owner, 'bullets'); }
   }
   updatePickups(dt);
   updateAmbient(dt);
@@ -2669,7 +2672,7 @@ cv.addEventListener('pointermove', ev => {
   // The stick reads full speed at 50px; pushing on past it (up to 70px) is a sprint (stamina.js).
   if (d > STAM.stick) { INPUT.ox += dx / d * (d - STAM.stick); INPUT.oy += dy / d * (d - STAM.stick); dx = ev.clientX - INPUT.ox; dy = ev.clientY - INPUT.oy; }
   const dd = Math.hypot(dx, dy) || 1, k = Math.min(dd, 50) / dd;
-  G.manual.x = dx * k / 50; G.manual.y = dy * k / 50; G.manual.sprint = dd > STAM.push;
+  G.manual.x = dx * k / 50; G.manual.y = dy * k / 50; G.manual.edge = dd > STAM.push; // (held at the edge for a moment = a sprint: stamina.js)
 });
 const endTouch = ev => {
   PTRS.delete(ev.pointerId);

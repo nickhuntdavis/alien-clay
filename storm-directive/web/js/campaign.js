@@ -11,8 +11,8 @@ const CAMP = {
   waves: 20, bossEvery: 5, waveSec: 30,      // waveSec: the difficulty clock runs this many seconds per wave
   newPerWave: 2,                              // enemy types introduced per ordinary wave
   lead: [16, 12, 10, 10],                      // boss waves: seconds of entourage before the boss drops in
-  hp: [4, 18, 60, 180],                       // boss health, times its base, for the 1st to 4th boss wave
-  hit: [0.65, 0.8, 0.95, 1],                     // boss attack strength, same order
+  hp: [2.2, 13, 50, 160],                       // boss health, times its base, for the 1st to 4th boss wave
+  hit: [0.55, 0.75, 0.9, 1],                     // boss attack strength, same order
   pulse: [7, 6.5, 6, 5.5],                    // seconds between entourage cues during a fight (at least)
 };
 // Who comes with each boss, where they arrive, and which of its moves cue them.

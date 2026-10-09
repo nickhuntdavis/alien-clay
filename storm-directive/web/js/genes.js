@@ -29,7 +29,7 @@ const PROFILES = {
     unlock: { text: 'Pick up 100 power-ups (all runs)', have: () => META.life.pickups, need: 100 } },
   acid: { name: 'The Problem Child', trait: 'Overtired', fmt: k => `up to +${pc(0.12 * k)} damage, the closer you are to bursting`, apply: () => {},
     desc: 'Dissolves things. Gets angrier the more you are hurt.', weapons: ['venom', 'flamer', 'redtape'],
-    unlock: { text: 'Deal 2,000,000 elemental damage (all runs)', have: () => Math.floor(META.life.elem), need: 2e6 } },
+    unlock: { text: 'Deal 2,000,000 chemical damage (all runs)', have: () => Math.floor(META.life.elem), need: 2e6 } },
   splicer: { name: 'The Designer Baby', trait: 'Good Genes', fmt: k => `your other sequences' traits are ${pc(Math.min(1, 0.25 * k))} stronger, +${pc(0.05 * k)} area`, apply: (P, k) => { P.area += 0.05 * k; },
     desc: 'Clever, strange and a bit of everything. Makes every other gene work harder.', weapons: ['friend', 'crayon', 'siphon'],
     unlock: { text: 'Cast 1,500 Feats (all runs)', have: () => META.life.casts, need: 1500 } },
@@ -136,9 +136,9 @@ const MUTATIONS = {
   leech:       { tier: 0, name: 'Biting Phase', desc: 'Hits heal you a little (within the lifesteal limit). It is just a phase.', apply: P => { P.lifesteal += 0.6; } },
   toothpick:   { tier: 0, name: 'Teacher\'s Pet', desc: 'Weapons and Feats -5% damage. +25% XP.', apply: P => { P.wDmg -= 0.05; P.sDmg -= 0.05; P.xp += 0.25; } },
   origami:     { tier: 0, name: 'Bookworm', desc: 'Feats +15% damage. Weapons -10% damage.', apply: P => { P.sDmg += 0.15; P.wDmg -= 0.1; } },
-  ohno:        { tier: 2, name: 'Fair\'s Fair', desc: 'Every element at normal strength or weaker gets +25%. Any already boosted loses 10%.', apply: P => { for (const el in P.elem) P.elem[el] += P.elem[el] <= 1 ? 0.25 : -0.1; } },
+  ohno:        { tier: 2, name: 'Fair\'s Fair', desc: 'Every damage type at normal strength or weaker gets +25%. Any already boosted loses 10%.', apply: P => { for (const el in P.elem) P.elem[el] += P.elem[el] <= 1 ? 0.25 : -0.1; } },
 };
-const VESICLE = { first: 40, every: [45, 70], max: 2, life: 60, slots: 6, near: [450, 900] };
+const VESICLE = { first: 50, every: [60, 90], max: 2, life: 60, slots: 6, near: [450, 900] };
 const mutOn = id => !!(G && G.mut && G.mut[id]);
 const mutCap = () => VESICLE.slots + (META.ranks.incubated || 0);
 const mutCount = () => Object.keys(G.mut || {}).filter(id => !G.mutHidden || !G.mutHidden[id]).length;

@@ -1952,7 +1952,9 @@ function drawTracks(vis) {
 // Scale bar and objective readout, bottom-left, like the imaging software burns into a frame.
 // A sperm head is about 15 world units long and ~5 um in reality, so 30 units is 10 um.
 function drawScaleBar() {
-  const land = LAYOUT.land, bh = land ? 0 : (UI.bottomH || 230), y = H - bh - 22, x = land ? LAYOUT.colW + 12 : 12, len = 30 * S * 2;
+  // (Portrait: just above your Feats, at the bottom left.)
+  if (!(UI.r2T > G.realT)) { const r2 = document.getElementById('row2'); UI.r2Y = r2 ? r2.getBoundingClientRect().top : 0; UI.r2T = G.realT + 1; }
+  const land = LAYOUT.land, bh = land ? 0 : (UI.bottomH || 230), y = land || !UI.r2Y ? H - bh - 22 : UI.r2Y - 10, x = land ? LAYOUT.colW + 12 : 12, len = 30 * S * 2;
   ctx.fillStyle = XR.white; ctx.fillRect(x, y, len, 3);
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y + 3, len, 1);
   ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -2061,23 +2063,23 @@ function drawTopBar(top, m, s) {
 }
 
 function drawHud() {
-  const p = G.player, top = UI.safeTop || 0;
+  const p = G.player, top = UI.safeTop || 0, imm = !!SET.immersive; // (Immersive mode: just the slide and your buttons)
   // Everything on the HUD gets a soft dark drop so it reads against the pale field.
   ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
-  drawScaleBar();
+  if (!imm) drawScaleBar();
   // XP: a thin calibration line across the very top.
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
   ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
   const c = G.core, land = LAYOUT.land, BY = land ? 56 : 60;
   const barX = 10, barW = Math.min(360, W - 130);
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
-  drawTopBar(top, m, s);
+  if (!imm) drawTopBar(top, m, s);
   // Status chips.
   const chips = [];
   if (G.rage > 0) chips.push(['OXYTOCIN', PAL.pickup]);
   puChips(chips);
   // Falling behind the level curve is what loses runs: say so.
-  if (!G.wave && !G.lvl) { const behind = (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85)) - G.level; if (behind >= 3) chips.push(['BEHIND PACE: ' + Math.round(behind) + ' LV', PAL.danger]); }
+  if (!G.wave && !G.lvl) { const behind = (1 + 52 * Math.pow(Math.min(1, G.t / 540), 0.85)) - G.level; if (behind >= 3) chips.push(['BEHIND PACE: ' + Math.round(behind) + ' LV', PAL.danger]); }
   if (G.shieldT > 0) chips.push(['STAIR GATE', PAL.pickup]);
   if (G.warp > 0) chips.push(['WARP', XR.white]);
   if (G.barrier > 0) chips.push(['AEGIS', XR.white]);
@@ -2095,7 +2097,7 @@ function drawHud() {
   let cyp = land ? top + BY + 72 : Math.max(top + BY + 72, H * 0.38); // (portrait: clear of the narrator's box)
   // (Tap one to pause and see them all: UI.chipRects, statusintro.js.)
   UI.chipRects = [];
-  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); UI.chipRects.push({ x: 8, y: cyp, w: tw, h: 16 }); cyp += 20; }
+  if (!imm) for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); UI.chipRects.push({ x: 8, y: cyp, w: tw, h: 16 }); cyp += 20; }
   UI.chips = chips;
   // Boss bar: centred, under the sperm count / wave readout.
   if (G.boss && !G.boss.dead) {
@@ -2117,7 +2119,7 @@ function drawHud() {
     ctx.fillText(nm + tag, bx + bw / 2, by - 8);
   }
   // The sperm count (always ticking down), then the Final Five, then the egg.
-  {
+  if (!imm) {
     const bw = barW, bx = barX, by = top + BY + 88, mid = W / 2; // (centred, below the boss bar)
     ctx.textAlign = 'center';
     if (G.fertile) {
@@ -2174,9 +2176,7 @@ function drawHud() {
   if (G.wave && G.wave.active && G.wave.spawned >= G.wave.budget) { const rest = G.enemies.filter(e => !e.dead && !e.charmed && !e.egg); if (rest.length <= 10) for (const e of rest) pointer(e.x, e.y, XR.white, 0.8, 0.8); }
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   if (!G.lvl) pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
-  drawEventBar();
-  drawMinimap(top);
-  drawZoomGauge();
+  if (!imm) { drawEventBar(); drawMinimap(top); drawZoomGauge(); }
   ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.
   if (G.banner) {
@@ -2216,9 +2216,9 @@ function drawEventBar() {
   });
 }
 
-function mmR() { return LAYOUT.land ? Math.round(clamp(H * 0.15, 62, 120)) : 44; }
+function mmR() { return LAYOUT.land ? Math.round(clamp(H * 0.15, 62, 120)) : 54; }
 function drawMinimap(top) {
-  const R = mmR(), mx = W - R - 10, my = top + 132 + R; // (below the pause, auto and speed buttons)
+  const R = mmR(), mx = W - R - 10, my = top + 46 + R; // (just under the top bar)
   const k = R / CORE.arena;
   filmPanel(mx, my, R, 0, true);
   if (G.lvl) return drawLevelMap(mx, my, R);

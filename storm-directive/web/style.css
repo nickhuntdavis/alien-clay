@@ -925,3 +925,63 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 #row2 #pauseBtn { gap: 5px; }
 #row2 #pauseBtn i { display: block; width: 5px; height: 16px; border-radius: 1.5px; background: currentColor; }
 body.land #row2 #armBtn, body.land #row2 #pauseBtn { width: 46px; padding: 0; }
+/* AUTO and speed: top left, side by side, under the top bar. Pause the same height as the rest of its row. */
+#hudTop { left: 10px; right: auto; display: flex; gap: 6px; }
+#hudTop #autoBtn, #hudTop #spdBtn { margin-top: 44px; }
+#row2 #pauseBtn, #row2 #armBtn { height: auto !important; min-height: 0; align-self: stretch; }
+/* Immersive mode: only the play buttons, faded back. */
+body.immersive #hudTop, body.immersive #sysmsg { display: none !important; }
+body.immersive #bottom .slot, body.immersive #moveBtn, body.immersive #armBtn, body.immersive #pauseBtn, body.immersive #side button {
+  opacity: 0.5; background: #00000033 !important; border-color: #ffffff1f !important; box-shadow: none !important; }
+body.immersive #bottom .slot:active, body.immersive #moveBtn:active, body.immersive #side button:active { opacity: 0.9; }
+
+/* ---------------------------------------------------------------- the sample select: an epic one */
+#samples { background: radial-gradient(120% 70% at 50% -10%, #1b3b4a 0%, #0b1418 45%, #050709 100%); overflow-x: hidden; }
+#samples::before { content: ''; position: fixed; inset: -20%; pointer-events: none; opacity: 0.55;
+  background: radial-gradient(circle at 20% 30%, #5fd4e822 0 2px, transparent 3px) 0 0 / 90px 90px, radial-gradient(circle at 70% 60%, #ffd6e81c 0 1.5px, transparent 2.5px) 0 0 / 130px 130px, radial-gradient(circle at 40% 80%, #ffffff14 0 1px, transparent 2px) 0 0 / 60px 60px;
+  animation: sxDrift 60s linear infinite; }
+@keyframes sxDrift { to { transform: translate(-90px, -180px); } }
+#samples .pwrap { position: relative; }
+#samples .ptitle { font-size: 30px; letter-spacing: 6px; text-shadow: 0 0 18px #5fd4e8aa, 0 0 2px #fff; }
+.sx-h { margin: 18px 2px 8px; font: 800 11px var(--mono, monospace); letter-spacing: 4px; color: #8fb3c4; display: flex; align-items: center; gap: 10px; }
+.sx-h::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, #5fd4e866, transparent); }
+.sx-h span { color: #ff9ab8; letter-spacing: 3px; }
+.sx-card { position: relative; display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px; text-align: left; color: #fff; border-radius: 14px; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); background: linear-gradient(135deg, color-mix(in srgb, var(--c) 16%, #000) 0%, #070a0c 70%);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--c) 25%, transparent), inset 0 0 30px color-mix(in srgb, var(--c) 10%, transparent); transition: transform 0.15s; }
+.sx-card:active, .sx-node.open:active { transform: scale(0.97); }
+.sx-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, color-mix(in srgb, var(--c) 22%, transparent) 50%, transparent 70%); transform: translateX(-120%); animation: sxShine 5s ease-in-out infinite; pointer-events: none; }
+@keyframes sxShine { 0%, 60% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+.sx-art { flex: 0 0 64px; height: 64px; color: var(--c); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c) 70%, transparent)); }
+.sx-art svg { width: 100%; height: 100%; }
+.sx-card.hero { flex-direction: column; align-items: stretch; text-align: center; padding: 18px 16px 16px; }
+.sx-card.hero .sx-art { flex: 0 0 auto; height: 120px; animation: sxSpin 40s linear infinite; }
+@keyframes sxSpin { to { transform: rotate(360deg); } }
+.sx-txt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sx-txt i { font: 800 9px var(--mono, monospace); letter-spacing: 2px; font-style: normal; color: var(--c); }
+.sx-txt b { font-size: 18px; letter-spacing: 0.5px; }
+.sx-card.hero .sx-txt b { font-size: 26px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 14px color-mix(in srgb, var(--c) 70%, transparent); }
+.sx-txt span { font-size: 12.5px; color: #c4d3de; line-height: 1.35; }
+.sx-txt em { font: 700 10px var(--mono, monospace); font-style: normal; letter-spacing: 1px; color: #9fb3c8; }
+.sx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sx-grid .sx-card { flex-direction: column; text-align: center; padding: 14px 10px; }
+.sx-grid .sx-art { flex: 0 0 auto; width: 56px; height: 56px; }
+.sx-card.locked, .sx-node.locked { filter: grayscale(1) brightness(0.6); }
+.sx-card.locked::after { display: none; }
+.sx-path { position: relative; display: flex; flex-direction: column; gap: 14px; padding: 4px 0 4px 6px; }
+.sx-path::before { content: ''; position: absolute; left: 27px; top: 22px; bottom: 22px; width: 3px; border-radius: 2px;
+  background: linear-gradient(#ff7aa2, #ff7aa266 40%, #ffffff14); box-shadow: 0 0 10px #ff7aa288; }
+.sx-node { position: relative; display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; color: #fff; padding: 0; background: none; border: 0; }
+.sx-dot { flex: 0 0 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 900 18px var(--mono, monospace); z-index: 1;
+  background: radial-gradient(circle at 35% 30%, #ffd6e0, #ff7aa2 55%, #8a1f45); color: #3a0716; box-shadow: 0 0 16px #ff7aa2aa, 0 0 0 3px #050709; }
+.sx-node.open .sx-dot { animation: sxPulse 2.2s ease-in-out infinite; }
+@keyframes sxPulse { 50% { box-shadow: 0 0 28px #ff7aa2, 0 0 0 3px #050709; } }
+.sx-node.locked .sx-dot, .sx-node.tease .sx-dot { background: #1a1d22; color: #5b6570; box-shadow: 0 0 0 3px #050709, inset 0 0 0 1px #ffffff22; }
+.sx-ni { flex: 1; display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: 12px; background: linear-gradient(90deg, #ff7aa21f, #0b0d10 80%); border: 1px solid #ff7aa244; }
+.sx-node.tease .sx-ni { background: none; border: 1px dashed #ffffff1c; }
+.sx-ni b { font-size: 17px; }
+.sx-node.open .sx-ni b { text-shadow: 0 0 10px #ff7aa2aa; }
+.sx-ni span { font-size: 12px; color: #d7c4cc; line-height: 1.35; }
+.sx-ni em { font: 700 10px var(--mono, monospace); font-style: normal; letter-spacing: 1px; color: #ff9ab8; }
+.sx-node.tease .sx-ni b, .sx-node.tease .sx-ni em { color: #5b6570; }
+.sx-node.nope, .sx-card.nope { animation: nope 0.3s; }

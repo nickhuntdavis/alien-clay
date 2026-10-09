@@ -81,7 +81,15 @@ const UI = {
     $('rerollBtn').addEventListener('click', () => UI.reroll());
     // Splice screens can be skipped: stay pure, take two rerolls.
     $('skipBtn').addEventListener('click', () => {
-      if (!G || !$('lootCards').classList.contains('ready') || !UI.lootReq || UI.lootReq.kind !== 'splice') return;
+      if (!G || !$('lootCards').classList.contains('ready') || !UI.lootReq) return;
+      const k = UI.lootReq.kind;
+      if (RAR_SKIP[k] != null) { // Pass on this box: the next one is a rarity better (it stacks).
+        clearPreviews(); G.rarBoost = Math.min(4, (UI.lootReq.boost || 0) + 1); sfx('pickup');
+        floatText(me().x, me().y - 40, 'NEXT BOX: ' + RARITIES[Math.min(4, RAR_SKIP.level + G.rarBoost)].name.toUpperCase() + '+', PAL.reward, 14, 1.2);
+        G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now();
+        return;
+      }
+      if (k !== 'splice') return;
       clearPreviews(); spliceSkip(); sfx('pickup');
       G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now();
     });
@@ -299,7 +307,7 @@ const UI = {
     const body = $('setBody');
     // Tabs: one group of settings at a time.
     const TABS = [['play', 'PLAY'], ['view', 'VIEW'], ['sound', 'SOUND'], ['data', 'DATA']], tab = UI.setTab || 'play';
-    const TAB_OF = { darkfield: 'view', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
+    const TAB_OF = { immersive: 'view', darkfield: 'view', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
     const tabsHtml = `<div class="ptabs">${TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
     body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => (TAB_OF[d.id] || 'play') === tab).map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
     body.querySelectorAll('[data-stab]').forEach(b => b.addEventListener('click', () => { UI.setTab = b.dataset.stab; UI.renderSettings(); $('settings').scrollTop = 0; }));
@@ -350,6 +358,7 @@ const UI = {
     applyNarrator();
     document.body.classList.toggle('clinical', !!SET.clinical);
     document.body.classList.toggle('darkfield', !!SET.darkfield);
+    document.body.classList.toggle('immersive', !!SET.immersive);
     if (typeof resetLook === 'function') resetLook();
     if (typeof applyLayout === 'function') applyLayout();
   },
@@ -783,6 +792,8 @@ const UI = {
 
   // ---------------------------------------------------------------- loot
   openLoot(req) {
+    // A skipped box makes the next ordinary one rarer (G.rarBoost, used up here, kept on the box for rerolls).
+    if (RAR_SKIP[req.kind] != null && req.boost == null) { req.boost = G.rarBoost || 0; G.rarBoost = 0; }
     // New weapons and upgrade paths get the full Weapon Draft treatment.
     if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch' || req.kind === 'sfork') { UI.openDraft(req); if (req.kind !== 'level') return; } // (every weapon and spell choice gets the draft screen)
     G.state = 'loot';
@@ -824,8 +835,8 @@ const UI = {
     UI.renderLootCards();
     UI.rarityBanner();
     $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'sfork' || req.kind === 'relic' || req.kind === 'rrelic' || req.kind === 'spoils' ? 'none' : '';
-    $('skipBtn').style.display = req.kind === 'splice' ? '' : 'none';
-    $('skipBtn').textContent = spliceSkipMut() ? 'SKIP: TAKE A MUTATION' : 'SKIP (+2 REROLLS)';
+    $('skipBtn').style.display = req.kind === 'splice' || RAR_SKIP[req.kind] != null ? '' : 'none';
+    $('skipBtn').textContent = RAR_SKIP[req.kind] != null ? `SKIP: NEXT IS ${RARITIES[Math.min(4, RAR_SKIP.level + (req.boost || 0) + 1)].name.toUpperCase()}+` : spliceSkipMut() ? 'SKIP: TAKE A MUTATION' : 'SKIP (+2 REROLLS)';
     UI.updateReroll();
     UI.show('loot');
     INPUT.active = false; G.manual = null;
@@ -983,7 +994,7 @@ const UI = {
       h += `<div class="sec"><h3>Your genome</h3><div class="list">${gs}${sy}</div><h3 style="margin-top:10px">Mutations (${mutCount()}/${mutCap()})</h3>${ms ? `<div class="list">${ms}</div>` : '<p class="hint">None yet. Swim into a Lateral Gene Transfer: follow the glow at the edge of the screen.</p>'}</div>`;
     }
     // Synergies.
-    h += `<div class="sec"><h3>Element synergies (own 2+ of an element)</h3><div class="list">`;
+    h += `<div class="sec"><h3>Damage-type synergies (own 2+ of one damage type)</h3><div class="list">`;
     for (const el in SYNERGIES) {
       const on = !!G.synergy[el];
       h += `<div class="li ${on ? 'on' : ''}"><b>${SYNERGIES[el].name}</b> ${on ? '(ACTIVE)' : ''}<br><span>${ELEMENTS[el].name}: ${esc(SYNERGIES[el].desc)}</span></div>`;
@@ -1054,7 +1065,7 @@ const UI = {
     t('Area', pc0(P.area)); t('Duration', pc0(P.dur)); t('Range', pc0(P.range));
     t('Extra shots', '+' + P.multishot); t('Pierce', '+' + P.pierce); t('Feat cooldown', pc0(P.cdr));
     const el = Object.keys(P.elem).filter(k => Math.abs(P.elem[k] - 1) > 0.001 && ELEMENTS[k]);
-    h += `<div class="sec"><h3>Stats</h3><div class="tiles">${T.join('')}</div>${el.length ? `<p class="hint">Element damage: ${el.map(k => `<b style="color:${elemCol(k)}">${esc(ELEMENTS[k].name)}</b> ${plus(P.elem[k] - 1)}`).join(' | ')}</p>` : ''}</div>`;
+    h += `<div class="sec"><h3>Stats</h3><div class="tiles">${T.join('')}</div>${el.length ? `<p class="hint">Damage types: ${el.map(k => `<b style="color:${elemCol(k)}">${esc(ELEMENTS[k].name)}</b> ${plus(P.elem[k] - 1)}`).join(' | ')}</p>` : ''}</div>`;
     // Spells and weapons.
     const slot = (w, i, k) => {
       const c = elemCol(wElem(w)), sub = [];
@@ -1081,7 +1092,7 @@ const UI = {
     const pa = PAIRINGS.filter(q => G.pair && G.pair[q.id]).map(q => li(esc(q.name), esc(q.desc), PAL.upgrade));
     if (cb.length || pa.length) r += `<h3>Combos and pairings</h3><div class="list">${cb.join('')}${pa.join('')}</div>`;
     const sy = Object.keys(SYNERGIES).filter(e => G.synergy[e]).map(e => li(esc(SYNERGIES[e].name), `${ELEMENTS[e].name}: ${esc(SYNERGIES[e].desc)}`));
-    if (sy.length) r += `<h3>Element synergies</h3><div class="list">${sy.join('')}</div>`;
+    if (sy.length) r += `<h3>Damage-type synergies</h3><div class="list">${sy.join('')}</div>`;
     const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? li('Mystery Meat', 'Something inside is doing something.') : li(esc(MUTATIONS[id].name), esc(MUTATIONS[id].desc)));
     r += `<h3>Mutations (${mutCount()}/${mutCap()})</h3>${ms.length ? `<div class="list">${ms.join('')}</div>` : '<p class="hint">None yet.</p>'}`;
     const rl = Object.keys(G.relics || {}).filter(id => RELICS[id]).map(id => li(esc(RELICS[id].name), esc(RELICS[id].desc), PAL.reward));
@@ -1133,19 +1144,32 @@ const UI = {
   },
   openSamples() {
     const best = UI.loadBest();
-    // Only samples you can play, in number order. The Lab Bench (debug) is hidden unless developer mode is
-    // on: tap the CHOOSE SPERM SAMPLE heading five times to switch it on or off.
+    // Developer mode (tap the title five times) shows the Lab Bench.
     let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
-    // Wave mode first (the default), then the rest in number order. Endless stays locked until wave mode is beaten.
-    const list = SAMPLES.filter(s => s.open && (s.id !== 's000' || dev)).sort((a, b) => (b.first ? 1 : 0) - (a.first ? 1 : 0) || (a.order || 9) - (b.order || 9) || a.no.localeCompare(b.no));
     const shut = s => !s.open || (s.locked && s.locked());
-    const extra = s => s.id === 's007' ? (META.lvBest && META.lvBest.mouth ? ' | Best: ' + fmtTime(META.lvBest.mouth) : '') : s.id === 's002' ? (best.campBest ? ` | Best: ${best.campBest >= CAMP.waves ? 'beaten' : 'wave ' + best.campBest + ' of ' + CAMP.waves}` : '') : s.id === 's006' ? (best.wave ? ' | Best: wave ' + best.wave : '') : best.born ? ' | Fastest fertilisation ' + fmtTime(best.born) : '';
-    $('sampleList').innerHTML = list.map(s => `<button class="slide ${shut(s) ? 'locked' : ''}" data-sample="${s.id}">
-      <span class="slabel"><b>#${s.no}</b><i>${shut(s) ? (s.open ? 'LOCKED' : 'COMING SOON') : s.tag || 'IN STOCK'}</i></span>
-      <span class="sglass"><span class="sdrop"></span></span>
-      <span class="sinfo"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span>${!s.open ? '<em>More to cum.</em>' : shut(s) ? `<em>${esc(s.lockText || 'Locked.')}</em>` : `<em>Count ${s.count} | Motility ${s.motility}${extra(s)}</em>`}</span>
-    </button>`).join('');
-    $('sampleList').querySelectorAll('.slide').forEach(b => b.addEventListener('click', () => {
+    const by = id => SAMPLES.find(s => s.id === id);
+    const extra = s => s.id === 's007' ? (META.lvBest && META.lvBest.mouth ? 'BEST ' + fmtTime(META.lvBest.mouth) : 'NOT YET BEATEN') : s.id === 's002' ? (best.campBest ? (best.campBest >= CAMP.waves ? 'BEATEN' : 'BEST: WAVE ' + best.campBest + ' OF ' + CAMP.waves) : '20 WAVES') : s.id === 's006' ? (best.wave ? 'BEST: WAVE ' + best.wave : 'NO END') : s.id === 's001' ? (best.born ? 'FASTEST ' + fmtTime(best.born) : 'ONE EGG') : '';
+    // Line art for each mode, drawn in its accent colour.
+    const ART = {
+      s002: '<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" stroke-width="1" opacity=".5"/><path d="M16 60h88M60 16v88M28 32l64 56M92 32L28 88" stroke="currentColor" stroke-width=".6" opacity=".3"/><circle cx="60" cy="60" r="9" fill="currentColor" opacity=".85"/><g fill="currentColor"><circle cx="34" cy="44" r="2.5"/><circle cx="82" cy="40" r="2"/><circle cx="76" cy="82" r="2.5"/><circle cx="40" cy="80" r="2"/></g></svg>',
+      s001: '<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="26" fill="currentColor" opacity=".18"/><circle cx="60" cy="60" r="26" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="60" r="33" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity=".6"/>' + [0, 1, 2, 3, 4, 5, 6, 7].map(i => { const a = i / 8 * 6.283, x = 60 + Math.cos(a) * 50, y = 60 + Math.sin(a) * 50, tx = 60 + Math.cos(a) * 64, ty = 60 + Math.sin(a) * 64; return `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="3.2" ry="2.2" fill="currentColor" transform="rotate(${(a * 57.3).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/><path d="M${x.toFixed(1)} ${y.toFixed(1)}Q${((x + tx) / 2 + 4).toFixed(1)} ${((y + ty) / 2 - 4).toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}" stroke="currentColor" fill="none" stroke-width="1"/>`; }).join('') + '</svg>',
+      s006: '<svg viewBox="0 0 120 120"><path d="M60 60c-14-20-40-20-40 0s26 20 40 0 40-20 40 0-26 20-40 0z" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/></svg>',
+      s000: '<svg viewBox="0 0 120 120"><path d="M48 18h24M52 18v32L28 94a8 8 0 0 0 7 12h50a8 8 0 0 0 7-12L68 50V18" fill="none" stroke="currentColor" stroke-width="3"/><path d="M38 80h44" stroke="currentColor" opacity=".6"/></svg>',
+    };
+    const ACC = { s002: '#5fd4e8', s001: '#ffd6e8', s006: '#ffd23f', s000: '#9fb3c8' };
+    const card = (s, hero) => `<button class="sx-card ${hero ? 'hero' : ''} ${shut(s) ? 'locked' : ''}" data-sample="${s.id}" style="--c:${ACC[s.id] || '#9fb3c8'}">
+      <span class="sx-art">${ART[s.id] || ''}</span>
+      <span class="sx-txt"><i>#${s.no} | ${esc(shut(s) ? 'LOCKED' : s.tag || 'IN STOCK')}</i><b>${esc(s.name)}</b>${hero ? `<span>${esc(s.desc)}</span>` : ''}<em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
+    const modes = ['s001', 's006'].concat(dev ? ['s000'] : []).map(by).filter(Boolean);
+    // The campaign: a way into the body, one region at a time (the far ones are only rumours so far).
+    const lvls = [by('s007'), by('s008'), { teaser: true, name: 'The Stomach', no: '?' }, { teaser: true, name: 'Further In', no: '?' }];
+    const node = (s, i) => s.teaser
+      ? `<div class="sx-node tease"><span class="sx-dot">${i + 1}</span><span class="sx-ni"><b>${esc(s.name)}</b><em>UNCHARTED</em></span></div>`
+      : `<button class="sx-node ${shut(s) ? 'locked' : 'open'}" data-sample="${s.id}"><span class="sx-dot">${i + 1}</span><span class="sx-ni"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span><em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
+    $('sampleList').innerHTML = `<div class="sx-h">MAIN EVENT</div>${card(by('s002'), true)}
+      <div class="sx-h">QUICK RUNS</div><div class="sx-grid">${modes.map(s => card(s, false)).join('')}</div>
+      <div class="sx-h">THE CAMPAIGN <span>INTO THE BODY</span></div><div class="sx-path">${lvls.map(node).join('')}</div>`;
+    $('sampleList').querySelectorAll('[data-sample]').forEach(b => b.addEventListener('click', () => {
       const s = SAMPLES.find(x => x.id === b.dataset.sample);
       if (!s.open || (s.locked && s.locked())) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); if (s.lockText) UI.toast(s.lockText.toUpperCase()); return; }
       UI.sample = s.id; openSeq();
@@ -1240,14 +1264,14 @@ const UI = {
       h += box('Rewind', '', `<b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically.`);
       let l = '';
       for (const id in REACTIONS) l += `<div class="li"><b>${REACTIONS[id].name}</b> ${run && G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
-      h += box('Elemental reactions', `<div class="list">${l}</div>`);
+      h += box('Chemical reactions', `<div class="list">${l}</div>`);
       let el = '';
       for (const id in ELEMENTS) el += `<div class="li"><b style="color:${ELEM_UI[id]}">${ELEMENTS[id].name}</b> <em>${esc(ELEMENTS[id].status)}</em><br><span>${esc(ELEMENTS[id].blurb)}</span></div>`;
-      h += box('Elements', `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it.');
+      h += box('Damage types', `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it.');
       let tl = '';
       const live = run ? activeTwists() : [];
       for (const k in TWISTS) { const on = live.some(x => x.tw.key === k); tl += `<div class="li"><b${on ? ' style="color:#ff3df2"' : ''}>${esc(TWISTS[k].name)}</b> <em>${k.split('+').map(x => ELEMENTS[x].name).join(' + ')}</em>${on ? ' (active)' : ''}<br><span>${esc(TWISTS[k].desc)}</span></div>`; }
-      h += box('Combo twists', `<div class="list">${tl}</div>`, 'A combo whose two weapons are on their usual elements does what it says. Change either element with Switched at Birth and the combo picks up the twist for its new pair of elements, on top.');
+      h += box('Combo twists', `<div class="list">${tl}</div>`, 'A combo whose two weapons are on their usual damage types does what it says. Change either damage type with Switched at Birth and the combo picks up the twist for its new pair of elements, on top.');
     }
     return h;
   },

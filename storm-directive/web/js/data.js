@@ -138,7 +138,7 @@ const WEAPONS = {
     desc: 'A beam joins you and your twin across the crowd. You both think "zap".',
     base: { dmg: 24, cd: 1.6, mag: 3, reload: 2.0, count: 1, range: 520, area: 90, width: 10 },
     lv: { 3: { dmg: 0.3 }, 6: { count: 1 }, 9: { area: 0.3 } }, sig: { 5: ['mindmeld', 'switcheroo'], 8: ['sympathy', 'wavelength'], 10: ['quads', 'psychic'] } },
-  bubble: { name: 'Bubble Wand', stars: [2, 3, 3, 4], play: 'Blows bubbles that trap small enemies. A trapped enemy crawls along and cannot fight back. Anything that touches the bubble (you, another enemy, a shot, a bullet) pops it, and the pop hits everything nearby except the enemy inside, which comes out dazed. The longer a bubble holds, the bigger the pop. From Lv 3 the film soaks up hits and adds them to the pop; at Lv 9 pops shimmer into a random element. Trapped enemies that bump into each other may merge into one bigger bubble.', icon: 'BW', elem: 'oxi', kind: 'bubble', toy: 1, color: '#cdb4db', dir: 'nearest', role: 'Trap & Throw',
+  bubble: { name: 'Bubble Wand', stars: [2, 3, 3, 4], play: 'Blows bubbles that trap small enemies. A trapped enemy crawls along and cannot fight back. Anything that touches the bubble (you, another enemy, a shot, a bullet) pops it, and the pop hits everything nearby except the enemy inside, which comes out dazed. The longer a bubble holds, the bigger the pop. From Lv 3 the film soaks up hits and adds them to the pop; at Lv 9 pops shimmer into a random damage type. Trapped enemies that bump into each other may merge into one bigger bubble.', icon: 'BW', elem: 'oxi', kind: 'bubble', toy: 1, color: '#cdb4db', dir: 'nearest', role: 'Trap & Throw',
     desc: 'Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.',
     base: { dmg: 18, cd: 1.1, mag: 4, reload: 2.0, count: 1, range: 380, speed: 170, size: 20, dur: 5, hold: 34 },
     lv: { 3: { count: 1, film: 4 }, 6: { dmg: 0.4, film: 4 }, 9: { count: 1, rainbow: 1 } }, sig: { 5: ['extrasoapy', 'bubblebath'], 8: ['cannonball', 'chainpop'], 10: ['hamsterball', 'bubbleboy'] } },
@@ -479,7 +479,7 @@ const PASSIVES = {
   cocktail:  { name: 'Cocktail Hour',      icon: 'CK', max: 3, v: 0.12, fmt: v => `Hits deal +${pc(v)} damage for every different chemical already on the target`, apply: (P, v) => { P.cocktail += v; } },
   chainreact:{ name: 'Chain Reaction',     icon: 'CR', max: 3, v: 0.25, fmt: v => `${pc(v)} chance that a reaction sets off the same reaction in a nearby enemy carrying any chemical`, apply: (P, v) => { P.chainReact += v; } },
   mixologist:{ name: 'Mixologist',         icon: 'MX', max: 3, v: 0.5, fmt: v => `Against enemies already carrying 2 or more chemicals, your chemicals go on +${pc(v)} stronger`, apply: (P, v) => { P.mixologist += v; } },
-  catalyst:  { name: 'Chemistry',         icon: 'CT', max: 5, v: 0.35, fmt: v => `+${pc(v)} elemental reaction damage`, apply: (P, v) => { P.react += v; } },
+  catalyst:  { name: 'Chemistry',         icon: 'CT', max: 5, v: 0.35, fmt: v => `+${pc(v)} chemical reaction damage`, apply: (P, v) => { P.react += v; } },
   echo:      { name: 'Repeat Prescription',       icon: 'SE', max: 5, v: 0.10, fmt: v => `-${pc(v)} Feat cooldowns`, apply: (P, v) => { P.cdr = Math.max(0.4, P.cdr - v); } },
   scholar:   { name: 'Antenatal Classes',          icon: 'SH', max: 5, v: 0.12, fmt: v => `+${pc(v)} experience gained`, apply: (P, v) => { P.xp += v; } },
   temporal:  { name: 'Snooze Button',    icon: 'TL', max: 3, v: 1, minRarity: 2, fmt: () => `+1 max Rewind charge, +25% Chrono energy`, apply: (P, v, G) => { G.chrono.max += 1; P.chronoGain += 0.25; } },
@@ -759,7 +759,7 @@ const DYES = {
   luciferase: { key: PAL.reward, see: 'Worth having in gold: DNA strands, elites, bosses, giant amoebas', name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.', boon: '+20% luck, and +25% damage to elites and bosses. You know what is worth chasing.', apply: P => { P.luck += 0.2; } },
   motility:   { key: DYE_FAST, see: 'Fast enemies in cyan: sprinters, spermlets, krill, paramecia', name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you.', boon: '+8% swim speed, and +30% damage to fast enemies. You spot them early.', apply: P => { P.speed += 0.08; } },
   rival:      { key: '#ffb347', see: 'Each rival in their own colour, on the slide, minimap and race board', name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt.', boon: '+40% damage to rival champions and the Final Five. Know your enemy.' },
-  he:         { key: PAL.upgrade, see: 'Elements in colour (Acid, Base, Static, Ethanol, Voodoo), power-ups, and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: elemental effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Voodoo violet), power-up pickups and their effects, and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
+  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Base, Static, Ethanol, Voodoo), power-ups, and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Voodoo violet), power-up pickups and their effects, and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
 };
 
 // ---------------------------------------------------------------- Weapon upgrade trees
@@ -1009,7 +1009,7 @@ const MODS = {
   freezing:  { name: 'Soaped Up',     icon: 'FZ', color: '#6fd8ff', desc: p => `${Math.round(18 * p)}% chance per hit to saponify the target` },
   exploding: { name: 'With a Bang',    icon: 'EX', color: '#ff7a2f', desc: p => `Hits explode for ${Math.round(30 * p)}% damage in a small blast` },
   mindctrl:  { name: 'Bad Influence', icon: 'MC', color: '#ff8fab', desc: p => `${(5 * p).toFixed(0)}% chance per hit to make a monster fight for you for ${Math.round(6 * p)}s (max ${MAX_ALLIES} allies)` },
-  elemental: { name: 'Switched at Birth', icon: 'EL', color: '#c77dff', desc: p => `Converts this weapon to a new element${p > 1.01 ? `, +${Math.round(15 * (p - 1))}% damage` : ''}` },
+  elemental: { name: 'Switched at Birth', icon: 'EL', color: '#c77dff', desc: p => `Converts this weapon to a new damage type${p > 1.01 ? `, +${Math.round(15 * (p - 1))}% damage` : ''}` },
   shrapnel:  { name: 'Going to Pieces',     icon: 'SH', color: '#e9c46a', desc: p => `Kills burst into ${2 + Math.round(p)} shards at ${Math.round(30 + 10 * (p - 1))}% damage` },
   // The Modifier Forge.
   chaining:  { name: 'Daisy Chain',     icon: 'CN', color: '#eee36a', desc: p => `${Math.round(25 * p)}% of hits chain to another enemy for 50% damage` },
@@ -1145,7 +1145,7 @@ const ACHIEVEMENTS = {
   rewind:     { name: 'Undo Button Enthusiast', desc: 'Rewound time. Causality has been notified.', reward: 'none' },
   autorewind: { name: 'Not Today, Death', desc: 'Died, then un-died. Our lawyers are looking into it.', reward: 'heal' },
   boss:       { name: 'Middle Management Removed', desc: 'Killed a boss. Someone will be promoted to replace it.', reward: 'none' },
-  reactions:  { name: 'Mad Scientist', desc: 'Triggered 50 elemental reactions. Safety goggles were optional.', reward: 'reroll' },
+  reactions:  { name: 'Mad Scientist', desc: 'Triggered 50 chemical reactions. Safety goggles were optional.', reward: 'reroll' },
   friendly:   { name: 'Let Them Fight', desc: 'A Bomber killed another monster. Teamwork!', reward: 'none' },
   cursed:     { name: 'Bad Decision Maker', desc: 'Took a cursed card. We knew you would.', reward: 'none' },
   modded:     { name: 'Aftermarket Parts', desc: 'Installed a modifier. The warranty is now fully void.', reward: 'none' },

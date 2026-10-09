@@ -5,7 +5,7 @@
 //  - Feats (what used to be spells): the attacking ones cost stamina instead of waiting on a cooldown, so you can
 //    spend it on speed or on Feats. The rest (Kiss It Better, Nap Time, Latex Barrier, Baby Monitor) keep cooldowns.
 // Hooks: stamTick (update), sprintMul (player speed), featCost / featPay (updateSpellList), drawStamina (HUD).
-const STAM = { max: 60, regen: 14, sprintCost: 30, sprintK: 1.55, rest: 0.6, featK: 9, windedAt: 0.3, push: 58, stick: 70 };
+const STAM = { max: 60, regen: 14, sprintCost: 30, sprintK: 1.55, rest: 0.6, featK: 9, windedAt: 0.3, push: 66, stick: 74, hold: 0.22 };
 const STAM_FEATS = new Set(['meteor', 'frostnova', 'thunder', 'blackhole', 'bladestorm', 'cloud']);
 const stamMax = () => Math.max(20, STAM.max + (G.P.stamMax || 0));
 function stamInit() { G.stam = { cur: stamMax(), restT: 0, sprint: false, winded: false }; }
@@ -13,7 +13,9 @@ function stamTick(dt) {
   const S = G.stam || (stamInit(), G.stam), P = G.P;
   S.cur = Math.min(S.cur, stamMax());
   const was = S.sprint;
-  S.sprint = !!(G.manual && G.manual.sprint) && !S.winded && S.cur > 0.5 && G.state === 'play';
+  // The stick has to sit right at its edge for a moment (not just brush it), or Shift.
+  S.edgeT = G.manual && G.manual.edge ? (S.edgeT || 0) + dt : 0;
+  S.sprint = !!(G.manual && (G.manual.sprint || S.edgeT > STAM.hold)) && !S.winded && S.cur > 0.5 && G.state === 'play';
   if (was && !S.sprint && G.state === 'play') tutSprintEnd(); // (your first sprint: a card about stamina)
   if (S.sprint) {
     S.cur -= STAM.sprintCost * (P.sprintCost || 1) * dt; S.restT = STAM.rest;
@@ -64,11 +66,19 @@ function armourRing(px, py) {
     ctx.globalAlpha = a0 * 0.35; ctx.strokeStyle = '#9ef0ff'; ctx.beginPath(); ctx.arc(px, py, R, top, top + TAU * k); ctx.stroke();
   }
   if (glowK > 0) {
-    // The flare: a bright full ring plus a soft halo.
+    // The flare lights up where the hit landed: a bright arc and a spark on that side, a faint ring the rest of the way.
     ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = a0 * glowK; ctx.strokeStyle = '#bff6ff'; ctx.lineWidth = Math.max(2, (2 + 3 * glowK) * Math.min(1.6, sc));
-    ctx.beginPath(); ctx.arc(px, py, R + (1 - f) * 6 * sc, 0, TAU); ctx.stroke();
-    glow(px, py, R * 1.6, '#9ef0ff', 0.35 * glowK);
+    const RR = R + (1 - f) * 6 * sc, lw = Math.max(2, (2 + 3 * glowK) * Math.min(1.6, sc));
+    if (F.a != null) {
+      ctx.globalAlpha = a0 * glowK * 0.25; ctx.strokeStyle = '#bff6ff'; ctx.lineWidth = lw * 0.5; ctx.beginPath(); ctx.arc(px, py, RR, 0, TAU); ctx.stroke();
+      const span = 0.55 + 0.35 * (F.k || 0);
+      for (const [w, al] of [[1, 1], [1.8, 0.45]]) { ctx.globalAlpha = a0 * glowK * al; ctx.lineWidth = lw * (al < 1 ? 2.2 : 1); ctx.beginPath(); ctx.arc(px, py, RR, F.a - span * w * 0.6, F.a + span * w * 0.6); ctx.stroke(); }
+      glow(px + Math.cos(F.a) * RR, py + Math.sin(F.a) * RR, R * 0.9, '#9ef0ff', 0.6 * glowK);
+    } else {
+      ctx.globalAlpha = a0 * glowK; ctx.strokeStyle = '#bff6ff'; ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.arc(px, py, RR, 0, TAU); ctx.stroke();
+      glow(px, py, R * 1.6, '#9ef0ff', 0.35 * glowK);
+    }
     ctx.globalCompositeOperation = 'source-over';
   }
   ctx.globalAlpha = a0;

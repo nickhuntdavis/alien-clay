@@ -7,15 +7,15 @@
 // geneHit (projectile collision), geneDamageMul (damageEnemy).
 
 Object.assign(WEAPONS, {
-  genegun: { name: 'Gene Gun', stars: [3, 3, 3, 4], play: 'Fires double helices: two strands twisting round each other, each carrying the element of another weapon you own, so they react on their own. Land both strands of one helix on the same enemy to EDIT it: a burst, and it takes more damage from everything.', icon: 'GG', elem: 'arcane', kind: 'gun', color: '#90e0ef', dir: 'nearest', style: 'helix', role: 'Splicer', gene: 1, seqOnly: 'splicer',
+  genegun: { name: 'Gene Gun', stars: [3, 3, 3, 4], play: 'Fires double helices: two strands twisting round each other, each carrying the damage type of another weapon you own, so they react on their own. Land both strands of one helix on the same enemy to EDIT it: a burst, and it takes more damage from everything.', icon: 'GG', elem: 'arcane', kind: 'gun', color: '#90e0ef', dir: 'nearest', style: 'helix', role: 'Splicer', gene: 1, seqOnly: 'splicer',
     desc: 'Precision gene therapy, delivered at speed. Side effects include exploding.',
     base: { dmg: 11.5, cd: 0.5, mag: 8, reload: 1.3, count: 1, spread: 0.16, speed: 380, pierce: 1, range: 480, size: 4.5 },
     lv: { 3: { dmg: 0.3 }, 6: { count: 1 }, 9: { pierce: 2 } }, sig: { 5: ['ggtriple', 'ggcrispr'], 10: ['ggchimera', 'ggrecomb'] } },
 });
 Object.assign(SIGS, {
-  ggtriple: { name: 'Triple Helix', desc: 'A third strand, with a third element. Edits need any two strands to land.' },
+  ggtriple: { name: 'Triple Helix', desc: 'A third strand, with a third damage type. Edits need any two strands to land.' },
   ggcrispr: { name: 'CRISPR', desc: 'Edits are cleaner: edited enemies take +60% damage (not +30%) for 4s, and the edit burst is twice as big.' },
-  ggchimera: { name: 'Chimera', desc: 'Mastery. Every strand carries two elements at once and applies both.' },
+  ggchimera: { name: 'Chimera', desc: 'Mastery. Every strand carries two damage types at once and applies both.' },
   ggrecomb: { name: 'Recombination', desc: 'Mastery. A strand that kills splits into a fresh helix aimed at the nearest enemy (once per strand).' },
 });
 if (PROFILES.splicer && !PROFILES.splicer.weapons.includes('genegun')) PROFILES.splicer.weapons.push('genegun');
