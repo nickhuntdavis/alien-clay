@@ -5,7 +5,7 @@
 // (wave 0's welcome, Feats before your first upgrade, your first sprint and your first Lateral Gene Transfer)
 // jump the queue, because they explain something happening right now.
 // Wave 0 runs before wave 1 the first time you play wave mode (and again after a tutorial reset): a handful of
-// slow cells, a Lateral Gene Transfer to swim into and a box of upgrades at the end. Chemistry cards wait until
+// slow cells, a Lateral Gene Transfer to swim into and a box of upgrades at the end. Damage-type cards wait until
 // it is over.
 // Hooks: tutTick (update), tutSprintEnd (stamTick), tutBeforeLoot (main loop), tutElem (damageEnemy),
 // tutReact (react), tutShow('lgt') (vesBurst), tutWaveInit (campInit), tutWave0Begin (campBegin),
@@ -54,16 +54,16 @@ const TUT_CARDS = {
       `Mutations last the whole run, and your genome only has room for ${typeof mutCap === 'function' ? mutCap() : 6}.`,
       'More turn up every minute or so: follow the green arrows at the edge of the screen.',
       'Leave one too long and it pops by itself.'] }),
-  react: () => ({ title: 'CHEMICAL WARFARE', name: 'REACTIONS', colour: '#ffd166',
-    what: `Two different chemicals on one enemy react. You just made ${G.tutReactName || 'one'}.`,
+  react: () => ({ title: 'MIXING DAMAGE TYPES', name: 'REACTIONS', colour: '#ffd166',
+    what: `Two different damage types on one enemy react. You just made ${G.tutReactName || 'one'}.`,
     head: 'WHY IT MATTERS', tips: [
       'Reactions hit hard, and some spread to the enemies nearby.',
-      'Weapons on different chemicals set each other up: a mixed build out-damages a pure one.',
+      'A mixed build usually beats a pure one through utility and damage over time (slows, stuns, armour stripping, corrosion), not raw damage.',
       `There are ${Object.keys(REACTIONS).length}. The Codex lists them all.`] }),
 };
 for (const id in ELEMENTS) TUT_CARDS['el_' + id] = () => {
   const E = ELEMENTS[id], mix = tutMixes(id);
-  return { title: 'NEW CHEMICAL', name: E.name.toUpperCase(), colour: E.color, what: E.blurb,
+  return { title: 'NEW DAMAGE TYPE', name: E.name.toUpperCase(), colour: E.color, what: E.blurb,
     head: mix.length ? 'MIX IT WITH' : 'HOW IT WORKS',
     tips: mix.length ? mix.slice(0, 3) : ['It leaves enemies ' + E.status + '.'],
     foot: mix.length > 3 ? `And ${mix.length - 3} more in the Codex.` : '' };
@@ -83,7 +83,7 @@ function tutTick() {
   const key = G.tutQ[0], now = G.tutNow === key;
   if (!now) {
     if (G.t < (G.tutNext || 0) || G.t < (G.stIntroNext || 0) || G.t < (G.introNext || 0) - 4) return;
-    if (tutWave0() && key !== 'school') return; // (chemistry waits until pre-school is over)
+    if (tutWave0() && key !== 'school') return; // (damage-type waits until pre-school is over)
     if (G.player.hp < G.P.maxHp * 0.35 || (G.boss && !G.boss.dead && G.wave && G.wave.phase === 'lead')) return; // (not in a tight spot)
   }
   G.tutQ.shift(); G.tutNow = null;

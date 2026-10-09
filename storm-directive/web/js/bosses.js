@@ -4,7 +4,7 @@
 
 // ---------------------------------------------------------------- roster & spawning
 function bossRoster() { return shuffle(BOSSES.map(b => b.id)).slice(0, BOSSES_PER_RUN); }
-const bossDef = id => (id === 'failed' && G && G.failedDef) || BOSSES.find(b => b.id === id); // (the Failed Experiment is built per run, campaign.js)
+const bossDef = id => (id === 'failed' && G && G.failedDef) || (typeof LV_BOSSES !== 'undefined' && LV_BOSSES[id]) || BOSSES.find(b => b.id === id); // (the Failed Experiment is built per run, campaign.js)
 
 function spawnBoss() {
   if (!G.bossRoster) G.bossRoster = bossRoster();
@@ -34,6 +34,7 @@ function spawnBoss() {
     G.enemies.push(t);
   }
   G.bossCount++;
+  G.bossHits0 = Object.values(G.stats.hurtKind).reduce((a, b) => a + b, 0); // (Flawless Specimen)
   META.bosses[def.id] = (META.bosses[def.id] || 0) + 1; saveMeta();
   addViewers(5000);
   startBossIntro(e, idx);

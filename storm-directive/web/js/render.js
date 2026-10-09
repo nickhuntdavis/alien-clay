@@ -1163,7 +1163,7 @@ function render() {
   ctx.save();
   ctx.translate(shx, shy);
   WORLD_DF = !!SET.darkfield;
-  drawBackground();
+  if (G.lvl) drawLevel(); else drawBackground();
   const p = G.player;
   const vx0 = cam.x - W / 2 / S - 90, vx1 = cam.x + W / 2 / S + 90, vy0 = cam.y - H / 2 / S - 90, vy1 = cam.y + H / 2 / S + 90;
   const vis = o => o.x > vx0 && o.x < vx1 && o.y > vy0 && o.y < vy1;
@@ -1207,7 +1207,7 @@ function render() {
   fxDim(false);
   drawHazards(vis);
 
-  drawCore();
+  if (!G.lvl) drawCore();
 
   // Gems and scrap (no glow: they're just granules).
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
@@ -1438,6 +1438,7 @@ function render() {
     ctx.globalAlpha = 1;
   }
 
+  if (G.lvl) drawLevelOver();
   drawToysOver();
   drawVesicles();
   // Player.
@@ -2045,7 +2046,7 @@ function drawTopBar(top, m, s) {
   if (G.shieldT > 0 || G.absorbOn) { ctx.strokeStyle = PAL.pickup; ctx.lineWidth = 1.5; ctx.strokeRect(bx - 1.5, y + 9.5, bw + 3, 10); }
   ctx.font = 'bold 11px ' + MONO; ctx.fillStyle = XR.white;
   let txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  K ${G.kills}`;
-  if (G.rivalsInit && !G.wave && !G.debug) {
+  if (G.rivalsInit && !G.wave && !G.lvl && !G.debug) {
     const board = rivalBoard(), place = board.findIndex(r => r.you) + 1;
     if (place) txt += `  P${place}/${board.length}`;
   }
@@ -2071,7 +2072,7 @@ function drawHud() {
   if (G.rage > 0) chips.push(['OXYTOCIN', PAL.pickup]);
   puChips(chips);
   // Falling behind the level curve is what loses runs: say so.
-  if (!G.wave) { const behind = (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85)) - G.level; if (behind >= 3) chips.push(['BEHIND PACE: ' + Math.round(behind) + ' LV', PAL.danger]); }
+  if (!G.wave && !G.lvl) { const behind = (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85)) - G.level; if (behind >= 3) chips.push(['BEHIND PACE: ' + Math.round(behind) + ' LV', PAL.danger]); }
   if (G.shieldT > 0) chips.push(['STAIR GATE', PAL.pickup]);
   if (G.warp > 0) chips.push(['WARP', XR.white]);
   if (G.barrier > 0) chips.push(['AEGIS', XR.white]);
@@ -2127,7 +2128,8 @@ function drawHud() {
       const cy2 = by;
       ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('LAB BENCH' + (G.debug.god ? ' | GOD MODE' : '') + (G.debug.freeze ? ' | TIME STOPPED' : ''), mid, cy2 - 14);
       ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(G.enemies.filter(e => !e.dead && !e.charmed).length + ' ENEMIES', mid, cy2 + 4);
-    } else if (G.wave) {
+    } else if (G.lvl) drawLevelHud(mid, by);
+    else if (G.wave) {
       // The Petri Dish: the wave and how much of it is left.
       const V = G.wave, cy2 = by;
       const left = V.active ? Math.max(0, V.budget - V.spawned) + G.enemies.filter(e => !e.dead && !e.charmed && !e.egg).length : 0;
@@ -2166,7 +2168,7 @@ function drawHud() {
   // The Petri Dish: the last few of a wave get arrows.
   if (G.wave && G.wave.active && G.wave.spawned >= G.wave.budget) { const rest = G.enemies.filter(e => !e.dead && !e.charmed && !e.egg); if (rest.length <= 10) for (const e of rest) pointer(e.x, e.y, XR.white, 0.8, 0.8); }
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
-  pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
+  if (!G.lvl) pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
   drawEventBar();
   drawMinimap(top);
   drawZoomGauge();
@@ -2214,6 +2216,7 @@ function drawMinimap(top) {
   const R = mmR(), mx = W - R - 10, my = top + 132 + R; // (below the pause, auto and speed buttons)
   const k = R / CORE.arena;
   filmPanel(mx, my, R, 0, true);
+  if (G.lvl) return drawLevelMap(mx, my, R);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath();
   ctx.arc(mx, my, R * 0.66, 0, TAU); ctx.moveTo(mx + R * 0.33, my); ctx.arc(mx, my, R * 0.33, 0, TAU);
   ctx.moveTo(mx - R, my); ctx.lineTo(mx + R, my); ctx.moveTo(mx, my - R); ctx.lineTo(mx, my + R); ctx.stroke();

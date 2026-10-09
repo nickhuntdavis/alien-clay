@@ -118,6 +118,7 @@ function newGame() {
   cam.x = 0; cam.y = 0; cam.shake = 0;
   // In the Petri Dish you start at the bottom of the dish, facing the egg (not sitting on it).
   if (G.wave) { const p = G.player; p.y = DISH.arena * 0.72; unstick(p, p.r + 6); cam.x = p.x; cam.y = p.y; }
+  if (typeof UI !== 'undefined' && LV_SAMPLE[UI.sample] != null) lvInit(LV_SAMPLE[UI.sample]); // a campaign level (levels.js)
   // G.dyes: which colours show. G.dyeBoon: which stains you found this run (their boons). Permanent stains
   // (one kept at the end of each finished run) start switched on, colour only; the pause menu toggles them.
   G.dyes = {}; G.dyeBoon = {};
@@ -133,10 +134,10 @@ function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? M
 const SURGE_T = 900; // Storm Surge: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
 // A run lasts about 10 minutes: the difficulty clock runs 1.5 times faster than real time.
 const PACE = 1.5;
-function PT() { return G.wave ? wavePT() : G.t * PACE; }
+function PT() { return G.lvl ? lvPT() : G.wave ? wavePT() : G.t * PACE; }
 // Ahead of the curve? Enemies keep up. Levels you are past where a 10-minute run expects you to be
 // (level 60 at 9 minutes) add 5% enemy health and 3% enemy damage each.
-function levelsAhead() { if (G.wave) return 0; return Math.max(0, G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
+function levelsAhead() { if (G.wave || G.lvl) return 0; return Math.max(0, G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
 function hpNow() { return hpMul(PT()) * (1 + 0.05 * levelsAhead()); }
 function dmgNow() { return dmgMul(PT()) * (1 + 0.03 * levelsAhead()); }
 function dmgMul(t) { return (1 + t / 240 + Math.pow(t / 600, 2)) * (t > SURGE_T ? Math.pow(1.3, (t - SURGE_T) / 60) : 1); }
@@ -377,6 +378,7 @@ function recomputeAll() {
 // ---------------------------------------------------------------- loot
 // special: this card may come out Mythical or Celestial (ordinary DNA only, three a run at most).
 function rollRarity(min, special) {
+  if (G.mythBox) return Math.random() < 0.3 ? 6 : 5; // (Achievement DNA)
   const luck = G.P.luck;
   if (special && (G.mythN || 0) < 3) {
     const k = 1 + luck * 2;
@@ -411,6 +413,14 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
+  if (req.kind === 'myth') { // Achievement DNA: Mythical or Celestial cards only
+    G.mythBox = true;
+    try {
+      const out = [];
+      for (let k = 0; k < 10 && out.length < 3; k++) for (const o of genLoot(Object.assign({}, req, { kind: 'chest' }))) if (o.rarity >= 5 && !o.cursed && out.length < 3 && !out.some(q => q.title === o.title)) out.push(o);
+      return out.length ? out : genLoot(Object.assign({}, req, { kind: 'chest' }));
+    } finally { G.mythBox = false; }
+  }
   const minR = redLoot(req, req.kind === 'boss' || req.kind === 'chest' ? 3 : 0); // level boxes Common+ (the Redtail: Uncommon+), Fan and boss boxes Epic+
   if (req.kind === 'slot') {
     // A weapon draft for a new mount: three fresh weapons, Rare or better.
@@ -493,7 +503,7 @@ function genLoot(req) {
   }
   // Occasionally the System slips a cursed card into the box.
   const curses = CURSES.filter(c => !G.curses[c.id]);
-  if (curses.length && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses));
+  if (curses.length && !G.mythBox && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses));
   if (opts.length && Math.random() < 0.45) pick(opts).quip = pick(CARD_QUIPS);
   const fillers = [optHeal, optRerolls, optOvercharge];
   for (const f of fillers) { if (opts.length >= 3) break; const o = f(); if (!opts.some(q => q.title === o.title)) opts.push(o); }
@@ -833,6 +843,8 @@ function react(e, id, src) {
   tutReact(id);
   addViewers(8);
   if (G.stats.reactions === 50) achieve('reactions');
+  if (G.stats.reactions === 1000) achieve('breakingbad');
+  if (!G.stats.reactBy[id] && Object.keys(G.stats.reactBy).length === 9) achieve('chemwar'); // (this one makes ten different)
   G.stats.reactBy[id] = (G.stats.reactBy[id] || 0) + 1;
   const R = REACTIONS[id];
   // Throttle reaction labels so big fights stay readable.
@@ -1119,6 +1131,7 @@ function makeEnemy(def, x, y, opts) {
 }
 
 function spawnPos() {
+  if (G.lvl) return lvSpawnPos();
   const a = Math.random() * TAU;
   const vw = W / 2 / S0, vh = H / 2 / S0;
   const d = Math.hypot(vw, vh) + rand(30, 90);
@@ -1131,6 +1144,7 @@ function spawnPos() {
 // One at a time (others queue). Types you have already met just join the run as normal.
 const SPOT = { until: 300, len: 25, share: 0.9, back: 420 };
 function spotTick() {
+  if (G.lvl) return;
   const t = PT(), S2 = G.spot || (G.spot = { q: [], done: {}, cur: null, end: 0 });
   if (t > SPOT.until + 30) { S2.cur = null; return; }
   for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from > 10 && d.from <= SPOT.until && d.from <= t && !S2.done[id]) { S2.done[id] = 1; if (typeof seenFoe !== 'function' || !seenFoe(id)) S2.q.push(id); } }
@@ -1278,10 +1292,11 @@ function updateEnemies(dt) {
       else { allyAI(e, dt); continue; }
     }
     const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 1;
-    const ux = dx / dist, uy = dy / dist;
+    let ux = dx / dist, uy = dy / dist;
+    if (G.lvl) { const c = lvChase(e, ux, uy, dist); if (c) { ux = c.x; uy = c.y; } } // (round the walls of a level)
     let mx = ux, my = uy, spd = e.speed;
     const frozen = e.frozen > 0 || e.dazeT > G.t; // (dazed out of a popped bubble: stopped, like frozen)
-    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1) * (e.formT > G.t ? (e.boss ? 0.75 : 0.4) : 1) * (e.pickle > 0 ? 0.85 : 1); // dazed or soaped (Bubble Wand)
+    const slow = frozen ? 0 : (G.lvl ? lvSlow(e.x, e.y) : 1) * (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1) * (e.formT > G.t ? (e.boss ? 0.75 : 0.4) : 1) * (e.pickle > 0 ? 0.85 : 1); // dazed or soaped (Bubble Wand)
     if (e.boss) {
       bossAI(e, edt, dist, ux, uy);
       mx = e.mvx; my = e.mvy; spd = e.mvs;
@@ -2092,7 +2107,7 @@ function updatePlayer(dt) {
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
   const speed = 165 * P.speed * oobSpeed() * // (base 165: was 150; Out of Body: faster)
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
@@ -2231,6 +2246,8 @@ function autoSteer() {
   // rather than dithering on the spot.
   // Terrain upgrades: drift towards the terrain they use.
   if (mode !== 'hold' && mode !== 'defend' && !homing) { const tl = terrainLure(p); if (tl) goal(tl.x, tl.y, tl.w); }
+  // A campaign level: push on along the route to the exit.
+  if (G.lvl && mode !== 'hold') { const n = lvPushOn(p); if (n) goal(n.x, n.y, mode === 'hunt' ? 0.8 : 1.2); }
   if (mode !== 'hold' && mode !== 'defend' && !homing) {
     const gl0 = Math.hypot(gx, gy), hd = (p.hd || 0) + Math.sin(G.t * 0.35) * 0.35, cw = Math.max(0, 0.6 - gl0 * 0.4);
     gx += Math.cos(hd) * cw; gy += Math.sin(hd) * cw;
@@ -2516,6 +2533,7 @@ function update(dt) {
   const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE * heatSpawn() * SPAWN_K;
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   if (G.debug) debugTick(); // the Lab Bench: only what you send in
+  else if (G.lvl) lvTick(dt, maxAlive, hostile); // a campaign level: its own director (levels.js)
   else if (G.wave) { waveSpawn(rate * G.P.spawnMult, dt, maxAlive, hostile); waveTick(dt); } // the Petri Dish: a set number per wave
   else {
     G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1); // quieter while the Final Five fight you
@@ -2524,7 +2542,7 @@ function update(dt) {
   spotTick();
   if (G.t >= G.nextWave && !G.debug) { if (spotOn()) G.nextWave += 6; else { G.nextWave += 30; waveEvent(); } } // (scripted waves wait for a spotlight to finish)
   updateRivals(dt);
-  if (!G.wave && !G.debug) updateShowdown();
+  if (!G.wave && !G.lvl && !G.debug) updateShowdown();
   if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('STORM SURGE: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   // (Never two bosses at once: the next one waits until the current one is dead, then 25s more; bosses.js sets that.)
   if (G.t >= G.nextBoss && !(G.boss && !G.boss.dead)) { G.nextBoss += G.bossCount >= 3 ? BOSS_INTERVAL * 2 : BOSS_INTERVAL; spawnBoss(); }

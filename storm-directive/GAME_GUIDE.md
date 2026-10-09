@@ -41,12 +41,14 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
    - [First sightings](#first-sightings)
 30. [Rival champions](#rival-champions)
 31. [Terrain](#terrain)
-32. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
-33. [Boss rewards](#boss-rewards)
-34. [Sperm samples](#sperm-samples)
-35. [Hidden rules](#hidden-rules)
-36. [Glossary](#glossary)
-37. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
+32. [Campaign: Level 1, The Mouth](#campaign-level-1-the-mouth)
+33. [Achievement DNA](#achievement-dna)
+34. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
+35. [Boss rewards](#boss-rewards)
+36. [Sperm samples](#sperm-samples)
+37. [Hidden rules](#hidden-rules)
+38. [Glossary](#glossary)
+39. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
 
 ## How upgrades work
 
@@ -1787,11 +1789,26 @@ Each kind of terrain has an upgrade of its own, offered only when that terrain i
 
 Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to about half the map, then fades), **yeast infections** (colonies that bud more yeast) and the ambient crowd of harmless swimmers outside the arena.
 
+## Campaign: Level 1, The Mouth
+
+A hand-built maze, lips to throat, played as its own run (you start at Lv 1; DNA banks as usual). Autorun follows the route to the exit when nothing else needs doing, and a faint chevron next to you points the way.
+
+1. **The Lips:** behind the front teeth, a small arena (30 kills) opens the way on.
+2. **The Gum Line:** a maze. Plaque walls break if you keep shooting them (some hide shortcuts), and plaque colonies grow Cavity Creeps. A dead end holds a guarded cavity: a mutation and a DNA strand. Then the Gum Pocket arena (70).
+3. **The Tongue:** open ground, saliva pools that slow everything, coughs that blow everyone towards the throat, and mouthwash fronts that sweep the tongue: get behind a tooth, because it scours everything out in the open, germs included. The Papillae arena (90) and the Back of the Tongue (110).
+4. **The Throat:** the Tartar Colony (a mini-boss in calcified plaque). Beat it and the way to the egg opens. Except it is a tonsil stone. It stinks. The Egg is in another castle, and Level 2 unlocks.
+
+Arenas seal behind you until the quota is cleared. Food scraps in the corridors break for pick-ups. After 9 minutes the toothbrush starts sweeping up from the lips (it waits while you fight the boss). Local germs: Cavity Creep, Strep Chain, Thrush Spore, Amylase Droplet, Tartar Crust.
+
+## Achievement DNA
+
+The hardest achievements (Chemical Warfare: ten different reactions in a run; Breaking Bad: 1,000 reactions in a run; Flawless Specimen: a boss killed without taking a hit) pay out a box where every card is Mythical or Celestial.
+
 ## Wave mode (The Petri Dish)
 
 The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run (in the order they appear in a standard run), on top of the ones you have. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
 
-Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a Lateral Gene Transfer to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfers (on your first) and each chemical and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.
+Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a Lateral Gene Transfer to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfers (on your first) and each damage type and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.
 
 From wave 15 the boss can be **the Failed Experiment**: a copy of one of your own past runs (a lost one if you have any), alone in the dish, with an attack for each weapon that run carried and health that grows with the level it reached.
 
@@ -1831,6 +1848,8 @@ Every boss pays twice: a relic (its own three, plus one smuggled relic from a bo
 | 001 | **Standard Issue** | Playable | One healthy donor, four hundred million hopefuls, one egg. The classic. |
 | 002 | **The Petri Dish** | Playable | A mad scientist is breeding super sperm. Twenty drops into the dish, starting easy: each wave brings a couple of new kinds of swimmer, and every fifth wave is a boss. Beat wave 20 and you get the egg. |
 | 006 | **Petri Dish: Endless** | Locked: Beat wave mode (The Petri Dish) to unlock. | No egg, no end. Wave after wave, each nastier than the last, with something big every fifth. How many can you take? |
+| 007 | **The Mouth** | Playable | Level 1 of the campaign. Lips to throat through a wet pink maze of teeth, plaque and spit, with something round and glowing waiting at the back. Probably the egg. |
+| 008 | **Esophagus Descent** | Locked: Beat Level 1, The Mouth, to unlock. | The egg is in another castle. This is the way down. |
 | 000 | **Lab Bench (Debug)** | Playable | For testing: god mode, send in any enemy, boss or event, switch any weapon or Feat on and off. Open the DEBUG panel. |
 | 005 | **Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
 | 003 | **The Morning After** | Coming soon | The pill is already dissolving. Good luck. |

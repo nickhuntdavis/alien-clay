@@ -244,7 +244,7 @@ function genesTick(dt) {
       for (let tries = 0; tries < 12; tries++) {
         const a = Math.random() * TAU, d = rand(VESICLE.near[0], VESICLE.near[1]), x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d;
         if (Math.hypot(x, y) > CORE.arena - 80 || Math.hypot(x - G.core.x, y - G.core.y) < CORE.r + 60) continue;
-        const v = unstick({ x, y, born: G.t, seed: Math.random() * 10 }, 26);
+        const q = G.lvl ? lvSpawnPos(5, 10, true) : null, v = unstick({ x: q ? q.x : x, y: q ? q.y : y, born: G.t, seed: Math.random() * 10 }, 26);
         G.vesicles.push(v);
         // A bold announcement every time: a banner, a ping from the vesicle and a chime.
         banner('LATERAL GENE TRANSFER!', '#c7f9cc'); sfx('level'); vibrate(40);

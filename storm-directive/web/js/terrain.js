@@ -91,6 +91,7 @@ function terrainPlayer(p, dt) {
     G.skidT = G.t + 0.1;
     G.zones.push({ x: p.x, y: p.y, r: 24, life: 1.6, max: 1.6, dps: (10 + G.level * 2) * G.P.might * G.P.skid, elem: 'poison', pull: 0, color: '#9ef01a', tick: 0, src: { wname: 'Skid Marks', elem: 'poison', noCrit: true } });
   }
+  if (G.lvl) lvPlayer(p);
   const hit = pushOut(p, p.r, 0);
   if (hit) {
     // Lose the velocity that points into the surface (you slide along it instead).
@@ -109,11 +110,13 @@ function terrainBody(e, dt) {
   }
   // Brush-Off: cilia beds sting what they shove.
   if (z.cilia && G.P.brushOff && !e.egg && !e.charmed && !(e.ciliaT > G.t)) { e.ciliaT = G.t + 0.5; damageEnemy(e, (12 + G.level * 2.5) * G.P.might * G.P.brushOff, { elem: 'phys', env: true, noCrit: true, noProc: true, wname: 'Brush-Off' }); }
-  if (!e.def.ethereal) pushOut(e, e.r, e.side || 1); // (the Phantom Pregnancy drifts through walls and growths)
+  if (!e.def.ethereal) pushOut(e, e.r, e.side || 1);
+  if (G.lvl) lvBody(e); // (the Phantom Pregnancy drifts through walls and growths)
 }
 
 // Projectiles and enemy bullets meeting terrain. Returns true if the shot is gone.
 function terrainShot(s, hostile, dt) {
+  if (G.lvl && lvShot(s, hostile)) return true;
   const c = tCell(s.x, s.y);
   if (!c) return false;
   for (const ob of c) {
@@ -175,6 +178,7 @@ function atpBurst(ob) {
 
 // Autopilot cost of standing at (x, y): solids are walls, acid hurts, slicks are mildly unwelcome.
 function terrainDanger(x, y, r) {
+  if (G.lvl) return lvSolidAt(x, y) ? 3 : 0;
   const c = tCell(x, y);
   if (!c) return 0;
   let dn = 0;
@@ -191,6 +195,7 @@ function terrainDanger(x, y, r) {
 // Solid walls are felt from 45 units out (so it steers round them early), acid from further, and the soft
 // zones (cilia that shove, slicks that make you slide, currents you'd swim against) cost a little.
 function steerTerrain(x, y, r, dx, dy) {
+  if (G.lvl) return lvSteer(x, y, r);
   const c = tCell(x, y);
   if (!c) return 0;
   let dn = 0;
@@ -230,7 +235,7 @@ function terrainLure(p) {
   return best;
 }
 // Keep things that need collecting out of the middle of solid obstacles.
-function unstick(o, r) { pushOut(o, r || 10, 0); return o; }
+function unstick(o, r) { pushOut(o, r || 10, 0); if (G.lvl) lvPush(o, r || 10); return o; }
 
 // Everything in the womb drifts: solid growths creep (6 to 12 a second), currents, cilia and slicks wander a
 // little faster. They wander, keep out of the egg's glow and inside the arena, and steer round each other.
@@ -361,6 +366,7 @@ function startInfection() {
 // one pops it, and that takes a chunk off the sperm count. They're there to show the 400 million.
 const AMB = { rate: 10, cap: 300, rim: 80, cell: 48 };
 function updateAmbient(dt) {
+  if (G.lvl) return;
   const A = G.amb || (G.amb = []);
   G.ambAcc = (G.ambAcc || 0) + AMB.rate * dt;
   while (G.ambAcc >= 1) {

@@ -792,6 +792,7 @@ const UI = {
       slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Rare or better.'],
       level: ['LEVEL ' + G.level + '!', pick(['Fresh DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA! Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The fans chipped in. Some of them twice.'])],
       chest: ['FAN DNA', pick(['Epic or better. The fans sent this. Some of the fans are very strange.', 'Epic or better. It wriggles. That is probably fine.'])],
+      myth: ['ACHIEVEMENT DNA', 'Mythical or Celestial, every card. Earned, not given. Do not waste it.'],
       boss: ['BOSS DNA', 'Epic or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
       branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The others go in the bin. Forever. No pressure.'],
       sfork: ['FEAT PATH', 'Your Feat hit Lv 4. Pick how it grows up. The other one goes in the bin.'],
@@ -1135,9 +1136,9 @@ const UI = {
     // on: tap the CHOOSE SPERM SAMPLE heading five times to switch it on or off.
     let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
     // Wave mode first (the default), then the rest in number order. Endless stays locked until wave mode is beaten.
-    const list = SAMPLES.filter(s => s.open && (s.id !== 's000' || dev)).sort((a, b) => (b.first ? 1 : 0) - (a.first ? 1 : 0) || a.no.localeCompare(b.no));
+    const list = SAMPLES.filter(s => s.open && (s.id !== 's000' || dev)).sort((a, b) => (b.first ? 1 : 0) - (a.first ? 1 : 0) || (a.order || 9) - (b.order || 9) || a.no.localeCompare(b.no));
     const shut = s => !s.open || (s.locked && s.locked());
-    const extra = s => s.id === 's002' ? (best.campBest ? ` | Best: ${best.campBest >= CAMP.waves ? 'beaten' : 'wave ' + best.campBest + ' of ' + CAMP.waves}` : '') : s.id === 's006' ? (best.wave ? ' | Best: wave ' + best.wave : '') : best.born ? ' | Fastest fertilisation ' + fmtTime(best.born) : '';
+    const extra = s => s.id === 's007' ? (META.lvBest && META.lvBest.mouth ? ' | Best: ' + fmtTime(META.lvBest.mouth) : '') : s.id === 's002' ? (best.campBest ? ` | Best: ${best.campBest >= CAMP.waves ? 'beaten' : 'wave ' + best.campBest + ' of ' + CAMP.waves}` : '') : s.id === 's006' ? (best.wave ? ' | Best: wave ' + best.wave : '') : best.born ? ' | Fastest fertilisation ' + fmtTime(best.born) : '';
     $('sampleList').innerHTML = list.map(s => `<button class="slide ${shut(s) ? 'locked' : ''}" data-sample="${s.id}">
       <span class="slabel"><b>#${s.no}</b><i>${shut(s) ? (s.open ? 'LOCKED' : 'COMING SOON') : s.tag || 'IN STOCK'}</i></span>
       <span class="sglass"><span class="sdrop"></span></span>
@@ -1330,14 +1331,15 @@ const UI = {
     if (G.wave && !G.wave.camp) return UI.showDishOver(best);
     const isBest = won ? !best.born || G.t < best.born : G.t > (best.time || 0);
     if (G.wave && G.wave.camp) UI.saveBest(Object.assign(best, { campBest: Math.max(best.campBest || 0, won ? CAMP.waves : G.wave.n - 1) }));
-    if (won) UI.saveBest(Object.assign(best, { born: isBest ? G.t : best.born, births: (best.births || 0) + 1 }));
+    if (won && !G.lvl) UI.saveBest(Object.assign(best, { born: isBest ? G.t : best.born, births: (best.births || 0) + 1 }));
     else if (isBest) UI.saveBest(Object.assign(best, { time: G.t, level: G.level, kills: G.kills }));
-    $('overTitle').textContent = won ? "IT'S SPERMY!" : G.rivalWinner ? 'BEATEN TO IT' : 'SPERMY ABSORBED';
+    $('overTitle').textContent = won && G.lvl ? 'THE EGG IS IN ANOTHER CASTLE' : won ? "IT'S SPERMY!" : G.rivalWinner ? 'BEATEN TO IT' : 'SPERMY ABSORBED';
     $('overTitle').classList.toggle('won', !!won);
     const dmg = Object.entries(G.stats.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8);
     const tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
-    let h = won
+    let h = G.lvl ? `<div class="eulogy">${won ? `Lips to throat, through the plaque and the mouthwash, to a pale glowing ball at the back of the throat. It was a tonsil stone. It stinks. The egg is in another castle.${G.lvl.L.next ? ' LEVEL 2 UNLOCKED: ' + esc(G.lvl.L.next) + ' (coming soon).' : ''}` : `Swallowed ${Math.round(lvProgress() * 100)}% of the way through ${esc(G.lvl.L.name.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()))}.`}</div><div class="big">${fmtTime(G.t)}</div>` + (won ? '' : `<div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the immune system')}</b></div>`)
+      : won
       ? `<div class="eulogy">${G.wave ? 'Twenty drops, four bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
       : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
       <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:${PAL.danger}">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
@@ -1353,10 +1355,10 @@ const UI = {
     h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')}</div>` : `<p class="hint">None. Impressive, in its own way.</p>`;
     logRun(G, won ? 'WON' : G.rivalWinner ? 'BEATEN' : 'LOST');
     UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
-    const dna = bankRun(G, won);
+    const dna = bankRun(G, won && !G.lvl); // (a tonsil stone is not a birth)
     h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
     if (G.heatUnlocked) h = `<div class="bdna" style="color:#ff3b3b">IMMUNE RESPONSE ${G.heatUnlocked} UNLOCKED: ${esc(IMMUNE[G.heatUnlocked - 1].name)}</div>` + h;
-    if (won && META.wonSinceBirth) h = `<p class="hint">You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.</p>` + h;
+    if (won && !G.lvl && META.wonSinceBirth) h = `<p class="hint">You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.</p>` + h;
     if (!won) h = UI.killerHtml() + h;
     h += UI.keepStainHtml();
     $('overBody').innerHTML = h;

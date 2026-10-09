@@ -45,6 +45,7 @@ function achieve(id) {
   let reward;
   switch (A.reward) {
     case 'box': G.lootQueue.push({ kind: 'chest', src: { t: 'ach', name: A.name } }); reward = 'Reward: a Gold strand of Fan DNA.'; break;
+    case 'myth': G.lootQueue.push({ kind: 'myth', src: { t: 'ach', name: A.name } }); reward = 'Reward: ACHIEVEMENT DNA. Every card in it is Mythical or Celestial.'; break;
     case 'bossbox': G.lootQueue.push({ kind: 'boss', src: { t: 'ach', name: A.name } }); reward = 'Reward: a Gold strand of Boss DNA.'; break;
     case 'reroll': G.rerolls++; reward = 'Reward: +1 reroll token.'; break;
     case 'scrap': G.scrap += 40; reward = 'Reward: 40 scrap. Try not to spend it all at once.'; break;
@@ -69,7 +70,7 @@ function onShowKill(e, src) {
   if (src.echo) achieve('echokill');
   if (src.friendly) achieve('friendly');
   if (e === G.grudge) { if (src.grudge) { achieve('grudge'); sysLine('grudge'); } G.grudge = null; }
-  if (e.boss) achieve('boss');
+  if (e.boss) { achieve('boss'); if (G.bossHits0 != null && Object.values(G.stats.hurtKind).reduce((x, y) => x + y, 0) <= G.bossHits0 + 0.01) achieve('flawless'); }
 }
 
 function updateShow(dt) {
