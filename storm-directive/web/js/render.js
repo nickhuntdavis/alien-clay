@@ -31,7 +31,7 @@ function refreshPalette() {
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
-// Element effects. With the H&E stain, Acid shows green, Base blue, Ethanol amber and Voodoo violet.
+// Element effects. With the H&E stain, Acid shows green, Base blue, Ethanol amber and Histamine violet.
 // Static is always coloured, in a static-shock blue and pink.
 // (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
 const ELEM_SWAP = new Map([
@@ -1721,7 +1721,7 @@ function render() {
 // You grow as you level up: up to 1.8x at level 60.
 // Your swimmer grows with its max HP (not its level): +60% size at 400 max HP, up to double.
 function hpScale(k) { return 1 + Math.min(1, Math.max(0, (G.P.maxHp - 120) / 470)) * (k == null ? 1 : k); }
-// One enemy, drawn at its place on the slide (also used for the Codex portraits). lod: a crowd, so common
+// One enemy, drawn at its place on the slide (also used for the Field Guide portraits). lod: a crowd, so common
 // enemies skip their halo and surface detail.
 function drawEnemy(e, lod) {
   const plain = !e.elite && !e.boss && !e.rival && !e.charmed;

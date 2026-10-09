@@ -955,7 +955,7 @@ function drawToysOver() {
   if (G.bubbleBoy > 0) { const p = G.player; ctx.globalAlpha = 0.6; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 30 * S * playerScale(), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
 }
 
-// ---------------------------------------------------------------- weapon panel stats (from the Armoury)
+// ---------------------------------------------------------------- weapon panel stats (from the Tackle Box)
 function toyStats(w, T) {
   const s = w.s;
   switch (w.def.kind) {

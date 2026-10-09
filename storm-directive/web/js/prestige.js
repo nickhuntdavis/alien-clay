@@ -4,7 +4,7 @@
 // one more rule on top of the last and +15% DNA. Being born at your highest level unlocks the next.
 // Being Born: once you've won a run, the Gene Bank lets you be born. Your traits, wildcards, dyes and DNA are
 // gone, but your Generation goes up for good (+10% DNA, +3% damage and +5 max HP a Generation) and you pick a
-// Baby Trait to keep forever. The Codex, your sequences and their ranks, and your records all stay.
+// Baby Trait to keep forever. The Field Guide, your sequences and their ranks, and your records all stay.
 
 const IMMUNE = [
   { name: 'Inflammation',        desc: 'Enemies have 20% more health.' },

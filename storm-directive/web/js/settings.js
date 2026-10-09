@@ -9,9 +9,9 @@ const SETTINGS_DEF = [
   { id: 'immersive', label: 'Immersive mode', hint: 'Only the buttons you need to play, along the bottom, faded back. No top bar, map, counters or messages.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'fx', label: 'Your effects', hint: 'Auto fades your shots, trails and sparks back when the screen gets busy, so enemies and their bullets stay readable.', opts: [['auto', 'AUTO'], ['faded', 'FADED'], ['full', 'FULL']] },
   { id: 'layout', label: 'Layout', hint: 'Landscape puts your weapons down the side. Auto follows the screen.', opts: [['auto', 'AUTO'], ['portrait', 'PORTRAIT'], ['landscape', 'LANDSCAPE']] },
-  { id: 'narrator', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE SYSTEM'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
+  { id: 'narrator', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE LAB TECH'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
   { id: 'speed', label: 'Game speed', hint: 'How fast the whole game runs. Also in the pause menu. The run log notes the speeds you played at.', opts: [[0.5, 'x0.5'], [0.75, 'x0.75'], [1, 'x1'], [1.5, 'x1.5'], [2, 'x2']] },
-  { id: 'intros', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet. Everything still goes in your Codex. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
+  { id: 'intros', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet. Everything still goes in your Field Guide. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
   { id: 'fpsCap', label: 'Frame rate', hint: '60 is smoother over a whole run: on a 90 or 120 Hz screen it halves the work, so the phone stays cooler and has room for busy moments.', opts: [[60, '60'], [0, 'UNCAPPED']] },
   { id: 'sound', label: 'Sound', hint: '', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'music', label: 'Music', hint: 'Builds with the fight: busier swarms, bosses and the Final Five each change it.', opts: [[true, 'ON'], [false, 'OFF']] },
@@ -46,7 +46,7 @@ function saveSettings() { try { localStorage.setItem('sd_settings', JSON.stringi
 // ---------------------------------------------------------------- narrator packs
 // Each pack overrides some System lines; anything it doesn't cover falls back to the System.
 const NARRATORS = {
-  system: { head: 'SYSTEM MESSAGE', lines: {} },
+  system: { head: 'LAB TECH', lines: {} },
   documentary: {
     head: 'NARRATOR',
     lines: {
@@ -125,5 +125,5 @@ function applyNarrator() {
   const pack = NARRATORS[SET.narrator] || NARRATORS.system;
   for (const k in BASE_LINES) SYSTEM_LINES[k] = pack.lines[k] || BASE_LINES[k];
 }
-function narratorHead(head) { return head === 'SYSTEM MESSAGE' ? (NARRATORS[SET.narrator] || NARRATORS.system).head : head; }
+function narratorHead(head) { return head !== 'SYSTEM MESSAGE' ? head : lvOn() && SET.narrator === 'system' ? 'INNER VOICE' : (NARRATORS[SET.narrator] || NARRATORS.system).head; }
 applyNarrator();

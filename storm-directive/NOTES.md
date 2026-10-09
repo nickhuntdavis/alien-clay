@@ -1,10 +1,11 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.56 (versionCode 206), branch `claude/autorun-bullet-storm-game-blptu8`. All 46 suite tests pass.
+- Version v8.57 (versionCode 207), branch `claude/autorun-bullet-storm-game-blptu8`. All 46 suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.57: copy pass for two frames. Dish and race modes are the scientist's forced-evolution experiment: the narrator is the LAB TECH, viewers are lab Funding (£), sponsors are research grants, Fan DNA is Donor DNA. The campaign (`lvOn()`) uses an INNER VOICE (`LONGING_LINES` in data.js, via `sysPool`) obsessed with the egg, and the meter shows as Devotion. Also: Voodoo→Histamine (status swollen), MAG→LOAD, Storm Surge→Fever Pitch, Relic→Trophy, Codex→Field Guide, Armoury→Tackle Box, Celestial→Immaculate, Bounty→Tagged Specimen, Chrono→Body Clock. Internal ids unchanged.
 - v8.56: Codex enemy list crash fixed (campaign germs had no ENEMIES entry); tests, CLAUDE.md and these notes moved into the repo.
 - v8.55: the campaign's way-on chevron only shows after 40 s without headway (`LV_LOST`).
 - v8.54: autorun no longer solves campaign mazes (no route pull, no corridor wandering).

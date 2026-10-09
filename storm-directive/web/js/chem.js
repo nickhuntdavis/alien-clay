@@ -1,11 +1,11 @@
 'use strict';
-// Spawn Prawn - chemistry. Six elements: Force, Acid, Base, Static, Ethanol and Voodoo (the internal keys are
+// Spawn Prawn - chemistry. Six elements: Force, Acid, Base, Static, Ethanol and Histamine (the internal keys are
 // phys, fire, ice, shock, poison and arcane). Each leaves a status on what it hits:
 //   Acid    - corroding: damage over time that eats a little armour as it goes (e.burn).
 //   Base    - lathered: slower, and slides further when hit (e.chill); enough and it saponifies: soap, stuck solid (e.frozen).
 //   Static  - charged: damage it takes arcs to a neighbour, and drags that neighbour closer (e.shock).
 //   Ethanol - drunk: stacking damage over time, and it weaves about (e.poison, e.poisonStacks).
-//   Voodoo  - hexed: takes more from everything; the hex passes on when it dies (e.mark).
+//   Histamine  - hexed: takes more from everything; the hex passes on when it dies (e.mark).
 // When an element lands on something already carrying another's status, they react (REACTIONS in data.js).
 // Combos have chemistry too: fuse two weapons whose elements are not their usual ones (Switched at Birth)
 // and the combo picks up a TWIST from the pair of elements it is made of.
@@ -69,7 +69,7 @@ function applyElement(e, elem, dmg, src) {
         floatText(e.x, e.y - e.r - 26, 'zzz', '#cdb4db', 12, 0.9);
       }
       break;
-    case 'arcane': // Voodoo
+    case 'arcane': // Histamine
       if ((e.burn > 0 || e.chill > 0 || e.poison > 0 || e.shock > 0 || e.fizz > 0 || e.pickle > 0) && react(e, 'sympathy', src)) {
         damageEnemy(e, dmg * 1.0 * rm, rsrc);
         for (const n of acquireMany('nearest', 140, e.x, e.y, 3)) {
@@ -234,14 +234,14 @@ const TWISTS = {
   'fire+ice':      { name: 'Neutral Ground', desc: 'Combo hits neutralise: a hot burst round the target, and the salt water heals you a little.' },
   'fire+shock':    { name: 'Car Battery',    desc: 'Combo hits turn the target into a battery that zaps its neighbours for 2s.' },
   'fire+poison':   { name: 'Pear Drops',     desc: 'Combo hits make the target smell of pear drops: everything nearby is drawn in for a sniff.' },
-  'arcane+fire':   { name: 'Curdled Curse',  desc: 'Combo hits hex the target and corrode it, hard.' },
+  'arcane+fire':   { name: 'Weeping Rash',   desc: 'Combo hits swell the target and corrode it, hard.' },
   'fire+phys':     { name: 'Acid Wash',      desc: 'Combo hits strip 2 armour for good (1 from bosses).' },
   'ice+shock':     { name: 'Hydrogen Pop',   desc: 'Combo hits split water: a small pop round the target that strips armour.' },
   'ice+poison':    { name: 'Hand Sanitiser', desc: 'Combo hits kill 99.9% of germs: ordinary enemies near the target on 15% health or less die.' },
   'arcane+ice':    { name: 'Soap Opera',     desc: 'Combo hits are so dramatic the target faints for a second (not bosses).' },
   'ice+phys':      { name: 'Slip and Slide', desc: 'Combo hits lather the target and send it skidding a long way.' },
   'poison+shock':  { name: 'Lit Up',         desc: 'Combo hits light the fumes: a small blast that gets everything in it a round drunker.' },
-  'arcane+shock':  { name: 'Seance',         desc: 'Combo hits possess badly hurt enemies (under 30% health): they fight for you for 5s.' },
+  'arcane+shock':  { name: 'Brain Fog',      desc: 'Combo hits fog the minds of badly hurt enemies (under 30% health): they fight for you for 5s.' },
   'phys+shock':    { name: 'Crumple Zone',  desc: 'Combo hits charge a barrier that blocks the next hit you take (recharges after 8s).' },
   'arcane+poison': { name: 'Spirits',        desc: 'Enemies the combo kills give up their spirit: it flies into the nearest enemy for a share of their health.' },
   'phys+poison':   { name: 'Bar Fight',      desc: 'Combo hits start a bar fight: the target swings at everything next to it.' },
@@ -250,7 +250,7 @@ const TWISTS = {
   'ice+ice':       { name: 'Lye',            desc: 'Combo hits saponify ordinary enemies on the spot.' },
   'shock+shock':   { name: 'Supercharged',   desc: 'Combo hits arc on to three more enemies.' },
   'poison+poison': { name: 'Double Shot',    desc: 'Combo hits pour two rounds of Ethanol at once.' },
-  'arcane+arcane': { name: 'Hex Bomb',       desc: 'Hexed enemies the combo kills explode.' },
+  'arcane+arcane': { name: 'Anaphylaxis',    desc: 'Swollen enemies the combo kills explode.' },
   'phys+phys':     { name: 'Brute Squad',    desc: 'Combo hits deal +25% damage and knock enemies flying.' },
 };
 const twistKey = (a, b) => [a, b].sort().join('+');

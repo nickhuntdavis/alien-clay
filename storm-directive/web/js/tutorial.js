@@ -59,14 +59,14 @@ const TUT_CARDS = {
     head: 'WHY IT MATTERS', tips: [
       'Reactions hit hard, and some spread to the enemies nearby.',
       'A mixed build usually beats a pure one through utility and damage over time (slows, stuns, armour stripping, corrosion), not raw damage.',
-      `There are ${Object.keys(REACTIONS).length}. The Codex lists them all.`] }),
+      `There are ${Object.keys(REACTIONS).length}. The Field Guide lists them all.`] }),
 };
 for (const id in ELEMENTS) TUT_CARDS['el_' + id] = () => {
   const E = ELEMENTS[id], mix = tutMixes(id);
   return { title: 'NEW DAMAGE TYPE', name: E.name.toUpperCase(), colour: E.color, what: E.blurb,
     head: mix.length ? 'MIX IT WITH' : 'HOW IT WORKS',
     tips: mix.length ? mix.slice(0, 3) : ['It leaves enemies ' + E.status + '.'],
-    foot: mix.length > 3 ? `And ${mix.length - 3} more in the Codex.` : '' };
+    foot: mix.length > 3 ? `And ${mix.length - 3} more in the Field Guide.` : '' };
 };
 
 // Ask for a card. now: it explains something happening this moment, so it skips the queue.

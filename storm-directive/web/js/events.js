@@ -42,7 +42,7 @@ const RUN_EVENTS = {
       }
     } },
   horde: { name: 'SOFT PLAY', color: '#ff4d6d', dur: 20, w: 2.5,
-    desc: d => `Surrounded. Survive 20s for ${d ? 'two gold chests' : 'a gold chest'}.`,
+    desc: d => `Surrounded. Survive 20s for ${d ? 'two strands of Donor DNA' : 'a strand of Donor DNA'}.`,
     tick: (d, ev, dt) => {
       ev.acc = (ev.acc == null ? 99 : ev.acc) + dt;
       if (ev.acc < 4) return;
@@ -51,24 +51,24 @@ const RUN_EVENTS = {
       const def = G.t > 400 ? pick([ENEMIES.skitter, ENEMIES.brute, ENEMIES.crawler]) : G.t > 150 ? ENEMIES.skitter : ENEMIES.crawler;
       for (let i = 0; i < n && G.enemies.length < CAPS.enemies; i++) { const a = i / n * TAU; G.enemies.push(makeEnemy(def, p.x + Math.cos(a) * R, p.y + Math.sin(a) * R)); }
     },
-    end: d => { for (let i = 0; i < (d ? 2 : 1); i++) G.lootQueue.push({ kind: 'chest' }); return d ? 'TWO CHESTS' : 'CHEST'; } },
+    end: d => { for (let i = 0; i < (d ? 2 : 1); i++) G.lootQueue.push({ kind: 'chest' }); return d ? 'TWO DNA STRANDS' : 'DNA STRAND'; } },
   golden: { name: 'GOLDEN SWIMMER', color: '#ffd23f', dur: 20, w: 2, win: 'kill',
-    desc: d => `A golden sperm is running off with ${d ? 'two chests' : 'a chest'}. Catch it within 20s.`,
+    desc: d => `A golden sperm is running off with ${d ? 'two DNA strands' : 'a DNA strand'}. Catch it within 20s.`,
     start: d => { const s = spawnPos(), e = makeEnemy(GOLDEN_DEF, s.x, s.y); e.armour = 0; e.evTag = 'golden'; if (d) { e.speed *= 1.15; e.hp *= 1.5; e.maxHp *= 1.5; } G.enemies.push(e); return e; },
     end: (d, ev) => { const e = ev.target; if (e && !e.dead) { e.dead = true; spawnPart(e.x, e.y, '#ffd23f', 14, 160, 0.6); } return null; },
-    reward: (d, e) => { for (let i = 0; i < (d ? 2 : 1); i++) G.pickups.push(makePickup('chest', e.x + i * 24, e.y)); return d ? 'TWO CHESTS' : 'CHEST'; } },
-  bounty: { name: 'MOST WANTED', color: '#ffd23f', dur: 60, w: 2, win: 'kill',
-    desc: d => `A bounty target is loose. Kill it within 60s: ${d ? 'two chests' : 'a chest'} and 2 rerolls.`,
+    reward: (d, e) => { for (let i = 0; i < (d ? 2 : 1); i++) G.pickups.push(makePickup('chest', e.x + i * 24, e.y)); return d ? 'TWO DNA STRANDS' : 'DNA STRAND'; } },
+  bounty: { name: 'TAGGED SPECIMEN', color: '#ffd23f', dur: 60, w: 2, win: 'kill',
+    desc: d => `The lab tagged a specimen and it got loose. Kill it within 60s: ${d ? 'two DNA strands' : 'a DNA strand'} and 2 rerolls.`,
     start: d => {
       const s = spawnPos(), def = pick([ENEMIES.brute, ENEMIES.bulwark, ENEMIES.juggernaut, ENEMIES.warlock, ENEMIES.charger]);
       const e = makeEnemy(def, s.x, s.y, { elite: true });
       const k = d ? 9 : 6;
-      e.hp *= k; e.maxHp *= k; e.r *= 1.3; e.dmg *= 1.3; e.xp *= 4; e.evTag = 'bounty'; e.name = 'WANTED: ' + pick(BOUNTY_NAMES);
+      e.hp *= k; e.maxHp *= k; e.r *= 1.3; e.dmg *= 1.3; e.xp *= 4; e.evTag = 'bounty'; e.name = 'TAGGED: ' + pick(BOUNTY_NAMES);
       G.enemies.push(e);
       return e;
     },
     end: (d, ev) => { const e = ev.target; if (e && !e.dead) { e.elite = false; e.evTag = null; floatText(e.x, e.y - e.r - 12, 'GOT AWAY', '#ffffff', 14); } return null; },
-    reward: (d, e) => { for (let i = 0; i < (d ? 2 : 1); i++) G.pickups.push(makePickup('chest', e.x + i * 24, e.y)); G.rerolls += 2; achieve('bounty'); return 'BOUNTY PAID'; } },
+    reward: (d, e) => { for (let i = 0; i < (d ? 2 : 1); i++) G.pickups.push(makePickup('chest', e.x + i * 24, e.y)); G.rerolls += 2; achieve('bounty'); return 'SPECIMEN CAUGHT'; } },
   blackout: { name: 'LIGHTS OUT', color: '#b8c0ff', dur: 25, w: 2,
     desc: d => `Someone switched off the microscope lamp. +30% XP.${d ? ' Elites are out hunting.' : ''}`,
     mods: () => ({ dark: 1, xp: 1.3 }),

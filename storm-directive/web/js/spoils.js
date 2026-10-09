@@ -9,7 +9,7 @@ function spoilsRelics(boss) {
   const away = BOSSES.filter(b => b.id !== boss && !(G.bossRoster || []).includes(b.id));
   const pool = [];
   for (const b of (away.length ? away : BOSSES.filter(x => x.id !== boss))) for (const id of b.relics) if (!G.relics[id]) pool.push([id, b.id]);
-  if (pool.length) { const [id, b] = pick(pool); const o = optRelic(id, b); o.tag = 'SMUGGLED RELIC'; own.push(o); }
+  if (pool.length) { const [id, b] = pick(pool); const o = optRelic(id, b); o.tag = 'SMUGGLED TROPHY'; own.push(o); }
   return own;
 }
 const SPOILS = {
@@ -20,7 +20,7 @@ const SPOILS = {
   hide: () => ({ title: 'Trophy Hide', icon: 'TH', desc: '+4 armour and +6% dodge.', apply: () => { G.P.armour += 4; G.P.dodge = Math.min(0.7, G.P.dodge + 0.06); } }),
   notes: () => ({ title: 'Lab Notes', icon: 'LN', desc: 'Reactions hit 40% harder, and your damage types +10%.', apply: () => { G.P.react += 0.4; for (const k in G.P.elem) G.P.elem[k] += 0.1; } }),
   lap: () => ({ title: 'Victory Lap', icon: 'VL', desc: '+12% swim speed and +30% pickup range.', apply: () => { G.P.speed += 0.12; G.P.magnet += 0.3; } }),
-  bounty: () => ({ title: 'Bounty', icon: 'BY', desc: '+3 rerolls and +15% luck.', apply: () => { G.rerolls += 3; G.P.luck += 0.15; } }),
+  bounty: () => ({ title: "Finder's Fee", icon: 'FF', desc: '+3 rerolls and +15% luck.', apply: () => { G.rerolls += 3; G.P.luck += 0.15; } }),
   crit: () => ({ title: 'Killer Instinct', icon: 'KI', desc: '+10% crit chance and +40% crit damage.', apply: () => { G.P.crit += 0.1; G.P.critDmg += 0.4; } }),
 };
 function spoilsOpts() {

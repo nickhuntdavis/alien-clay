@@ -9,7 +9,7 @@ const ELEMENTS = {
   poison: { name: 'Ethanol', color: '#e8a33d', status: 'drunk',    blurb: 'Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out.' },
   oxi:    { name: 'Peroxide', color: '#9ff7ff', status: 'fizzing', blurb: 'An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit.' },
   salt:   { name: 'Brine',   color: '#ffb3c6', status: 'pickled', blurb: 'Salt water. Pickled enemies shrivel: they swim 15% slower, hit you 25% softer, and conduct Static twice as well.' },
-  arcane: { name: 'Voodoo',  color: '#c77dff', status: 'hexed',    blurb: 'Hexes enemies: they take more from everything. When a hexed enemy dies the hex passes to the nearest one.' },
+  arcane: { name: 'Histamine',  color: '#c77dff', status: 'swollen',  blurb: 'Makes enemies swell up: they take more from everything. When a swollen enemy dies the swelling passes to the nearest one.' },
 };
 
 // Targeting directives. Each weapon/spell runs one of these.
@@ -25,7 +25,7 @@ const DIRECTIVES = [
   { id: 'cluster',   name: 'DENSEST CLUSTER', short: 'CLSTR', desc: 'The middle of the crowd. Best for splash.' },
   { id: 'elite',     name: 'ELITES & BOSSES', short: 'ELITE', desc: 'Bosses, then elites, then nearest.' },
   { id: 'shooters',  name: 'SHOOTERS FIRST', short: 'SHOOT',  desc: 'Ranged enemies, healers and summoners first.' },
-  { id: 'random',    name: 'RANDOM',         short: 'RAND',   desc: 'Chaos. The audience loves it.' },
+  { id: 'random',    name: 'RANDOM',         short: 'RAND',   desc: 'Chaos. The lab loves it.' },
   { id: 'revenge',   name: 'REVENGE',        short: 'GRUDGE', desc: 'Whatever hurt you last. Otherwise nearest.' },
 ];
 
@@ -326,7 +326,7 @@ const SIGS = {
   toothdecay:    { name: 'Tooth Decay', desc: 'Mastery. Enemies holding teeth take +12% damage from everything for each tooth.' },
 };
 
-// Pairings: secret combos between two weapons you own (both Lv 5+). Found by playing; listed in the Codex once found.
+// Pairings: secret combos between two weapons you own (both Lv 5+). Found by playing; listed in the Field Guide once found.
 const PAIRINGS = [
   { a: 'tesla',    b: 'mines',    id: 'monitor',   name: 'Baby Monitor Network', desc: 'Static jumping through a crowd sets off any Nappy Mine near its path.' },
   { a: 'flamer',   b: 'frost',    id: 'hotcold',   name: 'Indigestion Remedy', desc: 'Neutralised reactions have no cooldown and hit twice as hard.' },
@@ -438,10 +438,10 @@ const RARITIES = [
   { id: 'rare',      name: 'Rare',      color: '#3b9dff', mult: 1.5,  lvls: 1, w: 12 },
   { id: 'epic',      name: 'Epic',      color: '#b25cff', mult: 2,    lvls: 2, w: 5 },
   { id: 'legendary', name: 'Legendary', color: '#ff9f1c', mult: 2.5,  lvls: 2, w: 1.6 },
-  // Mythical and Celestial never come from the weights: a separate tiny chance per card (about one or two
+  // Mythical and Immaculate never come from the weights: a separate tiny chance per card (about one or two
   // a run, three at most), and each brings a unique bonus effect on top (see BOONS).
   { id: 'mythical',  name: 'Mythical',  color: '#ff2d6f', mult: 3,    lvls: 3, w: 0 },
-  { id: 'celestial', name: 'Celestial', color: '#e8f6ff', mult: 4,    lvls: 3, w: 0 },
+  { id: 'celestial', name: 'Immaculate', color: '#e8f6ff', mult: 4,    lvls: 3, w: 0 },
 ];
 
 // Passive power-ups. v = value per stack at common rarity; rarity multiplies it.
@@ -470,7 +470,7 @@ const PASSIVES = {
   cryo:      { name: 'Alkaline Diet',        icon: 'CY', max: 5, v: 0.25, fmt: v => `+${pc(v)} Base damage and lather`, apply: (P, v) => { P.elem.ice += v; } },
   storm:     { name: 'Static Hair',      icon: 'ST', max: 5, v: 0.25, fmt: v => `+${pc(v)} Static damage, +1 chain`, apply: (P, v) => { P.elem.shock += v; P.chain += 1; } },
   toxin:     { name: 'Hip Flask',       icon: 'TX', max: 5, v: 0.25, fmt: v => `+${pc(v)} Ethanol damage, +3 max rounds`, apply: (P, v) => { P.elem.poison += v; P.poisonCap += 3; } },
-  arcanum:   { name: 'Pins and Needles',          icon: 'WA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Voodoo damage`, apply: (P, v) => { P.elem.arcane += v; } },
+  arcanum:   { name: 'Pins and Needles',          icon: 'WA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Histamine damage`, apply: (P, v) => { P.elem.arcane += v; } },
   kinetic:   { name: 'Headbutt Training',       icon: 'BA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Force damage`, apply: (P, v) => { P.elem.phys += v; } },
   lungs:     { name: 'Big Lungs',          icon: 'BL', max: 3, v: 25, fmt: v => `+${Math.round(v)} max stamina (sprint longer, cast more Feats)`, apply: (P, v) => { P.stamMax += v; } },
   secondwind:{ name: 'Second Wind',        icon: 'SW', max: 3, v: 0.3, fmt: v => `Stamina refills ${pc(v)} faster`, apply: (P, v) => { P.stamRegen += v; } },
@@ -482,7 +482,7 @@ const PASSIVES = {
   catalyst:  { name: 'Chemistry',         icon: 'CT', max: 5, v: 0.35, fmt: v => `+${pc(v)} chemical reaction damage`, apply: (P, v) => { P.react += v; } },
   echo:      { name: 'Repeat Prescription',       icon: 'SE', max: 5, v: 0.10, fmt: v => `-${pc(v)} Feat cooldowns`, apply: (P, v) => { P.cdr = Math.max(0.4, P.cdr - v); } },
   scholar:   { name: 'Antenatal Classes',          icon: 'SH', max: 5, v: 0.12, fmt: v => `+${pc(v)} experience gained`, apply: (P, v) => { P.xp += v; } },
-  temporal:  { name: 'Snooze Button',    icon: 'TL', max: 3, v: 1, minRarity: 2, fmt: () => `+1 max Rewind charge, +25% Chrono energy`, apply: (P, v, G) => { G.chrono.max += 1; P.chronoGain += 0.25; } },
+  temporal:  { name: 'Snooze Button',    icon: 'TL', max: 3, v: 1, minRarity: 2, fmt: () => `+1 max Rewind charge, +25% Body Clock energy`, apply: (P, v, G) => { G.chrono.max += 1; P.chronoGain += 0.25; } },
   lastround: { name: 'Last Word',        icon: 'LW', max: 3, v: 1, fmt: v => `Last bullet of every magazine deals x${3 + Math.round(v)} damage and explodes`, apply: (P, v) => { P.lastRound += Math.round(v); } },
   tactical:  { name: 'Tactical Nap',  icon: 'TR', max: 4, v: 1, fmt: v => `Starting a reload sends out a shockwave that deletes nearby bullets (+${40 * Math.round(v)} radius)`, apply: (P, v) => { P.tactical += Math.round(v); } },
   focus:     { name: 'Tunnel Vision',       icon: 'FL', max: 3, v: 0.3, fmt: v => `+3% damage per second on the same target, up to +${pc(v)} more`, apply: (P, v) => { P.focus += v; } },
@@ -515,14 +515,14 @@ const REACTIONS = {
   flashpoint:{ name: 'FLASHPOINT',   color: '#ffba08', desc: 'Static on a drunk enemy (2+ rounds): the fumes go up. Every round of Ethanol in it explodes at once.' },
   electro:   { name: 'ELECTROLYSIS', color: '#bde0fe', desc: 'Static on a lathered enemy: splits it into hydrogen. Armour stripped, and a small pop.' },
   sanitiser: { name: 'SANITISED',    color: '#d0f4de', desc: 'Base on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright.' },
-  sympathy:  { name: 'SYMPATHY',     color: '#e0aaff', desc: 'Voodoo on any status: bonus damage, and the dolls: its status copies onto two neighbours, which are hexed too.' },
+  sympathy:  { name: 'HIVES',        color: '#e0aaff', desc: 'Histamine on any status: bonus damage, and it breaks out: its status copies onto two neighbours, which swell up too.' },
   suds:      { name: 'SUDS',         color: '#e6f4ff', desc: 'Force on a saponified enemy: the soap bursts, and the suds hit everything near it.' },
   pushover:  { name: 'PUSHOVER',     color: '#ffe5b4', desc: 'Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far.' },
   bleach:    { name: 'BLEACHED',     color: '#e6fbff', desc: 'Peroxide meets Acid (either way round): all its armour is stripped for 4s, and its corrosion burns twice as hard.' },
   toothpaste:{ name: 'ELEPHANT TOOTHPASTE', color: '#e6fbff', desc: 'Peroxide meets Base (either way round): a column of foam erupts, lathering and shoving everything nearby.' },
   rocket:    { name: 'ROCKET FUEL',  color: '#ffd166', desc: 'Peroxide meets Ethanol (either way round): the enemy is launched away from you and explodes where it lands.' },
   ozone:     { name: 'OZONE',        color: '#bde0fe', desc: 'Peroxide meets Static (either way round): static jumps to three neighbours and sets them fizzing.' },
-  exorcism:  { name: 'EXORCISM',     color: '#e0aaff', desc: 'Peroxide meets Voodoo (either way round): the hex is burned out of it in one hit (15% of its health; 6% on bosses).' },
+  exorcism:  { name: 'ANTIHISTAMINE', color: '#e0aaff', desc: 'Peroxide meets Histamine (either way round): the swelling is burned out of it in one hit (15% of its health; 6% on bosses).' },
   electrolyte:{ name: 'ELECTROLYTE', color: '#ffe5ec', desc: 'Brine meets Static (either way round): the charge runs through the salt water to four neighbours, charging them all.' },
   wound:     { name: 'SALT IN THE WOUND', color: '#ffb3c6', desc: 'Brine meets Acid (either way round): its corrosion does double damage for the rest of the dose.' },
   margarita: { name: 'MARGARITA',    color: '#d8f3dc', desc: 'Brine meets Ethanol (either way round): a salted rim. It nods off for 2.5s, and so do the drunks around it.' },
@@ -540,7 +540,7 @@ const SYNERGIES = {
   poison: { name: 'Open Bar', desc: 'Ethanol ticks twice as fast' },
   oxi:    { name: 'Bubbly',  desc: 'Fizz pops 50% harder' },
   salt:   { name: 'Seasoned',  desc: 'Pickling lasts 50% longer' },
-  arcane: { name: 'Old Wives\' Tale',    desc: 'Hexes amplify damage by +50% instead of +30%' },
+  arcane: { name: 'Hay Fever',          desc: 'Swelling amplifies damage by +50% instead of +30%' },
 };
 
 // Enemies. from = seconds before they can spawn, w = spawn weight.
@@ -610,7 +610,7 @@ const BOSSES = [
     hp: 3400, speed: 52, armour: 4, r: 48, dmg: 30, xp: 80, patterns: ['blink', 'glare', 'flower', 'glare', 'doubleSpiral'],
     quote: "I've read your genome. I've seen better genomes on a crouton.",
     desc: 'It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink.',
-    strengths: ['Teleports right next to you', 'Death-stare beam that tracks you'], weaknesses: ['Takes double damage while glaring', 'Voodoo: +50% damage'],
+    strengths: ['Teleports right next to you', 'Death-stare beam that tracks you'], weaknesses: ['Takes double damage while glaring', 'Histamine: +50% damage'],
     weak: { arcane: 1.5 }, relics: ['thirdeye', 'deathstare', 'precog'] },
   { id: 'matron', name: 'THE MATRON', title: 'Head of Ward Nine', shape: 'cross', color: '#7bed9f',
     hp: 3000, speed: 40, armour: 3, r: 46, dmg: 24, xp: 80, patterns: ['wardround', 'aimedFan', 'ring', 'wardround', 'spiral'],
@@ -646,10 +646,10 @@ const BOSSES = [
     hp: 3000, speed: 50, armour: 0, r: 46, dmg: 26, xp: 85, patterns: ['blink', 'spiral', 'ring', 'doubleSpiral'], ethereal: true, noForce: true,
     quote: 'Boo. Sorry. Habit.',
     desc: 'A pregnancy that was never really there. It drifts straight through walls and growths, and Force passes through it as if it were mist. The womb itself still hurts it.',
-    strengths: ['Immune to Force damage', 'Swims through obstacles'], weaknesses: ['Voodoo: +50% damage', 'Terrain still hurts it: Acid Crypts, cilia and ATP bursts'],
+    strengths: ['Immune to Force damage', 'Swims through obstacles'], weaknesses: ['Histamine: +50% damage', 'Terrain still hurts it: Acid Crypts, cilia and ATP bursts'],
     weak: { arcane: 1.5 }, relics: ['seethrough', 'poltergeist', 'ectoplasm'] },
 ];
-const BOSS_INTERVAL = 105; // seconds: bosses at 125, 230, 335 and 440, so the fourth relic still has a few minutes to work; the fifth waits for the Storm Surge
+const BOSS_INTERVAL = 105; // seconds: bosses at 125, 230, 335 and 440, so the fourth relic still has a few minutes to work; the fifth waits for the Fever Pitch
 const BOSSES_PER_RUN = 4;
 const BOSS_TITLES = {}; for (const b of BOSSES) BOSS_TITLES[b.id] = b.title;
 
@@ -763,12 +763,12 @@ const DYES = {
   luciferase: { key: PAL.reward, see: 'Worth having in gold: DNA strands, elites, bosses, giant amoebas', name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.', boon: '+20% luck, and +25% damage to elites and bosses. You know what is worth chasing.', apply: P => { P.luck += 0.2; } },
   motility:   { key: DYE_FAST, see: 'Fast enemies in cyan: sprinters, spermlets, krill, paramecia', name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you.', boon: '+8% swim speed, and +30% damage to fast enemies. You spot them early.', apply: P => { P.speed += 0.08; } },
   rival:      { key: '#ffb347', see: 'Each rival in their own colour, on the slide, minimap and race board', name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt.', boon: '+40% damage to rival champions and the Final Five. Know your enemy.' },
-  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Base, Static, Ethanol, Voodoo), power-ups, and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Voodoo violet), power-up pickups and their effects, and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
+  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Base, Static, Ethanol, Histamine), power-ups, and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Histamine violet), power-up pickups and their effects, and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
 };
 
 // ---------------------------------------------------------------- Weapon upgrade trees
 // Every weapon has a tree: at these levels you pick one of two branch perks (the tree is fixed per weapon,
-// so you can plan ahead in the Armoury). tier: which milestone it can appear at. fit(d): which weapons it suits.
+// so you can plan ahead in the Tackle Box). tier: which milestone it can appear at. fit(d): which weapons it suits.
 const PERK_LEVELS = [3, 5, 8, 10];
 const MAX_WLVL = 10; // weapons level to 10; Lv 10 is the mastery branch
 const MULTI_KINDS = ['gun', 'lob', 'chain', 'mine', 'orbit', 'ring', 'strike', 'siphon', 'mimic', 'tether', 'prequel', 'melee', 'duedate', 'tape', 'friend', 'twin', 'bubble', 'tooth'];
@@ -1012,13 +1012,13 @@ const MODS = {
   ricochet:  { name: 'Bouncing Baby',     icon: 'RI', color: '#a0c4ff', kinds: PROJ_KINDS, desc: p => `+${1 + Math.round(p)} bounces between enemies` },
   freezing:  { name: 'Soaped Up',     icon: 'FZ', color: '#6fd8ff', desc: p => `${Math.round(18 * p)}% chance per hit to saponify the target` },
   exploding: { name: 'With a Bang',    icon: 'EX', color: '#ff7a2f', desc: p => `Hits explode for ${Math.round(30 * p)}% damage in a small blast` },
-  mindctrl:  { name: 'Bad Influence', icon: 'MC', color: '#ff8fab', desc: p => `${(5 * p).toFixed(0)}% chance per hit to make a monster fight for you for ${Math.round(6 * p)}s (max ${MAX_ALLIES} allies)` },
+  mindctrl:  { name: 'Bad Influence', icon: 'MC', color: '#ff8fab', desc: p => `${(5 * p).toFixed(0)}% chance per hit to make a germ fight for you for ${Math.round(6 * p)}s (max ${MAX_ALLIES} allies)` },
   elemental: { name: 'Switched at Birth', icon: 'EL', color: '#c77dff', desc: p => `Converts this weapon to a new damage type${p > 1.01 ? `, +${Math.round(15 * (p - 1))}% damage` : ''}` },
   shrapnel:  { name: 'Going to Pieces',     icon: 'SH', color: '#e9c46a', desc: p => `Kills burst into ${2 + Math.round(p)} shards at ${Math.round(30 + 10 * (p - 1))}% damage` },
   // The Modifier Forge.
   chaining:  { name: 'Daisy Chain',     icon: 'CN', color: '#eee36a', desc: p => `${Math.round(25 * p)}% of hits chain to another enemy for 50% damage` },
   pulsing:   { name: 'Contractions',      icon: 'PU', color: '#cfe3ff', kinds: PROJ_KINDS, desc: p => `Shots pulse every 0.6s, hitting everything close by for ${Math.round(15 * p)}% damage` },
-  magnetic:  { name: 'Animal Magnetism',     icon: 'MG', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots drag monsters within ${Math.round(70 * p)} units into their path` },
+  magnetic:  { name: 'Animal Magnetism',     icon: 'MG', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots drag germs within ${Math.round(70 * p)} units into their path` },
   delayed:   { name: 'Delayed Gratification',      icon: 'DL', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Shots hang for a moment, then launch 60% faster for +${Math.round(30 * p)}% damage` },
   mirror:    { name: 'Both Ends',       icon: 'MR', color: '#b0b0b0', kinds: PROJ_KINDS, desc: p => `Every shot has a twin fired the opposite way at ${Math.round(35 * p)}% damage` },
 };
@@ -1042,46 +1042,47 @@ const CURSES = [
     apply: (P, G) => { P.might += 0.8; // adds, like every other damage bonus (it used to multiply, so it was worth more the later you took it)
       P.maxHp = Math.max(30, Math.round(P.maxHp / 2)); G.player.hp = Math.min(G.player.hp, P.maxHp); } },
   { id: 'speed', name: "Shotgun Wedding", boon: '+50% fire rate', bane: 'Enemy bullets 20% faster', apply: P => { P.haste += 0.5; P.bulletSpeed *= 1.2; } },
-  { id: 'hoard', name: "Hands Full", boon: '+4 rerolls right now, double viewers', bane: 'Pickup range halved', apply: (P, G) => { G.rerolls += 4; P.viewers *= 2; P.magnet *= 0.5; } },
-  { id: 'crowd', name: 'The More the Merrier', boon: '+50% XP and viewers', bane: '30% more enemies (30% bigger waves in the dish)', apply: P => { P.xp += 0.5; P.viewers *= 1.5; P.spawnMult *= 1.3; } },
+  { id: 'hoard', name: "Hands Full", boon: '+4 rerolls right now, double funding', bane: 'Pickup range halved', apply: (P, G) => { G.rerolls += 4; P.viewers *= 2; P.magnet *= 0.5; } },
+  { id: 'crowd', name: 'The More the Merrier', boon: '+50% XP and funding', bane: '30% more enemies (30% bigger waves in the dish)', apply: P => { P.xp += 0.5; P.viewers *= 1.5; P.spawnMult *= 1.3; } },
   { id: 'paradox', name: 'Living in the Past', boon: '+2 max Rewind charges, all refilled now', bane: 'All healing halved', apply: (P, G) => { G.chrono.max += 2; G.chrono.charges = G.chrono.max; P.healMult *= 0.5; } },
   { id: 'naked', name: 'Clothing Optional', boon: '+25% move speed, +20% dodge', bane: 'Armour is zero, forever, and every hit hurts 15% more', apply: P => { P.speed += 0.25; P.dodge = Math.max(P.dodge, Math.min(0.6, P.dodge + 0.2)); P.noArmour = true; P.takenMul = (P.takenMul || 1) * 1.15; } },
 ];
 
-// ---------------------------------------------------------------- The Show: announcer, achievements, viewers, sponsors
-// Original comedy writing for Spawn Prawn's sardonic game-show host, "the System".
+// ---------------------------------------------------------------- The Experiment: narrator, achievements, funding, grants
+// Original comedy writing for Spawn Prawn's sardonic lab tech, who narrates the scientist's forced-evolution experiment.
+// SPONSORS are the funding bodies behind research grants; LONGING_LINES (below) are your inner voice in the campaign.
 const GACHA_TIERS = [
-  { name: 'BRONZE MAG', mult: 0.7, color: '#cd8a4a', w: 55 },
-  { name: 'SILVER MAG', mult: 1.1, color: '#c9d6e3', w: 28 },
-  { name: 'GOLD MAG', mult: 1.8, color: '#ffd23f', w: 13 },
-  { name: 'LEGENDARY MAG', mult: 3, color: '#ff3df2', w: 4 },
+  { name: 'BRONZE LOAD', mult: 0.7, color: '#cd8a4a', w: 55 },
+  { name: 'SILVER LOAD', mult: 1.1, color: '#c9d6e3', w: 28 },
+  { name: 'GOLD LOAD', mult: 1.8, color: '#ffd23f', w: 13 },
+  { name: 'LEGENDARY LOAD', mult: 3, color: '#ff3df2', w: 4 },
 ];
 const SPONSORS = [
-  "Grundle's Discount Ordnance", "Madame Vex's Totally Legal Potions", 'The Committee for Unnecessary Explosions',
-  "Big Barry's Scrap and Salvage", 'Glorp Cola: It Glows For A Reason', 'The Ancient Order of Slightly Sticky Relics',
-  "Dr Fizzwick's Regrettable Medicines", 'Hovercrab Insurance: We Probably Cover That',
+  "The Grundle Foundation for Swimmer Research", "Madame Vex's Totally Legal Fertility Tonics", 'The Committee for Unnecessary Experiments',
+  "Big Barry's Discount IVF", 'Glorp Cola: It Glows For A Reason', 'The Ancient Order of Slightly Sticky Tissues',
+  "Dr Fizzwick's Regrettable Medicines", 'Ovary Mutual: We Probably Cover That', 'The Royal Society for Bigger Sperm',
 ];
 const SYSTEM_LINES = {
   start: [
-    'Welcome, Spermy. Four hundred million of you entered. One gets to become a person. No pressure.',
+    'Welcome, Spermy. Four hundred million of you went on the slide. One gets to become a person. The rest become data.',
     'Today\'s prize: existence. Today\'s competition: literally everyone you arrived with.',
-    'Reminder: you swim yourself. Your job is to make bad decisions in the menus.',
-    'Good news: there is an egg. Bad news: so is everyone else\'s plan.',
+    'Reminder: you swim yourself. Your job is to make bad decisions in the menus. We are writing them down.',
+    'Good news: there is an egg. Bad news: the doctor wants to see what you will do to get it.',
   ],
   level: [
-    'Level up! You are growing. Please stop sprouting weapons from your tail, it upsets the viewers.',
+    'Level up! You are growing. Please stop sprouting weapons from your tail, it upsets the ethics board.',
     'Another level. The egg has noticed you. The egg is not impressed yet.',
     'Level up. Please enjoy this complimentary strand of violent DNA.',
     'Congratulations on your promotion from "tadpole" to "slightly angrier tadpole".',
   ],
   boss: [
     'It has read your genome and is unimpressed.',
-    'It has been told you insulted its mother. You did not. We did. On your behalf.',
-    'Please try to die slowly. The viewers paid for the full episode.',
+    'It has been told you insulted its mother. You did not. We did. For science.',
+    'Please try to die slowly. The doctor wants the full dataset.',
   ],
   lowhp: [
     'Your health is low. Have you tried not getting absorbed?',
-    'Vital signs: concerning. Viewer engagement: excellent.',
+    'Vital signs: concerning. Data quality: excellent.',
     'The immune system is winning. The immune system always thinks it is winning.',
   ],
   rewind: [
@@ -1089,24 +1090,24 @@ const SYSTEM_LINES = {
     'Rewind successful. Your future self is now an unpaid intern.',
     'You swam backwards through time. Most swimmers can barely swim forwards.',
   ],
-  fusion: ['Combo complete. Two weapons, working together. That is, ironically, the theme of the show.', 'Combo complete. It violates at least four treaties and one textbook.'],
+  fusion: ['Combo complete. Two weapons, working together. Cooperation. We did not breed for that.', 'Combo complete. It violates at least four treaties and one textbook.'],
   cursed: ['You took the cursed card. We are not angry. We are just disappointed. And delighted.', 'Bold. Stupid, but bold. Very on-brand for a swimmer.'],
-  surge: ['Storm Surge! The host has noticed you. Everything hits harder now. Please remain calm and panic.'],
+  surge: ['Fever Pitch! Things are heating up. Everything hits harder now. Please remain calm and panic.'],
   idle: [
     'The egg is right there. Just saying.',
     'Fun fact: most swimmers never get past the first minute. Just saying.',
     'A reminder that screaming does not affect gameplay, but we do record it.',
-    'Viewer poll: 61% think you will be eaten by a Macrophage. Prove them right.',
+    'Lab sweepstake: 61% of the staff think you will be eaten by a Macrophage. Prove them right.',
     'You are doing great! This message is automated and applies to all four hundred million swimmers equally.',
     'Current odds of becoming a person: low. Current odds of being a snack: excellent.',
   ],
   death: [
     'Swimmer absorbed. Your DNA will be recycled into something more useful, like a toenail.',
     'You have been eaten by the immune system. It was nothing personal. It was entirely personal.',
-    'And that is the show! Another swimmer gets to be a person. It was not you.',
+    'And that concludes the experiment. Another swimmer gets to be a person. It was not you.',
     'Cause of death: optimism.',
   ],
-  gacha: ['Legendary magazine! The house always wins. Except, apparently, now.'],
+  gacha: ['Legendary load! The house always wins. Except, apparently, now.'],
   mimic: ['Pattern copied. The original owner has been absorbed and cannot sue.'],
   grudge: ['Grudge settled. Therapy was cheaper, but this was faster.'],
   eggReady: ['Sperm count: one. It is you. The egg is waiting, and frankly it is getting impatient. Swim in.', 'The last rival is gone. Four hundred million went in; one is left. Go and fertilise something.'],
@@ -1119,6 +1120,46 @@ const SYSTEM_LINES = {
   born: ['Congratulations! It\'s you! Everyone else can go home. Everyone else is, technically, going nowhere.'],
   slot: ['You grew a new weapon mount. Biology is not supposed to work like this. Please enjoy it anyway.', 'Extra weapon slot unlocked. Evolution took millions of years. You took a few levels.'],
 };
+// The campaign's inner voice: one swimmer, alone, and utterly devoted to an egg it has never seen.
+// (Used instead of SYSTEM_LINES in campaign levels when the narrator is the default. Never name the setting.)
+const LONGING_LINES = {
+  start: [
+    'Somewhere ahead is the egg. You have never seen it. You would die for it. You probably will.',
+    'Other swimmers want a career, a family, a nice flat. You want the egg. Only the egg. Forever the egg.',
+    'The egg is out there, waiting. Waiting for you specifically. You are almost sure of it.',
+  ],
+  level: [
+    'Stronger. Faster. More worthy of the egg. Not that it has said anything. Yet.',
+    'Another level. You have written the egg a poem in your head. It is mostly the word "egg".',
+    'You grow. Every gene you splice in is a love letter nobody asked for.',
+  ],
+  boss: [
+    'It stands between you and the egg. Nothing stands between you and the egg.',
+    'It is big. It is angry. It is in the way. It has to go.',
+  ],
+  lowhp: [
+    'Hurt. Badly. But the egg would want you to keep going. You have decided this on its behalf.',
+    'Fading. You picture the egg: a soft glow, a warm membrane. You get up.',
+  ],
+  rewind: ['You refuse the last four seconds. The egg deserves a better version of them.'],
+  fusion: ['Two weapons, one purpose. The purpose is the egg.'],
+  cursed: ['Reckless. A sensible swimmer would never reach the egg. A desperate one might.'],
+  surge: ['Fever Pitch. Everything hits harder now. Your heart, if you had one, would be pounding.'],
+  idle: [
+    'The egg is out there. Why are you not moving?',
+    'Is the egg thinking about you? It is an egg. But maybe.',
+    'Every wall in this place is just another thing keeping you apart.',
+    'You do not sleep, but if you did, you would dream about the egg.',
+  ],
+  death: [
+    'You never reached it. Somewhere, the egg waits for someone else. It never knew your name.',
+    'The light goes out. The last thing you think about is the egg. The first thing, too.',
+    'So close. Or so far. You never found out which.',
+  ],
+  gacha: ['A legendary load. You are saving the best one for the egg.'],
+  grudge: ['Grudge settled. Nothing comes between you and the egg.'],
+  slot: ['You grew a new weapon mount. For the egg. Everything is for the egg.'],
+};
 const NO_REWARD = [
   'Reward: a sense of accomplishment. It is non-refundable.',
   'Reward: nothing. We are not made of money.',
@@ -1126,12 +1167,12 @@ const NO_REWARD = [
   'Reward: exposure. You know how it is.',
 ];
 const CARD_QUIPS = [
-  'The System recommends this one. The System is often wrong.',
-  'Viewers voted this "most likely to end in tears".',
+  'The lab tech recommends this one. The lab tech failed biology.',
+  'The lab voted this "most likely to end in tears".',
   'A previous contestant picked this. We don\'t talk about them.',
-  'Sponsored content. Probably.',
+  'Peer reviewed. Probably.',
   'This one comes with a free trial of hope.',
-  'Our focus group loved it. The focus group has since dissolved.',
+  'Our control group loved it. The control group has since dissolved.',
 ];
 const ACHIEVEMENTS = {
   firstblood: { name: "Baby's First Homicide", desc: 'Killed a rival. Only 399,999,999 to go.', reward: 'none' },
@@ -1145,37 +1186,37 @@ const ACHIEVEMENTS = {
   kills100:   { name: 'Pest Control', desc: '100 kills. The exterminators\' union has filed a complaint.', reward: 'reroll' },
   kills1000:  { name: 'Statistically Significant', desc: '1,000 kills. You are now a demographic.', reward: 'box' },
   kills5000:  { name: 'Extinction Event', desc: '5,000 kills. Several species have asked you to stop.', reward: 'bossbox' },
-  firstloot:  { name: 'Gene Therapy Influencer', desc: 'Spliced in your first DNA strand. Please like and subscribe.', reward: 'none' },
+  firstloot:  { name: 'Gene Therapy Pioneer', desc: 'Spliced in your first DNA strand. The ethics board has been informed.', reward: 'none' },
   rewind:     { name: 'Undo Button Enthusiast', desc: 'Rewound time. Causality has been notified.', reward: 'none' },
   autorewind: { name: 'Not Today, Death', desc: 'Died, then un-died. Our lawyers are looking into it.', reward: 'heal' },
   boss:       { name: 'Middle Management Removed', desc: 'Killed a boss. Someone will be promoted to replace it.', reward: 'none' },
   reactions:  { name: 'Mad Scientist', desc: 'Triggered 50 chemical reactions. Safety goggles were optional.', reward: 'reroll' },
-  friendly:   { name: 'Let Them Fight', desc: 'A Bomber killed another monster. Teamwork!', reward: 'none' },
+  friendly:   { name: 'Let Them Fight', desc: 'A Bomber killed another germ. Teamwork!', reward: 'none' },
   cursed:     { name: 'Bad Decision Maker', desc: 'Took a cursed card. We knew you would.', reward: 'none' },
   modded:     { name: 'Aftermarket Parts', desc: 'Installed a modifier. The warranty is now fully void.', reward: 'none' },
   fullmods:   { name: 'Pimp My Death Machine', desc: 'Filled all three modifier slots on one weapon. Tasteful.', reward: 'box' },
-  mindctrl:   { name: 'Friends Forever', desc: 'Mind-controlled a monster. It was not consulted.', reward: 'none' },
-  recycle:    { name: 'Circular Economy', desc: 'Recycled a weapon in the Armoury. Very eco. Very violent.', reward: 'none' },
+  mindctrl:   { name: 'Friends Forever', desc: 'Mind-controlled a germ. It was not consulted.', reward: 'none' },
+  recycle:    { name: 'Circular Economy', desc: 'Recycled a weapon in the Tackle Box. Very eco. Very violent.', reward: 'none' },
   parasite:   { name: 'Landlord of Flesh', desc: 'A corpse became your turret. Rent is due Tuesday.', reward: 'none' },
   overkill:   { name: 'Excessive Force', desc: 'Dealt 1,000 overkill damage in one hit. The review board is concerned.', reward: 'none' },
   lastword:   { name: 'The Last Word', desc: 'Killed something with the final round of a magazine. Dramatic.', reward: 'none' },
   spoilers:   { name: 'Spoilers', desc: 'Killed something before the shell had even been fired.', reward: 'none' },
   siphoned:   { name: 'Return to Sender', desc: 'Absorbed 200 enemy bullets. The postal service is in awe.', reward: 'reroll' },
   echokill:   { name: 'Time Paradox Murder', desc: 'Your future self got a kill. Who gets the XP? You do. Don\'t ask.', reward: 'none' },
-  survive5:   { name: 'Still Here?', desc: 'Survived 5 minutes. The producers are surprised.', reward: 'box' },
-  survive10:  { name: 'Contractually Obligated', desc: 'Survived 10 minutes. We have to keep filming now.', reward: 'box' },
-  surge:      { name: 'Ratings Spike', desc: 'Reached the Storm Surge. The audience is thrilled you will die soon.', reward: 'none' },
-  viewers1m:  { name: 'Celebrity', desc: 'One million viewers. Your agent has several questions.', reward: 'box' },
+  survive5:   { name: 'Still Here?', desc: 'Survived 5 minutes. The doctor is surprised.', reward: 'box' },
+  survive10:  { name: 'Contractually Obligated', desc: 'Survived 10 minutes. The grant says we have to keep watching now.', reward: 'box' },
+  surge:      { name: 'Running a Temperature', desc: 'Reached Fever Pitch. The lab is thrilled: you will die soon.', reward: 'none' },
+  viewers1m:  { name: 'Fully Funded', desc: 'One million in funding. The lab has bought a second microscope.', reward: 'box' },
   lowhp:      { name: 'Flesh Wound', desc: 'Survived a hit with under 5% HP. The medic has fainted.', reward: 'heal' },
   wave5:      { name: 'Lab Rat', desc: 'Cleared 5 waves in the Petri Dish. The scientist has named you.', reward: 'box' },
   wave15:     { name: 'Peer Reviewed', desc: 'Cleared 15 waves in the Petri Dish. You are now a paper.', reward: 'bossbox' },
   chemwar:    { name: 'Chemical Warfare', desc: 'Set off 10 different reactions in one run. The Geneva Convention does not cover sperm.', reward: 'myth' },
   breakingbad:{ name: 'Breaking Bad', desc: 'Set off 1,000 reactions in one run. You are the one who reacts.', reward: 'myth' },
   flawless:   { name: 'Flawless Specimen', desc: 'Killed a boss without taking a single hit during the fight.', reward: 'myth' },
-  mythic:     { name: 'Touched by Something', desc: 'Took a Mythical or Celestial card. It took you back.', reward: 'none' },
+  mythic:     { name: 'Touched by Something', desc: 'Took a Mythical or Immaculate card. It took you back.', reward: 'none' },
   mastery:    { name: 'Ten Out of Ten', desc: 'Took a weapon to mastery. Only one gets that honour a run.', reward: 'reroll' },
-  bounty:     { name: 'Bounty Hunter', desc: 'Collected on a Most Wanted target.', reward: 'reroll' },
-  sponsor:    { name: 'Sold Out', desc: 'Accepted a sponsor gift. Integrity was never on the table.', reward: 'none' },
+  bounty:     { name: "Tag, You're It", desc: 'Caught a tagged specimen.', reward: 'reroll' },
+  sponsor:    { name: 'Grant Funded', desc: 'Accepted a research grant. Integrity was never on the table.', reward: 'none' },
 };
 const VIEWER_MILESTONES = [10e3, 50e3, 100e3, 250e3, 500e3, 1e6, 2.5e6, 5e6, 1e7, 2.5e7, 5e7];
 
