@@ -430,9 +430,10 @@ html, body { background: #020406; color: var(--xw); }
 /* Settings modes */
 body.clinical .screen::before { display: none; }
 /* Minimal HUD: narrator lines sit low, just above the weapon dock and left of the ability buttons, so they never cover the bar, chips or health bars at the top. */
-body.hudmin #sysmsg { position: fixed; top: auto; bottom: calc(150px + env(safe-area-inset-bottom)); left: 8px; width: min(calc(100vw - 110px), 420px); padding: 5px 10px; background: #000000b8; }
-body.hudmin #sysmsg b { display: none; }
-body.hudmin #sysmsg span { font-size: 12px; line-height: 1.3; }
+body #sysmsg { position: fixed; top: auto; bottom: calc(190px + env(safe-area-inset-bottom)); left: 8px; width: min(calc(100vw - 120px), 380px); padding: 4px 9px; background: #00000099 !important; opacity: 0; }
+body #sysmsg.on { opacity: 0.88; }
+body #sysmsg b { display: none; }
+body #sysmsg span { font-size: 11.5px; line-height: 1.28; }
 .setrow h3 { margin-bottom: 4px; }
 
 .tps { flex-wrap: wrap; }
@@ -470,8 +471,7 @@ body.land #row2 { flex-wrap: wrap; width: 158px; }
 body.land #moveBtn, body.land #armBtn { width: 158px; padding: 10px 0; }
 body.land #side { bottom: calc(12px + env(safe-area-inset-bottom)); right: calc(10px + env(safe-area-inset-right)); }
 body.land #toast { bottom: 24px; left: calc(50% + 85px); }
-body.land #sysmsg { left: 184px; top: calc(96px + env(safe-area-inset-top)); width: min(calc(100vw - 530px), 440px); }
-body.land.hudmin #sysmsg { top: auto; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%, 0); width: min(calc(100vw - 520px), 440px); }
+body.land #sysmsg { top: auto; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%, 0); width: min(calc(100vw - 520px), 440px); }
 body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 
 /* Title: the out-of-focus lab shows through behind the menu */
@@ -490,6 +490,9 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #holdInfo b { font-size: 15px; }
 #holdInfo em { font-style: normal; font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: #8395a8; margin-left: 4px; }
 #holdInfo p { margin: 6px 0 0; }
+#holdInfo ul.gloss { margin: 8px 0 0; padding-left: 16px; font-size: 12px; line-height: 1.35; }
+#holdInfo ul.gloss li { margin: 3px 0; }
+#holdInfo ul.gloss b { font-size: 12px; }
 .card .chold { margin-top: 6px; font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; color: #8395a8; text-transform: uppercase; }
 #armBody.swipeL { animation: swl 0.22s ease-out; }
 #armBody.swipeR { animation: swr 0.22s ease-out; }
@@ -685,6 +688,8 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 
 /* Lab Bench (debug): the DEBUG button and its panel. */
 #autoBtn { pointer-events: auto; display: block; margin-top: 6px; width: 42px; height: 26px; border-radius: 8px; border: 1px solid #ffffff40; background: #0009; color: #ffffff99; font: 800 9px var(--mono, monospace); letter-spacing: 1px; padding: 0; }
+#spdBtn { pointer-events: auto; display: block; margin-top: 6px; width: 42px; height: 26px; border-radius: 8px; border: 1px solid #ffffff40; background: #0009; color: #ffffffcc; font: 800 10px var(--mono, monospace); }
+#spdBtn.fast { color: #ffd23f; border-color: #ffd23f88; }
 #autoBtn.on { color: #4dff9a; border-color: #4dff9a; background: #4dff9a22; box-shadow: 0 0 8px #4dff9a55 !important; }
 #dbgBtn { pointer-events: auto; position: fixed; right: 10px; top: calc(168px + env(safe-area-inset-top)); z-index: 7; display: none; font: 800 11px var(--mono, monospace); letter-spacing: 2px;
   padding: 6px 10px; background: #000c; color: #fff; border: 1px solid #fff; border-radius: 4px; }

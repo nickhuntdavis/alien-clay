@@ -41,6 +41,9 @@ const UI = {
     });
     $('armBtn').addEventListener('click', e => { e.stopPropagation(); if (G && G.state === 'play') UI.openArmoury('w', 0); });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
+    $('stClose').addEventListener('click', () => UI.closeStatusPanel());
+    // Game speed, right on the HUD: each tap steps to the next speed (wrapping round).
+    $('spdBtn').addEventListener('click', e => { e.stopPropagation(); const i = SPEED_OPTS.indexOf(gameSpeed()); SET.speed = SPEED_OPTS[(i + 1) % SPEED_OPTS.length]; saveSettings(); UI.syncSpeed(); });
     $('abilBtn').addEventListener('click', e => { e.stopPropagation(); abilityTap(); });
     $('autoBtn').addEventListener('click', e => { e.stopPropagation(); SET.auto = !SET.auto; saveSettings(); UI.syncAuto(); if (G) floatText(me().x, me().y - 40, SET.auto ? 'FULL AUTO ON' : 'FULL AUTO OFF', PAL.you, 14, 1); });
     UI.syncAuto();
@@ -112,7 +115,7 @@ const UI = {
   lastDown: 0, lootOpenT: 0,
   show(name) {
     if (!G) refreshPalette(); // out of a run everything is greyscale
-    for (const id of ['title', 'loot', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel', 'born', 'bossIntro', 'draft']) $(id).classList.toggle('on', id === name);
+    for (const id of ['title', 'loot', 'pause', 'stpanel', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel', 'born', 'bossIntro', 'draft']) $(id).classList.toggle('on', id === name);
     $('hud').classList.toggle('on', name === null || name === 'hud');
   },
 
@@ -173,6 +176,7 @@ const UI = {
   },
 
   refreshHud(full) {
+    if (full) UI.syncSpeed();
     if (!G) return;
     const wEls = $('wslots').children, sEls = $('sslots').children;
     const fill = (el, w) => {
@@ -226,7 +230,8 @@ const UI = {
   },
 
   // Full Auto: picks for you at random (DNA strands, drafts, branches, relics), skips the intros, and starts waves.
-  syncAuto() { const b = $('autoBtn'); if (b) b.classList.toggle('on', !!SET.auto); },
+  syncAuto() { const b = $('autoBtn'); if (b) b.classList.toggle('on', !!SET.auto); UI.syncSpeed(); },
+  syncSpeed() { const b = $('spdBtn'); if (b) { b.textContent = 'x' + gameSpeed(); b.classList.toggle('fast', gameSpeed() > 1); } },
   autoTick() {
     if (!SET.auto || !G) return;
     const now = performance.now();
@@ -245,7 +250,7 @@ const UI = {
       else if (now - UI.autoWaveT > 1500) { UI.autoWaveT = 0; waveBegin(); $('waveBtn').classList.remove('on'); }
     } else UI.autoWaveT = 0;
   },
-  menuOn() { for (const id of ['loot', 'draft', 'pause', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel', 'born']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
+  menuOn() { for (const id of ['loot', 'draft', 'pause', 'stpanel', 'over', 'armoury', 'settings', 'bank', 'codex', 'samples', 'seqsel', 'born']) { const el = $(id); if (el && el.classList.contains('on')) return true; } return false; },
   tick(dt) {
     updatePreviews(dt);
     seqTick(dt);
@@ -267,7 +272,8 @@ const UI = {
         box.querySelector('span').textContent = m.body;
         box.style.setProperty('--mc', col(m.color) === PAL.danger ? PAL.danger : XR.white); // messages are neutral unless they warn you
         box.classList.remove('on'); void box.offsetWidth; box.classList.add('on');
-        UI.msgT = Math.min(6, 2.2 + m.body.length / 30);
+        if (!LAYOUT.land) box.style.bottom = Math.round((UI.bottomH || 200) + 44) + 'px'; // (clear of the scale bar and frame-rate line)
+        UI.msgT = Math.min(4.5, 1.8 + m.body.length / 40);
       }
     }
   },
@@ -323,7 +329,6 @@ const UI = {
     AUDIO.on = SET.sound; DOF.on = SET.dof && !SET.clinical; UI.syncAuto();
     applyNarrator();
     document.body.classList.toggle('clinical', !!SET.clinical);
-    document.body.classList.toggle('hudmin', SET.hud === 'minimal');
     document.body.classList.toggle('darkfield', !!SET.darkfield);
     if (typeof resetLook === 'function') resetLook();
     if (typeof applyLayout === 'function') applyLayout();
@@ -827,7 +832,8 @@ const UI = {
         <div class="ctitle">${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
         <div class="cdesc">${esc(o.desc)}</div>${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
-      c.addEventListener('click', ev => {
+      // Tap to take it; press and hold for the card in full, with every bit of jargon explained (glossary.js).
+      holdable(c, () => cardGlossary(o), ev => {
         if (!$('lootCards').classList.contains('ready')) return;
         // Only a tap that started on this screen picks a card (not one left over from skipping the intro
         // or steering when the box popped up).
@@ -884,6 +890,18 @@ const UI = {
   updateReroll() { const free = mutOn('rerolldice') && !UI.freeRerollUsed; $('rerollBtn').textContent = free ? 'REROLL (FREE)' : `REROLL (${G.rerolls})`; $('rerollBtn').disabled = !free && G.rerolls <= 0 && !mutOn('waterbear'); },
 
   // ---------------------------------------------------------------- pause & directives
+  // Every buff and debuff you have right now, with what it does and how long it has left (statusintro.js).
+  openStatusPanel() {
+    if (!G || G.state !== 'play') return;
+    G.state = 'pause'; INPUT.active = false; G.manual = null;
+    const rows = (UI.chips || []).map(([label, colour]) => {
+      const key = statusKey(label) || label.replace(/\s*[\d:].*$/, ''), I = statusInfo(key), t = statusTimer(key);
+      return `<div class="li"><b style="color:${colour}">${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div>`;
+    });
+    $('stBody').innerHTML = rows.length ? `<div class="list">${rows.join('')}</div>` : '<p class="hint">Nothing active right now.</p>';
+    UI.show('stpanel');
+  },
+  closeStatusPanel() { if (G && G.state === 'pause') { G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now(); } },
   togglePause() {
     if (!G) return;
     if (G.state === 'play') { G.state = 'pause'; INPUT.active = false; G.manual = null; UI.pauseTab = 'you'; UI.renderPause(); UI.show('pause'); }
@@ -945,7 +963,7 @@ const UI = {
     UI.bindCodex(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     if (tab === 'codex') portraitsStart(box);
     box.querySelectorAll('[data-yk]').forEach(b => b.addEventListener('click', () => { G.state = 'play'; UI.openArmoury(b.dataset.yk, +b.dataset.yi); }));
-    box.querySelectorAll('[data-spd]').forEach(b => b.addEventListener('click', () => { SET.speed = +b.dataset.spd; saveSettings(); UI.renderPause(); }));
+    box.querySelectorAll('[data-spd]').forEach(b => b.addEventListener('click', () => { SET.speed = +b.dataset.spd; saveSettings(); UI.renderPause(); UI.syncSpeed(); }));
     box.querySelectorAll('[data-pst]').forEach(b => b.addEventListener('click', () => {
       const id = b.dataset.pst, off = META.pstainOff || (META.pstainOff = {});
       if (off[id]) delete off[id]; else off[id] = 1;
@@ -1453,6 +1471,7 @@ window.handleBack = function () {
   if (G && G.state === 'finale') { endFinale(); return 'ok'; }
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
   if (on('loot') || on('draft')) return 'ok';
+  if (on('stpanel')) { UI.closeStatusPanel(); return 'ok'; }
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
   if (on('seqsel')) { UI.openSamples(); return 'ok'; }
   if (on('born')) { UI.show('bank'); return 'ok'; }

@@ -1222,12 +1222,13 @@ function render() {
   }
   // XP granules: dark diamonds with a crisp edge and a glint, so they stand out on the pale slide.
   // Batched by size (one fill per colour, one outline, one glint) rather than three draws per granule.
-  const GEM_TIERS = [[20, 7, '#7a5a00'], [5, 5.5, '#14594a'], [0, 4, '#0f3d55']];
-  const gemOf = g => (g.v >= 20 ? 0 : g.v >= 5 ? 1 : 2);
+  // (Nearby granules merge into bigger ones (gemMerge, game.js): four sizes, so the slide stays readable.)
+  const GEM_TIERS = [[100, 9, '#6a1f7a'], [20, 7, '#7a5a00'], [5, 5.5, '#14594a'], [0, 4, '#0f3d55']];
+  const gemOf = g => (g.v >= 100 ? 0 : g.v >= 20 ? 1 : g.v >= 5 ? 2 : 3);
   const diamond = (x, y, r) => { ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.closePath(); };
   const gemVis = G.gems.filter(g => g.kind !== 's' && vis(g));
   ctx.strokeStyle = 'rgb(12,14,16)'; ctx.lineWidth = 1;
-  for (let ti = 0; ti < 3; ti++) {
+  for (let ti = 0; ti < GEM_TIERS.length; ti++) {
     const r = GEM_TIERS[ti][1] * S; let any = false;
     ctx.beginPath();
     for (const g of gemVis) if (gemOf(g) === ti) { diamond(sx(g.x), sy(g.y), r); any = true; }
@@ -1254,14 +1255,14 @@ function render() {
       continue;
     }
     // Power-ups are bright and always in colour (enemy bullets are dark specks, so the two never mix up):
-    // a glowing magenta halo that pulses, a pale turning hexagon, and the letter.
+    // each kind has its own colour: a glowing halo that pulses, a pale turning hexagon, and the letter.
     RAW_COL = true;
-    const pu = 0.5 + 0.5 * Math.sin(G.realT * 5 + u.bob);
-    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (2 + 0.4 * pu), PAL.pickup, 0.55); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    ctx.strokeStyle = PAL.pickup; ctx.globalAlpha = 0.35 + 0.4 * (1 - pu); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r * (1.35 + 0.35 * pu), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
-    drawShape('hex', x, y, r, G.realT * 0.8 + u.bob); ctx.fillStyle = '#fbf1ff'; ctx.fill();
-    ctx.strokeStyle = PAL.pickup; ctx.lineWidth = 3; ctx.stroke();
-    ctx.fillStyle = '#7a1f8c'; ctx.font = `900 ${Math.round(14 * S)}px ` + "ui-monospace, Menlo, monospace"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const pu = 0.5 + 0.5 * Math.sin(G.realT * 5 + u.bob), puc = puColour(u.type);
+    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (2 + 0.4 * pu), puc, 0.55); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    ctx.strokeStyle = puc; ctx.globalAlpha = 0.35 + 0.4 * (1 - pu); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r * (1.35 + 0.35 * pu), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+    drawShape('hex', x, y, r, G.realT * 0.8 + u.bob); ctx.fillStyle = '#fbf8ff'; ctx.fill();
+    ctx.strokeStyle = puc; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = puColour(u.type, true); ctx.font = `900 ${Math.round(14 * S)}px ` + "ui-monospace, Menlo, monospace"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(d.letter, x, y + 1);
     RAW_COL = false;
   }
@@ -1907,7 +1908,7 @@ function drawTitleBackdrop() {
 }
 
 // ---------------------------------------------------------------- HUD (canvas part)
-// CASA-style tracking overlay (as in computer-assisted sperm analysis software): each tracked swimmer
+// Sperm-analysis-style tracking overlay: each tracked swimmer
 // leaves a colour-coded path of its last few seconds, and rivals get detection brackets.
 function trackPoint(o) {
   o.trk = o.trk || [];
@@ -2020,66 +2021,31 @@ function softBar(x, y, w, k, color) {
 }
 const MONO = "ui-monospace, 'SF Mono', 'Roboto Mono', 'DejaVu Sans Mono', Menlo, Consolas, monospace";
 // One ECG beat as a function of phase 0..1: P wave, QRS spike, T wave.
-function ecgWave(ph) {
-  if (ph > 0.1 && ph < 0.2) return 0.14 * Math.sin((ph - 0.1) / 0.1 * Math.PI);
-  if (ph >= 0.28 && ph < 0.3) return -0.18 * (ph - 0.28) / 0.02;
-  if (ph >= 0.3 && ph < 0.315) return -0.18 + 1.18 * (ph - 0.3) / 0.015;
-  if (ph >= 0.315 && ph < 0.335) return 1 - 1.4 * (ph - 0.315) / 0.02;
-  if (ph >= 0.335 && ph < 0.36) return -0.4 + 0.4 * (ph - 0.335) / 0.025;
-  if (ph > 0.5 && ph < 0.68) return 0.28 * Math.sin((ph - 0.5) / 0.18 * Math.PI);
-  return 0;
-}
 // Patient-monitor module: HP as a vital sign, heart rate that climbs as you get hurt, a live ECG trace
 // (your green; danger red when low; flat when you die), and level / kills / viewers underneath.
 // Minimal HUD: everything in one thin bar. HP (with a slim bar), level, time, race position, kills.
-function drawMiniBar(top, m, s) {
-  const p = G.player, k = clamp(p.hp / G.P.maxHp, 0, 1), w = W - 70, x = 8, y = top + 8, h = 24;
+// The HUD's one bar across the top: health (number and bar), level, the clock, kills, and your place in the
+// race (or the sperm count). Everything else lives in the readout under it or on chips down the left.
+function drawTopBar(top, m, s) {
+  const p = G.player, k = clamp(p.hp / G.P.maxHp, 0, 1), low = k < 0.3, w = W - 70, x = 8, y = top + 8, h = 28;
   filmPanel(x, y, w, h);
   const sb = ctx.shadowOffsetX; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 11px ' + MONO;
-  ctx.fillStyle = k < 0.3 ? PAL.danger : XR.white; ctx.fillText('HP ' + Math.ceil(p.hp), x + 8, y + 16);
-  const bx = x + 58, bw = Math.min(70, w * 0.2);
-  ctx.fillStyle = 'rgba(214,228,240,0.15)'; ctx.fillRect(bx, y + 10, bw, 4);
-  ctx.fillStyle = k < 0.3 ? PAL.danger : PAL.you; ctx.fillRect(bx, y + 10, bw * k, 4);
-  const board = G.rivalsInit ? rivalBoard() : [];
-  const place = board.findIndex(r => r.you) + 1, ord = ['', '1st', '2nd', '3rd', '4th', '5th', '6th'][place] || '';
-  ctx.fillStyle = XR.white;
-  const sc = spermCount(), scs = sc >= 1e6 ? (sc / 1e6).toFixed(sc >= 1e8 ? 0 : 1) + 'M' : sc >= 1e3 ? Math.round(sc / 1e3) + 'k' : sc;
-  const txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  COUNT ${scs}  K ${G.kills}`;
-  ctx.fillText(txt, bx + bw + 10, y + 16);
-  ctx.shadowOffsetX = sb; ctx.shadowOffsetY = sb;
-}
-function drawVitals(top) {
-  const p = G.player, P = G.P, k = clamp(p.hp / P.maxHp, 0, 1), low = k < 0.3, dead = p.hp <= 0;
-  const x0 = 8, y0 = top + 10, w = Math.min(190, W * 0.46), h = 58;
-  const sb = ctx.shadowBlur; ctx.shadowBlur = 0;
-  filmPanel(x0, y0, w, h);
-  const hr = dead ? 0 : Math.round(62 + 98 * (1 - k) + (G.rage > 0 ? 25 : 0));
-  const E = G.ecg || (G.ecg = { ph: 0, buf: new Array(80).fill(0), t: G.realT });
-  const steps = Math.min(8, Math.max(0, Math.round((G.realT - E.t) * 60)));
-  if (steps) E.t = G.realT;
-  for (let i = 0; i < steps; i++) { E.ph = (E.ph + hr / 3600) % 1; E.buf.push(dead ? 0 : ecgWave(E.ph)); E.buf.shift(); }
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('HP', x0 + 6, y0 + 12);
-  ctx.font = 'bold 22px ' + MONO; ctx.fillStyle = low ? PAL.danger : XR.white;
-  const hv = String(Math.ceil(p.hp)); ctx.fillText(hv, x0 + 6, y0 + 34);
-  const hw = ctx.measureText(hv).width;
-  ctx.font = '10px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('/' + P.maxHp, x0 + 8 + hw, y0 + 34);
-  ctx.fillText('HR ' + (dead ? '---' : hr), x0 + 6, y0 + 50);
-  const tx = x0 + 74, tw = w - 80, ty = y0 + 32, n = E.buf.length;
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.beginPath();
-  for (let gx = tx; gx < tx + tw; gx += 10) { ctx.moveTo(gx + 0.5, y0 + 4); ctx.lineTo(gx + 0.5, y0 + h - 4); }
-  ctx.stroke();
-  ctx.lineJoin = 'round'; ctx.beginPath();
-  for (let i = 0; i < n; i++) { const X = tx + i / (n - 1) * tw, Y = ty - E.buf[i] * 20; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
-  ctx.strokeStyle = low || dead ? PAL.danger : PAL.you; ctx.globalAlpha = 0.25; ctx.lineWidth = 4; ctx.stroke();
-  ctx.globalAlpha = 1; ctx.lineWidth = 1.4; ctx.stroke(); ctx.lineJoin = 'miter';
-  ctx.shadowBlur = sb;
-  // Readouts under the module.
-  ctx.font = 'bold 10px ' + MONO; ctx.fillStyle = XR.white;
-  let line = `LV ${G.level}   KILLS ${G.kills}   VIEWERS ${fmtViewers(G.show.viewers)}`;
-  if (ownsScrapWeapon()) line += `   SCRAP ${Math.floor(G.scrap)}`;
-  ctx.fillText(line, x0, y0 + h + 14);
+  ctx.font = 'bold 14px ' + MONO; ctx.fillStyle = low ? PAL.danger : XR.white;
+  const hv = String(Math.ceil(p.hp)); ctx.fillText(hv, x + 8, y + 19);
+  const bx = x + 14 + Math.max(28, ctx.measureText(hv).width), bw = Math.min(84, w * 0.24);
+  ctx.fillStyle = 'rgba(214,228,240,0.15)'; ctx.fillRect(bx, y + 11, bw, 7);
+  ctx.fillStyle = low ? PAL.danger : PAL.you; ctx.fillRect(bx, y + 11, bw * k, 7);
+  if (G.shieldT > 0 || G.absorbOn) { ctx.strokeStyle = PAL.pickup; ctx.lineWidth = 1.5; ctx.strokeRect(bx - 1.5, y + 9.5, bw + 3, 10); }
+  ctx.font = 'bold 11px ' + MONO; ctx.fillStyle = XR.white;
+  let txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  K ${G.kills}`;
+  if (G.rivalsInit && !G.wave && !G.debug) {
+    const board = rivalBoard(), place = board.findIndex(r => r.you) + 1;
+    if (place) txt += `  P${place}/${board.length}`;
+  }
+  if (ownsScrapWeapon()) txt += `  SCRAP ${Math.floor(G.scrap)}`;
+  ctx.fillText(txt, bx + bw + 10, y + 18);
+  ctx.shadowOffsetX = sb; ctx.shadowOffsetY = sb;
 }
 
 function drawHud() {
@@ -2090,19 +2056,10 @@ function drawHud() {
   // XP: a thin calibration line across the very top.
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
   ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
-  const c = G.core, mini = SET.hud === 'minimal', land = LAYOUT.land, BY = land ? (mini ? 56 : 30) : mini ? 60 : 126;
-  // Landscape: the bars sit top centre, between the vitals and the bigger minimap.
-  const barX = land && !mini ? 210 : 10, barW = land && !mini ? Math.min(420, W - 210 - 190) : Math.min(360, W - 130);
+  const c = G.core, land = LAYOUT.land, BY = land ? 56 : 60;
+  const barX = 10, barW = Math.min(360, W - 130);
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
-  if (mini) drawMiniBar(top, m, s);
-  else {
-    drawVitals(top);
-    // Clock, like a monitor's elapsed-time readout.
-    ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 15px ' + MONO;
-    ctx.fillStyle = G.state === 'rewind' ? PAL.you : XR.white;
-    ctx.fillText(`${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`, W - 62, top + 32);
-    ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('ELAPSED', W - 62, top + 44);
-  }
+  drawTopBar(top, m, s);
   // Status chips.
   const chips = [];
   if (G.rage > 0) chips.push(['OXYTOCIN', PAL.pickup]);
@@ -2123,10 +2080,13 @@ function drawHud() {
   // Stacked down the left edge, below the boss bar.
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';
   let cyp = land ? top + BY + 72 : Math.max(top + BY + 72, H * 0.38); // (portrait: clear of the narrator's box)
-  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); cyp += 20; }
+  // (Tap one to pause and see them all: UI.chipRects, statusintro.js.)
+  UI.chipRects = [];
+  for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); UI.chipRects.push({ x: 8, y: cyp, w: tw, h: 16 }); cyp += 20; }
+  UI.chips = chips;
   // Boss bar: centred, under the sperm count / wave readout.
   if (G.boss && !G.boss.dead) {
-    const b = G.boss, bw = Math.min(360, W - 40), bx = (W - bw) / 2, by = top + BY + 46;
+    const b = G.boss, bw = Math.min(360, W - 120), bx = (W - bw) / 2, by = top + BY + 46;
     const pair = b.twin ? [b, b.twin] : [b];
     const hp = pair.reduce((a, o) => a + (o.dead ? 0 : Math.max(0, o.hp)), 0), mx = pair.reduce((a, o) => a + o.maxHp, 0);
     // A trailing "damage taken" chunk, phase marks at 66% and 33%, and a jolt on big hits.
@@ -2166,11 +2126,6 @@ function drawHud() {
       const left = V.active ? Math.max(0, V.budget - V.spawned) + G.enemies.filter(e => !e.dead && !e.charmed && !e.egg).length : 0;
       ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.camp && V.active ? (V.phase === 'lead' ? `${bossDef(V.boss).name} IN ${Math.max(0, Math.ceil(V.leadT))}s` : bossDef(V.boss).name) : V.active ? 'THE PETRI DISH' : V.n ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
       ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(V.camp ? (V.n ? `WAVE ${V.n} OF ${CAMP.waves}${V.active ? '' : ' BEATEN'}` : `${CAMP.waves} WAVES`) : V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
-    } else if (!mini) {
-      const cy2 = by;
-      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText('SPERM COUNT', mid, cy2 - 14);
-      const fl = Math.max(0, G.countFlash || 0) * 4;
-      ctx.fillStyle = fl > 0 ? PAL.you : XR.white; ctx.font = `bold ${Math.round(16 + fl * 3)}px ` + MONO; ctx.fillText(spermCount().toLocaleString('en-GB'), mid, cy2 + 4);
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).
@@ -2207,7 +2162,6 @@ function drawHud() {
   pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
   drawEventBar();
   drawMinimap(top);
-  if (SET.casa) drawCasa(top);
   drawZoomGauge();
   ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.
@@ -2250,7 +2204,7 @@ function drawEventBar() {
 
 function mmR() { return LAYOUT.land ? Math.round(clamp(H * 0.15, 62, 120)) : 44; }
 function drawMinimap(top) {
-  const R = mmR(), mx = W - R - 10, my = top + 70 + R;
+  const R = mmR(), mx = W - R - 10, my = top + 132 + R; // (below the pause, auto and speed buttons)
   const k = R / CORE.arena;
   filmPanel(mx, my, R, 0, true);
   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath();
@@ -2277,7 +2231,6 @@ function drawMinimap(top) {
   // View rectangle.
   ctx.strokeStyle = XR.line; ctx.lineWidth = 1;
   ctx.strokeRect(mx + (cam.x - G.core.x - W / 2 / S) * k, my + (cam.y - G.core.y - H / 2 / S) * k, W / S * k, H / S * k);
-  if (SET.hud !== 'minimal') drawRaceBoard(W - 10, my + R + 16);
 }
 
 // ---------------------------------------------------------------- the crowd
@@ -2396,101 +2349,8 @@ function drawZoomGauge() {
   ctx.globalAlpha = 1; ctx.shadowOffsetX = osx; ctx.shadowOffsetY = osx;
 }
 
-// ---------------------------------------------------------------- CASA Pro panel
-// Computer-assisted sperm analysis, live on yourself: the last second of your head track gives VCL (curvilinear
-// speed), VSL (straight-line speed), LIN, ALH (lateral head amplitude) and BCF (beat-cross frequency), with a
-// WHO motility grade, a histogram of what's on the slide and a log of tracked events.
-// 20 um on the scale bar = 60 world units, so 1 world unit = 1/3 um.
-const UM = 1 / 3;
-const CASA = { pts: [], lastT: -1, log: [], hist: [] , histT: 0 };
-function casaLog(text) {
-  if (!SET.casa || !G) return;
-  const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
-  CASA.log.unshift(`${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s} ${text}`);
-  if (CASA.log.length > 4) CASA.log.length = 4;
-}
-function casaStats() {
-  const P = CASA.pts;
-  if (P.length < 8) return null;
-  const T = P[P.length - 1].t - P[0].t || 1;
-  let vcl = 0;
-  for (let i = 1; i < P.length; i++) vcl += Math.hypot(P[i].x - P[i - 1].x, P[i].y - P[i - 1].y);
-  const vsl = Math.hypot(P[P.length - 1].x - P[0].x, P[P.length - 1].y - P[0].y);
-  // Average path: a 7-point running mean. ALH is twice the mean distance from it; BCF counts side crossings.
-  let dev = 0, n = 0, cross = 0, lastSide = 0;
-  for (let i = 3; i < P.length - 3; i++) {
-    let ax = 0, ay = 0;
-    for (let j = -3; j <= 3; j++) { ax += P[i + j].x; ay += P[i + j].y; }
-    ax /= 7; ay /= 7;
-    const tx = P[i + 1].x - P[i - 1].x, ty = P[i + 1].y - P[i - 1].y, tl = Math.hypot(tx, ty) || 1;
-    const side = ((P[i].x - ax) * ty - (P[i].y - ay) * tx) / tl;
-    dev += Math.abs(side); n++;
-    const sg = Math.sign(side);
-    if (sg && lastSide && sg !== lastSide) cross++;
-    if (sg) lastSide = sg;
-  }
-  const VCL = vcl / T * UM, VSL = vsl / T * UM;
-  return { VCL, VSL, LIN: VCL > 0.5 ? VSL / VCL * 100 : 0, ALH: n ? dev / n * 2 * UM : 0, BCF: cross / T,
-    grade: VSL >= 25 ? 'A  RAPID PROG.' : VSL >= 5 ? 'B  SLOW PROG.' : VCL >= 5 ? 'C  NON-PROG.' : 'D  IMMOTILE' };
-}
-function drawCasa(top) {
-  const p = G.player;
-  if (G.t !== CASA.lastT) {
-    CASA.lastT = G.t;
-    CASA.pts.push({ x: p.x, y: p.y, t: G.t });
-    while (CASA.pts.length && G.t - CASA.pts[0].t > 1) CASA.pts.shift();
-    if (G.t < CASA.pts[0].t) CASA.pts.length = 0; // rewound
-  }
-  // Population histogram, refreshed twice a second.
-  if (G.realT - CASA.histT > 0.5 || G.realT < CASA.histT) {
-    CASA.histT = G.realT;
-    const cnt = {};
-    for (const e of G.enemies) if (!e.dead && !e.rival && !e.egg) cnt[e.name] = (cnt[e.name] || 0) + 1;
-    CASA.hist = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 4);
-  }
-  const st = casaStats(), w = 150, h = 22 + (6 + CASA.hist.length + CASA.log.length) * 12 + 14;
-  const x = LAYOUT.land ? W - mmR() * 2 - 20 - w - 10 : 8;
-  const y = LAYOUT.land ? top + 70 : Math.max(top + (SET.hud === 'minimal' ? 60 : 150), H * 0.36);
-  const osx = ctx.shadowOffsetX; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-  filmPanel(x, y, w, h);
-  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.font = 'bold 9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText('CASA  TRK #001  1.0 s', x + 8, y + 14);
-  let yy = y + 28;
-  const row = (k, v, col) => { ctx.font = '9px ' + MONO; ctx.fillStyle = XR.dim; ctx.fillText(k, x + 8, yy); ctx.font = 'bold 10px ' + MONO; ctx.fillStyle = col || XR.white; ctx.textAlign = 'right'; ctx.fillText(v, x + w - 8, yy); ctx.textAlign = 'left'; yy += 12; };
-  if (st) {
-    row('VCL um/s', st.VCL.toFixed(1)); row('VSL um/s', st.VSL.toFixed(1)); row('LIN %', st.LIN.toFixed(0));
-    row('ALH um', st.ALH.toFixed(2)); row('BCF Hz', st.BCF.toFixed(1));
-    ctx.font = 'bold 9px ' + MONO; ctx.fillStyle = st.grade[0] === 'A' ? PAL.you : XR.white; ctx.fillText('WHO ' + st.grade, x + 8, yy); yy += 12;
-  } else { row('TRACKING', '...'); yy += 12 * 5; }
-  const mx = CASA.hist.length ? CASA.hist[0][1] : 1;
-  for (const [name, n] of CASA.hist) {
-    ctx.fillStyle = 'rgba(214,228,240,0.28)'; ctx.fillRect(x + 8, yy - 7, (w - 46) * n / mx, 7);
-    ctx.font = '8px ' + MONO; ctx.fillStyle = XR.white; ctx.fillText(name.slice(0, 18), x + 10, yy - 1);
-    ctx.textAlign = 'right'; ctx.fillText(n, x + w - 8, yy - 1); ctx.textAlign = 'left';
-    yy += 12;
-  }
-  ctx.fillStyle = XR.line; ctx.fillRect(x + 8, yy - 6, w - 16, 1); yy += 6;
-  ctx.font = '8px ' + MONO;
-  CASA.log.forEach((l, i) => { ctx.globalAlpha = 1 - i * 0.13; ctx.fillStyle = XR.white; ctx.fillText(l.slice(0, 28), x + 8, yy); yy += 12; });
-  ctx.globalAlpha = 1; ctx.shadowOffsetX = osx; ctx.shadowOffsetY = osx;
-}
 
 // The race to the egg: you and the rival champions, by level.
-function drawRaceBoard(rx, y) {
-  if (!G.rivalsInit || G.wave || G.debug) return;
-  ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.font = '9px ' + MONO;
-  ctx.fillStyle = XR.dim; ctx.fillText('RACE TO THE EGG', rx, y);
-  rivalBoard().forEach((row, i) => {
-    const yy = y + 14 + i * 13;
-    ctx.globalAlpha = row.out ? 0.4 : 1;
-    ctx.font = (row.you ? 'bold 11px ' : 'bold 10px ') + MONO;
-    const tag = row.out ? 'OUT' : (row.egg ? 'FINAL ' : '') + 'LV ' + row.lvl;
-    ctx.fillStyle = row.egg ? '#ff4d6d' : XR.white; ctx.fillText(tag, rx, yy);
-    const tw = ctx.measureText(tag).width;
-    ctx.fillStyle = row.color; ctx.fillText(row.name, rx - tw - 6, yy);
-  });
-  ctx.globalAlpha = 1;
-}
 
 // ---------------------------------------------------------------- bosses: telegraphs and ground hazards
 function drawBossTells(e, x, y, r) {

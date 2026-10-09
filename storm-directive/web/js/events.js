@@ -138,7 +138,6 @@ function startEvent(dire, second) {
   const title = (dire ? 'DIRE ' : '') + E.name;
   if (!second) { banner(title, E.color); sfx('boss'); vibrate(80); }
   G.evNote = { text: (second ? 'AND ' + title + ': ' : '') + E.desc(dire), t: 4.5 };
-  casaLog(`EVENT: ${title}`);
 }
 
 // Kills during events (from killEnemy).

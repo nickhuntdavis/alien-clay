@@ -11,7 +11,9 @@ function fmtViewers(v) { return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3
 function sysMsg(head, body, color, force) {
   if (!G) return;
   const q = G.show.msgQ;
-  if (!force && q.length >= 2) return;
+  if (!force && q.length >= 1) return;
+  // Chatter (anything not forced) at most every 12s, so the narrator doesn't crowd the slide.
+  if (!force) { if (G.t < (G.show.quietT || 0)) return; G.show.quietT = G.t + 12; }
   q.push({ head: narratorHead(head), body, color: color || '#8dffc0' });
   if (q.length > 6) q.shift();
 }

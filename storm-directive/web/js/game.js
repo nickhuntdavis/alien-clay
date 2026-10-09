@@ -55,7 +55,7 @@ resize();
 // ---------------------------------------------------------------- state
 let G = null;
 let uidSeq = 1;
-const CAPS = { enemies: 170, proj: 380, ebul: 800, parts: 300, texts: 40, gems: 350 }; // (was 240 enemies, 450 particles)
+const CAPS = { enemies: 170, proj: 380, ebul: 800, parts: 300, texts: 40, gems: 350, zones: 120 }; // (was 240 enemies, 450 particles)
 // Fewer, tougher monsters: 75% of the spawns, each worth 1.4x the XP (it was 1.8x: level-ups came so often they felt like speed bumps), and up to a third more HP, so the
 // work per minute and the levelling stay where they were (you kill about half as many: XP_K was tuned in
 // simulated runs to keep the old level curve), with a calmer screen. The extra HP builds up over
@@ -123,7 +123,6 @@ function newGame() {
   applyMeta(G);
   genesStart(G);
   refreshPalette(); // greyscale apart from your permanent stains: colour comes from stains picked up during the run
-  CASA.log.length = 0; CASA.pts.length = 0;
 }
 
 function angDiff(a, b) { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU; return d; }
@@ -881,7 +880,7 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
 }
 
 function killEnemy(e, src) {
-  if (e.rival) { if (rivalSurvives(e)) return; casaLog(`${e.name} eliminated`); rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
+  if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
   G.kills++;
@@ -889,7 +888,6 @@ function killEnemy(e, src) {
   sfx(e.elite || e.boss ? 'killBig' : 'kill');
   if (e.def.shape === 'sperm') G.stats.spermKills = (G.stats.spermKills || 0) + 1;
   countKill(e.x, e.y);
-  if (e.boss || e.elite || (e.def.spongy && e.r > 60)) casaLog(`TRK#${e.id} ${e.name} lysed`);
   const P = G.P;
   onShowKill(e, src);
   sigKill(e, src);
@@ -985,6 +983,29 @@ function bomberBlast(e) {
 }
 
 // kind: 'x' = experience gem, 's' = scrap (tower currency).
+// (as #rrggbb, because glows add their own alpha digits)
+function hslHex(h, s, l) {
+  const f = n => { const k = (n + h / 30) % 12, a = s * Math.min(l, 1 - l), c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); return Math.round(c * 255).toString(16).padStart(2, '0'); };
+  return '#' + f(0) + f(8) + f(4);
+}
+// Each power-up kind has its own colour on the slide: hues spread evenly round the wheel.
+const PU_COL = {};
+function puColour(type, dark) {
+  if (!PU_COL[type]) { const ks = Object.keys(POWERUPS).filter(k => k !== 'chest'), i = Math.max(0, ks.indexOf(type)), h = i / ks.length * 360; PU_COL[type] = [hslHex(h, 0.85, 0.6), hslHex(h, 0.7, 0.28)]; }
+  return PU_COL[type][dark ? 1 : 0];
+}
+// Twice a second: granules lying close together merge into one bigger one (fewer things on screen).
+function gemMerge() {
+  if (G.gemMergeT > G.t || G.gems.length < 40) return;
+  G.gemMergeT = G.t + 0.5;
+  const cell = new Map();
+  for (const g of G.gems) {
+    if (g.dead || g.mag || g.kind !== 'x') continue;
+    const k = Math.floor(g.x / 44) * 100003 + Math.floor(g.y / 44), h = cell.get(k);
+    if (h) { h.v += g.v; g.dead = true; } else cell.set(k, g);
+  }
+  compactArr(G.gems, g => !g.dead);
+}
 function dropGem(x, y, v, kind) {
   kind = kind || 'x';
   if (kind === 'x') G.stats.xpDrop = (G.stats.xpDrop || 0) + v;
@@ -2319,8 +2340,7 @@ function gainXp(v) {
     G.xp -= G.xpNeed;
     G.level++;
     G.xpNeed = xpNeed(G.level);
-    casaLog(`LV ${G.level}`);
-    // A box every level to Lv 8, every second level to Lv 24, then every third.
+      // A box every level to Lv 8, every second level to Lv 24, then every third.
     if (G.level <= 8 || (G.level <= 24 ? G.level % 2 === 0 : G.level % 3 === 0)) G.lootQueue.push({ kind: 'level' });
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     rebornLevel(G.level); // (Prawn Again: memories of a past life)
@@ -2397,7 +2417,7 @@ function victory(at) {
 
 // ---------------------------------------------------------------- main update
 function update(dt) {
-  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt);
+  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge();
   // Balancing timeline for the run log: level and HP% at every minute.
   if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (4 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }
@@ -2511,6 +2531,9 @@ function compact() {
   compactArr(G.gems, x => !x.dead);
   compactArr(G.pickups, x => !x.dead);
   compactArr(G.zones, x => x.life > 0);
+  // Hard cap on ground effects (puddles, clouds, patches): past it, the oldest go first. Busy late runs
+  // stacked up to 270 of them, and the worst frames came with them.
+  if (G.zones.length > CAPS.zones) G.zones.splice(0, G.zones.length - CAPS.zones);
   compactArr(G.turrets, x => x.life > 0);
   compactArr(G.parts, x => x.life > 0);
   compactArr(G.fx, x => x.life > 0);
@@ -2551,6 +2574,8 @@ cv.addEventListener('pointerdown', ev => {
   }
   if (PINCH) return;
   if (!G || G.state !== 'play') return;
+  // A tap on a buff or debuff chip: pause and show them all.
+  if (UI.chipRects && UI.chipRects.some(r => ev.clientX >= r.x - 6 && ev.clientX <= r.x + r.w + 6 && ev.clientY >= r.y - 4 && ev.clientY <= r.y + r.h + 4)) { PTRS.delete(ev.pointerId); UI.openStatusPanel(); return; }
   INPUT.active = true; INPUT.id = ev.pointerId; INPUT.ox = ev.clientX; INPUT.oy = ev.clientY;
   INPUT.sx = ev.clientX; INPUT.sy = ev.clientY; INPUT.t0 = performance.now(); INPUT.moved = false;
   G.manual = { x: 0, y: 0 };

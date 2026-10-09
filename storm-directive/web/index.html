@@ -12,7 +12,7 @@
 <div id="safeProbe"></div>
 
 <div id="hud">
-  <div id="hudTop"><button id="pauseBtn" aria-label="Pause">II</button><button id="autoBtn" aria-label="Full Auto">AUTO</button></div>
+  <div id="hudTop"><button id="pauseBtn" aria-label="Pause">II</button><button id="autoBtn" aria-label="Full Auto">AUTO</button><button id="spdBtn" aria-label="Game speed">x1</button></div>
   <button id="waveBtn" class="btn primary">START WAVE 1</button>
   <button id="dbgBtn">DEBUG</button>
   <div id="dbgPanel"></div>
@@ -73,7 +73,7 @@
       <p><b>Zoom:</b> pinch with two fingers to change magnification (24x to 80x).</p>
       <p><b>Mutations:</b> your sperm upgrades change your body: Split Personality grows extra tails, Thick Skin and Shell Suit a bigger plated head, Sticky Cilia grows cilia, element upgrades dye your midpiece.</p>
       <p><b>Gene Bank:</b> every run banks DNA. Spend it on inherited traits, extra starter weapons and tag dyes (CLEAR refunds it all). The <b>Codex</b> keeps everything you have found.</p>
-      <p><b>Settings:</b> darkfield microscope, high specimen detail, clean clinical view, minimal HUD, CASA Pro panel (live motility stats), landscape layout and four narrators.</p>
+      <p><b>Settings:</b> darkfield microscope, high specimen detail, clean clinical view, landscape layout and four narrators.</p>
       <p><b>The egg's glow</b> heals you. A boss arrives every 3 minutes. From 15:00 the host's immune system surges. Swim fast.</p>
     </div>
     <p id="bestLine" class="hint"></p>
@@ -123,6 +123,14 @@
   </div>
 </div>
 
+<div id="stpanel" class="screen">
+  <div class="pwrap">
+    <div class="ptitle">ACTIVE EFFECTS</div>
+    <div class="hint">Paused. Everything working for you or against you right now.</div>
+    <div id="stBody"></div>
+    <div class="pbtns"><button id="stClose" class="btn primary">RESUME</button></div>
+  </div>
+</div>
 <div id="pause" class="screen">
   <div class="pwrap">
     <div class="ptitle">PAUSED</div>
@@ -247,6 +255,7 @@
 <script src="js/spoils.js"></script>
 <script src="js/campaign.js"></script>
 <script src="js/statusintro.js"></script>
+<script src="js/glossary.js"></script>
 <script src="js/splash.js"></script>
 <script src="js/finale.js"></script>
 <script src="js/juice.js"></script>

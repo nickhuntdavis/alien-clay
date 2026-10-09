@@ -31,6 +31,22 @@ function statusInfo(key) {
   const id = Object.keys(POWERUPS).find(k => POWERUPS[k].name === key);
   return id ? { buff: 1, what: POWERUPS[id].desc + '.', tip: 'A pickup. Its countdown is on the chip.' } : null;
 }
+// Seconds left on a status, where it has a clock.
+function statusTimer(key) {
+  const left = t => (t > G.t ? t - G.t : null);
+  switch (key) {
+    case 'OXYTOCIN': return G.rage > 0 ? G.rage : null;
+    case 'STAIR GATE': return G.shieldT > 0 ? G.shieldT : null;
+    case 'WARP': return G.warp > 0 ? G.warp : null;
+    case 'AEGIS': return G.barrier > 0 ? G.barrier : null;
+    case 'POST-NUT CLARITY': return left(G.clarityT);
+    case 'CHARGED UP': return left(G.chargeUpT);
+    case 'FAMILY': return left(G.familyT);
+    case 'SISTER-COUSIN': return G.cousin ? left(G.cousin.end) : null;
+  }
+  const id = Object.keys(POWERUPS).find(k => POWERUPS[k].name === key);
+  return id && G.pu && G.pu[id] > 0 ? G.pu[id] : null;
+}
 function statusIntroCheck(chips) {
   if (!G || G.state !== 'play' || G.debug || G.t < 1 || (typeof SET !== 'undefined' && SET.intros === 'off')) return;
   if (G.stIntroNext > G.t) return;

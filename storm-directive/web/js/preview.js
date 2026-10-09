@@ -54,8 +54,13 @@ function stepPreview(pv, dt) {
   const live = pvAlive(pv), tgt = live[pv.seq % Math.max(1, live.length)];
   pv.cd -= dt;
   const rate = Math.max(0.1, Math.min(0.9, (b.cd || 0.6) * (d.style === 'flame' ? 3 : 1) * (pv.m.rapid ? 0.6 : 1) * (pv.m.hose ? 0.35 : 1)));
-  const fire = pv.cd <= 0;
-  if (fire) { pv.cd = d.style === 'flame' ? 0.05 : rate; pv.n++; }
+  // Echo upgrades (replays, second rings): the volley goes off again a beat later, echo times over.
+  if (pv.echoT > 0) { pv.echoT -= dt; if (pv.echoT <= 0) pv.echoNow = true; }
+  const fire = pv.cd <= 0 || pv.echoNow;
+  if (fire) {
+    if (pv.echoNow) { pv.echoNow = false; pv.echoed = (pv.echoed || 0) + 1; if (pv.echoed < pv.m.echo) pv.echoT = 0.3; pvTxt(pv, me0.x, me0.y, 'AGAIN'); }
+    else { pv.cd = d.style === 'flame' ? 0.05 : rate; pv.n++; pv.echoed = 0; if (pv.m.echo) pv.echoT = 0.3; }
+  }
   switch (d.kind) {
     case 'orbit': {
       pv.ang += dt * 3.4;
@@ -131,6 +136,7 @@ function stepPreview(pv, dt) {
       break;
     }
     default: // guns
+      if (pvSpecial(pv, dt, me0, live, fire, tgt)) break; // (weapons with their own look: rings, helices, replays)
       if (d.toy) { pvToy(pv, dt, me0, live, fire, tgt); break; }
       if (fire && tgt) {
         pv.seq++;
@@ -166,7 +172,8 @@ function stepPreview(pv, dt) {
     if (s.home && s.home.hp > 0) { const a = Math.atan2(s.home.y - s.y, s.home.x - s.x), c = Math.atan2(s.vy, s.vx), dd = Math.atan2(Math.sin(a - c), Math.cos(a - c)), na = c + Math.max(-4 * dt, Math.min(4 * dt, dd)), v = Math.hypot(s.vx, s.vy); s.vx = Math.cos(na) * v; s.vy = Math.sin(na) * v; }
     if (s.boom && !s.back && Math.hypot(s.x - me0.x, s.y - me0.y) > 0.5) { s.back = true; s.hit.clear(); }
     if (s.back) { const a = Math.atan2(me0.y - s.y, me0.x - s.x), v = Math.hypot(s.vx, s.vy); s.vx = Math.cos(a) * v; s.vy = Math.sin(a) * v; if (Math.hypot(me0.x - s.x, me0.y - s.y) < 0.03) s.dead = true; }
-    s.x += s.vx * dt; s.y += s.vy * dt;
+    if (s.helix != null) { s.bx += s.vx * dt; s.by += s.vy * dt; s.ht += dt; const hs = Math.hypot(s.vx, s.vy) || 1, o = 0.035 * Math.sin(s.ht * 14 + s.helix); s.x = s.bx - s.vy / hs * o; s.y = s.by + s.vx / hs * o; }
+    else { s.x += s.vx * dt; s.y += s.vy * dt; }
     if (s.life != null) { s.life -= dt; if (s.life <= 0) s.dead = true; }
     if (s.x > 1.1 || s.x < -0.1 || s.y < -0.1 || s.y > 1.1) s.dead = true;
     for (const t of live) {
@@ -341,6 +348,16 @@ const PV_TAGS = {
   spiky: 'thorns', bearhug: 'pull armour', bubblewrap: 'pulseBig', growthspurt: 'wide heal', porcupine: 'spines', fortress: 'armour rapid',
   // Colouring In
   scribble: 'slow power', stayinlines: 'root crit', paintbynumbers: 'power', fridgeart: 'linger', masterpiece: 'frame', jointhedots: 'dots',
+  // Deja Vu, Ghosts of You, Karma (Prawn Again)
+  rbthird: 'echo', rbpremonition: 'pierce rapid', rbgroundhog: 'echo3', rbsamedream: 'homing echo',
+  rbunfinished: 'split', rbchills: 'slow', rblegion: 'count2', rbreunion: 'heal',
+  rbinstant: 'ring2', rbgood: 'rapid', rbwheel: 'echo', rbnirvana: 'heal',
+  // Gene Gun
+  ggtriple: 'count1', ggcrispr: 'crit explode', ggchimera: 'burn poison', ggrecomb: 'split',
+  // Shotgun Wedding, Moonshine Jug, Duelling Banjo (the Redtail)
+  rtrice: 'ring2', rtboth: 'count3 fan', rtreception: 'ring4', rtelope: 'dashFwd speed',
+  rtproof: 'bigPud', rtstill: 'count2', rtbadbatch: 'explode big2', rthooch: 'heal',
+  rtpick: 'count3', rtduel: 'echo', rthoedown: 'knock', rtencore: 'echo power',
   // Due Date
   overdue: 'power', earlyarrival: 'execute', babyshower: 'explode', rebooked: 'spreadMark', labourday: 'remark', bigday: 'crit',
   // Red Tape
@@ -360,7 +377,8 @@ function pvTags(id) {
   const m = {};
   for (const tag of (PV_TAGS[id] || '').split(' ').filter(Boolean)) {
     const k = tag.match(/^([a-zA-Z]+?)(\d*)$/), name = k[1], n = k[2] ? +k[2] : 0;
-    if (name === 'count' || name === 'chain' || name === 'big' || name === 'ring') m[name] = n || 1;
+    m[tag] = true; // (literal too: orbit2, arc360)
+    if (name === 'count' || name === 'chain' || name === 'big' || name === 'ring' || name === 'echo') m[name] = n || 1;
     else if (name === 'dashBack') m.dash = 'back'; else if (name === 'dashFwd') m.dash = 'fwd';
     else m[name] = true;
   }
@@ -472,6 +490,53 @@ function pvDrawExtras(pv, g, X, Y, U, c, me0) {
   for (const z of pv.zones) { pvGlow(g, X(z.x), Y(z.y), U * 0.14, c, 0.35 + 0.2 * Math.sin(pv.t * 20)); }
   if (M.string) { g.strokeStyle = c; g.lineWidth = 1.5; g.globalAlpha = 0.8; for (const s of pv.shots) if (s.boom && !s.dead && !s.enemy) { g.beginPath(); g.moveTo(X(me0.x), Y(me0.y)); g.lineTo(X(s.x), Y(s.y)); g.stroke(); } g.globalAlpha = 1; }
   if (M.armour) { g.strokeStyle = c; g.lineWidth = 2.5; g.globalAlpha = 0.6; g.beginPath(); g.arc(X(me0.x), Y(me0.y), U * 0.05, 0, TAU); g.stroke(); g.globalAlpha = 1; }
-  for (const q of pv.puddles) if (q.fire || q.ice) { g.globalAlpha = Math.min(1, q.life) * 0.5; pvGlow(g, X(q.x), Y(q.y), U * 0.06, q.fire ? '#ff7a2f' : '#bde0fe', 0.7); g.globalAlpha = 1; }
-  for (const t of pv.targets) if (t.hp > 0 && (t.soggy > 0 || t.poison > 0)) { g.strokeStyle = t.poison > 0 ? '#8dff4a' : c; g.globalAlpha = 0.7; g.lineWidth = 2; g.beginPath(); g.arc(X(t.x), Y(t.y), U * (t.r + 0.012), 0, TAU); g.stroke(); g.globalAlpha = 1; }
+  for (const q of pv.puddles) if (q.fire || q.ice) { g.globalAlpha = Math.min(1, q.life) * 0.5; pvGlow(g, X(q.x), Y(q.y), U * 0.06, q.fire ? '#c6ff3d' : '#5b8cff', 0.7); g.globalAlpha = 1; }
+  for (const t of pv.targets) if (t.hp > 0 && (t.soggy > 0 || t.poison > 0)) { g.strokeStyle = t.poison > 0 ? '#e8a33d' : c; g.globalAlpha = 0.7; g.lineWidth = 2; g.beginPath(); g.arc(X(t.x), Y(t.y), U * (t.r + 0.012), 0, TAU); g.stroke(); g.globalAlpha = 1; }
+}
+
+// ---------------------------------------------------------------- weapons with their own look
+// Karma and the Duelling Banjo play rings; the Gene Gun fires twisting strands; Deja Vu's shots replay a
+// moment later from where you were; Ghosts of You send homing souls. Returns true when it handled the weapon.
+function pvShot(me0, a, sp, o) { return Object.assign({ x: me0.x, y: me0.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, style: 'bullet', life: 2, back: false, boom: false, home: null, r: 0.012, big: false, pierce: false, hit: new Set() }, o || {}); }
+function pvSpecial(pv, dt, me0, live, fire, tgt) {
+  const id = defId(pv.def), M = pv.m;
+  if (id === 'karma' || id === 'banjo') {
+    if (fire) {
+      pv.seq++;
+      const n = (id === 'banjo' ? 10 : 12) + (M.count || 0) * 2, off = pv.n * 0.3, lo = id === 'banjo' && pv.n % 2 === 0;
+      for (let i = 0; i < n; i++) pv.shots.push(pvShot(me0, off + i / n * TAU, lo ? 0.45 : 0.9, { style: lo || M.power ? 'big' : 'bullet', life: lo ? 0.9 : 0.6, r: lo ? 0.02 : 0.012 }));
+      pv.fx.push({ type: 'ring', x: me0.x, y: me0.y, r: 0.08, life: 0.25 });
+      if (id === 'karma' && pv.n % 2) pvTxt(pv, me0.x, me0.y, 'KARMA');
+    }
+    return true;
+  }
+  if (id === 'genegun') {
+    if (fire && tgt) {
+      pv.seq++;
+      const a = Math.atan2(tgt.y - me0.y, tgt.x - me0.x), n = 2 + (M.count ? 1 : 0);
+      for (let i = 0; i < n; i++) pv.shots.push(pvShot(me0, a, 0.8, { helix: i / n * TAU, bx: me0.x, by: me0.y, ht: 0, r: 0.011, pierce: true }));
+    }
+    return true;
+  }
+  if (id === 'dejavu') {
+    pv.replays = pv.replays || [];
+    for (const r of pv.replays) if ((r.t -= dt) <= 0 && !r.done) { r.done = true; pv.shots.push(pvShot(r, r.a, 1, { style: 'big', r: 0.016, pierce: true })); pvTxt(pv, r.x, r.y, 'DEJA VU'); }
+    pv.replays = pv.replays.filter(r => !r.done);
+    if (fire && tgt) {
+      pv.seq++;
+      const a = Math.atan2(tgt.y - me0.y, tgt.x - me0.x);
+      pv.shots.push(pvShot(me0, a, 1));
+      pv.replays.push({ x: me0.x, y: me0.y, a, t: 0.8 });
+      pv.fx.push({ type: 'ring', x: me0.x, y: me0.y, r: 0.04, life: 0.8 });
+    }
+    return true;
+  }
+  if (id === 'ghosts') {
+    if (fire && tgt) {
+      pv.seq++;
+      for (let i = 0; i < 2 + (M.count || 0); i++) pv.shots.push(pvShot(me0, -Math.PI / 2 + (i - 0.5) * 1.6, 0.5, { style: 'sperm', home: live[(pv.seq + i) % Math.max(1, live.length)] || tgt, life: 2.5 }));
+    }
+    return true;
+  }
+  return false;
 }

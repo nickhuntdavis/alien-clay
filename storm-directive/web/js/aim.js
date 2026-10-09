@@ -52,7 +52,7 @@ function aimBend(pr, dt) {
     pr.vx = Math.cos(na) * sp; pr.vy = Math.sin(na) * sp;
     if (pr.slingH !== h.src) { pr.slingH = h.src; pr.slingTurn = 0; }
     pr.slingTurn += Math.abs(turn);
-    pr.life += dt * 0.6; // (curving round it buys a little flight time)
+    if ((pr.bentT = (pr.bentT || 0) + dt) < 1.2) pr.life += dt * 0.6; // (curving round it buys a little flight time, but not forever)
   }
 }
 function aimSling(pr) {
