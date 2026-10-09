@@ -1,10 +1,16 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.57 (versionCode 207), branch `claude/autorun-bullet-storm-game-blptu8`. All 46 suite tests pass.
+- Version v8.59 (versionCode 209), branch `claude/autorun-bullet-storm-game-blptu8` (merged from session branches). All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.59:
+  - Lateral Gene Transfer is junk DNA (`junk.js`): an ordinary on-screen enemy wears a white helix, and killing it within 30 s absorbs a small power tied to that enemy type (`JUNK_POWERS`, 30 of them, up to 3 stacks). It comes every 40 to 55 s, and only during waves in the dish. The floating vesicle is gone. Mutations stay, but only via splice SKIP and campaign stashes.
+  - Stain grants (`grants.js`): permanent colour, once ever. Acridine Orange (your swimmer) floats by the egg; Tracer Dye (shots, weapon effects, damage types) comes at level 5; Gentian Violet (power-ups) at level 10. Switch them in the pause menu (`META.grants`/`grantOff`). The GFP card and the end-of-run "keep a stain" are gone. H&E no longer colours power-ups. Your swimmer (sequence marks included) is grey until the first grant.
+  - Egg: no arrow until met (`META.eggMet`) or ready; a card on the first approach (`eggMeetTick`).
+  - Waves: banners hide what's in them; from wave 4 the newcomers come from a shuffle of the next 6 unmet types (`CAMP.fixedWaves`/`drawFrom`).
+  - Spotlight: the crowd eases off and drifts sideways for 4 s only when an intro fires (`G.introBack`). The dish no longer runs the race-mode spotlight, which had been spotlighting types that weren't in the wave.
 - v8.57 (build): release APKs are now signed with the fixed `android/spawnprawn.keystore`. The v8.56 debug key was lost, so installing v8.57 needs one uninstall (it wipes the save); after that every build installs over the last.
 - v8.57: copy pass for two frames. Dish and race modes are the scientist's forced-evolution experiment: the narrator is the LAB TECH, viewers are lab Funding (£), sponsors are research grants, Fan DNA is Donor DNA. The campaign (`lvOn()`) uses an INNER VOICE (`LONGING_LINES` in data.js, via `sysPool`) obsessed with the egg, and the meter shows as Devotion. Also: Voodoo→Histamine (status swollen), MAG→LOAD, Storm Surge→Fever Pitch, Relic→Trophy, Codex→Field Guide, Armoury→Tackle Box, Celestial→Immaculate, Bounty→Tagged Specimen, Chrono→Body Clock. Internal ids unchanged.
 - v8.58: Settings tabs fixed (Data tab wiped the tab handlers); boss rewards open at once in wave mode; Feats card after your first Feat; first-time cards for Grudge, tethers, allies and each terrain type; reaction card names the two types; bigger card kickers; bottom health bar (also in Immersive); near-invisible stamina ring; head squash and stretch. APK builds here need `ANDROID_HOME=/tmp/claude-0/sdk` (installed via sdkmanager; not persistent).
@@ -25,6 +31,7 @@
 ## Balance numbers to know
 - Wave mode boss strength: `CAMP.hp` [2.2, 13, 50, 160] and `CAMP.hit` [0.55, 0.75, 0.9, 1]. The mortal bot wins about 1 in 5 and mostly dies to the Pepsinator at wave 5. Soften further if the user finds wave 5 a wall.
 - About 37 boxes per 9-minute wave run (it was 48).
+- v8.59 sim (`wave20.js 4 mortal`, before the v8.58 merge): 2 wins of 4, deaths at waves 15 and 20. That is the top of the bot band. If humans find it easy, slow junk DNA (`JUNK.every`) first.
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
 
 ## Open threads and ideas

@@ -14,41 +14,42 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 8. [Feats](#feats)
    - [Feat paths (Lv 4)](#feat-paths-lv-4)
 9. [Power-ups (passives)](#power-ups-passives)
-10. [Mutations (Lateral Gene Transfers)](#mutations-lateral-gene-transfers)
-11. [Mythical and Immaculate bonuses](#mythical-and-immaculate-bonuses)
-12. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
+10. [Junk DNA (Lateral Gene Transfer)](#junk-dna-lateral-gene-transfer)
+11. [Mutations](#mutations)
+12. [Mythical and Immaculate bonuses](#mythical-and-immaculate-bonuses)
+13. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
    - [Lv 3 pool](#lv-3-pool)
-13. [Modifiers](#modifiers)
-14. [Duo combos](#duo-combos)
-15. [Stains](#stains)
-16. [Cursed cards](#cursed-cards)
-17. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
-18. [Stamina](#stamina)
-19. [Sequence evolutions](#sequence-evolutions)
-20. [Damage types](#damage-types)
-21. [Chemical reactions](#chemical-reactions)
-22. [Combo twists](#combo-twists)
-23. [Damage-type synergies](#damage-type-synergies)
-24. [Targeting directives](#targeting-directives)
-25. [Movement directives](#movement-directives)
-26. [Immune Response (difficulty)](#immune-response-difficulty)
-27. [Being born (prestige)](#being-born-prestige)
-28. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+14. [Modifiers](#modifiers)
+15. [Duo combos](#duo-combos)
+16. [Stains](#stains)
+17. [Cursed cards](#cursed-cards)
+18. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
+19. [Stamina](#stamina)
+20. [Sequence evolutions](#sequence-evolutions)
+21. [Damage types](#damage-types)
+22. [Chemical reactions](#chemical-reactions)
+23. [Combo twists](#combo-twists)
+24. [Damage-type synergies](#damage-type-synergies)
+25. [Targeting directives](#targeting-directives)
+26. [Movement directives](#movement-directives)
+27. [Immune Response (difficulty)](#immune-response-difficulty)
+28. [Being born (prestige)](#being-born-prestige)
+29. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
    - [Bonuses](#bonuses)
    - [Wildcard weapons](#wildcard-weapons)
    - [GFP variants](#gfp-variants)
-29. [Enemies](#enemies)
+30. [Enemies](#enemies)
    - [First sightings](#first-sightings)
-30. [Rival champions](#rival-champions)
-31. [Terrain](#terrain)
-32. [Campaign (SPOILERS: where Level 1 is set)](#campaign-spoilers-where-level-1-is-set)
-33. [Achievement DNA](#achievement-dna)
-34. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
-35. [Boss rewards](#boss-rewards)
-36. [Sperm samples](#sperm-samples)
-37. [Hidden rules](#hidden-rules)
-38. [Glossary](#glossary)
-39. [Secret Field Guide entries (spoilers)](#secret-field-guide-entries-spoilers)
+31. [Rival champions](#rival-champions)
+32. [Terrain](#terrain)
+33. [Campaign (SPOILERS: where Level 1 is set)](#campaign-spoilers-where-level-1-is-set)
+34. [Achievement DNA](#achievement-dna)
+35. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
+36. [Boss rewards](#boss-rewards)
+37. [Sperm samples](#sperm-samples)
+38. [Hidden rules](#hidden-rules)
+39. [Glossary](#glossary)
+40. [Secret Field Guide entries (spoilers)](#secret-field-guide-entries-spoilers)
 
 ## How upgrades work
 
@@ -60,7 +61,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 5. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
 6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
 7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 20, 40 you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).
-8. **Mutations:** Lateral Gene Transfers (bubbles of stray genes) bulge up on the slide (the first at 50s, then every 60 to 90s). Swim into one to pick one of four mutations; you have 6 slots.
+8. **Lateral Gene Transfer (junk DNA):** from 35s in, then every 40 to 55s, one ordinary enemy on screen carries junk DNA (a white double helix round it, and 50% more health). Kill it within 30s and you absorb a small power of whatever it was, at once; the same kind again stacks, up to 3 times. **Mutations** (pick one of four; 6 slots) now come from skipping a sequence splice and from stashes hidden in campaign levels.
 9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Fever Pitch. Each run meets 4 of the 9, in a random order. Beat one and choose one of its three relics.
 10. **Rarity** multiplies a card's value:
 
@@ -1231,9 +1232,46 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Homebrew** | +8% fire rate and +8% damage, -2% swim speed | You | 4 |
 | **Thick as Thieves** | +2 armour and +6% luck | You | 3 |
 
-## Mutations (Lateral Gene Transfers)
+## Junk DNA (Lateral Gene Transfer)
 
-Swim into one (COLLECT autorun goes for them) and pick one of four. 6 slots (more with the Gene Bank's Well-Incubated). Tier 0 are common, tier 2 rare.
+One power per enemy type (offspring such as Daughter Cells carry their parent's). Values are per stack; up to 3 stacks. Shots and blasts scale with your level and damage. Bosses, rivals and allies never carry junk DNA. In the Petri Dish, carriers only turn up while a wave is on.
+
+| Enemy | Power | Effect (1 stack) | Effect (3 stacks) |
+|---|---|---|---|
+| Also-Ran | **Safety in Numbers** | +1% damage for each enemy within 250, up to +10% | +1% damage for each enemy within 250, up to +30% |
+| Sprinter | **Quick Off the Mark** | +6% swim speed | +18% swim speed |
+| Antibody | **Spit Take** | every 3s, spit a shot at the nearest enemy | every 3s, spit 3 shots at the nearest enemy |
+| Krill | **Darting** | +4% dodge | +12% dodge |
+| Macrophage | **Thick Skin** | +2 armour | +6 armour |
+| Amoeba | **Second Helpings** | each kill heals 1 HP (up to 3 HP/s) | each kill heals 3 HP (up to 9 HP/s) |
+| Paramecium | **Cilia** | sprint stamina recovers 15% faster | sprint stamina recovers 45% faster |
+| Mitotic Cell | **Cell Division** | 10% of weapon hits fling 2 shards off the target | 30% of weapon hits fling 2 shards off the target |
+| Spermlet Swarm | **Swarm Mind** | +8% area | +24% area |
+| Acid Bubble | **Heartburn** | kills have a 10% chance to burst in a small Acid blast | kills have a 30% chance to burst in a small Acid blast |
+| Quantum Swimmer | **Now You See Me** | every 15s, the next hit misses (you blink aside) | every 7s, the next hit misses (you blink aside) |
+| Rotifer | **Light-Fingered** | +20% pickup range | +60% pickup range |
+| Nurse Cell | **Bedside Manner** | +0.6 HP/s regeneration | +1.8 HP/s regeneration |
+| Headbutter | **Hard Head** | enemies you swim into take a headbutt (+0.4 Headstrong) | enemies you swim into take a headbutt (+1.2 Headstrong) |
+| Pinworm | **Wriggle Through** | shots pierce 1 more enemy | shots pierce 3 more enemies |
+| Mucus Wall | **Phlegm** | 10% less damage from enemy shots | 30% less damage from enemy shots |
+| Volvox | **Colony** | +8% XP | +24% XP |
+| Cytokine Caster | **Inflamed** | every 6s, a ring of 6 small shots bursts out of you | every 6s, a ring of 18 small shots bursts out of you |
+| Diatom | **Glass Case** | the first hit every 10s is halved | the first hit every 6s is halved |
+| Natural Killer | **Licence to Kill** | +4% crit chance | +12% crit chance |
+| Ghost Swimmer | **Ghosting** | +0.25s of invulnerability after you are hit | +0.75s of invulnerability after you are hit |
+| Brood Cyst | **Clutch** | kills have an 8% chance to release a broodling that homes in and pops | kills have an 24% chance to release a broodling that homes in and pops |
+| Mother Cell | **Broody** | every 20s, a friendly spermlet fights beside you for 10s | every 20s, 3 friendly spermlets fight beside you for 10s |
+| Planarian | **Regrowth** | +1.5 HP/s regeneration below 50% HP | +4.5 HP/s regeneration below 50% HP |
+| Enzyme Spire | **Rooted** | stay still for 1s: +15% fire rate until you move | stay still for 1s: +45% fire rate until you move |
+| Plasmodium | **Big-Boned** | +10% max HP | +30% max HP |
+| Killer T-Cell | **Long Shot** | +20% damage to enemies more than 350 away | +60% damage to enemies more than 350 away |
+| Water Bear | **Hard to Kill** | +4 armour below 30% HP | +12 armour below 30% HP |
+| Alpha Swimmer | **Alpha** | +8% damage | +24% damage |
+| Booster | **Booster Shot** | +8% fire rate | +24% fire rate |
+
+## Mutations
+
+From skipping a sequence splice, and from stashes hidden in campaign levels: pick one of four. 6 slots (more with the Gene Bank's Well-Incubated). Tier 0 are common, tier 2 rare.
 
 | Mutation | Tier | Effect |
 |---|---|---|
@@ -1264,7 +1302,7 @@ Swim into one (COLLECT autorun goes for them) and pick one of four. 6 slots (mor
 | **Sour Face** | 0 | Acid +30%, Base -20%. |
 | **Runner's High** | 0 | +2 HP/s regeneration while you swim fast. |
 | **E Numbers** | 0 | Killing an elite: 3s of +25% fire rate. The blue ones are worst. |
-| **Surprise Package** | 0 | Popping a Lateral Gene Transfer blows everything near you away. |
+| **Surprise Package** | 0 | Absorbing junk DNA blows everything near you away. |
 | **Snot Trail** | 0 | +5% swim speed, Ethanol +5%. |
 | **Stiff as a Board** | 0 | +10% dodge chance, -20% swim speed. |
 | **Biting Phase** | 0 | Hits heal you a little (within the lifesteal limit). It is just a phase. |
@@ -1280,7 +1318,7 @@ Swim into one (COLLECT autorun goes for them) and pick one of four. 6 slots (mor
 | **Mood Swings** | 1 | Acid, Base and Static +40%. Force, Ethanol and Histamine -10%. |
 | **Middle Child** | 1 | Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts. |
 | **Character Building** | 1 | Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits. |
-| **Double Yolk** | 1 | Every Lateral Gene Transfer has a 30% chance to let you take two mutations. |
+| **Double Yolk** | 1 | Every mutation box has a 30% chance to let you take two mutations. |
 | **First Word** | 1 | Your Feats always crit on enemies at full health, and crits hit 25% harder. |
 | **Pass the Parcel** | 1 | Charged enemies pass a jolt to a neighbour every second. |
 | **Flare-Up** | 1 | Corroding enemies can burst (about 1 in 10 each second) in a small acid blast. |
@@ -1382,16 +1420,25 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 
 ## Stains
 
-The slide starts in greyscale. Each stain brings back one kind of colour so you can read the fight better. GFP is guaranteed early.
+The slide starts in greyscale, your own swimmer included. Colour comes back two ways.
+
+**Stain grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.
+
+| Grant | When | What it colours |
+|---|---|---|
+| **Acridine Orange** | Floats by the egg, your first game (until you take it) | You, your echoes and your allies, in your own colour |
+| **Tracer Dye** | Level 5, once you have Acridine Orange | Your shots and weapon effects, and every damage type in its own colour |
+| **Gentian Violet** | Level 10, once you have Tracer Dye | Power-up pickups and their effects |
+
+**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.)
 
 | Stain | Boon | What it colours |
 |---|---|---|
-| **GFP Tag** | +12% damage. You can finally see where your shots land. | Green Fluorescent Protein. Tags you: your swimmer, your shots, echoes and allies glow green. Much easier to find yourself in a crowd. Also puts a health ring round you whenever you are hurt. |
 | **Anti-Immune Stain** | +8% dodge. You see it coming. | Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings. Also shows a health ring round every hurt enemy (and an armour ring when its armour has been stripped). |
 | **Luciferase** | +20% luck, and +25% damage to elites and bosses. You know what is worth chasing. | The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas. |
 | **Motility Dye** | +8% swim speed, and +30% damage to fast enemies. You spot them early. | Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you. |
 | **Rival Dyes** | +40% damage to rival champions and the Final Five. Know your enemy. | Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt. |
-| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Histamine violet), power-up pickups and their effects, and your midpiece in your weapon-type colour. |
+| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Histamine violet) and your midpiece in your weapon-type colour. |
 
 ## Cursed cards
 
@@ -1564,7 +1611,7 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 | Directive | Behaviour |
 |---|---|
 | **KITE** | Keep distance from threats, dodge bullets |
-| **COLLECT** | Hoover up XP, power-ups and Lateral Gene Transfers |
+| **COLLECT** | Hoover up XP and power-ups |
 | **ORBIT** | Circle around the horde |
 | **HUNT** | Close in on the primary target |
 | **HOLD** | Stand ground, only dodge bullets |
@@ -1623,7 +1670,7 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 | **Thick Zona** | +1 armour per rank | 3 | 45 / 80 / 115 |
 | **Lucky Genes** | +5% luck per rank (rarer DNA strands) | 3 | 35 / 65 / 95 |
 | **Sharp Acrosome** | +3% crit chance per rank | 3 | 40 / 70 / 100 |
-| **Well-Incubated** | +1 mutation slot per rank (Lateral Gene Transfers) | 2 | 80 / 140 |
+| **Well-Incubated** | +1 mutation slot per rank | 2 | 80 / 140 |
 
 ### Wildcard weapons
 
@@ -1806,9 +1853,9 @@ The hardest achievements (Chemical Warfare: ten different reactions in a run; Br
 
 ## Wave mode (The Petri Dish)
 
-The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run (in the order they appear in a standard run), on top of the ones you have. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
+The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run, on top of the ones you have. Waves 1 to 3 bring them in a fixed order; after that they are drawn at random from the next 6 you have not had (so nothing big comes early). What a wave holds is a surprise until it lands. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
 
-Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a Lateral Gene Transfer to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfers (on your first) and each damage type and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.
+Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a junk DNA carrier to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfer (your first junk DNA), the egg (the first time you swim up to it; until then no arrow points to it), stains (your first grant) and each damage type and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.
 
 From wave 15 the boss can be **the Failed Experiment**: a copy of one of your own past runs (a lost one if you have any), alone in the dish, with an attack for each weapon that run carried and health that grows with the level it reached.
 
