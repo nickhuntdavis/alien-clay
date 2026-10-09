@@ -26,7 +26,7 @@ const heatOn = n => heatLv() >= n;
 // Veterans: permanent Gene Bank upgrades make you much stronger, and a fully upgraded profile was winning
 // three runs in four. Past 10 ranks (of 36) the monsters scale up to match: up to +30% HP and +15% damage
 // (bosses and rivals +20% HP). New profiles never see it. vetK: 0 to 1.
-const VET = { from: 10, hp: 0.3, dmg: 0.15, big: 0.2 };
+const VET = { from: 10, hp: 0.8, dmg: 0.4, big: 0.5 }; // (at full veteran: enemies +80% HP and +40% damage, bosses and rivals +50% HP. Was 0.3/0.15/0.2, and maxed players still won 8 runs in 9)
 function vetK() { const r = typeof META !== 'undefined' && META.ranks ? Object.values(META.ranks).reduce((a, b) => a + b, 0) : 0; const all = META_BONUSES.reduce((a, b) => a + b.max, 0); return Math.max(0, Math.min(1, (r - VET.from) / (all - VET.from))); }
 function vetEnemy(e) { // (bosses and rivals: heatBoss, rivalStats)
   const k = vetK(); if (!k || e.def.patterns) return;

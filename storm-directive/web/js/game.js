@@ -61,7 +61,7 @@ const CAPS = { enemies: 170, proj: 380, ebul: 800, parts: 300, texts: 40, gems: 
 // simulated runs to keep the old level curve), with a calmer screen. The extra HP builds up over
 // the first four minutes (on the difficulty clock): early on your weapons are weak, and tougher fodder there
 // just slowed your levelling and let crowds swamp you.
-const SPAWN_K = 0.75, XP_K = 1.4, toughK = t => 1 + (1 / SPAWN_K - 1) * Math.min(1, t / 240);
+const SPAWN_K = 0.75, XP_K = 1.2, toughK = t => 1 + (1 / SPAWN_K - 1) * Math.min(1, t / 240);
 // Adaptive quality: when frames run slow for a while (busy late game, slower phones), step the costly
 // extras down; step back up once there's headroom again. 0: everything. 1: no lens blur or foreground
 // debris, fewer floating numbers. 2: 1.5x resolution, plainer common enemies, fewer particles. 3: 1x resolution.
@@ -751,7 +751,7 @@ function damageEnemy(e, dmg, src) {
   if (src.parasite) { e.parasiteW = src.w; e.parasiteT = 6; }
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
-  const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src);
+  const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
   if (!src.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
   if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
@@ -1557,7 +1557,7 @@ function updateWeapon(w, dt) {
   }
   if (d.scrapAmmo && G.scrap < 1) { if (!w.broke) { w.broke = true; achieve('broke'); } w.cd = Math.max(w.cd, 0); return; }
   w.broke = false;
-  let rate = (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste();
+  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste();
   if (d.kind === 'crayon') { w.durK = Math.max(1, rate); rate = 1 / Math.max(1, rate); } // (Colouring In: fire rate works backwards, toys.js)
   w.cd -= dt * rate;
   let shots = 0;
@@ -1895,7 +1895,9 @@ function updateProjectiles(dt) {
       }
     }
     if (pr.pulse) { pr.pulseT -= dt; if (pr.pulseT <= 0) { pr.pulseT = pr.w.s.pulseRate || 0.45; aoe(pr.x, pr.y, 38, pr.dmg * pr.pulse, Object.assign({}, pr.src, { noProc: true, noCrit: true, wname: 'Pulse' }), '#cfe3ff'); } }
-    if (pr.magnet) forNear(pr.x, pr.y, pr.magnet, e => { if (!e.boss && !e.egg && !e.rival) { const dx = pr.x - e.x, dy = pr.y - e.y, dd = Math.hypot(dx, dy) || 1; e.x += dx / dd * 90 * dt; e.y += dy / dd * 90 * dt; } });
+    // Magnetic pull: one pull per enemy per frame, however many magnetic shots are near it (they used to stack, so a
+    // cloud of orbiting magnetic shots yanked enemies across the slide at thousands of units a second).
+    if (pr.magnet) forNear(pr.x, pr.y, pr.magnet, e => { if (!e.boss && !e.egg && !e.rival && e.magF !== G.frameN) { e.magF = G.frameN; const dx = pr.x - e.x, dy = pr.y - e.y, dd = Math.hypot(dx, dy) || 1, m = Math.min(dd, 90 * dt); e.x += dx / dd * m; e.y += dy / dd * m; } });
     if (pr.grow) { pr.age += dt; const k = Math.min(1, pr.age / Math.max(0.3, pr.max * 0.8)); pr.r = pr.r0 * (1 + 2 * k); pr.dmg = pr.dmg0 * (1 + pr.grow * k); }
     // Homing.
     if (pr.homing && !(pr.orbitT > 0)) {
@@ -2456,7 +2458,7 @@ function update(dt) {
   if (G.warp > 0) { G.warp -= dt; if (G.spells.some(x => spellFork(x, 'b') && x.id === 'warp')) healPlayer(G.P.maxHp * 0.03 * dt, true); } // Power Nap
   const lsCap = (G.relics.transfusion ? 9 : 3) * Math.max(1, G.P.maxHp / 120); // the lifesteal pool grows with your max HP
   G.lsBudget = Math.min(lsCap, (G.lsBudget || 0) + dt * lsCap); // lifesteal heals at most ~3 HP/s
-  if (G.rage > 0) G.rage -= dt;
+  if (G.rage > 0) { G.rage -= dt; if (G.rage <= 0) startClarity(); } // (Oxytocin wears off: Post-Nut Clarity, silly.js)
   if (G.shieldT > 0) G.shieldT -= dt;
   if (G.barrier > 0) G.barrier -= dt;
   updatePlayer(dt);

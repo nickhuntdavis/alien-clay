@@ -582,7 +582,7 @@ const UI = {
     lootSound(req.kind === 'branch' ? 'branch' : 'boss', 3, false, UI.lootOpts.length);
     vibrate(80);
     UI.lootOpenT = performance.now();
-    G.stats.boxes = (G.stats.boxes || 0) + 1;
+    G.stats.boxes = (G.stats.boxes || 0) + 1; const bb = G.stats.boxBy || (G.stats.boxBy = {}); bb[req.kind] = (bb[req.kind] || 0) + 1;
   },
   draftStep(k) { const D = UI.draft, n = UI.lootOpts.length; D.i = (D.i + k + n) % n; UI.renderDraft(); },
   renderDraft() {
@@ -760,7 +760,7 @@ const UI = {
     lootSound(req.kind, Math.max(...UI.lootOpts.map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
     clearTimeout(UI.lootTimer);
     UI.lootOpenT = performance.now(); UI.freeRerollUsed = false;
-    G.stats.boxes = (G.stats.boxes || 0) + 1;
+    G.stats.boxes = (G.stats.boxes || 0) + 1; { const bb = G.stats.boxBy || (G.stats.boxBy = {}); bb[req.kind] = (bb[req.kind] || 0) + 1; }
     UI.lootTimer = setTimeout(() => $('lootCards').classList.add('ready'), 650);
   },
 

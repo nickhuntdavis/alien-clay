@@ -1291,7 +1291,7 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 |---|---|---|
 | **MAGNET** | M | All XP flies to you |
 | **NIT COMB** | N | Obliterates nearby enemies |
-| **OXYTOCIN** | O | For 12s double fire rate, no reloads |
+| **OXYTOCIN** | O | For 12s double fire rate, no reloads. Then 6s of Post-Nut Clarity: slower fire, but +40% crit chance |
 | **GLUCOSE HIT** | + | Restore 50% HP |
 | **STAIR GATE** | S | Invulnerable for 7.5s |
 | **FREEZE TAG** | F | Freeze every enemy for 6s (bosses 2s) |

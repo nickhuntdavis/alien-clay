@@ -240,3 +240,16 @@ function sillyInsure(d) {
 function sillyHurt() {
   for (const w of G.weapons) if (w && w.ttN) { w.ttN = 0; }
 }
+
+// ---------------------------------------------------------------- Post-Nut Clarity
+// When Oxytocin wears off: a calm, slightly ashamed comedown. Your weapons fire 35% slower for 6s, but you see
+// every weak spot: +40% crit chance. The colour drains out of the slide a little while it lasts.
+const CLARITY_LEN = 6;
+const CLARITY_LINES = ['You feel calm. Reflective. A little ashamed.', 'What were you doing? Why were you doing it?', 'Everything is very clear now. Too clear.', 'You stare into the middle distance. The middle distance stares back.'];
+function startClarity() {
+  if (!G || !G.player) return;
+  G.clarityT = G.t + CLARITY_LEN;
+  const p = G.player;
+  floatText(p.x, p.y - 44, 'POST-NUT CLARITY', '#cfd8dc', 15, 1.6, true);
+  sysMsg('POST-NUT CLARITY', pick(CLARITY_LINES) + ' (35% slower fire, +40% crit chance for 6s.)', XR.dim, true);
+}

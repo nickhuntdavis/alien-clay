@@ -1698,6 +1698,7 @@ function render() {
   }
   if (G.state === 'bossIntro' && G.bossIntro) drawIntroSpot(G.bossIntro, shx, shy);
   if (p.flash > 0) { ctx.globalAlpha = p.flash / 0.2 * 0.5; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
+  if (G.clarityT > G.t) { const k = Math.min(1, (G.clarityT - G.t) / 0.8, (G.t - (G.clarityT - CLARITY_LEN)) / 0.5); ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.globalAlpha = 0.55 * k; ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, W, H); ctx.restore(); } // (Post-Nut Clarity: the colour drains a little)
   if (p.hp / G.P.maxHp < 0.3) { ctx.globalAlpha = 0.25 + Math.sin(G.realT * 6) * 0.1; ctx.fillStyle = '#ff0033'; drawEdgeFlash(); ctx.globalAlpha = 1; }
   if (rewinding) drawRewindFx();
   drawRefocus();

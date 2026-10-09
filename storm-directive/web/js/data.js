@@ -675,7 +675,7 @@ const RELICS = {
 const POWERUPS = {
   magnet: { name: 'MAGNET',  letter: 'M', color: '#4cc9f0', desc: 'All XP flies to you' },
   nuke:   { name: 'NIT COMB',    letter: 'N', color: '#ff595e', desc: 'Obliterates nearby enemies' },
-  rage:   { name: 'OXYTOCIN', letter: 'O', color: '#ff924c', desc: 'For 12s double fire rate, no reloads' },
+  rage:   { name: 'OXYTOCIN', letter: 'O', color: '#ff924c', desc: 'For 12s double fire rate, no reloads. Then 6s of Post-Nut Clarity: slower fire, but +40% crit chance' },
   heal:   { name: 'GLUCOSE HIT',  letter: '+', color: '#8ac926', desc: 'Restore 50% HP' },
   shield: { name: 'STAIR GATE',  letter: 'S', color: '#48cae4', desc: 'Invulnerable for 7.5s' },
   freeze: { name: 'FREEZE TAG',  letter: 'F', color: '#a2d2ff', desc: 'Freeze every enemy for 6s (bosses 2s)' },
