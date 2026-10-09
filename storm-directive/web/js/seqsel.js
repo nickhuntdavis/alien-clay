@@ -51,8 +51,8 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
   const hg = g.createRadialGradient(hx + R * 0.3, hy - R * 0.3, R * 0.1, hx, hy, R * 1.3);
   hg.addColorStop(0, locked ? '#2c333b' : '#ffffff'); hg.addColorStop(0.35, locked ? '#1a1f25' : '#cfd8e3'); hg.addColorStop(1, locked ? '#0c0f13' : '#56606c');
   g.fillStyle = id === 'stealth' && !locked ? '#2b2440' : hg;
-  const fat = id === 'bruiser' ? 1.2 : 1; // (the Chonker is a big lad)
-  g.beginPath(); g.ellipse(hx, hy, R * 1.25 * fat, R * 0.85 * fat * fat, 0, 0, TAU); g.fill();
+  const fat = id === 'bruiser' ? 1.3 : 1; // (the Chonker is a big lad: wide and tall)
+  g.beginPath(); g.ellipse(hx, hy, R * 1.25 * fat, R * 0.85 * fat * 1.12, 0, 0, TAU); g.fill();
   g.strokeStyle = locked ? '#3a424b' : c; g.lineWidth = Math.max(1.5, R * 0.08); g.stroke();
   // Acrosome cap.
   g.fillStyle = locked ? '#161a1f' : c + 'aa'; g.beginPath(); g.ellipse(hx + R * 0.45, hy, R * 0.75, R * 0.72, 0, -Math.PI / 2, Math.PI / 2); g.fill();
@@ -69,11 +69,7 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
       for (let i = 0; i < 3; i++) { const k = (t * 1.6 + i / 3) % 1; g.globalAlpha = 1 - k; g.beginPath(); g.arc(hx + R * 1.4 + k * W * 0.3, hy + Math.sin(i * 2) * R * 0.3, R * 0.12, 0, TAU); g.fill(); } g.globalAlpha = 1;
       break;
     }
-    case 'bruiser': {
-      g.strokeStyle = '#1b1e22'; g.fillStyle = c + 'dd';
-      for (let i = 0; i < 5; i++) { const a = -1.1 + i * 0.55, px = hx + Math.cos(a) * R * 0.95, py = hy + Math.sin(a) * R * 0.66; g.beginPath(); for (let j = 0; j < 6; j++) { const b = j / 6 * TAU; g.lineTo(px + Math.cos(b) * R * 0.28, py + Math.sin(b) * R * 0.28); } g.closePath(); g.fill(); g.stroke(); }
-      break;
-    }
+    case 'bruiser': break; // (no plating: the Chonker is just fat, see `fat` above)
     case 'nerd': {
       for (let i = 4; i < tailN - 6; i += 5) { const p = pts[i]; g.fillStyle = c; g.globalAlpha = 0.6 + 0.4 * Math.sin(t * 6 + i); g.beginPath(); g.ellipse(p.x, p.y, R * 0.22, R * 0.12, 0.3, 0, TAU); g.fill(); } g.globalAlpha = 1;
       g.strokeStyle = c; g.lineWidth = 1.5;
@@ -229,7 +225,8 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
   face += (body && body.yaw) || 0; // (rocks with the head, drawShip)
   if (!G || !G.genes || !G.genes.active || !G.genes.active.length) return;
   const L = look || NOLOOK, k = S * (scale || 1), t = G.realT, ids = G.genes.active, pc = SEQ_LOOK[ids[0]].color;
-  const sxs = L.head * L.stretch, sys = L.head / Math.sqrt(L.stretch);
+  const sq = body && body === G.player && typeof headSquash === 'function' ? headSquash(body) : null;
+  const sxs = L.head * L.stretch * (sq ? sq.x : 1), sys = L.head / Math.sqrt(L.stretch) * (sq ? sq.y : 1);
   ctx.save(); ctx.globalAlpha = alpha; RAW_COL = typeof grantOn !== 'function' || grantOn('body'); // (grey like the rest of you until the first stain grant)
   // Behind the body: afterimages (Stealth).
   if (ids.includes('stealth')) {
@@ -266,12 +263,9 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
         break;
       }
       case 'bruiser': {
-        // A Chonker: a round belly and a couple of chins, then hexagonal armour plates bolted round the rim.
+        // A Chonker: just fat. A big round belly under the head, a touch of wobble, no plating.
         ctx.fillStyle = '#e9ddd0'; ctx.strokeStyle = c; ctx.lineWidth = Math.max(0.8, 0.5 * k);
-        ctx.beginPath(); ctx.ellipse(0, 3.6 * k, 7.2 * k, 3.6 * k + Math.sin(t * 4) * 0.25 * k, 0, 0, TAU); ctx.fill(); ctx.stroke();
-        for (const cy of [1.2, 2.4]) { ctx.beginPath(); ctx.ellipse(4.2 * k, cy * k, 2.6 * k, 1.1 * k, 0, 0.2, Math.PI - 0.2); ctx.stroke(); }
-        ctx.fillStyle = c + 'dd'; ctx.strokeStyle = '#1b1e22'; ctx.lineWidth = Math.max(0.8, 0.5 * k);
-        for (let i = 0; i < 5; i++) { const a = -1.3 + i * 0.65, px = 1 * k + Math.cos(a) * 7.4 * k, py = Math.sin(a) * 5 * k; ctx.beginPath(); for (let j = 0; j < 6; j++) { const b = j / 6 * TAU; ctx.lineTo(px + Math.cos(b) * 2 * k, py + Math.sin(b) * 2 * k); } ctx.closePath(); ctx.fill(); ctx.stroke(); }
+        ctx.beginPath(); ctx.ellipse(0.5 * k, 1.2 * k, 8.4 * k, 6.4 * k + Math.sin(t * 4) * 0.25 * k, 0, 0, TAU); ctx.fill(); ctx.stroke();
         break;
       }
       case 'nerd': {
@@ -347,5 +341,5 @@ function seqWeaponColour(id) {
   const special = h => (typeof ELEM_OF !== 'undefined' && ELEM_OF.has(h)) || (typeof STATIC_HEX !== 'undefined' && STATIC_HEX[h]) || (typeof PAL_ALIAS !== 'undefined' && PAL_ALIAS[h]);
   while (special(c)) c = c.slice(0, 6) + ((parseInt(c[6], 16) + 1) % 16).toString(16);
   G.seqCol = c;
-  for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = c;
+  weaponColours(c);
 }
