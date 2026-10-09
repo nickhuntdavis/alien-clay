@@ -20,6 +20,9 @@
 const LV_C = 80;
 const LV_T = { floor: 0, wall: 1, tooth: 2, plaque: 3, saliva: 4, gate: 5, exit: 6 };
 const LV_SAMPLE = { s007: 0 };
+// Where a level is set is a surprise: it is just "Level N" until you have beaten it once.
+const lvKnown = L => typeof META !== 'undefined' && !!(META.lvBest && META.lvBest[L.id]);
+const lvName = L => lvKnown(L) ? L.name : 'LEVEL ' + L.no;
 
 // The mouth's own germs: existing behaviours under new names.
 const LV_FOES = {
@@ -41,7 +44,7 @@ Object.assign(ENEMY_INTRO, {
 const LV_BOSSES = {
   tartar: Object.assign({}, BOSSES.find(b => b.id === 'colossus'), { id: 'tartar', name: 'THE TARTAR COLONY', title: 'Calcified, and Proud of It', color: '#efe0b0', shape: 'cell',
     hp: 2600, armour: 8, quote: 'Twenty years without a dentist. We built a city.',
-    desc: 'A slab of hardened plaque at the back of the throat. Armoured, it cannot be shoved, and it charges in straight lines.',
+    desc: 'A slab of something hard and yellow, blocking the way on. Armoured, it cannot be shoved, and it charges in straight lines.',
     strengths: ['8 armour: small hits barely scratch it', 'Cannot be knocked back'], weaknesses: ['Static: +60% damage', 'Charges are telegraphed: side-step', 'The tonsils make good cover'] }),
 };
 
@@ -51,16 +54,16 @@ const LEVELS = [{
   // Time on the difficulty clock at the start and at the exit (enemy toughness follows your progress).
   pt: [10, 200], par: 540,
   zones: [ // by row, far end first
-    { name: 'THE THROAT', to: 23, floor: '#c25a7c', mix: { mutans: 5, strep: 4, amylase: 3, tartar: 3, thrush: 3 }, rate: 2.6, max: 55, cough: true },
-    { name: 'THE TONGUE', to: 62, floor: '#e8909a', mix: { mutans: 6, strep: 4, amylase: 3, tartar: 2, thrush: 2 }, rate: 2.8, max: 55, cough: true, wash: [34, 60] },
-    { name: 'THE GUM LINE', to: 108, floor: '#eba3b4', mix: { mutans: 8, strep: 4, thrush: 3 }, rate: 2.0, max: 40, colonies: true },
-    { name: 'THE LIPS', to: 999, floor: '#f4bccb', mix: { mutans: 10 }, rate: 1.0, max: 22 },
+    { name: 'THE DEEP', to: 23, floor: '#c25a7c', mix: { mutans: 5, strep: 4, amylase: 3, tartar: 3, thrush: 3 }, rate: 2.6, max: 55, cough: true },
+    { name: 'THE WET PLAINS', to: 62, floor: '#e8909a', mix: { mutans: 6, strep: 4, amylase: 3, tartar: 2, thrush: 2 }, rate: 2.8, max: 55, cough: true, wash: [34, 60] },
+    { name: 'THE TRENCHES', to: 108, floor: '#eba3b4', mix: { mutans: 8, strep: 4, thrush: 3 }, rate: 2.0, max: 40, colonies: true },
+    { name: 'THE GATE', to: 999, floor: '#f4bccb', mix: { mutans: 10 }, rate: 1.0, max: 22 },
   ],
   arenas: [ // cells [x0, y0, x1, y1]; quota: kills to open its gate
-    { gate: '1', rect: [4, 112, 23, 123], quota: 30, name: 'BEHIND THE FRONT TEETH', mix: { mutans: 10 } },
-    { gate: '2', rect: [3, 76, 19, 86], quota: 70, name: 'THE GUM POCKET', mix: { mutans: 6, strep: 4, thrush: 3 } },
-    { rect: [4, 44, 23, 51], quota: 90, name: 'THE PAPILLAE', mix: { mutans: 5, strep: 4, amylase: 3, tartar: 1, thrush: 2 } }, // (no gate: the membrane round it is the only lock)
-    { gate: '3', rect: [5, 24, 22, 32], quota: 110, name: 'THE BACK OF THE TONGUE', mix: { mutans: 5, strep: 4, amylase: 3, tartar: 2, thrush: 3 } },
+    { gate: '1', rect: [4, 112, 23, 123], quota: 30, name: 'BEHIND THE WHITE WALL', mix: { mutans: 10 } },
+    { gate: '2', rect: [3, 76, 19, 86], quota: 70, name: 'THE POCKET', mix: { mutans: 6, strep: 4, thrush: 3 } },
+    { rect: [4, 44, 23, 51], quota: 90, name: 'THE BUMPS', mix: { mutans: 5, strep: 4, amylase: 3, tartar: 1, thrush: 2 } }, // (no gate: the membrane round it is the only lock)
+    { gate: '3', rect: [5, 24, 22, 32], quota: 110, name: 'THE POOL', mix: { mutans: 5, strep: 4, amylase: 3, tartar: 2, thrush: 3 } },
   ],
   boss: { id: 'tartar', gate: '4', rect: [4, 8, 23, 17], mix: { mutans: 6, tartar: 2 } },
   map: [
@@ -470,7 +473,7 @@ function lvTick(dt, maxAlive, hostile) {
   if (Z !== V.zone) {
     if (V.zone) { banner(Z.name, '#ffb3c6'); sfx('level'); }
     V.zone = Z;
-    if (Z.wash && !V.msg.wash) { V.msg.wash = 1; sysMsg('SYSTEM MESSAGE', 'The tongue gets rinsed. When the mouthwash comes, get behind a tooth: it scours everything out in the open, germs included.', '#7ff0e0', true); }
+    if (Z.wash && !V.msg.wash) { V.msg.wash = 1; sysMsg('SYSTEM MESSAGE', 'Every so often this place gets rinsed. When the rinse comes, get behind something white: it scours everything out in the open, germs included.', '#7ff0e0', true); }
   }
   // Arenas: step in and the gate ahead stays shut until you have cleared the quota.
   if (!V.arena) for (const A of L.arenas) if (!V.done[A.name] && lvInRect(A.rect, p.x, p.y)) {
@@ -498,7 +501,7 @@ function lvTick(dt, maxAlive, hostile) {
     // Its entourage, lightly.
     G.spawnAcc += 0.9 * dt * G.P.spawnMult;
     while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < 18) hostile += lvSpawn(L.boss.mix, lvRectPos(L.boss.rect, 300)); }
-    if (!G.boss || G.boss.dead) { V.bossDead = true; lvUnlock(); lvOpenGate(L.boss.gate); banner('THE THROAT IS CLEAR', '#ffb3c6'); }
+    if (!G.boss || G.boss.dead) { V.bossDead = true; lvUnlock(); lvOpenGate(L.boss.gate); banner('THE WAY IS CLEAR', '#ffb3c6'); }
   } else {
     // Out in the corridors: a steady trickle from ahead and behind, out of sight round the bends.
     G.spawnAcc += Z.rate * (1 + lvProgress() * 0.6) * dt * G.P.spawnMult;
@@ -591,7 +594,7 @@ function lvHazards(dt, Z) {
     } else if ((C.t -= dt) <= 0) {
       C.t = rand(H2.coughEvery[0], H2.coughEvery[1]); C.warn = H2.coughWarn;
       floatText(p.x, p.y - 50, '*rumble*', '#ffd6e0', 13, 1);
-      if (!V.msg.cough) { V.msg.cough = 1; sysMsg('SYSTEM MESSAGE', 'The host coughs: everything gets blown on towards the throat. You, and every germ around you.', '#ffffff', true); }
+      if (!V.msg.cough) { V.msg.cough = 1; sysMsg('SYSTEM MESSAGE', 'The host coughs: everything gets blown on, further in. You, and every germ around you.', '#ffffff', true); }
     }
   }
   // Mouthwash.
@@ -606,25 +609,25 @@ function lvHazards(dt, Z) {
       if (inBand(p) && !M.hit.has(p)) {
         M.hit.add(p);
         if (covered(p)) floatText(p.x, p.y - 30, 'SHELTERED', '#7ff0e0', 13, 0.9);
-        else hurtPlayer(G.P.maxHp * H2.washHurt, 'Mouthwash', null, 'other');
+        else hurtPlayer(G.P.maxHp * H2.washHurt, 'The Rinse', null, 'other');
       }
-      for (const e of G.enemies) if (!e.dead && !e.boss && !M.hit.has(e) && inBand(e)) { M.hit.add(e); if (!covered(e)) damageEnemy(e, e.maxHp * H2.washFoe, { elem: 'ice', noCrit: true, env: true, wname: 'Mouthwash' }); }
+      for (const e of G.enemies) if (!e.dead && !e.boss && !M.hit.has(e) && inBand(e)) { M.hit.add(e); if (!covered(e)) damageEnemy(e, e.maxHp * H2.washFoe, { elem: 'ice', noCrit: true, env: true, wname: 'The Rinse' }); }
       if (M.y > bot + band) { M.y = -1; M.hit.clear(); }
     } else if (M.warn > 0) {
       M.warn -= dt;
       if (M.warn <= 0) { M.y = top; sfx('boom'); }
     } else if ((M.t -= dt) <= 0) {
       M.t = rand(H2.washEvery[0], H2.washEvery[1]); M.warn = H2.washWarn;
-      banner('MOUTHWASH! GET BEHIND A TOOTH', '#7ff0e0'); sfx('boss'); vibrate(60);
+      banner('THE RINSE! TAKE COVER', '#7ff0e0'); sfx('boss'); vibrate(60);
     }
   } else if (M.y >= 0 && !Z.wash) { M.y = -1; M.hit.clear(); }
   // The toothbrush.
   const B = V.brush, par = V.L.par;
-  if (G.t > par - 30 && !B.warned) { B.warned = true; banner('THE TOOTHBRUSH IS COMING', '#ffffff'); sysMsg('SYSTEM MESSAGE', 'Thirty seconds until the host brushes. Keep moving towards the throat: nothing survives the bristles.', '#ffffff', true); }
+  if (G.t > par - 30 && !B.warned) { B.warned = true; banner('THE BRISTLES ARE COMING', '#ffffff'); sysMsg('SYSTEM MESSAGE', 'Thirty seconds until the bristles come. Keep moving on: nothing survives them.', '#ffffff', true); }
   if (G.t > par && !(V.boss && !V.bossDead)) { // (it waits while you fight the boss)
     if (B.y == null) { B.y = V.h * LV_C; sfx('boss'); }
     B.y = Math.min(B.y, p.y + 1400) - LV_HZ.brushSpd * dt; // (it never falls far behind)
-    if (p.y > B.y) hurtPlayer(G.P.maxHp * LV_HZ.brushDps * dt, 'The Toothbrush', null, 'other');
+    if (p.y > B.y) hurtPlayer(G.P.maxHp * LV_HZ.brushDps * dt, 'The Bristles', null, 'other');
     for (const e of G.enemies) if (!e.dead && !e.boss && e.y > B.y + 20) { e.dead = true; spawnPart(e.x, e.y, '#ffffff', 3, 80, 0.4); }
   }
 }
@@ -644,7 +647,7 @@ function lvWin(at) {
   ring(at.x, at.y, 200, '#efe6c8', 0.8, 8); cam.shake = 10; sfx('boom'); vibrate([60, 40, 120]);
   floatText(at.x, at.y - 60, 'IT IS A TONSIL STONE', '#efe6c8', 16, 2);
   banner('THE EGG IS IN ANOTHER CASTLE', '#ffd6e8');
-  sysMsg('THE NARRATOR', `That was not an egg. That was a tonsil stone, and it stinks. The egg is in another castle. ${V.L.next ? 'Level 2, ' + V.L.next + ', is unlocked.' : ''}`, '#ffd6e8', true);
+  sysMsg('THE NARRATOR', `That was not an egg. That was a tonsil stone, and it stinks. You have been in a mouth this whole time. The egg is in another castle. ${V.L.next ? 'Level 2 is unlocked.' : ''}`, '#ffd6e8', true);
   after(2.6, () => { if (G && G.lvl && G.state === 'play') { G.state = 'won'; if (typeof UI !== 'undefined') UI.showVictory(); } });
 }
 
@@ -787,12 +790,12 @@ function drawLevelOver() {
 function drawLevelHud(mid, by) {
   const V = G.lvl, R = V.arena;
   const pct = Math.round(lvProgress() * 100);
-  let sub = V.zone ? V.zone.name : V.L.name;
+  let sub = V.zone ? V.zone.name : lvName(V.L);
   if (R) sub = `${R.A.name}: ${Math.max(0, R.A.quota - R.killed)} TO GO`;
   else if (V.boss && !V.bossDead && G.boss) sub = G.boss.def.name;
-  else if (G.t > V.L.par - 30 && !V.won) sub = V.brush.y != null ? 'THE TOOTHBRUSH! MOVE!' : `TOOTHBRUSH IN ${Math.max(0, Math.ceil(V.L.par - G.t))}s`;
+  else if (G.t > V.L.par - 30 && !V.won) sub = V.brush.y != null ? 'THE BRISTLES! MOVE!' : `BRISTLES IN ${Math.max(0, Math.ceil(V.L.par - G.t))}s`;
   ctx.fillStyle = XR.dim; ctx.font = '10px ' + MONO; ctx.fillText(sub, mid, by - 18);
-  ctx.fillStyle = XR.white; ctx.font = 'bold 21px ' + MONO; ctx.fillText(`${V.L.name}  ${pct}%`, mid, by + 4);
+  ctx.fillStyle = XR.white; ctx.font = 'bold 21px ' + MONO; ctx.fillText(`${lvName(V.L)}  ${pct}%`, mid, by + 4);
 }
 // The minimap: the maze round you.
 function drawLevelMap(mx, my, R) {

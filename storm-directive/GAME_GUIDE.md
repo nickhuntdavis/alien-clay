@@ -41,7 +41,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
    - [First sightings](#first-sightings)
 30. [Rival champions](#rival-champions)
 31. [Terrain](#terrain)
-32. [Campaign: Level 1, The Mouth](#campaign-level-1-the-mouth)
+32. [Campaign (SPOILERS: where Level 1 is set)](#campaign-spoilers-where-level-1-is-set)
 33. [Achievement DNA](#achievement-dna)
 34. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
 35. [Boss rewards](#boss-rewards)
@@ -1789,7 +1789,7 @@ Each kind of terrain has an upgrade of its own, offered only when that terrain i
 
 Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to about half the map, then fades), **yeast infections** (colonies that bud more yeast) and the ambient crowd of harmless swimmers outside the arena.
 
-## Campaign: Level 1, The Mouth
+## Campaign (SPOILERS: where Level 1 is set)
 
 A hand-built maze, lips to throat, played as its own run (you start at Lv 1; DNA banks as usual). Autorun follows the route to the exit when nothing else needs doing, and a faint chevron next to you points the way.
 
@@ -1848,8 +1848,8 @@ Every boss pays twice: a relic (its own three, plus one smuggled relic from a bo
 | 001 | **Standard Issue** | Playable | One healthy donor, four hundred million hopefuls, one egg. The classic. |
 | 002 | **The Petri Dish** | Playable | A mad scientist is breeding super sperm. Twenty drops into the dish, starting easy: each wave brings a couple of new kinds of swimmer, and every fifth wave is a boss. Beat wave 20 and you get the egg. |
 | 006 | **Petri Dish: Endless** | Locked: Beat wave mode (The Petri Dish) to unlock. | No egg, no end. Wave after wave, each nastier than the last, with something big every fifth. How many can you take? |
-| 007 | **The Mouth** | Playable | Level 1 of the campaign. Lips to throat through a wet pink maze of teeth, plaque and spit, with something round and glowing waiting at the back. Probably the egg. |
-| 008 | **Esophagus Descent** | Locked: Beat Level 1, The Mouth, to unlock. | The egg is in another castle. This is the way down. |
+| 007 | **Level 1** | Playable | Somewhere warm, wet and pink, with something round and glowing at the far end. Probably the egg. Find the way through. |
+| 008 | **Level 2** | Locked: Beat Level 1 to unlock. | Further in. Nobody knows what is down there. |
 | 000 | **Lab Bench (Debug)** | Playable | For testing: god mode, send in any enemy, boss or event, switch any weapon or Feat on and off. Open the DEBUG panel. |
 | 005 | **Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
 | 003 | **The Morning After** | Coming soon | The pill is already dissolving. Good luck. |
