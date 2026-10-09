@@ -2078,6 +2078,7 @@ function drawHud() {
   if (G.inPill) chips.push(['PILL: SLOW, XP -50%', PAL.danger]);
   if (G.sticky) chips.push(['STUCK IN YEAST', PAL.danger]);
   if (G.yeastOn && G.yeastN) chips.push(['INFECTION: ' + G.yeastN + ' CELLS', PAL.danger]);
+  if (G.armourLost >= 1 && G.P.armour > 0) chips.push([`ARMOUR ${Math.round(G.P.armour - G.armourLost)}/${Math.round(G.P.armour)}`, XR.white]);
   if (G.chargeUpT > G.t) chips.push(['CHARGED UP', '#f4ff8a']);
   if (G.absorbOn) chips.push(['CRUMPLE ZONE', '#ffe94a']);
   if (G.manual) chips.push(['MANUAL', XR.white]);

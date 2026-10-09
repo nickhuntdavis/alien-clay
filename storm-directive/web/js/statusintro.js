@@ -15,6 +15,7 @@ const STATUS_INTRO = {
   'SISTER-COUSIN':    { buff: 1, what: 'A copy of you split off when you were hit. She fights beside you for a while.', tip: 'Swim into her before she goes to recombine: a big buff.' },
   'CHARGED UP':       { buff: 1, what: 'An Acid and Static reaction made a battery, and some of the charge went to you: +12% fire rate for 3s.', tip: 'Keep mixing Acid and Static to keep it topped up.' },
   'CRUMPLE ZONE':     { buff: 1, what: 'A combo twist (Force + Static) charged a barrier. It blocks the next hit you take, then recharges after 8s.', tip: 'Free mistake. Take the risky line.' },
+  'ARMOUR':           { buff: 0, what: 'Your armour is worn: every hit that lands knocks a point off (two from a boss). The chip shows what is left of it.', tip: 'Stay out of trouble for a couple of seconds and it grows back, about half a point a second.' },
   'BEHIND PACE':      { buff: 0, what: 'You are levels behind where you should be by now. Falling behind the curve is what loses runs.', tip: 'Pick up XP, take level and XP upgrades, and use the pickup magnet.' },
   'PILL':             { buff: 0, what: 'You are inside the Morning-After Pill: you swim slower and earn half the XP.', tip: 'Get out of the cloud. It grows, then fades.' },
   'STUCK IN YEAST':   { buff: 0, what: 'A yeast colony is gumming you up: you swim much slower while you are in it.', tip: 'Shoot your way out, then keep clear.' },
@@ -41,6 +42,7 @@ function statusTimer(key) {
     case 'AEGIS': return G.barrier > 0 ? G.barrier : null;
     case 'POST-NUT CLARITY': return left(G.clarityT);
     case 'CHARGED UP': return left(G.chargeUpT);
+    case 'ARMOUR': return null;
     case 'FAMILY': return left(G.familyT);
     case 'SISTER-COUSIN': return G.cousin ? left(G.cousin.end) : null;
   }

@@ -1023,6 +1023,11 @@ function dropGem(x, y, v, kind) {
 // src: where a box came from ({ t: 'elite' | 'amoeba' | 'drop' | 'rival' | 'sponsor', name }), for the loot screen's story line.
 function makePickup(type, x, y, src) { return unstick({ type, x, y, life: 25, bob: Math.random() * TAU, src }, 14); }
 
+// Worn armour grows back: half a point a second, after 2.5s without a hit (a bit faster with more armour to mend).
+function armourRegen(dt) {
+  if (!(G.armourLost > 0) || G.t - (G.armourHitT || 0) < 2.5) return;
+  G.armourLost = Math.max(0, G.armourLost - dt * (0.5 + G.P.armour * 0.03));
+}
 function healPlayer(n, silent) {
   const p = me(), P = G.P;
   const before = p.hp;
@@ -1050,8 +1055,12 @@ function hurtPlayer(dmg, from, ent, kind) {
   // so more max HP still means more boss hits to go down (it used to be 22% of yours, so HP made no difference).
   if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * 0.15 + 120 * 0.07 * defClock());
   // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
-  const arm = P.noArmour ? 0 : (P.armour + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
+  // Your armour wears down: every hit that lands knocks a point off (two from a boss), and it grows back slowly once
+  // you stop getting hit (armourRegen). Temporary plating (Bear Hug, Fortress) does not wear.
+  const armBase = Math.max(0, P.armour - (G.armourLost || 0));
+  const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
+  if (!P.noArmour && P.armour > 0) { G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; }
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d;
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
@@ -2424,7 +2433,7 @@ function victory(at) {
 
 // ---------------------------------------------------------------- main update
 function update(dt) {
-  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge(); stamTick(dt);
+  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge(); stamTick(dt); armourRegen(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
   if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (4 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }

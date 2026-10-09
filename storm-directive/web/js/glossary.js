@@ -7,7 +7,7 @@ const GLOSSARY = [
   [/\b(bounce|ricochet)/i, 'Bounce', 'After a hit, the shot hops on to another enemy.'],
   [/\b(chain|jump)/i, 'Chain', 'The hit leaps on to nearby enemies, a little weaker with each jump.'],
   [/\bcrit damage|crits?\b|critical/i, 'Crit', 'A chance for a hit to deal extra damage. Crit damage is how much extra (x2 to start). Chance over 100% adds to crit damage.'],
-  [/\barmou?r\b/i, 'Armour', 'Taken off every hit before it lands (at least 15% of a hit always gets through). Yours protects you; enemies have it too.'],
+  [/\barmou?r\b/i, 'Armour', 'Taken off every hit before it lands (at least 15% of a hit always gets through). Yours wears down a point per hit and grows back when you stop getting hit; enemies\' can be shredded.'],
   [/\bshred/i, 'Shred', 'Strips an enemy\'s armour for a while, so everything hits it harder.'],
   [/\b(knock|knockback|flung|hurled|shove)/i, 'Knockback', 'Pushes enemies away from the hit. Bosses and heavy enemies barely move.'],
   [/\b(homing|home in|hunt|seek)/i, 'Homing', 'Shots steer towards a target on their own.'],
