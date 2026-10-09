@@ -1741,7 +1741,7 @@ The default mode. 8 waves, one boss in each (all eight bosses, in a random order
 | THE FEVER | Forty-One Degrees | Antibody, Acid Bubble, Also-Ran, Cytokine Caster | ring | firering |
 | MITCH & OSIS | Double Dose | Mitotic Cell, Also-Ran, Nurse Cell | near | charge, spiral |
 
-Warm-up before each boss (seconds): 30, 18, 15, 14, 12, 12, 11, 10. Boss health (times its base): 0.45, 3.5, 11, 26, 58, 110, 190, 320.
+Warm-up before each boss (seconds): 55, 28, 16, 14, 12, 12, 11, 10. Boss health (times its base): 0.45, 3.5, 11, 26, 58, 110, 190, 320.
 
 ## Boss rewards
 
