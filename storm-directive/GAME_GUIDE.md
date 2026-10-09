@@ -1175,7 +1175,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Split Personality** | +1 projectile (shots share the damage: about +25% on a one-shot weapon, less on weapons that already fire several; more hits for on-hit effects) (Epic or better only) | Tunes one weapon | 2 per weapon |
 | **Early Arrival** | +12% projectile speed and range | Tunes one weapon | 5 per weapon |
 | **Personal Space** | +12% area of effect | Tunes one weapon | 6 per weapon |
-| **Stamina** | +15% effect duration | Tunes one weapon | 5 per weapon |
+| **Staying Power** | +15% effect duration | Tunes one weapon | 5 per weapon |
 | **Pushy** | +1 pierce | Tunes one weapon | 4 per weapon |
 | **Sharp Elbows** | +5% crit chance | You | 6 |
 | **Low Blow** | +25% crit damage | You | 6 |

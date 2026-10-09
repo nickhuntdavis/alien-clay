@@ -377,6 +377,25 @@ function recomputeAll() {
 
 // ---------------------------------------------------------------- loot
 // special: this card may come out Mythical or Celestial (ordinary DNA only, three a run at most).
+// Novelty: so every Feat, upgrade and modifier turns up over a few runs instead of the same favourites.
+// Cards you have been offered least (over all your runs) are up to 2.5x as likely; ones already offered this
+// run, and passed over, fade so the boxes rotate.
+function novK(nk) {
+  if (!nk || !G) return 1;
+  const ever = (META.offered && META.offered[nk]) || 0, now = (G.offered && G.offered[nk]) || 0;
+  return (1 + 1.5 / (1 + ever / 3)) / (1 + 0.5 * now);
+}
+function novSeen(nk) {
+  if (!nk || !G || G.debug) return;
+  G.offered = G.offered || {}; G.offered[nk] = (G.offered[nk] || 0) + 1;
+  META.offered = META.offered || {}; META.offered[nk] = (META.offered[nk] || 0) + 1;
+  if (!(G.novSaveT > G.t)) { G.novSaveT = G.t + 20; saveMeta(); }
+}
+function novPick(keys) {
+  let tot = 0; for (const k of keys) tot += novK(k);
+  let x = Math.random() * tot; for (const k of keys) { x -= novK(k); if (x <= 0) return k; }
+  return keys[keys.length - 1];
+}
 function rollRarity(min, special) {
   if (G.mythBox) return Math.random() < 0.3 ? 6 : 5; // (Achievement DNA)
   const luck = G.P.luck;
@@ -456,15 +475,15 @@ function genLoot(req) {
   // New weapons only come from weapon drafts (level 1, 8 and 22), never from ordinary DNA.
   if (G.spells.some(w => !w)) {
     const owned = new Set(G.spells.filter(Boolean).map(w => w.id));
-    const pool = shuffle(Object.keys(SPELLS).filter(id => !owned.has(id) && (!SPELLS[id].seqOnly || (G.genes && G.genes.active.includes(SPELLS[id].seqOnly))))).slice(0, 3);
-    for (const id of pool) cands.push({ w: G.t > 30 ? 6 : 3, key: 'sn' + id, make: r => optNewSpell(id, r) });
+    const pool = Object.keys(SPELLS).filter(id => !owned.has(id) && (!SPELLS[id].seqOnly || (G.genes && G.genes.active.includes(SPELLS[id].seqOnly)))).map(id => [id, Math.pow(Math.random(), 1 / novK('sn' + id))]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(x => x[0]); // (a novelty-weighted shuffle)
+    for (const id of pool) cands.push({ w: G.t > 30 ? 6 : 3, key: 'sn' + id, nk: 'sn' + id, make: r => optNewSpell(id, r) });
   }
   G.weapons.forEach(w => {
     if (!w) return;
     // New modifiers while slots are free; otherwise offer to power up one it already has.
     const fits = id => !MODS[id].kinds || MODS[id].kinds.includes(w.def.kind);
     const ids = w.mods.length < MOD_SLOTS ? Object.keys(MODS).filter(id => fits(id) && !w.mods.some(m => m.id === id)) : w.mods.filter(m => m.p < MOD_MAX_POWER).map(m => m.id);
-    if (ids.length) { const id = pick(ids); cands.push({ w: 8, key: 'mod' + w.uid, make: r => optMod(w, id, r) }); }
+    if (ids.length) { const id = novPick(ids.map(x => 'm' + x)).slice(1); cands.push({ w: 8, key: 'mod' + w.uid, nk: 'm' + id, make: r => optMod(w, id, r) }); }
   });
   const ownedElems = new Set(); for (const w of G.weapons.concat(G.spells)) if (w) { ownedElems.add(w.def.elem); if (w.def.elem2) ownedElems.add(w.def.elem2); }
   for (const id in PASSIVES) {
@@ -476,7 +495,7 @@ function genLoot(req) {
     if (PASSIVES[id].terrain && !(G.terrain && G.terrain.list.some(o => o.type === PASSIVES[id].terrain))) continue; // terrain upgrades need that terrain
     // Element cards only for elements you actually use.
     if (ELEM_PASSIVE_OF[id] && !ownedElems.has(ELEM_PASSIVE_OF[id])) continue;
-    cands.push({ w: PASSIVES[id].terrain ? 1 : 1.8, key: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
+    cands.push({ w: PASSIVES[id].terrain ? 1 : 1.8, key: 'p' + id, nk: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
   }
   // Stains you don't have yet.
   // (Not one you already see: a permanent stain switched on in the pause menu counts.)
@@ -491,15 +510,16 @@ function genLoot(req) {
   // thrown back and another drawn.
   const same = (o, q) => o.title === q.title && (o.modFor || '') === (q.modFor || '');
   const tried = new Set();
-  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) opts.push(o); }
+  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); } }
   while (opts.length < 3) {
     const rest = cands.filter(c => !tried.has(c));
     if (!rest.length) break;
-    let tot = rest.reduce((a, c) => a + c.w, 0), x = Math.random() * tot, c = rest[rest.length - 1];
-    for (const r of rest) { x -= r.w; if (x <= 0) { c = r; break; } }
+    const wt = c => c.w * novK(c.nk);
+    let tot = rest.reduce((a, c) => a + wt(c), 0), x = Math.random() * tot, c = rest[rest.length - 1];
+    for (const r of rest) { x -= wt(r); if (x <= 0) { c = r; break; } }
     tried.add(c);
     const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0)));
-    if (!opts.some(q => same(o, q))) opts.push(o);
+    if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); }
   }
   // Occasionally the System slips a cursed card into the box.
   const curses = CURSES.filter(c => !G.curses[c.id]);

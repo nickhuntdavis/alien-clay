@@ -453,7 +453,7 @@ const PASSIVES = {
   multishot: { name: 'Split Personality',        icon: 'MS', max: 2, v: 1, minRarity: 3, fmt: v => `+${Math.round(v)} projectile${Math.round(v) > 1 ? 's' : ''} (shots share the damage: about +25% on a one-shot weapon, less on weapons that already fire several; more hits for on-hit effects)`, apply: (P, v) => { P.multishot += Math.round(v); } },
   velocity:  { name: 'Early Arrival',         icon: 'VE', max: 5, v: 0.12, fmt: v => `+${pc(v)} projectile speed and range`, apply: (P, v) => { P.projSpeed += v; P.range += v * 0.6; } },
   area:      { name: 'Personal Space',     icon: 'BR', max: 6, v: 0.12, fmt: v => `+${pc(v)} area of effect`, apply: (P, v) => { P.area += v; } },
-  duration:  { name: 'Stamina',        icon: 'LG', max: 5, v: 0.15, fmt: v => `+${pc(v)} effect duration`, apply: (P, v) => { P.dur += v; } },
+  duration:  { name: 'Staying Power',  icon: 'LG', max: 5, v: 0.15, fmt: v => `+${pc(v)} effect duration`, apply: (P, v) => { P.dur += v; } },
   pierce:    { name: 'Pushy',       icon: 'PN', max: 4, v: 1, fmt: v => `+${Math.round(v)} pierce`, apply: (P, v) => { P.pierce += Math.round(v); } },
   crit:      { name: 'Sharp Elbows',          icon: 'DE', max: 6, v: 0.05, fmt: v => `+${pc(v)} crit chance`, apply: (P, v) => { P.crit += v; } },
   critdmg:   { name: 'Low Blow',      icon: 'EX', max: 6, v: 0.25, fmt: v => `+${pc(v)} crit damage`, apply: (P, v) => { P.critDmg += v; } },
