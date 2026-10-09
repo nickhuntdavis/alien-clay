@@ -1708,7 +1708,7 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 |---|---|---|
 | **Also-Ran** | One of the four hundred million. Not a threat on its own. There is never one on its own. | Anything that hits a crowd. Keep swimming and let your weapons mow them down. |
 | **Sprinter** | Small, fast and fragile. It reaches you before you have noticed it. | Fast fire and wide shots. One hit is enough. |
-| **Antibody** | Part of the host's immune system. Keeps its distance and spits at you. | Its shots are slow. Swim across them, not along them. SHOOTERS FIRST targeting helps. |
+| **Antibody** | Part of the host's immune system. Keeps its distance and shoots at you: dodge! | Its shots are slow. Swim across them, not along them. SHOOTERS FIRST targeting helps. |
 | **Macrophage** | A big eater with a little armour. Swallows whatever it catches. | Armour shred and big single hits. Don't let it pin you against a wall. |
 | **Acid Bubble** | A bubble of stomach acid that rushes you and bursts. | Kill it at range, or swim clear when it swells. Its blast hurts other enemies too. |
 | **Mitotic Cell** | Divides when it dies: two smaller, faster cells come out. | Splash damage handles the halves. Kill it where your blasts can catch them. |

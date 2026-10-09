@@ -32,7 +32,7 @@ const { chromium } = require('playwright');
   // screenshots: kicker card, HUD with health bar (normal and immersive), stamina ring
   await page.evaluate(() => { META.seenTut = {}; G.tutQ = []; G.state = 'play'; G.manual = null; G.tutNext = 0; tutOpen('grudge'); });
   await page.waitForTimeout(2600); await page.screenshot({ path: 'batch_card.png' });
-  await page.evaluate(() => { UI.show('hud'); endBossIntro && endBossIntro(); G.state = 'play'; G.player.hp = G.P.maxHp * 0.55; G.stam.cur = G.stam.cur * 0.5; });
+  await page.evaluate(() => { UI.show('hud'); if (G.state === 'bossIntro') endBossIntro(); G.state = 'play'; G.player.hp = G.P.maxHp * 0.55; if (G.stam) G.stam.cur *= 0.5; });
   await page.waitForTimeout(500); await page.screenshot({ path: 'batch_hud.png' });
   await page.evaluate(() => { SET.immersive = true; UI.applySettings(); });
   await page.waitForTimeout(500); await page.screenshot({ path: 'batch_imm.png' });
