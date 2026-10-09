@@ -144,12 +144,12 @@ function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
       if (e.st === 0) { e.st = 1; e.stT = 1.1; e.glareA = aim; e.glaring = false; }
       if (e.st === 1) {
         e.stT -= dt; e.glareA += clamp(angDiff(aim, e.glareA), -2.2 * dt, 2.2 * dt);
-        if (e.stT <= 0) { e.st = 2; e.stT = 2.1; e.glaring = true; sfx('zap'); }
+        if (e.stT <= 0) { e.st = 2; e.stT = 1.8; e.glaring = true; sfx('zap'); }
       } else if (e.st === 2) {
-        e.stT -= dt; e.glareA += clamp(angDiff(aim, e.glareA), -0.8 * dt, 0.8 * dt);
+        e.stT -= dt; e.glareA += clamp(angDiff(aim, e.glareA), -0.6 * dt, 0.6 * dt); // (slow enough to outswim sideways)
         const cx = Math.cos(e.glareA), cy = Math.sin(e.glareA), px = p.x - e.x, py = p.y - e.y;
         const along = px * cx + py * cy, perp = Math.abs(px * cy - py * cx);
-        if (along > 0 && along < 950 && perp < 15 + p.r) hurtPlayer(bd * 1.4, e.name + ' death stare', e);
+        if (along > 0 && along < 950 && perp < 15 + p.r) hurtPlayer(bd * 1.0, e.name + ' death stare', e);
         if (e.stT <= 0) { e.st = 3; e.glaring = false; }
       }
       return true;

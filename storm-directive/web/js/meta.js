@@ -113,7 +113,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '8.39';
+const APP_VERSION = '8.40';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -168,7 +168,7 @@ function winTally() {
 }
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
-  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.wave ? ' [' + r.wave + ']' : ''}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''}${r.combos ? ' combos:' + r.combos : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes}${r.boxBy && Object.keys(r.boxBy).length ? '(' + Object.entries(r.boxBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + v).join(' ') + ')' : ''} metaRanks${r.meta}${r.spd ? ' speed ' + r.spd : ''}${r.vet ? ' vet+' + r.vet + '%' : ''} zoom${r.zoom}${r.dev ? ' | device ' + r.dev : ''}\n`;
+  let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.wave ? ' [' + r.wave + ']' : r.smp === 's001' ? ' [standard]' : ''}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''}${r.combos ? ' combos:' + r.combos : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes}${r.boxBy && Object.keys(r.boxBy).length ? '(' + Object.entries(r.boxBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + v).join(' ') + ')' : ''} metaRanks${r.meta}${r.spd ? ' speed ' + r.spd : ''}${r.vet ? ' vet+' + r.vet + '%' : ''} zoom${r.zoom}${r.dev ? ' | device ' + r.dev : ''}\n`;
   out += ` ended by: ${r.res === 'WON' ? 'the egg (you won)' : r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   if (r.hurtK) { const t = Object.values(r.hurtK).reduce((a, b) => a + b, 0) || 1; out += ` hurt by type: ${Object.entries(r.hurtK).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v} (${Math.round(v / t * 100)}%)`).join(', ') || '-'}\n`; }
   out += ` dmg: ${r.dmg.join(', ')}\n`;
