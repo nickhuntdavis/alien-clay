@@ -139,7 +139,7 @@ function updateWake(w, dt) {
   const s = w.s, p = G.player;
   w.ammo = Math.min(1, Math.hypot(p.vx || 0, p.vy || 0) / 150) * s.mag;
   surgicalTeam(w, dt);
-  // Tunnel Vision: the Viral Load's focus is how long you keep swimming fast.
+  // Tunnel Vision: Pub Crawl's focus is how long you keep swimming fast.
   if (Math.hypot(p.vx || 0, p.vy || 0) > 80) w.focusT = (w.focusT || 0) + dt; else w.focusT = 0;
   if (w.lx == null) { w.lx = p.x; w.ly = p.y; }
   if (Math.hypot(p.x - w.lx, p.y - w.ly) < 16) return;

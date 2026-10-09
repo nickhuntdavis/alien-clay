@@ -90,10 +90,22 @@ function applyMeta(G) {
   const dye = META_DYES.find(d => d.id === META.dye) || META_DYES[0];
   setYouColour(dye.color);
 }
+// A weapon keeps its own colour if that is one of the damage-type colours; any other colour becomes `c` (yours).
+function isDamageColour(h) {
+  h = String(h).slice(0, 7).toLowerCase();
+  if (typeof ELEM_OF !== 'undefined' && ELEM_OF.has(h)) return true;
+  if (typeof STATIC_HEX !== 'undefined' && STATIC_HEX[h]) return true;
+  if (typeof ELEM_SWAP !== 'undefined' && ELEM_SWAP.has(h)) return true; // (old orange and green accents are repainted as Acid and Ethanol)
+  for (const k in ELEMENTS) if (ELEMENTS[k].color.toLowerCase() === h) return true;
+  return false;
+}
+function weaponColours(c) {
+  for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = d.col0 && isDamageColour(d.col0) ? d.col0 : c;
+}
 function setYouColour(c) {
   if (PAL.you === c) return;
   PAL.you = c;
-  for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = c;
+  weaponColours(c);
   if (typeof refreshPalette === 'function') refreshPalette(); // only shows once you have the GFP stain
 }
 function starterPool() {

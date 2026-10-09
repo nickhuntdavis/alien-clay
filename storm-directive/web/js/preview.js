@@ -318,7 +318,7 @@ const PV_TAGS = {
   pointblank: 'crit', slug: 'slug', hiccupfit: 'ring3 clearBul', dragonbreath: 'burn firePud', buckshot: 'count3 fan', recoil: 'dashBack',
   // Yo-Yo Diet
   walkdog: 'hang', crashdiet: 'grow', aroundworld: 'count2 heal', blackyoyo: 'hang pull', yoyoshield: 'eatBul', cradle: 'string',
-  // Incompatible Viral Load
+  // Pub Crawl
   closeloop: 'loop', razorwire: 'longTrail slow', surgicalteam: 'ghost', afterburner: 'burn speed', bloodletting: 'bleed', slipstream: 'speed',
   // Heartburn
   blueflame: 'narrow', indigestion: 'burn explode', dragon: 'dragon', hellkitchen: 'rapid power', napalm: 'firePud', heatwave: 'burn crit',
