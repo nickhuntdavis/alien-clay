@@ -13,7 +13,7 @@ const META_BONUSES = [
   { id: 'armour',   name: 'Thick Zona',         desc: '+1 armour per rank',              max: 3, cost: r => 45 + r * 35, apply: (G, r) => { G.P.armour += r; } },
   { id: 'luck',     name: 'Lucky Genes',        desc: '+5% luck per rank (rarer DNA strands)', max: 3, cost: r => 35 + r * 30, apply: (G, r) => { G.P.luck += 0.05 * r; } },
   { id: 'crit',     name: 'Sharp Acrosome',     desc: '+3% crit chance per rank',        max: 3, cost: r => 40 + r * 30, apply: (G, r) => { G.P.crit += 0.03 * r; } },
-  { id: 'incubated', name: 'Well-Incubated',    desc: '+1 mutation slot per rank (Lateral Gene Transfers)', max: 2, cost: r => 80 + r * 60, apply: () => {} },
+  { id: 'incubated', name: 'Well-Incubated',    desc: '+1 mutation slot per rank', max: 2, cost: r => 80 + r * 60, apply: () => {} },
 ];
 // What a rank adds, in words, for the Gene Bank's "next swimmer" line.
 const META_NOW = { hp: r => `+${10 * r} max HP`, dmg: r => `+${4 * r}% damage`, xp: r => `+${5 * r}% XP`, reroll: r => `+${r} reroll${r > 1 ? 's' : ''}`, grip: r => `+${10 * r}% traction`,

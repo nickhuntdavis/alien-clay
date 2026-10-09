@@ -269,7 +269,7 @@ function drawStatusFx(e, x, y, r) {
 // Off by default. The Anti-Immune Stain puts rings round hurt enemies (and the Rival Dyes round rivals);
 // the GFP Tag puts one round you. A ring only shows below 100%: health on the inside, armour (when it's been
 // stripped) just outside it.
-const ringStain = e => (e === G.player ? !!G.dyes.gfp : e.rival || e.final ? !!(G.dyes.rival || G.dyes.immuno) : !!G.dyes.immuno);
+const ringStain = e => (e === G.player ? grantOn('body') : e.rival || e.final ? !!(G.dyes.rival || G.dyes.immuno) : !!G.dyes.immuno);
 function drawHealthRing(x, y, R, hpK, armK, color) {
   const a0 = ctx.globalAlpha, top = -Math.PI / 2, lw = Math.max(2, 2.2 * Math.min(1.6, S));
   if (hpK < 0.995) {

@@ -230,7 +230,7 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
   if (!G || !G.genes || !G.genes.active || !G.genes.active.length) return;
   const L = look || NOLOOK, k = S * (scale || 1), t = G.realT, ids = G.genes.active, pc = SEQ_LOOK[ids[0]].color;
   const sxs = L.head * L.stretch, sys = L.head / Math.sqrt(L.stretch);
-  ctx.save(); ctx.globalAlpha = alpha; RAW_COL = true;
+  ctx.save(); ctx.globalAlpha = alpha; RAW_COL = typeof grantOn !== 'function' || grantOn('body'); // (grey like the rest of you until the first stain grant)
   // Behind the body: afterimages (Stealth).
   if (ids.includes('stealth')) {
     const c = SEQ_LOOK.stealth.color, vx = (body && body.vx) || 0, vy = (body && body.vy) || 0;

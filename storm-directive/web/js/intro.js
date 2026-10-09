@@ -66,6 +66,7 @@ function introTick() {
     if (!id || seenFoe(id) || !ENEMY_INTRO[id]) continue;
     markSeen(id);
     G.introNext = G.t + INTRO_GAP;
+    G.introBack = { def: e.def, until: G.t + SPOT.backT }; // the crowd eases off for a moment (game.js)
     startFoeIntro(e, id);
     return;
   }

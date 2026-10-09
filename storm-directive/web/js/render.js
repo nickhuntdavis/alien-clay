@@ -15,10 +15,9 @@ const PAL_OK = new Set();
 // Full Technicolour (a Mythical bonus): no more greyscale, anywhere.
 let FULL_COL = false;
 const DYE_COLOURS = {
-  gfp: () => [PAL.you].concat(typeof G !== 'undefined' && G && G.seqCol ? [G.seqCol] : []), // you, and your weapons in your sequence's colour
-  // (These three used to sit at the end of the comment above, so their colours never switched on.)
+  // (You and your weapons' colours come from stain grants now: grants.js.)
   immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST, DYE_FAST_DK],
-  rival: () => RIVALS.map(r => r.color), he: () => [PAL.upgrade, PAL.pickup].concat(Object.values(ELEM_UI)),
+  rival: () => RIVALS.map(r => r.color), he: () => [PAL.upgrade].concat(Object.values(ELEM_UI)), // (power-ups wait for their own grant)
 };
 function refreshPalette() {
   PAL_OK.clear();
@@ -28,10 +27,11 @@ function refreshPalette() {
   if (typeof PC_TONE !== 'undefined') PC_TONE.clear();
   document.body.classList.toggle('technicolour', FULL_COL);
   for (const id in dyes) if (dyes[id] && DYE_COLOURS[id]) for (const c of DYE_COLOURS[id]()) PAL_OK.add(c.toLowerCase());
+  if (typeof grantCols === 'function') for (const c of grantCols()) PAL_OK.add(c.toLowerCase()); // permanent stain grants (grants.js)
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
-// Element effects. With the H&E stain, Acid shows green, Base blue, Ethanol amber and Voodoo violet.
+// Element effects. With the H&E stain (or the Tracer Dye grant), Acid shows green, Base blue, Ethanol amber and Voodoo violet.
 // Static is always coloured, in a static-shock blue and pink.
 // (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
 const ELEM_SWAP = new Map([
@@ -64,7 +64,7 @@ function col(c) {
     if (PAL_OK.has(base)) v = c;
     else if (PAL_ALIAS[base] && PAL_OK.has(PAL_ALIAS[base])) v = PAL_ALIAS[base] + h.slice(7);
     else if (STATIC_HEX[base]) v = STATIC_HEX[base] + h.slice(7);
-    else if (ELEM_OF.has(base) && G && G.dyes && G.dyes.he) v = c;
+    else if (ELEM_OF.has(base) && ((G && G.dyes && G.dyes.he) || GRANT_EL)) v = c;
     else { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
   } else {
     const m = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
@@ -1441,6 +1441,8 @@ function render() {
   if (G.lvl) drawLevelOver();
   drawToysOver();
   drawVesicles();
+  drawGrants(); // stain grants (grants.js)
+  drawJunk(); // junk DNA carriers (junk.js)
   // Player.
   const px = sx(p.x), py = sy(p.y);
   if (G.barrier > 0) {
@@ -2175,7 +2177,7 @@ function drawHud() {
   // The Petri Dish: the last few of a wave get arrows.
   if (G.wave && G.wave.active && G.wave.spawned >= G.wave.budget) { const rest = G.enemies.filter(e => !e.dead && !e.charmed && !e.egg); if (rest.length <= 10) for (const e of rest) pointer(e.x, e.y, XR.white, 0.8, 0.8); }
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
-  if (!G.lvl) pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
+  if (!G.lvl && eggKnown()) pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
   if (!imm) { drawEventBar(); drawMinimap(top); drawZoomGauge(); }
   ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.

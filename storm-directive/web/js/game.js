@@ -125,6 +125,8 @@ function newGame() {
   for (const id in (META.pstains || {})) if (DYES[id] && !(META.pstainOff || {})[id] && !(G.wave && id === 'rival')) G.dyes[id] = true;
   applyMeta(G);
   genesStart(G);
+  grantsStart(G); // stain grants (grants.js)
+  junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
   refreshPalette(); // greyscale apart from your permanent stains: colour comes from stains picked up during the run
 }
 
@@ -504,8 +506,6 @@ function genLoot(req) {
   const chosen = [];
   const mc = cands.filter(c => c.key.startsWith('fuse')); // (this used to match modifiers too, forcing one into every box)
   if (mc.length) chosen.push(mc[0]);
-  // The first level-ups always offer the GFP tag, so you can find yourself early.
-  else if (!G.dyeBoon.gfp && !G.dyes.gfp && req.kind === 'level' && G.level <= 3) chosen.push(cands.find(c => c.key === 'dyegfp'));
   // Never the same upgrade twice in one box (say, at two rarities): a card that matches one already in it is
   // thrown back and another drawn.
   const same = (o, q) => o.title === q.title && (o.modFor || '') === (q.modFor || '');
@@ -767,7 +767,7 @@ function damageEnemy(e, dmg, src) {
   }
   if (src.grudge && e === G.grudge) d *= 3;
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
-  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src) * pair2Mul(e, src) * chemMul(e, src) * twistMul(e, src);
+  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * junkDmgMul(e, src) * comboDamageMul(e, src) * pair2Mul(e, src) * chemMul(e, src) * twistMul(e, src);
   // Stain boons: you can see who matters.
   if (G.dyeBoon.luciferase && (e.elite || e.boss)) d *= 1.25; // (boons only from stains found this run)
   if (G.dyeBoon.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
@@ -842,7 +842,7 @@ function damageEnemy(e, dmg, src) {
   }
   if (G.toy) toyHurt(e, Math.min(d, Math.max(0, hp0)), src); // Due Date keeps count; Red Tape shares it
   if (src.elem && src.elem !== 'phys') G.stats.elemDmg = (G.stats.elemDmg || 0) + d; // for the Acid-Burner unlock
-  if (src.w) genesHit(e, d, src, crit);
+  if (src.w) { genesHit(e, d, src, crit); junkHit(e, d, src); }
   if (e.hp <= 0 && !e.dead) {
     const excess = -e.hp;
     killEnemy(e, src);
@@ -939,6 +939,7 @@ function killEnemy(e, src) {
   chemKill(e, src);
   toyKill(e, src);
   genesKill(e, src);
+  junkKill(e, src); // (junk DNA: junk.js)
   heatKill(e);
   relicKill(e, src);
   eventKill(e);
@@ -1087,6 +1088,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1);
   dmg = relicDamageIn(dmg, ent);
+  if (dmg > 0) dmg = junkHurtIn(dmg, ent, kind); // (Now You See Me, Phlegm, Glass Case: junk.js)
   if (dmg <= 0) return;
   // No one-shots from a boss: a single boss hit (body, beam or bullet) takes at most 22% of your max HP.
   // The cap has a fixed part (22% of a 120 HP swimmer, growing with the clock) and a part from your own max HP,
@@ -1096,7 +1098,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   // Your armour wears down: every hit that lands knocks a point off (two from a boss), and it grows back slowly once
   // you stop getting hit (armourRegen). Temporary plating (Bear Hug, Fortress) does not wear.
   const armBase = Math.max(0, P.armour - (G.armourLost || 0));
-  const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
+  const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour() + junkArmour()) * defClock();
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
   if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
@@ -1112,7 +1114,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   G.stats.hurt[k] = (G.stats.hurt[k] || 0) + d;
   const hk = G.stats.hurtKind; hk[kind || 'other'] = (hk[kind || 'other'] || 0) + d;
   G.stats.lastHit = k;
-  p.iframes = 0.7; p.flash = 0.2;
+  p.iframes = 0.7 + junkIframes(); p.flash = 0.2; // (Ghosting: junk.js)
   cam.shake = Math.min(10, cam.shake + 5);
   floatText(p.x, p.y - 24, '-' + Math.round(d), '#ff4d6d', 15);
   sfx('hurt');
@@ -1162,12 +1164,13 @@ function spawnPos() {
 }
 
 // Spotlight: the first time you ever meet an enemy type (the same moment as its introduction card, intro.js),
-// it gets the stage for about 17 seconds. It arrives as a pack, 90% of new spawns are more of it in small
-// groups, the rest of the crowd near you backs off, and scripted waves wait, so you get a feel for it.
-// One at a time (others queue). Types you have already met just join the run as normal.
-const SPOT = { until: 300, len: 25, share: 0.9, back: 420 };
+// it gets the stage for a while. It arrives as a pack, 90% of new spawns are more of it in small groups, and
+// scripted waves wait, so you get a feel for it. One at a time (others queue). Types you have already met just
+// join the run as normal. (Race and standard runs only: the Petri Dish brings in its own newcomers, campaign.js.)
+// The crowd's step back is separate (introBack, below): only for a few seconds, only once an introduction fires.
+const SPOT = { until: 300, len: 25, share: 0.9, back: 260, backT: 4 };
 function spotTick() {
-  if (G.lvl) return;
+  if (G.lvl || G.wave) return;
   const t = PT(), S2 = G.spot || (G.spot = { q: [], done: {}, cur: null, end: 0 });
   if (t > SPOT.until + 30) { S2.cur = null; return; }
   for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from > 10 && d.from <= SPOT.until && d.from <= t && !S2.done[id]) { S2.done[id] = 1; if (typeof seenFoe !== 'function' || !seenFoe(id)) S2.q.push(id); } }
@@ -1453,8 +1456,11 @@ function updateEnemies(dt) {
     const tide = e.boss || e.egg ? 0 : 0.8;
     // Scared, lured, stuck in the lines, or looking for you where you vanished (toys.js).
     if (G.toy || G.decoy) { const ts = toySteer(e); if (ts) { mx = ts.x; my = ts.y; } }
-    // Spotlight on a newcomer: the rest of the crowd near you backs off and gives it the stage.
-    if (G.spot && G.spot.cur && e.def !== G.spot.cur && !e.boss && !e.rival && !e.final && !e.egg && dist < SPOT.back && spotOn()) { mx = -ux; my = -uy; spd *= 0.7; }
+    // A newcomer's introduction has just fired: for a few seconds the crowd near you eases off and drifts
+    // sideways round you (no retreat), giving it a little room.
+    if (G.introBack && G.t < G.introBack.until && e.def !== G.introBack.def && !e.boss && !e.rival && !e.final && !e.egg && dist < SPOT.back) {
+      const sd = e.side; mx = ux * 0.25 - uy * sd; my = uy * 0.25 + ux * sd; const l = Math.hypot(mx, my) || 1; mx /= l; my /= l; spd *= 0.55;
+    }
     // On an ice rink, steering becomes shoving: they slide about. (svx/svy: how it is swimming, for head-on rams.)
     if (e.iceT > G.t && !e.boss) { e.kx += mx * spd * 3 * dt; e.ky += my * spd * 3 * dt; spd *= 0.2; }
     e.svx = mx * spd * f * warpF * G.evm.espd; e.svy = my * spd * f * warpF * G.evm.espd;
@@ -2522,6 +2528,8 @@ function update(dt) {
   rebornTick(dt);
   introTick(); // first sightings
   tutTick(); // first-time tutorial cards (tutorial.js)
+  grantsTick(dt); // stain grants (grants.js)
+  junkTick(dt); // junk DNA carriers and powers (junk.js)
   boonTick(dt);
   updateTethers(dt);
   meleeTick(dt);

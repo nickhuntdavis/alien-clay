@@ -811,7 +811,7 @@ const UI = {
       rrelic: ['RIVAL RELIC', 'They will not be needing it. Choose one; the other goes with them.'],
       relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
       spoils: ['SPOILS', 'Picked from the wreckage. Choose one.'],
-      vesicle: ['LATERAL GENE TRANSFER', 'Four horribly unstable mutations, borrowed from a passing stranger. Staple one to your genome. You only have room for so many before you pop.'],
+      vesicle: ['MUTATION', 'Four horribly unstable mutations, borrowed from a passing stranger. Staple one to your genome. You only have room for so many before you pop.'],
       splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
     };
     UI.pickedOne = false;
@@ -991,7 +991,7 @@ const UI = {
       const gs = G.genes.active.map(id => `<div class="li on"><b>${esc(PROFILES[id].name)}</b> ${id === G.genes.primary ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}<br><span>${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes.k[id] || 0))}</span></div>`).join('');
       const sy = PROFILE_SYNERGIES.filter(q => synOn(q.a, q.b)).map(q => `<div class="li on"><b style="color:${PAL.upgrade}">${esc(q.name)}</b><br><span>${esc(q.desc)}</span></div>`).join('');
       const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? `<div class="li"><b>Mystery Meat</b><br><span>Something inside is doing something.</span></div>` : `<div class="li"><b>${esc(MUTATIONS[id].name)}</b><br><span>${esc(MUTATIONS[id].desc)}</span></div>`).join('');
-      h += `<div class="sec"><h3>Your genome</h3><div class="list">${gs}${sy}</div><h3 style="margin-top:10px">Mutations (${mutCount()}/${mutCap()})</h3>${ms ? `<div class="list">${ms}</div>` : '<p class="hint">None yet. Swim into a Lateral Gene Transfer: follow the glow at the edge of the screen.</p>'}</div>`;
+      h += `<div class="sec"><h3>Your genome</h3><div class="list">${gs}${sy}</div><h3 style="margin-top:10px">Mutations (${mutCount()}/${mutCap()})</h3>${ms ? `<div class="list">${ms}</div>` : '<p class="hint">None yet. Skip a sequence splice to take one.</p>'}${typeof junkHtml === 'function' ? junkHtml() : ''}</div>`;
     }
     // Synergies.
     h += `<div class="sec"><h3>Damage-type synergies (own 2+ of one damage type)</h3><div class="list">`;
@@ -1027,6 +1027,7 @@ const UI = {
       if (!G.dyeBoon[id]) { if (off[id]) delete G.dyes[id]; else G.dyes[id] = true; refreshPalette(); }
       const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y;
     }));
+    if (typeof grantsBind === 'function') grantsBind(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     box.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => { G.moveDir = b.dataset.move; UI.renderPause(); }));
     box.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       const w = b.dataset.k === 'w' ? G.weapons[+b.dataset.i] : G.spells[+b.dataset.i];
@@ -1094,6 +1095,7 @@ const UI = {
     const sy = Object.keys(SYNERGIES).filter(e => G.synergy[e]).map(e => li(esc(SYNERGIES[e].name), `${ELEMENTS[e].name}: ${esc(SYNERGIES[e].desc)}`));
     if (sy.length) r += `<h3>Damage-type synergies</h3><div class="list">${sy.join('')}</div>`;
     const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? li('Mystery Meat', 'Something inside is doing something.') : li(esc(MUTATIONS[id].name), esc(MUTATIONS[id].desc)));
+    if (typeof junkHtml === 'function') r += junkHtml(true);
     r += `<h3>Mutations (${mutCount()}/${mutCap()})</h3>${ms.length ? `<div class="list">${ms.join('')}</div>` : '<p class="hint">None yet.</p>'}`;
     const rl = Object.keys(G.relics || {}).filter(id => RELICS[id]).map(id => li(esc(RELICS[id].name), esc(RELICS[id].desc), PAL.reward));
     if (rl.length) r += `<h3>Relics</h3><div class="list">${rl.join('')}</div>`;
@@ -1113,9 +1115,10 @@ const UI = {
     const ids = Object.keys(DYES), got = ids.filter(id => G.dyes && G.dyes[id]), miss = ids.filter(id => !(G.dyes && G.dyes[id]) && !(G.wave && id === 'rival'));
     const sw = id => id === 'rival' ? `<i class="sw multi">${RIVALS.map(r => `<u style="background:${r.color}"></u>`).join('')}</i>` : `<i class="sw" style="background:${DYES[id].key}"></i>`;
     let h = got.length ? `<div class="list">${got.map(id => `<div class="li on stain">${sw(id)}<div><b>${esc(DYES[id].name)}</b><br><span>${esc(DYES[id].see)}.</span><br><span class="sb">${G.dyeBoon && G.dyeBoon[id] ? esc(DYES[id].boon) : 'Permanent stain: colour only (find it in a DNA strand for its boon).'}</span></div></div>`).join('')}</div>`
-      : '<p class="hint">None yet: the slide is all greyscale. Each stain brings back one kind of colour, and a boon.</p>';
+      : (typeof GRANT_ORDER !== 'undefined' && GRANT_ORDER.some(grantHas) ? '<p class="hint">No stain cards found this run yet.</p>' : '<p class="hint">None yet: the slide is all greyscale. Each stain brings back one kind of colour, and a boon.</p>');
     const perm = Object.keys(META.pstains || {}).filter(id => DYES[id]);
     if (perm.length) h += `<h3 style="margin-top:10px">Permanent stains</h3><div class="chips">${perm.map(id => { const on = !(META.pstainOff || {})[id]; return `<button class="chip ${on ? 'sel' : ''}" data-pst="${id}">${esc(DYES[id].name)}: ${on ? 'ON' : 'OFF'}</button>`; }).join('')}</div><p class="hint">Kept from earlier runs. Switch any off if you'd rather not see its colour.</p>`;
+    if (typeof grantsHtml === 'function') h = grantsHtml() + h; // permanent stain grants first (grants.js)
     if (miss.length) h += `<p class="hint">Still to find (in DNA strands): ${miss.map(id => `<b>${esc(DYES[id].name)}</b>`).join(', ')}. Each brings back one kind of colour, and a boon.</p>`;
     return h;
   },
@@ -1213,7 +1216,7 @@ const UI = {
       h += box('Sequence synergies', `<div class="list">${PROFILE_SYNERGIES.map(q => `<div class="li ${run && synOn(q.a, q.b) ? 'on' : ''}"><b>${esc(q.name)}</b><br><span>${esc(PROFILES[q.a].name)} + ${esc(PROFILES[q.b].name)}: ${esc(q.desc)}</span></div>`).join('')}</div>`);
     }
     if (show('muts')) {
-      h += box(`Mutations found (${mf.length}/${mids.length})`, `<div class="list">${mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')}</div>`, 'They come from Lateral Gene Transfers: swim into one, pick one of four.');
+      h += box(`Mutations found (${mf.length}/${mids.length})`, `<div class="list">${mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')}</div>`, 'They come from skipping a sequence splice, and from stashes hidden in campaign levels: pick one of four.');
     }
     if (show('pairs')) {
       let lc = '';
@@ -1386,10 +1389,8 @@ const UI = {
     if (G.heatUnlocked) h = `<div class="bdna" style="color:#ff3b3b">IMMUNE RESPONSE ${G.heatUnlocked} UNLOCKED: ${esc(IMMUNE[G.heatUnlocked - 1].name)}</div>` + h;
     if (won && !G.lvl && META.wonSinceBirth) h = `<p class="hint">You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.</p>` + h;
     if (!won) h = UI.killerHtml() + h;
-    h += UI.keepStainHtml();
     $('overBody').innerHTML = h;
     if (!won) UI.drawKiller();
-    UI.bindKeepStain();
     UI.show('over');
   },
   // Lost: whoever finished you off, big, close up and red, with a word for you.
@@ -1422,19 +1423,6 @@ const UI = {
     const v = g.createRadialGradient(W2 / 2, H2 / 2, H2 * 0.25, W2 / 2, H2 / 2, W2 * 0.7); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.85)');
     g.fillStyle = v; g.fillRect(0, 0, W2, H2);
   },
-  // Every finished run: keep one stain for good (its colour, on by default from now on).
-  keepStainHtml() {
-    const left = Object.keys(DYES).filter(id => !(META.pstains || {})[id]);
-    if (!left.length) return '';
-    return `<div class="sec keepst"><h3>Keep a stain</h3><p class="hint">Pick one stain to keep for good. Its colour is on in every run from now on (switch it off in the pause menu). The boon still comes from finding it in a run.</p><div class="list">${left.map(id => `<button class="li stain pick" data-keep="${id}"><i class="sw" style="background:${DYES[id].key}"></i><div><b>${esc(DYES[id].name)}</b><br><span>${esc(DYES[id].see)}.</span></div></button>`).join('')}</div></div>`;
-  },
-  bindKeepStain() {
-    document.querySelectorAll('[data-keep]').forEach(b => b.addEventListener('click', () => {
-      const id = b.dataset.keep; (META.pstains || (META.pstains = {}))[id] = 1; saveMeta();
-      const box = document.querySelector('.keepst'); if (box) box.innerHTML = `<h3>Stain kept</h3><p class="hint"><b style="color:${DYES[id].key}">${esc(DYES[id].name)}</b> is yours for good. ${esc(DYES[id].see)}.</p>`;
-    }));
-  },
-
   // The Petri Dish: how many waves you survived.
   showDishOver(best) {
     const n = G.wave.best, isBest = n > (best.wave || 0);

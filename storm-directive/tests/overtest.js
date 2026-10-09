@@ -9,10 +9,10 @@ const { chromium } = require('playwright');
   await page.waitForTimeout(500);
   await page.evaluate(() => { const e = G.enemies[0]; G.player.iframes = 0; hurtPlayer(9999, e.name, e, 'contact'); });
   await page.waitForTimeout(3200);
-  const st = await page.evaluate(() => ({ state: G.state, killer: document.querySelector('.killer b') && document.querySelector('.killer b').textContent, line: document.querySelector('.killer em') && document.querySelector('.killer em').textContent, keep: document.querySelectorAll('[data-keep]').length }));
+  const st = await page.evaluate(() => ({ state: G.state, killer: document.querySelector('.killer b') && document.querySelector('.killer b').textContent, line: document.querySelector('.killer em') && document.querySelector('.killer em').textContent, keep: document.querySelectorAll('[data-keep]').length })); // (keep is 0: the end-of-run stain pick went with stain grants)
   console.log(JSON.stringify(st));
   await page.evaluate(() => { $('over').scrollTop = 0; }); await page.waitForTimeout(100); await page.screenshot({ path: 'over.png' });
-  await page.click('[data-keep="immuno"]'); await page.waitForTimeout(200);
+  await page.evaluate(() => { META.pstains = { immuno: 1 }; saveMeta(); }); // (a stain kept on an older version)
   const r2 = await page.evaluate(() => { UI.sample = 's001'; newGame(); return { dyes: Object.keys(G.dyes), boon: Object.keys(G.dyeBoon) }; });
   console.log('new run:', JSON.stringify(r2));
   // speed: x2 vs x1 game time per real update

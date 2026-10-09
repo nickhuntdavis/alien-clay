@@ -32,7 +32,7 @@ const DIRECTIVES = [
 // Movement (autorun) directives.
 const MOVE_DIRECTIVES = [
   { id: 'kite',    name: 'KITE',    desc: 'Keep distance from threats, dodge bullets' },
-  { id: 'collect', name: 'COLLECT', desc: 'Hoover up XP, power-ups and Lateral Gene Transfers' },
+  { id: 'collect', name: 'COLLECT', desc: 'Hoover up XP and power-ups' },
   { id: 'orbit',   name: 'ORBIT',   desc: 'Circle around the horde' },
   { id: 'hunt',    name: 'HUNT',    desc: 'Close in on the primary target' },
   { id: 'hold',    name: 'HOLD',    desc: 'Stand ground, only dodge bullets' },
@@ -758,12 +758,12 @@ const PAL = { you: '#4dff9a', danger: '#ff3b3b', reward: '#ffd23f', upgrade: '#5
 // see one protein better). Each one brings back one kind of colour.
 const DYE_FAST = '#46e0ff', DYE_FAST_DK = '#1d7d96'; // Motility Dye: label, and the stained body
 const DYES = {
-  gfp:        { key: PAL.you, see: 'You, your shots, echoes and allies in green; a health ring round you when hurt', name: 'GFP Tag', desc: 'Green Fluorescent Protein. Tags you: your swimmer, your shots, echoes and allies glow green. Much easier to find yourself in a crowd. Also puts a health ring round you whenever you are hurt.', boon: '+12% damage. You can finally see where your shots land.', apply: P => { P.might += 0.12; } },
+  // (The GFP Tag became the first two stain grants: grants.js.)
   immuno:     { key: PAL.danger, see: 'Danger in red: enemy bullets, acid, hazards, low-HP warnings; health rings on hurt enemies', name: 'Anti-Immune Stain', desc: 'Labels everything that can hurt you in red: enemy bullets, acid, hazards and your low-HP warnings. Also shows a health ring round every hurt enemy (and an armour ring when its armour has been stripped).', boon: '+8% dodge. You see it coming.', apply: P => { P.dodge = Math.max(P.dodge, Math.min(0.7, P.dodge + 0.08)); } },
   luciferase: { key: PAL.reward, see: 'Worth having in gold: DNA strands, elites, bosses, giant amoebas', name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.', boon: '+20% luck, and +25% damage to elites and bosses. You know what is worth chasing.', apply: P => { P.luck += 0.2; } },
   motility:   { key: DYE_FAST, see: 'Fast enemies in cyan: sprinters, spermlets, krill, paramecia', name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you.', boon: '+8% swim speed, and +30% damage to fast enemies. You spot them early.', apply: P => { P.speed += 0.08; } },
   rival:      { key: '#ffb347', see: 'Each rival in their own colour, on the slide, minimap and race board', name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt.', boon: '+40% damage to rival champions and the Final Five. Know your enemy.' },
-  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Base, Static, Ethanol, Voodoo), power-ups, and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Voodoo violet), power-up pickups and their effects, and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
+  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Base, Static, Ethanol, Voodoo), and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Voodoo violet) and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
 };
 
 // ---------------------------------------------------------------- Weapon upgrade trees

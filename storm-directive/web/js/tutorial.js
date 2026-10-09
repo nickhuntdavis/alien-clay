@@ -2,13 +2,13 @@
 // Spawn Prawn - first-time tutorial cards, and wave 0 (Pre-pre-pre-pre-school).
 // Each card shows once ever (Settings > Tutorial brings them back), on the same stage as a first sighting.
 // So as not to bury a new player, cards queue up and come at least TUT_GAP seconds of play apart; only a few
-// (wave 0's welcome, Feats before your first upgrade, your first sprint and your first Lateral Gene Transfer)
+// (wave 0's welcome, Feats before your first upgrade, your first sprint, your first junk DNA, the egg and your first stain)
 // jump the queue, because they explain something happening right now.
 // Wave 0 runs before wave 1 the first time you play wave mode (and again after a tutorial reset): a handful of
-// slow cells, a Lateral Gene Transfer to swim into and a box of upgrades at the end. Damage-type cards wait until
+// slow cells, a junk DNA carrier to kill and a box of upgrades at the end. Damage-type cards wait until
 // it is over.
-// Hooks: tutTick (update), tutSprintEnd (stamTick), tutBeforeLoot (main loop), tutElem (damageEnemy),
-// tutReact (react), tutShow('lgt') (vesBurst), tutWaveInit (campInit), tutWave0Begin (campBegin),
+// Hooks: tutTick (update; also the egg's first meeting, eggMeetTick), eggKnown (render.js, the egg arrow), tutSprintEnd (stamTick), tutBeforeLoot (main loop), tutElem (damageEnemy),
+// tutReact (react), tutShow('lgt') (junkAbsorb), tutWaveInit (campInit), tutWave0Begin (campBegin),
 // tutWave0Clear (waveClear), tutSkip (the "skip tutorial" link).
 
 const TUT_GAP = 25;
@@ -31,7 +31,7 @@ const TUT_CARDS = {
       'Left alone, you swim yourself (autorun). Touch and drag to take over; let go and autorun carries on.',
       'Push the stick right out to its edge to sprint.',
       'Swim over the XP the cells drop. Every level is a box of upgrades, opened when the wave is over.',
-      'A green bubble will turn up: a Lateral Gene Transfer. Follow the arrows and swim into it.'],
+      'One cell will wear a white helix: junk DNA. Kill it to absorb a little of what it was.'],
     foot: 'Clear the dish to pass. Wave 1 is the real thing.' }),
   sprint: () => ({ title: 'YOU SPRINTED', name: 'STAMINA', colour: XR.white,
     what: 'Pushing the stick to its edge (or holding Shift) sprints: 55% faster, but it burns stamina, the thin ring inside your health ring.',
@@ -48,19 +48,44 @@ const TUT_CARDS = {
         'The rest (healing, slowing time, shields) wait on a cooldown.',
         'They level up like weapons. Weapons are still where most of your damage comes from.'] };
   },
-  lgt: () => ({ title: 'YOU FOUND ONE', name: 'LATERAL GENE TRANSFER', colour: '#c7f9cc',
-    what: 'A bubble of stray genes from a passing stranger. You get to staple one of four mutations into your genome' + (typeof wavesMode === 'function' && wavesMode() ? ' when the wave is over.' : '.'),
+  lgt: () => ({ title: 'YOU ABSORBED SOME', name: 'LATERAL GENE TRANSFER', colour: '#e9f5db',
+    what: 'Junk DNA from something you just killed. You keep a small power of whatever it was, for the rest of the run.',
     head: 'HOW IT WORKS', tips: [
-      `Mutations last the whole run, and your genome only has room for ${typeof mutCap === 'function' ? mutCap() : 6}.`,
-      'More turn up every minute or so: follow the green arrows at the edge of the screen.',
-      'Leave one too long and it pops by itself.'] }),
+      'Every so often an enemy wears a white helix. Kill it before it sheds the junk (30 seconds).',
+      `Each kind of enemy gives its own power. The same kind again stacks it, up to ${JUNK.stacks} times.`,
+      'The pause menu lists what you have absorbed.'] }),
   react: () => ({ title: 'MIXING DAMAGE TYPES', name: 'REACTIONS', colour: '#ffd166',
     what: `Two different damage types on one enemy react. You just made ${G.tutReactName || 'one'}.`,
     head: 'WHY IT MATTERS', tips: [
       'Reactions hit hard, and some spread to the enemies nearby.',
       'A mixed build usually beats a pure one through utility and damage over time (slows, stuns, armour stripping, corrosion), not raw damage.',
       `There are ${Object.keys(REACTIONS).length}. The Codex lists them all.`] }),
+  stains: () => ({ title: 'YOUR FIRST STAIN', name: 'STAINS', colour: PAL.you,
+    what: 'Everything on the slide starts in greyscale, you included. Stains bring the colour back, one kind at a time.',
+    head: 'HOW THEY WORK', tips: [
+      'A stain grant is yours for good: on in every run from now on. More grants turn up as you level.',
+      'Stain cards in DNA strands colour one more thing for that run only, and bring a boon.',
+      'Switch any grant off in the pause menu if you would rather not see its colour.'] }),
+  egg: () => ({ title: 'YOU HAVE MET', name: 'THE EGG', colour: '#ffd6e8',
+    what: 'This is your goal, and your destiny.',
+    head: 'BUT FIRST', tips: [
+      'Before it accepts you into its warm embrace, you must prove yourself.',
+      'Defeat every other suitor, and any critter in your way.',
+      G.wave && G.wave.camp ? 'Here in the dish, that means all twenty waves.' : 'From now on, a pink arrow at the edge of the screen points back to it.'] }),
 };
+// The egg, first time: no arrow points to it until you have met it (render.js) or it is ready, and the
+// first time you swim close, its card. (Not in campaign levels: no egg there.)
+const EGG_MEET = 380;
+function eggMeetTick() {
+  if (!G || G.lvl || G.state !== 'play' || !G.core || G.t < 8) return; // (in a race you start on top of it: give it a moment)
+  if (G.eggNear) return;
+  const p = me();
+  if (Math.hypot(p.x - G.core.x, p.y - G.core.y) > EGG_MEET) return;
+  G.eggNear = true;
+  if (!META.eggMet) { META.eggMet = 1; saveMeta(); }
+  tutShow('egg', true);
+}
+const eggKnown = () => !!(META.eggMet || (G && (G.fertile || G.eggAnnounced)));
 for (const id in ELEMENTS) TUT_CARDS['el_' + id] = () => {
   const E = ELEMENTS[id], mix = tutMixes(id);
   return { title: 'NEW DAMAGE TYPE', name: E.name.toUpperCase(), colour: E.color, what: E.blurb,
@@ -79,6 +104,7 @@ function tutShow(key, now) {
 }
 // From update: the next card in the queue, when the moment is right.
 function tutTick() {
+  eggMeetTick();
   if (!G || !G.tutQ || !G.tutQ.length || G.state !== 'play' || G.debug || tutOff()) return;
   const key = G.tutQ[0], now = G.tutNow === key;
   if (!now) {
@@ -125,7 +151,7 @@ function tutWave0Begin(V) {
   V.budget = 10; V.dur = 22;
   banner('WAVE 0: ' + TUT_NAME, PAL.upgrade);
   G.introNext = Math.max(G.introNext || 0, G.t + 6); // (the welcome first, then the cells)
-  G.nextVesicle = G.t + 12; // (a Lateral Gene Transfer to practise on)
+  G.nextJunk = G.t + 10; // (junk DNA to practise on: junk.js)
   META.seenTut = META.seenTut || {}; delete META.seenTut.school;
   after(0.9, () => { if (tutWave0()) tutShow('school', true); });
 }

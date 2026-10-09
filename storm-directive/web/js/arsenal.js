@@ -31,6 +31,7 @@ function rateBonus() {
   if (G.relics.feverdream) r *= 1 + Math.min(0.6, 0.03 * (G.feverN || 0));
   r *= boonRate(); // Twin Soul
   r *= genesRate(); // Hackerman, Powerhouse, Sugar Rush
+  r *= junkRate(); // Rooted (junk.js)
   return r;
 }
 

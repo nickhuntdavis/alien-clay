@@ -4,10 +4,10 @@ const src = fs.readFileSync(J + 'data.js', 'utf8') + '\n' +
   fs.readFileSync(J + 'meta.js', 'utf8').split('// ---------------------------------------------------------------- run log')[0] +
   '\n' + (fs.readFileSync(J + 'arsenal.js', 'utf8').match(/function weaponTree[\s\S]*?\n}\n/)[0]) +
   '\n' + fs.readFileSync(J + 'events.js', 'utf8') +
-  '\n;var MICROBES = {};\n' + ['boons.js', 'combos.js', 'genes.js', 'prestige.js', 'pickups.js', 'silly.js', 'rrelics.js', 'foes.js', 'brood.js', 'intro.js', 'spellfork.js'].map(f => fs.readFileSync(J + f, 'utf8')).join('\n') +
+  '\n;var MICROBES = {};\n' + ['boons.js', 'combos.js', 'genes.js', 'prestige.js', 'pickups.js', 'silly.js', 'rrelics.js', 'foes.js', 'brood.js', 'intro.js', 'spellfork.js', 'junk.js', 'grants.js'].map(f => fs.readFileSync(J + f, 'utf8')).join('\n') +
   '\n' + fs.readFileSync(J + 'seqsel.js', 'utf8').split('// ---------------------------------------------------------------- the portrait')[0] + '\n' + fs.readFileSync(J + 'reborn.js', 'utf8') + '\n' + fs.readFileSync(J + 'genegun.js', 'utf8') + '\n' + fs.readFileSync(J + 'redtail.js', 'utf8') + '\n' + fs.readFileSync(J + 'pairs2.js', 'utf8') + '\n' + fs.readFileSync(J + 'chem.js', 'utf8') + '\n' + fs.readFileSync(J + 'spoils.js', 'utf8') + '\n' + fs.readFileSync(J + 'campaign.js', 'utf8') + '\n' + fs.readFileSync(J + 'evolve.js', 'utf8') +
   '\n' + fs.readFileSync(J + 'quirks.js', 'utf8') + '\n' + fs.readFileSync(J + 'toys.js', 'utf8').match(/Object\.assign\(QUIRKS, \{[\s\S]*?\n\}\);/)[0] +
-  '\n;globalThis.OUT={EVOLVE,TWISTS,SPOILS,CAMP,ENTOURAGE,DROP_NAMES,ENEMY_INTRO,SPELL_FORKS,SPELL_FORK_LV,RIVAL_RELICS,QUIRKS,BOONS,COMBOS,COMBO_LEVEL,COMBO_MOUNTS,PROFILES,PROFILE_SYNERGIES,PROFILE_RANKS,SEQ_ABILITY,MUTATIONS,VESICLE,SPLICE_LEVELS,IMMUNE,IMMUNE_DNA,BABY_TRAITS,PU_TIME,PU_NEW,SEQ_LOOK,ADAPT,PERK_ADAPT,MAX_WEAPONS,SIGS,PAIRINGS,PAIR_LEVEL,RELICS,BOSSES_PER_RUN,ELEMENTS,DIRECTIVES,MOVE_DIRECTIVES,WEAPONS,SPELLS,RARITIES,PASSIVES,REACTIONS,SYNERGIES,ENEMIES,BOSSES,BOSS_INTERVAL,POWERUPS,SLOT_LEVELS,SAMPLES,DYES,PERK_LEVELS,MAX_WLVL,PERKS,OBSTACLES,RIVALS,CHRONO,MOD_SLOTS,MOD_POWER,MODS,DUOS,CURSES,META_BONUSES,META_STARTERS,META_DYES,weaponTree,RUN_EVENTS,DIRE_LV,EVENT_FIRST_LV};';
+  '\n;globalThis.OUT={JUNK,JUNK_POWERS,GRANTS,GRANT_ORDER,EVOLVE,TWISTS,SPOILS,CAMP,ENTOURAGE,DROP_NAMES,ENEMY_INTRO,SPELL_FORKS,SPELL_FORK_LV,RIVAL_RELICS,QUIRKS,BOONS,COMBOS,COMBO_LEVEL,COMBO_MOUNTS,PROFILES,PROFILE_SYNERGIES,PROFILE_RANKS,SEQ_ABILITY,MUTATIONS,VESICLE,SPLICE_LEVELS,IMMUNE,IMMUNE_DNA,BABY_TRAITS,PU_TIME,PU_NEW,SEQ_LOOK,ADAPT,PERK_ADAPT,MAX_WEAPONS,SIGS,PAIRINGS,PAIR_LEVEL,RELICS,BOSSES_PER_RUN,ELEMENTS,DIRECTIVES,MOVE_DIRECTIVES,WEAPONS,SPELLS,RARITIES,PASSIVES,REACTIONS,SYNERGIES,ENEMIES,BOSSES,BOSS_INTERVAL,POWERUPS,SLOT_LEVELS,SAMPLES,DYES,PERK_LEVELS,MAX_WLVL,PERKS,OBSTACLES,RIVALS,CHRONO,MOD_SLOTS,MOD_POWER,MODS,DUOS,CURSES,META_BONUSES,META_STARTERS,META_DYES,weaponTree,RUN_EVENTS,DIRE_LV,EVENT_FIRST_LV};';
 const ctx = { localStorage: { getItem: () => null, setItem() {} }, console, document: { getElementById: () => null, body: { classList: { toggle() {} } } }, window: {} };
 vm.createContext(ctx); vm.runInContext(src.replace(/^'use strict';/gm, ''), ctx);
 const D = ctx.OUT;
@@ -41,7 +41,7 @@ p('4. **Weapon tuning:** fire rate, reload, magazine, extra projectiles, project
 p(`5. **Modifiers:** up to ${D.MOD_SLOTS} per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.`);
 p(`6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv ${D.SLOT_LEVELS.join(', ')} (${D.MAX_WEAPONS} in total, plus up to ${D.COMBO_MOUNTS} bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.`);
 p(`7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv ${D.SPLICE_LEVELS.join(', ')} you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).`);
-p(`8. **Mutations:** Lateral Gene Transfers (bubbles of stray genes) bulge up on the slide (the first at ${D.VESICLE.first}s, then every ${D.VESICLE.every.join(' to ')}s). Swim into one to pick one of four mutations; you have ${D.VESICLE.slots} slots.`);
+p(`8. **Lateral Gene Transfer (junk DNA):** from ${D.JUNK.first}s in, then every ${D.JUNK.every.join(' to ')}s, one ordinary enemy on screen carries junk DNA (a white double helix round it, and ${Math.round((D.JUNK.hpK - 1) * 100)}% more health). Kill it within ${D.JUNK.life}s and you absorb a small power of whatever it was, at once; the same kind again stacks, up to ${D.JUNK.stacks} times. **Mutations** (pick one of four; ${D.VESICLE.slots} slots) now come from skipping a sequence splice and from stashes hidden in campaign levels.`);
 p(`9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Storm Surge. Each run meets ${D.BOSSES_PER_RUN} of the ${D.BOSSES.length}, in a random order. Beat one and choose one of its three relics.`);
 p('10. **Rarity** multiplies a card\'s value:');
 p('');
@@ -142,8 +142,13 @@ p('**Tunes one weapon** means the card goes on one weapon you choose (each weapo
 p('| Power-up | Per pick | Applies to | Max stacks |'); p('|---|---|---|---|');
 for (const [id, q] of Object.entries(D.PASSIVES)) p(`| **${esc(q.name)}** | ${esc(q.fmt(q.v).replace(/ for all weapons/, ''))}${q.minRarity ? ` (${D.RARITIES[q.minRarity].name} or better only)` : ''} | ${TUNE.includes(id) ? 'Tunes one weapon' : 'You'} | ${q.max}${TUNE.includes(id) ? ' per weapon' : ''} |`);
 p('');
-p('## Mutations (Lateral Gene Transfers)'); p('');
-p(`Swim into one (COLLECT autorun goes for them) and pick one of four. ${D.VESICLE.slots} slots (more with the Gene Bank's Well-Incubated). Tier 0 are common, tier 2 rare.`); p('');
+p('## Junk DNA (Lateral Gene Transfer)'); p('');
+p(`One power per enemy type (offspring such as Daughter Cells carry their parent's). Values are per stack; up to ${D.JUNK.stacks} stacks. Shots and blasts scale with your level and damage. Bosses, rivals and allies never carry junk DNA. In the Petri Dish, carriers only turn up while a wave is on.`); p('');
+p('| Enemy | Power | Effect (1 stack) | Effect (3 stacks) |'); p('|---|---|---|---|');
+for (const [id, J] of Object.entries(D.JUNK_POWERS)) p(`| ${esc((D.ENEMIES[id] || {}).name || id)} | **${esc(J.name)}** | ${esc(J.fmt(1))} | ${esc(J.fmt(3))} |`);
+p('');
+p('## Mutations'); p('');
+p(`From skipping a sequence splice, and from stashes hidden in campaign levels: pick one of four. ${D.VESICLE.slots} slots (more with the Gene Bank's Well-Incubated). Tier 0 are common, tier 2 rare.`); p('');
 p('| Mutation | Tier | Effect |'); p('|---|---|---|');
 for (const m of Object.values(D.MUTATIONS).sort((a, b) => (a.tier || 0) - (b.tier || 0))) p(`| **${esc(m.name)}** | ${m.tier || 0} | ${esc(m.desc)} |`);
 p('');
@@ -166,7 +171,12 @@ p('| Combo | Modifiers | Bonus |'); p('|---|---|---|');
 for (const d of D.DUOS) p(`| **${d.name}** | ${D.MODS[d.a].name} + ${D.MODS[d.b].name} | ${esc(d.desc)} |`);
 p('');
 p('## Stains'); p('');
-p('The slide starts in greyscale. Each stain brings back one kind of colour so you can read the fight better. GFP is guaranteed early.'); p('');
+p('The slide starts in greyscale, your own swimmer included. Colour comes back two ways.'); p('');
+p('**Stain grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.'); p('');
+p('| Grant | When | What it colours |'); p('|---|---|---|');
+for (const id of D.GRANT_ORDER) { const g = D.GRANTS[id]; p(`| **${g.name}** | ${id === 'body' ? 'Floats by the egg, your first game (until you take it)' : `Level ${g.level}, once you have ${D.GRANTS[g.after].name}`} | ${esc(g.see)} |`); }
+p('');
+p('**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.)'); p('');
 p('| Stain | Boon | What it colours |'); p('|---|---|---|');
 for (const d of Object.values(D.DYES)) p(`| **${d.name}** | ${esc(d.boon)} | ${esc(d.desc)} |`);
 p('');
@@ -273,8 +283,8 @@ p('Arenas seal behind you until the quota is cleared. Food scraps in the corrido
 p('## Achievement DNA'); p('');
 p('The hardest achievements (Chemical Warfare: ten different reactions in a run; Breaking Bad: 1,000 reactions in a run; Flawless Specimen: a boss killed without taking a hit) pay out a box where every card is Mythical or Celestial.'); p('');
 p('## Wave mode (The Petri Dish)'); p('');
-p(`The default mode. ${D.CAMP.waves} waves. It starts easy: each ordinary wave brings in ${D.CAMP.newPerWave} enemy types you have not met yet this run (in the order they appear in a standard run), on top of the ones you have. Every ${D.CAMP.bossEvery}th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave ${D.CAMP.bossEvery} is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave ${D.CAMP.waves} and you win (it counts as a birth). Winning once unlocks Endless.`); p('');
-p('Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a Lateral Gene Transfer to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfers (on your first) and each damage type and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.'); p('');
+p(`The default mode. ${D.CAMP.waves} waves. It starts easy: each ordinary wave brings in ${D.CAMP.newPerWave} enemy types you have not met yet this run, on top of the ones you have. Waves 1 to ${D.CAMP.fixedWaves} bring them in a fixed order; after that they are drawn at random from the next ${D.CAMP.drawFrom} you have not had (so nothing big comes early). What a wave holds is a surprise until it lands. Every ${D.CAMP.bossEvery}th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave ${D.CAMP.bossEvery} is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave ${D.CAMP.waves} and you win (it counts as a birth). Winning once unlocks Endless.`); p('');
+p('Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a junk DNA carrier to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfer (your first junk DNA), the egg (the first time you swim up to it; until then no arrow points to it), stains (your first grant) and each damage type and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.'); p('');
 p('From wave 15 the boss can be **the Failed Experiment**: a copy of one of your own past runs (a lost one if you have any), alone in the dish, with an attack for each weapon that run carried and health that grows with the level it reached.'); p('');
 p('| Boss | Drop name | Entourage | Arrives | Cued by |'); p('|---|---|---|---|---|');
 for (const [id, E] of Object.entries(D.ENTOURAGE)) if (E.mix.length) p(`| ${(D.BOSSES.find(b => b.id === id) || {}).name || id} | ${D.DROP_NAMES[id] || ''} | ${[...new Set(E.mix)].map(m => (D.ENEMIES[m] || {}).name || m).join(', ')} | ${E.at} | ${E.on.join(', ')} |`);
