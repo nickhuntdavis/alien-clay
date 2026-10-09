@@ -101,7 +101,7 @@ const UI = {
     // Boss introductions: once the card is up, a tap anywhere starts the fight.
     $('bossIntro').addEventListener('click', () => { if ($('bossIntro').classList.contains('ready')) endBossIntro(); });
     // The small link under first-sighting and first-status cards: no more of them (Settings > Play brings them back).
-    $('biOff').addEventListener('click', ev => { ev.stopPropagation(); SET.intros = 'off'; saveSettings(); UI.toast('TUTORIALS OFF (SETTINGS > PLAY TO TURN BACK ON)'); endBossIntro(); });
+    $('biOff').addEventListener('click', ev => { ev.stopPropagation(); tutSkip(); UI.toast('TUTORIAL SKIPPED (SETTINGS > PLAY TO TURN IT BACK ON)'); endBossIntro(); });
     $('copyRunBtn').addEventListener('click', () => {
       const b = $('copyRunBtn'), r = UI.lastRun;
       if (!r) { b.textContent = 'TOO SHORT TO LOG'; return; }
@@ -261,7 +261,7 @@ const UI = {
     UI.autoTick();
     { const db = $('dbgBtn'); if (db) db.classList.toggle('on', !!(G && G.debug && (G.state === 'play'))); if (DBG.open && !(G && G.debug)) { DBG.open = false; $('dbgPanel').classList.remove('on'); } }
     // The Petri Dish: the next drop waits for you.
-    { const wb = $('waveBtn'), on = G && waveReady(); if (wb && wb.classList.contains('on') !== !!on) { wb.classList.toggle('on', !!on); if (on) wb.textContent = 'START WAVE ' + (G.wave.n + 1) + (G.wave.camp ? ' OF ' + CAMP.waves : ''); } }
+    { const wb = $('waveBtn'), on = G && waveReady(); if (wb && wb.classList.contains('on') !== !!on) { wb.classList.toggle('on', !!on); if (on) wb.textContent = G.wave.n + 1 === 0 ? 'START WAVE 0: PRE-SCHOOL' : 'START WAVE ' + (G.wave.n + 1) + (G.wave.camp ? ' OF ' + CAMP.waves : ''); } }
     UI.hudT -= dt;
     if (UI.hudT <= 0 && G && G.state === 'play') { UI.hudT = 0.08; UI.refreshHud(false); }
     if (UI.toastT > 0) { UI.toastT -= dt; if (UI.toastT <= 0) $('toast').classList.remove('on'); }
@@ -668,6 +668,7 @@ const UI = {
   // A first sighting (intro.js): the same screen, lighter. No warning band, a quicker card, and what it
   // does and how to beat it instead of a boss's strengths and weaknesses.
   openFoeIntro(e, id) {
+    $('biFight').textContent = 'FIGHT';
     const d = e.def, I = ENEMY_INTRO[id], box = $('bossIntro'), seen = Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length;
     box.classList.add('foe');
     box.style.setProperty('--bc', d.color);
@@ -689,6 +690,7 @@ const UI = {
   },
   // A buff or debuff, the first time it ever turns up on your HUD (statusintro.js).
   openStatusIntro(key, I, colour) {
+    $('biFight').textContent = 'GOT IT';
     const box = $('bossIntro'), seen = Object.keys(META.seenSt || {}).length;
     box.classList.add('foe');
     box.style.setProperty('--bc', colour);
@@ -707,8 +709,30 @@ const UI = {
     clearTimeout(UI.biTimer);
     UI.biTimer = setTimeout(() => box.classList.add('ready'), 1200);
   },
+  // A tutorial card (tutorial.js).
+  openTutorial(C) {
+    const box = $('bossIntro');
+    box.classList.add('foe');
+    box.style.setProperty('--bc', C.colour);
+    $('biCount').innerHTML = `TUTORIAL <span>${G.wave && G.wave.n === 0 && G.wave.active ? 'PRACTICE' : 'FIRST TIME'}</span>`;
+    $('biFight').textContent = 'GOT IT';
+    $('biTitle').textContent = C.title;
+    $('biName').textContent = C.name;
+    $('biQuote').textContent = C.what;
+    $('biDesc').textContent = C.desc || '';
+    box.querySelector('.bi-col.str h4').textContent = C.head || 'HOW IT WORKS';
+    box.querySelector('.bi-col.weak').style.display = 'none';
+    $('biStr').innerHTML = C.tips.map((t, i) => `<li style="animation-delay:${(0.8 + i * 0.15).toFixed(2)}s">${esc(t)}</li>`).join('');
+    $('biReward').innerHTML = esc(C.foot || 'You will not see this card again.');
+    box.classList.remove('ready');
+    box.querySelectorAll('.bi-bar, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+    UI.show('bossIntro');
+    clearTimeout(UI.biTimer);
+    UI.biTimer = setTimeout(() => box.classList.add('ready'), 1200);
+  },
   // A named rival, the first time you ever meet them: who they are, five attributes and two specialities.
   openRivalIntro(e) {
+    $('biFight').textContent = 'FIGHT';
     const R = e.R, box = $('bossIntro'), met = RIVALS.filter(r => META.seen && META.seen['rival_' + r.id]).length;
     box.classList.add('foe');
     box.style.setProperty('--bc', R.color);
@@ -734,6 +758,7 @@ const UI = {
     return `<div class="rbars">${RIVAL_ATTRS.map((a, i) => `<span>${a}</span><div class="dbar">${Array.from({ length: 5 }, (_, k) => `<i class="${k < R.attrs[i] ? 'on' : ''}"></i>`).join('')}</div>`).join('')}</div>`;
   },
   openBossIntro(e, idx) {
+    $('biFight').textContent = 'FIGHT';
     const d = e.def, box = $('bossIntro');
     box.classList.remove('foe'); box.querySelector('.bi-col.str h4').textContent = 'STRENGTHS'; box.querySelector('.bi-col.weak').style.display = ''; box.querySelector('.bi-col.weak h4').textContent = 'WEAKNESSES';
     box.style.setProperty('--bc', d.color);

@@ -164,6 +164,7 @@ function vesBurst(v) {
   fxParts('drop', v.x, v.y, '#e9f5db', 14, 220, 0.6, 4); ring(v.x, v.y, 70, PAL.upgrade, 0.4, 4); sfx('pickup');
   if (mutCount() >= mutCap()) { floatText(v.x, v.y - 20, 'GENOME FULL: DNA STRAND', PAL.reward, 14); G.lootQueue.push({ kind: 'chest', src: { t: 'drop', name: 'Lateral Gene Transfer' } }); return; }
   G.lootQueue.push({ kind: 'vesicle' });
+  tutShow('lgt', true); // (the first one: a card)
   G.vesTwo = mutOn('skeletonkey') && Math.random() < 0.3;
 }
 // Wave clear (waves.js): any still on the slide burst for you, so they open with the wave's other boxes.

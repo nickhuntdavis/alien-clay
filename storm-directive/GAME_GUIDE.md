@@ -1791,6 +1791,8 @@ Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to 
 
 The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run (in the order they appear in a standard run), on top of the ones you have. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
 
+Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a Lateral Gene Transfer to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfers (on your first) and each chemical and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.
+
 From wave 15 the boss can be **the Failed Experiment**: a copy of one of your own past runs (a lost one if you have any), alone in the dish, with an attack for each weapon that run carried and health that grows with the level it reached.
 
 | Boss | Drop name | Entourage | Arrives | Cued by |

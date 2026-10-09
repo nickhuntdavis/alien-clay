@@ -2131,8 +2131,8 @@ function drawHud() {
       // The Petri Dish: the wave and how much of it is left.
       const V = G.wave, cy2 = by;
       const left = V.active ? Math.max(0, V.budget - V.spawned) + G.enemies.filter(e => !e.dead && !e.charmed && !e.egg).length : 0;
-      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.camp && V.active ? (V.phase === 'mobs' ? `${left} LEFT | BOSS AT WAVE ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}` : V.phase === 'lead' ? `${bossDef(V.boss).name} IN ${Math.max(0, Math.ceil(V.leadT))}s` : V.boss ? bossDef(V.boss).name : '') : V.active ? 'THE PETRI DISH' : V.n ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
-      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(V.camp ? (V.n ? `WAVE ${V.n} OF ${CAMP.waves}${V.active ? '' : ' BEATEN'}` : `${CAMP.waves} WAVES`) : V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
+      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.camp && V.active ? (V.phase === 'mobs' ? (V.n === 0 ? `${left} LEFT | PRACTICE` : `${left} LEFT | BOSS AT WAVE ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}`) : V.phase === 'lead' ? `${bossDef(V.boss).name} IN ${Math.max(0, Math.ceil(V.leadT))}s` : V.boss ? bossDef(V.boss).name : '') : V.active ? 'THE PETRI DISH' : V.started ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
+      ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(V.camp ? (V.n === 0 && V.started ? (V.active ? TUT_NAME : 'PRE-SCHOOL PASSED') : V.n > 0 ? `WAVE ${V.n} OF ${CAMP.waves}${V.active ? '' : ' BEATEN'}` : `${CAMP.waves} WAVES`) : V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
     }
   }
   // Off-screen pointers: boss (red) and the egg (pink).

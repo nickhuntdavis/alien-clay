@@ -916,3 +916,6 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 #splash .spt span { color: transparent; -webkit-text-stroke: 1.5px #c8daf0; }
 #splash .spp { margin-top: 14px; font-size: 15px; color: #b9c6d2; opacity: var(--sb, 0); line-height: 1.5; padding: 0 20px; }
 #splash .spk { position: absolute; bottom: 24px; left: 0; right: 0; text-align: center; font: 700 10px var(--mono, monospace); letter-spacing: 3px; color: #ffffff55; }
+/* Cursed cards: the boon leads, the bane is the small print. */
+.card.cursed .csub { font-family: inherit; font-size: 14px; font-weight: 700; line-height: 1.3; color: #fff; margin: 4px 0 5px; }
+.card.cursed .cdesc { font-size: 11px; color: #a3aea9; }

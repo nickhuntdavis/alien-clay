@@ -797,6 +797,7 @@ function damageEnemy(e, dmg, src) {
   if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); pair2Hit(e, dmg, src); puHit(e, d, src); }
   if ((src.combo || (src.w && !src.noProc)) && !src.dot) chemComboHit(e, dmg, src); // combo twists (chem.js)
   if (!src.dot) relicHit(e, d, src);
+  if (!src.dot && !src.env && (src.w || src.combo || src.elem)) tutElem(src.elem || 'phys'); // (a first-time chemistry card: tutorial.js)
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   else if ((src.elem || 'phys') === 'phys') chemForce(e, dmg, src); // Force: soap bursts, drunks fall over (chem.js)
   // Charged enemies arc a portion of incoming damage to a neighbour.
@@ -827,6 +828,7 @@ function react(e, id, src) {
   if (e.reactCd > 0 && !(G.pair.hotcold && id === 'neutral')) return false;
   e.reactCd = 0.35;
   G.stats.reactions++;
+  tutReact(id);
   addViewers(8);
   if (G.stats.reactions === 50) achieve('reactions');
   G.stats.reactBy[id] = (G.stats.reactBy[id] || 0) + 1;
@@ -2265,6 +2267,11 @@ function autoSteer() {
       const tx = p.x + dx * step * k, ty = p.y + dy * step * k;
       danger += steerTerrain(tx, ty, p.r, dx, dy) * wgt + (G.pill && inPill(tx, ty) ? 2.2 * wgt : 0);
     } else danger += steerTerrain(p.x, p.y, p.r, 0, 0) + (G.pill && inPill(p.x, p.y) ? 2.2 : 0);
+    // The egg is solid: steer round it (unless it is yours to break).
+    if (!G.fertile && i >= 0) for (const [k, wgt] of [[0.5, 1], [1, 0.8], [2.2, 0.35]]) {
+      const d = Math.hypot(p.x + dx * step * k - core.x, p.y + dy * step * k - core.y) - CORE.r - p.r;
+      if (d < 40) danger += (d < 0 ? 3 : 1.5 * (40 - d) / 40) * wgt;
+    }
     if (G.hazards.length || G.boss) danger += hazardDanger(qx, qy, p.r) + hazardDanger(mx, my, p.r) * 0.5;
     // Turning is slow, so mildly prefer directions close to where the head already points.
     // Forward momentum: favour the heading and the last pick (so it doesn't flip between near-equal
@@ -2459,6 +2466,7 @@ function update(dt) {
   puTick(dt); redTick(dt);
   rebornTick(dt);
   introTick(); // first sightings
+  tutTick(); // first-time tutorial cards (tutorial.js)
   boonTick(dt);
   updateTethers(dt);
   meleeTick(dt);
@@ -2786,7 +2794,7 @@ function frame(ts) {
       if (G.lootHold > 0) G.lootHold -= dt;
       if (G.hitStop > 0) G.hitStop -= dt;
       else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed()); }
-      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0)) UI.openLoot(G.lootQueue.shift());
+      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
       else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);

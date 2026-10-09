@@ -49,6 +49,7 @@ function campInit() {
   if (order[2] === order[3]) order[3] = late.find(id => id !== order[2]) || mid[3];
   G.bossRoster = order;
   G.bossCount = 0;
+  tutWaveInit(V); // (wave 0 first, the first time: tutorial.js)
 }
 const campBossId = n => G.bossRoster[bossSlot(n)];
 
@@ -59,6 +60,7 @@ function campBegin(V) {
   G.fx.push({ type: 'drop', x, y, r: 26, color: '#ffffff', life: 0.7, max: 0.7 });
   after(0.7, () => { ring(x, y, 160, '#ffffff', 0.8, 8); ring(x, y, 300, '#ffffff', 1.1, 4); cam.shake = 8; sfx('boom'); });
   V.spawned = 0;
+  if (V.n === 0) { tutWave0Begin(V); return; } // Pre-pre-pre-pre-school
   if (isBossWave(V.n)) {
     const id = campBossId(V.n), B = bossDef(id), E = ENTOURAGE[id] || ENTOURAGE.queen, s = bossSlot(V.n);
     V.boss = id; V.phase = 'lead'; V.leadT = id === 'failed' ? 1.5 : CAMP.lead[s]; V.pulseT = 0; V.lastPat = -1; V.bphase = 0;

@@ -28,7 +28,7 @@ function wavePT() { const V = G.wave, k = V.camp ? CAMP.waveSec : DISH.waveSec; 
 function waveBegin() {
   const V = G.wave;
   if (V.active) return;
-  V.n++; V.active = true; V.t = 0; V.spawned = 0;
+  V.n++; V.active = true; V.t = 0; V.spawned = 0; V.started = true;
   if (V.camp) { campBegin(V); UI.refreshHud(true); return; }
   // Bigger waves, fed in over 45 to 90 seconds rather than all at once.
   V.budget = Math.round((50 + V.n * 20 + Math.pow(V.n, 1.5) * 4) * G.P.spawnMult);
@@ -92,7 +92,7 @@ function waveClear(V) {
   for (const ev of G.ev.active) ev.left = 0;
   G.hazards.length = 0;
   healPlayer(G.P.maxHp * (0.25 + (G.P.magnet - 1) / 3)); // Clingy heals a little more in the dish
-  banner(V.camp ? `WAVE ${V.n} OF ${CAMP.waves} BEATEN` : `WAVE ${V.n} CLEAR`, PAL.upgrade);
+  if (!(V.camp && tutWave0Clear(V))) banner(V.camp ? `WAVE ${V.n} OF ${CAMP.waves} BEATEN` : `WAVE ${V.n} CLEAR`, PAL.upgrade);
   sfx('level'); vibrate([60, 40, 60]);
   addViewers(3000 * V.n);
   if (V.n === 5) achieve('wave5');

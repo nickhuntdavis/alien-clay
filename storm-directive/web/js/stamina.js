@@ -12,7 +12,9 @@ function stamInit() { G.stam = { cur: stamMax(), restT: 0, sprint: false, winded
 function stamTick(dt) {
   const S = G.stam || (stamInit(), G.stam), P = G.P;
   S.cur = Math.min(S.cur, stamMax());
+  const was = S.sprint;
   S.sprint = !!(G.manual && G.manual.sprint) && !S.winded && S.cur > 0.5 && G.state === 'play';
+  if (was && !S.sprint && G.state === 'play') tutSprintEnd(); // (your first sprint: a card about stamina)
   if (S.sprint) {
     S.cur -= STAM.sprintCost * (P.sprintCost || 1) * dt; S.restT = STAM.rest;
     if (S.cur <= 0) { S.cur = 0; S.winded = true; const p = me(); floatText(p.x, p.y - 28, 'WINDED', XR.white, 12, 0.8); }

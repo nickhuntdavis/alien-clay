@@ -95,4 +95,7 @@ function startFoeIntro(e, id, rival) {
   if (typeof UI !== 'undefined') { if (rival) UI.openRivalIntro(e); else UI.openFoeIntro(e, id); }
 }
 // Settings > Tutorial: see the introductions (and the first-time tips) again.
-function resetTutorial() { META.seen = {}; META.seenSt = {}; saveMeta(); }
+function resetTutorial() {
+  META.seen = {}; META.seenSt = {}; META.seenTut = {}; META.tutWave = 0; saveMeta(); // (and wave 0 again)
+  if (typeof SET !== 'undefined' && SET.intros === 'off') { SET.intros = 'auto'; saveSettings(); }
+}
