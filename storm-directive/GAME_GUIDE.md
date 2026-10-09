@@ -1791,7 +1791,7 @@ Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to 
 
 ## Campaign (SPOILERS: where Level 1 is set)
 
-A hand-built maze, lips to throat, played as its own run (you start at Lv 1; DNA banks as usual). Autorun follows the route to the exit when nothing else needs doing, and a faint chevron next to you points the way.
+A hand-built maze, lips to throat, played as its own run (you start at Lv 1; DNA banks as usual). Finding the way is up to you: autorun fights where you are but does not solve the maze. A faint chevron next to you points the way on.
 
 1. **The Lips:** behind the front teeth, a small arena (30 kills) opens the way on.
 2. **The Gum Line:** a maze. Plaque walls break if you keep shooting them (some hide shortcuts), and plaque colonies grow Cavity Creeps. A dead end holds a guarded cavity: a mutation and a DNA strand. Then the Gum Pocket arena (70).

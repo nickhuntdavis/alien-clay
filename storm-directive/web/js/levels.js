@@ -14,7 +14,7 @@
 // exit (autorun's "push on", the progress bar) and one to you (enemies chasing you round corners, spawn
 // points out of sight along the corridors).
 // Hooks: lvInit (newGame), lvTick (the director), lvPlayer / lvBody / lvShot (terrain.js), lvSteer
-// (steerTerrain), lvChase (updateEnemies), lvSpawnPos (spawnPos), lvSlow, lvPushOn (autoSteer), drawLevel /
+// (steerTerrain), lvChase (updateEnemies), lvSpawnPos (spawnPos), lvSlow, lvPushOn (the test bots only: autorun does not solve the maze), drawLevel /
 // drawLevelHud / drawLevelMap (render.js), lvOver (the end screen).
 
 const LV_C = 80;

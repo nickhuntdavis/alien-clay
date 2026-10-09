@@ -2283,9 +2283,8 @@ function autoSteer() {
   // rather than dithering on the spot.
   // Terrain upgrades: drift towards the terrain they use.
   if (mode !== 'hold' && mode !== 'defend' && !homing) { const tl = terrainLure(p); if (tl) goal(tl.x, tl.y, tl.w); }
-  // A campaign level: push on along the route to the exit.
-  if (G.lvl && mode !== 'hold') { const n = lvPushOn(p); if (n) goal(n.x, n.y, mode === 'hunt' ? 0.8 : 1.2); }
-  if (mode !== 'hold' && mode !== 'defend' && !homing) {
+  // (A campaign level is yours to find the way through: autorun fights where you are, it does not solve the maze.)
+  if (mode !== 'hold' && mode !== 'defend' && !homing && !G.lvl) { // (in a level it holds its ground rather than wandering off down the corridors)
     const gl0 = Math.hypot(gx, gy), hd = (p.hd || 0) + Math.sin(G.t * 0.35) * 0.35, cw = Math.max(0, 0.6 - gl0 * 0.4);
     gx += Math.cos(hd) * cw; gy += Math.sin(hd) * cw;
   }
