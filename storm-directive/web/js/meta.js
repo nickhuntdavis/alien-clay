@@ -113,7 +113,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '8.40';
+const APP_VERSION = '8.41';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -173,7 +173,7 @@ function runText(r) {
   if (r.hurtK) { const t = Object.values(r.hurtK).reduce((a, b) => a + b, 0) || 1; out += ` hurt by type: ${Object.entries(r.hurtK).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v} (${Math.round(v / t * 100)}%)`).join(', ') || '-'}\n`; }
   out += ` dmg: ${r.dmg.join(', ')}\n`;
   if (r.dots && r.dots.length) out += ` dots: ${r.dots.join(' | ')}\n`;
-  out += ` build: ${r.w.join(' ')} | spells: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;
+  out += ` build: ${r.w.join(' ')} | Feats: ${r.s.join(' ') || '-'} | ups: ${r.p.join(' ') || '-'}\n`;
   if (r.xp != null) out += ` xp: ${r.xp} gained (x${r.xpK} bonus on ${r.xpRaw} collected of ${r.xpDrop} dropped, ${r.xpFloor} left on the floor) ${r.wave ? '' : ` | vs level curve: ${r.curve >= 0 ? '+' : ''}${r.curve} levels`}\n`;
   out += ` rivals: ${r.rivals.join(' ') || '-'} | lv/hp% per min: ${r.tl.join(' ')}${r.fps && r.fps.length ? ' | fps avg/low per min: ' + r.fps.join(' ') : ''}\n`;
   if (r.perf && r.perf.length) out += ` worst frame per min (cap ${r.cap || 'off'}; ms total(u update d draw) e enemies b bullets s shots p particles z zones L frames over 50ms): ${r.perf.join(' ')}\n`;
@@ -188,4 +188,9 @@ function copyText(text) {
   };
   if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(() => true, () => fallback());
   return Promise.resolve(fallback());
+}
+// Settings > Data > Reset all progress: everything earned on this phone goes; settings stay.
+function resetAllProgress() {
+  try { for (const k of ['sd_meta', 'sd_best', 'sd_runs', 'sd_live', 'sd_err']) localStorage.removeItem(k); } catch (e) { /* storage unavailable */ }
+  location.reload();
 }

@@ -42,6 +42,8 @@ const ELEM_HEX = {
   fire: ['#c6ff3d', '#a8e61d', '#d4ff6b', '#b5f23a', '#e2ff9a', '#9fd61a', '#ccff4d'],
   ice: ['#5b8cff', '#6fd8ff', '#90e0ef', '#caf0f8', '#bde0fe', '#c9e4f5'],
   poison: ['#e8a33d', '#d98c2b', '#f0c27a', '#f2b552'],
+  oxi: ['#9ff7ff', '#e6fbff'],
+  salt: ['#ffb3c6', '#ffe5ec', '#fff0f3'],
   arcane: ['#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'],
 };
 const STATIC_HEX = { '#ffe94a': '#6f9bff', '#fdf0d5': '#ff8ae0', '#9ef0ff': '#9fb0ff', '#fff3b0': '#ff8ae0' };
@@ -1729,7 +1731,7 @@ function drawEnemy(e, lod) {
   let jx = 0, jy = 0;
   if (hk > 0) { const kick = 3.2 * hk * hk * (e.hitK || 1) * big * S, sh = 1.4 * hk * big * S * (Math.floor(G.realT * 60) % 2 ? 1 : -1); jx = Math.cos(e.hitA) * kick - Math.sin(e.hitA) * sh; jy = Math.sin(e.hitA) * kick + Math.cos(e.hitA) * sh; }
   const x = sx(e.x) + jx, y = sy(e.y) + jy, r = e.r * S * squash * e.vs * breathe;
-  ctx.globalAlpha = e.phased ? 0.25 : 1;
+  ctx.globalAlpha = e.phased ? 0.25 : e.def.ethereal ? 0.55 : 1;
   if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
   if (e.boss && !e.egg) drawBossAura(e, x, y, r);
   if (e.boss) drawBossTells(e, x, y, r);
@@ -1829,6 +1831,8 @@ function drawEnemy(e, lod) {
   const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
   drawStatusFx(e, x, y, r);
   if (e.mark > 0) st('#c77dff');
+  if (e.fizz > 0) st('#9ff7ff');
+  if (e.pickle > 0) st('#ffb3c6');
   if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
   if (e.parasiteT > 0) st('#b5e48c');
   if (e.soggyT > G.t) st('#cfe8ff');
@@ -2036,6 +2040,7 @@ function drawTopBar(top, m, s) {
   const bx = x + 14 + Math.max(28, ctx.measureText(hv).width), bw = Math.min(84, w * 0.24);
   ctx.fillStyle = 'rgba(214,228,240,0.15)'; ctx.fillRect(bx, y + 11, bw, 7);
   ctx.fillStyle = low ? PAL.danger : PAL.you; ctx.fillRect(bx, y + 11, bw * k, 7);
+  drawStamina(bx, y + 20, bw); // (stamina, just under: stamina.js)
   if (G.shieldT > 0 || G.absorbOn) { ctx.strokeStyle = PAL.pickup; ctx.lineWidth = 1.5; ctx.strokeRect(bx - 1.5, y + 9.5, bw + 3, 10); }
   ctx.font = 'bold 11px ' + MONO; ctx.fillStyle = XR.white;
   let txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  K ${G.kills}`;
@@ -2124,7 +2129,7 @@ function drawHud() {
       // The Petri Dish: the wave and how much of it is left.
       const V = G.wave, cy2 = by;
       const left = V.active ? Math.max(0, V.budget - V.spawned) + G.enemies.filter(e => !e.dead && !e.charmed && !e.egg).length : 0;
-      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.camp && V.active ? (V.phase === 'lead' ? `${bossDef(V.boss).name} IN ${Math.max(0, Math.ceil(V.leadT))}s` : bossDef(V.boss).name) : V.active ? 'THE PETRI DISH' : V.n ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
+      ctx.fillStyle = XR.dim; ctx.font = '9px ' + MONO; ctx.fillText(V.camp && V.active ? (V.phase === 'mobs' ? `${left} LEFT | BOSS AT WAVE ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}` : V.phase === 'lead' ? `${bossDef(V.boss).name} IN ${Math.max(0, Math.ceil(V.leadT))}s` : V.boss ? bossDef(V.boss).name : '') : V.active ? 'THE PETRI DISH' : V.n ? 'BETWEEN DROPS' : 'THE PETRI DISH', mid, cy2 - 14);
       ctx.fillStyle = XR.white; ctx.font = 'bold 16px ' + MONO; ctx.fillText(V.camp ? (V.n ? `WAVE ${V.n} OF ${CAMP.waves}${V.active ? '' : ' BEATEN'}` : `${CAMP.waves} WAVES`) : V.n ? `WAVE ${V.n}${V.active ? '  |  ' + left + ' LEFT' : ' CLEAR'}` : 'READY', mid, cy2 + 4);
     }
   }
@@ -2477,7 +2482,7 @@ function drawEnemyDetail(e, x, y, r, rot) {
     case 'bulwark': { // Mucus Wall: thick layered slime, oozing
       for (let i = 1; i <= 2; i++) { ctx.beginPath(); for (let j = 0; j <= 24; j++) { const a = j / 24 * TAU, rr = r * (1 + 0.16 * i + 0.05 * Math.sin(a * 4 + t * (1 + i * 0.4))); j ? ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } halo(2.2 - i * 0.6, 0.35 - i * 0.1); }
       ctx.fillStyle = 'rgba(255,255,255,0.35)'; for (let i = 0; i < 3; i++) { const ph = (t * 0.5 + i / 3) % 1, a = e.id + i * 2.1; ctx.globalAlpha = 1 - ph; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 1.2, y + Math.sin(a) * r * 1.2 + ph * r * 0.8, 2 + 2 * (1 - ph), 0, TAU); ctx.fill(); }
-      ctx.globalAlpha = e.phased ? 0.25 : 1;
+      ctx.globalAlpha = e.phased ? 0.25 : e.def.ethereal ? 0.55 : 1;
       break;
     }
     case 'summoner': { // Mother Cell: buds swelling round the rim, bigger as the next brood nears

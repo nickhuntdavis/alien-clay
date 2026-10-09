@@ -81,7 +81,7 @@ function newStats() {
   return {
     might: 1, haste: 1, reloadSpd: 1, magMult: 1, multishot: 0, projSpeed: 1, range: 1, area: 1, dur: 1,
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
-    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1 }, chain: 0,
+    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, heft: 0, thorns: 0, grit: 0, echoInherit: 0,
     bankShot: 0, atpK: 0, ironGut: 0, brushOff: 0, flow: 0, skid: 0,
@@ -507,8 +507,8 @@ function optNewWeapon(id, r) {
 }
 function optNewSpell(id, r) {
   const def = SPELLS[id], lvl = [1, 1, 2, 3, 4, 4, 4][r] || 1;
-  return { def, rarity: r, tag: 'NEW SPELL', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
-    sub: `${ELEMENTS[def.elem].name} spell | Lv ${lvl}`, desc: def.desc,
+  return { def, rarity: r, tag: 'NEW FEAT', icon: def.icon, color: def.color, elem: def.elem, title: def.name,
+    sub: `${ELEMENTS[def.elem].name} Feat | Lv ${lvl}`, desc: def.desc,
     apply: () => { const i = G.spells.findIndex(w => !w); if (i >= 0) { G.spells[i] = makeSlot(id, true, lvl); recomputeAll(); } } };
 }
 // Only one weapon a run can reach mastery (Lv 10): once one has, the others stop at Lv 9.
@@ -521,7 +521,7 @@ function optUpgrade(w, r) {
   if (!w.isSpell && to >= COMBO_LEVEL && w.lvl < COMBO_LEVEL && COMBOS.some(c => (c.a === w.id || c.b === w.id) && !(G.combo && G.combo[c.id]) && (owned(c.a === w.id ? c.b : c.a) || {}).lvl >= COMBO_LEVEL)) desc += '. Unlocks a COMBO!';
   if (!w.isSpell && to === MAX_WLVL) desc += '. MASTERY: only one weapon a run can reach Lv 10, and this takes it.';
   else if (!w.isSpell && to === MAX_WLVL - 1 && masterOf(w)) desc += `. Stops at Lv 9: ${masterOf(w).def.name} is your mastery weapon.`;
-  return { def: w.def, w, wup: !w.isSpell, from: w.lvl, to, rarity: r, tag: w.isSpell ? 'SPELL UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
+  return { def: w.def, w, wup: !w.isSpell, from: w.lvl, to, rarity: r, tag: w.isSpell ? 'FEAT UPGRADE' : 'UPGRADE', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: w.def.name,
     sub: `Lv ${w.lvl} > ${to}${to === MAX_WLVL ? ' (MAX)' : ''}`, desc,
     apply: () => { setWeaponLevel(w, to); computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
 }
@@ -695,7 +695,7 @@ function fxParts(k, x, y, color, n, spd, life, size, dir, spread) {
   }
 }
 // What a hit looks like in each element.
-const HIT_FX = { phys: ['spark', '#ffffff'], fire: ['ember', '#ff7a2f'], ice: ['shard', '#bde0fe'], shock: ['spark', '#ffe94a'], poison: ['drop', '#8dff4a'], arcane: ['ember', '#d0a3ff'] };
+const HIT_FX = { oxi: ['bubble', '#9ff7ff'], salt: ['drop', '#ffb3c6'], phys: ['spark', '#ffffff'], fire: ['ember', '#ff7a2f'], ice: ['shard', '#bde0fe'], shock: ['spark', '#ffe94a'], poison: ['drop', '#8dff4a'], arcane: ['ember', '#d0a3ff'] };
 function hitFx(e, src, crit, d) {
   if ((G.hitFxN = (G.hitFxN || 0) + 1) > 14) return; // a handful a frame is plenty
   const H = HIT_FX[src.elem] || HIT_FX.phys, kx = src.kx != null ? src.kx : e.x - me().x, ky = src.ky != null ? src.ky : e.y - me().y;
@@ -735,7 +735,7 @@ function damageEnemy(e, dmg, src) {
   }
   if (src.grudge && e === G.grudge) d *= 3;
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
-  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src) * pair2Mul(e, src) * chemMul(e) * twistMul(e, src);
+  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * comboDamageMul(e, src) * pair2Mul(e, src) * chemMul(e, src) * twistMul(e, src);
   // Stain boons: you can see who matters.
   if (G.dyeBoon.luciferase && (e.elite || e.boss)) d *= 1.25; // (boons only from stains found this run)
   if (G.dyeBoon.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
@@ -756,7 +756,7 @@ function damageEnemy(e, dmg, src) {
   if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
-  if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e));
+  if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
   if (e.egg) {
     // Sealed to you until you're big enough (a rival may have opened it early).
     if (G.level < EGG.level) {
@@ -800,7 +800,7 @@ function damageEnemy(e, dmg, src) {
   if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
   else if ((src.elem || 'phys') === 'phys') chemForce(e, dmg, src); // Force: soap bursts, drunks fall over (chem.js)
   // Charged enemies arc a portion of incoming damage to a neighbour.
-  if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25)) {
+  if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25) * (e.pickle > 0 ? 2 : 1)) { // (pickled: conducts twice as well)
     const n = acquire('nearest', 130, e.x, e.y, e);
     if (n) {
       bolt(e.x, e.y, n.x, n.y, ELEMENTS.shock.color, 0.12); damageEnemy(n, dmg * 0.45, { elem: 'shock', noStatus: true, noArc: true, noCrit: true, wname: 'Static arcs' });
@@ -835,6 +835,11 @@ function react(e, id, src) {
   G.reactLabel = G.reactLabel || {};
   if (!(G.reactLabel[id] > G.realT)) { G.reactLabel[id] = G.realT + 0.6; floatText(e.x, e.y - e.r - 14, R.name, R.color, 14, 0.9); }
   sfx('react');
+  // Chain Reaction: now and then the same reaction goes off again in a nearby enemy that carries any chemical.
+  if (G.P.chainReact && !G.inChain && src && src.elem && Math.random() < G.P.chainReact) {
+    const n = acquireMany('nearest', 180, e.x, e.y, 6).find(o => o !== e && !o.dead && chemCount(o) > 0);
+    if (n) { G.inChain = true; n.reactCd = 0; bolt(e.x, e.y, n.x, n.y, R.color, 0.2); try { applyElement(n, src.elem, G.chemDmg || 10, src); } finally { G.inChain = false; } }
+  }
   return true;
 }
 
@@ -1263,7 +1268,7 @@ function updateEnemies(dt) {
     const ux = dx / dist, uy = dy / dist;
     let mx = ux, my = uy, spd = e.speed;
     const frozen = e.frozen > 0 || e.dazeT > G.t; // (dazed out of a popped bubble: stopped, like frozen)
-    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1) * (e.formT > G.t ? (e.boss ? 0.75 : 0.4) : 1); // dazed or soaped (Bubble Wand)
+    const slow = frozen ? 0 : (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1) * (e.formT > G.t ? (e.boss ? 0.75 : 0.4) : 1) * (e.pickle > 0 ? 0.85 : 1); // dazed or soaped (Bubble Wand)
     if (e.boss) {
       bossAI(e, edt, dist, ux, uy);
       mx = e.mvx; my = e.mvy; spd = e.mvs;
@@ -2015,8 +2020,9 @@ function updateSpellList(list, dt) {
       if (!target) { w.cd = 0; continue; }
     } else if (w.def.kind === 'heal' && G.player.hp > G.P.maxHp * 0.85) { w.cd = 0; continue; }
     else if ((w.def.kind === 'warp' || w.def.kind === 'barrier' || w.def.kind === 'ring') && !acquire('nearest', 300, G.player.x, G.player.y)) { w.cd = 0; continue; }
+    if (!featPay(w)) { w.cd = 0.2; continue; } // (stamina Feats: not enough in the bar yet)
     fireWeapon(w, target);
-    w.cd = w.s.cd;
+    w.cd = featCost(w) ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat)
     genesCast(w); // Turbo-chondrial Engine
     if (!w.echo) G.stats.casts = (G.stats.casts || 0) + 1;
     w.reloadMax = w.s.cd;
@@ -2073,7 +2079,7 @@ function updatePlayer(dt) {
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
   const speed = 165 * P.speed * oobSpeed() * // (base 165: was 150; Out of Body: faster)
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
@@ -2345,6 +2351,7 @@ function gainXp(v) {
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     rebornLevel(G.level); // (Prawn Again: memories of a past life)
     redLevel(); // (the Redtail: a bane every level)
+    evolveCheck(G.level); // (your Primary Sequence evolves at Lv 5, 10, 20 and 50: evolve.js)
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
     if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS + (G.comboMounts || 0)) {
       G.weapons.push(null);
@@ -2417,7 +2424,7 @@ function victory(at) {
 
 // ---------------------------------------------------------------- main update
 function update(dt) {
-  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge();
+  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge(); stamTick(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
   if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (4 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }
@@ -2588,8 +2595,10 @@ cv.addEventListener('pointermove', ev => {
   if (Math.hypot(ev.clientX - INPUT.sx, ev.clientY - INPUT.sy) > 12) INPUT.moved = true;
   let dx = ev.clientX - INPUT.ox, dy = ev.clientY - INPUT.oy;
   const d = Math.hypot(dx, dy);
-  if (d > 50) { INPUT.ox += dx / d * (d - 50); INPUT.oy += dy / d * (d - 50); dx = ev.clientX - INPUT.ox; dy = ev.clientY - INPUT.oy; }
-  G.manual.x = dx / 50; G.manual.y = dy / 50;
+  // The stick reads full speed at 50px; pushing on past it (up to 70px) is a sprint (stamina.js).
+  if (d > STAM.stick) { INPUT.ox += dx / d * (d - STAM.stick); INPUT.oy += dy / d * (d - STAM.stick); dx = ev.clientX - INPUT.ox; dy = ev.clientY - INPUT.oy; }
+  const dd = Math.hypot(dx, dy) || 1, k = Math.min(dd, 50) / dd;
+  G.manual.x = dx * k / 50; G.manual.y = dy * k / 50; G.manual.sprint = dd > STAM.push;
 });
 const endTouch = ev => {
   PTRS.delete(ev.pointerId);
@@ -2619,7 +2628,7 @@ function keyboardSteer() {
   if (!G || INPUT.active) return;
   const k = INPUT.keys;
   const x = (k.d || k.arrowright ? 1 : 0) - (k.a || k.arrowleft ? 1 : 0), y = (k.s || k.arrowdown ? 1 : 0) - (k.w || k.arrowup ? 1 : 0);
-  G.manual = x || y ? { x, y } : null;
+  G.manual = x || y ? { x, y, sprint: !!k.shift } : null; // (Shift sprints)
 }
 
 // ---------------------------------------------------------------- audio

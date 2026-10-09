@@ -100,6 +100,8 @@ const UI = {
     $('waveBtn').addEventListener('click', () => { if (G && waveReady()) { waveBegin(); $('waveBtn').classList.remove('on'); } });
     // Boss introductions: once the card is up, a tap anywhere starts the fight.
     $('bossIntro').addEventListener('click', () => { if ($('bossIntro').classList.contains('ready')) endBossIntro(); });
+    // The small link under first-sighting and first-status cards: no more of them (Settings > Play brings them back).
+    $('biOff').addEventListener('click', ev => { ev.stopPropagation(); SET.intros = 'off'; saveSettings(); UI.toast('TUTORIALS OFF (SETTINGS > PLAY TO TURN BACK ON)'); endBossIntro(); });
     $('copyRunBtn').addEventListener('click', () => {
       const b = $('copyRunBtn'), r = UI.lastRun;
       if (!r) { b.textContent = 'TOO SHORT TO LOG'; return; }
@@ -141,7 +143,7 @@ const UI = {
     UI.afterIntro();
   },
   afterIntro() {
-    if (G.wave && G.wave.camp) sysMsg('THE SCIENTIST', `"Subject in the dish. Eight drops, one boss in each. Beat all eight and you get the egg." Beat a wave's boss to beat the wave, open your DNA, then start the next.`, XR.dim, true);
+    if (G.wave && G.wave.camp) sysMsg('THE SCIENTIST', `"Subject in the dish. Twenty drops. Every fifth one is something big. Survive them all and you get the egg." Clear a wave, open your DNA, then start the next.`, XR.dim, true);
     else if (G.wave) sysMsg('THE SCIENTIST', '"Subject in the dish. One drop at a time. Let us see what you become." Clear a wave, open your DNA, then start the next.', XR.dim, true);
     else sysLine('start', true);
     if (G.heat) sysMsg('IMMUNE RESPONSE ' + G.heat, IMMUNE.slice(0, G.heat).map(x => x.name).join(', ') + '. +' + Math.round(IMMUNE_DNA * G.heat * 100) + '% DNA if you survive it.', PAL.danger, true);
@@ -294,7 +296,14 @@ const UI = {
   openSettings(from) { UI.setFrom = from; UI.renderSettings(); UI.show('settings'); },
   renderSettings() {
     const body = $('setBody');
-    body.innerHTML = SETTINGS_DEF.map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
+    // Tabs: one group of settings at a time.
+    const TABS = [['play', 'PLAY'], ['view', 'VIEW'], ['sound', 'SOUND'], ['data', 'DATA']], tab = UI.setTab || 'play';
+    const TAB_OF = { darkfield: 'view', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
+    const tabsHtml = `<div class="ptabs">${TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
+    body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => (TAB_OF[d.id] || 'play') === tab).map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
+    body.querySelectorAll('[data-stab]').forEach(b => b.addEventListener('click', () => { UI.setTab = b.dataset.stab; UI.renderSettings(); $('settings').scrollTop = 0; }));
+    if (tab !== 'data') { UI.bindSettingChips(body); return; }
+    body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, stains, generations, bests, achievements, the Codex and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Tutorial</h3><p class="hint">The first time you meet each kind of enemy, the slide stops to introduce it (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Reset to see the introductions again. Your Codex keeps what you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIAL</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Run log</h3><p class="hint">${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.</p>
       <div class="chips"><button class="chip" id="logCopy">COPY RUN LOG</button><button class="chip" id="logClear">CLEAR</button></div><p class="hint" id="logMsg"></p><textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea></div>`;
@@ -311,12 +320,22 @@ const UI = {
       if (!ev.target.dataset.armed) { ev.target.dataset.armed = '1'; ev.target.textContent = 'TAP AGAIN TO RESET'; return; }
       resetTutorial(); ev.target.textContent = 'DONE: YOU WILL MEET THEM ALL AGAIN';
     });
+    $('resetAll').addEventListener('click', ev => {
+      // Two taps, then a third: this is the one button that cannot be taken back.
+      const n = +(ev.target.dataset.armed || 0) + 1; ev.target.dataset.armed = n;
+      if (n === 1) { ev.target.textContent = 'ARE YOU SURE? TAP AGAIN'; return; }
+      if (n === 2) { ev.target.textContent = 'LAST CHANCE: TAP TO WIPE EVERYTHING'; return; }
+      resetAllProgress();
+    });
     $('logClear').addEventListener('click', ev => {
       if (!RUNLOG.length) return;
       // Clearing can't be undone: ask for a second tap.
       if (!ev.target.dataset.armed) { ev.target.dataset.armed = '1'; ev.target.textContent = 'TAP AGAIN TO CLEAR'; return; }
       RUNLOG = []; saveRunLog(); UI.renderSettings();
     });
+    UI.bindSettingChips(body);
+  },
+  bindSettingChips(body) {
     body.querySelectorAll('[data-s]').forEach(b => b.addEventListener('click', () => {
       const d = SETTINGS_DEF.find(x => x.id === b.dataset.s);
       SET[d.id] = d.opts[+b.dataset.i][0];
@@ -371,7 +390,7 @@ const UI = {
     let t = '';
     const tab = (k, i, x) => {
       const sel = A.k === k && A.i === i;
-      if (!x) return `<button class="atab empty ${sel ? 'sel' : ''}" data-k="${k}" data-i="${i}"><b>+</b><span>${k === 'w' ? 'WEAPON' : 'SPELL'} ${i + 1}</span></button>`;
+      if (!x) return `<button class="atab empty ${sel ? 'sel' : ''}" data-k="${k}" data-i="${i}"><b>+</b><span>${k === 'w' ? 'WEAPON' : 'FEAT'} ${i + 1}</span></button>`;
       return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${elemCol(wElem(x))}"><b>${iconSVG(x.def, 24, elemCol(wElem(x)))}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
@@ -385,14 +404,14 @@ const UI = {
       return;
     }
     if (!w) {
-      body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon mount. You draft a new weapon for it as soon as you are back in the race.' : 'Empty spell slot. Spells show up in DNA strands while you have a free slot.'}</p></div>`;
+      body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon mount. You draft a new weapon for it as soon as you are back in the race.' : 'Empty Feat slot. Feats show up in DNA strands while you have a free slot.'}</p></div>`;
       return;
     }
     const d = w.def, s = w.s;
     const elName = ELEMENTS[w.mods.find(m => m.id === 'elemental') ? w.mods.find(m => m.id === 'elemental').elem : d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
     let h = `<div class="ahead" style="--c:${elemCol(wElem(w))}"><div class="aico">${iconSVG(d, 34, elemCol(wElem(w)))}</div><div class="ainfo">
       <div class="aname">${esc(d.name)}${w.combos && w.combos.length ? ` <span class="fz">COMBO: ${esc(w.combos.map(id => COMBO_BY[id].name).join(', '))}</span>` : ''}</div>
-      <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'spell' : 'weapon'} <span class="lpips">${Array.from({ length: MAX_WLVL }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/${MAX_WLVL}</div>
+      <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'Feat' : 'weapon'} <span class="lpips">${Array.from({ length: MAX_WLVL }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/${MAX_WLVL}</div>
       <div class="adesc">${esc(d.desc)}</div>${w.wpN && Object.keys(w.wpN).length ? `<div class="adesc"><b>Tuned:</b> ${Object.entries(w.wpN).map(([id, n]) => esc(PASSIVES[id].name) + ' x' + n).join(', ')}</div>` : ''}</div></div>`;
     // How it plays.
     if (!w.isSpell && d.play) {
@@ -574,7 +593,7 @@ const UI = {
     const box = $('draft'), mount = G.weapons.filter(Boolean).length + 1;
     const sig = weap && weap.def.sig && weap.def.sig[req.lvl];
     $('dKick').textContent = req.kind === 'start' ? 'LEVEL 1 | YOUR FIRST WEAPON' : req.kind === 'slot' ? `LEVEL ${G.level} | WEAPON MOUNT ${mount} OF ${MAX_WEAPONS + (G.comboMounts || 0)}` : `${weap.def.name.toUpperCase()} | LV ${req.lvl || weap.lvl}`;
-    $('dTitle').textContent = req.kind === 'sfork' ? 'SPELL PATH' : req.kind === 'branch' ? (sig ? (req.lvl >= 10 ? 'MASTERY' : 'SIGNATURE PATH') : 'UPGRADE PATH') : 'WEAPON DRAFT';
+    $('dTitle').textContent = req.kind === 'sfork' ? 'FEAT PATH' : req.kind === 'branch' ? (sig ? (req.lvl >= 10 ? 'MASTERY' : 'SIGNATURE PATH') : 'UPGRADE PATH') : 'WEAPON DRAFT';
     $('dSub').textContent = req.kind === 'sfork' ? `${weap.def.name} hit Lv ${SPELL_FORK_LV}. Pick how it grows up: the other path goes in the bin.`
       : req.kind === 'start' ? "This is how you'll fight. Everything else you pick builds on it."
       : req.kind === 'slot' ? (req.recycled ? 'A fresh weapon for the empty mount.' : 'A new weapon mount. Choose what your build is missing: reach, crowds, bosses or safety.')
@@ -612,7 +631,7 @@ const UI = {
     let h = '';
     if (D.req.kind === 'sfork') {
       const w = D.weap, other = UI.lootOpts.filter(x => x !== o);
-      h += `<div class="dperk"><div class="drole">SPELL PATH: ONLY ${esc(w.def.name.toUpperCase())}</div><div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc)}</div></div>
+      h += `<div class="dperk"><div class="drole">FEAT PATH: ONLY ${esc(w.def.name.toUpperCase())}</div><div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc)}</div></div>
         <h4>${esc(w.def.name.toUpperCase())}</h4><div class="ddesc">${esc(w.def.desc || '')}</div>`;
       if (other.length) h += `<h4>THE PATH YOU WOULD LOSE</h4><div class="dpath">${other.map(x => `<div class="dp"><em>LV ${SPELL_FORK_LV}</em><b>${esc(x.title)}</b><span>${esc(x.desc)}</span></div>`).join('')}</div>`;
     } else if (D.weap) {
@@ -632,13 +651,12 @@ const UI = {
         for (const l of [5, 8, 10]) for (const id of d.sig[l] || []) h += `<div class="dp"><em>LV ${l} ${l >= 10 ? 'MASTERY (ONE WEAPON A RUN)' : 'SIGNATURE'}</em><b>${esc(SIGS[id].name)}</b><span>${esc(SIGS[id].desc.replace(/^Mastery\. /, ''))}</span></div>`;
         h += `</div>`;
       }
-      const ps = PAIRINGS.filter(q => q.a === o.def.id || q.b === o.def.id || q.a === defId(o.def) || q.b === defId(o.def));
-      if (ps.length) {
-        const id0 = defId(o.def);
-        h += `<h4>PAIRS WITH</h4><div class="dpairs">${ps.map(q => { const oid = q.a === id0 ? q.b : q.a, have = G.weapons.some(x => x && x.id === oid); return `<b style="color:${have ? PAL.upgrade : '#fff'}">${esc(WEAPONS[oid].name)}</b>${have ? ' (you have it)' : ''}: ${META.pairs[q.id] ? esc(q.name) : '???'}`; }).join('<br>')}</div>`;
-      }
-      const cid = defId(o.def), cs = COMBOS.filter(c => c.a === cid || c.b === cid);
-      if (cs.length) h += `<h4>COMBOS WITH</h4><div class="dpairs">${cs.map(c => { const oid = c.a === cid ? c.b : c.a, have = G.weapons.some(x => x && x.id === oid); return `<b style="color:${have ? '#ff3df2' : '#fff'}">${esc(WEAPONS[oid].name)}</b>${have ? ' (you have it)' : ''}: ${esc(c.name)}`; }).join('<br>')}</div>`;
+      // Only what matters to this build: pairings and combos with weapons you already own (the rest is in the Codex).
+      const id0 = defId(o.def), ownsW = oid => G.weapons.some(x => x && x.id === oid);
+      const ps = PAIRINGS.filter(q => (q.a === id0 && ownsW(q.b)) || (q.b === id0 && ownsW(q.a)));
+      if (ps.length) h += `<h4>PAIRS WITH YOUR</h4><div class="dpairs">${ps.map(q => { const oid = q.a === id0 ? q.b : q.a; return `<b style="color:${PAL.upgrade}">${esc(WEAPONS[oid].name)}</b>: ${esc(q.name)}. ${esc(q.desc)}`; }).join('<br>')}</div>`;
+      const cid = id0, cs = COMBOS.filter(c => (c.a === cid && ownsW(c.b)) || (c.b === cid && ownsW(c.a)));
+      if (cs.length) h += `<h4>COMBOS WITH YOUR</h4><div class="dpairs">${cs.map(c => { const oid = c.a === cid ? c.b : c.a; return `<b style="color:#ff3df2">${esc(WEAPONS[oid].name)}</b>: ${esc(c.name)}`; }).join('<br>')}</div>`;
       const mine = G.weapons.filter(Boolean);
       if (mine.length) h += `<h4>YOUR MOUNTS</h4><div class="dmounts">${mine.map(x => `<span class="dmount">${iconSVG(x.def, 18, elemCol(wElem(x)))}${esc(x.def.name)} Lv ${x.lvl}</span>`).join('')}<span class="dmount new">${iconSVG(d, 18, elemCol(d.elem))}${esc(d.name)}?</span></div>`;
     }
@@ -751,7 +769,7 @@ const UI = {
       chest: ['FAN DNA', pick(['Epic or better. The fans sent this. Some of the fans are very strange.', 'Epic or better. It wriggles. That is probably fine.'])],
       boss: ['BOSS DNA', 'Epic or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
       branch: ['UPGRADE BRANCH', 'Your weapon hit a milestone. Pick its new trick. The others go in the bin. Forever. No pressure.'],
-      sfork: ['SPELL PATH', 'Your spell hit Lv 4. Pick how it grows up. The other one goes in the bin.'],
+      sfork: ['FEAT PATH', 'Your Feat hit Lv 4. Pick how it grows up. The other one goes in the bin.'],
       rrelic: ['RIVAL RELIC', 'They will not be needing it. Choose one; the other goes with them.'],
       relic: ['BOSS RELIC', 'Choose one. It changes everything, permanently. The others go down with the boss.'],
       spoils: ['SPOILS', 'Picked from the wreckage. Choose one.'],
@@ -1007,7 +1025,7 @@ const UI = {
     t('Heal per kill', P.lifesteal.toFixed(2)); t('Speed', pc0(P.speed)); t('Traction', pc0(P.traction));
     t('Pickup range', pc0(P.magnet)); t('Luck', plus(P.luck)); t('XP gain', pc0(P.xp));
     t('Area', pc0(P.area)); t('Duration', pc0(P.dur)); t('Range', pc0(P.range));
-    t('Extra shots', '+' + P.multishot); t('Pierce', '+' + P.pierce); t('Spell cooldown', pc0(P.cdr));
+    t('Extra shots', '+' + P.multishot); t('Pierce', '+' + P.pierce); t('Feat cooldown', pc0(P.cdr));
     const el = Object.keys(P.elem).filter(k => Math.abs(P.elem[k] - 1) > 0.001 && ELEMENTS[k]);
     h += `<div class="sec"><h3>Stats</h3><div class="tiles">${T.join('')}</div>${el.length ? `<p class="hint">Element damage: ${el.map(k => `<b style="color:${elemCol(k)}">${esc(ELEMENTS[k].name)}</b> ${plus(P.elem[k] - 1)}`).join(' | ')}</p>` : ''}</div>`;
     // Spells and weapons.
@@ -1028,7 +1046,7 @@ const UI = {
       return `<button class="yslot" data-yk="${k}" data-yi="${i}" style="--c:${c}"><i>${iconSVG(w.def, 30, c)}</i><div><b>${esc(w.def.name)}</b> <em>Lv ${w.lvl}${!w.isSpell && w.lvl >= MAX_WLVL ? ' MASTERY' : ''}</em><br><span>${sub.join('<br>')}</span></div></button>`;
     };
     const sp = G.spells.map((w, i) => w && slot(w, i, 's')).filter(Boolean), wp = G.weapons.map((w, i) => w && slot(w, i, 'w')).filter(Boolean);
-    h += `<div class="sec"><h3>Spells (${sp.length}/${G.spells.length})</h3>${sp.length ? sp.join('') : '<p class="hint">None yet. Spells show up in DNA strands while you have a free slot.</p>'}</div>`;
+    h += `<div class="sec"><h3>Feats (${sp.length}/${G.spells.length})</h3>${sp.length ? sp.join('') : '<p class="hint">None yet. Feats show up in DNA strands while you have a free slot.</p>'}</div>`;
     h += `<div class="sec"><h3>Weapons (${wp.length}/${MAX_WEAPONS})</h3>${wp.join('')}<p class="hint">Tap one to open it in the Armoury.</p></div>`;
     // The rest.
     let r = '';
@@ -1084,7 +1102,7 @@ const UI = {
       : `<em>Rank ${r}${next ? ` | ${fmtNum(kills)}/${fmtNum(next)} kills to Rank ${r + 1}` : ' (max)'}</em>`;
     const syn = PROFILE_SYNERGIES.filter(q => q.a === id || q.b === id).map(q => `${esc(PROFILES[q.a === id ? q.b : q.a].name)}: ${esc(q.name)}`).join('; ');
     return `<b>${esc(Pr.name)}</b> <span class="brole">${esc(Pr.trait.toUpperCase())}</span><br><span>${esc(Pr.desc)} ${open ? esc(Pr.fmt(profK(id, true))) + ' as your Primary.' : ''}</span><br>${prog}`
-      + (opts && opts.full ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
+      + (opts && opts.full ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">As your Primary it evolves at ${esc(evolveText(id))}.</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
   },
   openSamples() {
     const best = UI.loadBest();
@@ -1295,7 +1313,7 @@ const UI = {
     const tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
     let h = won
-      ? `<div class="eulogy">${G.wave ? 'Eight drops, eight bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
+      ? `<div class="eulogy">${G.wave ? 'Twenty drops, four bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
       : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(SYSTEM_LINES.death))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The producers are cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
       <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:${PAL.danger}">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
     const dr = dailyRecord(won);

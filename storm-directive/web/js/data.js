@@ -7,6 +7,8 @@ const ELEMENTS = {
   ice:    { name: 'Base',    color: '#5b8cff', status: 'lathered', blurb: 'High pH. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid.' },
   shock:  { name: 'Static',  color: '#ffe94a', status: 'charged',  blurb: 'Charges enemies: some of the damage they take arcs to a neighbour and drags it closer (static cling).' },
   poison: { name: 'Ethanol', color: '#e8a33d', status: 'drunk',    blurb: 'Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out.' },
+  oxi:    { name: 'Peroxide', color: '#9ff7ff', status: 'fizzing', blurb: 'An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit.' },
+  salt:   { name: 'Brine',   color: '#ffb3c6', status: 'pickled', blurb: 'Salt water. Pickled enemies shrivel: they swim 15% slower, hit you 25% softer, and conduct Static twice as well.' },
   arcane: { name: 'Voodoo',  color: '#c77dff', status: 'hexed',    blurb: 'Hexes enemies: they take more from everything. When a hexed enemy dies the hex passes to the nearest one.' },
 };
 
@@ -94,7 +96,7 @@ const WEAPONS = {
     desc: 'Guardian angels circle you and hit whatever comes close. They always start too soon.',
     base: { dmg: 23, count: 3, dur: 4.5, reload: 2.2, radius: 72, spin: 3.6, size: 10, range: 100 },
     lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { count: 1 } }, sig: { 5: ['nan', 'clingy'], 8: ['smite', 'martyr'], 10: ['extended', 'guilttrip'] } },
-  siphon: { name: 'Placental Siphon', stars: [3, 5, 3, 2], play: 'Eats enemy bullets near you and fires them back, as hard as they hit you. With nothing to eat it only dribbles out a weak spit: it needs a busy screen.', icon: 'BU', elem: 'arcane', kind: 'siphon', color: '#ff3df2', dir: 'nearest', role: 'Counter',
+  siphon: { name: 'Placental Siphon', stars: [3, 5, 3, 2], play: 'Eats enemy bullets near you and fires them back, as hard as they hit you. With nothing to eat it only dribbles out a weak spit: it needs a busy screen.', icon: 'BU', elem: 'salt', kind: 'siphon', color: '#ff3df2', dir: 'nearest', role: 'Counter',
     desc: 'Eats enemy bullets that come near you and spits them back. No reloads. Feeds on demand.',
     base: { dmg: 15, cd: 0.08, mag: 40, area: 90, speed: 640, range: 460, size: 4.5, pierce: 0, spread: 0.08, count: 1 },
     lv: { 3: { area: 0.25 }, 6: { pierce: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['sender', 'buffet'], 8: ['spreadlove', 'savings'], 10: ['mirrorwomb', 'overflow'] } },
@@ -136,7 +138,7 @@ const WEAPONS = {
     desc: 'A beam joins you and your twin across the crowd. You both think "zap".',
     base: { dmg: 24, cd: 1.6, mag: 3, reload: 2.0, count: 1, range: 520, area: 90, width: 10 },
     lv: { 3: { dmg: 0.3 }, 6: { count: 1 }, 9: { area: 0.3 } }, sig: { 5: ['mindmeld', 'switcheroo'], 8: ['sympathy', 'wavelength'], 10: ['quads', 'psychic'] } },
-  bubble: { name: 'Bubble Wand', stars: [2, 3, 3, 4], play: 'Blows bubbles that trap small enemies. A trapped enemy crawls along and cannot fight back. Anything that touches the bubble (you, another enemy, a shot, a bullet) pops it, and the pop hits everything nearby except the enemy inside, which comes out dazed. The longer a bubble holds, the bigger the pop. From Lv 3 the film soaks up hits and adds them to the pop; at Lv 9 pops shimmer into a random element. Trapped enemies that bump into each other may merge into one bigger bubble.', icon: 'BW', elem: 'phys', kind: 'bubble', toy: 1, color: '#cdb4db', dir: 'nearest', role: 'Trap & Throw',
+  bubble: { name: 'Bubble Wand', stars: [2, 3, 3, 4], play: 'Blows bubbles that trap small enemies. A trapped enemy crawls along and cannot fight back. Anything that touches the bubble (you, another enemy, a shot, a bullet) pops it, and the pop hits everything nearby except the enemy inside, which comes out dazed. The longer a bubble holds, the bigger the pop. From Lv 3 the film soaks up hits and adds them to the pop; at Lv 9 pops shimmer into a random element. Trapped enemies that bump into each other may merge into one bigger bubble.', icon: 'BW', elem: 'oxi', kind: 'bubble', toy: 1, color: '#cdb4db', dir: 'nearest', role: 'Trap & Throw',
     desc: 'Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.',
     base: { dmg: 18, cd: 1.1, mag: 4, reload: 2.0, count: 1, range: 380, speed: 170, size: 20, dur: 5, hold: 34 },
     lv: { 3: { count: 1, film: 4 }, 6: { dmg: 0.4, film: 4 }, 9: { count: 1, rainbow: 1 } }, sig: { 5: ['extrasoapy', 'bubblebath'], 8: ['cannonball', 'chainpop'], 10: ['hamsterball', 'bubbleboy'] } },
@@ -470,8 +472,15 @@ const PASSIVES = {
   toxin:     { name: 'Hip Flask',       icon: 'TX', max: 5, v: 0.25, fmt: v => `+${pc(v)} Ethanol damage, +3 max rounds`, apply: (P, v) => { P.elem.poison += v; P.poisonCap += 3; } },
   arcanum:   { name: 'Pins and Needles',          icon: 'WA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Voodoo damage`, apply: (P, v) => { P.elem.arcane += v; } },
   kinetic:   { name: 'Headbutt Training',       icon: 'BA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Force damage`, apply: (P, v) => { P.elem.phys += v; } },
+  lungs:     { name: 'Big Lungs',          icon: 'BL', max: 3, v: 25, fmt: v => `+${Math.round(v)} max stamina (sprint longer, cast more Feats)`, apply: (P, v) => { P.stamMax += v; } },
+  secondwind:{ name: 'Second Wind',        icon: 'SW', max: 3, v: 0.3, fmt: v => `Stamina refills ${pc(v)} faster`, apply: (P, v) => { P.stamRegen += v; } },
+  cardio:    { name: 'Cardio',             icon: 'CA', max: 2, v: 0.25, fmt: v => `Sprinting costs ${pc(v)} less stamina and is ${pc(v * 0.4)} faster`, apply: (P, v) => { P.sprintCost = Math.max(0.3, P.sprintCost - v); P.sprintSpd += v * 0.4; } },
+  efficient: { name: 'Muscle Memory',      icon: 'MM', max: 2, v: 0.2, fmt: v => `Stamina Feats cost ${pc(v)} less`, apply: (P, v) => { P.featCost = Math.max(0.4, P.featCost - v); } },
+  cocktail:  { name: 'Cocktail Hour',      icon: 'CK', max: 3, v: 0.12, fmt: v => `Hits deal +${pc(v)} damage for every different chemical already on the target`, apply: (P, v) => { P.cocktail += v; } },
+  chainreact:{ name: 'Chain Reaction',     icon: 'CR', max: 3, v: 0.25, fmt: v => `${pc(v)} chance that a reaction sets off the same reaction in a nearby enemy carrying any chemical`, apply: (P, v) => { P.chainReact += v; } },
+  mixologist:{ name: 'Mixologist',         icon: 'MX', max: 3, v: 0.5, fmt: v => `Against enemies already carrying 2 or more chemicals, your chemicals go on +${pc(v)} stronger`, apply: (P, v) => { P.mixologist += v; } },
   catalyst:  { name: 'Chemistry',         icon: 'CT', max: 5, v: 0.35, fmt: v => `+${pc(v)} elemental reaction damage`, apply: (P, v) => { P.react += v; } },
-  echo:      { name: 'Repeat Prescription',       icon: 'SE', max: 5, v: 0.10, fmt: v => `-${pc(v)} spell cooldowns`, apply: (P, v) => { P.cdr = Math.max(0.4, P.cdr - v); } },
+  echo:      { name: 'Repeat Prescription',       icon: 'SE', max: 5, v: 0.10, fmt: v => `-${pc(v)} Feat cooldowns`, apply: (P, v) => { P.cdr = Math.max(0.4, P.cdr - v); } },
   scholar:   { name: 'Antenatal Classes',          icon: 'SH', max: 5, v: 0.12, fmt: v => `+${pc(v)} experience gained`, apply: (P, v) => { P.xp += v; } },
   temporal:  { name: 'Snooze Button',    icon: 'TL', max: 3, v: 1, minRarity: 2, fmt: () => `+1 max Rewind charge, +25% Chrono energy`, apply: (P, v, G) => { G.chrono.max += 1; P.chronoGain += 0.25; } },
   lastround: { name: 'Last Word',        icon: 'LW', max: 3, v: 1, fmt: v => `Last bullet of every magazine deals x${3 + Math.round(v)} damage and explodes`, apply: (P, v) => { P.lastRound += Math.round(v); } },
@@ -482,7 +491,7 @@ const PASSIVES = {
   momentum:  { name: 'Hurry Up',         icon: 'MO', max: 4, v: 0.15, fmt: v => `Up to +${pc(v * 1.5)} damage the faster you are moving`, apply: (P, v) => { P.momentum += v; } },
   anchorlink:{ name: 'Separation Anxiety',         icon: 'EB', max: 3, v: 0.12, fmt: v => `${typeof G !== 'undefined' && G && G.wave ? 'Near the middle of the dish (where the egg sits)' : 'Near the egg'}: +${pc(v)} fire rate. Away from it: +${pc(v)} crit chance`, apply: (P, v) => { P.anchorLink += v; } },
   future:    { name: 'Spoilers',    icon: 'FU', max: 4, v: 0.1, fmt: v => `${pc(v)} of shots appear already next to their target (with the Incompatible Viral Load, you do)`, apply: (P, v) => { P.future += v; } },
-  echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 2, fmt: () => `When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your spells too and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
+  echoinherit: { name: 'Inheritance', icon: 'EI', max: 1, v: 1, minRarity: 2, fmt: () => `When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your Feats too and last twice as long`, apply: (P) => { P.echoInherit = 1; } },
   ram:       { name: 'Headstrong',          icon: 'AR', max: 5, v: 1, fmt: v => `Enemies you swim into take big damage (ram power x${v.toFixed(1)}). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun.`, apply: (P, v) => { P.ram += v; } },
   heft:      { name: 'Big Boned', icon: 'BB', max: 4, v: 1, fmt: v => `+${30 * v} max HP (and heal it). All your damage +${Math.round(4 * v)}% for every 100 max HP you have.`, apply: (P, v, G) => { P.heft += v; P.maxHp += 30 * v; G.player.hp += 30 * v; } },
   thorns:    { name: 'Prickly Personality', icon: 'PP', max: 4, v: 1, fmt: v => `Whatever hurts you gets hurt back (thorns x${v}), plus a smaller jab to everything around you. Grows with max HP and armour.`, apply: (P, v) => { P.thorns += v; } },
@@ -509,6 +518,16 @@ const REACTIONS = {
   sympathy:  { name: 'SYMPATHY',     color: '#e0aaff', desc: 'Voodoo on any status: bonus damage, and the dolls: its status copies onto two neighbours, which are hexed too.' },
   suds:      { name: 'SUDS',         color: '#e6f4ff', desc: 'Force on a saponified enemy: the soap bursts, and the suds hit everything near it.' },
   pushover:  { name: 'PUSHOVER',     color: '#ffe5b4', desc: 'Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far.' },
+  bleach:    { name: 'BLEACHED',     color: '#e6fbff', desc: 'Peroxide meets Acid (either way round): all its armour is stripped for 4s, and its corrosion burns twice as hard.' },
+  toothpaste:{ name: 'ELEPHANT TOOTHPASTE', color: '#e6fbff', desc: 'Peroxide meets Base (either way round): a column of foam erupts, lathering and shoving everything nearby.' },
+  rocket:    { name: 'ROCKET FUEL',  color: '#ffd166', desc: 'Peroxide meets Ethanol (either way round): the enemy is launched away from you and explodes where it lands.' },
+  ozone:     { name: 'OZONE',        color: '#bde0fe', desc: 'Peroxide meets Static (either way round): static jumps to three neighbours and sets them fizzing.' },
+  exorcism:  { name: 'EXORCISM',     color: '#e0aaff', desc: 'Peroxide meets Voodoo (either way round): the hex is burned out of it in one hit (15% of its health; 6% on bosses).' },
+  electrolyte:{ name: 'ELECTROLYTE', color: '#ffe5ec', desc: 'Brine meets Static (either way round): the charge runs through the salt water to four neighbours, charging them all.' },
+  wound:     { name: 'SALT IN THE WOUND', color: '#ffb3c6', desc: 'Brine meets Acid (either way round): its corrosion does double damage for the rest of the dose.' },
+  margarita: { name: 'MARGARITA',    color: '#d8f3dc', desc: 'Brine meets Ethanol (either way round): a salted rim. It nods off for 2.5s, and so do the drunks around it.' },
+  crust:     { name: 'SALT CRUST',   color: '#fff0f3', desc: 'Brine meets Base (either way round): it crusts over and saponifies on the spot (not bosses), and takes +20% for 4s.' },
+  seafoam:   { name: 'SEA FOAM',     color: '#caf0f8', desc: 'Peroxide meets Brine (either way round): the bubbles all pop at once, twice as hard, in a wide ring.' },
   blackout:  { name: 'BLACKOUT',     color: '#cdb4db', desc: 'An enemy topped up to its Ethanol limit passes out for 2s, and wakes up hungover: +25% damage taken for 5s.' },
 };
 
@@ -519,6 +538,8 @@ const SYNERGIES = {
   ice:    { name: 'Bath Time',  desc: 'Saponify threshold halved, saponified enemies take +25%' },
   shock:  { name: 'Balloon Hair',   desc: 'Charged enemies arc twice as often' },
   poison: { name: 'Open Bar', desc: 'Ethanol ticks twice as fast' },
+  oxi:    { name: 'Bubbly',  desc: 'Fizz pops 50% harder' },
+  salt:   { name: 'Seasoned',  desc: 'Pickling lasts 50% longer' },
   arcane: { name: 'Old Wives\' Tale',    desc: 'Hexes amplify damage by +50% instead of +30%' },
 };
 
@@ -569,7 +590,7 @@ const ENEMIES = {
   juggernaut: { name: 'Alpha Swimmer', hp: 420, speed: 34, armour: 12, r: 28, dmg: 30, xp: 20, color: '#d4c1a4', shape: 'sperm', ai: 'chase', from: 300, w: 0.6 },
 };
 
-// Bosses: eight in the ward, four per run, drawn at random. Each has a personality, strengths you have to
+// Bosses: nine in the ward, four per run, drawn at random. Each has a personality, strengths you have to
 // respect, weaknesses you can exploit (weak/resist: damage multipliers by element; weakAoe: blasts and pools),
 // and three relics themed on it. Beat it and you choose one: they are meant to define a build.
 const BOSSES = [
@@ -621,6 +642,12 @@ const BOSSES = [
     desc: 'Identical twins who fight as one. Kill one and the other rebuilds it in 8 seconds, unless you finish both.',
     strengths: ['Revive each other', 'Crossfire from two sides'], weaknesses: ['Finish both within 8 seconds', 'Blasts hit both when they huddle: +30%'],
     weakAoe: 1.3, relics: ['mirror', 'doubletrouble', 'twinpick'] },
+  { id: 'ghost', name: 'THE PHANTOM PREGNANCY', title: 'Expecting Nothing', shape: 'cell', color: '#e8e4ff',
+    hp: 3000, speed: 50, armour: 0, r: 46, dmg: 26, xp: 85, patterns: ['blink', 'spiral', 'ring', 'doubleSpiral'], ethereal: true, noForce: true,
+    quote: 'Boo. Sorry. Habit.',
+    desc: 'A pregnancy that was never really there. It drifts straight through walls and growths, and Force passes through it as if it were mist. The womb itself still hurts it.',
+    strengths: ['Immune to Force damage', 'Swims through obstacles'], weaknesses: ['Voodoo: +50% damage', 'Terrain still hurts it: Acid Crypts, cilia and ATP bursts'],
+    weak: { arcane: 1.5 }, relics: ['seethrough', 'poltergeist', 'ectoplasm'] },
 ];
 const BOSS_INTERVAL = 105; // seconds: bosses at 125, 230, 335 and 440, so the fourth relic still has a few minutes to work; the fifth waits for the Storm Surge
 const BOSSES_PER_RUN = 4;
@@ -660,6 +687,10 @@ const RELICS = {
   mirror:        { name: 'Mirror Twin', desc: 'Every shot-firing weapon also fires a twin shot backwards at 50% damage.' },
   doubletrouble: { name: 'Double Trouble', desc: '+1 projectile, +1 pierce and +1 chain jump for every weapon.' },
   twinpick:      { name: 'Seconds', desc: 'From now on, every DNA strand pickup lets you take two cards instead of one.' },
+  // The Phantom Pregnancy: not quite there.
+  seethrough:    { name: 'See-Through', desc: '+20% dodge. Half the bullets that should hit you go straight through.' },
+  poltergeist:   { name: 'Poltergeist', desc: 'Every 3s the nearest enemy is picked up and thrown at the toughest one nearby. Both take a beating.' },
+  ectoplasm:     { name: 'Ectoplasm', desc: 'Your hits pass halfway through armour: enemies keep only half their armour against you.' },
   // Rival relics (RIVAL_RELICS).
   personalbest:  { name: 'Personal Best', desc: '+20% swim speed, and +10% dodge while you are swimming fast.' },
   marathon:      { name: 'Marathon', desc: 'While you keep swimming fast you heal 1% of your max HP every second.' },
@@ -708,9 +739,9 @@ const MAX_WEAPONS = BASE_SLOTS + SLOT_LEVELS.length;
 // Sperm samples (levels): the playable ones, the Lab Bench (debug) and the ones still to come.
 const SAMPLES = [
   { id: 's001', no: '001', name: 'Standard Issue', desc: 'One healthy donor, four hundred million hopefuls, one egg. The classic.', count: '400,000,000', motility: '62% progressive', open: true },
-  { id: 's002', no: '002', name: 'The Petri Dish', tag: 'WAVE MODE', first: true, desc: 'A mad scientist is breeding super sperm. Eight drops into the dish, each built around one boss and its entourage. Beat the boss, beat the wave. Beat all eight and you get the egg.', count: 'one, for now', motility: 'under observation', open: true, waves: true },
+  { id: 's002', no: '002', name: 'The Petri Dish', tag: 'WAVE MODE', first: true, desc: 'A mad scientist is breeding super sperm. Twenty drops into the dish, starting easy: each wave brings a couple of new kinds of swimmer, and every fifth wave is a boss. Beat wave 20 and you get the egg.', count: 'one, for now', motility: 'under observation', open: true, waves: true },
   { id: 's006', no: '006', name: 'Petri Dish: Endless', tag: 'ENDLESS MODE', desc: 'No egg, no end. Wave after wave, each nastier than the last, with something big every fifth. How many can you take?', count: 'one, for now', motility: 'under observation', open: true, waves: true, locked: () => !endlessOpen(), lockText: 'Beat wave mode (The Petri Dish) to unlock.' },
-  { id: 's000', no: '000', name: 'Lab Bench (Debug)', desc: 'For testing: god mode, send in any enemy, boss or event, switch any weapon or spell on and off. Open the DEBUG panel.', count: 'whatever you send', motility: 'on command', open: true, debug: true },
+  { id: 's000', no: '000', name: 'Lab Bench (Debug)', desc: 'For testing: god mode, send in any enemy, boss or event, switch any weapon or Feat on and off. Open the DEBUG panel.', count: 'whatever you send', motility: 'on command', open: true, debug: true },
   { id: 's005', no: '005', name: 'Donor Bank', desc: 'Thawed in a hurry. Everyone is sluggish, except the ones who are not.', open: false },
   { id: 's003', no: '003', name: 'The Morning After', desc: 'The pill is already dissolving. Good luck.', open: false },
   { id: 's004', no: '004', name: 'Vasectomy Reversal', desc: 'Low count, high stakes, very confused surgeon.', open: false },
@@ -998,6 +1029,8 @@ const DUOS = [
 
 // ---------------------------------------------------------------- Cursed loot cards
 const CURSES = [
+  { id: 'smoker', name: "Smoker's Cough", boon: '+20% damage for everything', bane: '-40 max stamina, and it refills 25% slower', apply: P => { P.might += 0.2; P.stamMax -= 40; P.stamRegen -= 0.25; } },
+  { id: 'couch', name: 'Couch Potato', boon: '+30% max HP (and heal it)', bane: 'Sprinting costs twice the stamina', apply: (P, G) => { const add = Math.round(P.maxHp * 0.3); P.maxHp += add; G.player.hp += add; P.sprintCost *= 2; } },
   { id: 'glass', name: 'Delicate Condition', boon: '+80% damage for everything', bane: 'Max HP halved',
     apply: (P, G) => { P.might += 0.8; // adds, like every other damage bonus (it used to multiply, so it was worth more the later you took it)
       P.maxHp = Math.max(30, Math.round(P.maxHp / 2)); G.player.hp = Math.min(G.player.hp, P.maxHp); } },

@@ -64,7 +64,7 @@ function debugPanel() {
     <h5>RUN EVENTS</h5><div class="dbr">${Object.keys(RUN_EVENTS).map(id => `<button class="db" data-ev="${id}">${esc(RUN_EVENTS[id].name)}</button>`).join('')}${tog('dire', 'DIRE')}</div>
     <h5>WEAPONS (tap to switch on or off)</h5><div class="dbr">`;
   for (const id in WEAPONS) { const w = has(id); h += `<span class="dbw ${w ? 'on' : ''}"><button class="db ${w ? 'on' : ''}" data-wep="${id}">${esc(WEAPONS[id].name)}${w ? ' Lv' + w.lvl : ''}</button>${w ? `<button class="db sm" data-lv="${id}" data-d="-1">-</button><button class="db sm" data-lv="${id}" data-d="1">+</button>` : ''}</span>`; }
-  h += `</div><h5>SPELLS</h5><div class="dbr">`;
+  h += `</div><h5>FEATS</h5><div class="dbr">`;
   for (const id in SPELLS) { const w = has(id, true); h += `<span class="dbw ${w ? 'on' : ''}"><button class="db ${w ? 'on' : ''}" data-spell="${id}">${esc(SPELLS[id].name)}${w ? ' Lv' + w.lvl : ''}</button>${w ? `<button class="db sm" data-slv="${id}" data-d="-1">-</button><button class="db sm" data-slv="${id}" data-d="1">+</button>` : ''}</span>`; }
   h += '</div>';
   el.innerHTML = h;

@@ -844,6 +844,8 @@ body.technicolour #abilBtn.ready { animation: abilpulse 1.2s infinite alternate,
 
 /* First sightings (intro.js): the boss card, lighter and quicker. */
 #bossIntro.foe .bi-warn { display: none; }
+.bi-off { display: none; margin: 10px auto 0; background: none; border: 0; color: #8395a8; font: 10px var(--mono, monospace); letter-spacing: 1px; text-decoration: underline; pointer-events: auto; }
+#bossIntro.foe .bi-off { display: block; }
 #bossIntro.foe .bi-bar { height: 6vh; }
 #bossIntro.foe .bi-card { animation-delay: 0.35s; }
 #bossIntro.foe .bi-name { animation-delay: 0.55s; font-size: 26px; }

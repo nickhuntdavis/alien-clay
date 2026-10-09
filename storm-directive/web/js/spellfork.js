@@ -49,7 +49,7 @@ function spellForkStats(w, s) {
 }
 // The Lv 4 choice, from setWeaponLevel's spell branch.
 function spellForkOpts(w) {
-  return SPELL_FORKS[w.id].map((f, i) => ({ def: w.def, rarity: 3, tag: 'SPELL PATH', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: f.name,
-    sub: `${w.def.name} | Lv ${SPELL_FORK_LV}, only this spell`, desc: f.desc,
+  return SPELL_FORKS[w.id].map((f, i) => ({ def: w.def, rarity: 3, tag: 'FEAT PATH', icon: w.def.icon, color: w.def.color, elem: w.def.elem, title: f.name,
+    sub: `${w.def.name} | Lv ${SPELL_FORK_LV}, only this Feat`, desc: f.desc,
     apply: () => { w.fork = i ? 'b' : 'a'; computeStats(w); floatText(me().x, me().y - 40, f.name.toUpperCase(), PAL.upgrade, 15, 1.2); } }));
 }

@@ -80,9 +80,10 @@ function comboFuse(c) {
 }
 // For a new-weapon card: what it combos with.
 function comboHint(id) {
-  const cs = COMBOS.filter(c => c.a === id || c.b === id);
+  // (Only partners you already own: the rest would just be noise on the card.)
+  const cs = COMBOS.filter(c => (c.a === id && owned(c.b)) || (c.b === id && owned(c.a)));
   if (!cs.length) return '';
-  return ' Combos with ' + cs.map(c => WEAPONS[c.a === id ? c.b : c.a].name).join(' / ') + '.';
+  return ' Combos with your ' + cs.map(c => WEAPONS[c.a === id ? c.b : c.a].name).join(' / ') + '.';
 }
 
 // ---------------------------------------------------------------- hooks

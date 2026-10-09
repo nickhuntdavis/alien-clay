@@ -1,6 +1,6 @@
 # Spawn Prawn: complete game guide
 
-Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse in the game, with its numbers. Generated from the game data (`web/js/data.js`), so the figures match the build. Numbers are base values at level 1 and common rarity; rarer cards multiply them.
+Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse in the game, with its numbers. Generated from the game data (`web/js/data.js`), so the figures match the build. Numbers are base values at level 1 and common rarity; rarer cards multiply them.
 
 ## Contents
 1. [How upgrades work](#how-upgrades-work)
@@ -11,8 +11,8 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 5. [Pairings (secret combos)](#pairings-secret-combos)
 6. [Bosses and relics](#bosses-and-relics)
 7. [Run events](#run-events)
-8. [Spells](#spells)
-   - [Spell paths (Lv 4)](#spell-paths-lv-4)
+8. [Feats](#feats)
+   - [Feat paths (Lv 4)](#feat-paths-lv-4)
 9. [Power-ups (passives)](#power-ups-passives)
 10. [Mutations (Enzyme Vesicles)](#mutations-enzyme-vesicles)
 11. [Mythical and Celestial bonuses](#mythical-and-celestial-bonuses)
@@ -23,32 +23,34 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 15. [Stains](#stains)
 16. [Cursed cards](#cursed-cards)
 17. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
-18. [Elements](#elements)
-19. [Elemental reactions](#elemental-reactions)
-20. [Combo twists](#combo-twists)
-21. [Element synergies](#element-synergies)
-22. [Targeting directives](#targeting-directives)
-23. [Movement directives](#movement-directives)
-24. [Immune Response (difficulty)](#immune-response-difficulty)
-25. [Being born (prestige)](#being-born-prestige)
-26. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+18. [Stamina](#stamina)
+19. [Sequence evolutions](#sequence-evolutions)
+20. [Elements](#elements)
+21. [Elemental reactions](#elemental-reactions)
+22. [Combo twists](#combo-twists)
+23. [Element synergies](#element-synergies)
+24. [Targeting directives](#targeting-directives)
+25. [Movement directives](#movement-directives)
+26. [Immune Response (difficulty)](#immune-response-difficulty)
+27. [Being born (prestige)](#being-born-prestige)
+28. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
    - [Bonuses](#bonuses)
    - [Wildcard weapons](#wildcard-weapons)
    - [GFP variants](#gfp-variants)
-27. [Enemies](#enemies)
+29. [Enemies](#enemies)
    - [First sightings](#first-sightings)
-28. [Rival champions](#rival-champions)
-29. [Terrain](#terrain)
-30. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
-31. [Boss rewards](#boss-rewards)
-32. [Sperm samples](#sperm-samples)
-33. [Hidden rules](#hidden-rules)
-34. [Glossary](#glossary)
-35. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
+30. [Rival champions](#rival-champions)
+31. [Terrain](#terrain)
+32. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
+33. [Boss rewards](#boss-rewards)
+34. [Sperm samples](#sperm-samples)
+35. [Hidden rules](#hidden-rules)
+36. [Glossary](#glossary)
+37. [Secret Codex entries (spoilers)](#secret-codex-entries-spoilers)
 
 ## How upgrades work
 
-1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, spells, power-ups, modifiers, stains and (rarely) curses.
+1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, Feats, power-ups, modifiers, stains and (rarely) curses.
 2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
    - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.
 3. **Combos:** get two specific weapons to Lv 5+ and a COMBO card turns up in your next box. Fuse them and both keep firing, gain a new power, and (2 times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv5+.
@@ -57,7 +59,7 @@ Every sequence, weapon, combo, spell, power-up, perk, modifier, stain and curse 
 6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
 7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 20, 40 you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).
 8. **Mutations:** Enzyme Vesicles bulge up on the slide (the first at 40s, then every 45 to 70s). Swim into one to pick one of four mutations; you have 6 slots.
-9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Storm Surge. Each run meets 4 of the 8, in a random order. Beat one and choose one of its three relics.
+9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Storm Surge. Each run meets 4 of the 9, in a random order. Beat one and choose one of its three relics.
 10. **Rarity** multiplies a card's value:
 
 | Rarity | Multiplier | Weapon levels granted | Roll weight (relative) | Share of cards offered (mid-run) |
@@ -81,13 +83,13 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Sequence | Trait (Rank 1) | Weapons | Starting ability | Unlock |
 |---|---|---|---|---|
 | **The Firstborn** | Quick Recovery: +12% reload speed | Spitball, Seeker Siblings, Yo-Yo Diet | **Head First** (8s): Every 8s: headbutt-dash through whatever is in front of you, hitting everything along the way. You cannot be hurt mid-charge. | Always |
-| **The Ten-Pounder** | Puppy Fat: +1 armour | Hiccup Scattergun, Placenta Paddle, Thorny Onesie, Nappy Mines | **Mood Swing** (30s): Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s. | Always |
-| **The Bright Spark** | Early Developer: +6% fire rate, spells recharge 6% faster | Static Cling, Twin Telepathy, Toddler Gravity | **Short Fuse** (10s): Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets. | Always |
+| **The Chonker** | Puppy Fat: +1 armour | Hiccup Scattergun, Placenta Paddle, Thorny Onesie, Nappy Mines | **Mood Swing** (30s): Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s. | Always |
+| **The Bright Spark** | Early Developer: +6% fire rate, Feats recharge 6% faster | Static Cling, Twin Telepathy, Toddler Gravity | **Short Fuse** (10s): Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets. | Always |
 | **The Favourite** | Favouritism: +4% crit chance, +15% crit damage | Due Date, Antacid, Tooth Fairy | **Telling Tales** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Survive 10 minutes in a single run |
 | **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Incompatible Viral Load, Peekaboo | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Beat 25 bosses (all runs) |
 | **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Pick up 100 power-ups (all runs) |
 | **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six acid pools erupts around you. They corrode harder the more hurt you are. | Deal 2,000,000 elemental damage (all runs) |
-| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, saponifying everything in it (bosses only briefly). | Cast 1,500 spells (all runs) |
+| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, saponifying everything in it (bosses only briefly). | Cast 1,500 Feats (all runs) |
 | **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Reach Rank 3 with every other sequence |
 | **The Redtail** | Inbred Luck: +25% luck; level-up boxes are never Common. Every level up also brings a small bane (at most 4 of each) | Shotgun Wedding, Moonshine Jug, Duelling Banjo | **Sister-Cousin** (12s): When you are hit, there is a 35% chance a copy of you splits off and fights beside you for 12s. Swim into her to recombine for Keeping It in the Family: +30% damage and +20% fire rate for 8s, and 10% of your health back. Tap to split on purpose. | Play 20 runs (any result) |
 
@@ -97,8 +99,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |---|---|---|
 | **Rubbing Off** | The Firstborn + The Bright Spark | Every reload sends a spark into the two nearest enemies. |
 | **Trail of Destruction** | The Firstborn + The Problem Child | You leave small acid patches behind you as you swim. |
-| **Comfort Eating** | The Ten-Pounder + The Good Eater | Below half health, your regeneration doubles (and you get +1 HP/s). |
-| **Blowout** | The Ten-Pounder + The Problem Child | Nappy Mines leave an acid puddle where they go off. |
+| **Comfort Eating** | The Chonker + The Good Eater | Below half health, your regeneration doubles (and you get +1 HP/s). |
+| **Blowout** | The Chonker + The Problem Child | Nappy Mines leave an acid puddle where they go off. |
 | **First Impressions** | The Favourite + The Quiet One | Hits on enemies at full health always crit. |
 | **Clean Living** | The Designer Baby + The Favourite | Lathered or saponified enemies take 30% more damage from you. |
 | **Batch Cooking** | The Designer Baby + The Good Eater | Your starting ability (Soap Dispenser or Cluster Feeding, whichever is your primary's) heals you 3% of your max HP for every enemy it hits (up to 15%). |
@@ -110,11 +112,11 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Weapon | Sequence | Element | Role | Aims at | Wildcard |
 |---|---|---|---|---|---|
 | [Spitball](#spitball) | Firstborn | Force | Marksman | NEAREST | - |
-| [Hiccup Scattergun](#hiccup-scattergun) | Ten-Pounder | Force | Brawler | NEAREST | - |
+| [Hiccup Scattergun](#hiccup-scattergun) | Chonker | Force | Brawler | NEAREST | - |
 | [Yo-Yo Diet](#yo-yo-diet) | Firstborn | Force | Boomerang | FURTHEST | - |
 | [Incompatible Viral Load](#incompatible-viral-load) | Quiet One | Ethanol | Boozy Trail | NEAREST | 80 DNA |
 | [Heartburn](#heartburn) | Problem Child | Acid | Acid Spray | NEAREST | - |
-| [Nappy Mines](#nappy-mines) | Ten-Pounder | Acid | Trapper | NEAREST | 60 DNA |
+| [Nappy Mines](#nappy-mines) | Chonker | Acid | Trapper | NEAREST | 60 DNA |
 | [Antacid](#antacid) | Favourite | Base | Saponifier | FASTEST | - |
 | [Static Cling](#static-cling) | Bright Spark | Static | Chain Static | DENSEST CLUSTER | - |
 | [Morning Sickness](#morning-sickness) | Problem Child | Ethanol | Area Denial | DENSEST CLUSTER | - |
@@ -122,17 +124,17 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Seeker Siblings](#seeker-siblings) | Firstborn | Voodoo | Swarm | WEAKEST | - |
 | [Toddler Gravity](#toddler-gravity) | Bright Spark | Voodoo | Crowd Control | DENSEST CLUSTER | 80 DNA |
 | [Premature Evangelation](#premature-evangelation) | Good Eater | Voodoo | Bodyguard | NEAREST | 60 DNA |
-| [Placental Siphon](#placental-siphon) | Designer Baby | Voodoo | Counter | NEAREST | 100 DNA |
-| [Placenta Paddle](#placenta-paddle) | Ten-Pounder | Force | Cleaver | NEAREST | - |
+| [Placental Siphon](#placental-siphon) | Designer Baby | Brine | Counter | NEAREST | 100 DNA |
+| [Placenta Paddle](#placenta-paddle) | Chonker | Force | Cleaver | NEAREST | - |
 | [Flagellum Flail](#flagellum-flail) | Quiet One | Force | Lasher | NEAREST | - |
-| [Thorny Onesie](#thorny-onesie) | Ten-Pounder | Force | Tank | NEAREST | - |
+| [Thorny Onesie](#thorny-onesie) | Chonker | Force | Tank | NEAREST | - |
 | [Colouring In](#colouring-in) | Designer Baby | Force | Lasso | NEAREST | 90 DNA |
 | [Due Date](#due-date) | Favourite | Voodoo | Delayed Doom | HIGHEST HEALTH | 100 DNA |
 | [Red Tape](#red-tape) | Problem Child | Ethanol | Bureaucrat | DENSEST CLUSTER | 90 DNA |
 | [Imaginary Friend](#imaginary-friend) | Designer Baby | Voodoo | Echo | NEAREST | 120 DNA |
 | [Peekaboo](#peekaboo) | Quiet One | Base | Trickster | NEAREST | 100 DNA |
 | [Twin Telepathy](#twin-telepathy) | Bright Spark | Static | Geometry | DENSEST CLUSTER | 110 DNA |
-| [Bubble Wand](#bubble-wand) | Good Eater | Force | Trap & Throw | NEAREST | 90 DNA |
+| [Bubble Wand](#bubble-wand) | Good Eater | Peroxide | Trap & Throw | NEAREST | 90 DNA |
 | [Tooth Fairy](#tooth-fairy) | Favourite | Voodoo | Lure | DENSEST CLUSTER | 100 DNA |
 | [Déjà Vu](#dj-vu) | Prawn Again | Voodoo | Repeater | NEAREST | - |
 | [Ghosts of You](#ghosts-of-you) | Prawn Again | Base | Haunter | NEAREST | - |
@@ -417,7 +419,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Placental Siphon
 
-*Voodoo siphon, Counter.* Eats enemy bullets that come near you and spits them back. No reloads. Feeds on demand.
+*Brine siphon, Counter.* Eats enemy bullets that come near you and spits them back. No reloads. Feeds on demand.
 
 - **Base stats:** dmg 15, cd 0.08s, mag 40, range 460 (area 90)
 - **Level bonuses:** Lv3: +25% area; Lv6: +1 pierce; Lv9: +40% dmg
@@ -627,7 +629,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Bubble Wand
 
-*Force bubble, Trap & Throw.* Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.
+*Peroxide bubble, Trap & Throw.* Traps small enemies in bubbles that slow them to a crawl. Anything that touches one pops it, blasting everything nearby. Do not drink the mix.
 
 - **Base stats:** dmg 18, cd 1.1s, mag 4, reload 2s, range 380 (dur 5, hold 34)
 - **Level bonuses:** Lv3: +1 count, thicker bubbles (each holds 4 more times the wand's damage before it pops, and adds what it soaked to the pop); Lv6: +40% dmg, thicker bubbles (each holds 4 more times the wand's damage before it pops, and adds what it soaked to the pop); Lv9: +1 count, rainbow pops (each pop takes a random element)
@@ -898,8 +900,8 @@ Both weapons at Lv 5+: a COMBO card is guaranteed in your next box. Both keep fi
 |---|---|---|---|
 | **Big Sibling** | Spitball + Seeker Siblings | Firstborn | Every 5th Spitball volley also launches a huge homing Big Sibling that explodes on impact. |
 | **Swapping Spit** | Spitball + Yo-Yo Diet | Firstborn | Yo-yos spit Spitballs at whatever is near them while they fly. |
-| **Whack-a-Mole** | Placenta Paddle + Nappy Mines | Ten-Pounder | Paddle hits plant a Nappy Mine under the enemy, armed almost at once. |
-| **Porcupine Hug** | Thorny Onesie + Hiccup Scattergun | Ten-Pounder | Every Onesie pulse fires a ring of Scattergun pellets outwards. |
+| **Whack-a-Mole** | Placenta Paddle + Nappy Mines | Chonker | Paddle hits plant a Nappy Mine under the enemy, armed almost at once. |
+| **Porcupine Hug** | Thorny Onesie + Hiccup Scattergun | Chonker | Every Onesie pulse fires a ring of Scattergun pellets outwards. |
 | **Storm in a Teacup** | Toddler Gravity + Static Cling | Bright Spark | Gravity orbs crackle: each one throws a Static Cling chain at what it is pulling in. |
 | **Party Line** | Twin Telepathy + Static Cling | Bright Spark | Every second, each twin sends a Static Cling chain into the crowd. |
 | **Clean Slate** | Due Date + Antacid | Favourite | When a Due Date goes off, everything near it is saponified and takes a burst of antacid. |
@@ -967,7 +969,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 ## Bosses and relics
 
-A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 8 at random; a fifth (a tougher repeat) waits until the Storm Surge. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
+A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 9 at random; a fifth (a tougher repeat) waits until the Storm Surge. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
 
 ### THE MACROPHAGE QUEEN: Eater of Hopefuls
 
@@ -1089,6 +1091,21 @@ Identical twins who fight as one. Kill one and the other rebuilds it in 8 second
 | **Double Trouble** | +1 projectile, +1 pierce and +1 chain jump for every weapon. |
 | **Seconds** | From now on, every DNA strand pickup lets you take two cards instead of one. |
 
+### THE PHANTOM PREGNANCY: Expecting Nothing
+
+> "Boo. Sorry. Habit."
+
+A pregnancy that was never really there. It drifts straight through walls and growths, and Force passes through it as if it were mist. The womb itself still hurts it. Base HP 3000, armour 0, speed 50.
+
+- **Strengths:** Immune to Force damage; Swims through obstacles.
+- **Weaknesses:** Voodoo: +50% damage; Terrain still hurts it: Acid Crypts, cilia and ATP bursts.
+
+| Relic | Effect |
+|---|---|
+| **See-Through** | +20% dodge. Half the bullets that should hit you go straight through. |
+| **Poltergeist** | Every 3s the nearest enemy is picked up and thrown at the toughest one nearby. Both take a beating. |
+| **Ectoplasm** | Bullets sometimes pass straight through you: +15% dodge. |
+
 ## Run events
 
 From level 6 (and about 70 seconds in), something unexpected happens every 55 to 75 seconds: never during a boss fight, the Final Five or the swim to the egg. From level 40 events turn **DIRE**: they come every 35 to 50 seconds, hit harder, pay out more, and 30% of the time two arrive at once. Run-event targets (the Golden Swimmer and bounties) get an arrow on screen, and every weapon and the autorun go after them first.
@@ -1107,11 +1124,11 @@ From level 6 (and about 70 seconds in), something unexpected happens every 55 to
 | **WATERS BREAKING** (Lv 25+) | 20s | A strong current sweeps everything one way. Swim with it and you ram for free. | A strong current sweeps everything one way. Swim with it and you ram for free. |
 | **IDENTICAL TWINS** (Lv 40+) | 20s | Everything that dies splits in two (the halves give no XP). | Everything that dies splits in two (the halves give no XP). |
 
-## Spells
+## Feats
 
-Spells autocast on cooldown and use spell slots. They level up like weapons, and at Lv 4 each one asks you to choose one of two paths (below).
+Feats (what used to be Feats) cast themselves and use the two Feat slots. The attacking ones (Stork Drop, Power Shower, Brainstorm, Sofa Crevice, Running With Scissors, Dutch Oven) are paid for from your stamina instead of waiting on a cooldown; the rest keep cooldowns. They level up like weapons, and at Lv 4 each one asks you to choose one of two paths (below).
 
-| Spell | Element | What it does | Base stats | Level bonuses |
+| Feat | Element | What it does | Base stats | Level bonuses |
 |---|---|---|---|---|
 | **Stork Drop** | Acid | A stork drops something heavy on the target and leaves acid on the ground. Not a baby. | dmg 65, cd 5s, count 1, area 88, delay 0.7s, dur 2s | Lv3: +1 count; Lv5: +30% area; Lv7: +1 count |
 | **Power Shower** | Base | A soapy blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
@@ -1125,9 +1142,9 @@ Spells autocast on cooldown and use spell slots. They level up like weapons, and
 | **Baby Monitor** | Static | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
 | **Out of Body** | Voodoo | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
 
-### Spell paths (Lv 4)
+### Feat paths (Lv 4)
 
-| Spell | Path A | Path B |
+| Feat | Path A | Path B |
 |---|---|---|
 | **Stork Drop** | **Double Delivery**: One more stork every cast, each dropping 80% as hard. | **Hot Water Bottle**: The acid it leaves on the ground is 40% wider and lasts twice as long. |
 | **Power Shower** | **Soap Bath**: Everything it catches stays saponified twice as long. | **Power Shower**: A second blast goes off a second later, wherever you are by then. |
@@ -1175,8 +1192,15 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Hip Flask** | +25% Ethanol damage, +3 max rounds | You | 5 |
 | **Pins and Needles** | +25% Voodoo damage | You | 5 |
 | **Headbutt Training** | +25% Force damage | You | 5 |
+| **Big Lungs** | +25 max stamina (sprint longer, cast more Feats) | You | 3 |
+| **Second Wind** | Stamina refills 30% faster | You | 3 |
+| **Cardio** | Sprinting costs 25% less stamina and is 10% faster | You | 2 |
+| **Muscle Memory** | Stamina Feats cost 20% less | You | 2 |
+| **Cocktail Hour** | Hits deal +12% damage for every different chemical already on the target | You | 3 |
+| **Chain Reaction** | 25% chance that a reaction sets off the same reaction in a nearby enemy carrying any chemical | You | 3 |
+| **Mixologist** | Against enemies already carrying 2 or more chemicals, your chemicals go on +50% stronger | You | 3 |
 | **Chemistry** | +35% elemental reaction damage | You | 5 |
-| **Repeat Prescription** | -10% spell cooldowns | You | 5 |
+| **Repeat Prescription** | -10% Feat cooldowns | You | 5 |
 | **Antenatal Classes** | +12% experience gained | You | 5 |
 | **Snooze Button** | +1 max Rewind charge, +25% Chrono energy (Rare or better only) | You | 3 |
 | **Last Word** | Last bullet of every magazine deals x4 damage and explodes | You | 3 |
@@ -1187,7 +1211,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Hurry Up** | Up to +22% damage the faster you are moving | You | 4 |
 | **Separation Anxiety** | Near the egg: +12% fire rate. Away from it: +12% crit chance | You | 3 |
 | **Spoilers** | 10% of shots appear already next to their target (with the Incompatible Viral Load, you do) | You | 4 |
-| **Inheritance** | When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your spells too and last twice as long (Rare or better only) | You | 1 |
+| **Inheritance** | When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your Feats too and last twice as long (Rare or better only) | You | 1 |
 | **Headstrong** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | You | 5 |
 | **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | You | 4 |
 | **Prickly Personality** | Whatever hurts you gets hurt back (thorns x1), plus a smaller jab to everything around you. Grows with max HP and armour. | You | 4 |
@@ -1211,7 +1235,7 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 
 | Mutation | Tier | Effect |
 |---|---|---|
-| **Borrowed Jaw** | 0 | Weapons +10% damage and +5% crit chance. Spells -10% damage. The owner has stopped asking. |
+| **Borrowed Jaw** | 0 | Weapons +10% damage and +5% crit chance. Feats -10% damage. The owner has stopped asking. |
 | **Fussy Eater** | 0 | +2 rerolls right now and +10% luck. Sends everything back. |
 | **Ants in Your Pants** | 0 | +5% dodge chance, +2.5% swim speed. Cannot sit still. |
 | **Thumb Sucker** | 0 | +2 HP/s regeneration, but -15% max HP. The dentist disapproves. |
@@ -1227,13 +1251,13 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Contagious Lather** | 0 | Saponified enemies lather everything near them. |
 | **Highly Strung** | 0 | Static +30%, Ethanol -20%. |
 | **Gold Star** | 0 | +10% XP. |
-| **Short Attention Span** | 0 | Every spell cast has a 15% chance to recharge twice as fast. |
+| **Short Attention Span** | 0 | Every Feat cast has a 15% chance to recharge twice as fast. |
 | **Runny Nose** | 0 | Ethanol +30%, Static -20%. |
 | **Past Bedtime** | 0 | Timed power-ups last twice as long. |
 | **Showing Off** | 0 | Every elite or boss that dies near you: +5% damage for 10s, stacking 5 times. |
 | **Do-Over** | 0 | The first reroll on every card screen is free. |
 | **Salt in the Wound** | 0 | +20% crit chance against enemies that are lathered, saponified, drunk or corroding. |
-| **Eat Your Greens** | 0 | +5% fire rate, and spells recharge 5% faster. |
+| **Eat Your Greens** | 0 | +5% fire rate, and Feats recharge 5% faster. |
 | **Soft Hands** | 0 | Base +30%, Acid -20%. Washes up nicely. |
 | **Sour Face** | 0 | Acid +30%, Base -20%. |
 | **Runner's High** | 0 | +2 HP/s regeneration while you swim fast. |
@@ -1242,20 +1266,20 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Snot Trail** | 0 | +5% swim speed, Ethanol +5%. |
 | **Stiff as a Board** | 0 | +10% dodge chance, -20% swim speed. |
 | **Biting Phase** | 0 | Hits heal you a little (within the lifesteal limit). It is just a phase. |
-| **Teacher's Pet** | 0 | Weapons and spells -5% damage. +25% XP. |
-| **Bookworm** | 0 | Spells +15% damage. Weapons -10% damage. |
+| **Teacher's Pet** | 0 | Weapons and Feats -5% damage. +25% XP. |
+| **Bookworm** | 0 | Feats +15% damage. Weapons -10% damage. |
 | **Bursts Into Tears** | 1 | Get hit and you burst: a blast hits everything near you and shoves it away. |
 | **Hollow Legs** | 1 | +1 HP/s regeneration for every 200 max HP you have. |
 | **Chip on the Shoulder** | 1 | +30% damage to elites, bosses and rival champions. |
 | **Screen Time** | 1 | Stay still and it builds: up to +30% damage after 3s. Swimming wears it off. |
 | **Heavy-Handed** | 1 | +1% crit chance for every 100 max HP you have. |
-| **Sticker Chart** | 1 | Killing a boss: 6s of +25% fire rate, and your spells recharge 25% faster. |
+| **Sticker Chart** | 1 | Killing a boss: 6s of +25% fire rate, and your Feats recharge 25% faster. |
 | **Lucky Dip** | 1 | +20% luck, so your DNA strands come out rarer. |
 | **Mood Swings** | 1 | Acid, Base and Static +40%. Force, Ethanol and Voodoo -10%. |
 | **Middle Child** | 1 | Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts. |
 | **Character Building** | 1 | Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits. |
 | **Double Yolk** | 1 | Every Enzyme Vesicle has a 30% chance to let you take two mutations. |
-| **First Word** | 1 | Your spells always crit on enemies at full health, and crits hit 25% harder. |
+| **First Word** | 1 | Your Feats always crit on enemies at full health, and crits hit 25% harder. |
 | **Pass the Parcel** | 1 | Charged enemies pass a jolt to a neighbour every second. |
 | **Flare-Up** | 1 | Corroding enemies can burst (about 1 in 10 each second) in a small acid blast. |
 | **Backed Up** | 1 | Weapons with a magazine bigger than 1 hold twice as much. |
@@ -1263,7 +1287,7 @@ Swim into a vesicle (COLLECT autorun goes for them) and pick one of four. 6 slot
 | **Overexcited** | 1 | Every crit gives +0.5% fire rate for 2s (up to +25%). |
 | **One in Each Hand** | 1 | Every timed power-up also gives you another random one. +20% pickup range. |
 | **Too Many Sweets** | 1 | A Glucose Hit picked up at full health: +50% damage for 20s. |
-| **Attention Seeker** | 1 | Getting hit instantly reloads a random weapon and recharges a random spell (every 2s at most). |
+| **Attention Seeker** | 1 | Getting hit instantly reloads a random weapon and recharges a random Feat (every 2s at most). |
 | **Keeping It a Surprise** | 1 | Hidden until you take it. |
 | **Rough and Tumble** | 1 | Force +40%. Acid, Base and Static -10%. |
 | **Finders Keepers** | 1 | Rerolls have a 35% chance not to be used up. +5% luck. |
@@ -1371,6 +1395,8 @@ The slide starts in greyscale. Each stain brings back one kind of colour so you 
 
 | Curse | Boon | Bane |
 |---|---|---|
+| **Smoker's Cough** | +20% damage for everything | -40 max stamina, and it refills 25% slower |
+| **Couch Potato** | +30% max HP (and heal it) | Sprinting costs twice the stamina |
 | **Delicate Condition** | +80% damage for everything | Max HP halved |
 | **Shotgun Wedding** | +50% fire rate | Enemy bullets 20% faster |
 | **Hands Full** | +4 rerolls right now, double viewers | Pickup range halved |
@@ -1409,9 +1435,30 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 | **THE HOST SNEEZES** | A | Everything is flung across the slide and enemy bullets are wiped. Bless you |
 | **TAX REFUND** | £ | Overpaid damage, returned as XP. Nobody knows how it was calculated |
 
+## Stamina
+
+One bar, under your health. In manual control, push the stick past its edge (or hold Shift) to sprint: 55% faster, burning 30 stamina a second. Run dry and you are winded until it is back to 30%. Stamina refills at 14 a second after a short pause. The attacking Feats cost stamina (9 per second of their old cooldown), so sprinting and casting share it. Upgrades: Big Lungs (+25 max), Second Wind (refills 30% faster), Cardio (sprinting cheaper and faster), Muscle Memory (Feats cheaper). Curses: Smoker's Cough and Couch Potato.
+
+## Sequence evolutions
+
+Your Primary Sequence evolves at Lv 5, 10, 20 and 50.
+
+| Sequence | Lv 5 | Lv 10 | Lv 20 | Lv 50 |
+|---|---|---|---|---|
+| Firstborn | **Sibling Rivalry**: +8% damage. | **Teacher's Pet**: +10% fire rate. | **Head Boy**: +1 projectile for every weapon. | **Heir Apparent**: +25% damage and +15% swim speed. |
+| Chonker | **Second Helping**: +20% max HP. | **Big Boned**: +3 armour. | **Belly Flop**: +1 Headstrong: enemies you swim into take a beating. | **Absolute Unit**: +40% max HP and +5 armour. |
+| Bright Spark | **Extra Homework**: +15% XP. | **Overclocked**: +12% fire rate. | **Big Brain**: Reactions hit 25% harder, and +1 chain jump. | **Galaxy Brain**: +40% damage with every chemical. |
+| Favourite | **Gold Star**: +8% crit chance. | **Mummy's Favourite**: Crits hit 40% harder. | **Golden Child**: +25% luck and +1 pierce. | **The Chosen One**: +15% crit chance, and crits hit 100% harder. |
+| Quiet One | **Wallflower**: +6% dodge. | **Light Feet**: +10% swim speed. | **Nobody Saw Anything**: +8% dodge and +10% crit chance. | **Urban Legend**: +10% dodge, and crits hit 75% harder. |
+| Good Eater | **Growth Spurt**: Regenerate 0.5 HP a second. | **Eats Everything**: +2% lifesteal. | **Healthy Appetite**: +25% max HP, and heal to full. | **Bottomless Pit**: Healing works 50% better, and regenerate 2 HP a second. |
+| Problem Child | **Terrible Twos**: +25% Acid damage. | **Tantrum**: +15% area. | **Teenage Phase**: Effects last 25% longer, and +15% damage with every chemical. | **Menace to Society**: +30% damage. |
+| Designer Baby | **Gifted and Talented**: +15% XP. | **Private Tutor**: +20% luck. | **Lab Grown**: Reactions hit 40% harder. | **Perfect Specimen**: +30% damage with every chemical and +15% damage. |
+| Old Soul | **Deja Vu**: The Rewind meter fills 25% faster. | **Been Here Before**: +30% pickup range. | **Past Lives**: Echoes inherit one more of your upgrades. | **Enlightened**: +20% damage and +20% fire rate. |
+| Redtail | **Lucky Horseshoe**: +15% luck. | **Farm Strong**: +15% max HP. | **Family Gun**: +1 projectile for every weapon. | **Head of the Family**: +50% luck and +20% damage. |
+
 ## Elements
 
-Every weapon and spell has one. Switched at Birth changes it.
+Every weapon and Feat has one. Switched at Birth changes it.
 
 | Element | Status it leaves | What it does |
 |---|---|---|
@@ -1420,6 +1467,8 @@ Every weapon and spell has one. Switched at Birth changes it.
 | **Base** | lathered | High pH. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid. |
 | **Static** | charged | Charges enemies: some of the damage they take arcs to a neighbour and drags it closer (static cling). |
 | **Ethanol** | drunk | Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out. |
+| **Peroxide** | fizzing | An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit. |
+| **Brine** | pickled | Salt water. Pickled enemies shrivel: they swim 15% slower, hit you 25% softer, and conduct Static twice as well. |
 | **Voodoo** | hexed | Hexes enemies: they take more from everything. When a hexed enemy dies the hex passes to the nearest one. |
 
 ## Elemental reactions
@@ -1435,6 +1484,16 @@ Every weapon and spell has one. Switched at Birth changes it.
 | **SYMPATHY** | Voodoo on any status: bonus damage, and the dolls: its status copies onto two neighbours, which are hexed too. |
 | **SUDS** | Force on a saponified enemy: the soap bursts, and the suds hit everything near it. |
 | **PUSHOVER** | Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far. |
+| **BLEACHED** | Peroxide meets Acid (either way round): all its armour is stripped for 4s, and its corrosion burns twice as hard. |
+| **ELEPHANT TOOTHPASTE** | Peroxide meets Base (either way round): a column of foam erupts, lathering and shoving everything nearby. |
+| **ROCKET FUEL** | Peroxide meets Ethanol (either way round): the enemy is launched away from you and explodes where it lands. |
+| **OZONE** | Peroxide meets Static (either way round): static jumps to three neighbours and sets them fizzing. |
+| **EXORCISM** | Peroxide meets Voodoo (either way round): the hex is burned out of it in one hit (15% of its health; 6% on bosses). |
+| **ELECTROLYTE** | Brine meets Static (either way round): the charge runs through the salt water to four neighbours, charging them all. |
+| **SALT IN THE WOUND** | Brine meets Acid (either way round): its corrosion does double damage for the rest of the dose. |
+| **MARGARITA** | Brine meets Ethanol (either way round): a salted rim. It nods off for 2.5s, and so do the drunks around it. |
+| **SALT CRUST** | Brine meets Base (either way round): it crusts over and saponifies on the spot (not bosses), and takes +20% for 4s. |
+| **SEA FOAM** | Peroxide meets Brine (either way round): the bubbles all pop at once, twice as hard, in a wide ring. |
 | **BLACKOUT** | An enemy topped up to its Ethanol limit passes out for 2s, and wakes up hungover: +25% damage taken for 5s. |
 
 ## Combo twists
@@ -1467,7 +1526,7 @@ A combo whose two weapons are on their usual elements does what its card says. C
 
 ## Element synergies
 
-Own two or more weapons or spells of one element to unlock its set bonus.
+Own two or more weapons or Feats of one element to unlock its set bonus.
 
 | Element | Bonus name | Effect |
 |---|---|---|
@@ -1476,6 +1535,8 @@ Own two or more weapons or spells of one element to unlock its set bonus.
 | Base | **Bath Time** | Saponify threshold halved, saponified enemies take +25% |
 | Static | **Balloon Hair** | Charged enemies arc twice as often |
 | Ethanol | **Open Bar** | Ethanol ticks twice as fast |
+| Peroxide | **Bubbly** | Fizz pops 50% harder |
+| Brine | **Seasoned** | Pickling lasts 50% longer |
 | Voodoo | **Old Wives' Tale** | Hexes amplify damage by +50% instead of +30% |
 
 ## Targeting directives
@@ -1728,7 +1789,9 @@ Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to 
 
 ## Wave mode (The Petri Dish)
 
-The default mode. 8 waves, one boss in each (all eight bosses, in a random order: the first two from the Pepsinator, the Twins and the Eye; Chad Prime and the Fever always in the back half). Each wave opens with the boss's entourage for a while, then the boss drops in, and its supporting cast keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten: anything left is rinsed out and your boxes open. Beat all 8 and you win (it counts as a birth). Winning once unlocks Endless.
+The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run (in the order they appear in a standard run), on top of the ones you have. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
+
+From wave 15 the boss can be **the Failed Experiment**: a copy of one of your own past runs (a lost one if you have any), alone in the dish, with an attack for each weapon that run carried and health that grows with the level it reached.
 
 | Boss | Drop name | Entourage | Arrives | Cued by |
 |---|---|---|---|---|
@@ -1740,8 +1803,9 @@ The default mode. 8 waves, one boss in each (all eight bosses, in a random order
 | CHAD PRIME | Leg Day | Headbutter, Sprinter, Spermlet Swarm | ring | dash3 |
 | THE FEVER | Forty-One Degrees | Antibody, Acid Bubble, Also-Ran, Cytokine Caster | ring | firering |
 | MITCH & OSIS | Double Dose | Mitotic Cell, Also-Ran, Nurse Cell | near | charge, spiral |
+| THE PHANTOM PREGNANCY | Something in the Dish | Ghost Swimmer, Spermlet Swarm, Quantum Swimmer | ring | blink |
 
-Warm-up before each boss (seconds): 55, 28, 16, 14, 12, 12, 11, 10. Boss health (times its base): 0.45, 3.5, 11, 26, 58, 110, 190, 320.
+Boss waves: entourage warm-up (seconds) 16, 12, 10, 10; boss health (times its base) 4, 18, 60, 180; boss attack strength 0.65, 0.8, 0.95, 1.
 
 ## Boss rewards
 
@@ -1763,9 +1827,9 @@ Every boss pays twice: a relic (its own three, plus one smuggled relic from a bo
 | Sample | Name | Status | Description |
 |---|---|---|---|
 | 001 | **Standard Issue** | Playable | One healthy donor, four hundred million hopefuls, one egg. The classic. |
-| 002 | **The Petri Dish** | Playable | A mad scientist is breeding super sperm. Eight drops into the dish, each built around one boss and its entourage. Beat the boss, beat the wave. Beat all eight and you get the egg. |
+| 002 | **The Petri Dish** | Playable | A mad scientist is breeding super sperm. Twenty drops into the dish, starting easy: each wave brings a couple of new kinds of swimmer, and every fifth wave is a boss. Beat wave 20 and you get the egg. |
 | 006 | **Petri Dish: Endless** | Locked: Beat wave mode (The Petri Dish) to unlock. | No egg, no end. Wave after wave, each nastier than the last, with something big every fifth. How many can you take? |
-| 000 | **Lab Bench (Debug)** | Playable | For testing: god mode, send in any enemy, boss or event, switch any weapon or spell on and off. Open the DEBUG panel. |
+| 000 | **Lab Bench (Debug)** | Playable | For testing: god mode, send in any enemy, boss or event, switch any weapon or Feat on and off. Open the DEBUG panel. |
 | 005 | **Donor Bank** | Coming soon | Thawed in a hurry. Everyone is sluggish, except the ones who are not. |
 | 003 | **The Morning After** | Coming soon | The pill is already dissolving. Good luck. |
 | 004 | **Vasectomy Reversal** | Coming soon | Low count, high stakes, very confused surgeon. |
@@ -1792,8 +1856,8 @@ Rules the cards do not spell out, but that change what is worth picking.
 - **Rewind and Chrono energy:** Rewind fires by itself on a lethal hit, rolls you back about 4s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with 1 charge (max 2, more with Snooze Button). Charges refill from Chrono energy (600 per charge, 15% more for every Rewind already used this run), earned by fighting.
 - **Viewers and sponsors:** The race is a live show. Kills, combos, bosses and achievements raise viewers; viewer milestones bring sponsor gifts (a heal, Oxytocin, a stair gate, a magnet, a Nit Comb or a DNA strand).
 - **The egg:** Opens at Lv 60: its membrane has 150,000 base HP and 8 armour, and a rival can break in first. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.
-- **Spell slots:** Two. Spells cast themselves on cooldown.
-- **Element set:** Two weapons or spells of the same element turn on its set bonus.
+- **Feat slots:** Two. Feats cast themselves on cooldown.
+- **Element set:** Two weapons or Feats of the same element turn on its set bonus.
 - **Weapon mounts:** Three (Lv 1 and drafts at 8 and 22), plus up to 2 bonus mounts from combos.
 - **Player base stats:** 120 HP, 150 swim speed, 5% crit, x1.6 crit damage, 105 pickup radius, 0 armour, 0 dodge. You grow with max HP.
 

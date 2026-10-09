@@ -5,7 +5,7 @@
 
 const SEQ_LOOK = {
   vanguard:  { short: 'Firstborn', color: '#5fd4e8', tag: 'THE DEFAULT GENE', quote: 'Simple. Honest. Violent.', stats: [3, 3, 3, 3] },
-  bruiser:   { short: 'Ten-Pounder', color: '#ff924c', tag: 'THE WALL OF MEAT', quote: 'Hit me. No, really. Go on.', stats: [3, 5, 2, 2] },
+  bruiser:   { short: 'Chonker', color: '#ff924c', tag: 'THE WALL OF MEAT', quote: 'Hit me. No, really. Go on.', stats: [3, 5, 2, 2] },
   nerd:      { short: 'Bright Spark', color: '#ffe94a', tag: 'POWERED BY ORGANELLES', quote: 'The mitochondria are doing the work.', stats: [3, 2, 3, 5] },
   eggseeker: { short: 'Favourite', color: '#ff4d6d', tag: 'THE BOSS EXECUTIONER', quote: 'One shot. One very large hole.', stats: [5, 2, 3, 2] },
   stealth:   { short: 'Quiet One', color: '#c77dff', tag: 'SHARP AND SILENT', quote: 'You will not hear it coming. It has no ears either.', stats: [4, 2, 5, 1] },
@@ -51,7 +51,8 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
   const hg = g.createRadialGradient(hx + R * 0.3, hy - R * 0.3, R * 0.1, hx, hy, R * 1.3);
   hg.addColorStop(0, locked ? '#2c333b' : '#ffffff'); hg.addColorStop(0.35, locked ? '#1a1f25' : '#cfd8e3'); hg.addColorStop(1, locked ? '#0c0f13' : '#56606c');
   g.fillStyle = id === 'stealth' && !locked ? '#2b2440' : hg;
-  g.beginPath(); g.ellipse(hx, hy, R * 1.25, R * 0.85, 0, 0, TAU); g.fill();
+  const fat = id === 'bruiser' ? 1.2 : 1; // (the Chonker is a big lad)
+  g.beginPath(); g.ellipse(hx, hy, R * 1.25 * fat, R * 0.85 * fat * fat, 0, 0, TAU); g.fill();
   g.strokeStyle = locked ? '#3a424b' : c; g.lineWidth = Math.max(1.5, R * 0.08); g.stroke();
   // Acrosome cap.
   g.fillStyle = locked ? '#161a1f' : c + 'aa'; g.beginPath(); g.ellipse(hx + R * 0.45, hy, R * 0.75, R * 0.72, 0, -Math.PI / 2, Math.PI / 2); g.fill();
@@ -265,7 +266,10 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
         break;
       }
       case 'bruiser': {
-        // Hexagonal armour plates bolted round the rim.
+        // A Chonker: a round belly and a couple of chins, then hexagonal armour plates bolted round the rim.
+        ctx.fillStyle = '#e9ddd0'; ctx.strokeStyle = c; ctx.lineWidth = Math.max(0.8, 0.5 * k);
+        ctx.beginPath(); ctx.ellipse(0, 3.6 * k, 7.2 * k, 3.6 * k + Math.sin(t * 4) * 0.25 * k, 0, 0, TAU); ctx.fill(); ctx.stroke();
+        for (const cy of [1.2, 2.4]) { ctx.beginPath(); ctx.ellipse(4.2 * k, cy * k, 2.6 * k, 1.1 * k, 0, 0.2, Math.PI - 0.2); ctx.stroke(); }
         ctx.fillStyle = c + 'dd'; ctx.strokeStyle = '#1b1e22'; ctx.lineWidth = Math.max(0.8, 0.5 * k);
         for (let i = 0; i < 5; i++) { const a = -1.3 + i * 0.65, px = 1 * k + Math.cos(a) * 7.4 * k, py = Math.sin(a) * 5 * k; ctx.beginPath(); for (let j = 0; j < 6; j++) { const b = j / 6 * TAU; ctx.lineTo(px + Math.cos(b) * 2 * k, py + Math.sin(b) * 2 * k); } ctx.closePath(); ctx.fill(); ctx.stroke(); }
         break;

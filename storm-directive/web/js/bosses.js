@@ -4,7 +4,7 @@
 
 // ---------------------------------------------------------------- roster & spawning
 function bossRoster() { return shuffle(BOSSES.map(b => b.id)).slice(0, BOSSES_PER_RUN); }
-const bossDef = id => BOSSES.find(b => b.id === id);
+const bossDef = id => (id === 'failed' && G && G.failedDef) || BOSSES.find(b => b.id === id); // (the Failed Experiment is built per run, campaign.js)
 
 function spawnBoss() {
   if (!G.bossRoster) G.bossRoster = bossRoster();
@@ -98,6 +98,7 @@ function bossDamageMul(e, src) {
   let m = 1;
   const el = src.elem;
   if (el && d.weak && d.weak[el]) m *= d.weak[el];
+  if (d.noForce && (el || 'phys') === 'phys' && !src.env) m = 0; // (the Phantom Pregnancy: Force passes straight through it; the womb itself still hurts)
   if (el && d.resist && d.resist[el] != null) m *= d.resist[el];
   if (d.weakAoe && (IN_AOE || src.zoneHit)) m *= d.weakAoe;
   if (e.glaring) m *= 2;
@@ -340,6 +341,7 @@ function applyRelic(id) {
     case 'precog': P.dodge = Math.max(P.dodge, Math.min(0.7, P.dodge + 0.25)); break;
     case 'proteinpro': P.speed += 0.35; P.momentum += 0.5; break;
     case 'doubletrouble': P.multishot += 1; P.pierce += 1; P.chain += 1; break;
+    case 'seethrough': P.dodge = Math.max(P.dodge, Math.min(0.7, P.dodge + 0.2)); break;
     case 'diplomatic': G.dipAt = 0; break;
     // Rival relics.
     case 'personalbest': P.speed += 0.2; break;
@@ -391,7 +393,7 @@ function relicDamageIn(dmg, ent) {
     damageEnemy(ent, ent.dmg * 10, { elem: 'phys', wname: 'Bouncer', noCrit: true });
     dmg *= 0.6;
   }
-  return rrelicDamageIn(chemDamageIn(dmg), ent);
+  return rrelicDamageIn(chemDamageIn(dmg, ent), ent);
 }
 function relicHurt(d) {
   const R = G.relics, p = me(), P = G.P;
@@ -426,6 +428,19 @@ function relicTick(dt) {
       g.charmed = true; g.charmT = 1e9; g.guard = true; g.name = 'Royal Guard'; g.hp = g.maxHp = g.maxHp * 4; g.xp = 0;
       G.court.push(g); G.enemies.push(g);
       ring(g.x, g.y, 30, PAL.you, 0.4, 3);
+    }
+  }
+  // Poltergeist: every 3 s, the nearest ordinary enemy is picked up and thrown at another.
+  if (R.poltergeist) {
+    G.polT = (G.polT == null ? 2 : G.polT) - dt;
+    if (G.polT <= 0) {
+      G.polT = 3;
+      const a = acquireMany('nearest', 320, p.x, p.y, 6).find(o => !o.boss && !o.rival && !o.egg && !o.charmed), b = a && acquire('strongest', 420, a.x, a.y, a);
+      if (a && b) {
+        const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1, dmg = (30 + G.level * 7) * P.might;
+        a.kx += dx / l * 900; a.ky += dy / l * 900; bolt(a.x, a.y, b.x, b.y, '#e8e4ff', 0.25);
+        damageEnemy(a, dmg, { elem: 'arcane', wname: 'Poltergeist', noCrit: true }); damageEnemy(b, dmg * 1.5, { elem: 'arcane', wname: 'Poltergeist', noCrit: true });
+      }
     }
   }
   // Death Stare: every 4 s, a 1.5 s beam at the toughest thing on screen.

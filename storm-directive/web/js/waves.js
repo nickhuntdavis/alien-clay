@@ -1,8 +1,8 @@
 'use strict';
 // Spawn Prawn - the Petri Dish. A mad scientist is breeding super sperm. One drop goes into the dish at a
 // time. No boxes open mid-wave: clear it, open everything you earned, then call the next drop.
-//  - Wave mode (Sample 002, the default): eight drops, each built around one boss (campaign.js). Beat the
-//    boss and the wave is beaten. Beat all eight and the scientist fertilises you in the dish: you win.
+//  - Wave mode (Sample 002, the default): twenty drops, a couple of new enemy types each, and a boss every
+//    fifth (campaign.js). Beat wave 20 and the scientist fertilises you in the dish: you win.
 //  - Endless (Sample 006, unlocked by winning wave mode): wave after wave, each nastier than the last, with
 //    something big every fifth. How many can you take?
 
@@ -23,7 +23,7 @@ function initWaves() {
 }
 
 // The difficulty clock in the dish follows the waves, not the stopwatch.
-function wavePT() { const V = G.wave; return DISH.waveSec * Math.max(0, V.n - 1) + Math.min(V.t, DISH.waveSec); }
+function wavePT() { const V = G.wave, k = V.camp ? CAMP.waveSec : DISH.waveSec; return k * Math.max(0, V.n - 1) + Math.min(V.t, k); } // (wave mode's 20 waves run a faster clock than Endless)
 
 function waveBegin() {
   const V = G.wave;

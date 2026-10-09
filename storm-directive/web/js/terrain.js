@@ -105,11 +105,11 @@ function terrainBody(e, dt) {
   if (!e.boss) { e.x += z.fx * dt * 0.8; e.y += z.fy * dt * 0.8; }
   if (z.acid && !e.egg && !(e.acidT > G.t)) {
     e.acidT = G.t + 0.5;
-    damageEnemy(e, (e.maxHp * 0.08 + 4) * (1 + G.P.ironGut), { dot: true, noCrit: true, noStatus: true, noArc: true, elem: 'poison', wname: 'Acid Crypt' });
+    damageEnemy(e, (e.maxHp * 0.08 + 4) * (1 + G.P.ironGut), { dot: true, noCrit: true, noStatus: true, noArc: true, elem: 'poison', wname: 'Acid Crypt', env: true });
   }
   // Brush-Off: cilia beds sting what they shove.
-  if (z.cilia && G.P.brushOff && !e.egg && !e.charmed && !(e.ciliaT > G.t)) { e.ciliaT = G.t + 0.5; damageEnemy(e, (12 + G.level * 2.5) * G.P.might * G.P.brushOff, { elem: 'phys', noCrit: true, noProc: true, wname: 'Brush-Off' }); }
-  pushOut(e, e.r, e.side || 1);
+  if (z.cilia && G.P.brushOff && !e.egg && !e.charmed && !(e.ciliaT > G.t)) { e.ciliaT = G.t + 0.5; damageEnemy(e, (12 + G.level * 2.5) * G.P.might * G.P.brushOff, { elem: 'phys', env: true, noCrit: true, noProc: true, wname: 'Brush-Off' }); }
+  if (!e.def.ethereal) pushOut(e, e.r, e.side || 1); // (the Phantom Pregnancy drifts through walls and growths)
 }
 
 // Projectiles and enemy bullets meeting terrain. Returns true if the shot is gone.
@@ -161,7 +161,7 @@ function atpBurst(ob) {
   ring(ob.x, ob.y, R, PAL.reward, 0.5, 6);
   addLight(ob.x, ob.y, R * 1.3, PAL.reward, 0.6);
   spawnPart(ob.x, ob.y, '#ffd23f', 24, 260, 0.6, 4);
-  forNear(ob.x, ob.y, R, e => { if (!e.egg && !e.charmed) damageEnemy(e, dmg, { elem: 'fire', noCrit: true, wname: 'ATP Burst' }); });
+  forNear(ob.x, ob.y, R, e => { if (!e.egg && !e.charmed) damageEnemy(e, dmg, { elem: 'fire', noCrit: true, wname: 'ATP Burst', env: true }); });
   for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - ob.x, b.y - ob.y) < R) b.dead = true;
   const p = me();
   if (Math.hypot(p.x - ob.x, p.y - ob.y) < R + 60) {

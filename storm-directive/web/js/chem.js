@@ -19,6 +19,18 @@ const lathered = e => e.chill > 0 || e.frozen > 0;
 function applyElement(e, elem, dmg, src) {
   const P = G.P, syn = G.synergy, rm = P.react;
   const rsrc = { elem, noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' };
+  if (P.mixologist && chemCount(e) >= 2) dmg *= 1 + P.mixologist; // (Mixologist: stronger doses on an enemy that is already a cocktail)
+  G.chemDmg = dmg; // (for Chain Reaction)
+  const pr = chemNew(e, elem, dmg, src, rsrc); // Peroxide and Brine's reactions
+  switch (elem) {
+    case 'oxi': // Peroxide
+      e.fizz = 2.5; e.fizzD = Math.min(e.maxHp * 0.5 + 200, (e.fizzD || 0) + dmg * 0.35 * P.elem.oxi * (syn.oxi ? 1.5 : 1));
+      return;
+    case 'salt': // Brine
+      e.pickle = syn.salt ? 4.5 : 3;
+      return;
+    case 'arcane': if (pr) { e.mark = 3; return; } break;
+  }
   switch (elem) {
     case 'fire': // Acid
       if (lathered(e) && react(e, 'neutral', src)) { neutralise(e, dmg, rsrc); return; }
@@ -58,13 +70,15 @@ function applyElement(e, elem, dmg, src) {
       }
       break;
     case 'arcane': // Voodoo
-      if ((e.burn > 0 || e.chill > 0 || e.poison > 0 || e.shock > 0) && react(e, 'sympathy', src)) {
+      if ((e.burn > 0 || e.chill > 0 || e.poison > 0 || e.shock > 0 || e.fizz > 0 || e.pickle > 0) && react(e, 'sympathy', src)) {
         damageEnemy(e, dmg * 1.0 * rm, rsrc);
         for (const n of acquireMany('nearest', 140, e.x, e.y, 3)) {
           if (n === e || n.dead) continue;
           if (e.burn > 0) { n.burn = Math.max(n.burn, 2.5); setBurn(n, e.burnDps * 0.7, e.burnBy); }
           if (e.chill > 0) { n.chill = 2.5; n.chillAmt = Math.max(n.chillAmt, e.chillAmt * 0.7); }
           if (e.shock > 0) n.shock = Math.max(n.shock, 2.2);
+          if (e.fizz > 0) { n.fizz = 2.5; n.fizzD = Math.max(n.fizzD || 0, e.fizzD * 0.5); }
+          if (e.pickle > 0) n.pickle = Math.max(n.pickle || 0, e.pickle);
           if (e.poison > 0) { n.poison = 4; n.poisonStacks = Math.min(P.poisonCap, Math.max(n.poisonStacks, Math.ceil(e.poisonStacks / 2))); setPoison(n, e.poisonDps, e.poisonBy); }
           n.mark = 3;
           bolt(e.x, e.y, n.x, n.y, '#e0aaff', 0.15);
@@ -131,6 +145,14 @@ function chemForce(e, dmg, src) {
 // Per enemy per frame (status upkeep): corrosion eats armour; batteries zap.
 function chemTick(e, dt) {
   if (e.burn > 0 && e.armour > 0) e.shred = Math.min(e.armour + 4, e.shred + dt * 0.8);
+  if (e.pickle > 0) e.pickle -= dt;
+  if (e.fizz > 0) {
+    // Fizzing: oxidising away a little armour, then the bubbles pop.
+    if (e.armour > 0) e.shred = Math.min(e.armour + 2, e.shred + dt * 0.6);
+    if (Math.random() < dt * 4) fxParts('bubble', e.x + rand(-e.r, e.r) * 0.6, e.y, '#9ff7ff', 1, 20, 0.6, 2, -Math.PI / 2, 0.5);
+    e.fizz -= dt;
+    if (e.fizz <= 0 && e.fizzD > 0) { const d = e.fizzD; e.fizzD = 0; aoe(e.x, e.y, 55 + e.r, d, { elem: 'oxi', noStatus: true, noArc: true, noCrit: true, wname: 'Fizz pop' }, '#9ff7ff'); }
+  }
   if (e.battT > G.t) {
     e.battZ -= dt;
     if (e.battZ <= 0) {
@@ -147,7 +169,50 @@ function chemTick(e, dt) {
 // Drunk enemies weave about (the more rounds, the worse). Returns the angle to turn their steering by.
 const chemWobble = e => (drunk(e) && !e.boss ? Math.sin(e.age * 3.1 + (e.id || 0)) * Math.min(1, e.poisonStacks * 0.12) : 0);
 // Damage taken: hungover enemies take more.
-const chemMul = e => (e.hangT > G.t ? 1.25 : 1);
+const chemMul = (e, src) => (e.hangT > G.t ? 1.25 : 1) * (e.crustT > G.t ? 1.2 : 1) * (G.P.cocktail && src && !src.dot ? 1 + G.P.cocktail * chemCount(e) : 1); // (Cocktail Hour)
+// How many different chemicals an enemy carries right now.
+const chemCount = e => (e.burn > 0) + (e.chill > 0 || e.frozen > 0) + (e.shock > 0) + (e.poison > 0 && e.poisonStacks > 0) + (e.mark > 0) + (e.fizz > 0) + (e.pickle > 0);
+// Peroxide and Brine react with everything: whichever way round, the first partner found sets off its reaction.
+const NEW_PAIRS = { oxi: { fire: 'bleach', ice: 'toothpaste', poison: 'rocket', shock: 'ozone', arcane: 'exorcism', salt: 'seafoam' },
+  salt: { shock: 'electrolyte', fire: 'wound', poison: 'margarita', ice: 'crust', oxi: 'seafoam' } };
+function chemNew(e, elem, dmg, src, rsrc) {
+  const has = { fire: e.burn > 0, ice: e.chill > 0 || e.frozen > 0, shock: e.shock > 0, poison: drunk(e), arcane: e.mark > 0, oxi: e.fizz > 0, salt: e.pickle > 0 };
+  let id = null;
+  if (NEW_PAIRS[elem]) { for (const k in NEW_PAIRS[elem]) if (k !== elem && has[k]) { id = NEW_PAIRS[elem][k]; break; } }
+  else if (has.oxi && NEW_PAIRS.oxi[elem]) id = NEW_PAIRS.oxi[elem];
+  else if (has.salt && NEW_PAIRS.salt[elem]) id = NEW_PAIRS.salt[elem];
+  if (!id || !react(e, id, src)) return false;
+  const P = G.P, rm = P.react, plain = !e.boss && !e.rival && !e.egg;
+  switch (id) {
+    case 'bleach': e.shred = e.armour + 4; e.bleachT = G.t + 4; e.burn = Math.max(e.burn, 3); e.burnDps = (e.burnDps || dmg * 0.4) * 2; break;
+    case 'toothpaste':
+      forNear(e.x, e.y, 120, o => { if (o.boss || o.charmed) return; o.chill = 2.5; o.chillAmt = Math.min(0.6, o.chillAmt + 0.3); const dx = o.x - e.x, dy = o.y - e.y, d = Math.hypot(dx, dy) || 1; o.kx += dx / d * 260; o.ky += dy / d * 260; });
+      fxParts('bubble', e.x, e.y, '#e6fbff', 14, 220, 0.9, 5, -Math.PI / 2, 1.2); damageEnemy(e, dmg * 0.8 * rm, rsrc); break;
+    case 'rocket': {
+      const p = me(), dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1;
+      if (plain) { e.kx += dx / d * 700; e.ky += dy / d * 700; }
+      const boom = (dmg * 2 + e.poisonDps * e.poisonStacks * 2) * rm; e.poison = 0; e.poisonStacks = 0;
+      after(0.55, () => { if (G && !e.dead) aoe(e.x, e.y, 85, boom, rsrc, '#ffd166'); });
+      break;
+    }
+    case 'ozone': {
+      let k = 0;
+      for (const n of acquireMany('nearest', 170, e.x, e.y, 4)) { if (n === e || k >= 3) continue; k++; bolt(e.x, e.y, n.x, n.y, '#bde0fe', 0.15); damageEnemy(n, dmg * 0.6 * rm, rsrc); n.fizz = 2.5; n.fizzD = (n.fizzD || 0) + dmg * 0.3; }
+      break;
+    }
+    case 'exorcism': e.mark = 0; damageEnemy(e, e.maxHp * (e.boss ? 0.06 : 0.15) * rm, rsrc); ring(e.x, e.y, e.r + 30, '#e0aaff', 0.4, 4); break;
+    case 'electrolyte': {
+      let k = 0;
+      for (const n of acquireMany('nearest', 190, e.x, e.y, 5)) { if (n === e || k >= 4) continue; k++; bolt(e.x, e.y, n.x, n.y, '#ffe5ec', 0.15); damageEnemy(n, dmg * 0.5 * rm, Object.assign({}, rsrc, { elem: 'shock' })); n.shock = Math.max(n.shock, 2.2); }
+      break;
+    }
+    case 'wound': e.burnDps = (e.burnDps || dmg * 0.4) * 2; e.burn = Math.max(e.burn, 2.5); break;
+    case 'margarita': forNear(e.x, e.y, 120, o => { if ((o === e || drunk(o)) && !o.boss && !o.charmed) { o.dazeT = Math.max(o.dazeT || 0, G.t + 2.5); } }); floatText(e.x, e.y - e.r - 24, 'zzz', '#d8f3dc', 12, 0.9); break;
+    case 'crust': if (plain) { e.frozen = Math.max(e.frozen, 1.6); e.chillAmt = 0.2; } e.crustT = G.t + 4; break;
+    case 'seafoam': { const d = (e.fizzD || dmg) * 2 * rm; e.fizz = 0; e.fizzD = 0; aoe(e.x, e.y, 110, d, rsrc, '#caf0f8'); break; }
+  }
+  return true;
+}
 // A hexed enemy dies: the hex passes to the nearest one.
 function chemKill(e, src) {
   if (e.mark > 0) { const n = acquire('nearest', 220, e.x, e.y, e); if (n) { n.mark = Math.max(n.mark, 3); bolt(e.x, e.y, n.x, n.y, '#c77dff', 0.15); } }
@@ -155,7 +220,8 @@ function chemKill(e, src) {
 }
 const chemHaste = () => (G.chargeUpT > G.t ? 1 + CHEM.chargeK : 1);
 // Damage coming at you: Shock Absorber's barrier.
-function chemDamageIn(dmg) {
+function chemDamageIn(dmg, ent) {
+  if (ent && ent.pickle > 0) dmg *= 0.75; // (pickled enemies hit softer)
   if (dmg > 0 && G.absorbOn) { G.absorbOn = false; G.absorbT = G.t + 8; const p = me(); ring(p.x, p.y, 40, '#ffe94a', 0.4, 4); floatText(p.x, p.y - 26, 'ABSORBED', '#ffe94a', 12, 0.7); p.iframes = Math.max(p.iframes || 0, 0.3); return 0; }
   return dmg;
 }
@@ -301,7 +367,8 @@ function elemTwistNote(w, elem) {
   for (const c of COMBOS) {
     if (c.a !== w.id && c.b !== w.id) continue;
     const other = owned(c.a === w.id ? c.b : c.a);
-    const eo = other ? wElemOf(other) : WEAPONS[c.a === w.id ? c.b : c.a].elem;
+    if (!other) continue; // (only combos you could actually make)
+    const eo = wElemOf(other);
     const tw = c.a === w.id ? twistFor(c, elem, eo) : twistFor(c, eo, elem);
     if (tw) out.push(`${c.name} gets the ${tw.name} twist`);
   }
