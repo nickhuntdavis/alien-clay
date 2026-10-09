@@ -1475,6 +1475,7 @@ function render() {
   drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
+  armourRing(px, py); // armour: a forcefield ring outside the health ring that flashes when hit (stamina.js)
   stamRing(px, py); // stamina: a thinner, fainter ring just inside it, only when it isn't full (stamina.js)
 
   // Additive layer: weapon fx, projectiles, particles, fx.

@@ -47,3 +47,26 @@ function stamRing(px, py) {
   ctx.beginPath(); ctx.arc(px, py, R, top, top + TAU * k); ctx.stroke();
   ctx.globalAlpha = a0;
 }
+
+// Armour: its own ring, a forcefield just outside the health ring. A faint arc shows how much is left (it wears
+// with every hit and grows back); when a hit lands it flares, brighter the more armour you had.
+function armourRing(px, py) {
+  const P = G.P;
+  if (!(P.armour > 0) || P.noArmour) return;
+  const k = clamp(1 - (G.armourLost || 0) / P.armour, 0, 1), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.22, top = -Math.PI / 2, a0 = ctx.globalAlpha;
+  const F = G.armFlash, f = F ? clamp(1 - (G.realT - F.t) / 0.35, 0, 1) : 0, glowK = f * (0.35 + 0.65 * (F ? F.k : 0));
+  ctx.lineCap = 'butt';
+  if (k < 0.995 || f > 0) {
+    ctx.lineWidth = Math.max(1, 1.2 * Math.min(1.6, sc));
+    ctx.globalAlpha = a0 * 0.35; ctx.strokeStyle = '#9ef0ff'; ctx.beginPath(); ctx.arc(px, py, R, top, top + TAU * k); ctx.stroke();
+  }
+  if (glowK > 0) {
+    // The flare: a bright full ring plus a soft halo.
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = a0 * glowK; ctx.strokeStyle = '#bff6ff'; ctx.lineWidth = Math.max(2, (2 + 3 * glowK) * Math.min(1.6, sc));
+    ctx.beginPath(); ctx.arc(px, py, R + (1 - f) * 6 * sc, 0, TAU); ctx.stroke();
+    glow(px, py, R * 1.6, '#9ef0ff', 0.35 * glowK);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.globalAlpha = a0;
+}

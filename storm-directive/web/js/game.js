@@ -1060,7 +1060,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const armBase = Math.max(0, P.armour - (G.armourLost || 0));
   const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour()) * defClock();
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
-  if (!P.noArmour && P.armour > 0) { G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; }
+  if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20) }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d;
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
