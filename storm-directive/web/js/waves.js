@@ -31,8 +31,10 @@ function waveBegin() {
   V.n++; V.active = true; V.t = 0; V.spawned = 0; V.started = true;
   if (V.camp) { campBegin(V); UI.refreshHud(true); return; }
   // Bigger waves, fed in over 45 to 90 seconds rather than all at once.
-  V.budget = Math.round((50 + V.n * 20 + Math.pow(V.n, 1.5) * 4) * G.P.spawnMult);
-  V.dur = Math.min(100, 55 + V.n * 3);
+  // Waves 6 to 9 (between the first boss and the second) run denser and a little quicker: they used to be a stroll.
+  const mid = V.n >= 6 && V.n <= 9 ? 1 + 0.2 * (V.n - 5) : 1;
+  V.budget = Math.round((50 + V.n * 20 + Math.pow(V.n, 1.5) * 4) * G.P.spawnMult * mid);
+  V.dur = Math.min(100, 55 + V.n * 3) * (mid > 1 ? 0.85 : 1);
   const p = me(), a = Math.random() * TAU, x = p.x + Math.cos(a) * 160, y = p.y + Math.sin(a) * 160;
   const drop = DROPS[(V.n - 1) % DROPS.length];
   // The pipette: a big drop falls into the dish and the wave spreads out from the splash.
