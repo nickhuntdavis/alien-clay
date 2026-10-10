@@ -362,19 +362,29 @@ function technicolourWash(alpha) {
   ctx.fillStyle = g; ctx.fillRect(-40, -40, W + 80, H + 80);
   ctx.globalCompositeOperation = op; ctx.globalAlpha = a0;
 }
+// The Köhler gradient is baked once per W x H. (The margin outside the frame is filled with the edge colour.)
+function buildBgGradient() {
+  const key = W + 'x' + H;
+  if (SPR.bgKey === key) return;
+  SPR.bgKey = key; SPR.bgEdge = '#8c8c8c';
+  const c = makeCanvas(Math.ceil(W), Math.ceil(H)), g = c.getContext('2d');
+  const gr = g.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6);
+  gr.addColorStop(0, '#b6b6b6'); gr.addColorStop(0.6, '#a6a6a6'); gr.addColorStop(1, '#8c8c8c');
+  g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
+  SPR.bg = c;
+}
 function drawBackground() {
   if (!SPR.layers) buildLayers();
   if (SET.darkfield) { drawDarkfieldBackground(); return; }
   // Köhler illumination: an even field, a touch brighter in the middle of the frame.
   // (The two lowest quality steps: a flat fill and one depth layer instead of three, fewer full-screen passes.)
   const lite = QUAL.lv >= 3;
-  let bg = '#a6a6a6';
-  if (!lite) { bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6); bg.addColorStop(0, '#b6b6b6'); bg.addColorStop(0.6, '#a6a6a6'); bg.addColorStop(1, '#8c8c8c'); }
-  ctx.fillStyle = bg; ctx.fillRect(-20, -20, W + 40, H + 40);
+  if (lite) { ctx.fillStyle = '#a6a6a6'; ctx.fillRect(-20, -20, W + 40, H + 40); }
+  else { buildBgGradient(); ctx.fillStyle = SPR.bgEdge; ctx.fillRect(-20, -20, W + 40, H + 40); ctx.drawImage(SPR.bg, 0, 0, W, H); }
   for (const L of lite ? SPR.layers.slice(-1) : SPR.layers) {
     const T = L.T;
     const ox = -((((cam.x * S * L.f) % T) + T) % T), oy = -((((cam.y * S * L.f) % T) + T) % T);
-    for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
+    for (let x = ox; x < W; x += T) for (let y = oy; y < H; y += T) ctx.drawImage(L.img, x, y, T, T);
   }
   if (FULL_COL) technicolourWash(0.75);
   const core = G.core, cx = sx(core.x), cy = sy(core.y), R = CORE.arena * S;
@@ -407,7 +417,7 @@ function drawDarkfieldBackground() {
     const T = L.T;
     ctx.globalAlpha = SPR.layers.length === 1 ? 0.08 : alpha[i];
     const ox = -((((cam.x * S * L.f) % T) + T) % T), oy = -((((cam.y * S * L.f) % T) + T) % T);
-    for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
+    for (let x = ox; x < W; x += T) for (let y = oy; y < H; y += T) ctx.drawImage(L.img, x, y, T, T);
   });
   ctx.globalAlpha = 1;
   const core = G.core, cx = sx(core.x), cy = sy(core.y);
@@ -1930,7 +1940,7 @@ function drawTitleBackdrop() {
   const t = performance.now() / 1000;
   for (const L of SPR.layers) {
     const T = L.T, ox = -(((t * 40 * L.f) % T) + T) % T, oy = -(((t * 15 * L.f) % T) + T) % T;
-    for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
+    for (let x = ox; x < W; x += T) for (let y = oy; y < H; y += T) ctx.drawImage(L.img, x, y, T, T);
   }
 }
 
@@ -1946,9 +1956,15 @@ function drawTrackLine(o, color) {
   const t = o.trk;
   if (!t || t.length < 2) return;
   ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
-  for (let i = 1; i < t.length; i++) {
-    ctx.globalAlpha = 0.15 + 0.65 * i / t.length;
-    ctx.beginPath(); ctx.moveTo(sx(t[i - 1].x), sy(t[i - 1].y)); ctx.lineTo(sx(t[i].x), sy(t[i].y)); ctx.stroke();
+  // Four bands, one path and one stroke each, fading in from the tail.
+  const n = t.length, B = 4;
+  for (let b = 0; b < B; b++) {
+    const i0 = Math.max(1, Math.floor(b * n / B)), i1 = b === B - 1 ? n - 1 : Math.floor((b + 1) * n / B) - 1;
+    if (i1 < i0) continue;
+    ctx.globalAlpha = 0.15 + 0.65 * b / (B - 1);
+    ctx.beginPath(); ctx.moveTo(sx(t[i0 - 1].x), sy(t[i0 - 1].y));
+    for (let i = i0; i <= i1; i++) ctx.lineTo(sx(t[i].x), sy(t[i].y));
+    ctx.stroke();
   }
   ctx.globalAlpha = 1; ctx.lineJoin = 'miter';
 }
@@ -2257,7 +2273,21 @@ function drawMinimap(top) {
     if (d > R - 2) { dx = dx / d * (R - 2); dy = dy / d * (R - 2); }
     ctx.fillStyle = col; ctx.fillRect(mx + dx - r / 2, my + dy - r / 2, r, r);
   };
-  if (G.terrain) { ctx.globalAlpha = 0.45; for (const ob of G.terrain.list) if (ob.def.solid || ob.type === 'current') dot(ob.x, ob.y, 2, ob.def.color); ctx.globalAlpha = 1; }
+  if (G.terrain) {
+    // Terrain never moves, so its dots are baked once into a cache the size of the minimap.
+    const tl = G.terrain.list, key = R + '|' + W + 'x' + H + '|' + tl.length;
+    if (SPR.mmKey !== key || SPR.mmTerr !== G.terrain) {
+      SPR.mmKey = key; SPR.mmTerr = G.terrain;
+      const d = R * 2, c = SPR.mmC && SPR.mmC.width === d ? SPR.mmC : (SPR.mmC = makeCanvas(d, d)), g = c.getContext('2d');
+      g.clearRect(0, 0, d, d);
+      for (const ob of tl) if (ob.def.solid || ob.type === 'current') {
+        let dx = (ob.x - G.core.x) * k, dy = (ob.y - G.core.y) * k; const dd = Math.hypot(dx, dy);
+        if (dd > R - 2) { dx = dx / dd * (R - 2); dy = dy / dd * (R - 2); }
+        g.fillStyle = ob.def.color; g.fillRect(R + dx - 1, R + dy - 1, 2, 2);
+      }
+    }
+    ctx.globalAlpha = 0.45; ctx.drawImage(SPR.mmC, mx - R, my - R); ctx.globalAlpha = 1;
+  }
   for (const e of G.enemies) if (e.def.spongy && e.r > 60) dot(e.x, e.y, Math.min(7, e.r / 20), e.color);
   for (const e of G.enemies) if (e.boss || e.elite || e.charmed) dot(e.x, e.y, e.boss ? 5 : 3, e.boss ? PAL.danger : e.charmed ? PAL.you : '#ffd23f');
   dot(G.core.x, G.core.y, 8, G.fertile ? PAL.reward : '#ffb3d1');
