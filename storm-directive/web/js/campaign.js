@@ -15,6 +15,7 @@ const CAMP = {
   hp: [2.2, 13, 50, 160],                       // boss health, times its base, for the 1st to 4th boss wave
   hit: [0.55, 0.75, 0.9, 1],                     // boss attack strength, same order
   pulse: [7, 6.5, 6, 5.5],                    // seconds between entourage cues during a fight (at least)
+  early: 0.12, earlyPT: 45, earlyTo: 12,      // waves before earlyTo: up to 12% more enemies and 45 s more on the clock (tougher, harder-hitting), fading out by then
 };
 // Who comes with each boss, where they arrive, and which of its moves cue them.
 //   at: near (round the boss), behind (on the far side of the boss from you), ring (round you), flank (from both sides).
@@ -35,6 +36,7 @@ const DROP_NAMES = { queen: 'Feeding Time', colossus: 'Border Control', eye: 'Pe
 const campOn = () => !!(G && G.wave && G.wave.camp);
 const V0 = () => G.wave;
 const isBossWave = n => n % CAMP.bossEvery === 0;
+const campEarly = n => clamp(1 - (n - 1) / (CAMP.earlyTo - 1), 0, 1); // 1 at wave 1, 0 from earlyTo
 const bossSlot = n => n / CAMP.bossEvery - 1; // 0..3
 
 function campInit() {
@@ -78,7 +80,7 @@ function campBegin(V) {
   const next = CAMP_ORDER().filter(id => !V.met.includes(id));
   const fresh = V.n <= CAMP.fixedWaves ? next.slice(0, CAMP.newPerWave) : shuffle(next.slice(0, CAMP.drawFrom)).slice(0, CAMP.newPerWave);
   V.fresh = fresh; V.met.push(...fresh);
-  V.budget = Math.round((16 + V.n * 7 + Math.pow(V.n, 1.6)) * G.P.spawnMult);
+  V.budget = Math.round((16 + V.n * 7 + Math.pow(V.n, 1.6)) * (1 + CAMP.early * campEarly(V.n)) * G.P.spawnMult);
   V.dur = Math.min(55, 20 + V.n * 1.8);
   // (What's in the drop stays a surprise until it lands.)
   banner(`WAVE ${V.n} OF ${CAMP.waves}`, PAL.reward);

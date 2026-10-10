@@ -23,7 +23,7 @@ function initWaves() {
 }
 
 // The difficulty clock in the dish follows the waves, not the stopwatch.
-function wavePT() { const V = G.wave, k = V.camp ? CAMP.waveSec : DISH.waveSec; return k * Math.max(0, V.n - 1) + Math.min(V.t, k); } // (wave mode's 20 waves run a faster clock than Endless)
+function wavePT() { const V = G.wave, k = V.camp ? CAMP.waveSec : DISH.waveSec; return k * Math.max(0, V.n - 1) + Math.min(V.t, k) + (V.camp ? CAMP.earlyPT * campEarly(V.n) : 0); } // (wave mode's 20 waves run a faster clock than Endless)
 
 function waveBegin() {
   const V = G.wave;

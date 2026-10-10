@@ -1,10 +1,12 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.59 (versionCode 209), branch `claude/autorun-bullet-storm-game-blptu8` (merged from session branches). All suite tests pass.
+- Version v8.66 (versionCode 216), branch `claude/autorun-bullet-storm-game-blptu8` (merged from session branches). All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.66 (from a user run log: easy until the Immune Eye at wave 10, then dead in 40 s): wave mode waves 1 to 11 start harder (`CAMP.early` +12% enemies, `CAMP.earlyPT` +45 s on the difficulty clock, both fading out by wave 12 via `campEarly`); the Eye glares once per cycle (patterns blink, glare, flower, doubleSpiral). A +30% enemy-count version made the bot stronger (more XP), so the clock carries most of it. Sim: 2 wins of 5, deaths at waves 5, 15 and 20.
+- v8.60 to v8.65: health bar and stamina ring visuals, zoom up to 5x.
 - v8.59:
   - Lateral Gene Transfer is junk DNA (`junk.js`): an ordinary on-screen enemy wears a white helix, and killing it within 30 s absorbs a small power tied to that enemy type (`JUNK_POWERS`, 30 of them, up to 3 stacks). It comes every 40 to 55 s, and only during waves in the dish. The floating vesicle is gone. Mutations stay, but only via splice SKIP and campaign stashes.
   - Stain grants (`grants.js`): permanent colour, once ever. Acridine Orange (your swimmer) floats by the egg; Tracer Dye (shots, weapon effects, damage types) comes at level 5; Gentian Violet (power-ups) at level 10. Switch them in the pause menu (`META.grants`/`grantOff`). The GFP card and the end-of-run "keep a stain" are gone. H&E no longer colours power-ups. Your swimmer (sequence marks included) is grey until the first grant.

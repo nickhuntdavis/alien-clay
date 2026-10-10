@@ -607,7 +607,7 @@ const BOSSES = [
     strengths: ['12 armour: small hits barely scratch it', 'Cannot be knocked back or saponified'], weaknesses: ['Static: +60% damage', 'Armour shred sticks for longer', 'Charges are telegraphed: side-step'],
     weak: { shock: 1.6 }, shredStick: true, relics: ['borderwall', 'bouncer', 'diplomatic'] },
   { id: 'eye', name: 'THE IMMUNE EYE', title: 'Unblinking Critic of Your Genome', shape: 'eye', color: '#7b2cbf',
-    hp: 3400, speed: 52, armour: 4, r: 48, dmg: 30, xp: 80, patterns: ['blink', 'glare', 'flower', 'glare', 'doubleSpiral'],
+    hp: 3400, speed: 52, armour: 4, r: 48, dmg: 30, xp: 80, patterns: ['blink', 'glare', 'flower', 'doubleSpiral'],
     quote: "I've read your genome. I've seen better genomes on a crouton.",
     desc: 'It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink.',
     strengths: ['Teleports right next to you', 'Death-stare beam that tracks you'], weaknesses: ['Takes double damage while glaring', 'Histamine: +50% damage'],
