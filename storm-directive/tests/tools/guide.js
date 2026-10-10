@@ -11,6 +11,9 @@ const src = fs.readFileSync(J + 'data.js', 'utf8') + '\n' +
 const ctx = { localStorage: { getItem: () => null, setItem() {} }, console, document: { getElementById: () => null, body: { classList: { toggle() {} } } }, window: {} };
 vm.createContext(ctx); vm.runInContext(src.replace(/^'use strict';/gm, ''), ctx);
 const D = ctx.OUT;
+// The sequence ladder (seqlock.js) and the wave conditions (dishfx.js), read from their sources.
+const LADDER = {}; for (const m of fs.readFileSync(J + 'seqlock.js', 'utf8').matchAll(/^  (\w+): +\{ rung: (\d+), text: '([^']+)'/gm)) LADDER[m[1]] = { rung: +m[2], text: m[3] };
+const FX = [...fs.readFileSync(J + 'dishfx.js', 'utf8').matchAll(/name: '([^']+)'[^\n]*\n\s+desc: \(\) => '([^']+)'/g)].map(m => ({ name: m[1], desc: m[2] }));
 const L = []; const p = s => L.push(s);
 const esc = s => String(s == null ? '' : s).replace(/\|/g, '\\|');
 const el = e => (D.ELEMENTS[e] || {}).name || e;
@@ -57,7 +60,7 @@ p('');
 p('## Epigenetic Profiles (sequences)'); p('');
 p(`Choose your Primary Sequence before each run. It gives its trait at full strength, its exclusive weapons and a starting ability that fires by itself (or tap its button). Spliced-in sequences give their trait at half strength and add their weapons to your drafts. Each sequence ranks up with kills while you carry it (Rank 2 at ${D.PROFILE_RANKS[1].toLocaleString('en-GB')}, Rank 3 at ${D.PROFILE_RANKS[2].toLocaleString('en-GB')}), doubling its trait each time. Your weapons take your primary's colour (with the GFP Tag).`); p('');
 p('| Sequence | Trait (Rank 1) | Weapons | Starting ability | Unlock |'); p('|---|---|---|---|---|');
-for (const [id, q] of Object.entries(D.PROFILES)) { const A = D.SEQ_ABILITY[id]; p(`| **${esc(q.name)}** | ${esc(q.trait)}: ${esc(q.fmt(1))} | ${q.weapons.map(w => D.WEAPONS[w].name).join(', ')} | **${esc(A.name)}** (${A.cd}s): ${esc(A.desc)} | ${q.unlock ? esc(q.unlock.text) : 'Always'} |`); }
+for (const [id, q] of Object.entries(D.PROFILES).sort((a, b) => (LADDER[a[0]] ? LADDER[a[0]].rung : 0) - (LADDER[b[0]] ? LADDER[b[0]].rung : 0))) { const A = D.SEQ_ABILITY[id]; q.unlock = LADDER[id] ? { text: `Rung ${LADDER[id].rung}: ${LADDER[id].text}` } : q.unlock ? q.unlock : null; p(`| **${esc(q.name)}** | ${esc(q.trait)}: ${esc(q.fmt(1))} | ${q.weapons.map(w => D.WEAPONS[w].name).join(', ')} | **${esc(A.name)}** (${A.cd}s): ${esc(A.desc)} | ${q.unlock ? esc(q.unlock.text) : 'Always'} |`); }
 p(''); p('### Sequence synergies'); p('');
 p('| Synergy | Sequences | Effect |'); p('|---|---|---|');
 for (const q of D.PROFILE_SYNERGIES) p(`| **${esc(q.name)}** | ${D.PROFILES[q.a].name} + ${D.PROFILES[q.b].name} | ${esc(q.desc)} |`);
@@ -289,6 +292,11 @@ p('From wave 15 the boss can be **the Failed Experiment**: a copy of one of your
 p('| Boss | Drop name | Entourage | Arrives | Cued by |'); p('|---|---|---|---|---|');
 for (const [id, E] of Object.entries(D.ENTOURAGE)) if (E.mix.length) p(`| ${(D.BOSSES.find(b => b.id === id) || {}).name || id} | ${D.DROP_NAMES[id] || ''} | ${[...new Set(E.mix)].map(m => (D.ENEMIES[m] || {}).name || m).join(', ')} | ${E.at} | ${E.on.join(', ')} |`);
 p('');
+p(`**Wave conditions:** from wave 4, about half the ordinary waves (never two in a row) come with something wrong in the dish for the whole wave. Its name stays on screen until the wave is beaten.`); p('');
+p('| Condition | Effect |'); p('|---|---|');
+for (const f of FX) p(`| **${esc(f.name)}** | ${esc(f.desc)} |`);
+p('');
+p('**Sequences:** you start with the Firstborn, the Chonker and the Bright Spark. The rest unlock one rung at a time (see the Unlock column under Sequences), alternating skill and grind. After a wave-mode win, NEW SEQUENCE takes you straight back to sequence select.'); p('');
 p(`Boss waves: entourage warm-up (seconds) ${D.CAMP.lead.join(', ')}; boss health (times its base) ${D.CAMP.hp.join(', ')}; boss attack strength ${D.CAMP.hit.join(', ')}.`); p('');
 p('## Boss rewards'); p('');
 p('Every boss pays twice: a relic (its own three, plus one smuggled relic from a boss you will not meet this run), then a SPOILS box. It also heals you 40%. Spoils are three of these (usually including a full-power Switched at Birth on one of your weapons):'); p('');

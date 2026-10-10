@@ -88,13 +88,13 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **The Firstborn** | Quick Recovery: +12% reload speed | Spitball, Seeker Siblings, Yo-Yo Diet | **Head First** (8s): Every 8s: headbutt-dash through whatever is in front of you, hitting everything along the way. You cannot be hurt mid-charge. | Always |
 | **The Chonker** | Puppy Fat: +1 armour | Hiccup Scattergun, Placenta Paddle, Thorny Onesie, Nappy Mines | **Mood Swing** (30s): Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s. | Always |
 | **The Bright Spark** | Early Developer: +6% fire rate, Feats recharge 6% faster | Static Cling, Twin Telepathy, Toddler Gravity | **Short Fuse** (10s): Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets. | Always |
-| **The Favourite** | Favouritism: +4% crit chance, +15% crit damage | Due Date, Antacid, Tooth Fairy | **Telling Tales** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Survive 10 minutes in a single run |
-| **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Pub Crawl, Peekaboo | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Beat 25 bosses (all runs) |
-| **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Pick up 100 power-ups (all runs) |
-| **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six acid pools erupts around you. They corrode harder the more hurt you are. | Deal 2,000,000 chemical damage (all runs) |
-| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, saponifying everything in it (bosses only briefly). | Cast 1,500 Feats (all runs) |
-| **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Reach Rank 3 with every other sequence |
-| **The Redtail** | Inbred Luck: +25% luck; level-up boxes are never Common. Every level up also brings a small bane (at most 4 of each) | Shotgun Wedding, Moonshine Jug, Duelling Banjo | **Sister-Cousin** (12s): When you are hit, there is a 35% chance a copy of you splits off and fights beside you for 12s. Swim into her to recombine for Keeping It in the Family: +30% damage and +20% fire rate for 8s, and 10% of your health back. Tap to split on purpose. | Play 20 runs (any result) |
+| **The Favourite** | Favouritism: +4% crit chance, +15% crit damage | Due Date, Antacid, Tooth Fairy | **Telling Tales** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Rung 1: Beat wave mode (The Petri Dish) with the Firstborn, the Chonker and the Bright Spark as your Primary |
+| **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Rung 2: Pick up 150 power-ups (all runs) |
+| **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Pub Crawl, Peekaboo | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Rung 3: Beat a boss without taking any damage during the fight |
+| **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six acid pools erupts around you. They corrode harder the more hurt you are. | Rung 4: Deal 2,000,000 chemical damage (all runs) |
+| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, saponifying everything in it (bosses only briefly). | Rung 5: Beat wave mode without using a Rewind |
+| **The Redtail** | Inbred Luck: +25% luck; level-up boxes are never Common. Every level up also brings a small bane (at most 4 of each) | Shotgun Wedding, Moonshine Jug, Duelling Banjo | **Sister-Cousin** (12s): When you are hit, there is a 35% chance a copy of you splits off and fights beside you for 12s. Swim into her to recombine for Keeping It in the Family: +30% damage and +20% fire rate for 8s, and 10% of your health back. Tap to split on purpose. | Rung 6: Play 30 runs (any result) |
+| **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Rung 7: Reach Rank III with every other sequence |
 
 ### Sequence synergies
 
@@ -1870,6 +1870,18 @@ From wave 15 the boss can be **the Failed Experiment**: a copy of one of your ow
 | THE FEVER | Forty-One Degrees | Antibody, Acid Bubble, Also-Ran, Cytokine Caster | ring | firering |
 | MITCH & OSIS | Double Dose | Mitotic Cell, Also-Ran, Nurse Cell | near | charge, spiral |
 | THE PHANTOM PREGNANCY | Something in the Dish | Ghost Swimmer, Spermlet Swarm, Quantum Swimmer | ring | blink |
+
+**Wave conditions:** from wave 4, about half the ordinary waves (never two in a row) come with something wrong in the dish for the whole wave. Its name stays on screen until the wave is beaten.
+
+| Condition | Effect |
+|---|---|
+| **LAMP BLOWN** | The microscope lamp has gone. You can only see what is close to you. +20% XP. |
+| **STIRRING ROD** | Someone is stirring the dish. A current sweeps everything along, and it keeps turning. |
+| **THICK AGAR** | The agar set too thick. Everything swims a quarter slower, you included, and so do the bullets. |
+| **LEAKY DRIP TRAY** | Drops of acid keep landing in the dish. Swim out of the rings before they land. They burn enemies too. |
+| **INCUBATOR ON HIGH** | It is 41 degrees in here. Everything swims faster and shooters fire more often. +20% XP. |
+
+**Sequences:** you start with the Firstborn, the Chonker and the Bright Spark. The rest unlock one rung at a time (see the Unlock column under Sequences), alternating skill and grind. After a wave-mode win, NEW SEQUENCE takes you straight back to sequence select.
 
 Boss waves: entourage warm-up (seconds) 16, 12, 10, 10; boss health (times its base) 2.2, 13, 50, 160; boss attack strength 0.55, 0.82, 1, 1.1.
 

@@ -104,6 +104,7 @@ const UI = {
     $('codexBack').addEventListener('click', () => { UI.show('title'); UI.renderBest(); });
     UI.applySettings();
     $('againBtn').addEventListener('click', () => UI.startGame());
+    $('newSeqBtn').addEventListener('click', () => openSeq()); // (same mode, another Primary)
     $('dbgBtn').addEventListener('click', e => { e.stopPropagation(); if (G && G.debug) toggleDebugPanel(); });
     $('waveBtn').addEventListener('click', () => { if (G && waveReady()) { waveBegin(); $('waveBtn').classList.remove('on'); } });
     // Boss introductions: once the card is up, a tap anywhere starts the fight.
@@ -1397,6 +1398,11 @@ const UI = {
     h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
     if (G.heatUnlocked) h = `<div class="bdna" style="color:#ff3b3b">IMMUNE RESPONSE ${G.heatUnlocked} UNLOCKED: ${esc(IMMUNE[G.heatUnlocked - 1].name)}</div>` + h;
     if (won && !G.lvl && META.wonSinceBirth) h = `<p class="hint">You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.</p>` + h;
+    h = seqNewHtml() + h; // (the sequence ladder: seqlock.js)
+    const dishWin = won && G.wave && G.wave.camp, left = dishWin ? seqStartersLeft() : [];
+    if (dishWin) h = `<p class="hint">${left.length ? 'Beat it with ' + left.map(SEQ_NAME).join(' and ') + ' too to decode a new sequence.' : 'Fancy another go with a different Primary Sequence?'}</p>` + h;
+    $('newSeqBtn').style.display = dishWin ? '' : 'none';
+    $('againBtn').classList.toggle('primary', !dishWin);
     if (!won) h = UI.killerHtml() + h;
     $('overBody').innerHTML = h;
     if (!won) UI.drawKiller();

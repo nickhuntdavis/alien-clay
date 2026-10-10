@@ -2249,7 +2249,7 @@ function drawHud() {
 function drawEventBar() {
   if (!G.ev || !G.ev.active.length) return;
   ctx.font = 'bold 11px ' + MONO; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  const items = G.ev.active.map(ev => { const E = RUN_EVENTS[ev.id], t = (ev.dire ? 'DIRE ' : '') + E.name + '  ' + Math.max(0, Math.ceil(ev.left)) + 's'; return { ev, E, t, w: ctx.measureText(t).width + 18 }; });
+  const items = G.ev.active.map(ev => { const E = RUN_EVENTS[ev.id], t = (ev.dire ? 'DIRE ' : '') + E.name + (ev.wave ? '  ALL WAVE' : '  ' + Math.max(0, Math.ceil(ev.left)) + 's'); return { ev, E, t, w: ctx.measureText(t).width + 18 }; });
   // Stacked bottom-left, clear of the scale bar and the Rewind button.
   const x = 10, y0 = H - (UI.bottomH || 200) - 62;
   items.forEach((it, i) => {

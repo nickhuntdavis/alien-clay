@@ -756,6 +756,7 @@ function damageEnemy(e, dmg, src) {
   if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
   if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
+  if (e.def.spongy) e.sorryT = G.t; // (amoebas only knit back together when left alone: arsenal.js engulfAI)
   let d = dmg * (src.mult || 1) * G.evm.out; // Glass Womb
   // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
   if (e.final) d = Math.min(d, e.maxHp * 0.06);
@@ -1103,7 +1104,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
   if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
-  p.hp -= d;
+  p.hp -= d; seqHurt(); // (a clean boss fight: seqlock.js)
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
   if (ent && !ent.dead) { G.grudge = ent; tutShow('grudge'); }
   G.lastHitEnt = ent || null;

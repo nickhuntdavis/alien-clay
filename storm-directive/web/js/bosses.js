@@ -27,7 +27,7 @@ function spawnBoss() {
   };
   const e = mk(s.x, s.y);
   G.enemies.push(e);
-  G.boss = e;
+  G.boss = e; seqBossStart();
   if (def.twins) {
     const t = mk(s.x + Math.cos(s.a + 1.2) * 110, s.y + Math.sin(s.a + 1.2) * 110);
     e.name = 'MITCH'; t.name = 'OSIS'; e.twin = t; t.twin = e; t.pat = 2;
@@ -283,7 +283,7 @@ function bossDown(e) {
   if (e.twin) G.bossDead[e.twin.id] = true;
   G.boss = null;
   G.nextBoss = Math.max(G.nextBoss, G.t + 25); // (a breather before the next one)
-  G.stats.bossKills++;
+  G.stats.bossKills++; seqBossDead();
   (G.stats.bossesBeaten || (G.stats.bossesBeaten = [])).push(e.def.id);
   if (!(typeof campFinal === 'function' && campFinal())) G.lootQueue.unshift({ kind: 'relic', boss: e.def.id, now: true, src: { t: 'boss', name: e.def.name } }, { kind: 'spoils', boss: e.def.id, now: true, src: { t: 'boss', name: e.def.name } }); // (now: wave mode opens a boss reward at once, not at the wave end)
   healPlayer(P.maxHp * 0.4);

@@ -424,7 +424,7 @@ const ENGULF_SKIP = e => e.boss || e.rival || e.egg || e.charmed || e.dead;
 function engulfAI(e, dt, dist, ux, uy) {
   const base = e.def.speed * (1 + Math.min(0.6, G.t / 2000));
   e.speed = base * Math.max(0.45, Math.sqrt(e.def.r / e.r));
-  if (e.hp < e.maxHp) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.01 * dt); // spongy: slowly knits back together
+  if (e.hp < e.maxHp && !(G.t - (e.sorryT || -9) < 3)) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.01 * dt); // spongy: slowly knits back together, once left alone for 3s
   e.stT -= dt;
   if (e.stT <= 0 || (e.prey && e.prey.dead)) {
     e.stT = 0.5; e.prey = null;

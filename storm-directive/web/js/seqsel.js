@@ -124,7 +124,7 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
 }
 
 // ---------------------------------------------------------------- the screen
-function seqOrder() { return Object.keys(PROFILES); }
+function seqOrder() { const r = id => (PROFILES[id].unlock && PROFILES[id].unlock.rung) || (PROFILES[id].unlock ? 50 : 0); return Object.keys(PROFILES).sort((a, b) => r(a) - r(b)); } // (starters, then the ladder: seqlock.js)
 function openSeq() {
   if (!PROFILES[META.profile] || !profUnlocked(META.profile)) META.profile = 'vanguard';
   SEQ.id = META.profile;

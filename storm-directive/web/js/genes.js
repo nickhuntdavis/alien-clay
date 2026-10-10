@@ -44,7 +44,7 @@ const PROFILE_SYNERGIES = [
   { a: 'splicer', b: 'eggseeker', name: 'Clean Living', desc: 'Lathered or saponified enemies take 30% more damage from you.' },
   { a: 'splicer', b: 'pusher', name: 'Batch Cooking', desc: 'Your starting ability (Soap Dispenser or Cluster Feeding, whichever is your primary\'s) heals you 3% of your max HP for every enemy it hits (up to 15%).' },
 ];
-const profUnlocked = id => { const u = PROFILES[id].unlock; return !u || !!META.devAll || u.have() >= u.need; }; // (devAll: developer mode's UNLOCK EVERYTHING, debug.js)
+const profUnlocked = id => { const u = PROFILES[id].unlock; return !u || !!META.devAll || !!(META.seqGrand && META.seqGrand[id]) || u.have() >= u.need; }; // (devAll: developer mode's UNLOCK EVERYTHING, debug.js)
 const profKills = id => (META.prof[id] && META.prof[id].kills) || 0;
 // Ranks already earned under the old, lower thresholds (5,000 and 25,000) are kept (see meta.js: keep).
 const profRank = id => Math.max(profKills(id) >= PROFILE_RANKS[2] ? 3 : profKills(id) >= PROFILE_RANKS[1] ? 2 : 1, (META.prof[id] && META.prof[id].keep) || 1);

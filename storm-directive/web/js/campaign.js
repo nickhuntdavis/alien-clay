@@ -87,6 +87,7 @@ function campBegin(V) {
   // (What's in the drop stays a surprise until it lands.)
   banner(`WAVE ${V.n} OF ${CAMP.waves}`, PAL.reward);
   if (V.n > 1) sysMsg('THE SCIENTIST', `${pick(SCIENTIST)} Next boss: wave ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}.`, XR.dim);
+  dishFxBegin(V); // (a condition for the whole wave, sometimes: dishfx.js)
 }
 // One of the entourage, at the right spot.
 function campSpawnOne(E, n, elite) {
@@ -207,7 +208,7 @@ function campBoss(V) {
 // Wave 20 beaten: IVF. The scientist drops you onto the egg in the middle of the dish.
 function campWin() {
   if (!G || G.state === 'over' || G.state === 'finale') return;
-  META.waveWins = (META.waveWins || 0) + 1; saveMeta();
+  META.waveWins = (META.waveWins || 0) + 1; seqWin(G); saveMeta(); // (the sequence ladder: seqlock.js)
   sysMsg('THE SCIENTIST', `"${CAMP.waves} for ${CAMP.waves}. Remarkable. Pass me the egg." In vitro, in the end. It still counts.`, XR.dim, true);
   G.wave.won = true;
   victory(null);
