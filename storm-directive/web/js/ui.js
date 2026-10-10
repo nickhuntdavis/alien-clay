@@ -712,7 +712,7 @@ const UI = {
     $('biName').textContent = key;
     $('biQuote').textContent = I.what;
     // Only the very first status card explains where the chips are (the key is already marked seen, so 1 = first).
-    $('biDesc').textContent = (seen <= 1 ? 'It shows as a chip down the left of your screen while it lasts.' : 'It shows as a chip on your HUD while it lasts.') + (I.buff ? '' : ' Get rid of it if you can.');
+    $('biDesc').textContent = (seen <= 1 ? 'It shows as a chip down the left of your screen (along the top in Immersive mode).' : '') + (I.buff ? '' : (seen <= 1 ? ' ' : '') + 'Get rid of it if you can.');
     box.querySelector('.bi-col.str h4').textContent = I.buff ? 'MAKE THE MOST OF IT' : 'WHAT TO DO';
     box.querySelector('.bi-col.weak').style.display = 'none';
     $('biStr').innerHTML = `<li style="animation-delay:0.9s">${esc(I.tip)}</li>`;
