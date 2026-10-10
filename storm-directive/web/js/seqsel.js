@@ -253,13 +253,14 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
   ctx.globalCompositeOperation = 'source-over';
   ctx.strokeStyle = pc; ctx.lineWidth = Math.max(1, 0.9 * k); ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.9 * k, 5.4 * k, 0, 0, TAU); ctx.stroke();
   ctx.lineCap = 'round';
-  for (const id of ids) {
+  const fb = ids.includes('bruiser') ? 1.3 : 1; // (a Chonker's fat head: everything else is scaled round it)
+  for (const id of [...ids].sort((a, b) => (b === 'bruiser') - (a === 'bruiser'))) { // (the belly first, so nothing else is painted over)
     const c = SEQ_LOOK[id].color;
     switch (id) {
       case 'vanguard': {
         // A headband with tails streaming behind.
-        ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(-1.5 * k, 0, 1.3 * k, 5.3 * k, 0, 0, TAU); ctx.fill();
-        for (const s of [-1, 1]) { const w = Math.sin(t * 9 + s) * 1.6 * k; ctx.beginPath(); ctx.moveTo(-2 * k, s * 4 * k); ctx.quadraticCurveTo(-7 * k, s * 6 * k + w, -12 * k, s * 7.5 * k + w * 1.5); ctx.lineTo(-11 * k, s * 5 * k + w); ctx.closePath(); ctx.fill(); }
+        ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(-1.5 * k, 0.6 * (fb - 1) * k, 1.3 * k, 5.3 * fb * k, 0, 0, TAU); ctx.fill();
+        for (const s of [-1, 1]) { const w = Math.sin(t * 9 + s) * 1.6 * k, y0 = 0.6 * (fb - 1) * k; ctx.beginPath(); ctx.moveTo(-2 * k, y0 + s * 4 * fb * k); ctx.quadraticCurveTo(-7 * k, y0 + s * 6 * fb * k + w, -12 * k, y0 + s * 7.5 * fb * k + w * 1.5); ctx.lineTo(-11 * k, y0 + s * 5 * fb * k + w); ctx.closePath(); ctx.fill(); }
         break;
       }
       case 'bruiser': {
