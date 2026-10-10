@@ -67,7 +67,7 @@ At the start of each request, check whether the model fits the job, and if not, 
 - Damage types (internal id → name): `phys`=Force, `fire`=Acid, `ice`=Base, `shock`=Static, `poison`=Ethanol, `arcane`=Voodoo, `oxi`=Peroxide, `salt`=Brine.
   - In player-facing text say "damage type" and "chemical reaction". Never say "element" or "elemental".
   - Internal names stay as they are (`ELEMENTS`, `elem`, the mod id `elemental`).
-- Spells are called "Feats" in all player-facing text. Internals stay `G.spells`, `SPELLS`, `isSpell`.
+- Spells are called "Feats" in all player-facing text, and you "perform" a Feat (never "cast"). Internals stay `G.spells`, `SPELLS`, `isSpell`.
 - Feats and stamina: `stamina.js`. Attacking Feats cost stamina. Tapping a Feat slot casts it (`featTap`). `SET.featAuto=false` means Feats cast on tap only.
 - Loot (`game.js` `genLoot`):
   - Novelty weighting (`novK`/`novSeen`, `META.offered`) rotates the pool.

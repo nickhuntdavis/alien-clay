@@ -94,7 +94,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape | **Bringing It Up** (9s): Every 9s: a ring of six acid pools erupts around you. They corrode harder the more hurt you are. | Rung 4: Deal 2,000,000 chemical damage (all runs) |
 | **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, saponifying everything in it (bosses only briefly). | Rung 5: Beat wave mode without using a Rewind |
 | **The Redtail** | Inbred Luck: +25% luck; level-up boxes are never Common. Every level up also brings a small bane (at most 4 of each) | Shotgun Wedding, Moonshine Jug, Duelling Banjo | **Sister-Cousin** (12s): When you are hit, there is a 35% chance a copy of you splits off and fights beside you for 12s. Swim into her to recombine for Keeping It in the Family: +30% damage and +20% fire rate for 8s, and 10% of your health back. Tap to split on purpose. | Rung 6: Play 30 runs (any result) |
-| **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Rung 7: Reach Rank III with every other sequence |
+| **The Twins** | Womb Mates: your twin swims beside you, firing copies of your weapons at 25% damage. Hits on your twin hurt you at half | Double Whammy, Twin Telepathy, Seeker Siblings | **Swapsies** (8s): Every 8s, when you are crowded or low with something close: you and your twin swap places, and each of you lets out a shockwave. Tap to swap whenever you like. | Rung 8: Beat Double Dose (the Twins boss) in wave mode |
+| **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Rung 9: Reach Rank III with every other sequence |
 
 ### Sequence synergies
 
@@ -107,10 +108,12 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **First Impressions** | The Favourite + The Quiet One | Hits on enemies at full health always crit. |
 | **Clean Living** | The Designer Baby + The Favourite | Lathered or saponified enemies take 30% more damage from you. |
 | **Batch Cooking** | The Designer Baby + The Good Eater | Your starting ability (Soap Dispenser or Cluster Feeding, whichever is your primary's) heals you 3% of your max HP for every enemy it hits (up to 15%). |
+| **Double Header** | The Twins + The Firstborn | When Head First charges, your twin charges too, at the enemy nearest to it. |
+| **Good Twin, Evil Twin** | The Twins + The Quiet One | Your twin shoves through whatever it swims into, hitting it for your melee damage. |
 
 ## Weapons
 
-32 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
+33 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
 
 | Weapon | Sequence | Damage type | Role | Aims at | Wildcard |
 |---|---|---|---|---|---|
@@ -146,6 +149,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Shotgun Wedding](#shotgun-wedding) | Redtail | Force | Brawler | NEAREST | - |
 | [Moonshine Jug](#moonshine-jug) | Redtail | Ethanol | Firebomber | DENSEST CLUSTER | - |
 | [Duelling Banjo](#duelling-banjo) | Redtail | Static | Ring | NEAREST | - |
+| [Double Whammy](#double-whammy) | Twins | Force | Duellist | NEAREST | - |
 
 ### Spitball
 
@@ -826,6 +830,27 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Lv 10 mastery | **Hoedown** | Low notes knock enemies back hard and leave them dazed for a moment. |
 |  | **Bluegrass Encore** | Every third ring plays both notes at once. |
 
+### Double Whammy
+
+*Force gun, Duellist.* One goes left, one goes right, and they meet in the middle of somebody.
+
+- **Base stats:** dmg 10, cd 0.42s, mag 8, reload 1.3s, x2, range 460 (homing 4)
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +2 count; Lv9: +1 pierce
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Pointy Head** | Shots pierce 2 more enemies. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **Matching Outfits** | A doubled hit marks the enemy: it takes 20% more damage from everything for 3s. |
+|  | **Hair Pulling** | A doubled hit stops the enemy dead for 0.6s (not bosses). |
+| Lv 8 signature | **Bunk Beds** | One more pair in every volley, each shot at 80% damage. |
+|  | **Finishing Each Other's Sentences** | A doubled hit sets off a third: a small burst round the target for 60% of the hit. |
+| Lv 10 mastery | **Conjoined** | Doubled hits are tripled instead, and the pairs fly 30% faster. |
+|  | **Evil Twin** | An enemy that took a doubled hit explodes when it dies, for 150% of that hit. |
+
 ### Upgrades with a twist
 
 When an upgrade would do nothing for a weapon, that weapon does its own thing with it instead (the card tells you).
@@ -1129,7 +1154,7 @@ From level 6 (and about 70 seconds in), something unexpected happens every 55 to
 
 ## Feats
 
-Feats (what used to be spells) cast themselves and use the two Feat slots. The attacking ones (Stork Drop, Power Shower, Brainstorm, Sofa Crevice, Running With Scissors, Dutch Oven) are paid for from your stamina instead of waiting on a cooldown; the rest keep cooldowns. They level up like weapons, and at Lv 4 each one asks you to choose one of two paths (below).
+Feats (what used to be spells) perform themselves and use the two Feat slots. The attacking ones (Stork Drop, Power Shower, Brainstorm, Sofa Crevice, Running With Scissors, Dutch Oven) are paid for from your stamina instead of waiting on a cooldown; the rest keep cooldowns. They level up like weapons, and at Lv 4 each one asks you to choose one of two paths (below).
 
 | Feat | Damage type | What it does | Base stats | Level bonuses |
 |---|---|---|---|---|
@@ -1144,12 +1169,16 @@ Feats (what used to be spells) cast themselves and use the two Feat slots. The a
 | **Dutch Oven** | Ethanol | A drifting cloud of stacking Ethanol fumes. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Baby Monitor** | Static | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
 | **Out of Body** | Histamine | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
+| **Elbows Out** | Force | You throw your elbows about. Everything close to you is hit and shoved well back. Firstborn only. | dmg 30, cd 8s, area 140 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
+| **Belly Flop** | Force | You launch yourself at the thickest crowd nearby and land on it, hard. Chonker only. | dmg 55, cd 10s, area 130 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
+| **Lightbulb Moment** | Static | A bolt of inspiration jumps from enemy to enemy, up to six of them. Bright Spark only. | dmg 34, cd 7s, count 6 | Lv3: +2 count; Lv5: +50% dmg; Lv7: 20% faster |
+| **Double Act** | Force | You and your twin both let rip with a burst at the same moment. Twins only. | dmg 40, cd 9s, area 150 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 
 ### Feat paths (Lv 4)
 
 | Feat | Path A | Path B |
 |---|---|---|
-| **Stork Drop** | **Double Delivery**: One more stork every cast, each dropping 80% as hard. | **Hot Water Bottle**: The acid it leaves on the ground is 40% wider and lasts twice as long. |
+| **Stork Drop** | **Double Delivery**: One more stork every time, each dropping 80% as hard. | **Hot Water Bottle**: The acid it leaves on the ground is 40% wider and lasts twice as long. |
 | **Power Shower** | **Soap Bath**: Everything it catches stays saponified twice as long. | **Power Shower**: A second blast goes off a second later, wherever you are by then. |
 | **Brainstorm** | **Brainwave**: Every strike jumps on to the two nearest enemies for half its damage. | **Thunderclap**: Every strike leaves the enemies it hits dazed for a second (not bosses). |
 | **Sofa Crevice** | **Down the Back**: It pulls twice as hard. | **Loose Change**: When it closes, it spits everything out in a blast worth four seconds of its damage. |
@@ -1158,8 +1187,12 @@ Feats (what used to be spells) cast themselves and use the two Feat slots. The a
 | **Latex Barrier** | **Extra Large**: The barrier is 50% wider. | **Ribbed**: Whatever touches the barrier, or is hit by what it bounces back, takes 2.5 times the damage. |
 | **Running With Scissors** | **Safety Scissors**: The blades fly out and come back, cutting everything twice. | **Pinking Shears**: Four more blades in every ring. |
 | **Dutch Oven** | **Lingering Smell**: The cloud lasts twice as long. | **Hotbox**: The cloud follows you around. |
-| **Baby Monitor** | **Night Light**: Turrets shoot twice as fast. | **Twin Pack**: One more turret every cast. |
+| **Baby Monitor** | **Night Light**: Turrets shoot twice as fast. | **Twin Pack**: One more turret every time. |
 | **Out of Body** | **Astral Projection**: You stay out of your body 60% longer. | **Poltergeist**: When you snap back, your body bursts, blasting everything near it for four times the touch damage. |
+| **Elbows Out** | **Sharp Elbows**: Everything you shove is stunned for a second. | **Personal Space**: For 3s after, you take 30% less damage. |
+| **Belly Flop** | **Aftershock**: A second slam lands 0.6s later, for 60% of the first. | **Soft Landing**: Nothing can hurt you for a second after you land. |
+| **Lightbulb Moment** | **Bright Idea**: The bolt jumps to four more enemies. | **Brainwave**: Every enemy the bolt jumps through is stunned for half a second. |
+| **Double Act** | **Encore**: Both bursts go off again 0.8s later. | **Standing Ovation**: You heal 2% of your max health for every enemy hit (up to 10%). |
 
 ## Power-ups (passives)
 
@@ -1195,7 +1228,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Hip Flask** | +25% Ethanol damage, +3 max rounds | You | 5 |
 | **Pins and Needles** | +25% Histamine damage | You | 5 |
 | **Headbutt Training** | +25% Force damage | You | 5 |
-| **Big Lungs** | +25 max stamina (sprint longer, cast more Feats) | You | 3 |
+| **Big Lungs** | +25 max stamina (sprint longer, perform more Feats) | You | 3 |
 | **Second Wind** | Stamina refills 30% faster | You | 3 |
 | **Cardio** | Sprinting costs 25% less stamina and is 10% faster | You | 2 |
 | **Muscle Memory** | Stamina Feats cost 20% less | You | 2 |
@@ -1214,7 +1247,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Hurry Up** | Up to +22% damage the faster you are moving | You | 4 |
 | **Separation Anxiety** | Near the egg: +12% fire rate. Away from it: +12% crit chance | You | 3 |
 | **Spoilers** | 10% of shots appear already next to their target (with the Pub Crawl, you do) | You | 4 |
-| **Inheritance** | When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts cast your Feats too and last twice as long (Rare or better only) | You | 1 |
+| **Inheritance** | When you Rewind, the you that got erased stays behind as a ghost (a Paradox Echo) that retraces your last few seconds firing your weapons. With this, those ghosts perform your Feats too and last twice as long (Rare or better only) | You | 1 |
 | **Headstrong** | Enemies you swim into take big damage (ram power x1.0). It grows with your level, max HP and armour. At full speed it sends out a shockwave and their contact hurts 40% less. Try HUNT autorun. | You | 5 |
 | **Big Boned** | +30 max HP (and heal it). All your damage +4% for every 100 max HP you have. | You | 4 |
 | **Prickly Personality** | Whatever hurts you gets hurt back (thorns x1), plus a smaller jab to everything around you. Grows with max HP and armour. | You | 4 |
@@ -1291,7 +1324,7 @@ From skipping a sequence splice, and from stashes hidden in campaign levels: pic
 | **Contagious Lather** | 0 | Saponified enemies lather everything near them. |
 | **Highly Strung** | 0 | Static +30%, Ethanol -20%. |
 | **Gold Star** | 0 | +10% XP. |
-| **Short Attention Span** | 0 | Every Feat cast has a 15% chance to recharge twice as fast. |
+| **Short Attention Span** | 0 | Every Feat you perform has a 15% chance to recharge twice as fast. |
 | **Runny Nose** | 0 | Ethanol +30%, Static -20%. |
 | **Past Bedtime** | 0 | Timed power-ups last twice as long. |
 | **Showing Off** | 0 | Every elite or boss that dies near you: +5% damage for 10s, stacking 5 times. |
@@ -1486,7 +1519,7 @@ Dropped by kills and elites. Timed ones show a countdown chip.
 
 ## Stamina
 
-One bar of 60 (shown as a thin ring inside your health ring). In manual control, hold the stick right at its edge for a moment (or hold Shift) to sprint: 55% faster, burning 30 stamina a second. Run dry and you are winded until it is back to 30%. Stamina refills at 14 a second after a short pause. The attacking Feats cost stamina (9 per second of their old cooldown, never more than 90% of a full bar), so sprinting and casting share it. Upgrades: Big Lungs (+25 max), Second Wind (refills 30% faster), Cardio (sprinting cheaper and faster), Muscle Memory (Feats cheaper). Curses: Smoker's Cough and Couch Potato.
+One bar of 60 (shown as a thin ring inside your health ring). In manual control, hold the stick right at its edge for a moment (or hold Shift) to sprint: 55% faster, burning 30 stamina a second. Run dry and you are winded until it is back to 30%. Stamina refills at 14 a second after a short pause. The attacking Feats cost stamina (9 per second of their old cooldown, never more than 90% of a full bar), so sprinting and performing Feats share it. Upgrades: Big Lungs (+25 max), Second Wind (refills 30% faster), Cardio (sprinting cheaper and faster), Muscle Memory (Feats cheaper). Curses: Smoker's Cough and Couch Potato.
 
 ## Sequence evolutions
 
@@ -1504,6 +1537,7 @@ Your Primary Sequence evolves at Lv 5, 10, 20 and 50.
 | Designer Baby | **Gifted and Talented**: +15% XP. | **Private Tutor**: +20% luck. | **Lab Grown**: Reactions hit 40% harder. | **Perfect Specimen**: +30% damage with every chemical and +15% damage. |
 | Old Soul | **Deja Vu**: The Rewind meter fills 25% faster. | **Been Here Before**: +30% pickup range. | **Past Lives**: Echoes inherit one more of your upgrades. | **Enlightened**: +20% damage and +20% fire rate. |
 | Redtail | **Lucky Horseshoe**: +15% luck. | **Farm Strong**: +15% max HP. | **Family Gun**: +1 projectile for every weapon. | **Head of the Family**: +50% luck and +20% damage. |
+| Twins | **Shared Cot**: Your twin swims 20% closer and takes 10% less of the blame (hits on it hurt you at 40%). | **Hand-Me-Downs**: +10% fire rate. | **Telepathic Link**: Your twin copies your weapons at 10% more damage. | **Inseparable**: +20% damage, and Swapsies heals you 5% each time. |
 
 ## Damage types
 
@@ -1936,7 +1970,7 @@ Rules the cards do not spell out, but that change what is worth picking.
 - **Rewind and Chrono energy:** Rewind fires by itself on a lethal hit, rolls you back about 4s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with 1 charge (max 2, more with Snooze Button). Charges refill from Chrono energy (600 per charge, 15% more for every Rewind already used this run), earned by fighting.
 - **Funding and grants:** Every sample is an experiment, and the lab is watching. Kills, combos, bosses and achievements raise its funding; funding milestones bring research grants (a heal, Oxytocin, a stair gate, a magnet, a Nit Comb or a DNA strand). In the campaign the same meter is your devotion to the egg, and the gifts are signs from it.
 - **The egg:** Opens at Lv 60: its membrane has 150,000 base HP and 8 armour, and a rival can break in first. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.
-- **Feat slots:** Two. Feats cast themselves on cooldown.
+- **Feat slots:** Two. Feats perform themselves on cooldown.
 - **Damage-type set:** Two weapons or Feats of the same damage type turn on its set bonus.
 - **Weapon mounts:** Three (Lv 1 and drafts at 8 and 22), plus up to 2 bonus mounts from combos.
 - **Player base stats:** 120 HP, 150 swim speed, 5% crit, x1.6 crit damage, 105 pickup radius, 0 armour, 0 dodge. You grow with max HP.

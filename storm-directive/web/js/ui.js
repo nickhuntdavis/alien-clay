@@ -172,7 +172,7 @@ const UI = {
       return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>Lv ${w.lvl}/${MAX_WLVL}</em><p>${esc(w.def.desc)}</p>`
         + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name : ''}</p>` : '')
         + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '')
-        + `<p>${kind === 's' ? 'Tap to cast it now. Its target and the rest are in the Tackle Box.' : w.def.noTarget ? 'Tap to open the Tackle Box.' : 'Tap to switch target. TACKLE BOX button for the rest.'}</p>`;
+        + `<p>${kind === 's' ? 'Tap to perform it now. Its target and the rest are in the Tackle Box.' : w.def.noTarget ? 'Tap to open the Tackle Box.' : 'Tap to switch target. TACKLE BOX button for the rest.'}</p>`;
     }, () => {
       if (!G || G.state !== 'play') return;
       const w = kind === 's' ? G.spells[i] : G.weapons[i];
@@ -516,7 +516,7 @@ const UI = {
     }
     // Targeting.
     h += `<div class="sec"><h3>Targeting directive</h3>`;
-    if (d.noTarget) h += `<p class="hint">Self-cast. It fires on its own when useful.</p>`;
+    if (d.noTarget) h += `<p class="hint">Performs itself. It goes off on its own when useful.</p>`;
     else {
       let cur = w.dir;
       if (w.dirs) {

@@ -40,7 +40,7 @@ const GLOSSARY = [
   [/\b(puddle|pool|patch)/i, 'Puddle', 'A patch on the ground that keeps hurting enemies standing in it.'],
   [/\brounds? of ethanol|\bmax (rounds|stacks)|\bstacking\b|\bstacks? of\b/i, 'Rounds', 'Ethanol stacks: each round adds damage over time. Too many and the enemy blacks out.'],
   [/\boverkill/i, 'Overkill', 'Damage left over after a kill jumps to the next enemy.'],
-  [/\bspell/i, 'Feat', 'Casts itself on a cooldown. You have two Feat slots.'],
+  [/\bspell/i, 'Feat', 'Performs itself on a cooldown. You have two Feat slots.'],
   [/\bsequence/i, 'Sequence', 'Your Epigenetic Profile: it sets your starting weapons, ability and bonus.'],
   [/\b(curse|bane)/i, 'Bane', 'A drawback that comes with a strong boon.'],
   [/\bsapon/i, 'Saponified', 'Base status at full strength: turned to soap and stuck solid for a moment.'],

@@ -1087,7 +1087,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
-  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1);
+  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt(); // (Personal Space: seqfeats.js)
   dmg = relicDamageIn(dmg, ent);
   if (dmg > 0) dmg = junkHurtIn(dmg, ent, kind); // (Now You See Me, Phlegm, Glass Case: junk.js)
   if (dmg <= 0) return;
@@ -1779,6 +1779,7 @@ function fireWeapon(w, target) {
     case 'warp': G.warp = s.dur; banner('TIME WARP', '#b8c0ff'); break;
     case 'barrier': G.barrier = s.dur; G.barrierR = s.area; G.barrierDmg = s.dmg; break;
     case 'oob': rebornOOB(w); break;
+    case 'seqfeat': seqFeatFire(w, target, src); break; // (sequence Feats: seqfeats.js)
     case 'ring':
       for (let i = 0; i < s.count; i++) spawnProj(w, p.x, p.y, i / s.count * TAU + G.realT, src);
       break;
@@ -2563,7 +2564,7 @@ function update(dt) {
   sigTick(dt);
   comboTick(dt);
   overkillTick(dt);
-  puTick(dt); redTick(dt);
+  puTick(dt); redTick(dt); twinsTick(dt);
   rebornTick(dt);
   introTick(); // first sightings
   tutTick(); // first-time tutorial cards (tutorial.js)

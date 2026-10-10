@@ -4,7 +4,7 @@
 // computeStats (spellForkStats); behaviour changes are read where the spell is cast (game.js fireWeapon).
 const SPELL_FORK_LV = 4;
 const SPELL_FORKS = {
-  meteor:     [{ name: 'Double Delivery', desc: 'One more stork every cast, each dropping 80% as hard.' },
+  meteor:     [{ name: 'Double Delivery', desc: 'One more stork every time, each dropping 80% as hard.' },
                { name: 'Hot Water Bottle', desc: 'The acid it leaves on the ground is 40% wider and lasts twice as long.' }],
   frostnova:  [{ name: 'Soap Bath', desc: 'Everything it catches stays saponified twice as long.' },
                { name: 'Power Shower', desc: 'A second blast goes off a second later, wherever you are by then.' }],
@@ -23,7 +23,7 @@ const SPELL_FORKS = {
   cloud:      [{ name: 'Lingering Smell', desc: 'The cloud lasts twice as long.' },
                { name: 'Hotbox', desc: 'The cloud follows you around.' }],
   sentry:     [{ name: 'Night Light', desc: 'Turrets shoot twice as fast.' },
-               { name: 'Twin Pack', desc: 'One more turret every cast.' }],
+               { name: 'Twin Pack', desc: 'One more turret every time.' }],
 };
 const spellFork = (w, k) => !!(w && w.isSpell && w.fork === k);
 // From computeStats.

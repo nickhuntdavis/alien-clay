@@ -66,6 +66,7 @@ const EVOLVE = {
     { name: 'Head of the Family', desc: '+50% luck and +20% damage.', apply: P => { P.luck += 0.5; P.might += 0.2; } },
   ],
 };
+if (typeof TWINS_EVOLVE !== 'undefined') EVOLVE.twins = TWINS_EVOLVE; // (twins.js)
 // From gainXp: when you reach an evolution level, your Primary Sequence evolves.
 function evolveCheck(lvl) {
   if (!G || !G.genes) return;

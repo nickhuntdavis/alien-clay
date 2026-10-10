@@ -985,3 +985,31 @@ body.immersive #bottom .slot:active, body.immersive #moveBtn:active, body.immers
 .sx-ni em { font: 700 10px var(--mono, monospace); font-style: normal; letter-spacing: 1px; color: #ff9ab8; }
 .sx-node.tease .sx-ni b, .sx-node.tease .sx-ni em { color: #5b6570; }
 .sx-node.nope, .sx-card.nope { animation: nope 0.3s; }
+
+/* A new sequence decoded (seqreveal.js): full screen, dark, in the sequence's colour (--rc). */
+#seqReveal { position: fixed; inset: 0; z-index: 90; display: none; background: radial-gradient(circle at 50% 36%, color-mix(in srgb, var(--rc) 22%, #000) 0%, #030405 62%); color: #fff; overflow-y: auto; touch-action: pan-y; }
+#seqReveal.on { display: flex; justify-content: center; align-items: flex-start; }
+#srFx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#seqReveal .srbox { position: relative; margin: auto 0; width: min(420px, 100%); padding: 24px 16px 28px; box-sizing: border-box; text-align: center; }
+#seqReveal .srkick { font-family: var(--mono); font-size: 12px; letter-spacing: 0.32em; color: var(--rc); min-height: 16px; }
+#seqReveal.decoding .srkick { color: #9fb3c8; animation: srBlink 0.5s steps(2) infinite; }
+#seqReveal #srPortrait { position: relative; inset: auto; display: block; width: 100%; height: 230px; margin: 12px 0 6px; }
+#seqReveal .srname { font-size: 34px; font-weight: 900; letter-spacing: 0.04em; line-height: 1.05; color: #fff; text-shadow: 0 0 22px var(--rc), 0 0 4px var(--rc); min-height: 8px; }
+#seqReveal.decoded .srname { animation: srSlam 0.55s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+#seqReveal .srtag { margin-top: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--rc); opacity: 0.9; }
+#seqReveal.decoded .srtag { animation: srUp 0.5s 0.35s both; }
+#seqReveal .srbody { margin-top: 14px; text-align: left; }
+#seqReveal.decoded .srbody { animation: srUp 0.5s 0.6s both; text-align: center; }
+#seqReveal .srhow { color: #c9d6e3; font-size: 13px; }
+#seqReveal .srstory { font-size: 16px; line-height: 1.5; color: #e9eef3; }
+#seqReveal .srwep { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; margin: 8px 0; border-left: 3px solid var(--rc); background: #ffffff0a; border-radius: 4px; }
+#seqReveal .srwep b { display: block; color: var(--rc); font-size: 15px; margin-bottom: 3px; }
+#seqReveal .srwep span { display: block; font-size: 14px; line-height: 1.4; color: #e9eef3; }
+#seqReveal .srwep em { display: block; margin-top: 4px; font-style: normal; font-size: 12px; line-height: 1.35; color: #9fb3c8; }
+#seqReveal .srbtns { margin-top: 18px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+#seqReveal .srbtns .btn.primary { background: linear-gradient(170deg, color-mix(in srgb, var(--rc) 70%, #fff), var(--rc)) padding-box, linear-gradient(155deg, #fff, var(--rc)) border-box !important; color: #000 !important; box-shadow: 0 0 18px color-mix(in srgb, var(--rc) 60%, transparent); }
+#seqReveal .srbtns .btn { animation: srUp 0.35s both; }
+#seqReveal .srswap { animation: srUp 0.35s both; }
+@keyframes srSlam { 0% { transform: scale(2.6); opacity: 0; filter: blur(6px); } 60% { opacity: 1; filter: blur(0); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes srUp { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes srBlink { 50% { opacity: 0.4; } }

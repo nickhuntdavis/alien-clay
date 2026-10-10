@@ -32,7 +32,7 @@ const PROFILES = {
     unlock: { text: 'Deal 2,000,000 chemical damage (all runs)', have: () => Math.floor(META.life.elem), need: 2e6 } },
   splicer: { name: 'The Designer Baby', trait: 'Good Genes', fmt: k => `your other sequences' traits are ${pc(Math.min(1, 0.25 * k))} stronger, +${pc(0.05 * k)} area`, apply: (P, k) => { P.area += 0.05 * k; },
     desc: 'Clever, strange and a bit of everything. Makes every other gene work harder.', weapons: ['friend', 'crayon', 'siphon'],
-    unlock: { text: 'Cast 1,500 Feats (all runs)', have: () => META.life.casts, need: 1500 } },
+    unlock: { text: 'Perform 1,500 Feats (all runs)', have: () => META.life.casts, need: 1500 } },
 };
 // Two sequences expressed together unlock a little extra.
 const PROFILE_SYNERGIES = [
@@ -112,7 +112,7 @@ const MUTATIONS = {
   payload:     { tier: 1, name: 'Backed Up', desc: 'Weapons with a magazine bigger than 1 hold twice as much.' },
   ointment:    { tier: 1, name: 'Magic Cream', desc: 'Heals you fully now, +40 max HP, and every 5th Glucose Hit heals you fully. Fixes everything.', apply: P => { P.maxHp += 40; G.player.hp = P.maxHp; } },
   hackerman:   { tier: 1, name: 'Overexcited', desc: 'Every crit gives +0.5% fire rate for 2s (up to +25%).' },
-  turbo:       { tier: 0, name: 'Short Attention Span', desc: 'Every Feat cast has a 15% chance to recharge twice as fast.' },
+  turbo:       { tier: 0, name: 'Short Attention Span', desc: 'Every Feat you perform has a 15% chance to recharge twice as fast.' },
   greedyhands: { tier: 1, name: 'One in Each Hand', desc: 'Every timed power-up also gives you another random one. +20% pickup range.', apply: P => { P.magnet += 0.2; } },
   roidrage:    { tier: 1, name: 'Too Many Sweets', desc: 'A Glucose Hit picked up at full health: +50% damage for 20s.' },
   plaguemask:  { tier: 0, name: "Runny Nose", desc: 'Ethanol +30%, Static -20%.', apply: P => { P.elem.poison += 0.3; P.elem.shock -= 0.2; } },

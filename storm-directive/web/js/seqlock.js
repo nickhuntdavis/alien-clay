@@ -7,7 +7,8 @@
 //   4 The Problem Child   grind  deal 2,000,000 chemical damage (all runs)
 //   5 The Designer Baby   skill  beat wave mode without using a Rewind
 //   6 The Redtail         grind  play 30 runs (any result)
-//   7 The Reborn          grind  reach Rank III with every other sequence
+//   8 The Twins           skill  beat Double Dose (the Twins boss) in wave mode
+//   9 Prawn Again         grind  reach Rank III with every other sequence
 // Sequences unlocked under the old rules stay unlocked (META.seqGrand), and wave-mode wins already in the run
 // log count towards rung 1. Newly unlocked sequences are announced on the end-of-run screen (seqNewHtml).
 // Hooks: genes.js profUnlocked (seqGrand); seqsel.js seqOrder (rung); campaign.js campWin (seqWin);
@@ -23,7 +24,8 @@ const SEQ_LADDER = {
   acid:      { rung: 4, text: 'Deal 2,000,000 chemical damage (all runs)', have: () => Math.floor(META.life.elem), need: 2e6 },
   splicer:   { rung: 5, text: 'Beat wave mode without using a Rewind', have: () => Math.min(1, META.noRewindWin || 0), need: 1 },
   redtail:   { rung: 6, text: 'Play 30 runs (any result)', have: () => (typeof RUNLOG !== 'undefined' ? RUNLOG.length : 0), need: 30 },
-  reborn:    { rung: 7, text: 'Reach Rank III with every other sequence', have: () => Object.keys(PROFILES).filter(id => id !== 'reborn' && profRank(id) >= 3).length, need: () => Object.keys(PROFILES).length - 1 },
+  twins:     { rung: 8, text: 'Beat Double Dose (the Twins boss) in wave mode', have: () => Math.min(1, META.beatTwins || 0), need: 1 },
+  reborn:    { rung: 9, text: 'Reach Rank III with every other sequence', have: () => Object.keys(PROFILES).filter(id => id !== 'reborn' && profRank(id) >= 3).length, need: () => Object.keys(PROFILES).length - 1 },
 };
 for (const id in SEQ_LADDER) if (PROFILES[id]) {
   const L = SEQ_LADDER[id];
@@ -50,13 +52,18 @@ function seqWin(G) {
 }
 function seqBossStart() { G.bossHurt = false; }
 function seqHurt() { if (G.boss && !G.boss.dead) G.bossHurt = true; }
-function seqBossDead() { if (G.bossHurt === false) { META.cleanBoss = (META.cleanBoss || 0) + 1; saveMeta(); } G.bossHurt = null; }
+function seqBossDead() {
+  if (G.bossHurt === false) META.cleanBoss = (META.cleanBoss || 0) + 1;
+  if (typeof campOn === 'function' && campOn() && G.wave.boss === 'twins') META.beatTwins = 1; // (rung 8)
+  saveMeta(); G.bossHurt = null;
+}
 
 // The end-of-run screen: anything that just unlocked.
 function seqNewHtml() {
   const ann = META.seqAnn || (META.seqAnn = {}), fresh = Object.keys(PROFILES).filter(id => profUnlocked(id) && !ann[id]);
   if (!fresh.length) return '';
   for (const id of fresh) ann[id] = 1; saveMeta();
+  if (typeof seqReveal === 'function') setTimeout(() => seqReveal(fresh), 900); // (the ceremony: seqreveal.js)
   return fresh.map(id => `<div class="bdna" style="color:${SEQ_LOOK[id] ? SEQ_LOOK[id].color : PAL.upgrade}">NEW SEQUENCE DECODED: ${esc(PROFILES[id].name.toUpperCase())}</div>`).join('');
 }
 // Which starters still need a wave-mode win (for the end screen's nudge).

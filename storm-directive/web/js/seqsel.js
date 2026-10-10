@@ -105,6 +105,7 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
     }
     case 'reborn': rebornPortrait(g, hx, hy, R, c, t); break;
     case 'redtail': redPortrait(g, hx, hy, R, c, t); break;
+    case 'twins': twinsPortrait(g, hx, hy, R, c, t); break;
     case 'splicer': {
       // The double helix inside the head (clipped to it).
       g.save(); g.beginPath(); g.ellipse(hx, hy, R * 1.12, R * 0.74, 0, 0, TAU); g.clip();
@@ -174,8 +175,10 @@ function seqRender(anim) {
   h += `<div class="sqh">EXCLUSIVE WEAPONS</div><div class="sqweps" style="grid-template-columns:repeat(${Pr.weapons.length}, 1fr)">${Pr.weapons.map(w => `<div class="sqwep">${iconSVG(WEAPONS[w], 26, open ? L.color : '#5c6670')}<span>${esc(WEAPONS[w].name)}</span></div>`).join('')}</div>`;
   const syn = PROFILE_SYNERGIES.filter(q => q.a === id || q.b === id);
   if (syn.length) h += `<div class="sqh">SPLICE SYNERGIES</div><div class="sqsyn">${syn.map(q => { const o = q.a === id ? q.b : q.a; return `<div class="sqs" style="--oc:${SEQ_LOOK[o].color}"><b>${esc(q.name)}</b><span>+ ${esc(PROFILES[o].name)}: ${esc(q.desc)}</span></div>`; }).join('')}</div>`;
+  if (open && typeof SEQ_STORY !== 'undefined' && SEQ_STORY[id]) h += `<div class="pbtns"><button class="btn" id="sqStory">THEIR STORY</button></div>`;
   const info = $('sqInfo');
   info.innerHTML = h;
+  { const sb = $('sqStory'); if (sb) sb.addEventListener('click', () => seqStoryShow(id)); } // (seqreveal.js)
   seqHeat();
   const go = $('sqGo');
   go.disabled = !open;
@@ -328,6 +331,7 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
       }
       case 'reborn': rebornMods(k, c, t); break;
       case 'redtail': redMods(k, c, t); break;
+      case 'twins': twinsMods(k, c, t); break;
       case 'splicer': {
         // A twisting double helix inside the head (clipped to it), with rungs.
         ctx.save(); ctx.beginPath(); ctx.ellipse(1 * k, 0, 6.6 * k, 4.3 * k, 0, 0, TAU); ctx.clip();

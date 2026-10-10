@@ -32,6 +32,7 @@ function applySigStats(w, s) {
     if (has('slug')) { const n = s.slugN || 1; s.count = 5; s.dmg *= (n + 4) * 0.75 / n / 5; s.spread = 0.5; s.size = 9; }
     else { s.count += 4; s.dmg *= 0.75; }
   }
+  twinsSigStats(w, s); // (twins.js)
   if (has('supermassive')) { s.size *= 1.6; s.aura *= 1.6; s.pull *= 2; s.speed *= 0.5; }
   if (has('spreadlove')) { s.count *= 3; s.dmg *= 0.45; }
   if (has('kamikaze')) s.explode = Math.max(s.explode || 0, 42);
@@ -118,7 +119,7 @@ function sigProj(pr, w) {
 // ---------------------------------------------------------------- hits and kills
 // Multiplier a hit gets from statuses your signatures put on enemies (from damageEnemy).
 function sigDamageMul(e, src) {
-  let m = 1;
+  let m = twinsDmgMul(e, src); // (Double Whammy, Matching Outfits: twins.js)
   if (e.soggyT > G.t) m *= 1.3;
   if (e.guiltT > G.t) m *= 1.35;
   if (src.w && src.w.id === 'shotgun' && G.pair.suckerpunch && e.pulledT > G.t) m *= 2;
@@ -131,6 +132,7 @@ function sigDamageMul(e, src) {
 // On-hit effects (from damageEnemy's proc step).
 function sigHit(e, dmg, src) {
   const w = src.w;
+  twinsHit(e, dmg, src); // (Double Whammy: twins.js)
   if (!w || !w.perks) return;
   if (w.id === 'blaster') {
     if (hasSig(w, 'wetwilly')) e.soggyT = G.t + 3;
@@ -157,6 +159,7 @@ function sigHit(e, dmg, src) {
 }
 function sigKill(e, src) {
   const w = src.w;
+  twinsKill(e); // (Evil Twin: twins.js)
   if (w && w.id === 'seeker' && hasSig(w, 'rivalry')) w.rivals = Math.min(8, (w.rivals || 0) + 1);
   // Bleeding enemies pass what's left of it on to the nearest one.
   if (e.bleed > 1) { const n = acquire('nearest', 160, e.x, e.y, e); if (n) { n.bleed = Math.min(n.maxHp, (n.bleed || 0) + e.bleed); bolt(e.x, e.y, n.x, n.y, '#ff3b3b', 0.12); } e.bleed = 0; }
