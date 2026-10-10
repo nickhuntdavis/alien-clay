@@ -1427,7 +1427,7 @@ The slide starts in greyscale, your own swimmer included. Colour comes back two 
 | Grant | When | What it colours |
 |---|---|---|
 | **Personal stain** | Floats by the egg, your first game (until you take it) | You, your echoes and your allies in your own colour, and your stamina ring |
-| **Tracer Dye** | Level 5, once you have the Personal stain | Your shots and weapon effects, and every damage type in its own colour |
+| **Tracer Dye** | Level 5, once you have Personal stain | Your shots and weapon effects, and every damage type in its own colour |
 | **Gentian Violet** | Level 10, once you have Tracer Dye | Power-up pickups and their effects |
 
 **Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.)
