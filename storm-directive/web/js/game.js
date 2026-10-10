@@ -1157,10 +1157,40 @@ function makeEnemy(def, x, y, opts) {
 
 function spawnPos() {
   if (G.lvl) return lvSpawnPos();
+  if (G.wave) return dishSpawnPos();
   const a = Math.random() * TAU;
   const vw = W / 2 / S0, vh = H / 2 / S0;
   const d = Math.hypot(vw, vh) + rand(30, 90);
   return { x: G.player.x + Math.cos(a) * d, y: G.player.y + Math.sin(a) * d, a };
+}
+// The Petri Dish: nothing spawns outside the dish wall or within SPAWN_SAFE of you. It tries the usual ring just
+// off screen first (kept inside the dish), then anywhere off screen, then the farthest spot in the dish it found.
+const SPAWN_SAFE = 420, DISH_IN = 70;
+function dishSpawnPos() {
+  const p = G.player, c = G.core, R = CORE.arena - DISH_IN, vw = W / 2 / S + 40, vh = H / 2 / S + 40;
+  const ok = (x, y) => Math.hypot(x - c.x, y - c.y) <= R && Math.hypot(x - p.x, y - p.y) >= SPAWN_SAFE;
+  const ring = Math.max(SPAWN_SAFE, Math.hypot(W / 2 / S0, H / 2 / S0) + 30);
+  for (let i = 0; i < 16; i++) {
+    const a = Math.random() * TAU, d = ring + rand(0, 160), x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d;
+    if (ok(x, y)) return { x, y, a };
+  }
+  let best = null, bd = -1;
+  for (let i = 0; i < 24; i++) {
+    const a = Math.random() * TAU, r = R * Math.sqrt(Math.random()), x = c.x + Math.cos(a) * r, y = c.y + Math.sin(a) * r;
+    const dx = x - p.x, dy = y - p.y, d = Math.hypot(dx, dy);
+    if (d >= SPAWN_SAFE && (Math.abs(dx) > vw || Math.abs(dy) > vh)) return { x, y, a: Math.atan2(dy, dx) };
+    if (d > bd) { bd = d; best = { x, y, a: Math.atan2(dy, dx) }; }
+  }
+  return best;
+}
+// A spawn spot picked some other way (round a boss, an ambush ring): pulled inside the dish, and moved to a
+// fresh spot if that leaves it within SPAWN_SAFE of you. Anywhere else it is left as it is.
+function dishFix(x, y) {
+  if (!G.wave || G.lvl) return { x, y };
+  const c = G.core, R = CORE.arena - DISH_IN, d = Math.hypot(x - c.x, y - c.y);
+  if (d > R) { x = c.x + (x - c.x) / d * R; y = c.y + (y - c.y) / d * R; }
+  if (Math.hypot(x - G.player.x, y - G.player.y) < SPAWN_SAFE) return dishSpawnPos();
+  return { x, y };
 }
 
 // Spotlight: the first time you ever meet an enemy type (the same moment as its introduction card, intro.js),
@@ -1221,7 +1251,7 @@ function waveEvent() {
   if (kind === 'ring') {
     const n = Math.min(18, 8 + Math.floor(t / 40)), d = Math.hypot(W / S0, H / S0) / 2 + 40;
     const def = t > 150 ? ENEMIES.skitter : ENEMIES.crawler;
-    for (let i = 0; i < n; i++) { const a = i / n * TAU; G.enemies.push(makeEnemy(def, p.x + Math.cos(a) * d, p.y + Math.sin(a) * d)); }
+    for (let i = 0; i < n; i++) { const a = i / n * TAU, q = dishFix(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d); G.enemies.push(makeEnemy(def, q.x, q.y)); }
     banner('ENCIRCLEMENT', '#ff4d6d');
   } else if (kind === 'swarm') {
     for (let k = 0; k < 2; k++) { const s = spawnPos(); for (let i = 0; i < 6; i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-40, 40), s.y + rand(-40, 40))); }

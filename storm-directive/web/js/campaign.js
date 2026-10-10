@@ -98,6 +98,7 @@ function campSpawnOne(E, n, elite) {
   else if (b && at === 'behind') { const a = Math.atan2(b.y - p.y, b.x - p.x) + rand(-0.6, 0.6), d = b.r + rand(80, 160); x = b.x + Math.cos(a) * d; y = b.y + Math.sin(a) * d; }
   else if (at === 'flank') { const fa = Math.atan2(off.y - p.y, off.x - p.x), side = Math.random() < 0.5 ? 1 : -1, d = Math.hypot(off.x - p.x, off.y - p.y); x = p.x + Math.cos(fa + side * Math.PI / 2) * d; y = p.y + Math.sin(fa + side * Math.PI / 2) * d; }
   else { x = off.x; y = off.y; }
+  ({ x, y } = dishFix(x, y)); // (inside the dish, never on top of you: game.js)
   const d = ENEMIES[id], k = Math.max(1, Math.ceil((d.group || 1) * 0.5));
   for (let j = 0; j < k; j++) { if (G.enemies.length >= CAPS.enemies) return k; G.enemies.push(makeEnemy(d, x + rand(-25, 25), y + rand(-25, 25), { elite: elite && j === 0 })); }
   return k;
@@ -154,7 +155,7 @@ function campTick(dt) {
       const p = me();
       for (const e of G.enemies) {
         if (e.dead || e.charmed || e.egg || e.boss) continue;
-        if (Math.hypot(e.x - p.x, e.y - p.y) > 520) { const a = Math.random() * TAU; e.x = p.x + Math.cos(a) * 380; e.y = p.y + Math.sin(a) * 380; e.kx = e.ky = 0; spawnPart(e.x, e.y, '#ffffff', 4, 60, 0.3); }
+        if (Math.hypot(e.x - p.x, e.y - p.y) > 700) { const a = Math.random() * TAU, q = dishFix(p.x + Math.cos(a) * 480, p.y + Math.sin(a) * 480); e.x = q.x; e.y = q.y; e.kx = e.ky = 0; spawnPart(e.x, e.y, '#ffffff', 4, 60, 0.3); }
       }
     }
     if (G.enemies.some(e => !e.dead && !e.charmed && !e.egg)) return;

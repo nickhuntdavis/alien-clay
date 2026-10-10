@@ -12,7 +12,7 @@ function spawnBoss() {
   const def = bossDef(G.bossRoster[idx % nR]);
   // Close enough to see: the introduction pans to it, and the fight starts right away.
   const a0 = Math.random() * TAU, p = me();
-  const s = { x: p.x + Math.cos(a0) * 380, y: p.y + Math.sin(a0) * 380, a: a0 };
+  const s = Object.assign({ a: a0 }, dishFix(p.x + Math.cos(a0) * 480, p.y + Math.sin(a0) * 480)); // (inside the dish, not on top of you)
   const mk = (x, y) => {
     const e = makeEnemy(def, x, y);
     e.boss = true;

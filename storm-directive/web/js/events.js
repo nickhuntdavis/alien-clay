@@ -49,7 +49,7 @@ const RUN_EVENTS = {
       ev.acc = 0;
       const p = me(), n = d ? 22 : 14, R = Math.hypot(W / S0, H / S0) / 2 + 30;
       const def = G.t > 400 ? pick([ENEMIES.skitter, ENEMIES.brute, ENEMIES.crawler]) : G.t > 150 ? ENEMIES.skitter : ENEMIES.crawler;
-      for (let i = 0; i < n && G.enemies.length < CAPS.enemies; i++) { const a = i / n * TAU; G.enemies.push(makeEnemy(def, p.x + Math.cos(a) * R, p.y + Math.sin(a) * R)); }
+      for (let i = 0; i < n && G.enemies.length < CAPS.enemies; i++) { const a = i / n * TAU, q = dishFix(p.x + Math.cos(a) * R, p.y + Math.sin(a) * R); G.enemies.push(makeEnemy(def, q.x, q.y)); }
     },
     end: d => { for (let i = 0; i < (d ? 2 : 1); i++) G.lootQueue.push({ kind: 'chest' }); return d ? 'TWO DNA STRANDS' : 'DNA STRAND'; } },
   golden: { name: 'GOLDEN SWIMMER', color: '#ffd23f', dur: 20, w: 2, win: 'kill',

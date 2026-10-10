@@ -1,7 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.68 (versionCode 218), branch `claude/autorun-bullet-storm-game-blptu8` (merged from session branches). All suite tests pass.
+- Version v8.68 (versionCode 218). The latest code is on `ccr-c862d37a-6eaupv` (it has every active branch merged in). `claude/autorun-bullet-storm-game-blptu8` is stuck at v8.59: start new work from the newest branch (`git log -1` on each `origin/` branch to check), not from that one. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
