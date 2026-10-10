@@ -69,7 +69,6 @@ function rollGacha(w, silent) {
 
 // Every reload goes through here so Tactical Reload can fire its shockwave.
 function startReload(w) {
-  const P = G.P, p = G.player;
   w.reloadT = w.reloadMax = w.s.reload;
   if (w.rivals) w.rivals = 0; // Sibling Rivalry: everyone settles down
   sigReload(w);

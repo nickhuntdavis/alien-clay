@@ -83,7 +83,7 @@ function junkTick(dt) {
     if (!e) G.nextJunk = G.t + 2;
     else {
       G.nextJunk = G.t + rand(JUNK.every[0], JUNK.every[1]);
-      e.junk = G.t; G.junkE = e; e.hp *= JUNK.hpK; e.maxHp *= JUNK.hpK;
+      e.junk = G.t; e.junkPing = G.realT; G.junkE = e; e.hp *= JUNK.hpK; e.maxHp *= JUNK.hpK;
       banner('JUNK DNA!', '#e9f5db'); sfx('level'); vibrate(40);
       if (!G.junkSeen) { G.junkSeen = true; sysMsg('LATERAL GENE TRANSFER', `One of them is carrying junk DNA: the white helix. Kill it in the next ${JUNK.life} seconds and you absorb a small power of whatever it was.`, '#e9f5db', true); }
     }
@@ -186,6 +186,14 @@ const junkIframes = () => 0.25 * junkK('phantom');
 const junkRate = () => { const k = junkK('spire'); return k && G.junkT && G.junkT.still >= 1 ? 1 + 0.15 * k : 1; };
 
 // ---------------------------------------------------------------- drawing (world space, from render)
+// A bold chevron with a dark outline, so it reads on a pale slide and a dark one.
+function junkArrow(x, y, a, sz, alpha) {
+  const c = Math.cos(a), sn = Math.sin(a), pt = (u, v) => [x + c * u - sn * v, y + sn * u + c * v];
+  ctx.globalAlpha = alpha; ctx.beginPath();
+  for (const [u, v] of [[sz, 0], [-sz * 0.6, sz * 0.85], [-sz * 0.2, 0], [-sz * 0.6, -sz * 0.85]]) { const [X, Y] = pt(u, v); ctx.lineTo(X, Y); }
+  ctx.closePath(); ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.stroke(); ctx.fillStyle = '#e9f5db'; ctx.fill();
+  ctx.globalAlpha = 1;
+}
 function drawJunk() {
   const e = G && G.junkE;
   if (!e || e.dead) return;
@@ -202,14 +210,30 @@ function drawJunk() {
   ctx.lineWidth = 1.2; ctx.globalAlpha *= 0.7; ctx.beginPath();
   for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + t * 1.2, s = Math.sin(a * 4 + t * 4) * 5; ctx.moveTo(x + Math.cos(a) * (R + s), y + Math.sin(a) * (R + s)); ctx.lineTo(x + Math.cos(a) * (R - s), y + Math.sin(a) * (R - s)); }
   ctx.stroke();
-  ctx.globalAlpha = 1; ctx.font = '900 10px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.fillStyle = '#ffffff';
-  ctx.strokeText('JUNK DNA', x, y - R - 10); ctx.fillText('JUNK DNA', x, y - R - 10);
-  // Off screen: a white chevron at the edge.
-  const m = 30;
+  // The ping: three rings rippling out, once, when it is marked.
+  const pk = (t - (e.junkPing || -9)) / 1.6;
+  if (pk >= 0 && pk < 1) for (let q = 0; q < 3; q++) { const f = pk * 1.6 - q * 0.25; if (f <= 0 || f >= 1) continue; ctx.globalAlpha = 1 - f; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4 * (1 - f) + 1; ctx.beginPath(); ctx.arc(x, y, R + f * 260 * S, 0, TAU); ctx.stroke(); }
+  // A beacon: a bobbing chevron and its countdown above it.
+  const by = y - R - 18 - Math.abs(Math.sin(t * 4)) * 8;
+  ctx.globalAlpha = 1; junkArrow(x, by, Math.PI / 2, 11, 1);
+  ctx.font = '900 12px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.fillStyle = '#e9f5db';
+  const lbl = 'JUNK DNA ' + Math.ceil(left) + 's'; ctx.strokeText(lbl, x, by - 16); ctx.fillText(lbl, x, by - 16);
+  // Three small arrows circling you, pointing the way (until you're nearly there).
+  const p = me(), dW = Math.hypot(e.x - p.x, e.y - p.y), a = Math.atan2(e.y - p.y, e.x - p.x), px = sx(p.x), py = sy(p.y);
+  if (dW > 120) for (let q = 0; q < 3; q++) {
+    const ph = (t * 1.8 + q / 3) % 1, rr = 44 * Math.max(1, S * 0.6) + ph * 34;
+    junkArrow(px + Math.cos(a) * rr, py + Math.sin(a) * rr, a, 9, Math.sin(ph * Math.PI));
+  }
+  // Off screen: a big arrow at the edge with the distance.
+  const m = 34;
   if (x < 0 || x > W || y < 0 || y > H) {
     const cx = W / 2, cy = H / 2, ea = Math.atan2(y - cy, x - cx), kk = Math.min((W / 2 - m) / Math.abs(Math.cos(ea) || 1e-6), (H / 2 - m) / Math.abs(Math.sin(ea) || 1e-6));
-    const ex = cx + Math.cos(ea) * kk, ey = cy + Math.sin(ea) * kk;
-    ctx.translate(ex, ey); ctx.rotate(ea); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(13, 0); ctx.lineTo(-7, 8); ctx.lineTo(-7, -8); ctx.fill();
+    const bob = Math.sin(t * 6) * 5, ex = cx + Math.cos(ea) * (kk + bob), ey = cy + Math.sin(ea) * (kk + bob);
+    ctx.globalCompositeOperation = 'lighter'; glow(ex, ey, 50, '#e9f5db', 0.6 + 0.3 * Math.sin(t * 5)); ctx.globalCompositeOperation = 'source-over';
+    junkArrow(ex, ey, ea, 17, 1);
+    ctx.font = '900 11px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.fillStyle = '#e9f5db';
+    const t2 = Math.round(dW / 30 * 10) / 10 + ' m', tx = ex - Math.cos(ea) * 28, ty = ey - Math.sin(ea) * 28 + 4;
+    ctx.strokeText(t2, tx, ty); ctx.fillText(t2, tx, ty);
   }
   ctx.restore();
 }

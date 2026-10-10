@@ -87,7 +87,6 @@ function waveTick(dt) {
 function waveClear(V) {
   V.active = false; V.restT = 1.6; V.best = V.n;
   for (const g of G.gems) g.mag = true;
-  if (typeof vesWaveClear === 'function') vesWaveClear();
   for (const b of G.ebul) b.dead = true;
   for (const ev of G.ev.active) ev.left = 0;
   G.hazards.length = 0;

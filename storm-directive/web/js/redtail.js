@@ -66,7 +66,6 @@ PROFILES.redtail = {
 };
 if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK.redtail = { short: 'Redtail', color: RED.color, tag: 'BRED FOR LUCK', quote: 'Mama always said we was special. Then she said it to my cousin. Who is also my sister.', stats: [4, 3, 2, 3] };
 const redOn = () => !!(G && G.genes && G.genes.active.includes('redtail'));
-const redK = () => (redOn() ? clamp(G.genes.k.redtail || 0.5, 0.5, 1.5) : 0);
 // Level-up boxes for the Redtail are never Common (from genLoot: the lowest rarity).
 const redLoot = (req, minR) => (req.kind === 'level' && redOn() ? Math.max(minR, 1) : minR);
 // From gainXp, once per level gained: a bane.

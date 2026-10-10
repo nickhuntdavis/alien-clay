@@ -3,7 +3,6 @@
 
 const TAU = Math.PI * 2;
 const rand = (a, b) => a + Math.random() * (b - a);
-const randi = (a, b) => Math.floor(rand(a, b + 1));
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -266,7 +265,6 @@ function makeSlot(id, isSpell, lvl) {
 
 const WEAPON_LV_DMG = 0.35; // damage gained per weapon level
 const REACH_START = 300;
-const BOSS_HIT_CAP = 0.22;
 const DODGE_CAP = 0.75; // one global ceiling, applied when dodge is rolled
 // Defence keeps pace with the run: armour, regeneration and the lifesteal pool scale with the enemy damage clock
 // (armour) or your max HP (pools), so they still matter at minute 10.
@@ -2270,15 +2268,7 @@ function autoSteer() {
   let bestPick = null, bpd = Infinity;
   for (const u of G.pickups) { const d = Math.hypot(u.x - p.x, u.y - p.y); if (d < bpd) { bpd = d; bestPick = u; } }
   if (bestPick && bpd < (mode === 'collect' ? 900 : 380)) goal(bestPick.x, bestPick.y, mode === 'hold' ? 0.3 : 1.2);
-  // COLLECT also goes for Lateral Gene Transfers (mutations), the nearest first, ahead of gems.
-  // (A full genome still wants them: they turn into DNA strands.) Close in, it commits: a much stronger pull,
-  // little momentum bias and no cap, so the swimmer turns into it instead of circling round it.
   let homing = false;
-  if (mode === 'collect' && G.vesicles && G.vesicles.length) {
-    let bv = null, bvd = Infinity;
-    for (const v of G.vesicles) { const d = Math.hypot(v.x - p.x, v.y - p.y); if (d < bvd) { bvd = d; bv = v; } }
-    if (bv) { homing = bvd < 260; goal(bv.x, bv.y, homing ? 4 : 1.6); }
-  }
   if (mode === 'collect' && !homing && bestPick && bpd < 200) { homing = true; goal(bestPick.x, bestPick.y, 2.5); }
   if (mode === 'collect' || mode === 'kite' || mode === 'defend') {
     let bg = null, bgd = Infinity;

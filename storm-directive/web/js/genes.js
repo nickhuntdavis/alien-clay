@@ -139,14 +139,14 @@ const MUTATIONS = {
   origami:     { tier: 0, name: 'Bookworm', desc: 'Feats +15% damage. Weapons -10% damage.', apply: P => { P.sDmg += 0.15; P.wDmg -= 0.1; } },
   ohno:        { tier: 2, name: 'Fair\'s Fair', desc: 'Every damage type at normal strength or weaker gets +25%. Any already boosted loses 10%.', apply: P => { for (const el in P.elem) P.elem[el] += P.elem[el] <= 1 ? 0.25 : -0.1; } },
 };
-const VESICLE = { first: 50, every: [60, 90], max: 2, life: 60, slots: 6, near: [450, 900] };
+const MUT_SLOTS = 6;
 const mutOn = id => !!(G && G.mut && G.mut[id]);
-const mutCap = () => VESICLE.slots + (META.ranks.incubated || 0);
+const mutCap = () => MUT_SLOTS + (META.ranks.incubated || 0);
 const mutCount = () => Object.keys(G.mut || {}).filter(id => !G.mutHidden || !G.mutHidden[id]).length;
 
 // ================================================================ run start (from newGame, after applyMeta)
 function genesStart(G) {
-  G.mut = {}; G.mutHidden = {}; G.mutT = {}; G.vesicles = []; G.nextVesicle = VESICLE.first;
+  G.mut = {}; G.mutHidden = {}; G.mutT = {};
   const id = PROFILES[META.profile] && (profUnlocked(META.profile) || (typeof DAILY !== 'undefined' && DAILY.on)) ? META.profile : 'vanguard';
   G.genes = { primary: id, active: [id], applied: [], k: {} };
   seqWeaponColour(id);
@@ -159,24 +159,8 @@ function genesStart(G) {
   G.player.hp = Math.max(G.player.hp, P.maxHp);
 }
 
-// Bursting one queues its mutation box. (A full genome can't take another mutation, so its genes become a DNA strand instead.)
-function vesBurst(v) {
-  v.dead = true;
-  fxParts('drop', v.x, v.y, '#e9f5db', 14, 220, 0.6, 4); ring(v.x, v.y, 70, PAL.upgrade, 0.4, 4); sfx('pickup');
-  if (mutCount() >= mutCap()) { floatText(v.x, v.y - 20, 'GENOME FULL: DNA STRAND', PAL.reward, 14); G.lootQueue.push({ kind: 'chest', src: { t: 'drop', name: 'Lateral Gene Transfer' } }); return; }
-  G.lootQueue.push({ kind: 'vesicle' });
-  tutShow('lgt', true); // (the first one: a card)
-  G.vesTwo = mutOn('skeletonkey') && Math.random() < 0.3;
-}
-// Wave clear (waves.js): any still on the slide burst for you, so they open with the wave's other boxes.
-function vesWaveClear() {
-  if (!G.vesicles || !G.vesicles.length) return;
-  for (const v of G.vesicles) if (!v.dead) vesBurst(v);
-  compactArr(G.vesicles, v => !v.dead);
-}
 // ================================================================ loot: vesicles and splices (from genLoot)
 function vesicleOpts() {
-  G.vesTwo = mutOn('skeletonkey') && Math.random() < 0.3; // (Double Yolk)
   const pool = shuffle(Object.keys(MUTATIONS).filter(id => !G.mut[id]));
   return pool.slice(0, 4).map(id => {
     const M = MUTATIONS[id];
@@ -231,7 +215,6 @@ function seqPool(primaryOnly) {
   const ids = primaryOnly ? PROFILES[G.genes.primary].weapons : G.genes.active.flatMap(id => PROFILES[id].weapons);
   return [...new Set(ids.concat(Object.keys(META.starters || {}).filter(id => META.starters[id])))].filter(id => WEAPONS[id]);
 }
-const weaponSeq = id => Object.keys(PROFILES).find(p => PROFILES[p].weapons.includes(id));
 
 // ================================================================ per frame (from update)
 function genesTick(dt) {
@@ -397,58 +380,6 @@ function genesBank(G) {
 }
 
 // ================================================================ drawing
-// A bold green chevron with a dark outline, so it reads on a pale slide and a dark one.
-function vesArrow(x, y, a, sz, alpha) {
-  const c = Math.cos(a), sn = Math.sin(a), pt = (u, v) => [x + c * u - sn * v, y + sn * u + c * v];
-  ctx.globalAlpha = alpha; ctx.beginPath();
-  for (const [u, v] of [[sz, 0], [-sz * 0.6, sz * 0.85], [-sz * 0.2, 0], [-sz * 0.6, -sz * 0.85]]) { const [X, Y] = pt(u, v); ctx.lineTo(X, Y); }
-  ctx.closePath(); ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#0b1a10'; ctx.stroke(); ctx.fillStyle = '#9ef01a'; ctx.fill();
-  ctx.globalAlpha = 1;
-}
-function drawVesicles() {
-  if (!G.vesicles || !G.vesicles.length) return;
-  const p = G.player;
-  for (const v of G.vesicles) {
-    const x = sx(v.x), y = sy(v.y), pulse = 1 + Math.sin(G.realT * 4 + v.seed) * 0.08, r = 20 * S * pulse;
-    const left = VESICLE.life - (G.t - v.born);
-    ctx.globalAlpha = left < 8 && Math.floor(G.realT * 6) % 2 ? 0.4 : 1;
-    RAW_COL = true; // the vesicle keeps its green on the grey slide
-    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 3, '#c7f9cc', 0.45); ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#c7f9cc'; ctx.strokeStyle = '#2d6a1f'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); for (let i = 0; i <= 18; i++) { const a = i / 18 * TAU, rr = r * (1 + 0.1 * Math.sin(a * 3 + G.realT * 3 + v.seed)); i ? ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#9ef01a'; ctx.beginPath(); ctx.arc(x - r * 0.25, y - r * 0.2, r * 0.25, 0, TAU); ctx.arc(x + r * 0.3, y + r * 0.15, r * 0.18, 0, TAU); ctx.fill();
-    ctx.globalAlpha = 1;
-    // Spawn ping: three rings rippling out from it.
-    const pk = (G.realT - (v.pingT || -9)) / 1.6;
-    if (pk >= 0 && pk < 1) for (let q = 0; q < 3; q++) { const f = (pk * 1.6 - q * 0.25); if (f <= 0 || f >= 1) continue; ctx.globalAlpha = 1 - f; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4 * (1 - f) + 1; ctx.beginPath(); ctx.arc(x, y, r + f * 260 * S, 0, TAU); ctx.stroke(); }
-    // A beacon: a bobbing chevron and its countdown above it.
-    RAW_COL = true;
-    const by = y - r - 18 - Math.abs(Math.sin(G.realT * 4)) * 8;
-    ctx.globalAlpha = 1; vesArrow(x, by, Math.PI / 2, 11, 1);
-    ctx.font = '900 12px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#0b1a10'; ctx.fillStyle = '#c7f9cc';
-    const lbl = 'MUTATION ' + Math.ceil(left) + 's'; ctx.strokeText(lbl, x, by - 16); ctx.fillText(lbl, x, by - 16);
-    // Floating arrows round you, pointing the way (until you're nearly there).
-    const dW = Math.hypot(v.x - p.x, v.y - p.y), a = Math.atan2(v.y - p.y, v.x - p.x), px = sx(p.x), py = sy(p.y);
-    if (dW > 120) for (let q = 0; q < 3; q++) {
-      const ph = (G.realT * 1.8 + q / 3) % 1, rr = 44 * Math.max(1, S * 0.6) + ph * 34;
-      vesArrow(px + Math.cos(a) * rr, py + Math.sin(a) * rr, a, 9, Math.sin(ph * Math.PI));
-    }
-    // Off screen: a big arrow at the edge with the distance.
-    const m = 34;
-    if (x < 0 || x > W || y < 0 || y > H) {
-      const cx = W / 2, cy = H / 2, ea = Math.atan2(y - cy, x - cx), k = Math.min((W / 2 - m) / Math.abs(Math.cos(ea) || 1e-6), (H / 2 - m) / Math.abs(Math.sin(ea) || 1e-6));
-      const bob = Math.sin(G.realT * 6) * 5, ex = cx + Math.cos(ea) * (k + bob), ey = cy + Math.sin(ea) * (k + bob);
-      ctx.globalCompositeOperation = 'lighter'; glow(ex, ey, 50, '#c7f9cc', 0.6 + 0.3 * Math.sin(G.realT * 5)); ctx.globalCompositeOperation = 'source-over';
-      vesArrow(ex, ey, ea, 17, 1);
-      ctx.font = '900 11px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#0b1a10'; ctx.fillStyle = '#c7f9cc';
-      const t2 = Math.round(dW / 10) * 10 + 'um';
-      ctx.strokeText(t2, ex - Math.cos(ea) * 28, ey - Math.sin(ea) * 28 + 4); ctx.fillText(t2, ex - Math.cos(ea) * 28, ey - Math.sin(ea) * 28 + 4);
-    }
-    RAW_COL = false; ctx.globalAlpha = 1;
-  }
-}
-
 // ================================================================ Starting abilities (Primary Sequence only)
 // Each sequence comes with one ability of its own. It fires by itself whenever it's ready and has something to
 // do (the game is autorun); tap its button to fire it the moment it's ready. Stronger with each rank.

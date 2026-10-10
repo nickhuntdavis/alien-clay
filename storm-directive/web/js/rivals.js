@@ -52,7 +52,6 @@ function rivalStats(e, heal) {
 
 // A rival's body against the standard one (their personality, data.js RIVALS). Stand-ins have none.
 const rivalMod = e => (e.R && e.R.mod) || {};
-const rivalIs = (e, id) => !!(e.R && e.R.id === id);
 // Traits (data.js RIVALS mod): regen, ranged, tantrum, blink, barge, revive, sprint, magpie, sniper, spread,
 // cloak, escort, leech, slime, plus body numbers (hp, speed, r, contact, armour, zapN, zapR).
 const rivalHas = (e, k) => !!(e.R && e.R.mod && e.R.mod[k]);

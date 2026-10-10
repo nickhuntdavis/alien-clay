@@ -20,7 +20,6 @@ const { chromium } = require('playwright');
     for (let f = 0; f < 30 * 400 && G.state !== 'over'; f++) {
       step();
       if (G.player.hp < G.P.maxHp * 0.5) G.player.hp = G.P.maxHp;
-      if (G.vesicles.length && G.wave.n === 0) { G.player.x = G.vesicles[0].x; G.player.y = G.vesicles[0].y; }
       if (G.t > 12 && G.t < 13 && G.state === 'play') G.manual = { x: 1, y: 0, sprint: true }; else if (G.t >= 13 && !sprinted && G.manual) { G.manual = null; sprinted = true; }
       if (G.wave.n === 0 && !G.wave.active && !log.some(l => l.startsWith('clear'))) log.push(`clear tutWave=${META.tutWave} t=${G.t.toFixed(0)}`);
       if (G.wave.n === 1 && G.wave.active && !log.some(l => l.startsWith('w1'))) log.push(`w1 fresh=${G.wave.fresh}`);
