@@ -47,11 +47,11 @@ function stamRing(px, py) {
   const k = clamp(S.cur / stamMax(), 0, 1);
   if (k >= 0.995) return;
   const R = 24 * S0 * ZOOM.z * playerScale() * 0.8, top = -Math.PI / 2, a0 = ctx.globalAlpha;
-  ctx.lineCap = 'butt'; ctx.lineWidth = Math.max(1, 1.1 * Math.min(1.6, S0 * ZOOM.z));
-  ctx.globalAlpha = a0 * 0.04; ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.stroke();
+  ctx.lineCap = 'butt'; ctx.lineWidth = Math.max(2, 2.6 * Math.min(1.6, S0 * ZOOM.z));
+  ctx.globalAlpha = a0 * 0.1; ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.stroke();
   // Blue at 90% while sprinting; after a Feat spends stamina it holds blue for a second, then fades to the faint charging look.
   const fl = S.sprint ? 1 : clamp((S.flashT || 0) / 1, 0, 1), hot = fl > 0 && !S.winded;
-  ctx.globalAlpha = a0 * (0.14 + 0.76 * fl); ctx.strokeStyle = S.winded ? PAL.danger : hot ? '#5ec8ff' : '#d6e4f0';
+  ctx.globalAlpha = a0 * (0.22 + 0.68 * fl); ctx.strokeStyle = S.winded ? PAL.danger : hot ? '#5ec8ff' : '#d6e4f0';
   ctx.beginPath(); ctx.arc(px, py, R, top, top + TAU * k); ctx.stroke();
   ctx.globalAlpha = a0;
 }
