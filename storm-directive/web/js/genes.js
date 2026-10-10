@@ -161,6 +161,7 @@ function genesStart(G) {
 
 // ================================================================ loot: vesicles and splices (from genLoot)
 function vesicleOpts() {
+  G.vesTwo = mutOn('skeletonkey') && Math.random() < 0.3; // (Double Yolk: ui.js lets you take two)
   const pool = shuffle(Object.keys(MUTATIONS).filter(id => !G.mut[id]));
   return pool.slice(0, 4).map(id => {
     const M = MUTATIONS[id];
