@@ -1954,7 +1954,11 @@ function drawTrackLine(o, color) {
 }
 function drawTracks(vis) {
   const p = G.player;
-  trackPoint(p); drawTrackLine(p, '#4dff9a');
+  // Your path is in your Primary Sequence's colour (grey, like your sequence marks, until the Personal stain grant).
+  const pid = G.genes && G.genes.active && G.genes.active[0], raw = RAW_COL;
+  RAW_COL = typeof grantOn !== 'function' || grantOn('body');
+  const pc = col(pid && SEQ_LOOK[pid] ? SEQ_LOOK[pid].color : PAL.you); RAW_COL = raw;
+  trackPoint(p); drawTrackLine(p, pc);
   for (const e of G.enemies) {
     if (!e.rival || e.dead) continue;
     trackPoint(e);

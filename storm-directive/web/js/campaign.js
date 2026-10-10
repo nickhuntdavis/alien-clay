@@ -155,7 +155,7 @@ function campTick(dt) {
       const p = me();
       for (const e of G.enemies) {
         if (e.dead || e.charmed || e.egg || e.boss) continue;
-        if (Math.hypot(e.x - p.x, e.y - p.y) > 700) { const a = Math.random() * TAU, q = dishFix(p.x + Math.cos(a) * 480, p.y + Math.sin(a) * 480); e.x = q.x; e.y = q.y; e.kx = e.ky = 0; spawnPart(e.x, e.y, '#ffffff', 4, 60, 0.3); }
+        if (Math.hypot(e.x - p.x, e.y - p.y) > 520) { const q = dishNear(SPAWN_SAFE); e.x = q.x; e.y = q.y; e.kx = e.ky = 0; spawnPart(e.x, e.y, '#ffffff', 4, 60, 0.3); }
       }
     }
     if (G.enemies.some(e => !e.dead && !e.charmed && !e.egg)) return;

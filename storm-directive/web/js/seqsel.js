@@ -258,9 +258,19 @@ function drawSeqMods(x, y, face, alpha, scale, body, look) {
     const c = SEQ_LOOK[id].color;
     switch (id) {
       case 'vanguard': {
-        // A headband with tails streaming behind.
-        ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(-1.5 * k, 0.6 * (fb - 1) * k, 1.3 * k, 5.3 * fb * k, 0, 0, TAU); ctx.fill();
-        for (const s of [-1, 1]) { const w = Math.sin(t * 9 + s) * 1.6 * k, y0 = 0.6 * (fb - 1) * k; ctx.beginPath(); ctx.moveTo(-2 * k, y0 + s * 4 * fb * k); ctx.quadraticCurveTo(-7 * k, y0 + s * 6 * fb * k + w, -12 * k, y0 + s * 7.5 * fb * k + w * 1.5); ctx.lineTo(-11 * k, y0 + s * 5 * fb * k + w); ctx.closePath(); ctx.fill(); }
+        // A headband round the back of the head, clipped to its outline (the Chonker's belly when there is one),
+        // knotted at the edge with two tails streaming behind.
+        const fat = fb > 1, hx = fat ? 0.5 : 1, hy = fat ? 1.2 : 0, hrx = fat ? 8.4 : 7.9, hry = fat ? 6.4 : 5.4, bx = -1.5;
+        ctx.fillStyle = c;
+        ctx.save(); ctx.beginPath(); ctx.ellipse(hx * k, hy * k, hrx * k, hry * k, 0, 0, TAU); ctx.clip();
+        ctx.beginPath(); ctx.ellipse(bx * k, hy * k, 1.4 * k, (hry + 1) * k, 0, 0, TAU); ctx.fill(); ctx.restore();
+        const ky = (hy - hry * Math.sqrt(1 - Math.pow((bx - hx) / hrx, 2))) * k;
+        for (const s of [0, 1]) {
+          const w = Math.sin(t * 9 + s * 1.7) * 1.2 * k;
+          ctx.beginPath(); ctx.moveTo((bx + 0.7) * k, ky); ctx.quadraticCurveTo((bx - 4) * k, ky - (1.2 + s * 1.6) * k + w, (bx - 9 - s * 1.5) * k, ky - (0.8 + s * 2.4) * k + w * 1.5);
+          ctx.lineTo((bx - 8.4 - s * 1.5) * k, ky + (0.9 - s * 0.9) * k + w); ctx.lineTo((bx - 0.7) * k, ky + 0.7 * k); ctx.closePath(); ctx.fill();
+        }
+        ctx.beginPath(); ctx.arc(bx * k, ky, 1.1 * k, 0, TAU); ctx.fill(); // (the knot)
         break;
       }
       case 'bruiser': {

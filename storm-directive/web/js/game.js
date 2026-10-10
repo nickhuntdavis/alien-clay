@@ -1183,6 +1183,13 @@ function dishSpawnPos() {
   }
   return best;
 }
+// A spot exactly d from you and inside the dish (stragglers pipetted back: campaign.js). Failing a random
+// direction, it heads for the middle of the dish, which always has room.
+function dishNear(d) {
+  const p = G.player, c = G.core, R = CORE.arena - DISH_IN;
+  for (let i = 0; i < 12; i++) { const a = Math.random() * TAU, x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d; if (Math.hypot(x - c.x, y - c.y) <= R) return { x, y }; }
+  const a = Math.atan2(c.y - p.y, c.x - p.x); return { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d };
+}
 // A spawn spot picked some other way (round a boss, an ambush ring): pulled inside the dish, and moved to a
 // fresh spot if that leaves it within SPAWN_SAFE of you. Anywhere else it is left as it is.
 function dishFix(x, y) {
