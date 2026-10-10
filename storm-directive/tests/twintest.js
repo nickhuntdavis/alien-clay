@@ -1,4 +1,4 @@
-// The Twins (twins.js): the twin turns up and copies your weapons, Double Whammy doubles the second of a pair,
+// The Twins (twins.js): the twin turns up and copies your weapons, Hand in Hand doubles the second of a pair,
 // Swapsies swaps you over, hits on the twin hurt you at half, and Double Dose unlocks it (seqlock.js rung 8).
 const { chromium } = require('playwright');
 (async () => {
@@ -16,7 +16,7 @@ const { chromium } = require('playwright');
     step(60);
     out.twin = !!G.twin; out.copies = G.twin ? G.twin.weapons.map(w => w.id + '@' + w.copyK.toFixed(2)) : [];
     out.dist = G.twin ? Math.round(Math.hypot(G.twin.x - G.player.x, G.twin.y - G.player.y)) : -1;
-    // Double Whammy: the second hit of a pair is doubled.
+    // Hand in Hand: the second hit of a pair is doubled.
     const e = makeEnemy(ENEMIES.brute, G.player.x + 200, G.player.y); e.hp = e.maxHp = 1e7; e.armour = 0; G.enemies.push(e);
     const src = weaponSrc(G.weapons[0]); src.noCrit = true;
     const h0 = e.hp; damageEnemy(e, 100, src); const d1 = h0 - e.hp; damageEnemy(e, 100, src); const d2 = h0 - e.hp - d1;

@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - sequence Feats. Four Feats that only turn up in drafts while their sequence is in your genome
 // (SPELLS seqOnly, as Prawn Again's Out of Body): Elbows Out (the Firstborn), Belly Flop (the Chonker),
-// Lightbulb Moment (the Bright Spark) and Double Act (the Twins). Each has two forks at Feat level 4. All four
+// Lightbulb Moment (the Bright Spark) and Come Play With Us (the Twins). Each has two forks at Feat level 4. All four
 // attack, so they are paid for in stamina (STAM_FEATS).
 // Hooks: game.js castSpell (case 'seqfeat': seqFeatFire).
 
@@ -19,8 +19,8 @@ Object.assign(SPELLS, {
     desc: 'A bolt of inspiration jumps from enemy to enemy, up to six of them. Bright Spark only.',
     base: { dmg: 34, cd: 7, count: 6, range: 420 },
     lv: { 3: { count: 2 }, 5: { dmg: 0.5 }, 7: { cd: -0.2 } } },
-  doubleact: { name: 'Double Act', icon: 'DA', elem: 'phys', kind: 'seqfeat', color: SEQ_FEAT_COL('twins'), dir: 'nearest', seqOnly: 'twins',
-    desc: 'You and your twin both let rip with a burst at the same moment. Twins only.',
+  doubleact: { name: 'Come Play With Us', icon: 'DA', elem: 'phys', kind: 'seqfeat', color: SEQ_FEAT_COL('twins'), dir: 'nearest', seqOnly: 'twins',
+    desc: 'You and your twin both reach out at the same moment. Everything near either of you is pulled in close and hurt. Twins only.',
     base: { dmg: 40, cd: 9, area: 150, range: 150 },
     lv: { 3: { area: 0.2 }, 5: { dmg: 0.5 }, 7: { cd: -0.2 } } },
 });
@@ -31,8 +31,8 @@ Object.assign(SPELL_FORKS, {
     { name: 'Soft Landing', desc: 'Nothing can hurt you for a second after you land.' }],
   lightbulb: [{ name: 'Bright Idea', desc: 'The bolt jumps to four more enemies.' },
     { name: 'Brainwave', desc: 'Every enemy the bolt jumps through is stunned for half a second.' }],
-  doubleact: [{ name: 'Encore', desc: 'Both bursts go off again 0.8s later.' },
-    { name: 'Standing Ovation', desc: 'You heal 2% of your max health for every enemy hit (up to 10%).' }],
+  doubleact: [{ name: 'Again, Again', desc: 'You both reach out again 0.8s later.' },
+    { name: 'Feed on Fear', desc: 'You heal 2% of your max health for every enemy caught (up to 10%).' }],
 });
 if (typeof STAM_FEATS !== 'undefined') for (const id of ['elbows', 'bellyflop', 'lightbulb', 'doubleact']) STAM_FEATS.add(id);
 if (typeof ICON_OF !== 'undefined') Object.assign(ICON_OF, { elbows: 'hammer', bellyflop: 'comet', lightbulb: 'bolt', doubleact: 'pair' });
@@ -76,12 +76,12 @@ function seqFeatFire(w, target, src) {
     case 'doubleact': {
       const burst = () => {
         let hits = 0;
-        for (const o of [p, G.twin].filter(Boolean)) { forNear(o.x, o.y, s.area, e => { if (!e.charmed && !e.egg && !e.dead) { damageEnemy(e, s.dmg, Object.assign({}, src, { knock: 200, kx: e.x - o.x, ky: e.y - o.y })); hits++; } return false; }); ring(o.x, o.y, s.area, c, 0.35, 5); }
+        for (const o of [p, G.twin].filter(Boolean)) { forNear(o.x, o.y, s.area, e => { if (!e.charmed && !e.egg && !e.dead) { damageEnemy(e, s.dmg, Object.assign({}, src, { knock: -160, kx: e.x - o.x, ky: e.y - o.y })); hits++; } return false; }); ring(o.x, o.y, s.area, c, 0.35, 5); }
         if (spellFork(w, 'b') && hits) healPlayer(G.P.maxHp * Math.min(0.1, 0.02 * hits));
       };
       burst();
       if (spellFork(w, 'a')) after(0.8, () => { if (G && G.state === 'play') burst(); });
-      floatText(p.x, p.y - 36, G.twin ? 'DOUBLE ACT' : 'SOLO ACT', c, 14, 0.8);
+      floatText(p.x, p.y - 36, G.twin ? 'COME PLAY WITH US' : 'COME PLAY WITH ME', c, 14, 0.8);
       break;
     }
   }

@@ -119,7 +119,7 @@ function sigProj(pr, w) {
 // ---------------------------------------------------------------- hits and kills
 // Multiplier a hit gets from statuses your signatures put on enemies (from damageEnemy).
 function sigDamageMul(e, src) {
-  let m = twinsDmgMul(e, src); // (Double Whammy, Matching Outfits: twins.js)
+  let m = twinsDmgMul(e, src); // (Hand in Hand, Matching Pinafores: twins.js)
   if (e.soggyT > G.t) m *= 1.3;
   if (e.guiltT > G.t) m *= 1.35;
   if (src.w && src.w.id === 'shotgun' && G.pair.suckerpunch && e.pulledT > G.t) m *= 2;
@@ -132,7 +132,7 @@ function sigDamageMul(e, src) {
 // On-hit effects (from damageEnemy's proc step).
 function sigHit(e, dmg, src) {
   const w = src.w;
-  twinsHit(e, dmg, src); // (Double Whammy: twins.js)
+  twinsHit(e, dmg, src); // (Hand in Hand: twins.js)
   if (!w || !w.perks) return;
   if (w.id === 'blaster') {
     if (hasSig(w, 'wetwilly')) e.soggyT = G.t + 3;

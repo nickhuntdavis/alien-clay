@@ -37,9 +37,9 @@ const SEQ_STORY = {
   reborn: { story: 'Prawn Again has done this before. Many times. It remembers the old runs in flashes, and the old runs remember it. Every life it has had is in there somewhere, shooting.',
     weapons: { dejavu: 'Fires a slow ghostly shot. Then the same shot happens again. You have seen this before.', ghosts: 'Everything that dies near it leaves a ghost, and the ghosts go hunting.', karma: 'Every hit it takes charges up the next ring of payback.' },
     ability: 'Once per run, when it should be dead, it is not. It has been here before and it knows the way out.' },
-  twins: { story: 'Two eggs? No: one egg, two swimmers, and one of them had to be the clever one. The Twins do everything together, which is lovely, until one of them swims into a wall and you both feel it.',
-    weapons: { doubletrouble: 'One shot goes left, one goes right, and they meet in the middle of somebody. The second one always hits harder.', twin: 'Now the beam joins you to an actual twin. The family therapist has notes.', seeker: 'Even more siblings. It is getting crowded in here.' },
-    ability: 'You swap places with your twin and you both let rip. It was your twin\'s fault. It always is.' },
+  twins: { story: 'Found in a sealed jar at the back of the oldest cabinet in the lab, labelled in faded copperplate: "The Twins. 1887. Do not open." Somebody opened it. They do not blink. They speak at the same time. They only ever want you to come and play.',
+    weapons: { doubletrouble: 'They hold hands and come at you from both sides. The second one is always the one that hurts.', twin: 'The beam between them hums like a music box that will not stop.', seeker: 'Their little brothers and sisters. Nobody remembers them being born.' },
+    ability: 'You blink, and you are where your twin was, and your twin is where you were. Was it always like that? Which one of you is it now?' },
 };
 
 // ---------------------------------------------------------------- the overlay
@@ -91,7 +91,7 @@ function revealFrame(now) {
     document.getElementById('srBody').innerHTML = Pr.unlock ? `<p class="srhow">Unlocked: ${esc(Pr.unlock.text)}</p>` : '';
     const fw = fx.clientWidth || window.innerWidth, fh = fx.clientHeight || window.innerHeight;
     for (let i = 0; i < 140; i++) { const a = Math.random() * TAU, v = 120 + Math.random() * 520; REVEAL.parts.push({ x: fw / 2, y: fh * 0.36, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, life: 1.2 + Math.random() * 1.4, r: 1.5 + Math.random() * 3.5, w: Math.random() < 0.3 }); }
-    if (typeof sfx === 'function') sfx('decode');
+    if (typeof sfx === 'function') sfx(id === 'twins' ? 'decodeTwins' : 'decode'); // (the Twins get a music box)
     if (typeof vibrate === 'function') vibrate([60, 40, 140]);
     setTimeout(() => { if (REVEAL.id === id && REVEAL.page < 0) revealButtons([['MEET ' + Pr.name.replace(/^The /, '').toUpperCase(), () => revealStory(0), true]]); }, 1100);
   }
@@ -161,4 +161,10 @@ if (typeof SOUNDS !== 'undefined') SOUNDS.decode = [1, t => {
   [523, 659, 784, 1047].forEach(f => vTone(t + 0.42, f, f * 1.003, 1.1, 0.05, 'sawtooth'));
   vTone(t + 0.42, 131, 131, 1.2, 0.08, 'sine');
   vNoise(t + 0.4, 1.2, 'highpass', 6000, 9000, 0.6, 0.03);
+}];
+// The Twins' sting: a slow music box in a minor key, slightly out of tune, and a breath of cold air.
+if (typeof SOUNDS !== 'undefined') SOUNDS.decodeTwins = [1, t => {
+  [1319, 1175, 1047, 988, 880, 988, 1047, 659].forEach((f, i) => { vTone(t + i * 0.2, f, f * 0.996, 0.6, 0.05, 'sine'); vTone(t + i * 0.2, f * 2.01, f * 2, 0.25, 0.012, 'sine'); });
+  vTone(t + 1.6, 220, 207, 1.8, 0.05, 'triangle');
+  vNoise(t, 2.2, 'bandpass', 400, 900, 0.8, 0.02);
 }];
