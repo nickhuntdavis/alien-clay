@@ -3,7 +3,7 @@
 // kind of colour: each turns up once ever, floating on the slide for you to swim into, and from then on it is
 // on in every run (the pause menu switches it off). Stain cards in DNA strands still bring their own colours
 // and boons for the run they're found in.
-//   body:    Acridine Orange: you, your echoes and allies. Floats by the egg (the first game, until taken).
+//   body:    Personal stain: you, your echoes and allies, plus your stamina ring. Floats by the egg (the first game, until taken).
 //   tracer:  Tracer Dye: your shots and weapon effects, and each damage type's colour. At level 5.
 //   pickups: Gentian Violet: power-up pickups. At level 10, once you have the Tracer Dye.
 // (Not in campaign levels: they wait for the next run elsewhere.)
@@ -11,9 +11,9 @@
 // (refreshPalette and col(), render.js), grantOn (foes.js, your health ring), grantsHtml (ui.js, pause menu).
 
 const GRANTS = {
-  body:    { name: 'Acridine Orange', key: () => PAL.you, cols: () => [PAL.you],
-    see: 'You, your echoes and your allies, in your own colour',
-    desc: 'The stain they use on real sperm: the healthy ones light up. From now on, so do you. Much easier to find yourself in a crowd.' },
+  body:    { name: 'Personal stain', key: () => PAL.you, cols: () => [PAL.you, '#ffe94a', '#d6e4f0'],
+    see: 'You, your echoes and your allies in your own colour, and your stamina ring',
+    desc: 'The stain they use on real sperm: the healthy ones light up. From now on, so do you, and so does your stamina ring. Much easier to find yourself in a crowd.' },
   tracer:  { name: 'Tracer Dye', key: () => (G && G.seqCol) || PAL.upgrade, cols: () => (G && G.seqCol ? [G.seqCol] : []), elem: true, level: 5, after: 'body',
     see: 'Your shots and weapon effects, and every damage type in its own colour',
     desc: 'A fluorescent tracer in the barrel. Every shot, splash and trail you make shows up, and each damage type in its own colour.' },

@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => { if (typeof splashEnd === 'function') (window.TUT_OFF = 1, splashEnd()); }); await page.waitForTimeout(300);
   let i = 0;
-  for (const set of [['vanguard'], ['bruiser', 'stealth', 'nerd']]) {
+  for (const set of [['vanguard'], ['bruiser', 'stealth', 'nerd'], ['vanguard', 'bruiser']]) {
     await page.evaluate((set) => { META.seen = META.seen || {}; for (const id in ENEMY_INTRO) META.seen[id] = 1; UI.sample = 's001'; newGame(); UI.show('hud'); G.state = 'play'; G.lootQueue = []; SET.auto = false;
       G.weapons[0] = makeSlot('blaster', false, 4); for (const w of G.weapons) if (w) computeStats(w);
       if (G.genes) { G.genes.primary = set[0]; G.genes.active = set.slice(); }

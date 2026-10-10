@@ -714,8 +714,8 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
     }
     // The tail grows out of the midpiece: same width at the neck, then the thin principal piece.
     const hk = k * L.head;
-    ctx.globalAlpha = alpha * 0.45; for (const t of tails) drawTail(t, '#ffffff', 2.8 * k, 3.6 * hk);
-    ctx.globalAlpha = alpha * 0.9; for (const t of tails) drawTail(t, 'rgb(46,52,48)', 1.1 * k, 2 * hk);
+    ctx.globalAlpha = alpha * 0.45; for (const t of tails) drawTail(t, '#ffffff', 3.6 * k, 4.2 * hk);
+    ctx.globalAlpha = alpha * 0.9; for (const t of tails) drawTail(t, 'rgb(46,52,48)', 1.9 * k, 2.6 * hk);
   }
   ctx.globalAlpha = alpha;
   // The head rocks from side to side with each stroke of the tail (real sperm heads do), less when the wag
@@ -1488,8 +1488,8 @@ function render() {
   }
   if (G.severed) for (const sv of G.severed) {
     const a = Math.max(0, sv.life / sv.max);
-    ctx.globalAlpha = a * 0.45; drawTail(sv.pts, '#ffffff', 2.8 * S * sv.k);
-    ctx.globalAlpha = a * 0.9; drawTail(sv.pts, 'rgb(46,52,48)', 1.1 * S * sv.k);
+    ctx.globalAlpha = a * 0.45; drawTail(sv.pts, '#ffffff', 3.6 * S * sv.k);
+    ctx.globalAlpha = a * 0.9; drawTail(sv.pts, 'rgb(46,52,48)', 1.9 * S * sv.k);
   }
   ctx.globalAlpha = 1;
   rebornDrawOOB(); // (Out of Body: your empty body)
@@ -2129,7 +2129,16 @@ function drawHud() {
   let cyp = land ? top + BY + 72 : Math.max(top + BY + 72, H * 0.38); // (portrait: clear of the narrator's box)
   // (Tap one to pause and see them all: UI.chipRects, statusintro.js.)
   UI.chipRects = [];
-  if (!imm) for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); UI.chipRects.push({ x: 8, y: cyp, w: tw, h: 16 }); cyp += 20; }
+  if (imm) {
+    // Immersive mode: one centred row of chips just under the XP bar (wraps if there are many).
+    let rx = 0, ry = top + 8; const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
+    while (items.length) {
+      let w = 0, n = 0; while (n < items.length && (n === 0 || w + items[n][2] + 4 <= W - 16)) w += items[n++][2] + 4;
+      rx = (W - (w - 4)) / 2;
+      for (const [ch, cc, tw] of items.splice(0, n)) { filmPanel(rx, ry, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, rx + 7, ry + 12); UI.chipRects.push({ x: rx, y: ry, w: tw, h: 16 }); rx += tw + 4; }
+      ry += 20;
+    }
+  } else for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); UI.chipRects.push({ x: 8, y: cyp, w: tw, h: 16 }); cyp += 20; }
   UI.chips = chips;
   // Boss bar: centred, under the sperm count / wave readout.
   if (G.boss && !G.boss.dead) {
