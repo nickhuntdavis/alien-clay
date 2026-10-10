@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.stormdirective.game'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.stormdirective.game'
+        minSdk 21
+        targetSdk 34
+        versionCode 226
+        versionName '8.76'
+    }
+
+    // A fixed key, kept in the repo, so every build (from any session) installs over the last one.
+    // The old per-machine debug key changed with each fresh container, which forced an uninstall.
+    signingConfigs {
+        release {
+            storeFile file('../spawnprawn.keystore')
+            storePassword 'spawnprawn'
+            keyAlias 'spawnprawn'
+            keyPassword 'spawnprawn'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    sourceSets {
+        main {
+            // The game itself lives in storm-directive/web and is bundled as app assets.
+            assets.srcDirs = ['../../web']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
