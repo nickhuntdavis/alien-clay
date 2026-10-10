@@ -23,7 +23,8 @@ const { chromium } = require('playwright');
     out.ratio = +(d2 / d1).toFixed(2);
     // Swapsies.
     const px = G.player.x, tx = G.twin.x; SEQ_ABILITY.twins.fire(true); out.swapped = Math.abs(G.player.x - tx) < 1 && Math.abs(G.twin.x - px) < 1;
-    // A bullet on the twin hurts you at half.
+    // A bullet on the twin hurts you at half. (RACE.hurt pinned to 1: this checks the twin rule, not race difficulty.)
+    if (typeof RACE !== "undefined") RACE.hurt = 1;
     G.player.iframes = 0; G.shieldT = 0; G.P.dodge = 0; G.P.armour = 0; const hp0 = G.player.hp = G.P.maxHp;
     G.ebul.push({ x: G.twin.x, y: G.twin.y, vx: 0, vy: 0, dmg: 20, r: 5, color: '#f00', life: 2, from: 'Test bullets' });
     twinsTick(1 / 60); out.hurt = +(hp0 - G.player.hp).toFixed(1);
