@@ -2091,12 +2091,17 @@ function drawHud() {
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
   ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
   // Health: the same line along the very bottom edge (Immersive mode keeps it), with a trailing chunk for damage taken.
-  { const hk = clamp(p.hp / G.P.maxHp, 0, 1), low = hk < 0.3;
+  // Invisible at full health; white below 100%, orange below 50%, red below 15%.
+  { const hk = clamp(p.hp / G.P.maxHp, 0, 1), low = hk < 0.15;
     G.hpGhost = G.hpGhost == null ? hk : Math.max(hk, G.hpGhost - 0.004);
-    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, H - 3, W, 3);
-    ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(0, H - 3, W * G.hpGhost, 3);
-    const rawc = RAW_COL; RAW_COL = true; // (true red even on the greyscale slide: it is the one thing you must read at a glance)
-    ctx.fillStyle = low ? '#ff2d4d' : '#ff5a72'; ctx.globalAlpha = low ? 0.7 + 0.3 * Math.sin(G.realT * 8) : 1; ctx.fillRect(0, H - 3, W * hk, 3); ctx.globalAlpha = 1; RAW_COL = rawc; }
+    if (hk < 1 || G.hpGhost > hk) {
+      ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, H - 3, W, 3);
+      ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(0, H - 3, W * G.hpGhost, 3);
+      if (hk < 1) {
+        const rawc = RAW_COL; RAW_COL = true; // (true colours even on the greyscale slide: it is the one thing you must read at a glance)
+        ctx.fillStyle = low ? '#ff2d4d' : hk < 0.5 ? '#ff9a2e' : '#ffffff'; ctx.globalAlpha = low ? 0.7 + 0.3 * Math.sin(G.realT * 8) : 1; ctx.fillRect(0, H - 3, W * hk, 3); ctx.globalAlpha = 1; RAW_COL = rawc;
+      }
+    } }
   const c = G.core, land = LAYOUT.land, BY = land ? 56 : 60;
   const barX = 10, barW = Math.min(360, W - 130);
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
