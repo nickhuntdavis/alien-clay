@@ -1159,15 +1159,6 @@ function drawTerrain() {
   }
 }
 
-const SHADE = new Map();
-function shade(hex) {
-  let v = SHADE.get(hex);
-  if (v) return v;
-  const n = parseInt(hex.slice(1, 7), 16), f = 0.55;
-  v = `rgb(${Math.round((n >> 16 & 255) * f)},${Math.round((n >> 8 & 255) * f)},${Math.round((n & 255) * f)})`;
-  SHADE.set(hex, v);
-  return v;
-}
 
 // ---------------------------------------------------------------- main render
 function render() {
@@ -1458,7 +1449,6 @@ function render() {
 
   if (G.lvl) drawLevelOver();
   drawToysOver();
-  drawVesicles();
   drawGrants(); // stain grants (grants.js)
   drawJunk(); // junk DNA carriers (junk.js)
   // Player.
@@ -1922,18 +1912,6 @@ function drawRewindFx() {
   ctx.fillText(r.auto ? 'Fatal timeline detected. Your future self stays behind.' : 'Your future self becomes a Paradox Echo.', W / 2, H * 0.42 + 36);
 }
 
-function drawTitleBackdrop() {
-  if (!SPR.layers) buildLayers();
-  const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) * 0.6);
-  bg.addColorStop(0, '#b6b6b6'); bg.addColorStop(0.6, '#a6a6a6'); bg.addColorStop(1, '#6f6f6f');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-  const t = performance.now() / 1000;
-  for (const L of SPR.layers) {
-    const T = L.T, ox = -(((t * 40 * L.f) % T) + T) % T, oy = -(((t * 15 * L.f) % T) + T) % T;
-    for (let x = ox - T; x < W + T; x += T) for (let y = oy - T; y < H + T; y += T) ctx.drawImage(L.img, x, y, T, T);
-  }
-}
-
 // ---------------------------------------------------------------- HUD (canvas part)
 // Sperm-analysis-style tracking overlay: each tracked swimmer
 // leaves a colour-coded path of its last few seconds, and rivals get detection brackets.
@@ -1981,17 +1959,6 @@ function drawScaleBar() {
   ctx.fillStyle = XR.white; ctx.fillText('20 \u00b5m', x, y - 4);
 }
 
-// Film grain: a small noise tile drawn at a new random offset every frame, so dark panels shimmer
-// like an X-ray on a lightbox instead of sitting flat black.
-let GRAIN = null;
-function grainPattern() {
-  if (GRAIN) return GRAIN;
-  const c = makeCanvas(96, 96), g = c.getContext('2d'), img = g.createImageData(96, 96);
-  for (let i = 0; i < img.data.length; i += 4) { const v = 150 + Math.random() * 105; img.data[i] = v * 0.9; img.data[i + 1] = v * 0.96; img.data[i + 2] = v; img.data[i + 3] = Math.random() < 0.5 ? Math.random() * 90 : 0; }
-  g.putImageData(img, 0, 0);
-  GRAIN = ctx.createPattern(c, 'repeat');
-  return GRAIN;
-}
 // A film sheet: rounded, lifted by a soft drop shadow, blue-black with an uneven exposure and shimmering
 // grain, and an edge that catches the light top-left and fades away (no hard outline).
 function sheetPath(x, y, w, h, round, rad, g) {

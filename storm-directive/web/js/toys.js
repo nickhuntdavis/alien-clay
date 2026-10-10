@@ -554,7 +554,6 @@ function toyHold(e, dt) {
   return false;
 }
 // How much more the film can take before it bursts.
-const bubFilm = b => Math.max(0, (b.film || 0) - (b.soaked || 0));
 // Something soaks into the film: returns true if the bubble held (false: it's time to pop).
 function bubbleSoak(b, d) {
   if (!(b.film > 0) || b.soaked + d >= b.film) { b.soaked = b.film > 0 ? b.film : 0; return false; } // bursts: it carries a full film's worth, no more

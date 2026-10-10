@@ -3,7 +3,6 @@
 const UI_MEAN = new Set([PAL.you, PAL.danger, PAL.reward, PAL.upgrade, PAL.pickup]);
 // A weapon's current type (Element Swap changes it).
 function wElem(w) { const m = w.mods && w.mods.find(x => x.id === 'elemental'); return m ? m.elem : w.def.elem; }
-function uiCol(c) { const v = col(c); return UI_MEAN.has(v) ? v : XR.white; }
 function cardCat(o) {
   if (o.cursed) return PAL.danger;
   if (o.tag === 'SUPPLY') return XR.white;
@@ -923,7 +922,7 @@ const UI = {
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
     const k = UI.lootReq && UI.lootReq.kind;
-    if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo)) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'sfork' && k !== 'relic' && k !== 'rrelic' && UI.lootOpts.length > 1) {
+    if (G.relics.twinpick && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'sfork' && k !== 'relic' && k !== 'rrelic' && UI.lootOpts.length > 1) {
       UI.pickedOne = true; o.taken = true;
       const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
       $('lootSub').textContent = 'Seconds: take one more.';
@@ -1523,7 +1522,6 @@ function holdable(el, info, onTap) {
   el.addEventListener('contextmenu', ev => ev.preventDefault());
   el.addEventListener('click', ev => { if (suppress) { suppress = false; return; } onTap(ev); });
 }
-function firstSentence(t) { const m = String(t).match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : t; }
 
 function fmtTime(t) { const m = Math.floor(t / 60), s = Math.floor(t % 60); return `${m}:${s < 10 ? '0' : ''}${s}`; }
 function fmtNum(v) { return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'k' : Math.round(v) + ''; }

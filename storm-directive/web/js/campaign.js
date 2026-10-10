@@ -32,7 +32,6 @@ const ENTOURAGE = {
 };
 const DROP_NAMES = { queen: 'Feeding Time', colossus: 'Border Control', eye: 'Peer Review', matron: 'Ward Nine', pepsin: 'Indigestion', alpha: 'Leg Day', fever: 'Forty-One Degrees', twins: 'Double Dose', ghost: 'Something in the Dish', failed: 'Exhibit A' };
 
-const campOn = () => !!(G && G.wave && G.wave.camp);
 const V0 = () => G.wave;
 const isBossWave = n => n % CAMP.bossEvery === 0;
 const bossSlot = n => n / CAMP.bossEvery - 1; // 0..3
