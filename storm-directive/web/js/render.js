@@ -462,7 +462,7 @@ function drawCore() {
   // zona pellucida, a polar body in the gap, and the corona radiata (small dark cells packed radially
   // against the zona) fading out into the looser cumulus cloud.
   const c = G.core, x = sx(c.x), y = sy(c.y), r = c.r * S, t = G.realT;
-  const egg = G.fertile, dmg = egg ? 0.45 : 0; // the zona opens for the last sperm standing
+  const M = G.eggE && !G.eggE.dead ? G.eggE : null, egg = G.fertile || !!M, dmg = M ? Math.max(0.03, 1 - M.hp / M.maxHp) : 0; // the zona opens for the last sperm standing, and cracks as its membrane breaks
   // Built at a size step (about 12% apart) and scaled to fit, so zooming doesn't rebuild it every frame.
   const rq = Math.max(8, Math.round(Math.pow(1.12, Math.round(Math.log(Math.max(8, r)) / Math.log(1.12)))));
   if (!SPR.oocyte || SPR.oocyteR !== rq) buildOocyte(rq);
@@ -2149,9 +2149,15 @@ function drawHud() {
   if (!imm) {
     const bw = barW, bx = barX, by = top + BY + 88, mid = W / 2; // (centred, below the boss bar)
     ctx.textAlign = 'center';
-    if (G.fertile) {
+    if (G.eggE && !G.eggE.dead) {
+      // The membrane: its own bar (the boss bar may be busy with a boss).
+      const M = G.eggE;
+      softBar(bx, by, bw, Math.max(0, M.hp / M.maxHp), '#ffd6e8');
+      ctx.fillStyle = XR.white; ctx.font = 'bold 11px ' + MONO;
+      ctx.fillText(M.woke ? "THE EGG'S MEMBRANE" : `${(M.openedBy || 'A RIVAL').toUpperCase()} IS BREAKING IN!`, mid, by - 8);
+    } else if (G.fertile || (eggBreakable() && !G.wave && !G.lvl && !G.debug)) {
       ctx.globalAlpha = 0.7 + 0.3 * Math.sin(G.realT * 6);
-      ctx.fillStyle = PAL.reward; ctx.font = 'bold 13px ' + MONO; ctx.fillText('SPERM COUNT: 1. SWIM INTO THE EGG!', mid, by - 4);
+      ctx.fillStyle = PAL.reward; ctx.font = 'bold 13px ' + MONO; ctx.fillText(G.fertile ? 'SPERM COUNT: 1. SWIM INTO THE EGG!' : `LV ${EGG.level}: SWIM INTO THE EGG!`, mid, by - 4);
       ctx.globalAlpha = 1;
     } else if (G.showdown) {
       const fin = G.enemies.filter(e => e.final && !e.dead), hp = fin.reduce((a, e) => a + e.hp, 0), mx = fin.reduce((a, e) => a + e.maxHp, 0) || 1;
@@ -2202,7 +2208,7 @@ function drawHud() {
   // The Petri Dish: the last few of a wave get arrows.
   if (G.wave && G.wave.active && G.wave.spawned >= G.wave.budget) { const rest = G.enemies.filter(e => !e.dead && !e.charmed && !e.egg); if (rest.length <= 10) for (const e of rest) pointer(e.x, e.y, XR.white, 0.8, 0.8); }
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
-  if (!G.lvl && eggKnown()) pointer(c.x, c.y, G.fertile ? PAL.reward : '#ffb3d1', G.fertile ? 1.3 : 1);
+  if (!G.lvl && eggKnown()) { const go = G.fertile || G.eggE; pointer(c.x, c.y, go ? PAL.reward : '#ffb3d1', go ? 1.3 : 1); }
   if (!imm) { drawEventBar(); drawMinimap(top); drawZoomGauge(); }
   ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.

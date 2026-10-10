@@ -776,8 +776,11 @@ const UI = {
     const d = e.def, box = $('bossIntro');
     box.classList.remove('foe'); box.querySelector('.bi-col.str h4').textContent = 'STRENGTHS'; box.querySelector('.bi-col.weak').style.display = ''; box.querySelector('.bi-col.weak h4').textContent = 'WEAKNESSES';
     box.style.setProperty('--bc', d.color);
-    const n = G.bossRoster.length, pips = Array.from({ length: n }, (_, i) => `<i class="${i < idx % n ? 'done' : i === idx % n ? 'now' : ''}"></i>`).join('');
-    $('biCount').innerHTML = `BOSS ${idx % n + 1} OF ${n} THIS RUN ${pips} <span>${BOSSES.length} IN THE WARD${idx >= n ? ' | ROUND ' + (Math.floor(idx / n) + 1) : ''}</span>`;
+    if (e.egg) $('biCount').innerHTML = `THE LAST BARRIER <span>BREAK IT AND YOU ARE BORN</span>`;
+    else {
+      const n = G.bossRoster.length, pips = Array.from({ length: n }, (_, i) => `<i class="${i < idx % n ? 'done' : i === idx % n ? 'now' : ''}"></i>`).join('');
+      $('biCount').innerHTML = `BOSS ${idx % n + 1} OF ${n} THIS RUN ${pips} <span>${BOSSES.length} IN THE WARD${idx >= n ? ' | ROUND ' + (Math.floor(idx / n) + 1) : ''}</span>`;
+    }
     $('biTitle').textContent = d.title;
     $('biName').textContent = d.twins ? 'MITCH & OSIS' : d.name;
     $('biQuote').textContent = d.quote;
@@ -785,7 +788,7 @@ const UI = {
     const li = (arr, base) => arr.map((t, i) => `<li style="animation-delay:${(base + i * 0.18).toFixed(2)}s">${esc(t)}</li>`).join('');
     $('biStr').innerHTML = li(d.strengths, 1.9);
     $('biWeak').innerHTML = li(d.weaknesses, 2.1);
-    $('biReward').innerHTML = 'Beat it and choose one trophy: ' + d.relics.map(id => `<b>${esc(RELICS[id].name)}</b>`).join(', ') + '.';
+    $('biReward').innerHTML = e.egg ? `Break it and you are born.${e.openedBy ? ` <b>${esc(e.openedBy)}</b> got here first: it is already ${Math.round(100 - 100 * e.hp / e.maxHp)}% through.` : ''}` : 'Beat it and choose one trophy: ' + d.relics.map(id => `<b>${esc(RELICS[id].name)}</b>`).join(', ') + '.';
     box.classList.remove('ready');
     // Restart the animations.
     box.querySelectorAll('.bi-bar, .bi-warn, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
@@ -977,7 +980,7 @@ const UI = {
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
     h += `<div class="sec"><h3>Game speed</h3><div class="chips">${SPEED_OPTS.map(v => `<button class="chip ${gameSpeed() === v ? 'sel' : ''}" data-spd="${v}">x${v}</button>`).join('')}</div></div>`;
 
-    h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.fertile ? 'It is one. It is you. Swim into the egg.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon mounts: ${G.weapons.length}/${MAX_WEAPONS} (next draft at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}.${vetK() ? ` Veteran: your Gene Bank upgrades are strong, so germs have +${Math.round(vetK() * VET.hp * 100)}% HP and +${Math.round(vetK() * VET.dmg * 100)}% damage (bosses and rivals +${Math.round(vetK() * VET.big * 100)}% HP).` : ''} The egg's warm glow heals you (NEST autorun keeps you in it).</p>
+    h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.eggE && G.eggE.woke ? 'It is one. It is you. Break the egg\'s membrane.' : G.fertile ? 'It is one. It is you. Swim into the egg and break its membrane.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon mounts: ${G.weapons.length}/${MAX_WEAPONS} (next draft at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}.${vetK() ? ` Veteran: your Gene Bank upgrades are strong, so germs have +${Math.round(vetK() * VET.hp * 100)}% HP and +${Math.round(vetK() * VET.dmg * 100)}% damage (bosses and rivals +${Math.round(vetK() * VET.big * 100)}% HP).` : ''} The egg's warm glow heals you (NEST autorun keeps you in it).</p>
 </div>`;
     }
     if (tab === 'show') {

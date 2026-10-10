@@ -6,7 +6,7 @@
 cd "$(dirname "$0")"
 export NODE_PATH="${NODE_PATH:-/opt/node22/lib/node_modules}"
 mkdir -p out
-ALL="redtest bosstest claritytest genetest tapeshot loottest rrelictest crayontest sillytest dailytest porttest finaletest juicetest autotest introtest logtest youshot2 quick staintest overtest reborntest splash rivintro putest combotest forktest rivals20 peek pairtest aimtest comboaudit chemtest sttest stpanel glosstest ghosttest evotest stamtest tuttest junktest granttest mythtest lvshot lvmenu sxshot hudshot3 losttest settabs batchcheck devall spawntest seqtest twintest seqfeattest revealshot rewindtest"
+ALL="redtest bosstest claritytest genetest tapeshot loottest rrelictest crayontest sillytest dailytest porttest finaletest juicetest autotest introtest logtest youshot2 quick staintest overtest reborntest splash rivintro putest combotest forktest rivals20 peek pairtest aimtest comboaudit chemtest sttest stpanel glosstest ghosttest evotest stamtest tuttest junktest granttest mythtest lvshot lvmenu sxshot hudshot3 losttest settabs batchcheck devall spawntest seqtest twintest seqfeattest revealshot rewindtest eggtest"
 LIST="${*:-$ALL}"
 pass=0; fail=0
 for t in $LIST; do

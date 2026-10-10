@@ -85,8 +85,8 @@ const TUT_CARDS = {
     what: 'This is your goal, and your destiny.',
     head: 'BUT FIRST', tips: [
       'Before it accepts you into its warm embrace, you must prove yourself.',
-      'Defeat every other suitor, and any critter in your way.',
-      G.wave && G.wave.camp ? 'Here in the dish, that means all twenty waves.' : 'From now on, a pink arrow at the edge of the screen points back to it.'] }),
+      G.wave && G.wave.camp ? 'Defeat every other suitor, and any critter in your way.' : `Get the sperm count down to one (or reach LV ${EGG.level}), then swim into it and break its membrane. It fights back.`,
+      G.wave && G.wave.camp ? 'Here in the dish, that means all twenty waves.' : `A rival who reaches LV ${EGG.level} first will try to break in. Stop them. A pink arrow points back here.`] }),
 };
 // The egg, first time: no arrow points to it until you have met it (render.js) or it is ready, and the
 // first time you swim close, its card. (Not in campaign levels: no egg there.)

@@ -999,6 +999,8 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 9 at random; a fifth (a tougher repeat) waits until the Fever Pitch. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
 
+In a race (Standard Issue) the bosses come in softer, in run order: health x0.2, x0.35, x0.5, x0.7 and attack strength x0.5, x0.65, x0.8, x0.95. Everything there also hits you for 50% of its listed damage.
+
 ### THE MACROPHAGE QUEEN: Eater of Hopefuls
 
 > "Oh good. Dessert swam in."
@@ -1826,7 +1828,11 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 
 ## Rival champions
 
-Named rivals race you to the egg. When the sperm count reaches 6, the strongest five survivors (rivals first, stand-ins after) become the Final Five. Beat them and the egg opens.
+Named rivals race you to the egg. When the sperm count reaches 6, the strongest five survivors (rivals first, stand-ins after) become the Final Five. Beat them and the sperm count is 1.
+
+**The egg.** Once the sperm count is 1 (or you reach level 60), swim into the egg. Its membrane wakes up with a boss introduction and fights back: rings of bullets that speed up as it cracks, aimed volleys, and five bodyguards budding off it every 5 seconds (one of them elite). It gives way slowly however big your build (at most 2.5% of it a second), and its warm glow heals you while you are close. Break it and you are born. Touching the egg is no longer enough on its own.
+
+**Breaking in.** A rival who reaches level 60 before the Final Five swims for the egg and gnaws at its membrane (0.7% a second). They stop gnawing while you are hitting them. If they get through first, they fertilise the egg and you lose (BEATEN TO IT). Kill them, or win the race before they finish: when the Final Five start they leave the egg to fight you, and whatever damage they did stays in the membrane.
 
 Knock a named rival out of the race and you choose one of their two relics.
 
@@ -1969,7 +1975,7 @@ Rules the cards do not spell out, but that change what is worth picking.
 
 - **Rewind and Chrono energy:** Rewind fires by itself on a lethal hit, rolls you back about 4s and leaves a Paradox Echo that replays your path firing copies of your weapons. You start with 1 charge (max 2, more with Snooze Button). Charges refill from Chrono energy (600 per charge, 15% more for every Rewind already used this run), earned by fighting.
 - **Funding and grants:** Every sample is an experiment, and the lab is watching. Kills, combos, bosses and achievements raise its funding; funding milestones bring research grants (a heal, Oxytocin, a stair gate, a magnet, a Nit Comb or a DNA strand). In the campaign the same meter is your devotion to the egg, and the gifts are signs from it.
-- **The egg:** Opens at Lv 60: its membrane has 150,000 base HP and 8 armour, and a rival can break in first. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.
+- **The egg:** Opens at sperm count 1 or Lv 60: swim into it and its membrane (150,000 base HP, 8 armour, at most 2.5% a second) fights back. A rival at Lv 60 can break in first, and if they get through you lose. The sperm count falls over the run; at 6 the Final Five (you and the five strongest swimmers) fight it out.
 - **Feat slots:** Two. Feats perform themselves on cooldown.
 - **Damage-type set:** Two weapons or Feats of the same damage type turn on its set bonus.
 - **Weapon mounts:** Three (Lv 1 and drafts at 8 and 22), plus up to 2 bonus mounts from combos.
