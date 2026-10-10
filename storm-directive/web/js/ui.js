@@ -1174,13 +1174,18 @@ const UI = {
       ? `<div class="sx-node tease"><span class="sx-dot">${i + 1}</span><span class="sx-ni"><b>${esc(s.name)}</b><em>UNCHARTED</em></span></div>`
       : `<button class="sx-node ${shut(s) ? 'locked' : 'open'}" data-sample="${s.id}"><span class="sx-dot">${i + 1}</span><span class="sx-ni"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span><em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
     $('sampleList').innerHTML = `<div class="sx-h">MAIN EVENT</div>${card(by('s002'), true)}
-      <div class="sx-h">QUICK RUNS</div><div class="sx-grid">${modes.map(s => card(s, false)).join('')}</div>
+      <div class="sx-h">QUICK RUNS</div><div class="sx-grid">${modes.map(s => card(s, false)).join('')}${dev ? `<button class="sx-card" id="devAll" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Unlock Everything</b><em>${UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA'}</em></span></button>` : ''}</div>
       <div class="sx-h">THE CAMPAIGN <span>INTO THE BODY</span></div><div class="sx-path">${lvls.map(node).join('')}</div>`;
     $('sampleList').querySelectorAll('[data-sample]').forEach(b => b.addEventListener('click', () => {
       const s = SAMPLES.find(x => x.id === b.dataset.sample);
       if (!s.open || (s.locked && s.locked())) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); if (s.lockText) UI.toast(s.lockText.toUpperCase()); return; }
       UI.sample = s.id; openSeq();
     }));
+    const da = $('devAll');
+    if (da) da.addEventListener('click', () => {
+      if (!UI.devArm) { UI.devArm = true; UI.openSamples(); return; }
+      UI.devArm = false; devUnlockAll(); UI.toast('EVERYTHING UNLOCKED'); UI.openSamples();
+    });
     UI.show('samples');
     const st = $('sampTitle');
     if (st && !st.dataset.dev) {

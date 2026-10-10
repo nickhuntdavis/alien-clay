@@ -94,3 +94,29 @@ function toggleDebugPanel() {
   $('dbgPanel').classList.toggle('on', DBG.open);
   if (DBG.open) debugPanel();
 }
+
+// Developer mode's UNLOCK EVERYTHING (samples screen, beside the Lab Bench): every unlock, discovery and record
+// the save can hold, plus 100,000 DNA for the Gene Bank. Gene Bank ranks are left for you to buy.
+function devUnlockAll() {
+  const L = META.life;
+  L.bestT = Math.max(L.bestT, 600); L.bosses = Math.max(L.bosses, 25); L.pickups = Math.max(L.pickups, 100); L.elem = Math.max(L.elem, 2e6); L.casts = Math.max(L.casts, 1500);
+  META.devAll = 1; // (every sequence open, including the ones a record can't stand in for, such as 20 runs played: genes.js profUnlocked)
+  for (const id in PROFILES) (META.prof[id] || (META.prof[id] = { kills: 0 })).keep = 3; // (rank III)
+  META.waveWins = Math.max(META.waveWins || 0, 1); META.wonSinceBirth = true; // (Endless; being born)
+  META.lvUnlocked = Math.max(META.lvUnlocked || 1, LEVELS.length + 1);
+  META.lvBest = META.lvBest || {}; for (const Lv of LEVELS) if (!META.lvBest[Lv.id]) META.lvBest[Lv.id] = 600; // (levels show their real names)
+  META.grants = META.grants || {}; for (const id of GRANT_ORDER) META.grants[id] = 1;
+  META.eggMet = 1; META.heatMax = IMMUNE.length;
+  for (const c of COMBOS) META.combos[c.id] = true;
+  for (const q of PAIRINGS) META.pairs[q.id] = true;
+  for (const id in QUIRKS) META.quirks[id] = true;
+  for (const id in MUTATIONS) META.muts[id] = true;
+  for (const id in RELICS) META.relics[id] = true;
+  for (const b of BOSSES) META.bosses[b.id] = Math.max(1, META.bosses[b.id] || 0);
+  for (const id in WEAPONS) if (!META.wstats[id]) META.wstats[id] = { runs: 1, born: 0, best: 1 };
+  for (const [id] of META_STARTERS) META.starters[id] = true;
+  for (const d of META_DYES) META.dyes[d.id] = true;
+  META.dna += 100000; META.total += 100000;
+  saveMeta();
+  const best = UI.loadBest(); UI.saveBest(Object.assign(best, { campBest: CAMP.waves }));
+}

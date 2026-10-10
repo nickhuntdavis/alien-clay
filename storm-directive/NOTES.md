@@ -1,10 +1,11 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.66 (versionCode 216), branch `claude/autorun-bullet-storm-game-blptu8` (merged from session branches). All suite tests pass.
+- Version v8.67 (versionCode 217), branch `claude/autorun-bullet-storm-game-blptu8` (merged from session branches). All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.67: developer mode (tap the samples title 5 times) adds an UNLOCK EVERYTHING card beside the Lab Bench (`devUnlockAll` in debug.js; tap twice). It sets every unlock, discovery and record, rank III sequences, all grants, Immune Response max, wave mode beaten, levels named, and +100,000 DNA (Gene Bank ranks left to buy). `META.devAll` opens every sequence, including Redtail's 20-runs gate, without faking run logs. Test: `devall`.
 - v8.66 (from a user run log: easy until the Immune Eye at wave 10, then dead in 40 s): wave mode waves 1 to 11 start harder (`CAMP.early` +12% enemies, `CAMP.earlyPT` +45 s on the difficulty clock, both fading out by wave 12 via `campEarly`); the Eye glares once per cycle (patterns blink, glare, flower, doubleSpiral). A +30% enemy-count version made the bot stronger (more XP), so the clock carries most of it. Sim: 2 wins of 5, deaths at waves 5, 15 and 20.
 - v8.60 to v8.65: health bar and stamina ring visuals, zoom up to 5x.
 - v8.59:
