@@ -184,7 +184,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |  | **Lathered Up** | Hits lather: enemies slow by 35% for 1.5s. |
 | Lv 5 signature | **Skin to Skin** | Pellets hit up to +150% harder the closer the target is. |
 |  | **Slug** | All the pellets fuse into one heavy slug (90% of their total damage) that pierces 3 enemies and bowls them over. |
-| Lv 8 signature | **Buckshot** | +4 pellets per blast, each at 75% damage. A wall of lead. |
+| Lv 8 signature | **Buckshot** | +4 pellets per blast, each at 75% damage. A wall of lead. With Slug: a fan of five big slugs instead. |
 |  | **Withdrawal Method** | Every blast kicks you backwards, away from the target, and you cannot be hurt mid-kick. 78% effective. |
 | Lv 10 mastery | **Hiccup Fit** | Every 3rd blast is a full ring of pellets around you that also wipes out nearby enemy bullets. |
 |  | **Dragon's Breath** | Pellets turn to acid, corrode enemies and leave small acid puddles where they land. |
@@ -1871,7 +1871,7 @@ From wave 15 the boss can be **the Failed Experiment**: a copy of one of your ow
 | MITCH & OSIS | Double Dose | Mitotic Cell, Also-Ran, Nurse Cell | near | charge, spiral |
 | THE PHANTOM PREGNANCY | Something in the Dish | Ghost Swimmer, Spermlet Swarm, Quantum Swimmer | ring | blink |
 
-Boss waves: entourage warm-up (seconds) 16, 12, 10, 10; boss health (times its base) 2.2, 13, 50, 160; boss attack strength 0.55, 0.75, 0.9, 1.
+Boss waves: entourage warm-up (seconds) 16, 12, 10, 10; boss health (times its base) 2.2, 13, 50, 160; boss attack strength 0.55, 0.82, 1, 1.1.
 
 ## Boss rewards
 

@@ -13,7 +13,8 @@ const CAMP = {
   fixedWaves: 3, drawFrom: 6,                 // waves 1-3 bring them in order; later ones draw from the next 6 unmet
   lead: [16, 12, 10, 10],                      // boss waves: seconds of entourage before the boss drops in
   hp: [2.2, 13, 50, 160],                       // boss health, times its base, for the 1st to 4th boss wave
-  hit: [0.55, 0.75, 0.9, 1],                     // boss attack strength, same order
+  hit: [0.55, 0.82, 1, 1.1],                    // boss attack strength, same order
+  more: 1.3, dmgK: 1.15,                      // ordinary waves: 30% more enemies (each worth 1/1.3 of the XP, so levels keep pace) hitting 15% harder
   pulse: [7, 6.5, 6, 5.5],                    // seconds between entourage cues during a fight (at least)
   early: 0.12, earlyPT: 45, earlyTo: 12,      // waves before earlyTo: up to 12% more enemies and 45 s more on the clock (tougher, harder-hitting), fading out by then
 };
@@ -37,6 +38,7 @@ const campOn = () => !!(G && G.wave && G.wave.camp);
 const V0 = () => G.wave;
 const isBossWave = n => n % CAMP.bossEvery === 0;
 const campEarly = n => clamp(1 - (n - 1) / (CAMP.earlyTo - 1), 0, 1); // 1 at wave 1, 0 from earlyTo
+const campFinal = () => campOn() && G.wave.n >= CAMP.waves; // the last wave (its boss gives no rewards: bosses.js)
 const bossSlot = n => n / CAMP.bossEvery - 1; // 0..3
 
 function campInit() {
@@ -80,8 +82,8 @@ function campBegin(V) {
   const next = CAMP_ORDER().filter(id => !V.met.includes(id));
   const fresh = V.n <= CAMP.fixedWaves ? next.slice(0, CAMP.newPerWave) : shuffle(next.slice(0, CAMP.drawFrom)).slice(0, CAMP.newPerWave);
   V.fresh = fresh; V.met.push(...fresh);
-  V.budget = Math.round((16 + V.n * 7 + Math.pow(V.n, 1.6)) * (1 + CAMP.early * campEarly(V.n)) * G.P.spawnMult);
-  V.dur = Math.min(55, 20 + V.n * 1.8);
+  V.budget = Math.round((16 + V.n * 7 + Math.pow(V.n, 1.6)) * (1 + CAMP.early * campEarly(V.n)) * CAMP.more * G.P.spawnMult);
+  V.dur = Math.min(63, (20 + V.n * 1.8) * 1.15); // (fed in over 23 s at wave 1, up to 63 s)
   // (What's in the drop stays a surprise until it lands.)
   banner(`WAVE ${V.n} OF ${CAMP.waves}`, PAL.reward);
   if (V.n > 1) sysMsg('THE SCIENTIST', `${pick(SCIENTIST)} Next boss: wave ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}.`, XR.dim);
@@ -186,7 +188,7 @@ function campTick(dt) {
       if (e.xp && Math.random() < 0.5) dropGem(e.x, e.y, e.xp);
     }
     waveClear(V);
-    if (V.n >= CAMP.waves) after(1.2, campWin);
+    if (V.n >= CAMP.waves) { V.final = true; G.lootQueue.length = 0; after(1.2, campWin); } // (no upgrades once it's won: waves.js waveHoldsLoot)
   }
 }
 function campBoss(V) {

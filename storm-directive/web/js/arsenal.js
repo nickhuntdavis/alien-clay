@@ -453,10 +453,13 @@ function engulfAI(e, dt, dist, ux, uy) {
 function engulf(e, o) {
   amoebaAteInfected(e, o);
   o.dead = true;
-  const gain = o.maxHp * 1.2;
+  // It grows with every meal, up to 4 times the health and twice the bite it started with (uncapped, a crowded
+  // dish fed one into something that knitted back faster than you could hurt it).
+  const hp0 = e.hp0 || (e.hp0 = e.maxHp), dmg0 = e.dmg0 || (e.dmg0 = e.dmg);
+  const gain = Math.min(o.maxHp * 1.2, Math.max(0, hp0 * 4 - e.maxHp));
   e.maxHp += gain; e.hp += gain;
   e.xp += (o.xp || 1) * 1.5;
-  e.dmg += o.dmg * 0.12;
+  e.dmg = Math.min(dmg0 * 2, e.dmg + o.dmg * 0.12);
   e.armour = Math.min(e.def.armour + 8, e.armour + 0.15);
   e.r = Math.min(e.def.max, Math.sqrt(e.r * e.r + o.r * o.r * 0.9));
   e.meals = (e.meals || 0) + 1;

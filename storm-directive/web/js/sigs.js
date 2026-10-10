@@ -10,7 +10,7 @@ function applySigStats(w, s) {
   const has = id => hasSig(w, id);
   if (has('kidneystone')) { s.dmg *= 4; s.pierce = 99; s.shred = (s.shred || 0) + 3; s.cd *= 2; s.speed *= 2.4; s.range *= 1.3; s.style = 'rail'; s.spread = 0.02; }
   if (has('vomit')) { s.cd /= 4; s.dmg *= 0.45; s.pierce = (s.pierce || 0) + 1; s.spread = 0.55; s.mag = Math.round(s.mag * 3); }
-  if (has('slug')) { const n = s.count; s.count = 1; s.dmg *= n * 0.9; s.pierce = (s.pierce || 0) + 3; s.knock = 260; s.spread = 0.02; s.size = 7; s.speed *= 1.3; }
+  if (has('slug')) { const n = s.count; s.slugN = n; s.count = 1; s.dmg *= n * 0.9; s.pierce = (s.pierce || 0) + 3; s.knock = 260; s.spread = 0.02; s.size = 7; s.speed *= 1.3; }
   if (has('dragonbreath')) { s.elem = 'fire'; s.pIgnite = Math.max(s.pIgnite || 0, 0.4); }
   if (has('aroundworld')) s.count += 2;
   if (has('razorwire')) { s.dur *= 2; s.pChill = 1; }
@@ -27,7 +27,11 @@ function applySigStats(w, s) {
   if (has('buffet')) s.area *= 1.4;
   if (has('ninetails')) { s.count += 4; s.dmg *= 0.6; s.spread = 0.3; }
   if (has('farsight')) s.range *= 1.6;
-  if (has('buckshot')) { s.count += 4; s.dmg *= 0.75; }
+  if (has('buckshot')) {
+    // With Slug: a fan of five big slugs (the same total boost the pellet version gives), not five slugs stacked in one.
+    if (has('slug')) { const n = s.slugN || 1; s.count = 5; s.dmg *= (n + 4) * 0.75 / n / 5; s.spread = 0.5; s.size = 9; }
+    else { s.count += 4; s.dmg *= 0.75; }
+  }
   if (has('supermassive')) { s.size *= 1.6; s.aura *= 1.6; s.pull *= 2; s.speed *= 0.5; }
   if (has('spreadlove')) { s.count *= 3; s.dmg *= 0.45; }
   if (has('kamikaze')) s.explode = Math.max(s.explode || 0, 42);

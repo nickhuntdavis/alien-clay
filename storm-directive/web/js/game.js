@@ -1147,6 +1147,7 @@ function makeEnemy(def, x, y, opts) {
   };
   // Fewer, stronger enemies: every monster is a bigger, tougher, more rewarding threat.
   if (!def.patterns) { const K = enemyScale(t); const tk = toughK(t); e.hp *= K.hp * tk; e.maxHp *= K.hp * tk; e.dmg *= K.dmg; e.xp *= K.xp * XP_K; e.r *= K.r; e.speed *= K.speed; }
+  if (!def.patterns && G.wave && G.wave.camp) { e.dmg *= CAMP.dmgK; if (G.wave.phase === 'mobs') e.xp /= CAMP.more; } // (wave mode: campaign.js)
   if (opts && opts.elite) {
     e.elite = true; e.hp *= 5; e.maxHp *= 5; e.r *= 1.35; e.armour += 2; e.dmg *= 1.4; e.xp *= 6;
   }

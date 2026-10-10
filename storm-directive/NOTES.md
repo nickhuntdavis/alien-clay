@@ -1,10 +1,11 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.69 (versionCode 219). The latest code is on `ccr-c862d37a-6eaupv` (it has every active branch merged in). `claude/autorun-bullet-storm-game-blptu8` is stuck at v8.59: start new work from the newest branch (`git log -1` on each `origin/` branch to check), not from that one. All suite tests pass.
+- Version v8.70 (versionCode 220). The latest code is on `ccr-c862d37a-6eaupv` (it has every active branch merged in). `claude/autorun-bullet-storm-game-blptu8` is stuck at v8.59: start new work from the newest branch (`git log -1` on each `origin/` branch to check), not from that one. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.70 (user won v8.68 in 14:29 at near-full health: too easy and too quick): ordinary waves have 30% more enemies (`CAMP.more`, each worth 1/1.3 XP so levels keep pace) fed in over 15% longer, hitting 15% harder (`CAMP.dmgK`, game.js makeEnemy); boss hits `CAMP.hit` [0.55, 0.82, 1, 1.1]. Amoebas stop growing at 4x their starting health and 2x their bite (arsenal.js `engulf`; uncapped, a crowded dish made unkillable ones). No rewards after the final boss (`campFinal`, `G.wave.final` holds the queue). Slug + Buckshot fires a fan of 5 big slugs with the same total boost as pellet Buckshot (it used to stack 5 slugs into one at 3.75x). Sim: 3 wins of 6 (deaths at waves 3, 5, 15). The bot sometimes kites a wave 3 Amoeba for minutes; humans don't.
 - v8.69: Petri Dish spawns stay inside the dish and at least `SPAWN_SAFE` (420) from you (game.js `dishSpawnPos`, `dishFix`, `dishNear`; used by mobs, entourages, ambush rings, the boss arrival). Before, 35 to 50% of spawns landed outside the dish. Stragglers more than 520 away are pipetted back to exactly 420 inside the dish (further than that and slow chasers never reach a kiting bot, so waves stall). Test: `spawntest`. Sim after: 3 wins of 6. The in-game Firstborn headband is clipped to the head outline (plain or Chonker) and knotted at the edge (seqsel.js `drawSeqMods`). Your tracking line (render.js `drawTracks`) is your Primary Sequence's colour, grey until the Personal stain grant.
 - v8.68: merged `claude/ui-polish-run-review-kba4d2` (Acridine Orange is now the Personal stain and colours the stamina ring; Immersive chips under the XP bar; thicker flagellum; Firstborn headband fits the fatter Chonker).
 - v8.67: developer mode (tap the samples title 5 times) adds an UNLOCK EVERYTHING card beside the Lab Bench (`devUnlockAll` in debug.js; tap twice). It sets every unlock, discovery and record, rank III sequences, all grants, Immune Response max, wave mode beaten, levels named, and +100,000 DNA (Gene Bank ranks left to buy). `META.devAll` opens every sequence, including Redtail's 20-runs gate, without faking run logs. Test: `devall`.
@@ -35,7 +36,7 @@
 - v8.49: campaign Level 1, Achievement DNA, "damage type" wording.
 
 ## Balance numbers to know
-- Wave mode boss strength: `CAMP.hp` [2.2, 13, 50, 160] and `CAMP.hit` [0.55, 0.75, 0.9, 1]. The mortal bot wins about 1 in 5 and mostly dies to the Pepsinator at wave 5. Soften further if the user finds wave 5 a wall.
+- Wave mode boss strength: `CAMP.hp` [2.2, 13, 50, 160] and `CAMP.hit` [0.55, 0.82, 1, 1.1]; ordinary waves `CAMP.more` 1.3, `CAMP.dmgK` 1.15, `CAMP.early`/`earlyPT`. The mortal bot wins about 1 in 5 and mostly dies to the Pepsinator at wave 5. Soften further if the user finds wave 5 a wall.
 - About 37 boxes per 9-minute wave run (it was 48).
 - v8.59 sim (`wave20.js 4 mortal`, before the v8.58 merge): 2 wins of 4, deaths at waves 15 and 20. That is the top of the bot band. If humans find it easy, slow junk DNA (`JUNK.every`) first.
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
