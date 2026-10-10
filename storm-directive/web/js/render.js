@@ -2096,7 +2096,7 @@ function drawHud() {
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, H - 3, W, 3);
     ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(0, H - 3, W * G.hpGhost, 3);
     const rawc = RAW_COL; RAW_COL = true; // (true red even on the greyscale slide: it is the one thing you must read at a glance)
-    ctx.fillStyle = low ? '#ff2d4d' : '#ff5a72'; ctx.globalAlpha = low ? 0.7 + 0.3 * Math.sin(G.realT * 8) : 1; ctx.fillRect(0, H - 3, W * hk, 3); ctx.globalAlpha = 1; RAW_COL = rawc; }
+    ctx.fillStyle = low ? '#ff2d4d' : hk < 0.6 ? '#ffd83a' : '#ffffff'; ctx.globalAlpha = low ? 0.7 + 0.3 * Math.sin(G.realT * 8) : 1; ctx.fillRect(0, H - 3, W * hk, 3); ctx.globalAlpha = 1; RAW_COL = rawc; }
   const c = G.core, land = LAYOUT.land, BY = land ? 56 : 60;
   const barX = 10, barW = Math.min(360, W - 130);
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
