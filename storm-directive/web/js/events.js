@@ -118,7 +118,7 @@ function updateEvents(dt) {
   // Schedule the next one (never during a boss, the Final Five or the swim to the egg).
   if (!V.next) V.next = G.t + 70;
   if (G.level < EVENT_FIRST_LV || G.t < V.next) return;
-  if (G.boss || G.showdown || G.fertile || V.active.length) { V.next = G.t + 8; return; }
+  if (G.boss || G.showdown || G.fertile || G.eggE || V.active.length) { V.next = G.t + 8; return; }
   V.next = G.t + (dire ? rand(35, 50) : rand(55, 75));
   startEvent(dire);
   if (dire && Math.random() < 0.3) startEvent(dire, true);

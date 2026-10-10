@@ -135,7 +135,7 @@ function xpNeed(l) { return Math.floor((6 + (l - 1) * 2.5 + Math.pow(l - 1, 2.35
 function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? Math.pow(1.32, (t - 900) / 60) : 1); }
 const SURGE_T = 900; // Fever Pitch: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
 // A run lasts about 10 minutes: the difficulty clock runs 1.5 times faster than real time.
-const PACE = 1.5;
+let PACE = 1.5; // (let: tests/sim/race.js tunes it)
 function PT() { return G.lvl ? lvPT() : G.wave ? wavePT() : G.t * PACE; }
 // Ahead of the curve? Enemies keep up. Levels you are past where a 10-minute run expects you to be
 // (level 60 at 9 minutes) add 5% enemy health and 3% enemy damage each.
@@ -226,11 +226,11 @@ function targetScore(dir, e, d2) {
 function acquire(dir, range, x, y, exclude) {
   // Once the egg is yours to break, half of all target picks in range go to it, whatever the directive.
   const egg = G.eggE;
-  if (egg && !egg.dead && G.level >= EGG.level && egg !== exclude && Math.random() < 0.5 && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg;
+  if (egg && !egg.dead && egg.woke && eggBreakable() && egg !== exclude && Math.random() < 0.5 && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg;
   let best = null, bv = -Infinity;
   const r2 = range * range;
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e.charmed || e === exclude || (e.egg && G.level < EGG.level)) continue;
+    if (e.dead || e.phased || e.charmed || e === exclude || (e.egg && !(e.woke && eggBreakable()))) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     if (d2 > r2) continue;
     const v = targetScore(dir, e, d2) + (e.evTag ? 1e13 : 0); // run-event targets come first
@@ -241,7 +241,7 @@ function acquire(dir, range, x, y, exclude) {
 function acquireMany(dir, range, x, y, n) {
   const r2 = range * range, list = [];
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e.charmed || (e.egg && G.level < EGG.level)) continue;
+    if (e.dead || e.phased || e.charmed || (e.egg && !(e.woke && eggBreakable()))) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     if (d2 > r2) continue;
     list.push({ e, v: targetScore(dir, e, d2) });
@@ -790,9 +790,9 @@ function damageEnemy(e, dmg, src) {
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
   if (e.egg) {
-    // Sealed to you until you're big enough (a rival may have opened it early).
-    if (G.level < EGG.level) {
-      if (!(G.sealT > G.realT)) { G.sealT = G.realT + 1; floatText(e.x, e.y - e.r, 'SEALED: REACH LV ' + EGG.level, '#ffd6e8', 13, 0.8); }
+    // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
+    if (!eggBreakable() || !e.woke) {
+      if (!(G.sealT > G.realT)) { G.sealT = G.realT + 1; floatText(e.x, e.y - e.r, eggBreakable() ? 'SWIM INTO THE EGG' : 'SEALED: LV ' + EGG.level + ' OR SPERM COUNT 1', '#ffd6e8', 13, 0.8); }
       return 0;
     }
     // The membrane gives way slowly, no matter how big your build: at most 2.5% of it per second.
@@ -1086,6 +1086,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
+  if (!G.wave && !G.lvl) dmg *= RACE.hurt; // (race mode's own difficulty)
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1);
   dmg = relicDamageIn(dmg, ent);
   if (dmg > 0) dmg = junkHurtIn(dmg, ent, kind); // (Now You See Me, Phlegm, Glass Case: junk.js)
@@ -2281,8 +2282,13 @@ function autoSteer() {
     else { gx += -(p.y - core.y) / (cdist || 1) * 0.5; gy += (p.x - core.x) / (cdist || 1) * 0.5; }
   }
   // The race: head for the egg once it is yours to break, or to stop a rival breaking it.
-  // Sperm count 1: head straight into the egg.
-  if (G.fertile && mode !== 'hold') goal(core.x, core.y, 1.8);
+  // Yours to break: swim straight into it, then circle it at shooting range (in its healing glow).
+  const M = G.eggE && !G.eggE.dead ? G.eggE : null, race = !G.wave && !G.lvl && !G.debug;
+  if (race && mode !== 'hold' && eggBreakable()) {
+    if (!(M && M.woke)) goal(core.x, core.y, 1.8);
+    else if (cdist > CORE.sanctuary * 0.9) goal(core.x, core.y, 1.4);
+    else { gx += -(p.y - core.y) / (cdist || 1) * 0.6; gy += (p.x - core.x) / (cdist || 1) * 0.6; }
+  } else if (race && M && mode !== 'hold') { const rv = G.enemies.find(e => e.rival && e.mode === 'egg' && !e.dead); if (rv) goal(rv.x, rv.y, 1.2); }
   // Stay inside the womb.
   if (cdist > CORE.arena - 350) goal(core.x, core.y, (cdist - (CORE.arena - 350)) / 120);
   // Cruise: with nothing much to aim for, keep swimming the way you're heading (with a slow lazy curve)
@@ -2441,31 +2447,48 @@ function gainXp(v) {
 }
 
 // ---------------------------------------------------------------- the egg (win condition)
-// At EGG.level the egg's membrane becomes a target. Break it and you're born.
+// Race mode ends at the egg. Win the race (sperm count 1) or reach EGG.level, swim into the egg, and its
+// membrane wakes up and fights back (a boss intro, then the fight). Break it and you're born.
+// A rival that reaches EGG.level first goes for the egg (rivals.js): it opens the membrane and chips at it,
+// and if it gets through before you do, it fertilises the egg and you lose.
+const eggBreakable = () => !!(G.fertile || G.level >= EGG.level);
+const EGG_DEF = { id: 'egg', name: "THE EGG'S MEMBRANE", title: 'THE ZONA PELLUCIDA', hp: 1, speed: 0, armour: EGG.armour, r: CORE.r, dmg: 0, xp: 0, color: '#ffd6e8', shape: 'none', patterns: [],
+  quote: 'Four hundred million of you, and not one has wiped his feet.',
+  desc: 'A thick glassy coat round the egg. It lets in exactly one sperm, and only after a fight. It heals you while you are close, which is the only nice thing it will do.',
+  strengths: ['Gives way slowly, however big your build: at most 2.5% of it a second', 'Rings of bullets that speed up as it cracks', 'Buds five bodyguards every 5 seconds (one elite)'],
+  weaknesses: ['Cannot move', 'Its warm glow heals you while you fight it', 'Rivals breaking in leave it cracked'] };
 function openEgg(by) {
-  if (G.eggE && !G.eggE.dead) return announceEgg(by);
-  const def = { id: 'egg', name: "THE EGG'S MEMBRANE", hp: 1, speed: 0, armour: EGG.armour, r: CORE.r, dmg: 0, xp: 0, color: '#ffd6e8', shape: 'none', patterns: [] };
-  const e = makeEnemy(def, G.core.x, G.core.y);
-  e.hp = e.maxHp = EGG.hpBase * hpNow();
-  e.boss = true; e.egg = true; e.shootCd = 2; e.stT = 5;
-  G.enemies.push(e);
-  G.eggE = e;
+  if (!G.eggE || G.eggE.dead) {
+    const e = makeEnemy(EGG_DEF, G.core.x, G.core.y);
+    e.hp = e.maxHp = EGG.hpBase * hpNow() * (1 + VET.big * vetK());
+    e.boss = true; e.egg = true; e.shootCd = 2; e.stT = 3;
+    G.enemies.push(e);
+    G.eggE = e;
+  }
   announceEgg(by);
 }
-// by: the rival that forced it open, or nothing when you reached EGG.level yourself.
+// by: the rival breaking in, or nothing when you swam into it yourself (then the membrane wakes up and fights).
 function announceEgg(by) {
+  const e = G.eggE;
   if (by) {
-    if (!G.eggE.openedBy) { G.eggE.openedBy = by.name; banner(by.name.toUpperCase() + ' IS BREAKING INTO THE EGG!', '#ff4d6d'); cam.shake = 10; }
+    if (!e.openedBy) { e.openedBy = by.name; banner(by.name.toUpperCase() + ' IS BREAKING INTO THE EGG!', '#ff4d6d'); sysMsg('RACE UPDATE', `${by.name} is LV ${EGG.level} and at the egg. If they get through its membrane first, they fertilise it and you lose. Shoot them: they can't gnaw while you're hitting them.`, by.color, true); cam.shake = 10; sfx('boss'); }
     return;
   }
-  if (G.eggAnnounced) return;
-  G.eggAnnounced = true; G.eggAt = G.t;
-  banner('THE EGG IS READY: BREAK IN!', '#ffd6e8');
-  sysLine('eggReady', true); achieve('eggready');
-  cam.shake = 10; vibrate(150); sfx('boss');
+  if (e.woke) return;
+  e.woke = true; G.eggAnnounced = true; G.eggAt = G.eggAt || G.t;
+  achieve('eggready');
+  startBossIntro(e, 0); // (endBossIntro: "FIGHT: THE EGG'S MEMBRANE")
+}
+// Per frame in a race (rivals.js updateShowdown): swim into the egg once you can break it.
+function eggTick() {
+  if (G.state !== 'play' || !G.core || !eggBreakable()) return;
+  if (G.eggE && G.eggE.woke) return;
+  const p = me();
+  if (Math.hypot(p.x - G.core.x, p.y - G.core.y) < CORE.r + p.r + 14) openEgg();
 }
 function eggAI(e, dt) {
   e.x = G.core.x; e.y = G.core.y; e.kx = e.ky = 0; e.frozen = 0;
+  if (!e.woke) return; // (opened by a rival: it only fights the sperm it lets in)
   // The membrane defends itself: rings of bullets, and immune cells budding off its surface.
   e.shootCd -= dt;
   const pd = Math.hypot(me().x - e.x, me().y - e.y);
@@ -2473,17 +2496,17 @@ function eggAI(e, dt) {
   if (e.shootCd <= 0) {
     // Weaker membrane = angrier egg: faster rings as it cracks, plus volleys aimed at you.
     const rage = 1 - e.hp / e.maxHp;
-    e.shootCd = 1.7 - rage * 0.7; e.spin += 0.3;
-    const n = 28, bd = 10 * dmgNow(), p = me();
+    e.shootCd = (1.7 - rage * 0.7) * EGG.fire; e.spin += 0.3;
+    const n = EGG.ring, bd = EGG.bullet * dmgNow(), p = me();
     for (let i = 0; i < n; i++) eBullet(e.x + Math.cos(e.spin + i / n * TAU) * e.r, e.y + Math.sin(e.spin + i / n * TAU) * e.r, e.spin + i / n * TAU, 125, bd, 6, '#ff8fb8');
     const aim = ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
     for (let i = -2; i <= 2; i++) eBullet(e.x + Math.cos(aim) * e.r, e.y + Math.sin(aim) * e.r, aim + i * 0.12, 200, bd * 1.3, 5, '#ffffff');
   }
   e.stT -= dt;
   if (e.stT <= 0) {
-    e.stT = 5;
+    e.stT = EGG.budEvery;
     const pool = [ENEMIES.brute, ENEMIES.spitter, ENEMIES.lancer, ENEMIES.bulwark, ENEMIES.warlock];
-    for (let i = 0; i < 5 && G.enemies.length < CAPS.enemies; i++) {
+    for (let i = 0; i < EGG.buds && G.enemies.length < CAPS.enemies; i++) {
       const a = Math.random() * TAU;
       G.enemies.push(makeEnemy(pick(pool), e.x + Math.cos(a) * (e.r + 30), e.y + Math.sin(a) * (e.r + 30), { elite: i === 0 }));
     }
@@ -2580,7 +2603,7 @@ function update(dt) {
   else if (G.lvl) lvTick(dt, maxAlive, hostile); // a campaign level: its own director (levels.js)
   else if (G.wave) { waveSpawn(rate * G.P.spawnMult, dt, maxAlive, hostile); waveTick(dt); } // the Petri Dish: a set number per wave
   else {
-    G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1); // quieter while the Final Five fight you
+    G.spawnAcc += rate * dt * G.P.spawnMult * (G.showdown ? 0.35 : 1) * (G.debug ? 1 : RACE.spawn); // quieter while the Final Five fight you
     while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < maxAlive) spawnRandom(); }
   }
   spotTick();
@@ -2589,7 +2612,7 @@ function update(dt) {
   if (!G.wave && !G.lvl && !G.debug) updateShowdown();
   if (PT() >= SURGE_T && !G.surge) { achieve('surge'); sysLine('surge'); G.surge = true; banner('FEVER PITCH: THE HOST FIGHTS BACK', '#ff3df2'); sfx('boss'); vibrate(200); }
   // (Never two bosses at once: the next one waits until the current one is dead, then 25s more; bosses.js sets that.)
-  if (G.t >= G.nextBoss && !(G.boss && !G.boss.dead)) { G.nextBoss += G.bossCount >= 3 ? BOSS_INTERVAL * 2 : BOSS_INTERVAL; spawnBoss(); }
+  if (G.t >= G.nextBoss && !(G.boss && !G.boss.dead) && !(G.eggE && G.eggE.woke)) { G.nextBoss += G.bossCount >= 3 ? BOSS_INTERVAL * 2 : BOSS_INTERVAL; spawnBoss(); }
   // FX.
   G.hitFxN = 0;
   if (G.flashT > 0) G.flashT -= dt;

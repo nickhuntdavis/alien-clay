@@ -5,6 +5,10 @@
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- Unreleased (race ending, not yet versioned):
+  - Race mode (s001) ends with the egg's membrane fight again. At sperm count 1 or `EGG.level` (60), swim into the egg: boss intro card, then the fight (`openEgg`/`eggTick`/`eggAI` in game.js, membrane bar in render.js). Touching the egg no longer wins on its own.
+  - Rivals at `EGG.level` before the Final Five swim to the egg and gnaw its membrane (`rivalEgg` in rivals.js, `RIVAL.eggDps` 0.7%/s, not while being shot, not stacking). If they get through: BEATEN TO IT. The Final Five pulls them off; their damage stays.
+  - Race-only difficulty knobs: `RACE` in data.js (spawn, hurt, per-boss HP and attack). Sim: `node sim/race.js 16 mortal ['RACE.hurt=0.5;PACE=1.3']`.
 - v8.59:
   - Lateral Gene Transfer is junk DNA (`junk.js`): an ordinary on-screen enemy wears a white helix, and killing it within 30 s absorbs a small power tied to that enemy type (`JUNK_POWERS`, 30 of them, up to 3 stacks). It comes every 40 to 55 s, and only during waves in the dish. The floating vesicle is gone. Mutations stay, but only via splice SKIP and campaign stashes.
   - Stain grants (`grants.js`): permanent colour, once ever. Acridine Orange (your swimmer) floats by the egg; Tracer Dye (shots, weapon effects, damage types) comes at level 5; Gentian Violet (power-ups) at level 10. Switch them in the pause menu (`META.grants`/`grantOff`). The GFP card and the end-of-run "keep a stain" are gone. H&E no longer colours power-ups. Your swimmer (sequence marks included) is grey until the first grant.
@@ -34,6 +38,8 @@
 - About 37 boxes per 9-minute wave run (it was 48).
 - v8.59 sim (`wave20.js 4 mortal`, before the v8.58 merge): 2 wins of 4, deaths at waves 15 and 20. That is the top of the bot band. If humans find it easy, slow junk DNA (`JUNK.every`) first.
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
+
+- Race mode (s001) bot: 2 wins in 42 runs (5%) before the ending change (it died to the first two bosses at 2 to 4 minutes, never takes max HP). With `RACE` = hurt 0.5, boss HP [0.2, 0.35, 0.5, 0.7], boss attack [0.5, 0.65, 0.8, 0.95]: 13 of 64 (20%). Softer settings gave diminishing returns. If humans find races too easy, raise `RACE.hurt` first.
 
 ## Open threads and ideas
 - Level 2 (internal next: "Esophagus Descent"; never show that name) is not built. Its sample `s008` is a locked placeholder. Level select teases Level 3 and Level 4.

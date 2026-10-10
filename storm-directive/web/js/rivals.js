@@ -2,7 +2,8 @@
 // Spawn Prawn - rival champions and the sperm count. Five other swimmers grow stronger elsewhere on the
 // map. They farm the immune system and pick fights when they feel big. The sperm count falls as the race
 // goes on; when it reaches the last six (you and five), the Final Five showdown starts. Win it and the
-// count is 1: swim into the egg to fertilise it.
+// count is 1: swim into the egg and break its membrane (game.js openEgg). A rival that reaches EGG.level
+// before the Final Five goes for the egg itself (rivalEgg): stop it before it breaks in.
 
 // A rival's level follows its own clock, which runs at its skill (plus a little for every kill it steals).
 function rivalLevelAt(clock) { return Math.min(EGG.level, 1 + Math.floor((EGG.level - 1) * Math.pow(Math.max(0, clock) / RIVAL.finish, RIVAL.pow) + 1e-9)); }
@@ -70,6 +71,20 @@ function rivalGrow(e, dt) {
   if (before <= G.level && L > G.level) rivalNews(e, `${e.name} has overtaken you (LV ${L}).`, true);
   else if (Math.floor(L / 10) > Math.floor(before / 10)) rivalNews(e, fill(pick(SYSTEM_LINES.rivalLevel), e, L));
 }
+// A rival at the egg opens the membrane and chips at it (RIVAL.eggDps of it a second, but not while you are
+// shooting it). If it gets through, it fertilises the egg and your race is over.
+function rivalEgg(e, dt) {
+  if (G.state !== 'play') return;
+  if (!G.eggE || G.eggE.dead) openEgg(e); else announceEgg(e);
+  const m = G.eggE;
+  if (e.calmT > 0) return; // (being shot: it stops gnawing to cope)
+  if (m.chipF !== G.frameN) { m.chipF = G.frameN; m.hp -= m.maxHp * RIVAL.eggDps * dt; } // (two rivals at the egg don't gnaw twice as fast)
+  if (Math.random() < dt * 4) spawnPart(G.core.x + (e.x - G.core.x) * 0.8, G.core.y + (e.y - G.core.y) * 0.8, '#ffd6e8', 2, 90, 0.4);
+  if (m.hp > 0) return;
+  m.hp = 0; G.rivalWinner = e.name; G.stats.lastHit = e.name; G.lastHitEnt = e;
+  banner(e.name.toUpperCase() + ' FERTILISED THE EGG', PAL.danger);
+  gameOver();
+}
 function fill(s, e, l, k) { return s.replace(/\{n\}/g, e.name).replace(/\{l\}/g, l).replace(/\{k\}/g, k || ''); }
 function rivalNews(e, text, force) {
   if (!force && G.rivalMsgT > G.realT) return;
@@ -94,7 +109,13 @@ function rivalAI(e, dt) {
   e.modeT -= dt;
   let tx = e.wx, ty = e.wy, spd = e.speed * (G.pill && inPill(e.x, e.y) ? 0.65 : 1);
   const hurt = e.hp < e.maxHp * 0.3;
-  if (e.final) {
+  if (!e.final && !G.showdown && e.lvl >= EGG.level && e.mode !== 'egg') { e.mode = 'egg'; rivalNews(e, `${e.name} is LV ${EGG.level} and heading for the egg.`, true); }
+  if (e.mode === 'egg' && !e.final) {
+    // Breaking in: swim to the egg and gnaw at its membrane. Nothing else matters now.
+    const cd = Math.hypot(G.core.x - e.x, G.core.y - e.y) || 1;
+    tx = G.core.x - (G.core.x - e.x) / cd * (CORE.r + e.r); ty = G.core.y - (G.core.y - e.y) / cd * (CORE.r + e.r);
+    if (cd < CORE.r + e.r + 30) rivalEgg(e, dt);
+  } else if (e.final) {
     // The Final Five: no running, no resting, just you.
     // They surround you, one to each side, slowly circling, so no single blast catches them all.
     const a = e.slot + G.t * 0.25, want = 240;
@@ -394,12 +415,9 @@ function updateShowdown() {
   if (!G.showdown && G.state === 'play' && countProgress() >= 1) startShowdown();
   if (G.showdown && !G.fertile && !G.enemies.some(e => e.final && !e.dead)) {
     G.fertile = true;
-    banner('SPERM COUNT: 1. FERTILISE THE EGG!', PAL.reward);
+    banner('SPERM COUNT: 1. BREAK INTO THE EGG!', PAL.reward);
     sysLine('eggReady', true); achieve('eggready');
     sfx('level'); vibrate(200);
   }
-  if (G.fertile && G.state === 'play') {
-    const p = me();
-    if (Math.hypot(p.x - G.core.x, p.y - G.core.y) < CORE.r + p.r + 14) victory();
-  }
+  eggTick(); // (game.js: swim into the egg to start the membrane fight)
 }

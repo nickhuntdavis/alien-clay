@@ -718,8 +718,13 @@ const POWERUPS = {
 // ---------------------------------------------------------------- The Egg
 // The egg sits at the world origin: the arena's centre. Standing in its glow heals you.
 const CORE = { r: 80, sanctuary: 290, arena: 2400, arena0: 2400 }; // arena shrinks to the dish in the Petri Dish
-// Break into the egg: reach EGG.level and its membrane becomes vulnerable. Destroy it to be born (you win).
-const EGG = { level: 60, hpBase: 150000, armour: 8 };
+// The race ends at the egg: win the race (sperm count 1) or reach EGG.level, swim into it, and its membrane
+// fights back. Destroy it to be born (you win). hpBase scales with hpNow(); it takes at most 2.5% a second.
+// fire: ring interval multiplier; ring: bullets per ring; bullet: damage (x dmgNow); buds every budEvery s.
+// Race mode (s001) only: spawn multiplies the director's spawn rate, hurt multiplies the damage you take, boss and bossHit are each
+// boss's HP and attack strength in run order (the last repeats). (Tuned with tests/sim/race.js.)
+const RACE = { spawn: 1, hurt: 0.5, boss: [0.2, 0.35, 0.5, 0.7], bossHit: [0.5, 0.65, 0.8, 0.95] };
+const EGG = { level: 60, hpBase: 150000, armour: 8, fire: 1, ring: 28, bullet: 10, buds: 5, budEvery: 5 };
 // Weapon drafts: a new weapon mount at level 1 and at these levels.
 const SLOT_LEVELS = [8, 22]; // three weapons a run: one at level 1, then drafts at 8 and 22
 const BASE_SLOTS = 1; // you choose a new weapon at level 1 and at every SLOT_LEVELS level (3 mounts, plus up to 2 bonus mounts from combos)
@@ -991,7 +996,7 @@ const RIVAL_RELICS = {
   turbo: ['personalbest', 'wobbly'], norman: ['thesis', 'honorary'], morticia: ['smallmercies', 'honorary'],
 };
 // finish: seconds for a skill-1.0 rival to reach EGG.level if nobody interferes.
-const RIVAL = { finish: 560, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.012, spawnR: 1700, pow: 1.1, huntFrom: 160 };
+const RIVAL = { finish: 560, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.007, spawnR: 1700, pow: 1.1, huntFrom: 160 };
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600, startCharges: 1, maxCharges: 2 };
