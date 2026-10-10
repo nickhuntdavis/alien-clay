@@ -162,7 +162,7 @@ function seqRender(anim) {
   let h = `<div class="sqtag">${esc(L.tag)}</div><div class="sqname">${open ? esc(Pr.name) : esc(Pr.name.replace(/^The /, '').replace(/[A-Za-z]/g, (ch, i) => i % 3 ? '?' : ch))}</div>`;
   if (open) {
     h += `<div class="sqquote">"${esc(L.quote)}"</div>`;
-    h += `<div class="sqtrait"><span>DOMINANT TRAIT</span><b>${esc(Pr.trait)}</b><em>${esc(Pr.fmt(profK(id, true)))}</em></div>`;
+    h += `<div class="sqtrait"><span>DOMINANT TRAIT</span><b>${esc(Pr.trait)}</b><em>${esc(capFirst(Pr.fmt(profK(id, true))))}.</em></div>`;
     h += `<div class="sqxp"><div class="sqxpl"><span>${hi ? `${fmtNum(kills)} / ${fmtNum(hi)} KILLS TO RANK ${ROMAN[r]}` : `${fmtNum(kills)} KILLS | MAX RANK`}</span><span>x${[1, 2, 4][r - 1]} TRAIT</span></div><div class="sqxpb"><i style="width:${hi ? ((kills - lo) / (hi - lo) * 100).toFixed(1) : 100}%"></i></div></div>`;
   } else {
     const u = Pr.unlock, have = Math.min(u.have(), u.need);

@@ -1147,7 +1147,7 @@ const UI = {
     const prog = !open ? `<em>LOCKED: ${esc(u.text)} (${fmtNum(Math.min(u.have(), u.need))}/${fmtNum(u.need)})</em>`
       : `<em>Rank ${r}${next ? ` | ${fmtNum(kills)}/${fmtNum(next)} kills to Rank ${r + 1}` : ' (max)'}</em>`;
     const syn = PROFILE_SYNERGIES.filter(q => q.a === id || q.b === id).map(q => `${esc(PROFILES[q.a === id ? q.b : q.a].name)}: ${esc(q.name)}`).join('; ');
-    return `<b>${esc(Pr.name)}</b> <span class="brole">${esc(Pr.trait.toUpperCase())}</span><br><span>${esc(Pr.desc)} ${open ? esc(Pr.fmt(profK(id, true))) + ' as your Primary.' : ''}</span><br>${prog}`
+    return `<b>${esc(Pr.name)}</b> <span class="brole">${esc(Pr.trait.toUpperCase())}</span><br><span>${esc(Pr.desc)} ${open ? esc(capFirst(Pr.fmt(profK(id, true)))) + ' as your Primary.' : ''}</span><br>${prog}`
       + (opts && opts.full ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">As your Primary it evolves at ${esc(evolveText(id))}.</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
   },
   openSamples() {
