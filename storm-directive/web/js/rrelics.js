@@ -168,7 +168,7 @@ function rrelicTick(dt) {
     if (G.boys.length < 2 && G.t >= (G.boysT || 0) && G.enemies.length < CAPS.enemies) {
       G.boysT = G.t + (G.boys.length ? 20 : 0);
       const g = makeEnemy(ENEMIES.charger || ENEMIES.brute, p.x + rand(-40, 40), p.y + rand(-40, 40));
-      g.charmed = true; g.charmT = 1e9; g.name = "Mama's Boy"; g.hp = g.maxHp = g.maxHp * 3; g.xp = 0;
+      g.charmed = true; g.charmT = 1e9; g.boy = true; g.name = "Mama's Boy"; g.hp = g.maxHp = g.maxHp * 3; g.xp = 0;
       G.enemies.push(g); G.boys.push(g); ring(g.x, g.y, 26, '#ffafcc', 0.4, 3);
     }
   }

@@ -2521,19 +2521,19 @@ function update(dt) {
   updatePlayer(dt);
   updateCrossfire();
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
-  sigTick(dt);
-  comboTick(dt);
-  overkillTick(dt);
-  puTick(dt); redTick(dt);
-  rebornTick(dt);
-  introTick(); // first sightings
-  tutTick(); // first-time tutorial cards (tutorial.js)
-  grantsTick(dt); // stain grants (grants.js)
-  junkTick(dt); // junk DNA carriers and powers (junk.js)
-  boonTick(dt);
+  safely('sigTick', () => sigTick(dt));
+  safely('comboTick', () => comboTick(dt));
+  safely('overkillTick', () => overkillTick(dt));
+  safely('puTick', () => puTick(dt)); safely('redTick', () => redTick(dt));
+  safely('rebornTick', () => rebornTick(dt));
+  safely('introTick', () => introTick()); // first sightings
+  safely('tutTick', () => tutTick()); // first-time tutorial cards (tutorial.js)
+  safely('grantsTick', () => grantsTick(dt)); // stain grants (grants.js)
+  safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
+  safely('boonTick', () => boonTick(dt));
   updateTethers(dt);
   meleeTick(dt);
-  updateShow(dt);
+  safely('updateShow', () => updateShow(dt));
   updateSpells(dt);
   updateProjectiles(dt * PROJ_K);
   updateZones(dt);

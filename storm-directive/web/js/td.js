@@ -114,6 +114,12 @@ function updateRewind(dt) {
   G.boss = G.enemies.find(x => x.boss && !x.egg) || null;
   relinkTwins(); G.revive = null;
   G.eggE = G.enemies.find(x => x.egg) || null;
+  // Globals that pointed at the replaced enemy objects.
+  G.tethers = [];
+  G.court = G.enemies.filter(e => e.charmed && !e.dead && e.guard);
+  G.boys = G.enemies.filter(e => e.charmed && !e.dead && e.boy);
+  G.junkE = G.enemies.find(e => e.junk && !e.dead) || null;
+  if (!G.junkE) G.nextJunk = G.t + 2;
   const P = G.P;
   if (r.auto) G.player.hp = Math.max(G.player.hp, P.maxHp * 0.3);
   G.player.hp = Math.max(1, G.player.hp);
