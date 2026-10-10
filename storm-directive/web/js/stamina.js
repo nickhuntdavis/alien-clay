@@ -23,6 +23,7 @@ function stamTick(dt) {
   } else if (S.restT > 0) S.restT -= dt;
   else S.cur = Math.min(stamMax(), S.cur + STAM.regen * (P.stamRegen || 1) * dt);
   if (S.winded && S.cur >= stamMax() * STAM.windedAt) S.winded = false;
+  if (S.flashT > 0) S.flashT -= dt;
   // A little wake while sprinting.
   if (S.sprint && Math.random() < dt * 20) { const p = me(); fxParts('spark', p.x - (p.vx || 0) * 0.04, p.y - (p.vy || 0) * 0.04, PAL.you, 1, 40, 0.3, 2); }
 }
@@ -36,7 +37,7 @@ function featPay(w) {
   if (!c) return true;
   const S = G.stam || (stamInit(), G.stam);
   if (S.cur < c) return false;
-  S.cur -= c; S.restT = Math.max(S.restT, 0.3);
+  S.cur -= c; S.restT = Math.max(S.restT, 0.3); S.flashT = 2; // (the ring flares blue, holds, then fades back)
   return true;
 }
 // The ring: very thin and almost invisible, just inside your health ring, only while stamina isn't full.
@@ -48,7 +49,9 @@ function stamRing(px, py) {
   const R = 24 * S0 * ZOOM.z * playerScale() * 0.8, top = -Math.PI / 2, a0 = ctx.globalAlpha;
   ctx.lineCap = 'butt'; ctx.lineWidth = Math.max(1, 1.1 * Math.min(1.6, S0 * ZOOM.z));
   ctx.globalAlpha = a0 * 0.04; ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.stroke();
-  ctx.globalAlpha = a0 * (S.sprint ? 0.5 : 0.14); ctx.strokeStyle = S.winded ? PAL.danger : S.sprint ? '#4aa8ff' : '#d6e4f0';
+  // Blue at 90% while sprinting; after a Feat spends stamina it holds blue for a second, then fades to the faint charging look.
+  const fl = S.sprint ? 1 : clamp((S.flashT || 0) / 1, 0, 1), hot = fl > 0 && !S.winded;
+  ctx.globalAlpha = a0 * (0.14 + 0.76 * fl); ctx.strokeStyle = S.winded ? PAL.danger : hot ? '#5ec8ff' : '#d6e4f0';
   ctx.beginPath(); ctx.arc(px, py, R, top, top + TAU * k); ctx.stroke();
   ctx.globalAlpha = a0;
 }
