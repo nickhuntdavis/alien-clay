@@ -678,7 +678,7 @@ function headSquash(b) {
   b.sqTop = Math.max(v, (b.sqTop || 0) * (1 - dt * 0.2)); // a rolling top speed, so the numbers suit any build
   const top = Math.max(120, b.sqTop), acc = Math.max(0, (v - (b.sqV ?? v)) / dt) / (top * 4); b.sqV = v;
   const turn = v > top * 0.3 ? Math.max(0, 1 - (b.turnK ?? 1)) : 0; // (turnK: 1 straight, 0.04 mid-turn)
-  const wantS = Math.min(1, acc) * 0.1, wantQ = Math.min(1, turn * 1.3) * 0.085;
+  const wantS = Math.min(1, acc) * 0.18, wantQ = Math.min(1, turn * 1.3) * 0.15;
   b.sqS = (b.sqS || 0) + (wantS - (b.sqS || 0)) * Math.min(1, dt * (wantS > (b.sqS || 0) ? 40 : 14));
   b.sqQ = (b.sqQ || 0) + (wantQ - (b.sqQ || 0)) * Math.min(1, dt * (wantQ > (b.sqQ || 0) ? 30 : 12));
   const st = 1 + b.sqS, sqz = b.sqQ;

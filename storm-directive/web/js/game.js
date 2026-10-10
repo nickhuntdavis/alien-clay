@@ -18,7 +18,7 @@ try { QUAL.lv = Math.max(0, Math.min(4, (+localStorage.getItem('sd_qual') || 0) 
 const qualSave = () => { try { localStorage.setItem('sd_qual', String(QUAL.lv)); } catch (e) { /* ignore */ } };
 // Pinch (or mouse wheel) zoom, shown as the microscope's magnification. Gameplay (spawn distances) uses S0,
 // so zooming in never brings monsters closer.
-const ZOOM = { z: 1, min: 0.6, max: 2, until: 0, defocus: 0, lastT: 0 };
+const ZOOM = { z: 1, min: 0.6, max: 3, until: 0, defocus: 0, lastT: 0 };
 function refocusLeft() { return Math.max(0, 1 - (performance.now() - ZOOM.lastT) / 600); }
 try { const z = +localStorage.getItem('sd_zoom'); if (z) ZOOM.z = Math.min(ZOOM.max, Math.max(ZOOM.min, z)); } catch (e) { /* storage unavailable */ }
 function setZoom(z, save) {
