@@ -203,12 +203,14 @@ function seqTick(dt) {
     drawSeqPortrait(g, tw, th, b.dataset.seq, SEQ.t * (b.dataset.seq === SEQ.id ? 1 : 0.4), !profUnlocked(b.dataset.seq), true);
   }
 }
+let seqGoing = false;
 function seqGo() {
-  if (!profUnlocked(SEQ.id)) return;
+  if (seqGoing || !profUnlocked(SEQ.id)) return;
+  seqGoing = true;
   META.profile = SEQ.id; saveMeta();
   const hero = $('sqHero'); hero.classList.remove('sqgo'); void hero.offsetWidth; hero.classList.add('sqgo');
   sfx('level');
-  setTimeout(() => UI.startGame(true), 450);
+  setTimeout(() => { seqGoing = false; UI.startGame(true); }, 450);
 }
 
 // Immune Response: how hard the host fights back this run.
