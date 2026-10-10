@@ -1208,7 +1208,8 @@ function spawnRandom() {
   const p = spawnPos();
   const n0 = Math.ceil((def.group || 1) * 0.8), n = Math.max(n0, spot && def.hp < 100 && !def.pack ? 3 : 1); // (a bunch of them, unless they're big)
   if (n > n0) G.spawnAcc = (G.spawnAcc || 0) - (n - n0); // ...charged to the spawn budget, so the slide is no busier than usual
-  const eliteChance = Math.min(0.24, (0.01 + t / 3000) * heatElite());
+  const wm = G.wave && G.wave.n >= 6 && G.wave.n <= 9 ? 0.06 * (G.wave.n - 5) : 0; // (waves 6 to 9: more elites, waves.js)
+  const eliteChance = Math.min(0.24, (0.01 + t / 3000) * heatElite()) + wm;
   for (let i = 0; i < n; i++) {
     if (G.enemies.length >= CAPS.enemies) return;
     G.enemies.push(makeEnemy(def, p.x + rand(-30, 30), p.y + rand(-30, 30), { elite: n === 1 && t > 45 && Math.random() < eliteChance }));
