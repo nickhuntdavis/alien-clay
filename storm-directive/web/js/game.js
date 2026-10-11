@@ -1000,10 +1000,12 @@ function killEnemy(e, src) {
     bossDown(e);
   } else if (e.elite || (e.def.spongy && e.r > 100)) {
     // Loot boxes are special: most elites drop a Glucose Hit or Magnet instead.
-    G.pickups.push(makePickup((e.def.spongy && e.r > 100) || Math.random() < 0.55 ? chestOr('heal') : pick(['heal', 'magnet', 'rage'].concat(PU_NEW)), e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 }));
+    const ty = (e.def.spongy && e.r > 100) || Math.random() < 0.55 ? chestOr('heal') : pick(['heal', 'magnet', 'rage'].concat(PU_NEW));
+    if (ty === 'chest' || Math.random() < PU_DROP) G.pickups.push(makePickup(ty, e.x, e.y, { t: e.def.spongy ? 'amoeba' : 'elite', name: e.name.replace(' (elite)', ''), meals: e.meals || 0 })); // (PU_DROP: fewer power-ups lying about; loot boxes unchanged)
   } else if (Math.random() < 0.0055 * (1 + P.luck) * (G.mut && G.mut.heavymetal ? 2 : 1)) { // (half as many power-ups as before, each about 1.5x as strong)
     const types = ['magnet', 'nuke', 'rage', 'heal', 'shield', 'freeze', 'heal', 'magnet'].concat(PU_NEW, PU_NEW);
-    G.pickups.push(makePickup(Math.random() < 0.5 ? chestOr(pick(types)) : pick(types), e.x, e.y, { t: 'drop', name: e.name }));
+    const ty = Math.random() < 0.5 ? chestOr(pick(types)) : pick(types);
+    if (ty === 'chest' || Math.random() < PU_DROP) G.pickups.push(makePickup(ty, e.x, e.y, { t: 'drop', name: e.name }));
   }
 }
 // Loot boxes from kills are rationed: at most one every LOOT_GAP seconds (bosses and rivals don't count).

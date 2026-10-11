@@ -189,7 +189,7 @@ p('| Curse | Boon | Bane |'); p('|---|---|---|');
 for (const c of D.CURSES) p(`| **${esc(c.name)}** | ${esc(c.boon)} | ${esc(c.bane)} |`);
 p('');
 p('## Field pickups (temporary power-ups)'); p('');
-p('Dropped by kills and elites. Timed ones show a countdown chip.'); p('');
+p('Dropped now and then by kills and elites (they are scarce: only half the drops that could be a pickup turn into one). Timed ones show a countdown chip.'); p('');
 p('| Pickup | Letter | Effect |'); p('|---|---|---|');
 for (const q of Object.values(D.POWERUPS)) p(`| **${q.name}** | ${esc(q.letter)} | ${esc(q.desc)} |`);
 p('');

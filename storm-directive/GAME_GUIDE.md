@@ -999,7 +999,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 9 at random; a fifth (a tougher repeat) waits until the Fever Pitch. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
 
-In a race (Standard Issue) the bosses come in softer, in run order: health x0.2, x0.35, x0.5, x0.7 and attack strength x0.5, x0.65, x0.8, x0.95. Everything there also hits you for 50% of its listed damage.
+In a race (Standard Issue) the bosses come in softer, in run order: health x0.2, x0.35, x0.5, x0.7 and attack strength x0.5, x0.65, x0.8, x0.95. Everything there also hits you for 75% of its listed damage.
 
 ### THE MACROPHAGE QUEEN: Eater of Hopefuls
 
@@ -1490,7 +1490,7 @@ The slide starts in greyscale, your own swimmer included. Colour comes back two 
 
 ## Field pickups (temporary power-ups)
 
-Dropped by kills and elites. Timed ones show a countdown chip.
+Dropped now and then by kills and elites (they are scarce: only half the drops that could be a pickup turn into one). Timed ones show a countdown chip.
 
 | Pickup | Letter | Effect |
 |---|---|---|

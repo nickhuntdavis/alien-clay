@@ -16,6 +16,7 @@ Object.assign(POWERUPS, {
 // (Half as many power-ups drop as before, so each one lasts 1.5x as long and hits 1.5x as hard.)
 const PU_TIME = { hired: 21, centrifuge: 9, giant: 12, chain: 15, reflux: 10.5, goldrush: 18, leech: 15, rod: 12, tailwind: 12 };
 const PU_NEW = Object.keys(PU_TIME);
+const PU_DROP = 0.5; // share of power-up drops (from elites and the odd ordinary kill) that actually appear; loot boxes always do
 const puOn = id => !!(G && G.pu && G.pu[id] > 0);
 const puDmg = k => (18 + G.level * 2.6) * G.P.might * 1.5 * (k || 1);
 const puSrc = (name, extra) => Object.assign({ wname: name, noProc: true, noCrit: true }, extra || {});

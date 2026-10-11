@@ -723,7 +723,7 @@ const CORE = { r: 80, sanctuary: 290, arena: 2400, arena0: 2400 }; // arena shri
 // fire: ring interval multiplier; ring: bullets per ring; bullet: damage (x dmgNow); buds every budEvery s.
 // Race mode (s001) only: spawn multiplies the director's spawn rate, hurt multiplies the damage you take, boss and bossHit are each
 // boss's HP and attack strength in run order (the last repeats). (Tuned with tests/sim/race.js.)
-const RACE = { spawn: 1, hurt: 0.5, boss: [0.2, 0.35, 0.5, 0.7], bossHit: [0.5, 0.65, 0.8, 0.95] };
+const RACE = { spawn: 1, hurt: 0.75, boss: [0.2, 0.35, 0.5, 0.7], bossHit: [0.5, 0.65, 0.8, 0.95] };
 const EGG = { level: 60, hpBase: 150000, armour: 8, fire: 1, ring: 28, bullet: 10, buds: 5, budEvery: 5 };
 // Weapon drafts: a new weapon mount at level 1 and at these levels.
 const SLOT_LEVELS = [8, 22]; // three weapons a run: one at level 1, then drafts at 8 and 22
