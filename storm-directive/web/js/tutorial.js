@@ -1,21 +1,21 @@
 'use strict';
 // Spawn Prawn - first-time tutorial cards, and wave 0 (Pre-pre-pre-pre-school).
 // Each card shows once ever (Settings > Tutorial brings them back), on the same stage as a first sighting.
-// So as not to bury a new player, cards queue up and come seconds of play apart (TUT_GAPS, longer for damage types and terrain); only a few
+// So as not to bury a new player, cards queue up and come well apart, the essentials first (TUT_GAPS, TUT_FROM); only a few
 // (wave 0's welcome, Feats when you take your first one, your first sprint, your first junk DNA, the egg and your first stain)
 // jump the queue, because they explain something happening right now.
 // Wave 0 runs before wave 1 the first time you play wave mode (and again after a tutorial reset): a handful of
 // slow cells, a junk DNA carrier to kill and a box of upgrades at the end. Damage-type cards wait until
 // it is over.
-// Damage types: a first card each (Force has none), and the type is in colour from then on (elemOn, render.js col()).
+// Damage types: a card soon after you first use each (Force has none), and the type is in colour from then on (elemOn, render.js col()).
 // Hooks: tutTick (update; also the egg's first meeting, eggMeetTick), eggKnown (render.js, the egg arrow), tutSprintEnd (stamTick), tutBeforeLoot (main loop), tutElem (damageEnemy),
 // tutReact (react), tutShow('grudge'|'tether'|'charm') (game.js, arsenal.js, chem.js), tutTerrainSeen (tutTick), tutShow('lgt') (junkAbsorb), tutWaveInit (campInit), tutWave0Begin (campBegin),
 // tutWave0Clear (waveClear), tutSkip (the "skip tutorial" link).
 
 // Cards come in this order (mechanics first, then damage types, reactions, and terrain last), and each kind
-// leaves a longer quiet spell after it. A kind also waits until that many seconds of the run have passed.
-const TUT_GAPS = [40, 60, 90, 80];
-const TUT_FROM = [0, 40, 120, 100];
+// leaves a longer quiet spell after it (TUT_GAPS, seconds). A kind also waits until that many seconds of the run have passed (TUT_FROM).
+const TUT_GAPS = [40, 45, 90, 80];
+const TUT_FROM = [0, 15, 120, 100];
 const tutCat = key => key.startsWith('el_') ? 1 : key === 'react' ? 2 : key.startsWith('tr_') ? 3 : 0;
 const TUT_NAME = 'PRE-PRE-PRE-PRE-SCHOOL';
 const tutOff = () => (typeof window !== 'undefined' && window.TUT_OFF) || (typeof SET !== 'undefined' && (SET.intros === 'off' || SET.auto));
@@ -140,7 +140,8 @@ for (const id in ELEMENTS) TUT_CARDS['el_' + id] = () => {
     tips: mix.length ? mix.slice(0, 3) : ['It leaves enemies ' + E.status + '.'],
     foot: mix.length > 3 ? `And ${mix.length - 3} more in the Field Guide.` : '' };
 };
-// A damage type is in colour from the moment you first use it (the card comes with it).
+// A damage type turns from grey to colour when its card comes up, soon after you first use it (at once with
+// tutorials off). Saves from before this get colour for every type they had a card for.
 const elemOn = e => {
   if (!META.elemMig) { META.elemSeen = META.elemSeen || {}; for (const k in (META.seenTut || {})) if (k.startsWith('el_')) META.elemSeen[k.slice(3)] = 1; META.elemMig = 1; }
   return !!(META.elemSeen && META.elemSeen[e]);
@@ -191,8 +192,8 @@ function tutTick() {
 function tutOpen(key) {
   if (tutSeen(key)) return false;
   META.seenTut = META.seenTut || {}; META.seenTut[key] = 1; saveMeta();
-  G.tutNext = G.t + TUT_GAPS[tutCat(key)];
-  if (key.startsWith('el_')) elemUnlock(key.slice(3)); G.stIntroNext = Math.max(G.stIntroNext || 0, G.t + 6);
+  if (key.startsWith('el_')) elemUnlock(key.slice(3)); // (in colour from its introduction on)
+  G.tutNext = G.t + TUT_GAPS[tutCat(key)]; G.stIntroNext = Math.max(G.stIntroNext || 0, G.t + 6);
   const C = TUT_CARDS[key]();
   if (typeof SET !== 'undefined' && SET.intros === 'quiet') { sysMsg('TUTORIAL: ' + C.name, `${C.what} ${C.tips[0]}`, C.colour, true); return false; }
   const p = me(), spot = { x: p.x, y: p.y, r: p.r || 14, def: { color: C.colour, name: C.name }, age: 0, flash: 0, name: C.name };

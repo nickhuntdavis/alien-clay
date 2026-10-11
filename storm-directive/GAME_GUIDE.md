@@ -123,7 +123,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Pub Crawl](#pub-crawl) | Quiet One | Ethanol | Boozy Trail | NEAREST | 80 DNA |
 | [Heartburn](#heartburn) | Problem Child | Acid | Acid Spray | NEAREST | - |
 | [Nappy Mines](#nappy-mines) | Chonker | Acid | Trapper | NEAREST | 60 DNA |
-| [Antacid](#antacid) | Favourite | Base | Saponifier | FASTEST | - |
+| [Antacid](#antacid) | Favourite | Alkali | Saponifier | FASTEST | - |
 | [Static Cling](#static-cling) | Bright Spark | Static | Chain Static | DENSEST CLUSTER | - |
 | [Morning Sickness](#morning-sickness) | Problem Child | Ethanol | Area Denial | DENSEST CLUSTER | - |
 | [Tapeworm Seeder](#tapeworm-seeder) | Good Eater | Ethanol | Necromancer | HIGHEST HEALTH | 90 DNA |
@@ -138,12 +138,12 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Due Date](#due-date) | Favourite | Histamine | Delayed Doom | HIGHEST HEALTH | 100 DNA |
 | [Red Tape](#red-tape) | Problem Child | Ethanol | Bureaucrat | DENSEST CLUSTER | 90 DNA |
 | [Imaginary Friend](#imaginary-friend) | Designer Baby | Histamine | Echo | NEAREST | 120 DNA |
-| [Peekaboo](#peekaboo) | Quiet One | Base | Trickster | NEAREST | 100 DNA |
+| [Peekaboo](#peekaboo) | Quiet One | Alkali | Trickster | NEAREST | 100 DNA |
 | [Twin Telepathy](#twin-telepathy) | Bright Spark | Static | Geometry | DENSEST CLUSTER | 110 DNA |
 | [Bubble Wand](#bubble-wand) | Good Eater | Peroxide | Trap & Throw | NEAREST | 90 DNA |
 | [Tooth Fairy](#tooth-fairy) | Favourite | Histamine | Lure | DENSEST CLUSTER | 100 DNA |
 | [Déjà Vu](#dj-vu) | Prawn Again | Histamine | Repeater | NEAREST | - |
-| [Ghosts of You](#ghosts-of-you) | Prawn Again | Base | Haunter | NEAREST | - |
+| [Ghosts of You](#ghosts-of-you) | Prawn Again | Alkali | Haunter | NEAREST | - |
 | [Karma](#karma) | Prawn Again | Force | Payback | NEAREST | - |
 | [Gene Gun](#gene-gun) | Designer Baby | Histamine | Splicer | NEAREST | - |
 | [Shotgun Wedding](#shotgun-wedding) | Redtail | Force | Brawler | NEAREST | - |
@@ -279,7 +279,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Antacid
 
-*Base gun, Saponifier.* Piercing shards of antacid that lather enemies up and turn them to soap. Neutralises everything, including the mood.
+*Alkali gun, Saponifier.* Piercing shards of antacid that lather enemies up and turn them to soap. Neutralises everything, including the mood.
 
 - **Base stats:** dmg 15, cd 0.6s, mag 5, reload 1.5s, pierce 3, range 460
 - **Level bonuses:** Lv3: +1 count; Lv6: +2 pierce; Lv9: +1 count
@@ -594,7 +594,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Peekaboo
 
-*Base peek, Trickster.* You vanish. Enemies swarm the empty spot, then BOO. The science is three years old.
+*Alkali peek, Trickster.* You vanish. Enemies swarm the empty spot, then BOO. The science is three years old.
 
 - **Base stats:** dmg 20, cd 5.5s, mag 1, reload 0.1s, range 420 (dur 1.8, area 230)
 - **Level bonuses:** Lv3: +25% duration; Lv6: +25% area; Lv9: +50% dmg
@@ -700,7 +700,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Ghosts of You
 
-*Base gun, Haunter.* The ones who came before you never really left.
+*Alkali gun, Haunter.* The ones who came before you never really left.
 
 - **Base stats:** dmg 15, cd 1.1s, mag 4, reload 1.6s, range 460 (homing 6)
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +40% dmg
@@ -1068,7 +1068,7 @@ Runs the ward with an iron bedpan. Heals every enemy on screen and hides behind 
 A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller blobs when hurt. Base HP 3600, armour 0, speed 44.
 
 - **Strengths:** Acid puddles eat into you; Acid only does half damage to it; Splits off blobs at 60% and 30% health.
-- **Weaknesses:** Base: +60% damage (an antacid); Blasts and pools: +40% damage.
+- **Weaknesses:** Alkali: +60% damage (an antacid); Blasts and pools: +40% damage.
 
 | Trophy | Effect |
 |---|---|
@@ -1098,7 +1098,7 @@ The biggest swimmer anyone has ever seen. Dashes through you three times, then h
 A walking temperature spike. Rings of heat, scalding ground, and it runs hotter and faster as it dies. Base HP 3200, armour 2, speed 48.
 
 - **Strengths:** Immune to Acid: sweats it straight off; Rages below 35% health: twice as fast.
-- **Weaknesses:** Base: double damage; Saponifying it snuffs out its current attack.
+- **Weaknesses:** Alkali: double damage; Saponifying it snuffs out its current attack.
 
 | Trophy | Effect |
 |---|---|
@@ -1161,7 +1161,7 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | Feat | Damage type | What it does | Base stats | Level bonuses |
 |---|---|---|---|---|
 | **Stork Drop** | Acid | A stork drops something heavy on the target and leaves acid on the ground. Not a baby. | dmg 65, cd 5s, count 1, area 88, delay 0.7s, dur 2s | Lv3: +1 count; Lv5: +30% area; Lv7: +1 count |
-| **Power Shower** | Base | A soapy blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
+| **Power Shower** | Alkali | A soapy blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
 | **Brainstorm** | Static | Static strikes several targets at once. None of the ideas are good. | dmg 36, cd 6s, count 5, area 48 | Lv3: +2 count; Lv5: +40% dmg; Lv7: +3 count |
 | **Sofa Crevice** | Histamine | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Kiss It Better** | Ethanol | Restores 15% of your health. Medically dubious. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% healing; Lv7: 20% faster |
@@ -1225,7 +1225,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Lucky Swimmer** | +15% luck (rarer loot, more drops) | You | 5 |
 | **Latching On** | Heal 0.08 HP per kill | You | 5 |
 | **Hot-Blooded** | +25% Acid damage and corrosion | You | 5 |
-| **Alkaline Diet** | +25% Base damage and lather | You | 5 |
+| **Alkaline Diet** | +25% Alkali damage and lather | You | 5 |
 | **Static Hair** | +25% Static damage, +1 chain | You | 5 |
 | **Hip Flask** | +25% Ethanol damage, +3 max rounds | You | 5 |
 | **Pins and Needles** | +25% Histamine damage | You | 5 |
@@ -1333,8 +1333,8 @@ From skipping a sequence splice, and from stashes hidden in campaign levels: pic
 | **Do-Over** | 0 | The first reroll on every card screen is free. |
 | **Salt in the Wound** | 0 | +20% crit chance against enemies that are lathered, saponified, drunk or corroding. |
 | **Eat Your Greens** | 0 | +5% fire rate, and Feats recharge 5% faster. |
-| **Soft Hands** | 0 | Base +30%, Acid -20%. Washes up nicely. |
-| **Sour Face** | 0 | Acid +30%, Base -20%. |
+| **Soft Hands** | 0 | Alkali +30%, Acid -20%. Washes up nicely. |
+| **Sour Face** | 0 | Acid +30%, Alkali -20%. |
 | **Runner's High** | 0 | +2 HP/s regeneration while you swim fast. |
 | **E Numbers** | 0 | Killing an elite: 3s of +25% fire rate. The blue ones are worst. |
 | **Surprise Package** | 0 | Absorbing junk DNA blows everything near you away. |
@@ -1350,7 +1350,7 @@ From skipping a sequence splice, and from stashes hidden in campaign levels: pic
 | **Heavy-Handed** | 1 | +1% crit chance for every 100 max HP you have. |
 | **Sticker Chart** | 1 | Killing a boss: 6s of +25% fire rate, and your Feats recharge 25% faster. |
 | **Lucky Dip** | 1 | +20% luck, so your DNA strands come out rarer. |
-| **Mood Swings** | 1 | Acid, Base and Static +40%. Force, Ethanol and Histamine -10%. |
+| **Mood Swings** | 1 | Acid, Alkali and Static +40%. Force, Ethanol and Histamine -10%. |
 | **Middle Child** | 1 | Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts. |
 | **Character Building** | 1 | Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits. |
 | **Double Yolk** | 1 | Every mutation box has a 30% chance to let you take two mutations. |
@@ -1364,7 +1364,7 @@ From skipping a sequence splice, and from stashes hidden in campaign levels: pic
 | **Too Many Sweets** | 1 | A Glucose Hit picked up at full health: +50% damage for 20s. |
 | **Attention Seeker** | 1 | Getting hit instantly reloads a random weapon and recharges a random Feat (every 2s at most). |
 | **Keeping It a Surprise** | 1 | Hidden until you take it. |
-| **Rough and Tumble** | 1 | Force +40%. Acid, Base and Static -10%. |
+| **Rough and Tumble** | 1 | Force +40%. Acid, Alkali and Static -10%. |
 | **Finders Keepers** | 1 | Rerolls have a 35% chance not to be used up. +5% luck. |
 | **First Dibs** | 2 | Weapon hits on enemies at full health always crit. |
 | **Small but Mighty** | 2 | Double damage. Half max HP. |
@@ -1455,7 +1455,9 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 
 ## Stains
 
-The slide starts in greyscale, your own swimmer included. Colour comes back two ways.
+The slide starts in greyscale, your own swimmer included. Colour comes back three ways.
+
+**Damage types** come into colour one at a time, from the card that introduces each (soon after you first use it; at once with tutorials off). Force stays white.
 
 **Stain grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.
 
@@ -1473,7 +1475,7 @@ The slide starts in greyscale, your own swimmer included. Colour comes back two 
 | **Luciferase** | +20% luck, and +25% damage to elites and bosses. You know what is worth chasing. | The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas. |
 | **Motility Dye** | +8% swim speed, and +30% damage to fast enemies. You spot them early. | Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you. |
 | **Rival Dyes** | +40% damage to rival champions and the Final Five. Know your enemy. | Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt. |
-| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Histamine violet) and your midpiece in your weapon-type colour. |
+| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Alkali blue, Static yellow, Ethanol amber, Histamine violet) and your midpiece in your weapon-type colour. |
 
 ## Cursed cards
 
@@ -1548,8 +1550,8 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | Damage type | Status it leaves | What it does |
 |---|---|---|
 | **Force** | shoved | Plain physics. Knocks things about, and knocks over anything drunk or saponified. |
-| **Acid** | corroding | Low pH. Corrodes: damage over time that eats a little armour as it goes. |
-| **Base** | lathered | High pH. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid. |
+| **Acid** | corroding | The sour stuff. Corrodes: damage over time that eats a little armour as it goes. |
+| **Alkali** | lathered | The opposite of acid, and what soap is made from. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid. |
 | **Static** | charged | Charges enemies: some of the damage they take arcs to a neighbour and drags it closer (static cling). |
 | **Ethanol** | drunk | Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out. |
 | **Peroxide** | fizzing | An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit. |
@@ -1560,24 +1562,24 @@ Every weapon and Feat has one. Switched at Birth changes it.
 
 | Reaction | Trigger and effect |
 |---|---|
-| **NEUTRALISED** | Acid meets Base (either way round): both cancel out in a hot burst that hits everything nearby, and the salt water heals you 1% of your max HP. pH 7. Refreshing. |
+| **NEUTRALISED** | Acid meets Alkali (either way round): both cancel out in a hot burst that hits everything nearby, and the salt water heals you 1% of your max HP. pH 7. Refreshing. |
 | **BATTERY** | Acid meets Static (either way round): the enemy becomes a battery for 2s, zapping two neighbours every half second. You get CHARGED UP: +12% fire rate for 3s. |
 | **PEAR DROPS** | Acid on a drunk enemy: it makes an ester and smells of pear drops. Everything nearby is drawn in for a sniff. |
 | **FLASHPOINT** | Static on a drunk enemy (2+ rounds): the fumes go up. Every round of Ethanol in it explodes at once. |
 | **ELECTROLYSIS** | Static on a lathered enemy: splits it into hydrogen. Armour stripped, and a small pop. |
-| **SANITISED** | Base on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright. |
+| **SANITISED** | Alkali on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright. |
 | **HIVES** | Histamine on any status: bonus damage, and it breaks out: its status copies onto two neighbours, which swell up too. |
 | **SUDS** | Force on a saponified enemy: the soap bursts, and the suds hit everything near it. |
 | **PUSHOVER** | Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far. |
 | **BLEACHED** | Peroxide meets Acid (either way round): all its armour is stripped for 4s, and its corrosion burns twice as hard. |
-| **ELEPHANT TOOTHPASTE** | Peroxide meets Base (either way round): a column of foam erupts, lathering and shoving everything nearby. |
+| **ELEPHANT TOOTHPASTE** | Peroxide meets Alkali (either way round): a column of foam erupts, lathering and shoving everything nearby. |
 | **ROCKET FUEL** | Peroxide meets Ethanol (either way round): the enemy is launched away from you and explodes where it lands. |
 | **OZONE** | Peroxide meets Static (either way round): static jumps to three neighbours and sets them fizzing. |
 | **ANTIHISTAMINE** | Peroxide meets Histamine (either way round): the swelling is burned out of it in one hit (15% of its health; 6% on bosses). |
 | **ELECTROLYTE** | Brine meets Static (either way round): the charge runs through the salt water to four neighbours, charging them all. |
 | **SALT IN THE WOUND** | Brine meets Acid (either way round): its corrosion does double damage for the rest of the dose. |
 | **MARGARITA** | Brine meets Ethanol (either way round): a salted rim. It nods off for 2.5s, and so do the drunks around it. |
-| **SALT CRUST** | Brine meets Base (either way round): it crusts over and saponifies on the spot (not bosses), and takes +20% for 4s. |
+| **SALT CRUST** | Brine meets Alkali (either way round): it crusts over and saponifies on the spot (not bosses), and takes +20% for 4s. |
 | **SEA FOAM** | Peroxide meets Brine (either way round): the bubbles all pop at once, twice as hard, in a wide ring. |
 | **BLACKOUT** | An enemy topped up to its Ethanol limit passes out for 2s, and wakes up hungover: +25% damage taken for 5s. |
 
@@ -1587,15 +1589,15 @@ A combo whose two weapons are on their usual damage types does what its card say
 
 | Damage-type pair | Twist | Effect |
 |---|---|---|
-| Acid + Base | **Neutral Ground** | Combo hits neutralise: a hot burst round the target, and the salt water heals you a little. |
+| Acid + Alkali | **Neutral Ground** | Combo hits neutralise: a hot burst round the target, and the salt water heals you a little. |
 | Acid + Static | **Car Battery** | Combo hits turn the target into a battery that zaps its neighbours for 2s. |
 | Acid + Ethanol | **Pear Drops** | Combo hits make the target smell of pear drops: everything nearby is drawn in for a sniff. |
 | Histamine + Acid | **Weeping Rash** | Combo hits swell the target and corrode it, hard. |
 | Acid + Force | **Acid Wash** | Combo hits strip 2 armour for good (1 from bosses). |
-| Base + Static | **Hydrogen Pop** | Combo hits split water: a small pop round the target that strips armour. |
-| Base + Ethanol | **Hand Sanitiser** | Combo hits kill 99.9% of germs: ordinary enemies near the target on 15% health or less die. |
-| Histamine + Base | **Soap Opera** | Combo hits are so dramatic the target faints for a second (not bosses). |
-| Base + Force | **Slip and Slide** | Combo hits lather the target and send it skidding a long way. |
+| Alkali + Static | **Hydrogen Pop** | Combo hits split water: a small pop round the target that strips armour. |
+| Alkali + Ethanol | **Hand Sanitiser** | Combo hits kill 99.9% of germs: ordinary enemies near the target on 15% health or less die. |
+| Histamine + Alkali | **Soap Opera** | Combo hits are so dramatic the target faints for a second (not bosses). |
+| Alkali + Force | **Slip and Slide** | Combo hits lather the target and send it skidding a long way. |
 | Ethanol + Static | **Lit Up** | Combo hits light the fumes: a small blast that gets everything in it a round drunker. |
 | Histamine + Static | **Brain Fog** | Combo hits fog the minds of badly hurt enemies (under 30% health): they fight for you for 5s. |
 | Force + Static | **Crumple Zone** | Combo hits charge a barrier that blocks the next hit you take (recharges after 8s). |
@@ -1603,7 +1605,7 @@ A combo whose two weapons are on their usual damage types does what its card say
 | Force + Ethanol | **Bar Fight** | Combo hits start a bar fight: the target swings at everything next to it. |
 | Histamine + Force | **Pin Cushion** | Every 4th combo hit on the same enemy deals triple damage. |
 | Acid + Acid | **Concentrated** | Combo hits deal +35% damage and eat 1 armour. |
-| Base + Base | **Lye** | Combo hits saponify ordinary enemies on the spot. |
+| Alkali + Alkali | **Lye** | Combo hits saponify ordinary enemies on the spot. |
 | Static + Static | **Supercharged** | Combo hits arc on to three more enemies. |
 | Ethanol + Ethanol | **Double Shot** | Combo hits pour two rounds of Ethanol at once. |
 | Histamine + Histamine | **Anaphylaxis** | Swollen enemies the combo kills explode. |
@@ -1617,7 +1619,7 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 |---|---|---|
 | Force | **Brute Force** | +15% fire rate for Force weapons |
 | Acid | **Reflux** | Corrosion lasts longer and deals +50% damage |
-| Base | **Bath Time** | Saponify threshold halved, saponified enemies take +25% |
+| Alkali | **Bath Time** | Saponify threshold halved, saponified enemies take +25% |
 | Static | **Balloon Hair** | Charged enemies arc twice as often |
 | Ethanol | **Open Bar** | Ethanol ticks twice as fast |
 | Peroxide | **Bubbly** | Fizz pops 50% harder |
@@ -1895,7 +1897,7 @@ The hardest achievements (Chemical Warfare: ten different reactions in a run; Br
 
 The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run, on top of the ones you have. Waves 1 to 3 bring them in a fixed order; after that they are drawn at random from the next 6 you have not had (so nothing big comes early). What a wave holds is a surprise until it lands. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
 
-Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a junk DNA carrier to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfer (your first junk DNA), the egg (the first time you swim up to it; until then no arrow points to it), stains (your first grant) and each damage type and reactions (the first time you use them), at least 25 seconds apart. Every card has a skip tutorial link, which also ends wave 0 where it stands.
+Your first wave run (and the first after Settings > Tutorial > reset) opens with **wave 0, Pre-pre-pre-pre-school**: ten slow cells, a junk DNA carrier to practise on and a box of upgrades at the end. Tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfer (your first junk DNA), the egg (the first time you swim up to it; until then no arrow points to it), stains (your first grant) and each damage type and reactions (soon after you first use them). Cards come well apart and in order of need: mechanics first (at least 40 seconds apart), then damage types (from 15 seconds into a run, 45 seconds apart), reactions (from 2 minutes) and terrain (from 100 seconds, 80 seconds apart). Only the first two buffs or debuffs get a full card; after that a new one flashes NEW POWERUP UNLOCKED! beside its chip for 12 seconds, and tapping the chip or the message opens its card. Every card has a skip tutorial link, which also ends wave 0 where it stands.
 
 From wave 15 the boss can be **the Failed Experiment**: a copy of one of your own past runs (a lost one if you have any), alone in the dish, with an attack for each weapon that run carried and health that grows with the level it reached.
 
@@ -1991,7 +1993,7 @@ Rules the cards do not spell out, but that change what is worth picking.
 | **Gravity Assist** | Your shots curved round a black hole and flew out faster and harder. Ask a space probe. |
 | **Live Puddle** | Static hit something standing in a boozy puddle, and everyone else in the puddle got it too. |
 | **Flammable Fumes** | Something corroding touched a boozy puddle and the whole thing went up. |
-| **Slip Hazard** | Base turned a boozy puddle to soap. Enemies slide about on it; you skate across it faster. |
+| **Slip Hazard** | Alkali turned a boozy puddle to soap. Enemies slide about on it; you skate across it faster. |
 | **Bar of Soap** | You rammed a saponified enemy at speed. It burst, and the suds hit what was behind it. |
 | **Hereditary** | An infected enemy split during Identical Twins, and both halves kept the infection. |
 | **Downstream** | Waters Breaking swept your mines, puddles and black holes along with everything else. |

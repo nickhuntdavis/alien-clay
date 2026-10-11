@@ -4,7 +4,7 @@
 // With introductions set to Quiet it is a narrator message instead; Off skips them.
 // Only the first two get the full card. After that a new one shows "NEW POWERUP UNLOCKED!" beside its chip for
 // a few seconds, and tapping the chip or the message opens the same card (play carries on if you ignore it).
-// Hooks: statusIntroCheck(chips), from the HUD each frame; stNewDraw (render.js, the chip), stNewTap (game.js, a tap on a chip).
+// Hooks: statusIntroCheck(chips), from the HUD each frame; stNewKey/stNewOutline/stNewMsg (render.js, the chips), stNewTap (game.js, a tap on a chip).
 
 const ST_FULL = 2; // (full cards before the quiet kind)
 const STATUS_INTRO = {
@@ -94,12 +94,13 @@ function stNewKey(label) {
 function stNewOutline(key, x, y, w, h) {
   ctx.save(); ctx.globalAlpha = 0.55 + 0.45 * Math.sin(G.realT * 7); ctx.strokeStyle = G.stNew[key].colour; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, w + 2, h + 2); ctx.restore();
 }
-// The message; returns its width.
+// The message (x null: centred); returns where it went, for the tap.
 function stNewMsg(key, x, y) {
   const I = statusInfo(key), msg = I && !I.buff ? 'NEW DEBUFF SPOTTED! TAP TO READ' : 'NEW POWERUP UNLOCKED! TAP TO READ';
   const mw = ctx.measureText(msg).width + 14;
+  if (x == null) x = (W - mw) / 2;
   filmPanel(x, y, mw, 16); ctx.fillStyle = '#ffffff'; ctx.fillText(msg, x + 7, y + 12);
-  return mw;
+  return { x, y, w: mw, h: 16, key };
 }
 // A tap on a flagged chip or its message: the full card.
 function stNewTap(key) {

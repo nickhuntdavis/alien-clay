@@ -3,8 +3,8 @@
 
 const ELEMENTS = {
   phys:   { name: 'Force',   color: '#e8eef8', status: 'shoved',  blurb: 'Plain physics. Knocks things about, and knocks over anything drunk or saponified.' },
-  fire:   { name: 'Acid',    color: '#c6ff3d', status: 'corroding', blurb: 'Low pH. Corrodes: damage over time that eats a little armour as it goes.' },
-  ice:    { name: 'Alkali',    color: '#5b8cff', status: 'lathered', blurb: 'High pH. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid.' },
+  fire:   { name: 'Acid',    color: '#c6ff3d', status: 'corroding', blurb: 'The sour stuff. Corrodes: damage over time that eats a little armour as it goes.' },
+  ice:    { name: 'Alkali',  color: '#5b8cff', status: 'lathered', blurb: 'The opposite of acid, and what soap is made from. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid.' },
   shock:  { name: 'Static',  color: '#ffe94a', status: 'charged',  blurb: 'Charges enemies: some of the damage they take arcs to a neighbour and drags it closer (static cling).' },
   poison: { name: 'Ethanol', color: '#e8a33d', status: 'drunk',    blurb: 'Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out.' },
   oxi:    { name: 'Peroxide', color: '#9ff7ff', status: 'fizzing', blurb: 'An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit.' },

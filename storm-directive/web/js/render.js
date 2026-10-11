@@ -2124,8 +2124,8 @@ function drawHud() {
       for (const [ch, cc, tw] of items.splice(0, n)) { filmPanel(rx, ry, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, rx + 7, ry + 12); const nk = stNewKey(ch); UI.chipRects.push({ x: rx, y: ry, w: tw, h: 16, key: nk }); if (nk) { stNewOutline(nk, rx, ry, tw, 16); flagged = nk; } rx += tw + 4; }
       ry += 20;
     }
-    if (flagged) { const mw = ctx.measureText('NEW POWERUP UNLOCKED! TAP TO READ').width + 14; const mx = (W - mw) / 2; stNewMsg(flagged, mx, ry); UI.chipRects.push({ x: mx, y: ry, w: mw, h: 16, key: flagged }); }
-  } else for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); const nk = stNewKey(ch); let rw = tw; if (nk) { stNewOutline(nk, 8, cyp, tw, 16); rw = tw + 6 + stNewMsg(nk, 8 + tw + 6, cyp); } UI.chipRects.push({ x: 8, y: cyp, w: rw, h: 16, key: nk }); cyp += 20; }
+    if (flagged) UI.chipRects.push(stNewMsg(flagged, null, ry)); // (a status new to you: tap to read, statusintro.js)
+  } else for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); const nk = stNewKey(ch); let rw = tw; if (nk) { stNewOutline(nk, 8, cyp, tw, 16); rw = tw + 6 + stNewMsg(nk, 8 + tw + 6, cyp).w; } UI.chipRects.push({ x: 8, y: cyp, w: rw, h: 16, key: nk }); cyp += 20; }
   UI.chips = chips;
   // Boss bar: centred, under the sperm count / wave readout.
   if (G.boss && !G.boss.dead) {
