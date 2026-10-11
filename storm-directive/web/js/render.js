@@ -1114,9 +1114,13 @@ function drawTerrain() {
   if (!G.terrain) return;
   const t = G.realT, m = 200;
   const x0 = cam.x - W / 2 / S - m, x1 = cam.x + W / 2 / S + m, y0 = cam.y - H / 2 / S - m, y1 = cam.y + H / 2 / S + m;
+  // Darkfield: the soft terrain is drawn as it scatters light on a black field (bright rims, dark middles),
+  // not by inverting the greys; only the mitochondrion keeps the inverted look.
+  const df = WORLD_DF;
   for (const ob of G.terrain.list) {
     if (ob.x < x0 || ob.x > x1 || ob.y < y0 || ob.y > y1) continue;
     const x = sx(ob.x), y = sy(ob.y), r = ob.r * S;
+    WORLD_DF = df && ob.type === 'mito';
     let seed = Math.floor(ob.seed * 1000) + 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     switch (ob.type) {
       case 'ridge': {
@@ -1126,19 +1130,20 @@ function drawTerrain() {
         ctx.closePath();
         const g = ctx.createLinearGradient(x, y - r, x, y + r);
         if (ob.flash > 0) { g.addColorStop(0, '#f4eeff'); g.addColorStop(1, '#f4eeff40'); }
+        else if (df) { g.addColorStop(0, '#c9d6e659'); g.addColorStop(0.45, '#c9d6e61f'); g.addColorStop(1, '#c9d6e600'); }
         else { g.addColorStop(0, '#c9d6e6'); g.addColorStop(0.45, '#c9d6e6d9'); g.addColorStop(0.8, '#5a687859'); g.addColorStop(1, '#5a687800'); }
         ctx.fillStyle = g; ctx.fill();
-        if (!SET.clinical) {
+        if (!SET.clinical || df) {
           const e = ctx.createLinearGradient(x, y - r, x, y + r * 0.6);
           e.addColorStop(0, 'rgba(255,255,255,0.8)'); e.addColorStop(0.55, 'rgba(255,255,255,0.25)'); e.addColorStop(1, 'rgba(255,255,255,0)');
           ctx.strokeStyle = e; ctx.lineWidth = 3; ctx.stroke();
         }
         const d = ctx.createLinearGradient(x, y - r, x, y + r * 0.4);
-        d.addColorStop(0, '#5a6878b3'); d.addColorStop(1, '#5a687800');
+        d.addColorStop(0, df ? '#c9d6e6b3' : '#5a6878b3'); d.addColorStop(1, df ? '#c9d6e600' : '#5a687800');
         ctx.strokeStyle = d; ctx.lineWidth = 1.2; ctx.stroke();
-        ctx.strokeStyle = '#5a687866'; ctx.lineWidth = 1.5;
+        ctx.strokeStyle = df ? '#c9d6e64d' : '#5a687866'; ctx.lineWidth = 1.5;
         for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(x + (rnd() - 0.5) * r, y - rnd() * r * 0.6); ctx.lineTo(x + (rnd() - 0.5) * r, y - rnd() * r * 0.2); ctx.stroke(); }
-        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.ellipse(x - r * 0.25, y - r * 0.4, r * 0.3, r * 0.12, -0.6, 0, TAU); ctx.fill();
+        ctx.fillStyle = `rgba(255,255,255,${df ? 0.18 : 0.4})`; ctx.beginPath(); ctx.ellipse(x - r * 0.25, y - r * 0.4, r * 0.3, r * 0.12, -0.6, 0, TAU); ctx.fill();
         break;
       }
       case 'mito': {
@@ -1161,7 +1166,8 @@ function drawTerrain() {
         const R = r * 1.15;
         blobPath(x, y, R, ob, t * 0.6, 0.1);
         const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, R);
-        g.addColorStop(0, '#3d5a1fd9'); g.addColorStop(0.45, '#3d5a1fa6'); g.addColorStop(0.7, '#7fbf2a73'); g.addColorStop(0.87, '#7fbf2a2e'); g.addColorStop(1, '#7fbf2a00');
+        if (df) { g.addColorStop(0, '#7fbf2a0d'); g.addColorStop(0.55, '#7fbf2a1f'); g.addColorStop(0.8, '#7fbf2a59'); g.addColorStop(0.92, '#7fbf2a26'); g.addColorStop(1, '#7fbf2a00'); }
+        else { g.addColorStop(0, '#3d5a1fd9'); g.addColorStop(0.45, '#3d5a1fa6'); g.addColorStop(0.7, '#7fbf2a73'); g.addColorStop(0.87, '#7fbf2a2e'); g.addColorStop(1, '#7fbf2a00'); }
         ctx.fillStyle = g; ctx.fill();
         ctx.fillStyle = '#c6f07a';
         for (let i = 0; i < 20; i++) {
@@ -1181,7 +1187,7 @@ function drawTerrain() {
         const n = Math.round(ob.r * ob.r / 180), len = 12 * S;
         ctx.lineWidth = 1.5;
         for (let band = 0; band < 3; band++) {
-          ctx.strokeStyle = band === 2 ? '#f2b8c6' : '#8a5866'; ctx.globalAlpha = [0.75, 0.4, 0.9][band];
+          ctx.strokeStyle = band === 2 ? (df ? '#f4eeff' : '#f2b8c6') : df ? '#f2b8c6' : '#8a5866'; ctx.globalAlpha = (df ? [0.5, 0.25, 0.8] : [0.75, 0.4, 0.9])[band];
           ctx.beginPath();
           for (let i = 0; i < n; i++) {
             const a = rnd() * TAU, k = Math.sqrt(rnd()), d = k * r * 0.95, near = k > 0.72;
@@ -1206,7 +1212,7 @@ function drawTerrain() {
           if (e <= 0) continue;
           const px = x + ca * ph - sa * lane, py = y + sa * ph + ca * lane;
           ctx.globalAlpha = Math.min(1, e * 1.6);
-          ctx.strokeStyle = '#3a556066'; ctx.beginPath(); ctx.moveTo(px - ca * len, py - sa * len); ctx.lineTo(px, py); ctx.stroke();
+          ctx.strokeStyle = df ? '#9fd4e640' : '#3a556066'; ctx.beginPath(); ctx.moveTo(px - ca * len, py - sa * len); ctx.lineTo(px, py); ctx.stroke();
           ctx.fillStyle = '#9fd4e6'; ctx.fillRect(px - 1, py - 1, 2.2, 2.2);
         }
         ctx.globalAlpha = 1;
@@ -1216,11 +1222,12 @@ function drawTerrain() {
         // Lubricant: an oily sheen with no rim, a highlight sliding slowly across it and lipid beads drifting.
         blobPath(x, y, r * 1.1, ob, t * 0.25, 0.12);
         const g = ctx.createRadialGradient(x, y, r * 0.05, x, y, r * 1.1);
-        g.addColorStop(0, '#f4eeff80'); g.addColorStop(0.55, '#c8b6ff66'); g.addColorStop(0.85, '#c8b6ff33'); g.addColorStop(1, '#c8b6ff00');
+        if (df) { g.addColorStop(0, '#c8b6ff0a'); g.addColorStop(0.6, '#c8b6ff1a'); g.addColorStop(0.86, '#c8b6ff40'); g.addColorStop(1, '#c8b6ff00'); }
+        else { g.addColorStop(0, '#f4eeff80'); g.addColorStop(0.55, '#c8b6ff66'); g.addColorStop(0.85, '#c8b6ff33'); g.addColorStop(1, '#c8b6ff00'); }
         ctx.fillStyle = g; ctx.fill();
         const hx = x + Math.cos(t * 0.35 + ob.seed) * r * 0.35, hy = y + Math.sin(t * 0.27 + ob.seed) * r * 0.3;
         const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, r * 0.45);
-        hg.addColorStop(0, 'rgba(255,255,255,0.4)'); hg.addColorStop(1, 'rgba(255,255,255,0)');
+        hg.addColorStop(0, `rgba(255,255,255,${df ? 0.12 : 0.4})`); hg.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hx, hy, r * 0.45, 0, TAU); ctx.fill();
         ctx.strokeStyle = '#c8b6ff'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.35;
         for (let i = 0; i < 2; i++) { const a = ob.a + i * 2 + t * 0.1; ctx.beginPath(); ctx.arc(x, y, r * (0.45 + i * 0.2), a, a + 1.4); ctx.stroke(); }
@@ -1235,6 +1242,7 @@ function drawTerrain() {
       }
     }
   }
+  WORLD_DF = df;
 }
 
 

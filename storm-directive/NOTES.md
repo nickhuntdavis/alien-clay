@@ -1,10 +1,11 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.80 (versionCode 230). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
+- Version v8.81 (versionCode 231). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.81: terrain in Darkfield is drawn light-on-black (dim middles, glowing rims, bright particles) instead of inverting the greys; only the mitochondrion still inverts (`df` in `drawTerrain`). Test `colourtest` shoots both modes.
 - v8.80: Settings > Colour tab: 9 kinds of colour, each EARNED / ALWAYS / OFF (`COLOUR_CATS`, `PAL_OFF`, `ELEM_ON`, `TERRAIN_ON`, `BG_TINT` in render.js; SET keys `cYou`...`cBg`). Terrain redrawn with no borders: acid is a wobbling soft stain (`blobPath`), currents are particles only, cilia a field of beating hairs, slicks an oily sheen with beads, cartilage nodules half sunk (fade at the bottom). Terrain has its own colours (`TERRAIN_HEX`), on once damage types are coloured. Background ALWAYS gives a soft pink tissue wash (`tissueWash`). Test `colourtest`. `granttest` flakes about 1 in 7 (seen before this change too).
 - v8.79: new signing key (the old one and its passwords were public in this public repo). The keystore stays in the repo; its password is in the `SPAWN_KS_PASS` environment variable only. One-time reinstall: v8.78 added Settings > Data > Back up your save (export/import code, `exportSave`/`importSave` in meta.js, test `savetest`).
 - v8.77 (from the user's first race on v8.76: HP never below 95%): `RACE.hurt` 0.5 -> 0.75. Power-up pickups halved (`PU_DROP` 0.5 in pickups.js: elite and ordinary-kill drops that would be a pickup only appear half the time; loot boxes unchanged). The twin passing damage to you is by design (`TWINS.share`).
