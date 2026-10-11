@@ -4,6 +4,9 @@
 - Version v8.76 (versionCode 226). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
+## Copy sheet
+- `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
+
 ## Recent changes (newest first)
 - v8.79: new signing key (the old one and its passwords were public in this public repo). The keystore stays in the repo; its password is in the `SPAWN_KS_PASS` environment variable only. One-time reinstall: v8.78 added Settings > Data > Back up your save (export/import code, `exportSave`/`importSave` in meta.js, test `savetest`).
 - v8.77 (from the user's first race on v8.76: HP never below 95%): `RACE.hurt` 0.5 -> 0.75. Power-up pickups halved (`PU_DROP` 0.5 in pickups.js: elite and ordinary-kill drops that would be a pickup only appear half the time; loot boxes unchanged). The twin passing damage to you is by design (`TWINS.share`).
