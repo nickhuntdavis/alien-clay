@@ -844,7 +844,9 @@ function drawToysUnder() {
     ctx.globalAlpha = 0.35 * k; ctx.fillStyle = c; ctx.beginPath();
     sh.pts.forEach((q, i) => i ? ctx.lineTo(sx(q.x), sy(q.y)) : ctx.moveTo(sx(q.x), sy(q.y)));
     ctx.closePath(); ctx.fill();
-    ctx.globalAlpha = k; ctx.strokeStyle = sh.framed ? '#ffffff' : c; ctx.lineWidth = (sh.framed ? 6 : 3) * S; ctx.stroke();
+    ctx.lineJoin = 'round'; ctx.strokeStyle = sh.framed ? '#ffffff' : c; // a soft waxy edge (framed: a brighter one)
+    for (const [lw, al] of [[(sh.framed ? 10 : 7) * S, 0.18], [(sh.framed ? 3 : 1.5) * S, sh.framed ? 0.7 : 0.4]]) { ctx.globalAlpha = al * k; ctx.lineWidth = lw; ctx.stroke(); }
+    ctx.lineJoin = 'miter';
   }
   ctx.globalAlpha = 1;
   // Soap patches.
@@ -852,7 +854,7 @@ function drawToysUnder() {
   ctx.globalAlpha = 1;
   // Peekaboo: the empty spot they're all staring at, and the doll.
   const spot = peekSpot();
-  if (spot) { ctx.globalAlpha = 0.35 + 0.15 * Math.sin(G.realT * 8); ctx.strokeStyle = '#ffffff'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(sx(spot.x), sy(spot.y), 18 * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.round(16 * S)}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('?', sx(spot.x), sy(spot.y) + 6 * S); ctx.globalAlpha = 1; }
+  if (spot) { ctx.globalAlpha = 0.35 + 0.15 * Math.sin(G.realT * 8); const ga = ctx.globalAlpha; ctx.globalCompositeOperation = 'lighter'; glow(sx(spot.x), sy(spot.y), 26 * S, '#ffffff', ga * 0.5); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = ga; ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.round(16 * S)}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('?', sx(spot.x), sy(spot.y) + 6 * S); ctx.globalAlpha = 1; }
   if (T.doll && T.doll.end > G.t) drawShip(sx(T.doll.x), sy(T.doll.y), 0, col(T.doll.w.def.color), 0.55, playerScale());
 }
 function drawToysOver() {
@@ -865,7 +867,6 @@ function drawToysOver() {
       if (G.t - f.born < 0.3) continue;
       ctx.globalCompositeOperation = 'lighter'; glow(sx(f.x), sy(f.y), 34 * S, w.def.color, 0.25); ctx.globalCompositeOperation = 'source-over';
       drawShip(sx(f.x), sy(f.y), f.face || 0, col(w.def.color), 0.6, playerScale());
-      ctx.globalAlpha = 0.5; ctx.strokeStyle = col(w.def.color); ctx.setLineDash([3, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(sx(f.x), sy(f.y), 20 * S * playerScale(), 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
       drawWeaponFx(f.weapons, f.x, f.y, 0.35);
     }
   }
@@ -901,10 +902,10 @@ function drawToysOver() {
   for (const t of T.teeth) {
     const x = sx(t.x), y = sy(t.y) + Math.sin(G.realT * 4 + t.born) * 2 * S, r = Math.max(6, 7 * S);
     if (t.gold) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, 26 * S, PAL.reward, 0.5); ctx.globalCompositeOperation = 'source-over'; }
-    ctx.fillStyle = t.gold ? col(PAL.reward) : '#f8f9fa'; ctx.strokeStyle = '#212529'; ctx.lineWidth = 1.2;
+    ctx.fillStyle = t.gold ? col(PAL.reward) : '#f8f9fa'; ctx.strokeStyle = 'rgba(33,37,41,0.45)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x - r, y - r * 0.6); ctx.quadraticCurveTo(x - r, y - r * 1.2, x - r * 0.3, y - r * 0.9); ctx.quadraticCurveTo(x, y - r * 0.6, x + r * 0.3, y - r * 0.9);
     ctx.quadraticCurveTo(x + r, y - r * 1.2, x + r, y - r * 0.6); ctx.lineTo(x + r * 0.7, y + r); ctx.lineTo(x + r * 0.2, y + r * 0.2); ctx.lineTo(x - r * 0.2, y + r * 0.2); ctx.lineTo(x - r * 0.7, y + r); ctx.closePath(); ctx.fill(); ctx.stroke();
-    if (t.w.s) { ctx.globalAlpha = 0.12; ctx.strokeStyle = col(t.w.def.color); ctx.setLineDash([3, 6]); ctx.beginPath(); ctx.arc(sx(t.x), sy(t.y), t.w.s.lure * (t.gold ? 2 : 1) * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; }
+    if (t.w.s) { const R = t.w.s.lure * (t.gold ? 2 : 1) * S, g = ctx.createRadialGradient(sx(t.x), sy(t.y), R * 0.6, sx(t.x), sy(t.y), R); g.addColorStop(0, t.w.def.color + '00'); g.addColorStop(0.85, t.w.def.color + '1a'); g.addColorStop(1, t.w.def.color + '00'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx(t.x), sy(t.y), R, 0, TAU); ctx.fill(); } // (the lure's reach, as a faint scent)
   }
   ctx.globalCompositeOperation = 'lighter';
   // Twin Telepathy: the beam and the twins.
@@ -925,7 +926,7 @@ function drawToysOver() {
     ctx.globalCompositeOperation = 'source-over';
     for (const t of w.twins) drawShip(sx(t.x), sy(t.y), (G.player.face || 0) + Math.PI, c, 0.6, playerScale());
     ctx.globalCompositeOperation = 'lighter';
-    if (w.anchor) { ctx.globalAlpha = 0.5; ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(sx(w.anchor.x), sy(w.anchor.y), 6 * S, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+    if (w.anchor) { glow(sx(w.anchor.x), sy(w.anchor.y), 12 * S, w.def.color, 0.6); ctx.globalAlpha = 1; }
   }
   ctx.globalCompositeOperation = 'source-over';
   // Bubbles: a thin iridescent film with a highlight.
@@ -951,7 +952,13 @@ function drawToysOver() {
     if (k < 0.25 && Math.floor(G.realT * 10) % 2) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, 20 * S, D.w.def.color, 0.6); ctx.globalCompositeOperation = 'source-over'; }
   }
   // Bubble Boy.
-  if (G.bubbleBoy > 0) { const p = G.player; ctx.globalAlpha = 0.6; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 30 * S * playerScale(), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+  if (G.bubbleBoy > 0) { // a soap film round you, with a sliding sheen and a highlight
+    const p = G.player, x = sx(p.x), y = sy(p.y), r = 30 * S * playerScale() * (1 + Math.sin(G.realT * 5) * 0.03), t = G.realT;
+    ctx.globalAlpha = 0.08; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 0.45; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.globalAlpha = 0.5; ctx.strokeStyle = '#c8b6ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r * 0.92, t, t + 1.4); ctx.stroke();
+    ctx.globalAlpha = 0.85; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(x - r * 0.4, y - r * 0.45, r * 0.16, r * 0.08, -0.7, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+  }
 }
 
 // ---------------------------------------------------------------- weapon panel stats (from the Tackle Box)

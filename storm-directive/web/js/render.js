@@ -338,17 +338,28 @@ function addDecal(x, y, r, color) {
   G.decals.push({ x, y, r, color, life: 14, max: 14, rot: Math.random() * TAU, n: 5 + Math.floor(Math.random() * 4) });
 }
 
+// Organic outlines (STYLE.md): corners rounded (roundPts) or the whole outline smoothed (smoothPts).
+function roundPts(P, rad) {
+  const n = P.length, L = P[n - 1];
+  ctx.moveTo((L[0] + P[0][0]) / 2, (L[1] + P[0][1]) / 2);
+  for (let i = 0; i < n; i++) { const q = P[(i + 1) % n]; ctx.arcTo(P[i][0], P[i][1], (P[i][0] + q[0]) / 2, (P[i][1] + q[1]) / 2, rad); }
+}
+function smoothPts(P) {
+  const n = P.length;
+  ctx.moveTo((P[n - 1][0] + P[0][0]) / 2, (P[n - 1][1] + P[0][1]) / 2);
+  for (let i = 0; i < n; i++) { const p0 = P[i], p1 = P[(i + 1) % n]; ctx.quadraticCurveTo(p0[0], p0[1], (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2); }
+}
 function drawShape(shape, x, y, r, rot) {
   ctx.beginPath();
   switch (shape) {
     case 'tri': for (let i = 0; i < 3; i++) { const a = rot + i / 3 * TAU; ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } break;
     case 'square': ctx.rect(x - r * 0.85, y - r * 0.85, r * 1.7, r * 1.7); break;
     case 'diamond': ctx.moveTo(x, y - r); ctx.lineTo(x + r * 0.8, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r * 0.8, y); break;
-    case 'hex': for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + rot * 0.2; ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } break;
+    case 'hex': { const P = []; for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + rot * 0.2; P.push([x + Math.cos(a) * r, y + Math.sin(a) * r]); } roundPts(P, r * 0.3); break; }
     case 'oct': for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + Math.PI / 8; ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } break;
-    case 'star': for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + rot * 0.3, rr = i % 2 ? r * 0.5 : r; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } break;
-    case 'spike': for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + rot, rr = i % 2 ? r * 0.7 : r * 1.1; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } break;
-    case 'cross': { const t = r * 0.38; ctx.rect(x - t, y - r, t * 2, r * 2); ctx.rect(x - r, y - t, r * 2, t * 2); break; }
+    case 'star': { const P = []; for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + rot * 0.3, rr = i % 2 ? r * 0.55 : r; P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); } roundPts(P, r * 0.2); break; } // soft-lobed
+    case 'spike': { const P = []; for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + rot, rr = i % 2 ? r * 0.86 : r * 1.06; P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); } smoothPts(P); break; } // a scalloped, bubbling membrane
+    case 'cross': { const t = r * 0.38, P = [[-t, -r], [t, -r], [t, -t], [r, -t], [r, t], [t, t], [t, r], [-t, r], [-t, t], [-r, t], [-r, -t], [-t, -t]].map(([px, py]) => [x + px, y + py]); roundPts(P, t * 0.7); break; }
     case 'sperm': ctx.ellipse(x, y, r, r * 0.72, rot, 0, TAU); break;
     case 'amoeba': {
       // A soft, slowly flowing outline with a few blunt lobopodia, drawn as a smooth closed curve.
@@ -362,11 +373,11 @@ function drawShape(shape, x, y, r, rot) {
       for (let i = 0; i < n; i++) { const p0 = pts[i], p1 = pts[(i + 1) % n]; ctx.quadraticCurveTo(p0[0], p0[1], (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2); }
       break;
     }
-    case 'cell': for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, rr = r * (1 + 0.09 * Math.sin(i * 3 + rot * 2.5)); ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } break;
+    case 'cell': { const P = []; for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, rr = r * (1 + 0.09 * Math.sin(i * 3 + rot * 2.5)); P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); } smoothPts(P); break; }
     case 'antibody': {
       const w = r * 0.34, pts = [[-w / 2, r], [w / 2, r], [w / 2, 0.1 * r], [0.9 * r, -0.7 * r], [0.6 * r, -r], [0, -0.3 * r], [-0.6 * r, -r], [-0.9 * r, -0.7 * r], [-w / 2, 0.1 * r]];
       const c = Math.cos(rot), s2 = Math.sin(rot);
-      for (const [px, py] of pts) ctx.lineTo(x + px * c - py * s2, y + px * s2 + py * c);
+      roundPts(pts.map(([px, py]) => [x + px * c - py * s2, y + px * s2 + py * c]), w * 0.4);
       break;
     }
     default: ctx.arc(x, y, r, 0, TAU);
@@ -2694,18 +2705,21 @@ function drawBossAura(e, x, y, r) {
   ctx.save();
   ctx.globalAlpha = 0.5; ctx.fillStyle = '#000000';
   const g = ctx.createRadialGradient(x, y, r * 0.6, x, y, r * 3.2); g.addColorStop(0, 'rgba(0,0,0,0.45)'); g.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = g; ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(x, y, r * 3.2, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1; if (!WORLD_DF) { ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 3.2, 0, TAU); ctx.fill(); } // (darkfield is already black: inverted, this would glow white)
+  // Its pull on the fluid (STYLE.md: no dashed rings or ticks): two bands of motes circling it in opposite
+  // directions, faster as it enrages, and a soft pulse of pressure rolling outwards.
   const col1 = ph ? '#ff3b3b' : '#ffffff', spd = 0.4 + ph * 0.5;
-  ctx.strokeStyle = col1; ctx.lineWidth = 2; ctx.globalAlpha = 0.45 + 0.15 * ph;
-  ctx.setLineDash([R * 0.18, R * 0.1]); ctx.lineDashOffset = -t * 40 * spd;
-  ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
-  ctx.setLineDash([R * 0.06, R * 0.14]); ctx.lineDashOffset = t * 60 * spd;
-  ctx.beginPath(); ctx.arc(x, y, R * 1.25, 0, TAU); ctx.stroke();
-  ctx.setLineDash([]);
-  // Runic ticks round the outer ring.
-  ctx.lineWidth = 1.5; ctx.beginPath();
-  for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + t * 0.3 * spd, r0 = R * 1.36, r1 = R * (i % 4 ? 1.44 : 1.55); ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); ctx.lineTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1); }
-  ctx.stroke();
+  ctx.fillStyle = col1;
+  for (const [rr, n, dir, sz] of [[R, 28, -1, 2], [R * 1.3, 40, 1, 1.4]]) {
+    for (let i = 0; i < n; i++) {
+      const a = i / n * TAU + dir * t * spd * (dir > 0 ? 0.8 : 1.1) + Math.sin(i * 7.3) * 0.08, d = rr * (1 + 0.06 * Math.sin(i * 3.1 + t * 2));
+      ctx.globalAlpha = (0.25 + 0.2 * ph) * (0.5 + 0.5 * Math.sin(i * 1.7 + t * 3));
+      ctx.fillRect(x + Math.cos(a) * d - sz / 2, y + Math.sin(a) * d - sz / 2, sz * S + 1, sz * S + 1);
+    }
+  }
+  const pk = (t * (0.35 + 0.3 * ph)) % 1, pg = ctx.createRadialGradient(x, y, R * (0.8 + pk), x, y, R * (1 + pk));
+  pg.addColorStop(0, col1 + '00'); pg.addColorStop(0.6, col1 + Math.round((1 - pk) * 50).toString(16).padStart(2, '0')); pg.addColorStop(1, col1 + '00');
+  ctx.globalAlpha = 1; ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(x, y, R * (1 + pk), 0, TAU); ctx.fill();
   ctx.restore();
   if (ph) {
     // Enraged: cracks of light across the body (drawn as additive light, flickering).
@@ -2787,7 +2801,7 @@ function drawEnemyDetail(e, x, y, r, rot) {
       break;
     }
     case 'medic': { // Nurse Cell: a halo that pulses when it heals
-      ctx.setLineDash([4, 5]); ctx.lineDashOffset = -t * 20; ctx.beginPath(); ctx.arc(x, y, r * 1.45, 0, TAU); halo(1.5, 0.55); ctx.setLineDash([]);
+      { const op = ctx.globalCompositeOperation, a0 = ctx.globalAlpha; ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.7, '#ffffff', a0 * (0.18 + 0.12 * Math.sin(t * 3))); ctx.globalCompositeOperation = op; ctx.globalAlpha = a0; } // (a soft healing glow, not a dashed ring)
       break;
     }
     case 'warlock': { // Cytokine Caster: motes orbiting, an inner star turning the other way
