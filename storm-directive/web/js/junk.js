@@ -281,6 +281,14 @@ function junkChips() {
   for (const id in G.junk || {}) if (G.junk[id] > 0 && JUNK_POWERS[id]) out.push([JUNK_POWERS[id].name.toUpperCase() + (G.junk[id] > 1 ? ' x' + G.junk[id] : ''), G.junkNew && G.junkNew[id] ? '#ffffff' : '#c9e4a8']);
   return out;
 }
+// The Active effects screen (ui.js openStatusPanel, from tapping a HUD chip): each power, its stacks and what it does.
+function junkStatusRows() {
+  const ids = Object.keys(G.junk || {}).filter(id => G.junk[id] > 0 && JUNK_POWERS[id]);
+  const rows = ids.map(id => { const J = JUNK_POWERS[id], k = G.junk[id];
+    return `<div class="li"><b style="color:#c9e4a8">${esc(J.name.toUpperCase())}${k > 1 ? ' x' + k : ''}</b> <em>JUNK DNA${k >= JUNK.stacks ? ' | MAX' : ''}</em><br><span>${esc(capFirst(J.fmt(k)))}.</span></div>`; });
+  if (ids.length) G.junkNew = {}; // (seen now: the chips stop showing as new)
+  return rows;
+}
 function junkHtml(first) {
   const ids = Object.keys(G.junk || {}).filter(id => G.junk[id] > 0 && JUNK_POWERS[id]);
   const h = ids.map(id => `<div class="li on"><b>${esc(JUNK_POWERS[id].name)}${G.junk[id] > 1 ? ' x' + G.junk[id] : ''}</b>${G.junkNew && G.junkNew[id] ? ' <span style="background:#e9f5db;color:#000;font-weight:900;font-size:10px;padding:1px 5px;border-radius:4px">NEW</span>' : ''} <span class="sb">(${esc(ENEMIES[id].name)})</span><br><span>${esc(cap1(JUNK_POWERS[id].fmt(G.junk[id])))}.</span></div>`).join('');

@@ -19,5 +19,12 @@ const { chromium } = require('playwright');
     ok = ok && r.lg === 4 && r.above;
     await page.screenshot({ path: `lgt_${imm ? 'imm' : 'reg'}.png` });
   }
+  // Tap the first LGT chip: the Active effects screen lists the junk DNA powers.
+  const tap = await page.evaluate(() => { G.state = 'play'; G.junkNew = { medic: 1 }; render(); const q = UI.chipRects[0]; return { x: q.x + q.w / 2, y: q.y + q.h / 2 }; });
+  await page.mouse.click(tap.x, tap.y); await page.waitForTimeout(200);
+  const pan = await page.evaluate(() => ({ on: document.getElementById('stpanel').classList.contains('on'), text: document.getElementById('stBody').textContent, fresh: Object.keys(G.junkNew).length }));
+  console.log('panel', JSON.stringify({ on: pan.on, thick: /THICK SKIN x2/.test(pan.text), heading: /Lateral Gene Transfer/.test(pan.text), fresh: pan.fresh }));
+  ok = ok && pan.on && /THICK SKIN x2/.test(pan.text) && /BEDSIDE MANNER/.test(pan.text) && pan.fresh === 0;
+  await page.screenshot({ path: 'lgt_panel.png' });
   console.log(ok ? 'ok' : 'FAIL', 'ERRORS', JSON.stringify(errors)); await b.close(); process.exit(ok && !errors.length ? 0 : 1);
 })();

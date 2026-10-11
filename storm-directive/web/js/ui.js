@@ -974,7 +974,9 @@ const UI = {
       const key = statusKey(label) || label.replace(/\s*[\d:].*$/, ''), I = statusInfo(key), t = statusTimer(key);
       return `<div class="li"><b style="color:${colour}">${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div>`;
     });
-    $('stBody').innerHTML = rows.length ? `<div class="list">${rows.join('')}</div>` : '<p class="hint">Nothing active right now.</p>';
+    const lgt = typeof junkStatusRows === 'function' ? junkStatusRows() : []; // your junk DNA powers too (junk.js)
+    $('stBody').innerHTML = (rows.length ? `<div class="list">${rows.join('')}</div>` : lgt.length ? '' : '<p class="hint">Nothing active right now.</p>')
+      + (lgt.length ? `<h3${rows.length ? ' style="margin-top:10px"' : ''}>Junk DNA (Lateral Gene Transfer)</h3><div class="list">${lgt.join('')}</div>` : '');
     UI.show('stpanel');
   },
   closeStatusPanel() { if (G && G.state === 'pause') { G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now(); } },
