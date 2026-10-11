@@ -307,7 +307,7 @@ const UI = {
     const body = $('setBody');
     // Tabs: one group of settings at a time.
     const TABS = [['play', 'PLAY'], ['view', 'VIEW'], ['sound', 'SOUND'], ['data', 'DATA']], tab = UI.setTab || 'play';
-    const TAB_OF = { immersive: 'view', darkfield: 'view', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
+    const TAB_OF = { immersive: 'view', darkfield: 'view', fullColour: 'view', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
     const tabsHtml = `<div class="ptabs">${TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
     body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => (TAB_OF[d.id] || 'play') === tab).map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
     // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
@@ -372,6 +372,7 @@ const UI = {
     document.body.classList.toggle('clinical', !!SET.clinical);
     document.body.classList.toggle('darkfield', !!SET.darkfield);
     document.body.classList.toggle('immersive', !!SET.immersive);
+    if (typeof refreshPalette === 'function') refreshPalette(); // (Full colour)
     if (typeof resetLook === 'function') resetLook();
     if (typeof applyLayout === 'function') applyLayout();
   },

@@ -1466,8 +1466,10 @@ The slide starts in greyscale, your own swimmer included. Colour comes back thre
 | **Personal stain** | Floats by the egg, your first game (until you take it) | You, your echoes and your allies in your own colour, and your stamina ring |
 | **Tracer Dye** | Level 5, once you have Personal stain | Your shots and weapon effects, and every damage type in its own colour |
 | **Gentian Violet** | Level 10, once you have Tracer Dye | Power-up pickups and their effects |
+| **Gram Stain** | Level 15, once you have Gentian Violet | Every kind of enemy in its own colour (bosses too; rivals keep theirs for the Rival Dyes) |
+| **Counterstain** | Level 20, once you have Gram Stain | The slide itself: debris, mitochondria, acid pools, cilia, currents and oil slicks in their natural colours, and the agar in the dish |
 
-**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.)
+**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.) **Settings > View > Full colour** turns every stain on at once, whatever you have found (it is not Technicolour: no rainbows).
 
 | Stain | Boon | What it colours |
 |---|---|---|
@@ -1830,13 +1832,15 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 
 ## Rival champions
 
-Named rivals race you to the egg. When the sperm count reaches 6, the strongest five survivors (rivals first, stand-ins after) become the Final Five. Beat them and the sperm count is 1.
+Named rivals race you to the egg. They join one at a time, one with each scripted wave (every 30 seconds from about 27 seconds in), each at the level it reached racing elsewhere; anyone still missing joins the Final Five. Each scripted wave lands as several groups a couple of seconds apart. When the sperm count reaches 6, the strongest five survivors (rivals first, stand-ins after) become the Final Five. Beat them and the sperm count is 1.
 
 **The egg.** Once the sperm count is 1 (or you reach level 60), swim into the egg. Its membrane wakes up with a boss introduction and fights back: rings of bullets that speed up as it cracks, aimed volleys, and five bodyguards budding off it every 5 seconds (one of them elite). It gives way slowly however big your build (at most 2.5% of it a second), and its warm glow heals you while you are close. Break it and you are born. Touching the egg is no longer enough on its own.
 
 **Breaking in.** A rival who reaches level 60 before the Final Five swims for the egg and gnaws at its membrane (0.7% a second). They stop gnawing while you are hitting them. If they get through first, they fertilise the egg and you lose (BEATEN TO IT). Kill them, or win the race before they finish: when the Final Five start they leave the egg to fight you, and whatever damage they did stays in the membrane.
 
 Knock a named rival out of the race and you choose one of their two relics.
+
+**Rivals in wave mode.** From wave 2, a new named rival drops into the dish with each ordinary wave (at most 3 alive at once; none join a boss wave). A wave is beaten without killing them, they leave you alone between waves, and every one that survives a wave comes back healed and 2 levels stronger. Dish rivals are 60% as tough as race rivals and grow at half the pace; beating one gives half the XP, plus the usual relic choice.
 
 The first time you ever meet each named rival, the slide stops to introduce them: personality, five attributes (1 to 5) and two specialities that change how they fight.
 

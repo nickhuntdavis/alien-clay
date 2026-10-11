@@ -6,6 +6,9 @@
 //   body:    Personal stain: you, your echoes and allies, plus your stamina ring. Floats by the egg (the first game, until taken).
 //   tracer:  Tracer Dye: your shots and weapon effects, and each damage type's colour. At level 5.
 //   pickups: Gentian Violet: power-up pickups. At level 10, once you have the Tracer Dye.
+//   foes:    Gram Stain: every enemy type in its own colour (drawEnemy, render.js). At level 15, once you have Gentian Violet.
+//   scenery: Counterstain: terrain, hazards and the dish's agar in natural colours (drawTerrain/drawDish, render.js). At level 20, once you have the Gram Stain.
+// Settings > Full colour (SET.fullColour) makes grantOn() true for all of them, and col() lets every colour through.
 // (Not in campaign levels: they wait for the next run elsewhere.)
 // Hooks: grantsStart (newGame), grantsTick (update), drawGrants (render, world), grantCols / GRANT_EL
 // (refreshPalette and col(), render.js), grantOn (foes.js, your health ring), grantsHtml (ui.js, pause menu).
@@ -20,10 +23,21 @@ const GRANTS = {
   pickups: { name: 'Gentian Violet', key: () => PAL.pickup, cols: () => [PAL.pickup], level: 10, after: 'tracer',
     see: 'Power-up pickups and their effects',
     desc: 'A deep violet that soaks into anything worth picking up. Power-ups stand out from the grey at last.' },
+  foes:    { name: 'Gram Stain', key: () => '#7a5cff', cols: () => [], level: 15, after: 'pickups',
+    see: 'Every kind of enemy in its own colour (bosses too; rivals keep theirs for the Rival Dyes)',
+    desc: 'How real microbiologists sort bacteria: dunk them in violet and pink and each type shows up its own colour. Every kind of enemy now has one.' },
+  scenery: { name: 'Counterstain', key: () => '#ff7f9c', cols: () => [], level: 20, after: 'foes',
+    see: 'The slide itself: debris, mitochondria, acid pools, cilia, currents and oil slicks in their natural colours, and the agar in the dish',
+    desc: 'The pink counterstain that goes on after the violet. The scenery shows its true colours: amber debris, orange mitochondria, green acid, pink cilia, blue currents and yellow oil.' },
 };
-const GRANT_ORDER = ['body', 'tracer', 'pickups'];
+const GRANT_ORDER = ['body', 'tracer', 'pickups', 'foes', 'scenery'];
 const grantHas = id => !!(META.grants && META.grants[id]);
-const grantOn = id => grantHas(id) && !(META.grantOff && META.grantOff[id]);
+const grantSet = id => grantHas(id) && !(META.grantOff && META.grantOff[id]); // (what the pause menu shows)
+// Settings > View > Full colour: every stain counts as taken, whatever you have found (not Technicolour: no rainbows).
+const fullColourOn = () => !!(typeof SET !== 'undefined' && SET.fullColour);
+const grantOn = id => fullColourOn() || grantSet(id);
+const foeStainOn = () => grantOn('foes');
+const sceneStainOn = () => grantOn('scenery');
 let GRANT_EL = false; // damage-type colours let through (the Tracer Dye), set by refreshPalette
 function grantCols() {
   GRANT_EL = grantOn('tracer');
@@ -49,7 +63,7 @@ function grantsStart(G) {
 function grantDue() {
   if (G.lvl || G.debug || !G.core) return null;
   if (!grantHas('body')) return 'body';
-  for (const id of ['tracer', 'pickups']) { const D = GRANTS[id]; if (!grantHas(id) && grantHas(D.after) && G.level >= D.level) return id; }
+  for (const id of ['tracer', 'pickups', 'foes', 'scenery']) { const D = GRANTS[id]; if (!grantHas(id) && grantHas(D.after) && G.level >= D.level) return id; }
   return null;
 }
 function grantsTick(dt) {
@@ -111,7 +125,7 @@ function drawGrants() {
 function grantsHtml() {
   const got = GRANT_ORDER.filter(grantHas);
   if (!got.length) return '';
-  return `<h3 style="margin-top:10px">Research grants</h3><div class="list">${got.map(id => { const D = GRANTS[id], on = grantOn(id);
+  return `<h3 style="margin-top:10px">Research grants</h3><div class="list">${got.map(id => { const D = GRANTS[id], on = grantSet(id);
     return `<div class="li on stain"><i class="sw" style="background:${D.key()}"></i><div><b>${esc(D.name)}</b><br><span>${esc(D.see)}.</span><br><button class="chip ${on ? 'sel' : ''}" data-grant="${id}">${on ? 'ON' : 'OFF'}</button></div></div>`; }).join('')}</div>`
     + `<p class="hint">Yours for good. Switch any off if you'd rather not see its colour.</p>`;
 }
