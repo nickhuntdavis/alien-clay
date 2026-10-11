@@ -20,8 +20,18 @@ const SETTINGS_DEF = [
   { id: 'featAuto', label: 'Feats', hint: 'AUTO: Feats perform themselves when ready (tap a Feat to perform it early). ON TAP: they wait for you to tap them, so you can save one for the right moment.', opts: [[true, 'AUTO'], [false, 'ON TAP']] },
   { id: 'auto', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button under pause.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'autoWaves', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']] },
+  { id: 'cYou', label: 'You and your shots', hint: 'Your swimmer, echoes, allies and shots.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cDanger', label: 'Danger', hint: 'Red for anything that can hurt you: enemy bullets, hazards, low-HP warnings.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cReward', label: 'Rewards', hint: 'Gold for things worth having: DNA strands, elites, bosses.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cPickup', label: 'Power-ups', hint: 'Power-up pickups and upgrades.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cFast', label: 'Fast enemies', hint: 'Cyan for sprinters, spermlets, krill and paramecia.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cRival', label: 'Rivals', hint: 'Each rival champion in their own colour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cElem', label: 'Damage types', hint: 'Acid, Base, Static, Ethanol, Voodoo, Peroxide and Brine in their own colours.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. EARNED: once damage types are coloured.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cBg', label: 'Background', hint: 'A soft tissue-pink tint on the slide. EARNED: only with Full Technicolour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1, featAuto: true, immersive: false };
+const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1, featAuto: true, immersive: false,
+  cYou: 'earned', cDanger: 'earned', cReward: 'earned', cPickup: 'earned', cFast: 'earned', cRival: 'earned', cElem: 'earned', cTerrain: 'earned', cBg: 'earned' };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
   for (const k in SET) if (k in s) SET[k] = s[k];

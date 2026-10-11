@@ -19,8 +19,19 @@ const DYE_COLOURS = {
   immuno: () => [PAL.danger], luciferase: () => [PAL.reward], motility: () => [DYE_FAST, DYE_FAST_DK],
   rival: () => RIVALS.map(r => r.color), he: () => [PAL.upgrade].concat(Object.values(ELEM_UI)), // (power-ups wait for their own grant)
 };
+// Settings > Colour: each kind of colour is EARNED (by stains, as above), ALWAYS on, or OFF (grey, even
+// under Full Technicolour). Damage types, terrain and background are switched in col(), drawTerrain and
+// drawBackground (ELEM_ON, TERRAIN_ON, BG_TINT).
+const COLOUR_CATS = {
+  cYou: () => [PAL.you].concat(G && G.seqCol ? [G.seqCol] : []), cDanger: () => [PAL.danger], cReward: () => [PAL.reward],
+  cPickup: () => [PAL.upgrade, PAL.pickup], cFast: () => [DYE_FAST, DYE_FAST_DK], cRival: () => RIVALS.map(r => r.color),
+};
+// Terrain's own stains (drawTerrain): let through when TERRAIN_ON.
+const TERRAIN_HEX = ['#7fbf2a', '#3d5a1f', '#c6f07a', '#9fd4e6', '#3a5560', '#f2b8c6', '#8a5866', '#c8b6ff', '#f4eeff', '#c9d6e6', '#5a6878'];
+const PAL_OFF = new Set();
+let ELEM_ON = false, TERRAIN_ON = false, BG_TINT = 'earned';
 function refreshPalette() {
-  PAL_OK.clear();
+  PAL_OK.clear(); PAL_OFF.clear();
   for (const c of ['#ffffff', '#000000', XR.white, XR.dim]) PAL_OK.add(c);
   const dyes = (typeof G !== 'undefined' && G && G.dyes) || {};
   FULL_COL = !!(typeof G !== 'undefined' && G && ((G.boons && G.boons.technicolour) || G.finaleCol)); // (and while the egg hatches)
@@ -28,6 +39,18 @@ function refreshPalette() {
   document.body.classList.toggle('technicolour', FULL_COL);
   for (const id in dyes) if (dyes[id] && DYE_COLOURS[id]) for (const c of DYE_COLOURS[id]()) PAL_OK.add(c.toLowerCase());
   if (typeof grantCols === 'function') for (const c of grantCols()) PAL_OK.add(c.toLowerCase()); // permanent stain grants (grants.js)
+  const run = typeof G !== 'undefined' && !!G, mode = id => (run && typeof SET !== 'undefined' && SET[id]) || 'earned';
+  for (const id in COLOUR_CATS) {
+    const m = mode(id);
+    if (m === 'earned') continue;
+    for (let c of COLOUR_CATS[id]()) { c = c.toLowerCase(); if (m === 'always') PAL_OK.add(c); else { PAL_OK.delete(c); PAL_OFF.add(c); } }
+  }
+  const em = mode('cElem'), tm = mode('cTerrain');
+  ELEM_ON = em === 'always' || (em === 'earned' && !!((run && G.dyes && G.dyes.he) || GRANT_EL));
+  if (em === 'off') { for (const el in ELEM_HEX) for (const h of ELEM_HEX[el]) PAL_OFF.add(h); for (const h in STATIC_HEX) PAL_OFF.add(STATIC_HEX[h]); }
+  TERRAIN_ON = tm === 'always' || (tm === 'earned' && (ELEM_ON || FULL_COL));
+  if (TERRAIN_ON) for (const c of TERRAIN_HEX) PAL_OK.add(c); else for (const c of TERRAIN_HEX) PAL_OFF.add(c);
+  BG_TINT = mode('cBg');
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
@@ -54,21 +77,22 @@ const COL = new Map();
 function col(c) {
   if (typeof c !== 'string') return c;
   if (c[0] === '#' && ELEM_SWAP.has(c.slice(0, 7).toLowerCase())) c = ELEM_SWAP.get(c.slice(0, 7).toLowerCase()) + c.slice(7);
-  if (FULL_COL) return c;
+  if (FULL_COL && !PAL_OFF.size) return c;
   let v = COL.get(c);
   if (v !== undefined) return v;
   let r, g, b, a = null;
   const h = c.toLowerCase();
   if (h[0] === '#' && (h.length === 7 || h.length === 9)) {
-    const base = h.slice(0, 7);
-    if (PAL_OK.has(base)) v = c;
+    const base = h.slice(0, 7), off = PAL_OFF.has(base) || (PAL_ALIAS[base] && PAL_OFF.has(PAL_ALIAS[base])) || (STATIC_HEX[base] && PAL_OFF.has(STATIC_HEX[base]));
+    if (off) {} // (Settings > Colour: OFF, so grey below)
+    else if (FULL_COL || PAL_OK.has(base)) v = c;
     else if (PAL_ALIAS[base] && PAL_OK.has(PAL_ALIAS[base])) v = PAL_ALIAS[base] + h.slice(7);
     else if (STATIC_HEX[base]) v = STATIC_HEX[base] + h.slice(7);
-    else if (ELEM_OF.has(base) && ((G && G.dyes && G.dyes.he) || GRANT_EL)) v = c;
-    else { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
+    else if (ELEM_OF.has(base) && ELEM_ON) v = c;
+    if (v === undefined) { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
   } else {
     const m = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
-    if (!m) v = c;
+    if (!m || FULL_COL) v = c;
     else { r = +m[1]; g = +m[2]; b = +m[3]; if (m[4] != null) a = +m[4]; }
   }
   if (v === undefined) {
@@ -362,6 +386,13 @@ function technicolourWash(alpha) {
   ctx.fillStyle = g; ctx.fillRect(-40, -40, W + 80, H + 80);
   ctx.globalCompositeOperation = op; ctx.globalAlpha = a0;
 }
+// Settings > Colour > Background ALWAYS: the slide takes a soft eosin pink, like stained tissue.
+function tissueWash(alpha) {
+  const op = ctx.globalCompositeOperation, a0 = ctx.globalAlpha, raw = RAW_COL;
+  ctx.globalCompositeOperation = 'color'; ctx.globalAlpha = alpha; RAW_COL = true;
+  ctx.fillStyle = '#e8879f'; ctx.fillRect(-40, -40, W + 80, H + 80);
+  ctx.globalCompositeOperation = op; ctx.globalAlpha = a0; RAW_COL = raw;
+}
 // The Köhler gradient is baked once per W x H. (The margin outside the frame is filled with the edge colour.)
 function buildBgGradient() {
   const key = W + 'x' + H;
@@ -386,7 +417,8 @@ function drawBackground() {
     const ox = -((((cam.x * S * L.f) % T) + T) % T), oy = -((((cam.y * S * L.f) % T) + T) % T);
     for (let x = ox; x < W; x += T) for (let y = oy; y < H; y += T) ctx.drawImage(L.img, x, y, T, T);
   }
-  if (FULL_COL) technicolourWash(0.75);
+  if (FULL_COL && BG_TINT !== 'off') technicolourWash(0.75);
+  else if (BG_TINT === 'always') tissueWash(0.3);
   const core = G.core, cx = sx(core.x), cy = sy(core.y), R = CORE.arena * S;
   // Counting-chamber grid etched into the slide: fine lines every 100 units, heavier every 500.
   const x0 = cam.x - W / 2 / S, y0 = cam.y - H / 2 / S, x1 = x0 + W / S, y1 = y0 + H / S;
@@ -1070,6 +1102,14 @@ function drawTail(t, color, width, rootWidth) {
 // mitochondria (dark rods with pale cristae, glowing orange as they charge, like a membrane-potential
 // dye), acidic vesicles (dark granular sacs lit by an acid-tracking green dye), patches of ciliated
 // epithelium, streams of drifting particles, and highly refractile lipid droplets.
+// A soft organic outline round (x, y): eight points that wobble slowly (amp: how far, as a share of R).
+function blobPath(x, y, R, ob, t, amp) {
+  const P = [];
+  for (let i = 0; i < 8; i++) { const a = ob.a + i / 8 * TAU, k = 1 + amp * (Math.sin(t + i * 2.3 + ob.seed) * 0.7 + Math.sin(t * 0.6 + i * 1.1) * 0.3); P.push([x + Math.cos(a) * R * k, y + Math.sin(a) * R * k]); }
+  ctx.beginPath(); ctx.moveTo((P[7][0] + P[0][0]) / 2, (P[7][1] + P[0][1]) / 2);
+  for (let i = 0; i < 8; i++) { const p = P[i], q = P[(i + 1) % 8]; ctx.quadraticCurveTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2); }
+  ctx.closePath();
+}
 function drawTerrain() {
   if (!G.terrain) return;
   const t = G.realT, m = 200;
@@ -1080,15 +1120,25 @@ function drawTerrain() {
     let seed = Math.floor(ob.seed * 1000) + 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     switch (ob.type) {
       case 'ridge': {
-        // Refractile debris: an irregular glassy clump.
+        // Cartilage nodule, half sunk into the tissue: lit and crisp on top, fading out towards the bottom.
         ctx.beginPath();
         for (let i = 0; i < 11; i++) { const a = ob.a + i / 11 * TAU, rr = r * (0.82 + rnd() * 0.3); ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
         ctx.closePath();
-        ctx.fillStyle = ob.flash > 0 ? 'rgb(235,240,235)' : 'rgb(150,158,150)'; ctx.fill();
-        pcHalo(4, 0.85);
-        ctx.strokeStyle = 'rgba(40,46,42,0.35)'; ctx.lineWidth = 1.5;
-        for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(x + (rnd() - 0.5) * r, y + (rnd() - 0.5) * r); ctx.lineTo(x + (rnd() - 0.5) * r, y + (rnd() - 0.5) * r); ctx.stroke(); }
-        ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(x - r * 0.25, y - r * 0.3, r * 0.3, r * 0.14, -0.6, 0, TAU); ctx.fill();
+        const g = ctx.createLinearGradient(x, y - r, x, y + r);
+        if (ob.flash > 0) { g.addColorStop(0, '#f4eeff'); g.addColorStop(1, '#f4eeff40'); }
+        else { g.addColorStop(0, '#c9d6e6'); g.addColorStop(0.45, '#c9d6e6d9'); g.addColorStop(0.8, '#5a687859'); g.addColorStop(1, '#5a687800'); }
+        ctx.fillStyle = g; ctx.fill();
+        if (!SET.clinical) {
+          const e = ctx.createLinearGradient(x, y - r, x, y + r * 0.6);
+          e.addColorStop(0, 'rgba(255,255,255,0.8)'); e.addColorStop(0.55, 'rgba(255,255,255,0.25)'); e.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.strokeStyle = e; ctx.lineWidth = 3; ctx.stroke();
+        }
+        const d = ctx.createLinearGradient(x, y - r, x, y + r * 0.4);
+        d.addColorStop(0, '#5a6878b3'); d.addColorStop(1, '#5a687800');
+        ctx.strokeStyle = d; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.strokeStyle = '#5a687866'; ctx.lineWidth = 1.5;
+        for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(x + (rnd() - 0.5) * r, y - rnd() * r * 0.6); ctx.lineTo(x + (rnd() - 0.5) * r, y - rnd() * r * 0.2); ctx.stroke(); }
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.ellipse(x - r * 0.25, y - r * 0.4, r * 0.3, r * 0.12, -0.6, 0, TAU); ctx.fill();
         break;
       }
       case 'mito': {
@@ -1106,63 +1156,81 @@ function drawTerrain() {
         break;
       }
       case 'acid': {
-        
-        ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
-        const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
-        g.addColorStop(0, 'rgb(52,62,40)'); g.addColorStop(0.8, 'rgb(84,100,60)'); g.addColorStop(1, 'rgb(150,190,90)');
+        // Acid seeping into the tissue: a wobbling organic stain, darkest in the middle and fading out at the
+        // edge, fizzing round its rim, with bubbles swelling and popping. No outline.
+        const R = r * 1.15;
+        blobPath(x, y, R, ob, t * 0.6, 0.1);
+        const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, R);
+        g.addColorStop(0, '#3d5a1fd9'); g.addColorStop(0.45, '#3d5a1fa6'); g.addColorStop(0.7, '#7fbf2a73'); g.addColorStop(0.87, '#7fbf2a2e'); g.addColorStop(1, '#7fbf2a00');
         ctx.fillStyle = g; ctx.fill();
-        pcHalo(3, 0.6);
-        ctx.strokeStyle = PAL.danger; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r - 1, 0, TAU); ctx.stroke();
-        for (let i = 0; i < 14; i++) { const a = rnd() * TAU + t * 0.3, d = r * 0.8 * Math.sqrt(rnd()); ctx.fillStyle = PAL.danger; ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 2, 2); }
-        for (let i = 0; i < 4; i++) {
-          const ph = (t * 0.7 + ob.seed + i * 0.37) % 1, a = ob.seed * 7 + i * 2.1, d = r * 0.5 * ((i * 0.31 + ob.seed) % 1);
-          ctx.strokeStyle = `rgba(230,255,190,${1 - ph})`; ctx.lineWidth = 1.2;
-          ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, (2 + ph * 6) * S, 0, TAU); ctx.stroke();
+        ctx.fillStyle = '#c6f07a';
+        for (let i = 0; i < 20; i++) {
+          const a = rnd() * TAU + t * 0.15, fl = (Math.sin(t * 9 + i * 1.7) + 1) / 2, d = r * (0.88 + rnd() * 0.22);
+          ctx.globalAlpha = 0.25 + fl * 0.6; ctx.fillRect(x + Math.cos(a) * d - 1, y + Math.sin(a) * d - 1, 2, 2);
+        }
+        ctx.globalAlpha = 1; ctx.lineWidth = 1.2;
+        for (let i = 0; i < 6; i++) {
+          const ph = (t * 0.6 + ob.seed + i * 0.29) % 1, a = ob.seed * 7 + i * 2.1, d = r * 0.7 * ((i * 0.31 + ob.seed) % 1);
+          ctx.strokeStyle = `rgba(230,255,190,${(1 - ph) * 0.9})`;
+          ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d - ph * 6 * S, (1.5 + ph * 5) * S, 0, TAU); ctx.stroke();
         }
         break;
       }
       case 'cilia': {
-        // A patch of ciliated epithelium: pale cell outlines with a fringe of beating cilia.
-        ctx.fillStyle = 'rgba(120,128,122,0.35)'; ctx.beginPath(); ctx.arc(x, y, r * 0.62, 0, TAU); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5;
-        for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + ob.a; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r * 0.62, y + Math.sin(a) * r * 0.62); ctx.stroke(); }
-        ctx.beginPath(); ctx.arc(x, y, r * 0.62, 0, TAU); ctx.stroke();
-        const n = Math.round(ob.r / 3);
-        ctx.strokeStyle = 'rgba(40,46,42,0.5)'; ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let i = 0; i < n; i++) {
-          const a = i / n * TAU, sw = Math.sin(t * 9 - i * 0.5) * 0.28, r0 = r * 0.62, r1 = r * 0.98;
-          ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0);
-          ctx.quadraticCurveTo(x + Math.cos(a + sw * 0.5) * (r0 + r1) / 2, y + Math.sin(a + sw * 0.5) * (r0 + r1) / 2, x + Math.cos(a + sw) * r1, y + Math.sin(a + sw) * r1);
+        // Ciliated epithelium: a soft-edged field of beating hairs, a wave rolling outwards like wind over grass.
+        const n = Math.round(ob.r * ob.r / 180), len = 12 * S;
+        ctx.lineWidth = 1.5;
+        for (let band = 0; band < 3; band++) {
+          ctx.strokeStyle = band === 2 ? '#f2b8c6' : '#8a5866'; ctx.globalAlpha = [0.75, 0.4, 0.9][band];
+          ctx.beginPath();
+          for (let i = 0; i < n; i++) {
+            const a = rnd() * TAU, k = Math.sqrt(rnd()), d = k * r * 0.95, near = k > 0.72;
+            if (band === 2 ? i % 3 : (band === 1) !== near) continue; // (inner hairs, fainter outer ones, then a few that catch the light)
+            const bx = x + Math.cos(a) * d, by = y + Math.sin(a) * d, sw = a + Math.sin(t * 7 - k * 6 + i) * 0.6;
+            const l = len * (near ? 0.7 : 1);
+            ctx.moveTo(bx, by); ctx.quadraticCurveTo(bx + Math.cos(sw - 0.3) * l * 0.6, by + Math.sin(sw - 0.3) * l * 0.6, bx + Math.cos(sw) * l, by + Math.sin(sw) * l);
+          }
+          ctx.stroke();
+          seed = Math.floor(ob.seed * 1000) + 1; // (the same hairs each band)
         }
-        ctx.stroke();
+        ctx.globalAlpha = 1;
         break;
       }
       case 'current': {
-        // A stream: particles drifting along, with a faint boundary.
-        ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.clip();
-        ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(x - r, y - r, r * 2, r * 2);
-        const ca = Math.cos(ob.a), sa = Math.sin(ob.a);
-        for (let i = 0; i < 26; i++) {
+        // A stream: only the particles, thickest mid-stream and fading in and out at the edges. No wash or border.
+        const ca = Math.cos(ob.a), sa = Math.sin(ob.a), len = 10 * S;
+        ctx.lineWidth = 1.6;
+        for (let i = 0; i < 30; i++) {
           const lane = (rnd() - 0.5) * 2 * r, ph = ((t * ob.def.push * S / (2 * r) + rnd()) % 1) * 2 * r - r;
-          const px = x + ca * ph - sa * lane, py = y + sa * ph + ca * lane, len = 10 * S;
-          ctx.strokeStyle = 'rgba(30,36,32,0.4)'; ctx.lineWidth = 1.6;
-          ctx.beginPath(); ctx.moveTo(px - ca * len, py - sa * len); ctx.lineTo(px, py); ctx.stroke();
-          ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillRect(px - 1, py - 1, 2, 2);
+          const e = 1 - (lane * lane + ph * ph) / (r * r);
+          if (e <= 0) continue;
+          const px = x + ca * ph - sa * lane, py = y + sa * ph + ca * lane;
+          ctx.globalAlpha = Math.min(1, e * 1.6);
+          ctx.strokeStyle = '#3a556066'; ctx.beginPath(); ctx.moveTo(px - ca * len, py - sa * len); ctx.lineTo(px, py); ctx.stroke();
+          ctx.fillStyle = '#9fd4e6'; ctx.fillRect(px - 1, py - 1, 2.2, 2.2);
         }
-        ctx.restore();
-        ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 6]); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
         break;
       }
       case 'slick': {
-        // Lipid droplet: very refractile, bright with a hard dark ring and a wide halo.
-        ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
-        const g = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, r * 0.05, x, y, r);
-        g.addColorStop(0, 'rgba(255,255,250,0.55)'); g.addColorStop(0.7, 'rgba(215,222,212,0.35)'); g.addColorStop(1, 'rgba(160,168,160,0.3)');
+        // Lubricant: an oily sheen with no rim, a highlight sliding slowly across it and lipid beads drifting.
+        blobPath(x, y, r * 1.1, ob, t * 0.25, 0.12);
+        const g = ctx.createRadialGradient(x, y, r * 0.05, x, y, r * 1.1);
+        g.addColorStop(0, '#f4eeff80'); g.addColorStop(0.55, '#c8b6ff66'); g.addColorStop(0.85, '#c8b6ff33'); g.addColorStop(1, '#c8b6ff00');
         ctx.fillStyle = g; ctx.fill();
-        ctx.strokeStyle = 'rgba(30,36,32,0.55)'; ctx.lineWidth = 3; ctx.stroke();
-        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(x, y, r + 5, 0, TAU); ctx.stroke();
-        ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.ellipse(x - r * 0.3, y - r * 0.35, r * 0.25, r * 0.12, -0.6, 0, TAU); ctx.fill();
+        const hx = x + Math.cos(t * 0.35 + ob.seed) * r * 0.35, hy = y + Math.sin(t * 0.27 + ob.seed) * r * 0.3;
+        const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, r * 0.45);
+        hg.addColorStop(0, 'rgba(255,255,255,0.4)'); hg.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hx, hy, r * 0.45, 0, TAU); ctx.fill();
+        ctx.strokeStyle = '#c8b6ff'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.35;
+        for (let i = 0; i < 2; i++) { const a = ob.a + i * 2 + t * 0.1; ctx.beginPath(); ctx.arc(x, y, r * (0.45 + i * 0.2), a, a + 1.4); ctx.stroke(); }
+        ctx.fillStyle = '#f4eeff';
+        for (let i = 0; i < 12; i++) {
+          const a = rnd() * TAU + t * 0.05 * (rnd() - 0.5), d = r * 0.85 * Math.sqrt(rnd()), br = (1.5 + rnd() * 2.5) * S;
+          ctx.globalAlpha = 0.5 + 0.3 * Math.sin(t * 2 + i);
+          ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, br, 0, TAU); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
         break;
       }
     }
