@@ -10,18 +10,22 @@ android {
         applicationId 'com.stormdirective.game'
         minSdk 21
         targetSdk 34
-        versionCode 228
-        versionName '8.78'
+        versionCode 229
+        versionName '8.79'
     }
 
-    // A fixed key, kept in the repo, so every build (from any session) installs over the last one.
-    // The old per-machine debug key changed with each fresh container, which forced an uninstall.
+    // A fixed key, so every build (from any session) installs over the last one. The keystore file is in the
+    // repo, but its password is not: it comes from the SPAWN_KS_PASS environment variable (set in the Claude
+    // environment's settings). Without it, a release build stops with a clear error rather than signing with
+    // a different key (which would force an uninstall and lose saves).
     signingConfigs {
         release {
+            def ksPass = System.getenv('SPAWN_KS_PASS') ?: ''
+            if (!ksPass) gradle.taskGraph.whenReady { g -> if (g.allTasks.any { it.name.toLowerCase().contains('release') }) throw new GradleException('SPAWN_KS_PASS is not set: add it to the environment settings (see CLAUDE.md, Ship checklist).') }
             storeFile file('../spawnprawn.keystore')
-            storePassword 'spawnprawn'
+            storePassword ksPass
             keyAlias 'spawnprawn'
-            keyPassword 'spawnprawn'
+            keyPassword ksPass
         }
     }
 
