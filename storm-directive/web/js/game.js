@@ -1255,31 +1255,37 @@ function spawnRandom() {
   }
 }
 
+// The race's scripted waves, every 30 s. Each brings a rival with it (rivals.js) and lands as groups spread
+// over a few seconds (WAVE_EV: more of them, further apart), not one clump.
+const WAVE_EV = { more: 1.25, gap: 1.6, spread: 75 };
 function waveEvent() {
-  const t = PT(), p = G.player;
+  const t = PT(), p = G.player, M = WAVE_EV.more, sp = WAVE_EV.spread;
+  rivalArrive(); // (one rival a wave until all five are in)
+  const groups = (n, fn) => { for (let k = 0; k < n; k++) after(k * WAVE_EV.gap, () => { if (G && G.state !== 'over') fn(spawnPos()); }); };
   const kind = pick(t < 120 ? ['ring', 'swarm', 'krill'] : t < 200 ? ['ring', 'swarm', 'elite', 'barrage', 'krill'] : ['ring', 'swarm', 'elite', 'barrage', 'pond']);
   if (kind === 'ring') {
-    const n = Math.min(18, 8 + Math.floor(t / 40)), d = Math.hypot(W / S0, H / S0) / 2 + 40;
+    const n = Math.round(Math.min(18, 8 + Math.floor(t / 40)) * M), d = Math.hypot(W / S0, H / S0) / 2 + 40;
     const def = t > 150 ? ENEMIES.skitter : ENEMIES.crawler;
     for (let i = 0; i < n; i++) { const a = i / n * TAU, q = dishFix(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d); G.enemies.push(makeEnemy(def, q.x, q.y)); }
     banner('ENCIRCLEMENT', '#ff4d6d');
   } else if (kind === 'swarm') {
-    for (let k = 0; k < 2; k++) { const s = spawnPos(); for (let i = 0; i < 6; i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-40, 40), s.y + rand(-40, 40))); }
+    groups(3, s => { for (let i = 0; i < Math.round(4 * M); i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-sp, sp), s.y + rand(-sp, sp))); });
     banner('SWARM INCOMING', '#fee440');
   } else if (kind === 'krill') {
-    for (let k = 0; k < 3; k++) { const s = spawnPos(); for (let i = 0; i < 10; i++) G.enemies.push(makeEnemy(ENEMIES.krill, s.x + rand(-45, 45), s.y + rand(-45, 45))); }
+    groups(4, s => { for (let i = 0; i < Math.round(7.5 * M); i++) G.enemies.push(makeEnemy(ENEMIES.krill, s.x + rand(-sp, sp), s.y + rand(-sp, sp))); });
     banner('KRILL SHOAL', '#fee440');
   } else if (kind === 'pond') {
-    const s = spawnPos();
-    G.enemies.push(makeEnemy(ENEMIES.volvox, s.x, s.y));
-    for (let i = 0; i < 5; i++) { const q = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.paramecium, q.x, q.y)); }
-    for (let i = 0; i < 2; i++) { const q = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.rotifer, q.x, q.y)); }
+    groups(3, s => {
+      G.enemies.push(makeEnemy(ENEMIES.paramecium, s.x, s.y)); G.enemies.push(makeEnemy(ENEMIES.paramecium, s.x + rand(-sp, sp), s.y + rand(-sp, sp)));
+      if (Math.random() < 0.67) G.enemies.push(makeEnemy(ENEMIES.rotifer, s.x + rand(-sp, sp), s.y + rand(-sp, sp)));
+    });
+    const s = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.volvox, s.x, s.y));
     banner('POND LIFE', '#fee440');
   } else if (kind === 'elite') {
-    for (let k = 0; k < 2; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.warlock, ENEMIES.bulwark]), s.x, s.y, { elite: true })); }
+    groups(3, s => { if (Math.random() < 0.85) G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.warlock, ENEMIES.bulwark]), s.x, s.y, { elite: true })); });
     banner('ELITES APPROACH', '#ffd23f');
   } else {
-    for (let k = 0; k < 3; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y)); }
+    groups(4, s => G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y)));
     banner('BULLET STORM', '#e056fd');
   }
 }

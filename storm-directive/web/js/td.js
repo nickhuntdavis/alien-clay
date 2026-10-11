@@ -26,7 +26,7 @@ function takeSnap() {
     t: G.t, px: p.x, py: p.y, hp: p.hp,
     enemies: G.enemies.filter(e => !e.dead).map(e => Object.assign({}, e, { hitT: {} })),
     ebul: G.ebul.filter(b => !b.dead).map(b => Object.assign({}, b)),
-    nextBoss: G.nextBoss, nextWave: G.nextWave, bossCount: G.bossCount, surge: G.surge,
+    nextBoss: G.nextBoss, nextWave: G.nextWave, bossCount: G.bossCount, surge: G.surge, rivalIn: G.rivalIn,
   };
 }
 
@@ -109,7 +109,7 @@ function updateRewind(dt) {
   const s = r.target;
   applySnapForView(s);
   G.proj = []; G.timers = []; G.lights = [];
-  G.nextBoss = s.nextBoss; G.nextWave = s.nextWave; G.bossCount = s.bossCount; G.surge = s.surge;
+  G.nextBoss = s.nextBoss; G.nextWave = s.nextWave; G.bossCount = s.bossCount; G.surge = s.surge; if (s.rivalIn != null) G.rivalIn = s.rivalIn;
   if (G.bossDead) G.enemies = G.enemies.filter(x => !(x.boss && G.bossDead[x.id]));
   G.boss = G.enemies.find(x => x.boss && !x.egg) || null;
   relinkTwins(); G.revive = null;

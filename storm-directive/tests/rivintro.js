@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => { if (typeof splashEnd === 'function') (window.TUT_OFF = 1, splashEnd()); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => { localStorage.clear(); SET.intros = 'full'; META.seen = {}; for (const id in ENEMY_INTRO) META.seen[id] = 1;
     UI.sample = 's001'; newGame(); UI.show('hud'); G.state = 'play'; G.lootQueue = []; SET.auto = false; G.weapons = [makeSlot('blaster', false, 2), null, null]; recomputeAll();
-    G.rivalSet = RIVALS.slice(0, 5); updateRivals(0.01); G.t = 20;
+    G.rivalSet = RIVALS.slice(0, 5); updateRivals(0.01); while (rivalArrive()) { /* all five in (they arrive one a wave) */ } G.t = 20;
     const chad = G.enemies.find(e => e.rid === 'chad'); chad.x = G.player.x + 120; chad.y = G.player.y - 60; gridBuild(); G.introCheck = 0; introTick();
     const bodies = {}; for (const e of G.enemies) if (e.rival) bodies[e.rid] = { hp: Math.round(e.maxHp), spd: Math.round(e.speed), r: e.r.toFixed(1) };
     return { state: G.state, foe: G.bossIntro && G.bossIntro.foe, bodies };

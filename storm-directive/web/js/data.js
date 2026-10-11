@@ -996,7 +996,8 @@ const RIVAL_RELICS = {
   turbo: ['personalbest', 'wobbly'], norman: ['thesis', 'honorary'], morticia: ['smallmercies', 'honorary'],
 };
 // finish: seconds for a skill-1.0 rival to reach EGG.level if nobody interferes.
-const RIVAL = { finish: 560, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.007, spawnR: 1700, pow: 1.1, huntFrom: 160 };
+const RIVAL = { finish: 560, hpBase: 250, duel: 14, speed: 78, zapR: 240, sight: 950, eggDps: 0.007, spawnR: 1700, pow: 1.1, huntFrom: 160,
+  dishMax: 3, dishHp: 0.6, dishPace: 0.5, dishGrow: 2, dishXp: 0.5 }; // wave mode: at most 3 alive, 60% toughness, half-speed growth, +2 LV per wave survived, half the XP
 
 // ---------------------------------------------------------------- Chrono (time travel)
 const CHRONO = { window: 4, snapEvery: 0.25, animDur: 1.1, energyPerCharge: 600, startCharges: 1, maxCharges: 2 };

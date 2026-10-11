@@ -14,7 +14,8 @@ const CAMP = {
   lead: [16, 12, 10, 10],                      // boss waves: seconds of entourage before the boss drops in
   hp: [2.2, 13, 50, 160],                       // boss health, times its base, for the 1st to 4th boss wave
   hit: [0.55, 0.82, 1, 1.1],                    // boss attack strength, same order
-  more: 1.3, dmgK: 1.15,                      // ordinary waves: 30% more enemies (each worth 1/1.3 of the XP, so levels keep pace) hitting 15% harder
+  more: 1.5, dmgK: 1.15,                      // ordinary waves: 50% more enemies (each worth 1/1.5 of the XP, so levels keep pace) hitting 15% harder
+  long: 1.3, spread: 70,                      // ordinary waves fed in over 30% longer, each group landing more spread out
   pulse: [7, 6.5, 6, 5.5],                    // seconds between entourage cues during a fight (at least)
   early: 0.12, earlyPT: 45, earlyTo: 12,      // waves before earlyTo: up to 12% more enemies and 45 s more on the clock (tougher, harder-hitting), fading out by then
 };
@@ -83,11 +84,12 @@ function campBegin(V) {
   const fresh = V.n <= CAMP.fixedWaves ? next.slice(0, CAMP.newPerWave) : shuffle(next.slice(0, CAMP.drawFrom)).slice(0, CAMP.newPerWave);
   V.fresh = fresh; V.met.push(...fresh);
   V.budget = Math.round((16 + V.n * 7 + Math.pow(V.n, 1.6)) * (1 + CAMP.early * campEarly(V.n)) * CAMP.more * G.P.spawnMult);
-  V.dur = Math.min(63, (20 + V.n * 1.8) * 1.15); // (fed in over 23 s at wave 1, up to 63 s)
+  V.dur = Math.min(63, (20 + V.n * 1.8) * 1.15) * CAMP.long; // (fed in over 30 s at wave 1, up to 82 s)
   // (What's in the drop stays a surprise until it lands.)
   banner(`WAVE ${V.n} OF ${CAMP.waves}`, PAL.reward);
   if (V.n > 1) sysMsg('THE SCIENTIST', `${pick(SCIENTIST)} Next boss: wave ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}.`, XR.dim);
   dishFxBegin(V); // (a condition for the whole wave, sometimes: dishfx.js)
+  rivalWaveJoin(V); // (a new rival, from wave 2: rivals.js)
 }
 // One of the entourage, at the right spot.
 function campSpawnOne(E, n, elite) {
@@ -114,7 +116,7 @@ function campSpawnMob(V) {
   let r = Math.random() * tot, id = ids[0];
   for (const k of ids) { r -= wOf(k); if (r <= 0) { id = k; break; } }
   const d = ENEMIES[id], s = spawnPos(), k = Math.max(1, Math.ceil((d.group || 1) * 0.6)), elite = V.n >= 6 && k === 1 && Math.random() < Math.min(0.12, 0.01 * V.n);
-  for (let j = 0; j < k; j++) { if (G.enemies.length >= CAPS.enemies) return j; G.enemies.push(makeEnemy(d, s.x + rand(-30, 30), s.y + rand(-30, 30), { elite: elite && j === 0 })); }
+  for (let j = 0; j < k; j++) { if (G.enemies.length >= CAPS.enemies) return j; const q = dishFix(s.x + rand(-CAMP.spread, CAMP.spread), s.y + rand(-CAMP.spread, CAMP.spread)); G.enemies.push(makeEnemy(d, q.x, q.y, { elite: elite && j === 0 })); }
   return k;
 }
 function campPulse(V, big) {
@@ -157,11 +159,11 @@ function campTick(dt) {
       V.herdT = 4;
       const p = me();
       for (const e of G.enemies) {
-        if (e.dead || e.charmed || e.egg || e.boss) continue;
+        if (e.dead || e.charmed || e.egg || e.boss || e.rival) continue;
         if (Math.hypot(e.x - p.x, e.y - p.y) > 520) { const q = dishNear(SPAWN_SAFE); e.x = q.x; e.y = q.y; e.kx = e.ky = 0; spawnPart(e.x, e.y, '#ffffff', 4, 60, 0.3); }
       }
     }
-    if (G.enemies.some(e => !e.dead && !e.charmed && !e.egg)) return;
+    if (G.enemies.some(e => !e.dead && !e.charmed && !e.egg && !e.rival)) return; // (rivals don't hold a wave up: rivals.js)
     V.phase = 'done';
     waveClear(V);
     return;

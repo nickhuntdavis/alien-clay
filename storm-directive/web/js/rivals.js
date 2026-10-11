@@ -4,6 +4,11 @@
 // goes on; when it reaches the last six (you and five), the Final Five showdown starts. Win it and the
 // count is 1: swim into the egg and break its membrane (game.js openEgg). A rival that reaches EGG.level
 // before the Final Five goes for the egg itself (rivalEgg): stop it before it breaks in.
+// Rivals arrive one at a time (rivalArrive). In a race, one comes with each scripted wave (waveEvent), at the
+// level it reached racing elsewhere. In wave mode (the Petri Dish) a new one joins each ordinary wave from
+// wave 2 (rivalWaveJoin, at most RIVAL.dishMax alive); they don't stop a wave being cleared, they keep out of
+// it between waves, and any that survive a wave come back stronger (rivalWaveEnd). No sperm count or egg there.
+// Hooks: rivalArrive (waveEvent, game.js), rivalWaveJoin (campBegin), rivalWaveEnd (waveClear).
 
 // A rival's level follows its own clock, which runs at its skill (plus a little for every kill it steals).
 function rivalLevelAt(clock) { return Math.min(EGG.level, 1 + Math.floor((EGG.level - 1) * Math.pow(Math.max(0, clock) / RIVAL.finish, RIVAL.pow) + 1e-9)); }
@@ -17,12 +22,50 @@ function initRivals() {
   G.rivalsInit = true;
   G.rivalOut = {}; // id -> how they were eliminated
   G.rivalMsgT = 0; G.rivalCullT = 200; G.rivalCulls = 0;
-  const off = Math.random() * TAU;
+  G.rivalIn = 0; // how many of the set have arrived
+  if (G.wave && !G.rivalSet) G.rivalSet = shuffle(RIVALS.slice()); // (the dish can meet any of them, one a wave)
+  runRivals();
+}
+// The level a rival's clock gives, turned round: the clock that reaches level L.
+const rivalClockFor = L => RIVAL.finish * Math.pow(Math.max(0, L - 1) / (EGG.level - 1), 1 / RIVAL.pow);
+// The next rival in the set swims in, out of sight. Returns it (null once they are all in).
+function rivalArrive() {
+  if (!G.rivalOut || G.showdown) return null; // (no race set up: campaign levels, the Lab Bench)
   const set = runRivals();
-  set.forEach((R, i) => {
-    const a = off + i / set.length * TAU;
-    G.enemies.push(makeRival(R, Math.cos(a) * RIVAL.spawnR, Math.sin(a) * RIVAL.spawnR));
-  });
+  if ((G.rivalIn || 0) >= set.length) return null;
+  G.rivalIn = G.rivalIn || 0;
+  const R = set[G.rivalIn++], p = me();
+  let x, y;
+  if (G.wave) ({ x, y } = dishSpawnPos());
+  else { // round the egg at the usual distance, on the side away from you
+    const c = G.core, a0 = Math.atan2(c.y - p.y, c.x - p.x);
+    let best = -1;
+    for (let i = 0; i < 8; i++) { const a = a0 + rand(-1.2, 1.2), qx = c.x + Math.cos(a) * RIVAL.spawnR, qy = c.y + Math.sin(a) * RIVAL.spawnR, d = Math.hypot(qx - p.x, qy - p.y); if (d > best) { best = d; x = qx; y = qy; } }
+  }
+  const e = makeRival(R, x, y);
+  // A race rival has been growing elsewhere all along; a dish rival starts a little behind you.
+  e.clock = G.wave ? rivalClockFor(Math.max(1, G.level - 1)) : G.t * R.skill;
+  e.lvl = Math.max(1, rivalLevelAt(e.clock)); e.maxHp = 0; rivalStats(e, 1);
+  G.enemies.push(e);
+  if (G.wave) sysMsg('THE SCIENTIST', `"Another subject for the dish: ${R.name}. Let us see which of you is fitter."`, R.color, true);
+  else rivalNews(e, `${R.name} has joined the race (LV ${e.lvl}).`, true);
+  return e;
+}
+// Wave mode, an ordinary wave from wave 2: a new rival drops in soon after the splash.
+function rivalWaveJoin(V) {
+  if (V.n < 2 || isBossWave(V.n)) return;
+  if (G.enemies.filter(e => e.rival && !e.dead).length >= RIVAL.dishMax) return;
+  after(2.5, () => { if (G.wave && G.wave.active) rivalArrive(); });
+}
+// Wave mode, a wave beaten: every rival still alive heals up and comes back stronger.
+function rivalWaveEnd(V) {
+  if (!G.rivalsInit) return;
+  for (const e of G.enemies) {
+    if (!e.rival || e.dead) continue;
+    e.clock = Math.max(e.clock, rivalClockFor(Math.min(EGG.level, e.lvl + RIVAL.dishGrow)));
+    e.lvl = Math.max(e.lvl, rivalLevelAt(e.clock)); rivalStats(e, 1);
+    rivalNews(e, `${e.name} survived the wave and came back stronger (LV ${e.lvl}).`, true);
+  }
 }
 
 function makeRival(R, x, y) {
@@ -40,7 +83,7 @@ function rivalStats(e, heal) {
   const L = e.lvl, t = PT();
   const rel = Math.pow(Math.min(1.5, L / Math.max(1, G.level)), 1.5);
   const M = rivalMod(e);
-  const maxHp = (RIVAL.hpBase * hpMul(t) * (1 + L / 7) + (G.dpsAvg || 0) * RIVAL.duel * rel) * (e.final ? 1.4 : 1) * (M.hp || 1) * (1 + VET.big * vetK()); // the Final Five are built to last
+  const maxHp = (RIVAL.hpBase * hpMul(t) * (1 + L / 7) + (G.dpsAvg || 0) * RIVAL.duel * rel) * (e.final ? 1.4 : 1) * (M.hp || 1) * (1 + VET.big * vetK()) * (G.wave ? RIVAL.dishHp : 1); // the Final Five are built to last; dish rivals are lighter (one of many things in a wave)
   const k = e.maxHp > 0 ? e.hp / e.maxHp : 1;
   e.maxHp = maxHp;
   e.hp = Math.min(maxHp, maxHp * Math.min(1, k + heal));
@@ -59,7 +102,7 @@ const rivalHas = (e, k) => !!(e.R && e.R.mod && e.R.mod[k]);
 
 function rivalGrow(e, dt) {
   if (e.lvl >= EGG.level) return;
-  e.clock += dt * e.R.skill;
+  e.clock += dt * e.R.skill * (G.wave ? RIVAL.dishPace : 1);
   const L = rivalLevelAt(e.clock);
   if (L <= e.lvl) return;
   const before = e.lvl;
@@ -88,7 +131,7 @@ function fill(s, e, l, k) { return s.replace(/\{n\}/g, e.name).replace(/\{l\}/g,
 function rivalNews(e, text, force) {
   if (!force && G.rivalMsgT > G.realT) return;
   G.rivalMsgT = G.realT + 12;
-  sysMsg('RACE UPDATE', text, e.color, force);
+  sysMsg(G.wave ? 'RIVAL UPDATE' : 'RACE UPDATE', text, e.color, force);
 }
 
 function rivalAI(e, dt) {
@@ -108,7 +151,9 @@ function rivalAI(e, dt) {
   e.modeT -= dt;
   let tx = e.wx, ty = e.wy, spd = e.speed * (G.pill && inPill(e.x, e.y) ? 0.65 : 1);
   const hurt = e.hp < e.maxHp * 0.3;
-  if (!e.final && !G.showdown && e.lvl >= EGG.level && e.mode !== 'egg') { e.mode = 'egg'; rivalNews(e, `${e.name} is LV ${EGG.level} and heading for the egg.`, true); }
+  const calm = !!(G.wave && !G.wave.active); // (the dish between waves: they keep to themselves)
+  if (calm && e.mode === 'hunt') { e.mode = 'roam'; newWaypoint(e); }
+  if (!G.wave && !e.final && !G.showdown && e.lvl >= EGG.level && e.mode !== 'egg') { e.mode = 'egg'; rivalNews(e, `${e.name} is LV ${EGG.level} and heading for the egg.`, true); }
   if (e.mode === 'egg' && !e.final) {
     // Breaking in: swim to the egg and gnaw at its membrane. Nothing else matters now.
     const cd = Math.hypot(G.core.x - e.x, G.core.y - e.y) || 1;
@@ -135,7 +180,7 @@ function rivalAI(e, dt) {
     // Outgrown by you? They give you a wide berth (you'll have to go and get them).
     if (e.lvl < G.level - 2 && dist < 750) { tx = e.x - dx / dist * 300; ty = e.y - dy / dist * 300; spd *= 1.15; if (Math.hypot(e.wx - p.x, e.wy - p.y) < 900) newWaypoint(e); }
     // Feeling big? Come and have a go.
-    if (dist < RIVAL.sight && !hurt && G.t > RIVAL.huntFrom && e.huntRoll !== Math.floor(G.t / 5)) {
+    if (!calm && dist < RIVAL.sight && !hurt && G.t > RIVAL.huntFrom && e.huntRoll !== Math.floor(G.t / 5)) {
       e.huntRoll = Math.floor(G.t / 5);
       if (Math.random() < e.R.aggro * 0.45 && e.lvl >= G.level - 6) {
         e.mode = 'hunt'; e.modeT = 14 + e.R.aggro * 10;
@@ -147,14 +192,14 @@ function rivalAI(e, dt) {
   const mx = tx - e.x, my = ty - e.y, md = Math.hypot(mx, my);
   rivalMove(e, md > 4 ? mx / md : 0, md > 4 ? my / md : 0, Math.min(spd, md / Math.max(dt, 1e-3)), dt);
   // Contact.
-  if (dist < e.r + p.r && G.state === 'play') hurtPlayer(e.dmg * (rivalMod(e).contact || 1), e.name, e, 'contact');
+  if (!calm && dist < e.r + p.r && G.state === 'play') hurtPlayer(e.dmg * (rivalMod(e).contact || 1), e.name, e, 'contact');
   // Weapons: zap monsters nearby (stealing your XP), shoot you when you're in range.
   e.zapT -= dt;
   if (e.zapT <= 0) { e.zapT = 0.7; rivalZap(e); }
   e.shootCd -= dt;
   // Early on they mind their own business unless you start something.
   const riled = G.t > RIVAL.huntFrom || e.hp < e.maxHp * 0.95;
-  if (e.shootCd <= 0 && dist < (rivalHas(e, 'sniper') ? 700 : 520) && riled && G.state === 'play') {
+  if (!calm && e.shootCd <= 0 && dist < (rivalHas(e, 'sniper') ? 700 : 520) && riled && G.state === 'play') {
     e.shootCd = (e.final ? 1.6 : e.mode === 'hunt' ? 1.1 : 1.8) * (rivalHas(e, 'tantrum') && e.hp < e.maxHp * 0.5 ? 0.5 : 1) * (rivalHas(e, 'sniper') ? 1.7 : 1); // Tantrum; a sniper takes its time
     // Late-game rivals were the deadliest thing on the slide: their fans grow more slowly now and each bullet
     // gains less from the rival's level (about a third less fire at level 50).
@@ -295,7 +340,7 @@ function rivalDown(e) {
   addDecal(e.x, e.y, e.r * 2.4, e.color);
   cam.shake = 14;
   // Their growth is yours now: about a level of XP, a strand of Donor DNA and a snack.
-  const xp = xpNeed(G.level) * 1.2;
+  const xp = xpNeed(G.level) * 1.2 * (G.wave ? RIVAL.dishXp : 1);
   for (let i = 0; i < 10; i++) dropGem(e.x + rand(-50, 50), e.y + rand(-50, 50), xp / 10);
   G.pickups.push(makePickup('chest', e.x, e.y, { t: 'rival', name: e.name }));
   if (RIVAL_RELICS[e.rid]) G.lootQueue.push({ kind: 'rrelic', rid: e.rid }); // their relic: a choice of two
@@ -305,7 +350,7 @@ function rivalDown(e) {
   sysMsg('SYSTEM MESSAGE', fill(pick(SYSTEM_LINES.rivalDead), e, 0, 'You did that. The lab is taking notes.'), e.color, true);
   addViewers(20000);
   achieve('rivalkill');
-  if (runRivals().every(R => G.rivalOut[R.id])) achieve('allrivals');
+  if (!G.wave && runRivals().every(R => G.rivalOut[R.id])) achieve('allrivals');
   sfx('boss'); vibrate(120);
 }
 
@@ -316,7 +361,7 @@ const RIVAL_FATES = ['A Macrophage ate them. It did not even chew.', 'They took 
 // Every tick: the host thins out the field (away from you), and bookkeeping for the race board.
 function updateRivals(dt) {
   if (!G.rivalsInit) initRivals();
-  const dish = !!(G.wave || G.lvl); // no rivals in the Petri Dish, but rival-free code below still tracks your damage
+  const dish = !!(G.wave || G.lvl); // (no culling in the dish or a level, but the code below still tracks your damage)
   // Rolling average of your damage per second (drives rival toughness).
   G.dpsT = (G.dpsT || 0) - dt;
   if (G.dpsT <= 0) {
@@ -343,7 +388,7 @@ function updateRivals(dt) {
 // Sorted standings for the HUD: you and every rival, alive or not.
 function rivalBoard() {
   const rows = [{ name: 'SPERMY', lvl: G.level, color: PAL.you, you: true }];
-  for (const R of runRivals()) {
+  for (const R of runRivals().slice(0, G.rivalIn)) { // (only those who have arrived)
     const e = G.enemies.find(o => o.rid === R.id && !o.dead);
     rows.push({ name: R.name, lvl: e ? e.lvl : 0, color: R.color, out: !e, egg: e && e.final, e });
   }
@@ -392,6 +437,7 @@ function updateCountFx() {
 }
 const FINALIST_NAMES = ['The Dark Horse', 'Anonymous Donor', 'The Favourite', 'Mr Motility', 'The Underdog'];
 function startShowdown() {
+  while (rivalArrive()) { /* anyone not yet in the race joins the showdown */ }
   G.showdown = { t0: G.t }; G.eggAt = G.t;
   const p = me(), fin = G.enemies.filter(e => e.rival && !e.dead);
   for (let i = fin.length; i < 5; i++) {
