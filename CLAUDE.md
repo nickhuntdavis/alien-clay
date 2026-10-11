@@ -15,7 +15,7 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - After every build, send the APK with SendUserFile.
 - Use "Separately: X. Handle that next?" for second issues.
 - Win-rate target: about 1 in 3 for a human. The autorun bot dodges worse, so 20 to 50% bot wins is fine.
-- Be token-conscious. Follow the fast-APK checklist below: targeted tests, one build per batch. Take screenshots only for visual changes. Run balance sims only when difficulty is in question.
+- Be token-conscious: follow Fast APK below for tests, screenshots and sims.
 
 ## Model choice (suggest it, don't lecture)
 At the start of each request, check whether the model fits the job, and if not, say so in ONE line before starting (e.g. "This is a big new system: Opus would suit it better. Carrying on unless you switch."). You cannot switch models yourself; the user does it in the model picker. Use `get_session` to see which model you are on if unsure. Say nothing when the fit is fine.
@@ -27,15 +27,25 @@ At the start of each request, check whether the model fits the job, and if not, 
 - Work and push only on the branch the session names (it has been `claude/autorun-bullet-storm-game-blptu8`). Use `git push -q origin <branch>`.
 - Conventional commits (`feat:`, `fix:` and so on), ending with the attribution lines from the session's system reminder. Never put model IDs in commits. No PR unless asked.
 
-## Ship checklist: fast APK (default for every build)
-1. Edit with exact-match replacements that assert they hit (fail fast). Don't re-read files after editing.
-2. Test only what you touched: `cd storm-directive/tests && ./run.sh quick <2-3 relevant tests>`. Run the full suite (about 8 min) only for big multi-file batches or a release you're unsure of.
-3. Install nothing except the Android SDK when it is missing (below). Never run lint, emulators, adb or `playwright install`. No screenshots or sims unless the change is visual or about difficulty.
-4. Ship in ONE Bash call: bump `APP_VERSION` (`web/js/meta.js`) and `versionCode` (+1) / `versionName` (single-quoted) (`android/app/build.gradle`) with sed; `node storm-directive/tests/tools/guide.js | tail -1`; `cd storm-directive/android && ./gradlew assembleRelease -q -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease && cp app/build/outputs/apk/release/app-release.apk ../release/SpawnPrawn.apk`; then `git add` the paths you changed, commit, `git push -q`.
-   - Release builds are signed with `android/spawnprawn.keystore` (in the repo, so every session's APK installs over the last). Its password is NOT in the repo: it comes from the `SPAWN_KS_PASS` environment variable (set in the cloud environment's settings). If it is missing the release build stops with a clear error: tell the user, never generate a new key and never switch to the debug key (either forces an uninstall that wipes saves).
-   - A fresh container has no Android SDK. Install it into `/home/user/android-sdk` (the command-line tools zip from dl.google.com, then `sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"`) and `export ANDROID_HOME=/home/user/android-sdk`. Do this once, at the start, in one call.
-5. SendUserFile the APK, then reply. Don't narrate each step. One build per batch of requests, not per item.
-6. Update `GAME_GUIDE.md` text (in `tools/guide.js`) and `NOTES.md` when features change.
+## Fast APK (default for every build)
+1. Edit with exact-match replacements that assert they hit (fail fast); don't re-read files after editing.
+2. Test only what you touched: `./run.sh <2-4 relevant tests>` (always include `quick`). Full suite only for big multi-file batches or before a release you're unsure of.
+3. Never install anything, never run lint, emulators, adb or `playwright install`. Gradle and Chromium are already cached; lint needs SDK deps that aren't here.
+   - The one exception: if `ANDROID_HOME` is missing (a fresh container), install the SDK once into `/home/user/android-sdk` (the command-line tools zip from dl.google.com, then `sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"`) and `export ANDROID_HOME=/home/user/android-sdk`.
+4. No screenshots or sims unless the change is visual or about difficulty.
+5. Ship in ONE Bash call (from `storm-directive/`):
+   ```
+   sed -i "s/APP_VERSION = 'X'/APP_VERSION = 'Y'/" web/js/meta.js
+   sed -i "s/versionCode N/versionCode N+1/; s/versionName 'X'/versionName 'Y'/" android/app/build.gradle
+   node tests/tools/guide.js | tail -1
+   cd android && ./gradlew assembleRelease -q -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease 2>&1 | grep -v JAVA_TOOL; cp app/build/outputs/apk/release/app-release.apk ../release/SpawnPrawn.apk
+   cd .. && git add -A <paths you changed> && git commit -q -m "..." && git push -q origin <branch>
+   ```
+6. SendUserFile the APK, then reply. Don't narrate each step.
+7. One build per batch of requests, not per item.
+- Release builds are signed with `android/spawnprawn.keystore` (in the repo, so every session's APK installs over the last). Its password is NOT in the repo: it comes from the `SPAWN_KS_PASS` environment variable (set in the cloud environment's settings). If it is missing the release build stops with a clear error: tell the user, never generate a new key and never switch to the debug key (either forces an uninstall that wipes saves).
+- Update `GAME_GUIDE.md` text (via `tests/tools/guide.js`) and `NOTES.md` when features change.
+- Before the first build, check the session branch has main's latest (`git log -1 origin/claude/autorun-bullet-storm-game-blptu8`) and that `APP_VERSION` matches `NOTES.md`; a branch started from an old main ships an APK missing recent work.
 
 ## Tests
 - `./run.sh` runs everything. `./run.sh lvshot quick` runs just those. Only failures and a summary are printed. Screenshots go to `tests/out/` (git-ignored).
