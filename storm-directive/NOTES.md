@@ -5,6 +5,7 @@
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.81: Standard (s001 race) also starts at the rim (`CORE.arena0 * 0.93` in `newGame`); rivals still ring at `RIVAL.spawnR` 1700, so the pack sits between you and the egg.
 - v8.80: Petri Dish runs start at the bottom edge of the dish (`DISH.arena * 0.93` in `newGame`), not partway to the egg.
 - v8.79: new signing key (the old one and its passwords were public in this public repo). The keystore stays in the repo; its password is in the `SPAWN_KS_PASS` environment variable only. One-time reinstall: v8.78 added Settings > Data > Back up your save (export/import code, `exportSave`/`importSave` in meta.js, test `savetest`).
 - v8.77 (from the user's first race on v8.76: HP never below 95%): `RACE.hurt` 0.5 -> 0.75. Power-up pickups halved (`PU_DROP` 0.5 in pickups.js: elite and ordinary-kill drops that would be a pickup only appear half the time; loot boxes unchanged). The twin passing damage to you is by design (`TWINS.share`).

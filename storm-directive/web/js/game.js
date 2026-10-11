@@ -117,6 +117,8 @@ function newGame() {
   cam.x = 0; cam.y = 0; cam.shake = 0;
   // In the Petri Dish you start at the bottom edge of the dish, facing the egg (not sitting on it).
   if (G.wave) { const p = G.player; p.y = DISH.arena * 0.93; unstick(p, p.r + 6); cam.x = p.x; cam.y = p.y; }
+  // Standard (the race) also starts at the rim, with the pack of rivals between you and the egg.
+  if (!G.wave && typeof UI !== 'undefined' && UI.sample === 's001') { const p = G.player; p.x = 0; p.y = CORE.arena0 * 0.93; p.face = -Math.PI / 2; cam.x = p.x; cam.y = p.y; }
   if (typeof UI !== 'undefined' && LV_SAMPLE[UI.sample] != null) lvInit(LV_SAMPLE[UI.sample]); // a campaign level (levels.js)
   // G.dyes: which colours show. G.dyeBoon: which stains you found this run (their boons). Permanent stains
   // (one kept at the end of each finished run) start switched on, colour only; the pause menu toggles them.
