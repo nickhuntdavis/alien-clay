@@ -1648,6 +1648,7 @@ function updateWeapon(w, dt) {
   let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste() * redHaste() * chemHaste();
   if (d.kind === 'crayon') { w.durK = Math.max(1, rate); rate = 1 / Math.max(1, rate); } // (Colouring In: fire rate works backwards, toys.js)
   w.cd -= dt * rate;
+  if (G.inCilia && !w.echo) { if (w.cd < 0) w.cd = 0; return; } // (tangled in cilia: no attacking, terrain.js)
   let shots = 0;
   while (w.cd <= 0 && shots < 3) {
     let target = null;
@@ -2131,6 +2132,7 @@ function updateSpellList(list, dt) {
     if (!w) continue;
     w.cd -= dt * genesSpellRate();
     if (w.cd > 0) continue;
+    if (G.inCilia && !w.echo && featCost(w)) { w.cd = 0; continue; } // (tangled in cilia: no attacking Feats)
     if (SET.featAuto === false && !w.echo) { w.cd = 0; continue; } // (Settings > Feats: ON TAP)
     let target = null;
     if (!w.def.noTarget) {
@@ -2154,6 +2156,7 @@ function featFire(w, target) {
 function featTap(w) {
   const p = me(), say = t => floatText(p.x, p.y - 36, t, XR.white, 12, 0.7);
   if (w.cd > 0) { say(`${w.def.name.toUpperCase()}: ${Math.ceil(w.cd)}s`); return false; }
+  if (G.inCilia && featCost(w)) { say('TANGLED IN CILIA'); return false; }
   let target = null;
   if (!w.def.noTarget) { target = acquire(w.dir, w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
   if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }
@@ -2210,7 +2213,7 @@ function updatePlayer(dt) {
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
   const speed = 165 * P.speed * oobSpeed() * // (base 165: was 150; Out of Body: faster)
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;

@@ -118,8 +118,8 @@ const TUT_PAIR = { neutral: 'Acid + Alkali', battery: 'Acid + Static', ester: 'A
 const TUT_TERRAIN = {
   ridge:   { what: 'A hard lump of cartilage growing in the womb.', tips: ['Nothing can swim through it: you, the swarm and bosses slide round it.', 'Shots bounce off it. Use it as cover.'] },
   mito:    { what: 'The cell\'s power plant. It is the only thing here that wants your bullets.', tips: ['It soaks up shots, yours and theirs, until it is full.', 'Then it bursts: enemies in range are hurt, enemy bullets vanish and you get a rush of speed and fire rate. Stand close.'] },
-  acid:    { what: 'A pit of stomach acid. It burns whatever touches it.', tips: ['It hurts you, and it hurts enemies that wander in.', 'Shots that hit it melt away. Lure enemies through it.'] },
-  cilia:   { what: 'A bed of waving hairs that shoves everything away from its middle.', tips: ['It pushes you and the swarm outwards, so you can use it to shake pursuers.', 'You can fight the push, but sprinting through the middle is slow.'] },
+  acid:    { what: 'A pit of stomach acid. You can swim through it, but it burns, and it clings to you for a few seconds after you get out.', tips: ['Enemies can\'t follow you in, so it is an escape route if you can take the burn.', 'Shots that hit it melt away. Lure enemies against it.'] },
+  cilia:   { what: 'A bed of waving hairs. You can swim through it, but it tangles you: you crawl, and you can\'t attack until you are out.', tips: ['Enemies get shoved out of it, so it can shake off pursuers.', 'Never get caught in it with a swarm waiting at the edge.'] },
   current: { what: 'A current in the tube that carries everything along with it.', tips: ['You, enemies and shots all drift with the flow.', 'Ride it to cover ground, or swim across it with care.'] },
   slick:   { what: 'A patch of lubricant. Smooth.', tips: ['You lose most of your grip: you keep sliding and turn slowly.', 'Enemies are not affected. Cross it in straight lines.'] },
 };

@@ -6,7 +6,7 @@
 // (Mutations no longer come from Lateral Gene Transfers: genes.js keeps them for splice skips and stashes.)
 // Hooks: junkStart (newGame), junkTick (update), drawJunk (render), junkKill (killEnemy), junkDmgMul /
 // junkHit (damageEnemy), junkHurtIn / junkArmour / junkIframes (hurtPlayer), junkRate (rateBonus, arsenal.js),
-// junkHtml (ui.js, the pause menu).
+// junkHtml (ui.js, the pause menu), junkChips (render.js, the HUD row).
 
 const JUNK = { first: 35, every: [40, 55], life: 30, stacks: 3, hpK: 1.5 };
 // Each power: name, fmt(k) for k stacks, apply(P) once per stack (if a plain stat). The rest are hooks below.
@@ -275,6 +275,12 @@ function drawJunk() {
 }
 
 // ---------------------------------------------------------------- pause menu
+// HUD chips (render.js lgtChipRows): each junk DNA power you hold, with its stacks; new ones (not yet seen in the pause menu) in white.
+function junkChips() {
+  const out = [];
+  for (const id in G.junk || {}) if (G.junk[id] > 0 && JUNK_POWERS[id]) out.push([JUNK_POWERS[id].name.toUpperCase() + (G.junk[id] > 1 ? ' x' + G.junk[id] : ''), G.junkNew && G.junkNew[id] ? '#ffffff' : '#c9e4a8']);
+  return out;
+}
 function junkHtml(first) {
   const ids = Object.keys(G.junk || {}).filter(id => G.junk[id] > 0 && JUNK_POWERS[id]);
   const h = ids.map(id => `<div class="li on"><b>${esc(JUNK_POWERS[id].name)}${G.junk[id] > 1 ? ' x' + G.junk[id] : ''}</b>${G.junkNew && G.junkNew[id] ? ' <span style="background:#e9f5db;color:#000;font-weight:900;font-size:10px;padding:1px 5px;border-radius:4px">NEW</span>' : ''} <span class="sb">(${esc(ENEMIES[id].name)})</span><br><span>${esc(cap1(JUNK_POWERS[id].fmt(G.junk[id])))}.</span></div>`).join('');

@@ -61,12 +61,12 @@ function terrainGrid(list) {
 function tCell(x, y) { return G.terrain ? G.terrain.grid.get(tKey(Math.floor(x / TCELL), Math.floor(y / TCELL))) : null; }
 
 // Move a body out of solid obstacles, sliding around them; returns the obstacle it touched (if any).
-function pushOut(o, r, side) {
+function pushOut(o, r, side, soft) { // (soft: you, who can swim into acid)
   const c = tCell(o.x, o.y);
   if (!c) return null;
   let hit = null;
   for (const ob of c) {
-    if (!ob.def.solid) continue;
+    if (!ob.def.solid || (soft && ob.type === 'acid')) continue;
     const dx = o.x - ob.x, dy = o.y - ob.y, d = Math.hypot(dx, dy) || 0.01, min = ob.r + r;
     if (d >= min) continue;
     const nx = dx / d, ny = dy / d;
@@ -80,7 +80,7 @@ function pushOut(o, r, side) {
 
 // Zone forces (cilia push, current flow) on a body at (x, y); returns {fx, fy, slick}.
 const ZF = { fx: 0, fy: 0, slick: false, acid: null, cilia: null, current: null };
-function zoneForce(x, y, r) {
+function zoneForce(x, y, r, me) { // (me: you, whom cilia tangle instead of shoving)
   ZF.fx = 0; ZF.fy = 0; ZF.slick = false; ZF.acid = null; ZF.cilia = null; ZF.current = null;
   const c = tCell(x, y);
   if (!c) return ZF;
@@ -88,19 +88,27 @@ function zoneForce(x, y, r) {
     const dx = x - ob.x, dy = y - ob.y, d = Math.hypot(dx, dy) || 0.01;
     if (ob.type === 'acid') { if (d < ob.r + r + 3) ZF.acid = ob; continue; }
     if (d > ob.r + r || ob.def.solid) continue;
-    if (ob.type === 'cilia') { ZF.cilia = ob; const k = ob.def.push * (0.4 + 0.6 * (1 - d / (ob.r + r))); ZF.fx += dx / d * k; ZF.fy += dy / d * k; }
+    if (ob.type === 'cilia') { ZF.cilia = ob; if (me) continue; const k = ob.def.push * (0.4 + 0.6 * (1 - d / (ob.r + r))); ZF.fx += dx / d * k; ZF.fy += dy / d * k; }
     else if (ob.type === 'current') { ZF.current = ob; ZF.fx += Math.cos(ob.a) * ob.def.push; ZF.fy += Math.sin(ob.a) * ob.def.push; }
     else if (ob.type === 'slick') ZF.slick = true;
   }
   return ZF;
 }
 
+// You can swim through cilia, but they tangle you: much slower (TERRAIN_MOVE.cilia, game.js speed) and you
+// can't attack (weapons and attacking Feats hold fire, game.js). You can swim into acid too: it burns while
+// you're in it, and it clings to you for a while after you get out (acidLinger).
+const TERRAIN_MOVE = { cilia: 0.35, linger: 2.5, lingerK: 0.5 };
 function terrainPlayer(p, dt) {
-  const z = zoneForce(p.x, p.y, p.r);
+  const z = zoneForce(p.x, p.y, p.r, true);
+  const tangled = !!z.cilia && G.state === 'play';
+  if (tangled && !G.inCilia && !(G.ciliaMsgT > G.t)) { G.ciliaMsgT = G.t + 4; floatText(p.x, p.y - 34, "TANGLED: CAN'T ATTACK", '#f2b8c6', 12, 0.9); }
+  G.inCilia = tangled;
   p.x += z.fx * dt; p.y += z.fy * dt;
   p.slick = z.slick;
   G.inCurrent = !!z.current; // Go With the Flow
-  if (z.acid && G.state === 'play' && !G.P.ironGut) { hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt'); acidSizzle(p, z.acid, dt); } // (Cast-Iron Stomach: not any more)
+  if (z.acid && G.state === 'play' && !G.P.ironGut) { hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt'); acidSizzle(p, z.acid, dt); G.acidOn = G.t + TERRAIN_MOVE.linger; } // (Cast-Iron Stomach: not any more)
+  else if (G.acidOn > G.t && G.state === 'play' && !G.P.ironGut) acidLinger(p, dt);
   else if (G.sizzle > 0) G.sizzle = Math.max(0, G.sizzle - dt * 2.5);
   // Skid Marks: a toxic trail across the slick.
   if (p.slick && G.P.skid && !(G.skidT > G.t) && G.zones.length < 300 && Math.hypot(p.vx || 0, p.vy || 0) > 40) {
@@ -108,7 +116,7 @@ function terrainPlayer(p, dt) {
     G.zones.push({ x: p.x, y: p.y, r: 24, life: 1.6, max: 1.6, dps: (10 + G.level * 2) * G.P.might * G.P.skid, elem: 'poison', pull: 0, color: '#9ef01a', tick: 0, src: { wname: 'Skid Marks', elem: 'poison', noCrit: true } });
   }
   if (G.lvl) lvPlayer(p);
-  const hit = pushOut(p, p.r, 0);
+  const hit = pushOut(p, p.r, 0, true);
   if (hit) {
     // Lose the velocity that points into the surface (you slide along it instead).
     const nx = p.x - hit.x, ny = p.y - hit.y, d = Math.hypot(nx, ny) || 1, vn = (p.vx * nx + p.vy * ny) / d;
@@ -128,6 +136,17 @@ function acidSizzle(p, ob, dt) {
   fxParts('spark', cx, cy, '#ffffff', 1, 160, 0.18, 1.4, a, 1.1);
   fxParts('smoke', p.x + rand(-6, 6), p.y + rand(-6, 6), '#e6f2d8', 1, 35, 0.9, 5, -Math.PI / 2, 0.5);
   sfx('sizzle');
+}
+// Out of the acid, but it's still on you: a weaker burn, fizzing and steaming, fading over TERRAIN_MOVE.linger.
+function acidLinger(p, dt) {
+  const k = (G.acidOn - G.t) / TERRAIN_MOVE.linger;
+  G.sizzle = Math.max(0.25 + 0.45 * k, G.sizzle - dt * 2.5);
+  hurtPlayer(OBSTACLES.acid.dps * TERRAIN_MOVE.lingerK * dmgNow(), 'Acid burn');
+  if ((G.sizzleT || 0) > G.t) return;
+  G.sizzleT = G.t + 0.14;
+  fxParts('bubble', p.x + rand(-8, 8), p.y + rand(-8, 8), '#c6f07a', 1, 50, 0.4, 2.2);
+  fxParts('smoke', p.x + rand(-6, 6), p.y + rand(-6, 6), '#e6f2d8', 1, 30, 0.8, 4, -Math.PI / 2, 0.5);
+  if (Math.random() < 0.4) sfx('sizzle');
 }
 function drawSizzle(px, py) {
   const k = G.sizzle || 0;
@@ -231,6 +250,7 @@ function terrainDanger(x, y, r) {
     if (ob.type === 'acid' && d < 30) dn += 6 + (30 - d) * 0.1;
     else if (ob.def.solid && d < 6) dn += 3;
     else if (ob.type === 'slick' && d < 0) dn += 0.25;
+    else if (ob.type === 'cilia' && d < 0) dn += 1.5;
   }
   return dn;
 }
@@ -245,11 +265,11 @@ function steerTerrain(x, y, r, dx, dy) {
   let dn = 0;
   for (const ob of c) {
     const d = Math.hypot(x - ob.x, y - ob.y) - ob.r - r;
-    if (ob.type === 'acid' && !G.P.ironGut) { if (d < 50) dn += 3 + (50 - d) * 0.12; } // (Cast-Iron Stomach: just a wall)
+    if (ob.type === 'acid' && !G.P.ironGut) { if (d < 50) dn += 3 + (50 - d) * 0.12 + (d < 0 ? 6 - d * 0.1 : 0); } // (in it: get out. Cast-Iron Stomach: just a wall)
     else if (ob.def.solid) { if (d < 45) { const k = 1 - Math.max(0, d) / 45; dn += 2.4 * k * k + (d < 4 ? 4 : 0); } }
     else if (d < 0) {
       // With that terrain's upgrade, autorun no longer minds it.
-      if (ob.type === 'cilia') dn += G.P.brushOff ? 0 : 0.7;
+      if (ob.type === 'cilia') dn += 2.5; // (tangled: slow, and no attacking)
       else if (ob.type === 'slick') dn += G.P.skid ? 0 : 0.6;
       else if (ob.type === 'current') dn += 0.5 * Math.max(0, -(Math.cos(ob.a) * dx + Math.sin(ob.a) * dy)) * (G.P.flow ? 0.3 : 1); // against the flow
     }

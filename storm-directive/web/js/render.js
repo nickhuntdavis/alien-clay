@@ -2177,6 +2177,20 @@ function drawTracks(vis) {
   }
 }
 
+// Your junk DNA powers (Lateral Gene Transfer) as a row of chips of their own, wrapping if there are many:
+// above the status chips, down the left (centred at the top in Immersive mode). Returns the y below them.
+function lgtChipRows(list, y, centred) {
+  if (!list.length) return y;
+  const maxW = centred ? W - 16 : Math.min(W - 120, 340), items = list.map(([t, c]) => [t, c, ctx.measureText(t).width + 14]);
+  while (items.length) {
+    let w = 0, n = 0; while (n < items.length && (n === 0 || w + items[n][2] + 4 <= maxW)) w += items[n++][2] + 4;
+    let rx = centred ? (W - (w - 4)) / 2 : 8;
+    for (const [t, c, tw] of items.splice(0, n)) { filmPanel(rx, y, tw, 16); ctx.fillStyle = c; ctx.fillText(t, rx + 7, y + 12); UI.chipRects.push({ x: rx, y, w: tw, h: 16, key: null }); rx += tw + 4; }
+    y += 20;
+  }
+  return y + 4;
+}
+
 // Scale bar and objective readout, bottom-left, like the imaging software burns into a frame.
 // A sperm head is about 15 world units long and ~5 um in reality, so 30 units is 10 um.
 function drawScaleBar() {
@@ -2326,9 +2340,10 @@ function drawHud() {
   let cyp = land ? top + BY + 72 : Math.max(top + BY + 72, H * 0.38); // (portrait: clear of the narrator's box)
   // (Tap one to pause and see them all: UI.chipRects, statusintro.js.)
   UI.chipRects = [];
+  const lgt = typeof junkChips === 'function' ? junkChips() : []; // Lateral Gene Transfer: a row of its own above the status chips (junk.js)
   if (imm) {
     // Immersive mode: one centred row of chips just under the XP bar (wraps if there are many).
-    let rx = 0, ry = top + 8, flagged = null; const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
+    let rx = 0, ry = lgtChipRows(lgt, top + 8, true), flagged = null; const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
     while (items.length) {
       let w = 0, n = 0; while (n < items.length && (n === 0 || w + items[n][2] + 4 <= W - 16)) w += items[n++][2] + 4;
       rx = (W - (w - 4)) / 2;
@@ -2336,7 +2351,7 @@ function drawHud() {
       ry += 20;
     }
     if (flagged) UI.chipRects.push(stNewMsg(flagged, null, ry)); // (a status new to you: tap to read, statusintro.js)
-  } else for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); const nk = stNewKey(ch); let rw = tw; if (nk) { stNewOutline(nk, 8, cyp, tw, 16); rw = tw + 6 + stNewMsg(nk, 8 + tw + 6, cyp).w; } UI.chipRects.push({ x: 8, y: cyp, w: rw, h: 16, key: nk }); cyp += 20; }
+  } else for (const [ch, cc] of (cyp = lgtChipRows(lgt, cyp, false), chips)) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); const nk = stNewKey(ch); let rw = tw; if (nk) { stNewOutline(nk, 8, cyp, tw, 16); rw = tw + 6 + stNewMsg(nk, 8 + tw + 6, cyp).w; } UI.chipRects.push({ x: 8, y: cyp, w: rw, h: 16, key: nk }); cyp += 20; }
   UI.chips = chips;
   // Boss bar: centred, under the sperm count / wave readout.
   if (G.boss && !G.boss.dead) {
