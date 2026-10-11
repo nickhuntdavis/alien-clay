@@ -90,7 +90,7 @@ function rivalStats(e, heal) {
   e.armour = 2 + Math.floor(L / 8) + (M.armour || 0);
   e.r = (14 + L * 0.28) * (M.r || 1);
   e.speed = RIVAL.speed * (1 + L / 90) * (M.speed || 1);
-  e.dmg = 10 * dmgMul(t) * (1 + L / 40);
+  e.dmg = 10 * dmgMul(t) * (1 + L / 40) * (G.wave ? RIVAL.dishHit : 1);
   e.lastHp = e.hp;
 }
 
@@ -203,7 +203,7 @@ function rivalAI(e, dt) {
     e.shootCd = (e.final ? 1.6 : e.mode === 'hunt' ? 1.1 : 1.8) * (rivalHas(e, 'tantrum') && e.hp < e.maxHp * 0.5 ? 0.5 : 1) * (rivalHas(e, 'sniper') ? 1.7 : 1); // Tantrum; a sniper takes its time
     // Late-game rivals were the deadliest thing on the slide: their fans grow more slowly now and each bullet
     // gains less from the rival's level (about a third less fire at level 50).
-    const n = Math.min(e.final ? 4 : 6, 1 + Math.floor(e.lvl / 14)), a0 = Math.atan2(dy, dx), bd = 7 * dmgNow() * (1 + e.lvl / 60) * (e.final ? 1.2 : 1);
+    const n = Math.min(e.final ? 4 : 6, 1 + Math.floor(e.lvl / 14)), a0 = Math.atan2(dy, dx), bd = 7 * dmgNow() * (1 + e.lvl / 60) * (e.final ? 1.2 : 1) * (G.wave ? RIVAL.dishHit : 1);
     shooterName = e.name; shooterEnt = e;
     if (rivalHas(e, 'sniper')) eBullet(e.x, e.y, a0, 430, bd * 2.4, 6.5, e.color); // one heavy, fast shot
     else { const m = n + (rivalHas(e, 'spread') ? 2 : 0), gap = rivalHas(e, 'spread') ? 0.2 : 0.16; for (let i = 0; i < m; i++) eBullet(e.x, e.y, a0 + (i - (m - 1) / 2) * gap, 210, bd, 5.5, e.color); }
