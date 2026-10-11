@@ -52,7 +52,7 @@ const cap1 = s => s[0].toUpperCase() + s.slice(1);
 const junkSc = () => (1 + G.level * 0.12) * G.P.might;
 
 function junkStart(G) {
-  G.junk = {}; G.junkE = null; G.junkDrops = []; G.nextJunk = JUNK.first; G.junkT = {}; G.junkNear = 0;
+  G.junk = {}; G.junkE = null; G.junkDrops = []; G.junkNew = {}; G.junkShown = false; G.nextJunk = JUNK.first; G.junkT = {}; G.junkNear = 0;
 }
 
 // ---------------------------------------------------------------- carriers
@@ -71,6 +71,7 @@ function junkPick() {
 function junkTick(dt) {
   if (!G || !G.junk || G.debug || G.state !== 'play') return;
   const p = me(), P = G.P, T = G.junkT;
+  if (G.junkShown) { G.junkNew = {}; G.junkShown = false; } // (the pause menu has been seen: NEW tags go)
   // The carrier: it sheds the junk if you take too long.
   const c = G.junkE;
   if (c && (c.dead || G.t - c.junk > JUNK.life)) {
@@ -149,7 +150,7 @@ function junkAbsorb(id, x, y) {
   banner(`${J.name.toUpperCase()}${k > 1 ? ' x' + k : ''}`, '#e9f5db'); // (the float underneath says what it does)
   floatText(p.x, p.y - 40, cap1(J.fmt(k)), '#e9f5db', 14, 2.6, 1); // (what it does, right away, every time)
   sysMsg('JUNK DNA: ' + J.name.toUpperCase(), `From the ${ENEMIES[id].name}: ${J.fmt(k)}.`, '#e9f5db', true);
-  G.lgtLast = { id, k };
+  G.lgtLast = { id, k }; G.junkNew[id] = true; // (NEW tag in the pause menu until you have looked)
   tutShow('lgt', true); // (the first one: a card, which introduces the mechanic along with this power)
   if (typeof mutOn === 'function' && mutOn('trojan')) aoe(p.x, p.y, 180, 40 * (1 + G.level * 0.12) * G.P.might, { elem: 'phys', wname: 'Surprise Package', knock: 400, noCrit: true }, '#e9f5db');
 }
@@ -276,6 +277,7 @@ function drawJunk() {
 // ---------------------------------------------------------------- pause menu
 function junkHtml(first) {
   const ids = Object.keys(G.junk || {}).filter(id => G.junk[id] > 0 && JUNK_POWERS[id]);
-  const h = ids.map(id => `<div class="li on"><b>${esc(JUNK_POWERS[id].name)}${G.junk[id] > 1 ? ' x' + G.junk[id] : ''}</b> <span class="sb">(${esc(ENEMIES[id].name)})</span><br><span>${esc(cap1(JUNK_POWERS[id].fmt(G.junk[id])))}.</span></div>`).join('');
+  const h = ids.map(id => `<div class="li on"><b>${esc(JUNK_POWERS[id].name)}${G.junk[id] > 1 ? ' x' + G.junk[id] : ''}</b>${G.junkNew && G.junkNew[id] ? ' <span style="background:#e9f5db;color:#000;font-weight:900;font-size:10px;padding:1px 5px;border-radius:4px">NEW</span>' : ''} <span class="sb">(${esc(ENEMIES[id].name)})</span><br><span>${esc(cap1(JUNK_POWERS[id].fmt(G.junk[id])))}.</span></div>`).join('');
+  if (h) G.junkShown = true;
   return `<h3${first ? '' : ' style="margin-top:10px"'}>Junk DNA (Lateral Gene Transfer)</h3>${h ? `<div class="list">${h}</div>` : '<p class="hint">None yet. Kill an enemy wearing the white helix, then swim into the helix it drops.</p>'}`;
 }
