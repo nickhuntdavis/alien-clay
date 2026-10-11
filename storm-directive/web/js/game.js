@@ -1269,23 +1269,24 @@ function waveEvent() {
     for (let i = 0; i < n; i++) { const a = i / n * TAU, q = dishFix(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d); G.enemies.push(makeEnemy(def, q.x, q.y)); }
     banner('ENCIRCLEMENT', '#ff4d6d');
   } else if (kind === 'swarm') {
-    groups(3, s => { for (let i = 0; i < Math.round(4 * M); i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-sp, sp), s.y + rand(-sp, sp))); });
+    groups(2, s => { for (let i = 0; i < Math.round(6 * M); i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-sp, sp), s.y + rand(-sp, sp))); });
     banner('SWARM INCOMING', '#fee440');
   } else if (kind === 'krill') {
-    groups(4, s => { for (let i = 0; i < Math.round(7.5 * M); i++) G.enemies.push(makeEnemy(ENEMIES.krill, s.x + rand(-sp, sp), s.y + rand(-sp, sp))); });
+    groups(3, s => { for (let i = 0; i < Math.round(10 * M); i++) G.enemies.push(makeEnemy(ENEMIES.krill, s.x + rand(-sp, sp), s.y + rand(-sp, sp))); });
     banner('KRILL SHOAL', '#fee440');
   } else if (kind === 'pond') {
-    groups(3, s => {
-      G.enemies.push(makeEnemy(ENEMIES.paramecium, s.x, s.y)); G.enemies.push(makeEnemy(ENEMIES.paramecium, s.x + rand(-sp, sp), s.y + rand(-sp, sp)));
-      if (Math.random() < 0.67) G.enemies.push(makeEnemy(ENEMIES.rotifer, s.x + rand(-sp, sp), s.y + rand(-sp, sp)));
+    let pk = 0; // (5 paramecia and 2 rotifers in all, as before, over two groups)
+    groups(2, s => {
+      for (let i = 0; i < (pk++ ? 2 : 3); i++) G.enemies.push(makeEnemy(ENEMIES.paramecium, s.x + rand(-sp, sp), s.y + rand(-sp, sp)));
+      G.enemies.push(makeEnemy(ENEMIES.rotifer, s.x + rand(-sp, sp), s.y + rand(-sp, sp)));
     });
     const s = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.volvox, s.x, s.y));
     banner('POND LIFE', '#fee440');
   } else if (kind === 'elite') {
-    groups(3, s => { if (Math.random() < 0.85) G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.warlock, ENEMIES.bulwark]), s.x, s.y, { elite: true })); });
+    groups(Math.round(2 * M), s => { G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.warlock, ENEMIES.bulwark]), s.x, s.y, { elite: true })); });
     banner('ELITES APPROACH', '#ffd23f');
   } else {
-    groups(4, s => G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y)));
+    groups(Math.round(3 * M), s => G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y)));
     banner('BULLET STORM', '#e056fd');
   }
 }
