@@ -1,10 +1,11 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v8.80 (versionCode 230). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
+- Version v8.81 (versionCode 231). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Recent changes (newest first)
+- v8.81: Histamine renamed Blood Magic (internal `arcane`): status hexed, blood-red palette for its effects and weapons (old purples mapped in chem/sigs/quirks/aim and arcane lines of data/game/render/boons; `ELEM_HEX.arcane` keeps the old purples too, since rivals, Quiet One and the Immune Eye share them), reactions Blood Pact and Exorcism, combos Blood Rite and Weeping Wounds, set bonus Bloodlust, passive Bad Blood. Flagged status chips confirmed in Immersive mode (centred message under the chip row). `newtut` freezes the live loop.
 - v8.80 (tutorial pacing): tutorial cards are picked by kind, not queue order: mechanics, then damage types, reactions, terrain (`TUT_GAPS`/`TUT_FROM`/`tutCat` in tutorial.js). Only the first 2 status cards are full (`ST_FULL`, `META.stFull`); later new statuses flag their chip with NEW POWERUP UNLOCKED! for 12 s (`G.stNew`), and a tap on the chip or message opens the card (`stNewTap`). Damage types are grey until their card, then in colour for good (`META.elemSeen`, `elemOn` in col(); old saves migrate from `seenTut`); Force has no card. New damage-type cards: colour, plain words, and what the terms mean (`TUT_EL`). Base renamed Alkali in all text (internal `ice`). Test: `newtut`.
 - v8.79: new signing key (the old one and its passwords were public in this public repo). The keystore stays in the repo; its password is in the `SPAWN_KS_PASS` environment variable only. One-time reinstall: v8.78 added Settings > Data > Back up your save (export/import code, `exportSave`/`importSave` in meta.js, test `savetest`).
 - v8.77 (from the user's first race on v8.76: HP never below 95%): `RACE.hurt` 0.5 -> 0.75. Power-up pickups halved (`PU_DROP` 0.5 in pickups.js: elite and ordinary-kill drops that would be a pickup only appear half the time; loot boxes unchanged). The twin passing damage to you is by design (`TWINS.share`).

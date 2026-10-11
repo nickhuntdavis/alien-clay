@@ -25,7 +25,7 @@ const GLOSSARY = [
   [/\bpairing/i, 'Pairing', 'Two weapons that work better together just by both being yours.'],
   [/\btwist/i, 'Combo twist', 'A combo whose weapons are not on their usual damage types also gets an effect from its new pair of damage types.'],
   [/\b(modifier|mod slot)/i, 'Modifier', 'Installs into one weapon (three slots each) and changes how its shots behave.'],
-  [/\bswitched at birth|damage type/i, 'Damage type', 'Force, Acid, Alkali, Static, Ethanol, Peroxide, Brine or Histamine. Each leaves a status on what it hits, and two different ones set off a chemical reaction.'],
+  [/\bswitched at birth|damage type/i, 'Damage type', 'Force, Acid, Alkali, Static, Ethanol, Peroxide, Brine or Blood Magic. Each leaves a status on what it hits, and two different ones set off a chemical reaction.'],
   [/\breaction/i, 'Reaction', 'A chemical reaction: one damage type landing on an enemy that already carries another\'s status. See the Field Guide for all of them.'],
   [/\bmount/i, 'Weapon mount', 'A slot for a weapon. You get three a run, plus up to two from combos.'],
   [/\belite/i, 'Elite', 'A tougher version of an enemy that drops a loot box.'],
@@ -48,7 +48,7 @@ const GLOSSARY = [
   [/\bcorro/i, 'Corroding', 'Acid status: damage over time that eats a little armour as it goes.'],
   [/\bcharged\b/i, 'Charged', 'Static status: some damage it takes arcs to a neighbour and drags it closer.'],
   [/\bdrunk/i, 'Drunk', 'Ethanol status: stacking damage over time, and the enemy weaves about.'],
-  [/\bswollen|swelling/i, 'Swollen', 'Histamine status: takes more from everything. The swelling passes on when it dies.'],
+  [/\bhex(ed|es)?\b/i, 'Hexed', 'Blood Magic status: takes more from everything. The hex passes on when it dies.'],
   [/\b(faint|stun|daze)/i, 'Stunned', 'Stops moving and attacking for a moment.'],
 ];
 // The jargon in a piece of text: [[term, definition]], at most eight.

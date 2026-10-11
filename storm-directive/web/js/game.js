@@ -2100,8 +2100,8 @@ function detonateMine(pr) {
   const s = pr.w.s;
   genesMine(pr); // Acid Mines (Bruiser + Acid-Burner)
   if (s.singularity) {
-    G.zones.push({ x: pr.x, y: pr.y, r: s.explode * 1.2, life: 1.2, max: 1.2, dps: s.dmg * 0.3, elem: 'arcane', pull: 260, color: '#9d4edd', tick: 0, src: pr.src,
-      onEnd: z => aoe(z.x, z.y, s.explode, s.dmg, pr.src, '#c77dff') });
+    G.zones.push({ x: pr.x, y: pr.y, r: s.explode * 1.2, life: 1.2, max: 1.2, dps: s.dmg * 0.3, elem: 'arcane', pull: 260, color: '#a4133c', tick: 0, src: pr.src,
+      onEnd: z => aoe(z.x, z.y, s.explode, s.dmg, pr.src, '#c9184a') });
   } else { const k = mineScale(pr), ch = pr.charge || 1; aoe(pr.x, pr.y, s.explode * k.r * Math.min(1.6, Math.sqrt(ch)), s.dmg * k.k * ch, pr.src, pr.color); }
   afterMine(pr);
 }
@@ -2176,7 +2176,7 @@ function updateTurrets(dt) {
       if (e) {
         t.cd = t.rate;
         const a = Math.atan2(e.y - t.y, e.x - t.x); t.face = a;
-        if (t.sibs) spawnProj(t.w, t.x, t.y, a, t.src, { r: 4, speed: 330, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, life: 1.6, dmg: t.dmg, pierce: 0, style: 'sperm', color: '#d0a3ff', bounce: 0, homing: 6, explode: 0, noMods: true });
+        if (t.sibs) spawnProj(t.w, t.x, t.y, a, t.src, { r: 4, speed: 330, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, life: 1.6, dmg: t.dmg, pierce: 0, style: 'sperm', color: '#f25c78', bounce: 0, homing: 6, explode: 0, noMods: true });
         else spawnProj(t.w, t.x, t.y, a, t.src, { r: 3.5, speed: 620, vx: Math.cos(a) * 620, vy: Math.sin(a) * 620, life: t.range / 620, dmg: t.dmg, pierce: 0, style: 'bullet', color: t.color || '#ffd60a', bounce: 0, homing: 0, explode: 0, noMods: true });
       }
     }

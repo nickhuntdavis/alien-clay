@@ -127,25 +127,25 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Static Cling](#static-cling) | Bright Spark | Static | Chain Static | DENSEST CLUSTER | - |
 | [Morning Sickness](#morning-sickness) | Problem Child | Ethanol | Area Denial | DENSEST CLUSTER | - |
 | [Tapeworm Seeder](#tapeworm-seeder) | Good Eater | Ethanol | Necromancer | HIGHEST HEALTH | 90 DNA |
-| [Seeker Siblings](#seeker-siblings) | Firstborn | Histamine | Swarm | WEAKEST | - |
-| [Toddler Gravity](#toddler-gravity) | Bright Spark | Histamine | Crowd Control | DENSEST CLUSTER | 80 DNA |
-| [Premature Evangelation](#premature-evangelation) | Good Eater | Histamine | Bodyguard | NEAREST | 60 DNA |
+| [Seeker Siblings](#seeker-siblings) | Firstborn | Blood Magic | Swarm | WEAKEST | - |
+| [Toddler Gravity](#toddler-gravity) | Bright Spark | Blood Magic | Crowd Control | DENSEST CLUSTER | 80 DNA |
+| [Premature Evangelation](#premature-evangelation) | Good Eater | Blood Magic | Bodyguard | NEAREST | 60 DNA |
 | [Placental Siphon](#placental-siphon) | Designer Baby | Brine | Counter | NEAREST | 100 DNA |
 | [Placenta Paddle](#placenta-paddle) | Chonker | Force | Cleaver | NEAREST | - |
 | [Flagellum Flail](#flagellum-flail) | Quiet One | Force | Lasher | NEAREST | - |
 | [Thorny Onesie](#thorny-onesie) | Chonker | Force | Tank | NEAREST | - |
 | [Colouring In](#colouring-in) | Designer Baby | Force | Lasso | NEAREST | 90 DNA |
-| [Due Date](#due-date) | Favourite | Histamine | Delayed Doom | HIGHEST HEALTH | 100 DNA |
+| [Due Date](#due-date) | Favourite | Blood Magic | Delayed Doom | HIGHEST HEALTH | 100 DNA |
 | [Red Tape](#red-tape) | Problem Child | Ethanol | Bureaucrat | DENSEST CLUSTER | 90 DNA |
-| [Imaginary Friend](#imaginary-friend) | Designer Baby | Histamine | Echo | NEAREST | 120 DNA |
+| [Imaginary Friend](#imaginary-friend) | Designer Baby | Blood Magic | Echo | NEAREST | 120 DNA |
 | [Peekaboo](#peekaboo) | Quiet One | Alkali | Trickster | NEAREST | 100 DNA |
 | [Twin Telepathy](#twin-telepathy) | Bright Spark | Static | Geometry | DENSEST CLUSTER | 110 DNA |
 | [Bubble Wand](#bubble-wand) | Good Eater | Peroxide | Trap & Throw | NEAREST | 90 DNA |
-| [Tooth Fairy](#tooth-fairy) | Favourite | Histamine | Lure | DENSEST CLUSTER | 100 DNA |
-| [Déjà Vu](#dj-vu) | Prawn Again | Histamine | Repeater | NEAREST | - |
+| [Tooth Fairy](#tooth-fairy) | Favourite | Blood Magic | Lure | DENSEST CLUSTER | 100 DNA |
+| [Déjà Vu](#dj-vu) | Prawn Again | Blood Magic | Repeater | NEAREST | - |
 | [Ghosts of You](#ghosts-of-you) | Prawn Again | Alkali | Haunter | NEAREST | - |
 | [Karma](#karma) | Prawn Again | Force | Payback | NEAREST | - |
-| [Gene Gun](#gene-gun) | Designer Baby | Histamine | Splicer | NEAREST | - |
+| [Gene Gun](#gene-gun) | Designer Baby | Blood Magic | Splicer | NEAREST | - |
 | [Shotgun Wedding](#shotgun-wedding) | Redtail | Force | Brawler | NEAREST | - |
 | [Moonshine Jug](#moonshine-jug) | Redtail | Ethanol | Firebomber | DENSEST CLUSTER | - |
 | [Duelling Banjo](#duelling-banjo) | Redtail | Static | Ring | NEAREST | - |
@@ -363,7 +363,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Seeker Siblings
 
-*Histamine gun, Swarm.* Tiny homing siblings who swim for you and never miss. Family is complicated.
+*Blood Magic gun, Swarm.* Tiny homing siblings who swim for you and never miss. Family is complicated.
 
 - **Base stats:** dmg 9, cd 0.45s, mag 6, reload 2s, x2, range 500 (homing 5)
 - **Level bonuses:** Lv3: +1 count; Lv6: +1 count; Lv9: +40% dmg
@@ -384,7 +384,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Toddler Gravity
 
-*Histamine gun, Crowd Control.* A slow orb that drags everything into its mouth. Everything.
+*Blood Magic gun, Crowd Control.* A slow orb that drags everything into its mouth. Everything.
 
 - **Base stats:** dmg 8, cd 1.8s, mag 2, reload 2.5s, pierce all, range 400 (aura 72, pull 95)
 - **Level bonuses:** Lv3: +30% area; Lv6: +1 count; Lv9: +50% dmg
@@ -405,7 +405,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Premature Evangelation
 
-*Histamine orbit, Bodyguard.* Guardian angels circle you and hit whatever comes close. They always start too soon.
+*Blood Magic orbit, Bodyguard.* Guardian angels circle you and hit whatever comes close. They always start too soon.
 
 - **Base stats:** dmg 23, reload 2.2s, x3, range 100 (dur 4.5, radius 72, spin 3.6)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +1 count
@@ -531,7 +531,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Due Date
 
-*Histamine duedate, Delayed Doom.* Sticks a countdown on an enemy. When it runs out, 40% of the damage it took lands again. Circled in red.
+*Blood Magic duedate, Delayed Doom.* Sticks a countdown on an enemy. When it runs out, 40% of the damage it took lands again. Circled in red.
 
 - **Base stats:** dmg 20, cd 0.9s, mag 3, reload 2s, range 480 (dur 4, repeat 0.4)
 - **Level bonuses:** Lv3: +0.15 repeat; Lv6: +1 count; Lv9: +0.2 repeat
@@ -573,7 +573,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Imaginary Friend
 
-*Histamine friend, Echo.* Its name is Gerald. Gerald is very real. Gerald has your weapons.
+*Blood Magic friend, Echo.* Its name is Gerald. Gerald is very real. Gerald has your weapons.
 
 - **Base stats:** dmg 24, cd 0.7s, mag 6, reload 1.4s, range 230 (delay 2, copy 0.35)
 - **Level bonuses:** Lv3: +0.1 copy; Lv6: +1 count; Lv9: +0.1 copy
@@ -657,7 +657,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Tooth Fairy
 
-*Histamine tooth, Lure.* Drops baby teeth near the crowd and smites whoever takes one. She collects debts.
+*Blood Magic tooth, Lure.* Drops baby teeth near the crowd and smites whoever takes one. She collects debts.
 
 - **Base stats:** dmg 34, cd 1.1s, mag 3, reload 2s, range 420 (dur 6, lure 230)
 - **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +60 lure
@@ -678,7 +678,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Déjà Vu
 
-*Histamine gun, Repeater.* Every shot happens twice. The second time, it is a memory.
+*Blood Magic gun, Repeater.* Every shot happens twice. The second time, it is a memory.
 
 - **Base stats:** dmg 20, cd 0.8s, mag 6, reload 1.3s, pierce 1, range 420 (replay 1)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +2 pierce
@@ -744,7 +744,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Gene Gun
 
-*Histamine gun, Splicer.* Precision gene therapy, delivered at speed. Side effects include exploding.
+*Blood Magic gun, Splicer.* Precision gene therapy, delivered at speed. Side effects include exploding.
 
 - **Base stats:** dmg 11.5, cd 0.5s, mag 8, reload 1.3s, pierce 1, range 480
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +2 pierce
@@ -1038,7 +1038,7 @@ A Y-shaped wall of protein. Heavily armoured, cannot be moved or saponified, and
 It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink. Base HP 3400, armour 4, speed 52.
 
 - **Strengths:** Teleports right next to you; Death-stare beam that tracks you.
-- **Weaknesses:** Takes double damage while glaring; Histamine: +50% damage.
+- **Weaknesses:** Takes double damage while glaring; Blood Magic: +50% damage.
 
 | Trophy | Effect |
 |---|---|
@@ -1128,7 +1128,7 @@ Identical twins who fight as one. Kill one and the other rebuilds it in 8 second
 A pregnancy that was never really there. It drifts straight through walls and growths, and Force passes through it as if it were mist. The womb itself still hurts it. Base HP 3000, armour 0, speed 50.
 
 - **Strengths:** Immune to Force damage; Swims through obstacles.
-- **Weaknesses:** Histamine: +50% damage; Terrain still hurts it: Acid Crypts, cilia and ATP bursts.
+- **Weaknesses:** Blood Magic: +50% damage; Terrain still hurts it: Acid Crypts, cilia and ATP bursts.
 
 | Trophy | Effect |
 |---|---|
@@ -1163,14 +1163,14 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | **Stork Drop** | Acid | A stork drops something heavy on the target and leaves acid on the ground. Not a baby. | dmg 65, cd 5s, count 1, area 88, delay 0.7s, dur 2s | Lv3: +1 count; Lv5: +30% area; Lv7: +1 count |
 | **Power Shower** | Alkali | A soapy blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
 | **Brainstorm** | Static | Static strikes several targets at once. None of the ideas are good. | dmg 36, cd 6s, count 5, area 48 | Lv3: +2 count; Lv5: +40% dmg; Lv7: +3 count |
-| **Sofa Crevice** | Histamine | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
+| **Sofa Crevice** | Blood Magic | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Kiss It Better** | Ethanol | Restores 15% of your health. Medically dubious. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% healing; Lv7: 20% faster |
-| **Nap Time** | Histamine | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
-| **Latex Barrier** | Histamine | A shield that reflects enemy bullets and blocks contact. 98% effective. | dmg 12, cd 12s, dur 3s, area 80 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
+| **Nap Time** | Blood Magic | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
+| **Latex Barrier** | Blood Magic | A shield that reflects enemy bullets and blocks contact. 98% effective. | dmg 12, cd 12s, dur 3s, area 80 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
 | **Running With Scissors** | Force | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
 | **Dutch Oven** | Ethanol | A drifting cloud of stacking Ethanol fumes. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Baby Monitor** | Static | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
-| **Out of Body** | Histamine | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
+| **Out of Body** | Blood Magic | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
 | **Elbows Out** | Force | You throw your elbows about. Everything close to you is hit and shoved well back. Firstborn only. | dmg 30, cd 8s, area 140 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Belly Flop** | Force | You launch yourself at the thickest crowd nearby and land on it, hard. Chonker only. | dmg 55, cd 10s, area 130 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Lightbulb Moment** | Static | A bolt of inspiration jumps from enemy to enemy, up to six of them. Bright Spark only. | dmg 34, cd 7s, count 6 | Lv3: +2 count; Lv5: +50% dmg; Lv7: 20% faster |
@@ -1228,7 +1228,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Alkaline Diet** | +25% Alkali damage and lather | You | 5 |
 | **Static Hair** | +25% Static damage, +1 chain | You | 5 |
 | **Hip Flask** | +25% Ethanol damage, +3 max rounds | You | 5 |
-| **Pins and Needles** | +25% Histamine damage | You | 5 |
+| **Bad Blood** | +25% Blood Magic damage | You | 5 |
 | **Headbutt Training** | +25% Force damage | You | 5 |
 | **Big Lungs** | +25 max stamina (sprint longer, perform more Feats) | You | 3 |
 | **Second Wind** | Stamina refills 30% faster | You | 3 |
@@ -1350,7 +1350,7 @@ From skipping a sequence splice, and from stashes hidden in campaign levels: pic
 | **Heavy-Handed** | 1 | +1% crit chance for every 100 max HP you have. |
 | **Sticker Chart** | 1 | Killing a boss: 6s of +25% fire rate, and your Feats recharge 25% faster. |
 | **Lucky Dip** | 1 | +20% luck, so your DNA strands come out rarer. |
-| **Mood Swings** | 1 | Acid, Alkali and Static +40%. Force, Ethanol and Histamine -10%. |
+| **Mood Swings** | 1 | Acid, Alkali and Static +40%. Force, Ethanol and Blood Magic -10%. |
 | **Middle Child** | 1 | Alone (nothing within 250): +15% swim speed. In a crowd (8 or more): +3 armour. Anything in between: +10% damage. Adapts. |
 | **Character Building** | 1 | Every hit you take: +1 max HP (up to +150), and +1 armour for every 50 hits. |
 | **Double Yolk** | 1 | Every mutation box has a 30% chance to let you take two mutations. |
@@ -1475,7 +1475,7 @@ The slide starts in greyscale, your own swimmer included. Colour comes back thre
 | **Luciferase** | +20% luck, and +25% damage to elites and bosses. You know what is worth chasing. | The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas. |
 | **Motility Dye** | +8% swim speed, and +30% damage to fast enemies. You spot them early. | Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you. |
 | **Rival Dyes** | +40% damage to rival champions and the Final Five. Know your enemy. | Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt. |
-| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Alkali blue, Static yellow, Ethanol amber, Histamine violet) and your midpiece in your weapon-type colour. |
+| **H&E Stain Kit** | +30% pickup range and +1 reroll. Everything is easier to spot. | Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Alkali blue, Static yellow, Ethanol amber, Blood Magic red) and your midpiece in your weapon-type colour. |
 
 ## Cursed cards
 
@@ -1556,7 +1556,7 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **Ethanol** | drunk | Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out. |
 | **Peroxide** | fizzing | An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit. |
 | **Brine** | pickled | Salt water. Pickled enemies shrivel: they swim 15% slower, hit you 25% softer, and conduct Static twice as well. |
-| **Histamine** | swollen | Makes enemies swell up: they take more from everything. When a swollen enemy dies the swelling passes to the nearest one. |
+| **Blood Magic** | hexed | An old curse written in blood. It hexes enemies: they take more from everything. When a hexed enemy dies, the hex bleeds into the nearest one. |
 
 ## Chemical reactions
 
@@ -1568,14 +1568,14 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **FLASHPOINT** | Static on a drunk enemy (2+ rounds): the fumes go up. Every round of Ethanol in it explodes at once. |
 | **ELECTROLYSIS** | Static on a lathered enemy: splits it into hydrogen. Armour stripped, and a small pop. |
 | **SANITISED** | Alkali on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright. |
-| **HIVES** | Histamine on any status: bonus damage, and it breaks out: its status copies onto two neighbours, which swell up too. |
+| **BLOOD PACT** | Blood Magic on any status: bonus damage, and the curse spreads: its status copies onto two neighbours, which are hexed too. |
 | **SUDS** | Force on a saponified enemy: the soap bursts, and the suds hit everything near it. |
 | **PUSHOVER** | Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far. |
 | **BLEACHED** | Peroxide meets Acid (either way round): all its armour is stripped for 4s, and its corrosion burns twice as hard. |
 | **ELEPHANT TOOTHPASTE** | Peroxide meets Alkali (either way round): a column of foam erupts, lathering and shoving everything nearby. |
 | **ROCKET FUEL** | Peroxide meets Ethanol (either way round): the enemy is launched away from you and explodes where it lands. |
 | **OZONE** | Peroxide meets Static (either way round): static jumps to three neighbours and sets them fizzing. |
-| **ANTIHISTAMINE** | Peroxide meets Histamine (either way round): the swelling is burned out of it in one hit (15% of its health; 6% on bosses). |
+| **EXORCISM** | Peroxide meets Blood Magic (either way round): the hex is bleached out of it in one hit (15% of its health; 6% on bosses). |
 | **ELECTROLYTE** | Brine meets Static (either way round): the charge runs through the salt water to four neighbours, charging them all. |
 | **SALT IN THE WOUND** | Brine meets Acid (either way round): its corrosion does double damage for the rest of the dose. |
 | **MARGARITA** | Brine meets Ethanol (either way round): a salted rim. It nods off for 2.5s, and so do the drunks around it. |
@@ -1592,23 +1592,23 @@ A combo whose two weapons are on their usual damage types does what its card say
 | Acid + Alkali | **Neutral Ground** | Combo hits neutralise: a hot burst round the target, and the salt water heals you a little. |
 | Acid + Static | **Car Battery** | Combo hits turn the target into a battery that zaps its neighbours for 2s. |
 | Acid + Ethanol | **Pear Drops** | Combo hits make the target smell of pear drops: everything nearby is drawn in for a sniff. |
-| Histamine + Acid | **Weeping Rash** | Combo hits swell the target and corrode it, hard. |
+| Blood Magic + Acid | **Weeping Wounds** | Combo hits hex the target and corrode it, hard. |
 | Acid + Force | **Acid Wash** | Combo hits strip 2 armour for good (1 from bosses). |
 | Alkali + Static | **Hydrogen Pop** | Combo hits split water: a small pop round the target that strips armour. |
 | Alkali + Ethanol | **Hand Sanitiser** | Combo hits kill 99.9% of germs: ordinary enemies near the target on 15% health or less die. |
-| Histamine + Alkali | **Soap Opera** | Combo hits are so dramatic the target faints for a second (not bosses). |
+| Blood Magic + Alkali | **Soap Opera** | Combo hits are so dramatic the target faints for a second (not bosses). |
 | Alkali + Force | **Slip and Slide** | Combo hits lather the target and send it skidding a long way. |
 | Ethanol + Static | **Lit Up** | Combo hits light the fumes: a small blast that gets everything in it a round drunker. |
-| Histamine + Static | **Brain Fog** | Combo hits fog the minds of badly hurt enemies (under 30% health): they fight for you for 5s. |
+| Blood Magic + Static | **Brain Fog** | Combo hits fog the minds of badly hurt enemies (under 30% health): they fight for you for 5s. |
 | Force + Static | **Crumple Zone** | Combo hits charge a barrier that blocks the next hit you take (recharges after 8s). |
-| Histamine + Ethanol | **Spirits** | Enemies the combo kills give up their spirit: it flies into the nearest enemy for a share of their health. |
+| Blood Magic + Ethanol | **Spirits** | Enemies the combo kills give up their spirit: it flies into the nearest enemy for a share of their health. |
 | Force + Ethanol | **Bar Fight** | Combo hits start a bar fight: the target swings at everything next to it. |
-| Histamine + Force | **Pin Cushion** | Every 4th combo hit on the same enemy deals triple damage. |
+| Blood Magic + Force | **Pin Cushion** | Every 4th combo hit on the same enemy deals triple damage. |
 | Acid + Acid | **Concentrated** | Combo hits deal +35% damage and eat 1 armour. |
 | Alkali + Alkali | **Lye** | Combo hits saponify ordinary enemies on the spot. |
 | Static + Static | **Supercharged** | Combo hits arc on to three more enemies. |
 | Ethanol + Ethanol | **Double Shot** | Combo hits pour two rounds of Ethanol at once. |
-| Histamine + Histamine | **Anaphylaxis** | Swollen enemies the combo kills explode. |
+| Blood Magic + Blood Magic | **Blood Rite** | Hexed enemies the combo kills explode. |
 | Force + Force | **Brute Squad** | Combo hits deal +25% damage and knock enemies flying. |
 
 ## Damage-type synergies
@@ -1624,7 +1624,7 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 | Ethanol | **Open Bar** | Ethanol ticks twice as fast |
 | Peroxide | **Bubbly** | Fizz pops 50% harder |
 | Brine | **Seasoned** | Pickling lasts 50% longer |
-| Histamine | **Hay Fever** | Swelling amplifies damage by +50% instead of +30% |
+| Blood Magic | **Bloodlust** | Hexes amplify damage by +50% instead of +30% |
 
 ## Targeting directives
 

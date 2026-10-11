@@ -31,7 +31,7 @@ function refreshPalette() {
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
-// Element effects. Each damage type shows in colour from the first time you use it (elemOn, tutorial.js), or all at once with the H&E stain or the Tracer Dye grant: Acid shows green, Alkali blue, Ethanol amber and Histamine violet.
+// Element effects. Each damage type shows in colour from the first time you use it (elemOn, tutorial.js), or all at once with the H&E stain or the Tracer Dye grant: Acid shows green, Alkali blue, Ethanol amber and Blood Magic blood red.
 // Static is always coloured, in a static-shock blue and pink.
 // (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
 const ELEM_SWAP = new Map([
@@ -44,7 +44,7 @@ const ELEM_HEX = {
   poison: ['#e8a33d', '#d98c2b', '#f0c27a', '#f2b552'],
   oxi: ['#9ff7ff', '#e6fbff'],
   salt: ['#ffb3c6', '#ffe5ec', '#fff0f3'],
-  arcane: ['#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'],
+  arcane: ['#c9184a', '#800f2f', '#6a0d25', '#f25c78', '#ff758f', '#a4133c', '#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'], // (blood reds, and the old purples other things still use)
 };
 const STATIC_HEX = { '#ffe94a': '#6f9bff', '#fdf0d5': '#ff8ae0', '#9ef0ff': '#9fb0ff', '#fff3b0': '#ff8ae0' };
 const ELEM_OF = new Map();
@@ -1214,7 +1214,7 @@ function render() {
       for (let arm = 0; arm < 3; arm++) { ctx.beginPath(); for (let i = 0; i <= 14; i++) { const t = i / 14, ang = -G.realT * 3 + arm * TAU / 3 + t * 4.2, rr = r * (1 - t * 0.85); i ? ctx.lineTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr) : ctx.moveTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr); } ctx.stroke(); }
       ctx.lineWidth = 2; ctx.globalAlpha = a * 0.6;
       ctx.globalAlpha = a; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, 14 * S, 0, TAU); ctx.fill();
-      ctx.strokeStyle = '#e0aaff'; ctx.beginPath(); ctx.arc(x, y, 15 * S, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = '#ff758f'; ctx.beginPath(); ctx.arc(x, y, 15 * S, 0, TAU); ctx.stroke();
     } else {
       // Gas clouds (Dutch Oven) roll in soft puffs.
       if (z.spell === 'cloud' && FX.k > 0.5) { ctx.fillStyle = z.color; for (let k = 0; k < 6; k++) { const an = G.realT * 0.5 + k * 1.05, rr = r * 0.55; ctx.globalAlpha = a * 0.12; ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an * 1.3) * rr * 0.7, r * 0.45, 0, TAU); ctx.fill(); } ctx.globalAlpha = a * 0.6; }
@@ -1413,7 +1413,7 @@ function render() {
   ctx.globalCompositeOperation = 'source-over';
   // Toddler Gravity: the rubber bands of gravity between orbs about to merge.
   if (G.voidBands && G.voidBands.length) {
-    ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = '#c77dff';
+    ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = '#c9184a';
     for (let i = 0; i < G.voidBands.length; i += 2) {
       const a = G.voidBands[i], b = G.voidBands[i + 1], ax = sx(a.x), ay = sy(a.y), bx = sx(b.x), by = sy(b.y), d = Math.hypot(bx - ax, by - ay), tight = Math.min(1, 140 * S / Math.max(1, d));
       const nx = -(by - ay) / (d || 1), ny = (bx - ax) / (d || 1), sag = Math.sin(G.realT * 9 + i) * 10 * S * (1 - tight);
@@ -1853,7 +1853,7 @@ function drawEnemy(e, lod) {
   let si = 0;
   const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
   drawStatusFx(e, x, y, r);
-  if (e.mark > 0) st('#c77dff');
+  if (e.mark > 0) st('#c9184a');
   if (e.fizz > 0) st('#9ff7ff');
   if (e.pickle > 0) st('#ffb3c6');
   if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');

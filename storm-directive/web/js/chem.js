@@ -1,11 +1,11 @@
 'use strict';
-// Spawn Prawn - chemistry. Six elements: Force, Acid, Alkali, Static, Ethanol and Histamine (the internal keys are
+// Spawn Prawn - chemistry. Six elements: Force, Acid, Alkali, Static, Ethanol and Blood Magic (the internal keys are
 // phys, fire, ice, shock, poison and arcane). Each leaves a status on what it hits:
 //   Acid    - corroding: damage over time that eats a little armour as it goes (e.burn).
 //   Alkali    - lathered: slower, and slides further when hit (e.chill); enough and it saponifies: soap, stuck solid (e.frozen).
 //   Static  - charged: damage it takes arcs to a neighbour, and drags that neighbour closer (e.shock).
 //   Ethanol - drunk: stacking damage over time, and it weaves about (e.poison, e.poisonStacks).
-//   Histamine  - hexed: takes more from everything; the hex passes on when it dies (e.mark).
+//   Blood Magic - hexed: takes more from everything; the hex passes on when it dies (e.mark).
 // When an element lands on something already carrying another's status, they react (REACTIONS in data.js).
 // Combos have chemistry too: fuse two weapons whose elements are not their usual ones (Switched at Birth)
 // and the combo picks up a TWIST from the pair of elements it is made of.
@@ -69,7 +69,7 @@ function applyElement(e, elem, dmg, src) {
         floatText(e.x, e.y - e.r - 26, 'zzz', '#cdb4db', 12, 0.9);
       }
       break;
-    case 'arcane': // Histamine
+    case 'arcane': // Blood Magic
       if ((e.burn > 0 || e.chill > 0 || e.poison > 0 || e.shock > 0 || e.fizz > 0 || e.pickle > 0) && react(e, 'sympathy', src)) {
         damageEnemy(e, dmg * 1.0 * rm, rsrc);
         for (const n of acquireMany('nearest', 140, e.x, e.y, 3)) {
@@ -81,9 +81,9 @@ function applyElement(e, elem, dmg, src) {
           if (e.pickle > 0) n.pickle = Math.max(n.pickle || 0, e.pickle);
           if (e.poison > 0) { n.poison = 4; n.poisonStacks = Math.min(P.poisonCap, Math.max(n.poisonStacks, Math.ceil(e.poisonStacks / 2))); setPoison(n, e.poisonDps, e.poisonBy); }
           n.mark = 3;
-          bolt(e.x, e.y, n.x, n.y, '#e0aaff', 0.15);
+          bolt(e.x, e.y, n.x, n.y, '#ff758f', 0.15);
         }
-        ring(e.x, e.y, 50, '#e0aaff', 0.3);
+        ring(e.x, e.y, 50, '#ff758f', 0.3);
       }
       e.mark = 3;
       break;
@@ -200,7 +200,7 @@ function chemNew(e, elem, dmg, src, rsrc) {
       for (const n of acquireMany('nearest', 170, e.x, e.y, 4)) { if (n === e || k >= 3) continue; k++; bolt(e.x, e.y, n.x, n.y, '#bde0fe', 0.15); damageEnemy(n, dmg * 0.6 * rm, rsrc); n.fizz = 2.5; n.fizzD = (n.fizzD || 0) + dmg * 0.3; }
       break;
     }
-    case 'exorcism': e.mark = 0; damageEnemy(e, e.maxHp * (e.boss ? 0.06 : 0.15) * rm, rsrc); ring(e.x, e.y, e.r + 30, '#e0aaff', 0.4, 4); break;
+    case 'exorcism': e.mark = 0; damageEnemy(e, e.maxHp * (e.boss ? 0.06 : 0.15) * rm, rsrc); ring(e.x, e.y, e.r + 30, '#ff758f', 0.4, 4); break;
     case 'electrolyte': {
       let k = 0;
       for (const n of acquireMany('nearest', 190, e.x, e.y, 5)) { if (n === e || k >= 4) continue; k++; bolt(e.x, e.y, n.x, n.y, '#ffe5ec', 0.15); damageEnemy(n, dmg * 0.5 * rm, Object.assign({}, rsrc, { elem: 'shock' })); n.shock = Math.max(n.shock, 2.2); }
@@ -215,7 +215,7 @@ function chemNew(e, elem, dmg, src, rsrc) {
 }
 // A hexed enemy dies: the hex passes to the nearest one.
 function chemKill(e, src) {
-  if (e.mark > 0) { const n = acquire('nearest', 220, e.x, e.y, e); if (n) { n.mark = Math.max(n.mark, 3); bolt(e.x, e.y, n.x, n.y, '#c77dff', 0.15); } }
+  if (e.mark > 0) { const n = acquire('nearest', 220, e.x, e.y, e); if (n) { n.mark = Math.max(n.mark, 3); bolt(e.x, e.y, n.x, n.y, '#c9184a', 0.15); } }
   twistKill(e, src);
 }
 const chemHaste = () => (G.chargeUpT > G.t ? 1 + CHEM.chargeK : 1);
@@ -234,7 +234,7 @@ const TWISTS = {
   'fire+ice':      { name: 'Neutral Ground', desc: 'Combo hits neutralise: a hot burst round the target, and the salt water heals you a little.' },
   'fire+shock':    { name: 'Car Battery',    desc: 'Combo hits turn the target into a battery that zaps its neighbours for 2s.' },
   'fire+poison':   { name: 'Pear Drops',     desc: 'Combo hits make the target smell of pear drops: everything nearby is drawn in for a sniff.' },
-  'arcane+fire':   { name: 'Weeping Rash',   desc: 'Combo hits swell the target and corrode it, hard.' },
+  'arcane+fire':   { name: 'Weeping Wounds', desc: 'Combo hits hex the target and corrode it, hard.' },
   'fire+phys':     { name: 'Acid Wash',      desc: 'Combo hits strip 2 armour for good (1 from bosses).' },
   'ice+shock':     { name: 'Hydrogen Pop',   desc: 'Combo hits split water: a small pop round the target that strips armour.' },
   'ice+poison':    { name: 'Hand Sanitiser', desc: 'Combo hits kill 99.9% of germs: ordinary enemies near the target on 15% health or less die.' },
@@ -250,7 +250,7 @@ const TWISTS = {
   'ice+ice':       { name: 'Lye',            desc: 'Combo hits saponify ordinary enemies on the spot.' },
   'shock+shock':   { name: 'Supercharged',   desc: 'Combo hits arc on to three more enemies.' },
   'poison+poison': { name: 'Double Shot',    desc: 'Combo hits pour two rounds of Ethanol at once.' },
-  'arcane+arcane': { name: 'Anaphylaxis',    desc: 'Swollen enemies the combo kills explode.' },
+  'arcane+arcane': { name: 'Blood Rite',     desc: 'Hexed enemies the combo kills explode.' },
   'phys+phys':     { name: 'Brute Squad',    desc: 'Combo hits deal +25% damage and knock enemies flying.' },
 };
 const twistKey = (a, b) => [a, b].sort().join('+');
@@ -291,7 +291,7 @@ function twistMul(e, src) {
   if (!tw) return 1;
   if (tw.key === 'fire+fire') return 1.35;
   if (tw.key === 'phys+phys') return 1.25;
-  if (tw.key === 'arcane+phys') { e.pinN = (e.pinN || 0) + 1; if (e.pinN % 4 === 0) { floatText(e.x, e.y - e.r - 12, 'PIN', '#c77dff', 12, 0.5); return 3; } }
+  if (tw.key === 'arcane+phys') { e.pinN = (e.pinN || 0) + 1; if (e.pinN % 4 === 0) { floatText(e.x, e.y - e.r - 12, 'PIN', '#c9184a', 12, 0.5); return 3; } }
   return 1;
 }
 // After a hit: the twist's effect.
@@ -314,7 +314,7 @@ function chemComboHit(e, dmg, src) {
     case 'ice+poison':
       forNear(e.x, e.y, 90, o => { if (!o.boss && !o.rival && !o.egg && !o.charmed && !o.dead && o.hp < o.maxHp * 0.15) damageEnemy(o, o.hp * 3 + 20, tsrc); });
       ring(e.x, e.y, 90, '#d0f4de', 0.35, 3); break;
-    case 'arcane+ice': if (plain) { e.dazeT = Math.max(e.dazeT || 0, G.t + 1); floatText(e.x, e.y - e.r - 12, 'FAINTS', '#e0aaff', 11, 0.6); } break;
+    case 'arcane+ice': if (plain) { e.dazeT = Math.max(e.dazeT || 0, G.t + 1); floatText(e.x, e.y - e.r - 12, 'FAINTS', '#ff758f', 11, 0.6); } break;
     case 'ice+phys': {
       e.chill = 2.5; e.chillAmt = Math.min(0.6, e.chillAmt + 0.2);
       if (plain) { const p = me(), dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1; e.kx += dx / d * 420; e.ky += dy / d * 420; }
@@ -326,7 +326,7 @@ function chemComboHit(e, dmg, src) {
       IN_AOE = false;
       ring(e.x, e.y, 65, '#ffba08', 0.35, 4); break;
     case 'arcane+shock':
-      if (plain && e.hp < e.maxHp * 0.3 && !e.charmed) { e.charmed = true; e.charmT = 5; e.frozen = 0; e.allyT = null; ring(e.x, e.y, e.r + 12, PAL.you, 0.4, 3); floatText(e.x, e.y - e.r - 12, 'POSSESSED', '#e0aaff', 11, 0.7); }
+      if (plain && e.hp < e.maxHp * 0.3 && !e.charmed) { e.charmed = true; e.charmT = 5; e.frozen = 0; e.allyT = null; ring(e.x, e.y, e.r + 12, PAL.you, 0.4, 3); floatText(e.x, e.y - e.r - 12, 'POSSESSED', '#ff758f', 11, 0.7); }
       break;
     case 'phys+shock': if (!G.absorbOn && !(G.absorbT > G.t)) { G.absorbOn = true; const p = me(); ring(p.x, p.y, 34, '#ffe94a', 0.4, 3); } break;
     case 'phys+poison':
@@ -354,11 +354,11 @@ function twistKill(e, src) {
   const k = t.tw.key, tsrc = { noStatus: true, noArc: true, noCrit: true, noProc: true, wname: t.tw.name };
   if (k === 'arcane+poison' && !e.boss) {
     const n = acquire('nearest', 300, e.x, e.y, e);
-    if (n) { bolt(e.x, e.y, n.x, n.y, '#e0aaff', 0.25); damageEnemy(n, Math.min(e.maxHp * 0.5, (src.w && src.w.s ? src.w.s.dmg : 20) * 6), Object.assign({ elem: 'arcane' }, tsrc)); }
+    if (n) { bolt(e.x, e.y, n.x, n.y, '#ff758f', 0.25); damageEnemy(n, Math.min(e.maxHp * 0.5, (src.w && src.w.s ? src.w.s.dmg : 20) * 6), Object.assign({ elem: 'arcane' }, tsrc)); }
   }
   if (k === 'arcane+arcane' && e.mark > 0 && (G.hexBoomF !== G.frameN)) {
     G.hexBoomF = G.frameN;
-    aoe(e.x, e.y, 75, Math.min(e.maxHp * 0.3, (src.w && src.w.s ? src.w.s.dmg : 20) * 5), Object.assign({ elem: 'arcane' }, tsrc), '#c77dff');
+    aoe(e.x, e.y, 75, Math.min(e.maxHp * 0.3, (src.w && src.w.s ? src.w.s.dmg : 20) * 5), Object.assign({ elem: 'arcane' }, tsrc), '#c9184a');
   }
 }
 // For a Switched at Birth card: what switching this weapon to elem would do to its combos (fused or not).

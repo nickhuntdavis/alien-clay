@@ -9,7 +9,7 @@ const ELEMENTS = {
   poison: { name: 'Ethanol', color: '#e8a33d', status: 'drunk',    blurb: 'Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out.' },
   oxi:    { name: 'Peroxide', color: '#9ff7ff', status: 'fizzing', blurb: 'An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit.' },
   salt:   { name: 'Brine',   color: '#ffb3c6', status: 'pickled', blurb: 'Salt water. Pickled enemies shrivel: they swim 15% slower, hit you 25% softer, and conduct Static twice as well.' },
-  arcane: { name: 'Histamine',  color: '#c77dff', status: 'swollen',  blurb: 'Makes enemies swell up: they take more from everything. When a swollen enemy dies the swelling passes to the nearest one.' },
+  arcane: { name: 'Blood Magic', color: '#c9184a', status: 'hexed',  blurb: 'An old curse written in blood. It hexes enemies: they take more from everything. When a hexed enemy dies, the hex bleeds into the nearest one.' },
 };
 
 // Targeting directives. Each weapon/spell runs one of these.
@@ -84,15 +84,15 @@ const WEAPONS = {
     desc: 'Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green.',
     base: { dmg: 12, cd: 0.4, mag: 8, reload: 1.6, count: 1, spread: 0.08, speed: 560, pierce: 0, range: 430, size: 3.5, dur: 8 },
     lv: { 3: { count: 1 }, 6: { dur: 0.5 }, 9: { dmg: 0.4 } }, sig: { 5: ['walkingdead', 'bigworm'], 8: ['hivemind', 'feedingtube'], 10: ['brood', 'bodysnatcher'] } },
-  seeker: { name: 'Seeker Siblings', stars: [2, 3, 4, 2], play: 'Homing siblings that never miss. They multiply.', icon: 'SS', elem: 'arcane', kind: 'gun', color: '#d0a3ff', dir: 'weakest', style: 'sperm', role: 'Swarm',
+  seeker: { name: 'Seeker Siblings', stars: [2, 3, 4, 2], play: 'Homing siblings that never miss. They multiply.', icon: 'SS', elem: 'arcane', kind: 'gun', color: '#f25c78', dir: 'weakest', style: 'sperm', role: 'Swarm',
     desc: 'Tiny homing siblings who swim for you and never miss. Family is complicated.',
     base: { dmg: 9, cd: 0.45, mag: 6, reload: 2.0, count: 2, spread: 1.2, speed: 320, pierce: 0, range: 500, size: 4, homing: 5 },
     lv: { 3: { count: 1 }, 6: { count: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['bigbrother', 'rivalry'], 8: ['kamikaze', 'swarmsmart'], 10: ['boom', 'reunion'] } },
-  void: { name: 'Toddler Gravity', stars: [2, 1, 3, 5], play: 'A slow black hole that drags everything in. Fire more than one and they pull together and merge into a bigger one; twenty merged go supernova.', icon: 'VO', elem: 'arcane', kind: 'gun', color: '#7b2cbf', dir: 'cluster', style: 'void', role: 'Crowd Control',
+  void: { name: 'Toddler Gravity', stars: [2, 1, 3, 5], play: 'A slow black hole that drags everything in. Fire more than one and they pull together and merge into a bigger one; twenty merged go supernova.', icon: 'VO', elem: 'arcane', kind: 'gun', color: '#800f2f', dir: 'cluster', style: 'void', role: 'Crowd Control',
     desc: 'A slow orb that drags everything into its mouth. Everything.',
     base: { dmg: 8, cd: 1.8, mag: 2, reload: 2.5, count: 1, spread: 0.2, speed: 115, pierce: 99, range: 400, size: 15, aura: 72, pull: 95 },
     lv: { 3: { area: 0.3 }, 6: { count: 1 }, 9: { dmg: 0.5 } }, sig: { 5: ['horizon', 'nomnom'], 8: ['supermassive', 'crushdepth'], 10: ['bigbang', 'parking'] } },
-  orbit: { name: 'Premature Evangelation', stars: [3, 4, 1, 3], play: 'Guardian angels circle you and swat whatever comes close. Some eat bullets.', icon: 'OB', elem: 'arcane', kind: 'orbit', color: '#c77dff', dir: 'nearest', role: 'Bodyguard',
+  orbit: { name: 'Premature Evangelation', stars: [3, 4, 1, 3], play: 'Guardian angels circle you and swat whatever comes close. Some eat bullets.', icon: 'OB', elem: 'arcane', kind: 'orbit', color: '#c9184a', dir: 'nearest', role: 'Bodyguard',
     desc: 'Guardian angels circle you and hit whatever comes close. They always start too soon.',
     base: { dmg: 23, count: 3, dur: 4.5, reload: 2.2, radius: 72, spin: 3.6, size: 10, range: 100 },
     lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { count: 1 } }, sig: { 5: ['nan', 'clingy'], 8: ['smite', 'martyr'], 10: ['extended', 'guilttrip'] } },
@@ -402,7 +402,7 @@ const SPELLS = {
     desc: 'Static strikes several targets at once. None of the ideas are good.',
     base: { dmg: 36, cd: 6, count: 5, area: 48, range: 520 },
     lv: { 3: { count: 2 }, 5: { dmg: 0.4 }, 7: { count: 3 } } },
-  blackhole: { name: 'Sofa Crevice', icon: 'BH', elem: 'arcane', kind: 'zone', color: '#7209b7', dir: 'cluster',
+  blackhole: { name: 'Sofa Crevice', icon: 'BH', elem: 'arcane', kind: 'zone', color: '#6a0d25', dir: 'cluster',
     desc: 'Tears open a singularity that drags and crushes. Everything you ever lost is in there.',
     base: { dmg: 16, cd: 10, area: 125, dur: 3, pull: 210, range: 460 },
     lv: { 3: { dur: 0.3 }, 5: { area: 0.3 }, 7: { dmg: 0.6 } } },
@@ -470,7 +470,7 @@ const PASSIVES = {
   cryo:      { name: 'Alkaline Diet',        icon: 'CY', max: 5, v: 0.25, fmt: v => `+${pc(v)} Alkali damage and lather`, apply: (P, v) => { P.elem.ice += v; } },
   storm:     { name: 'Static Hair',      icon: 'ST', max: 5, v: 0.25, fmt: v => `+${pc(v)} Static damage, +1 chain`, apply: (P, v) => { P.elem.shock += v; P.chain += 1; } },
   toxin:     { name: 'Hip Flask',       icon: 'TX', max: 5, v: 0.25, fmt: v => `+${pc(v)} Ethanol damage, +3 max rounds`, apply: (P, v) => { P.elem.poison += v; P.poisonCap += 3; } },
-  arcanum:   { name: 'Pins and Needles',          icon: 'WA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Histamine damage`, apply: (P, v) => { P.elem.arcane += v; } },
+  arcanum:   { name: 'Bad Blood',                 icon: 'WA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Blood Magic damage`, apply: (P, v) => { P.elem.arcane += v; } },
   kinetic:   { name: 'Headbutt Training',       icon: 'BA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Force damage`, apply: (P, v) => { P.elem.phys += v; } },
   lungs:     { name: 'Big Lungs',          icon: 'BL', max: 3, v: 25, fmt: v => `+${Math.round(v)} max stamina (sprint longer, perform more Feats)`, apply: (P, v) => { P.stamMax += v; } },
   secondwind:{ name: 'Second Wind',        icon: 'SW', max: 3, v: 0.3, fmt: v => `Stamina refills ${pc(v)} faster`, apply: (P, v) => { P.stamRegen += v; } },
@@ -515,14 +515,14 @@ const REACTIONS = {
   flashpoint:{ name: 'FLASHPOINT',   color: '#ffba08', desc: 'Static on a drunk enemy (2+ rounds): the fumes go up. Every round of Ethanol in it explodes at once.' },
   electro:   { name: 'ELECTROLYSIS', color: '#bde0fe', desc: 'Static on a lathered enemy: splits it into hydrogen. Armour stripped, and a small pop.' },
   sanitiser: { name: 'SANITISED',    color: '#d0f4de', desc: 'Alkali on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright.' },
-  sympathy:  { name: 'HIVES',        color: '#e0aaff', desc: 'Histamine on any status: bonus damage, and it breaks out: its status copies onto two neighbours, which swell up too.' },
+  sympathy:  { name: 'BLOOD PACT',   color: '#ff758f', desc: 'Blood Magic on any status: bonus damage, and the curse spreads: its status copies onto two neighbours, which are hexed too.' },
   suds:      { name: 'SUDS',         color: '#e6f4ff', desc: 'Force on a saponified enemy: the soap bursts, and the suds hit everything near it.' },
   pushover:  { name: 'PUSHOVER',     color: '#ffe5b4', desc: 'Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far.' },
   bleach:    { name: 'BLEACHED',     color: '#e6fbff', desc: 'Peroxide meets Acid (either way round): all its armour is stripped for 4s, and its corrosion burns twice as hard.' },
   toothpaste:{ name: 'ELEPHANT TOOTHPASTE', color: '#e6fbff', desc: 'Peroxide meets Alkali (either way round): a column of foam erupts, lathering and shoving everything nearby.' },
   rocket:    { name: 'ROCKET FUEL',  color: '#ffd166', desc: 'Peroxide meets Ethanol (either way round): the enemy is launched away from you and explodes where it lands.' },
   ozone:     { name: 'OZONE',        color: '#bde0fe', desc: 'Peroxide meets Static (either way round): static jumps to three neighbours and sets them fizzing.' },
-  exorcism:  { name: 'ANTIHISTAMINE', color: '#e0aaff', desc: 'Peroxide meets Histamine (either way round): the swelling is burned out of it in one hit (15% of its health; 6% on bosses).' },
+  exorcism:  { name: 'EXORCISM',     color: '#ff758f', desc: 'Peroxide meets Blood Magic (either way round): the hex is bleached out of it in one hit (15% of its health; 6% on bosses).' },
   electrolyte:{ name: 'ELECTROLYTE', color: '#ffe5ec', desc: 'Brine meets Static (either way round): the charge runs through the salt water to four neighbours, charging them all.' },
   wound:     { name: 'SALT IN THE WOUND', color: '#ffb3c6', desc: 'Brine meets Acid (either way round): its corrosion does double damage for the rest of the dose.' },
   margarita: { name: 'MARGARITA',    color: '#d8f3dc', desc: 'Brine meets Ethanol (either way round): a salted rim. It nods off for 2.5s, and so do the drunks around it.' },
@@ -540,7 +540,7 @@ const SYNERGIES = {
   poison: { name: 'Open Bar', desc: 'Ethanol ticks twice as fast' },
   oxi:    { name: 'Bubbly',  desc: 'Fizz pops 50% harder' },
   salt:   { name: 'Seasoned',  desc: 'Pickling lasts 50% longer' },
-  arcane: { name: 'Hay Fever',          desc: 'Swelling amplifies damage by +50% instead of +30%' },
+  arcane: { name: 'Bloodlust',          desc: 'Hexes amplify damage by +50% instead of +30%' },
 };
 
 // Enemies. from = seconds before they can spawn, w = spawn weight.
@@ -610,7 +610,7 @@ const BOSSES = [
     hp: 3400, speed: 52, armour: 4, r: 48, dmg: 30, xp: 80, patterns: ['blink', 'glare', 'flower', 'doubleSpiral'],
     quote: "I've read your genome. I've seen better genomes on a crouton.",
     desc: 'It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink.',
-    strengths: ['Teleports right next to you', 'Death-stare beam that tracks you'], weaknesses: ['Takes double damage while glaring', 'Histamine: +50% damage'],
+    strengths: ['Teleports right next to you', 'Death-stare beam that tracks you'], weaknesses: ['Takes double damage while glaring', 'Blood Magic: +50% damage'],
     weak: { arcane: 1.5 }, relics: ['thirdeye', 'deathstare', 'precog'] },
   { id: 'matron', name: 'THE MATRON', title: 'Head of Ward Nine', shape: 'cross', color: '#7bed9f',
     hp: 3000, speed: 40, armour: 3, r: 46, dmg: 24, xp: 80, patterns: ['wardround', 'aimedFan', 'ring', 'wardround', 'spiral'],
@@ -646,7 +646,7 @@ const BOSSES = [
     hp: 3000, speed: 50, armour: 0, r: 46, dmg: 26, xp: 85, patterns: ['blink', 'spiral', 'ring', 'doubleSpiral'], ethereal: true, noForce: true,
     quote: 'Boo. Sorry. Habit.',
     desc: 'A pregnancy that was never really there. It drifts straight through walls and growths, and Force passes through it as if it were mist. The womb itself still hurts it.',
-    strengths: ['Immune to Force damage', 'Swims through obstacles'], weaknesses: ['Histamine: +50% damage', 'Terrain still hurts it: Acid Crypts, cilia and ATP bursts'],
+    strengths: ['Immune to Force damage', 'Swims through obstacles'], weaknesses: ['Blood Magic: +50% damage', 'Terrain still hurts it: Acid Crypts, cilia and ATP bursts'],
     weak: { arcane: 1.5 }, relics: ['seethrough', 'poltergeist', 'ectoplasm'] },
 ];
 const BOSS_INTERVAL = 105; // seconds: bosses at 125, 230, 335 and 440, so the fourth relic still has a few minutes to work; the fifth waits for the Fever Pitch
@@ -768,7 +768,7 @@ const DYES = {
   luciferase: { key: PAL.reward, see: 'Worth having in gold: DNA strands, elites, bosses, giant amoebas', name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.', boon: '+20% luck, and +25% damage to elites and bosses. You know what is worth chasing.', apply: P => { P.luck += 0.2; } },
   motility:   { key: DYE_FAST, see: 'Fast enemies in cyan: sprinters, spermlets, krill, paramecia', name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you.', boon: '+8% swim speed, and +30% damage to fast enemies. You spot them early.', apply: P => { P.speed += 0.08; } },
   rival:      { key: '#ffb347', see: 'Each rival in their own colour, on the slide, minimap and race board', name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt.', boon: '+40% damage to rival champions and the Final Five. Know your enemy.' },
-  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Alkali, Static, Ethanol, Histamine), and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Alkali blue, Static yellow, Ethanol amber, Histamine violet) and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
+  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Alkali, Static, Ethanol, Blood Magic), and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Alkali blue, Static yellow, Ethanol amber, Blood Magic red) and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
 };
 
 // ---------------------------------------------------------------- Weapon upgrade trees

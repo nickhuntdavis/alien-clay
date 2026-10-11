@@ -108,8 +108,8 @@ function eggMeetTick() {
 const eggKnown = () => !!(META.eggMet || (G && (G.fertile || G.eggAnnounced)));
 // The two damage types behind each reaction, for the card.
 const TUT_PAIR = { neutral: 'Acid + Alkali', battery: 'Acid + Static', ester: 'Acid + Ethanol', flashpoint: 'Static + Ethanol', electro: 'Static + Alkali',
-  sanitiser: 'Alkali + Ethanol', sympathy: 'Histamine + anything', suds: 'Force + Alkali', pushover: 'Force + Ethanol', bleach: 'Peroxide + Acid',
-  toothpaste: 'Peroxide + Alkali', rocket: 'Peroxide + Ethanol', ozone: 'Peroxide + Static', exorcism: 'Peroxide + Histamine', electrolyte: 'Brine + Static',
+  sanitiser: 'Alkali + Ethanol', sympathy: 'Blood Magic + anything', suds: 'Force + Alkali', pushover: 'Force + Ethanol', bleach: 'Peroxide + Acid',
+  toothpaste: 'Peroxide + Alkali', rocket: 'Peroxide + Ethanol', ozone: 'Peroxide + Static', exorcism: 'Peroxide + Blood Magic', electrolyte: 'Brine + Static',
   wound: 'Brine + Acid', margarita: 'Brine + Ethanol', crust: 'Brine + Alkali', seafoam: 'Peroxide + Brine', blackout: 'Ethanol + Ethanol' };
 // Terrain: one card the first time each kind comes on screen.
 const TUT_TERRAIN = {
@@ -131,7 +131,7 @@ const TUT_EL = {
   poison: { c: 'amber, like a pint', what: 'Ethanol is alcohol. It gets enemies drunk: damage that builds up over time while they stagger about. Enough and they black out.', terms: 'Ethanol: the drink in drinks. Drunk: stacking damage over time and wobbly steering.' },
   oxi:    { c: 'icy cyan', what: 'Peroxide is hair bleach and the fizz on a cut. Each hit adds bubbles that wear down armour, then the bubbles pop in a small blast.', terms: 'Peroxide: the bleach. Fizzing: covered in bubbles that pop when it stops.' },
   salt:   { c: 'pink', what: 'Salt water. It shrivels enemies: they swim slower, hit you softer, and carry Static twice as well.', terms: 'Brine: very salty water. Pickled: shrivelled up by the salt.' },
-  arcane: { c: 'violet', what: 'Histamine is what makes you swell up in an allergy. Swollen enemies take more from everything, and the swelling passes to the nearest one when they die.', terms: 'Histamine: the allergy chemical. Swollen: puffed up and easier to hurt.' },
+  arcane: { c: 'blood red', what: 'An old curse, written in your own blood. It hexes enemies: a hexed enemy takes more from everything, and when it dies the hex bleeds into the nearest one.', terms: 'Hexed: cursed, so every hit on it lands harder.' },
 };
 for (const id in ELEMENTS) TUT_CARDS['el_' + id] = () => {
   const E = ELEMENTS[id], mix = tutMixes(id), X = TUT_EL[id];
