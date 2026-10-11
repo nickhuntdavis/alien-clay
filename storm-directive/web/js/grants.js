@@ -6,6 +6,9 @@
 //   body:    Personal stain: you, your echoes and allies, plus your stamina ring. Floats by the egg (the first game, until taken).
 //   tracer:  Tracer Dye: your shots and weapon effects, and each damage type's colour. At level 5.
 //   pickups: Gentian Violet: power-up pickups. At level 10, once you have the Tracer Dye.
+//   foes:    Gram Stain: every enemy type in its own colour (drawEnemy, render.js). At level 15, once you have Gentian Violet.
+//   scenery: Counterstain: terrain, hazards and the dish's agar in natural colours (drawTerrain/drawDish, render.js). At level 20, once you have the Gram Stain.
+// Settings > Full colour (SET.fullColour) makes grantOn() true for all of them, and col() lets every colour through.
 // (Not in campaign levels: they wait for the next run elsewhere.)
 // Hooks: grantsStart (newGame), grantsTick (update), drawGrants (render, world), grantCols / GRANT_EL
 // (refreshPalette and col(), render.js), grantOn (foes.js, your health ring), grantsHtml (ui.js, pause menu).
@@ -20,10 +23,23 @@ const GRANTS = {
   pickups: { name: 'Gentian Violet', key: () => PAL.pickup, cols: () => [PAL.pickup], level: 10, after: 'tracer',
     see: 'Power-up pickups and their effects',
     desc: 'A deep violet that soaks into anything worth picking up. Power-ups stand out from the grey at last.' },
+  foes:    { name: 'Gram Stain', key: () => '#7a5cff', cols: () => [], level: 15, after: 'pickups',
+    see: 'Every kind of enemy in its own colour (bosses too; rivals keep theirs for the Rival Dyes)',
+    desc: 'How real microbiologists sort bacteria: dunk them in violet and pink and each type shows up its own colour. Every kind of enemy now has one.' },
+  scenery: { name: 'Counterstain', key: () => '#ff7f9c', cols: () => [], level: 20, after: 'foes',
+    see: 'The slide itself: debris, mitochondria, acid pools, cilia, currents and oil slicks in their natural colours, and the agar in the dish',
+    desc: 'The pink counterstain that goes on after the violet. The scenery shows its true colours: blue-white cartilage, orange mitochondria, green acid, pink cilia, blue currents and lilac oil.' },
 };
-const GRANT_ORDER = ['body', 'tracer', 'pickups'];
+const GRANT_ORDER = ['body', 'tracer', 'pickups', 'foes', 'scenery'];
 const grantHas = id => !!(META.grants && META.grants[id]);
-const grantOn = id => grantHas(id) && !(META.grantOff && META.grantOff[id]);
+const grantSet = id => grantHas(id) && !(META.grantOff && META.grantOff[id]); // (what the pause menu shows)
+// Settings > Colour > Full colour: every stain counts as taken, whatever you have found (not Technicolour: no rainbows).
+const fullColourOn = () => !!(typeof SET !== 'undefined' && SET.fullColour);
+const grantOn = id => fullColourOn() || grantSet(id);
+// Settings > Colour can override these two: ALWAYS or OFF, whatever you have found.
+const colourMode = (id, earned) => { const m = typeof SET !== 'undefined' && SET[id]; return m === 'always' || (m !== 'off' && earned); };
+const foeStainOn = () => colourMode('cEnemy', grantOn('foes'));
+const sceneStainOn = () => colourMode('cTerrain', grantOn('scenery'));
 let GRANT_EL = false; // damage-type colours let through (the Tracer Dye), set by refreshPalette
 function grantCols() {
   GRANT_EL = grantOn('tracer');
@@ -49,7 +65,7 @@ function grantsStart(G) {
 function grantDue() {
   if (G.lvl || G.debug || !G.core) return null;
   if (!grantHas('body')) return 'body';
-  for (const id of ['tracer', 'pickups']) { const D = GRANTS[id]; if (!grantHas(id) && grantHas(D.after) && G.level >= D.level) return id; }
+  for (const id of ['tracer', 'pickups', 'foes', 'scenery']) { const D = GRANTS[id]; if (!grantHas(id) && grantHas(D.after) && G.level >= D.level) return id; }
   return null;
 }
 function grantsTick(dt) {
@@ -59,20 +75,20 @@ function grantsTick(dt) {
     const id = grantDue();
     if (!id) return;
     if (id === 'body') {
-      // By the egg, on the side you swim in from.
+      // Well out from the egg, on the side you swim in from.
       const c = G.core, a = Math.atan2(p.y - c.y, p.x - c.x) || Math.PI / 2;
-      G.grant = unstick({ id, x: c.x + Math.cos(a) * (CORE.r + 110), y: c.y + Math.sin(a) * (CORE.r + 110), born: G.t }, 30);
+      G.grant = unstick({ id, x: c.x + Math.cos(a) * (CORE.r + 420), y: c.y + Math.sin(a) * (CORE.r + 420), born: G.t }, 30);
     } else {
       // Right in front of you, so you can't miss it.
       const a = Math.random() * TAU;
       G.grant = unstick({ id, x: p.x + Math.cos(a) * 170, y: p.y + Math.sin(a) * 170, born: G.t }, 30);
-      banner('A STAIN GRANT!', GRANTS[id].key()); sfx('level'); vibrate(40);
+      banner('A RESEARCH GRANT!', GRANTS[id].key()); sfx('level'); vibrate(40);
     }
     return;
   }
   const g = G.grant;
   if (g.id === 'body' && !G.eggNear) return; // (meet the egg first: its card comes before this one)
-  if (Math.hypot(p.x - g.x, p.y - g.y) < (p.r || 12) + 32) grantTake(g.id);
+  if (Math.hypot(p.x - g.x, p.y - g.y) < (p.r || 12) + 140) grantTake(g.id);
 }
 function grantTake(id) {
   const D = GRANTS[id], g = G.grant;
@@ -84,9 +100,9 @@ function grantTake(id) {
   const c = D.key();
   if (g) { ring(g.x, g.y, 90, c, 0.6, 5); ring(g.x, g.y, 180, c, 0.9, 3); fxParts('drop', g.x, g.y, c, 18, 220, 0.7, 4); }
   cam.shake = Math.max(cam.shake, 6); sfx('level'); vibrate(80);
-  banner(D.name.toUpperCase(), c); // (the message underneath says it's a stain grant: the banner has room for a name)
+  banner(D.name.toUpperCase(), c); // (the message underneath says it's a research grant: the banner has room for a name)
   if (id === 'body') tutShow('stains', true); // (what stains are: tutorial.js)
-  sysMsg('STAIN GRANT: ' + D.name.toUpperCase(), `${D.desc} Yours for good (switch it off in the pause menu).`, c, true);
+  sysMsg('RESEARCH GRANT: ' + D.name.toUpperCase(), `${D.desc} Yours for good (switch it off in the pause menu).`, c, true);
 }
 
 // ---------------------------------------------------------------- drawing (world space, from render)
@@ -103,7 +119,7 @@ function drawGrants() {
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.arc(x - r * 0.35, y, r * 0.22, 0, TAU); ctx.fill();
   ctx.font = '900 11px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.fillStyle = c;
   const by = y - r * 2.3 - 8;
-  ctx.strokeText('STAIN GRANT', x, by); ctx.fillText('STAIN GRANT', x, by);
+  ctx.strokeText('RESEARCH GRANT', x, by); ctx.fillText('RESEARCH GRANT', x, by);
   RAW_COL = false;
 }
 
@@ -111,7 +127,7 @@ function drawGrants() {
 function grantsHtml() {
   const got = GRANT_ORDER.filter(grantHas);
   if (!got.length) return '';
-  return `<h3 style="margin-top:10px">Stain grants</h3><div class="list">${got.map(id => { const D = GRANTS[id], on = grantOn(id);
+  return `<h3 style="margin-top:10px">Research grants</h3><div class="list">${got.map(id => { const D = GRANTS[id], on = grantSet(id);
     return `<div class="li on stain"><i class="sw" style="background:${D.key()}"></i><div><b>${esc(D.name)}</b><br><span>${esc(D.see)}.</span><br><button class="chip ${on ? 'sel' : ''}" data-grant="${id}">${on ? 'ON' : 'OFF'}</button></div></div>`; }).join('')}</div>`
     + `<p class="hint">Yours for good. Switch any off if you'd rather not see its colour.</p>`;
 }

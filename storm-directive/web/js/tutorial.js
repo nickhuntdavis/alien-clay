@@ -1,23 +1,28 @@
 'use strict';
 // Spawn Prawn - first-time tutorial cards, and wave 0 (Pre-pre-pre-pre-school).
 // Each card shows once ever (Settings > Tutorial brings them back), on the same stage as a first sighting.
-// So as not to bury a new player, cards queue up and come at least TUT_GAP seconds of play apart; only a few
+// So as not to bury a new player, cards queue up and come well apart, the essentials first (TUT_GAPS, TUT_FROM); only a few
 // (wave 0's welcome, Feats when you take your first one, your first sprint, your first junk DNA, the egg and your first stain)
 // jump the queue, because they explain something happening right now.
 // Wave 0 runs before wave 1 the first time you play wave mode (and again after a tutorial reset): a handful of
 // slow cells, a junk DNA carrier to kill and a box of upgrades at the end. Damage-type cards wait until
 // it is over.
+// Damage types: a card soon after you first use each (Force has none), and the type is in colour from then on (elemOn, render.js col()).
 // Hooks: tutTick (update; also the egg's first meeting, eggMeetTick), eggKnown (render.js, the egg arrow), tutSprintEnd (stamTick), tutBeforeLoot (main loop), tutElem (damageEnemy),
 // tutReact (react), tutShow('grudge'|'tether'|'charm') (game.js, arsenal.js, chem.js), tutTerrainSeen (tutTick), tutShow('lgt') (junkAbsorb), tutWaveInit (campInit), tutWave0Begin (campBegin),
 // tutWave0Clear (waveClear), tutSkip (the "skip tutorial" link).
 
-const TUT_GAP = 25;
+// Cards come in this order (mechanics first, then damage types, reactions, and terrain last), and each kind
+// leaves a longer quiet spell after it (TUT_GAPS, seconds). A kind also waits until that many seconds of the run have passed (TUT_FROM).
+const TUT_GAPS = [40, 45, 90, 80];
+const TUT_FROM = [0, 15, 120, 100];
+const tutCat = key => key.startsWith('el_') ? 1 : key === 'react' ? 2 : key.startsWith('tr_') ? 3 : 0;
 const TUT_NAME = 'PRE-PRE-PRE-PRE-SCHOOL';
 const tutOff = () => (typeof window !== 'undefined' && window.TUT_OFF) || (typeof SET !== 'undefined' && (SET.intros === 'off' || SET.auto));
 const tutSeen = key => !!(META.seenTut && META.seenTut[key]);
 const tutWave0 = () => !!(G && G.wave && G.wave.camp && G.wave.n === 0 && G.wave.active);
 
-// The reactions an element is part of: 'NEUTRALISED (Acid meets Base)'.
+// The reactions an element is part of: 'NEUTRALISED (Acid meets Alkali)'.
 function tutMixes(id) {
   const n = ELEMENTS[id].name, out = [];
   for (const k in REACTIONS) { const d = REACTIONS[k].desc; if (new RegExp('\\b' + n + '\\b').test(d.split(':')[0])) out.push(`${REACTIONS[k].name}: ${d.split(':')[0].replace(/ \(either way round\)/, '')}.`); }
@@ -48,12 +53,15 @@ const TUT_CARDS = {
         'The rest (healing, slowing time, shields) wait on a cooldown.',
         'They level up like weapons. Weapons are still where most of your damage comes from.'] };
   },
-  lgt: () => ({ title: 'YOU ABSORBED SOME', name: 'LATERAL GENE TRANSFER', colour: '#e9f5db',
-    what: 'Junk DNA from something you just killed. You keep a small power of whatever it was, for the rest of the run.',
+  lgt: () => {
+    const L = G.lgtLast, J = L && JUNK_POWERS[L.id];
+    return { title: 'LATERAL GENE TRANSFER', name: J ? J.name.toUpperCase() : 'JUNK DNA', colour: '#e9f5db',
+    what: J ? `You picked up junk DNA from the ${ENEMIES[L.id].name} and gained a power: ${J.fmt(L.k)}. It lasts the rest of the run.` : 'Junk DNA from something you just killed. You keep a small power of whatever it was, for the rest of the run.',
     head: 'HOW IT WORKS', tips: [
-      'Every so often an enemy wears a white helix. Kill it before it sheds the junk (30 seconds).',
+      'Every so often an enemy wears a white helix. Kill it before it sheds the junk (30 seconds), then swim into the helix it drops.',
       `Each kind of enemy gives its own power. The same kind again stacks it, up to ${JUNK.stacks} times.`,
-      'The pause menu lists what you have absorbed.'] }),
+      'The pause menu lists what you have absorbed.'] };
+  },
   react: () => ({ title: 'MIXING DAMAGE TYPES', name: 'REACTIONS', colour: '#ffd166',
     what: `Two different damage types on one enemy react. You just made ${G.tutReactName || 'one'}${G.tutReactPair ? ': ' + G.tutReactPair : ''}.`,
     head: 'WHY IT MATTERS', tips: [
@@ -78,7 +86,7 @@ const TUT_CARDS = {
   stains: () => ({ title: 'YOUR FIRST STAIN', name: 'STAINS', colour: PAL.you,
     what: 'Everything on the slide starts in greyscale, you included. Stains bring the colour back, one kind at a time.',
     head: 'HOW THEY WORK', tips: [
-      'A stain grant is yours for good: on in every run from now on. More grants turn up as you level.',
+      'A research grant is yours for good: on in every run from now on. More grants turn up as you level.',
       'Stain cards in DNA strands colour one more thing for that run only, and bring a boon.',
       'Switch any grant off in the pause menu if you would rather not see its colour.'] }),
   egg: () => ({ title: 'YOU HAVE MET', name: 'THE EGG', colour: '#ffd6e8',
@@ -102,10 +110,10 @@ function eggMeetTick() {
 }
 const eggKnown = () => !!(META.eggMet || (G && (G.fertile || G.eggAnnounced)));
 // The two damage types behind each reaction, for the card.
-const TUT_PAIR = { neutral: 'Acid + Base', battery: 'Acid + Static', ester: 'Acid + Ethanol', flashpoint: 'Static + Ethanol', electro: 'Static + Base',
-  sanitiser: 'Base + Ethanol', sympathy: 'Voodoo + anything', suds: 'Force + Base', pushover: 'Force + Ethanol', bleach: 'Peroxide + Acid',
-  toothpaste: 'Peroxide + Base', rocket: 'Peroxide + Ethanol', ozone: 'Peroxide + Static', exorcism: 'Peroxide + Voodoo', electrolyte: 'Brine + Static',
-  wound: 'Brine + Acid', margarita: 'Brine + Ethanol', crust: 'Brine + Base', seafoam: 'Peroxide + Brine', blackout: 'Ethanol + Ethanol' };
+const TUT_PAIR = { neutral: 'Acid + Alkali', battery: 'Acid + Static', ester: 'Acid + Ethanol', flashpoint: 'Static + Ethanol', electro: 'Static + Alkali',
+  sanitiser: 'Alkali + Ethanol', sympathy: 'Blood Magic + anything', suds: 'Force + Alkali', pushover: 'Force + Ethanol', bleach: 'Peroxide + Acid',
+  toothpaste: 'Peroxide + Alkali', rocket: 'Peroxide + Ethanol', ozone: 'Peroxide + Static', exorcism: 'Peroxide + Blood Magic', electrolyte: 'Brine + Static',
+  wound: 'Brine + Acid', margarita: 'Brine + Ethanol', crust: 'Brine + Alkali', seafoam: 'Peroxide + Brine', blackout: 'Ethanol + Ethanol' };
 // Terrain: one card the first time each kind comes on screen.
 const TUT_TERRAIN = {
   ridge:   { what: 'A hard lump of cartilage growing in the womb.', tips: ['Nothing can swim through it: you, the swarm and bosses slide round it.', 'Shots bounce off it. Use it as cover.'] },
@@ -117,13 +125,35 @@ const TUT_TERRAIN = {
 };
 for (const type in TUT_TERRAIN) TUT_CARDS['tr_' + type] = () => ({ title: 'NEW TERRAIN', name: OBSTACLES[type].name.toUpperCase(), colour: OBSTACLES[type].color === '#b0b0b0' ? '#cfd8e3' : OBSTACLES[type].color,
   what: TUT_TERRAIN[type].what, head: 'WHAT IT DOES', tips: TUT_TERRAIN[type].tips });
+// A damage type's first card: its colour, what it does in plain words, and what its odd words mean.
+const TUT_EL = {
+  phys:   { c: 'white', what: 'Plain shoving. Knocks enemies about, and knocks over anything drunk or turned to soap.', terms: 'Shoved: knocked back.' },
+  fire:   { c: 'lime green', what: 'Acid eats away at what it touches: damage over time, and it wears down armour as it goes.', terms: 'Acid is the sour stuff in your stomach. Corroding means being eaten away.' },
+  ice:    { c: 'blue', what: 'The opposite of acid, and the stuff soap is made from. It makes enemies soapy, so they swim slower and slide further when hit. Enough and they turn to soap.', terms: 'Alkali: the chemical opposite of acid, slippery to the touch. Lathered: covered in suds, so slow and slippery. Saponified: turned into soap and stuck solid for a moment.' },
+  shock:  { c: 'electric yellow', what: 'Static charges enemies. Some of the damage they take jumps to a neighbour and drags it closer.', terms: 'Charged: carrying a static shock. Static cling: the jump that pulls them together.' },
+  poison: { c: 'amber, like a pint', what: 'Ethanol is alcohol. It gets enemies drunk: damage that builds up over time while they stagger about. Enough and they black out.', terms: 'Ethanol: the drink in drinks. Drunk: stacking damage over time and wobbly steering.' },
+  oxi:    { c: 'icy cyan', what: 'Peroxide is hair bleach and the fizz on a cut. Each hit adds bubbles that wear down armour, then the bubbles pop in a small blast.', terms: 'Peroxide: the bleach. Fizzing: covered in bubbles that pop when it stops.' },
+  salt:   { c: 'pink', what: 'Salt water. It shrivels enemies: they swim slower, hit you softer, and carry Static twice as well.', terms: 'Brine: very salty water. Pickled: shrivelled up by the salt.' },
+  arcane: { c: 'blood red', what: 'An old curse, written in your own blood. It hexes enemies: a hexed enemy takes more from everything, and when it dies the hex bleeds into the nearest one.', terms: 'Hexed: cursed, so every hit on it lands harder.' },
+};
 for (const id in ELEMENTS) TUT_CARDS['el_' + id] = () => {
-  const E = ELEMENTS[id], mix = tutMixes(id);
-  return { title: 'NEW DAMAGE TYPE', name: E.name.toUpperCase(), colour: E.color, what: E.blurb,
+  const E = ELEMENTS[id], mix = tutMixes(id), X = TUT_EL[id];
+  return { title: 'NEW DAMAGE TYPE', name: E.name.toUpperCase(), colour: E.color, what: `Its colour is ${X.c}. ${X.what}`, desc: X.terms,
     head: mix.length ? 'MIX IT WITH' : 'HOW IT WORKS',
     tips: mix.length ? mix.slice(0, 3) : ['It leaves enemies ' + E.status + '.'],
     foot: mix.length > 3 ? `And ${mix.length - 3} more in the Field Guide.` : '' };
 };
+// A damage type turns from grey to colour when its card comes up, soon after you first use it (at once with
+// tutorials off). Saves from before this get colour for every type they had a card for.
+const elemOn = e => {
+  if (!META.elemMig) { META.elemSeen = META.elemSeen || {}; for (const k in (META.seenTut || {})) if (k.startsWith('el_')) META.elemSeen[k.slice(3)] = 1; META.elemMig = 1; }
+  return !!(META.elemSeen && META.elemSeen[e]);
+};
+function elemUnlock(e) {
+  if (elemOn(e)) return;
+  META.elemSeen[e] = 1; saveMeta();
+  if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
+}
 
 // Ask for a card. now: it explains something happening this moment, so it skips the queue.
 function tutShow(key, now) {
@@ -145,19 +175,28 @@ function tutTick() {
   eggMeetTick();
   tutTerrainSeen();
   if (!G || !G.tutQ || !G.tutQ.length || G.state !== 'play' || G.debug || tutOff()) return;
-  const key = G.tutQ[0], now = G.tutNow === key;
+  let at = G.tutNow ? G.tutQ.indexOf(G.tutNow) : -1;
+  const now = at >= 0;
+  if (!now) { // (the most essential kind first; a kind may also be too early in the run)
+    let best = -1;
+    G.tutQ.forEach((k, i) => { const c = tutCat(k); if (G.t >= TUT_FROM[c] && (best < 0 || c < tutCat(G.tutQ[best]))) best = i; });
+    if (best < 0) return;
+    at = best;
+  }
+  const key = G.tutQ[at];
   if (!now) {
     if (G.t < (G.tutNext || 0) || G.t < (G.stIntroNext || 0) || G.t < (G.introNext || 0) - 4) return;
     if (tutWave0() && key !== 'school') return; // (damage-type waits until pre-school is over)
     if (G.player.hp < G.P.maxHp * 0.35 || (G.boss && !G.boss.dead && G.wave && G.wave.phase === 'lead')) return; // (not in a tight spot)
   }
-  G.tutQ.shift(); G.tutNow = null;
+  G.tutQ.splice(at, 1); G.tutNow = null;
   tutOpen(key);
 }
 function tutOpen(key) {
   if (tutSeen(key)) return false;
   META.seenTut = META.seenTut || {}; META.seenTut[key] = 1; saveMeta();
-  G.tutNext = G.t + TUT_GAP; G.stIntroNext = Math.max(G.stIntroNext || 0, G.t + 6);
+  if (key.startsWith('el_')) elemUnlock(key.slice(3)); // (in colour from its introduction on)
+  G.tutNext = G.t + TUT_GAPS[tutCat(key)]; G.stIntroNext = Math.max(G.stIntroNext || 0, G.t + 6);
   const C = TUT_CARDS[key]();
   if (typeof SET !== 'undefined' && SET.intros === 'quiet') { sysMsg('TUTORIAL: ' + C.name, `${C.what} ${C.tips[0]}`, C.colour, true); return false; }
   const p = me(), spot = { x: p.x, y: p.y, r: p.r || 14, def: { color: C.colour, name: C.name }, age: 0, flash: 0, name: C.name };
@@ -173,7 +212,11 @@ function tutSprintEnd() { tutShow('sprint', true); }
 // (Feats are introduced by tutShow('feats') the moment the first one is taken, not before a box.)
 function tutBeforeLoot(req) { return false; } // (the Feats card now comes when you take your first Feat: game.js, optNewSpell)
 // The first time one of your hits carries each chemical, and the first reaction.
-function tutElem(elem) { if (!tutSeen('el_' + elem)) tutShow('el_' + elem); }
+function tutElem(elem) {
+  if (elemOn(elem)) return;
+  if (elem === 'phys' || tutOff() || tutSeen('el_' + elem)) { elemUnlock(elem); return; } // (no card to wait for: colour at once)
+  tutShow('el_' + elem);
+}
 function tutReact(id) { if (!tutSeen('react')) { G.tutReactName = REACTIONS[id] ? REACTIONS[id].name : null; G.tutReactPair = TUT_PAIR[id] || ''; tutShow('react'); } }
 
 // ---------------------------------------------------------------- wave 0

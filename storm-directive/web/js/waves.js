@@ -18,7 +18,7 @@ function initWaves() {
   G.wave = { n: 0, active: false, budget: 0, spawned: 0, t: 0, restT: 0, best: 0 };
   G.nextBoss = 1e12; G.nextWave = 1e12;
   G.nextPill = 1e12; G.nextYeast = 1e12; // the yeast and the pill are Sample 001's hazards (budding yeast would never let a wave end)
-  G.rivalsInit = true; // no race in the dish: just you and whatever she drops in
+  // (no race in the dish, but rivals still join one a wave in wave mode: rivals.js)
   if (typeof UI === 'undefined' || UI.sample !== 's006') campInit(); // wave mode (campaign.js); Endless otherwise
 }
 
@@ -31,8 +31,10 @@ function waveBegin() {
   V.n++; V.active = true; V.t = 0; V.spawned = 0; V.started = true;
   if (V.camp) { campBegin(V); UI.refreshHud(true); return; }
   // Bigger waves, fed in over 45 to 90 seconds rather than all at once.
-  V.budget = Math.round((50 + V.n * 20 + Math.pow(V.n, 1.5) * 4) * G.P.spawnMult);
-  V.dur = Math.min(100, 55 + V.n * 3);
+  // Waves 6 to 9 (between the first boss and the second) run denser and a little quicker: they used to be a stroll.
+  const mid = V.n >= 6 && V.n <= 9 ? 1 + 0.2 * (V.n - 5) : 1;
+  V.budget = Math.round((50 + V.n * 20 + Math.pow(V.n, 1.5) * 4) * G.P.spawnMult * mid);
+  V.dur = Math.min(100, 55 + V.n * 3) * (mid > 1 ? 0.85 : 1);
   const p = me(), a = Math.random() * TAU, x = p.x + Math.cos(a) * 160, y = p.y + Math.sin(a) * 160;
   const drop = DROPS[(V.n - 1) % DROPS.length];
   // The pipette: a big drop falls into the dish and the wave spreads out from the splash.
@@ -76,11 +78,11 @@ function waveTick(dt) {
     V.herdT = 4;
     const p = me();
     for (const e of G.enemies) {
-      if (e.dead || e.charmed || e.egg || e.boss) continue;
+      if (e.dead || e.charmed || e.egg || e.boss || e.rival) continue;
       if (Math.hypot(e.x - p.x, e.y - p.y) > 520) { const a = Math.random() * TAU; e.x = p.x + Math.cos(a) * 380; e.y = p.y + Math.sin(a) * 380; e.kx = e.ky = 0; spawnPart(e.x, e.y, '#ffffff', 4, 60, 0.3); }
     }
   }
-  if (G.boss || G.enemies.some(e => !e.dead && !e.charmed && !e.egg)) return;
+  if (G.boss || G.enemies.some(e => !e.dead && !e.charmed && !e.egg && !e.rival)) return; // (rivals don't hold a wave up)
   waveClear(V);
 }
 // Wave clear: everything you dropped flies to you, then the boxes open.
@@ -91,6 +93,7 @@ function waveClear(V) {
   for (const ev of G.ev.active) ev.left = 0;
   G.hazards.length = 0;
   healPlayer(G.P.maxHp * (0.25 + (G.P.magnet - 1) / 3)); // Clingy heals a little more in the dish
+  rivalWaveEnd(V); // (surviving rivals come back stronger: rivals.js)
   if (!(V.camp && tutWave0Clear(V))) banner(V.camp ? `WAVE ${V.n} OF ${CAMP.waves} BEATEN` : `WAVE ${V.n} CLEAR`, PAL.upgrade);
   sfx('level'); vibrate([60, 40, 60]);
   addViewers(3000 * V.n);

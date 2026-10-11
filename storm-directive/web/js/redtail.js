@@ -8,15 +8,15 @@
 
 const RED = { color: '#e85d04' };
 Object.assign(WEAPONS, {
-  wedding: { name: 'Shotgun Wedding', stars: [4, 2, 1, 4], play: 'A double-barrelled blunderbuss: two blasts of pellets, then a reload. Every third blast is both barrels at once, with double the pellets and a kick that sends things flying. Pellets that miss bounce once to the nearest relative.', icon: 'SW', elem: 'phys', kind: 'gun', color: '#ffb703', dir: 'nearest', role: 'Brawler', redtail: 1, seqOnly: 'redtail',
+  wedding: { name: 'Shotgun Wedding', stars: [4, 2, 1, 4], play: 'A double-barrelled blunderbuss: two blasts of pellets, then a reload. Every third blast is both barrels at once, with double the pellets and a kick that sends things flying. Pellets that miss bounce once to the nearest relative.', icon: 'SW', elem: 'phys', kind: 'gun', color: '#e8eef8', dir: 'nearest', role: 'Brawler', redtail: 1, seqOnly: 'redtail',
     desc: 'Something old, something new, something double-barrelled.',
     base: { dmg: 6, cd: 0.55, mag: 2, reload: 1.3, count: 7, spread: 0.6, speed: 520, pierce: 0, range: 300, size: 3.5, knock: 90, bounce: 1 },
     lv: { 3: { count: 2 }, 6: { dmg: 0.3 }, 9: { count: 2 } }, sig: { 5: ['rtrice', 'rtboth'], 10: ['rtreception', 'rtelope'] } },
-  moonshine: { name: 'Moonshine Jug', stars: [4, 2, 3, 4], play: 'Lobs a jug of homebrew that bursts into a boozy puddle. One jug in six is a bad batch and goes up in a much bigger blast.', icon: 'MJ', elem: 'poison', kind: 'lob', color: '#f48c06', dir: 'cluster', role: 'Firebomber', redtail: 1, seqOnly: 'redtail',
+  moonshine: { name: 'Moonshine Jug', stars: [4, 2, 3, 4], play: 'Lobs a jug of homebrew that bursts into a boozy puddle. One jug in six is a bad batch and goes up in a much bigger blast.', icon: 'MJ', elem: 'poison', kind: 'lob', color: '#d98c2b', dir: 'cluster', role: 'Firebomber', redtail: 1, seqOnly: 'redtail',
     desc: 'Grandpappy\'s recipe. Do not drink. Do not stand near.',
     base: { dmg: 15, cd: 1.2, mag: 3, reload: 2.0, count: 1, spread: 40, range: 380, area: 70, explode: 1, dur: 2.4, flight: 0.65 },
     lv: { 3: { dur: 0.5 }, 6: { count: 1 }, 9: { area: 0.35 } }, sig: { 5: ['rtproof', 'rtstill'], 10: ['rtbadbatch', 'rthooch'] } },
-  banjo: { name: 'Duelling Banjo', stars: [3, 3, 2, 4], play: 'Twangs a ring of notes all around you. The rings alternate: high notes fly fast and far, low notes are slow, wide and hit hard.', icon: 'DB', elem: 'shock', kind: 'ring', color: '#ffd166', dir: 'nearest', role: 'Ring', redtail: 1, seqOnly: 'redtail',
+  banjo: { name: 'Duelling Banjo', stars: [3, 3, 2, 4], play: 'Twangs a ring of notes all around you. The rings alternate: high notes fly fast and far, low notes are slow, wide and hit hard.', icon: 'DB', elem: 'shock', kind: 'ring', color: '#ffe94a', dir: 'nearest', role: 'Ring', redtail: 1, seqOnly: 'redtail',
     desc: 'Only knows one song. Plays it with feeling.',
     base: { dmg: 12, cd: 1.3, mag: 3, reload: 1.6, count: 10, speed: 320, pierce: 2, range: 240, size: 4 },
     lv: { 3: { count: 4 }, 6: { dmg: 0.4 }, 9: { pierce: 2 } }, sig: { 5: ['rtpick', 'rtduel'], 10: ['rthoedown', 'rtencore'] } },
@@ -90,7 +90,7 @@ function redFire(w, target, src) {
     const both = hasSig(w, 'rtboth') || w.blastN % 3 === 0, n = s.count * (both ? 2 : 1);
     for (let i = 0; i < n; i++) spawnProj(w, p.x, p.y, a0 + (Math.random() - 0.5) * s.spread * (both ? 1.3 : 1), src, both ? { knock: (s.knock || 90) * 2 } : null);
     if (both) pair2Both(w); // (Hoedown Throwdown, pairs2.js)
-    if (both) { cam.shake = Math.min(10, cam.shake + 3); if (!(G.bothSayT > G.t)) { G.bothSayT = G.t + 3; floatText(p.x, p.y - 30, 'BOTH BARRELS', '#ffb703', 12, 0.6); } }
+    if (both) { cam.shake = Math.min(10, cam.shake + 3); if (!(G.bothSayT > G.t)) { G.bothSayT = G.t + 3; floatText(p.x, p.y - 30, 'BOTH BARRELS', '#e8eef8', 12, 0.6); } }
     if (hasSig(w, 'rtrice')) for (let i = 0; i < 8; i++) spawnProj(w, p.x, p.y, i / 8 * TAU, src, { noMods: true, dmg: s.dmg * 0.4, r: 2.5, color: '#fff3e0', bounce: 0 });
     if (hasSig(w, 'rtreception') && w.blastN % 4 === 0) for (let i = 0; i < 16; i++) spawnProj(w, p.x, p.y, i / 16 * TAU, src, { noMods: true });
     if (both && hasSig(w, 'rtboth')) w.cd += s.cd * 0.3;
@@ -102,7 +102,7 @@ function redFire(w, target, src) {
     const n = s.count + (hasSig(w, 'rtpick') ? 6 : 0);
     const ring = (x, y, hi) => {
       const sp = s.speed * (hi ? 1.45 : 0.7), off = Math.random() * TAU;
-      for (let i = 0; i < n; i++) spawnProj(w, x, y, off + i / n * TAU, src, { speed: sp, vx: Math.cos(off + i / n * TAU) * sp, vy: Math.sin(off + i / n * TAU) * sp, life: s.range * (hi ? 1.25 : 0.8) / sp, dmg: s.dmg * (hi ? 0.75 : 1.45), r: (s.size || 4) * (hi ? 0.8 : 1.7), note: hi ? 'hi' : 'lo', color: hi ? '#ffd166' : '#f48c06' });
+      for (let i = 0; i < n; i++) spawnProj(w, x, y, off + i / n * TAU, src, { speed: sp, vx: Math.cos(off + i / n * TAU) * sp, vy: Math.sin(off + i / n * TAU) * sp, life: s.range * (hi ? 1.25 : 0.8) / sp, dmg: s.dmg * (hi ? 0.75 : 1.45), r: (s.size || 4) * (hi ? 0.8 : 1.7), note: hi ? 'hi' : 'lo', color: hi ? '#fff3b0' : '#ffe94a' });
     };
     const hi = w.noteN % 2 === 1;
     ring(p.x, p.y, hi);
@@ -123,9 +123,9 @@ function redLand(pr) {
   const w = pr.w, s = w.s;
   if (hasSig(w, 'rtproof')) { const z = G.zones[G.zones.length - 1]; if (z && z.x === pr.tx && z.y === pr.ty) { z.life *= 1.5; z.max *= 1.5; z.r *= 1.25; } }
   if (hasSig(w, 'rtbadbatch') || Math.random() < 1 / 6) {
-    aoe(pr.tx, pr.ty, s.area * 1.6, s.dmg * 0.8, Object.assign({}, pr.src, { wname: 'Bad Batch' }), '#ff5400');
+    aoe(pr.tx, pr.ty, s.area * 1.6, s.dmg * 0.8, Object.assign({}, pr.src, { wname: 'Bad Batch' }), '#e8a33d');
     cam.shake = Math.min(12, cam.shake + 5);
-    if (!(G.batchSayT > G.t)) { G.batchSayT = G.t + 2; floatText(pr.tx, pr.ty - 30, 'BAD BATCH', '#ff5400', 14, 0.8); }
+    if (!(G.batchSayT > G.t)) { G.batchSayT = G.t + 2; floatText(pr.tx, pr.ty - 30, 'BAD BATCH', '#e8a33d', 14, 0.8); }
   }
   if (w.s.countBonus) {
     const b = w.s.countBonus; w.s.countBonus = 0;
@@ -173,7 +173,7 @@ function redTick(dt) {
     if (t) {
       const a = Math.atan2(t.y - C.y, t.x - C.x), dmg = (10 + G.level * 2.2) * G.P.might;
       IN_AOE = true;
-      for (let i = 0; i < 5; i++) { const aa = a + (Math.random() - 0.5) * 0.5; alongLine({ x: C.x, y: C.y }, { x: C.x + Math.cos(aa) * 260, y: C.y + Math.sin(aa) * 260 }, 8, e => { if (!e.charmed && !e.egg) damageEnemy(e, dmg / 2, { elem: 'phys', wname: 'Sister-Cousin', noCrit: true }); }); bolt(C.x, C.y, C.x + Math.cos(aa) * 200, C.y + Math.sin(aa) * 200, '#ffb703', 0.08); }
+      for (let i = 0; i < 5; i++) { const aa = a + (Math.random() - 0.5) * 0.5; alongLine({ x: C.x, y: C.y }, { x: C.x + Math.cos(aa) * 260, y: C.y + Math.sin(aa) * 260 }, 8, e => { if (!e.charmed && !e.egg) damageEnemy(e, dmg / 2, { elem: 'phys', wname: 'Sister-Cousin', noCrit: true }); }); bolt(C.x, C.y, C.x + Math.cos(aa) * 200, C.y + Math.sin(aa) * 200, '#e8eef8', 0.08); }
       IN_AOE = false;
     }
   }

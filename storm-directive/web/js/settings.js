@@ -3,6 +3,7 @@
 
 const SETTINGS_DEF = [
   { id: 'darkfield', label: 'Darkfield microscope', hint: 'Black field, bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
+  { id: 'fullColour', label: 'Full colour', hint: 'Every colour at once, whatever stains you have found. Not Technicolour: no rainbows, just each thing in its own colour. The rows below can still force any one kind OFF. Spoils the greyscale surprise, so best left off on a first playthrough.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'detail', label: 'Specimen detail', hint: 'High adds organelles, textures and a proper zona breach. Costs a little performance.', opts: [['standard', 'STANDARD'], ['high', 'HIGH']] },
   { id: 'clinical', label: 'Clean clinical view', hint: 'No grain, lens blur, vignette or halos. Maximum readability.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'dof', label: 'Depth of field', hint: 'Out-of-focus layers and a soft lens blur at the edges.', opts: [[true, 'ON'], [false, 'OFF']] },
@@ -27,11 +28,12 @@ const SETTINGS_DEF = [
   { id: 'cFast', label: 'Fast enemies', hint: 'Cyan for sprinters, spermlets, krill and paramecia.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cRival', label: 'Rivals', hint: 'Each rival champion in their own colour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cElem', label: 'Damage types', hint: 'Acid, Base, Static, Ethanol, Voodoo, Peroxide and Brine in their own colours.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. EARNED: once damage types are coloured.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cEnemy', label: 'Enemy types', hint: 'Each kind of enemy in its own colour. EARNED: with the Gram Stain.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. EARNED: with the Counterstain.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cBg', label: 'Background', hint: 'A soft tissue-pink tint on the slide. EARNED: only with Full Technicolour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1, featAuto: true, immersive: false,
-  cYou: 'earned', cDanger: 'earned', cReward: 'earned', cPickup: 'earned', cFast: 'earned', cRival: 'earned', cElem: 'earned', cTerrain: 'earned', cBg: 'earned' };
+const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1, featAuto: true, immersive: false, fullColour: false,
+  cYou: 'earned', cDanger: 'earned', cReward: 'earned', cPickup: 'earned', cFast: 'earned', cRival: 'earned', cElem: 'earned', cEnemy: 'earned', cTerrain: 'earned', cBg: 'earned' };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
   for (const k in SET) if (k in s) SET[k] = s[k];

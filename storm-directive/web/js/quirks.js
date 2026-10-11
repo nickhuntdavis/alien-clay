@@ -8,7 +8,7 @@ const QUIRKS = {
   slingshot:  { name: 'Gravity Assist', desc: 'Your shots curved round a black hole and flew out faster and harder. Ask a space probe.' },
   wetwire:    { name: 'Live Puddle', desc: 'Static hit something standing in a boozy puddle, and everyone else in the puddle got it too.' },
   flammable:  { name: 'Flammable Fumes', desc: 'Something corroding touched a boozy puddle and the whole thing went up.' },
-  icerink:    { name: 'Slip Hazard', desc: 'Base turned a boozy puddle to soap. Enemies slide about on it; you skate across it faster.' },
+  icerink:    { name: 'Slip Hazard', desc: 'Alkali turned a boozy puddle to soap. Enemies slide about on it; you skate across it faster.' },
   icebreaker: { name: 'Bar of Soap', desc: 'You rammed a saponified enemy at speed. It burst, and the suds hit what was behind it.' },
   contagion:  { name: 'Hereditary', desc: 'An infected enemy split during Identical Twins, and both halves kept the infection.' },
   driftmines: { name: 'Downstream', desc: 'Waters Breaking swept your mines, puddles and black holes along with everything else.' },
@@ -84,7 +84,7 @@ function quirkTick(dt) {
 function slingOut(pr) {
   // 2. Leaving the orb's pull: the slingshot.
   pr.slung = true; pr.vx *= 1.45; pr.vy *= 1.45; pr.speed *= 1.45; pr.dmg *= 1.5;
-  fxParts('spark', pr.x, pr.y, '#e0aaff', 3, 200, 0.25, 2, Math.atan2(pr.vy, pr.vx) + Math.PI, 0.4);
+  fxParts('spark', pr.x, pr.y, '#ff758f', 3, 200, 0.25, 2, Math.atan2(pr.vy, pr.vx) + Math.PI, 0.4);
   G.slingN = (G.slingN || 0) + 1;
   if (G.slingN >= 3) quirkFound('slingshot', pr.x, pr.y);
 }
@@ -152,7 +152,7 @@ function amoebaIndigestion(e) {
       // It swallowed a black hole: it implodes.
       damageEnemy(e, e.maxHp * 0.35 + pr.dmg * 4, Object.assign({}, pr.src, { noProc: true, wname: 'Something It Ate' }));
       e.r = Math.max(e.def.r, e.r * 0.7);
-      ring(e.x, e.y, e.r * 2, '#c77dff', 0.5, 6);
+      ring(e.x, e.y, e.r * 2, '#c9184a', 0.5, 6);
     }
     floatText(e.x, e.y - e.r - 12, 'INDIGESTION', '#ffffff', 15, 0.8);
     quirkFound('indigestion', e.x, e.y);

@@ -41,7 +41,7 @@ function grantBoon(id) {
   ring(p.x, p.y, 120, RARITIES[B.tier].color, 0.8, 8);
   if (id === 'hormone') { const add = Math.round(P.maxHp * 0.5); P.maxHp += add; G.player.hp += add; P.ram += 2; }
   if (id === 'technicolour') { P.might += 0.1; refreshPalette(); }
-  if (id === 'pocketvoid') G.zones.push({ x: p.x, y: p.y, r: 70, life: 1e9, max: 1e9, dps: 0, elem: 'arcane', pull: 160, color: '#7b2cbf', tick: 0, src: { elem: 'arcane', wname: 'Bottomless Pit', noCrit: true }, pocket: true });
+  if (id === 'pocketvoid') G.zones.push({ x: p.x, y: p.y, r: 70, life: 1e9, max: 1e9, dps: 0, elem: 'arcane', pull: 160, color: '#800f2f', tick: 0, src: { elem: 'arcane', wname: 'Bottomless Pit', noCrit: true }, pocket: true });
 }
 
 const hasBoon = id => !!(G.boons && G.boons[id]);

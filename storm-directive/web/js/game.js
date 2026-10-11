@@ -115,8 +115,8 @@ function newGame() {
   if (typeof UI !== 'undefined' && UI.sample === 's000') initDebug();
   G.terrain = makeTerrain();
   cam.x = 0; cam.y = 0; cam.shake = 0;
-  // In the Petri Dish you start at the bottom of the dish, facing the egg (not sitting on it).
-  if (G.wave) { const p = G.player; p.y = DISH.arena * 0.72; unstick(p, p.r + 6); cam.x = p.x; cam.y = p.y; }
+  // Every mode starts you near the bottom edge of the dish, facing the egg (not sitting on it). Campaign levels reposition below.
+  { const p = G.player; p.y = CORE.arena * 0.78; unstick(p, p.r + 6); cam.x = p.x; cam.y = p.y; }
   if (typeof UI !== 'undefined' && LV_SAMPLE[UI.sample] != null) lvInit(LV_SAMPLE[UI.sample]); // a campaign level (levels.js)
   // G.dyes: which colours show. G.dyeBoon: which stains you found this run (their boons). Permanent stains
   // (one kept at the end of each finished run) start switched on, colour only; the pause menu toggles them.
@@ -275,6 +275,7 @@ function computeStats(w) {
   const realP = G.P;
   if (w.wp) G.P = weaponP(w);
   try { computeStatsInner(w); } finally { G.P = realP; }
+  wRecolour(w); // (a changed damage type changes the colour)
 }
 function computeStatsInner(w) {
   const d = w.def, b = d.base, P = G.P, L = w.lvl, syn = G.synergy;
@@ -361,6 +362,16 @@ function computeStatsInner(w) {
   w.s = s;
 }
 
+// A weapon whose damage type has been changed (Switched at Birth, or a signature upgrade such as Dragon's Breath)
+// wears its new type's colour. It gets its own copy of the def (the original underneath), so other copies keep theirs.
+function wRecolour(w) {
+  const m = w.mods && w.mods.find(x => x.id === 'elemental'), base = w.def.recol ? Object.getPrototypeOf(w.def) : w.def;
+  const el = m ? m.elem : w.s && w.s.elem;
+  if (!el || el === base.elem || !ELEMENTS[el]) { if (w.def !== base) w.def = base; return; }
+  const c = ELEMENTS[el].color;
+  if (w.def !== base && w.def.color === c) return;
+  w.def = Object.create(base, { color: { value: c, writable: true, enumerable: true }, recol: { value: true } });
+}
 function recomputeAll() {
   const counts = {};
   for (const w of G.weapons.concat(G.spells)) {
@@ -1248,38 +1259,46 @@ function spawnRandom() {
   const p = spawnPos();
   const n0 = Math.ceil((def.group || 1) * 0.8), n = Math.max(n0, spot && def.hp < 100 && !def.pack ? 3 : 1); // (a bunch of them, unless they're big)
   if (n > n0) G.spawnAcc = (G.spawnAcc || 0) - (n - n0); // ...charged to the spawn budget, so the slide is no busier than usual
-  const eliteChance = Math.min(0.24, (0.01 + t / 3000) * heatElite());
+  const wm = G.wave && G.wave.n >= 6 && G.wave.n <= 9 ? 0.06 * (G.wave.n - 5) : 0; // (waves 6 to 9: more elites, waves.js)
+  const eliteChance = Math.min(0.24, (0.01 + t / 3000) * heatElite()) + wm;
   for (let i = 0; i < n; i++) {
     if (G.enemies.length >= CAPS.enemies) return;
     G.enemies.push(makeEnemy(def, p.x + rand(-30, 30), p.y + rand(-30, 30), { elite: n === 1 && t > 45 && Math.random() < eliteChance }));
   }
 }
 
+// The race's scripted waves, every 30 s. Each brings a rival with it (rivals.js) and lands as groups spread
+// over a few seconds (WAVE_EV: more of them, further apart), not one clump.
+const WAVE_EV = { more: 1, gap: 1.6, spread: 75 };
 function waveEvent() {
-  const t = PT(), p = G.player;
+  const t = PT(), p = G.player, M = WAVE_EV.more, sp = WAVE_EV.spread;
+  rivalArrive(); // (one rival a wave until all five are in)
+  const groups = (n, fn) => { for (let k = 0; k < n; k++) after(k * WAVE_EV.gap, () => { if (G && G.state !== 'over') fn(spawnPos()); }); };
   const kind = pick(t < 120 ? ['ring', 'swarm', 'krill'] : t < 200 ? ['ring', 'swarm', 'elite', 'barrage', 'krill'] : ['ring', 'swarm', 'elite', 'barrage', 'pond']);
   if (kind === 'ring') {
-    const n = Math.min(18, 8 + Math.floor(t / 40)), d = Math.hypot(W / S0, H / S0) / 2 + 40;
+    const n = Math.round(Math.min(18, 8 + Math.floor(t / 40)) * M), d = Math.hypot(W / S0, H / S0) / 2 + 40;
     const def = t > 150 ? ENEMIES.skitter : ENEMIES.crawler;
     for (let i = 0; i < n; i++) { const a = i / n * TAU, q = dishFix(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d); G.enemies.push(makeEnemy(def, q.x, q.y)); }
     banner('ENCIRCLEMENT', '#ff4d6d');
   } else if (kind === 'swarm') {
-    for (let k = 0; k < 2; k++) { const s = spawnPos(); for (let i = 0; i < 6; i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-40, 40), s.y + rand(-40, 40))); }
+    groups(2, s => { for (let i = 0; i < Math.round(6 * M); i++) G.enemies.push(makeEnemy(ENEMIES.wisp, s.x + rand(-sp, sp), s.y + rand(-sp, sp))); });
     banner('SWARM INCOMING', '#fee440');
   } else if (kind === 'krill') {
-    for (let k = 0; k < 3; k++) { const s = spawnPos(); for (let i = 0; i < 10; i++) G.enemies.push(makeEnemy(ENEMIES.krill, s.x + rand(-45, 45), s.y + rand(-45, 45))); }
+    groups(3, s => { for (let i = 0; i < Math.round(10 * M); i++) G.enemies.push(makeEnemy(ENEMIES.krill, s.x + rand(-sp, sp), s.y + rand(-sp, sp))); });
     banner('KRILL SHOAL', '#fee440');
   } else if (kind === 'pond') {
-    const s = spawnPos();
-    G.enemies.push(makeEnemy(ENEMIES.volvox, s.x, s.y));
-    for (let i = 0; i < 5; i++) { const q = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.paramecium, q.x, q.y)); }
-    for (let i = 0; i < 2; i++) { const q = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.rotifer, q.x, q.y)); }
+    let pk = 0; // (5 paramecia and 2 rotifers in all, as before, over two groups)
+    groups(2, s => {
+      for (let i = 0; i < (pk++ ? 2 : 3); i++) G.enemies.push(makeEnemy(ENEMIES.paramecium, s.x + rand(-sp, sp), s.y + rand(-sp, sp)));
+      G.enemies.push(makeEnemy(ENEMIES.rotifer, s.x + rand(-sp, sp), s.y + rand(-sp, sp)));
+    });
+    const s = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.volvox, s.x, s.y));
     banner('POND LIFE', '#fee440');
   } else if (kind === 'elite') {
-    for (let k = 0; k < 2; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.warlock, ENEMIES.bulwark]), s.x, s.y, { elite: true })); }
+    groups(Math.round(2 * M), s => { G.enemies.push(makeEnemy(pick([ENEMIES.brute, ENEMIES.charger, ENEMIES.warlock, ENEMIES.bulwark]), s.x, s.y, { elite: true })); });
     banner('ELITES APPROACH', '#ffd23f');
   } else {
-    for (let k = 0; k < 3; k++) { const s = spawnPos(); G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y)); }
+    groups(Math.round(3 * M), s => G.enemies.push(makeEnemy(ENEMIES.spitter, s.x, s.y)));
     banner('BULLET STORM', '#e056fd');
   }
 }
@@ -1787,7 +1806,7 @@ function fireWeapon(w, target) {
     case 'sentry':
       for (let i = 0; i < s.count; i++) {
         const a = Math.random() * TAU;
-        G.turrets.push({ x: p.x + Math.cos(a) * 50, y: p.y + Math.sin(a) * 50, life: s.dur, max: s.dur, cd: 0, rate: s.rate, dmg: s.dmg, range: s.range, w, src, face: 0 });
+        G.turrets.push({ x: p.x + Math.cos(a) * 50, y: p.y + Math.sin(a) * 50, life: s.dur, max: s.dur, cd: 0, rate: s.rate, dmg: s.dmg, range: s.range, w, src, face: 0, color: d.color });
       }
       break;
   }
@@ -2100,8 +2119,8 @@ function detonateMine(pr) {
   const s = pr.w.s;
   genesMine(pr); // Acid Mines (Bruiser + Acid-Burner)
   if (s.singularity) {
-    G.zones.push({ x: pr.x, y: pr.y, r: s.explode * 1.2, life: 1.2, max: 1.2, dps: s.dmg * 0.3, elem: 'arcane', pull: 260, color: '#9d4edd', tick: 0, src: pr.src,
-      onEnd: z => aoe(z.x, z.y, s.explode, s.dmg, pr.src, '#c77dff') });
+    G.zones.push({ x: pr.x, y: pr.y, r: s.explode * 1.2, life: 1.2, max: 1.2, dps: s.dmg * 0.3, elem: 'arcane', pull: 260, color: '#a4133c', tick: 0, src: pr.src,
+      onEnd: z => aoe(z.x, z.y, s.explode, s.dmg, pr.src, '#c9184a') });
   } else { const k = mineScale(pr), ch = pr.charge || 1; aoe(pr.x, pr.y, s.explode * k.r * Math.min(1.6, Math.sqrt(ch)), s.dmg * k.k * ch, pr.src, pr.color); }
   afterMine(pr);
 }
@@ -2176,7 +2195,7 @@ function updateTurrets(dt) {
       if (e) {
         t.cd = t.rate;
         const a = Math.atan2(e.y - t.y, e.x - t.x); t.face = a;
-        if (t.sibs) spawnProj(t.w, t.x, t.y, a, t.src, { r: 4, speed: 330, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, life: 1.6, dmg: t.dmg, pierce: 0, style: 'sperm', color: '#d0a3ff', bounce: 0, homing: 6, explode: 0, noMods: true });
+        if (t.sibs) spawnProj(t.w, t.x, t.y, a, t.src, { r: 4, speed: 330, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, life: 1.6, dmg: t.dmg, pierce: 0, style: 'sperm', color: '#f25c78', bounce: 0, homing: 6, explode: 0, noMods: true });
         else spawnProj(t.w, t.x, t.y, a, t.src, { r: 3.5, speed: 620, vx: Math.cos(a) * 620, vy: Math.sin(a) * 620, life: t.range / 620, dmg: t.dmg, pierce: 0, style: 'bullet', color: t.color || '#ffd60a', bounce: 0, homing: 0, explode: 0, noMods: true });
       }
     }
@@ -2718,7 +2737,8 @@ cv.addEventListener('pointerdown', ev => {
   if (PINCH) return;
   if (!G || G.state !== 'play') return;
   // A tap on a buff or debuff chip: pause and show them all.
-  if (UI.chipRects && UI.chipRects.some(r => ev.clientX >= r.x - 6 && ev.clientX <= r.x + r.w + 6 && ev.clientY >= r.y - 4 && ev.clientY <= r.y + r.h + 4)) { PTRS.delete(ev.pointerId); UI.openStatusPanel(); return; }
+  const chipHit = UI.chipRects && UI.chipRects.find(r => ev.clientX >= r.x - 6 && ev.clientX <= r.x + r.w + 6 && ev.clientY >= r.y - 4 && ev.clientY <= r.y + r.h + 4);
+  if (chipHit) { PTRS.delete(ev.pointerId); if (!(chipHit.key && stNewTap(chipHit.key))) UI.openStatusPanel(); return; } // (a flagged chip opens its card; any other, the list)
   INPUT.active = true; INPUT.id = ev.pointerId; INPUT.ox = ev.clientX; INPUT.oy = ev.clientY;
   INPUT.sx = ev.clientX; INPUT.sy = ev.clientY; INPUT.t0 = performance.now(); INPUT.moved = false;
   G.manual = { x: 0, y: 0 };

@@ -90,7 +90,7 @@ function applyMeta(G) {
   const dye = META_DYES.find(d => d.id === META.dye) || META_DYES[0];
   setYouColour(dye.color);
 }
-// A weapon keeps its own colour if that is one of the damage-type colours; any other colour becomes `c` (yours).
+// Is h one of the damage-type colours?
 function isDamageColour(h) {
   h = String(h).slice(0, 7).toLowerCase();
   if (typeof ELEM_OF !== 'undefined' && ELEM_OF.has(h)) return true;
@@ -99,8 +99,19 @@ function isDamageColour(h) {
   for (const k in ELEMENTS) if (ELEMENTS[k].color.toLowerCase() === h) return true;
   return false;
 }
+// Every weapon and Feat wears its damage type's colours: its own colour if that is one of its type's shades (Force:
+// any white or grey), otherwise the type's own colour. (c, your colour, no longer tints weapons.)
+function colourFamily(h) {
+  h = String(h || '').slice(0, 7).toLowerCase();
+  if (typeof ELEM_SWAP !== 'undefined' && ELEM_SWAP.has(h)) h = ELEM_SWAP.get(h);
+  if (typeof ELEM_OF !== 'undefined' && ELEM_OF.has(h)) return ELEM_OF.get(h);
+  for (const k in ELEMENTS) if (ELEMENTS[k].color.toLowerCase() === h) return k;
+  if (!/^#[0-9a-f]{6}$/.test(h)) return null;
+  const n = parseInt(h.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
+  return Math.max(r, g, b) - Math.min(r, g, b) < 40 && r + g + b > 450 ? 'phys' : null; // (pale greys and whites: Force)
+}
 function weaponColours(c) {
-  for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = d.col0 && isDamageColour(d.col0) ? d.col0 : c;
+  for (const d of Object.values(WEAPONS).concat(Object.values(SPELLS))) d.color = d.col0 && colourFamily(d.col0) === d.elem ? d.col0 : ELEMENTS[d.elem || 'phys'].color;
 }
 function setYouColour(c) {
   if (PAL.you === c) return;
@@ -125,7 +136,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '8.81';
+const APP_VERSION = '8.87';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }

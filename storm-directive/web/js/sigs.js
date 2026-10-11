@@ -74,9 +74,9 @@ function sigVolley(w, a0) {
     if (w.blastN % 3 === 0) {
       const p = me(), src = weaponSrc(w);
       for (let i = 0; i < 18; i++) spawnProj(w, p.x, p.y, i / 18 * TAU, src);
-      for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < 140) { b.dead = true; spawnPart(b.x, b.y, '#ffd6a5', 1, 50, 0.25); }
-      ring(p.x, p.y, 140, '#ffd6a5', 0.35, 4);
-      floatText(p.x, p.y - 30, 'HIC!', '#ffd6a5', 15, 0.7);
+      for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < 140) { b.dead = true; spawnPart(b.x, b.y, '#e8eef8', 1, 50, 0.25); }
+      ring(p.x, p.y, 140, '#e8eef8', 0.35, 4);
+      floatText(p.x, p.y - 30, 'HIC!', '#e8eef8', 15, 0.7);
     }
   }
   if (hasSig(w, 'dragon')) { w.dragA = (w.dragA || 0) + 0.42; out.a0 = w.dragA; }
@@ -421,7 +421,7 @@ function bladeEats(w, bx, by, size) {
   const sw = op ? owned('siphon') : null;
   for (const b of G.ebul) {
     if (b.dead || Math.abs(b.x - bx) > size + b.r || Math.abs(b.y - by) > size + b.r) continue;
-    b.dead = true; spawnPart(b.x, b.y, '#c77dff', 1, 40, 0.2);
+    b.dead = true; spawnPart(b.x, b.y, '#c9184a', 1, 40, 0.2);
     if (sw) siphonStore(sw, siphonStrength(b));
   }
 }
@@ -458,9 +458,9 @@ function projEnd(pr) {
   if (pr.dragonB && Math.random() < 0.35 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 24, life: 1.6, max: 1.6, dps: pr.dmg * 0.8, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: pr.src });
   if (pr.iceAge && !pr.patched) frostPatch(pr.w, pr.x, pr.y);
   if (pr.dealt > 0 && hasSig(pr.w, 'bigbang')) {
-    aoe(pr.x, pr.y, (pr.aura || 70) * 1.7, Math.min(pr.dealt * 0.5, pr.w.s.dmg * 400), Object.assign({}, pr.src, { noProc: true, noCrit: true, mult: 1, wname: 'Big Bang' }), '#c77dff');
+    aoe(pr.x, pr.y, (pr.aura || 70) * 1.7, Math.min(pr.dealt * 0.5, pr.w.s.dmg * 400), Object.assign({}, pr.src, { noProc: true, noCrit: true, mult: 1, wname: 'Big Bang' }), '#c9184a');
     cam.shake = Math.min(12, cam.shake + 6);
-    floatText(pr.x, pr.y - 20, 'BIG BANG', '#e0aaff', 16);
+    floatText(pr.x, pr.y - 20, 'BIG BANG', '#ff758f', 16);
   }
 }
 function frostPatch(w, x, y) {
@@ -473,7 +473,7 @@ function gravityTick(pr, e) {
   if (e.holdPr !== pr || !(e.holdLast > G.t - 0.3)) { e.holdPr = pr; e.holdT0 = G.t; }
   e.holdLast = G.t; // Crush Depth
   if (hasSig(w, 'horizon') && !e.dead && !e.boss && !e.rival && !e.egg && e.hp < e.maxHp * 0.2 && Math.hypot(e.x - pr.x, e.y - pr.y) < pr.r + e.r * 0.6 + 8) {
-    e.hp = 0; floatText(e.x, e.y - e.r, 'GULP', '#e0aaff', 13); killEnemy(e, pr.src);
+    e.hp = 0; floatText(e.x, e.y - e.r, 'GULP', '#ff758f', 13); killEnemy(e, pr.src);
   }
   if (G.pair.snowglobe && !e.dead && !e.boss) { e.chill = Math.max(e.chill, 1); e.chillAmt = Math.min(0.6, e.chillAmt + 0.12); if (e.chillAmt >= 0.5) e.frozen = Math.max(e.frozen, 1.2); }
 }
@@ -492,7 +492,7 @@ function gravityOrb(pr, caught) {
   }
   if (hasSig(w, 'parking') && !pr.parked && caught >= 4) {
     pr.parked = true; pr.vx = 0; pr.vy = 0; pr.pull *= 2.5; pr.life += pr.life + 1; pr.max = pr.life;
-    ring(pr.x, pr.y, pr.aura, '#c77dff', 0.4, 4);
+    ring(pr.x, pr.y, pr.aura, '#c9184a', 0.4, 4);
   }
 }
 
@@ -579,7 +579,7 @@ function adaptNotes(map) {
 function angelsClockOff(w) {
   const p = me();
   w.focusT = 0;
-  if (G.P.lastRound > 0) aoe(p.x, p.y, w.s.radius + 40, w.s.dmg * (2 + Math.min(4, G.P.lastRound)), Object.assign(weaponSrc(w), { wname: 'Angels clocking off' }), '#c77dff');
+  if (G.P.lastRound > 0) aoe(p.x, p.y, w.s.radius + 40, w.s.dmg * (2 + Math.min(4, G.P.lastRound)), Object.assign(weaponSrc(w), { wname: 'Angels clocking off' }), '#c9184a');
   tacticalWave();
 }
 // Spoilers + angels: now and then one pops up next to an enemy to bless it early.
@@ -591,7 +591,7 @@ function angelSpoilers(w, dt) {
   if (Math.random() > Math.min(1, G.P.future * 3)) return;
   const p = me(), t = acquire('nearest', 280, p.x, p.y);
   if (!t) return;
-  bolt(p.x, p.y, t.x, t.y, '#c77dff', 0.15); ring(t.x, t.y, t.r + 12, '#c77dff', 0.3, 3);
+  bolt(p.x, p.y, t.x, t.y, '#c9184a', 0.15); ring(t.x, t.y, t.r + 12, '#c9184a', 0.3, 3);
   damageEnemy(t, w.s.dmg * 1.5, Object.assign(weaponSrc(w), { wname: 'Premature Evangelation' }));
 }
 
@@ -673,8 +673,8 @@ function sigHurt() {
   if (!ow || G.martyrT > G.t) return;
   G.martyrT = G.t + 2;
   const p = me();
-  aoe(p.x, p.y, ow.s.radius + 70, ow.s.dmg * 3, Object.assign(weaponSrc(ow), { wname: 'Martyrdom' }), '#c77dff');
-  floatText(p.x, p.y - 34, 'MARTYRDOM', '#c77dff', 14, 0.6);
+  aoe(p.x, p.y, ow.s.radius + 70, ow.s.dmg * 3, Object.assign(weaponSrc(ow), { wname: 'Martyrdom' }), '#c9184a');
+  floatText(p.x, p.y - 34, 'MARTYRDOM', '#c9184a', 14, 0.6);
 }
 const segDist = (px, py, ax, ay, bx, by) => { const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy || 1, t = clamp(((px - ax) * dx + (py - ay) * dy) / l2, 0, 1); return Math.hypot(px - ax - dx * t, py - ay - dy * t); };
 function sig8Tick(dt) {
@@ -710,7 +710,7 @@ function sig8Tick(dt) {
       if (w.smiteT <= 0) {
         w.smiteT = 2.5;
         const n = w.blades.length / 3, ts = acquireMany('random', 340, p.x, p.y, n), src = Object.assign(weaponSrc(w), { wname: 'Smite' });
-        ts.forEach((t, i) => { bolt(w.blades[i * 3], w.blades[i * 3 + 1], t.x, t.y, '#e0aaff', 0.2); damageEnemy(t, w.s.dmg * 1.5, src); });
+        ts.forEach((t, i) => { bolt(w.blades[i * 3], w.blades[i * 3 + 1], t.x, t.y, '#ff758f', 0.2); damageEnemy(t, w.s.dmg * 1.5, src); });
       }
     }
     if (w.id === 'wake' && hasSig(w, 'slipstream') && !G.slip) {
@@ -758,25 +758,25 @@ function voidCombine(a, b) {
   // Momentum: the merged orb keeps drifting the weighted-average way.
   a.vx = (a.vx * ma + b.vx * mb) / m; a.vy = (a.vy * ma + b.vy * mb) / m;
   if (b.hits) for (const id of b.hits) (a.hits || (a.hits = [])).includes(id) || a.hits.push(id);
-  G.fx.push({ type: 'flash', x: a.x, y: a.y, r: a.aura * 0.8, color: '#c77dff', life: 0.25, max: 0.25 });
-  ring(a.x, a.y, a.aura, '#e0aaff', 0.4, 4);
-  fxParts('ember', a.x, a.y, '#e0aaff', 6, 160, 0.5, 3);
+  G.fx.push({ type: 'flash', x: a.x, y: a.y, r: a.aura * 0.8, color: '#c9184a', life: 0.25, max: 0.25 });
+  ring(a.x, a.y, a.aura, '#ff758f', 0.4, 4);
+  fxParts('ember', a.x, a.y, '#ff758f', 6, 160, 0.5, 3);
   cam.shake = Math.min(8, cam.shake + 1 + m * 0.3);
-  if (m >= 3) floatText(a.x, a.y - a.r - 12, 'MERGE x' + m, '#e0aaff', 12 + Math.min(8, m), 0.7);
+  if (m >= 3) floatText(a.x, a.y - a.r - 12, 'MERGE x' + m, '#ff758f', 12 + Math.min(8, m), 0.7);
   if (m >= VOID_MERGE.supernova && G.t >= (G.novaT || 0)) { G.novaT = G.t + VOID_MERGE.gap; voidSupernova(a); }
 }
 function voidSupernova(a) {
   a.dead = true;
   orbCollapse(a);
   const R = Math.max(220, a.aura * 3.5), src = Object.assign({}, a.src, { noProc: true, noCrit: true, mult: 1, wname: 'Supernova' });
-  aoe(a.x, a.y, R, a.dmg * (a.mass || 10) * 2 + (a.dealt || 0) * 0.25, src, '#e0aaff');
+  aoe(a.x, a.y, R, a.dmg * (a.mass || 10) * 2 + (a.dealt || 0) * 0.25, src, '#ff758f');
   for (const b of G.ebul) if (Math.hypot(b.x - a.x, b.y - a.y) < R) b.dead = true;
   G.fx.push({ type: 'flash', x: a.x, y: a.y, r: R * 1.4, color: '#ffffff', life: 0.6, max: 0.6 });
-  G.fx.push({ type: 'pillar', x: a.x, y: a.y, r: 120, color: '#e0aaff', life: 1.2, max: 1.2 });
+  G.fx.push({ type: 'pillar', x: a.x, y: a.y, r: 120, color: '#ff758f', life: 1.2, max: 1.2 });
   for (const [rr, w, l] of [[R * 0.5, 14, 0.6], [R, 9, 0.9], [R * 1.5, 4, 1.2]]) ring(a.x, a.y, rr, '#ffffff', l, w);
-  fxParts('spark', a.x, a.y, '#ffffff', 40, R * 4, 0.7, 3); fxParts('ember', a.x, a.y, '#e0aaff', 24, R * 1.5, 1.2, 4);
+  fxParts('spark', a.x, a.y, '#ffffff', 40, R * 4, 0.7, 3); fxParts('ember', a.x, a.y, '#ff758f', 24, R * 1.5, 1.2, 4);
   addLight(a.x, a.y, R * 2.5, '#ffffff', 1);
   floatText(a.x, a.y - 40, 'SUPERNOVA', '#ffffff', 26, 1.4);
-  banner('SUPERNOVA', '#e0aaff');
+  banner('SUPERNOVA', '#ff758f');
   G.flashT = 0.3; cam.shake = 22; sfx('boss'); vibrate([100, 50, 200]);
 }

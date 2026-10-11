@@ -28,7 +28,7 @@ const { chromium } = require('playwright');
     return out;
   });
   console.log(JSON.stringify(r, null, 1));
-  const ok = r.holdsWithBossReward === false && r.holdsWithPlainBox === true && r.beforeLoot === false && r.featsQueued && /Acid \+ Base/.test(r.react) && /tr_cilia/.test(r.terrainQueued) && !Object.keys(r).some(k => k.startsWith('bad_'));
+  const ok = r.holdsWithBossReward === false && r.holdsWithPlainBox === true && r.beforeLoot === false && r.featsQueued && /Acid \+ Alkali/.test(r.react) && /tr_cilia/.test(r.terrainQueued) && !Object.keys(r).some(k => k.startsWith('bad_'));
   // screenshots: kicker card, HUD with health bar (normal and immersive), stamina ring
   await page.evaluate(() => { META.seenTut = {}; G.tutQ = []; G.state = 'play'; G.manual = null; G.tutNext = 0; tutOpen('grudge'); });
   await page.waitForTimeout(2600); await page.screenshot({ path: 'batch_card.png' });

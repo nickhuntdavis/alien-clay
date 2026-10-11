@@ -40,7 +40,7 @@ function aimBend(pr, dt) {
     const sp = Math.hypot(pr.vx, pr.vy) || 1;
     // Slow shots that come too close fall in, and feed it.
     if (d < h.core && sp < 520) {
-      pr.dead = true; spawnPart(pr.x, pr.y, '#c77dff', 2, 60, 0.3);
+      pr.dead = true; spawnPart(pr.x, pr.y, '#c9184a', 2, 60, 0.3);
       if (h.src.mass != null) h.src.mass = Math.min(h.src.mass + 0.05, 40); else if (h.src.dps != null) h.src.dps *= 1.002;
       return;
     }
@@ -60,6 +60,6 @@ function aimSling(pr) {
   const sp = Math.hypot(pr.vx, pr.vy) * 1.6, a = Math.atan2(pr.vy, pr.vx) + (Math.random() - 0.5) * 0.8;
   pr.vx = Math.cos(a) * sp; pr.vy = Math.sin(a) * sp; pr.speed = sp; pr.dmg *= 1.8; pr.life = Math.max(pr.life, 0.9); pr.hits = null;
   if (pr.r) pr.r *= 1.2;
-  ring(pr.x, pr.y, 18, '#c77dff', 0.3, 2);
-  if (!(G.slingSayT > G.t)) { G.slingSayT = G.t + 1.2; floatText(pr.x, pr.y - 16, 'SLINGSHOT', '#c77dff', 13, 0.7); }
+  ring(pr.x, pr.y, 18, '#c9184a', 0.3, 2);
+  if (!(G.slingSayT > G.t)) { G.slingSayT = G.t + 1.2; floatText(pr.x, pr.y - 16, 'SLINGSHOT', '#c9184a', 13, 0.7); }
 }

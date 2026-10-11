@@ -30,6 +30,6 @@ const { chromium } = require('playwright');
   await page.screenshot({ path: 'colour_df_on.png' });
   await page.evaluate(() => { SET.darkfield = false; SET.cTerrain = SET.cBg = 'earned'; UI.applySettings(); UI.openSettings('title'); UI.setTab = 'colour'; UI.renderSettings(); });
   const rows = await page.evaluate(() => document.querySelectorAll('#setBody .setrow').length);
-  console.log('colour rows', rows, ok && rows === 9 ? 'ok' : 'FAIL');
-  console.log('ERRORS', JSON.stringify(errors)); await b.close(); process.exit(ok && rows === 9 && !errors.length ? 0 : 1);
+  console.log('colour rows', rows, ok && rows === 11 ? 'ok' : 'FAIL');
+  console.log('ERRORS', JSON.stringify(errors)); await b.close(); process.exit(ok && rows === 11 && !errors.length ? 0 : 1);
 })();

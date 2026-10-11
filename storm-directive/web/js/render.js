@@ -48,14 +48,13 @@ function refreshPalette() {
   const em = mode('cElem'), tm = mode('cTerrain');
   ELEM_ON = em === 'always' || (em === 'earned' && !!((run && G.dyes && G.dyes.he) || GRANT_EL));
   if (em === 'off') { for (const el in ELEM_HEX) for (const h of ELEM_HEX[el]) PAL_OFF.add(h); for (const h in STATIC_HEX) PAL_OFF.add(STATIC_HEX[h]); }
-  TERRAIN_ON = tm === 'always' || (tm === 'earned' && (ELEM_ON || FULL_COL));
+  TERRAIN_ON = sceneStainOn() || (tm === 'earned' && FULL_COL); // (the Counterstain grant, or Settings > Colour > Terrain)
   if (TERRAIN_ON) for (const c of TERRAIN_HEX) PAL_OK.add(c); else for (const c of TERRAIN_HEX) PAL_OFF.add(c);
   BG_TINT = mode('cBg');
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
-// Element effects. With the H&E stain (or the Tracer Dye grant), Acid shows green, Base blue, Ethanol amber and Histamine violet.
-// Static is always coloured, in a static-shock blue and pink.
+// Element effects. Each damage type shows in colour from the first time you use it (elemOn, tutorial.js), or all at once with the H&E stain or the Tracer Dye grant: Acid shows green, Alkali blue, Ethanol amber and Blood Magic blood red.
 // (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
 const ELEM_SWAP = new Map([
   ['#ff7a2f', '#c6ff3d'], ['#ff5400', '#a8e61d'], ['#ff9e00', '#d4ff6b'], ['#ff9f1c', '#b5f23a'], ['#ffd166', '#e2ff9a'], ['#ff5a36', '#9fd61a'], ['#ffba08', '#ccff4d'],
@@ -65,19 +64,21 @@ const ELEM_HEX = {
   fire: ['#c6ff3d', '#a8e61d', '#d4ff6b', '#b5f23a', '#e2ff9a', '#9fd61a', '#ccff4d'],
   ice: ['#5b8cff', '#6fd8ff', '#90e0ef', '#caf0f8', '#bde0fe', '#c9e4f5'],
   poison: ['#e8a33d', '#d98c2b', '#f0c27a', '#f2b552'],
+  shock: ['#ffe94a', '#fdf0d5', '#fff3b0'], // Static: electric yellow, like its card says
   oxi: ['#9ff7ff', '#e6fbff'],
   salt: ['#ffb3c6', '#ffe5ec', '#fff0f3'],
-  arcane: ['#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'],
+  arcane: ['#c9184a', '#800f2f', '#6a0d25', '#f25c78', '#ff758f', '#a4133c', '#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'], // (blood reds, and the old purples other things still use)
 };
-const STATIC_HEX = { '#ffe94a': '#6f9bff', '#fdf0d5': '#ff8ae0', '#9ef0ff': '#9fb0ff', '#fff3b0': '#ff8ae0' };
+const STATIC_HEX = { '#9ef0ff': '#9fb0ff' }; // (a pale blue the dodge text and stamina ring use: always coloured)
 const ELEM_OF = new Map();
 for (const el in ELEM_HEX) for (const h of ELEM_HEX[el]) ELEM_OF.set(h, el);
+if (typeof weaponColours === 'function') weaponColours(); // (meta.js ran before the colour families existed)
 const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ff0033': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
   if (typeof c !== 'string') return c;
   if (c[0] === '#' && ELEM_SWAP.has(c.slice(0, 7).toLowerCase())) c = ELEM_SWAP.get(c.slice(0, 7).toLowerCase()) + c.slice(7);
-  if (FULL_COL && !PAL_OFF.size) return c;
+  if ((FULL_COL || SET.fullColour) && !PAL_OFF.size) return c;
   let v = COL.get(c);
   if (v !== undefined) return v;
   let r, g, b, a = null;
@@ -85,14 +86,14 @@ function col(c) {
   if (h[0] === '#' && (h.length === 7 || h.length === 9)) {
     const base = h.slice(0, 7), off = PAL_OFF.has(base) || (PAL_ALIAS[base] && PAL_OFF.has(PAL_ALIAS[base])) || (STATIC_HEX[base] && PAL_OFF.has(STATIC_HEX[base]));
     if (off) {} // (Settings > Colour: OFF, so grey below)
-    else if (FULL_COL || PAL_OK.has(base)) v = c;
+    else if (FULL_COL || SET.fullColour || PAL_OK.has(base)) v = c;
     else if (PAL_ALIAS[base] && PAL_OK.has(PAL_ALIAS[base])) v = PAL_ALIAS[base] + h.slice(7);
     else if (STATIC_HEX[base]) v = STATIC_HEX[base] + h.slice(7);
-    else if (ELEM_OF.has(base) && ELEM_ON) v = c;
+    else if (ELEM_OF.has(base) && (ELEM_ON || elemOn(ELEM_OF.get(base)))) v = c; // (elemOn: tutorial.js)
     if (v === undefined) { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
   } else {
     const m = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
-    if (!m || FULL_COL) v = c;
+    if (!m || FULL_COL || SET.fullColour) v = c;
     else { r = +m[1]; g = +m[2]; b = +m[3]; if (m[4] != null) a = +m[4]; }
   }
   if (v === undefined) {
@@ -200,13 +201,14 @@ function glow(x, y, r, color, alpha) {
 // chamber grid lines; fluorescent labels (GFP and friends) glow in colour on top of the grey.
 const MIC = { fluid: '#a3aba1', edge: '#6e766d', body: 'rgb(36,37,37)', acro: 'rgb(96,98,97)', halo: 'rgba(255,255,255,', dark: 'rgba(24,28,26,' };
 const PC_TONE = new Map();
+let FOE_TINT = false; // Gram Stain / Full colour: enemy bodies take their type's colour (drawEnemy)
 // Phase-contrast tone for a colour: mostly grey, a hint of the original hue, a little darker than the fluid.
 function pcTone(hex, k) {
-  const key = hex + (k || 0);
+  const key = hex + (k || 0) + (FOE_TINT ? 'f' : '');
   let v = PC_TONE.get(key);
   if (v) return v;
   const n = parseInt(hex.slice(1, 7), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
-  const l = 0.3 * r + 0.59 * g + 0.11 * b, hue = FULL_COL ? 1 : 0.28, dk = FULL_COL ? Math.min(1, (k != null ? k : 0.36) * 2.2) : k != null ? k : 0.36;
+  const full = FULL_COL || FOE_TINT, l = 0.3 * r + 0.59 * g + 0.11 * b, hue = full ? 1 : 0.28, dk = full ? Math.min(1, (k != null ? k : 0.36) * 2.2) : k != null ? k : 0.36;
   const f = c => Math.round((l * (1 - hue) + c * hue) * dk);
   v = `rgb(${f(r)},${f(g)},${f(b)})`;
   PC_TONE.set(key, v);
@@ -893,7 +895,7 @@ function drawKrill(e, x, y, r, face) {
 // ---------------------------------------------------------------- more pond life
 // Each drawn in the same phase-contrast style: grey body darker than the fluid, a bright halo, dark detail.
 // Motility Dye: fast swimmers take up the stain, so their whole body turns cyan.
-function fastDyed(e) { return !!(G.dyes && G.dyes.motility && e.def.speed >= 95 && !e.rival && !e.boss && !e.charmed); }
+function fastDyed(e) { return !!((SET.fullColour || (G.dyes && G.dyes.motility)) && e.def.speed >= 95 && !e.rival && !e.boss && !e.charmed); }
 function eTone(e, k) { return fastDyed(e) ? DYE_FAST_DK : pcTone(e.color, k); }
 function mBody(e, k) { return e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : eTone(e, k || 0.42); }
 function mHalo(w) { ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = Math.max(1, w); ctx.stroke(); }
@@ -1112,7 +1114,7 @@ function blobPath(x, y, R, ob, t, amp) {
 }
 function drawTerrain() {
   if (!G.terrain) return;
-  const t = G.realT, m = 200;
+  const t = G.realT, m = 200, SC = TERRAIN_ON, rc0 = RAW_COL; // (Counterstain: grants.js)
   const x0 = cam.x - W / 2 / S - m, x1 = cam.x + W / 2 / S + m, y0 = cam.y - H / 2 / S - m, y1 = cam.y + H / 2 / S + m;
   // Darkfield: the soft terrain is drawn as it scatters light on a black field (bright rims, dark middles),
   // not by inverting the greys; only the mitochondrion keeps the inverted look.
@@ -1120,7 +1122,7 @@ function drawTerrain() {
   for (const ob of G.terrain.list) {
     if (ob.x < x0 || ob.x > x1 || ob.y < y0 || ob.y > y1) continue;
     const x = sx(ob.x), y = sy(ob.y), r = ob.r * S;
-    WORLD_DF = df && ob.type === 'mito';
+    WORLD_DF = df && ob.type === 'mito'; RAW_COL = SC && ob.type === 'mito'; // (my own terrain colours go through col(): TERRAIN_HEX)
     let seed = Math.floor(ob.seed * 1000) + 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     switch (ob.type) {
       case 'ridge': {
@@ -1151,7 +1153,7 @@ function drawTerrain() {
         if (k > 0.05 || ob.burstT > 0) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (1.7 + pulse * 0.5 + ob.burstT * 3), PAL.reward, k * 0.55 + pulse * 0.2 + ob.burstT); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
         ctx.save(); ctx.translate(x, y); ctx.rotate(ob.a);
         ctx.beginPath(); ctx.ellipse(0, 0, r * 1.25, r * 0.62, 0, 0, TAU);
-        ctx.fillStyle = ob.flash > 0 ? 'rgb(200,205,200)' : `rgb(${Math.round(70 + 120 * k)},${Math.round(74 + 30 * k)},${Math.round(70 - 20 * k)})`; ctx.fill();
+        ctx.fillStyle = ob.flash > 0 ? 'rgb(200,205,200)' : SC ? `rgb(${Math.round(190 + 60 * k)},${Math.round(90 + 50 * k)},${Math.round(110 - 70 * k)})` : `rgb(${Math.round(70 + 120 * k)},${Math.round(74 + 30 * k)},${Math.round(70 - 20 * k)})`; ctx.fill();
         pcHalo(3, 0.7);
         ctx.strokeStyle = `rgba(${Math.round(190 + 65 * k)},${Math.round(200 - 40 * k)},${Math.round(190 - 120 * k)},0.7)`; ctx.lineWidth = 2;
         for (let i = -3; i <= 3; i++) { const cx0 = i * r * 0.3; ctx.beginPath(); ctx.moveTo(cx0, -r * 0.5 * Math.cos(i * 0.4)); ctx.quadraticCurveTo(cx0 + r * 0.12, 0, cx0, r * 0.5 * Math.cos(i * 0.4)); ctx.stroke(); }
@@ -1242,7 +1244,7 @@ function drawTerrain() {
       }
     }
   }
-  WORLD_DF = df;
+  WORLD_DF = df; RAW_COL = rc0;
 }
 
 
@@ -1290,7 +1292,7 @@ function render() {
       for (let arm = 0; arm < 3; arm++) { ctx.beginPath(); for (let i = 0; i <= 14; i++) { const t = i / 14, ang = -G.realT * 3 + arm * TAU / 3 + t * 4.2, rr = r * (1 - t * 0.85); i ? ctx.lineTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr) : ctx.moveTo(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr); } ctx.stroke(); }
       ctx.lineWidth = 2; ctx.globalAlpha = a * 0.6;
       ctx.globalAlpha = a; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, 14 * S, 0, TAU); ctx.fill();
-      ctx.strokeStyle = '#e0aaff'; ctx.beginPath(); ctx.arc(x, y, 15 * S, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = '#ff758f'; ctx.beginPath(); ctx.arc(x, y, 15 * S, 0, TAU); ctx.stroke();
     } else {
       // Gas clouds (Dutch Oven) roll in soft puffs.
       if (z.spell === 'cloud' && FX.k > 0.5) { ctx.fillStyle = z.color; for (let k = 0; k < 6; k++) { const an = G.realT * 0.5 + k * 1.05, rr = r * 0.55; ctx.globalAlpha = a * 0.12; ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an * 1.3) * rr * 0.7, r * 0.45, 0, TAU); ctx.fill(); } ctx.globalAlpha = a * 0.6; }
@@ -1464,7 +1466,7 @@ function render() {
       case 'prequel':
         // A shell flying backwards: the flame trail is in front of it.
         ctx.lineWidth = r * 1.1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3); ctx.stroke();
-        glow(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3, r * 2.5, '#ffd166', 0.8); ctx.globalAlpha = 1;
+        glow(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3, r * 2.5, pr.color, 0.8); ctx.globalAlpha = 1;
         break;
       case 'scrap':
         ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 10);
@@ -1489,7 +1491,7 @@ function render() {
   ctx.globalCompositeOperation = 'source-over';
   // Toddler Gravity: the rubber bands of gravity between orbs about to merge.
   if (G.voidBands && G.voidBands.length) {
-    ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = '#c77dff';
+    ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = '#c9184a';
     for (let i = 0; i < G.voidBands.length; i += 2) {
       const a = G.voidBands[i], b = G.voidBands[i + 1], ax = sx(a.x), ay = sy(a.y), bx = sx(b.x), by = sy(b.y), d = Math.hypot(bx - ax, by - ay), tight = Math.min(1, 140 * S / Math.max(1, d));
       const nx = -(by - ay) / (d || 1), ny = (bx - ax) / (d || 1), sag = Math.sin(G.realT * 9 + i) * 10 * S * (1 - tight);
@@ -1848,13 +1850,14 @@ function drawEnemy(e, lod) {
     e.lookA = (e.lookA ?? a) + da * 0.18; face = e.lookA;
     if (sd < 80 && Math.sin(G.realT * 1.3 + e.id * 2.3) > 0.85) { ctx.fillStyle = '#ffffff'; ctx.font = `900 ${Math.round(13 * Math.max(0.8, S))}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('?', x, y - r - 10 * S); }
   } else e.lookA = face;
-  const sh = e.def.shape;
+  const sh = e.def.shape, rc0 = RAW_COL, fst = !e.rival && !e.charmed && foeStainOn();
+  if (fst) { RAW_COL = true; FOE_TINT = true; } // (Gram Stain: grants.js)
   const rot = sh === 'sperm' ? face : sh === 'antibody' ? face + Math.PI / 2 : e.age * (sh === 'spike' ? 3 : 1) + (sh === 'tri' ? face : 0);
   if (sh === 'sperm') {
     // Swimmers are drawn like you: real sperm with dragging tails. Rivals carry their fluorescent dye.
     if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
     const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
-    const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : null;
+    const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : fst ? e.color : null;
     const lk = enemyLook(e);
     if (lk && lk.flicker && Math.random() < 0.08) ctx.globalAlpha = 0.3; // Quantum Swimmer: not entirely here
     drawShip(x, y, face, tag, e.phased ? 0.25 : ctx.globalAlpha, e.r * squash * e.vs / 8, e, lk);
@@ -1914,6 +1917,7 @@ function drawEnemy(e, lod) {
     } else if (!(lod && plain)) pcHalo(e.boss ? 4.5 : Math.max(2.5, r * 0.16), e.boss ? 0.95 : 0.85);
   }
   if (sh !== 'sperm' && !e.boss && !(lod && plain)) drawEnemyDetail(e, x, y, r, rot);
+  RAW_COL = rc0; FOE_TINT = false;
   if (e.elite && !e.boss) { ctx.fillStyle = PAL.reward; for (let i = 0; i < 3; i++) { const a = G.realT * 2 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (r + 9), y + Math.sin(a) * (r + 9), 2.5, 0, TAU); ctx.fill(); } }
   // Hit flash: the body goes bright white with a crisp rim, and a ring snaps outwards. Ticks get a faint flicker.
   if (hk > 0 || G.realT - (e.tickRT || -9) < 0.08) {
@@ -1929,9 +1933,14 @@ function drawEnemy(e, lod) {
   let si = 0;
   const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
   drawStatusFx(e, x, y, r);
-  if (e.mark > 0) st('#c77dff');
-  if (e.fizz > 0) st('#9ff7ff');
-  if (e.pickle > 0) st('#ffb3c6');
+  // A ring for each damage type's status on it, in that type's colour (damage over time included: Acid, Ethanol).
+  if (e.burn > 0) st(ELEMENTS.fire.color);
+  if (e.poison > 0) st(ELEMENTS.poison.color);
+  if (e.chill > 0 || e.frozen > 0) st(ELEMENTS.ice.color);
+  if (e.shock > 0) st(ELEMENTS.shock.color);
+  if (e.mark > 0) st(ELEMENTS.arcane.color);
+  if (e.fizz > 0) st(ELEMENTS.oxi.color);
+  if (e.pickle > 0) st(ELEMENTS.salt.color);
   if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
   if (e.parasiteT > 0) st('#b5e48c');
   if (e.soggyT > G.t) st('#cfe8ff');
@@ -2153,7 +2162,7 @@ function drawHud() {
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
   ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
   // Health: the same line along the very bottom edge (Immersive mode keeps it), with a trailing chunk for damage taken.
-  // Invisible at full health; white below 100%, orange below 50%, red below 15%.
+  // Invisible at full health; white below 100%, yellow below 60%, red below 15%.
   { const hk = clamp(p.hp / G.P.maxHp, 0, 1), low = hk < 0.15;
     G.hpGhost = G.hpGhost == null ? hk : Math.max(hk, G.hpGhost - 0.004);
     if (hk < 1 || G.hpGhost > hk) {
@@ -2161,7 +2170,7 @@ function drawHud() {
       ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(0, H - 3, W * G.hpGhost, 3);
       if (hk < 1) {
         const rawc = RAW_COL; RAW_COL = true; // (true colours even on the greyscale slide: it is the one thing you must read at a glance)
-        ctx.fillStyle = low ? '#ff2d4d' : hk < 0.5 ? '#ff9a2e' : '#ffffff'; ctx.globalAlpha = low ? 0.7 + 0.3 * Math.sin(G.realT * 8) : 1; ctx.fillRect(0, H - 3, W * hk, 3); ctx.globalAlpha = 1; RAW_COL = rawc;
+        ctx.fillStyle = low ? '#ff2d4d' : hk < 0.6 ? '#ffd83a' : '#ffffff'; ctx.globalAlpha = low ? 0.7 + 0.3 * Math.sin(G.realT * 8) : 1; ctx.fillRect(0, H - 3, W * hk, 3); ctx.globalAlpha = 1; RAW_COL = rawc;
       }
     } }
   const c = G.core, land = LAYOUT.land, BY = land ? 56 : 60;
@@ -2193,14 +2202,15 @@ function drawHud() {
   UI.chipRects = [];
   if (imm) {
     // Immersive mode: one centred row of chips just under the XP bar (wraps if there are many).
-    let rx = 0, ry = top + 8; const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
+    let rx = 0, ry = top + 8, flagged = null; const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
     while (items.length) {
       let w = 0, n = 0; while (n < items.length && (n === 0 || w + items[n][2] + 4 <= W - 16)) w += items[n++][2] + 4;
       rx = (W - (w - 4)) / 2;
-      for (const [ch, cc, tw] of items.splice(0, n)) { filmPanel(rx, ry, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, rx + 7, ry + 12); UI.chipRects.push({ x: rx, y: ry, w: tw, h: 16 }); rx += tw + 4; }
+      for (const [ch, cc, tw] of items.splice(0, n)) { filmPanel(rx, ry, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, rx + 7, ry + 12); const nk = stNewKey(ch); UI.chipRects.push({ x: rx, y: ry, w: tw, h: 16, key: nk }); if (nk) { stNewOutline(nk, rx, ry, tw, 16); flagged = nk; } rx += tw + 4; }
       ry += 20;
     }
-  } else for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); UI.chipRects.push({ x: 8, y: cyp, w: tw, h: 16 }); cyp += 20; }
+    if (flagged) UI.chipRects.push(stNewMsg(flagged, null, ry)); // (a status new to you: tap to read, statusintro.js)
+  } else for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); const nk = stNewKey(ch); let rw = tw; if (nk) { stNewOutline(nk, 8, cyp, tw, 16); rw = tw + 6 + stNewMsg(nk, 8 + tw + 6, cyp).w; } UI.chipRects.push({ x: 8, y: cyp, w: rw, h: 16, key: nk }); cyp += 20; }
   UI.chips = chips;
   // Boss bar: centred, under the sperm count / wave readout.
   if (G.boss && !G.boss.dead) {
@@ -2538,6 +2548,10 @@ function drawDish() {
   for (let i = 0; i < 72; i++) {
     const a = i / 72 * TAU, r0 = R + 30 * S, r1 = r0 - (i % 6 ? 14 : 34) * S;
     ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); ctx.lineTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1); ctx.stroke();
+  }
+  if (sceneStainOn() && !SET.darkfield) { // Counterstain: the nutrient agar, pale amber
+    ctx.globalAlpha = 0.16; RAW_COL = true; ctx.fillStyle = '#e8a94a'; ctx.globalCompositeOperation = 'multiply';
+    ctx.beginPath(); ctx.arc(x, y, R + 30 * S, 0, TAU); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; RAW_COL = false;
   }
   ctx.globalAlpha = 0.12; ctx.lineWidth = 1;
   for (let k = 1; k <= 4; k++) { ctx.beginPath(); ctx.arc(x, y, R * k / 5 + Math.sin(G.realT * 0.6 + k) * 6 * S, 0, TAU); ctx.stroke(); }

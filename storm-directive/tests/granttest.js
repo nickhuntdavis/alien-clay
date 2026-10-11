@@ -32,7 +32,7 @@ const { chromium } = require('playwright');
   const bad = ['youGrey', 'eggKnown1', 'body', 'youCol', 'shotGrey', 'tracer', 'shotCol', 'pickupGrey', 'pickups', 'offGrey', 'migrated'].filter(k => !r[k]);
   if (r.eggKnown0) bad.push('eggKnown0');
   if (bad.length) console.log('FAIL', bad.join(','));
-  await page.evaluate(() => { UI.togglePause(); const h = [...document.querySelectorAll('#pause h3')].find(x => /Stain grants/.test(x.textContent)); if (h) h.scrollIntoView(); });
+  await page.evaluate(() => { UI.togglePause(); const h = [...document.querySelectorAll('#pause h3')].find(x => /Research grants/.test(x.textContent)); if (h) h.scrollIntoView(); });
   await page.waitForTimeout(300); await page.screenshot({ path: 'grants_pause.png' });
   console.log('ERRORS:', errors.length ? errors.slice(0, 3) : 'none'); await b.close();
 })();

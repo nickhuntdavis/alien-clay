@@ -213,7 +213,7 @@ function fireTether(w, target, src) {
       const dx = e.x - a.x, dy = e.y - a.y, d2 = dx * dx + dy * dy;
       if (d2 < bd && !G.tethers.some(t => t.a === e || t.b === e)) { bd = d2; b = e; }
     }
-    bolt(p.x, p.y, a.x, a.y, '#9ef0ff', 0.15);
+    bolt(p.x, p.y, a.x, a.y, '#ffe94a', 0.15);
     if (!b) { damageEnemy(a, s.dmg, src); continue; }
     tutShow('tether');
     G.tethers.push({ a, b, life: s.dur, max: s.dur, dmg: s.dmg, pull: s.pull, src, tick: 0, slamCd: 0 });
@@ -234,9 +234,9 @@ function updateTethers(dt) {
       t.slamCd = 0.7;
       const mx = (t.a.x + t.b.x) / 2, my = (t.a.y + t.b.y) / 2, ss = Object.assign({}, t.src, { knock: 0 });
       damageEnemy(t.a, t.dmg * 3, ss); damageEnemy(t.b, t.dmg * 3, ss);
-      ring(mx, my, 40, '#9ef0ff', 0.3, 4);
+      ring(mx, my, 40, '#ffe94a', 0.3, 4);
       spawnPart(mx, my, '#e0fbff', 8, 160, 0.35);
-      floatText(mx, my - 20, 'SLAM!', '#9ef0ff', 14);
+      floatText(mx, my - 20, 'SLAM!', '#ffe94a', 14);
       cam.shake = Math.min(8, cam.shake + 2);
       achieve('tethered');
     }

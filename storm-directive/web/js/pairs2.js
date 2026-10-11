@@ -73,7 +73,7 @@ function pair2Kill(e, src) {
   if (!P) return;
   if (P.flammable && e.poison > 0 && ptagged(e, 'thorn') && G.zones.length < 220) {
     const mw = owned('moonshine');
-    if (mw && mw.s) G.zones.push({ x: e.x, y: e.y, r: 50, life: 2, max: 2, dps: mw.s.dmg * 0.4, elem: 'poison', pull: 0, color: '#f48c06', tick: 0, src: Object.assign(weaponSrc(mw), { wname: 'Flammable Fabric' }) });
+    if (mw && mw.s) G.zones.push({ x: e.x, y: e.y, r: 50, life: 2, max: 2, dps: mw.s.dmg * 0.4, elem: 'poison', pull: 0, color: '#d98c2b', tick: 0, src: Object.assign(weaponSrc(mw), { wname: 'Flammable Fabric' }) });
   }
   if (P.lostsibs && src && src.w && src.w.id === 'seeker') addGhost(1);
 }
@@ -96,5 +96,5 @@ function pair2Both(w) {
   const bw = owned('banjo');
   if (!bw || !bw.s) return;
   const s = bw.s, p = me(), n = s.count, sp = s.speed * 0.7, off = Math.random() * TAU, src = comboSrc(bw, 'Hoedown Throwdown');
-  for (let i = 0; i < n; i++) { const a = off + i / n * TAU; spawnProj(bw, p.x, p.y, a, src, { speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: s.range * 0.8 / sp, dmg: s.dmg * 1.45, r: (s.size || 4) * 1.7, note: 'lo', color: '#f48c06' }); }
+  for (let i = 0; i < n; i++) { const a = off + i / n * TAU; spawnProj(bw, p.x, p.y, a, src, { speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: s.range * 0.8 / sp, dmg: s.dmg * 1.45, r: (s.size || 4) * 1.7, note: 'lo', color: '#ffe94a' }); }
 }
