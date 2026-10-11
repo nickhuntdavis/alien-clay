@@ -87,7 +87,7 @@ function grantsTick(dt) {
     return;
   }
   const g = G.grant;
-  if (g.id === 'body' && !G.eggNear) return; // (meet the egg first: its card comes before this one)
+  // (No longer waits for you to meet the egg: since every mode starts at the dish edge you often reach it first.)
   if (Math.hypot(p.x - g.x, p.y - g.y) < (p.r || 12) + 140) grantTake(g.id);
 }
 function grantTake(id) {
