@@ -1457,7 +1457,7 @@ Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12,
 
 The slide starts in greyscale, your own swimmer included. Colour comes back two ways.
 
-**Stain grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.
+**Research grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.
 
 | Grant | When | What it colours |
 |---|---|---|

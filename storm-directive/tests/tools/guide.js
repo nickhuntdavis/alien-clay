@@ -176,7 +176,7 @@ for (const d of D.DUOS) p(`| **${d.name}** | ${D.MODS[d.a].name} + ${D.MODS[d.b]
 p('');
 p('## Stains'); p('');
 p('The slide starts in greyscale, your own swimmer included. Colour comes back two ways.'); p('');
-p('**Stain grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.'); p('');
+p('**Research grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.'); p('');
 p('| Grant | When | What it colours |'); p('|---|---|---|');
 for (const id of D.GRANT_ORDER) { const g = D.GRANTS[id]; p(`| **${g.name}** | ${id === 'body' ? 'Floats by the egg, your first game (until you take it)' : `Level ${g.level}, once you have ${D.GRANTS[g.after].name}`} | ${esc(g.see)} |`); }
 p('');
