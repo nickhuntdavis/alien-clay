@@ -1459,7 +1459,7 @@ The slide starts in greyscale, your own swimmer included. Colour comes back thre
 
 **Damage types** come into colour one at a time, from the card that introduces each (soon after you first use it; at once with tutorials off). Force stays white.
 
-**Stain grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.
+**Research grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.
 
 | Grant | When | What it colours |
 |---|---|---|

@@ -14,7 +14,7 @@ const { chromium } = require('playwright');
   const after = await page.evaluate(() => ({ state: G.state, seen: Object.keys(META.seen), saved: JSON.parse(localStorage.getItem('sd_meta')).seen }));
   console.log(JSON.stringify(after));
   // Same type again in a new run: no intro (until another new type shows up).
-  const again = await page.evaluate(() => { const first = Object.keys(META.seen)[0]; newGame(); UI.show('hud'); G.state = 'play'; G.t = 20; G.enemies.length = 0; const e = makeEnemy(ENEMIES[first], G.player.x + 60, G.player.y); G.enemies.push(e); gridBuild(); G.introCheck = 0; introTick(); return G.state; });
+  const again = await page.evaluate(() => { let first = Object.keys(META.seen).find(k => ENEMIES[k] && k !== 'medic'); if (!first) { first = Object.keys(ENEMIES).find(k => k !== 'medic' && !ENEMIES[k].boss); META.seen[first] = 1; } /* (the first meeting can be a rival now you start at the dish edge) */ newGame(); UI.show('hud'); G.state = 'play'; G.t = 20; G.enemies.length = 0; const e = makeEnemy(ENEMIES[first], G.player.x + 60, G.player.y); G.enemies.push(e); gridBuild(); G.introCheck = 0; introTick(); return G.state; });
   console.log('same type, new run:', again);
   // Full Auto clears an intro by itself.
   const auto = await page.evaluate(async () => { SET.auto = true; G.t = 30; G.introNext = 0; G.introCheck = 0; G.enemies.length = 0; const e = makeEnemy(ENEMIES.medic, G.player.x + 60, G.player.y); G.enemies.push(e); gridBuild(); introTick(); const s0 = G.state; await new Promise(r => setTimeout(r, 3500)); return s0 + ' -> ' + G.state; });

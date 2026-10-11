@@ -83,7 +83,7 @@ const TUT_CARDS = {
   stains: () => ({ title: 'YOUR FIRST STAIN', name: 'STAINS', colour: PAL.you,
     what: 'Everything on the slide starts in greyscale, you included. Stains bring the colour back, one kind at a time.',
     head: 'HOW THEY WORK', tips: [
-      'A stain grant is yours for good: on in every run from now on. More grants turn up as you level.',
+      'A research grant is yours for good: on in every run from now on. More grants turn up as you level.',
       'Stain cards in DNA strands colour one more thing for that run only, and bring a boon.',
       'Switch any grant off in the pause menu if you would rather not see its colour.'] }),
   egg: () => ({ title: 'YOU HAVE MET', name: 'THE EGG', colour: '#ffd6e8',

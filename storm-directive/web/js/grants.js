@@ -59,20 +59,20 @@ function grantsTick(dt) {
     const id = grantDue();
     if (!id) return;
     if (id === 'body') {
-      // By the egg, on the side you swim in from.
+      // Well out from the egg, on the side you swim in from.
       const c = G.core, a = Math.atan2(p.y - c.y, p.x - c.x) || Math.PI / 2;
-      G.grant = unstick({ id, x: c.x + Math.cos(a) * (CORE.r + 110), y: c.y + Math.sin(a) * (CORE.r + 110), born: G.t }, 30);
+      G.grant = unstick({ id, x: c.x + Math.cos(a) * (CORE.r + 420), y: c.y + Math.sin(a) * (CORE.r + 420), born: G.t }, 30);
     } else {
       // Right in front of you, so you can't miss it.
       const a = Math.random() * TAU;
       G.grant = unstick({ id, x: p.x + Math.cos(a) * 170, y: p.y + Math.sin(a) * 170, born: G.t }, 30);
-      banner('A STAIN GRANT!', GRANTS[id].key()); sfx('level'); vibrate(40);
+      banner('A RESEARCH GRANT!', GRANTS[id].key()); sfx('level'); vibrate(40);
     }
     return;
   }
   const g = G.grant;
   if (g.id === 'body' && !G.eggNear) return; // (meet the egg first: its card comes before this one)
-  if (Math.hypot(p.x - g.x, p.y - g.y) < (p.r || 12) + 32) grantTake(g.id);
+  if (Math.hypot(p.x - g.x, p.y - g.y) < (p.r || 12) + 140) grantTake(g.id);
 }
 function grantTake(id) {
   const D = GRANTS[id], g = G.grant;
@@ -84,9 +84,9 @@ function grantTake(id) {
   const c = D.key();
   if (g) { ring(g.x, g.y, 90, c, 0.6, 5); ring(g.x, g.y, 180, c, 0.9, 3); fxParts('drop', g.x, g.y, c, 18, 220, 0.7, 4); }
   cam.shake = Math.max(cam.shake, 6); sfx('level'); vibrate(80);
-  banner(D.name.toUpperCase(), c); // (the message underneath says it's a stain grant: the banner has room for a name)
+  banner(D.name.toUpperCase(), c); // (the message underneath says it's a research grant: the banner has room for a name)
   if (id === 'body') tutShow('stains', true); // (what stains are: tutorial.js)
-  sysMsg('STAIN GRANT: ' + D.name.toUpperCase(), `${D.desc} Yours for good (switch it off in the pause menu).`, c, true);
+  sysMsg('RESEARCH GRANT: ' + D.name.toUpperCase(), `${D.desc} Yours for good (switch it off in the pause menu).`, c, true);
 }
 
 // ---------------------------------------------------------------- drawing (world space, from render)
@@ -103,7 +103,7 @@ function drawGrants() {
   ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.arc(x - r * 0.35, y, r * 0.22, 0, TAU); ctx.fill();
   ctx.font = '900 11px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.fillStyle = c;
   const by = y - r * 2.3 - 8;
-  ctx.strokeText('STAIN GRANT', x, by); ctx.fillText('STAIN GRANT', x, by);
+  ctx.strokeText('RESEARCH GRANT', x, by); ctx.fillText('RESEARCH GRANT', x, by);
   RAW_COL = false;
 }
 
@@ -111,7 +111,7 @@ function drawGrants() {
 function grantsHtml() {
   const got = GRANT_ORDER.filter(grantHas);
   if (!got.length) return '';
-  return `<h3 style="margin-top:10px">Stain grants</h3><div class="list">${got.map(id => { const D = GRANTS[id], on = grantOn(id);
+  return `<h3 style="margin-top:10px">Research grants</h3><div class="list">${got.map(id => { const D = GRANTS[id], on = grantOn(id);
     return `<div class="li on stain"><i class="sw" style="background:${D.key()}"></i><div><b>${esc(D.name)}</b><br><span>${esc(D.see)}.</span><br><button class="chip ${on ? 'sel' : ''}" data-grant="${id}">${on ? 'ON' : 'OFF'}</button></div></div>`; }).join('')}</div>`
     + `<p class="hint">Yours for good. Switch any off if you'd rather not see its colour.</p>`;
 }
