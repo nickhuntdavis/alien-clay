@@ -201,6 +201,21 @@ function copyText(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(() => true, () => fallback());
   return Promise.resolve(fallback());
 }
+// Settings > Data > Back up your save: everything this phone keeps (progress, run log and settings: every
+// sd_ key) as one code to paste somewhere safe, and back in. Needed when the app has to be reinstalled.
+function exportSave() {
+  const o = {};
+  try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('sd_')) o[k] = localStorage.getItem(k); } } catch (e) { /* storage unavailable */ }
+  return 'SPAWNPRAWN-SAVE:' + btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+}
+function importSave(code) {
+  const m = String(code || '').trim().match(/^SPAWNPRAWN-SAVE:([A-Za-z0-9+/=\s]+)$/);
+  if (!m) return false;
+  let o; try { o = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/\s/g, ''))))); } catch (e) { return false; }
+  if (!o || typeof o !== 'object' || !Object.keys(o).length) return false;
+  try { for (const k in o) if (k.startsWith('sd_') && typeof o[k] === 'string') localStorage.setItem(k, o[k]); } catch (e) { return false; }
+  return true;
+}
 // Settings > Data > Reset all progress: everything earned on this phone goes; settings stay.
 function resetAllProgress() {
   try { for (const k of ['sd_meta', 'sd_best', 'sd_runs', 'sd_live', 'sd_err']) localStorage.removeItem(k); } catch (e) { /* storage unavailable */ }

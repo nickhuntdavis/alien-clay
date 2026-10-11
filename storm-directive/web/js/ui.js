@@ -313,6 +313,7 @@ const UI = {
     // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
     body.onclick = ev => { const b = ev.target.closest('[data-stab]'); if (b) { UI.setTab = b.dataset.stab; UI.renderSettings(); $('settings').scrollTop = 0; } };
     if (tab !== 'data') { UI.bindSettingChips(body); return; }
+    body.innerHTML += `<div class="sec setrow"><h3>Back up your save</h3><p class="hint">Copies everything this phone keeps (progress, run log, settings) as one code. Paste it somewhere safe; if you ever reinstall the game, paste it back here.</p><div class="chips"><button class="chip" id="saveExport">COPY SAVE CODE</button></div><textarea id="saveText" style="display:none;width:100%;height:90px;font-size:10px" placeholder="Paste a save code here"></textarea><div class="chips"><button class="chip" id="saveImport">RESTORE FROM A CODE</button></div><p class="hint" id="saveMsg"></p></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, stains, generations, bests, achievements, the Field Guide and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Tutorial</h3><p class="hint">The first time you meet each kind of enemy, the slide stops to introduce it (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Reset to see the introductions again. Your Field Guide keeps what you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIAL</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Run log</h3><p class="hint">${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.</p>
@@ -329,6 +330,17 @@ const UI = {
     $('tutReset').addEventListener('click', ev => {
       if (!ev.target.dataset.armed) { ev.target.dataset.armed = '1'; ev.target.textContent = 'TAP AGAIN TO RESET'; return; }
       resetTutorial(); ev.target.textContent = 'DONE: YOU WILL MEET THEM ALL AGAIN';
+    });
+    $('saveExport').addEventListener('click', () => {
+      const code = exportSave(), ta = $('saveText');
+      ta.style.display = ''; ta.value = code;
+      copyText(code).then(ok => { $('saveMsg').textContent = ok ? 'Copied. Paste it into a note or a message to yourself.' : 'Copying was blocked: select all the text above and copy it.'; if (!ok) { ta.focus(); ta.select(); } });
+    });
+    $('saveImport').addEventListener('click', ev => {
+      const ta = $('saveText');
+      if (ta.style.display === 'none' || !ta.value.trim() || ta.value === exportSave()) { ta.style.display = ''; ta.value = ''; ta.focus(); $('saveMsg').textContent = 'Paste your save code above, then tap RESTORE again.'; return; }
+      if (!importSave(ta.value)) { $('saveMsg').textContent = 'That is not a save code. Check you copied all of it.'; return; }
+      $('saveMsg').textContent = 'Restored. Reloading...'; setTimeout(() => location.reload(), 600);
     });
     $('resetAll').addEventListener('click', ev => {
       // Two taps, then a third: this is the one button that cannot be taken back.
