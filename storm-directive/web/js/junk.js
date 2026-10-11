@@ -52,7 +52,7 @@ const cap1 = s => s[0].toUpperCase() + s.slice(1);
 const junkSc = () => (1 + G.level * 0.12) * G.P.might;
 
 function junkStart(G) {
-  G.junk = {}; G.junkE = null; G.nextJunk = JUNK.first; G.junkT = {}; G.junkNear = 0;
+  G.junk = {}; G.junkE = null; G.junkDrops = []; G.junkNew = {}; G.junkShown = false; G.nextJunk = JUNK.first; G.junkT = {}; G.junkNear = 0;
 }
 
 // ---------------------------------------------------------------- carriers
@@ -71,6 +71,7 @@ function junkPick() {
 function junkTick(dt) {
   if (!G || !G.junk || G.debug || G.state !== 'play') return;
   const p = me(), P = G.P, T = G.junkT;
+  if (G.junkShown) { G.junkNew = {}; G.junkShown = false; } // (the pause menu has been seen: NEW tags go)
   // The carrier: it sheds the junk if you take too long.
   const c = G.junkE;
   if (c && (c.dead || G.t - c.junk > JUNK.life)) {
@@ -85,9 +86,17 @@ function junkTick(dt) {
       G.nextJunk = G.t + rand(JUNK.every[0], JUNK.every[1]);
       e.junk = G.t; e.junkPing = G.realT; G.junkE = e; e.hp *= JUNK.hpK; e.maxHp *= JUNK.hpK;
       banner('JUNK DNA!', '#e9f5db'); sfx('level'); vibrate(40);
-      if (!G.junkSeen) { G.junkSeen = true; sysMsg('LATERAL GENE TRANSFER', `One of them is carrying junk DNA: the white helix. Kill it in the next ${JUNK.life} seconds and you absorb a small power of whatever it was.`, '#e9f5db', true); }
     }
   }
+  // Dropped junk floats where the carrier died: swim into it to absorb it.
+  for (const d of G.junkDrops) {
+    d.life -= dt; d.bob += dt * 4;
+    const dx = p.x - d.x, dy = p.y - d.y, dist = Math.hypot(dx, dy) || 1;
+    if (d.life <= 0) { d.dead = true; floatText(d.x, d.y - 20, 'JUNK DNA DECAYED', XR.dim, 12, 0.9); continue; }
+    if (dist < 110) { d.x += dx / dist * 170 * dt; d.y += dy / dist * 170 * dt; }
+    if (dist < p.r + 20) { d.dead = true; junkAbsorb(d.id, d.x, d.y); }
+  }
+  compactArr(G.junkDrops, d => !d.dead);
   // Powers that tick.
   if (!(T.nearT > G.t)) { T.nearT = G.t + 0.25; let n = 0; if (junkK('crawler')) forNear(p.x, p.y, 250, e => { if (!e.charmed && !e.egg) n++; }); G.junkNear = n; }
   T.healB = Math.min(3 * junkK('amoeba'), (T.healB || 0) + 3 * junkK('amoeba') * dt); // (Second Helpings: up to 3 HP/s a stack)
@@ -130,26 +139,30 @@ function junkShot(x, y, a, dmg, name, o) {
     dmg, pierce: 0, bounce: 0, homing: o.homing || 0, explode: 0, r: o.r || 4, style: 'bullet', chainHit: 0, aura: 0, color: '#e9f5db' });
 }
 // Absorbing it.
-function junkAbsorb(e) {
-  const id = junkId(e), J = JUNK_POWERS[id];
-  G.junkE = null;
+function junkAbsorb(id, x, y) {
+  const J = JUNK_POWERS[id];
   if (!J || junkK(id) >= JUNK.stacks) return;
   const k = G.junk[id] = junkK(id) + 1;
   if (J.apply) { J.apply(G.P); recomputeAll(); }
   const p = me();
-  fxParts('drop', e.x, e.y, '#e9f5db', 16, 240, 0.6, 4); ring(e.x, e.y, 70, '#e9f5db', 0.4, 4); ring(p.x, p.y, 50, '#e9f5db', 0.5, 3);
+  fxParts('drop', x, y, '#e9f5db', 16, 240, 0.6, 4); ring(x, y, 70, '#e9f5db', 0.4, 4); ring(p.x, p.y, 50, '#e9f5db', 0.5, 3);
   sfx('pickup'); vibrate(60);
   banner(`${J.name.toUpperCase()}${k > 1 ? ' x' + k : ''}`, '#e9f5db'); // (the float underneath says what it does)
-  floatText(p.x, p.y - 40, 'JUNK DNA ABSORBED', '#e9f5db', 13, 1.2);
-  sysMsg('JUNK DNA: ' + J.name.toUpperCase(), `From the ${ENEMIES[id].name}: ${J.fmt(k)}.`, '#e9f5db');
-  tutShow('lgt', true); // (the first one: a card)
+  floatText(p.x, p.y - 40, cap1(J.fmt(k)), '#e9f5db', 14, 2.6, 1); // (what it does, right away, every time)
+  sysMsg('JUNK DNA: ' + J.name.toUpperCase(), `From the ${ENEMIES[id].name}: ${J.fmt(k)}.`, '#e9f5db', true);
+  G.lgtLast = { id, k }; G.junkNew[id] = true; // (NEW tag in the pause menu until you have looked)
+  tutShow('lgt', true); // (the first one: a card, which introduces the mechanic along with this power)
   if (typeof mutOn === 'function' && mutOn('trojan')) aoe(p.x, p.y, 180, 40 * (1 + G.level * 0.12) * G.P.might, { elem: 'phys', wname: 'Surprise Package', knock: 400, noCrit: true }, '#e9f5db');
 }
 
 // ---------------------------------------------------------------- hooks
 function junkKill(e, src) {
   if (!G.junk || e.charmed) return;
-  if (e.junk && e === G.junkE) junkAbsorb(e);
+  if (e.junk && e === G.junkE) {
+    G.junkE = null;
+    const id = junkId(e);
+    if (id && JUNK_POWERS[id] && junkK(id) < JUNK.stacks) { G.junkDrops.push({ id, x: e.x, y: e.y, life: 20, bob: Math.random() * TAU }); ring(e.x, e.y, 50, '#e9f5db', 0.4, 3); floatText(e.x, e.y - e.r - 12, 'JUNK DNA DROPPED', '#e9f5db', 12, 1); }
+  }
   let k;
   if ((k = junkK('amoeba')) && G.junkT.healB >= 1) { const h = Math.min(k, G.junkT.healB); G.junkT.healB -= h; healPlayer(h, true); }
   if ((k = junkK('bomber')) && !(src && src.wname === 'Heartburn') && Math.random() < 0.1 * k) aoe(e.x, e.y, 90, 25 * junkSc(), { elem: 'fire', wname: 'Heartburn', noCrit: true }, '#c6ff3d');
@@ -194,7 +207,30 @@ function junkArrow(x, y, a, sz, alpha) {
   ctx.closePath(); ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.stroke(); ctx.fillStyle = '#e9f5db'; ctx.fill();
   ctx.globalAlpha = 1;
 }
+function drawJunkDrops() {
+  const t = G.realT;
+  for (const d of G.junkDrops) {
+    const x = sx(d.x), y = sy(d.y) + Math.sin(d.bob) * 4, R = 13 * Math.max(1, S * 0.8);
+    if (x < -40 || x > W + 40 || y < -40 || y > H + 40) continue;
+    ctx.save();
+    ctx.globalAlpha = d.life < 5 && Math.floor(t * 6) % 2 ? 0.35 : 1;
+    ctx.globalCompositeOperation = 'lighter'; glow(x, y, R * 2.4, '#e9f5db', 0.55); ctx.globalCompositeOperation = 'source-over';
+    ctx.lineWidth = 2.2; ctx.strokeStyle = '#ffffff';
+    for (const ph of [0, Math.PI]) {
+      ctx.beginPath();
+      for (let i = 0; i <= 16; i++) { const u = i / 16 * 2 - 1, X = x + Math.sin(u * Math.PI * 1.5 + t * 4 + ph) * R * 0.55, Y = y + u * R; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
+      ctx.stroke();
+    }
+    ctx.lineWidth = 1.2; ctx.beginPath();
+    for (let i = 0; i < 5; i++) { const u = (i + 0.5) / 5 * 2 - 1, s = Math.sin(u * Math.PI * 1.5 + t * 4) * R * 0.55; ctx.moveTo(x - s, y + u * R); ctx.lineTo(x + s, y + u * R); }
+    ctx.stroke();
+    ctx.font = '900 10px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.fillStyle = '#e9f5db';
+    const lbl = JUNK_POWERS[d.id].name.toUpperCase(); ctx.strokeText(lbl, x, y - R - 8); ctx.fillText(lbl, x, y - R - 8);
+    ctx.restore();
+  }
+}
 function drawJunk() {
+  if (G && G.junkDrops && G.junkDrops.length) drawJunkDrops();
   const e = G && G.junkE;
   if (!e || e.dead) return;
   const left = JUNK.life - (G.t - e.junk), x = sx(e.x), y = sy(e.y), R = e.r * S + 12, t = G.realT;
@@ -217,7 +253,7 @@ function drawJunk() {
   const by = y - R - 18 - Math.abs(Math.sin(t * 4)) * 8;
   ctx.globalAlpha = 1; junkArrow(x, by, Math.PI / 2, 11, 1);
   ctx.font = '900 12px monospace'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.fillStyle = '#e9f5db';
-  const lbl = 'JUNK DNA ' + Math.ceil(left) + 's'; ctx.strokeText(lbl, x, by - 16); ctx.fillText(lbl, x, by - 16);
+  const lbl = 'KILL FOR JUNK DNA ' + Math.ceil(left) + 's'; ctx.strokeText(lbl, x, by - 16); ctx.fillText(lbl, x, by - 16);
   // Three small arrows circling you, pointing the way (until you're nearly there).
   const p = me(), dW = Math.hypot(e.x - p.x, e.y - p.y), a = Math.atan2(e.y - p.y, e.x - p.x), px = sx(p.x), py = sy(p.y);
   if (dW > 120) for (let q = 0; q < 3; q++) {
@@ -241,6 +277,7 @@ function drawJunk() {
 // ---------------------------------------------------------------- pause menu
 function junkHtml(first) {
   const ids = Object.keys(G.junk || {}).filter(id => G.junk[id] > 0 && JUNK_POWERS[id]);
-  const h = ids.map(id => `<div class="li on"><b>${esc(JUNK_POWERS[id].name)}${G.junk[id] > 1 ? ' x' + G.junk[id] : ''}</b> <span class="sb">(${esc(ENEMIES[id].name)})</span><br><span>${esc(cap1(JUNK_POWERS[id].fmt(G.junk[id])))}.</span></div>`).join('');
-  return `<h3${first ? '' : ' style="margin-top:10px"'}>Junk DNA (Lateral Gene Transfer)</h3>${h ? `<div class="list">${h}</div>` : '<p class="hint">None yet. Kill an enemy wearing the white helix to absorb a small power from it.</p>'}`;
+  const h = ids.map(id => `<div class="li on"><b>${esc(JUNK_POWERS[id].name)}${G.junk[id] > 1 ? ' x' + G.junk[id] : ''}</b>${G.junkNew && G.junkNew[id] ? ' <span style="background:#e9f5db;color:#000;font-weight:900;font-size:10px;padding:1px 5px;border-radius:4px">NEW</span>' : ''} <span class="sb">(${esc(ENEMIES[id].name)})</span><br><span>${esc(cap1(JUNK_POWERS[id].fmt(G.junk[id])))}.</span></div>`).join('');
+  if (h) G.junkShown = true;
+  return `<h3${first ? '' : ' style="margin-top:10px"'}>Junk DNA (Lateral Gene Transfer)</h3>${h ? `<div class="list">${h}</div>` : '<p class="hint">None yet. Kill an enemy wearing the white helix, then swim into the helix it drops.</p>'}`;
 }

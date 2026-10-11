@@ -53,12 +53,15 @@ const TUT_CARDS = {
         'The rest (healing, slowing time, shields) wait on a cooldown.',
         'They level up like weapons. Weapons are still where most of your damage comes from.'] };
   },
-  lgt: () => ({ title: 'YOU ABSORBED SOME', name: 'LATERAL GENE TRANSFER', colour: '#e9f5db',
-    what: 'Junk DNA from something you just killed. You keep a small power of whatever it was, for the rest of the run.',
+  lgt: () => {
+    const L = G.lgtLast, J = L && JUNK_POWERS[L.id];
+    return { title: 'LATERAL GENE TRANSFER', name: J ? J.name.toUpperCase() : 'JUNK DNA', colour: '#e9f5db',
+    what: J ? `You picked up junk DNA from the ${ENEMIES[L.id].name} and gained a power: ${J.fmt(L.k)}. It lasts the rest of the run.` : 'Junk DNA from something you just killed. You keep a small power of whatever it was, for the rest of the run.',
     head: 'HOW IT WORKS', tips: [
-      'Every so often an enemy wears a white helix. Kill it before it sheds the junk (30 seconds).',
+      'Every so often an enemy wears a white helix. Kill it before it sheds the junk (30 seconds), then swim into the helix it drops.',
       `Each kind of enemy gives its own power. The same kind again stacks it, up to ${JUNK.stacks} times.`,
-      'The pause menu lists what you have absorbed.'] }),
+      'The pause menu lists what you have absorbed.'] };
+  },
   react: () => ({ title: 'MIXING DAMAGE TYPES', name: 'REACTIONS', colour: '#ffd166',
     what: `Two different damage types on one enemy react. You just made ${G.tutReactName || 'one'}${G.tutReactPair ? ': ' + G.tutReactPair : ''}.`,
     head: 'WHY IT MATTERS', tips: [
