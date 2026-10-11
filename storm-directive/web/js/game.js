@@ -1257,7 +1257,7 @@ function spawnRandom() {
 
 // The race's scripted waves, every 30 s. Each brings a rival with it (rivals.js) and lands as groups spread
 // over a few seconds (WAVE_EV: more of them, further apart), not one clump.
-const WAVE_EV = { more: 1.15, gap: 1.6, spread: 75 };
+const WAVE_EV = { more: 1, gap: 1.6, spread: 75 };
 function waveEvent() {
   const t = PT(), p = G.player, M = WAVE_EV.more, sp = WAVE_EV.spread;
   rivalArrive(); // (one rival a wave until all five are in)
