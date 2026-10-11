@@ -32,7 +32,6 @@ function refreshPalette() {
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
 // Element effects. Each damage type shows in colour from the first time you use it (elemOn, tutorial.js), or all at once with the H&E stain or the Tracer Dye grant: Acid shows green, Alkali blue, Ethanol amber and Blood Magic blood red.
-// Static is always coloured, in a static-shock blue and pink.
 // (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
 const ELEM_SWAP = new Map([
   ['#ff7a2f', '#c6ff3d'], ['#ff5400', '#a8e61d'], ['#ff9e00', '#d4ff6b'], ['#ff9f1c', '#b5f23a'], ['#ffd166', '#e2ff9a'], ['#ff5a36', '#9fd61a'], ['#ffba08', '#ccff4d'],
@@ -42,13 +41,15 @@ const ELEM_HEX = {
   fire: ['#c6ff3d', '#a8e61d', '#d4ff6b', '#b5f23a', '#e2ff9a', '#9fd61a', '#ccff4d'],
   ice: ['#5b8cff', '#6fd8ff', '#90e0ef', '#caf0f8', '#bde0fe', '#c9e4f5'],
   poison: ['#e8a33d', '#d98c2b', '#f0c27a', '#f2b552'],
+  shock: ['#ffe94a', '#fdf0d5', '#fff3b0'], // Static: electric yellow, like its card says
   oxi: ['#9ff7ff', '#e6fbff'],
   salt: ['#ffb3c6', '#ffe5ec', '#fff0f3'],
   arcane: ['#c9184a', '#800f2f', '#6a0d25', '#f25c78', '#ff758f', '#a4133c', '#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'], // (blood reds, and the old purples other things still use)
 };
-const STATIC_HEX = { '#ffe94a': '#6f9bff', '#fdf0d5': '#ff8ae0', '#9ef0ff': '#9fb0ff', '#fff3b0': '#ff8ae0' };
+const STATIC_HEX = { '#9ef0ff': '#9fb0ff' }; // (a pale blue the dodge text and stamina ring use: always coloured)
 const ELEM_OF = new Map();
 for (const el in ELEM_HEX) for (const h of ELEM_HEX[el]) ELEM_OF.set(h, el);
+if (typeof weaponColours === 'function') weaponColours(); // (meta.js ran before the colour families existed)
 const PAL_ALIAS = { '#8dffc0': PAL.you, '#ff4d6d': PAL.danger, '#ff2e2e': PAL.danger, '#ff0033': PAL.danger, '#ffca3a': PAL.reward, '#ffd60a': PAL.reward, '#ffb400': PAL.reward };
 const COL = new Map();
 function col(c) {
@@ -1391,7 +1392,7 @@ function render() {
       case 'prequel':
         // A shell flying backwards: the flame trail is in front of it.
         ctx.lineWidth = r * 1.1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3); ctx.stroke();
-        glow(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3, r * 2.5, '#ffd166', 0.8); ctx.globalAlpha = 1;
+        glow(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3, r * 2.5, pr.color, 0.8); ctx.globalAlpha = 1;
         break;
       case 'scrap':
         ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 10);
@@ -1858,9 +1859,14 @@ function drawEnemy(e, lod) {
   let si = 0;
   const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
   drawStatusFx(e, x, y, r);
-  if (e.mark > 0) st('#c9184a');
-  if (e.fizz > 0) st('#9ff7ff');
-  if (e.pickle > 0) st('#ffb3c6');
+  // A ring for each damage type's status on it, in that type's colour (damage over time included: Acid, Ethanol).
+  if (e.burn > 0) st(ELEMENTS.fire.color);
+  if (e.poison > 0) st(ELEMENTS.poison.color);
+  if (e.chill > 0 || e.frozen > 0) st(ELEMENTS.ice.color);
+  if (e.shock > 0) st(ELEMENTS.shock.color);
+  if (e.mark > 0) st(ELEMENTS.arcane.color);
+  if (e.fizz > 0) st(ELEMENTS.oxi.color);
+  if (e.pickle > 0) st(ELEMENTS.salt.color);
   if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
   if (e.parasiteT > 0) st('#b5e48c');
   if (e.soggyT > G.t) st('#cfe8ff');

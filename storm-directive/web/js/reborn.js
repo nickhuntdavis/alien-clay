@@ -7,21 +7,21 @@
 
 // ================================================================ weapons, spell, upgrades, signatures
 Object.assign(WEAPONS, {
-  dejavu: { name: 'Déjà Vu', stars: [3, 3, 4, 2], play: 'Fires a slow ghostly shot. A moment later the same shot happens again, from the same spot at the same angle. You have seen this before.', icon: 'DV', elem: 'arcane', kind: 'gun', color: '#d9c6ff', dir: 'nearest', role: 'Repeater', reborn: 1, seqOnly: 'reborn',
+  dejavu: { name: 'Déjà Vu', stars: [3, 3, 4, 2], play: 'Fires a slow ghostly shot. A moment later the same shot happens again, from the same spot at the same angle. You have seen this before.', icon: 'DV', elem: 'arcane', kind: 'gun', color: '#ff758f', dir: 'nearest', role: 'Repeater', reborn: 1, seqOnly: 'reborn',
     desc: 'Every shot happens twice. The second time, it is a memory.',
     base: { dmg: 20, cd: 0.8, mag: 6, reload: 1.3, count: 1, spread: 0.12, speed: 330, pierce: 1, range: 420, size: 5, replay: 1 },
     lv: { 3: { dmg: 0.25 }, 6: { count: 1 }, 9: { pierce: 2 } }, sig: { 5: ['rbthird', 'rbpremonition'], 10: ['rbgroundhog', 'rbsamedream'] } },
-  ghosts: { name: 'Ghosts of You', stars: [3, 2, 4, 4], play: 'Every enemy that dies near you leaves a ghost behind. Each volley sends every stored ghost hunting, homing in on enemies. The busier it gets, the bigger the volley.', icon: 'GY', elem: 'ice', kind: 'gun', color: '#e0f7ff', dir: 'nearest', style: 'sperm', role: 'Haunter', reborn: 1, seqOnly: 'reborn',
+  ghosts: { name: 'Ghosts of You', stars: [3, 2, 4, 4], play: 'Every enemy that dies near you leaves a ghost behind. Each volley sends every stored ghost hunting, homing in on enemies. The busier it gets, the bigger the volley.', icon: 'GY', elem: 'ice', kind: 'gun', color: '#caf0f8', dir: 'nearest', style: 'sperm', role: 'Haunter', reborn: 1, seqOnly: 'reborn',
     desc: 'The ones who came before you never really left.',
     base: { dmg: 15, cd: 1.1, mag: 4, reload: 1.6, count: 1, spread: 1.4, speed: 270, pierce: 0, range: 460, size: 5, homing: 6 },
     lv: { 3: { dmg: 0.3 }, 6: { count: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['rbunfinished', 'rbchills'], 10: ['rblegion', 'rbreunion'] } },
-  karma: { name: 'Karma', stars: [3, 2, 1, 4], play: 'What goes around comes around. A ring bursts out all around you, and every hit you take charges the next ones up: up to three and a half times as hard.', icon: 'KA', elem: 'phys', kind: 'ring', color: '#ffe8a3', dir: 'nearest', role: 'Payback', reborn: 1, seqOnly: 'reborn',
+  karma: { name: 'Karma', stars: [3, 2, 1, 4], play: 'What goes around comes around. A ring bursts out all around you, and every hit you take charges the next ones up: up to three and a half times as hard.', icon: 'KA', elem: 'phys', kind: 'ring', color: '#e8eef8', dir: 'nearest', role: 'Payback', reborn: 1, seqOnly: 'reborn',
     desc: 'Every hit you take comes back around. With interest.',
     base: { dmg: 18, cd: 1.6, mag: 3, reload: 1.8, count: 10, speed: 300, pierce: 2, range: 240, size: 5 },
     lv: { 3: { count: 4 }, 6: { dmg: 0.4 }, 9: { pierce: 2 } }, sig: { 5: ['rbinstant', 'rbgood'], 10: ['rbwheel', 'rbnirvana'] } },
 });
 Object.assign(SPELLS, {
-  oob: { name: 'Out of Body', icon: 'OB', elem: 'arcane', kind: 'oob', color: '#e8dcff', dir: 'nearest', noTarget: 1, seqOnly: 'reborn',
+  oob: { name: 'Out of Body', icon: 'OB', elem: 'arcane', kind: 'oob', color: '#ff758f', dir: 'nearest', noTarget: 1, seqOnly: 'reborn',
     desc: 'You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it.',
     base: { dmg: 24, cd: 13, dur: 2.2, range: 0 },
     lv: { 3: { dur: 0.3 }, 5: { dmg: 0.5 }, 7: { cd: -0.2 } } },

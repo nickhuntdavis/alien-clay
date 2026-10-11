@@ -275,6 +275,7 @@ function computeStats(w) {
   const realP = G.P;
   if (w.wp) G.P = weaponP(w);
   try { computeStatsInner(w); } finally { G.P = realP; }
+  wRecolour(w); // (a changed damage type changes the colour)
 }
 function computeStatsInner(w) {
   const d = w.def, b = d.base, P = G.P, L = w.lvl, syn = G.synergy;
@@ -361,6 +362,16 @@ function computeStatsInner(w) {
   w.s = s;
 }
 
+// A weapon whose damage type has been changed (Switched at Birth, or a signature upgrade such as Dragon's Breath)
+// wears its new type's colour. It gets its own copy of the def (the original underneath), so other copies keep theirs.
+function wRecolour(w) {
+  const m = w.mods && w.mods.find(x => x.id === 'elemental'), base = w.def.recol ? Object.getPrototypeOf(w.def) : w.def;
+  const el = m ? m.elem : w.s && w.s.elem;
+  if (!el || el === base.elem || !ELEMENTS[el]) { if (w.def !== base) w.def = base; return; }
+  const c = ELEMENTS[el].color;
+  if (w.def !== base && w.def.color === c) return;
+  w.def = Object.create(base, { color: { value: c, writable: true, enumerable: true }, recol: { value: true } });
+}
 function recomputeAll() {
   const counts = {};
   for (const w of G.weapons.concat(G.spells)) {
@@ -1795,7 +1806,7 @@ function fireWeapon(w, target) {
     case 'sentry':
       for (let i = 0; i < s.count; i++) {
         const a = Math.random() * TAU;
-        G.turrets.push({ x: p.x + Math.cos(a) * 50, y: p.y + Math.sin(a) * 50, life: s.dur, max: s.dur, cd: 0, rate: s.rate, dmg: s.dmg, range: s.range, w, src, face: 0 });
+        G.turrets.push({ x: p.x + Math.cos(a) * 50, y: p.y + Math.sin(a) * 50, life: s.dur, max: s.dur, cd: 0, rate: s.rate, dmg: s.dmg, range: s.range, w, src, face: 0, color: d.color });
       }
       break;
   }

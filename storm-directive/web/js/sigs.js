@@ -74,9 +74,9 @@ function sigVolley(w, a0) {
     if (w.blastN % 3 === 0) {
       const p = me(), src = weaponSrc(w);
       for (let i = 0; i < 18; i++) spawnProj(w, p.x, p.y, i / 18 * TAU, src);
-      for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < 140) { b.dead = true; spawnPart(b.x, b.y, '#ffd6a5', 1, 50, 0.25); }
-      ring(p.x, p.y, 140, '#ffd6a5', 0.35, 4);
-      floatText(p.x, p.y - 30, 'HIC!', '#ffd6a5', 15, 0.7);
+      for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < 140) { b.dead = true; spawnPart(b.x, b.y, '#e8eef8', 1, 50, 0.25); }
+      ring(p.x, p.y, 140, '#e8eef8', 0.35, 4);
+      floatText(p.x, p.y - 30, 'HIC!', '#e8eef8', 15, 0.7);
     }
   }
   if (hasSig(w, 'dragon')) { w.dragA = (w.dragA || 0) + 0.42; out.a0 = w.dragA; }
