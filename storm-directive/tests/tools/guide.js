@@ -180,7 +180,7 @@ p('**Stain grants** are permanent: each turns up once ever, floating on the slid
 p('| Grant | When | What it colours |'); p('|---|---|---|');
 for (const id of D.GRANT_ORDER) { const g = D.GRANTS[id]; p(`| **${g.name}** | ${id === 'body' ? 'Floats by the egg, your first game (until you take it)' : `Level ${g.level}, once you have ${D.GRANTS[g.after].name}`} | ${esc(g.see)} |`); }
 p('');
-p('**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.)'); p('');
+p('**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.) **Settings > View > Full colour** turns every stain on at once, whatever you have found (it is not Technicolour: no rainbows).'); p('');
 p('| Stain | Boon | What it colours |'); p('|---|---|---|');
 for (const d of Object.values(D.DYES)) p(`| **${d.name}** | ${esc(d.boon)} | ${esc(d.desc)} |`);
 p('');

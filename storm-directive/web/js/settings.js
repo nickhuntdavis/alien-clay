@@ -3,6 +3,7 @@
 
 const SETTINGS_DEF = [
   { id: 'darkfield', label: 'Darkfield microscope', hint: 'Black field, bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
+  { id: 'fullColour', label: 'Full colour', hint: 'Every colour at once, whatever stains you have found. Not Technicolour: no rainbows, just each thing in its own colour. Spoils the greyscale surprise, so best left off on a first playthrough.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'detail', label: 'Specimen detail', hint: 'High adds organelles, textures and a proper zona breach. Costs a little performance.', opts: [['standard', 'STANDARD'], ['high', 'HIGH']] },
   { id: 'clinical', label: 'Clean clinical view', hint: 'No grain, lens blur, vignette or halos. Maximum readability.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'dof', label: 'Depth of field', hint: 'Out-of-focus layers and a soft lens blur at the edges.', opts: [[true, 'ON'], [false, 'OFF']] },
@@ -21,7 +22,7 @@ const SETTINGS_DEF = [
   { id: 'auto', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button under pause.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'autoWaves', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1, featAuto: true, immersive: false };
+const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1, featAuto: true, immersive: false, fullColour: false };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
   for (const k in SET) if (k in s) SET[k] = s[k];
