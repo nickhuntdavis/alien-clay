@@ -827,7 +827,7 @@ const SWIM = { turn: 3.8, pivot: 1.6, grip: 3.2, growth: 0.015, hitGrowth: 0.007
 const OBSTACLES = {
   ridge:   { name: 'Cartilage Nodule', solid: true,  shot: 'bounce', n: 16, r: [45, 110], color: '#f2d0c9' },
   mito:    { name: 'Mitochondrion',    solid: true,  shot: 'absorb', n: 9,  r: [48, 72],  color: PAL.reward, charge: 45, burstR: 230 },
-  acid:    { name: 'Acid Crypt',       solid: true,  shot: 'melt',   n: 9,  r: [40, 80],  color: PAL.danger, dps: 10 },
+  acid:    { name: 'Acid Crypt',       solid: true,  shot: 'melt',   n: 9,  r: [28, 105],  color: PAL.danger, dps: 10 },
   cilia:   { name: 'Cilia Bed',        solid: false, shot: 'repel',  n: 8,  r: [95, 150], color: '#b0b0b0', push: 260 },
   current: { name: 'Tubal Current',    solid: false, shot: 'drift',  n: 7,  r: [120, 180], color: '#b0b0b0', push: 150 },
   slick:   { name: 'Lubricant Slick',  solid: false, shot: 'none',   n: 8,  r: [90, 150], color: '#c8b6ff', traction: 0.3 },

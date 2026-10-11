@@ -27,7 +27,7 @@ const COLOUR_CATS = {
   cPickup: () => [PAL.upgrade, PAL.pickup], cFast: () => [DYE_FAST, DYE_FAST_DK], cRival: () => RIVALS.map(r => r.color),
 };
 // Terrain's own stains (drawTerrain): let through when TERRAIN_ON.
-const TERRAIN_HEX = ['#7fbf2a', '#3d5a1f', '#c6f07a', '#9fd4e6', '#3a5560', '#f2b8c6', '#8a5866', '#c8b6ff', '#f4eeff', '#c9d6e6', '#5a6878'];
+const TERRAIN_HEX = ['#b8604a', '#c97a62', '#8f4636', '#f3c6b8', '#6e2f24', '#7fbf2a', '#3d5a1f', '#c6f07a', '#9fd4e6', '#3a5560', '#f2b8c6', '#8a5866', '#c8b6ff', '#f4eeff', '#c9d6e6', '#5a6878'];
 const PAL_OFF = new Set();
 let ELEM_ON = false, TERRAIN_ON = false, BG_TINT = 'earned';
 function refreshPalette() {
@@ -1107,22 +1107,22 @@ function drawTail(t, color, width, rootWidth) {
 // A soft organic outline round (x, y): eight points that wobble slowly (amp: how far, as a share of R).
 function blobPath(x, y, R, ob, t, amp) {
   const P = [];
-  for (let i = 0; i < 8; i++) { const a = ob.a + i / 8 * TAU, k = 1 + amp * (Math.sin(t + i * 2.3 + ob.seed) * 0.7 + Math.sin(t * 0.6 + i * 1.1) * 0.3); P.push([x + Math.cos(a) * R * k, y + Math.sin(a) * R * k]); }
+  for (let i = 0; i < 8; i++) { const a = ob.a + i / 8 * TAU, k = (ob.lobes ? ob.lobes[i] : 1) + amp * (Math.sin(t + i * 2.3 + ob.seed) * 0.7 + Math.sin(t * 0.6 + i * 1.1) * 0.3); P.push([x + Math.cos(a) * R * k, y + Math.sin(a) * R * k]); }
   ctx.beginPath(); ctx.moveTo((P[7][0] + P[0][0]) / 2, (P[7][1] + P[0][1]) / 2);
   for (let i = 0; i < 8; i++) { const p = P[i], q = P[(i + 1) % 8]; ctx.quadraticCurveTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2); }
   ctx.closePath();
 }
 function drawTerrain() {
   if (!G.terrain) return;
-  const t = G.realT, m = 200, SC = TERRAIN_ON, rc0 = RAW_COL; // (Counterstain: grants.js)
+  const t = G.realT, m = 200;
   const x0 = cam.x - W / 2 / S - m, x1 = cam.x + W / 2 / S + m, y0 = cam.y - H / 2 / S - m, y1 = cam.y + H / 2 / S + m;
   // Darkfield: the soft terrain is drawn as it scatters light on a black field (bright rims, dark middles),
-  // not by inverting the greys; only the mitochondrion keeps the inverted look.
+  // not by inverting the greys.
   const df = WORLD_DF;
   for (const ob of G.terrain.list) {
     if (ob.x < x0 || ob.x > x1 || ob.y < y0 || ob.y > y1) continue;
     const x = sx(ob.x), y = sy(ob.y), r = ob.r * S;
-    WORLD_DF = df && ob.type === 'mito'; RAW_COL = SC && ob.type === 'mito'; // (my own terrain colours go through col(): TERRAIN_HEX)
+    WORLD_DF = false; // (each kind draws its own darkfield look from df; colours go through col(): TERRAIN_HEX)
     let seed = Math.floor(ob.seed * 1000) + 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     switch (ob.type) {
       case 'ridge': {
@@ -1149,17 +1149,44 @@ function drawTerrain() {
         break;
       }
       case 'mito': {
-        const k = ob.charge / ob.def.charge, pulse = k > 0.8 ? 0.5 + 0.5 * Math.sin(t * 14) : 0;
-        if (k > 0.05 || ob.burstT > 0) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (1.7 + pulse * 0.5 + ob.burstT * 3), PAL.reward, k * 0.55 + pulse * 0.2 + ob.burstT); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+        // Mitochondrion: a slightly bent bean with a soft double membrane and folded cristae. It fills with gold
+        // (its ATP) from one end as it charges and pulses when nearly full. Solid, so it keeps a clear edge.
+        const k = ob.charge / ob.def.charge, pulse = k > 0.8 ? 0.5 + 0.5 * Math.sin(t * 14) : 0, fl = ob.flash > 0;
+        if (k > 0.05 || ob.burstT > 0) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (1.7 + pulse * 0.5 + ob.burstT * 3), PAL.reward, k * 0.45 + pulse * 0.2 + ob.burstT); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+        const L = r * 1.25, Wd = r * 0.6, bend = ((ob.seed * 7) % 1 - 0.5) * 0.6;
+        const yb = px => bend * Wd * (px / L) * (px / L);
+        const body = s => { ctx.beginPath(); for (let i = 0; i < 28; i++) { const th = i / 28 * TAU, c = Math.cos(th); ctx.lineTo(c * L * s, Math.sin(th) * Wd * s * (1 + 0.05 * Math.sin(t * 1.2 + i * 0.9 + ob.seed)) + yb(c * L)); } ctx.closePath(); };
         ctx.save(); ctx.translate(x, y); ctx.rotate(ob.a);
-        ctx.beginPath(); ctx.ellipse(0, 0, r * 1.25, r * 0.62, 0, 0, TAU);
-        ctx.fillStyle = ob.flash > 0 ? 'rgb(200,205,200)' : SC ? `rgb(${Math.round(190 + 60 * k)},${Math.round(90 + 50 * k)},${Math.round(110 - 70 * k)})` : `rgb(${Math.round(70 + 120 * k)},${Math.round(74 + 30 * k)},${Math.round(70 - 20 * k)})`; ctx.fill();
-        pcHalo(3, 0.7);
-        ctx.strokeStyle = `rgba(${Math.round(190 + 65 * k)},${Math.round(200 - 40 * k)},${Math.round(190 - 120 * k)},0.7)`; ctx.lineWidth = 2;
-        for (let i = -3; i <= 3; i++) { const cx0 = i * r * 0.3; ctx.beginPath(); ctx.moveTo(cx0, -r * 0.5 * Math.cos(i * 0.4)); ctx.quadraticCurveTo(cx0 + r * 0.12, 0, cx0, r * 0.5 * Math.cos(i * 0.4)); ctx.stroke(); }
-        ctx.restore();
-        ctx.fillStyle = 'rgba(20,24,22,0.55)'; ctx.fillRect(x - r * 0.6, y + r * 0.8, r * 1.2, 4);
-        ctx.fillStyle = PAL.reward; ctx.fillRect(x - r * 0.6, y + r * 0.8, r * 1.2 * k, 4);
+        body(1);
+        const g = ctx.createRadialGradient(0, -Wd * 0.2, Wd * 0.2, 0, 0, L);
+        if (fl) { g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#f3c6b8'); }
+        else if (df) { g.addColorStop(0, '#b8604a38'); g.addColorStop(1, '#b8604a12'); }
+        else { g.addColorStop(0, '#c97a62'); g.addColorStop(1, '#8f4636'); }
+        ctx.fillStyle = g; ctx.fill();
+        if (k > 0.02) {
+          // The ATP level, rising along the body like a battery gauge.
+          ctx.save(); body(0.97); ctx.clip();
+          const fx = -L + 2 * L * k, soft = L * 0.3;
+          ctx.globalAlpha = (df ? 0.45 : 0.6) + pulse * 0.25; ctx.fillStyle = PAL.reward;
+          if (fx - soft > -L) ctx.fillRect(-L, -Wd * 2, fx - soft + L, Wd * 4);
+          const fg = ctx.createLinearGradient(fx - soft, 0, fx, 0); fg.addColorStop(0, PAL.reward); fg.addColorStop(1, PAL.reward + '00');
+          ctx.fillStyle = fg; ctx.fillRect(fx - soft, -Wd * 2, soft, Wd * 4);
+          ctx.restore(); ctx.globalAlpha = 1;
+        }
+        // Cristae: fingers of inner membrane reaching in from alternate sides.
+        ctx.strokeStyle = k > 0.8 ? PAL.reward : '#f3c6b8'; ctx.lineWidth = 1.6; ctx.globalAlpha = df ? 0.6 : 0.7;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const cx = -L * 0.62 + i * L * 0.248, sg = i % 2 ? 1 : -1, y0 = sg * Wd * 0.78 + yb(cx), y1 = yb(cx) - sg * Wd * (0.1 + 0.15 * ((ob.seed * (i + 3)) % 1)), w = r * 0.07;
+          ctx.moveTo(cx - w, y0); ctx.quadraticCurveTo(cx - w, y1, cx, y1); ctx.quadraticCurveTo(cx + w, y1, cx + w, y0);
+        }
+        ctx.stroke();
+        body(0.86); ctx.globalAlpha = 0.35; ctx.lineWidth = 1; ctx.strokeStyle = '#f3c6b8'; ctx.stroke(); // inner membrane
+        ctx.fillStyle = '#f3c6b8'; ctx.globalAlpha = 0.5;
+        for (let i = 0; i < 5; i++) { const gx = (rnd() - 0.5) * L * 1.1, gy = (rnd() - 0.5) * Wd * 0.8 + yb(gx); ctx.beginPath(); ctx.arc(gx, gy, 1.6 * S, 0, TAU); ctx.fill(); } // matrix granules
+        body(1); ctx.globalAlpha = df ? 0.9 : 0.8; ctx.strokeStyle = fl ? '#ffffff' : '#f3c6b8'; ctx.lineWidth = df ? 2.2 : 2; ctx.stroke(); // outer membrane
+        if (!df) { ctx.globalAlpha = 0.6; ctx.strokeStyle = '#6e2f24'; ctx.lineWidth = 1; ctx.stroke(); }
+        ctx.restore(); ctx.globalAlpha = 1;
         break;
       }
       case 'acid': {
@@ -1244,7 +1271,7 @@ function drawTerrain() {
       }
     }
   }
-  WORLD_DF = df; RAW_COL = rc0;
+  WORLD_DF = df;
 }
 
 
@@ -1573,6 +1600,7 @@ function render() {
   rebornDrawOOB(); // (Out of Body: your empty body)
   drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
+  drawSizzle(px, py); // touching acid (terrain.js)
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
   armourRing(px, py); // armour: a forcefield ring outside the health ring that flashes when hit (stamina.js)
   stamRing(px, py); // stamina: a thinner, fainter ring just inside it, only when it isn't full (stamina.js)

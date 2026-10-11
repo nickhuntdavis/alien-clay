@@ -81,6 +81,7 @@ const SOUNDS = {
     [784, 659, 523, 392].forEach((f, i) => vTone(t + 0.3 + i * 0.09, f, f, 0.5, 0.05, 'triangle'));
     vTone(t + 0.3, 49, 35, 1.4, 0.2, 'sine');
   }],
+  sizzle: [0.2, t => { for (let i = 0; i < 4; i++) vNoise(t + i * 0.035 + Math.random() * 0.02, 0.04, 'highpass', 4200 * jit(0.2), 6500, 0.9, 0.03); vNoise(t, 0.22, 'bandpass', 2800, 5200, 0.7, 0.018); }],
   zap: [0.08, t => { vTone(t, 1400, 300, 0.08, 0.03, 'sawtooth'); vNoise(t, 0.06, 'highpass', 4000, 2000, 0.8, 0.025); }],
   rewind: [0.5, t => { vTone(t, 1800, 120, 1, 0.07, 'sawtooth'); vNoise(t, 1, 'bandpass', 4000, 300, 2, 0.05); }],
   crack: [0.06, t => { const r = jit(0.2); vNoise(t, 0.05, 'highpass', 2500 * r, 1500, 1, 0.09); vTone(t, 2200 * r, 1600, 0.04, 0.025, 'square'); }],

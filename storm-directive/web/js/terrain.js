@@ -2,6 +2,7 @@
 // Spawn Prawn - terrain. Obstacles growing in the womb: nodules that shots bounce off, mitochondria that
 // soak up shots and release it as an ATP burst, acid crypts that burn whatever touches them, cilia beds
 // that shove everything away, currents that carry everything along, and slicks that steal your grip.
+// Hooks: drawSizzle (render.js, after your swimmer): acid eating into you.
 
 const TCELL = 300;
 function tKey(cx, cy) { return (cx + 1000) * 10000 + (cy + 1000); }
@@ -21,12 +22,26 @@ function makeTerrain() {
         const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * CORE.arena, r = rand(def.r[0], def.r[1]);
         const x = Math.cos(a) * d, y = Math.sin(a) * d;
         if (!ok(x, y, r)) continue;
-        list.push({ type, def, x, y, r, a: Math.random() * TAU, charge: 0, flash: 0, seed: Math.random() * 100, burstT: 0 });
+        const ob = { type, def, x, y, r, a: Math.random() * TAU, charge: 0, flash: 0, seed: Math.random() * 100, burstT: 0 };
+        list.push(ob);
+        if (type === 'acid') acidPool(list, ob);
         break;
       }
     }
   }
   return { list, grid: terrainGrid(list), regridT: 0 };
+}
+// Acid pits come in all shapes: each has its own lumpy outline (lobes, drawn by blobPath in render.js), and
+// about half have one or two smaller pools run into them. Those ride along with their parent (updateTerrain).
+function acidPool(list, ob) {
+  const lobes = () => Array.from({ length: 8 }, () => rand(0.86, 1.16));
+  ob.lobes = lobes();
+  if (Math.random() > 0.45) return;
+  for (let i = 0, n = Math.random() < 0.4 ? 2 : 1; i < n; i++) {
+    const a = Math.random() * TAU, d = ob.r * rand(0.75, 1), r = ob.r * rand(0.35, 0.6), x = ob.x + Math.cos(a) * d, y = ob.y + Math.sin(a) * d;
+    if (Math.hypot(x, y) > CORE.arena - 120 - r) continue;
+    list.push({ type: 'acid', def: ob.def, x, y, r, a: Math.random() * TAU, charge: 0, flash: 0, seed: Math.random() * 100, burstT: 0, parent: ob, ox: x - ob.x, oy: y - ob.y, lobes: lobes() });
+  }
 }
 // Bucket each obstacle into every cell its circle (plus a margin for bodies) touches.
 function terrainGrid(list) {
@@ -85,7 +100,8 @@ function terrainPlayer(p, dt) {
   p.x += z.fx * dt; p.y += z.fy * dt;
   p.slick = z.slick;
   G.inCurrent = !!z.current; // Go With the Flow
-  if (z.acid && G.state === 'play' && !G.P.ironGut) hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt'); // (Cast-Iron Stomach: not any more)
+  if (z.acid && G.state === 'play' && !G.P.ironGut) { hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt'); acidSizzle(p, z.acid, dt); } // (Cast-Iron Stomach: not any more)
+  else if (G.sizzle > 0) G.sizzle = Math.max(0, G.sizzle - dt * 2.5);
   // Skid Marks: a toxic trail across the slick.
   if (p.slick && G.P.skid && !(G.skidT > G.t) && G.zones.length < 300 && Math.hypot(p.vx || 0, p.vy || 0) > 40) {
     G.skidT = G.t + 0.1;
@@ -99,6 +115,34 @@ function terrainPlayer(p, dt) {
     if (vn < 0) { p.vx -= vn * nx / d; p.vy -= vn * ny / d; }
   }
   if (p.atpT > 0) p.atpT -= dt;
+}
+
+// Touching acid: you fizz where you meet it, steam comes off you, and your edge flickers green as it eats
+// into you (drawSizzle, after your swimmer in render.js). G.sizzle: 0..1, builds while you touch.
+function acidSizzle(p, ob, dt) {
+  G.sizzle = Math.min(1, (G.sizzle || 0) + dt * 5);
+  if ((G.sizzleT || 0) > G.t) return;
+  G.sizzleT = G.t + 0.06;
+  const a = Math.atan2(p.y - ob.y, p.x - ob.x), cx = ob.x + Math.cos(a) * ob.r, cy = ob.y + Math.sin(a) * ob.r;
+  fxParts('bubble', cx, cy, '#c6f07a', 2, 90, 0.45, 2.5, a, 1.3);
+  fxParts('spark', cx, cy, '#ffffff', 1, 160, 0.18, 1.4, a, 1.1);
+  fxParts('smoke', p.x + rand(-6, 6), p.y + rand(-6, 6), '#e6f2d8', 1, 35, 0.9, 5, -Math.PI / 2, 0.5);
+  sfx('sizzle');
+}
+function drawSizzle(px, py) {
+  const k = G.sizzle || 0;
+  if (k <= 0) return;
+  const df = WORLD_DF, R = 16 * S * playerScale(), t = G.realT;
+  WORLD_DF = false; // (light on any field)
+  ctx.globalCompositeOperation = 'lighter';
+  glow(px, py, R * 2, '#c6f07a', 0.3 * k + 0.1 * Math.sin(t * 31));
+  ctx.fillStyle = '#c6f07a';
+  for (let i = 0; i < 16; i++) {
+    const a = Math.random() * TAU, d = R * rand(0.45, 1.05);
+    ctx.globalAlpha = k * rand(0.4, 1); ctx.fillRect(px + Math.cos(a) * d - 1, py + Math.sin(a) * d - 1, 2, 2);
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  WORLD_DF = df;
 }
 
 function terrainBody(e, dt) {
@@ -248,6 +292,7 @@ function updateTerrain(dt) {
     if (ob.flash > 0) ob.flash -= dt;
     if (ob.burstT > 0) ob.burstT -= dt;
     if (ob.sp == null) { const r = ob.def.solid ? DRIFT.solid : DRIFT.soft; ob.sp = rand(r[0], r[1]); ob.h = Math.random() * TAU; ob.fixed = Math.hypot(ob.x, ob.y) > CORE.arena - 100; }
+    if (ob.parent) { ob.x = ob.parent.x + ob.ox; ob.y = ob.parent.y + ob.oy; continue; } // (a pool run into a bigger acid pit)
     if (ob.fixed) continue; // outside the Petri Dish wall: leave it be
     let turn = Math.sin(G.t * 0.13 + ob.seed) * 0.25; // a lazy wander
     // Stay in the band between the egg's glow and the arena wall.
@@ -255,7 +300,7 @@ function updateTerrain(dt) {
     if (d < inner || d > outer) turn += angDiff(Math.atan2(ob.y, ob.x) + (d < inner ? 0 : Math.PI), ob.h) * 1.5;
     // Steer away from neighbours.
     for (const o of L) {
-      if (o === ob) continue;
+      if (o === ob || o.parent === ob) continue;
       const dx = ob.x - o.x, dy = ob.y - o.y, gap = ob.r + o.r + DRIFT.gap;
       if (Math.abs(dx) > gap || Math.abs(dy) > gap || dx * dx + dy * dy > gap * gap) continue;
       turn += angDiff(Math.atan2(dy, dx), ob.h) * 0.8;
