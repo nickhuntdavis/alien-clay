@@ -59,9 +59,9 @@ function grantsTick(dt) {
     const id = grantDue();
     if (!id) return;
     if (id === 'body') {
-      // By the egg, on the side you swim in from.
+      // Well out from the egg, on the side you swim in from.
       const c = G.core, a = Math.atan2(p.y - c.y, p.x - c.x) || Math.PI / 2;
-      G.grant = unstick({ id, x: c.x + Math.cos(a) * (CORE.r + 110), y: c.y + Math.sin(a) * (CORE.r + 110), born: G.t }, 30);
+      G.grant = unstick({ id, x: c.x + Math.cos(a) * (CORE.r + 420), y: c.y + Math.sin(a) * (CORE.r + 420), born: G.t }, 30);
     } else {
       // Right in front of you, so you can't miss it.
       const a = Math.random() * TAU;
@@ -72,7 +72,7 @@ function grantsTick(dt) {
   }
   const g = G.grant;
   if (g.id === 'body' && !G.eggNear) return; // (meet the egg first: its card comes before this one)
-  if (Math.hypot(p.x - g.x, p.y - g.y) < (p.r || 12) + 70) grantTake(g.id);
+  if (Math.hypot(p.x - g.x, p.y - g.y) < (p.r || 12) + 140) grantTake(g.id);
 }
 function grantTake(id) {
   const D = GRANTS[id], g = G.grant;
