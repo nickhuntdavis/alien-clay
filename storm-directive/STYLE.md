@@ -26,7 +26,7 @@ Design and check every change in **both** the normal (light grey) field and **Da
 - Background ALWAYS adds a soft pink tissue wash (`tissueWash`), not a flat colour.
 
 ## Building blocks (render.js)
-- `blobPath`: soft organic outline (acid pits, pools, slicks). `drawPool`: any ground effect. `glassRim`: any glass edge (dish, chamber). `eggWarmth`: a zone shown as a glow, not a ring. Reuse these before inventing new shapes.
+- `blobPath`: soft organic outline (acid pits, pools, slicks). `drawPool`: any ground effect. `glassRim`: any glass edge (dish, chamber). `eggWarmth`: a zone shown as a glow, not a ring. Shots: `droplet`, `shotTail`, `spindle`, `sickles`, `lump`. Reuse these before inventing new shapes.
 
 ## Performance
 Phones first. Keep per-object particle counts small (20 to 30), batch strokes into one path per colour or alpha band, use seeded `rnd()` (no per-frame `Math.random` layouts except for flicker), and avoid `save`/`clip` in tight loops.

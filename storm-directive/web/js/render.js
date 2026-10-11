@@ -629,6 +629,43 @@ function drawPool(z, x, y, r, a) {
   ctx.globalAlpha = 1;
 }
 
+// Your shots (STYLE.md): no dark backing discs or stamped icons. Round shots are droplets stretched along their
+// flight with a bright core, trails taper to nothing, crystals are pointed spindles, blades are curved and
+// chunks are lumpy. Soft shadows (light field) or a faint glow (darkfield) keep them readable.
+function shotTail(x, y, a, len, w) {
+  const ca = Math.cos(a), sa = Math.sin(a), nx = -sa * w, ny = ca * w;
+  ctx.beginPath(); ctx.moveTo(x + nx, y + ny);
+  ctx.quadraticCurveTo(x - ca * len * 0.35 + nx * 0.7, y - sa * len * 0.35 + ny * 0.7, x - ca * len, y - sa * len);
+  ctx.quadraticCurveTo(x - ca * len * 0.35 - nx * 0.7, y - sa * len * 0.35 - ny * 0.7, x - nx, y - ny);
+  ctx.closePath(); ctx.fill();
+}
+function spindle(x, y, a, back, front, w) {
+  const ca = Math.cos(a), sa = Math.sin(a), nx = -sa * w * 2, ny = ca * w * 2;
+  ctx.beginPath(); ctx.moveTo(x + ca * front, y + sa * front);
+  ctx.quadraticCurveTo(x + nx, y + ny, x - ca * back, y - sa * back);
+  ctx.quadraticCurveTo(x - nx, y - ny, x + ca * front, y + sa * front); ctx.fill();
+}
+function droplet(x, y, a, r, color) {
+  ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(x, y, r * 1.35, r * 0.9, a, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.35, y + Math.sin(a) * r * 0.35, Math.max(0.8, r * 0.38), 0, TAU); ctx.fill();
+}
+// Curved blades (orbiting blades, glaives): n sickles round the centre, spun by rot.
+function sickles(x, y, r, n, rot) {
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const a = rot + i / n * TAU, c = Math.cos(a), s2 = Math.sin(a), b = a + 1.1, cb = Math.cos(b), sb = Math.sin(b);
+    ctx.moveTo(x + c * r * 0.25, y + s2 * r * 0.25);
+    ctx.quadraticCurveTo(x + c * r * 1.05, y + s2 * r * 1.05, x + cb * r, y + sb * r);
+    ctx.quadraticCurveTo(x + c * r * 0.6, y + s2 * r * 0.6, x + c * r * 0.25 + cb * r * 0.1, y + s2 * r * 0.25 + sb * r * 0.1);
+  }
+  ctx.fill();
+}
+function lump(x, y, r, seed, rot) {
+  ctx.beginPath();
+  for (let i = 0; i < 7; i++) { const a = rot + i / 7 * TAU, k = 0.7 + 0.45 * ((Math.sin(seed * 13 + i * 5.1) + 1) / 2); ctx.lineTo(x + Math.cos(a) * r * k, y + Math.sin(a) * r * k); }
+  ctx.closePath(); ctx.fill();
+}
+
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
 // Viral trails (Pub Crawl): the trail is a run of small zones dropped as you swim. Draw each run
 // as one smooth ribbon that tapers and fades with age (in a few age bands, so overlaps never double up), with a
@@ -702,16 +739,18 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
       for (let i = 0; i < w.s.count; i++) {
         const a = G.realT * 1.6 + i / w.s.count * TAU, rr = 42 + (w.s.count > 2 ? 10 : 0);
         const x = px + Math.cos(a) * rr * S, y = py + Math.sin(a) * rr * S;
-        ctx.fillStyle = w.def.color; drawShape('diamond', x, y, 7 * S, 0); ctx.fill();
+        // A drone is a little vesicle: a soft glow, a body with a pale membrane and a bright core.
+        glow(x, y, 14 * S, w.def.color, 0.35 * alpha); ctx.globalAlpha = alpha;
+        ctx.fillStyle = w.def.color; ctx.beginPath(); ctx.ellipse(x, y, 7 * S, 6 * S, a, 0, TAU); ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.5 * alpha; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.8 * alpha; ctx.beginPath(); ctx.arc(x - 1.5 * S, y - 1.5 * S, 1.8 * S, 0, TAU); ctx.fill(); ctx.globalAlpha = alpha;
       }
     }
     if (w.blades.length) {
       for (let i = 0; i < w.blades.length; i += 3) {
         const x = sx(w.blades[i]), y = sy(w.blades[i + 1]);
         if (emits(w.def.elem)) { glow(x, y, w.s.size * 2 * S, w.def.color, 0.35 * alpha); ctx.globalAlpha = alpha; }
-        ctx.save(); ctx.translate(x, y); ctx.rotate(w.blades[i + 2] + G.realT * 8);
-        ctx.fillStyle = w.def.color; ctx.fillRect(-w.s.size * S, -2.5 * S, w.s.size * 2 * S, 5 * S); ctx.fillRect(-2.5 * S, -w.s.size * 0.6 * S, 5 * S, w.s.size * 1.2 * S);
-        ctx.restore();
+        ctx.fillStyle = w.def.color; sickles(x, y, w.s.size * S, 2, w.blades[i + 2] + G.realT * 8); // curved blades, not a plus sign
       }
     }
     if (w.beams.length && w.beamT > 0) {
@@ -1466,20 +1505,20 @@ function render() {
     ctx.globalCompositeOperation = hot ? 'lighter' : 'source-over';
     if (pr.lob) {
       const yy = y - (pr.h || 0) * S;
-      if (hot) { glow(x, yy, 16 * S, pr.color, 0.8); ctx.globalAlpha = 1; }
-      else { ctx.fillStyle = 'rgba(20,20,20,0.85)'; ctx.beginPath(); ctx.arc(x, yy, 7.5 * S, 0, TAU); ctx.fill(); }
-      ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(x, yy, 6 * S, 0, TAU); ctx.fill();
+      // A shadow on the ground under it, smaller and darker as it comes down.
+      if (!WORLD_DF) { const hk = clamp(1 - (pr.h || 0) / 160, 0.35, 1); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 0.35 * hk; ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.ellipse(x, y + 3 * S, 7 * S * (1.6 - hk * 0.6), 3.5 * S * (1.6 - hk * 0.6), 0, 0, TAU); ctx.fill(); ctx.globalCompositeOperation = hot ? 'lighter' : 'source-over'; }
+      if (hot) { glow(x, yy, 16 * S, pr.color, 0.8); }
+      ctx.globalAlpha = 1; droplet(x, yy, -Math.PI / 2, 6 * S, pr.color); ctx.globalAlpha = 1;
       continue;
     }
     const a = Math.atan2(pr.vy, pr.vx), r = pr.r * S;
     // A motion streak behind anything fast (thins out when the screen is busy).
     if (FX.k > 0.4 && pr.style !== 'flame' && pr.style !== 'void' && pr.style !== 'glaive' && pr.style !== 'disc' && pr.style !== 'needle' && pr.style !== 'helix' && !pr.orbitT) {
       const L = Math.min(70, Math.hypot(pr.vx, pr.vy) * 0.05) * S;
-      ctx.globalAlpha = 0.45; ctx.strokeStyle = pr.color; ctx.lineWidth = Math.max(1, r * 1.3); ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - Math.cos(a) * L, y - Math.sin(a) * L); ctx.stroke(); ctx.lineCap = 'butt'; ctx.globalAlpha = 1;
+      ctx.globalAlpha = 0.4; ctx.fillStyle = pr.color; shotTail(x, y, a, L, Math.max(1, r * 0.75)); ctx.globalAlpha = 1;
     }
     if (hot && pr.style !== 'flame') glow(x, y, Math.max(8, r * 3.2), pr.color, 0.55);
-    else if (!hot) { ctx.fillStyle = 'rgba(20,20,20,0.8)'; ctx.beginPath(); ctx.arc(x, y, r + 1.5, 0, TAU); ctx.fill(); }
+    else if (!hot) glow(x, y, r * 2.6 + 2, WORLD_DF ? '#ffffff' : '#000000', WORLD_DF ? 0.18 : 0.4); // (a soft shadow or halo, not a disc)
     ctx.globalAlpha = 1;
     ctx.fillStyle = pr.color; ctx.strokeStyle = pr.color;
     switch (pr.style) {
@@ -1490,12 +1529,17 @@ function render() {
         break;
       }
       case 'helix': drawHelix(pr, x, y, r); break;
-      case 'rail': ctx.lineWidth = 3 * S; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * 60 * S, y - Math.sin(a) * 60 * S); ctx.lineTo(x, y); ctx.stroke(); break;
-      case 'bolt': case 'needle': case 'shard':
-        ctx.lineWidth = (pr.style === 'shard' ? 4 : 2.5) * S; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * 3.5, y - Math.sin(a) * r * 3.5); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke(); break;
-      case 'glaive': case 'disc':
-        ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 18);
-        drawShape(pr.style === 'glaive' ? 'star' : 'hex', 0, 0, r, 0); ctx.fill(); ctx.restore(); break;
+      case 'rail': shotTail(x, y, a, 60 * S, 1.8 * S); ctx.globalAlpha = 0.8; ctx.fillStyle = '#ffffff'; shotTail(x, y, a, 30 * S, 0.7 * S); ctx.globalAlpha = 1; break;
+      case 'bolt': case 'needle': spindle(x, y, a, r * 3.5, r * 1.2, (pr.style === 'needle' ? 0.6 : 1) * S); break;
+      case 'shard': // a jagged crystal with a bright facet
+        spindle(x, y, a, r * 2.8, r * 1.4, r * 0.55);
+        ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.55; spindle(x + Math.cos(a) * r * 0.3, y + Math.sin(a) * r * 0.3, a, r * 1.2, r * 0.8, r * 0.15); ctx.globalAlpha = 1; break;
+      case 'glaive': sickles(x, y, r * 1.2, 3, G.realT * 18); break;
+      case 'disc': {
+        // A spinning disc: a soft-edged body with a blurred highlight sweeping round it.
+        ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.8, a, 0, TAU); ctx.fill();
+        const sp = G.realT * 18; ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.6; ctx.lineWidth = Math.max(1, r * 0.25); ctx.beginPath(); ctx.arc(x, y, r * 0.65, sp, sp + 1.6); ctx.stroke(); ctx.globalAlpha = 1; break;
+      }
       case 'void': {
         // Every merge makes it more unstable: the glow flickers and swells, the core shudders, arcs crackle off
         // it, and near supernova mass it is white-hot, cracked open and visibly about to burst.
@@ -1539,9 +1583,7 @@ function render() {
         ctx.lineWidth = r * 1.1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3); ctx.stroke();
         glow(x + Math.cos(a) * r * 3, y + Math.sin(a) * r * 3, r * 2.5, pr.color, 0.8); ctx.globalAlpha = 1;
         break;
-      case 'scrap':
-        ctx.save(); ctx.translate(x, y); ctx.rotate(G.realT * 10);
-        drawShape('spike', 0, 0, r, 0); ctx.fill(); ctx.fillStyle = '#5a3a00'; ctx.beginPath(); ctx.arc(0, 0, r * 0.35, 0, TAU); ctx.fill(); ctx.restore(); break;
+      case 'scrap': lump(x, y, r * 1.1, pr.seed || (pr.seed = Math.random() * 10), G.realT * 10); ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.35; ctx.beginPath(); ctx.arc(x - r * 0.25, y - r * 0.25, r * 0.3, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; break;
       case 'sperm': {
         // Seeker Siblings: little spermatozoa with a beating tail, swimming head-first at their target.
         const ca = Math.cos(a), sa = Math.sin(a), nx = -sa, ny = ca, ph = G.realT * 26 + (pr.seed || (pr.seed = Math.random() * 10));
@@ -1552,11 +1594,12 @@ function render() {
         ctx.beginPath(); ctx.ellipse(x, y, hl, r * 0.85, a, 0, TAU); ctx.fill();
         break;
       }
-      case 'rocket': case 'missile':
-        ctx.lineWidth = r * 1.2; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * 2.4, y - Math.sin(a) * r * 2.4); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke();
+      case 'rocket': case 'missile': // a capsule with a hot, flickering exhaust
+        ctx.beginPath(); ctx.ellipse(x - Math.cos(a) * r * 0.7, y - Math.sin(a) * r * 0.7, r * 1.7, r * 0.65, a, 0, TAU); ctx.fill();
+        { const op = ctx.globalCompositeOperation; ctx.globalCompositeOperation = 'lighter'; glow(x - Math.cos(a) * r * 2.6, y - Math.sin(a) * r * 2.6, r * (1.6 + Math.random() * 0.6), '#ff9e00', 0.7); ctx.globalAlpha = 1; ctx.globalCompositeOperation = op; }
         if (Math.random() < 0.5 && !rewinding) spawnPart(pr.x - pr.vx * 0.02, pr.y - pr.vy * 0.02, '#ff9e00', 1, 20, 0.25, 2);
         break;
-      default: ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+      default: droplet(x, y, a, r, pr.color); ctx.globalAlpha = 1;
     }
   }
   ctx.globalCompositeOperation = 'source-over';
