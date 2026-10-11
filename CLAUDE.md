@@ -15,7 +15,7 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - After every build, send the APK with SendUserFile.
 - Use "Separately: X. Handle that next?" for second issues.
 - Win-rate target: about 1 in 3 for a human. The autorun bot dodges worse, so 20 to 50% bot wins is fine.
-- Be token-conscious. Run only the relevant tests while iterating, and the full suite once before shipping. Take screenshots only for visual changes. Run balance sims only when difficulty is in question.
+- Be token-conscious. Follow the fast-APK checklist below: targeted tests, one build per batch. Take screenshots only for visual changes. Run balance sims only when difficulty is in question.
 
 ## Model choice (suggest it, don't lecture)
 At the start of each request, check whether the model fits the job, and if not, say so in ONE line before starting (e.g. "This is a big new system: Opus would suit it better. Carrying on unless you switch."). You cannot switch models yourself; the user does it in the model picker. Use `get_session` to see which model you are on if unsure. Say nothing when the fit is fine.
@@ -27,15 +27,15 @@ At the start of each request, check whether the model fits the job, and if not, 
 - Work and push only on the branch the session names (it has been `claude/autorun-bullet-storm-game-blptu8`). Use `git push -q origin <branch>`.
 - Conventional commits (`feat:`, `fix:` and so on), ending with the attribution lines from the session's system reminder. Never put model IDs in commits. No PR unless asked.
 
-## Ship checklist (in order)
-1. `cd storm-directive/tests && ./run.sh` (the full suite, about 8 min). Everything must pass.
-2. Bump `APP_VERSION` in `web/js/meta.js`, and `versionCode` (+1) and `versionName` (single-quoted) in `android/app/build.gradle`.
-3. `node storm-directive/tests/tools/guide.js` regenerates `GAME_GUIDE.md`. Update its text when features change.
-4. `cd storm-directive/android && ./gradlew assembleRelease -q && cp app/build/outputs/apk/release/app-release.apk ../release/SpawnPrawn.apk`
+## Ship checklist: fast APK (default for every build)
+1. Edit with exact-match replacements that assert they hit (fail fast). Don't re-read files after editing.
+2. Test only what you touched: `cd storm-directive/tests && ./run.sh quick <2-3 relevant tests>`. Run the full suite (about 8 min) only for big multi-file batches or a release you're unsure of.
+3. Install nothing except the Android SDK when it is missing (below). Never run lint, emulators, adb or `playwright install`. No screenshots or sims unless the change is visual or about difficulty.
+4. Ship in ONE Bash call: bump `APP_VERSION` (`web/js/meta.js`) and `versionCode` (+1) / `versionName` (single-quoted) (`android/app/build.gradle`) with sed; `node storm-directive/tests/tools/guide.js | tail -1`; `cd storm-directive/android && ./gradlew assembleRelease -q -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease && cp app/build/outputs/apk/release/app-release.apk ../release/SpawnPrawn.apk`; then `git add` the paths you changed, commit, `git push -q`.
    - Release builds are signed with `android/spawnprawn.keystore` (in the repo, so every session's APK installs over the last). Never switch back to the debug key.
-   - A fresh container has no Android SDK. Install it into `/home/user/android-sdk` (the command-line tools zip from dl.google.com, then `sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"`) and `export ANDROID_HOME=/home/user/android-sdk`.
-   - If Maven Central rate-limits (429) the lint step, add `-x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease`.
-5. Commit, push, then SendUserFile the APK.
+   - A fresh container has no Android SDK. Install it into `/home/user/android-sdk` (the command-line tools zip from dl.google.com, then `sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"`) and `export ANDROID_HOME=/home/user/android-sdk`. Do this once, at the start, in one call.
+5. SendUserFile the APK, then reply. Don't narrate each step. One build per batch of requests, not per item.
+6. Update `GAME_GUIDE.md` text (in `tools/guide.js`) and `NOTES.md` when features change.
 
 ## Tests
 - `./run.sh` runs everything. `./run.sh lvshot quick` runs just those. Only failures and a summary are printed. Screenshots go to `tests/out/` (git-ignored).
