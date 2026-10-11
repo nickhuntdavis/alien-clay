@@ -15,22 +15,22 @@ const { chromium } = require('playwright');
       if (G.player.hp < G.P.maxHp * 0.5) G.player.hp = G.P.maxHp;
     };
     waveBegin(); G.nextJunk = G.t + 3;
-    let carrier = null, absorbed = null, lull = 0;
+    let dropped = 0, carrier = null, absorbed = null, lull = 0;
     for (let f = 0; f < 30 * 120 && G.wave.active; f++) {
       step();
-      if (G.junkE && !carrier) { carrier = junkId(G.junkE); const e = G.junkE; e.hp = 1; damageEnemy(e, 999, { elem: 'phys', wname: 'test' }); absorbed = Object.keys(G.junk).join(','); }
+      if (G.junkE && !carrier) { carrier = junkId(G.junkE); const e = G.junkE; e.hp = 1; damageEnemy(e, 999, { elem: 'phys', wname: 'test' }); dropped = G.junkDrops.length; G.junkDrops.forEach(d => { d.x = me().x; d.y = me().y; }); step(); absorbed = Object.keys(G.junk).join(','); }
     }
     // Between waves: none turn up.
     G.nextJunk = G.t;
     for (let f = 0; f < 30 * 20; f++) { if (G.wave.active) break; step(); if (G.junkE) lull++; }
     // Every power, three stacks each, then a minute of play.
     const P0 = { armour: G.P.armour, speed: G.P.speed };
-    for (const id in JUNK_POWERS) for (let i = 0; i < 4; i++) { const e = makeEnemy(ENEMIES[id] || ENEMIES.crawler, me().x + 100, me().y); G.enemies.push(e); e.junk = G.t; G.junkE = e; junkAbsorb(e); e.dead = true; }
+    for (const id in JUNK_POWERS) for (let i = 0; i < 4; i++) { const e = makeEnemy(ENEMIES[id] || ENEMIES.crawler, me().x + 100, me().y); G.enemies.push(e); e.junk = G.t; G.junkE = e; junkAbsorb(id, e.x, e.y); e.dead = true; }
     const capped = Object.values(G.junk).every(k => k === JUNK.stacks);
     if (!G.wave.active) waveBegin();
     for (let f = 0; f < 30 * 60; f++) { step(); if (!G.wave.active && waveReady()) waveBegin(); }
     const txt = Object.keys(JUNK_POWERS).map(id => JUNK_POWERS[id].fmt(3)).filter(s => /undefined|NaN/.test(s));
-    return { carrier, absorbed, lull, n: Object.keys(JUNK_POWERS).length, capped, armour: G.P.armour - P0.armour, badText: txt, hp: Math.round(G.player.hp), html: junkHtml().length > 200 };
+    return { dropped, carrier, absorbed, lull, n: Object.keys(JUNK_POWERS).length, capped, armour: G.P.armour - P0.armour, badText: txt, hp: Math.round(G.player.hp), html: junkHtml().length > 200 };
   });
   console.log(JSON.stringify(r));
   const bad = [];
