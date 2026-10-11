@@ -2,8 +2,11 @@
 // Spawn Prawn - first-time status cards. The first time ever a buff or debuff chip turns up on your HUD, the
 // game stops for a short card explaining it (once per status, ever; Settings > Tutorial brings them back).
 // With introductions set to Quiet it is a narrator message instead; Off skips them.
-// Hook: statusIntroCheck(chips), from the HUD each frame.
+// Only the first two get the full card. After that a new one shows "NEW POWERUP UNLOCKED!" beside its chip for
+// a few seconds, and tapping the chip or the message opens the same card (play carries on if you ignore it).
+// Hooks: statusIntroCheck(chips), from the HUD each frame; stNewDraw (render.js, the chip), stNewTap (game.js, a tap on a chip).
 
+const ST_FULL = 2; // (full cards before the quiet kind)
 const STATUS_INTRO = {
   'OXYTOCIN':         { buff: 1, what: 'A rush of love hormone: double fire rate and no reloads.', tip: 'Spend it on whatever is biggest. When it wears off you get Post-Nut Clarity.' },
   'POST-NUT CLARITY': { buff: 0, what: 'The comedown after Oxytocin: your weapons fire slower, but you see every weak spot (+40% crit chance).', tip: 'It only lasts a few seconds. Big hitters still hit big.' },
@@ -57,9 +60,17 @@ function statusIntroCheck(chips) {
     if (!key || (META.seenSt && META.seenSt[key])) continue;
     const I = statusInfo(key);
     if (!I) continue;
-    META.seenSt = META.seenSt || {}; META.seenSt[key] = 1; saveMeta();
+    META.seenSt = META.seenSt || {}; META.seenSt[key] = 1;
+    if (META.stFull == null) META.stFull = Object.keys(META.seenSt).length - 1; // (saves from before: they have had their cards)
     G.stIntroNext = G.t + 3;
-    if (typeof SET !== 'undefined' && SET.intros === 'quiet') { sysMsg((I.buff ? 'BUFF: ' : 'DEBUFF: ') + key, `${I.what} ${I.tip}`, colour, true); return; }
+    if (typeof SET !== 'undefined' && SET.intros === 'quiet') { saveMeta(); sysMsg((I.buff ? 'BUFF: ' : 'DEBUFF: ') + key, `${I.what} ${I.tip}`, colour, true); return; }
+    if (META.stFull >= ST_FULL) { // (no more interruptions: flag the chip)
+      saveMeta();
+      (G.stNew = G.stNew || {})[key] = { until: G.realT + 12, colour };
+      sfx('pickup');
+      return;
+    }
+    META.stFull++; saveMeta();
     startStatusIntro(key, I, colour);
     return;
   }
@@ -72,4 +83,29 @@ function startStatusIntro(key, I, colour) {
   INPUT.active = false; G.manual = null;
   sfx('level'); vibrate(40);
   if (typeof UI !== 'undefined') UI.openStatusIntro(key, I, colour);
+}
+// A flagged chip (a status new to you, past the first two cards): a pulsing outline now, and a message beside it.
+function stNewKey(label) {
+  const key = statusKey(label), N = key && G.stNew && G.stNew[key];
+  if (!N) return null;
+  if (G.realT > N.until) { delete G.stNew[key]; return null; }
+  return key;
+}
+function stNewOutline(key, x, y, w, h) {
+  ctx.save(); ctx.globalAlpha = 0.55 + 0.45 * Math.sin(G.realT * 7); ctx.strokeStyle = G.stNew[key].colour; ctx.lineWidth = 2; ctx.strokeRect(x - 1, y - 1, w + 2, h + 2); ctx.restore();
+}
+// The message; returns its width.
+function stNewMsg(key, x, y) {
+  const I = statusInfo(key), msg = I && !I.buff ? 'NEW DEBUFF SPOTTED! TAP TO READ' : 'NEW POWERUP UNLOCKED! TAP TO READ';
+  const mw = ctx.measureText(msg).width + 14;
+  filmPanel(x, y, mw, 16); ctx.fillStyle = '#ffffff'; ctx.fillText(msg, x + 7, y + 12);
+  return mw;
+}
+// A tap on a flagged chip or its message: the full card.
+function stNewTap(key) {
+  const N = G.stNew && G.stNew[key], I = statusInfo(key);
+  if (!N || !I) return false;
+  delete G.stNew[key];
+  startStatusIntro(key, I, N.colour);
+  return true;
 }

@@ -4,7 +4,7 @@
 const ELEMENTS = {
   phys:   { name: 'Force',   color: '#e8eef8', status: 'shoved',  blurb: 'Plain physics. Knocks things about, and knocks over anything drunk or saponified.' },
   fire:   { name: 'Acid',    color: '#c6ff3d', status: 'corroding', blurb: 'Low pH. Corrodes: damage over time that eats a little armour as it goes.' },
-  ice:    { name: 'Base',    color: '#5b8cff', status: 'lathered', blurb: 'High pH. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid.' },
+  ice:    { name: 'Alkali',    color: '#5b8cff', status: 'lathered', blurb: 'High pH. Lathers enemies (slower, and they slide further when hit), then saponifies them: turned to soap, stuck solid.' },
   shock:  { name: 'Static',  color: '#ffe94a', status: 'charged',  blurb: 'Charges enemies: some of the damage they take arcs to a neighbour and drags it closer (static cling).' },
   poison: { name: 'Ethanol', color: '#e8a33d', status: 'drunk',    blurb: 'Gets enemies drunk: stacking damage over time, and they weave about. Enough rounds and they black out.' },
   oxi:    { name: 'Peroxide', color: '#9ff7ff', status: 'fizzing', blurb: 'An oxidiser. Every Peroxide hit adds bubbles: a fizzing enemy loses a little armour, and when the fizzing stops the bubbles pop in a small blast that grows with every hit.' },
@@ -467,7 +467,7 @@ const PASSIVES = {
   luck:      { name: 'Lucky Swimmer',          icon: 'FO', max: 5, v: 0.15, fmt: v => `+${pc(v)} luck (rarer loot, more drops)`, apply: (P, v) => { P.luck += v; } },
   vamp:      { name: 'Latching On',  icon: 'VR', max: 5, v: 0.08, fmt: v => `Heal ${v.toFixed(2)} HP per kill`, apply: (P, v) => { P.lifesteal += v; } },
   pyro:      { name: 'Hot-Blooded',        icon: 'PY', max: 5, v: 0.25, fmt: v => `+${pc(v)} Acid damage and corrosion`, apply: (P, v) => { P.elem.fire += v; } },
-  cryo:      { name: 'Alkaline Diet',        icon: 'CY', max: 5, v: 0.25, fmt: v => `+${pc(v)} Base damage and lather`, apply: (P, v) => { P.elem.ice += v; } },
+  cryo:      { name: 'Alkaline Diet',        icon: 'CY', max: 5, v: 0.25, fmt: v => `+${pc(v)} Alkali damage and lather`, apply: (P, v) => { P.elem.ice += v; } },
   storm:     { name: 'Static Hair',      icon: 'ST', max: 5, v: 0.25, fmt: v => `+${pc(v)} Static damage, +1 chain`, apply: (P, v) => { P.elem.shock += v; P.chain += 1; } },
   toxin:     { name: 'Hip Flask',       icon: 'TX', max: 5, v: 0.25, fmt: v => `+${pc(v)} Ethanol damage, +3 max rounds`, apply: (P, v) => { P.elem.poison += v; P.poisonCap += 3; } },
   arcanum:   { name: 'Pins and Needles',          icon: 'WA', max: 5, v: 0.25, fmt: v => `+${pc(v)} Histamine damage`, apply: (P, v) => { P.elem.arcane += v; } },
@@ -509,24 +509,24 @@ function pc(v) { return Math.round(v * 100) + '%'; }
 
 // Element reactions: an element landing on an enemy that already carries another element's status (chem.js).
 const REACTIONS = {
-  neutral:   { name: 'NEUTRALISED',  color: '#e6f4ff', desc: 'Acid meets Base (either way round): both cancel out in a hot burst that hits everything nearby, and the salt water heals you 1% of your max HP. pH 7. Refreshing.' },
+  neutral:   { name: 'NEUTRALISED',  color: '#e6f4ff', desc: 'Acid meets Alkali (either way round): both cancel out in a hot burst that hits everything nearby, and the salt water heals you 1% of your max HP. pH 7. Refreshing.' },
   battery:   { name: 'BATTERY',      color: '#f4ff8a', desc: 'Acid meets Static (either way round): the enemy becomes a battery for 2s, zapping two neighbours every half second. You get CHARGED UP: +12% fire rate for 3s.' },
   ester:     { name: 'PEAR DROPS',   color: '#ffd6a5', desc: 'Acid on a drunk enemy: it makes an ester and smells of pear drops. Everything nearby is drawn in for a sniff.' },
   flashpoint:{ name: 'FLASHPOINT',   color: '#ffba08', desc: 'Static on a drunk enemy (2+ rounds): the fumes go up. Every round of Ethanol in it explodes at once.' },
   electro:   { name: 'ELECTROLYSIS', color: '#bde0fe', desc: 'Static on a lathered enemy: splits it into hydrogen. Armour stripped, and a small pop.' },
-  sanitiser: { name: 'SANITISED',    color: '#d0f4de', desc: 'Base on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright.' },
+  sanitiser: { name: 'SANITISED',    color: '#d0f4de', desc: 'Alkali on a drunk enemy: hand sanitiser. Kills 99.9% of germs: every ordinary enemy nearby on 12% health or less dies outright.' },
   sympathy:  { name: 'HIVES',        color: '#e0aaff', desc: 'Histamine on any status: bonus damage, and it breaks out: its status copies onto two neighbours, which swell up too.' },
   suds:      { name: 'SUDS',         color: '#e6f4ff', desc: 'Force on a saponified enemy: the soap bursts, and the suds hit everything near it.' },
   pushover:  { name: 'PUSHOVER',     color: '#ffe5b4', desc: 'Force on a drunk enemy (3+ rounds): it falls over. Knocked flat for 1.2s and flies twice as far.' },
   bleach:    { name: 'BLEACHED',     color: '#e6fbff', desc: 'Peroxide meets Acid (either way round): all its armour is stripped for 4s, and its corrosion burns twice as hard.' },
-  toothpaste:{ name: 'ELEPHANT TOOTHPASTE', color: '#e6fbff', desc: 'Peroxide meets Base (either way round): a column of foam erupts, lathering and shoving everything nearby.' },
+  toothpaste:{ name: 'ELEPHANT TOOTHPASTE', color: '#e6fbff', desc: 'Peroxide meets Alkali (either way round): a column of foam erupts, lathering and shoving everything nearby.' },
   rocket:    { name: 'ROCKET FUEL',  color: '#ffd166', desc: 'Peroxide meets Ethanol (either way round): the enemy is launched away from you and explodes where it lands.' },
   ozone:     { name: 'OZONE',        color: '#bde0fe', desc: 'Peroxide meets Static (either way round): static jumps to three neighbours and sets them fizzing.' },
   exorcism:  { name: 'ANTIHISTAMINE', color: '#e0aaff', desc: 'Peroxide meets Histamine (either way round): the swelling is burned out of it in one hit (15% of its health; 6% on bosses).' },
   electrolyte:{ name: 'ELECTROLYTE', color: '#ffe5ec', desc: 'Brine meets Static (either way round): the charge runs through the salt water to four neighbours, charging them all.' },
   wound:     { name: 'SALT IN THE WOUND', color: '#ffb3c6', desc: 'Brine meets Acid (either way round): its corrosion does double damage for the rest of the dose.' },
   margarita: { name: 'MARGARITA',    color: '#d8f3dc', desc: 'Brine meets Ethanol (either way round): a salted rim. It nods off for 2.5s, and so do the drunks around it.' },
-  crust:     { name: 'SALT CRUST',   color: '#fff0f3', desc: 'Brine meets Base (either way round): it crusts over and saponifies on the spot (not bosses), and takes +20% for 4s.' },
+  crust:     { name: 'SALT CRUST',   color: '#fff0f3', desc: 'Brine meets Alkali (either way round): it crusts over and saponifies on the spot (not bosses), and takes +20% for 4s.' },
   seafoam:   { name: 'SEA FOAM',     color: '#caf0f8', desc: 'Peroxide meets Brine (either way round): the bubbles all pop at once, twice as hard, in a wide ring.' },
   blackout:  { name: 'BLACKOUT',     color: '#cdb4db', desc: 'An enemy topped up to its Ethanol limit passes out for 2s, and wakes up hungover: +25% damage taken for 5s.' },
 };
@@ -622,7 +622,7 @@ const BOSSES = [
     hp: 3600, speed: 44, armour: 0, r: 54, dmg: 28, xp: 85, patterns: ['acidrain', 'ring', 'acidrain', 'spiral'],
     quote: "Everything dissolves eventually. You're just early.",
     desc: 'A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller blobs when hurt.',
-    strengths: ['Acid puddles eat into you', 'Acid only does half damage to it', 'Splits off blobs at 60% and 30% health'], weaknesses: ['Base: +60% damage (an antacid)', 'Blasts and pools: +40% damage'],
+    strengths: ['Acid puddles eat into you', 'Acid only does half damage to it', 'Splits off blobs at 60% and 30% health'], weaknesses: ['Alkali: +60% damage (an antacid)', 'Blasts and pools: +40% damage'],
     weak: { ice: 1.6 }, resist: { fire: 0.5 }, weakAoe: 1.4, relics: ['corrosive', 'acidblood', 'ulcer'] },
   { id: 'alpha', name: 'CHAD PRIME', title: 'Tail Day, Every Day', shape: 'sperm', color: '#d4c1a4',
     hp: 3000, speed: 95, armour: 5, r: 40, dmg: 32, xp: 85, patterns: ['dash3', 'tailwhip', 'aimedFan', 'dash3'],
@@ -634,7 +634,7 @@ const BOSSES = [
     hp: 3200, speed: 48, armour: 2, r: 48, dmg: 30, xp: 85, patterns: ['firering', 'spiral', 'firering', 'ring'],
     quote: "Is it hot in here, or is it me? It's me. It's always me.",
     desc: 'A walking temperature spike. Rings of heat, scalding ground, and it runs hotter and faster as it dies.',
-    strengths: ['Immune to Acid: sweats it straight off', 'Rages below 35% health: twice as fast'], weaknesses: ['Base: double damage', 'Saponifying it snuffs out its current attack'],
+    strengths: ['Immune to Acid: sweats it straight off', 'Rages below 35% health: twice as fast'], weaknesses: ['Alkali: double damage', 'Saponifying it snuffs out its current attack'],
     weak: { ice: 2 }, resist: { fire: 0 }, relics: ['runninghot', 'feverdream', 'heatstroke'] },
   { id: 'twins', name: 'MITCH & OSIS', title: 'The Mitosis Twins', shape: 'cell', color: '#43e97b',
     hp: 1900, speed: 58, armour: 2, r: 40, dmg: 26, xp: 50, patterns: ['spiral', 'aimedFan', 'charge', 'ring'], twins: true,
@@ -768,7 +768,7 @@ const DYES = {
   luciferase: { key: PAL.reward, see: 'Worth having in gold: DNA strands, elites, bosses, giant amoebas', name: 'Luciferase', desc: 'The firefly enzyme. Things worth having glow gold: DNA strands, elites, bosses and very big amoebas.', boon: '+20% luck, and +25% damage to elites and bosses. You know what is worth chasing.', apply: P => { P.luck += 0.2; } },
   motility:   { key: DYE_FAST, see: 'Fast enemies in cyan: sprinters, spermlets, krill, paramecia', name: 'Motility Dye', desc: 'Fast swimmers (sprinters, spermlets, krill, paramecia) take up the dye and turn cyan, so you can see what is about to reach you.', boon: '+8% swim speed, and +30% damage to fast enemies. You spot them early.', apply: P => { P.speed += 0.08; } },
   rival:      { key: '#ffb347', see: 'Each rival in their own colour, on the slide, minimap and race board', name: 'Rival Dyes', desc: 'Each rival champion wears their own fluorescent colour, on the field, on the minimap and on the race board, with a health ring round any rival you have hurt.', boon: '+40% damage to rival champions and the Final Five. Know your enemy.' },
-  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Base, Static, Ethanol, Histamine), and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Base blue, Static yellow, Ethanol amber, Histamine violet) and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
+  he:         { key: PAL.upgrade, see: 'Damage types in colour (Acid, Alkali, Static, Ethanol, Histamine), and your midpiece', name: 'H&E Stain Kit', desc: 'Haematoxylin and eosin, the classic. Stains the rest of the slide: chemical effects in their own colours (Acid green, Alkali blue, Static yellow, Ethanol amber, Histamine violet) and your midpiece in your weapon-type colour.', boon: '+30% pickup range and +1 reroll. Everything is easier to spot.', apply: (P, G) => { P.magnet += 0.3; G.rerolls += 1; } },
 };
 
 // ---------------------------------------------------------------- Weapon upgrade trees

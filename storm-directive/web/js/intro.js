@@ -97,6 +97,6 @@ function startFoeIntro(e, id, rival) {
 }
 // Settings > Tutorial: see the introductions (and the first-time tips) again.
 function resetTutorial() {
-  META.seen = {}; META.seenSt = {}; META.seenTut = {}; META.seenShooter = 0; META.tutWave = 0; saveMeta(); // (and wave 0 again)
+  META.seen = {}; META.seenSt = {}; META.stFull = 0; META.seenTut = {}; META.seenShooter = 0; META.tutWave = 0; saveMeta(); // (and wave 0 again)
   if (typeof SET !== 'undefined' && SET.intros === 'off') { SET.intros = 'auto'; saveSettings(); }
 }

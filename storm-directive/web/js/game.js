@@ -2718,7 +2718,8 @@ cv.addEventListener('pointerdown', ev => {
   if (PINCH) return;
   if (!G || G.state !== 'play') return;
   // A tap on a buff or debuff chip: pause and show them all.
-  if (UI.chipRects && UI.chipRects.some(r => ev.clientX >= r.x - 6 && ev.clientX <= r.x + r.w + 6 && ev.clientY >= r.y - 4 && ev.clientY <= r.y + r.h + 4)) { PTRS.delete(ev.pointerId); UI.openStatusPanel(); return; }
+  const chipHit = UI.chipRects && UI.chipRects.find(r => ev.clientX >= r.x - 6 && ev.clientX <= r.x + r.w + 6 && ev.clientY >= r.y - 4 && ev.clientY <= r.y + r.h + 4);
+  if (chipHit) { PTRS.delete(ev.pointerId); if (!(chipHit.key && stNewTap(chipHit.key))) UI.openStatusPanel(); return; } // (a flagged chip opens its card; any other, the list)
   INPUT.active = true; INPUT.id = ev.pointerId; INPUT.ox = ev.clientX; INPUT.oy = ev.clientY;
   INPUT.sx = ev.clientX; INPUT.sy = ev.clientY; INPUT.t0 = performance.now(); INPUT.moved = false;
   G.manual = { x: 0, y: 0 };

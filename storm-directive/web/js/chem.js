@@ -1,8 +1,8 @@
 'use strict';
-// Spawn Prawn - chemistry. Six elements: Force, Acid, Base, Static, Ethanol and Histamine (the internal keys are
+// Spawn Prawn - chemistry. Six elements: Force, Acid, Alkali, Static, Ethanol and Histamine (the internal keys are
 // phys, fire, ice, shock, poison and arcane). Each leaves a status on what it hits:
 //   Acid    - corroding: damage over time that eats a little armour as it goes (e.burn).
-//   Base    - lathered: slower, and slides further when hit (e.chill); enough and it saponifies: soap, stuck solid (e.frozen).
+//   Alkali    - lathered: slower, and slides further when hit (e.chill); enough and it saponifies: soap, stuck solid (e.frozen).
 //   Static  - charged: damage it takes arcs to a neighbour, and drags that neighbour closer (e.shock).
 //   Ethanol - drunk: stacking damage over time, and it weaves about (e.poison, e.poisonStacks).
 //   Histamine  - hexed: takes more from everything; the hex passes on when it dies (e.mark).
@@ -39,7 +39,7 @@ function applyElement(e, elem, dmg, src) {
       e.burn = syn.fire ? 4.5 : 3;
       setBurn(e, dmg * 0.4 * (syn.fire ? 1.5 : 1) * P.elem.fire, src);
       break;
-    case 'ice': { // Base
+    case 'ice': { // Alkali
       if (e.burn > 0 && react(e, 'neutral', src)) { neutralise(e, dmg, rsrc); return; }
       if (drunk(e) && react(e, 'sanitiser', src)) sanitise(e, dmg, rsrc);
       e.chill = 2.5;
@@ -89,7 +89,7 @@ function applyElement(e, elem, dmg, src) {
       break;
   }
 }
-// Acid meets Base: both cancel, a hot burst, and the salt water does you good.
+// Acid meets Alkali: both cancel, a hot burst, and the salt water does you good.
 function neutralise(e, dmg, rsrc) {
   e.burn = 0; e.chill = 0; e.chillAmt = 0; e.frozen = 0;
   aoe(e.x, e.y, 75, (dmg * 1.8 + 8) * G.P.react * (G.pair.hotcold ? 2 : 1), rsrc, '#e6f4ff');
@@ -118,7 +118,7 @@ function flashpoint(e, dmg, rsrc) {
   e.poison = 0; e.poisonStacks = 0;
   aoe(e.x, e.y, 80, boom, rsrc, '#ffba08');
 }
-// Base on Ethanol: hand sanitiser. Kills 99.9% of germs.
+// Alkali on Ethanol: hand sanitiser. Kills 99.9% of germs.
 function sanitise(e, dmg, rsrc) {
   e.poison = 0; e.poisonStacks = 0;
   let n = 0;

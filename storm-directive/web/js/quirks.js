@@ -8,7 +8,7 @@ const QUIRKS = {
   slingshot:  { name: 'Gravity Assist', desc: 'Your shots curved round a black hole and flew out faster and harder. Ask a space probe.' },
   wetwire:    { name: 'Live Puddle', desc: 'Static hit something standing in a boozy puddle, and everyone else in the puddle got it too.' },
   flammable:  { name: 'Flammable Fumes', desc: 'Something corroding touched a boozy puddle and the whole thing went up.' },
-  icerink:    { name: 'Slip Hazard', desc: 'Base turned a boozy puddle to soap. Enemies slide about on it; you skate across it faster.' },
+  icerink:    { name: 'Slip Hazard', desc: 'Alkali turned a boozy puddle to soap. Enemies slide about on it; you skate across it faster.' },
   icebreaker: { name: 'Bar of Soap', desc: 'You rammed a saponified enemy at speed. It burst, and the suds hit what was behind it.' },
   contagion:  { name: 'Hereditary', desc: 'An infected enemy split during Identical Twins, and both halves kept the infection.' },
   driftmines: { name: 'Downstream', desc: 'Waters Breaking swept your mines, puddles and black holes along with everything else.' },

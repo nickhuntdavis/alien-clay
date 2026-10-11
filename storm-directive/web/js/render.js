@@ -31,7 +31,7 @@ function refreshPalette() {
   if (typeof COL !== 'undefined') { COL.clear(); COLDF.clear(); SPR.glow.clear(); }
   document.body.classList.toggle('dye-ui', !!dyes.he);
 }
-// Element effects. With the H&E stain (or the Tracer Dye grant), Acid shows green, Base blue, Ethanol amber and Histamine violet.
+// Element effects. Each damage type shows in colour from the first time you use it (elemOn, tutorial.js), or all at once with the H&E stain or the Tracer Dye grant: Acid shows green, Alkali blue, Ethanol amber and Histamine violet.
 // Static is always coloured, in a static-shock blue and pink.
 // (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
 const ELEM_SWAP = new Map([
@@ -64,7 +64,7 @@ function col(c) {
     if (PAL_OK.has(base)) v = c;
     else if (PAL_ALIAS[base] && PAL_OK.has(PAL_ALIAS[base])) v = PAL_ALIAS[base] + h.slice(7);
     else if (STATIC_HEX[base]) v = STATIC_HEX[base] + h.slice(7);
-    else if (ELEM_OF.has(base) && ((G && G.dyes && G.dyes.he) || GRANT_EL)) v = c;
+    else if (ELEM_OF.has(base) && ((G && G.dyes && G.dyes.he) || GRANT_EL || elemOn(ELEM_OF.get(base)))) v = c;
     else { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
   } else {
     const m = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
@@ -2117,14 +2117,15 @@ function drawHud() {
   UI.chipRects = [];
   if (imm) {
     // Immersive mode: one centred row of chips just under the XP bar (wraps if there are many).
-    let rx = 0, ry = top + 8; const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
+    let rx = 0, ry = top + 8, flagged = null; const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
     while (items.length) {
       let w = 0, n = 0; while (n < items.length && (n === 0 || w + items[n][2] + 4 <= W - 16)) w += items[n++][2] + 4;
       rx = (W - (w - 4)) / 2;
-      for (const [ch, cc, tw] of items.splice(0, n)) { filmPanel(rx, ry, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, rx + 7, ry + 12); UI.chipRects.push({ x: rx, y: ry, w: tw, h: 16 }); rx += tw + 4; }
+      for (const [ch, cc, tw] of items.splice(0, n)) { filmPanel(rx, ry, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, rx + 7, ry + 12); const nk = stNewKey(ch); UI.chipRects.push({ x: rx, y: ry, w: tw, h: 16, key: nk }); if (nk) { stNewOutline(nk, rx, ry, tw, 16); flagged = nk; } rx += tw + 4; }
       ry += 20;
     }
-  } else for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); UI.chipRects.push({ x: 8, y: cyp, w: tw, h: 16 }); cyp += 20; }
+    if (flagged) { const mw = ctx.measureText('NEW POWERUP UNLOCKED! TAP TO READ').width + 14; const mx = (W - mw) / 2; stNewMsg(flagged, mx, ry); UI.chipRects.push({ x: mx, y: ry, w: mw, h: 16, key: flagged }); }
+  } else for (const [ch, cc] of chips) { const tw = ctx.measureText(ch).width + 14; filmPanel(8, cyp, tw, 16); ctx.fillStyle = cc; ctx.fillText(ch, 15, cyp + 12); const nk = stNewKey(ch); let rw = tw; if (nk) { stNewOutline(nk, 8, cyp, tw, 16); rw = tw + 6 + stNewMsg(nk, 8 + tw + 6, cyp); } UI.chipRects.push({ x: 8, y: cyp, w: rw, h: 16, key: nk }); cyp += 20; }
   UI.chips = chips;
   // Boss bar: centred, under the sperm count / wave readout.
   if (G.boss && !G.boss.dead) {
