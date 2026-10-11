@@ -430,15 +430,33 @@ function drawBackground() {
     for (let gy = Math.ceil(y0 / step) * step; gy < y1; gy += step) { const Y = Math.round(sy(gy)) + 0.5; ctx.moveTo(0, Y); ctx.lineTo(W, Y); }
     ctx.stroke();
   }
-  // Beyond the chamber: the spacer's edge, darker and out of focus.
-  ctx.fillStyle = 'rgba(38,44,40,0.62)';
-  ctx.beginPath(); ctx.rect(-20, -20, W + 40, H + 40); ctx.arc(cx, cy, R, 0, TAU, true); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU);
-  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 4; ctx.stroke();
-  ctx.strokeStyle = 'rgba(20,24,22,0.6)'; ctx.lineWidth = 1.5; ctx.stroke();
-  // The egg's warm zone, marked like a region of interest in the imaging software.
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.2; ctx.setLineDash([6, 8]);
-  ctx.beginPath(); ctx.arc(cx, cy, CORE.sanctuary * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+  // Beyond the chamber: the spacer's edge, darkening softly out of focus, behind a glassy rim.
+  glassRim(cx, cy, R, false);
+  eggWarmth(cx, cy, false);
+}
+// The chamber's edge as glass (STYLE.md: no hard lines): a bright refractile band that fades both ways, a
+// highlight sliding slowly round it, and the world beyond dimming gradually.
+function glassRim(cx, cy, R, df) {
+  const t = G.realT, w = 26 * S;
+  if (!df) {
+    const o = ctx.createRadialGradient(cx, cy, R, cx, cy, R + 180 * S);
+    o.addColorStop(0, 'rgba(38,44,40,0)'); o.addColorStop(0.35, 'rgba(38,44,40,0.4)'); o.addColorStop(1, 'rgba(38,44,40,0.66)');
+    ctx.fillStyle = o; ctx.fillRect(-20, -20, W + 40, H + 40);
+  }
+  const g = ctx.createRadialGradient(cx, cy, R - w * 0.5, cx, cy, R + w);
+  const k = df ? 0.35 : 1;
+  g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.3, `rgba(255,255,255,${0.5 * k})`); g.addColorStop(0.42, `rgba(255,255,255,${0.12 * k})`);
+  g.addColorStop(0.6, `rgba(255,255,255,${0.2 * k})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R + w, 0, TAU); ctx.arc(cx, cy, Math.max(0, R - w * 0.5), 0, TAU, true); ctx.fill();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5 * S;
+  for (let i = 0; i < 2; i++) { const a0 = t * 0.05 + i * Math.PI; ctx.globalAlpha = 0.35 * k; ctx.beginPath(); ctx.arc(cx, cy, R - w * 0.1, a0, a0 + 0.5); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+}
+// The egg's warm zone: a faint glow that thickens towards its edge, so you feel where it ends (no ring).
+function eggWarmth(cx, cy, df) {
+  const R = CORE.sanctuary * S, g = ctx.createRadialGradient(cx, cy, R * 0.55, cx, cy, R * 1.08), k = df ? 0.4 : 1;
+  g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.75, `rgba(255,255,255,${0.06 * k})`); g.addColorStop(0.9, `rgba(255,255,255,${0.12 * k})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * 1.08, 0, TAU); ctx.fill();
 }
 
 // Darkfield: a true black (AMOLED) field. Only the faintest out-of-focus specks and discs drift behind,
@@ -455,10 +473,8 @@ function drawDarkfieldBackground() {
   });
   ctx.globalAlpha = 1;
   const core = G.core, cx = sx(core.x), cy = sy(core.y);
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(cx, cy, CORE.arena * S, 0, TAU); ctx.stroke();
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.setLineDash([6, 8]);
-  ctx.beginPath(); ctx.arc(cx, cy, CORE.sanctuary * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+  glassRim(cx, cy, CORE.arena * S, true);
+  eggWarmth(cx, cy, true);
   WORLD_DF = df;
 }
 
@@ -577,6 +593,40 @@ function buildOocyte(r) {
   g.fillStyle = 'rgb(60,66,62)'; g.beginPath(); g.arc(-R * 0.14, R * 0.1, R * 0.07, 0, TAU); g.fill();
   g.strokeStyle = 'rgba(255,255,255,0.9)'; g.lineWidth = 2.2; g.beginPath(); g.arc(0, 0, R * 0.95, 0, TAU); g.stroke();
   SPR.oocyte = SET.darkfield ? invertCanvas(c) : c; SPR.oocyteR = R;
+}
+
+// A ground pool (acid splash, frost, poison, gas): a soft lumpy stain that fades out at its edge, no outline
+// (STYLE.md), with what it is shown by what moves in it: frost twinkles, gas rolls, the rest bubbles.
+function drawPool(z, x, y, r, a) {
+  if (z.seed == null) { z.seed = Math.random() * 100; z.a = Math.random() * TAU; z.lobes = Array.from({ length: 8 }, () => rand(0.86, 1.14)); }
+  const t = G.realT, df = WORLD_DF, c = typeof z.color === 'string' && z.color[0] === '#' && z.color.length >= 7 ? z.color.slice(0, 7) : null;
+  const hx = v => Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, '0');
+  blobPath(x, y, r * 1.08, z, t * 0.7, 0.08);
+  if (c) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 1.1);
+    if (df) { g.addColorStop(0, c + hx(0.08)); g.addColorStop(0.72, c + hx(0.2)); g.addColorStop(0.9, c + hx(0.12)); }
+    else { g.addColorStop(0, c + hx(0.3)); g.addColorStop(0.65, c + hx(0.24)); g.addColorStop(0.9, c + hx(0.1)); }
+    g.addColorStop(1, c + '00');
+    ctx.globalAlpha = a; ctx.fillStyle = g; ctx.fill();
+  } else { ctx.globalAlpha = a * 0.15; ctx.fillStyle = z.color; ctx.fill(); }
+  if (FX.k < 0.5) { ctx.globalAlpha = 1; return; } // (busy screen: just the stain)
+  const el = z.elem || (z.src && z.src.elem), n = Math.min(10, 3 + Math.round(z.r / 14));
+  let sd = Math.floor(z.seed * 1000) + 1; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+  if (z.ice || el === 'ice') {
+    ctx.fillStyle = '#ffffff';
+    for (let k = 0; k < n; k++) { const an = rnd() * TAU, d = r * 0.85 * Math.sqrt(rnd()), tw = Math.max(0, Math.sin(t * 3 + k * 2.1)); ctx.globalAlpha = a * tw * 0.8; const px = x + Math.cos(an) * d, py = y + Math.sin(an) * d, s2 = (1 + tw * 1.5) * S; ctx.fillRect(px - s2, py - 0.5, s2 * 2, 1); ctx.fillRect(px - 0.5, py - s2, 1, s2 * 2); }
+  } else if (z.spell === 'cloud' || el === 'poison') {
+    if (c) for (let k = 0; k < 5; k++) { // soft rolling puffs
+      const an = t * 0.5 + k * 1.25 + z.seed, rr = r * 0.5, px = x + Math.cos(an) * rr, py = y + Math.sin(an * 1.3) * rr * 0.7, pg = ctx.createRadialGradient(px, py, 0, px, py, r * 0.45);
+      pg.addColorStop(0, c + hx(df ? 0.12 : 0.16)); pg.addColorStop(1, c + '00'); ctx.globalAlpha = a; ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(px, py, r * 0.45, 0, TAU); ctx.fill();
+    }
+    ctx.lineWidth = 1.2; ctx.strokeStyle = z.color;
+    for (let k = 0; k < Math.ceil(n / 2); k++) { const ph = (t * 0.5 + rnd()) % 1, an = rnd() * TAU, d = r * 0.7 * rnd(); ctx.globalAlpha = a * (1 - ph) * 0.7; ctx.beginPath(); ctx.arc(x + Math.cos(an) * d, y + Math.sin(an) * d, (1.5 + ph * 4) * S, 0, TAU); ctx.stroke(); }
+  } else {
+    ctx.lineWidth = 1.2; ctx.strokeStyle = z.color;
+    for (let k = 0; k < n; k++) { const ph = (t * 0.8 + rnd()) % 1, an = rnd() * TAU, d = r * 0.8 * Math.sqrt(rnd()); ctx.globalAlpha = a * (1 - ph) * 0.8; ctx.beginPath(); ctx.arc(x + Math.cos(an) * d, y + Math.sin(an) * d, (1.5 + ph * 4) * S, 0, TAU); ctx.stroke(); }
+  }
+  ctx.globalAlpha = 1;
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
@@ -1320,13 +1370,7 @@ function render() {
       ctx.lineWidth = 2; ctx.globalAlpha = a * 0.6;
       ctx.globalAlpha = a; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, 14 * S, 0, TAU); ctx.fill();
       ctx.strokeStyle = '#ff758f'; ctx.beginPath(); ctx.arc(x, y, 15 * S, 0, TAU); ctx.stroke();
-    } else {
-      // Gas clouds (Dutch Oven) roll in soft puffs.
-      if (z.spell === 'cloud' && FX.k > 0.5) { ctx.fillStyle = z.color; for (let k = 0; k < 6; k++) { const an = G.realT * 0.5 + k * 1.05, rr = r * 0.55; ctx.globalAlpha = a * 0.12; ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an * 1.3) * rr * 0.7, r * 0.45, 0, TAU); ctx.fill(); } ctx.globalAlpha = a * 0.6; }
-      // Bubbling pool (just the rim when the screen is busy).
-      if (FX.k > 0.75) for (let k = 0; k < 5; k++) { const an = G.realT * 0.7 + k * 1.3, rr = r * (0.2 + ((k * 0.37 + G.realT * 0.3) % 0.7)); ctx.beginPath(); ctx.arc(x + Math.cos(an) * rr, y + Math.sin(an) * rr, 3 + k % 3, 0, TAU); ctx.stroke(); }
-      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
-    }
+    } else drawPool(z, x, y, r, a);
   }
   fxDim(false);
   drawHazards(vis);
@@ -2442,33 +2486,45 @@ const PILLC = { a: null, b: null, key: '' };
 function drawPill() {
   const q = G.pill;
   if (!q) return;
+  const df = WORLD_DF; WORLD_DF = false;
   if (q.t < PILL.fizz) {
-    // The pill itself, fizzing: a white capsule with a split seam.
-    const x = sx(q.x), y = sy(q.y), r = 30 * S, a = q.t * 0.6;
-    // Warning pulse where it will dissolve.
-    ctx.strokeStyle = PAL.danger; ctx.lineWidth = 2; ctx.globalAlpha = 0.6 * (1 - (q.t % 1));
-    ctx.beginPath(); ctx.arc(x, y, r * (2 + 4 * (q.t % 1)), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+    // The pill itself, fizzing: a chalky capsule shedding bubbles, with a pale haze already spreading where it
+    // will dissolve (STYLE.md: danger by behaviour, not a red ring).
+    const x = sx(q.x), y = sy(q.y), r = 30 * S, a = q.t * 0.6, k = q.t / PILL.fizz;
+    const hz = ctx.createRadialGradient(x, y, r, x, y, r * (2 + 5 * k));
+    hz.addColorStop(0, `rgba(230,237,243,${0.3 * k})`); hz.addColorStop(1, 'rgba(230,237,243,0)');
+    ctx.fillStyle = hz; ctx.beginPath(); ctx.arc(x, y, r * (2 + 5 * k), 0, TAU); ctx.fill();
     ctx.save(); ctx.translate(x, y); ctx.rotate(a);
-    ctx.fillStyle = '#e8eef4'; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.7, r, 0, 0, TAU); ctx.fill();
-    ctx.strokeStyle = PAL.danger; ctx.lineWidth = 2; ctx.stroke();
-    ctx.strokeStyle = 'rgba(40,46,52,0.6)'; ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(0, r); ctx.stroke();
+    const g = ctx.createLinearGradient(0, -r, 0, r); g.addColorStop(0, '#f4f7fa'); g.addColorStop(1, '#b9c3cc');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.7, r, 0, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(40,46,52,0.35)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(0, r); ctx.stroke();
     ctx.restore();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.2;
+    for (let i = 0; i < 10; i++) { const ph = (q.t * 1.5 + i * 0.137) % 1, an = i * 2.4, d = r * (1.2 + ph * 2.5); ctx.globalAlpha = (1 - ph) * 0.8; ctx.beginPath(); ctx.arc(x + Math.cos(an) * d, y + Math.sin(an) * d, (1.5 + ph * 3) * S, 0, TAU); ctx.stroke(); }
+    ctx.globalAlpha = 1; WORLD_DF = df;
     return;
   }
+  // The dissolved cloud: soft-edged lobes melting into one haze (drawn small, then scaled up), with chalky
+  // specks drifting out from its edge.
   const w = Math.max(1, Math.ceil(W / 3)), h = Math.max(1, Math.ceil(H / 3)), key = w + 'x' + h;
-  if (PILLC.key !== key) { PILLC.key = key; PILLC.a = makeCanvas(w, h); PILLC.b = makeCanvas(w, h); }
-  const ga = PILLC.a.getContext('2d'), gb = PILLC.b.getContext('2d'), k = S / 3, ox = w / 2 - cam.x * k, oy = h / 2 - cam.y * k;
-  ga.clearRect(0, 0, w, h); gb.clearRect(0, 0, w, h);
-  ga.fillStyle = SET.darkfield ? '#e6edf3' : '#48525c'; gb.fillStyle = col(PAL.danger); // grey rim until the Anti-Immune Stain
+  if (PILLC.key !== key) { PILLC.key = key; PILLC.a = makeCanvas(w, h); }
+  const ga = PILLC.a.getContext('2d'), k = S / 3, ox = w / 2 - cam.x * k, oy = h / 2 - cam.y * k, tone = SET.darkfield ? '230,237,243' : '72,82,92';
+  ga.clearRect(0, 0, w, h);
   pillLobes((wx, wy, wr) => {
-    ga.beginPath(); ga.arc(ox + wx * k, oy + wy * k, wr * k, 0, TAU); ga.fill();
-    gb.beginPath(); gb.arc(ox + wx * k, oy + wy * k, wr * k + 2.5, 0, TAU); gb.fill();
+    const px = ox + wx * k, py = oy + wy * k, pr = wr * k * 1.12, g = ga.createRadialGradient(px, py, pr * 0.5, px, py, pr);
+    g.addColorStop(0, `rgba(${tone},1)`); g.addColorStop(0.8, `rgba(${tone},0.6)`); g.addColorStop(1, `rgba(${tone},0)`);
+    ga.fillStyle = g; ga.beginPath(); ga.arc(px, py, pr, 0, TAU); ga.fill();
   });
-  gb.globalCompositeOperation = 'destination-out'; gb.drawImage(PILLC.a, 0, 0); gb.globalCompositeOperation = 'source-over';
-  const df = WORLD_DF; WORLD_DF = false;
   ctx.imageSmoothingEnabled = true;
-  ctx.globalAlpha = (SET.darkfield ? 0.14 : 0.3) * q.alpha; ctx.drawImage(PILLC.a, 0, 0, W, H);
-  ctx.globalAlpha = 0.55 * q.alpha; ctx.drawImage(PILLC.b, 0, 0, W, H);
+  ctx.globalAlpha = (SET.darkfield ? 0.18 : 0.4) * q.alpha; ctx.drawImage(PILLC.a, 0, 0, W, H);
+  ctx.fillStyle = '#ffffff'; let n = 0;
+  pillLobes((wx, wy, wr) => {
+    for (let i = 0; i < 8; i++, n++) {
+      const ph = (G.realT * 0.12 + n * 0.173) % 1, an = n * 2.399 + G.realT * 0.03, d = wr * (0.85 + ph * 0.3), px = sx(wx + Math.cos(an) * d), py = sy(wy + Math.sin(an) * d);
+      if (px < -10 || px > W + 10 || py < -10 || py > H + 10) continue;
+      ctx.globalAlpha = q.alpha * 0.55 * Math.sin(ph * Math.PI); ctx.fillRect(px - 1, py - 1, 2.2, 2.2);
+    }
+  });
   ctx.globalAlpha = 1; WORLD_DF = df;
 }
 
@@ -2567,12 +2623,15 @@ function drawHazards(vis) {
 // The Petri Dish: the glass rim of the dish, printed graduations, and a faint agar ripple.
 function drawDish() {
   const c = G.core, x = sx(c.x), y = sy(c.y), R = CORE.arena * S;
-  ctx.globalAlpha = 0.85; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(3, 14 * S);
-  ctx.beginPath(); ctx.arc(x, y, R + 30 * S, 0, TAU); ctx.stroke();
-  ctx.globalAlpha = 0.35; ctx.lineWidth = Math.max(1, 3 * S); ctx.beginPath(); ctx.arc(x, y, R + 50 * S, 0, TAU); ctx.stroke();
-  // Outside the dish: the bench.
-  ctx.globalAlpha = 0.55; ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.rect(-10, -10, W + 20, H + 20); ctx.arc(x, y, R + 58 * S, 0, TAU, true); ctx.fill();
-  ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.font = `${Math.max(9, 18 * S)}px ` + MONO; ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
+  // The dish wall: thick glass, catching the light, with the bench dimming softly beyond it (STYLE.md).
+  const df = WORLD_DF; WORLD_DF = false;
+  const o = ctx.createRadialGradient(x, y, R + 40 * S, x, y, R + 260 * S);
+  o.addColorStop(0, 'rgba(0,0,0,0)'); o.addColorStop(0.3, 'rgba(0,0,0,0.3)'); o.addColorStop(1, 'rgba(0,0,0,0.6)');
+  ctx.fillStyle = o; ctx.fillRect(-10, -10, W + 20, H + 20);
+  glassRim(x, y, R + 30 * S, SET.darkfield);
+  glassRim(x, y, R + 52 * S, true);
+  WORLD_DF = df;
+  ctx.globalAlpha = 0.18; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.2; // graduations etched into the glass
   for (let i = 0; i < 72; i++) {
     const a = i / 72 * TAU, r0 = R + 30 * S, r1 = r0 - (i % 6 ? 14 : 34) * S;
     ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); ctx.lineTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1); ctx.stroke();
@@ -2581,8 +2640,6 @@ function drawDish() {
     ctx.globalAlpha = 0.16; RAW_COL = true; ctx.fillStyle = '#e8a94a'; ctx.globalCompositeOperation = 'multiply';
     ctx.beginPath(); ctx.arc(x, y, R + 30 * S, 0, TAU); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; RAW_COL = false;
   }
-  ctx.globalAlpha = 0.12; ctx.lineWidth = 1;
-  for (let k = 1; k <= 4; k++) { ctx.beginPath(); ctx.arc(x, y, R * k / 5 + Math.sin(G.realT * 0.6 + k) * 6 * S, 0, TAU); ctx.stroke(); }
   ctx.globalAlpha = 1;
 }
 

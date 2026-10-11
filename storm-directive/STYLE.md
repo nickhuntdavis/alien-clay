@@ -25,5 +25,8 @@ Design and check every change in **both** the normal (light grey) field and **Da
 - Current terrain palette: acid green `#7fbf2a` (dark `#3d5a1f`, fizz `#c6f07a`); current blue `#9fd4e6`; cilia pink `#f2b8c6` (dark `#8a5866`); slick lilac `#c8b6ff` (bead `#f4eeff`); cartilage blue-white `#c9d6e6` (shadow `#5a6878`); mitochondrion `#c97a62`/`#8f4636` with membrane `#f3c6b8` and edge `#6e2f24`; ATP and charge in `PAL.reward` gold.
 - Background ALWAYS adds a soft pink tissue wash (`tissueWash`), not a flat colour.
 
+## Building blocks (render.js)
+- `blobPath`: soft organic outline (acid pits, pools, slicks). `drawPool`: any ground effect. `glassRim`: any glass edge (dish, chamber). `eggWarmth`: a zone shown as a glow, not a ring. Reuse these before inventing new shapes.
+
 ## Performance
 Phones first. Keep per-object particle counts small (20 to 30), batch strokes into one path per colour or alpha band, use seeded `rnd()` (no per-frame `Math.random` layouts except for flicker), and avoid `save`/`clip` in tight loops.
