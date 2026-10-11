@@ -7,7 +7,7 @@
 // Rivals arrive one at a time (rivalArrive). In a race, one comes with each scripted wave (waveEvent), at the
 // level it reached racing elsewhere. In wave mode (the Petri Dish) a new one joins each ordinary wave from
 // wave 2 (rivalWaveJoin, at most RIVAL.dishMax alive); they don't stop a wave being cleared, they keep out of
-// it between waves, and any that survive a wave come back stronger (rivalWaveEnd). No sperm count or egg there.
+// it between waves and in boss waves, and any that survive a wave come back stronger (rivalWaveEnd). No sperm count or egg there.
 // Hooks: rivalArrive (waveEvent, game.js), rivalWaveJoin (campBegin), rivalWaveEnd (waveClear).
 
 // A rival's level follows its own clock, which runs at its skill (plus a little for every kill it steals).
@@ -151,7 +151,7 @@ function rivalAI(e, dt) {
   e.modeT -= dt;
   let tx = e.wx, ty = e.wy, spd = e.speed * (G.pill && inPill(e.x, e.y) ? 0.65 : 1);
   const hurt = e.hp < e.maxHp * 0.3;
-  const calm = !!(G.wave && !G.wave.active); // (the dish between waves: they keep to themselves)
+  const calm = !!(G.wave && (!G.wave.active || G.wave.boss)); // (the dish between waves, and boss waves: they keep to themselves and leave you to the boss)
   if (calm && e.mode === 'hunt') { e.mode = 'roam'; newWaypoint(e); }
   if (!G.wave && !e.final && !G.showdown && e.lvl >= EGG.level && e.mode !== 'egg') { e.mode = 'egg'; rivalNews(e, `${e.name} is LV ${EGG.level} and heading for the egg.`, true); }
   if (e.mode === 'egg' && !e.final) {
