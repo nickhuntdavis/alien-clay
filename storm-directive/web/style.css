@@ -1013,3 +1013,27 @@ body.immersive #bottom .slot:active, body.immersive #moveBtn:active, body.immers
 @keyframes srSlam { 0% { transform: scale(2.6); opacity: 0; filter: blur(6px); } 60% { opacity: 1; filter: blur(0); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes srUp { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes srBlink { 50% { opacity: 0.4; } }
+
+/* ---- tap to inspect (inspect.js) */
+#inspect { position: fixed; inset: 0; z-index: 200; display: none; pointer-events: none; }
+#inspect.on { display: flex; align-items: flex-end; justify-content: center; }
+#inspect.pausing { pointer-events: auto; background: #000000a0; align-items: center; }
+#inspect .icard { pointer-events: auto; width: min(94vw, 420px); max-height: 82vh; overflow-y: auto; margin: 0 0 14px; padding: 14px 16px; background: #05080cf2; border: 1px solid var(--ic, #d1ddef); color: #d1ddef; border-radius: 6px; }
+#inspect.pausing .icard { margin: 0; }
+#inspect h3 { margin: 4px 0; font-size: 18px; color: var(--ic, #d1ddef); }
+#inspect h4 { margin: 8px 0 3px; font-size: 11px; letter-spacing: 1px; color: #878f9a; }
+#inspect em { color: #878f9a; font-size: 12px; font-style: normal; letter-spacing: 1px; }
+#inspect p { margin: 6px 0; font-size: 13px; line-height: 1.4; }
+#inspect .ijoke { font-style: italic; }
+#inspect .idot { width: 28px; height: 28px; border-radius: 50%; float: right; opacity: 0.9; }
+#inspect .isil { width: 44px; height: 44px; border-radius: 50%; background: #000; border: 1px solid #ffffff30; margin: 4px 0; }
+.istats { display: flex; gap: 14px; margin: 8px 0; font-size: 13px; color: #878f9a; }
+.istats b { color: #d1ddef; }
+.ichip { display: inline-block; margin: 2px 4px 2px 0; padding: 4px 8px; font-size: 12px; color: var(--c, #d1ddef); background: transparent; border: 1px solid var(--c, #ffffff40); border-radius: 12px; }
+#inspect .ibtns { display: flex; gap: 8px; margin-top: 10px; }
+#inspect .ibtns .btn { flex: 1; }
+.rxgrid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; margin: 8px 0; }
+.rxh { font-style: normal; font-size: 9px; text-align: center; align-self: center; }
+.rxc { font-size: 8px; padding: 6px 0; min-height: 30px; background: #ffffff0a; border: 1px solid #ffffff20; color: var(--c, #878f9a); border-radius: 3px; overflow: hidden; }
+.rxc.none { opacity: 0.3; }
+.rxc.got { border-color: var(--c); }
