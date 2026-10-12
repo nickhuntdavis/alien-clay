@@ -249,7 +249,7 @@ const UI = {
     if (G.state === 'intro') { if (typeof INTRO !== 'undefined' && INTRO.t > 1) endIntro(); return; }
     if (G.state === 'bossIntro') { if ($('bossIntro').classList.contains('ready')) endBossIntro(); return; }
     if (G.state === 'loot') {
-      if (now - UI.lootOpenT < 1100 || now - (UI.autoAt || 0) < 700) return;
+      if (now - UI.lootOpenT < (FUSION.req ? 4500 : 1100) || now - (UI.autoAt || 0) < 700) return; // (a combo plays its unlock out first)
       const opts = (UI.lootOpts || []).map((o, i) => [o, i]).filter(([o]) => o && !o.taken);
       if (!opts.length) return;
       UI.autoAt = now;
@@ -812,6 +812,7 @@ const UI = {
 
   // ---------------------------------------------------------------- loot
   openLoot(req) {
+    if (req.kind === 'combo') { fusionOpen(req); return; } // (its own unlock screen: fusion.js)
     // A skipped box makes the next ordinary one rarer (G.rarBoost, used up here, kept on the box for rerolls).
     if (RAR_SKIP[req.kind] != null && req.boost == null) { req.boost = G.rarBoost || 0; G.rarBoost = 0; }
     // New weapons and upgrade paths get the full Weapon Draft treatment.
@@ -1253,7 +1254,7 @@ const UI = {
         const sa = seqOf(c.a), sb = seqOf(c.b);
         lc += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b>${on ? ' (FUSED)' : known ? '' : ' (not fused yet)'}<br><span>${esc(WEAPONS[c.a].name)} + ${esc(WEAPONS[c.b].name)} (${sa === sb ? esc(sa) : esc(sa) + ' + ' + esc(sb) + ', needs a splice'}): ${esc(c.desc)}</span></div>`;
       }
-      h += box(`Combos fused (${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length})`, `<div class="list">${lc}</div>`, `Both weapons at Lv ${COMBO_LEVEL}+: a COMBO card turns up in your next box. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
+      h += box(`Combos fused (${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length})`, `<div class="list">${lc}</div>`, `Get both weapons to Lv ${COMBO_LEVEL}+ and the game stops to fuse them. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
       let l = '';
       for (const q of PAIRINGS) {
         const known = META.pairs[q.id], on = run && G.pair && G.pair[q.id];
@@ -1563,7 +1564,7 @@ window.handleBack = function () {
   if (G && G.state === 'bossIntro') { if ($('bossIntro').classList.contains('ready')) endBossIntro(); return 'ok'; }
   if (G && G.state === 'finale') { endFinale(); return 'ok'; }
   if (on('over')) { G = null; UI.show('title'); UI.renderBest(); return 'ok'; }
-  if (on('loot') || on('draft')) return 'ok';
+  if (on('loot') || on('draft') || FUSION.req) return 'ok';
   if (on('stpanel')) { UI.closeStatusPanel(); return 'ok'; }
   if (on('armoury')) { UI.closeArmoury(); return 'ok'; }
   if (on('seqsel')) { UI.openSamples(); return 'ok'; }

@@ -56,7 +56,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, Feats, power-ups, modifiers, stains and (rarely) curses.
 2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
    - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.
-3. **Combos:** get two specific weapons to Lv 5+ and a COMBO card turns up in your next box. Fuse them and both keep firing, gain a new power, and (2 times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv5+.
+3. **Combos:** get two specific weapons to Lv 5+ and the game stops for the combo alone: the two weapons slam together on their own unlock screen. Both keep firing, gain a new power, and (2 times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv5+.
 4. **Weapon tuning:** fire rate, reload, magazine, extra projectiles, projectile speed and range, area, duration and pierce cards go on ONE weapon you choose (tap it on the card); each weapon keeps its own stacks. Legendary and better versions tune every weapon at once.
 5. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
 6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
@@ -75,7 +75,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 | Mythical | x3 | +3 | separate roll | 0.45% |
 | Immaculate | x4 | +3 | separate roll | 0.12% |
 
-Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Immaculate skip the table: every card first rolls 0.55% for Mythical and 0.18% for Immaculate (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses, combos) add to it.
+Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Immaculate skip the table: every card first rolls 0.55% for Mythical and 0.18% for Immaculate (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses) add to it.
 
 **Level bonus key:** "+N count/pierce" is additive; "+N% dmg/area/duration" adds to the base; "N% faster" cuts the cooldown.
 
@@ -922,7 +922,7 @@ When an upgrade would do nothing for a weapon, that weapon does its own thing wi
 
 ## Weapon combos
 
-Both weapons at Lv 5+: a COMBO card is guaranteed in your next box. Both keep firing, gain the power below, and the first 2 combos a run open a bonus weapon mount with a draft.
+Both weapons at Lv 5+: the game stops at once for the combo's own unlock screen (never a card in a box). Both keep firing, gain the power below, and the first 2 combos a run open a bonus weapon mount with a draft.
 
 | Combo | Weapons | Sequence | Power |
 |---|---|---|---|

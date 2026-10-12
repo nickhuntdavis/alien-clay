@@ -1,6 +1,6 @@
 'use strict';
-// Spawn Prawn - Weapon Combos. Two weapons you own, both at Lv 5 or more, can be fused into a combo (a
-// guaranteed card in your next box). Both keep firing as they were, they gain the combo's new power, and
+// Spawn Prawn - Weapon Combos. Two weapons you own, both at Lv 5 or more, can be fused into a combo (it stops
+// the game with its own unlock screen the moment it is ready: fusion.js). Both keep firing as they were, they gain the combo's new power, and
 // the fusion opens a bonus weapon mount with a draft straight away (two bonus mounts a run at most).
 // Most combos pair weapons from the same sequence, so any run can find them; a few need a splice.
 
@@ -65,7 +65,7 @@ function comboFuse(c) {
   G.stats.merges = (G.stats.merges || 0) + 1;
   banner('COMBO: ' + c.name.toUpperCase(), '#ff3df2');
   const tw = comboTwist(c);
-  sysMsg(first ? 'NEW COMBO' : 'COMBO', `${WEAPONS[c.a].name} + ${WEAPONS[c.b].name}: ${c.desc}` + (tw ? ` ${twistLabel(tw)}: ${tw.desc}` : ''), '#ff3df2', true);
+  if (FUSION.id !== c.id) sysMsg(first ? 'NEW COMBO' : 'COMBO', `${WEAPONS[c.a].name} + ${WEAPONS[c.b].name}: ${c.desc}` + (tw ? ` ${twistLabel(tw)}: ${tw.desc}` : ''), '#ff3df2', true);
   if (tw) { META.twists = META.twists || {}; META.twists[tw.key] = true; G.twistAt = 0; }
   const p = me();
   ring(p.x, p.y, 160, '#ff3df2', 0.6, 8); addLight(p.x, p.y, 300, '#ff3df2', 0.6);
@@ -154,6 +154,7 @@ function comboBoo(w, x, y) {
 const cmbEvery = (key, gap) => { const T = G.cmbT || (G.cmbT = {}); if ((T[key] || 0) > G.t) return false; T[key] = G.t + gap; return true; };
 // Per frame.
 function comboTick(dt) {
+  fusionCheck(); // (a combo just became available: its unlock screen, fusion.js)
   if (!G.combo) return;
   const p = me();
   if (comboOn('spityoyo') && cmbEvery('spit', 0.35)) {

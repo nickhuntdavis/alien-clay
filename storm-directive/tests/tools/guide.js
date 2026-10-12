@@ -39,7 +39,7 @@ p('');
 p('1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, Feats, power-ups, modifiers, stains and (rarely) curses.');
 p(`2. **Weapons** level up to Lv${D.MAX_WLVL}. Each weapon has its own upgrade path:`);
 p('   - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.');
-p(`3. **Combos:** get two specific weapons to Lv ${D.COMBO_LEVEL}+ and a COMBO card turns up in your next box. Fuse them and both keep firing, gain a new power, and (${D.COMBO_MOUNTS} times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv${D.PAIR_LEVEL}+.`);
+p(`3. **Combos:** get two specific weapons to Lv ${D.COMBO_LEVEL}+ and the game stops for the combo alone: the two weapons slam together on their own unlock screen. Both keep firing, gain a new power, and (${D.COMBO_MOUNTS} times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv${D.PAIR_LEVEL}+.`);
 p('4. **Weapon tuning:** fire rate, reload, magazine, extra projectiles, projectile speed and range, area, duration and pierce cards go on ONE weapon you choose (tap it on the card); each weapon keeps its own stacks. Legendary and better versions tune every weapon at once.');
 p(`5. **Modifiers:** up to ${D.MOD_SLOTS} per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.`);
 p(`6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv ${D.SLOT_LEVELS.join(', ')} (${D.MAX_WEAPONS} in total, plus up to ${D.COMBO_MOUNTS} bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.`);
@@ -52,7 +52,7 @@ p('| Rarity | Multiplier | Weapon levels granted | Roll weight (relative) | Shar
 const OFFER = { Common: '41%', Uncommon: '27%', Rare: '21%', Epic: '5.3%', Legendary: '5.6%', Mythical: '0.45%', Immaculate: '0.12%' };
 D.RARITIES.forEach(r => p(`| ${r.name} | x${r.mult} | +${r.lvls} | ${r.w || 'separate roll'} | ${OFFER[r.name] || ''} |`));
 p('');
-p('Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Immaculate skip the table: every card first rolls 0.55% for Mythical and 0.18% for Immaculate (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses, combos) add to it.');
+p('Weights are relative, not percentages, and luck tilts them towards the rarer rows. Mythical and Immaculate skip the table: every card first rolls 0.55% for Mythical and 0.18% for Immaculate (times 1 + 2 x luck), three a run at most. Legendary shows up more often than Epic because Legendary-only cards (curses) add to it.');
 p('');
 p('**Level bonus key:** "+N count/pierce" is additive; "+N% dmg/area/duration" adds to the base; "N% faster" cuts the cooldown.');
 p('');
@@ -100,7 +100,7 @@ for (const [id, m] of Object.entries(D.ADAPT)) for (const [wid, note] of Object.
 for (const [id, m] of Object.entries(D.PERK_ADAPT)) if (D.PERKS[id].tier === 1) for (const [wid, note] of Object.entries(m)) p(`| ${D.PERKS[id].name} | ${D.WEAPONS[wid].name} | ${esc(note)} |`);
 p('');
 p('## Weapon combos'); p('');
-p(`Both weapons at Lv ${D.COMBO_LEVEL}+: a COMBO card is guaranteed in your next box. Both keep firing, gain the power below, and the first ${D.COMBO_MOUNTS} combos a run open a bonus weapon mount with a draft.`); p('');
+p(`Both weapons at Lv ${D.COMBO_LEVEL}+: the game stops at once for the combo's own unlock screen (never a card in a box). Both keep firing, gain the power below, and the first ${D.COMBO_MOUNTS} combos a run open a bonus weapon mount with a draft.`); p('');
 p('| Combo | Weapons | Sequence | Power |'); p('|---|---|---|---|');
 for (const c of D.COMBOS) { const a = ownerOf(c.a), b = ownerOf(c.b); p(`| **${esc(c.name)}** | ${D.WEAPONS[c.a].name} + ${D.WEAPONS[c.b].name} | ${a === b ? a : a + ' + ' + b + ' (needs a splice)'} | ${esc(c.desc)} |`); }
 p('');

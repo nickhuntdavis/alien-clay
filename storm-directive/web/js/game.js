@@ -480,7 +480,6 @@ function genLoot(req) {
     return opts;
   }
   const cands = [];
-  for (const c of availableCombos()) cands.push({ w: 60, make: () => optCombo(c), key: 'fuse' + c.id });
   G.weapons.forEach((w, i) => { if (w && w.lvl < wCap(w)) cands.push({ w: 14, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
   G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
   // New weapons only come from weapon drafts (level 1, 8 and 22), never from ordinary DNA.
@@ -511,10 +510,8 @@ function genLoot(req) {
   // Stains you don't have yet.
   // (Not one you already see: a permanent stain switched on in the pause menu counts.)
   for (const id in DYES) if (!G.dyeBoon[id] && !G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
-  // Guarantee a fusion option when one is available.
+  // (Combos never come in a box: they get their own unlock screen, fusion.js.)
   const chosen = [];
-  const mc = cands.filter(c => c.key.startsWith('fuse')); // (this used to match modifiers too, forcing one into every box)
-  if (mc.length) chosen.push(mc[0]);
   // Never the same upgrade twice in one box (say, at two rarities): a card that matches one already in it is
   // thrown back and another drawn.
   const same = (o, q) => o.title === q.title && (o.modFor || '') === (q.modFor || '');
