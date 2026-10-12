@@ -2057,10 +2057,13 @@ function drawEnemy(e, lod) {
     ctx.globalAlpha = a0;
   }
   let si = 0;
-  const st = c => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
+  // Status rings are always in true colour, even on a grey slide.
+  const st = c => { const rc = RAW_COL; RAW_COL = true; ctx.strokeStyle = c; RAW_COL = rc; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 3 + si * 3, 0, TAU); ctx.stroke(); si++; };
   drawStatusFx(e, x, y, r);
-  // A ring for each damage type's status on it, in that type's colour (damage over time included: Acid, Ethanol).
-  if (e.burn > 0) st(ELEMENTS.fire.color);
+  // A ring for each damage type's status on it, in that type's colour, and one for every damage over time
+  // (Acid, Ethanol, Bleed, an Acid Crypt burn, Tapeworm).
+  if (e.burn > 0 || e.acidT > G.t) st(ELEMENTS.fire.color);
+  if (e.bleed > 0) st('#ff3b3b');
   if (e.poison > 0) st(ELEMENTS.poison.color);
   if (e.chill > 0 || e.frozen > 0) st(ELEMENTS.ice.color);
   if (e.shock > 0) st(ELEMENTS.shock.color);

@@ -1914,7 +1914,7 @@ The hardest achievements (Chemical Warfare: ten different reactions in a run; Br
 
 The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run, on top of the ones you have. Waves 1 to 3 bring them in a fixed order; after that they are drawn at random from the next 6 you have not had (so nothing big comes early). What a wave holds is a surprise until it lands. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
 
-**Terrain you can enter:** cilia beds let you through but tangle you (you crawl and cannot attack until you are out); acid crypts let you in but burn, and the acid clings to you for 2.5 seconds after you leave. Enemies are still shoved out of cilia and cannot enter acid.
+**Terrain you can enter:** cilia beds let you through but tangle you (you crawl and cannot attack until you are out); acid crypts let you in but burn, and the acid clings to you for 2.5 seconds after you leave. Enemies are still shoved out of cilia. About half of them swim straight through acid (and burn: a lime ring shows it), the rest go round it; bosses always go round. Autorun stays out of acid.
 
 **Settings > Colour** sets each kind of colour (you, danger, rewards, power-ups, fast enemies, rivals, damage types, enemy types, terrain, background) to EARNED (it comes with its stain, the normal way), ALWAYS (coloured from the start of the run) or OFF (grey, even under Full Technicolour or Full colour).
 

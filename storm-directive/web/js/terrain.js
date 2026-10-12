@@ -61,7 +61,7 @@ function terrainGrid(list) {
 function tCell(x, y) { return G.terrain ? G.terrain.grid.get(tKey(Math.floor(x / TCELL), Math.floor(y / TCELL))) : null; }
 
 // Move a body out of solid obstacles, sliding around them; returns the obstacle it touched (if any).
-function pushOut(o, r, side, soft) { // (soft: you, who can swim into acid)
+function pushOut(o, r, side, soft) { // (soft: you, and the enemies that wade through acid)
   const c = tCell(o.x, o.y);
   if (!c) return null;
   let hit = null;
@@ -164,6 +164,7 @@ function drawSizzle(px, py) {
   WORLD_DF = df;
 }
 
+const ACID_WADE = 0.5; // (share of enemies that wade through acid)
 function terrainBody(e, dt) {
   const z = zoneForce(e.x, e.y, e.r);
   if (!e.boss) { e.x += z.fx * dt * 0.8; e.y += z.fy * dt * 0.8; }
@@ -173,7 +174,10 @@ function terrainBody(e, dt) {
   }
   // Brush-Off: cilia beds sting what they shove.
   if (z.cilia && G.P.brushOff && !e.egg && !e.charmed && !(e.ciliaT > G.t)) { e.ciliaT = G.t + 0.5; damageEnemy(e, (12 + G.level * 2.5) * G.P.might * G.P.brushOff, { elem: 'phys', env: true, noCrit: true, noProc: true, wname: 'Brush-Off' }); }
-  if (!e.def.ethereal) pushOut(e, e.r, e.side || 1);
+  // Acid: some enemies swim straight through it (and burn), the rest steer round it. Each decides once;
+  // bosses always go round.
+  if (e.acidWade == null) e.acidWade = !e.boss && !e.rival && Math.random() < ACID_WADE;
+  if (!e.def.ethereal) pushOut(e, e.r, e.side || 1, e.acidWade);
   if (G.lvl) lvBody(e); // (the Phantom Pregnancy drifts through walls and growths)
 }
 
