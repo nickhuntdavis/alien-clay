@@ -601,6 +601,7 @@ const UI = {
       <div class="wlv">${pips}</div>
       <div class="cdesc">${esc(o.desc)}</div>${ms.length ? `<div class="wnext">Unlocks ${esc(ms.join(', '))}</div>` : ''}${UI.boonHtml(o)}${UI.rarityFlair(o)}`;
     makePreview(c.querySelector('canvas'), d, { mini: true });
+    phButtons(c, o);
     c.addEventListener('click', () => { if (!$('lootCards').classList.contains('ready') || !(UI.lastDown > UI.lootOpenT)) return; UI.pickLoot(i); });
     return c;
   },
@@ -924,6 +925,7 @@ const UI = {
         }
         UI.pickLoot(i);
       });
+      phButtons(c, o);
       wrap.appendChild(c);
     });
   },
@@ -935,6 +937,7 @@ const UI = {
     const o = UI.lootOpts[i];
     if (!o || o.taken) return;
     clearPreviews();
+    phTaken(o);
     o.apply(wuid);
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
@@ -1008,6 +1011,7 @@ const UI = {
     h += `</div>`;
     }
     if (tab === 'build') {
+    h += phPauseHtml();
     // Your genome: sequences and mutations.
     if (G.genes) {
       const gs = G.genes.active.map(id => `<div class="li on"><b>${esc(PROFILES[id].name)}</b> ${id === G.genes.primary ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}<br><span>${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes.k[id] || 0))}</span></div>`).join('');
@@ -1038,6 +1042,7 @@ const UI = {
     if (tab === 'codex') h += UI.codexHtml();
     box.innerHTML = h;
     box.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { UI.pauseTab = b.dataset.ptab; UI.renderPause(); $('pause').scrollTop = 0; }));
+    phPauseBind(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     UI.bindCodex(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     if (tab === 'codex') portraitsStart(box);
     box.querySelectorAll('[data-yk]').forEach(b => b.addEventListener('click', () => { G.state = 'play'; UI.openArmoury(b.dataset.yk, +b.dataset.yi); }));

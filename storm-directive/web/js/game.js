@@ -97,7 +97,7 @@ function newGame() {
     P: newStats(),
     enemies: [], proj: [], ebul: [], gems: [], pickups: [], zones: [], fx: [], parts: [], texts: [], turrets: [], timers: [],
     weapons: Array(BASE_SLOTS).fill(null), spells: [null, null], passives: {},
-    moveDir: 'kite', manual: null,
+    moveDir: 'kite', manual: null, pins: [], hides: [], pinName: {}, // (loot cards you pinned or hid: pinhide.js)
     kills: 0, level: 1, xp: 0, xpNeed: xpNeed(1),
     lootQueue: [{ kind: 'start' }], rerolls: 2,
     warp: 0, rage: 0, shieldT: 0, barrier: 0, barrierR: 0, barrierDmg: 0,
@@ -494,7 +494,10 @@ function genLoot(req) {
     // New modifiers while slots are free; otherwise offer to power up one it already has.
     const fits = id => !MODS[id].kinds || MODS[id].kinds.includes(w.def.kind);
     const ids = w.mods.length < MOD_SLOTS ? Object.keys(MODS).filter(id => fits(id) && !w.mods.some(m => m.id === id)) : w.mods.filter(m => m.p < MOD_MAX_POWER).map(m => m.id);
-    if (ids.length) { const id = novPick(ids.map(x => 'm' + x)).slice(1); cands.push({ w: 8, key: 'mod' + w.uid, nk: 'm' + id, make: r => optMod(w, id, r) }); }
+    const mk = 'mod' + w.uid + '|m';
+    const ok = ids.filter(x => !G.hides.includes(mk + x)); // (hidden mods never come back)
+    const pinned = G.pins.find(p => p.startsWith(mk) && ok.includes(p.slice(mk.length))); // (a pinned mod is rebuilt exactly)
+    if (ok.length) { const id = pinned ? pinned.slice(mk.length) : novPick(ok.map(x => 'm' + x)).slice(1); cands.push({ w: 8, key: 'mod' + w.uid, nk: 'm' + id, make: r => optMod(w, id, r) }); }
   });
   const ownedElems = new Set(); for (const w of G.weapons.concat(G.spells)) if (w) { ownedElems.add(w.def.elem); if (w.def.elem2) ownedElems.add(w.def.elem2); }
   for (const id in PASSIVES) {
@@ -511,15 +514,22 @@ function genLoot(req) {
   // Stains you don't have yet.
   // (Not one you already see: a permanent stain switched on in the pause menu counts.)
   for (const id in DYES) if (!G.dyeBoon[id] && !G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
+  // Pin and hide (pinhide.js): hidden cards never come up; one pinned card that still fits is put in the box.
+  for (const c of cands) if (!c.key.startsWith('fuse')) c.pk = c.key + '|' + (c.nk || '');
+  if (!G.mythBox) {
+    for (let i = cands.length - 1; i >= 0; i--) if (cands[i].pk && G.hides.includes(cands[i].pk)) cands.splice(i, 1);
+    G.pins = G.pins.filter(p => cands.some(c => c.pk === p)); // (one that can no longer fit is dropped silently)
+  } else for (const c of cands) c.pk = null;
   // Guarantee a fusion option when one is available.
   const chosen = [];
   const mc = cands.filter(c => c.key.startsWith('fuse')); // (this used to match modifiers too, forcing one into every box)
   if (mc.length) chosen.push(mc[0]);
+  if (!G.mythBox && G.pins.length) chosen.push(cands.find(c => c.pk === pick(G.pins)));
   // Never the same upgrade twice in one box (say, at two rarities): a card that matches one already in it is
   // thrown back and another drawn.
   const same = (o, q) => o.title === q.title && (o.modFor || '') === (q.modFor || '');
   const tried = new Set();
-  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); } }
+  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); if (c.pk) o.pk = c.pk; } }
   while (opts.length < 3) {
     const rest = cands.filter(c => !tried.has(c));
     if (!rest.length) break;
@@ -528,11 +538,11 @@ function genLoot(req) {
     for (const r of rest) { x -= wt(r); if (x <= 0) { c = r; break; } }
     tried.add(c);
     const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0)));
-    if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); }
+    if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); if (c.pk) o.pk = c.pk; }
   }
   // Occasionally the System slips a cursed card into the box.
   const curses = CURSES.filter(c => !G.curses[c.id]);
-  if (curses.length && !G.mythBox && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses));
+  if (curses.length && !G.mythBox && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses)); // (no pk: curses can't be pinned)
   if (opts.length && Math.random() < 0.45) pick(opts).quip = pick(CARD_QUIPS);
   const fillers = [optHeal, optRerolls, optOvercharge];
   for (const f of fillers) { if (opts.length >= 3) break; const o = f(); if (!opts.some(q => q.title === o.title)) opts.push(o); }

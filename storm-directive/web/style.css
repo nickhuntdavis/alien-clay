@@ -1013,3 +1013,10 @@ body.immersive #bottom .slot:active, body.immersive #moveBtn:active, body.immers
 @keyframes srSlam { 0% { transform: scale(2.6); opacity: 0; filter: blur(6px); } 60% { opacity: 1; filter: blur(0); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes srUp { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes srBlink { 50% { opacity: 0.4; } }
+/* pin and hide corner buttons on loot cards (pinhide.js) */
+.card .phb { position: absolute; top: 3px; width: 24px; height: 24px; line-height: 24px; text-align: center; font-size: 13px; border-radius: 12px; background: #0c0e0eaa; color: #cfd6d2; z-index: 3; cursor: pointer; }
+.card .phb.pin { left: 3px; filter: grayscale(1); opacity: 0.7; }
+.card .phb.pin.on { filter: none; opacity: 1; background: #3a3320; }
+.card .phb.hide { right: 3px; font-weight: 900; }
+.card .phb.full { opacity: 0.25; filter: grayscale(1); }
+.card.pinned { box-shadow: 0 0 10px #e6c46a88; }
