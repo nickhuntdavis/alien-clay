@@ -11,9 +11,14 @@ const { chromium } = require('playwright');
     [0.9, 0.7, 0.45, 0.15].forEach((k, i) => G.fx.push({ type: 'lash', x: p.x - 120, y: p.y - 260 + i * 70, a: 0, r: w.s.range || 220, w: 14, color: w.def.color, life: 0.32 * k, max: 0.32, seed: 3 + i }));
     const bw = makeSlot('barrier', true, 1); G.spells = [bw, null]; recomputeAll();
     G.barrier = 99; G.barrierR = bw.s.area; G.debug = { freeze: true }; cam.x = p.x; cam.y = p.y - 120;
-    return { barrierR: Math.round(bw.s.area), range: w.s.range };
+    // A real lash, then you swim off: the strand comes with you.
+    meleeLash(w, p.x, p.y, 0, weaponSrc(w), 1); const f = G.fx[G.fx.length - 1];
+    p.x += 100; p.y += 40; G.debug = null; render(); G.debug = { freeze: true };
+    const follows = f.follow && Math.round(f.x - p.x) === 0 && Math.round(f.y - p.y) === 0;
+    G.fx.pop();
+    return { barrierR: Math.round(bw.s.area), range: w.s.range, follows };
   });
   await page.waitForTimeout(300); await page.screenshot({ path: 'lash.png', clip: { x: 0, y: 120, width: 400, height: 520 } });
-  if (r.barrierR > 60) console.log('FAIL', JSON.stringify(r));
+  if (r.barrierR > 60 || !r.follows) console.log('FAIL', JSON.stringify(r));
   console.log(JSON.stringify(r), 'ERRORS ' + JSON.stringify(errors)); await b.close();
 })();

@@ -1,13 +1,14 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v9.05 (versionCode 255). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
+- Version v9.06 (versionCode 256). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
 
 ## Recent changes (newest first)
+- v9.06: the Flagellum Flail's strand stays attached to you while it plays (`follow`, `ox`/`oy` on the 'lash' fx, set in meleeLash when lashed from your own body; copies and the far second lash stay put).
 - v9.05: Latex Barrier base radius 80 to 55 (Lv 5 still +30%). Flagellum Flail lash redrawn as an elastic strand (render.js 'lash' fx): a tapered glossy body with a thin skin and a knob at the tip, shooting out with a slight bow, overshooting, then springing back with a slow ripple; the fx lasts 0.32s (was 0.2; hits unchanged). Test `lashshot`.
 - v9.04: two more big hazards made of real terrain (`bigHazBuild` clears ordinary terrain out of the way): Acid Lake (a root acid pit with 4 to 7 overlapping pools as children; creeps at 3 to 6/s, ploughs into other acid instead of steering round it, and `bigHazMerge` (hook in updateTerrain) swallows any acid pit or lake it reaches into one shape; 25% of the time a second lake spawns nearby) and Cilia Field (9 to 14 fixed cilia beds, each with 1 to 3 smaller beds grown in for a misshapen outline). drawTerrain now culls by an obstacle's size, so big ones don't pop. Sim: autorun caught 0 to 3% of play in most runs, once 7% (spermicide in a crowded dish).
 - v9.03: big hazards (`bighaz.js`): 1 to 3 a run (45/40/15%), never two the same, placed clear of your start and the egg, x0.6 in the Petri Dish, none in campaign levels. The Plughole (whirlpool: pull, drowning middle), Spermicide Spill (drifting foam: burns and slows to 70%), Hot Flush (every ~14s: 2.5s shimmer then a blast, 35% enemy HP), Mucus Plug (everything at 45% speed). Same rules for enemies (bosses not pulled, take far less). Named in a float and narrator line the first time one is in view (`META.bigHaz`). Autorun steers clear (`bigHazSteer`); sim `sim/bighazsim.js [runs] [min] [mode]`: autorun never caught in the Plughole's middle after tuning, foam 0 to 2% of play. Test `bighaztest` (+ screenshots both fields).

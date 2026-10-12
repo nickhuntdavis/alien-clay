@@ -1823,6 +1823,7 @@ function render() {
     if (f.type === 'lash') {
       // Flagellum Flail: an elastic strand. It stretches out with a slight bow, overshoots a touch, then springs
       // back with a slow ripple running down it. Thick and glossy at the root, tapering to a little knob.
+      if (f.follow && G.player) { f.x = G.player.x + f.ox; f.y = G.player.y + f.oy; } // (attached to you)
       const p = 1 - k, ca = Math.cos(f.a), sa = Math.sin(f.a), seg = 22;
       const out = p < 0.3 ? 1 - Math.pow(1 - p / 0.3, 3) : 1;
       const back = p < 0.3 ? 0 : Math.pow((p - 0.3) / 0.7, 1.6);
