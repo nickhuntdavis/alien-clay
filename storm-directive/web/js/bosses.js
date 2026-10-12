@@ -1,9 +1,9 @@
 'use strict';
-// Spawn Prawn - bosses: the run's roster (four of eight), the cinematic introduction, each boss's own
+// Spawn Prawn - bosses: the run's roster (four of fifteen), the cinematic introduction, each boss's own
 // abilities, strengths and weaknesses, the slow-motion death and the relic you choose afterwards.
 
 // ---------------------------------------------------------------- roster & spawning
-function bossRoster() { return shuffle(BOSSES.map(b => b.id)).slice(0, BOSSES_PER_RUN); }
+function bossRoster() { return shuffle(BOSSES.map(b => b.id)).slice(0, BOSSES_PER_RUN); } // (race mode; wave mode draws by tier: campaign.js campInit)
 const bossDef = id => (id === 'failed' && G && G.failedDef) || (typeof LV_BOSSES !== 'undefined' && LV_BOSSES[id]) || BOSSES.find(b => b.id === id); // (the Failed Experiment is built per run, campaign.js)
 
 function spawnBoss() {
@@ -29,6 +29,7 @@ function spawnBoss() {
   const e = mk(s.x, s.y);
   G.enemies.push(e);
   G.boss = e; seqBossStart();
+  bpSpawn(e); // (the boss pack: bosspack.js)
   if (def.twins) {
     const t = mk(s.x + Math.cos(s.a + 1.2) * 110, s.y + Math.sin(s.a + 1.2) * 110);
     e.name = 'MITCH'; t.name = 'OSIS'; e.twin = t; t.twin = e; t.pat = 2;
@@ -100,8 +101,9 @@ function bossDamageMul(e, src) {
   let m = 1;
   const el = src.elem;
   if (el && d.weak && d.weak[el]) m *= d.weak[el];
-  if (d.noForce && (el || 'phys') === 'phys' && !src.env) m = 0; // (the Phantom Pregnancy: Force passes straight through it; the womb itself still hurts)
-  if (el && d.resist && d.resist[el] != null) m *= d.resist[el];
+  if (d.noForce && (el || 'phys') === 'phys' && !src.env && !G.relics.teststrip) m = 0; // (the Phantom Pregnancy: Force passes straight through it; the womb itself still hurts)
+  if (el && d.resist && d.resist[el] != null) m *= G.relics.teststrip ? Math.max(1, d.resist[el]) : d.resist[el]; // (Test Strip: no resisting)
+  m *= bpDamageMul(e, src); // (the boss pack's gimmicks: bosspack.js)
   if (d.weakAoe && (IN_AOE || src.zoneHit)) m *= d.weakAoe;
   if (e.glaring) m *= 2;
   if (e.winded > G.t) m *= 2;
@@ -113,7 +115,8 @@ function bossDamageMul(e, src) {
   return m;
 }
 // Chad Prime flexes out of the way of a shot (true: it missed).
-function bossDodges(e) {
+function bossDodges(e, pr) {
+  if (bpBounce(e, pr)) return true; // (the Johnny's latex front: bosspack.js)
   if (!e.def.dodge || e.winded > G.t || Math.random() > e.def.dodge) return false;
   if (!(e.missT > G.realT)) { e.missT = G.realT + 0.4; floatText(e.x, e.y - e.r - 12, 'FLEX. MISS.', XR.white, 12, 0.6); }
   return true;
@@ -122,6 +125,7 @@ function bossDodges(e) {
 // ---------------------------------------------------------------- abilities (from bossAI)
 function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
   const p = G.player;
+  if (bpSpecial(e, pat, dt, dist, ux, uy, aim, bd)) return true; // (the boss pack's moves: bosspack.js)
   switch (pat) {
     case 'devour': {
       // The Queen pulls her own minions in and eats them.
@@ -222,6 +226,7 @@ function bossUpkeep(e, dt) {
   const d = e.def;
   if (d.resist && d.resist.fire === 0) e.burn = 0;
   // The Fever: freezing it snuffs out whatever it was doing; below 35% it rages.
+  bpUpkeep(e, dt);
   if (d.id === 'fever') {
     if (e.frozen > 0 && e.patT < 5) { e.patT = 5.4; e.fireT = 0.8; }
     if (e.hp < e.maxHp * 0.35 && !e.raged) { e.raged = true; banner('THE FEVER SPIKES: 42 DEGREES', PAL.danger); e.speed *= 1.5; }
@@ -246,6 +251,7 @@ function bossUpkeep(e, dt) {
 }
 // Matron's nurses circle her (from updateEnemies).
 function orbitNurse(e, dt) {
+  if (e.plugA != null) return bpPlug(e); // (the Mucus Plug's plugs sit in its seal: bosspack.js)
   const b = e.orbitBoss;
   if (!b || b.dead) { e.orbitBoss = null; return false; }
   e.orbA += 1.4 * dt;
@@ -280,6 +286,7 @@ function bossDown(e) {
     return;
   }
   G.revive = null;
+  bpDown(e); // (unseal, let go: bosspack.js)
   (G.bossDead || (G.bossDead = {}))[e.id] = true;
   if (e.twin) G.bossDead[e.twin.id] = true;
   G.boss = null;
@@ -354,7 +361,7 @@ function applyRelic(id) {
     case 'wobbly': P.grit += 2; break;
     case 'justkevin': { P.might += 0.06; P.haste += 0.06; P.speed += 0.06; P.crit += 0.06; const add = Math.round(P.maxHp * 0.06); P.maxHp += add; p.hp += add; break; }
     case 'kevinsmum': G.mumT = G.t + 10; break;
-    default: rrelicApply(id); // (the newer rivals' relics, rrelics.js)
+    default: if (!bpRelicApply(id)) rrelicApply(id); // (the boss pack's relics, bosspack.js; the newer rivals' relics, rrelics.js)
   }
   recomputeAll();
   banner('RELIC: ' + RELICS[id].name.toUpperCase(), PAL.reward);
@@ -368,11 +375,13 @@ function relicHit(e, d, src) {
   if (R.corrosive) { e.shred = Math.min(e.armour + 4, e.shred + 1); e.poison = Math.max(e.poison, 3); e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, d * 0.05, 'Acid Tongue'); }
   if (R.runninghot && !(e.boss && e.def.resist && e.def.resist.fire === 0)) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Running Hot'); }
   rrelicHit(e, d, src);
+  bpRelicHit(e, d);
 }
 function relicKill(e, src) {
   const R = G.relics, P = G.P;
   if (R.secondstomach) healPlayer(1, true);
   rrelicKill(e, src);
+  bpRelicKill(e);
   if (R.ulcer && G.zones.length < 200 && Math.random() < 0.5) G.zones.push({ x: e.x, y: e.y, r: 46, life: 3, max: 3, dps: (8 + G.level * 3) * P.might, elem: 'poison', pull: 0, color: '#b8f35a', tick: 0, src: { elem: 'poison', wname: 'Ulcer' } });
   if (R.heatstroke && e.burn > 0 && (G.heatF !== G.frameN || (G.heatN || 0) < 6)) {
     if (G.heatF !== G.frameN) { G.heatF = G.frameN; G.heatN = 0; }
@@ -395,10 +404,11 @@ function relicDamageIn(dmg, ent) {
     damageEnemy(ent, ent.dmg * 10, { elem: 'phys', wname: 'Bouncer', noCrit: true });
     dmg *= 0.6;
   }
-  return rrelicDamageIn(chemDamageIn(dmg, ent), ent);
+  return rrelicDamageIn(chemDamageIn(bpRelicIn(dmg, ent), ent), ent);
 }
 function relicHurt(d) {
   const R = G.relics, p = me(), P = G.P;
+  bpRelicHurt(d);
   if (R.acidblood) aoe(p.x, p.y, 130, d * 10, { elem: 'poison', wname: 'Bad Blood', noCrit: true }, '#b8f35a');
   if (R.triage && p.hp < P.maxHp * 0.25 && G.t >= (G.triageAt || 0)) {
     G.triageAt = G.t + 45;
@@ -408,6 +418,7 @@ function relicHurt(d) {
   }
 }
 function relicDodge() {
+  bpRelicDodge();
   if (!G.relics.precog) return;
   const p = me();
   for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < 115) { b.dead = true; spawnPart(b.x, b.y, '#9ef0ff', 1, 50, 0.25); }
@@ -417,6 +428,7 @@ function relicTick(dt) {
   const R = G.relics, p = me(), P = G.P;
   if (R.bedside) healPlayer(P.maxHp * 0.015 * dt, true);
   rrelicTick(dt);
+  bpRelicTick(dt);
   const fast = Math.hypot(p.vx || 0, p.vy || 0) > 110;
   if (R.marathon && fast) healPlayer(P.maxHp * 0.01 * dt, true);
   if (R.personalbest) G.pbDodge = fast; // (read by hurtPlayer's dodge roll)
@@ -494,6 +506,7 @@ function relicTick(dt) {
 function updateBosses(dt) {
   updateHazards(dt);
   updateRevive();
+  bpTick(dt);
   bossFx(dt);
 }
 
@@ -528,6 +541,7 @@ function bossFx(dt) {
 }
 function bossEnrage(e, ph) {
   e.bphase = ph;
+  bpPhase(e, ph);
   banner(ph === 2 ? e.name + ': FINAL PHASE' : e.name + ' IS ENRAGED', PAL.danger);
   G.fx.push({ type: 'flash', x: e.x, y: e.y, r: e.r * 5, color: '#ff3b3b', life: 0.5, max: 0.5 });
   ring(e.x, e.y, e.r * 7, '#ffffff', 1, 12); ring(e.x, e.y, e.r * 4, '#ff3b3b', 0.8, 8);
@@ -546,5 +560,5 @@ function hazardDanger(x, y, r) {
     // The death stare: autorun keeps well clear of the beam (it tracks you, so give it a wide berth).
     if (px * cx + py * cy > 0 && Math.abs(px * cy - py * cx) < 55 + r) d += 7;
   }
-  return d;
+  return d + bpDanger(x, y, r); // (sneezes, charge lanes and the Mucus Plug's seal: bosspack.js)
 }

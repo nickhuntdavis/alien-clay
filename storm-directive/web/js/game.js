@@ -2053,7 +2053,7 @@ function updateProjectiles(dt) {
     // Collision.
     forNear(pr.x, pr.y, pr.r, e => {
       if (pr.hits && pr.hits.includes(e.id)) return;
-      if (e.boss && bossDodges(e)) { (pr.hits || (pr.hits = [])).push(e.id); return; }
+      if (e.boss && bossDodges(e, pr)) { (pr.hits || (pr.hits = [])).push(e.id); return; }
       // Hit from behind: the tail takes it.
       if (canSnip(e) && Math.random() < 0.5) { const fx = G.player.x - e.x, fy = G.player.y - e.y, fl = Math.hypot(fx, fy) || 1, vl = Math.hypot(pr.vx, pr.vy) || 1; if ((pr.vx * fx + pr.vy * fy) / (fl * vl) > 0.5) cutTail(e); }
       if (pr.orbitT > 0) {

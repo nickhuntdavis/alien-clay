@@ -62,7 +62,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 8, 22 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
 7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 20, 40 you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).
 8. **Lateral Gene Transfer (junk DNA):** from 35s in, then every 40 to 55s, one ordinary enemy on screen carries junk DNA (a white double helix round it, and 50% more health). Kill it within 30s and it drops a floating helix; swim into that (it fades after 20s) and you absorb a small power of whatever it was, shown on screen at once; the same kind again stacks, up to 3 times. **Mutations** (pick one of four; 6 slots) now come from skipping a sequence splice and from stashes hidden in campaign levels.
-9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Fever Pitch. Each run meets 4 of the 9, in a random order. Beat one and choose one of its three relics.
+9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Fever Pitch. Each run meets 4 of the 15, in a random order. Beat one and choose one of its three relics.
 10. **Rarity** multiplies a card's value:
 
 | Rarity | Multiplier | Weapon levels granted | Roll weight (relative) | Share of cards offered (mid-run) |
@@ -997,7 +997,7 @@ Own both weapons at Lv 5+ and the pairing switches on. In the game they stay hid
 
 ## Bosses and relics
 
-A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 9 at random; a fifth (a tougher repeat) waits until the Fever Pitch. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
+A boss arrives every 1.75 minutes of game time, four in all. Each run draws 4 of these 15 at random; a fifth (a tougher repeat) waits until the Fever Pitch. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.
 
 In a race (Standard Issue) the bosses come in softer, in run order: health x0.2, x0.35, x0.5, x0.7 and attack strength x0.5, x0.65, x0.8, x0.95. Everything there also hits you for 75% of its listed damage.
 
@@ -1005,7 +1005,7 @@ In a race (Standard Issue) the bosses come in softer, in run order: health x0.2,
 
 > "Oh good. Dessert swam in."
 
-A white blood cell who ate her way to the top. She summons swarms, then swallows them to heal. Base HP 2600, armour 2, speed 46.
+A white blood cell who ate her way to the top. She summons swarms, then swallows them to heal. Base HP 2600, armour 2, speed 46. Wave mode tier 2.
 
 - **Strengths:** Devours her own minions to heal; Summons swarms of swimmers.
 - **Weaknesses:** Acid: +60% damage; Slow: kite her and clear the snacks.
@@ -1020,7 +1020,7 @@ A white blood cell who ate her way to the top. She summons swarms, then swallows
 
 > "Papers. Now. No, those are not papers. Those are bullets."
 
-A Y-shaped wall of protein. Heavily armoured, cannot be moved or saponified, and charges in straight lines. Base HP 3800, armour 12, speed 36.
+A Y-shaped wall of protein. Heavily armoured, cannot be moved or saponified, and charges in straight lines. Base HP 3800, armour 12, speed 36. Wave mode tier 3.
 
 - **Strengths:** 12 armour: small hits barely scratch it; Cannot be knocked back or saponified.
 - **Weaknesses:** Static: +60% damage; Armour shred sticks for longer; Charges are telegraphed: side-step.
@@ -1035,7 +1035,7 @@ A Y-shaped wall of protein. Heavily armoured, cannot be moved or saponified, and
 
 > "I've read your genome. I've seen better genomes on a crouton."
 
-It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink. Base HP 3400, armour 4, speed 52.
+It teleports next to you, then glares: a beam that follows you around. While it glares, it cannot blink. Base HP 3400, armour 4, speed 52. Wave mode tier 2.
 
 - **Strengths:** Teleports right next to you; Death-stare beam that tracks you.
 - **Weaknesses:** Takes double damage while glaring; Blood Magic: +50% damage.
@@ -1050,7 +1050,7 @@ It teleports next to you, then glares: a beam that follows you around. While it 
 
 > "Visiting hours are over. Forever."
 
-Runs the ward with an iron bedpan. Heals every enemy on screen and hides behind a ring of nurses. Base HP 3000, armour 3, speed 40.
+Runs the ward with an iron bedpan. Heals every enemy on screen and hides behind a ring of nurses. Base HP 3000, armour 3, speed 40. Wave mode tier 2.
 
 - **Strengths:** Heals every enemy nearby on her rounds; Nurse cells orbit her and soak your shots.
 - **Weaknesses:** Ethanol: +60%, and halves her healing (she never touches the stuff); Kill her nurses: she panics and takes +50%.
@@ -1065,7 +1065,7 @@ Runs the ward with an iron bedpan. Heals every enemy on screen and hides behind 
 
 > "Everything dissolves eventually. You're just early."
 
-A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller blobs when hurt. Base HP 3600, armour 0, speed 44.
+A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller blobs when hurt. Base HP 3600, armour 0, speed 44. Wave mode tier 2.
 
 - **Strengths:** Acid puddles eat into you; Acid only does half damage to it; Splits off blobs at 60% and 30% health.
 - **Weaknesses:** Alkali: +60% damage (an antacid); Blasts and pools: +40% damage.
@@ -1080,7 +1080,7 @@ A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller
 
 > "Bro. Bro. You swim like a sneeze."
 
-The biggest swimmer anyone has ever seen. Dashes through you three times, then has to catch his breath. Base HP 3000, armour 5, speed 95.
+The biggest swimmer anyone has ever seen. Dashes through you three times, then has to catch his breath. Base HP 3000, armour 5, speed 95. Wave mode tier 3.
 
 - **Strengths:** Blindingly fast triple dash; Flexes: dodges 30% of your shots.
 - **Weaknesses:** Winded after every dash: stunned, double damage; Blasts, beams and pools never miss him.
@@ -1095,7 +1095,7 @@ The biggest swimmer anyone has ever seen. Dashes through you three times, then h
 
 > "Is it hot in here, or is it me? It's me. It's always me."
 
-A walking temperature spike. Rings of heat, scalding ground, and it runs hotter and faster as it dies. Base HP 3200, armour 2, speed 48.
+A walking temperature spike. Rings of heat, scalding ground, and it runs hotter and faster as it dies. Base HP 3200, armour 2, speed 48. Wave mode tier 3.
 
 - **Strengths:** Immune to Acid: sweats it straight off; Rages below 35% health: twice as fast.
 - **Weaknesses:** Alkali: double damage; Saponifying it snuffs out its current attack.
@@ -1110,7 +1110,7 @@ A walking temperature spike. Rings of heat, scalding ground, and it runs hotter 
 
 > "We finish each other's... ...swimmers."
 
-Identical twins who fight as one. Kill one and the other rebuilds it in 8 seconds, unless you finish both. Base HP 1900 each, armour 2, speed 58.
+Identical twins who fight as one. Kill one and the other rebuilds it in 8 seconds, unless you finish both. Base HP 1900 each, armour 2, speed 58. Wave mode tier 2.
 
 - **Strengths:** Revive each other; Crossfire from two sides.
 - **Weaknesses:** Finish both within 8 seconds; Blasts hit both when they huddle: +30%.
@@ -1125,7 +1125,7 @@ Identical twins who fight as one. Kill one and the other rebuilds it in 8 second
 
 > "Boo. Sorry. Habit."
 
-A pregnancy that was never really there. It drifts straight through walls and growths, and Force passes through it as if it were mist. The womb itself still hurts it. Base HP 3000, armour 0, speed 50.
+A pregnancy that was never really there. It drifts straight through walls and growths, and Force passes through it as if it were mist. The womb itself still hurts it. Base HP 3000, armour 0, speed 50. Wave mode tier 2.
 
 - **Strengths:** Immune to Force damage; Swims through obstacles.
 - **Weaknesses:** Blood Magic: +50% damage; Terrain still hurts it: Acid Crypts, cilia and ATP bursts.
@@ -1135,6 +1135,96 @@ A pregnancy that was never really there. It drifts straight through walls and gr
 | **See-Through** | +20% dodge. Half the bullets that should hit you go straight through. |
 | **Poltergeist** | Every 3s the nearest enemy is picked up and thrown at the toughest one nearby. Both take a beating. |
 | **Ectoplasm** | Bullets sometimes pass straight through you: +15% dodge. |
+
+### THE LITMUS STRIP: Tester of Everything, Twice
+
+> "Hold still. I need to know exactly how acidic you are."
+
+A strip of paper with a superiority complex. Only one damage type hurts it at a time, shown by its colour, and it changes every 12 seconds. Right after each change it is soaked for 4 seconds: everything hurts it. Base HP 1500, armour 0, speed 40. Wave mode tier 1.
+
+- **Strengths:** Shrugs off three quarters of every damage type but its current colour; Changes colour every 12 seconds (faster when hurt).
+- **Weaknesses:** Its colour takes +50% damage; Soaked for 4 seconds after every change: anything goes; It likes to test what you are carrying.
+
+| Trophy | Effect |
+|---|---|
+| **Universal Indicator** | +6% damage and +3% fire rate for every different damage type you carry when you take it. |
+| **Blue to Red** | Every hit has a 15% chance to corrode its target (Acid) and a 15% chance to lather it (Alkali). |
+| **Test Strip** | Bosses can no longer resist or ignore any of your damage types. |
+
+### THE JOHNNY: Ninety-Eight Percent Effective
+
+> "Nothing gets past me. Well. Two percent."
+
+A sheath of latex with one job. Its front sends your shots straight back at you; its open end at the back has no defence at all. It charges, overshoots, and has to turn round. Base HP 1500, armour 0, speed 52. Wave mode tier 1.
+
+- **Strengths:** Shots that hit its front bounce back at you; Blasts and beams on its front do only 40%.
+- **Weaknesses:** Hit it from behind: no protection at all; After a charge it is stuck facing away: +50% from behind.
+
+| Trophy | Effect |
+|---|---|
+| **Rubber Johnny** | Every 8s a latex skin catches the next hit completely, then snaps back in a blast around you. |
+| **Ribbed** | +2 Headstrong and +4 armour. For their displeasure. |
+| **Reservoir Tip** | Damage you take is collected. Every 10s it all comes back out as a blast around you, ten times over. |
+
+### THE MUCUS PLUG: Doorman of the Cervix
+
+> "Nobody in, nobody out. It is a fertile window, not a free-for-all."
+
+A doorman made of snot. It seals you in a tight ring of mucus with it. Four plugs hold the seal: break one and the ring widens, break all four and it is out in the open. Base HP 1500, armour 1, speed 34. Wave mode tier 1.
+
+- **Strengths:** Seals you into a small ring; Lobs sticky globs that pool on the floor.
+- **Weaknesses:** Break its four plugs: each one widens the ring; All four gone: it takes +25% damage.
+
+| Trophy | Effect |
+|---|---|
+| **Plugged** | Enemies that touch you get stuck in mucus: 65% slower for 3s. |
+| **Snot Rocket** | Every 4s you hock a glob at the nearest enemy: it bursts into a sticky puddle that eats at everything in it. |
+| **Mucous Membrane** | +20% max HP and pickups stick to you from 50% further away. |
+
+### THE CRAMP: Knot of the Month
+
+> "Come here. Closer. CLOSER. Now do not move for an hour."
+
+A muscle in a permanent clench. It grabs you with a tendon and reels you in, slowly, towards its rings. Sprint and the tendon snaps: it pulls a muscle and is left winded. Base HP 1500, armour 2, speed 38. Wave mode tier 1.
+
+- **Strengths:** Grabs you and drags you in; Rings of bullets up close.
+- **Weaknesses:** Sprint while grabbed: it snaps, winded, double damage; Slow: the pull can be outswum.
+
+| Trophy | Effect |
+|---|---|
+| **Stitch** | Every 5s you yank the three nearest enemies towards you and leave them dazed for 1s. |
+| **Charley Horse** | +20% swim speed, and sprinting costs 40% less stamina. |
+| **Clench** | While you are barely moving, you take 35% less damage and heal 1% of your max HP every second. |
+
+### THE SNEEZE: Patient Zero, Zero Manners
+
+> "Ah... ah... no, gone. Ah... AH..."
+
+A common cold with uncommon range. It winds up a huge cone of spray and lets go. The wind-up is long and obvious: read it and step out of the way. After a sneeze it has to sniff. Base HP 1500, armour 1, speed 44. Wave mode tier 1.
+
+- **Strengths:** Huge cone blasts that hit very hard; Two cones at once when it is nearly done.
+- **Weaknesses:** Every sneeze is telegraphed for over a second; Sniffing after each sneeze: +30% damage.
+
+| Trophy | Effect |
+|---|---|
+| **Bless You** | +15% dodge. Every dodge makes you sneeze on whatever is in front of you. |
+| **Atishoo** | Every 6s you sneeze a wide cone ahead of you: big damage and a hard shove. |
+| **Catch It, Bin It, Kill It** | Enemies you kill sneeze on their neighbours, hexing them: they take more from everything. |
+
+### THE KIDNEY STONE: Six Millimetres of Pure Agony
+
+> "I am not going anywhere. Not without a fight. And a lot of screaming."
+
+A crystal of calcium oxalate the size of a grudge. 40 armour: ordinary hits barely scratch it. Armour shred is the way in, and it sticks: the stone cannot grow it back. Every enrage cracks 10 armour off. Base HP 1500, armour 40, speed 30. Wave mode tier 2.
+
+- **Strengths:** 40 armour: small hits do almost nothing; Rolls at you, leaving gravel.
+- **Weaknesses:** Armour shred sticks to it for good; Static: +50% (lithotripsy); Cracks lose 10 armour each.
+
+| Trophy | Effect |
+|---|---|
+| **Lithotripsy** | Every hit shreds 2 armour. |
+| **Calcified** | +12 armour and +25% max HP, but you swim 8% slower. |
+| **Pissing Razor Blades** | When you are hit, crystal shards burst out of you, shredding armour and cutting everything nearby. |
 
 ## Run events
 
@@ -1899,7 +1989,7 @@ The hardest achievements (Chemical Warfare: ten different reactions in a run; Br
 
 ## Wave mode (The Petri Dish)
 
-The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run, on top of the ones you have. Waves 1 to 3 bring them in a fixed order; after that they are drawn at random from the next 6 you have not had (so nothing big comes early). What a wave holds is a surprise until it lands. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
+The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run, on top of the ones you have. Waves 1 to 3 bring them in a fixed order; after that they are drawn at random from the next 6 you have not had (so nothing big comes early). What a wave holds is a surprise until it lands. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Bosses come by tier: wave 5 is always a tier 1 boss (The Litmus Strip, The Johnny, The Mucus Plug, The Cramp, The Sneeze: each one teaches a single mechanic), waves 10 and 15 tier 2, and wave 20 tier 3 (The Antibody Colossus, Chad Prime, The Fever). Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
 
 **Terrain you can enter:** cilia beds let you through but tangle you (you crawl and cannot attack until you are out); acid crypts let you in but burn, and the acid clings to you for 2.5 seconds after you leave. Enemies are still shoved out of cilia and cannot enter acid.
 
@@ -1920,6 +2010,12 @@ From wave 15 the boss can be **the Failed Experiment**: a copy of one of your ow
 | THE FEVER | Forty-One Degrees | Antibody, Acid Bubble, Also-Ran, Cytokine Caster | ring | firering |
 | MITCH & OSIS | Double Dose | Mitotic Cell, Also-Ran, Nurse Cell | near | charge, spiral |
 | THE PHANTOM PREGNANCY | Something in the Dish | Ghost Swimmer, Spermlet Swarm, Quantum Swimmer | ring | blink |
+| THE LITMUS STRIP | Change of Colour | Antibody, Also-Ran, Sprinter, Spermlet Swarm | ring | litmusdrip |
+| THE JOHNNY | Safe Sex | Headbutter, Also-Ran, Sprinter | behind | johnnyroll |
+| THE MUCUS PLUG | Sealed In | Also-Ran, Mitotic Cell, Spermlet Swarm | near | mucusspit |
+| THE CRAMP | Time of the Month | Sprinter, Also-Ran, Headbutter | ring | crampgrip |
+| THE SNEEZE | Bless You | Also-Ran, Spermlet Swarm, Sprinter, Krill | flank | sneezecone |
+| THE KIDNEY STONE | Passing Through | Mucus Wall, Antibody, Also-Ran, Macrophage | behind | stoneroll |
 
 **Wave conditions:** from wave 4, about half the ordinary waves (never two in a row) come with something wrong in the dish for the whole wave. Its name stays on screen until the wave is beaten.
 
