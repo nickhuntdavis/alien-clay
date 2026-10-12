@@ -806,11 +806,12 @@ function damageEnemy(e, dmg, src) {
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
-  if (!src.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
+  if (!src.noCrit && !e.def.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
   if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
+  d = foes2Dmg(e, d, src); // (ordinary weak/resist, Litmus, Interferon shields, Puffball spores: foes2.js)
   if (e.egg) {
     // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
     if (!eggBreakable() || !e.woke) {
@@ -841,7 +842,7 @@ function damageEnemy(e, dmg, src) {
   if (!src.dot && e.puddleT > G.t) puddleQuirks(e, src, dmg); // lightning, fire and frost meet a puddle
   if (!src.dot) dmgNumber(e, d, src, crit);
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
-  if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy) {
+  if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy && !(e.tethT > G.t)) { // (tethered by a Fibrin Weaver: foes2.js)
     const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * (e.chill > 0 ? 1.5 : 1); // (lathered enemies slide further)
     const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
     const l = Math.hypot(kx, ky) || 1;
@@ -1111,6 +1112,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
+  dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt(); // (Personal Space: seqfeats.js)
   dmg = relicDamageIn(dmg, ent);
@@ -1179,6 +1181,7 @@ function makeEnemy(def, x, y, opts) {
   }
   e.armK = Math.min(3, Math.pow(hpMul(t), 0.3)); // armour keeps pace a little (x1 at the start, about x2.8 by minute 9)
   heatEnemy(e); // Immune Response
+  foes2Make(e); // (type caps, G.typeN: foes2.js)
   return e;
 }
 
@@ -1264,11 +1267,12 @@ function spawnRandom() {
   // Shooters become more common as the storm builds.
   // Shooters stay as common as they were before the swarms got denser: the extra bodies are melee and swarmers.
   const wOf = d => d.w * (d.shoot ? 0.4 * (1 + t / 300) : 1);
-  for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t) { pool.push(d); tot += wOf(d); } }
+  for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t && foeRoom(d)) { pool.push(d); tot += wOf(d); } } // (types at their cap roll another: foes2.js)
+  if (!pool.length) return;
   let x = Math.random() * tot, def = pool[0];
   for (const d of pool) { x -= wOf(d); if (x <= 0) { def = d; break; } }
   const spot = spotOn() && Math.random() < SPOT.share;
-  if (spot) def = G.spot.cur; // the newcomer's turn
+  if (spot && foeRoom(G.spot.cur)) def = G.spot.cur; // the newcomer's turn
   const p = spawnPos();
   const n0 = Math.ceil((def.group || 1) * 0.8), n = Math.max(n0, spot && def.hp < 100 && !def.pack ? 3 : 1); // (a bunch of them, unless they're big)
   if (n > n0) G.spawnAcc = (G.spawnAcc || 0) - (n - n0); // ...charged to the spawn budget, so the slide is no busier than usual
@@ -2067,6 +2071,7 @@ function updateProjectiles(dt) {
     forNear(pr.x, pr.y, pr.r, e => {
       if (pr.hits && pr.hits.includes(e.id)) return;
       if (e.boss && bossDodges(e)) { (pr.hits || (pr.hits = [])).push(e.id); return; }
+      if (e.def.shotFx) { const fr = foes2Shot(pr, e); if (fr === 2) { pr.dead = true; return true; } if (fr) { (pr.hits || (pr.hits = [])).push(e.id); return; } } // (Mirror, Grease, Platelet: foes2.js)
       // Hit from behind: the tail takes it.
       if (canSnip(e) && Math.random() < 0.5) { const fx = G.player.x - e.x, fy = G.player.y - e.y, fl = Math.hypot(fx, fy) || 1, vl = Math.hypot(pr.vx, pr.vy) || 1; if ((pr.vx * fx + pr.vy * fy) / (fl * vl) > 0.5) cutTail(e); }
       if (pr.orbitT > 0) {
@@ -2226,7 +2231,7 @@ function updatePlayer(dt) {
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
   const speed = 165 * P.speed * oobSpeed() * // (base 165: was 150; Out of Body: faster)
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed();
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
@@ -2620,6 +2625,7 @@ function update(dt) {
   safely('tutTick', () => tutTick()); // first-time tutorial cards (tutorial.js)
   safely('grantsTick', () => grantsTick(dt)); // stain grants (grants.js)
   safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
+  safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)
   safely('boonTick', () => boonTick(dt));
   updateTethers(dt);
   meleeTick(dt);

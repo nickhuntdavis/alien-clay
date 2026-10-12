@@ -57,6 +57,7 @@ const FOE_AI = {
 function foeKill(e, src) {
   broodKill(e); wormKill(e); // (brood.js)
   rebornKill(e, src); // (reborn.js)
+  foes2Kill(e, src); // (caps, Stem Cell corpses, spores, glitter: foes2.js)
   if (e.def.rebuild && !e.charmed && G.enemies.length < CAPS.enemies) {
     const x = e.x, y = e.y, elite = e.elite;
     floatText(x, y - 30, "I'LL BE BACK", '#ff3b3b', 15, 1.4);

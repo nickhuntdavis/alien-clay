@@ -2087,6 +2087,7 @@ function drawEnemy(e, lod) {
     const label = `${e.name}  LV ${e.lvl}` + (e.mode === 'hunt' ? '  !' : e.mode === 'flee' ? '  (fleeing)' : '');
     ctx.strokeText(label, x, by - 5); ctx.fillStyle = e.color; ctx.fillText(label, x, by - 5);
   }
+  if (e.ifn > 0 || e.cortT > G.t || e.plasT > G.t) foes2Fx(e, x, y, r); // (support buffs: foes2.js)
   enemyRing(e, x, y, r);
 }
 // The pause menu's YOU portrait: your sperm exactly as it looks in play (upgrades and every active sequence's

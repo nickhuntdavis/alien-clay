@@ -1305,6 +1305,16 @@ One power per enemy type (offspring such as Daughter Cells carry their parent's)
 | Water Bear | **Hard to Kill** | +4 armour below 30% HP | +12 armour below 30% HP |
 | Alpha Swimmer | **Alpha** | +8% damage | +24% damage |
 | Booster | **Booster Shot** | +8% fire rate | +24% fire rate |
+| Litmus Cell | **Litmus Test** | +6% damage | +18% damage |
+| Mirror Cell | **Smoke and Mirrors** | +4% dodge | +12% dodge |
+| Shell Cell | **Shell Suit** | +2 armour | +6 armour |
+| Puffball | **Spore Print** | +8% area | +24% area |
+| Grease Ball | **Greased Lightning** | +6% swim speed | +18% swim speed |
+| Leech | **Second Wind** | stamina recovers 20% faster | stamina recovers 60% faster |
+| Platelet Clump | **Quick Clotter** | +0.5 HP/s regeneration | +1.5 HP/s regeneration |
+| Callus | **Hard Skin** | +10% crit damage | +30% crit damage |
+| Plasma Cell | **Mass Production** | +6% fire rate | +18% fire rate |
+| Cortisol Puff | **Fight or Flight** | +5% swim speed | +15% swim speed |
 
 ## Mutations
 
@@ -1748,44 +1758,67 @@ Unlocked wildcards can be drafted by any sequence.
 
 HP and damage are at the start; both scale up over the run. **From** is the earliest spawn time.
 
-| Enemy | HP | Damage | Speed | Armour | XP | From | Behaviour |
-|---|---|---|---|---|---|---|---|
-| **Also-Ran** | 14 | 8 | 64 | 0 | 1 | 0:00 | Swims straight at you |
-| **Sprinter** | 6 | 5 | 125 | 0 | 1 | 0:15 | Swims straight at you |
-| **Antibody** | 20 | 6 | 58 | 0 | 3 | 0:35 | Keeps distance and shoots |
-| **Krill** | 5 | 3 | 140 | 0 | 0.5 | 0:45 | Swarms in schools |
-| **Macrophage** | 60 | 16 | 44 | 3 | 4 | 0:55 | Swims straight at you |
-| **Amoeba** | 150 | 14 | 30 | 1 | 10 | 1:10 | Swallows you if it touches |
-| **Paramecium** | 30 | 10 | 105 | 0 | 4 | 1:15 | Darts in bursts |
-| **Mitotic Cell** | 42 | 10 | 52 | 0 | 3 | 1:25 | Swims straight at you |
-| **Spermlet Swarm** | 4 | 4 | 145 | 0 | 0.5 | 1:35 | Swims straight at you |
-| **Acid Bubble** | 16 | 18 | 98 | 0 | 2 | 1:40 | Rushes in and explodes |
-| **Quantum Swimmer** | 22 | 9 | 72 | 0 | 3 | 1:45 | Teleports around |
-| **Rotifer** | 40 | 8 | 50 | 1 | 5 | 1:50 | Steals XP and runs |
-| **Nurse Cell** | 30 | 6 | 56 | 1 | 4 | 2:00 | Heals nearby enemies |
-| **Headbutter** | 50 | 18 | 56 | 2 | 4 | 2:10 | Winds up, then charges |
-| **Pinworm** | 70 | 12 | 60 | 1 | 5 | 2:20 | Swims straight at you |
-| **Mucus Wall** | 95 | 14 | 40 | 8 | 6 | 2:30 | Damages anything close |
-| **Volvox** | 110 | 14 | 34 | 2 | 8 | 2:40 | Swims straight at you |
-| **Cytokine Caster** | 45 | 8 | 46 | 1 | 6 | 2:50 | Keeps distance and shoots |
-| **Diatom** | 55 | 8 | 24 | 6 | 6 | 3:00 | Keeps distance and shoots |
-| **Natural Killer** | 48 | 13 | 70 | 2 | 6 | 3:00 | Weaves, crouches, pounces; acid blood |
-| **Ghost Swimmer** | 35 | 10 | 82 | 0 | 5 | 3:15 | Phases in and out |
-| **Brood Cyst** | 140 | 14 | 30 | 2 | 10 | 3:20 | brood |
-| **Mother Cell** | 75 | 10 | 40 | 2 | 8 | 3:30 | Spawns minions |
-| **Planarian** | 34 | 10 | 72 | 1 | 2 | 3:50 | planarian |
-| **Enzyme Spire** | 85 | 10 | 16 | 4 | 8 | 4:00 | Sits still and shoots |
-| **Plasmodium** | 380 | 22 | 22 | 3 | 24 | 4:00 | Swallows you if it touches |
-| **Killer T-Cell** | 26 | 6 | 52 | 0 | 5 | 4:20 | Keeps distance and shoots |
-| **Water Bear** | 240 | 20 | 30 | 10 | 14 | 4:30 | Swims straight at you |
-| **Alpha Swimmer** | 420 | 30 | 34 | 12 | 20 | 5:00 | Swims straight at you |
-| **Booster** | 120 | 14 | 62 | 6 | 10 | 5:00 | Laser lock-on, burst fire, comes back once as a Second Dose |
-| **Daughter Cell** | 12 | 5 | 92 | 0 | 1 | Spawned by others | Swims straight at you |
-| **Daughter Colony** | 26 | 6 | 62 | 0 | 2 | Spawned by others | Swims straight at you |
-| **Candida** | 18 | 5 | 22 | 0 | 1 | Spawned by others | Buds new yeast cells |
-| **Pepsinator Jr** | 60 | 14 | 72 | 0 | 6 | Spawned by others | Swims straight at you |
-| **Second Dose** | 45 | 12 | 92 | 0 | 6 | Spawned by others | Laser lock-on, burst fire |
-| **Broodling** | 10 | 6 | 108 | 0 | 0.5 | Spawned by others | broodling |
+**Cap** is the most of that type on the slide at once (support cells 3, build-punishers 6, joke ones 8); a spawn over its cap becomes another type. **Weak/resists** multiply damage of that type (the Litmus Cell's resistance follows whichever damage type you have dealt most this run).
+
+| Enemy | HP | Damage | Speed | Armour | XP | From | Cap | Weak / resists | Behaviour |
+|---|---|---|---|---|---|---|---|---|---|
+| **Also-Ran** | 14 | 8 | 64 | 0 | 1 | 0:00 |  |  | Swims straight at you |
+| **Sprinter** | 6 | 5 | 125 | 0 | 1 | 0:15 |  |  | Swims straight at you |
+| **Antibody** | 20 | 6 | 58 | 0 | 3 | 0:35 |  |  | Keeps distance and shoots |
+| **Krill** | 5 | 3 | 140 | 0 | 0.5 | 0:45 |  |  | Swarms in schools |
+| **Macrophage** | 60 | 16 | 44 | 3 | 4 | 0:55 |  |  | Swims straight at you |
+| **Amoeba** | 150 | 14 | 30 | 1 | 10 | 1:10 |  |  | Swallows you if it touches |
+| **Paramecium** | 30 | 10 | 105 | 0 | 4 | 1:15 |  |  | Darts in bursts |
+| **Navel Fluff** | 18 | 3 | 34 | 0 | 0.6 | 1:15 | 8 | Static x1.5 | Drifts about. Nobody knows where it comes from |
+| **Lost Tadpole** | 1 | 0 | 46 | 0 | 0.5 | 1:20 | 8 | Brine x2 | 1 HP. Harmless. Asks for directions |
+| **Mitotic Cell** | 42 | 10 | 52 | 0 | 3 | 1:25 |  |  | Swims straight at you |
+| **Stray Pube** | 10 | 0 | 30 | 0 | 0.5 | 1:30 | 8 | Alkali x1.6 | Drifts in; touching it tangles you briefly |
+| **Spermlet Swarm** | 4 | 4 | 145 | 0 | 0.5 | 1:35 |  |  | Swims straight at you |
+| **Glitter** | 8 | 2 | 76 | 0 | 0.4 | 1:35 | 8 | Peroxide x1.3, Static x0.6 | Comes back once after you kill it |
+| **Acid Bubble** | 16 | 18 | 98 | 0 | 2 | 1:40 |  |  | Rushes in and explodes |
+| **Bogey** | 16 | 0 | 58 | 0 | 0.6 | 1:40 | 8 | Brine x1.4, Alkali x0.7 | Sticks to you: 5% slower each (up to 20%) |
+| **Quantum Swimmer** | 22 | 9 | 72 | 0 | 3 | 1:45 |  |  | Teleports around |
+| **Rotifer** | 40 | 8 | 50 | 1 | 5 | 1:50 |  |  | Steals XP and runs |
+| **Puffball** | 42 | 8 | 42 | 0 | 4 | 1:50 | 6 | Acid x1.3, Ethanol x0.6 | Blasts and pools burst it into spores |
+| **Bit of Sweetcorn** | 110 | 0 | 32 | 6 | 2 | 1:55 | 8 | Acid x1.2, Force x0.6, Ethanol x0.6 | Tough and completely harmless |
+| **Nurse Cell** | 30 | 6 | 56 | 1 | 4 | 2:00 |  |  | Heals nearby enemies |
+| **Litmus Cell** | 40 | 10 | 50 | 1 | 4 | 2:00 | 6 | Peroxide x1.4 | Resists the damage type you have dealt most this run |
+| **Headbutter** | 50 | 18 | 56 | 2 | 4 | 2:10 |  |  | Winds up, then charges |
+| **Leech** | 30 | 7 | 72 | 0 | 4 | 2:10 | 6 | Brine x1.6, Blood Magic x0.5 | Drains your stamina within 120 |
+| **Pinworm** | 70 | 12 | 60 | 1 | 5 | 2:20 |  |  | Swims straight at you |
+| **Cortisol Puff** | 30 | 6 | 50 | 0 | 5 | 2:25 | 3 | Ethanol x1.4 | Allies within 180 swim 30% faster |
+| **Mucus Wall** | 95 | 14 | 40 | 8 | 6 | 2:30 |  |  | Damages anything close |
+| **Mirror Cell** | 34 | 9 | 54 | 0 | 4 | 2:30 | 6 | Acid x1.4, Static x0.6 | Reflects shots that hit its front |
+| **Volvox** | 110 | 14 | 34 | 2 | 8 | 2:40 |  |  | Swims straight at you |
+| **Platelet Clump** | 46 | 10 | 46 | 2 | 4 | 2:40 | 6 | Ethanol x1.4, Blood Magic x0.6 | Stops piercing shots dead |
+| **Complement Protein** | 28 | 6 | 60 | 0 | 5 | 2:45 | 3 | Blood Magic x1.4 | Marks you: enemies hit you 25% harder for 5s |
+| **Cytokine Caster** | 45 | 8 | 46 | 1 | 6 | 2:50 |  |  | Keeps distance and shoots |
+| **Shell Cell** | 46 | 12 | 38 | 15 | 5 | 2:55 | 6 | Acid x1.5, Force x0.7 | 15 armour |
+| **Plasma Cell** | 38 | 7 | 46 | 1 | 6 | 2:55 | 3 | Static x1.4 | Shooters within 200 fire 40% faster |
+| **Diatom** | 55 | 8 | 24 | 6 | 6 | 3:00 |  |  | Keeps distance and shoots |
+| **Natural Killer** | 48 | 13 | 70 | 2 | 6 | 3:00 |  |  | Weaves, crouches, pounces; acid blood |
+| **Interferon** | 34 | 6 | 46 | 0 | 6 | 3:05 | 3 | Acid x1.3 | Shields allies within 170 (30 HP, scaling) |
+| **Grease Ball** | 52 | 11 | 52 | 2 | 5 | 3:10 | 6 | Alkali x1.5, Brine x0.6 | Homing shots slide off; cannot be knocked back |
+| **Ghost Swimmer** | 35 | 10 | 82 | 0 | 5 | 3:15 |  |  | Phases in and out |
+| **Brood Cyst** | 140 | 14 | 30 | 2 | 10 | 3:20 |  |  | brood |
+| **Callus** | 58 | 12 | 40 | 4 | 5 | 3:20 | 6 | Brine x1.4, Force x0.8 | Immune to crits |
+| **Fibrin Weaver** | 44 | 8 | 40 | 1 | 6 | 3:25 | 3 | Peroxide x1.4, Force x0.8 | Tethers up to 4 allies: they cannot be knocked back |
+| **Mother Cell** | 75 | 10 | 40 | 2 | 8 | 3:30 |  |  | Spawns minions |
+| **Planarian** | 34 | 10 | 72 | 1 | 2 | 3:50 |  |  | planarian |
+| **Stem Cell** | 44 | 6 | 36 | 1 | 8 | 3:50 | 3 | Static x1.3 | Revives a dead ordinary enemy every 10s |
+| **Enzyme Spire** | 85 | 10 | 16 | 4 | 8 | 4:00 |  |  | Sits still and shoots |
+| **Plasmodium** | 380 | 22 | 22 | 3 | 24 | 4:00 |  |  | Swallows you if it touches |
+| **Killer T-Cell** | 26 | 6 | 52 | 0 | 5 | 4:20 |  |  | Keeps distance and shoots |
+| **Water Bear** | 240 | 20 | 30 | 10 | 14 | 4:30 |  |  | Swims straight at you |
+| **Alpha Swimmer** | 420 | 30 | 34 | 12 | 20 | 5:00 |  |  | Swims straight at you |
+| **Booster** | 120 | 14 | 62 | 6 | 10 | 5:00 |  |  | Laser lock-on, burst fire, comes back once as a Second Dose |
+| **Daughter Cell** | 12 | 5 | 92 | 0 | 1 | Spawned by others |  |  | Swims straight at you |
+| **Daughter Colony** | 26 | 6 | 62 | 0 | 2 | Spawned by others |  |  | Swims straight at you |
+| **Candida** | 18 | 5 | 22 | 0 | 1 | Spawned by others |  |  | Buds new yeast cells |
+| **Pepsinator Jr** | 60 | 14 | 72 | 0 | 6 | Spawned by others |  |  | Swims straight at you |
+| **Second Dose** | 45 | 12 | 92 | 0 | 6 | Spawned by others |  |  | Laser lock-on, burst fire |
+| **Broodling** | 10 | 6 | 108 | 0 | 0.5 | Spawned by others |  |  | broodling |
+| **Spore** | 6 | 4 | 84 | 0 | 0.3 | Spawned by others | 10 | Acid x1.3 | Swims straight at you |
 
 ### First sightings
 
@@ -1831,6 +1864,27 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Broodling** | A little passenger from a Brood Cyst. Fired at you, it just chases. From a burst cyst, it blinks red and dives at you to blow up. | Anything that hits a crowd. Keep moving when a cyst bursts. |
 | **Planarian** | A looping flatworm. Destroy a segment and it splits in two there, and each half slowly grows back to full length. | Kill the head end first, or hit it all at once. Chipping the middle makes more worms. |
 | **Natural Killer** | A Natural Killer: it weaves in, crouches, then pounces. Its blood is acid. | When it crouches, get clear. Don't stand where it dies. |
+| **Litmus Cell** | A cell that has been reading your lab book. It resists whichever damage type you have dealt most this run: its paper strip shows which. | Switch it up. A second damage type in your build earns its keep here. Peroxide bleaches it. |
+| **Mirror Cell** | Polished to a shine. Shots that hit its front bounce straight back at you. | Hit it from the side or behind, or use blasts and pools. Acid etches the silvering. |
+| **Shell Cell** | A cell that has grown a shell like a whelk. Fifteen points of armour: small hits just tickle. | Big single hits, armour shred and damage over time. Acid dissolves the shell. |
+| **Puffball** | A fungal puffball. Hit it with a blast or a pool and it bursts into a cloud of spores that chase you. | Single shots are fine. Save the blasts for after it has gone. |
+| **Spore** | A spore from a burst Puffball. Small, quick and annoying, like the person who burst it. | Anything that hits a crowd. |
+| **Grease Ball** | A ball of grease. Homing shots slide right off it, and it can't be knocked about. | Aim properly, or use pools and auras. Alkali turns it into soap. |
+| **Leech** | Latches on from a distance and sucks the stamina out of you while it is within 120. | Kill it before you need to sprint or perform a Feat. Brine makes it curl up. |
+| **Platelet Clump** | A clot of platelets. Piercing shots stop dead in it, like a plaster. | Blasts and chains go round it. Ethanol thins the blood. |
+| **Callus** | Hard skin with ideas above its station. Crits do nothing extra to it. | Raw damage and damage over time. Brine softens it. |
+| **Plasma Cell** | An antibody factory. Shooters near it fire 40% faster. | Kill it first and the bullets thin out. It hangs back, so go and get it. |
+| **Interferon** | A warning signal. It wraps nearby enemies in a shield that soaks about 30 damage. | Kill it before you spend big hits on shielded enemies. |
+| **Cortisol Puff** | A puff of stress hormone. Everything near it swims 30% faster. You know the feeling. | Take it out early, then the crowd calms down. |
+| **Fibrin Weaver** | Spins sticky threads to up to four nearby enemies. Tethered enemies can't be knocked back. | Cut the weaver and the threads go with it. |
+| **Complement Protein** | Tags you for destruction. While you are marked, every enemy hits you 25% harder. | It is flimsy: kill it the moment it closes in. The mark wears off after 5 seconds. |
+| **Stem Cell** | It can become anything, including whatever you just killed. Every 10 seconds it brings one back. | Kill it before it gets to work, or nothing in the dish stays dead. |
+| **Lost Tadpole** | A frog tadpole. It has no idea how it got here and it would like directions to the pond. | One hit. Or don't. It's not hurting anyone. |
+| **Stray Pube** | A stray pube, drifting about. Swim into it and you are tangled for a second. | Shoot it or swim round it. Alkali works a treat (ask any hair removal cream). |
+| **Navel Fluff** | Navel fluff. Nobody knows where it comes from. It barely hurts. | Ignore it, or let it soak up a stray shot. |
+| **Bogey** | A bogey. It flicks itself at you and sticks: each one stuck on you slows you down a little. | Your weapons will pick them off you. Brine helps, as does a tissue. |
+| **Bit of Sweetcorn** | A bit of sweetcorn. It has been through the whole system intact and it is not stopping now. Tough as anything, completely harmless. | Don't waste your best hits on it. It can't hurt you. |
+| **Glitter** | Glitter from a hen do. Kill it and it comes back. You will be finding it for weeks. | Area damage. It only comes back once. |
 
 ## Rival champions
 
@@ -1901,7 +1955,7 @@ The hardest achievements (Chemical Warfare: ten different reactions in a run; Br
 
 ## Wave mode (The Petri Dish)
 
-The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run, on top of the ones you have. Waves 1 to 3 bring them in a fixed order; after that they are drawn at random from the next 6 you have not had (so nothing big comes early). What a wave holds is a surprise until it lands. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
+The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run (3 from wave 6), on top of the ones you have. Waves 1 to 3 bring them in a fixed order; after that they are drawn from the types the wave has reached (at least the next 6), the ones you have met least over all your runs first, so every type turns up within about three runs and nothing big comes early. What a wave holds is a surprise until it lands. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
 
 **Terrain you can enter:** cilia beds let you through but tangle you (you crawl and cannot attack until you are out); acid crypts let you in but burn, and the acid clings to you for 2.5 seconds after you leave. Enemies are still shoved out of cilia and cannot enter acid.
 
