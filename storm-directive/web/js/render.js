@@ -1667,16 +1667,26 @@ function render() {
   // Player.
   const px = sx(p.x), py = sy(p.y);
   if (G.barrier > 0) {
-    // Latex Barrier: a stretchy hexagonal membrane with a shimmer running round it.
-    const R = G.barrierR * S, wob = 1 + Math.sin(G.realT * 5) * 0.02;
-    ctx.fillStyle = 'rgba(72,202,228,0.08)'; ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.fill();
-    ctx.strokeStyle = 'rgba(72,202,228,0.8)'; ctx.lineWidth = 3; ctx.beginPath();
-    for (let i = 0; i <= 6; i++) { const a = i / 6 * TAU + G.realT * 0.4; i ? ctx.lineTo(px + Math.cos(a) * R * wob, py + Math.sin(a) * R * wob) : ctx.moveTo(px + Math.cos(a) * R * wob, py + Math.sin(a) * R * wob); }
-    ctx.stroke();
-    ctx.lineWidth = 1; ctx.globalAlpha = 0.35; ctx.beginPath();
-    for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + G.realT * 0.4; ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * R * wob, py + Math.sin(a) * R * wob); }
-    ctx.stroke();
-    const sa = G.realT * 2.2; ctx.globalAlpha = 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, R, sa, sa + 0.5); ctx.stroke(); ctx.globalAlpha = 1;
+    // Latex Barrier: a thin, milky latex film with a thick rolled-up rim (a torus: a shadow under it, a
+    // highlight along its top, and the faint turns of the roll), stretching and wobbling as you swim.
+    const R = G.barrierR * S, t = G.realT, n = 48, rw = Math.max(5, 8.5 * S);
+    const rad = a => R * (1 + 0.025 * Math.sin(a * 2 + t * 3.1) + 0.018 * Math.sin(a * 3 - t * 2.3));
+    const loop = (k, off) => { ctx.beginPath(); for (let i = 0; i <= n; i++) { const a = i / n * TAU, r = rad(a) * k + off; i ? ctx.lineTo(px + Math.cos(a) * r, py + Math.sin(a) * r) : ctx.moveTo(px + Math.cos(a) * r, py + Math.sin(a) * r); } };
+    // The film: milky at the rim, clear in the middle.
+    const fg = ctx.createRadialGradient(px, py, R * 0.25, px, py, R);
+    fg.addColorStop(0, 'rgba(240,232,214,0)'); fg.addColorStop(0.8, 'rgba(240,232,214,0.10)'); fg.addColorStop(1, 'rgba(240,232,214,0.22)');
+    ctx.fillStyle = fg; loop(1, 0); ctx.fill();
+    // A sheen sliding slowly over the film.
+    const sa = t * 0.5; ctx.globalAlpha = 0.28; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(2, 3 * S);
+    ctx.beginPath(); ctx.arc(px, py, R * 0.62, sa + 3.6, sa + 4.5); ctx.stroke();
+    // The rolled rim.
+    ctx.globalAlpha = 0.5; ctx.strokeStyle = 'rgba(60,52,44,0.6)'; ctx.lineWidth = rw * 0.5; loop(1, rw * 0.35); ctx.stroke(); // shadow under the roll
+    ctx.globalAlpha = 0.95; ctx.strokeStyle = 'rgba(232,220,196,0.95)'; ctx.lineWidth = rw; loop(1, 0); ctx.stroke(); // the roll
+    ctx.globalAlpha = 0.8; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, rw * 0.25); loop(1, -rw * 0.22); ctx.stroke(); // its highlight
+    // The turns of the roll: faint short ticks across it.
+    ctx.globalAlpha = 0.35; ctx.strokeStyle = 'rgba(150,136,112,0.9)'; ctx.lineWidth = 1; ctx.beginPath();
+    for (let i = 0; i < 36; i++) { const a = i / 36 * TAU + t * 0.15, r = rad(a); ctx.moveTo(px + Math.cos(a) * (r - rw * 0.45), py + Math.sin(a) * (r - rw * 0.45)); ctx.lineTo(px + Math.cos(a + 0.05) * (r + rw * 0.45), py + Math.sin(a + 0.05) * (r + rw * 0.45)); }
+    ctx.stroke(); ctx.globalAlpha = 1;
   }
   if (G.shieldT > 0) { ctx.strokeStyle = '#48cae4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, 22 * S, 0, TAU); ctx.stroke(); }
   if (G.relics.diplomatic && G.t >= (G.dipAt || 0)) { ctx.strokeStyle = PAL.reward; ctx.globalAlpha = 0.55 + 0.25 * Math.sin(G.realT * 4); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, py, 26 * S * playerScale(), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
