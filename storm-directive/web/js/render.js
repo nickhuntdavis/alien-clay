@@ -1393,6 +1393,7 @@ function render() {
   const vis = o => o.x > vx0 && o.x < vx1 && o.y > vy0 && o.y < vy1;
 
   drawDecals(vis);
+  drawBigHaz(); // (the big hazards, under the terrain: bighaz.js)
   drawTerrain();
   if (G.wave) drawDish();
   drawPill();

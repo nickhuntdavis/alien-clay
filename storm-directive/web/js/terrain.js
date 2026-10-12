@@ -100,6 +100,7 @@ function zoneForce(x, y, r, me) { // (me: you, whom cilia tangle instead of shov
 // you're in it, and it clings to you for a while after you get out (acidLinger).
 const TERRAIN_MOVE = { cilia: 0.35, linger: 2.5, lingerK: 0.5 };
 function terrainPlayer(p, dt) {
+  bigHazPlayer(p, dt); // (the big hazards: bighaz.js)
   const z = zoneForce(p.x, p.y, p.r, true);
   const tangled = !!z.cilia && G.state === 'play';
   if (tangled && !G.inCilia && !(G.ciliaMsgT > G.t)) { G.ciliaMsgT = G.t + 4; floatText(p.x, p.y - 34, "TANGLED: CAN'T ATTACK", '#f2b8c6', 12, 0.9); }
@@ -166,6 +167,7 @@ function drawSizzle(px, py) {
 
 const ACID_WADE = 0.5; // (share of enemies that wade through acid)
 function terrainBody(e, dt) {
+  bigHazBody(e, dt); // (the big hazards: bighaz.js)
   const z = zoneForce(e.x, e.y, e.r);
   if (!e.boss) { e.x += z.fx * dt * 0.8; e.y += z.fy * dt * 0.8; }
   if (z.acid && !e.egg && !(e.acidT > G.t)) {
@@ -256,7 +258,7 @@ function terrainDanger(x, y, r) {
     else if (ob.type === 'slick' && d < 0) dn += 0.25;
     else if (ob.type === 'cilia' && d < 0) dn += 1.5;
   }
-  return dn;
+  return dn + bigHazSteer(x, y, r);
 }
 
 // Autorun's view of the slide: how bad a spot is, and whether heading (dx, dy) through it is a good idea.
@@ -278,7 +280,7 @@ function steerTerrain(x, y, r, dx, dy) {
       else if (ob.type === 'current') dn += 0.5 * Math.max(0, -(Math.cos(ob.a) * dx + Math.sin(ob.a) * dy)) * (G.P.flow ? 0.3 : 1); // against the flow
     }
   }
-  return dn;
+  return dn + bigHazSteer(x, y, r);
 }
 
 // Terrain upgrades, for autorun: the nearest piece of terrain your upgrades use (within 700), and how keen

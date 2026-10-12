@@ -46,6 +46,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 34. [Campaign (SPOILERS: where Level 1 is set)](#campaign-spoilers-where-level-1-is-set)
 35. [Achievement DNA](#achievement-dna)
 36. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
+   - [Big hazards](#big-hazards)
 37. [Boss rewards](#boss-rewards)
 38. [Sperm samples](#sperm-samples)
 39. [Hidden rules](#hidden-rules)
@@ -1915,6 +1916,17 @@ The hardest achievements (Chemical Warfare: ten different reactions in a run; Br
 The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy types you have not met yet this run, on top of the ones you have. Waves 1 to 3 bring them in a fixed order; after that they are drawn at random from the next 6 you have not had (so nothing big comes early). What a wave holds is a surprise until it lands. Every 5th wave is a boss wave instead: the boss and its entourage, which keeps arriving on cue with its moves and at each enrage. Beat the boss and the wave is beaten. Wave 5 is always the Pepsinator or the Eye; Chad Prime and the Fever only come at wave 15 or 20. Beat wave 20 and you win (it counts as a birth). Winning once unlocks Endless.
 
 **Terrain you can enter:** cilia beds let you through but tangle you (you crawl and cannot attack until you are out); acid crypts let you in but burn, and the acid clings to you for 2.5 seconds after you leave. Enemies are still shoved out of cilia. About half of them swim straight through acid (and burn: a lime ring shows it), the rest go round it; bosses always go round. Autorun stays out of acid.
+
+### Big hazards
+
+Rare and huge: 1 to 3 a run (45% one, 40% two, 15% three), never two the same, several times the size of ordinary terrain (smaller in the Petri Dish). They treat enemies just as they treat you, so each is a tool as well as a danger. The first time one comes into view it is named. Autorun keeps out of the dangerous parts.
+
+| Hazard | What it does |
+|---|---|
+| **The Plughole** | A whirlpool. It drags everything round and in (you less than enemies); the middle drowns what it catches: about 12% of an enemy's HP every half second, and it hurts you too. Bosses are not pulled. |
+| **Spermicide Spill** | A cloud of foam drifting across the slide. Everything in it is slowed to 70% and burnt (enemies about 4% of their HP every half second). |
+| **Hot Flush** | A warm patch. Every 14s or so it shimmers for 2.5s, then goes off: 35% of every enemy's HP inside (5% for bosses), and a hefty hit on you if you are in it. |
+| **Mucus Plug** | A huge glob of mucus. Everything in it crawls at 45% speed, you and enemies alike. |
 
 **Settings > Colour** sets each kind of colour (you, danger, rewards, power-ups, fast enemies, rivals, damage types, enemy types, terrain, background) to EARNED (it comes with its stain, the normal way), ALWAYS (coloured from the start of the run) or OFF (grey, even under Full Technicolour or Full colour).
 

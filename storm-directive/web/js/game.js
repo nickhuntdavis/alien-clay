@@ -114,6 +114,7 @@ function newGame() {
   if (CORE.arena === DISH.arena) initWaves();
   if (typeof UI !== 'undefined' && UI.sample === 's000') initDebug();
   G.terrain = makeTerrain();
+  G.bigHaz = makeBigHaz(); // rare, huge hazards (bighaz.js)
   cam.x = 0; cam.y = 0; cam.shake = 0;
   // Every mode starts you near the bottom edge of the dish, facing the egg (not sitting on it). Campaign levels reposition below.
   { const p = G.player; p.y = CORE.arena * 0.78; unstick(p, p.r + 6); cam.x = p.x; cam.y = p.y; }
@@ -2210,7 +2211,7 @@ function updatePlayer(dt) {
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
   const speed = 165 * P.speed * oobSpeed() * // (base 165: was 150; Out of Body: faster)
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
@@ -2597,6 +2598,7 @@ function update(dt) {
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
   safely('sigTick', () => sigTick(dt));
   safely('comboTick', () => comboTick(dt));
+  safely('bigHazTick', () => bigHazTick(dt));
   safely('overkillTick', () => overkillTick(dt));
   safely('puTick', () => puTick(dt)); safely('redTick', () => redTick(dt)); safely('twinsTick', () => twinsTick(dt));
   safely('rebornTick', () => rebornTick(dt));
