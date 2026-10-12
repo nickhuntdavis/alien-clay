@@ -8,48 +8,49 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
    - [Sequence synergies](#sequence-synergies)
 3. [Weapons](#weapons)
 4. [Weapon combos](#weapon-combos)
-5. [Pairings (secret combos)](#pairings-secret-combos)
-6. [Bosses and relics](#bosses-and-relics)
-7. [Run events](#run-events)
-8. [Feats](#feats)
+5. [Super combos](#super-combos)
+6. [Pairings (secret combos)](#pairings-secret-combos)
+7. [Bosses and relics](#bosses-and-relics)
+8. [Run events](#run-events)
+9. [Feats](#feats)
    - [Feat paths (Lv 4)](#feat-paths-lv-4)
-9. [Power-ups (passives)](#power-ups-passives)
-10. [Junk DNA (Lateral Gene Transfer)](#junk-dna-lateral-gene-transfer)
-11. [Mutations](#mutations)
-12. [Mythical and Immaculate bonuses](#mythical-and-immaculate-bonuses)
-13. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
+10. [Power-ups (passives)](#power-ups-passives)
+11. [Junk DNA (Lateral Gene Transfer)](#junk-dna-lateral-gene-transfer)
+12. [Mutations](#mutations)
+13. [Mythical and Immaculate bonuses](#mythical-and-immaculate-bonuses)
+14. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
    - [Lv 3 pool](#lv-3-pool)
-14. [Modifiers](#modifiers)
-15. [Duo combos](#duo-combos)
-16. [Stains](#stains)
-17. [Cursed cards](#cursed-cards)
-18. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
-19. [Stamina](#stamina)
-20. [Sequence evolutions](#sequence-evolutions)
-21. [Damage types](#damage-types)
-22. [Chemical reactions](#chemical-reactions)
-23. [Combo twists](#combo-twists)
-24. [Damage-type synergies](#damage-type-synergies)
-25. [Targeting directives](#targeting-directives)
-26. [Movement directives](#movement-directives)
-27. [Immune Response (difficulty)](#immune-response-difficulty)
-28. [Being born (prestige)](#being-born-prestige)
-29. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+15. [Modifiers](#modifiers)
+16. [Duo combos](#duo-combos)
+17. [Stains](#stains)
+18. [Cursed cards](#cursed-cards)
+19. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
+20. [Stamina](#stamina)
+21. [Sequence evolutions](#sequence-evolutions)
+22. [Damage types](#damage-types)
+23. [Chemical reactions](#chemical-reactions)
+24. [Combo twists](#combo-twists)
+25. [Damage-type synergies](#damage-type-synergies)
+26. [Targeting directives](#targeting-directives)
+27. [Movement directives](#movement-directives)
+28. [Immune Response (difficulty)](#immune-response-difficulty)
+29. [Being born (prestige)](#being-born-prestige)
+30. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
    - [Bonuses](#bonuses)
    - [Wildcard weapons](#wildcard-weapons)
    - [GFP variants](#gfp-variants)
-30. [Enemies](#enemies)
+31. [Enemies](#enemies)
    - [First sightings](#first-sightings)
-31. [Rival champions](#rival-champions)
-32. [Terrain](#terrain)
-33. [Campaign (SPOILERS: where Level 1 is set)](#campaign-spoilers-where-level-1-is-set)
-34. [Achievement DNA](#achievement-dna)
-35. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
-36. [Boss rewards](#boss-rewards)
-37. [Sperm samples](#sperm-samples)
-38. [Hidden rules](#hidden-rules)
-39. [Glossary](#glossary)
-40. [Secret Field Guide entries (spoilers)](#secret-field-guide-entries-spoilers)
+32. [Rival champions](#rival-champions)
+33. [Terrain](#terrain)
+34. [Campaign (SPOILERS: where Level 1 is set)](#campaign-spoilers-where-level-1-is-set)
+35. [Achievement DNA](#achievement-dna)
+36. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
+37. [Boss rewards](#boss-rewards)
+38. [Sperm samples](#sperm-samples)
+39. [Hidden rules](#hidden-rules)
+40. [Glossary](#glossary)
+41. [Secret Field Guide entries (spoilers)](#secret-field-guide-entries-spoilers)
 
 ## How upgrades work
 
@@ -947,6 +948,18 @@ Both weapons at Lv 5+: the game stops at once for the combo's own unlock screen 
 | **Hoedown Throwdown** | Shotgun Wedding + Duelling Banjo | Redtail | Every Both Barrels blast also plays a ring of low notes. |
 | **Shotgun Shine** | Moonshine Jug + Shotgun Wedding | Redtail | Shotgun Wedding pellets pour enemies a round of Ethanol, and hit drunk enemies 50% harder. |
 | **Gene Splice** | Gene Gun + Placental Siphon | Designer Baby | Every 10 bullets the Siphon eats fires a free Gene Gun helix at the nearest enemy. |
+
+## Super combos
+
+Two fused combos can fuse again: once both are fused and every weapon in them is Lv 8+, the game stops for a gold unlock screen. Super rare: the ones whose combos share no weapon need a splice and both bonus mounts.
+
+| Super combo | Combos | Power |
+|---|---|---|
+| **Family Reunion** | Big Sibling + Swapping Spit | Every 2s, each yo-yo in flight launches a Big Sibling at the nearest enemy, and Big Siblings hit 50% harder. |
+| **Perfect Storm** | Storm in a Teacup + Party Line | Your twins drag nearby enemies in towards themselves, and every Static Cling chain from either combo jumps 2 more times. |
+| **Bath Time** | Worm Farm + Bubble Halo | Your angels blow bubbles twice as often, and Tapeworm spreads to the nearest healthy enemy every 2s, like nits at a primary school. |
+| **Streaker** | Whiplash + Silent but Deadly | While you are hidden, every lash ends in a BOO! ring of viral trail (once a second). |
+| **Nuclear Family** | Big Sibling + Porcupine Hug | Every Onesie pulse also launches a Big Sibling, and Porcupine Hug pellets hit 50% harder. |
 
 ## Pairings (secret combos)
 

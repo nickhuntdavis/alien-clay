@@ -220,6 +220,7 @@ const UI = {
     $('wslots').classList.toggle('many', G.weapons.length > 3);
     for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); }
     for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
+    comboBonds(); // (combo partners share one border: fusion.js)
     $('moveBtn').textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
     // Keep the Rewind button clear of the HUD as extra weapon rows appear.
     UI.bottomH = $('bottom').offsetHeight;
@@ -1112,7 +1113,8 @@ const UI = {
     h += `<div class="sec"><h3>Weapons (${wp.length}/${MAX_WEAPONS})</h3>${wp.join('')}<p class="hint">Tap one to open it in the Tackle Box.</p></div>`;
     // The rest.
     let r = '';
-    const cb = Object.keys(G.combo || {}).filter(id => COMBO_BY[id]).map(id => li(esc(COMBO_BY[id].name), esc(COMBO_BY[id].desc), PAL.upgrade));
+    const cb = Object.keys(G.superCombo || {}).filter(id => SUPER_BY[id]).map(id => li(esc(SUPER_BY[id].name) + ' (SUPER)', esc(SUPER_BY[id].desc), SUPER_COLOR))
+      .concat(Object.keys(G.combo || {}).filter(id => COMBO_BY[id]).map(id => li(esc(COMBO_BY[id].name), esc(COMBO_BY[id].desc), PAL.upgrade)));
     const pa = PAIRINGS.filter(q => G.pair && G.pair[q.id]).map(q => li(esc(q.name), esc(q.desc), PAL.upgrade));
     if (cb.length || pa.length) r += `<h3>Combos and pairings</h3><div class="list">${cb.join('')}${pa.join('')}</div>`;
     const sy = Object.keys(SYNERGIES).filter(e => G.synergy[e]).map(e => li(esc(SYNERGIES[e].name), `${ELEMENTS[e].name}: ${esc(SYNERGIES[e].desc)}`));
@@ -1255,6 +1257,9 @@ const UI = {
         lc += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b>${on ? ' (FUSED)' : known ? '' : ' (not fused yet)'}<br><span>${esc(WEAPONS[c.a].name)} + ${esc(WEAPONS[c.b].name)} (${sa === sb ? esc(sa) : esc(sa) + ' + ' + esc(sb) + ', needs a splice'}): ${esc(c.desc)}</span></div>`;
       }
       h += box(`Combos fused (${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length})`, `<div class="list">${lc}</div>`, `Get both weapons to Lv ${COMBO_LEVEL}+ and the game stops to fuse them. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
+      // Super combos: the recipe shows, the name and power stay secret until you fuse one.
+      const sl = SUPERS.map(s => { const known = META.supers && META.supers[s.id], on = run && superOn(s.id); return `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? SUPER_COLOR : 'inherit'}">${known ? esc(s.name) : '???'}</b>${on ? ' (FUSED)' : ''}<br><span>${esc(COMBO_BY[s.x].name)} + ${esc(COMBO_BY[s.y].name)}${known ? ': ' + esc(s.desc) : '. What it does is a secret.'}</span></div>`; }).join('');
+      h += box(`Super combos (${SUPERS.filter(s => META.supers && META.supers[s.id]).length}/${SUPERS.length})`, `<div class="list">${sl}</div>`, `Fuse both combos, then get every weapon in them to Lv ${SUPER_LEVEL}+, and the two combos fuse again. Hardly anyone sees these.`);
       let l = '';
       for (const q of PAIRINGS) {
         const known = META.pairs[q.id], on = run && G.pair && G.pair[q.id];

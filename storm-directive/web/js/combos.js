@@ -127,7 +127,7 @@ function comboDamageMul(e, src) {
   if (id === 'wake' && comboOn('ghosttrail') && peekHidden()) m *= 2.5;
   if (id === 'toothfairy' && comboOn('coldcomfort') && e.frozen > 0) m *= 2;
   if (id === 'bubble' && comboOn('wormfarm') && e.parasiteT > 0) m *= 1.5;
-  return m;
+  return m * superMul(e, src); // (super combos: supers.js)
 }
 // From onesiePulse.
 function comboPulse(w) {
@@ -136,6 +136,7 @@ function comboPulse(w) {
   if (!sg) return;
   const p = me(), src = comboSrc(sg, 'Porcupine Hug'), n = 12, off = Math.random() * TAU;
   for (let i = 0; i < n; i++) spawnProj(sg, p.x, p.y, off + i / n * TAU, src, { dmg: sg.s.dmg * 0.7, noMods: true });
+  superPulse(w);
 }
 // From meleeLash.
 function comboLash(w, x, y, a, L) {
@@ -143,6 +144,7 @@ function comboLash(w, x, y, a, L) {
   const ww = comboW('wake');
   if (!ww) return;
   for (let k = 1; k <= 3; k++) { const z = wakeZone(ww, x + Math.cos(a) * L * k / 3, y + Math.sin(a) * L * k / 3); z.dps *= 0.7; z.src = Object.assign({}, z.src, { wname: 'Whiplash' }); G.zones.push(z); }
+  superLash(w, x + Math.cos(a) * L, y + Math.sin(a) * L);
 }
 // From peekBoo.
 function comboBoo(w, x, y) {
@@ -156,6 +158,7 @@ const cmbEvery = (key, gap) => { const T = G.cmbT || (G.cmbT = {}); if ((T[key] 
 function comboTick(dt) {
   fusionCheck(); // (a combo just became available: its unlock screen, fusion.js)
   if (!G.combo) return;
+  superTick(dt);
   const p = me();
   if (comboOn('spityoyo') && cmbEvery('spit', 0.35)) {
     const bw = comboW('blaster'), gw = comboW('glaive');
@@ -179,7 +182,7 @@ function comboTick(dt) {
         const t = acquire('nearest', 220, pr.x, pr.y);
         if (!t) continue;
         n++;
-        doChain(pr.x, pr.y, t, tw.s.dmg * 0.7, 2, tw.s.jump || 150, comboSrc(tw, 'Storm in a Teacup'));
+        doChain(pr.x, pr.y, t, tw.s.dmg * 0.7, 2 + superChain(), tw.s.jump || 150, comboSrc(tw, 'Storm in a Teacup'));
       }
     }
   }
@@ -187,14 +190,14 @@ function comboTick(dt) {
     const ww = comboW('twin'), tw = comboW('tesla');
     if (ww && tw && ww.anchor) for (const q of twinPoints(ww)) {
       const t = acquire('nearest', 260, q.x, q.y);
-      if (t) doChain(q.x, q.y, t, tw.s.dmg * 0.8, tw.s.chain || 2, tw.s.jump || 150, comboSrc(tw, 'Party Line'));
+      if (t) doChain(q.x, q.y, t, tw.s.dmg * 0.8, (tw.s.chain || 2) + superChain(), tw.s.jump || 150, comboSrc(tw, 'Party Line'));
     }
   }
   if (comboOn('wormfarm')) {
     const pw = comboW('parasite');
     if (pw) for (const B of (G.toy && G.toy.bubbles) || []) { const e = B.e; if (e && !e.dead && !e.boss && !(e.parasiteT > 0)) { e.parasiteW = pw; e.parasiteT = 6; } }
   }
-  if (comboOn('bubblehalo') && cmbEvery('halo', 2.5)) {
+  if (comboOn('bubblehalo') && cmbEvery('halo', superOn('bathtime') ? 1.25 : 2.5)) {
     const ow = comboW('orbit'), bw = comboW('bubble'), T = TOYS();
     if (ow && bw && ow.blades.length) for (let i = 0; i < ow.blades.length && T.bubbles.length < 40; i += 3) {
       const x = ow.blades[i], y = ow.blades[i + 1], t = acquire('nearest', 240, x, y);
