@@ -190,7 +190,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Lv 5 signature | **Skin to Skin** | Pellets hit up to +150% harder the closer the target is. |
 |  | **Slug** | All the pellets fuse into one heavy slug (90% of their total damage) that pierces 3 enemies and bowls them over. |
 | Lv 8 signature | **Buckshot** | +4 pellets per blast, each at 75% damage. A wall of lead. With Slug: a fan of five big slugs instead. |
-|  | **Withdrawal Method** | Every blast kicks you backwards, away from the target, and you cannot be hurt mid-kick. 78% effective. |
+|  | **Strong Pull-Out Game** | Every blast kicks you backwards, away from the target, and you cannot be hurt mid-kick. 78% effective. |
 | Lv 10 mastery | **Hiccup Fit** | Every 3rd blast is a full ring of pellets around you that also wipes out nearby enemy bullets. |
 |  | **Dragon's Breath** | Pellets turn to acid, corrode enemies and leave small acid puddles where they land. |
 

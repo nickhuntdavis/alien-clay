@@ -237,7 +237,7 @@ const SIGS = {
   farsight:    { name: "Nesting Instinct", desc: '+60% range, and shots hit twice as hard on anything more than 250 away.' },
   phlegmfan:   { name: 'Phlegm Fan', desc: 'Every reload sprays a ring of 12 spitballs all around you.' },
   buckshot:    { name: 'Buckshot', desc: '+4 pellets per blast, each at 75% damage. A wall of lead. With Slug: a fan of five big slugs instead.' },
-  recoil:      { name: 'Withdrawal Method', desc: 'Every blast kicks you backwards, away from the target, and you cannot be hurt mid-kick. 78% effective.' },
+  recoil:      { name: 'Strong Pull-Out Game', desc: 'Every blast kicks you backwards, away from the target, and you cannot be hurt mid-kick. 78% effective.' },
   yoyoshield:  { name: 'Rock the Baby', desc: 'Yo-yos eat every enemy bullet they pass through.' },
   cradle:      { name: "Cat's Cradle", desc: 'A string runs from you to every yo-yo in flight, cutting whatever crosses it.' },
   bloodletting:{ name: 'Viral Shedding', desc: 'Anything the trail touches keeps suffering: 60% of the hit again over 3s.' },
