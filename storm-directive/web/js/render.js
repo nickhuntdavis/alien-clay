@@ -1821,16 +1821,16 @@ function render() {
       continue;
     }
     if (f.type === 'lash') {
-      // Flagellum Flail: an elastic strand. It stretches out with a slight bow, overshoots a touch, then springs
-      // back with a slow ripple running down it. Thick and glossy at the root, tapering to a little knob.
+      // Flagellum Flail: a whip. The strand flicks out, a loop rolls from your body down to the tip and cracks
+      // there (a snap of light), then it goes slack and draws back in. Tapered and glossy, with a knob at the tip.
       if (f.follow && G.player) { f.x = G.player.x + f.ox; f.y = G.player.y + f.oy; } // (attached to you)
-      const p = 1 - k, ca = Math.cos(f.a), sa = Math.sin(f.a), seg = 22;
-      const out = p < 0.3 ? 1 - Math.pow(1 - p / 0.3, 3) : 1;
-      const back = p < 0.3 ? 0 : Math.pow((p - 0.3) / 0.7, 1.6);
-      const L = f.r * (out * (1 + 0.06 * Math.sin(Math.min(1, p / 0.45) * Math.PI)) - 0.45 * back);
-      const bow = (f.seed % 2 < 1 ? 1 : -1) * f.r * 0.07 * (1 - out * 0.8), amp = f.w * 0.55 * (1 - p) * Math.min(1, p * 5);
+      const p = 1 - k, ca = Math.cos(f.a), sa = Math.sin(f.a), seg = 26, side = f.seed % 2 < 1 ? 1 : -1;
+      const out = Math.min(1, p / 0.14), back = p < 0.55 ? 0 : Math.pow((p - 0.55) / 0.45, 1.5);
+      const L = f.r * (0.55 + 0.45 * (1 - Math.pow(1 - out, 3))) * (1 - 0.5 * back);
+      const c = -0.1 + p / 0.45 * 1.2, amp = f.w * 2.2 * side * Math.max(0, 1 - p / 0.5); // (the rolling loop: c runs base to tip)
+      const sag = f.r * 0.09 * side * back * (1 - back * 0.5); // (slack on the way back)
+      const pt = t => { const lat = amp * Math.exp(-Math.pow((t - c) / 0.13, 2)) * (0.4 + 0.6 * t) + sag * Math.sin(Math.PI * t); return [sx(f.x + ca * L * t - sa * lat), sy(f.y + sa * L * t + ca * lat)]; };
       const w0 = Math.max(4, f.w * 0.75) * S;
-      const pt = t => { const lat = bow * Math.sin(Math.PI * t) + amp * Math.sin(TAU * (t * 1.3 - p * 2.2)) * t; return [sx(f.x + ca * L * t - sa * lat), sy(f.y + sa * L * t + ca * lat)]; };
       const P = []; for (let i = 0; i <= seg; i++) P.push(pt(i / seg));
       const L2 = [], R2 = [];
       for (let i = 0; i <= seg; i++) {
@@ -1842,6 +1842,11 @@ function render() {
       ctx.moveTo(L2[0][0], L2[0][1]); for (const q of L2) ctx.lineTo(q[0], q[1]); for (let i = R2.length - 1; i >= 0; i--) ctx.lineTo(R2[i][0], R2[i][1]); ctx.closePath(); ctx.fill();
       ctx.lineWidth = Math.max(1, 0.8 * S); ctx.strokeStyle = 'rgba(20,24,22,0.55)'; ctx.stroke(); // (a thin skin)
       const tp = P[seg]; ctx.beginPath(); ctx.arc(tp[0], tp[1], Math.max(2, w0 * 0.32), 0, TAU); ctx.fill(); ctx.stroke(); // the knob
+      if (p > 0.38 && p < 0.62) { // the crack
+        const q = (p - 0.38) / 0.24, cr = (6 + 16 * q) * S; ctx.globalAlpha = (1 - q) * 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, 1.4 * S); ctx.beginPath();
+        for (let i = 0; i < 7; i++) { const aa = f.a + (i - 3) * 0.45; ctx.moveTo(tp[0] + Math.cos(aa) * cr * 0.45, tp[1] + Math.sin(aa) * cr * 0.45); ctx.lineTo(tp[0] + Math.cos(aa) * cr, tp[1] + Math.sin(aa) * cr); }
+        ctx.stroke();
+      }
       // Gloss: a thin highlight along one side.
       ctx.globalAlpha = 0.6 * Math.min(1, k * 3); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, 0.9 * S); ctx.lineCap = 'round'; ctx.beginPath();
       for (let i = 1; i < seg - 2; i++) { const q = [(P[i][0] * 2 + L2[i][0]) / 3, (P[i][1] * 2 + L2[i][1]) / 3]; i > 1 ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }

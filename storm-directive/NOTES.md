@@ -1,13 +1,14 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v9.06 (versionCode 256). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
+- Version v9.07 (versionCode 257). Main (`claude/autorun-bullet-storm-game-blptu8`) is current again: start new work from it. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
 
 ## Recent changes (newest first)
+- v9.07: the Flagellum Flail moves like a whip (render.js 'lash' fx): it flicks out, a loop rolls from your body down to the tip, the tip cracks (a white snap), then it goes slack and draws back. Same tapered glossy strand, still attached to you.
 - v9.06: the Flagellum Flail's strand stays attached to you while it plays (`follow`, `ox`/`oy` on the 'lash' fx, set in meleeLash when lashed from your own body; copies and the far second lash stay put).
 - v9.05: Latex Barrier base radius 80 to 55 (Lv 5 still +30%). Flagellum Flail lash redrawn as an elastic strand (render.js 'lash' fx): a tapered glossy body with a thin skin and a knob at the tip, shooting out with a slight bow, overshooting, then springing back with a slow ripple; the fx lasts 0.32s (was 0.2; hits unchanged). Test `lashshot`.
 - v9.04: two more big hazards made of real terrain (`bigHazBuild` clears ordinary terrain out of the way): Acid Lake (a root acid pit with 4 to 7 overlapping pools as children; creeps at 3 to 6/s, ploughs into other acid instead of steering round it, and `bigHazMerge` (hook in updateTerrain) swallows any acid pit or lake it reaches into one shape; 25% of the time a second lake spawns nearby) and Cilia Field (9 to 14 fixed cilia beds, each with 1 to 3 smaller beds grown in for a misshapen outline). drawTerrain now culls by an obstacle's size, so big ones don't pop. Sim: autorun caught 0 to 3% of play in most runs, once 7% (spermicide in a crowded dish).

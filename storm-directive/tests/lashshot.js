@@ -8,14 +8,14 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     UI.sample = 's001'; newGame(); UI.show('hud'); G.state = 'play'; G.lootQueue = []; G.enemies.length = 0;
     const p = G.player, w = makeSlot('flail', false, 1); G.weapons = [w]; recomputeAll();
-    [0.9, 0.7, 0.45, 0.15].forEach((k, i) => G.fx.push({ type: 'lash', x: p.x - 120, y: p.y - 260 + i * 70, a: 0, r: w.s.range || 220, w: 14, color: w.def.color, life: 0.32 * k, max: 0.32, seed: 3 + i }));
+    [0.9, 0.75, 0.55, 0.25].forEach((k, i) => G.fx.push({ type: 'lash', x: p.x - 120, y: p.y - 260 + i * 70, a: 0, r: w.s.range || 220, w: 14, color: w.def.color, life: 0.32 * k, max: 0.32, seed: 3 + i }));
     const bw = makeSlot('barrier', true, 1); G.spells = [bw, null]; recomputeAll();
     G.barrier = 99; G.barrierR = bw.s.area; G.debug = { freeze: true }; cam.x = p.x; cam.y = p.y - 120;
     // A real lash, then you swim off: the strand comes with you.
-    meleeLash(w, p.x, p.y, 0, weaponSrc(w), 1); const f = G.fx[G.fx.length - 1];
+    const n0 = G.fx.length; meleeLash(w, p.x, p.y, 0, weaponSrc(w), 1); const f = G.fx.slice(n0).find(q => q.type === 'lash');
     p.x += 100; p.y += 40; G.debug = null; render(); G.debug = { freeze: true };
     const follows = f.follow && Math.round(f.x - p.x) === 0 && Math.round(f.y - p.y) === 0;
-    G.fx.pop();
+    G.fx.splice(G.fx.indexOf(f), 1);
     return { barrierR: Math.round(bw.s.area), range: w.s.range, follows };
   });
   await page.waitForTimeout(300); await page.screenshot({ path: 'lash.png', clip: { x: 0, y: 120, width: 400, height: 520 } });
