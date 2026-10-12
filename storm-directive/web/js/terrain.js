@@ -326,7 +326,7 @@ function updateTerrain(dt) {
     if (d < inner || d > outer) turn += angDiff(Math.atan2(ob.y, ob.x) + (d < inner ? 0 : Math.PI), ob.h) * 1.5;
     // Steer away from neighbours.
     for (const o of L) {
-      if (o === ob || o.parent === ob) continue;
+      if (o === ob || o.parent === ob || (ob.lake && o.type === 'acid')) continue; // (an acid lake ploughs on into other acid: bighaz.js)
       const dx = ob.x - o.x, dy = ob.y - o.y, gap = ob.r + o.r + DRIFT.gap;
       if (Math.abs(dx) > gap || Math.abs(dy) > gap || dx * dx + dy * dy > gap * gap) continue;
       turn += angDiff(Math.atan2(dy, dx), ob.h) * 0.8;
@@ -334,6 +334,7 @@ function updateTerrain(dt) {
     ob.h += clamp(turn, -0.8, 0.8) * dt;
     ob.x += Math.cos(ob.h) * ob.sp * dt; ob.y += Math.sin(ob.h) * ob.sp * dt;
   }
+  bigHazMerge(L); // (acid lakes swallowing pits: bighaz.js)
   T.regridT = (T.regridT || 0) - dt;
   if (T.regridT <= 0) {
     T.regridT = DRIFT.regrid;

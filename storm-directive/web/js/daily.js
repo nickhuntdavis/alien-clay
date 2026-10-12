@@ -34,7 +34,7 @@ function startDaily() {
   } finally { META.profile = keep; DAILY.on = false; }
   G.daily = D.date;
   G.terrain = withSeed('terrain', () => makeTerrain());
-  G.bigHaz = withSeed('bighaz', () => makeBigHaz());
+  G.bigHaz = withSeed('bighaz', () => bigHazBuild(makeBigHaz()));
   G.bossRoster = withSeed('bosses', () => bossRoster());
   G.rivalSet = D.rivals;
   G.heat = D.heat;

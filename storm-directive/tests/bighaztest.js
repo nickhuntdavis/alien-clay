@@ -13,8 +13,8 @@ const { chromium } = require('playwright');
       const n = [0, 0, 0, 0], bad = [];
       for (let i = 0; i < 300; i++) {
         const L = makeBigHaz(); n[L.length]++;
-        if (new Set(L.map(h => h.type)).size !== L.length) bad.push('dup');
-        for (const h of L) { if (Math.hypot(h.x, h.y - CORE.arena * 0.78) < h.r + 300) bad.push('start'); if (Math.hypot(h.x, h.y) > CORE.arena) bad.push('out'); }
+        if (new Set(L.filter(h => !h.twin).map(h => h.type)).size !== L.filter(h => !h.twin).length) bad.push('dup');
+        for (const h of L) { if (Math.hypot(h.x, h.y - CORE.arena * 0.78) < h.r + (h.def.terrain ? 0 : 300)) bad.push('start'); if (Math.hypot(h.x, h.y) > CORE.arena) bad.push('out'); }
       }
       R[smp] = { n: n.join('/'), bad: bad.length, now: G.bigHaz.length };
     }
@@ -46,19 +46,30 @@ const { chromium } = require('playwright');
       for (let f = 0; f < 60; f++) { G.player.x = h.x - 750; G.player.y = h.y; c.y = h.y + 600; update(1 / 60); }
       G.player.x = h.x; G.player.y = h.y;
       R.mucus = { inGoo: Math.round(a0 - a.x), outside: Math.round(c0 - c.x), yourSpeed: +bigHazSpeed().toFixed(2) }; }
+    // Acid Lake and Cilia Field: built from real terrain; a lake swallows an acid pit it reaches.
+    { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.enemies.length = 0;
+      const p = G.player, h = { type: 'acidlake', def: BIG_HAZ.acidlake, x: p.x + 1500, y: p.y - 300, r: 300, seed: 1, seen: true };
+      const f = { type: 'ciliafield', def: BIG_HAZ.ciliafield, x: p.x - 1200, y: p.y - 900, r: 520, seed: 2, seen: true };
+      const n0 = G.terrain.list.length; G.bigHaz = bigHazBuild([h, f]);
+      const lake = h.ob, pieces = G.terrain.list.filter(o => o === lake || o.parent === lake).length;
+      const beds = G.terrain.list.filter(o => o.type === 'cilia' && !o.parent && o.fixed && Math.hypot(o.x - f.x, o.y - f.y) < f.r).length;
+      const pit = bhPiece('acid', lake.x + lake.r * 1.4, lake.y, 60, { sp: 0, h: 0, fixed: true }); G.terrain.list.push(pit);
+      G.bhMergeT = 0; updateTerrain(1 / 60);
+      R.terrain = { pieces, beds, merged: pit.parent === lake, merges: G.stats.lakeMerges || 0 };
+      for (let i = 0; i < 600; i++) update(1 / 60); R.terrain.runs = true; }
     return R;
   });
-  for (const df of [false, true]) for (const type of ['plughole', 'spermicide', 'hotflush', 'mucusplug']) {
+  for (const df of [false, true]) for (const type of ['plughole', 'spermicide', 'hotflush', 'mucusplug', 'acidlake', 'ciliafield']) {
     await page.evaluate(([df, type]) => {
       SET.darkfield = df; UI.applySettings();
       UI.sample = 's001'; newGame(); UI.show('hud'); G.state = 'play'; G.lootQueue = []; G.enemies.length = 0;
       const p = G.player, h = { type, def: BIG_HAZ[type], x: p.x, y: p.y - 260, r: 400, seed: 7, seen: true, vx: 0, vy: 0, flushT: type === 'hotflush' ? 1 : 99, warn: type === 'hotflush' ? 0.6 : 0, blastT: -9 };
-      G.bigHaz = [h]; G.debug = { freeze: true }; cam.x = p.x; cam.y = p.y - 200;
+      G.bigHaz = bigHazBuild([h]); if (h.ob) { h.ob.sp = 0; } G.debug = { freeze: true }; cam.x = p.x; cam.y = p.y - 200;
     }, [df, type]);
     await page.waitForTimeout(250); await page.screenshot({ path: `bighaz_${type}${df ? '_df' : ''}.png` });
   }
   const ok = r.s001.bad === 0 && r.s002.bad === 0 && r.s001.n.startsWith('0/') && r.plughole.pulled > 20 && r.plughole.drowned > 100 && r.spermicide.burnt > 50 && r.spermicide.yourSpeed < 0.8
-    && r.hotflush.warned && r.hotflush.blasted > 300 && r.mucus.inGoo < r.mucus.outside * 0.7 && r.mucus.yourSpeed < 0.6;
+    && r.hotflush.warned && r.hotflush.blasted > 300 && r.mucus.inGoo < r.mucus.outside * 0.7 && r.mucus.yourSpeed < 0.6 && r.terrain.pieces >= 5 && r.terrain.beds >= 6 && r.terrain.merged;
   if (!ok) console.log('FAIL');
   console.log(JSON.stringify(r), 'ERRORS ' + JSON.stringify(errors)); await b.close();
 })();

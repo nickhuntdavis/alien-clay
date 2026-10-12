@@ -1220,7 +1220,7 @@ function drawTerrain() {
   // not by inverting the greys.
   const df = WORLD_DF;
   for (const ob of G.terrain.list) {
-    if (ob.x < x0 || ob.x > x1 || ob.y < y0 || ob.y > y1) continue;
+    if (ob.x + ob.r < x0 || ob.x - ob.r > x1 || ob.y + ob.r < y0 || ob.y - ob.r > y1) continue; // (big ones count their size)
     const x = sx(ob.x), y = sy(ob.y), r = ob.r * S;
     WORLD_DF = false; // (each kind draws its own darkfield look from df; colours go through col(): TERRAIN_HEX)
     let seed = Math.floor(ob.seed * 1000) + 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;

@@ -1919,7 +1919,7 @@ The default mode. 20 waves. It starts easy: each ordinary wave brings in 2 enemy
 
 ### Big hazards
 
-Rare and huge: 1 to 3 a run (45% one, 40% two, 15% three), never two the same, several times the size of ordinary terrain (smaller in the Petri Dish). They treat enemies just as they treat you, so each is a tool as well as a danger. The first time one comes into view it is named. Autorun keeps out of the dangerous parts.
+Rare and huge: 1 to 3 a run (45% one, 40% two, 15% three), never two the same (except a pair of Acid Lakes), several times the size of ordinary terrain (smaller in the Petri Dish). They treat enemies just as they treat you, so each is a tool as well as a danger. The first time one comes into view it is named. Autorun keeps out of the dangerous parts.
 
 | Hazard | What it does |
 |---|---|
@@ -1927,6 +1927,8 @@ Rare and huge: 1 to 3 a run (45% one, 40% two, 15% three), never two the same, s
 | **Spermicide Spill** | A cloud of foam drifting across the slide. Everything in it is slowed to 70% and burnt (enemies about 4% of their HP every half second). |
 | **Hot Flush** | A warm patch. Every 14s or so it shimmers for 2.5s, then goes off: 35% of every enemy's HP inside (5% for bosses), and a hefty hit on you if you are in it. |
 | **Mucus Plug** | A huge glob of mucus. Everything in it crawls at 45% speed, you and enemies alike. |
+| **Acid Lake** | A pond-sized acid crypt made of several pools run together. It works like any acid (it burns, and about half of enemies wade through it) but creeps across the slide; now and then it bumps into another acid pit, or a second lake, and swallows it into one stranger shape. Sometimes two come at once. |
+| **Cilia Field** | A wide field of misshapen cilia beds. Each bed tangles you like any cilia (slow, no attacking) and shoves enemies about. |
 
 **Settings > Colour** sets each kind of colour (you, danger, rewards, power-ups, fast enemies, rivals, damage types, enemy types, terrain, background) to EARNED (it comes with its stain, the normal way), ALWAYS (coloured from the start of the run) or OFF (grey, even under Full Technicolour or Full colour).
 

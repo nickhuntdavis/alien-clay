@@ -114,7 +114,7 @@ function newGame() {
   if (CORE.arena === DISH.arena) initWaves();
   if (typeof UI !== 'undefined' && UI.sample === 's000') initDebug();
   G.terrain = makeTerrain();
-  G.bigHaz = makeBigHaz(); // rare, huge hazards (bighaz.js)
+  G.bigHaz = bigHazBuild(makeBigHaz()); // rare, huge hazards (bighaz.js)
   cam.x = 0; cam.y = 0; cam.shake = 0;
   // Every mode starts you near the bottom edge of the dish, facing the egg (not sitting on it). Campaign levels reposition below.
   { const p = G.player; p.y = CORE.arena * 0.78; unstick(p, p.r + 6); cam.x = p.x; cam.y = p.y; }

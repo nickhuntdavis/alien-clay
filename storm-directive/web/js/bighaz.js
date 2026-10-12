@@ -5,6 +5,9 @@
 //   Spermicide Spill  a drifting cloud of foam: burns and slows whatever swims in it, enemies included.
 //   Hot Flush         a warm patch that builds up and then goes off, scorching everything inside it.
 //   Mucus Plug        a huge sticky glob: everything in it crawls.
+//   Acid Lake         a huge acid crypt (real acid terrain) drifting very slowly; if it bumps into another acid
+//                     pit, the two run together into one stranger shape (bigHazMerge).
+//   Cilia Field       a wide field of misshapen cilia beds (real cilia terrain, each bed a few overlapping ones).
 // Enemies get the same treatment as you, so each one is a tool as well as a danger. Autorun keeps out of the
 // dangerous parts. Drawn soft and borderless (STYLE.md), in both fields.
 // Hooks: game.js newGame (makeBigHaz), update (bigHazTick), player speed (bigHazSpeed); terrain.js
@@ -16,6 +19,8 @@ const BIG_HAZ = {
   spermicide: { name: 'Spermicide Spill', r: 380, desc: 'A drifting cloud of spermicide foam. It burns and slows anything swimming in it. Anything.' },
   hotflush:   { name: 'Hot Flush',        r: 400, desc: 'A warm patch that builds up and then goes off, scorching everything inside. It shimmers before it blows.' },
   mucusplug:  { name: 'Mucus Plug',       r: 480, desc: 'A huge glob of mucus. Everything in it crawls, you and them alike.' },
+  acidlake:   { name: 'Acid Lake',        r: 300, terrain: true, desc: 'A crypt of acid the size of a pond, creeping across the slide. Anything acid it touches, it swallows.' },
+  ciliafield: { name: 'Cilia Field',      r: 520, terrain: true, desc: 'A whole field of cilia beds, grown every which way. Easy to get tangled in, easy to lose a crowd in.' },
 };
 const BH = { count: [[1, 0.45], [2, 0.4], [3, 0.15]], flushEvery: 14, flushWarn: 2.5, mucusSlow: 0.45, foamSlow: 0.7 };
 if (typeof TERRAIN_HEX !== 'undefined') TERRAIN_HEX.push('#efe6b0', '#f4a261', '#d8e2a6', '#7d8a4a');
@@ -35,6 +40,10 @@ function makeBigHaz() {
       const hx = Math.cos(a) * d, hy = Math.sin(a) * d;
       if (Math.hypot(hx - start.x, hy - start.y) < r + 380) continue;
       if (out.some(o => Math.hypot(o.x - hx, o.y - hy) < o.r + r + 160)) continue;
+      if (type === 'acidlake' && Math.random() < 0.25) { // (now and then a pair, which may run together)
+        const tx = hx + Math.cos(a + 1.6) * r * 2.6, ty = hy + Math.sin(a + 1.6) * r * 2.6, td = Math.hypot(tx, ty);
+        if (td < CORE.arena - r && td > CORE.sanctuary + r * 1.7 && Math.hypot(tx - start.x, ty - start.y) > r * 1.7 + 380) out.push({ type, def: BIG_HAZ[type], x: tx, y: ty, r, seed: Math.random() * 1000, seen: false, twin: true });
+      }
       const sp = 26 * k, va = Math.random() * TAU;
       out.push({ type, def: BIG_HAZ[type], x: hx, y: hy, r, seed: Math.random() * 1000, seen: false,
         vx: type === 'spermicide' ? Math.cos(va) * sp : 0, vy: type === 'spermicide' ? Math.sin(va) * sp : 0,
@@ -44,6 +53,68 @@ function makeBigHaz() {
   }
   return out;
 }
+// Build the terrain-made ones into the slide (clearing ordinary terrain out of their way). Returns the list.
+function bigHazBuild(list) {
+  const T = G && G.terrain;
+  if (!T) return list;
+  for (const h of list) {
+    if (!h.def.terrain) continue;
+    if (Math.hypot(h.x, h.y) > CORE.arena - h.r * 0.6) { h.x *= 0.85; h.y *= 0.85; }
+    const ext = h.type === 'acidlake' ? h.r * 1.7 : h.r;
+    const gone = new Set(T.list.filter(o => !o.parent && Math.hypot(o.x - h.x, o.y - h.y) < ext + o.r + 80));
+    T.list = T.list.filter(o => !gone.has(o) && !gone.has(o.parent));
+    if (h.type === 'acidlake') h.ob = bhLake(T.list, h.x, h.y, h.r);
+    else bhField(T.list, h.x, h.y, h.r);
+  }
+  T.grid = terrainGrid(T.list);
+  return list;
+}
+const bhLobes = () => Array.from({ length: 8 }, () => rand(0.82, 1.2));
+const bhPiece = (type, x, y, r, extra) => Object.assign({ type, def: OBSTACLES[type], x, y, r, a: Math.random() * TAU, charge: 0, flash: 0, seed: Math.random() * 100, burstT: 0, lobes: bhLobes() }, extra);
+function bhLake(L, x, y, R) {
+  const root = bhPiece('acid', x, y, R * 0.65, { lake: true, sp: rand(3, 6), h: Math.random() * TAU, fixed: false });
+  L.push(root);
+  const n = 4 + Math.floor(Math.random() * 4);
+  for (let i = 0; i < n; i++) {
+    const a = i / n * TAU + rand(-0.4, 0.4), d = root.r * rand(0.4, 0.7), r = root.r * rand(0.55, 0.8), px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+    L.push(bhPiece('acid', px, py, r, { parent: root, ox: px - x, oy: py - y }));
+  }
+  return root;
+}
+function bhField(L, x, y, F) {
+  const k = CORE.arena < 2000 ? 0.7 : 1, n = 9 + Math.floor(Math.random() * 6), beds = [];
+  for (let i = 0; i < n * 3 && beds.length < n; i++) {
+    const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * F * 0.85, r = rand(50, 115) * k, bx = x + Math.cos(a) * d, by = y + Math.sin(a) * d;
+    if (beds.some(b => Math.hypot(b.x - bx, b.y - by) < (b.r + r) * 0.75)) continue;
+    const root = bhPiece('cilia', bx, by, r, { sp: 0, h: 0, fixed: true });
+    beds.push(root); L.push(root);
+    // Misshapen: a couple of smaller beds grown into each one.
+    for (let j = 0, m = 1 + Math.floor(Math.random() * 3); j < m; j++) {
+      const aa = Math.random() * TAU, dd = r * rand(0.55, 0.95), rr = r * rand(0.45, 0.8), px = bx + Math.cos(aa) * dd, py = by + Math.sin(aa) * dd;
+      L.push(bhPiece('cilia', px, py, rr, { parent: root, ox: px - bx, oy: py - by }));
+    }
+  }
+}
+// Acid lakes swallow any acid pit (or other lake) they bump into: its pools join the lake and ride along with it.
+// Lakes creep and ordinary pits steer clear, so it is rare. Hook: terrain.js updateTerrain.
+function bigHazMerge(L) {
+  if ((G.bhMergeT || 0) > G.t) return;
+  G.bhMergeT = G.t + 0.5;
+  for (const a of L) {
+    if (!a.lake || a.parent) continue;
+    for (const b of L) {
+      if (b === a || b.parent || b.type !== 'acid' || Math.hypot(a.x - b.x, a.y - b.y) > a.r * 1.5 + b.r * 1.2) continue;
+      const big = b.lake && b.r > a.r ? b : a, small = big === a ? b : a;
+      for (const o of L) if (o === small || o.parent === small) { o.parent = big; o.ox = o.x - big.x; o.oy = o.y - big.y; }
+      small.lake = false; big.merged = (big.merged || 0) + 1; big.flash = 0.8;
+      G.stats.lakeMerges = (G.stats.lakeMerges || 0) + 1;
+      const p = G.player;
+      if (Math.hypot(p.x - small.x, p.y - small.y) < 900) floatText(small.x, small.y, 'THE ACID RUNS TOGETHER', '#c6f07a', 15, 1.6);
+      G.terrain.regridT = 0;
+      return;
+    }
+  }
+}
 const bigHazList = () => (G && G.bigHaz) || [];
 // How far into h a point is: 0 at the edge, 1 at the middle (negative outside).
 const bhIn = (h, x, y) => 1 - Math.hypot(x - h.x, y - h.y) / h.r;
@@ -51,6 +122,7 @@ const bhIn = (h, x, y) => 1 - Math.hypot(x - h.x, y - h.y) / h.r;
 function bigHazTick(dt) {
   for (const h of bigHazList()) {
     const p = G.player;
+    if (h.ob) { h.x = h.ob.parent ? h.ob.parent.x + h.ob.ox : h.ob.x; h.y = h.ob.parent ? h.ob.parent.y + h.ob.oy : h.ob.y; } // (a lake creeps)
     if (!h.seen && Math.hypot(p.x - h.x, p.y - h.y) < h.r + 380) {
       h.seen = true;
       floatText(h.x, h.y, h.def.name.toUpperCase(), '#ffffff', 22, 2);

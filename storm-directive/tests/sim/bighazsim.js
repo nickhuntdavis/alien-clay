@@ -20,7 +20,7 @@ const N = +(process.argv[2] || 3), MIN = +(process.argv[3] || 4), MODE = process
         if (G.player.hp < G.P.maxHp * 0.3) G.player.hp = G.P.maxHp * 0.3;
         if (G.state !== 'play') continue;
         fr++;
-        for (const h of G.bigHaz) { const k = bhIn(h, G.player.x, G.player.y); if (k > -0.3) near[h.type] = (near[h.type] || 0) + 1; const bad = h.type === 'plughole' ? k > 0.78 : h.type === 'hotflush' ? k > 0 && h.warn > 0 : k > 0; if (bad) inH[h.type] = (inH[h.type] || 0) + 1; }
+        for (const h of G.bigHaz) { const k = bhIn(h, G.player.x, G.player.y); if (k > -0.3) near[h.type] = (near[h.type] || 0) + 1; const bad = h.type === 'plughole' ? k > 0.78 : h.type === 'hotflush' ? k > 0 && h.warn > 0 : h.def.terrain ? (h.type === 'acidlake' ? G.acidOn > G.t : G.inCilia) : k > 0; if (bad) inH[h.type] = (inH[h.type] || 0) + 1; }
         if (f % 600 === 0) await new Promise(r => setTimeout(r, 0));
       }
       const hk = G.stats.hurt || {};
