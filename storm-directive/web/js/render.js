@@ -2673,6 +2673,7 @@ function drawBossTells(e, x, y, r) {
   if (pat === 'devour') { ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1; for (let k = 0; k < 3; k++) { const rr = ((G.realT * 0.8 + k / 3) % 1) * 290 * S; ctx.beginPath(); ctx.arc(x, y, 290 * S - rr, 0, TAU); ctx.stroke(); } }
 }
 function drawHazards(vis) {
+  bpDraw(); // (the boss pack's seal and tells: bosspack.js)
   for (const h of G.hazards) {
     if (!vis(h)) continue;
     const x = sx(h.x), y = sy(h.y), r = h.r * S;
