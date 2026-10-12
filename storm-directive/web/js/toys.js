@@ -433,8 +433,7 @@ function peekBoo(w, x, y, minLook, quiet) {
     if (jump) e.frozen = Math.max(e.frozen, 1.2); else e.fearT = G.t + fear;
   };
   IN_AOE = true;
-  forNear(x, y, R, scare);
-  if (!quiet && G.peek) forNear(G.peek.x, G.peek.y, R, scare);
+  forNear(x, y, R, scare); // (only round you: the spot you vanished from bursts only with the Decoy Doll)
   IN_AOE = false;
   floatText(x, y - 36, 'BOO!', w.def.color, 24, 0.9);
   ring(x, y, R, w.def.color, 0.45, 6);
