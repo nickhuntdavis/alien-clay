@@ -1064,3 +1064,15 @@ body.immersive #bottom .slot:active, body.immersive #moveBtn:active, body.immers
 @keyframes srSlam { 0% { transform: scale(2.6); opacity: 0; filter: blur(6px); } 60% { opacity: 1; filter: blur(0); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes srUp { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes srBlink { 50% { opacity: 0.4; } }
+
+/* Cycling buttons: an arrow flashes on the half you tapped (ui.js tapSide). */
+#moveBtn { position: relative; overflow: hidden; }
+.tapArrow { position: absolute; top: 50%; z-index: 3; pointer-events: none; font-style: normal; font-weight: 900; font-size: 30px; line-height: 1; color: #fff; text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 3px #000; animation: tapArrow 0.45s ease-out both; }
+.tapArrow.l { left: 4px; --dx: -8px; } .tapArrow.r { right: 4px; --dx: 8px; }
+@keyframes tapArrow { 0% { opacity: 0; transform: translate(0, -50%) scale(0.7); } 25% { opacity: 1; transform: translate(0, -50%) scale(1.1); } 100% { opacity: 0; transform: translate(var(--dx), -50%) scale(1); } }
+/* A little wider, so each half of a weapon slot is easy to hit. */
+.slot.weapon { width: 80px; }
+#wslots { max-width: 252px; }
+#wslots.many { max-width: 350px; }
+#wslots.many .slot:not(.spell) { width: 64px; }
+body.land .slot.weapon { width: 74px; } body.land #wslots, body.land #wslots.many { max-width: 158px; } /* (landscape keeps two to a row) */

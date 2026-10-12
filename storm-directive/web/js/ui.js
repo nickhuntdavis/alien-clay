@@ -31,10 +31,10 @@ const UI = {
     const ws = $('wslots'), ss = $('sslots');
     for (let i = 0; i < MAX_WEAPONS + COMBO_MOUNTS; i++) ws.appendChild(UI.makeSlotEl('w', i));
     for (let i = 0; i < 2; i++) ss.appendChild(UI.makeSlotEl('s', i));
-    $('moveBtn').addEventListener('click', () => {
+    $('moveBtn').addEventListener('click', ev => {
       if (!G) return;
-      const i = MOVE_DIRECTIVES.findIndex(m => m.id === G.moveDir);
-      G.moveDir = MOVE_DIRECTIVES[(i + 1) % MOVE_DIRECTIVES.length].id;
+      const i = MOVE_DIRECTIVES.findIndex(m => m.id === G.moveDir), n = MOVE_DIRECTIVES.length, k = tapSide($('moveBtn'), ev);
+      G.moveDir = MOVE_DIRECTIVES[(i + k + n) % n].id;
       UI.toast('AUTORUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name);
       UI.refreshHud(true);
     });
@@ -172,13 +172,13 @@ const UI = {
         + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name : ''}</p>` : '')
         + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '')
         + `<p>${kind === 's' ? 'Tap to perform it now. Its target and the rest are in the Tackle Box.' : w.def.noTarget ? 'Tap to open the Tackle Box.' : 'Tap to switch target. TACKLE BOX button for the rest.'}</p>`;
-    }, () => {
+    }, ev => {
       if (!G || G.state !== 'play') return;
       const w = kind === 's' ? G.spells[i] : G.weapons[i];
       if (kind === 's' && w) { featTap(w); return; } // (Feats: tap to cast)
       if (!w || w.def.noTarget) { UI.openArmoury(kind, i); return; }
-      const idx = DIRECTIVES.findIndex(d => d.id === w.dir);
-      w.dir = DIRECTIVES[(idx + 1) % DIRECTIVES.length].id;
+      const idx = DIRECTIVES.findIndex(d => d.id === w.dir), n = DIRECTIVES.length;
+      w.dir = DIRECTIVES[(idx + tapSide(el, ev) + n) % n].id;
       if (w.dirs) w.dirs[0] = w.dir;
       UI.toast(w.def.name + ' > ' + DIRECTIVES.find(d => d.id === w.dir).name);
       UI.refreshHud(true);
@@ -221,7 +221,7 @@ const UI = {
     for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); }
     for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
     comboBonds(); // (combo partners share one border: fusion.js)
-    $('moveBtn').textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
+    $('moveBtn').firstChild.textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
     // Keep the Rewind button clear of the HUD as extra weapon rows appear.
     UI.bottomH = $('bottom').offsetHeight;
     $('side').style.bottom = LAYOUT.land ? '' : (UI.bottomH + 12) + 'px';
@@ -1545,6 +1545,16 @@ function lootStory(req) {
 }
 
 // Tap acts; press and hold shows details in a popover (let go to close, nothing happens).
+// Cycling buttons (autorun, weapon targets): the left half steps back, the right half forward. A faint
+// arrow flashes on the side you tapped, so you find out; nothing on the button says so.
+function tapSide(el, ev) {
+  const r = el.getBoundingClientRect(), k = ev && ev.clientX != null && ev.clientX < r.left + r.width / 2 ? -1 : 1;
+  const a = document.createElement('i');
+  a.className = 'tapArrow ' + (k < 0 ? 'l' : 'r'); a.textContent = k < 0 ? '\u2039' : '\u203a';
+  a.addEventListener('animationend', () => a.remove());
+  el.appendChild(a);
+  return k;
+}
 function holdable(el, info, onTap) {
   let timer = 0, held = false, sx = 0, sy = 0, suppress = false;
   el.addEventListener('pointerdown', ev => {
