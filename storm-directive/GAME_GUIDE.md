@@ -54,7 +54,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 ## How upgrades work
 
 1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, Feats, power-ups, modifiers, stains and (rarely) curses.
-   Each ordinary card has a pin (top left) and a hide (top right) button. A pinned card (up to 3) turns up in your next box if it still fits; a hidden card (up to 5) never comes back this run. Tap either in the pause menu (Build tab) to undo it.
+   Each ordinary card has a pin and a hide (✕) button at its top right. A pinned card (up to 3) turns up in your next box if it still fits; a hidden card (up to 5) never comes back this run. Tap either in the pause menu (Build tab) to undo it.
    **Weird boxes:** about one level or DNA strand box in six (after the first two minutes) breaks the rules. **Double or Nothing**: take a card, or GAMBLE (half the time two cards a rarity better, half the time nothing). **Mystery Sachet**: three sealed cards, only the border shows the rarity. **The Recycler**: hand over two weapon modifiers for one card two rarities better (Legendary at most). **Cursed Bargain**: a Mythical card with a curse attached, or refuse it. **Nothing Box**: you get nothing, and the next ordinary box is all Immaculate.
 2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
    - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.

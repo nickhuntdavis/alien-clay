@@ -1,4 +1,4 @@
-// Pin and hide loot cards. Each ordinary loot card has a pin (top left) and a hide (top right) corner button.
+// Pin and hide loot cards. Each ordinary loot card has a pin and a hide button, side by side at the top right.
 // A pinned card is put in the next box it fits; a hidden one never comes back this run. Both clear when the run ends.
 // Data: G.pins (max PH.maxPin) and G.hides (max PH.maxHide), entries are o.pk = candidate key + '|' + novelty key (set in genLoot).
 // Hooks: genLoot (game.js), newGame (G.pins/hides/pinName), UI.renderLootCards and UI.upgradeCard (phButtons), UI.pickLoot (phTaken), UI.renderPause (phPauseHtml/phPauseBind).
