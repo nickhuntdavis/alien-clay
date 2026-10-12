@@ -408,6 +408,7 @@ function novPick(keys) {
   return keys[keys.length - 1];
 }
 function rollRarity(min, special) {
+  if (G.immBox) return 6; // (the box after a Nothing Box, weird.js)
   if (G.mythBox) return Math.random() < 0.3 ? 6 : 5; // (Achievement DNA)
   const luck = G.P.luck;
   if (special && (G.mythN || 0) < 3) {
@@ -443,6 +444,7 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
+  if (req.rule || req.imm) { const wl = weirdLoot(req); if (wl) return wl; } // (weird.js: a rule-breaking box)
   if (req.kind === 'myth') { // Achievement DNA: Mythical or Immaculate cards only
     G.mythBox = true;
     try {
@@ -532,7 +534,7 @@ function genLoot(req) {
   }
   // Occasionally the System slips a cursed card into the box.
   const curses = CURSES.filter(c => !G.curses[c.id]);
-  if (curses.length && !G.mythBox && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses));
+  if (curses.length && !G.mythBox && !G.immBox && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses));
   if (opts.length && Math.random() < 0.45) pick(opts).quip = pick(CARD_QUIPS);
   const fillers = [optHeal, optRerolls, optOvercharge];
   for (const f of fillers) { if (opts.length >= 3) break; const o = f(); if (!opts.some(q => q.title === o.title)) opts.push(o); }

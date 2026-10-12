@@ -1013,3 +1013,8 @@ body.immersive #bottom .slot:active, body.immersive #moveBtn:active, body.immers
 @keyframes srSlam { 0% { transform: scale(2.6); opacity: 0; filter: blur(6px); } 60% { opacity: 1; filter: blur(0); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes srUp { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes srBlink { 50% { opacity: 0.4; } }
+/* Weird loot (weird.js) */
+#lootCards .wlist { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+#lootCards .wlist > div { width: 100%; }
+#lootCards .wlist .btn.on { outline: 2px solid var(--bc, #ffca3a); }
+#lootCards .card.sealed .ctitle { font-size: 28px; letter-spacing: 6px; text-align: center; }
