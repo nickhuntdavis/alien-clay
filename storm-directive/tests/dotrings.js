@@ -30,10 +30,15 @@ const { chromium } = require('playwright');
     const def = ENEMIES.chaser || Object.values(ENEMIES)[0];
     const set = [e => { e.burn = 9; e.burnDps = 1; }, e => { e.poison = 9; e.poisonDps = 1; e.poisonStacks = 1; }, e => { e.bleed = 50; }, e => { e.acidT = G.t + 99; }, e => { e.parasiteT = 9; }];
     set.forEach((fn, i) => { const e = makeEnemy(def, p.x - 120 + i * 60, p.y - 120); e.speed = 0; e.hp = e.maxHp = 1e9; fn(e); G.enemies.push(e); });
+    // The other temporary effects (STATUS_RINGS), two rows of five below.
+    const keys = { daze: 'dazeT', soap: 'soapT', ink: 'inkT', wet: 'wetT', crust: 'crustT', bleach: 'bleachT', fear: 'fearT', batt: 'battT', edit: 'edited', match: 'matchT' };
+    STATUS_RINGS.forEach((R, i) => { const e = makeEnemy(def, p.x - 120 + (i % 5) * 60, p.y + 60 + Math.floor(i / 5) * 80); e.speed = 0; e.hp = e.maxHp = 1e9; e[keys[R.id]] = G.t + 99; G.enemies.push(e); });
     G.debug = { freeze: true };
   });
   await page.waitForTimeout(400); await page.screenshot({ path: 'dotrings.png' });
-  const ok = r.waders >= 10 && r.waders <= 30 && r.inside >= 5 && !r.bossIn && r.burnt >= 5;
+  const rings = await page.evaluate(() => G.enemies.filter(e => STATUS_RINGS.some(R => R.on(e))).length);
+  const STATUS_RINGS_N = 10;
+  const ok = r.waders >= 10 && r.waders <= 30 && r.inside >= 5 && !r.bossIn && r.burnt >= 5 && rings === STATUS_RINGS_N;
   if (!ok) console.log('FAIL', JSON.stringify(r));
-  console.log(JSON.stringify(r), 'ERRORS ' + JSON.stringify(errors)); await b.close();
+  console.log(JSON.stringify(r), 'rings', rings, 'ERRORS ' + JSON.stringify(errors)); await b.close();
 })();

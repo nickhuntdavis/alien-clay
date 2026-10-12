@@ -2074,6 +2074,8 @@ function drawEnemy(e, lod) {
   if (e.parasiteT > 0) st('#b5e48c');
   if (e.soggyT > G.t) st('#cfe8ff');
   if (e.guiltT > G.t) st('#c77dff');
+  // Other temporary effects you put on them: each its own colour (STATUS_RINGS).
+  for (const R of STATUS_RINGS) if (R.on(e)) st(R.c);
   if (e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
   if (e === G.grudge) {
     // Grudge target: a rotating red crosshair.
@@ -2095,6 +2097,20 @@ function drawEnemy(e, lod) {
 // The pause menu's YOU portrait: your sperm exactly as it looks in play (upgrades and every active sequence's
 // marks), drawn big on canvas context g (css size Wc x Hc) on a patch of slide. Borrows the world drawing
 // globals for the length of the call. body: a stand-in that keeps its own tail, so yours isn't disturbed.
+// The temporary effects (beyond damage types and damage over time) that get a ring on an enemy. Pool contact
+// (Nausea, Corrosive and the like) has none: the pool shows it.
+const STATUS_RINGS = [
+  { id: 'daze',   name: 'Dazed',      c: '#ffd166', on: e => e.dazeT > G.t },
+  { id: 'soap',   name: 'Soaped',     c: '#e0c3fc', on: e => e.soapT > G.t },
+  { id: 'ink',    name: 'Inked',      c: '#f15bb5', on: e => e.inkT > G.t },
+  { id: 'wet',    name: 'Wet',        c: '#48cae4', on: e => e.wetT > G.t },
+  { id: 'crust',  name: 'Crusted',    c: '#d4a373', on: e => e.crustT > G.t },
+  { id: 'bleach', name: 'Bleached',   c: '#ffffff', on: e => e.bleachT > G.t },
+  { id: 'fear',   name: 'Scared',     c: '#7b2cbf', on: e => e.fearT > G.t },
+  { id: 'batt',   name: 'Charged',    c: '#00f5d4', on: e => e.battT > G.t },
+  { id: 'edit',   name: 'Gene-edited', c: '#ff70a6', on: e => e.edited > G.t },
+  { id: 'match',  name: 'Matching',   c: '#a7c957', on: e => e.matchT > G.t },
+];
 function drawYouPortrait(g, Wc, Hc, body, t) {
   const keep = { ctx, W, H, S, cx: cam.x, cy: cam.y, rt: G.realT }, L = shipLook(), ps = playerScale();
   const bg = g.createRadialGradient(Wc * 0.55, Hc * 0.5, 0, Wc * 0.55, Hc * 0.5, Math.max(Wc, Hc) * 0.75);
