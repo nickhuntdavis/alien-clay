@@ -1821,15 +1821,30 @@ function render() {
       continue;
     }
     if (f.type === 'lash') {
-      // Flagellum Flail: a whip that cracks out straight and wobbles at the tip.
-      const ca = Math.cos(f.a), sa = Math.sin(f.a), L = f.r * Math.min(1, (1 - k) * 4);
-      ctx.strokeStyle = f.color; ctx.lineCap = 'round';
-      for (const [lw, al] of [[f.w * 1.6, 0.25], [Math.max(2, f.w * 0.45), 1]]) {
-        ctx.globalAlpha = al * k; ctx.lineWidth = lw * S; ctx.beginPath();
-        for (let i = 0; i <= 12; i++) { const t = i / 12, wob = Math.sin(t * 9 + f.seed + (1 - k) * 20) * f.w * 0.5 * t; const px = f.x + ca * L * t - sa * wob, py = f.y + sa * L * t + ca * wob; if (i) ctx.lineTo(sx(px), sy(py)); else ctx.moveTo(sx(px), sy(py)); }
-        ctx.stroke();
+      // Flagellum Flail: an elastic strand. It stretches out with a slight bow, overshoots a touch, then springs
+      // back with a slow ripple running down it. Thick and glossy at the root, tapering to a little knob.
+      const p = 1 - k, ca = Math.cos(f.a), sa = Math.sin(f.a), seg = 22;
+      const out = p < 0.3 ? 1 - Math.pow(1 - p / 0.3, 3) : 1;
+      const back = p < 0.3 ? 0 : Math.pow((p - 0.3) / 0.7, 1.6);
+      const L = f.r * (out * (1 + 0.06 * Math.sin(Math.min(1, p / 0.45) * Math.PI)) - 0.45 * back);
+      const bow = (f.seed % 2 < 1 ? 1 : -1) * f.r * 0.07 * (1 - out * 0.8), amp = f.w * 0.55 * (1 - p) * Math.min(1, p * 5);
+      const w0 = Math.max(4, f.w * 0.75) * S;
+      const pt = t => { const lat = bow * Math.sin(Math.PI * t) + amp * Math.sin(TAU * (t * 1.3 - p * 2.2)) * t; return [sx(f.x + ca * L * t - sa * lat), sy(f.y + sa * L * t + ca * lat)]; };
+      const P = []; for (let i = 0; i <= seg; i++) P.push(pt(i / seg));
+      const L2 = [], R2 = [];
+      for (let i = 0; i <= seg; i++) {
+        const a0 = P[Math.max(0, i - 1)], a1 = P[Math.min(seg, i + 1)], dx = a1[0] - a0[0], dy = a1[1] - a0[1], d = Math.hypot(dx, dy) || 1;
+        const hw = w0 * (1 - 0.75 * i / seg) / 2;
+        L2.push([P[i][0] - dy / d * hw, P[i][1] + dx / d * hw]); R2.push([P[i][0] + dy / d * hw, P[i][1] - dx / d * hw]);
       }
-      ctx.lineCap = 'butt';
+      ctx.globalAlpha = 0.9 * Math.min(1, k * 3); ctx.fillStyle = f.color; ctx.beginPath();
+      ctx.moveTo(L2[0][0], L2[0][1]); for (const q of L2) ctx.lineTo(q[0], q[1]); for (let i = R2.length - 1; i >= 0; i--) ctx.lineTo(R2[i][0], R2[i][1]); ctx.closePath(); ctx.fill();
+      ctx.lineWidth = Math.max(1, 0.8 * S); ctx.strokeStyle = 'rgba(20,24,22,0.55)'; ctx.stroke(); // (a thin skin)
+      const tp = P[seg]; ctx.beginPath(); ctx.arc(tp[0], tp[1], Math.max(2, w0 * 0.32), 0, TAU); ctx.fill(); ctx.stroke(); // the knob
+      // Gloss: a thin highlight along one side.
+      ctx.globalAlpha = 0.6 * Math.min(1, k * 3); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, 0.9 * S); ctx.lineCap = 'round'; ctx.beginPath();
+      for (let i = 1; i < seg - 2; i++) { const q = [(P[i][0] * 2 + L2[i][0]) / 3, (P[i][1] * 2 + L2[i][1]) / 3]; i > 1 ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }
+      ctx.stroke(); ctx.lineCap = 'butt';
       continue;
     }
     if (f.type === 'spikes') {

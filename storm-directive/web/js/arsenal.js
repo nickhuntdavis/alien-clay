@@ -566,7 +566,7 @@ function meleeLash(w, x, y, a, src, scale) {
     meleeHit(w, e, s.dmg, o);
     if (along > tipD) { tipD = along; tip = e; }
   });
-  G.fx.push({ type: 'lash', x, y, a, r: L, w: wd, color: w.def.color, life: 0.2, max: 0.2, seed: Math.random() * 10 });
+  G.fx.push({ type: 'lash', x, y, a, r: L, w: wd, color: w.def.color, life: 0.32, max: 0.32, seed: Math.random() * 10 }); // (the strand springs back after the hit)
   comboLash(w, x, y, a, L);
   // Snap Back: the lash yanks you along it.
   if (hasSig(w, 'snapback') && tip && tipD > 70 && !(w.snapT > G.t)) { w.snapT = G.t + 0.8; dashPlayer(Math.cos(a), Math.sin(a), Math.min(560, tipD * 2.4)); }
