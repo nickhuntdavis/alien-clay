@@ -22,5 +22,22 @@ const { chromium } = require('playwright');
     await page.waitForTimeout(200);
     await page.screenshot({ path: `foes_${df ? 'df' : 'light'}.png` });
   }
+  // The twenty from foes2.js (and the spore), in a grid, with support buffs showing.
+  for (const df of [false, true]) {
+    await page.evaluate(df => {
+      SET.darkfield = df; SET.fullColour = df; UI.applySettings();
+      UI.sample = 's001'; newGame(); UI.show('hud'); G.state = 'play'; G.lootQueue = []; G.enemies.length = 0; G.terrain.list.length = 0; G.terrain.grid = terrainGrid([]);
+      const p = G.player; p.hp = 1e9; G.P.maxHp = 1e9; G.f2el = { fire: 500 };
+      const ids = ['litmus', 'mirror', 'shell', 'puffball', 'spore', 'grease', 'leech', 'platelet', 'callus', 'plasma', 'interferon', 'cortisol', 'fibrin', 'complement', 'stem', 'tadpole', 'pube', 'fluff', 'bogey', 'sweetcorn', 'glitter'];
+      ids.forEach((id, i) => { const e = makeEnemy(ENEMIES[id], p.x - 120 + (i % 4) * 80, p.y - 400 + Math.floor(i / 4) * 60); e.speed = 0; G.enemies.push(e); });
+      for (let i = 0; i < 40; i++) update(1 / 60);
+      for (const e of G.enemies) e.speed = 0;
+      G.enemies.forEach((e, i) => { e.x = p.x - 120 + (i % 4) * 80; e.y = p.y - 400 + Math.floor(i / 4) * 60; e.stuck = null; });
+      G.complT = G.t + 5; G.enemies[1].ifn = 30; G.enemies[2].cortT = G.t + 5; G.enemies[2].svx = 30; G.enemies[2].svy = 0;
+      ZOOM.z = 2.4; cam.x = p.x; cam.y = p.y - 190; G.state = 'pause';
+    }, df);
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: `foes2_${df ? 'df' : 'light'}.png` });
+  }
   console.log('ERRORS', JSON.stringify(errors)); await b.close(); process.exit(errors.length ? 1 : 0);
 })();
