@@ -883,6 +883,7 @@ function react(e, id, src) {
   e.reactCd = 0.35;
   G.stats.reactions++;
   tutReact(id);
+  inspectSeeRx(id);
   addViewers(8);
   if (G.stats.reactions === 50) achieve('reactions');
   if (G.stats.reactions === 1000) achieve('breakingbad');
@@ -2775,6 +2776,7 @@ const endTouch = ev => {
   PTRS.delete(ev.pointerId);
   if (PINCH && PTRS.size < 2) { PINCH = null; setZoom(ZOOM.z, true); }
   if (ev.pointerId !== INPUT.id) return;
+  if (ev.type === 'pointerup' && G && INPUT.t0 != null) inspectTap(INPUT.sx, INPUT.sy, ev.clientX, ev.clientY, performance.now() - INPUT.t0); // (a quick tap on a foe: its card, inspect.js)
   INPUT.active = false; INPUT.id = null;
   if (!G) return;
   G.manual = null;
@@ -2947,9 +2949,9 @@ function frame(ts) {
       // Hit-stop: a big moment freezes the slide for a few hundredths of a second (juice.js).
       if (G.lootHold > 0) G.lootHold -= dt;
       if (G.hitStop > 0) G.hitStop -= dt;
-      else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed()); }
+      else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed() * inspectMul()); }
       else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
-      else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
+      else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed() * inspectMul()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);

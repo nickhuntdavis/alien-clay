@@ -981,7 +981,7 @@ const UI = {
     G.state = 'pause'; INPUT.active = false; G.manual = null;
     const rows = (UI.chips || []).map(([label, colour]) => {
       const key = statusKey(label) || label.replace(/\s*[\d:].*$/, ''), I = statusInfo(key), t = statusTimer(key);
-      return `<div class="li"><b style="color:${colour}">${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div>`;
+      return `<div class="li" data-insp="st:${esc(key)}"><b style="color:${colour}">${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div>`;
     });
     const lgt = typeof junkStatusRows === 'function' ? junkStatusRows() : []; // your junk DNA powers too (junk.js)
     $('stBody').innerHTML = (rows.length ? `<div class="list">${rows.join('')}</div>` : lgt.length ? '' : '<p class="hint">Nothing active right now.</p>')
@@ -1309,7 +1309,7 @@ const UI = {
       h += box('Chemical reactions', `<div class="list">${l}</div>`);
       let el = '';
       for (const id in ELEMENTS) el += `<div class="li"><b style="color:${ELEM_UI[id]}">${ELEMENTS[id].name}</b> <em>${esc(ELEMENTS[id].status)}</em><br><span>${esc(ELEMENTS[id].blurb)}</span></div>`;
-      h += box('Damage types', `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it.');
+      h += box('Damage types', inspectGuideHtml() + `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it. Tap one for its card.');
       let tl = '';
       const live = run ? activeTwists() : [];
       for (const k in TWISTS) { const on = live.some(x => x.tw.key === k); tl += `<div class="li"><b${on ? ' style="color:#ff3df2"' : ''}>${esc(TWISTS[k].name)}</b> <em>${k.split('+').map(x => ELEMENTS[x].name).join(' + ')}</em>${on ? ' (active)' : ''}<br><span>${esc(TWISTS[k].desc)}</span></div>`; }
