@@ -815,6 +815,7 @@ const UI = {
   openLoot(req) {
     // A skipped box makes the next ordinary one rarer (G.rarBoost, used up here, kept on the box for rerolls).
     if (RAR_SKIP[req.kind] != null && req.boost == null) { req.boost = G.rarBoost || 0; G.rarBoost = 0; }
+    weirdAssign(req); // (weird.js: sometimes the box breaks the rules)
     // New weapons and upgrade paths get the full Weapon Draft treatment.
     if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch' || req.kind === 'sfork') { UI.openDraft(req); if (req.kind !== 'level') return; } // (every weapon and spell choice gets the draft screen)
     G.state = 'loot';
@@ -841,9 +842,11 @@ const UI = {
     if (req.kind === 'sfork') { const sw = G.spells.find(x => x && x.uid === req.uid); if (sw) titles.sfork[0] = sw.def.name.toUpperCase() + ': LV ' + SPELL_FORK_LV + ' PATH'; }
     if (req.kind === 'branch') { const bw = G.weapons.find(x => x && x.uid === req.uid); if (bw) titles.branch[0] = bw.def.name.toUpperCase() + ': LV ' + req.lvl + (bw.def.sig && bw.def.sig[req.lvl] ? (req.lvl >= 10 ? ' MASTERY' : ' SIGNATURE') : ' BRANCH'); }
     $('lootTitle').textContent = titles[req.kind][0];
+    const wi = weirdInfo(req); if (wi) $('lootTitle').textContent = wi.title;
     if (req.kind !== 'start') achieve('firstloot');
     if (req.kind === 'level' && Math.random() < 0.3) sysLine('level');
     $('lootSub').textContent = req.kind === 'relic' ? titles.relic[1] : (lootStory(req) || titles[req.kind][1]) + (G.relics.twinpick && req.kind !== 'start' && req.kind !== 'branch' && req.kind !== 'sfork' && req.kind !== 'rrelic' ? ' SECONDS: take two.' : '');
+    if (wi) $('lootSub').textContent = wi.quip;
     const box = $('lootBox');
     box.className = 'box ' + req.kind;
     // Loot boxes are gold; a branch choice is an upgrade, so it's cyan.
@@ -861,7 +864,7 @@ const UI = {
     UI.updateReroll();
     UI.show('loot');
     INPUT.active = false; G.manual = null;
-    lootSound(req.kind, Math.max(...UI.lootOpts.map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
+    lootSound(req.kind, Math.max(0, ...UI.lootOpts.filter(o => !o.sealed).map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
     clearTimeout(UI.lootTimer);
     UI.lootOpenT = performance.now(); UI.freeRerollUsed = false;
     G.stats.boxes = (G.stats.boxes || 0) + 1; { const bb = G.stats.boxBy || (G.stats.boxBy = {}); bb[req.kind] = (bb[req.kind] || 0) + 1; }
@@ -873,7 +876,7 @@ const UI = {
   boonHtml(o) { if (!o.boon) return ''; const B = BOONS[o.boon]; return `<div class="cboon"><b>${RARITIES[o.rarity].name.toUpperCase()} BONUS: ${esc(B.name)}</b><span>${esc(B.desc)}</span></div>`; },
   // The box announces its best card when it's Legendary or better.
   rarityBanner() {
-    const el = $('rarBanner'), best = Math.max(...UI.lootOpts.filter(o => !o.cursed).map(o => o.rarity || 0));
+    const el = $('rarBanner'), best = Math.max(...UI.lootOpts.filter(o => !o.cursed && !o.sealed).map(o => o.rarity || 0));
     el.className = '';
     if (best < 4) { el.textContent = ''; return; }
     const R = RARITIES[best];
@@ -889,10 +892,11 @@ const UI = {
     const wrap = $('lootCards');
     clearPreviews(wrap);
     wrap.innerHTML = '';
-    const nW = UI.lootOpts.filter(o => o.wup).length;
+    const nW = UI.lootOpts.filter(o => o.wup && !o.sealed).length;
     UI.lootOpts.forEach((o, i) => {
       if (nW && i === 0) wrap.insertAdjacentHTML('beforeend', '<div class="lsec">UPGRADE A WEAPON</div>');
       if (nW && i === nW && i < UI.lootOpts.length) wrap.insertAdjacentHTML('beforeend', '<div class="lsec">OR SPLICE IN</div>');
+      if (o.sealed) { wrap.appendChild(weirdSealedCard(o, i)); return; }
       if (o.wup) { wrap.appendChild(UI.upgradeCard(o, i)); return; }
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
@@ -915,6 +919,7 @@ const UI = {
         // Only a tap that started on this screen picks a card (not one left over from skipping the intro
         // or steering when the box popped up).
         if (!(UI.lastDown > UI.lootOpenT)) return;
+        if (o.locked && o.locked()) { c.classList.remove('nudge'); void c.offsetWidth; c.classList.add('nudge'); return; } // (the Recycler wants two things first)
         if (o.pickW) {
           // Tuning cards: tap the weapon to tune (or anywhere, if there is only one).
           const chip = ev.target.closest('.wchip');
@@ -928,6 +933,7 @@ const UI = {
       phButtons(c, o);
       wrap.appendChild(c);
     });
+    if (UI.lootReq && UI.lootReq.rule === 'recycler' && UI.lootOpts.some(o => o.locked)) wrap.appendChild(weirdRecycleList(UI.lootReq));
   },
 
   pickChips(o) {

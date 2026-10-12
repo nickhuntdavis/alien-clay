@@ -1020,3 +1020,8 @@ body.immersive #bottom .slot:active, body.immersive #moveBtn:active, body.immers
 .card .phb.hide { right: 3px; font-weight: 900; }
 .card .phb.full { opacity: 0.25; filter: grayscale(1); }
 .card.pinned { box-shadow: 0 0 10px #e6c46a88; }
+/* Weird loot (weird.js) */
+#lootCards .wlist { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+#lootCards .wlist > div { width: 100%; }
+#lootCards .wlist .btn.on { outline: 2px solid var(--bc, #ffca3a); }
+#lootCards .card.sealed .ctitle { font-size: 28px; letter-spacing: 6px; text-align: center; }
