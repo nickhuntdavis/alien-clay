@@ -25,7 +25,7 @@ At the start of each request, check whether the model fits the job, and if not, 
 - Effort: Medium for batches; higher for gnarly bugs and new systems. If Sonnet takes two tries at the same fix, suggest Opus.
 
 ## Git
-- Work and push only on the branch the session names (it has been `claude/autorun-bullet-storm-game-blptu8`). Use `git push -q origin <branch>`.
+- Work and push only on the branch the session names (`main` is the integration branch; session branches are merged into it). Use `git push -q origin <branch>`.
 - Conventional commits (`feat:`, `fix:` and so on), ending with the attribution lines from the session's system reminder. Never put model IDs in commits. No PR unless asked.
 
 ## Fast APK (default for every build)
@@ -46,7 +46,7 @@ At the start of each request, check whether the model fits the job, and if not, 
 7. One build per batch of requests, not per item.
 - Release builds are signed with `android/spawnprawn.keystore` (in the repo, so every session's APK installs over the last). Its password is NOT in the repo: it comes from the `SPAWN_KS_PASS` environment variable (set in the cloud environment's settings). If it is missing the release build stops with a clear error: tell the user, never generate a new key and never switch to the debug key (either forces an uninstall that wipes saves).
 - Update `GAME_GUIDE.md` text (via `tests/tools/guide.js`) and `NOTES.md` when features change.
-- Before the first build, check the session branch has main's latest (`git log -1 origin/claude/autorun-bullet-storm-game-blptu8`) and that `APP_VERSION` matches `NOTES.md`; a branch started from an old main ships an APK missing recent work.
+- Before the first build, check the session branch has main's latest (`git log -1 origin/main`) and that `APP_VERSION` matches `NOTES.md`; a branch started from an old main ships an APK missing recent work.
 
 ## Tests
 - `./run.sh` runs everything. `./run.sh lvshot quick` runs just those. Only failures and a summary are printed. Screenshots go to `tests/out/` (git-ignored).
