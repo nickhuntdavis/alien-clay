@@ -96,7 +96,10 @@ function toggleDebugPanel() {
 }
 
 // Developer mode's UNLOCK EVERYTHING (samples screen, beside the Lab Bench): every unlock, discovery and record
-// the save can hold, plus 100,000 DNA for the Gene Bank. Gene Bank ranks are left for you to buy.
+// the save can hold, plus 100,000 DNA for the Gene Bank. Gene Bank ranks and starter weapons are left for you to buy
+// (owned starters join every weapon draft, so granting all 14 made drafts offer weapons from every sequence).
+// Developer mode's RESET STARTERS: hands back every starter weapon so drafts use only the sequences in the run.
+function devResetStarters() { META.starters = {}; saveMeta(); }
 function devUnlockAll() {
   const L = META.life;
   L.bestT = Math.max(L.bestT, 600); L.bosses = Math.max(L.bosses, 25); L.pickups = Math.max(L.pickups, 100); L.elem = Math.max(L.elem, 2e6); L.casts = Math.max(L.casts, 1500);
@@ -114,7 +117,6 @@ function devUnlockAll() {
   for (const id in RELICS) META.relics[id] = true;
   for (const b of BOSSES) META.bosses[b.id] = Math.max(1, META.bosses[b.id] || 0);
   for (const id in WEAPONS) if (!META.wstats[id]) META.wstats[id] = { runs: 1, born: 0, best: 1 };
-  for (const [id] of META_STARTERS) META.starters[id] = true;
   for (const d of META_DYES) META.dyes[d.id] = true;
   META.dna += 100000; META.total += 100000;
   saveMeta();
