@@ -787,7 +787,7 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
 const NOLOOK = { tails: 1, head: 1, stretch: 1, tailLen: 1, beat: 1, armour: 0, cilia: 0, barb: 0, acro: 1, elem: null, field: 0, drop: 0, luck: 0 };
 const ELEM_PASSIVE = { pyro: 'fire', cryo: 'ice', storm: 'shock', toxin: 'poison', arcanum: 'arcane', kinetic: 'phys' };
 function shipLook() {
-  const P = G.passives, key = Object.entries(P).join() + '|' + G.level;
+  const P = G.passives, key = Object.entries(P).join() + '|' + G.level + '|' + (G.genes ? G.genes.active.join('+') : '');
   if (G.lookKey === key && G.look) return G.look;
   const n = id => Math.min(5, P[id] || 0);
   let elem = null, best = 0;
@@ -830,6 +830,7 @@ function headSquash(b) {
 }
 function drawShip(x, y, face, tag, alpha, scale, body, look) {
   const L = look || NOLOOK;
+  const sqz = body && body === G.player ? 1 + squashStep(body, face) : 1;
   // A spermatozoon under phase contrast, in true proportions: a flat oval head (about 5 x 3 um) that reads
   // dark grey with a bright halo and a paler acrosome cap over its front half, a short thicker midpiece,
   // and a hair-thin flagellum about ten head-lengths long, beating in a travelling wave.
@@ -841,7 +842,7 @@ function drawShip(x, y, face, tag, alpha, scale, body, look) {
     ctx.globalAlpha = alpha * 0.9; ctx.strokeStyle = 'rgb(46,52,48)'; ctx.lineWidth = 1.4 * k; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(x - Math.cos(face) * 10 * k, y - Math.sin(face) * 10 * k); ctx.lineTo(x - Math.cos(face) * 15 * k + Math.sin(G.realT * 30 + (body.id || 0)) * k, y - Math.sin(face) * 15 * k); ctx.stroke();
   } else if (body) {
-    const back = 10.5 * sc * L.head * L.stretch, wx = body.x - Math.cos(face) * back, wy = body.y - Math.sin(face) * back;
+    const back = 10.5 * sc * L.head * L.stretch * sqz, wx = body.x - Math.cos(face) * back, wy = body.y - Math.sin(face) * back;
     const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0), len = 78 * sc * L.tailLen * (L.levelTail || 1);
     stepTail(body, wx, wy, face, len, v, L.beat, L.tailN);
     const tails = [body.tailDraw];
