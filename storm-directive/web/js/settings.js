@@ -12,6 +12,7 @@ const SETTINGS_DEF = [
   { id: 'layout', label: 'Layout', hint: 'Landscape puts your weapons down the side. Auto follows the screen.', opts: [['auto', 'AUTO'], ['portrait', 'PORTRAIT'], ['landscape', 'LANDSCAPE']] },
   { id: 'narrator', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE LAB TECH'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
   { id: 'speed', label: 'Game speed', hint: 'How fast the whole game runs. Also in the pause menu. The run log notes the speeds you played at.', opts: [[0.5, 'x0.5'], [0.75, 'x0.75'], [1, 'x1'], [1.5, 'x1.5'], [2, 'x2']] },
+  { id: 'inspect', label: 'Tap to inspect', hint: 'Tap an enemy for its card (HP, weaknesses, a joke). PAUSE stops the game while the card is open; HALF SPEED keeps it running slowly.', opts: [['pause', 'PAUSE'], ['half', 'HALF SPEED']] },
   { id: 'intros', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet. Everything still goes in your Field Guide. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
   { id: 'fpsCap', label: 'Frame rate', hint: '60 is smoother over a whole run: on a 90 or 120 Hz screen it halves the work, so the phone stays cooler and has room for busy moments.', opts: [[60, '60'], [0, 'UNCAPPED']] },
   { id: 'sound', label: 'Sound', hint: '', opts: [[true, 'ON'], [false, 'OFF']] },
@@ -32,7 +33,7 @@ const SETTINGS_DEF = [
   { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. EARNED: with the Counterstain.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cBg', label: 'Background', hint: 'A soft tissue-pink tint on the slide. EARNED: only with Full Technicolour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', speed: 1, featAuto: true, immersive: false, fullColour: false,
+const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: false, fullColour: false,
   cYou: 'earned', cDanger: 'earned', cReward: 'earned', cPickup: 'earned', cFast: 'earned', cRival: 'earned', cElem: 'earned', cEnemy: 'earned', cTerrain: 'earned', cBg: 'earned' };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');

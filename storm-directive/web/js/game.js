@@ -97,7 +97,7 @@ function newGame() {
     P: newStats(),
     enemies: [], proj: [], ebul: [], gems: [], pickups: [], zones: [], fx: [], parts: [], texts: [], turrets: [], timers: [],
     weapons: Array(BASE_SLOTS).fill(null), spells: [null, null], passives: {},
-    moveDir: 'kite', manual: null,
+    moveDir: 'kite', manual: null, pins: [], hides: [], pinName: {}, // (loot cards you pinned or hid: pinhide.js)
     kills: 0, level: 1, xp: 0, xpNeed: xpNeed(1),
     lootQueue: [{ kind: 'start' }], rerolls: 2,
     warp: 0, rage: 0, shieldT: 0, barrier: 0, barrierR: 0, barrierDmg: 0,
@@ -409,6 +409,7 @@ function novPick(keys) {
   return keys[keys.length - 1];
 }
 function rollRarity(min, special) {
+  if (G.immBox) return 6; // (the box after a Nothing Box, weird.js)
   if (G.mythBox) return Math.random() < 0.3 ? 6 : 5; // (Achievement DNA)
   const luck = G.P.luck;
   if (special && (G.mythN || 0) < 3) {
@@ -444,6 +445,7 @@ function lvBonusText(def, from, to) {
 
 function genLoot(req) {
   const opts = [];
+  if (req.rule || req.imm) { const wl = weirdLoot(req); if (wl) { if (req.rule) for (const o of wl) delete o.pk; return wl; } } // (weird.js: a rule-breaking box)
   if (req.kind === 'myth') { // Achievement DNA: Mythical or Immaculate cards only
     G.mythBox = true;
     try {
@@ -494,7 +496,10 @@ function genLoot(req) {
     // New modifiers while slots are free; otherwise offer to power up one it already has.
     const fits = id => !MODS[id].kinds || MODS[id].kinds.includes(w.def.kind);
     const ids = w.mods.length < MOD_SLOTS ? Object.keys(MODS).filter(id => fits(id) && !w.mods.some(m => m.id === id)) : w.mods.filter(m => m.p < MOD_MAX_POWER).map(m => m.id);
-    if (ids.length) { const id = novPick(ids.map(x => 'm' + x)).slice(1); cands.push({ w: 8, key: 'mod' + w.uid, nk: 'm' + id, make: r => optMod(w, id, r) }); }
+    const mk = 'mod' + w.uid + '|m';
+    const ok = ids.filter(x => !G.hides.includes(mk + x)); // (hidden mods never come back)
+    const pinned = G.pins.find(p => p.startsWith(mk) && ok.includes(p.slice(mk.length))); // (a pinned mod is rebuilt exactly)
+    if (ok.length) { const id = pinned ? pinned.slice(mk.length) : novPick(ok.map(x => 'm' + x)).slice(1); cands.push({ w: 8, key: 'mod' + w.uid, nk: 'm' + id, make: r => optMod(w, id, r) }); }
   });
   const ownedElems = new Set(); for (const w of G.weapons.concat(G.spells)) if (w) { ownedElems.add(w.def.elem); if (w.def.elem2) ownedElems.add(w.def.elem2); }
   for (const id in PASSIVES) {
@@ -512,12 +517,19 @@ function genLoot(req) {
   // (Not one you already see: a permanent stain switched on in the pause menu counts.)
   for (const id in DYES) if (!G.dyeBoon[id] && !G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
   // (Combos never come in a box: they get their own unlock screen, fusion.js.)
+    // Pin and hide (pinhide.js): hidden cards never come up; one pinned card that still fits is put in the box.
+  for (const c of cands) if (!c.key.startsWith('fuse')) c.pk = c.key + '|' + (c.nk || '');
+  if (!G.mythBox) {
+    for (let i = cands.length - 1; i >= 0; i--) if (cands[i].pk && G.hides.includes(cands[i].pk)) cands.splice(i, 1);
+    G.pins = G.pins.filter(p => cands.some(c => c.pk === p)); // (one that can no longer fit is dropped silently)
+  } else for (const c of cands) c.pk = null;
   const chosen = [];
+  if (!G.mythBox && G.pins.length) chosen.push(cands.find(c => c.pk === pick(G.pins)));
   // Never the same upgrade twice in one box (say, at two rarities): a card that matches one already in it is
   // thrown back and another drawn.
   const same = (o, q) => o.title === q.title && (o.modFor || '') === (q.modFor || '');
   const tried = new Set();
-  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); } }
+  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); if (c.pk) o.pk = c.pk; } }
   while (opts.length < 3) {
     const rest = cands.filter(c => !tried.has(c));
     if (!rest.length) break;
@@ -526,11 +538,11 @@ function genLoot(req) {
     for (const r of rest) { x -= wt(r); if (x <= 0) { c = r; break; } }
     tried.add(c);
     const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0)));
-    if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); }
+    if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); if (c.pk) o.pk = c.pk; }
   }
   // Occasionally the System slips a cursed card into the box.
   const curses = CURSES.filter(c => !G.curses[c.id]);
-  if (curses.length && !G.mythBox && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses));
+  if (curses.length && !G.mythBox && !G.immBox && Math.random() < 0.12 && opts.length) opts[opts.length - 1] = optCurse(pick(curses)); // (no pk: curses can't be pinned)
   if (opts.length && Math.random() < 0.45) pick(opts).quip = pick(CARD_QUIPS);
   const fillers = [optHeal, optRerolls, optOvercharge];
   for (const f of fillers) { if (opts.length >= 3) break; const o = f(); if (!opts.some(q => q.title === o.title)) opts.push(o); }
@@ -792,11 +804,12 @@ function damageEnemy(e, dmg, src) {
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
-  if (!src.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
+  if (!src.noCrit && !e.def.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
   if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
+  d = foes2Dmg(e, d, src); // (ordinary weak/resist, Litmus, Interferon shields, Puffball spores: foes2.js)
   if (e.egg) {
     // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
     if (!eggBreakable() || !e.woke) {
@@ -827,7 +840,7 @@ function damageEnemy(e, dmg, src) {
   if (!src.dot && e.puddleT > G.t) puddleQuirks(e, src, dmg); // lightning, fire and frost meet a puddle
   if (!src.dot) dmgNumber(e, d, src, crit);
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
-  if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy) {
+  if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy && !(e.tethT > G.t)) { // (tethered by a Fibrin Weaver: foes2.js)
     const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * (e.chill > 0 ? 1.5 : 1); // (lathered enemies slide further)
     const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
     const l = Math.hypot(kx, ky) || 1;
@@ -869,6 +882,7 @@ function react(e, id, src) {
   e.reactCd = 0.35;
   G.stats.reactions++;
   tutReact(id);
+  inspectSeeRx(id);
   addViewers(8);
   if (G.stats.reactions === 50) achieve('reactions');
   if (G.stats.reactions === 1000) achieve('breakingbad');
@@ -1096,6 +1110,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
+  dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt(); // (Personal Space: seqfeats.js)
   dmg = relicDamageIn(dmg, ent);
@@ -1164,6 +1179,7 @@ function makeEnemy(def, x, y, opts) {
   }
   e.armK = Math.min(3, Math.pow(hpMul(t), 0.3)); // armour keeps pace a little (x1 at the start, about x2.8 by minute 9)
   heatEnemy(e); // Immune Response
+  foes2Make(e); // (type caps, G.typeN: foes2.js)
   return e;
 }
 
@@ -1249,11 +1265,12 @@ function spawnRandom() {
   // Shooters become more common as the storm builds.
   // Shooters stay as common as they were before the swarms got denser: the extra bodies are melee and swarmers.
   const wOf = d => d.w * (d.shoot ? 0.4 * (1 + t / 300) : 1);
-  for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t) { pool.push(d); tot += wOf(d); } }
+  for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t && foeRoom(d)) { pool.push(d); tot += wOf(d); } } // (types at their cap roll another: foes2.js)
+  if (!pool.length) return;
   let x = Math.random() * tot, def = pool[0];
   for (const d of pool) { x -= wOf(d); if (x <= 0) { def = d; break; } }
   const spot = spotOn() && Math.random() < SPOT.share;
-  if (spot) def = G.spot.cur; // the newcomer's turn
+  if (spot && foeRoom(G.spot.cur)) def = G.spot.cur; // the newcomer's turn
   const p = spawnPos();
   const n0 = Math.ceil((def.group || 1) * 0.8), n = Math.max(n0, spot && def.hp < 100 && !def.pack ? 3 : 1); // (a bunch of them, unless they're big)
   if (n > n0) G.spawnAcc = (G.spawnAcc || 0) - (n - n0); // ...charged to the spawn budget, so the slide is no busier than usual
@@ -2051,7 +2068,8 @@ function updateProjectiles(dt) {
     // Collision.
     forNear(pr.x, pr.y, pr.r, e => {
       if (pr.hits && pr.hits.includes(e.id)) return;
-      if (e.boss && bossDodges(e)) { (pr.hits || (pr.hits = [])).push(e.id); return; }
+      if (e.boss && bossDodges(e, pr)) { (pr.hits || (pr.hits = [])).push(e.id); return; }
+      if (e.def.shotFx) { const fr = foes2Shot(pr, e); if (fr === 2) { pr.dead = true; return true; } if (fr) { (pr.hits || (pr.hits = [])).push(e.id); return; } } // (Mirror, Grease, Platelet: foes2.js)
       // Hit from behind: the tail takes it.
       if (canSnip(e) && Math.random() < 0.5) { const fx = G.player.x - e.x, fy = G.player.y - e.y, fl = Math.hypot(fx, fy) || 1, vl = Math.hypot(pr.vx, pr.vy) || 1; if ((pr.vx * fx + pr.vy * fy) / (fl * vl) > 0.5) cutTail(e); }
       if (pr.orbitT > 0) {
@@ -2212,6 +2230,7 @@ function updatePlayer(dt) {
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
   const speed = 165 * P.speed * oobSpeed() * // (base 165: was 150; Out of Body: faster)
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed();
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
@@ -2606,6 +2625,7 @@ function update(dt) {
   safely('tutTick', () => tutTick()); // first-time tutorial cards (tutorial.js)
   safely('grantsTick', () => grantsTick(dt)); // stain grants (grants.js)
   safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
+  safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)
   safely('boonTick', () => boonTick(dt));
   updateTethers(dt);
   meleeTick(dt);
@@ -2762,6 +2782,7 @@ const endTouch = ev => {
   PTRS.delete(ev.pointerId);
   if (PINCH && PTRS.size < 2) { PINCH = null; setZoom(ZOOM.z, true); }
   if (ev.pointerId !== INPUT.id) return;
+  if (ev.type === 'pointerup' && G && INPUT.t0 != null) inspectTap(INPUT.sx, INPUT.sy, ev.clientX, ev.clientY, performance.now() - INPUT.t0); // (a quick tap on a foe: its card, inspect.js)
   INPUT.active = false; INPUT.id = null;
   if (!G) return;
   G.manual = null;
@@ -2934,9 +2955,9 @@ function frame(ts) {
       // Hit-stop: a big moment freezes the slide for a few hundredths of a second (juice.js).
       if (G.lootHold > 0) G.lootHold -= dt;
       if (G.hitStop > 0) G.hitStop -= dt;
-      else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed()); }
+      else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed() * inspectMul()); }
       else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
-      else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
+      else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed() * inspectMul()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
     else if (G && G.state === 'intro') updateIntro(dt);

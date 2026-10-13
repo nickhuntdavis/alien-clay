@@ -602,6 +602,7 @@ const UI = {
       <div class="wlv">${pips}</div>
       <div class="cdesc">${esc(o.desc)}</div>${ms.length ? `<div class="wnext">Unlocks ${esc(ms.join(', '))}</div>` : ''}${UI.boonHtml(o)}${UI.rarityFlair(o)}`;
     makePreview(c.querySelector('canvas'), d, { mini: true });
+    phButtons(c, o);
     c.addEventListener('click', () => { if (!$('lootCards').classList.contains('ready') || !(UI.lastDown > UI.lootOpenT)) return; UI.pickLoot(i); });
     return c;
   },
@@ -816,6 +817,7 @@ const UI = {
     if (req.kind === 'combo') { fusionOpen(req); return; } // (its own unlock screen: fusion.js)
     // A skipped box makes the next ordinary one rarer (G.rarBoost, used up here, kept on the box for rerolls).
     if (RAR_SKIP[req.kind] != null && req.boost == null) { req.boost = G.rarBoost || 0; G.rarBoost = 0; }
+    weirdAssign(req); // (weird.js: sometimes the box breaks the rules)
     // New weapons and upgrade paths get the full Weapon Draft treatment.
     if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch' || req.kind === 'sfork') { UI.openDraft(req); if (req.kind !== 'level') return; } // (every weapon and spell choice gets the draft screen)
     G.state = 'loot';
@@ -842,9 +844,11 @@ const UI = {
     if (req.kind === 'sfork') { const sw = G.spells.find(x => x && x.uid === req.uid); if (sw) titles.sfork[0] = sw.def.name.toUpperCase() + ': LV ' + SPELL_FORK_LV + ' PATH'; }
     if (req.kind === 'branch') { const bw = G.weapons.find(x => x && x.uid === req.uid); if (bw) titles.branch[0] = bw.def.name.toUpperCase() + ': LV ' + req.lvl + (bw.def.sig && bw.def.sig[req.lvl] ? (req.lvl >= 10 ? ' MASTERY' : ' SIGNATURE') : ' BRANCH'); }
     $('lootTitle').textContent = titles[req.kind][0];
+    const wi = weirdInfo(req); if (wi) $('lootTitle').textContent = wi.title;
     if (req.kind !== 'start') achieve('firstloot');
     if (req.kind === 'level' && Math.random() < 0.3) sysLine('level');
     $('lootSub').textContent = req.kind === 'relic' ? titles.relic[1] : (lootStory(req) || titles[req.kind][1]) + (G.relics.twinpick && req.kind !== 'start' && req.kind !== 'branch' && req.kind !== 'sfork' && req.kind !== 'rrelic' ? ' SECONDS: take two.' : '');
+    if (wi) $('lootSub').textContent = wi.quip;
     const box = $('lootBox');
     box.className = 'box ' + req.kind;
     // Loot boxes are gold; a branch choice is an upgrade, so it's cyan.
@@ -862,7 +866,7 @@ const UI = {
     UI.updateReroll();
     UI.show('loot');
     INPUT.active = false; G.manual = null;
-    lootSound(req.kind, Math.max(...UI.lootOpts.map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
+    lootSound(req.kind, Math.max(0, ...UI.lootOpts.filter(o => !o.sealed).map(o => o.rarity || 0)), UI.lootOpts.some(o => o.cursed), UI.lootOpts.length);
     clearTimeout(UI.lootTimer);
     UI.lootOpenT = performance.now(); UI.freeRerollUsed = false;
     G.stats.boxes = (G.stats.boxes || 0) + 1; { const bb = G.stats.boxBy || (G.stats.boxBy = {}); bb[req.kind] = (bb[req.kind] || 0) + 1; }
@@ -874,7 +878,7 @@ const UI = {
   boonHtml(o) { if (!o.boon) return ''; const B = BOONS[o.boon]; return `<div class="cboon"><b>${RARITIES[o.rarity].name.toUpperCase()} BONUS: ${esc(B.name)}</b><span>${esc(B.desc)}</span></div>`; },
   // The box announces its best card when it's Legendary or better.
   rarityBanner() {
-    const el = $('rarBanner'), best = Math.max(...UI.lootOpts.filter(o => !o.cursed).map(o => o.rarity || 0));
+    const el = $('rarBanner'), best = Math.max(...UI.lootOpts.filter(o => !o.cursed && !o.sealed).map(o => o.rarity || 0));
     el.className = '';
     if (best < 4) { el.textContent = ''; return; }
     const R = RARITIES[best];
@@ -890,10 +894,11 @@ const UI = {
     const wrap = $('lootCards');
     clearPreviews(wrap);
     wrap.innerHTML = '';
-    const nW = UI.lootOpts.filter(o => o.wup).length;
+    const nW = UI.lootOpts.filter(o => o.wup && !o.sealed).length;
     UI.lootOpts.forEach((o, i) => {
       if (nW && i === 0) wrap.insertAdjacentHTML('beforeend', '<div class="lsec">UPGRADE A WEAPON</div>');
       if (nW && i === nW && i < UI.lootOpts.length) wrap.insertAdjacentHTML('beforeend', '<div class="lsec">OR SPLICE IN</div>');
+      if (o.sealed) { wrap.appendChild(weirdSealedCard(o, i)); return; }
       if (o.wup) { wrap.appendChild(UI.upgradeCard(o, i)); return; }
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
@@ -916,6 +921,7 @@ const UI = {
         // Only a tap that started on this screen picks a card (not one left over from skipping the intro
         // or steering when the box popped up).
         if (!(UI.lastDown > UI.lootOpenT)) return;
+        if (o.locked && o.locked()) { c.classList.remove('nudge'); void c.offsetWidth; c.classList.add('nudge'); return; } // (the Recycler wants two things first)
         if (o.pickW) {
           // Tuning cards: tap the weapon to tune (or anywhere, if there is only one).
           const chip = ev.target.closest('.wchip');
@@ -926,8 +932,10 @@ const UI = {
         }
         UI.pickLoot(i);
       });
+      phButtons(c, o);
       wrap.appendChild(c);
     });
+    if (UI.lootReq && UI.lootReq.rule === 'recycler' && UI.lootOpts.some(o => o.locked)) wrap.appendChild(weirdRecycleList(UI.lootReq));
   },
 
   pickChips(o) {
@@ -937,6 +945,7 @@ const UI = {
     const o = UI.lootOpts[i];
     if (!o || o.taken) return;
     clearPreviews();
+    phTaken(o);
     o.apply(wuid);
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
@@ -974,7 +983,7 @@ const UI = {
     G.state = 'pause'; INPUT.active = false; G.manual = null;
     const rows = (UI.chips || []).map(([label, colour]) => {
       const key = statusKey(label) || label.replace(/\s*[\d:].*$/, ''), I = statusInfo(key), t = statusTimer(key);
-      return `<div class="li"><b style="color:${colour}">${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div>`;
+      return `<div class="li" data-insp="st:${esc(key)}"><b style="color:${colour}">${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div>`;
     });
     const lgt = typeof junkStatusRows === 'function' ? junkStatusRows() : []; // your junk DNA powers too (junk.js)
     $('stBody').innerHTML = (rows.length ? `<div class="list">${rows.join('')}</div>` : lgt.length ? '' : '<p class="hint">Nothing active right now.</p>')
@@ -1010,6 +1019,7 @@ const UI = {
     h += `</div>`;
     }
     if (tab === 'build') {
+    h += phPauseHtml();
     // Your genome: sequences and mutations.
     if (G.genes) {
       const gs = G.genes.active.map(id => `<div class="li on"><b>${esc(PROFILES[id].name)}</b> ${id === G.genes.primary ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}<br><span>${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes.k[id] || 0))}</span></div>`).join('');
@@ -1040,6 +1050,7 @@ const UI = {
     if (tab === 'codex') h += UI.codexHtml();
     box.innerHTML = h;
     box.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { UI.pauseTab = b.dataset.ptab; UI.renderPause(); $('pause').scrollTop = 0; }));
+    phPauseBind(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     UI.bindCodex(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     if (tab === 'codex') portraitsStart(box);
     box.querySelectorAll('[data-yk]').forEach(b => b.addEventListener('click', () => { G.state = 'play'; UI.openArmoury(b.dataset.yk, +b.dataset.yi); }));
@@ -1304,7 +1315,7 @@ const UI = {
       h += box('Chemical reactions', `<div class="list">${l}</div>`);
       let el = '';
       for (const id in ELEMENTS) el += `<div class="li"><b style="color:${ELEM_UI[id]}">${ELEMENTS[id].name}</b> <em>${esc(ELEMENTS[id].status)}</em><br><span>${esc(ELEMENTS[id].blurb)}</span></div>`;
-      h += box('Damage types', `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it.');
+      h += box('Damage types', inspectGuideHtml() + `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it. Tap one for its card.');
       let tl = '';
       const live = run ? activeTwists() : [];
       for (const k in TWISTS) { const on = live.some(x => x.tw.key === k); tl += `<div class="li"><b${on ? ' style="color:#ff3df2"' : ''}>${esc(TWISTS[k].name)}</b> <em>${k.split('+').map(x => ELEMENTS[x].name).join(' + ')}</em>${on ? ' (active)' : ''}<br><span>${esc(TWISTS[k].desc)}</span></div>`; }

@@ -9,7 +9,8 @@
 
 const CAMP = {
   waves: 20, bossEvery: 5, waveSec: 30,      // waveSec: the difficulty clock runs this many seconds per wave
-  newPerWave: 2,                              // enemy types introduced per ordinary wave
+  newPerWave: 2, newLate: 3, lateFrom: 6,     // enemy types introduced per ordinary wave (3 from wave 6)
+  gateFrom: 40, gatePer: 22,                  // from wave 4, a type can be drawn once its `from` is under gateFrom + gatePer x wave
   fixedWaves: 3, drawFrom: 6,                 // waves 1-3 bring them in order; later ones draw from the next 6 unmet
   lead: [16, 12, 10, 10],                      // boss waves: seconds of entourage before the boss drops in
   hp: [2.2, 13, 50, 160],                       // boss health, times its base, for the 1st to 4th boss wave
@@ -31,9 +32,17 @@ const ENTOURAGE = {
   fever:    { mix: ['spitter', 'bomber', 'crawler', 'warlock'], at: 'ring', on: ['firering'], line: 'Shooters on the outside keep you penned in his rings of heat.' },
   twins:    { mix: ['splitter', 'splitter', 'crawler', 'medic'], at: 'near', on: ['charge', 'spiral'], line: 'Mitotic cells, dividing round the twins.' },
   ghost:    { mix: ['phantom', 'phantom', 'wisp', 'blinker'], at: 'ring', on: ['blink'], line: 'Ghost swimmers drift in through the walls with it.' },
+  // The boss pack (bosspack.js).
+  litmus:   { mix: ['spitter', 'crawler', 'skitter', 'wisp'], at: 'ring', on: ['litmusdrip'], line: 'Lab rats, here to watch it change colour. Check what it is weak to before you waste a magazine.' },
+  johnny:   { mix: ['charger', 'crawler', 'skitter'], at: 'behind', on: ['johnnyroll'], line: 'Its mates come in round the back. So should you: the front is bulletproof.' },
+  mucus:    { mix: ['crawler', 'crawler', 'splitter', 'wisp'], at: 'near', on: ['mucusspit'], line: 'Stuck in the seal with you. Break the plugs and give yourself some room.' },
+  cramp:    { mix: ['skitter', 'skitter', 'crawler', 'charger'], at: 'ring', on: ['crampgrip'], line: 'Twitchy little things that come in when it clenches. When it grabs you, sprint.' },
+  sneeze:   { mix: ['crawler', 'wisp', 'skitter', 'krill'], at: 'flank', on: ['sneezecone'], line: 'Germs from both sides on every sneeze. Watch the nose, not the germs.' },
+  stone:    { mix: ['bulwark', 'spitter', 'crawler', 'brute'], at: 'behind', on: ['stoneroll'], line: 'Grit that rolls in behind it. Anything that shreds armour, use it now.' },
   failed:   { mix: [], at: 'ring', on: [], line: 'It came alone. It always did.' },
 };
-const DROP_NAMES = { queen: 'Feeding Time', colossus: 'Border Control', eye: 'Peer Review', matron: 'Ward Nine', pepsin: 'Indigestion', alpha: 'Leg Day', fever: 'Forty-One Degrees', twins: 'Double Dose', ghost: 'Something in the Dish', failed: 'Exhibit A' };
+const DROP_NAMES = { queen: 'Feeding Time', colossus: 'Border Control', eye: 'Peer Review', matron: 'Ward Nine', pepsin: 'Indigestion', alpha: 'Leg Day', fever: 'Forty-One Degrees', twins: 'Double Dose', ghost: 'Something in the Dish', failed: 'Exhibit A',
+  litmus: 'Change of Colour', johnny: 'Safe Sex', mucus: 'Sealed In', cramp: 'Time of the Month', sneeze: 'Bless You', stone: 'Passing Through' };
 
 const V0 = () => G.wave;
 const isBossWave = n => n % CAMP.bossEvery === 0;
@@ -45,14 +54,16 @@ const bossSlot = n => n / CAMP.bossEvery - 1; // 0..3
 function campInit() {
   const V = G.wave;
   V.camp = true; V.met = []; // enemy types brought in so far, in order
-  // Four boss waves: a gentle opener at wave 5; the two hardest hitters saved for the back half; the Failed
-  // Experiment (if you have a past run to copy) at wave 15 or 20, always alone.
-  const ids = BOSSES.map(b => b.id), opener = pick(['pepsin', 'eye'].filter(id => ids.includes(id)));
-  const late = ['alpha', 'fever'].filter(id => ids.includes(id)), mid = shuffle(ids.filter(id => id !== opener && !late.includes(id)));
-  const order = [opener, mid[0], pick([mid[1]].concat(late)), pick(late.concat(mid.slice(2, 4)))];
+  // Four boss waves, drawn by tier (BOSSES): a tier 1 teacher at wave 5, tier 2 at waves 10 and 15, tier 3 at
+  // wave 20 (each falls back a tier if it runs out). The Failed Experiment (if you have a past run to copy) takes
+  // wave 15 or 20, always alone. FORCE_BOSS (sims, sim/wave20.js --boss) puts one boss in its tier's slot.
+  const order = [], fb = self.FORCE_BOSS && BOSSES.find(b => b.id === self.FORCE_BOSS);
+  const draw = tiers => { for (const t of tiers) { const c = shuffle(BOSSES.filter(b => (b.tier || 2) === t && !order.includes(b.id) && b !== fb)); if (c.length) return c[0].id; } return shuffle(BOSSES.filter(b => !order.includes(b.id)))[0].id; };
+  for (const tiers of [[1, 2], [2, 1], [2, 1], [3, 2]]) order.push(draw(tiers));
+  const fs = fb ? [0, 1, 3][(fb.tier || 2) - 1] : -1;
+  if (fb) order[fs] = fb.id;
   G.failedDef = failedExperimentDef();
-  if (G.failedDef) order[Math.random() < 0.5 ? 2 : 3] = 'failed';
-  if (order[2] === order[3]) order[3] = late.find(id => id !== order[2]) || mid[3];
+  if (G.failedDef) order[fs === 2 || fs === 3 ? 5 - fs : Math.random() < 0.5 ? 2 : 3] = 'failed';
   G.bossRoster = order;
   G.bossCount = 0;
   tutWaveInit(V); // (wave 0 first, the first time: tutorial.js)
@@ -81,8 +92,10 @@ function campBegin(V) {
   // The first few waves teach the basics in a fixed order; after that the newcomers are drawn at random from
   // the next few you haven't had, so no two runs meet the slide in the same order (and nothing big comes early).
   const next = CAMP_ORDER().filter(id => !V.met.includes(id));
-  const fresh = V.n <= CAMP.fixedWaves ? next.slice(0, CAMP.newPerWave) : shuffle(next.slice(0, CAMP.drawFrom)).slice(0, CAMP.newPerWave);
+  const nNew = V.n >= CAMP.lateFrom ? CAMP.newLate : CAMP.newPerWave;
+  const fresh = V.n <= CAMP.fixedWaves ? next.slice(0, nNew) : campDraw(next, V.n, nNew);
   V.fresh = fresh; V.met.push(...fresh);
+  const FR = META.foeRuns || (META.foeRuns = {}); for (const id of fresh) FR[id] = (FR[id] || 0) + 1; // (across runs: campDraw)
   V.budget = Math.round((16 + V.n * 7 + Math.pow(V.n, 1.6)) * (1 + CAMP.early * campEarly(V.n)) * CAMP.more * G.P.spawnMult);
   V.dur = Math.min(63, (20 + V.n * 1.8) * 1.15) * CAMP.long; // (fed in over 30 s at wave 1, up to 82 s)
   // (What's in the drop stays a surprise until it lands.)
@@ -90,6 +103,14 @@ function campBegin(V) {
   if (V.n > 1) sysMsg('THE SCIENTIST', `${pick(SCIENTIST)} Next boss: wave ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}.`, XR.dim);
   dishFxBegin(V); // (a condition for the whole wave, sometimes: dishfx.js)
   rivalWaveJoin(V); // (a new rival, from wave 2: rivals.js)
+}
+// Later newcomers: from the types not yet had this run whose `from` the wave has reached (at least the next
+// CAMP.drawFrom), the ones you have met least over all your runs first (META.foeRuns), so every type turns up
+// within a few runs.
+function campDraw(next, n, k) {
+  let m = 0; while (m < next.length && ENEMIES[next[m]].from <= CAMP.gateFrom + CAMP.gatePer * n) m++;
+  const FR = META.foeRuns || {}, pool = shuffle(next.slice(0, Math.max(CAMP.drawFrom, m)));
+  return pool.sort((a, b) => (FR[a] || 0) - (FR[b] || 0)).slice(0, k);
 }
 // One of the entourage, at the right spot.
 function campSpawnOne(E, n, elite) {
@@ -113,8 +134,13 @@ function campSpawnMob(V) {
   const ids = V.met.length ? V.met : ['crawler'];
   let tot = 0; const wOf = id => ENEMIES[id].w * (V.fresh.includes(id) ? 2 : 1);
   for (const id of ids) tot += wOf(id);
-  let r = Math.random() * tot, id = ids[0];
-  for (const k of ids) { r -= wOf(k); if (r <= 0) { id = k; break; } }
+  let id = null;
+  for (let tries = 0; tries < 6 && !id; tries++) { // (a type at its cap rolls another: foes2.js)
+    let r = Math.random() * tot, c = ids[0];
+    for (const k of ids) { r -= wOf(k); if (r <= 0) { c = k; break; } }
+    if (foeRoom(ENEMIES[c])) id = c;
+  }
+  if (!id) return 1;
   const d = ENEMIES[id], s = spawnPos(), k = Math.max(1, Math.ceil((d.group || 1) * 0.6)), elite = V.n >= 6 && k === 1 && Math.random() < Math.min(0.12, 0.01 * V.n);
   for (let j = 0; j < k; j++) { if (G.enemies.length >= CAPS.enemies) return j; const q = dishFix(s.x + rand(-CAMP.spread, CAMP.spread), s.y + rand(-CAMP.spread, CAMP.spread)); G.enemies.push(makeEnemy(d, q.x, q.y, { elite: elite && j === 0 })); }
   return k;

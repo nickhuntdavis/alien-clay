@@ -2124,6 +2124,7 @@ function drawEnemy(e, lod) {
     const label = `${e.name}  LV ${e.lvl}` + (e.mode === 'hunt' ? '  !' : e.mode === 'flee' ? '  (fleeing)' : '');
     ctx.strokeText(label, x, by - 5); ctx.fillStyle = e.color; ctx.fillText(label, x, by - 5);
   }
+  if (e.ifn > 0 || e.cortT > G.t || e.plasT > G.t) foes2Fx(e, x, y, r); // (support buffs: foes2.js)
   enemyRing(e, x, y, r);
 }
 // The pause menu's YOU portrait: your sperm exactly as it looks in play (upgrades and every active sequence's
@@ -2723,6 +2724,7 @@ function drawBossTells(e, x, y, r) {
   if (pat === 'devour') { ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1; for (let k = 0; k < 3; k++) { const rr = ((G.realT * 0.8 + k / 3) % 1) * 290 * S; ctx.beginPath(); ctx.arc(x, y, 290 * S - rr, 0, TAU); ctx.stroke(); } }
 }
 function drawHazards(vis) {
+  bpDraw(); // (the boss pack's seal and tells: bosspack.js)
   for (const h of G.hazards) {
     if (!vis(h)) continue;
     const x = sx(h.x), y = sy(h.y), r = h.r * S;
