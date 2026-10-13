@@ -2175,15 +2175,17 @@ function updateZones(dt) {
   for (const z of G.zones) {
     z.life -= dt; z.tick -= dt;
     if (z.follow) { const q = me(); z.x += (q.x - z.x) * Math.min(1, dt * 3); z.y += (q.y - z.y) * Math.min(1, dt * 3); } // Hotbox
+    if (!z.st) { z.st = 1; z.tick = Math.random() * 0.25; } // stagger: a burst of new zones no longer all tick on one frame
     const doTick = z.tick <= 0;
     if (doTick) z.tick = 0.25;
+    if (doTick && z.hsrc !== z.src) { z.hsrc = z.src; z.hs = Object.assign({}, z.src, { noCrit: true, knock: 0, zoneHit: true }); } // one hit-source per zone, not one per enemy per tick
     if (doTick || z.pull) forNear(z.x, z.y, z.r, e => { // (nothing to do between damage ticks unless it pulls)
       if (z.pull && !e.boss) {
         const dx = z.x - e.x, dy = z.y - e.y, d = Math.hypot(dx, dy) || 1;
         const f = Math.min(d, z.pull * dt);
         e.x += dx / d * f; e.y += dy / d * f;
       }
-      if (doTick) { sigZone(z, e); damageEnemy(e, z.dps * 0.25, Object.assign({}, z.src, { noCrit: true, knock: 0, zoneHit: true })); }
+      if (doTick) { sigZone(z, e); damageEnemy(e, z.dps * 0.25, z.hs); }
     });
     if (z.grow) z.r = Math.min(z.r0 * 1.9, z.r + z.grow * dt);
     if (z.life <= 0 && z.onEnd) z.onEnd(z);
