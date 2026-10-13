@@ -936,6 +936,10 @@ function dummyBurst(e) {
   aoe(e.x, e.y, d.area, d.dmg, d.src, d.color);
   G.zones.push({ x: e.x, y: e.y, r: d.area * 0.6, life: 2, max: 2, dps: d.dmg * 0.15, elem: 'fire', pull: 0, color: d.color, tick: 0, src: d.src });
   ring(e.x, e.y, d.area, d.color, 0.45, 5); fxParts('spark', e.x, e.y, d.color, 14, d.area * 2, 0.5, 4);
+  if (d.chain && d.gen < 2) for (const n of acquireMany('nearest', d.area * 1.6, e.x, e.y, 3).filter(n => n !== e && !n.dead && !n.dummy).slice(0, 2)) { // Dummy Chain
+    n.dummy = { dmg: d.dmg * 0.5, area: d.area, color: d.color, src: d.src, chain: 1, gen: d.gen + 1 };
+    bolt(e.x, e.y, n.x, n.y, d.color, 0.2);
+  }
 }
 // Tantrum: damage taken lately (half-life 15 s) as a share of max HP sets the blast size.
 function tantrumRage() { return (G.rageV || 0) * Math.pow(0.5, (G.t - (G.rageT || 0)) / 15); }
@@ -1769,7 +1773,7 @@ function fireWeapon(w, target) {
       const ts = s.stick ? acquireMany(w.dir, s.range, p.x, p.y, s.count + 4).filter(t => !t.dummy).slice(0, s.count) : acquireMany(w.dir, s.range, p.x, p.y, s.count);
       for (const t of ts) {
         if (s.stick) { // Dummy Spit: it sticks now and bursts when they die
-          t.dummy = { dmg: s.dmg * 1.5, area: s.area, color: d.color, src };
+          t.dummy = { dmg: s.dmg * 1.5, area: s.area, color: d.color, src, chain: spellFork(w, 'b') ? 1 : 0, gen: 0 };
           damageEnemy(t, s.dmg * 0.4, src); ring(t.x, t.y, 26, d.color, 0.3, 4); fxParts('spark', t.x, t.y, d.color, 8, 90, 0.4, 3);
           continue;
         }
@@ -1792,6 +1796,8 @@ function fireWeapon(w, target) {
         ring(p.x, p.y, ar, d.color, 0.5, 6); ring(p.x, p.y, ar * 0.6, '#ffd6e0', 0.4, 4);
         fxParts('spark', p.x, p.y, d.color, 22, ar * 3, 0.55, 4.5);
         cam.shake = Math.min(10, cam.shake + 3 * k);
+        if (spellFork(w, 'b')) forNear(p.x, p.y, ar, e => { if (!e.boss) e.dazeT = Math.max(e.dazeT || 0, G.t + 1.5); }); // Full Volume
+        if (spellFork(w, 'a') && !src.again) after(0.7, () => { const q = me(); aoe(q.x, q.y, ar, s.dmg * k * 0.6, Object.assign({}, src, { again: true }), d.color); ring(q.x, q.y, ar, d.color, 0.4, 5); }); // Encore
         break;
       }
       aoe(p.x, p.y, s.area, s.dmg, src, d.color);
@@ -1817,7 +1823,8 @@ function fireWeapon(w, target) {
     case 'zone':
       G.zones.push({ x: target.x, y: target.y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg, elem: d.elem, pull: s.pull, color: d.color, tick: 0, src, spell: w.id, root: !!s.root,
         follow: w.id === 'cloud' && spellFork(w, 'b'), // Hotbox
-        onEnd: w.id === 'blackhole' && spellFork(w, 'b') ? z => { aoe(z.x, z.y, z.r * 1.3, s.dmg * 4, src, d.color); ring(z.x, z.y, z.r * 1.3, d.color, 0.5, 6); } : null }); // Loose Change
+        onEnd: w.id === 'naughtycorner' && spellFork(w, 'b') ? z => { aoe(z.x, z.y, z.r, s.dmg * 8, src, d.color); ring(z.x, z.y, z.r, d.color, 0.5, 6); }
+          : w.id === 'blackhole' && spellFork(w, 'b') ? z => { aoe(z.x, z.y, z.r * 1.3, s.dmg * 4, src, d.color); ring(z.x, z.y, z.r * 1.3, d.color, 0.5, 6); } : null }); // Loose Change
       break;
     case 'heal':
       if (spellFork(w, 'a')) p.iframes = Math.max(p.iframes, 1.5); // Plaster

@@ -1170,9 +1170,9 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | **Running With Scissors** | Force | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
 | **Dutch Oven** | Ethanol | A drifting cloud of stacking Ethanol fumes. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Baby Monitor** | Static | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |
-| **Naughty Corner** | Brine | A ring of salt on the floor. Anything inside is rooted. Bullets pass through. Think about what you did. | dmg 6, cd 11s, area 120, dur 4s, root 1 | Lv3: +30% duration; Lv5: +30% area; Lv7: 25% faster |
+| **Naughty Corner** | Brine | A ring of salt on the floor. Anything inside is rooted. Bullets pass through. Think about what you did. | dmg 9, cd 9s, area 120, dur 4s, root 1 | Lv3: +30% duration; Lv5: +30% area; Lv7: 25% faster |
 | **Tantrum** | Static | The more you have been hurt lately, the bigger the blast. Floor-thumping included. | dmg 20, cd 9s, area 120, rage 0.15 | Lv3: +0.05 rage; Lv5: +50% dmg; Lv7: 25% faster |
-| **Dummy Spit** | Acid | Flings a dummy at the toughest enemy. It sticks, and bursts into acid when they die. | dmg 40, cd 8s, count 1, area 95, delay 0.4s, stick 1 | Lv3: +25% area; Lv5: +50% dmg; Lv7: +1 count |
+| **Dummy Spit** | Acid | Flings a dummy at the toughest enemy. It sticks, and bursts into acid when they die. | dmg 55, cd 8s, count 1, area 95, delay 0.4s, stick 1 | Lv3: +25% area; Lv5: +50% dmg; Lv7: +1 count |
 | **Out of Body** | Blood Magic | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
 | **Elbows Out** | Force | You throw your elbows about. Everything close to you is hit and shoved well back. Firstborn only. | dmg 30, cd 8s, area 140 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Belly Flop** | Force | You launch yourself at the thickest crowd nearby and land on it, hard. Chonker only. | dmg 55, cd 10s, area 130 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
@@ -1192,6 +1192,9 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | **Latex Barrier** | **Extra Large**: The barrier is 50% wider. | **Ribbed**: Whatever touches the barrier, or is hit by what it bounces back, takes 2.5 times the damage. |
 | **Running With Scissors** | **Safety Scissors**: The blades fly out and come back, cutting everything twice. | **Pinking Shears**: Four more blades in every ring. |
 | **Dutch Oven** | **Lingering Smell**: The cloud lasts twice as long. | **Hotbox**: The cloud follows you around. |
+| **Naughty Corner** | **Longer Sentence**: The salt ring lasts nearly twice as long. | **Sent to Bed**: When the ring fades, everything still inside takes a blast worth eight seconds of its damage. |
+| **Tantrum** | **Encore**: A second blast follows 0.7 seconds later, at 60% strength, wherever you are by then. | **Full Volume**: The blast also stuns every enemy it hits for 1.5 seconds (not bosses). |
+| **Dummy Spit** | **Spare Dummy**: One more dummy every time. | **Dummy Chain**: When a dummy bursts, up to two nearby enemies get one at half strength. |
 | **Baby Monitor** | **Night Light**: Turrets shoot twice as fast. | **Twin Pack**: One more turret every time. |
 | **Out of Body** | **Astral Projection**: You stay out of your body 60% longer. | **Poltergeist**: When you snap back, your body bursts, blasting everything near it for four times the touch damage. |
 | **Elbows Out** | **Sharp Elbows**: Everything you shove is stunned for a second. | **Personal Space**: For 3s after, you take 30% less damage. |
