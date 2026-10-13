@@ -430,6 +430,18 @@ const SPELLS = {
     desc: 'Deploys a turret that watches and shoots. Static included.',
     base: { dmg: 9, cd: 13, count: 1, dur: 10, rate: 0.25, range: 400 },
     lv: { 3: { dur: 0.3 }, 5: { count: 1 }, 7: { dmg: 0.5 } } },
+  naughtycorner: { name: 'Naughty Corner', icon: 'NC', elem: 'salt', kind: 'zone', color: '#e0e1dd', dir: 'cluster',
+    desc: 'A ring of salt on the floor. Anything inside is rooted. Bullets pass through. Think about what you did.',
+    base: { dmg: 6, cd: 11, area: 120, dur: 4, pull: 0, root: 1, range: 460 },
+    lv: { 3: { dur: 0.3 }, 5: { area: 0.3 }, 7: { cd: -0.25 } } },
+  tantrum: { name: 'Tantrum', icon: 'TR', elem: 'shock', kind: 'nova', color: '#ff4d6d', dir: 'nearest', noTarget: 1,
+    desc: 'The more you have been hurt lately, the bigger the blast. Floor-thumping included.',
+    base: { dmg: 20, cd: 9, area: 120, range: 140, rage: 0.15 },
+    lv: { 3: { rage: 0.05 }, 5: { dmg: 0.5 }, 7: { cd: -0.25 } } },
+  dummyspit: { name: 'Dummy Spit', icon: 'DS', elem: 'fire', kind: 'strike', color: '#ff7b00', dir: 'strongest',
+    desc: 'Flings a dummy at the toughest enemy. It sticks, and bursts into acid when they die.',
+    base: { dmg: 40, cd: 8, count: 1, area: 95, delay: 0.4, range: 520, stick: 1 },
+    lv: { 3: { area: 0.25 }, 5: { dmg: 0.5 }, 7: { count: 1 } } },
 };
 
 const RARITIES = [

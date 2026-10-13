@@ -121,6 +121,7 @@ const ICON_OF = {
   crayon: 'crayon', duedate: 'calendar', redtape: 'tape', friend: 'ghost', peekaboo: 'peek', twin: 'twins', bubble: 'bubble', toothfairy: 'tooth',
   meteor: 'comet', frostnova: 'nova', thunder: 'storm', blackhole: 'spiral', heal: 'cross', warp: 'clock',
   barrier: 'shield', bladestorm: 'shuriken', cloud: 'cloud', sentry: 'turret',
+  naughtycorner: 'tape', tantrum: 'nova', dummyspit: 'bubble',
 };
 
 const DEF_ID = new Map();

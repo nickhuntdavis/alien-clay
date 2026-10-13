@@ -129,7 +129,7 @@ p('| Event | Lasts | Normal | Dire |'); p('|---|---|---|---|');
 for (const [id, e] of Object.entries(D.RUN_EVENTS)) p(`| **${esc(e.name)}**${e.minLv ? ` (Lv ${e.minLv}+)` : ''} | ${e.dur}s | ${esc(e.desc(false))} | ${esc(e.desc(true))} |`);
 p('');
 p('## Feats'); p('');
-p(`Feats (what used to be spells) perform themselves and use the two Feat slots. The attacking ones (Stork Drop, Power Shower, Brainstorm, Sofa Crevice, Running With Scissors, Dutch Oven) are paid for from your stamina instead of waiting on a cooldown; the rest keep cooldowns. They level up like weapons, and at Lv ${D.SPELL_FORK_LV} each one asks you to choose one of two paths (below).`); p('');
+p(`Feats (what used to be spells) perform themselves and use the two Feat slots. The attacking ones (Stork Drop, Power Shower, Brainstorm, Sofa Crevice, Running With Scissors, Dutch Oven, Naughty Corner, Tantrum, Dummy Spit) are paid for from your stamina instead of waiting on a cooldown; the rest keep cooldowns. They level up like weapons, and at Lv ${D.SPELL_FORK_LV} each one asks you to choose one of two paths (below).`); p('');
 p('| Feat | Damage type | What it does | Base stats | Level bonuses |'); p('|---|---|---|---|---|');
 for (const [id, s] of Object.entries(D.SPELLS)) { const b = s.base;
   const stats = Object.entries(b).filter(([k, v]) => v && k !== 'range').map(([k, v]) => id === 'heal' && k === 'dmg' ? `heals ${Math.round(v * 100)}% HP` : k === 'cd' || k === 'dur' || k === 'delay' ? `${k} ${v}s` : `${k} ${v}`).join(', ');
