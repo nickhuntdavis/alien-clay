@@ -1,7 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v9.09 (versionCode 259): developer Unlock Everything no longer grants starter weapons (they widened every draft to all sequences); new Reset Starters button. Previously v9.07. Main (`main`) is current again: start new work from it. All suite tests pass.
+- Version v9.10 (versionCode 260): player never grows extra tails; each +1 projectile adds exactly 1 (rings no longer x4). Previously v9.09 (versionCode 259): developer Unlock Everything no longer grants starter weapons (they widened every draft to all sequences); new Reset Starters button. Previously v9.07. Main (`main`) is current again: start new work from it. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Copy sheet
