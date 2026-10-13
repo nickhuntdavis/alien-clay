@@ -942,10 +942,26 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
   return hit;
 }
 
+// Dummy Spit: the dummy bursts into acid where its host died.
+function dummyBurst(e) {
+  const d = e.dummy; e.dummy = null;
+  aoe(e.x, e.y, d.area, d.dmg, d.src, d.color);
+  G.zones.push({ x: e.x, y: e.y, r: d.area * 0.6, life: 2, max: 2, dps: d.dmg * 0.15, elem: 'fire', pull: 0, color: d.color, tick: 0, src: d.src });
+  ring(e.x, e.y, d.area, d.color, 0.45, 5); fxParts('spark', e.x, e.y, d.color, 14, d.area * 2, 0.5, 4);
+  if (d.chain && d.gen < 2) for (const n of acquireMany('nearest', d.area * 1.6, e.x, e.y, 3).filter(n => n !== e && !n.dead && !n.dummy).slice(0, 2)) { // Dummy Chain
+    n.dummy = { dmg: d.dmg * 0.5, area: d.area, color: d.color, src: d.src, chain: 1, gen: d.gen + 1 };
+    bolt(e.x, e.y, n.x, n.y, d.color, 0.2);
+  }
+}
+// Tantrum: damage taken lately (half-life 15 s) as a share of max HP sets the blast size.
+function tantrumRage() { return (G.rageV || 0) * Math.pow(0.5, (G.t - (G.rageT || 0)) / 15); }
+function tantrumHurt(d) { G.rageV = tantrumRage() + d; G.rageT = G.t; }
+function tantrumK(s) { return 1 + Math.min(2.5, tantrumRage() / G.P.maxHp * s.rage * 10); }
 function killEnemy(e, src) {
   if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
+  if (e.dummy) dummyBurst(e); // (Dummy Spit)
   G.kills++;
   if (e.elite && !e.boss && hitStop(0.05)) buzz('elite');
   sfx(e.elite || e.boss ? 'killBig' : 'kill');
@@ -1129,7 +1145,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
   if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
-  p.hp -= d; seqHurt(); // (a clean boss fight: seqlock.js)
+  p.hp -= d; tantrumHurt(d); seqHurt(); // (a clean boss fight: seqlock.js)
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
   if (ent && !ent.dead) { G.grudge = ent; tutShow('grudge'); }
   G.lastHitEnt = ent || null;
@@ -1769,8 +1785,13 @@ function fireWeapon(w, target) {
       break;
     // ---- spells
     case 'strike': {
-      const ts = acquireMany(w.dir, s.range, p.x, p.y, s.count);
+      const ts = s.stick ? acquireMany(w.dir, s.range, p.x, p.y, s.count + 4).filter(t => !t.dummy).slice(0, s.count) : acquireMany(w.dir, s.range, p.x, p.y, s.count);
       for (const t of ts) {
+        if (s.stick) { // Dummy Spit: it sticks now and bursts when they die
+          t.dummy = { dmg: s.dmg * 1.5, area: s.area, color: d.color, src, chain: spellFork(w, 'b') ? 1 : 0, gen: 0 };
+          damageEnemy(t, s.dmg * 0.4, src); ring(t.x, t.y, 26, d.color, 0.3, 4); fxParts('spark', t.x, t.y, d.color, 8, 90, 0.4, 3);
+          continue;
+        }
         const tx = t.x + t.vx * 0, ty = t.y;
         G.fx.push({ type: 'warn', x: tx, y: ty, r: s.area, color: d.color, life: s.delay, max: s.delay });
         G.fx.push({ type: 'fall', x: tx, y: ty, r: s.area, color: d.color, life: s.delay, max: s.delay });
@@ -1783,6 +1804,17 @@ function fireWeapon(w, target) {
       break;
     }
     case 'nova':
+      if (w.id === 'tantrum') { // Tantrum: bigger the more you were hurt lately (no freezing)
+        const k = tantrumK(s), ar = s.area * (1 + (k - 1) * 0.4);
+        aoe(p.x, p.y, ar, s.dmg * k, src, d.color);
+        for (const b of G.ebul) if (Math.hypot(b.x - p.x, b.y - p.y) < ar) { b.dead = true; spawnPart(b.x, b.y, d.color, 1, 60, 0.3); }
+        ring(p.x, p.y, ar, d.color, 0.5, 6); ring(p.x, p.y, ar * 0.6, '#ffd6e0', 0.4, 4);
+        fxParts('spark', p.x, p.y, d.color, 22, ar * 3, 0.55, 4.5);
+        cam.shake = Math.min(10, cam.shake + 3 * k);
+        if (spellFork(w, 'b')) forNear(p.x, p.y, ar, e => { if (!e.boss) e.dazeT = Math.max(e.dazeT || 0, G.t + 1.5); }); // Full Volume
+        if (spellFork(w, 'a') && !src.again) after(0.7, () => { const q = me(); aoe(q.x, q.y, ar, s.dmg * k * 0.6, Object.assign({}, src, { again: true }), d.color); ring(q.x, q.y, ar, d.color, 0.4, 5); }); // Encore
+        break;
+      }
       aoe(p.x, p.y, s.area, s.dmg, src, d.color);
       forNear(p.x, p.y, s.area, e => { if (!e.boss) e.frozen = Math.max(e.frozen, spellFork(w, 'a') ? 3.2 : 1.6); }); // (Ice Bath: twice as long)
       if (spellFork(w, 'b') && !src.again) after(1, () => { const q = me(); aoe(q.x, q.y, s.area, s.dmg, Object.assign({}, src, { again: true }), d.color); forNear(q.x, q.y, s.area, e => { if (!e.boss) e.frozen = Math.max(e.frozen, 1.6); }); ring(q.x, q.y, s.area, '#caf0f8', 0.5, 6); }); // Power Shower
@@ -1804,9 +1836,10 @@ function fireWeapon(w, target) {
       break;
     }
     case 'zone':
-      G.zones.push({ x: target.x, y: target.y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg, elem: d.elem, pull: s.pull, color: d.color, tick: 0, src, spell: w.id,
+      G.zones.push({ x: target.x, y: target.y, r: s.area, life: s.dur, max: s.dur, dps: s.dmg, elem: d.elem, pull: s.pull, color: d.color, tick: 0, src, spell: w.id, root: !!s.root,
         follow: w.id === 'cloud' && spellFork(w, 'b'), // Hotbox
-        onEnd: w.id === 'blackhole' && spellFork(w, 'b') ? z => { aoe(z.x, z.y, z.r * 1.3, s.dmg * 4, src, d.color); ring(z.x, z.y, z.r * 1.3, d.color, 0.5, 6); } : null }); // Loose Change
+        onEnd: w.id === 'naughtycorner' && spellFork(w, 'b') ? z => { aoe(z.x, z.y, z.r, s.dmg * 8, src, d.color); ring(z.x, z.y, z.r, d.color, 0.5, 6); }
+          : w.id === 'blackhole' && spellFork(w, 'b') ? z => { aoe(z.x, z.y, z.r * 1.3, s.dmg * 4, src, d.color); ring(z.x, z.y, z.r * 1.3, d.color, 0.5, 6); } : null }); // Loose Change
       break;
     case 'heal':
       if (spellFork(w, 'a')) p.iframes = Math.max(p.iframes, 1.5); // Plaster
@@ -2199,6 +2232,7 @@ function updateZones(dt) {
         const f = Math.min(d, z.pull * dt);
         e.x += dx / d * f; e.y += dy / d * f;
       }
+      if (z.root && doTick && !e.boss) e.frozen = Math.max(e.frozen, 0.5); // Naughty Corner: rooted
       if (doTick) { sigZone(z, e); damageEnemy(e, z.dps * 0.25, Object.assign({}, z.src, { noCrit: true, knock: 0, zoneHit: true })); }
     });
     if (z.grow) z.r = Math.min(z.r0 * 1.9, z.r + z.grow * dt);

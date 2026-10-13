@@ -22,6 +22,12 @@ const SPELL_FORKS = {
                { name: 'Pinking Shears', desc: 'Four more blades in every ring.' }],
   cloud:      [{ name: 'Lingering Smell', desc: 'The cloud lasts twice as long.' },
                { name: 'Hotbox', desc: 'The cloud follows you around.' }],
+  naughtycorner: [{ name: 'Longer Sentence', desc: 'The salt ring lasts nearly twice as long.' },
+               { name: 'Sent to Bed', desc: 'When the ring fades, everything still inside takes a blast worth eight seconds of its damage.' }],
+  tantrum:    [{ name: 'Encore', desc: 'A second blast follows 0.7 seconds later, at 60% strength, wherever you are by then.' },
+               { name: 'Full Volume', desc: 'The blast also stuns every enemy it hits for 1.5 seconds (not bosses).' }],
+  dummyspit:  [{ name: 'Spare Dummy', desc: 'One more dummy every time.' },
+               { name: 'Dummy Chain', desc: 'When a dummy bursts, up to two nearby enemies get one at half strength.' }],
   sentry:     [{ name: 'Night Light', desc: 'Turrets shoot twice as fast.' },
                { name: 'Twin Pack', desc: 'One more turret every time.' }],
 };
@@ -44,6 +50,8 @@ function spellForkStats(w, s) {
     case 'bladestorm': if (a) s.boomerang = 1; else s.count = (s.count || 1) + 4; break;
     case 'cloud': if (a) s.dur *= 2; break;
     case 'sentry': if (a) s.rate *= 0.5; else s.count = (s.count || 1) + 1; break;
+    case 'naughtycorner': if (a) s.dur *= 1.8; break;
+    case 'dummyspit': if (a) s.count = (s.count || 1) + 1; break;
     case 'oob': if (a) s.dur *= 1.6; break;
   }
 }

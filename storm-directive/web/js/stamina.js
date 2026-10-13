@@ -6,7 +6,7 @@
 //    spend it on speed or on Feats. The rest (Kiss It Better, Nap Time, Latex Barrier, Baby Monitor) keep cooldowns.
 // Hooks: stamTick (update), sprintMul (player speed), featCost / featPay (updateSpellList), drawStamina (HUD).
 const STAM = { max: 60, regen: 14, sprintCost: 30, sprintK: 1.55, rest: 0.6, featK: 9, windedAt: 0.3, push: 66, stick: 74, hold: 0.22 };
-const STAM_FEATS = new Set(['meteor', 'frostnova', 'thunder', 'blackhole', 'bladestorm', 'cloud']);
+const STAM_FEATS = new Set(['meteor', 'frostnova', 'thunder', 'blackhole', 'bladestorm', 'cloud', 'naughtycorner', 'tantrum', 'dummyspit']);
 const stamMax = () => Math.max(20, STAM.max + (G.P.stamMax || 0));
 function stamInit() { G.stam = { cur: stamMax(), restT: 0, sprint: false, winded: false }; }
 function stamTick(dt) {
