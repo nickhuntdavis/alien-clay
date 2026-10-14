@@ -131,13 +131,14 @@ function trioKill(e) {
   T.juice = Math.min(TRIO.max, T.juice + (e.boss ? 3 : e.elite ? 1 : 0.12));
 }
 
-// ---- The triangle (screen space). Corner 0 Rubber at the top, 1 Wiggle bottom left, 2 Spunk bottom right.
+// ---- The triangle (screen space), a cell lying on its side: the left edge is upright with Wiggle at the top and
+// Rubber at the bottom, Spunk points right. Corner indices stay 0 Rubber, 1 Wiggle, 2 Spunk.
 function trioGeom() {
-  const s = TRIO.side, h = s * 0.866, land = document.body.classList.contains('land');
+  const s = TRIO.side, w = s * 0.866, land = document.body.classList.contains('land');
   const bot = document.getElementById('bottom'), top = bot && !land ? bot.getBoundingClientRect().top : H;
   const side = document.getElementById('side'), sr = side && side.getBoundingClientRect(), right = sr && sr.width && !land ? sr.left - 14 : W - 18; // (left of the Charge / Rewind column)
-  const cx = document.body.classList.contains('immersive') && !land ? 22 + s / 2 : right - s / 2, by = Math.min(H - 44, top - 40);
-  return { v: [[cx, by - h], [cx - s / 2, by], [cx + s / 2, by]], cx, cy: by - h / 3, s, h };
+  const lx = document.body.classList.contains('immersive') && !land ? 26 : right - w, by = Math.min(H - 48, top - 44);
+  return { v: [[lx, by], [lx, by - s], [lx + w, by - s / 2]], cx: lx + w / 3, cy: by - s / 2, s, w };
 }
 function trioXY(w, g) { return [0, 1].map(k => w[0] * g.v[0][k] + w[1] * g.v[1][k] + w[2] * g.v[2][k]); }
 function trioBary(x, y, g) {
@@ -182,35 +183,63 @@ function trioKeys() {
   if (k['1']) T.w = [1, 0, 0]; else if (k['2']) T.w = [0, 1, 0]; else if (k['3']) T.w = [0, 0, 1]; else if (k['4']) T.w = [1 / 3, 1 / 3, 1 / 3];
 }
 
+const trioRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 function trioDraw() {
   if (!trioOn() || !G.trio || G.state === 'over') return;
-  const T = G.trio, g = trioGeom(), a = trioAlloc(), [A, B, C] = g.v, a0 = ctx.globalAlpha;
+  const T = G.trio, g = trioGeom(), a = trioAlloc(), a0 = ctx.globalAlpha, raw = RAW_COL, br = 1 + 0.04 * Math.sin(G.realT * 1.7);
+  RAW_COL = true; // (the HUD keeps its true colours on a grey slide)
   ctx.save();
-  // Body: a faint fill tinted towards the heavy corner, and the edges.
-  ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.lineTo(C[0], C[1]); ctx.closePath();
-  ctx.fillStyle = 'rgba(6,11,16,0.55)'; ctx.fill();
-  ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(220,235,245,0.35)'; ctx.stroke();
-  // Each corner: its colour, its pips and its tier.
-  ctx.font = `700 9px ${getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const body = () => { ctx.beginPath(); roundPts(g.v, 16); ctx.closePath(); };
+  // Cytoplasm: dark and see-through, lit from each corner by how much it holds.
+  body(); ctx.fillStyle = 'rgba(6,12,18,0.5)'; ctx.fill();
+  ctx.save(); body(); ctx.clip();
   for (let i = 0; i < 3; i++) {
-    const [vx, vy] = g.v[i], col = TRIO.col[i], t = trioTier(a[i]), f = T.flash[i];
-    ctx.globalAlpha = a0 * (0.25 + 0.2 * t + f * 0.5);
-    ctx.beginPath(); ctx.arc(vx, vy, 9 + t * 2 + f * 6, 0, TAU); ctx.fillStyle = col; ctx.fill();
-    ctx.globalAlpha = a0 * (a[i] ? 1 : 0.4); ctx.fillStyle = col;
-    const ly = i === 0 ? vy - 20 : vy + 18, lx = i === 1 ? vx - 10 : i === 2 ? vx + 10 : vx;
-    ctx.textAlign = i === 1 ? 'left' : i === 2 ? 'right' : 'center';
-    ctx.fillText(`${TRIO.name[i]} ${a[i]}${t ? ' ' + ['', 'I', 'II', 'III'][t] : ''}`, lx, ly);
+    const [vx, vy] = g.v[i], [r, gg, bb] = trioRGB(TRIO.col[i]), k = 0.08 + 0.09 * trioTier(a[i]) + 0.25 * T.flash[i];
+    const gr = ctx.createRadialGradient(vx, vy, 0, vx, vy, g.s * 0.95 * br);
+    gr.addColorStop(0, `rgba(${r},${gg},${bb},${k})`); gr.addColorStop(1, `rgba(${r},${gg},${bb},0)`);
+    ctx.fillStyle = gr; ctx.fillRect(g.v[0][0] - 20, g.v[1][1] - 20, g.w + 40, g.s + 40);
   }
-  // Pool pips along the bottom edge.
-  const n = Math.floor(T.juice + 1e-6), frac = T.juice - n;
+  ctx.restore();
+  // Membrane: a soft thick halo with a thin bright rim.
+  body(); ctx.lineJoin = 'round';
+  ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(220,240,255,0.07)'; ctx.stroke();
+  ctx.lineWidth = 1.2; ctx.strokeStyle = `rgba(230,245,255,${0.38 + 0.06 * Math.sin(G.realT * 1.7)})`; ctx.stroke();
+  // Corners: a glowing organelle each, bigger and brighter with its tier, and its label.
+  ctx.font = `700 9px ${getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'}`; ctx.textBaseline = 'middle';
+  const ccx = (g.v[0][0] + g.v[1][0] + g.v[2][0]) / 3, ccy = (g.v[0][1] + g.v[1][1] + g.v[2][1]) / 3;
+  for (let i = 0; i < 3; i++) {
+    const vx = g.v[i][0] + (ccx - g.v[i][0]) * 0.26, vy = g.v[i][1] + (ccy - g.v[i][1]) * 0.26, [r, gg, bb] = trioRGB(TRIO.col[i]), t = trioTier(a[i]), f = T.flash[i];
+    const R = (10 + t * 4 + f * 8) * br, gr = ctx.createRadialGradient(vx, vy, 0, vx, vy, R);
+    gr.addColorStop(0, `rgba(${r},${gg},${bb},${0.5 + 0.15 * t})`); gr.addColorStop(0.35, `rgba(${r},${gg},${bb},${0.18 + 0.08 * t})`); gr.addColorStop(1, `rgba(${r},${gg},${bb},0)`);
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(vx, vy, R, 0, TAU); ctx.fill();
+    ctx.globalAlpha = a0 * (a[i] ? 0.95 : 0.35); ctx.fillStyle = TRIO.col[i];
+    ctx.beginPath(); ctx.arc(vx, vy, 2 + t * 0.8, 0, TAU); ctx.fill();
+    const lbl = `${TRIO.name[i]} ${a[i]}${t ? ' ' + ['', 'I', 'II', 'III'][t] : ''}`;
+    if (i === 2) { ctx.textAlign = 'right'; ctx.fillText(lbl, g.v[2][0] + 6, g.v[2][1] + 26); }
+    else { ctx.textAlign = 'left'; ctx.fillText(lbl, g.v[i][0] - 2, i === 1 ? g.v[1][1] - 11 : g.v[0][1] + 13); }
+    ctx.globalAlpha = a0;
+  }
+  // Pips: one per point of Juice, in the colour of the corner it is going to (Rubber, Wiggle, Spunk in turn).
+  const n = Math.floor(T.juice + 1e-6), frac = T.juice - n, owner = [];
+  for (let i = 0; i < 3; i++) for (let k = 0; k < a[i]; k++) owner.push(i);
+  const step = Math.min(11, (g.w + 30) / TRIO.max), py = g.v[0][1] + 30;
   for (let k = 0; k < TRIO.max; k++) {
-    const x = B[0] + (k + 0.5) * g.s / TRIO.max, y = B[1] + 32;
-    ctx.globalAlpha = a0 * (k < n ? 0.95 : k === n ? 0.2 + 0.5 * frac : 0.15); ctx.fillStyle = k < n ? '#e8f4ff' : '#7f8c99';
-    ctx.beginPath(); ctx.arc(x, y, 3.2, 0, TAU); ctx.fill();
+    const x = g.v[0][0] + 3 + k * step;
+    if (k < n) {
+      const c = TRIO.col[owner[k] != null ? owner[k] : 0], [r, gg, bb] = trioRGB(c), gr = ctx.createRadialGradient(x, py, 0, x, py, 7);
+      gr.addColorStop(0, `rgba(${r},${gg},${bb},0.45)`); gr.addColorStop(1, `rgba(${r},${gg},${bb},0)`);
+      ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, py, 7, 0, TAU); ctx.fill();
+      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, py, 3, 0, TAU); ctx.fill();
+    } else {
+      ctx.globalAlpha = a0 * (k === n ? 0.15 + 0.45 * frac : 0.15); ctx.fillStyle = '#cfd8e0';
+      ctx.beginPath(); ctx.arc(x, py, k === n ? 1.5 + 1.5 * frac : 2, 0, TAU); ctx.fill(); ctx.globalAlpha = a0;
+    }
   }
-  // The puck.
-  const [px, py] = trioXY(T.w, g);
-  ctx.globalAlpha = a0; ctx.beginPath(); ctx.arc(px, py, TRIO_PTR.id != null ? 11 : 9, 0, TAU);
-  ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.stroke();
-  ctx.restore(); ctx.globalAlpha = a0;
+  // The puck: a nucleus, tinted by the mix it sets.
+  const [px, py2] = trioXY(T.w, g), mix = [0, 1, 2].map(c => Math.round(T.w[0] * trioRGB(TRIO.col[0])[c] + T.w[1] * trioRGB(TRIO.col[1])[c] + T.w[2] * trioRGB(TRIO.col[2])[c]));
+  const pr = TRIO_PTR.id != null ? 12 : 10, ng = ctx.createRadialGradient(px - pr * 0.3, py2 - pr * 0.35, 0, px, py2, pr * 2.2);
+  ng.addColorStop(0, 'rgba(255,255,255,0.95)'); ng.addColorStop(0.4, `rgba(${mix},0.85)`); ng.addColorStop(0.55, `rgba(${mix},0.25)`); ng.addColorStop(1, `rgba(${mix},0)`);
+  ctx.fillStyle = ng; ctx.beginPath(); ctx.arc(px, py2, pr * 2.2, 0, TAU); ctx.fill();
+  ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.arc(px, py2, pr * 0.95, 0, TAU); ctx.stroke();
+  ctx.restore(); ctx.globalAlpha = a0; RAW_COL = raw;
 }
