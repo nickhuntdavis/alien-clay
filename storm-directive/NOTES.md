@@ -1,13 +1,14 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v9.09 (versionCode 259): developer Unlock Everything no longer grants starter weapons (they widened every draft to all sequences); new Reset Starters button. Previously v9.07. Main (`main`) is current again: start new work from it. All suite tests pass.
+- Version v9.10 (versionCode 260): Devil's Threesome prototype. Before that v9.09 (versionCode 259): developer Unlock Everything no longer grants starter weapons (they widened every draft to all sequences); new Reset Starters button. Previously v9.07. Main (`main`) is current again: start new work from it. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
 
 ## Recent changes (newest first)
+- v9.10: PROTOTYPE The Devil's Threesome (`threesome.js`, Settings > Play, ON by default for playtesting). One pool of Juice (10 pips) split by a puck in a triangle (left of the Charge/Rewind column; keys 1-4): Rubber soaks hits before HP (3+: a free hit every 10 s, 5+: spine burst clears bullets), Wiggle +3% speed a pip, sprint needs 1+, 3+ Flinch auto-dodge (6 s, 5+: 3 s, sprint i-frames and a wake), Spunk +3% fire rate a pip and Feat tiers (cost 1-3 pips; II x1.35 +1 count +20% area, III x1.7 + 1.5 s stun). Regrows 0.4 pip/s after 2 s unhurt; kills +0.12, elites +1, bosses +3. Replaces stamina while on (stamina ring mirrors Juice). No bot puck brain yet (the puck stays where you leave it). Test `triotest`; `stamtest` turns it off.
 - v9.09: merged the day's branches: Reset Starters / Unlock Everything fix, Naughty Corner / Tantrum / Dummy Spit Feats, and the zone-tick stagger perf fix (zone hit-source built once per zone, `z.hs`).
 - v9.08: merged the v8.95 boss pack / 20 new enemies / pin and hide / weird loot / tap-to-inspect branch (`ccr-913291f0-bh0pkg`) into the v9.07 line.
 - v9.07: the Flagellum Flail moves like a whip (render.js 'lash' fx): it flicks out, a loop rolls from your body down to the tip, the tip cracks (a white snap), then it goes slack and draws back. Same tapered glossy strand, still attached to you.

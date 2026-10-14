@@ -20,6 +20,7 @@ const SETTINGS_DEF = [
   { id: 'shake', label: 'Screen shake', hint: 'The slide jolts on explosions, big hits and bosses. Off keeps the view perfectly still.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'vibe', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'featAuto', label: 'Feats', hint: 'AUTO: Feats perform themselves when ready (tap a Feat to perform it early). ON TAP: they wait for you to tap them, so you can save one for the right moment.', opts: [[true, 'AUTO'], [false, 'ON TAP']] },
+  { id: 'trio', label: "The Devil's Threesome (prototype)", hint: 'One pool of Juice split three ways by the puck in the triangle (bottom right): RUBBER soaks hits, WIGGLE adds speed, sprint and Flinch, SPUNK adds fire rate and powers up Feats. Tiers at 1, 3 and 5 pips. Keys 1 to 4.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'auto', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button under pause.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'autoWaves', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'cYou', label: 'You and your shots', hint: 'Your swimmer, echoes, allies and shots.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
@@ -33,7 +34,7 @@ const SETTINGS_DEF = [
   { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. EARNED: with the Counterstain.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cBg', label: 'Background', hint: 'A soft tissue-pink tint on the slide. EARNED: only with Full Technicolour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: false, fullColour: false,
+const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, trio: true, immersive: false, fullColour: false,
   cYou: 'earned', cDanger: 'earned', cReward: 'earned', cPickup: 'earned', cFast: 'earned', cRival: 'earned', cElem: 'earned', cEnemy: 'earned', cTerrain: 'earned', cBg: 'earned' };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');

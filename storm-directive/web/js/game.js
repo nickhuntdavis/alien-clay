@@ -972,6 +972,7 @@ function killEnemy(e, src) {
   sigKill(e, src);
   foeKill(e, src);
   puKill(e);
+  trioKill(e);
   sillyKill(e, src);
   pair2Kill(e, src);
   chemKill(e, src);
@@ -1124,6 +1125,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
   if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
+  if (trioFlinch(ent)) return; // (Wiggle 3+: threesome.js)
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
@@ -1136,6 +1138,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   // The cap has a fixed part (22% of a 120 HP swimmer, growing with the clock) and a part from your own max HP,
   // so more max HP still means more boss hits to go down (it used to be 22% of yours, so HP made no difference).
   if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * 0.15 + 120 * 0.07 * defClock());
+  dmg = trioAbsorb(dmg, ent); if (dmg <= 0) return; // (Rubber soaks it first: threesome.js)
   // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
   // Your armour wears down: every hit that lands knocks a point off (two from a boss), and it grows back slowly once
   // you stop getting hit (armourRegen). Temporary plating (Bear Hug, Fortress) does not wear.
@@ -1676,7 +1679,7 @@ function updateWeapon(w, dt) {
   }
   if (d.scrapAmmo && G.scrap < 1) { if (!w.broke) { w.broke = true; achieve('broke'); } w.cd = Math.max(w.cd, 0); return; }
   w.broke = false;
-  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste() * redHaste() * chemHaste();
+  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * trioRate() * rrelicHaste() * redHaste() * chemHaste();
   if (d.kind === 'crayon') { w.durK = Math.max(1, rate); rate = 1 / Math.max(1, rate); } // (Colouring In: fire rate works backwards, toys.js)
   w.cd -= dt * rate;
   if (G.inCilia && !w.echo) { if (w.cd < 0) w.cd = 0; return; } // (tangled in cilia: no attacking, terrain.js)
@@ -2194,7 +2197,7 @@ function updateSpellList(list, dt) {
   }
 }
 function featFire(w, target) {
-  fireWeapon(w, target);
+  trioFeat(w, target); // (fireWeapon, scaled by Spunk's tier: threesome.js)
   w.cd = featCost(w) ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat)
   genesCast(w); // Turbo-chondrial Engine
   if (!w.echo) G.stats.casts = (G.stats.casts || 0) + 1;
@@ -2208,7 +2211,7 @@ function featTap(w) {
   if (G.inCilia && featCost(w)) { say('TANGLED IN CILIA'); return false; }
   let target = null;
   if (!w.def.noTarget) { target = acquire(w.dir, w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
-  if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }
+  if (!featPay(w)) { say(trioOn() ? 'NOT ENOUGH SPUNK' : 'NOT ENOUGH STAMINA'); vibrate(20); return false; }
   featFire(w, target); vibrate(25);
   return true;
 }

@@ -10,6 +10,7 @@ const STAM_FEATS = new Set(['meteor', 'frostnova', 'thunder', 'blackhole', 'blad
 const stamMax = () => Math.max(20, STAM.max + (G.P.stamMax || 0));
 function stamInit() { G.stam = { cur: stamMax(), restT: 0, sprint: false, winded: false }; }
 function stamTick(dt) {
+  if (trioOn()) { if (!G.stam) stamInit(); trioTick(dt); return; } // (The Devil's Threesome prototype: threesome.js)
   const S = G.stam || (stamInit(), G.stam), P = G.P;
   S.cur = Math.min(S.cur, stamMax());
   const was = S.sprint;
@@ -26,14 +27,15 @@ function stamTick(dt) {
   // A little wake while sprinting.
   if (S.sprint && Math.random() < dt * 20) { const p = me(); fxParts('spark', p.x - (p.vx || 0) * 0.04, p.y - (p.vy || 0) * 0.04, PAL.you, 1, 40, 0.3, 2); }
 }
-const sprintMul = () => (G.stam && G.stam.sprint ? STAM.sprintK + (G.P.sprintSpd || 0) : 1);
+const sprintMul = () => (G.stam && G.stam.sprint ? STAM.sprintK + (G.P.sprintSpd || 0) : 1) * trioSpeed(); // (Wiggle: threesome.js)
 // What a Feat costs (0: it runs on a cooldown). Scales with the Feat's cooldown, so cooldown upgrades make it cheaper.
 // (Never more than 90% of a full bar, so a small bar can still afford its biggest Feat.)
-const featCost = w => (!w.echo && STAM_FEATS.has(w.id) ? Math.max(10, Math.min(Math.round(stamMax() * 0.9), Math.round(w.s.cd * STAM.featK * (G.P.featCost || 1)))) : 0);
+const featCost = w => (!w.echo && STAM_FEATS.has(w.id) && trioOn() ? trioFeatCost(w) : !w.echo && STAM_FEATS.has(w.id) ? Math.max(10, Math.min(Math.round(stamMax() * 0.9), Math.round(w.s.cd * STAM.featK * (G.P.featCost || 1)))) : 0);
 // Can it go now? (true: pay and cast). Feats that cost stamina still wait a short beat between casts.
 function featPay(w) {
   const c = featCost(w);
   if (!c) return true;
+  if (trioOn()) return trioFeatPay(w); // (paid in Juice: threesome.js)
   const S = G.stam || (stamInit(), G.stam);
   if (S.cur < c) return false;
   S.cur -= c; S.restT = Math.max(S.restT, 0.3);
