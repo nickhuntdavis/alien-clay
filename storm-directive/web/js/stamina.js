@@ -58,8 +58,8 @@ function stamRing(px, py) {
 
 // Armour: a sci-fi forcefield round you, bigger than the health ring. While you have armour it is always there: a
 // faint bubble whose surface flows (bands of light sliding round, a gently wobbling rim), dimmer and flickery as it
-// wears. A hit lights the impact point, sends two waves running round the shell from it (the rim bulges as they pass)
-// and ripples out from the impact and the whole shell. New hits are spotted from G.armFlash (set in hurtPlayer).
+// wears. A hit spreads light across the bubble's face from the impact point (a perspective radial gradient), lights
+// the rim, and sends two waves running round the shell from it (the rim bulges as they pass). New hits are spotted from G.armFlash (set in hurtPlayer).
 const ARM_RIP = [];
 function armourRing(px, py) {
   const P = G.P;
@@ -100,10 +100,23 @@ function armourRing(px, py) {
     for (let j = 0; j <= n; j++) { const q = pts[(i0 + j) % N]; if (j) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }
     ctx.stroke();
   }
-  // Hits: a flare at the impact, two bright wave fronts running round the shell, and rings rippling outwards.
+  // Hits: energy spreads over the bubble's face from the impact point like light across a sphere: a radial gradient
+  // squashed towards the middle (perspective), its brightest band at the travelling front, a fading glow behind it and
+  // a hot core at the impact; the rim lights up (fresnel) as it passes. Two wave fronts also run round the rim.
   for (const rp of ARM_RIP) {
-    const u = (t - rp.t) / 0.9, fade = (1 - u) * rp.k, ix = px + Math.cos(rp.a) * R, iy = py + Math.sin(rp.a) * R;
-    if (u < 0.4) { const fl = ctx.createRadialGradient(ix, iy, 0, ix, iy, R * (0.7 + u * 1.5)); fl.addColorStop(0, `rgba(255,255,255,${0.9 * (1 - u / 0.4) * rp.k})`); fl.addColorStop(0.3, `rgba(${tint},${0.5 * (1 - u / 0.4) * rp.k})`); fl.addColorStop(1, `rgba(${tint},0)`); ctx.globalAlpha = a0; ctx.fillStyle = fl; ctx.beginPath(); ctx.arc(ix, iy, R * (0.7 + u * 1.5), 0, TAU); ctx.fill(); }
+    const u = (t - rp.t) / 0.9, fade = (1 - u) * rp.k, f = 1 - (1 - u) ** 2.2; // (eased: fast off the mark, settling)
+    ctx.save(); shell(); ctx.clip();
+    ctx.translate(px + Math.cos(rp.a) * R * 0.94, py + Math.sin(rp.a) * R * 0.94); ctx.rotate(rp.a); ctx.scale(0.55, 1);
+    const RG = R * 2.3, fr = Math.min(0.97, 0.06 + f * 0.9), sh = ctx.createRadialGradient(0, 0, 0, 0, 0, RG);
+    const st = (o, rgb, al) => sh.addColorStop(clamp(o, 0, 1), `rgba(${rgb},${clamp(al, 0, 1)})`);
+    st(0, '255,255,255', 0.9 * fade * (1 - u)); st(Math.min(0.1, fr * 0.5), tint, 0.55 * fade);
+    st(fr - 0.3, tint, 0.28 * fade); st(fr - 0.1, tint, 0.5 * fade); st(fr - 0.02, '255,255,255', (df ? 0.7 : 0.55) * fade); st(fr + 0.06, tint, 0);
+    ctx.fillStyle = sh; ctx.globalAlpha = a0; ctx.fillRect(-RG, -RG, RG * 2, RG * 2);
+    ctx.restore();
+    // Fresnel: the shell's edge lights up as the energy crosses it.
+    const fz = ctx.createRadialGradient(px, py, R * 0.62, px, py, R * 1.04);
+    fz.addColorStop(0, `rgba(${tint},0)`); fz.addColorStop(0.8, `rgba(${tint},${0.22 * fade})`); fz.addColorStop(1, `rgba(255,255,255,${0.35 * fade})`);
+    shell(); ctx.fillStyle = fz; ctx.globalAlpha = a0; ctx.fill();
     ctx.lineWidth = Math.max(2.5, 3.6 * Math.min(1.6, sc));
     for (const dir of [1, -1]) {
       const c = rp.a + dir * u * Math.PI, i0 = Math.round(((c % TAU) + TAU) % TAU / TAU * N);
@@ -112,13 +125,6 @@ function armourRing(px, py) {
       ctx.globalAlpha = a0 * 0.8 * fade; ctx.strokeStyle = rim; ctx.lineWidth *= 2; ctx.stroke(); ctx.lineWidth /= 2;
       ctx.globalAlpha = a0 * fade; ctx.strokeStyle = hi; ctx.stroke();
     }
-    ctx.lineWidth = Math.max(1.5, 2.2 * Math.min(1.6, sc)); ctx.strokeStyle = rim;
-    for (const [lag, sz] of [[0, 1.1], [0.15, 0.75]]) {
-      const v = u - lag;
-      if (v <= 0) continue;
-      ctx.globalAlpha = a0 * 0.8 * (1 - v) * rp.k; ctx.beginPath(); ctx.arc(ix, iy, R * sz * v, 0, TAU); ctx.stroke();
-    }
-    ctx.globalAlpha = a0 * 0.35 * fade; ctx.beginPath(); ctx.arc(px, py, R * (1 + u * 0.35), 0, TAU); ctx.stroke();
   }
   ctx.restore(); ctx.globalAlpha = a0; RAW_COL = raw;
 }
