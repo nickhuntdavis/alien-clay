@@ -57,8 +57,8 @@ function stamRing(px, py) {
 }
 
 // Armour: a sci-fi forcefield round you, bigger than the health ring. While you have armour it is always there: a
-// faint bubble whose surface flows (bands of light sliding round, a gently wobbling rim), dimmer and flickery as it
-// wears. A hit spreads light across the bubble's face from the impact point (a perspective radial gradient), lights
+// faint bubble that glows from inside its skin, with a soft highlight and a gently wobbling rim, dimmer and flickery
+// as it wears. A hit spreads light across the bubble's face from the impact point (a perspective radial gradient), lights
 // the rim, and sends two waves running round the shell from it (the rim bulges as they pass). New hits are spotted from G.armFlash (set in hurtPlayer).
 const ARM_RIP = [];
 function armourRing(px, py) {
@@ -85,21 +85,24 @@ function armourRing(px, py) {
   // Light on black in Darkfield; on the grey field it draws normally in a deeper cyan with white highlights (additive light washes out there). True colours either way.
   const df = !!SET.darkfield, rim = df ? '#9ef0ff' : '#1b9cc4', hi = df ? '#e8fdff' : '#ffffff', raw = RAW_COL;
   ctx.save(); RAW_COL = true; ctx.globalCompositeOperation = df ? 'lighter' : 'source-over';
-  // The bubble: clear in the middle, thickening to a glassy edge.
-  const g = ctx.createRadialGradient(px, py, R * 0.55, px, py, R * 1.05);
+  // The bubble: clear in the middle, glowing from just inside its skin (all of it inside the shell, none spills out),
+  // with a soft highlight top left and a faint reflection bottom right, like a soap bubble.
   const tint = df ? '120,220,255' : '40,170,215';
-  g.addColorStop(0, `rgba(${tint},0)`); g.addColorStop(0.75, `rgba(${tint},${0.06 * base + 0.14 * hot})`); g.addColorStop(1, `rgba(${tint},${0.2 * base + 0.3 * hot})`);
+  const g = ctx.createRadialGradient(px, py, R * 0.35, px, py, R * 1.02);
+  g.addColorStop(0, `rgba(${tint},0)`); g.addColorStop(0.55, `rgba(${tint},${0.05 * base + 0.08 * hot})`); g.addColorStop(0.86, `rgba(${tint},${0.2 * base + 0.2 * hot})`); g.addColorStop(1, `rgba(${df ? '200,245,255' : '160,225,245'},${0.38 * base + 0.3 * hot})`);
   shell(); ctx.fillStyle = g; ctx.globalAlpha = a0; ctx.fill();
-  // The rim, then the flow: three bands of light sliding round it (two one way, one the other).
-  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  shell(); ctx.lineWidth = Math.max(1.2, 1.4 * Math.min(1.6, sc)); ctx.strokeStyle = rim; ctx.globalAlpha = a0 * (0.45 * base + 0.5 * hot); ctx.stroke();
-  ctx.lineWidth = Math.max(2, 2.6 * Math.min(1.6, sc));
-  for (const [sp, off, len] of [[0.9, 0, 0.9], [0.9, Math.PI, 0.6], [-0.55, 1.7, 1.2]]) {
-    const c = t * sp + off, i0 = Math.floor(((c % TAU) + TAU) % TAU / TAU * N), n = Math.round(len / TAU * N);
-    ctx.globalAlpha = a0 * (df ? 0.3 : 0.55) * base; ctx.strokeStyle = hi; ctx.beginPath();
-    for (let j = 0; j <= n; j++) { const q = pts[(i0 + j) % N]; if (j) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }
-    ctx.stroke();
+  ctx.save(); shell(); ctx.clip();
+  for (const [ox, oy, rr, al, sy2] of [[-0.42, -0.44, 0.42, 0.34, 0.7], [0.5, 0.5, 0.26, 0.12, 0.55]]) {
+    const hx = px + ox * R, hy = py + oy * R;
+    ctx.save(); ctx.translate(hx, hy); ctx.rotate(-Math.PI / 4); ctx.scale(1, sy2);
+    const hg = ctx.createRadialGradient(0, 0, 0, 0, 0, rr * R);
+    hg.addColorStop(0, `rgba(255,255,255,${al * base})`); hg.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(0, 0, rr * R, 0, TAU); ctx.fill(); ctx.restore();
   }
+  ctx.restore();
+  // The skin: one thin rim.
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  shell(); ctx.lineWidth = Math.max(1.2, 1.4 * Math.min(1.6, sc)); ctx.strokeStyle = rim; ctx.globalAlpha = a0 * (0.5 * base + 0.5 * hot); ctx.stroke();
   // Hits: energy spreads over the bubble's face from the impact point like light across a sphere: a radial gradient
   // squashed towards the middle (perspective), its brightest band at the travelling front, a fading glow behind it and
   // a hot core at the impact; the rim lights up (fresnel) as it passes. Two wave fronts also run round the rim.
