@@ -65,8 +65,11 @@ function armourRing(px, py) {
   const P = G.P;
   if (!(P.armour > 0) || P.noArmour) { ARM_RIP.length = 0; return; }
   const k = clamp(1 - (G.armourLost || 0) / P.armour, 0, 1), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.6, t = G.realT, a0 = ctx.globalAlpha;
+  // Elastic (bodymods.js): it sloshes behind you on its spring and flattens against whatever it is pressed on.
+  const B = G.bub, ox = B ? B.ox * sc : 0, oy = B ? B.oy * sc : 0, C = G.bubC;
+  px += ox * 0.4; py += oy * 0.4;
   const F = G.armFlash;
-  if (F && F.t !== armourRing.lastT) { armourRing.lastT = F.t; ARM_RIP.push({ t: F.t, a: F.a != null ? F.a : rand(0, TAU), k: 0.7 + 0.3 * (F.k || 0) }); if (ARM_RIP.length > 4) ARM_RIP.shift(); }
+  if (F && F.t !== armourRing.lastT) { armourRing.lastT = F.t; ARM_RIP.push({ t: F.t, a: F.a != null ? F.a : rand(0, TAU), k: F.soft ? 0.3 : 0.7 + 0.3 * (F.k || 0) }); if (ARM_RIP.length > 4) ARM_RIP.shift(); }
   while (ARM_RIP.length && (t - ARM_RIP[0].t > 0.9 || t < ARM_RIP[0].t)) ARM_RIP.shift(); // (a new run resets the clock)
   const flick = k < 0.35 ? 0.7 + 0.3 * Math.sin(t * 37) * Math.sin(t * 13) : 1; // (worn thin: it flickers)
   const base = (0.25 + 0.55 * k) * flick, hot = ARM_RIP.reduce((m, r) => Math.max(m, (1 - (t - r.t) / 0.9) * r.k), 0);
@@ -79,6 +82,9 @@ function armourRing(px, py) {
       const u = (t - rp.t) / 0.9, d = Math.abs(((th - rp.a + Math.PI * 3) % TAU) - Math.PI), front = u * Math.PI;
       r += R * 0.16 * rp.k * (1 - u) * Math.exp(-((d - front) ** 2) / 0.05);
     }
+    const cx = Math.cos(th), cy = Math.sin(th);
+    r += (cx * ox + cy * oy) * 0.6; // (stretched out behind, squashed in front)
+    if (C) { const f = -(cx * C.nx + cy * C.ny); if (f > 0.05) r = Math.min(r, R * (1 - C.pen / bubbleR()) / f); } // (flat against the surface)
     pts.push([px + Math.cos(th) * r, py + Math.sin(th) * r]);
   }
   const shell = () => { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < N; i++) ctx.lineTo(pts[i][0], pts[i][1]); ctx.closePath(); };

@@ -123,6 +123,7 @@ function terrainPlayer(p, dt) {
     const nx = p.x - hit.x, ny = p.y - hit.y, d = Math.hypot(nx, ny) || 1, vn = (p.vx * nx + p.vy * ny) / d;
     if (vn < 0) { p.vx -= vn * nx / d; p.vy -= vn * ny / d; }
   }
+  bubbleBump(p, dt); // (the armour bubble: elastic, meets surfaces at its own edge, bodymods.js)
   if (p.atpT > 0) p.atpT -= dt;
 }
 

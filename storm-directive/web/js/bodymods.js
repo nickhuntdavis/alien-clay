@@ -85,3 +85,65 @@ function drawPlates(px, py) {
   for (let i = 0; i < k; i++) { const c = top + span * i; ctx.moveTo(px + Math.cos(c - span * 0.3) * R, py + Math.sin(c - span * 0.3) * R); ctx.arc(px, py, R, c - span * 0.3, c + span * 0.3); }
   ctx.stroke(); ctx.globalAlpha = a0;
 }
+
+// ---- The armour bubble (drawn by armourRing in stamina.js) is a body of its own while you have armour:
+//  - Elastic: it lags behind your changes of speed on a damped spring (G.bub.ox/oy), so a sudden start or stop
+//    makes it slosh and squash.
+//  - Solid: it meets obstacles and walls at its own edge, well outside your body. It gives (a soft push back, so you
+//    can still squeeze through a gap; your body's own hard collision is unchanged), flattens against the surface
+//    (G.bubC) and bounces you off it. Hitting a surface too fast dents it: armour wears like a hit and it ripples.
+const BUB = { k: 220, damp: 12, mass: 0.5, give: 14, bounceV: 60, rest: 0.6, dentV: 210, dentCd: 0.5 };
+const bubbleR = () => 24 * playerScale() * 1.6; // (world units: the forcefield's drawn radius)
+const bubbleOn = () => G.P.armour > 0 && !G.P.noArmour;
+// The nearest surface within reach of a circle: terrain obstacles and campaign walls. {nx, ny, d} or null.
+const BUB_N = { nx: 0, ny: 0, d: 0 };
+function bubbleNear(p, R) {
+  let best = R;
+  const c = tCell(p.x, p.y);
+  if (c) for (const ob of c) {
+    if (!ob.def.solid || ob.type === 'acid') continue;
+    const dx = p.x - ob.x, dy = p.y - ob.y, dd = Math.hypot(dx, dy) || 0.01, d = dd - ob.r;
+    if (d < best) { best = d; BUB_N.nx = dx / dd; BUB_N.ny = dy / dd; }
+  }
+  if (G.lvl) {
+    const V = G.lvl, x0 = Math.floor((p.x - R) / LV_C), x1 = Math.floor((p.x + R) / LV_C), y0 = Math.floor((p.y - R) / LV_C), y1 = Math.floor((p.y + R) / LV_C);
+    for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
+      const out = cx < 0 || cy < 0 || cx >= V.w || cy >= V.h;
+      if (!out && !lvSolidT(V.grid[cy * V.w + cx])) continue;
+      const bx = cx * LV_C, by = cy * LV_C, qx = clamp(p.x, bx, bx + LV_C), qy = clamp(p.y, by, by + LV_C), dx = p.x - qx, dy = p.y - qy, d = Math.hypot(dx, dy);
+      if (d > 0.01 && d < best) { best = d; BUB_N.nx = dx / d; BUB_N.ny = dy / d; }
+    }
+  }
+  if (best >= R) return null;
+  BUB_N.d = best;
+  return BUB_N;
+}
+function bubbleBump(p, dt) {
+  if (!bubbleOn() || !(dt > 0)) { G.bubC = null; return; }
+  const B = G.bub || (G.bub = { ox: 0, oy: 0, vx: 0, vy: 0, pvx: p.vx, pvy: p.vy });
+  // The slosh: a damped spring driven by your acceleration.
+  const ax = clamp((p.vx - B.pvx) / dt, -6000, 6000), ay = clamp((p.vy - B.pvy) / dt, -6000, 6000);
+  B.vx += (-BUB.k * B.ox - BUB.damp * B.vx - BUB.mass * ax) * dt; B.vy += (-BUB.k * B.oy - BUB.damp * B.vy - BUB.mass * ay) * dt;
+  B.ox += B.vx * dt; B.oy += B.vy * dt;
+  const R = bubbleR(), om = Math.hypot(B.ox, B.oy), cap = R * 0.3;
+  if (om > cap) { B.ox *= cap / om; B.oy *= cap / om; }
+  // Surfaces.
+  const n = G.state === 'play' ? bubbleNear(p, R) : null;
+  if (!n) { G.bubC = null; B.pvx = p.vx; B.pvy = p.vy; return; }
+  const pen = R - n.d, vn = p.vx * n.nx + p.vy * n.ny;
+  G.bubC = { nx: n.nx, ny: n.ny, pen: Math.min(pen, R * 0.65) };
+  p.x += n.nx * pen * (1 - Math.exp(-dt * BUB.give)); p.y += n.ny * pen * (1 - Math.exp(-dt * BUB.give));
+  if (vn < -BUB.bounceV) {
+    const s = -vn;
+    p.vx -= (1 + BUB.rest) * vn * n.nx; p.vy -= (1 + BUB.rest) * vn * n.ny;
+    B.vx -= n.nx * s * 0.25; B.vy -= n.ny * s * 0.25; // (the bubble squashes into the surface, then springs back)
+    const a = Math.atan2(-n.ny, -n.nx);
+    if (s > BUB.dentV && G.t - (G.bubDentT || -9) > BUB.dentCd) {
+      G.bubDentT = G.t;
+      G.armourLost = Math.min(G.P.armour, (G.armourLost || 0) + (s > BUB.dentV * 1.5 ? 2 : 1)); G.armourHitT = G.t;
+      G.armFlash = { t: G.realT, k: 0.6, a };
+      floatText(p.x, p.y - 30, 'BONK', '#9ef0ff', 13, 0.6); cam.shake = Math.min(10, cam.shake + 3); sfx('hit');
+    } else if (s > BUB.bounceV * 1.8) G.armFlash = { t: G.realT, k: 0, a, soft: true };
+  }
+  B.pvx = p.vx; B.pvy = p.vy;
+}
