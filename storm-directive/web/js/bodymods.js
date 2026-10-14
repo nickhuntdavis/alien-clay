@@ -75,11 +75,11 @@ function fullLoadFire(w, target) {
   }
 }
 
-// Plates: short arcs just outside the armour ring, one per plate still on.
+// Plates: short arcs just outside the armour forcefield, one per plate still on.
 function drawPlates(px, py) {
   const n = G.P.plates || 0, k = G.platesN == null ? n : G.platesN;
   if (!n || !k) return;
-  const R = 24 * S0 * ZOOM.z * playerScale() * 1.42, a0 = ctx.globalAlpha, span = TAU / n, top = -Math.PI / 2;
+  const R = 24 * S0 * ZOOM.z * playerScale() * 1.85, a0 = ctx.globalAlpha, span = TAU / n, top = -Math.PI / 2;
   ctx.lineCap = 'round'; ctx.lineWidth = Math.max(2, 2.4 * Math.min(1.6, S0 * ZOOM.z)); ctx.strokeStyle = BODYM.plateCol; ctx.globalAlpha = a0 * 0.6;
   ctx.beginPath();
   for (let i = 0; i < k; i++) { const c = top + span * i; ctx.moveTo(px + Math.cos(c - span * 0.3) * R, py + Math.sin(c - span * 0.3) * R); ctx.arc(px, py, R, c - span * 0.3, c + span * 0.3); }

@@ -56,33 +56,69 @@ function stamRing(px, py) {
   ctx.globalAlpha = a0;
 }
 
-// Armour: its own ring, a forcefield just outside the health ring. A faint arc shows how much is left (it wears
-// with every hit and grows back); when a hit lands it flares, brighter the more armour you had.
+// Armour: a sci-fi forcefield round you, bigger than the health ring. While you have armour it is always there: a
+// faint bubble whose surface flows (bands of light sliding round, a gently wobbling rim), dimmer and flickery as it
+// wears. A hit lights the impact point, sends two waves running round the shell from it (the rim bulges as they pass)
+// and ripples out from the impact and the whole shell. New hits are spotted from G.armFlash (set in hurtPlayer).
+const ARM_RIP = [];
 function armourRing(px, py) {
   const P = G.P;
-  if (!(P.armour > 0) || P.noArmour) return;
-  const k = clamp(1 - (G.armourLost || 0) / P.armour, 0, 1), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.22, top = -Math.PI / 2, a0 = ctx.globalAlpha;
-  const F = G.armFlash, f = F ? clamp(1 - (G.realT - F.t) / 0.35, 0, 1) : 0, glowK = f * (0.35 + 0.65 * (F ? F.k : 0));
-  ctx.lineCap = 'butt';
-  if (k < 0.995 || f > 0) {
-    ctx.lineWidth = Math.max(1, 1.2 * Math.min(1.6, sc));
-    ctx.globalAlpha = a0 * 0.35; ctx.strokeStyle = '#9ef0ff'; ctx.beginPath(); ctx.arc(px, py, R, top, top + TAU * k); ctx.stroke();
-  }
-  if (glowK > 0) {
-    // The flare lights up where the hit landed: a bright arc and a spark on that side, a faint ring the rest of the way.
-    ctx.globalCompositeOperation = 'lighter';
-    const RR = R + (1 - f) * 6 * sc, lw = Math.max(2, (2 + 3 * glowK) * Math.min(1.6, sc));
-    if (F.a != null) {
-      ctx.globalAlpha = a0 * glowK * 0.25; ctx.strokeStyle = '#bff6ff'; ctx.lineWidth = lw * 0.5; ctx.beginPath(); ctx.arc(px, py, RR, 0, TAU); ctx.stroke();
-      const span = 0.55 + 0.35 * (F.k || 0);
-      for (const [w, al] of [[1, 1], [1.8, 0.45]]) { ctx.globalAlpha = a0 * glowK * al; ctx.lineWidth = lw * (al < 1 ? 2.2 : 1); ctx.beginPath(); ctx.arc(px, py, RR, F.a - span * w * 0.6, F.a + span * w * 0.6); ctx.stroke(); }
-      glow(px + Math.cos(F.a) * RR, py + Math.sin(F.a) * RR, R * 0.9, '#9ef0ff', 0.6 * glowK);
-    } else {
-      ctx.globalAlpha = a0 * glowK; ctx.strokeStyle = '#bff6ff'; ctx.lineWidth = lw;
-      ctx.beginPath(); ctx.arc(px, py, RR, 0, TAU); ctx.stroke();
-      glow(px, py, R * 1.6, '#9ef0ff', 0.35 * glowK);
+  if (!(P.armour > 0) || P.noArmour) { ARM_RIP.length = 0; return; }
+  const k = clamp(1 - (G.armourLost || 0) / P.armour, 0, 1), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.6, t = G.realT, a0 = ctx.globalAlpha;
+  const F = G.armFlash;
+  if (F && F.t !== armourRing.lastT) { armourRing.lastT = F.t; ARM_RIP.push({ t: F.t, a: F.a != null ? F.a : rand(0, TAU), k: 0.7 + 0.3 * (F.k || 0) }); if (ARM_RIP.length > 4) ARM_RIP.shift(); }
+  while (ARM_RIP.length && (t - ARM_RIP[0].t > 0.9 || t < ARM_RIP[0].t)) ARM_RIP.shift(); // (a new run resets the clock)
+  const flick = k < 0.35 ? 0.7 + 0.3 * Math.sin(t * 37) * Math.sin(t * 13) : 1; // (worn thin: it flickers)
+  const base = (0.25 + 0.55 * k) * flick, hot = ARM_RIP.reduce((m, r) => Math.max(m, (1 - (t - r.t) / 0.9) * r.k), 0);
+  // The shell's outline: a slow wobble, plus a bulge wherever a wave is passing.
+  const N = 64, pts = [];
+  for (let i = 0; i < N; i++) {
+    const th = i / N * TAU;
+    let r = R * (1 + 0.018 * Math.sin(th * 3 + t * 1.6) + 0.012 * Math.sin(th * 5 - t * 2.3));
+    for (const rp of ARM_RIP) {
+      const u = (t - rp.t) / 0.9, d = Math.abs(((th - rp.a + Math.PI * 3) % TAU) - Math.PI), front = u * Math.PI;
+      r += R * 0.16 * rp.k * (1 - u) * Math.exp(-((d - front) ** 2) / 0.05);
     }
-    ctx.globalCompositeOperation = 'source-over';
+    pts.push([px + Math.cos(th) * r, py + Math.sin(th) * r]);
   }
-  ctx.globalAlpha = a0;
+  const shell = () => { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < N; i++) ctx.lineTo(pts[i][0], pts[i][1]); ctx.closePath(); };
+  // Light on black in Darkfield; on the grey field it draws normally in a deeper cyan with white highlights (additive light washes out there). True colours either way.
+  const df = !!SET.darkfield, rim = df ? '#9ef0ff' : '#1b9cc4', hi = df ? '#e8fdff' : '#ffffff', raw = RAW_COL;
+  ctx.save(); RAW_COL = true; ctx.globalCompositeOperation = df ? 'lighter' : 'source-over';
+  // The bubble: clear in the middle, thickening to a glassy edge.
+  const g = ctx.createRadialGradient(px, py, R * 0.55, px, py, R * 1.05);
+  const tint = df ? '120,220,255' : '40,170,215';
+  g.addColorStop(0, `rgba(${tint},0)`); g.addColorStop(0.75, `rgba(${tint},${0.06 * base + 0.14 * hot})`); g.addColorStop(1, `rgba(${tint},${0.2 * base + 0.3 * hot})`);
+  shell(); ctx.fillStyle = g; ctx.globalAlpha = a0; ctx.fill();
+  // The rim, then the flow: three bands of light sliding round it (two one way, one the other).
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  shell(); ctx.lineWidth = Math.max(1.2, 1.4 * Math.min(1.6, sc)); ctx.strokeStyle = rim; ctx.globalAlpha = a0 * (0.45 * base + 0.5 * hot); ctx.stroke();
+  ctx.lineWidth = Math.max(2, 2.6 * Math.min(1.6, sc));
+  for (const [sp, off, len] of [[0.9, 0, 0.9], [0.9, Math.PI, 0.6], [-0.55, 1.7, 1.2]]) {
+    const c = t * sp + off, i0 = Math.floor(((c % TAU) + TAU) % TAU / TAU * N), n = Math.round(len / TAU * N);
+    ctx.globalAlpha = a0 * (df ? 0.3 : 0.55) * base; ctx.strokeStyle = hi; ctx.beginPath();
+    for (let j = 0; j <= n; j++) { const q = pts[(i0 + j) % N]; if (j) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }
+    ctx.stroke();
+  }
+  // Hits: a flare at the impact, two bright wave fronts running round the shell, and rings rippling outwards.
+  for (const rp of ARM_RIP) {
+    const u = (t - rp.t) / 0.9, fade = (1 - u) * rp.k, ix = px + Math.cos(rp.a) * R, iy = py + Math.sin(rp.a) * R;
+    if (u < 0.4) { const fl = ctx.createRadialGradient(ix, iy, 0, ix, iy, R * (0.7 + u * 1.5)); fl.addColorStop(0, `rgba(255,255,255,${0.9 * (1 - u / 0.4) * rp.k})`); fl.addColorStop(0.3, `rgba(${tint},${0.5 * (1 - u / 0.4) * rp.k})`); fl.addColorStop(1, `rgba(${tint},0)`); ctx.globalAlpha = a0; ctx.fillStyle = fl; ctx.beginPath(); ctx.arc(ix, iy, R * (0.7 + u * 1.5), 0, TAU); ctx.fill(); }
+    ctx.lineWidth = Math.max(2.5, 3.6 * Math.min(1.6, sc));
+    for (const dir of [1, -1]) {
+      const c = rp.a + dir * u * Math.PI, i0 = Math.round(((c % TAU) + TAU) % TAU / TAU * N);
+      ctx.beginPath();
+      for (let j = -6; j <= 6; j++) { const q = pts[(i0 + j + N) % N]; if (j > -6) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }
+      ctx.globalAlpha = a0 * 0.8 * fade; ctx.strokeStyle = rim; ctx.lineWidth *= 2; ctx.stroke(); ctx.lineWidth /= 2;
+      ctx.globalAlpha = a0 * fade; ctx.strokeStyle = hi; ctx.stroke();
+    }
+    ctx.lineWidth = Math.max(1.5, 2.2 * Math.min(1.6, sc)); ctx.strokeStyle = rim;
+    for (const [lag, sz] of [[0, 1.1], [0.15, 0.75]]) {
+      const v = u - lag;
+      if (v <= 0) continue;
+      ctx.globalAlpha = a0 * 0.8 * (1 - v) * rp.k; ctx.beginPath(); ctx.arc(ix, iy, R * sz * v, 0, TAU); ctx.stroke();
+    }
+    ctx.globalAlpha = a0 * 0.35 * fade; ctx.beginPath(); ctx.arc(px, py, R * (1 + u * 0.35), 0, TAU); ctx.stroke();
+  }
+  ctx.restore(); ctx.globalAlpha = a0; RAW_COL = raw;
 }
