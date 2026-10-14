@@ -7,7 +7,6 @@ const { chromium } = require('playwright');
     SET.immersive = true; SET.autoWaves = false; SET.auto = false; UI.applySettings(); UI.sample = 's002'; newGame(); UI.show('hud'); G.state = 'play'; G.lootQueue = []; G.spells[0] = makeSlot('thunder', true, 1); G.spells[1] = makeSlot('meteor', true, 1); recomputeAll(); UI.refreshHud(true); });
   await page.waitForTimeout(1200);
   const r = await page.evaluate(() => Object.fromEntries(['armBtn', 'pauseBtn', 'waveBtn', 'sslots', 'moveBtn', 'rewindBtn', 'abilBtn'].map(id => { const q = $(id).getBoundingClientRect(); return [id, [q.left, q.top, q.width, q.height].map(Math.round).join(',')]; })));
-  const g = await page.evaluate(() => { const g = trioGeom(); return g.v.map(v => v.map(Math.round).join(',')).join(' '); });
   await page.screenshot({ path: require('path').resolve(__dirname, 'out/immshot.png') });
-  console.log(JSON.stringify(r), 'trio', g, 'ERRORS', errors.length ? errors.slice(0, 3) : 'none'); await b.close();
+  console.log(JSON.stringify(r), 'ERRORS', errors.length ? errors.slice(0, 3) : 'none'); await b.close();
 })();

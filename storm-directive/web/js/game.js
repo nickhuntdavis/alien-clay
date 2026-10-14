@@ -80,7 +80,7 @@ function newStats() {
   return {
     might: 1, haste: 1, reloadSpd: 1, magMult: 1, multishot: 0, projSpeed: 1, range: 1, area: 1, dur: 1,
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
-    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1,
+    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1, plates: 0, flinch: 0, fullLoad: 0,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, heft: 0, thorns: 0, grit: 0, echoInherit: 0,
     bankShot: 0, atpK: 0, ironGut: 0, brushOff: 0, flow: 0, skid: 0,
@@ -633,6 +633,7 @@ function passiveUseful(id) {
   const ws = G.weapons.filter(w => w && w.s);
   if (PER_WEAPON.has(id)) return ws.some(w => wpRelevant(w, id));
   if (PASSIVE_NEEDS[id]) return ws.some(PASSIVE_NEEDS[id]);
+  if (id === 'fullload') return G.spells.some(w => w && STAM_FEATS.has(w.id)); // (Full Load needs a stamina Feat)
   return true;
 }
 function wpTargets(id) { const max = PASSIVES[id].max; return G.weapons.filter(w => w && (w.wpN && w.wpN[id] || 0) < max && wpRelevant(w, id)); }
@@ -972,7 +973,6 @@ function killEnemy(e, src) {
   sigKill(e, src);
   foeKill(e, src);
   puKill(e);
-  trioKill(e);
   sillyKill(e, src);
   pair2Kill(e, src);
   chemKill(e, src);
@@ -1125,7 +1125,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
   if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
-  if (trioFlinch(ent)) return; // (Wiggle 3+: threesome.js)
+  if (flinchHit(ent)) return; // (Flinch: bodymods.js)
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
@@ -1138,7 +1138,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   // The cap has a fixed part (22% of a 120 HP swimmer, growing with the clock) and a part from your own max HP,
   // so more max HP still means more boss hits to go down (it used to be 22% of yours, so HP made no difference).
   if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * 0.15 + 120 * 0.07 * defClock());
-  dmg = trioAbsorb(dmg, ent); if (dmg <= 0) return; // (Rubber soaks it first: threesome.js)
+  dmg = plateAbsorb(dmg); if (dmg <= 0) return; // (Rubber Johnny plates soak it first: bodymods.js)
   // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
   // Your armour wears down: every hit that lands knocks a point off (two from a boss), and it grows back slowly once
   // you stop getting hit (armourRegen). Temporary plating (Bear Hug, Fortress) does not wear.
@@ -1679,7 +1679,7 @@ function updateWeapon(w, dt) {
   }
   if (d.scrapAmmo && G.scrap < 1) { if (!w.broke) { w.broke = true; achieve('broke'); } w.cd = Math.max(w.cd, 0); return; }
   w.broke = false;
-  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * trioRate() * rrelicHaste() * redHaste() * chemHaste();
+  let rate = (G.clarityT > G.t ? 0.65 : 1) * (rage ? 2 : 1) * (d.spinup ? 1 + 2 * w.spin : 1) * rateBonus() * (w.rateK || 1) * rrelicHaste() * redHaste() * chemHaste();
   if (d.kind === 'crayon') { w.durK = Math.max(1, rate); rate = 1 / Math.max(1, rate); } // (Colouring In: fire rate works backwards, toys.js)
   w.cd -= dt * rate;
   if (G.inCilia && !w.echo) { if (w.cd < 0) w.cd = 0; return; } // (tangled in cilia: no attacking, terrain.js)
@@ -2197,7 +2197,7 @@ function updateSpellList(list, dt) {
   }
 }
 function featFire(w, target) {
-  trioFeat(w, target); // (fireWeapon, scaled by Spunk's tier: threesome.js)
+  fullLoadFire(w, target); // (fireWeapon, stronger from a fuller bar with Full Load: bodymods.js)
   w.cd = featCost(w) ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat)
   genesCast(w); // Turbo-chondrial Engine
   if (!w.echo) G.stats.casts = (G.stats.casts || 0) + 1;
@@ -2211,7 +2211,7 @@ function featTap(w) {
   if (G.inCilia && featCost(w)) { say('TANGLED IN CILIA'); return false; }
   let target = null;
   if (!w.def.noTarget) { target = acquire(w.dir, w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
-  if (!featPay(w)) { say(trioOn() ? 'NOT ENOUGH SPUNK' : 'NOT ENOUGH STAMINA'); vibrate(20); return false; }
+  if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }
   featFire(w, target); vibrate(25);
   return true;
 }
@@ -2634,7 +2634,7 @@ function victory(at) {
 
 // ---------------------------------------------------------------- main update
 function update(dt) {
-  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge(); stamTick(dt); armourRegen(dt);
+  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge(); stamTick(dt); modsTick(dt); armourRegen(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
   if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (4 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }

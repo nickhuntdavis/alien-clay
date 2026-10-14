@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const page = await b.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(300);
   const r = await page.evaluate(() => { META.seen = META.seen || {}; for (const id in ENEMY_INTRO) META.seen[id] = 1; for (const R of RIVALS) META.seen['rival_' + R.id] = 1; META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1;
-    SET.trio = false;     UI.quickStart(); G.lootQueue = []; G.state = 'play'; G.nextBoss = 1e9; G.enemies.length = 0; window.spawnRandom = () => {};
+    UI.quickStart(); G.lootQueue = []; G.state = 'play'; G.nextBoss = 1e9; G.enemies.length = 0; window.spawnRandom = () => {};
     const run = sprint => { const x0 = G.player.x; for (let i = 0; i < 60; i++) { G.manual = { x: 1, y: 0, sprint }; update(1 / 30); G.state = 'play'; } return Math.round(G.player.x - x0); };
     const walk = run(false), s0 = Math.round(G.stam.cur), sprint = run(true), s1 = Math.round(G.stam.cur);
     for (let i = 0; i < 120; i++) { G.manual = { x: 1, y: 0, sprint: true }; update(1 / 30); G.state = 'play'; }
