@@ -934,6 +934,11 @@ body.immersive #hudTop, body.immersive #sysmsg { display: none !important; }
 body.immersive #bottom .slot, body.immersive #moveBtn, body.immersive #armBtn, body.immersive #pauseBtn, body.immersive #side button {
   opacity: 0.5; background: #00000033 !important; border-color: #ffffff1f !important; box-shadow: none !important; }
 body.immersive #bottom .slot:active, body.immersive #moveBtn:active, body.immersive #side button:active { opacity: 0.9; }
+/* Immersive, portrait: Tackle Box and pause go top right (the bottom row is left for Feats and autorun); START WAVE sits just below centre. */
+body.immersive:not(.land) #row2 #armBtn, body.immersive:not(.land) #row2 #pauseBtn { position: fixed; top: calc(10px + env(safe-area-inset-top)); width: 46px; height: 44px !important; align-self: auto; z-index: 5; }
+body.immersive:not(.land) #row2 #pauseBtn { right: 10px; }
+body.immersive:not(.land) #row2 #armBtn { right: 62px; }
+body.immersive:not(.land) #waveBtn { top: 56%; bottom: auto; }
 
 /* ---------------------------------------------------------------- the sample select: an epic one */
 #samples { background: radial-gradient(120% 70% at 50% -10%, #1b3b4a 0%, #0b1418 45%, #050709 100%); overflow-x: hidden; }

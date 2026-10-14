@@ -136,7 +136,7 @@ function trioGeom() {
   const s = TRIO.side, h = s * 0.866, land = document.body.classList.contains('land');
   const bot = document.getElementById('bottom'), top = bot && !land ? bot.getBoundingClientRect().top : H;
   const side = document.getElementById('side'), sr = side && side.getBoundingClientRect(), right = sr && sr.width && !land ? sr.left - 14 : W - 18; // (left of the Charge / Rewind column)
-  const cx = right - s / 2, by = Math.min(H - 44, top - 40);
+  const cx = document.body.classList.contains('immersive') && !land ? 22 + s / 2 : right - s / 2, by = Math.min(H - 44, top - 40);
   return { v: [[cx, by - h], [cx - s / 2, by], [cx + s / 2, by]], cx, cy: by - h / 3, s, h };
 }
 function trioXY(w, g) { return [0, 1].map(k => w[0] * g.v[0][k] + w[1] * g.v[1][k] + w[2] * g.v[2][k]); }
@@ -197,7 +197,8 @@ function trioDraw() {
     ctx.globalAlpha = a0 * (0.25 + 0.2 * t + f * 0.5);
     ctx.beginPath(); ctx.arc(vx, vy, 9 + t * 2 + f * 6, 0, TAU); ctx.fillStyle = col; ctx.fill();
     ctx.globalAlpha = a0 * (a[i] ? 1 : 0.4); ctx.fillStyle = col;
-    const ly = i === 0 ? vy - 20 : vy + 18, lx = i === 1 ? vx + 6 : i === 2 ? vx - 6 : vx;
+    const ly = i === 0 ? vy - 20 : vy + 18, lx = i === 1 ? vx - 10 : i === 2 ? vx + 10 : vx;
+    ctx.textAlign = i === 1 ? 'left' : i === 2 ? 'right' : 'center';
     ctx.fillText(`${TRIO.name[i]} ${a[i]}${t ? ' ' + ['', 'I', 'II', 'III'][t] : ''}`, lx, ly);
   }
   // Pool pips along the bottom edge.
