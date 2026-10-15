@@ -360,7 +360,8 @@ function schoolSteer(p) {
   return null;
 }
 // The title's START SWIMMING: a fresh save (no runs yet), or one whose tutorial was reset, goes to Level 0 first.
-const schoolDue = () => META.schoolDue === 1 || (META.school == null && !RUNLOG.length);
+const schoolFresh = () => META.school == null && !RUNLOG.some(r => r.smp !== 's009'); // (no runs, and Level 0 never passed or skipped: the samples screen shows only Level 0)
+const schoolDue = () => META.schoolDue === 1 || schoolFresh();
 function schoolStart() { UI.sample = 's009'; openSeq(); }
 // The SKIP TUTORIAL button (top of the HUD, Level 0 only): back to the title, and START SWIMMING goes to the samples from then on.
 function schoolSkip() {
