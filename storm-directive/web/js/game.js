@@ -302,7 +302,7 @@ function computeStatsInner(w) {
   s.mag = Math.max(1, Math.round((b.mag || 1) * (1 + 0.12 * (L - 1)) * P.magMult));
   s.reload = (b.reload || 0) * Math.pow(0.95, L - 1) / P.reloadSpd;
   const multi = MULTI_KINDS.includes(d.kind) ? Math.min(2, P.multishot) : 0; // (all sources together add at most 2 projectiles)
-  const baseCount = s.count || 1, extraMulti = multi * (d.kind === 'ring' ? 4 : 1);
+  const baseCount = s.count || 1, extraMulti = multi; // (exactly +1 per projectile, whatever the weapon: never multiples)
   s.count = baseCount + extraMulti;
   if (d.kind === 'gun' && s.pierce < 90) s.pierce = (s.pierce || 0) + P.pierce;
   if (d.kind === 'ring') s.pierce = (s.pierce || 0) + P.pierce;

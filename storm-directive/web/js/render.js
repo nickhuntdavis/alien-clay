@@ -783,7 +783,7 @@ function drawWeaponFx(weapons, ox, oy, alpha) {
 }
 
 // ---------------------------------------------------------------- mutations
-// Your sperm upgrades (not weapon upgrades) show on your body: Multishot grows extra flagella, Vitality and
+// Your sperm upgrades (not weapon upgrades) show on your body: Vitality and
 // Armour make the head bigger and plated, Speed and Hydrodynamics stretch it and lengthen the tail, Haste
 // quickens the beat, Sticky Cilia and Grip sprout cilia, Crit grows a barb, Might swells the acrosome,
 // element passives dye the midpiece in their type colour, Magnet adds a receptor field, Regen and Vamp a
@@ -798,7 +798,7 @@ function shipLook() {
   for (const id in ELEM_PASSIVE) if ((P[id] || 0) > best) { best = P[id]; elem = ELEM_PASSIVE[id]; }
   G.lookKey = key;
   G.look = {
-    tails: 1 + Math.min(3, P.multishot || 0),
+    tails: 1, // (never extra tails)
     head: (1 + 0.07 * n('vital') + 0.04 * n('armour')) * (G.genes && G.genes.primary === 'bruiser' ? 1.18 : 1), // (the Chonker is fat)
     stretch: 1 + 0.05 * (n('speed') + n('hydro')),
     tailLen: 1, // the flagellum no longer grows
