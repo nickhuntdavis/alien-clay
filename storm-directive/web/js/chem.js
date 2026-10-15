@@ -174,7 +174,7 @@ function chemTriple(e, dmg, src, rsrc) {
       else damageEnemy(e, dmg * 3 * rm, rsrc);
       break;
     case 'napalm': // a sticky burning patch that spreads
-      if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 100, r0: 100, grow: 18, life: 5, max: 5, dps: (dmg * 1.2 + 8) * rm, elem: 'fire', pull: 0, color: c, tick: 0, src: rsrc });
+      if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 100, r0: 100, grow: 18, life: 5, max: 5, dps: (dmg * 1.2 + 8) * rm, elem: 'fire', pull: 0, color: c, tick: 0, src: rsrc, flame: true });
       break;
     case 'flesheating': // melting spreads to every sick enemy nearby
       far(320, n => { if (sick(n)) { addBurn(n, (e.burnDps || dmg * 0.4) * rm, rsrc.wname); bolt(e.x, e.y, n.x, n.y, c, 0.12); } });
@@ -275,7 +275,7 @@ function reactDo(id, e, dmg, src, rsrc) {
     }
     case 'greasefire': // Static + Oil: the slick goes up
       e.fizz = 0;
-      if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 75, life: 3, max: 3, dps: (dmg * 0.9 + 6) * rm, elem: 'fire', pull: 0, color: c, tick: 0, src: rsrc });
+      if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 75, life: 3, max: 3, dps: (dmg * 0.9 + 6) * rm, elem: 'fire', pull: 0, color: c, tick: 0, src: rsrc, flame: true });
       fxParts('ember', e.x, e.y, '#ff9e00', 10, 160, 0.8, 3);
       break;
     case 'holywater': // Water + Soul: the curse is boiled out

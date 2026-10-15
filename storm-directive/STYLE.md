@@ -7,7 +7,7 @@ It is a live microscope slide, not a game board. Things sit *in* the fluid and t
 
 ## Rules
 1. **Zones have no borders and no backgrounds.** A soft area (current, cilia, slick, acid) is shown by what is in it: particles, hairs, bubbles, sheen. Density and alpha fall off towards the edge so the zone fades into the slide. No flat fills.
-   - **Rings are allowed for timed effects when colour is on** (a coloured ring that drains shows time left on a status, buff or zone). Only in Lab view (the realistic microscope view; Arcade view has colour and rings) do statuses show inside the body instead of as rings.
+   - **Rings are allowed for timed effects in Arcade view** (a coloured ring that drains shows time left: `typeRings`, typefx.js). Lab view (the default) is a real microscope: nothing on the slide has colour (`labGrey`), there are no status rings, and every status must read from the body alone (`typeStatusFx`): shape and motion, one motion per damage type.
 2. **Organic, not geometric.** Use wobbling blobs (`blobPath`, with per-object `lobes`), bent beans, irregular clumps. Avoid perfect circles and straight edges. Give each instance its own seeded variation (size, lobes, bend) so no two look the same.
 3. **Solids keep an edge, softly.** Things you bounce off (cartilage, mitochondria) need a readable boundary: a thin bright membrane or a top-lit rim, never a heavy black line. They can fade where they sink into the tissue (cartilage fades towards the bottom).
 4. **Motion sells it.** Everything alive moves a little: lobes breathe, hairs beat in a travelling wave, particles drift with the current, bubbles swell and pop. Slow and small; nothing bounces.

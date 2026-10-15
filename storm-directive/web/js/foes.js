@@ -171,73 +171,17 @@ MICROBES.alien = (e, x, y, r, face) => {
 };
 
 // ================================================================ status effects
-// Burning: flame tongues licking up off it and embers rising. Poisoned: a sickly film, bubbles and a drip.
-// Chilled: frost specks circling; frozen: a block of ice with a glint. Electrocuted: arcs crawling round it.
+// The damage-type statuses are drawn by typeStatusFx (typefx.js). Shocked: arcs crawling round it (here).
 let STATUS_LOD = false; // (set by render: a big crowd on screen)
 function drawStatusFx(e, x, y, r) {
   const t = G.realT, id = e.id, a0 = ctx.globalAlpha;
   if (STATUS_LOD && !e.boss && !e.elite && !e.rival) {
     // In a crowd: one tinted disc for the most important status, nothing else.
-    const c = e.frozen > 0 ? '#bde0fe' : e.burn > 0 ? '#ff7a2f' : e.poison > 0 ? '#8dff4a' : e.chill > 0 ? '#caf0f8' : null;
+    const c = e.frozen > 0 ? ELEMENTS.ice.color : e.burn > 0 ? ELEMENTS.fire.color : e.poison > 0 ? ELEMENTS.poison.color : e.bloodT > 0 ? ELEMENTS.arcane.color : e.curse > 0 ? ELEMENTS.soul.color : e.chill > 0 ? ELEMENTS.ice.color : null;
     if (c) { ctx.globalAlpha = a0 * (e.frozen > 0 ? 0.55 : 0.35); ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r * (e.frozen > 0 ? 1.2 : 1), 0, TAU); ctx.fill(); ctx.globalAlpha = a0; }
     return;
   }
-  if (e.poison > 0) {
-    ctx.globalAlpha = a0 * 0.3; ctx.fillStyle = '#8dff4a'; ctx.beginPath(); ctx.arc(x, y, r * 0.95, 0, TAU); ctx.fill();
-    ctx.globalAlpha = a0;
-    // (Batched: the bubbles share one path and one stroke.)
-    ctx.strokeStyle = '#b5e48c'; ctx.lineWidth = Math.max(1, r * 0.07); ctx.globalAlpha = a0 * 0.6; ctx.beginPath();
-    for (let i = 0; i < 3; i++) {
-      const k = (t * 0.7 + i / 3 + id * 0.13) % 1, bx = x + Math.sin(i * 2.1 + id) * r * 0.6, by = y - r * 0.2 - k * r * 1.6, br = Math.max(1.2, r * (0.1 + 0.1 * k));
-      ctx.moveTo(bx + br, by); ctx.arc(bx, by, br, 0, TAU);
-    }
-    ctx.stroke();
-    const dk = (t * 0.9 + id * 0.31) % 1;
-    ctx.globalAlpha = a0 * (1 - dk); ctx.fillStyle = '#8dff4a'; ctx.beginPath(); ctx.ellipse(x + r * 0.3, y + r * (0.9 + dk), Math.max(1, r * 0.07), Math.max(1.5, r * 0.13), 0, 0, TAU); ctx.fill();
-    ctx.globalAlpha = a0;
-  }
-  if (e.burn > 0) {
-    // Solid flames (not additive) so they read on a pale slide too.
-    // (Batched: all five outer tongues in one fill, all five cores in another.)
-    ctx.globalAlpha = a0 * 0.9;
-    for (const [c, k] of [['#ff5a36', 1], ['#ffd166', 0.55]]) {
-      ctx.fillStyle = c; ctx.beginPath();
-      for (let i = 0; i < 5; i++) {
-        const an = -Math.PI / 2 + (i - 2) * 0.42, fx = x + Math.cos(an) * r * 0.8, fy = y + Math.sin(an) * r * 0.8;
-        const fl = r * (0.45 + 0.25 * Math.sin(t * 13 + i * 2.3 + id)), sw = Math.sin(t * 9 + i + id) * r * 0.12;
-        ctx.moveTo(fx - r * 0.16 * k, fy); ctx.quadraticCurveTo(fx - r * 0.14 * k, fy - fl * k, fx + sw, fy - fl * 1.5 * k); ctx.quadraticCurveTo(fx + r * 0.14 * k, fy - fl * k, fx + r * 0.16 * k, fy); ctx.closePath();
-      }
-      ctx.fill();
-    }
-    ctx.fillStyle = '#ffba08'; ctx.globalAlpha = a0 * 0.6; ctx.beginPath();
-    for (let i = 0; i < 3; i++) { const k = (t * 1.1 + i / 3 + id * 0.17) % 1, ex = x + Math.sin(i * 3 + id + t) * r * 0.7, ey = y - r - k * r * 1.8, er = Math.max(1, r * 0.06); ctx.moveTo(ex + er, ey); ctx.arc(ex, ey, er, 0, TAU); }
-    ctx.fill();
-    ctx.globalAlpha = a0;
-  }
-  if (e.frozen > 0) {
-    // A block of ice round it: a faceted shell, crystals, and a glint sweeping across.
-    ctx.globalAlpha = a0 * 0.5; ctx.fillStyle = '#bde0fe'; ctx.beginPath();
-    for (let i = 0; i < 6; i++) { const an = i / 6 * TAU + id * 0.7, rr = r * (1.25 + 0.12 * ((i * 7 + id) % 3)); ctx.lineTo(x + Math.cos(an) * rr, y + Math.sin(an) * rr); }
-    ctx.closePath(); ctx.fill();
-    ctx.globalAlpha = a0 * 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.stroke();
-    ctx.globalAlpha = a0 * 0.7; ctx.fillStyle = '#e6f4ff'; ctx.beginPath();
-    for (let i = 0; i < 7; i++) { const an = i / 7 * TAU + id, L = r * (1.35 + (i % 3) * 0.15); ctx.moveTo(x + Math.cos(an - 0.12) * r * 1.1, y + Math.sin(an - 0.12) * r * 1.1); ctx.lineTo(x + Math.cos(an) * L, y + Math.sin(an) * L); ctx.lineTo(x + Math.cos(an + 0.12) * r * 1.1, y + Math.sin(an + 0.12) * r * 1.1); }
-    ctx.fill();
-    const gk = (t * 0.6 + id * 0.2) % 1.6;
-    if (gk < 1) { ctx.globalAlpha = a0 * Math.sin(gk * Math.PI); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1.5, r * 0.12); ctx.beginPath(); ctx.moveTo(x - r + gk * r * 2, y - r * 0.9); ctx.lineTo(x - r * 0.6 + gk * r * 2, y + r * 0.9); ctx.stroke(); }
-    ctx.globalAlpha = a0;
-  } else if (e.chill > 0) {
-    // Chilled: frost specks circling slowly.
-    ctx.fillStyle = '#caf0f8';
-    // Little crosses, turning; drawn as one path (no save/rotate per speck).
-    ctx.globalAlpha = a0 * 0.85; ctx.strokeStyle = '#caf0f8'; ctx.lineWidth = Math.max(1, r * 0.06); ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const an = t * 0.8 + i / 5 * TAU + id, rr = r * 1.15, cx = x + Math.cos(an) * rr, cy = y + Math.sin(an) * rr, s = Math.max(1.5, r * 0.12), ro = t * 2 + i, c = Math.cos(ro) * s, sn = Math.sin(ro) * s;
-      ctx.moveTo(cx - c, cy - sn); ctx.lineTo(cx + c, cy + sn); ctx.moveTo(cx + sn, cy - c); ctx.lineTo(cx - sn, cy + c);
-    }
-    ctx.stroke();
-    ctx.globalAlpha = a0;
-  }
+  typeStatusFx(e, x, y, r); // (Melting, Snotty, Stuck, Sick, Lubricated, Soaking wet, Bleeding, Cursed: typefx.js)
   if (e.soapT > G.t) {
     // Soaped (Bubble Bath): a sheen and a few clinging suds.
     ctx.globalAlpha = a0 * 0.7; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.beginPath();

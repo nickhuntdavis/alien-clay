@@ -2080,6 +2080,7 @@ function updateProjectiles(dt) {
       projEnd(pr);
       continue;
     }
+    typeShotFx(pr, dt); // (a trail in its damage type's look: typefx.js)
     if (!(pr.orbitT > 0) && !pr.back && !soulShot(pr) && terrainShot(pr, false, dt)) continue; // (Soul passes through walls: chem.js)
     // Aura projectiles (void orb): periodic area damage and pull.
     if (pr.aura) {

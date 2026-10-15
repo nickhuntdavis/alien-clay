@@ -114,8 +114,8 @@ let TUT_PAIR_M = null; // (built on first use: RX_PAIR lives in inspect.js, whic
 const tutPair = id => (TUT_PAIR_M = TUT_PAIR_M || (() => { const m = {}; for (const k in RX_PAIR) { const [a, b] = k.split('+'); if (!m[RX_PAIR[k]]) m[RX_PAIR[k]] = a === b ? ELEMENTS[a].name + ' to its limit' : ELEMENTS[a].name + ' + ' + ELEMENTS[b].name; } return m; })())[id] || '';
 // After your first Petri Dish wave in Lab view: one offer of Arcade view (Settings > Colour > View).
 TUT_CARDS.arcade = () => ({ title: 'HOW DO YOU LIKE IT?', name: 'A MORE ARCADE EXPERIENCE?', colour: '#ff5fa2',
-  what: 'You are playing in Lab view: a real microscope slide, mostly grey, with colour only where it matters.', head: 'ARCADE VIEW',
-  tips: ['Everything in full colour from the start.', 'Coloured rings show how long each effect has left.', 'Switch back any time: Settings > Colour > View.'],
+  what: 'You are playing in Lab view: a real microscope slide, with no colour on anything. Realism over readability.', head: 'ARCADE VIEW',
+  tips: ['Everything in full colour: you, danger, damage types, enemies, terrain.', 'Coloured rings drain to show how long each effect has left.', 'Switch back any time: Settings > Colour > View.'],
   footHtml: '<button class="chip" id="arcadeYes">SWITCH TO ARCADE VIEW</button> <span class="hint">or GOT IT to stay in Lab view.</span>',
   bind: el => { const b = el.querySelector('#arcadeYes'); if (b) b.onclick = () => { SET.view = 'arcade'; saveSettings(); refreshPalette(); b.textContent = 'ARCADE VIEW ON'; b.disabled = true; }; } });
 function viewOffer(V) {

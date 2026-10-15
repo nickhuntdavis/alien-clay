@@ -1425,7 +1425,7 @@ function render() {
       ctx.lineWidth = 2; ctx.globalAlpha = a * 0.6;
       ctx.globalAlpha = a; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(x, y, 14 * S, 0, TAU); ctx.fill();
       ctx.strokeStyle = '#ff758f'; ctx.beginPath(); ctx.arc(x, y, 15 * S, 0, TAU); ctx.stroke();
-    } else drawPool(z, x, y, r, a);
+    } else if (!typeZone(z, x, y, r, a)) drawPool(z, x, y, r, a); // (slicks, pools, snot, ripples, flames: typefx.js)
   }
   fxDim(false);
   drawHazards(vis);
@@ -1950,6 +1950,7 @@ function render() {
     if (!rewinding) drawLensBlur();
     if (QUAL.lv < 3) { buildVignette(); ctx.drawImage(SPR.vignette, 0, 0, W, H); } // (no vignette on the two lowest steps)
   }
+  labGrey(); labEyepiece(); // (Lab view: no colour on the slide, and the eyepiece: typefx.js)
   if (G.warp > 0) {
     // Nap Time: slow ripples spreading from you while time crawls.
     ctx.fillStyle = 'rgba(120,130,255,0.08)'; ctx.fillRect(0, 0, W, H);
@@ -2098,20 +2099,19 @@ function drawEnemy(e, lod) {
   drawStatusFx(e, x, y, r);
   // A ring for each damage type's status on it, in that type's colour, and one for every damage over time
   // (Acid, Ethanol, Bleed, an Acid Crypt burn, Tapeworm).
-  if (e.burn > 0 || e.acidT > G.t) st(ELEMENTS.fire.color);
-  if (e.bleed > 0) st('#ff3b3b');
-  if (e.poison > 0) st(ELEMENTS.poison.color);
-  if (e.chill > 0 || e.frozen > 0) st(ELEMENTS.ice.color);
-  if (e.shock > 0) st(ELEMENTS.shock.color);
-  if (e.mark > 0) st(ELEMENTS.arcane.color);
-  if (e.fizz > 0) st(ELEMENTS.oxi.color);
-  if (e.pickle > 0) st(ELEMENTS.salt.color);
-  if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
-  if (e.parasiteT > 0) st('#b5e48c');
-  if (e.soggyT > G.t) st('#cfe8ff');
-  if (e.guiltT > G.t) st('#c77dff');
-  // Other temporary effects you put on them: each its own colour (STATUS_RINGS).
-  for (const R of STATUS_RINGS) if (R.on(e)) st(R.c);
+  // (Arcade view only: in Lab view statuses show in the body alone. Damage-type rings drain as they run out: typefx.js.)
+  if (!labOn()) {
+    si += typeRings(e, x, y, r, si);
+    if (e.acidT > G.t && !(e.burn > 0)) st(ELEMENTS.fire.color);
+    if (e.bleed > 0) st('#ff3b3b');
+    if (e.mark > 0) st('#e5e5e5');
+    if (e.stasisT > G.realT) st('rgba(184,192,255,0.7)');
+    if (e.parasiteT > 0) st('#b5e48c');
+    if (e.soggyT > G.t) st('#cfe8ff');
+    if (e.guiltT > G.t) st('#c77dff');
+    // Other temporary effects you put on them: each its own colour (STATUS_RINGS).
+    for (const R of STATUS_RINGS) if (R.on(e)) st(R.c);
+  }
   if (e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
   if (e === G.grudge) {
     // Grudge target: a rotating red crosshair.

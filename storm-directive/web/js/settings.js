@@ -2,7 +2,7 @@
 // Spawn Prawn - player settings (saved on the device) and the narrator packs.
 
 const SETTINGS_DEF = [
-  { id: 'view', label: 'View', hint: 'LAB: a real microscope slide, mostly grey; you, danger and each damage type (once you have met it) show in colour. ARCADE: everything in full colour, with coloured rings on timed effects.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
+  { id: 'view', label: 'View', hint: 'LAB: a real microscope. Nothing on the slide has colour, you included; statuses show in each cell\'s body. Realism over readability. ARCADE: everything in full colour, with coloured rings that drain as effects run out.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
   { id: 'darkfield', label: 'Darkfield microscope', hint: 'Black field, bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'detail', label: 'Specimen detail', hint: 'High adds organelles, textures and a proper zona breach. Costs a little performance.', opts: [['standard', 'STANDARD'], ['high', 'HIGH']] },
   { id: 'clinical', label: 'Clean clinical view', hint: 'No grain, lens blur, vignette or halos. Maximum readability.', opts: [[false, 'OFF'], [true, 'ON']] },
