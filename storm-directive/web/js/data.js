@@ -4,13 +4,13 @@
 const ELEMENTS = {
   phys:   { name: 'Force',   color: '#e8eef8', status: 'shoved',  blurb: 'Plain physics, and the base damage under most attacks. No status and no reactions: it just hurts.' },
   fire:   { name: 'Acid',    color: '#c6ff3d', status: 'melting', blurb: 'Eats through armour. Melting enemies take damage over time and lose armour as they go; once it is all gone, the acid eats through for +50%.' },
-  ice:    { name: 'Mucus',   color: '#a8b84a', status: 'snotty',  blurb: 'Gums them up. Snotty enemies get slower with every hit, and enough of it leaves them stuck fast.' },
+  ice:    { name: 'Mucus',   color: '#a8b84a', status: 'snotty',  blurb: 'Gums them up. Snotty enemies get slower with every hit, and enough of it leaves them stuck fast. Shots stick in them and burst back out when they die.' },
   shock:  { name: 'Static',  color: '#ffe94a', status: 'shocked', blurb: 'Spreads and stuns. Some of the damage a shocked enemy takes arcs to a neighbour and drags it closer, and every 4th Static hit stuns it.' },
   poison: { name: 'Cooties', color: '#ff5fa2', status: 'sick',    blurb: 'Catching. Sick enemies take stacking damage over time, hit you softer, and sneeze it onto their mates every couple of seconds.' },
-  oxi:    { name: 'Oil',     color: '#d99a2b', status: 'lubricated', blurb: 'Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger.' },
-  salt:   { name: 'Water',   color: '#3d8bff', status: 'soaking wet', blurb: 'Crowd control. Every hit shoves enemies away, and soaking-wet enemies carry Static twice as well.' },
-  arcane: { name: 'Blood',   color: '#c9184a', status: 'bleeding', blurb: 'Bleeds them. Bleeding enemies take damage over time, but only while they move: shove them, chase them, keep them running.' },
-  soul:   { name: 'Soul',    color: '#bff4ff', status: 'cursed',  blurb: 'Not of this world. Soul ignores armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. When a cursed enemy dies, the curse moves on.' },
+  oxi:    { name: 'Oil',     color: '#d99a2b', status: 'lubricated', blurb: 'Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger. Hits leave slicks that lubricate whatever swims through.' },
+  salt:   { name: 'Water',   color: '#3d8bff', status: 'soaking wet', blurb: 'Crowd control. Every hit shoves enemies away and splashes their other statuses onto two neighbours at half strength. Soaking-wet enemies carry Static twice as well.' },
+  arcane: { name: 'Blood',   color: '#c9184a', status: 'bleeding', blurb: 'Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you.' },
+  soul:   { name: 'Soul',    color: '#bff4ff', status: 'cursed',  blurb: 'Not of this world. Soul shots pass through walls, shields and armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. A cursed enemy that dies comes back as a ghost that fights for you for 4s.' },
 };
 
 // Targeting directives. Each weapon/spell runs one of these.

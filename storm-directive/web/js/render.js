@@ -1642,7 +1642,7 @@ function render() {
   // (A crowd: common enemies drop their halo and surface detail, and status effects draw as a single tint.)
   const lod = (QUAL.lv >= 1 && G.enemies.length > 60) || G.enemies.length > 80;
   STATUS_LOD = lod;
-  for (const e of G.enemies) if (vis(e) && !e.egg) drawEnemy(e, lod);
+  for (const e of G.enemies) if (vis(e) && !e.egg) { if (e.ghost) { const ga = ctx.globalAlpha; ctx.globalAlpha = ga * (0.4 + 0.1 * Math.sin(G.realT * 5 + e.id)); drawEnemy(e, lod); ctx.globalAlpha = ga; } else drawEnemy(e, lod); } // (Soul ghosts are see-through: chem.js)
   ctx.globalAlpha = 1;
 
   drawTracks(vis);

@@ -2080,7 +2080,7 @@ function updateProjectiles(dt) {
       projEnd(pr);
       continue;
     }
-    if (!(pr.orbitT > 0) && !pr.back && terrainShot(pr, false, dt)) continue;
+    if (!(pr.orbitT > 0) && !pr.back && !soulShot(pr) && terrainShot(pr, false, dt)) continue; // (Soul passes through walls: chem.js)
     // Aura projectiles (void orb): periodic area damage and pull.
     if (pr.aura) {
       pr.tick -= dt;
@@ -2101,8 +2101,8 @@ function updateProjectiles(dt) {
     // Collision.
     forNear(pr.x, pr.y, pr.r, e => {
       if (pr.hits && pr.hits.includes(e.id)) return;
-      if (e.boss && bossDodges(e, pr)) { (pr.hits || (pr.hits = [])).push(e.id); return; }
-      if (e.def.shotFx) { const fr = foes2Shot(pr, e); if (fr === 2) { pr.dead = true; return true; } if (fr) { (pr.hits || (pr.hits = [])).push(e.id); return; } } // (Mirror, Grease, Platelet: foes2.js)
+      if (e.boss && !soulShot(pr) && bossDodges(e, pr)) { (pr.hits || (pr.hits = [])).push(e.id); return; }
+      if (e.def.shotFx && !soulShot(pr)) { const fr = foes2Shot(pr, e); if (fr === 2) { pr.dead = true; return true; } if (fr) { (pr.hits || (pr.hits = [])).push(e.id); return; } } // (Mirror, Grease, Platelet: foes2.js)
       // Hit from behind: the tail takes it.
       if (canSnip(e) && Math.random() < 0.5) { const fx = G.player.x - e.x, fy = G.player.y - e.y, fl = Math.hypot(fx, fy) || 1, vl = Math.hypot(pr.vx, pr.vy) || 1; if ((pr.vx * fx + pr.vy * fy) / (fl * vl) > 0.5) cutTail(e); }
       if (pr.orbitT > 0) {
@@ -2235,8 +2235,10 @@ function updateZones(dt) {
         e.x += dx / d * f; e.y += dy / d * f;
       }
       if (z.root && doTick && !e.boss) e.frozen = Math.max(e.frozen, 0.5); // Naughty Corner: rooted
-      if (doTick) { sigZone(z, e); damageEnemy(e, z.dps * 0.25, z.hs); }
+      if (z.oil) e.fizz = Math.max(e.fizz || 0, 1.5); // (an Oil slick: chem.js)
+      if (doTick && !z.quiet) { sigZone(z, e); damageEnemy(e, z.dps * 0.25, z.hs); }
     });
+    if (z.heal && doTick) chemPool(z); // (a Blood pool heals you: chem.js)
     if (z.grow) z.r = Math.min(z.r0 * 1.9, z.r + z.grow * dt);
     if (z.life <= 0 && z.onEnd) z.onEnd(z);
   }

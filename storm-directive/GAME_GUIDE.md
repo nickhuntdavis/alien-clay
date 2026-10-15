@@ -1675,13 +1675,13 @@ Every weapon and Feat has one. Switched at Birth changes it.
 |---|---|---|
 | **Force** | shoved | Plain physics, and the base damage under most attacks. No status and no reactions: it just hurts. |
 | **Acid** | melting | Eats through armour. Melting enemies take damage over time and lose armour as they go; once it is all gone, the acid eats through for +50%. |
-| **Mucus** | snotty | Gums them up. Snotty enemies get slower with every hit, and enough of it leaves them stuck fast. |
+| **Mucus** | snotty | Gums them up. Snotty enemies get slower with every hit, and enough of it leaves them stuck fast. Shots stick in them and burst back out when they die. |
 | **Static** | shocked | Spreads and stuns. Some of the damage a shocked enemy takes arcs to a neighbour and drags it closer, and every 4th Static hit stuns it. |
 | **Cooties** | sick | Catching. Sick enemies take stacking damage over time, hit you softer, and sneeze it onto their mates every couple of seconds. |
-| **Oil** | lubricated | Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger. |
-| **Water** | soaking wet | Crowd control. Every hit shoves enemies away, and soaking-wet enemies carry Static twice as well. |
-| **Blood** | bleeding | Bleeds them. Bleeding enemies take damage over time, but only while they move: shove them, chase them, keep them running. |
-| **Soul** | cursed | Not of this world. Soul ignores armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. When a cursed enemy dies, the curse moves on. |
+| **Oil** | lubricated | Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger. Hits leave slicks that lubricate whatever swims through. |
+| **Water** | soaking wet | Crowd control. Every hit shoves enemies away and splashes their other statuses onto two neighbours at half strength. Soaking-wet enemies carry Static twice as well. |
+| **Blood** | bleeding | Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you. |
+| **Soul** | cursed | Not of this world. Soul shots pass through walls, shields and armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. A cursed enemy that dies comes back as a ghost that fights for you for 4s. |
 
 ## Chemical reactions
 
