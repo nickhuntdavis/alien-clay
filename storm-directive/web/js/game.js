@@ -883,6 +883,7 @@ function react(e, id, src) {
   G.stats.reactions++;
   tutReact(id);
   inspectSeeRx(id);
+  typeRxFx(e.x, e.y, e.r, id); // (its picture: typefx.js)
   addViewers(8);
   if (G.stats.reactions === 50) achieve('reactions');
   if (G.stats.reactions === 1000) achieve('breakingbad');

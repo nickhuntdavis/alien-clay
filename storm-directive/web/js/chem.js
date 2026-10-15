@@ -213,7 +213,7 @@ function chemTerrain(e, elem, dmg, src, rsrc) {
 // Static shots into a mitochondrion overcharge it (terrainShot, terrain.js): three times the fill.
 function chemMitoK(s, ob) {
   if (!(s.src && s.src.elem === 'shock')) return 1;
-  if (!(ob.ocT > G.t)) { ob.ocT = G.t + 3; floatText(ob.x, ob.y - ob.r - 10, REACTIONS.overcharged.name, REACTIONS.overcharged.color, 13, 0.8); G.stats.reactBy.overcharged = (G.stats.reactBy.overcharged || 0) + 1; inspectSeeRx('overcharged'); }
+  if (!(ob.ocT > G.t)) { ob.ocT = G.t + 3; floatText(ob.x, ob.y - ob.r - 10, REACTIONS.overcharged.name, REACTIONS.overcharged.color, 13, 0.8); G.stats.reactBy.overcharged = (G.stats.reactBy.overcharged || 0) + 1; inspectSeeRx('overcharged'); typeRxFx(ob.x, ob.y, ob.r * 0.5, 'overcharged'); }
   return 3;
 }
 
@@ -242,7 +242,7 @@ function chemPuddle(e, elem) {
 // Every frame (game.js update): what your own puddles do for you.
 function chemPlayerZones() {
   if (!G || G.state !== 'play') return;
-  const q = me(), say = id => { const R = REACTIONS[id]; if (!(G['say' + id] > G.t)) { G['say' + id] = G.t + 6; floatText(q.x, q.y - 30, R.name, R.color, 12, 0.8); G.stats.reactBy[id] = (G.stats.reactBy[id] || 0) + 1; inspectSeeRx(id); } };
+  const q = me(), say = id => { const R = REACTIONS[id]; if (!(G['say' + id] > G.t)) { G['say' + id] = G.t + 6; floatText(q.x, q.y - 30, R.name, R.color, 12, 0.8); G.stats.reactBy[id] = (G.stats.reactBy[id] || 0) + 1; inspectSeeRx(id); typeRxFx(q.x, q.y, q.r, id); } };
   let lube = false;
   for (const z of G.zones) {
     if (!(z.oil || z.water || z.snot) || z.life <= 0 || Math.hypot(q.x - z.x, q.y - z.y) > z.r + (q.r || 12)) continue;
@@ -398,7 +398,7 @@ function chemSplash(e, n) {
   if (e.curse > 0) n.curse = Math.max(n.curse || 0, 1.5);
 }
 // A Blood pool (left by a bleeding kill) heals you while you're in it.
-function chemPool(z) { const q = me(); if (G.poolHealT > G.t) return; if (Math.hypot(q.x - z.x, q.y - z.y) < z.r + (q.r || 12)) { G.poolHealT = G.t + 0.24; healPlayer(G.P.maxHp * z.heal, true); if (!(G.saytopup > G.t)) { G.saytopup = G.t + 6; floatText(q.x, q.y - 30, 'TOP-UP', REACTIONS.topup.color, 12, 0.8); G.stats.reactBy.topup = (G.stats.reactBy.topup || 0) + 1; inspectSeeRx('topup'); } } } // (pools don't stack)
+function chemPool(z) { const q = me(); if (G.poolHealT > G.t) return; if (Math.hypot(q.x - z.x, q.y - z.y) < z.r + (q.r || 12)) { G.poolHealT = G.t + 0.24; healPlayer(G.P.maxHp * z.heal, true); if (!(G.saytopup > G.t)) { G.saytopup = G.t + 6; floatText(q.x, q.y - 30, 'TOP-UP', REACTIONS.topup.color, 12, 0.8); G.stats.reactBy.topup = (G.stats.reactBy.topup || 0) + 1; inspectSeeRx('topup'); typeRxFx(q.x, q.y, q.r, 'topup'); } } } // (pools don't stack)
 // Soul shots pass through walls, shields, mirrors and dodges.
 const soulShot = pr => !!(pr.src && pr.src.elem === 'soul');
 // Per enemy per frame (status upkeep): melting eats armour; batteries zap; the sick sneeze; bleeders bleed as they move.
