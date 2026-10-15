@@ -1,7 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v9.18 (versionCode 268): merge of this session's damage type rework (v9.10 to v9.16 here) with `ccr-31bb56f7` (tails fix), `ccr-ed6358e4` (armour bubble, upgrade cards; it also used v9.10 to v9.17) and `ccr-34ee239c` (Level 0). Main (`main`) needs this merge pushed to it.
+- Version v9.18 (versionCode 268): merge of this session's damage type rework (v9.10 to v9.16 here) with `ccr-31bb56f7` (tails fix), `ccr-ed6358e4` (armour bubble, upgrade cards; it also used v9.10 to v9.17) and `ccr-34ee239c` (Level 0). Pushed to `main`: start new work from it.
 - Level 0 (from `ccr-34ee239c`): Session 2 still to do: a fresh save goes straight into it (with a skip link), wave 0 (Pre-pre-pre-pre-school) is retired, `resetTutorial()` clears `META.school`
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
