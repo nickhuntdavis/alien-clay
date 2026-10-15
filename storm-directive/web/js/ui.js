@@ -1237,7 +1237,8 @@ const UI = {
       s006: '<svg viewBox="0 0 120 120"><path d="M60 60c-14-20-40-20-40 0s26 20 40 0 40-20 40 0-26 20-40 0z" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/></svg>',
       s000: '<svg viewBox="0 0 120 120"><path d="M48 18h24M52 18v32L28 94a8 8 0 0 0 7 12h50a8 8 0 0 0 7-12L68 50V18" fill="none" stroke="currentColor" stroke-width="3"/><path d="M38 80h44" stroke="currentColor" opacity=".6"/></svg>',
     };
-    const ACC = { s002: '#5fd4e8', s001: '#ffd6e8', s006: '#ffd23f', s000: '#9fb3c8' };
+    ART.s009 = '<svg viewBox="0 0 120 120"><path d="M44 112V40a16 16 0 0 1 32 0v72" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="34" r="11" fill="currentColor" opacity=".85"/><circle cx="60" cy="34" r="15" fill="none" stroke="currentColor" stroke-width="1" opacity=".6"/><path d="M44 66h32M44 88h32" stroke="currentColor" stroke-width="1.5" opacity=".6"/><ellipse cx="60" cy="100" rx="3" ry="2.2" fill="currentColor"/></svg>'; // (Level 0: a tube with the egg at the top)
+    const ACC = { s002: '#5fd4e8', s001: '#ffd6e8', s006: '#ffd23f', s000: '#9fb3c8', s009: '#ffb3c6' };
     const card = (s, hero) => `<button class="sx-card ${hero ? 'hero' : ''} ${shut(s) ? 'locked' : ''}" data-sample="${s.id}" style="--c:${ACC[s.id] || '#9fb3c8'}">
       <span class="sx-art">${ART[s.id] || ''}</span>
       <span class="sx-txt"><i>#${s.no} | ${esc(shut(s) ? 'LOCKED' : s.tag || 'IN STOCK')}</i><b>${esc(s.name)}</b>${hero ? `<span>${esc(s.desc)}</span>` : ''}<em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
@@ -1247,7 +1248,9 @@ const UI = {
     const node = (s, i) => s.teaser
       ? `<div class="sx-node tease"><span class="sx-dot">${i}</span><span class="sx-ni"><b>${esc(s.name)}</b><em>UNCHARTED</em></span></div>`
       : `<button class="sx-node ${shut(s) ? 'locked' : 'open'}" data-sample="${s.id}"><span class="sx-dot">${i}</span><span class="sx-ni"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span><em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
-    $('sampleList').innerHTML = `<div class="sx-h">MAIN EVENT</div>${card(by('s002'), true)}
+    // A brand-new save sees one choice only: Level 0, the tutorial. The rest opens once it is passed or skipped (school.js).
+    if (schoolFresh()) $('sampleList').innerHTML = `<div class="sx-h">START HERE</div>${card(by('s009'), true)}<p class="hint" style="margin:14px 4px">Everything else opens once you have passed or skipped your swimming lessons.</p>`;
+    else $('sampleList').innerHTML = `<div class="sx-h">MAIN EVENT</div>${card(by('s002'), true)}
       <div class="sx-h">QUICK RUNS</div><div class="sx-grid">${modes.map(s => card(s, false)).join('')}${dev ? `<button class="sx-card" id="devAll" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Unlock Everything</b><em>${UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA'}</em></span></button><button class="sx-card" id="devStart" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Reset Starters</b><em>DRAFTS USE RUN SEQUENCES ONLY</em></span></button>` : ''}</div>
       <div class="sx-h">THE CAMPAIGN <span>INTO THE BODY</span></div><div class="sx-path">${lvls.map(node).join('')}</div>`;
     $('sampleList').querySelectorAll('[data-sample]').forEach(b => b.addEventListener('click', () => {
