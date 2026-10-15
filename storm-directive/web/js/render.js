@@ -1715,6 +1715,7 @@ function render() {
   drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   drawSizzle(px, py); // touching acid (terrain.js)
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
+  drawPlates(px, py); // Rubber Johnny plates, just outside the armour ring (bodymods.js)
   armourRing(px, py); // armour: a forcefield ring outside the health ring that flashes when hit (stamina.js)
   stamRing(px, py); // stamina: a thinner, fainter ring just inside it, only when it isn't full (stamina.js)
 

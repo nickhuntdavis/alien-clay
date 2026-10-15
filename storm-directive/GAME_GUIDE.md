@@ -1345,6 +1345,9 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Big Lungs** | +25 max stamina (sprint longer, perform more Feats) | You | 3 |
 | **Second Wind** | Stamina refills 30% faster | You | 3 |
 | **Cardio** | Sprinting costs 25% less stamina and is 10% faster | You | 2 |
+| **Rubber Johnny** | +1 rubber plate: each soaks up to 8% of your max HP from one hit, then breaks, and regrows once you stop getting hit. With 3, a breaking plate fires spines that clear nearby bullets | You | 3 |
+| **Flinch** | Dodge a hit that would land with a dart sideways, once every 8s (a second copy: every 4s) | You | 2 |
+| **Full Load** | Stamina Feats performed from a fuller bar hit harder: from half a bar x1.35 with +1 count and +20% area; a second copy, from 90%: x1.7 and they stun for 1.5s | You | 2 |
 | **Muscle Memory** | Stamina Feats cost 20% less | You | 2 |
 | **Cocktail Hour** | Hits deal +12% damage for every different chemical already on the target | You | 3 |
 | **Chain Reaction** | 25% chance that a reaction sets off the same reaction in a nearby enemy carrying any chemical | You | 3 |
