@@ -182,7 +182,8 @@ function foes2Shot(pr, e) {
     if (!(e.slipT > G.realT)) { e.slipT = G.realT + 1; floatText(e.x, e.y - e.r - 10, 'SLIPPED OFF', XR.dim, 11, 0.7); }
     return 1;
   }
-  if (D.clot && pr.pierce > 0) { pr.pierce = 0; if (!(e.slipT > G.realT)) { e.slipT = G.realT + 1; floatText(e.x, e.y - e.r - 10, 'CLOTTED', XR.dim, 11, 0.7); } }
+  if (D.clot && pr.pierce > 0 && !(e.thinT > G.t)) { // (THINNED by Blood: chem.js)
+    pr.pierce = 0; if (!(e.slipT > G.realT)) { e.slipT = G.realT + 1; floatText(e.x, e.y - e.r - 10, 'CLOTTED', XR.dim, 11, 0.7); } }
   return 0;
 }
 

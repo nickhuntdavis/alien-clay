@@ -804,7 +804,7 @@ function damageEnemy(e, dmg, src) {
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
-  if (!src.noCrit && !e.def.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
+  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
   if (e.mark > 0) d *= 1.3; // (marked by other things: Grassed Up and the like)
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
@@ -2266,7 +2266,8 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 165 * P.speed * oobSpeed() * // (base 165: was 150; Out of Body: faster)
+  const speed = 165 * P.speed * oobSpeed() * chemPlayerSpeed() * // (LUBED UP: chem.js)
+    // (base 165: was 150; Out of Body: faster)
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed();
   // You grow 1.5% per level (your hitbox grows half as fast).
@@ -2661,6 +2662,7 @@ function update(dt) {
   safely('rebornTick', () => rebornTick(dt));
   safely('introTick', () => introTick()); // first sightings
   safely('tutTick', () => tutTick()); // first-time tutorial cards (tutorial.js)
+  chemPlayerZones(); // (your own puddles: chem.js)
   safely('grantsTick', () => grantsTick(dt)); // stain grants (grants.js)
   safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
   safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)

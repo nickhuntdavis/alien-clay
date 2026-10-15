@@ -1715,6 +1715,36 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **POLTERGEIST** | Static meets Soul (either way round): the ghost throws arcs at 4 enemies nearby. |
 | **THE SHAKES** | Static meets Cooties (either way round): it shivers to a stop, and so does every sick enemy nearby. |
 | **PATIENT ZERO** | Soul meets Cooties (either way round): it is filled with Cooties and runs into its mates, fighting for you for 3s. |
+| **MELTDOWN** | Six Acid hits in 3s: it melts into a puddle that burns everything in it. |
+| **BOOGER** | Six Mucus hits in 3s: it is flicked away from you, hurting everything it hits on the way. |
+| **OVERLOAD** | Six Static hits in 3s: every shocked enemy nearby discharges and is stunned. |
+| **SLIP 'N SLIDE** | Six Oil hits in 3s: it loses all grip and bowls through the crowd. |
+| **WATERLOGGED** | Six Water hits in 3s: it bloats and slows, then bursts, shoving everything back. |
+| **HEMORRHAGE** | Six Blood hits in 3s: it bursts, and 5 enemies nearby start bleeding hard. |
+| **FULL POSSESSION** | Six Soul hits in 3s: it fights for you for 6s (bosses: spooked and hit hard). |
+| **ZOMBIE** | Blood, Soul and Cooties on one enemy: it fights for you for 6s, and anything that dies near it gets back up on your side. |
+| **BAPTISM** | Water, Soul and Oil on one enemy: it is born again, on your side for good (not bosses; 3 at most). |
+| **NAPALM** | Acid, Oil and Static on one enemy: a sticky burning patch that spreads. |
+| **FLESH-EATING** | Acid, Blood and Cooties on one enemy: melting spreads to every sick enemy nearby. |
+| **FLU SEASON** | Mucus, Cooties and Water on one enemy: the whole screen catches Cooties. |
+| **OIL RIG** | Static, Water and Oil on one enemy: every oil slick nearby explodes. |
+| **LIVE WIRE** | Static on an enemy in a current: the shock runs down the current to everything in it. |
+| **DOWNSTREAM** | Cooties on an enemy in a current: everything in the current catches a dose. |
+| **FLARE-UP** | Oil on an enemy in acid: the pit burns twice as hard for 5s. |
+| **DILUTED** | Water on an enemy in acid: the pit is harmless for 4s. Swim through. |
+| **OVERCHARGED** | Static shots fill a mitochondrion three times as fast. |
+| **FIREBALL** | Static on a Grease Ball: it catches fire and bowls through the crowd. |
+| **GORGED** | Blood on a Leech: it gorges itself and pops. |
+| **SPORE SNEEZE** | Cooties on a Puffball: it sneezes two doses onto everything nearby. |
+| **SHELL SHOCK** | Acid on a Shell Cell: the shell melts off for good. |
+| **SOFTENED** | Water on a Callus: crits work on it for 6s. |
+| **THINNED** | Blood on a Platelet Clump: piercing shots go through it for 6s. |
+| **GLUED DOWN** | Mucus on a Stray Pube: stuck fast for 3s. |
+| **WASHED OFF** | Water on a Bogey: it washes right off. |
+| **LUBED UP** | You in an Oil slick: +30% swim speed. |
+| **TOP-UP** | You in a Blood pool: it heals you. |
+| **RINSE** | You in a Water puddle: washes off acid, tangles and stuck bogeys. |
+| **SNOT SHIELD** | You in a blob of snot: it blocks the next hit (every 10s at most). |
 | **PANDEMIC** | An enemy topped up to its Cooties limit spreads it: 6 enemies nearby get two doses each. |
 
 ## Combo twists

@@ -108,7 +108,8 @@ function terrainPlayer(p, dt) {
   p.x += z.fx * dt; p.y += z.fy * dt;
   p.slick = z.slick;
   G.inCurrent = !!z.current; // Go With the Flow
-  if (z.acid && G.state === 'play' && !G.P.ironGut) { hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt'); acidSizzle(p, z.acid, dt); G.acidOn = G.t + TERRAIN_MOVE.linger; } // (Cast-Iron Stomach: not any more)
+  if (z.acid && G.state === 'play' && !G.P.ironGut && !(z.acid.dilT > G.t)) { // (DILUTED by Water: chem.js)
+    hurtPlayer(z.acid.def.dps * dmgNow(), 'Acid Crypt'); acidSizzle(p, z.acid, dt); G.acidOn = G.t + TERRAIN_MOVE.linger; } // (Cast-Iron Stomach: not any more)
   else if (G.acidOn > G.t && G.state === 'play' && !G.P.ironGut) acidLinger(p, dt);
   else if (G.sizzle > 0) G.sizzle = Math.max(0, G.sizzle - dt * 2.5);
   // Skid Marks: a toxic trail across the slick.
@@ -170,16 +171,17 @@ function terrainBody(e, dt) {
   bigHazBody(e, dt); // (the big hazards: bighaz.js)
   const z = zoneForce(e.x, e.y, e.r);
   if (!e.boss) { e.x += z.fx * dt * 0.8; e.y += z.fy * dt * 0.8; }
-  if (z.acid && !e.egg && !(e.acidT > G.t)) {
+  if (z.acid && !e.egg && !(e.acidT > G.t) && !(z.acid.dilT > G.t)) {
     e.acidT = G.t + 0.5;
-    damageEnemy(e, (e.maxHp * 0.08 + 4) * (1 + G.P.ironGut), { dot: true, noCrit: true, noStatus: true, noArc: true, elem: 'poison', wname: 'Acid Crypt', env: true });
+    damageEnemy(e, (e.maxHp * 0.08 + 4) * (1 + G.P.ironGut) * (z.acid.flareT > G.t ? 2 : 1), { // (FLARE-UP: Oil)
+      dot: true, noCrit: true, noStatus: true, noArc: true, elem: 'poison', wname: 'Acid Crypt', env: true });
   }
   // Brush-Off: cilia beds sting what they shove.
   if (z.cilia && G.P.brushOff && !e.egg && !e.charmed && !(e.ciliaT > G.t)) { e.ciliaT = G.t + 0.5; damageEnemy(e, (12 + G.level * 2.5) * G.P.might * G.P.brushOff, { elem: 'phys', env: true, noCrit: true, noProc: true, wname: 'Brush-Off' }); }
   // Acid: some enemies swim straight through it (and burn), the rest steer round it. Each decides once;
   // bosses always go round.
   if (e.acidWade == null) e.acidWade = !e.boss && !e.rival && Math.random() < ACID_WADE;
-  if (!e.def.ethereal) pushOut(e, e.r, e.side || 1, e.acidWade);
+  if (!e.def.ethereal && !e.ghost) pushOut(e, e.r, e.side || 1, e.acidWade); // (Soul ghosts phase through: PHASING)
   if (G.lvl) lvBody(e); // (the Phantom Pregnancy drifts through walls and growths)
 }
 
@@ -201,7 +203,8 @@ function terrainShot(s, hostile, dt) {
         return false;
       }
       case 'absorb':
-        s.dead = true; ob.charge += 1 + 0.25 * G.P.atpK; ob.flash = 0.08; // (Batteries Included: fills faster)
+        s.dead = true; ob.charge += (1 + 0.25 * G.P.atpK) * (hostile ? 1 : chemMitoK(s, ob)); // (OVERCHARGED: Static, chem.js)
+        ob.flash = 0.08; // (Batteries Included: fills faster)
         if (ob.charge >= ob.def.charge) atpBurst(ob);
         return true;
       case 'melt':
