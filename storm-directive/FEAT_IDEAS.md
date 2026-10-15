@@ -34,7 +34,7 @@ Numbers 1 to 5 are the top five.
 - **Does:** a yellow slime spreads from you and finds the shortest route to the toughest enemy, round walls. Its veins leave a network of slowing, snotty trails. When it arrives, it engulfs the target (stuck for 2s, heavy Mucus hits).
 - **On the slide:** branching, pulsing veins that grow, thicken on the routes that work and wither on the ones that don't. In campaign levels it solves the maze that autorun won't.
 - **Timing:** best when the big threat is behind walls or a crowd.
-- **Unstable reactions:** Snail Trail (Oil on the veins), Scab (Blood), Short Circuit (Static runs the network); three-type: Flu Season.
+- **Unstable reactions:** Snail Trail (Oil on the veins), Scab (Blood), Short Circuit (Static runs the network); three-type: Flu Season, or Bloody Show (it carries Scab and Short Circuit's ingredients already).
 - **Lv 4:** **Foraging**: grows to the three toughest enemies at once. / **Memory**: the network stays for the rest of the wave, slowing anything on it.
 - **Ultimate: Tokyo Rail Network.** Links every enemy on screen in one network, then engulfs them all. *"Replicated in twenty-six hours using oat flakes. Published in Science, 2010."*
 - **SCAMPER:** Adapt a crawling ring, Put the maze to use (the slime does the pathfinding).
@@ -54,7 +54,7 @@ Numbers 1 to 5 are the top five.
 - **Does:** an instant burst of slime around you. Everything inside is stuck for 2s, and bullets that enter slow and sink. Anything that bites you while it is up gags and is stuck again.
 - **On the slide:** fine threads that unravel and swell into a soft, cloudy mass, expanding in a blink. Darkfield: thousands of bright threads.
 - **Timing:** the panic button for when you are surrounded.
-- **Unstable reactions:** Booger (stuck enemies take six Mucus hits fast), Heartburn (Acid), Ectoplasm (Soul); three-type: Flu Season.
+- **Unstable reactions:** Booger (stuck enemies take six Mucus hits fast), Heartburn (Acid), Ectoplasm (Soul); three-type: Flu Season or Bloody Show.
 - **Lv 4:** **Knot Tying**: when it ends, you slip out at speed in the direction you swim. / **Gill Clogger**: stuck enemies cannot fire.
 - **Ultimate: Highway 101.** The whole screen fills with slime: every enemy is stuck for 4s and every bullet is set in place. *"Oregon, 2017. A truck shed seven thousand five hundred pounds of hagfish."*
 - **SCAMPER:** Combine Latex Barrier with Mucus, Magnify the volume.
@@ -228,7 +228,7 @@ Numbers 1 to 5 are the top five.
 - **Does:** throws stretchy strings between 4 pairs of enemies. Tied enemies drag on each other and are slowed, and the strings carry statuses between them.
 - **On the slide:** fine glistening strings that sag and stretch as enemies pull apart, and snap back when they close.
 - **Timing:** into a spread-out crowd to pull it together.
-- **Unstable reactions:** Short Circuit (Static runs the strings), Snot Slick (Water), Snot Rocket (Cooties); three-type: Flu Season.
+- **Unstable reactions:** Short Circuit (Static runs the strings), Snot Slick (Water), Snot Rocket (Cooties); three-type: Bloody Show (the strings carry Blood and Static between pairs) or Flu Season.
 - **Lv 4:** **Elastic**: snapping strings fling both ends into each other. / **Ferning**: each string branches to a third enemy.
 - **Ultimate: Peak Fertility.** One web ties every enemy on screen; a hit on any one carries to all. *"Measurable at home. Not recommended here."*
 - **SCAMPER:** Combine a tether with Mucus.
@@ -238,7 +238,7 @@ Numbers 1 to 5 are the top five.
 - **Does:** every enemy on screen locks still for 1.5s. Anything that moves anyway (bosses, enemies that resist stuns) takes a big Static hit.
 - **On the slide:** everything stops, including drifting particles. Only you move, with a faint crackle over the frozen bodies.
 - **Timing:** before a boss attack or when the screen is full.
-- **Unstable reactions:** Cardiac Arrest (Blood), The Shakes (Cooties), Toaster in the Bath (Water); six hits: Overload; three-type: Napalm.
+- **Unstable reactions:** Cardiac Arrest (Blood), The Shakes (Cooties), Toaster in the Bath (Water); six hits: Overload; three-type: Napalm or Bloody Show (frozen enemies make easy Mucus and Blood targets).
 - **Lv 4:** **Upside Down**: lasts 2.5s. / **Twitch**: bosses that move take triple.
 - **Ultimate: Rigor Mortis.** Every enemy freezes for 4s; anything killed while frozen shatters and hits its neighbours. *"Usually sets in after two to six hours. You managed it in one."*
 - **SCAMPER:** Combine Nap Time with a punishment, Eliminate the slow (a full stop).
@@ -268,7 +268,7 @@ Numbers 1 to 5 are the top five.
 - **Does:** ties 4 pairs of enemies with a thin red vessel for 5s. Half of any damage one takes is copied to its partner, and both bleed.
 - **On the slide:** fine, pulsing red threads that thicken when damage passes along them.
 - **Timing:** tie a tough enemy to something you are already killing.
-- **Unstable reactions:** Cardiac Arrest (Static), Crime Scene (Water), Blood Pact (Soul); six hits: Hemorrhage; three-type: Zombie.
+- **Unstable reactions:** Cardiac Arrest (Static), Crime Scene (Water), Blood Pact (Soul); six hits: Hemorrhage; three-type: Zombie or Bloody Show (with Mucus).
 - **Lv 4:** **Transfusion Syndrome**: full damage copies. / **Cord Pull**: tied pairs are pulled into each other.
 - **Ultimate: Parabiosis.** Every enemy on screen joins one chain; damage to any is shared with all at 50%. *"Surgically joining two animals' circulation. Done to rats since the 1860s."*
 - **SCAMPER:** Combine Blood with the Twins, Put a tether to Feat use.
@@ -279,7 +279,7 @@ Numbers 1 to 5 are the top five.
 > *"Productive is a medical term. It is not a compliment."*
 - **Does:** you hack up a glob that bounces between 5 enemies, sticking a little of itself to each.
 - **On the slide:** a heavy, sagging blob that stretches as it leaves each target.
-- **Unstable reactions:** Snot Rocket (Cooties), Short Circuit (Static), Heartburn (Acid); six hits: Booger; three-type: Flu Season.
+- **Unstable reactions:** Snot Rocket (Cooties), Short Circuit (Static), Heartburn (Acid); six hits: Booger; three-type: Bloody Show or Flu Season.
 - **Lv 4:** **Chesty**: two globs. / **Hairball**: the last bounce bursts and sticks everything nearby.
 - **Ultimate: Whooping Cough.** Eight globs, eight bounces each. *"Historically known as the hundred-day cough."*
 
@@ -413,12 +413,12 @@ A rare, oversized version of a Feat. It works like weapon Mastery: only one Feat
 |---|---|---|---|---|
 | Force | 4 | 2 | 6 | none directly; Capacitation and Donor Sample carry or roll other types |
 | Acid | 2 | 4 | 6 | Napalm, Flesh-Eating |
-| Mucus | 0 | 6 | 6 | Flu Season only (worth a second Mucus three-type reaction later) |
-| Static | 4 | 2 | 6 | Napalm, Oil Rig |
+| Mucus | 0 | 6 | 6 | Flu Season, Bloody Show (new, section 7) |
+| Static | 4 | 2 | 6 | Napalm, Oil Rig, Bloody Show |
 | Cooties | 2 | 4 | 6 | Zombie, Flesh-Eating, Flu Season |
 | Oil | 0 | 6 | 6 | Napalm, Baptism, Oil Rig |
 | Water | 2 | 4 | 6 | Baptism, Flu Season, Oil Rig |
-| Blood | 1 | 5 | 6 | Zombie, Flesh-Eating |
+| Blood | 1 | 5 | 6 | Zombie, Flesh-Eating, Bloody Show |
 | Soul | 3 | 3 | 6 | Zombie, Baptism |
 
 ## 5. What changed from the earlier passes
@@ -436,3 +436,30 @@ A rare, oversized version of a Feat. It works like weapon Mastery: only one Feat
 | Area and control | Sofa Crevice (Soul), Naughty Corner (Water), Dutch Oven (Cooties), Baby Monitor (Static) |
 | Defence and healing | Latex Barrier (Blood), Kiss It Better (Cooties), Nap Time (Soul), Out of Body (Soul) |
 | Character-locked | Lightbulb Moment (Static, Bright Spark), Elbows Out (Force, Firstborn), Come Play With Us (Force, Twins), Belly Flop (Force, Chonker) |
+
+## 7. New three-type reaction: Bloody Show
+
+Mucus could only reach one three-type reaction (Flu Season), while every other type had two or three. Bloody Show gives Mucus a second one, and uses Blood and Static, two of the types with the fewest.
+
+> **BLOODY SHOW**: Mucus, Blood and Static on one enemy. *"A real obstetric term. It means labour has started."*
+
+- **What it does:** the enemy goes into labour. Static contractions squeeze it every 0.5s for 3s; each one hits it, stuns it for 0.2s, and pushes out a burst of bloody mucus onto everything nearby, making it snotty and bleeding. The last contraction is the biggest.
+- **Why it's good:** it turns one enemy into a sprinkler that spreads two statuses, so the crowd around it is primed for Scab, Cardiac Arrest and Short Circuit straight away. That makes it a chain-starter, not just a big hit.
+- **On the slide:** the body clenches and relaxes in a slow rhythm (motion, per STYLE.md), a faint crackle on each squeeze, then soft red-grey strings spraying out and hanging in the fluid. No ring.
+- **Bosses:** no stun; each contraction does +50% instead.
+- **Feats that set it up:** Slime Mould, Hagfish, Spinnbarkeit and Productive Cough (Mucus); Shared Placenta, Hirudotherapy and Mosquito (Blood); Tonic Immobility and Van de Graaff (Static). Capacitation can carry all three onto one enemy.
+- **Build note:** add `['bloodyshow', ['ice', 'arcane', 'shock']]` to the triple list in `chem.js` (next to `fluseason`), a `case 'bloodyshow'` beside it, and a `REACTIONS` entry in `data.js`. No name clash in `web/js` on v9.20.
+
+### Three-type coverage after Bloody Show
+
+| Damage type | Three-type reactions | Count |
+|---|---|---|
+| Oil | Napalm, Baptism, Oil Rig | 3 |
+| Water | Baptism, Flu Season, Oil Rig | 3 |
+| Cooties | Zombie, Flesh-Eating, Flu Season | 3 |
+| Static | Napalm, Oil Rig, Bloody Show | 3 |
+| Blood | Zombie, Flesh-Eating, Bloody Show | 3 |
+| Acid | Napalm, Flesh-Eating | 2 |
+| Soul | Zombie, Baptism | 2 |
+| Mucus | Flu Season, Bloody Show | 2 |
+| Force | none (by design) | 0 |
