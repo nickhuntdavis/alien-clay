@@ -20,7 +20,7 @@ const { chromium } = require('playwright');
     const sp = Object.keys(SPELLS)[0]; const o = optNewSpell(sp, 0); o.apply();
     out.featsQueued = (G.tutQ || []).includes('feats');
     // 4: reaction pair, terrain, grudge
-    G.tutQ = []; tutReact('neutral'); out.react = TUT_CARDS.react().what;
+    G.tutQ = []; tutReact('bath'); out.react = TUT_CARDS.react().what;
     META.seenTut = {}; G.tutQ = [];
     G.t = 10; const p = me(); G.terrain.list.push({ type: 'cilia', def: OBSTACLES.cilia, x: p.x + 50, y: p.y, r: 100, a: 0, charge: 0, flash: 0, seed: 1, burstT: 0 });
     tutTerrainSeen(); out.terrainQueued = G.tutQ.join(',');
@@ -28,7 +28,7 @@ const { chromium } = require('playwright');
     return out;
   });
   console.log(JSON.stringify(r, null, 1));
-  const ok = r.holdsWithBossReward === false && r.holdsWithPlainBox === true && r.beforeLoot === false && r.featsQueued && /Acid \+ Alkali/.test(r.react) && /tr_cilia/.test(r.terrainQueued) && !Object.keys(r).some(k => k.startsWith('bad_'));
+  const ok = r.holdsWithBossReward === false && r.holdsWithPlainBox === true && r.beforeLoot === false && r.featsQueued && /Water \+ Static|Static \+ Water/.test(r.react) && /tr_cilia/.test(r.terrainQueued) && !Object.keys(r).some(k => k.startsWith('bad_'));
   // screenshots: kicker card, HUD with health bar (normal and immersive), stamina ring
   await page.evaluate(() => { META.seenTut = {}; G.tutQ = []; G.state = 'play'; G.manual = null; G.tutNext = 0; tutOpen('grudge'); });
   await page.waitForTimeout(2600); await page.screenshot({ path: 'batch_card.png' });
