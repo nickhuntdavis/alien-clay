@@ -28,7 +28,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 20. [Stamina](#stamina)
 21. [Sequence evolutions](#sequence-evolutions)
 22. [Damage types](#damage-types)
-23. [Chemical reactions](#chemical-reactions)
+23. [Unstable reactions](#unstable-reactions)
 24. [Combo twists](#combo-twists)
 25. [Damage-type synergies](#damage-type-synergies)
 26. [Targeting directives](#targeting-directives)
@@ -1354,7 +1354,7 @@ Stat boosts that stack. Value shown is per pick at Common rarity.
 | **Cocktail Hour** | Hits deal +12% damage for every different chemical already on the target | You | 3 |
 | **Chain Reaction** | 25% chance that a reaction sets off the same reaction in a nearby enemy carrying any chemical | You | 3 |
 | **Mixologist** | Against enemies already carrying 2 or more chemicals, your chemicals go on +50% stronger | You | 3 |
-| **Chemistry** | +35% chemical reaction damage | You | 5 |
+| **Chemistry** | +35% unstable reaction damage | You | 5 |
 | **Repeat Prescription** | -10% Feat cooldowns | You | 5 |
 | **Antenatal Classes** | +12% experience gained | You | 5 |
 | **Snooze Button** | +1 max Rewind charge, +25% Body Clock energy (Rare or better only) | You | 3 |
@@ -1688,7 +1688,7 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **Blood** | bleeding | Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you. |
 | **Soul** | cursed | Not of this world. Soul shots pass through walls, shields and armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. A cursed enemy that dies comes back as a ghost that fights for you for 4s. |
 
-## Chemical reactions
+## Unstable reactions
 
 | Reaction | Trigger and effect |
 |---|---|

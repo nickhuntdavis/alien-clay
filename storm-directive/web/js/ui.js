@@ -1359,7 +1359,7 @@ const UI = {
       h += box('Rewind', '', `<b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically.`);
       let l = '';
       for (const id in REACTIONS) l += `<div class="li"><b>${REACTIONS[id].name}</b> ${run && G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
-      h += box('Chemical reactions', `<div class="list">${l}</div>`);
+      h += box('Unstable reactions', `<div class="list">${l}</div>`);
       let el = '';
       for (const id in ELEMENTS) el += `<div class="li"><b style="color:${ELEM_UI[id]}">${ELEMENTS[id].name}</b> <em>${esc(ELEMENTS[id].status)}</em><br><span>${esc(ELEMENTS[id].blurb)}</span></div>`;
       h += box('Damage types', inspectGuideHtml() + `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it. Tap one for its card.');

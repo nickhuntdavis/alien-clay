@@ -215,7 +215,7 @@ p('Every weapon and Feat has one. Switched at Birth changes it.'); p('');
 p('| Damage type | Status it leaves | What it does |'); p('|---|---|---|');
 for (const e of Object.values(D.ELEMENTS)) p(`| **${e.name}** | ${e.status} | ${esc(e.blurb)} |`);
 p('');
-p('## Chemical reactions'); p('');
+p('## Unstable reactions'); p('');
 p('| Reaction | Trigger and effect |'); p('|---|---|');
 for (const r of Object.values(D.REACTIONS)) p(`| **${r.name}** | ${esc(r.desc)} |`);
 p('');
