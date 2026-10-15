@@ -113,6 +113,8 @@ Each line: name (damage type, role, suggested sequence, aims at), SCAMPER move, 
 | Static | 3 | 3 | 6 |
 | Cooties | 3 | 3 | 6 |
 
+Force stays highest on purpose: it is the "no chemistry" baseline every sequence can lean on (decided v9.21).
+
 | Sequence | Current | New |
 |---|---|---|
 | Firstborn | 3 | 3 (Egg White, Runaway Pram, Water Pistol) |
