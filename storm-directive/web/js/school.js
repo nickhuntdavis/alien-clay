@@ -28,6 +28,20 @@ const SCHOOL = {
     '######....######',
     '######....######',
     '######....######',
+    '######....######',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '######....######',
+    '######....######',
+    '######....######',
     '######9999######',
     '##............##',
     '##............##',
@@ -170,20 +184,21 @@ const SCHOOL = {
     '################',
   ],
   arenas: [
-    { st: 'shoot', gate: '1', rect: [2, 128, 13, 135] },
-    { st: 'collect', gate: '2', rect: [2, 116, 13, 123] },
-    { st: 'box', gate: '3', rect: [2, 105, 13, 111] },
-    { st: 'hunt', gate: '4', rect: [2, 89, 13, 100] },
-    { st: 'modes', gate: '5', rect: [2, 75, 13, 84] },
-    { st: 'sprint', gate: '6', rect: [2, 57, 13, 70] },
-    { st: 'feat', gate: '7', rect: [2, 43, 13, 52] },
-    { st: 'hazard', gate: '8', rect: [2, 27, 13, 38] },
-    { st: 'armour', gate: '9', rect: [2, 14, 13, 22] },
+    { st: 'shoot', gate: '1', rect: [2, 142, 13, 149] },
+    { st: 'collect', gate: '2', rect: [2, 130, 13, 137] },
+    { st: 'box', gate: '3', rect: [2, 119, 13, 125] },
+    { st: 'hunt', gate: '4', rect: [2, 103, 13, 114] },
+    { st: 'modes', gate: '5', rect: [2, 89, 13, 98] },
+    { st: 'sprint', gate: '6', rect: [2, 71, 13, 84] },
+    { st: 'feat', gate: '7', rect: [2, 57, 13, 66] },
+    { st: 'hazard', gate: '8', rect: [2, 41, 13, 52] },
+    { st: 'armour', gate: '9', rect: [2, 28, 13, 36] },
+    { st: 'junk', rect: [2, 14, 13, 23] },
   ],
 };
 // Lesson names for the room banners (lesson 1, autorun, is the stretch before the first room).
 const SCHOOL_NAMES = { shoot: 'LESSON 2: LOOK, NO HANDS', collect: 'LESSON 3: HOOVERING UP', box: 'LESSON 4: UNBOXING', hunt: 'LESSON 5: ON THE PULL',
-  modes: 'LESSON 6: SWIMMING STYLES', sprint: 'LESSON 7: A QUICKIE', feat: 'LESSON 8: PERFORMANCE ANXIETY', hazard: 'LESSON 9: ACID REFLUX', armour: 'LESSON 10: USE PROTECTION' };
+  modes: 'LESSON 6: SWIMMING STYLES', sprint: 'LESSON 7: A QUICKIE', feat: 'LESSON 8: PERFORMANCE ANXIETY', hazard: 'LESSON 9: ACID REFLUX', armour: 'LESSON 10: USE PROTECTION', junk: 'LESSON 11: JUNK IN THE TRUNK' };
 for (const A of SCHOOL.arenas) { A.name = SCHOOL_NAMES[A.st]; A.quota = 0; }
 LEVELS.push(SCHOOL);
 LV_SAMPLE.s009 = LEVELS.length - 1;
@@ -286,6 +301,25 @@ const SCHOOL_ST = {
     tick(R) { if (G.armFlash && G.armFlash !== R.flash) { R.flash = G.armFlash; if (!R.hits++) floatText(me().x, me().y - 40, 'ARMOUR SOAKED IT', '#d6e4f0', 13, 1.2); } },
     done: R => !schoolLeft(R),
     task: R => `ARMOUR SOAKS HITS: ${schoolLeft(R)} LEFT` },
+  junk: { // (Lateral Gene Transfer: in a real run a carrier turns up every 40 to 55s, and sheds its junk after 30s)
+    enter(R) {
+      schoolSay('See the white helix round that Antibody? Junk DNA. Kill it, then swim into the helix it drops: you keep a little of what it was for the rest of the run. Usually it sheds after 30 seconds; here it waits.');
+      R.k0 = junkK('spitter');
+      schoolFoes(R, ['crawler', 'crawler', 'crawler'], R.A.rect, 300);
+    },
+    tick(R) {
+      const C = G.junkE;
+      if (C && !C.dead) C.junk = G.t; // (it never sheds in school)
+      else if (!C && !G.junkDrops.length && junkK('spitter') <= R.k0 && junkK('spitter') < JUNK.stacks) { // (a carrier, and another if the helix decayed)
+        schoolFoes(R, ['spitter'], stFar(R.A.rect));
+        const e = R.foes[R.foes.length - 1];
+        e.junk = G.t; e.junkPing = G.realT; G.junkE = e; e.hp *= JUNK.hpK; e.maxHp *= JUNK.hpK;
+        banner('JUNK DNA!', '#e9f5db'); sfx('level');
+      }
+    },
+    got: R => junkK('spitter') > R.k0 || junkK('spitter') >= JUNK.stacks,
+    done: R => SCHOOL_ST.junk.got(R) && !schoolLeft(R),
+    task: R => SCHOOL_ST.junk.got(R) ? `${schoolLeft(R)} LEFT` : G.junkDrops.length ? 'SWIM INTO THE HELIX' : 'KILL THE ONE WITH THE HELIX' },
 };
 
 // ---------------------------------------------------------------- hooks
@@ -293,13 +327,14 @@ const SCHOOL_ST = {
 function schoolTick() {
   if (!schoolOn()) return;
   const V = G.lvl;
+  if (!V.msg.junk) { V.msg.junk = 1; G.nextJunk = 1e12; } // (no random junk DNA here: lesson 11 has its own)
   if (!V.msg.start && G.t > 1.2) { V.msg.start = 1; schoolSay('Left alone, you swim yourself: that is autorun. Touch and drag anywhere to steer; let go and autorun takes over again.'); }
 }
 function schoolEnter(R) { R.from = G.moveDir; SCHOOL_ST[R.A.st].enter(R); }
 function schoolArena(R, dt) { const S = SCHOOL_ST[R.A.st]; if (S.tick) S.tick(R, dt); }
 function schoolDone(R) {
   const ok = SCHOOL_ST[R.A.st].done(R);
-  if (ok) { G.lvl.passed = (G.lvl.passed || 0) + 1; if (R.A.st === 'armour') schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); }
+  if (ok) { G.lvl.passed = (G.lvl.passed || 0) + 1; if (R.A.st === 'junk') schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); }
   return ok;
 }
 // The HUD line: what to do now.
@@ -319,6 +354,8 @@ function schoolSteer(p) {
     let t = null, td = 1e9; for (const e of R.foes || []) { const d = e.dead ? 1e9 : Math.hypot(e.x - p.x, e.y - p.y); if (d < td) { td = d; t = e; } }
     if (t && td > 160) return { x: t.x, y: t.y, w: 0.8 };
   }
+  if (st === 'junk' && G.junkDrops.length) return { x: G.junkDrops[0].x, y: G.junkDrops[0].y, w: 1.6 };
+  if (st === 'junk' && G.junkE && !G.junkE.dead && Math.hypot(G.junkE.x - p.x, G.junkE.y - p.y) > 200) return { x: G.junkE.x, y: G.junkE.y, w: 0.8 };
   if (st === 'hazard') return { x: (R.A.rect[0] + R.A.rect[2] + 1) / 2 * LV_C, y: (R.A.rect[1] + 1) * LV_C, w: 0.9 };
   return null;
 }
@@ -360,5 +397,5 @@ function schoolWin(at) {
   after(2.6, () => { if (G && G.lvl && G.state === 'play') { G.state = 'won'; if (typeof UI !== 'undefined') UI.showVictory(); } });
 }
 function schoolEulogy() {
-  return `Swimming Lessons passed. You can swim, shoot, collect, hunt, sprint, perform a Feat, dodge acid and wear protection. In a real run there are four hundred million of you, the way through is yours to find, and only one gets the egg.`;
+  return `Swimming Lessons passed. You can swim, shoot, collect, hunt, sprint, perform a Feat, dodge acid, wear protection and steal junk DNA. In a real run there are four hundred million of you, the way through is yours to find, and only one gets the egg.`;
 }

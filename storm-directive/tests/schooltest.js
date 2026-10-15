@@ -20,7 +20,7 @@ const { chromium } = require('playwright');
       const R = V.arena, st = R && R.A.st;
       if (st && !tasks[st]) tasks[st] = SCHOOL_ST[st].task(R);
       G.manual = null;
-      if (st === 'collect') G.moveDir = 'collect'; else if (st === 'hunt') G.moveDir = 'hunt'; else if (st === 'modes' || st === 'armour') G.moveDir = 'kite';
+      if (st === 'collect') G.moveDir = 'collect'; else if (st === 'hunt' || st === 'junk') G.moveDir = 'hunt'; else if (st === 'modes' || st === 'armour') G.moveDir = 'kite';
       else if (st === 'sprint') G.manual = { x: 0, y: -1, sprint: true };
       else if (st === 'feat') { const w = G.spells.find(Boolean); if (w && w.cd <= 0 && G.enemies.some(e => !e.dead && Math.hypot(e.x - G.player.x, e.y - G.player.y) < w.s.range)) featTap(w); }
       else if (!R) G.moveDir = 'kite';
@@ -33,13 +33,14 @@ const { chromium } = require('playwright');
   const h = await page.evaluate(() => {
     const V = G.lvl, at = window.at, tasks = window.tasks;
     const won = step(400, act);
-    return { won, t: Math.round(G.t), at, tasks, task0: SCHOOL.arenas.length, state: G.state, metaSchool: META.school, best: !!(META.lvBest && META.lvBest.school), unl: META.lvUnlocked || 1, spells: G.spells.filter(Boolean).length, armour: G.P.armour };
+    return { won, t: Math.round(G.t), junk: junkK('spitter'), at, tasks, task0: SCHOOL.arenas.length, state: G.state, metaSchool: META.school, best: !!(META.lvBest && META.lvBest.school), unl: META.lvUnlocked || 1, spells: G.spells.filter(Boolean).length, armour: G.P.armour };
   });
   console.log('RUN', JSON.stringify(h));
-  for (const st of ['shoot', 'collect', 'box', 'hunt', 'modes', 'sprint', 'feat', 'hazard', 'armour']) if (h.at[st] == null) fails.push(st + ' gate never opened');
+  for (const st of ['shoot', 'collect', 'box', 'hunt', 'modes', 'sprint', 'feat', 'hazard', 'armour', 'junk']) if (h.at[st] == null) fails.push(st + ' gate never opened');
   if (!h.won || h.metaSchool !== 1 || !h.best) fails.push('the egg did not end it');
   if (h.unl > 1) fails.push('school unlocked a level');
   if (!h.spells || h.armour < 4) fails.push('no Feat or armour handed out');
+  if (!h.junk) fails.push('no junk DNA absorbed');
   if (h.t > 300) fails.push('too slow: ' + h.t + 's');
   await page.screenshot({ path: 'school_end.png' });
   // The COLLECT gate, and the second wind (fresh starts, straight into the room).
