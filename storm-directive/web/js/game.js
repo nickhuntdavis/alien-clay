@@ -2190,7 +2190,7 @@ function updateSpellList(list, dt) {
     w.cd -= dt * genesSpellRate();
     if (w.cd > 0) continue;
     if (G.inCilia && !w.echo && featCost(w)) { w.cd = 0; continue; } // (tangled in cilia: no attacking Feats)
-    if (SET.featAuto === false && !w.echo) { w.cd = 0; continue; } // (Settings > Feats: ON TAP)
+    if (featWaits(w) && !w.echo) { w.cd = 0; continue; } // (Settings > Feat timing, or the Feat's own in the Loadout: loadout.js)
     let target = null;
     if (!w.def.noTarget) {
       target = acquire(w.dir, w.s.range, G.player.x, G.player.y);

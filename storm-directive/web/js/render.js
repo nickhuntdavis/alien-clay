@@ -2355,7 +2355,7 @@ function drawTopBar(top, m, s) {
 }
 
 function drawHud() {
-  const p = G.player, top = UI.safeTop || 0, imm = !!SET.immersive; // (Immersive mode: just the slide and your buttons)
+  const p = G.player, top = UI.safeTop || 0, imm = immersiveOn(); // (Immersive mode: just the slide and your buttons)
   // Everything on the HUD gets a soft dark drop so it reads against the pale field.
   ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
   if (!imm) drawScaleBar();
@@ -2404,7 +2404,7 @@ function drawHud() {
   const lgt = typeof junkChips === 'function' ? junkChips() : []; // Lateral Gene Transfer: a row of its own above the status chips (junk.js)
   if (imm) {
     // Immersive mode: one centred row of chips just under the XP bar (wraps if there are many).
-    let rx = 0, ry = lgtChipRows(lgt, top + 8, true), flagged = null; const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
+    let rx = 0, ry = lgtChipRows(lgt, top + 62, true), flagged = null; /* (below the menu buttons along the top) */ const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
     while (items.length) {
       let w = 0, n = 0; while (n < items.length && (n === 0 || w + items[n][2] + 4 <= W - 16)) w += items[n++][2] + 4;
       rx = (W - (w - 4)) / 2;

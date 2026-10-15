@@ -22,7 +22,7 @@ const SETTINGS_DEF = [
   { id: 'dmgNums', tab: 'screen', label: 'Damage numbers', hint: 'ALL: numbers for hits bigger than your usual (small hits are always quiet). BIG HITS: only crits and hits at least twice your usual. OFF: none.', opts: [['all', 'ALL'], ['big', 'BIG HITS'], ['off', 'OFF']] },
   { id: 'shake', tab: 'screen', label: 'Screen shake', hint: 'The slide jolts on explosions, big hits and bosses. OFF keeps the view perfectly still.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'layout', tab: 'screen', label: 'Layout', hint: 'LANDSCAPE puts your weapons down the side. AUTO follows the way you hold the phone.', opts: [['auto', 'AUTO'], ['portrait', 'PORTRAIT'], ['landscape', 'LANDSCAPE']] },
-  { id: 'immersive', tab: 'screen', label: 'Immersive mode', hint: 'Only the buttons you need to play, along the bottom, faded back. No top bar, map, counters or messages.', opts: [[false, 'OFF'], [true, 'ON']] },
+  { id: 'immersive', tab: 'screen', label: 'Immersive mode', hint: 'Just the slide and your buttons, faded back: menus (AUTO, speed, Tackle Box, pause) along the top, play buttons along the bottom. No top bar, map, counters or messages. AUTO: on in Arcade view, off in Lab view.', opts: [['auto', 'AUTO'], [true, 'ON'], [false, 'OFF']] },
   { id: 'fpsCap', tab: 'screen', label: 'Frame rate', hint: '60 is smoother over a whole run: on a 90 or 120 Hz screen it halves the work, so the phone stays cooler and has room for busy moments.', opts: [[60, '60'], [0, 'UNCAPPED']] },
   // SOUND
   { id: 'sfxVol', tab: 'sound', label: 'Sound effects', hint: 'Shots, hits, pickups and menus. 0% is silent.', slider: true },
@@ -30,9 +30,11 @@ const SETTINGS_DEF = [
   { id: 'vibe', tab: 'sound', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
 const SET_TABS = [['game', 'GAME'], ['screen', 'SCREEN'], ['sound', 'SOUND'], ['data', 'DATA']];
-const SET_DEFAULTS = { view: 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: false, dmgNums: 'all', setTab: 'game' };
+const SET_DEFAULTS = { view: 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: 'auto', dmgNums: 'all', setTab: 'game' };
 const SET = Object.assign({}, SET_DEFAULTS);
 // Sound or music at 0% counts as off (the old ON/OFF switches became volumes in v9.20).
+// Immersive mode: AUTO means on in Arcade view.
+const immersiveOn = () => SET.immersive === true || (SET.immersive === 'auto' && SET.view === 'arcade');
 const soundOn = () => SET.sfxVol > 0 || SET.musVol > 0;
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
@@ -41,6 +43,7 @@ try {
   if (localStorage.getItem('sd_dof') === '0') SET.dof = false;
   if (s.sound === false || localStorage.getItem('sd_sound') === '0') { SET.sfxVol = 0; SET.musVol = 0; }
   if (s.music === false) SET.musVol = 0;
+  if (s.immersive === false && !('setTab' in s)) SET.immersive = 'auto'; // (OFF was the old default: AUTO is the new one, v9.20)
   if (s.fullColour && !s.view) SET.view = 'arcade'; // (Full colour became Arcade view in v9.11)
   if (!SET_TABS.some(t => t[0] === SET.setTab)) SET.setTab = 'game';
 } catch (e) { /* storage unavailable */ }

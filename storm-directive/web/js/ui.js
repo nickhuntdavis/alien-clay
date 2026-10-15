@@ -38,7 +38,7 @@ const UI = {
       UI.toast('AUTORUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name);
       UI.refreshHud(true);
     });
-    $('armBtn').addEventListener('click', e => { e.stopPropagation(); if (G && G.state === 'play') UI.openArmoury('w', 0); });
+    $('armBtn').addEventListener('click', e => { e.stopPropagation(); if (G && G.state === 'play') UI.openArmoury('L', 0); });
     $('pauseBtn').addEventListener('click', () => UI.togglePause());
     $('stClose').addEventListener('click', () => UI.closeStatusPanel());
     // Game speed, right on the HUD: each tap steps to the next speed (wrapping round).
@@ -54,7 +54,7 @@ const UI = {
         const t = ev.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
         if (performance.now() - t0 < 600 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.8) UI.armStep(dx < 0 ? 1 : -1);
       }, { passive: true }); }
-    $('armOpen').addEventListener('click', () => { if (G && G.state === 'pause') { G.state = 'play'; UI.openArmoury('w', 0); } });
+    $('armOpen').addEventListener('click', () => { if (G && G.state === 'pause') { G.state = 'play'; UI.openArmoury('L', 0); } });
     $('rewindBtn').addEventListener('click', () => {
       if (!G || G.state !== 'play') return;
       if (G.chrono.charges < 1) { UI.toast('No Rewind charges: kill enemies to charge your Body Clock'); return; }
@@ -79,6 +79,7 @@ const UI = {
     { let x0 = 0; const h = $('sqHero'); h.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true }); h.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) seqStep(dx < 0 ? 1 : -1); }, { passive: true }); }
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
+    $('buildBtn').addEventListener('click', () => UI.openBuild()); // (loadout.js)
     $('upAllBtn').addEventListener('click', () => upgradeAll()); // (upall.js)
     // Splice screens can be skipped: stay pure, take two rerolls.
     $('skipBtn').addEventListener('click', () => {
@@ -399,7 +400,7 @@ const UI = {
     applyNarrator();
     document.body.classList.toggle('clinical', !!SET.clinical);
     document.body.classList.toggle('darkfield', !!SET.darkfield);
-    document.body.classList.toggle('immersive', !!SET.immersive);
+    document.body.classList.toggle('immersive', immersiveOn());
     if (typeof refreshPalette === 'function') refreshPalette(); // (Full colour)
     if (typeof resetLook === 'function') resetLook();
     if (typeof applyLayout === 'function') applyLayout();
@@ -411,6 +412,7 @@ const UI = {
     G.state = 'armoury';
     INPUT.active = false; G.manual = null;
     UI.arm = { k, i, bar: 0, recycle: false };
+    $('armClose').textContent = 'BACK TO THE RACE';
     $('armQuip').textContent = pick([
       'Please do not lick the weapons. We have had complaints.',
       'Everything here is legally a gift, so no returns.',
@@ -420,8 +422,18 @@ const UI = {
     UI.renderArmoury();
     UI.show('armoury');
   },
+  // YOUR BUILD on a card screen: the Loadout tab over the cards; BACK returns to them.
+  openBuild() {
+    if (!G || G.state !== 'loot') return;
+    G.state = 'armoury'; UI.arm = { k: 'L', i: 0, bar: 0, recycle: false, from: 'loot' };
+    $('armQuip').textContent = 'Have a look before you choose. The cards will wait.';
+    $('armClose').textContent = 'BACK TO THE CARDS';
+    UI.renderArmoury(); UI.show('armoury'); $('armoury').scrollTop = 0;
+  },
   closeArmoury() {
     if (!G || G.state !== 'armoury') return;
+    $('armClose').textContent = 'BACK TO THE RACE';
+    if (UI.arm && UI.arm.from === 'loot') { G.state = 'loot'; UI.arm.from = null; UI.show('loot'); return; }
     G.state = 'play';
     UI.show('hud'); UI.refreshHud(true);
     lastTs = performance.now();
@@ -431,15 +443,15 @@ const UI = {
     const tabs = [...$('armTabs').querySelectorAll('.atab')].map(b => ({ k: b.dataset.k, i: +b.dataset.i }));
     const cur = tabs.findIndex(t => t.k === UI.arm.k && t.i === UI.arm.i);
     const nx = tabs[(cur + dir + tabs.length) % tabs.length];
-    UI.arm = { k: nx.k, i: nx.i, bar: 0, recycle: false };
+    UI.arm = { k: nx.k, i: nx.i, bar: 0, recycle: false, from: UI.arm.from };
     UI.renderArmoury(); $('armoury').scrollTop = 0;
     const b = $('armBody'); b.classList.remove('swipeL', 'swipeR'); void b.offsetWidth; b.classList.add(dir > 0 ? 'swipeL' : 'swipeR');
   },
-  armSlot() { return UI.arm.k === 'w' ? G.weapons[UI.arm.i] : G.spells[UI.arm.i]; },
+  armSlot() { return UI.arm.k === 'L' ? null : UI.arm.k === 'w' ? G.weapons[UI.arm.i] : G.spells[UI.arm.i]; },
   renderArmoury() {
     const A = UI.arm, w = UI.armSlot();
     // Slot tabs.
-    let t = '';
+    let t = `<button class="atab lotab ${A.k === 'L' ? 'sel' : ''}" data-k="L" data-i="0"><b>&#9776;</b><span>LOADOUT</span></button>`;
     const tab = (k, i, x) => {
       const sel = A.k === k && A.i === i;
       if (!x) return `<button class="atab empty ${sel ? 'sel' : ''}" data-k="${k}" data-i="${i}"><b>+</b><span>${k === 'w' ? 'WEAPON' : 'FEAT'} ${i + 1}</span></button>`;
@@ -449,8 +461,9 @@ const UI = {
     SLOT_LEVELS.filter(l => l > G.level).forEach((l, j) => { const i = G.weapons.length + j; t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${l}</span></button>`; });
     G.spells.forEach((x, i) => { t += tab('s', i, x); });
     $('armTabs').innerHTML = t;
-    $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false }; UI.renderArmoury(); }));
+    $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false, from: A.from }; UI.renderArmoury(); }));
     const body = $('armBody');
+    if (A.k === 'L') { body.innerHTML = loadoutHtml(); loadoutBind(body, () => UI.renderArmoury()); return; } // (loadout.js)
     if (A.k === 'w' && A.i >= G.weapons.length) {
       body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS.filter(l => l > G.level)[A.i - G.weapons.length] || '?'} (you are level ${G.level}) and draft a new weapon for it.</p></div>`;
       return;
@@ -465,18 +478,23 @@ const UI = {
       <div class="aname">${esc(d.name)}${w.combos && w.combos.length ? ` <span class="fz">COMBO: ${esc(w.combos.map(id => COMBO_BY[id].name).join(', '))}</span>` : ''}</div>
       <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'Feat' : 'weapon'} <span class="lpips">${Array.from({ length: MAX_WLVL }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/${MAX_WLVL}</div>
       <div class="adesc">${esc(d.desc)}</div>${w.wpN && Object.keys(w.wpN).length ? `<div class="adesc"><b>Tuned:</b> ${Object.entries(w.wpN).map(([id, n]) => esc(PASSIVES[id].name) + ' x' + n).join(', ')}</div>` : ''}</div></div>`;
+    // Targeting.
+    h += `<div class="sec"><h3>Targeting directive</h3>`;
+    if (d.noTarget) h += `<p class="hint">Performs itself. It goes off on its own when useful.</p>`;
+    else {
+      let cur = w.dir;
+      if (w.dirs) {
+        h += `<div class="chips">${w.dirs.map((dd, bi) => `<button class="chip ${A.bar === bi ? 'sel' : ''}" data-bar="${bi}">BARREL ${bi + 1}: ${DIRECTIVES.find(x => x.id === dd).short}</button>`).join('')}</div>`;
+        cur = w.dirs[A.bar];
+      }
+      h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
+    }
+    h += `</div>`;
     // How it plays.
     if (!w.isSpell && d.play) {
       const st = d.stars || [3, 3, 3, 3], bar = n => `<div class="dbar">${Array.from({ length: 5 }, (_, k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div>`;
       h += `<div class="sec"><div class="drole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</div><p class="hint atplay">${esc(d.play)}</p>
         <div class="dbars"><span>POWER</span>${bar(st[0])}<span>FIRE RATE</span>${bar(st[1])}<span>REACH</span>${bar(st[2])}<span>CROWDS</span>${bar(st[3])}</div></div>`;
-    }
-    // This run, and every run.
-    if (!w.isSpell) {
-      const W = G.stats.wdmg || {}, mine = W[w.uid] || 0, tot = G.weapons.reduce((a, x) => a + (x ? W[x.uid] || 0 : 0), 0) || 1, life = META.wstats[w.id];
-      const mo = masterOf(w), note = w.lvl >= MAX_WLVL ? 'This is your mastery weapon this run.' : mo ? `${mo.def.name} took this run's mastery: this one stops at Lv ${MAX_WLVL - 1}.` : 'Mastery (Lv 10) is still open: the first weapon to get there takes it.';
-      h += `<div class="sec"><h3>Record</h3><div class="tiles"><div class="tile"><b>${fmtNum(mine)}</b><span>Damage this run</span></div><div class="tile"><b>${Math.round(mine / tot * 100)}%</b><span>Of your weapons' damage</span></div>
-        <div class="tile"><b>${life ? life.runs : 0}</b><span>Earlier runs</span></div><div class="tile"><b>${life ? life.born : 0}</b><span>Born with it</span></div></div><p class="hint">${esc(note)}</p></div>`;
     }
     // Your upgrades, with this weapon's own twist on them.
     if (!w.isSpell) {
@@ -554,18 +572,6 @@ const UI = {
       if (duoRows.length) h += `<h3 style="margin-top:10px">Combos</h3><div class="list">${duoRows.join('')}</div>`;
       h += `</div>`;
     }
-    // Targeting.
-    h += `<div class="sec"><h3>Targeting directive</h3>`;
-    if (d.noTarget) h += `<p class="hint">Performs itself. It goes off on its own when useful.</p>`;
-    else {
-      let cur = w.dir;
-      if (w.dirs) {
-        h += `<div class="chips">${w.dirs.map((dd, bi) => `<button class="chip ${A.bar === bi ? 'sel' : ''}" data-bar="${bi}">BARREL ${bi + 1}: ${DIRECTIVES.find(x => x.id === dd).short}</button>`).join('')}</div>`;
-        cur = w.dirs[A.bar];
-      }
-      h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
-    }
-    h += `</div>`;
     // Combos: always shown, so you know what to build towards.
     if (!w.isSpell) {
       const cs = COMBOS.filter(c => c.a === w.id || c.b === w.id);
@@ -589,6 +595,13 @@ const UI = {
         }
         h += `</div></div>`;
       }
+    }
+    // This run, and every run.
+    if (!w.isSpell) {
+      const W = G.stats.wdmg || {}, mine = W[w.uid] || 0, tot = G.weapons.reduce((a, x) => a + (x ? W[x.uid] || 0 : 0), 0) || 1, life = META.wstats[w.id];
+      const mo = masterOf(w), note = w.lvl >= MAX_WLVL ? 'This is your mastery weapon this run.' : mo ? `${mo.def.name} took this run's mastery: this one stops at Lv ${MAX_WLVL - 1}.` : 'Mastery (Lv 10) is still open: the first weapon to get there takes it.';
+      h += `<div class="sec"><h3>Record</h3><div class="tiles"><div class="tile"><b>${fmtNum(mine)}</b><span>Damage this run</span></div><div class="tile"><b>${Math.round(mine / tot * 100)}%</b><span>Of your weapons' damage</span></div>
+        <div class="tile"><b>${life ? life.runs : 0}</b><span>Earlier runs</span></div><div class="tile"><b>${life ? life.born : 0}</b><span>Born with it</span></div></div><p class="hint">${esc(note)}</p></div>`;
     }
     // Recycle.
     if (A.k === 'w' && G.weapons.filter(Boolean).length > 1) {
@@ -888,6 +901,7 @@ const UI = {
     $('lootCards').classList.remove('ready');
     UI.renderLootCards();
     UI.rarityBanner();
+    $('buildBtn').style.display = req.kind === 'start' ? 'none' : ''; // (loadout.js)
     $('rerollBtn').style.display = req.kind === 'start' || req.kind === 'branch' || req.kind === 'sfork' || req.kind === 'relic' || req.kind === 'rrelic' || req.kind === 'spoils' ? 'none' : '';
     $('skipBtn').style.display = req.kind === 'splice' || RAR_SKIP[req.kind] != null ? '' : 'none';
     $('skipBtn').textContent = RAR_SKIP[req.kind] != null ? `SKIP: NEXT IS ${RARITIES[Math.min(4, RAR_SKIP.level + (req.boost || 0) + 1)].name.toUpperCase()}+` : spliceSkipMut() ? 'SKIP: TAKE A MUTATION' : 'SKIP (+2 REROLLS)';
