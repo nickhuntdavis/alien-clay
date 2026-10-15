@@ -125,14 +125,14 @@ function introSound() {
     f.frequency.setValueAtTime(f0, t0 + at); f.frequency.exponentialRampToValueAtTime(f1, t0 + at + dur);
     g.gain.setValueAtTime(0.0001, t0 + at);
     for (const [tt, v] of env) g.gain.exponentialRampToValueAtTime(Math.max(0.0001, v), t0 + at + tt);
-    src.connect(f); f.connect(g); g.connect(ac.destination);
+    src.connect(f); f.connect(g); g.connect(sfxOut());
     src.start(t0 + at); src.stop(t0 + at + dur + 0.05);
   };
   const tone = (at, freq, dur, vol, type) => {
     const o = keep(ac.createOscillator()), g = ac.createGain();
     o.type = type || 'sine'; o.frequency.value = freq;
     g.gain.setValueAtTime(vol, t0 + at); g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + dur);
-    o.connect(g); g.connect(ac.destination); o.start(t0 + at); o.stop(t0 + at + dur + 0.02);
+    o.connect(g); g.connect(sfxOut()); o.start(t0 + at); o.stop(t0 + at + dur + 0.02);
   };
   const tick = (at, heavy) => {
     noise(at, heavy ? 0.06 : 0.025, 'bandpass', heavy ? 1500 : 3200, heavy ? 1300 : 3000, heavy ? 4 : 7, [[0.002, heavy ? 0.22 : 0.1], [heavy ? 0.06 : 0.025, 0.0001]]);

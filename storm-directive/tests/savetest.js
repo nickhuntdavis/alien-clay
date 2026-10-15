@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => { META.dna = 4242; META.offered = { pX: 3 }; saveMeta(); localStorage.setItem('sd_runs', JSON.stringify([{ n: 1, note: 'é ü 🥚' }]));
     const code = exportSave(); localStorage.clear(); const ok = importSave(code);
     return { ok, dna: JSON.parse(localStorage.getItem('sd_meta')).dna, runs: localStorage.getItem('sd_runs'), bad: importSave('nonsense'), len: code.length }; });
-  await page.evaluate(() => { UI.openSettings('title'); UI.setTab = 'data'; UI.renderSettings(); });
+  await page.evaluate(() => { UI.openSettings('title'); SET.setTab = 'data'; UI.renderSettings(); });
   await page.click('#saveExport'); await page.waitForTimeout(200);
   const shown = await page.evaluate(() => document.getElementById('saveText').value.startsWith('SPAWNPRAWN-SAVE:'));
   const fail = !(r.ok && r.dna === 4242 && r.runs.includes('🥚') && !r.bad && shown);

@@ -307,19 +307,32 @@ const UI = {
 
   // ---------------------------------------------------------------- Settings
   openSettings(from) { UI.setFrom = from; UI.renderSettings(); UI.show('settings'); },
+  // One row per setting: the label and a (?) that opens its hint, then chips or a volume slider. A row whose
+  // setting does nothing right now (off()) dims and says why.
+  setRowHtml(d) {
+    const open = UI.setHint === d.id, why = d.off && d.off();
+    const head = `<div class="srh"><h3>${esc(d.label)}</h3>${d.hint ? `<button class="shq ${open ? 'on' : ''}" data-sq="${d.id}">?</button>` : ''}${d.slider ? `<span class="svv" id="sv_${d.id}">${Math.round(SET[d.id] * 100)}%</span>` : ''}</div>`;
+    const hint = open ? `<p class="hint">${esc(d.hint)}</p>` : '';
+    const ctl = d.slider ? `<input type="range" class="sslide" min="0" max="100" step="5" value="${Math.round(SET[d.id] * 100)}" data-sv="${d.id}">`
+      : `<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div>`;
+    return `<div class="sec setrow srow${why ? ' soff' : ''}">${head}${hint}${ctl}${why ? `<p class="hint swhy">${esc(why)}</p>` : ''}</div>`;
+  },
   renderSettings() {
-    const body = $('setBody');
-    // Tabs: one group of settings at a time.
-    const TABS = [['play', 'PLAY'], ['view', 'VIEW'], ['colour', 'COLOUR'], ['sound', 'SOUND'], ['data', 'DATA']], tab = UI.setTab || 'play';
-    const TAB_OF = { view: 'colour', immersive: 'view', darkfield: 'view', fullColour: 'colour', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', cYou: 'colour', cDanger: 'colour', cReward: 'colour', cPickup: 'colour', cFast: 'colour', cRival: 'colour', cElem: 'colour', cEnemy: 'colour', cTerrain: 'colour', cBg: 'colour', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
-    const tabsHtml = `<div class="ptabs">${TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
-    body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => (TAB_OF[d.id] || 'play') === tab).map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
+    const body = $('setBody'), tab = SET.setTab || 'game';
+    const tabsHtml = `<div class="ptabs">${SET_TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
+    body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => d.tab === tab).map(d => UI.setRowHtml(d)).join('');
     // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
-    body.onclick = ev => { const b = ev.target.closest('[data-stab]'); if (b) { UI.setTab = b.dataset.stab; UI.renderSettings(); $('settings').scrollTop = 0; } };
+    body.onclick = ev => {
+      const b = ev.target.closest('[data-stab]');
+      if (b) { SET.setTab = b.dataset.stab; saveSettings(); UI.setHint = null; UI.renderSettings(); $('settings').scrollTop = 0; return; }
+      const q = ev.target.closest('[data-sq]');
+      if (q) { UI.setHint = UI.setHint === q.dataset.sq ? null : q.dataset.sq; const y = $('settings').scrollTop; UI.renderSettings(); $('settings').scrollTop = y; }
+    };
     if (tab !== 'data') { UI.bindSettingChips(body); return; }
     body.innerHTML += `<div class="sec setrow"><h3>Back up your save</h3><p class="hint">Copies everything this phone keeps (progress, run log, settings) as one code. Paste it somewhere safe; if you ever reinstall the game, paste it back here.</p><div class="chips"><button class="chip" id="saveExport">COPY SAVE CODE</button></div><textarea id="saveText" style="display:none;width:100%;height:90px;font-size:10px" placeholder="Paste a save code here"></textarea><div class="chips"><button class="chip" id="saveImport">RESTORE FROM A CODE</button></div><p class="hint" id="saveMsg"></p></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, swimmer skins, generations, bests, achievements, the Field Guide and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
-    body.innerHTML += `<div class="sec setrow"><h3>Tutorial</h3><p class="hint">The first time you meet each kind of enemy, the slide stops to introduce it (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Reset to see the introductions again. Your Field Guide keeps what you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIAL</button></div></div>`;
+    body.innerHTML += `<div class="sec setrow"><h3>Tutorials</h3><p class="hint">Brings back every tutorial: Level 0 (Swimming Lessons) on your next START SWIMMING, the tips cards, the effect and damage type cards, and the first-meeting card for each enemy (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Your Field Guide keeps everything you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIALS</button></div></div>`;
+    body.innerHTML += `<div class="sec setrow"><h3>Reset settings</h3><p class="hint">Puts every setting on this screen back to how it started. Your progress is not touched.</p><div class="chips"><button class="chip" id="setReset">RESET SETTINGS</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Run log</h3><p class="hint">${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.</p>
       <div class="chips"><button class="chip" id="logCopy">COPY RUN LOG</button><button class="chip" id="logClear">CLEAR</button></div><p class="hint" id="logMsg"></p><textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea></div>`;
     $('logCopy').addEventListener('click', () => {
@@ -359,6 +372,11 @@ const UI = {
       if (!ev.target.dataset.armed) { ev.target.dataset.armed = '1'; ev.target.textContent = 'TAP AGAIN TO CLEAR'; return; }
       RUNLOG = []; saveRunLog(); UI.renderSettings();
     });
+    $('setReset').addEventListener('click', ev => {
+      if (!ev.target.dataset.armed) { ev.target.dataset.armed = '1'; ev.target.textContent = 'TAP AGAIN TO RESET SETTINGS'; return; }
+      Object.assign(SET, SET_DEFAULTS, { setTab: 'data' }); saveSettings(); UI.applySettings();
+      UI.renderSettings(); const r = $('setReset'); if (r) r.textContent = 'DONE: SETTINGS RESET';
+    });
     UI.bindSettingChips(body);
   },
   bindSettingChips(body) {
@@ -368,10 +386,16 @@ const UI = {
       saveSettings(); UI.applySettings();
       const y = $('settings').scrollTop; UI.renderSettings(); $('settings').scrollTop = y;
     }));
+    // Volume sliders: heard as you drag, saved when you let go.
+    body.querySelectorAll('[data-sv]').forEach(r => {
+      const id = r.dataset.sv;
+      r.addEventListener('input', () => { SET[id] = +r.value / 100; const v = $('sv_' + id); if (v) v.textContent = r.value + '%'; UI.applySettings(); });
+      r.addEventListener('change', () => { saveSettings(); if (id === 'sfxVol' && SET.sfxVol > 0) { initAudio(); sfx('pickup'); } });
+    });
   },
   // Push settings into the systems that read them.
   applySettings() {
-    AUDIO.on = SET.sound; DOF.on = SET.dof && !SET.clinical; UI.syncAuto();
+    AUDIO.on = soundOn(); if (typeof audioVolumes === 'function') audioVolumes(); DOF.on = SET.dof && !SET.clinical; UI.syncAuto();
     applyNarrator();
     document.body.classList.toggle('clinical', !!SET.clinical);
     document.body.classList.toggle('darkfield', !!SET.darkfield);

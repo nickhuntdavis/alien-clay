@@ -4,7 +4,7 @@
 // little random pitch so repeats don't machine-gun. Music is generated as you play: a pad that's always
 // there, then bass, kick, hats, snare and an arpeggio fading in as the fight gets busier. Bosses switch it to
 // a darker, faster mode with an alarm; the Final Five get a heartbeat and a rising drone. Menus duck it.
-const MIX = { ac: null, sfx: null, mus: null, musF: null };
+const MIX = { ac: null, sfx: null, mus: null, musF: null, vol: null };
 function mixInit() {
   const ac = AUDIO.ctx;
   if (!ac) return false;
@@ -13,11 +13,16 @@ function mixInit() {
   comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.2;
   comp.connect(ac.destination);
   MIX.sfx = ac.createGain(); MIX.sfx.gain.value = 1; MIX.sfx.connect(comp);
-  MIX.musF = ac.createBiquadFilter(); MIX.musF.type = 'lowpass'; MIX.musF.frequency.value = 16000; MIX.musF.connect(comp);
+  MIX.vol = ac.createGain(); MIX.vol.connect(comp); // (the Music volume setting)
+  MIX.musF = ac.createBiquadFilter(); MIX.musF.type = 'lowpass'; MIX.musF.frequency.value = 16000; MIX.musF.connect(MIX.vol);
   MIX.mus = ac.createGain(); MIX.mus.gain.value = 0.0001; MIX.mus.connect(MIX.musF);
   MIX.ac = ac;
+  audioVolumes();
   return true;
 }
+// Settings > Sound: the two volume sliders (0 to 1). Sounds that don't go through the mixer use sfxOut().
+function audioVolumes() { if (!MIX.ac) return; MIX.sfx.gain.value = SET.sfxVol; MIX.vol.gain.value = SET.musVol; }
+function sfxOut() { return (mixInit() && MIX.sfx) || AUDIO.ctx.destination; }
 const audioOk = () => !!(AUDIO.on && AUDIO.ctx && AUDIO.ctx.state === 'running' && mixInit());
 const jit = (k = 0.06) => 1 + (Math.random() * 2 - 1) * k;
 
@@ -177,7 +182,7 @@ function musicStep(s, t, sd) {
 function musicTick(dt) {
   const ac = AUDIO.ctx;
   const live = !!(G && ['play', 'pause', 'loot', 'draft', 'bossIntro', 'rewind', 'armoury'].includes(G.state));
-  const want = live && SET.music !== false && audioOk();
+  const want = live && SET.musVol > 0 && audioOk();
   if (!MIX.mus) return;
   const now = ac.currentTime;
   if (!want) {

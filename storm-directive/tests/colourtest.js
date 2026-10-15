@@ -35,8 +35,9 @@ const { chromium } = require('playwright');
     await page.evaluate(df => { SET.darkfield = df; UI.applySettings(); const m = G.terrain.list.find(o => o.type === 'mito'); m.charge = 30; cam.x = m.x; cam.y = m.y - 120; G.sizzle = 0; }, df); await page.waitForTimeout(150);
     await page.screenshot({ path: df ? 'colour_mito_df.png' : 'colour_mito.png', clip: { x: 0, y: 300, width: 400, height: 300 } });
   }
-  await page.evaluate(() => { SET.darkfield = false; SET.cTerrain = SET.cBg = 'earned'; UI.applySettings(); UI.openSettings('title'); UI.setTab = 'colour'; UI.renderSettings(); });
-  const rows = await page.evaluate(() => document.querySelectorAll('#setBody .setrow').length);
-  console.log('colour rows', rows, ok && rows === 11 ? 'ok' : 'FAIL');
-  console.log('ERRORS', JSON.stringify(errors)); await b.close(); process.exit(ok && rows === 11 && !errors.length ? 0 : 1);
+  await page.evaluate(() => { SET.darkfield = false; SET.cTerrain = SET.cBg = 'earned'; UI.applySettings(); UI.openSettings('title'); });
+  // (The Colour tab was removed in v9.20: Arcade view is always full colour. The internal switches above still work.)
+  const gone = await page.evaluate(() => !document.querySelector('#setBody [data-stab="colour"]'));
+  console.log('colour tab gone', gone, ok && gone ? 'ok' : 'FAIL');
+  console.log('ERRORS', JSON.stringify(errors)); await b.close(); process.exit(ok && gone && !errors.length ? 0 : 1);
 })();

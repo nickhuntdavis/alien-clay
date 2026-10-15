@@ -1,47 +1,48 @@
 'use strict';
 // Spawn Prawn - player settings (saved on the device) and the narrator packs.
 
+// tab: which Settings tab it sits on. hint: shown under (?). off(): a reason it does nothing right now (the row dims).
+// slider: a 0 to 100% volume instead of chips.
 const SETTINGS_DEF = [
-  { id: 'view', label: 'View', hint: 'LAB: a real microscope. Nothing on the slide has colour, you included; statuses show in each cell\'s body. Realism over readability. ARCADE: everything in full colour, with coloured rings that drain as effects run out.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
-  { id: 'darkfield', label: 'Darkfield microscope', hint: 'Black field, bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
-  { id: 'detail', label: 'Specimen detail', hint: 'High adds organelles, textures and a proper zona breach. Costs a little performance.', opts: [['standard', 'STANDARD'], ['high', 'HIGH']] },
-  { id: 'clinical', label: 'Clean clinical view', hint: 'No grain, lens blur, vignette or halos. Maximum readability.', opts: [[false, 'OFF'], [true, 'ON']] },
-  { id: 'dof', label: 'Depth of field', hint: 'Out-of-focus layers and a soft lens blur at the edges.', opts: [[true, 'ON'], [false, 'OFF']] },
-  { id: 'immersive', label: 'Immersive mode', hint: 'Only the buttons you need to play, along the bottom, faded back. No top bar, map, counters or messages.', opts: [[false, 'OFF'], [true, 'ON']] },
-  { id: 'fx', label: 'Your effects', hint: 'Auto fades your shots, trails and sparks back when the screen gets busy, so enemies and their bullets stay readable.', opts: [['auto', 'AUTO'], ['faded', 'FADED'], ['full', 'FULL']] },
-  { id: 'layout', label: 'Layout', hint: 'Landscape puts your weapons down the side. Auto follows the screen.', opts: [['auto', 'AUTO'], ['portrait', 'PORTRAIT'], ['landscape', 'LANDSCAPE']] },
-  { id: 'narrator', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE LAB TECH'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
-  { id: 'speed', label: 'Game speed', hint: 'How fast the whole game runs. Also in the pause menu. The run log notes the speeds you played at.', opts: [[0.5, 'x0.5'], [0.75, 'x0.75'], [1, 'x1'], [1.5, 'x1.5'], [2, 'x2']] },
-  { id: 'inspect', label: 'Tap to inspect', hint: 'Tap an enemy for its card (HP, weaknesses, a joke). PAUSE stops the game while the card is open; HALF SPEED keeps it running slowly.', opts: [['pause', 'PAUSE'], ['half', 'HALF SPEED']] },
-  { id: 'intros', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet. Everything still goes in your Field Guide. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
-  { id: 'fpsCap', label: 'Frame rate', hint: '60 is smoother over a whole run: on a 90 or 120 Hz screen it halves the work, so the phone stays cooler and has room for busy moments.', opts: [[60, '60'], [0, 'UNCAPPED']] },
-  { id: 'sound', label: 'Sound', hint: '', opts: [[true, 'ON'], [false, 'OFF']] },
-  { id: 'music', label: 'Music', hint: 'Builds with the fight: busier swarms, bosses and the Final Five each change it.', opts: [[true, 'ON'], [false, 'OFF']] },
-  { id: 'shake', label: 'Screen shake', hint: 'The slide jolts on explosions, big hits and bosses. Off keeps the view perfectly still.', opts: [[true, 'ON'], [false, 'OFF']] },
-  { id: 'vibe', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
-  { id: 'featAuto', label: 'Feats', hint: 'AUTO: Feats perform themselves when ready (tap a Feat to perform it early). ON TAP: they wait for you to tap them, so you can save one for the right moment.', opts: [[true, 'AUTO'], [false, 'ON TAP']] },
-  { id: 'auto', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button under pause.', opts: [[false, 'OFF'], [true, 'ON']] },
-  { id: 'autoWaves', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']] },
-  { id: 'cYou', label: 'You and your shots', hint: 'Your swimmer, echoes, allies and shots.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cDanger', label: 'Danger', hint: 'Red for anything that can hurt you: enemy bullets, hazards, low-HP warnings.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cReward', label: 'Rewards', hint: 'Gold for things worth having: DNA strands, elites, bosses.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cPickup', label: 'Power-ups', hint: 'Power-up pickups and upgrades.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cFast', label: 'Fast enemies', hint: 'Cyan for sprinters, spermlets, krill and paramecia.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cRival', label: 'Rivals', hint: 'Each rival champion in their own colour.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cElem', label: 'Damage types', hint: 'Acid, Mucus, Static, Cooties, Oil, Water, Blood and Soul in their own colours.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cEnemy', label: 'Enemy types', hint: 'Each kind of enemy in its own colour. AUTO: in Arcade view.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. AUTO: in Arcade view.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
-  { id: 'cBg', label: 'Background', hint: 'A soft tissue-pink tint on the slide. AUTO: only with Full Technicolour.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  // GAME
+  { id: 'speed', tab: 'game', label: 'Game speed', hint: 'How fast the whole game runs. Also in the pause menu. The run log notes the speeds you played at.', opts: [[0.5, 'x0.5'], [0.75, 'x0.75'], [1, 'x1'], [1.5, 'x1.5'], [2, 'x2']] },
+  { id: 'featAuto', tab: 'game', label: 'Feat timing', hint: 'AUTOMATIC: each Feat performs itself as soon as it is ready (you can still tap one to perform it early). WHEN I TAP: Feats wait for your tap, so you can save one for the right moment.', opts: [[true, 'AUTOMATIC'], [false, 'WHEN I TAP']] },
+  { id: 'auto', tab: 'game', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button in the pause menu.', opts: [[false, 'OFF'], [true, 'ON']] },
+  { id: 'autoWaves', tab: 'game', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']], off: () => !SET.auto && 'Only with Full Auto on.' },
+  { id: 'inspect', tab: 'game', label: 'Tap an enemy', hint: 'Tap an enemy for its card (health, weaknesses, a joke). PAUSE stops the game while the card is open; HALF SPEED keeps it running slowly.', opts: [['pause', 'PAUSE'], ['half', 'HALF SPEED']] },
+  { id: 'intros', tab: 'game', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet; OFF says nothing. Everything still goes in your Field Guide. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
+  { id: 'narrator', tab: 'game', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE LAB TECH'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
+  // SCREEN
+  { id: 'view', tab: 'screen', label: 'View', hint: 'LAB: a real microscope. Nothing on the slide has colour, you included; effects show in each cell\'s body. ARCADE: everything in full colour, with coloured rings that drain as effects run out.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
+  { id: 'darkfield', tab: 'screen', label: 'Darkfield', hint: 'A black field with bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
+  { id: 'clinical', tab: 'screen', label: 'Clean clinical view', hint: 'No grain, lens blur, vignette, halos or eyepiece dust. The most readable picture.', opts: [[false, 'OFF'], [true, 'ON']] },
+  { id: 'dof', tab: 'screen', label: 'Depth of field', hint: 'Out-of-focus layers and a soft lens blur at the edges.', opts: [[true, 'ON'], [false, 'OFF']], off: () => SET.clinical && 'Clean clinical view turns this off.' },
+  { id: 'detail', tab: 'screen', label: 'Specimen detail', hint: 'HIGH adds organelles, textures and a proper zona breach. Costs a little performance.', opts: [['standard', 'STANDARD'], ['high', 'HIGH']] },
+  { id: 'fx', tab: 'screen', label: 'Your effects', hint: 'How strongly your shots, trails and sparks are drawn. AUTO fades them back when the screen gets busy, so enemies and their bullets stay readable.', opts: [['auto', 'AUTO'], ['faded', 'FADED'], ['full', 'FULL']] },
+  { id: 'dmgNums', tab: 'screen', label: 'Damage numbers', hint: 'ALL: numbers for hits bigger than your usual (small hits are always quiet). BIG HITS: only crits and hits at least twice your usual. OFF: none.', opts: [['all', 'ALL'], ['big', 'BIG HITS'], ['off', 'OFF']] },
+  { id: 'shake', tab: 'screen', label: 'Screen shake', hint: 'The slide jolts on explosions, big hits and bosses. OFF keeps the view perfectly still.', opts: [[true, 'ON'], [false, 'OFF']] },
+  { id: 'layout', tab: 'screen', label: 'Layout', hint: 'LANDSCAPE puts your weapons down the side. AUTO follows the way you hold the phone.', opts: [['auto', 'AUTO'], ['portrait', 'PORTRAIT'], ['landscape', 'LANDSCAPE']] },
+  { id: 'immersive', tab: 'screen', label: 'Immersive mode', hint: 'Only the buttons you need to play, along the bottom, faded back. No top bar, map, counters or messages.', opts: [[false, 'OFF'], [true, 'ON']] },
+  { id: 'fpsCap', tab: 'screen', label: 'Frame rate', hint: '60 is smoother over a whole run: on a 90 or 120 Hz screen it halves the work, so the phone stays cooler and has room for busy moments.', opts: [[60, '60'], [0, 'UNCAPPED']] },
+  // SOUND
+  { id: 'sfxVol', tab: 'sound', label: 'Sound effects', hint: 'Shots, hits, pickups and menus. 0% is silent.', slider: true },
+  { id: 'musVol', tab: 'sound', label: 'Music', hint: 'It builds with the fight: busier swarms, bosses and the Final Five each change it. 0% turns it off.', slider: true },
+  { id: 'vibe', tab: 'sound', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
-const SET = { view: 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: false, fullColour: false,
-  cYou: 'earned', cDanger: 'earned', cReward: 'earned', cPickup: 'earned', cFast: 'earned', cRival: 'earned', cElem: 'earned', cEnemy: 'earned', cTerrain: 'earned', cBg: 'earned' };
+const SET_TABS = [['game', 'GAME'], ['screen', 'SCREEN'], ['sound', 'SOUND'], ['data', 'DATA']];
+const SET_DEFAULTS = { view: 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: false, dmgNums: 'all', setTab: 'game' };
+const SET = Object.assign({}, SET_DEFAULTS);
+// Sound or music at 0% counts as off (the old ON/OFF switches became volumes in v9.20).
+const soundOn = () => SET.sfxVol > 0 || SET.musVol > 0;
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
   for (const k in SET) if (k in s) SET[k] = s[k];
-  // Older builds kept these separately.
+  // Older builds kept these separately, or as switches.
   if (localStorage.getItem('sd_dof') === '0') SET.dof = false;
-  if (localStorage.getItem('sd_sound') === '0') SET.sound = false;
+  if (s.sound === false || localStorage.getItem('sd_sound') === '0') { SET.sfxVol = 0; SET.musVol = 0; }
+  if (s.music === false) SET.musVol = 0;
   if (s.fullColour && !s.view) SET.view = 'arcade'; // (Full colour became Arcade view in v9.11)
+  if (!SET_TABS.some(t => t[0] === SET.setTab)) SET.setTab = 'game';
 } catch (e) { /* storage unavailable */ }
 // Landscape layout: weapons down the left, a bigger minimap. Auto switches when the screen is wide.
 const LAYOUT = { land: false, colW: 0 };

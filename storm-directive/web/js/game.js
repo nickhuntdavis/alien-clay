@@ -709,6 +709,7 @@ function dmgNumber(e, d, src, crit) {
   DMGNUM.log = DMGNUM.log == null ? L : DMGNUM.log + (L - DMGNUM.log) * 0.015;
   const r = d / Math.exp(DMGNUM.log), now = G.realT;
   if (r < 0.75 && !crit) return; // everyday chip damage stays quiet
+  if (SET.dmgNums === 'off' || (SET.dmgNums === 'big' && r < 2 && !crit)) return; // (Settings > Screen > Damage numbers)
   // A small budget for ordinary numbers: about 10 every quarter second, fewer when the screen is busy.
   if (now - DMGNUM.busyT > 0.25) { DMGNUM.busyT = now; DMGNUM.busyN = 0; }
   let tier = r >= 12 ? 3 : r >= 4 ? 2 : 1;
@@ -2851,7 +2852,7 @@ function keyboardSteer() {
 
 // ---------------------------------------------------------------- audio
 const AUDIO = { ctx: null, on: true, last: {} };
-try { AUDIO.on = localStorage.getItem('sd_sound') !== '0'; } catch (e) { /* storage unavailable */ }
+AUDIO.on = soundOn(); // (Settings > Sound: settings.js)
 function initAudio() {
   if (AUDIO.ctx) { if (AUDIO.ctx.state === 'suspended') AUDIO.ctx.resume(); return; }
   try { AUDIO.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AUDIO.ctx = null; }
@@ -2871,13 +2872,13 @@ function knobClick(dir, heavy) {
   src.buffer = AUDIO.noise; src.playbackRate.value = 0.9 + Math.random() * 0.2;
   bp.type = 'bandpass'; bp.Q.value = heavy ? 4 : 7; bp.frequency.value = (heavy ? 1500 : dir > 0 ? 3600 : 2600) * (0.95 + Math.random() * 0.1);
   g.gain.setValueAtTime(heavy ? 0.22 : 0.12, now); g.gain.exponentialRampToValueAtTime(0.0001, now + (heavy ? 0.06 : 0.025));
-  src.connect(bp); bp.connect(g); g.connect(ac.destination);
+  src.connect(bp); bp.connect(g); g.connect(sfxOut());
   src.start(now); src.stop(now + 0.07);
   // The knob's little metallic ring.
   const o = ac.createOscillator(), og = ac.createGain();
   o.type = 'sine'; o.frequency.value = heavy ? 420 : dir > 0 ? 1250 : 980;
   og.gain.setValueAtTime(heavy ? 0.05 : 0.018, now); og.gain.exponentialRampToValueAtTime(0.0001, now + (heavy ? 0.09 : 0.04));
-  o.connect(og); og.connect(ac.destination); o.start(now); o.stop(now + 0.1);
+  o.connect(og); og.connect(sfxOut()); o.start(now); o.stop(now + 0.1);
 }
 // Shared little synth helpers for one-off sound designs (loot box).
 function sndNoiseBuf() {
@@ -2894,13 +2895,13 @@ function sndNoise(t, dur, type, f0, f1, q, vol) {
   src.buffer = sndNoiseBuf(); f.type = type; f.Q.value = q;
   f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.01, dur / 4)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  src.connect(f); f.connect(g); g.connect(ac.destination); src.start(t); src.stop(t + dur + 0.05);
+  src.connect(f); f.connect(g); g.connect(sfxOut()); src.start(t); src.stop(t + dur + 0.05);
 }
 function sndTone(t, f0, f1, dur, vol, type) {
   const ac = AUDIO.ctx, o = ac.createOscillator(), g = ac.createGain();
   o.type = type || 'sine'; o.frequency.setValueAtTime(f0, t); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
+  o.connect(g); g.connect(sfxOut()); o.start(t); o.stop(t + dur + 0.02);
 }
 // DNA strand (loot): wriggles, then unzips rung by rung (0.36 s, with the CSS animation), then
 // a glassy chime that gets longer and brighter with the best rarity inside (Bronze 2 notes up to Legendary 5

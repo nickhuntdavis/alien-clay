@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => splashEnd()); await page.waitForTimeout(400);
   await page.evaluate(() => { window.TUT_OFF = 1; UI.openSettings('title'); });
-  const seq = ['view', 'sound', 'data', 'play', 'data', 'view'];
+  const seq = ['screen', 'sound', 'data', 'game', 'data', 'screen'];
   const got = [];
   for (const t of seq) {
     await page.click(`[data-stab="${t}"]`);
