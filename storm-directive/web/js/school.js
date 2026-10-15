@@ -218,7 +218,7 @@ const SCHOOL_ST = {
     enter(R) {
       schoolSay('The RUN button (bottom left) picks how autorun swims. Tap it until it says COLLECT: autorun goes for anything worth picking up.');
       const rc = R.A.rect;
-      if (!grantHas('body')) G.grant = { id: 'body', x: (rc[2] - 0.5) * LV_C, y: (rc[1] + 1) * LV_C, born: G.t }; // (your first stain, if you have not had it)
+      // (No stain here any more: stains were retired in the damage type rework, v9.11.)
       R.gems = [];
       for (let k = 0; k < 10; k++) { const c = lvRectPos(stFar(rc), 200); dropGem(c.x, c.y, 1); R.gems.push(G.gems[G.gems.length - 1]); }
     },
