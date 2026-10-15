@@ -3,7 +3,7 @@
 Read this, then `storm-directive/NOTES.md` (current state and open threads), before exploring. Only grep the code for what you are changing.
 
 ## What it is
-Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, and the game is crude, British, biology-joke humour. It is vanilla JS on a canvas, wrapped in an Android WebView.
+Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, and the game is crude, biology-joke humour (not British slang: the user is not British; British spelling only). It is vanilla JS on a canvas, wrapped in an Android WebView.
 - Game: `storm-directive/web/` (`index.html`, `style.css`, `js/*.js`, about 20k lines, no build step and no modules: plain globals in script order).
 - Android wrapper: `storm-directive/android/`. Released APK: `storm-directive/release/SpawnPrawn.apk`.
 - Player guide (generated): `storm-directive/GAME_GUIDE.md`, from `storm-directive/tests/tools/guide.js`.
