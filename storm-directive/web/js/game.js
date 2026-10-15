@@ -1168,7 +1168,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   toyPlayerHurt();
   genesHurt(d);
   boonHurt();
-  if (p.hp <= 0) { p.hp = 0; if (!genesLethal() && !boonSave() && !startRewind(true)) gameOver(); }
+  if (p.hp <= 0) { p.hp = 0; if (!genesLethal() && !boonSave() && !schoolSave() && !startRewind(true)) gameOver(); } // (no dying in Level 0: school.js)
 }
 
 // ---------------------------------------------------------------- enemies
@@ -2407,6 +2407,7 @@ function autoSteer() {
     const gl0 = Math.hypot(gx, gy), hd = (p.hd || 0) + Math.sin(G.t * 0.35) * 0.35, cw = Math.max(0, 0.6 - gl0 * 0.4);
     gx += Math.cos(hd) * cw; gy += Math.sin(hd) * cw;
   }
+  if (G.lvl && G.lvl.L.school && mode !== 'hold') { const sg = schoolSteer(p); if (sg) goal(sg.x, sg.y, sg.w); } // (Level 0: autorun swims you on: school.js)
   const gl = Math.hypot(gx, gy);
   const gcap = homing ? 4 : 1.5;
   if (gl > gcap) { gx = gx / gl * gcap; gy = gy / gl * gcap; }

@@ -285,7 +285,7 @@ const UI = {
         box.style.setProperty('--mc', col(m.color) === PAL.danger ? PAL.danger : XR.white); // messages are neutral unless they warn you
         box.classList.remove('on'); void box.offsetWidth; box.classList.add('on');
         if (!LAYOUT.land) box.style.bottom = Math.round((UI.bottomH || 200) + 44) + 'px'; // (clear of the scale bar and frame-rate line)
-        UI.msgT = Math.min(4.5, 1.8 + m.body.length / 40);
+        UI.msgT = m.hold || Math.min(4.5, 1.8 + m.body.length / 40); // (hold: Level 0's lessons stay up long enough to read)
       }
     }
   },
@@ -1187,7 +1187,7 @@ const UI = {
     let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
     const shut = s => !s.open || (s.locked && s.locked());
     const by = id => SAMPLES.find(s => s.id === id);
-    const extra = s => s.id === 's007' ? (META.lvBest && META.lvBest.mouth ? 'BEST ' + fmtTime(META.lvBest.mouth) : 'NOT YET BEATEN') : s.id === 's002' ? (best.campBest ? (best.campBest >= CAMP.waves ? 'BEATEN' : 'BEST: WAVE ' + best.campBest + ' OF ' + CAMP.waves) : '20 WAVES') : s.id === 's006' ? (best.wave ? 'BEST: WAVE ' + best.wave : 'NO END') : s.id === 's001' ? (best.born ? 'FASTEST ' + fmtTime(best.born) : 'ONE EGG') : '';
+    const extra = s => s.id === 's009' ? (META.lvBest && META.lvBest.school ? 'PASSED IN ' + fmtTime(META.lvBest.school) : 'START HERE') : s.id === 's007' ? (META.lvBest && META.lvBest.mouth ? 'BEST ' + fmtTime(META.lvBest.mouth) : 'NOT YET BEATEN') : s.id === 's002' ? (best.campBest ? (best.campBest >= CAMP.waves ? 'BEATEN' : 'BEST: WAVE ' + best.campBest + ' OF ' + CAMP.waves) : '20 WAVES') : s.id === 's006' ? (best.wave ? 'BEST: WAVE ' + best.wave : 'NO END') : s.id === 's001' ? (best.born ? 'FASTEST ' + fmtTime(best.born) : 'ONE EGG') : '';
     // Line art for each mode, drawn in its accent colour.
     const ART = {
       s002: '<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" stroke-width="1" opacity=".5"/><path d="M16 60h88M60 16v88M28 32l64 56M92 32L28 88" stroke="currentColor" stroke-width=".6" opacity=".3"/><circle cx="60" cy="60" r="9" fill="currentColor" opacity=".85"/><g fill="currentColor"><circle cx="34" cy="44" r="2.5"/><circle cx="82" cy="40" r="2"/><circle cx="76" cy="82" r="2.5"/><circle cx="40" cy="80" r="2"/></g></svg>',
@@ -1201,10 +1201,10 @@ const UI = {
       <span class="sx-txt"><i>#${s.no} | ${esc(shut(s) ? 'LOCKED' : s.tag || 'IN STOCK')}</i><b>${esc(s.name)}</b>${hero ? `<span>${esc(s.desc)}</span>` : ''}<em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
     const modes = ['s001', 's006'].concat(dev ? ['s000'] : []).map(by).filter(Boolean);
     // The campaign: a way into the body, one region at a time (the far ones are only rumours so far).
-    const lvls = [by('s007'), by('s008'), { teaser: true, name: 'Level 3', no: '?' }, { teaser: true, name: 'Level 4', no: '?' }];
+    const lvls = [by('s009'), by('s007'), by('s008'), { teaser: true, name: 'Level 3', no: '?' }, { teaser: true, name: 'Level 4', no: '?' }];
     const node = (s, i) => s.teaser
-      ? `<div class="sx-node tease"><span class="sx-dot">${i + 1}</span><span class="sx-ni"><b>${esc(s.name)}</b><em>UNCHARTED</em></span></div>`
-      : `<button class="sx-node ${shut(s) ? 'locked' : 'open'}" data-sample="${s.id}"><span class="sx-dot">${i + 1}</span><span class="sx-ni"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span><em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
+      ? `<div class="sx-node tease"><span class="sx-dot">${i}</span><span class="sx-ni"><b>${esc(s.name)}</b><em>UNCHARTED</em></span></div>`
+      : `<button class="sx-node ${shut(s) ? 'locked' : 'open'}" data-sample="${s.id}"><span class="sx-dot">${i}</span><span class="sx-ni"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span><em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
     $('sampleList').innerHTML = `<div class="sx-h">MAIN EVENT</div>${card(by('s002'), true)}
       <div class="sx-h">QUICK RUNS</div><div class="sx-grid">${modes.map(s => card(s, false)).join('')}${dev ? `<button class="sx-card" id="devAll" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Unlock Everything</b><em>${UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA'}</em></span></button><button class="sx-card" id="devStart" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Reset Starters</b><em>DRAFTS USE RUN SEQUENCES ONLY</em></span></button>` : ''}</div>
       <div class="sx-h">THE CAMPAIGN <span>INTO THE BODY</span></div><div class="sx-path">${lvls.map(node).join('')}</div>`;
@@ -1408,12 +1408,12 @@ const UI = {
     if (G.wave && G.wave.camp) UI.saveBest(Object.assign(best, { campBest: Math.max(best.campBest || 0, won ? CAMP.waves : G.wave.n - 1) }));
     if (won && !G.lvl) UI.saveBest(Object.assign(best, { born: isBest ? G.t : best.born, births: (best.births || 0) + 1 }));
     else if (isBest) UI.saveBest(Object.assign(best, { time: G.t, level: G.level, kills: G.kills }));
-    $('overTitle').textContent = won && G.lvl ? 'THE EGG IS IN ANOTHER CASTLE' : won ? "IT'S SPERMY!" : G.rivalWinner ? 'BEATEN TO IT' : 'SPERMY ABSORBED';
+    $('overTitle').textContent = won && G.lvl && G.lvl.L.school ? "SCHOOL'S OUT" : won && G.lvl ? 'THE EGG IS IN ANOTHER CASTLE' : won ? "IT'S SPERMY!" : G.rivalWinner ? 'BEATEN TO IT' : 'SPERMY ABSORBED';
     $('overTitle').classList.toggle('won', !!won);
     const dmg = Object.entries(G.stats.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8);
     const tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
-    let h = G.lvl ? `<div class="eulogy">${won ? `Lips to throat, through the plaque and the mouthwash, to a pale glowing ball at the back of the throat. It was a tonsil stone. It stinks. The egg is in another castle.${G.lvl.L.next ? ' LEVEL 1 WAS THE MOUTH. LEVEL 2 UNLOCKED (coming soon).' : ''}` : `Swallowed ${Math.round(lvProgress() * 100)}% of the way through ${esc(lvName(G.lvl.L).toLowerCase().replace(/\b\w/g, c => c.toUpperCase()))}.`}</div><div class="big">${fmtTime(G.t)}</div>` + (won ? '' : `<div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the immune system')}</b></div>`)
+    let h = won && G.lvl && G.lvl.L.school ? `<div class="eulogy">${schoolEulogy()}</div><div class="big born">${fmtTime(G.t)}</div>` : G.lvl ? `<div class="eulogy">${won ? `Lips to throat, through the plaque and the mouthwash, to a pale glowing ball at the back of the throat. It was a tonsil stone. It stinks. The egg is in another castle.${G.lvl.L.next ? ' LEVEL 1 WAS THE MOUTH. LEVEL 2 UNLOCKED (coming soon).' : ''}` : `Swallowed ${Math.round(lvProgress() * 100)}% of the way through ${esc(lvName(G.lvl.L).toLowerCase().replace(/\b\w/g, c => c.toUpperCase()))}.`}</div><div class="big">${fmtTime(G.t)}</div>` + (won ? '' : `<div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the immune system')}</b></div>`)
       : won
       ? `<div class="eulogy">${G.wave ? 'Twenty drops, four bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
       : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(sysPool('death')))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The lab is cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>

@@ -265,9 +265,9 @@ function terrainDanger(x, y, r) {
 // Solid walls are felt from 45 units out (so it steers round them early), acid from further, and the soft
 // zones (cilia that shove, slicks that make you slide, currents you'd swim against) cost a little.
 function steerTerrain(x, y, r, dx, dy) {
-  if (G.lvl) return lvSteer(x, y, r);
+  const lv = G.lvl ? lvSteer(x, y, r) : 0; // (a level's walls, plus any terrain in it: Level 0's acid)
   const c = tCell(x, y);
-  if (!c) return 0;
+  if (!c) return lv;
   let dn = 0;
   for (const ob of c) {
     const d = Math.hypot(x - ob.x, y - ob.y) - ob.r - r;
@@ -280,7 +280,7 @@ function steerTerrain(x, y, r, dx, dy) {
       else if (ob.type === 'current') dn += 0.5 * Math.max(0, -(Math.cos(ob.a) * dx + Math.sin(ob.a) * dy)) * (G.P.flow ? 0.3 : 1); // against the flow
     }
   }
-  return dn + bigHazSteer(x, y, r);
+  return lv + dn + bigHazSteer(x, y, r);
 }
 
 // Terrain upgrades, for autorun: the nearest piece of terrain your upgrades use (within 700), and how keen
