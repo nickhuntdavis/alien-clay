@@ -1,13 +1,14 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v9.09 (versionCode 259): developer Unlock Everything no longer grants starter weapons (they widened every draft to all sequences); new Reset Starters button. Previously v9.07. Main (`main`) is current again: start new work from it. All suite tests pass.
+- Version v9.10 (versionCode 260): rubber Latex Barrier, appetite cards, Upgrade All. Previously v9.09. Main (`main`) is current again: start new work from it. All suite tests pass.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
 
 ## Recent changes (newest first)
+- v9.10: three features. (1) Rubber Latex Barrier and Rubber Johnny (`rubber.js`): the film is a ring of 24 spring points (`rbRing`, `G.rbBar`); enemies bounce off its edge (`rubberPush`: the film gives up to 45% of R by mass, bosses x4 mass, 0.8 bounce impulse on first contact, same 0.4s contact damage); enemy bullets are caught (`rubberCatch`, `G.rbHeld`, max 14), the film stretches round them for 0.2s, then flings them out mirrored at x1.1 speed as your shots. Rubber Johnny's skin (`G.rbJon`) dents where the hit landed and wobbles; a caught bullet (via `G.hitFrom`) is flung back the way it came. (2) Appetite cards (`bias.js`, from Lv 3): Acquired Taste x2.25 to x3 / Gone Off It x0.25 to x0.1 by rarity on the weight of cards with that damage type (candidates carry `els`; `biasK` in genLoot and the Feat pool); one of each held (`G.elemBias`), shown in the pause stats line. (3) Upgrade All (`upall.js`, `#upAllBtn`): with 5+ rerolls, spend 5 to re-make every card one rarity up (20% two), max Mythical, from `o.remake` (set in genLoot); curses, sealed, supplies, stains and weird-box cards stay. Test `rubbertest`. No bot sims run: the barrier now lets heavy enemies sink further in, so recheck difficulty if bot wins move.
 - v9.09: merged the day's branches: Reset Starters / Unlock Everything fix, Naughty Corner / Tantrum / Dummy Spit Feats, and the zone-tick stagger perf fix (zone hit-source built once per zone, `z.hs`).
 - v9.08: merged the v8.95 boss pack / 20 new enemies / pin and hide / weird loot / tap-to-inspect branch (`ccr-913291f0-bh0pkg`) into the v9.07 line.
 - v9.07: the Flagellum Flail moves like a whip (render.js 'lash' fx): it flicks out, a loop rolls from your body down to the tip, the tip cracks (a white snap), then it goes slack and draws back. Same tapered glossy strand, still attached to you.

@@ -58,6 +58,8 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, Feats, power-ups, modifiers, stains and (rarely) curses.
    Each ordinary card has a pin and a hide (✕) button at its top right. A pinned card (up to 3) turns up in your next box if it still fits; a hidden card (up to 5) never comes back this run. Tap either in the pause menu (Build tab) to undo it.
    **Weird boxes:** about one level or DNA strand box in six (after the first two minutes) breaks the rules. **Double or Nothing**: take a card, or GAMBLE (half the time two cards a rarity better, half the time nothing). **Mystery Sachet**: three sealed cards, only the border shows the rarity. **The Recycler**: hand over two weapon modifiers for one card two rarities better (Legendary at most). **Cursed Bargain**: a Mythical card with a curse attached, or refuse it. **Nothing Box**: you get nothing, and the next ordinary box is all Immaculate.
+   **Upgrade All:** holding 5 or more rerolls, an UPGRADE ALL (5) button sits beside REROLL. It spends 5 rerolls and raises every card in the box one rarity (each has a 20% chance of two), up to Mythical, keeping the same upgrades. Curses, supplies and stains stay as they are.
+   **Appetite cards** (from Lv 3): **Acquired Taste: [damage type]** makes cards of that damage type come up more often (x2.25 to x3 by rarity); **Gone Off It: [damage type]** makes them rarer (25% down to 10%, never none). You hold one of each; a new one replaces the old.
 2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
    - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.
 3. **Combos:** get two specific weapons to Lv 5+ and the game stops for the combo alone: the two weapons slam together on their own unlock screen. Both keep firing, gain a new power, and (2 times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv5+.
@@ -1178,7 +1180,7 @@ A sheath of latex with one job. Its front sends your shots straight back at you;
 
 | Trophy | Effect |
 |---|---|
-| **Rubber Johnny** | Every 8s a latex skin catches the next hit completely, then snaps back in a blast around you. |
+| **Rubber Johnny** | Every 8s a latex skin catches the next hit completely, then snaps back in a blast around you. A caught bullet goes back the way it came. |
 | **Ribbed** | +2 Headstrong and +4 armour. For their displeasure. |
 | **Reservoir Tip** | Damage you take is collected. Every 10s it all comes back out as a blast around you, ten times over. |
 
@@ -1272,7 +1274,7 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | **Sofa Crevice** | Blood Magic | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Kiss It Better** | Ethanol | Restores 15% of your health. Medically dubious. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% healing; Lv7: 20% faster |
 | **Nap Time** | Blood Magic | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
-| **Latex Barrier** | Blood Magic | A shield that reflects enemy bullets and blocks contact. 98% effective. | dmg 12, cd 12s, dur 3s, area 55 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
+| **Latex Barrier** | Blood Magic | A stretchy shield. Enemies bounce off it; bullets sink in, then get flung back at them. 98% effective. | dmg 12, cd 12s, dur 3s, area 55 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
 | **Running With Scissors** | Force | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
 | **Dutch Oven** | Ethanol | A drifting cloud of stacking Ethanol fumes. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Baby Monitor** | Static | Deploys a turret that watches and shoots. Static included. | dmg 9, cd 13s, count 1, dur 10s, rate 0.25 | Lv3: +30% duration; Lv5: +1 count; Lv7: +50% dmg |

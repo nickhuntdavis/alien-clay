@@ -12,7 +12,7 @@ const STATUS_INTRO = {
   'POST-NUT CLARITY': { buff: 0, what: 'The comedown after Oxytocin: your weapons fire slower, but you see every weak spot (+40% crit chance).', tip: 'It only lasts a few seconds. Big hitters still hit big.' },
   'STAIR GATE':       { buff: 1, what: 'Nothing can hurt you until it runs out.', tip: 'Swim straight through the crowd, or go and stand on the boss.' },
   'WARP':             { buff: 1, what: 'Nap Time: every enemy and bullet is slowed to a crawl.', tip: 'Reposition, line up your shots, get out of the corner.' },
-  'AEGIS':            { buff: 1, what: 'The Latex Barrier is up: it reflects enemy bullets and blocks contact.', tip: 'Stand your ground for a moment. 98% effective.' },
+  'AEGIS':            { buff: 1, what: 'The Latex Barrier is up: enemies bounce off it, and bullets sink in and get flung back.', tip: 'Stand your ground for a moment. 98% effective.' },
   'ECHO':             { buff: 1, what: 'Your future self, left behind by a Rewind. It replays the erased timeline backwards, firing your weapons, then collapses in a bullet-clearing blast.', tip: 'Stay near it: its blast wipes bullets round it.' },
   'FAMILY':           { buff: 1, what: 'Keeping It in the Family: you recombined with your Sister-Cousin. +30% damage and +20% fire rate for a few seconds.', tip: 'Get it again by being hit and swimming into the copy that splits off.' },
   'SISTER-COUSIN':    { buff: 1, what: 'A copy of you split off when you were hit. She fights beside you for a while.', tip: 'Swim into her before she goes to recombine: a big buff.' },

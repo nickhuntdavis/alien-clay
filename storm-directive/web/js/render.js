@@ -1671,7 +1671,7 @@ function render() {
     // Latex Barrier: a thin, milky latex film with a thick rolled-up rim (a torus: a shadow under it, a
     // highlight along its top, and the faint turns of the roll), stretching and wobbling as you swim.
     const R = G.barrierR * S, t = G.realT, n = 48, rw = Math.max(5, 8.5 * S);
-    const rad = a => R * (1 + 0.025 * Math.sin(a * 2 + t * 3.1) + 0.018 * Math.sin(a * 3 - t * 2.3));
+    const rad = a => R * (1 + 0.025 * Math.sin(a * 2 + t * 3.1) + 0.018 * Math.sin(a * 3 - t * 2.3)) + rbRad(G.rbBar, a) * S; // (+ dents: rubber.js)
     const loop = (k, off) => { ctx.beginPath(); for (let i = 0; i <= n; i++) { const a = i / n * TAU, r = rad(a) * k + off; i ? ctx.lineTo(px + Math.cos(a) * r, py + Math.sin(a) * r) : ctx.moveTo(px + Math.cos(a) * r, py + Math.sin(a) * r); } };
     // The film: milky at the rim, clear in the middle.
     const fg = ctx.createRadialGradient(px, py, R * 0.25, px, py, R);
@@ -1689,6 +1689,7 @@ function render() {
     for (let i = 0; i < 36; i++) { const a = i / 36 * TAU + t * 0.15, r = rad(a); ctx.moveTo(px + Math.cos(a) * (r - rw * 0.45), py + Math.sin(a) * (r - rw * 0.45)); ctx.lineTo(px + Math.cos(a + 0.05) * (r + rw * 0.45), py + Math.sin(a + 0.05) * (r + rw * 0.45)); }
     ctx.stroke(); ctx.globalAlpha = 1;
   }
+  drawRubber(px, py); // held bullets, Rubber Johnny's skin (rubber.js)
   if (G.shieldT > 0) { ctx.strokeStyle = '#48cae4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, 22 * S, 0, TAU); ctx.stroke(); }
   if (G.relics.diplomatic && G.t >= (G.dipAt || 0)) { ctx.strokeStyle = PAL.reward; ctx.globalAlpha = 0.55 + 0.25 * Math.sin(G.realT * 4); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px, py, 26 * S * playerScale(), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
   if (G.stare) { const L = 560 * S, a = G.stare.a; ctx.globalCompositeOperation = 'lighter'; for (const [lw, al] of [[12, 0.2], [3, 0.9]]) { ctx.globalAlpha = al * Math.min(1, G.stare.life * 3); ctx.strokeStyle = '#c77dff'; ctx.lineWidth = lw * S; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * L, py + Math.sin(a) * L); ctx.stroke(); } ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }

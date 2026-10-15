@@ -483,13 +483,13 @@ function genLoot(req) {
     return opts;
   }
   const cands = [];
-  G.weapons.forEach((w, i) => { if (w && w.lvl < wCap(w)) cands.push({ w: 14, key: 'wu' + i, make: r => optUpgrade(w, r) }); });
-  G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, make: r => optUpgrade(w, r) }); });
+  G.weapons.forEach((w, i) => { if (w && w.lvl < wCap(w)) cands.push({ w: 14, key: 'wu' + i, els: [w.def.elem, w.def.elem2], make: r => optUpgrade(w, r) }); });
+  G.spells.forEach((w, i) => { if (w && w.lvl < MAX_WLVL) cands.push({ w: 8, key: 'su' + i, els: [w.def.elem, w.def.elem2], make: r => optUpgrade(w, r) }); });
   // New weapons only come from weapon drafts (level 1, 8 and 22), never from ordinary DNA.
   if (G.spells.some(w => !w)) {
     const owned = new Set(G.spells.filter(Boolean).map(w => w.id));
-    const pool = Object.keys(SPELLS).filter(id => !owned.has(id) && (!SPELLS[id].seqOnly || (G.genes && G.genes.active.includes(SPELLS[id].seqOnly)))).map(id => [id, Math.pow(Math.random(), 1 / novK('sn' + id))]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(x => x[0]); // (a novelty-weighted shuffle)
-    for (const id of pool) cands.push({ w: G.t > 30 ? 6 : 3, key: 'sn' + id, nk: 'sn' + id, make: r => optNewSpell(id, r) });
+    const pool = Object.keys(SPELLS).filter(id => !owned.has(id) && (!SPELLS[id].seqOnly || (G.genes && G.genes.active.includes(SPELLS[id].seqOnly)))).map(id => [id, Math.pow(Math.random(), 1 / (novK('sn' + id) * biasK([SPELLS[id].elem])))]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(x => x[0]); // (a novelty-weighted shuffle)
+    for (const id of pool) cands.push({ w: G.t > 30 ? 6 : 3, key: 'sn' + id, nk: 'sn' + id, els: [SPELLS[id].elem], make: r => optNewSpell(id, r) });
   }
   G.weapons.forEach(w => {
     if (!w) return;
@@ -499,7 +499,7 @@ function genLoot(req) {
     const mk = 'mod' + w.uid + '|m';
     const ok = ids.filter(x => !G.hides.includes(mk + x)); // (hidden mods never come back)
     const pinned = G.pins.find(p => p.startsWith(mk) && ok.includes(p.slice(mk.length))); // (a pinned mod is rebuilt exactly)
-    if (ok.length) { const id = pinned ? pinned.slice(mk.length) : novPick(ok.map(x => 'm' + x)).slice(1); cands.push({ w: 8, key: 'mod' + w.uid, nk: 'm' + id, make: r => optMod(w, id, r) }); }
+    if (ok.length) { const id = pinned ? pinned.slice(mk.length) : novPick(ok.map(x => 'm' + x)).slice(1); cands.push({ w: 8, key: 'mod' + w.uid, nk: 'm' + id, els: [w.def.elem, w.def.elem2], make: r => optMod(w, id, r) }); }
   });
   const ownedElems = new Set(); for (const w of G.weapons.concat(G.spells)) if (w) { ownedElems.add(w.def.elem); if (w.def.elem2) ownedElems.add(w.def.elem2); }
   for (const id in PASSIVES) {
@@ -511,11 +511,12 @@ function genLoot(req) {
     if (PASSIVES[id].terrain && !(G.terrain && G.terrain.list.some(o => o.type === PASSIVES[id].terrain))) continue; // terrain upgrades need that terrain
     // Element cards only for elements you actually use.
     if (ELEM_PASSIVE_OF[id] && !ownedElems.has(ELEM_PASSIVE_OF[id])) continue;
-    cands.push({ w: PASSIVES[id].terrain ? 1 : 1.8, key: 'p' + id, nk: 'p' + id, pmin: PASSIVES[id].minRarity || 0, make: r => optPassive(id, r) });
+    cands.push({ w: PASSIVES[id].terrain ? 1 : 1.8, key: 'p' + id, nk: 'p' + id, pmin: PASSIVES[id].minRarity || 0, els: [ELEM_PASSIVE_OF[id]], make: r => optPassive(id, r) });
   }
   // Stains you don't have yet.
   // (Not one you already see: a permanent stain switched on in the pause menu counts.)
   for (const id in DYES) if (!G.dyeBoon[id] && !G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
+  biasCands(cands, ownedElems); // Acquired Taste / Gone Off It (bias.js)
   // (Combos never come in a box: they get their own unlock screen, fusion.js.)
     // Pin and hide (pinhide.js): hidden cards never come up; one pinned card that still fits is put in the box.
   for (const c of cands) if (!c.key.startsWith('fuse')) c.pk = c.key + '|' + (c.nk || '');
@@ -529,16 +530,16 @@ function genLoot(req) {
   // thrown back and another drawn.
   const same = (o, q) => o.title === q.title && (o.modFor || '') === (q.modFor || '');
   const tried = new Set();
-  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); if (c.pk) o.pk = c.pk; } }
+  for (const c of chosen.filter(Boolean)) { tried.add(c); const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0))); if (!opts.some(q => same(o, q))) { o.remake = c.make; opts.push(o); novSeen(c.nk); if (c.pk) o.pk = c.pk; } }
   while (opts.length < 3) {
     const rest = cands.filter(c => !tried.has(c));
     if (!rest.length) break;
-    const wt = c => c.w * novK(c.nk);
+    const wt = c => c.w * novK(c.nk) * biasK(c.els); // (Acquired Taste / Gone Off It: bias.js)
     let tot = rest.reduce((a, c) => a + wt(c), 0), x = Math.random() * tot, c = rest[rest.length - 1];
     for (const r of rest) { x -= wt(r); if (x <= 0) { c = r; break; } }
     tried.add(c);
     const o = withBoon(c.make(Math.max(rollRarity(minR, true), c.pmin || 0)));
-    if (!opts.some(q => same(o, q))) { opts.push(o); novSeen(c.nk); if (c.pk) o.pk = c.pk; }
+    if (!opts.some(q => same(o, q))) { o.remake = c.make; opts.push(o); novSeen(c.nk); if (c.pk) o.pk = c.pk; }
   }
   // Occasionally the System slips a cursed card into the box.
   const curses = CURSES.filter(c => !G.curses[c.id]);
@@ -1560,6 +1561,7 @@ function updateEnemies(dt) {
     e.kx *= kd; e.ky *= kd;
     // Nothing swims through the egg.
     { const ox = e.x - G.core.x, oy = e.y - G.core.y, od = Math.hypot(ox, oy) || 1, mr = CORE.r + e.r; if (od < mr) { e.x = G.core.x + ox / od * mr; e.y = G.core.y + oy / od * mr; } }
+    if (G.barrier > 0) rubberPush(e, dt); // (the Latex Barrier's film: rubber.js)
     terrainBody(e, dt);
     if (e.dead) continue;
     // Contact damage.
@@ -2648,6 +2650,7 @@ function update(dt) {
   if (G.rage > 0) { G.rage -= dt; if (G.rage <= 0) startClarity(); } // (Oxytocin wears off: Post-Nut Clarity, silly.js)
   if (G.shieldT > 0) G.shieldT -= dt;
   if (G.barrier > 0) G.barrier -= dt;
+  rubberTick(dt); // (the latex film's springs and held bullets: rubber.js)
   updatePlayer(dt);
   updateCrossfire();
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
@@ -2687,17 +2690,7 @@ function update(dt) {
     if (b.life <= 0) { b.dead = true; continue; }
     if (terrainShot(b, true, dt)) continue;
     const dx = b.x - p.x, dy = b.y - p.y, d2 = dx * dx + dy * dy;
-    if (G.barrier > 0 && d2 < G.barrierR * G.barrierR) {
-      b.dead = true;
-      // Reflect as a player projectile.
-      const bs = G.spells.find(w => w && w.id === 'barrier');
-      if (bs && G.proj.length < CAPS.proj) {
-        const a = Math.atan2(dy, dx);
-        G.proj.push({ x: b.x, y: b.y, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, speed: 420, r: 5, dmg: G.barrierDmg, pierce: 1, life: 1, max: 1, w: bs,
-          src: { elem: 'arcane', wname: 'Latex Barrier' }, color: '#48cae4', style: 'bullet', explode: 0, homing: 0, bounce: 0, boomerang: 0, chainHit: 0, aura: 0, pull: 0, hits: null, tick: 0, dead: false });
-      }
-      continue;
-    }
+    if (G.barrier > 0 && d2 < G.barrierR * G.barrierR) { b.dead = true; rubberCatch(b, dx, dy); continue; } // (caught, then flung back: rubber.js)
     const rr = b.r + p.r * 0.6;
     if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; G.hitFrom = b; hurtPlayer(b.dmg, b.from, b.owner, 'bullets'); }
   }
