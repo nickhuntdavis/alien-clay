@@ -321,6 +321,7 @@ function bpRelicIn(dmg, ent) {
   if (R.rubber && G.t >= (G.rubberAt || 0)) {
     G.rubberAt = G.t + 8; p.iframes = Math.max(p.iframes || 0, 0.4);
     floatText(p.x, p.y - 26, 'SNAP!', '#9fe8d8', 13);
+    rubberJohnny(ent); // (the skin dents where it was hit; a caught bullet goes back: rubber.js)
     aoe(p.x, p.y, 130, (40 + G.level * 8) * P.might, { elem: 'phys', wname: 'Rubber Johnny', knock: 400, noCrit: true }, '#9fe8d8');
     return 0;
   }

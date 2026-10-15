@@ -828,6 +828,11 @@ body.land #wslots.many { max-width: 158px; flex-wrap: wrap; }
 #lootBtns { position: sticky; bottom: calc(4px + env(safe-area-inset-bottom)); z-index: 6; display: flex; gap: 8px; justify-content: center; width: 100%; }
 #lootBtns #rerollBtn { position: static; }
 #skipBtn { max-width: 220px; padding: 10px; font-size: 11px; opacity: 0.9; }
+/* Upgrade All (upall.js): gold, and a flash on each card it raised; +2 gets a badge. */
+#upAllBtn { max-width: 220px; padding: 10px; font-size: 12px; border-color: #ffca3a; color: #ffca3a; }
+@keyframes upflash { 0% { filter: brightness(2.2); transform: scale(1.05); } 100% { filter: none; transform: none; } }
+#lootCards .card.upflash { animation: upflash 0.6s ease-out both !important; }
+#lootCards .card .plus2 { position: absolute; left: 6px; top: -8px; background: #ffca3a; color: #1a1408; font: bold 12px var(--mono, monospace); padding: 1px 6px; border-radius: 8px; animation: upflash 0.8s ease-out both; z-index: 3; }
 /* Full Technicolour: the HUD goes full colour too, cycling through the rainbow. */
 @keyframes techni { from { filter: sepia(1) saturate(4) hue-rotate(0deg); } to { filter: sepia(1) saturate(4) hue-rotate(360deg); } }
 body.technicolour #hudTop, body.technicolour #wslots, body.technicolour #row2, body.technicolour #rewindBtn, body.technicolour #abilBtn { animation: techni 6s linear infinite; }

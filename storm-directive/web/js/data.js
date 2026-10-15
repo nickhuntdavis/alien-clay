@@ -416,7 +416,7 @@ const SPELLS = {
     base: { dmg: 0, cd: 16, dur: 3, range: 0 },
     lv: { 3: { dur: 0.3 }, 5: { cd: -0.2 }, 7: { dur: 0.4 } } },
   barrier: { name: 'Latex Barrier', icon: 'AE', elem: 'arcane', kind: 'barrier', color: '#c9184a', dir: 'nearest', noTarget: 1,
-    desc: 'A shield that reflects enemy bullets and blocks contact. 98% effective.',
+    desc: 'A stretchy shield. Enemies bounce off it; bullets sink in, then get flung back at them. 98% effective.',
     base: { dmg: 12, cd: 12, dur: 3, area: 55, range: 0 },
     lv: { 3: { dur: 0.35 }, 5: { area: 0.3 }, 7: { cd: -0.25 } } },
   bladestorm: { name: 'Running With Scissors', icon: 'BS', elem: 'phys', kind: 'ring', color: '#e9ecef', dir: 'nearest', noTarget: 1,
@@ -797,7 +797,7 @@ const RELICS = {
   bluetored:     { name: 'Blue to Red', desc: 'Every hit has a 15% chance to melt its target (Acid) and a 15% chance to slime it (Mucus).' },
   teststrip:     { name: 'Test Strip', desc: 'Bosses can no longer resist or ignore any of your damage types.' },
   // The Johnny: protection.
-  rubber:        { name: 'Rubber Johnny', desc: 'Every 8s a latex skin catches the next hit completely, then snaps back in a blast around you.' },
+  rubber:        { name: 'Rubber Johnny', desc: 'Every 8s a latex skin catches the next hit completely, then snaps back in a blast around you. A caught bullet goes back the way it came.' },
   ribbed:        { name: 'Ribbed', desc: '+2 Headstrong and +4 armour. For their displeasure.' },
   reservoir:     { name: 'Reservoir Tip', desc: 'Damage you take is collected. Every 10s it all comes back out as a blast around you, ten times over.' },
   // The Mucus Plug: sticky.

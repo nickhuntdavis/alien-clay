@@ -79,6 +79,7 @@ const UI = {
     { let x0 = 0; const h = $('sqHero'); h.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true }); h.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) seqStep(dx < 0 ? 1 : -1); }, { passive: true }); }
     $('howBtn').addEventListener('click', () => $('how').classList.toggle('open'));
     $('rerollBtn').addEventListener('click', () => UI.reroll());
+    $('upAllBtn').addEventListener('click', () => upgradeAll()); // (upall.js)
     // Splice screens can be skipped: stay pure, take two rerolls.
     $('skipBtn').addEventListener('click', () => {
       if (!G || !$('lootCards').classList.contains('ready') || !UI.lootReq) return;
@@ -977,7 +978,7 @@ const UI = {
     UI.rarityBanner();
     UI.updateReroll();
   },
-  updateReroll() { const free = mutOn('rerolldice') && !UI.freeRerollUsed; $('rerollBtn').textContent = free ? 'REROLL (FREE)' : `REROLL (${G.rerolls})`; $('rerollBtn').disabled = !free && G.rerolls <= 0 && !mutOn('waterbear'); },
+  updateReroll() { const free = mutOn('rerolldice') && !UI.freeRerollUsed; $('rerollBtn').textContent = free ? 'REROLL (FREE)' : `REROLL (${G.rerolls})`; $('rerollBtn').disabled = !free && G.rerolls <= 0 && !mutOn('waterbear'); upAllShow(); },
 
   // ---------------------------------------------------------------- pause & directives
   // Every buff and debuff you have right now, with what it does and how long it has left (statusintro.js).
@@ -1075,7 +1076,7 @@ const UI = {
         const y = box.scrollTop; UI.renderPause(); box.scrollTop = y;
       }
     }));
-    $('pauseStats').textContent = `Time ${fmtTime(G.t)} | Level ${G.level} | Kills ${G.kills} | Rerolls ${G.rerolls}`;
+    $('pauseStats').textContent = `Time ${fmtTime(G.t)} | Level ${G.level} | Kills ${G.kills} | Rerolls ${G.rerolls}${biasStatus()}`;
   },
 
   // ---------------------------------------------------------------- pause: you, on one page
