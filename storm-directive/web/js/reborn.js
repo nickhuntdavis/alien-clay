@@ -7,11 +7,11 @@
 
 // ================================================================ weapons, spell, upgrades, signatures
 Object.assign(WEAPONS, {
-  dejavu: { name: 'Déjà Vu', stars: [3, 3, 4, 2], play: 'Fires a slow ghostly shot. A moment later the same shot happens again, from the same spot at the same angle. You have seen this before.', icon: 'DV', elem: 'arcane', kind: 'gun', color: '#ff758f', dir: 'nearest', role: 'Repeater', reborn: 1, seqOnly: 'reborn',
+  dejavu: { name: 'Déjà Vu', stars: [3, 3, 4, 2], play: 'Fires a slow ghostly shot. A moment later the same shot happens again, from the same spot at the same angle. You have seen this before.', icon: 'DV', elem: 'soul', kind: 'gun', color: '#ff758f', dir: 'nearest', role: 'Repeater', reborn: 1, seqOnly: 'reborn',
     desc: 'Every shot happens twice. The second time, it is a memory.',
     base: { dmg: 20, cd: 0.8, mag: 6, reload: 1.3, count: 1, spread: 0.12, speed: 330, pierce: 1, range: 420, size: 5, replay: 1 },
     lv: { 3: { dmg: 0.25 }, 6: { count: 1 }, 9: { pierce: 2 } }, sig: { 5: ['rbthird', 'rbpremonition'], 10: ['rbgroundhog', 'rbsamedream'] } },
-  ghosts: { name: 'Ghosts of You', stars: [3, 2, 4, 4], play: 'Every enemy that dies near you leaves a ghost behind. Each volley sends every stored ghost hunting, homing in on enemies. The busier it gets, the bigger the volley.', icon: 'GY', elem: 'ice', kind: 'gun', color: '#caf0f8', dir: 'nearest', style: 'sperm', role: 'Haunter', reborn: 1, seqOnly: 'reborn',
+  ghosts: { name: 'Ghosts of You', stars: [3, 2, 4, 4], play: 'Every enemy that dies near you leaves a ghost behind. Each volley sends every stored ghost hunting, homing in on enemies. The busier it gets, the bigger the volley.', icon: 'GY', elem: 'soul', kind: 'gun', color: '#caf0f8', dir: 'nearest', style: 'sperm', role: 'Haunter', reborn: 1, seqOnly: 'reborn',
     desc: 'The ones who came before you never really left.',
     base: { dmg: 15, cd: 1.1, mag: 4, reload: 1.6, count: 1, spread: 1.4, speed: 270, pierce: 0, range: 460, size: 5, homing: 6 },
     lv: { 3: { dmg: 0.3 }, 6: { count: 1 }, 9: { dmg: 0.4 } }, sig: { 5: ['rbunfinished', 'rbchills'], 10: ['rblegion', 'rbreunion'] } },
@@ -21,7 +21,7 @@ Object.assign(WEAPONS, {
     lv: { 3: { count: 4 }, 6: { dmg: 0.4 }, 9: { pierce: 2 } }, sig: { 5: ['rbinstant', 'rbgood'], 10: ['rbwheel', 'rbnirvana'] } },
 });
 Object.assign(SPELLS, {
-  oob: { name: 'Out of Body', icon: 'OB', elem: 'arcane', kind: 'oob', color: '#ff758f', dir: 'nearest', noTarget: 1, seqOnly: 'reborn',
+  oob: { name: 'Out of Body', icon: 'OB', elem: 'soul', kind: 'oob', color: '#ff758f', dir: 'nearest', noTarget: 1, seqOnly: 'reborn',
     desc: 'You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it.',
     base: { dmg: 24, cd: 13, dur: 2.2, range: 0 },
     lv: { 3: { dur: 0.3 }, 5: { dmg: 0.5 }, 7: { cd: -0.2 } } },
@@ -34,7 +34,7 @@ Object.assign(SIGS, {
   rbgroundhog: { name: 'Groundhog Day', desc: 'Mastery. Memories keep replaying, each at 60% of the last, until they fade (up to four times).' },
   rbsamedream: { name: 'Same Dream', desc: 'Mastery. Replays fire from wherever you are now, at the nearest enemy, at full damage.' },
   rbunfinished: { name: 'Unfinished Business', desc: 'An enemy killed by a ghost leaves two ghosts behind.' },
-  rbchills: { name: 'Gave Me the Creeps', desc: 'Ghosts lather what they hit: 40% slower for 1.5s.' },
+  rbchills: { name: 'Gave Me the Creeps', desc: 'Ghosts slime what they hit: 40% slower for 1.5s.' },
   rblegion: { name: 'We Are Legion', desc: 'Mastery. Store twice as many ghosts, and every volley sends two extra.' },
   rbreunion: { name: 'Family Reunion', desc: 'Mastery. Every ghost that hits heals you 0.4% of your max HP.' },
   rbinstant: { name: 'Instant Karma', desc: 'Getting hit fires a ring straight back at once (every 1.5s at most).' },

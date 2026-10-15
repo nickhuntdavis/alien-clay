@@ -10,19 +10,24 @@
 const INSPECT = { open: false, prev: null, hist: [], pause: true, half: false };
 const INSPECT_TAP = { ms: 250, move: 10, pad: 24 };
 const inspectMul = () => (INSPECT.open && INSPECT.half ? 0.5 : 1);
-const ELEM_ORDER = ['phys', 'fire', 'ice', 'shock', 'poison', 'oxi', 'salt', 'arcane'];
-// Which reaction two damage types set off (either way round). Force with Acid, Static, Peroxide or Brine has none.
+const ELEM_ORDER = ['phys', 'fire', 'ice', 'shock', 'poison', 'oxi', 'salt', 'arcane', 'soul'];
+// Which reaction two damage types set off (either way round). Force has none; a type with itself is its overload.
 const RX_PAIR = (() => {
   const m = {}, set = (a, b, id) => { m[a + '+' + b] = id; m[b + '+' + a] = id; };
-  set('fire', 'ice', 'neutral'); set('fire', 'shock', 'battery'); set('fire', 'poison', 'ester'); set('shock', 'poison', 'flashpoint');
-  set('shock', 'ice', 'electro'); set('ice', 'poison', 'sanitiser'); set('phys', 'ice', 'suds'); set('phys', 'poison', 'pushover');
-  set('oxi', 'fire', 'bleach'); set('oxi', 'ice', 'toothpaste'); set('oxi', 'poison', 'rocket'); set('oxi', 'shock', 'ozone');
-  set('salt', 'shock', 'electrolyte'); set('salt', 'fire', 'wound'); set('salt', 'poison', 'margarita'); set('salt', 'ice', 'crust'); set('oxi', 'salt', 'seafoam');
-  for (const e of ELEM_ORDER) if (e !== 'arcane') set('arcane', e, e === 'oxi' ? 'exorcism' : 'sympathy');
-  m['poison+poison'] = 'blackout';
+  set('salt', 'shock', 'bath'); set('shock', 'oxi', 'greasefire'); set('salt', 'soul', 'holywater'); set('fire', 'poison', 'penicillin');
+  set('fire', 'soul', 'soulrot'); set('arcane', 'oxi', 'bloodclot'); set('poison', 'oxi', 'sushi'); set('salt', 'poison', 'publicpool');
+  set('ice', 'soul', 'ectoplasm'); set('arcane', 'shock', 'cardiac'); set('soul', 'oxi', 'lastrites'); set('ice', 'poison', 'snotrocket');
+  set('arcane', 'poison', 'dirtyneedle'); set('arcane', 'salt', 'crimescene'); set('arcane', 'ice', 'scab'); set('arcane', 'soul', 'bloodpact');
+  set('fire', 'shock', 'battery'); set('fire', 'salt', 'acidrain'); set('fire', 'ice', 'heartburn'); set('fire', 'arcane', 'ulcer');
+  set('fire', 'oxi', 'vinaigrette'); set('salt', 'oxi', 'dontmix'); set('ice', 'salt', 'snotslick'); set('ice', 'oxi', 'snailtrail');
+  set('ice', 'shock', 'shortcircuit'); set('shock', 'soul', 'poltergeist'); set('shock', 'poison', 'shakes'); set('soul', 'poison', 'patientzero');
+  m['poison+poison'] = 'pandemic';
   return m;
 })();
-const RX_ABBR = { neutral: 'pH 7', battery: 'BATT', ester: 'PEAR', flashpoint: 'FLASH', electro: 'H2', sanitiser: 'SAN', sympathy: 'PACT', suds: 'SUDS', pushover: 'PUSH', bleach: 'BLCH', toothpaste: 'ELEP', rocket: 'ROCK', ozone: 'O3', exorcism: 'EXOR', electrolyte: 'ELYT', wound: 'SALT', margarita: 'MARG', crust: 'CRUST', seafoam: 'SEA', blackout: 'ZZZ' };
+const RX_ABBR = { bath: 'BATH', greasefire: 'FIRE', holywater: 'HOLY', penicillin: 'PEN', soulrot: 'ROT', bloodclot: 'CLOT', sushi: 'SUSHI', publicpool: 'POOL',
+  ectoplasm: 'ECTO', cardiac: 'CARD', lastrites: 'RITE', snotrocket: 'SNOT', dirtyneedle: 'NDL', crimescene: 'CRIM', scab: 'SCAB', bloodpact: 'PACT',
+  battery: 'BATT', acidrain: 'RAIN', heartburn: 'HBRN', ulcer: 'ULC', vinaigrette: 'VIN', dontmix: 'MIX', snotslick: 'SLCK', snailtrail: 'SNAIL',
+  shortcircuit: 'SHRT', poltergeist: 'POLT', shakes: 'SHAK', patientzero: 'PT0', pandemic: 'PAND' };
 const rxSeen = id => !!((META.seenRx && META.seenRx[id]) || (typeof G !== 'undefined' && G && G.stats && G.stats.reactBy && G.stats.reactBy[id]));
 // From react() in game.js: log a reaction the first time it ever goes off.
 function inspectSeeRx(id) { META.seenRx = META.seenRx || {}; if (!META.seenRx[id]) { META.seenRx[id] = 1; saveMeta(); } }

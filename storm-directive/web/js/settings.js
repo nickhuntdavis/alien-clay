@@ -28,7 +28,7 @@ const SETTINGS_DEF = [
   { id: 'cPickup', label: 'Power-ups', hint: 'Power-up pickups and upgrades.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cFast', label: 'Fast enemies', hint: 'Cyan for sprinters, spermlets, krill and paramecia.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cRival', label: 'Rivals', hint: 'Each rival champion in their own colour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cElem', label: 'Damage types', hint: 'Acid, Base, Static, Ethanol, Voodoo, Peroxide and Brine in their own colours.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cElem', label: 'Damage types', hint: 'Acid, Mucus, Static, Cooties, Oil, Water, Blood and Soul in their own colours.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cEnemy', label: 'Enemy types', hint: 'Each kind of enemy in its own colour. EARNED: with the Gram Stain.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. EARNED: with the Counterstain.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
   { id: 'cBg', label: 'Background', hint: 'A soft tissue-pink tint on the slide. EARNED: only with Full Technicolour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },

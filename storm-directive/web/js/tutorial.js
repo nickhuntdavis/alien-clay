@@ -22,7 +22,7 @@ const tutOff = () => (typeof window !== 'undefined' && window.TUT_OFF) || (typeo
 const tutSeen = key => !!(META.seenTut && META.seenTut[key]);
 const tutWave0 = () => !!(G && G.wave && G.wave.camp && G.wave.n === 0 && G.wave.active);
 
-// The reactions an element is part of: 'NEUTRALISED (Acid meets Alkali)'.
+// The reactions an element is part of: 'NEUTRALISED (Acid meets Mucus)'.
 function tutMixes(id) {
   const n = ELEMENTS[id].name, out = [];
   for (const k in REACTIONS) { const d = REACTIONS[k].desc; if (new RegExp('\\b' + n + '\\b').test(d.split(':')[0])) out.push(`${REACTIONS[k].name}: ${d.split(':')[0].replace(/ \(either way round\)/, '')}.`); }
@@ -66,7 +66,7 @@ const TUT_CARDS = {
     what: `Two different damage types on one enemy react. You just made ${G.tutReactName || 'one'}${G.tutReactPair ? ': ' + G.tutReactPair : ''}.`,
     head: 'WHY IT MATTERS', tips: [
       'Reactions hit hard, and some spread to the enemies nearby.',
-      'A mixed build usually beats a pure one through utility and damage over time (slows, stuns, armour stripping, corrosion), not raw damage.',
+      'A mixed build usually beats a pure one through utility and damage over time (slows, stuns, armour stripping, melting), not raw damage.',
       `There are ${Object.keys(REACTIONS).length}. The Field Guide lists them all.`] }),
   grudge: () => ({ title: 'NEW MECHANIC', name: 'GRUDGE', colour: '#ff4d6d',
     what: 'Whatever hurt you last gets a red crosshair and the word GRUDGE over it.',
@@ -110,10 +110,8 @@ function eggMeetTick() {
 }
 const eggKnown = () => !!(META.eggMet || (G && (G.fertile || G.eggAnnounced)));
 // The two damage types behind each reaction, for the card.
-const TUT_PAIR = { neutral: 'Acid + Alkali', battery: 'Acid + Static', ester: 'Acid + Ethanol', flashpoint: 'Static + Ethanol', electro: 'Static + Alkali',
-  sanitiser: 'Alkali + Ethanol', sympathy: 'Blood Magic + anything', suds: 'Force + Alkali', pushover: 'Force + Ethanol', bleach: 'Peroxide + Acid',
-  toothpaste: 'Peroxide + Alkali', rocket: 'Peroxide + Ethanol', ozone: 'Peroxide + Static', exorcism: 'Peroxide + Blood Magic', electrolyte: 'Brine + Static',
-  wound: 'Brine + Acid', margarita: 'Brine + Ethanol', crust: 'Brine + Alkali', seafoam: 'Peroxide + Brine', blackout: 'Ethanol + Ethanol' };
+let TUT_PAIR_M = null; // (built on first use: RX_PAIR lives in inspect.js, which loads later)
+const tutPair = id => (TUT_PAIR_M = TUT_PAIR_M || (() => { const m = {}; for (const k in RX_PAIR) { const [a, b] = k.split('+'); if (!m[RX_PAIR[k]]) m[RX_PAIR[k]] = a === b ? ELEMENTS[a].name + ' to its limit' : ELEMENTS[a].name + ' + ' + ELEMENTS[b].name; } return m; })())[id] || '';
 // Terrain: one card the first time each kind comes on screen.
 const TUT_TERRAIN = {
   ridge:   { what: 'A hard lump of cartilage growing in the womb.', tips: ['Nothing can swim through it: you, the swarm and bosses slide round it.', 'Shots bounce off it. Use it as cover.'] },
@@ -127,15 +125,22 @@ for (const type in TUT_TERRAIN) TUT_CARDS['tr_' + type] = () => ({ title: 'NEW T
   what: TUT_TERRAIN[type].what, head: 'WHAT IT DOES', tips: TUT_TERRAIN[type].tips });
 // A damage type's first card: its colour, what it does in plain words, and what its odd words mean.
 const TUT_EL = {
-  phys:   { c: 'white', what: 'Plain shoving. Knocks enemies about, and knocks over anything drunk or turned to soap.', terms: 'Shoved: knocked back.' },
-  fire:   { c: 'lime green', what: 'Acid eats away at what it touches: damage over time, and it wears down armour as it goes.', terms: 'Acid is the sour stuff in your stomach. Corroding means being eaten away.' },
-  ice:    { c: 'blue', what: 'The opposite of acid, and the stuff soap is made from. It makes enemies soapy, so they swim slower and slide further when hit. Enough and they turn to soap.', terms: 'Alkali: the chemical opposite of acid, slippery to the touch. Lathered: covered in suds, so slow and slippery. Saponified: turned into soap and stuck solid for a moment.' },
-  shock:  { c: 'electric yellow', what: 'Static charges enemies. Some of the damage they take jumps to a neighbour and drags it closer.', terms: 'Charged: carrying a static shock. Static cling: the jump that pulls them together.' },
-  poison: { c: 'amber, like a pint', what: 'Ethanol is alcohol. It gets enemies drunk: damage that builds up over time while they stagger about. Enough and they black out.', terms: 'Ethanol: the drink in drinks. Drunk: stacking damage over time and wobbly steering.' },
-  oxi:    { c: 'icy cyan', what: 'Peroxide is hair bleach and the fizz on a cut. Each hit adds bubbles that wear down armour, then the bubbles pop in a small blast.', terms: 'Peroxide: the bleach. Fizzing: covered in bubbles that pop when it stops.' },
-  salt:   { c: 'pink', what: 'Salt water. It shrivels enemies: they swim slower, hit you softer, and carry Static twice as well.', terms: 'Brine: very salty water. Pickled: shrivelled up by the salt.' },
-  arcane: { c: 'blood red', what: 'An old curse, written in your own blood. It hexes enemies: a hexed enemy takes more from everything, and when it dies the hex bleeds into the nearest one.', terms: 'Hexed: cursed, so every hit on it lands harder.' },
+  phys:   { c: 'white', what: 'Plain physics, and the base damage under most attacks. It just hurts.', terms: 'Shoved: knocked back.' },
+  fire:   { c: 'lime green', what: 'Acid eats through things: damage over time that wears armour away, and hits harder once the armour is gone.', terms: 'Melting: being eaten away by acid.' },
+  ice:    { c: 'snot green', what: 'Mucus gums enemies up. Every hit slows them more, and enough leaves them stuck fast.', terms: 'Snotty: slowed by mucus. Stuck: stopped dead until it wears off.' },
+  shock:  { c: 'electric yellow', what: 'Static spreads. Some of the damage a shocked enemy takes jumps to a neighbour and drags it closer, and every 4th hit stuns it.', terms: 'Shocked: carrying a charge. Stunned: stopped for a moment.' },
+  poison: { c: 'rash pink', what: 'Cooties are catching. Sick enemies take damage that builds over time, hit you softer, and sneeze it onto their mates.', terms: 'Sick: stacking damage over time, and it spreads. A dose is one stack.' },
+  oxi:    { c: 'amber, like oil', what: 'Oil does little on its own, but it is highly reactive. Lubricated enemies slide much further when knocked, and every reaction on them is 50% stronger.', terms: 'Lubricated: no grip at all.' },
+  salt:   { c: 'deep blue', what: 'Water pushes enemies around: every hit shoves them away. Soaking-wet enemies carry Static twice as well.', terms: 'Soaking wet: dripping, and a great conductor.' },
+  arcane: { c: 'blood red', what: 'Blood makes enemies bleed: damage over time, but only while they move. Keep them running.', terms: 'Bleeding: losing blood with every move.' },
+  soul:   { c: 'ghostly pale blue', what: 'Soul passes straight through armour. Cursed enemies sometimes turn on their mates, and bosses get spooked.', terms: 'Cursed: haunted for a few seconds. Spooked: a boss slowed by fright.' },
 };
+// Saves from before the damage type rework (v9.10): the reworked types get their cards again.
+if (typeof META !== 'undefined' && META && !META.rxV2) {
+  META.rxV2 = 1; META.seenRx = {};
+  for (const k of ['ice', 'poison', 'oxi', 'salt', 'arcane']) { if (META.elemSeen) delete META.elemSeen[k]; if (META.seenTut) delete META.seenTut['el_' + k]; }
+  if (typeof saveMeta === 'function') saveMeta();
+}
 for (const id in ELEMENTS) TUT_CARDS['el_' + id] = () => {
   const E = ELEMENTS[id], mix = tutMixes(id), X = TUT_EL[id];
   return { title: 'NEW DAMAGE TYPE', name: E.name.toUpperCase(), colour: E.color, what: `Its colour is ${X.c}. ${X.what}`, desc: X.terms,
@@ -217,7 +222,7 @@ function tutElem(elem) {
   if (elem === 'phys' || tutOff() || tutSeen('el_' + elem)) { elemUnlock(elem); return; } // (no card to wait for: colour at once)
   tutShow('el_' + elem);
 }
-function tutReact(id) { if (!tutSeen('react')) { G.tutReactName = REACTIONS[id] ? REACTIONS[id].name : null; G.tutReactPair = TUT_PAIR[id] || ''; tutShow('react'); } }
+function tutReact(id) { if (!tutSeen('react')) { G.tutReactName = REACTIONS[id] ? REACTIONS[id].name : null; G.tutReactPair = tutPair(id); tutShow('react'); } }
 
 // ---------------------------------------------------------------- wave 0
 // At the start of a wave-mode run: does it open with pre-school?

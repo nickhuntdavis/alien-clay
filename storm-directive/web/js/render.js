@@ -58,16 +58,20 @@ function refreshPalette() {
 // (Acid and Ethanol took over colours that were drawn orange and green: ELEM_SWAP repaints those on the way through.)
 const ELEM_SWAP = new Map([
   ['#ff7a2f', '#c6ff3d'], ['#ff5400', '#a8e61d'], ['#ff9e00', '#d4ff6b'], ['#ff9f1c', '#b5f23a'], ['#ffd166', '#e2ff9a'], ['#ff5a36', '#9fd61a'], ['#ffba08', '#ccff4d'],
-  ['#8dff4a', '#e8a33d'], ['#9ef01a', '#d98c2b'], ['#b5e48c', '#f0c27a'], ['#d4ff5c', '#f2b552'],
+  // (the damage type rework: Ethanol's ambers and greens are Cooties pink now, Peroxide's cyans Oil amber, Alkali's main blues Mucus green; shared pale blues and pinks are left alone)
+  ['#8dff4a', '#ff5fa2'], ['#9ef01a', '#e84a8c'], ['#b5e48c', '#ff9cc7'], ['#d4ff5c', '#ff7ab5'], ['#e8a33d', '#ff5fa2'], ['#d98c2b', '#e84a8c'], ['#f0c27a', '#ff9cc7'], ['#f2b552', '#ff7ab5'],
+  ['#9ff7ff', '#d99a2b'], ['#e6fbff', '#f2c879'],
+  ['#5b8cff', '#a8b84a'], ['#6fd8ff', '#b5c96a'], ['#c9e4f5', '#e3e8c0'],
 ]);
 const ELEM_HEX = {
   fire: ['#c6ff3d', '#a8e61d', '#d4ff6b', '#b5f23a', '#e2ff9a', '#9fd61a', '#ccff4d'],
-  ice: ['#5b8cff', '#6fd8ff', '#90e0ef', '#caf0f8', '#bde0fe', '#c9e4f5'],
-  poison: ['#e8a33d', '#d98c2b', '#f0c27a', '#f2b552'],
+  ice: ['#a8b84a', '#b5c96a', '#e3e8c0'], // Mucus: snot green, duller than Acid
+  poison: ['#ff5fa2', '#e84a8c', '#ff9cc7', '#ff7ab5'], // Cooties: rash pink
   shock: ['#ffe94a', '#fdf0d5', '#fff3b0'], // Static: electric yellow, like its card says
-  oxi: ['#9ff7ff', '#e6fbff'],
-  salt: ['#ffb3c6', '#ffe5ec', '#fff0f3'],
+  oxi: ['#d99a2b', '#f2c879', '#8a5a14'], // Oil: amber
+  salt: ['#3d8bff', '#9cc3ff', '#cfe2ff'], // Water: deep blue
   arcane: ['#c9184a', '#800f2f', '#6a0d25', '#f25c78', '#ff758f', '#a4133c', '#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'], // (blood reds, and the old purples other things still use)
+  soul: ['#bff4ff', '#e8fbff', '#8fdcff'], // Soul: ghostly pale blue
 };
 const STATIC_HEX = { '#9ef0ff': '#9fb0ff' }; // (a pale blue the dodge text and stamina ring use: always coloured)
 const ELEM_OF = new Map();
@@ -678,7 +682,7 @@ function lump(x, y, r, seed, rot) {
 }
 
 // Weapon visuals that belong to an origin (player or echo): drones, orbit blades, beams.
-// Viral trails (Pub Crawl): the trail is a run of small zones dropped as you swim. Draw each run
+// Viral trails (Skid Mark): the trail is a run of small zones dropped as you swim. Draw each run
 // as one smooth ribbon that tapers and fades with age (in a few age bands, so overlaps never double up), with a
 // dark core and virus specks drifting in it, instead of a row of stamped circles.
 function drawTrails() {

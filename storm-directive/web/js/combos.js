@@ -17,8 +17,8 @@ const COMBOS = [
   { id: 'teacup',     a: 'void',    b: 'tesla',   name: 'Storm in a Teacup',  desc: 'Gravity orbs crackle: each one throws a Static Cling chain at what it is pulling in.' },
   { id: 'partyline',  a: 'twin',    b: 'tesla',   name: 'Party Line',         desc: 'Every second, each twin sends a Static Cling chain into the crowd.' },
   // Egg-Seeker
-  { id: 'coldcase',   a: 'duedate', b: 'frost',   name: 'Clean Slate',          desc: 'When a Due Date goes off, everything near it is saponified and takes a burst of antacid.' },
-  { id: 'coldcomfort', a: 'toothfairy', b: 'frost', name: 'Soap in the Mouth',     desc: 'Tooth Fairy smites saponify their victim. A saponified victim takes double.' },
+  { id: 'coldcase',   a: 'duedate', b: 'frost',   name: 'Clean Slate',          desc: 'When a Due Date goes off, everything near it is glued and takes a burst of snot.' },
+  { id: 'coldcomfort', a: 'toothfairy', b: 'frost', name: 'Soap in the Mouth',     desc: 'Tooth Fairy smites glue their victim. A glued victim takes double.' },
   // Stealth-Tadpole
   { id: 'whiplash',   a: 'flail',   b: 'wake',    name: 'Whiplash',           desc: 'Every lash leaves a strip of viral trail along its length.' },
   { id: 'ghosttrail', a: 'peekaboo', b: 'wake',   name: 'Silent but Deadly',        desc: 'While you are hidden, your viral trail hits 2.5x as hard. The BOO leaves a ring of it round the spot.' },

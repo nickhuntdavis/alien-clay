@@ -34,7 +34,7 @@ const ENEMY_INTRO = {
   rotifer:    { what: 'A hoover. It goes for your XP granules and eats them before you can.', tip: 'Kill it quickly: it drops what it ate. Collect XP before it does.' },
   volvox:     { what: 'A hollow colony that bursts into daughter colonies when it dies.', tip: 'Area damage cleans up the burst.' },
   volvoxling: { what: 'A daughter colony from a burst Volvox. Small and quick.', tip: 'Splash damage.' },
-  yeast:      { what: 'Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through.', tip: 'Clear it out early, before it spreads. Acid and Ethanol clouds work well.' },
+  yeast:      { what: 'Candida: every cell buds a daughter every few seconds, so a colony doubles and doubles. Sticky to swim through.', tip: 'Clear it out early, before it spreads. Acid and Cooties clouds work well.' },
   pepsinjr:   { what: 'A small Pepsinator. All the stomach, half the size.', tip: 'Treat it like a mini boss: keep moving and hit it hard.' },
   juggernaut: { what: 'A huge rival swimmer, armoured and hard-hitting.', tip: 'Shred its armour and keep your distance. Its charge is slow to start.' },
   sperminator:{ what: 'A booster shot. It locks on with a red sight line before firing a burst, and killing it is only half the job.', tip: 'Move as soon as the line settles on you. A Second Dose follows it.' },

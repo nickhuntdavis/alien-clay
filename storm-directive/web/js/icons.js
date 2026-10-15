@@ -3,7 +3,7 @@
 
 // Weapon type = damage element. UI only (in the world, everything you fire stays GFP green).
 // Chosen to sit apart from the five meaning colours: you, danger, reward, upgrade, pickup.
-const ELEM_UI = { phys: '#c9d6e3', fire: '#b8e83a', ice: '#7a9dff', shock: '#eee36a', poison: '#e0a04a', arcane: '#e5446d', oxi: '#8fe8f0', salt: '#f0a0b8' };
+const ELEM_UI = { phys: '#c9d6e3', fire: '#b8e83a', ice: '#b5c45a', shock: '#eee36a', poison: '#ff6fac', arcane: '#e5446d', oxi: '#e0a640', salt: '#5b9dff', soul: '#c8f6ff' };
 
 const IC = {
   // Guns and launchers

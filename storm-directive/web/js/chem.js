@@ -1,100 +1,215 @@
 'use strict';
-// Spawn Prawn - chemistry. Six elements: Force, Acid, Alkali, Static, Ethanol and Blood Magic (the internal keys are
-// phys, fire, ice, shock, poison and arcane). Each leaves a status on what it hits:
-//   Acid    - corroding: damage over time that eats a little armour as it goes (e.burn).
-//   Alkali    - lathered: slower, and slides further when hit (e.chill); enough and it saponifies: soap, stuck solid (e.frozen).
-//   Static  - charged: damage it takes arcs to a neighbour, and drags that neighbour closer (e.shock).
-//   Ethanol - drunk: stacking damage over time, and it weaves about (e.poison, e.poisonStacks).
-//   Blood Magic - hexed: takes more from everything; the hex passes on when it dies (e.mark).
-// When an element lands on something already carrying another's status, they react (REACTIONS in data.js).
-// Combos have chemistry too: fuse two weapons whose elements are not their usual ones (Switched at Birth)
-// and the combo picks up a TWIST from the pair of elements it is made of.
+// Spawn Prawn - chemistry. Force (phys) is plain untyped damage. The eight damage types (internal keys in brackets)
+// each leave a status on what they hit:
+//   Acid (fire)      - Melting: damage over time that eats armour (e.burn); once the armour is gone it eats through, +50%.
+//   Mucus (ice)      - Snotty: slower and slower (e.chill/chillAmt); enough and it's stuck fast (e.frozen).
+//   Static (shock)   - Shocked: some damage it takes arcs to a neighbour (e.shock); every 4th Static hit stuns it.
+//   Cooties (poison) - Sick: stacking damage over time (e.poison, e.poisonStacks); it sneezes it onto its mates and hits you softer.
+//   Oil (oxi)        - Lubricated (e.fizz): no grip, so knockback sends it much further, and reactions on it are 50% stronger.
+//   Water (salt)     - Soaking wet (e.pickle): each hit shoves it away; wet things carry Static twice as well.
+//   Blood (arcane)   - Bleeding (e.bloodT, bloodDps, bloodN): damage over time that only ticks while it moves.
+//   Soul (soul)      - Cursed (e.curse): Soul ignores armour; cursed enemies sometimes turn on their mates; bosses are Spooked.
+// When a type lands on something already carrying another's status, they react (RX_PAIR in inspect.js, REACTIONS in data.js).
+// Combos have chemistry too: fuse two weapons whose damage types are not their usual ones (Switched at Birth)
+// and the combo picks up a TWIST from the pair it is made of.
 // Hooks: applyElement and chemForce (damageEnemy), chemTick (status upkeep), chemWobble (enemy steering),
-// chemMul (damage taken), chemKill, chemHaste (fire rate), chemDamageIn (damage to you), chemComboHit.
+// chemMul (damage taken), chemKill, chemHaste (fire rate), chemDamageIn (damage to you), chemComboHit, chemKd (knockback grip).
 
-const CHEM = { healGap: 0.5, chargeK: 0.12 };
-const drunk = e => e.poison > 0 && e.poisonStacks > 0;
+const CHEM = { healGap: 0.5, chargeK: 0.12, stunEvery: 4 };
+const drunk = e => e.poison > 0 && e.poisonStacks > 0; // (Sick: the old Ethanol slot)
+const sick = drunk;
 const lathered = e => e.chill > 0 || e.frozen > 0;
+const bleeding = e => e.bloodT > 0;
+// Which statuses an enemy carries, by damage type.
+const chemHas = e => ({ fire: e.burn > 0, ice: lathered(e), shock: e.shock > 0, poison: sick(e), oxi: e.fizz > 0, salt: e.pickle > 0, arcane: bleeding(e), soul: e.curse > 0 });
+const plainFoe = e => !e.boss && !e.rival && !e.egg;
+// Reaction strength on this enemy (Oil makes everything react harder).
+const rxK = e => G.P.react * (e.fizz > 0 ? 1.5 : 1);
+const stun = (e, t) => { e.dazeT = Math.max(e.dazeT || 0, G.t + (e.boss ? t * 0.3 : t)); };
+const shove = (e, fx, fy, f) => { if (e.boss || e.rival || e.egg) return; const dx = e.x - fx, dy = e.y - fy, d = Math.hypot(dx, dy) || 1; e.kx += dx / d * f; e.ky += dy / d * f; };
+const addSick = (n, k, dps, by) => { n.poison = 4; n.poisonStacks = Math.min(G.P.poisonCap, (n.poisonStacks || 0) + k); setPoison(n, dps, by); };
+const addBurn = (n, dps, by) => { n.burn = Math.max(n.burn || 0, 3); setBurn(n, dps, by); };
+function curseFoe(e, t) {
+  if (plainFoe(e) && !e.charmed) { e.charmed = true; e.charmT = t; e.frozen = 0; e.allyT = null; floatText(e.x, e.y - e.r - 12, 'POSSESSED', ELEMENTS.soul.color, 11, 0.7); }
+}
+const neighbours = (e, r, n) => acquireMany('nearest', r, e.x, e.y, n + 1).filter(o => o !== e && !o.dead);
 
 function applyElement(e, elem, dmg, src) {
-  const P = G.P, syn = G.synergy, rm = P.react;
+  const P = G.P, syn = G.synergy, has = chemHas(e);
   const rsrc = { elem, noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' };
   if (P.mixologist && chemCount(e) >= 2) dmg *= 1 + P.mixologist; // (Mixologist: stronger doses on an enemy that is already a cocktail)
   G.chemDmg = dmg; // (for Chain Reaction)
-  const pr = chemNew(e, elem, dmg, src, rsrc); // Peroxide and Brine's reactions
-  switch (elem) {
-    case 'oxi': // Peroxide
-      e.fizz = 2.5; e.fizzD = Math.min(e.maxHp * 0.5 + 200, (e.fizzD || 0) + dmg * 0.35 * P.elem.oxi * (syn.oxi ? 1.5 : 1));
-      return;
-    case 'salt': // Brine
-      e.pickle = syn.salt ? 4.5 : 3;
-      return;
-    case 'arcane': if (pr) { e.mark = 3; return; } break;
+  // A reaction first: the first status already on it that pairs with this type.
+  for (const k of ELEM_ORDER) {
+    if (!has[k]) continue;
+    const id = RX_PAIR[elem + '+' + k];
+    if (id && id !== 'pandemic' && react(e, id, src)) { reactDo(id, e, dmg, src, rsrc); break; }
   }
+  if (e.dead) return;
+  // Then this type's own status.
   switch (elem) {
-    case 'fire': // Acid
-      if (lathered(e) && react(e, 'neutral', src)) { neutralise(e, dmg, rsrc); return; }
-      if (e.shock > 0 && react(e, 'battery', src)) { e.shock = 0; battery(e, dmg); }
-      else if (drunk(e) && react(e, 'ester', src)) ester(e, dmg, rsrc);
+    case 'fire': // Acid: Melting
       e.burn = syn.fire ? 4.5 : 3;
       setBurn(e, dmg * 0.4 * (syn.fire ? 1.5 : 1) * P.elem.fire, src);
       break;
-    case 'ice': { // Alkali
-      if (e.burn > 0 && react(e, 'neutral', src)) { neutralise(e, dmg, rsrc); return; }
-      if (drunk(e) && react(e, 'sanitiser', src)) sanitise(e, dmg, rsrc);
+    case 'ice': { // Mucus: Snotty
       e.chill = 2.5;
       e.chillAmt = Math.min(0.6, e.chillAmt + 0.14 * P.elem.ice);
       const thresh = syn.ice ? 0.3 : 0.58;
       if (e.chillAmt >= thresh && e.frozen <= 0) { e.frozen = e.boss ? 0.4 : 1.3; e.chillAmt = 0.2; }
       break;
     }
-    case 'shock': // Static
-      if (drunk(e) && e.poisonStacks >= 2 && react(e, 'flashpoint', src)) flashpoint(e, dmg, rsrc);
-      else if (e.burn > 0 && react(e, 'battery', src)) battery(e, dmg);
-      else if (lathered(e) && react(e, 'electro', src)) {
-        e.shred = Math.min(e.armour + 6, e.shred + 6 * rm);
-        aoe(e.x, e.y, 55, dmg * 0.6 * rm, rsrc, '#bde0fe');
-      }
+    case 'shock': // Static: Shocked
       e.shock = 2.2;
+      e.shockN = (e.shockN || 0) + 1;
+      if (e.shockN >= CHEM.stunEvery) { e.shockN = 0; stun(e, syn.shock ? 0.9 : 0.6); }
       break;
-    case 'poison': // Ethanol
-      e.poison = 4;
-      e.poisonStacks = Math.min(P.poisonCap, e.poisonStacks + 1);
-      setPoison(e, dmg * 0.14 * P.elem.poison, src);
-      if (e.shock > 0 && e.poisonStacks >= 2 && react(e, 'flashpoint', src)) flashpoint(e, dmg, rsrc);
-      else if (e.burn > 0 && react(e, 'ester', src)) ester(e, dmg, rsrc);
-      else if (lathered(e) && react(e, 'sanitiser', src)) sanitise(e, dmg, rsrc);
-      else if (e.poisonStacks >= P.poisonCap && !(e.hangT > G.t) && react(e, 'blackout', src)) {
-        e.dazeT = G.t + (e.boss ? 0.5 : 2); e.hangT = G.t + 7;
-        floatText(e.x, e.y - e.r - 26, 'zzz', '#cdb4db', 12, 0.9);
+    case 'poison': // Cooties: Sick
+      addSick(e, 1, dmg * 0.14 * P.elem.poison, src);
+      if (e.poisonStacks >= P.poisonCap && !(e.pandT > G.t) && react(e, 'pandemic', src)) {
+        e.pandT = G.t + 6;
+        for (const n of neighbours(e, 170, 6)) { addSick(n, 2, e.poisonDps * 0.8, e.poisonBy); bolt(e.x, e.y, n.x, n.y, ELEMENTS.poison.color, 0.15); }
       }
       break;
-    case 'arcane': // Blood Magic
-      if ((e.burn > 0 || e.chill > 0 || e.poison > 0 || e.shock > 0 || e.fizz > 0 || e.pickle > 0) && react(e, 'sympathy', src)) {
-        damageEnemy(e, dmg * 1.0 * rm, rsrc);
-        for (const n of acquireMany('nearest', 140, e.x, e.y, 3)) {
-          if (n === e || n.dead) continue;
-          if (e.burn > 0) { n.burn = Math.max(n.burn, 2.5); setBurn(n, e.burnDps * 0.7, e.burnBy); }
-          if (e.chill > 0) { n.chill = 2.5; n.chillAmt = Math.max(n.chillAmt, e.chillAmt * 0.7); }
-          if (e.shock > 0) n.shock = Math.max(n.shock, 2.2);
-          if (e.fizz > 0) { n.fizz = 2.5; n.fizzD = Math.max(n.fizzD || 0, e.fizzD * 0.5); }
-          if (e.pickle > 0) n.pickle = Math.max(n.pickle || 0, e.pickle);
-          if (e.poison > 0) { n.poison = 4; n.poisonStacks = Math.min(P.poisonCap, Math.max(n.poisonStacks, Math.ceil(e.poisonStacks / 2))); setPoison(n, e.poisonDps, e.poisonBy); }
-          n.mark = 3;
-          bolt(e.x, e.y, n.x, n.y, '#ff758f', 0.15);
-        }
-        ring(e.x, e.y, 50, '#ff758f', 0.3);
-      }
-      e.mark = 3;
+    case 'oxi': // Oil: Lubricated
+      e.fizz = syn.oxi ? 4.5 : 3;
+      break;
+    case 'salt': { // Water: Soaking wet, and shoved
+      e.pickle = syn.salt ? 4.5 : 3;
+      const p = me(); shove(e, p.x, p.y, 90 * P.elem.salt);
+      break;
+    }
+    case 'arcane': // Blood: Bleeding
+      e.bloodT = syn.arcane ? 6 : 4;
+      e.bloodN = Math.min(5, (e.bloodN || 0) + 1);
+      e.bloodDps = Math.max((e.bloodDps || 0) * 0.85, dmg * 0.25 * P.elem.arcane) + dmg * 0.05 * e.bloodN;
+      e.bloodBy = dotName(src);
+      break;
+    case 'soul': // Soul: Cursed
+      e.curse = syn.soul ? 4.5 : 3;
+      if (e.boss) { if (!(e.spookT > G.t)) { e.spookT = G.t + 4; e.dazeSlowT = G.t + 1.5; floatText(e.x, e.y - e.r - 14, 'SPOOKED', ELEMENTS.soul.color, 12, 0.8); } }
+      else if (Math.random() < 0.12 * P.elem.soul) curseFoe(e, 2);
       break;
   }
 }
-// Acid meets Alkali: both cancel, a hot burst, and the salt water does you good.
-function neutralise(e, dmg, rsrc) {
-  e.burn = 0; e.chill = 0; e.chillAmt = 0; e.frozen = 0;
-  aoe(e.x, e.y, 75, (dmg * 1.8 + 8) * G.P.react * (G.pair.hotcold ? 2 : 1), rsrc, '#e6f4ff');
-  fxParts('bubble', e.x, e.y, '#e6f4ff', 6, 90, 0.7, 3, -Math.PI / 2, 0.8);
-  if (!(G.saltT > G.t)) { G.saltT = G.t + CHEM.healGap; healPlayer(G.P.maxHp * 0.01, true); }
+
+// The reactions. e has just been hit by one type while carrying another's status.
+function reactDo(id, e, dmg, src, rsrc) {
+  const P = G.P, rm = rxK(e), p = me(), R = REACTIONS[id], c = R.color;
+  const hitN = (list, f) => { for (const n of list) { bolt(e.x, e.y, n.x, n.y, c, 0.15); f(n); } };
+  switch (id) {
+    case 'bath': { // Water + Static: every soaking-wet enemy on screen is zapped
+      let k = 0;
+      for (const n of G.enemies) {
+        if (n.dead || !(n.pickle > 0) || k >= 14 || Math.hypot(n.x - e.x, n.y - e.y) > 650) continue;
+        k++; bolt(e.x, e.y, n.x, n.y, c, 0.2); damageEnemy(n, dmg * 0.8 * rm, Object.assign({}, rsrc, { elem: 'shock' })); n.xrayT = G.t + 0.25;
+      }
+      e.xrayT = G.t + 0.25;
+      break;
+    }
+    case 'greasefire': // Static + Oil: the slick goes up
+      e.fizz = 0;
+      if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 75, life: 3, max: 3, dps: (dmg * 0.9 + 6) * rm, elem: 'fire', pull: 0, color: c, tick: 0, src: rsrc });
+      fxParts('ember', e.x, e.y, '#ff9e00', 10, 160, 0.8, 3);
+      break;
+    case 'holywater': // Water + Soul: the curse is boiled out
+      e.curse = 0;
+      damageEnemy(e, (dmg * 2.5 + 10) * rm * (e.boss ? 2 : 1), rsrc);
+      fxParts('smoke', e.x, e.y, '#ffffff', 5, 60, 0.9, 6, -Math.PI / 2, 0.6);
+      break;
+    case 'penicillin': { // Acid + Cooties: clears it in one big hit
+      const d = (e.poisonDps * e.poisonStacks * 4 + dmg) * rm;
+      e.poison = 0; e.poisonStacks = 0;
+      damageEnemy(e, d, rsrc);
+      break;
+    }
+    case 'soulrot': // Acid + Soul: the ghost comes out spitting acid
+      hitN(neighbours(e, 160, 3), n => addBurn(n, dmg * 0.5 * rm, rsrc.wname));
+      break;
+    case 'bloodclot': // Blood + Oil: everything nearby congeals into one slow lump
+      forNear(e.x, e.y, 130, o => { if (o === e || !plainFoe(o)) return; const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1; o.kx += dx / d * 260; o.ky += dy / d * 260; o.dazeSlowT = G.t + 2.5; });
+      e.dazeSlowT = G.t + 2.5;
+      break;
+    case 'sushi': // Cooties + Oil: it throws up on its mates
+      forNear(e.x, e.y, 140, o => { if (o === e) return; addSick(o, 2, e.poisonDps || dmg * 0.14, rsrc.wname); damageEnemy(o, dmg * 0.4 * rm, rsrc); });
+      fxParts('drop', e.x, e.y, c, 12, 220, 0.6, 3);
+      break;
+    case 'publicpool': // Water + Cooties: everything wet catches it
+      for (const n of G.enemies) if (!n.dead && n !== e && n.pickle > 0 && Math.hypot(n.x - e.x, n.y - e.y) < 320) addSick(n, 1, e.poisonDps || dmg * 0.14, rsrc.wname);
+      break;
+    case 'ectoplasm': // Mucus + Soul: ghost slime on everything nearby
+      forNear(e.x, e.y, 130, o => { o.chill = 2.5; o.chillAmt = Math.min(0.6, o.chillAmt + 0.3); });
+      break;
+    case 'cardiac': { // Blood + Static: a stun, then all the bleeding at once
+      stun(e, 1);
+      const d = ((e.bloodDps || 0) * 4 + dmg) * rm;
+      e.bloodT = 0; e.bloodN = 0;
+      damageEnemy(e, d, rsrc);
+      break;
+    }
+    case 'lastrites': // Soul + Oil: anointed
+      if (plainFoe(e)) curseFoe(e, 5); else damageEnemy(e, dmg * 2 * rm, rsrc);
+      break;
+    case 'snotrocket': // Mucus + Cooties: the sneeze carries twice as far
+      hitN(neighbours(e, 240, 4), n => addSick(n, 2, e.poisonDps || dmg * 0.14, rsrc.wname));
+      break;
+    case 'dirtyneedle': // Blood + Cooties: every bleeder catches it
+      for (const n of G.enemies) if (!n.dead && n !== e && n.bloodT > 0 && Math.hypot(n.x - e.x, n.y - e.y) < 380) { addSick(n, 2, e.poisonDps || dmg * 0.14, rsrc.wname); bolt(e.x, e.y, n.x, n.y, c, 0.12); }
+      break;
+    case 'crimescene': // Blood + Water: the blood spreads into a pool
+      if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 80, life: 3.5, max: 3.5, dps: ((e.bloodDps || dmg * 0.25) + 4) * rm, elem: 'arcane', pull: 0, color: c, tick: 0, src: rsrc });
+      break;
+    case 'scab': // Blood + Mucus: it crusts over, then the scab gets picked
+      stun(e, 1.5); e.scabT = G.t + 4;
+      break;
+    case 'bloodpact': // Blood + Soul: the ghost drains it and feeds you
+      damageEnemy(e, dmg * 1.2 * rm, rsrc);
+      if (!(G.saltT > G.t)) { G.saltT = G.t + CHEM.healGap; healPlayer(P.maxHp * 0.01, true); }
+      break;
+    case 'battery': // Acid + Static: a battery that zaps its neighbours, and charges you up
+      e.shock = 0; battery(e, dmg);
+      break;
+    case 'acidrain': // Acid + Water: weaker melting over a wide area
+      forNear(e.x, e.y, 150, o => { if (o !== e) addBurn(o, (e.burnDps || dmg * 0.4) * 0.5 * rm, rsrc.wname); });
+      break;
+    case 'heartburn': // Acid + Mucus: acid glue splashes its mates
+      aoe(e.x, e.y, 75, (dmg * 1.2 + 6) * rm * (G.pair.hotcold ? 2 : 1), rsrc, c);
+      forNear(e.x, e.y, 75, o => { if (o !== e) addBurn(o, (e.burnDps || dmg * 0.4) * 0.6, rsrc.wname); });
+      break;
+    case 'ulcer': // Acid + Blood: bursts through
+      e.shred = Math.min(e.armour + 4, e.shred + 4);
+      damageEnemy(e, (((e.burnDps || 0) + (e.bloodDps || 0)) * 3 + dmg) * rm, rsrc);
+      break;
+    case 'vinaigrette': // Acid + Oil: a dressing for everything nearby
+      hitN(neighbours(e, 130, 4), n => { addBurn(n, (e.burnDps || dmg * 0.4) * 0.7 * rm, rsrc.wname); n.fizz = Math.max(n.fizz || 0, 2); });
+      break;
+    case 'dontmix': // Water + Oil: the crowd repels apart
+      forNear(e.x, e.y, 170, o => { if (o !== e) shove(o, e.x, e.y, 520 * Math.min(1.5, rm)); });
+      shove(e, p.x, p.y, 300);
+      break;
+    case 'snotslick': // Mucus + Water: stuck, and sliding
+      if (plainFoe(e)) { e.frozen = Math.max(e.frozen, 1.2); shove(e, p.x, p.y, 380); }
+      forNear(e.x, e.y, 110, o => { o.chill = 2.5; o.chillAmt = Math.min(0.6, o.chillAmt + 0.15); });
+      break;
+    case 'snailtrail': // Mucus + Oil: the slick spreads the snot
+      forNear(e.x, e.y, 150, o => { o.chill = 2.5; o.chillAmt = Math.min(0.6, o.chillAmt + 0.25); o.fizz = Math.max(o.fizz || 0, 1.5); });
+      break;
+    case 'shortcircuit': // Mucus + Static: stuck things stay stuck
+      if (e.frozen > 0) e.frozen = Math.min(e.boss ? 1 : 3, e.frozen * 2 + 0.5); else stun(e, 0.8);
+      aoe(e.x, e.y, 55, dmg * 0.6 * rm, rsrc, c);
+      break;
+    case 'poltergeist': // Static + Soul: the ghost throws arcs
+      hitN(neighbours(e, 180, 4), n => damageEnemy(n, dmg * 0.6 * rm, Object.assign({}, rsrc, { elem: 'shock' })));
+      break;
+    case 'shakes': // Static + Cooties: a shivering stun that spreads
+      stun(e, 0.7);
+      forNear(e.x, e.y, 120, o => { if (o !== e && sick(o)) stun(o, 0.5); });
+      break;
+    case 'patientzero': // Soul + Cooties: it runs into its mates, full of it
+      addSick(e, G.P.poisonCap, e.poisonDps || dmg * 0.14, rsrc.wname);
+      curseFoe(e, 3);
+      break;
+  }
 }
 // Acid meets Static: a battery. It zaps its neighbours for a couple of seconds, and charges you up.
 function battery(e, dmg) {
@@ -102,57 +217,33 @@ function battery(e, dmg) {
   if (!(G.chargeUpT > G.t)) { const p = me(); floatText(p.x, p.y - 30, 'CHARGED UP', '#f4ff8a', 12, 0.8); }
   G.chargeUpT = G.t + 3;
 }
-// Acid on Ethanol: pear drops. Everything nearby comes over for a sniff.
-function ester(e, dmg, rsrc) {
-  forNear(e.x, e.y, 170, o => {
-    if (o === e || o.boss || o.rival || o.egg || o.charmed) return;
-    const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1;
-    o.kx += dx / d * 300; o.ky += dy / d * 300;
-  });
-  damageEnemy(e, dmg * 0.6 * G.P.react, rsrc);
-  ring(e.x, e.y, 170, '#ffd6a5', 0.5, 3);
-}
-// Static on Ethanol: the fumes go up.
-function flashpoint(e, dmg, rsrc) {
-  const boom = (e.poisonDps * e.poisonStacks * 2.5 + dmg) * G.P.react;
-  e.poison = 0; e.poisonStacks = 0;
-  aoe(e.x, e.y, 80, boom, rsrc, '#ffba08');
-}
-// Alkali on Ethanol: hand sanitiser. Kills 99.9% of germs.
-function sanitise(e, dmg, rsrc) {
-  e.poison = 0; e.poisonStacks = 0;
-  let n = 0;
-  forNear(e.x, e.y, 95, o => {
-    if (o.boss || o.rival || o.egg || o.charmed || o.dead) return;
-    if (o.hp < o.maxHp * 0.12) { n++; damageEnemy(o, o.hp * 3 + 20, rsrc); }
-    else damageEnemy(o, dmg * 0.6 * G.P.react, rsrc);
-  });
-  ring(e.x, e.y, 95, '#d0f4de', 0.4, 4);
-  if (n >= 2) floatText(e.x, e.y - e.r - 26, '99.9%', '#d0f4de', 12, 0.8);
-}
-// Force hits (from damageEnemy, for weapons whose element is Force): soap bursts, drunks fall over.
-function chemForce(e, dmg, src) {
-  if (src.noStatus || src.dot || e.dead || e.boss) return;
-  if (e.frozen > 0 && !(G.pair.icehockey && src.w && src.w.id === 'paddle') && react(e, 'suds', src)) {
-    e.frozen = 0; e.chillAmt = 0;
-    aoe(e.x, e.y, 70 + e.r, (dmg * 1.5 + 8) * G.P.react, { elem: 'ice', noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' }, '#e6f4ff');
-    fxParts('bubble', e.x, e.y, '#e6f4ff', 10, 200, 0.6, 4, -Math.PI / 2, 1);
-  } else if (drunk(e) && e.poisonStacks >= 3 && !(e.dazeT > G.t) && react(e, 'pushover', src)) {
-    const p = me(), dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1;
-    e.dazeT = G.t + 1.2; e.kx += dx / d * 420; e.ky += dy / d * 420;
-  }
-}
-// Per enemy per frame (status upkeep): corrosion eats armour; batteries zap.
+// Force hits (from damageEnemy): Force is untyped, so no reactions.
+function chemForce(e, dmg, src) {}
+// Per enemy per frame (status upkeep): melting eats armour; batteries zap; the sick sneeze; bleeders bleed as they move.
 function chemTick(e, dt) {
   if (e.burn > 0 && e.armour > 0) e.shred = Math.min(e.armour + 4, e.shred + dt * 0.8);
   if (e.pickle > 0) e.pickle -= dt;
-  if (e.fizz > 0) {
-    // Fizzing: oxidising away a little armour, then the bubbles pop.
-    if (e.armour > 0) e.shred = Math.min(e.armour + 2, e.shred + dt * 0.6);
-    if (Math.random() < dt * 4) fxParts('bubble', e.x + rand(-e.r, e.r) * 0.6, e.y, '#9ff7ff', 1, 20, 0.6, 2, -Math.PI / 2, 0.5);
-    e.fizz -= dt;
-    if (e.fizz <= 0 && e.fizzD > 0) { const d = e.fizzD; e.fizzD = 0; aoe(e.x, e.y, 55 + e.r, d, { elem: 'oxi', noStatus: true, noArc: true, noCrit: true, wname: 'Fizz pop' }, '#9ff7ff'); }
+  if (e.fizz > 0) e.fizz -= dt;
+  if (e.curse > 0) e.curse -= dt;
+  if (e.shock <= 0) e.shockN = 0;
+  if (sick(e)) {
+    e.sneezeT = (e.sneezeT || 1.6) - dt;
+    if (e.sneezeT <= 0) {
+      e.sneezeT = 1.6;
+      const n = neighbours(e, 110, 3).find(o => !sick(o));
+      if (n) { addSick(n, 1, e.poisonDps * 0.7, e.poisonBy); fxParts('bubble', e.x, e.y, ELEMENTS.poison.color, 4, 80, 0.5, 2); }
+    }
   }
+  if (e.bloodT > 0) {
+    e.bloodT -= dt;
+    const mv = e.lbx != null ? Math.hypot(e.x - e.lbx, e.y - e.lby) / Math.max(dt, 1e-3) : 0;
+    if (mv > 12 || G.synergy.arcane) {
+      damageEnemy(e, e.bloodDps * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.bloodBy || '?') + ' (bleeding)' });
+      if (Math.random() < dt * 5) spawnPart(e.x, e.y, ELEMENTS.arcane.color, 1, 20, 0.6, 2);
+    }
+    if (e.bloodT <= 0) { e.bloodN = 0; e.bloodDps = 0; }
+  }
+  e.lbx = e.x; e.lby = e.y;
   if (e.battT > G.t) {
     e.battZ -= dt;
     if (e.battZ <= 0) {
@@ -166,62 +257,25 @@ function chemTick(e, dt) {
     }
   }
 }
-// Drunk enemies weave about (the more rounds, the worse). Returns the angle to turn their steering by.
-const chemWobble = e => (drunk(e) && !e.boss ? Math.sin(e.age * 3.1 + (e.id || 0)) * Math.min(1, e.poisonStacks * 0.12) : 0);
-// Damage taken: hungover enemies take more.
-const chemMul = (e, src) => (e.hangT > G.t ? 1.25 : 1) * (e.crustT > G.t ? 1.2 : 1) * (G.P.cocktail && src && !src.dot ? 1 + G.P.cocktail * chemCount(e) : 1); // (Cocktail Hour)
-// How many different chemicals an enemy carries right now.
-const chemCount = e => (e.burn > 0) + (e.chill > 0 || e.frozen > 0) + (e.shock > 0) + (e.poison > 0 && e.poisonStacks > 0) + (e.mark > 0) + (e.fizz > 0) + (e.pickle > 0);
-// Peroxide and Brine react with everything: whichever way round, the first partner found sets off its reaction.
-const NEW_PAIRS = { oxi: { fire: 'bleach', ice: 'toothpaste', poison: 'rocket', shock: 'ozone', arcane: 'exorcism', salt: 'seafoam' },
-  salt: { shock: 'electrolyte', fire: 'wound', poison: 'margarita', ice: 'crust', oxi: 'seafoam' } };
-function chemNew(e, elem, dmg, src, rsrc) {
-  const has = { fire: e.burn > 0, ice: e.chill > 0 || e.frozen > 0, shock: e.shock > 0, poison: drunk(e), arcane: e.mark > 0, oxi: e.fizz > 0, salt: e.pickle > 0 };
-  let id = null;
-  if (NEW_PAIRS[elem]) { for (const k in NEW_PAIRS[elem]) if (k !== elem && has[k]) { id = NEW_PAIRS[elem][k]; break; } }
-  else if (has.oxi && NEW_PAIRS.oxi[elem]) id = NEW_PAIRS.oxi[elem];
-  else if (has.salt && NEW_PAIRS.salt[elem]) id = NEW_PAIRS.salt[elem];
-  if (!id || !react(e, id, src)) return false;
-  const P = G.P, rm = P.react, plain = !e.boss && !e.rival && !e.egg;
-  switch (id) {
-    case 'bleach': e.shred = e.armour + 4; e.bleachT = G.t + 4; e.burn = Math.max(e.burn, 3); e.burnDps = (e.burnDps || dmg * 0.4) * 2; break;
-    case 'toothpaste':
-      forNear(e.x, e.y, 120, o => { if (o.boss || o.charmed) return; o.chill = 2.5; o.chillAmt = Math.min(0.6, o.chillAmt + 0.3); const dx = o.x - e.x, dy = o.y - e.y, d = Math.hypot(dx, dy) || 1; o.kx += dx / d * 260; o.ky += dy / d * 260; });
-      fxParts('bubble', e.x, e.y, '#e6fbff', 14, 220, 0.9, 5, -Math.PI / 2, 1.2); damageEnemy(e, dmg * 0.8 * rm, rsrc); break;
-    case 'rocket': {
-      const p = me(), dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1;
-      if (plain) { e.kx += dx / d * 700; e.ky += dy / d * 700; }
-      const boom = (dmg * 2 + e.poisonDps * e.poisonStacks * 2) * rm; e.poison = 0; e.poisonStacks = 0;
-      after(0.55, () => { if (G && !e.dead) aoe(e.x, e.y, 85, boom, rsrc, '#ffd166'); });
-      break;
-    }
-    case 'ozone': {
-      let k = 0;
-      for (const n of acquireMany('nearest', 170, e.x, e.y, 4)) { if (n === e || k >= 3) continue; k++; bolt(e.x, e.y, n.x, n.y, '#bde0fe', 0.15); damageEnemy(n, dmg * 0.6 * rm, rsrc); n.fizz = 2.5; n.fizzD = (n.fizzD || 0) + dmg * 0.3; }
-      break;
-    }
-    case 'exorcism': e.mark = 0; damageEnemy(e, e.maxHp * (e.boss ? 0.06 : 0.15) * rm, rsrc); ring(e.x, e.y, e.r + 30, '#ff758f', 0.4, 4); break;
-    case 'electrolyte': {
-      let k = 0;
-      for (const n of acquireMany('nearest', 190, e.x, e.y, 5)) { if (n === e || k >= 4) continue; k++; bolt(e.x, e.y, n.x, n.y, '#ffe5ec', 0.15); damageEnemy(n, dmg * 0.5 * rm, Object.assign({}, rsrc, { elem: 'shock' })); n.shock = Math.max(n.shock, 2.2); }
-      break;
-    }
-    case 'wound': e.burnDps = (e.burnDps || dmg * 0.4) * 2; e.burn = Math.max(e.burn, 2.5); break;
-    case 'margarita': forNear(e.x, e.y, 120, o => { if ((o === e || drunk(o)) && !o.boss && !o.charmed) { o.dazeT = Math.max(o.dazeT || 0, G.t + 2.5); } }); floatText(e.x, e.y - e.r - 24, 'zzz', '#d8f3dc', 12, 0.9); break;
-    case 'crust': if (plain) { e.frozen = Math.max(e.frozen, 1.6); e.chillAmt = 0.2; } e.crustT = G.t + 4; break;
-    case 'seafoam': { const d = (e.fizzD || dmg) * 2 * rm; e.fizz = 0; e.fizzD = 0; aoe(e.x, e.y, 110, d, rsrc, '#caf0f8'); break; }
-  }
-  return true;
-}
-// A hexed enemy dies: the hex passes to the nearest one.
+// Sick enemies stagger about (the sicker, the worse). Returns the angle to turn their steering by.
+const chemWobble = e => (sick(e) && !e.boss ? Math.sin(e.age * 3.1 + (e.id || 0)) * Math.min(1, e.poisonStacks * 0.08) : 0);
+// Damage taken: picked scabs, and Cocktail Hour.
+const chemMul = (e, src) => (e.scabT > G.t && !(e.dazeT > G.t) ? 1.4 : 1) * (G.P.cocktail && src && !src.dot ? 1 + G.P.cocktail * chemCount(e) : 1);
+// Acid that has eaten all the armour eats through: its melting does +50%.
+const chemBurnK = e => (e.armour > 0 && e.shred >= e.armour ? 1.5 : 1);
+// Knockback grip: lubricated enemies slide much further.
+const chemKd = e => (e.fizz > 0 ? 0.12 : 0.02);
+// How many different statuses an enemy carries right now.
+const chemCount = e => { const h = chemHas(e); let n = 0; for (const k in h) n += h[k] ? 1 : 0; return n; };
+// A cursed enemy dies: its ghost haunts the nearest one.
 function chemKill(e, src) {
-  if (e.mark > 0) { const n = acquire('nearest', 220, e.x, e.y, e); if (n) { n.mark = Math.max(n.mark, 3); bolt(e.x, e.y, n.x, n.y, '#c9184a', 0.15); } }
+  if (e.curse > 0) { const n = acquire('nearest', 220, e.x, e.y, e); if (n) { n.curse = Math.max(n.curse || 0, 2); bolt(e.x, e.y, n.x, n.y, ELEMENTS.soul.color, 0.15); } }
   twistKill(e, src);
 }
 const chemHaste = () => (G.chargeUpT > G.t ? 1 + CHEM.chargeK : 1);
-// Damage coming at you: Shock Absorber's barrier.
+// Damage coming at you: the sick hit softer; Shock Absorber's barrier.
 function chemDamageIn(dmg, ent) {
-  if (ent && ent.pickle > 0) dmg *= 0.75; // (pickled enemies hit softer)
+  if (ent && sick(ent)) dmg *= 0.8;
   if (dmg > 0 && G.absorbOn) { G.absorbOn = false; G.absorbT = G.t + 8; const p = me(); ring(p.x, p.y, 40, '#ffe94a', 0.4, 4); floatText(p.x, p.y - 26, 'ABSORBED', '#ffe94a', 12, 0.7); p.iframes = Math.max(p.iframes || 0, 0.3); return 0; }
   return dmg;
 }
@@ -231,26 +285,26 @@ function chemDamageIn(dmg, ent) {
 // Birth) and the combo takes on the chemistry of the new pair: a TWIST. It fires on every hit the combo itself
 // deals, and now and then on either weapon's own hits.
 const TWISTS = {
-  'fire+ice':      { name: 'Neutral Ground', desc: 'Combo hits neutralise: a hot burst round the target, and the salt water heals you a little.' },
+  'fire+ice':      { name: 'Acid Glue',      desc: 'Combo hits splash acid glue: a burst round the target that sets its mates melting.' },
   'fire+shock':    { name: 'Car Battery',    desc: 'Combo hits turn the target into a battery that zaps its neighbours for 2s.' },
-  'fire+poison':   { name: 'Pear Drops',     desc: 'Combo hits make the target smell of pear drops: everything nearby is drawn in for a sniff.' },
-  'arcane+fire':   { name: 'Weeping Wounds', desc: 'Combo hits hex the target and corrode it, hard.' },
+  'fire+poison':   { name: 'Antiseptic',     desc: 'Combo hits burn the sickness out of the target in one big hit.' },
+  'arcane+fire':   { name: 'Weeping Wounds', desc: 'Combo hits make the target bleed and melt, hard.' },
   'fire+phys':     { name: 'Acid Wash',      desc: 'Combo hits strip 2 armour for good (1 from bosses).' },
-  'ice+shock':     { name: 'Hydrogen Pop',   desc: 'Combo hits split water: a small pop round the target that strips armour.' },
-  'ice+poison':    { name: 'Hand Sanitiser', desc: 'Combo hits kill 99.9% of germs: ordinary enemies near the target on 15% health or less die.' },
-  'arcane+ice':    { name: 'Soap Opera',     desc: 'Combo hits are so dramatic the target faints for a second (not bosses).' },
+  'ice+shock':     { name: 'Fried Snot',     desc: 'Combo hits fry the snot: a small pop round the target that strips armour.' },
+  'ice+poison':    { name: 'Head Cold',      desc: 'Combo hits make the target sneeze: 4 enemies nearby get two doses of Cooties.' },
+  'arcane+ice':    { name: 'Scab Picker',    desc: 'Combo hits scab the target over: it stops for a second (not bosses).' },
   'ice+phys':      { name: 'Slip and Slide', desc: 'Combo hits lather the target and send it skidding a long way.' },
-  'poison+shock':  { name: 'Lit Up',         desc: 'Combo hits light the fumes: a small blast that gets everything in it a round drunker.' },
-  'arcane+shock':  { name: 'Brain Fog',      desc: 'Combo hits fog the minds of badly hurt enemies (under 30% health): they fight for you for 5s.' },
+  'poison+shock':  { name: 'Fever',          desc: 'Combo hits spike a fever: a small blast that makes everything in it a dose sicker.' },
+  'arcane+shock':  { name: 'Flatline',       desc: 'Combo hits stop the heart of badly hurt enemies (under 30% health): they fight for you for 5s.' },
   'phys+shock':    { name: 'Crumple Zone',  desc: 'Combo hits charge a barrier that blocks the next hit you take (recharges after 8s).' },
-  'arcane+poison': { name: 'Spirits',        desc: 'Enemies the combo kills give up their spirit: it flies into the nearest enemy for a share of their health.' },
-  'phys+poison':   { name: 'Bar Fight',      desc: 'Combo hits start a bar fight: the target swings at everything next to it.' },
+  'arcane+poison': { name: 'Bad Transfusion', desc: 'Enemies the combo kills spray their blood into the nearest enemy for a share of their health.' },
+  'phys+poison':   { name: 'Coughing Fit',   desc: 'Combo hits start a coughing fit: the target hacks up on everything next to it.' },
   'arcane+phys':   { name: 'Pin Cushion',    desc: 'Every 4th combo hit on the same enemy deals triple damage.' },
   'fire+fire':     { name: 'Concentrated',   desc: 'Combo hits deal +35% damage and eat 1 armour.' },
-  'ice+ice':       { name: 'Lye',            desc: 'Combo hits saponify ordinary enemies on the spot.' },
+  'ice+ice':       { name: 'Glued Shut',     desc: 'Combo hits leave ordinary enemies stuck fast on the spot.' },
   'shock+shock':   { name: 'Supercharged',   desc: 'Combo hits arc on to three more enemies.' },
-  'poison+poison': { name: 'Double Shot',    desc: 'Combo hits pour two rounds of Ethanol at once.' },
-  'arcane+arcane': { name: 'Blood Rite',     desc: 'Hexed enemies the combo kills explode.' },
+  'poison+poison': { name: 'Double Dose',    desc: 'Combo hits give two doses of Cooties at once.' },
+  'arcane+arcane': { name: 'Blood Rite',     desc: 'Bleeding enemies the combo kills explode.' },
   'phys+phys':     { name: 'Brute Squad',    desc: 'Combo hits deal +25% damage and knock enemies flying.' },
 };
 const twistKey = (a, b) => [a, b].sort().join('+');
@@ -305,16 +359,14 @@ function chemComboHit(e, dmg, src) {
   const plain = !e.boss && !e.rival && !e.egg;
   if (!(G.twistSayT > G.t)) { G.twistSayT = G.t + 2.5; floatText(e.x, e.y - e.r - 24, tw.name.toUpperCase(), '#ff3df2', 12, 0.8); }
   switch (tw.key) {
-    case 'fire+ice': neutralise(e, dmg * 0.7, tsrc); break;
+    case 'fire+ice': reactDo('heartburn', e, dmg * 0.7, src, tsrc); break;
     case 'fire+shock': battery(e, dmg); break;
-    case 'fire+poison': ester(e, dmg * 0.5, tsrc); break;
-    case 'arcane+fire': e.mark = Math.max(e.mark, 3); e.burn = Math.max(e.burn, 3); setBurn(e, dmg * 0.8, tw.name); break;
+    case 'fire+poison': if (sick(e)) reactDo('penicillin', e, dmg * 0.5, src, tsrc); break;
+    case 'arcane+fire': e.bloodT = Math.max(e.bloodT || 0, 3); e.bloodDps = Math.max(e.bloodDps || 0, dmg * 0.5); e.burn = Math.max(e.burn, 3); setBurn(e, dmg * 0.8, tw.name); break;
     case 'fire+phys': if (e.armour > 0) e.armour = Math.max(0, e.armour - (e.boss ? 1 : 2)); break;
     case 'ice+shock': e.shred = Math.min(e.armour + 6, e.shred + 4); aoe(e.x, e.y, 60, dmg * 0.5, tsrc, '#bde0fe'); break;
-    case 'ice+poison':
-      forNear(e.x, e.y, 90, o => { if (!o.boss && !o.rival && !o.egg && !o.charmed && !o.dead && o.hp < o.maxHp * 0.15) damageEnemy(o, o.hp * 3 + 20, tsrc); });
-      ring(e.x, e.y, 90, '#d0f4de', 0.35, 3); break;
-    case 'arcane+ice': if (plain) { e.dazeT = Math.max(e.dazeT || 0, G.t + 1); floatText(e.x, e.y - e.r - 12, 'FAINTS', '#ff758f', 11, 0.6); } break;
+    case 'ice+poison': reactDo('snotrocket', e, dmg, src, tsrc); break;
+    case 'arcane+ice': if (plain) { e.dazeT = Math.max(e.dazeT || 0, G.t + 1); floatText(e.x, e.y - e.r - 12, 'SCABBED', '#ff758f', 11, 0.6); } break;
     case 'ice+phys': {
       e.chill = 2.5; e.chillAmt = Math.min(0.6, e.chillAmt + 0.2);
       if (plain) { const p = me(), dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1; e.kx += dx / d * 420; e.ky += dy / d * 420; }
@@ -322,11 +374,11 @@ function chemComboHit(e, dmg, src) {
     }
     case 'poison+shock':
       IN_AOE = true;
-      forNear(e.x, e.y, 65, o => { damageEnemy(o, dmg * 0.5, tsrc); if (!o.dead) { o.poison = 4; o.poisonStacks = Math.min(P.poisonCap, o.poisonStacks + 1); setPoison(o, dmg * 0.1, tw.name); } });
+      forNear(e.x, e.y, 65, o => { damageEnemy(o, dmg * 0.5, tsrc); if (!o.dead) addSick(o, 1, dmg * 0.1, tw.name); });
       IN_AOE = false;
       ring(e.x, e.y, 65, '#ffba08', 0.35, 4); break;
     case 'arcane+shock':
-      if (plain && e.hp < e.maxHp * 0.3 && !e.charmed) { e.charmed = true; e.charmT = 5; e.frozen = 0; e.allyT = null; ring(e.x, e.y, e.r + 12, PAL.you, 0.4, 3); floatText(e.x, e.y - e.r - 12, 'POSSESSED', '#ff758f', 11, 0.7); }
+      if (plain && e.hp < e.maxHp * 0.3 && !e.charmed) { e.charmed = true; e.charmT = 5; e.frozen = 0; e.allyT = null; ring(e.x, e.y, e.r + 12, PAL.you, 0.4, 3); floatText(e.x, e.y - e.r - 12, 'FLATLINED', '#ff758f', 11, 0.7); }
       break;
     case 'phys+shock': if (!G.absorbOn && !(G.absorbT > G.t)) { G.absorbOn = true; const p = me(); ring(p.x, p.y, 34, '#ffe94a', 0.4, 3); } break;
     case 'phys+poison':
@@ -341,7 +393,7 @@ function chemComboHit(e, dmg, src) {
       for (const n of acquireMany('nearest', 160, e.x, e.y, 4)) { if (n === e || k >= 3) continue; k++; bolt(e.x, e.y, n.x, n.y, '#ffe94a', 0.14); damageEnemy(n, dmg * 0.4, tsrc); }
       break;
     }
-    case 'poison+poison': e.poison = 4; e.poisonStacks = Math.min(P.poisonCap, e.poisonStacks + 2); setPoison(e, dmg * 0.14, tw.name); break;
+    case 'poison+poison': addSick(e, 2, dmg * 0.14, tw.name); break;
     case 'phys+phys': if (plain) { const p = me(), dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy) || 1; e.kx += dx / d * 500; e.ky += dy / d * 500; } break;
     // (arcane+poison, arcane+arcane and arcane+phys work on kills and in twistMul)
   }
@@ -356,7 +408,7 @@ function twistKill(e, src) {
     const n = acquire('nearest', 300, e.x, e.y, e);
     if (n) { bolt(e.x, e.y, n.x, n.y, '#ff758f', 0.25); damageEnemy(n, Math.min(e.maxHp * 0.5, (src.w && src.w.s ? src.w.s.dmg : 20) * 6), Object.assign({ elem: 'arcane' }, tsrc)); }
   }
-  if (k === 'arcane+arcane' && e.mark > 0 && (G.hexBoomF !== G.frameN)) {
+  if (k === 'arcane+arcane' && e.bloodT > 0 && (G.hexBoomF !== G.frameN)) {
     G.hexBoomF = G.frameN;
     aoe(e.x, e.y, 75, Math.min(e.maxHp * 0.3, (src.w && src.w.s ? src.w.s.dmg : 20) * 5), Object.assign({ elem: 'arcane' }, tsrc), '#c9184a');
   }

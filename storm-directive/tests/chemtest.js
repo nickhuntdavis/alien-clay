@@ -8,12 +8,12 @@ const { chromium } = require('playwright');
     UI.quickStart(); G.nextBoss = 1e9; G.ev.next = 1e9; window.spawnRandom = () => {}; G.P.maxHp = 1e6; G.player.hp = 1e6; G.player.x = 700; G.player.y = 300;
     const fresh = () => { G.enemies.length = 0; for (let i = 0; i < 12; i++) { const an = i * 0.5, d = 60 + (i % 3) * 30; const e = makeEnemy(ENEMIES.brute, 900 + Math.cos(an) * d, 300 + Math.sin(an) * d); e.hp = e.maxHp = 2500; G.enemies.push(e); } gridBuild(); G.stats.reactBy = {}; return G.enemies[0]; };
     const P = G.P; P.cocktail = 0.24; P.chainReact = 0.5; P.mixologist = 0.5;
-    const seqs = { neutral: ['fire', 'ice'], neutral2: ['ice', 'fire'], battery: ['shock', 'fire'], battery2: ['fire', 'shock'], ester: ['poison', 'fire'], flashpoint: ['poison', 'poison', 'shock'], electro: ['ice', 'shock'], sanitiser: ['poison', 'ice'], sympathy: ['fire', 'arcane'], suds: ['ice', 'ice', 'ice', 'ice', 'ice', 'phys'], pushover: ['poison', 'poison', 'poison', 'phys'], blackout: Array(30).fill('poison'), bleach: ['oxi', 'fire'], toothpaste: ['ice', 'oxi'], rocket: ['oxi', 'poison'], ozone: ['shock', 'oxi'], exorcism: ['arcane', 'oxi'], electrolyte: ['salt', 'shock'], wound: ['fire', 'salt'], margarita: ['poison', 'salt'], crust: ['salt', 'ice'], seafoam: ['oxi', 'salt'], fizzpop: ['oxi', 'oxi', 'oxi'], cocktail: ['fire', 'shock', 'phys'] };
+    const seqs = { cocktail: ['fire', 'shock', 'phys'], pandemic: Array(30).fill('poison') }; for (const k in RX_PAIR) { const [x, y] = k.split('+'); if (x !== y) seqs[RX_PAIR[k] + (seqs[RX_PAIR[k]] ? '2' : '')] = [x, y]; }
     for (const k in seqs) {
       const e = fresh(); const hp0 = G.enemies.reduce((s, x) => s + x.hp, 0);
       for (const el of seqs[k]) { e.reactCd = 0; damageEnemy(e, 30, { elem: el, wname: 'T' }); }
       for (let f = 0; f < 60; f++) { G.player.hp = 1e6; update(1 / 60); G.state = 'play'; }
-      out[k] = JSON.stringify(G.stats.reactBy) + ' dmg ' + Math.round(hp0 - G.enemies.reduce((s, x) => s + Math.max(0, x.hp), 0)) + (k.startsWith('battery') ? ' chargeUp ' + (G.chargeUpT > G.t - 2) : '') + (k === 'blackout' ? ' hang ' + (e.hangT > G.t) : '');
+      out[k] = JSON.stringify(G.stats.reactBy) + ' dmg ' + Math.round(hp0 - G.enemies.reduce((s, x) => s + Math.max(0, x.hp), 0)) + (k.startsWith('battery') ? ' chargeUp ' + (G.chargeUpT > G.t - 2) : '') + (G.stats.reactBy[k.replace(/2$/, '')] || k === 'cocktail' ? '' : ' MISSING');
     }
     // Twists: every element pair on Cold Case's weapons (duedate+frost), and on Big Sibling.
     const res = {};

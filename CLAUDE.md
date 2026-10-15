@@ -75,7 +75,7 @@ At the start of each request, check whether the model fits the job, and if not, 
   - `s006` Endless.
   - `s007` campaign Level 1 (`levels.js`); `s008` Level 2 is a locked placeholder.
   - `s000` Lab Bench debug (tap the samples title 5 times).
-- Damage types (internal id → name): `phys`=Force, `fire`=Acid, `ice`=Base, `shock`=Static, `poison`=Ethanol, `arcane`=Voodoo, `oxi`=Peroxide, `salt`=Brine.
+- Damage types (internal id → name, status): `phys`=Force (untyped base damage, no status or reactions), `fire`=Acid (Melting), `ice`=Mucus (Snotty), `shock`=Static (Shocked), `poison`=Cooties (Sick), `oxi`=Oil (Lubricated), `salt`=Water (Soaking wet), `arcane`=Blood (Bleeding), `soul`=Soul (Cursed; bosses Spooked). Statuses and the 28 pair reactions live in `chem.js`; names in `data.js` `REACTIONS`; the pair table is `RX_PAIR` in `inspect.js`.
   - In player-facing text say "damage type" and "chemical reaction". Never say "element" or "elemental".
   - Internal names stay as they are (`ELEMENTS`, `elem`, the mod id `elemental`).
 - Spells are called "Feats" in all player-facing text, and you "perform" a Feat (never "cast"). Internals stay `G.spells`, `SPELLS`, `isSpell`.

@@ -1107,7 +1107,7 @@ body.land .slot.weapon { width: 74px; } body.land #wslots, body.land #wslots.man
 .ichip { display: inline-block; margin: 2px 4px 2px 0; padding: 4px 8px; font-size: 12px; color: var(--c, #d1ddef); background: transparent; border: 1px solid var(--c, #ffffff40); border-radius: 12px; }
 #inspect .ibtns { display: flex; gap: 8px; margin-top: 10px; }
 #inspect .ibtns .btn { flex: 1; }
-.rxgrid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; margin: 8px 0; }
+.rxgrid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; margin: 8px 0; }
 .rxh { font-style: normal; font-size: 9px; text-align: center; align-self: center; }
 .rxc { font-size: 8px; padding: 6px 0; min-height: 30px; background: #ffffff0a; border: 1px solid #ffffff20; color: var(--c, #878f9a); border-radius: 3px; overflow: hidden; }
 .rxc.none { opacity: 0.3; }

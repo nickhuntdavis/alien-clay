@@ -58,15 +58,15 @@ Object.assign(ENEMIES, {
 });
 
 Object.assign(ENEMY_INTRO, {
-  litmus:     { what: 'A cell that has been reading your lab book. It resists whichever damage type you have dealt most this run: its paper strip shows which.', tip: 'Switch it up. A second damage type in your build earns its keep here. Peroxide bleaches it.' },
+  litmus:     { what: 'A cell that has been reading your lab book. It resists whichever damage type you have dealt most this run: its paper strip shows which.', tip: 'Switch it up. A second damage type in your build earns its keep here. Oil bleaches it.' },
   mirror:     { what: 'Polished to a shine. Shots that hit its front bounce straight back at you.', tip: 'Hit it from the side or behind, or use blasts and pools. Acid etches the silvering.' },
   shell:      { what: 'A cell that has grown a shell like a whelk. Fifteen points of armour: small hits just tickle.', tip: 'Big single hits, armour shred and damage over time. Acid dissolves the shell.' },
   puffball:   { what: 'A fungal puffball. Hit it with a blast or a pool and it bursts into a cloud of spores that chase you.', tip: 'Single shots are fine. Save the blasts for after it has gone.' },
   spore:      { what: 'A spore from a burst Puffball. Small, quick and annoying, like the person who burst it.', tip: 'Anything that hits a crowd.' },
-  grease:     { what: 'A ball of grease. Homing shots slide right off it, and it can\'t be knocked about.', tip: 'Aim properly, or use pools and auras. Alkali turns it into soap.' },
-  leech:      { what: 'Latches on from a distance and sucks the stamina out of you while it is within 120.', tip: 'Kill it before you need to sprint or perform a Feat. Brine makes it curl up.' },
-  platelet:   { what: 'A clot of platelets. Piercing shots stop dead in it, like a plaster.', tip: 'Blasts and chains go round it. Ethanol thins the blood.' },
-  callus:     { what: 'Hard skin with ideas above its station. Crits do nothing extra to it.', tip: 'Raw damage and damage over time. Brine softens it.' },
+  grease:     { what: 'A ball of grease. Homing shots slide right off it, and it can\'t be knocked about.', tip: 'Aim properly, or use pools and auras. Mucus gums it up.' },
+  leech:      { what: 'Latches on from a distance and sucks the stamina out of you while it is within 120.', tip: 'Kill it before you need to sprint or perform a Feat. Water makes it curl up.' },
+  platelet:   { what: 'A clot of platelets. Piercing shots stop dead in it, like a plaster.', tip: 'Blasts and chains go round it. Blood thins it out.' },
+  callus:     { what: 'Hard skin with ideas above its station. Crits do nothing extra to it.', tip: 'Raw damage and damage over time. Water softens it.' },
   plasma:     { what: 'An antibody factory. Shooters near it fire 40% faster.', tip: 'Kill it first and the bullets thin out. It hangs back, so go and get it.' },
   interferon: { what: 'A warning signal. It wraps nearby enemies in a shield that soaks about 30 damage.', tip: 'Kill it before you spend big hits on shielded enemies.' },
   cortisol:   { what: 'A puff of stress hormone. Everything near it swims 30% faster. You know the feeling.', tip: 'Take it out early, then the crowd calms down.' },
@@ -74,9 +74,9 @@ Object.assign(ENEMY_INTRO, {
   complement: { what: 'Tags you for destruction. While you are marked, every enemy hits you 25% harder.', tip: 'It is flimsy: kill it the moment it closes in. The mark wears off after 5 seconds.' },
   stem:       { what: 'It can become anything, including whatever you just killed. Every 10 seconds it brings one back.', tip: 'Kill it before it gets to work, or nothing in the dish stays dead.' },
   tadpole:    { what: 'A frog tadpole. It has no idea how it got here and it would like directions to the pond.', tip: 'One hit. Or don\'t. It\'s not hurting anyone.' },
-  pube:       { what: 'A stray pube, drifting about. Swim into it and you are tangled for a second.', tip: 'Shoot it or swim round it. Alkali works a treat (ask any hair removal cream).' },
+  pube:       { what: 'A stray pube, drifting about. Swim into it and you are tangled for a second.', tip: 'Shoot it or swim round it. Mucus glues it down.' },
   fluff:      { what: 'Navel fluff. Nobody knows where it comes from. It barely hurts.', tip: 'Ignore it, or let it soak up a stray shot.' },
-  bogey:      { what: 'A bogey. It flicks itself at you and sticks: each one stuck on you slows you down a little.', tip: 'Your weapons will pick them off you. Brine helps, as does a tissue.' },
+  bogey:      { what: 'A bogey. It flicks itself at you and sticks: each one stuck on you slows you down a little.', tip: 'Your weapons will pick them off you. Water helps, as does a tissue.' },
   sweetcorn:  { what: 'A bit of sweetcorn. It has been through the whole system intact and it is not stopping now. Tough as anything, completely harmless.', tip: 'Don\'t waste your best hits on it. It can\'t hurt you.' },
   glitter:    { what: 'Glitter from a hen do. Kill it and it comes back. You will be finding it for weeks.', tip: 'Area damage. It only comes back once.' },
 });

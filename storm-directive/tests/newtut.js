@@ -43,13 +43,13 @@ const { chromium } = require('playwright');
   const c = await page.evaluate(() => {
     const out = {};
     META.elemSeen = {}; META.elemMig = 1; META.grantOff = { tracer: 1 }; refreshPalette(); COL.clear();
-    out.grey = col('#5b8cff'); META.seenTut = {}; G.tutQ = []; G.tutNext = 0; G.state = 'play'; tutOpen('el_ice'); out.blue = col('#5b8cff'); endBossIntro();
+    out.grey = col('#a8b84a'); META.seenTut = {}; G.tutQ = []; G.tutNext = 0; G.state = 'play'; tutOpen('el_ice'); out.blue = col('#a8b84a'); endBossIntro();
     out.card = TUT_CARDS.el_ice().what + ' | ' + TUT_CARDS.el_ice().desc;
     window.TUT_OFF = 1; out.acid0 = col('#c6ff3d'); tutElem('fire'); out.acid1 = col('#c6ff3d');
     return out; });
-  ok(/^rgb/.test(c.grey) && c.blue === '#5b8cff', 'alkali grey then blue: ' + c.grey + ' ' + c.blue);
+  ok(/^rgb/.test(c.grey) && c.blue === '#a8b84a', 'mucus grey then green: ' + c.grey + ' ' + c.blue);
   ok(/^rgb/.test(c.acid0) && c.acid1 === '#c6ff3d', 'acid coloured at first use with tutorials off: ' + c.acid0 + ' ' + c.acid1);
-  ok(/Its colour is blue/.test(c.card) && /Alkali:/.test(c.card), 'alkali card text: ' + c.card);
+  ok(/Its colour is snot green/.test(c.card) && /Snotty:/.test(c.card), 'mucus card text: ' + c.card);
   // 4. Immersive mode: the flag sits under the chip row, and tapping it opens the card.
   const im = await page.evaluate(() => {
     window.TUT_OFF = 0; G.tutQ = []; SET.immersive = true; G.state = 'play'; G.bossIntro = null; G.t += 10; G.stIntroNext = 0;
@@ -60,7 +60,7 @@ const { chromium } = require('playwright');
   if (im.r) await page.mouse.click(im.r.x + im.r.w / 2, im.r.y + 8);
   const it = await page.evaluate(() => [G.state, G.bossIntro && G.bossIntro.status]);
   ok(it[0] === 'bossIntro' && it[1] === im.key, 'immersive: tap opens the card: ' + it);
-  ok(im.name === 'Blood Magic' && /blood red/.test(im.card), 'blood magic card: ' + im.card);
+  ok(im.name === 'Blood' && /blood red/.test(im.card), 'blood card: ' + im.card);
   console.log(fails.length ? 'FAIL ' + fails.join(' || ') : 'all good', '\n' + c.card);
   console.log('ERRORS', errors.length ? errors.slice(0, 3) : '[]'); await b.close();
 })();

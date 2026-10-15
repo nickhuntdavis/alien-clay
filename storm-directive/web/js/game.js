@@ -80,7 +80,7 @@ function newStats() {
   return {
     might: 1, haste: 1, reloadSpd: 1, magMult: 1, multishot: 0, projSpeed: 1, range: 1, area: 1, dur: 1,
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
-    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1,
+    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1, soul: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, heft: 0, thorns: 0, grit: 0, echoInherit: 0,
     bankShot: 0, atpK: 0, ironGut: 0, brushOff: 0, flow: 0, skid: 0,
@@ -746,7 +746,7 @@ function fxParts(k, x, y, color, n, spd, life, size, dir, spread) {
   }
 }
 // What a hit looks like in each element.
-const HIT_FX = { oxi: ['bubble', '#9ff7ff'], salt: ['drop', '#ffb3c6'], phys: ['spark', '#ffffff'], fire: ['ember', '#ff7a2f'], ice: ['shard', '#bde0fe'], shock: ['spark', '#ffe94a'], poison: ['drop', '#8dff4a'], arcane: ['ember', '#d0a3ff'] };
+const HIT_FX = { soul: ['spark', '#bff4ff'], oxi: ['drop', '#d99a2b'], salt: ['drop', '#3d8bff'], phys: ['spark', '#ffffff'], fire: ['ember', '#ff7a2f'], ice: ['shard', '#bde0fe'], shock: ['spark', '#ffe94a'], poison: ['drop', '#8dff4a'], arcane: ['ember', '#d0a3ff'] };
 function hitFx(e, src, crit, d) {
   if ((G.hitFxN = (G.hitFxN || 0) + 1) > 14) return; // a handful a frame is plenty
   const H = HIT_FX[src.elem] || HIT_FX.phys, kx = src.kx != null ? src.kx : e.x - me().x, ky = src.ky != null ? src.ky : e.y - me().y;
@@ -805,10 +805,10 @@ function damageEnemy(e, dmg, src) {
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
   if (!src.noCrit && !e.def.noCrit && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
-  if (e.mark > 0) d *= syn.arcane ? 1.5 : 1.3;
+  if (e.mark > 0) d *= 1.3; // (marked by other things: Grassed Up and the like)
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
-  if (!src.dot) d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
+  if (!src.dot && src.elem !== 'soul') d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
   d = foes2Dmg(e, d, src); // (ordinary weak/resist, Litmus, Interferon shields, Puffball spores: foes2.js)
   if (e.egg) {
     // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
@@ -878,7 +878,7 @@ function damageEnemy(e, dmg, src) {
 }
 
 function react(e, id, src) {
-  if (e.reactCd > 0 && !(G.pair.hotcold && id === 'neutral')) return false;
+  if (e.reactCd > 0 && !(G.pair.hotcold && id === 'heartburn')) return false;
   e.reactCd = 0.35;
   G.stats.reactions++;
   tutReact(id);
@@ -1388,13 +1388,13 @@ function updateEnemies(dt) {
     chemTick(e, dt); // corrosion eats armour; batteries zap (chem.js)
     if (e.burn > 0) {
       e.burn -= dt;
-      damageEnemy(e, e.burnDps * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.burnBy || '?') + ' (corrosion)' });
+      damageEnemy(e, e.burnDps * chemBurnK(e) * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.burnBy || '?') + ' (melting)' });
       if (Math.random() < dt * 6) fxParts('ember', e.x + rand(-e.r, e.r), e.y + rand(-e.r, e.r) * 0.5, '#ff7a2f', 1, 25, 0.6, 2.5, -Math.PI / 2, 0.6);
       if (e.dead) continue;
     }
     if (e.poison > 0) {
       e.poison -= dt;
-      damageEnemy(e, e.poisonDps * e.poisonStacks * (syn.poison ? 2 : 1) * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.poisonBy || '?') + ' (ethanol)' });
+      damageEnemy(e, e.poisonDps * e.poisonStacks * (syn.poison ? 2 : 1) * dt, { dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.poisonBy || '?') + ' (cooties)' });
       if (Math.random() < dt * 3) fxParts('bubble', e.x + rand(-e.r, e.r) * 0.6, e.y, '#8dff4a', 1, 18, 0.9, 2.5, -Math.PI / 2, 0.4);
       if (e.poison <= 0) e.poisonStacks = 0;
       if (e.dead) continue;
@@ -1412,7 +1412,7 @@ function updateEnemies(dt) {
     if (G.lvl) { const c = lvChase(e, ux, uy, dist); if (c) { ux = c.x; uy = c.y; } } // (round the walls of a level)
     let mx = ux, my = uy, spd = e.speed;
     const frozen = e.frozen > 0 || e.dazeT > G.t; // (dazed out of a popped bubble: stopped, like frozen)
-    const slow = frozen ? 0 : (G.lvl ? lvSlow(e.x, e.y) : 1) * (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1) * (e.formT > G.t ? (e.boss ? 0.75 : 0.4) : 1) * (e.pickle > 0 ? 0.85 : 1); // dazed or soaped (Bubble Wand)
+    const slow = frozen ? 0 : (G.lvl ? lvSlow(e.x, e.y) : 1) * (1 - e.chillAmt) * (e.stasisT > G.realT ? 0.35 : 1) * (e.guiltT > G.t ? 0.6 : 1) * (e.dazeSlowT > G.t ? 0.5 : 1) * (e.soapT > G.t ? 0.5 : 1) * (e.formT > G.t ? (e.boss ? 0.75 : 0.4) : 1) ; // dazed or soaped (Bubble Wand)
     if (e.boss) {
       bossAI(e, edt, dist, ux, uy);
       mx = e.mvx; my = e.mvy; spd = e.mvs;
@@ -1556,7 +1556,7 @@ function updateEnemies(dt) {
     e.svx = mx * spd * f * warpF * G.evm.espd; e.svy = my * spd * f * warpF * G.evm.espd;
     e.x += (mx * spd * f * warpF * G.evm.espd + e.kx + G.evm.tideX * tide) * dt;
     e.y += (my * spd * f * warpF * G.evm.espd + e.ky + G.evm.tideY * tide) * dt;
-    const kd = Math.pow(0.02, dt);
+    const kd = Math.pow(chemKd(e), dt); // (lubricated enemies slide: chem.js)
     e.kx *= kd; e.ky *= kd;
     // Nothing swims through the egg.
     { const ox = e.x - G.core.x, oy = e.y - G.core.y, od = Math.hypot(ox, oy) || 1, mr = CORE.r + e.r; if (od < mr) { e.x = G.core.x + ox / od * mr; e.y = G.core.y + oy / od * mr; } }

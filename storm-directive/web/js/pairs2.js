@@ -7,7 +7,7 @@
 
 PAIRINGS.push(
   { a: 'shotgun',    b: 'wedding',   id: 'reception',   name: 'Shotgun Reception',  desc: 'Enemies the Hiccup Scattergun hits take 35% more from Shotgun Wedding for 2s.' },
-  { a: 'onesie',     b: 'moonshine', id: 'flammable',   name: 'Flammable Fabric',   desc: 'Drunk enemies the Thorny Onesie has pricked burst into a puddle of moonshine when they die.' },
+  { a: 'onesie',     b: 'moonshine', id: 'flammable',   name: 'Flammable Fabric',   desc: 'Sick enemies the Thorny Onesie has pricked burst into a puddle of moonshine when they die.' },
   { a: 'crayon',     b: 'banjo',     id: 'campfire',    name: 'Campfire Song',      desc: 'Enemies touched by the crayon line take 40% more from Duelling Banjo notes for 2s.' },
   { a: 'duedate',    b: 'moonshine', id: 'lastorders',  name: 'Last Orders',        desc: 'Moonshine hits enemies with a Due Date 40% harder.' },
   { a: 'peekaboo',   b: 'ghosts',    id: 'spooked',     name: 'Who You Gonna Call', desc: 'Every enemy a BOO! hits adds a ghost to Ghosts of You.' },
@@ -27,7 +27,7 @@ COMBOS.push(
   { id: 'karmaloop', a: 'karma',   b: 'dejavu',   name: 'Karmic Loop',         desc: 'Every Karma ring happens again a second later, at 70%.' },
   // The Redtail
   { id: 'throwdown', a: 'wedding', b: 'banjo',    name: 'Hoedown Throwdown',   desc: 'Every Both Barrels blast also plays a ring of low notes.' },
-  { id: 'shine',     a: 'moonshine', b: 'wedding', name: 'Shotgun Shine',      desc: 'Shotgun Wedding pellets pour enemies a round of Ethanol, and hit drunk enemies 50% harder.' },
+  { id: 'shine',     a: 'moonshine', b: 'wedding', name: 'Shotgun Shine',      desc: 'Shotgun Wedding pellets pour enemies a dose of Cooties, and hit sick enemies 50% harder.' },
   // The Designer Baby
   { id: 'genesplice', a: 'genegun', b: 'siphon',  name: 'Gene Splice',         desc: 'Every 10 bullets the Siphon eats fires a free Gene Gun helix at the nearest enemy.' },
 );
