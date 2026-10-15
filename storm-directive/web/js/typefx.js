@@ -22,8 +22,8 @@ function typeRings(e, x, y, r, si) {
     const [on, left, full, k] = f(e);
     if (!on) continue;
     const q = clamp(left / full, 0.05, 1), rr = r + 3 + (si + n) * 3;
-    const rc = RAW_COL; RAW_COL = true; ctx.strokeStyle = ELEMENTS[k].color; RAW_COL = rc;
-    ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, rr, -Math.PI / 2, -Math.PI / 2 + TAU * q); ctx.stroke();
+    const rc = RAW_COL;
+    ctx.beginPath(); ctx.arc(x, y, rr, -Math.PI / 2, -Math.PI / 2 + TAU * q); RAW_COL = true; softStroke(1.6, ELEMENTS[k].color, 0.9); RAW_COL = rc;
     n++;
   }
   return n;
@@ -31,8 +31,15 @@ function typeRings(e, x, y, r, si) {
 
 // ---------------------------------------------------------------- helpers
 // Small seeded numbers per enemy, so no two look alike and nothing flickers.
+const TF_HUES = ['#ff5fa2', '#ffd23f', '#7dff6a', '#3fe0ff', '#b49bff'], TF_FIRE = [[1.3, '#ff3d00'], [0.95, '#ff9e00'], [0.55, '#fff3b0']];
 const tfR = (id, i) => ((id * 9301 + i * 49297) % 233280) / 233280;
-const ha = (hex, a) => hex + Math.round(clamp(a, 0, 1) * 255).toString(16).padStart(2, '0'); // #rrggbb + alpha
+// #rrggbb + alpha, in 32 steps, from a cache: no new strings every frame (garbage made the game stutter).
+const HA = new Map();
+function ha(hex, a) {
+  let row = HA.get(hex);
+  if (!row) { row = []; for (let i = 0; i < 32; i++) row.push(hex + (i * 255 / 31 | 0).toString(16).padStart(2, '0')); HA.set(hex, row); }
+  return row[Math.round(clamp(a, 0, 1) * 31)];
+}
 // A wobbling organic outline (seeded by s, breathing with t) as the current path.
 function blobPathT(x, y, r, s, t, wob, n) {
   n = n || 14; const P = [];
@@ -59,210 +66,188 @@ function strand(x0, y0, x1, y1, w, sag) {
   ctx.beginPath(); ctx.moveTo(x0 + nx * w, y0 + ny * w); ctx.quadraticCurveTo(mx + nx * w * 0.3, my + ny * w * 0.3, x1, y1); ctx.quadraticCurveTo(mx - nx * w * 0.3, my - ny * w * 0.3, x0 - nx * w, y0 - ny * w); ctx.closePath(); ctx.fill();
 }
 
+// Soft, organic edges (STYLE.md: nothing graphic on the slide). A feathered blob: an organic outline filled with
+// colour c that fades to nothing at its edge, so there is no hard silhouette.
+// (Three overlapping soft lobes, drifting a little: organic and feathered, and only three sprite stamps.)
+function softBlob(x, y, r, s, t, wob, c, a, core) {
+  const k = core == null ? 0.55 : core, R = r * (1 + wob * 1.6);
+  const nl = FX.k < 0.85 || QUAL.lv >= 2 ? 2 : 3;
+  for (let i = 0; i < nl; i++) {
+    const an = s * 1.7 + i * 2.1 + Math.sin(t * 0.9 + i + s) * 0.4, d = r * wob * 2.2, rr = R * (0.82 + 0.12 * Math.sin(s + i * 1.3));
+    soft(x + Math.cos(an) * d, y + Math.sin(an) * d, rr, c, a * 0.62, k);
+  }
+}
+// A soft round glow in colour c: alpha a in the middle, nothing at r.
+function soft(x, y, r, c, a, core) {
+  if (!(r >= 0.5) || !(a > 0.01)) return;
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r), k = core || 0.35;
+  g.addColorStop(0, ha(c, a)); g.addColorStop(k, ha(c, a * 0.8)); g.addColorStop(1, ha(c, 0));
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+}
+// Stroke the current path softly: a wide faint pass, then a narrow one.
+function softStroke(w, c, a) { ctx.lineCap = 'round'; ctx.strokeStyle = ha(c, a * 0.25); ctx.lineWidth = w * 3; ctx.stroke(); ctx.strokeStyle = ha(c, a); ctx.lineWidth = w; ctx.stroke(); ctx.lineCap = 'butt'; }
+
 // ---------------------------------------------------------------- statuses in the body
 function typeStatusFx(e, x, y, r) {
   const t = G.realT, id = e.id || 0, a0 = ctx.globalAlpha;
   const mvx = e.svx || 0, mvy = e.svy || 0, mv = Math.hypot(mvx, mvy), bx = mv > 1 ? -mvx / mv : 0, by = mv > 1 ? -mvy / mv : 1; // (behind it)
-  const A = k => { ctx.globalAlpha = a0 * k; };
-  if (e.burn > 0) { // Melting: a corroding rim, pitted holes with glowing edges, fizz, drips that stretch and fall, steam
+  const A = k => { ctx.globalAlpha = a0 * k; }, busy = G.enemies.length > 40 || QUAL.lv >= 2; // (busy: the key pieces only)
+  if (e.burn > 0) { // Melting: a corroding halo, eaten patches, pits that glow at the edge, fizz, drips, steam
     const C = ELEMENTS.fire.color;
-    A(0.55); ctx.fillStyle = (() => { const g = ctx.createRadialGradient(x, y, r * 0.55, x, y, r * 1.12); g.addColorStop(0, ha(C, 0)); g.addColorStop(0.7, ha(C, 0.45)); g.addColorStop(1, ha(C, 0)); return g; })();
-    ctx.beginPath(); ctx.arc(x, y, r * 1.12, 0, TAU); ctx.fill();
-    A(0.35); ctx.fillStyle = C; for (let i = 0; i < 2; i++) { const an = tfR(id, i + 15) * TAU; blobPathT(x + Math.cos(an) * r * 0.35, y + Math.sin(an) * r * 0.35, r * 0.32, id + i, 0, 0.2, 9); ctx.fill(); } // (eaten patches)
-    for (let i = 0; i < 3; i++) { // pits
+    A(0.5); ctx.fillStyle = (() => { const g = ctx.createRadialGradient(x, y, r * 0.55, x, y, r * 1.25); g.addColorStop(0, ha(C, 0)); g.addColorStop(0.65, ha(C, 0.4)); g.addColorStop(1, ha(C, 0)); return g; })();
+    ctx.beginPath(); ctx.arc(x, y, r * 1.25, 0, TAU); ctx.fill();
+    A(1); for (let i = 0; i < 2; i++) { const an = tfR(id, i + 15) * TAU; softBlob(x + Math.cos(an) * r * 0.35, y + Math.sin(an) * r * 0.35, r * 0.3, id + i, t * 0.2, 0.2, C, 0.35, 0.3); }
+    for (let i = 0; i < 3; i++) {
       const an = tfR(id, i) * TAU, d = r * 0.5 * tfR(id, i + 7), hx = x + Math.cos(an) * d, hy = y + Math.sin(an) * d, hr = Math.max(1.4, r * (0.11 + 0.07 * tfR(id, i + 3)) * (0.9 + 0.1 * Math.sin(t * 3 + i)));
-      A(0.75); ctx.fillStyle = '#141a06'; ctx.beginPath(); ctx.arc(hx, hy, hr, 0, TAU); ctx.fill();
-      A(0.9); ctx.strokeStyle = C; ctx.lineWidth = Math.max(0.8, hr * 0.35); ctx.beginPath(); ctx.arc(hx, hy, hr, 0, TAU); ctx.stroke();
+      soft(hx, hy, hr * 2.4, C, 0.45, 0.4); soft(hx, hy, hr * 1.3, '#141a06', 0.8, 0.55);
     }
-    A(0.85); ctx.strokeStyle = '#f4ffd0'; ctx.lineWidth = Math.max(0.8, r * 0.04); ctx.beginPath(); // fizz at the rim
-    for (let i = 0; i < 5; i++) { const k = (t * 1.6 + i / 5 + tfR(id, i + 40)) % 1, an = tfR(id, i + 41) * TAU, br = Math.max(1, r * 0.09 * (0.4 + k)), px = x + Math.cos(an) * r * (0.95 + k * 0.25), py = y + Math.sin(an) * r * (0.95 + k * 0.25) - k * r * 0.3; ctx.moveTo(px + br, py); ctx.arc(px, py, br, 0, TAU); }
-    ctx.stroke();
-    for (let i = 0; i < 3; i++) { // drips: stretch from the underside, then let go and fall
+    for (let i = 0, N = busy ? 0 : 4; i < N; i++) { const k = (t * 1.6 + i / N + tfR(id, i + 40)) % 1, an = tfR(id, i + 41) * TAU, px = x + Math.cos(an) * r * (0.95 + k * 0.25), py = y + Math.sin(an) * r * (0.95 + k * 0.25) - k * r * 0.3; soft(px, py, Math.max(1.2, r * 0.1 * (0.5 + k)), '#f4ffd0', 0.6 * (1 - k), 0.3); }
+    for (let i = 0; i < 3; i++) {
       const k = (t * 0.55 + i / 3 + tfR(id, i)) % 1, ox = x + (tfR(id, i + 11) - 0.5) * r * 1.3, base = y + r * Math.sqrt(Math.max(0, 1 - ((ox - x) / r) ** 2)) * 0.95;
       const w = Math.max(1.2, r * 0.1), stretch = k < 0.6 ? k / 0.6 : 1, fall = k < 0.6 ? 0 : (k - 0.6) / 0.4;
-      A(0.95 * (1 - fall * 0.8)); ctx.fillStyle = gloss(ox, base + r * 0.3, w * 2, '#f4ffd0', C, '#6b8f14'); ctx.beginPath();
+      A(0.85 * (1 - fall * 0.8)); ctx.fillStyle = gloss(ox, base + r * 0.3, w * 2, '#f4ffd0', C, '#6b8f14'); ctx.beginPath();
       if (fall) { const fy = base + r * 0.4 + fall * fall * r * 1.6; ctx.ellipse(ox, fy, w, w * 1.3, 0, 0, TAU); } else dropPath(ox, base - w * 0.5, w * (0.5 + 0.5 * stretch), r * (0.15 + 0.4 * stretch));
-      ctx.fill();
+      ctx.fill(); A(1);
     }
-    A(0.22); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineCap = 'round'; ctx.beginPath(); // steam
+    A(0.18); ctx.beginPath();
     for (let i = 0; i < 2; i++) { const k = (t * 0.5 + i / 2 + tfR(id, i + 90)) % 1, sx0 = x + (i ? 0.3 : -0.3) * r, sy0 = y - r * (0.9 + k * 1.2); ctx.moveTo(sx0, sy0 + r * 0.4); ctx.bezierCurveTo(sx0 + r * 0.3 * Math.sin(t * 2 + i), sy0 + r * 0.2, sx0 - r * 0.3 * Math.sin(t * 2 + i), sy0, sx0, sy0 - r * 0.3); }
-    ctx.stroke(); ctx.lineCap = 'butt';
+    softStroke(Math.max(1, r * 0.1), '#ffffff', 1); A(1);
   }
-  if (e.frozen > 0) { // Stuck fast: a wobbling glob of snot with trapped bubbles, a wet highlight and a strand to the floor
-    const C = ELEMENTS.ice.color, s = id * 0.37, sq = 1 + 0.05 * Math.sin(t * 7 + id);
-    A(0.6); ctx.fillStyle = gloss(x, y, r * 1.45, ha('#eef2c8', 0.9), ha(C, 0.7), ha('#55621c', 0.85));
-    ctx.save(); ctx.translate(x, y); ctx.scale(sq, 2 - sq); blobPathT(0, 0, r * 1.35, s, t, 0.07, 16); ctx.restore(); ctx.fill();
-    A(0.55); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(0.8, r * 0.035); ctx.beginPath();
-    for (let i = 0; i < 4; i++) { const an = tfR(id, i + 20) * TAU, d = r * (0.4 + 0.6 * tfR(id, i + 21)), br = Math.max(1, r * (0.06 + 0.06 * tfR(id, i + 22))); ctx.moveTo(x + Math.cos(an) * d + br, y + Math.sin(an) * d); ctx.arc(x + Math.cos(an) * d, y + Math.sin(an) * d, br, 0, TAU); }
-    ctx.stroke();
-    A(0.9); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1.2, r * 0.12); ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(x - r * 0.2, y - r * 0.25, r * 0.95, Math.PI * 1.08, Math.PI * 1.42); ctx.stroke();
-    A(1); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x + r * 0.55, y - r * 0.6, Math.max(1, r * 0.08), 0, TAU); ctx.fill(); ctx.lineCap = 'butt';
-    A(0.6); ctx.fillStyle = ha(C, 0.8); strand(x + r * 0.3, y + r * 1.2, x + r * 0.5, y + r * 1.9 + Math.sin(t * 2 + id) * r * 0.1, Math.max(1, r * 0.12), r * 0.15);
-  } else if (e.chill > 0) { // Snotty: a translucent gloss coat, beaded strands stretching out behind
+  if (e.frozen > 0) { // Stuck fast: a jiggling glob of snot with trapped bubbles and a wet sheen, feathered at the edge
+    const C = ELEMENTS.ice.color, sq = 1 + 0.05 * Math.sin(t * 7 + id);
+    ctx.save(); ctx.translate(x, y); ctx.scale(sq, 2 - sq);
+    softBlob(0, 0, r * 1.3, id * 0.37, t, 0.08, C, 0.62, 0.62);
+    softBlob(-r * 0.2, -r * 0.25, r * 0.7, id, t, 0.1, '#f2f5d8', 0.3, 0.2);
+    ctx.restore();
+    for (let i = 0; i < 4; i++) { const an = tfR(id, i + 20) * TAU, d = r * (0.4 + 0.6 * tfR(id, i + 21)), br = Math.max(1, r * (0.06 + 0.06 * tfR(id, i + 22))); soft(x + Math.cos(an) * d, y + Math.sin(an) * d, br * 1.6, '#ffffff', 0.45, 0.5); }
+    soft(x - r * 0.45, y - r * 0.5, r * 0.28, '#ffffff', 0.7, 0.25);
+    A(0.55); ctx.fillStyle = ha(C, 0.8); strand(x + r * 0.3, y + r * 1.15, x + r * 0.5, y + r * 1.9 + Math.sin(t * 2 + id) * r * 0.1, Math.max(1, r * 0.11), r * 0.15); A(1);
+  } else if (e.chill > 0) { // Snotty: a translucent coat with a soft sheen, beaded strands stretching behind, a drool
     const C = ELEMENTS.ice.color, k = clamp(e.chillAmt / 0.6, 0.2, 1);
-    A(0.75); ctx.fillStyle = gloss(x, y, r * 1.15, ha('#f2f5d8', 0.55), ha(C, 0.35 + 0.35 * k), ha('#55621c', 0.75)); blobPathT(x, y, r * 1.12, id, t, 0.05, 14); ctx.fill();
-    A(0.7); ctx.strokeStyle = ha('#dfe6b0', 0.9); ctx.lineWidth = Math.max(1, r * 0.05); ctx.stroke();
-    { const k2 = (t * 0.6 + tfR(id, 5)) % 1; A(0.9); ctx.fillStyle = gloss(x + r * 0.2, y + r, r * 0.2, '#ffffff', C, '#55621c'); ctx.beginPath(); dropPath(x + r * 0.2, y + r * 0.95, Math.max(1.2, r * 0.1), r * (0.25 + 0.45 * k2)); ctx.fill(); } // (a drool, stretching)
-    A(0.8); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(x, y, r * 0.85, Math.PI * 1.15, Math.PI * 1.4); ctx.stroke(); ctx.lineCap = 'butt';
+    softBlob(x, y, r * 1.05, id, t, 0.06, C, 0.3 + 0.3 * k, 0.6);
+    soft(x - r * 0.4, y - r * 0.45, r * 0.35, '#ffffff', 0.45, 0.25);
     const n = 1 + Math.round(k * 2);
     for (let i = 0; i < n; i++) {
       const sp = (i - (n - 1) / 2) * r * 0.5, ox = x + bx * r * 0.85 - by * sp * 0.6, oy = y + by * r * 0.85 + bx * sp * 0.6, L = r * (0.8 + 0.6 * k + 0.25 * Math.sin(t * 2.4 + i + id));
       const ex = ox + bx * L + Math.sin(t * 3 + i) * r * 0.15, ey = oy + by * L + r * 0.25;
-      A(0.9); ctx.fillStyle = ha(C, 0.95); strand(ox, oy, ex, ey, Math.max(1, r * 0.13), r * 0.2);
-      A(0.9); ctx.fillStyle = gloss(ex, ey, r * 0.12, '#ffffff', C, '#55621c'); ctx.beginPath(); ctx.arc(ex, ey, Math.max(1.5, r * 0.15), 0, TAU); ctx.fill();
+      A(0.7); ctx.fillStyle = ha(C, 0.85); strand(ox, oy, ex, ey, Math.max(1, r * 0.11), r * 0.2); A(1);
+      soft(ex, ey, Math.max(2, r * 0.22), C, 0.85, 0.5); soft(ex - r * 0.04, ey - r * 0.05, Math.max(1, r * 0.07), '#ffffff', 0.7, 0.3);
     }
+    const k2 = (t * 0.6 + tfR(id, 5)) % 1; A(0.75); ctx.fillStyle = gloss(x + r * 0.2, y + r, r * 0.2, '#f2f5d8', C, '#55621c'); ctx.beginPath(); dropPath(x + r * 0.2, y + r * 0.95, Math.max(1.2, r * 0.1), r * (0.25 + 0.45 * k2)); ctx.fill(); A(1);
   }
-  if (sick(e)) { // Sick: a feverish blush and raised pustules that throb, sweat beading off
-    const C = ELEMENTS.poison.color, n = Math.min(8, 2 + e.poisonStacks), th = 0.5 + 0.5 * Math.sin(t * 5 + id);
-    A(0.18 + 0.1 * th); ctx.fillStyle = (() => { const g = ctx.createRadialGradient(x, y, r * 0.2, x, y, r * 1.25); g.addColorStop(0, ha(C, 0.6)); g.addColorStop(1, ha(C, 0)); return g; })(); ctx.beginPath(); ctx.arc(x, y, r * 1.25, 0, TAU); ctx.fill();
+  if (sick(e)) { // Sick: a feverish blush, soft throbbing pustules, a bead of sweat
+    const C = ELEMENTS.poison.color, n = Math.min(busy ? 3 : 6, 1 + e.poisonStacks), th = 0.5 + 0.5 * Math.sin(t * 5 + id);
+    soft(x, y, r * 1.3, C, 0.2 + 0.1 * th, 0.4);
     for (let i = 0; i < n; i++) {
-      const an = tfR(id, i + 20) * TAU, d = r * 0.75 * Math.sqrt(tfR(id, i + 30)), px = x + Math.cos(an) * d, py = y + Math.sin(an) * d, sr = Math.max(1.3, r * (0.09 + 0.05 * tfR(id, i + 31)) * (0.85 + 0.25 * Math.sin(t * 5 + i * 1.7)));
-      A(0.95); ctx.fillStyle = gloss(px, py, sr, '#ffe0ef', C, '#9c1f55'); ctx.beginPath(); ctx.arc(px, py, sr, 0, TAU); ctx.fill();
-      A(0.8); ctx.fillStyle = '#fff4c2'; ctx.beginPath(); ctx.arc(px + sr * 0.1, py + sr * 0.1, sr * 0.35, 0, TAU); ctx.fill();
+      const an = tfR(id, i + 20) * TAU, d = r * 0.75 * Math.sqrt(tfR(id, i + 30)), px = x + Math.cos(an) * d, py = y + Math.sin(an) * d, sr = Math.max(1.3, r * (0.1 + 0.05 * tfR(id, i + 31)) * (0.85 + 0.25 * Math.sin(t * 5 + i * 1.7)));
+      soft(px, py, sr * 2, C, 0.8, 0.35); if (!busy) soft(px, py, sr * 0.6, '#fff4c2', 0.7, 0.3);
     }
-    const k = (t * 0.9 + tfR(id, 99)) % 1; A(0.8 * (1 - k)); ctx.fillStyle = '#e8f6ff'; ctx.beginPath(); dropPath(x + r * 0.7, y - r * 0.2 + k * r * 0.9, Math.max(1, r * 0.07), r * 0.25); ctx.fill();
+    const k = (t * 0.9 + tfR(id, 99)) % 1; A(0.6 * (1 - k)); ctx.fillStyle = '#e8f6ff'; ctx.beginPath(); dropPath(x + r * 0.7, y - r * 0.2 + k * r * 0.9, Math.max(1, r * 0.07), r * 0.25); ctx.fill(); A(1);
   }
-  if (e.fizz > 0) { // Lubricated: a dark oily film with thin-film colours sliding across it, and a hard glint
-    A(0.6); ctx.fillStyle = gloss(x, y, r * 1.1, ha('#f2c879', 0.7), ha('#7a4f0f', 0.45), ha('#2a1d08', 0.85)); ctx.beginPath(); ctx.arc(x, y, r * 1.08, 0, TAU); ctx.fill();
-    A(0.8); ctx.strokeStyle = '#f2c879'; ctx.lineWidth = Math.max(1, r * 0.05); ctx.stroke();
-    const k = (t * 0.45 + tfR(id, 40)) % 1, g = ctx.createLinearGradient(x - r, y - r, x + r, y + r), off = k;
-    for (const [o, c] of [[0, '#ff5fa2'], [0.2, '#ffd23f'], [0.4, '#7dff6a'], [0.6, '#3fe0ff'], [0.8, '#b49bff'], [1, '#ff5fa2']]) g.addColorStop((o + off) % 1, ha(c, 0.75));
-    A(0.9); ctx.strokeStyle = g; ctx.lineWidth = Math.max(2, r * 0.2); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.arc(x, y, r * 0.8, -2.8 + k * 1.4, -0.9 + k * 1.4); ctx.stroke();
-    ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0.4 + k * 1.4, 2.2 + k * 1.4); ctx.stroke();
-    ctx.lineWidth = Math.max(1.2, r * 0.1); ctx.beginPath(); ctx.arc(x, y, r * 0.3, 2.6 + k * 1.4, 4.2 + k * 1.4); ctx.stroke();
-    { const k2 = (t * 0.5 + tfR(id, 6)) % 1; A(0.9 * (1 - k2 * 0.5)); ctx.fillStyle = gloss(x - r * 0.3, y + r, r * 0.2, '#f2c879', '#7a4f0f', '#2a1d08'); ctx.beginPath(); dropPath(x - r * 0.3, y + r * 0.95, Math.max(1.2, r * 0.1), r * (0.2 + 0.35 * k2)); ctx.fill(); }
-    A(1); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.07); ctx.beginPath(); ctx.arc(x, y, r * 0.95, -2.2 + Math.sin(t * 1.5 + id) * 0.2, -1.8 + Math.sin(t * 1.5 + id) * 0.2); ctx.stroke(); ctx.lineCap = 'butt';
+  if (e.fizz > 0) { // Lubricated: a dark oily film, feathered, with soft thin-film colours sliding across it
+    softBlob(x, y, r * 1.02, id + 3, t * 0.4, 0.05, '#5a3a0a', 0.5, 0.65);
+    const k = (t * 0.45 + tfR(id, 40)) % 1, hues = TF_HUES;
+    for (let i = 0; i < hues.length; i++) { const an = -2.8 + k * 1.4 + i * 0.28; A(0.5); ctx.beginPath(); ctx.arc(x, y, r * (0.45 + i * 0.09), an, an + 1.2); softStroke(Math.max(1, r * 0.07), hues[i], 0.55); }
+    A(1); soft(x - r * 0.35 + Math.sin(t * 1.5 + id) * r * 0.1, y - r * 0.45, r * 0.25, '#fff3d6', 0.6, 0.2);
+    const k2 = (t * 0.5 + tfR(id, 6)) % 1; A(0.75 * (1 - k2 * 0.5)); ctx.fillStyle = gloss(x - r * 0.3, y + r, r * 0.2, '#f2c879', '#7a4f0f', '#2a1d08'); ctx.beginPath(); dropPath(x - r * 0.3, y + r * 0.95, Math.max(1.2, r * 0.1), r * (0.2 + 0.35 * k2)); ctx.fill(); A(1);
   }
-  if (e.pickle > 0) { // Soaking wet: a blue water film, beads of water on the surface, sharp glints, drops flicking off with streaks
+  if (e.pickle > 0) { // Soaking wet: a faint water film, beads catching the light, drops flicking off
     const C = ELEMENTS.salt.color;
-    A(0.3); ctx.fillStyle = gloss(x, y, r * 1.1, ha('#e8f2ff', 0.4), ha(C, 0.18), ha(C, 0.5)); ctx.beginPath(); ctx.arc(x, y, r * 1.08, 0, TAU); ctx.fill();
-    for (let i = 0; i < 5; i++) { const an = tfR(id, i + 50) * TAU, d = r * (0.3 + 0.6 * tfR(id, i + 51)), px = x + Math.cos(an) * d, py = y + Math.sin(an) * d, br = Math.max(1, r * (0.06 + 0.05 * tfR(id, i + 52)));
-      A(0.85); ctx.fillStyle = gloss(px, py, br, '#ffffff', ha(C, 0.6), ha('#0d2e66', 0.8)); ctx.beginPath(); ctx.arc(px, py, br, 0, TAU); ctx.fill(); }
-    A(1); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(x - r * 0.38, y - r * 0.42, Math.max(1.5, r * 0.2), Math.max(1, r * 0.08), -0.7, 0, TAU); ctx.fill();
-    for (let i = 0; i < 2; i++) { const k = (t * 1.4 + i / 2 + tfR(id, i + 60)) % 1, an = tfR(id, i + 61) * TAU, d = r * (1 + k * 1.1), px = x + Math.cos(an) * d, py = y + Math.sin(an) * d + k * k * r * 0.6, dr = Math.max(1, r * 0.09) * (1 - k * 0.6);
-      A(0.5 * (1 - k)); ctx.strokeStyle = C; ctx.lineWidth = dr; ctx.beginPath(); ctx.moveTo(px - Math.cos(an) * r * 0.25, py - Math.sin(an) * r * 0.25); ctx.lineTo(px, py); ctx.stroke();
-      A(0.9 * (1 - k)); ctx.fillStyle = gloss(px, py, dr, '#ffffff', C, '#0d2e66'); ctx.beginPath(); ctx.arc(px, py, dr, 0, TAU); ctx.fill(); }
+    softBlob(x, y, r * 1.05, id + 5, t * 0.3, 0.04, C, 0.18, 0.6);
+    for (let i = 0, N = busy ? 2 : 4; i < N; i++) { const an = tfR(id, i + 50) * TAU, d = r * (0.3 + 0.6 * tfR(id, i + 51)), px = x + Math.cos(an) * d, py = y + Math.sin(an) * d, br = Math.max(1, r * (0.06 + 0.05 * tfR(id, i + 52))); soft(px, py, br * 1.8, C, 0.45, 0.4); if (!busy) soft(px - br * 0.3, py - br * 0.3, br * 0.6, '#ffffff', 0.8, 0.3); }
+    soft(x - r * 0.38, y - r * 0.42, r * 0.22, '#ffffff', 0.7, 0.2);
+    for (let i = 0; i < 2; i++) { const k = (t * 1.4 + i / 2 + tfR(id, i + 60)) % 1, an = tfR(id, i + 61) * TAU, d = r * (1 + k * 1.1), px = x + Math.cos(an) * d, py = y + Math.sin(an) * d + k * k * r * 0.6; soft(px, py, Math.max(1.5, r * 0.14) * (1 - k * 0.5), C, 0.7 * (1 - k), 0.4); }
   }
-  if (e.bloodT > 0) { // Bleeding: branching dark veins, open gashes, and a drip trail only while it moves
+  if (e.bloodT > 0) { // Bleeding: fine branching veins under the skin, dark seeping gashes, drips while it moves
     const C = ELEMENTS.arcane.color, n = 2 + (e.bloodN || 1);
-    ctx.lineCap = 'round';
     for (let i = 0; i < n; i++) {
       let an = tfR(id, i + 70) * TAU, px = x + Math.cos(an) * r * 0.15, py = y + Math.sin(an) * r * 0.15;
-      for (let j = 1; j <= 4; j++) { const an2 = an + (tfR(id, i * 4 + j) - 0.5) * 1.1, qx = x + Math.cos(an2) * r * (0.15 + j * 0.21), qy = y + Math.sin(an2) * r * (0.15 + j * 0.21);
-        A(0.85); ctx.strokeStyle = j < 3 ? '#6a0d25' : C; ctx.lineWidth = Math.max(0.6, r * 0.09 * (1 - j / 5)); ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(qx, qy); ctx.stroke(); px = qx; py = qy; an = an2; }
+      ctx.beginPath(); ctx.moveTo(px, py);
+      for (let j = 1; j <= 4; j++) { an += (tfR(id, i * 4 + j) - 0.5) * 1.1; px = x + Math.cos(an) * r * (0.15 + j * 0.21); py = y + Math.sin(an) * r * (0.15 + j * 0.21); ctx.lineTo(px, py); }
+      A(0.55); softStroke(Math.max(0.6, r * 0.05), '#6a0d25', 1); A(1);
     }
-    for (let i = 0; i < Math.min(3, e.bloodN || 1); i++) { const an = tfR(id, i + 75) * TAU, gx = x + Math.cos(an) * r * 0.45, gy = y + Math.sin(an) * r * 0.45, gl = r * 0.32, ga = an + 1.2;
-      A(0.95); ctx.fillStyle = '#2a0410'; ctx.beginPath(); ctx.ellipse(gx, gy, gl, Math.max(0.8, r * 0.06), ga, 0, TAU); ctx.fill();
-      A(0.9); ctx.strokeStyle = C; ctx.lineWidth = Math.max(0.6, r * 0.04); ctx.stroke(); }
-    ctx.lineCap = 'butt';
-    if (mv > 12) for (let i = 0; i < 2; i++) { const k = (t * 2.2 + i / 2 + tfR(id, 80)) % 1, px = x + bx * r * (0.9 + k * 1.2) + (i ? 1 : -1) * r * 0.2, py = y + by * r * (0.9 + k * 1.2);
-      A(0.95 * (1 - k)); ctx.fillStyle = gloss(px, py, r * 0.12, '#ff9fb3', C, '#4a0818'); ctx.beginPath(); ctx.ellipse(px, py, Math.max(1, r * 0.1), Math.max(1.4, r * 0.15), Math.atan2(by, bx) + Math.PI / 2, 0, TAU); ctx.fill(); }
+    for (let i = 0; i < Math.min(3, e.bloodN || 1); i++) { const an = tfR(id, i + 75) * TAU, gx = x + Math.cos(an) * r * 0.45, gy = y + Math.sin(an) * r * 0.45;
+      ctx.save(); ctx.translate(gx, gy); ctx.rotate(an + 1.2); ctx.scale(1, 0.3); soft(0, 0, r * 0.38, C, 0.6, 0.4); soft(0, 0, r * 0.26, '#2a0410', 0.85, 0.45); ctx.restore(); }
+    if (mv > 12) for (let i = 0; i < 2; i++) { const k = (t * 2.2 + i / 2 + tfR(id, 80)) % 1, px = x + bx * r * (0.9 + k * 1.2) + (i ? 1 : -1) * r * 0.2, py = y + by * r * (0.9 + k * 1.2); soft(px, py, Math.max(1.5, r * 0.15), C, 0.85 * (1 - k), 0.45); }
   }
-  if (e.curse > 0) { // Cursed: its soul pulling out of it, a pale wailing ghost lagging behind
-    const C = ELEMENTS.soul.color, wob = Math.sin(t * 2.5 + id), pull = 1 + 0.15 * Math.sin(t * 1.7 + id), ox = x + bx * r * 1.05 * pull + wob * r * 0.15, oy = y + by * r * 0.8 * pull - r * 0.7, gr = r * 0.62;
-    A(0.35); ctx.strokeStyle = ha(C, 0.8); ctx.lineWidth = Math.max(1, r * 0.06); ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo((x + ox) / 2 + wob * r * 0.3, (y + oy) / 2 + r * 0.3, ox, oy + gr * 0.8); ctx.stroke(); ctx.setLineDash([]); // (the thread still holding it)
-    glow(ox, oy, gr * 2, C, 0.25);
-    A(0.6 + 0.1 * Math.sin(t * 4 + id)); ctx.fillStyle = gloss(ox, oy, gr * 1.2, '#ffffff', ha(C, 0.85), ha(C, 0.15));
-    ctx.beginPath(); ctx.arc(ox, oy, gr, Math.PI, 0); // a sheet-ghost: round head, wavy hem
-    for (let i = 0; i <= 6; i++) { const px = ox + gr - i / 6 * gr * 2, py = oy + gr * (1.05 + 0.22 * Math.sin(i * 2.1 + t * 7 + id)); ctx.lineTo(px, py); }
-    ctx.closePath(); ctx.fill();
-    A(0.85); ctx.fillStyle = '#0a1a22'; ctx.beginPath();
-    for (const sgn of [-1, 1]) { ctx.moveTo(ox + sgn * gr * 0.32 + gr * 0.14, oy - gr * 0.1); ctx.ellipse(ox + sgn * gr * 0.32, oy - gr * 0.1, gr * 0.14, gr * 0.2, 0, 0, TAU); }
-    ctx.moveTo(ox + gr * 0.12, oy + gr * 0.35); ctx.ellipse(ox, oy + gr * 0.35, gr * 0.12, gr * (0.16 + 0.06 * Math.sin(t * 6 + id)), 0, 0, TAU); ctx.fill();
+  if (e.curse > 0) { // Cursed: its soul slipping out of it, a pale translucent double drifting behind, joined by a wisp
+    const C = ELEMENTS.soul.color, wob = Math.sin(t * 2.5 + id), pull = 0.8 + 0.2 * Math.sin(t * 1.7 + id), ox = x + bx * r * 0.9 * pull + wob * r * 0.15, oy = y + by * r * 0.7 * pull - r * 0.55;
+    A(0.6); ctx.beginPath(); ctx.moveTo(x, y); ctx.bezierCurveTo(x + (ox - x) * 0.3 + wob * r * 0.3, y + (oy - y) * 0.2, ox - (ox - x) * 0.3, oy + r * 0.4, ox, oy); softStroke(Math.max(1, r * 0.12), C, 0.35); A(1);
+    softBlob(ox, oy, r * 0.85, id + 9, t * 1.5, 0.12, C, 0.35, 0.35);
+    soft(ox, oy, r * 0.5, '#ffffff', 0.25, 0.3);
+    for (const sgn of [-1, 1]) soft(ox + sgn * r * 0.25, oy - r * 0.08, r * 0.14, '#0a1a22', 0.22, 0.3); // (a face, barely)
   }
-  if (e.xrayT > G.t) { // TOASTER IN THE BATH: an x-ray flash of its skeleton, flickering
-    if (Math.random() < 0.85) {
-      A(0.9); ctx.fillStyle = '#05060a'; ctx.beginPath(); ctx.arc(x, y, r * 1.02, 0, TAU); ctx.fill();
-      glow(x, y, r * 1.6, '#bde0fe', 0.5);
-      A(1); ctx.strokeStyle = '#eaf6ff'; ctx.lineWidth = Math.max(1, r * 0.09); ctx.lineCap = 'round'; ctx.beginPath();
-      ctx.moveTo(x, y - r * 0.55); ctx.lineTo(x, y + r * 0.65);
-      for (let i = 0; i < 4; i++) { const yy = y - r * 0.32 + i * r * 0.22, w = r * (0.58 - i * 0.07); ctx.moveTo(x - w, yy + r * 0.14); ctx.quadraticCurveTo(x, yy - r * 0.14, x + w, yy + r * 0.14); }
-      ctx.stroke(); ctx.beginPath(); ctx.arc(x, y - r * 0.62, r * 0.24, 0, TAU); ctx.stroke();
-      ctx.fillStyle = '#05060a'; ctx.beginPath(); ctx.arc(x - r * 0.09, y - r * 0.64, r * 0.06, 0, TAU); ctx.arc(x + r * 0.09, y - r * 0.64, r * 0.06, 0, TAU); ctx.fill(); ctx.lineCap = 'butt';
-    }
+  if (e.xrayT > G.t && Math.random() < 0.85) { // TOASTER IN THE BATH: an x-ray flash of its skeleton
+    soft(x, y, r * 1.35, '#05060a', 0.85, 0.65); glow(x, y, r * 1.6, '#bde0fe', 0.45);
+    A(0.95); ctx.beginPath(); ctx.moveTo(x, y - r * 0.55); ctx.lineTo(x, y + r * 0.65);
+    for (let i = 0; i < 4; i++) { const yy = y - r * 0.32 + i * r * 0.22, w = r * (0.58 - i * 0.07); ctx.moveTo(x - w, yy + r * 0.14); ctx.quadraticCurveTo(x, yy - r * 0.14, x + w, yy + r * 0.14); }
+    ctx.moveTo(x + r * 0.24, y - r * 0.62); ctx.arc(x, y - r * 0.62, r * 0.24, 0, TAU); softStroke(Math.max(1, r * 0.08), '#eaf6ff', 1); A(1);
   }
-  if (e.bowlT > G.t) { // sent bowling: speed streaks behind it
-    A(0.5); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineCap = 'round'; ctx.beginPath();
+  if (e.bowlT > G.t) { // sent bowling: soft speed streaks behind it
+    A(0.5); ctx.beginPath();
     for (let i = -1; i <= 1; i++) { const ox = x + bx * r * 1.1 - by * i * r * 0.45, oy = y + by * r * 1.1 + bx * i * r * 0.45; ctx.moveTo(ox, oy); ctx.lineTo(ox + bx * r * (1.2 - Math.abs(i) * 0.4), oy + by * r * (1.2 - Math.abs(i) * 0.4)); }
-    ctx.stroke(); ctx.lineCap = 'butt';
+    softStroke(Math.max(1, r * 0.07), '#ffffff', 0.7);
   }
   ctx.globalAlpha = a0;
 }
-// Ghost allies (Soul): a glow and a wispy tail under the see-through body (render.js, before drawEnemy).
+// Ghost allies (Soul): a soft glow and a feathered wisp trailing under the see-through body (render.js).
 function typeGhostUnder(e) {
-  const x = sx(e.x), y = sy(e.y), r = (e.r || 12) * S, t = G.realT, C = ELEMENTS.soul.color, mv = Math.hypot(e.svx || 0, e.svy || 0), bx = mv > 1 ? -e.svx / mv : 0, by = mv > 1 ? -e.svy / mv : 1, a0 = ctx.globalAlpha;
-  glow(x, y, r * 2.4, C, 0.35);
-  ctx.globalAlpha = a0 * 0.35; ctx.fillStyle = gloss(x, y, r * 1.4, '#ffffff', ha(C, 0.6), ha(C, 0));
-  const tx = x + bx * r * 2.4 + Math.sin(t * 3 + e.id) * r * 0.4, ty = y + by * r * 2.4;
-  ctx.beginPath(); ctx.moveTo(x - by * r, y + bx * r); ctx.quadraticCurveTo(x + bx * r * 1.4 - by * r * 0.6, y + by * r * 1.4 + bx * r * 0.6, tx, ty); ctx.quadraticCurveTo(x + bx * r * 1.4 + by * r * 0.6, y + by * r * 1.4 - bx * r * 0.6, x + by * r, y - bx * r); ctx.closePath(); ctx.fill();
-  ctx.globalAlpha = a0;
+  const x = sx(e.x), y = sy(e.y), r = (e.r || 12) * S, t = G.realT, C = ELEMENTS.soul.color, mv = Math.hypot(e.svx || 0, e.svy || 0), bx = mv > 1 ? -(e.svx || 0) / mv : 0, by = mv > 1 ? -(e.svy || 0) / mv : 1;
+  const n = G.enemies.length > 60 || QUAL.lv >= 2 ? 2 : 4;
+  if (n > 2) glow(x, y, r * 2.4, C, 0.3);
+  for (let i = 1; i <= n; i++) { const k = i / n, px = x + bx * r * 2.2 * k + Math.sin(t * 3 + e.id + i) * r * 0.3 * k, py = y + by * r * 2.2 * k; soft(px, py, r * (1.1 - k * 0.6), C, 0.3 * (1 - k * 0.6), 0.3); }
 }
 
 // ---------------------------------------------------------------- puddles and patches (true: drawn here)
 function typeZone(z, x, y, r, a) {
-  const t = G.realT, s = ((z.x * 13 + z.y * 7) % 1000) / 37, A = k => { ctx.globalAlpha = a * k; };
-  if (z.oil) { // a dark slick: a soft shadow, a body with a bright meniscus, thin-film colours swirling slowly, and glints
-    A(0.25); ctx.fillStyle = '#000000'; blobPathT(x + r * 0.05, y + r * 0.07, r * 1.02, s, t * 0.3, 0.1); ctx.fill();
-    A(0.7); ctx.fillStyle = gloss(x, y, r, ha('#6b4a12', 0.9), ha('#2a1d08', 0.85), ha('#120c03', 0.9)); blobPathT(x, y, r, s, t * 0.3, 0.1); ctx.fill();
-    A(0.6); ctx.strokeStyle = '#f2c879'; ctx.lineWidth = Math.max(1, r * 0.04); ctx.stroke();
-    ctx.lineCap = 'round';
-    const hues = ['#ff5fa2', '#ffd23f', '#7dff6a', '#3fe0ff', '#b49bff'];
-    for (let i = 0; i < hues.length; i++) { const an = t * (0.35 + i * 0.05) + i * 1.25 + s, rr = r * (0.25 + i * 0.12);
-      A(0.42); ctx.strokeStyle = hues[i]; ctx.lineWidth = Math.max(1.2, r * 0.07); ctx.beginPath(); ctx.ellipse(x + Math.cos(an * 0.7) * r * 0.12, y + Math.sin(an * 0.7) * r * 0.08, rr, rr * 0.7, an * 0.3, an, an + 1.9); ctx.stroke(); }
-    A(0.9); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.05); ctx.beginPath(); ctx.arc(x - r * 0.2, y - r * 0.2, r * 0.55, 3.6 + Math.sin(t + s) * 0.15, 4.1 + Math.sin(t + s) * 0.15); ctx.stroke();
-    ctx.lineCap = 'butt';
+  const t = G.realT, s = Math.abs((z.x * 13 + z.y * 7) % 1000) / 37, A = k => { ctx.globalAlpha = a * k; }; // (s >= 0: tfR and sqrt need it)
+  const lite = G.zones.length > 14 || FX.k < 0.85 || QUAL.lv >= 2; // (a busy slide: fewer pieces per puddle)
+  if (z.oil) { // a dark slick, feathered at the edge, thin-film colours swirling slowly, a soft glint
+    A(1); if (!lite) softBlob(x + r * 0.06, y + r * 0.08, r, s, t * 0.3, 0.12, '#000000', 0.2, 0.5);
+    if (lite) soft(x, y, r * 1.2, '#24190a', 0.75, 0.6); else softBlob(x, y, r, s, t * 0.3, 0.12, '#24190a', 0.8, 0.7);
+    const hues = TF_HUES;
+    for (let i = 0; i < (lite ? 2 : hues.length); i++) { const an = t * (0.35 + i * 0.05) + i * 1.25 + s, rr = r * (0.25 + i * 0.12); A(0.4); ctx.beginPath(); ctx.ellipse(x + Math.cos(an * 0.7) * r * 0.12, y + Math.sin(an * 0.7) * r * 0.08, rr, rr * 0.7, an * 0.3, an, an + 1.9); softStroke(Math.max(1, r * 0.05), hues[i], 0.5); }
+    A(1); soft(x - r * 0.3 + Math.sin(t + s) * r * 0.05, y - r * 0.3, r * 0.3, '#fff3d6', 0.35, 0.2);
     return true;
   }
-  if (z.heal) { // a pool of blood: spatter round it, a dark drying edge, a glossy middle and a slow pulse
+  if (z.heal) { // a pool of blood: soft spatter, a darker drying margin, a glossy middle, a slow pulse
     const C = ELEMENTS.arcane.color, pulse = 1 + 0.03 * Math.sin(t * 3 + s);
-    A(0.75); ctx.fillStyle = '#4a0818'; ctx.beginPath();
-    for (let i = 0; i < 7; i++) { const an = (s * 3 + i * 0.9) % TAU, d = r * (1.15 + 0.35 * ((i * 37 + s * 10) % 10) / 10), dr = Math.max(1, r * (0.04 + 0.05 * (i % 3) / 2)); ctx.moveTo(x + Math.cos(an) * d + dr, y + Math.sin(an) * d); ctx.arc(x + Math.cos(an) * d, y + Math.sin(an) * d, dr, 0, TAU); }
-    ctx.fill();
-    A(0.85); ctx.fillStyle = '#3a0612'; blobPathT(x, y, r * 1.02 * pulse, s, 0, 0.12); ctx.fill();
-    A(0.9); ctx.fillStyle = gloss(x, y, r * 0.85, '#ff5c7a', C, '#5a0a1d'); blobPathT(x, y, r * 0.85 * pulse, s + 2, 0, 0.1); ctx.fill();
-    A(0.8); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.05); ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(x - r * 0.1, y - r * 0.1, r * 0.55, 3.7, 4.3); ctx.stroke(); ctx.lineCap = 'butt';
+    A(1);
+    for (let i = 0, N = lite ? 0 : 4; i < N; i++) { const an = (s * 3 + i * 1.6) % TAU, d = r * (1.15 + 0.35 * ((i * 37 + s * 10) % 10) / 10); soft(x + Math.cos(an) * d, y + Math.sin(an) * d, Math.max(1.5, r * (0.06 + 0.06 * (i % 3) / 2)), '#4a0818', 0.8, 0.45); }
+    softBlob(x, y, r * pulse, s, 0, 0.12, '#3a0612', 0.85, 0.7);
+    softBlob(x, y, r * 0.75 * pulse, s + 2, 0, 0.1, C, 0.7, 0.45);
+    soft(x - r * 0.25, y - r * 0.3, r * 0.25, '#ffd6de', 0.35, 0.2);
     return true;
   }
-  if (z.snot) { // raised glossy blobs of snot joined by beaded, sagging strands
+  if (z.snot) { // soft glossy blobs of snot joined by sagging strands
     const C = ELEMENTS.ice.color, P = [];
     for (let i = 0; i < 4; i++) { const an = (s + i * 1.7) % TAU, d = r * 0.6 * (((i * 37 + s * 10) % 10) / 10), br = r * (0.26 + 0.09 * (i % 3)) * (1 + 0.04 * Math.sin(t * 3 + i)); P.push([x + Math.cos(an) * d, y + Math.sin(an) * d, br]); }
-    A(0.7); ctx.fillStyle = ha(C, 0.85);
+    A(0.6); ctx.fillStyle = ha(C, 0.8);
     for (let i = 1; i < P.length; i++) strand(P[i - 1][0], P[i - 1][1], P[i][0], P[i][1], Math.max(1, r * 0.05), r * 0.18);
-    for (const [px, py, br] of P) {
-      A(0.3); ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.ellipse(px + br * 0.1, py + br * 0.2, br, br * 0.8, 0, 0, TAU); ctx.fill();
-      A(0.85); ctx.fillStyle = gloss(px, py, br, '#f2f5d8', C, '#55621c'); ctx.beginPath(); ctx.ellipse(px, py, br, br * 0.85, 0, 0, TAU); ctx.fill();
-      A(0.9); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(px - br * 0.35, py - br * 0.35, br * 0.22, br * 0.12, -0.6, 0, TAU); ctx.fill();
-    }
+    A(1);
+    for (const [px, py, br] of P) { soft(px + br * 0.15, py + br * 0.25, br * 1.3, '#000000', 0.25, 0.4); softBlob(px, py, br, px, t, 0.08, C, 0.85, 0.6); soft(px - br * 0.35, py - br * 0.35, br * 0.35, '#ffffff', 0.7, 0.25); }
     return true;
   }
-  if (z.water) { // the slide is already water: a crown of droplets, then refracting ripples (a light and a dark ring)
+  if (z.water) { // the slide is already water: droplets thrown up, then soft refracting ripples
     const k = 1 - z.life / z.max, C = ELEMENTS.salt.color;
-    for (let j = 0; j < 2; j++) { const rr = r * (0.3 + (k + j * 0.3) * 0.9);
-      A((1 - k) * 0.6); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.06); ctx.beginPath(); ctx.arc(x, y - 0.7, rr, 0, TAU); ctx.stroke();
-      A((1 - k) * 0.5); ctx.strokeStyle = C; ctx.lineWidth = Math.max(1, r * 0.05); ctx.beginPath(); ctx.arc(x, y + 0.9, rr, 0, TAU); ctx.stroke(); }
-    if (k < 0.35) { const q = k / 0.35; A(1 - q); ctx.fillStyle = C; ctx.beginPath();
-      for (let i = 0; i < 7; i++) { const an = i / 7 * TAU + s, d = r * (0.3 + q * 0.6), h = Math.sin(q * Math.PI) * r * 0.5, px = x + Math.cos(an) * d, py = y + Math.sin(an) * d * 0.6 - h, dr = Math.max(1, r * 0.06); ctx.moveTo(px + dr, py); ctx.arc(px, py, dr, 0, TAU); }
-      ctx.fill(); }
+    for (let j = 0; j < (lite ? 1 : 2); j++) { const rr = r * (0.3 + (k + j * 0.3) * 0.9); A((1 - k) * 0.7); ctx.beginPath(); ctx.arc(x, y - 0.7, rr, 0, TAU); softStroke(Math.max(1, r * 0.04), '#ffffff', 0.6); ctx.beginPath(); ctx.arc(x, y + 0.9, rr, 0, TAU); softStroke(Math.max(1, r * 0.04), C, 0.5); }
+    A(1);
+    if (k < 0.35 && !lite) { const q = k / 0.35; for (let i = 0; i < 7; i++) { const an = i / 7 * TAU + s, d = r * (0.3 + q * 0.6), h = Math.sin(q * Math.PI) * r * 0.5; soft(x + Math.cos(an) * d, y + Math.sin(an) * d * 0.6 - h, Math.max(1.5, r * 0.1), C, 0.8 * (1 - q), 0.4); } }
     return true;
   }
-  if (z.flame) { // GREASE FIRE and NAPALM: real flames, hot at the core, embers lifting off, a scorched floor
+  if (z.flame) { // GREASE FIRE and NAPALM: soft rising fire, white-yellow at the root, red then smoke at the tips
     const rc = RAW_COL; RAW_COL = true; // (real fire colours: ELEM_SWAP would turn these orange tones into Acid green)
-    A(0.45); ctx.fillStyle = '#1a0d05'; blobPathT(x, y, r, s, 0, 0.12); ctx.fill();
-    ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.6, '#ff6a00', 0.55 * a); ctx.globalCompositeOperation = 'source-over';
-    const N = 9;
-    for (let layer = 0; layer < 3; layer++) {
-      const k = [1, 0.7, 0.4][layer];
-      for (let i = 0; i < N; i++) {
-        const an = (s + i * 2.39) % TAU, d = r * 0.75 * (((i * 53 + s * 10) % 10) / 10), fx = x + Math.cos(an) * d, fy = y + Math.sin(an) * d * 0.7;
-        const fl = r * 0.55 * (0.6 + 0.4 * Math.sin(t * 11 + i * 2.3)) * k, w = r * 0.13 * k, sw = Math.sin(t * 9 + i) * w;
-        const g = ctx.createLinearGradient(fx, fy, fx, fy - fl * 1.6); g.addColorStop(0, ['#ff3d00', '#ff9e00', '#fff3b0'][layer]); g.addColorStop(1, ['#ff3d0000', '#ffd16600', '#ffffff00'][layer]);
-        A(0.9); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(fx - w, fy); ctx.quadraticCurveTo(fx - w, fy - fl, fx + sw, fy - fl * 1.6); ctx.quadraticCurveTo(fx + w, fy - fl, fx + w, fy); ctx.closePath(); ctx.fill();
-      }
+    A(1); softBlob(x, y, r, s, 0, 0.14, '#1a0d05', 0.5, 0.6);
+    const op = ctx.globalCompositeOperation; ctx.globalCompositeOperation = 'lighter';
+    glow(x, y, r * 1.5, '#ff6a00', 0.45 * a);
+    for (let i = 0, N = lite ? 12 : 28; i < N; i++) { // tongues: soft, tall, leaning and flickering, cooling as they rise
+      const k = (t * 1.4 + i / N + tfR(i + 1, Math.floor(s))) % 1, an = tfR(i + 3, Math.floor(s)) * TAU, d = r * 0.75 * Math.sqrt(tfR(i + 5, Math.floor(s)));
+      const px = x + Math.cos(an) * d + Math.sin(t * 6 + i) * r * 0.1 * k, py = y + Math.sin(an) * d * 0.7 - k * r * 1.1, rr = r * 0.3 * (1 - k * 0.65);
+      const c = k < 0.2 ? '#fff3b0' : k < 0.45 ? '#ffb000' : k < 0.75 ? '#ff4d00' : '#802000';
+      A(1); ctx.save(); ctx.translate(px, py); ctx.scale(0.6, 1.5); soft(0, 0, rr, c, 0.6 * (1 - k * 0.6), 0.3); ctx.restore();
     }
-    A(0.9); ctx.fillStyle = '#ffd166'; ctx.beginPath();
-    for (let i = 0; i < 6; i++) { const k = (t * 0.8 + i / 6 + s) % 1, ex = x + Math.sin(i * 2.7 + s + t) * r * 0.7, ey = y - k * r * 1.5, er = Math.max(0.8, r * 0.03 * (1 - k)); ctx.moveTo(ex + er, ey); ctx.arc(ex, ey, er, 0, TAU); }
-    ctx.fill();
+    ctx.globalCompositeOperation = op;
+    for (let i = 0; i < 6; i++) { const k = (t * 0.8 + i / 6 + s) % 1; soft(x + Math.sin(i * 2.7 + s + t) * r * 0.7, y - k * r * 1.6, Math.max(1, r * 0.05 * (1 - k)), '#ffd166', 0.9, 0.4); }
     RAW_COL = rc;
     return true;
   }
@@ -286,84 +271,87 @@ const RX_OF = {}; for (const k in RX_STYLE) for (const id of RX_STYLE[k]) RX_OF[
 const RX_DUR = { zap: 0.45, splash: 0.7, goo: 0.8, blood: 0.8, ghost: 1.1, germ: 1.2, fire: 0.8, acid: 0.9, oil: 0.9 };
 function typeRxFx(x, y, r, id) {
   if (!G) return;
-  const st = RX_OF[id] || 'pop', L = G.tfx || (G.tfx = []);
-  if (L.length > 40) L.shift();
+  const st = RX_OF[id] || 'pop', L = G.tfx || (G.tfx = []), last = G.tfxLast || (G.tfxLast = {});
+  // Busy fights: the same reaction at most every 0.3s, and 12 pictures at most (each is a few dozen soft strokes).
+  if (last[id] > G.realT - 0.3) return;
+  last[id] = G.realT;
+  if (L.length >= 6) L.shift();
   L.push({ x, y, r: Math.max(18, r || 14), st, id, c: (REACTIONS[id] || {}).color || '#ffffff', t0: G.realT, dur: RX_DUR[st] || 0.6, seed: Math.random() * 100 });
 }
-// Drawn with the effects (render.js), in world space.
+// Drawn with the effects (render.js), in world space. Soft and organic: no hard outlines.
 function drawTypeFx() {
   const L = G.tfx; if (!L || !L.length) return;
   const a0 = ctx.globalAlpha, op = ctx.globalCompositeOperation;
   for (let i = L.length - 1; i >= 0; i--) {
     const f = L[i], q = (G.realT - f.t0) / f.dur;
     if (q >= 1 || q < 0) { L.splice(i, 1); continue; }
-    const x = sx(f.x), y = sy(f.y), R = f.r * S, s = f.seed, e = 1 - Math.pow(1 - q, 3), fade = 1 - q, A = k => { ctx.globalAlpha = a0 * k; };
-    ctx.globalCompositeOperation = 'source-over';
+    if (sx(f.x) < -120 || sx(f.x) > W + 120 || sy(f.y) < -120 || sy(f.y) > H + 120) continue; // (off screen)
+    const x = sx(f.x), y = sy(f.y), R = f.r * S, s = f.seed, e = 1 - Math.pow(1 - q, 3), fade = 1 - q, T = G.realT, lite = L.length > 2 || FX.k < 0.85 || QUAL.lv >= 2; // (lite: fewer pieces when busy)
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a0;
     switch (f.st) {
-      case 'zap': { // branching lightning bursting out, white-hot at the core
-        ctx.globalCompositeOperation = 'lighter'; glow(x, y, R * (1.5 + e), f.c, 0.6 * fade);
-        ctx.lineCap = 'round';
-        for (let b = 0; b < 6; b++) {
-          const an = s + b / 6 * TAU + Math.sin(G.realT * 40 + b) * 0.1, L2 = R * (1 + e * 1.6);
-          for (const [w, c, al] of [[4, f.c, 0.5], [1.6, '#ffffff', 1]]) { A(al * fade); ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x, y);
-            let px = x, py = y; for (let j = 1; j <= 5; j++) { const d = L2 * j / 5, jit = (Math.random() - 0.5) * R * 0.5; px = x + Math.cos(an) * d - Math.sin(an) * jit; py = y + Math.sin(an) * d + Math.cos(an) * jit; ctx.lineTo(px, py); }
-            ctx.stroke(); }
+      case 'zap': { // forking discharges with a soft glow, white-hot at the core
+        if (!lite) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, R * (1.5 + e), f.c, 0.5 * fade); }
+        for (let b = 0; b < (lite ? 3 : 6); b++) {
+          const an = s + b / 6 * TAU, L2 = R * (1 + e * 1.6); ctx.beginPath(); ctx.moveTo(x, y);
+          for (let j = 1; j <= 6; j++) { const d = L2 * j / 6, jit = (Math.random() - 0.5) * R * 0.45 * (j / 6); ctx.lineTo(x + Math.cos(an) * d - Math.sin(an) * jit, y + Math.sin(an) * d + Math.cos(an) * jit); }
+          ctx.globalAlpha = a0 * fade; ctx.strokeStyle = ha(f.c, 0.35); ctx.lineWidth = Math.max(2, R * 0.12); ctx.stroke(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(0.8, R * 0.03); ctx.stroke();
         }
-        ctx.lineCap = 'butt'; break;
-      }
-      case 'splash': { // a crown of droplets thrown up and out, and a ring spreading
-        A(0.6 * fade); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, y, R * (0.6 + e * 1.6), R * (0.6 + e * 1.6) * 0.75, 0, 0, TAU); ctx.stroke();
-        A(0.5 * fade); ctx.strokeStyle = f.c; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(x, y + 2, R * (0.4 + e * 1.3), R * (0.4 + e * 1.3) * 0.75, 0, 0, TAU); ctx.stroke();
-        for (let i = 0; i < 10; i++) { const an = s + i / 10 * TAU, d = R * (0.5 + e * 1.4), h = Math.sin(q * Math.PI) * R * 0.9, px = x + Math.cos(an) * d, py = y + Math.sin(an) * d * 0.7 - h, dr = Math.max(1.5, R * 0.1 * fade);
-          A(fade); ctx.fillStyle = gloss(px, py, dr, '#ffffff', f.c, '#0d2e66'); ctx.beginPath(); ctx.arc(px, py, dr, 0, TAU); ctx.fill(); }
         break;
       }
-      case 'goo': { // strands of goo shooting out, stretching thin, then snapping into beads
+      case 'splash': { // droplets thrown up and out, and soft ripples spreading
+        for (let j = 0; j < 2; j++) { const rr = R * (0.4 + e * (1.3 + j * 0.4)); ctx.globalAlpha = a0 * fade * 0.8; ctx.beginPath(); ctx.ellipse(x, y, rr, rr * 0.75, 0, 0, TAU); softStroke(Math.max(1, R * 0.05), j ? f.c : '#ffffff', 0.6); }
+        ctx.globalAlpha = a0;
+        for (let i = 0; i < (lite ? 5 : 10); i++) { const an = s + i / 10 * TAU, d = R * (0.5 + e * 1.4), h = Math.sin(q * Math.PI) * R * 0.9; const px = x + Math.cos(an) * d, py = y + Math.sin(an) * d * 0.7 - h, dr = Math.max(1.5, R * 0.13 * fade); soft(px, py, dr * 1.6, f.c, 0.8 * fade, 0.45); soft(px - dr * 0.3, py - dr * 0.3, dr * 0.5, '#ffffff', 0.8 * fade, 0.3); }
+        break;
+      }
+      case 'goo': { // strands of goo shooting out, stretching thin, snapping into soft beads
         for (let i = 0; i < 7; i++) { const an = s + i / 7 * TAU + Math.sin(i * 3) * 0.3, d = R * (0.4 + e * 1.5), ex = x + Math.cos(an) * d, ey = y + Math.sin(an) * d + q * q * R * 0.6;
-          if (q < 0.55) { A(0.85); ctx.fillStyle = f.c; strand(x, y, ex, ey, Math.max(1, R * 0.16 * (1 - q)), R * 0.2); }
-          A(fade); ctx.fillStyle = gloss(ex, ey, R * 0.2, '#ffffff', f.c, '#3a4410'); ctx.beginPath(); ctx.arc(ex, ey, Math.max(1.5, R * 0.17 * (0.6 + 0.4 * fade)), 0, TAU); ctx.fill(); }
-        A(0.7 * fade); ctx.fillStyle = gloss(x, y, R * 0.7, '#ffffff', f.c, '#3a4410'); blobPathT(x, y, R * 0.6 * (1 - q * 0.6), s, G.realT, 0.15); ctx.fill();
+          if (q < 0.55) { ctx.globalAlpha = a0 * 0.75; ctx.fillStyle = ha(f.c, 0.85); strand(x, y, ex, ey, Math.max(1, R * 0.14 * (1 - q)), R * 0.2); ctx.globalAlpha = a0; }
+          soft(ex, ey, Math.max(2, R * 0.3 * (0.6 + 0.4 * fade)), f.c, 0.85 * fade, 0.5); soft(ex - R * 0.05, ey - R * 0.06, Math.max(1, R * 0.08), '#ffffff', 0.7 * fade, 0.3); }
+        softBlob(x, y, R * 0.55 * (1 - q * 0.6), s, T, 0.15, f.c, 0.7 * fade, 0.5);
         break;
       }
-      case 'blood': { // a spray of drops, then a splat left on the slide
-        A(0.75 * Math.min(1, q * 4) * fade); ctx.fillStyle = '#5a0a1d'; blobPathT(x, y, R * (0.6 + e * 0.5), s, 0, 0.25, 12); ctx.fill();
-        for (let i = 0; i < 12; i++) { const an = s + i * 2.39, d = R * (0.4 + e * (1.2 + (i % 4) * 0.3)), px = x + Math.cos(an) * d, py = y + Math.sin(an) * d + q * q * R * 0.5, dr = Math.max(1.2, R * (0.06 + 0.05 * (i % 3)) * (1 - q * 0.5));
-          A(fade); ctx.fillStyle = gloss(px, py, dr, '#ff9fb3', f.c, '#4a0818'); ctx.beginPath(); ctx.arc(px, py, dr, 0, TAU); ctx.fill(); }
+      case 'blood': { // a spray of drops, then a soft splat seeping into the slide
+        if (lite) soft(x, y, R * (0.8 + e * 0.6), '#5a0a1d', 0.6 * Math.min(1, q * 4) * fade, 0.55); else softBlob(x, y, R * (0.55 + e * 0.5), s, 0, 0.22, '#5a0a1d', 0.7 * Math.min(1, q * 4) * fade, 0.55);
+        for (let i = 0; i < (lite ? 5 : 12); i++) { const an = s + i * 2.39, d = R * (0.4 + e * (1.2 + (i % 4) * 0.3)), px = x + Math.cos(an) * d, py = y + Math.sin(an) * d + q * q * R * 0.5, dr = Math.max(1.5, R * (0.08 + 0.06 * (i % 3)) * (1 - q * 0.5)); soft(px, py, dr * 1.5, f.c, 0.9 * fade, 0.5); }
         break;
       }
-      case 'ghost': { // a ghost rising out of it, wailing, and fading away
-        const gy = y - e * R * 2.2, gr = R * (0.7 + e * 0.3), wob = Math.sin(G.realT * 6 + s) * gr * 0.15, C = f.c;
-        ctx.globalCompositeOperation = 'lighter'; glow(x + wob, gy, gr * 2.2, C, 0.5 * fade); ctx.globalCompositeOperation = 'source-over';
-        A(0.75 * fade); ctx.fillStyle = gloss(x + wob, gy, gr, '#ffffff', ha(C === '#ffffff' ? '#bff4ff' : C, 0.8), ha('#bff4ff', 0.1));
-        ctx.beginPath(); ctx.arc(x + wob, gy, gr, Math.PI, 0); for (let i = 0; i <= 6; i++) { const px = x + wob + gr - i / 6 * gr * 2, py = gy + gr * (1.1 + 0.25 * Math.sin(i * 2 + G.realT * 10)); ctx.lineTo(px, py); } ctx.closePath(); ctx.fill();
-        A(0.9 * fade); ctx.fillStyle = '#0a1a22'; ctx.beginPath(); for (const sg of [-1, 1]) { ctx.moveTo(x + wob + sg * gr * 0.32 + gr * 0.13, gy - gr * 0.1); ctx.ellipse(x + wob + sg * gr * 0.32, gy - gr * 0.1, gr * 0.13, gr * 0.2, 0, 0, TAU); }
-        ctx.moveTo(x + wob + gr * 0.14, gy + gr * 0.4); ctx.ellipse(x + wob, gy + gr * 0.4, gr * 0.14, gr * 0.24, 0, 0, TAU); ctx.fill();
+      case 'ghost': { // its soul leaves: a pale translucent wisp stretching up out of it and thinning away
+        const gy = y - e * R * 2.2, wob = Math.sin(T * 4 + s) * R * 0.2, C = '#bff4ff';
+        if (!lite) { ctx.globalCompositeOperation = 'lighter'; glow(x + wob, gy, R * 2.2, C, 0.45 * fade); ctx.globalCompositeOperation = 'source-over'; }
+        const NK = lite ? 2 : 5; for (let k = 0; k <= NK; k++) { const u = k / NK, px = x + wob * u + Math.sin(T * 5 + k) * R * 0.15 * u, py = y + (gy - y) * u; soft(px, py, R * (0.45 + u * 0.55), C, (0.3 + 0.4 * u) * fade, 0.35); }
+        soft(x + wob, gy, R * 0.6, '#ffffff', 0.4 * fade, 0.3);
+        for (const sg of [-1, 1]) soft(x + wob + sg * R * 0.22, gy - R * 0.05, R * 0.14, '#0a1a22', 0.25 * fade, 0.3);
         break;
       }
-      case 'germ': { // a cloud of wriggling germs spreading out
-        A(0.35 * fade); ctx.fillStyle = (() => { const g = ctx.createRadialGradient(x, y, 0, x, y, R * (1 + e * 1.5)); g.addColorStop(0, ha(f.c, 0.5)); g.addColorStop(1, ha(f.c, 0)); return g; })(); ctx.beginPath(); ctx.arc(x, y, R * (1 + e * 1.5), 0, TAU); ctx.fill();
-        for (let i = 0; i < 9; i++) { const an = s + i * 2.39 + G.realT * 0.5, d = R * (0.3 + e * (1 + (i % 3) * 0.4)), gx = x + Math.cos(an) * d, gy = y + Math.sin(an) * d, gr = Math.max(1.5, R * 0.13);
-          A(fade); ctx.fillStyle = gloss(gx, gy, gr, '#ffe0ef', f.c, '#7a1840'); ctx.beginPath(); ctx.ellipse(gx, gy, gr * 1.3, gr, an, 0, TAU); ctx.fill();
-          ctx.strokeStyle = f.c; ctx.lineWidth = 1; ctx.beginPath(); for (let j = 0; j < 6; j++) { const ca = an + j / 6 * TAU, w = Math.sin(G.realT * 20 + j + i) * 0.4; ctx.moveTo(gx + Math.cos(ca) * gr * 1.1, gy + Math.sin(ca) * gr * 1.1); ctx.lineTo(gx + Math.cos(ca + w) * gr * 1.8, gy + Math.sin(ca + w) * gr * 1.8); } ctx.stroke(); }
+      case 'germ': { // a soft cloud of rod-shaped bacteria tumbling outwards, each with a fine whip of a flagellum
+        if (!lite) soft(x, y, R * (1 + e * 1.6), f.c, 0.28 * fade, 0.3);
+        for (let i = 0; i < (lite ? 4 : 9); i++) {
+          const an = s + i * 2.39 + T * 0.4, d = R * (0.3 + e * (1 + (i % 3) * 0.4)), gx = x + Math.cos(an) * d, gy = y + Math.sin(an) * d, rot = an * 1.7 + T * (i % 2 ? 1 : -1), L2 = Math.max(3, R * 0.32), w = Math.max(1.5, R * 0.1);
+          ctx.globalAlpha = a0 * fade; ctx.beginPath(); ctx.moveTo(gx - Math.cos(rot) * L2 / 2, gy - Math.sin(rot) * L2 / 2); ctx.lineTo(gx + Math.cos(rot) * L2 / 2, gy + Math.sin(rot) * L2 / 2); softStroke(w, f.c, 0.85);
+          ctx.beginPath(); let fx = gx - Math.cos(rot) * L2 / 2, fy = gy - Math.sin(rot) * L2 / 2; ctx.moveTo(fx, fy);
+          for (let j = 1; j <= 4; j++) { const wv = Math.sin(T * 18 + j * 1.6 + i) * w; fx -= Math.cos(rot) * L2 * 0.3 + Math.sin(rot) * wv * 0.5; fy -= Math.sin(rot) * L2 * 0.3 - Math.cos(rot) * wv * 0.5; ctx.lineTo(fx, fy); }
+          if (!lite) { ctx.strokeStyle = ha(f.c, 0.5); ctx.lineWidth = Math.max(0.5, w * 0.25); ctx.stroke(); }
+        }
         break;
       }
-      case 'fire': { // a fireball blooming, rolling up into smoke
+      case 'fire': { // a soft fireball blooming and rolling up into smoke
         const rc = RAW_COL; RAW_COL = true;
-        A(0.5 * fade); ctx.fillStyle = '#2a1a10'; ctx.beginPath(); ctx.arc(x, y - e * R * 1.4, R * (0.6 + e * 1.2), 0, TAU); ctx.fill();
+        soft(x, y - e * R * 1.4, R * (0.8 + e * 1.4), '#2a1a10', 0.45 * fade, 0.4);
         ctx.globalCompositeOperation = 'lighter';
-        for (const [k, c] of [[1.3, '#ff3d00'], [0.95, '#ff9e00'], [0.55, '#fff3b0']]) { A(0.85 * fade); const rr = R * k * (0.5 + e); ctx.fillStyle = (() => { const g = ctx.createRadialGradient(x, y - e * R * 0.6, 0, x, y - e * R * 0.6, rr); g.addColorStop(0, c); g.addColorStop(1, c + '00'); return g; })(); ctx.beginPath(); ctx.arc(x, y - e * R * 0.6, rr, 0, TAU); ctx.fill(); }
+        for (const [k, c] of TF_FIRE) soft(x, y - e * R * 0.6, R * k * (0.5 + e), c, 0.8 * fade, 0.2);
         RAW_COL = rc; break;
       }
-      case 'acid': { // a dome of acid bubbles boiling up and popping, with steam
-        for (let i = 0; i < 10; i++) { const k = (q * 1.5 + i / 10) % 1, an = s + i * 2.39, d = R * (0.2 + 0.9 * ((i * 7) % 10) / 10), bx2 = x + Math.cos(an) * d, by2 = y + Math.sin(an) * d * 0.6 - k * R * 0.8, br = Math.max(1.5, R * 0.18 * Math.sin(k * Math.PI));
-          A(0.9 * fade); ctx.fillStyle = gloss(bx2, by2, br, '#f4ffd0', ha(f.c, 0.7), ha('#6b8f14', 0.6)); ctx.beginPath(); ctx.arc(bx2, by2, br, 0, TAU); ctx.fill();
-          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.stroke(); }
-        A(0.25 * fade); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = R * 0.18; ctx.lineCap = 'round'; ctx.beginPath(); for (let i = 0; i < 3; i++) { const sx0 = x + (i - 1) * R * 0.5, sy0 = y - R * (0.6 + e * 1.2); ctx.moveTo(sx0, sy0 + R * 0.5); ctx.bezierCurveTo(sx0 + R * 0.3, sy0 + R * 0.2, sx0 - R * 0.3, sy0, sx0, sy0 - R * 0.4); } ctx.stroke(); ctx.lineCap = 'butt';
+      case 'acid': { // soft acid bubbles boiling up and popping, with steam
+        for (let i = 0; i < (lite ? 5 : 10); i++) { const k = (q * 1.5 + i / 10) % 1, an = s + i * 2.39, d = R * (0.2 + 0.9 * ((i * 7) % 10) / 10), bx2 = x + Math.cos(an) * d, by2 = y + Math.sin(an) * d * 0.6 - k * R * 0.8, br = Math.max(1.5, R * 0.2 * Math.sin(k * Math.PI));
+          soft(bx2, by2, br * 1.4, f.c, 0.7 * fade, 0.55); soft(bx2 - br * 0.3, by2 - br * 0.35, br * 0.4, '#ffffff', 0.7 * fade, 0.3); }
+        ctx.globalAlpha = a0 * 0.3 * fade; ctx.beginPath(); for (let i = 0; i < 3; i++) { const sx0 = x + (i - 1) * R * 0.5, sy0 = y - R * (0.6 + e * 1.2); ctx.moveTo(sx0, sy0 + R * 0.5); ctx.bezierCurveTo(sx0 + R * 0.3, sy0 + R * 0.2, sx0 - R * 0.3, sy0, sx0, sy0 - R * 0.4); }
+        softStroke(Math.max(1, R * 0.12), '#ffffff', 0.8);
         break;
       }
-      case 'oil': { // iridescent rings sliding out across the slide
-        const hues = ['#ff5fa2', '#ffd23f', '#7dff6a', '#3fe0ff', '#b49bff'];
-        for (let i = 0; i < hues.length; i++) { A(0.55 * fade); ctx.strokeStyle = hues[i]; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(x, y, R * (0.4 + e * 1.4 + i * 0.12), R * (0.4 + e * 1.4 + i * 0.12) * 0.7, 0, 0, TAU); ctx.stroke(); }
+      case 'oil': { // thin-film colours spreading out across the slide, soft
+        const hues = TF_HUES;
+        for (let i = 0; i < hues.length; i++) { ctx.globalAlpha = a0 * fade * 0.7; ctx.beginPath(); const rr = R * (0.4 + e * 1.4 + i * 0.12); ctx.ellipse(x, y, rr, rr * 0.7, 0, 0, TAU); softStroke(Math.max(1, R * 0.05), hues[i], 0.5); }
         break;
       }
       default: { ctx.globalCompositeOperation = 'lighter'; glow(x, y, R * (1 + e), f.c, 0.6 * fade); }

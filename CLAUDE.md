@@ -67,7 +67,7 @@ At the start of each request, check whether the model fits the job, and if not, 
   - `META` is persistent: `localStorage sd_meta`. `SET` is settings: `sd_settings`, defined in `settings.js` `SETTINGS_DEF` with Play/View/Sound/Data tabs.
   - `UI` is the DOM UI (`ui.js`).
   - `ctx`, `W`, `H` and `S` (world→screen scale), `cam`, and `PAL` (colours).
-  - `col()` greyscales colours unless `RAW_COL` is true. `SET.view`: Lab view (default) keeps the slide grey apart from you, danger and damage types you have met; Arcade view (`viewArcade()`) is full colour. Stains and research grants are retired (v9.11; `grants.js` is mostly inert). Campaign levels draw with `RAW_COL` on, in pink.
+  - `col()` greyscales colours unless `RAW_COL` is true. `SET.view`: Lab view (default) has no colour at all on the slide (`labGrey` in typefx.js, after the world is drawn) and no status rings; Arcade view (`viewArcade()`) is full colour with draining rings. Damage-type looks live in `typefx.js` (soft, organic: see STYLE.md). Stains and research grants are retired (v9.11; `grants.js` is mostly inert). Campaign levels draw with `RAW_COL` on, in pink.
 - Main loop (`game.js`): `update(dt)` runs systems; the director spawns; `G.lootQueue` holds boxes, opened via `UI.openLoot(req)` and `genLoot(req)`.
 - Game modes (`UI.sample`):
   - `s002` Petri Dish wave mode (`waves.js` and `campaign.js`): 20 waves, a boss every 5th. Optional wave 0 tutorial is in `tutorial.js`.

@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 2 });
-  const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
+  const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n').slice(1, 4).join(' | ')));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(300);
   await page.evaluate(() => { META.seen = META.seen || {}; for (const id in ENEMY_INTRO) META.seen[id] = 1; UI.quickStart(); G.lootQueue = []; G.state = 'play'; G.weapons = G.weapons.map(() => null); G.spells = []; document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); });
   const scene = (kind, view, t) => page.evaluate(([kind, view, t]) => {
@@ -19,12 +19,12 @@ const { chromium } = require('playwright');
       const g = makeEnemy(ENEMIES.brute, 55, -40); g.charmed = true; g.charmT = 4; g.ghost = true; g.svx = 40; g.hp = g.maxHp = 1e9; g.speed = 0; G.enemies.push(g);
     } else {
       const ids = ['bath', 'waterlogged', 'heartburn', 'hemorrhage', 'holywater', 'pandemic', 'greasefire', 'meltdown', 'slipnslide'];
-      ids.forEach((id, i) => { const [x, y] = at(i); typeRxFx(x, y, 14, id); G.tfx[G.tfx.length - 1].t0 = G.realT - G.tfx[G.tfx.length - 1].dur * 0.35; });
+      const all = []; ids.forEach((id, i) => { const [x, y] = at(i); G.tfxLast = {}; G.tfx = []; typeRxFx(x, y, 14, id); const f = G.tfx[0]; f.t0 = G.realT - f.dur * 0.35; all.push(f); }); G.tfx = all; // (past the busy-fight cap: all nine at once)
     }
-    try { render(); } catch (err) { return err.message + ' ' + err.stack.split('\n')[1]; }
+    try { render(); } catch (err) { return err.message + ' ' + err.stack.split('\n').slice(1, 5).join(' | '); }
     return cv.toDataURL('image/png');
   }, [kind, view, t]);
-  for (const kind of ['status', 'zones', 'rx']) for (const view of ['arcade', 'lab']) { const m = await scene(kind, view, 12.3); if (!m.startsWith('data:')) errors.push(m); else require('fs').writeFileSync(`fx_${kind}_${view}.png`, Buffer.from(m.split(',')[1], 'base64')); }
+  for (const kind of ['status', 'zones', 'rx']) for (const view of ['arcade', 'lab']) { const m = await scene(kind, view, 12.3); if (!m.startsWith('data:')) errors.push(kind + ' ' + view + ' ' + m); else require('fs').writeFileSync(`fx_${kind}_${view}.png`, Buffer.from(m.split(',')[1], 'base64')); }
   console.log('ERRORS', JSON.stringify(errors), errors.length ? 'FAIL' : 'ok');
   await b.close();
 })();
