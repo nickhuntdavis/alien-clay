@@ -2,7 +2,7 @@
 
 ## Current state
 - Version v9.18 (versionCode 268): merge of this session's damage type rework (v9.10 to v9.16 here) with `ccr-31bb56f7` (tails fix), `ccr-ed6358e4` (armour bubble, upgrade cards; it also used v9.10 to v9.17) and `ccr-34ee239c` (Level 0). Pushed to `main`: start new work from it.
-- Level 0 (from `ccr-34ee239c`): Session 2 still to do: a fresh save goes straight into it (with a skip link), wave 0 (Pre-pre-pre-pre-school) is retired, `resetTutorial()` clears `META.school`
+- Level 0 (from `ccr-34ee239c`): fresh saves now go straight into it (with a skip link), wave 0 is retired, and it has an 11th room (junk DNA). Was: Session 2 still to do: a fresh save goes straight into it (with a skip link), wave 0 (Pre-pre-pre-pre-school) is retired, `resetTutorial()` clears `META.school`
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Copy sheet
@@ -20,6 +20,8 @@ Tone: crude, not British slang. Force stays the untyped base damage (no reaction
 - Passes: 1 names + 28 reactions as data; 2 views + skins; 3 type mechanics; 4 extra reactions; 5 visuals; 6 balance sims.
 
 ## Recent changes (newest first)
+- (`ccr-34ee239c` v9.12: Level 0 lesson 11, Junk in the Trunk (`junk` station): an Antibody carrier whose junk never sheds in school (another comes if the helix decays); gate opens once Spit Take is absorbed and the room is clear. The last room has no numbered gate (digits stop at 9): its membrane seals it. Random junk carriers are off in Level 0 (`G.nextJunk`).
+- (`ccr-34ee239c` v9.11: START SWIMMING sends a fresh save (no runs, `META.school` unset) or one whose tutorial was reset (`META.schoolDue`, set by `resetTutorial`) to Level 0 (`schoolDue`/`schoolStart`). SKIP TUTORIAL (`#schoolSkip`, top of the HUD, Level 0 only) quits to the title and sets `META.school = 2`; beating it sets 1. Wave 0 (Pre-pre-pre-pre-school) retired: `tutWaveInit` returns at once (code kept).
 - Merged `ccr-34ee239c` (its v9.10): Level 0, Swimming Lessons.
 - (`ccr-34ee239c` v9.10): Level 0, Swimming Lessons (`school.js`, sample `s009`, `LEVELS[1]`, first in the Levels list). One straight tube of 9 rooms; each room is an arena with a station (`A.st`) whose gate opens on an action, not a kill quota (`schoolDone`): shoot, collect (needs RUN: COLLECT; places the Personal stain if not owned), box, hunt (its target appears once you pick HUNT), modes (KITE/ORBIT/HOLD), sprint, feat (grants Power Shower if no Feat), hazard (a fixed acid pit in the room; `steerTerrain` now adds level walls and terrain together), armour (+4 Shell Suit). Autorun pushes on between rooms (`schoolSteer`, Level 0 only). No dying: `schoolSave` (before the rewind in hurtPlayer). Lesson messages replace the queue and stay up longer (`hold` on msgQ entries). HUD line shows the task (`schoolTask`). Test `schooltest` (a natural run finishes in 85 to 110s with the taps the HUD asks for).
 - Merged `ccr-31bb56f7` (its v9.10): the player never grows extra tails; each +1 projectile adds exactly 1 (rings no longer x4).

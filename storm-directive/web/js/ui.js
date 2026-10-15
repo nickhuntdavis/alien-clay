@@ -61,7 +61,8 @@ const UI = {
       if (G.chrono.snaps.length < 2) { UI.toast('Timeline too short to rewind yet'); return; }
       startRewind(false);
     });
-    $('playBtn').addEventListener('click', () => UI.openSamples());
+    $('playBtn').addEventListener('click', () => schoolDue() ? schoolStart() : UI.openSamples()); // (a fresh save goes to Level 0 first: school.js)
+    $('schoolSkip').addEventListener('click', schoolSkip);
     $('quickBtn').addEventListener('click', () => UI.quickStart());
     $('dailyBtn').addEventListener('click', () => startDaily());
     $('dPrev').addEventListener('click', () => UI.draftStep(-1));
@@ -151,6 +152,7 @@ const UI = {
     UI.afterIntro();
   },
   afterIntro() {
+    $('schoolSkip').classList.toggle('on', schoolOn()); // (Level 0's skip link)
     if (G.wave && G.wave.camp) sysMsg('THE SCIENTIST', `"Subject in the dish. Twenty drops. Every fifth one is something big. Survive them all and you get the egg." Clear a wave, open your DNA, then start the next.`, XR.dim, true);
     else if (G.wave) sysMsg('THE SCIENTIST', '"Subject in the dish. One drop at a time. Let us see what you become." Clear a wave, open your DNA, then start the next.', XR.dim, true);
     else sysLine('start', true);

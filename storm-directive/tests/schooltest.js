@@ -20,7 +20,7 @@ const { chromium } = require('playwright');
       const R = V.arena, st = R && R.A.st;
       if (st && !tasks[st]) tasks[st] = SCHOOL_ST[st].task(R);
       G.manual = null;
-      if (st === 'collect') G.moveDir = 'collect'; else if (st === 'hunt') G.moveDir = 'hunt'; else if (st === 'modes' || st === 'armour') G.moveDir = 'kite';
+      if (st === 'collect') G.moveDir = 'collect'; else if (st === 'hunt' || st === 'junk') G.moveDir = 'hunt'; else if (st === 'modes' || st === 'armour') G.moveDir = 'kite';
       else if (st === 'sprint') G.manual = { x: 0, y: -1, sprint: true };
       else if (st === 'feat') { const w = G.spells.find(Boolean); if (w && w.cd <= 0 && G.enemies.some(e => !e.dead && Math.hypot(e.x - G.player.x, e.y - G.player.y) < w.s.range)) featTap(w); }
       else if (!R) G.moveDir = 'kite';
@@ -33,13 +33,14 @@ const { chromium } = require('playwright');
   const h = await page.evaluate(() => {
     const V = G.lvl, at = window.at, tasks = window.tasks;
     const won = step(400, act);
-    return { won, t: Math.round(G.t), at, tasks, task0: SCHOOL.arenas.length, state: G.state, metaSchool: META.school, best: !!(META.lvBest && META.lvBest.school), unl: META.lvUnlocked || 1, spells: G.spells.filter(Boolean).length, armour: G.P.armour };
+    return { won, t: Math.round(G.t), junk: junkK('spitter'), at, tasks, task0: SCHOOL.arenas.length, state: G.state, metaSchool: META.school, best: !!(META.lvBest && META.lvBest.school), unl: META.lvUnlocked || 1, spells: G.spells.filter(Boolean).length, armour: G.P.armour };
   });
   console.log('RUN', JSON.stringify(h));
-  for (const st of ['shoot', 'collect', 'box', 'hunt', 'modes', 'sprint', 'feat', 'hazard', 'armour']) if (h.at[st] == null) fails.push(st + ' gate never opened');
+  for (const st of ['shoot', 'collect', 'box', 'hunt', 'modes', 'sprint', 'feat', 'hazard', 'armour', 'junk']) if (h.at[st] == null) fails.push(st + ' gate never opened');
   if (!h.won || h.metaSchool !== 1 || !h.best) fails.push('the egg did not end it');
   if (h.unl > 1) fails.push('school unlocked a level');
   if (!h.spells || h.armour < 4) fails.push('no Feat or armour handed out');
+  if (!h.junk) fails.push('no junk DNA absorbed');
   if (h.t > 300) fails.push('too slow: ' + h.t + 's');
   await page.screenshot({ path: 'school_end.png' });
   // The COLLECT gate, and the second wind (fresh starts, straight into the room).
@@ -58,6 +59,23 @@ const { chromium } = require('playwright');
   console.log('COLLECT', JSON.stringify(c));
   if (!c.entered || !c.held || !c.opened) fails.push('collect gate wrong: ' + JSON.stringify(c));
   if (!c.saved) fails.push('no second wind');
+  // A fresh save: START SWIMMING goes to Level 0; SKIP TUTORIAL ends it and sends you to the title; a tutorial reset brings it back.
+  const rt = await page.evaluate(() => {
+    G = null; UI.show('title'); delete META.school; delete META.schoolDue; const keep = RUNLOG.slice(); RUNLOG.length = 0;
+    const due = schoolDue(); document.getElementById('playBtn').click(); const sample = UI.sample, screen = document.getElementById('seqsel').classList.contains('on');
+    UI.startGame(false); const skipShown = document.getElementById('schoolSkip').classList.contains('on');
+    document.getElementById('schoolSkip').click();
+    const after = { g: G, school: META.school, due: schoolDue(), title: document.getElementById('title').classList.contains('on') };
+    resetTutorial(); const dueAgain = schoolDue();
+    UI.sample = 's001'; UI.startGame(false); const skipHidden = !document.getElementById('schoolSkip').classList.contains('on'); G = null; UI.show('title');
+    RUNLOG.length = 0; RUNLOG.push(...keep); delete META.schoolDue; META.school = 1; saveMeta();
+    return { due, sample, screen, skipShown, after, dueAgain, skipHidden };
+  });
+  console.log('ROUTE', JSON.stringify(rt));
+  if (!rt.due || rt.sample !== 's009' || !rt.screen) fails.push('fresh save not sent to Level 0');
+  if (!rt.skipShown || !rt.skipHidden) fails.push('skip button shown wrongly');
+  if (rt.after.g !== null || rt.after.school !== 2 || rt.after.due || !rt.after.title) fails.push('skip wrong: ' + JSON.stringify(rt.after));
+  if (!rt.dueAgain) fails.push('tutorial reset did not bring Level 0 back');
   console.log(fails.length ? 'FAIL ' + fails.join(' | ') : 'school ok');
   console.log('ERRORS', errors.length ? errors.slice(0, 4) : 'none'); await b.close();
 })();

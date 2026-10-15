@@ -239,6 +239,7 @@ function tutReact(id) { if (!tutSeen('react')) { G.tutReactName = REACTIONS[id] 
 // ---------------------------------------------------------------- wave 0
 // At the start of a wave-mode run: does it open with pre-school?
 function tutWaveInit(V) {
+  return; // (retired in v9.11: Level 0, Swimming Lessons, teaches the basics now. The wave 0 code below is kept but not reached.)
   if (META.tutWave == null && RUNLOG.some(r => r.wave)) { META.tutWave = 1; saveMeta(); } // (not your first wave run: no pre-school unless you reset the tutorial)
   if (!META.tutWave && !tutOff()) { V.n = -1; V.tut = true; }
 }

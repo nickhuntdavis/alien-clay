@@ -5,7 +5,8 @@
 // There is no dying in school: a lethal hit gives you a second wind instead.
 // Hooks: schoolTick (lvTick), schoolEnter / schoolArena / schoolDone (lvTick arenas), schoolTask (drawLevelHud),
 // schoolSteer (autoSteer: autorun swims you on down the tube), schoolSave (hurtPlayer), schoolWin (lvWin),
-// schoolEulogy (the end screen).
+// schoolEulogy (the end screen), schoolDue / schoolStart (the title's START SWIMMING), schoolSkip (the HUD's SKIP TUTORIAL).
+// Wave 0 (Pre-pre-pre-pre-school) is retired: tutWaveInit no longer starts it.
 
 const SCHOOL_COL = '#ffb3c6';
 const SCHOOL = {
@@ -24,6 +25,20 @@ const SCHOOL = {
     '##............##',
     '###..........###',
     '#####......#####',
+    '######....######',
+    '######....######',
+    '######....######',
+    '######....######',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
+    '##............##',
     '######....######',
     '######....######',
     '######....######',
@@ -169,20 +184,21 @@ const SCHOOL = {
     '################',
   ],
   arenas: [
-    { st: 'shoot', gate: '1', rect: [2, 128, 13, 135] },
-    { st: 'collect', gate: '2', rect: [2, 116, 13, 123] },
-    { st: 'box', gate: '3', rect: [2, 105, 13, 111] },
-    { st: 'hunt', gate: '4', rect: [2, 89, 13, 100] },
-    { st: 'modes', gate: '5', rect: [2, 75, 13, 84] },
-    { st: 'sprint', gate: '6', rect: [2, 57, 13, 70] },
-    { st: 'feat', gate: '7', rect: [2, 43, 13, 52] },
-    { st: 'hazard', gate: '8', rect: [2, 27, 13, 38] },
-    { st: 'armour', gate: '9', rect: [2, 14, 13, 22] },
+    { st: 'shoot', gate: '1', rect: [2, 142, 13, 149] },
+    { st: 'collect', gate: '2', rect: [2, 130, 13, 137] },
+    { st: 'box', gate: '3', rect: [2, 119, 13, 125] },
+    { st: 'hunt', gate: '4', rect: [2, 103, 13, 114] },
+    { st: 'modes', gate: '5', rect: [2, 89, 13, 98] },
+    { st: 'sprint', gate: '6', rect: [2, 71, 13, 84] },
+    { st: 'feat', gate: '7', rect: [2, 57, 13, 66] },
+    { st: 'hazard', gate: '8', rect: [2, 41, 13, 52] },
+    { st: 'armour', gate: '9', rect: [2, 28, 13, 36] },
+    { st: 'junk', rect: [2, 14, 13, 23] },
   ],
 };
 // Lesson names for the room banners (lesson 1, autorun, is the stretch before the first room).
 const SCHOOL_NAMES = { shoot: 'LESSON 2: LOOK, NO HANDS', collect: 'LESSON 3: HOOVERING UP', box: 'LESSON 4: UNBOXING', hunt: 'LESSON 5: ON THE PULL',
-  modes: 'LESSON 6: SWIMMING STYLES', sprint: 'LESSON 7: A QUICKIE', feat: 'LESSON 8: PERFORMANCE ANXIETY', hazard: 'LESSON 9: ACID REFLUX', armour: 'LESSON 10: USE PROTECTION' };
+  modes: 'LESSON 6: SWIMMING STYLES', sprint: 'LESSON 7: A QUICKIE', feat: 'LESSON 8: PERFORMANCE ANXIETY', hazard: 'LESSON 9: ACID REFLUX', armour: 'LESSON 10: USE PROTECTION', junk: 'LESSON 11: JUNK IN THE TRUNK' };
 for (const A of SCHOOL.arenas) { A.name = SCHOOL_NAMES[A.st]; A.quota = 0; }
 LEVELS.push(SCHOOL);
 LV_SAMPLE.s009 = LEVELS.length - 1;
@@ -213,7 +229,7 @@ const SCHOOL_ST = {
   shoot: {
     enter(R) { schoolSay('Your weapon fires by itself, at whatever is nearest. All you do is swim. Let it work.'); schoolFoes(R, ['crawler', 'crawler', 'crawler', 'crawler', 'crawler'], stFar(R.A.rect)); },
     done: R => !schoolLeft(R),
-    task: R => `YOUR WEAPON FIRES ITSELF: ${schoolLeft(R)} LEFT` },
+    task: R => `WEAPON FIRES ITSELF: ${schoolLeft(R)} LEFT` },
   collect: {
     enter(R) {
       schoolSay('The RUN button (bottom left) picks how autorun swims. Tap it until it says COLLECT: autorun goes for anything worth picking up.');
@@ -249,7 +265,7 @@ const SCHOOL_ST = {
       if (!schoolLeft(R) && !R.tried && (R.again = (R.again || 2) - dt) <= 0) { R.again = 3; schoolFoes(R, ['crawler', 'crawler', 'skitter'], stFar(R.A.rect)); }
     },
     done: R => R.tried && !schoolLeft(R),
-    task: R => R.tried ? `${schoolLeft(R)} LEFT` : 'TAP RUN: TRY KITE, ORBIT OR HOLD' },
+    task: R => R.tried ? `${schoolLeft(R)} LEFT` : 'TAP RUN: KITE, ORBIT OR HOLD' },
   sprint: {
     enter() { schoolSay('Sprinting is up to you. Touch and drag to steer, then push right out to the edge: 55% faster. It burns stamina, the thin ring inside your health ring.'); },
     tick(R, dt) { if (G.stam && G.stam.sprint) R.sprintT = (R.sprintT || 0) + dt; },
@@ -285,6 +301,25 @@ const SCHOOL_ST = {
     tick(R) { if (G.armFlash && G.armFlash !== R.flash) { R.flash = G.armFlash; if (!R.hits++) floatText(me().x, me().y - 40, 'ARMOUR SOAKED IT', '#d6e4f0', 13, 1.2); } },
     done: R => !schoolLeft(R),
     task: R => `ARMOUR SOAKS HITS: ${schoolLeft(R)} LEFT` },
+  junk: { // (Lateral Gene Transfer: in a real run a carrier turns up every 40 to 55s, and sheds its junk after 30s)
+    enter(R) {
+      schoolSay('See the white helix round that Antibody? Junk DNA. Kill it, then swim into the helix it drops: you keep a little of what it was for the rest of the run. Usually it sheds after 30 seconds; here it waits.');
+      R.k0 = junkK('spitter');
+      schoolFoes(R, ['crawler', 'crawler', 'crawler'], R.A.rect, 300);
+    },
+    tick(R) {
+      const C = G.junkE;
+      if (C && !C.dead) C.junk = G.t; // (it never sheds in school)
+      else if (!C && !G.junkDrops.length && junkK('spitter') <= R.k0 && junkK('spitter') < JUNK.stacks) { // (a carrier, and another if the helix decayed)
+        schoolFoes(R, ['spitter'], stFar(R.A.rect));
+        const e = R.foes[R.foes.length - 1];
+        e.junk = G.t; e.junkPing = G.realT; G.junkE = e; e.hp *= JUNK.hpK; e.maxHp *= JUNK.hpK;
+        banner('JUNK DNA!', '#e9f5db'); sfx('level');
+      }
+    },
+    got: R => junkK('spitter') > R.k0 || junkK('spitter') >= JUNK.stacks,
+    done: R => SCHOOL_ST.junk.got(R) && !schoolLeft(R),
+    task: R => SCHOOL_ST.junk.got(R) ? `${schoolLeft(R)} LEFT` : G.junkDrops.length ? 'SWIM INTO THE HELIX' : 'KILL THE ONE WITH THE HELIX' },
 };
 
 // ---------------------------------------------------------------- hooks
@@ -292,20 +327,21 @@ const SCHOOL_ST = {
 function schoolTick() {
   if (!schoolOn()) return;
   const V = G.lvl;
+  if (!V.msg.junk) { V.msg.junk = 1; G.nextJunk = 1e12; } // (no random junk DNA here: lesson 11 has its own)
   if (!V.msg.start && G.t > 1.2) { V.msg.start = 1; schoolSay('Left alone, you swim yourself: that is autorun. Touch and drag anywhere to steer; let go and autorun takes over again.'); }
 }
 function schoolEnter(R) { R.from = G.moveDir; SCHOOL_ST[R.A.st].enter(R); }
 function schoolArena(R, dt) { const S = SCHOOL_ST[R.A.st]; if (S.tick) S.tick(R, dt); }
 function schoolDone(R) {
   const ok = SCHOOL_ST[R.A.st].done(R);
-  if (ok) { G.lvl.passed = (G.lvl.passed || 0) + 1; if (R.A.st === 'armour') schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); }
+  if (ok) { G.lvl.passed = (G.lvl.passed || 0) + 1; if (R.A.st === 'junk') schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); }
   return ok;
 }
 // The HUD line: what to do now.
 function schoolTask(R) {
   if (R && R.A.st) return SCHOOL_ST[R.A.st].task(R);
   const n = G.lvl.passed || 0;
-  return n >= SCHOOL.arenas.length ? 'THE EGG: GO ON' : n ? 'SWIM ON' : 'LESSON 1: LET AUTORUN SWIM YOU ON';
+  return n >= SCHOOL.arenas.length ? 'THE EGG: GO ON' : n ? 'SWIM ON' : 'LESSON 1: AUTORUN';
 }
 // Autorun: on down the tube between rooms, and to whatever the room is about inside one.
 function schoolSteer(p) {
@@ -318,8 +354,21 @@ function schoolSteer(p) {
     let t = null, td = 1e9; for (const e of R.foes || []) { const d = e.dead ? 1e9 : Math.hypot(e.x - p.x, e.y - p.y); if (d < td) { td = d; t = e; } }
     if (t && td > 160) return { x: t.x, y: t.y, w: 0.8 };
   }
+  if (st === 'junk' && G.junkDrops.length) return { x: G.junkDrops[0].x, y: G.junkDrops[0].y, w: 1.6 };
+  if (st === 'junk' && G.junkE && !G.junkE.dead && Math.hypot(G.junkE.x - p.x, G.junkE.y - p.y) > 200) return { x: G.junkE.x, y: G.junkE.y, w: 0.8 };
   if (st === 'hazard') return { x: (R.A.rect[0] + R.A.rect[2] + 1) / 2 * LV_C, y: (R.A.rect[1] + 1) * LV_C, w: 0.9 };
   return null;
+}
+// The title's START SWIMMING: a fresh save (no runs yet), or one whose tutorial was reset, goes to Level 0 first.
+const schoolDue = () => META.schoolDue === 1 || (META.school == null && !RUNLOG.length);
+function schoolStart() { UI.sample = 's009'; openSeq(); }
+// The SKIP TUTORIAL button (top of the HUD, Level 0 only): back to the title, and START SWIMMING goes to the samples from then on.
+function schoolSkip() {
+  if (!schoolOn()) return;
+  META.school = META.school || 2; delete META.schoolDue; saveMeta();
+  logRun(G, 'QUIT'); G = null;
+  $('schoolSkip').classList.remove('on');
+  UI.show('title'); UI.renderBest(); UI.toast('TUTORIAL SKIPPED. LEVEL 0 IS IN THE CAMPAIGN LIST.');
 }
 // No dying in school: a second wind instead.
 function schoolSave() {
@@ -336,7 +385,7 @@ function schoolWin(at) {
   const V = G.lvl;
   if (V.won) return;
   V.won = true;
-  META.school = 1;
+  META.school = 1; delete META.schoolDue;
   META.lvBest = META.lvBest || {};
   if (!META.lvBest.school || G.t < META.lvBest.school) META.lvBest.school = G.t;
   saveMeta();
@@ -348,5 +397,5 @@ function schoolWin(at) {
   after(2.6, () => { if (G && G.lvl && G.state === 'play') { G.state = 'won'; if (typeof UI !== 'undefined') UI.showVictory(); } });
 }
 function schoolEulogy() {
-  return `Swimming Lessons passed. You can swim, shoot, collect, hunt, sprint, perform a Feat, dodge acid and wear protection. In a real run there are four hundred million of you, the way through is yours to find, and only one gets the egg.`;
+  return `Swimming Lessons passed. You can swim, shoot, collect, hunt, sprint, perform a Feat, dodge acid, wear protection and steal junk DNA. In a real run there are four hundred million of you, the way through is yours to find, and only one gets the egg.`;
 }
