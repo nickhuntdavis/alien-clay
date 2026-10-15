@@ -215,3 +215,77 @@ Names checked against `web/js` on v9.20: none of the 33 clash with an existing c
 | Area and control | Sofa Crevice (Soul), Naughty Corner (Water), Dutch Oven (Cooties), Baby Monitor (Static) |
 | Defence and healing | Latex Barrier (Blood), Kiss It Better (Cooties), Nap Time (Soul), Out of Body (Soul) |
 | Character-locked | Lightbulb Moment (Static, Bright Spark), Elbows Out (Force, Firstborn), Come Play With Us (Force, Twins), Belly Flop (Force, Chonker) |
+
+## 8. Ultimates (one per run)
+
+A rare, oversized version of a Feat. It works like weapon Mastery: only one Feat a run can become Ultimate.
+
+**Rules**
+1. **Eligible:** the Feat is at Lv 10 (max) and the run is past wave 15 (Petri Dish) or 12 minutes (other modes).
+2. **Rare:** once eligible, each level or DNA box has a 3% chance (luck multiplies it) to swap one card for the **ULTIMATE** card of one of your Lv 10 Feats. It never shows in Achievement DNA, Upgrade All or the Recycler.
+3. **One per run:** taking it locks the other slot out for the rest of the run, and the card says so ("Only one Feat a run can go Ultimate. This takes it."). Skipping it does not raise the chance of seeing it again.
+4. **Cost:** a stamina Feat costs a full bar; a cooldown Feat triples its cooldown. Being huge is the point, so it should not fire often.
+5. **Look:** a one-off screen moment (the music dips, a brief pause on impact, and the Feat's name shown once across the slide on its first use). After that it plays like a normal Feat, just bigger.
+
+**Tone:** dry and deadpan; bodies, sex, contraception, the microscopic world, real science. The first-pass ideas (sections 1 to 4) still use the old tone and need a rewrite to match.
+
+### Current Feats
+
+| Feat | Ultimate | What it does | Flavour |
+|---|---|---|---|
+| Stork Drop | **Multiple Birth** | A stork for every enemy on screen. The acid joins up into one flooded floor. | *"The clinic has apologised."* |
+| Power Shower | **Amniotic Flood** | The screen floods for 4s: bullets are erased as they appear, every enemy is soaked and drifts, and you swim 50% faster. | *"Approximately 800 millilitres. It felt like more."* |
+| Brainstorm | **Synaptic Storm** | Strikes every enemy on screen every 0.5s for 3s, each strike jumping on twice. | *"Eighty-six billion neurons, and every one of them had an opinion."* |
+| Sofa Crevice | **Event Horizon** | A black hole for 5s: bullets bend into it, and non-boss enemies under 30% health are swallowed whole. Spits out DNA when it closes. | *"Contains several remotes and a sock nobody will explain."* |
+| Kiss It Better | **Placebo** | Heals to full and gives 3s untouchable. If you die in the next 10s, you get up again at 30%. | *"It works if you believe it does. You believed."* |
+| Nap Time | **Refractory Period** | Time stops for everything except you for 3s. | *"Mandatory. Non-negotiable. Varies with age."* |
+| Latex Barrier | **Double Bagged** | The barrier closes all the way round you for 5s and fires everything back at three times the damage. | *"Doctors advise against it. Doctors are not here."* |
+| Running With Scissors | **Vasectomy** | A ring of 64 blades every 0.4s for 2s. Anything hit can no longer split, spawn or summon. | *"Outpatient procedure. Nothing else comes out."* |
+| Dutch Oven | **Greenhouse Effect** | The cloud covers the whole screen, stacks twice as fast, and lingers 5s after. | *"Methane is eighty times more potent than carbon dioxide. You are a climate event."* |
+| Baby Monitor | **Two-Way Audio** | Six turrets in a ring, joined by Static beams that zap anything crossing them. | *"They can hear you too."* |
+| Naughty Corner | **Abstinence** | Every enemy and every bullet on screen stops dead for 4s. Then the bullets reverse. | *"One hundred percent effective, in theory."* |
+| Tantrum | **Fight or Flight** | For 6s every hit you take sets off a full Tantrum, and you take half damage. | *"Adrenaline, cortisol, and a strong sense of being wronged."* |
+| Dummy Spit | **Transitional Object** | A dummy on every enemy on screen. When any of them dies, all of them burst. | *"Developmental psychologists call it a comfort object. It is now a detonator."* |
+| Out of Body | **Astral Plane** | Out of your body for 6s: untouchable, cursing what you pass through. Your body keeps firing. Snapping back blasts the whole screen. | *"Your body carries on as normal. It does not notice you are gone."* |
+| Elbows Out | **Birthright** | Every enemy on screen is shoved to the edge and stunned for 2s, and you take half damage for 6s. | *"Arrived first. Has mentioned it since."* |
+| Belly Flop | **Gravitational Mass** | You are three times the size for 5s. Everything you touch is crushed, and every landing sends out a shockwave. | *"Large enough to hold a measurable orbit. Two enemies are now moons."* |
+| Lightbulb Moment | **Eureka** | The bolt jumps through every enemy on screen, three times. Every enemy it hits goes into Overload. | *"Archimedes was in a bath. You are in a fallopian tube. Same energy."* |
+| Come Play With Us | **Identical** | For 8s your twin becomes a full copy with your weapons, and you both pull every 2s. | *"Same DNA. Same hobbies. Same kill count."* |
+
+### First-pass ideas
+
+| Feat | Ultimate | What it does | Flavour |
+|---|---|---|---|
+| Pressie | **Gender Reveal** | The parcel passes through every enemy on screen, then bursts as smoke of every damage type, setting off every unstable reaction it can. | *"Four wildfires have started this way. This is the fifth."* |
+| Monster Under the Bed | **Night Terrors** | A hole under every non-boss enemy on screen. All are dragged under; half come back on your side. | *"Affects around forty percent of children. Today, all enemies."* |
+| Ouija Board | **Full Séance** | Every enemy on screen turns on the rest for 6s, and bosses fire in random directions. | *"The dead have been contacted. They would like to help."* |
+| Rubber Duck | **Corkscrew** | Twelve ducks spiral outward; everything chasing them is dragged round in a soaking spiral. | *"Duck anatomy is a matter of public record. You looked it up. Everyone does."* |
+| Chip Pan Fire | **Spontaneous Combustion** | Every lubricated enemy on screen ignites at once. | *"Medically disputed. Visually undeniable."* |
+| Mum's Hanky | **Full Body Wipe** | Clears every debuff, heals 30%, and sticks every enemy on screen in snot for 2s. | *"Mucus is ninety-five percent water. The other five percent is doing all the work."* |
+| Someone Get the Car | **Water Birth** | The screen floods; every enemy is soaked and swept off screen for 3s, and every bullet is gone. | *"Calming for the mother. Less so for everyone else."* |
+| Pull My Finger | **Methane Ignition** | The cloud fills the screen, then one spark lights all of it. | *"Flammable. Everyone knew. Someone did it anyway."* |
+| Snot Bubble | **Sinus Pressure** | The bubble swallows every bullet on screen for 4s, then fires them all back as homing snot. | *"Four pairs of sinuses. All of them involved."* |
+| Sleeping Lions | **Rigor Mortis** | Every enemy freezes for 4s; anything killed while frozen shatters and hits its neighbours. | *"Usually sets in after two to six hours. You managed it in one."* |
+| Fortune Teller | **One in 250 Million** | All four flaps land on everything on screen, each with the best possible fortune. | *"You know the odds. You beat them once already."* |
+| Chickenpox Party | **Outbreak** | Every enemy on screen catches spots and is pulled into one clump. When the clump dies, the spots carry over to the next spawns. | *"Vaccination rate in this dish: zero."* |
+| Projectile Vomit | **Hyperemesis** | 3s of acid spraying in a full circle, rotating. | *"Morning sickness, except it lasts all day and it is a weapon."* |
+| Greased Piglet | **Frictionless** | 6s where nothing that touches you can hurt you, and everything you touch is bowled across the screen. | *"Coefficient of friction: zero. Physics teachers are thrilled."* |
+| Runaway Pram | **Baby Boom** | Eight prams in every direction, through walls. | *"Nine months after the power cut."* |
+| Snail Mail | **Love Dart** | Every slug fires a calcium dart at the nearest enemy; each dart sticks, slows and bursts. | *"Garden snails stab their partner with a dart before mating. This is real."* |
+| Blood Brothers | **Conjoined** | Every enemy on screen joins one chain; damage to any is shared with all at 50%. | *"One circulatory system. No privacy."* |
+| Balloon Rub | **Ribbed for Her Pleasure** | A huge balloon soaks up every bullet for 5s, then pops in a screen-wide Static blast. | *"Holds about forty litres of air. The packaging does not mention this."* |
+| Birthday Bumps | **Biological Clock** | Every enemy on screen is slammed once per minute you have survived. | *"Ticking."* |
+| Bundle! | **Polyspermy** | Every enemy rushes into the toughest one. Non-bosses are destroyed; bosses take a hit per enemy. | *"When more than one gets in, nobody wins."* |
+| Carpet Shuffle | **Lightning Rod** | For 6s everything near you is zapped every 0.3s. | *"Roughly thirty thousand volts. Your tail is standing on end."* |
+| Period Drama | **Menstrual Synchrony** | Every enemy on screen bleeds in sync, and all the bleeding lands in three huge pulses. | *"Widely believed. Scientifically shaky. Happening anyway."* |
+| Shaken Fizzy Pop | **Supersaturated** | A 4s geyser you can steer, propelling you across the screen. | *"Contains 3.8 volumes of carbon dioxide. Contained."* |
+| Wet Floor Sign | **Oil Spill** | The whole screen becomes a slick, and every enemy on it loses its grip at once. | *"Clean-up is expected to take eleven years."* |
+| Bath Fizzer | **Bath Salts** | Every status on the target is copied to every enemy on screen at full strength. | *"Not the kind you put in a bath."* |
+| Coughs and Sneezes | **Superspreader** | Every sick enemy sneezes every 0.5s for 5s. | *"R number: yes."* |
+| Blood Donor | **Transfusion** | Drains 10% health from every bleeding enemy into you over 3s; any extra becomes a shield. | *"O negative. You can give to anyone. Nobody can give to you."* |
+| Don't Pick It | **Exsanguinate** | Every bleeding enemy bursts, the bleeding spreads to its neighbours, and they burst too. | *"Five litres in the average adult. Considerably fewer now."* |
+| Baby Oil | **Personal Lubricant** | 6s untouchable; bullets slide off you and fly away. | *"Water-based. Compatible with all barrier methods."* |
+| Jump Start | **Defibrillator** | Drains the biggest enemy; if you die in the next 10s, it restarts you at half health. | *"Clear."* |
+| Wellies | **Flash Flood** | Eight hops across the screen; the puddles grow and join into one lake. | *"Fifteen centimetres of moving water can knock an adult over. You are considerably smaller."* |
+| Glue Stick | **Cyanoacrylate** | Every enemy on screen is stuck for 4s, and every bullet is glued in mid-air. | *"Developed for gun sights. Used mostly on fingers."* |
+| Sherbet Dip | **pH 1.5** | Every enemy on screen loses all its armour for the rest of its life. | *"The pH of the human stomach. You are, technically, a stomach now."* |
