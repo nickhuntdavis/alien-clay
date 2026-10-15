@@ -5,7 +5,8 @@
 // There is no dying in school: a lethal hit gives you a second wind instead.
 // Hooks: schoolTick (lvTick), schoolEnter / schoolArena / schoolDone (lvTick arenas), schoolTask (drawLevelHud),
 // schoolSteer (autoSteer: autorun swims you on down the tube), schoolSave (hurtPlayer), schoolWin (lvWin),
-// schoolEulogy (the end screen).
+// schoolEulogy (the end screen), schoolDue / schoolStart (the title's START SWIMMING), schoolSkip (the HUD's SKIP TUTORIAL).
+// Wave 0 (Pre-pre-pre-pre-school) is retired: tutWaveInit no longer starts it.
 
 const SCHOOL_COL = '#ffb3c6';
 const SCHOOL = {
@@ -213,7 +214,7 @@ const SCHOOL_ST = {
   shoot: {
     enter(R) { schoolSay('Your weapon fires by itself, at whatever is nearest. All you do is swim. Let it work.'); schoolFoes(R, ['crawler', 'crawler', 'crawler', 'crawler', 'crawler'], stFar(R.A.rect)); },
     done: R => !schoolLeft(R),
-    task: R => `YOUR WEAPON FIRES ITSELF: ${schoolLeft(R)} LEFT` },
+    task: R => `WEAPON FIRES ITSELF: ${schoolLeft(R)} LEFT` },
   collect: {
     enter(R) {
       schoolSay('The RUN button (bottom left) picks how autorun swims. Tap it until it says COLLECT: autorun goes for anything worth picking up.');
@@ -249,7 +250,7 @@ const SCHOOL_ST = {
       if (!schoolLeft(R) && !R.tried && (R.again = (R.again || 2) - dt) <= 0) { R.again = 3; schoolFoes(R, ['crawler', 'crawler', 'skitter'], stFar(R.A.rect)); }
     },
     done: R => R.tried && !schoolLeft(R),
-    task: R => R.tried ? `${schoolLeft(R)} LEFT` : 'TAP RUN: TRY KITE, ORBIT OR HOLD' },
+    task: R => R.tried ? `${schoolLeft(R)} LEFT` : 'TAP RUN: KITE, ORBIT OR HOLD' },
   sprint: {
     enter() { schoolSay('Sprinting is up to you. Touch and drag to steer, then push right out to the edge: 55% faster. It burns stamina, the thin ring inside your health ring.'); },
     tick(R, dt) { if (G.stam && G.stam.sprint) R.sprintT = (R.sprintT || 0) + dt; },
@@ -305,7 +306,7 @@ function schoolDone(R) {
 function schoolTask(R) {
   if (R && R.A.st) return SCHOOL_ST[R.A.st].task(R);
   const n = G.lvl.passed || 0;
-  return n >= SCHOOL.arenas.length ? 'THE EGG: GO ON' : n ? 'SWIM ON' : 'LESSON 1: LET AUTORUN SWIM YOU ON';
+  return n >= SCHOOL.arenas.length ? 'THE EGG: GO ON' : n ? 'SWIM ON' : 'LESSON 1: AUTORUN';
 }
 // Autorun: on down the tube between rooms, and to whatever the room is about inside one.
 function schoolSteer(p) {
@@ -320,6 +321,17 @@ function schoolSteer(p) {
   }
   if (st === 'hazard') return { x: (R.A.rect[0] + R.A.rect[2] + 1) / 2 * LV_C, y: (R.A.rect[1] + 1) * LV_C, w: 0.9 };
   return null;
+}
+// The title's START SWIMMING: a fresh save (no runs yet), or one whose tutorial was reset, goes to Level 0 first.
+const schoolDue = () => META.schoolDue === 1 || (META.school == null && !RUNLOG.length);
+function schoolStart() { UI.sample = 's009'; openSeq(); }
+// The SKIP TUTORIAL button (top of the HUD, Level 0 only): back to the title, and START SWIMMING goes to the samples from then on.
+function schoolSkip() {
+  if (!schoolOn()) return;
+  META.school = META.school || 2; delete META.schoolDue; saveMeta();
+  logRun(G, 'QUIT'); G = null;
+  $('schoolSkip').classList.remove('on');
+  UI.show('title'); UI.renderBest(); UI.toast('TUTORIAL SKIPPED. LEVEL 0 IS IN THE CAMPAIGN LIST.');
 }
 // No dying in school: a second wind instead.
 function schoolSave() {
@@ -336,7 +348,7 @@ function schoolWin(at) {
   const V = G.lvl;
   if (V.won) return;
   V.won = true;
-  META.school = 1;
+  META.school = 1; delete META.schoolDue;
   META.lvBest = META.lvBest || {};
   if (!META.lvBest.school || G.t < META.lvBest.school) META.lvBest.school = G.t;
   saveMeta();

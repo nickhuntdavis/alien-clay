@@ -1,13 +1,14 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v9.10 (versionCode 260): Level 0, Swimming Lessons (the tutorial level, `school.js`), playable from the Levels list. Session 2 still to do: a fresh save goes straight into it (with a skip link), wave 0 (Pre-pre-pre-pre-school) is retired, `resetTutorial()` clears `META.school`. Previously v9.09.
+- Version v9.11 (versionCode 261): Level 0, Swimming Lessons, is the tutorial: a fresh save goes straight into it, wave 0 is retired. Previously v9.10.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
 
 ## Recent changes (newest first)
+- v9.11: START SWIMMING sends a fresh save (no runs, `META.school` unset) or one whose tutorial was reset (`META.schoolDue`, set by `resetTutorial`) to Level 0 (`schoolDue`/`schoolStart`). SKIP TUTORIAL (`#schoolSkip`, top of the HUD, Level 0 only) quits to the title and sets `META.school = 2`; beating it sets 1. Wave 0 (Pre-pre-pre-pre-school) retired: `tutWaveInit` returns at once (code kept).
 - v9.10: Level 0, Swimming Lessons (`school.js`, sample `s009`, `LEVELS[1]`, first in the Levels list). One straight tube of 9 rooms; each room is an arena with a station (`A.st`) whose gate opens on an action, not a kill quota (`schoolDone`): shoot, collect (needs RUN: COLLECT; places the Personal stain if not owned), box, hunt (its target appears once you pick HUNT), modes (KITE/ORBIT/HOLD), sprint, feat (grants Power Shower if no Feat), hazard (a fixed acid pit in the room; `steerTerrain` now adds level walls and terrain together), armour (+4 Shell Suit). Autorun pushes on between rooms (`schoolSteer`, Level 0 only). No dying: `schoolSave` (before the rewind in hurtPlayer). Lesson messages replace the queue and stay up longer (`hold` on msgQ entries). HUD line shows the task (`schoolTask`). Test `schooltest` (a natural run finishes in 85 to 110s with the taps the HUD asks for).
 - v9.09: merged the day's branches: Reset Starters / Unlock Everything fix, Naughty Corner / Tantrum / Dummy Spit Feats, and the zone-tick stagger perf fix (zone hit-source built once per zone, `z.hs`).
 - v9.08: merged the v8.95 boss pack / 20 new enemies / pin and hide / weird loot / tap-to-inspect branch (`ccr-913291f0-bh0pkg`) into the v9.07 line.
