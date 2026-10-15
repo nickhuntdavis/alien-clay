@@ -224,7 +224,7 @@ function lvInit(n) {
   CORE.arena = 1e9; G.core = { x: 0, y: -1e7, r: CORE.r, flash: 0 };
   G.terrain = { list: [], grid: new Map(), regridT: 1e9 };
   G.nextBoss = 1e12; G.nextWave = 1e12; G.nextPill = 1e12; G.nextYeast = 1e12; G.rivalsInit = true; G.ev.next = 1e12;
-  G.bossRoster = [L.boss.id]; G.bossCount = 0;
+  G.bossRoster = L.boss ? [L.boss.id] : []; G.bossCount = 0;
   const p = G.player; p.x = (sx + 0.5) * LV_C; p.y = (sy + 0.5) * LV_C; p.face = -Math.PI / 2;
   cam.x = p.x; cam.y = p.y;
   lvRouteExit(); lvRoutePlayer();
@@ -456,6 +456,7 @@ function lvTick(dt, maxAlive, hostile) {
   const V = G.lvl, L = V.L, p = me();
   if (V.won) return;
   G.ev.next = 1e12;
+  schoolTick(); // (Level 0, the tutorial: school.js)
   // Route maps: yours whenever you change cell (and twice a second anyway).
   V.plT -= dt;
   if (V.plT <= 0 || lvIdx(p.x, p.y) !== V.plCell) { V.plT = 0.5; lvRoutePlayer(); }
@@ -483,19 +484,20 @@ function lvTick(dt, maxAlive, hostile) {
     V.arena = { A, killed: 0, sent: 0, t: 0 }; V.kills0 = G.kills;
     lvLock(A.rect);
     banner(A.name, '#ff7aa2'); sfx('boss'); vibrate(80);
-    sysMsg('SYSTEM MESSAGE', `Clear ${A.quota} to open the way on.`, '#ff7aa2', true);
+    if (A.st) schoolEnter(V.arena); else sysMsg('SYSTEM MESSAGE', `Clear ${A.quota} to open the way on.`, '#ff7aa2', true);
     break;
   }
   if (V.arena) {
     const R = V.arena, A = R.A;
     R.t += dt; R.killed = G.kills - V.kills0;
-    if (R.killed >= A.quota) {
+    if (A.st ? schoolDone(R) : R.killed >= A.quota) {
       V.done[A.name] = true; V.arena = null; V.lastGainT = G.t;
       lvUnlock(); if (A.gate) lvOpenGate(A.gate);
       banner('THE WAY IS OPEN', '#ffb3c6');
       // A drop pod for your trouble.
-      G.pickups.push(makePickup('chest', p.x + rand(-40, 40), p.y - 50, { t: 'drop', name: A.name }));
-    } else {
+      if (!A.st) G.pickups.push(makePickup('chest', p.x + rand(-40, 40), p.y - 50, { t: 'drop', name: A.name }));
+    } else if (A.st) schoolArena(R, dt);
+    else {
       G.spawnAcc += (1 + A.quota / 60) * dt * G.P.spawnMult;
       const left = A.quota - R.killed;
       while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < Math.min(maxAlive, left + 6)) hostile += lvSpawn(A.mix, lvRectPos(A.rect, 260)); }
@@ -512,7 +514,7 @@ function lvTick(dt, maxAlive, hostile) {
     if (G.spawnAcc > 4) G.spawnAcc = 4;
   }
   // The boss: step into its room.
-  if (!V.boss && lvInRect(L.boss.rect, p.x, p.y)) {
+  if (L.boss && !V.boss && lvInRect(L.boss.rect, p.x, p.y)) {
     V.boss = true;
     lvLock(L.boss.rect);
     spawnBoss();
@@ -639,6 +641,7 @@ function lvHazards(dt, Z) {
 function lvWin(at) {
   const V = G.lvl;
   if (V.won) return;
+  if (V.L.school) return schoolWin(at);
   V.won = true;
   META.lvUnlocked = Math.max(META.lvUnlocked || 1, V.n + 2);
   META.lvBest = META.lvBest || {};
@@ -799,6 +802,7 @@ function drawLevelHud(mid, by) {
   if (R) sub = `${R.A.name}: ${Math.max(0, R.A.quota - R.killed)} TO GO`;
   else if (V.boss && !V.bossDead && G.boss) sub = G.boss.def.name;
   else if (G.t > V.L.par - 30 && !V.won) sub = V.brush.y != null ? 'THE BRISTLES! MOVE!' : `BRISTLES IN ${Math.max(0, Math.ceil(V.L.par - G.t))}s`;
+  if (V.L.school) sub = schoolTask(R);
   ctx.fillStyle = XR.dim; ctx.font = '10px ' + MONO; ctx.fillText(sub, mid, by - 18);
   ctx.fillStyle = XR.white; ctx.font = 'bold 21px ' + MONO; ctx.fillText(`${lvName(V.L)}  ${pct}%`, mid, by + 4);
 }

@@ -291,6 +291,7 @@ p('');
 p('Also on the slide: the **Morning-After Pill** (a dissolving cloud that grows to about half the map, then fades), **yeast infections** (colonies that bud more yeast) and the ambient crowd of harmless swimmers outside the arena.');
 p('');
 p('## Campaign (SPOILERS: where Level 1 is set)'); p('');
+p('**Level 0, Swimming Lessons** (the tutorial): one long straight tube, a lesson in each room, the egg at the end. Autorun swims you on between rooms, and each room\'s membrane opens once you have done what it teaches: let your weapon fire, switch RUN to COLLECT (and take your first stain), open a box, switch to HUNT, try KITE, ORBIT or HOLD, sprint, perform a Feat (you are given Power Shower if you have none), get past an acid pool, and take hits in a Shell Suit (4 armour, given). No dying: a lethal hit is a second wind. It takes 2 to 5 minutes.'); p('');
 p('A hand-built maze, lips to throat, played as its own run (you start at Lv 1; DNA banks as usual). Finding the way is up to you: autorun fights where you are but does not solve the maze. If you go 40 seconds without getting any further, a faint chevron next to you points the way on.'); p('');
 p('1. **The Lips:** behind the front teeth, a small arena (30 kills) opens the way on.');
 p('2. **The Gum Line:** a maze. Plaque walls break if you keep shooting them (some hide shortcuts), and plaque colonies grow Cavity Creeps. A dead end holds a guarded cavity: a mutation and a DNA strand. Then the Gum Pocket arena (70).');

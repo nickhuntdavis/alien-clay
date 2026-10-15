@@ -1218,6 +1218,7 @@ function blobPath(x, y, R, ob, t, amp) {
 }
 function drawTerrain() {
   if (!G.terrain) return;
+  const raw0 = RAW_COL; if (G.lvl) RAW_COL = true; // (a level keeps its colour: Level 0's acid is green)
   const t = G.realT, m = 200;
   const x0 = cam.x - W / 2 / S - m, x1 = cam.x + W / 2 / S + m, y0 = cam.y - H / 2 / S - m, y1 = cam.y + H / 2 / S + m;
   // Darkfield: the soft terrain is drawn as it scatters light on a black field (bright rims, dark middles),
@@ -1376,6 +1377,7 @@ function drawTerrain() {
     }
   }
   WORLD_DF = df;
+  RAW_COL = raw0;
 }
 
 
