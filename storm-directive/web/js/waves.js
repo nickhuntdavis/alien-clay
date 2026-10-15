@@ -97,6 +97,7 @@ function waveClear(V) {
   if (!(V.camp && tutWave0Clear(V))) banner(V.camp ? `WAVE ${V.n} OF ${CAMP.waves} BEATEN` : `WAVE ${V.n} CLEAR`, PAL.upgrade);
   sfx('level'); vibrate([60, 40, 60]);
   addViewers(3000 * V.n);
+  viewOffer(V); // (Arcade view, once: tutorial.js)
   if (V.n === 5) achieve('wave5');
   if (V.n === 15) achieve('wave15');
 }

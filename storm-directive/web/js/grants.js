@@ -34,8 +34,9 @@ const GRANT_ORDER = ['body', 'tracer', 'pickups', 'foes', 'scenery'];
 const grantHas = id => !!(META.grants && META.grants[id]);
 const grantSet = id => grantHas(id) && !(META.grantOff && META.grantOff[id]); // (what the pause menu shows)
 // Settings > Colour > Full colour: every stain counts as taken, whatever you have found (not Technicolour: no rainbows).
-const fullColourOn = () => !!(typeof SET !== 'undefined' && SET.fullColour);
-const grantOn = id => fullColourOn() || grantSet(id);
+// (v9.11: stains are gone. Arcade view counts as every grant; Lab view keeps only your own colour.)
+const fullColourOn = () => typeof SET !== 'undefined' && viewArcade();
+const grantOn = id => fullColourOn() || id === 'body';
 // Settings > Colour can override these two: ALWAYS or OFF, whatever you have found.
 const colourMode = (id, earned) => { const m = typeof SET !== 'undefined' && SET[id]; return m === 'always' || (m !== 'off' && earned); };
 const foeStainOn = () => colourMode('cEnemy', grantOn('foes'));
@@ -69,7 +70,7 @@ function grantDue() {
   return null;
 }
 function grantsTick(dt) {
-  if (!G || G.state !== 'play') return;
+  return; // (no more research grants on the slide)
   const p = me();
   if (!G.grant) {
     const id = grantDue();
@@ -125,6 +126,7 @@ function drawGrants() {
 
 // ---------------------------------------------------------------- pause menu (ui.js stainsHtml)
 function grantsHtml() {
+  return '';
   const got = GRANT_ORDER.filter(grantHas);
   if (!got.length) return '';
   return `<h3 style="margin-top:10px">Research grants</h3><div class="list">${got.map(id => { const D = GRANTS[id], on = grantSet(id);

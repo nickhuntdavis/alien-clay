@@ -1871,9 +1871,17 @@ Unlocked wildcards can be drafted by any sequence.
 | Colour | DNA |
 |---|---|
 | EGFP (standard) | Free |
-| Emerald | 80 |
-| Azami Green | 120 |
-| Aqua GFP | 160 |
+| Emerald | Free |
+| Aqua GFP | Free |
+| Azami Green | Free |
+| After-Dinner Mint | Free |
+| Blue Lagoon | Free |
+| Black Light | Free |
+| Neon Teal | Free |
+| Frosted Tips | Free |
+| Lime Rickey | Free |
+| Ghost Load | Free |
+| Lilac Love Juice | Free |
 
 ## Enemies
 

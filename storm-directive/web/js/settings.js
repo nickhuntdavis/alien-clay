@@ -2,8 +2,8 @@
 // Spawn Prawn - player settings (saved on the device) and the narrator packs.
 
 const SETTINGS_DEF = [
+  { id: 'view', label: 'View', hint: 'LAB: a real microscope slide, mostly grey; you, danger and each damage type (once you have met it) show in colour. ARCADE: everything in full colour, with coloured rings on timed effects.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
   { id: 'darkfield', label: 'Darkfield microscope', hint: 'Black field, bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
-  { id: 'fullColour', label: 'Full colour', hint: 'Every colour at once, whatever stains you have found. Not Technicolour: no rainbows, just each thing in its own colour. The rows below can still force any one kind OFF. Spoils the greyscale surprise, so best left off on a first playthrough.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'detail', label: 'Specimen detail', hint: 'High adds organelles, textures and a proper zona breach. Costs a little performance.', opts: [['standard', 'STANDARD'], ['high', 'HIGH']] },
   { id: 'clinical', label: 'Clean clinical view', hint: 'No grain, lens blur, vignette or halos. Maximum readability.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'dof', label: 'Depth of field', hint: 'Out-of-focus layers and a soft lens blur at the edges.', opts: [[true, 'ON'], [false, 'OFF']] },
@@ -22,18 +22,18 @@ const SETTINGS_DEF = [
   { id: 'featAuto', label: 'Feats', hint: 'AUTO: Feats perform themselves when ready (tap a Feat to perform it early). ON TAP: they wait for you to tap them, so you can save one for the right moment.', opts: [[true, 'AUTO'], [false, 'ON TAP']] },
   { id: 'auto', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button under pause.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'autoWaves', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']] },
-  { id: 'cYou', label: 'You and your shots', hint: 'Your swimmer, echoes, allies and shots.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cDanger', label: 'Danger', hint: 'Red for anything that can hurt you: enemy bullets, hazards, low-HP warnings.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cReward', label: 'Rewards', hint: 'Gold for things worth having: DNA strands, elites, bosses.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cPickup', label: 'Power-ups', hint: 'Power-up pickups and upgrades.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cFast', label: 'Fast enemies', hint: 'Cyan for sprinters, spermlets, krill and paramecia.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cRival', label: 'Rivals', hint: 'Each rival champion in their own colour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cElem', label: 'Damage types', hint: 'Acid, Mucus, Static, Cooties, Oil, Water, Blood and Soul in their own colours.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cEnemy', label: 'Enemy types', hint: 'Each kind of enemy in its own colour. EARNED: with the Gram Stain.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. EARNED: with the Counterstain.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
-  { id: 'cBg', label: 'Background', hint: 'A soft tissue-pink tint on the slide. EARNED: only with Full Technicolour.', opts: [['earned', 'EARNED'], ['always', 'ALWAYS'], ['off', 'OFF']] },
+  { id: 'cYou', label: 'You and your shots', hint: 'Your swimmer, echoes, allies and shots.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cDanger', label: 'Danger', hint: 'Red for anything that can hurt you: enemy bullets, hazards, low-HP warnings.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cReward', label: 'Rewards', hint: 'Gold for things worth having: DNA strands, elites, bosses.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cPickup', label: 'Power-ups', hint: 'Power-up pickups and upgrades.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cFast', label: 'Fast enemies', hint: 'Cyan for sprinters, spermlets, krill and paramecia.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cRival', label: 'Rivals', hint: 'Each rival champion in their own colour.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cElem', label: 'Damage types', hint: 'Acid, Mucus, Static, Cooties, Oil, Water, Blood and Soul in their own colours.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cEnemy', label: 'Enemy types', hint: 'Each kind of enemy in its own colour. AUTO: in Arcade view.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cTerrain', label: 'Terrain', hint: 'Acid crypts, currents, cilia, slicks and nodules. AUTO: in Arcade view.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
+  { id: 'cBg', label: 'Background', hint: 'A soft tissue-pink tint on the slide. AUTO: only with Full Technicolour.', opts: [['earned', 'AUTO'], ['always', 'ON'], ['off', 'OFF']] },
 ];
-const SET = { fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: false, fullColour: false,
+const SET = { view: 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sound: true, music: true, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: false, fullColour: false,
   cYou: 'earned', cDanger: 'earned', cReward: 'earned', cPickup: 'earned', cFast: 'earned', cRival: 'earned', cElem: 'earned', cEnemy: 'earned', cTerrain: 'earned', cBg: 'earned' };
 try {
   const s = JSON.parse(localStorage.getItem('sd_settings') || '{}');
@@ -41,6 +41,7 @@ try {
   // Older builds kept these separately.
   if (localStorage.getItem('sd_dof') === '0') SET.dof = false;
   if (localStorage.getItem('sd_sound') === '0') SET.sound = false;
+  if (s.fullColour && !s.view) SET.view = 'arcade'; // (Full colour became Arcade view in v9.11)
 } catch (e) { /* storage unavailable */ }
 // Landscape layout: weapons down the left, a bigger minimap. Auto switches when the screen is wide.
 const LAYOUT = { land: false, colW: 0 };
@@ -54,6 +55,8 @@ function applyLayout() {
   if (typeof UI !== 'undefined' && typeof G !== 'undefined' && G) UI.refreshHud(true);
 }
 window.addEventListener('resize', () => applyLayout());
+// Arcade view: everything in full colour (no stains to find any more). Lab view: the grey slide.
+const viewArcade = () => SET.view === 'arcade';
 function saveSettings() { try { localStorage.setItem('sd_settings', JSON.stringify(SET)); } catch (e) { /* ignore */ } }
 
 // ---------------------------------------------------------------- narrator packs

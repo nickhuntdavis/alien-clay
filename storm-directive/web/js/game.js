@@ -515,7 +515,7 @@ function genLoot(req) {
   }
   // Stains you don't have yet.
   // (Not one you already see: a permanent stain switched on in the pause menu counts.)
-  for (const id in DYES) if (!G.dyeBoon[id] && !G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) });
+  if (false) for (const id in DYES) if (!G.dyeBoon[id] && !G.dyes[id] && !(G.wave && id === 'rival')) cands.push({ w: 4, key: 'dye' + id, make: () => optDye(id) }); // (stain cards retired in v9.11: Lab and Arcade views instead)
   // (Combos never come in a box: they get their own unlock screen, fusion.js.)
     // Pin and hide (pinhide.js): hidden cards never come up; one pinned card that still fits is put in the box.
   for (const c of cands) if (!c.key.startsWith('fuse')) c.pk = c.key + '|' + (c.nk || '');

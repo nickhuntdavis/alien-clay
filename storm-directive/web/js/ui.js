@@ -308,14 +308,14 @@ const UI = {
     const body = $('setBody');
     // Tabs: one group of settings at a time.
     const TABS = [['play', 'PLAY'], ['view', 'VIEW'], ['colour', 'COLOUR'], ['sound', 'SOUND'], ['data', 'DATA']], tab = UI.setTab || 'play';
-    const TAB_OF = { immersive: 'view', darkfield: 'view', fullColour: 'colour', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', cYou: 'colour', cDanger: 'colour', cReward: 'colour', cPickup: 'colour', cFast: 'colour', cRival: 'colour', cElem: 'colour', cEnemy: 'colour', cTerrain: 'colour', cBg: 'colour', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
+    const TAB_OF = { view: 'colour', immersive: 'view', darkfield: 'view', fullColour: 'colour', detail: 'view', clinical: 'view', dof: 'view', fx: 'view', layout: 'view', fpsCap: 'view', shake: 'view', cYou: 'colour', cDanger: 'colour', cReward: 'colour', cPickup: 'colour', cFast: 'colour', cRival: 'colour', cElem: 'colour', cEnemy: 'colour', cTerrain: 'colour', cBg: 'colour', narrator: 'sound', sound: 'sound', music: 'sound', vibe: 'sound' };
     const tabsHtml = `<div class="ptabs">${TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
     body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => (TAB_OF[d.id] || 'play') === tab).map(d => `<div class="sec setrow"><h3>${esc(d.label)}</h3>${d.hint ? `<p class="hint">${esc(d.hint)}</p>` : ''}<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div></div>`).join('');
     // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
     body.onclick = ev => { const b = ev.target.closest('[data-stab]'); if (b) { UI.setTab = b.dataset.stab; UI.renderSettings(); $('settings').scrollTop = 0; } };
     if (tab !== 'data') { UI.bindSettingChips(body); return; }
     body.innerHTML += `<div class="sec setrow"><h3>Back up your save</h3><p class="hint">Copies everything this phone keeps (progress, run log, settings) as one code. Paste it somewhere safe; if you ever reinstall the game, paste it back here.</p><div class="chips"><button class="chip" id="saveExport">COPY SAVE CODE</button></div><textarea id="saveText" style="display:none;width:100%;height:90px;font-size:10px" placeholder="Paste a save code here"></textarea><div class="chips"><button class="chip" id="saveImport">RESTORE FROM A CODE</button></div><p class="hint" id="saveMsg"></p></div>`;
-    body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, stains, generations, bests, achievements, the Field Guide and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
+    body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, swimmer skins, generations, bests, achievements, the Field Guide and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Tutorial</h3><p class="hint">The first time you meet each kind of enemy, the slide stops to introduce it (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Reset to see the introductions again. Your Field Guide keeps what you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIAL</button></div></div>`;
     body.innerHTML += `<div class="sec setrow"><h3>Run log</h3><p class="hint">${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.</p>
       <div class="chips"><button class="chip" id="logCopy">COPY RUN LOG</button><button class="chip" id="logClear">CLEAR</button></div><p class="hint" id="logMsg"></p><textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea></div>`;
@@ -752,7 +752,8 @@ const UI = {
     box.querySelector('.bi-col.str h4').textContent = C.head || 'HOW IT WORKS';
     box.querySelector('.bi-col.weak').style.display = 'none';
     $('biStr').innerHTML = C.tips.map((t, i) => `<li style="animation-delay:${(0.8 + i * 0.15).toFixed(2)}s">${esc(t)}</li>`).join('');
-    $('biReward').innerHTML = esc(C.foot || 'You will not see this card again.');
+    $('biReward').innerHTML = C.footHtml || esc(C.foot || 'You will not see this card again.');
+    if (C.bind) C.bind($('biReward'));
     box.classList.remove('ready');
     box.querySelectorAll('.bi-bar, .bi-card, .bi-name, .bi-quote, .bi-desc, .bi-reward').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
     UI.show('bossIntro');
@@ -1038,7 +1039,7 @@ const UI = {
     // Passives.
     const ps = Object.keys(G.passives);
     const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
-    h += `<div class="sec"><h3>Stains (${st.length}/${Object.keys(DYES).length})</h3>${UI.stainsHtml()}</div>`;
+    if (st.length) h += `<div class="sec"><h3>Stains (${st.length}/${Object.keys(DYES).length})</h3>${UI.stainsHtml()}</div>`; // (only old saves still have any: v9.11)
     const rl = Object.keys(G.relics);
     if (rl.length) h += `<div class="sec"><h3>Boss trophies</h3><div class="list">${rl.map(id => `<div class="li on"><b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b><br><span>${esc(RELICS[id].desc)}</span></div>`).join('')}</div></div>`;
     h += `<div class="sec"><h3>Power-ups</h3>`;
@@ -1140,7 +1141,7 @@ const UI = {
     const ps = Object.keys(G.passives).filter(id => PASSIVES[id] && G.passives[id] > 0);
     r += `<h3>Power-ups</h3>${ps.length ? `<div class="list">${ps.map(id => li(`${esc(PASSIVES[id].name)} x${G.passives[id]}`, esc(PASSIVES[id].fmt(PASSIVES[id].v * G.passives[id])))).join('')}</div>` : '<p class="hint">None yet.</p>'}`;
     const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
-    r += `<h3>Stains (${st.length}/${Object.keys(DYES).length})</h3>${UI.stainsHtml()}`;
+    if (st.length) r += `<h3>Stains (${st.length}/${Object.keys(DYES).length})</h3>${UI.stainsHtml()}`;
     const cu = Object.keys(G.curses || {}).map(id => CURSES.find(c => c.id === id)).filter(Boolean);
     if (cu.length) r += `<h3>Curses</h3><div class="list">${cu.map(c => li(esc(c.name), `${esc(c.boon)}. ${esc(c.bane)}.`, PAL.danger)).join('')}</div>`;
     h += `<div class="sec you-rest">${r}</div>`;
@@ -1357,10 +1358,10 @@ const UI = {
     h += META_STARTERS.filter(([id]) => !WEAPONS[id] || !WEAPONS[id].toy).map(starterRow).join('');
     h += `<h3 style="margin-top:12px">Toys</h3><p class="hint">The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.</p>`;
     h += META_STARTERS.filter(([id]) => WEAPONS[id] && WEAPONS[id].toy).map(starterRow).join('');
-    h += `</div><div class="sec"><h3>Tag dyes</h3><p class="hint">Your fluorescent tag. All in the green family, so green still means you.</p>`;
+    h += `</div><div class="sec"><h3>Swimmer skins</h3><p class="hint">One for every run you win (${META_DYES.filter(d => META.dyes[d.id]).length} of ${META_DYES.length}). They can't be bought.</p>`;
     for (const d of META_DYES) {
       const owned = META.dyes[d.id], on = META.dye === d.id;
-      h += `<div class="brow"><div class="bdye" style="background:${d.color};box-shadow:0 0 10px ${d.color}"></div><div><b>${esc(d.name)}</b></div>${on ? `<span class="bown" style="color:${cyan}">WEARING</span>` : owned ? `<button class="chip bbuy" data-k="dye" data-id="${d.id}">WEAR</button>` : buy('dye', d.id, d.cost, false)}</div>`;
+      h += `<div class="brow"><div class="bdye" style="background:${d.color};box-shadow:0 0 10px ${d.color}"></div><div><b>${esc(d.name)}</b></div>${on ? `<span class="bown" style="color:${cyan}">WEARING</span>` : owned ? `<button class="chip bbuy" data-k="dye" data-id="${d.id}">WEAR</button>` : `<span class="bown">WIN A RUN</span>`}</div>`;
     }
     h += `</div>`;
     // Records.
@@ -1431,7 +1432,9 @@ const UI = {
     logRun(G, won ? 'WON' : G.rivalWinner ? 'BEATEN' : 'LOST');
     UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
     const dna = bankRun(G, won && !G.lvl); // (a tonsil stone is not a birth)
+    const skin = won && !G.debug && !G.skinDone ? (G.skinDone = 1, skinEarn()) : null; // (a swimmer skin for every win: meta.js)
     h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
+    if (skin) h = `<div class="bdna" style="color:${skin.color}">NEW SWIMMER SKIN: <b>${esc(skin.name)}</b> <span class="hint">(wear it from the Gene Bank)</span></div>` + h;
     if (G.heatUnlocked) h = `<div class="bdna" style="color:#ff3b3b">IMMUNE RESPONSE ${G.heatUnlocked} UNLOCKED: ${esc(IMMUNE[G.heatUnlocked - 1].name)}</div>` + h;
     if (won && !G.lvl && META.wonSinceBirth) h = `<p class="hint">You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.</p>` + h;
     h = seqNewHtml() + h; // (the sequence ladder: seqlock.js)

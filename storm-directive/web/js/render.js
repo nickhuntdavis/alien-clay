@@ -82,7 +82,7 @@ const COL = new Map();
 function col(c) {
   if (typeof c !== 'string') return c;
   if (c[0] === '#' && ELEM_SWAP.has(c.slice(0, 7).toLowerCase())) c = ELEM_SWAP.get(c.slice(0, 7).toLowerCase()) + c.slice(7);
-  if ((FULL_COL || SET.fullColour) && !PAL_OFF.size) return c;
+  if ((FULL_COL || viewArcade()) && !PAL_OFF.size) return c;
   let v = COL.get(c);
   if (v !== undefined) return v;
   let r, g, b, a = null;
@@ -90,14 +90,14 @@ function col(c) {
   if (h[0] === '#' && (h.length === 7 || h.length === 9)) {
     const base = h.slice(0, 7), off = PAL_OFF.has(base) || (PAL_ALIAS[base] && PAL_OFF.has(PAL_ALIAS[base])) || (STATIC_HEX[base] && PAL_OFF.has(STATIC_HEX[base]));
     if (off) {} // (Settings > Colour: OFF, so grey below)
-    else if (FULL_COL || SET.fullColour || PAL_OK.has(base)) v = c;
+    else if (FULL_COL || viewArcade() || PAL_OK.has(base)) v = c;
     else if (PAL_ALIAS[base] && PAL_OK.has(PAL_ALIAS[base])) v = PAL_ALIAS[base] + h.slice(7);
     else if (STATIC_HEX[base]) v = STATIC_HEX[base] + h.slice(7);
     else if (ELEM_OF.has(base) && (ELEM_ON || elemOn(ELEM_OF.get(base)))) v = c; // (elemOn: tutorial.js)
     if (v === undefined) { const n = parseInt(base.slice(1), 16); r = n >> 16 & 255; g = n >> 8 & 255; b = n & 255; if (h.length === 9) a = parseInt(h.slice(7), 16) / 255; }
   } else {
     const m = h.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
-    if (!m || FULL_COL || SET.fullColour) v = c;
+    if (!m || FULL_COL || viewArcade()) v = c;
     else { r = +m[1]; g = +m[2]; b = +m[3]; if (m[4] != null) a = +m[4]; }
   }
   if (v === undefined) {
@@ -999,7 +999,7 @@ function drawKrill(e, x, y, r, face) {
 // ---------------------------------------------------------------- more pond life
 // Each drawn in the same phase-contrast style: grey body darker than the fluid, a bright halo, dark detail.
 // Motility Dye: fast swimmers take up the stain, so their whole body turns cyan.
-function fastDyed(e) { return !!((SET.fullColour || (G.dyes && G.dyes.motility)) && e.def.speed >= 95 && !e.rival && !e.boss && !e.charmed); }
+function fastDyed(e) { return !!((viewArcade() || (G.dyes && G.dyes.motility)) && e.def.speed >= 95 && !e.rival && !e.boss && !e.charmed); }
 function eTone(e, k) { return fastDyed(e) ? DYE_FAST_DK : pcTone(e.color, k); }
 function mBody(e, k) { return e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#c9e4f5' : eTone(e, k || 0.42); }
 function mHalo(w) { ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = Math.max(1, w); ctx.stroke(); }

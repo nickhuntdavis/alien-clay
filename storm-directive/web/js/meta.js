@@ -25,12 +25,28 @@ const META_STARTERS = [
   ['crayon', 90], ['bubble', 90], ['redtape', 90], ['duedate', 100], ['peekaboo', 100], ['toothfairy', 100], ['twin', 110], ['friend', 120],
 ];
 // Dye variants for your tag, kept in the green family so "green is you" still holds.
+// Swimmer skins (v9.11): no longer bought. You earn one for every run you win, in this order (skinEarn).
 const META_DYES = [
   { id: 'egfp',    name: 'EGFP (standard)', color: '#4dff9a', cost: 0 },
-  { id: 'emerald', name: 'Emerald',         color: '#2fe07e', cost: 80 },
-  { id: 'azami',   name: 'Azami Green',     color: '#7dff6a', cost: 120 },
-  { id: 'aqua',    name: 'Aqua GFP',        color: '#4dffd2', cost: 160 },
+  { id: 'emerald', name: 'Emerald',         color: '#2fe07e', cost: 0 },
+  { id: 'aqua',    name: 'Aqua GFP',        color: '#4dffd2', cost: 0 },
+  { id: 'azami',   name: 'Azami Green',     color: '#7dff6a', cost: 0 },
+  { id: 'mint',    name: 'After-Dinner Mint', color: '#9dffcf', cost: 0 },
+  { id: 'lagoon',  name: 'Blue Lagoon',     color: '#3fe0ff', cost: 0 },
+  { id: 'uv',      name: 'Black Light',     color: '#b49bff', cost: 0 },
+  { id: 'neon',    name: 'Neon Teal',       color: '#00ffc8', cost: 0 },
+  { id: 'frost',   name: 'Frosted Tips',    color: '#d6fff0', cost: 0 },
+  { id: 'rickey',  name: 'Lime Rickey',     color: '#c4ff7a', cost: 0 },
+  { id: 'ghost',   name: 'Ghost Load',      color: '#eef4ff', cost: 0 },
+  { id: 'lilac',   name: 'Lilac Love Juice', color: '#d9a6ff', cost: 0 },
 ];
+// A won run: the next skin you don't have yet (null when you have them all).
+function skinEarn() {
+  const d = META_DYES.find(x => !META.dyes[x.id]);
+  if (!d) return null;
+  META.dyes[d.id] = true; saveMeta();
+  return d;
+}
 
 const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0, pairs: {}, bosses: {} };
 try { Object.assign(META, JSON.parse(localStorage.getItem('sd_meta') || '{}')); } catch (e) { /* storage unavailable */ }
@@ -72,13 +88,11 @@ function metaSpent() {
   let n = 0;
   for (const b of META_BONUSES) for (let r = 0; r < (META.ranks[b.id] || 0); r++) n += b.cost(r);
   for (const [id, c] of META_STARTERS) if (META.starters[id]) n += c;
-  for (const d of META_DYES) if (META.dyes[d.id]) n += d.cost;
   return n;
 }
 function metaClear() {
   const n = metaSpent();
-  META.dna += n; META.ranks = {}; META.starters = {}; META.dyes = { egfp: true }; META.dye = 'egfp';
-  setYouColour(META_DYES[0].color);
+  META.dna += n; META.ranks = {}; META.starters = {}; // (skins are kept: they were won)
   saveMeta();
   return n;
 }
@@ -127,7 +141,7 @@ function metaBuy(kind, id) {
   let cost = 0;
   if (kind === 'rank') { const b = META_BONUSES.find(x => x.id === id), r = META.ranks[id] || 0; if (r >= b.max) return false; cost = b.cost(r); if (META.dna < cost) return false; META.ranks[id] = r + 1; }
   else if (kind === 'starter') { const s = META_STARTERS.find(x => x[0] === id); if (META.starters[id]) return false; cost = s[1]; if (META.dna < cost) return false; META.starters[id] = true; }
-  else if (kind === 'dye') { const d = META_DYES.find(x => x.id === id); if (!META.dyes[id]) { cost = d.cost; if (META.dna < cost) return false; META.dyes[id] = true; } META.dye = id; }
+  else if (kind === 'dye') { if (!META.dyes[id]) return false; META.dye = id; } // (skins are won, not bought)
   META.dna -= cost;
   saveMeta();
   return true;
@@ -136,7 +150,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '9.10';
+const APP_VERSION = '9.11';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
