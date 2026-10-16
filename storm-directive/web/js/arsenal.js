@@ -342,6 +342,7 @@ function setWeaponLevel(w, to, from) {
   if (to >= MAX_WLVL) { achieve('mastery'); if (from < MAX_WLVL && G.player && typeof masteryJuice === 'function') masteryJuice(w); }
   w.perks = w.perks || {};
   for (const m of PERK_LEVELS) if (from < m && to >= m && !w.perks[m]) G.lootQueue.push({ kind: 'branch', uid: w.uid, lvl: m });
+  brQueue(w, from, to); // (branches.js)
 }
 
 // Upgrades that work best with a particular targeting directive say so on the card (if the weapon isn't
@@ -392,6 +393,7 @@ function applyPerks(w, s) {
       case 'executioner': s.pExecKill = 0.2; break;
     }
   }
+  brStats(w, s); // (branches.js)
   applySigStats(w, s);
   applyAdapt(w, s);
 }
@@ -399,6 +401,7 @@ function applyPerks(w, s) {
 // Hit side of perks (called from damageEnemy's proc step).
 function perkProcs(e, dmg, src) {
   const s = src.w.s;
+  brProc(e, dmg, src); // (branches.js)
   if (s.pChill && !e.boss) { e.chill = Math.max(e.chill, 1.5); e.chillAmt = Math.max(e.chillAmt, 0.35); }
   if (s.pIgnite) { e.burn = Math.max(e.burn, 2); setBurn(e, dmg * s.pIgnite, src); }
   if (s.pVenom) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, dmg * 0.08, src); }
@@ -544,6 +547,7 @@ function meleeSweep(w, x, y, a, src) {
   });
   G.fx.push({ type: 'swing', x, y, a, arc, r: R, color: w.def.color, life: 0.22, max: 0.22 });
   G.lastSwing = { x, y, a, r: R, t: G.t };
+  brSwing(w, x, y, a, src); // (branches.js)
   if (homer) floatText(x, y - 30, 'HOME RUN', w.def.color, 12, 0.5);
   if (hasSig(w, 'afterwave')) after(0.1, () => {
     forNear(x, y, R * 3, e => {

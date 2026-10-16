@@ -100,6 +100,7 @@ function sigVolley(w, a0) {
     const o = w.owners.shift();
     if (o && !o.dead) out.owner = o;
   }
+  brVolley(w, out); // (branches.js)
   return out;
 }
 // Extra fields for a freshly spawned projectile (from spawnProj).

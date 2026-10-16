@@ -128,3 +128,24 @@ Below, one version of each archetype per damage type. "(existing)" = already in 
 
 ## New-weapon count (bold entries)
 Force 5, Soul 8, Acid 6, Mucus 5, Static 4, Cooties 6, Oil 4, Water 3, Blood 4 = **45 new weapons** across the nine tables.
+
+
+---
+
+# Build status
+
+## Force slice (branches.js, in progress, v9.28 not yet shipped)
+Branch framework done: **Lv 4** first branch (two choices), **Lv 7** sub-branches (two under the one picked). The old Lv 3, 5, 8 and 10 forks stay (decision: add two new levels, keep every fork). A weapon opts in by having a `BRANCHES` entry in `branches.js`.
+
+Built (18 nodes): Spitball, Placenta Paddle, Little Swimmers.
+
+Changed from the design while building (Force only, and what the engine could do cheaply):
+- Spitball / Tap Water: a steady stream (+60% magazine, 25% faster reload), not a fire-rate ramp or soaking. Fire Hose: twice as fast, softer, spread. Big Splosh: every 10th shot is a heavy splosh (4x damage, 3x size, pierces 3). Spit Take, Subpoena and Spit Roast as designed (Spit Roast is Force, not acid).
+- Paddle / Spanking Machine: wider and longer swing; it does not wipe bullets. Bounce House: knockback x1.8 and swatted enemies hit their neighbours for 40%. Time Out: 0.8s stun. Afterbirth: a Force puddle (no slow). Warm Bath heals you in it. Slip and Slide shoves enemies out of it.
+- Swimmers / Race to the Egg, Photo Finish, Slipstream (+8% swim speed), Peer Pressure (bite heals you a little), Group Hug, Blood Brothers as designed.
+
+Not built yet in the Force slice:
+- The 5 new Force weapons: Hairball (lob), Brick Angels (orbit), Rubber Burn (trail), Lego (mine), Newton's Cradle (chain), and branches for them.
+- Baby Rattle and the other Force starters' branches (Yo-Yo Diet, Placenta Paddle is done, Runaway Pram, Flail, Onesie, Colouring In).
+- The cull of starters to 4 per sequence (Phase 1 of the plan).
+- Balance pass (`sim/wave20.js`, `sim/lvsim.js`) and the shipped build.

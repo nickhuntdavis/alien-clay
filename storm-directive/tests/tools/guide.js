@@ -42,7 +42,7 @@ p('   **Weird boxes:** about one level or DNA strand box in six (after the first
 p('   **Upgrade All:** holding 5 or more rerolls, an UPGRADE ALL (5) button sits beside REROLL. It spends 5 rerolls and raises every card in the box one rarity (each has a 20% chance of two), up to Mythical, keeping the same upgrades. Curses, supplies and stains stay as they are.');
 p('   **Appetite cards** (from Lv 3): **Acquired Taste: [damage type]** makes cards of that damage type come up more often (x2.25 to x3 by rarity); **Gone Off It: [damage type]** makes them rarer (25% down to 10%, never none). You hold one of each; a new one replaces the old.');
 p(`2. **Weapons** level up to Lv${D.MAX_WLVL}. Each weapon has its own upgrade path:`);
-p('   - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.');
+p('   - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9. A few weapons also have a **Lv 4 branch** and a **Lv 7 sub-branch** (see Branches below).');
 p(`3. **Combos:** get two specific weapons to Lv ${D.COMBO_LEVEL}+ and the game stops for the combo alone: the two weapons slam together on their own unlock screen. Both keep firing, gain a new power, and (${D.COMBO_MOUNTS} times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv${D.PAIR_LEVEL}+.`);
 p('4. **Weapon tuning:** fire rate, reload, magazine, extra projectiles, projectile speed and range, area, duration and pierce cards go on ONE weapon you choose (tap it on the card); each weapon keeps its own stacks. Legendary and better versions tune every weapon at once.');
 p(`5. **Modifiers:** up to ${D.MOD_SLOTS} per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.`);
@@ -96,6 +96,16 @@ for (const w of W) {
     t[l].forEach((id, i) => { const K = sig ? D.SIGS[id] : D.PERKS[id]; p(`| ${i ? '' : label} | **${esc(K.name)}** | ${esc(K.desc.replace(/^Mastery\. /, ''))} |`); });
   }
   p('');
+}
+{ // Branches (branches.js): the Lv 4 first branch and the Lv 7 sub-branches under it.
+  const BR = vm.runInNewContext(fs.readFileSync(J + 'branches.js', 'utf8').match(/const BRANCHES = (\{[\s\S]*?\n\});\n/)[1].replace(/^/, '(') + ')');
+  p('### Branches'); p('');
+  p('Some weapons have a second choice tree on top of their signature upgrades. At **Lv 4** you pick a first branch, and at **Lv 7** you pick one of two sub-branches that belong to it. The Lv 3, 5, 8 and 10 choices still come as above.'); p('');
+  for (const id in BR) {
+    p(`**${D.WEAPONS[id].name}**`); p(''); p('| First branch (Lv 4) | Effect | Sub-branch (Lv 7) | Effect |'); p('|---|---|---|---|');
+    for (const n of BR[id]) n.kids.forEach((k, i) => p(`| ${i ? '' : '**' + esc(n.name) + '**'} | ${i ? '' : esc(n.desc)} | **${esc(k.name)}** | ${esc(k.desc)} |`));
+    p('');
+  }
 }
 p('### Upgrades with a twist'); p('');
 p('When an upgrade would do nothing for a weapon, that weapon does its own thing with it instead (the card tells you).'); p('');

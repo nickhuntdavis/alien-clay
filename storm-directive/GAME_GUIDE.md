@@ -62,7 +62,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
    **Upgrade All:** holding 5 or more rerolls, an UPGRADE ALL (5) button sits beside REROLL. It spends 5 rerolls and raises every card in the box one rarity (each has a 20% chance of two), up to Mythical, keeping the same upgrades. Curses, supplies and stains stay as they are.
    **Appetite cards** (from Lv 3): **Acquired Taste: [damage type]** makes cards of that damage type come up more often (x2.25 to x3 by rarity); **Gone Off It: [damage type]** makes them rarer (25% down to 10%, never none). You hold one of each; a new one replaces the old.
 2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
-   - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.
+   - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9. A few weapons also have a **Lv 4 branch** and a **Lv 7 sub-branch** (see Branches below).
 3. **Combos:** get two specific weapons to Lv 5+ and the game stops for the combo alone: the two weapons slam together on their own unlock screen. Both keep firing, gain a new power, and (2 times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv5+.
 4. **Weapon tuning:** fire rate, reload, magazine, extra projectiles, projectile speed and range, area, duration and pierce cards go on ONE weapon you choose (tap it on the card); each weapon keeps its own stacks. Legendary and better versions tune every weapon at once.
 5. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
@@ -1892,6 +1892,37 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |  | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
 | Lv 10 mastery | **Haunted** | The trip back hits twice as hard. |
 |  | **Banshee** | Every BOO spooks everything near it too. |
+
+### Branches
+
+Some weapons have a second choice tree on top of their signature upgrades. At **Lv 4** you pick a first branch, and at **Lv 7** you pick one of two sub-branches that belong to it. The Lv 3, 5, 8 and 10 choices still come as above.
+
+**Spitball**
+
+| First branch (Lv 4) | Effect | Sub-branch (Lv 7) | Effect |
+|---|---|---|---|
+| **Tap Water** | A steady stream: +60% magazine, and it reloads 25% faster. | **Fire Hose** | Fires twice as fast. Each spitball hits 40% softer and the stream spreads out. |
+|  |  | **Big Splosh** | Every 10th spitball is a heavy splosh: 4x damage, 3x the size, and it pierces three. |
+| **Spit Take** | Hits mark the target for 2.5 seconds. When the mark runs out, it takes 35% of what your Spitball did to it meanwhile. | **Subpoena** | If a marked enemy dies, its mark jumps to the nearest unmarked enemy, damage and all. |
+|  |  | **Spit Roast** | A mark paying out also hits everything close to it for half. |
+
+**Placenta Paddle**
+
+| First branch (Lv 4) | Effect | Sub-branch (Lv 7) | Effect |
+|---|---|---|---|
+| **Spanking Machine** | A wider, longer swing: +25% arc and +10% reach. | **Bounce House** | Knockback hits 80% harder, and swatted enemies bowl into their neighbours for 40% damage. |
+|  |  | **Time Out** | Swatted enemies are stunned for 0.8 seconds. Think about what you did. |
+| **Afterbirth** | Every swing leaves a puddle that hurts whatever stands in it. | **Warm Bath** | Standing in your own puddle heals you. |
+|  |  | **Slip and Slide** | Enemies standing in your puddles are shoved outwards. |
+
+**Little Swimmers**
+
+| First branch (Lv 4) | Effect | Sub-branch (Lv 7) | Effect |
+|---|---|---|---|
+| **Race to the Egg** | Swimmers are 40% faster and headbutt 30% harder. | **Photo Finish** | Every headbutt bursts into the crowd round the target for half damage. |
+|  |  | **Slipstream** | While your swimmers are out, you swim 8% faster. |
+| **Peer Pressure** | Swimmers bite 20% faster, and each bite heals you a little. | **Group Hug** | Headbutts drag nearby enemies in towards the target. |
+|  |  | **Blood Brothers** | Bites heal twice as much, and every swimmer adds a little regeneration. |
 
 ### Upgrades with a twist
 

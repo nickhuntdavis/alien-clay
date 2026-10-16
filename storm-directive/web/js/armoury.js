@@ -568,6 +568,7 @@ function petsTick(w, dt) {
         break;
       }
     }
+    brPet(w, q, t, s, src); // (branches.js)
     spawnPart(t.x, t.y, w.def.color, 2, 70, 0.2, 2);
   });
 }

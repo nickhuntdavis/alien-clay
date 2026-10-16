@@ -470,7 +470,7 @@ function genLoot(req) {
   if (req.kind === 'splice') return spliceOpts();
   if (req.kind === 'branch') {
     const w = G.weapons.find(x => x && x.uid === req.uid);
-    if (w && !w.perks[req.lvl]) return weaponTree(w.def)[req.lvl].map(id => optPerk(w, req.lvl, id));
+    if (w && !w.perks[req.lvl]) return (brIds(w, req.lvl) || weaponTree(w.def)[req.lvl]).map(id => optPerk(w, req.lvl, id)); // (branches.js: the Lv 4 and Lv 7 tree)
     req.kind = 'level'; return genLoot(req); // the weapon was fused or recycled meanwhile
   }
   if (req.kind === 'start') {
@@ -2283,7 +2283,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 165 * P.speed * oobSpeed() * chemPlayerSpeed() * nfSpeed() * // (LUBED UP: chem.js; the v9.23 Feats: newfeats.js)
+  const speed = 165 * P.speed * oobSpeed() * chemPlayerSpeed() * nfSpeed() * brSpeed() * // (LUBED UP: chem.js; the v9.23 Feats: newfeats.js)
     // (base 165: was 150; Out of Body: faster)
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed() * pstSpeed(); // (Snotty: pstatus.js)
@@ -2694,6 +2694,7 @@ function update(dt) {
   updateZones(dt);
   updateTurrets(dt);
   armTick(dt); // (the Armoury's pets and bowling, armoury.js)
+  brTick(dt); // (branch effects, branches.js)
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
   safely('nfTick', () => nfTick(dt)); // (the v9.23 Feats: newfeats.js)
   updateEnemies(dt);
