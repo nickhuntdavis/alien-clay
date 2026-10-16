@@ -187,6 +187,7 @@ function penFire(w, target, src) {
       w.sipN = (w.sipN || 0) + 1;
       const every = Math.max(4, Math.round(s.mag * (hasSig(w, 'pfunsize') ? 0.5 : 1)));
       if (w.sipN % every) return false;
+      target = combo3Carton(w, target) || target; // (combos3.js: Packed Lunch)
       const n = hasSig(w, 'pfamily') ? 2 : 1, ar = 70 * (hasSig(w, 'psqueeze') ? 2 : 1), k = hasSig(w, 'pfunsize') ? 0.7 : 1;
       for (let i = 0; i < n; i++) {
         const tx = target.x + (i ? rand(-60, 60) : 0), ty = target.y + (i ? rand(-60, 60) : 0);
@@ -194,6 +195,7 @@ function penFire(w, target, src) {
         after(0.5, () => {
           if (!G || !w.s) return;
           aoe(tx, ty, ar, w.s.dmg * 10 * k, armSrc(src, { wname: 'Juice Box (carton)' }), d.color);
+          combo3Boil(tx, ty); // (combos3.js)
           if (G.zones.length < 240) G.zones.push({ x: tx, y: ty, r: ar * 0.7, life: 2, max: 2, dps: w.s.dmg * 2, elem: 'fire', pull: 0, color: d.color, tick: 0, src });
           sfx('boom');
         });
@@ -322,6 +324,7 @@ function penHit(pr, e) {
 }
 function penEnd(pr) {
   const w = pr.w;
+  combo3Pram(pr); // (combos3.js)
   if (!w || w.id !== 'pram' || !(pr.load >= 2)) return;
   const k = hasSig(w, 'psteps') ? 2 : 1, n = Math.min(10, pr.load);
   aoe(pr.x, pr.y, 60 + n * 6, w.s.dmg * (1 + 0.25 * n) * k, armSrc(pr.src, { wname: 'Runaway Pram (pile-up)' }), w.def.color);
