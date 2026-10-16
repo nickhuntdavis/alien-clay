@@ -1,6 +1,6 @@
 # CLAUDE.md: Spawn Prawn (alien-clay)
 
-Read this, then `storm-directive/NOTES.md` (current state and open threads), before exploring. Only grep the code for what you are changing.
+Read this, then `storm-directive/NOTES.md` (current state and open threads), before exploring. Use `storm-directive/ARCHITECTURE.md` (the system map: which files own which system) to find where a change belongs. Only grep the code for what you are changing.
 
 ## What it is
 Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, and the game is crude, biology-joke humour (not British slang: the user is not British; British spelling only). It is vanilla JS on a canvas, wrapped in an Android WebView.
@@ -9,6 +9,7 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - Player guide (generated): `storm-directive/GAME_GUIDE.md`, from `storm-directive/tests/tools/guide.js`.
 - Tests: `storm-directive/tests/` (Playwright, headless Chromium).
 - Visual style guide: `storm-directive/STYLE.md`. Read it before redesigning anything drawn in the world.
+- System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/CHANGELOG.md`.
 
 ## Working with the user
 - British English. Use () rather than em dashes. The first line is the answer. No preamble or recap. Numbered steps and ranked lists. When asked for options, give 2 to 4, recommendation first. End with one action under 2 minutes, with real time estimates.
@@ -28,6 +29,20 @@ At the start of each request, check whether the model fits the job, and if not, 
 - Work and push only on the branch the session names (`main` is the integration branch; session branches are merged into it). Use `git push -q origin <branch>`.
 - Conventional commits (`feat:`, `fix:` and so on), ending with the attribution lines from the session's system reminder. Never put model IDs in commits. No PR unless asked.
 
+## Change log (every change)
+- Every commit that changes the game, tests or build gets an entry in `storm-directive/CHANGELOG.md`, in the same commit. Docs-only commits can share one `Unreleased` entry.
+- Entries go under `## Unreleased` until a build ships; at ship time rename it to `## vX.YZ (versionCode N)`. Newest first.
+- Each entry has four lines:
+  - **Systems**: the system names touched, from `ARCHITECTURE.md` (e.g. `weapons, chemistry, ui`). A system counts as touched if any of its files changed, or its behaviour changed through a hook.
+  - **Files**: every file changed; mark new ones `(new)` and removed ones `(removed)`.
+  - **What**: one or two plain sentences on what the player (or the code) now does differently.
+  - **Risk / watch**: what could break or shift (balance, save data, other systems' hooks), or `none`.
+- Save-data changes (`META`, `SET` keys added, renamed or removed) are always named in **What**.
+- On a merge, keep both branches' entries and note the merge in the new version's entry.
+- `ARCHITECTURE.md` changes in the same commit when a file is added, removed or renamed, a system is added, or a responsibility moves between files. Add the new file to the script-order line too.
+- Commit message scope should match the main system: `feat(weapons): ...`, `fix(chemistry): ...`.
+- `NOTES.md` > Recent changes stays a short handoff summary (last few versions); the full record is `CHANGELOG.md`.
+
 ## Fast APK (default for every build)
 1. Edit with exact-match replacements that assert they hit (fail fast); don't re-read files after editing.
 2. Test only what you touched: `./run.sh <2-4 relevant tests>` (always include `quick`). Full suite only for big multi-file batches or before a release you're unsure of.
@@ -45,7 +60,7 @@ At the start of each request, check whether the model fits the job, and if not, 
 6. SendUserFile the APK, then reply. Don't narrate each step.
 7. One build per batch of requests, not per item.
 - Release builds are signed with `android/spawnprawn.keystore` (in the repo, so every session's APK installs over the last). Its password is NOT in the repo: it comes from the `SPAWN_KS_PASS` environment variable (set in the cloud environment's settings). If it is missing the release build stops with a clear error: tell the user, never generate a new key and never switch to the debug key (either forces an uninstall that wipes saves).
-- Update `GAME_GUIDE.md` text (via `tests/tools/guide.js`) and `NOTES.md` when features change.
+- Update `GAME_GUIDE.md` text (via `tests/tools/guide.js`), `NOTES.md` and `CHANGELOG.md` when features change (rename `## Unreleased` to the version being shipped).
 - Before the first build, check the session branch has main's latest (`git log -1 origin/main`) and that `APP_VERSION` matches `NOTES.md`; a branch started from an old main ships an APK missing recent work.
 
 ## Tests
