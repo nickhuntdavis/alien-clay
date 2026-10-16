@@ -186,11 +186,7 @@ p('');
 p('## Stains'); p('');
 p('The slide starts in greyscale, your own swimmer included. Colour comes back three ways.'); p('');
 p('**Damage types** come into colour one at a time, from the card that introduces each (soon after you first use it; at once with tutorials off). Force stays white.'); p('');
-p('**Research grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.'); p('');
-p('| Grant | When | What it colours |'); p('|---|---|---|');
-for (const id of D.GRANT_ORDER) { const g = D.GRANTS[id]; p(`| **${g.name}** | ${id === 'body' ? 'Floats by the egg, your first game (until you take it)' : `Level ${g.level}, once you have ${D.GRANTS[g.after].name}`} | ${esc(g.see)} |`); }
-p('');
-p('**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.) **Arcade view** (Settings > Screen > View) shows everything in full colour.'); p('');
+p('**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. **Arcade view** (Settings > Screen > View) shows everything in full colour.'); p('');
 p('| Stain | Boon | What it colours |'); p('|---|---|---|');
 for (const d of Object.values(D.DYES)) p(`| **${d.name}** | ${esc(d.boon)} | ${esc(d.desc)} |`);
 p('');

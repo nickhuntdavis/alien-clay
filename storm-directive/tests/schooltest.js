@@ -49,7 +49,7 @@ const { chromium } = require('playwright');
     const V = G.lvl, A = V.L.arenas.find(a => a.st === 'collect');
     const entered = step(120, () => { G.moveDir = 'kite'; }, () => V.arena && V.arena.A === A);
     const task = V.arena && SCHOOL_ST.collect.task(V.arena);
-    G.gems.length = 0; if (G.grant) grantTake('body');
+    G.gems.length = 0;
     step(1); const held = !V.done[A.name];
     G.moveDir = 'collect'; step(2, null, () => V.done[A.name]);
     const opened = !!V.done[A.name];

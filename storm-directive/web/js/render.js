@@ -1672,7 +1672,6 @@ function render() {
 
   if (G.lvl) drawLevelOver();
   drawToysOver();
-  drawGrants(); // stain grants (grants.js)
   drawJunk(); // junk DNA carriers (junk.js)
   // Player.
   const px = sx(p.x), py = sy(p.y);

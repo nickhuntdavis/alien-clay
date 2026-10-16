@@ -1079,8 +1079,6 @@ const UI = {
 
     // Passives.
     const ps = Object.keys(G.passives);
-    const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
-    if (st.length) h += `<div class="sec"><h3>Stains (${st.length}/${Object.keys(DYES).length})</h3>${UI.stainsHtml()}</div>`; // (only old saves still have any: v9.11)
     const rl = Object.keys(G.relics);
     if (rl.length) h += `<div class="sec"><h3>Boss trophies</h3><div class="list">${rl.map(id => `<div class="li on"><b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b><br><span>${esc(RELICS[id].desc)}</span></div>`).join('')}</div></div>`;
     h += `<div class="sec"><h3>Power-ups</h3>`;
@@ -1097,14 +1095,6 @@ const UI = {
     if (tab === 'codex') portraitsStart(box);
     box.querySelectorAll('[data-yk]').forEach(b => b.addEventListener('click', () => { G.state = 'play'; UI.openArmoury(b.dataset.yk, +b.dataset.yi); }));
     box.querySelectorAll('[data-spd]').forEach(b => b.addEventListener('click', () => { SET.speed = +b.dataset.spd; saveSettings(); UI.renderPause(); UI.syncSpeed(); }));
-    box.querySelectorAll('[data-pst]').forEach(b => b.addEventListener('click', () => {
-      const id = b.dataset.pst, off = META.pstainOff || (META.pstainOff = {});
-      if (off[id]) delete off[id]; else off[id] = 1;
-      saveMeta();
-      if (!G.dyeBoon[id]) { if (off[id]) delete G.dyes[id]; else G.dyes[id] = true; refreshPalette(); }
-      const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y;
-    }));
-    if (typeof grantsBind === 'function') grantsBind(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     box.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => { G.moveDir = b.dataset.move; UI.renderPause(); }));
     box.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       const w = b.dataset.k === 'w' ? G.weapons[+b.dataset.i] : G.spells[+b.dataset.i];
@@ -1181,23 +1171,9 @@ const UI = {
     if (bn.length) r += `<h3>Boons</h3><div class="list">${bn.join('')}</div>`;
     const ps = Object.keys(G.passives).filter(id => PASSIVES[id] && G.passives[id] > 0);
     r += `<h3>Power-ups</h3>${ps.length ? `<div class="list">${ps.map(id => li(`${esc(PASSIVES[id].name)} x${G.passives[id]}`, esc(PASSIVES[id].fmt(PASSIVES[id].v * G.passives[id])))).join('')}</div>` : '<p class="hint">None yet.</p>'}`;
-    const st = Object.keys(DYES).filter(id => G.dyes && G.dyes[id]);
-    if (st.length) r += `<h3>Stains (${st.length}/${Object.keys(DYES).length})</h3>${UI.stainsHtml()}`;
     const cu = Object.keys(G.curses || {}).map(id => CURSES.find(c => c.id === id)).filter(Boolean);
     if (cu.length) r += `<h3>Curses</h3><div class="list">${cu.map(c => li(esc(c.name), `${esc(c.boon)}. ${esc(c.bane)}.`, PAL.danger)).join('')}</div>`;
     h += `<div class="sec you-rest">${r}</div>`;
-    return h;
-  },
-  // Stains as a colour key: what each colour on the slide means, the boon it brought, and what's still out there.
-  stainsHtml() {
-    const ids = Object.keys(DYES), got = ids.filter(id => G.dyes && G.dyes[id]), miss = ids.filter(id => !(G.dyes && G.dyes[id]) && !(G.wave && id === 'rival'));
-    const sw = id => id === 'rival' ? `<i class="sw multi">${RIVALS.map(r => `<u style="background:${r.color}"></u>`).join('')}</i>` : `<i class="sw" style="background:${DYES[id].key}"></i>`;
-    let h = got.length ? `<div class="list">${got.map(id => `<div class="li on stain">${sw(id)}<div><b>${esc(DYES[id].name)}</b><br><span>${esc(DYES[id].see)}.</span><br><span class="sb">${G.dyeBoon && G.dyeBoon[id] ? esc(DYES[id].boon) : 'Permanent stain: colour only (find it in a DNA strand for its boon).'}</span></div></div>`).join('')}</div>`
-      : (typeof GRANT_ORDER !== 'undefined' && GRANT_ORDER.some(grantHas) ? '<p class="hint">No stain cards found this run yet.</p>' : '<p class="hint">None yet: the slide is all greyscale. Each stain brings back one kind of colour, and a boon.</p>');
-    const perm = Object.keys(META.pstains || {}).filter(id => DYES[id]);
-    if (perm.length) h += `<h3 style="margin-top:10px">Permanent stains</h3><div class="chips">${perm.map(id => { const on = !(META.pstainOff || {})[id]; return `<button class="chip ${on ? 'sel' : ''}" data-pst="${id}">${esc(DYES[id].name)}: ${on ? 'ON' : 'OFF'}</button>`; }).join('')}</div><p class="hint">Kept from earlier runs. Switch any off if you'd rather not see its colour.</p>`;
-    if (typeof grantsHtml === 'function') h = grantsHtml() + h; // permanent stain grants first (grants.js)
-    if (miss.length) h += `<p class="hint">Still to find (in DNA strands): ${miss.map(id => `<b>${esc(DYES[id].name)}</b>`).join(', ')}. Each brings back one kind of colour, and a boon.</p>`;
     return h;
   },
   // From UI.tick: animate the portrait while the YOU page is open.
