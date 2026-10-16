@@ -79,7 +79,7 @@ After resolving: run the full suite (`./run.sh`, a merge counts as a big batch),
 3. Never install anything, never run lint, emulators, adb or `playwright install`. Gradle and Chromium are already cached; lint needs SDK deps that aren't here.
    - The one exception: if `ANDROID_HOME` is missing (a fresh container), install the SDK once into `/home/user/android-sdk` (the command-line tools zip from dl.google.com, then `sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"`) and `export ANDROID_HOME=/home/user/android-sdk`.
 4. No screenshots or sims unless the change is visual or about difficulty.
-5. Ship in ONE Bash call (from `storm-directive/`):
+5. Ship in ONE Bash call (from `storm-directive/`). Chain every step with `&&` (or `set -e`): if `assembleRelease` fails, the APK copy, commit and push must not run, and no version bump is pushed. Check `test release/SpawnPrawn.apk -nt android/app/build.gradle` before staging:
    ```
    sed -i "s/APP_VERSION = 'X'/APP_VERSION = 'Y'/" web/js/meta.js
    sed -i "s/versionCode N/versionCode N+1/; s/versionName 'X'/versionName 'Y'/" android/app/build.gradle
