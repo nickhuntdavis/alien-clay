@@ -1,4 +1,4 @@
-## 2026-10-16 Combos batch 2: eight more Weapon Combos for Armoury and Playpen weapons
+## 2026-10-16 Combos batch 2: eight more Weapon Combos for Armoury and Playpen weapons (v9.28)
 - Systems: combos, weapons
 - Files: combos4.js (new), combos.js, index.html, tests/combo4test.js (new), tests/run.sh, tests/tools/guide.js, tests/tools/copy/areas.js, ARCHITECTURE.md, GAME_GUIDE.md
 - What: eight new combos, one per starting sequence, each pairing two Armoury/Playpen weapons that had none: Fertile Window (Egg White + Little Swimmers), Open Wide (Butter Knife + Cod Liver Oil), Bug Zapper (Carpet Shuffle + Lightning Bugs), Pick and Roll (Nose Goblins + Bogey Roller), Night Terrors (Boo-merang + Night Light), Blood Bank (Umbilical Cord + Leeches), Lunar Cycle (Period Drama + Ulcer Moons), Catch It, Bin It (Achoo + Wet Wipe). 16 combos now cover 28 of the 45 new weapons.
