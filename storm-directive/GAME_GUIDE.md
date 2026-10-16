@@ -124,14 +124,14 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | Weapon | Sequence | Damage type | Role | Aims at | Wildcard |
 |---|---|---|---|---|---|
 | [Spitball](#spitball) | Firstborn | Force | Marksman | NEAREST | - |
-| [Hiccup Scattergun](#hiccup-scattergun) | Chonker | Force | Brawler | NEAREST | - |
+| [Hiccup Scattergun](#hiccup-scattergun) | Chonker | Mucus | Brawler | NEAREST | - |
 | [Yo-Yo Diet](#yo-yo-diet) | Firstborn | Force | Boomerang | FURTHEST | - |
 | [Skid Mark](#skid-mark) | Quiet One | Oil | Boozy Trail | NEAREST | 80 DNA |
 | [Heartburn](#heartburn) | Problem Child | Acid | Acid Spray | NEAREST | - |
 | [Nappy Mines](#nappy-mines) | Chonker | Acid | Trapper | NEAREST | 60 DNA |
 | [Booger Flick](#booger-flick) | Favourite | Mucus | Saponifier | FASTEST | - |
 | [Static Cling](#static-cling) | Bright Spark | Static | Chain Static | DENSEST CLUSTER | - |
-| [Morning Sickness](#morning-sickness) | Problem Child | Cooties | Area Denial | DENSEST CLUSTER | - |
+| [Morning Sickness](#morning-sickness) | Problem Child | Acid | Area Denial | DENSEST CLUSTER | - |
 | [Tapeworm Seeder](#tapeworm-seeder) | Good Eater | Cooties | Necromancer | HIGHEST HEALTH | 90 DNA |
 | [Seeker Siblings](#seeker-siblings) | Firstborn | Blood | Swarm | WEAKEST | - |
 | [Toddler Gravity](#toddler-gravity) | Bright Spark | Soul | Crowd Control | DENSEST CLUSTER | 80 DNA |
@@ -144,10 +144,10 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Due Date](#due-date) | Favourite | Blood | Delayed Doom | HIGHEST HEALTH | 100 DNA |
 | [Red Tape](#red-tape) | Problem Child | Cooties | Bureaucrat | DENSEST CLUSTER | 90 DNA |
 | [Imaginary Friend](#imaginary-friend) | Designer Baby | Soul | Echo | NEAREST | 120 DNA |
-| [Peekaboo](#peekaboo) | Quiet One | Soul | Trickster | NEAREST | 100 DNA |
+| [Peekaboo](#peekaboo) | Quiet One | Oil | Trickster | NEAREST | 100 DNA |
 | [Twin Telepathy](#twin-telepathy) | Bright Spark | Static | Geometry | DENSEST CLUSTER | 110 DNA |
 | [Bubble Wand](#bubble-wand) | Good Eater | Water | Trap & Throw | NEAREST | 90 DNA |
-| [Tooth Fairy](#tooth-fairy) | Favourite | Soul | Lure | DENSEST CLUSTER | 100 DNA |
+| [Tooth Fairy](#tooth-fairy) | Favourite | Blood | Lure | DENSEST CLUSTER | 100 DNA |
 | [Déjà Vu](#dj-vu) | Prawn Again | Soul | Repeater | NEAREST | - |
 | [Ghosts of You](#ghosts-of-you) | Prawn Again | Soul | Haunter | NEAREST | - |
 | [Karma](#karma) | Prawn Again | Force | Payback | NEAREST | - |
@@ -180,7 +180,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Hiccup Scattergun
 
-*Force gun, Brawler.* A close-range burst with knockback. Comes out whether you want it to or not.
+*Mucus gun, Brawler.* A close-range burst of phlegm with knockback. Comes out whether you want it to or not.
 
 - **Base stats:** dmg 8, cd 0.75s, mag 4, reload 1.6s, x6, range 270 (knock 70)
 - **Level bonuses:** Lv3: +2 count; Lv6: +1 pierce; Lv9: +2 count
@@ -191,7 +191,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |---|---|---|
 | Lv 3 | **Sour Note** | Hits melt enemies for 25% of the hit per second. |
 |  | **Nappy Bag** | +60% magazine size. |
-|  | **Snotted Up** | Hits slime: enemies slow by 35% for 1.5s. |
+|  | **Sharp Tongue** | +15% crit chance. |
 | Lv 5 signature | **Skin to Skin** | Pellets hit up to +150% harder the closer the target is. |
 |  | **Slug** | All the pellets fuse into one heavy slug (90% of their total damage) that pierces 3 enemies and bowls them over. |
 | Lv 8 signature | **Buckshot** | +4 pellets per blast, each at 75% damage. A wall of lead. With Slug: a fan of five big slugs instead. |
@@ -327,7 +327,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Morning Sickness
 
-*Cooties lob, Area Denial.* Lobs globs of last night that leave boozy puddles. Worse before noon.
+*Acid lob, Area Denial.* Lobs globs of stomach acid that leave burning puddles. Worse before noon.
 
 - **Base stats:** dmg 10, cd 0.9s, mag 4, reload 1.8s, range 390 (area 58, dur 3, flight 0.6)
 - **Level bonuses:** Lv3: +50% duration; Lv6: +1 count; Lv9: +40% area
@@ -336,9 +336,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Level | Choice | Effect |
 |---|---|---|
-| Lv 3 | **Snotted Up** | Hits slime: enemies slow by 35% for 1.5s. |
+| Lv 3 | **Sharp Tongue** | +15% crit chance. |
 |  | **Nappy Bag** | +60% magazine size. |
-|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Wide Hips** | +35% area and +15% range. |
 | Lv 5 signature | **Nausea** | Enemies in a puddle are slowed by 45% and deal 40% less damage. |
 |  | **It's Catching** | Enemies that die in a puddle leave a new puddle behind. |
 | Lv 8 signature | **Acid Wash** | Puddles strip armour: enemies standing in them lose their armour and take +25% damage from everything. |
@@ -600,7 +600,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Peekaboo
 
-*Soul peek, Trickster.* You vanish. Enemies swarm the empty spot, then BOO. The science is three years old.
+*Oil peek, Trickster.* You vanish. Enemies swarm the empty spot, then BOO. The science is three years old.
 
 - **Base stats:** dmg 20, cd 5.5s, mag 1, reload 0.1s, range 420 (dur 1.8, area 230)
 - **Level bonuses:** Lv3: +25% duration; Lv6: +25% area; Lv9: +50% dmg
@@ -663,7 +663,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ### Tooth Fairy
 
-*Soul tooth, Lure.* Drops baby teeth near the crowd and smites whoever takes one. She collects debts.
+*Blood tooth, Lure.* Drops baby teeth near the crowd and smites whoever takes one. She collects debts.
 
 - **Base stats:** dmg 34, cd 1.1s, mag 3, reload 2s, range 420 (dur 6, lure 230)
 - **Level bonuses:** Lv3: +1 count; Lv6: +40% dmg; Lv9: +60 lure
@@ -1282,9 +1282,9 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | **Tantrum** | Static | The more you have been hurt lately, the bigger the blast. Floor-thumping included. | dmg 20, cd 9s, area 120, rage 0.15 | Lv3: +0.05 rage; Lv5: +50% dmg; Lv7: 25% faster |
 | **Dummy Spit** | Acid | Flings a dummy at the toughest enemy. It sticks, and bursts into acid when they die. | dmg 55, cd 8s, count 1, area 95, delay 0.4s, stick 1 | Lv3: +25% area; Lv5: +50% dmg; Lv7: +1 count |
 | **Out of Body** | Soul | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
-| **Elbows Out** | Force | You throw your elbows about. Everything close to you is hit and shoved well back. Firstborn only. | dmg 30, cd 8s, area 140 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
+| **Elbows Out** | Force | You throw your elbows about. Everything close to you is hit and shoved well back. You were here first. Firstborn only. | dmg 30, cd 8s, area 140 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Belly Flop** | Force | You launch yourself at the thickest crowd nearby and land on it, hard. Chonker only. | dmg 55, cd 10s, area 130 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
-| **Lightbulb Moment** | Static | A bolt of inspiration jumps from enemy to enemy, up to six of them. Bright Spark only. | dmg 34, cd 7s, count 6 | Lv3: +2 count; Lv5: +50% dmg; Lv7: 20% faster |
+| **Lightbulb Moment** | Static | A bolt of inspiration jumps from enemy to enemy, up to six of them. None of them asked. Bright Spark only. | dmg 34, cd 7s, count 6 | Lv3: +2 count; Lv5: +50% dmg; Lv7: 20% faster |
 | **Come Play With Us** | Force | You and your twin both reach out at the same moment. Everything near either of you is pulled in close and hurt. Twins only. | dmg 40, cd 9s, area 150 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 
 ### Feat paths (Lv 4)
