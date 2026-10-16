@@ -6,3 +6,4 @@
 - Hooks: removed grantsStart (game.js), grantsTick (game.js), drawGrants (render.js), grantsHtml/grantsBind (ui.js).
 - Risk: tutorial.js 'stains' card text still mentions grants (unreachable now).
 - Also: deleted the unreachable `stains` tutorial card (tutorial.js). Risk: none.
+- Also: removed the pause-menu Stains lists and permanent-stain toggles (ui.js stainsHtml, data-pst), .li.stain CSS, staintest. Save data: META.pstainOff no longer written; META.pstains still read in game.js (old saves keep their stains, now with no off switch).
