@@ -2,6 +2,12 @@
 
 Newest first. One entry per shipped version (or per merge into `main`). Format and rules: `CLAUDE.md` > Change log. System names come from `ARCHITECTURE.md`. Older history (before v9.23) lives in `NOTES.md` > Recent changes and `git log`.
 
+## v9.24 (versionCode 274)
+- **Systems**: feats, chemistry, upgrades, render, ui, audio, data, tests, docs
+- **Files**: `newfeats.js` (new), `data.js`, `spellfork.js`, `stamina.js`, `icons.js`, `chem.js`, `typefx.js`, `game.js`, `render.js`, `ui.js`, `audio.js`, `sigs.js`, `index.html`, `meta.js`, `android/app/build.gradle`, `tests/newfeattest.js` (new), `tests/newfeatshot.js` (new), `tests/run.sh`, `tests/sim/wave20.js`, `tests/tools/guide.js`, `GAME_GUIDE.md`, `FEAT_IDEAS.md`, `ENEMY_IDEAS.md` (new, from `ccr-9082b737`), `NOTES.md`, `ARCHITECTURE.md`
+- **What**: merge of this session's v9.23 (all 36 Feats from `FEAT_IDEAS.md`, each with two Lv 4 paths, in loot, the Tackle Box and a new Field Guide FEATS tab; the Bloody Show three-type reaction, Mucus + Blood + Static) with main's v9.23 (the Playpen) and `ccr-9082b737` (enemy ideas doc). Also fixes a crash: Rubber Johnny's spines have no weapon and broke `projHit`/`projEnd`. Two branches used v9.23, so this combined build is v9.24.
+- **Risk / watch**: 36 more Feats dilute Feat drafts (novelty weighting rotates them). Wave sims: 27% bot wins before, 36% with a new Feat forced in; Mosquito, Fecal Transplant, Brown Fat and Fertile Window sit at 50%. Hooks in `updateEnemies`, `shootPattern`, enemy bullets, `hurtPlayer`, `damageEnemy` and `killEnemy` all run through `G.nf` (absent until a new Feat is performed). No save-data changes.
+
 ## v9.23 (versionCode 273)
 - **Systems**: weapons, combos, chemistry, loot
 - **Files**: `playpen.js` (new), `index.html`, `chem.js`, `data.js`, `WEAPON_IDEAS.md`, tests (`armtest`)
