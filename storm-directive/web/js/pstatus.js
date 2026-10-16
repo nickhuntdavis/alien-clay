@@ -48,12 +48,16 @@ function pstHurtMul(hf, kind) {
 // A typed bullet landed (after dodges, shields and armour).
 function pstHit(hf) {
   const k = hf && PST_OF[hf.pel];
-  if (!k) return;
+  if (k) pstGive(k, PST[k].add * (hf.pk || 1)); // (pk: a bigger dose, e.g. a Phlegm Hocker glob: foes3.js)
+}
+// Give a status for `add` seconds (up to its cap). Also used by the Hayfever Cell's sneeze (foes3.js).
+function pstGive(k, add) {
   const S = pstS(), C = PST[k], p = me(), was = S[k] > G.t;
-  S[k] = Math.min(G.t + C.cap, Math.max(S[k], G.t) + C.add);
+  S[k] = Math.min(G.t + C.cap, Math.max(S[k], G.t) + add);
   if (k === 'wet') { S.snot = 0; G.acidOn = 0; G.sizzle = 0; }
   if (k === 'snot' && S.wet > G.t) S.snot = 0; // (it slides straight off a wet swimmer)
-  if (!was && S[k] > G.t) floatText(p.x, p.y - 32, PST_NAME[k], ELEMENTS[hf.pel].color, 12, 0.9);
+  const el = { snot: 'ice', sick: 'poison', wet: 'salt' }[k];
+  if (!was && S[k] > G.t) floatText(p.x, p.y - 32, PST_NAME[k], ELEMENTS[el].color, 12, 0.9);
 }
 const pstSpeed = () => pstHas('snot') ? PST.snot.slow : 1;
 const pstHeal = () => pstHas('sick') ? PST.sick.heal : 1;

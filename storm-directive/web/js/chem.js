@@ -104,6 +104,7 @@ function applyElement(e, elem, dmg, src) {
   if (!e.dead) chemTriple(e, dmg, src, rsrc);
   if (!e.dead) chemTerrain(e, elem, dmg, src, rsrc);
   if (!e.dead && chemFoes().has(e.def)) chemFoe(e, elem, dmg, src, rsrc);
+  if (!e.dead && e.def.f3rx) foes3Chem(e, elem, dmg, src, rsrc); // (Phlegm Hocker, Hayfever Cell: foes3.js)
   if (!e.dead) chemPuddle(e, elem);
 }
 

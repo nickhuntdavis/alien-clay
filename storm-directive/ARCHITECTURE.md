@@ -53,7 +53,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 ## Enemies and world
 | System | Files | Role |
 |---|---|---|
-| **enemies** | `data.js`, `game.js`, `foes.js`, `foes2.js`, `brood.js` | Enemy defs, AI, caps (`G.typeN`), status VFX. |
+| **enemies** | `data.js`, `game.js`, `foes.js`, `foes2.js`, `foes3.js`, `brood.js` | Enemy defs, AI, caps (`G.typeN`), status VFX. `foes3.js`: enemies that use player statuses (Phlegm Hocker, Hayfever Cell) and their reactions (`foes3Chem`). |
 | **bosses** | `bosses.js`, `bosspack.js` | Roster, intro cinematic, abilities, death, relic choice; the mechanic-teaching boss pack. |
 | **rivals** | `rivals.js`, `rrelics.js` | Named rival swimmers and their relics. |
 | **terrain** | `terrain.js`, `bighaz.js` | Nodules, mitochondria, acid crypts, cilia, currents, slicks; rare big hazards. |
@@ -75,6 +75,6 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 
 ## Cross-cutting rules
 - **Hook-file pattern**: a feature lives in its own file; `game.js`, `render.js`, `ui.js` and `bosses.js` get one-line calls into it. Each file's header comment lists its hooks. Add the file to `index.html` in the right order.
-- **Script order** (from `index.html`): data, settings, meta, icons, game, td, terrain, arsenal, sigs, bosses, events, boons, waves, debug, quirks, toys, combos, genes, prestige, seqsel, preview, show, rivals, render, bighaz, foes, brood, pickups, silly, rrelics, intro, spellfork, reborn, genegun, redtail, twins, armoury, playpen, seqlock, pairs2, aim, chem, spoils, campaign, bosspack, dishfx, statusintro, pstatus, tutorial, grants, junk, foes2, typefx, levels, school, glossary, inspect, evolve, stamina, bodymods, rubber, bias, upall, pinhide, seqfeats, newfeats, splash, finale, juice, audio, seqreveal, fusion, supers, daily, portraits, lab, weird, loadout, ui.
+- **Script order** (from `index.html`): data, settings, meta, icons, game, td, terrain, arsenal, sigs, bosses, events, boons, waves, debug, quirks, toys, combos, genes, prestige, seqsel, preview, show, rivals, render, bighaz, foes, brood, pickups, silly, rrelics, intro, spellfork, reborn, genegun, redtail, twins, armoury, playpen, seqlock, pairs2, aim, chem, spoils, campaign, bosspack, dishfx, statusintro, pstatus, tutorial, grants, junk, foes2, typefx, foes3, levels, school, glossary, inspect, evolve, stamina, bodymods, rubber, bias, upall, pinhide, seqfeats, newfeats, splash, finale, juice, audio, seqreveal, fusion, supers, daily, portraits, lab, weird, loadout, ui.
 - **Persistence**: only `META` (`sd_meta`) and `SET` (`sd_settings`) in `localStorage`. `G` is per run and `null` on the title screen.
 - **Build/ship**: `android/` (Gradle `assembleRelease`), version in `meta.js` `APP_VERSION` and `android/app/build.gradle`.

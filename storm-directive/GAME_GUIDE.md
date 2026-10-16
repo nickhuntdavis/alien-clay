@@ -2538,6 +2538,8 @@ One power per enemy type (offspring such as Daughter Cells carry their parent's)
 | Callus | **Hard Skin** | +10% crit damage | +30% crit damage |
 | Plasma Cell | **Mass Production** | +6% fire rate | +18% fire rate |
 | Cortisol Puff | **Fight or Flight** | +5% swim speed | +15% swim speed |
+| Phlegm Hocker | **Clear Your Throat** | +5% projectile speed | +15% projectile speed |
+| Hayfever Cell | **Bless You** | +3% dodge | +9% dodge |
 
 ## Mutations
 
@@ -2860,6 +2862,8 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **RINSE** | You in a Water puddle: washes off acid, tangles and stuck bogeys. |
 | **SNOT SHIELD** | You in a blob of snot: it blocks the next hit (every 10s at most). |
 | **PANDEMIC** | An enemy topped up to its Cooties limit spreads it: 6 enemies nearby get two doses each. |
+| **GARGLED** | Water on a Phlegm Hocker: its next 3 globs land as rinse puddles that wash you clean. |
+| **ANTIHISTAMINE** | Water, then Cooties, on a Hayfever Cell: it sneezes on its own side, and everything near it is Sick. |
 
 ## Combo twists
 
@@ -3059,6 +3063,7 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Headbutter** | 50 | 18 | 56 | 2 | 4 | 2:10 |  |  | Winds up, then charges |
 | **Leech** | 30 | 7 | 72 | 0 | 4 | 2:10 | 6 | Water x1.6, Blood x0.5 | Drains your stamina within 120 |
 | **Pinworm** | 70 | 12 | 60 | 1 | 5 | 2:20 |  |  | Swims straight at you |
+| **Phlegm Hocker** | 32 | 8 | 50 | 0 | 4 | 2:20 | 6 | Water x1.5, Mucus x0.6 | Lobs sticky globs that make you Snotty |
 | **Cortisol Puff** | 30 | 6 | 50 | 0 | 5 | 2:25 | 3 | Cooties x1.4 | Allies within 180 swim 30% faster |
 | **Mucus Wall** | 95 | 14 | 40 | 8 | 6 | 2:30 |  |  | Damages anything close |
 | **Mirror Cell** | 34 | 9 | 54 | 0 | 4 | 2:30 | 6 | Acid x1.4, Static x0.6 | Reflects shots that hit its front |
@@ -3075,6 +3080,7 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Ghost Swimmer** | 35 | 10 | 82 | 0 | 5 | 3:15 |  |  | Phases in and out |
 | **Brood Cyst** | 140 | 14 | 30 | 2 | 10 | 3:20 |  |  | brood |
 | **Callus** | 58 | 12 | 40 | 4 | 5 | 3:20 | 6 | Water x1.4, Force x0.8 | Immune to crits |
+| **Hayfever Cell** | 50 | 10 | 48 | 1 | 5 | 3:20 | 6 | Water x1.5, Cooties x0.6 | Sneezes the statuses you gave it back at you |
 | **Fibrin Weaver** | 44 | 8 | 40 | 1 | 6 | 3:25 | 3 | Oil x1.4, Force x0.8 | Tethers up to 4 allies: they cannot be knocked back |
 | **Mother Cell** | 75 | 10 | 40 | 2 | 8 | 3:30 |  |  | Spawns minions |
 | **Planarian** | 34 | 10 | 72 | 1 | 2 | 3:50 |  |  | planarian |
@@ -3169,6 +3175,8 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Bogey** | A bogey. It flicks itself at you and sticks: each one stuck on you slows you down a little. | Your weapons will pick them off you. Water helps, as does a tissue. |
 | **Bit of Sweetcorn** | A bit of sweetcorn. It has been through the whole system intact and it is not stopping now. Tough as anything, completely harmless. | Don't waste your best hits on it. It can't hurt you. |
 | **Glitter** | Glitter from a hen do. Kill it and it comes back. You will be finding it for weeks. | Area damage. It only comes back once. |
+| **Phlegm Hocker** | Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds. | Strafe, don't back off in a straight line. Water makes it gargle, and its next globs land as puddles that rinse you clean. |
+| **Hayfever Cell** | Allergic to everything, mostly you. Every few seconds it winds up (AH... AH...) and sneezes a cone at you, and it sneezes back whatever statuses you have given it. | Step out of the cone when it winds up, and go easy on the statuses. Soak it with Water, then give it Cooties, and it sneezes on its friends instead. |
 
 ## Rival champions
 
