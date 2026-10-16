@@ -265,7 +265,7 @@ function chemPlayerZones() {
   let lube = false;
   for (const z of G.zones) {
     if (!(z.oil || z.water || z.snot) || z.life <= 0 || Math.hypot(q.x - z.x, q.y - z.y) > z.r + (q.r || 12)) continue;
-    if (z.oil) lube = true;
+    if (z.oil && !z.foe) lube = true; // (a Grease Ball's slick lubricates you the bad way: pstatus.js)
     if (z.water && (G.acidOn > G.t || G.bogeyN || G.tangleT > G.t || pstOn())) {
       G.acidOn = 0; G.sizzle = 0; G.tangleT = 0; pstClear(); // (Snotty, Sick: pstatus.js)
       for (const b of G.enemies) if (b.stuck && !b.dead) { b.stuck = null; shove(b, q.x, q.y, 300); }

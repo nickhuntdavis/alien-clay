@@ -5,32 +5,41 @@
 //   Hayfever Cell (Cooties, punisher): every few seconds it winds up and sneezes a cone at you, giving you
 //     whichever of Snotty, Sick and Soaking wet you have put on it. Pile statuses on it carelessly and it backfires.
 //     ANTIHISTAMINE (Water, then Cooties on it): it sneezes on its own side instead, making its neighbours Sick.
-// Hooks: chem.js (after an enemy takes a damage type's status) -> foes3Chem. Everything else rides foes2's
-//   tables (cap, FOE_AI, MICROBES, ENEMY_INTRO).
+//   Snot Bubble (Mucus, carrier): a nostril bubble that swells with every hit. Pop it early and it only splashes
+//     Snotty on the neighbours; pop it late (4+ hits) and it bursts, sticking every enemy nearby and you if you are close.
+//     POPPED (Static on it): bursts at once, harmless to you, every enemy nearby Snotty.
+// Hooks: chem.js (after an enemy takes a damage type's status) -> foes3Chem; foes2.js foes2Dmg -> foes3Dmg and
+//   foes2Kill -> foes3Kill (Snot Bubble). Everything else rides foes2's tables (cap, FOE_AI, MICROBES, ENEMY_INTRO).
 
 Object.assign(ENEMIES, {
   hocker:   { name: 'Phlegm Hocker', hp: 32, speed: 50, armour: 0, r: 14, dmg: 8, xp: 4, color: '#b9c98a', shape: 'hocker', ai: 'hocker', from: 140, w: 1.2, cap: 6, f3rx: true,
     weak: { salt: 1.5 }, resist: { ice: 0.6 }, does: 'Lobs sticky globs that make you Snotty' },
   hayfever: { name: 'Hayfever Cell', hp: 50, speed: 48, armour: 1, r: 16, dmg: 10, xp: 5, color: '#f2c6d6', shape: 'hayfever', ai: 'hayfever', from: 200, w: 1.0, cap: 6, f3rx: true,
     weak: { salt: 1.5 }, resist: { poison: 0.6 }, does: 'Sneezes the statuses you gave it back at you' },
+  snotbubble: { name: 'Snot Bubble', hp: 30, speed: 34, armour: 0, r: 13, dmg: 6, xp: 4, color: '#cfe3c0', shape: 'snotbubble', ai: 'chase', from: 120, w: 1.0, cap: 4, f3rx: true, f3dmg: true, f3kill: true,
+    weak: { shock: 1.5 }, resist: { phys: 0.6 }, does: 'Swells with every hit, then bursts and sticks everything nearby' },
 });
 Object.assign(ENEMY_INTRO, {
   hocker:   { what: 'Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds.', tip: 'Strafe, don\'t back off in a straight line. Water makes it gargle, and its next globs land as puddles that rinse you clean.' },
+  snotbubble: { what: 'A bubble blown out of a nostril. Every hit makes it swell. Pop it too late and it bursts all over the neighbourhood, you included.', tip: 'Pop it early for a small splash, or from range. Static pops it at once, and harmlessly.' },
   hayfever: { what: 'Allergic to everything, mostly you. Every few seconds it winds up (AH... AH...) and sneezes a cone at you, and it sneezes back whatever statuses you have given it.', tip: 'Step out of the cone when it winds up, and go easy on the statuses. Soak it with Water, then give it Cooties, and it sneezes on its friends instead.' },
 });
 Object.assign(REACTIONS, {
+  popped:        { name: 'POPPED',        color: '#9fd46a', desc: 'Static on a Snot Bubble: it bursts at once, harmless to you, and every enemy nearby is Snotty.' },
   gargled:       { name: 'GARGLED',       color: '#3d8bff', desc: 'Water on a Phlegm Hocker: its next 3 globs land as rinse puddles that wash you clean.' },
   antihistamine: { name: 'ANTIHISTAMINE', color: '#ff5fa2', desc: 'Water, then Cooties, on a Hayfever Cell: it sneezes on its own side, and everything near it is Sick.' },
 });
 Object.assign(JUNK_POWERS, {
   hocker:   { name: 'Clear Your Throat', fmt: k => `+${5 * k}% projectile speed`, apply: P => { P.projSpeed += 0.05; } },
+  snotbubble: { name: 'Nose Job', fmt: k => `+${3 * k}% swim speed`, apply: P => { P.speed += 0.03; } },
   hayfever: { name: 'Bless You', fmt: k => `+${3 * k}% dodge`, apply: P => { P.dodge += 0.03; } },
 });
 if (typeof PST_SHOOTERS !== 'undefined') PST_SHOOTERS.hocker = 'ice';
-if (typeof RX_OF !== 'undefined') { RX_OF.gargled = 'splash'; RX_OF.antihistamine = 'pop'; }
+if (typeof RX_OF !== 'undefined') { RX_OF.gargled = 'splash'; RX_OF.antihistamine = 'pop'; RX_OF.popped = 'pop'; }
 
 const F3 = {
   glob: { cd: 2.4, speed: 150, dmg: 8, r: 8, dose: 1.7 },        // (dose: Snotty seconds x this)
+  bubble: { swell: 0.07, late: 4, max: 8, early: 80, big: 170, near: 24, snot: 3 }, // (grow per hit, hits that count as late, most hits that show, radii, your Snotty seconds when close)
   sneeze: { cd: 4.5, wind: 0.8, range: 230, half: 0.5, dur: 2, dmg: 0.6 }, // (half: cone half-angle; dmg: share of its contact damage)
 };
 // What the Hayfever Cell is carrying, as player statuses.
@@ -75,6 +84,31 @@ Object.assign(FOE_AI, {
   },
 });
 
+// Snot Bubble: every hit swells it (not more than once every 0.1 s, so one burst of pellets is one hit).
+function foes3Dmg(e, src) {
+  if (e.def !== ENEMIES.snotbubble || e.dead || e.swT > G.t) return;
+  const B = F3.bubble;
+  e.swT = G.t + 0.1; e.r0 = e.r0 || e.r;
+  e.swell = Math.min(B.max, (e.swell || 0) + 1); e.r = e.r0 * (1 + B.swell * e.swell);
+  if (e.swell === B.late) floatText(e.x, e.y - e.r - 10, 'ABOUT TO GO', ELEMENTS.ice.color, 11, 0.8);
+}
+// It is gone: a small splash, or (late or popped) a burst that sticks everything nearby.
+function f3snotOn(n, big) {
+  n.chill = Math.max(n.chill || 0, 2.5);
+  if (!big) return;
+  n.chillAmt = Math.min(0.6, (n.chillAmt || 0) + 0.6);
+  if (n.frozen <= 0) n.frozen = n.boss ? 0.4 : 1.3;
+}
+function foes3Kill(e) {
+  if (e.def !== ENEMIES.snotbubble) return;
+  const B = F3.bubble, p = me(), big = e.popped || (e.swell || 0) >= B.late, R = big ? B.big : B.early;
+  forNear(e.x, e.y, R, n => { if (n !== e && !n.dead && !n.charmed && !n.rival && !n.egg) { f3snotOn(n, big); bolt(e.x, e.y, n.x, n.y, ELEMENTS.ice.color, 0.12); } });
+  if (big && !e.popped && Math.hypot(p.x - e.x, p.y - e.y) < R * 0.6 + B.near) pstGive('snot', B.snot);
+  spawnPart(e.x, e.y, '#e6f2d0', big ? 18 : 8, big ? 200 : 110, 0.5);
+  floatText(e.x, e.y - e.r - 8, e.popped ? 'POP' : big ? 'SPLAT' : 'pop', ELEMENTS.ice.color, big ? 14 : 11, 0.7);
+  if (big && G.zones.length < 180) G.zones.push({ x: e.x, y: e.y, r: 30, life: 4, max: 4, dps: 0, elem: 'ice', pull: 0, color: ELEMENTS.ice.color, tick: 0, src: { elem: 'ice', noStatus: true, wname: 'Snot' }, snot: true, quiet: true });
+}
+
 // CHOO. Anything in the cone gets what it is carrying.
 function f3sneeze(e) {
   const p = me(), S = F3.sneeze, c = f3carry(e);
@@ -91,6 +125,7 @@ function f3sneeze(e) {
 function foes3Chem(e, elem, dmg, src, rsrc) {
   const say = id => { e.reactCd = 0; return react(e, id, src); }; // (always fires: a pair reaction on the same hit has not used it up)
   if (e.def === ENEMIES.hocker && elem === 'salt' && !(e.garg > 0) && say('gargled')) e.garg = 3;
+  if (e.def === ENEMIES.snotbubble && elem === 'shock' && !e.popped && say('popped')) { e.popped = 1; damageEnemy(e, e.hp + 1, rsrc); return; }
   if (e.def === ENEMIES.hayfever) {
     if (elem === 'salt') e.f3wetT = G.t + 3;
     else if (elem === 'poison' && (e.pickle > 0 || e.f3wetT > G.t) && !(e.ahT > G.t) && say('antihistamine')) {
@@ -113,6 +148,16 @@ Object.assign(MICROBES, {
     ctx.fillStyle = 'rgba(220,232,190,0.75)'; ctx.beginPath(); ctx.arc(fx + Math.cos(face) * dr, fy + Math.sin(face) * dr + dr * 0.6, dr * 0.6, 0, TAU); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.ellipse(x - r * 0.3, y - r * 0.35, r * 0.32, r * 0.13, -0.5, 0, TAU); ctx.fill();
     if (e.garg > 0) { ctx.fillStyle = 'rgba(255,255,255,0.55)'; for (let i = 0; i < e.garg; i++) { const a = G.realT * 2 + i * TAU / 3; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.45, y + Math.sin(a) * r * 0.45, r * 0.1, 0, TAU); ctx.fill(); } } // (bubbles: it is gargling)
+  },
+  snotbubble(e, x, y, r, face) {
+    // A thin skin of snot over a breath: it wobbles harder and greens up the more it has swollen, with a drip at the bottom.
+    const k = Math.min(1, (e.swell || 0) / F3.bubble.late), wob = 1 + 0.05 * k * Math.sin(G.realT * (8 + 10 * k) + e.id);
+    ctx.fillStyle = 'rgba(30,36,32,0.25)'; ctx.beginPath(); ctx.ellipse(x, y + r * 1.05, r * 0.7, r * 0.18, 0, 0, TAU); ctx.fill();
+    f2blob(x, y, r * wob, 18, 0.03, e.id, f2t(e)); ctx.fillStyle = mBody(e, 0.18 + 0.2 * k); ctx.fill(); mHalo(r * 0.1);
+    ctx.lineWidth = Math.max(1, r * 0.08); ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.arc(x, y, r * 0.78, -2.6, -1.2); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.ellipse(x - r * 0.35, y - r * 0.4, r * 0.2, r * 0.1, -0.6, 0, TAU); ctx.fill();
+    const dr = r * (0.16 + 0.05 * Math.sin(G.realT * 2 + e.id));
+    ctx.fillStyle = 'rgba(220,232,190,0.75)'; ctx.beginPath(); ctx.arc(x + r * 0.1, y + r * 0.95 + dr, dr, 0, TAU); ctx.fill();
   },
   hayfever(e, x, y, r, face) {
     // A puffy cell dusted with pollen grains, two nostrils at the front. It swells as it winds up.
