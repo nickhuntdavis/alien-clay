@@ -90,6 +90,7 @@ function comboHint(id) {
 // After one of your weapons fires.
 function comboFire(w, target) {
   if (!G.combo || w.echo || !target) return;
+  combo3Fire(w, target); // (combos3.js)
   if (w.id === 'blaster' && comboOn('bigsib')) {
     w.sibN = (w.sibN || 0) + 1;
     const sw = comboW('seeker');
@@ -103,6 +104,7 @@ function comboFire(w, target) {
 // Every hit by one of your weapons (not damage over time).
 function comboHit(e, dmg, src) {
   if (!G.combo || !src.w || src.w.echo || e.dead) return;
+  combo3Hit(e, dmg, src); // (combos3.js)
   const id = src.w.id;
   if (id === 'paddle' && comboOn('whackamole') && !(G.moleT > G.t) && G.proj.length < CAPS.proj) {
     const mw = comboW('mines');
@@ -140,6 +142,7 @@ function comboPulse(w) {
 }
 // From meleeLash.
 function comboLash(w, x, y, a, L) {
+  combo3Lash(w, x, y, a, L); // (combos3.js)
   if (w.id !== 'flail' || w.echo || !comboOn('whiplash') || G.zones.length > 300) return;
   const ww = comboW('wake');
   if (!ww) return;
@@ -159,6 +162,7 @@ function comboTick(dt) {
   fusionCheck(); // (a combo just became available: its unlock screen, fusion.js)
   if (!G.combo) return;
   superTick(dt);
+  combo3Tick(dt); // (combos3.js)
   const p = me();
   if (comboOn('spityoyo') && cmbEvery('spit', 0.35)) {
     const bw = comboW('blaster'), gw = comboW('glaive');

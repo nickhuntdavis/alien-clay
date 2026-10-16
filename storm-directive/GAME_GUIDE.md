@@ -208,7 +208,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 11, cd 0.3s, mag 12, reload 1.1s, range 440
 - **Level bonuses:** Lv3: +1 pierce; Lv6: +1 count; Lv9: +30% dmg
-- **Combos:** **Big Sibling** (+ Seeker Siblings), **Swapping Spit** (+ Yo-Yo Diet)
+- **Combos:** **Big Sibling** (+ Seeker Siblings), **Swapping Spit** (+ Yo-Yo Diet), **Drive-By Pramming** (+ Runaway Pram)
 - **Pairings:** **Conductive Spit** (+ Static Cling), **Seen It Before** (+ Déjà Vu)
 
 | Level | Choice | Effect |
@@ -502,7 +502,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 34, cd 0.8s, mag 4, reload 1.1s, range 92 (area 1, arc 2.4, knock 220)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** **Whack-a-Mole** (+ Nappy Mines)
+- **Combos:** **Whack-a-Mole** (+ Nappy Mines), **One-Two Delivery** (+ Gut Punch)
 - **Pairings:** **One-Two** (+ Flagellum Flail), **Soap Hockey** (+ Booger Flick), **Bubble Hockey** (+ Bubble Wand)
 
 | Level | Choice | Effect |
@@ -523,7 +523,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 19, cd 0.38s, mag 6, reload 1s, range 190 (area 1, width 15, knock 60)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +25% area
-- **Combos:** **Whiplash** (+ Skid Mark)
+- **Combos:** **Whiplash** (+ Skid Mark), **Locker Room Towel** (+ Hanky Panky)
 - **Pairings:** **One-Two** (+ Placenta Paddle), **Live Wire** (+ Static Cling), **Lashing Out** (+ Karma)
 
 | Level | Choice | Effect |
@@ -799,7 +799,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 11.5, cd 0.5s, mag 8, reload 1.3s, pierce 1, range 480
 - **Level bonuses:** Lv3: +30% dmg; Lv6: +1 count; Lv9: +2 pierce
-- **Combos:** **Gene Splice** (+ Placental Siphon)
+- **Combos:** **Gene Splice** (+ Placental Siphon), **Guthrie Test** (+ Heel Prick)
 - **Pairings:** **Mind the Gap** (+ Twin Telepathy), **Gene Therapy** (+ Placental Siphon)
 
 | Level | Choice | Effect |
@@ -952,7 +952,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 30, cd 0.6s, mag 4, reload 1s, range 110 (area 1, width 22, knock 140)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **One-Two Delivery** (+ Placenta Paddle)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -974,7 +974,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 16, cd 1.2s, mag 3, reload 2s, range 400 (area 60, explode 1, dur 4, flight 0.7)
 - **Level bonuses:** Lv3: +30% duration; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Packed Lunch** (+ Juice Box)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1106,7 +1106,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 22, cd 0.7s, mag 4, reload 1.2s, range 105 (area 1, arc 2, knock 80)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +20% area; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Live Mains** (+ Fork in the Socket)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1392,7 +1392,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 20, cd 1.6s, mag 3, reload 1.4s, range 160 (area 120, knock 260)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +20% area
-- **Combos:** -
+- **Combos:** **Water Delivery** (+ Bath Bomb)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1414,7 +1414,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 22, cd 1.4s, mag 3, reload 2s, range 380 (area 80, explode 1, dur 2, flight 0.65)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Water Delivery** (+ Waters Breaking)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1458,7 +1458,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 34, cd 0.9s, mag 3, reload 1.4s, range 420
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Auntie's Revenge** (+ Wet Kiss)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1502,7 +1502,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 18, cd 0.45s, mag 5, reload 1.1s, range 180 (area 1, width 13, knock 50)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +20% area
-- **Combos:** -
+- **Combos:** **Locker Room Towel** (+ Flagellum Flail)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1524,7 +1524,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 12, cd 0.6s, mag 6, reload 1.6s, x2, range 460 (homing 5)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Auntie's Revenge** (+ Sticky Fingers)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1568,7 +1568,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 4, cd 0.08s, mag 24, reload 1.8s, pierce 1, range 230
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +0.25 mag; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Packed Lunch** (+ Upchuck)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1656,7 +1656,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 7, cd 0.14s, mag 15, reload 1.3s, range 460
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +0.3 mag; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Guthrie Test** (+ Gene Gun)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1678,7 +1678,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 4, cd 0.1s, mag 30, reload 1.2s, range 260
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +0.15 range; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Live Mains** (+ Static Hairbrush)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1700,7 +1700,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 44, cd 2.2s, mag 2, reload 1.6s, pierce all, range 420
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Drive-By Pramming** (+ Spitball)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1988,6 +1988,14 @@ Both weapons at Lv 5+: the game stops at once for the combo's own unlock screen 
 | **Hoedown Throwdown** | Shotgun Wedding + Duelling Banjo | Redtail | Every Both Barrels blast also plays a ring of low notes. |
 | **Shotgun Shine** | Moonshine Jug + Shotgun Wedding | Redtail | Shotgun Wedding pellets pour enemies a dose of Cooties, and hit sick enemies 50% harder. |
 | **Gene Splice** | Gene Gun + Placental Siphon | Designer Baby | Every 10 bullets the Siphon eats fires a free Gene Gun helix at the nearest enemy. |
+| **Drive-By Pramming** | Runaway Pram + Spitball | Firstborn | A rolling pram spits Spitballs at the 2 nearest enemies every 0.12s. The pile-up ends in a ring of 12 piercing Spitballs. Unattended pushchair, loaded with biological projectiles. |
+| **One-Two Delivery** | Gut Punch + Placenta Paddle | Chonker | Paddle hits throw an automatic Gut Punch at the toughest enemy nearby. On a Melting enemy it hits 75% harder, strips 4 armour and shoves its neighbours back. First the blunt trauma, then the digestive juices. |
+| **Live Mains** | Fork in the Socket + Static Hairbrush | Bright Spark | The Fork beam splits into 3 prongs, and every 0.4s the Hairbrush swings along it, hitting everything between you and the target. Held for 1.5s, the target overloads and cannot move. Two hundred and forty volts through nylon bristles. |
+| **Auntie's Revenge** | Sticky Fingers + Wet Kiss | Favourite | Whatever Sticky Fingers reels in gets 3 Wet Kisses, then a lip-print cloud (3.5s) that gives 2 doses of Cooties and glues everything in it for 1.5s. Unavoidable festive greeting from a distant relative. |
+| **Water Delivery** | Waters Breaking + Bath Bomb | Chonker + Good Eater (needs a splice) | Every Waters Breaking gush also flings 4 Bath Bombs north, south, east and west. Their puddles pull enemies in and hit twice as hard. Premature rupture of the amniotic sac, with lavender. |
+| **Locker Room Towel** | Hanky Panky + Flagellum Flail | Quiet One | Hit with the last quarter of a Flail lash and the towel SNAPs: triple damage, stunned for 1.2s, and a cloud of Cooties along the whole lash. Medically hazardous contact. |
+| **Packed Lunch** | Juice Box + Upchuck | Problem Child | The empty Juice Box is thrown at the nearest Upchuck puddle, which boils over: 60% wider for 3s, hits harder and melts 1 armour every 0.3s. Warm apple juice and inevitable regret. |
+| **Guthrie Test** | Heel Prick + Gene Gun | Designer Baby | Gene Gun helices home in on enemies Heel Prick has marked. A marked enemy hit by one loses 15% of its health (4% of a boss), bleeds at triple rate for 4s and passes its edit to 3 neighbours. Five drops on filter paper. |
 
 ## Super combos
 
