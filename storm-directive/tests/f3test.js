@@ -25,6 +25,17 @@ const { chromium } = require('playwright');
     const n = makeEnemy(ENEMIES.crawler, 840, 320); n.hp = n.maxHp = 1e6; G.enemies.push(n); gridBuild();
     y.ahT = 0; damageEnemy(y, 1, { elem: 'salt', wname: 'T' }); damageEnemy(y, 1, { elem: 'poison', wname: 'T' });
     out.anti = (G.stats.reactBy.antihistamine || 0) + ' neighbour sick ' + (n.poison > 0); if (!G.stats.reactBy.antihistamine || !(n.poison > 0)) bad.push('antihistamine');
+    // Snot Bubble: hits swell it; an early pop splashes neighbours only; a late pop sticks them and you; Static pops it harmlessly.
+    G.enemies.length = 0; G.pst = null; G.zones.length = 0; p.x = 700; p.y = 300;
+    const mk = (x, y) => { const e = makeEnemy(ENEMIES.snotbubble, x, y); e.hp = e.maxHp = 1e6; G.enemies.push(e); return e; };
+    const nb = makeEnemy(ENEMIES.crawler, 740, 300); nb.hp = nb.maxHp = 1e6; G.enemies.push(nb);
+    let sb = mk(720, 300); const r0 = sb.r; gridBuild();
+    for (let i = 0; i < 2; i++) { sb.swT = 0; damageEnemy(sb, 1, { elem: 'phys', wname: 'T' }); }
+    out.swell = sb.swell + ' r ' + sb.r.toFixed(1) + '/' + r0; if (sb.swell !== 2 || !(sb.r > r0)) bad.push('swell');
+    sb.hp = 0; foes3Kill(sb); out.early = 'neighbour snotty ' + (nb.chill > 0) + ' me ' + pstHas('snot') + ' frozen ' + (nb.frozen > 0); if (!(nb.chill > 0) || pstHas('snot') || nb.frozen > 0) bad.push('earlyPop');
+    nb.chill = 0; nb.frozen = 0; sb.swell = 5; foes3Kill(sb); out.late = 'neighbour stuck ' + (nb.frozen > 0) + ' me ' + pstHas('snot'); if (!(nb.frozen > 0) || !pstHas('snot')) bad.push('latePop');
+    G.pst = null; nb.chill = 0; nb.frozen = 0; nb.chillAmt = 0; sb = mk(720, 300); sb.swell = 5; sb.popped = 1; foes3Kill(sb); out.popped = 'neighbour stuck ' + (nb.frozen > 0) + ' me ' + pstHas('snot'); if (!(nb.frozen > 0) || pstHas('snot')) bad.push('poppedHarmless');
+    nb.chill = 0; nb.frozen = 0; sb = mk(720, 300); G.stats.reactBy.popped = 0; damageEnemy(sb, 1, { elem: 'shock', wname: 'T' }); out.rx = 'popped ' + G.stats.reactBy.popped + ' dead ' + !!sb.dead; if (!G.stats.reactBy.popped || !sb.dead) bad.push('popped');
     out.bad = bad; return out;
   });
   console.log(JSON.stringify(r, null, 1));

@@ -2555,6 +2555,7 @@ One power per enemy type (offspring such as Daughter Cells carry their parent's)
 | Plasma Cell | **Mass Production** | +6% fire rate | +18% fire rate |
 | Cortisol Puff | **Fight or Flight** | +5% swim speed | +15% swim speed |
 | Phlegm Hocker | **Clear Your Throat** | +5% projectile speed | +15% projectile speed |
+| Snot Bubble | **Nose Job** | +3% swim speed | +9% swim speed |
 | Hayfever Cell | **Bless You** | +3% dodge | +9% dodge |
 
 ## Mutations
@@ -2868,6 +2869,7 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **RINSE** | You in a Water puddle: washes off acid, tangles and stuck bogeys. |
 | **SNOT SHIELD** | You in a blob of snot: it blocks the next hit (every 10s at most). |
 | **PANDEMIC** | An enemy topped up to its Cooties limit spreads it: 6 enemies nearby get two doses each. |
+| **POPPED** | Static on a Snot Bubble: it bursts at once, harmless to you, and every enemy nearby is Snotty. |
 | **GARGLED** | Water on a Phlegm Hocker: its next 3 globs land as rinse puddles that wash you clean. |
 | **ANTIHISTAMINE** | Water, then Cooties, on a Hayfever Cell: it sneezes on its own side, and everything near it is Sick. |
 
@@ -3066,6 +3068,7 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Bit of Sweetcorn** | 110 | 0 | 32 | 6 | 2 | 1:55 | 8 | Acid x1.2, Force x0.6, Cooties x0.6 | Tough and completely harmless |
 | **Nurse Cell** | 30 | 6 | 56 | 1 | 4 | 2:00 |  |  | Heals nearby enemies |
 | **Litmus Cell** | 40 | 10 | 50 | 1 | 4 | 2:00 | 6 | Oil x1.4 | Resists the damage type you have dealt most this run |
+| **Snot Bubble** | 30 | 6 | 34 | 0 | 4 | 2:00 | 4 | Static x1.5, Force x0.6 | Swells with every hit, then bursts and sticks everything nearby |
 | **Headbutter** | 50 | 18 | 56 | 2 | 4 | 2:10 |  |  | Winds up, then charges |
 | **Leech** | 30 | 7 | 72 | 0 | 4 | 2:10 | 6 | Water x1.6, Blood x0.5 | Drains your stamina within 120 |
 | **Pinworm** | 70 | 12 | 60 | 1 | 5 | 2:20 |  |  | Swims straight at you |
@@ -3182,6 +3185,7 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Bit of Sweetcorn** | A bit of sweetcorn. It has been through the whole system intact and it is not stopping now. Tough as anything, completely harmless. | Don't waste your best hits on it. It can't hurt you. |
 | **Glitter** | Glitter from a hen do. Kill it and it comes back. You will be finding it for weeks. | Area damage. It only comes back once. |
 | **Phlegm Hocker** | Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds. | Strafe, don't back off in a straight line. Water makes it gargle, and its next globs land as puddles that rinse you clean. |
+| **Snot Bubble** | A bubble blown out of a nostril. Every hit makes it swell. Pop it too late and it bursts all over the neighbourhood, you included. | Pop it early for a small splash, or from range. Static pops it at once, and harmlessly. |
 | **Hayfever Cell** | Allergic to everything, mostly you. Every few seconds it winds up (AH... AH...) and sneezes a cone at you, and it sneezes back whatever statuses you have given it. | Step out of the cone when it winds up, and go easy on the statuses. Soak it with Water, then give it Cooties, and it sneezes on its friends instead. |
 
 ## Rival champions

@@ -4,30 +4,34 @@
 //   Mucus bullets   -> SNOTTY: you swim slower.
 //   Cooties bullets -> SICK: you lose a little health a second (never the last point) and heal at half rate.
 //   Water bullets   -> SOAKING WET: Static bullets hit you much harder. Water also washes Snotty and Melting off.
+//   Oil bullets     -> LUBRICATED: no grip, you skid in turns. A Static hit on you then sets the grease alight (GREASE FIRE).
 //   Static bullets  -> no status of their own; they are the reason not to stay wet.
+//   Grease Balls lob a slow oil glob now and then and leave an oil slick behind them; standing in one lubricates you.
 // Each hit adds time up to a cap. Your own Water puddles rinse Snotty and Sick off (chem.js chemPlayerZones).
 // Typed bullets carry a small white mark (a germ, a highlight, a spark) so they read in Lab view too.
 // Hooks: game.js eBullet -> pstElem; hurtPlayer -> pstHurtMul, pstHit; healPlayer -> pstHeal; player speed -> pstSpeed;
-//   update -> pstTick. render.js HUD chips -> pstChips; enemy bullets -> pstBulletMarks. chem.js rinse and
+//   update -> pstTick; player grip (game.js trac) -> pstGrip; enemy oil slicks -> chem.js chemPlayerZones skips z.foe. render.js HUD chips -> pstChips; enemy bullets -> pstBulletMarks. chem.js rinse and
 //   newfeats.js Fecal Transplant -> pstOn/pstClear.
 
 // Which enemies shoot which damage type (enemy id -> type). Everything else (bosses included) stays untyped.
-const PST_SHOOTERS = { spitter: 'ice', warlock: 'poison', diatom: 'salt', lancer: 'shock', sperminator: 'shock', endoskeleton: 'shock' };
+const PST_SHOOTERS = { spitter: 'ice', warlock: 'poison', diatom: 'salt', lancer: 'shock', sperminator: 'shock', endoskeleton: 'shock', grease: 'oxi' };
 const PST = {
   snot: { add: 1.2, cap: 3, slow: 0.8 },          // (seconds per hit, most seconds, speed multiplier)
   sick: { add: 2, cap: 5, dps: 0.01, heal: 0.5 },  // (dps: share of max HP a second)
   wet:  { add: 3, cap: 6, shock: 1.6 },            // (Static hits on you while wet)
+  lube: { add: 3, cap: 6, grip: 0.4, shock: 1.3, burn: 2.5, glob: 6, slick: 2.5 }, // (grip: turning grip multiplier; shock: Static x this, then it burns for `burn` s; glob and slick: Grease Ball every N s)
 };
-const PST_OF = { ice: 'snot', poison: 'sick', salt: 'wet' };
-const PST_NAME = { snot: 'SNOTTY', sick: 'SICK', wet: 'SOAKING WET' };
+const PST_OF = { ice: 'snot', poison: 'sick', salt: 'wet', oxi: 'lube' };
+const PST_NAME = { snot: 'SNOTTY', sick: 'SICK', wet: 'SOAKING WET', lube: 'LUBRICATED' };
 
 Object.assign(STATUS_INTRO, {
   'SNOTTY':      { buff: 0, what: 'An Antibody glob stuck to you: you swim 20% slower while it lasts. Every Mucus hit adds a bit more.', tip: 'Swim through one of your own Water puddles, or get wet, to wash it off.' },
   'SICK':        { buff: 0, what: 'A Cytokine Caster gave you Cooties: you lose a little health every second and heal at half rate. It will not finish you off.', tip: 'Rinse it off in a Water puddle, or wait it out before picking up health.' },
+  'LUBRICATED':  { buff: 0, what: 'Grease on you: you lose your grip and skid wide in turns. If anything Static hits you now, the grease catches fire.', tip: 'Keep out of the slicks Grease Balls leave. Water does not wash oil off (it just floats), so wait it out.' },
   'SOAKING WET': { buff: 0, what: 'A Diatom soaked you. Static bullets hit you 60% harder while you are wet. On the plus side, the water washes off snot and acid.', tip: 'Keep away from Killer T-Cells and Boosters until you dry off.' },
 });
 
-const pstS = () => G.pst || (G.pst = { snot: 0, sick: 0, wet: 0 });
+const pstS = () => G.pst || (G.pst = { snot: 0, sick: 0, wet: 0, lube: 0 });
 const pstHas = k => G && G.pst && G.pst[k] > G.t;
 const pstElem = ent => ent && !ent.boss && ent.def ? pstId(ent.def) || null : null;
 let PST_IDS = null;
@@ -35,13 +39,20 @@ function pstId(def) {
   if (!PST_IDS) { PST_IDS = new Map(); for (const k in PST_SHOOTERS) if (ENEMIES[k]) PST_IDS.set(ENEMIES[k], PST_SHOOTERS[k]); }
   return PST_IDS.get(def);
 }
-const pstOn = () => pstHas('snot') || pstHas('sick');
-function pstClear() { if (G && G.pst) { G.pst.snot = 0; G.pst.sick = 0; } }
+const pstOn = () => pstHas('snot') || pstHas('sick') || pstHas('lube');
+function pstClear() { if (G && G.pst) { G.pst.snot = 0; G.pst.sick = 0; G.pst.lube = 0; } }
+const pstGrip = () => pstHas('lube') ? PST.lube.grip : 1;
 
 // Static bullets on a wet swimmer.
 function pstHurtMul(hf, kind) {
-  if (kind !== 'bullets' || !hf || hf.pel !== 'shock' || !pstHas('wet')) return 1;
+  if (kind !== 'bullets' || !hf || hf.pel !== 'shock') return 1;
   const p = me();
+  if (!pstHas('wet')) { // (GREASE FIRE: the Static hit lights the oil, which burns like acid for a moment)
+    if (!pstHas('lube')) return 1;
+    G.pst.lube = 0; G.acidOn = G.t + PST.lube.burn;
+    floatText(p.x, p.y - 32, 'GREASE FIRE', ELEMENTS.shock.color, 12, 0.9); spawnPart(p.x, p.y, ELEMENTS.oxi.color, 8, 140, 0.4);
+    return PST.lube.shock;
+  }
   if (!(G.pstZapT > G.t)) { G.pstZapT = G.t + 1.5; floatText(p.x, p.y - 32, 'ZAPPED IN THE BATH', ELEMENTS.shock.color, 12, 0.9); spawnPart(p.x, p.y, ELEMENTS.shock.color, 6, 120, 0.3); }
   return PST.wet.shock;
 }
@@ -56,14 +67,17 @@ function pstGive(k, add) {
   S[k] = Math.min(G.t + C.cap, Math.max(S[k], G.t) + add);
   if (k === 'wet') { S.snot = 0; G.acidOn = 0; G.sizzle = 0; }
   if (k === 'snot' && S.wet > G.t) S.snot = 0; // (it slides straight off a wet swimmer)
-  const el = { snot: 'ice', sick: 'poison', wet: 'salt' }[k];
+  const el = { snot: 'ice', sick: 'poison', wet: 'salt', lube: 'oxi' }[k];
   if (!was && S[k] > G.t) floatText(p.x, p.y - 32, PST_NAME[k], ELEMENTS[el].color, 12, 0.9);
 }
 const pstSpeed = () => pstHas('snot') ? PST.snot.slow : 1;
 const pstHeal = () => pstHas('sick') ? PST.sick.heal : 1;
 function pstTick(dt) {
-  if (!G.pst || G.state !== 'play') return;
+  if (G.state !== 'play') return;
+  pstGrease(dt);
   const p = me();
+  for (const z of G.zones) if (z.foe && z.life > 0 && Math.hypot(p.x - z.x, p.y - z.y) < z.r + (p.r || 12)) { pstGive('lube', 0.5 + dt); break; } // (stood in a Grease Ball's slick)
+  if (!G.pst) return;
   if (pstHas('sick') && p.hp > 1 && !(G.debug && G.debug.god)) {
     const d = Math.min(p.hp - 1, G.P.maxHp * PST.sick.dps * dt);
     p.hp -= d; G.stats.hurt.Sick = (G.stats.hurt.Sick || 0) + d;
@@ -77,6 +91,28 @@ function pstChips(chips) {
   if (pstHas('snot')) chips.push(['SNOTTY: SLOW ' + left('snot'), ELEMENTS.ice.color]);
   if (pstHas('sick')) chips.push(['SICK: HEALING -50% ' + left('sick'), ELEMENTS.poison.color]);
   if (pstHas('wet')) chips.push(['SOAKING WET: STATIC +60% ' + left('wet'), ELEMENTS.salt.color]);
+  if (pstHas('lube')) chips.push(['LUBRICATED: NO GRIP ' + left('lube'), ELEMENTS.oxi.color]);
+}
+// Grease Balls: an oil slick left behind them, and a slow oil glob now and then.
+function pstGrease(dt) {
+  const L = PST.lube, p = me();
+  for (const e of G.enemies) {
+    if (e.dead || !e.def.grease || e.charmed || e.boss) continue;
+    e.gsT = (e.gsT == null ? rand(0.5, L.slick) : e.gsT) - dt;
+    if (e.gsT <= 0) {
+      e.gsT = L.slick;
+      if (G.zones.length < 180) G.zones.push({ x: e.x, y: e.y, r: 34, life: 5, max: 5, dps: 0, elem: 'oxi', pull: 0, color: ELEMENTS.oxi.color, tick: 0, src: { elem: 'oxi', noStatus: true, wname: 'Grease trail' }, oil: true, foe: true, quiet: true });
+    }
+    e.ggT = (e.ggT == null ? rand(2, L.glob) : e.ggT) - dt;
+    const d = Math.hypot(p.x - e.x, p.y - e.y);
+    if (e.ggT <= 0 && d > 90 && d < 340) {
+      e.ggT = L.glob * rand(0.85, 1.15);
+      const se = shooterEnt, sn = shooterName;
+      shooterEnt = e; shooterName = e.name; G.bulSeq = 0;
+      eBullet(e.x, e.y, Math.atan2(p.y - e.y, p.x - e.x), 120, e.dmg * 0.35 * dmgNow(), 7);
+      shooterEnt = se; shooterName = sn;
+    }
+  }
 }
 // White marks on the black granules: Mucus a glob highlight, Cooties three germs, Water a droplet glint, Static a spark.
 function pstBulletMarks(vis) {
@@ -89,6 +125,7 @@ function pstBulletMarks(vis) {
     if (!b.pel || !vis(b)) continue;
     const x = sx(b.x), y = sy(b.y), r = b.r * 0.8 * S, d = Math.max(1, r * 0.3);
     if (b.pel === 'salt') { ctx.moveTo(x - r * 0.25 + d, y - r * 0.3); ctx.arc(x - r * 0.25, y - r * 0.3, d, 0, TAU); }
+    else if (b.pel === 'oxi') { ctx.moveTo(x + r * 0.55, y); ctx.arc(x, y, r * 0.55, 0, TAU); }
     else if (b.pel === 'ice') { ctx.moveTo(x + d * 1.4, y); ctx.arc(x, y, d * 1.4, 0, TAU); }
     else if (b.pel === 'poison') for (let i = 0; i < 3; i++) { const a = G.realT * 3 + i * TAU / 3, gx = x + Math.cos(a) * (r + d * 1.6), gy = y + Math.sin(a) * (r + d * 1.6); ctx.moveTo(gx + d, gy); ctx.arc(gx, gy, d, 0, TAU); }
   }
