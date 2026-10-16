@@ -13,7 +13,7 @@ const RULES = [
   [8, /data\.js/, /^(ENEMIES|BOSSES|OBSTACLES)$/], [8, /bosses\.js|brood\.js|portraits\.js|foes\.js/], [8, /levels\.js/, /LV_FOES|LV_BOSSES/],
   [7, /data\.js/, /^(ELEMENTS|REACTIONS|SYNERGIES)$/], [7, /chem\.js|quirks\.js/],
   [5, /data\.js/, /^SPELLS$/], [5, /spellfork\.js|seqfeats\.js|stamina\.js/],
-  [4, /data\.js/, /^(WEAPONS|SIGS|PAIRINGS|MODS|DUOS)$/], [4, /arsenal\.js|toys\.js|genegun\.js|pairs2\.js|combos3\.js|combos4\.js|sigs\.js|combos\.js|preview\.js|aim\.js/],
+  [4, /data\.js/, /^(WEAPONS|SIGS|PAIRINGS|MODS|DUOS)$/], [4, /arsenal\.js|toys\.js|genegun\.js|pairs2\.js|combos3\.js|combos4\.js|combos5\.js|sigs\.js|combos\.js|preview\.js|aim\.js/],
   [3, /genes\.js/, /PROFILES|PROFILE_SYNERGIES|SEQ_ABILITY/], [3, /reborn\.js|redtail\.js|twins\.js|seqlock\.js|seqreveal\.js|evolve\.js|seqsel\.js/],
   [3, /prestige\.js/, /BABY_TRAITS|GEN_NAMES|babyTick|openBirth|bornCards/],
   [6, /data\.js/, /^(PASSIVES|PERKS|ADAPT|PERK_ADAPT|CURSES|RELICS|POWERUPS|DYES|DIRECTIVES|MOVE_DIRECTIVES|RARITIES)$/],

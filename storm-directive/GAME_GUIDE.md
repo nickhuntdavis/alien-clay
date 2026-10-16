@@ -909,7 +909,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 12, cd 1.2s, mag 3, reload 1.6s, x12, pierce 2, range 200
 - **Level bonuses:** Lv3: +4 count; Lv6: +30% dmg; Lv9: +2 pierce
-- **Combos:** -
+- **Combos:** **Bath Toys** (+ Water Pistol)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1063,7 +1063,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 14 (dur 2.6, area 24)
 - **Level bonuses:** Lv3: +30% area; Lv6: +50% duration; Lv9: +50% dmg
-- **Combos:** -
+- **Combos:** **Paper Hanky** (+ Paper Cut)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1173,7 +1173,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 15, cd 0.35s, mag 6, reload 1s, range 120 (area 1, width 12, knock 20)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Hand, Foot and Mouth** (+ Soft Play)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1195,7 +1195,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 6, cd 1.2s, mag 3, reload 1.6s, x5, pierce all, range 170
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +2 count
-- **Combos:** -
+- **Combos:** **Swimming Gala** (+ Sea Monkeys)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1217,7 +1217,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 7, cd 0.7s, mag 4, reload 1.6s, x6, pierce 1, range 260
 - **Level bonuses:** Lv3: +2 count; Lv6: +30% dmg; Lv9: +2 count
-- **Combos:** -
+- **Combos:** **Hot Wax** (+ Lava Lamp)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1261,7 +1261,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 14, cd 1.2s, mag 3, reload 1.8s, range 380 (area 66, dur 2.5, flight 0.6)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +30% area
-- **Combos:** -
+- **Combos:** **Pass the Parcel** (+ Baby Shower)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1283,7 +1283,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 9, cd 0.5s, mag 1, x4, range 340
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Hog Wild** (+ Greased Piglet)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1305,7 +1305,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 12, cd 0.26s, mag 8, reload 0.9s, range 160 (area 1, width 8, knock 10)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +25% area
-- **Combos:** -
+- **Combos:** **Paper Hanky** (+ Runny Nose)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1327,7 +1327,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 14, cd 1.3s, mag 3, reload 2s, range 380 (area 70, explode 1, dur 2.5, flight 0.6)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Do Not Squeeze** (+ Lemon Squeezy)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1437,7 +1437,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 12, cd 0.7s, mag 1, x3, range 340 (area 40)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +30% area
-- **Combos:** -
+- **Combos:** **Swimming Gala** (+ Whooping Cough)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1547,7 +1547,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 7, cd 2.4s, mag 1, reload 2.4s, range 380 (area 100, explode 0, dur 5, flight 0.7)
 - **Level bonuses:** Lv3: +15% area; Lv6: +30% dmg; Lv9: +30% duration
-- **Combos:** -
+- **Combos:** **Hand, Foot and Mouth** (+ Grubby Fingers)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1591,7 +1591,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 10, cd 0.32s, mag 10, reload 1.2s, pierce 1, range 440
 - **Level bonuses:** Lv3: +1 pierce; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Do Not Squeeze** (+ Blood Blister)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1723,7 +1723,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 20, cd 1.6s, mag 2, reload 2s, x5, range 400 (area 42, explode 1, dur 1.4, flight 0.8)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +20% area
-- **Combos:** -
+- **Combos:** **Pass the Parcel** (+ Lard Lobber)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1767,7 +1767,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 5, cd 0.13s, mag 20, reload 1.4s, range 340
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Bath Toys** (+ Baby Rattle)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1811,7 +1811,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 18, reload 2.2s, x3, range 120 (dur 5, radius 70, spin 1.4)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +0.25 size
-- **Combos:** -
+- **Combos:** **Hot Wax** (+ Cradle Cap)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1833,7 +1833,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 40, cd 0.25s, mag 1, range 260
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Hog Wild** (+ Head Lice)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -2005,6 +2005,14 @@ Both weapons at Lv 5+: the game stops at once for the combo's own unlock screen 
 | **Blood Bank** | Umbilical Cord + Leeches | Good Eater | The Umbilical Cord also plugs into every enemy a Leech is latched onto (up to 4) and feeds off it. Leeches on a corded enemy bite twice as hard. Donations are not voluntary. |
 | **Lunar Cycle** | Period Drama + Ulcer Moons | Problem Child | Every wave of cramps flings your Ulcer Moons out to its edge and back, and calls them out early if they were resting. Out at full stretch they hit twice as hard and make what they hit bleed. Twenty-eight days, give or take. |
 | **Catch It, Bin It** | Achoo + Wet Wipe | Designer Baby | Every big sneeze is followed by a Wet Wipe all round you: every enemy bullet in reach is wiped away, and everything in reach takes a heavy wipe and gets soaked. Wet Wipe hits on a Snotty enemy hit 50% harder. As the posters say. |
+| **Bath Toys** | Baby Rattle + Water Pistol | Firstborn | Every Rattle shake loads the Water Pistol: its next 5 squirts fire twice. Every SPLOSH shakes the Rattle as well, in a ring of beads. Squeaks when squeezed. Leaks when squeezed. |
+| **Hand, Foot and Mouth** | Soft Play + Grubby Fingers | Chonker + Problem Child (needs a splice) | Everything in a Soft Play pit catches a dose of Cooties every second. Grubby Fingers pokes on a Sick enemy also hit everything in your nearest pit for 40% (every 0.4s): they all touched the same balls. It is always the ball pit. |
+| **Hot Wax** | Lava Lamp + Cradle Cap | Bright Spark + Designer Baby (needs a splice) | Cradle Cap flakes that fly through a Lava Lamp blob melt: they hit 60% harder, do Acid damage and burst in a splash of hot wax. Seventies décor meets infant scalp condition. The smell is indescribable. |
+| **Do Not Squeeze** | Blood Blister + Lemon Squeezy | Favourite | Lemon Squeezy hits on an enemy standing in a Blood Blister puddle pop the blister at once: its last burst goes off at double damage and everything in it bleeds. The leaflet says do not squeeze. Nobody reads the leaflet. |
+| **Paper Hanky** | Paper Cut + Runny Nose | Quiet One | Paper Cut hits on a Snotty enemy cut twice as deep and make it bleed. While you cut, your nose drips a fresh patch of trail under the victim (every 0.6s). Two-ply. Neither ply is helping. |
+| **Swimming Gala** | Whooping Cough + Sea Monkeys | Good Eater | Every coughing fit sends each Sea Monkey splashing into the nearest enemy at once. Sea Monkey splashes on a Sick enemy give everything in the splash 2 doses of Cooties. No running, no bombing, no coughing in the deep end. |
+| **Hog Wild** | Greased Piglet + Head Lice | Good Eater + Quiet One (needs a splice) | Every Greased Piglet carries Head Lice: whatever it bounces into gets 2 free louse bites on it and a neighbour. Lice bites on a Lubricated enemy hit 60% harder. Free-range. Very free. Very ranging. |
+| **Pass the Parcel** | Lard Lobber + Baby Shower | Designer Baby | Every Lard Lobber splash is followed by 4 Baby Shower gifts (at 2.5x damage) landing round its edge, and each one shoves the crowd back into the middle. The music stops. The parcel does not. |
 
 ## Super combos
 
