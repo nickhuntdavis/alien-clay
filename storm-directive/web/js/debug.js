@@ -103,6 +103,7 @@ function devResetStarters() { META.starters = {}; saveMeta(); }
 function devUnlockAll() {
   const L = META.life;
   L.bestT = Math.max(L.bestT, 600); L.bosses = Math.max(L.bosses, 25); L.pickups = Math.max(L.pickups, 100); L.elem = Math.max(L.elem, 2e6); L.casts = Math.max(L.casts, 1500);
+  META.school = META.school || 2; delete META.schoolDue; // (Level 0 counts as skipped, so a fresh save shows the full samples screen)
   META.devAll = 1; // (every sequence open, including the ones a record can't stand in for, such as 20 runs played: genes.js profUnlocked)
   for (const id in PROFILES) (META.prof[id] || (META.prof[id] = { kills: 0 })).keep = 3; // (rank III)
   META.waveWins = Math.max(META.waveWins || 0, 1); META.wonSinceBirth = true; // (Endless; being born)
