@@ -478,7 +478,7 @@ function genLoot(req) {
     // Your Primary Sequence's own weapons, plus one Gene Bank wildcard if you've unlocked any.
     const own = G.genes ? PROFILES[G.genes.primary].weapons.filter(id => WEAPONS[id]) : starterPool().slice(0, 3);
     const wild = Object.keys(META.starters || {}).filter(id => META.starters[id] && WEAPONS[id] && !own.includes(id));
-    const ids = own.concat(wild.length ? [pick(wild)] : []);
+    const ids = own.concat(wild.length ? [pick(wild)] : []).slice(0, 4); // never more than 4 drafts at once (the screen gets cramped)
     for (const id of ids) opts.push(optNewWeapon(id, 0));
     return opts;
   }
