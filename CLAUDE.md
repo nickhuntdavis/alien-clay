@@ -9,7 +9,7 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - Player guide (generated): `storm-directive/GAME_GUIDE.md`, from `storm-directive/tests/tools/guide.js`.
 - Tests: `storm-directive/tests/` (Playwright, headless Chromium).
 - Visual style guide: `storm-directive/STYLE.md`. Read it before redesigning anything drawn in the world.
-- System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/CHANGELOG.md`.
+- System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/changes/<branch>.md` per session, folded into `storm-directive/CHANGELOG.md` on merge into `main`.
 
 ## Working with the user
 - British English. Use () rather than em dashes. The first line is the answer. No preamble or recap. Numbered steps and ranked lists. When asked for options, give 2 to 4, recommendation first. End with one action under 2 minutes, with real time estimates.
@@ -29,19 +29,49 @@ At the start of each request, check whether the model fits the job, and if not, 
 - Work and push only on the branch the session names (`main` is the integration branch; session branches are merged into it). Use `git push -q origin <branch>`.
 - Conventional commits (`feat:`, `fix:` and so on), ending with the attribution lines from the session's system reminder. Never put model IDs in commits. No PR unless asked.
 
-## Change log (every change)
-- Every commit that changes the game, tests or build gets an entry in `storm-directive/CHANGELOG.md`, in the same commit. Docs-only commits can share one `Unreleased` entry.
-- Entries go under `## Unreleased` until a build ships; at ship time rename it to `## vX.YZ (versionCode N)`. Newest first.
-- Each entry has four lines:
-  - **Systems**: the system names touched, from `ARCHITECTURE.md` (e.g. `weapons, chemistry, ui`). A system counts as touched if any of its files changed, or its behaviour changed through a hook.
-  - **Files**: every file changed; mark new ones `(new)` and removed ones `(removed)`.
-  - **What**: one or two plain sentences on what the player (or the code) now does differently.
-  - **Risk / watch**: what could break or shift (balance, save data, other systems' hooks), or `none`.
-- Save-data changes (`META`, `SET` keys added, renamed or removed) are always named in **What**.
-- On a merge, keep both branches' entries and note the merge in the new version's entry.
-- `ARCHITECTURE.md` changes in the same commit when a file is added, removed or renamed, a system is added, or a responsibility moves between files. Add the new file to the script-order line too.
-- Commit message scope should match the main system: `feat(weapons): ...`, `fix(chemistry): ...`.
-- `NOTES.md` > Recent changes stays a short handoff summary (last few versions); the full record is `CHANGELOG.md`.
+## Change log (one file per session, so merges don't clash)
+Several sessions run at once and get merged into each other and into `main`. Shared files that every session edits (one changelog, NOTES.md's top lines, version numbers) are where merges break, so:
+- Each session logs only in its own fragment: `storm-directive/changes/<branch>.md` (e.g. `changes/ccr-e8ca6f23-vawkv2.md`). Create it on your first commit. Never edit another session's fragment, and don't touch `CHANGELOG.md` except when folding (below).
+- Add an entry per commit that changes the game, tests or build, newest first, in the same commit:
+  ```
+  ## <date> <short title> (vX.YZ if shipped)
+  - Systems: weapons, chemistry, ui        (names from ARCHITECTURE.md)
+  - Files: playpen.js (new), chem.js, index.html
+  - What: one or two plain sentences on what now works differently.
+  - Save data: META/SET keys added, renamed or removed, or none.
+  - Hooks: one-line hook calls added to shared files (game.js, render.js, ui.js, bosses.js), e.g. game.js killEnemy -> penKill. Or none.
+  - Risk: what could break or shift (balance, other systems), or none.
+  ```
+  Systems, Save data and Hooks are what a merging session needs: they say where two branches will collide.
+- Folding: whoever merges into `main` moves every fragment that came in with the merge into `CHANGELOG.md` under the new version heading, then deletes those fragments, in the merge commit.
+- `ARCHITECTURE.md` changes in the same commit when a file is added, removed or renamed, a system is added, or a responsibility moves. Add new files to its script-order line.
+- Commit scope names the main system: `feat(weapons): ...`, `fix(chemistry): ...`.
+- `NOTES.md`: sessions only add bullets (new open threads, new balance numbers). The "Current state" line and "Recent changes" are rewritten only when merging into `main`.
+
+## Avoiding merge pain while you work
+1. At session start: `git fetch -q origin && git merge -q origin/main`. Then check what other live sessions are touching:
+   `for b in $(git branch -r | grep -o 'origin/ccr-[^ ]*'); do f=$(git show $b:storm-directive/changes/${b#origin/}.md 2>/dev/null | grep -m3 -E 'Systems|Hooks'); [ -n "$f" ] && echo "$b: $f"; done`
+   If one overlaps your systems, say so to the user in one line before starting.
+2. New content goes in your own feature file (as `armoury.js` and `playpen.js` do), not appended to shared tables in `data.js` or `game.js`. Shared files get one-line hooks only.
+3. Don't rename or move shared code (functions in `game.js`, `render.js`, `ui.js`, `data.js` keys) unless asked: it breaks every other branch's hooks.
+4. Version numbers change only in the ship command, never mid-work.
+5. Before a long piece of work, and before shipping, merge `origin/main` again.
+
+## Merging another branch (playbook)
+`git fetch -q origin && git merge origin/<branch>`. Never rebase or force-push a shared branch. Resolve by file type:
+| File | Resolve |
+|---|---|
+| `changes/*.md` | Never conflicts (one per branch). Read the incoming fragments first: Systems and Hooks list the risky spots. |
+| `meta.js` `APP_VERSION`, `build.gradle` `versionCode`/`versionName` | Take the higher of each side, then bump once more for the merged build. |
+| `release/SpawnPrawn.apk` | `git checkout --ours`, then rebuild. Never hand-merge. |
+| `GAME_GUIDE.md` | Take either side, then rerun `node tests/tools/guide.js`. |
+| `SpawnPrawn_Copy.xlsx` | Take either side, then rerun `tests/tools/copy/copy.sh export`. |
+| `index.html` script tags | Keep both sides' new tags, each after the files it depends on. |
+| Hook lines in `game.js`/`render.js`/`ui.js`/`bosses.js` | Keep both lines. |
+| Tables in `data.js` and feature files | Keep both entries, then check for duplicate ids (same key defined twice: the later silently wins). |
+| `NOTES.md`, `CHANGELOG.md` | Keep both sides' bullets. |
+| `ARCHITECTURE.md` | Keep both; one row per file. |
+After resolving: run the full suite (`./run.sh`, a merge counts as a big batch), fold fragments if this is a merge into `main`, ship one build.
 
 ## Fast APK (default for every build)
 1. Edit with exact-match replacements that assert they hit (fail fast); don't re-read files after editing.
@@ -55,12 +85,12 @@ At the start of each request, check whether the model fits the job, and if not, 
    sed -i "s/versionCode N/versionCode N+1/; s/versionName 'X'/versionName 'Y'/" android/app/build.gradle
    node tests/tools/guide.js | tail -1
    cd android && ./gradlew assembleRelease -q -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease 2>&1 | grep -v JAVA_TOOL; cp app/build/outputs/apk/release/app-release.apk ../release/SpawnPrawn.apk
-   cd .. && git add -A <paths you changed> && git commit -q -m "..." && git push -q origin <branch>
+   cd .. && git add -A <paths you changed> changes/ && git commit -q -m "..." && git push -q origin <branch>
    ```
 6. SendUserFile the APK, then reply. Don't narrate each step.
 7. One build per batch of requests, not per item.
 - Release builds are signed with `android/spawnprawn.keystore` (in the repo, so every session's APK installs over the last). Its password is NOT in the repo: it comes from the `SPAWN_KS_PASS` environment variable (set in the cloud environment's settings). If it is missing the release build stops with a clear error: tell the user, never generate a new key and never switch to the debug key (either forces an uninstall that wipes saves).
-- Update `GAME_GUIDE.md` text (via `tests/tools/guide.js`), `NOTES.md` and `CHANGELOG.md` when features change (rename `## Unreleased` to the version being shipped).
+- Update `GAME_GUIDE.md` text (via `tests/tools/guide.js`) and your `changes/<branch>.md` fragment when features change; add the shipped version to the fragment's latest heading.
 - Before the first build, check the session branch has main's latest (`git log -1 origin/main`) and that `APP_VERSION` matches `NOTES.md`; a branch started from an old main ships an APK missing recent work.
 
 ## Tests

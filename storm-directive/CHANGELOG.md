@@ -1,6 +1,6 @@
 # CHANGELOG.md: Spawn Prawn
 
-Newest first. One entry per shipped version (or per merge into `main`). Format and rules: `CLAUDE.md` > Change log. System names come from `ARCHITECTURE.md`. Older history (before v9.23) lives in `NOTES.md` > Recent changes and `git log`.
+Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 ## v9.24 (versionCode 274)
 - **Systems**: feats, chemistry, upgrades, render, ui, audio, data, tests, docs
@@ -9,12 +9,8 @@ Newest first. One entry per shipped version (or per merge into `main`). Format a
 - **Risk / watch**: 36 more Feats dilute Feat drafts (novelty weighting rotates them). Wave sims: 27% bot wins before, 36% with a new Feat forced in; Mosquito, Fecal Transplant, Brown Fat and Fertile Window sit at 50%. Hooks in `updateEnemies`, `shootPattern`, enemy bullets, `hurtPlayer`, `damageEnemy` and `killEnemy` all run through `G.nf` (absent until a new Feat is performed). No save-data changes.
 
 ## v9.23 (versionCode 273)
-- **Systems**: weapons, combos, chemistry, loot
-- **Files**: `playpen.js` (new), `index.html`, `chem.js`, `data.js`, `WEAPON_IDEAS.md`, tests (`armtest`)
-- **What**: the Playpen, 20 more weapons from `WEAPON_IDEAS.md` (78 in all), flagged `armoury: 1, pen: 1`. Merged `ccr-618305e3` (the Armoury) and `ccr-d9934b1d` (four weapons retyped for an even damage type spread).
-- **Risk / watch**: new weapons in the general pool shift loot odds; armtest guards the play-style and damage type spread.
-
-## Unreleased
-- **Systems**: docs
-- **Files**: `CLAUDE.md`, `ARCHITECTURE.md` (new), `CHANGELOG.md` (new)
-- **What**: change-logging rules and the system architecture map.
+- Systems: weapons, combos, chemistry, loot
+- Files: playpen.js (new), index.html, chem.js, data.js, WEAPON_IDEAS.md, tests (armtest)
+- What: the Playpen, 20 more weapons from `WEAPON_IDEAS.md` (78 in all), flagged `armoury: 1, pen: 1`. Merged `ccr-618305e3` (the Armoury) and `ccr-d9934b1d` (four weapons retyped for an even damage type spread).
+- Save data: none
+- Risk: new weapons in the general pool shift loot odds; armtest guards the play-style and damage type spread.
