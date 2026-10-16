@@ -140,6 +140,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
 
 ## Open threads and ideas
+- Weapon Atlas: rebuild with `node tests/tools/atlas/atlas.js` (writes `tests/out/weapon-atlas.html`), then read and republish the Atlas artifact URL with the Artifact tool. Replaces the lost scratchpad generator.
 - Boss pack, second 6 (not built): the Hangover, the Copper Coil, the Monthly Visitor, Thrush, the Snip, the Little Blue Pill. Same pattern as `bosspack.js` (a `tier`, one gimmick that teaches a mechanic, sprite in `MICROBES`, 3 relics, an ENTOURAGE entry, `phase` lines); force with `wave20.js --boss <id>`.
 - Level 2 (internal next: "Esophagus Descent"; never show that name) is not built. Its sample `s008` is a locked placeholder. Level select teases Level 3 and Level 4.
 - Possible: a longer Level 1 (bigger map), and a body-map level select once more levels exist.
