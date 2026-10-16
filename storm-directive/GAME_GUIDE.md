@@ -91,14 +91,14 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 | Sequence | Trait (Rank 1) | Weapons | Starting ability | Unlock |
 |---|---|---|---|---|
-| **The Firstborn** | Quick Recovery: +12% reload speed | Spitball, Seeker Siblings, Yo-Yo Diet, Little Swimmers, Baby Rattle, Spirit Fingers | **Head First** (8s): Every 8s: headbutt-dash through whatever is in front of you, hitting everything along the way. You cannot be hurt mid-charge. | Always |
-| **The Chonker** | Puppy Fat: +1 armour | Hiccup Scattergun, Placenta Paddle, Thorny Onesie, Nappy Mines, Gut Punch, Waters Breaking, Butter Knife | **Mood Swing** (30s): Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s. | Always |
-| **The Bright Spark** | Early Developer: +6% fire rate, Feats recharge 6% faster | Static Cling, Twin Telepathy, Toddler Gravity, Static Hairbrush, Carpet Shuffle, Lightning Bugs | **Short Fuse** (10s): Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets. | Always |
-| **The Favourite** | Favouritism: +4% crit chance, +15% crit damage | Due Date, Booger Flick, Tooth Fairy, Bogey Roller, Nose Goblins, Blood Blister | **Telling Tales** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Rung 1: Beat wave mode (The Petri Dish) with the Firstborn, the Chonker and the Bright Spark as your Primary |
-| **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation, Leeches, Whooping Cough, Bath Bomb, Sea Monkeys | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Rung 2: Pick up 150 power-ups (all runs) |
-| **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Skid Mark, Peekaboo, Runny Nose, Paper Cut, Head Lice | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Rung 3: Beat a boss without taking any damage during the fight |
-| **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape, Upchuck, Ulcer Moons, Grubby Fingers | **Bringing It Up** (9s): Every 9s: a ring of six acid pools erupts around you. They melt harder the more hurt you are. | Rung 4: Deal 2,000,000 chemical damage (all runs) |
-| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun, Achoo, Cradle Cap, Lard Lobber | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, gluing everything in it (bosses only briefly). | Rung 5: Beat wave mode without using a Rewind |
+| **The Firstborn** | Quick Recovery: +12% reload speed | Spitball, Seeker Siblings, Yo-Yo Diet, Little Swimmers, Baby Rattle, Spirit Fingers, Egg White, Runaway Pram, Water Pistol | **Head First** (8s): Every 8s: headbutt-dash through whatever is in front of you, hitting everything along the way. You cannot be hurt mid-charge. | Always |
+| **The Chonker** | Puppy Fat: +1 armour | Hiccup Scattergun, Placenta Paddle, Thorny Onesie, Nappy Mines, Gut Punch, Waters Breaking, Butter Knife, Cod Liver Oil, Soft Play | **Mood Swing** (30s): Drop below half health and you go berserk for 6s: +50% damage, +5 armour, and a shockwave that throws everything back. Every 30s. | Always |
+| **The Bright Spark** | Early Developer: +6% fire rate, Feats recharge 6% faster | Static Cling, Twin Telepathy, Toddler Gravity, Static Hairbrush, Carpet Shuffle, Lightning Bugs, Fork in the Socket, Lava Lamp | **Short Fuse** (10s): Every 10s: grows a cyst that bursts a second later, shocking everything within 220 and wiping enemy bullets. | Always |
+| **The Favourite** | Favouritism: +4% crit chance, +15% crit damage | Due Date, Booger Flick, Tooth Fairy, Bogey Roller, Nose Goblins, Blood Blister, Sticky Fingers, Wet Kiss, Lemon Squeezy | **Telling Tales** (7s): Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage. | Rung 1: Beat wave mode (The Petri Dish) with the Firstborn, the Chonker and the Bright Spark as your Primary |
+| **The Good Eater** | Healthy Appetite: +0.5 HP/s regeneration | Tapeworm Seeder, Bubble Wand, Premature Evangelation, Leeches, Whooping Cough, Bath Bomb, Sea Monkeys, Greased Piglet, Umbilical Cord | **Cluster Feeding** (10s): Every 10s: drains the six nearest enemies within 250 and heals you for a fifth of what it took. | Rung 2: Pick up 150 power-ups (all runs) |
+| **The Quiet One** | Under Your Feet: +12% melee and trail damage, +2% dodge | Flagellum Flail, Skid Mark, Peekaboo, Runny Nose, Paper Cut, Head Lice, Hanky Panky, Boo-merang, Night Light | **Slipped Out** (9s): Every 9s, when something gets close: you slip straight through it to the far side, slicing everything in between. Untouchable for a moment. | Rung 3: Beat a boss without taking any damage during the fight |
+| **The Problem Child** | Overtired: up to +12% damage, the closer you are to bursting | Morning Sickness, Heartburn, Red Tape, Upchuck, Ulcer Moons, Grubby Fingers, Juice Box, Period Drama | **Bringing It Up** (9s): Every 9s: a ring of six acid pools erupts around you. They melt harder the more hurt you are. | Rung 4: Deal 2,000,000 chemical damage (all runs) |
+| **The Designer Baby** | Good Genes: your other sequences' traits are 25% stronger, +5% area | Imaginary Friend, Colouring In, Placental Siphon, Gene Gun, Achoo, Cradle Cap, Lard Lobber, Wet Wipe, Heel Prick, Baby Shower | **Soap Dispenser** (11s): Every 11s: a squirt of lye hits the biggest crowd within 320, gluing everything in it (bosses only briefly). | Rung 5: Beat wave mode without using a Rewind |
 | **The Redtail** | Inbred Luck: +25% luck; level-up boxes are never Common. Every level up also brings a small bane (at most 4 of each) | Shotgun Wedding, Moonshine Jug, Duelling Banjo | **Sister-Cousin** (12s): When you are hit, there is a 35% chance a copy of you splits off and fights beside you for 12s. Swim into her to recombine for Keeping It in the Family: +30% damage and +20% fire rate for 8s, and 10% of your health back. Tap to split on purpose. | Rung 6: Play 30 runs (any result) |
 | **The Twins** | Never Apart: your ghostly twin swims beside you, firing copies of your weapons at 25% damage. Hits on your twin hurt you at half | Hand in Hand, Twin Telepathy, Seeker Siblings | **Which One?** (8s): Every 8s, when you are crowded or low with something close: you and your twin swap places, and each of you lets out a shockwave. Tap to swap whenever you like. | Rung 8: Beat Double Dose (the Twins boss) in wave mode |
 | **Prawn Again** | Past Life: memories of a past life surface as you level (100% strength), +5% experience | Déjà Vu, Ghosts of You, Karma | **Second Life** (45s): When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most. | Rung 9: Reach Rank III with every other sequence |
@@ -119,7 +119,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ## Weapons
 
-58 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
+78 weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.
 
 | Weapon | Sequence | Damage type | Role | Aims at | Wildcard |
 |---|---|---|---|---|---|
@@ -181,6 +181,26 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Waters Breaking](#waters-breaking) | Chonker | Water | Melee | NEAREST | - |
 | [Bath Bomb](#bath-bomb) | Good Eater | Water | Splash | DENSEST CLUSTER | - |
 | [Sea Monkeys](#sea-monkeys) | Good Eater | Water | Pets | DENSEST CLUSTER | - |
+| [Sticky Fingers](#sticky-fingers) | Favourite | Mucus | Grabber | FASTEST | - |
+| [Egg White](#egg-white) | Firstborn | Mucus | Fast Lane | NEAREST | - |
+| [Hanky Panky](#hanky-panky) | Quiet One | Cooties | Melee | NEAREST | - |
+| [Wet Kiss](#wet-kiss) | Favourite | Cooties | Smoocher | WEAKEST | - |
+| [Soft Play](#soft-play) | Chonker | Cooties | Ball Pit | DENSEST CLUSTER | - |
+| [Juice Box](#juice-box) | Problem Child | Acid | Squeeze and Throw | NEAREST | - |
+| [Lemon Squeezy](#lemon-squeezy) | Favourite | Acid | Marksman | NEAREST | - |
+| [Umbilical Cord](#umbilical-cord) | Good Eater | Blood | Tether | HIGHEST HEALTH | - |
+| [Period Drama](#period-drama) | Problem Child | Blood | Monthly Flood | NEAREST | - |
+| [Heel Prick](#heel-prick) | Designer Baby | Blood | Needler | HIGHEST HEALTH | - |
+| [Fork in the Socket](#fork-in-the-socket) | Bright Spark | Static | Held Beam | NEAREST | - |
+| [Runaway Pram](#runaway-pram) | Firstborn | Force | Bowler | FURTHEST | - |
+| [Baby Shower](#baby-shower) | Designer Baby | Water | Gift Rain | DENSEST CLUSTER | - |
+| [Wet Wipe](#wet-wipe) | Designer Baby | Water | Melee | NEAREST | - |
+| [Water Pistol](#water-pistol) | Firstborn | Water | Squirter | NEAREST | - |
+| [Cod Liver Oil](#cod-liver-oil) | Chonker | Oil | Spoon | NEAREST | - |
+| [Lava Lamp](#lava-lamp) | Bright Spark | Oil | Pets | NEAREST | - |
+| [Greased Piglet](#greased-piglet) | Good Eater | Oil | Pets | NEAREST | - |
+| [Night Light](#night-light) | Quiet One | Soul | Plug-ins | NEAREST | - |
+| [Boo-merang](#boo-merang) | Quiet One | Soul | Fun | FURTHEST | - |
 
 ### Spitball
 
@@ -1431,6 +1451,446 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 |  | **Soap Queen** | 12% of hits glue non-boss enemies. |
 | Lv 10 mastery | **Sandcastle** | Splashes are twice as big. |
 |  | **Barrel of Monkeys** | +3 sea monkeys. |
+
+### Sticky Fingers
+
+*Mucus gun, Grabber.* Came free in a party bag. Has never once been clean.
+
+- **Base stats:** dmg 34, cd 0.9s, mag 3, reload 1.4s, range 420
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Nappy Bag** | +60% magazine size. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Hot Load** | +40% damage. |
+| Lv 5 signature | **Extra Stretchy** | Reaches 30% further and reels harder. |
+|  | **Slap Happy** | +1 hand every fling. |
+| Lv 8 | **Sugar Rush** | +75% damage. |
+|  | **Homing Instinct** | Shots home in on targets. |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+| Lv 10 mastery | **Party Bag** | +2 hands every fling. |
+|  | **Gooey** | Whatever you reel in is glued in place for a second when it arrives. |
+
+### Egg White
+
+*Mucus critter, Fast Lane.* Nature's own fast lane. Smells like a leisure centre.
+
+- **Base stats:** dmg 18, cd 0.15s, mag 1 (dur 2.4, area 26)
+- **Level bonuses:** Lv3: +20% area; Lv6: +40% duration; Lv9: +50% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Wide Hips** | +35% area and +15% range. |
+|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Sour Note** | Hits melt enemies for 25% of the hit per second. |
+| Lv 5 signature | **Stretchy** | The lane lasts 50% longer. |
+|  | **Fertile Window** | You swim 45% faster in the lane, not 25%. |
+| Lv 8 | **Due Date Panic** | 40% faster cooldown and reload. |
+|  | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+| Lv 10 mastery | **Ovulating** | The lane is twice as wide. |
+|  | **Sticky Situation** | Enemies in the lane are glued in place now and then. |
+
+### Hanky Panky
+
+*Cooties melee, Melee.* Used. Very used. Still damp.
+
+- **Base stats:** dmg 18, cd 0.45s, mag 5, reload 1.1s, range 180 (area 1, width 13, knock 50)
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +20% area
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sharp Tongue** | +15% crit chance. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Snotted Up** | Hits slime: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **Wet Towel** | The stinging tip starts halfway along, not near the end. |
+|  | **Snotty** | Cracks hit 35% harder. |
+| Lv 8 | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+|  | **Soap Queen** | 12% of hits glue non-boss enemies. |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+| Lv 10 mastery | **Changing Room** | +1 lash every time. |
+|  | **Germ Flick** | The tip spreads germs to everything near what it hits. |
+
+### Wet Kiss
+
+*Cooties gun, Smoocher.* From your auntie. You cannot wipe it off. Nobody can.
+
+- **Base stats:** dmg 12, cd 0.6s, mag 6, reload 1.6s, x2, range 460 (homing 5)
+- **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +1 count
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Pointy Head** | Shots pierce 2 more enemies. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 5 signature | **Big Smooch** | Kisses are 30% bigger and hit 30% harder. |
+|  | **Auntie** | +1 kiss every time. |
+| Lv 8 | **Twins!** | +2 projectiles (shots share the damage). |
+|  | **Sugar Rush** | +75% damage. |
+|  | **Cell Division** | Shots burst into 3 shards on first hit. |
+| Lv 10 mastery | **Lipstick** | Every kiss leaves a print that spreads. |
+|  | **French** | Kisses go through 2 enemies and home in harder. |
+
+### Soft Play
+
+*Cooties lob, Ball Pit.* The germiest place on earth. Socks must be worn.
+
+- **Base stats:** dmg 7, cd 2.4s, mag 1, reload 2.4s, range 380 (area 100, explode 0, dur 5, flight 0.7)
+- **Level bonuses:** Lv3: +15% area; Lv6: +30% dmg; Lv9: +30% duration
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Wide Hips** | +35% area and +15% range. |
+|  | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 5 signature | **Ball Pit** | Pits are 25% bigger. |
+|  | **Socks Only** | Pits last 50% longer. |
+| Lv 8 | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+|  | **Rubbed the Wrong Way** | 30% of hits arc to a nearby enemy for 50% damage. |
+|  | **Magnetic Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+| Lv 10 mastery | **Birthday Party** | +1 pit every throw. |
+|  | **Lost Shoe** | Twice as many balls fly out. |
+
+### Juice Box
+
+*Acid gun, Squeeze and Throw.* Apple and something. Mostly something.
+
+- **Base stats:** dmg 4, cd 0.08s, mag 24, reload 1.8s, pierce 1, range 230
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +0.25 mag; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sharp Tongue** | +15% crit chance. |
+|  | **Wide Hips** | +35% area and +15% range. |
+|  | **Snotted Up** | Hits slime: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **Bendy Straw** | The stream reaches 30% further. |
+|  | **Family Pack** | Throws two cartons, not one. |
+| Lv 8 | **Soap Queen** | 12% of hits glue non-boss enemies. |
+|  | **Twins!** | +2 projectiles (shots share the damage). |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+| Lv 10 mastery | **Squeeze Hard** | Cartons burst twice as big. |
+|  | **Fun Size** | Throws a carton every half carton, each 30% weaker. |
+
+### Lemon Squeezy
+
+*Acid gun, Marksman.* Easy peasy. Not for them.
+
+- **Base stats:** dmg 10, cd 0.32s, mag 10, reload 1.2s, pierce 1, range 440
+- **Level bonuses:** Lv3: +1 pierce; Lv6: +30% dmg; Lv9: +1 count
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Pointy Head** | Shots pierce 2 more enemies. |
+|  | **Hot Load** | +40% damage. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+| Lv 5 signature | **Zest** | Squirts go through 1 more enemy. |
+|  | **Pips** | +1 squirt every time. |
+| Lv 8 | **Soap Queen** | 12% of hits glue non-boss enemies. |
+|  | **Cell Division** | Shots burst into 3 shards on first hit. |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+| Lv 10 mastery | **Sour Face** | Eyes water for twice as long. |
+|  | **Lemonade** | Squirts hit enemies rubbing their eyes 60% harder. |
+
+### Umbilical Cord
+
+*Blood gun, Tether.* You were attached once. You can be attached again.
+
+- **Base stats:** dmg 7, cd 0.2s, mag 20, reload 0.6s, range 300
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +0.15 range; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **Long Cord** | The cord reaches 30% further. |
+|  | **Twin Cord** | +1 cord, on the next toughest enemy. |
+| Lv 8 | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+|  | **Plus One** | +1 projectile (shots share the damage). |
+| Lv 10 mastery | **Feeding Tube** | The cord heals you three times as much. |
+|  | **Tied Off** | Anything crossing a cord takes 2.5 times the damage. |
+
+### Period Drama
+
+*Blood gun, Monthly Flood.* Arrives on time. Ruins everything. Leaves.
+
+- **Base stats:** dmg 24, cd 5s, mag 1, reload 0.1s, range 200 (area 170)
+- **Level bonuses:** Lv3: +15% area; Lv6: +30% dmg; Lv9: +15% area
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sour Note** | Hits melt enemies for 25% of the hit per second. |
+|  | **Hot Load** | +40% damage. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+| Lv 5 signature | **Heavy Flow** | Waves reach 30% further. |
+|  | **Cramps** | +1 wave every time. |
+| Lv 8 | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+|  | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+|  | **Cell Division** | Shots burst into 3 shards on first hit. |
+| Lv 10 mastery | **Like Clockwork** | It comes round 40% sooner. |
+|  | **Hormonal** | Waves hit 50% harder and shove everything away. |
+
+### Heel Prick
+
+*Blood gun, Needler.* Just a little scratch. Everyone says that.
+
+- **Base stats:** dmg 7, cd 0.14s, mag 15, reload 1.3s, range 460
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +0.3 mag; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Pointy Head** | Shots pierce 2 more enemies. |
+| Lv 5 signature | **Two Pricks** | +1 needle every time. |
+|  | **Fine Needle** | Needles come 25% faster. |
+| Lv 8 | **One for the Road** | Hits add a dose of Cooties. |
+|  | **Cell Division** | Shots burst into 3 shards on first hit. |
+|  | **Domino Effect** | Kills explode for 60% of the killing blow. |
+| Lv 10 mastery | **Guthrie Card** | Every fourth needle finds the weak spot. |
+|  | **Butterfly Needle** | The weak spot takes seven times the damage. |
+
+### Fork in the Socket
+
+*Static gun, Held Beam.* You were told not to. You were told many times.
+
+- **Base stats:** dmg 4, cd 0.1s, mag 30, reload 1.2s, range 260
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +0.15 range; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Hot Load** | +40% damage. |
+|  | **Pointy Head** | Shots pierce 2 more enemies. |
+| Lv 5 signature | **Both Prongs** | +1 bolt, on the next enemy along. |
+|  | **Live Socket** | It builds up twice as fast. |
+| Lv 8 | **Due Date Panic** | 40% faster cooldown and reload. |
+|  | **Magnetic Personality** | 50% of hits arc to 2 nearby enemies for 60% damage. |
+|  | **Homing Instinct** | Shots home in on targets. |
+| Lv 10 mastery | **Bare Wire** | It builds up to five times the damage, not three. |
+|  | **Earthed** | Once it is fully built up, the shock jumps on through 3 more enemies. |
+
+### Runaway Pram
+
+*Force gun, Bowler.* Somebody let go of the handle. Somebody always lets go of the handle.
+
+- **Base stats:** dmg 44, cd 2.2s, mag 2, reload 1.6s, pierce all, range 420
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sharp Tongue** | +15% crit chance. |
+|  | **Trampoline Rounds** | Shots bounce to 2 more targets. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **Double Buggy** | +1 pram every shove. |
+|  | **Off-Road** | Prams are 30% bigger and hit 25% harder. |
+| Lv 8 | **Sugar Rush** | +75% damage. |
+|  | **Twins!** | +2 projectiles (shots share the damage). |
+|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+| Lv 10 mastery | **Down the Steps** | Pile-ups hit twice as hard. |
+|  | **Pram Race** | Prams roll 60% faster and come 40% more often. |
+
+### Baby Shower
+
+*Water lob, Gift Rain.* Nobody bought anything off the list.
+
+- **Base stats:** dmg 20, cd 1.6s, mag 2, reload 2s, x5, range 400 (area 42, explode 1, dur 1.4, flight 0.8)
+- **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +20% area
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Sour Note** | Hits melt enemies for 25% of the hit per second. |
+| Lv 5 signature | **Gift List** | +2 presents every time. |
+|  | **Confetti** | Splashes are 30% bigger. |
+| Lv 8 | **Twins!** | +2 projectiles (shots share the damage). |
+|  | **One for the Road** | Hits add a dose of Cooties. |
+|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+| Lv 10 mastery | **Gender Reveal** | One present in five is a huge burst: twice the size, three times the damage. |
+|  | **Thank-You Cards** | Puddles last 2.5 times as long. |
+
+### Wet Wipe
+
+*Water melee, Melee.* Gets everything off. Everything.
+
+- **Base stats:** dmg 24, cd 0.8s, mag 4, reload 1.2s, range 125 (area 1, arc 2.6, knock 70)
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +20% area; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Nappy Bag** | +60% magazine size. |
+|  | **Snotted Up** | Hits slime: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **Extra Moist** | Sweeps reach 30% further. |
+|  | **Pack of 80** | +1 sweep, behind you. |
+| Lv 8 | **Sugar Rush** | +75% damage. |
+|  | **Domino Effect** | Kills explode for 60% of the killing blow. |
+|  | **Twins!** | +2 projectiles (shots share the damage). |
+| Lv 10 mastery | **Antibacterial** | Every wipe strips a little armour. |
+|  | **Flushable** | Wiped bullets come back out as your shots. |
+
+### Water Pistol
+
+*Water gun, Squirter.* Filled from the bath. Which bath, nobody will say.
+
+- **Base stats:** dmg 5, cd 0.13s, mag 20, reload 1.4s, range 340
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Sour Note** | Hits melt enemies for 25% of the hit per second. |
+|  | **Snotted Up** | Hits slime: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **Pump Action** | +1 squirt every time. |
+|  | **Pressurised** | Squirts fly 30% faster and hit 20% harder. |
+| Lv 8 | **Homing Instinct** | Shots home in on targets. |
+|  | **Punching Up** | +100% damage to elites, bosses and rival champions. |
+|  | **Rubbed the Wrong Way** | 30% of hits arc to a nearby enemy for 50% damage. |
+| Lv 10 mastery | **Big Splosh** | Every tenth squirt is a SPLOSH. |
+|  | **Two Pistols** | +2 squirts every time. |
+
+### Cod Liver Oil
+
+*Oil lob, Spoon.* Good for you. Allegedly. Nobody has ever checked.
+
+- **Base stats:** dmg 26, cd 0.9s, mag 4, reload 1.6s, range 360 (area 50, explode 1, dur 1.6, flight 0.45)
+- **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sour Note** | Hits melt enemies for 25% of the hit per second. |
+|  | **Wide Hips** | +35% area and +15% range. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **Heaped Spoon** | Splats are 30% bigger. |
+|  | **Second Spoon** | +1 glob every flick. |
+| Lv 8 | **Giant Killer** | +150% damage to elites, bosses and rival champions. |
+|  | **Twins!** | +2 projectiles (shots share the damage). |
+|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+| Lv 10 mastery | **Omega-3** | Globs hit 60% harder. |
+|  | **Spoonful of Sugar** | Enemies gag twice as long. |
+
+### Lava Lamp
+
+*Oil orbit, Pets.* Bought in 1974. Never switched off.
+
+- **Base stats:** dmg 18, reload 2.2s, x3, range 120 (dur 5, radius 70, spin 1.4)
+- **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +0.25 size
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Sour Note** | Hits melt enemies for 25% of the hit per second. |
+|  | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Snotted Up** | Hits slime: enemies slow by 35% for 1.5s. |
+| Lv 5 signature | **Another Blob** | +1 blob. |
+|  | **Groovy** | Blobs drift round 50% faster. |
+| Lv 8 | **Rubbed the Wrong Way** | 30% of hits arc to a nearby enemy for 50% damage. |
+|  | **Soap Queen** | 12% of hits glue non-boss enemies. |
+|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+| Lv 10 mastery | **Big Blob** | Blobs are 50% bigger and hit 30% harder. |
+|  | **Far Out** | Blobs drift out 40% further. |
+
+### Greased Piglet
+
+*Oil critter, Pets.* First prize at the fair. Second prize was not catching it.
+
+- **Base stats:** dmg 40, cd 0.25s, mag 1, range 260
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hair Trigger** | 25% faster cooldown and reload. |
+|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Sour Note** | Hits melt enemies for 25% of the hit per second. |
+| Lv 5 signature | **Litter** | +1 piglet. |
+|  | **Extra Greasy** | Piglets skid 30% faster. |
+| Lv 8 | **Due Date Panic** | 40% faster cooldown and reload. |
+|  | **Domino Effect** | Kills explode for 60% of the killing blow. |
+|  | **Plus One** | +1 projectile (shots share the damage). |
+| Lv 10 mastery | **Pigs Might Fly** | +2 piglets. |
+|  | **Hog Wild** | Piglets hit 60% harder. |
+
+### Night Light
+
+*Soul critter, Plug-ins.* Keeps the monsters away. You are the monster.
+
+- **Base stats:** dmg 18, cd 0.6s, mag 1, x3, range 120 (dur 9)
+- **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +0.2 range
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Snotted Up** | Hits slime: enemies slow by 35% for 1.5s. |
+|  | **Hot Load** | +40% damage. |
+|  | **Sharp Tongue** | +15% crit chance. |
+| Lv 5 signature | **Plug-in** | +1 night light. |
+|  | **Brighter Bulb** | Lights reach 35% further. |
+| Lv 8 | **Plus One** | +1 projectile (shots share the damage). |
+|  | **Kick Them While Down** | +60% damage to enemies under 35% health. |
+|  | **Twins!** | +2 projectiles (shots share the damage). |
+| Lv 10 mastery | **Monster Under the Bed** | Every zap spooks what it hits, freezing it for a moment. |
+|  | **Landing Light** | Lights hit 60% harder. |
+
+### Boo-merang
+
+*Soul gun, Fun.* You threw it away. It came back. They always come back.
+
+- **Base stats:** dmg 30, cd 1.1s, mag 2, reload 1.4s, pierce all, range 340 (boomerang 1)
+- **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
+- **Combos:** -
+- **Pairings:** -
+
+| Level | Choice | Effect |
+|---|---|---|
+| Lv 3 | **Hot Load** | +40% damage. |
+|  | **Sharp Tongue** | +15% crit chance. |
+|  | **Nappy Bag** | +60% magazine size. |
+| Lv 5 signature | **Spookier** | Hits 30% harder. |
+|  | **Return to Sender** | +1 boo-merang every throw. |
+| Lv 8 | **Plus One** | +1 projectile (shots share the damage). |
+|  | **Special Delivery** | Hits explode for 35% damage around the target. |
+|  | **Bloodsucker** | Hits heal you a little (within the lifesteal limit). |
+| Lv 10 mastery | **Haunted** | The trip back hits twice as hard. |
+|  | **Banshee** | Every BOO spooks everything near it too. |
 
 ### Upgrades with a twist
 

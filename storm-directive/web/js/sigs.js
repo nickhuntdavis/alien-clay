@@ -544,8 +544,8 @@ function applyAdapt(w, s) {
     case 'venom': s.area *= 1 + 0.12 * P.pierce; s.flight = (s.flight || 0.6) / P.projSpeed; break;
     case 'mines': s.knock = (s.knock || 0) + 120 * P.pierce; break;
     case 'siphon': s.pierce = (s.pierce || 0) + P.pierce; break;
-    case 'orbit': case 'ulcer': s.hitCd = 0.4 / (1 + 0.35 * P.pierce); s.spin *= P.haste; s.radius *= 1 + (P.projSpeed - 1) * 0.6; s.size *= P.magMult; break;
-    case 'paddle': case 'flail': case 'papercut': case 'gutpunch': case 'achoo': case 'hairbrush': case 'grubby': case 'butterknife': case 'spiritfingers': {
+    case 'orbit': case 'ulcer': case 'lavalamp': s.hitCd = 0.4 / (1 + 0.35 * P.pierce); s.spin *= P.haste; s.radius *= 1 + (P.projSpeed - 1) * 0.6; s.size *= P.magMult; break;
+    case 'paddle': case 'flail': case 'papercut': case 'gutpunch': case 'achoo': case 'hairbrush': case 'grubby': case 'butterknife': case 'spiritfingers': case 'hanky': case 'wetwipe': {
       // The swing's reach grows with area; the target range covers the reach plus a body width.
       s.reach = s.range * s.area * (w.id === 'flail' ? 1 + 0.12 * P.pierce : 1);
       // The Paddle starts short and grows into its full reach on an exponential curve: 60% at Lv 1, about

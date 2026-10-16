@@ -257,7 +257,7 @@ function chemPlayerZones() {
   if (lube && !G.lubeOn) say('lubedup');
   G.lubeOn = lube;
 }
-const chemPlayerSpeed = () => (G && G.lubeOn ? 1.3 : 1);
+const chemPlayerSpeed = () => (G && G.lubeOn ? 1.3 : 1) * (G && G.penHasteT > G.t ? G.penHasteK || 1 : 1); // (Egg White lane: playpen.js)
 
 // The reactions. e has just been hit by one type while carrying another's status.
 function reactDo(id, e, dmg, src, rsrc) {

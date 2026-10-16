@@ -4,6 +4,8 @@ Source: v9.21 guide. Damage types: Force, Acid, Mucus, Static, Cooties, Oil, Wat
 Delight (1 to 10) means joke, visual surprise and "I'd show a friend", not power. Scores are a first-pass judgement.
 Companion to `FEAT_IDEAS.md`.
 
+**Built in v9.23** (`playpen.js`): Sticky Fingers, Egg White, Hanky Panky (as Cooties), Wet Kiss, Soft Play, Juice Box, Lemon Squeezy, Umbilical Cord, Period Drama, Heel Prick, Fork in the Socket, Runaway Pram, Baby Shower, Wet Wipe, Water Pistol, Cod Liver Oil, Lava Lamp, Greased Piglet, Night Light (as Soul), plus a new Soul weapon, Boo-merang. Dropped as clashes with the Armoury (v9.22): Runny Nose, Waters Breaking, Rattle, Wool Jumper, Mosquito, Nit Comb, Vomit Comet, Rubber Duck, Sneeze Guard, Sardine Tin. Sequences changed from the table below to fit the 8 starting sequences.
+
 ## 1. Current weapons (33), as user stories
 
 Ranked by usefulness within each group. Each line: name (damage type, role, sequence).

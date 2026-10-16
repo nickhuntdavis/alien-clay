@@ -257,6 +257,7 @@ const armSrc = (src, o) => Object.assign({}, src, o);
 // ---------------------------------------------------------------- stats (from applySigStats)
 function armSigStats(w, s) {
   if (!w.def.armoury) return;
+  if (w.def.pen) { penSigStats(w, s); return; } // (playpen.js)
   const has = id => hasSig(w, id);
   // more of it
   for (const id of ['xonetwo', 'xpicknose', 'xspreadit', 'xorigami', 'xdoubleroll', 'xgoblin', 'xbackcomb', 'xbrood', 'xglow', 'xleech', 'xmonkey',
@@ -307,6 +308,7 @@ function armSigStats(w, s) {
 // ---------------------------------------------------------------- firing (from fireWeapon; true = handled here)
 function armFire(w, target, src) {
   const d = w.def;
+  if (d.pen) return penFire(w, target, src); // (playpen.js)
   if (d.kind === 'critter') return true; // (pets bite on their own: armTick)
   if (!target) return false; // (trails fire without one)
   const s = w.s, p = G.player, a0 = Math.atan2(target.y - p.y, target.x - p.x);
@@ -389,6 +391,7 @@ function armFire(w, target, src) {
 function armHit(pr, e) {
   const w = pr.w;
   if (!w || !w.def || !w.def.armoury) return;
+  if (w.def.pen) { penHit(pr, e); return; } // (playpen.js)
   if (w.id === 'roller') { // it picks up what it rolls over
     if (pr.r0 == null) { pr.r0 = pr.r; pr.dmg0 = pr.dmg; }
     const g = w.s.growK || 1;
@@ -398,6 +401,7 @@ function armHit(pr, e) {
 }
 function armEnd(pr) {
   const w = pr.w;
+  if (w && w.def && w.def.pen) { penEnd(pr); return; } // (playpen.js)
   if (!w || w.id !== 'roller' || !hasSig(w, 'xsplat') || pr.dmg0 == null) return;
   aoe(pr.x, pr.y, pr.r * 2.5, pr.dmg * 3, armSrc(pr.src, { wname: 'Splat' }), w.def.color);
 }
@@ -405,6 +409,7 @@ function armEnd(pr) {
 // ---------------------------------------------------------------- melee hits (from meleeHit)
 function armMelee(w, e, dmg, src) {
   if (!w.def.armoury || e.dead) return;
+  if (w.def.pen) { penMelee(w, e, dmg, src); return; } // (playpen.js)
   switch (w.id) {
     case 'achoo': if (w.bigNow && hasSig(w, 'xsnotrocket')) glue(e, 1); break;
     case 'gutpunch':
@@ -433,6 +438,7 @@ function armMelee(w, e, dmg, src) {
 function armLand(pr) {
   const w = pr.w, s = w.s, src = pr.src, z = G.zones[G.zones.length - 1];
   const pud = z && z.x === pr.tx && z.y === pr.ty ? z : null; // the puddle this lob just left
+  if (w.def.pen) { penLand(pr); return; } // (playpen.js)
   switch (w.id) {
     case 'upchuck':
       if (pud) { // puddles that touch merge into one bigger, nastier one
@@ -476,7 +482,8 @@ function armLand(pr) {
 // ---------------------------------------------------------------- per frame (from update): pets and bowling
 function armTick(dt) {
   if (!G || !G.weapons) return;
-  for (const w of G.weapons) if (w && w.def.kind === 'critter' && w.s) petsTick(w, dt);
+  for (const w of G.weapons) if (w && w.def.kind === 'critter' && w.s && !penPetTick(w, dt)) petsTick(w, dt);
+  penTick(dt); // (playpen.js)
   if (G.armBowl && G.armBowl.length) bowlTick();
 }
 function bowlTick() {
@@ -570,6 +577,7 @@ function petsTick(w, dt) {
 // eye and a beating tail. Leeches are longer and fatter; bugs glow brighter; lice are squat.
 function armDraw() {
   if (!G || !G.weapons) return;
+  penDraw(); // (playpen.js)
   for (const w of G.weapons) {
     if (!w || w.def.kind !== 'critter' || !w.pets) continue;
     const kind = w.def.critter, c = w.def.color;
