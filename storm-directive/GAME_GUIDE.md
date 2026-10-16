@@ -931,7 +931,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 14, cd 0.7s, mag 1, x3, range 320
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Fertile Window** (+ Egg White)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -997,7 +997,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 22, reload 2s, x2, range 100 (dur 4, radius 64, spin 3)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% area; Lv9: +40% dmg
-- **Combos:** -
+- **Combos:** **Lunar Cycle** (+ Period Drama)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1019,7 +1019,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 16, cd 0.6s, mag 4, reload 1.2s, range 100 (area 1, arc 1.6, knock 90)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +20% area
-- **Combos:** -
+- **Combos:** **Catch It, Bin It** (+ Wet Wipe)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1041,7 +1041,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 16, cd 1.3s, mag 2, reload 1.6s, pierce all, range 520
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Pick and Roll** (+ Nose Goblins)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1085,7 +1085,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 9, cd 0.5s, mag 8, reload 1.6s, x2, pierce 1, range 380
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Pick and Roll** (+ Bogey Roller)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1129,7 +1129,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 14, cd 1.1s, mag 3, reload 1.6s, x10, pierce 1, range 220
 - **Level bonuses:** Lv3: +4 count; Lv6: +30% dmg; Lv9: +2 pierce
-- **Combos:** -
+- **Combos:** **Bug Zapper** (+ Lightning Bugs)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1151,7 +1151,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 8, cd 0.8s, mag 1, x3, range 340 (chain 2)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +1 chain
-- **Combos:** -
+- **Combos:** **Bug Zapper** (+ Carpet Shuffle)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1239,7 +1239,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 15, cd 0.32s, mag 6, reload 1s, range 170 (area 1, width 10, knock 50)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +25% area
-- **Combos:** -
+- **Combos:** **Open Wide** (+ Cod Liver Oil)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1349,7 +1349,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 6, cd 0.25s, mag 1, x2, range 340
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Blood Bank** (+ Umbilical Cord)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1481,7 +1481,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 18, cd 0.15s, mag 1 (dur 2.4, area 26)
 - **Level bonuses:** Lv3: +20% area; Lv6: +40% duration; Lv9: +50% dmg
-- **Combos:** -
+- **Combos:** **Fertile Window** (+ Little Swimmers)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1613,7 +1613,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 7, cd 0.2s, mag 20, reload 0.6s, range 300
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +0.15 range; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Blood Bank** (+ Leeches)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1635,7 +1635,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 24, cd 5s, mag 1, reload 0.1s, range 200 (area 170)
 - **Level bonuses:** Lv3: +15% area; Lv6: +30% dmg; Lv9: +15% area
-- **Combos:** -
+- **Combos:** **Lunar Cycle** (+ Ulcer Moons)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1745,7 +1745,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 24, cd 0.8s, mag 4, reload 1.2s, range 125 (area 1, arc 2.6, knock 70)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +20% area; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Catch It, Bin It** (+ Achoo)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1789,7 +1789,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 26, cd 0.9s, mag 4, reload 1.6s, range 360 (area 50, explode 1, dur 1.6, flight 0.45)
 - **Level bonuses:** Lv3: +20% area; Lv6: +30% dmg; Lv9: +1 count
-- **Combos:** -
+- **Combos:** **Open Wide** (+ Butter Knife)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1855,7 +1855,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 18, cd 0.6s, mag 1, x3, range 120 (dur 9)
 - **Level bonuses:** Lv3: +1 count; Lv6: +30% dmg; Lv9: +0.2 range
-- **Combos:** -
+- **Combos:** **Night Terrors** (+ Boo-merang)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1877,7 +1877,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 30, cd 1.1s, mag 2, reload 1.4s, pierce all, range 340 (boomerang 1)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +1 count; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Night Terrors** (+ Night Light)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -1997,6 +1997,14 @@ Both weapons at Lv 5+: the game stops at once for the combo's own unlock screen 
 | **Locker Room Towel** | Hanky Panky + Flagellum Flail | Quiet One | Hit with the last quarter of a Flail lash and the towel SNAPs: triple damage, stunned for 1.2s, and a cloud of Cooties along the whole lash. Medically hazardous contact. |
 | **Packed Lunch** | Juice Box + Upchuck | Problem Child | The empty Juice Box is thrown at the nearest Upchuck puddle, which boils over: 60% wider for 3s, hits harder and melts 1 armour every 0.3s. Warm apple juice and inevitable regret. |
 | **Guthrie Test** | Heel Prick + Gene Gun | Designer Baby | Gene Gun helices home in on enemies Heel Prick has marked. A marked enemy hit by one loses 15% of its health (4% of a boss), bleeds at triple rate for 4s and passes its edit to 3 neighbours. Five drops on filter paper. |
+| **Fertile Window** | Egg White + Little Swimmers | Firstborn | Little Swimmers swim 60% faster in your Egg White lane and come out of it charged for 2s: their headbutts hit twice as hard and glue for 0.6s. Conditions are optimal. Everyone is very excited. |
+| **Open Wide** | Butter Knife + Cod Liver Oil | Chonker | Butter Knife hits flick a spoonful of Cod Liver Oil at the nearest enemy that is not gagging yet (every 0.5s), so the gag goes round the room. Knife hits on a gagging enemy hit 150% harder. Here comes the aeroplane. Nobody is fooled. |
+| **Bug Zapper** | Carpet Shuffle + Lightning Bugs | Bright Spark | Every Carpet Shuffle also bursts out of each Lightning Bug as a ring of 6 sparks, and for 2s after a shuffle the bugs bite twice as hard. Socks, carpet and a jar of fireflies. |
+| **Pick and Roll** | Nose Goblins + Bogey Roller | Favourite | Every 0.5s the Nose Goblins flick fresh bogeys onto your Bogey Rollers, so they grow without touching anything. A roller twice its size flicks goblin bogeys at the nearest enemy every 0.3s. A closed ecosystem. |
+| **Night Terrors** | Boo-merang + Night Light | Quiet One | A Boo-merang flying past a Night Light makes it flare: everything within 150 is stunned for 0.6s and takes a heavy zap, and the lamp stays plugged in 2s longer. Enemies already BOOed take 50% more from the lamps. It was under the bed the whole time. |
+| **Blood Bank** | Umbilical Cord + Leeches | Good Eater | The Umbilical Cord also plugs into every enemy a Leech is latched onto (up to 4) and feeds off it. Leeches on a corded enemy bite twice as hard. Donations are not voluntary. |
+| **Lunar Cycle** | Period Drama + Ulcer Moons | Problem Child | Every wave of cramps flings your Ulcer Moons out to its edge and back, and calls them out early if they were resting. Out at full stretch they hit twice as hard and make what they hit bleed. Twenty-eight days, give or take. |
+| **Catch It, Bin It** | Achoo + Wet Wipe | Designer Baby | Every big sneeze is followed by a Wet Wipe all round you: every enemy bullet in reach is wiped away, and everything in reach takes a heavy wipe and gets soaked. Wet Wipe hits on a Snotty enemy hit 50% harder. As the posters say. |
 
 ## Super combos
 
