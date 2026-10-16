@@ -2693,17 +2693,7 @@ The slide starts in greyscale, your own swimmer included. Colour comes back thre
 
 **Damage types** come into colour one at a time, from the card that introduces each (soon after you first use it; at once with tutorials off). Force stays white.
 
-**Research grants** are permanent: each turns up once ever, floating on the slide for you to swim into, and is on in every run after that (the pause menu switches any off). Not in campaign levels.
-
-| Grant | When | What it colours |
-|---|---|---|
-| **Personal stain** | Floats by the egg, your first game (until you take it) | You, your echoes and your allies in your own colour, and your stamina ring |
-| **Tracer Dye** | Level 5, once you have Personal stain | Your shots and weapon effects, and every damage type in its own colour |
-| **Gentian Violet** | Level 10, once you have Tracer Dye | Power-up pickups and their effects |
-| **Gram Stain** | Level 15, once you have Gentian Violet | Every kind of enemy in its own colour (bosses too; rivals keep theirs for the Rival Dyes) |
-| **Counterstain** | Level 20, once you have Gram Stain | The slide itself: debris, mitochondria, acid pools, cilia, currents and oil slicks in their natural colours, and the agar in the dish |
-
-**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. (Stains kept on older versions stay on; a kept GFP Tag became the first two grants.) **Arcade view** (Settings > Screen > View) shows everything in full colour.
+**Stain cards** turn up in DNA strands: each colours one more thing for that run and brings a boon. **Arcade view** (Settings > Screen > View) shows everything in full colour.
 
 | Stain | Boon | What it colours |
 |---|---|---|

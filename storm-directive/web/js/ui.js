@@ -1104,7 +1104,6 @@ const UI = {
       if (!G.dyeBoon[id]) { if (off[id]) delete G.dyes[id]; else G.dyes[id] = true; refreshPalette(); }
       const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y;
     }));
-    if (typeof grantsBind === 'function') grantsBind(box, () => { const y = $('pause').scrollTop; UI.renderPause(); $('pause').scrollTop = y; });
     box.querySelectorAll('[data-move]').forEach(b => b.addEventListener('click', () => { G.moveDir = b.dataset.move; UI.renderPause(); }));
     box.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       const w = b.dataset.k === 'w' ? G.weapons[+b.dataset.i] : G.spells[+b.dataset.i];
@@ -1196,7 +1195,6 @@ const UI = {
       : (typeof GRANT_ORDER !== 'undefined' && GRANT_ORDER.some(grantHas) ? '<p class="hint">No stain cards found this run yet.</p>' : '<p class="hint">None yet: the slide is all greyscale. Each stain brings back one kind of colour, and a boon.</p>');
     const perm = Object.keys(META.pstains || {}).filter(id => DYES[id]);
     if (perm.length) h += `<h3 style="margin-top:10px">Permanent stains</h3><div class="chips">${perm.map(id => { const on = !(META.pstainOff || {})[id]; return `<button class="chip ${on ? 'sel' : ''}" data-pst="${id}">${esc(DYES[id].name)}: ${on ? 'ON' : 'OFF'}</button>`; }).join('')}</div><p class="hint">Kept from earlier runs. Switch any off if you'd rather not see its colour.</p>`;
-    if (typeof grantsHtml === 'function') h = grantsHtml() + h; // permanent stain grants first (grants.js)
     if (miss.length) h += `<p class="hint">Still to find (in DNA strands): ${miss.map(id => `<b>${esc(DYES[id].name)}</b>`).join(', ')}. Each brings back one kind of colour, and a boon.</p>`;
     return h;
   },

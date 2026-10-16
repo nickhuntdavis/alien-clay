@@ -239,7 +239,7 @@ const SCHOOL_ST = {
       for (let k = 0; k < 10; k++) { const c = lvRectPos(stFar(rc), 200); dropGem(c.x, c.y, 1); R.gems.push(G.gems[G.gems.length - 1]); }
     },
     tick(R) { if (G.moveDir === 'collect') R.picked = true; },
-    left: R => R.gems.filter(g => G.gems.includes(g)).length + (G.grant ? 1 : 0),
+    left: R => R.gems.filter(g => G.gems.includes(g)).length,
     done: R => R.picked && !SCHOOL_ST.collect.left(R),
     task: R => R.picked ? `COLLECT IT ALL: ${SCHOOL_ST.collect.left(R)} LEFT` : 'TAP RUN: PICK COLLECT' },
   box: {
@@ -348,7 +348,6 @@ function schoolSteer(p) {
   const V = G.lvl, R = V.arena;
   if (!R) return lvPushOn(p) ? Object.assign({ w: 0.9 }, lvPushOn(p)) : null;
   const st = R.A.st;
-  if (st === 'collect' && G.moveDir === 'collect' && G.grant) return { x: G.grant.x, y: G.grant.y, w: 1.4 };
   if (st === 'box' && R.box && G.pickups.includes(R.box)) return { x: R.box.x, y: R.box.y, w: 1.2 };
   if (st === 'feat' || st === 'armour') { // (close in, so the Feat has something to hit and the antibodies something to shoot)
     let t = null, td = 1e9; for (const e of R.foes || []) { const d = e.dead ? 1e9 : Math.hypot(e.x - p.x, e.y - p.y); if (d < td) { td = d; t = e; } }

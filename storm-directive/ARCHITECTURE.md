@@ -18,7 +18,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 | **settings** | `settings.js` | `SET` (`sd_settings`), `SETTINGS_DEF` with tabs, hints, `off()`, sliders; narrator packs. |
 | **meta** | `meta.js` | `META` (`sd_meta`): DNA, Gene Bank, unlocks, `APP_VERSION`. |
 | **engine** | `game.js` | `G` run state, `newGame`, `update(dt)`, combat (`damageEnemy`, `killEnemy`, `fireWeapon`), AI, director/spawning, XP, `computeStats`, loot (`genLoot`, `rollRarity`, novelty `novK`). Most hook calls start here. |
-| **render** | `render.js`, `icons.js` | World and HUD drawing: floor, lights, entities, egg, swimmers, minimap; `col()`/`RAW_COL`; weapon icons and type colours. |
+| **render** | `render.js`, `icons.js`, `grants.js` (colour switches: Lab vs Arcade) | World and HUD drawing: floor, lights, entities, egg, swimmers, minimap; `col()`/`RAW_COL`; weapon icons and type colours. |
 | **ui** | `ui.js`, `loadout.js` | DOM screens: title, samples, loot cards (`UI.openLoot`, `UI.pickLoot`), pause, end screen, Tackle Box (Loadout tab in `loadout.js`). |
 
 ## Game modes
@@ -48,7 +48,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 | **pickups** | `pickups.js`, `silly.js` | Timed power-ups (`G.pu[id]`) and silly modifiers. |
 | **gene-transfer** | `junk.js`, `genes.js` | Lateral Gene Transfer: junk DNA carriers, vesicle boxes (`G.vesicles`, `kind:'vesicle'`). |
 | **relics** | `bosses.js`, `rrelics.js` | Boss and rival relics (`applyRelic`, `rrelic*` hooks). |
-| **show** | `show.js`, `grants.js` (mostly inert) | Narrator, achievements, funding/devotion meter. |
+| **show** | `show.js` | Narrator, achievements, funding/devotion meter. |
 
 ## Enemies and world
 | System | Files | Role |

@@ -125,7 +125,6 @@ function newGame() {
   for (const id in (META.pstains || {})) if (DYES[id] && !(META.pstainOff || {})[id] && !(G.wave && id === 'rival')) G.dyes[id] = true;
   applyMeta(G);
   genesStart(G);
-  grantsStart(G); // stain grants (grants.js)
   junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
   refreshPalette(); // greyscale apart from your permanent stains: colour comes from stains picked up during the run
 }
@@ -2683,7 +2682,6 @@ function update(dt) {
   safely('introTick', () => introTick()); // first sightings
   safely('tutTick', () => tutTick()); // first-time tutorial cards (tutorial.js)
   chemPlayerZones(); // (your own puddles: chem.js)
-  safely('grantsTick', () => grantsTick(dt)); // stain grants (grants.js)
   safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
   safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)
   safely('boonTick', () => boonTick(dt));
