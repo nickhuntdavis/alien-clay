@@ -1515,6 +1515,8 @@ function render() {
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(t.face) * 16 * S, y + Math.sin(t.face) * 16 * S); ctx.lineWidth = 4; ctx.stroke();
   }
 
+  armDraw(); // (the Armoury's pets, armoury.js)
+
   // Your shots go under the enemies (enemies and their bullets must stay readable), faded when busy.
   fxDim(true);
   for (const pr of G.proj) {

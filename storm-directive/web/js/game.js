@@ -1724,6 +1724,7 @@ function fireWeapon(w, target) {
   if (d.reborn && rebornFire(w, target, src)) return; // (Prawn Again's weapons, reborn.js)
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
   if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
+  if (d.armoury && armFire(w, target, src)) return; // (the Armoury's weapons, armoury.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
@@ -2171,6 +2172,7 @@ function landLob(pr) {
   if (pr.w.id === 'venom') { if (G.zones.length < 260) G.zones.push(venomZone(pr.w, pr.tx, pr.ty)); }
   else if (s.dur > 0) G.zones.push({ x: pr.tx, y: pr.ty, r: s.area, life: s.dur, max: s.dur, dps: s.dmg * (d.base.explode ? 0.3 : 0.9), elem: d.elem, pull: 0, color: pr.color, tick: 0, src: pr.src });
   if (d.redtail) redLand(pr); // (Moonshine Jug: bad batches and the rest, redtail.js)
+  if (d.armoury) armLand(pr); // (armoury.js)
 }
 
 function detonateMine(pr) {
@@ -2684,6 +2686,7 @@ function update(dt) {
   updateProjectiles(dt * PROJ_K);
   updateZones(dt);
   updateTurrets(dt);
+  armTick(dt); // (the Armoury's pets and bowling, armoury.js)
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
   updateEnemies(dt);
   updateTerrain(dt);
