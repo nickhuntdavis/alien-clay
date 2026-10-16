@@ -865,6 +865,7 @@ function damageEnemy(e, dmg, src) {
     }
   }
   if (G.toy) toyHurt(e, Math.min(d, Math.max(0, hp0)), src); // Due Date keeps count; Red Tape shares it
+  if (G.nf && d > 0) nfDamaged(e, Math.min(d, Math.max(0, hp0)), src); // (Shared Placenta, Brown Fat, Fecal Transplant: newfeats.js)
   if (src.elem && src.elem !== 'phys') G.stats.elemDmg = (G.stats.elemDmg || 0) + d; // for the Acid-Burner unlock
   if (src.w) { genesHit(e, d, src, crit); junkHit(e, d, src); }
   if (e.hp <= 0 && !e.dead) {
@@ -966,6 +967,7 @@ function killEnemy(e, src) {
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
   if (e.dummy) dummyBurst(e); // (Dummy Spit)
+  if (G.nf) nfKill(e, src); // (Hostile Environment grows: newfeats.js)
   G.kills++;
   if (e.elite && !e.boss && hitStop(0.05)) buzz('elite');
   sfx(e.elite || e.boss ? 'killBig' : 'kill');
@@ -1133,7 +1135,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
-  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt(); // (Personal Space: seqfeats.js)
+  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt() * nfHurtMul(ent, kind, from); // (Personal Space: seqfeats.js; the v9.23 Feats: newfeats.js)
   dmg = relicDamageIn(dmg, ent);
   if (dmg > 0) dmg = junkHurtIn(dmg, ent, kind); // (Now You See Me, Phlegm, Glass Case: junk.js)
   if (dmg <= 0) return;
@@ -1150,6 +1152,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
   if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
+  if (nfLethal(d)) return; // (Anhydrobiosis: newfeats.js)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d; tantrumHurt(d); seqHurt(); // (a clean boss fight: seqlock.js)
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
@@ -1357,8 +1360,9 @@ function eBullet(x, y, a, speed, dmg, r, color) {
 
 function shootPattern(e, pat, a0) {
   if (e.soapT > G.t && !e.boss) return; // soaped up (Bubble Bath): can't shoot
+  if (G.nf && nfNoFire(e)) return; // (scratching, gagged or clogged: newfeats.js)
   const p = G.player, sh = e.def.shoot || {};
-  const aim = ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x);
+  const aim = (G.nf && nfAim(e)) ?? ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x); // (a decoy: newfeats.js)
   const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
   switch (pat) {
     case 'aimed': {
@@ -1552,6 +1556,7 @@ function updateEnemies(dt) {
     const tide = e.boss || e.egg ? 0 : 0.8;
     // Scared, lured, stuck in the lines, or looking for you where you vanished (toys.js).
     if (G.toy || G.decoy) { const ts = toySteer(e); if (ts) { mx = ts.x; my = ts.y; } }
+    if (G.nf) { const ns = nfSteer(e); if (ns) { mx = ns.x; my = ns.y; } } // (fleeing, lured, mobbing a decoy: newfeats.js)
     // A newcomer's introduction has just fired: for a few seconds the crowd near you eases off and drifts
     // sideways round you (no retreat), giving it a little room.
     if (G.introBack && G.t < G.introBack.until && e.def !== G.introBack.def && !e.boss && !e.rival && !e.final && !e.egg && dist < SPOT.back) {
@@ -1856,6 +1861,7 @@ function fireWeapon(w, target) {
     case 'barrier': G.barrier = s.dur; G.barrierR = s.area; G.barrierDmg = s.dmg; break;
     case 'oob': rebornOOB(w); break;
     case 'seqfeat': seqFeatFire(w, target, src); break; // (sequence Feats: seqfeats.js)
+    case 'newfeat': nfFire(w, target, src); break; // (the v9.23 Feats: newfeats.js)
     case 'ring':
       for (let i = 0; i < s.count; i++) spawnProj(w, p.x, p.y, i / s.count * TAU + G.realT, src);
       break;
@@ -2197,6 +2203,7 @@ function updateSpellList(list, dt) {
       if (!target) { w.cd = 0; continue; }
     } else if (w.def.kind === 'heal' && G.player.hp > G.P.maxHp * 0.85) { w.cd = 0; continue; }
     else if ((w.def.kind === 'warp' || w.def.kind === 'barrier' || w.def.kind === 'ring') && !acquire('nearest', 300, G.player.x, G.player.y)) { w.cd = 0; continue; }
+    if (w.def.kind === 'newfeat' && nfWait(w, target)) { w.cd = 0; continue; } // (held until it is worth it: newfeats.js)
     if (!featPay(w)) { w.cd = 0.2; continue; } // (stamina Feats: not enough in the bar yet)
     featFire(w, target);
   }
@@ -2214,6 +2221,7 @@ function featTap(w) {
   const p = me(), say = t => floatText(p.x, p.y - 36, t, XR.white, 12, 0.7);
   if (w.cd > 0) { say(`${w.def.name.toUpperCase()}: ${Math.ceil(w.cd)}s`); return false; }
   if (G.inCilia && featCost(w)) { say('TANGLED IN CILIA'); return false; }
+  if (w.def.passive) { say(w.def.name.toUpperCase() + ' PERFORMS ITSELF'); return false; } // (Anhydrobiosis: newfeats.js)
   let target = null;
   if (!w.def.noTarget) { target = acquire(w.dir, w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
   if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }
@@ -2274,7 +2282,7 @@ function updatePlayer(dt) {
   // Yeast colonies are sticky: brushing through one slows you.
   G.sticky = false;
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
-  const speed = 165 * P.speed * oobSpeed() * chemPlayerSpeed() * // (LUBED UP: chem.js)
+  const speed = 165 * P.speed * oobSpeed() * chemPlayerSpeed() * nfSpeed() * // (LUBED UP: chem.js; the v9.23 Feats: newfeats.js)
     // (base 165: was 150; Out of Body: faster)
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed();
@@ -2685,6 +2693,7 @@ function update(dt) {
   updateZones(dt);
   updateTurrets(dt);
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
+  safely('nfTick', () => nfTick(dt)); // (the v9.23 Feats: newfeats.js)
   updateEnemies(dt);
   updateTerrain(dt);
   updateCore(dt);
@@ -2700,6 +2709,7 @@ function update(dt) {
     b.x += b.vx * dt * bw * PROJ_K; b.y += b.vy * dt * bw * PROJ_K; b.life -= dt * PROJ_K;
     if (b.life <= 0) { b.dead = true; continue; }
     if (terrainShot(b, true, dt)) continue;
+    if (G.nf && nfBullet(b, dt)) continue; // (decoys, slime, domes, membranes: newfeats.js)
     const dx = b.x - p.x, dy = b.y - p.y, d2 = dx * dx + dy * dy;
     if (G.barrier > 0 && d2 < G.barrierR * G.barrierR) { b.dead = true; rubberCatch(b, dx, dy); continue; } // (caught, then flung back: rubber.js)
     const rr = b.r + p.r * 0.6;

@@ -194,7 +194,7 @@ function musicTick(dt) {
   MUSIC.I += (musicTarget() - MUSIC.I) * Math.min(1, dt * 0.6);
   if (!MUSIC.on) { MUSIC.on = true; MUSIC.next = now + 0.1; MUSIC.step = 0; }
   // Ducked and muffled under menus; full in play.
-  MIX.mus.gain.setTargetAtTime(menu ? 0.22 : 0.55, now, 0.25);
+  MIX.mus.gain.setTargetAtTime(menu ? 0.22 : G.musCutT > G.t ? 0.0001 : 0.55, now, G.musCutT > G.t ? 0.03 : 0.25); // (Donor Sample cuts the music: newfeats.js)
   MIX.musF.frequency.setTargetAtTime(menu ? 900 : 16000, now, 0.25);
   const bpm = MUSIC.mode === 'final' ? 138 : MUSIC.mode === 'boss' ? 130 : 104 + 18 * MUSIC.I, sd = 60 / bpm / 4;
   if (MUSIC.next < now - 0.3) MUSIC.next = now + 0.05; // (we fell behind: a hitch, or the tab was away)

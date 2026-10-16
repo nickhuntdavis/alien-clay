@@ -212,7 +212,7 @@ const UI = {
         el.classList.toggle('merged', !!(w.combos && w.combos.length));
       }
       let frac, reloading = false;
-      if (w.isSpell) frac = 1 - Math.max(0, w.cd) / (w.reloadMax || 1);
+      if (w.isSpell) frac = w.nfCharge != null && w.cd <= 0 ? w.nfCharge : 1 - Math.max(0, w.cd) / (w.reloadMax || 1); // (Lactic Acid shows its charge: newfeats.js)
       else if (w.def.kind === 'orbit') { reloading = w.reloadT > 0; frac = reloading ? 1 - w.reloadT / w.reloadMax : w.active / w.s.dur; }
       else if (w.def.scrapAmmo) frac = Math.min(1, G.scrap / 30);
       else if (w.def.heat) { reloading = w.reloadT > 0; frac = 1 - w.heat; }
@@ -1289,7 +1289,7 @@ const UI = {
     const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + Object.keys(ENEMY_INTRO).length;
     let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>FIELD GUIDE COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
       <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
-    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
+    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['feats', 'FEATS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
     const show = id => sec === 'all' || sec === id;
     if (show('weapons')) {
       let l = '';
@@ -1298,6 +1298,17 @@ const UI = {
         l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, r ? elemCol(d.elem) : '#ffffff40')}</span><div><b style="color:${r ? 'inherit' : '#ffffff80'}">${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</span><br><span>${esc(d.play || d.desc)}</span><br><em>${r ? `${r.runs} run${r.runs > 1 ? 's' : ''}, born ${r.born}, best Lv ${r.best}` : 'Never taken into a run.'}</em></div></div>`;
       }
       h += box(`Weapons (${used.length}/${wids.length} used)`, `<div class="list">${l}</div>`, 'Every weapon in the fridge. Take one into a run to log it.');
+    }
+    if (show('feats')) {
+      // Every Feat: what it costs, what it does, and its two Lv 4 paths.
+      let l = '';
+      for (const id in SPELLS) {
+        const d = SPELLS[id], own = run && G.spells.some(w => w && w.id === id), F = SPELL_FORKS[id];
+        const cost = d.passive ? 'performs itself, ' + d.base.cd + 's cooldown' : STAM_FEATS.has(id) ? 'stamina' : d.base.cd + 's cooldown';
+        const seq = d.seqOnly && PROFILES[d.seqOnly] ? ` (${esc(PROFILES[d.seqOnly].name)} only)` : '';
+        l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, elemCol(d.elem))}</span><div><b>${esc(d.name)}</b> <span class="brole">${esc(ELEMENTS[d.elem].name.toUpperCase())}, ${cost}${seq}</span><br><span>${esc(d.desc)}</span>${F ? `<br><span class="hint">Lv ${SPELL_FORK_LV}: <b>${esc(F[0].name)}</b> (${esc(F[0].desc)}) or <b>${esc(F[1].name)}</b> (${esc(F[1].desc)})</span>` : ''}</div></div>`;
+      }
+      h += box(`Feats (${Object.keys(SPELLS).length})`, `<div class="list">${l}</div>`, 'Every Feat in the Tackle Box. Attacking Feats are paid for in stamina; the rest wait on a cooldown.');
     }
     if (show('genes')) {
       h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, `<div class="list">${pids.map(id => `<div class="li ${run && genesOn(id) ? 'on' : ''}">${UI.profileHtml(id, { full: true })}</div>`).join('')}</div>`, 'Pick your Primary Sequence after choosing a sample, before a run.');

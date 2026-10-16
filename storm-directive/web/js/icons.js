@@ -122,6 +122,12 @@ const ICON_OF = {
   meteor: 'comet', frostnova: 'nova', thunder: 'storm', blackhole: 'spiral', heal: 'cross', warp: 'clock',
   barrier: 'shield', bladestorm: 'shuriken', cloud: 'cloud', sentry: 'turret',
   naughtycorner: 'tape', tantrum: 'nova', dummyspit: 'bubble',
+  slimemould: 'web', polarbody: 'bubble', hagfish: 'cloud', vanishingtwin: 'ghost', mosquito: 'syringe', notlatex: 'droplet', donorsample: 'flask',
+  ouija: 'dice', formicacid: 'spike', fecaltransplant: 'bacteria', bombardier: 'flame', crabs: 'tick', vandegraaff: 'tesla', wanderingwomb: 'heart',
+  anhydrobiosis: 'hourglass', capacitation: 'drill', brownfat: 'pill', asymptomatic: 'virus', rupture: 'nova', spinnbarkeit: 'link', tonic: 'bolt',
+  earcandling: 'thermometer', hostileenv: 'biohazard', sharedplacenta: 'twins', productivecough: 'pinball', hirudotherapy: 'siphon', lipidbilayer: 'shield',
+  biofilm: 'mitosis', shedlining: 'wake', osmosis: 'pipette', aerosol: 'spray', selflube: 'cyclone', anticoagulant: 'spindle', fertilewindow: 'calendar',
+  surfactant: 'prism', lacticacid: 'gear',
 };
 
 const DEF_ID = new Map();

@@ -1633,6 +1633,7 @@ function render() {
   }
   fxDim(false);
   drawToysUnder();
+  nfDrawUnder(); // (the v9.23 Feats, on the slide: newfeats.js)
   // Elite, boss and ally auras.
   ctx.globalCompositeOperation = 'lighter';
   for (const e of G.enemies) {
@@ -1714,7 +1715,7 @@ function render() {
   }
   ctx.globalAlpha = 1;
   rebornDrawOOB(); // (Out of Body: your empty body)
-  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
+  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha() * nfYouAlpha(), playerScale(), p, shipLook()); // (a dry husk instead: newfeats.js)
   drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   drawSizzle(px, py); // touching acid (terrain.js)
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
@@ -1766,6 +1767,7 @@ function render() {
   ctx.lineCap = 'butt'; ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 1;
   drawTypeFx(); // (reaction pictures: typefx.js)
+  nfDrawOver(); // (the v9.23 Feats, over everything: newfeats.js)
   ctx.globalCompositeOperation = 'lighter'; // arcs, blasts and shockwaves are energy
   for (const f of G.fx) {
     const k = f.life / f.max;
@@ -1991,7 +1993,7 @@ function hpScale(k) { return 1 + Math.min(1, Math.max(0, (G.P.maxHp - 120) / 470
 // enemies skip their halo and surface detail.
 function drawEnemy(e, lod) {
   const plain = !e.elite && !e.boss && !e.rival && !e.charmed;
-  const squash = 1 + Math.max(0, e.flash) * 2;
+  const squash = (1 + Math.max(0, e.flash) * 2) * (e.labourT > G.t ? 1 - 0.2 * Math.max(0, 1 - (G.realT - (e.squeezeT || 0)) / 0.35) : 1); // (Bloody Show: a contraction clenches it, then it relaxes)
   // Individuals vary a little in size, and soft-bodied things breathe.
   if (e.vs == null) e.vs = e.boss || e.rival ? 1 : 0.9 + ((e.id * 9301 + 49297) % 233280) / 233280 * 0.2;
   const breathe = e.def.shape === 'cell' || e.def.shape === 'amoeba' || e.def.shape === 'spike' ? 1 + 0.035 * Math.sin(G.realT * 2.6 + e.id) : 1;

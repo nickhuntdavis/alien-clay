@@ -1,6 +1,8 @@
 const { chromium } = require('playwright');
 // node sim/wave20.js 4 mortal twins: play as that sequence. --boss <id> forces that boss into its tier's slot (campaign.js campInit).
 const ARGS = process.argv.slice(2), BI = ARGS.indexOf('--boss'), BOSS = BI >= 0 ? ARGS.splice(BI, 2)[1] : '';
+// --feat <id> puts that Feat in the first Feat slot at the start of every run (balance checks for one Feat).
+const FI = ARGS.indexOf('--feat'), FEAT = FI >= 0 ? ARGS.splice(FI, 2)[1] : '';
 const N = +(ARGS[0] || 2), GOD = ARGS[1] !== 'mortal', SEQ = ARGS[2] || '';
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -9,10 +11,11 @@ const N = +(ARGS[0] || 2), GOD = ARGS[1] !== 'mortal', SEQ = ARGS[2] || '';
   await page.evaluate(() => { META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; for (const k in POWERUPS) META.seenSt[POWERUPS[k].name] = 1; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; for (const R of RIVALS) META.seen['rival_' + R.id] = 1;
     RUNLOG.push({ n: 77, at: '2026-10-09 10:55', res: 'LOST', lvl: 44, seq: 'redtail+acid', w: ['wedding9[elemental]', 'orbit8', 'venom7'] }); });
   for (let seed = 0; seed < N; seed++) {
-    const r = await page.evaluate(async ([GOD, SEQ, BOSS]) => {
+    const r = await page.evaluate(async ([GOD, SEQ, BOSS, FEAT]) => {
       self.FORCE_BOSS = BOSS || null;
       if (SEQ) { META.devAll = 1; META.profile = SEQ; }
       SET.auto = true; SET.autoWaves = true; UI.sample = 's002'; UI.syncAuto(); newGame(); UI.show('hud'); if (G.state !== 'intro') G.state = 'play';
+      if (FEAT) { G.spells[0] = makeSlot(FEAT, true, 1); computeStats(G.spells[0]); recomputeAll(); }
       const ev = [`roster ${G.bossRoster.join(',')}`]; let lastN = 0, t0 = 0, h0 = 0, lvB = 0;
       const hurtNow = () => Object.values(G.stats.hurtKind || {}).reduce((a, b) => a + b, 0);
       for (let f = 0; f < 30 * 2400 && G && G.state !== 'over' && G.state !== 'won'; f++) {
@@ -29,7 +32,7 @@ const N = +(ARGS[0] || 2), GOD = ARGS[1] !== 'mortal', SEQ = ARGS[2] || '';
         if (f % 600 === 0) await new Promise(r => setTimeout(r, 0));
       }
       return ev.filter(Boolean).join('\n  ');
-    }, [GOD, SEQ, BOSS]);
+    }, [GOD, SEQ, BOSS, FEAT]);
     console.log('RUN', seed, '\n  ' + r);
   }
   console.log('ERRORS', errors.length ? [...new Set(errors)].slice(0, 4) : 'none'); await b.close();

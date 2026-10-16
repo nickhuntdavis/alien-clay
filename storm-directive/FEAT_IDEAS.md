@@ -25,11 +25,11 @@ Source: v9.20 guide. Damage types: Force, Acid, Mucus, Static, Cooties, Oil, Wat
 
 ## 2. The 36 new Feats, ranked by delight
 
-Numbers 1 to 5 are the top five.
+Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js`); the Ultimates (section 3) are still design only.
 
 ### Delight 10
 
-#### 1. Slime Mould (Mucus, stamina)
+#### 1. Slime Mould (Mucus, stamina) ✓ Built in v9.23
 > *"Has no brain. Recreated the Tokyo rail network anyway."*
 - **Does:** a yellow slime spreads from you and finds the shortest route to the toughest enemy, round walls. Its veins leave a network of slowing, snotty trails. When it arrives, it engulfs the target (stuck for 2s, heavy Mucus hits).
 - **On the slide:** branching, pulsing veins that grow, thicken on the routes that work and wither on the ones that don't. In campaign levels it solves the maze that autorun won't.
@@ -39,7 +39,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Tokyo Rail Network.** Links every enemy on screen in one network, then engulfs them all. *"Replicated in twenty-six hours using oat flakes. Published in Science, 2010."*
 - **SCAMPER:** Adapt a crawling ring, Put the maze to use (the slime does the pathfinding).
 
-#### 2. Polar Body (Water, 11s)
+#### 2. Polar Body (Water, 11s) ✓ Built in v9.23
 > *"The egg's spare. Same packaging. Nothing inside."*
 - **Does:** you shed a small, egg-like decoy. For 4s enemies and enemy bullets go for it instead of you. Each hit on it splashes Water back on the attacker. When it pops, everything mobbing it is soaked.
 - **On the slide:** a pale, smooth sphere with a soft glassy rim (`glassRim`), wobbling as it is mobbed. A crowd swarming a fake egg is the joke the whole game has been setting up.
@@ -49,7 +49,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Superovulation.** Eight decoys in a ring round you, all soaking. *"Fertility drugs. Results vary. Today's result is eight."*
 - **SCAMPER:** Substitute Baby Monitor's turret with a decoy, Reverse its job (it draws fire).
 
-#### 3. Hagfish (Mucus, 13s)
+#### 3. Hagfish (Mucus, 13s) ✓ Built in v9.23
 > *"Releases enough slime to fill a bucket in seconds. Sharks give up."*
 - **Does:** an instant burst of slime around you. Everything inside is stuck for 2s, and bullets that enter slow and sink. Anything that bites you while it is up gags and is stuck again.
 - **On the slide:** fine threads that unravel and swell into a soft, cloudy mass, expanding in a blink. Darkfield: thousands of bright threads.
@@ -59,7 +59,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Highway 101.** The whole screen fills with slime: every enemy is stuck for 4s and every bullet is set in place. *"Oregon, 2017. A truck shed seven thousand five hundred pounds of hagfish."*
 - **SCAMPER:** Combine Latex Barrier with Mucus, Magnify the volume.
 
-#### 4. Vanishing Twin (Soul, stamina)
+#### 4. Vanishing Twin (Soul, stamina) ✓ Built in v9.23
 > *"Estimated in up to thirty percent of twin pregnancies. Nobody tells the survivor."*
 - **Does:** a faint copy of you rises under the toughest non-boss enemy nearby and pulls it under, out of play for 3s. It comes back cursed (as six Soul hits, so Full Possession) and fights for you. Nearby enemies flee for 2s. Bosses are spooked and take a big hit.
 - **On the slide:** a soft dark pool, no ring; a translucent sperm shape the same as yours wraps the enemy and sinks with it.
@@ -69,7 +69,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Fetus in Fetu.** A pool under every non-boss enemy on screen; half come back on your side. *"Rare. Real. Occasionally has teeth."*
 - **SCAMPER:** Magnify Nap Time into fear, Reverse Sofa Crevice (one taken, not a crowd dragged).
 
-#### 5. Mosquito (Blood, stamina)
+#### 5. Mosquito (Blood, stamina) ✓ Built in v9.23
 > *"The deadliest animal on Earth. Briefly on your side."*
 - **Does:** a proboscis the size of the screen stabs down through a line of enemies. Everything on the line bleeds and gets one dose of Cooties, and you heal 1% per enemy hit.
 - **On the slide:** a huge, slightly blurred needle that comes in from off screen at an angle, pauses, and withdraws. Its shadow passes over the slide first (the wind-up).
@@ -81,7 +81,7 @@ Numbers 1 to 5 are the top five.
 
 ### Delight 9
 
-#### 6. Not Latex-Safe (Oil, stamina)
+#### 6. Not Latex-Safe (Oil, stamina) ✓ Built in v9.23
 > *"Oil-based lubricant cuts latex strength by ninety percent in sixty seconds. Read the label."*
 - **Does:** a sheen spreads over the crowd. Every shield, shell, barrier and armour plate it touches perishes: armour drops to zero for 6s and boss shields fail. Everything in it is lubricated.
 - **On the slide:** a lilac sheen creeping out; enemy shields wrinkle, go dull and split like a perished balloon.
@@ -91,7 +91,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Perished.** Every shield, barrier and armour on screen fails at once, bosses included. *"Stored in a wallet since 2019."*
 - **SCAMPER:** Put Latex Barrier's own joke to another use (it is the counter to it), Eliminate armour.
 
-#### 7. Donor Sample (Force, stamina)
+#### 7. Donor Sample (Force, stamina) ✓ Built in v9.23
 > *"Donor 4471. Six foot. Enjoys hiking. They all say that."*
 - **Does:** an unlabelled vial lands on an enemy and is passed to the nearest one every 0.6s, with a small Force hit at each pass. After 3 to 5 passes the music cuts out, and the holder is hit with a random damage type that reacts with whatever is already on it.
 - **On the slide:** a frosted cartoon vial with a barcode, steaming slightly from the freezer, hopping between enemies. The music dip is the tell.
@@ -101,7 +101,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Prolific Donor.** The vial passes through every enemy on screen, and every one gets a random type. *"One donor. Over five hundred children. This happened."*
 - **SCAMPER:** Adapt Dummy Spit (sticks), Combine with the music, Modify the payload into a lucky dip.
 
-#### 8. Ouija Board (Soul, stamina)
+#### 8. Ouija Board (Soul, stamina) ✓ Built in v9.23
 > *"Moved by the ideomotor effect: small muscle movements you don't notice. You have no muscles."*
 - **Does:** faded letters appear under the crowd and a planchette glides through a word from the list (SPERM, MOIST, GONAD, UVULA, SMEGMA, TESTES, URETHRA). Everything near each letter is cursed. The finished word shows once in the floater text.
 - **On the slide:** letters floating in the fluid like stained cells, no board outline. The planchette is a cartoon prop with a soft glow. It spells through walls.
@@ -111,7 +111,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Full Séance.** Every enemy on screen turns on the rest for 6s; bosses fire in random directions. *"The dead have been contacted. They would like to help."*
 - **SCAMPER:** Adapt Naughty Corner into a path, Put the word list to use as a joke delivery system.
 
-#### 9. Formic Acid (Acid, stamina)
+#### 9. Formic Acid (Acid, stamina) ✓ Built in v9.23
 > *"Twenty quadrillion ants on Earth. Two and a half million per person."*
 - **Does:** an ant's head, far too big for the slide, reaches in. Its mandibles snap the toughest armoured enemy and spray acid along a line behind it, stripping armour from everything hit.
 - **On the slide:** two blurred mandibles closing from the screen edge, then a fizzing acid-green spray.
@@ -121,7 +121,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Supercolony.** Mandibles from every edge bite every armoured enemy on screen. *"One ant supercolony runs six thousand kilometres along the Mediterranean coast."*
 - **SCAMPER:** Modify Stork Drop (from off screen), Magnify the scale joke.
 
-#### 10. Fecal Transplant (Cooties, 14s)
+#### 10. Fecal Transplant (Cooties, 14s) ✓ Built in v9.23
 > *"An approved treatment with a cure rate around ninety percent. Do not ask about the delivery method."*
 - **Does:** clears every debuff on you and heals 10%. For 5s you shed Cooties: anything you touch gets two doses, and your shots give one.
 - **On the slide:** a brown-grey bloom of bacteria spreads inside your body, then you leave a faint cloudy wake.
@@ -131,7 +131,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Microbiome.** Heals to full over 6s; for 10s every shot carries two doses. *"Thirty-eight trillion bacteria. About one per human cell. They outnumber you."*
 - **SCAMPER:** Substitute Kiss It Better's heal with a cleanse, Combine with Cooties.
 
-#### 11. Bombardier Beetle (Acid, stamina)
+#### 11. Bombardier Beetle (Acid, stamina) ✓ Built in v9.23
 > *"Mixes two chemicals in its abdomen and fires them at a hundred degrees. Five hundred pulses a second."*
 - **Does:** a cone of boiling acid in pulses, fired backwards, so the recoil throws you forward (a free dash through a gap).
 - **On the slide:** the tip of an enormous abdomen poking in, then a stuttering cone of acid-green spray with steam.
@@ -141,7 +141,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Explosive Defence.** 3s of spraying in a full rotating circle. *"Survives being swallowed by toads. The toad throws it back up."*
 - **SCAMPER:** Reverse a cone attack into a movement Feat.
 
-#### 12. Crabs (Cooties, stamina)
+#### 12. Crabs (Cooties, stamina) ✓ Built in v9.23
 > *"Spread by close contact. Very close."*
 - **Does:** tiny crabs hop onto 4 enemies and jump to anything they touch. Each hop gives a dose of Cooties, and infested enemies stop firing to scratch for 1s at a time.
 - **On the slide:** small grey six-legged specks scuttling over enemy bodies; infested enemies twitch.
@@ -151,7 +151,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Infestation.** Crabs on every enemy on screen; nothing fires for 4s. *"Cases have fallen, apparently due to grooming trends."*
 - **SCAMPER:** Adapt a spreading infection, Eliminate the bullets (the scratching stops them).
 
-#### 13. Van de Graaff (Static, 12s)
+#### 13. Van de Graaff (Static, 12s) ✓ Built in v9.23
 > *"Makes hair stand on end. You have no hair. Something else is standing on end."*
 - **Does:** a charged dome floats beside you for 4s and pulls enemy bullets into it. Each caught bullet charges it. When it ends, it fires one Static arc per bullet.
 - **On the slide:** a soft bright sphere with a shimmer; bullets curve towards it and stick; a crackling burst when it ends.
@@ -161,7 +161,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: St Elmo's Fire.** Absorbs every bullet on screen for 5s, then rolls across the screen discharging. *"Sailors took it as a good omen. It is plasma."*
 - **SCAMPER:** Put Latex Barrier to another use (a magnet, not a wall).
 
-#### 14. Wandering Womb (Soul, stamina)
+#### 14. Wandering Womb (Soul, stamina) ✓ Built in v9.23
 > *"Ancient Greek doctors believed the uterus roamed the body. They were wrong."*
 - **Does:** a ghostly womb drifts in a slow line across the slide, through walls, cursing everything it passes and pulling enemies into its path.
 - **On the slide:** a translucent pear shape with trailing tubes, drifting and bumping like a lost jellyfish.
@@ -173,7 +173,7 @@ Numbers 1 to 5 are the top five.
 
 ### Delight 8
 
-#### 15. Anhydrobiosis (Water, 18s)
+#### 15. Anhydrobiosis (Water, 18s) ✓ Built in v9.23
 > *"Life without water. Tardigrades dry out, wait, and come back."*
 - **Does:** performs itself when a hit would drop you under 20% health. You dry into a husk, untouchable for 2.5s, then rehydrate in a splash that soaks and shoves everything nearby.
 - **On the slide:** you shrivel into a crinkled barrel shape, then swell back in a burst of droplets.
@@ -183,7 +183,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Cryptobiosis.** For the next 30s, anything that would kill you turns you into the husk instead. *"Tardigrades frozen for thirty years were revived in 2016. You are only being shot."*
 - **SCAMPER:** Reverse Out of Body (you shrink and stop instead of leaving).
 
-#### 16. Capacitation (Force, stamina)
+#### 16. Capacitation (Force, stamina) ✓ Built in v9.23
 > *"Sperm cannot fertilise anything until the female tract changes them. Then they can."*
 - **Does:** you drive head-first through a line of enemies, piercing armour and shields. Every status on each enemy you hit is carried forward and added to the next, so the last one in line holds all of them.
 - **On the slide:** your head flares bright and leaves a clean tunnel through the crowd; statuses streak along the path.
@@ -193,7 +193,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Fertilisation.** You zig-zag through every enemy on screen, and everything gathered lands on the last one. *"Usually takes several hours. You did it in one second."*
 - **SCAMPER:** Adapt Belly Flop into a dash, Put Force to use as a carrier.
 
-#### 17. Brown Fat (Oil, stamina)
+#### 17. Brown Fat (Oil, stamina) ✓ Built in v9.23
 > *"Burns fat to make heat. Newborns are full of it."*
 - **Does:** a fat globule lands in the crowd and spreads an Oil slick. After 2s it ignites (Grease Fire). Any Water hit before then makes it erupt (Don't Mix) and fling the crowd apart.
 - **On the slide:** a soft amber blob with a lilac sheen spreading around it; it warms from the centre, bubbles faster, then flares (drawn with `'lighter'`).
@@ -203,7 +203,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Thermogenesis.** Every lubricated enemy on screen ignites at once. *"Hibernating mammals do this to survive winter. Not like this."*
 - **SCAMPER:** Combine Stork Drop with a slick, Reverse Water's usual job.
 
-#### 18. Asymptomatic (Cooties, stamina)
+#### 18. Asymptomatic (Cooties, stamina) ✓ Built in v9.23
 > *"About seventy percent of cases show no symptoms. Until they do."*
 - **Does:** silently infects 4 enemies. Nothing visible happens for 4s. Then every dose lands at once and each spreads to its neighbours (Pandemic).
 - **On the slide:** almost nothing (that is the joke). A faint shimmer on the hosts, a 4s pause, then all of them bloom grey-green at once.
@@ -213,7 +213,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Incubation Period.** Every enemy on screen is silently infected; 5s later all of it lands. *"Fourteen days, on average. You did not wait fourteen days."*
 - **SCAMPER:** Reverse Dutch Oven (delayed and invisible instead of a visible cloud).
 
-#### 19. Rupture of Membranes (Water, stamina)
+#### 19. Rupture of Membranes (Water, stamina) ✓ Built in v9.23
 > *"Spontaneous. Unscheduled. Upholstery affected."*
 - **Does:** a wave gushes from you to the screen edge. It soaks everything, sweeps enemies and bullets outward, and leaves you in clear water.
 - **On the slide:** a ring of foam and bubbles racing outwards, with a frothy leading lip. The foam thins behind it, so it is never a hard ring.
@@ -223,7 +223,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Water Birth.** The screen floods: every enemy is soaked and swept off screen for 3s, and every bullet is gone. *"Calming for the mother. Less so for everyone else."*
 - **SCAMPER:** Magnify Power Shower to full screen.
 
-#### 20. Spinnbarkeit (Mucus, stamina)
+#### 20. Spinnbarkeit (Mucus, stamina) ✓ Built in v9.23
 > *"At ovulation, cervical mucus stretches up to ten centimetres. Someone measured."*
 - **Does:** throws stretchy strings between 4 pairs of enemies. Tied enemies drag on each other and are slowed, and the strings carry statuses between them.
 - **On the slide:** fine glistening strings that sag and stretch as enemies pull apart, and snap back when they close.
@@ -233,7 +233,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Peak Fertility.** One web ties every enemy on screen; a hit on any one carries to all. *"Measurable at home. Not recommended here."*
 - **SCAMPER:** Combine a tether with Mucus.
 
-#### 21. Tonic Immobility (Static, stamina)
+#### 21. Tonic Immobility (Static, stamina) ✓ Built in v9.23
 > *"Turn a shark upside down and it stops moving. Nobody is sure why."*
 - **Does:** every enemy on screen locks still for 1.5s. Anything that moves anyway (bosses, enemies that resist stuns) takes a big Static hit.
 - **On the slide:** everything stops, including drifting particles. Only you move, with a faint crackle over the frozen bodies.
@@ -243,7 +243,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Rigor Mortis.** Every enemy freezes for 4s; anything killed while frozen shatters and hits its neighbours. *"Usually sets in after two to six hours. You managed it in one."*
 - **SCAMPER:** Combine Nap Time with a punishment, Eliminate the slow (a full stop).
 
-#### 22. Ear Candling (Oil, stamina)
+#### 22. Ear Candling (Oil, stamina) ✓ Built in v9.23
 > *"Removes no earwax. This has been tested."*
 - **Does:** plants a lit candle. Enemies are drawn towards it for 4s, and it drips burning oil on anything close.
 - **On the slide:** a cartoon cone candle with a soft flickering flame, wax running down it.
@@ -253,7 +253,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: Candlelight Vigil.** Twelve candles round the screen edge pull enemies outward and burn them. *"Still sold. Still does nothing."*
 - **SCAMPER:** Adapt Baby Monitor into a lure.
 
-#### 23. Hostile Environment (Acid, stamina)
+#### 23. Hostile Environment (Acid, stamina) ✓ Built in v9.23
 > *"Vaginal pH is around four. Most sperm die here."*
 - **Does:** the pH drops in a zone. Everything inside melts and loses armour. Anything that dies inside widens the zone.
 - **On the slide:** no border: a patch where the fluid fizzes, bubbles rise and the acid-green glow is strongest in the middle.
@@ -263,7 +263,7 @@ Numbers 1 to 5 are the top five.
 - **Ultimate: pH 3.8.** The whole screen turns acid: every enemy loses all armour and melts. *"Almost all sperm die here. You did not."*
 - **SCAMPER:** Put the game's own setting to use as a weapon.
 
-#### 24. Shared Placenta (Blood, stamina)
+#### 24. Shared Placenta (Blood, stamina) ✓ Built in v9.23
 > *"Monochorionic. Two tenants, one placenta, one argument."*
 - **Does:** ties 4 pairs of enemies with a thin red vessel for 5s. Half of any damage one takes is copied to its partner, and both bleed.
 - **On the slide:** fine, pulsing red threads that thicken when damage passes along them.
@@ -275,7 +275,7 @@ Numbers 1 to 5 are the top five.
 
 ### Delight 7
 
-#### 25. Productive Cough (Mucus, stamina)
+#### 25. Productive Cough (Mucus, stamina) ✓ Built in v9.23
 > *"Productive is a medical term. It is not a compliment."*
 - **Does:** you hack up a glob that bounces between 5 enemies, sticking a little of itself to each.
 - **On the slide:** a heavy, sagging blob that stretches as it leaves each target.
@@ -283,7 +283,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Chesty**: two globs. / **Hairball**: the last bounce bursts and sticks everything nearby.
 - **Ultimate: Whooping Cough.** Eight globs, eight bounces each. *"Historically known as the hundred-day cough."*
 
-#### 26. Hirudotherapy (Blood, 12s)
+#### 26. Hirudotherapy (Blood, 12s) ✓ Built in v9.23
 > *"Medicinal leeches were cleared by the FDA in 2004."*
 - **Does:** leeches latch onto 4 enemies. Those enemies bleed even while still (bleeding normally needs them to move), and each tick heals you a little.
 - **On the slide:** dark, glossy, segmented shapes clinging on and pulsing as they feed.
@@ -291,7 +291,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Anticoagulant Saliva**: bleeding lasts twice as long. / **Engorged**: leeches burst when full, splashing bleed onto neighbours.
 - **Ultimate: Jar of Leeches.** A leech on every enemy on screen; all bleeding heals you. *"France imported over forty million leeches in 1833. This is a small jar."*
 
-#### 27. Lipid Bilayer (Oil, 12s)
+#### 27. Lipid Bilayer (Oil, 12s) ✓ Built in v9.23
 > *"Selectively permeable."*
 - **Does:** lays a membrane wall between you and the crowd for 4s. Your shots pass out; enemy bullets slide along it; enemies that push through are lubricated and slowed.
 - **On the slide:** a curving double line of beads (phospholipid heads) with a soft sheen between, rippling where things touch it.
@@ -299,7 +299,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Ion Channel**: enemies that cross are shocked. / **Vesicle**: the wall curls into a ring around you.
 - **Ultimate: Liposome.** A membrane sphere round you for 6s: bullets slide off, and enemies that touch it are lubricated and flung. *"Used to deliver drugs into cells. It works on you too."*
 
-#### 28. Biofilm (Mucus, stamina)
+#### 28. Biofilm (Mucus, stamina) ✓ Built in v9.23
 > *"Most bacteria live like this. Antibiotics struggle with it."*
 - **Does:** a slime mat lands and grows slowly towards nearby enemies, slowing and snotting anything on it, for 6s.
 - **On the slide:** a soft mottled film that creeps outward in irregular lobes.
@@ -307,7 +307,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Quorum Sensing**: grows twice as fast with 5+ enemies on it. / **Persister Cells**: enemies that leave stay snotty for 3s.
 - **Ultimate: Dental Plaque.** The film covers the screen and thickens every second. *"Forms within hours of brushing."*
 
-#### 29. Shed the Lining (Blood, stamina)
+#### 29. Shed the Lining (Blood, stamina) ✓ Built in v9.23
 > *"Rebuilt monthly. Removed on schedule."*
 - **Does:** a slow red tide rolls across the screen from one edge, sweeping enemies with it and leaving a Crime Scene pool.
 - **On the slide:** a soft wash with a darker, frilled leading edge and drifting clots; never a flat fill.
@@ -315,7 +315,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Heavy Flow**: a wider tide. / **Irregular**: a second tide from the opposite edge.
 - **Ultimate: Menstrual Synchrony.** Every enemy on screen bleeds in sync; all of it lands in three huge pulses. *"Widely believed. Not supported by the data. Happening anyway."*
 
-#### 30. Osmosis (Water, stamina)
+#### 30. Osmosis (Water, stamina) ✓ Built in v9.23
 > *"Moves from high concentration to low until everything is equal."*
 - **Does:** soaks the most afflicted enemy nearby, and every status on it flows into its neighbours at full strength.
 - **On the slide:** a soft swell of water round the target, with status motes drifting out to the others.
@@ -323,7 +323,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Hypotonic**: the source bursts after spreading. / **Gradient**: it spreads twice (to the neighbours' neighbours).
 - **Ultimate: Reverse Osmosis.** Every status on every enemy on screen is pulled into the toughest one, which then bursts and spreads all of it. *"Requires high pressure. Provided."*
 
-#### 31. Aerosol (Cooties, stamina)
+#### 31. Aerosol (Cooties, stamina) ✓ Built in v9.23
 > *"A sneeze can carry droplets eight metres. You are about fifty micrometres long."*
 - **Does:** a cone sneeze giving two doses of Cooties. The droplets hang as a cloud for 3s.
 - **On the slide:** a fan of fine droplets that slows and hangs, slowly drifting with the current.
@@ -331,7 +331,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Droplet**: the cloud follows the current twice as far. / **Fomite**: the cloud lasts 8s.
 - **Ultimate: Superspreader.** Every sick enemy sneezes every 0.5s for 5s. *"R number: yes."*
 
-#### 32. Self-Lubricating (Oil, 11s)
+#### 32. Self-Lubricating (Oil, 11s) ✓ Built in v9.23
 > *"Produced on demand. Usually."*
 - **Does:** coats you for 4s. You swim faster, enemies that touch you slide off and are flung, and every contact lubricates them.
 - **On the slide:** a lilac sheen across your body, beads running off your tail.
@@ -339,7 +339,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Bowling**: flung enemies hit whatever they land on. / **Long-Lasting**: lasts twice as long.
 - **Ultimate: Frictionless.** 6s where nothing that touches you can hurt you, and everything you touch is bowled across the screen. *"Coefficient of friction: zero."*
 
-#### 33. Anticoagulant (Blood, stamina)
+#### 33. Anticoagulant (Blood, stamina) ✓ Built in v9.23
 > *"Warfarin was first sold as rat poison. It still is."*
 - **Does:** every bleeding enemy on screen takes all of its remaining bleed at once, and splashes bleed onto its neighbours.
 - **On the slide:** each bleeding enemy bursts in a soft red puff that spreads into the fluid.
@@ -347,7 +347,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Thinner**: the splash makes neighbours bleed twice as hard. / **Heparin**: it fires twice, 1s apart.
 - **Ultimate: Exsanguinate.** Every bleeding enemy bursts, the bleeding spreads, and the neighbours burst too. *"About five litres in the average adult. Considerably fewer now."*
 
-#### 34. Fertile Window (Mucus, 12s)
+#### 34. Fertile Window (Mucus, 12s) ✓ Built in v9.23
 > *"Open about six days a month."*
 - **Does:** lays a mucus lane ahead of you for 5s. You swim 40% faster along it; enemies on it are snotty and stuck.
 - **On the slide:** a soft, glistening channel with fine aligned strands, like a current you can see.
@@ -357,7 +357,7 @@ Numbers 1 to 5 are the top five.
 
 ### Delight 6
 
-#### 35. Surfactant (Oil, 12s)
+#### 35. Surfactant (Oil, 12s) ✓ Built in v9.23
 > *"Lowers surface tension so the lungs don't stick shut."*
 - **Does:** a zone where nothing can grip: enemies inside slide out to the edge, lubricated, and bullets skid off course.
 - **On the slide:** a patch of fine lilac beads that scatter outward when anything enters.
@@ -365,7 +365,7 @@ Numbers 1 to 5 are the top five.
 - **Lv 4:** **Detergent**: it strips enemy statuses and splashes them outward. / **Foam**: the zone follows you.
 - **Ultimate: Oil Spill.** The whole screen becomes a slick, and every enemy loses its grip at once. *"Clean-up is expected to take eleven years."*
 
-#### 36. Lactic Acid (Acid, stamina)
+#### 36. Lactic Acid (Acid, stamina) ✓ Built in v9.23
 > *"Long blamed for muscle soreness. It isn't the cause."*
 - **Does:** charges while you sprint (the bar fills inside the Feat slot). When performed, it bursts acid around you, scaled by how far you sprinted.
 - **On the slide:** fizz builds inside your body as you sprint, then vents outward in a soft acid ring.
@@ -437,7 +437,7 @@ A rare, oversized version of a Feat. It works like weapon Mastery: only one Feat
 | Defence and healing | Latex Barrier (Blood), Kiss It Better (Cooties), Nap Time (Soul), Out of Body (Soul) |
 | Character-locked | Lightbulb Moment (Static, Bright Spark), Elbows Out (Force, Firstborn), Come Play With Us (Force, Twins), Belly Flop (Force, Chonker) |
 
-## 7. New three-type reaction: Bloody Show
+## 7. New three-type reaction: Bloody Show ✓ Built in v9.23
 
 Mucus could only reach one three-type reaction (Flu Season), while every other type had two or three. Bloody Show gives Mucus a second one, and uses Blood and Static, two of the types with the fewest.
 

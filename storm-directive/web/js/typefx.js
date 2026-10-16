@@ -260,7 +260,7 @@ const RX_STYLE = {
   zap: ['bath', 'overload', 'livewire', 'poltergeist', 'cardiac', 'shortcircuit', 'battery', 'shakes', 'overcharged'],
   splash: ['waterlogged', 'publicpool', 'dontmix', 'washedoff', 'snotslick', 'acidrain', 'diluted', 'rinse', 'softened'],
   goo: ['heartburn', 'ectoplasm', 'snotrocket', 'booger', 'snailtrail', 'scab', 'gluedown', 'snotshield'],
-  blood: ['crimescene', 'hemorrhage', 'bloodclot', 'bloodpact', 'ulcer', 'gorged', 'dirtyneedle', 'thinned', 'topup'],
+  blood: ['crimescene', 'hemorrhage', 'bloodclot', 'bloodpact', 'ulcer', 'gorged', 'dirtyneedle', 'thinned', 'topup', 'bloodyshow'],
   ghost: ['holywater', 'soulrot', 'lastrites', 'possession', 'patientzero', 'zombie', 'baptism'],
   germ: ['pandemic', 'sushi', 'fluseason', 'sporesneeze', 'downstream', 'penicillin'],
   fire: ['greasefire', 'napalm', 'flareup', 'oilrig', 'fireball'],

@@ -154,7 +154,7 @@ function chemBowl(e, from, f, dmg, rsrc) { shove(e, from.x, from.y, f); e.bowlT 
 // ---------------------------------------------------------------- triples (three statuses at once)
 const TRIPLES = [
   ['zombie', ['arcane', 'soul', 'poison']], ['baptism', ['salt', 'soul', 'oxi']], ['napalm', ['fire', 'oxi', 'shock']],
-  ['flesheating', ['fire', 'arcane', 'poison']], ['fluseason', ['ice', 'poison', 'salt']], ['oilrig', ['shock', 'salt', 'oxi']],
+  ['flesheating', ['fire', 'arcane', 'poison']], ['fluseason', ['ice', 'poison', 'salt']], ['bloodyshow', ['ice', 'arcane', 'shock']], ['oilrig', ['shock', 'salt', 'oxi']],
 ];
 function chemTriple(e, dmg, src, rsrc) {
   if (e.triT > G.t) return;
@@ -181,6 +181,24 @@ function chemTriple(e, dmg, src, rsrc) {
       break;
     case 'fluseason': { // the whole screen catches it
       let k = 0; far(700, n => { if (k++ < 30) addSick(n, 1, e.poisonDps || dmg * 0.14, rsrc.wname); });
+      break;
+    }
+    case 'bloodyshow': { // labour: six contractions over 3s, each a squeeze, a short stun and a spray of bloody mucus (bosses: no stun, harder)
+      const boss = !plainFoe(e), base = (dmg * 0.7 + 6) * rm;
+      e.labourT = G.t + 3.1;
+      for (let i = 0; i < 6; i++) after(0.5 * (i + 1), () => {
+        if (!G || e.dead) return;
+        const k = (i === 5 ? 2.5 : 1) * (boss ? 1 + 0.5 * (i + 1) : 1);
+        damageEnemy(e, base * k, Object.assign({}, rsrc, { elem: 'shock' }));
+        if (!boss && !e.dead) e.dazeT = Math.max(e.dazeT || 0, G.t + 0.2);
+        e.squeezeT = G.realT;
+        forNear(e.x, e.y, i === 5 ? 150 : 110, o => {
+          if (o === e || o.charmed) return;
+          o.chill = 2.5; o.chillAmt = Math.min(0.6, (o.chillAmt || 0) + 0.12);
+          o.bloodT = Math.max(o.bloodT || 0, 3); o.bloodN = Math.min(5, (o.bloodN || 0) + 1); o.bloodDps = Math.max(o.bloodDps || 0, base * 0.2); o.bloodBy = rsrc.wname;
+        });
+        fxParts('drop', e.x, e.y, i === 5 ? '#c9184a' : '#b5c96a', i === 5 ? 14 : 6, i === 5 ? 220 : 150, 0.7, 3);
+      });
       break;
     }
     case 'oilrig': // every oil slick nearby goes up
