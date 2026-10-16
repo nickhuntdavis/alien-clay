@@ -454,6 +454,7 @@ function projHit(pr, e) {
 }
 // A projectile reaching the end of its flight.
 function projEnd(pr) {
+  armEnd(pr); // (Bogey Roller, armoury.js)
   if (isOrb(pr) || (pr.style === 'void' && pr.w && pr.w.id === 'void')) orbCollapse(pr);
   if (pr.style === 'flame' && Math.random() < 0.12) fxParts('smoke', pr.x, pr.y, '#2e3330', 1, 25, 0.8, 5, -Math.PI / 2, 0.8); // flames leave smoke
   if (pr.w.id === 'flamer' && hasSig(pr.w, 'napalm') && Math.random() < 0.2 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 26, life: 2, max: 2, dps: pr.dmg * 3, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: Object.assign({}, pr.src, { wname: 'Repeating On You' }) });
@@ -544,7 +545,7 @@ function applyAdapt(w, s) {
     case 'mines': s.knock = (s.knock || 0) + 120 * P.pierce; break;
     case 'siphon': s.pierce = (s.pierce || 0) + P.pierce; break;
     case 'orbit': case 'ulcer': s.hitCd = 0.4 / (1 + 0.35 * P.pierce); s.spin *= P.haste; s.radius *= 1 + (P.projSpeed - 1) * 0.6; s.size *= P.magMult; break;
-    case 'paddle': case 'flail': case 'papercut': {
+    case 'paddle': case 'flail': case 'papercut': case 'gutpunch': case 'achoo': case 'hairbrush': case 'grubby': case 'butterknife': case 'spiritfingers': {
       // The swing's reach grows with area; the target range covers the reach plus a body width.
       s.reach = s.range * s.area * (w.id === 'flail' ? 1 + 0.12 * P.pierce : 1);
       // The Paddle starts short and grows into its full reach on an exponential curve: 60% at Lv 1, about

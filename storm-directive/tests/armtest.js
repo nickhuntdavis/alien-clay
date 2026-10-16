@@ -1,5 +1,5 @@
-// The Armoury (armoury.js): every damage type has at least five weapons, and each new weapon fires and deals
-// damage at Lv 10 with no upgrades, with both Lv 5/10 forks on the left, and with both on the right.
+// The Armoury (armoury.js): every damage type has at least five weapons and at least one melee, fun, area and pet
+// weapon (ARM_CLASS); each new weapon deals damage at Lv 10 with no upgrades, with both forks on the left, and on the right.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -26,11 +26,15 @@ const { chromium } = require('playwright');
         rows.push(id + (side < 0 ? '' : side ? ' R' : ' L') + ' ' + Math.round(dealt / 6) + '/s');
       }
     }
-    return { count, rows, bad };
+    const spread = {};
+    for (const id in WEAPONS) { const d = WEAPONS[id]; if (d.merged || d.seqOnly) continue; const c = ARM_CLASS[id]; if (!c) { bad.push(id + ': no play style'); continue; } (spread[d.elem] || (spread[d.elem] = {}))[c] = ((spread[d.elem] || {})[c] || 0) + 1; }
+    for (const el in spread) for (const c of ['melee', 'fun', 'area', 'pet']) if (!spread[el][c]) bad.push(el + ': no ' + c);
+    const total = {}; for (const id in ARM_CLASS) total[ARM_CLASS[id]] = (total[ARM_CLASS[id]] || 0) + 1;
+    return { count, rows, bad, total };
   });
   const thin = Object.entries(r.count).filter(([k, n]) => n < 5);
   if (thin.length) console.log('FAIL fewer than 5 weapons:', JSON.stringify(thin));
   if (r.bad.length) console.log('FAIL', r.bad.join('; '));
-  console.log(JSON.stringify(r.count)); console.log(r.rows.join(' | '));
+  console.log(JSON.stringify(r.count), JSON.stringify(r.total)); console.log(r.rows.join(' | '));
   console.log('ERRORS ' + JSON.stringify(errors.slice(0, 5))); await b.close();
 })();

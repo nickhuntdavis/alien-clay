@@ -2183,7 +2183,6 @@ function detonateMine(pr) {
       onEnd: z => aoe(z.x, z.y, s.explode, s.dmg, pr.src, '#c9184a') });
   } else { const k = mineScale(pr), ch = pr.charge || 1; aoe(pr.x, pr.y, s.explode * k.r * Math.min(1.6, Math.sqrt(ch)), s.dmg * k.k * ch, pr.src, pr.color); }
   afterMine(pr);
-  armMine(pr); // (Pimple Popper, armoury.js)
 }
 
 function updateSpells(dt) { updateSpellList(G.spells, dt); }
@@ -2687,6 +2686,7 @@ function update(dt) {
   updateProjectiles(dt * PROJ_K);
   updateZones(dt);
   updateTurrets(dt);
+  armTick(dt); // (the Armoury's pets and bowling, armoury.js)
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
   updateEnemies(dt);
   updateTerrain(dt);
