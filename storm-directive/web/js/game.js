@@ -1116,7 +1116,7 @@ function armourRegen(dt) {
 function healPlayer(n, silent) {
   const p = me(), P = G.P;
   const before = p.hp;
-  p.hp = Math.min(P.maxHp, p.hp + n * P.healMult);
+  p.hp = Math.min(P.maxHp, p.hp + n * P.healMult * pstHeal()); // (Sick: pstatus.js)
   if (!silent && p.hp - before >= 1) floatText(p.x, p.y - 24, '+' + Math.round(p.hp - before), '#8ac926', 15);
 }
 
@@ -1135,7 +1135,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
-  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt() * nfHurtMul(ent, kind, from); // (Personal Space: seqfeats.js; the v9.23 Feats: newfeats.js)
+  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt() * nfHurtMul(ent, kind, from) * pstHurtMul(G.hitFrom, kind); // (Personal Space: seqfeats.js; the v9.23 Feats: newfeats.js)
   dmg = relicDamageIn(dmg, ent);
   if (dmg > 0) dmg = junkHurtIn(dmg, ent, kind); // (Now You See Me, Phlegm, Glass Case: junk.js)
   if (dmg <= 0) return;
@@ -1154,7 +1154,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
   if (nfLethal(d)) return; // (Anhydrobiosis: newfeats.js)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
-  p.hp -= d; tantrumHurt(d); seqHurt(); // (a clean boss fight: seqlock.js)
+  p.hp -= d; tantrumHurt(d); seqHurt(); pstHit(hf); // (Snotty, Sick, Soaking wet: pstatus.js) // (a clean boss fight: seqlock.js)
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
   if (ent && !ent.dead) { G.grudge = ent; tutShow('grudge'); }
   G.lastHitEnt = ent || null;
@@ -1353,7 +1353,7 @@ function eBullet(x, y, a, speed, dmg, r, color) {
   if (!BUL.keep[G.bulSeq]) return;
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
   speed *= (1 + Math.min(0.7, PT() / 1500)) * G.P.bulletSpeed * G.evm.bulspd * heatBullet();
-  G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt });
+  G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt, pel: pstElem(shooterEnt) }); // (a typed bullet: pstatus.js)
   // A boss opening fire flares up.
   if (shooterEnt && shooterEnt.boss && !shooterEnt.egg && !(shooterEnt.fireFxT > G.realT)) { shooterEnt.fireFxT = G.realT + 0.15; G.fx.push({ type: 'flash', x: shooterEnt.x, y: shooterEnt.y, r: shooterEnt.r * 1.8, color: shooterEnt.bphase ? '#ff3b3b' : shooterEnt.def.color, life: 0.15, max: 0.15 }); }
 }
@@ -2287,7 +2287,7 @@ function updatePlayer(dt) {
   const speed = 165 * P.speed * oobSpeed() * chemPlayerSpeed() * nfSpeed() * // (LUBED UP: chem.js; the v9.23 Feats: newfeats.js)
     // (base 165: was 150; Out of Body: faster)
     (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed() * pstSpeed(); // (Snotty: pstatus.js)
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
@@ -2683,6 +2683,7 @@ function update(dt) {
   safely('introTick', () => introTick()); // first sightings
   safely('tutTick', () => tutTick()); // first-time tutorial cards (tutorial.js)
   chemPlayerZones(); // (your own puddles: chem.js)
+  pstTick(dt); // (Sick: pstatus.js)
   safely('grantsTick', () => grantsTick(dt)); // stain grants (grants.js)
   safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
   safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)

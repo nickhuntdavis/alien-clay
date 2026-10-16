@@ -40,6 +40,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
    - [Wildcard weapons](#wildcard-weapons)
    - [GFP variants](#gfp-variants)
 31. [Enemies](#enemies)
+   - [Typed bullets and your statuses](#typed-bullets-and-your-statuses)
    - [First sightings](#first-sightings)
 32. [Rival champions](#rival-champions)
 33. [Terrain](#terrain)
@@ -3091,6 +3092,17 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Second Dose** | 45 | 12 | 92 | 0 | 6 | Spawned by others |  |  | Laser lock-on, burst fire |
 | **Broodling** | 10 | 6 | 108 | 0 | 0.5 | Spawned by others |  |  | broodling |
 | **Spore** | 6 | 4 | 84 | 0 | 0.3 | Spawned by others | 10 | Acid x1.3 | Swims straight at you |
+
+### Typed bullets and your statuses
+
+Some enemies shoot bullets with a damage type, marked in white on the black speck (a highlight, germs, a glint or a spark). A typed bullet that lands gives you a status for a few seconds; each hit adds time, up to a cap. Your own Water puddles rinse Snotty and Sick off. Bosses shoot plain bullets.
+
+| Shooter | Bullet | Status on you | Effect |
+|---|---|---|---|
+| Antibody | Mucus | **Snotty** (+1.2s a hit, up to 3s) | You swim 20% slower. Water washes it off, and it will not stick to you while you are wet. |
+| Cytokine Caster | Cooties | **Sick** (+2s a hit, up to 5s) | You lose 1% of max health a second (never the last point) and heal at half rate. |
+| Diatom | Water | **Soaking wet** (+3s a hit, up to 6s) | Static bullets hit you 60% harder (Zapped in the Bath). Also washes off Snotty and acid. |
+| Killer T-Cell, Booster, Second Dose | Static | none | Plain damage, unless you are wet. |
 
 ### First sightings
 

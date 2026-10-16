@@ -140,6 +140,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
 
 ## Open threads and ideas
+- Player statuses (`pstatus.js`, v9.25): Antibody bullets = Mucus (Snotty: 20% slower, 3s cap), Cytokine Caster = Cooties (Sick: 1% max HP/s, never lethal, half healing, 5s cap), Diatom = Water (Soaking wet: Static bullets x1.6, washes off Snotty and acid, 6s cap), Killer T-Cell/Booster/Second Dose = Static. Bosses untyped. This unblocks ENEMY_IDEAS build order step 1 (Hayfever Cell, Phlegm Hocker, Snot Bubble's late burst). Open: player-side Lubricated, typed boss bullets.
 - Boss pack, second 6 (not built): the Hangover, the Copper Coil, the Monthly Visitor, Thrush, the Snip, the Little Blue Pill. Same pattern as `bosspack.js` (a `tier`, one gimmick that teaches a mechanic, sprite in `MICROBES`, 3 relics, an ENTOURAGE entry, `phase` lines); force with `wave20.js --boss <id>`.
 - Level 2 (internal next: "Esophagus Descent"; never show that name) is not built. Its sample `s008` is a locked placeholder. Level select teases Level 3 and Level 4.
 - Possible: a longer Level 1 (bigger map), and a body-map level select once more levels exist.

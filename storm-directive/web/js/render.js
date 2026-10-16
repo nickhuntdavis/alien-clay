@@ -1922,6 +1922,7 @@ function render() {
     for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = b.r * 0.45 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
     ctx.fill();
   }
+  pstBulletMarks(vis); // (typed bullets: pstatus.js)
   WORLD_DF = df;
 
   drawOverkill();
@@ -2399,6 +2400,7 @@ function drawHud() {
   if (G.chargeUpT > G.t) chips.push(['CHARGED UP', '#f4ff8a']);
   if (G.absorbOn) chips.push(['CRUMPLE ZONE', '#ffe94a']);
   if (G.manual) chips.push(['MANUAL', XR.white]);
+  pstChips(chips); // (Snotty, Sick, Soaking wet: pstatus.js)
   statusIntroCheck(chips); // first time ever for a buff or debuff: a tutorial card (statusintro.js)
   // Stacked down the left edge, below the boss bar.
   ctx.font = 'bold 10px ' + MONO; ctx.textAlign = 'left';

@@ -269,6 +269,13 @@ const AI = { sperminator: 'Laser lock-on, burst fire, comes back once as a Secon
 const mm = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 for (const [id, e] of Object.entries(D.ENEMIES).sort((a, b) => a[1].from - b[1].from)) p(`| **${esc(e.name)}** | ${e.hp} | ${e.dmg} | ${e.speed} | ${e.armour || 0} | ${e.xp} | ${e.from >= 9999 ? 'Spawned by others' : mm(e.from)} | ${e.cap || ''} | ${wr(e)} | ${e.does || (e.endo ? 'Laser lock-on, burst fire' : AI[e.ai] || e.ai)} |`);
 p('');
+p('### Typed bullets and your statuses'); p('');
+p('Some enemies shoot bullets with a damage type, marked in white on the black speck (a highlight, germs, a glint or a spark). A typed bullet that lands gives you a status for a few seconds; each hit adds time, up to a cap. Your own Water puddles rinse Snotty and Sick off. Bosses shoot plain bullets.'); p('');
+p('| Shooter | Bullet | Status on you | Effect |'); p('|---|---|---|---|');
+p('| Antibody | Mucus | **Snotty** (+1.2s a hit, up to 3s) | You swim 20% slower. Water washes it off, and it will not stick to you while you are wet. |');
+p('| Cytokine Caster | Cooties | **Sick** (+2s a hit, up to 5s) | You lose 1% of max health a second (never the last point) and heal at half rate. |');
+p('| Diatom | Water | **Soaking wet** (+3s a hit, up to 6s) | Static bullets hit you 60% harder (Zapped in the Bath). Also washes off Snotty and acid. |');
+p('| Killer T-Cell, Booster, Second Dose | Static | none | Plain damage, unless you are wet. |'); p('');
 p('### First sightings'); p('');
 p('The first time you ever see each kind of enemy (once ever, not once a run), the slide stops and it gets a short introduction: what it is and how to beat it. It then goes in the Field Guide under ENEMIES. Settings > Data > Tutorials resets them so you can see them again. Bosses always get their full introduction.'); p('');
 p('**Spotlight.** That first meeting also gets the stage for about 17 seconds: it arrives as a pack, most new spawns are more of it, the rest of the crowd near you backs off and scripted waves wait, so you can get a feel for it. Types you have already met just join the run as normal.'); p('');

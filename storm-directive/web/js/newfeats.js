@@ -140,7 +140,7 @@ const NF_FIRE = {
   },
   fecaltransplant(w, s, t, src, p) {
     const N = NFS(), bad = nfPath(w, 'b');
-    G.acidOn = 0; G.sizzle = 0; G.tangleT = 0;
+    G.acidOn = 0; G.sizzle = 0; G.tangleT = 0; pstClear(); // (Snotty, Sick: pstatus.js)
     for (const b of G.enemies) if (b.stuck && !b.dead) { b.stuck = null; shove(b, p.x, p.y, 300); }
     if (!bad) healPlayer(G.P.maxHp * (nfPath(w, 'a') ? 0.2 : 0.1));
     N.shedT = G.t + s.dur; N.shedK = bad ? 3 : 2; N.shedDmg = s.dmg; N.shedSrc = nfAs(src, 'poison');
@@ -1345,7 +1345,7 @@ function nfWait(w, target) {
     case 'selflube': return nfCountNear(p.x, p.y, 160) < 3;
     case 'shedlining': return nfCountNear(p.x, p.y, 500) < 4;
     case 'fertilewindow': return !acquire('nearest', 450, p.x, p.y);
-    case 'fecaltransplant': return p.hp > G.P.maxHp * 0.7 && !(G.acidOn > G.t) && !(G.tangleT > G.t) && !G.bogeyN;
+    case 'fecaltransplant': return p.hp > G.P.maxHp * 0.7 && !(G.acidOn > G.t) && !(G.tangleT > G.t) && !G.bogeyN && !pstOn();
     case 'anticoagulant': { let n = 0; for (const e of G.enemies) if (!e.dead && e.bloodT > 0 && !e.charmed && nfOnView(e)) { n += e.boss ? 2 : 1; if (n >= 2) return false; } return true; }
     case 'lacticacid': return (w.nfCharge || 0) < 0.5 || !acquire('nearest', w.s.area, p.x, p.y);
     case 'osmosis': return !acquireMany('nearest', w.s.range, p.x, p.y, 12).some(e => chemCount(e) > 0);
