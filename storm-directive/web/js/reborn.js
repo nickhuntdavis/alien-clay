@@ -64,7 +64,7 @@ PROFILES.reborn = {
   weapons: ['dejavu', 'ghosts', 'karma'],
   unlock: { text: 'Reach Rank 3 with every other sequence', have: () => Object.keys(PROFILES).filter(id => id !== 'reborn' && profRank(id) >= 3).length, need: 8 },
 };
-if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK.reborn = { short: 'Old Soul', color: REBORN.color, tag: 'REMEMBERS A PAST LIFE', quote: 'Have we met? I feel like I have done this before.', stats: [3, 3, 3, 4] };
+if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK.reborn = { short: 'Old Soul', color: REBORN.color, tag: 'PROFESSIONALLY CURSED', quote: 'Have we met? I have died here before. Twice.', stats: [3, 3, 3, 4] };
 SEQ_ABILITY.reborn = { name: 'Second Life', short: 'REBORN', cd: 45,
   desc: 'When your health drops below 25%, you die a little and are prawn again: 40% of your health back, 2s in which nothing can hurt you, and a burst of light that hurts everything near you. Every 45s at most.',
   fire(manual) {

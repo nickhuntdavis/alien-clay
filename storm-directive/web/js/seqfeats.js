@@ -8,7 +8,7 @@
 const SEQ_FEAT_COL = id => (typeof SEQ_LOOK !== 'undefined' && SEQ_LOOK[id] ? SEQ_LOOK[id].color : '#ffffff');
 Object.assign(SPELLS, {
   elbows: { name: 'Elbows Out', icon: 'EO', elem: 'phys', kind: 'seqfeat', color: SEQ_FEAT_COL('vanguard'), dir: 'nearest', seqOnly: 'vanguard',
-    desc: 'You throw your elbows about. Everything close to you is hit and shoved well back. Firstborn only.',
+    desc: 'You throw your elbows about. Everything close to you is hit and shoved well back. You were here first. Firstborn only.',
     base: { dmg: 30, cd: 8, area: 140, range: 140 },
     lv: { 3: { area: 0.2 }, 5: { dmg: 0.5 }, 7: { cd: -0.2 } } },
   bellyflop: { name: 'Belly Flop', icon: 'BF', elem: 'phys', kind: 'seqfeat', color: SEQ_FEAT_COL('bruiser'), dir: 'cluster', seqOnly: 'bruiser',
@@ -16,7 +16,7 @@ Object.assign(SPELLS, {
     base: { dmg: 55, cd: 10, area: 130, range: 260 },
     lv: { 3: { area: 0.2 }, 5: { dmg: 0.5 }, 7: { cd: -0.2 } } },
   lightbulb: { name: 'Lightbulb Moment', icon: 'LM', elem: 'shock', kind: 'seqfeat', color: SEQ_FEAT_COL('nerd'), dir: 'nearest', seqOnly: 'nerd',
-    desc: 'A bolt of inspiration jumps from enemy to enemy, up to six of them. Bright Spark only.',
+    desc: 'A bolt of inspiration jumps from enemy to enemy, up to six of them. None of them asked. Bright Spark only.',
     base: { dmg: 34, cd: 7, count: 6, range: 420 },
     lv: { 3: { count: 2 }, 5: { dmg: 0.5 }, 7: { cd: -0.2 } } },
   doubleact: { name: 'Come Play With Us', icon: 'DA', elem: 'phys', kind: 'seqfeat', color: SEQ_FEAT_COL('twins'), dir: 'nearest', seqOnly: 'twins',

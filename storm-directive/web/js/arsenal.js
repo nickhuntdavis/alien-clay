@@ -521,6 +521,7 @@ function meleeHit(w, e, dmg, src) {
   } else if (w.id === 'flail') e.lashT = G.t + 2;
   else if (w.id === 'onesie' && G.pair.nappyrash) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, dmg * 0.1, src); }
   damageEnemy(e, dmg * m, src);
+  armMelee(w, e, dmg * m, src); // (armoury.js)
   if (hasSig(w, 'smother') && !e.dead) {
     e.smother = (e.smother || 0) + 1;
     if (e.smother >= 3) {
