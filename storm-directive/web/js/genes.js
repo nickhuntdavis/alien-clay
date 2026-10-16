@@ -25,7 +25,7 @@ const PROFILES = {
     desc: 'No spitting. Grows something sharp and swims straight through the meat grinder.', weapons: ['flail', 'wake', 'peekaboo'],
     unlock: { text: 'Beat 25 bosses (all runs)', have: () => META.life.bosses, need: 25 } },
   pusher: { name: 'The Good Eater', trait: 'Healthy Appetite', fmt: k => `+${+(0.5 * k).toFixed(1)} HP/s regeneration`, apply: (P, k) => { P.regen += 0.5 * k; },
-    desc: 'Aggressive self-healing, infections and soapy spit.', weapons: ['parasite', 'bubble', 'orbit'],
+    desc: 'Aggressive self-healing, infections and second-hand bath water.', weapons: ['parasite', 'bubble', 'orbit'],
     unlock: { text: 'Pick up 100 power-ups (all runs)', have: () => META.life.pickups, need: 100 } },
   acid: { name: 'The Problem Child', trait: 'Overtired', fmt: k => `up to +${pc(0.12 * k)} damage, the closer you are to bursting`, apply: () => {},
     desc: 'Dissolves things. Gets angrier the more you are hurt.', weapons: ['venom', 'flamer', 'redtape'],
