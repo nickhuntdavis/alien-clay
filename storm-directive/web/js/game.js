@@ -2297,7 +2297,7 @@ function updatePlayer(dt) {
   // Swim physics: the head can only turn so fast (traction), thrust drops mid-turn,
   // and sideways momentum drifts off rather than stopping dead.
   if (p.hd == null) p.hd = p.face;
-  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1) * (G.onIce ? 0.35 : 1);
+  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1) * (G.onIce ? 0.35 : 1) * pstGrip(); // (Lubricated: pstatus.js)
   const cur = Math.hypot(p.vx, p.vy);
   let thrust = 0;
   if (m > 0.05) {

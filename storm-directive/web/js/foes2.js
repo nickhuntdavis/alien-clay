@@ -118,6 +118,7 @@ const f2msg = (e, txt, c, gap) => { if (G.f2msgT > G.t) return; G.f2msgT = G.t +
 
 function foes2Kill(e, src) {
   const D = e.def;
+  if (D.f3kill) foes3Kill(e, src); // (Snot Bubble: foes3.js)
   if (e.capd && G.typeN && G.typeN[e.capd] > 0) G.typeN[e.capd]--;
   // A Stem Cell's raw material: ordinary enemies that just died.
   if (!e.elite && !e.boss && !e.rival && !e.charmed && !e.revived && D.w > 0 && !D.support && !e.bossDef) {
@@ -150,6 +151,7 @@ function foes2Dmg(e, d, src) {
       if (D.litmus && m < 1 && !src.dot && !(e.resT > G.realT)) { e.resT = G.realT + 1.2; floatText(e.x, e.y - e.r - 10, 'RESISTED', XR.dim, 11, 0.7); }
     }
   }
+  if (D.f3dmg) foes3Dmg(e, src); // (Snot Bubble swells: foes3.js)
   if (e.ifn > 0 && d > 0) { const a = Math.min(e.ifn, d); e.ifn -= a; d -= a; if (e.ifn <= 0) spawnPart(e.x, e.y, '#bde0fe', 4, 80, 0.3, 2); }
   if (D.puff && (IN_AOE || src.zoneHit)) {
     e.puffHit = G.t;
