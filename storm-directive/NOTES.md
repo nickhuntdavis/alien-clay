@@ -127,6 +127,9 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 ## Balance numbers to know
 - Wave mode boss strength: `CAMP.hp` [2.2, 13, 50, 160] and `CAMP.hit` [0.55, 0.82, 1, 1.1]; ordinary waves `CAMP.more` 1.3, `CAMP.dmgK` 1.15, `CAMP.early`/`earlyPT`. Wave 5 is now a tier 1 boss (base HP 1500, dmg 18): with the boss pack the mortal bot wins 11 of 32 (34%), with deaths spread over wave 5 (the tier 1 teachers and their entourage), waves 7 to 9 (rivals) and wave 10. Before the pack it won about 1 in 5 and mostly died to the Pepsinator at wave 5.
 - About 37 boxes per 9-minute wave run (it was 48).
+- v9.23 sim (`wave20.js 4 mortal`, `--feat <id>` for each new Feat): baseline 6/22 wins (27%); with each new Feat forced into a slot 68/187 (36%). Highest: Mosquito, Fecal Transplant, Brown Fat, Fertile Window 6/12 each (50%, 12 runs). 0/4 (noise at n=4, check with more runs if players say so): Anhydrobiosis, Bombardier Beetle, Hirudotherapy, Lipid Bilayer, Osmosis, Shed the Lining, Hagfish (0/6).
+- Sim crash fixed in v9.23: Rubber Johnny's spines are projectiles with no weapon (`w: null`); projHit/projEnd (sigs.js) now skip them. It killed about 1 sim run in 5, baseline included.
+- v9.23 APK not built in its session: the container's network blocked repo.maven.apache.org (429/404), so Gradle could not fetch kotlin-stdlib. Code is at 9.23 / versionCode 273; run the build step of Fast APK once Maven Central is reachable.
 - v8.59 sim (`wave20.js 4 mortal`, before the v8.58 merge): 2 wins of 4, deaths at waves 15 and 20. That is the top of the bot band. If humans find it easy, slow junk DNA (`JUNK.every`) first.
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
 
