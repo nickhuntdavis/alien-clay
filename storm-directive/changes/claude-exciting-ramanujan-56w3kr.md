@@ -5,3 +5,4 @@
 - Save data: none (META.grants/grantOff left in place, harmless).
 - Hooks: removed grantsStart (game.js), grantsTick (game.js), drawGrants (render.js), grantsHtml/grantsBind (ui.js).
 - Risk: tutorial.js 'stains' card text still mentions grants (unreachable now).
+- Also: deleted the unreachable `stains` tutorial card (tutorial.js). Risk: none.

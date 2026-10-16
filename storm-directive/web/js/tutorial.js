@@ -83,12 +83,6 @@ const TUT_CARDS = {
     head: 'WHAT IT DOES', tips: [
       'Allies draw fire and hit their old friends. They are not yours for long.',
       'Do not shoot them: your weapons ignore them anyway.'] }),
-  stains: () => ({ title: 'YOUR FIRST STAIN', name: 'STAINS', colour: PAL.you,
-    what: 'Everything on the slide starts in greyscale, you included. Stains bring the colour back, one kind at a time.',
-    head: 'HOW THEY WORK', tips: [
-      'A research grant is yours for good: on in every run from now on. More grants turn up as you level.',
-      'Stain cards in DNA strands colour one more thing for that run only, and bring a boon.',
-      'Switch any grant off in the pause menu if you would rather not see its colour.'] }),
   egg: () => ({ title: 'YOU HAVE MET', name: 'THE EGG', colour: '#ffd6e8',
     what: 'This is your goal, and your destiny.',
     head: 'BUT FIRST', tips: [
