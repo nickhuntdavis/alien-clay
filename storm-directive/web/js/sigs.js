@@ -33,6 +33,7 @@ function applySigStats(w, s) {
     else { s.count += 4; s.dmg *= 0.75; }
   }
   twinsSigStats(w, s); // (twins.js)
+  armSigStats(w, s); // (armoury.js)
   if (has('supermassive')) { s.size *= 1.6; s.aura *= 1.6; s.pull *= 2; s.speed *= 0.5; }
   if (has('spreadlove')) { s.count *= 3; s.dmg *= 0.45; }
   if (has('kamikaze')) s.explode = Math.max(s.explode || 0, 42);
@@ -442,6 +443,7 @@ function acidReflux() {
 // ---------------------------------------------------------------- projectile hooks (from updateProjectiles)
 function projHit(pr, e) {
   pr.nHit = (pr.nHit || 0) + 1;
+  armHit(pr, e); // (armoury.js)
   if (pr.crash && pr.r < 40) { pr.dmg *= 1.1; pr.r *= 1.1; }
   if (pr.iceAge && !pr.patched) { pr.patched = true; frostPatch(pr.w, e.x, e.y); }
   if (pr.w.id === 'glaive' && G.pair.yoyosibs && !(pr.sibT > G.realT)) {
@@ -541,8 +543,8 @@ function applyAdapt(w, s) {
     case 'venom': s.area *= 1 + 0.12 * P.pierce; s.flight = (s.flight || 0.6) / P.projSpeed; break;
     case 'mines': s.knock = (s.knock || 0) + 120 * P.pierce; break;
     case 'siphon': s.pierce = (s.pierce || 0) + P.pierce; break;
-    case 'orbit': s.hitCd = 0.4 / (1 + 0.35 * P.pierce); s.spin *= P.haste; s.radius *= 1 + (P.projSpeed - 1) * 0.6; s.size *= P.magMult; break;
-    case 'paddle': case 'flail': {
+    case 'orbit': case 'ulcer': s.hitCd = 0.4 / (1 + 0.35 * P.pierce); s.spin *= P.haste; s.radius *= 1 + (P.projSpeed - 1) * 0.6; s.size *= P.magMult; break;
+    case 'paddle': case 'flail': case 'papercut': {
       // The swing's reach grows with area; the target range covers the reach plus a body width.
       s.reach = s.range * s.area * (w.id === 'flail' ? 1 + 0.12 * P.pierce : 1);
       // The Paddle starts short and grows into its full reach on an exponential curve: 60% at Lv 1, about
