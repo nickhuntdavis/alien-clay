@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(300);
   const r = await page.evaluate(() => { META.seen = META.seen || {}; for (const id in ENEMY_INTRO) META.seen[id] = 1; META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1;
     const out = {}, bad = [];
-    UI.quickStart(); G.nextBoss = 1e9; G.ev.next = 1e9; window.spawnRandom = () => {}; G.enemies.length = 0;
+    UI.quickStart(); G.nextBoss = 1e9; G.ev.next = 1e9; window.spawnRandom = () => {}; G.enemies.length = 0; if (G.terrain) G.terrain.grid.clear(); // (no nodules between it and you)
     const p = G.player, P = G.P; P.dodge = 0; P.maxHp = 1e5; p.hp = 1e5; p.x = 700; p.y = 300;
     const run = (n, keep) => { for (let f = 0; f < n; f++) { p.hp = 1e5; G.lootQueue = []; if (!keep) p.x = 700, p.y = 300; update(1 / 60); G.state = 'play'; } };
     // Hocker: stand still, take globs.

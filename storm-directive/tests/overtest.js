@@ -20,7 +20,6 @@ const { chromium } = require('playwright');
   console.log('game time for 30 frames:', r3);
   await page.evaluate(() => { UI.show('hud'); G.state = 'play'; UI.togglePause(); UI.pauseTab = 'you'; UI.renderPause(); const h = [...document.querySelectorAll('#pause h3')].find(x => /Permanent/.test(x.textContent)); if (h) h.scrollIntoView(); });
   await page.waitForTimeout(200); await page.screenshot({ path: 'pst.png' });
-  await page.click('[data-pst="immuno"]'); const r4 = await page.evaluate(() => ({ off: META.pstainOff, dyes: Object.keys(G.dyes) }));
-  console.log('after toggle:', JSON.stringify(r4));
+  // (the permanent-stain toggles were removed in v9.27: old saves keep their stains with no off switch)
   console.log('ERRORS:', errors.length ? errors.slice(0, 3) : 'none'); await b.close();
 })();
