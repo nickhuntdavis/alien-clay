@@ -441,6 +441,7 @@ function acidReflux() {
 
 // ---------------------------------------------------------------- projectile hooks (from updateProjectiles)
 function projHit(pr, e) {
+  if (!pr.w) return; // (Rubber Johnny's spines belong to no weapon)
   pr.nHit = (pr.nHit || 0) + 1;
   if (pr.crash && pr.r < 40) { pr.dmg *= 1.1; pr.r *= 1.1; }
   if (pr.iceAge && !pr.patched) { pr.patched = true; frostPatch(pr.w, e.x, e.y); }
@@ -452,6 +453,7 @@ function projHit(pr, e) {
 }
 // A projectile reaching the end of its flight.
 function projEnd(pr) {
+  if (!pr.w) return; // (Rubber Johnny's spines belong to no weapon)
   if (isOrb(pr) || (pr.style === 'void' && pr.w && pr.w.id === 'void')) orbCollapse(pr);
   if (pr.style === 'flame' && Math.random() < 0.12) fxParts('smoke', pr.x, pr.y, '#2e3330', 1, 25, 0.8, 5, -Math.PI / 2, 0.8); // flames leave smoke
   if (pr.w.id === 'flamer' && hasSig(pr.w, 'napalm') && Math.random() < 0.2 && G.zones.length < 200) G.zones.push({ x: pr.x, y: pr.y, r: 26, life: 2, max: 2, dps: pr.dmg * 3, elem: 'fire', pull: 0, color: '#ff7a2f', tick: 0, src: Object.assign({}, pr.src, { wname: 'Repeating On You' }) });
