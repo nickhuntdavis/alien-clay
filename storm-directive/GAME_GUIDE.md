@@ -251,7 +251,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 16, cd 1s, mag 2, reload 1.3s, pierce all, range 330 (boomerang 1)
 - **Level bonuses:** Lv3: +20% dmg; Lv6: +1 count; Lv9: +30% dmg
-- **Combos:** **Swapping Spit** (+ Spitball)
+- **Combos:** **Swapping Spit** (+ Spitball), **Around the World** (+ Spirit Fingers)
 - **Pairings:** **Tetherball** (+ Toddler Gravity), **Tagging Along** (+ Seeker Siblings)
 
 | Level | Choice | Effect |
@@ -1371,7 +1371,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 - **Base stats:** dmg 14, cd 0.6s, mag 4, reload 1.1s, range 115 (area 1, arc 1.8, knock 60)
 - **Level bonuses:** Lv3: +25% dmg; Lv6: +20% area; Lv9: +35% dmg
-- **Combos:** -
+- **Combos:** **Around the World** (+ Yo-Yo Diet)
 - **Pairings:** -
 
 | Level | Choice | Effect |
@@ -2013,6 +2013,7 @@ Both weapons at Lv 5+: the game stops at once for the combo's own unlock screen 
 | **Swimming Gala** | Whooping Cough + Sea Monkeys | Good Eater | Every coughing fit sends each Sea Monkey splashing into the nearest enemy at once. Sea Monkey splashes on a Sick enemy give everything in the splash 2 doses of Cooties. No running, no bombing, no coughing in the deep end. |
 | **Hog Wild** | Greased Piglet + Head Lice | Good Eater + Quiet One (needs a splice) | Every Greased Piglet carries Head Lice: whatever it bounces into gets 2 free louse bites on it and a neighbour. Lice bites on a Lubricated enemy hit 60% harder. Free-range. Very free. Very ranging. |
 | **Pass the Parcel** | Lard Lobber + Baby Shower | Designer Baby | Every Lard Lobber splash is followed by 4 Baby Shower gifts (at 2.5x damage) landing round its edge, and each one shoves the crowd back into the middle. The music stops. The parcel does not. |
+| **Around the World** | Spirit Fingers + Yo-Yo Diet | Firstborn | Every Spirit Fingers attack also swipes from each of your yo-yos in flight (up to 3), one each way, at 60% damage. Yo-yo hits on a Cursed enemy hit 50% harder. Jazz hands, at range. Nobody asked. |
 
 ## Super combos
 

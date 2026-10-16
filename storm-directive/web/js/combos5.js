@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - Weapon Combos for the Armoury and the Playpen (batch 3: eight more). Five pair weapons from one
+// Spawn Prawn - Weapon Combos for the Armoury and the Playpen (batch 3: nine more, finishing every one of the 45). Six pair weapons from one
 // starting sequence; three need a splice (Hand, Foot and Mouth, Hot Wax, Hog Wild). Same schema as combos.js.
 //   c_bathtoys     Baby Rattle + Water Pistol          a shake loads 5 double squirts; every SPLOSH shakes the rattle
 //   c_hfm          Soft Play + Grubby Fingers          pits dose Cooties; Grubby pokes on the Sick hit your nearest pit
@@ -9,6 +9,7 @@
 //   c_gala         Whooping Cough + Sea Monkeys        a coughing fit sends the monkeys splashing; splashes spread Cooties
 //   c_hogwild      Greased Piglet + Head Lice          piglets carry lice: each bounce bites 2 more; lice hit Lubricated harder
 //   c_parcel       Lard Lobber + Baby Shower           four gifts land round every lard splash and shove the crowd in
+//   c_aroundworld  Spirit Fingers + Yo-Yo Diet         every jazz-hands swipe also swipes from each yo-yo in flight; yo-yos hit Cursed harder
 // Hooks: combos.js comboFire (combo5Fire), comboHit (combo5Hit), comboTick (combo5Tick).
 
 COMBOS.push(
@@ -20,12 +21,26 @@ COMBOS.push(
   { id: 'c_gala', a: 'whoop', b: 'seamonkeys', name: 'Swimming Gala', desc: 'Every coughing fit sends each Sea Monkey splashing into the nearest enemy at once. Sea Monkey splashes on a Sick enemy give everything in the splash 2 doses of Cooties. No running, no bombing, no coughing in the deep end.' },
   { id: 'c_hogwild', a: 'piglet', b: 'lice', name: 'Hog Wild', desc: 'Every Greased Piglet carries Head Lice: whatever it bounces into gets 2 free louse bites on it and a neighbour. Lice bites on a Lubricated enemy hit 60% harder. Free-range. Very free. Very ranging.' },
   { id: 'c_parcel', a: 'lard', b: 'shower', name: 'Pass the Parcel', desc: 'Every Lard Lobber splash is followed by 4 Baby Shower gifts (at 2.5x damage) landing round its edge, and each one shoves the crowd back into the middle. The music stops. The parcel does not.' },
+  { id: 'c_aroundworld', a: 'spiritfingers', b: 'glaive', name: 'Around the World', desc: 'Every Spirit Fingers attack also swipes from each of your yo-yos in flight (up to 3), one each way, at 60% damage. Yo-yo hits on a Cursed enemy hit 50% harder. Jazz hands, at range. Nobody asked.' },
 );
 for (const c of COMBOS) COMBO_BY[c.id] = c;
 
 // ---------------------------------------------------------------- after a weapon fires (comboFire)
 function combo5Fire(w, target) {
   const p = me();
+  if (w.id === 'spiritfingers' && comboOn('c_aroundworld') && w.s) {
+    const gw = comboW('glaive');
+    if (!gw) return;
+    const src = comboSrc(w, 'Around the World', { mult: 0.6 });
+    let n = 0;
+    for (const pr of G.proj) {
+      if (pr.dead || pr.w !== gw || n >= 3) continue;
+      n++;
+      const t = acquire('nearest', (w.s.reach || 115) * 1.6, pr.x, pr.y), a = t ? Math.atan2(t.y - pr.y, t.x - pr.x) : Math.atan2(pr.vy || 0, pr.vx || 1);
+      for (const da of [-0.35, 0.35]) meleeSweep(w, pr.x, pr.y, a + da, src);
+    }
+    return;
+  }
   if (w.id === 'rattle' && comboOn('c_bathtoys')) { const pw = comboW('pistol'); if (pw) pw.c5Load = 5; return; }
   if (w.id === 'pistol' && comboOn('c_bathtoys')) {
     const rw = comboW('rattle');
@@ -134,6 +149,10 @@ function combo5Hit(e, dmg, src) {
     const n = acquire('nearest', 120, e.x, e.y, e);
     if (n) { damageEnemy(n, lw.s.dmg * 1.5, ks); bolt(e.x, e.y, n.x, n.y, lw.def.color, 0.1); }
     spawnPart(e.x, e.y, lw.def.color, 3, 70, 0.3, 2);
+    return;
+  }
+  if (id === 'glaive' && comboOn('c_aroundworld') && e.curse > 0) {
+    damageEnemy(e, dmg * 0.5, comboSrc(src.w, 'Around the World', { knock: 0 }));
     return;
   }
   if (id === 'lice' && comboOn('c_hogwild') && e.fizz > 0) {

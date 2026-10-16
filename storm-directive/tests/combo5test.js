@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n').slice(1, 3).join(' | ')));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
-    const R = {}, IDS = ['c_bathtoys', 'c_hfm', 'c_hotwax', 'c_donotsqueeze', 'c_paperhanky', 'c_gala', 'c_hogwild', 'c_parcel'];
+    const R = {}, IDS = ['c_bathtoys', 'c_hfm', 'c_hotwax', 'c_donotsqueeze', 'c_paperhanky', 'c_gala', 'c_hogwild', 'c_parcel', 'c_aroundworld'];
     for (const id of IDS) {
       const c = COMBO_BY[id];
       UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 200; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies = [];

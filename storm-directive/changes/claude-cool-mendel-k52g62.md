@@ -1,3 +1,11 @@
+## 2026-10-16 Combo for Spirit Fingers: Around the World (v9.30)
+- Systems: combos, weapons
+- Files: combos5.js, tests/combo5test.js, GAME_GUIDE.md
+- What: Around the World (Spirit Fingers + Yo-Yo Diet, both Vanguard): every Spirit Fingers attack also swipes from each yo-yo in flight (up to 3) at 60%; yo-yo hits on Cursed enemies hit 50% harder. All 45 Armoury/Playpen weapons now have a combo (25 combos).
+- Save data: META.combos gains c_aroundworld.
+- Hooks: none new (combo5Fire, combo5Hit).
+- Risk: meleeSweep runs from a yo-yo's position, so Spirit Fingers forks (Poltergeist aside) apply at the yo-yo too. Balance: about 9k to 12k per 25 s in combo5test, the top end of batches 2 and 3.
+
 ## 2026-10-16 Combos batch 3: eight more Weapon Combos for Armoury and Playpen weapons (v9.29)
 - Systems: combos, weapons
 - Files: combos5.js (new), combos.js, index.html, tests/combo5test.js (new), tests/run.sh, tests/tools/guide.js, tests/tools/copy/areas.js, ARCHITECTURE.md, GAME_GUIDE.md
