@@ -813,6 +813,7 @@ function damageEnemy(e, dmg, src) {
   if (e.frozen > 0 && syn.ice) d *= 1.25;
   if (V10) { const r = fightHit(e, d, src, crit); if (r < 0) return 0; d = r; } // (v10: Evasion, Membrane, Shell, Squishy, crit: fight.js)
   else if (!src.dot && src.elem !== 'soul') d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
+  if (V10) nfHit(e, src, d); // (Stress Ball counts Force hits, Trapped Wind lights: newfoes.js)
   d = foes2Dmg(e, d, src); // (ordinary weak/resist, Litmus, Interferon shields, Puffball spores: foes2.js)
   if (e.egg) {
     // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
@@ -968,6 +969,7 @@ function killEnemy(e, src) {
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
   if (V10) fightDeath(e); // (a Charged enemy discharges: fight.js)
+  if (V10) nfKill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)
   if (e.dummy) dummyBurst(e); // (Dummy Spit)
   if (G.nf) nfKill(e, src); // (Hostile Environment grows: newfeats.js)
   G.kills++;
@@ -2654,6 +2656,7 @@ function update(dt) {
   pstTick(dt); // (Sick: pstatus.js)
   safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
   safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)
+  safely('nfTick', () => nfTick(dt)); // v10 enemies: wax, bursts, trails (newfoes.js)
   safely('boonTick', () => boonTick(dt));
   updateTethers(dt);
   meleeTick(dt);
