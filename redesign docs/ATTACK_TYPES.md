@@ -22,7 +22,7 @@ The v10 test build already uses these six for its weapon matrix (6 attack types 
 1. **Resolve each component separately.** A Burst can carry a direct hit and a status; Membrane may absorb the hit while the status follows its own rule (see `DEFENCE_TYPES.md`).
 2. **Thorns only answers Contact.** Ranged attack types and pools never trigger it.
 3. **Evasion only answers single-point hits.** Contact, Projectile and Spread can miss (Spread per pellet); Burst, Beam and Pool always land, using their actual footprint.
-4. **Modifiers, not new types.** Homing, chaining, piercing, ricochet, orbiting, delayed detonation, rapid volleys and summoned attackers are modifiers on one of the six. Add a seventh attack type only when none of these can express the behaviour clearly.
+4. **Modifiers, not new types** (all defined in `MODIFIERS.md`). Homing, chaining, piercing, ricochet, orbiting, delayed detonation, rapid volleys and summoned attackers are modifiers on one of the six. Add a seventh attack type only when none of these can express the behaviour clearly.
 5. **Telegraph by danger.** Any attack that can do significant damage shows what is happening, where it matters and when to respond. Burst always shows its area before it goes off; Beam shows its lane before it fires; Pool shows its edge for its whole life.
 6. **Enemy attacks use the same vocabulary.** An enemy's card says its attack type, so the player learns one set of shapes for both sides.
 7. **Leftover hazards.** An attack may leave a patch, pool or trail; it uses the world-object rules in `COMBAT_MATRIX.md` section 4, not a second attack type.
