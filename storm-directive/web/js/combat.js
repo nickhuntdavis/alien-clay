@@ -25,7 +25,7 @@ const COMBAT = {
   barDelay: 2, barDrain: 2,    // seconds quiet before draining; seconds to empty a full bar
   thornsBase: 5, thornsFrac: 0.35,
   corrodedT: 4,                // seconds of the visible Corroded state when a bar fills on a target with no Shell
-  burnFrac: 0.20, burnCapFrac: 0.5, burnT: 3, // one shared burn per target (addBurn)
+  burnFrac: 0.20, burnCapFrac: 0.5, burnT: 3, // one shared burn per target (burnAdd)
 };
 
 // What a full bar does.
@@ -127,7 +127,7 @@ function resolveHit(t, a, rng) {
 }
 
 // Fire damage feeds the target's single shared burn: 20% of it, capped at 50% max health; timer refreshes.
-function addBurn(t, fireDmg) {
+function burnAdd(t, fireDmg) {
   t.burnPool = Math.min(COMBAT.burnCapFrac * t.maxHp, t.burnPool + COMBAT.burnFrac * fireDmg);
   t.burnT = COMBAT.burnT;
 }
@@ -152,4 +152,4 @@ function tickDefence(t, dt) {
   }
 }
 
-if (typeof module !== 'undefined') module.exports = { COMBAT, BAR_PAYOFF, makeDefence, resolveHit, tickDefence, addBurn };
+if (typeof module !== 'undefined') module.exports = { COMBAT, BAR_PAYOFF, makeDefence, resolveHit, tickDefence, burnAdd };

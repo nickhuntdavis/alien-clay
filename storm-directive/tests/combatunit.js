@@ -1,7 +1,7 @@
 'use strict';
 // Pure unit tests for web/js/combat.js (matrix 11.1 to 11.5, 12.1, 13). No browser: node tests/combatunit.js
 const assert = require('assert');
-const { COMBAT, makeDefence, resolveHit, tickDefence, addBurn } = require('../web/js/combat.js');
+const { COMBAT, makeDefence, resolveHit, tickDefence, burnAdd } = require('../web/js/combat.js');
 
 let n = 0;
 const T = (name, fn) => { try { fn(); n++; } catch (e) { console.error('FAIL ' + name + '\n' + e.stack); process.exit(1); } };
@@ -197,12 +197,12 @@ T('bar drain is per bar', () => {
 });
 
 // Burning
-T('addBurn: 20% of fire damage, capped at 50% max health, timer refreshes', () => {
-  const t = D(null); addBurn(t, 50); near(t.burnPool, 10); near(t.burnT, 3);
-  addBurn(t, 1000); near(t.burnPool, 50);
+T('burnAdd: 20% of fire damage, capped at 50% max health, timer refreshes', () => {
+  const t = D(null); burnAdd(t, 50); near(t.burnPool, 10); near(t.burnT, 3);
+  burnAdd(t, 1000); near(t.burnPool, 50);
 });
 T('burn drains evenly over the remaining timer into burnDmg', () => {
-  const t = D(null); addBurn(t, 50); tickDefence(t, 1);
+  const t = D(null); burnAdd(t, 50); tickDefence(t, 1);
   near(t.burnDmg, 10 / 3); near(t.burnPool, 20 / 3);
   tickDefence(t, 1); near(t.burnDmg, 20 / 3); tickDefence(t, 5);
   near(t.burnDmg, 10); near(t.burnPool, 0); assert(t.burnT <= 0);

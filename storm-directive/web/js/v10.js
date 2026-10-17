@@ -179,6 +179,7 @@ function v10Burn(e, dmg, src) {
 }
 function v10Tick(dt) {
   if (!V10 || !G) return;
+  fightTick(dt); // (defences, charged patches: fight.js)
   for (const e of G.enemies) {
     if (!(e.v10burn > 0) || e.dead) continue;
     e.v10burn -= dt;
@@ -193,6 +194,7 @@ function v10Tick(dt) {
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
+  if (G && V10) fightDraw(); // (defence rings, status marks: fight.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {
     const k = f.life / f.max, x1 = sx(f.x), y1 = sy(f.y), x2 = sx(f.x2), y2 = sy(f.y2);

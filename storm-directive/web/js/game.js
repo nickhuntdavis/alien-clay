@@ -807,11 +807,12 @@ function damageEnemy(e, dmg, src) {
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
-  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
+  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; if (!V10) d *= P.critDmg + Math.max(0, cc - 1); } // (v10: the resolver applies crits last, fight.js)
   if (e.mark > 0) d *= 1.3; // (marked by other things: Grassed Up and the like)
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
-  if (!src.dot && src.elem !== 'soul') d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
+  if (V10) { const r = fightHit(e, d, src, crit); if (r < 0) return 0; d = r; } // (v10: Evasion, Membrane, Shell, Squishy, crit: fight.js)
+  else if (!src.dot && src.elem !== 'soul') d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
   d = foes2Dmg(e, d, src); // (ordinary weak/resist, Litmus, Interferon shields, Puffball spores: foes2.js)
   if (e.egg) {
     // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
@@ -854,7 +855,7 @@ function damageEnemy(e, dmg, src) {
   if ((src.combo || (src.w && !src.noProc)) && !src.dot) chemComboHit(e, dmg, src); // combo twists (chem.js)
   if (!src.dot) relicHit(e, d, src);
   if (!src.dot && !src.env && (src.w || src.combo || src.elem)) tutElem(src.elem || 'phys'); // (a first-time chemistry card: tutorial.js)
-  if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
+  if (src.elem && src.elem !== 'phys' && !src.noStatus && !(V10 && e.fOk === false)) applyElement(e, src.elem, dmg, src); // (v10: no status through a soaked or missed hit)
   else if ((src.elem || 'phys') === 'phys') chemForce(e, dmg, src); // Force: soap bursts, drunks fall over (chem.js)
   // Charged enemies arc a portion of incoming damage to a neighbour.
   if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25) * (e.pickle > 0 ? 2 : 1)) { // (pickled: conducts twice as well)
@@ -966,6 +967,7 @@ function killEnemy(e, src) {
   if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
+  if (V10) fightDeath(e); // (a Charged enemy discharges: fight.js)
   if (e.dummy) dummyBurst(e); // (Dummy Spit)
   if (G.nf) nfKill(e, src); // (Hostile Environment grows: newfeats.js)
   G.kills++;

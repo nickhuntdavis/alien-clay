@@ -35,6 +35,7 @@ function curseFoe(e, t) {
 const neighbours = (e, r, n) => acquireMany('nearest', r, e.x, e.y, n + 1).filter(o => o !== e && !o.dead);
 
 function applyElement(e, elem, dmg, src) {
+  if (V10 && fightStatus(e, elem, dmg, src)) return; // (v10 slice: Acid, Mucus, Static statuses: fight.js)
   const P = G.P, syn = G.synergy, has = chemHas(e);
   chemStick(e, dmg, src);
   const rsrc = { elem, noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' };
