@@ -775,7 +775,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
-  if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
+  if (e.dead || e.phased || (e.charmed && !src.fromAlly && !V10)) return 0; // (v10: autoaim skips a Possessed enemy, but area hits still land and set off Soul reactions)
   if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
   if (e.def.spongy) e.sorryT = G.t; // (amoebas only knit back together when left alone: arsenal.js engulfAI)

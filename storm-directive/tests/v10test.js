@@ -42,7 +42,7 @@ const { chromium } = require('playwright');
       const p = G.player; G.enemies.length = 0; G.stats.dmg = {}; G.stats.reactions = 0;
       for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, d = 70 + (i % 3) * 60; const e = makeEnemy(def, p.x + Math.cos(a) * d, p.y + Math.sin(a) * d); e.hp = e.maxHp = 1e5; e.speed = 0; G.enemies.push(e); }
       let burnt = false;
-      try { for (let f = 0; f < 300; f++) { update(1 / 60); if (G.enemies.some(e => e.v10burn > 0)) burnt = true; } } catch (err) { bad.push(id + ': ' + err.message + ' ' + (err.stack || '').split('\n')[1]); }
+      try { for (let f = 0; f < 300; f++) { update(1 / 60); if (G.enemies.some(e => e.v10burn > 0 || (e.cd && e.cd.burnT > 0))) burnt = true; } } catch (err) { bad.push(id + ': ' + err.message + ' ' + (err.stack || '').split('\n')[1]); }
       const dealt = Object.values(G.stats.dmg).reduce((a, v) => a + v, 0);
       if (!(dealt > 0)) bad.push(id + ': no damage');
       if (WEAPONS[id].elem === 'flame' && !burnt) bad.push(id + ': no Burning');
