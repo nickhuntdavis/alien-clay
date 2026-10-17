@@ -1,6 +1,6 @@
 # Weapons (all of them)
 
-Every weapon in the redesign, in one place, 17 Oct 2026. Three groups:
+Every weapon in the redesign, in one place, 17 Oct 2026. Three groups, plus which weapon each sample starts with (section 4):
 
 1. **Matrix weapons (42):** the v10 baseline, one per attack type × damage type. Source: `V10_NAMES` in `storm-directive/web/js/v10.js` on branch `claude/zealous-clarke-i26iot` (not yet on `main`). Descriptions are the in-game text.
 2. **Signature weapons (20):** originals brought back (and five Fire drafts), each a matrix slot plus one signature behaviour. Full detail: `SIGNATURE_WEAPONS.md`.
@@ -139,3 +139,18 @@ Strongest candidates to bring back next: **Twin Telepathy, Static Hairbrush, Lig
 | Waters Breaking (`waters`) | Water (retired) | Water (retired); a push-away burst the matrix Force Burst covers |
 | Bath Bomb (`bathbomb`) | Water (retired) | Water (retired) |
 | Sea Monkeys (`seamonkeys`) | Water (retired) | Water (retired); critters would use the allied creatures rule |
+
+## 4. Sample starting weapons
+
+Each sample in `SAMPLES.md` starts with the matrix weapon for its primary damage type and starting attack type.
+
+| Sample | Primary type | Attack type | Starting weapon |
+| --- | --- | --- | --- |
+| The Baseline | Force | Projectile | Knuckle Dragger (M2) |
+| The Overachiever | Static | Beam | Blue Screen (M17) |
+| The Late Starter | Blood | Contact | Bloodletter (M25) |
+| The Family Friend | Acid | Projectile | Acid Spit (M8) |
+| The Cold Parcel | Mucus | Pool (trail) | Snot Trap (M24), laid as a trail |
+| The Unsolicited | Fire | Spread | Cinderblast (M39) |
+| The Unaccounted | Soul | Burst | Soul Purpose (M34), the weapon with the name clash |
+| The Other Half | Fire, Soul, Static (shifting) | Beam | Flame Jet (M41), Wraith Ray (M35) or Blue Screen (M17), changing every 20 s |
