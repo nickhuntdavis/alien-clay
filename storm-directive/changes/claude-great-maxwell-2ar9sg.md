@@ -7,3 +7,4 @@
 - Risk: none
 - CLAUDE.md now points sessions at voice_and_tone.md before any player-facing copy.
 - voice_and_tone.md: added the Lab Tech persona (the mundane-versus-life-and-death gap) and the four ways composure breaks (excited, supportive, irritated, disbelieving).
+- voice_and_tone.md: added "The world" (setting, sample naming 1A/1B, the Scientist and his guardrails, decision table, optional dials). Persona renamed from Lab Tech to the Scientist. Flagged lines that imply an audience or colleagues.

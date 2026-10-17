@@ -6,6 +6,60 @@ Read this before writing or editing any player-facing text. Examples marked "inv
 
 ---
 
+## The world (decision support, not story)
+
+This section is under the hood. It exists to settle questions about copy, tone and mechanics. **The player never gets the full story and never needs it.** Nothing here is exposition to be delivered. It leaks out in small details, at most, and some of it must never be said at all.
+
+### The setting
+A university laboratory, at night and at weekends. The study is permitted but not respected, so the Scientist works alone, after hours, sometimes for days without sleep. Think fluorescent light, a cold coffee, a vending machine, a cleaner who has stopped asking. Other people exist only in their absence (colleagues who think the work is absurd, a department that has forgotten the grant code).
+
+### The protagonist: the sample
+You are one sperm cell from a sample the Scientist picked at the start of the run.
+
+- "Character selection" is now **"Select sperm sample"**.
+- A sample has a **number, a letter and a name**: the first and only starting sample is **1A "Baseline"**. The next run with the same sample is **1B "Baseline"**. Later unlocks are new numbers, for example **2A "Bright Spark"**.
+- The **number** is the line (the strain). The **letter** counts the runs of that line. The **name** is just what is written on the vial.
+- Decision for later: what happens after 1Z. The lab would carry on (1AA), and that is funnier than resetting.
+- The Scientist refers to you by ID ("1B"), not by name. The name is the label; the ID is the record.
+
+### The antagonist: the Scientist
+A maverick geneticist. Not malevolent: apathetic. This is a task, a study, an experiment.
+
+- **Ambition high, hope near zero.** He wants to breed a super being by evolving the most powerful sperm. He has been at it a very long time with essentially no success. The apathy is armour.
+- **The thesis (never stated aloud):** his colleagues say life begins at conception or at birth. He thinks even a sperm has a life, with the subtext of a soul, and that this is a better place to start. He stopped arguing it years ago.
+- **Guardrails:** never confirm or deny that he is right. Never have him say "soul" as a belief (the Soul damage type is only a lab label, and he should be a little evasive about it). Don't resolve the dark undercurrent that he thinks they are alive and still loses millions of them. Leave it unspoken.
+- **He is not cruel and not a gamemaster.** Attrition is normal for him. He doesn't gloat and he doesn't torment. He isn't entertained, he is recording.
+- **He is an unreliable observer.** Little sleep, long hours. "Did he really just see that?" is part of the voice. He can doubt his own observation and log it as withdrawn.
+
+### Why he leaks (the four breaks, with motives)
+Hope is the thing he has trained himself not to have. When something works, hope leaks, and he is irritated at himself for it.
+
+| Break | His motive |
+|---|---|
+| **Excited** | It might be working. Forty years of nothing, and now this. |
+| **Supportive** | He wants this one to make it and doesn't want to want it. |
+| **Irritated** | The sample is wasting his night, or disproving his thesis, or ignoring a perfectly good protocol. |
+| **Disbelieving** | Sleep loss. He is not sure it happened, and says so. |
+
+### Using this to decide things
+
+| Question | Ask |
+|---|---|
+| Should the Scientist react to this? | Would a tired man alone at 3am care? If no, flat. |
+| How big should this reaction be? | Did he just get a result he has waited years for? Tier 3 only then. |
+| Does this line imply an audience? | Viewers, sponsors, staff, a Committee: he is alone. Reframe it or cut it. |
+| Is this line warm? | Only if it is a supportive break, and he should immediately regret it. |
+| Does this feature need a story? | No. Give it a name, a flat description and a codex entry. The world is under the hood. |
+| Naming a new sample, unlock or mode | Does it read like a label on a vial or a file in a drawer? |
+
+### Optional dials (proposals, not decided)
+
+1. **Hours awake.** Copy pools shift across a session: crisper early, more fragile later (more withdrawn observations, longer run-ons). Copy only, no code change needed beyond a pool choice.
+2. **Letter drift.** By 1F or 1G on the same sample, he sounds slightly more invested than at 1A, and says nothing about it.
+3. **Hope meter.** An invisible number that rises on events and falls back, driving which break fires. Only worth building if the first two are not enough.
+
+---
+
 ## 1. The core voice
 
 **Apathetic clerk, not comedian.** The default register is flat, tired and procedural. The narrator has seen this a thousand times and none of it was good.
@@ -16,25 +70,26 @@ Ranked rules, most important first:
 2. **Precision is the joke.** The correct clinical word, a real number, a form name.
 3. **Real science underneath.** Every gag sits on a true fact. The player learns something by accident.
 4. **Short.** One sentence, two at most. The joke is the last word.
-5. **Never game-aware.** The narrator is a lab tech and knows about the lab. They never wink, never say "this is a game", never say "as you can see".
+5. **Never game-aware.** The narrator is the Scientist and knows about the lab. They never wink, never say "this is a game", never say "as you can see".
 6. **Indifference over cruelty.** The narrator doesn't hate you. It just won't be reassigned to care.
 
 **Always:** British spelling, brackets instead of em dashes, "damage type", "unstable reaction", "Feat" (you "perform" it).
 **Never:** British slang, "element/elemental", "cast", memes, pop-culture references, exclamation marks (except in Tier 3).
 
-### The persona: the Lab Tech
+### The persona: the Scientist
 
-The narrator is a lab technician running experiments and analysis on you. They are an employee, not a villain: underpaid, overqualified, on their fourth coffee, logging data on a slide.
+The narrator is the scientist himself (see "The world" above). He is both the researcher and the only technician, so he does his own bench work, his own logging and his own filing, mostly to nobody. Where older notes say "Lab Tech", read "the Scientist". Code and UI labels are unchanged until someone decides to rename them.
 
-**The whole joke is the gap.** For the tech this is a mundane Tuesday: samples, forms, a clipboard. For you it is literal life and death. The tech reports your agony in the same voice as a temperature reading. Nearly every line should sit on that gap (their routine, your catastrophe).
+**The whole joke is the gap.** For him this is another night at the bench: samples, forms, a clipboard. For you it is literal life and death. He reports your agony in the same voice as a temperature reading. Nearly every line should sit on that gap (his routine, your catastrophe).
 
 Rules for the persona:
 
-1. **In-world awareness is fine; game awareness is not.** The tech knows they are in a lab, watching a slide, filing forms. They never know they are in a game, a menu or a tutorial.
-2. **The tech is the one who is bored, not the writer.** Boredom comes from their job (paperwork, funding, shift length), not from a lack of effort in the line.
-3. **They are professional first.** The default is a clinical, procedural report. Feelings are leaks, not the starting point.
-4. **They notice you slightly.** Never fond, never cruel. Over a long run the tech can drift toward grudging respect, but only through events, never by saying so.
-5. **The campaign's inner voice is not the tech.** It is the swimmer's own head (devoted, narrow, all egg). Do not mix the two in one line.
+1. **In-world awareness is fine; game awareness is not.** He knows he is in a lab, watching a slide, filing forms. He never knows he is in a game, a menu or a tutorial.
+2. **The boredom is his, not the writer's.** It comes from the job (repetition, hours, no result), not from a lack of effort in the line.
+3. **Professional first.** The default is a clinical, procedural report. Feelings are leaks, not the starting point.
+4. **He notices you slightly.** Never fond, never cruel. Over many runs he can drift toward grudging investment, but only through events, never by saying so.
+5. **He addresses you as the sample.** "Sample 1B", "the sample", "the subject". Not "buddy", not "champ". "Swimmer" is fine as plain description.
+6. **The campaign's inner voice is not the Scientist.** It is the swimmer's own head (devoted, narrow, all egg). Do not mix the two in one line.
 
 ---
 
@@ -74,7 +129,7 @@ Samples (invented):
 - Tier 0: "Mucus. Viscosity: considerable. Your concerns are noted."
 - Tier 1: "Acid on mucus. The lab did not plan for this, and is pretending it did."
 - Tier 2: "That boss was... I have been asked to remain professional. I have the form. Give me a moment."
-- Tier 3: "[Immaculate drop] I HAVE BEEN DOING THIS FOR FOURTEEN YEARS AND I HAVE NEVER SEEN A [specific, anatomical, crude] LIKE THAT. ... Anyway. Funding has been increased."
+- Tier 3: "[Immaculate drop] I HAVE BEEN DOING THIS FOR FOURTEEN YEARS AND I HAVE NEVER SEEN A [specific, anatomical, crude] LIKE THAT. ... Anyway. Logged."
 
 ---
 
@@ -83,7 +138,7 @@ Samples (invented):
 Ranked by how often to use them:
 
 1. **The gap:** the tech's mundane routine against the swimmer's life and death. Everything else on this list is a way of serving the gap.
-2. **Bureaucratic framing:** forms, quotas, grants, risk assessments, funding (£), Tagged Specimens, Donor DNA.
+2. **Bureaucratic framing:** forms, quotas, risk assessments, sample IDs, Tagged Specimens, Donor DNA (filed, mostly to nobody).
 3. **The understatement:** a catastrophe described as a minor inconvenience.
 4. **The true fact, delivered flat:** real numbers and real biology.
 5. **The list that turns:** two normal items, then one wrong one.
@@ -153,7 +208,7 @@ Exceptions (explain up front, briefly):
 - Reaction names are the joke (the narrator names them like incident reports).
 - The reaction chart lives in the codex only. A reaction in play gets a name flash, nothing more.
 
-### HUD, damage numbers, in-run narration (the Lab Tech)
+### HUD, damage numbers, in-run narration (the Scientist)
 - Mostly silent. Narration fires on events, not on a timer.
 - Lines stay at Tier 0 or 1. Never narrate what the player can see.
 - Don't repeat a line within a run. Keep pools large enough that regulars rarely see repeats.
@@ -253,6 +308,7 @@ Lost Tadpole, Stray Pube, Bit of Sweetcorn, Navel Fluff, Bogey, Glitter. Plain n
 | "Legendary load! The house always wins. Except, apparently, now." (`gacha`) | Hype, and it explains its own joke. | Cut the last clause. |
 | "You are doing great! This message is automated..." (`idle`) | Warmer than the apathetic default. | Keep once, don't add more. |
 | `ENEMY_INTRO` `tip` lines ("Armour shred and big single hits. Don't let it pin you against a wall.") | Mechanics advice on a moment screen. Breaks Section 4. | Keep the `what` joke on the card. Move `tip` to the Field Guide. |
+| Lines implying an audience or colleagues: "Lab sweepstake: 61% of the staff...", "The Committee would like to remind you...", viewers, sponsors, "the doctor" | The Scientist works alone. | Cut, or reframe as absence ("The ethics board has not been informed."). Use "the Scientist" or no name, not "the doctor". |
 | Two `idle` lines ending "Just saying." | Same tic twice. | Keep one. |
 
 ### Takeaways
