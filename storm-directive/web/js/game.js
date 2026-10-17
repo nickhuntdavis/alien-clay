@@ -80,7 +80,7 @@ function newStats() {
   return {
     might: 1, haste: 1, reloadSpd: 1, magMult: 1, multishot: 0, projSpeed: 1, range: 1, area: 1, dur: 1,
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
-    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1, soul: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1, plates: 0, flinch: 0, fullLoad: 0,
+    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1, soul: 1, flame: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1, plates: 0, flinch: 0, fullLoad: 0,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, heft: 0, thorns: 0, grit: 0, echoInherit: 0,
     bankShot: 0, atpK: 0, ironGut: 0, brushOff: 0, flow: 0, skid: 0,
@@ -125,7 +125,7 @@ function newGame() {
   for (const id in (META.pstains || {})) if (DYES[id] && !(META.pstainOff || {})[id] && !(G.wave && id === 'rival')) G.dyes[id] = true;
   applyMeta(G);
   genesStart(G);
-  junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
+  if (!V10) junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
   refreshPalette(); // greyscale apart from your permanent stains: colour comes from stains picked up during the run
 }
 
@@ -443,6 +443,7 @@ function lvBonusText(def, from, to) {
 }
 
 function genLoot(req) {
+  if (V10) { const o = v10Loot(req); if (o) return o; } // (v10 test build: drafts and Switched at Birth only, v10.js)
   const opts = [];
   if (req.rule || req.imm) { const wl = weirdLoot(req); if (wl) { if (req.rule) for (const o of wl) delete o.pk; return wl; } } // (weird.js: a rule-breaking box)
   if (req.kind === 'myth') { // Achievement DNA: Mythical or Immaculate cards only
@@ -1729,6 +1730,7 @@ function fireWeapon(w, target) {
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
   if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
   if (d.armoury && armFire(w, target, src)) return; // (the Armoury's weapons, armoury.js)
+  if (d.v10 && v10Fire(w, target, src)) return; // (v10 beams and bursts, v10.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
@@ -2694,6 +2696,7 @@ function update(dt) {
   updateZones(dt);
   updateTurrets(dt);
   armTick(dt); // (the Armoury's pets and bowling, armoury.js)
+  v10Tick(dt); // (v10 Burning and beams, v10.js)
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
   safely('nfTick', () => nfTick(dt)); // (the v9.23 Feats: newfeats.js)
   updateEnemies(dt);
@@ -3008,7 +3011,7 @@ function frame(ts) {
       if (G.lootHold > 0) G.lootHold -= dt;
       if (G.hitStop > 0) G.hitStop -= dt;
       else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed() * inspectMul()); }
-      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
+      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { if (!v10Box(G.lootQueue[0])) G.lootQueue.shift(); else if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
       else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed() * inspectMul()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);

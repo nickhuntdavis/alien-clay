@@ -541,6 +541,7 @@ function spoilerBlink(dt) {
 // ---------------------------------------------------------------- upgrades given a weapon's own twist (see ADAPT)
 function applyAdapt(w, s) {
   const P = G.P;
+  if (w.def.v10atk === 'contact') s.reach = s.range * s.area; // (v10 Contact weapons, v10.js)
   switch (w.id) {
     case 'tesla': s.chain += P.pierce; break;
     case 'venom': s.area *= 1 + 0.12 * P.pierce; s.flight = (s.flight || 0.6) / P.projSpeed; break;

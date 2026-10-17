@@ -61,7 +61,7 @@ const UI = {
       if (G.chrono.snaps.length < 2) { UI.toast('Timeline too short to rewind yet'); return; }
       startRewind(false);
     });
-    $('playBtn').addEventListener('click', () => schoolDue() ? schoolStart() : UI.openSamples()); // (a fresh save goes to Level 0 first: school.js)
+    $('playBtn').addEventListener('click', () => !V10 && schoolDue() ? schoolStart() : UI.openSamples()); // (a fresh save goes to Level 0 first: school.js)
     $('schoolSkip').addEventListener('click', schoolSkip);
     $('quickBtn').addEventListener('click', () => UI.quickStart());
     $('dailyBtn').addEventListener('click', () => startDaily());
@@ -136,9 +136,9 @@ const UI = {
   // starting weapon. No sample screen, no sequence screen, no microscope dive, no weapon draft. Your chosen
   // sequence for normal runs is left as it was.
   quickStart() {
-    const keep = META.profile, seqs = Object.keys(PROFILES).filter(id => profUnlocked(id));
+    const keep = META.profile, seqs = V10 ? ['human1'] : Object.keys(PROFILES).filter(id => profUnlocked(id));
     META.profile = pick(seqs.length ? seqs : ['vanguard']);
-    UI.sample = 's001';
+    UI.sample = V10 ? 's002' : 's001'; // (v10: Human Sample 1 in the dish)
     UI.startGame(false);
     META.profile = keep;
     const i = G.lootQueue.findIndex(q => q.kind === 'start');
@@ -1200,6 +1200,7 @@ const UI = {
       + (opts && opts.full ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">As your Primary it evolves at ${esc(evolveText(id))}.</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
   },
   openSamples() {
+    if (V10) return v10Samples(); // (v10 test build: one sample, v10.js)
     const best = UI.loadBest();
     // Developer mode (tap the title five times) shows the Lab Bench.
     let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
