@@ -2,8 +2,8 @@
 // Spawn Prawn - v10 test build. The combat rework's first slice (spec: ../redesign docs/):
 //  - One sample, Human Sample 1 (wave mode s002, sequence 'human1': no trait, no starting ability).
 //  - The weapon matrix: 6 attack types x 7 damage types = 42 weapons, built from V10_ATK and V10_NAMES.
-//  - The only upgrade is Switched at Birth: a level-up offers up to 3 swaps that keep the attack type and change
-//    the damage type (Snotgun -> Cinderblast). Every other box is dropped. No Feats, mutations, relics or combos.
+//  - The only upgrade is Switched at Birth: one card a wave (the first level-up box; the wave's others are
+//    dropped), a swap that keeps the attack type and changes the damage type (Snotgun -> Cinderblast). Every other box is dropped. No Feats, mutations, relics or combos.
 //  - Fire is a new damage type (internal id 'flame', since 'fire' is Acid): Burning, a short damage over time.
 //  - The old automatic reactions are off; each type keeps its own status (chem.js applyElement).
 // Old content is still in the code but out of reach. window.V10_OFF = 1 (before load) switches all of this off.
@@ -110,8 +110,14 @@ for (const t of V10_TYPES) for (const a of V10_ATKS) {
 }
 
 // ---------------------------------------------------------------- boxes
-// Which boxes open at all (game.js main loop): weapon drafts and level-ups. Everything else is dropped.
-const v10Box = req => !V10 || ['start', 'slot', 'level'].includes(req.kind);
+// Which boxes open at all (game.js main loop): weapon drafts, and one level-up a wave. Everything else is dropped.
+function v10Box(req) {
+  if (!V10 || req.kind === 'start' || req.kind === 'slot' || req.v10ok) return true;
+  if (req.kind !== 'level') return false;
+  const wave = G.wave ? G.wave.n : G.level; // (outside wave mode: one per level, which is every box)
+  if (G.v10sw === wave) return false;
+  G.v10sw = wave; req.v10ok = true; return true;
+}
 function v10Loot(req) {
   if (req.kind === 'start') return shuffle(v10Ids()).slice(0, 4).map(id => optNewWeapon(id, 0));
   if (req.kind === 'slot') {
@@ -123,14 +129,14 @@ function v10Loot(req) {
   if (req.kind === 'level') return v10Switch();
   return null;
 }
-// Switched at Birth: same attack type, another damage type. Up to 3 different swaps, spread over your weapons.
+// Switched at Birth: same attack type, another damage type. One card: a random weapon you own, a random new type.
 function v10Switch() {
   const own = G.weapons.map((w, i) => ({ w, i })).filter(o => o.w && o.w.def.v10);
   const cands = shuffle(own.flatMap(o => V10_TYPES.filter(t => t !== o.w.def.v10type).map(t => ({ o, t }))));
   const out = [], used = new Set();
   for (const c of cands) { if (out.length >= 3) break; if (used.has(c.o.i) && own.length > 1 && out.length < own.length) continue; used.add(c.o.i); out.push(c); }
   for (const c of cands) { if (out.length >= 3) break; if (!out.includes(c)) out.push(c); }
-  return out.map(({ o, t }) => {
+  return out.slice(0, 1).map(({ o, t }) => {
     const nid = v10Id(t, o.w.def.v10atk), def = WEAPONS[nid];
     return { def, rarity: 0, tag: 'SWITCHED AT BIRTH', icon: def.icon, color: def.color, elem: t, title: `${o.w.def.name} → ${def.name}`,
       sub: `${ELEMENTS[t].name} | ${V10_ATK[def.v10atk].label}`, desc: def.desc,

@@ -1,3 +1,11 @@
+## 2026-10-17 One Switched at Birth card a wave (v10.01)
+- Systems: v10
+- Files: v10.js, tests/v10test.js
+- What: Switched at Birth now offers one card, and only once a wave (the first level-up box after the wave; the wave's other level-up boxes are dropped). Reroll still swaps the card.
+- Save data: none (run state `G.v10sw`).
+- Hooks: none.
+- Risk: far fewer upgrades a run; levels past the first in a wave give nothing.
+
 ## 2026-10-17 v10 test build: Human Sample 1, 42-weapon matrix, Switched at Birth only (v10.00)
 - Systems: v10 (new), weapons, loot, chemistry, ui, meta
 - Files: v10.js (new), game.js, chem.js, sigs.js, ui.js, render.js, meta.js, index.html, tests/v10test.js (new)

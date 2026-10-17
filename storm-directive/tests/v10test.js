@@ -1,5 +1,5 @@
 // v10 test build (v10.js): one sample card; a 4-card start draft from the 42-weapon matrix; level-ups offer only
-// Switched at Birth (same attack type, new damage type); other boxes are dropped; every one of the 42 weapons
+// Switched at Birth, one card a wave (same attack type, new damage type); other boxes are dropped; every one of the 42 weapons
 // deals damage; Fire leaves Burning; no automatic reactions.
 const { chromium } = require('playwright');
 (async () => {
@@ -24,11 +24,12 @@ const { chromium } = require('playwright');
     st[0].apply();
     const w0 = G.weapons.find(Boolean);
     const lv = genLoot({ kind: 'level' });
-    if (!lv.length || lv.some(o => o.tag !== 'SWITCHED AT BIRTH')) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title));
+    if (lv.length !== 1 || lv.some(o => o.tag !== 'SWITCHED AT BIRTH')) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title));
     out.switch = lv.map(o => o.title);
     lv[0].apply();
     const w1 = G.weapons.find(Boolean);
     if (w1.def.v10atk !== w0.def.v10atk || w1.def.v10type === w0.def.v10type) bad.push('switch: ' + w0.id + ' -> ' + w1.id);
+    G.v10sw = null; if (!v10Box({ kind: 'level' }) || v10Box({ kind: 'level' })) bad.push('one level box a wave');
     for (const k of ['chest', 'boss', 'relic', 'vesicle', 'splice', 'myth']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k);
     const sl = genLoot({ kind: 'slot' });
     if (sl.length !== 3 || sl.some(o => o.def.v10atk === w1.def.v10atk)) bad.push('slot draft: ' + sl.map(o => o.title));
