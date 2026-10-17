@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: three open issues settled (decisions 29 to 31)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/COMBAT_MATRIX.md, WEAPONS.md, SAMPLES.md, ENEMY_DESIGN.md, UPGRADES.md, DEFENCE_TYPES.md, SIGNATURE_WEAPONS.md, README.md, tables/combat_interactions.csv
+- What: per the user, (29) the Force + Soul reaction is renamed Out-of-Body Experience, so the Soul Burst weapon keeps Soul Purpose; (30) The Other Half's First Contact is a fifth reaction trigger kind (Feat): it counts as a hit of the old and new type for reactions only, at most 8 per use; (31) the player gets defences from upgrade cards (Genome slots) or built into some samples, weapons and Feats (no slot); Assimilation is dropped, and Thorny Onesie's Thorns is a built-in defence.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs only).
+
 ## 2026-10-17 Redesign docs: COMBAT_MATRIX is the single source; CSVs generated
 - Systems: docs only (redesign docs)
 - Files: redesign docs/COMBAT_MATRIX.md, DAMAGE_TYPES.md, DEFENCE_TYPES.md, ATTACK_TYPES.md, ENEMY_DESIGN.md, README.md, MODIFIERS.md, WEAPONS.md, SIGNATURE_WEAPONS.md, UPGRADES.md, tables/*.csv, tables/export.py (new)

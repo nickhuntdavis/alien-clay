@@ -101,7 +101,7 @@ What each type does beyond its statuses (section 4) and its defence interactions
 
 ## 3. Defensive layer matrix
 
-**Five distinct defences:** Squishy, Membrane, Shell, Thorns and Evasion. These are the only defences; there are no extra traits. Enemies and the player can both have any of them (the player through mutations and items). Numerical values remain for playtesting.
+**Five distinct defences:** Squishy, Membrane, Shell, Thorns and Evasion. These are the only defences; there are no extra traits. Enemies and the player can both have any of them (the player through upgrade cards, or built into some samples, weapons and Feats; decision 31). Numerical values remain for playtesting.
 
 | Defence | Core rule | Strength / identity | Limits and counterplay |
 | --- | --- | --- | --- |
@@ -267,7 +267,7 @@ The 17 Oct hand-off ("Combat Matrix Remaining Updates") is fully merged: design 
 
 ## 10. Reconciliation decisions (17 Oct 2026)
 
-Settled one by one after a cross-doc review (27 to 30 added later on 17 Oct). Every redesign doc follows these.
+Settled one by one after a cross-doc review (27 to 31 added later on 17 Oct). Every redesign doc follows these.
 
 | # | Question | Decision |
 | --- | --- | --- |
@@ -301,6 +301,7 @@ Settled one by one after a cross-doc review (27 to 30 added later on 17 Oct). Ev
 | 28 | Acid colour | Shocking pink stands, even beside the pink campaign levels |
 | 29 | Soul Purpose name clash | The Force + Soul reaction is renamed **Out-of-Body Experience**; the Soul Burst weapon (M34) keeps Soul Purpose |
 | 30 | First Contact | The Other Half's Feat is a fifth trigger kind (Feat): it counts as a hit of the old and new type for reactions only, capped at 8 per use |
+| 31 | Player defence sources | Upgrade cards (Genome slots), or built into some samples, weapons and Feats (no slot). Assimilation is dropped |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
@@ -359,7 +360,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 | Knockback | Distance = impulse ÷ (radius ÷ 12); hitting a wall deals 40% of the hit |
 | Possessed | 4 s, then 8 s before it can happen again (elites 2.5 s; bosses 1.5 s, lashing out at adds once). It targets the nearest enemy; its attacks and contact hurt enemies, not you; nearby enemies fight back; your weapons skip it; its kills give you XP; with no enemy near, it wanders harmlessly. The player is exempt |
 | Fear | Enemies flee for 2 s. Sources: Peekaboo's BOO, and a future player Feat, "Jump Scare". No enemy applies it |
-| On the player | Snared, Bleed, Burning, Charge and Fear work as on enemies; Corrosion only matters if you have Shell. The player has no sources of defences until the upgrade and reward systems return |
+| On the player | Snared, Bleed, Burning, Charge and Fear work as on enemies; Corrosion only matters if you have Shell. The player gets defences from upgrade cards or built into some samples, weapons and Feats (decision 31; `UPGRADES.md` 5) |
 
 ### 11.6 World objects
 

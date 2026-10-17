@@ -10,7 +10,7 @@ Working proposal, 17 Oct 2026. How the build grows during a run and how the game
 | --- | --- | --- |
 | 1 | Weapons | 3 slots, offered at levels 1, 8 and 22 (plus up to 2 Weapon Combo mounts), as today |
 | 2 | Feats | 3 slots: the sample's unique Feat starts in slot 1; 2 more are drafted. Feats cap at about level 5 |
-| 3 | Mutations and defences | 4 shared Genome slots, each rankable. Defences come from Assimilation, mutations from Lateral Gene Transfer |
+| 3 | Mutations and defences | 4 shared Genome slots, each rankable. Defences come from upgrade cards (or are built into some samples, weapons and Feats), mutations from Lateral Gene Transfer |
 | 4 | Milestones | Weapons fork at levels 5 and 10, Feats at 3 and 5. Each fork is its own 2-card screen. Only one weapon a run reaches level 10 |
 | 5 | Pool | Moderate lean: 50% primary type, 25% support, 25% other. No Instability cost. Novelty weighting stays inside each band |
 | 6 | Draft controls | Skip, Reroll and Banish (Remove, or Fewer like this), all paid in rerolls. No Freeze |
@@ -32,7 +32,7 @@ Working proposal, 17 Oct 2026. How the build grows during a run and how the game
 | --- | --- | --- |
 | Three-card level boxes from XP | Feats: 2 slots → 3, sample's unique Feat fixed in slot 1 | Feat levels and Feat forks |
 | Weapons at levels 1, 8, 22 (`SLOT_LEVELS`), combo mounts | Lv 10 mastery becomes a fork; Lv 5 fork added | Genome slots (mutations and defences share 4) |
-| Chests from elites and bosses | Pool weighting adds a sample-type lean on top of novelty | Assimilation (defences from enemies) |
+| Chests from elites and bosses | Pool weighting adds a sample-type lean on top of novelty | Defence cards (and built-in defences) |
 | Rerolls as a currency; Skip raises the next rarity floor (`G.rarBoost`) | Lateral Gene Transfer feeds Genome slots | Banish |
 | Novelty weighting (`novK`, `META.offered`) | | Catalyst and Concentration cards (Specialise) |
 | One mastery weapon a run | | Interruption budget and queue |
@@ -43,7 +43,7 @@ Conceptual categories for designers; the player never sees these labels.
 
 | Kind | Does | Examples |
 | --- | --- | --- |
-| **Acquire** | Adds a weapon, Feat, mutation or defence | A new Feat while a Feat slot is free; Shell after Assimilation |
+| **Acquire** | Adds a weapon, Feat, mutation or defence | A new Feat while a Feat slot is free; a Shell card |
 | **Enhance** | Improves something you already have | Weapon level, Feat level, Genome rank, stamina |
 | **Transform** | Changes behaviour: a fork | A weapon's Lv 5 fork; a Feat's level 3 fork |
 | **Specialise** | Strengthens a mechanic or direction | **Catalysts:** empower a reaction you have discovered. **Concentration:** fill a build-up bar (Burn, Corrosion, Soul, Poise) faster or drain it slower |
@@ -56,7 +56,7 @@ A card is offered only when it can matter:
 - **Transform** is never a normal draft card (see 6).
 - **Catalysts** need the reaction to have been discovered this save (decision 22 in `COMBAT_MATRIX.md`).
 - **Concentration** needs a weapon or Feat that builds that bar.
-- **Defences** need Assimilation (see 5).
+- **Defences** need a free Genome slot, like mutations, and are not offered if you already have that defence built in (see 5).
 
 ## 4. Slots
 
@@ -64,7 +64,7 @@ A card is offered only when it can matter:
 | --- | --- | --- |
 | Weapons | 3 (+ up to 2 combo mounts) | Weapon draft at levels 1, 8 and 22, as today. Weapons never appear as random cards |
 | Feats | 3 | Slot 1: the sample's unique Feat, from the start. Slots 2 and 3: Feat cards in normal drafts while a slot is free |
-| Genome | 4, shared | Mutations (Lateral Gene Transfer) and defences (Assimilation). Each rankable. Taking Shell means one fewer mutation |
+| Genome | 4, shared | Mutations (Lateral Gene Transfer) and defence cards. Each rankable. Taking Shell means one fewer mutation. Built-in defences use no slot |
 
 Few weapons keeps each one readable on a phone screen and leaves the draft for Feats, upgrades and Genome cards.
 
@@ -88,9 +88,13 @@ Level counts can differ per Feat, but the default is 5 with forks at 3 and 5 so 
 
 Upgrading a Feat competes with every other card in that draft. That trade is the point.
 
-### Defences: Assimilation
+### Defences: upgrade cards and built-ins
 
-The player gets defences (Squishy, Membrane, Shell, Thorns, Evasion) from enemies. Kill enough of an enemy that has a defence and its defence becomes eligible as a Genome card, with a toast ("Shell available"). Your defence then has the same weaknesses as the enemy's: take Shell and Acid enemies become dangerous. This closes README item 8.
+The player gets defences (Squishy, Membrane, Shell, Thorns, Evasion) two ways (decided 17 Oct, replacing Assimilation):
+- **Upgrade cards:** a defence is an ordinary Acquire card in normal drafts, taking a Genome slot; later copies rank it up. Defences are untyped, so they sit outside the sample lean (novelty weighting only).
+- **Built in:** some samples, weapons and Feats come with a defence while you have them (Thorny Onesie gives Thorns). A built-in defence uses no Genome slot, and its card is not offered while you have it.
+
+Your defence has the same weaknesses as an enemy's: take Shell and Acid enemies become dangerous. Which samples and Feats carry one is open (11, question 6).
 
 ## 6. Milestones and forks
 
@@ -154,7 +158,6 @@ No Freeze: it overlaps Reroll and adds a button to a phone card screen. Banish n
 | Weapon or Feat reaches a fork level | Fork screen |
 | Weapon slot level (1, 8, 22) | Weapon draft |
 | Reaction discovered | Catalyst cards join the pool; toast, no pause |
-| Assimilation threshold | Defence joins the pool; toast, no pause |
 | Wave or stage milestone | Nothing for now. Add a guaranteed draft only if sims show XP pacing is lumpy |
 
 ### Budget and queue
@@ -180,5 +183,5 @@ The sim bot (`tests/sim/wave20.js`, `lvsim.js`) picks cards for balance runs, so
 3. Weapon fork content: write a fork pair for each of the 42 matrix weapons and 26 signature weapons (a big job; start with each sample's starting weapon).
 4. Feat fork content: start with the eight samples' unique Feats.
 5. The 40 s budget: tune in play; late runs earn XP fastest.
-6. Assimilation threshold: kills needed per defence, and whether bosses grant one directly.
+6. Built-in defences: which samples and Feats carry one (Thorny Onesie is the first weapon), and how often defence cards appear in drafts.
 7. Which cards make up the starting pool.

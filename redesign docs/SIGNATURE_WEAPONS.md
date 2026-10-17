@@ -189,8 +189,8 @@ Modifiers are defined in `MODIFIERS.md`; pets in `COMBAT_MATRIX.md` 12.3.
 
 ### 23. Thorny Onesie (`onesie`)
 - **Is:** Force, Burst with the self-centred and scaling modifiers. Spikes pulse out around you (radius 90) and push enemies back.
-- **Signature:** the tank weapon. Damage scales with your max health: × (max health ÷ 120), capped at ×2. When player defences return, owning it also gives you Thorns.
-- **Limits:** the old "and armour" scaling goes (armour is now Shell layers, which the player doesn't have yet).
+- **Signature:** the tank weapon. Damage scales with your max health: × (max health ÷ 120), capped at ×2. Owning it also gives you Thorns (a built-in defence: no Genome slot, `UPGRADES.md` 5).
+- **Limits:** the old "and armour" scaling goes (armour is now Shell layers).
 - **Description:** "Spikes pulse out all around you. Huggable, technically."
 - **Start stats:** 18 damage, a pulse every 0.55 s, knockback 120.
 

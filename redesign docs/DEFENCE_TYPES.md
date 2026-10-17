@@ -2,7 +2,7 @@
 
 Squishy | Membrane | Shell | Thorns | Evasion
 
-The five defences: what each one is for, how it looks, and what beats it. These are the only defences; there are no extra traits. Enemies and the player can both have any of them (the player through Assimilation, `UPGRADES.md` 5).
+The five defences: what each one is for, how it looks, and what beats it. These are the only defences; there are no extra traits. Enemies and the player can both have any of them (the player through upgrade cards, or built into some samples, weapons and Feats; `UPGRADES.md` 5).
 
 **Every rule lives in `COMBAT_MATRIX.md`:** the defence rules and interaction rows (section 3), how each damage type meets each defence (section 7), how a hit resolves (11.1) and the starting values (11.4). This doc never restates them.
 
