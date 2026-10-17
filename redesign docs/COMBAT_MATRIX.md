@@ -116,7 +116,7 @@ Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, B
 | Bleed | Blood | Damage over time; a named finisher may consume it for one payoff | Stack cap and decay. A creature that dies while bleeding leaves a small blood pool | Wounds are distinct from Acid erosion |
 | Extraction | Blood | An enemy dying while bleeding heals you a little | 1% of max health per kill, max 6 health per second | Separate from ordinary damage and healing |
 | Possessed | Soul | At full Soul build-up the enemy fights its own mates for a few seconds | Clear duration and tell; cooldown before it can repeat; elites shorter; bosses reduced, never fully controlled; the player is exempt | The only control Soul owns; not Fear |
-| Fear | A player Feat ("Jump Scare", future) | Enemies flee for 2 s | Duration cap; no enemy applies Fear | Fear is a status, not the Soul type itself |
+| Fear | Peekaboo's BOO; a future Feat ("Jump Scare") | Enemies flee for 2 s | Duration cap; no enemy applies Fear | Fear is a status, not the Soul type itself |
 | Burning | Fire | Fire hits fill a visible Burn bar; while it holds Burn the target takes a short damage over time; at full, Ignition: one flare on that target, then the bar resets | No spread except through reactions and Burn zones; Snared puts it out | Do not add extra effects to every Fire hit |
 
 ### World objects
@@ -352,7 +352,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 | Poise stagger | 0.8 s (elites 0.55 s, bosses 0.35 s) |
 | Knockback | Distance = impulse ÷ (radius ÷ 12); hitting a wall deals 40% of the hit |
 | Possessed | 4 s, then 8 s before it can happen again (elites 2.5 s; bosses 1.5 s, lashing out at adds once). It targets the nearest enemy; its attacks and contact hurt enemies, not you; nearby enemies fight back; your weapons skip it; its kills give you XP; with no enemy near, it wanders harmlessly. The player is exempt |
-| Fear | No enemy applies it. Source: a future player Feat, "Jump Scare" (enemies flee for 2 s) |
+| Fear | Enemies flee for 2 s. Sources: Peekaboo's BOO, and a future player Feat, "Jump Scare". No enemy applies it |
 | On the player | Snared, Bleed, Burning, Charge and Fear work as on enemies; Corrosion only matters if you have Shell. The player has no sources of defences until the upgrade and reward systems return |
 
 ### 11.6 World objects
@@ -374,3 +374,47 @@ At most 40 world objects at once (phones). Where two overlap, the newest wins, e
 - **Autoaim:** TOUGHEST scores effective health (health + Membrane + Shell layers × layer health, ×1.35 if Squishy). HIGHEST ARMOUR is replaced by two directives: **SHELLED** (most Shell layers left) and **MEMBRANED** (most Membrane left).
 - **Enemy damage types:** see `ENEMY_DESIGN.md` 5.1. Force is most common and Soul least; some enemies have two types.
 - **Name clash fixed:** v10's Mucus Pool weapon is renamed **Snot Trap** ("Leaves a patch that sticks enemies crossing it. Watch your step; they won't."). The reaction keeps "Sticky Situation".
+
+## 12. Signature weapon rules (17 Oct 2026)
+
+Rules added so the 15 signature weapons in `SIGNATURE_WEAPONS.md` fit the system. They apply to anything that does the same thing, not just those weapons.
+
+### 12.1 Echo damage
+
+Damage that is copied, shared or repeated from other damage (Red Tape's 35% share, Due Date's 40% repeat) is **echo damage**. It deals damage and nothing else: it never fills build-up bars, counts as a heavy hit, sets off a reaction, triggers Thorns or Extraction, or creates more echo. It still goes through defences (step 3 onwards in 11.1).
+
+### 12.2 Pull
+
+Pull is reverse knockback with the same formula: distance = pull strength ÷ (radius ÷ 12), towards the source. Squishy halves it, as it halves knockback. Elites take 50%, bosses 25%. Pull never drags anything through a wall or into a sealed arena.
+
+### 12.3 Allied creatures
+
+Summoned critters, undead and any creature fighting for you (Tapeworm undead, Leeches) follow one rule:
+- Their hits are your hits: they fill bars, set off reactions, and their kills give you XP.
+- At most 4 per weapon at once; each has a lifetime or dies with its target.
+- Enemies can target and kill them. They don't take player statuses, and autoaim never targets them.
+- Possessed enemies are not allied creatures (they keep their own rules in 11.5).
+
+### 12.4 Player hiding
+
+While hidden (Peekaboo), enemies lose you and go to your last seen spot. Their shots there can hit each other (normal damage; it counts as their damage, not yours). Hiding lasts at most 2 s, and the same weapon cannot hide you again for 3 s after. Anything that hits you while hidden (a Burst or Pool you're standing in) still hits.
+
+### 12.5 Bounded chains
+
+Anything that sets off more of itself has a fixed depth: Nappy Mines' domino stops at 3 mines; Lard Lobber's bowling at depth 2 (each flying enemy knocks one more, once); Black Hole merges stop at 5 (then supernova: one Burst). Reactions keep their own lockout (11.3).
+
+### 12.6 Lures
+
+A lure is a world object that draws greedy enemies to it (Tooth Fairy's teeth). At most 3 per weapon, each lasting 6 s, counting towards the 40-object cap. Bosses ignore lures; elites go to them half as often. This is the second justified exception (after wax) to "reuse existing ingredients".
+
+### 12.7 Merging pools
+
+Upchuck's puddles are the one exception to "newest wins" on overlap: two of its Acid Pools that touch merge into one, up to radius 100, and the timer resets once per merge.
+
+### 12.8 Projectile blocking
+
+An orbiting body or eater (Premature Evangelation's angels, Placental Siphon) destroys enemy **Projectile** and **Spread** shots it touches. It never blocks Burst, Beam, Pool or Contact. Placental Siphon stores up to 10 and fires them back with their original damage and damage type.
+
+### 12.9 Signature weapons and the matrix
+
+Signature weapons sit alongside the 42 matrix weapons. Each has one damage type and one attack type and is otherwise a normal weapon (levels, upgrades, autoaim directives). The signature behaviour is the only thing that sets it apart.
