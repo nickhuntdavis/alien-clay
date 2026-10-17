@@ -1,11 +1,11 @@
 # Modifiers
 
-Working proposal, 17 Oct 2026. A **modifier** changes how an attack moves or repeats. It never changes the attack's damage type or attack type. The six attack types are in `ATTACK_TYPES.md`; rule 4 there says homing, chaining and the rest are modifiers, not new types. This doc defines every modifier the weapons use (`WEAPONS.md`).
+Working proposal, 17 Oct 2026. A **modifier** changes how an attack moves or repeats. It never changes the attack's damage type. Rarely (a fork or mastery upgrade, `UPGRADES.md` 6), it changes the attack type; the new attack type then decides every defence rule. The six attack types are in `ATTACK_TYPES.md`; rule 4 there says homing, chaining and the rest are modifiers, not new types. This doc defines every modifier the weapons use (`WEAPONS.md`).
 
 ## Shared rules
 
 1. **The attack type still decides the defence rules.** An orbiting Contact hit is still Contact (Thorns triggers, Evasion applies); a lobbed Burst is still a Burst (Evasion never applies).
-2. **At most two modifiers per weapon**, plus one more from an upgrade (three in all).
+2. **A weapon can carry several modifiers.** Upgrades and forks add more over a run. Each modifier keeps its own cap; check that the stack still reads clearly on screen.
 3. **Every hit is a normal hit.** Bars, reactions, the heavy-hit test and lockouts all work per hit, as in `COMBAT_MATRIX.md` section 11. A modifier never creates echo damage (12.1).
 4. **Anything that repeats or spreads has a cap** (bounded chains, 12.5).
 5. **Telegraph by danger.** Enemy attacks with modifiers show their path (homing shots glow, delayed blasts mark the ground).

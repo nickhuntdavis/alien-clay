@@ -83,7 +83,7 @@ Level counts can differ per Feat, but the default is 5 with forks at 3 and 5 so 
 **Example (hypothetical): Panic Button**
 - Level 1: releases a pulse automatically when you are in danger.
 - Levels 2 and 4: stronger pulse, shorter cooldown.
-- Level 3 fork (a Feat fork may add a modifier or a leftover hazard, as for weapons): **Safe Space** (the pulse leaves a short-lived zone enemies won't enter) or **Overreaction** (the pulse doubles in size but costs stamina).
+- Level 3 fork (Feat forks follow the weapon rules: modifiers, hazards, rarely a new attack type): **Safe Space** (the pulse leaves a short-lived zone enemies won't enter) or **Overreaction** (the pulse doubles in size but costs stamina).
 - Level 5 fork: two further changes to whichever branch was taken.
 
 Upgrading a Feat competes with every other card in that draft. That trade is the point.
@@ -101,8 +101,9 @@ The player gets defences (Squishy, Membrane, Shell, Thorns, Evasion) from enemie
 | Genome | none at first | Add later if ranks feel flat |
 
 - A fork is **its own screen with 2 transform cards** for that item. Pick one; the other is gone for the run.
-- Forks change something the player can see, within `MODIFIERS.md`: a weapon's fork **fills its upgrade modifier slot** (rule 2 there: two modifiers plus one from an upgrade), adds a leftover hazard (Pool, trail; decision 7), or adds a signature behaviour. A fork never changes the weapon's damage type or attack type, so the 42-weapon matrix stays intact.
-- The Lv 5 fork offers two modifiers (e.g. Piercing or Ricochet); the Lv 10 mastery fork offers two signature-scale changes.
+- Forks change something the player can see: they **add a modifier** (`MODIFIERS.md`; a weapon can carry several), add a leftover hazard (Pool, trail; decision 7), or add a signature behaviour. A fork never changes damage type.
+- **Rarely, a fork changes the attack type** (Projectile becomes Spread or Burst). Keep it for forks where the new shape is the whole point, mostly the Lv 10 mastery fork; the new attack type then decides every defence rule.
+- The Lv 5 fork typically offers two modifiers (e.g. Piercing or Ricochet); the Lv 10 mastery fork offers two signature-scale changes.
 - Signature weapons keep their current Lv 10 masteries as one side of the fork.
 - A transform card never sits in a normal draft next to ordinary cards: it would win every time and not be a choice.
 
@@ -167,7 +168,7 @@ No Freeze: it overlaps Reroll and adds a button to a phone card screen. Banish n
 ## 10. Sims and the bot
 
 The sim bot (`tests/sim/wave20.js`, `lvsim.js`) picks cards for balance runs, so every new rule needs a bot policy before balance work starts:
-- **Forks:** pick the branch whose modifier or hazard the current loadout lacks, else random.
+- **Forks:** pick the branch whose attack type, modifier or hazard the current loadout lacks, else random.
 - **Banish:** never (keeps sims comparable), except a test mode that measures its effect.
 - **Skip and Reroll:** as today.
 - **Feats:** prefer upgrading the unique Feat while below its next fork.
@@ -176,7 +177,7 @@ The sim bot (`tests/sim/wave20.js`, `lvsim.js`) picks cards for balance runs, so
 
 1. Feat level cap of 5: check in sims that all three Feats can reach rank 3 by mid-run.
 2. Genome ranks: how many, and do they need forks?
-3. Weapon fork content: write a modifier pair for each of the 42 matrix weapons and 20 signature weapons (a big job; start with each sample's starting weapon).
+3. Weapon fork content: write a fork pair for each of the 42 matrix weapons and 20 signature weapons (a big job; start with each sample's starting weapon).
 4. Feat fork content: start with the eight samples' unique Feats.
 5. The 40 s budget: tune in play; late runs earn XP fastest.
 6. Assimilation threshold: kills needed per defence, and whether bosses grant one directly.

@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: modifiers stack, forks can rarely change attack type
+- Systems: docs only (redesign docs)
+- Files: redesign docs/UPGRADES.md, MODIFIERS.md
+- What: per the user, a weapon can carry several modifiers (the two-plus-one cap is gone) and a fork can, rarely, change a weapon's attack type (mostly at the Lv 10 mastery fork). Damage type never changes.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs only).
+
 ## 2026-10-17 Redesign docs: upgrades and progression
 - Systems: docs only (redesign docs)
 - Files: redesign docs/UPGRADES.md (new), README.md
