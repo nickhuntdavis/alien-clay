@@ -1,3 +1,11 @@
+## 2026-10-17 Samples doc: tell, quirk and payoff format
+- Systems: docs only (redesign docs)
+- Files: redesign docs/SAMPLES.md
+- What: SAMPLES.md rewritten in the user's format: design principle (tell, quirk, payoff), one-line roster, a page per sample (core fantasy, behaviour, named passive, Unique Feat, visual signature, consciousness, Scientist, selection-card gag), visual rhythm, guardrails and the guiding test. Rules, starting attack types (linked to WEAPONS.md section 4), unlocks and open decisions kept at the end.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-17 Redesign docs: one weapons list
 - Systems: docs only (redesign docs)
 - Files: redesign docs/WEAPONS.md (new), README.md
