@@ -69,8 +69,8 @@ function startRewind(auto) {
   const echo = {
     path: c.path.filter(q => q.t >= target.t).map(q => ({ t: q.t - target.t, x: q.x, y: q.y })),
     t: 0, dur: span + 0.6, x: p.x, y: p.y, hp: 1, r: 12, face: p.face, vx: 0, vy: 0, iframes: 0, flash: 0,
-    weapons: G.weapons.filter(Boolean).map(w => { const k = makeSlot(w.id, false, w.lvl); k.dir = w.dir; k.echo = true; k.mods = w.mods.slice(); k.perks = Object.assign({}, w.perks); k.dirs = w.dirs && w.dirs.slice(); computeStats(k); return k; }),
-    spells: G.P.echoInherit ? G.spells.filter(Boolean).map(w => { const k = makeSlot(w.id, true, w.lvl); k.dir = w.dir; k.echo = true; return k; }) : [],
+    weapons: G.weapons.filter(Boolean).map(w => { const k = makeSlot(w.id, false, w.lvl); k.dir = w.dir; k.dir2 = w.dir2; k.echo = true; k.mods = w.mods.slice(); k.perks = Object.assign({}, w.perks); k.dirs = w.dirs && w.dirs.slice(); computeStats(k); return k; }),
+    spells: G.P.echoInherit ? G.spells.filter(Boolean).map(w => { const k = makeSlot(w.id, true, w.lvl); k.dir = w.dir; k.dir2 = w.dir2; k.echo = true; return k; }) : [],
     span,
   };
   if (!echo.path.length) echo.path.push({ t: 0, x: p.x, y: p.y });

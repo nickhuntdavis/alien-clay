@@ -96,7 +96,7 @@ Object.assign(WEAPONS, {
     desc: 'Do not pop it. It will pop itself. Twice.',
     base: { dmg: 14, cd: 1.3, mag: 3, reload: 2.0, count: 1, spread: 40, range: 380, area: 70, explode: 1, dur: 2.5, flight: 0.6 },
     lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['xpopit', 'xbigblister'], 10: ['xbloodbath', 'xweeping'] } },
-  leeches: { name: 'Leeches', stars: [2, 5, 3, 2], play: 'Leeches swim off, latch onto an enemy and suck until it dies. A little of what they drink comes back to you as health.', icon: 'LC', elem: 'arcane', kind: 'critter', critter: 'latch', dir: 'highhp', role: 'Pets', armoury: 1,
+  leeches: { name: 'Leeches', stars: [2, 5, 3, 2], play: 'Leeches swim off, latch onto an enemy and suck until it dies. A little of what they drink comes back to you as health.', icon: 'LC', elem: 'arcane', kind: 'critter', critter: 'latch', dir: 'strongest', role: 'Pets', armoury: 1,
     desc: 'Medically approved. In 1820.',
     base: { dmg: 6, cd: 0.25, mag: 1, reload: 0, count: 2, range: 340, speed: 240 },
     lv: { 3: { count: 1 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['xleech', 'xbloodsucker'], 10: ['xfatleech', 'xjumbo'] } },
@@ -519,7 +519,7 @@ function petsTick(w, dt) {
     if (q.t && (q.t.dead || q.t.phased || q.t.charmed || Math.hypot(q.t.x - p.x, q.t.y - p.y) > s.range * 1.5)) q.t = null;
     if (!q.t && !(q.lookT > G.t)) {
       q.lookT = G.t + 0.25;
-      const ts = acquireMany(w.dir, s.range, p.x, p.y, Math.max(1, P.length));
+      const ts = acquireMany(aimDir(w), s.range, p.x, p.y, Math.max(1, P.length));
       q.t = ts.length ? ts[i % ts.length] : null;
     }
     let tx, ty;

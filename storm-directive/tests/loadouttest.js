@@ -29,10 +29,11 @@ const { chromium } = require('playwright');
   const uid = await page.evaluate(() => G.weapons[0].uid);
   await page.click(`[data-tg="${uid}"]`); await page.screenshot({ path: 'loadout_target.png' });
   await page.click(`[data-dir2="strongest"][data-uid="${uid}"]`);
+  await page.click(`[data-dir3="weakest"][data-uid="${uid}"]`);
   await page.click('[data-fa="0"][data-v="tap"]');
-  const ch = await page.evaluate(() => ({ mv: G.moveDir, dir: G.weapons[0].dir, waits: featWaits(G.spells[0]) }));
+  const ch = await page.evaluate(() => ({ mv: G.moveDir, dir: G.weapons[0].dir, dir2: G.weapons[0].dir2, waits: featWaits(G.spells[0]) }));
   console.log('changed', JSON.stringify(ch));
-  if (ch.mv !== 'orbit' || ch.dir !== 'strongest' || !ch.waits) fails.push('controls');
+  if (ch.mv !== 'orbit' || ch.dir !== 'strongest' || ch.dir2 !== 'weakest' || !ch.waits) fails.push('controls');
   // Weapon page: targeting comes before the stats.
   await page.click('[data-go="w0"]');
   const ord = await page.evaluate(() => { const t = document.getElementById('armBody').textContent.toLowerCase(); return { tgt: t.indexOf('targeting directive'), tree: t.indexOf('upgrade tree'), rec: t.indexOf('record') }; });

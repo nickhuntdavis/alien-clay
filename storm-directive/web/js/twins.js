@@ -62,7 +62,7 @@ function twinsTick(dt) {
   if (T.sig !== sig) {
     T.sig = sig;
     T.weapons = G.weapons.filter(x => x && !NOCOPY.has(x.def.kind)).map(x => {
-      const k = makeSlot(x.id, false, x.lvl); k.dir = x.dir; k.echo = true; k.copyK = copy; k.twinCopy = true;
+      const k = makeSlot(x.id, false, x.lvl); k.dir = x.dir; k.dir2 = x.dir2; k.echo = true; k.copyK = copy; k.twinCopy = true;
       k.mods = x.mods.slice(); k.perks = Object.assign({}, x.perks); k.wp = x.wp; computeStats(k); k.ammo = k.s.mag; return k;
     });
   }
