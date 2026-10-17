@@ -101,7 +101,7 @@ These five are the complete defence list. Enemy-specific twists are built from t
 
 | Status / mechanic | Owner | Consequence | Counterplay and limit | Distinction |
 | --- | --- | --- | --- | --- |
-| Poise Pressure | Force | Brief stagger or interrupt window | Recovery window; bosses use thresholds/diminishing returns | Physical impact, not Static overload |
+| Poise Pressure | Force (Static when tagged) | One shared meter; at threshold, a brief stagger or interrupt | Not every hit adds Poise; recovers after a spell without qualifying hits; elites and bosses have higher thresholds and shorter control, never full immunity | Force adds by impact; Static only when an attack explicitly carries Poise or interruption pressure |
 | Knockback | Force | Repositions target; collision may add a payoff | Space, Squishy, anchoring; bonus only on actual collision | Not a guaranteed damage multiplier |
 | Corrosion | Acid | Temporarily reduces Shell effectiveness | Short duration, cap, recovery or cleanse where available | Prefer this to generic Acid DoT stacking |
 | Acid Pool | Acid | Punishes lingering in a visible zone | Clear boundary and lifetime | No indefinite pools |
@@ -120,19 +120,21 @@ Status labels in this matrix are functional names, not necessarily player-facing
 
 Enemies should teach positioning, target priority or build choices—not require a specific damage type to be viable.
 
-| Archetype | Threat | Player answer | Useful types / tools | Must not become |
+Role names match the merged role list in `ENEMY_DESIGN.md` section 3. Roles combine (e.g. Shooter + Sniper).
+
+| Role | Threat | Player answer | Useful types / tools | Must not become |
 | --- | --- | --- | --- | --- |
-| Swarm / fodder | Surrounding and body-blocking | Move, clear a lane, use area damage | Static chains, Force displacement, Mucus lane control | Unavoidable contact damage |
-| Charger / bruiser | Telegraphs a heavy hit or collision | Dodge, bait, interrupt, reposition | Force poise pressure, Mucus setup, player movement | A raw-DPS check |
-| Shelled tank | High effective health and slow pressure | Strip defence, flank, avoid commitment | Acid erosion, Force displacement | Mandatory Acid in every build |
-| Ranged harasser | Projectiles while player is moving | Break line, dodge, close distance | Movement, Force displacement, Mucus control | Off-screen unavoidable damage |
-| Sniper / telegraphed burst | High damage after a clear wind-up | Read tell and change lane | Dodge; Force/Static only within explicit interrupt windows | Unreadable phone-screen one-shots |
-| Controller / trapper | Sticky zones and lane denial | Route around, remove priority threat | Movement, Force displacement, deliberate hazard interactions | Removing every safe route |
-| Support / healer | Regeneration, Membrane or buffs | Focus, interrupt, isolate | Acid defence erosion, Static tagged interruption, Soul only when explicitly tagged | Mandatory hard-counter checks |
-| Leech / extractor | Heals or grows from injury | Burst, disengage, deny contact | Force displacement, Blood mirror-economy interactions | Punishing damage twice without warning |
-| Conductor / relay | Enables nearby chains or buffs | Break cluster/link, prioritise relay | Static interactions, Force to separate enemies | Making Static the only viable group answer |
-| Hazard / terrain organism | Persistent damage or route constraint | Read boundary, move lanes, exploit visible setup | Acid, Mucus and Fire where the hazard explicitly supports them | Invisible damage or no safe route |
-| Boss / elite | Tests one mechanic with larger stakes | Learn telegraph, exploit a clear window, manage adds | Varied by boss; at least two viable answers | Full immunity to all control or endless stun-lock |
+| Swarm | Surrounding and body-blocking | Move, clear a lane, use area damage | Static chains, Force displacement, Mucus lane control | Unavoidable contact damage |
+| Charger | Telegraphs a heavy hit or collision | Dodge, bait, interrupt, reposition | Force poise pressure, Mucus setup, player movement | A raw-DPS check |
+| Tank | High effective health and slow pressure | Strip defence, flank, avoid commitment | Acid erosion, Force displacement | Mandatory Acid in every build |
+| Shooter | Projectiles while player is moving | Break line, dodge, close distance | Movement, Force displacement, Mucus control | Off-screen unavoidable damage |
+| Sniper | High damage after a clear wind-up | Read tell and change lane | Dodge; Force/Static only within explicit interrupt windows | Unreadable phone-screen one-shots |
+| Controller | Sticky zones and lane denial | Route around, remove priority threat | Movement, Force displacement, deliberate hazard interactions | Removing every safe route |
+| Support | Regeneration, Membrane or buffs | Focus, interrupt, isolate | Acid defence erosion, Static tagged interruption, Soul only when explicitly tagged | Mandatory hard-counter checks |
+| Leech | Heals or grows from injury | Burst, disengage, deny contact | Force displacement, Blood mirror-economy interactions | Punishing damage twice without warning |
+| Relay | Enables nearby chains or buffs | Break cluster/link, prioritise relay | Static interactions, Force to separate enemies | Making Static the only viable group answer |
+| Controller (hazard) | Persistent damage or route constraint | Read boundary, move lanes, exploit visible setup | Acid, Mucus and Fire where the hazard explicitly supports them | Invisible damage or no safe route |
+| Elite / Boss | Tests one mechanic with larger stakes | Learn telegraph, exploit a clear window, manage adds | Varied by boss; at least two viable answers | Full immunity to all control or endless stun-lock |
 
 ## 6. Pair coverage and implementation rules
 

@@ -8,7 +8,7 @@ Working proposal, 17 Oct 2026. Uses the vocabulary of the other redesign docs on
 - **Statuses:** Poise Pressure, Knockback, Corrosion, Acid Pool, Charge, Snared, Conjoined, Bleed, Extraction, Soul Mark, Fear, Burning (`COMBAT_MATRIX.md` section 4).
 - **Reactions:** the 21 triggered pair reactions (`COMBAT_MATRIX.md` section 1). Two types touching one enemy is never enough on its own.
 
-Items marked **Open question** are waiting on a decision.
+The decisions of 17 Oct 2026 are summarised at the end.
 
 ## 1. Design goal
 
@@ -45,6 +45,8 @@ Good: a charger shows its lane, a shooter pulls you forward, a Pool changes whic
 ### 2.5 Defences and damage types reinforce identity, they don't replace it
 Behaviour comes first. An enemy's defence (one of the five) and any damage-type interaction should reinforce that behaviour or create a loadout decision. A plain enemy with no defence that tests movement or target priority is valuable. When an enemy reacts to a type, the reaction is visible and specific, and uses a defined trigger (a visible state, a world object, a named weapon combo).
 
+Keep the layers separate: an enemy can be Squishy, take Force damage, build Poise and set off a reaction without those becoming four competing explanations for the same hit.
+
 ### 2.6 No hard counters
 Enemies may punish over-reliance on one approach but never shut down a build. Avoid: effective immunity to a build's damage, needing one damage type to win at a reasonable pace, stacking defences, unavoidable statuses, supports that make a group untouchable, and punishment without a clear signal. A defence changes a weapon's efficiency; it never makes the weapon look broken.
 
@@ -53,7 +55,7 @@ Many species, few behaviours at once. Escalate through combinations (a Shell tan
 
 ### 2.8 Bounded and recoverable
 - Snared and other movement control never become a permanent lock.
-- Repeated interruptions respect Poise Pressure limits (**Open question 10**).
+- Repeated interruptions respect the shared Poise meter (section 9).
 - Charge arcs have range and jump limits.
 - Summoners have caps and cooldowns.
 - Pools have visible edges, lifetimes and a way out.
@@ -80,7 +82,7 @@ No enemy ships until its signature and counterplay fit in two sentences.
 
 ### Roles
 
-**Open question 6:** this list and the archetype list in `COMBAT_MATRIX.md` section 5 overlap; they should become one list.
+One shared role vocabulary for the roster, encounter design and the combat matrix (`COMBAT_MATRIX.md` section 5 uses the same names). Roles are labels, not enemy classes or mechanics, and they combine: an enemy can be Shooter + Sniper or Support + Relay.
 
 | Role | Primary function | Main counterplay |
 |---|---|---|
@@ -93,7 +95,10 @@ No enemy ships until its signature and counterplay fit in two sentences.
 | Support | Heals, buffs or grants Membrane | Prioritise the source |
 | Summoner | Adds enemies | Prioritise the summoner |
 | Controller | Restricts space or movement | Leave Pools, exploit windows, kill the source |
-| Carrier | Creates a world object or mark a reaction can use | Recognise its state and exploit it |
+| Carrier | Leaves, stores, carries or releases a reaction ingredient | Recognise its state and exploit it |
+| Leech | Steals health or another defined resource | Burst it, disengage, deny contact |
+| Relay | Strengthens nearby enemies or enables their interactions | Break the cluster, prioritise the relay |
+| Sniper | Long-range pressure with a clearly telegraphed attack | Read the tell, change lane |
 | Elite | A familiar role with one extra modifier | Suitable targeting policy and build |
 | Boss | Tests established skills in one memorable fight | Learnable phases, telegraphs, openings |
 
@@ -129,7 +134,7 @@ A first-pass disposition, not a rebuild order. The defence column uses the five 
 | Volvox | Review overlap | None | Keep only if its formation or split adds a distinct role. |
 | Cytokine Caster | Keep if distinct | None | Pick one job (damage, buff or control), not all three. |
 | Diatom | Keep if distinct | Shell | Shelled shooter; Acid and heavy Force shed layers. |
-| Ghost Swimmer | Revise | Dodge | Short, clearly signalled phase windows with a reliable reappearance. |
+| Ghost Swimmer | Revise | Dodge | Soul-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
 | Mother Cell | Keep, cap spawns | None | Summoner; visible summon cue and a strict cap. |
 | Enzyme Spire | Keep | Shell | Stationary turret (Projectile or Beam); readable lane; reason to reposition or prioritise. |
 | Plasmodium | Review overlap | None | Keep only if its split gives a genuinely different formation. |
@@ -168,7 +173,7 @@ Bosses are built from familiar behaviours, attack types and defences, pushed int
 | Chad Prime | Charger: Contact rams with visible wind-ups and recovery windows. |
 | The Fever | Escalating pressure, bounded and legible. |
 | Mitch & Osis | Two silhouettes, two roles (e.g. one Membrane, one Shell); their interaction is the fight. |
-| Phantom Pregnancy | Soul themes (Soul Mark, Fear); no long target confusion. |
+| Phantom Pregnancy | Boss-scale illusion or Soul Mark encounter; no long target confusion. |
 | Litmus Strip | Tests adaptation without requiring one weapon. |
 | The Johnny | One recognisable signature attack or movement first. |
 | Mucus Plug | Snared ground and Pools; safe routes always remain. |
@@ -191,27 +196,27 @@ Directions to investigate, not specifications.
 
 ### 6.2 Static Sock
 - **Role:** close-range punisher (Chaser).
-- **Signature:** builds its own static as it moves, then delivers a heavy Contact zap.
-- **Read:** glow and crackle intensify.
+- **Signature:** builds Crackle as it moves, then delivers a heavy Contact zap.
+- **Read:** it crackles harder as Crackle builds. Crackle belongs to this enemy only: no general status, icon or meter. Charge stays the status Static weapons put on enemies.
 - **Counterplay:** kill it before it's full, avoid its path, or dodge the zap.
 - **Defence:** Squishy (it's a sock).
-- **Open question 9:** its self-built static needs a name that isn't Charge.
 - **Verdict:** prototype.
 
 ### 6.3 Stress Ball
 - **Role:** defensive specialist (Tank).
-- **Signature:** gets harder the more Force hits it, then relaxes.
-- **Read:** visibly compresses and hardens.
-- **Counterplay:** switch attack or damage type, or let it relax.
-- **Defence:** Squishy whose reduction ramps (capped). **Open question 3.**
-- **Verdict:** cheap and teaches that defences react to damage types.
+- **Signature:** every 5th qualifying Force hit sets off a rebound: it squeezes, then springs back, knocking you back if you're close.
+- **Read:** it visibly squeezes tighter with each Force hit; the 5th squeeze is unmistakable before it springs.
+- **Counterplay:** keep your distance when it's fully squeezed, or use another attack or damage type.
+- **Defence:** Squishy, fixed (Force is softened as usual; the rebound is its identity, not a stronger defence).
+- **Limit:** telegraphed and infrequent, so Force builds never feel punished at random.
+- **Verdict:** prototype. If knocking the player back feels awkward in practice, drop Stress Ball rather than add a defence for it.
 
 ### 6.4 Mosquito
 - **Role:** resource pressure (joke).
 - **Signature:** a Contact bite that uses Extraction to take a little health, then it flies off.
 - **Read:** swells as it feeds; retreats.
 - **Counterplay:** kill it within a short window to get the health back (FASTEST helps).
-- **Reaction hook:** dies into a small blood pool (Blood Circuit). **Open question 4.**
+- **Reaction hook:** dies into a small blood pool (Blood Circuit); here the ingredient fits naturally.
 - **Verdict:** prototype.
 
 ### 6.5 Earwax Plug
@@ -231,7 +236,7 @@ Directions to investigate, not specifications.
 - **Verdict:** low priority flavour.
 
 ### 6.7 Echo Cell (defer)
-Leaves a see-through echo that repeats its recent movement or attack. If the echo must be hit, autoaim must be able to target it. Soul interactions use the Soul Mark (**Open question 8**). Prototype only once simpler enemies are solid.
+Leaves a see-through echo that repeats its recent movement or attack. If the echo must be hit, autoaim must be able to target it. Its Soul hook is the Soul Mark (the echo arrives marked). Prototype only once simpler enemies are solid.
 
 ### 6.8 Newton's Cradle (redesign first)
 A linked chain of bodies passes an impact end to end. Remove any need to hit a particular end. Trigger it through automatic attacks, movement or a visible state; Force Knockback is the natural driver.
@@ -310,6 +315,25 @@ Not rejected, but each currently adds too many dependencies.
 
 ## 9. Enemies and damage types
 
+### Carriers
+- Reuse an existing reaction ingredient (Acid Pool, Mucus patch, blood pool or wound, Burning, Soul Mark) whenever it fits naturally.
+- A Carrier can instead store, carry or release an existing effect.
+- A custom effect is allowed only when it creates a distinct, worthwhile decision. Never add a new status just so an enemy counts as a Carrier.
+- A Carrier's effects never get round Shell, Membrane or Dodge.
+
+### Soul enemies
+- The Soul Mark is the shared hook: a Soul-marked enemy is a visible chance to set off Force + Soul, Mucus + Soul or Blood + Soul.
+- Fear is a separate status, used only where it creates a distinct, readable threat. It is not what Soul damage inherently does.
+- Each Soul-themed enemy has its own primary behaviour (Ghost Swimmer phases, Echo Cell repeats, Phantom Pregnancy is a boss-scale illusion). No enemy needs Soul damage to turn it on its allies.
+
+### Poise
+- One shared Poise meter. Force adds to it through physical impact; Static adds only when an attack explicitly carries Poise or interruption pressure.
+- At the threshold the enemy briefly staggers or its action is interrupted.
+- Not every Force or Static hit adds Poise.
+- Poise recovers after a period without qualifying hits.
+- Elites and bosses have higher thresholds and shorter control. Bosses are never fully immune: briefly interrupting a telegraphed attack is satisfying counterplay.
+
+### Rules
 1. **Every reaction needs a readable trigger:** a visible state, a world object (Acid Pool, Mucus patch, blood pool, Burn zone), a Soul Mark or a named weapon combo.
 2. **No manual targeting:** if a specific enemy must be hit, autoaim must be able to pick it.
 3. **A matching type never auto-wins:** it improves efficiency or opens a window.
@@ -325,7 +349,7 @@ Not rejected, but each currently adds too many dependencies.
 - **Static:** clustered enemies for arcs; Charge to interrupt telegraphed attacks; can strengthen Membrane (a risk the player sees).
 - **Mucus:** fast or evasive enemies to Snare; patches that set up Fire, Static and Acid reactions.
 - **Blood:** high-HP enemies to Bleed; Extraction for limited sustain.
-- **Soul:** Soul Mark setups and Fear; full build-up turns the enemy on its mates for a few seconds.
+- **Soul:** essence and non-physical resources; Soul Mark setups. Fear only where an enemy is built around it.
 - **Fire:** Burning, Burn zones and lighting Mucus; strong into Shell and Squishy, which don't resist heat.
 
 Not every enemy needs to respond to every type.
@@ -378,11 +402,13 @@ Make the existing roster coherent before adding new ideas. Separate the heavies 
 
 **Every enemy should make the player change a decision, not necessarily learn a new rule.**
 
-## Open questions
+## Decisions (17 Oct 2026)
 
-3. Stress Ball's defence: ramping Squishy, or something else?
-4. Should Carrier enemies always leave one of the existing world objects or marks?
-6. Merge this role list with the matrix archetype list?
-8. How do Soul enemies use the Soul Mark and Fear?
-9. A name for Static Sock's self-built static.
-10. Poise Pressure: shared or separate budgets for Force and Static?
+| Question | Decision |
+|---|---|
+| Stress Ball | Fixed Squishy; a bounded, telegraphed rebound every 5th Force hit, or drop it |
+| Carrier effects | Reuse existing reaction ingredients when they fit; allow justified exceptions |
+| Enemy roles | One merged vocabulary (adds Leech, Relay, Sniper); roles can combine |
+| Soul enemies | Soul Mark is the shared hook; Fear is selective |
+| Static Sock state | Crackle, not Charge |
+| Poise | One shared Force/Static meter, with explicit contribution and elite and boss limits |

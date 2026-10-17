@@ -264,7 +264,7 @@ Force is the burst-and-displacement type. It delivers immediate physical impact,
 ## Core mechanics
 
 - **Impact:** High immediate physical damage, usually delivered by punches, headbutts, tackles, slams, or heavy strikes.
-- **Poise pressure:** Repeated qualifying hits build pressure toward a brief stagger or interrupt. Use thresholds and diminishing returns on elites; avoid stun-lock.
+- **Poise pressure:** Repeated qualifying hits fill the shared Poise meter toward a brief stagger or interrupt. Not every hit qualifies; Poise recovers after a spell without qualifying hits; elites and bosses have higher thresholds and shorter control; avoid stun-lock. Static adds to the same meter only when an attack is explicitly tagged for it.
 - **Displacement:** Strong hits push or launch targets. A wall or hazard only adds a payoff when a real collision occurs.
 - **Momentum:** Attacker mass and actual speed at contact may increase impact. Keep the benefit readable and avoid requiring the player to calculate it.
 - **Shockwave:** Only attacks explicitly designed to convert excess impact into an area effect create one; it is not automatic on every poise break.
@@ -442,4 +442,4 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 
 ## Design boundaries
 
-Static owns Charge, bounded arcs, and conditional interruption. Force owns physical impact and displacement; Acid owns defence erosion; Mucus owns sticky control; Blood owns wounds and extraction; Soul owns essence and marks; Fire owns ignition. Resolve Membrane recharge separately from damage, and never let the interaction loop infinitely.
+Static owns Charge, bounded arcs, and conditional interruption. Static adds to the shared Poise meter only when an attack explicitly carries Poise or interruption pressure. Force owns physical impact and displacement; Acid owns defence erosion; Mucus owns sticky control; Blood owns wounds and extraction; Soul owns essence and marks; Fire owns ignition. Resolve Membrane recharge separately from damage, and never let the interaction loop infinitely.

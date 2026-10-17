@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: enemy decisions recorded
+- Systems: docs only (redesign docs)
+- Files: redesign docs/ENEMY_DESIGN.md, COMBAT_MATRIX.md, DAMAGE_TYPES.md
+- What: Stress Ball is fixed Squishy with a telegraphed rebound every 5th Force hit; Carrier rule (reuse reaction ingredients when they fit); one merged role list (adds Leech, Relay, Sniper; matrix section 5 renamed to match); Soul Mark is the Soul enemies' hook, Fear is selective; Static Sock builds Crackle (not Charge); one shared Poise meter for Force and tagged Static.
+- Save data: none.
+- Hooks: none.
+- Risk: the Soul wording (essence and non-physical resources) differs from the v10 NOTES line "Soul is the mind-control type".
+
 ## 2026-10-17 Redesign docs: five defences only, attack types, enemy design
 - Systems: docs only (redesign docs)
 - Files: redesign docs/ATTACK_TYPES.md (new), ENEMY_DESIGN.md (new), COMBAT_MATRIX.md, DAMAGE_TYPES.md, DEFENCE_TYPES.md, README.md, tables/*.csv
