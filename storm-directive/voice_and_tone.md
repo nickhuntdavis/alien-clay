@@ -153,7 +153,41 @@ Ranked by how often to use them:
 6. **The over-specific number:** "Approximately 4,000 body-lengths" beats "far".
 7. **The flat recovery** after a loud moment (Section 2).
 
-Avoid: puns (unless also true, see "It is not a phase. It is a pH."), wordplay stacks, "random" humour, jokes that need setup the player hasn't seen, explaining the joke, two jokes in one line.
+Avoid: wordplay stacks (more than one twist per name), "random" humour, jokes that need setup the player hasn't seen, explaining the joke, two jokes in one line, puns on pop culture. Wordplay on real sex, contraception and medical phrases is **not** on this list: it is a core technique (see "The corrupted phrase" below).
+
+### The two signature techniques (keep and emulate)
+
+These two are what make the game's names and descriptions funny at a glance. The Scientist never comments on either: they are the writer's jokes, delivered with a straight face.
+
+**1. The corrupted phrase.** Take a real phrase from sex, contraception or medicine, change one word, and make the mechanic match the new meaning.
+
+| Example | The real phrase | The change | Why the mechanic matches |
+|---|---|---|---|
+| **Premature Evangelation** (orbit weapon) | premature ejaculation | ejaculation becomes evangelation | Guardian angels bless enemies early |
+| **Projectile Dysfunction** | erectile dysfunction | erectile becomes projectile | Shots misbehaving or failing to fire |
+| **Latex Barrier**, **Morning Sickness**, **Skid Mark**, **Placental Siphon** | real terms used as they are | none (the word is already the joke) | The thing is simply named after the body part or event |
+
+Rules for the corrupted phrase:
+
+1. **One real phrase, one change.** The player recognises the original in under a second. If they need it explained, drop it.
+2. **The mechanic must earn the pun.** Evangelation works because angels bless early. A pun with an unrelated mechanic is just a pun.
+3. **Pick the plain word.** The swap should be mundane and slightly wrong, not clever.
+4. **Never gloss it.** The description describes what it does, in plain words. It does not explain the name.
+5. **Use it on names first.** Weapons, Feats, Trophies, mutations, bosses, achievements. Narrator lines mostly use technique 2 instead.
+6. **Budget.** A handful per content batch, not every item. Plain, odd nouns (Hiccup Scattergun, Bit of Sweetcorn) still do most of the naming work.
+
+**2. The borrowed disclaimer.** Take a real-world claim, statistic or label, and apply it with a straight face to something absurd.
+
+- "A stretchy shield... bullets sink in, then get flung back at them. **98% effective.**" (Latex Barrier, `data.js`) A real contraception figure, dropped onto a shield that reflects bullets. The 2% is the joke, and nobody has to say it.
+- Other shapes that work: "Results may vary", "Consult your doctor", "Not suitable for under 18s", "Side effects include...". Use them as the last clause of a description.
+
+Rules for the borrowed disclaimer:
+
+1. **Last words only.** It is the final phrase of the line, never the start.
+2. **The number or label must be real-sounding.** Accurate-looking figures beat jokey ones.
+3. **Never follow it with a comment.** The line ends on the disclaimer.
+
+**Quality test:** say the name aloud. If the reaction is a small groan followed by a grin, keep it. If it needs a second sentence, rewrite it. If it is cute but doesn't describe the mechanic, rewrite it.
 
 ---
 
@@ -282,7 +316,7 @@ Quoted from the code. Ranked within each group.
 1. **"One of the four hundred million. Not a threat on its own. There is never one on its own."** (Crawler intro) Teaches the game's premise in three flat sentences.
 2. **"Nobody knows how they got in here."** (Krill intro) The shortest possible understatement.
 3. **"A booster shot. It locks on with a red sight line before firing a burst, and killing it is only half the job."** (Sperminator intro) Menace in a procedural register.
-4. **"It is not a phase. It is a pH."** (`seqsel.js`) A pun, but only because it is also true. Keep this kind rare.
+4. **"It is not a phase. It is a pH."** (`seqsel.js`) Wordplay that is also true. A good seq quote shape.
 5. **"Do not touch it. It will tell you about its research."** (`seqsel.js`)
 6. **"It is not a crit. It is being believed."** (`seqsel.js`) Re-labels a game term in the narrator's flat logic.
 7. **"Have we met? I have died here before. Twice."** (`reborn.js`) Pure Tier 0, delivered by the character.
@@ -319,8 +353,17 @@ Lost Tadpole, Stray Pube, Bit of Sweetcorn, Navel Fluff, Bogey, Glitter. Plain n
 | Lines implying an audience or colleagues: "Lab sweepstake: 61% of the staff...", "The Committee would like to remind you...", viewers, sponsors, "the doctor" | The Scientist works alone. | Cut, or reframe as absence ("The ethics board has not been informed."). Use "the Scientist" or no name, not "the doctor". |
 | Two `idle` lines ending "Just saying." | Same tic twice. | Keep one. |
 
+### G. Wordplay and disclaimers (keep and emulate; these are the benchmark)
+
+1. **Premature Evangelation** (`orbit`, `data.js`) The gold standard. A single swapped word, and the mechanic (angels blessing early) fits.
+2. **Projectile Dysfunction** The same shape: a known medical phrase, one word changed. (Not found in the current code, so treat this as an approved name waiting for a home.)
+3. **"A stretchy shield... 98% effective."** (Latex Barrier) The borrowed disclaimer. A real statistic with a straight face.
+4. **Morning Sickness, Skid Mark, Placental Siphon, Latex Barrier** Real terms used as plain names. No change needed, the body part or event is the joke.
+5. **"Over too soon."** (the slow-time Feat description in `data.js`) A one-liner that is a sex joke and an accurate description of the mechanic.
+
 ### Takeaways
 
 - The best existing lines share one shape: **flat setup, specific detail, no reaction to it.**
+- The best **names and descriptions** share another: **a real sex, contraception or medical phrase, one word changed or one claim borrowed, and a mechanic that fits.**
 - `ENEMY_INTRO` `what` lines are the right length for a moment screen. The `tip` lines are the over-explaining that Section 4 targets.
 - Tier 2 and 3 barely exist in the live copy (closest: `born`, `gacha` and the egg-win lines). They are the main gap to fill.
