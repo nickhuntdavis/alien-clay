@@ -1,6 +1,6 @@
 # Signature Weapons
 
-Working proposal, 17 Oct 2026. Fifteen favourite weapons from the original game, plus five Fire drafts (16 to 20), brought back **alongside** v10's 42-weapon matrix (6 attack types × 7 damage types, `ATTACK_TYPES.md`). The matrix weapons are the plain baseline; a signature weapon is a matrix slot plus one signature behaviour that no other weapon has.
+Working proposal, 17 Oct 2026. Twenty-one favourite weapons from the original game, plus five Fire drafts (16 to 20), brought back **alongside** v10's 42-weapon matrix (6 attack types × 7 damage types, `ATTACK_TYPES.md`). The matrix weapons are the plain baseline; a signature weapon is a matrix slot plus one signature behaviour that no other weapon has.
 
 Each signature weapon has exactly one damage type and one attack type, and follows every rule in `COMBAT_MATRIX.md` (sections 1 to 11). The new rules they need are in `COMBAT_MATRIX.md` section 12. Starting stats are today's values from `data.js` and `armoury.js`; their level-up upgrades (the `sig` lists in code) carry over, except any that depend on a retired type (Cooties, Oil, Water), which get rewritten when the weapon is ported.
 
@@ -13,10 +13,10 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 3 | Pub Crawl (`wake`) | Fire (Oil; Cooties before) | Pool, trail | You shed a boozy trail as you swim; it burns | (none) |
 | 4 | Peekaboo (`peekaboo`) | Soul (Oil) | Burst | You vanish; enemies search the empty spot and hit each other; then BOO applies Fear | Player hiding; Fear source |
 | 5 | Black Hole (`void`, "Toddler Gravity") | Force (Soul) | Projectile, slow | A slow orb that pulls enemies in; orbs merge; five merged go supernova | Pull; bounded chains |
-| 6 | Tapeworm Seeder (`parasite`) | Soul (Cooties) | Projectile | Infected enemies rise after death and fight for you | Allied creatures |
+| 6 | Tapeworm Seeder (`parasite`) | Soul (Cooties) | Projectile | Infected enemies rise after death and fight for you | Pets |
 | 7 | Red Tape (`redtape`) | Mucus (Cooties) | Projectile | Tapes a target to its neighbours; damage to one is shared with the bundle | Echo damage |
 | 8 | Due Date (`duedate`) | Blood (Blood) | Projectile | A countdown mark; when it ends the target takes 40% of everything it took while marked | Echo damage |
-| 9 | Leeches (`leeches`) | Blood (Blood) | Contact, summoned | Leeches latch on and feed; a little comes back to you as health | Allied creatures; Extraction |
+| 9 | Leeches (`leeches`) | Blood (Blood) | Contact, summoned | Leeches latch on and feed; a little comes back to you as health | Pets; Extraction |
 | 10 | Static Cling (`tesla`) | Static (Static) | Projectile, chaining | Static jumps through crowds; your other weapons' hits on Charged enemies arc | (Charge as conductor) |
 | 11 | Lard Lobber (`lard`) | Force (Oil) | Burst | Knocked enemies bowl into their mates: STRIKE | Bounded chains |
 | 12 | Placental Siphon (`siphon`) | Force (Water) | Projectile | Eats enemy bullets near you and fires them back | Projectile blocking |
@@ -28,8 +28,14 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 18 | Carpet Burn (new) | Fire (new) | Contact | Friction: touching enemies at speed sets them alight; sprinting doubles it | (none) |
 | 19 | Getting Warmer (new) | Fire (new) | Beam | Heats up the longer it stays on; at full heat everything in the lane Ignites at once | (none) |
 | 20 | Burning Sensation (new) | Fire (new) | Projectile | Its Burn never drains: it lingers until Ignition, death or Mucus | (none) |
+| 21 | Twin Telepathy (`twin`) | Static (Static) | Beam, anchored | A beam joins you and your twin across the crowd; swim to sweep it; Charged enemies on it pass arcs on | (Charge as conductor) |
+| 22 | Blood Blister (`blister`) | Blood (Blood) | Pool, lobbed | Bursts into a big blood pool; when the pool dries it pops once more | (blood pools) |
+| 23 | Thorny Onesie (`onesie`) | Force (Force) | Burst, self-centred | Spikes pulse out around you; harder the more max health you have | Scaling |
+| 24 | Seeker Siblings (`seeker`) | Blood (Blood) | Projectile, homing | Homing siblings that never miss; a sibling that kills splits into two | Multiplying |
+| 25 | Flagellum Flail (`flail`) | Force (Force) | Beam, short lash | Your tail cracks in a straight line; the tip hits hardest | Heavy hit |
+| 26 | Nose Goblins (`goblins`) | Mucus (Mucus) | Projectile, orbiting | Bogey goblins circle you and flick snot at different enemies, spreading Snare | Orbiting |
 
-**Spread across types:** Fire 6, Soul 4, Force 3, Acid 2, Mucus 2, Blood 2, Static 1. Fire now covers all six attack types (Pub Crawl is its Pool); rows 16 to 20 are drafts.
+**Spread across types:** Fire 6, Force 5, Soul 4, Blood 4, Mucus 3, Acid 2, Static 2. Fire covers all six attack types (Pub Crawl is its Pool); rows 16 to 20 are drafts; rows 21 to 26 were added on 17 Oct from the parked originals.
 
 **Name note:** the shipped game currently calls `wake` "Skid Mark"; this doc restores **Pub Crawl**.
 
@@ -68,7 +74,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 ### 6. Tapeworm Seeder (`parasite`)
 - **Is:** Soul, Projectile. Fast shots infect (8 s).
 - **Signature:** an infected enemy that dies rises as an undead ally for a few seconds and fights for you. Possessed after death: the purest Soul weapon.
-- **Limits:** allied creatures rule (12.3); at most **4 undead** at once; each lasts 6 s.
+- **Limits:** pets rule (12.3); at most **4 undead** at once; each lasts 6 s.
 - **Start stats:** 12 damage, 0.4 s between shots, 8 per load.
 
 ### 7. Red Tape (`redtape`)
@@ -86,7 +92,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 ### 9. Leeches (`leeches`)
 - **Is:** Blood, Contact with the summoned modifier. Two leeches swim off, latch on and feed until the target dies.
 - **Signature:** a little of what they drink comes back to you as health. This is Extraction: it shares the 6 health per second cap.
-- **Limits:** allied creatures rule (12.3); at most 4 leeches at once. Leech bites apply Bleed as normal Blood hits.
+- **Limits:** pets rule (12.3); at most 4 leeches at once. Leech bites apply Bleed as normal Blood hits.
 - **Start stats:** 6 damage per bite, 0.25 s between bites.
 
 ### 10. Static Cling (`tesla`)
@@ -163,6 +169,51 @@ Fire is new, so the original game had only one Fire-shaped weapon. These five gi
 - **Limits:** only the part of the bar this weapon filled stays put; Burn from other weapons drains as normal. Snared still clears it (Mucus smothers Fire).
 - **Description:** "A persistent burning sensation. It should clear up on its own. It will not."
 - **Start stats:** 14 damage, 0.6 s cooldown, 6 per load.
+
+## Added 17 Oct: six more originals
+
+Modifiers are defined in `MODIFIERS.md`; pets in `COMBAT_MATRIX.md` 12.3.
+
+### 21. Twin Telepathy (`twin`)
+- **Is:** Static, Beam with the anchored-beam and sweep modifiers. Your twin mirrors you across an anchor on the crowd (range 520), and a beam (width 10) always joins the two of you.
+- **Signature:** swim to drag the beam through the crowd. Every enemy it touches is Charged, and Charged enemies on the beam pass arcs on (3 jumps, 70% falloff), so a crowded lane lights up.
+- **Limits:** the twin is not a pet: it can't be hit and only carries the beam. Each enemy is hit at most every 0.1 s.
+- **Start stats:** 24 damage, 1.6 s cooldown, 3 per load.
+
+### 22. Blood Blister (`blister`)
+- **Is:** Blood, Pool with the lobbed modifier.
+- **Signature:** each blister bursts into a large blood pool (radius 70, 2.5 s) that Bleeds what stands in it. When the pool dries, it pops once more as a small Burst. It is the main player source of blood pools, so it feeds Blood Circuit (Static) and Caught in the Clot (Mucus).
+- **Limits:** the dry-up pop is one Burst per pool, never a chain. Pools count towards the 40-object cap.
+- **Description:** "Do not pop it. It will pop itself. Twice."
+- **Start stats:** 14 damage, 1.3 s cooldown, 3 per load.
+
+### 23. Thorny Onesie (`onesie`)
+- **Is:** Force, Burst with the self-centred and scaling modifiers. Spikes pulse out around you (radius 90) and push enemies back.
+- **Signature:** the tank weapon. Damage scales with your max health: × (max health ÷ 120), capped at ×2. When player defences return, owning it also gives you Thorns.
+- **Limits:** the old "and armour" scaling goes (armour is now Shell layers, which the player doesn't have yet).
+- **Description:** "Spikes pulse out all around you. Huggable, technically."
+- **Start stats:** 18 damage, a pulse every 0.55 s, knockback 120.
+
+### 24. Seeker Siblings (`seeker`)
+- **Is:** Blood, Projectile with the homing and multiplying modifiers. Two homing siblings per shot (turn rate 5).
+- **Signature:** they never miss (Evasion still applies), and a sibling that kills splits into two smaller siblings (50% damage) that home on the next targets. Their hits Bleed.
+- **Limits:** split siblings never split again; at most 12 siblings in flight.
+- **Description:** "Tiny homing siblings who swim for you and never miss. Family is complicated."
+- **Start stats:** 9 damage, 0.45 s cooldown, 6 per load.
+
+### 25. Flagellum Flail (`flail`)
+- **Is:** Force, Beam (a short lash: range 190, width 15) with the sweep modifier.
+- **Signature:** your tail cracks in a long straight line, hitting everything along it. The last quarter of the lash (the tip) deals +50% and pushes harder, so the tip is where heavy hits (Shell layers off, Blood Pressure) come from.
+- **Limits:** each enemy is hit once per crack. Its "Get Over Here" upgrade becomes a short Pull (12.2) instead of a push.
+- **Description:** "Your tail cracks like a whip in a long straight line. It was a weapon all along."
+- **Start stats:** 19 damage, 0.38 s cooldown, 6 per load, knockback 60.
+
+### 26. Nose Goblins (`goblins`)
+- **Is:** Mucus, Projectile with the orbiting and piercing (1) modifiers. Two bogey goblins circle you and flick snot.
+- **Signature:** each goblin picks a different enemy where it can, so the Snare spreads across the front of a crowd; two Snared enemies that touch become Conjoined.
+- **Limits:** goblins are orbiters, not pets: they can't be hit and never block shots.
+- **Description:** "They live up there. They have always lived up there."
+- **Start stats:** 9 damage, 0.5 s cooldown, 8 per load.
 
 ## Old Pairings that use these weapons
 

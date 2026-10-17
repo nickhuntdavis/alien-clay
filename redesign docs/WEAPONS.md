@@ -3,23 +3,23 @@
 Every weapon in the redesign, in one place, 17 Oct 2026. Three groups, plus which weapon each sample starts with (section 4):
 
 1. **Matrix weapons (42):** the v10 baseline, one per attack type × damage type. Source: `V10_NAMES` in `storm-directive/web/js/v10.js` on branch `claude/zealous-clarke-i26iot` (not yet on `main`). Descriptions are the in-game text.
-2. **Signature weapons (20):** originals brought back (and five Fire drafts), each a matrix slot plus one signature behaviour. Full detail: `SIGNATURE_WEAPONS.md`.
-3. **Parked originals (34):** the rest of the original game's weapons, with why they are not in the redesign (yet). Full original detail: `storm-directive/GAME_GUIDE.md` (describes the shipped game).
+2. **Signature weapons (26):** originals brought back (and five Fire drafts), each a matrix slot plus one signature behaviour. Full detail: `SIGNATURE_WEAPONS.md`.
+3. **Parked originals (28):** the rest of the original game's weapons, with why they are not in the redesign (yet). Full original detail: `storm-directive/GAME_GUIDE.md` (describes the shipped game).
 
-Rules: `ATTACK_TYPES.md` (the six attack types), `COMBAT_MATRIX.md` sections 11 and 12 (formulas, signature rules). When a weapon changes, change it here and in its source doc in the same commit.
+Rules: `ATTACK_TYPES.md` (the six attack types), `MODIFIERS.md` (how attacks move and repeat), `COMBAT_MATRIX.md` sections 11 and 12 (formulas, signature rules). When a weapon changes, change it here and in its source doc in the same commit.
 
 ## Totals
 
 | Damage type | Matrix | Signature | Total |
 | --- | --- | --- | --- |
-| Force | 6 | 3 | 9 |
+| Force | 6 | 5 | 11 |
 | Acid | 6 | 2 | 8 |
-| Static | 6 | 1 | 7 |
-| Mucus | 6 | 2 | 8 |
-| Blood | 6 | 2 | 8 |
+| Static | 6 | 2 | 8 |
+| Mucus | 6 | 3 | 9 |
+| Blood | 6 | 4 | 10 |
 | Soul | 6 | 4 | 10 |
 | Fire | 6 | 6 | 12 |
-| **All** | **42** | **20** | **62** |
+| **All** | **42** | **26** | **68** |
 
 ## Open naming issues
 
@@ -74,7 +74,7 @@ Rules: `ATTACK_TYPES.md` (the six attack types), `COMBAT_MATRIX.md` sections 11 
 | M41 | Flame Jet | Fire | Beam | Projects a continuous stream of fire. It is important to keep things flowing. |  |
 | M42 | Burning Ground | Fire | Pool | Leaves a patch of fire that damages enemies inside it. The floor is lava. This is not a drill. |  |
 
-## 2. Signature weapons (20)
+## 2. Signature weapons (26)
 
 | # | Weapon (code id) | Damage type | Attack type | Signature | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -98,10 +98,16 @@ Rules: `ATTACK_TYPES.md` (the six attack types), `COMBAT_MATRIX.md` sections 11 
 | S18 | Carpet Burn (new) | Fire | Contact | Friction: touching enemies at speed sets them alight; sprinting doubles it | Draft (new) |
 | S19 | Getting Warmer (new) | Fire | Beam | Heats up the longer it stays on; at full heat everything in the lane Ignites at once | Draft (new) |
 | S20 | Burning Sensation (new) | Fire | Projectile | Its Burn never drains: it lingers until Ignition, death or Mucus | Draft (new) |
+| S21 | Twin Telepathy (`twin`) | Static | Beam, anchored | A beam joins you and your twin across the crowd; swim to sweep it; Charged enemies on it pass arcs on | Proposed |
+| S22 | Blood Blister (`blister`) | Blood | Pool, lobbed | Bursts into a big blood pool; when the pool dries it pops once more | Proposed |
+| S23 | Thorny Onesie (`onesie`) | Force | Burst, self-centred | Spikes pulse out around you; harder the more max health you have | Proposed |
+| S24 | Seeker Siblings (`seeker`) | Blood | Projectile, homing | Homing siblings that never miss; a sibling that kills splits into two | Proposed |
+| S25 | Flagellum Flail (`flail`) | Force | Beam, short lash | Your tail cracks in a straight line; the tip hits hardest | Proposed |
+| S26 | Nose Goblins (`goblins`) | Mucus | Projectile, orbiting | Bogey goblins circle you and flick snot at different enemies, spreading Snare | Proposed |
 
-## 3. Parked originals (34)
+## 3. Parked originals (28)
 
-Strongest candidates to bring back next: **Twin Telepathy, Static Hairbrush, Lightning Bugs** (Static is the thinnest signature type), **Blood Blister** (a blood-pool source), **Thorny Onesie** (once player defences return).
+Strongest candidates to bring back next: **Static Hairbrush** and **Lightning Bugs** (Static is still the thinnest signature type), **Bogey Roller** and **Achoo** (Conjoined in one shot).
 
 | Weapon (code id) | Old type | Why parked |
 | --- | --- | --- |
@@ -110,21 +116,16 @@ Strongest candidates to bring back next: **Twin Telepathy, Static Hairbrush, Lig
 | Yo-Yo Diet (`glaive`) | Force | Candidate: a returning throw that hits twice; would need a "returning" modifier |
 | Booger Flick (`frost`) | Mucus | Covered by the matrix Mucus Projectile (Gobstopper); its shatter idea is gone with the old reactions |
 | Morning Sickness (`venom`) | Acid | Lobbed Acid puddles: overlaps Upchuck and the matrix Acid Pool |
-| Seeker Siblings (`seeker`) | Blood | Candidate: homing siblings that multiply; would use the allied creatures rule |
 | Placenta Paddle (`paddle`) | Force | Candidate: big sweeping Force Contact; overlaps Nutcracker |
-| Flagellum Flail (`flail`) | Force | Candidate: a whip in a line (a short Force Beam) |
-| Thorny Onesie (`onesie`) | Force | Candidate: the player Thorns weapon; waits for player defences to return |
 | Colouring In (`crayon`) | Force | Parked: needs loops that autorun does not draw |
 | Imaginary Friend (`friend`) | Soul | Parked: copies your weapons, hard to bound |
-| Twin Telepathy (`twin`) | Static | Strong Static candidate: a Beam you sweep by swimming |
 | Baby Rattle (`rattle`) | Force | Covered by the matrix Force Burst |
-| Little Swimmers (`swimmers`) | Force | Candidate: allied creatures that headbutt (Force) |
+| Little Swimmers (`swimmers`) | Force | Candidate: pets that headbutt (Force) |
 | Gut Punch (`gutpunch`) | Acid | Covered by the matrix Acid Contact; its stun now comes from Poise |
 | Ulcer Moons (`ulcer`) | Acid | Overlaps Premature Evangelation (orbiting Contact) |
 | Achoo (`achoo`) | Mucus | Candidate: a sneeze cone with every fourth one a big push (Mucus Spread) |
 | Bogey Roller (`roller`) | Mucus | Candidate: a snowballing bogey; would be a third Mucus signature |
 | Runny Nose (`runny`) | Mucus | A Mucus trail: overlaps Pub Crawl (trail Pool) |
-| Nose Goblins (`goblins`) | Mucus | Overlaps Premature Evangelation (orbit) and the matrix Mucus Projectile |
 | Static Hairbrush (`hairbrush`) | Static | Strong Static candidate: every fourth swing lets a bolt go |
 | Carpet Shuffle (`carpet`) | Static | Covered by the matrix Static Burst (Power Surge) |
 | Lightning Bugs (`bugs`) | Static | Strong Static candidate: allied bugs whose bites arc |
@@ -132,13 +133,12 @@ Strongest candidates to bring back next: **Twin Telepathy, Static Hairbrush, Lig
 | Whooping Cough (`whoop`) | Cooties (retired) | Built on Sick (Cooties, retired) |
 | Cradle Cap (`cradlecap`) | Oil (retired) | Oil (retired); a close-range burst the matrix Spread covers |
 | Butter Knife (`butterknife`) | Oil (retired) | Oil (retired); its greasy smear has no new equivalent |
-| Head Lice (`lice`) | Oil (retired) | Oil (retired); hopping critters would use the allied creatures rule |
+| Head Lice (`lice`) | Oil (retired) | Oil (retired); hopping critters would use the pets rule |
 | Paper Cut (`papercut`) | Blood | Candidate: many tiny bleeding cuts (Blood Contact); overlaps Bloodletter |
-| Blood Blister (`blister`) | Blood | Candidate: a lobbed blood pool that pops when it dries; a natural blood-pool source |
 | Spirit Fingers (`spiritfingers`) | Soul | Covered by the matrix Soul Contact (Spirit Slap) |
 | Waters Breaking (`waters`) | Water (retired) | Water (retired); a push-away burst the matrix Force Burst covers |
 | Bath Bomb (`bathbomb`) | Water (retired) | Water (retired) |
-| Sea Monkeys (`seamonkeys`) | Water (retired) | Water (retired); critters would use the allied creatures rule |
+| Sea Monkeys (`seamonkeys`) | Water (retired) | Water (retired); critters would use the pets rule |
 
 ## 4. Sample starting weapons
 

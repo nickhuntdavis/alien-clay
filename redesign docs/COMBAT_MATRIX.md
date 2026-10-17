@@ -387,13 +387,27 @@ Damage that is copied, shared or repeated from other damage (Red Tape's 35% shar
 
 Pull is reverse knockback with the same formula: distance = pull strength ÷ (radius ÷ 12), towards the source. Squishy halves it, as it halves knockback. Elites take 50%, bosses 25%. Pull never drags anything through a wall or into a sealed arena.
 
-### 12.3 Allied creatures
+### 12.3 Pets (allied creatures)
 
-Summoned critters, undead and any creature fighting for you (Tapeworm undead, Leeches) follow one rule:
-- Their hits are your hits: they fill bars, set off reactions, and their kills give you XP.
-- At most 4 per weapon at once; each has a lifetime or dies with its target.
-- Enemies can target and kill them. They don't take player statuses, and autoaim never targets them.
-- Possessed enemies are not allied creatures (they keep their own rules in 11.5).
+A **pet** is a creature on your side with its own movement: summoned critters (Little Swimmers, Lightning Bugs, Leeches, Sea Monkeys, Head Lice) and converted enemies (Tapeworm undead). Orbiting bodies (Premature Evangelation's angels, Nose Goblins) are **not** pets: they are the orbiting modifier (`MODIFIERS.md`), cannot be hit, and follow you exactly.
+
+| Rule | Value |
+| --- | --- |
+| Damage | The weapon's damage, damage type and attack type (usually Contact). Your buffs apply; crits apply (11.1). |
+| Their hits are your hits | They fill bars, set off reactions, trigger Extraction, and their kills give you XP. |
+| Targeting | Each pet uses its weapon's autoaim directive and THEN tie-breaker (`AUTORUN_AUTOAIM.md`). |
+| Leash | Pets stay within 300 of you; past that they swim back and do not attack until they are within 200. |
+| Caps | At most 4 pets per weapon and 8 pets in total, across all weapons (screen clarity and phone speed). Upgrades that add pets stop at the cap. |
+| Health | 20% of your max health (24 at 120). No defences. |
+| Death | Summoned pets come back at your side after 3 s. Converted pets (undead) are gone for good when they die or their lifetime ends. |
+| Enemies | An enemy targets a pet only when the pet is closer than you and within 120. Enemies never chase pets across the arena. |
+| Statuses and hazards | Pets ignore statuses, Pools, patches and Burn zones. Only direct enemy hits hurt them. |
+| Thorns | A pet's Contact hit on a Thorns enemy hurts the pet, not you. |
+| Autoaim and shots | Your weapons never target pets, your shots pass through them, and they never block enemy shots. |
+| Peekaboo | While you are hidden, enemies ignore your pets too (they search your last spot). |
+| Look | Drawn smaller than enemies, outlined in your colour, so they never read as threats. |
+
+Possessed enemies are not pets; they keep their own rules (11.5).
 
 ### 12.4 Player hiding
 
