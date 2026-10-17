@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: one weapons list
+- Systems: docs only (redesign docs)
+- Files: redesign docs/WEAPONS.md (new), README.md
+- What: all 62 redesign weapons in one table set (42 matrix weapons from v10.js V10_NAMES, 20 signature weapons) plus the 34 parked originals with reasons. Flags a new name clash: Soul Purpose is both the Soul Burst weapon and the Force + Soul reaction.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs only).
+
 ## 2026-10-17 Redesign docs: Fire signature weapon drafts
 - Systems: docs only (redesign docs)
 - Files: redesign docs/SIGNATURE_WEAPONS.md

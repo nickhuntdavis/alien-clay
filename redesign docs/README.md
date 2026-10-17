@@ -7,6 +7,7 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `DEFENCE_TYPES.md`: the five defences (Squishy, Membrane, Shell, Thorns, Evasion; Evasion was called Dodge), one page each. No other defences or traits.
 - `ATTACK_TYPES.md`: the six attack types (Contact, Projectile, Spread, Burst, Beam, Pool), for weapons and enemies.
 - `ENEMY_DESIGN.md`: enemy principles, roster review, new concepts (including Fire enemies) and the 17 Oct decisions.
+- `WEAPONS.md`: every weapon in one place: the 42 matrix weapons, the 20 signature weapons and the 34 parked originals, with totals per damage type.
 - `SIGNATURE_WEAPONS.md`: 15 favourite original weapons brought back alongside the 42-weapon matrix, each with one damage type, one attack type and one signature behaviour (rules in `COMBAT_MATRIX.md` section 12).
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
 - `AUTORUN_AUTOAIM.md`: autorun modes and autoaim directives, including the THEN tie-breaker, with exact rules and numbers (shipped in v9.28 on `claude/festive-allen-xmea8i`, not yet in v10).
