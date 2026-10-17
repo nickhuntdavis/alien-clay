@@ -22,7 +22,7 @@ const ENEMY_INTRO = {
   bulwark:    { what: 'A slow wall of mucus with heavy armour that shields the enemies behind it.', tip: 'Armour shred, damage over time (it ignores armour) and HIGHEST ARMOUR targeting.' },
   warlock:    { what: 'Fires rings of cytokines in every direction.', tip: 'Find the gaps in the ring and slip through them. Kill it before the rings stack up.' },
   phantom:    { what: 'Fades out of phase: shots pass straight through it while it is faded.', tip: 'Hit it when it is solid. Auras and trails catch it as it comes back.' },
-  summoner:   { what: 'Keeps budding new enemies until it dies.', tip: 'It is the source: kill it, not the children. STRONGEST targeting helps.' },
+  summoner:   { what: 'Keeps budding new enemies until it dies.', tip: 'It is the source: kill it, not the children. SHOOTERS FIRST targeting helps.' },
   spire:      { what: 'Rooted to the spot, spraying a spiral of enzymes.', tip: 'Stay out of its reach or kill it fast. The spiral has gaps: time your way through.' },
   lancer:     { what: 'A sniper. A thin line shows where it is aiming, then a fast, heavy shot.', tip: 'Move when you see the line. Kill it from the side.' },
   amoeba:     { what: 'Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback.', tip: 'Acid and big blasts. Don\'t let it eat its way to a giant size.' },

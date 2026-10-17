@@ -1516,6 +1516,7 @@ function render() {
   }
 
   armDraw(); // (the Armoury's pets, armoury.js)
+  v10Draw(); // (v10 beams, v10.js)
 
   // Your shots go under the enemies (enemies and their bullets must stay readable), faded when busy.
   fxDim(true);

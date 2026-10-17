@@ -112,7 +112,7 @@ function updateSiphon(w, dt) {
   if (w.lastTarget && !w.lastTarget.dead) w.focusT += dt;
   w.cd -= dt * (G.rage > 0 ? 2 : 1) * rateBonus();
   if (w.cd > 0 || w.stored < 1) { if (w.cd < 0) w.cd = 0; return; }
-  const t = acquire(w.dir, s.range, p.x, p.y);
+  const t = acquire(aimDir(w), s.range, p.x, p.y);
   if (!t) { w.cd = 0; w.curTarget = null; return; }
   w.cd = s.cd;
   const k = w.q.shift(); w.stored = w.q.length;
@@ -159,7 +159,7 @@ function updateHeat(w, dt) {
     w.ammo = (1 - w.heat) * s.mag;
     return;
   }
-  const t = acquire(w.dir, s.range, p.x, p.y);
+  const t = acquire(aimDir(w), s.range, p.x, p.y);
   if (t) {
     if (t !== w.lastTarget) { w.focusT = 0; w.lastTarget = t; }
     w.focusT += dt; w.curTarget = t;
@@ -205,7 +205,7 @@ function fireMimic(w, target, src) {
 // ---------------------------------------------------------------- Tether Coil
 function fireTether(w, target, src) {
   const s = w.s, p = G.player;
-  const firsts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count) : [target];
+  const firsts = s.count > 1 ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count) : [target];
   for (const a of firsts) {
     let b = null, bd = s.jump * s.jump;
     for (const e of G.enemies) {

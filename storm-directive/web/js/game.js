@@ -80,7 +80,7 @@ function newStats() {
   return {
     might: 1, haste: 1, reloadSpd: 1, magMult: 1, multishot: 0, projSpeed: 1, range: 1, area: 1, dur: 1,
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
-    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1, soul: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1, plates: 0, flinch: 0, fullLoad: 0,
+    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1, soul: 1, flame: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1, plates: 0, flinch: 0, fullLoad: 0,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, heft: 0, thorns: 0, grit: 0, echoInherit: 0,
     bankShot: 0, atpK: 0, ironGut: 0, brushOff: 0, flow: 0, skid: 0,
@@ -125,7 +125,7 @@ function newGame() {
   for (const id in (META.pstains || {})) if (DYES[id] && !(META.pstainOff || {})[id] && !(G.wave && id === 'rival')) G.dyes[id] = true;
   applyMeta(G);
   genesStart(G);
-  junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
+  if (!V10) junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
   refreshPalette(); // greyscale apart from your permanent stains: colour comes from stains picked up during the run
 }
 
@@ -205,18 +205,18 @@ function forNear(x, y, r, fn) {
 
 // ---------------------------------------------------------------- targeting
 function targetScore(dir, e, d2) {
+  if (dir.length > 9 && dir.includes('>')) return aimPair(dir, e, d2); // (a primary plus a tie-breaker: autorun.js)
   switch (dir) {
     case 'nearest': return -d2;
     case 'furthest': return d2;
-    case 'strongest': return e.maxHp * 1e6 - d2;
+    case 'strongest': return aimTough(e) * 1e6 - d2;
     case 'weakest': return -e.maxHp * 1e6 - d2;
     case 'lowhp': return -e.hp * 1e6 - d2;
-    case 'highhp': return e.hp * 1e6 - d2;
     case 'armour': return effArmour(e) * 1e6 - d2;
     case 'fastest': return e.speed * 1e6 - d2;
     case 'cluster': return e.crowd * 1e6 - d2;
     case 'elite': return (e.boss ? 2 : e.rival ? 1.5 : e.elite ? 1 : 0) * 1e9 - d2;
-    case 'shooters': return (e.boss || e.def.shoot || e.def.ai === 'summon' || e.def.ai === 'medic' ? 1 : 0) * 1e9 - d2;
+    case 'shooters': return aimShootTier(e) * 1e9 - d2;
     case 'random': return Math.random();
     case 'revenge': return (e === G.grudge ? 1e12 : 0) - d2;
   }
@@ -443,6 +443,7 @@ function lvBonusText(def, from, to) {
 }
 
 function genLoot(req) {
+  if (V10) { const o = v10Loot(req); if (o) return o; } // (v10 test build: drafts and Switched at Birth only, v10.js)
   const opts = [];
   if (req.rule || req.imm) { const wl = weirdLoot(req); if (wl) { if (req.rule) for (const o of wl) delete o.pk; return wl; } } // (weird.js: a rule-breaking box)
   if (req.kind === 'myth') { // Achievement DNA: Mythical or Immaculate cards only
@@ -1695,7 +1696,7 @@ function updateWeapon(w, dt) {
   while (w.cd <= 0 && shots < 3) {
     let target = null;
     if (!d.noTarget && d.kind !== 'mine') {
-      target = d.grudge && G.grudge && !G.grudge.dead && !G.grudge.phased ? G.grudge : acquire(w.dir, s.range, G.player.x, G.player.y);
+      target = d.grudge && G.grudge && !G.grudge.dead && !G.grudge.phased ? G.grudge : aimSticky(w, acquire(aimDir(w), s.range, G.player.x, G.player.y), s.range); // (autorun.js)
       if (!target) { w.cd = Math.max(w.cd, -s.cd); w.spin = Math.max(0, w.spin - dt); w.curTarget = null; return; }
       if (target !== w.lastTarget) { w.focusT = 0; w.lastTarget = target; }
       w.curTarget = target;
@@ -1729,6 +1730,7 @@ function fireWeapon(w, target) {
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
   if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
   if (d.armoury && armFire(w, target, src)) return; // (the Armoury's weapons, armoury.js)
+  if (d.v10 && v10Fire(w, target, src)) return; // (v10 beams and bursts, v10.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
@@ -1767,7 +1769,7 @@ function fireWeapon(w, target) {
       break;
     }
     case 'chain': {
-      const ts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count) : [target];
+      const ts = s.count > 1 ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count) : [target];
       const csrc = w.isLast ? Object.assign({}, src, { mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src;
       // Spoilers: a bolt that starts from the far side of the crowd.
       if (G.P.future > 0 && Math.random() < G.P.future) { const far = acquire('furthest', s.range, p.x, p.y); if (far) doChain(far.x, far.y, far, s.dmg, s.chain, s.jump, Object.assign({}, csrc)); }
@@ -1797,7 +1799,7 @@ function fireWeapon(w, target) {
       break;
     // ---- spells
     case 'strike': {
-      const ts = s.stick ? acquireMany(w.dir, s.range, p.x, p.y, s.count + 4).filter(t => !t.dummy).slice(0, s.count) : acquireMany(w.dir, s.range, p.x, p.y, s.count);
+      const ts = s.stick ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count + 4).filter(t => !t.dummy).slice(0, s.count) : acquireMany(aimDir(w), s.range, p.x, p.y, s.count);
       for (const t of ts) {
         if (s.stick) { // Dummy Spit: it sticks now and bursts when they die
           t.dummy = { dmg: s.dmg * 1.5, area: s.area, color: d.color, src, chain: spellFork(w, 'b') ? 1 : 0, gen: 0 };
@@ -1836,7 +1838,7 @@ function fireWeapon(w, target) {
       G.fx.push({ type: 'frost', x: p.x, y: p.y, r: s.area, color: '#caf0f8', life: 0.6, max: 0.6 });
       break;
     case 'thunder': {
-      const ts = acquireMany(w.dir, s.range, p.x, p.y, s.count);
+      const ts = acquireMany(aimDir(w), s.range, p.x, p.y, s.count);
       ts.forEach((t, i) => after(i * 0.07, () => {
         bolt(t.x + rand(-30, 30), t.y - 500, t.x, t.y, '#fdf0d5', 0.3);
         bolt(t.x + rand(-60, 60), t.y - 420, t.x, t.y, '#ffe94a', 0.2);
@@ -1973,7 +1975,7 @@ function updateBeam(w, dt) {
   w.beamT -= dt; w.beamTick -= dt;
   if (w.beamT <= 0) { w.beams = []; return; }
   // Re-acquire targets and swing beams towards them.
-  const ts = acquireMany(w.dir, s.range * 1.05, p.x, p.y, s.count);
+  const ts = acquireMany(aimDir(w), s.range * 1.05, p.x, p.y, s.count);
   if (!ts.length) { w.beams = []; return; }
   while (w.beams.length < ts.length) w.beams.push({ a: Math.atan2(ts[w.beams.length].y - p.y, ts[w.beams.length].x - p.x) });
   w.beams.length = ts.length;
@@ -2200,7 +2202,7 @@ function updateSpellList(list, dt) {
     if (featWaits(w) && !w.echo) { w.cd = 0; continue; } // (Settings > Feat timing, or the Feat's own in the Loadout: loadout.js)
     let target = null;
     if (!w.def.noTarget) {
-      target = acquire(w.dir, w.s.range, G.player.x, G.player.y);
+      target = acquire(aimDir(w), w.s.range, G.player.x, G.player.y);
       if (!target) { w.cd = 0; continue; }
     } else if (w.def.kind === 'heal' && G.player.hp > G.P.maxHp * 0.85) { w.cd = 0; continue; }
     else if ((w.def.kind === 'warp' || w.def.kind === 'barrier' || w.def.kind === 'ring') && !acquire('nearest', 300, G.player.x, G.player.y)) { w.cd = 0; continue; }
@@ -2224,7 +2226,7 @@ function featTap(w) {
   if (G.inCilia && featCost(w)) { say('TANGLED IN CILIA'); return false; }
   if (w.def.passive) { say(w.def.name.toUpperCase() + ' PERFORMS ITSELF'); return false; } // (Anhydrobiosis: newfeats.js)
   let target = null;
-  if (!w.def.noTarget) { target = acquire(w.dir, w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
+  if (!w.def.noTarget) { target = acquire(aimDir(w), w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
   if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }
   featFire(w, target); vibrate(25);
   return true;
@@ -2359,55 +2361,20 @@ function updatePlayer(dt) {
 // goal interest (per movement directive) minus danger from predicted enemy/bullet positions.
 const STEER_DIRS = Array.from({ length: 16 }, (_, i) => [Math.cos(i / 16 * TAU), Math.sin(i / 16 * TAU)]);
 function autoSteer() {
-  const p = G.player, mode = G.moveDir;
+  const p = G.player, mode = arMode(); // (autorun.js)
   // Goal vector.
   let gx = 0, gy = 0;
   const goal = (tx, ty, w) => { const dx = tx - p.x, dy = ty - p.y, d = Math.hypot(dx, dy) || 1; gx += dx / d * w; gy += dy / d * w; };
-  let bestPick = null, bpd = Infinity;
-  for (const u of G.pickups) { const d = Math.hypot(u.x - p.x, u.y - p.y); if (d < bpd) { bpd = d; bestPick = u; } }
-  if (bestPick && bpd < (mode === 'collect' ? 900 : 380)) goal(bestPick.x, bestPick.y, mode === 'hold' ? 0.3 : 1.2);
-  let homing = false;
-  if (mode === 'collect' && !homing && bestPick && bpd < 200) { homing = true; goal(bestPick.x, bestPick.y, 2.5); }
-  if (mode === 'collect' || mode === 'kite' || mode === 'defend') {
-    let bg = null, bgd = Infinity;
-    for (const g of G.gems) { const d = Math.hypot(g.x - p.x, g.y - p.y); const sc = d / Math.sqrt(g.v); if (sc < bgd && d < (mode === 'collect' ? 800 : 400)) { bgd = sc; bg = g; } }
-    if (bg) goal(bg.x, bg.y, mode === 'collect' ? 1.1 : 0.45);
-  }
-  let cx = 0, cy = 0, cn = 0;
+  const homing = arGoal(p, mode, goal, (x, y) => { gx += x; gy += y; }); // each mode's goals: autorun.js
   const near = [];
   for (const e of G.enemies) {
-    if (e.dead) continue;
-    const dx = e.x - p.x, dy = e.y - p.y, d2 = dx * dx + dy * dy;
-    if (d2 < 600 * 600) { cx += e.x; cy += e.y; cn++; }
-    if (d2 < 380 * 380 && !e.phased && !e.charmed) near.push(e);
-  }
-  if (cn > 0) {
-    cx /= cn; cy /= cn;
-    const dx = p.x - cx, dy = p.y - cy, d = Math.hypot(dx, dy) || 1;
-    if (mode === 'orbit') { gx += -dy / d * 1.0 + dx / d * (240 - d) / 200; gy += dx / d * 1.0 + dy / d * (240 - d) / 200; }
-    if (mode === 'kite') { gx += dx / d * 0.35 - dy / d * 0.3; gy += dy / d * 0.35 + dx / d * 0.3; }
-  }
-  if (mode === 'hunt') {
-    const w0 = G.weapons.find(Boolean);
-    const t = acquire(w0 ? w0.dir : 'nearest', 700, p.x, p.y);
-    if (t) {
-      const dx = t.x - p.x, dy = t.y - p.y, d = Math.hypot(dx, dy) || 1;
-      if (d > 130) goal(t.x, t.y, 1.2);
-      else {
-        // Close enough: sweep past it on whichever side we're already turning, instead of backing off.
-        const side = Math.sign(Math.cos(p.hd || 0) * -dy / d + Math.sin(p.hd || 0) * dx / d) || 1;
-        gx += -dy / d * side * 1.0 - dx / d * 0.2; gy += dx / d * side * 1.0 - dy / d * 0.2;
-      }
-    }
+    if (e.dead || e.phased || e.charmed) continue;
+    const dx = e.x - p.x, dy = e.y - p.y;
+    if (dx * dx + dy * dy < 380 * 380) near.push(e);
   }
   // Run events: chase the Golden Swimmer or the bounty.
   if (mode !== 'hold') for (const e of G.enemies) if (e.evTag && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 1400) goal(e.x, e.y, e.evTag === 'golden' ? 1.3 : 0.7);
   const core = G.core, cdist = Math.hypot(p.x - core.x, p.y - core.y);
-  if (mode === 'defend') {
-    // NEST: hold inside the egg's healing glow, drifting around it.
-    if (cdist > CORE.sanctuary * 0.8) goal(core.x, core.y, 1.4);
-    else { gx += -(p.y - core.y) / (cdist || 1) * 0.5; gy += (p.x - core.x) / (cdist || 1) * 0.5; }
-  }
   // The race: head for the egg once it is yours to break, or to stop a rival breaking it.
   // Yours to break: swim straight into it, then circle it at shooting range (in its healing glow).
   const M = G.eggE && !G.eggE.dead ? G.eggE : null, race = !G.wave && !G.lvl && !G.debug;
@@ -2694,6 +2661,7 @@ function update(dt) {
   updateZones(dt);
   updateTurrets(dt);
   armTick(dt); // (the Armoury's pets and bowling, armoury.js)
+  v10Tick(dt); // (v10 Burning and beams, v10.js)
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
   safely('nfTick', () => nfTick(dt)); // (the v9.23 Feats: newfeats.js)
   updateEnemies(dt);
@@ -3008,7 +2976,7 @@ function frame(ts) {
       if (G.lootHold > 0) G.lootHold -= dt;
       if (G.hitStop > 0) G.hitStop -= dt;
       else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed() * inspectMul()); }
-      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
+      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { if (!v10Box(G.lootQueue[0])) G.lootQueue.shift(); else if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
       else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed() * inspectMul()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);

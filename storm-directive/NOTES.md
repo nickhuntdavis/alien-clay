@@ -6,6 +6,8 @@
 - Combos batch 1 (8 for Armoury/Playpen weapons) is in `combos3.js`; about 37 of the 45 new weapons still have no combo. Natural synergy lines were not built.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
+- (`claude/festive-allen-xmea8i`, v9.28) Autorun modes now live in `autorun.js` (`arGoal`, memory in `G.ar`); autoaim tie-breaker is slot field `w.dir2` (acquire calls take `aimDir(w)`). Wave sims per mode, 4 runs each, old -> new: KITE 3->2, ORBIT 1->3, HUNT 3->2, HOLD 2->2 (9/16 both). `wave20.js` takes `--move <mode>`.
+
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
 
@@ -19,6 +21,14 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Pass 1 DONE (v9.10): types, statuses (basic versions of each), all 28 pair reactions + PANDEMIC (Cooties overload) in `chem.js` (`reactDo`); weapons re-typed to fit (Soul: friend, orbit, toothfairy, void, blackhole, warp, oob, dejavu, ghosts, peekaboo; Water: frostnova, bubble, siphon, naughtycorner; Oil: wake (renamed Skid Mark), moonshine; Cooties: cloud, heal, parasite, redtape, venom; Antacid renamed Booger Flick). Old colours repainted through `ELEM_SWAP`. Saves: `META.rxV2` re-shows the reworked types' cards. Not yet: Soul through walls/shields, ghost allies on kill, Blood clotting/pools, Oil slicks, Water currents, rings vs body statuses.
 - Pass 5 DONE (v9.14). Left: Pass 6 balance sims; swimmer skins only show in Arcade view (Lab is grey). Pass 4 DONE (v9.13). Pass 3 DONE (v9.12): see v9.12 in Recent changes. Pass 2 DONE (v9.11). Statuses still draw as rings in both views until Pass 5 (body looks for Lab view).
 - Passes: 1 names + 28 reactions as data; 2 views + skins; 3 type mechanics; 4 extra reactions; 5 visuals; 6 balance sims.
+
+## v10 combat rework (decided 17 Oct 2026; spec in `../redesign docs/`)
+- Approach: keep the engine and shell (loop, render, UI, settings, saves, audio, levels, Level 0, Field Guide, tests, Android key); rebuild hit resolution as a new `combat.js` (hit components: direct, status, impulse, hazard -> Dodge, Membrane, Shell, Squishy, health, Thorns) and `react.js` (21 triggered reactions as data); retire current weapons, Feats, combos and enemy roster for the user's redesign.
+- Steps: 1 merge docs (done) · 2 decisions (done) · 3 strip old content and Cooties/Oil/Water, clean ids `force acid static mucus blood soul fire` · 4 combat core · 5 slice: 7 weapons (one per type), 5 enemies (one per defence), 1 boss, wave mode · 6 `combattest` · 7 user's new content.
+- Fire is literal fire (matches, lighters), not fever.
+- Soul is the mind-control type: full Soul build-up makes the enemy fight its mates for a few seconds (like the old Cursed). The Soul pair reactions are extras on top; revisit the four low-confidence Soul rows against this.
+- First slice ships all 5 defences and no traits (Fearless, Bloodless, Fire Resistance come with the enemy redesign).
+- Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
 - v9.27: merged six branches into `main` (details in CHANGELOG.md v9.27): player statuses (v9.25 here) and the Phlegm Hocker and Hayfever Cell (v9.26 here), combos batch 1, stain-grant purge, dev cards on fresh saves, roomier draft screens, Weapon Atlas builder.

@@ -7,5 +7,6 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `DEFENCE_TYPES.md`: the five defences (Squishy, Membrane, Shell, Thorns, Dodge), one page each. No other defences or traits.
 - `ATTACK_TYPES.md`: the six attack types (Contact, Projectile, Spread, Burst, Beam, Pool), for weapons and enemies.
 - `ENEMY_DESIGN.md`: enemy principles, roster review, new concepts (including Fire enemies) and the 17 Oct decisions.
+- `AUTORUN_AUTOAIM.md`: autorun modes and autoaim directives, including the THEN tie-breaker, with exact rules and numbers (shipped in v9.28; merged into v10 in v10.04).
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
 - `tables/`: Notion databases as CSV (statuses, defences, interactions).

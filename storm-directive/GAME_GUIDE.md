@@ -133,8 +133,8 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Booger Flick](#booger-flick) | Favourite | Mucus | Saponifier | FASTEST | - |
 | [Static Cling](#static-cling) | Bright Spark | Static | Chain Static | DENSEST CLUSTER | - |
 | [Morning Sickness](#morning-sickness) | Problem Child | Acid | Area Denial | DENSEST CLUSTER | - |
-| [Tapeworm Seeder](#tapeworm-seeder) | Good Eater | Cooties | Necromancer | HIGHEST HEALTH | 90 DNA |
-| [Seeker Siblings](#seeker-siblings) | Firstborn | Blood | Swarm | WEAKEST | - |
+| [Tapeworm Seeder](#tapeworm-seeder) | Good Eater | Cooties | Necromancer | TOUGHEST | 90 DNA |
+| [Seeker Siblings](#seeker-siblings) | Firstborn | Blood | Swarm | FRAGILEST | - |
 | [Toddler Gravity](#toddler-gravity) | Bright Spark | Soul | Crowd Control | DENSEST CLUSTER | 80 DNA |
 | [Premature Evangelation](#premature-evangelation) | Good Eater | Soul | Bodyguard | NEAREST | 60 DNA |
 | [Placental Siphon](#placental-siphon) | Designer Baby | Water | Counter | NEAREST | 100 DNA |
@@ -142,7 +142,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Flagellum Flail](#flagellum-flail) | Quiet One | Force | Lasher | NEAREST | - |
 | [Thorny Onesie](#thorny-onesie) | Chonker | Force | Tank | NEAREST | - |
 | [Colouring In](#colouring-in) | Designer Baby | Force | Lasso | NEAREST | 90 DNA |
-| [Due Date](#due-date) | Favourite | Blood | Delayed Doom | HIGHEST HEALTH | 100 DNA |
+| [Due Date](#due-date) | Favourite | Blood | Delayed Doom | TOUGHEST | 100 DNA |
 | [Red Tape](#red-tape) | Problem Child | Cooties | Bureaucrat | DENSEST CLUSTER | 90 DNA |
 | [Imaginary Friend](#imaginary-friend) | Designer Baby | Soul | Echo | NEAREST | 120 DNA |
 | [Peekaboo](#peekaboo) | Quiet One | Oil | Trickster | NEAREST | 100 DNA |
@@ -177,7 +177,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Head Lice](#head-lice) | Quiet One | Oil | Pets | NEAREST | - |
 | [Paper Cut](#paper-cut) | Quiet One | Blood | Melee | NEAREST | - |
 | [Blood Blister](#blood-blister) | Favourite | Blood | Splash | DENSEST CLUSTER | - |
-| [Leeches](#leeches) | Good Eater | Blood | Pets | HIGHEST HEALTH | - |
+| [Leeches](#leeches) | Good Eater | Blood | Pets | TOUGHEST | - |
 | [Spirit Fingers](#spirit-fingers) | Firstborn | Soul | Melee | NEAREST | - |
 | [Waters Breaking](#waters-breaking) | Chonker | Water | Melee | NEAREST | - |
 | [Bath Bomb](#bath-bomb) | Good Eater | Water | Splash | DENSEST CLUSTER | - |
@@ -185,13 +185,13 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | [Sticky Fingers](#sticky-fingers) | Favourite | Mucus | Grabber | FASTEST | - |
 | [Egg White](#egg-white) | Firstborn | Mucus | Fast Lane | NEAREST | - |
 | [Hanky Panky](#hanky-panky) | Quiet One | Cooties | Melee | NEAREST | - |
-| [Wet Kiss](#wet-kiss) | Favourite | Cooties | Smoocher | WEAKEST | - |
+| [Wet Kiss](#wet-kiss) | Favourite | Cooties | Smoocher | FRAGILEST | - |
 | [Soft Play](#soft-play) | Chonker | Cooties | Ball Pit | DENSEST CLUSTER | - |
 | [Juice Box](#juice-box) | Problem Child | Acid | Squeeze and Throw | NEAREST | - |
 | [Lemon Squeezy](#lemon-squeezy) | Favourite | Acid | Marksman | NEAREST | - |
-| [Umbilical Cord](#umbilical-cord) | Good Eater | Blood | Tether | HIGHEST HEALTH | - |
+| [Umbilical Cord](#umbilical-cord) | Good Eater | Blood | Tether | TOUGHEST | - |
 | [Period Drama](#period-drama) | Problem Child | Blood | Monthly Flood | NEAREST | - |
-| [Heel Prick](#heel-prick) | Designer Baby | Blood | Needler | HIGHEST HEALTH | - |
+| [Heel Prick](#heel-prick) | Designer Baby | Blood | Needler | TOUGHEST | - |
 | [Fork in the Socket](#fork-in-the-socket) | Bright Spark | Static | Held Beam | NEAREST | - |
 | [Runaway Pram](#runaway-pram) | Firstborn | Force | Bowler | FURTHEST | - |
 | [Baby Shower](#baby-shower) | Designer Baby | Water | Gift Rain | DENSEST CLUSTER | - |
@@ -2914,29 +2914,32 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 | Directive | Aims at |
 |---|---|
 | **NEAREST** | Whatever is closest. Safe, boring, effective. |
-| **STRONGEST** | Biggest max health first. Tank busting. |
-| **WEAKEST** | Smallest max health first. Clears fodder. |
-| **LOWEST HEALTH** | Finish off the wounded. Great for kills. |
-| **HIGHEST HEALTH** | Whoever has the most health left right now. |
+| **FRAGILEST** | Lowest max health, wounded or not. Clears fodder. |
+| **LOWEST HEALTH** | Least health left right now. Finishes off the wounded. |
+| **TOUGHEST** | Most max health and armour combined. Tank busting. |
 | **HIGHEST ARMOUR** | Most armour first. Pair with shred. |
 | **FASTEST** | Chargers and skitters before they reach you. |
-| **FURTHEST** | Snipe the back line. |
+| **FURTHEST** | The farthest enemy in range. Snipes the back line. |
 | **DENSEST CLUSTER** | The middle of the crowd. Best for splash. |
-| **ELITES & BOSSES** | Bosses, then elites, then nearest. |
-| **SHOOTERS FIRST** | Ranged enemies, healers and summoners first. |
-| **RANDOM** | Chaos. The lab loves it. |
+| **ELITES & BOSSES** | Bosses, then rivals, then elites, then nearest. |
+| **SHOOTERS FIRST** | Shooters, then healers, then summoners. Otherwise nearest. |
 | **REVENGE** | Whatever hurt you last. Otherwise nearest. |
+| **RANDOM** | Chaos. Picks a new victim every second or so. The lab loves it. |
+
+Each weapon and Feat also takes an optional second directive (THEN). When two enemies are near-level on the first (within 40 units of distance, within 5% of health or speed, or the same rank), the second decides; when nothing fits the first (ELITES & BOSSES with no elite about), every enemy is level, so the second takes over. RANDOM keeps a victim for about 1.5 seconds; FURTHEST and DENSEST CLUSTER keep theirs unless a new one is 15% better.
 
 ## Movement directives
 
 | Directive | Behaviour |
 |---|---|
-| **KITE** | Keep distance from threats, dodge bullets |
-| **COLLECT** | Hoover up XP and power-ups |
-| **ORBIT** | Circle around the horde |
-| **HUNT** | Close in on the primary target |
-| **HOLD** | Stand ground, only dodge bullets |
-| **NEST** | Hover in the egg's warm glow, which slowly heals you |
+| **KITE** | Keep your distance and dodge attacks |
+| **COLLECT** | Grab nearby XP and power-ups, unless it means swimming into trouble |
+| **ORBIT** | Circle the biggest nearby group of enemies |
+| **HUNT** | Close in on bosses, rivals and elites, or whatever is nearest |
+| **HOLD** | Hold your position and dodge immediate threats |
+| **NEST** | Stay in the egg's warm glow, which slowly heals you |
+
+Autorun only decides where you swim; each weapon still aims by its own directive. Every mode dodges bullets and attacks. KITE keeps 240 to 360 units from the nearest enemy, sidestepping round the pack, and closes in a little if everything is out past 450. COLLECT goes for the best XP and power-ups for the distance, skipping any with enemies sitting on them or in the way. ORBIT picks the biggest group within reach and circles it, sticking with it until it breaks up or one half as big again turns up (no group: it kites). HUNT chases one target (bosses, then rivals, then elites, then the nearest), keeping it until it dies or gets away, unless something higher-ranked turns up. HOLD stays within about 60 units of where you chose it, coming back after each dodge. NEST stays in the egg's warm glow and only goes for pickups near it; it is not offered in campaign levels, which have no egg.
 
 ## Immune Response (difficulty)
 
@@ -3134,7 +3137,7 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Mucus Wall** | A slow wall of mucus with heavy armour that shields the enemies behind it. | Armour shred, damage over time (it ignores armour) and HIGHEST ARMOUR targeting. |
 | **Cytokine Caster** | Fires rings of cytokines in every direction. | Find the gaps in the ring and slip through them. Kill it before the rings stack up. |
 | **Ghost Swimmer** | Fades out of phase: shots pass straight through it while it is faded. | Hit it when it is solid. Auras and trails catch it as it comes back. |
-| **Mother Cell** | Keeps budding new enemies until it dies. | It is the source: kill it, not the children. STRONGEST targeting helps. |
+| **Mother Cell** | Keeps budding new enemies until it dies. | It is the source: kill it, not the children. SHOOTERS FIRST targeting helps. |
 | **Enzyme Spire** | Rooted to the spot, spraying a spiral of enzymes. | Stay out of its reach or kill it fast. The spiral has gaps: time your way through. |
 | **Killer T-Cell** | A sniper. A thin line shows where it is aiming, then a fast, heavy shot. | Move when you see the line. Kill it from the side. |
 | **Amoeba** | Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback. | Acid and big blasts. Don't let it eat its way to a giant size. |
@@ -3270,7 +3273,7 @@ Rare and huge: 1 to 3 a run (45% one, 40% two, 15% three), never two the same (e
 
 **Settings** has four tabs. GAME: game speed, Feat timing, Full Auto, tapping enemies, new enemy introductions, narrator. SCREEN: Lab or Arcade view, Darkfield, Clean clinical view, depth of field, detail, your effects, damage numbers (ALL, BIG HITS or OFF), screen shake, layout, Immersive mode, frame rate. SOUND: sound effects and music volume (0% is off), vibration. DATA: back up or restore your save, the run log, reset tutorials, reset settings, reset all progress. Tap ? on a row for what it does; a dimmed row does nothing right now and says why.
 
-**The Tackle Box** (the toolbox button) opens on LOADOUT: autorun (all six modes, tap one), every weapon (level, next milestone, share of your damage, modifiers; tap its target to pick from all 12; the arrow opens its full page), every Feat (cooldown, and its own timing: AUTO performs it when ready, TAP waits for you), combos, super combos and pairings your weapons are part of (closest first, with what each still needs), and your build (damage types you deal, Acquired Taste and Gone Off It, rerolls, mastery). Each weapon page starts with its targeting, then stats, the upgrade tree and modifiers. On a card screen, **YOUR BUILD** (top right) opens LOADOUT, and BACK returns to the cards. **Immersive mode** (AUTO: on in Arcade view) puts the menu buttons (AUTO, speed, Tackle Box, pause) along the top and the play buttons along the bottom.
+**The Tackle Box** (the toolbox button) opens on LOADOUT: autorun (all six modes, tap one), every weapon (level, next milestone, share of your damage, modifiers; tap its target to pick from all 12, plus a second choice that breaks ties and takes over when nothing fits the first; the arrow opens its full page), every Feat (cooldown, and its own timing: AUTO performs it when ready, TAP waits for you), combos, super combos and pairings your weapons are part of (closest first, with what each still needs), and your build (damage types you deal, Acquired Taste and Gone Off It, rerolls, mastery). Each weapon page starts with its targeting, then stats, the upgrade tree and modifiers. On a card screen, **YOUR BUILD** (top right) opens LOADOUT, and BACK returns to the cards. **Immersive mode** (AUTO: on in Arcade view) puts the menu buttons (AUTO, speed, Tackle Box, pause) along the top and the play buttons along the bottom.
 
 A fresh save (and the first START SWIMMING after Settings > Data > Tutorials reset) goes straight into **Level 0, Swimming Lessons** (see Campaign), with a SKIP TUTORIAL button at the top of the screen. During runs, tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfer (your first junk DNA), the egg (the first time you swim up to it; until then no arrow points to it), stains (your first grant) and each damage type and reactions (soon after you first use them). Cards come well apart and in order of need: mechanics first (at least 40 seconds apart), then damage types (from 15 seconds into a run, 45 seconds apart), reactions (from 2 minutes) and terrain (from 100 seconds, 80 seconds apart). Only the first two buffs or debuffs get a full card; after that a new one flashes NEW POWERUP UNLOCKED! beside its chip for 12 seconds, and tapping the chip or the message opens its card. Every card has a skip tutorial link, which also ends wave 0 where it stands.
 
