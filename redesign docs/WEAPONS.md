@@ -93,7 +93,7 @@ Rules: `ATTACK_TYPES.md` (the six attack types), `MODIFIERS.md` (how attacks mov
 | S13 | Bubble Wand (`bubble`) | Mucus | Projectile | Bubbles trap small enemies; anything touching a bubble pops it | Proposed |
 | S14 | Tooth Fairy (`toothfairy`) | Soul | Burst | Drops teeth; greedy enemies swim to them and get smitten | Proposed |
 | S15 | Upchuck (`upchuck`) | Acid | Pool | Lobbed sick puddles; touching puddles merge into a bigger one | Proposed |
-| S16 | Heartburn (`flamer`) | Fire | Spread, cone | Two streams of reflux; anything that dies burning leaves a reflux puddle (Burn zone) | Draft |
+| S16 | Heartburn (`flamer`) | Fire | Spread, cone | Two streams of reflux; signature to be decided (the reflux puddle was cut) | Draft |
 | S17 | Hot and Bothered (new) | Fire | Burst, around you | A wave of heat off your body every 4 s; bigger and hotter the lower your health | Draft (new) |
 | S18 | Carpet Burn (new) | Fire | Contact | Friction: touching enemies at speed sets them alight; sprinting doubles it | Draft (new) |
 | S19 | Getting Warmer (new) | Fire | Beam | Heats up the longer it stays on; at full heat everything in the lane Ignites at once | Draft (new) |

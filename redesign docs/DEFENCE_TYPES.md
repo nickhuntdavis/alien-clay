@@ -5,7 +5,7 @@ A reference for the five core defensive mechanics in Spawn Prawn. Each defence c
 <aside>
 🧭
 
-**Design baseline:** these are distinct mechanics, not universal damage-type immunities. Resolve the actual attack component—direct damage, status application, persistent hazard, impulse/control, or area coverage—and keep the result readable at combat speed.
+**Design baseline:** these are distinct mechanics, not universal damage-type immunities. Resolve the actual attack component (direct damage, status application, persistent hazard, impulse/control, or area coverage) and keep the result readable at combat speed.
 
 </aside>
 
@@ -25,7 +25,7 @@ A reference for the five core defensive mechanics in Spawn Prawn. Each defence c
 - **Shell uses finite layers.** Layers provide a fixed reduction against qualifying physical hits. Each layer has a little health: ordinary hits wear it slowly, Acid's Corrosion fast, and a heavy Force hit removes it at once. Lost layers stay gone for the encounter. Exact values remain for tuning.
 - **Membrane is its own pool.** It absorbs eligible direct damage before health. Force is less effective against the membrane than ordinary eligible damage; Static recharges it (+25% capacity, once per 5 s).
 - **Damage blocking is not status immunity.** Prevent an attached status only when its application hit is prevented or a specific resistance says so.
-- **Persistent hazards resolve separately.** A missed projectile gives no immunity to an Acid Pool, Burn zone or other hazard entered later.
+- **Persistent hazards resolve separately.** A missed projectile gives no immunity to an Acid Pool, a Fire Pool or other hazard entered later.
 - **Thorns triggers once per qualifying connected contact hit.** It does not mitigate that hit; an Evasion miss means no contact and no retaliation.
 - **Area attacks ignore Evasion.** Burst, Beam and Pool always land and use their actual footprint.
 - **Keep counterplay visible.** Membrane recharge, Shell loss, Thorns retaliation, and Evasion misses need clear cues.
@@ -79,7 +79,7 @@ Evasion never applies to Burst, Beam or Pool. Area attacks are the reliable answ
 
 **Existing effects persist**
 
-Evasion does not remove a status already applied or erase a hazard. A creature can make a projectile miss and still be hurt by walking into an Acid Pool or Burn zone.
+Evasion does not remove a status already applied or erase a hazard. A creature can make a projectile miss and still be hurt by walking into an Acid Pool or a Fire Pool.
 
 </aside>
 
@@ -111,7 +111,7 @@ The same rule for every type: Contact, Projectile and Spread hits can miss; Burs
 - **Mucus:** a miss prevents the Snare; a sticky patch still Snares whatever moves into it.
 - **Blood:** a miss prevents that hit's wound; an existing Bleed or blood pool remains.
 - **Soul:** a miss also avoids the build-up that hit carried; it does not end Possessed.
-- **Fire:** a miss adds nothing to the Burn bar; a Burn zone still fills it.
+- **Fire:** a miss adds nothing to the Burn bar; a Fire Pool still fills it (Pools ignore Evasion).
 
 ## Design guardrails
 
@@ -190,13 +190,13 @@ Starting values: `COMBAT_MATRIX.md` section 11.4.
 
 ## Interactions with damage types
 
-- **Force — Resists:** Force damage drains Membrane less efficiently; Force knockback against a creature with an active Membrane is reduced. Force still damages the pool.
-- **Acid — Normal:** Acid drains the Membrane as eligible damage. Corrosion does not disable regeneration.
-- **Static — Signature interaction:** Static recharges Membrane: +25% capacity, once per 5 s.
-- **Mucus — Conditional:** the Membrane may absorb an eligible direct delivery hit, but does not automatically prevent Mucus patches or later contact with them.
-- **Blood — Conditional:** eligible direct Blood damage is absorbed by the pool; existing Bleed or Extraction follows its own application rules.
-- **Soul — Normal:** eligible direct Soul damage is absorbed like any other; no bypass. Build-up toward Possessed applies only if the hit carrying it is not blocked.
-- **Fire — Conditional:** eligible direct Fire damage is absorbed by the pool; Burning or a persistent fire zone follows separate rules.
+- **Force (resists):** Force damage drains Membrane less efficiently; Force knockback against a creature with an active Membrane is reduced. Force still damages the pool.
+- **Acid (normal):** Acid drains the Membrane as eligible damage. Corrosion does not disable regeneration.
+- **Static (signature interaction):** Static recharges Membrane: +25% capacity, once per 5 s.
+- **Mucus (conditional):** the Membrane may absorb an eligible direct delivery hit, but does not automatically prevent Mucus patches or later contact with them.
+- **Blood (conditional):** eligible direct Blood damage is absorbed by the pool; existing Bleed or Extraction follows its own application rules.
+- **Soul (normal):** eligible direct Soul damage is absorbed like any other; no bypass. Build-up toward Possessed applies only if the hit carrying it is not blocked.
+- **Fire (conditional):** eligible direct Fire damage is absorbed by the pool; Burning or a persistent fire zone follows separate rules.
 
 ## Design guardrails
 
@@ -267,13 +267,13 @@ The exact reduction, threshold, and number of layers remain for playtesting. Reu
 
 ## Interactions with damage types
 
-- **Force — Conditional / signature:** qualifying physical damage is reduced by intact layers. A sufficiently heavy impact can knock one layer loose.
-- **Acid — Signature counter:** Acid erodes or removes layers, making later physical hits more effective.
-- **Static — Normal:** electrical damage is not reduced unless the attack has a qualifying physical component.
-- **Mucus — Normal:** movement control is not physical damage; Shell does not prevent sticking or snaring by default.
-- **Blood — Conditional:** the physical part of a cut or strike is reduced. Bleed and Extraction are not reduced.
-- **Soul — Normal:** a qualifying physical component is reduced; no bypass. Shell does not resist build-up or Possessed.
-- **Fire — Normal / conditional:** heat and Burning are not reduced by physical Shell. A physical carrier component may be reduced.
+- **Force (conditional / signature):** qualifying physical damage is reduced by intact layers. A sufficiently heavy impact can knock one layer loose.
+- **Acid (signature counter):** Acid erodes or removes layers, making later physical hits more effective.
+- **Static (normal):** electrical damage is not reduced unless the attack has a qualifying physical component.
+- **Mucus (normal):** movement control is not physical damage; Shell does not prevent sticking or snaring by default.
+- **Blood (conditional):** the physical part of a cut or strike is reduced. Bleed and Extraction are not reduced.
+- **Soul (normal):** a qualifying physical component is reduced; no bypass. Shell does not resist build-up or Possessed.
+- **Fire (normal / conditional):** heat and Burning are not reduced by physical Shell. A physical carrier component may be reduced.
 
 ## Design guardrails
 
@@ -341,13 +341,13 @@ Use one clear proportional reduction rather than stacking multiple hidden absorp
 
 ## Interactions with damage types
 
-- **Force — Resists:** Force is physical damage, so its qualifying damage is proportionally reduced. Optional impulse absorption also reduces knockback; it does not make the target immune to poise pressure unless specified.
-- **Acid — Normal:** no inherent resistance to corrosion or Acid damage. A physical delivery component can still be reduced.
-- **Static — Normal:** electrical damage and Charge are unaffected unless the attack also carries a qualifying physical component.
-- **Mucus — Normal:** sticking, snaring, and movement restriction are not physical impact damage.
-- **Blood — Normal:** cuts go through (Squishy is blunt only); a blunt Blood strike's impact part is reduced. Bleed and Extraction are not reduced.
-- **Soul — Normal:** Soul build-up and Possessed are not physical impact. Only a qualifying physical component is reduced.
-- **Fire — Normal:** heat and Burning are not physical impact. A physical strike that also carries Fire may have only its physical component reduced.
+- **Force (resists):** Force is physical damage, so its qualifying damage is proportionally reduced. Optional impulse absorption also reduces knockback; it does not make the target immune to poise pressure unless specified.
+- **Acid (normal):** no inherent resistance to corrosion or Acid damage. A physical delivery component can still be reduced.
+- **Static (normal):** electrical damage and Charge are unaffected unless the attack also carries a qualifying physical component.
+- **Mucus (normal):** sticking, snaring, and movement restriction are not physical impact damage.
+- **Blood (normal):** cuts go through (Squishy is blunt only); a blunt Blood strike's impact part is reduced. Bleed and Extraction are not reduced.
+- **Soul (normal):** Soul build-up and Possessed are not physical impact. Only a qualifying physical component is reduced.
+- **Fire (normal):** heat and Burning are not physical impact. A physical strike that also carries Fire may have only its physical component reduced.
 
 ## Design guardrails
 
@@ -414,13 +414,13 @@ Ranged attacks, remote hazards, and non-contact effects do not trigger Thorns by
 
 ## Interactions with damage types
 
-- **Force — Conditional:** triggers if the Force attack makes qualifying melee contact. A missed charge or remote shockwave does not trigger it.
-- **Acid — Conditional:** a close-range Acid strike can trigger retaliation if it physically contacts the defender; an Acid pool or ranged splash does not.
-- **Static — Conditional:** a contact Static attack can trigger Thorns. A remote arc does not.
-- **Mucus — Conditional:** direct contact application can trigger Thorns only if the delivery is a qualifying melee/contact hit; an existing sticky patch does not.
-- **Blood — Conditional:** a melee Blood strike can trigger Thorns. A wound ticking later or a remote extraction effect does not.
-- **Soul — Conditional:** only a Soul attack with actual qualifying physical/contact delivery triggers Thorns. A ranged Soul attack does not.
-- **Fire — Conditional:** a melee Fire strike can trigger Thorns if it makes contact. A projectile, burning zone, or later Burning tick does not.
+- **Force (conditional):** triggers if the Force attack makes qualifying melee contact. A missed charge or remote shockwave does not trigger it.
+- **Acid (conditional):** a close-range Acid strike can trigger retaliation if it physically contacts the defender; an Acid pool or ranged splash does not.
+- **Static (conditional):** a contact Static attack can trigger Thorns. A remote arc does not.
+- **Mucus (conditional):** direct contact application can trigger Thorns only if the delivery is a qualifying melee/contact hit; an existing sticky patch does not.
+- **Blood (conditional):** a melee Blood strike can trigger Thorns. A wound ticking later or a remote extraction effect does not.
+- **Soul (conditional):** only a Soul attack with actual qualifying physical/contact delivery triggers Thorns. A ranged Soul attack does not.
+- **Fire (conditional):** a melee Fire strike can trigger Thorns if it makes contact. A projectile, Fire Pool, or later Burning tick does not.
 
 ## Design guardrails
 

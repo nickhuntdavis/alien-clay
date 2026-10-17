@@ -345,7 +345,7 @@ The samples should read as a series of increasingly implausible specimens, not e
 | Unaccounted | Offset double image and wrong-way shadow |
 | Other Half | Faceted head, twin tails and visible reconfiguration |
 
-These signatures must survive greyscale rendering and phone-size presentation. Colour reinforces identity; it must not carry it. Colours come from each damage type's visual language in `DAMAGE_TYPES.md`.
+These signatures must survive phone-size presentation. Colour reinforces identity; it must not carry it. Colours come from each damage type's visual language in `DAMAGE_TYPES.md`.
 
 ## What makes the characters feel different
 

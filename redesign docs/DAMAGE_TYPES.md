@@ -52,7 +52,7 @@ Mucus is the **control and setup** type. It restricts movement, smothers Fire (b
 
 **Lacerate. Bleed. Drain. Siphon. Rupture. Harvest.**
 
-Blood attacks the target's **health economy**. It opens wounds, makes those wounds progressively more dangerous, and can convert injury into resources for the attacker. Its identity is the relationship between wounds, health, and extraction—not merely generic damage over time.
+Blood attacks the target's **health economy**. It opens wounds, makes those wounds progressively more dangerous, and can convert injury into resources for the attacker. Its identity is the relationship between wounds, health, and extraction, not merely generic damage over time.
 
 - **Damage profile:** Medium to high, with scaling through wounds and missing health.
 - **Combat identity:** Wound pressure, execution, extraction, and resource sustain.
@@ -74,18 +74,18 @@ Soul is the **mind-control** type. Soul hits build up on an enemy; at full build
 
 **Ignite. Burn. Flare. Consume.**
 
-Fire is the **ignition** type. Fire hits and Burn zones fill a visible Burn bar (with a short damage over time); at full, Ignition flares once on that target and the bar resets. Fire does not spread on its own: it moves only through its reactions and Burn zones.
+Fire is the **ignition** type. Fire hits (including Fire Pool attacks) fill a visible Burn bar (with a short damage over time); at full, Ignition flares once on that target and the bar resets. Fire does not spread on its own: it moves only through its reactions.
 
 - **Damage profile:** Moderate initial damage, sustained Burn, conditional burst at Ignition.
-- **Combat identity:** Escalating heat, Ignition, consuming setups (Corrosion, Mucus patches, Bleed) and short burning zones.
+- **Combat identity:** Escalating heat, Ignition, and consuming setups (Corrosion, Mucus patches, Bleed).
 - **Primary verb:** Ignite.
-- **Defence interaction:** Squishy and Shell do not inherently resist heat or Burning, though they may mitigate a qualifying physical component delivered by a Fire attack. Membrane absorbs eligible direct damage but does not automatically prevent Burn or protect against later contact with a burning zone. Evasion can make a Fire hit miss, but does not empty a Burn bar already filling. Becoming Snared puts Fire out.
+- **Defence interaction:** Squishy and Shell do not inherently resist heat or Burning, though they may mitigate a qualifying physical component delivered by a Fire attack. Membrane absorbs eligible direct damage but does not automatically prevent Burn or protect against a Fire Pool entered later. Evasion can make a Fire hit miss, but does not empty a Burn bar already filling. Becoming Snared puts Fire out.
 
 ## Shared combat rules
 
 - **Resolve attack components separately.** Direct damage, status application, impulse/control, and persistent hazards can interact with defences differently.
 - **A blocked hit is not blanket status immunity.** An attached status is prevented when its application hit is prevented, unless a specific resistance or immunity rule says otherwise.
-- **Persistent hazards and existing statuses remain.** A missed projectile does not erase an Acid Pool or Burn zone; avoiding a hit does not cleanse a status already applied.
+- **Persistent hazards and existing statuses remain.** A missed projectile does not erase an Acid Pool or a Fire Pool; avoiding a hit does not cleanse a status already applied.
 - **Keep each defence distinct:** Squishy reduces qualifying physical damage proportionally; Membrane absorbs eligible damage in a regenerating pool and resists Force; Shell subtracts a fixed amount from qualifying physical hits through finite, non-regenerating layers; Thorns retaliates once per qualifying connected Contact hit without mitigating it; Evasion is a miss chance against Contact, Projectile and Spread hits only.
 - **Static–Membrane is a deliberate interaction.** Static recharges Membrane (+25% capacity, once per 5 s), with a clear cue.
 - **Design reactions deliberately.** Every one of the 21 pairs has one designed reaction, set off by one of four trigger kinds (state + hit, world object + hit, dual-type weapon, Pairing; `COMBAT_MATRIX.md`). Two types touching the same enemy is never enough on its own. One main payoff, tuned for fast mobile combat.
@@ -115,7 +115,7 @@ Acid is the defence-erosion type. It strips Shell layers for good and creates vi
 
 ## Visual language
 
-**Shocking pink; puddles, dripping trails, splashes, and a shocking-pink UI ring that counts down ongoing Acid exposure.** Use wet bubbling/sizzling and a clear, bounded puddle edge. The puddle and coating should remain recognisable at phone size and in greyscale through silhouette and motion, not colour alone.
+**Shocking pink; puddles, dripping trails, splashes, and a shocking-pink UI ring that counts down ongoing Acid exposure.** Use wet bubbling/sizzling and a clear, bounded puddle edge. The puddle and coating should remain recognisable at phone size through silhouette and motion as well as colour.
 
 ## Core mechanics
 
@@ -143,7 +143,7 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 
 - **Corrosive Splash (Force + Acid):** A Force hit lands on a Corroded target: a small splash adds Corrosion to nearby enemies. Spreads the setup, not a second large burst; the splash cannot trigger another splash.
 - **Conductive Pool (Acid + Static):** A Static hit lands in an Acid Pool: one electrical pulse travels across that pool. Stays inside the visible pool edge; one pulse per pool.
-- **Slick Move (Acid + Mucus):** An Acid hit lands on a Mucus patch: the patch is replaced by a short-lived corrosive slick. Replaces the patch rather than layering two hazards; clear expiry.
+- **Slick Move (Acid + Mucus):** An Acid hit lands on a Mucus patch: the patch is replaced by a short-lived Acid Pool. Replaces the patch rather than layering two hazards; clear expiry.
 - **Caustic Breach (Acid + Blood):** An Acid hit lands on a bleeding target: strips one Shell layer at once. Defence erosion only: no damage over time, no new wound; does nothing to a target without Shell; once per Bleed.
 - **Soul Erosion (Acid + Soul):** An Acid hit lands on a Possessed enemy: when Possessed ends, it bursts in a small Acid splash that adds Corrosion to nearby mates. One splash per Possession; compare with Corrosive Splash in playtest.
 - **Premature Evaporation (Acid + Fire):** A Fire hit lands on a Corroded target: consumes the Corrosion in a modest close-range burst. Never from an Acid Pool by itself; one burst; the Corrosion build-up resets.
@@ -158,11 +158,11 @@ Acid owns corrosion, Shell reduction, and bounded hazardous pools. Blood owns wo
 
 **Wound. Bleed. Extract. Turn injury into an advantage.**
 
-Blood is the wound-and-extraction type. It turns qualifying hits into persistent bleeding or limited sustain, but its central identity is bodily injury and health economy—not generic corrosion or unlimited healing.
+Blood is the wound-and-extraction type. It turns qualifying hits into persistent bleeding or limited sustain, but its central identity is bodily injury and health economy, not generic corrosion or unlimited healing.
 
 ## Visual language
 
-**Red; visible pools, red trails, wound splashes, and a red UI ring for Bleed duration.** Use a wet impact sound and make the source of each pool legible. Wounds should look like injury, not Acid corrosion; keep the countdown and pool boundary readable on a phone screen and in greyscale.
+**Red; visible pools, red trails, wound splashes, and a red UI ring for Bleed duration.** Use a wet impact sound and make the source of each pool legible. Wounds should look like injury, not Acid corrosion; keep the countdown and pool boundary readable on a phone screen.
 
 ## Core mechanics
 
@@ -193,7 +193,7 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 - **Blood Pressure (Force + Blood):** A heavy Force hit (the same threshold that knocks off a Shell layer) lands on a bleeding target: the wound bursts for one small area hit. One burst; no new Bleed stack and no large pool.
 - **Caustic Breach (Acid + Blood):** An Acid hit lands on a bleeding target: strips one Shell layer at once. Defence erosion only: no damage over time, no new wound; does nothing to a target without Shell; once per Bleed.
 - **Blood Circuit (Static + Blood):** A Static hit lands in a blood pool: one arc hits the nearest enemy standing in or beside the pool. One target; no pulse across the pool and no onward chain (unlike Conductive Pool).
-- **Caught in the Clot (Mucus + Blood):** A Mucus hit lands on a blood pool: the pool becomes a clot patch that briefly catches the first enemy to cross it. Blood visible in the patch; one catch, then the patch is gone.
+- **Caught in the Clot (Mucus + Blood):** A Mucus hit lands on a blood pool: the pool thickens: the first enemy to cross it is Snared, then the pool is gone. One catch only.
 - **Blood Donor (Blood + Soul):** A Blood hit lands on a Possessed enemy: you heal a small fixed amount. Once per Possession; no new resource meter.
 - **Cauterise (Blood + Fire):** A Fire hit lands on a bleeding target: consumes the Bleed for one immediate burst. The burst must make up for ending the Bleed; no fresh Burn by default.
 
@@ -207,32 +207,32 @@ Blood owns wounds, Bleed, and limited extraction. Acid weakens defences; Mucus c
 
 **Ignite. Burn. Flare. Consume.**
 
-Fire is the ignition and exposure type. It fills a Burn bar, flares once at full, creates short-lived Burn zones, and consumes compatible setups through its reactions. It should not become the strongest damage-over-time type or make every surface explode.
+Fire is the ignition and exposure type. It fills a Burn bar, flares once at full, and consumes compatible setups through its reactions. It should not become the strongest damage-over-time type or make every surface explode.
 
 ## Visual language
 
-**Orange; unmistakable flames, flickering tongues, embers, short-lived burning patches, and an orange UI ring for Burn duration.** Use a crisp ignition whoosh and crackle. Show the edge and lifetime of burning zones clearly; propagation should be a visible, bounded event rather than a surprise chain.
+**Orange; unmistakable flames, flickering tongues, embers, and an orange UI ring for Burn duration.** Use a crisp ignition whoosh and crackle. Show the edge and lifetime of Fire Pools clearly; propagation should be a visible, bounded event rather than a surprise chain.
 
 ## Core mechanics
 
-- **Burn bar:** Fire hits and time in a Burn zone fill a visible bar; while it holds Burn, the target takes a short damage over time. Ordinary Burn should not outclass Acid's defence erosion or Blood's wound payoff. Becoming Snared empties the bar (Mucus smothers it).
+- **Burn bar:** Fire hits and time in a Fire Pool fill a visible bar; while it holds Burn, the target takes a short damage over time. Ordinary Burn should not outclass Acid's defence erosion or Blood's wound payoff. Becoming Snared empties the bar (Mucus smothers it).
 - **Ignition:** When the bar is full, one flare hits that target and the bar resets. It does not spread to anything else.
-- **Burning zones:** Some attacks create short-lived, bounded zones. A zone can affect a target that enters it later; making the original projectile miss does not grant immunity to the zone.
-- **No automatic spread:** Fire moves only through its six reactions and Burn zones. Only Premature Evaporation, Flammable Mucus and Cauterise make bursts or zones; Flashover, Arc Flash and Spectral Combustion hit one target. Reaction-created fire cannot retrigger itself.
+- **Fire Pools:** Fire's Pool attacks (Burning Ground, Pub Crawl's trail, Matchstick's trail) fill the Burn bar of whatever stands in them; making a projectile miss gives no immunity to a Pool entered later. Fire leaves no other burning ground.
+- **No automatic spread:** Fire moves only through its six reactions. Only Premature Evaporation, Flammable Mucus and Cauterise make bursts; Flashover, Arc Flash and Spectral Combustion hit one target. Reaction-created fire cannot retrigger itself.
 
 ## Strengths and limits
 
-**Strong against:** exposed targets, prepared flammable setups, and enemies that remain in a visible burning zone.
+**Strong against:** exposed targets, prepared flammable setups, and enemies that stand in a Fire Pool.
 
 **Weak against:** dispersed or mobile targets, enemies that escape exposure, and Mucus users (Snared puts Fire out). Squishy and Shell do not resist heat or Burn.
 
 ## Defence interactions
 
 - **Squishy / Absorption:** Does not inherently resist heat or Burning. It can reduce only a separately tagged qualifying physical component of a Fire attack.
-- **Membrane:** Absorbs eligible direct damage before health. It does not automatically prevent Burn or protect against later exposure to a burning zone.
+- **Membrane:** Absorbs eligible direct damage before health. It does not automatically prevent Burn or protect against a Fire Pool entered later.
 - **Shell:** Reduces only qualifying physical hit components. It does not inherently resist heat or Burn.
-- **Thorns:** A qualifying melee/contact hit triggers one retaliation after it connects. A burning zone or non-contact heat effect does not automatically trigger Thorns.
-- **Evasion:** A miss (Evasion only applies to Contact, Projectile and Spread hits) avoids the hit and everything attached to it. It does not empty an existing Burn bar or protect from a Burn zone.
+- **Thorns:** A qualifying melee/contact hit triggers one retaliation after it connects. A Fire Pool or non-contact heat effect does not automatically trigger Thorns.
+- **Evasion:** A miss (Evasion only applies to Contact, Projectile and Spread hits) avoids the hit and everything attached to it. It does not empty an existing Burn bar or protect from a Fire Pool.
 
 ## Pair reactions
 
@@ -241,13 +241,13 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 - **Flashover (Force + Fire):** A Force hit lands on a burning target: a tongue of flame jumps to one nearby enemy and adds to its Burn bar. One jump; no chain.
 - **Premature Evaporation (Acid + Fire):** A Fire hit lands on a Corroded target: consumes the Corrosion in a modest close-range burst. Never from an Acid Pool by itself; one burst; the Corrosion build-up resets.
 - **Arc Flash (Static + Fire):** A Static hit lands on a burning target: one short arc jumps to the nearest other enemy. One jump; no extra Burn, stun or chain.
-- **Flammable Mucus (Mucus + Fire):** A Fire hit lands on a Mucus patch: the patch burns briefly as a small no-go zone, then is consumed. Short and clearly bounded; no Mucus slow left behind; the fire cannot relight itself.
+- **Flammable Mucus (Mucus + Fire):** A Fire hit lands on a Mucus patch: the patch flares once: everything standing in it ignites (full Burn bar), then the patch is gone. One flare; no Mucus slow left behind; the fire cannot relight itself.
 - **Cauterise (Blood + Fire):** A Fire hit lands on a bleeding target: consumes the Bleed for one immediate burst. The burst must make up for ending the Bleed; no fresh Burn by default.
 - **Spectral Combustion (Soul + Fire):** The Soul/Fire Pairing (two weapons you own, both Lv 5+) hits a burning, Possessed enemy: it ignites at once (full Burn bar) and Possessed ends. Rare by design; the first time it fires, the Scientist gets his Tier 3 line (VOICE_GUIDE.md).
 
 ## Design boundaries
 
-Fire owns ignition, Burn and Burn zones. Acid erodes defences; Blood owns wounds; Mucus owns sticky control; Static owns chains and interruption; Force owns impact; Soul owns Possessed. Keep the visual cue immediate and the Burn bar obvious.
+Fire owns ignition and Burn. Acid erodes defences; Blood owns wounds; Mucus owns sticky control; Static owns chains and interruption; Force owns impact; Soul owns Possessed. Keep the visual cue immediate and the Burn bar obvious.
 
 ---
 
@@ -335,11 +335,11 @@ Mucus is the movement-control and setup type. It Snares targets, sticks clustere
 All reactions are proposed for playtesting. Each needs a clear cue and must not retrigger itself.
 
 - **Snot Rocket (Force + Mucus):** A Force hit lands on a Snared enemy: launches it in the hit direction; it leaves one small sticky patch where it lands. One launch and one patch; no extra stun or bonus damage.
-- **Slick Move (Acid + Mucus):** An Acid hit lands on a Mucus patch: the patch is replaced by a short-lived corrosive slick. Replaces the patch rather than layering two hazards; clear expiry.
+- **Slick Move (Acid + Mucus):** An Acid hit lands on a Mucus patch: the patch is replaced by a short-lived Acid Pool. Replaces the patch rather than layering two hazards; clear expiry.
 - **Sticky Situation (Static + Mucus):** A Static hit charges a Mucus patch: the next enemy entering it is briefly shocked. One trigger per patch; obvious charge cue; no stun loop.
-- **Caught in the Clot (Mucus + Blood):** A Mucus hit lands on a blood pool: the pool becomes a clot patch that briefly catches the first enemy to cross it. Blood visible in the patch; one catch, then the patch is gone.
+- **Caught in the Clot (Mucus + Blood):** A Mucus hit lands on a blood pool: the pool thickens: the first enemy to cross it is Snared, then the pool is gone. One catch only.
 - **Held in Suspension (Mucus + Soul):** A Mucus hit lands on a Possessed enemy: it is pinned in place for a moment. Short pin; no extra damage or status.
-- **Flammable Mucus (Mucus + Fire):** A Fire hit lands on a Mucus patch: the patch burns briefly as a small no-go zone, then is consumed. Short and clearly bounded; no Mucus slow left behind; the fire cannot relight itself.
+- **Flammable Mucus (Mucus + Fire):** A Fire hit lands on a Mucus patch: the patch flares once: everything standing in it ignites (full Burn bar), then the patch is gone. One flare; no Mucus slow left behind; the fire cannot relight itself.
 
 ## Design boundaries
 

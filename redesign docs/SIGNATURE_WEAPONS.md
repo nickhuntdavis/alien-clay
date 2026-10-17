@@ -23,7 +23,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 13 | Bubble Wand (`bubble`) | Mucus (Water) | Projectile | Bubbles trap small enemies; anything touching a bubble pops it | (Snared) |
 | 14 | Tooth Fairy (`toothfairy`) | Soul (Blood) | Burst | Drops teeth; greedy enemies swim to them and get smitten | Lures |
 | 15 | Upchuck (`upchuck`) | Acid (Acid) | Pool | Lobbed sick puddles; touching puddles merge into a bigger one | Merging pools |
-| 16 | Heartburn (`flamer`) | Fire (Acid) | Spread, cone | Two streams of reflux; anything that dies burning leaves a reflux puddle (Burn zone) | (none) |
+| 16 | Heartburn (`flamer`) | Fire (Acid) | Spread, cone | Two streams of reflux; signature to be decided (the reflux puddle was cut) | (none) |
 | 17 | Hot and Bothered (new) | Fire (new) | Burst, around you | A wave of heat off your body every 4 s; bigger and hotter the lower your health | (none) |
 | 18 | Carpet Burn (new) | Fire (new) | Contact | Friction: touching enemies at speed sets them alight; sprinting doubles it | (none) |
 | 19 | Getting Warmer (new) | Fire (new) | Beam | Heats up the longer it stays on; at full heat everything in the lane Ignites at once | (none) |
@@ -55,7 +55,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 
 ### 3. Pub Crawl (`wake`)
 - **Is:** Fire, Pool laid as a trail. No aiming: you shed a boozy trail wherever you swim. Alcohol burns.
-- **Signature:** the trail is a run of short Burn zones (each fills the Burn bar of whatever wades through). Swim circles round a crowd to set the whole thing alight.
+- **Signature:** the trail (Skid Mark's shipped trail, now Fire) burns whatever wades through it, filling its Burn bar. Swim circles round a crowd to set the whole thing alight.
 - **Limits:** trail pieces count towards the 40-object cap; the oldest piece goes first. Mucus (Snared) puts burning enemies out, as usual.
 - **Start stats:** 20 damage, each piece lasts 2.2 s, width 22.
 
@@ -137,8 +137,8 @@ Fire is new, so the original game had only one Fire-shaped weapon. These five gi
 
 ### 16. Heartburn (`flamer`)
 - **Is:** Fire, Spread (a short cone: 2 streams, range 200, pierces).
-- **Signature:** anything that dies while burning from Heartburn leaves a small Burn zone where it fell (a reflux puddle), which feeds Flammable Mucus and keeps a crowd alight.
-- **Limits:** puddles are standard Burn zones (11.6) and count towards the 40-object cap. Its old upgrades (Blue Flame, Indigestion, Napalm, Heatwave, Dragon, Hell's Kitchen) suit Fire better than they ever suited Acid; Heatwave keeps the full-circle sweep.
+- **Signature:** to be decided. The reflux puddle (a Burn zone) was cut with the other new ground objects (`COMBAT_MATRIX.md` decision 27); until a new one is chosen it is a plain Fire Spread.
+- **Limits:** its old upgrades (Blue Flame, Indigestion, Napalm, Heatwave, Dragon, Hell's Kitchen) suit Fire better than they ever suited Acid; Heatwave keeps the full-circle sweep.
 - **Description:** "A short-range spray of reflux. It burns going up and coming down."
 - **Start stats:** today's values: 3.4 damage per droplet, 2 streams, a droplet every 0.05 s, 50 per load, 2.1 s reload.
 

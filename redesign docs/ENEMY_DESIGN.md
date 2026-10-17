@@ -6,7 +6,7 @@ Working proposal, 17 Oct 2026. Uses the vocabulary of the other redesign docs on
 - **Defences (5):** Squishy, Membrane, Shell, Thorns, Evasion (`DEFENCE_TYPES.md`; Evasion was called Dodge). No additional core defence categories. Enemy-specific states, behaviours and elite modifiers (Crackle, Smouldering and the like) are allowed, but must not become hidden defence systems.
 - **Attack types (6):** Contact, Projectile, Spread, Burst, Beam, Pool (`ATTACK_TYPES.md`).
 - **Statuses:** Poise Pressure, Knockback, Corrosion, Charge, Snared, Conjoined, Bleed, Extraction, Possessed, Fear, Burning (`COMBAT_MATRIX.md` section 4). The player can suffer all of them except Possessed.
-- **World objects:** Acid Pool, Mucus patch, blood pool, Burn zone, wax Pool (`COMBAT_MATRIX.md` section 4).
+- **World objects:** Acid Pool, Mucus patch, blood pool, wax Pool and the shipped terrain (`COMBAT_MATRIX.md` section 4).
 - **Reactions:** the 21 triggered pair reactions (`COMBAT_MATRIX.md` section 1), each set off by a state + hit, a world object + hit, a dual-type weapon or a Pairing. Two types touching one enemy is never enough on its own.
 
 The decisions of 17 Oct 2026 are summarised at the end.
@@ -292,7 +292,7 @@ Rotates between two or three defences (e.g. Shell, then Membrane, then none), ea
 
 ## 7. Fire enemies (new)
 
-Fire is literal fire (matches, lighters, candles). Fire enemies set up and use Burning, Burn zones and Flammable Mucus.
+Fire is literal fire (matches, lighters, candles). Fire enemies set up and use Burning, Fire Pools and Flammable Mucus.
 
 Fire damage and Burning are separate effects. Defences decide how an enemy handles the direct hit; Burning follows its own rules. No core defence gives blanket immunity to Burning, though individual enemies may have bounded ways to reduce it. Fire's value against Shell and Squishy comes from its defined interactions (`DEFENCE_TYPES.md`: Shell and Squishy reduce only a physical carrier component, and do not reduce heat or Burning), not from bypassing defences by default.
 
@@ -330,7 +330,7 @@ Fire damage and Burning are separate effects. Defences decide how an enemy handl
 - **Complexity:** low to medium.
 
 ### 7.4 Elite modifier: Smouldering
-Any elite can be Smouldering: it leaves a small, short Burn zone where it dies. One modifier, readable glow, no chain.
+Any elite can be Smouldering: when it dies it gives off one small Fire Burst (marked before it goes off) that fills the Burn bar of anything close. One modifier, readable glow, no chain.
 
 ## 8. Concepts to park or rework
 
@@ -381,7 +381,7 @@ Not rejected, but each currently adds too many dependencies.
 - Elites and bosses have higher thresholds and shorter control. Bosses are never fully immune: briefly interrupting a telegraphed attack is satisfying counterplay.
 
 ### Rules
-1. **Every reaction needs a readable trigger:** a visible state, a world object (Acid Pool, Mucus patch, blood pool, Burn zone), a dual-type weapon or a Pairing.
+1. **Every reaction needs a readable trigger:** a visible state, a world object (Acid Pool, Mucus patch, blood pool), a dual-type weapon or a Pairing.
 2. **No manual targeting:** if a specific enemy must be hit, autoaim must be able to pick it.
 3. **A matching type never auto-wins:** it improves efficiency or opens a window.
 4. **No permanent immunity:** every defence has a route through it (`DEFENCE_TYPES.md`).
@@ -397,7 +397,7 @@ Not rejected, but each currently adds too many dependencies.
 - **Mucus:** fast or evasive enemies to Snare; patches that set up Fire, Static and Acid reactions.
 - **Blood:** high-HP enemies to Bleed; Extraction for limited sustain.
 - **Soul:** mind control. Full build-up makes an enemy Possessed (it fights its mates for a few seconds); all Soul reactions use Possessed. Fear only where an enemy is built around it.
-- **Fire:** Burning, Burn zones and lighting Mucus. The direct hit meets defences as usual; Burning is a separate effect that Shell and Squishy don't reduce.
+- **Fire:** Burning, Fire Pools and lighting Mucus. The direct hit meets defences as usual; Burning is a separate effect that Shell and Squishy don't reduce.
 
 Not every enemy needs to respond to every type.
 

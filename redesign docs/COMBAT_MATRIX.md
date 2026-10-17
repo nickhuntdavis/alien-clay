@@ -9,7 +9,7 @@
 - **Damage type:** what kind of harm an attack deals.
 - **Attack type:** how the harm reaches the target (`ATTACK_TYPES.md`).
 - **Status:** a temporary, readable condition on a creature (section 4).
-- **World object:** a hazard on the ground with a visible edge and lifetime (Acid Pool, Mucus patch, blood pool, Burn zone, wax Pool).
+- **World object:** a hazard on the ground with a visible edge and lifetime (Acid Pool, Mucus patch, blood pool, wax Pool), plus the shipped terrain (section 4). Only shipped ground objects are used, plus wax.
 - **Reaction:** a deliberate interaction between two damage types, set off by one of the four trigger kinds below.
 
 ### Reaction rules
@@ -22,7 +22,7 @@
   4. **Pairing:** the existing Pairings system (two weapons you own, both Lv 5+). Spectral Combustion only, for now.
 - Reactions do **not** trigger just because both types have touched the same enemy.
 - Each reaction has one primary payoff. Do not stack burst damage, control, damage over time and resource gain into one reaction.
-- **Fire size rule:** only Premature Evaporation, Flammable Mucus and Cauterise make bursts or zones. Flashover, Arc Flash and Spectral Combustion hit one target.
+- **Fire size rule:** only Premature Evaporation, Flammable Mucus and Cauterise make bursts. Flashover, Arc Flash and Spectral Combustion hit one target.
 - **Naming:** damage types keep plain, clinical names. Reaction names may use a dry pun, a corrupted familiar phrase, or the tone of a minor incident report, but the joke must fit the effect. Keep names short and easy to recognise at combat speed; never make the name carry essential instructions. British spelling.
 - Prefer short effects with clear visual and audio cues. No hidden timers, multiple stacks or long recipes.
 - **Players discover reactions.** The name shows the first time a reaction fires ("Unstable reaction: Flashover"), and it gets a Field Guide entry once found. There is no matchup chart up front.
@@ -40,7 +40,7 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 | Force + Soul | **Soul Purpose** | State + hit | A Force hit lands on a Possessed enemy | It is launched and damages the first mate it collides with | Single target | One collision; Possessed carries on as normal |
 | Force + Fire | **Flashover** | State + hit | A Force hit lands on a burning target | A tongue of flame jumps to one nearby enemy and adds to its Burn bar | Single target | One jump; no chain |
 | Acid + Static | **Conductive Pool** | World object + hit | A Static hit lands in an Acid Pool | One electrical pulse travels across that pool | Area (pool) | Stays inside the visible pool edge; one pulse per pool |
-| Acid + Mucus | **Slick Move** | World object + hit | An Acid hit lands on a Mucus patch | The patch is replaced by a short-lived corrosive slick | Area (patch) | Replaces the patch rather than layering two hazards; clear expiry |
+| Acid + Mucus | **Slick Move** | World object + hit | An Acid hit lands on a Mucus patch | The patch is replaced by a short-lived Acid Pool | Area (patch) | Replaces the patch rather than layering two hazards; clear expiry |
 | Acid + Blood | **Caustic Breach** | State + hit | An Acid hit lands on a bleeding target | Strips one Shell layer at once | Single target | Defence erosion only: no damage over time, no new wound; does nothing to a target without Shell; once per Bleed |
 | Acid + Soul | **Soul Erosion** | State + hit | An Acid hit lands on a Possessed enemy | When Possessed ends, it bursts in a small Acid splash that adds Corrosion to nearby mates | Area (small) | One splash per Possession; compare with Corrosive Splash in playtest |
 | Acid + Fire | **Premature Evaporation** | State + hit | A Fire hit lands on a Corroded target | Consumes the Corrosion in a modest close-range burst | Area (burst) | Never from an Acid Pool by itself; one burst; the Corrosion build-up resets |
@@ -48,9 +48,9 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 | Static + Blood | **Blood Circuit** | World object + hit | A Static hit lands in a blood pool | One arc hits the nearest enemy standing in or beside the pool | Single target | One target; no pulse across the pool and no onward chain (unlike Conductive Pool) |
 | Static + Soul | **Interference Pattern** | State + hit | A Static hit lands on a Possessed enemy | Possessed lasts a fixed time longer | Single target | Once per Possession |
 | Static + Fire | **Arc Flash** | State + hit | A Static hit lands on a burning target | One short arc jumps to the nearest other enemy | Single target | One jump; no extra Burn, stun or chain |
-| Mucus + Blood | **Caught in the Clot** | World object + hit | A Mucus hit lands on a blood pool | The pool becomes a clot patch that briefly catches the first enemy to cross it | Single target | Blood visible in the patch; one catch, then the patch is gone |
+| Mucus + Blood | **Caught in the Clot** | World object + hit | A Mucus hit lands on a blood pool | The pool thickens: the first enemy to cross it is Snared, then the pool is gone | Single target | One catch, then the pool is gone |
 | Mucus + Soul | **Held in Suspension** | State + hit | A Mucus hit lands on a Possessed enemy | It is pinned in place for a moment | Single target | Short pin; no extra damage or status |
-| Mucus + Fire | **Flammable Mucus** | World object + hit | A Fire hit lands on a Mucus patch | The patch burns briefly as a small no-go zone, then is consumed | Area (zone) | Short and clearly bounded; no Mucus slow left behind; the fire cannot relight itself |
+| Mucus + Fire | **Flammable Mucus** | World object + hit | A Fire hit lands on a Mucus patch | The patch flares once: everything standing in it ignites (full Burn bar), then the patch is gone | Area (burst) | One flare; no Mucus slow left behind; the fire cannot relight itself |
 | Blood + Soul | **Blood Donor** | State + hit | A Blood hit lands on a Possessed enemy | You heal a small fixed amount | Single target | Once per Possession; no new resource meter |
 | Blood + Fire | **Cauterise** | State + hit | A Fire hit lands on a bleeding target | Consumes the Bleed for one immediate burst | Area (burst) | The burst must make up for ending the Bleed; no fresh Burn by default |
 | Soul + Fire | **Spectral Combustion** | Pairing | The Soul/Fire Pairing (two weapons you own, both Lv 5+) hits a burning, Possessed enemy | It ignites at once (full Burn bar) and Possessed ends | Single target | Rare by design; the first time it fires, the Scientist gets his Tier 3 line (VOICE_GUIDE.md) |
@@ -61,7 +61,7 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 - **No extra sub-systems:** Soul Purpose launches an enemy rather than spawning a fragment; Blood Donor is a small capped heal, not a resource.
 - **Soul pairs use Possessed:** all five Soul reactions trigger on a Possessed enemy. The Soul Mark is retired.
 - **Separated similar world reactions:** Conductive Pool pulses across an Acid Pool; Blood Circuit arcs from a blood pool to one enemy.
-- **Controlled Fire interactions:** three Fire pairs consume a setup for a burst or zone (Corrosion, a Mucus patch, a Bleed); three hit a single target. Fire does not make every surface explode.
+- **Controlled Fire interactions:** three Fire pairs consume a setup for a burst (Corrosion, a Mucus patch, a Bleed); three hit a single target. Fire does not make every surface explode.
 - **No reaction retriggers itself.** A reaction-created patch, arc, burst or splash cannot immediately set off the same reaction again. Limit chain jumps, patch triggers and repeat healing (Blood Donor and Interference Pattern are once per Possession).
 
 ## 2. Damage-type identities
@@ -74,7 +74,7 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 | **Mucus** | Movement control and setup | Snared, Conjoined, patches; smothers Fire (Snared clears a Burn bar) | No damage over time; avoid stacking slow, root and snare variants |
 | **Blood** | Wounds and extraction | Bleed, wound thresholds, blood pools, limited sustain | Acid: wound economy, not corrosion |
 | **Soul** | Mind control | Soul build-up to Possessed (the enemy fights its mates for a few seconds); all Soul reactions use Possessed | No defence bypass; Fear is a separate status, not a synonym for Soul |
-| **Fire** | Ignition and short-lived burning zones | Burn bar build-up with a short damage over time; at full, one Ignition flare on that target; consuming compatible setups | Not a universal explosion trigger; no automatic spread |
+| **Fire** | Ignition and consuming setups | Burn bar build-up with a short damage over time; at full, one Ignition flare on that target; consuming compatible setups | Not a universal explosion trigger; no automatic spread |
 
 Each type has one primary verb, one recognisable visual and sound cue (`DAMAGE_TYPES.md` visual language), and a clear non-goal. Use shape and motion as well as colour so effects stay readable on a phone screen.
 
@@ -95,7 +95,7 @@ Each type has one primary verb, one recognisable visual and sound cue (`DAMAGE_T
 - **Resolve attack components, not just damage-type labels.** Direct hit, status application, hazard, impulse and area coverage may each need their own eligibility.
 - **Blocking a hit does not clear effects already applied.** A defence only prevents an attached status when it prevents the hit that applies it.
 - **Area attacks ignore Evasion.** Burst, Beam and Pool use their actual footprint; standing at the edge of a Burst can still take the edge hit.
-- **Hazards are separate from the initial hit.** Avoiding a projectile gives no immunity to an Acid Pool, Burn zone or other hazard entered later.
+- **Hazards are separate from the initial hit.** Avoiding a projectile gives no immunity to an Acid Pool, a Fire Pool or other hazard entered later.
 - **Thorns resolves after a qualifying hit connects,** once per hit, never once per damage component.
 - **Shell layer loss:** ordinary hits slowly, Acid fast, heavy Force at once. Lost layers stay gone.
 - **Membrane recovery has one simple rule and a clear tell:** a brief no-damage delay.
@@ -103,7 +103,7 @@ Each type has one primary verb, one recognisable visual and sound cue (`DAMAGE_T
 
 ## 4. Status ownership and counterplay
 
-Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, Burn zone, wax Pool) are listed separately below. The player can suffer every status except Possessed.
+Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, wax Pool, and the shipped terrain) are listed separately below. The player can suffer every status except Possessed.
 
 | Status | Owner | Consequence | Counterplay and limit | Distinction |
 | --- | --- | --- | --- | --- |
@@ -117,17 +117,17 @@ Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, B
 | Extraction | Blood | An enemy dying while bleeding heals you a little | 1% of max health per kill, max 6 health per second | Separate from ordinary damage and healing |
 | Possessed | Soul | At full Soul build-up the enemy fights its own mates for a few seconds | Clear duration and tell; cooldown before it can repeat; elites shorter; bosses reduced, never fully controlled; the player is exempt | The only control Soul owns; not Fear |
 | Fear | Peekaboo's BOO; a future Feat ("Jump Scare") | Enemies flee for 2 s | Duration cap; no enemy applies Fear | Fear is a status, not the Soul type itself |
-| Burning | Fire | Fire hits fill a visible Burn bar; while it holds Burn the target takes a short damage over time; at full, Ignition: one flare on that target, then the bar resets | No spread except through reactions and Burn zones; Snared puts it out | Do not add extra effects to every Fire hit |
+| Burning | Fire | Fire hits fill a visible Burn bar; while it holds Burn the target takes a short damage over time; at full, Ignition: one flare on that target, then the bar resets | No spread except through reactions; Snared puts it out | Do not add extra effects to every Fire hit |
 
 ### World objects
 
 | Object | Made by | Does | Limit |
 | --- | --- | --- | --- |
-| Acid Pool | Acid Pool weapon, Acid Bubble, Slick Move | The only ongoing Acid damage; builds Corrosion on anything standing in it | Visible edge and lifetime; never indefinite |
+| Acid Pool | Acid Pool weapon, Acid Bubble, Slick Move, acid crypts (terrain) | The only ongoing Acid damage; builds Corrosion on anything standing in it | Visible edge and lifetime; never indefinite |
 | Mucus patch | Mucus Pool weapon, Snot Bubble, Snot Rocket | Snares what enters it; ingredient for Slick Move, Sticky Situation, Flammable Mucus | Short-lived, clear edge |
 | Blood pool | Creatures dying while bleeding; Blood Pool weapon; Mosquito | Ingredient for Blood Circuit and Caught in the Clot | Small, short-lived |
-| Burn zone | Fire Pool weapon, Flammable Mucus, Matchstick, Smouldering elites | Fills the Burn bar of anything inside | Short, clearly bounded |
-| Wax Pool | Birthday Candle only | Hardens into a temporary wall that blocks movement and shots | The one justified exception to "reuse existing ingredients"; short-lived |
+| Terrain (shipped, `terrain.js`) | The arena | Nodules, mitochondria, acid crypts, cilia beds, currents and slicks keep their current behaviour | Unchanged |
+| Wax Pool | Birthday Candle only | Hardens into a temporary wall that blocks movement and shots | The one new ground object; short-lived |
 
 Status labels here are functional names, not necessarily player-facing copy. Keep them short and consistent; use the Field Guide for precise definitions, and keep repeated HUD status effects mostly silent. For each status that ships, specify its duration, refresh and stack rule, how it ends, and any resistance. If a status has no distinct consequence, merge or remove it.
 
@@ -181,7 +181,7 @@ Read each cell by **damage component**, not damage-type name alone: direct hit, 
 | Mucus | No effect on Snared or Conjoined | May absorb the carrier hit; does not erase a patch already placed | Does not reduce Snared or movement control | Not triggered by patches | As Force; a patch still Snares whatever enters it |
 | Blood | Cuts go through (blunt only); Bleed and Extraction not reduced | May absorb the carrier hit; an existing wound is not removed | Reduces the physical component; Bleed ticks not reduced | Not triggered by Bleed ticks | As Force; does not undo an applied wound or a pool |
 | Soul | No effect on build-up or Possessed unless there is an impulse component | Absorbs eligible direct Soul damage; no bypass; build-up applies only if the hit isn't blocked | Reduces physical components; no bypass | Not triggered by ranged Soul attacks | As Force; does not end Possessed |
-| Fire | No effect on heat or Burn unless there is an impulse component | May absorb a covered hit; Burn applies only if the hit applies it; no protection from later zone exposure | Reduces the physical component only; Shell and Burn are separate | Not triggered by Burn or zones | As Force; leaving a zone limits exposure but does not empty the Burn bar |
+| Fire | No effect on heat or Burn unless there is an impulse component | May absorb a covered hit; Burn applies only if the hit applies it; no protection from a Fire Pool entered later | Reduces the physical component only; Shell and Burn are separate | Not triggered by Burn or Pools | As Force; leaving a Fire Pool limits exposure but does not empty the Burn bar |
 
 Do not infer blanket type immunities from this table.
 
@@ -194,7 +194,7 @@ Do not infer blanket type immunities from this table.
 | P1 | Too many conditions can hide reactions | Only the four trigger kinds; no requirements that depend on obscure enemy variants |
 | P1 | Control and interruption can lock enemies down | One catch per patch, short control windows, Poise thresholds, Possessed cooldown, no retrigger loops |
 | P1 | Reaction damage can multiply excessively | Set a primary power budget; do not stack burst, damage over time, vulnerability and chain without justification |
-| P1 | Fire can dominate all surfaces | Only Premature Evaporation, Flammable Mucus and Cauterise make bursts or zones; no automatic spread |
+| P1 | Fire can dominate all surfaces | Only Premature Evaporation, Flammable Mucus and Cauterise make bursts; no automatic spread |
 | P2 | Status vocabulary may expand without adding value | Merge effects with the same player-facing consequence; keep duration and stack rules explicit |
 | P2 | Mobile readability | Test at phone size; use shape, motion and sound as well as colour |
 
@@ -267,12 +267,12 @@ Settled 17 Oct 2026: the four low-confidence Soul reactions (Soul Purpose, Soul 
 
 ## 10. Reconciliation decisions (17 Oct 2026)
 
-Settled one by one after a cross-doc review. Every redesign doc follows these.
+Settled one by one after a cross-doc review (27 and 28 added later on 17 Oct). Every redesign doc follows these.
 
 | # | Question | Decision |
 | --- | --- | --- |
 | 1 | What is a "named combo"? | Gone. Four trigger kinds instead: state + hit, world object + hit, dual-type weapon (Shocking Impact), Pairing (Spectral Combustion) |
-| 2 | How many Fire reactions? | Six; only three make bursts or zones (Premature Evaporation, Flammable Mucus, Cauterise) |
+| 2 | How many Fire reactions? | Six; only three make bursts (Premature Evaporation, Flammable Mucus, Cauterise) |
 | 3 | Acid and Shell | Corrosion builds to permanent layer loss; no timer or stacks |
 | 4 | Fire ignition | Burn bar build-up; at full, one Ignition flare on that target, then reset; no automatic spread |
 | 5 | Squishy and cuts | Blunt only; cuts go through |
@@ -297,6 +297,8 @@ Settled one by one after a cross-doc review. Every redesign doc follows these.
 | 24 | Conjoined trigger | Two Snared creatures touch, or one Mucus attack covers several at once |
 | 25 | What puts Fire out | Becoming Snared clears the Burn bar |
 | 26 | Birthday Candle wax | Keeps wax Pools: wax hardens into a temporary wall (a justified exception) |
+| 27 | Ground objects | Only the shipped ones (terrain, Acid Pools, Mucus patches, blood pools, Skid Mark's trail, Tooth Fairy's teeth) plus wax. Burn zones, corrosive slicks, clot patches and Heartburn's reflux puddles are cut. Fire's Pool attacks (Burning Ground, Pub Crawl's trail, Matchstick's trail) are attack footprints that fill Burn bars, not reaction ingredients |
+| 28 | Acid colour | Shocking pink stands, even beside the pink campaign levels |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
@@ -362,7 +364,6 @@ Starting points for the first build, chosen against today's code (player 120 hea
 | Acid Pool | 58 | 3.5 s | Matches the v10 Pool weapon |
 | Mucus patch | 50 | 4 s | |
 | Blood pool | 35 | 3 s | |
-| Burn zone | 60 | 3 s | |
 | Wax wall | about 60 long | 6 s | Blocks movement and shots both ways; about 30 health (shots chip it); autoaim skips targets behind it unless a Beam or Burst can reach; max 2 per Candle |
 
 At most 40 world objects at once (phones). Where two overlap, the newest wins, except where a reaction converts one into the other.
@@ -401,7 +402,7 @@ A **pet** is a creature on your side with its own movement: summoned critters (L
 | Health | 20% of your max health (24 at 120). No defences. |
 | Death | Summoned pets come back at your side after 3 s. Converted pets (undead) are gone for good when they die or their lifetime ends. |
 | Enemies | An enemy targets a pet only when the pet is closer than you and within 120. Enemies never chase pets across the arena. |
-| Statuses and hazards | Pets ignore statuses, Pools, patches and Burn zones. Only direct enemy hits hurt them. |
+| Statuses and hazards | Pets ignore statuses, Pools and patches. Only direct enemy hits hurt them. |
 | Thorns | A pet's Contact hit on a Thorns enemy hurts the pet, not you. |
 | Autoaim and shots | Your weapons never target pets, your shots pass through them, and they never block enemy shots. |
 | Peekaboo | While you are hidden, enemies ignore your pets too (they search your last spot). |
@@ -419,7 +420,7 @@ Anything that sets off more of itself has a fixed depth: Nappy Mines' domino sto
 
 ### 12.6 Lures
 
-A lure is a world object that draws greedy enemies to it (Tooth Fairy's teeth). At most 3 per weapon, each lasting 6 s, counting towards the 40-object cap. Bosses ignore lures; elites go to them half as often. This is the second justified exception (after wax) to "reuse existing ingredients".
+A lure is a world object that draws greedy enemies to it (Tooth Fairy's teeth). At most 3 per weapon, each lasting 6 s, counting towards the 40-object cap. Bosses ignore lures; elites go to them half as often. Tooth Fairy's teeth already exist in the shipped game, so they are not a new ground object.
 
 ### 12.7 Merging pools
 
