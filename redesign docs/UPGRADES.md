@@ -92,9 +92,16 @@ Upgrading a Feat competes with every other card in that draft. That trade is the
 
 The player gets defences (Squishy, Membrane, Shell, Thorns, Evasion) two ways (decided 17 Oct, replacing Assimilation):
 - **Upgrade cards:** a defence is an ordinary Acquire card in normal drafts, taking a Genome slot; later copies rank it up. Defences are untyped, so they sit outside the sample lean (novelty weighting only).
-- **Built in:** some samples, weapons and Feats come with a defence while you have them (Thorny Onesie gives Thorns). A built-in defence uses no Genome slot, and its card is not offered while you have it.
+- **Built in:** a few samples, weapons and Feats come with a defence while you have them. A built-in defence uses no Genome slot, and its card is not offered while you have it. Keep them rare (at most one per source) so defence cards stay a real draft choice. Current list:
 
-Your defence has the same weaknesses as an enemy's: take Shell and Acid enemies become dangerous. Which samples and Feats carry one is open (11, question 6).
+| Source | Defence | Value |
+| --- | --- | --- |
+| The Cold Parcel (sample) | Evasion | 20% miss chance (below the 35% card value, so a starting sample isn't over-tuned) |
+| Thorny Onesie (weapon) | Thorns | As the card (`COMBAT_MATRIX.md` 11.4) |
+
+None of the eight sample Feats carries one; a drafted Feat may, later.
+
+Your defence has the same weaknesses as an enemy's: take Shell and Acid enemies become dangerous.
 
 ## 6. Milestones and forks
 
@@ -183,5 +190,5 @@ The sim bot (`tests/sim/wave20.js`, `lvsim.js`) picks cards for balance runs, so
 3. Weapon fork content: write a fork pair for each of the 42 matrix weapons and 26 signature weapons (a big job; start with each sample's starting weapon).
 4. Feat fork content: start with the eight samples' unique Feats.
 5. The 40 s budget: tune in play; late runs earn XP fastest.
-6. Built-in defences: which samples and Feats carry one (Thorny Onesie is the first weapon), and how often defence cards appear in drafts.
+6. How often defence cards appear in drafts, and whether The Cold Parcel's 20% Evasion holds up in sims.
 7. Which cards make up the starting pool.

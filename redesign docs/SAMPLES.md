@@ -193,7 +193,7 @@ Smug, entitled and completely sincere about its own importance. It cannot unders
 
 **Passive: Nothing Sticks**
 
-Leave a Mucus trail while moving. Enemies following the trail are slowed, giving the player a natural way to control pursuit without aiming or managing another resource.
+Leave a Mucus trail while moving. Enemies following the trail are slowed, giving the player a natural way to control pursuit without aiming or managing another resource. It also has **Evasion built in** (20% miss chance, no Genome slot; `UPGRADES.md` 5): the only sample that starts with a defence.
 
 **Unique Feat: Shrink Wrap**
 

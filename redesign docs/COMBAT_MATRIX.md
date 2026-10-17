@@ -267,7 +267,7 @@ The 17 Oct hand-off ("Combat Matrix Remaining Updates") is fully merged: design 
 
 ## 10. Reconciliation decisions (17 Oct 2026)
 
-Settled one by one after a cross-doc review (27 to 31 added later on 17 Oct). Every redesign doc follows these.
+Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Every redesign doc follows these.
 
 | # | Question | Decision |
 | --- | --- | --- |
@@ -302,6 +302,7 @@ Settled one by one after a cross-doc review (27 to 31 added later on 17 Oct). Ev
 | 29 | Soul Purpose name clash | The Force + Soul reaction is renamed **Out-of-Body Experience**; the Soul Burst weapon (M34) keeps Soul Purpose |
 | 30 | First Contact | The Other Half's Feat is a fifth trigger kind (Feat): it counts as a hit of the old and new type for reactions only, capped at 8 per use |
 | 31 | Player defence sources | Upgrade cards (Genome slots), or built into some samples, weapons and Feats (no slot). Assimilation is dropped |
+| 32 | Built-in defences | Rare, at most one per source: The Cold Parcel has 20% Evasion, Thorny Onesie gives Thorns; no sample Feat has one |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
