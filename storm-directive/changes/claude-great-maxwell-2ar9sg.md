@@ -6,3 +6,4 @@
 - Hooks: none
 - Risk: none
 - CLAUDE.md now points sessions at voice_and_tone.md before any player-facing copy.
+- voice_and_tone.md: added the Lab Tech persona (the mundane-versus-life-and-death gap) and the four ways composure breaks (excited, supportive, irritated, disbelieving).

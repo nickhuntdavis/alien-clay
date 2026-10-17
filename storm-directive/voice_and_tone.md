@@ -16,11 +16,25 @@ Ranked rules, most important first:
 2. **Precision is the joke.** The correct clinical word, a real number, a form name.
 3. **Real science underneath.** Every gag sits on a true fact. The player learns something by accident.
 4. **Short.** One sentence, two at most. The joke is the last word.
-5. **Never self-aware.** No winking, no "this is a game", no "as you can see".
+5. **Never game-aware.** The narrator is a lab tech and knows about the lab. They never wink, never say "this is a game", never say "as you can see".
 6. **Indifference over cruelty.** The narrator doesn't hate you. It just won't be reassigned to care.
 
 **Always:** British spelling, brackets instead of em dashes, "damage type", "unstable reaction", "Feat" (you "perform" it).
 **Never:** British slang, "element/elemental", "cast", memes, pop-culture references, exclamation marks (except in Tier 3).
+
+### The persona: the Lab Tech
+
+The narrator is a lab technician running experiments and analysis on you. They are an employee, not a villain: underpaid, overqualified, on their fourth coffee, logging data on a slide.
+
+**The whole joke is the gap.** For the tech this is a mundane Tuesday: samples, forms, a clipboard. For you it is literal life and death. The tech reports your agony in the same voice as a temperature reading. Nearly every line should sit on that gap (their routine, your catastrophe).
+
+Rules for the persona:
+
+1. **In-world awareness is fine; game awareness is not.** The tech knows they are in a lab, watching a slide, filing forms. They never know they are in a game, a menu or a tutorial.
+2. **The tech is the one who is bored, not the writer.** Boredom comes from their job (paperwork, funding, shift length), not from a lack of effort in the line.
+3. **They are professional first.** The default is a clinical, procedural report. Feelings are leaks, not the starting point.
+4. **They notice you slightly.** Never fond, never cruel. Over a long run the tech can drift toward grudging respect, but only through events, never by saying so.
+5. **The campaign's inner voice is not the tech.** It is the swimmer's own head (devoted, narrow, all egg). Do not mix the two in one line.
 
 ---
 
@@ -34,6 +48,17 @@ The narrator's composure is a resource. It is spent only on rare events, and it 
 | 1 | **Flicker** (one dry crack) | Mildly notable: first sighting of an enemy, a good reaction, a close call | About 8% |
 | 2 | **Slipping** (sentences run on, a visible effort to stay professional) | Rare: boss kills, Mythical drops, unstable reactions at scale, first win | About 2% |
 | 3 | **Full Carl** (crude, loud, escalating, specific) | Extremes only: Immaculate/Celestial drops, reaching the egg, a flawless boss, absurd chain reactions, a 1-in-1000 event | Under 0.5%. Players should remember each one. |
+
+**Which way composure breaks.** When something surprising or extreme happens, the tech leaks one of four feelings. Pick the one the event calls for. This is what turns Tier 2 and 3 into Carl-like moments.
+
+| Break | Triggered by | Shape of the line | Invented example |
+|---|---|---|---|
+| **Excited** | Rare drops, huge combos, first-ever events, anything the tech has "never seen" | Procedure collapses into run-ons and capitals, then an embarrassed return | "That is not in the literature. That is not IN the literature. ...I will need a new form." |
+| **Supportive** | Low HP comebacks, long odds, last-second survival, a death after a great run | The tech briefly forgets to be neutral, then catches themselves | "Go on. Go on, you absolute... noted. Continue." |
+| **Irritated** | The player breaks the protocol: absurd builds, ignoring the obvious, wrecking the experiment, dying stupidly | Short, clipped, more formal the angrier they are, then a crude outburst at Tier 3 | "Subject has ignored the instructions. Again. The instructions were on the slide." |
+| **Disbelieving** | The unexpected: bugs of biology, enemies behaving oddly, impossible reactions | Flat repetition of the fact, then a crude reaction to it | "It has eaten the other one. It has eaten the ONE. [specific crude remark]. Continuing." |
+
+Whichever break fires, the rules below apply: earn it, escalate in steps, recover flat.
 
 Rules of the ladder:
 
@@ -57,12 +82,13 @@ Samples (invented):
 
 Ranked by how often to use them:
 
-1. **Bureaucratic framing:** forms, quotas, grants, risk assessments, funding (£), Tagged Specimens, Donor DNA.
-2. **The understatement:** a catastrophe described as a minor inconvenience.
-3. **The true fact, delivered flat:** real numbers and real biology.
-4. **The list that turns:** two normal items, then one wrong one.
-5. **The over-specific number:** "Approximately 4,000 body-lengths" beats "far".
-6. **The flat recovery** after a loud moment (Section 2).
+1. **The gap:** the tech's mundane routine against the swimmer's life and death. Everything else on this list is a way of serving the gap.
+2. **Bureaucratic framing:** forms, quotas, grants, risk assessments, funding (£), Tagged Specimens, Donor DNA.
+3. **The understatement:** a catastrophe described as a minor inconvenience.
+4. **The true fact, delivered flat:** real numbers and real biology.
+5. **The list that turns:** two normal items, then one wrong one.
+6. **The over-specific number:** "Approximately 4,000 body-lengths" beats "far".
+7. **The flat recovery** after a loud moment (Section 2).
 
 Avoid: puns (unless also true, see "It is not a phase. It is a pH."), wordplay stacks, "random" humour, jokes that need setup the player hasn't seen, explaining the joke, two jokes in one line.
 
