@@ -8,4 +8,5 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `ATTACK_TYPES.md`: the six attack types (Contact, Projectile, Spread, Burst, Beam, Pool), for weapons and enemies.
 - `ENEMY_DESIGN.md`: enemy principles, roster review, new concepts (including Fire enemies) and the 17 Oct decisions.
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
+- `SAMPLES.md`: the eight playable samples (characters): roster, unlocks, Scientist lines, stories and visual language.
 - `tables/`: Notion databases as CSV (statuses, defences, interactions).
