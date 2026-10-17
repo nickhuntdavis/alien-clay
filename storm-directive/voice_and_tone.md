@@ -52,11 +52,19 @@ Hope is the thing he has trained himself not to have. When something works, hope
 | Does this feature need a story? | No. Give it a name, a flat description and a codex entry. The world is under the hood. |
 | Naming a new sample, unlock or mode | Does it read like a label on a vial or a file in a drawer? |
 
+### Decided: letter drift
+
+Across runs of the same line, the Scientist slowly becomes more invested. By 1F or 1G he sounds slightly warmer and more alert than at 1A.
+
+1. **Through events, never statements.** He never says he cares. It shows as slightly longer notes, an extra look at the slide, a catch in the voice.
+2. **Slow.** A shift you would only notice in hindsight.
+3. **He never admits it.** If caught, he reverts to flat at once.
+4. **Resets with a new number.** 2A is a new line, so he starts cold again.
+
 ### Optional dials (proposals, not decided)
 
 1. **Hours awake.** Copy pools shift across a session: crisper early, more fragile later (more withdrawn observations, longer run-ons). Copy only, no code change needed beyond a pool choice.
-2. **Letter drift.** By 1F or 1G on the same sample, he sounds slightly more invested than at 1A, and says nothing about it.
-3. **Hope meter.** An invisible number that rises on events and falls back, driving which break fires. Only worth building if the first two are not enough.
+2. **Hope meter.** An invisible number that rises on events and falls back, driving which break fires. Only worth building if the first two are not enough.
 
 ---
 
