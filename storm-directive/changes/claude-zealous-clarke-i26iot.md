@@ -1,3 +1,11 @@
+## 2026-10-17 Merge v9.28 autorun and autoaim revision (v10.04)
+- Systems: autorun, weapons, ui (incoming, see changes/claude-festive-allen-xmea8i.md), v10
+- Files: merge of claude/festive-allen-xmea8i; tests/loadouttest.js (runs with V10_OFF)
+- What: the v10 test build now has v9.28's targeting (TOUGHEST, FRAGILEST, a second "Then" directive) and reworked autorun modes (autorun.js). v10 weapons keep their NEAREST and CLUSTER defaults.
+- Save data: none.
+- Hooks: none new; v10 hooks and v9.28's aimDir/arMode hooks sit side by side in game.js and ui.js.
+- Risk: loadouttest now tests the old build only (V10_OFF), since v10 level boxes need v10 weapons.
+
 ## 2026-10-17 Regular mode: a switch every level-up and DNA strand (v10.03)
 - Systems: v10
 - Files: v10.js

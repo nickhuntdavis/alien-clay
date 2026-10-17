@@ -33,8 +33,8 @@ const UI = {
     for (let i = 0; i < 2; i++) ss.appendChild(UI.makeSlotEl('s', i));
     $('moveBtn').addEventListener('click', ev => {
       if (!G) return;
-      const i = MOVE_DIRECTIVES.findIndex(m => m.id === G.moveDir), n = MOVE_DIRECTIVES.length, k = tapSide($('moveBtn'), ev);
-      G.moveDir = MOVE_DIRECTIVES[(i + k + n) % n].id;
+      const MV = moveModes(), i = MV.findIndex(m => m.id === G.moveDir), n = MV.length, k = tapSide($('moveBtn'), ev); // (autorun.js)
+      G.moveDir = MV[(i + k + n) % n].id;
       UI.toast('AUTORUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name);
       UI.refreshHud(true);
     });
@@ -173,7 +173,7 @@ const UI = {
       if (!w) return `<b>Empty ${kind === 's' ? 'spell' : 'weapon'} slot</b><p>Tap to open the Tackle Box.</p>`;
       const dr = DIRECTIVES.find(x => x.id === w.dir);
       return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>Lv ${w.lvl}/${MAX_WLVL}</em><p>${esc(w.def.desc)}</p>`
-        + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name : ''}</p>` : '')
+        + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name + (w.dir2 && !w.dirs ? ', then ' + DIRECTIVES.find(x => x.id === w.dir2).name : '') : ''}</p>` : '')
         + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '')
         + `<p>${kind === 's' ? 'Tap to perform it now. Its target and the rest are in the Tackle Box.' : w.def.noTarget ? 'Tap to open the Tackle Box.' : 'Tap to switch target. TACKLE BOX button for the rest.'}</p>`;
     }, ev => {
@@ -182,7 +182,7 @@ const UI = {
       if (kind === 's' && w) { featTap(w); return; } // (Feats: tap to cast)
       if (!w || w.def.noTarget) { UI.openArmoury(kind, i); return; }
       const idx = DIRECTIVES.findIndex(d => d.id === w.dir), n = DIRECTIVES.length;
-      w.dir = DIRECTIVES[(idx + tapSide(el, ev) + n) % n].id;
+      w.dir = DIRECTIVES[(idx + tapSide(el, ev) + n) % n].id; if (w.dir2 === w.dir) w.dir2 = null;
       if (w.dirs) w.dirs[0] = w.dir;
       UI.toast(w.def.name + ' > ' + DIRECTIVES.find(d => d.id === w.dir).name);
       UI.refreshHud(true);
@@ -208,7 +208,7 @@ const UI = {
         el.querySelector('.ico').innerHTML = iconSVG(w.def, w.isSpell ? 18 : 24, elemCol(wElem(w)));
         el.querySelector('.lv').textContent = 'Lv' + w.lvl;
         el.querySelector('.mp').innerHTML = w.mods.map(m => `<i style="background:${PAL.upgrade}"></i>`).join('');
-        el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : '');
+        el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : w.dir2 ? '›' + DIRECTIVES.find(d => d.id === w.dir2).short : '');
         el.classList.toggle('merged', !!(w.combos && w.combos.length));
       }
       let frac, reloading = false;
@@ -488,6 +488,7 @@ const UI = {
         cur = w.dirs[A.bar];
       }
       h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
+      if (!w.dirs) h += `<h3 style="margin-top:10px">Then (breaks ties, and takes over when nothing fits)</h3><div class="chips">${[{ id: '', short: 'NONE' }].concat(DIRECTIVES.filter(dd => dd.id !== w.dir)).map(dd => `<button class="chip ${(w.dir2 || '') === dd.id ? 'sel' : ''}" data-dir3="${dd.id}">${dd.short}</button>`).join('')}</div>`;
     }
     h += `</div>`;
     // How it plays.
@@ -611,8 +612,10 @@ const UI = {
     body.querySelectorAll('[data-bar]').forEach(b => b.addEventListener('click', () => { A.bar = +b.dataset.bar; UI.renderArmoury(); }));
     body.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       if (w.dirs) { w.dirs[A.bar] = b.dataset.dir; if (A.bar === 0) w.dir = b.dataset.dir; } else w.dir = b.dataset.dir;
+      if (w.dir2 === w.dir) w.dir2 = null;
       const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y;
     }));
+    body.querySelectorAll('[data-dir3]').forEach(b => b.addEventListener('click', () => { w.dir2 = b.dataset.dir3 || null; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; }));
     const tt = $('treeToggle');
     if (tt) tt.addEventListener('click', () => { A.full = !A.full; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; });
     const rb = $('armRecycle');
@@ -1044,7 +1047,7 @@ const UI = {
     let h = `<div class="ptabs">${[['you', 'YOU'], ['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE LAB'], ['codex', 'GUIDE']].map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-ptab="${id}">${l}</button>`).join('')}</div>`;
     if (tab === 'run') {
     h += `<div class="sec"><h3>Autorun directive</h3><div class="chips">`;
-    for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
+    for (const m of moveModes()) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
     h += `<div class="sec"><h3>Game speed</h3><div class="chips">${SPEED_OPTS.map(v => `<button class="chip ${gameSpeed() === v ? 'sel' : ''}" data-spd="${v}">x${v}</button>`).join('')}</div></div>`;
 
@@ -1142,7 +1145,7 @@ const UI = {
         const f = w.fork && SPELL_FORKS[w.id] ? SPELL_FORKS[w.id][w.fork === 'a' ? 0 : 1] : null;
         if (f) sub.push(`<b>${esc(f.name)}</b>: ${esc(f.desc)}`); else if (w.lvl < SPELL_FORK_LV && SPELL_FORKS[w.id]) sub.push(`Picks a path at Lv ${SPELL_FORK_LV}`);
       } else {
-        if (!w.def.noTarget) sub.push('Targets ' + esc((w.dirs ? w.dirs.map(d => DIRECTIVES.find(x => x.id === d).short).join(' / ') : (DIRECTIVES.find(x => x.id === w.dir) || {}).name || '')));
+        if (!w.def.noTarget) sub.push('Targets ' + esc((w.dirs ? w.dirs.map(d => DIRECTIVES.find(x => x.id === d).short).join(' / ') : (DIRECTIVES.find(x => x.id === w.dir) || {}).name || '') + (w.dir2 && !w.dirs ? ', then ' + DIRECTIVES.find(x => x.id === w.dir2).name : '')));
         const pk = Object.keys(w.perks || {}).sort((a, b) => a - b).map(l => `<b>${esc(perkDef(w.perks[l]).name)}</b> (Lv ${l})`);
         if (pk.length) sub.push(pk.join(', '));
         if (w.mods.length) sub.push('Mods: ' + w.mods.map(m => esc(MODS[m.id].name)).join(', '));

@@ -48,7 +48,7 @@ function loadoutHtml() {
   const A = UI.arm || {};
   let h = '';
   // Autorun.
-  h += `<div class="sec lo"><h3>Autorun</h3><div class="lomv">${MOVE_DIRECTIVES.map(m => `<button class="lob ${G.moveDir === m.id ? 'sel' : ''}" data-mv="${m.id}"><b>${m.name}</b><span>${esc(m.desc)}</span></button>`).join('')}</div></div>`;
+  h += `<div class="sec lo"><h3>Autorun</h3><div class="lomv">${moveModes().map(m => `<button class="lob ${G.moveDir === m.id ? 'sel' : ''}" data-mv="${m.id}"><b>${m.name}</b><span>${esc(m.desc)}</span></button>`).join('')}</div></div>`;
   // Weapons.
   const W = G.stats.wdmg || {}, tot = G.weapons.reduce((a, x) => a + (x ? W[x.uid] || 0 : 0), 0) || 1;
   h += `<div class="sec lo"><h3>Weapons</h3>`;
@@ -57,8 +57,8 @@ function loadoutHtml() {
     const c = elemCol(wElem(w)), sh = Math.round((W[w.uid] || 0) / tot * 100), dr = DIRECTIVES.find(x => x.id === w.dir), open = A.tgt === w.uid;
     h += `<div class="low" style="--c:${c}"><div class="lowh"><span class="loi">${iconSVG(w.def, 24, c)}</span><div class="lon"><b>${esc(w.def.name)}</b><em>Lv ${w.lvl}/${MAX_WLVL} | ${esc(loadoutNext(w))}</em>
       <div class="losh"><i style="width:${sh}%"></i></div><small>${sh}% of your damage${w.mods.length ? ' | ' + w.mods.map(m => esc(MODS[m.id].name)).join(', ') : ''}</small></div>
-      ${w.def.noTarget ? '' : `<button class="lot ${open ? 'on' : ''}" data-tg="${w.uid}">${dr ? dr.short : '?'}</button>`}<button class="lod" data-go="w${i}">&rsaquo;</button></div>`;
-    if (open) h += `<div class="lotg">${DIRECTIVES.map(d => `<button class="chip ${w.dir === d.id ? 'sel' : ''}" data-dir2="${d.id}" data-uid="${w.uid}" title="${esc(d.desc)}">${d.name}</button>`).join('')}<p class="hint">${esc((DIRECTIVES.find(x => x.id === w.dir) || {}).desc || '')}</p></div>`;
+      ${w.def.noTarget ? '' : `<button class="lot ${open ? 'on' : ''}" data-tg="${w.uid}">${dr ? dr.short + (w.dir2 && !w.dirs ? '›' + DIRECTIVES.find(x => x.id === w.dir2).short : '') : '?'}</button>`}<button class="lod" data-go="w${i}">&rsaquo;</button></div>`;
+    if (open) h += `<div class="lotg">${DIRECTIVES.map(d => `<button class="chip ${w.dir === d.id ? 'sel' : ''}" data-dir2="${d.id}" data-uid="${w.uid}" title="${esc(d.desc)}">${d.name}</button>`).join('')}<p class="hint">${esc((DIRECTIVES.find(x => x.id === w.dir) || {}).desc || '')}</p>${w.dirs ? '' : `<p class="hint">Then (breaks ties, and takes over when nothing fits):</p>${[{ id: '', name: 'NONE' }].concat(DIRECTIVES.filter(d => d.id !== w.dir)).map(d => `<button class="chip ${(w.dir2 || '') === d.id ? 'sel' : ''}" data-dir3="${d.id}" data-uid="${w.uid}">${d.name}</button>`).join('')}`}</div>`;
     h += `</div>`;
   });
   h += `</div>`;
@@ -94,7 +94,11 @@ function loadoutBind(body, rerender) {
   body.querySelectorAll('[data-tg]').forEach(b => b.addEventListener('click', keep(() => { UI.arm.tgt = UI.arm.tgt === +b.dataset.tg ? null : +b.dataset.tg; })));
   body.querySelectorAll('[data-dir2]').forEach(b => b.addEventListener('click', keep(() => {
     const w = G.weapons.find(x => x && x.uid === +b.dataset.uid); if (!w) return;
-    w.dir = b.dataset.dir2; if (w.dirs) w.dirs[0] = w.dir; UI.arm.tgt = null; UI.refreshHud(true);
+    w.dir = b.dataset.dir2; if (w.dirs) w.dirs[0] = w.dir; if (w.dir2 === w.dir) w.dir2 = null; UI.refreshHud(true);
+  })));
+  body.querySelectorAll('[data-dir3]').forEach(b => b.addEventListener('click', keep(() => {
+    const w = G.weapons.find(x => x && x.uid === +b.dataset.uid); if (!w) return;
+    w.dir2 = b.dataset.dir3 || null; UI.arm.tgt = null; UI.refreshHud(true);
   })));
   body.querySelectorAll('[data-fa]').forEach(b => b.addEventListener('click', keep(() => { const w = G.spells[+b.dataset.fa]; if (w) w.timing = b.dataset.v; })));
   body.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {

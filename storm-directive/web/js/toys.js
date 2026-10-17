@@ -175,7 +175,7 @@ function colourIn(w, poly, loop) {
 function dueFire(w, target) {
   const s = w.s, p = G.player;
   // Big targets first, and ones without a date already.
-  const ts = acquireMany(w.dir, s.range, p.x, p.y, s.count + 3).filter(e => !e.due).slice(0, s.count);
+  const ts = acquireMany(aimDir(w), s.range, p.x, p.y, s.count + 3).filter(e => !e.due).slice(0, s.count);
   if (!ts.length && target) ts.push(target);
   for (const e of ts) dueMark(w, e);
   sfx('shot');
@@ -219,7 +219,7 @@ function dueTick() {
 // ================================================================ Red Tape
 function tapeFire(w, target) {
   const s = w.s, p = G.player;
-  const firsts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count).filter(e => !e.tape) : [target];
+  const firsts = s.count > 1 ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count).filter(e => !e.tape) : [target];
   for (const t of firsts) if (t && !t.tape) tapeUp(w, t, s.chain + 1);
   sfx('shot');
 }
@@ -338,7 +338,7 @@ function friendTick(w, dt) {
     if (f.sig !== sig) {
       f.sig = sig;
       f.weapons = G.weapons.filter(x => x && x !== w && !NOCOPY.has(x.def.kind)).map(x => {
-        const k = makeSlot(x.id, false, x.lvl); k.dir = x.dir; k.echo = true; k.copyK = s.copy; k.friendOf = w;
+        const k = makeSlot(x.id, false, x.lvl); k.dir = x.dir; k.dir2 = x.dir2; k.echo = true; k.copyK = s.copy; k.friendOf = w;
         k.mods = x.mods.slice(); k.perks = Object.assign({}, x.perks); k.wp = x.wp; computeStats(k); k.ammo = k.s.mag; return k;
       });
     }
