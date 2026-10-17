@@ -13,7 +13,7 @@ Force is **physical impact damage**. It specialises in high burst, momentum, poi
 - **Damage profile:** High burst, low damage over time.
 - **Combat identity:** Physical impact, poise pressure, knockback, and environmental collisions.
 - **Primary verbs:** Impact. Stagger. Displace.
-- **Defence interaction:** Force is physical damage, so qualifying Force damage is reduced by Squishy and by Shell's remaining armour layers. Membrane is specifically resistant to Force; it reduces Force's effectiveness against the shield pool and reduces knockback against the protected creature. Heavy Force impacts can shed a Shell layer when the hit meets the defined threshold.
+- **Defence interaction:** Force is physical damage, so qualifying Force damage is reduced by Squishy and by Shell's remaining layers. Membrane is specifically resistant to Force; it reduces Force's effectiveness against the Membrane pool and reduces knockback against the protected creature. Heavy Force impacts can shed a Shell layer when the hit meets the defined threshold.
 
 ### Acid
 
@@ -24,7 +24,7 @@ Acid is the **attrition and defence-stripping** type. It makes enemies progressi
 - **Damage profile:** Low initial burst; sustained damage and escalating defence pressure.
 - **Combat identity:** Corrosion, Shell stripping, persistent pools, and area denial.
 - **Primary verb:** Dissolve.
-- **Defence interaction:** Acid erodes or removes finite Shell layers. It does not automatically disable Membrane regeneration or bypass every shield; any such effect must be a specific, visible interaction. Dodging the delivery does not avoid an Acid pool already on the ground.
+- **Defence interaction:** Acid erodes or removes finite Shell layers. It does not automatically disable Membrane regeneration or bypass every Membrane; any such effect must be a specific, visible interaction. Dodging the delivery does not avoid an Acid pool already on the ground.
 
 ### Static
 
@@ -35,7 +35,7 @@ Static is the **chain-and-interrupt** type. It disrupts actions through electric
 - **Damage profile:** Medium burst, low damage over time, high multi-target potential.
 - **Combat identity:** Chain damage, interruption, conductivity, and overload.
 - **Primary verb:** Discharge.
-- **Defence interaction:** Static can rapidly recharge or temporarily supercharge Membrane. A specific attack should use one clear payoff, with a visible cue and a bounded benefit; repeated hits must not create an infinite shield loop. Static is not automatically blocked by physical resistance, and a shield does not imply immunity to Charge or interruption.
+- **Defence interaction:** Static can rapidly recharge or temporarily supercharge Membrane. A specific attack should use one clear payoff, with a visible cue and a bounded benefit; repeated hits must not create an infinite Membrane loop. Static is not automatically blocked by physical resistance, and a Membrane does not imply immunity to Charge or interruption.
 
 ### Mucus
 
@@ -57,7 +57,7 @@ Blood attacks the target's **health economy**. It opens wounds, makes those woun
 - **Damage profile:** Medium to high, with scaling through wounds and missing health.
 - **Combat identity:** Wound pressure, execution, extraction, and resource sustain.
 - **Primary verb:** Bleed.
-- **Defence interaction:** Squishy and Shell can reduce qualifying physical cuts or strikes, but do not automatically reduce Bleed or Extraction. A shield may absorb eligible direct damage, but does not erase an existing wound. Dodge prevents a wound application only when it avoids the hit that applies it.
+- **Defence interaction:** Squishy and Shell can reduce qualifying physical cuts or strikes, but do not automatically reduce Bleed or Extraction. A Membrane may absorb eligible direct damage, but does not erase an existing wound. Dodge prevents a wound application only when it avoids the hit that applies it.
 
 ### Soul
 
@@ -121,7 +121,7 @@ Acid is the attrition and defence-erosion type. It makes targets easier to damag
 - **Corrosion:** Temporarily reduces Shell effectiveness. Keep stacks capped and the duration short/readable; a threshold may remove a Shell layer when explicitly supported.
 - **Persistent pools:** Some attacks leave a visible Acid pool with a fixed boundary and lifetime. Pools punish lingering but do not last indefinitely.
 - **Coating:** Some attacks coat a target, allowing explicit reactions such as Corrosive Splash or Premature Evaporation.
-- **Recovery pressure:** Acid may suppress a clearly tagged regeneration effect while Corrosion is active. It does not automatically stop Membrane regeneration; shield recovery follows the shared no-shield-damage rule unless an attack explicitly says otherwise.
+- **Recovery pressure:** Acid may suppress a clearly tagged regeneration effect while Corrosion is active. It does not automatically stop Membrane regeneration; Membrane recovery follows the shared no-Membrane-damage rule unless an attack explicitly says otherwise.
 
 ## Strengths and limits
 
@@ -132,7 +132,7 @@ Acid is the attrition and defence-erosion type. It makes targets easier to damag
 ## Defence interactions
 
 - **Squishy / Absorption:** No inherent resistance to Acid damage, Corrosion, or Acid pools.
-- **Membrane:** A shield absorbs eligible direct damage before health. It prevents a coating/status only when it blocks the hit that applies it; it does not remove an existing coating or pool.
+- **Membrane:** A Membrane absorbs eligible direct damage before health. It prevents a coating/status only when it blocks the hit that applies it; it does not remove an existing coating or pool.
 - **Shell:** Acid is the defining Shell counter: corrosion can erode or remove layers. Make layer loss obvious; layers do not regenerate during the encounter.
 - **Thorns:** Pools and non-contact effects do not trigger Thorns. A qualifying melee/contact delivery may trigger one retaliation after it connects.
 - **Dodge:** Can avoid an eligible delivery hit. It does not clear existing Corrosion/coating or protect a target that later enters or remains in an Acid pool.
@@ -145,7 +145,7 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 - **Acid + Static — Conductive Pool:** A Static attack hits an Acid puddle; one electrical pulse travels across that puddle. Keep it within the visible pool boundary and limit it to one pulse.
 - **Acid + Mucus — Slick Move:** An Acid weapon hits a Mucus patch; the patch is replaced by a short-lived corrosive slick. Do not layer two hazards; show a clear expiry.
 - **Acid + Blood — Caustic Breach:** An Acid combo hits a bleeding target; it briefly strips more Shell than Acid alone. Defence erosion only—no extra damage-over-time or wound stack.
-- **Acid + Soul — Soul Erosion:** An Acid combo hits a Soul-marked target; it consumes the mark to weaken a Soul ward if that target has one. If Soul wards are not a shared mechanic, use a brief Soul-mark refresh instead; do not invent a new defence.
+- **Acid + Soul — Soul Erosion:** An Acid combo hits a Soul-marked target; it refreshes the Soul mark and lengthens it briefly. Do not invent a new defence for it.
 - **Acid + Fire — Premature Evaporation:** A Fire attack hits an Acid-coated target; the coating is consumed in a modest close-range burst. This is a target reaction, not an automatic explosion from every Acid puddle.
 
 ## Design boundaries
@@ -224,7 +224,7 @@ Fire is the ignition and exposure type. It applies Burn, creates short-lived bur
 
 **Strong against:** exposed targets, prepared flammable setups, and enemies that remain in a visible burning zone.
 
-**Weak against:** dispersed or mobile targets, enemies that escape exposure, and targets with explicit Fire resistance. Squishy and Shell do not inherently resist heat or Burn.
+**Weak against:** dispersed or mobile targets, enemies that escape exposure,. Squishy and Shell do not inherently resist heat or Burn.
 
 ## Defence interactions
 
@@ -278,7 +278,7 @@ Force is the burst-and-displacement type. It delivers immediate physical impact,
 ## Defence interactions
 
 - **Squishy / Absorption:** Reduces qualifying blunt impact damage and may reduce impulse, knockback, and collision effects. It does not make the target immune to Force.
-- **Membrane:** Force is inefficient against the shield: it drains the pool less efficiently and causes less knockback while the shield is active.
+- **Membrane:** Force is inefficient against the Membrane: it drains the pool less efficiently and causes less knockback while the Membrane is active.
 - **Shell:** Qualifying physical hits are reduced by remaining layers. A sufficiently heavy Force impact can knock one layer loose; the lost layer stays gone for the encounter.
 - **Thorns:** A qualifying melee/contact hit triggers one retaliation after the hit connects. Thorns does not reduce the incoming hit. A clean Dodge means no contact and no retaliation.
 - **Dodge:** Can avoid an eligible Force hit. If the target avoids the strike, attached impact/status effects do not apply; a target still inside an attack's actual AoE may be hit by its edge.
@@ -326,7 +326,7 @@ Mucus is the movement-control and setup type. It coats targets and surfaces, res
 ## Defence interactions
 
 - **Squishy / Absorption:** Does not prevent sticking, coating, or movement restriction.
-- **Membrane:** A shield may prevent coating only if it blocks the hit that applies it. It does not erase an existing coating or a patch already placed in the world.
+- **Membrane:** A Membrane may prevent coating only if it blocks the hit that applies it. It does not erase an existing coating or a patch already placed in the world.
 - **Shell:** Shell reduces qualifying physical damage, not Mucus control or adhesion by default.
 - **Thorns:** A qualifying melee/contact hit can trigger one retaliation after it connects. A remote patch or non-contact effect does not automatically trigger Thorns.
 - **Dodge:** Can avoid the carrier attack and its attached coating if the hit misses. It does not remove existing coating or a sticky patch, and a patch may still affect the route taken while dodging.
@@ -385,7 +385,7 @@ Soul is the essence-pressure type. It targets explicitly nonphysical resources o
 All reactions are proposed for playtesting. Each needs a clear cue and must not retrigger itself.
 
 - **Force + Soul — Soul Purpose:** A Force hit connects with a Soul-marked target; the hit breaks the mark and briefly exposes the target to the next Soul hit. No fragment or pickup system.
-- **Acid + Soul — Soul Erosion:** An Acid combo hits a Soul-marked target; it consumes the mark to weaken a Soul ward if that target has one. If Soul wards are not a shared mechanic, use a brief Soul-mark refresh instead; do not invent a new defence.
+- **Acid + Soul — Soul Erosion:** An Acid combo hits a Soul-marked target; it refreshes the Soul mark and lengthens it briefly. Do not invent a new defence for it.
 - **Static + Soul — Interference Pattern:** A Static combo hits during a clearly telegraphed Soul attack; it interrupts that attack. No general interrupt against every Soul enemy.
 - **Mucus + Soul — Held in Suspension:** A Mucus attack hits a Soul-marked target; it briefly pins the target in place. The visible mark is the trigger.
 - **Blood + Soul — Blood Donor:** A Blood attack hits a Soul-marked target; the player restores a small fixed amount of health. Cap the heal; no new resource meter or repeat-hit farming.
@@ -419,12 +419,12 @@ Static is the chain-pressure and action-disruption type. It delivers electrical 
 
 **Strong against:** clustered eligible targets, telegraphed actions with interrupt windows, and explicit conductive setups.
 
-**Weak against:** isolated targets, attacks without interrupt windows, and encounters where a chain has no eligible secondary target. Static is not the best source of physical knockback or armour erosion.
+**Weak against:** isolated targets, attacks without interrupt windows, and encounters where a chain has no eligible secondary target. Static is not the best source of physical knockback or Shell erosion.
 
 ## Defence interactions
 
 - **Squishy / Absorption:** No inherent resistance to electrical damage or Charge; only an explicit physical impulse component is affected.
-- **Membrane:** Eligible direct damage is absorbed by the shield. Static may recharge/supercharge it as a separate, bounded, visibly signalled interaction; do not allow repeat-hit loops.
+- **Membrane:** Eligible direct damage is absorbed by the Membrane. Static may recharge/supercharge it as a separate, bounded, visibly signalled interaction; do not allow repeat-hit loops.
 - **Shell:** Only a separately tagged qualifying physical component is reduced by Shell. Shell does not inherently block electrical Charge or interruption.
 - **Thorns:** Only a qualifying melee/contact hit triggers one retaliation; a remote arc or world pulse does not automatically count as contact.
 - **Dodge:** Can avoid eligible carrier hits. Existing charged patches or active arcs follow their own hitbox rules; Dodge does not remove an already-created world effect.
@@ -442,4 +442,4 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 
 ## Design boundaries
 
-Static owns Charge, bounded arcs, and conditional interruption. Force owns physical impact and displacement; Acid owns defence erosion; Mucus owns sticky control; Blood owns wounds and extraction; Soul owns essence and marks; Fire owns ignition. Resolve shield recharge separately from damage, and never let the interaction loop infinitely.
+Static owns Charge, bounded arcs, and conditional interruption. Force owns physical impact and displacement; Acid owns defence erosion; Mucus owns sticky control; Blood owns wounds and extraction; Soul owns essence and marks; Fire owns ignition. Resolve Membrane recharge separately from damage, and never let the interaction loop infinitely.

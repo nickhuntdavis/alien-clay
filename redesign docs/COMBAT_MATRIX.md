@@ -36,7 +36,7 @@ All effects below are **proposed**. Numbers, durations, radii and stack values r
 | Acid + Static | **Conductive Pool** | Static attack hits an Acid puddle | One electrical pulse travels across that puddle | World-only interaction; fixed pool boundary and one pulse |
 | Acid + Mucus | **Slick Move** | Acid weapon hits a Mucus patch | Converts the patch into a short-lived corrosive slick | Replace the Mucus patch rather than layering two hazards; clear expiry |
 | Acid + Blood | **Caustic Breach** | Acid combo hits a bleeding target | Briefly strips more Shell than Acid alone | Defence erosion, not another damage-over-time effect; no extra wound stack |
-| Acid + Soul | **Soul Erosion** | Acid combo hits a Soul-marked target | Consumes the mark to weaken a Soul ward, if the target has one | If wards are not a real shared mechanic, simplify to a short Soul-mark refresh; do not invent a new defence |
+| Acid + Soul | **Soul Erosion** | Acid combo hits a Soul-marked target | Refreshes the Soul mark and lengthens it briefly | One refresh per mark; do not invent a new defence |
 | Static + Mucus | **Sticky Situation** | Static attack charges a visible Mucus patch | The next enemy entering it is briefly shocked | One trigger per patch; obvious charge cue; no repeated stun loop |
 | Static + Blood | **Blood Circuit** | Static attack hits a blood pool | Arcs once from the pool to the nearest eligible enemy standing in or beside it | Keep distinct from Conductive Pool: Blood selects a nearby target; Acid Pool carries a pulse across its surface |
 | Static + Soul | **Interference Pattern** | Static combo hits during a clearly telegraphed Soul attack | Interrupts that attack | Use only on attacks with a readable tell; no general interrupt on every Soul enemy |
@@ -74,13 +74,13 @@ Each type should have one primary verb, one recognisable visual/sound cue, and a
 
 ## 3. Defensive layer matrix
 
-**Core baseline: five distinct defence mechanics.** Each changes a different combat outcome. Fearless, Bloodless, fire resistance and similar properties remain enemy-specific traits unless playtests establish a need for another canonical defence. These rules describe the intended design; numerical values and exact eligibility remain subject to playtesting.
+**Core baseline: five distinct defence mechanics.** Each changes a different combat outcome. These five are the only defences; there are no extra traits. These rules describe the intended design; numerical values and exact eligibility remain subject to playtesting.
 
 | Defence | Core rule | Strength / identity | Limits and counterplay |
 | --- | --- | --- | --- |
 | **Squishy / Absorption** | Reduces qualifying blunt physical-impact damage; may also reduce impulse, knockback and collision effects. | Soft tissue yields under impact. Big hits still hurt, but are softened rather than fully negated. | Not universal damage reduction. Does not inherently resist cutting, Acid, Static, Mucus control, Blood effects, Soul effects or Fire. |
-| **Membrane** | A separate shield pool absorbs eligible incoming damage before health. It regenerates after a brief period without taking shield damage. | Temporary protection that rewards breaking contact. Force is its defining matchup and should be particularly poor at getting through or destabilising it. | Sustained pressure delays recovery. Shield state and recharge must be clearly visible. Do not assume it blocks already-applied statuses or persistent hazards. |
-| **Shell** | Reduces qualifying physical damage through discrete, finite layers. Each lost layer is permanently gone for the encounter; Shell does not regenerate. | Rigid protection that is especially useful against repeated small physical hits. Existing prototype armour visuals communicate remaining protection. | Acid can erode or remove layers; sufficiently heavy Force impacts can knock a layer loose. These are deliberate routes to shed Shell, not new damage types. Keep layer loss visually obvious. |
+| **Membrane** | A separate Membrane pool absorbs eligible incoming damage before health. It regenerates after a brief period without taking Membrane damage. | Temporary protection that rewards breaking contact. Force is its defining matchup and should be particularly poor at getting through or destabilising it. | Sustained pressure delays recovery. Membrane state and recharge must be clearly visible. Do not assume it blocks already-applied statuses or persistent hazards. |
+| **Shell** | Reduces qualifying physical damage through discrete, finite layers. Each lost layer is permanently gone for the encounter; Shell does not regenerate. | Rigid protection that is especially useful against repeated small physical hits. Existing prototype Shell visuals communicate remaining protection. | Acid can erode or remove layers; sufficiently heavy Force impacts can knock a layer loose. These are deliberate routes to shed Shell, not new damage types. Keep layer loss visually obvious. |
 | **Thorns** | Returns damage when a qualifying melee/contact attack hits. It does not mitigate the incoming hit. | Retaliation makes close-range attacks costly while preserving the attacker's full damage payoff. | Only trigger on qualifying contact; ranged attacks and non-contact hazards do not automatically trigger it. A clean Dodge avoids the original hit and therefore its contact retaliation. Damage returned should be bounded and readable. |
 | **Dodge** | Avoids eligible attacks when movement, timing and hit coverage allow it. A clean miss avoids the hit and effects attached to that hit. | Protection through movement rather than damage reduction or a resource pool. | Dodging the primary impact does not guarantee escape from the full area of effect. If the creature remains in an attack's outer AoE, it may still take reduced damage or a lesser effect. Persistent hazards can hit on later ticks; Dodge does not clear an already-applied status or erase an existing hazard. |
 
@@ -95,7 +95,7 @@ Each type should have one primary verb, one recognisable visual/sound cue, and a
 - **Membrane recovery has one simple rule and a clear tell.** Prefer a brief no-damage delay over hidden timers, stacks or complex recovery conditions.
 - **Every defence must have readable counterplay.** Do not require a specific damage type to make an enemy viable to fight, and do not let a defence silently negate unrelated statuses or hazards.
 
-Fearless, Bloodless, Fire Resistance, insulation, cleanse and other narrow protections may still be used as enemy-specific traits or actions. They are not part of this five-mechanic baseline by default.
+These five are the complete defence list. Enemy-specific twists are built from them (and from attack types and statuses), not from extra traits.
 
 ## 4. Status ownership and counterplay
 
@@ -108,10 +108,10 @@ Fearless, Bloodless, Fire Resistance, insulation, cleanse and other narrow prote
 | Charge | Static | Transfers a bounded hit or interrupts a tagged action | Charge decay, fixed jump limit, diminishing damage | Do not combine full chain damage with full interrupt on every hit |
 | Snared | Mucus | Briefly restricts movement or sets up a follow-up | Short duration; one clear control strength per effect | Slow, root and snare are not interchangeable labels |
 | Conjoined | Mucus | Sticks multiple enemies together stopping movement possibly causing friendly fire | Only with high enough volume and enemies clustered | Slow, root and snare are not interchangeable labels |
-| Bleed | Blood | Damage over time or threshold burst | Stack cap/decay; Bloodless blocks only blood-dependent effects | Wounds should be distinct from Acid erosion |
-| Extraction | Blood | Converts a qualifying hit or wound into limited sustain | Clear range and cap; Bloodless blocks blood-dependent extraction | Separate from ordinary damage and healing |
+| Bleed | Blood | Damage over time or threshold burst | Stack cap/decay | Wounds should be distinct from Acid erosion |
+| Extraction | Blood | Converts a qualifying hit or wound into limited sustain | Clear range and cap | Separate from ordinary damage and healing |
 | Soul Mark | Soul | Enables specific marked-target reactions | Visible mark, brief lifetime, no blanket defence bypass | Mark is a setup cue, not a second hidden resource |
-| Fear | Explicit source tag; often Soul-related | Alters behaviour or control | Fearless, duration cap and recovery | Fear is a status, not the Soul type itself |
+| Fear | Explicit source tag; often Soul-related | Alters behaviour or control | Duration cap and recovery | Fear is a status, not the Soul type itself |
 | Burning | Fire | Immediate ignition and brief burn or zone | Clear tell and duration; compatible hazards have bounded spread | Do not add extra effects to every Fire hit |
 
 Status labels in this matrix are functional names, not necessarily player-facing copy. Keep them short and consistent; use the Field Guide for precise definitions, and keep repeated HUD status effects mostly silent. For each status that ships, specify its duration, refresh/stack rule, termination condition, and immunity or resistance rule. If a status has no distinct gameplay consequence, merge it into an existing status or remove it.
@@ -128,7 +128,7 @@ Enemies should teach positioning, target priority or build choices—not require
 | Ranged harasser | Projectiles while player is moving | Break line, dodge, close distance | Movement, Force displacement, Mucus control | Off-screen unavoidable damage |
 | Sniper / telegraphed burst | High damage after a clear wind-up | Read tell and change lane | Dodge; Force/Static only within explicit interrupt windows | Unreadable phone-screen one-shots |
 | Controller / trapper | Sticky zones and lane denial | Route around, remove priority threat | Movement, Force displacement, deliberate hazard interactions | Removing every safe route |
-| Support / healer | Regeneration, shields or buffs | Focus, interrupt, isolate | Acid defence erosion, Static tagged interruption, Soul only when explicitly tagged | Mandatory hard-counter checks |
+| Support / healer | Regeneration, Membrane or buffs | Focus, interrupt, isolate | Acid defence erosion, Static tagged interruption, Soul only when explicitly tagged | Mandatory hard-counter checks |
 | Leech / extractor | Heals or grows from injury | Burst, disengage, deny contact | Force displacement, Blood mirror-economy interactions | Punishing damage twice without warning |
 | Conductor / relay | Enables nearby chains or buffs | Break cluster/link, prioritise relay | Static interactions, Force to separate enemies | Making Static the only viable group answer |
 | Hazard / terrain organism | Persistent damage or route constraint | Read boundary, move lanes, exploit visible setup | Acid, Mucus and Fire where the hazard explicitly supports them | Invisible damage or no safe route |
@@ -152,7 +152,7 @@ Use these coverage labels in any future cross-system table: **S** = signature/st
 
 ## 7. Coverage against the five core defences
 
-Read each cell by **damage component**, not damage-type name alone: direct hit, status application, persistent hazard, or control/impulse. Blocking a hit does not automatically remove an effect already applied or a hazard already created. These are baseline rules, not permission to add hidden exceptions. Fearless, Bloodless and Fire Resistance are enemy traits, not defences (section 9).
+Read each cell by **damage component**, not damage-type name alone: direct hit, status application, persistent hazard, or control/impulse. Blocking a hit does not automatically remove an effect already applied or a hazard already created. These are baseline rules, not permission to add hidden exceptions.
 
 | Type | Squishy | Membrane | Shell | Thorns | Dodge |
 | --- | --- | --- | --- | --- | --- |
@@ -204,24 +204,18 @@ Source: "Combat Matrix Remaining Updates". Nothing here changes the 21 pair rows
 | Pair | Reaction | Question to settle |
 | --- | --- | --- |
 | Force + Soul | Soul Purpose | Is breaking a mark and exposing the target to the next Soul hit clear and useful enough? |
-| Acid + Soul | Soul Erosion | Is a Soul ward a real system? If not, simplify to a mark refresh or replace the reaction. Do not add a defence just for this. |
+| Acid + Soul | Soul Erosion | Is a brief mark refresh worth a reaction slot, or should it be replaced? Do not add a defence for it. |
 | Blood + Soul | Blood Donor | Is a small fixed heal right? Cap it and stop repeat-hit farming. |
 | Soul + Fire | Spectral Combustion | Is the extra mark worth the visual and state burden? Keep the payoff immediate and on hit, not on defeat. |
 
 ### Defence rules to verify
 
 - **Squishy / Absorption:** proportional reduction of qualifying physical damage; may soften impulse and knockback; no blanket status resistance. Force counts as physical.
-- **Membrane:** separate pool, absorbs eligible direct damage before health, regenerates after a short spell without shield damage. Force drains it less efficiently and knocks back less while it is up. Static may recharge or supercharge it, with a visible cap and no loop. Direct Soul damage is absorbed normally; only a component tagged **essence-targeting** bypasses it.
+- **Membrane:** separate pool, absorbs eligible direct damage before health, regenerates after a short spell without Membrane damage. Force drains it less efficiently and knocks back less while it is up. Static may recharge or supercharge it, with a visible cap and no loop. Direct Soul damage is absorbed normally; only a component tagged **essence-targeting** bypasses it.
 - **Shell:** finite, non-regenerating layers with fixed reduction against qualifying physical hits. Acid erodes layers; a heavy Force hit may knock one loose. Distinct from Squishy (fixed layers against proportional). Shell does not mitigate Burn or heat.
 - **Thorns:** no mitigation. Retaliates once per qualifying melee or contact hit (not once per damage component). Ranged attacks, remote hazards, non-contact effects and cleanly dodged attacks do not trigger it.
 - **Dodge:** avoids eligible hits through movement and timing; a clean miss also avoids the effects attached to that hit. An AoE edge can still hit and persistent hazards hit later. It clears no existing status or hazard. Mucus constrains Dodge only when the path crosses a sticky zone or the target is Adhered.
 
-### Enemy traits (Proposed until confirmed)
-
-- **Fire Resistance:** reduces Burn buildup and/or Burn damage. Delayed Ignition is a separate parameter; full immunity is a stronger, explicit trait. Does not reduce physical Fire impact, smoke, environmental hazards or Fire pair reactions.
-- **Fearless:** affects Fear-tagged effects only, not all Soul damage, essence drain or Silence.
-- **Bloodless:** prevents only blood-dependent Bleed and extraction. Direct Blood damage and non-bleeding wounds still land.
-- Some interaction rows were marked Accepted while the trait records are still Proposed. Align them deliberately.
 
 ### Defence interaction rows (one row each, no duplicates)
 
@@ -229,7 +223,7 @@ Source: "Combat Matrix Remaining Updates". Nothing here changes the 21 pair rows
 | --- | --- | --- |
 | Acid erodes Shell | Accepted | Corrosion removes finite layers. Does not disable Membrane or bypass defences generally. |
 | Heavy Force can shed a Shell layer | Proposed | A thresholded heavy hit removes one layer. |
-| Membrane resists Force impact | Proposed | Less drain and less knockback while the shield is up. |
+| Membrane resists Force impact | Proposed | Less drain and less knockback while the Membrane is up. |
 | Static recharges / supercharges Membrane | Proposed | Bounded, visible, no loop. |
 | Membrane absorbs eligible direct damage | Proposed | Status prevention depends on whether the applying hit was prevented. |
 | Essence-targeting Soul may bypass Shell or Membrane | Proposed | Only an explicitly tagged component. The Soul label alone is not enough. |
@@ -238,9 +232,6 @@ Source: "Combat Matrix Remaining Updates". Nothing here changes the 21 pair rows
 | Thorns retaliate once on contact | Accepted (verify) | Once per qualifying contact hit. |
 | Dodge avoids eligible attacks | Accepted (verify) | A clean dodge prevents the hit and its attached effects. |
 | Mucus constrains Dodge routes | Testing | Sticky zone or Adhered target only. |
-| Fire Resistance slows Burn | Accepted interaction / Proposed trait (verify) | Distinct from immunity. |
-| Fearless resists Fear only | Accepted interaction / Proposed trait (verify) | No blanket Soul resistance. |
-| Bloodless prevents blood-dependent effects | Accepted interaction / Proposed trait (verify) | No blanket Blood immunity. |
 | Extinguishing suppresses Fire | Proposed | A specific supported action reduces Burn exposure or stops propagation. Water is not a damage type. |
 | Membrane and Soul effects | Accepted (verify) | Eligible direct Soul damage is absorbed; only essence-targeting components bypass. |
 
@@ -258,6 +249,5 @@ Source: "Combat Matrix Remaining Updates". Nothing here changes the 21 pair rows
 - [ ] Proposed / Accepted / Testing statuses match what was actually approved.
 - [ ] The four low-confidence reactions are decided.
 - [ ] Defence interaction rows exist once, with correct statuses.
-- [ ] The three trait records match their interaction rows.
 - [ ] Damage type, attack type, behaviour modifier and source are separate fields.
 - [ ] Every reaction reads quickly, has one payoff and no unbounded loop.

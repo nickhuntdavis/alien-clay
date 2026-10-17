@@ -1,6 +1,6 @@
 # Defence Types
 
-A reference for the five core defensive mechanics in Spawn Prawn. Each defence changes a different combat outcome: soften physical impact, absorb damage with a regenerating barrier, reduce physical damage with finite armour layers, retaliate on contact, or avoid eligible attacks.
+A reference for the five core defensive mechanics in Spawn Prawn. Each defence changes a different combat outcome: soften physical impact, absorb damage with a regenerating barrier, reduce physical damage with finite Shell layers, retaliate on contact, or avoid eligible attacks.
 
 <aside>
 🧭
@@ -12,8 +12,8 @@ A reference for the five core defensive mechanics in Spawn Prawn. Each defence c
 ## Core defence roster
 
 - **Squishy / Absorption:** proportionally reduces qualifying physical damage and may soften physical impulse.
-- **Membrane:** a separate regenerating shield pool; Force is resisted, while Static can supercharge or rapidly recharge it.
-- **Shell:** finite, non-regenerating armour layers that reduce qualifying physical damage; Acid erodes layers and heavy Force can knock one loose.
+- **Membrane:** a separate regenerating Membrane pool; Force is resisted, while Static can supercharge or rapidly recharge it.
+- **Shell:** finite, non-regenerating Shell layers that reduce qualifying physical damage; Acid erodes layers and heavy Force can knock one loose.
 - **Thorns:** returns damage after qualifying melee/contact hits; does not reduce incoming damage.
 - **Dodge:** avoids eligible hits through movement/timing; it does not erase existing statuses or persistent hazards.
 
@@ -27,7 +27,7 @@ A reference for the five core defensive mechanics in Spawn Prawn. Each defence c
 - **Persistent hazards resolve separately.** Dodging a projectile does not grant immunity to an Acid pool, burning zone, or other hazard entered later.
 - **Thorns triggers once per qualifying connected contact hit.** It does not mitigate that hit; a clean Dodge means no contact and no retaliation.
 - **Area attacks use their actual coverage.** Dodging the core may still leave the creature inside the edge of a blast or wave.
-- **Keep counterplay visible.** Shield recharge, Shell loss, Thorns retaliation, and successful/failed Dodge outcomes need clear cues.
+- **Keep counterplay visible.** Membrane recharge, Shell loss, Thorns retaliation, and successful/failed Dodge outcomes need clear cues.
 
 ## Individual defence pages
 
@@ -49,7 +49,7 @@ The pages below use the same design-reference approach as the damage-type pages:
 
 **Don't absorb the hit. Don't be where it lands.**
 
-Dodge avoids eligible attacks through movement, timing, and attack coverage. It is not a damage-reduction stat, a shield pool, or a cleanse.
+Dodge avoids eligible attacks through movement, timing, and attack coverage. It is not a damage-reduction stat, a Membrane pool, or a cleanse.
 
 ## Core mechanics
 
@@ -122,7 +122,7 @@ Tune for quick visual comprehension. Telegraph attacks clearly and ensure a clea
 
 **A barrier before the body. Break contact, let it recover, then go again.**
 
-Membrane is a separate, regenerating shield pool. It buys temporary protection, but sustained pressure delays recovery. Force and Static have distinctive interactions with it.
+Membrane is a separate, regenerating Membrane pool. It buys temporary protection, but sustained pressure delays recovery. Force and Static have distinctive interactions with it.
 
 **Design language:** Blue. On player, Reactive membrane. On enemies. Blue ring. 
 
@@ -131,7 +131,7 @@ Membrane is a separate, regenerating shield pool. It buys temporary protection, 
 <aside>
 🛡️
 
-**Separate shield pool**
+**Separate Membrane pool**
 
 Eligible direct damage drains Membrane before it can damage health. The pool has its own visible state and does not count as health or Shell layers.
 
@@ -142,7 +142,7 @@ Eligible direct damage drains Membrane before it can damage health. The pool has
 
 **Regeneration**
 
-After a brief period without shield damage, Membrane begins to recover. Use one simple delay and a strong visual/audio tell rather than hidden stacks or complicated recovery conditions.
+After a brief period without Membrane damage, Membrane begins to recover. Use one simple delay and a strong visual/audio tell rather than hidden stacks or complicated recovery conditions.
 
 </aside>
 
@@ -151,7 +151,7 @@ After a brief period without shield damage, Membrane begins to recover. Use one 
 
 **Force resistance**
 
-Force is physical damage. Membrane is unusually resistant to Force: Force damage is less effective against the shield pool, and Force knockback against a creature protected by an active Membrane is reduced. This resistance applies to the shield interaction, not as blanket Force immunity after the shield breaks.
+Force is physical damage. Membrane is unusually resistant to Force: Force damage is less effective against the Membrane pool, and Force knockback against a creature protected by an active Membrane is reduced. This resistance applies to the Membrane interaction, not as blanket Force immunity after the Membrane breaks.
 
 </aside>
 
@@ -160,7 +160,7 @@ Force is physical damage. Membrane is unusually resistant to Force: Force damage
 
 **Static supercharge / rapid recharge**
 
-Static can interact with Membrane by quickly recharging it or temporarily supercharging it. A specific attack should choose one clear payoff: restore shield capacity quickly, or briefly raise the shield's capacity/effect. Telegraph the charge and cap the benefit; do not let repeated Static hits create an infinite shield loop.
+Static can interact with Membrane by quickly recharging it or temporarily supercharging it. A specific attack should choose one clear payoff: restore Membrane capacity quickly, or briefly raise the Membrane's capacity/effect. Telegraph the charge and cap the benefit; do not let repeated Static hits create an infinite Membrane loop.
 
 </aside>
 
@@ -168,8 +168,8 @@ Static can interact with Membrane by quickly recharging it or temporarily superc
 
 | Parameter | Gameplay interpretation |
 | --- | --- |
-| Shield capacity | How much eligible damage the pool can absorb |
-| Recharge delay | Time without shield damage before recovery begins |
+| Membrane capacity | How much eligible damage the pool can absorb |
+| Recharge delay | Time without Membrane damage before recovery begins |
 | Recharge rate | Speed of recovery once it starts |
 | Force modifier | Force drains the pool less efficiently than ordinary eligible damage |
 | Static interaction | A bounded recharge or short overcharge effect, with a clear cue and cap |
@@ -181,24 +181,24 @@ Exact values and whether a given Static attack recharges or supercharges Membran
 | Strong against | Weak against / counterplay |
 | --- | --- |
 | Sustained protection while the pool remains | Continuous pressure prevents recovery |
-| Eligible direct damage before it reaches health | Force is resisted but still contributes; do not make the shield unbreakable |
-| Static can reinforce the shield | Static supercharge can be a risk/reward enemy mechanic; make its trigger visible |
+| Eligible direct damage before it reaches health | Force is resisted but still contributes; do not make the Membrane unbreakable |
+| Static can reinforce the Membrane | Static supercharge can be a risk/reward enemy mechanic; make its trigger visible |
 
 ## Interactions with damage types
 
-- **Force — Resists:** Force damage drains Membrane less efficiently; Force knockback against the shielded creature is reduced. Force still damages the pool.
-- **Acid — Normal / conditional:** Acid drains the shield as eligible damage. Corrosion does not automatically disable regeneration; add that only as a deliberate, visible interaction.
+- **Force — Resists:** Force damage drains Membrane less efficiently; Force knockback against the Membraneed creature is reduced. Force still damages the pool.
+- **Acid — Normal / conditional:** Acid drains the Membrane as eligible damage. Corrosion does not automatically disable regeneration; add that only as a deliberate, visible interaction.
 - **Static — Signature interaction:** Static can rapidly recharge or supercharge Membrane. Bound the amount/duration and prevent repeat-hit loops.
-- **Mucus — Conditional:** the shield may absorb an eligible direct delivery hit, but does not automatically prevent Mucus patches or later contact with them.
+- **Mucus — Conditional:** the Membrane may absorb an eligible direct delivery hit, but does not automatically prevent Mucus patches or later contact with them.
 - **Blood — Conditional:** eligible direct Blood damage is absorbed by the pool; existing Bleed or Extraction follows its own application rules.
 - **Soul — Conditional:** a direct essence-targeting effect bypasses Membrane only if explicitly tagged to target essence rather than the surface. Do not give all Soul attacks a blanket bypass.
 - **Fire — Conditional:** eligible direct Fire damage is absorbed by the pool; Burning or a persistent fire zone follows separate rules.
 
 ## Design guardrails
 
-- Make shield state and recharge unmistakable at phone-screen scale.
+- Make Membrane state and recharge unmistakable at phone-screen scale.
 - Static's recharge/supercharge must have a bounded payoff and a readable tell.
-- A full shield does not imply immunity to statuses, control, or hazards.
+- A full Membrane does not imply immunity to statuses, control, or hazards.
 - Do not confuse Membrane with Shell: Membrane recovers; Shell loses finite layers for the encounter.
 
 ---
@@ -207,16 +207,16 @@ Exact values and whether a given Static attack recharges or supercharges Membran
 
 **Rigid layers. Shrug off small hits. Lose protection one piece at a time.**
 
-Shell is finite, non-regenerating physical armour. Each remaining layer reduces qualifying physical damage by a fixed amount. Unlike Squishy, it does not scale as a percentage of each hit.
+Shell is finite, non-regenerating physical plating. Each remaining layer reduces qualifying physical damage by a fixed amount. Unlike Squishy, it does not scale as a percentage of each hit.
 
-**Visual language:** Brown UI ring (multiple rings if multiple layers of armour that shed)
+**Visual language:** Brown UI ring (multiple rings if multiple Shell layers that shed)
 
 ## Core mechanics
 
 <aside>
 🐚
 
-**Finite armour layers**
+**Finite Shell layers**
 
 Each intact layer provides a fixed reduction against qualifying physical damage. When a layer is lost, that protection is gone for the rest of the encounter.
 
@@ -236,7 +236,7 @@ Acid can erode or remove Shell layers. Make the loss visible and decisive; avoid
 
 **Heavy Force impact**
 
-A sufficiently heavy Force hit can knock a Shell layer loose. Force is physical damage, but its special payoff here is shedding a layer—not bypassing all armour or dealing automatic bonus damage.
+A sufficiently heavy Force hit can knock a Shell layer loose. Force is physical damage, but its special payoff here is shedding a layer—not bypassing Shell entirely or dealing automatic bonus damage.
 
 </aside>
 
@@ -250,7 +250,7 @@ A sufficiently heavy Force hit can knock a Shell layer loose. Force is physical 
 | Acid erosion | A clear layer-removal or accelerated-layer-loss rule |
 | Force threshold | A readable heavy-impact threshold that can shed one layer |
 
-The exact reduction, threshold, and number of layers remain for playtesting. Reuse the existing prototype armour visual to communicate remaining layers.
+The exact reduction, threshold, and number of layers remain for playtesting. Reuse the existing prototype Shell visual to communicate remaining layers.
 
 ## Strengths & weaknesses
 
@@ -419,7 +419,7 @@ Ranged attacks, remote hazards, and non-contact effects do not trigger Thorns by
 
 ## Design guardrails
 
-- Retaliation is not damage reduction, armour, or a guaranteed trade advantage.
+- Retaliation is not damage reduction, Shell, or a guaranteed trade advantage.
 - Resolve one retaliation per connected hit, even when that hit carries several damage types.
 - A miss caused by Dodge cannot trigger Thorns.
 - Keep “bleeding thorns,” “charged thorns,” and similar effects as explicit variants or combo payoffs.
