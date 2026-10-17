@@ -264,7 +264,7 @@ function nfTick(dt) {
   for (const w of enemies) {
     if (w.dead || nfAI(w) !== 'new_trappedwind' || w.nfLit) continue;
     let near = 0;
-    for (const o of enemies) if (o !== w && !o.dead && o.v10burn > 0 && nfAI(o) !== 'new_trappedwind') { const d = Math.hypot(o.x - w.x, o.y - w.y); if (d < w.r + o.r) { nfIgnite(w); break; } if (d < 130) near = 1; }
+    for (const o of enemies) if (o !== w && !o.dead && f_burning(o) && nfAI(o) !== 'new_trappedwind') { const d = Math.hypot(o.x - w.x, o.y - w.y); if (d < w.r + o.r) { nfIgnite(w); break; } if (d < 130) near = 1; }
     if (!w.nfLit) for (const z of G.zones) if (z.nfTrail && z.life > 0 && Math.hypot(z.x - w.x, z.y - w.y) < z.r + w.r) { nfIgnite(w); break; }
     w.nfNear = w.nfLit ? 1 : near;
   }

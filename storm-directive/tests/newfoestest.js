@@ -85,7 +85,7 @@ const { chromium } = require('playwright');
     if (!(G.nfWax || []).some(w => w.soft <= 0) && out.wax) { /* may have crumbled by now; fine */ }
     fresh(); const cn2 = foe('candle', 100); G.zones.push(fightPatch(cn2.x + 30, cn2.y, 'test')); const foeInPatch = foe('crawler', 130); foeInPatch.speed = 0;
     const fh = foeInPatch.hp; run(120); out.lit = fh - foeInPatch.hp;
-    if (!(foeInPatch.hp < fh) || !(foeInPatch.v10burn > 0 || foeInPatch.hp < fh)) bad.push('lit Mucus patch did not go off');
+    if (!(foeInPatch.hp < fh) || !true) bad.push('lit Mucus patch did not go off');
     // wax blocks shots and movement
     fresh(); const cn3 = foe('candle', 400); G.nfWax = [{ x: G.player.x + 60, y: G.player.y, a: Math.PI / 2, soft: 0, hp: 30, life: 6, owner: cn3 }];
     const eb = { x: G.player.x + 200, y: G.player.y, vx: -300, vy: 0, dmg: 1, r: 4, life: 5, from: 'x' }; G.ebul.push(eb); run(40);
@@ -96,12 +96,12 @@ const { chromium } = require('playwright');
     run(10); if (tw.dead || tw.nfLit) bad.push('Wind lit without Fire');
     hit(tw, 'flame', 5); if (!tw.nfLit) bad.push('Fire hit did not light the Wind');
     run(60); out.windDead = tw.dead;
-    if (!tw.dead || !(nb.v10burn > 0)) bad.push('Wind burst: dead ' + tw.dead + ' burn ' + nb.v10burn);
+    if (!tw.dead || !f_burning(nb)) bad.push('Wind burst: dead ' + tw.dead + ' burn ' + f_burning(nb));
     // no chain
     fresh(); const w1 = foe('trappedwind', 100), w2 = foe('trappedwind', 115); w1.speed = w2.speed = 0; hit(w1, 'flame', 5); run(80);
     if (w2.dead || w2.nfLit) bad.push('Wind chained to a second pocket');
     // a burning enemy touching it lights it
-    fresh(); const w3 = foe('trappedwind', 100); w3.speed = 0; const bn = foe('crawler', 100); bn.v10burn = 3; bn.v10bdps = 0; bn.speed = 0; run(3);
+    fresh(); const w3 = foe('trappedwind', 100); w3.speed = 0; const bn = foe('crawler', 100); fightCd(bn).burnT = 3; bn.speed = 0; run(3);
     if (!w3.nfLit) bad.push('burning touch did not light the Wind');
     // Caps hold
     fresh(); G.typeN = {};

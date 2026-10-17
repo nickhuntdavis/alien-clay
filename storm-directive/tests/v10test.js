@@ -24,13 +24,13 @@ const { chromium } = require('playwright');
     st[0].apply();
     const w0 = G.weapons.find(Boolean);
     const lv = genLoot({ kind: 'level' });
-    if (lv.length !== 1 || lv.some(o => o.tag !== 'SWITCHED AT BIRTH')) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title));
-    out.switch = lv.map(o => o.title);
-    lv[0].apply();
+    if (lv.length !== 3) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title)); // (one draft: draft.js)
+    out.switch = lv.map(o => o.tag + ' ' + o.title);
+    v10Switch()[0].apply();
     const w1 = G.weapons.find(Boolean);
     if (w1.def.v10atk !== w0.def.v10atk || w1.def.v10type === w0.def.v10type) bad.push('switch: ' + w0.id + ' -> ' + w1.id);
     G.v10sw = null; if (!v10Box({ kind: 'level' }) || v10Box({ kind: 'level' })) bad.push('one level box a wave');
-    for (const k of ['chest', 'boss', 'relic', 'vesicle', 'splice', 'myth']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k);
+    for (const k of ['relic', 'vesicle', 'splice', 'myth']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k);
     const sl = genLoot({ kind: 'slot' });
     if (sl.length !== 3 || sl.some(o => o.def.v10atk === w1.def.v10atk)) bad.push('slot draft: ' + sl.map(o => o.title));
     // Every weapon deals damage on its own.
@@ -42,7 +42,7 @@ const { chromium } = require('playwright');
       const p = G.player; G.enemies.length = 0; G.stats.dmg = {}; G.stats.reactions = 0;
       for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, d = 70 + (i % 3) * 60; const e = makeEnemy(def, p.x + Math.cos(a) * d, p.y + Math.sin(a) * d); e.hp = e.maxHp = 1e5; e.speed = 0; G.enemies.push(e); }
       let burnt = false;
-      try { for (let f = 0; f < 300; f++) { update(1 / 60); if (G.enemies.some(e => e.v10burn > 0)) burnt = true; } } catch (err) { bad.push(id + ': ' + err.message + ' ' + (err.stack || '').split('\n')[1]); }
+      try { for (let f = 0; f < 300; f++) { update(1 / 60); if (G.enemies.some(e => e.v10burn > 0 || (e.cd && e.cd.burnT > 0))) burnt = true; } } catch (err) { bad.push(id + ': ' + err.message + ' ' + (err.stack || '').split('\n')[1]); }
       const dealt = Object.values(G.stats.dmg).reduce((a, v) => a + v, 0);
       if (!(dealt > 0)) bad.push(id + ': no damage');
       if (WEAPONS[id].elem === 'flame' && !burnt) bad.push(id + ': no Burning');

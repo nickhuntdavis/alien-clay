@@ -114,12 +114,8 @@ for (const t of V10_TYPES) for (const a of V10_ATKS) {
 // ---------------------------------------------------------------- boxes
 // Which boxes open at all (game.js main loop): weapon drafts, and one level-up a wave. Everything else is dropped.
 function v10Box(req) {
-  if (!V10 || req.kind === 'start' || req.kind === 'slot' || req.v10ok) return true;
-  if (!G.wave) return req.kind === 'level' || req.kind === 'chest'; // regular mode: every level-up and DNA strand
-  if (req.kind !== 'level') return false;
-  const wave = G.wave.n; // wave mode: one a wave
-  if (G.v10sw === wave) return false;
-  G.v10sw = wave; req.v10ok = true; return true;
+  if (!V10) return true;
+  return draftBox(req); // (level-ups, chests, forks and the interruption budget: draft.js)
 }
 function v10Loot(req) {
   if (req.kind === 'start') return shuffle(v10Ids()).slice(0, 4).map(id => optNewWeapon(id, 0));
@@ -129,7 +125,7 @@ function v10Loot(req) {
     if (!pool.length) pool = v10Ids().filter(id => !own.some(w => w.id === id));
     return shuffle(pool).slice(0, 3).map(id => optNewWeapon(id, 0));
   }
-  if (req.kind === 'level' || (req.kind === 'chest' && !G.wave)) return v10Switch();
+  { const o = draftLoot(req); if (o) return o; } // (one draft for weapons, Switched at Birth, defences, Feats, mutations; forks: draft.js)
   return null;
 }
 // Switched at Birth: same attack type, another damage type. One card: a random weapon you own, a random new type.
@@ -180,6 +176,7 @@ function v10Burn(e, dmg, src) {
 function v10Tick(dt) {
   if (!V10 || !G) return;
   fightTick(dt); // (defences, charged patches: fight.js)
+  pdefTick(dt); // (your Membrane and Shell: pdef.js)
   for (const e of G.enemies) {
     if (!(e.v10burn > 0) || e.dead) continue;
     e.v10burn -= dt;
@@ -194,7 +191,7 @@ function v10Tick(dt) {
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
-  if (G && V10) fightDraw(); // (defence rings, status marks: fight.js)
+  if (G && V10) { fightDraw(); pdefDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js)
   if (G && V10) nfDraw(); // (telegraphs, wax, trails: newfoes.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {
