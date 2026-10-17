@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: upgrades and progression
+- Systems: docs only (redesign docs)
+- Files: redesign docs/UPGRADES.md (new), README.md
+- What: the progression model: one shared card draft (Acquire, Enhance, Transform, Specialise), slot caps (3 weapons at levels 1/8/22, 3 Feats with the sample's unique Feat fixed, 4 shared Genome slots for mutations and Assimilation defences), Feat levels with forks at 3 and 5, weapon forks at 5 and 10 (one mastery a run), a 50/25/25 sample-type pool lean, Skip/Reroll/Banish (Remove 2, Fewer like this 1) and a one-screen-per-40 s interruption budget.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs only).
+
 ## 2026-10-17 Redesign docs: one weapons list
 - Systems: docs only (redesign docs)
 - Files: redesign docs/WEAPONS.md (new), README.md

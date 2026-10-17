@@ -11,6 +11,7 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `SIGNATURE_WEAPONS.md`: 15 favourite original weapons brought back alongside the 42-weapon matrix, each with one damage type, one attack type and one signature behaviour (rules in `COMBAT_MATRIX.md` section 12).
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
 - `SAMPLES.md`: the eight playable samples (characters): roster, unlocks, Scientist lines, stories and visual language.
+- `UPGRADES.md`: in-run progression and unlocks: one card-draft system, slot caps (3 weapons, 3 Feats, 4 Genome), Feat levels and milestone forks, the sample-type pool lean, Skip/Reroll/Banish and the interruption budget.
 - `AUTORUN_AUTOAIM.md`: autorun modes and autoaim directives, including the THEN tie-breaker, with exact rules and numbers (shipped in v9.28 on `claude/festive-allen-xmea8i`, not yet in v10).
 - `tables/`: the Notion databases as CSV (statuses and world objects, defences, interactions), regenerated from the matrix on 17 Oct. The matrix wins if they ever disagree.
 
@@ -23,4 +24,4 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 5. **Rename v10's Mucus Pool weapon** from "Sticky Situation" to "Snot Trap" (`V10_ATK`, v10.js).
 6. **Damage types for the rest of the roster** (spawned-only, feature-file enemies, bosses), same bell curve as `ENEMY_DESIGN.md` 5.1.
 7. **Port the 15 signature weapons** (`SIGNATURE_WEAPONS.md`) into v10, restore the name Pub Crawl for `wake` (shipped as Skid Mark), and recheck their old Pairings.
-8. **Player defence sources** wait for the upgrade and reward systems to return.
+8. **Player defence sources:** Assimilation (`UPGRADES.md` 5): enemies with a defence drop it as a Genome card.
