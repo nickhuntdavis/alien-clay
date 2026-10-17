@@ -3,10 +3,11 @@
 Working proposal, 17 Oct 2026. Uses the vocabulary of the other redesign docs only:
 
 - **Damage types (7):** Force, Acid, Static, Mucus, Blood, Soul, Fire (`DAMAGE_TYPES.md`).
-- **Defences (5):** Squishy, Membrane, Shell, Thorns, Dodge (`DEFENCE_TYPES.md`). No additional core defence categories. Enemy-specific states, behaviours and elite modifiers (Crackle, Smouldering and the like) are allowed, but must not become hidden defence systems.
+- **Defences (5):** Squishy, Membrane, Shell, Thorns, Evasion (`DEFENCE_TYPES.md`; Evasion was called Dodge). No additional core defence categories. Enemy-specific states, behaviours and elite modifiers (Crackle, Smouldering and the like) are allowed, but must not become hidden defence systems.
 - **Attack types (6):** Contact, Projectile, Spread, Burst, Beam, Pool (`ATTACK_TYPES.md`).
-- **Statuses:** Poise Pressure, Knockback, Corrosion, Acid Pool, Charge, Snared, Conjoined, Bleed, Extraction, Soul Mark, Fear, Burning (`COMBAT_MATRIX.md` section 4).
-- **Reactions:** the 21 triggered pair reactions (`COMBAT_MATRIX.md` section 1). Two types touching one enemy is never enough on its own.
+- **Statuses:** Poise Pressure, Knockback, Corrosion, Charge, Snared, Conjoined, Bleed, Extraction, Possessed, Fear, Burning (`COMBAT_MATRIX.md` section 4). The player can suffer all of them except Possessed.
+- **World objects:** Acid Pool, Mucus patch, blood pool, Burn zone, wax Pool (`COMBAT_MATRIX.md` section 4).
+- **Reactions:** the 21 triggered pair reactions (`COMBAT_MATRIX.md` section 1), each set off by a state + hit, a world object + hit, a dual-type weapon or a Pairing. Two types touching one enemy is never enough on its own.
 
 The decisions of 17 Oct 2026 are summarised at the end.
 
@@ -71,7 +72,7 @@ The player can always recover from a mistake.
 3. **Threat** if ignored
 4. **Read:** how the player recognises it
 5. **Attack type(s)**
-6. **Defence:** one of Squishy, Membrane, Shell, Thorns, Dodge, or none
+6. **Defence:** one of Squishy, Membrane, Shell, Thorns, Evasion, or none
 7. **Counterplay:** movement, targeting policy, attack type, damage type, timing
 8. **Reaction hook:** which world object or mark it creates or responds to, if any
 9. **Fallback:** what works if the preferred counter is missing
@@ -117,7 +118,7 @@ A first-pass disposition, not a rebuild order. The defence column uses the five 
 | Enemy | Disposition | Defence | Direction |
 |---|---|---|---|
 | Also-Ran (`crawler`) | Keep | None | Baseline chaser (Contact); teaches movement. |
-| Sprinter (`skitter`) | Keep | Dodge | Faster, more urgent chaser; its Dodge suits its darting movement. |
+| Sprinter (`skitter`) | Keep | Evasion | Faster, more urgent chaser; its Evasion suits its darting movement. |
 | Paramecium (`paramecium`) | Review overlap | None | Fast ciliate swimmer; keep only if its movement differs clearly from the Sprinter's. |
 | Antibody (`spitter`) | Keep, clarify | None | Projectile shooter; readable shot and cadence. |
 | Krill (`krill`) | Keep | None | Swarm; numbers, not individual complexity. |
@@ -126,7 +127,7 @@ A first-pass disposition, not a rebuild order. The defence column uses the five 
 | Mitotic Cell (`splitter`) | Keep, simplify | None | Splitter with a hard split cap. |
 | Spermlet Swarm (`wisp`) | Review overlap | None | Keep beside Krill only if movement or formation differs. |
 | Acid Bubble (`bomber`) | Keep, clarify | None | Burst then Acid Pool; the Pool must look unlike a projectile. |
-| Quantum Swimmer (`blinker`) | Revise | Dodge | Short, predictable relocation with a clear reappearance; never repeatedly untargetable. |
+| Quantum Swimmer (`blinker`) | Revise | Evasion | Short, predictable relocation with a clear reappearance; never repeatedly untargetable. |
 | Rotifer (`rotifer`) | Keep if distinct | None | Thief; the stolen thing and the way to get it back are obvious. |
 | Nurse Cell (`medic`) | Keep | None | Healer; readable target or radius; no endless sustain. |
 | Headbutter (`charger`) | Keep, clarify | None | Charger (Contact); telegraphed lane, enough time to leave it. |
@@ -135,7 +136,7 @@ A first-pass disposition, not a rebuild order. The defence column uses the five 
 | Volvox (`volvox`) | Review overlap | None | Keep only if its formation or split adds a distinct role. |
 | Cytokine Caster (`warlock`) | Keep if distinct | None | Pick one job (damage, buff or control), not all three. |
 | Diatom (`diatom`) | Keep if distinct | Shell | Shelled shooter; Acid and heavy Force shed layers. |
-| Ghost Swimmer (`phantom`) | Revise | Dodge | Soul-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
+| Ghost Swimmer (`phantom`) | Revise | Evasion | Soul-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
 | Mother Cell (`summoner`) | Keep, cap spawns | None | Summoner; visible summon cue and a strict cap. |
 | Enzyme Spire (`spire`) | Keep | Shell | Stationary turret (Projectile or Beam); readable lane; reason to reposition or prioritise. |
 | Plasmodium (`plasmod`) | Review overlap | None | Keep only if its split gives a genuinely different formation. |
@@ -189,7 +190,7 @@ Enemies added in `foes.js`, `foes2.js` and `foes3.js`, reviewed against this doc
 | Glitter (`glitter`) | foes2 | Keep | None | Comes back once after you kill it. Joke version of the Booster's second life. |
 | Booster (`sperminator`) | foes | Keep | Shell | Elite: red sight line, then a Burst of shots; when killed, its Second Dose climbs out. |
 | Second Dose (`endoskeleton`) | foes | Keep | None | Spawned only, from the Booster: the second life. |
-| Natural Killer (`alien`) | foes | Keep | Dodge | Charger: weaves in, crouches (the tell), then pounces. |
+| Natural Killer (`alien`) | foes | Keep | Evasion | Charger: weaves in, crouches (the tell), then pounces. |
 | Phlegm Hocker (`hocker`) | foes3 | Keep, simplify | None | Shooter: lobs a sticky Projectile that leaves a Mucus patch (see section 8). |
 | Hayfever Cell (`hayfever`) | foes3 | Revise | None | Sneezes your statuses back at you: one clearly signalled reflection only (see section 8). |
 | Snot Bubble (`snotbubble`) | foes3 | Keep | None | Carrier; see 6.1. |
@@ -208,7 +209,7 @@ Bosses are built from familiar behaviours, attack types and defences, pushed int
 | Chad Prime | Charger: Contact rams with visible wind-ups and recovery windows. |
 | The Fever | Escalating pressure, bounded and legible. |
 | Mitch & Osis | Two silhouettes, two roles (e.g. one Membrane, one Shell); their interaction is the fight. |
-| Phantom Pregnancy | Boss-scale illusion or Soul Mark encounter; no long target confusion. |
+| Phantom Pregnancy | Boss-scale illusion encounter; no long target confusion. Takes a reduced Possessed, like every boss. |
 | Litmus Strip | Tests adaptation without requiring one weapon. |
 | The Johnny | One recognisable signature attack or movement first. |
 | Mucus Plug | Snared ground and Pools; safe routes always remain. |
@@ -276,7 +277,7 @@ Directions to investigate, not specifications.
 - **Verdict:** low priority flavour.
 
 ### 6.7 Echo Cell (defer)
-Leaves a see-through echo that repeats its recent movement or attack. If the echo must be hit, autoaim must be able to target it. Its Soul hook is the Soul Mark (the echo arrives marked). Prototype only once simpler enemies are solid.
+Leaves a see-through echo that repeats its recent movement or attack. If the echo must be hit, autoaim must be able to target it. Its Soul hook: Possessing the Echo Cell also turns its echo. Prototype only once simpler enemies are solid.
 
 ### 6.8 Newton's Cradle (redesign first)
 A linked chain of bodies passes an impact end to end. Remove any need to hit a particular end. Trigger it through automatic attacks, movement or a visible state; Force Knockback is the natural driver.
@@ -299,7 +300,7 @@ Fire damage and Burning are separate effects. Defences decide how an enemy handl
 - **Role:** Charger.
 - **Signature:** strikes its head on a wall, then charges in a straight line and leaves a short burning trail (a thin Pool).
 - **Read:** a spark and flare as it strikes; the lane is lit before it runs.
-- **Attack types:** Contact (the charge), Pool (the trail).
+- **Attack type:** Contact (the charge), leaving a short Burn trail (a world object, not a second attack type).
 - **Counterplay:** step out of the lane; don't kite back through the trail.
 - **Defence:** none. Dies easily, burns out fast.
 - **Spawn context:** two or three at once with a Shooter behind; never with another Pool-maker.
@@ -307,10 +308,10 @@ Fire damage and Burning are separate effects. Defences decide how an enemy handl
 
 ### 7.2 Birthday Candle
 - **Role:** Controller / hazard organism.
-- **Signature:** a stationary wax stub with a flame tip. It drips wax Pools and lights any Mucus patch next to it (Flammable Mucus, set off by the enemy).
-- **Read:** flame flares before each drip; lit patches glow.
+- **Signature:** a stationary wax stub with a flame tip. It drips wax Pools that harden into short-lived walls (blocking movement and shots), and lights any Mucus patch next to it (Flammable Mucus, set off by the enemy). Wax is the one justified exception to the Carrier rule of reusing existing ingredients: it adds a distinct decision (the ground and sight lines change).
+- **Read:** flame flares before each drip; wax visibly cools and hardens; lit patches glow.
 - **Attack type:** Pool.
-- **Counterplay:** kill it, keep Mucus away from it, or use it on purpose: lure enemies into the lit patch.
+- **Counterplay:** kill it, keep Mucus away from it, route round the wax walls, or use it on purpose: lure enemies into the lit patch.
 - **Defence:** Shell (wax layers; Acid melts them, heavy Force snaps one off).
 - **Spawn context:** one per arena, near Mucus-making enemies.
 - **Complexity:** low (stationary, reuses Enzyme Spire placement).
@@ -321,8 +322,8 @@ Fire damage and Burning are separate effects. Defences decide how an enemy handl
 - **Read:** a swelling, wobbling cloud; flickers when Burning enemies are close.
 - **Attack type:** Burst (only when lit).
 - **Counterplay:** light it while it sits among enemies, or keep away when it drifts near you.
-- **Defence:** Dodge (it wafts aside from shots that aren't Fire).
-- **Reaction hook:** its Burst sets Burning on enemies inside, which can feed Arc Flash (Static) or Cauterise (Blood).
+- **Defence:** Squishy (soft gas: barely pushed by Force). Non-Fire hits damage it normally; it is just a poor target until Fire lights it.
+- **Reaction hook:** its Burst sets Burning on enemies inside, which can feed Arc Flash (Static) or Flashover (Force).
 - **Limit:** one Burst, no chain to other gas pockets.
 - **Complexity:** low to medium.
 
@@ -360,13 +361,13 @@ Not rejected, but each currently adds too many dependencies.
 ## 9. Enemies and damage types
 
 ### Carriers
-- Reuse an existing reaction ingredient (Acid Pool, Mucus patch, blood pool or wound, Burning, Soul Mark) whenever it fits naturally.
+- Reuse an existing reaction ingredient (Acid Pool, Mucus patch, blood pool or wound, Burning, Possessed) whenever it fits naturally. Birthday Candle's wax Pool is the one exception so far.
 - A Carrier can instead store, carry or release an existing effect.
 - A custom effect is allowed only when it creates a distinct, worthwhile decision. Never add a new status just so an enemy counts as a Carrier.
-- A Carrier's effects never get round Shell, Membrane or Dodge.
+- A Carrier's effects never get round Shell, Membrane or Evasion.
 
 ### Soul enemies
-- The Soul Mark is the shared hook: a Soul-marked enemy is a visible chance to set off Force + Soul, Mucus + Soul or Blood + Soul.
+- Possessed is the shared hook: a Possessed enemy is a visible chance to set off any of the five Soul reactions (the Soul Mark is retired).
 - Fear is a separate status, used only where it creates a distinct, readable threat. It is not what Soul damage inherently does.
 - Each Soul-themed enemy has its own primary behaviour (Ghost Swimmer phases, Echo Cell repeats, Phantom Pregnancy is a boss-scale illusion). Possessed is the player's Soul payoff against any enemy; no Soul-themed enemy is built around needing it.
 
@@ -378,7 +379,7 @@ Not rejected, but each currently adds too many dependencies.
 - Elites and bosses have higher thresholds and shorter control. Bosses are never fully immune: briefly interrupting a telegraphed attack is satisfying counterplay.
 
 ### Rules
-1. **Every reaction needs a readable trigger:** a visible state, a world object (Acid Pool, Mucus patch, blood pool, Burn zone), a Soul Mark or a named weapon combo.
+1. **Every reaction needs a readable trigger:** a visible state, a world object (Acid Pool, Mucus patch, blood pool, Burn zone), a dual-type weapon or a Pairing.
 2. **No manual targeting:** if a specific enemy must be hit, autoaim must be able to pick it.
 3. **A matching type never auto-wins:** it improves efficiency or opens a window.
 4. **No permanent immunity:** every defence has a route through it (`DEFENCE_TYPES.md`).
@@ -393,7 +394,7 @@ Not rejected, but each currently adds too many dependencies.
 - **Static:** clustered enemies for arcs; Charge to interrupt telegraphed attacks; can strengthen Membrane (a risk the player sees).
 - **Mucus:** fast or evasive enemies to Snare; patches that set up Fire, Static and Acid reactions.
 - **Blood:** high-HP enemies to Bleed; Extraction for limited sustain.
-- **Soul:** mind control. Full build-up makes an enemy Possessed (it fights its mates for a few seconds); Soul hits also place the Soul Mark. Fear only where an enemy is built around it.
+- **Soul:** mind control. Full build-up makes an enemy Possessed (it fights its mates for a few seconds); all Soul reactions use Possessed. Fear only where an enemy is built around it.
 - **Fire:** Burning, Burn zones and lighting Mucus. The direct hit meets defences as usual; Burning is a separate effect that Shell and Squishy don't reduce.
 
 Not every enemy needs to respond to every type.
@@ -458,7 +459,10 @@ Make the existing roster coherent before adding new ideas. Separate the heavies 
 | Prototype order | Static Sock, Stress Ball, Mosquito, Matchstick; other Fire enemies after |
 | Carrier effects | Reuse existing reaction ingredients when they fit; allow justified exceptions |
 | Enemy roles | One merged vocabulary (adds Leech, Relay, Sniper); roles can combine |
-| Soul enemies | Soul Mark is the shared hook; Fear is selective; Possessed is the player's Soul payoff, not an enemy's design |
+| Soul enemies | Possessed is the shared hook (Soul Mark retired); Fear is selective; Possessed is the player's Soul payoff, not an enemy's design |
+| Trapped Wind | Squishy, not Dodge; Fire lights it; feeds Arc Flash and Flashover |
+| Birthday Candle wax | Keeps wax Pools: wax hardens into short-lived walls (the one justified Carrier exception) |
+| Dodge defence | Renamed Evasion: a miss chance on Contact, Projectile and Spread only |
 | Soul identity | Mind control only: Possessed at full build-up; no essence or resource bypass |
 | Static Sock state | Crackle, not Charge |
 | Poise | One shared Force/Static meter, with explicit contribution and elite and boss limits |

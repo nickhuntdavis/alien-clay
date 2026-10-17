@@ -151,12 +151,12 @@ Do not repeat a hint after the player has learned it. Do not explain an effect t
 ## Screen and content ownership
 
 - **Menus:** Scientist at Tier 0.
-- **Tutorials and first sightings:** the consciousness gives a short, direct, skippable instruction when needed. Name and flavour first; no lecture.
+- **Tutorials:** the consciousness gives a short, direct, skippable instruction when needed. Name and flavour first; no lecture.
 - **Loot and upgrade cards:** name plus flavour. Show only the bare stat change needed to make a choice legible. The consciousness may push or rationalise; do not explain every synergy.
 - **Weapons, Feats, trophies, mutations:** name can carry the joke; description states the visible effect. Avoid numbers and synergy exposition unless needed.
-- **Enemy first-sighting cards:** Scientist can identify or clinically frame the specimen; avoid over-explaining what is on screen.
+- **Enemy first-sighting cards:** write two lines per enemy: one Scientist line (identifies or clinically frames the specimen) and one consciousness line (a short push or instruction to the sperm). Each sighting shows one of the two. Avoid over-explaining what is on screen.
 - **In-run commentary:** sparse. The consciousness reacts to immediate pressure; Scientist observations should be rare and purposeful.
-- **Damage types:** plain, clinical names. Reaction names may carry the joke. Keep the full reaction chart in the Field Guide.
+- **Damage types:** plain, clinical names. Reaction names may carry the joke. Reactions are discovered: the name shows the first time one fires ("Unstable reaction: Flashover"), and its Field Guide entry appears once found. No chart up front.
 - **HUD and repeated status effects:** mostly silent. Never repeat the same informational line throughout a run.
 - **Boss intro:** Scientist stays flat. A kill can reach Tier 2; a first kill may justify Tier 3 if it is genuinely exceptional.
 - **Death screen:** Scientist stays at Tier 0. The consciousness may show denial, anger, or the pain of being denied entry into the world.
@@ -228,6 +228,8 @@ These lines address the sperm. Avoid first-person claims that make the speaker s
 The last line is deliberately phrased from the consciousness's perspective toward the sperm. Keep the emotional truth; do not confuse who is speaking.
 
 ## Scientist: rare break
+
+The Tier 3 example belongs to the first time the rare Spectral Combustion Pairing fires ("not a normal reaction" is literally true). A Celestial drop gets Tier 2, not Tier 3: rarity alone does not earn a meltdown.
 
 - “NO. No, no, no. That is not a normal reaction. I have the papers. I have ALL the papers. There is nothing in the papers about that. What the FUCK am I supposed to put on the form?”
 - Recovery: “Form 12B filed.”
@@ -407,12 +409,17 @@ A dialogue calibration page for the two voices in Spawn Prawn. These are demo li
 
 These should be genuinely rare. The consciousness does not need to become louder when the Scientist does.
 
-**Celestial drop — Scientist, Tier 3**
+**Celestial drop (Scientist, Tier 2)**
+
+> Celestial. That should not be possible. It has been noted. Twice.
+> 
+
+**First Spectral Combustion (Scientist, Tier 3)**
 
 > NO. No, no, no. That is not a normal reaction. I have the papers. I have ALL the papers. There is nothing in the papers about that. What the FUCK am I supposed to put on the form?
 > 
 
-**Celestial drop — the consciousness, to the sperm**
+**Celestial drop (the consciousness, to the sperm)**
 
 > Can it kill things? I don't care what it is. Can it kill things?
 > 
