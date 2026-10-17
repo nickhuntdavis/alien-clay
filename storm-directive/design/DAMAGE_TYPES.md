@@ -17,12 +17,12 @@ Force is **physical impact damage**. It specialises in high burst, momentum, poi
 
 ### Acid
 
-**Melt armour. Eat through defences. Spread. Corrode. Dissolve.**
+**Melt Shell. Eat through defences. Spread. Corrode. Dissolve.**
 
-Acid is the **attrition and defence-stripping** type. It makes enemies progressively easier to kill through sustained exposure, erodes susceptible armour, interferes with recovery where explicitly defined, and leaves persistent hazards.
+Acid is the **attrition and defence-stripping** type. It makes enemies progressively easier to kill through sustained exposure, erodes susceptible Shell, interferes with recovery where explicitly defined, and leaves persistent hazards.
 
 - **Damage profile:** Low initial burst; sustained damage and escalating defence pressure.
-- **Combat identity:** Corrosion, armour stripping, persistent pools, and area denial.
+- **Combat identity:** Corrosion, Shell stripping, persistent pools, and area denial.
 - **Primary verb:** Dissolve.
 - **Defence interaction:** Acid erodes or removes finite Shell layers. It does not automatically disable Membrane regeneration or bypass every shield; any such effect must be a specific, visible interaction. Dodging the delivery does not avoid an Acid pool already on the ground.
 
@@ -108,9 +108,9 @@ Fire is the **ignition and propagation** type. It builds Burn through hits or co
 
 # Acid
 
-**Melt armour. Eat through defences. Spread. Corrode. Dissolve.**
+**Melt Shell. Eat through defences. Spread. Corrode. Dissolve.**
 
-Acid is the attrition and defence-erosion type. It makes targets easier to damage by weakening susceptible armour and creates visible, short-lived hazards. Its signature payoff is reducing protection, not adding endless damage-over-time stacks.
+Acid is the attrition and defence-erosion type. It makes targets easier to damage by weakening susceptible Shell and creates visible, short-lived hazards. Its signature payoff is reducing protection, not adding endless damage-over-time stacks.
 
 ## Visual language
 
@@ -118,16 +118,16 @@ Acid is the attrition and defence-erosion type. It makes targets easier to damag
 
 ## Core mechanics
 
-- **Corrosion:** Temporarily reduces Armour effectiveness. Keep stacks capped and the duration short/readable; a threshold may remove a Shell layer when explicitly supported.
+- **Corrosion:** Temporarily reduces Shell effectiveness. Keep stacks capped and the duration short/readable; a threshold may remove a Shell layer when explicitly supported.
 - **Persistent pools:** Some attacks leave a visible Acid pool with a fixed boundary and lifetime. Pools punish lingering but do not last indefinitely.
 - **Coating:** Some attacks coat a target, allowing explicit reactions such as Corrosive Splash or Premature Evaporation.
 - **Recovery pressure:** Acid may suppress a clearly tagged regeneration effect while Corrosion is active. It does not automatically stop Membrane regeneration; shield recovery follows the shared no-shield-damage rule unless an attack explicitly says otherwise.
 
 ## Strengths and limits
 
-**Strong against:** Shell, armour-dependent enemies, clustered enemies standing in a visible pool, and targets that rely on tagged regeneration.
+**Strong against:** Shell-dependent enemies enemies, clustered enemies standing in a visible pool, and targets that rely on tagged regeneration.
 
-**Weak against:** mobile enemies that leave the hazard, targets without susceptible armour, and short engagements where attrition has no time to matter. Acid should not become a second generic wound/bleed type.
+**Weak against:** mobile enemies that leave the hazard, targets without Shell, and short engagements where attrition has no time to matter. Acid should not become a second generic wound/bleed type.
 
 ## Defence interactions
 
@@ -144,13 +144,13 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 - **Force + Acid — Corrosive Splash:** A Force strike hits an Acid-coated target; a small amount of Acid splashes onto nearby enemies. The payoff is spreading the setup, not a second large burst.
 - **Acid + Static — Conductive Pool:** A Static attack hits an Acid puddle; one electrical pulse travels across that puddle. Keep it within the visible pool boundary and limit it to one pulse.
 - **Acid + Mucus — Slick Move:** An Acid weapon hits a Mucus patch; the patch is replaced by a short-lived corrosive slick. Do not layer two hazards; show a clear expiry.
-- **Acid + Blood — Caustic Breach:** An Acid combo hits a bleeding target; it briefly strips more Armour than Acid alone. Defence erosion only—no extra damage-over-time or wound stack.
+- **Acid + Blood — Caustic Breach:** An Acid combo hits a bleeding target; it briefly strips more Shell than Acid alone. Defence erosion only—no extra damage-over-time or wound stack.
 - **Acid + Soul — Soul Erosion:** An Acid combo hits a Soul-marked target; it consumes the mark to weaken a Soul ward if that target has one. If Soul wards are not a shared mechanic, use a brief Soul-mark refresh instead; do not invent a new defence.
 - **Acid + Fire — Premature Evaporation:** A Fire attack hits an Acid-coated target; the coating is consumed in a modest close-range burst. This is a target reaction, not an automatic explosion from every Acid puddle.
 
 ## Design boundaries
 
-Acid owns corrosion, armour reduction, and bounded hazardous pools. Blood owns wounds and extraction; Mucus owns adhesion and movement control; Fire owns ignition and burning. Separate direct damage from Corrosion, coating application, and later pool exposure when resolving defences.
+Acid owns corrosion, Shell reduction, and bounded hazardous pools. Blood owns wounds and extraction; Mucus owns adhesion and movement control; Fire owns ignition and burning. Separate direct damage from Corrosion, coating application, and later pool exposure when resolving defences.
 
 ---
 
@@ -176,7 +176,7 @@ Blood is the wound-and-extraction type. It turns qualifying hits into persistent
 
 **Strong against:** vulnerable targets that can be wounded, prolonged fights, and opportunities to turn a wound into a capped payoff.
 
-**Weak against:** short encounters, targets that cannot bleed, and effects that prevent Blood-dependent statuses. Blood does not strip Armour as efficiently as Acid.
+**Weak against:** short encounters, targets that cannot bleed, and effects that prevent Blood-dependent statuses. Blood does not strip Shell as efficiently as Acid.
 
 ## Defence interactions
 
@@ -191,7 +191,7 @@ Blood is the wound-and-extraction type. It turns qualifying hits into persistent
 All reactions are proposed for playtesting. Each needs a clear cue and must not retrigger itself.
 
 - **Force + Blood — Blood Pressure:** A Force finisher hits a bleeding target; the wound bursts for one small area hit. No new Bleed stack or large pool.
-- **Acid + Blood — Caustic Breach:** An Acid combo hits a bleeding target; it briefly strips more Armour than Acid alone. This is defence erosion, not extra damage-over-time.
+- **Acid + Blood — Caustic Breach:** An Acid combo hits a bleeding target; it briefly strips more Shell than Acid alone. This is defence erosion, not extra damage-over-time.
 - **Static + Blood — Blood Circuit:** A Static attack hits a blood pool; it arcs once to the nearest eligible enemy standing in or beside the pool. One selected target, not a surface-wide pulse.
 - **Mucus + Blood — Caught in the Clot:** A named Mucus/Blood combo creates a clot patch; the first enemy crossing it is briefly caught. Blood must be visible in the patch; one catch only.
 - **Blood + Soul — Blood Donor:** A Blood attack hits a Soul-marked target; the player restores a small fixed amount of health. Cap the heal and prevent repeat-hit farming; no new resource meter.
@@ -271,7 +271,7 @@ Force is the burst-and-displacement type. It delivers immediate physical impact,
 
 ## Strengths and limits
 
-**Strong against:** unarmoured targets, vulnerable poise, clustered enemies, and targets near walls or hazards.
+**Strong against:** targets without Shell, vulnerable poise, clustered enemies, and targets near walls or hazards.
 
 **Weak against:** Shell layers, Membranes, anchored targets, evasive enemies, and targets with little physical substance. Force is not a reliable sustained-damage tool.
 

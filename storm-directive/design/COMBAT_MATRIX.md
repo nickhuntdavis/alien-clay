@@ -35,7 +35,7 @@ All effects below are **proposed**. Numbers, durations, radii and stack values r
 | Force + Fire | **Flashover** | Force weapon hits a burning target | Pushes a small tongue of flame onto one nearby target | Limit to one nearby target; no uncontrolled fire chain |
 | Acid + Static | **Conductive Pool** | Static attack hits an Acid puddle | One electrical pulse travels across that puddle | World-only interaction; fixed pool boundary and one pulse |
 | Acid + Mucus | **Slick Move** | Acid weapon hits a Mucus patch | Converts the patch into a short-lived corrosive slick | Replace the Mucus patch rather than layering two hazards; clear expiry |
-| Acid + Blood | **Caustic Breach** | Acid combo hits a bleeding target | Briefly strips more Armour than Acid alone | Defence erosion, not another damage-over-time effect; no extra wound stack |
+| Acid + Blood | **Caustic Breach** | Acid combo hits a bleeding target | Briefly strips more Shell than Acid alone | Defence erosion, not another damage-over-time effect; no extra wound stack |
 | Acid + Soul | **Soul Erosion** | Acid combo hits a Soul-marked target | Consumes the mark to weaken a Soul ward, if the target has one | If wards are not a real shared mechanic, simplify to a short Soul-mark refresh; do not invent a new defence |
 | Static + Mucus | **Sticky Situation** | Static attack charges a visible Mucus patch | The next enemy entering it is briefly shocked | One trigger per patch; obvious charge cue; no repeated stun loop |
 | Static + Blood | **Blood Circuit** | Static attack hits a blood pool | Arcs once from the pool to the nearest eligible enemy standing in or beside it | Keep distinct from Conductive Pool: Blood selects a nearby target; Acid Pool carries a pulse across its surface |
@@ -51,7 +51,7 @@ All effects below are **proposed**. Numbers, durations, radii and stack values r
 
 ### Reaction quality decisions
 
-- **Removed redundant damage-over-time:** Acid + Blood now improves Armour erosion; it does not add a generic corrosive wound.
+- **Removed redundant damage-over-time:** Acid + Blood now improves Shell erosion; it does not add a generic corrosive wound.
 - **Removed extra sub-systems:** Force + Soul no longer spawns a fragment that can be collected or struck; Blood + Soul uses a small capped heal, not a new resource.
 - **Reduced special-case conditions:** Mucus + Soul uses the visible Soul mark instead of requiring a phase-shifting enemy; Soul + Fire triggers on a hit rather than only on a kill.
 - **Separated similar world reactions:** Acid + Static pulses across the Acid puddle; Static + Blood arcs from a blood pool to one nearby enemy.
@@ -63,7 +63,7 @@ All effects below are **proposed**. Numbers, durations, radii and stack values r
 | Type | Core job | Signature gameplay | Keep distinct from |
 | --- | --- | --- | --- |
 | **Force** | Burst and displacement | Impact, knockback, poise pressure, wall collision | Static: physical impact and positioning, not electrical chaining |
-| **Acid** | Defence erosion and area denial | Corrosion, Armour reduction, short-lived corrosive hazards | Blood: weakens defence rather than scaling wound damage |
+| **Acid** | Defence erosion and area denial | Corrosion, Shell reduction, short-lived corrosive hazards | Blood: weakens defence rather than scaling wound damage |
 | **Static** | Chain pressure and action disruption | Charge, bounded arcs, conditional interruption | Force: network/charge effects, not physical knockback |
 | **Mucus** | Movement control and setup | Sticky coating, short snares, patches | No generic damage-over-time; avoid stacking slow/root/snare variants |
 | **Blood** | Wounds and extraction | Bleeding, wound thresholds, limited sustain | Acid: wound economy, not generic corrosion |
@@ -102,8 +102,8 @@ Fearless, Bloodless, Fire Resistance, insulation, cleanse and other narrow prote
 | Status / mechanic | Owner | Consequence | Counterplay and limit | Distinction |
 | --- | --- | --- | --- | --- |
 | Poise Pressure | Force | Brief stagger or interrupt window | Recovery window; bosses use thresholds/diminishing returns | Physical impact, not Static overload |
-| Knockback | Force | Repositions target; collision may add a payoff | Space, Squish, anchoring; bonus only on actual collision | Not a guaranteed damage multiplier |
-| Corrosion | Acid | Temporarily reduces Armour effectiveness | Short duration, cap, recovery or cleanse where available | Prefer this to generic Acid DoT stacking |
+| Knockback | Force | Repositions target; collision may add a payoff | Space, Squishy, anchoring; bonus only on actual collision | Not a guaranteed damage multiplier |
+| Corrosion | Acid | Temporarily reduces Shell effectiveness | Short duration, cap, recovery or cleanse where available | Prefer this to generic Acid DoT stacking |
 | Acid Pool | Acid | Punishes lingering in a visible zone | Clear boundary and lifetime | No indefinite pools |
 | Charge | Static | Transfers a bounded hit or interrupts a tagged action | Charge decay, fixed jump limit, diminishing damage | Do not combine full chain damage with full interrupt on every hit |
 | Snared | Mucus | Briefly restricts movement or sets up a follow-up | Short duration; one clear control strength per effect | Slow, root and snare are not interchangeable labels |
@@ -124,7 +124,7 @@ Enemies should teach positioning, target priority or build choices—not require
 | --- | --- | --- | --- | --- |
 | Swarm / fodder | Surrounding and body-blocking | Move, clear a lane, use area damage | Static chains, Force displacement, Mucus lane control | Unavoidable contact damage |
 | Charger / bruiser | Telegraphs a heavy hit or collision | Dodge, bait, interrupt, reposition | Force poise pressure, Mucus setup, player movement | A raw-DPS check |
-| Armoured tank | High effective health and slow pressure | Strip defence, flank, avoid commitment | Acid erosion, Force displacement | Mandatory Acid in every build |
+| Shelled tank | High effective health and slow pressure | Strip defence, flank, avoid commitment | Acid erosion, Force displacement | Mandatory Acid in every build |
 | Ranged harasser | Projectiles while player is moving | Break line, dodge, close distance | Movement, Force displacement, Mucus control | Off-screen unavoidable damage |
 | Sniper / telegraphed burst | High damage after a clear wind-up | Read tell and change lane | Dodge; Force/Static only within explicit interrupt windows | Unreadable phone-screen one-shots |
 | Controller / trapper | Sticky zones and lane denial | Route around, remove priority threat | Movement, Force displacement, deliberate hazard interactions | Removing every safe route |
@@ -150,23 +150,21 @@ For implementation and QA, record for each reaction:
 
 Use these coverage labels in any future cross-system table: **S** = signature/strong interaction; **C** = conditional or ability-tag dependent; **—** = no special interaction intended; **?** = unresolved. A blank or dash is not immunity.
 
-## 7. Coverage against the six core defences
+## 7. Coverage against the five core defences
 
-> **Stale (flagged 17 Oct 2026):** this table uses the older Armour / Shield / Dodge / Squish / Fearless / Bloodless columns. The canonical baseline is the five defences in section 3 (Squishy, Membrane, Shell, Thorns, Dodge); Fearless, Bloodless and Fire Resistance are enemy traits (section 9). Armour reads as Shell and Shield as Membrane. Rewrite this table before implementation.
+Read each cell by **damage component**, not damage-type name alone: direct hit, status application, persistent hazard, or control/impulse. Blocking a hit does not automatically remove an effect already applied or a hazard already created. These are baseline rules, not permission to add hidden exceptions. Fearless, Bloodless and Fire Resistance are enemy traits, not defences (section 9).
 
-Read each cell by **damage component**, not damage-type name alone: direct hit, status application, persistent hazard, or control/impulse. Blocking a hit does not automatically remove an effect already applied or a hazard already created. Attack and status tags determine which rule applies; these are baseline rules, not permission to add hidden exceptions.
+| Type | Squishy | Membrane | Shell | Thorns | Dodge |
+| --- | --- | --- | --- | --- | --- |
+| Force | Proportionally reduces the hit (physical) and softens knockback and collision impulse | Drains it less efficiently and knocks back less while up | Reduces the hit by fixed layer value; a heavy hit can shed one layer | Triggers only if Force is delivered as a qualifying contact hit on the defender | Avoids the hit in its valid dodge window; AoE edge can still connect |
+| Acid | No effect on Acid damage, corrosion or pool exposure | Absorbs eligible direct damage; corrosion applies only if the applying hit got through; does not stop regeneration by default | Corrosion erodes or removes layers, which stay gone | Not triggered by pools or remote hazards | Avoids the delivery; does not clear an Acid Pool or existing Corrosion |
+| Static | No effect on Charge or interruption unless there is an explicit impulse component | Can be recharged or supercharged (bounded, visible, no loop) | Not mitigated unless the component is physical-tagged; no default bypass | Not triggered by arcs or remote effects | Avoids telegraphed hits; an active arc or hazard follows its own rule |
+| Mucus | No effect on sticking or movement restriction | May absorb the carrier hit; does not erase a patch already placed | Does not reduce Snared or movement control by default | Not triggered by patches | May avoid the carrier; a sticky patch or Adhered target still constrains the dodge path |
+| Blood | Softens qualifying physical cuts; Bleed and Extraction are not automatically reduced | May absorb the carrier hit; an existing wound is not removed | Mitigates the physical component; Bleed ticks are not automatically reduced | Not triggered by Bleed ticks | Avoids the carrier; does not undo an applied wound or pool |
+| Soul | No effect unless there is an impulse component | Absorbs eligible direct Soul damage; only an essence-targeting component bypasses | Mitigates ordinary physical components; only an essence-targeting component bypasses | Not triggered by marks or essence effects | Avoids eligible telegraphed attacks; does not remove a Soul Mark |
+| Fire | No effect on heat or Burn unless there is an impulse component | May absorb a covered hit; Burn applies only if the delivery applies it; does not prevent later zone exposure | Mitigates the physical component only; Shell and Burn are separate layers | Not triggered by Burn or zones | Avoids the delivery; leaving a zone limits exposure but does not undo Burn |
 
-| Type | Armour | Shield | Dodge | Squish | Fearless | Bloodless |
-| --- | --- | --- | --- | --- | --- | --- |
-| Force | Reduces tagged direct hit damage; no default bypass | Blocks a covered hit while facing the attack and with capacity remaining | Avoids the attack only during its valid dodge window | Reduces knockback, collision impulse and Force stagger; not ordinary damage | No effect unless the attack also carries the Fear tag | No effect |
-| Acid | Mitigates tagged direct damage, but Acid corrosion can erode Armour | Can block the delivery; corrosion applies only if its application condition is met | Avoids eligible attacks; does not clear an Acid Pool or existing Corrosion | No effect on Acid damage, corrosion or pool exposure | No effect unless Fear-tagged | No effect |
-| Static | Mitigates direct damage only when that component is Armour-tagged; no default bypass | Can block the carrier hit; a Charge/arc after-effect follows its own application rule | Can avoid telegraphed hits; an already-active arc or hazard needs its own rule | No effect on Charge or electrical interruption unless an attack has an explicit impulse component | No effect unless Fear-tagged | No effect |
-| Mucus | Does not reduce Snared or other movement-control effects by default | Can block a delivered hit; it does not erase a patch already placed in the world | May avoid the carrier attack; an existing sticky patch can still restrict movement or the dodge path | No effect on sticking or movement restriction | No effect unless Fear-tagged | No effect |
-| Blood | Mitigates tagged direct damage; does not automatically reduce Bleed or Extraction | Can block the carrier hit; existing Bleed or Extraction is not removed by blocking a later hit | Can avoid eligible carrier attacks, not an already-applied wound or persistent pool | No effect unless the attack explicitly includes an impact component | No effect unless Fear-tagged | Prevents blood-dependent Bleed and Extraction; does not block direct Blood damage |
-| Soul | Mitigates ordinary tagged damage; explicit essence-targeting components may bypass Armour only | Blocks a physical carrier if covered; does not block direct essence effects unless a specific ward/rule says so | Avoids eligible telegraphed attacks; does not remove an existing Soul Mark | No effect unless the attack explicitly includes an impulse component | Resists only effects explicitly tagged Fear, not Soul effects generally | No effect |
-| Fire | Mitigates direct hit damage only when tagged; does not automatically reduce Burning | Can block a covered hit; Burn applies only if the delivery successfully applies it under that attack's rule | Avoids eligible attacks; moving out of a zone limits exposure but does not undo existing Burning | No effect on heat or Burning unless an attack explicitly includes an impulse component | No effect unless Fear-tagged | No effect |
-
-Do not infer blanket type immunities from this table. Resolve each conditional interaction at the attack/status-tag level.
+Do not infer blanket type immunities from this table. Resolve each conditional interaction at the attack and status-tag level.
 
 ## 8. Priority audit and definition of done
 
@@ -186,7 +184,7 @@ Definition of done:
 - [ ]  Seven canonical types only: Force, Acid, Static, Mucus, Blood, Soul, Fire.
 - [ ]  All 21 pairs have a deliberate trigger and one clear payoff.
 - [ ]  Every reaction has limits on duration, range, consumption and re-triggering.
-- [ ]  Six core defences remain distinct and do not create blanket type immunities.
+- [ ]  Five core defences (Squishy, Membrane, Shell, Thorns, Dodge) remain distinct and do not create blanket type immunities.
 - [ ]  Every status has a consequence, duration/termination rule, stack rule where needed, and counterplay.
 - [ ]  Enemy archetypes permit at least two viable player responses; no routine enemy requires one specific type.
 - [ ]  Proposed mechanics are validated in fast mobile playtests before being marked Accepted.
@@ -199,7 +197,7 @@ Source: "Combat Matrix Remaining Updates". Nothing here changes the 21 pair rows
 
 - Fast Android game: every reaction must be readable at a glance, with no hidden stacks, long recipes or delayed multi-step conditions.
 - Keep four concepts separate: **damage type**, **attack delivery**, **behaviour modifier**, **source**.
-- Internal voice: during play the sperm's inner voice is impulsive, blunt and immature; in the campaign it can turn devoted, obsessive and sincere. The Scientist stays the external, clinical observer. **Conflict to resolve:** `VOICE_GUIDE.md` says the impulsive voice belongs to the pre-incarnate consciousness, which is not the sperm. Decide whose voice is whose before writing lines.
+- Voice (decided 17 Oct 2026): the impulsive, blunt, immature gameplay voice belongs to the **pre-incarnate consciousness**, which speaks to the sperm as "you" and is not the sperm. The Scientist stays the external, clinical observer. The sperm itself does not speak. See `VOICE_GUIDE.md`.
 
 ### Four low-confidence reactions (decide before implementation)
 
