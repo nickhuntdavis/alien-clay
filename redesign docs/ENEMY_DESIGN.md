@@ -3,7 +3,7 @@
 Working proposal, 17 Oct 2026. Uses the vocabulary of the other redesign docs only:
 
 - **Damage types (7):** Force, Acid, Static, Mucus, Blood, Soul, Fire (`DAMAGE_TYPES.md`).
-- **Defences (5):** Squishy, Membrane, Shell, Thorns, Dodge (`DEFENCE_TYPES.md`). There are no other defences or traits.
+- **Defences (5):** Squishy, Membrane, Shell, Thorns, Dodge (`DEFENCE_TYPES.md`). No additional core defence categories. Enemy-specific states, behaviours and elite modifiers (Crackle, Smouldering and the like) are allowed, but must not become hidden defence systems.
 - **Attack types (6):** Contact, Projectile, Spread, Burst, Beam, Pool (`ATTACK_TYPES.md`).
 - **Statuses:** Poise Pressure, Knockback, Corrosion, Acid Pool, Charge, Snared, Conjoined, Bleed, Extraction, Soul Mark, Fear, Burning (`COMBAT_MATRIX.md` section 4).
 - **Reactions:** the 21 triggered pair reactions (`COMBAT_MATRIX.md` section 1). Two types touching one enemy is never enough on its own.
@@ -31,13 +31,13 @@ Use distinct silhouettes and movement, clear wind-ups, visible projectiles and h
 ### 2.3 Counterplay without manual aiming
 Valid counterplay:
 - **Movement:** kite, orbit, hunt, hold, retreat to the egg.
-- **Targeting policy:** FASTEST, SHOOTERS FIRST, ELITES & BOSSES, TOUGHEST, DENSEST CLUSTER and the rest.
+- **Targeting policy:** FASTEST, SHOOTERS FIRST, ELITES & BOSSES, HIGHEST HEALTH, DENSEST CLUSTER and the rest. A policy is a tool for picking the right target, not a counter in itself.
 - **Attack type:** Contact, Projectile, Spread, Burst, Beam or Pool, chosen for the job.
 - **Damage type:** exploit a defence interaction (Acid sheds Shell, Force is poor into Membrane) or a reaction trigger.
 - **Positioning:** separate a support from its allies, leave a Pool, approach from a safer angle.
 - **Timing:** hit during a vulnerable window, or let a telegraphed attack resolve harmlessly.
 
-Never require hitting a specific side or end. A counter improves the odds; it is not mandatory. Every enemy permits at least two viable responses.
+Never require hitting a specific side or end. A counter improves the odds; it is not mandatory. Every enemy permits at least two viable responses: different combinations of movement, targeting, attack type and damage type, not two specific damage types that counter it. Don't let the roster drift into damage-type puzzles.
 
 ### 2.4 Movement and geometry are combat
 Good: a charger shows its lane, a shooter pulls you forward, a Pool changes which ground is safe, a heavy body blocks space, a group gets worse if it surrounds you. Avoid enemies whose only answer is "stand still and use the right damage type", and anything needing precise pathing through gaps.
@@ -87,8 +87,8 @@ One shared role vocabulary for the roster, encounter design and the combat matri
 | Role | Primary function | Main counterplay |
 |---|---|---|
 | Chaser | Steady contact pressure | Movement, general damage |
-| Sprinter | Closes distance fast | Dodge aside, FASTEST |
-| Tank | Soaks damage, occupies space | Sustained damage, TOUGHEST, the right defence answer |
+| Sprinter (`skitter`) | Closes distance fast | Evasive movement; prioritise it before it reaches contact range (FASTEST helps pick it) |
+| Tank | Soaks damage, occupies space | Sustained focus, the right defence interaction, or moving round the space it occupies (HIGHEST HEALTH helps pick it) |
 | Shooter | Ranged pressure | SHOOTERS FIRST, closing distance, dodging |
 | Swarm | Numbers and crowding | Burst, Pool, Charge arcs, DENSEST CLUSTER |
 | Charger | Threatens a telegraphed lane | Leave the lane |
@@ -110,56 +110,66 @@ Every attack that can deal significant damage shows **what** is happening, **whe
 
 ## 5. Existing roster review
 
-A first-pass disposition, not a rebuild order. The defence column uses the five defences to separate enemies that today differ only in HP, speed or armour numbers.
+A first-pass disposition, not a rebuild order. The defence column uses the five defences to separate enemies that today differ only in HP, speed or armour numbers. Names are the in-game names; the code id is in brackets. This is a design review, not yet an implementation checklist: each row's current behaviour still needs checking against the code before it is built.
 
 ### 5.1 Regular enemies
 
 | Enemy | Disposition | Defence | Direction |
 |---|---|---|---|
-| Basic Chaser | Keep | None | Baseline Contact threat; teaches movement. |
-| Sprinter | Keep | Dodge | Faster, more urgent chaser; its Dodge suits its darting movement. |
-| Antibody | Keep, clarify | None | Projectile shooter; readable shot and cadence. |
-| Krill | Keep | None | Swarm; numbers, not individual complexity. |
-| Macrophage | Keep, clarify | Squishy | Tank. Force hits feel soft and barely push it; other types work normally. |
-| Amoeba | Revise or test | Squishy | Engulf (Contact) with a clear tell, short hold and a reliable escape. |
-| Mitotic Cell | Keep, simplify | None | Splitter with a hard split cap. |
-| Spermlet Swarm | Review overlap | None | Keep beside Krill only if movement or formation differs. |
-| Acid Bubble | Keep, clarify | None | Burst then Acid Pool; the Pool must look unlike a projectile. |
-| Quantum Swimmer | Revise | Dodge | Short, predictable relocation with a clear reappearance; never repeatedly untargetable. |
-| Rotifer | Keep if distinct | None | Thief; the stolen thing and the way to get it back are obvious. |
-| Nurse Cell | Keep | None | Healer; readable target or radius; no endless sustain. |
-| Headbutter | Keep, clarify | None | Charger (Contact); telegraphed lane, enough time to leave it. |
-| Pinworm | Review overlap | None | Merge or give it one clear movement behaviour. |
-| Mucus Wall | Revise | Membrane | Grants a visible, capped Membrane to nearby allies; never makes them untouchable or forces aiming round it. |
-| Volvox | Review overlap | None | Keep only if its formation or split adds a distinct role. |
-| Cytokine Caster | Keep if distinct | None | Pick one job (damage, buff or control), not all three. |
-| Diatom | Keep if distinct | Shell | Shelled shooter; Acid and heavy Force shed layers. |
-| Ghost Swimmer | Revise | Dodge | Soul-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
-| Mother Cell | Keep, cap spawns | None | Summoner; visible summon cue and a strict cap. |
-| Enzyme Spire | Keep | Shell | Stationary turret (Projectile or Beam); readable lane; reason to reposition or prioritise. |
-| Plasmodium | Review overlap | None | Keep only if its split gives a genuinely different formation. |
-| Killer T-Cell | Keep if distinct | None | Must not be a third "fires at you" enemy beside Antibody and Cytokine Caster; give it Spread or Beam. |
-| Water Bear | Keep, clarify | Shell | Heavy; many layers, so it feels unlike the Squishy Macrophage. |
-| Alpha Swimmer | Review role | Membrane | Its identity becomes the regenerating Membrane: rewards keeping up pressure, punishes breaking off. |
+| Also-Ran (`crawler`) | Keep | None | Baseline chaser (Contact); teaches movement. |
+| Sprinter (`skitter`) | Keep | Dodge | Faster, more urgent chaser; its Dodge suits its darting movement. |
+| Paramecium (`paramecium`) | Review overlap | None | Fast ciliate swimmer; keep only if its movement differs clearly from the Sprinter's. |
+| Antibody (`spitter`) | Keep, clarify | None | Projectile shooter; readable shot and cadence. |
+| Krill (`krill`) | Keep | None | Swarm; numbers, not individual complexity. |
+| Macrophage (`brute`) | Keep, clarify | Squishy | Tank. Force hits feel soft and barely push it; other types work normally. |
+| Amoeba (`amoeba`) | Revise or test | Squishy | Engulf (Contact) with a clear tell, short hold and a reliable escape. |
+| Mitotic Cell (`splitter`) | Keep, simplify | None | Splitter with a hard split cap. |
+| Spermlet Swarm (`wisp`) | Review overlap | None | Keep beside Krill only if movement or formation differs. |
+| Acid Bubble (`bomber`) | Keep, clarify | None | Burst then Acid Pool; the Pool must look unlike a projectile. |
+| Quantum Swimmer (`blinker`) | Revise | Dodge | Short, predictable relocation with a clear reappearance; never repeatedly untargetable. |
+| Rotifer (`rotifer`) | Keep if distinct | None | Thief; the stolen thing and the way to get it back are obvious. |
+| Nurse Cell (`medic`) | Keep | None | Healer; readable target or radius; no endless sustain. |
+| Headbutter (`charger`) | Keep, clarify | None | Charger (Contact); telegraphed lane, enough time to leave it. |
+| Pinworm (`pinworm`) | Review overlap | None | Merge or give it one clear movement behaviour. |
+| Mucus Wall (`bulwark`) | Revise | Membrane | Grants a visible, capped Membrane to nearby allies; never makes them untouchable or forces aiming round it. |
+| Volvox (`volvox`) | Review overlap | None | Keep only if its formation or split adds a distinct role. |
+| Cytokine Caster (`warlock`) | Keep if distinct | None | Pick one job (damage, buff or control), not all three. |
+| Diatom (`diatom`) | Keep if distinct | Shell | Shelled shooter; Acid and heavy Force shed layers. |
+| Ghost Swimmer (`phantom`) | Revise | Dodge | Soul-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
+| Mother Cell (`summoner`) | Keep, cap spawns | None | Summoner; visible summon cue and a strict cap. |
+| Enzyme Spire (`spire`) | Keep | Shell | Stationary turret (Projectile or Beam); readable lane; reason to reposition or prioritise. |
+| Plasmodium (`plasmod`) | Review overlap | None | Keep only if its split gives a genuinely different formation. |
+| Killer T-Cell (`lancer`) | Keep if distinct | None | Must not be a third "fires at you" enemy beside Antibody and Cytokine Caster; give it Spread or Beam. |
+| Water Bear (`waterbear`) | Keep, clarify | Shell | Heavy; many layers, so it feels unlike the Squishy Macrophage. |
+| Alpha Swimmer (`juggernaut`) | Review role | Membrane | Its identity becomes the regenerating Membrane: rewards keeping up pressure, punishes breaking off. |
 | Thorny enemy (new or re-skin) | Add | Thorns | One ordinary chaser that punishes Contact weapons and favours ranged attack types. |
 
 **Consolidation focus:**
 1. **Splitters:** Mitotic Cell, Volvox and Plasmodium must not all be the same fight.
 2. **Shooters:** Antibody, Cytokine Caster and Killer T-Cell need different attack types (Projectile, Spread, Beam) or roles.
-3. **Chasers and heavies:** Basic Chaser, Pinworm, Macrophage, Water Bear and Alpha Swimmer are separated by defence (none, Squishy, Shell, Membrane), not HP.
+3. **Chasers and heavies:** Also-Ran, Pinworm, Macrophage, Water Bear and Alpha Swimmer are separated by defence (none, Squishy, Shell, Membrane), not HP.
 
 ### 5.2 Spawned-only enemies
 
 | Enemy | Disposition | Direction |
 |---|---|---|
-| Daughter Cell | Keep | Simple; clearly the result of another enemy's action. |
-| Daughter Colony | Review | Cap total population; differ from ordinary swarms. |
-| Candida | Review | Define it as a regular enemy, summon or hazard; no unexplained extra spawn. |
-| Pepsinator Jr | Clarify or park | If it's a small boss, use a recognisable subset of the boss's attacks. |
+| Daughter Cell (`splitling`) | Keep | Simple; clearly the result of another enemy's action. |
+| Daughter Colony (`volvoxling`) | Review | Cap total population; differ from ordinary swarms. |
+| Candida (`yeast`) | Review | Define it as a regular enemy, summon or hazard; no unexplained extra spawn. |
+| Pepsinator Jr (`pepsinjr`) | Clarify or park | If it's a small boss, use a recognisable subset of the boss's attacks. |
 
 Spawned enemies count against their source's threat budget.
 
-### 5.3 Bosses
+### 5.3 Not yet reviewed
+
+These live in feature files and still need a row each before the roster is locked:
+- `foes.js`: Booster, Second Dose, Natural Killer.
+- `foes2.js`: Litmus Cell, Mirror Cell, Shell Cell, Puffball, Spore, Grease Ball, Leech, Platelet Clump, Callus, Plasma Cell, Interferon, Cortisol Puff, Fibrin Weaver, Complement Protein, Stem Cell, Lost Tadpole, Stray Pube, Navel Fluff, Bogey, Bit of Sweetcorn, Glitter.
+- `foes3.js`: Phlegm Hocker, Hayfever Cell, Snot Bubble (6.1).
+
+Several `foes2.js` enemies break this doc's own rules and need the most scrutiny: Litmus Cell (resists your most-used type: a hard counter), Mirror Cell (reflects shots off its front: a side to hit), Platelet Clump and Grease Ball (each shuts off one attack modifier). The Leech enemy shares its name with the Leech role; that is fine, but its card should not suggest it is the only Leech.
+
+### 5.4 Bosses
 
 Bosses are built from familiar behaviours, attack types and defences, pushed into memorable patterns. Each has one central mechanic and at least two viable answers.
 
@@ -187,16 +197,17 @@ Directions to investigate, not specifications.
 
 ### 6.1 Snot Bubble (already prototyped in v9.27, `foes3.js`)
 - **Role:** Carrier / controller.
-- **Signature:** swells while alive; bursts into a short-lived Mucus patch.
+- **Signature:** swells with every hit (at most once every 0.1 s, so one Spread volley counts once); bursts into a short-lived Mucus patch where it stands. Hit 4 or more times, the burst is big and sticks you too if you're close.
 - **Attack type:** Burst, leaving a Mucus patch.
 - **Read:** visibly grows.
-- **Counterplay:** kill it small, step out of the marked burst, or pop it early with Static so the patch lands on enemies.
+- **Counterplay:** kill it small, step out of the marked burst, or pop it with Static.
+- **Static trigger:** any hit that carries Static damage and lands on the bubble bursts it at once, whatever its size. The patch forms where the bubble was (no direction), sticks the enemies inside it and never sticks you. Applying Static is the trigger; Charge is not needed. (Matches POPPED in `foes3.js`.)
 - **Reaction hook:** its Mucus patch feeds Flammable Mucus (Fire), Sticky Situation (Static) and Slick Move (Acid).
 - **Verdict:** keep; re-express in the new vocabulary.
 
 ### 6.2 Static Sock
 - **Role:** close-range punisher (Chaser).
-- **Signature:** builds Crackle as it moves, then delivers a heavy Contact zap.
+- **Signature:** builds Crackle by distance travelled (not time, not hits taken). Crackle has a clear maximum in 3 visible steps. At full Crackle its next touch delivers one heavy Contact zap, and Crackle resets to zero. Below full, its touch is an ordinary weak Contact hit. Being knocked back does not add Crackle.
 - **Read:** it crackles harder as Crackle builds. Crackle belongs to this enemy only: no general status, icon or meter. Charge stays the status Static weapons put on enemies.
 - **Counterplay:** kill it before it's full, avoid its path, or dodge the zap.
 - **Defence:** Squishy (it's a sock).
@@ -205,6 +216,9 @@ Directions to investigate, not specifications.
 ### 6.3 Stress Ball
 - **Role:** defensive specialist (Tank).
 - **Signature:** every 5th qualifying Force hit sets off a rebound: it squeezes, then springs back, knocking you back if you're close.
+- **Qualifying hit:** a Force hit that actually lands and deals damage. At most one counts every 0.1 s, so one Spread volley or Burst counts once. Damage over time ticks, Pools and reactions never count.
+- **Counter:** shown as 4 squeeze stages. The 5th qualifying hit triggers the rebound and resets the count to 0. With no qualifying hit for 2 s, it relaxes one stage, so the count carries between attacks only while the pressure keeps up.
+- **Rebound:** short fixed distance, only within a small radius. It never pushes you through a wall, and if the landing point is inside a hazard the push stops at the hazard's edge. It creates a positional problem, never an unpredictable death.
 - **Read:** it visibly squeezes tighter with each Force hit; the 5th squeeze is unmistakable before it springs.
 - **Counterplay:** keep your distance when it's fully squeezed, or use another attack or damage type.
 - **Defence:** Squishy, fixed (Force is softened as usual; the rebound is its identity, not a stronger defence).
@@ -213,9 +227,10 @@ Directions to investigate, not specifications.
 
 ### 6.4 Mosquito
 - **Role:** resource pressure (joke).
-- **Signature:** a Contact bite that uses Extraction to take a little health, then it flies off.
+- **Signature:** a Contact bite that deals a small, fixed amount of damage, then it flies off. This is not Extraction (Extraction stays the player's Blood mechanic) and adds no new resource.
 - **Read:** swells as it feeds; retreats.
-- **Counterplay:** kill it within a short window to get the health back (FASTEST helps).
+- **Counterplay:** kill it within 4 s of the bite and you get back half of that bite's damage (capped per bite). FASTEST helps pick it.
+- **Too late or escaped:** after 4 s it shrinks back to normal and killing it returns nothing. If it leaves the screen it is gone, and so is the health.
 - **Reaction hook:** dies into a small blood pool (Blood Circuit); here the ingredient fits naturally.
 - **Verdict:** prototype.
 
@@ -249,7 +264,11 @@ Rotates between two or three defences (e.g. Shell, then Membrane, then none), ea
 
 ## 7. Fire enemies (new)
 
-Fire is literal fire (matches, lighters, candles). Fire enemies set up and use Burning, Burn zones and Flammable Mucus. None of the five defences resists Burning, so Fire is useful against Shell and Squishy enemies; that's the build decision.
+Fire is literal fire (matches, lighters, candles). Fire enemies set up and use Burning, Burn zones and Flammable Mucus.
+
+Fire damage and Burning are separate effects. Defences decide how an enemy handles the direct hit; Burning follows its own rules. No core defence gives blanket immunity to Burning, though individual enemies may have bounded ways to reduce it. Fire's value against Shell and Squishy comes from its defined interactions (`DEFENCE_TYPES.md`: Shell and Squishy reduce only a physical carrier component, and do not reduce heat or Burning), not from bypassing defences by default.
+
+**Prototype order:** Matchstick first (mobile, telegraphed lane threat), then Birthday Candle (stationary, changes safe ground), then Trapped Wind only if playtests show it is a different decision from an ordinary Pool or Burst Carrier.
 
 ### 7.1 Matchstick
 - **Role:** Charger.
@@ -350,7 +369,7 @@ Not rejected, but each currently adds too many dependencies.
 - **Mucus:** fast or evasive enemies to Snare; patches that set up Fire, Static and Acid reactions.
 - **Blood:** high-HP enemies to Bleed; Extraction for limited sustain.
 - **Soul:** essence and non-physical resources; Soul Mark setups. Fear only where an enemy is built around it.
-- **Fire:** Burning, Burn zones and lighting Mucus; strong into Shell and Squishy, which don't resist heat.
+- **Fire:** Burning, Burn zones and lighting Mucus. The direct hit meets defences as usual; Burning is a separate effect that Shell and Squishy don't reduce.
 
 Not every enemy needs to respond to every type.
 
@@ -381,7 +400,7 @@ An elite is a familiar enemy plus one modifier:
 - A chaser that gets a visible speed burst at low health.
 - Smouldering (section 7.4).
 
-ELITES & BOSSES and TOUGHEST help against elites, but NEAREST, LOWEST HEALTH and other sensible policies still work.
+ELITES & BOSSES and HIGHEST HEALTH help pick elites, but NEAREST, LOWEST HEALTH and other sensible policies still work.
 
 ## 12. Bosses
 
@@ -391,14 +410,14 @@ A good boss has one central mechanic, readable phases or cycles, clear windows t
 
 1. **Audit the roster:** one role and one defence (or none) per enemy; find duplicate splitters, shooters, chasers and tanks; confirm signature and counterplay; merge only what fails to be distinct; remove manual-aim assumptions.
 2. **Validate core behaviours** in real autorun play: Chaser and Sprinter; Shooter and Charger; Shell tank and Shell shooter; Swarm and Splitter; Healer and Summoner; Controller and Pool-maker. Check movement, targeting policies and several builds against each.
-3. **Prototype new concepts:** Static Sock, Stress Ball, Mosquito, Matchstick, Birthday Candle, Trapped Wind; then Earwax Plug if arcs need a counter; Bath Duck as a joke. Snot Bubble already exists.
+3. **Prototype new concepts:** Static Sock, Stress Ball, Mosquito and Matchstick first. Add Birthday Candle, then Trapped Wind, only once those tests show what combat still needs. Then Earwax Plug if arcs need a counter; Bath Duck as a joke. Snot Bubble already exists.
 4. **Validate interactions:** every defence against all seven types; no hard counters; Pools and statuses tested separately from direct hits; bounded chains; explicit visible triggers.
 5. **Rebuild encounters:** roles alone, then pairs, then larger groups. Track active enemies, projectiles, Pool coverage and time spent unable to move freely. Test all six autorun modes and a range of targeting policies.
 6. **Review bosses:** one identity each, familiar attack types, several builds, no precision targeting, readable on a small screen.
 
 ## Final recommendation
 
-Make the existing roster coherent before adding new ideas. Separate the heavies by defence, the shooters by attack type and the splitters by formation. Prototype Static Sock, Stress Ball, Mosquito and the three Fire enemies first.
+Make the existing roster coherent before adding new ideas. Separate the heavies by defence, the shooters by attack type and the splitters by formation. Prototype Static Sock, Stress Ball, Mosquito and Matchstick first; add the other Fire enemies after those tests.
 
 **Every enemy should make the player change a decision, not necessarily learn a new rule.**
 
@@ -406,7 +425,12 @@ Make the existing roster coherent before adding new ideas. Separate the heavies 
 
 | Question | Decision |
 |---|---|
-| Stress Ball | Fixed Squishy; a bounded, telegraphed rebound every 5th Force hit, or drop it |
+| Stress Ball | Fixed Squishy; a bounded, telegraphed rebound every 5th qualifying Force hit, or drop it |
+| Fire and Burning | Separate effects: defences handle the hit, Burning has its own rules |
+| Static Sock trigger | Crackle builds by distance travelled; one zap at full, then reset |
+| Mosquito | Fixed bite; kill within 4 s to get half back; not Extraction |
+| Snot Bubble Static | Any Static hit bursts it at once; harmless to you |
+| Prototype order | Static Sock, Stress Ball, Mosquito, Matchstick; other Fire enemies after |
 | Carrier effects | Reuse existing reaction ingredients when they fit; allow justified exceptions |
 | Enemy roles | One merged vocabulary (adds Leech, Relay, Sniper); roles can combine |
 | Soul enemies | Soul Mark is the shared hook; Fear is selective |

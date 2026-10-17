@@ -1,3 +1,11 @@
+## 2026-10-17 Enemy design doc: review fixes
+- Systems: docs only (redesign docs)
+- Files: redesign docs/ENEMY_DESIGN.md
+- What: Fire damage and Burning separated; defence wording allows enemy-specific states that aren't hidden defences; exact triggers for Static Sock (Crackle by distance), Stress Ball (qualifying hit, reset, decay, hazard-safe rebound), Mosquito (fixed bite, half back within 4 s, not Extraction) and Snot Bubble (any Static hit bursts it); targeting policies framed as tools (TOUGHEST, which doesn't exist, is now HIGHEST HEALTH); roster uses in-game names with code ids, adds Paramecium and lists the unreviewed foes/foes2/foes3 enemies; Fire prototype order (Matchstick first).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-17 Redesign docs: enemy decisions recorded
 - Systems: docs only (redesign docs)
 - Files: redesign docs/ENEMY_DESIGN.md, COMBAT_MATRIX.md, DAMAGE_TYPES.md
