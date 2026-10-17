@@ -1,3 +1,11 @@
+## 2026-10-17 Player defences and defence cards
+- Systems: combat, v10, ui (loot cards only)
+- Files: pdef.js (new), game.js, v10.js, render.js, index.html, tests/pdeftest.js (new), tests/v10test.js, tests/fighttest.js
+- What: under V10 you start with a base Membrane (30% of max health, recharges like an enemy's) and can hold Shell layers, Squishy, Evasion and Thorns from six new defence cards (Thicker Membrane, Faster Recharge, Shell Layer, Squishy, Evasion, Thorns). Hits resolve in matrix 11.1 order in pdef.js; a hit fully soaked by the Membrane applies no status. Level-ups now offer Switched at Birth plus two different defence cards (one box a wave unchanged). Blue Membrane arc and brown Shell rings are drawn round you; the old armour ring is off under V10.
+- Save data: none (G.pd is per run; run log gains fst.pMem, pLayers, pMiss, pThorns).
+- Hooks: game.js hurtPlayer -> pdefHurt (replaces the armour block under V10); v10.js v10Tick -> pdefTick, v10Draw -> pdefDraw, v10Loot -> pdefOffer; render.js armourRing skipped under V10.
+- Risk: player survivability shifts (a free 30% Membrane); fighttest and v10test adjusted for it. Genome slots (4) are enforced for defence cards only.
+
 ## 2026-10-17 Merge v10.04 and record the implementation plan
 - Systems: none (docs and merge)
 - Files: merge of claude/zealous-clarke-i26iot; NOTES.md (v10 section); redesign docs/README.md

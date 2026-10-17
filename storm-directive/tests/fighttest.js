@@ -32,6 +32,7 @@ const { chromium } = require('playwright');
     if (miss < 40 || miss > 110) bad.push('Evasion misses out of 200: ' + miss);
     let burstMiss = 0; for (let i = 0; i < 50; i++) { IN_AOE = true; if (hit(ev, 'phys', 1, 'burst') === 0) burstMiss++; IN_AOE = false; }
     if (burstMiss) bad.push('Evasion dodged a Burst');
+    pdef().mem.mem = 0; // (your own base Membrane would soak the recoil: pdef.js)
     const th = foe('ingrown'), hp0 = G.player.hp;
     hit(th, 'phys', 50, 'contact'); const hp1 = G.player.hp; G.player.iframes = 0;
     hit(th, 'phys', 50, 'proj'); const hp2 = G.player.hp;
