@@ -202,7 +202,7 @@
 - Hooks: game.js damageEnemy charmed guard skipped under V10.
 - Risk: Possessed enemies can now be killed by your area weapons. Shocking Impact still needs a dual-type weapon.
 
-## 2026-10-17 Draft core (draft.js)
+## 2026-10-17 Draft core (draft.js) (v10.06)
 - Systems: draft (new), v10, loot
 - Files: draft.js (new), v10.js, game.js, index.html, tests/drafttest.js (new), tests/v10test.js, tests/pdeftest.js
 - What: level-ups and elite/boss chests open one shared draft: weapon upgrades, Switched at Birth, defence cards and any card a feature file registers (Feats, mutations). Acquire cards need a free slot (3 Feats, 4 Genome shared by mutations and defences). Weapons reaching Lv 5 or 10 and Feats reaching level 3 or 5 get a 2-card fork screen. Wave mode: one level draft a wave plus chests, at the wave break; race: at most one screen per 40 s (forks never wait). Banish data (G.banish, G.fewer) is honoured; the buttons come with the UI pass.
