@@ -26,8 +26,10 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Approach: keep the engine and shell (loop, render, UI, settings, saves, audio, levels, Level 0, Field Guide, tests, Android key); rebuild hit resolution as a new `combat.js` (hit components: direct, status, impulse, hazard -> Dodge, Membrane, Shell, Squishy, health, Thorns) and `react.js` (21 triggered reactions as data); retire current weapons, Feats, combos and enemy roster for the user's redesign.
 - Steps: 1 merge docs (done) · 2 decisions (done) · 3 strip old content and Cooties/Oil/Water, clean ids `force acid static mucus blood soul fire` · 4 combat core · 5 slice: 7 weapons (one per type), 5 enemies (one per defence), 1 boss, wave mode · 6 `combattest` · 7 user's new content.
 - Fire is literal fire (matches, lighters), not fever.
-- Soul is the mind-control type: full Soul build-up makes the enemy fight its mates for a few seconds (like the old Cursed). The Soul pair reactions are extras on top; revisit the four low-confidence Soul rows against this.
-- First slice ships all 5 defences and no traits (Fearless, Bloodless, Fire Resistance come with the enemy redesign).
+- Soul (confirmed 17 Oct, `bold-hypatia`): the visible Soul Mark is the shared hook for the 6 Soul reactions, and a full Soul build-up also turns the enemy on its mates for a few seconds (like the old Cursed). Revisit the four low-confidence Soul rows against this.
+- Five defences only (Squishy, Membrane, Shell, Thorns, Dodge) and no traits (the newer docs drop Fearless, Bloodless, Fire Resistance).
+- Player (17 Oct): armour becomes a regenerating player Membrane; card rewards can also grant armour (player Shell layers).
+- Implementation plan (`bold-hypatia`): phases 0 merge, 1 strip + id rename (old content deleted, not gated), 2 `combat.js`, 3 `status.js` + world objects, 4 `react.js`, 5 weapons, 6 roster, 7 encounters, 8 voice/copy, 9 campaign touch-up. Sonnet subagents take copy, roster data, defence visuals, tests and new enemies in parallel.
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
