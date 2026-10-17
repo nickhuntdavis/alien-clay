@@ -1,4 +1,4 @@
-# Design docs (combat rework)
+# Redesign docs (combat rework)
 
 Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped behaviour.
 
