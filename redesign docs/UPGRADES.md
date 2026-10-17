@@ -1,6 +1,6 @@
 # Upgrades, Feats and Progression
 
-Working proposal, 17 Oct 2026. How the build grows during a run and how the game grows between runs. Settled one decision at a time; the numbers are starting points for sims and playtesting. It sits on top of `COMBAT_MATRIX.md` (damage types, attack types, defences), `SAMPLES.md` (primary and support types, unique Feats), `FEATS.md` (the 15 drafted Feats) and `WEAPONS.md`.
+Working proposal, 17 Oct 2026. How the build grows during a run and how the game grows between runs. Settled one decision at a time; the numbers are starting points for sims and playtesting. It sits on top of `COMBAT_MATRIX.md` (damage types, attack types, defences), `SAMPLES.md` (primary and support types, unique Feats), `FEATS.md` (Feats, the consciousness's gifts), `MUTATIONS.md` (mutation cards) and `WEAPONS.md`.
 
 **What this is not:** an RPG skill tree. Spawn Prawn is a fast autoshooter. The player makes a series of small, consequential choices, then watches them interact in combat.
 
@@ -46,7 +46,7 @@ Conceptual categories for designers; the player never sees these labels.
 | **Acquire** | Adds a weapon, Feat, mutation or defence | A new Feat while a Feat slot is free; a Shell card |
 | **Enhance** | Improves something you already have | Weapon level, Feat level, Genome rank, stamina |
 | **Transform** | Changes behaviour: a fork | A weapon's Lv 5 fork; a Feat's level 3 fork |
-| **Specialise** | Strengthens a mechanic or direction | **Catalysts:** empower a reaction you have discovered. **Concentration:** fill a build-up bar (Burn, Corrosion, Soul, Poise) faster or drain it slower |
+| **Specialise** | Strengthens a mechanic or direction | **Catalysts:** empower a reaction you have discovered (Crossed Wires, `MUTATIONS.md` M22, is the general one). **Concentration:** fill a build-up bar (Burn, Corrosion, Soul, Poise) faster or drain it slower |
 
 ### Eligibility
 
@@ -64,7 +64,7 @@ A card is offered only when it can matter:
 | --- | --- | --- |
 | Weapons | 3 (+ up to 2 combo mounts) | Weapon draft at levels 1, 8 and 22, as today. Weapons never appear as random cards |
 | Feats | 3 | Slot 1: the sample's unique Feat, from the start. Slots 2 and 3: Feat cards in normal drafts while a slot is free |
-| Genome | 4, shared | Mutations (Lateral Gene Transfer) and defence cards. Each rankable. Taking Shell means one fewer mutation. Built-in defences use no slot |
+| Genome | 4, shared | Mutations (body, damage-type, trade-off and rare: `MUTATIONS.md`; also from Lateral Gene Transfer) and defence cards. Weapon mutations attach to a weapon instead (max 3 per weapon). Each rankable. Taking Shell means one fewer mutation. Built-in defences use no slot |
 
 Few weapons keeps each one readable on a phone screen and leaves the draft for Feats, upgrades and Genome cards.
 

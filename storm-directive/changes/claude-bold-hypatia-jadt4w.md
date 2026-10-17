@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: mutation cards
+- Systems: docs only (redesign docs)
+- Files: redesign docs/MUTATIONS.md (new), MODIFIERS.md, UPGRADES.md, COMBAT_MATRIX.md, README.md
+- What: per the user, the run's change-the-sample cards are called Mutations (the attack-behaviour list keeps the internal name modifiers). 33 mutations from the user's list, mapped to the rules: body, weapon, damage-type, trade-off and rare synergy. Weapon mutations attach to a weapon (max 3); the rest use Genome slots and rank up when picked again. Bad Blood and Leave a Little Something lost their new ground objects; Crossed Wires became the general Catalyst (the combinations are the 21 reactions). Starting pool of 8.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs only).
+
 ## 2026-10-17 Redesign docs: Feats as the consciousness's gifts; gravity well and lunge
 - Systems: docs only (redesign docs)
 - Files: redesign docs/FEATS.md (new), MODIFIERS.md, COMBAT_MATRIX.md, SIGNATURE_WEAPONS.md, WEAPONS.md, UPGRADES.md, VOICE_GUIDE.md, README.md

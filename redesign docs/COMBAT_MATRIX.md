@@ -466,7 +466,7 @@ What each attack type is for lives in `ATTACK_TYPES.md`; how each one meets the 
 | Reactions, statuses, world objects, defence rules, attack-type rules, formulas, numbers | This file |
 | What each damage type, defence and attack type is for, how it looks, strengths and weaknesses | `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md`, `ATTACK_TYPES.md` |
 | Enemy roles, roster, new enemies | `ENEMY_DESIGN.md` (role counterplay: section 5 here) |
-| Weapons, Feats and modifiers | `WEAPONS.md`, `SIGNATURE_WEAPONS.md`, `FEATS.md`, `MODIFIERS.md` |
+| Weapons, Feats, mutations and modifiers | `WEAPONS.md`, `SIGNATURE_WEAPONS.md`, `FEATS.md`, `MUTATIONS.md`, `MODIFIERS.md` |
 | Progression, samples, autorun, voice | `UPGRADES.md`, `SAMPLES.md`, `AUTORUN_AUTOAIM.md`, `VOICE_GUIDE.md` |
 
 The three CSVs in `tables/` (the old Notion databases) are generated from the tables in this file by `tables/export.py`:
