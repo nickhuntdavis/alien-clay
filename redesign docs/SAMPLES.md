@@ -310,7 +310,7 @@ Its kit shifts between Fire, Soul and Static every 20 seconds. The active type i
 
 **Unique Feat: First Contact**
 
-Immediately shift to the next damage type and trigger a reaction on every enemy carrying a status. This rewards awareness of the current battlefield without requiring manual aiming.
+Immediately shift to the next damage type and trigger a reaction on every enemy carrying a status (up to 8, nearest first). It counts as a hit of the old and new type for reactions only: the Feat trigger kind in `COMBAT_MATRIX.md` (reaction rules and 11.3). This rewards awareness of the current battlefield without requiring manual aiming.
 
 **Visual signature**
 

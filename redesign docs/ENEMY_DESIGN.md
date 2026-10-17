@@ -6,7 +6,7 @@ Working proposal, 17 Oct 2026. Uses only the shared vocabulary; every combat rul
 - **Defences (5):** Squishy, Membrane, Shell, Thorns, Evasion (`DEFENCE_TYPES.md`; rules in matrix section 3). No other defences. Enemy-specific states, behaviours and elite modifiers (Crackle, Smouldering and the like) are allowed, but must not become hidden defence systems.
 - **Attack types (6):** `ATTACK_TYPES.md` (rules in matrix section 13).
 - **Statuses and world objects:** matrix section 4. The player can suffer every status except Possessed.
-- **Reactions:** the 21 pair reactions and their four trigger kinds, matrix section 1.
+- **Reactions:** the 21 pair reactions and their five trigger kinds, matrix section 1.
 
 The decisions of 17 Oct 2026 are summarised at the end.
 
@@ -43,7 +43,7 @@ Never require hitting a specific side or end. A counter improves the odds; it is
 Good: a charger shows its lane, a shooter pulls you forward, a Pool changes which ground is safe, a heavy body blocks space, a group gets worse if it surrounds you. Avoid enemies whose only answer is "stand still and use the right damage type", and anything needing precise pathing through gaps.
 
 ### 2.5 Defences and damage types reinforce identity, they don't replace it
-Behaviour comes first. An enemy's defence (one of the five) and any damage-type interaction should reinforce that behaviour or create a loadout decision. A plain enemy with no defence that tests movement or target priority is valuable. When an enemy reacts to a type, the reaction is visible and specific, and uses one of the four trigger kinds (`COMBAT_MATRIX.md` reaction rules).
+Behaviour comes first. An enemy's defence (one of the five) and any damage-type interaction should reinforce that behaviour or create a loadout decision. A plain enemy with no defence that tests movement or target priority is valuable. When an enemy reacts to a type, the reaction is visible and specific, and uses one of the five trigger kinds (`COMBAT_MATRIX.md` reaction rules).
 
 Keep the layers separate: an enemy can be Squishy, take Force damage, build Poise and set off a reaction without those becoming four competing explanations for the same hit.
 

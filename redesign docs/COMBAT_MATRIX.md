@@ -18,16 +18,17 @@
 - **Attack type:** how the harm reaches the target (`ATTACK_TYPES.md`).
 - **Status:** a temporary, readable condition on a creature (section 4).
 - **World object:** a hazard on the ground with a visible edge and lifetime (Acid Pool, Mucus patch, blood pool, wax Pool), plus the shipped terrain (section 4). Only shipped ground objects are used, plus wax.
-- **Reaction:** a deliberate interaction between two damage types, set off by one of the four trigger kinds below.
+- **Reaction:** a deliberate interaction between two damage types, set off by one of the five trigger kinds below.
 
 ### Reaction rules
 
 - Seven types create **21 unique pairs**. Every pair has one designed reaction in the matrix below.
-- **Four trigger kinds, no others:**
+- **Five trigger kinds, no others:**
   1. **State + hit:** a hit of one type lands on a target carrying the other type's visible state (Corroded, Snared, bleeding, burning, Possessed).
   2. **World object + hit:** a hit of one type lands on the other type's world object (Acid Pool, Mucus patch, blood pool).
   3. **Dual-type weapon:** one weapon that carries both damage types (Shocking Impact only, for now).
   4. **Pairing:** the existing Pairings system (two weapons you own, both Lv 5+). Spectral Combustion only, for now.
+  5. **Feat:** a Feat that explicitly stands in for a hit, for reactions only. The Other Half's First Contact only (11.3). It sets off normal state + hit reactions; it never makes up new ones.
 - Reactions do **not** trigger just because both types have touched the same enemy.
 - Each reaction has one primary payoff. Do not stack burst damage, control, damage over time and resource gain into one reaction.
 - **Fire size rule:** only Premature Evaporation, Flammable Mucus and Cauterise make bursts. Flashover, Arc Flash and Spectral Combustion hit one target.
@@ -240,7 +241,7 @@ Do not infer blanket type immunities from this table.
 | --- | --- | --- |
 | P0 | All 21 pairs need distinct, legible reactions | Playtest whether each payoff is noticed and understood at mobile speed |
 | P0 | Similar reactions risk feeling interchangeable | Compare Conductive Pool vs Blood Circuit, Premature Evaporation vs Corrosive Splash, and Soul Erosion vs Corrosive Splash; tune shape and trigger as well as damage |
-| P1 | Too many conditions can hide reactions | Only the four trigger kinds; no requirements that depend on obscure enemy variants |
+| P1 | Too many conditions can hide reactions | Only the five trigger kinds; no requirements that depend on obscure enemy variants |
 | P1 | Control and interruption can lock enemies down | One catch per patch, short control windows, Poise thresholds, Possessed cooldown, no retrigger loops |
 | P1 | Reaction damage can multiply excessively | Set a primary power budget; do not stack burst, damage over time, vulnerability and chain without justification |
 | P1 | Fire can dominate all surfaces | Only Premature Evaporation, Flammable Mucus and Cauterise make bursts; no automatic spread |
@@ -250,7 +251,7 @@ Do not infer blanket type immunities from this table.
 Definition of done:
 
 - [ ]  Seven canonical types only: Force, Acid, Static, Mucus, Blood, Soul, Fire.
-- [ ]  All 21 pairs have one of the four trigger kinds and one clear payoff.
+- [ ]  All 21 pairs have one of the first four trigger kinds and one clear payoff (the Feat kind only borrows them).
 - [ ]  Every reaction has limits on duration, range, consumption and retriggering.
 - [ ]  Five defences (Squishy, Membrane, Shell, Thorns, Evasion) stay distinct and create no blanket type immunities.
 - [ ]  Every status has a consequence, an end rule, a stack rule where needed, and counterplay.
@@ -266,7 +267,7 @@ The 17 Oct hand-off ("Combat Matrix Remaining Updates") is fully merged: design 
 
 ## 10. Reconciliation decisions (17 Oct 2026)
 
-Settled one by one after a cross-doc review (27 to 29 added later on 17 Oct). Every redesign doc follows these.
+Settled one by one after a cross-doc review (27 to 30 added later on 17 Oct). Every redesign doc follows these.
 
 | # | Question | Decision |
 | --- | --- | --- |
@@ -299,6 +300,7 @@ Settled one by one after a cross-doc review (27 to 29 added later on 17 Oct). Ev
 | 27 | Ground objects | Only the shipped ones (terrain, Acid Pools, Mucus patches, blood pools, Skid Mark's trail, Tooth Fairy's teeth) plus wax. Burn zones, corrosive slicks, clot patches and Heartburn's reflux puddles are cut. Fire's Pool attacks (Burning Ground, Pub Crawl's trail, Matchstick's trail) are attack footprints that fill Burn bars, not reaction ingredients |
 | 28 | Acid colour | Shocking pink stands, even beside the pink campaign levels |
 | 29 | Soul Purpose name clash | The Force + Soul reaction is renamed **Out-of-Body Experience**; the Soul Burst weapon (M34) keeps Soul Purpose |
+| 30 | First Contact | The Other Half's Feat is a fifth trigger kind (Feat): it counts as a hit of the old and new type for reactions only, capped at 8 per use |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
@@ -329,6 +331,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 - **Reaction lockout:** each reaction has a 1.5 s lockout per target (bosses 3 s). Anything a reaction creates cannot set off that same reaction.
 - **Dual-type weapon:** shots alternate Force, Static, Force, Static. Shocking Impact fires on each Static shot that lands after a Force shot.
 - **Spectral Combustion Pairing:** Soul Beam + Fire Pool (Burning Ground), both Lv 5+. A secret, like today's Pairings.
+- **First Contact (Feat trigger):** when The Other Half performs First Contact, it shifts type, then counts as a hit of **both** the type it left and the type it entered on every enemy on screen, for reactions only (no damage, no bar fill, no Thorns). Each enemy fires the state + hit reactions those two hits would set off (e.g. leaving Static for Fire: Arc Flash on burning enemies, Interference Pattern on Possessed ones, Premature Evaporation on Corroded ones, Cauterise on bleeding ones). At most one reaction per enemy and 8 per use, nearest first; normal lockouts and reaction damage apply. Spectral Combustion stays Pairing-only. Blood Pressure still needs a heavy hit, so it never fires from the Feat.
 - **Discovery:** the first time a reaction fires, a 2 s toast "Unstable reaction: <name>" near the top (no pause), and its Field Guide entry unlocks. Save key `META.rxSeen` (list of reaction ids). Later triggers show a small name pop over the target.
 
 ### 11.4 Defences
