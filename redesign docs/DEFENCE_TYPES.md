@@ -11,23 +11,24 @@ A reference for the five core defensive mechanics in Spawn Prawn. Each defence c
 
 ## Core defence roster
 
-- **Squishy / Absorption:** proportionally reduces qualifying physical damage and may soften physical impulse.
-- **Membrane:** a separate regenerating Membrane pool; Force is resisted, while Static can supercharge or rapidly recharge it.
-- **Shell:** finite, non-regenerating Shell layers that reduce qualifying physical damage; Acid erodes layers and heavy Force can knock one loose.
+- **Squishy / Absorption:** proportionally reduces blunt physical impact (Force) and may soften impulse; cuts go through.
+- **Membrane:** a separate regenerating Membrane pool; Force is resisted, while Static recharges it.
+- **Shell:** finite, non-regenerating layers that reduce qualifying physical damage; ordinary hits wear a layer slowly, Acid strips them fast, a heavy Force hit knocks one off at once.
 - **Thorns:** returns damage after qualifying melee/contact hits; does not reduce incoming damage.
-- **Dodge:** avoids eligible hits through movement/timing; it does not erase existing statuses or persistent hazards.
+- **Evasion:** a miss chance against Contact, Projectile and Spread hits; never Burst, Beam or Pool. It does not erase existing statuses or hazards.
 
 ## Shared rules
 
-- **Force is physical damage.** Squishy and Shell therefore affect Force damage when its attack component qualifies as physical; they differ in how they mitigate it.
-- **Squishy uses proportional reduction.** It softens qualifying physical damage rather than subtracting a fixed amount.
-- **Shell uses finite layers.** Layers provide a fixed reduction against qualifying physical hits and are permanently lost when shed during an encounter. Exact values remain for tuning.
-- **Membrane is its own pool.** It absorbs eligible direct damage before health. Force is less effective against the membrane than ordinary eligible damage; Static can accelerate recovery or temporarily supercharge it, depending on the attack/ability rule chosen.
+- **Force is physical damage.** Squishy and Shell both affect it; they differ in how they mitigate it. Squishy is blunt only, so cuts go through it.
+- **Who can have them.** Enemies and the player can both have any of the five (the player through mutations and items).
+- **Squishy uses proportional reduction.** It softens blunt impact rather than subtracting a fixed amount.
+- **Shell uses finite layers.** Layers provide a fixed reduction against qualifying physical hits. Each layer has a little health: ordinary hits wear it slowly, Acid's Corrosion fast, and a heavy Force hit removes it at once. Lost layers stay gone for the encounter. Exact values remain for tuning.
+- **Membrane is its own pool.** It absorbs eligible direct damage before health. Force is less effective against the membrane than ordinary eligible damage; Static recharges it (+25% capacity, once per 5 s).
 - **Damage blocking is not status immunity.** Prevent an attached status only when its application hit is prevented or a specific resistance says so.
-- **Persistent hazards resolve separately.** Dodging a projectile does not grant immunity to an Acid pool, burning zone, or other hazard entered later.
-- **Thorns triggers once per qualifying connected contact hit.** It does not mitigate that hit; a clean Dodge means no contact and no retaliation.
-- **Area attacks use their actual coverage.** Dodging the core may still leave the creature inside the edge of a blast or wave.
-- **Keep counterplay visible.** Membrane recharge, Shell loss, Thorns retaliation, and successful/failed Dodge outcomes need clear cues.
+- **Persistent hazards resolve separately.** A missed projectile gives no immunity to an Acid Pool, Burn zone or other hazard entered later.
+- **Thorns triggers once per qualifying connected contact hit.** It does not mitigate that hit; an Evasion miss means no contact and no retaliation.
+- **Area attacks ignore Evasion.** Burst, Beam and Pool always land and use their actual footprint.
+- **Keep counterplay visible.** Membrane recharge, Shell loss, Thorns retaliation, and Evasion misses need clear cues.
 
 ## Individual defence pages
 
@@ -41,33 +42,35 @@ The pages below use the same design-reference approach as the damage-type pages:
 
 [Thorns](#)
 
-[Dodge](#)
+[Evasion](#)
 
 ---
 
-# Dodge
+# Evasion
 
 **Don't absorb the hit. Don't be where it lands.**
 
-Dodge avoids eligible attacks through movement, timing, and attack coverage. It is not a damage-reduction stat, a Membrane pool, or a cleanse.
+Evasion is a miss chance against hits that travel to a single point: Contact, Projectile and Spread. It is not a damage-reduction stat, a Membrane pool, or a cleanse. (Renamed from Dodge on 17 Oct 2026 so it doesn't clash with autorun, where every mode "dodges" by moving.)
+
+**Visual language:** a quick sideways flicker and a visible "miss" puff, so a miss never looks like an immunity or a bug.
 
 ## Core mechanics
 
 <aside>
 💨
 
-**Avoid eligible hits**
+**Miss chance**
 
-If the attack's hitbox does not connect during the dodge, the hit and effects attached to that hit are avoided.
+Each eligible hit rolls against the creature's Evasion. A miss avoids the hit and everything attached to it (status build-up, impulse, Thorns retaliation). Spread rolls once per pellet, so some pellets land.
 
 </aside>
 
 <aside>
 💥
 
-**Area coverage still matters**
+**Area attacks always land**
 
-Dodging the centre of an explosion or wave does not guarantee escape from its outer edge. Resolve the actual footprint of each attack; do not impose one universal partial-dodge rule.
+Evasion never applies to Burst, Beam or Pool. Area attacks are the reliable answer to an evasive creature, for both the player and enemies.
 
 </aside>
 
@@ -76,7 +79,7 @@ Dodging the centre of an explosion or wave does not guarantee escape from its ou
 
 **Existing effects persist**
 
-Dodge does not remove a status already applied or erase a persistent hazard. A creature can avoid a projectile and still be damaged later by entering an Acid pool or burning zone.
+Evasion does not remove a status already applied or erase a hazard. A creature can make a projectile miss and still be hurt by walking into an Acid Pool or Burn zone.
 
 </aside>
 
@@ -84,37 +87,38 @@ Dodge does not remove a status already applied or erase a persistent hazard. A c
 
 | Parameter | Gameplay interpretation |
 | --- | --- |
-| Dodge window | The timing window during which eligible hits can miss |
-| Movement / coverage | Whether the creature actually leaves the attack's hitbox |
-| Attack tags | Which attacks can be avoided; not every effect must be dodgeable |
-| AoE footprint | Core, edge, and lingering zone are resolved by the specific attack |
+| Miss chance | Percentage of eligible hits that miss; keep it well below half so builds never look broken |
+| Eligible attack types | Contact, Projectile and Spread only |
+| Pellet rule | Spread rolls per pellet |
 
-Tune for quick visual comprehension. Telegraph attacks clearly and ensure a clean miss looks different from a partial AoE hit.
+Values remain for playtesting. The docs warn against hidden dice elsewhere; Evasion is the one deliberate exception, so its "miss" puff must always show.
 
 ## Strengths & weaknesses
 
 | Strong against | Weak against / counterplay |
 | --- | --- |
-| Telegraphable projectiles and strikes | Wide AoEs, persistent hazards, and attacks that cover the dodge path |
-| Attacks with a clear impact moment | Existing status effects and hazards already on the ground |
-| Contact attacks that can be made to miss | A successful miss avoids Thorns retaliation, but mistiming still leaves the dodge vulnerable |
+| Single projectiles and Contact strikes | Burst, Beam and Pool, which always land |
+| Contact attackers (a miss means no Thorns retaliation) | Statuses and hazards already applied |
+| Slow, heavy single hits | Many small hits (Spread pellets, Beam ticks) that average out the luck |
 
 ## Interactions with damage types
 
-- **Force — Conditional:** a dodge can avoid the strike or charge; the shockwave/outer AoE may still connect if the creature remains inside its footprint.
-- **Acid — Conditional:** dodge the projectile or strike, but not an Acid pool already on the ground or later contact with it.
-- **Static — Conditional:** dodge the carrier hit if eligible. Arcs, chained targets, or area coverage resolve according to their own hitboxes; a dodge is not universal electrical immunity.
-- **Mucus — Conditional:** avoid the application hit to avoid its attached status. Existing patches or snares remain active.
-- **Blood — Conditional:** avoid the wound-applying hit to prevent that hit's Bleed application; an existing wound or pool remains.
-- **Soul — Attack-dependent:** dodge a projectile or strike if it has an avoidable hitbox. An explicitly unavoidable essence effect is not dodged just because it is Soul damage.
-- **Fire — Conditional:** avoid the projectile or strike if eligible. The edge of an AoE or a persistent burning zone can still connect; Dodge does not remove Burning already applied.
+The same rule for every type: Contact, Projectile and Spread hits can miss; Burst, Beam and Pool always land.
+
+- **Force:** a missed strike carries no knockback or Poise. A Force Burst still lands.
+- **Acid:** a miss prevents its Corrosion; an Acid Pool on the ground is unaffected.
+- **Static:** a miss prevents Charge on that hit; arcs and charged patches follow their own rules.
+- **Mucus:** a miss prevents the Snare; a sticky patch still Snares whatever moves into it.
+- **Blood:** a miss prevents that hit's wound; an existing Bleed or blood pool remains.
+- **Soul:** a miss also avoids the build-up that hit carried; it does not end Possessed.
+- **Fire:** a miss adds nothing to the Burn bar; a Burn zone still fills it.
 
 ## Design guardrails
 
-- A clean miss prevents statuses attached to that hit unless a separate rule says otherwise.
-- AoE edge outcomes are attack-specific, not a global half-damage rule.
-- Persistent hazards and already-applied statuses are separate from the initial hit.
-- Make timing and hit coverage readable on a small phone screen.
+- A miss prevents everything attached to that hit unless a separate rule says otherwise.
+- Never apply Evasion to Burst, Beam or Pool.
+- Hazards and already-applied statuses are separate from the initial hit.
+- Always show the "miss" puff.
 
 ---
 
@@ -124,7 +128,7 @@ Tune for quick visual comprehension. Telegraph attacks clearly and ensure a clea
 
 Membrane is a separate, regenerating Membrane pool. It buys temporary protection, but sustained pressure delays recovery. Force and Static have distinctive interactions with it.
 
-**Design language:** Blue. On player, Reactive membrane. On enemies. Blue ring. 
+**Design language:** Blue. On the player, a reactive membrane like the existing armour bubble. On enemies, a blue ring.
 
 ## Core mechanics
 
@@ -158,9 +162,9 @@ Force is physical damage. Membrane is unusually resistant to Force: Force damage
 <aside>
 ⚡
 
-**Static supercharge / rapid recharge**
+**Static recharge**
 
-Static can interact with Membrane by quickly recharging it or temporarily supercharging it. A specific attack should choose one clear payoff: restore Membrane capacity quickly, or briefly raise the Membrane's capacity/effect. Telegraph the charge and cap the benefit; do not let repeated Static hits create an infinite Membrane loop.
+A Static hit restores 25% of the Membrane's capacity, at most once every 5 s, with a visible crackle across the bubble. There is no supercharge (no capacity above full).
 
 </aside>
 
@@ -172,9 +176,9 @@ Static can interact with Membrane by quickly recharging it or temporarily superc
 | Recharge delay | Time without Membrane damage before recovery begins |
 | Recharge rate | Speed of recovery once it starts |
 | Force modifier | Force drains the pool less efficiently than ordinary eligible damage |
-| Static interaction | A bounded recharge or short overcharge effect, with a clear cue and cap |
+| Static interaction | Recharges 25% of capacity, at most once per 5 s, with a clear cue |
 
-Exact values and whether a given Static attack recharges or supercharges Membrane remain ability-level tuning decisions.
+Starting values: `COMBAT_MATRIX.md` section 11.4.
 
 ## Strengths & weaknesses
 
@@ -182,22 +186,22 @@ Exact values and whether a given Static attack recharges or supercharges Membran
 | --- | --- |
 | Sustained protection while the pool remains | Continuous pressure prevents recovery |
 | Eligible direct damage before it reaches health | Force is resisted but still contributes; do not make the Membrane unbreakable |
-| Static can reinforce the Membrane | Static supercharge can be a risk/reward enemy mechanic; make its trigger visible |
+| Static can reinforce the Membrane | Static recharge is a risk the player sees; make its tell visible |
 
 ## Interactions with damage types
 
-- **Force — Resists:** Force damage drains Membrane less efficiently; Force knockback against the Membraneed creature is reduced. Force still damages the pool.
-- **Acid — Normal / conditional:** Acid drains the Membrane as eligible damage. Corrosion does not automatically disable regeneration; add that only as a deliberate, visible interaction.
-- **Static — Signature interaction:** Static can rapidly recharge or supercharge Membrane. Bound the amount/duration and prevent repeat-hit loops.
+- **Force — Resists:** Force damage drains Membrane less efficiently; Force knockback against a creature with an active Membrane is reduced. Force still damages the pool.
+- **Acid — Normal:** Acid drains the Membrane as eligible damage. Corrosion does not disable regeneration.
+- **Static — Signature interaction:** Static recharges Membrane: +25% capacity, once per 5 s.
 - **Mucus — Conditional:** the Membrane may absorb an eligible direct delivery hit, but does not automatically prevent Mucus patches or later contact with them.
 - **Blood — Conditional:** eligible direct Blood damage is absorbed by the pool; existing Bleed or Extraction follows its own application rules.
-- **Soul — Conditional:** a direct essence-targeting effect bypasses Membrane only if explicitly tagged to target essence rather than the surface. Do not give all Soul attacks a blanket bypass.
+- **Soul — Normal:** eligible direct Soul damage is absorbed like any other; no bypass. Build-up toward Possessed applies only if the hit carrying it is not blocked.
 - **Fire — Conditional:** eligible direct Fire damage is absorbed by the pool; Burning or a persistent fire zone follows separate rules.
 
 ## Design guardrails
 
 - Make Membrane state and recharge unmistakable at phone-screen scale.
-- Static's recharge/supercharge must have a bounded payoff and a readable tell.
+- Static's recharge has a fixed amount, a 5 s limit and a readable tell.
 - A full Membrane does not imply immunity to statuses, control, or hazards.
 - Do not confuse Membrane with Shell: Membrane recovers; Shell loses finite layers for the encounter.
 
@@ -207,9 +211,9 @@ Exact values and whether a given Static attack recharges or supercharges Membran
 
 **Rigid layers. Shrug off small hits. Lose protection one piece at a time.**
 
-Shell is finite, non-regenerating physical plating. Each remaining layer reduces qualifying physical damage by a fixed amount. Unlike Squishy, it does not scale as a percentage of each hit.
+Shell is finite, non-regenerating physical plating. Each remaining layer reduces qualifying physical damage by a fixed amount, and has a little health of its own. Unlike Squishy, it does not scale as a percentage of each hit.
 
-**Visual language:** Brown UI ring (multiple rings if multiple Shell layers that shed)
+**Visual language:** Brown UI ring, one ring per layer; a ring cracks off when its layer is lost.
 
 ## Core mechanics
 
@@ -218,7 +222,7 @@ Shell is finite, non-regenerating physical plating. Each remaining layer reduces
 
 **Finite Shell layers**
 
-Each intact layer provides a fixed reduction against qualifying physical damage. When a layer is lost, that protection is gone for the rest of the encounter.
+Each intact layer provides a fixed reduction against qualifying physical damage and has a little health. Ordinary qualifying hits wear the outer layer down slowly. When a layer is lost, that protection is gone for the rest of the encounter.
 
 </aside>
 
@@ -227,7 +231,7 @@ Each intact layer provides a fixed reduction against qualifying physical damage.
 
 **Acid erosion**
 
-Acid can erode or remove Shell layers. Make the loss visible and decisive; avoid adding a separate hidden corrosion meter just for Shell.
+Acid hits fill a visible Corrosion bar; when it is full the outer layer is stripped for good and the bar resets. Much faster than ordinary wear. No timer, no stacks.
 
 </aside>
 
@@ -236,7 +240,7 @@ Acid can erode or remove Shell layers. Make the loss visible and decisive; avoid
 
 **Heavy Force impact**
 
-A sufficiently heavy Force hit can knock a Shell layer loose. Force is physical damage, but its special payoff here is shedding a layer—not bypassing Shell entirely or dealing automatic bonus damage.
+A heavy Force hit (one defined threshold) knocks the outer layer off at once. The same threshold defines a heavy hit for Blood Pressure. It does not bypass Shell or deal bonus damage.
 
 </aside>
 
@@ -246,9 +250,10 @@ A sufficiently heavy Force hit can knock a Shell layer loose. Force is physical 
 | --- | --- |
 | Layer count | Finite number of protective layers at encounter start |
 | Reduction per layer | Fixed amount subtracted from each qualifying physical hit, subject to a sensible damage floor |
-| Layer loss | Permanent for the encounter; triggered by defined damage/threshold rules |
-| Acid erosion | A clear layer-removal or accelerated-layer-loss rule |
-| Force threshold | A readable heavy-impact threshold that can shed one layer |
+| Layer health | Small; ordinary qualifying hits wear it down slowly |
+| Layer loss | Permanent for the encounter |
+| Acid erosion | A full Corrosion bar strips one layer |
+| Force threshold | A readable heavy-impact threshold that knocks off one layer |
 
 The exact reduction, threshold, and number of layers remain for playtesting. Reuse the existing prototype Shell visual to communicate remaining layers.
 
@@ -266,8 +271,8 @@ The exact reduction, threshold, and number of layers remain for playtesting. Reu
 - **Acid — Signature counter:** Acid erodes or removes layers, making later physical hits more effective.
 - **Static — Normal:** electrical damage is not reduced unless the attack has a qualifying physical component.
 - **Mucus — Normal:** movement control is not physical damage; Shell does not prevent sticking or snaring by default.
-- **Blood — Conditional:** qualifying physical cuts or strikes are reduced. Bleed and Extraction are not automatically reduced.
-- **Soul — Conditional:** only a physical component is reduced. Explicit essence-targeting components may bypass Shell; this must be an attack tag, not a universal Soul rule.
+- **Blood — Conditional:** the physical part of a cut or strike is reduced. Bleed and Extraction are not reduced.
+- **Soul — Normal:** a qualifying physical component is reduced; no bypass. Shell does not resist build-up or Possessed.
 - **Fire — Normal / conditional:** heat and Burning are not reduced by physical Shell. A physical carrier component may be reduced.
 
 ## Design guardrails
@@ -283,7 +288,7 @@ The exact reduction, threshold, and number of layers remain for playtesting. Reu
 
 **Give under pressure. Soften the hit. Stay hard to knock around.**
 
-Squishy represents soft, yielding bodies that absorb physical impact instead of transmitting it cleanly. It is a focused physical defence, not a general resistance to damage or control.
+Squishy represents soft, yielding bodies that absorb blunt impact instead of transmitting it cleanly. It is a focused anti-Force defence, not a general resistance to damage or control. Cuts go through it.
 
 **Design language:** Rubbery, slimy
 
@@ -294,7 +299,7 @@ Squishy represents soft, yielding bodies that absorb physical impact instead of 
 
 **Proportional physical damage reduction**
 
-Qualifying physical damage is reduced by a percentage. Force is physical damage, so Force hits are included when their damage component is tagged as physical.
+Blunt physical impact is reduced by a percentage. That means Force; cutting damage (such as a Blood slash) is not reduced.
 
 </aside>
 
@@ -312,7 +317,7 @@ The same yielding body may reduce physical impulse, knockback, or collision forc
 
 **Not universal resistance**
 
-Squishy does not inherently resist Acid, electricity, heat, Soul effects, wounds, or movement control. It does not grant status immunity.
+Squishy does not resist cuts, Acid, electricity, heat, Soul effects, wounds or movement control. It does not grant status immunity.
 
 </aside>
 
@@ -320,7 +325,7 @@ Squishy does not inherently resist Acid, electricity, heat, Soul effects, wounds
 
 | Parameter | Gameplay interpretation |
 | --- | --- |
-| Physical reduction | Percentage of qualifying physical damage removed; tune so large hits still matter |
+| Blunt reduction | Percentage of blunt impact damage removed; tune so large hits still matter |
 | Impulse reduction | Optional separate reduction to knockback or collision impulse |
 | Coverage | Applies to the physical component, not automatically every effect carried by an attack |
 
@@ -340,8 +345,8 @@ Use one clear proportional reduction rather than stacking multiple hidden absorp
 - **Acid — Normal:** no inherent resistance to corrosion or Acid damage. A physical delivery component can still be reduced.
 - **Static — Normal:** electrical damage and Charge are unaffected unless the attack also carries a qualifying physical component.
 - **Mucus — Normal:** sticking, snaring, and movement restriction are not physical impact damage.
-- **Blood — Conditional:** qualifying physical cuts or strikes can be reduced; Bleed and Extraction are not automatically reduced.
-- **Soul — Normal:** essence-targeting effects are not physical impact. Only a separately tagged physical component qualifies.
+- **Blood — Normal:** cuts go through (Squishy is blunt only); a blunt Blood strike's impact part is reduced. Bleed and Extraction are not reduced.
+- **Soul — Normal:** Soul build-up and Possessed are not physical impact. Only a qualifying physical component is reduced.
 - **Fire — Normal:** heat and Burning are not physical impact. A physical strike that also carries Fire may have only its physical component reduced.
 
 ## Design guardrails
@@ -386,7 +391,7 @@ Thorns does not absorb, reduce, or cancel the original attack. The attacker rece
 
 **Contact must connect**
 
-Ranged attacks, remote hazards, and non-contact effects do not trigger Thorns by default. If Dodge makes the attack miss, there is no retaliation.
+Ranged attacks, remote hazards, and non-contact effects do not trigger Thorns by default. If Evasion makes the attack miss, there is no retaliation.
 
 </aside>
 
@@ -404,7 +409,7 @@ Ranged attacks, remote hazards, and non-contact effects do not trigger Thorns by
 | Strong against | Weak against / counterplay |
 | --- | --- |
 | Repeated close-range melee attackers | Ranged attacks and remote hazards |
-| Fast attackers that connect many separate hits | Dodging, spacing, or using non-contact attacks |
+| Fast attackers that connect many separate hits | Evasion, spacing, or using non-contact attacks |
 | Enemies that force the player into contact | It offers no protection from the incoming damage |
 
 ## Interactions with damage types
@@ -414,12 +419,12 @@ Ranged attacks, remote hazards, and non-contact effects do not trigger Thorns by
 - **Static — Conditional:** a contact Static attack can trigger Thorns. A remote arc does not.
 - **Mucus — Conditional:** direct contact application can trigger Thorns only if the delivery is a qualifying melee/contact hit; an existing sticky patch does not.
 - **Blood — Conditional:** a melee Blood strike can trigger Thorns. A wound ticking later or a remote extraction effect does not.
-- **Soul — Conditional:** only a Soul attack with actual qualifying physical/contact delivery triggers Thorns. A purely essence-targeting effect does not.
+- **Soul — Conditional:** only a Soul attack with actual qualifying physical/contact delivery triggers Thorns. A ranged Soul attack does not.
 - **Fire — Conditional:** a melee Fire strike can trigger Thorns if it makes contact. A projectile, burning zone, or later Burning tick does not.
 
 ## Design guardrails
 
 - Retaliation is not damage reduction, Shell, or a guaranteed trade advantage.
 - Resolve one retaliation per connected hit, even when that hit carries several damage types.
-- A miss caused by Dodge cannot trigger Thorns.
+- A miss caused by Evasion cannot trigger Thorns.
 - Keep “bleeding thorns,” “charged thorns,” and similar effects as explicit variants or combo payoffs.

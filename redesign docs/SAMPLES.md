@@ -9,8 +9,8 @@ A **sample** is the character you play. **Epigenetic Profiles** are build choice
 - **Game modes become "Experiments"** (for example, "Experiment #002: The Petri Dish"). This frees the word "sample" for characters. Internal ids (`s002`) stay as they are.
 - **The sperm doesn't speak** (`VOICE_GUIDE.md`). A sample's personality shows in how it moves and in how its pre-incarnate consciousness talks to it ("you"). Each sample's consciousness has its own personality under the shared voice rules.
 - **The Scientist uses IDs.** The strain number is the roster position (Baseline is 1, the Other Half is 8). The letter is the run of that strain: 1A, 1B and so on.
-- **The default Lab view is greyscale.** Each sample must read by shape, movement and trail alone. Colour is an Arcade-view accent only. See `storm-directive/STYLE.md`.
-- **Damage types:** only the seven in `DAMAGE_TYPES.md`.
+- **Readable without colour.** Each sample must be recognisable at phone size by shape, movement and trail alone; colour (from its damage types' visual language in `DAMAGE_TYPES.md`, decision 20) reinforces it. Lab view is retired (decision 21).
+- **Damage types:** only the seven in `DAMAGE_TYPES.md`, and every sample follows the reconciliation decisions in `COMBAT_MATRIX.md` section 10 (Soul possesses; Fire does not spread on its own; Acid's only ongoing damage is Pools).
 
 ## Changes from the first proposal
 1. **The Overachiever and the Unsolicited were both Static + Force.** The Unsolicited now leads with Fire.
@@ -27,10 +27,10 @@ A **sample** is the character you play. **Epigenetic Profiles** are build choice
 | 1 | The Baseline | Human | Force / Blood | Projectile | No gimmick: +5% to every base stat | **Standard Procedure**: a Force shove ring that knocks everything back |
 | 2 | The Overachiever | Human | Static / Force | Beam | Fire rate rises while moving and drops when still | **Personal Best**: a burst sprint that leaves a Static wake; each hit extends it |
 | 3 | The Late Starter | Human | Blood / Mucus | Contact | Below 30% health, lifesteal and damage rise with missing health | **Second Wind**: drains Blood from every wounded enemy nearby; heals more the more health is missing |
-| 4 | The Family Friend | Human (paperwork sealed) | Acid / Soul | Projectile (single target) | Strips defences faster and crits on stripped targets | **Pulling Strings**: marks the toughest enemy; its Shell dissolves and the next hit ignores its Membrane |
-| 5 | The Cold Parcel | Unknown | Mucus / Acid | Pool (a trail) | Leaves a sticky trail that slows enemies | **Shrink Wrap**: coats a ring of enemies in Mucus, then Acid eats the coated ones |
-| 6 | The Unsolicited | Unknown | Fire / Static | Spread | When an enemy ignites, its Burn spreads to one more enemy nearby | **Reply All**: ignites the nearest enemy, and Static arcs carry the Burn to everything near it |
-| 7 | The Unaccounted | Impossible | Soul / Blood | Burst (delayed) | Kills leave a mark, and marked enemies nearby lose health a beat later | **Recount**: marks up to 6 enemies, and 3 s later each loses a chunk of health; kills refund stamina |
+| 4 | The Family Friend | Human (paperwork sealed) | Acid / Soul | Projectile (single target) | Its Acid builds Corrosion faster, and enemies it Possesses deal extra damage to their mates (others do its fighting) | **Pulling Strings**: marks the toughest enemy; it gains Corrosion, and every enemy near it gains Soul build-up, so they turn on it |
+| 5 | The Cold Parcel | Unknown | Mucus / Acid | Pool (a trail) | Leaves a sticky trail that slows enemies | **Shrink Wrap**: Snares a ring of enemies in Mucus, then leaves an Acid Pool under the stuck ones |
+| 6 | The Unsolicited | Unknown | Fire / Static | Spread | Its Static hits also add Burn, so arcs warm up everything they chain through | **Reply All**: fills the nearest enemy's Burn bar, and Static arcs from it add Burn to everything near it |
+| 7 | The Unaccounted | Impossible | Soul / Blood | Burst (delayed) | Enemies it Possesses make the enemies they hit Bleed | **Recount**: Possesses up to 6 enemies for 3 s; when it ends, each loses a chunk of health (the count corrects itself); kills refund stamina |
 | 8 | The Other Half | Extraterrestrial | Shifts between Fire, Soul and Static | Beam | Its whole kit changes damage type every 20 s (shown on the HUD) | **First Contact**: shifts type now and sets off a reaction on every enemy carrying a status |
 
 **Coverage:** every damage type leads exactly once (the Other Half aside), all six attack types from `ATTACK_TYPES.md` appear, and no two samples share a pair. The numbers here are starting points for playtesting.
@@ -73,7 +73,7 @@ The first few unlocks come early, so players get variety quickly. The last two r
 - **Silhouette:** the textbook sperm. Oval head, neat midpiece, even tail. It is the template the other seven are drawn as variations of.
 - **Motion:** a regular, metronome tail beat. It is the only sample with a perfectly steady rhythm.
 - **Trail:** a faint, even wake. Nothing else.
-- **Arcade accent:** clean white with a pale blue rim.
+- **Colour:** Force's white and pale grey, with Blood red at the tail tip.
 - **Select card prop:** a labelled specimen tube with a printed barcode, and "CONTROL" handwritten and underlined twice.
 
 # 2. The Overachiever (Sample 2A)
@@ -90,7 +90,7 @@ The first few unlocks come early, so players get variety quickly. The last two r
 - **Silhouette:** a lean, slightly elongated head and an oversized, muscular midpiece (all mitochondria). The tail is longer than standard.
 - **Motion:** a whip-crack tail beat at double tempo, with the head jittering slightly as if over-caffeinated.
 - **Trail:** short streaks of crackle that snap off behind it. At top speed the streaks join into a single line.
-- **Arcade accent:** electric yellow, with white spark points along the tail.
+- **Colour:** Static yellow, with white spark points along the tail.
 - **Select card prop:** a sports bottle with the label peeled off, and a stopwatch.
 
 # 3. The Late Starter (Sample 3A)
@@ -107,7 +107,7 @@ The first few unlocks come early, so players get variety quickly. The last two r
 - **Silhouette:** a slightly lumpy, rounder head that looks like it has been through things. There is a small notch in the tail, an old injury.
 - **Motion:** a lazy, wide tail beat that sharpens as health drops. Below 30% health the beat goes tight and fast, and the head pulses like a heartbeat.
 - **Trail:** a thin wet smear that glistens (Mucus). When it heals, droplets are pulled back into it from wounded enemies.
-- **Arcade accent:** deep blood red, brightening as health falls.
+- **Colour:** Blood red, brightening as health falls, with a Mucus green sheen on the smear.
 - **Select card prop:** the original assessment sheet with "UNREMARKABLE" crossed out, and nothing written in its place.
 
 # 4. The Family Friend (Sample 4A)
@@ -116,15 +116,15 @@ The first few unlocks come early, so players get variety quickly. The last two r
 **Story:** It came through no supplier and no queue, with a note asking that it "be looked after". The donor fields are redacted. The handwriting on the note is familiar, and the Scientist has decided not to work out why. It behaves as though the egg has been told it is coming. Barriers in its way dissolve, as if someone made a call.
 
 **Character:**
-- **On screen:** unhurried and composed, swimming at a steady, entitled glide. It doesn't dodge so much as expect things to move. Its shots are few, precise and aimed at the most important target.
+- **On screen:** unhurried and composed, swimming at a steady, entitled glide. It doesn't dodge so much as expect things to move. Its shots are few, precise and aimed at the most important target, and the enemies it turns start doing its fighting.
 - **Its consciousness:** assumes doors will open, rules will bend and the egg is expecting it by name. It is genuinely confused when something resists.
   > "Why is that one still blocking us? Does it know who you are? Tell it who you are."
 
 **Visual language:**
 - **Silhouette:** a perfectly proportioned, almost polished head, the most symmetrical of the eight. It has a slight collar at the neck, like a tailored fit.
 - **Motion:** a smooth, unhurried tail beat with no wasted movement. It glides between beats.
-- **Trail:** almost none. Where its shots land, enemy defences fizz and peel away (Acid), with a faint wisp leaving the target (Soul).
-- **Arcade accent:** acid green trimmed with a thin gold rim.
+- **Trail:** almost none. Where its shots land, Shell fizzes and peels away (Acid); enemies it turns show a faint purple shimmer as they switch sides (Soul).
+- **Colour:** Acid's shocking pink, with a thin gold rim.
 - **Select card prop:** a sealed envelope with a wax-style stamp and a sticky note reading "VIP: do not discuss".
 
 # 5. The Cold Parcel (Sample 5A)
@@ -140,8 +140,8 @@ The first few unlocks come early, so players get variety quickly. The last two r
 **Visual language:**
 - **Silhouette:** a head with a frosted, crystalline outer coat that slowly melts during the run. There are tiny ice flecks on the tail.
 - **Motion:** a sliding, skating motion with slight overshoot on turns. It shivers occasionally.
-- **Trail:** a glossy, sticky ribbon (Mucus) with small pits fizzing where it overlaps enemies (Acid). The ribbon fades softly at its edges, following the zone rules.
-- **Arcade accent:** frost blue, with a sickly green fizz where the trail eats something.
+- **Trail:** a glossy, stretchy green ribbon (Mucus) that strings out when enemies pull free. Small Acid puddles bubble where its Feat lands.
+- **Colour:** frost white over Mucus green, with Acid pink in its puddles.
 - **Select card prop:** a dented polystyrene box, half a shipping label, frost on the corners and a "THIS WAY UP" arrow pointing sideways.
 
 # 6. The Unsolicited (Sample 6A)
@@ -150,15 +150,15 @@ The first few unlocks come early, so players get variety quickly. The last two r
 **Story:** Nobody ordered it, and nobody admits to delivering it. It was there, in a container slightly too warm to touch. Since then it has been fascinated by everything, and everything it touches catches. It doesn't seem malicious, just very interested in what happens next. Its name is also the polite term for a kind of photo nobody asked to receive. The Scientist uses the name with a straight face.
 
 **Character:**
-- **On screen:** erratic and curious. It swerves towards new enemies and pickups with no regard for safety, then darts away again. Fire spreads behind it like a rumour.
+- **On screen:** erratic and curious. It swerves towards new enemies and pickups with no regard for safety, then darts away again. Its arcs warm up whole crowds until they go up one after another.
 - **Its consciousness:** hyperactive and distractible. It swings from terror to delight with no logic in between.
   > "Ooh. Ooh, what's that. Touch it. TOUCH IT. Oh no. Oh no, it's on fire. Brilliant. Do it again."
 
 **Visual language:**
 - **Silhouette:** a slightly too-wide head with a soft glowing core, like an ember inside a bean. The tail tip flickers.
 - **Motion:** twitchy, with sudden direction changes and little curious loops. It never swims straight for long.
-- **Trail:** drifting sparks and heat shimmer. Ignitions bloom on enemies, and thin Static threads jump between burning ones.
-- **Arcade accent:** ember orange with white-hot flecks.
+- **Trail:** drifting sparks and heat shimmer. Ignition flares bloom on enemies, and thin yellow Static threads jump between warm ones.
+- **Colour:** Fire orange with white-hot flecks and yellow arcs.
 - **Select card prop:** an unlabelled container on a doormat, slightly scorched, with a still frame of security footage showing an empty corridor.
 
 # 7. The Unaccounted (Sample 7A)
@@ -167,15 +167,15 @@ The first few unlocks come early, so players get variety quickly. The last two r
 **Story:** The count was correct. Then it was one higher, and it still checked out as correct. The extra specimen casts its shadow in the wrong direction and doesn't show up in the second photograph. The Scientist has stopped recounting. It moves as if it has made this swim before and remembers how it ends. It seems certain the egg remembers it too.
 
 **Character:**
-- **On screen:** calm, almost slow, never panicked. Enemies near it lose health a beat after it passes, as if something were taken from them on a delay.
+- **On screen:** calm, almost slow, never panicked. Enemies it passes sometimes forget whose side they are on, and the ones it turns lose health a beat after they recover, as if something were taken from them on a delay.
 - **Its consciousness:** quiet and ancient-feeling. It talks like it is remembering, not planning. Its lines are rare and short. This is the only consciousness that is ever gentle.
   > "You've done this before. You won't remember. I do. Left here."
 
 **Visual language:**
 - **Silhouette:** a standard shape that is slightly translucent, with a faint second outline offset by a frame, like a double exposure. Its shadow falls the wrong way (a lone wrong-way shadow reads well in greyscale).
 - **Motion:** smooth and unhurried, with an occasional stutter where it seems to skip a frame and land slightly ahead.
-- **Trail:** pale wisps that linger and drift towards marked enemies. A mark is a faint ghostly copy of the enemy, a beat behind it.
-- **Arcade accent:** pale violet with a cold white rim. Its marks are dark red (Blood).
+- **Trail:** pale wisps that linger and drift towards the enemies it is turning. A Possessed enemy carries its double exposure: a faint ghostly copy, a beat behind.
+- **Colour:** Soul's translucent, sparkly purple with a cold white rim; the health it takes back is Blood red.
 - **Select card prop:** a counting-chamber grid with one cell circled in pencil, and "recount?" written beside it and crossed out.
 
 # 8. The Other Half (Sample 8A)
@@ -192,13 +192,13 @@ The first few unlocks come early, so players get variety quickly. The last two r
 - **Silhouette:** almost a sperm, but wrong. The head has a faceted, slightly geometric shape, the one deliberate break from the organic rule. It has two thin tails that beat out of phase.
 - **Motion:** a smooth, gliding swim with no visible beat effort, plus a brief shimmer and reshape at each type shift.
 - **Trail:** changes with its current type: shimmer for Fire, wisps for Soul, threads for Static. Each shift leaves a ring-shaped ripple on the slide.
-- **Arcade accent:** iridescent: a slow colour shift across the body that settles on the active type's colour.
+- **Colour:** iridescent: a slow shift across the body that settles on the active type's colour (orange, purple or yellow).
 - **Select card prop:** a smooth, seamless container, and paperwork covered in unreadable script with one line translated in pencil: "OTHER HALF".
 
 ---
 
-## Greyscale check
-In Lab view, each sample reads by one signature:
+## Silhouette check
+With colour off, each sample still reads by one signature:
 1. Steady beat (Baseline)
 2. Whip-crack beat (Overachiever)
 3. Notched, pulsing tail (Late Starter)
