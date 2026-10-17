@@ -23,7 +23,6 @@ Rules: `COMBAT_MATRIX.md` section 13 (the six attack types), `MODIFIERS.md` (how
 
 ## Open naming issues
 
-- **Soul Purpose** is both the Soul Burst matrix weapon (M34) and the Force + Soul reaction. One needs a new name.
 - **Snot Trap** (M24) was "Sticky Situation" in v10 code; the code still needs the rename.
 - **Pub Crawl** (S3) ships as "Skid Mark" today.
 
@@ -64,7 +63,7 @@ Rules: `COMBAT_MATRIX.md` section 13 (the six attack types), `MODIFIERS.md` (how
 | M31 | Spirit Slap | Soul | Contact | Strikes nearby enemies with a spectral blow. A little soul-searching by force. |  |
 | M32 | Ghost Load | Soul | Projectile | Fires a slow spirit orb that damages its first target. Something to believe in. |  |
 | M33 | Soul Scatter | Soul | Spread | Fires spectral shards across a wide fan. A little piece of you goes a long way. |  |
-| M34 | Soul Purpose | Soul | Burst | Releases a spectral shockwave around the impact point. At last, some direction in life. | **Name clash:** also the Force + Soul reaction |
+| M34 | Soul Purpose | Soul | Burst | Releases a spectral shockwave around the impact point. At last, some direction in life. | The Force + Soul reaction was renamed Out-of-Body Experience to free the name (matrix decision 29) |
 | M35 | Wraith Ray | Soul | Beam | Channels soul energy along a focused beam. Straight through to the other side. |  |
 | M36 | Haunted Ground | Soul | Pool | Creates a spectral field that damages enemies inside it. The dead are not known for respecting boundaries. |  |
 | M37 | Hot Touch | Fire | Contact | Strikes nearby enemies and sets them alight. You should have called first. |  |
@@ -152,5 +151,5 @@ Each sample in `SAMPLES.md` starts with the matrix weapon for its primary damage
 | The Family Friend | Acid | Projectile | Acid Spit (M8) |
 | The Cold Parcel | Mucus | Pool (trail) | Snot Trap (M24), laid as a trail |
 | The Unsolicited | Fire | Spread | Cinderblast (M39) |
-| The Unaccounted | Soul | Burst | Soul Purpose (M34), the weapon with the name clash |
+| The Unaccounted | Soul | Burst | Soul Purpose (M34) |
 | The Other Half | Fire, Soul, Static (shifting) | Beam | Flame Jet (M41), Wraith Ray (M35) or Blue Screen (M17), changing every 20 s |

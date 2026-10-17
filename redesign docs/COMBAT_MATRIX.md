@@ -45,7 +45,7 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 | Force + Static | **Shocking Impact** | Dual-type weapon | A dual-type Force/Static weapon lands a hit | A short local electrical burst around the impact | Area (small) | Only from a dual-type weapon, never from two separate hits; local burst, no chain |
 | Force + Mucus | **Snot Rocket** | State + hit | A Force hit lands on a Snared enemy | Launches it in the hit direction; it leaves one small sticky patch where it lands | Single target | One launch and one patch; no extra stun or bonus damage |
 | Force + Blood | **Blood Pressure** | State + hit | A heavy Force hit (the same threshold that knocks off a Shell layer) lands on a bleeding target | The wound bursts for one small area hit | Area (small) | One burst; no new Bleed stack and no large pool |
-| Force + Soul | **Soul Purpose** | State + hit | A Force hit lands on a Possessed enemy | It is launched and damages the first mate it collides with | Single target | One collision; Possessed carries on as normal |
+| Force + Soul | **Out-of-Body Experience** | State + hit | A Force hit lands on a Possessed enemy | It is launched and damages the first mate it collides with | Single target | One collision; Possessed carries on as normal |
 | Force + Fire | **Flashover** | State + hit | A Force hit lands on a burning target | A tongue of flame jumps to one nearby enemy and adds to its Burn bar | Single target | One jump; no chain |
 | Acid + Static | **Conductive Pool** | World object + hit | A Static hit lands in an Acid Pool | One electrical pulse travels across that pool | Area (pool) | Stays inside the visible pool edge; one pulse per pool |
 | Acid + Mucus | **Slick Move** | World object + hit | An Acid hit lands on a Mucus patch | The patch is replaced by a short-lived Acid Pool | Area (patch) | Replaces the patch rather than layering two hazards; clear expiry |
@@ -66,7 +66,7 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 ### Reaction quality decisions
 
 - **No redundant damage over time:** Caustic Breach strips a Shell layer; it does not add a corrosive wound.
-- **No extra sub-systems:** Soul Purpose launches an enemy rather than spawning a fragment; Blood Donor is a small capped heal, not a resource.
+- **No extra sub-systems:** Out-of-Body Experience launches an enemy rather than spawning a fragment; Blood Donor is a small capped heal, not a resource.
 - **Soul pairs use Possessed:** all six Soul reactions trigger on a Possessed enemy. The Soul Mark is retired.
 - **Separated similar world reactions:** Conductive Pool pulses across an Acid Pool; Blood Circuit arcs from a blood pool to one enemy.
 - **Controlled Fire interactions:** three Fire pairs consume a setup for a burst (Corrosion, a Mucus patch, a Bleed); three hit a single target. Fire does not make every surface explode.
@@ -266,7 +266,7 @@ The 17 Oct hand-off ("Combat Matrix Remaining Updates") is fully merged: design 
 
 ## 10. Reconciliation decisions (17 Oct 2026)
 
-Settled one by one after a cross-doc review (27 and 28 added later on 17 Oct). Every redesign doc follows these.
+Settled one by one after a cross-doc review (27 to 29 added later on 17 Oct). Every redesign doc follows these.
 
 | # | Question | Decision |
 | --- | --- | --- |
@@ -298,6 +298,7 @@ Settled one by one after a cross-doc review (27 and 28 added later on 17 Oct). E
 | 26 | Birthday Candle wax | Keeps wax Pools: wax hardens into a temporary wall (a justified exception) |
 | 27 | Ground objects | Only the shipped ones (terrain, Acid Pools, Mucus patches, blood pools, Skid Mark's trail, Tooth Fairy's teeth) plus wax. Burn zones, corrosive slicks, clot patches and Heartburn's reflux puddles are cut. Fire's Pool attacks (Burning Ground, Pub Crawl's trail, Matchstick's trail) are attack footprints that fill Burn bars, not reaction ingredients |
 | 28 | Acid colour | Shocking pink stands, even beside the pink campaign levels |
+| 29 | Soul Purpose name clash | The Force + Soul reaction is renamed **Out-of-Body Experience**; the Soul Burst weapon (M34) keeps Soul Purpose |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
