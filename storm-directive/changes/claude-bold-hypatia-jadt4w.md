@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: shipped ground objects only, greyscale notes gone, tidy-up
+- Systems: docs only (redesign docs)
+- Files: redesign docs/COMBAT_MATRIX.md, DAMAGE_TYPES.md, DEFENCE_TYPES.md, ENEMY_DESIGN.md, SIGNATURE_WEAPONS.md, WEAPONS.md, SAMPLES.md, VOICE_GUIDE.md, tables/*.csv
+- What: per the user, only shipped ground objects plus wax (decision 27): Burn zones, corrosive slicks, clot patches and Heartburn's reflux puddle are cut. Slick Move now leaves an Acid Pool, Caught in the Clot Snares the first enemy across the blood pool, Flammable Mucus flares once (a burst, not a zone), Smouldering elites give off a death Burst. Shipped terrain added to the world objects table. Acid stays shocking pink (decision 28). Greyscale notes removed (Lab view is retired). Em dashes replaced, duplicate link removed.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs only). Heartburn has no signature until one is chosen.
+
 ## 2026-10-17 Redesign docs: modifiers stack, forks can rarely change attack type
 - Systems: docs only (redesign docs)
 - Files: redesign docs/UPGRADES.md, MODIFIERS.md
