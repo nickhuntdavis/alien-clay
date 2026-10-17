@@ -20,6 +20,14 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Pass 5 DONE (v9.14). Left: Pass 6 balance sims; swimmer skins only show in Arcade view (Lab is grey). Pass 4 DONE (v9.13). Pass 3 DONE (v9.12): see v9.12 in Recent changes. Pass 2 DONE (v9.11). Statuses still draw as rings in both views until Pass 5 (body looks for Lab view).
 - Passes: 1 names + 28 reactions as data; 2 views + skins; 3 type mechanics; 4 extra reactions; 5 visuals; 6 balance sims.
 
+## v10 combat rework (decided 17 Oct 2026; spec in `../redesign docs/`)
+- Approach: keep the engine and shell (loop, render, UI, settings, saves, audio, levels, Level 0, Field Guide, tests, Android key); rebuild hit resolution as a new `combat.js` (hit components: direct, status, impulse, hazard -> Dodge, Membrane, Shell, Squishy, health, Thorns) and `react.js` (21 triggered reactions as data); retire current weapons, Feats, combos and enemy roster for the user's redesign.
+- Steps: 1 merge docs (done) · 2 decisions (done) · 3 strip old content and Cooties/Oil/Water, clean ids `force acid static mucus blood soul fire` · 4 combat core · 5 slice: 7 weapons (one per type), 5 enemies (one per defence), 1 boss, wave mode · 6 `combattest` · 7 user's new content.
+- Fire is literal fire (matches, lighters), not fever.
+- Soul is the mind-control type: full Soul build-up makes the enemy fight its mates for a few seconds (like the old Cursed). The Soul pair reactions are extras on top; revisit the four low-confidence Soul rows against this.
+- First slice ships all 5 defences and no traits (Fearless, Bloodless, Fire Resistance come with the enemy redesign).
+- Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
+
 ## Recent changes (newest first)
 - v9.27: merged six branches into `main` (details in CHANGELOG.md v9.27): player statuses (v9.25 here) and the Phlegm Hocker and Hayfever Cell (v9.26 here), combos batch 1, stain-grant purge, dev cards on fresh saves, roomier draft screens, Weapon Atlas builder.
 - v9.24: merged this session's v9.23 (below: "v9.23: the 36 new Feats") with main's v9.23 (the Playpen) and `ccr-9082b737` (ENEMY_IDEAS doc). Two v9.23s exist; this is the combined build.
