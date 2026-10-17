@@ -169,3 +169,11 @@
 - Save data: none.
 - Hooks: none yet (wired into damageEnemy/hurtPlayer in the slice).
 - Risk: none until wired.
+
+## 2026-10-17 Voice line tables (voice.js)
+- Systems: voice (new)
+- Files: web/js/voice.js (new, not yet loaded)
+- What: Scientist and consciousness lines for 19 events with composure tiers, a Scientist and a consciousness first-sighting line for 81 enemies and bosses, 13 first-time status hints, sampleId (1A..1Z, 1AA) and voiceLine (no repeats, tier rarity).
+- Save data: none.
+- Hooks: none yet (show.js, intro.js, finale.js later).
+- Risk: none until wired.
