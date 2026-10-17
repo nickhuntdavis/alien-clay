@@ -129,7 +129,7 @@ function v10Loot(req) {
     if (!pool.length) pool = v10Ids().filter(id => !own.some(w => w.id === id));
     return shuffle(pool).slice(0, 3).map(id => optNewWeapon(id, 0));
   }
-  if (req.kind === 'level' || (req.kind === 'chest' && !G.wave)) return v10Switch();
+  if (req.kind === 'level' || (req.kind === 'chest' && !G.wave)) { const sw = v10Switch(); return sw.concat(pdefOffer(3 - sw.length)); } // (Switched at Birth plus two defence cards: pdef.js)
   return null;
 }
 // Switched at Birth: same attack type, another damage type. One card: a random weapon you own, a random new type.
@@ -180,6 +180,7 @@ function v10Burn(e, dmg, src) {
 function v10Tick(dt) {
   if (!V10 || !G) return;
   fightTick(dt); // (defences, charged patches: fight.js)
+  pdefTick(dt); // (your Membrane and Shell: pdef.js)
   for (const e of G.enemies) {
     if (!(e.v10burn > 0) || e.dead) continue;
     e.v10burn -= dt;
@@ -194,7 +195,7 @@ function v10Tick(dt) {
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
-  if (G && V10) fightDraw(); // (defence rings, status marks: fight.js)
+  if (G && V10) { fightDraw(); pdefDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {
     const k = f.life / f.max, x1 = sx(f.x), y1 = sy(f.y), x2 = sx(f.x2), y2 = sy(f.y2);

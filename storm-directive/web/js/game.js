@@ -1149,11 +1149,13 @@ function hurtPlayer(dmg, from, ent, kind) {
   // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
   // Your armour wears down: every hit that lands knocks a point off (two from a boss), and it grows back slowly once
   // you stop getting hit (armourRegen). Temporary plating (Bear Hug, Fortress) does not wear.
+  const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
+  let d;
+  if (V10) { d = pdefHurt(dmg, from, ent, kind); if (d <= 0) return; } else { // (v10: Evasion, Membrane, Shell, Squishy, Thorns: pdef.js)
   const armBase = Math.max(0, P.armour - (G.armourLost || 0));
   const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour() + junkArmour()) * defClock();
-  const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
-  const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
-  if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
+  d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
+  if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } } // (the forcefield flashes: armourRing)
   if (nfLethal(d)) return; // (Anhydrobiosis: newfeats.js)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d; tantrumHurt(d); seqHurt(); pstHit(hf); // (Snotty, Sick, Soaking wet: pstatus.js) // (a clean boss fight: seqlock.js)

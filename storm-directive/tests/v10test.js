@@ -24,7 +24,7 @@ const { chromium } = require('playwright');
     st[0].apply();
     const w0 = G.weapons.find(Boolean);
     const lv = genLoot({ kind: 'level' });
-    if (lv.length !== 1 || lv.some(o => o.tag !== 'SWITCHED AT BIRTH')) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title));
+    if (lv.length !== 3 || lv[0].tag !== 'SWITCHED AT BIRTH' || lv.slice(1).some(o => o.tag !== 'DEFENCE')) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title)); // (Switched at Birth plus two defence cards: pdef.js)
     out.switch = lv.map(o => o.title);
     lv[0].apply();
     const w1 = G.weapons.find(Boolean);
