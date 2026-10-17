@@ -65,10 +65,13 @@ const { chromium } = require('playwright');
     if (!(G.fst.pThorns > 0)) bad.push('pThorns stat');
     // Level-up offer: Switched at Birth + 2 different defence cards; maxed ones are not offered.
     fresh(); genLoot({ kind: 'start' })[0].apply();
-    for (let i = 0; i < 30; i++) {
-      const lv = genLoot({ kind: 'level' });
-      if (lv.length !== 3 || lv[0].tag !== 'SWITCHED AT BIRTH' || lv[1].tag !== 'DEFENCE' || lv[2].tag !== 'DEFENCE' || lv[1].defence === lv[2].defence) { bad.push('offer: ' + lv.map(o => o.title)); break; }
+    let withDef = 0;
+    for (let i = 0; i < 30; i++) { // (one shared draft now: draft.js; defence cards are one family among several)
+      const lv = genLoot({ kind: 'level' }), defs = lv.filter(o => o.tag === 'DEFENCE');
+      if (lv.length !== 3 || (defs.length === 2 && defs[0].defence === defs[1].defence)) { bad.push('offer: ' + lv.map(o => o.title)); break; }
+      if (defs.length) withDef++;
     }
+    if (withDef < 5) bad.push('defence cards rarely offered: ' + withDef + '/30');
     G.pd.n.squishy = 1; G.pd.n.shell = 4; G.pd.n.thick = 4;
     for (let i = 0; i < 20; i++) { const ids = pdefOffer(6).map(o => o.defence); if (ids.includes('squishy') || ids.includes('shell') || ids.includes('thick')) { bad.push('maxed offered: ' + ids); break; } }
     G.pd.n.shell = 0; G.pd.n.thick = 0; G.pd.n.squishy = 0; G.pd.n.evasion = 1; G.pd.n.fast = 1; G.pd.n.thorns = 1; G.pd.n.shell = 1; // four held: no fifth kind

@@ -114,12 +114,8 @@ for (const t of V10_TYPES) for (const a of V10_ATKS) {
 // ---------------------------------------------------------------- boxes
 // Which boxes open at all (game.js main loop): weapon drafts, and one level-up a wave. Everything else is dropped.
 function v10Box(req) {
-  if (!V10 || req.kind === 'start' || req.kind === 'slot' || req.v10ok) return true;
-  if (!G.wave) return req.kind === 'level' || req.kind === 'chest'; // regular mode: every level-up and DNA strand
-  if (req.kind !== 'level') return false;
-  const wave = G.wave.n; // wave mode: one a wave
-  if (G.v10sw === wave) return false;
-  G.v10sw = wave; req.v10ok = true; return true;
+  if (!V10) return true;
+  return draftBox(req); // (level-ups, chests, forks and the interruption budget: draft.js)
 }
 function v10Loot(req) {
   if (req.kind === 'start') return shuffle(v10Ids()).slice(0, 4).map(id => optNewWeapon(id, 0));
@@ -129,7 +125,7 @@ function v10Loot(req) {
     if (!pool.length) pool = v10Ids().filter(id => !own.some(w => w.id === id));
     return shuffle(pool).slice(0, 3).map(id => optNewWeapon(id, 0));
   }
-  if (req.kind === 'level' || (req.kind === 'chest' && !G.wave)) { const sw = v10Switch(); return sw.concat(pdefOffer(3 - sw.length)); } // (Switched at Birth plus two defence cards: pdef.js)
+  { const o = draftLoot(req); if (o) return o; } // (one draft for weapons, Switched at Birth, defences, Feats, mutations; forks: draft.js)
   return null;
 }
 // Switched at Birth: same attack type, another damage type. One card: a random weapon you own, a random new type.
