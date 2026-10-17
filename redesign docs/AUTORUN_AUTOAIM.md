@@ -114,8 +114,10 @@ Each weapon and Feat has a **primary directive** and an optional **THEN directiv
 | NEAREST (`nearest`) | Closest enemy | −distance | 40 units |
 | FRAGILEST (`weakest`) | Lowest **max** health, wounded or not | −max HP | 5% |
 | LOWEST HEALTH (`lowhp`) | Least health **left right now** | −current HP | 5% |
-| TOUGHEST (`strongest`) | Most durable | max HP × (1 + 0.1 × effective armour) | 5% |
-| HIGHEST ARMOUR (`armour`) | Most effective armour (after shred, auras) | armour | 1 point |
+| TOUGHEST (`strongest`) | Most durable | v9.28: max HP × (1 + 0.1 × effective armour). v10: effective HP = health + Membrane + Shell layers × layer HP, ×1.35 if Squishy | 5% |
+| HIGHEST ARMOUR (`armour`) | Most effective armour (after shred, auras) | armour (v9.28 only; v10 replaces it with SHELLED and MEMBRANED) | 1 point |
+| SHELLED (v10, new) | Most Shell layers left | layers | exact |
+| MEMBRANED (v10, new) | Most Membrane left | Membrane | 5% |
 | FASTEST (`fastest`) | Highest move speed | speed | 5% |
 | FURTHEST (`furthest`) | Farthest in range | distance | 40 units |
 | DENSEST CLUSTER (`cluster`) | Enemy with most neighbours within 70 (bosses +5) | crowd | exact |
@@ -185,4 +187,4 @@ These are examples, not prescribed builds.
 - **Porting:** v10 gates old content; check the autorun hooks still fire with `V10` on, and that v10's weapon matrix routes through `acquire(aimDir(w))`.
 - **Tiers:** check ELITES & BOSSES and SHOOTERS FIRST against the v10 enemy roster (what counts as a shooter, healer or summoner there).
 - **TOUGHEST and defences:** decide whether durability should use the five v10 defences (Squishy, Membrane, Shell) instead of one armour number. Shell layers are the closest match to `effArmour`.
-- **HIGHEST ARMOUR:** in v10 this may mean "most Shell layers"; keep it only if Acid or Force weapons exist that strip layers.
+- **HIGHEST ARMOUR:** settled 17 Oct: replaced in v10 by SHELLED and MEMBRANED; TOUGHEST scores effective HP (`COMBAT_MATRIX.md` 11.7).

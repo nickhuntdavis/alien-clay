@@ -8,6 +8,7 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - Android wrapper: `storm-directive/android/`. Released APK: `storm-directive/release/SpawnPrawn.apk`.
 - Player guide (generated): `storm-directive/GAME_GUIDE.md`, from `storm-directive/tests/tools/guide.js`.
 - Tests: `storm-directive/tests/` (Playwright, headless Chromium).
+- Combat redesign (v10 proposals, not shipped): `redesign docs/`. Read `redesign docs/CLAUDE.md` first; `COMBAT_MATRIX.md` there is the single source of rules.
 - Visual style guide: `storm-directive/STYLE.md`. Read it before redesigning anything drawn in the world.
 - System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/changes/<branch>.md` per session, folded into `storm-directive/CHANGELOG.md` on merge into `main`.
 
