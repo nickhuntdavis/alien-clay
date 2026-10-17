@@ -10,6 +10,7 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `WEAPONS.md`: every weapon in one place: the 42 matrix weapons, the 20 signature weapons and the 34 parked originals, with totals per damage type.
 - `SIGNATURE_WEAPONS.md`: 15 favourite original weapons brought back alongside the 42-weapon matrix, each with one damage type, one attack type and one signature behaviour (rules in `COMBAT_MATRIX.md` section 12).
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
+- `SAMPLES.md`: the eight playable samples (characters): roster, unlocks, Scientist lines, stories and visual language.
 - `AUTORUN_AUTOAIM.md`: autorun modes and autoaim directives, including the THEN tie-breaker, with exact rules and numbers (shipped in v9.28 on `claude/festive-allen-xmea8i`, not yet in v10).
 - `tables/`: the Notion databases as CSV (statuses and world objects, defences, interactions), regenerated from the matrix on 17 Oct. The matrix wins if they ever disagree.
 

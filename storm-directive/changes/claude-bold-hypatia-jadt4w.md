@@ -6,6 +6,13 @@
 - Hooks: none.
 - Risk: none (docs only).
 
+## 2026-10-17 Samples design: eight new playable characters
+- Systems: docs only (redesign docs)
+- Files: redesign docs/SAMPLES.md (new), README.md, VOICE_GUIDE.md
+- What: Eight samples (Baseline to Other Half) to replace the sequences as playable characters: types, starter attack type, passive, unique Feat, Scientist line, unlock, story and visual language each, aligned with the 26 reconciliation decisions (Soul possesses, no automatic Fire spread, Lab view retired, type colours). Profiles become trait-named builds; game modes become "Experiments".
+- Save data: none.
+- Hooks: none.
+- Risk: none now; when built, replacing sequences touches seqsel/seqlock/genes and the META.prof migration.
 ## 2026-10-17 Redesign docs: Fire signature weapon drafts
 - Systems: docs only (redesign docs)
 - Files: redesign docs/SIGNATURE_WEAPONS.md
