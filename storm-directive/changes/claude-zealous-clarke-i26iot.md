@@ -1,3 +1,11 @@
+## 2026-10-17 Wave mode and regular mode (v10.02)
+- Systems: v10
+- Files: v10.js, tests/v10test.js
+- What: the samples screen offers Human Sample 1 in Wave Mode (s002) or Regular Mode (s001, race to the egg). In regular mode Switched at Birth comes once a minute instead of once a wave.
+- Save data: none.
+- Hooks: none.
+- Risk: regular mode not balanced for the new weapons.
+
 ## 2026-10-17 One Switched at Birth card a wave (v10.01)
 - Systems: v10
 - Files: v10.js, tests/v10test.js

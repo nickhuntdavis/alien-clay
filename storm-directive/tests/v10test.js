@@ -11,7 +11,7 @@ const { chromium } = require('playwright');
   const cards = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-v10]')].map(b => b.textContent));
   await page.screenshot({ path: 'v10_samples.png' });
   const bad = [];
-  if (cards.length !== 1 || !/Human Sample 1/.test(cards[0])) bad.push('samples screen: ' + JSON.stringify(cards));
+  if (cards.length !== 2 || !/Wave Mode/.test(cards[0]) || !/Regular Mode/.test(cards[1])) bad.push('samples screen: ' + JSON.stringify(cards));
   await page.click('#sampleList [data-v10]'); await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
