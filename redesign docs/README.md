@@ -1,6 +1,6 @@
 # Redesign docs (combat rework)
 
-Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped behaviour.
+Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped behaviour. Agents: read `CLAUDE.md` in this folder first.
 
 - `COMBAT_MATRIX.md`: **the only place combat rules and statuses live** (21 reactions, type rules, defence rules, statuses, world objects, role counterplay, attack-type rules). Section 10 lists the 32 reconciliation decisions of 17 Oct, section 11 the formulas and starting values, section 12 the signature weapon rules, section 14 where every topic lives. If another doc disagrees, the matrix wins.
 - `DAMAGE_TYPES.md`: the seven types, one page each: identity, visual language, strengths and weaknesses. Rules: the matrix.

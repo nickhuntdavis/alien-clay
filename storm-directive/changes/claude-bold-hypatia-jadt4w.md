@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: agent guide for the folder
+- Systems: docs only (redesign docs)
+- Files: redesign docs/CLAUDE.md (new), redesign docs/README.md, CLAUDE.md
+- What: per the user, a CLAUDE.md in the redesign folder tells agents the source-of-truth order, which doc holds what, the hard limits and vocabulary, what to ignore, and the checks before finishing. The root CLAUDE.md points to it.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs only).
+
 ## 2026-10-17 Redesign docs: mutation cards
 - Systems: docs only (redesign docs)
 - Files: redesign docs/MUTATIONS.md (new), MODIFIERS.md, UPGRADES.md, COMBAT_MATRIX.md, README.md
