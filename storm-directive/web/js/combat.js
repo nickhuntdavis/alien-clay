@@ -69,7 +69,7 @@ function resolveHit(t, a, rng) {
   res.raw = raw;
   const rank = t.rank || 'normal';
   const force = amt.force || 0;
-  const heavy = !echo && !a.crit && force > 0 && force >= COMBAT.heavyFrac[rank] * t.maxHp;
+  const heavy = !echo && force > 0 && force >= COMBAT.heavyFrac[rank] * t.maxHp;
   res.heavy = heavy;
   // Per-type copy of what is left after each defence.
   const left = {}; for (const k in amt) left[k] = amt[k];
@@ -107,7 +107,7 @@ function resolveHit(t, a, rng) {
   if (a.crit && !echo) { dmg *= COMBAT.critMult; res.crit = true; }
   // 7. Health, then bars, then Thorns.
   res.toHp = dmg; t.hp = Math.max(0, t.hp - dmg);
-  if (!echo && !a.crit && !blocked) {
+  if (!echo && !blocked) {
     for (const k of ['acid', 'fire', 'force', 'soul']) {
       if (!(amt[k] > 0)) continue;
       let size = COMBAT.barSize[k];

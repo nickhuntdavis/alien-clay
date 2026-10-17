@@ -161,3 +161,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none (docs).
+
+## 2026-10-17 Pure combat resolver (combat.js)
+- Systems: combat (new)
+- Files: web/js/combat.js (new, not yet loaded by index.html), tests/combatunit.js (new, plain node)
+- What: matrix 11.1 hit resolution as pure functions (makeDefence, resolveHit, tickDefence, addBurn, COMBAT constants) with decisions 33-37; 45 unit tests. Crits fill bars and judge heavy hits from pre-crit damage.
+- Save data: none.
+- Hooks: none yet (wired into damageEnemy/hurtPlayer in the slice).
+- Risk: none until wired.

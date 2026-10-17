@@ -143,10 +143,11 @@ T('crit multiplies what is left (x1.6)', () => {
   near(hit(D('shell'), 'static', 10, { crit: true }).toHp, 7 * 1.6);
   near(hit(D(null), 'acid', 10, { crit: true }).toHp, 16);
 });
-T('crit never fills bars or makes a hit heavy', () => {
-  const t = D('shell', 'normal', { layers: 2 }); const r = hit(t, 'force', 30, { crit: true });
-  assert(!r.heavy && r.crit); near(t.bars.force, 0); assert.equal(t.layers, 2);
-  const f = D(null); hit(f, 'fire', 40, { crit: true }); near(f.bars.fire, 0);
+T('crit fills bars and judges heavy from pre-crit damage only', () => {
+  const f = D(null); hit(f, 'force', 10, { crit: true }); near(f.bars.force, 10 / 30); // not x1.6
+  const b = D(null); hit(b, 'fire', 10, { crit: true }); near(b.bars.fire, 0.25);
+  const s = D('shell', 'normal', { layers: 2 }); assert(!hit(s, 'force', 14, { crit: true }).heavy); assert.equal(s.layers, 2); // 14 x1.6 > 15, but raw 14 < 15
+  const h = D('shell', 'normal', { layers: 2 }); const r = hit(h, 'force', 15, { crit: true }); assert(r.heavy && r.crit); assert.equal(h.layers, 1);
 });
 T('bars: Burn 0.4, Poise 0.3, Soul 0.6; payoff and reset', () => {
   let t = D(null), r = hit(t, 'fire', 20); near(t.bars.fire, 0.5); assert.deepEqual(r.payoffs, []);
