@@ -5,6 +5,7 @@
 //  - The weapon matrix: 6 attack types x 7 damage types = 42 weapons, built from V10_ATK and V10_NAMES.
 //  - The only upgrade is Switched at Birth: one card a wave (the first level-up box; the wave's others are
 //    dropped), a swap that keeps the attack type and changes the damage type (Snotgun -> Cinderblast). Every other box is dropped. No Feats, mutations, relics or combos.
+//    Regular mode: every level-up and DNA strand is a Switched at Birth card instead.
 //  - Fire is a new damage type (internal id 'flame', since 'fire' is Acid): Burning, a short damage over time.
 //  - The old automatic reactions are off; each type keeps its own status (chem.js applyElement).
 // Old content is still in the code but out of reach. window.V10_OFF = 1 (before load) switches all of this off.
@@ -114,8 +115,9 @@ for (const t of V10_TYPES) for (const a of V10_ATKS) {
 // Which boxes open at all (game.js main loop): weapon drafts, and one level-up a wave. Everything else is dropped.
 function v10Box(req) {
   if (!V10 || req.kind === 'start' || req.kind === 'slot' || req.v10ok) return true;
+  if (!G.wave) return req.kind === 'level' || req.kind === 'chest'; // regular mode: every level-up and DNA strand
   if (req.kind !== 'level') return false;
-  const wave = G.wave ? G.wave.n : 'm' + Math.floor(G.t / 60); // (regular mode: one a minute)
+  const wave = G.wave.n; // wave mode: one a wave
   if (G.v10sw === wave) return false;
   G.v10sw = wave; req.v10ok = true; return true;
 }
@@ -127,7 +129,7 @@ function v10Loot(req) {
     if (!pool.length) pool = v10Ids().filter(id => !own.some(w => w.id === id));
     return shuffle(pool).slice(0, 3).map(id => optNewWeapon(id, 0));
   }
-  if (req.kind === 'level') return v10Switch();
+  if (req.kind === 'level' || (req.kind === 'chest' && !G.wave)) return v10Switch();
   return null;
 }
 // Switched at Birth: same attack type, another damage type. One card: a random weapon you own, a random new type.
@@ -210,7 +212,7 @@ function v10Samples() {
   let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
   const card = (id, no, name, desc, c, tag) => `<button class="sx-card hero" data-v10="${id}" style="--c:${c}"><span class="sx-txt"><i>#${no} | IN STOCK</i><b>${esc(name)}</b><span>${esc(desc)}</span><em>${tag}</em></span></button>`;
   $('sampleList').innerHTML = `<div class="sx-h">HUMAN SAMPLE 1</div>${card('s002', '001', 'Wave Mode', 'Twenty drops into the dish, a boss every fifth. One Switched at Birth card a wave.', '#5fd4e8', 'WAVE MODE')}`
-    + card('s001', '001', 'Regular Mode', 'Four hundred million hopefuls, one egg. One Switched at Birth card a minute.', '#ffd6e8', 'RACE TO THE EGG')
+    + card('s001', '001', 'Regular Mode', 'Four hundred million hopefuls, one egg. Every level-up and DNA strand is a Switched at Birth card.', '#ffd6e8', 'RACE TO THE EGG')
     + (dev ? `<div class="sx-h">DEVELOPER</div>${card('s000', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}` : '');
   $('sampleList').querySelectorAll('[data-v10]').forEach(b => b.addEventListener('click', () => {
     UI.sample = b.dataset.v10; META.profile = 'human1'; saveMeta(); UI.startGame(true);

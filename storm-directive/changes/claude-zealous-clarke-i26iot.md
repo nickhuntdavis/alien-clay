@@ -1,3 +1,11 @@
+## 2026-10-17 Regular mode: a switch every level-up and DNA strand (v10.03)
+- Systems: v10
+- Files: v10.js
+- What: in Regular Mode every level-up box and every DNA strand (chest box: pickups, events, achievements) opens as one Switched at Birth card, replacing the once-a-minute limit. Wave Mode is unchanged (one a wave).
+- Save data: none.
+- Hooks: none.
+- Risk: many more switches in regular mode; skipping is the only way to keep a weapon.
+
 ## 2026-10-17 Wave mode and regular mode (v10.02)
 - Systems: v10
 - Files: v10.js, tests/v10test.js
