@@ -377,7 +377,7 @@ At most 40 world objects at once (phones). Where two overlap, the newest wins, e
 ### 11.7 Other systems
 
 - **Crits** come last (11.1).
-- **Feats** carry a damage type and an attack type, like weapons, and follow every rule here. Stamina is unchanged.
+- **Feats** carry a damage type and an attack type, like weapons, and follow every rule here. Stamina is unchanged. A utility Feat (no attack: a shield, a pickup, a trail) has neither and costs no stamina (`FEATS.md` 1).
 - **Autoaim:** TOUGHEST scores effective health (health + Membrane + Shell layers × layer health, ×1.35 if Squishy). HIGHEST ARMOUR is replaced by two directives: **SHELLED** (most Shell layers left) and **MEMBRANED** (most Membrane left).
 - **Enemy damage types:** see `ENEMY_DESIGN.md` 5.1. Force is most common and Soul least; some enemies have two types.
 - **Name clash fixed:** v10's Mucus Pool weapon is renamed **Snot Trap** ("Leaves a patch that sticks enemies crossing it. Watch your step; they won't."). The reaction keeps "Sticky Situation".

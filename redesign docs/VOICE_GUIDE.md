@@ -153,7 +153,8 @@ Do not repeat a hint after the player has learned it. Do not explain an effect t
 - **Menus:** Scientist at Tier 0.
 - **Tutorials:** the consciousness gives a short, direct, skippable instruction when needed. Name and flavour first; no lecture.
 - **Loot and upgrade cards:** name plus flavour. Show only the bare stat change needed to make a choice legible. The consciousness may push or rationalise; do not explain every synergy.
-- **Weapons, Feats, trophies, mutations:** name can carry the joke; description states the visible effect. Avoid numbers and synergy exposition unless needed.
+- **Feats:** gifts from the consciousness. The card shows the name, the consciousness's gift line, then one plain sentence of what it does (`FEATS.md` 1).
+- **Weapons, trophies, mutations:** name can carry the joke; description states the visible effect. Avoid numbers and synergy exposition unless needed.
 - **Enemy first-sighting cards:** write two lines per enemy: one Scientist line (identifies or clinically frames the specimen) and one consciousness line (a short push or instruction to the sperm). Each sighting shows one of the two. Avoid over-explaining what is on screen.
 - **In-run commentary:** sparse. The consciousness reacts to immediate pressure; Scientist observations should be rare and purposeful.
 - **Damage types:** plain, clinical names. Reaction names may carry the joke. Reactions are discovered: the name shows the first time one fires ("Unstable reaction: Flashover"), and its Field Guide entry appears once found. No chart up front.
