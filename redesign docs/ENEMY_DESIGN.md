@@ -31,7 +31,7 @@ Use distinct silhouettes and movement, clear wind-ups, visible projectiles and h
 ### 2.3 Counterplay without manual aiming
 Valid counterplay:
 - **Movement:** kite, orbit, hunt, hold, retreat to the egg.
-- **Targeting policy:** FASTEST, SHOOTERS FIRST, ELITES & BOSSES, HIGHEST HEALTH, DENSEST CLUSTER and the rest. A policy is a tool for picking the right target, not a counter in itself.
+- **Targeting policy:** FASTEST, SHOOTERS FIRST, ELITES & BOSSES, TOUGHEST, DENSEST CLUSTER and the rest (`AUTORUN_AUTOAIM.md`). A policy is a tool for picking the right target, not a counter in itself.
 - **Attack type:** Contact, Projectile, Spread, Burst, Beam or Pool, chosen for the job.
 - **Damage type:** exploit a defence interaction (Acid sheds Shell, Force is poor into Membrane) or a reaction trigger.
 - **Positioning:** separate a support from its allies, leave a Pool, approach from a safer angle.
@@ -88,7 +88,7 @@ One shared role vocabulary for the roster, encounter design and the combat matri
 |---|---|---|
 | Chaser | Steady contact pressure | Movement, general damage |
 | Sprinter (`skitter`) | Closes distance fast | Evasive movement; prioritise it before it reaches contact range (FASTEST helps pick it) |
-| Tank | Soaks damage, occupies space | Sustained focus, the right defence interaction, or moving round the space it occupies (HIGHEST HEALTH helps pick it) |
+| Tank | Soaks damage, occupies space | Sustained focus, the right defence interaction, or moving round the space it occupies (TOUGHEST helps pick it) |
 | Shooter | Ranged pressure | SHOOTERS FIRST, closing distance, dodging |
 | Swarm | Numbers and crowding | Burst, Pool, Charge arcs, DENSEST CLUSTER |
 | Charger | Threatens a telegraphed lane | Leave the lane |
@@ -160,14 +160,39 @@ A first-pass disposition, not a rebuild order. The defence column uses the five 
 
 Spawned enemies count against their source's threat budget.
 
-### 5.3 Not yet reviewed
+### 5.3 Feature-file enemies
 
-These live in feature files and still need a row each before the roster is locked:
-- `foes.js`: Booster, Second Dose, Natural Killer.
-- `foes2.js`: Litmus Cell, Mirror Cell, Shell Cell, Puffball, Spore, Grease Ball, Leech, Platelet Clump, Callus, Plasma Cell, Interferon, Cortisol Puff, Fibrin Weaver, Complement Protein, Stem Cell, Lost Tadpole, Stray Pube, Navel Fluff, Bogey, Bit of Sweetcorn, Glitter.
-- `foes3.js`: Phlegm Hocker, Hayfever Cell, Snot Bubble (6.1).
+Enemies added in `foes.js`, `foes2.js` and `foes3.js`, reviewed against this doc. The first four break its rules and need the most work.
 
-Several `foes2.js` enemies break this doc's own rules and need the most scrutiny: Litmus Cell (resists your most-used type: a hard counter), Mirror Cell (reflects shots off its front: a side to hit), Platelet Clump and Grease Ball (each shuts off one attack modifier). The Leech enemy shares its name with the Leech role; that is fine, but its card should not suggest it is the only Leech.
+| Enemy | File | Disposition | Defence | Direction |
+|---|---|---|---|---|
+| Litmus Cell (`litmus`) | foes2 | Revise | None | Today it resists the damage type you've dealt most: a hard counter. Make the resistance mild, capped and visibly shown, or retire it and leave the idea to the Litmus Strip boss. |
+| Mirror Cell (`mirror`) | foes2 | Revise | Membrane | Today it reflects shots off its front: a side to aim at. Replace with a recharging Membrane that covers it all round. |
+| Platelet Clump (`platelet`) | foes2 | Revise | None | Today it stops piercing shots dead, which switches off a weapon. Piercing shots lose one pierce passing through it instead. |
+| Grease Ball (`grease`) | foes2 | Revise | Squishy | Today homing shots slide off it. Homing shots curve less near it instead. Squishy covers its knockback resistance. |
+| Shell Cell (`shell`) | foes2 | Keep | Shell | Its 15 flat armour becomes Shell layers. The plainest Shell enemy. |
+| Callus (`callus`) | foes2 | Keep, merge check | Shell | Crit immunity goes; becomes a Shell enemy. Keep only if it differs from Shell Cell (fewer, thicker layers). |
+| Interferon (`interferon`) | foes2 | Keep | None | Support: gives allies within range a capped Membrane. Overlaps the revised Mucus Wall; keep one. |
+| Fibrin Weaver (`fibrin`) | foes2 | Keep | None | Relay: tethers up to 4 allies so they can't be knocked back. Visible tethers; killing it frees them. |
+| Plasma Cell (`plasma`) | foes2 | Keep | None | Relay: shooters nearby fire faster. Shooter + Relay pairing. |
+| Cortisol Puff (`cortisol`) | foes2 | Keep | None | Relay: allies nearby swim faster. Visible aura. |
+| Complement Protein (`complement`) | foes2 | Keep, clarify | None | Controller: marks you so enemies hit you harder for 5 s. The mark must be obvious on you. |
+| Stem Cell (`stem`) | foes2 | Keep, cap | None | Summoner: revives a dead ordinary enemy every 10 s. Strict cap and a visible revive cue. |
+| Leech (`leech`) | foes2 | Keep | None | Leech role: drains your stamina within range. Shares its name with the role; that's fine. |
+| Puffball (`puffball`) | foes2 | Keep | None | Carrier: Burst and Pool hits burst it into Spores. Releases an existing threat, as the Carrier rule allows. |
+| Spore (`spore`) | foes2 | Keep | None | Spawned only, from Puffball. Counts against Puffball's budget. |
+| Lost Tadpole (`tadpole`) | foes2 | Keep | None | Joke: 1 HP, harmless. Capped numbers. |
+| Stray Pube (`pube`) | foes2 | Keep | None | Joke Controller: touching it tangles you briefly. Short and capped. |
+| Navel Fluff (`fluff`) | foes2 | Keep | None | Joke: drifts about. Flavour only. |
+| Bogey (`bogey`) | foes2 | Keep, merge check | None | Sticks to you, 5% slower each, up to 20%. Merge into Mucus slows if it overlaps Snot Bubble's patch. |
+| Bit of Sweetcorn (`sweetcorn`) | foes2 | Keep | Shell | Joke Tank: tough and harmless; a Shell punchbag. |
+| Glitter (`glitter`) | foes2 | Keep | None | Comes back once after you kill it. Joke version of the Booster's second life. |
+| Booster (`sperminator`) | foes | Keep | Shell | Elite: red sight line, then a Burst of shots; when killed, its Second Dose climbs out. |
+| Second Dose (`endoskeleton`) | foes | Keep | None | Spawned only, from the Booster: the second life. |
+| Natural Killer (`alien`) | foes | Keep | Dodge | Charger: weaves in, crouches (the tell), then pounces. |
+| Phlegm Hocker (`hocker`) | foes3 | Keep, simplify | None | Shooter: lobs a sticky Projectile that leaves a Mucus patch (see section 8). |
+| Hayfever Cell (`hayfever`) | foes3 | Revise | None | Sneezes your statuses back at you: one clearly signalled reflection only (see section 8). |
+| Snot Bubble (`snotbubble`) | foes3 | Keep | None | Carrier; see 6.1. |
 
 ### 5.4 Bosses
 
@@ -343,7 +368,7 @@ Not rejected, but each currently adds too many dependencies.
 ### Soul enemies
 - The Soul Mark is the shared hook: a Soul-marked enemy is a visible chance to set off Force + Soul, Mucus + Soul or Blood + Soul.
 - Fear is a separate status, used only where it creates a distinct, readable threat. It is not what Soul damage inherently does.
-- Each Soul-themed enemy has its own primary behaviour (Ghost Swimmer phases, Echo Cell repeats, Phantom Pregnancy is a boss-scale illusion). No enemy needs Soul damage to turn it on its allies.
+- Each Soul-themed enemy has its own primary behaviour (Ghost Swimmer phases, Echo Cell repeats, Phantom Pregnancy is a boss-scale illusion). Possessed is the player's Soul payoff against any enemy; no Soul-themed enemy is built around needing it.
 
 ### Poise
 - One shared Poise meter. Force adds to it through physical impact; Static adds only when an attack explicitly carries Poise or interruption pressure.
@@ -368,7 +393,7 @@ Not rejected, but each currently adds too many dependencies.
 - **Static:** clustered enemies for arcs; Charge to interrupt telegraphed attacks; can strengthen Membrane (a risk the player sees).
 - **Mucus:** fast or evasive enemies to Snare; patches that set up Fire, Static and Acid reactions.
 - **Blood:** high-HP enemies to Bleed; Extraction for limited sustain.
-- **Soul:** essence and non-physical resources; Soul Mark setups. Fear only where an enemy is built around it.
+- **Soul:** mind control. Full build-up makes an enemy Possessed (it fights its mates for a few seconds); Soul hits also place the Soul Mark. Fear only where an enemy is built around it.
 - **Fire:** Burning, Burn zones and lighting Mucus. The direct hit meets defences as usual; Burning is a separate effect that Shell and Squishy don't reduce.
 
 Not every enemy needs to respond to every type.
@@ -400,7 +425,7 @@ An elite is a familiar enemy plus one modifier:
 - A chaser that gets a visible speed burst at low health.
 - Smouldering (section 7.4).
 
-ELITES & BOSSES and HIGHEST HEALTH help pick elites, but NEAREST, LOWEST HEALTH and other sensible policies still work.
+ELITES & BOSSES and TOUGHEST help pick elites, but NEAREST, LOWEST HEALTH and other sensible policies still work.
 
 ## 12. Bosses
 
@@ -433,6 +458,7 @@ Make the existing roster coherent before adding new ideas. Separate the heavies 
 | Prototype order | Static Sock, Stress Ball, Mosquito, Matchstick; other Fire enemies after |
 | Carrier effects | Reuse existing reaction ingredients when they fit; allow justified exceptions |
 | Enemy roles | One merged vocabulary (adds Leech, Relay, Sniper); roles can combine |
-| Soul enemies | Soul Mark is the shared hook; Fear is selective |
+| Soul enemies | Soul Mark is the shared hook; Fear is selective; Possessed is the player's Soul payoff, not an enemy's design |
+| Soul identity | Mind control only: Possessed at full build-up; no essence or resource bypass |
 | Static Sock state | Crackle, not Charge |
 | Poise | One shared Force/Static meter, with explicit contribution and elite and boss limits |

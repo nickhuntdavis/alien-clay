@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: Soul as mind control, TOUGHEST restored, feature-file enemy rows
+- Systems: docs only (redesign docs)
+- Files: redesign docs/AUTORUN_AUTOAIM.md (copied from claude/zealous-clarke-i26iot), DAMAGE_TYPES.md, DEFENCE_TYPES.md, COMBAT_MATRIX.md, ENEMY_DESIGN.md, README.md, tables/mechanics_statuses.csv, tables/combat_interactions.csv; NOTES.md (one bullet)
+- What: Soul is mind control only: new Possessed status (full build-up turns an enemy on its mates for a few seconds; bounded, bosses reduced); essence and resource bypass removed everywhere (Essence Drain and Soul Fracture rows gone). TOUGHEST restored (HIGHEST HEALTH was removed in AUTORUN_AUTOAIM.md). ENEMY_DESIGN 5.3 now reviews all 27 enemies from foes.js, foes2.js and foes3.js, with revisions for Litmus Cell, Mirror Cell, Platelet Clump and Grease Ball.
+- Save data: none.
+- Hooks: none.
+- Risk: v10 code may still describe Soul with essence wording.
+
 ## 2026-10-17 Enemy design doc: review fixes
 - Systems: docs only (redesign docs)
 - Files: redesign docs/ENEMY_DESIGN.md

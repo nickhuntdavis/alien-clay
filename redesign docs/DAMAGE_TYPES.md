@@ -61,14 +61,14 @@ Blood attacks the target's **health economy**. It opens wounds, makes those woun
 
 ### Soul
 
-**Sever. Drain. Haunt. Rend. Curse. Harvest.**
+**Haunt. Possess. Turn. Mark.**
 
-Soul attacks **essence and nonphysical resources**. It can drain resources and interfere with spiritual integrity or return from death. It should not become universal unavoidable damage: bypassing physical protection is justified only for an explicitly essence-targeting component.
+Soul is the **mind-control** type. Soul hits build up on an enemy; at full build-up the enemy is **Possessed** and fights its own mates for a few seconds, then recovers. Soul hits also place the Soul Mark that its pair reactions use.
 
-- **Damage profile:** Medium, with conditional bypass of conventional physical defence.
-- **Combat identity:** Essence damage, resource denial, and spiritual disruption.
-- **Primary verb:** Sever.
-- **Defence interaction:** Soul does not automatically bypass every defence. An essence-targeting component may bypass Shell or Membrane only when the attack is explicitly tagged to target essence rather than the physical surface. Dodge applies only to Soul attacks with an avoidable hitbox.
+- **Damage profile:** Low to medium direct damage; the payoff is the turned enemy, not the hit.
+- **Combat identity:** Turning enemies against each other, and marking targets for reactions.
+- **Primary verb:** Possess.
+- **Defence interaction:** Soul has no defence bypass. Its direct damage meets Squishy, Membrane and Shell like any other eligible hit. Build-up toward Possessed is applied only when a Soul hit lands. Dodge avoids Soul attacks with an avoidable hitbox.
 
 ### Fire
 
@@ -199,7 +199,7 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 
 ## Design boundaries
 
-Blood owns wounds, Bleed, and limited extraction. Acid weakens defences; Mucus controls movement; Force delivers immediate impact; Soul targets essence. Existing wounds persist unless an explicit effect consumes or changes them.
+Blood owns wounds, Bleed, and limited extraction. Acid weakens defences; Mucus controls movement; Force delivers immediate impact; Soul turns enemies on each other. Existing wounds persist unless an explicit effect consumes or changes them.
 
 ---
 
@@ -247,7 +247,7 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 
 ## Design boundaries
 
-Fire owns ignition, Burn, and bounded propagation. Acid erodes defences; Blood owns wounds; Mucus owns sticky control; Static owns chains and interruption; Force owns impact; Soul owns essence. Keep the visual cue immediate and the spread limit obvious.
+Fire owns ignition, Burn, and bounded propagation. Acid erodes defences; Blood owns wounds; Mucus owns sticky control; Static owns chains and interruption; Force owns impact; Soul owns Possessed. Keep the visual cue immediate and the spread limit obvious.
 
 ---
 
@@ -296,7 +296,7 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 
 ## Design boundaries
 
-Force owns physical impact, poise pressure, and displacement. It does not own electrical chaining, defence erosion, sticky control, wound economy, essence damage, or general burning. Resolve the actual attack component: physical damage, impulse, status application, and area coverage can each interact with defences differently.
+Force owns physical impact, poise pressure, and displacement. It does not own electrical chaining, defence erosion, sticky control, wound economy, mind control, or general burning. Resolve the actual attack component: physical damage, impulse, status application, and area coverage can each interact with defences differently.
 
 ---
 
@@ -350,9 +350,9 @@ Mucus owns adhesion, movement restriction, and visible setup patches. It does no
 
 # Soul
 
-**Mark. Drain. Fracture. Reach beyond the physical.**
+**Haunt. Possess. Turn. Mark.**
 
-Soul is the essence-pressure type. It targets explicitly nonphysical resources or integrity and uses visible Soul marks to enable selected reactions. It is not blanket defence bypass, and Fear is a status tag—not a synonym for Soul damage.
+Soul is the mind-control type. Full Soul build-up makes an enemy fight its mates for a few seconds (Possessed), and Soul hits place the visible Soul Mark that its reactions use. It has no defence bypass, and Fear is a separate status, not a synonym for Soul damage.
 
 ## Visual language
 
@@ -360,25 +360,23 @@ Soul is the essence-pressure type. It targets explicitly nonphysical resources o
 
 ## Core mechanics
 
-- **Essence damage:** Only components explicitly tagged as targeting essence can bypass Shell or Membrane. Ordinary Soul-labelled direct damage does not automatically bypass every defence.
+- **Possessed:** Soul hits build up on an enemy. At full build-up it turns: for a few seconds it attacks and blocks its own side, then recovers. It has a clear duration, a cooldown before it can be Possessed again, and an obvious visual tell. Elites take a shorter turn; bosses take a reduced version (they hesitate or lash out at adds) and are never fully controlled.
 - **Soul Mark:** A visible, short-lived mark enables specific pair reactions. It is a setup cue, not a hidden resource or an excuse for long combo recipes.
-- **Resource drain:** Selected attacks can drain a defined nonphysical resource when the target has one. Do not invent a resource for every enemy.
-- **Fracture / control:** Any maximum-health reduction, Fear, Silence, or other strong effect must be explicitly assigned to an attack with clear duration and counterplay; do not attach all of them to every Soul hit.
-- **Harvest:** Resource or health recovery is limited to explicit attacks and capped effects.
+- **Control limits:** Possessed is the only control Soul owns. Fear is a separate status, applied only by attacks explicitly tagged with it.
 
 ## Strengths and limits
 
-**Strong against:** targets with explicitly vulnerable essence/resources, Soul-mark setups, and selected nonphysical defences.
+**Strong against:** dense groups (a turned enemy has mates to fight), tough enemies in the middle of a pack, and Soul Mark setups.
 
-**Weak against:** targets without the relevant resource or essence vulnerability, and fast combat where the mark is not followed up. Soul is not a universal answer to Shell or Membrane.
+**Weak against:** lone targets (nobody to fight), bosses, and fast combat where the mark is not followed up. Soul is not an answer to Shell or Membrane.
 
 ## Defence interactions
 
-- **Squishy / Absorption:** Only reduces a separately tagged qualifying physical component; it does not inherently resist essence effects.
-- **Membrane:** Eligible direct damage is absorbed normally. An explicitly essence-targeting component may bypass Membrane only when the attack is tagged for that exception; the Soul type alone is not enough.
-- **Shell:** Qualifying physical components are reduced by Shell. Only an explicitly essence-targeting component may bypass it; no blanket phase-through rule.
-- **Thorns:** A non-contact essence effect does not trigger Thorns. A qualifying contact hit can trigger one retaliation after it connects.
-- **Dodge:** Applies only to attacks with an avoidable hitbox or telegraph. It does not remove an existing Soul Mark or automatically avoid a non-spatial effect.
+- **Squishy / Absorption:** Only reduces a qualifying physical component; it does not resist Soul build-up or Possessed.
+- **Membrane:** Eligible direct Soul damage is absorbed normally; no bypass. Build-up applies only if the hit that carries it is not blocked.
+- **Shell:** Qualifying physical components are reduced by Shell; no bypass. Shell does not resist build-up or Possessed.
+- **Thorns:** A ranged Soul attack does not trigger Thorns. A qualifying contact hit can trigger one retaliation after it connects.
+- **Dodge:** Avoids Soul attacks with an avoidable hitbox. It does not remove an existing Soul Mark or end Possessed.
 
 ## Pair reactions
 
@@ -393,7 +391,7 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 
 ## Design boundaries
 
-Soul owns essence, explicitly tagged nonphysical resource effects, and Soul Mark. Force owns physical impact; Static owns electrical interruption; Blood owns bodily wounds and extraction. Keep bypass selective and visible, and give strong control/resource effects clear limits.
+Soul owns Possessed and the Soul Mark. Force owns physical impact; Static owns electrical interruption; Blood owns bodily wounds and extraction. Possessed is bounded by duration, cooldown and boss limits, and must always be visible.
 
 ---
 
@@ -442,4 +440,4 @@ All reactions are proposed for playtesting. Each needs a clear cue and must not 
 
 ## Design boundaries
 
-Static owns Charge, bounded arcs, and conditional interruption. Static adds to the shared Poise meter only when an attack explicitly carries Poise or interruption pressure. Force owns physical impact and displacement; Acid owns defence erosion; Mucus owns sticky control; Blood owns wounds and extraction; Soul owns essence and marks; Fire owns ignition. Resolve Membrane recharge separately from damage, and never let the interaction loop infinitely.
+Static owns Charge, bounded arcs, and conditional interruption. Static adds to the shared Poise meter only when an attack explicitly carries Poise or interruption pressure. Force owns physical impact and displacement; Acid owns defence erosion; Mucus owns sticky control; Blood owns wounds and extraction; Soul owns Possessed and marks; Fire owns ignition. Resolve Membrane recharge separately from damage, and never let the interaction loop infinitely.

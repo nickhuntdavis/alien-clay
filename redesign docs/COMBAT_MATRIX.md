@@ -67,7 +67,7 @@ All effects below are **proposed**. Numbers, durations, radii and stack values r
 | **Static** | Chain pressure and action disruption | Charge, bounded arcs, conditional interruption | Force: network/charge effects, not physical knockback |
 | **Mucus** | Movement control and setup | Sticky coating, short snares, patches | No generic damage-over-time; avoid stacking slow/root/snare variants |
 | **Blood** | Wounds and extraction | Bleeding, wound thresholds, limited sustain | Acid: wound economy, not generic corrosion |
-| **Soul** | Essence pressure and marked-target effects | Soul marks, resource/essence effects, selective tagged bypass | Not blanket defence bypass; Fear is a status tag, not a synonym for Soul |
+| **Soul** | Mind control and marked-target effects | Possessed (full build-up turns an enemy on its mates for a few seconds), Soul marks | No defence bypass; Fear is a separate status, not a synonym for Soul |
 | **Fire** | Immediate ignition and short-lived burning zones | Burn, ignition, controlled spread, consuming compatible setups | Not a universal explosion trigger or a second generic DoT type |
 
 Each type should have one primary verb, one recognisable visual/sound cue, and a clear non-goal. Use shape and motion as well as colour so effects remain readable on a phone screen and in greyscale.
@@ -110,8 +110,9 @@ These five are the complete defence list. Enemy-specific twists are built from t
 | Conjoined | Mucus | Sticks multiple enemies together stopping movement possibly causing friendly fire | Only with high enough volume and enemies clustered | Slow, root and snare are not interchangeable labels |
 | Bleed | Blood | Damage over time or threshold burst | Stack cap/decay | Wounds should be distinct from Acid erosion |
 | Extraction | Blood | Converts a qualifying hit or wound into limited sustain | Clear range and cap | Separate from ordinary damage and healing |
+| Possessed | Soul | At full Soul build-up the enemy fights its own mates for a few seconds | Clear duration and tell; cooldown before it can repeat; elites shorter; bosses reduced, never fully controlled | The only control Soul owns; not Fear |
 | Soul Mark | Soul | Enables specific marked-target reactions | Visible mark, brief lifetime, no blanket defence bypass | Mark is a setup cue, not a second hidden resource |
-| Fear | Explicit source tag; often Soul-related | Alters behaviour or control | Duration cap and recovery | Fear is a status, not the Soul type itself |
+| Fear | Explicit source tag only | Alters behaviour or control | Duration cap and recovery | Fear is a status, not the Soul type itself |
 | Burning | Fire | Immediate ignition and brief burn or zone | Clear tell and duration; compatible hazards have bounded spread | Do not add extra effects to every Fire hit |
 
 Status labels in this matrix are functional names, not necessarily player-facing copy. Keep them short and consistent; use the Field Guide for precise definitions, and keep repeated HUD status effects mostly silent. For each status that ships, specify its duration, refresh/stack rule, termination condition, and immunity or resistance rule. If a status has no distinct gameplay consequence, merge it into an existing status or remove it.
@@ -163,7 +164,7 @@ Read each cell by **damage component**, not damage-type name alone: direct hit, 
 | Static | No effect on Charge or interruption unless there is an explicit impulse component | Can be recharged or supercharged (bounded, visible, no loop) | Not mitigated unless the component is physical-tagged; no default bypass | Not triggered by arcs or remote effects | Avoids telegraphed hits; an active arc or hazard follows its own rule |
 | Mucus | No effect on sticking or movement restriction | May absorb the carrier hit; does not erase a patch already placed | Does not reduce Snared or movement control by default | Not triggered by patches | May avoid the carrier; a sticky patch or Adhered target still constrains the dodge path |
 | Blood | Softens qualifying physical cuts; Bleed and Extraction are not automatically reduced | May absorb the carrier hit; an existing wound is not removed | Mitigates the physical component; Bleed ticks are not automatically reduced | Not triggered by Bleed ticks | Avoids the carrier; does not undo an applied wound or pool |
-| Soul | No effect unless there is an impulse component | Absorbs eligible direct Soul damage; only an essence-targeting component bypasses | Mitigates ordinary physical components; only an essence-targeting component bypasses | Not triggered by marks or essence effects | Avoids eligible telegraphed attacks; does not remove a Soul Mark |
+| Soul | No effect on build-up or Possessed unless there is an impulse component | Absorbs eligible direct Soul damage; no bypass; build-up applies only if the hit isn't blocked | Mitigates physical components; no bypass | Not triggered by marks or ranged Soul attacks | Avoids eligible attacks and their build-up; does not remove a Soul Mark or end Possessed |
 | Fire | No effect on heat or Burn unless there is an impulse component | May absorb a covered hit; Burn applies only if the delivery applies it; does not prevent later zone exposure | Mitigates the physical component only; Shell and Burn are separate layers | Not triggered by Burn or zones | Avoids the delivery; leaving a zone limits exposure but does not undo Burn |
 
 Do not infer blanket type immunities from this table. Resolve each conditional interaction at the attack and status-tag level.
@@ -213,7 +214,7 @@ Source: "Combat Matrix Remaining Updates". Nothing here changes the 21 pair rows
 ### Defence rules to verify
 
 - **Squishy / Absorption:** proportional reduction of qualifying physical damage; may soften impulse and knockback; no blanket status resistance. Force counts as physical.
-- **Membrane:** separate pool, absorbs eligible direct damage before health, regenerates after a short spell without Membrane damage. Force drains it less efficiently and knocks back less while it is up. Static may recharge or supercharge it, with a visible cap and no loop. Direct Soul damage is absorbed normally; only a component tagged **essence-targeting** bypasses it.
+- **Membrane:** separate pool, absorbs eligible direct damage before health, regenerates after a short spell without Membrane damage. Force drains it less efficiently and knocks back less while it is up. Static may recharge or supercharge it, with a visible cap and no loop. Soul damage is absorbed normally; no bypass.
 - **Shell:** finite, non-regenerating layers with fixed reduction against qualifying physical hits. Acid erodes layers; a heavy Force hit may knock one loose. Distinct from Squishy (fixed layers against proportional). Shell does not mitigate Burn or heat.
 - **Thorns:** no mitigation. Retaliates once per qualifying melee or contact hit (not once per damage component). Ranged attacks, remote hazards, non-contact effects and cleanly dodged attacks do not trigger it.
 - **Dodge:** avoids eligible hits through movement and timing; a clean miss also avoids the effects attached to that hit. An AoE edge can still hit and persistent hazards hit later. It clears no existing status or hazard. Mucus constrains Dodge only when the path crosses a sticky zone or the target is Adhered.
@@ -228,14 +229,13 @@ Source: "Combat Matrix Remaining Updates". Nothing here changes the 21 pair rows
 | Membrane resists Force impact | Proposed | Less drain and less knockback while the Membrane is up. |
 | Static recharges / supercharges Membrane | Proposed | Bounded, visible, no loop. |
 | Membrane absorbs eligible direct damage | Proposed | Status prevention depends on whether the applying hit was prevented. |
-| Essence-targeting Soul may bypass Shell or Membrane | Proposed | Only an explicitly tagged component. The Soul label alone is not enough. |
 | Shell and Burn remain separate layers | Proposed | Shell mitigates the physical component, not heat. |
 | Squishy absorbs physical impact | Accepted (verify) | Proportional; no blanket status resistance. |
 | Thorns retaliate once on contact | Accepted (verify) | Once per qualifying contact hit. |
 | Dodge avoids eligible attacks | Accepted (verify) | A clean dodge prevents the hit and its attached effects. |
 | Mucus constrains Dodge routes | Testing | Sticky zone or Adhered target only. |
 | Extinguishing suppresses Fire | Proposed | A specific supported action reduces Burn exposure or stops propagation. Water is not a damage type. |
-| Membrane and Soul effects | Accepted (verify) | Eligible direct Soul damage is absorbed; only essence-targeting components bypass. |
+| Membrane and Soul effects | Accepted (verify) | Soul damage is absorbed normally; no bypass. Build-up applies only if the hit isn't blocked. |
 
 ### Shared implementation rules (additions)
 

@@ -106,7 +106,7 @@ Tune for quick visual comprehension. Telegraph attacks clearly and ensure a clea
 - **Static — Conditional:** dodge the carrier hit if eligible. Arcs, chained targets, or area coverage resolve according to their own hitboxes; a dodge is not universal electrical immunity.
 - **Mucus — Conditional:** avoid the application hit to avoid its attached status. Existing patches or snares remain active.
 - **Blood — Conditional:** avoid the wound-applying hit to prevent that hit's Bleed application; an existing wound or pool remains.
-- **Soul — Attack-dependent:** dodge a projectile or strike if it has an avoidable hitbox. An explicitly unavoidable essence effect is not dodged just because it is Soul damage.
+- **Soul — Attack-dependent:** dodge a projectile or strike if it has an avoidable hitbox. A clean dodge also avoids the build-up that hit carried.
 - **Fire — Conditional:** avoid the projectile or strike if eligible. The edge of an AoE or a persistent burning zone can still connect; Dodge does not remove Burning already applied.
 
 ## Design guardrails
@@ -191,7 +191,7 @@ Exact values and whether a given Static attack recharges or supercharges Membran
 - **Static — Signature interaction:** Static can rapidly recharge or supercharge Membrane. Bound the amount/duration and prevent repeat-hit loops.
 - **Mucus — Conditional:** the Membrane may absorb an eligible direct delivery hit, but does not automatically prevent Mucus patches or later contact with them.
 - **Blood — Conditional:** eligible direct Blood damage is absorbed by the pool; existing Bleed or Extraction follows its own application rules.
-- **Soul — Conditional:** a direct essence-targeting effect bypasses Membrane only if explicitly tagged to target essence rather than the surface. Do not give all Soul attacks a blanket bypass.
+- **Soul — Normal:** eligible direct Soul damage is absorbed like any other; no bypass. Build-up toward Possessed applies only if the hit carrying it is not blocked.
 - **Fire — Conditional:** eligible direct Fire damage is absorbed by the pool; Burning or a persistent fire zone follows separate rules.
 
 ## Design guardrails
@@ -267,7 +267,7 @@ The exact reduction, threshold, and number of layers remain for playtesting. Reu
 - **Static — Normal:** electrical damage is not reduced unless the attack has a qualifying physical component.
 - **Mucus — Normal:** movement control is not physical damage; Shell does not prevent sticking or snaring by default.
 - **Blood — Conditional:** qualifying physical cuts or strikes are reduced. Bleed and Extraction are not automatically reduced.
-- **Soul — Conditional:** only a physical component is reduced. Explicit essence-targeting components may bypass Shell; this must be an attack tag, not a universal Soul rule.
+- **Soul — Normal:** a qualifying physical component is reduced; no bypass. Shell does not resist build-up or Possessed.
 - **Fire — Normal / conditional:** heat and Burning are not reduced by physical Shell. A physical carrier component may be reduced.
 
 ## Design guardrails
@@ -341,7 +341,7 @@ Use one clear proportional reduction rather than stacking multiple hidden absorp
 - **Static — Normal:** electrical damage and Charge are unaffected unless the attack also carries a qualifying physical component.
 - **Mucus — Normal:** sticking, snaring, and movement restriction are not physical impact damage.
 - **Blood — Conditional:** qualifying physical cuts or strikes can be reduced; Bleed and Extraction are not automatically reduced.
-- **Soul — Normal:** essence-targeting effects are not physical impact. Only a separately tagged physical component qualifies.
+- **Soul — Normal:** Soul build-up and Possessed are not physical impact. Only a qualifying physical component is reduced.
 - **Fire — Normal:** heat and Burning are not physical impact. A physical strike that also carries Fire may have only its physical component reduced.
 
 ## Design guardrails
@@ -414,7 +414,7 @@ Ranged attacks, remote hazards, and non-contact effects do not trigger Thorns by
 - **Static — Conditional:** a contact Static attack can trigger Thorns. A remote arc does not.
 - **Mucus — Conditional:** direct contact application can trigger Thorns only if the delivery is a qualifying melee/contact hit; an existing sticky patch does not.
 - **Blood — Conditional:** a melee Blood strike can trigger Thorns. A wound ticking later or a remote extraction effect does not.
-- **Soul — Conditional:** only a Soul attack with actual qualifying physical/contact delivery triggers Thorns. A purely essence-targeting effect does not.
+- **Soul — Conditional:** only a Soul attack with actual qualifying physical/contact delivery triggers Thorns. A ranged Soul attack does not.
 - **Fire — Conditional:** a melee Fire strike can trigger Thorns if it makes contact. A projectile, burning zone, or later Burning tick does not.
 
 ## Design guardrails
