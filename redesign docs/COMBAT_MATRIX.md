@@ -303,6 +303,12 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 30 | First Contact | The Other Half's Feat is a fifth trigger kind (Feat): it counts as a hit of the old and new type for reactions only, capped at 8 per use |
 | 31 | Player defence sources | Upgrade cards (Genome slots), or built into some samples, weapons and Feats (no slot). Assimilation is dropped |
 | 32 | Built-in defences | Rare, at most one per source: The Cold Parcel has 20% Evasion, Thorny Onesie gives Thorns; no sample Feat has one |
+| 33 | Reaction damage | The payoff is the whole effect. Only reactions whose payoff is a burst or a hit deal damage (11.3); control, heal and duration reactions deal none |
+| 34 | Corrosion without Shell | The bar builds as if the target had one layer; a full bar on a creature with no Shell makes it visibly **Corroded** for 4 s (no damage over time), then resets |
+| 35 | Membrane and statuses | A hit fully absorbed by Membrane applies no status and fills no bar; if any damage gets past the Membrane, statuses and bars apply in full |
+| 36 | Burning with rapid fire | One shared burn per target: each Fire hit adds 20% of its damage to the burn and refreshes the 3 s timer; the burn holds at most 50% of max health. Ignition is separate |
+| 37 | Shell wear | The outer layer loses exactly what Shell blocked on that hit; at 0 it breaks and the next layer takes over at full; excess wear does not carry. A heavy Force hit also removes one layer outright |
+| 38 | Shipping the 21 reactions | All 21 stay as the design inventory; none is committed to ship until playtests show it is noticed and told apart. State + hit and world object + hit reactions are the core; dual-type, Pairing and Feat reactions are deliberate rare specialists |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
@@ -329,7 +335,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 ### 11.3 Thresholds and reactions
 
 - **Heavy Force hit:** one Force hit whose raw damage is at least 15% of the target's max health (elites 10%, bosses 5%). Spread pellets are judged one by one. It knocks off a Shell layer and triggers Blood Pressure.
-- **Reaction damage:** the three big ones (Premature Evaporation, Flammable Mucus, Cauterise) deal 150% of the triggering hit's raw damage as area; the rest deal 60%. Cauterise also adds the Bleed's remaining damage.
+- **Reaction damage (decision 33):** only reactions whose payoff is a burst or a hit deal damage. The three big bursts (Premature Evaporation, Flammable Mucus, Cauterise) deal 150% of the triggering hit's raw damage as area (Cauterise also adds the Bleed's remaining damage). Corrosive Splash, Shocking Impact, Blood Pressure, Out-of-Body Experience (the collision), Flashover, Conductive Pool, Blood Circuit, Arc Flash and Soul Erosion deal 60%. Snot Rocket, Slick Move, Caustic Breach, Sticky Situation (the shock is a short stun, no damage), Interference Pattern, Caught in the Clot, Held in Suspension, Blood Donor and Spectral Combustion deal none beyond what their payoff states.
 - **Reaction lockout:** each reaction has a 1.5 s lockout per target (bosses 3 s). Anything a reaction creates cannot set off that same reaction.
 - **Dual-type weapon:** shots alternate Force, Static, Force, Static. Shocking Impact fires on each Static shot that lands after a Force shot.
 - **Spectral Combustion Pairing:** Soul Beam + Fire Pool (Burning Ground), both Lv 5+. A secret, like today's Pairings.
@@ -350,12 +356,12 @@ Starting points for the first build, chosen against today's code (player 120 hea
 
 | Status | Starting values |
 | --- | --- |
-| Corrosion | Bar size 0.25 of max health per Shell layer (11.2); a full bar strips one layer for good and resets. No damage over time |
+| Corrosion | Bar size 0.25 of max health per Shell layer, and as one layer on a creature with no Shell (11.2); a full bar strips one layer for good and resets, or with no Shell makes the creature Corroded for 4 s (decision 34). No damage over time |
 | Snared | 55% slow for 2.5 s; refreshes on hit; clears a Burn bar |
 | Conjoined | 3 s stuck; max 6 per group; members' contact deals 50% to each other. On the player: 1 s stuck, no enemy attached |
 | Bleed | 30% of the hit over 3 s; max 3 stacks |
 | Extraction | An enemy dying while bleeding heals you 1% of max health; max 6 health per second |
-| Burning | Damage over time of 20% of the hit over 3 s while the Burn bar holds; Ignition at full |
+| Burning | One shared burn per target (decision 36): each Fire hit adds 20% of its damage and refreshes the 3 s timer; at most 50% of max health held; Ignition at full bar |
 | Charge | A Static hit makes the target **Charged** for 3 s (Static hits refresh it). Charged enemies take +20% Static damage and pass arcs on: 3 jumps, range 110, each jump 70% of the last. A Charged enemy discharges one arc when it dies. Charge itself never interrupts; interrupts come through Poise |
 | Poise stagger | 0.8 s (elites 0.55 s, bosses 0.35 s) |
 | Knockback | Distance = impulse ÷ (radius ÷ 12); hitting a wall deals 40% of the hit |

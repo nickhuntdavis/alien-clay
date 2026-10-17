@@ -153,3 +153,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-17 Combat rulings 33 to 38 (docs)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/COMBAT_MATRIX.md (section 10 rows 33-38, 11.3, 11.5), tables/mechanics_statuses.csv (regenerated)
+- What: reaction damage is explicit per reaction (no hidden 60%/150% on every reaction); Corrosion makes unshelled enemies Corroded for 4 s; a hit fully soaked by Membrane applies no status; one shared burn per target; Shell wear rule; the 21 reactions are inventory until playtested.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs).
