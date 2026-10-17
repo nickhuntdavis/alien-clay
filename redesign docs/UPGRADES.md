@@ -1,6 +1,6 @@
 # Upgrades, Feats and Progression
 
-Working proposal, 17 Oct 2026. How the build grows during a run and how the game grows between runs. Settled one decision at a time; the numbers are starting points for sims and playtesting. It sits on top of `COMBAT_MATRIX.md` (damage types, attack types, defences), `SAMPLES.md` (primary and support types, unique Feats) and `WEAPONS.md`.
+Working proposal, 17 Oct 2026. How the build grows during a run and how the game grows between runs. Settled one decision at a time; the numbers are starting points for sims and playtesting. It sits on top of `COMBAT_MATRIX.md` (damage types, attack types, defences), `SAMPLES.md` (primary and support types, unique Feats), `FEATS.md` (the 15 drafted Feats) and `WEAPONS.md`.
 
 **What this is not:** an RPG skill tree. Spawn Prawn is a fast autoshooter. The player makes a series of small, consequential choices, then watches them interact in combat.
 
@@ -188,7 +188,7 @@ The sim bot (`tests/sim/wave20.js`, `lvsim.js`) picks cards for balance runs, so
 1. Feat level cap of 5: check in sims that all three Feats can reach rank 3 by mid-run.
 2. Genome ranks: how many, and do they need forks?
 3. Weapon fork content: write a fork pair for each of the 42 matrix weapons and 26 signature weapons (a big job; start with each sample's starting weapon).
-4. Feat fork content: start with the eight samples' unique Feats.
+4. Feat fork content: the 15 drafted Feats have their Lv 3 forks (`FEATS.md`); Lv 5 forks, and both forks for the eight samples' unique Feats, are still to write.
 5. The 40 s budget: tune in play; late runs earn XP fastest.
 6. How often defence cards appear in drafts, and whether The Cold Parcel's 20% Evasion holds up in sims.
 7. Which cards make up the starting pool.

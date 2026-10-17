@@ -8,7 +8,8 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `ATTACK_TYPES.md`: the six attack types (Contact, Projectile, Spread, Burst, Beam, Pool), for weapons and enemies. Rules: matrix section 13.
 - `ENEMY_DESIGN.md`: enemy principles, roster review, new concepts (including Fire enemies) and the 17 Oct decisions.
 - `WEAPONS.md`: every weapon in one place: the 42 matrix weapons, the 26 signature weapons and the 28 parked originals, with totals per damage type.
-- `MODIFIERS.md`: the 18 modifiers (homing, piercing, orbiting, returning and the rest) that change how an attack moves or repeats, with caps.
+- `FEATS.md`: the 15 drafted Feats (best of the 48 originals), each with damage type, attack type, modifiers, limits and its Lv 3 fork.
+- `MODIFIERS.md`: the 20 modifiers (homing, piercing, orbiting, returning, gravity well, lunge and the rest) that change how an attack moves or repeats, with caps.
 - `SIGNATURE_WEAPONS.md`: 26 signature weapons (21 originals and 5 Fire drafts) brought back alongside the 42-weapon matrix, each with one damage type, one attack type and one signature behaviour (rules in `COMBAT_MATRIX.md` section 12).
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
 - `SAMPLES.md`: the eight playable samples (characters): roster, unlocks, Scientist lines, stories and visual language.

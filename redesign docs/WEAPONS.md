@@ -81,7 +81,7 @@ Rules: `COMBAT_MATRIX.md` section 13 (the six attack types), `MODIFIERS.md` (how
 | S2 | Nappy Mines (`mines`) | Acid | Burst, delayed detonation | Proximity mines dropped behind you; each blast leaves an Acid Pool | Proposed |
 | S3 | Pub Crawl (`wake`) | Fire | Pool, trail | You shed a boozy trail as you swim; it burns | Proposed |
 | S4 | Peekaboo (`peekaboo`) | Soul | Burst | You vanish; enemies search the empty spot and hit each other; then BOO applies Fear | Proposed |
-| S5 | Black Hole (`void`, "Toddler Gravity") | Force | Projectile, slow | A slow orb that pulls enemies in; orbs merge; five merged go supernova | Proposed |
+| S5 | Black Hole (`void`, "Toddler Gravity") | Force | Projectile, slow, gravity well | A slow orb that warps space: pulls enemies in and bends shots; orbs merge; five merged go supernova | Proposed |
 | S6 | Tapeworm Seeder (`parasite`) | Soul | Projectile | Infected enemies rise after death and fight for you | Proposed |
 | S7 | Red Tape (`redtape`) | Mucus | Projectile | Tapes a target to its neighbours; damage to one is shared with the bundle | Proposed |
 | S8 | Due Date (`duedate`) | Blood | Projectile | A countdown mark; when it ends the target takes 40% of everything it took while marked | Proposed |

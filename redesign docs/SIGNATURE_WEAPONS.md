@@ -12,7 +12,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 2 | Nappy Mines (`mines`) | Acid (Acid) | Burst, delayed detonation | Proximity mines dropped behind you; each blast leaves an Acid Pool | Bounded chains |
 | 3 | Pub Crawl (`wake`) | Fire (Oil; Cooties before) | Pool, trail | You shed a boozy trail as you swim; it burns | (none) |
 | 4 | Peekaboo (`peekaboo`) | Soul (Oil) | Burst | You vanish; enemies search the empty spot and hit each other; then BOO applies Fear | Player hiding; Fear source |
-| 5 | Black Hole (`void`, "Toddler Gravity") | Force (Soul) | Projectile, slow | A slow orb that pulls enemies in; orbs merge; five merged go supernova | Pull; bounded chains |
+| 5 | Black Hole (`void`, "Toddler Gravity") | Force (Soul) | Projectile, slow, gravity well | A slow orb that warps space: pulls enemies in and bends shots; orbs merge; five merged go supernova | Gravity well; bounded chains |
 | 6 | Tapeworm Seeder (`parasite`) | Soul (Cooties) | Projectile | Infected enemies rise after death and fight for you | Pets |
 | 7 | Red Tape (`redtape`) | Mucus (Cooties) | Projectile | Tapes a target to its neighbours; damage to one is shared with the bundle | Echo damage |
 | 8 | Due Date (`duedate`) | Blood (Blood) | Projectile | A countdown mark; when it ends the target takes 40% of everything it took while marked | Echo damage |
@@ -66,9 +66,9 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 - **Start stats:** 20 damage, 5.5 s cooldown, hidden 1.8 s.
 
 ### 5. Black Hole (`void`, shown as "Toddler Gravity")
-- **Is:** Force, a slow Projectile (speed 115) that pierces everything and **pulls** enemies within 72.
+- **Is:** Force, a slow Projectile (speed 115) that pierces everything, with the **gravity well** modifier (radius 72): it pulls enemies in and bends every shot that passes near it, so your other weapons' shots curve into the crowd it is gathering.
 - **Signature:** two black holes that touch merge into a bigger one. Five merged go supernova: one Burst, and the hole is gone.
-- **Limits:** pull uses the Pull rule (12.2); merges cap at 5 (it was 20). Moved from Soul to Force because gravity is displacement, and Soul is now mind control.
+- **Limits:** gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2); a merged hole is one well with a bigger radius (up to 140), so merging never breaks the 3-well cap; merges cap at 5 (it was 20). Moved from Soul to Force because gravity is displacement, and Soul is now mind control.
 - **Start stats:** 8 damage, 1.8 s cooldown, pull strength 95.
 
 ### 6. Tapeworm Seeder (`parasite`)

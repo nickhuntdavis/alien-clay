@@ -392,7 +392,7 @@ Damage that is copied, shared or repeated from other damage (Red Tape's 35% shar
 
 ### 12.2 Pull
 
-Pull is reverse knockback with the same formula: distance = pull strength ÷ (radius ÷ 12), towards the source. Squishy halves it, as it halves knockback. Elites take 50%, bosses 25%. Pull never drags anything through a wall or into a sealed arena.
+Pull is reverse knockback with the same formula: distance = pull strength ÷ (radius ÷ 12), towards the source. The gravity well modifier (`MODIFIERS.md` 19) is how weapons and Feats pull, and it also bends shots. Squishy halves it, as it halves knockback. Elites take 50%, bosses 25%. Pull never drags anything through a wall or into a sealed arena.
 
 ### 12.3 Pets (allied creatures)
 
@@ -466,7 +466,7 @@ What each attack type is for lives in `ATTACK_TYPES.md`; how each one meets the 
 | Reactions, statuses, world objects, defence rules, attack-type rules, formulas, numbers | This file |
 | What each damage type, defence and attack type is for, how it looks, strengths and weaknesses | `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md`, `ATTACK_TYPES.md` |
 | Enemy roles, roster, new enemies | `ENEMY_DESIGN.md` (role counterplay: section 5 here) |
-| Weapons and modifiers | `WEAPONS.md`, `SIGNATURE_WEAPONS.md`, `MODIFIERS.md` |
+| Weapons, Feats and modifiers | `WEAPONS.md`, `SIGNATURE_WEAPONS.md`, `FEATS.md`, `MODIFIERS.md` |
 | Progression, samples, autorun, voice | `UPGRADES.md`, `SAMPLES.md`, `AUTORUN_AUTOAIM.md`, `VOICE_GUIDE.md` |
 
 The three CSVs in `tables/` (the old Notion databases) are generated from the tables in this file by `tables/export.py`:
