@@ -1,6 +1,6 @@
 # Modifiers
 
-Working proposal, 17 Oct 2026. A **modifier** changes how an attack moves or repeats. It never changes the attack's damage type. Rarely (a fork or mastery upgrade, `UPGRADES.md` 6), it changes the attack type; the new attack type then decides every defence rule. The six attack types are in `ATTACK_TYPES.md`; rule 4 there says homing, chaining and the rest are modifiers, not new types. This doc defines every modifier the weapons use (`WEAPONS.md`).
+Working proposal, 17 Oct 2026. A **modifier** changes how an attack moves or repeats. It never changes the attack's damage type. Rarely (a fork or mastery upgrade, `UPGRADES.md` 6), it changes the attack type; the new attack type then decides every defence rule. The six attack types are in `ATTACK_TYPES.md`; `COMBAT_MATRIX.md` section 13 (rule 3) says homing, chaining and the rest are modifiers, not new types. This doc defines every modifier the weapons use (`WEAPONS.md`).
 
 ## Shared rules
 

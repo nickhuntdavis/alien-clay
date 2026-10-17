@@ -2,19 +2,19 @@
 
 Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped behaviour.
 
-- `COMBAT_MATRIX.md`: master matrix (21 reactions, defences, statuses, world objects, roles). Section 9 holds the remaining-updates hand-off; section 10 lists the 26 reconciliation decisions of 17 Oct, which every doc follows; section 11 holds the formulas and starting values.
-- `DAMAGE_TYPES.md`: the seven types, one page each.
-- `DEFENCE_TYPES.md`: the five defences (Squishy, Membrane, Shell, Thorns, Evasion; Evasion was called Dodge), one page each. No other defences or traits.
-- `ATTACK_TYPES.md`: the six attack types (Contact, Projectile, Spread, Burst, Beam, Pool), for weapons and enemies.
+- `COMBAT_MATRIX.md`: **the only place combat rules and statuses live** (21 reactions, type rules, defence rules, statuses, world objects, role counterplay, attack-type rules). Section 10 lists the 28 reconciliation decisions of 17 Oct, section 11 the formulas and starting values, section 12 the signature weapon rules, section 14 where every topic lives. If another doc disagrees, the matrix wins.
+- `DAMAGE_TYPES.md`: the seven types, one page each: identity, visual language, strengths and weaknesses. Rules: the matrix.
+- `DEFENCE_TYPES.md`: the five defences (Squishy, Membrane, Shell, Thorns, Evasion; Evasion was called Dodge), one page each: identity, look, what beats it. No other defences or traits. Rules: the matrix.
+- `ATTACK_TYPES.md`: the six attack types (Contact, Projectile, Spread, Burst, Beam, Pool), for weapons and enemies. Rules: matrix section 13.
 - `ENEMY_DESIGN.md`: enemy principles, roster review, new concepts (including Fire enemies) and the 17 Oct decisions.
 - `WEAPONS.md`: every weapon in one place: the 42 matrix weapons, the 26 signature weapons and the 28 parked originals, with totals per damage type.
 - `MODIFIERS.md`: the 18 modifiers (homing, piercing, orbiting, returning and the rest) that change how an attack moves or repeats, with caps.
-- `SIGNATURE_WEAPONS.md`: 15 favourite original weapons brought back alongside the 42-weapon matrix, each with one damage type, one attack type and one signature behaviour (rules in `COMBAT_MATRIX.md` section 12).
+- `SIGNATURE_WEAPONS.md`: 26 signature weapons (21 originals and 5 Fire drafts) brought back alongside the 42-weapon matrix, each with one damage type, one attack type and one signature behaviour (rules in `COMBAT_MATRIX.md` section 12).
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
 - `SAMPLES.md`: the eight playable samples (characters): roster, unlocks, Scientist lines, stories and visual language.
 - `UPGRADES.md`: in-run progression and unlocks: one card-draft system, slot caps (3 weapons, 3 Feats, 4 Genome), Feat levels and milestone forks, the sample-type pool lean, Skip/Reroll/Banish and the interruption budget.
 - `AUTORUN_AUTOAIM.md`: autorun modes and autoaim directives, including the THEN tie-breaker, with exact rules and numbers (shipped in v9.28 on `claude/festive-allen-xmea8i`, not yet in v10).
-- `tables/`: the Notion databases as CSV (statuses and world objects, defences, interactions), regenerated from the matrix on 17 Oct. The matrix wins if they ever disagree.
+- `tables/`: the old Notion databases as CSV (statuses and world objects, defences, interactions), generated from the matrix by `tables/export.py`. Never edit them by hand; rerun the script after changing a matrix table.
 
 ## Follow-on work these decisions create (not done yet)
 

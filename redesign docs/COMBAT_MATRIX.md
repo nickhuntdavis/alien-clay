@@ -4,6 +4,14 @@
 
 **Status: working proposal; validate in playtests before treating values or effects as locked.** The canonical damage types are **Force, Acid, Static, Mucus, Blood, Soul and Fire**. Cooties, Oil and Water are out of scope and must not appear as active types in this matrix. Every open question from the reconciliation pass is settled in section 10; formulas and starting values are in section 11.
 
+**This is the only place combat rules and statuses live.** `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md` and `ATTACK_TYPES.md` hold identity only (what each thing is for, how it looks, what it is good and bad at) and point here for every rule. Other docs (`ENEMY_DESIGN.md`, `WEAPONS.md`, `SIGNATURE_WEAPONS.md`, `MODIFIERS.md`, `UPGRADES.md`, `SAMPLES.md`) cite sections here rather than restating them. The CSVs in `tables/` are generated from this file (section 14); never edit them by hand. If anything elsewhere disagrees with this file, this file wins and the other doc is fixed.
+
+### Design constraints
+
+- Fast Android game: every reaction readable at a glance, with no hidden stacks, long recipes or delayed multi-step conditions.
+- Keep four concepts separate: **damage type**, **attack type** (delivery), **modifier** (behaviour, `MODIFIERS.md`), **source**.
+- Voice (decided 17 Oct 2026): the impulsive gameplay voice belongs to the **pre-incarnate consciousness**, which speaks to the sperm as "you" and is not the sperm. The Scientist stays the external, clinical observer. The sperm does not speak (`VOICE_GUIDE.md`).
+
 ### Shared vocabulary
 
 - **Damage type:** what kind of harm an attack deals.
@@ -59,7 +67,7 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 
 - **No redundant damage over time:** Caustic Breach strips a Shell layer; it does not add a corrosive wound.
 - **No extra sub-systems:** Soul Purpose launches an enemy rather than spawning a fragment; Blood Donor is a small capped heal, not a resource.
-- **Soul pairs use Possessed:** all five Soul reactions trigger on a Possessed enemy. The Soul Mark is retired.
+- **Soul pairs use Possessed:** all six Soul reactions trigger on a Possessed enemy. The Soul Mark is retired.
 - **Separated similar world reactions:** Conductive Pool pulses across an Acid Pool; Blood Circuit arcs from a blood pool to one enemy.
 - **Controlled Fire interactions:** three Fire pairs consume a setup for a burst (Corrosion, a Mucus patch, a Bleed); three hit a single target. Fire does not make every surface explode.
 - **No reaction retriggers itself.** A reaction-created patch, arc, burst or splash cannot immediately set off the same reaction again. Limit chain jumps, patch triggers and repeat healing (Blood Donor and Interference Pattern are once per Possession).
@@ -77,6 +85,18 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 | **Fire** | Ignition and consuming setups | Burn bar build-up with a short damage over time; at full, one Ignition flare on that target; consuming compatible setups | Not a universal explosion trigger; no automatic spread |
 
 Each type has one primary verb, one recognisable visual and sound cue (`DAMAGE_TYPES.md` visual language), and a clear non-goal. Use shape and motion as well as colour so effects stay readable on a phone screen.
+
+### Type rules
+
+What each type does beyond its statuses (section 4) and its defence interactions (sections 3 and 7).
+
+- **Force:** high immediate physical damage. Builds Poise and causes Knockback. A wall or hazard adds a payoff only on an actual collision. Attacker speed at contact may add impact, kept readable (no maths for the player). A shockwave exists only where an attack is designed to make one; it is never automatic on a stagger. A heavy hit (11.3) knocks off a Shell layer and triggers Blood Pressure.
+- **Acid:** direct damage builds Corrosion; Acid Pools are its only ongoing damage, and there is no damage over time on enemies. Acid does not stop Membrane regeneration or bypass Membrane.
+- **Static:** Static hits make the target Charged; Charged enemies pass arcs on (bounded, 11.5). Explicitly conductive world objects carry one pulse or one arc (Conductive Pool, Blood Circuit, Sticky Situation). Static interrupts only through Poise, and only when an attack is tagged for it. Static recharges Membrane, so it is a poor choice against Membrane enemies (a risk the player can see).
+- **Mucus:** Snares, Conjoins, leaves patches and smothers Fire. No damage over time. Does not cushion Force.
+- **Blood:** applies Bleed; a reaction may consume a Bleed for one payoff (Blood Pressure, Cauterise) without adding a new stack. Extraction heals a little on kills of bleeding enemies. Blood pools come from section 4's sources only. Blood never maximises sustained damage, burst, healing and resource gain at once.
+- **Soul:** build-up to Possessed is its only control. No defence bypass of any kind (the essence and resource ideas are retired). Fear is a separate status with its own sources.
+- **Fire:** fills the Burn bar (direct hits and Fire Pool footprints); Ignition at full; no automatic spread. Fire's Pool attacks are attack footprints, not world objects that reactions use (decision 27). Becoming Snared puts it out.
 
 ## 3. Defensive layer matrix
 
@@ -98,36 +118,65 @@ Each type has one primary verb, one recognisable visual and sound cue (`DAMAGE_T
 - **Hazards are separate from the initial hit.** Avoiding a projectile gives no immunity to an Acid Pool, a Fire Pool or other hazard entered later.
 - **Thorns resolves after a qualifying hit connects,** once per hit, never once per damage component.
 - **Shell layer loss:** ordinary hits slowly, Acid fast, heavy Force at once. Lost layers stay gone.
-- **Membrane recovery has one simple rule and a clear tell:** a brief no-damage delay.
-- **Every defence has readable counterplay.** No enemy needs one specific damage type to be fought at a reasonable pace.
+- **Membrane recovery has one simple rule and a clear tell:** a brief no-damage delay. A full Membrane gives no immunity to statuses, control or hazards. Force still damages the pool (it is resisted, never unbreakable), and the resistance ends when the Membrane breaks.
+- **Squishy and Shell differ by method:** Squishy is a percentage (blunt only); Shell subtracts a fixed amount per layer. Big Force hits still feel big through Squishy. Squishy shows the hit landing and being absorbed, never something that looks like a miss.
+- **Evasion is the one deliberate dice roll** in the system, so its "miss" puff always shows. Keep the chance well below half (cap 50%, 11.4).
+- **Thorns variants** (bleeding or charged retaliation) are explicit, named variants, never baseline Thorns.
+- **Every defence has readable counterplay.** No enemy needs one specific damage type to be fought at a reasonable pace; Acid and heavy Force are readable ways to remove Shell, not mandatory types.
+
+### Implementation rules
+
+- Resolve each attack into components: direct damage, status application, impulse or control, hazard. Hit order is 11.1.
+- If the hit that applies a status is prevented, so is the status, unless a rule says otherwise. Existing statuses and hazards stay until their own rule removes them.
+- Never apply Thorns more than once per attack.
+- Prefer one-step reactions; no recursive splashes or arcs, unbounded propagation, hidden counters or long setup chains.
+
+### Defence and mechanic interactions (one row each)
+
+| Interaction | Status | Rule |
+| --- | --- | --- |
+| Acid erodes Shell | Accepted | Corrosion builds to permanent layer loss. Does not disable Membrane or bypass defences generally. |
+| Heavy Force can shed a Shell layer | Accepted | A thresholded heavy hit (11.3) removes one layer. The same threshold defines a heavy hit for Blood Pressure. |
+| Ordinary hits wear Shell | Accepted | Each layer has a little health; ordinary qualifying hits wear it slowly. |
+| Membrane resists Force impact | Accepted | Less drain and less knockback while the Membrane is up. |
+| Static recharges Membrane | Accepted | +25% capacity, once per 5 s; visible; no supercharge. |
+| Membrane absorbs eligible direct damage | Accepted | Status prevention depends on whether the applying hit was prevented. |
+| Shell and Burn remain separate | Accepted | Shell mitigates the physical component, not heat. |
+| Squishy absorbs blunt impact | Accepted (verify) | Proportional; blunt only; no status resistance. |
+| Thorns retaliate once on contact | Accepted (verify) | Once per qualifying Contact hit. |
+| Evasion misses eligible hits | Accepted (verify) | Miss chance on Contact, Projectile and Spread only; a miss prevents the hit and its attached effects. |
+| Membrane and Soul effects | Accepted (verify) | Soul damage is absorbed normally; no bypass. Build-up applies only if the hit isn't blocked. |
+| Snared slows movement | Testing | Snared weakens autorun's dodging (movement); it does not change Evasion's miss chance. |
+| Mucus smothers Fire | Proposed | Becoming Snared clears the Burn bar. A Mucus patch hit by Fire still burns (Flammable Mucus). Water is not a damage type. |
+| Force drives targets into hazards | Proposed | Knockback into a wall or a world object pays off only on an actual collision (a wall: 40% of the hit, 11.5). No bonus in open space. |
 
 ## 4. Status ownership and counterplay
 
 Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, wax Pool, and the shipped terrain) are listed separately below. The player can suffer every status except Possessed.
 
-| Status | Owner | Consequence | Counterplay and limit | Distinction |
-| --- | --- | --- | --- | --- |
-| Poise Pressure | Force (Static when tagged) | One shared meter; at threshold, a brief stagger or interrupt | Not every hit adds Poise; recovers after a spell without qualifying hits; elites and bosses have higher thresholds and shorter control, never full immunity | Force adds by impact; Static only when an attack explicitly carries Poise or interruption pressure |
-| Knockback | Force | Repositions the target; a collision may add a payoff | Space, Squishy, anchoring; bonus only on an actual collision | Not a damage multiplier |
-| Corrosion | Acid | A visible build-up from Acid hits. On a Shell creature, a full bar strips one layer for good and resets. Any creature can carry it; it is the "Acid-coated" state reactions use | No timer or stacks; no damage over time | Acid's only status; Pools are its only ongoing damage |
-| Charge | Static | A Static hit makes the target Charged (3 s): it takes +20% Static damage and passes arcs on; it discharges one arc on death | Fixed jump limit (3) and 70% falloff; never interrupts by itself | A conductor state, not a build-up bar; interrupts come through Poise |
-| Snared | Mucus | Briefly restricts movement (also covers "Mucus-stuck" and "Adhered"). Becoming Snared clears a Burn bar: Mucus smothers Fire | Short duration; one clear control strength per effect | Slow, root and snare are not interchangeable labels |
-| Conjoined | Mucus | Snared creatures stuck together in one shared green membrane: none can move, and they may hit each other | Happens when two Snared creatures touch, or when one Mucus attack's area covers several at once; capped group size; short | Distinct from Snared: it needs two or more creatures |
-| Bleed | Blood | Damage over time; a named finisher may consume it for one payoff | Stack cap and decay. A creature that dies while bleeding leaves a small blood pool | Wounds are distinct from Acid erosion |
-| Extraction | Blood | An enemy dying while bleeding heals you a little | 1% of max health per kill, max 6 health per second | Separate from ordinary damage and healing |
-| Possessed | Soul | At full Soul build-up the enemy fights its own mates for a few seconds | Clear duration and tell; cooldown before it can repeat; elites shorter; bosses reduced, never fully controlled; the player is exempt | The only control Soul owns; not Fear |
-| Fear | Peekaboo's BOO; a future Feat ("Jump Scare") | Enemies flee for 2 s | Duration cap; no enemy applies Fear | Fear is a status, not the Soul type itself |
-| Burning | Fire | Fire hits fill a visible Burn bar; while it holds Burn the target takes a short damage over time; at full, Ignition: one flare on that target, then the bar resets | No spread except through reactions; Snared puts it out | Do not add extra effects to every Fire hit |
+| Status | Owner | Trigger | Consequence | Counterplay and limit | Distinction | Design status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Poise Pressure | Force (Static when tagged) | A qualifying Force impact, or a Static hit explicitly carrying Poise | One shared bar (11.2); at full, a brief stagger or interrupt | Not every hit adds Poise; drains after a spell without qualifying hits; elites and bosses have bigger bars and shorter staggers, never full immunity | Force adds by impact; Static only when an attack explicitly carries Poise or interruption pressure | Accepted |
+| Knockback | Force | A qualifying Force impact | Repositions the target; a collision may add a payoff | Space, Squishy, an active Membrane, anchoring; bonus only on an actual collision | Not a damage multiplier | Proposed |
+| Corrosion | Acid | Acid hits, or standing in an Acid Pool | A visible bar (11.2). On a Shell creature, a full bar strips one layer for good and resets. Any creature can carry it; it is the "Acid-coated" state reactions use | No timer or stacks; no damage over time | Acid's only status; Pools are its only ongoing damage | Accepted |
+| Charge | Static | Any Static hit | The target is Charged (3 s): it takes +20% Static damage and passes arcs on; it discharges one arc on death | Fixed jump limit (3) and 70% falloff; never interrupts by itself | A conductor state, not a build-up bar; interrupts come through Poise | Proposed |
+| Snared | Mucus | A Mucus hit, or entering a Mucus patch | Restricts movement (also covers "Mucus-stuck" and "Adhered"). Becoming Snared clears a Burn bar: Mucus smothers Fire | Short duration; one clear control strength per effect | Slow, root and snare are not interchangeable labels | Proposed |
+| Conjoined | Mucus | Two Snared creatures touch, or one Mucus attack's area covers several at once | Stuck together in one shared green membrane: none can move, and they may hit each other | Capped group size; short | Distinct from Snared: it needs two or more creatures | Proposed |
+| Bleed | Blood | A qualifying Blood hit | Damage over time; a reaction may consume it for one payoff | Stack cap and decay. A creature that dies while bleeding leaves a small blood pool | Wounds are distinct from Acid erosion | Proposed |
+| Extraction | Blood | An enemy dies while bleeding | Heals you a little | 1% of max health per kill, max 6 health per second; never on every Blood tick | Separate from ordinary damage and healing | Proposed |
+| Possessed | Soul | The Soul bar fills (11.2) | The enemy fights its own mates for a few seconds | Clear duration and tell; cooldown before it can repeat; elites shorter; bosses reduced, never fully controlled; the player is exempt | The only control Soul owns; not Fear | Accepted |
+| Fear | Peekaboo's BOO; a future Feat ("Jump Scare") | An attack explicitly tagged with Fear | Enemies flee for 2 s | Duration cap; no enemy applies Fear | Fear is a status, not the Soul type itself | Proposed |
+| Burning | Fire | Fire hits, or standing in a Fire Pool footprint | A visible Burn bar (11.2); while it holds Burn the target takes a short damage over time; at full, Ignition: one flare on that target, then the bar resets | No spread except through reactions; Snared puts it out | Do not add extra effects to every Fire hit | Accepted |
 
 ### World objects
 
-| Object | Made by | Does | Limit |
-| --- | --- | --- | --- |
-| Acid Pool | Acid Pool weapon, Acid Bubble, Slick Move, acid crypts (terrain) | The only ongoing Acid damage; builds Corrosion on anything standing in it | Visible edge and lifetime; never indefinite |
-| Mucus patch | Mucus Pool weapon, Snot Bubble, Snot Rocket | Snares what enters it; ingredient for Slick Move, Sticky Situation, Flammable Mucus | Short-lived, clear edge |
-| Blood pool | Creatures dying while bleeding; Blood Pool weapon; Mosquito | Ingredient for Blood Circuit and Caught in the Clot | Small, short-lived |
-| Terrain (shipped, `terrain.js`) | The arena | Nodules, mitochondria, acid crypts, cilia beds, currents and slicks keep their current behaviour | Unchanged |
-| Wax Pool | Birthday Candle only | Hardens into a temporary wall that blocks movement and shots | The one new ground object; short-lived |
+| Object | Made by | Does | Limit | Design status |
+| --- | --- | --- | --- | --- |
+| Acid Pool | Acid Pool weapon, Acid Bubble, Slick Move, acid crypts (terrain) | The only ongoing Acid damage; builds Corrosion on anything standing in it | Visible edge and lifetime; never indefinite | Proposed |
+| Mucus patch | Mucus Pool weapon, Snot Bubble, Snot Rocket | Snares what enters it; ingredient for Slick Move, Sticky Situation, Flammable Mucus | Short-lived, clear edge | Proposed |
+| Blood pool | Creatures dying while bleeding; Blood Pool weapon; Mosquito | Ingredient for Blood Circuit and Caught in the Clot | Small, short-lived | Proposed |
+| Terrain (shipped, `terrain.js`) | The arena | Nodules, mitochondria, acid crypts, cilia beds, currents and slicks keep their current behaviour | Unchanged | Accepted |
+| Wax Pool | Birthday Candle only | Hardens into a temporary wall that blocks movement and shots | The one new ground object; short-lived | Proposed |
 
 Status labels here are functional names, not necessarily player-facing copy. Keep them short and consistent; use the Field Guide for precise definitions, and keep repeated HUD status effects mostly silent. For each status that ships, specify its duration, refresh and stack rule, how it ends, and any resistance. If a status has no distinct consequence, merge or remove it.
 
@@ -207,63 +256,13 @@ Definition of done:
 - [ ]  Every status has a consequence, an end rule, a stack rule where needed, and counterplay.
 - [ ]  Enemy roles permit at least two viable player responses; no routine enemy requires one specific type.
 - [ ]  Proposed mechanics are validated in fast mobile playtests before being marked Accepted.
+- [ ]  Proposed / Testing / Accepted labels in sections 3 and 4 match what was actually approved.
+- [ ]  Damage type, attack type, modifier and source are separate fields in code and data.
+- [x]  The low-confidence Soul reactions are decided (rebuilt around Possessed, decision 6).
 
-## 9. Remaining updates (merged from the hand-off document, 17 Oct 2026)
+## 9. Remaining updates (merged)
 
-Source: "Combat Matrix Remaining Updates". Nothing here changes the 21 pair rows in section 1.
-
-### Design constraints (additions)
-
-- Fast Android game: every reaction readable at a glance, with no hidden stacks, long recipes or delayed multi-step conditions.
-- Keep four concepts separate: **damage type**, **attack delivery**, **behaviour modifier**, **source**.
-- Voice (decided 17 Oct 2026): the impulsive, blunt, immature gameplay voice belongs to the **pre-incarnate consciousness**, which speaks to the sperm as "you" and is not the sperm. The Scientist stays the external, clinical observer. The sperm itself does not speak. See `VOICE_GUIDE.md`.
-
-### Low-confidence reactions
-
-Settled 17 Oct 2026: the four low-confidence Soul reactions (Soul Purpose, Soul Erosion, Blood Donor, Spectral Combustion) and Interference Pattern were rebuilt around Possessed (section 1). They remain Proposed until playtested.
-
-### Defence rules
-
-- **Squishy / Absorption:** proportional reduction of blunt physical impact (Force); cuts go through; may soften impulse and knockback; no status resistance.
-- **Membrane:** separate pool, absorbs eligible direct damage before health, regenerates after a short spell without Membrane damage. Force drains it less efficiently and knocks back less while it is up. Static recharges it (+25% capacity, once per 5 s), with a visible tell. Soul damage is absorbed normally; no bypass.
-- **Shell:** finite, non-regenerating layers with fixed reduction against qualifying physical hits. Each layer has a little health: ordinary hits wear it slowly, Acid's Corrosion fast, heavy Force removes one at once. Shell does not mitigate Burn or heat.
-- **Thorns:** no mitigation. Retaliates once per qualifying Contact hit. Ranged attacks, hazards, non-contact effects and Evasion misses do not trigger it.
-- **Evasion:** a miss chance against Contact, Projectile and Spread hits, per pellet, with a visible "miss" puff. A miss avoids the hit and its attached effects. Never applies to Burst, Beam or Pool. Clears no existing status or hazard.
-
-### Defence interaction rows (one row each, no duplicates)
-
-| Interaction | Status | Rule |
-| --- | --- | --- |
-| Acid erodes Shell | Accepted | Corrosion builds to permanent layer loss. Does not disable Membrane or bypass defences generally. |
-| Heavy Force can shed a Shell layer | Accepted | A thresholded heavy hit removes one layer. The same threshold defines a heavy hit for Blood Pressure. |
-| Ordinary hits wear Shell | Accepted | Each layer has a little health; ordinary qualifying hits wear it slowly. |
-| Membrane resists Force impact | Accepted | Less drain and less knockback while the Membrane is up. |
-| Static recharges Membrane | Accepted | +25% capacity, once per 5 s; visible; no supercharge. |
-| Membrane absorbs eligible direct damage | Accepted | Status prevention depends on whether the applying hit was prevented. |
-| Shell and Burn remain separate | Accepted | Shell mitigates the physical component, not heat. |
-| Squishy absorbs blunt impact | Accepted (verify) | Proportional; blunt only; no status resistance. |
-| Thorns retaliate once on contact | Accepted (verify) | Once per qualifying Contact hit. |
-| Evasion misses eligible hits | Accepted (verify) | Miss chance on Contact, Projectile and Spread only; a miss prevents the hit and its attached effects. |
-| Snared slows movement | Testing | Snared weakens autorun's dodging (movement); it does not change Evasion's miss chance. |
-| Mucus smothers Fire | Proposed | Becoming Snared clears the Burn bar. A Mucus patch hit by Fire still burns (Flammable Mucus). Water is not a damage type. |
-| Membrane and Soul effects | Accepted (verify) | Soul damage is absorbed normally; no bypass. Build-up applies only if the hit isn't blocked. |
-
-### Shared implementation rules (additions)
-
-- Resolve each attack into components: direct damage, status application, impulse or control, hazard.
-- If the hit that applies a status is prevented, so is the status, unless a rule says otherwise. Existing statuses and hazards stay until their own rule removes them.
-- Never apply Thorns more than once per attack.
-- Prefer one-step reactions; no recursive splashes or arcs, unbounded propagation, hidden counters or long setup chains.
-
-### Manual checklist
-
-- [ ] Every pair row uses the names and behaviours in section 1; no duplicates.
-- [ ] Each pair row links both damage types and any required mechanic or status.
-- [ ] Proposed / Accepted / Testing statuses match what was actually approved.
-- [x] The low-confidence reactions are decided (rebuilt around Possessed).
-- [ ] Defence interaction rows exist once, with correct statuses.
-- [ ] Damage type, attack type, behaviour modifier and source are separate fields.
-- [ ] Every reaction reads quickly, has one payoff and no unbounded loop.
+The 17 Oct hand-off ("Combat Matrix Remaining Updates") is fully merged: design constraints into the top of this file, defence rules and interaction rows into section 3, the low-confidence reactions into section 10 (decision 6), and the checklist into section 8. The number is kept so older references still land here.
 
 ## 10. Reconciliation decisions (17 Oct 2026)
 
@@ -345,6 +344,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 
 | Status | Starting values |
 | --- | --- |
+| Corrosion | Bar size 0.25 of max health per Shell layer (11.2); a full bar strips one layer for good and resets. No damage over time |
 | Snared | 55% slow for 2.5 s; refreshes on hit; clears a Burn bar |
 | Conjoined | 3 s stuck; max 6 per group; members' contact deals 50% to each other. On the player: 1 s stuck, no enemy attached |
 | Bleed | 30% of the hit over 3 s; max 3 stacks |
@@ -378,7 +378,7 @@ At most 40 world objects at once (phones). Where two overlap, the newest wins, e
 
 ## 12. Signature weapon rules (17 Oct 2026)
 
-Rules added so the 15 signature weapons in `SIGNATURE_WEAPONS.md` fit the system. They apply to anything that does the same thing, not just those weapons.
+Rules added so the 26 signature weapons in `SIGNATURE_WEAPONS.md` fit the system. They apply to anything that does the same thing, not just those weapons.
 
 ### 12.1 Echo damage
 
@@ -433,3 +433,40 @@ An orbiting body or eater (Premature Evangelation's angels, Placental Siphon) de
 ### 12.9 Signature weapons and the matrix
 
 Signature weapons sit alongside the 42 matrix weapons. Each has one damage type and one attack type and is otherwise a normal weapon (levels, upgrades, autoaim directives). The signature behaviour is the only thing that sets it apart.
+
+## 13. Attack-type rules
+
+What each attack type is for lives in `ATTACK_TYPES.md`; how each one meets the defences lives here.
+
+| Attack type | Components | Thorns | Evasion | Telegraph |
+| --- | --- | --- | --- | --- |
+| Contact | Direct hit, impulse (knockback), status application | Triggers, once per connected hit | Can miss; a miss avoids the hit and everything attached to it | Dangerous Contact attacks (charges, rams) show their lane |
+| Projectile | Direct hit, status application | Never | Can miss | The shot is visible in flight |
+| Spread | Several small direct hits, light impulse | Never | Rolls per pellet; some pellets still land | The fan's angle is readable |
+| Burst | Area direct hit, sometimes impulse or status | Never | Never applies; leaving the marked area avoids it, the edge can still hit | Always shows its area before it goes off |
+| Beam | Rapid small direct hits; pierces | Never | Never applies; leaving the lane stops further hits | Shows its lane before it fires |
+| Pool | Hazard ticks, status application | Never | Never applies; only leaving it, or not entering, avoids it | Shows its edge for its whole life |
+
+1. **One attack type per attack**, plus an optional leftover hazard (patch, pool or trail; decision 7). The leftover hazard uses the world-object rules in section 4, not a second attack type.
+2. **Resolve each component separately** (section 3, implementation rules). A Burst can carry a direct hit and a status; Membrane may absorb the hit while the status follows its own rule.
+3. **Modifiers, not new types** (`MODIFIERS.md`). Homing, chaining, piercing, ricochet, orbiting, delayed detonation, rapid volleys and summoned attackers are modifiers on one of the six; the attack type still decides every defence rule. A modifier that changes how defences apply is a rule, and belongs here. Add a seventh attack type only when no modifier can express the behaviour clearly.
+4. **Telegraph by danger.** Any attack that can do significant damage shows what is happening, where it matters and when to respond. Weak Contact enemies need no special wind-up.
+5. **Same vocabulary both sides.** Player weapons, Feats and enemy attacks all use the six types, and an enemy's card says its attack type.
+
+## 14. Where things live, and the CSV export
+
+| Topic | Source of truth |
+| --- | --- |
+| Reactions, statuses, world objects, defence rules, attack-type rules, formulas, numbers | This file |
+| What each damage type, defence and attack type is for, how it looks, strengths and weaknesses | `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md`, `ATTACK_TYPES.md` |
+| Enemy roles, roster, new enemies | `ENEMY_DESIGN.md` (role counterplay: section 5 here) |
+| Weapons and modifiers | `WEAPONS.md`, `SIGNATURE_WEAPONS.md`, `MODIFIERS.md` |
+| Progression, samples, autorun, voice | `UPGRADES.md`, `SAMPLES.md`, `AUTORUN_AUTOAIM.md`, `VOICE_GUIDE.md` |
+
+The three CSVs in `tables/` (the old Notion databases) are generated from the tables in this file by `tables/export.py`:
+
+- `combat_interactions.csv`: section 1 (the 21 reactions) and section 3's interaction rows.
+- `defences_traits.csv`: section 3's defence table, with section 11.4's starting values.
+- `mechanics_statuses.csv`: section 4's statuses and world objects, with section 11.5 and 11.6's starting values.
+
+After changing any of those tables, run `python3 "redesign docs/tables/export.py"` and commit the CSVs in the same commit.

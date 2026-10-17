@@ -6,7 +6,7 @@ Every weapon in the redesign, in one place, 17 Oct 2026. Three groups, plus whic
 2. **Signature weapons (26):** originals brought back (and five Fire drafts), each a matrix slot plus one signature behaviour. Full detail: `SIGNATURE_WEAPONS.md`.
 3. **Parked originals (28):** the rest of the original game's weapons, with why they are not in the redesign (yet). Full original detail: `storm-directive/GAME_GUIDE.md` (describes the shipped game).
 
-Rules: `ATTACK_TYPES.md` (the six attack types), `MODIFIERS.md` (how attacks move and repeat), `COMBAT_MATRIX.md` sections 11 and 12 (formulas, signature rules). When a weapon changes, change it here and in its source doc in the same commit.
+Rules: `COMBAT_MATRIX.md` section 13 (the six attack types), `MODIFIERS.md` (how attacks move and repeat), `COMBAT_MATRIX.md` sections 11 and 12 (formulas, signature rules). When a weapon changes, change it here and in its source doc in the same commit.
 
 ## Totals
 
@@ -113,7 +113,7 @@ Strongest candidates to bring back next: **Static Hairbrush** and **Lightning Bu
 | --- | --- | --- |
 | Spitball (`blaster`) | Force | Plain single shot: the matrix Force Projectile (Knuckle Dragger) covers it |
 | Hiccup Scattergun (`shotgun`) | Mucus | Point-blank fan: the matrix Spread weapons cover it |
-| Yo-Yo Diet (`glaive`) | Force | Candidate: a returning throw that hits twice; would need a "returning" modifier |
+| Yo-Yo Diet (`glaive`) | Force | Candidate: a returning throw that hits twice (the Returning modifier now exists, `MODIFIERS.md`) |
 | Booger Flick (`frost`) | Mucus | Covered by the matrix Mucus Projectile (Gobstopper); its shatter idea is gone with the old reactions |
 | Morning Sickness (`venom`) | Acid | Lobbed Acid puddles: overlaps Upchuck and the matrix Acid Pool |
 | Placenta Paddle (`paddle`) | Force | Candidate: big sweeping Force Contact; overlaps Nutcracker |

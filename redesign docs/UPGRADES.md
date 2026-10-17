@@ -177,7 +177,7 @@ The sim bot (`tests/sim/wave20.js`, `lvsim.js`) picks cards for balance runs, so
 
 1. Feat level cap of 5: check in sims that all three Feats can reach rank 3 by mid-run.
 2. Genome ranks: how many, and do they need forks?
-3. Weapon fork content: write a fork pair for each of the 42 matrix weapons and 20 signature weapons (a big job; start with each sample's starting weapon).
+3. Weapon fork content: write a fork pair for each of the 42 matrix weapons and 26 signature weapons (a big job; start with each sample's starting weapon).
 4. Feat fork content: start with the eight samples' unique Feats.
 5. The 40 s budget: tune in play; late runs earn XP fastest.
 6. Assimilation threshold: kills needed per defence, and whether bosses grant one directly.

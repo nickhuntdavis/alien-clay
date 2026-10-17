@@ -1,13 +1,12 @@
 # Enemy Design: Principles, Roster Review and New Concepts
 
-Working proposal, 17 Oct 2026. Uses the vocabulary of the other redesign docs only:
+Working proposal, 17 Oct 2026. Uses only the shared vocabulary; every combat rule it relies on lives in `COMBAT_MATRIX.md` and is cited, not restated:
 
-- **Damage types (7):** Force, Acid, Static, Mucus, Blood, Soul, Fire (`DAMAGE_TYPES.md`).
-- **Defences (5):** Squishy, Membrane, Shell, Thorns, Evasion (`DEFENCE_TYPES.md`; Evasion was called Dodge). No additional core defence categories. Enemy-specific states, behaviours and elite modifiers (Crackle, Smouldering and the like) are allowed, but must not become hidden defence systems.
-- **Attack types (6):** Contact, Projectile, Spread, Burst, Beam, Pool (`ATTACK_TYPES.md`).
-- **Statuses:** Poise Pressure, Knockback, Corrosion, Charge, Snared, Conjoined, Bleed, Extraction, Possessed, Fear, Burning (`COMBAT_MATRIX.md` section 4). The player can suffer all of them except Possessed.
-- **World objects:** Acid Pool, Mucus patch, blood pool, wax Pool and the shipped terrain (`COMBAT_MATRIX.md` section 4).
-- **Reactions:** the 21 triggered pair reactions (`COMBAT_MATRIX.md` section 1), each set off by a state + hit, a world object + hit, a dual-type weapon or a Pairing. Two types touching one enemy is never enough on its own.
+- **Damage types (7)** and what each is for: `DAMAGE_TYPES.md`. Their rules: `COMBAT_MATRIX.md` section 2.
+- **Defences (5):** Squishy, Membrane, Shell, Thorns, Evasion (`DEFENCE_TYPES.md`; rules in matrix section 3). No other defences. Enemy-specific states, behaviours and elite modifiers (Crackle, Smouldering and the like) are allowed, but must not become hidden defence systems.
+- **Attack types (6):** `ATTACK_TYPES.md` (rules in matrix section 13).
+- **Statuses and world objects:** matrix section 4. The player can suffer every status except Possessed.
+- **Reactions:** the 21 pair reactions and their four trigger kinds, matrix section 1.
 
 The decisions of 17 Oct 2026 are summarised at the end.
 
@@ -44,7 +43,7 @@ Never require hitting a specific side or end. A counter improves the odds; it is
 Good: a charger shows its lane, a shooter pulls you forward, a Pool changes which ground is safe, a heavy body blocks space, a group gets worse if it surrounds you. Avoid enemies whose only answer is "stand still and use the right damage type", and anything needing precise pathing through gaps.
 
 ### 2.5 Defences and damage types reinforce identity, they don't replace it
-Behaviour comes first. An enemy's defence (one of the five) and any damage-type interaction should reinforce that behaviour or create a loadout decision. A plain enemy with no defence that tests movement or target priority is valuable. When an enemy reacts to a type, the reaction is visible and specific, and uses a defined trigger (a visible state, a world object, a named weapon combo).
+Behaviour comes first. An enemy's defence (one of the five) and any damage-type interaction should reinforce that behaviour or create a loadout decision. A plain enemy with no defence that tests movement or target priority is valuable. When an enemy reacts to a type, the reaction is visible and specific, and uses one of the four trigger kinds (`COMBAT_MATRIX.md` reaction rules).
 
 Keep the layers separate: an enemy can be Squishy, take Force damage, build Poise and set off a reaction without those becoming four competing explanations for the same hit.
 
@@ -56,7 +55,7 @@ Many species, few behaviours at once. Escalate through combinations (a Shell tan
 
 ### 2.8 Bounded and recoverable
 - Snared and other movement control never become a permanent lock.
-- Repeated interruptions respect the shared Poise meter (section 9).
+- Repeated interruptions respect the shared Poise meter (`COMBAT_MATRIX.md` section 4).
 - Charge arcs have range and jump limits.
 - Summoners have caps and cooldowns.
 - Pools have visible edges, lifetimes and a way out.
@@ -74,7 +73,7 @@ The player can always recover from a mistake.
 5. **Attack type(s)**
 6. **Defence:** one of Squishy, Membrane, Shell, Thorns, Evasion, or none
 7. **Counterplay:** movement, targeting policy, attack type, damage type, timing
-8. **Reaction hook:** which world object or mark it creates or responds to, if any
+8. **Reaction hook:** which world object or state it creates or responds to, if any
 9. **Fallback:** what works if the preferred counter is missing
 10. **Spawn context:** what it pairs with, how many at once
 11. **Complexity cost:** new system, special AI, new player status, unusual UI?
@@ -85,29 +84,29 @@ No enemy ships until its signature and counterplay fit in two sentences.
 
 One shared role vocabulary for the roster, encounter design and the combat matrix (`COMBAT_MATRIX.md` section 5 uses the same names). Roles are labels, not enemy classes or mechanics, and they combine: an enemy can be Shooter + Sniper or Support + Relay.
 
-| Role | Primary function | Main counterplay |
-|---|---|---|
-| Chaser | Steady contact pressure | Movement, general damage |
-| Sprinter (`skitter`) | Closes distance fast | Evasive movement; prioritise it before it reaches contact range (FASTEST helps pick it) |
-| Tank | Soaks damage, occupies space | Sustained focus, the right defence interaction, or moving round the space it occupies (TOUGHEST helps pick it) |
-| Shooter | Ranged pressure | SHOOTERS FIRST, closing distance, dodging |
-| Swarm | Numbers and crowding | Burst, Pool, Charge arcs, DENSEST CLUSTER |
-| Charger | Threatens a telegraphed lane | Leave the lane |
-| Support | Heals, buffs or grants Membrane | Prioritise the source |
-| Summoner | Adds enemies | Prioritise the summoner |
-| Controller | Restricts space or movement | Leave Pools, exploit windows, kill the source |
-| Carrier | Leaves, stores, carries or releases a reaction ingredient | Recognise its state and exploit it |
-| Leech | Steals health or another defined resource | Burst it, disengage, deny contact |
-| Relay | Strengthens nearby enemies or enables their interactions | Break the cluster, prioritise the relay |
-| Sniper | Long-range pressure with a clearly telegraphed attack | Read the tell, change lane |
-| Elite | A familiar role with one extra modifier | Suitable targeting policy and build |
-| Boss | Tests established skills in one memorable fight | Learnable phases, telegraphs, openings |
+| Role | Primary function |
+|---|---|
+| Chaser | Steady contact pressure |
+| Sprinter (`skitter`) | Closes distance fast |
+| Tank | Soaks damage, occupies space |
+| Shooter | Ranged pressure |
+| Swarm | Numbers and crowding |
+| Charger | Threatens a telegraphed lane |
+| Support | Heals, buffs or grants Membrane |
+| Summoner | Adds enemies |
+| Controller | Restricts space or movement |
+| Carrier | Leaves, stores, carries or releases a reaction ingredient |
+| Leech | Steals health or another defined resource |
+| Relay | Strengthens nearby enemies or enables their interactions |
+| Sniper | Long-range pressure with a clearly telegraphed attack |
+| Elite | A familiar role with one extra modifier |
+| Boss | Tests established skills in one memorable fight |
+
+How the player answers each role, and which tools help: `COMBAT_MATRIX.md` section 5.
 
 ## 4. Enemy attacks
 
-Enemies use the six attack types in `ATTACK_TYPES.md`. Homing, chaining, piercing, ricochet, delayed detonation, orbiting, rapid volleys and summoned attackers are modifiers on those six, not new systems.
-
-Every attack that can deal significant damage shows **what** is happening, **where** it matters and **when** to respond. Weak Contact enemies need no special wind-up; the more dangerous the attack, the stronger the telegraph.
+Enemies use the six attack types in `ATTACK_TYPES.md`, with modifiers from `MODIFIERS.md`, under the attack-type rules in `COMBAT_MATRIX.md` section 13 (including telegraph by danger: the more dangerous the attack, the stronger the tell).
 
 ## 5. Existing roster review
 
@@ -294,7 +293,7 @@ Rotates between two or three defences (e.g. Shell, then Membrane, then none), ea
 
 Fire is literal fire (matches, lighters, candles). Fire enemies set up and use Burning, Fire Pools and Flammable Mucus.
 
-Fire damage and Burning are separate effects. Defences decide how an enemy handles the direct hit; Burning follows its own rules. No core defence gives blanket immunity to Burning, though individual enemies may have bounded ways to reduce it. Fire's value against Shell and Squishy comes from its defined interactions (`DEFENCE_TYPES.md`: Shell and Squishy reduce only a physical carrier component, and do not reduce heat or Burning), not from bypassing defences by default.
+Fire damage and Burning are separate effects: defences handle the hit, Burning follows its own rules (`COMBAT_MATRIX.md` sections 4 and 7).
 
 **Prototype order:** Matchstick first (mobile, telegraphed lane threat), then Birthday Candle (stationary, changes safe ground), then Trapped Wind only if playtests show it is a different decision from an ordinary Pool or Burst Carrier.
 
@@ -302,7 +301,7 @@ Fire damage and Burning are separate effects. Defences decide how an enemy handl
 - **Role:** Charger.
 - **Signature:** strikes its head on a wall, then charges in a straight line and leaves a short burning trail (a thin Pool).
 - **Read:** a spark and flare as it strikes; the lane is lit before it runs.
-- **Attack type:** Contact (the charge), leaving a short Burn trail (a world object, not a second attack type).
+- **Attack type:** Contact (the charge), leaving a short Fire Pool trail (an attack footprint that fills Burn bars, not a reaction ingredient; matrix decision 27).
 - **Counterplay:** step out of the lane; don't kite back through the trail.
 - **Defence:** none. Dies easily, burns out fast.
 - **Spawn context:** two or three at once with a Shooter behind; never with another Pool-maker.
@@ -369,31 +368,23 @@ Not rejected, but each currently adds too many dependencies.
 - A Carrier's effects never get round Shell, Membrane or Evasion.
 
 ### Soul enemies
-- Possessed is the shared hook: a Possessed enemy is a visible chance to set off any of the five Soul reactions (the Soul Mark is retired).
+- Possessed is the shared hook: a Possessed enemy is a visible chance to set off any of the six Soul reactions (the Soul Mark is retired).
 - Fear is a separate status, used only where it creates a distinct, readable threat. It is not what Soul damage inherently does.
 - Each Soul-themed enemy has its own primary behaviour (Ghost Swimmer phases, Echo Cell repeats, Phantom Pregnancy is a boss-scale illusion). Possessed is the player's Soul payoff against any enemy; no Soul-themed enemy is built around needing it.
 
 ### Poise
-- One shared Poise meter. Force adds to it through physical impact; Static adds only when an attack explicitly carries Poise or interruption pressure.
-- At the threshold the enemy briefly staggers or its action is interrupted.
-- Not every Force or Static hit adds Poise.
-- Poise recovers after a period without qualifying hits.
-- Elites and bosses have higher thresholds and shorter control. Bosses are never fully immune: briefly interrupting a telegraphed attack is satisfying counterplay.
+One shared Poise meter (`COMBAT_MATRIX.md` section 4, 11.2 and 11.5). For enemy design: bosses are never fully immune, because briefly interrupting a telegraphed attack is satisfying counterplay.
 
 ### Rules
-1. **Every reaction needs a readable trigger:** a visible state, a world object (Acid Pool, Mucus patch, blood pool), a dual-type weapon or a Pairing.
-2. **No manual targeting:** if a specific enemy must be hit, autoaim must be able to pick it.
-3. **A matching type never auto-wins:** it improves efficiency or opens a window.
-4. **No permanent immunity:** every defence has a route through it (`DEFENCE_TYPES.md`).
-5. **No duplicated jobs:** Force isn't a general Shell breaker beyond heavy hits; Acid isn't a universal bypass; Charge doesn't stun everything; Snared never permanently stops movement; Extraction doesn't sustain forever; Soul doesn't ignore every defence; Burning doesn't spread without limit.
-6. **Short and visible payoffs.**
-7. **Bounded chains:** arcs, ignition, splitting and summoning all have limits.
+Reaction triggers, defences, chains and statuses follow `COMBAT_MATRIX.md`. Two rules are specific to enemies:
+1. **No manual targeting:** if a specific enemy must be hit, autoaim must be able to pick it.
+2. **A matching type never auto-wins:** it improves efficiency or opens a window. Splitting and summoning are bounded like everything else (section 10).
 
 ### What each type wants from enemies
 
 - **Force:** enemies that can be knocked into Pools or walls, or given Poise Pressure while vulnerable. Poor into Membrane; softened by Squishy; heavy hits shed Shell.
 - **Acid:** enemies with Shell to erode; Acid Pools that deny ground.
-- **Static:** clustered enemies for arcs; Charge to interrupt telegraphed attacks; can strengthen Membrane (a risk the player sees).
+- **Static:** clustered enemies for arcs; telegraphed attacks to interrupt (Poise-tagged Static only); Membrane enemies are a poor match (Static recharges them).
 - **Mucus:** fast or evasive enemies to Snare; patches that set up Fire, Static and Acid reactions.
 - **Blood:** high-HP enemies to Bleed; Extraction for limited sustain.
 - **Soul:** mind control. Full build-up makes an enemy Possessed (it fights its mates for a few seconds); all Soul reactions use Possessed. Fear only where an enemy is built around it.
@@ -454,7 +445,6 @@ Make the existing roster coherent before adding new ideas. Separate the heavies 
 | Question | Decision |
 |---|---|
 | Stress Ball | Fixed Squishy; a bounded, telegraphed rebound every 5th qualifying Force hit, or drop it |
-| Fire and Burning | Separate effects: defences handle the hit, Burning has its own rules |
 | Static Sock trigger | Crackle builds by distance travelled; one zap at full, then reset |
 | Mosquito | Fixed bite; kill within 4 s to get half back; not Extraction |
 | Snot Bubble Static | Any Static hit bursts it at once; harmless to you |
@@ -462,9 +452,6 @@ Make the existing roster coherent before adding new ideas. Separate the heavies 
 | Carrier effects | Reuse existing reaction ingredients when they fit; allow justified exceptions |
 | Enemy roles | One merged vocabulary (adds Leech, Relay, Sniper); roles can combine |
 | Soul enemies | Possessed is the shared hook (Soul Mark retired); Fear is selective; Possessed is the player's Soul payoff, not an enemy's design |
-| Trapped Wind | Squishy, not Dodge; Fire lights it; feeds Arc Flash and Flashover |
-| Birthday Candle wax | Keeps wax Pools: wax hardens into short-lived walls (the one justified Carrier exception) |
-| Dodge defence | Renamed Evasion: a miss chance on Contact, Projectile and Spread only |
-| Soul identity | Mind control only: Possessed at full build-up; no essence or resource bypass |
 | Static Sock state | Crackle, not Charge |
-| Poise | One shared Force/Static meter, with explicit contribution and elite and boss limits |
+
+Trapped Wind, Birthday Candle's wax, Evasion (was Dodge), Soul's identity and Poise were settled in `COMBAT_MATRIX.md` section 10 (decisions 6, 8, 16, 17, 26) and section 4.

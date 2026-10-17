@@ -110,7 +110,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 ### 12. Placental Siphon (`siphon`)
 - **Is:** Force, Projectile. Eats enemy bullets within 90 of you and fires them back as hard as they hit you.
 - **Signature:** it rewards a busy screen; with nothing to eat it dribbles a weak spit.
-- **Limits:** projectile blocking rule (12.1). Stores up to 10 bullets. A returned bullet keeps its **original damage type**, so it can fill bars and set off reactions.
+- **Limits:** projectile blocking rule (12.8). Stores up to 10 bullets. A returned bullet keeps its **original damage type**, so it can fill bars and set off reactions.
 - **Start stats:** 15 damage (spit), 40 per load, fires every 0.08 s while stocked.
 
 ### 13. Bubble Wand (`bubble`)
