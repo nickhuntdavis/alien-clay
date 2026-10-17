@@ -24,7 +24,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 14 | Tooth Fairy (`toothfairy`) | Soul (Blood) | Burst | Drops teeth; greedy enemies swim to them and get smitten | Lures |
 | 15 | Upchuck (`upchuck`) | Acid (Acid) | Pool | Lobbed sick puddles; touching puddles merge into a bigger one | Merging pools |
 
-**Spread across types:** Force 2, Acid 2, Static 1, Mucus 2, Blood 2, Soul 4, Fire 1, plus the two weapons already Acid. Soul is heavy here on purpose (it suits tricks), Fire is light because Fire is new: Fire signature weapons are a gap to fill later.
+**Spread across types:** Soul 4, Force 3, Acid 2, Mucus 2, Blood 2, Static 1, Fire 1. Soul is heavy here on purpose (it suits tricks), Fire is light because Fire is new: Fire signature weapons are a gap to fill later.
 
 **Name note:** the shipped game currently calls `wake` "Skid Mark"; this doc restores **Pub Crawl**.
 
