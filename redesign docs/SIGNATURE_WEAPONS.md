@@ -23,7 +23,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 13 | Bubble Wand (`bubble`) | Mucus (Water) | Projectile | Bubbles trap small enemies; anything touching a bubble pops it | (Snared) |
 | 14 | Tooth Fairy (`toothfairy`) | Soul (Blood) | Burst | Drops teeth; greedy enemies swim to them and get smitten | Lures |
 | 15 | Upchuck (`upchuck`) | Acid (Acid) | Pool | Lobbed sick puddles; touching puddles merge into a bigger one | Merging pools |
-| 16 | Heartburn (`flamer`) | Fire (Acid) | Spread, cone | Two streams of reflux; signature to be decided (the reflux puddle was cut) | (none) |
+| 16 | Heartburn (`flamer`) | Fire (Acid) | Spread, cone | Two streams of reflux; each droplet comes back and hits again on the way home | Returning modifier |
 | 17 | Hot and Bothered (new) | Fire (new) | Burst, around you | A wave of heat off your body every 4 s; bigger and hotter the lower your health | (none) |
 | 18 | Carpet Burn (new) | Fire (new) | Contact | Friction: touching enemies at speed sets them alight; sprinting doubles it | (none) |
 | 19 | Getting Warmer (new) | Fire (new) | Beam | Heats up the longer it stays on; at full heat everything in the lane Ignites at once | (none) |
@@ -137,10 +137,10 @@ Fire is new, so the original game had only one Fire-shaped weapon. These five gi
 
 ### 16. Heartburn (`flamer`)
 - **Is:** Fire, Spread (a short cone: 2 streams, range 200, pierces).
-- **Signature:** to be decided. The reflux puddle (a Burn zone) was cut with the other new ground objects (`COMBAT_MATRIX.md` decision 27); until a new one is chosen it is a plain Fire Spread.
-- **Limits:** its old upgrades (Blue Flame, Indigestion, Napalm, Heatwave, Dragon, Hell's Kitchen) suit Fire better than they ever suited Acid; Heatwave keeps the full-circle sweep.
+- **Signature:** "coming back up". Each droplet flies out to full range, then flies back to you, hitting on the way out and on the way back (the Returning modifier, `MODIFIERS.md`). Swimming close to a crowd means most droplets hit twice. (It replaces the reflux puddle, cut with the other new ground objects in `COMBAT_MATRIX.md` decision 27.)
+- **Limits:** droplets still pierce, so they turn back only at full range (not on a third hit); an enemy is hit at most once per pass, so twice per droplet. Its old upgrades (Blue Flame, Indigestion, Napalm, Heatwave, Dragon, Hell's Kitchen) suit Fire better than they ever suited Acid; Heatwave keeps the full-circle sweep.
 - **Description:** "A short-range spray of reflux. It burns going up and coming down."
-- **Start stats:** today's values: 3.4 damage per droplet, 2 streams, a droplet every 0.05 s, 50 per load, 2.1 s reload.
+- **Start stats:** 2.4 damage per droplet (down from today's 3.4, since most hit twice), 2 streams, a droplet every 0.05 s, 50 per load, 2.1 s reload.
 
 ### 17. Hot and Bothered (new)
 - **Is:** Fire, Burst centred on you (radius 110), every 4 s.
