@@ -155,9 +155,9 @@ Ranked by how often to use them:
 
 Avoid: wordplay stacks (more than one twist per name), "random" humour, jokes that need setup the player hasn't seen, explaining the joke, two jokes in one line, puns on pop culture. Wordplay on real sex, contraception and medical phrases is **not** on this list: it is a core technique (see "The corrupted phrase" below).
 
-### The two signature techniques (keep and emulate)
+### The three signature techniques (keep and emulate)
 
-These two are what make the game's names and descriptions funny at a glance. The Scientist never comments on either: they are the writer's jokes, delivered with a straight face.
+These three are what make the game's names and descriptions funny at a glance. The Scientist never comments on either: they are the writer's jokes, delivered with a straight face. In technique 3 the Scientist is the straight man: he genuinely doesn't hear it.
 
 **1. The corrupted phrase.** Take a real phrase from sex, contraception or medicine, change one word, and make the mechanic match the new meaning.
 
@@ -186,6 +186,19 @@ Rules for the borrowed disclaimer:
 1. **Last words only.** It is the final phrase of the line, never the start.
 2. **The number or label must be real-sounding.** Accurate-looking figures beat jokey ones.
 3. **Never follow it with a comment.** The line ends on the disclaimer.
+
+**3. The innocent clinical term.** A genuine, legitimate word that is accidentally funny. The Scientist says it without hearing the comedy in his own phrasing. This is the one technique that must never look like a joke on the page.
+
+- **Flaccid** (a status effect) is the model. It is a normal clinical word, it describes a loss of rigidity or function, and the Scientist would write it in a log without a flicker. The player hears it. He doesn't.
+- Others in the same family: *tumescent*, *turgid*, *limp*, *spent*, *engorged*, *swollen*. Existing statuses like *Lubricated* and *Soaking wet* already work this way.
+
+Rules for the innocent clinical term:
+
+1. **It must be a real term, used correctly.** If it is a stretch, it is a pun, not this.
+2. **The line around it stays clinical.** "Status: flaccid. Duration: 6 seconds." No emphasis, no follow-up.
+3. **He never reacts.** The Scientist's obliviousness is the whole joke. If the narrator flinches, it becomes technique 1 and loses its power.
+4. **Not overtly crude.** The humour lives in the player's ear, not on the page. Save the crude words for Tier 3.
+5. **Best in status effects, stat labels, form fields and lab notes**, anywhere a flat, technical word is expected.
 
 **Quality test:** say the name aloud. If the reaction is a small groan followed by a grin, keep it. If it needs a second sentence, rewrite it. If it is cute but doesn't describe the mechanic, rewrite it.
 
@@ -360,6 +373,8 @@ Lost Tadpole, Stray Pube, Bit of Sweetcorn, Navel Fluff, Bogey, Glitter. Plain n
 3. **"A stretchy shield... 98% effective."** (Latex Barrier) The borrowed disclaimer. A real statistic with a straight face.
 4. **Morning Sickness, Skid Mark, Placental Siphon, Latex Barrier** Real terms used as plain names. No change needed, the body part or event is the joke.
 5. **"Over too soon."** (the slow-time Feat description in `data.js`) A one-liner that is a sex joke and an accurate description of the mechanic.
+
+6. **Flaccid** (status effect) The innocent clinical term. A legitimate word that is funny only in the player's ear.
 
 ### Takeaways
 

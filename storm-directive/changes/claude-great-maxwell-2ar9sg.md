@@ -10,3 +10,4 @@
 - voice_and_tone.md: added "The world" (setting, sample naming 1A/1B, the Scientist and his guardrails, decision table, optional dials). Persona renamed from Lab Tech to the Scientist. Flagged lines that imply an audience or colleagues.
 - voice_and_tone.md: letter drift decided (Scientist grows slightly more invested across runs of one line, via events only).
 - voice_and_tone.md: wordplay is now a core technique (the corrupted phrase, the borrowed disclaimer) with Premature Evangelation, Projectile Dysfunction and 98% effective as benchmarks. Removed the earlier "avoid puns" guidance.
+- voice_and_tone.md: added the third signature technique, the innocent clinical term (Flaccid as the model).
