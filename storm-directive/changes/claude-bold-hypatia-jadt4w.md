@@ -1,3 +1,11 @@
+## 2026-10-17 Redesign docs: Fire signature weapon drafts
+- Systems: docs only (redesign docs)
+- Files: redesign docs/SIGNATURE_WEAPONS.md
+- What: five Fire signature drafts, one per attack type beside Pub Crawl's Pool: Heartburn (original `flamer`, moved from Acid), Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation. Names checked against the code (Hot Flush, Running a Temperature and Fever Dream are taken).
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs only). Moving `flamer` from Acid to Fire changes Heartburn's existing upgrades and Pairings when ported.
+
 ## 2026-10-17 Redesign docs: signature weapons
 - Systems: docs only (redesign docs)
 - Files: redesign docs/SIGNATURE_WEAPONS.md (new), COMBAT_MATRIX.md (section 12, Fear row), README.md

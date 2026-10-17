@@ -1,6 +1,6 @@
 # Signature Weapons
 
-Working proposal, 17 Oct 2026. Fifteen favourite weapons from the original game, brought back **alongside** v10's 42-weapon matrix (6 attack types × 7 damage types, `ATTACK_TYPES.md`). The matrix weapons are the plain baseline; a signature weapon is a matrix slot plus one signature behaviour that no other weapon has.
+Working proposal, 17 Oct 2026. Fifteen favourite weapons from the original game, plus five Fire drafts (16 to 20), brought back **alongside** v10's 42-weapon matrix (6 attack types × 7 damage types, `ATTACK_TYPES.md`). The matrix weapons are the plain baseline; a signature weapon is a matrix slot plus one signature behaviour that no other weapon has.
 
 Each signature weapon has exactly one damage type and one attack type, and follows every rule in `COMBAT_MATRIX.md` (sections 1 to 11). The new rules they need are in `COMBAT_MATRIX.md` section 12. Starting stats are today's values from `data.js` and `armoury.js`; their level-up upgrades (the `sig` lists in code) carry over, except any that depend on a retired type (Cooties, Oil, Water), which get rewritten when the weapon is ported.
 
@@ -23,8 +23,13 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 13 | Bubble Wand (`bubble`) | Mucus (Water) | Projectile | Bubbles trap small enemies; anything touching a bubble pops it | (Snared) |
 | 14 | Tooth Fairy (`toothfairy`) | Soul (Blood) | Burst | Drops teeth; greedy enemies swim to them and get smitten | Lures |
 | 15 | Upchuck (`upchuck`) | Acid (Acid) | Pool | Lobbed sick puddles; touching puddles merge into a bigger one | Merging pools |
+| 16 | Heartburn (`flamer`) | Fire (Acid) | Spread, cone | Two streams of reflux; anything that dies burning leaves a reflux puddle (Burn zone) | (none) |
+| 17 | Hot and Bothered (new) | Fire (new) | Burst, around you | A wave of heat off your body every 4 s; bigger and hotter the lower your health | (none) |
+| 18 | Carpet Burn (new) | Fire (new) | Contact | Friction: touching enemies at speed sets them alight; sprinting doubles it | (none) |
+| 19 | Getting Warmer (new) | Fire (new) | Beam | Heats up the longer it stays on; at full heat everything in the lane Ignites at once | (none) |
+| 20 | Burning Sensation (new) | Fire (new) | Projectile | Its Burn never drains: it lingers until Ignition, death or Mucus | (none) |
 
-**Spread across types:** Soul 4, Force 3, Acid 2, Mucus 2, Blood 2, Static 1, Fire 1. Soul is heavy here on purpose (it suits tricks), Fire is light because Fire is new: Fire signature weapons are a gap to fill later.
+**Spread across types:** Fire 6, Soul 4, Force 3, Acid 2, Mucus 2, Blood 2, Static 1. Fire now covers all six attack types (Pub Crawl is its Pool); rows 16 to 20 are drafts.
 
 **Name note:** the shipped game currently calls `wake` "Skid Mark"; this doc restores **Pub Crawl**.
 
@@ -119,6 +124,45 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 - **Signature:** puddles that touch merge into one bigger, nastier puddle, so throwing at one spot pays.
 - **Limits:** merging pools rule (12.7): a merged puddle grows to radius 100 at most and its timer resets once per merge.
 - **Start stats:** 16 damage, 1.2 s cooldown, 3 per load.
+
+## Fire signature weapons (drafts)
+
+Fire is new, so the original game had only one Fire-shaped weapon. These five give Fire one signature weapon per attack type (Pub Crawl is the sixth, the Pool). Heartburn is an original (`flamer`), moved from Acid to Fire; the other four are new. Descriptions are written in the Scientist's flat voice (`VOICE_GUIDE.md`); numbers are starting points.
+
+### 16. Heartburn (`flamer`)
+- **Is:** Fire, Spread (a short cone: 2 streams, range 200, pierces).
+- **Signature:** anything that dies while burning from Heartburn leaves a small Burn zone where it fell (a reflux puddle), which feeds Flammable Mucus and keeps a crowd alight.
+- **Limits:** puddles are standard Burn zones (11.6) and count towards the 40-object cap. Its old upgrades (Blue Flame, Indigestion, Napalm, Heatwave, Dragon, Hell's Kitchen) suit Fire better than they ever suited Acid; Heatwave keeps the full-circle sweep.
+- **Description:** "A short-range spray of reflux. It burns going up and coming down."
+- **Start stats:** today's values: 3.4 damage per droplet, 2 streams, a droplet every 0.05 s, 50 per load, 2.1 s reload.
+
+### 17. Hot and Bothered (new)
+- **Is:** Fire, Burst centred on you (radius 110), every 4 s.
+- **Signature:** the lower your health, the bigger and hotter it gets: up to +60% radius and +60% damage at 25% health. A comeback weapon for a desperate moment.
+- **Limits:** it never hurts you. It scales from your current health, not damage taken, so healing cools it down.
+- **Description:** "Subject's surface temperature rises sharply under stress. The surrounding area is affected. The subject denies this."
+- **Start stats:** 22 damage, 4 s cooldown.
+
+### 18. Carpet Burn (new)
+- **Is:** Fire, Contact.
+- **Signature:** friction. Touching an enemy while swimming deals Fire damage scaled by your speed; while sprinting, the hit fills the Burn bar twice as fast. It rewards autorun modes that keep moving (KITE, ORBIT) and sprint builds.
+- **Limits:** each enemy once per 0.5 s. It is a Contact hit, so Thorns answers it. No damage while standing still.
+- **Description:** "Friction burns. Mostly theirs."
+- **Start stats:** 10 damage at normal speed, 20 while sprinting.
+
+### 19. Getting Warmer (new)
+- **Is:** Fire, Beam (range 260).
+- **Signature:** heats up while it keeps firing on enemies: +10% damage per second, up to +80%. At full heat it boils over: everything in the lane Ignites at once, then the beam cools for 1.5 s and starts again from cold.
+- **Limits:** the boil-over is an ordinary Ignition on each target (their Burn bars reset). Any 1 s gap with nothing in the lane cools it back to zero.
+- **Description:** "Warmer. Warmer. Considerably warmer than recommended."
+- **Start stats:** 4 damage per tick, a tick every 0.1 s.
+
+### 20. Burning Sensation (new)
+- **Is:** Fire, Projectile.
+- **Signature:** the Burn bar it fills never drains. Every other bar drains after 2 s without a hit (11.2); a Burning Sensation lingers until it Ignites, the target dies, or Mucus puts it out.
+- **Limits:** only the part of the bar this weapon filled stays put; Burn from other weapons drains as normal. Snared still clears it (Mucus smothers Fire).
+- **Description:** "A persistent burning sensation. It should clear up on its own. It will not."
+- **Start stats:** 14 damage, 0.6 s cooldown, 6 per load.
 
 ## Old Pairings that use these weapons
 
