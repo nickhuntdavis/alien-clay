@@ -9,6 +9,7 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - Player guide (generated): `storm-directive/GAME_GUIDE.md`, from `storm-directive/tests/tools/guide.js`.
 - Tests: `storm-directive/tests/` (Playwright, headless Chromium).
 - Visual style guide: `storm-directive/STYLE.md`. Read it before redesigning anything drawn in the world.
+- Voice guide: `storm-directive/voice_and_tone.md`. Read it before writing or editing any player-facing text (cards, narrator lines, names, tutorials, Field Guide).
 - System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/changes/<branch>.md` per session, folded into `storm-directive/CHANGELOG.md` on merge into `main`.
 
 ## Working with the user

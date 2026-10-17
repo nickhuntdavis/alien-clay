@@ -5,3 +5,4 @@
 - Save data: none
 - Hooks: none
 - Risk: none
+- CLAUDE.md now points sessions at voice_and_tone.md before any player-facing copy.
