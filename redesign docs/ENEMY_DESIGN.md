@@ -115,40 +115,42 @@ A first-pass disposition, not a rebuild order. The defence column uses the five 
 
 ### 5.1 Regular enemies
 
-| Enemy | Disposition | Defence | Direction |
-|---|---|---|---|
-| Also-Ran (`crawler`) | Keep | None | Baseline chaser (Contact); teaches movement. |
-| Sprinter (`skitter`) | Keep | Evasion | Faster, more urgent chaser; its Evasion suits its darting movement. |
-| Paramecium (`paramecium`) | Review overlap | None | Fast ciliate swimmer; keep only if its movement differs clearly from the Sprinter's. |
-| Antibody (`spitter`) | Keep, clarify | None | Projectile shooter; readable shot and cadence. |
-| Krill (`krill`) | Keep | None | Swarm; numbers, not individual complexity. |
-| Macrophage (`brute`) | Keep, clarify | Squishy | Tank. Force hits feel soft and barely push it; other types work normally. |
-| Amoeba (`amoeba`) | Revise or test | Squishy | Engulf (Contact) with a clear tell, short hold and a reliable escape. |
-| Mitotic Cell (`splitter`) | Keep, simplify | None | Splitter with a hard split cap. |
-| Spermlet Swarm (`wisp`) | Review overlap | None | Keep beside Krill only if movement or formation differs. |
-| Acid Bubble (`bomber`) | Keep, clarify | None | Burst then Acid Pool; the Pool must look unlike a projectile. |
-| Quantum Swimmer (`blinker`) | Revise | Evasion | Short, predictable relocation with a clear reappearance; never repeatedly untargetable. |
-| Rotifer (`rotifer`) | Keep if distinct | None | Thief; the stolen thing and the way to get it back are obvious. |
-| Nurse Cell (`medic`) | Keep | None | Healer; readable target or radius; no endless sustain. |
-| Headbutter (`charger`) | Keep, clarify | None | Charger (Contact); telegraphed lane, enough time to leave it. |
-| Pinworm (`pinworm`) | Review overlap | None | Merge or give it one clear movement behaviour. |
-| Mucus Wall (`bulwark`) | Revise | Membrane | Grants a visible, capped Membrane to nearby allies; never makes them untouchable or forces aiming round it. |
-| Volvox (`volvox`) | Review overlap | None | Keep only if its formation or split adds a distinct role. |
-| Cytokine Caster (`warlock`) | Keep if distinct | None | Pick one job (damage, buff or control), not all three. |
-| Diatom (`diatom`) | Keep if distinct | Shell | Shelled shooter; Acid and heavy Force shed layers. |
-| Ghost Swimmer (`phantom`) | Revise | Evasion | Soul-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
-| Mother Cell (`summoner`) | Keep, cap spawns | None | Summoner; visible summon cue and a strict cap. |
-| Enzyme Spire (`spire`) | Keep | Shell | Stationary turret (Projectile or Beam); readable lane; reason to reposition or prioritise. |
-| Plasmodium (`plasmod`) | Review overlap | None | Keep only if its split gives a genuinely different formation. |
-| Killer T-Cell (`lancer`) | Keep if distinct | None | Must not be a third "fires at you" enemy beside Antibody and Cytokine Caster; give it Spread or Beam. |
-| Water Bear (`waterbear`) | Keep, clarify | Shell | Heavy; many layers, so it feels unlike the Squishy Macrophage. |
-| Alpha Swimmer (`juggernaut`) | Review role | Membrane | Its identity becomes the regenerating Membrane: rewards keeping up pressure, punishes breaking off. |
-| Thorny enemy (new or re-skin) | Add | Thorns | One ordinary chaser that punishes Contact weapons and favours ranged attack types. |
+| Enemy | Disposition | Defence | Damage type | Direction |
+|---|---|---|---|---|
+| Also-Ran (`crawler`) | Keep | None | Force | Baseline chaser (Contact); teaches movement. |
+| Sprinter (`skitter`) | Keep | Evasion | Force | Faster, more urgent chaser; its Evasion suits its darting movement. |
+| Paramecium (`paramecium`) | Review overlap | None | Force | Fast ciliate swimmer; keep only if its movement differs clearly from the Sprinter's. |
+| Antibody (`spitter`) | Keep, clarify | None | Acid | Projectile shooter; readable shot and cadence. |
+| Krill (`krill`) | Keep | None | Force | Swarm; numbers, not individual complexity. |
+| Macrophage (`brute`) | Keep, clarify | Squishy | Force + Acid | Tank. Force hits feel soft and barely push it; other types work normally. |
+| Amoeba (`amoeba`) | Revise or test | Squishy | Acid | Engulf (Contact) with a clear tell, short hold and a reliable escape. |
+| Mitotic Cell (`splitter`) | Keep, simplify | None | Force | Splitter with a hard split cap. |
+| Spermlet Swarm (`wisp`) | Review overlap | None | Force | Keep beside Krill only if movement or formation differs. |
+| Acid Bubble (`bomber`) | Keep, clarify | None | Acid | Burst then Acid Pool; the Pool must look unlike a projectile. |
+| Quantum Swimmer (`blinker`) | Revise | Evasion | Static | Short, predictable relocation with a clear reappearance; never repeatedly untargetable. |
+| Rotifer (`rotifer`) | Keep if distinct | None | Force | Thief; the stolen thing and the way to get it back are obvious. |
+| Nurse Cell (`medic`) | Keep | None | Force | Healer; readable target or radius; no endless sustain. |
+| Headbutter (`charger`) | Keep, clarify | None | Force | Charger (Contact); telegraphed lane, enough time to leave it. |
+| Pinworm (`pinworm`) | Review overlap | None | Blood | Merge or give it one clear movement behaviour. |
+| Mucus Wall (`bulwark`) | Revise | Membrane | Mucus | Grants a visible, capped Membrane to nearby allies; never makes them untouchable or forces aiming round it. |
+| Volvox (`volvox`) | Review overlap | None | Force | Keep only if its formation or split adds a distinct role. |
+| Cytokine Caster (`warlock`) | Keep if distinct | None | Fire | Pick one job (damage, buff or control), not all three. |
+| Diatom (`diatom`) | Keep if distinct | Shell | Force | Shelled shooter; Acid and heavy Force shed layers. |
+| Ghost Swimmer (`phantom`) | Revise | Evasion | Soul | Soul-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
+| Mother Cell (`summoner`) | Keep, cap spawns | None | Mucus | Summoner; visible summon cue and a strict cap. |
+| Enzyme Spire (`spire`) | Keep | Shell | Acid | Stationary turret (Projectile or Beam); readable lane; reason to reposition or prioritise. |
+| Plasmodium (`plasmod`) | Review overlap | None | Mucus | Keep only if its split gives a genuinely different formation. |
+| Killer T-Cell (`lancer`) | Keep if distinct | None | Blood | Must not be a third "fires at you" enemy beside Antibody and Cytokine Caster; give it Spread or Beam. |
+| Water Bear (`waterbear`) | Keep, clarify | Shell | Force | Heavy; many layers, so it feels unlike the Squishy Macrophage. |
+| Alpha Swimmer (`juggernaut`) | Review role | Membrane | Force + Static | Its identity becomes the regenerating Membrane: rewards keeping up pressure, punishes breaking off. |
+| Thorny enemy (new or re-skin) | Add | Thorns | Blood | One ordinary chaser that punishes Contact weapons and favours ranged attack types. |
 
 **Consolidation focus:**
 1. **Splitters:** Mitotic Cell, Volvox and Plasmodium must not all be the same fight.
 2. **Shooters:** Antibody, Cytokine Caster and Killer T-Cell need different attack types (Projectile, Spread, Beam) or roles.
 3. **Chasers and heavies:** Also-Ran, Pinworm, Macrophage, Water Bear and Alpha Swimmer are separated by defence (none, Squishy, Shell, Membrane), not HP.
+
+Damage types follow a bell curve: Force most common, Soul least, some enemies two types (`COMBAT_MATRIX.md` 11.7). Sections 5.2, 5.3 and the bosses get the same column in a later pass.
 
 ### 5.2 Spawned-only enemies
 

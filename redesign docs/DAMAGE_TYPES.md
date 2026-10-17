@@ -35,7 +35,7 @@ Static is the **chain-and-interrupt** type. It disrupts actions through electric
 - **Damage profile:** Medium burst, low damage over time, high multi-target potential.
 - **Combat identity:** Chain damage, interruption, conductivity, and overload.
 - **Primary verb:** Discharge.
-- **Defence interaction:** Static can rapidly recharge or temporarily supercharge Membrane. A specific attack should use one clear payoff, with a visible cue and a bounded benefit; repeated hits must not create an infinite Membrane loop. Static is not blocked by physical resistance, and a Membrane does not imply immunity to Charge or interruption.
+- **Defence interaction:** Static recharges Membrane (+25% capacity, once per 5 s, with a visible cue), so Static is a poor choice against Membrane enemies. Static is not blocked by physical resistance, and a Membrane does not imply immunity to Charge or interruption.
 
 ### Mucus
 
@@ -87,7 +87,7 @@ Fire is the **ignition** type. Fire hits and Burn zones fill a visible Burn bar 
 - **A blocked hit is not blanket status immunity.** An attached status is prevented when its application hit is prevented, unless a specific resistance or immunity rule says otherwise.
 - **Persistent hazards and existing statuses remain.** A missed projectile does not erase an Acid Pool or Burn zone; avoiding a hit does not cleanse a status already applied.
 - **Keep each defence distinct:** Squishy reduces qualifying physical damage proportionally; Membrane absorbs eligible damage in a regenerating pool and resists Force; Shell subtracts a fixed amount from qualifying physical hits through finite, non-regenerating layers; Thorns retaliates once per qualifying connected Contact hit without mitigating it; Evasion is a miss chance against Contact, Projectile and Spread hits only.
-- **Static–Membrane is a deliberate interaction.** Static may rapidly recharge or supercharge Membrane, with a clear cue, bounded benefit, and no repeat-hit loop.
+- **Static–Membrane is a deliberate interaction.** Static recharges Membrane (+25% capacity, once per 5 s), with a clear cue.
 - **Design reactions deliberately.** Every one of the 21 pairs has one designed reaction, set off by one of four trigger kinds (state + hit, world object + hit, dual-type weapon, Pairing; `COMBAT_MATRIX.md`). Two types touching the same enemy is never enough on its own. One main payoff, tuned for fast mobile combat.
 - **Players can have any defence and any status except Possessed.**
 
@@ -410,7 +410,7 @@ Static is the chain-pressure and action-disruption type. It delivers electrical 
 - **Arc:** Some attacks jump to a limited number of eligible nearby targets, with diminishing damage or a fixed jump limit.
 - **Interrupt:** Static can interrupt a clearly tagged action during a readable window. It does not automatically interrupt every enemy or every hit.
 - **Conductive world:** Explicitly conductive pools or patches can carry a single pulse or one bounded arc.
-- **Membrane interaction:** Static can rapidly recharge or supercharge a Membrane, but the benefit is bounded, clearly telegraphed, and cannot loop through repeated hits.
+- **Membrane interaction:** Static recharges a Membrane (+25% capacity, once per 5 s, clearly telegraphed).
 
 ## Strengths and limits
 
@@ -421,7 +421,7 @@ Static is the chain-pressure and action-disruption type. It delivers electrical 
 ## Defence interactions
 
 - **Squishy / Absorption:** No inherent resistance to electrical damage or Charge; only an explicit physical impulse component is affected.
-- **Membrane:** Eligible direct damage is absorbed by the Membrane. Static may recharge/supercharge it as a separate, bounded, visibly signalled interaction; do not allow repeat-hit loops.
+- **Membrane:** Eligible direct damage is absorbed by the Membrane. Static recharges it (+25% capacity, once per 5 s) as a separate, visibly signalled interaction.
 - **Shell:** Only a separately tagged qualifying physical component is reduced by Shell. Shell does not inherently block electrical Charge or interruption.
 - **Thorns:** Only a qualifying melee/contact hit triggers one retaliation; a remote arc or world pulse does not automatically count as contact.
 - **Evasion:** A miss (Evasion only applies to Contact, Projectile and Spread hits) avoids the hit and everything attached to it. Existing charged patches and active arcs follow their own rules.

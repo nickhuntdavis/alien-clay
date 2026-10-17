@@ -12,7 +12,7 @@ A reference for the five core defensive mechanics in Spawn Prawn. Each defence c
 ## Core defence roster
 
 - **Squishy / Absorption:** proportionally reduces blunt physical impact (Force) and may soften impulse; cuts go through.
-- **Membrane:** a separate regenerating Membrane pool; Force is resisted, while Static can supercharge or rapidly recharge it.
+- **Membrane:** a separate regenerating Membrane pool; Force is resisted, while Static recharges it.
 - **Shell:** finite, non-regenerating layers that reduce qualifying physical damage; ordinary hits wear a layer slowly, Acid strips them fast, a heavy Force hit knocks one off at once.
 - **Thorns:** returns damage after qualifying melee/contact hits; does not reduce incoming damage.
 - **Evasion:** a miss chance against Contact, Projectile and Spread hits; never Burst, Beam or Pool. It does not erase existing statuses or hazards.
@@ -23,7 +23,7 @@ A reference for the five core defensive mechanics in Spawn Prawn. Each defence c
 - **Who can have them.** Enemies and the player can both have any of the five (the player through mutations and items).
 - **Squishy uses proportional reduction.** It softens blunt impact rather than subtracting a fixed amount.
 - **Shell uses finite layers.** Layers provide a fixed reduction against qualifying physical hits. Each layer has a little health: ordinary hits wear it slowly, Acid's Corrosion fast, and a heavy Force hit removes it at once. Lost layers stay gone for the encounter. Exact values remain for tuning.
-- **Membrane is its own pool.** It absorbs eligible direct damage before health. Force is less effective against the membrane than ordinary eligible damage; Static can accelerate recovery or temporarily supercharge it, depending on the attack/ability rule chosen.
+- **Membrane is its own pool.** It absorbs eligible direct damage before health. Force is less effective against the membrane than ordinary eligible damage; Static recharges it (+25% capacity, once per 5 s).
 - **Damage blocking is not status immunity.** Prevent an attached status only when its application hit is prevented or a specific resistance says so.
 - **Persistent hazards resolve separately.** A missed projectile gives no immunity to an Acid Pool, Burn zone or other hazard entered later.
 - **Thorns triggers once per qualifying connected contact hit.** It does not mitigate that hit; an Evasion miss means no contact and no retaliation.
@@ -162,9 +162,9 @@ Force is physical damage. Membrane is unusually resistant to Force: Force damage
 <aside>
 ⚡
 
-**Static supercharge / rapid recharge**
+**Static recharge**
 
-Static can interact with Membrane by quickly recharging it or temporarily supercharging it. A specific attack should choose one clear payoff: restore Membrane capacity quickly, or briefly raise the Membrane's capacity/effect. Telegraph the charge and cap the benefit; do not let repeated Static hits create an infinite Membrane loop.
+A Static hit restores 25% of the Membrane's capacity, at most once every 5 s, with a visible crackle across the bubble. There is no supercharge (no capacity above full).
 
 </aside>
 
@@ -176,9 +176,9 @@ Static can interact with Membrane by quickly recharging it or temporarily superc
 | Recharge delay | Time without Membrane damage before recovery begins |
 | Recharge rate | Speed of recovery once it starts |
 | Force modifier | Force drains the pool less efficiently than ordinary eligible damage |
-| Static interaction | A bounded recharge or short overcharge effect, with a clear cue and cap |
+| Static interaction | Recharges 25% of capacity, at most once per 5 s, with a clear cue |
 
-Exact values and whether a given Static attack recharges or supercharges Membrane remain ability-level tuning decisions.
+Starting values: `COMBAT_MATRIX.md` section 11.4.
 
 ## Strengths & weaknesses
 
@@ -186,13 +186,13 @@ Exact values and whether a given Static attack recharges or supercharges Membran
 | --- | --- |
 | Sustained protection while the pool remains | Continuous pressure prevents recovery |
 | Eligible direct damage before it reaches health | Force is resisted but still contributes; do not make the Membrane unbreakable |
-| Static can reinforce the Membrane | Static supercharge can be a risk/reward enemy mechanic; make its trigger visible |
+| Static can reinforce the Membrane | Static recharge is a risk the player sees; make its tell visible |
 
 ## Interactions with damage types
 
 - **Force — Resists:** Force damage drains Membrane less efficiently; Force knockback against a creature with an active Membrane is reduced. Force still damages the pool.
 - **Acid — Normal:** Acid drains the Membrane as eligible damage. Corrosion does not disable regeneration.
-- **Static — Signature interaction:** Static can rapidly recharge or supercharge Membrane. Bound the amount/duration and prevent repeat-hit loops.
+- **Static — Signature interaction:** Static recharges Membrane: +25% capacity, once per 5 s.
 - **Mucus — Conditional:** the Membrane may absorb an eligible direct delivery hit, but does not automatically prevent Mucus patches or later contact with them.
 - **Blood — Conditional:** eligible direct Blood damage is absorbed by the pool; existing Bleed or Extraction follows its own application rules.
 - **Soul — Normal:** eligible direct Soul damage is absorbed like any other; no bypass. Build-up toward Possessed applies only if the hit carrying it is not blocked.
@@ -201,7 +201,7 @@ Exact values and whether a given Static attack recharges or supercharges Membran
 ## Design guardrails
 
 - Make Membrane state and recharge unmistakable at phone-screen scale.
-- Static's recharge/supercharge must have a bounded payoff and a readable tell.
+- Static's recharge has a fixed amount, a 5 s limit and a readable tell.
 - A full Membrane does not imply immunity to statuses, control, or hazards.
 - Do not confuse Membrane with Shell: Membrane recovers; Shell loses finite layers for the encounter.
 

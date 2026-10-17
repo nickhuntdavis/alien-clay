@@ -2,7 +2,7 @@
 
 ## Current design direction (17 Oct 2026)
 
-**Status: working proposal; validate in playtests before treating values or effects as locked.** The canonical damage types are **Force, Acid, Static, Mucus, Blood, Soul and Fire**. Cooties, Oil and Water are out of scope and must not appear as active types in this matrix. Every open question from the reconciliation pass is settled in section 10.
+**Status: working proposal; validate in playtests before treating values or effects as locked.** The canonical damage types are **Force, Acid, Static, Mucus, Blood, Soul and Fire**. Cooties, Oil and Water are out of scope and must not appear as active types in this matrix. Every open question from the reconciliation pass is settled in section 10; formulas and starting values are in section 11.
 
 ### Shared vocabulary
 
@@ -110,13 +110,13 @@ Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, B
 | Poise Pressure | Force (Static when tagged) | One shared meter; at threshold, a brief stagger or interrupt | Not every hit adds Poise; recovers after a spell without qualifying hits; elites and bosses have higher thresholds and shorter control, never full immunity | Force adds by impact; Static only when an attack explicitly carries Poise or interruption pressure |
 | Knockback | Force | Repositions the target; a collision may add a payoff | Space, Squishy, anchoring; bonus only on an actual collision | Not a damage multiplier |
 | Corrosion | Acid | A visible build-up from Acid hits. On a Shell creature, a full bar strips one layer for good and resets. Any creature can carry it; it is the "Acid-coated" state reactions use | No timer or stacks; no damage over time | Acid's only status; Pools are its only ongoing damage |
-| Charge | Static | Transfers a bounded hit or interrupts a tagged action | Charge decay, fixed jump limit, diminishing damage | Do not combine full chain damage with full interrupt on every hit |
+| Charge | Static | A Static hit makes the target Charged (3 s): it takes +20% Static damage and passes arcs on; it discharges one arc on death | Fixed jump limit (3) and 70% falloff; never interrupts by itself | A conductor state, not a build-up bar; interrupts come through Poise |
 | Snared | Mucus | Briefly restricts movement (also covers "Mucus-stuck" and "Adhered"). Becoming Snared clears a Burn bar: Mucus smothers Fire | Short duration; one clear control strength per effect | Slow, root and snare are not interchangeable labels |
 | Conjoined | Mucus | Snared creatures stuck together in one shared green membrane: none can move, and they may hit each other | Happens when two Snared creatures touch, or when one Mucus attack's area covers several at once; capped group size; short | Distinct from Snared: it needs two or more creatures |
 | Bleed | Blood | Damage over time; a named finisher may consume it for one payoff | Stack cap and decay. A creature that dies while bleeding leaves a small blood pool | Wounds are distinct from Acid erosion |
-| Extraction | Blood | Converts a qualifying hit or wound into limited sustain | Clear range and cap | Separate from ordinary damage and healing |
+| Extraction | Blood | An enemy dying while bleeding heals you a little | 1% of max health per kill, max 6 health per second | Separate from ordinary damage and healing |
 | Possessed | Soul | At full Soul build-up the enemy fights its own mates for a few seconds | Clear duration and tell; cooldown before it can repeat; elites shorter; bosses reduced, never fully controlled; the player is exempt | The only control Soul owns; not Fear |
-| Fear | Explicit source tag only | Alters behaviour or control | Duration cap and recovery | Fear is a status, not the Soul type itself |
+| Fear | A player Feat ("Jump Scare", future) | Enemies flee for 2 s | Duration cap; no enemy applies Fear | Fear is a status, not the Soul type itself |
 | Burning | Fire | Fire hits fill a visible Burn bar; while it holds Burn the target takes a short damage over time; at full, Ignition: one flare on that target, then the bar resets | No spread except through reactions and Burn zones; Snared puts it out | Do not add extra effects to every Fire hit |
 
 ### World objects
@@ -177,7 +177,7 @@ Read each cell by **damage component**, not damage-type name alone: direct hit, 
 | --- | --- | --- | --- | --- | --- |
 | Force | Proportionally reduces the hit and softens knockback and collision | Drains it less efficiently and knocks back less while up | Reduced by the fixed layer value; a heavy hit knocks off one layer | Triggers only on a qualifying Contact hit | Contact, Projectile and Spread hits can miss; Burst, Beam and Pool always land |
 | Acid | No effect on Acid damage, Corrosion or Pool exposure | Absorbs eligible direct damage; Corrosion applies only if the hit got through; does not stop regeneration | Corrosion strips layers fast; lost layers stay gone | Not triggered by Pools or remote hazards | As Force; never protects from a Pool already on the ground |
-| Static | No effect on Charge or interruption unless there is an impulse component | Can be recharged or supercharged (bounded, visible, no loop) | Not reduced unless the component is physical | Not triggered by arcs or remote effects | As Force; an active arc follows its own rule |
+| Static | No effect on Charge or interruption unless there is an impulse component | Recharged: +25% capacity, once per 5 s | Not reduced unless the component is physical | Not triggered by arcs or remote effects | As Force; an active arc follows its own rule |
 | Mucus | No effect on Snared or Conjoined | May absorb the carrier hit; does not erase a patch already placed | Does not reduce Snared or movement control | Not triggered by patches | As Force; a patch still Snares whatever enters it |
 | Blood | Cuts go through (blunt only); Bleed and Extraction not reduced | May absorb the carrier hit; an existing wound is not removed | Reduces the physical component; Bleed ticks not reduced | Not triggered by Bleed ticks | As Force; does not undo an applied wound or a pool |
 | Soul | No effect on build-up or Possessed unless there is an impulse component | Absorbs eligible direct Soul damage; no bypass; build-up applies only if the hit isn't blocked | Reduces physical components; no bypass | Not triggered by ranged Soul attacks | As Force; does not end Possessed |
@@ -225,7 +225,7 @@ Settled 17 Oct 2026: the four low-confidence Soul reactions (Soul Purpose, Soul 
 ### Defence rules
 
 - **Squishy / Absorption:** proportional reduction of blunt physical impact (Force); cuts go through; may soften impulse and knockback; no status resistance.
-- **Membrane:** separate pool, absorbs eligible direct damage before health, regenerates after a short spell without Membrane damage. Force drains it less efficiently and knocks back less while it is up. Static may recharge or supercharge it, with a visible cap and no loop. Soul damage is absorbed normally; no bypass.
+- **Membrane:** separate pool, absorbs eligible direct damage before health, regenerates after a short spell without Membrane damage. Force drains it less efficiently and knocks back less while it is up. Static recharges it (+25% capacity, once per 5 s), with a visible tell. Soul damage is absorbed normally; no bypass.
 - **Shell:** finite, non-regenerating layers with fixed reduction against qualifying physical hits. Each layer has a little health: ordinary hits wear it slowly, Acid's Corrosion fast, heavy Force removes one at once. Shell does not mitigate Burn or heat.
 - **Thorns:** no mitigation. Retaliates once per qualifying Contact hit. Ranged attacks, hazards, non-contact effects and Evasion misses do not trigger it.
 - **Evasion:** a miss chance against Contact, Projectile and Spread hits, per pellet, with a visible "miss" puff. A miss avoids the hit and its attached effects. Never applies to Burst, Beam or Pool. Clears no existing status or hazard.
@@ -238,7 +238,7 @@ Settled 17 Oct 2026: the four low-confidence Soul reactions (Soul Purpose, Soul 
 | Heavy Force can shed a Shell layer | Accepted | A thresholded heavy hit removes one layer. The same threshold defines a heavy hit for Blood Pressure. |
 | Ordinary hits wear Shell | Accepted | Each layer has a little health; ordinary qualifying hits wear it slowly. |
 | Membrane resists Force impact | Accepted | Less drain and less knockback while the Membrane is up. |
-| Static recharges / supercharges Membrane | Accepted | Bounded, visible, no loop. |
+| Static recharges Membrane | Accepted | +25% capacity, once per 5 s; visible; no supercharge. |
 | Membrane absorbs eligible direct damage | Accepted | Status prevention depends on whether the applying hit was prevented. |
 | Shell and Burn remain separate | Accepted | Shell mitigates the physical component, not heat. |
 | Squishy absorbs blunt impact | Accepted (verify) | Proportional; blunt only; no status resistance. |
@@ -297,3 +297,80 @@ Settled one by one after a cross-doc review. Every redesign doc follows these.
 | 24 | Conjoined trigger | Two Snared creatures touch, or one Mucus attack covers several at once |
 | 25 | What puts Fire out | Becoming Snared clears the Burn bar |
 | 26 | Birthday Candle wax | Keeps wax Pools: wax hardens into a temporary wall (a justified exception) |
+
+## 11. Formulas and starting values (17 Oct 2026)
+
+Starting points for the first build, chosen against today's code (player 120 health; enemies 4 to 420 health; armour 0 to 12). Every number is for tuning in playtest; the formulas are the rules.
+
+### 11.1 How a hit resolves (in order)
+
+1. **Evasion roll** (Contact, Projectile, Spread only; Spread per pellet). A miss stops here: no damage, no status, no Thorns.
+2. **Raw damage** = weapon damage × buffs. Build-up bars and the heavy-hit test use this number.
+3. **Membrane** absorbs first (Force does 50% to it).
+4. **Shell** subtracts 3 per remaining layer (minimum 1 damage gets through) and wears the outer layer.
+5. **Squishy** removes 35% of blunt (Force) damage; cuts go through.
+6. **Crit** multiplies what is left (5% chance, ×1.6 today). Crits do not fill bars or make a hit heavy.
+7. Health takes the result; then status bars fill, Thorns retaliates, reactions check their triggers.
+
+### 11.2 Build-up bars (Corrosion, Burn, Soul, Poise)
+
+- `fill += raw damage of that type ÷ (bar size × target max health)`. A bar is full at 1.
+- **Bar sizes:** Corrosion 0.25 (per Shell layer), Burn 0.4, Poise 0.3, Soul 0.6. Elites ×1.5, bosses ×3.
+- **Drain:** no qualifying hit for 2 s, then the bar empties over 2 s.
+- **Payoffs:** Corrosion strips a layer; Burn triggers Ignition; Poise staggers; Soul Possesses. Each bar resets after its payoff.
+- Charge is not a bar (11.4).
+
+### 11.3 Thresholds and reactions
+
+- **Heavy Force hit:** one Force hit whose raw damage is at least 15% of the target's max health (elites 10%, bosses 5%). Spread pellets are judged one by one. It knocks off a Shell layer and triggers Blood Pressure.
+- **Reaction damage:** the three big ones (Premature Evaporation, Flammable Mucus, Cauterise) deal 150% of the triggering hit's raw damage as area; the rest deal 60%. Cauterise also adds the Bleed's remaining damage.
+- **Reaction lockout:** each reaction has a 1.5 s lockout per target (bosses 3 s). Anything a reaction creates cannot set off that same reaction.
+- **Dual-type weapon:** shots alternate Force, Static, Force, Static. Shocking Impact fires on each Static shot that lands after a Force shot.
+- **Spectral Combustion Pairing:** Soul Beam + Fire Pool (Burning Ground), both Lv 5+. A secret, like today's Pairings.
+- **Discovery:** the first time a reaction fires, a 2 s toast "Unstable reaction: <name>" near the top (no pause), and its Field Guide entry unlocks. Save key `META.rxSeen` (list of reaction ids). Later triggers show a small name pop over the target.
+
+### 11.4 Defences
+
+| Defence | Starting values |
+| --- | --- |
+| Squishy | 35% off blunt damage; 50% less knockback |
+| Shell | 3 off per layer (floor 1); each layer has 15% of max health. Layers: light enemies 1, Diatom 2, Water Bear 4, bosses up to 6 |
+| Membrane | 50% of max health; starts to recharge after 2 s without Membrane damage, full in 2 s; Force does 50% to it. Static **recharges** it (+25% capacity, once per 5 s); there is no supercharge |
+| Evasion | 35% miss chance (cap 50%) |
+| Thorns | Returns 5 + 35% of the hit |
+
+### 11.5 Statuses
+
+| Status | Starting values |
+| --- | --- |
+| Snared | 55% slow for 2.5 s; refreshes on hit; clears a Burn bar |
+| Conjoined | 3 s stuck; max 6 per group; members' contact deals 50% to each other. On the player: 1 s stuck, no enemy attached |
+| Bleed | 30% of the hit over 3 s; max 3 stacks |
+| Extraction | An enemy dying while bleeding heals you 1% of max health; max 6 health per second |
+| Burning | Damage over time of 20% of the hit over 3 s while the Burn bar holds; Ignition at full |
+| Charge | A Static hit makes the target **Charged** for 3 s (Static hits refresh it). Charged enemies take +20% Static damage and pass arcs on: 3 jumps, range 110, each jump 70% of the last. A Charged enemy discharges one arc when it dies. Charge itself never interrupts; interrupts come through Poise |
+| Poise stagger | 0.8 s (elites 0.55 s, bosses 0.35 s) |
+| Knockback | Distance = impulse ÷ (radius ÷ 12); hitting a wall deals 40% of the hit |
+| Possessed | 4 s, then 8 s before it can happen again (elites 2.5 s; bosses 1.5 s, lashing out at adds once). It targets the nearest enemy; its attacks and contact hurt enemies, not you; nearby enemies fight back; your weapons skip it; its kills give you XP; with no enemy near, it wanders harmlessly. The player is exempt |
+| Fear | No enemy applies it. Source: a future player Feat, "Jump Scare" (enemies flee for 2 s) |
+| On the player | Snared, Bleed, Burning, Charge and Fear work as on enemies; Corrosion only matters if you have Shell. The player has no sources of defences until the upgrade and reward systems return |
+
+### 11.6 World objects
+
+| Object | Radius | Lifetime | Notes |
+| --- | --- | --- | --- |
+| Acid Pool | 58 | 3.5 s | Matches the v10 Pool weapon |
+| Mucus patch | 50 | 4 s | |
+| Blood pool | 35 | 3 s | |
+| Burn zone | 60 | 3 s | |
+| Wax wall | about 60 long | 6 s | Blocks movement and shots both ways; about 30 health (shots chip it); autoaim skips targets behind it unless a Beam or Burst can reach; max 2 per Candle |
+
+At most 40 world objects at once (phones). Where two overlap, the newest wins, except where a reaction converts one into the other.
+
+### 11.7 Other systems
+
+- **Crits** come last (11.1).
+- **Feats** carry a damage type and an attack type, like weapons, and follow every rule here. Stamina is unchanged.
+- **Autoaim:** TOUGHEST scores effective health (health + Membrane + Shell layers × layer health, ×1.35 if Squishy). HIGHEST ARMOUR is replaced by two directives: **SHELLED** (most Shell layers left) and **MEMBRANED** (most Membrane left).
+- **Enemy damage types:** see `ENEMY_DESIGN.md` 5.1. Force is most common and Soul least; some enemies have two types.
+- **Name clash fixed:** v10's Mucus Pool weapon is renamed **Snot Trap** ("Leaves a patch that sticks enemies crossing it. Watch your step; they won't."). The reaction keeps "Sticky Situation".
