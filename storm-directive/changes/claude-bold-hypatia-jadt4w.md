@@ -313,3 +313,11 @@
 - Save data: none.
 - Hooks: campaign.js campBegin -> w10Fresh; campSpawnMob -> w10Spawn; campSpawn -> w10Max.
 - Risk: wave composition changes for waves 1 to 19 (sims comparable: waves 9 and 7 vs 10 and 5 before, 2 runs each).
+
+## 2026-10-18 The eight samples' Unique Feats and First Contact (merged from agent-ufeats)
+- Systems: feats, samples, combat
+- Files: feats10.js, fight.js, tests/ufeatstest.js (new)
+- What: each sample starts with its Unique Feat in Feat slot 1: Standard Procedure (Force pulse), Personal Best (Static wake sprint), Second Wind (Blood drain heal, bigger when low), Pulling Strings (marks the toughest: Corrosion on it, Soul on its entourage), Shrink Wrap (Snare ring, then Acid Pools), Reply All (fills a Burn bar, Static arcs spread burn), Recount (Possess up to 6 for 3 s, then each takes a delayed hit), First Contact (the Other Half shifts type and sets off reactions on up to 8 statused enemies, no damage). Each has level 3 and 5 forks (first drafts). Never drafted for other samples.
+- Save data: none.
+- Hooks: none new in shared files; fight.js gains fightReactAs and inert src.feat guards.
+- Risk: Unique Feat numbers and forks are untuned.
