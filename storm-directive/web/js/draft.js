@@ -7,7 +7,7 @@
 //  - Forks: a weapon reaching Lv 5 or 10 (one mastery weapon a run), or a Feat reaching level 3 or 5, gets its own
 //    2-card screen. Fork options come from forkRegister, or for weapons from two fitting modifiers (modifiers.js).
 //  - Pool lean: typed cards 50% primary type, 25% support, 25% other (G.sampleTypes, set by the sample).
-//  - Triggers: level-ups and elite/boss chests. Wave mode: one level draft a wave plus chests, all at the wave break.
+//  - Triggers: level-ups and elite/boss chests. Wave mode: they all queue and play at the wave break.
 //    Elsewhere: at most one screen per 40 s of combat (forks are never held back).
 // Hooks: v10.js v10Loot -> draftLoot, v10Box -> draftBox; game.js main loop treats draftBox's 'wait' as "not yet".
 // Card shape: { id, kind: 'acquire'|'enhance'|'specialise', slot: 'feat'|'genome'|'weaponmut'|null, family, type,
@@ -124,10 +124,7 @@ function draftBox(req) {
   if (req.kind === 'start' || req.kind === 'slot') return true;
   if (req.kind === 'fork') { if (!forkCards(req).length) return false; G.draftT = G.t; return true; }
   if (!['level', 'chest', 'boss'].includes(req.kind)) return false;
-  if (G.wave) { // wave mode: one level draft a wave, plus chests from elites and bosses; they play at the wave break
-    if (req.kind === 'level') { if (G.v10sw === G.wave.n && !req.v10ok) return false; G.v10sw = G.wave.n; }
-    req.v10ok = true; return true;
-  }
+  if (G.wave) { req.v10ok = true; return true; } // wave mode: every draft queues and plays at the wave break (waves.js waveHoldsLoot)
   if (req.v10ok) return true;
   if (G.draftT != null && G.t - G.draftT < DRAFT.budget) return 'wait';
   G.draftT = G.t; req.v10ok = true; return true;

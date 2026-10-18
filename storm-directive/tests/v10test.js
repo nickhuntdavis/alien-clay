@@ -29,7 +29,7 @@ const { chromium } = require('playwright');
     v10Switch()[0].apply();
     const w1 = G.weapons.find(Boolean);
     if (w1.def.v10atk !== w0.def.v10atk || w1.def.v10type === w0.def.v10type) bad.push('switch: ' + w0.id + ' -> ' + w1.id);
-    G.v10sw = null; if (!v10Box({ kind: 'level' }) || v10Box({ kind: 'level' })) bad.push('one level box a wave');
+    if (!v10Box({ kind: 'level' }) || !v10Box({ kind: 'level' })) bad.push('wave mode: level boxes queue for the break, none dropped');
     for (const k of ['relic', 'vesicle', 'splice', 'myth']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k);
     const sl = genLoot({ kind: 'slot' });
     if (sl.length !== 3 || sl.some(o => o.def.v10atk === w1.def.v10atk)) bad.push('slot draft: ' + sl.map(o => o.title));
