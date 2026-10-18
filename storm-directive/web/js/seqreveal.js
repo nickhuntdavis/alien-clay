@@ -125,7 +125,7 @@ function revealStory(i) {
   document.getElementById('srName').textContent = Pr.name.toUpperCase();
   document.getElementById('srTag').textContent = '';
   if (i === 0) body.innerHTML = `<p class="srstory">${esc(S.story || Pr.desc)}</p>`;
-  else if (i === 1) body.innerHTML = Pr.weapons.map(w => `<div class="srwep">${typeof iconSVG === 'function' ? iconSVG(WEAPONS[w], 26, c) : ''}<div><b>${esc(WEAPONS[w].name)}</b><span>${esc((S.weapons && S.weapons[w]) || WEAPONS[w].desc)}</span></div></div>`).join('');
+  else if (i === 1) body.innerHTML = Pr.weapons.map(w => `<div class="srwep" style="--rc:${elemCol(WEAPONS[w].elem)}">${typeof iconSVG === 'function' ? iconSVG(WEAPONS[w], 26, elemCol(WEAPONS[w].elem)) : ''}<div><b>${esc(WEAPONS[w].name)}</b><span>${esc((S.weapons && S.weapons[w]) || WEAPONS[w].desc)}</span></div></div>`).join('');
   else body.innerHTML = `<div class="srwep"><div><b>${esc(A.name)}</b><span>${esc(S.ability || A.desc)}</span><em>${esc(A.desc)}</em></div></div><div class="srwep"><div><b>${esc(Pr.trait)}</b><em>${esc(Pr.fmt(1).replace(/^./, ch => ch.toUpperCase()))} (at Rank I, as your Primary).</em></div></div>`;
   for (const el2 of [body]) { el2.classList.remove('srswap'); void el2.offsetWidth; el2.classList.add('srswap'); }
   const last = i === 2;

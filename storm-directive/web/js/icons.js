@@ -1,9 +1,8 @@
 'use strict';
 // Spawn Prawn - weapon and spell icons (24x24 line icons, drawn in currentColor), and weapon-type colours.
 
-// Weapon type = damage element. UI only (in the world, everything you fire stays GFP green).
-// Chosen to sit apart from the five meaning colours: you, danger, reward, upgrade, pickup.
-const ELEM_UI = { phys: '#c9d6e3', fire: '#b8e83a', ice: '#b5c45a', shock: '#eee36a', poison: '#ff6fac', arcane: '#e5446d', oxi: '#e0a640', salt: '#5b9dff', soul: '#c8f6ff' };
+// Weapon type = damage type. UI icons, names and borders use the same colour as the type itself (data.js ELEMENTS), so a weapon's card matches its shots.
+const ELEM_UI = Object.fromEntries(Object.entries(ELEMENTS).map(([k, e]) => [k, e.color]));
 
 const IC = {
   // Guns and launchers

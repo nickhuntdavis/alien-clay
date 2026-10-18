@@ -118,9 +118,9 @@ function forkCards(req) {
   if (!w || !G.weapons.includes(w)) return [];
   if (typeof wupForkCards === 'function') { const b = wupForkCards(req); if (b) return b; } // (the 24 weapons' branches: weapons24.js)
   const own = FORKS['weapon:' + w.id + '@' + req.lv];
-  if (own) return own.slice(0, 2).map(o => ({ rarity: 3, tag: 'FORK', icon: 'F', color: w.def.color, title: o.title, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: o.desc, apply: () => { o.apply(G, w); recomputeAll(); } }));
+  if (own) return own.slice(0, 2).map(o => ({ rarity: 3, tag: 'FORK', icon: 'F', color: elemCol(wElem(w)), title: o.title, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: o.desc, apply: () => { o.apply(G, w); recomputeAll(); } }));
   if (typeof modsFor !== 'function' || typeof MODS10 === 'undefined') return [];
-  return shuffle(modsFor(w)).slice(0, 2).map(id => ({ rarity: 3, tag: 'FORK', icon: 'F', color: w.def.color, title: MODS10[id].name, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: MODS10[id].desc,
+  return shuffle(modsFor(w)).slice(0, 2).map(id => ({ rarity: 3, tag: 'FORK', icon: 'F', color: elemCol(wElem(w)), title: MODS10[id].name, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: MODS10[id].desc,
     apply: () => { modAdd(w, id); computeStats(w); } }));
 }
 

@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon UI colours match damage types (v10.21)
+- Systems: render, ui
+- Files: icons.js, seqsel.js, seqreveal.js, draft.js
+- What: weapon and Feat icons, names and borders in every menu now use the exact damage type colour from `ELEMENTS` (`ELEM_UI` is derived from it instead of its own slightly different palette; Blood was pink-red in menus but claret in the world). Sequence select and the sequence reveal colour each exclusive weapon by its own damage type, not the sequence colour; Lv fork cards use the type colour, not the weapon's own shade.
+- Save data: none.
+- Hooks: none.
+- Risk: menu colours shift slightly (Blood darker, Force brighter); the in-world `elem` glow in render.js reads `ELEM_UI`, so it now matches shot colours. seqtest, revealshot and colourtest already failed on this branch before the change.
+
 ## 2026-10-18 MY OWN MESS targeting (v10.20)
 - Systems: autorun (autoaim), weapons, ui
 - Files: aimat.js (new), game.js, autorun.js, ui.js, loadout.js, index.html, tests/aimowntest.js (new), run.sh, tools/guide.js
