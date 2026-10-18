@@ -178,6 +178,7 @@ function v10Burn(e, dmg, src) {
 function v10Tick(dt) {
   if (!V10 || !G) return;
   fightTick(dt); // (defences, charged patches: fight.js)
+  mutTick(dt); // (mutation cards: mutations.js)
   pdefTick(dt); // (your Membrane and Shell: pdef.js)
   for (const e of G.enemies) {
     if (!(e.v10burn > 0) || e.dead) continue;
@@ -194,7 +195,7 @@ function v10Tick(dt) {
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
-  if (G && V10) { fightDraw(); pdefDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js)
+  if (G && V10) { fightDraw(); pdefDraw(); mutDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js)
   if (G && V10) nfDraw(); // (telegraphs, wax, trails: newfoes.js)
   if (G && V10) modDraw(); // (v10 modifiers, modifiers.js)
   if (!G || !G.v10fx) return;
