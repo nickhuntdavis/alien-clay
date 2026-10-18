@@ -119,11 +119,11 @@ function v10Box(req) {
 }
 function v10Loot(req) {
   if (req.kind === 'start') { const o = typeof s10Start === 'function' && s10Start(); if (o) return o; } // (a sample starts with its own weapon: samples10.js)
-  if (req.kind === 'start') return shuffle(v10Ids()).slice(0, 4).map(id => optNewWeapon(id, 0));
+  if (req.kind === 'start') return shuffle(v10Pool()).slice(0, 4).map(id => optNewWeapon(id, 0));
   if (req.kind === 'slot') {
     const own = G.weapons.filter(Boolean), have = new Set(own.map(w => w.def.v10atk));
-    let pool = v10Ids().filter(id => !own.some(w => w.id === id) && !have.has(v10Atk(id)));
-    if (!pool.length) pool = v10Ids().filter(id => !own.some(w => w.id === id));
+    let pool = v10Pool().filter(id => !own.some(w => (w.sid || w.id) === id) && !have.has(v10Atk(id)));
+    if (!pool.length) pool = v10Pool().filter(id => !own.some(w => (w.sid || w.id) === id));
     return shuffle(pool).slice(0, 3).map(id => optNewWeapon(id, 0));
   }
   { const o = draftLoot(req); if (o) return o; } // (one draft for weapons, Switched at Birth, defences, Feats, mutations; forks: draft.js)
@@ -131,7 +131,7 @@ function v10Loot(req) {
 }
 // Switched at Birth: same attack type, another damage type. One card: a random weapon you own, a random new type.
 function v10Switch() {
-  const own = G.weapons.map((w, i) => ({ w, i })).filter(o => o.w && o.w.def.v10);
+  const own = G.weapons.map((w, i) => ({ w, i })).filter(o => o.w && o.w.def.v10 && !o.w.def.sig); // (a signature weapon keeps its one damage type)
   const cands = shuffle(own.flatMap(o => V10_TYPES.filter(t => t !== o.w.def.v10type).map(t => ({ o, t }))));
   const out = [], used = new Set();
   for (const c of cands) { if (out.length >= 3) break; if (used.has(c.o.i) && own.length > 1 && out.length < own.length) continue; used.add(c.o.i); out.push(c); }
@@ -147,6 +147,7 @@ function v10Switch() {
 // ---------------------------------------------------------------- firing (game.js fireWeapon)
 function v10Fire(w, target, src) {
   const d = w.def, s = w.s, p = G.player;
+  if (d.sig) return d.sigFire ? d.sigFire(w, target, src) !== false : false; // (signature weapons: sigweap.js)
   if (d.v10atk === 'beam') {
     let a = Math.atan2(target.y - p.y, target.x - p.x), L = s.range, wd = s.width || 10, bk = 1;
     if (w.m10) ({ a, L, wd, bk } = modBeam(w, a, L, wd)); // (v10 modifiers, modifiers.js)
@@ -182,6 +183,7 @@ function v10Tick(dt) {
   if (typeof s10Tick === 'function') s10Tick(dt); // (sample passives and unlocks: samples10.js)
   mutTick(dt); // (mutation cards: mutations.js)
   f10Tick(dt); // (Feats: feats10.js)
+  sigwTick(dt); // (signature weapons: sigweap.js)
   pdefTick(dt); // (your Membrane and Shell: pdef.js)
   for (const e of G.enemies) {
     if (!(e.v10burn > 0) || e.dead) continue;
@@ -198,7 +200,7 @@ function v10Tick(dt) {
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
-  if (G && V10) { fightDraw(); pdefDraw(); mutDraw(); f10Draw(); } // (defence rings, status marks: fight.js; yours: pdef.js; mutations; Feats: feats10.js)
+  if (G && V10) { fightDraw(); pdefDraw(); mutDraw(); f10Draw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
   if (G && V10) nfDraw(); // (telegraphs, wax, trails: newfoes.js)
   if (G && V10) modDraw(); // (v10 modifiers, modifiers.js)
   if (!G || !G.v10fx) return;

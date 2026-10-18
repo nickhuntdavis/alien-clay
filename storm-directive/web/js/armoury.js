@@ -447,7 +447,7 @@ function armLand(pr) {
           if (o === pud || o.armUp !== w.uid || o.life <= 0 || Math.hypot(o.x - pud.x, o.y - pud.y) > o.r + pud.r * 0.8) continue;
           const ra = pud.r * pud.r, rb = o.r * o.r;
           pud.x = (pud.x * ra + o.x * rb) / (ra + rb); pud.y = (pud.y * ra + o.y * rb) / (ra + rb);
-          pud.r = Math.min(170, Math.hypot(pud.r, o.r)); pud.dps = Math.min(s.dmg * 8, pud.dps + o.dps * 0.85);
+          pud.r = Math.min(w.def.sig ? 100 : 170, Math.hypot(pud.r, o.r)); pud.dps = Math.min(s.dmg * 8, pud.dps + o.dps * 0.85);
           pud.life = pud.max = Math.max(pud.life, o.life) + 0.5; o.life = 0;
           pud.merged = (pud.merged || 0) + (o.merged || 0) + 1;
           if (pud.merged >= 3 && !w.echo) floatText(pud.x, pud.y - 20, 'MEGA PUDDLE', w.def.color, 12, 0.6);
@@ -499,7 +499,7 @@ function bowlTick() {
       b.hit.add(o); b.n.v++;
       damageEnemy(o, s.dmg * 1.4 * k, armSrc(src, { knock: 0, wname: 'Lard Lobber (bowled over)' }));
       damageEnemy(e, s.dmg * 0.5 * k, armSrc(src, { knock: 0, noProc: true, wname: 'Lard Lobber (bowled over)' }));
-      if (!o.boss && !o.rival && !o.egg) { o.kx += (e.kx || 0) * 0.8; o.ky += (e.ky || 0) * 0.8; if (B.length < 80) B.push({ e: o, w, until: G.t + 0.6, hit: b.hit, n: b.n }); }
+      if (!o.boss && !o.rival && !o.egg) { o.kx += (e.kx || 0) * 0.8; o.ky += (e.ky || 0) * 0.8; if (B.length < 80 && !(w.def.sig && (b.d || 1) >= 2)) B.push({ e: o, w, until: G.t + 0.6, hit: b.hit, n: b.n, d: (b.d || 1) + 1 }); }
       spawnPart(o.x, o.y, w.def.color, 4, 100, 0.3);
       if (b.n.v === 3 && !w.echo) floatText(o.x, o.y - o.r - 14, 'STRIKE!', w.def.color, 14, 0.7);
     });
@@ -557,7 +557,7 @@ function petsTick(w, dt) {
         const got = damageEnemy(t, s.dmg, src) || 0;
         if (!w.echo && got > 0) { // a little of it back to you, at most 1% of your max HP a second per leech
           const k = hasSig(w, 'xfatleech') ? 3 : 1, cap = G.P.maxHp * 0.01 * s.cd * k;
-          healPlayer(Math.min(cap, got * 0.04 * k), true);
+          healPlayer(w.def.sig ? sigExtract(Math.min(cap, got * 0.04 * k)) : Math.min(cap, got * 0.04 * k), true);
         }
         break;
       }

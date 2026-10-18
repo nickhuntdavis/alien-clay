@@ -35,6 +35,7 @@ const FIGHT_RX = {
   donor: { name: 'Blood Donor', color: '#c9184a' },
   cauterise: { name: 'Cauterise', color: '#ff6a2a' },
   spectral: { name: 'Spectral Combustion', color: '#b06cff' },
+  shock: { name: 'Shocking Impact', color: '#ffe94a' },
 };
 
 // The Thorns chaser joins the slice, drawn as a worm until its own shape exists.
@@ -181,6 +182,7 @@ function fightReact(e, t, raw, src, res) {
     if (z && !z.charged && !z.stuck) { z.charged = true; z.inside = new Set(); forNear(z.x, z.y, z.r, o => z.inside.add(o.id)); ring(z.x, z.y, z.r, FIGHT_COL.charged, 0.4, 3); }
   }
   fightReact2(e, t, raw, src, res);
+  sigReact(e, t, raw, src, res); // (Shocking Impact, Burning Sensation: sigweap.js)
 }
 // The other fifteen (Shocking Impact waits for a dual-type weapon).
 function fightReact2(e, t, raw, src, res) {

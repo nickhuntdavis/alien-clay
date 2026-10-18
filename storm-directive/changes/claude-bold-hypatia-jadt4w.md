@@ -273,3 +273,11 @@
 - Save data: META.f10unl (unlocked later-pool Feat ids).
 - Hooks: game.js newGame (F10_SLOTS), fireWeapon (case 'f10'), updateSpellList and featTap (f10Wait), featFire, computeStats (f10Stats), hurtPlayer (f10Hurt, f10HurtMul), killEnemy (f10Kill), gainXp (f10Xp); stamina.js featCost (f10Cost), sprintMul (f10Speed); v10.js v10Tick (f10Tick), v10Draw (f10Draw); ui.js Feat slot count.
 - Risk: Level 5 Feat forks are first drafts (FEATS.md lists only level 3). THIS WAY and the eight sample Feats are not built yet.
+
+## 2026-10-18 Signature weapons and Shocking Impact (merged from agent-sigw)
+- Systems: weapons, combat, draft, sigweap (new)
+- Files: sigweap.js (new), v10.js, fight.js, game.js, sigs.js, toys.js, armoury.js, arsenal.js, index.html, tests/sigwtest.js (new), tests/v10test.js
+- What: 21 favourite originals plus 5 Fire drafts return as one-damage-type, one-attack-type signature weapons (WEAPONS['s_*']) in the slot-draft pool (69 weapons with the matrix). A new dual Force/Static weapon, Rubbed the Wrong Way, alternates shots and sets off Shocking Impact, so all 21 reactions can now happen. Echo damage, pet/lure/chain caps and shared Extraction are enforced.
+- Save data: none.
+- Hooks: game.js makeSlot (id: def.sigOf || id, sid); v10.js v10Fire/v10Tick (sigwTick)/v10Draw (sigDraw)/v10Loot (v10Pool)/v10Switch; fight.js fightReact -> sigReact; sigs.js afterMine -> sigMine, bladeEats; toys.js toySrc/toyHurt echo, peekBoo, toothFire; armoury.js latch heal, Upchuck merge, bowling depth; arsenal.js Flail tip.
+- Risk: signature slots keep the OLD weapon id in w.id (w.sid is the s_ id); undead are stationary turrets; Placental Siphon fires back as Force.
