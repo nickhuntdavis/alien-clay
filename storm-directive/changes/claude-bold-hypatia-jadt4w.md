@@ -202,10 +202,18 @@
 - Hooks: game.js damageEnemy charmed guard skipped under V10.
 - Risk: Possessed enemies can now be killed by your area weapons. Shocking Impact still needs a dual-type weapon.
 
-## 2026-10-17 Draft core (draft.js)
+## 2026-10-17 Draft core (draft.js) (v10.06)
 - Systems: draft (new), v10, loot
 - Files: draft.js (new), v10.js, game.js, index.html, tests/drafttest.js (new), tests/v10test.js, tests/pdeftest.js
 - What: level-ups and elite/boss chests open one shared draft: weapon upgrades, Switched at Birth, defence cards and any card a feature file registers (Feats, mutations). Acquire cards need a free slot (3 Feats, 4 Genome shared by mutations and defences). Weapons reaching Lv 5 or 10 and Feats reaching level 3 or 5 get a 2-card fork screen. Wave mode: one level draft a wave plus chests, at the wave break; race: at most one screen per 40 s (forks never wait). Banish data (G.banish, G.fewer) is honoured; the buttons come with the UI pass.
 - Save data: none.
 - Hooks: v10.js v10Box -> draftBox, v10Loot -> draftLoot; game.js main loop: a 'wait' from v10Box rotates the box to the back of the queue.
 - Risk: more drafts in race mode than v10.04's every-strand switches are fewer now (40 s budget); elite/boss chests now open drafts in wave mode.
+
+## 2026-10-18 Wave-mode drafts queue instead of vanishing; sim uses the real draft rules
+- Systems: draft, tests
+- Files: draft.js, tests/sim/wave20.js, tests/v10test.js
+- What: in wave mode every level-up draft now queues and plays at the wave break (UPGRADES.md 9); before, every level after the first in a wave was dropped. The wave sim now sends boxes through v10Box like the real loop and prints combat stats (G.fst) and the final build per run.
+- Save data: none.
+- Hooks: none.
+- Risk: more upgrades per run in wave mode. Bot sims (3 runs): deaths at waves 8, 5, 8 (was 4 to 5).
