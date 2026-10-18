@@ -48,7 +48,7 @@ function fightCd(e) {
   if (e.cd) return e.cd;
   const id = fightId(e.def), r = typeof ROSTER !== 'undefined' && ROSTER[id], bd = e.bossDef || e.def, d = (bd && bd.v10def) || (r && r.def); // (bosses: boss10.js)
   const rank = e.boss ? 'boss' : e.elite ? 'elite' : 'normal';
-  e.cd = makeDefence(e.maxHp, d ? d.kind : null, rank, { layers: d && d.layers });
+  e.cd = makeDefence(e.maxHp, d ? d.kind : null, rank, { layers: d && d.layers, memFrac: d && d.memFrac }); // (memFrac: foemem.js)
   e.cd.hp = e.hp;
   return e.cd;
 }
@@ -345,7 +345,8 @@ function fightDraw() {
     const c = e.cd || (fightId(e.def) && typeof ROSTER !== 'undefined' && ROSTER[fightId(e.def)] && ROSTER[fightId(e.def)].def ? fightCd(e) : null);
     const x = sx(e.x), y = sy(e.y), r = e.r * S;
     ctx.save(); ctx.lineCap = 'round';
-    if (c && c.def === 'membrane' && c.memMax > 0) { // blue ring, full while up; flickers while recharging
+    if (c && c.def === 'membrane' && c.memMax > 0 && typeof foeMemDraw === 'function') foeMemDraw(e, c, x, y, r); // (your bubble, foemem.js)
+    else if (c && c.def === 'membrane' && c.memMax > 0) { // blue ring, full while up; flickers while recharging
       const k = c.mem / c.memMax;
       ctx.strokeStyle = col(FIGHT_COL.membrane); ctx.globalAlpha = 0.25 + 0.6 * k * (c.memQuietT < 2 && k < 1 ? 0.7 + 0.3 * Math.sin(now * 30) : 1);
       ctx.lineWidth = 2 + 2 * k; ctx.beginPath(); ctx.arc(x, y, r + 5 * S, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0.02, k)); ctx.stroke();

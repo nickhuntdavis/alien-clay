@@ -1,3 +1,11 @@
+## 2026-10-18 Enemy Membranes like yours (v10.25)
+- Systems: enemy membranes (new), enemies, combat
+- Files: foemem.js (new), fight.js, index.html, tests/foememtest.js (new), tests/run.sh
+- What: Nurse Cell, Mitotic Cell, Mother Cell, Plasma Cell and Stem Cell now wear a Membrane worth 30% of their health (the player's size), with the usual rules (Force does half, mends after 2 quiet seconds, Static recharges it). Every enemy Membrane, Mucus Wall's and Alpha Swimmer's included, now draws as the player's soap-bubble forcefield, bulging where it is hit, instead of a thin blue arc.
+- Save data: none.
+- Hooks: fight.js fightCd passes d.memFrac to makeDefence; fightDraw -> foeMemDraw.
+- Risk: those five enemies take about 30% more damage to kill (60% more with Force). One extra gradient per Membrane enemy per frame.
+
 ## 2026-10-18 Merge ccr-caa43b42: Soul damage is now Alien (v10.24)
 - Systems: damage types, chemistry, ui, weapons, samples, docs
 - Files: merge only (see changes/ccr-caa43b42-e4m6sc.md); meta.js, build.gradle, GAME_GUIDE.md
