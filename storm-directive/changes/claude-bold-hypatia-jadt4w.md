@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon branches, batch 5: Ewww Gross, Blowing Bubbles, One of These Days, Sister Cousin
+- Systems: weapons, upgrades (weapons24.js engine), toys (Red Tape, Bubble Wand, Due Date), modifiers (multiplying)
+- Files: wup5.js (new), index.html (one script tag after wup2.js), tests/wup5test.js (new), ARCHITECTURE.md (script-order line)
+- What: all 60 cards for the four Mucus/Blood projectile weapons are live through wupReg: three promises (Lv 3), two Lv 6 cards and a wildcard per promise, three masteries each. 24 in-promise Lv 6 cards are newly named (Corporate Merger, Group Chat, Puppet Strings, Gossip, Tangled, Escalation, Locked In, Cannonball, Chaperone, Return to Sender, Popcorn, Stuck Together, Early Delivery, Short Notice, Pass the Parcel, Rush Hour, Compound Interest, Fine Print, Runts of the Litter, Overcrowding, Taste for It, Nepotism, Pack Hunting, Pile-On). Costs are real stat or behaviour changes. Sister Cousin now really splits on a kill from Lv 1 (its slot starts with the 'multiplying' modifier; the text promised it but nothing did it).
+- Save data: none.
+- Hooks: none added to shared files. wup5.js wraps these globals at load, each a no-op for a slot without a card: toyFire (so toy weapons reach the 'fire' hook, which fireWeapon skips for them), canBubble, toyHold, bubbleSoak, bubbleHit, bubblePop, dueMark, duePop, toyHurt, modHit, makeSlot, wupDmgMul, hurtPlayer, v10Draw; and the shared 'phit'/'pend' kinds (same WUP_PROJ_HOOKS guard as wup1.js). Candidates to become real one-line hooks.
+- Risk: Group Chat is thin (the base tape already shares to every member at any distance, so the card only lifts the boss discount). Hit-ups that are a share of max health (snap, Compound Interest) use mult 1. Lost in the Post and Postponed act in a hurtPlayer wrapper before dodge and boss-cap rules. Cotton Wool/Postponed/Lost in the Post share one wrapper.
+
 ## 2026-10-18 Every level-up and DNA pick opens at once (v10.11)
 - Systems: draft
 - Files: draft.js, tests/drafttest.js
