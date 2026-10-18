@@ -36,6 +36,7 @@ function aimKey(dir, e, d2) {
     case 'shooters': return aimShootTier(e);
     case 'revenge': return e === G.grudge ? 1 : 0;
     case 'random': return Math.floor(Math.random() * 8);
+    case 'ownmess': return aimOwnKey(e, d2); // (MY OWN MESS: aimat.js)
   }
   return 0;
 }

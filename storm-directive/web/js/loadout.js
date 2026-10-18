@@ -58,7 +58,7 @@ function loadoutHtml() {
     h += `<div class="low" style="--c:${c}"><div class="lowh"><span class="loi">${iconSVG(w.def, 24, c)}</span><div class="lon"><b>${esc(w.def.name)}</b><em>Lv ${w.lvl}/${MAX_WLVL} | ${esc(loadoutNext(w))}</em>
       <div class="losh"><i style="width:${sh}%"></i></div><small>${sh}% of your damage${w.mods.length ? ' | ' + w.mods.map(m => esc(MODS[m.id].name)).join(', ') : ''}</small></div>
       ${w.def.noTarget ? '' : `<button class="lot ${open ? 'on' : ''}" data-tg="${w.uid}">${dr ? dr.short + (w.dir2 && !w.dirs ? '›' + DIRECTIVES.find(x => x.id === w.dir2).short : '') : '?'}</button>`}<button class="lod" data-go="w${i}">&rsaquo;</button></div>`;
-    if (open) h += `<div class="lotg">${DIRECTIVES.map(d => `<button class="chip ${w.dir === d.id ? 'sel' : ''}" data-dir2="${d.id}" data-uid="${w.uid}" title="${esc(d.desc)}">${d.name}</button>`).join('')}<p class="hint">${esc((DIRECTIVES.find(x => x.id === w.dir) || {}).desc || '')}</p>${w.dirs ? '' : `<p class="hint">Then (breaks ties, and takes over when nothing fits):</p>${[{ id: '', name: 'NONE' }].concat(DIRECTIVES.filter(d => d.id !== w.dir)).map(d => `<button class="chip ${(w.dir2 || '') === d.id ? 'sel' : ''}" data-dir3="${d.id}" data-uid="${w.uid}">${d.name}</button>`).join('')}`}</div>`;
+    if (open) h += `<div class="lotg">${DIRECTIVES.map(d => `<button class="chip ${w.dir === d.id ? 'sel' : ''}" data-dir2="${d.id}" data-uid="${w.uid}" title="${esc(d.desc)}">${d.name}</button>`).join('')}<p class="hint">${esc((DIRECTIVES.find(x => x.id === w.dir) || {}).desc || '')}</p>${w.dirs ? '' : `<p class="hint">Then (breaks ties, and takes over when nothing fits):</p>${[{ id: '', name: 'NONE' }].concat(DIRECTIVES.filter(d => d.id !== w.dir)).map(d => `<button class="chip ${(w.dir2 || '') === d.id ? 'sel' : ''}" data-dir3="${d.id}" data-uid="${w.uid}">${d.name}</button>`).join('')}`}${aimOwnPick(w, w.dir, w.dirs ? null : w.dir2)}</div>`;
     h += `</div>`;
   });
   h += `</div>`;
@@ -98,8 +98,9 @@ function loadoutBind(body, rerender) {
   })));
   body.querySelectorAll('[data-dir3]').forEach(b => b.addEventListener('click', keep(() => {
     const w = G.weapons.find(x => x && x.uid === +b.dataset.uid); if (!w) return;
-    w.dir2 = b.dataset.dir3 || null; UI.arm.tgt = null; UI.refreshHud(true);
+    w.dir2 = b.dataset.dir3 || null; UI.arm.tgt = w.dir2 === 'ownmess' ? w.uid : null; UI.refreshHud(true); // (MY OWN MESS stays open to pick whose)
   })));
+  aimOwnBind(body, keep(() => {})); // (aimat.js)
   body.querySelectorAll('[data-fa]').forEach(b => b.addEventListener('click', keep(() => { const w = G.spells[+b.dataset.fa]; if (w) w.timing = b.dataset.v; })));
   body.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
     const k = b.dataset.go[0], i = +b.dataset.go.slice(1);
