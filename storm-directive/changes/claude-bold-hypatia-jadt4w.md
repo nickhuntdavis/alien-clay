@@ -344,3 +344,11 @@
 - Save data: none.
 - Hooks: game.js makeEnemy, bosses.js spawnBoss, campaign.js campBoss, rivals.js (bullets, contact), terrain.js acid -> V10_DIFF.
 - Risk: balance in flux. Sims so far (4 runs each, deaths): before 9/5/8/9; first pass 11/7/8/5; with rivals scaled 10/13/10/8; this pass still running.
+
+## 2026-10-18 Fix: terrain.js failed to load (runs crashed at start)
+- Systems: terrain, tests
+- Files: terrain.js, tests/dupetest.js
+- What: the previous balance commit put a comment in the middle of the acid-crypt line in terrain.js, cutting off its closing brace, so the file didn't load and every new run crashed. Fixed. dupetest now also syntax-checks every loaded script, so a file that won't parse fails the suite.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
