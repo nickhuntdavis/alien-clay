@@ -13,6 +13,13 @@
 - Save data: none.
 - Hooks: none added to shared files.
 - Risk: Skill Issue cards watch the armoury bowling list (G.armBowl); Family Ties cards edit orb fields (pull, aura, r); Hot Mess cards edit their own zones. Simplified: pets are invulnerable ghosts drawn with particles; Appetite/Afterglow add a second blast after the engine's supernova.
+## 2026-10-18 Weapon branches, batch 4: There Is No Spoon, Nappy Mines, Soulmate Signal, Unwanted Contact
+- Systems: weapons, upgrades (weapons24.js engine), defence (Umbilical Shield reads the Membrane hit)
+- Files: wup4.js (new), index.html (script tag after wup2.js), tests/wup4test.js (new)
+- What: all 60 cards for the four signature weapons are live through wupReg: three promises each (Lv 3), two Lv 6 cards and a wildcard per promise (12 new names, e.g. Afterbirth, Water Breaks, Pass the Parcel, Nappy Pin, Stretch Marks, Love Triangle, Split Ends, Echo Chamber), and three masteries each. Costs are real stat or behaviour changes. Every card draws something (ring, line, tape, floatText) and counts itself in w.w4.fx for the test.
+- Save data: none.
+- Hooks: none added to shared files. wup4.js wraps globals at load: updateSiphon (replaced by a copy plus the cards once a card is taken), mineDrop, mineScale, detonateMine, twinPoints, wupDmgMul, wupHit, killEnemy, rateBonus, and (on first card taken, because fight.js and pdef.js load later) fightArc, fightStatus, fightPayoff, pdefHurt. Shares the 'phit' / 'pend' hook kinds with wup1.js (same globalThis.WUP_PROJ_HOOKS guard).
+- Risk: other branches that edit updateSiphon, detonateMine or pdefHurt will not see their change take effect on a slot with a card. Simplified: stored-bullet staleness is not modelled (the base weapon has none, so Return to Womb's "+2 s" is dropped); Mirror Womb bounces half the shots that enter the absorb radius, not only ones that would hit you; Odd Sock and Evil Twin pick once per wave (once per 20 s or 25 s outside wave mode).
 
 ## 2026-10-18 Every level-up and DNA pick opens at once (v10.11)
 - Systems: draft
