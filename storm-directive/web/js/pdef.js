@@ -57,7 +57,7 @@ function pst() {
   if (S.pMem == null) { S.pMem = 0; S.pLayers = 0; S.pMiss = 0; S.pThorns = 0; }
   return S;
 }
-const pdEvasion = D => Math.min(COMBAT.evasionCap, D.n.evasion * PDEF.evasionStep);
+const pdEvasion = D => Math.min(COMBAT.evasionCap, D.n.evasion * PDEF.evasionStep + (typeof s10Evasion === 'function' ? s10Evasion() : 0)); // (the Cold Parcel's built-in 20%: samples10.js)
 const pdMemFrac = D => PDEF.memFrac + D.n.thick * PDEF.thickStep;
 // Refit the Shell: every owned layer, full health.
 function pdRefit(D) { D.layers = D.n.shell; D.layerHp = D.layers ? pdLayerHp() : 0; }
@@ -216,6 +216,6 @@ function pdefCard(id) {
 // k different defence cards: none that are maxed, and no new one once the Genome slots are full.
 function pdefOffer(k) {
   const D = pdef(), full = pdHeld(D) >= PDEF.slots;
-  const ok = Object.keys(PDEF_CARDS).filter(id => D.n[id] < PDEF_CARDS[id].max && !(full && D.n[id] === 0));
+  const ok = Object.keys(PDEF_CARDS).filter(id => D.n[id] < PDEF_CARDS[id].max && !(full && D.n[id] === 0) && !(id === 'evasion' && typeof s10Evasion === 'function' && s10Evasion() > 0)); // (no Evasion card with Evasion built in)
   return shuffle(ok).slice(0, Math.max(0, k)).map(pdefCard);
 }

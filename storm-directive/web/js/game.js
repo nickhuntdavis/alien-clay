@@ -968,7 +968,7 @@ function killEnemy(e, src) {
   if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
-  if (V10) fightDeath(e); // (a Charged enemy discharges: fight.js)
+  if (V10) fightDeath(e, src); // (a Charged enemy discharges: fight.js)
   if (V10) nfKill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)
   if (e.dummy) dummyBurst(e); // (Dummy Spit)
   if (G.nf) nfKill(e, src); // (Hostile Environment grows: newfeats.js)

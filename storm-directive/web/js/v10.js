@@ -118,6 +118,7 @@ function v10Box(req) {
   return draftBox(req); // (level-ups, chests, forks and the interruption budget: draft.js)
 }
 function v10Loot(req) {
+  if (req.kind === 'start') { const o = typeof s10Start === 'function' && s10Start(); if (o) return o; } // (a sample starts with its own weapon: samples10.js)
   if (req.kind === 'start') return shuffle(v10Ids()).slice(0, 4).map(id => optNewWeapon(id, 0));
   if (req.kind === 'slot') {
     const own = G.weapons.filter(Boolean), have = new Set(own.map(w => w.def.v10atk));
@@ -178,6 +179,7 @@ function v10Burn(e, dmg, src) {
 function v10Tick(dt) {
   if (!V10 || !G) return;
   fightTick(dt); // (defences, charged patches: fight.js)
+  if (typeof s10Tick === 'function') s10Tick(dt); // (sample passives and unlocks: samples10.js)
   pdefTick(dt); // (your Membrane and Shell: pdef.js)
   for (const e of G.enemies) {
     if (!(e.v10burn > 0) || e.dead) continue;
@@ -213,6 +215,7 @@ function v10Draw() {
 
 // ---------------------------------------------------------------- the samples screen (ui.js openSamples)
 function v10Samples() {
+  if (typeof s10Samples === 'function' && s10Samples()) return; // (the eight samples: samples10.js)
   let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
   const card = (id, no, name, desc, c, tag) => `<button class="sx-card hero" data-v10="${id}" style="--c:${c}"><span class="sx-txt"><i>#${no} | IN STOCK</i><b>${esc(name)}</b><span>${esc(desc)}</span><em>${tag}</em></span></button>`;
   $('sampleList').innerHTML = `<div class="sx-h">HUMAN SAMPLE 1</div>${card('s002', '001', 'Wave Mode', 'Twenty drops into the dish, a boss every fifth. One Switched at Birth card a wave.', '#5fd4e8', 'WAVE MODE')}`

@@ -241,3 +241,11 @@
 - Save data: none.
 - Hooks: game.js updatePlayer speed -> pdefSpeed (both speed lines); pstatus.js pstHit returns under V10.
 - Risk: enemy Mucus/Blood/Fire/Static hits hurt more than before; enemy damage types come from roster.js dmgType.
+
+## 2026-10-18 The eight samples (samples10.js)
+- Systems: samples (new), v10, combat, ui
+- Files: samples10.js (new), v10.js, fight.js, game.js, pdef.js, ui.js, index.html, tests/samplestest.js (new), tests/v10test.js
+- What: the sample screen lists the eight samples (locked ones show their unlock; the Unaccounted shows ??? until earned), then the Experiment (#002 The Petri Dish or #001 The Race). Each sample starts with its own matrix weapon and leans the draft to its types, with its passive: Baseline +5% stats; Overachiever fires 25% faster while moving; Late Starter gets damage and lifesteal below 30% health; Family Friend builds Corrosion 50% faster and its Possessed enemies hit 50% harder; Cold Parcel leaves a Snaring Mucus trail and has 20% Evasion built in; Unsolicited's Static hits add burn; Unaccounted's Possessed enemies make their friends Bleed; Other Half's weapons shift Fire, Soul, Static every 20 s. Unlocks follow SAMPLES.md (wave 10, recover from under 10%, beat the dish, survive a big hazard, Soul boss kill, beat Level 1; Mythical box still has no trigger). Unique Feats come with the Feats merge.
+- Save data: META.s10 (unlocked sample ids), META.s10runs (runs per sample, for the 1A/1B IDs). META.profile now holds s10_<id>.
+- Hooks: v10.js v10Samples -> s10Samples, v10Loot 'start' -> s10Start, v10Tick -> s10Tick; fight.js fightHit -> s10DmgMul, s10Hit; fightDeath -> s10Kill (game.js now passes src); pdef.js pdEvasion, pdefOffer -> s10Evasion; ui.js quickStart uses s10_baseline.
+- Risk: the start draft is now one card (the sample's weapon); old saves' META.profile 'human1' still works through Lab Bench and quick start paths.

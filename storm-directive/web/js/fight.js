@@ -68,6 +68,7 @@ function fightHit(e, d, src, crit) {
   if (src.dot) { S.dmg.dot += d; e.fOk = true; return d; }
   const cd = fightCd(e), t = FIGHT_TYPE[src.elem || 'phys'] || 'force';
   if (t === 'static' && charged(e)) d *= 1.2;
+  if (typeof s10DmgMul === 'function') d *= s10DmgMul(e, src); // (sample passives: samples10.js)
   const atk = src.zoneHit ? 'pool' : IN_AOE ? 'burst' : src.atk || (src.w && src.w.def && src.w.def.v10atk) || 'proj';
   COMBAT.critMult = G.P.critDmg || 1.6;
   cd.hp = e.hp;
@@ -83,6 +84,7 @@ function fightHit(e, d, src, crit) {
   for (const p of res.payoffs) fightPayoff(e, p, res, src);
   if (res.thorns > 0 && !src.rx) { S.thorns += res.thorns; hurtPlayer(res.thorns, 'Thorns', e, 'thorns'); }
   e.fOk = res.statusOk;
+  if (typeof s10Hit === 'function') s10Hit(e, src, res, t);
   if (src.rx) S.dmg.reaction += res.toHp; else S.dmg.weapon += res.toHp;
   if (!src.rx && !src.echo) fightReact(e, t, res.raw, src, res);
   return res.toHp;
@@ -303,7 +305,8 @@ function fightTick(dt) {
 }
 // A Charged enemy discharges one arc when it dies (game.js killEnemy -> fightDeath).
 // Deferred a frame, so a chain of deaths never recurses.
-function fightDeath(e) {
+function fightDeath(e, src) {
+  if (typeof s10Kill === 'function') s10Kill(e, src);
   if (charged(e)) { e.arcRT = 0; after(0, () => { if (G) fightArc(e, e.maxHp * 0.15, 1); }); }
   if (f_bleeding(e) && G) { // dying while bleeding: Extraction (1% of your max health, at most 6 a second) and a blood pool
     const S = fst(), sec = Math.floor(G.t);
