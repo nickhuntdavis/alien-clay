@@ -10,6 +10,8 @@
 //    stamina (f10Cost); utility gifts are free. Trigger gifts perform themselves (`trig`) and cannot be tapped.
 //  - Cards: an acquire card and an enhance card per Feat go to draft.js (draftRegister); forks at levels 3 and 5 go to
 //    forkRegister under both card ids ('feat:feat_<id>' and 'feat:feat_<id>_up').
+//  - Unique Feats (d.sample, bottom of the file): each sample's slot 1 Feat (s10UniqueFeat, called by samples10.js s10Start). They
+//    are not in F10_ORDER and their acquire card is never eligible; only the owner can rank them up.
 //  - Fork flags live on the Feat slot: w.f10fk[flag]. A fork never changes the damage type.
 // Hooks: game.js newGame (F10_SLOTS spells), fireWeapon (case 'f10'), updateSpellList (f10Wait), featFire (cooldown),
 // featTap (f10Wait), computeStats (f10Stats), hurtPlayer (f10Hurt, f10HurtMul), killEnemy (f10Kill), gainXp (f10Xp);
@@ -18,6 +20,7 @@
 const F10_SLOTS = V10 ? 3 : 2;
 const F10 = {};
 const F10_ORDER = [];
+const F10_UNIQUE = {}; // sample id -> its Unique Feat id (SAMPLES.md); not in F10_ORDER, never drafted for anyone else
 const F10_INT = { force: 'phys', acid: 'fire', static: 'shock', mucus: 'ice', blood: 'arcane', soul: 'soul', fire: 'flame' };
 const F10_COL = { force: '#e8eef8', acid: '#ff2fa8', static: '#ffe94a', mucus: '#7fd04a', blood: '#c9184a', soul: '#b06cff', fire: '#ff6a2a', utility: '#cfe7ff' };
 
@@ -59,9 +62,9 @@ function feat(d) {
   SPELLS[d.key] = { name: d.name, icon: d.icon, elem: d.elem, kind: 'f10', f10: d, atk: d.atk, color: d.color, dir: 'nearest', noTarget: 1, passive: d.trig ? 1 : 0, desc: text,
     base: Object.assign({ dmg: 0, cd: 10, range: 0, area: 0, dur: 0 }, d.base), lv: {} };
   if (typeof ICON_OF !== 'undefined') ICON_OF[d.key] = d.ico || 'cross';
-  F10[d.id] = d; F10_ORDER.push(d.id);
+  F10[d.id] = d; if (d.sample) F10_UNIQUE[d.sample] = d.id; else F10_ORDER.push(d.id);
   const own = () => f10Own(d.id), base = { slot: 'feat', family: 'feat:' + (d.type || 'utility'), type: d.type || null, rarity: d.rar || 0, start: !!d.start, title: d.name, icon: d.icon, color: d.color, maxRank: 5 };
-  const acq = Object.assign({ id: 'feat_' + d.id, kind: 'acquire', desc: text, eligible: g => !own() && f10Unlocked(d), apply: g => { const i = g.spells.findIndex(x => !x); if (i >= 0) g.spells[i] = makeSlot(d.key, true, 1); }, rank: () => 0 }, base);
+  const acq = Object.assign({ id: 'feat_' + d.id, kind: 'acquire', desc: text, eligible: g => !d.sample && !own() && f10Unlocked(d), apply: g => { const i = g.spells.findIndex(x => !x); if (i >= 0) g.spells[i] = makeSlot(d.key, true, 1); }, rank: () => 0 }, base);
   const up = Object.assign({ id: 'feat_' + d.id + '_up', kind: 'enhance', desc: d.name + ' to the next level. More of whatever it does, and a quicker cooldown later.', eligible: g => { const w = own(); return !!w && w.lvl < 5; }, apply: g => { const w = own(); if (w && w.lvl < 5) w.lvl++; }, rank: () => { const w = own(); return w ? w.lvl : 0; } }, base);
   for (const c of [acq, up]) { if (typeof draftRegister === 'function') draftRegister(c); else (window.CARDS10 = window.CARDS10 || []).push(c); }
   for (const lv of [3, 5]) {
@@ -153,7 +156,7 @@ function f10Xp(v) {
   if (w && D.xpT.length >= 10) f10Go(w, { orbs: D.xpT.length });
   return v;
 }
-const f10Speed = () => { const D = G.f10; if (!D) return 1; return D.husk ? 0 : (D.boost > G.t ? 1.3 : 1); };
+const f10Speed = () => { const D = G.f10; if (!D) return 1; return D.husk ? 0 : (D.boost > G.t ? 1.3 : 1) * (D.pb && D.pb.end > G.t ? 1.8 : 1); };
 function f10MemEnd() { const D = f10(), p = me(), m = D.mem; D.mem = null; if (m && m.pop) f10Burst(m.w, p.x, p.y, 100, m.w.s.dmg, null); }
 function f10Membrane(hp, dur, w, pop) { const D = f10(); if (D.mem && D.mem.hp > 0) { D.mem.hp = Math.min(D.mem.hp + hp, G.P.maxHp * 0.3); D.mem.end = Math.max(D.mem.end, G.t + dur); } else D.mem = { hp, end: G.t + dur, w, pop }; }
 function f10Pop(w) { // Little Bubble bursts
@@ -214,6 +217,7 @@ function f10Tick(dt) {
   }
   for (const pw of D.pulls) if (pw.end > G.t) for (const e of f10Near(pw.x, pw.y, pw.r)) if (!e.boss) { const dx = pw.x - e.x, dy = pw.y - e.y, d = Math.hypot(dx, dy) || 1, f = Math.min(d, 150 * dt); e.x += dx / d * f; e.y += dy / d * f; }
   D.pulls = D.pulls.filter(pw => pw.end > G.t);
+  f10UniqueTick(D, p, dt);
   if (!D.stay || Math.hypot(p.x - D.stay.x, p.y - D.stay.y) > 60) { D.stay = { x: p.x, y: p.y }; D.stayT = 0; } else D.stayT += dt; // Nesting
   if (D.nest) { if (D.nest.end < G.t) D.nest = null; else if (D.nest.cosy && Math.hypot(p.x - D.nest.x, p.y - D.nest.y) < D.nest.r) healPlayer(G.P.maxHp * 0.01 * dt, true); }
   if (D.yolk) { // Packed Lunch
@@ -247,6 +251,8 @@ function f10Draw() {
   for (const z of G.zones) if (z.f10well && z.life > 0) for (let i = 0; i < 3; i++) { ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), z.r * S * (((G.t * 0.8 + i / 3) % 1) * 0.7 + 0.3), 0, TAU); ctx.stroke(); }
   if (D.bub) { ctx.globalAlpha = 0.7; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 18) * S, 0, TAU); ctx.stroke(); }
   if (D.mem && D.mem.hp > 0) { ctx.strokeStyle = col('#5aa9ff'); ctx.globalAlpha = 0.6; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 22) * S, 0, TAU * Math.min(1, D.mem.hp / (G.P.maxHp * 0.15))); ctx.stroke(); }
+  for (const M of D.marks || []) if (!M.e.dead) { ctx.strokeStyle = col(F10_COL.acid); ctx.globalAlpha = 0.75; ctx.lineWidth = 2; ctx.setLineDash([5 * S, 4 * S]); ctx.beginPath(); ctx.arc(sx(M.e.x), sy(M.e.y), (M.e.r + 8) * S, G.t * 2, G.t * 2 + TAU); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = col(F10_COL.soul); ctx.globalAlpha = 0.25; ctx.beginPath(); ctx.arc(sx(M.e.x), sy(M.e.y), M.r * S, 0, TAU); ctx.stroke(); }
+  if (D.pb && D.pb.end > G.t) { ctx.strokeStyle = col(F10_COL.static); ctx.globalAlpha = 0.7; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 10) * S, 0, TAU); ctx.stroke(); }
   if (D.husk) { ctx.fillStyle = col('#9a8a6a'); ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 6) * S, 0, TAU); ctx.fill(); }
   if (D.yolk) { ctx.fillStyle = col('#ffd23f'); ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(sx(D.yolk.x), sy(D.yolk.y), 8 * S, 0, TAU); ctx.fill(); }
   if (D.nest) { ctx.strokeStyle = col(F10_COL.mucus); ctx.globalAlpha = 0.4; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sx(D.nest.x), sy(D.nest.y), D.nest.r * S, 0, TAU); ctx.stroke(); }
@@ -588,3 +594,175 @@ feat({ id: 'running_with_scissors', name: 'Running With Scissors', icon: 'RS', i
   },
   forks: { 3: [fk('safety', 'Safety Scissors', 'The blades come back, cutting everything twice.'), fk('shears', 'Pinking Shears', 'Four more blades in every ring.')],
     5: [fk('serrated', 'Serrated', 'The blades hit 50% harder.'), fk('snips', 'Quick Snips', 'A much shorter cooldown.')] } });
+
+// ================================================================ the eight Unique Feats (redesign docs/SAMPLES.md)
+// Slot 1 of the sample that owns them. Level 3 and 5 forks are written here (the docs only promise them).
+const f10Sort = p => (a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y);
+const f10Sick = e => corroded(e) || snared(e) || charged(e) || f_burning(e) || f_bleeding(e) || f_possessed(e); // carries a status First Contact can react to
+
+feat({ id: 'standard_procedure', sample: 'baseline', name: 'Standard Procedure', icon: 'SP', ico: 'nova', type: 'force', atk: 'burst', rar: 0, stam: 14,
+  line: `"Step one: everyone else, away from you."`, does: 'A clean ring of Force pulses out of you and knocks nearby enemies away. Handy when the screen gets crowded.',
+  base: { dmg: 18, cd: 9, area: 130 },
+  stat: (w, s) => { if (f10Fk(w, 'extra')) s.area *= 1.4; if (f10Fk(w, 'fast')) s.cd *= 0.7; },
+  when: w => { const p = me(); return f10Near(p.x, p.y, w.s.area).length ? {} : null; },
+  fire: w => {
+    const p = me(), s = w.s, firm = f10Fk(w, 'firm');
+    const pulse = k => { if (!G || G.state !== 'play') return; const q = me(), l = f10Near(q.x, q.y, s.area); f10Burst(w, q.x, q.y, s.area, s.dmg * k, null); for (const e of l) { f10Shove(e, q.x, q.y, 380 * k * (firm ? 1.5 : 1)); if (firm && !e.dead) f10Stagger(e, 0.7); } };
+    pulse(1); ring(p.x, p.y, s.area, w.def.color, 0.4, 3); if (f10Fk(w, 'double')) after(0.4, () => pulse(0.6));
+  },
+  forks: { 3: [fk('double', 'Second Dose', 'A second, smaller pulse 0.4 seconds later.'), fk('firm', 'Firm Handling', 'The pulse shoves 50% harder and staggers what it hits.')],
+    5: [fk('extra', 'Extra Strength', 'A 40% wider pulse.'), fk('fast', 'Fast Acting', 'A much shorter cooldown.')] } });
+
+feat({ id: 'personal_best', sample: 'over', name: 'Personal Best', icon: 'PB', ico: 'wake', type: 'static', atk: 'contact', rar: 0, stam: 20,
+  line: `"Go! GO! Beat your time! Beat EVERYONE'S time!"`, does: 'You burst forward in a fast sprint, leaving a Static wake. Every enemy you strike extends the sprint, so pick a good line through the crowd.',
+  base: { dmg: 14, cd: 10, dur: 1.5 },
+  stat: (w, s) => { if (f10Fk(w, 'longer')) s.dur += 1; if (f10Fk(w, 'second')) s.cd *= 0.7; },
+  when: w => { const p = me(), D = f10(); return !(D.pb && D.pb.end > G.t) && f10Near(p.x, p.y, 420).length ? {} : null; },
+  fire: w => { const D = f10(), s = w.s; D.pb = { w, t0: G.t, end: G.t + s.dur, max: G.t + s.dur + 2.5, tk: 0, hit: new Set(), ext: f10Fk(w, 'pace') ? 0.6 : 0.3 }; floatText(me().x, me().y - 34, 'GO', w.def.color, 16, 0.7); },
+  forks: { 3: [fk('pace', 'Pace Setter', 'Each enemy you strike extends the sprint twice as much.'), fk('slip', 'Slipstream', 'The wake lingers three times as long.')],
+    5: [fk('longer', 'Longer Run', 'The sprint lasts a second longer.'), fk('second', 'Second Lap', 'A much shorter cooldown.')] } });
+
+feat({ id: 'second_wind', sample: 'late', name: 'Second Wind', icon: 'SW', ico: 'heart', type: 'blood', atk: 'burst', rar: 0, stam: 22,
+  line: `"They look so full. You look so empty. Fix that."`, does: 'You drain Blood from the wounded enemies around you and heal. The lower your health, the more every drop is worth.',
+  base: { dmg: 10, cd: 11, area: 220 },
+  stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'again')) s.cd *= 0.7; },
+  when: w => { const p = me(); return f10Near(p.x, p.y, w.s.area).some(e => e.hp < e.maxHp) ? {} : null; },
+  fire: w => {
+    const p = me(), s = w.s, miss = Math.max(0, 1 - p.hp / G.P.maxHp);
+    const list = f10Near(p.x, p.y, s.area).filter(e => e.hp < e.maxHp).sort(f10Sort(p)).slice(0, f10Fk(w, 'plenty') ? 8 : 6);
+    let h = 0;
+    for (const e of list) { bolt(e.x, e.y, p.x, p.y, w.def.color, 0.2); h += 0.012 * (1 + 3 * miss) * (f10Fk(w, 'rich') ? 1.3 : 1); f10Hit(w, e, s.dmg, 'burst'); }
+    ring(p.x, p.y, s.area * 0.5, w.def.color, 0.35, 3);
+    if (h > 0) { healPlayer(G.P.maxHp * Math.min(0.4, h * s.k)); floatText(p.x, p.y - 36, 'Second wind.', w.def.color, 13, 0.9); }
+  },
+  forks: { 3: [fk('wide', 'Deep Breath', 'A 40% wider reach.'), fk('rich', 'Rich Blood', 'Every drop heals 30% more.')],
+    5: [fk('again', 'Catching Up', 'A much shorter cooldown.'), fk('plenty', 'Plenty More', 'It drains from two more enemies.')] } });
+
+feat({ id: 'pulling_strings', sample: 'friend', name: 'Pulling Strings', icon: 'PS', ico: 'link', type: 'acid', atk: 'burst', rar: 0, stam: 20,
+  line: `"That one. The one in the good suit. Make it a problem."`, does: 'You mark the toughest enemy nearby. It builds Corrosion fast while the enemies around it fill with Soul, so its own entourage is soon ready to turn on it.',
+  base: { dmg: 6, cd: 12, dur: 4, range: 380 },
+  stat: (w, s) => { if (f10Fk(w, 'leash')) s.range *= 1.4; if (f10Fk(w, 'short')) s.cd *= 0.7; },
+  when: w => { const p = me(); return f10Near(p.x, p.y, w.s.range).length ? {} : null; },
+  fire: w => {
+    const p = me(), s = w.s, D = f10(), n = f10Fk(w, 'two') ? 2 : 1;
+    const l = f10Near(p.x, p.y, s.range).sort((a, b) => b.maxHp - a.maxHp);
+    D.marks = D.marks || [];
+    for (const e of l.slice(0, n)) {
+      D.marks = D.marks.filter(M => M.e !== e); D.marks.push({ e, end: G.t + s.dur, r: f10Fk(w, 'entourage') ? 260 : 170, rate: 0.6 * s.k, w });
+      ring(e.x, e.y, e.r + 14, w.def.color, 0.5, 4); f10Hit(w, e, s.dmg, 'burst'); floatText(e.x, e.y - e.r - 14, 'That one.', w.def.color, 12, 0.9);
+    }
+  },
+  forks: { 3: [fk('entourage', 'Big Entourage', 'The Soul spreads to enemies much further from the mark.'), fk('leash', 'Long Leash', 'A 40% longer reach for choosing the mark.')],
+    5: [fk('two', 'Two Marks', 'Mark the two toughest enemies.'), fk('short', 'Shorter Leash', 'A much shorter cooldown.')] } });
+
+feat({ id: 'shrink_wrap', sample: 'parcel', name: 'Shrink Wrap', icon: 'SH', ico: 'web', type: 'mucus', atk: 'burst', rar: 0, stam: 22,
+  line: `"Fragile. Handle with care. Actually, don't handle."`, does: 'A ring of enemies around you is Snared in Mucus, and half a second later an Acid Pool bubbles up beneath them. Trap first, dissolve second.',
+  base: { dmg: 8, cd: 11, area: 170, dur: 3.5 },
+  stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'slow')) s.dur *= 1.6; if (f10Fk(w, 'strong')) s.dmg *= 1.5; if (f10Fk(w, 'refund')) s.cd *= 0.7; },
+  when: w => { const p = me(); return f10Near(p.x, p.y, w.s.area).length ? {} : null; },
+  fire: w => {
+    const p = me(), s = w.s, l = f10Near(p.x, p.y, s.area).sort(f10Sort(p)).slice(0, 10);
+    f10Many(w, l, s.dmg, 'burst'); for (const e of l) if (!e.dead) fightStatus(e, 'ice', 0, {});
+    ring(p.x, p.y, s.area, w.def.color, 0.4, 4);
+    after(0.5, () => { if (!G || G.state !== 'play') return; let n = 0; for (const e of l) if (!e.dead && n < 5) { n++; f10Patch(w, e.x, e.y, 62, s.dur, 'acid', s.dmg * 3); } });
+  },
+  forks: { 3: [fk('wide', 'Bigger Roll', 'A 40% wider ring.'), fk('slow', 'Slow Dissolve', 'The Acid Pools last 60% longer.')],
+    5: [fk('strong', 'Industrial Strength', 'The Pools and the first hit are 50% stronger.'), fk('refund', 'Return Policy', 'A much shorter cooldown.')] } });
+
+feat({ id: 'reply_all', sample: 'unsol', name: 'Reply All', icon: 'RA', ico: 'spray', type: 'fire', atk: 'beam', rar: 0, stam: 22,
+  line: `"I replied to everyone. EVERYONE. Look how warm they are."`, does: 'You fill the nearest enemy\'s Burn bar at once. Static arcs from it spread more Burn to the enemies around it.',
+  base: { dmg: 12, cd: 10, range: 320, area: 170 },
+  stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'auto')) s.cd *= 0.7; },
+  when: w => { const p = me(), t = acquire('nearest', w.s.range, p.x, p.y); return t ? { t } : null; },
+  fire: (w, c) => {
+    const p = me(), s = w.s, t = c.t; if (!t || t.dead) return;
+    const heads = [t]; if (f10Fk(w, 'bcc')) { const o = f10Near(p.x, p.y, s.range).sort(f10Sort(p)).find(e => e !== t); if (o) heads.push(o); }
+    for (const h of heads) {
+      bolt(p.x, p.y, h.x, h.y, w.def.color, 0.15); fightCd(h).bars.fire = 0.9999999; f10Hit(w, h, s.dmg, 'beam');
+      if (h.dead) continue; burnAdd(fightCd(h), s.dmg * 4); h.chargeT = G.t + 3;
+      const near = f10Near(h.x, h.y, s.area).filter(e => e !== h).sort(f10Sort(h)).slice(0, f10Fk(w, 'thread') ? 6 : 3);
+      for (const o of near) { bolt(h.x, h.y, o.x, o.y, F10_COL.static, 0.15); damageEnemy(o, s.dmg * 0.5, { elem: 'shock', arc: true, noArc: true, noCrit: true, atk: 'burst', wname: 'Reply All' }); if (!o.dead) burnAdd(fightCd(o), s.dmg * 4); }
+    }
+  },
+  forks: { 3: [fk('thread', 'Reply to Thread', 'The arcs reach six enemies instead of three.'), fk('wide', 'Everyone in CC', 'A 40% wider reach for the arcs.')],
+    5: [fk('bcc', 'Bcc', 'The second-nearest enemy catches fire too.'), fk('auto', 'Auto-Reply', 'A much shorter cooldown.')] } });
+
+feat({ id: 'recount', sample: 'unacc', name: 'Recount', icon: 'RC', ico: 'ghost', type: 'soul', atk: 'burst', rar: 0, stam: 28,
+  line: `"Let's count again. Six of you. Three seconds. Be nice."`, does: 'You Possess up to six enemies for three seconds. When it ends, each of them loses a chunk of health, and every kill gives some stamina back.',
+  base: { dmg: 40, cd: 14, range: 340, dur: 3 },
+  stat: (w, s) => { if (f10Fk(w, 'audit')) s.dmg *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; if (f10Fk(w, 'long')) s.dur += 1; },
+  when: w => { const p = me(); return f10Near(p.x, p.y, w.s.range).some(e => !e.boss && !e.rival) ? {} : null; },
+  fire: w => {
+    const p = me(), s = w.s, D = f10(), n = f10Fk(w, 'sheet') ? 8 : 6;
+    const l = f10Near(p.x, p.y, s.range).filter(e => !e.boss && !e.rival && !e.charmed).sort(f10Sort(p)).slice(0, n);
+    for (const e of l) { curseFoe(e, s.dur); ring(e.x, e.y, e.r + 8, w.def.color, 0.4, 3); }
+    D.recounts = D.recounts || []; D.recounts.push({ list: l, end: G.t + s.dur, w });
+    floatText(p.x, p.y - 36, 'One, two...', w.def.color, 13, 0.9);
+  },
+  forks: { 3: [fk('sheet', 'Spreadsheet', 'Possess up to eight enemies instead of six.'), fk('audit', 'Audit', 'The delayed hit is 50% bigger.')],
+    5: [fk('long', 'Long Meeting', 'The Possession lasts a second longer.'), fk('quick', 'Quick Count', 'A much shorter cooldown.')] } });
+
+feat({ id: 'first_contact', sample: 'other', name: 'First Contact', icon: 'FC', ico: 'twins', rar: 0, stam: 0,
+  line: `"Oh, you're different now. Say hello to everyone."`, does: 'You shift to your next damage type at once. For reactions only, you count as a hit of the old type and the new type on every enemy on screen carrying a status (eight at most, nearest first). No damage, no build-up.',
+  base: { cd: 14, dmg: 30 },
+  stat: (w, s) => { if (f10Fk(w, 'quickintro')) s.cd *= 0.7; if (f10Fk(w, 'firm')) s.dmg *= 1.5; },
+  when: w => (G.enemies.some(e => f10Live(e) && f10OnView(e) && f10Sick(e)) ? {} : null),
+  fire: w => {
+    const p = me(), D = f10(), s = w.s, cyc = S10_BY.other.shift, S = G.s10;
+    let from, to;
+    if (S && S.id === 'other') { from = cyc[S.shiftI]; s10Shift(S); to = cyc[S.shiftI]; }
+    else { const i = D.fcI == null ? 0 : D.fcI; from = cyc[i]; D.fcI = (i + 1) % cyc.length; to = cyc[D.fcI]; }
+    D.fcType = FIGHT_TYPE[to];
+    const types = [FIGHT_TYPE[from], FIGHT_TYPE[to]], list = G.enemies.filter(e => f10Live(e) && f10OnView(e) && f10Sick(e)).sort(f10Sort(p));
+    let used = 0;
+    for (const e of list) {
+      if (used >= 8) break;
+      const once = { n: 0 }, src = { raw: s.dmg, once, kx: e.x - p.x, ky: e.y - p.y };
+      let fired = false; for (const t of types) { if (fired || e.dead) break; fired = fightReactAs(e, t, src); }
+      if (fired) { used++; if (f10Fk(w, 'icebreaker') && !e.dead) f10Stagger(e); }
+    }
+    D.fcUsed = used;
+    if (f10Fk(w, 'warm') && used) healPlayer(G.P.maxHp * 0.02 * used);
+    ring(p.x, p.y, 120, w.def.color, 0.5, 4); floatText(p.x, p.y - 40, 'Hello.', w.def.color, 13, 0.9);
+  },
+  forks: { 3: [fk('warm', 'Warm Handshake', 'You heal 2% of your health for every reaction it sets off.'), fk('firm', 'Firm Handshake', 'Reactions it sets off hit 50% harder.')],
+    5: [fk('quickintro', 'Quick Introductions', 'A much shorter cooldown.'), fk('icebreaker', 'Icebreaker', 'Every enemy it sets off a reaction on is staggered.')] } });
+
+// Per-frame work for the Unique Feats (f10Tick).
+function f10UniqueTick(D, p, dt) {
+  const B = D.pb;
+  if (B) {
+    if (G.t >= B.end) D.pb = null;
+    else {
+      if ((B.tk -= dt) <= 0) { B.tk = 0.12; f10Patch(B.w, p.x, p.y, 28, f10Fk(B.w, 'slip') ? 3.6 : 1.2, 'static', B.w.s.dmg * 1.2); fxParts('spark', p.x, p.y, F10_COL.static, 2, 60, 0.3, 2); }
+      for (const e of f10Near(p.x, p.y, p.r + 26)) {
+        if (B.hit.has(e)) continue;
+        B.hit.add(e); f10Hit(B.w, e, B.w.s.dmg, 'contact'); f10Shove(e, p.x, p.y, 240);
+        B.end = Math.min(B.max, B.end + B.ext); bolt(p.x, p.y, e.x, e.y, F10_COL.static, 0.1);
+      }
+    }
+  }
+  if (D.marks && D.marks.length) {
+    for (const M of D.marks) {
+      if (M.end <= G.t || M.e.dead) { M.done = true; continue; }
+      const c = fightCd(M.e); c.bars.acid = Math.min(0.9999999, c.bars.acid + M.rate * dt); c.barQuietT.acid = 0;
+      for (const o of f10Near(M.e.x, M.e.y, M.r)) if (o !== M.e) { const q = fightCd(o); q.bars.soul = Math.min(0.99, q.bars.soul + 0.35 * dt); q.barQuietT.soul = 0; }
+    }
+    D.marks = D.marks.filter(M => !M.done);
+  }
+  if (D.recounts && D.recounts.length) {
+    for (const R of D.recounts) {
+      if (G.t < R.end || (R.list.some(e => !e.dead && e.charmed) && G.t < R.end + 3)) continue;
+      R.done = true; const s = R.w.s;
+      for (const e of R.list) {
+        if (e.dead) continue;
+        f10Hit(R.w, e, Math.max(s.dmg, Math.min(e.maxHp * 0.25, s.dmg * 5)), 'burst'); ring(e.x, e.y, e.r + 8, R.w.def.color, 0.3, 3);
+        if (e.dead && G.stam) { G.stam.cur = Math.min(stamMax(), G.stam.cur + 8); floatText(e.x, e.y - 14, '+stamina', F10_COL.soul, 11, 0.6); }
+      }
+    }
+    D.recounts = D.recounts.filter(R => !R.done);
+  }
+}
+
+// samples10.js s10Start: the sample's own Feat goes in slot 1.
+function s10UniqueFeat(id) { const fid = F10_UNIQUE[id]; if (fid && G) { const w = f10Own(fid) || f10Give(fid, 1); if (w) w.cd = 0; } }

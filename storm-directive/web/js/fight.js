@@ -141,10 +141,12 @@ function fightArc(e, dmg, jumps) {
 }
 
 // ---------------------------------------------------------------- reactions (matrix section 1)
-function rxLocked(e, id) { const L = e.rxT || (e.rxT = {}); if (L[id] > G.t) return true; L[id] = G.t + (e.boss ? 3 : mutRxLock(id)); return false; }
+let FIGHT_ONE = null; // (First Contact: at most one reaction per enemy; set only inside fightReactAs)
+const fightOnceDone = () => !!(FIGHT_ONE && FIGHT_ONE.n);
+function rxLocked(e, id) { if (fightOnceDone()) return true; const L = e.rxT || (e.rxT = {}); if (L[id] > G.t) return true; L[id] = G.t + (e.boss ? 3 : mutRxLock(id)); return false; }
 function rxFired(id, e) {
   const S = fst(), R = FIGHT_RX[id];
-  S.rx[id] = (S.rx[id] || 0) + 1;
+  S.rx[id] = (S.rx[id] || 0) + 1; if (FIGHT_ONE) FIGHT_ONE.n++;
   const seen = META.rxSeen || (META.rxSeen = []);
   if (!seen.includes(id)) { seen.push(id); saveMeta(); floatText(e.x, e.y - e.r - 24, 'UNSTABLE REACTION: ' + R.name.toUpperCase(), R.color, 15, 2, true); if (typeof vxReaction === 'function') vxReaction(id, seen.length === 1); }
   else floatText(e.x, e.y - e.r - 16, R.name, R.color, 11, 0.8);
@@ -164,7 +166,7 @@ function fightReact(e, t, raw, src, res) {
     after(0.4, () => { if (G && G.zones.length < 150) G.zones.push(fightPatch(e.x, e.y, 'rocket')); });
   }
   // Static + Acid Pool: one pulse across that pool (60% of the hit to everything in it), once per pool.
-  if (t === 'static') {
+  if (t === 'static' && !src.feat) {
     const z = zoneAt('fire', e.x, e.y);
     if (z && !z.cpool) {
       z.cpool = true; rxFired('cpool', e); ring(z.x, z.y, z.r, FIGHT_COL.charged, 0.3, 3);
@@ -172,17 +174,17 @@ function fightReact(e, t, raw, src, res) {
     }
   }
   // Acid + Mucus patch: the patch becomes a short-lived Acid Pool. No damage of its own.
-  if (t === 'acid') {
+  if (t === 'acid' && !src.feat) {
     const z = zoneAt('ice', e.x, e.y);
     if (z) { z.life = 0; z.rxDone = true; rxFired('slick', e); G.zones.push({ x: z.x, y: z.y, r: 58, life: 3.5, max: 3.5, dps: Math.max(4, raw), elem: 'fire', pull: 0, color: ELEMENTS.fire.color, tick: 0, src: rxSrc('slick', 'fire', { zoneHit: true }) }); }
   }
   // Static + Mucus patch: the patch is charged; the next enemy to enter it is shocked (a short stun, no damage).
-  if (t === 'static') {
+  if (t === 'static' && !src.feat) {
     const z = zoneAt('ice', e.x, e.y);
     if (z && !z.charged && !z.stuck) { z.charged = true; z.inside = new Set(); forNear(z.x, z.y, z.r, o => z.inside.add(o.id)); ring(z.x, z.y, z.r, FIGHT_COL.charged, 0.4, 3); }
   }
   fightReact2(e, t, raw, src, res);
-  sigReact(e, t, raw, src, res); // (Shocking Impact, Burning Sensation: sigweap.js)
+  if (!src.feat) sigReact(e, t, raw, src, res); // (Shocking Impact, Burning Sensation: sigweap.js)
 }
 // The other fifteen (Shocking Impact waits for a dual-type weapon).
 function fightReact2(e, t, raw, src, res) {
@@ -218,7 +220,7 @@ function fightReact2(e, t, raw, src, res) {
     forNear(e.x, e.y, 70, o => { if (!o.dead) damageEnemy(o, raw * 1.5, rxSrc('evap', 'flame')); });
   }
   // Static + blood pool: one arc to the nearest enemy in or beside the pool (60%). No onward chain.
-  if (t === 'static') {
+  if (t === 'static' && !src.feat) {
     const z = zoneAt('arcane', e.x, e.y);
     if (z && !z.circuit) {
       let best = null, bd = z.r + 40;
@@ -227,18 +229,18 @@ function fightReact2(e, t, raw, src, res) {
     }
   }
   // Static + Soul: a Static hit on a Possessed enemy makes it last 2 s longer (once per Possession). No damage.
-  if (t === 'static' && f_possessed(e) && !e.interfered) { e.interfered = true; e.charmT += 2; rxFired('interference', e); }
+  if (t === 'static' && f_possessed(e) && !e.interfered && !fightOnceDone()) { e.interfered = true; e.charmT += 2; rxFired('interference', e); }
   // Static + Fire: a Static hit on a burning target arcs once to the nearest other enemy (60%).
   if (t === 'static' && f_burning(e) && !rxLocked(e, 'arcflash')) {
     const n = fightNearest(e, 140);
     if (n) { rxFired('arcflash', e); bolt(e.x, e.y, n.x, n.y, FIGHT_COL.charged, 0.15); damageEnemy(n, raw * 0.6, rxSrc('arcflash', 'shock', { arc: true })); }
   }
   // Mucus + blood pool: the pool thickens; the first enemy to cross it is Snared, then the pool is gone.
-  if (t === 'mucus') { const z = zoneAt('arcane', e.x, e.y); if (z && !z.clot) { z.clot = true; z.inside = new Set(); forNear(z.x, z.y, z.r, o => z.inside.add(o.id)); rxFired('clot', e); } }
+  if (t === 'mucus' && !src.feat) { const z = zoneAt('arcane', e.x, e.y); if (z && !z.clot) { z.clot = true; z.inside = new Set(); forNear(z.x, z.y, z.r, o => z.inside.add(o.id)); rxFired('clot', e); } }
   // Mucus + Soul: a Mucus hit on a Possessed enemy pins it for a moment. No damage.
   if (t === 'mucus' && f_possessed(e) && !rxLocked(e, 'suspension')) { e.frozen = Math.max(e.frozen, e.boss ? 0.3 : 1); rxFired('suspension', e); }
   // Mucus patch + Fire: the patch flares once: everything in it ignites (150%), then the patch is gone.
-  if (t === 'fire') {
+  if (t === 'fire' && !src.feat) {
     const z = zoneAt('ice', e.x, e.y);
     if (z) {
       z.life = 0; z.rxDone = true; rxFired('flammable', e); ring(z.x, z.y, z.r, FIGHT_RX.flammable.color, 0.45, 6);
@@ -246,7 +248,7 @@ function fightReact2(e, t, raw, src, res) {
     }
   }
   // Blood + Soul: a Blood hit on a Possessed enemy heals you a little (once per Possession). No damage.
-  if (t === 'blood' && f_possessed(e) && !e.donated) { e.donated = true; healPlayer(Math.max(3, G.P.maxHp * 0.03)); rxFired('donor', e); }
+  if (t === 'blood' && f_possessed(e) && !e.donated && !fightOnceDone()) { e.donated = true; healPlayer(Math.max(3, G.P.maxHp * 0.03)); rxFired('donor', e); }
   // Blood + Fire: a Fire hit on a bleeding target consumes the Bleed for one burst (150% plus the Bleed left).
   if (t === 'fire' && f_bleeding(e) && !rxLocked(e, 'cauterise')) {
     const left = e.bleeds.reduce((a, b) => a + b.dps * b.t, 0); e.bleeds = [];
@@ -254,11 +256,22 @@ function fightReact2(e, t, raw, src, res) {
     forNear(e.x, e.y, 70, o => { if (!o.dead) damageEnemy(o, raw * 1.5 + (o === e ? left : 0), rxSrc('cauterise', 'flame')); });
   }
   // Soul + Fire: the Soul Beam + Burning Ground Pairing (both Lv 5+) on a burning, Possessed enemy: it ignites and Possession ends.
-  if ((t === 'soul' || t === 'fire') && f_burning(e) && f_possessed(e) && fightPairing() && !rxLocked(e, 'spectral')) {
+  if ((t === 'soul' || t === 'fire') && f_burning(e) && f_possessed(e) && !src.feat && fightPairing() && !rxLocked(e, 'spectral')) {
     const first = !(META.rxSeen || []).includes('spectral');
     rxFired('spectral', e); e.charmT = 0.01; const c = fightCd(e); c.bars.fire = 0; fightPayoff(e, 'ignite', { raw }, src);
     if (first && !(typeof vxSpectral === 'function' && vxSpectral())) floatText(p.x, p.y - 60, 'Form 12B filed.', '#e8e2d6', 13, 3);
   }
+}
+// First Contact (Feats, matrix 11.3): a virtual hit of type t on e, for reactions only. No damage, no bar fill, no Thorns.
+// Runs the state + hit reactions (world-object ones, Spectral Combustion and signature reactions are skipped); src.raw is the
+// notional hit size the reaction damage scales from; src.once ({n:0}, shared by the caller across both types) keeps it to one
+// reaction per enemy. Returns true if one fired.
+function fightReactAs(e, t, src) {
+  if (!e || e.dead) return false;
+  const s = Object.assign({}, src, { feat: true }), once = s.once || (s.once = { n: 0 }), n0 = once.n, prev = FIGHT_ONE;
+  FIGHT_ONE = once;
+  try { fightReact(e, t, s.raw || 0, s, null); } finally { FIGHT_ONE = prev; }
+  return once.n > n0;
 }
 const fightNearest = (e, r) => { let best = null, bd = r; for (const o of G.enemies) { if (o.dead || o === e || o.charmed) continue; const d = Math.hypot(o.x - e.x, o.y - e.y); if (d < bd) { bd = d; best = o; } } return best; };
 const fightPairing = () => { const lv = id => { const w = G.weapons.find(w => w && w.id === id); return w ? w.lvl || w.level || 0 : 0; }; return lv('v_soul_beam') >= 5 && lv('v_flame_pool') >= 5; };
