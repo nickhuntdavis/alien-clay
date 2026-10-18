@@ -20,7 +20,7 @@ function spawnBoss() {
     e.hp = e.maxHp = def.hp * 5 * (1 + (idx % BOSSES_PER_RUN) * 0.9) * Math.pow(2.4, idx % BOSSES_PER_RUN) * (1 + PT() / 320) * (1 + 0.05 * levelsAhead()) * (1 + round * 4) * (G.wave || G.lvl ? 1 : RACE.boss[Math.min(idx, RACE.boss.length - 1)]);
     e.armour = def.armour + round * 4;
     e.speed = def.speed;
-    e.dmg = def.dmg * dmgNow();
+    e.dmg = def.dmg * dmgNow() * (V10 ? V10_DIFF.dmg : 1); // (this overwrote makeEnemy's v10 cut, so bosses touched at full v9 strength)
     if (!G.wave && !G.lvl) { e.campK = RACE.bossHit[Math.min(idx, RACE.bossHit.length - 1)]; e.dmg *= e.campK; } // (race mode: the first bosses hit softer, while your build is thin)
     heatBoss(e); // Immune Response
     if (V10) { e.hp *= V10_DIFF.bossHp; e.maxHp *= V10_DIFF.bossHp; } // (boss10.js)

@@ -1,3 +1,11 @@
+## 2026-10-18 Race balance: boss contact, bullet cap and fire rate, rival damage, egg membrane (v10.14)
+- Systems: bosses, enemies, rivals, the egg, difficulty
+- Files: bosses.js, game.js, boss10.js
+- What: boss contact damage now takes the v10 cut (bosses.js overwrote makeEnemy's); enemy bullets alive at once capped at 120 (was 800); ordinary shooters fire a third less often; rival damage 0.3 (was 0.45); the egg's membrane has half the health. Bot race sim: first win (1 of 6, was 0); 5 of 6 reach the egg.
+- Save data: none.
+- Hooks: V10_DIFF gains fireGap, ebulCap, egg (boss10.js); game.js eBullet cap, shooter cooldown, openEgg; bosses.js boss dmg.
+- Risk: easier race; re-check against phone runs (bot target 20 to 50%).
+
 ## 2026-10-18 Test triage: 20 v9 tests retired, 6 fixed
 - Systems: tests, school (Level 0)
 - Files: tests/run.sh, tests/schooltest.js, inspecttest.js, introtest.js, setshot.js, rewindtest.js, newtut.js, web/js/school.js

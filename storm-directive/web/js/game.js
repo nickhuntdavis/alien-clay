@@ -1365,7 +1365,7 @@ let shooterName = '', shooterEnt = null;
 // and each one that flies hits 1.7x as hard.
 const BUL = { keep: [1, 1, 1, 1, 0, 1, 1, 1, 1, 1], dmg: 1.7, size: 1 }; // 9 of every 10 shots fly (was 3 of 5) // small and dense, like real specks
 function eBullet(x, y, a, speed, dmg, r, color) {
-  if (G.ebul.length >= CAPS.ebul || (G.toy && tapeGagged(shooterEnt))) return;
+  if (G.ebul.length >= (V10 ? V10_DIFF.ebulCap : CAPS.ebul) || (G.toy && tapeGagged(shooterEnt))) return;
   G.bulSeq = ((G.bulSeq || 0) + 1) % BUL.keep.length;
   if (!BUL.keep[G.bulSeq]) return;
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
@@ -1501,7 +1501,7 @@ function updateEnemies(dt) {
           if (sh.pattern === 'snipe') {
             if (e.aimT > 0) { e.aimT -= edt; spd = 0; if (e.aimT <= 0) { shootPattern(e, 'snipe', e.aimA); e.shootCd = sh.cd; } }
             else if (e.shootCd <= 0 && dist < 560) { e.aimT = 0.8; e.aimA = Math.atan2(dy, dx); }
-          } else if (e.shootCd <= 0 && dist < 520) { shootPattern(e, sh.pattern); e.shootCd = sh.cd * rand(0.85, 1.15) / fireMul(PT()) / G.evm.fire; }
+          } else if (e.shootCd <= 0 && dist < 520) { shootPattern(e, sh.pattern); e.shootCd = sh.cd * rand(0.85, 1.15) / fireMul(PT()) / G.evm.fire * (V10 ? V10_DIFF.fireGap : 1); }
           break;
         }
         case 'turret':
@@ -2588,7 +2588,7 @@ const EGG_DEF = { id: 'egg', name: "THE EGG'S MEMBRANE", title: 'THE ZONA PELLUC
 function openEgg(by) {
   if (!G.eggE || G.eggE.dead) {
     const e = makeEnemy(EGG_DEF, G.core.x, G.core.y);
-    e.hp = e.maxHp = EGG.hpBase * hpNow() * (1 + VET.big * vetK());
+    e.hp = e.maxHp = EGG.hpBase * hpNow() * (1 + VET.big * vetK()) * (V10 ? V10_DIFF.egg : 1); // (v10: boss10.js)
     e.boss = true; e.egg = true; e.shootCd = 2; e.stT = 3;
     G.enemies.push(e);
     G.eggE = e;
