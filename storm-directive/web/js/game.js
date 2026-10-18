@@ -2558,6 +2558,7 @@ function gainXp(v) {
       // A box every level to Lv 8, every second level to Lv 24, then every third.
     if (G.level <= 8 || (G.level <= 24 ? G.level % 2 === 0 : G.level % 3 === 0)) G.lootQueue.push({ kind: 'level' });
     if (V10) mutLevel(G.level); // (mutation cards: mutations.js)
+    if (V10) wupLevel(G.level); // (the weapon upgrade screen every 4th level: weapons24.js)
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     rebornLevel(G.level); // (Prawn Again: memories of a past life)
     redLevel(); // (the Redtail: a bane every level)

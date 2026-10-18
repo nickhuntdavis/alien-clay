@@ -155,7 +155,7 @@ for (const id of Object.keys(FIGHT_RX)) {
     id: 'cat_' + id, kind: 'specialise', slot: null, family: 'catalyst', type: MUT_RXTYPE[id] || null, rarity: 2, start: false,
     title: 'More ' + R.name, flavour: 'That worked. Do it more.', desc: R.name + ' hits 25% harder (where it hits at all) and comes round sooner.',
     icon: 'CA', color: R.color, maxRank: 3, rxId: id,
-    why: G => (META.rxSeen || []).includes(id) ? '' : 'that unstable reaction has not been discovered yet',
+    why: G => (G.fst && G.fst.rx && G.fst.rx[id] > 0) ? '' : 'you have not set off that unstable reaction this run', // (user, 18 Oct: only once you have it to enhance)
     rank: G => (G.cat && G.cat[id]) || 0,
     apply: G => { mutSt(); G.cat[id] = Math.min(3, (G.cat[id] || 0) + 1); },
   };

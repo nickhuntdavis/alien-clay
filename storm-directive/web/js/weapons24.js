@@ -118,11 +118,43 @@ function wupCarry(from, to) {
   const l10 = S.lv10 && S.lv10.find(c => c.name === U.l10); if (l10) l10.apply(to);
   computeStats(to);
 }
+// ---------------------------------------------------------------- weapon tiers (user, 18 Oct)
+// A weapon has four tiers: 1 (as drafted), 2 (a promise), 3 (a branch card), 4 (a mastery, one weapon a run). Every
+// step is a branch choice, never a stat card. Internally the slot keeps the old level scale (1, 3, 6, 10), so stats,
+// combos, the mastery cap (game.js wCap) and the card engine below work unchanged. Weapon upgrades are their own
+// screen every WUP_EVERY player levels (draft.js draftLoot 'wup'); normal drafts carry no weapon cards.
+const WUP_TIER = [1, 3, 6, 10], WUP_EVERY = 4;
+const wTier = w => (w && !w.isSpell && w.def && w.def.w24 ? WUP_TIER.filter(l => w.lvl >= l).length : w ? w.lvl : 0);
+const wTierMax = w => (w && !w.isSpell && w.def && w.def.w24 ? 4 : MAX_WLVL);
+const wLvText = w => 'Lv ' + wTier(w) + '/' + wTierMax(w);
+// The next internal level for this slot, or 0 when it has none (top tier, or the run's mastery is taken elsewhere).
+function wupNextLv(w) {
+  if (!w || w.isSpell || !w.def.w24 || !WUP[w24Key(w)]) return 0;
+  const nx = WUP_TIER.find(l => l > w.lvl);
+  return nx && nx <= wCap(w) ? nx : 0;
+}
+const wupReady = () => (G ? G.weapons.filter(w => wupNextLv(w)) : []);
+function wupLevel(lv) { if (lv % WUP_EVERY === 0 && wupReady().length) G.lootQueue.push({ kind: 'wup', v10ok: true }); } // (game.js gainXp)
+// The weapon upgrade screen: with one weapon ready, its branch cards straight away; with more, pick the weapon first.
+// A weapon's branch cards for its next tier; taking one moves the slot up to that tier.
+const wupRaise = (w, lv) => (wupForkCards({ w, lv }) || []).map(c => Object.assign(c, { apply: (ap => () => { w.lvl = lv; ap(); computeStats(w); })(c.apply) }));
+function wupCards() {
+  const ready = wupReady();
+  if (ready.length === 1) return wupRaise(ready[0], wupNextLv(ready[0]));
+  return ready.map(w => {
+    const lv = wupNextLv(w), t = WUP_TIER.indexOf(lv) + 1;
+    return { rarity: 3, tag: 'WEAPON UPGRADE', icon: w.def.icon, color: w.def.color, def: w.def, title: w.def.name, sub: `Tier ${t - 1} > ${t}`,
+      desc: t === 2 ? 'Choose one of three promises. The other two are gone for the run.' : t === 3 ? 'Choose how its promise grows.' : 'Its mastery. Only one weapon a run gets one.',
+      apply: () => G.lootQueue.unshift({ kind: 'wupfork', w, lv, v10ok: true }) };
+  });
+}
+const wupForkReq = req => (wupNextLv(req.w) === req.lv ? wupRaise(req.w, req.lv) : []); // (the chosen weapon's screen)
+
 // The fork screen (draft.js forkCards): Lv 3 promises, Lv 6 the taken promise's cards, Lv 10 masteries.
 function wupForkCards(req) {
   const w = req.w, S = w && WUP[w24Key(w)];
   if (!S) return null;
-  const U = wupUp(w), col = w.def.color, sub = `${w.def.name} | Lv ${req.lv}`;
+  const U = wupUp(w), col = w.def.color, sub = `${w.def.name} | Tier ${WUP_TIER.indexOf(req.lv) + 1}`;
   const card = (title, desc, fn, tag) => ({ rarity: 3, tag: tag || 'BRANCH', icon: 'B', color: col, title, sub, desc, apply: () => { fn(); computeStats(w); } });
   if (req.lv === 3) return ['A', 'B', 'C'].filter(k => S[k]).map(k => card(S[k].name, S[k].lv3.desc + (S[k].costs ? ' Costs: ' + S[k].costs : ''), () => { U.p = k; S[k].lv3.apply(w); }, 'PROMISE'));
   if (req.lv === 6) {

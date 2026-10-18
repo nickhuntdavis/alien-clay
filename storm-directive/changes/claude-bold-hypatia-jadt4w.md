@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon tiers: upgrades on their own screen, four tiers, all branches; no empty slots; catalysts need this run's reaction
+- Systems: weapons, draft, ui, mutations
+- Files: weapons24.js, draft.js, game.js, ui.js, mutations.js, tests/drafttest.js, tests/mutstest.js
+- What: normal drafts carry no weapon cards; every 4th level opens a WEAPON UPGRADE screen (pick a weapon if more than one is ready, then its branch cards). Weapons have tiers 1-4 (promise, branch, mastery; one mastery a run), stored on the old internal levels 1/3/6/10 so stats and cards are unchanged. HUD and menus show tiers and hide empty and locked slots. "More <reaction>" cards need that reaction set off this run (was: ever discovered).
+- Save data: none.
+- Hooks: game.js gainXp -> wupLevel; draft.js draftLoot/draftBox/draftTitle -> 'wup', 'wupfork'; ui.js HUD/armoury -> wTier, wLvText.
+- Risk: weapons reach fewer levels' worth of stats early (tier 2 = old Lv 3 only at level 4); balance re-sim pending.
+
 ## 2026-10-18 Enemy bullets get the v10 damage cut
 - Systems: enemies, difficulty
 - Files: game.js, boss10.js

@@ -172,7 +172,7 @@ const UI = {
       const w = G && (kind === 's' ? G.spells[i] : G.weapons[i]);
       if (!w) return `<b>Empty ${kind === 's' ? 'spell' : 'weapon'} slot</b><p>Tap to open the Tackle Box.</p>`;
       const dr = DIRECTIVES.find(x => x.id === w.dir);
-      return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>Lv ${w.lvl}/${MAX_WLVL}</em><p>${esc(w.def.desc)}</p>`
+      return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>${wLvText(w)}</em><p>${esc(w.def.desc)}</p>`
         + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name + (w.dir2 && !w.dirs ? ', then ' + DIRECTIVES.find(x => x.id === w.dir2).name : '') : ''}</p>` : '')
         + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '')
         + `<p>${kind === 's' ? 'Tap to perform it now. Its target and the rest are in the Tackle Box.' : w.def.noTarget ? 'Tap to open the Tackle Box.' : 'Tap to switch target. TACKLE BOX button for the rest.'}</p>`;
@@ -196,6 +196,7 @@ const UI = {
     const wEls = $('wslots').children, sEls = $('sslots').children;
     const fill = (el, w) => {
       if (!w) {
+        el.style.display = V10 ? 'none' : ''; // (v10: no empty slots on the HUD)
         if (el.dataset.k !== 'empty') { el.dataset.k = 'empty'; el.classList.add('empty'); el.querySelector('.ico').textContent = '+'; el.querySelector('.lv').textContent = ''; el.querySelector('.mp').innerHTML = ''; el.querySelector('.dir').textContent = 'EMPTY'; el.style.setProperty('--c', '#445'); }
         el.querySelector('.bar i').style.width = '0%';
         return;
@@ -203,10 +204,10 @@ const UI = {
       const key = w.uid + ':' + w.lvl + ':' + w.dir + ':' + w.mods.length + ':' + w.gachaTier;
       if (full || el.dataset.k !== key) {
         el.dataset.k = key;
-        el.classList.remove('empty');
+        el.classList.remove('empty'); el.style.display = '';
         el.style.setProperty('--c', elemCol(wElem(w)));
         el.querySelector('.ico').innerHTML = iconSVG(w.def, w.isSpell ? 18 : 24, elemCol(wElem(w)));
-        el.querySelector('.lv').textContent = 'Lv' + w.lvl;
+        el.querySelector('.lv').textContent = 'Lv' + wTier(w);
         el.querySelector('.mp').innerHTML = w.mods.map(m => `<i style="background:${PAL.upgrade}"></i>`).join('');
         el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : w.dir2 ? '›' + DIRECTIVES.find(d => d.id === w.dir2).short : '');
         el.classList.toggle('merged', !!(w.combos && w.combos.length));
@@ -455,11 +456,12 @@ const UI = {
     let t = `<button class="atab lotab ${A.k === 'L' ? 'sel' : ''}" data-k="L" data-i="0"><b>&#9776;</b><span>LOADOUT</span></button>`;
     const tab = (k, i, x) => {
       const sel = A.k === k && A.i === i;
+      if (!x && V10) return ''; // (v10: no empty slots)
       if (!x) return `<button class="atab empty ${sel ? 'sel' : ''}" data-k="${k}" data-i="${i}"><b>+</b><span>${k === 'w' ? 'WEAPON' : 'FEAT'} ${i + 1}</span></button>`;
-      return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${elemCol(wElem(x))}"><b>${iconSVG(x.def, 24, elemCol(wElem(x)))}</b><span>Lv ${x.lvl}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
+      return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${elemCol(wElem(x))}"><b>${iconSVG(x.def, 24, elemCol(wElem(x)))}</b><span>Lv ${wTier(x)}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
-    SLOT_LEVELS.filter(l => l > G.level).forEach((l, j) => { const i = G.weapons.length + j; t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${l}</span></button>`; });
+    if (!V10) SLOT_LEVELS.filter(l => l > G.level).forEach((l, j) => { const i = G.weapons.length + j; t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${l}</span></button>`; });
     G.spells.forEach((x, i) => { t += tab('s', i, x); });
     $('armTabs').innerHTML = t;
     $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false, from: A.from }; UI.renderArmoury(); }));
@@ -477,7 +479,7 @@ const UI = {
     const elName = ELEMENTS[w.mods.find(m => m.id === 'elemental') ? w.mods.find(m => m.id === 'elemental').elem : d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
     let h = `<div class="ahead" style="--c:${elemCol(wElem(w))}"><div class="aico">${iconSVG(d, 34, elemCol(wElem(w)))}</div><div class="ainfo">
       <div class="aname">${esc(d.name)}${w.combos && w.combos.length ? ` <span class="fz">COMBO: ${esc(w.combos.map(id => COMBO_BY[id].name).join(', '))}</span>` : ''}</div>
-      <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'Feat' : 'weapon'} <span class="lpips">${Array.from({ length: MAX_WLVL }, (_, i) => `<i class="${i < w.lvl ? 'on' : ''}"></i>`).join('')}</span> Lv ${w.lvl}/${MAX_WLVL}</div>
+      <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'Feat' : 'weapon'} <span class="lpips">${Array.from({ length: wTierMax(w) }, (_, i) => `<i class="${i < wTier(w) ? 'on' : ''}"></i>`).join('')}</span> ${wLvText(w)}</div>
       <div class="adesc">${esc(d.desc)}</div>${w.wpN && Object.keys(w.wpN).length ? `<div class="adesc"><b>Tuned:</b> ${Object.entries(w.wpN).map(([id, n]) => esc(PASSIVES[id].name) + ' x' + n).join(', ')}</div>` : ''}</div></div>`;
     // Targeting.
     h += `<div class="sec"><h3>Targeting directive</h3>`;
@@ -1155,7 +1157,7 @@ const UI = {
         if (w.wpN && Object.keys(w.wpN).length) sub.push('Tuned: ' + Object.entries(w.wpN).map(([id, n]) => esc(PASSIVES[id].name) + ' x' + n).join(', '));
         const dm = (G.stats.wdmg || {})[w.uid]; if (dm) sub.push(`${fmtNum(dm)} damage this run`);
       }
-      return `<button class="yslot" data-yk="${k}" data-yi="${i}" style="--c:${c}"><i>${iconSVG(w.def, 30, c)}</i><div><b>${esc(w.def.name)}</b> <em>Lv ${w.lvl}${!w.isSpell && w.lvl >= MAX_WLVL ? ' MASTERY' : ''}</em><br><span>${sub.join('<br>')}</span></div></button>`;
+      return `<button class="yslot" data-yk="${k}" data-yi="${i}" style="--c:${c}"><i>${iconSVG(w.def, 30, c)}</i><div><b>${esc(w.def.name)}</b> <em>Lv ${wTier(w)}${!w.isSpell && w.lvl >= MAX_WLVL ? ' MASTERY' : ''}</em><br><span>${sub.join('<br>')}</span></div></button>`;
     };
     const sp = G.spells.map((w, i) => w && slot(w, i, 's')).filter(Boolean), wp = G.weapons.map((w, i) => w && slot(w, i, 'w')).filter(Boolean);
     h += `<div class="sec"><h3>Feats (${sp.length}/${G.spells.length})</h3>${sp.length ? sp.join('') : '<p class="hint">None yet. Feats show up in DNA strands while you have a free slot.</p>'}</div>`;

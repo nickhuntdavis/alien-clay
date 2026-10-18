@@ -78,7 +78,7 @@ function weaponUp(w) {
 function draftCards(n) {
   draftAbsorb();
   const cand = [];
-  for (const w of G.weapons) if (w && !w.isSpell && w.lvl < wCap(w) && !banished('weapon:' + w.id)) cand.push({ o: () => weaponUp(w), w: 1.4 * famK('weapon:' + w.id), fam: 'weapon:' + w.id });
+  if (typeof W24 === 'undefined') for (const w of G.weapons) if (w && !w.isSpell && w.lvl < wCap(w) && !banished('weapon:' + w.id)) cand.push({ o: () => weaponUp(w), w: 1.4 * famK('weapon:' + w.id), fam: 'weapon:' + w.id }); // (the 24 upgrade on their own screen: weapons24.js wupCards)
   if (typeof v10Switch === 'function' && typeof W24 === 'undefined' && !banished('switch')) // (Switched at Birth retires with the matrix: weapons24.js)
      { const sw = v10Switch(); if (sw.length) cand.push({ o: () => Object.assign(sw[0], { family: 'switch' }), w: 0.6 * famK('switch'), fam: 'switch' }); }
   if (typeof pdefOffer === 'function') {
@@ -148,6 +148,8 @@ function draftBanishBtns(c, o) {
 
 // The fork screen's title (ui.js openLoot).
 function draftTitle(req) {
+  if (req.kind === 'wup') return ['WEAPON UPGRADE', wupReady().length > 1 ? 'Choose a weapon to grow.' : 'Choose how it grows. The others are gone for the run.'];
+  if (req.kind === 'wupfork') return [req.w.def.name.toUpperCase() + ': TIER ' + (WUP_TIER.indexOf(req.lv) + 1), 'Choose how it grows. The others are gone for the run.'];
   if (req.kind !== 'fork') return [req.kind.toUpperCase(), ''];
   const nm = req.w ? req.w.def.name : (CARDS.find(c => 'feat:' + c.id === req.key) || {}).title || 'Feat';
   return [nm.toUpperCase() + ': LEVEL ' + req.lv + ' FORK', 'Two ways to grow. Take one; the other is gone for the run.'];
@@ -156,12 +158,16 @@ function draftTitle(req) {
 // ---------------------------------------------------------------- hooks
 function draftLoot(req) {
   if (req.kind === 'fork') return forkCards(req);
+  if (req.kind === 'wup') return wupCards();
+  if (req.kind === 'wupfork') return wupForkReq(req);
   if (req.kind === 'level' || req.kind === 'chest' || req.kind === 'boss') return draftCards(3);
   return null;
 }
 // Which boxes open, and when. 'wait' keeps a box queued without opening it.
 function draftBox(req) {
   if (req.kind === 'start' || req.kind === 'slot') return true;
+  if (req.kind === 'wup') return wupReady().length > 0;
+  if (req.kind === 'wupfork') return wupNextLv(req.w) === req.lv;
   if (req.kind === 'fork') { if (!forkCards(req).length) return false; G.draftT = G.t; return true; }
   if (!['level', 'chest', 'boss'].includes(req.kind)) return false;
   if (G.wave) { req.v10ok = true; return true; } // wave mode: every draft queues and plays at the wave break (waves.js waveHoldsLoot)

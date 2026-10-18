@@ -78,7 +78,8 @@ const { chromium } = require('playwright');
     for (let i = 0; i < 5; i++) sc.apply(G);
     if (sc.rank(G) !== 3 || G.muts.m_slip !== 3) bad.push('rank cap: ' + sc.rank(G));
     out.rank = sc.rank(G);
-    META.rxSeen = ['rocket']; const cc = card('cat_rocket'); if (!cc.eligible(G)) bad.push('catalyst not eligible once discovered');
+    META.rxSeen = ['rocket']; const cc = card('cat_rocket'); if (cc.eligible(G)) bad.push('catalyst offered before its reaction happened this run');
+    G.fst = G.fst || { rx: {} }; G.fst.rx = G.fst.rx || {}; G.fst.rx.rocket = 1; if (!cc.eligible(G)) bad.push('catalyst not eligible once set off this run');
     cc.apply(G); cc.apply(G); if (cc.rank(G) !== 2 || !(mutRxLock('rocket') < 1.5)) bad.push('catalyst stack');
     // 5. Weapon mutations cap at 3 per weapon
     fresh(); const w1 = give('v_phys_contact'); const sk = card('w_spin');
