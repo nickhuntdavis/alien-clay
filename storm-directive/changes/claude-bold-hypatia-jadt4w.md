@@ -297,3 +297,11 @@
 - Save data: none (reads META.rxSeen).
 - Hooks: inspect.js rxChartHtml -> rxChart10, INSPECTOR.cell -> rxCell10, inspectGuideHtml and the type card's REACTS WITH row use RX10_ORDER/rx10Pair.
 - Risk: none.
+
+## 2026-10-18 Arcade-only look and one type palette (merged from agent-look)
+- Systems: ui, render, damage types, look10 (new)
+- Files: look10.js (new), index.html, data.js, settings.js, render.js, ui.js, tutorial.js, v10.js, fight.js, pdef.js, mutations.js, feats10.js, newfoes.js, STYLE.md, tests/looktest.js (new)
+- What: under V10, Arcade is the only view (View setting hidden, Lab grey and eyepiece never run, the arcade offer is gone). The seven damage types share one palette (Acid shocking pink, Mucus green, Soul purple, Static yellow, Blood red, Fire orange, Force white), including acid pools and crypts.
+- Save data: none (SET.view is ignored under V10).
+- Hooks: render.js l10Swap(ELEM_SWAP); ui.js settings row filter honours d.hide; tutorial.js viewOffer skips under L10; settings.js viewArcade/hide.
+- Risk: Acid and Mucus colours change wherever the old greens were hard-coded; RAW_COL drawing (levels) bypasses the remap.
