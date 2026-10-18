@@ -17,6 +17,7 @@ function makeTerrain() {
   };
   for (const type in OBSTACLES) {
     const def = OBSTACLES[type];
+    if (type === 'acid' && sbOn()) continue; // (Sandbox: no Acid Crypts, so the damage list is weapons only)
     for (let i = 0; i < def.n; i++) {
       for (let tries = 0; tries < 40; tries++) {
         const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * CORE.arena, r = rand(def.r[0], def.r[1]);

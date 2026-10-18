@@ -6,6 +6,7 @@
 //  - Loot: one starting weapon (any of the 24). An empty + mount on the HUD (up to MAX_WEAPONS) opens a weapon
 //    pick whenever you tap it. Every 4th level banks a weapon upgrade; a small branch mark on a weapon's slot
 //    spends it (promise, branch, mastery, in the weapon draft screen). Every other box is dropped; no power-ups.
+//  - No Acid Crypts or big hazards (terrain.js makeTerrain, bighaz.js makeBigHaz): they took 25 to 65% of the damage.
 //  - Developer mode: tap the samples title five times (sd_dev).
 // Hooks: game.js PT -> sbPT, director -> sbSpawn, newGame -> sbInit; v10.js v10Box -> sbBox, v10Loot -> sbLoot;
 // ui.js openLoot -> sbDraftKind, openDraft -> sbDraftHead, renderDraft -> sbDraftInfo, refreshHud -> sbSlotShow/sbSlotMark,

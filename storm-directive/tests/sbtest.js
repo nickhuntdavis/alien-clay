@@ -13,6 +13,8 @@ const { chromium } = require('playwright');
     if (document.querySelectorAll('[data-sb]').length !== 1) bad.push('sandbox card count');
     UI.sample = 's010'; newGame(); G.state = 'play'; UI.show('hud');
     if (!sbOn() || G.debug.god) bad.push('sandbox flags');
+    if (G.terrain.list.some(o => o.type === 'acid') || G.bigHaz.length) bad.push('hazards on the map');
+    if (!wsHead({ ws: wsSummary(G) }).includes('0 weapons')) bad.push('sandbox log head');
     const st = genLoot(G.lootQueue[0]); out.start = st.length;
     if (st.length < 20) bad.push('start offers ' + st.length);
     st[0].apply(); G.lootQueue = [];

@@ -65,13 +65,14 @@ function wsSummary(G) {
     });
     out.off = S.offers;
   }
-  if (G.debug && G.debug.sb) out.sb = { heat: G.debug.sb.heat, n: G.debug.sb.n, names: G.weapons.filter(Boolean).map(w => w.def.name) };
+  if (G.debug && G.debug.sb) out.sb = { heat: G.debug.sb.heat, names: G.weapons.filter(Boolean).map(w => w.def.name) };
   return out;
 }
 // Lines for runText: the sandbox marker (after the header), the weapon lines and the offers line (at the end).
 function wsHead(r) {
   const s = r.ws && r.ws.sb; if (!s) return '';
-  return ` [SANDBOX heat ${s.heat}] ${s.n} weapon${s.n > 1 ? 's' : ''}: ${(s.names || []).join(', ') || '-'}\n`;
+  const n = (s.names || []).length;
+  return ` [SANDBOX heat ${s.heat}] ${n} weapon${n === 1 ? '' : 's'}: ${(s.names || []).join(', ') || '-'}\n`;
 }
 function wsText(r) {
   const z = r.ws; if (!z) return '';
