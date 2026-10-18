@@ -329,3 +329,11 @@
 - Save data: none.
 - Hooks: game.js damageEnemy -> nf10Hit, killEnemy -> nf10Kill, update -> nf10Tick (V10 only); v10.js v10Draw -> nf10Draw.
 - Risk: new enemies' timings halve back to their designed values (they were too fast before).
+
+## 2026-10-18 v10 difficulty knob (balance)
+- Systems: enemies, bosses, rivals, terrain, waves
+- Files: boss10.js, game.js, bosses.js, rivals.js, campaign.js, terrain.js
+- What: one tuning object, V10_DIFF in boss10.js, scales v10 enemy health (0.65) and damage (0.6), boss health (0.45, including wave mode's boss formula), rival champions' bullets and contact (0.45) and acid terrain damage to you (0.5). v9's enemy curve was tuned for v9's far bigger builds; with v10's leaner builds the bot died at waves 5 to 9 and never won.
+- Save data: none.
+- Hooks: game.js makeEnemy, bosses.js spawnBoss, campaign.js campBoss, rivals.js (bullets, contact), terrain.js acid -> V10_DIFF.
+- Risk: balance in flux. Sims so far (4 runs each, deaths): before 9/5/8/9; first pass 11/7/8/5; with rivals scaled 10/13/10/8; this pass still running.
