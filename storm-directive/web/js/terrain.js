@@ -109,7 +109,7 @@ function terrainPlayer(p, dt) {
   p.slick = z.slick;
   G.inCurrent = !!z.current; // Go With the Flow
   if (z.acid && G.state === 'play' && !G.P.ironGut && !(z.acid.dilT > G.t)) { // (DILUTED by Water: chem.js)
-    hurtPlayer(z.acid.def.dps * dmgNow() * (V10 ? V10_DIFF.terrain : 1), 'Acid Crypt'); // (v10: boss10.js) acidSizzle(p, z.acid, dt); G.acidOn = G.t + TERRAIN_MOVE.linger; } // (Cast-Iron Stomach: not any more)
+    hurtPlayer(z.acid.def.dps * dmgNow() * (V10 ? V10_DIFF.terrain : 1), 'Acid Crypt'); acidSizzle(p, z.acid, dt); G.acidOn = G.t + TERRAIN_MOVE.linger; } // (Cast-Iron Stomach: not any more; v10 scale: boss10.js)
   else if (G.acidOn > G.t && G.state === 'play' && !G.P.ironGut) acidLinger(p, dt);
   else if (G.sizzle > 0) G.sizzle = Math.max(0, G.sizzle - dt * 2.5);
   // Skid Marks: a toxic trail across the slick.
