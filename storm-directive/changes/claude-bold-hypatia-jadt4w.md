@@ -1,4 +1,4 @@
-## 2026-10-18 Per-weapon telemetry in the run log
+## 2026-10-18 Per-weapon telemetry in the run log (v10.16)
 - Systems: runlog, weapons, sandbox
 - Files: wstats.js (new), meta.js, game.js, ui.js, index.html, tests/wstatstest.js (new), tests/run.sh
 - What: each run now logs, per weapon slot: seconds held, dps, uptime (0.25 s windows with damage), distinct targets per active window, projectile hit rate, average hit distance, kills, share of damage on bosses, when each tier was taken, plus the weapons offered and picked in start/slot drafts. runText adds one ` wpn` line per weapon and an ` offers:` line (existing lines unchanged). Sandbox runs are now live-saved (closed runs get logged) and marked `[SANDBOX heat N]`. The run log keeps the last 60 runs (unchanged).
