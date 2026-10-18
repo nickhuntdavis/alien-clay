@@ -113,7 +113,7 @@ TUT_CARDS.arcade = () => ({ title: 'HOW DO YOU LIKE IT?', name: 'A MORE ARCADE E
   footHtml: '<button class="chip" id="arcadeYes">SWITCH TO ARCADE VIEW</button> <span class="hint">or GOT IT to stay in Lab view.</span>',
   bind: el => { const b = el.querySelector('#arcadeYes'); if (b) b.onclick = () => { SET.view = 'arcade'; saveSettings(); refreshPalette(); b.textContent = 'ARCADE VIEW ON'; b.disabled = true; }; } });
 function viewOffer(V) {
-  if (!V || !V.camp || V.n !== 1 || SET.view !== 'lab' || META.arcadeAsked) return;
+  if (!V || !V.camp || V.n !== 1 || L10 || SET.view !== 'lab' || META.arcadeAsked) return;
   META.arcadeAsked = 1; saveMeta();
   if (tutOff()) { sysMsg('A MORE ARCADE EXPERIENCE?', 'Settings > Colour > View > ARCADE puts everything in full colour, with rings on timed effects.', '#ff5fa2', true); return; }
   tutShow('arcade', true);

@@ -63,6 +63,7 @@ const ELEM_SWAP = new Map([
   ['#9ff7ff', '#d99a2b'], ['#e6fbff', '#f2c879'],
   ['#5b8cff', '#a8b84a'], ['#6fd8ff', '#b5c96a'], ['#c9e4f5', '#e3e8c0'],
 ]);
+l10Swap(ELEM_SWAP); // (v10 palette: look10.js)
 const ELEM_HEX = {
   fire: ['#c6ff3d', '#a8e61d', '#d4ff6b', '#b5f23a', '#e2ff9a', '#9fd61a', '#ccff4d'],
   ice: ['#a8b84a', '#b5c96a', '#e3e8c0'], // Mucus: snot green, duller than Acid
@@ -1300,10 +1301,10 @@ function drawTerrain() {
         const R = r * 1.15;
         blobPath(x, y, R, ob, t * 0.6, 0.1);
         const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, R);
-        if (df) { g.addColorStop(0, '#7fbf2a0d'); g.addColorStop(0.55, '#7fbf2a1f'); g.addColorStop(0.8, '#7fbf2a59'); g.addColorStop(0.92, '#7fbf2a26'); g.addColorStop(1, '#7fbf2a00'); }
-        else { g.addColorStop(0, '#3d5a1fd9'); g.addColorStop(0.45, '#3d5a1fa6'); g.addColorStop(0.7, '#7fbf2a73'); g.addColorStop(0.87, '#7fbf2a2e'); g.addColorStop(1, '#7fbf2a00'); }
+        if (df) { g.addColorStop(0, ACID_TERR.mid+'0d'); g.addColorStop(0.55, ACID_TERR.mid+'1f'); g.addColorStop(0.8, ACID_TERR.mid+'59'); g.addColorStop(0.92, ACID_TERR.mid+'26'); g.addColorStop(1, ACID_TERR.mid+'00'); }
+        else { g.addColorStop(0, ACID_TERR.dk+'d9'); g.addColorStop(0.45, ACID_TERR.dk+'a6'); g.addColorStop(0.7, ACID_TERR.mid+'73'); g.addColorStop(0.87, ACID_TERR.mid+'2e'); g.addColorStop(1, ACID_TERR.mid+'00'); }
         ctx.fillStyle = g; ctx.fill();
-        ctx.fillStyle = '#c6f07a';
+        ctx.fillStyle = ACID_TERR.fleck;
         for (let i = 0; i < 20; i++) {
           const a = rnd() * TAU + t * 0.15, fl = (Math.sin(t * 9 + i * 1.7) + 1) / 2, d = r * (0.88 + rnd() * 0.22);
           ctx.globalAlpha = 0.25 + fl * 0.6; ctx.fillRect(x + Math.cos(a) * d - 1, y + Math.sin(a) * d - 1, 2, 2);
@@ -1311,7 +1312,7 @@ function drawTerrain() {
         ctx.globalAlpha = 1; ctx.lineWidth = 1.2;
         for (let i = 0; i < 6; i++) {
           const ph = (t * 0.6 + ob.seed + i * 0.29) % 1, a = ob.seed * 7 + i * 2.1, d = r * 0.7 * ((i * 0.31 + ob.seed) % 1);
-          ctx.strokeStyle = `rgba(230,255,190,${(1 - ph) * 0.9})`;
+          ctx.strokeStyle = `rgba(${ACID_TERR.bub},${(1 - ph) * 0.9})`;
           ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d - ph * 6 * S, (1.5 + ph * 5) * S, 0, TAU); ctx.stroke();
         }
         break;

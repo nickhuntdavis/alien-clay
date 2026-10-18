@@ -13,7 +13,7 @@
 // chem.js applyElement -> fightStatus; v10.js v10Tick -> fightTick, v10Draw -> fightDraw; meta.js run log -> fst.
 
 const FIGHT_TYPE = { phys: 'force', fire: 'acid', shock: 'static', ice: 'mucus', arcane: 'blood', soul: 'soul', flame: 'fire' };
-const FIGHT_COL = { membrane: '#5aa9ff', shell: '#9a6b3f', thorns: '#d8c9a8', corroded: '#ff2fa8', snared: '#7fd04a', charged: '#ffe94a' };
+const FIGHT_COL = { membrane: DEF_PAL.membrane, shell: DEF_PAL.shell, thorns: DEF_PAL.thorns, corroded: TYPE_PAL.fire, snared: TYPE_PAL.ice, charged: TYPE_PAL.shock };
 const FIGHT_RX = {
   splash: { name: 'Corrosive Splash', color: '#ff2fa8' },
   rocket: { name: 'Snot Rocket', color: '#7fd04a' },

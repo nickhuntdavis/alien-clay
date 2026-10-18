@@ -322,7 +322,7 @@ const UI = {
   renderSettings() {
     const body = $('setBody'), tab = SET.setTab || 'game';
     const tabsHtml = `<div class="ptabs">${SET_TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
-    body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => d.tab === tab).map(d => UI.setRowHtml(d)).join('');
+    body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => d.tab === tab && !(d.hide && d.hide())).map(d => UI.setRowHtml(d)).join('');
     // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
     body.onclick = ev => {
       const b = ev.target.closest('[data-stab]');
