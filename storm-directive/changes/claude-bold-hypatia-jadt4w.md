@@ -1,3 +1,18 @@
+## 2026-10-18 Fix: the game froze at the second level-up (v10.10)
+- Systems: draft, core loop
+- Files: game.js
+- What: queued level-up boxes waiting out the 40 s draft spacing stopped the game clock, so the wait never ended. A waiting box now goes to the back of the queue and the game keeps running.
+- Save data: none.
+- Hooks: none (game.js frame loop condition).
+- Risk: none.
+
+## 2026-10-18 Weapon branches, batch 1: Standard Issue, Maximum Gains, Nervous Wreck, Panic Button
+- Systems: weapons, upgrades
+- Files: wup1.js (new), index.html (one script tag after weapons24.js), tests/wup1test.js (new)
+- What: all 60 cards for the four Force weapons are live through wupReg: three promises each (Lv 3), two Lv 6 cards and a wildcard per promise, and three Lv 10 masteries (15 per weapon). Costs are real stat changes. Marks, bounce zigzags, lanes, nuts, confetti, lumps, fragments and jaws are drawn so each "Shows" line is true.
+- Save data: none.
+- Hooks: none added to shared files. wup1.js wraps four globals at load: projHit and projEnd (new hook kinds 'phit' and 'pend', guarded by globalThis.WUP_PROJ_HOOKS so later wup*.js files can share them), wupDmgMul (marks that raise damage from your other weapons), hurtPlayer (Untouchable) and v10Draw (marks). Candidates to move into weapons24.js / game.js as real one-line hooks.
+- Risk: the four weapons' fire paths are replaced by dispatchers once a Lv 3 card is taken (Maximum Gains tags the engine's own volley; Panic Button places its own blast, so mutFire/modFire do not apply to it). A card "heavy hit" is applied directly (one Shell layer off, Poise up) and does not trigger Blood Pressure.
 ## 2026-10-18 The new eight samples in code: three starters each, Race only (v10.09)
 - Systems: samples, weapons, ui
 - Files: samples10.js, feats10.js, mutations.js, fight.js, game.js, ui.js, tests/samplestest.js, tests/ufeatstest.js, tests/v10test.js, tests/voicetest.js

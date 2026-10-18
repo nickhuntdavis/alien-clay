@@ -3000,6 +3000,7 @@ function frame(ts) {
   lastTs = ts;
   if (G && G.state === 'play' && raw > 0.004 && raw < 0.5) qualTick(raw);
   safely('update', () => {
+    let vb;
     if (G && G.state === 'play') {
       keyboardSteer();
       // A boss death plays out in slow motion before its relic box opens.
@@ -3007,7 +3008,7 @@ function frame(ts) {
       if (G.lootHold > 0) G.lootHold -= dt;
       if (G.hitStop > 0) G.hitStop -= dt;
       else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed() * inspectMul()); }
-      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { const vb = v10Box(G.lootQueue[0]); if (vb === 'wait') G.lootQueue.push(G.lootQueue.shift()); else if (!vb) G.lootQueue.shift(); else if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
+      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow && ((vb = v10Box(G.lootQueue[0])) !== 'wait' || (G.lootQueue.push(G.lootQueue.shift()), false))) { if (!vb) G.lootQueue.shift(); else if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
       else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed() * inspectMul()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);
