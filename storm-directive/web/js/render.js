@@ -1723,7 +1723,7 @@ function render() {
   drawSizzle(px, py); // touching acid (terrain.js)
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
   drawPlates(px, py); // Rubber Johnny plates, just outside the armour ring (bodymods.js)
-  if (!V10) armourRing(px, py); // (v10: pdef.js draws the Membrane and Shell) // armour: a forcefield ring outside the health ring that flashes when hit (stamina.js)
+  if (!V10 || pdefShieldUp()) armourRing(px, py); // (v10: the shield bubble is the Membrane, pdef.js) // armour: a forcefield ring outside the health ring that flashes when hit (stamina.js)
   stamRing(px, py); // stamina: a thinner, fainter ring just inside it, only when it isn't full (stamina.js)
 
   // Additive layer: weapon fx, projectiles, particles, fx.

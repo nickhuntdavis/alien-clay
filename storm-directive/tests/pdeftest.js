@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.player.iframes = 0; G.P.dodge = 0; G.pbDodge = 0; pdefTick(0.001); };
+    const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.player.iframes = 0; G.P.dodge = 0; G.pbDodge = 0; pdef().n.latex = 1; pdefTick(0.001); }; // (nobody has a shield by default: Latex stands in; shieldtest.js covers the rest)
     const hurt = (n, kind, ent) => { const hp = G.player.hp; G.player.iframes = 0; hurtPlayer(n, 'test', ent || null, kind); return hp - G.player.hp; };
     const ph = (n, kind, ent) => pdefHurt(n, 'test', ent || null, kind); // the resolver alone: damage that reaches health
     const foe = id => { const p = G.player, e = makeEnemy(ENEMIES[id], p.x + 60, p.y); e.hp = e.maxHp = 1000; e.speed = 0; G.enemies.push(e); gridBuild(); return e; };

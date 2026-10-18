@@ -318,7 +318,7 @@ const bpStill = () => { const p = me(); return Math.hypot(p.vx || 0, p.vy || 0) 
 function bpRelicIn(dmg, ent) {
   const R = G.relics, p = me(), P = G.P;
   if (!dmg) return dmg;
-  if (R.rubber && G.t >= (G.rubberAt || 0)) {
+  if (R.rubber && !V10 && G.t >= (G.rubberAt || 0)) { // (v10: the relic grants the shield instead, pdef.js)
     G.rubberAt = G.t + 8; p.iframes = Math.max(p.iframes || 0, 0.4);
     floatText(p.x, p.y - 26, 'SNAP!', '#9fe8d8', 13);
     rubberJohnny(ent); // (the skin dents where it was hit; a caught bullet goes back: rubber.js)

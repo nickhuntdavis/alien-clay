@@ -94,7 +94,7 @@ function drawPlates(px, py) {
 //    (G.bubC) and bounces you off it. Hitting a surface too fast dents it: armour wears like a hit and it ripples.
 const BUB = { k: 220, damp: 12, mass: 0.5, give: 14, bounceV: 60, rest: 0.6, dentV: 210, dentCd: 0.5 };
 const bubbleR = () => 24 * playerScale() * 1.6; // (world units: the forcefield's drawn radius)
-const bubbleOn = () => G.P.armour > 0 && !G.P.noArmour;
+const bubbleOn = () => V10 ? pdefShieldUp() : G.P.armour > 0 && !G.P.noArmour; // (v10: only while the shield is up, pdef.js)
 // The nearest surface within reach of a circle: terrain obstacles and campaign walls. {nx, ny, d} or null.
 const BUB_N = { nx: 0, ny: 0, d: 0 };
 function bubbleNear(p, R) {
@@ -140,7 +140,7 @@ function bubbleBump(p, dt) {
     const a = Math.atan2(-n.ny, -n.nx);
     if (s > BUB.dentV && G.t - (G.bubDentT || -9) > BUB.dentCd) {
       G.bubDentT = G.t;
-      G.armourLost = Math.min(G.P.armour, (G.armourLost || 0) + (s > BUB.dentV * 1.5 ? 2 : 1)); G.armourHitT = G.t;
+      if (V10) pdefDent(s > BUB.dentV * 1.5 ? 2 : 1); else { G.armourLost = Math.min(G.P.armour, (G.armourLost || 0) + (s > BUB.dentV * 1.5 ? 2 : 1)); G.armourHitT = G.t; }
       G.armFlash = { t: G.realT, k: 0.6, a };
       floatText(p.x, p.y - 30, 'BONK', '#9ef0ff', 13, 0.6); cam.shake = Math.min(10, cam.shake + 3); sfx('hit');
     } else if (s > BUB.bounceV * 1.8) G.armFlash = { t: G.realT, k: 0, a, soft: true };
