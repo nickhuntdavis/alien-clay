@@ -19,6 +19,7 @@ Design proposals for the v10 combat rework of Spawn Prawn. **Not shipped behavio
 | What a damage type, defence or attack type is for, how it looks | `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md`, `ATTACK_TYPES.md` (identity only) |
 | Enemies: principles, roles, roster, new concepts, Fire enemies | `ENEMY_DESIGN.md` |
 | The 24 live weapons | `BASE_WEAPONS.md` (24 live weapons; `archive/` holds the old catalogue) |
+| Weapon upgrade forks (Lv 3, 6, 10; 3 cards each) | `WEAPON_UPGRADES.md` |
 | Feats (gifts from the consciousness), Lv 3 forks, starting pool | `FEATS.md` |
 | Mutation cards (body, weapon, type, trade-off, rare) | `MUTATIONS.md` |
 | Attack behaviours: homing, orbiting, gravity well, lunge and caps | `MODIFIERS.md` |

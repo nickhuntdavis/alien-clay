@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon upgrade forks (docs only)
+- Systems: weapons, upgrades (docs only, redesign docs)
+- Files: WEAPON_UPGRADES.md (new), UPGRADES.md, README.md, CLAUDE.md, COMBAT_MATRIX.md
+- What: 216 upgrade cards (three at each of Lv 3, 6, 10) for the 24 base weapons; weapon forks move from Lv 5/10 with two cards to Lv 3/6/10 with three.
+- Save data: none.
+- Hooks: none.
+- Risk: none (no code). Overrides the UPGRADES.md weapon-fork rule and the MODIFIERS.md "a fork never changes damage type" line.
+
 ## 2026-10-18 Base weapons decisions (docs only)
 - Systems: weapons, chemistry (docs only, redesign docs)
 - Files: BASE_WEAPONS.md, COMBAT_MATRIX.md, SAMPLES.md, ENEMY_DESIGN.md, FEATS.md, tables/*.csv
