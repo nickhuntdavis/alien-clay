@@ -402,7 +402,7 @@ function nfTick(dt) {
       G.enemies.push(e);
       fxParts('smoke', u.x, u.y, '#bff4ff', 4, 60, 0.8, 7, -Math.PI / 2, 0.6);
       if (u.absorb && !e.elite && Math.random() < 0.25) { floatText(u.x, u.y - 20, 'ABSORBED', '#bff4ff', 12, 0.9); e.hp = 0; killEnemy(e, u.src); continue; }
-      damageEnemy(e, u.dmg, u.src); // (it comes back cursed: six Soul hits' worth, so Full Possession)
+      damageEnemy(e, u.dmg, u.src); // (it comes back cursed: six Alien hits' worth, so Full Possession)
       if (e.dead) continue;
       e.curse = Math.max(e.curse || 0, 3); e.reactCd = 0;
       react(e, 'possession', u.src); curseFoe(e, 6);

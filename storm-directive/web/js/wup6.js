@@ -66,7 +66,7 @@
   const SET = flag => w => { const st = w6S(w); st[flag] = 1; INST[w24Key(w)](w); };
   const PRO = k => w => { const st = w6S(w); st.p = k; INST[w24Key(w)](w); };
 
-  // ================================================================ Peekaboo (Soul, Burst, Fear)
+  // ================================================================ Peekaboo (Alien, Burst, Fear)
   function pkInstall(w) {
     const st = w6S(w); if (st.inst) return; st.inst = 1;
     w6On(w, 'stats', (w, s) => {
@@ -85,7 +85,7 @@
       if (src.wname !== 'BOO!') return;
       bump(w, 'boo');
       if (t.p === 'C' && Math.hypot(e.x - G.player.x, e.y - G.player.y) < 150) e.w6boo = G.t; // Boo!: Fear lasts 3 s (applied in the tick: the Fear lands just after the hit)
-      if (t.hyst && !e.boss) { // Mass Hysteria: the BOO fills the Soul bar of up to 5 enemies
+      if (t.hyst && !e.boss) { // Mass Hysteria: the BOO fills the Alien bar of up to 5 enemies
         if (t.hystK !== G.peek) { t.hystK = G.peek; t.hystN = 0; }
         if ((t.hystN || 0) < 5) { t.hystN++; bar6(e, 'soul', 1.05, w); bump(w, 'hyst'); }
       }
@@ -200,7 +200,7 @@
 
   wupReg('s_peekaboo', {
     A: { name: 'Peek-a-Boom', tag: 'Punish the bait', costs: 'the BOO itself is 30% weaker.', shows: 'a faint sperm-shaped outline that pops when crowded.', modes: 'KITE leaves the bait far behind.',
-      lv3: { desc: 'Your false position explodes in a Soul burst (radius 90) when 3 enemies crowd it, or when you reappear.', apply: PRO('A') },
+      lv3: { desc: 'Your false position explodes in an Alien burst (radius 90) when 3 enemies crowd it, or when you reappear.', apply: PRO('A') },
       lv6: [CARD('Standing Room Only', 'The false position\'s burst grows with the number of enemies that reached it (+14 radius each, up to 220).', SET('grow')),
         CARD('Encore', 'The false position stays for 4 s after you reappear and goes off a second time.', SET('second'))],
       wild: CARD('Rattle', 'While hidden, a baby rattle is flung 230 units away and enemies swarm it instead of the empty spot.', SET('rattle')) },
@@ -216,10 +216,10 @@
       wild: CARD('Cuckoo', 'When you reappear, you swap places with the nearest enemy.', SET('cuckoo')) },
     lv10: [
       { name: 'Object Permanence', best: 'BC', desc: 'You vanish twice as often, and the BOO reaches the whole screen.', apply: SET('perm') },
-      { name: 'Mass Hysteria', best: 'C', desc: 'The BOO also fills the Soul bar of up to 5 enemies at once, so they are Possessed.', apply: SET('hyst') },
+      { name: 'Mass Hysteria', best: 'C', desc: 'The BOO also fills the Alien bar of up to 5 enemies at once, so they are Possessed.', apply: SET('hyst') },
       { name: 'Now You See Me', best: 'AB', desc: 'You are hidden 3 s out of every 4; every reappearance is a BOO.', apply: SET('nysm') }] });
 
-  // ================================================================ Eggs (Soul, Burst, lures)
+  // ================================================================ Eggs (Alien, Burst, lures)
   const egCap = w => { const st = w6S(w); return st.clutch ? 12 : st.big ? 6 : 3; };
   const egOwn = w => { let n = 0; for (const q of TOYS().teeth) if (q.w === w && !q.dead) n++; return n; };
   function egSmiteMul(w, g) { // the smite's size relative to base (Costs, and C's charge)
@@ -367,7 +367,7 @@
       { name: 'Clutch', best: 'AB', desc: 'Up to 12 eggs on the ground at once, scattered all round you.', apply: SET('clutch') },
       { name: 'Possession Fee', best: 'B', desc: 'Every smite Possesses the victim at once (bosses take x3 instead).', apply: SET('fee') }] });
 
-  // ================================================================ Chest Burster (Soul, Projectile)
+  // ================================================================ Chest Burster (Alien, Projectile)
   const cbCap = w => { const st = w6S(w); return st.zombie ? 12 : st.p === 'A' ? 3 : 4; };
   function cbInstall(w) {
     const st = w6S(w); if (st.inst) return; st.inst = 1; st.cb = 1; st.und = []; st.worms = null;
@@ -528,8 +528,8 @@
         CARD('Open Casket', 'Any enemy that dies infected rises, whoever killed it, and passes the infection to two neighbours.', SET('casket'))],
       wild: CARD('Hookworm', 'Undead latch on to an enemy and ride it, biting, until it dies.', SET('hook')) },
     C: { name: 'Dead Useful', tag: 'An army of ammunition', costs: 'undead deal 50% less.', shows: 'undead shambling into crowds and popping.', modes: 'HUNT points them at a big target.',
-      lv3: { desc: 'Undead shamble towards the crowd and burst in a Soul burst (radius 70) when they expire or are culled.', apply: PRO('C') },
-      lv6: [CARD('Soul Searching', 'The burst adds Soul build-up to everything it hits.', SET('soulbar')),
+      lv3: { desc: 'Undead shamble towards the crowd and burst in an Alien burst (radius 70) when they expire or are culled.', apply: PRO('C') },
+      lv6: [CARD('Soul Searching', 'The burst adds Alien build-up to everything it hits.', SET('soulbar')),
         CARD('Remote Detonation', 'Every 8 s all undead rush the densest cluster and burst on arrival.', SET('rush'))],
       wild: CARD('Gut Feeling', 'Infected enemies flash red just before they attack.', SET('gut')) },
     lv10: [

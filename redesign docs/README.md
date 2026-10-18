@@ -20,10 +20,10 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 
 ## Follow-on work these decisions create (not done yet)
 
-1. **Internal id rename** (decision 19): `phys/fire/shock/ice/arcane/soul/flame` become `force/acid/static/mucus/blood/soul/fire`, with save-data migration (`META.offered`, weapon ids). One dedicated session straight after a merge into `main`, because it touches every branch's hooks.
+1. **Internal id rename** (decision 19): `phys/fire/shock/ice/arcane/soul/flame` become `force/acid/static/mucus/blood/alien/fire`, with save-data migration (`META.offered`, weapon ids). One dedicated session straight after a merge into `main`, because it touches every branch's hooks.
 2. **Retire Lab view** (decision 21): remove `labGrey` and the `SET.view` choice; the Arcade look becomes the only view.
-3. **`STYLE.md` and v10 colours** (decision 20): update when v10 ships. Today `STYLE.md` still describes the shipped game (acid terrain green, Lab view, borderless zones), and v10's `V10_COL` uses lime Acid, olive Mucus and pale-cyan Soul.
-4. **Dual-type weapon and Pairing** (decision 1): Shocking Impact needs one Force/Static weapon (alternating shots); Spectral Combustion needs the Soul Beam + Fire Pool Pairing.
+3. **`STYLE.md` and v10 colours** (decision 20): update when v10 ships. Today `STYLE.md` still describes the shipped game (acid terrain green, Lab view, borderless zones), and v10's `V10_COL` uses lime Acid, olive Mucus and pale-cyan Alien.
+4. **Dual-type weapon and Pairing** (decision 1): Shocking Impact needs one Force/Static weapon (alternating shots); Spectral Combustion needs the Alien Beam + Fire Pool Pairing.
 5. **Rename v10's Mucus Pool weapon** from "Sticky Situation" to "Nocturnal Emission" (`V10_ATK`, v10.js).
 6. **Damage types for the rest of the roster** (spawned-only, feature-file enemies, bosses), same bell curve as `ENEMY_DESIGN.md` 5.1.
 7. **Port the 14 signature weapons** (`BASE_WEAPONS.md`) into v10, name `wake` The Runs (shipped as Skid Mark), apply the 18 Oct weapon renames (`BASE_WEAPONS.md` 5, decision 4), give each sample its three starters, and recheck their old Pairings.

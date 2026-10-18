@@ -131,7 +131,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **Red Flagship** | Static | Beam | Alpha | A sustained electrical beam. It talks for hours, provided nobody challenges the central thesis. |
 | **Nocturnal Emission** | Mucus | Pool | Beta | Leaves a sticky green patch that snares whatever crosses it. Nobody mentions it in the morning. |
 | **Little Prick** | Blood | Projectile | Baseline | A thin red needle. Individually unimpressive. Repeated, it becomes a problem. |
-| **Rent Free** | Soul | Projectile | Private Schooled | A pale spirit-kernel that glides through with an unsettling sense of authority. |
+| **Rent Free** | Alien | Projectile | Private Schooled | A pale spirit-kernel that glides through with an unsettling sense of authority. |
 | **Hot Mess** | Fire | Pool | Ordered Online | Splashes down a burning patch that stays put. The floor is unwell. |
 | **Family Ties** | Force | Projectile | Not of This World | A slow little vortex that drags enemies in and bends your other shots. Five that merge go supernova. |
 | **Skill Issue** | Force | Burst | Alpha | A heavy dollop that sends enemies flying into each other. If it goes wrong, that is a skill issue. |
@@ -143,9 +143,9 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 | **Blowing Bubbles** | Mucus | Projectile | Ordered Online | Traps small enemies in bubbles. Anything that touches a bubble pops it. |
 | **One of These Days** | Blood | Projectile | Beta | Sticks a countdown on a big target. When it ends, 40% of what it took lands again. |
 | **Sister Cousin** | Blood | Projectile | Redtail | Two homing siblings per shot. A sibling that kills splits in two. Family is complicated. |
-| **Peekaboo** | Soul | Burst | Prawn Again | You vanish; enemies swarm the empty spot and shoot each other. Then BOO: Fear. |
-| **Eggs** | Soul | Burst | Prawn Again | Drops spectral eggs that lure greedy enemies, then smite whoever takes one. |
-| **Chest Burster** | Soul | Projectile | Prawn Again | Infects enemies. The ones that die rise for a few seconds and fight for you. |
+| **Peekaboo** | Alien | Burst | Prawn Again | You vanish; enemies swarm the empty spot and shoot each other. Then BOO: Fear. |
+| **Eggs** | Alien | Burst | Prawn Again | Drops spectral eggs that lure greedy enemies, then smite whoever takes one. |
+| **Chest Burster** | Alien | Projectile | Prawn Again | Infects enemies. The ones that die rise for a few seconds and fight for you. |
 | **The Runs** | Fire | Pool | Redtail | No aiming: you leave a burning trail wherever you swim. |
 
 ## Weapon combos
@@ -439,9 +439,9 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | **Stork Drop** | Acid | stamina | A stork drops something heavy on the target and leaves acid on the ground. Not a baby. | dmg 65, cd 5s, count 1, area 88, delay 0.7s, dur 2s | Lv3: +1 count; Lv5: +30% area; Lv7: +1 count |
 | **Power Shower** | Water | stamina | A soapy blast around you. Erases enemy bullets, and enthusiasm. | dmg 22, cd 7s, area 165 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 25% faster |
 | **Brainstorm** | Static | stamina | Static strikes several targets at once. None of the ideas are good. | dmg 36, cd 6s, count 5, area 48 | Lv3: +2 count; Lv5: +40% dmg; Lv7: +3 count |
-| **Sofa Crevice** | Soul | stamina | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
+| **Sofa Crevice** | Alien | stamina | Tears open a singularity that drags and crushes. Everything you ever lost is in there. | dmg 16, cd 10s, area 125, dur 3s, pull 210 | Lv3: +30% duration; Lv5: +30% area; Lv7: +60% dmg |
 | **Kiss It Better** | Cooties | 14s cooldown | Restores 15% of your health. Medically dubious. | heals 15% HP, cd 14s | Lv3: 15% faster; Lv5: +50% healing; Lv7: 20% faster |
-| **Nap Time** | Soul | 16s cooldown | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
+| **Nap Time** | Alien | 16s cooldown | Slows every enemy and bullet to a crawl. Over too soon. | cd 16s, dur 3s | Lv3: +30% duration; Lv5: 20% faster; Lv7: +40% duration |
 | **Latex Barrier** | Blood | 12s cooldown | A stretchy shield. Enemies bounce off it; bullets sink in, then get flung back at them. 98% effective. | dmg 12, cd 12s, dur 3s, area 55 | Lv3: +35% duration; Lv5: +30% area; Lv7: 25% faster |
 | **Running With Scissors** | Force | stamina | Explodes a ring of blades outward. You were told. | dmg 19, cd 6s, count 16, speed 460, pierce 3, size 6 | Lv3: +8 count; Lv5: +3 pierce; Lv7: +50% dmg |
 | **Dutch Oven** | Cooties | stamina | A drifting cloud of stacking Cooties fumes. You know what you did. | dmg 11, cd 9s, area 115, dur 5s | Lv3: +40% duration; Lv5: +30% area; Lv7: +60% dmg |
@@ -452,17 +452,17 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | **Slime Mould** | Mucus | stamina | A yellow slime spreads from you and finds the shortest route to the toughest enemy, round walls. Its veins leave snotty trails that slow anything on them. When it arrives it engulfs the target: stuck for 2s and hit hard with Mucus. "Has no brain. Recreated the Tokyo rail network anyway." | dmg 30, cd 8s, count 1, area 22, dur 5s | Lv3: +30% dmg; Lv5: +30% duration; Lv7: +1 count |
 | **Polar Body** | Water | 11s cooldown | You shed a small, egg-like decoy. For 4s enemies and their bullets go for it instead of you (bosses are not fooled). Every hit on it splashes Water back on the attacker, and when it pops everything mobbing it is soaked. "The egg's spare. Same packaging. Nothing inside." | dmg 14, cd 11s, dur 4s, area 120 | Lv3: +25% duration; Lv5: +50% dmg; Lv7: 20% faster |
 | **Hagfish** | Mucus | 13s cooldown | An instant burst of slime around you. Everything inside is stuck for 2s, and bullets that enter it slow and sink. Anything that bites you while it is up gags and is stuck again. "Releases enough slime to fill a bucket in seconds. Sharks give up." | dmg 18, cd 13s, area 150, dur 3s | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
-| **Vanishing Twin** | Soul | stamina | A faint copy of you rises under the toughest enemy nearby and pulls it under, out of play for 3s. It comes back possessed and fights for you, and enemies nearby flee for 2s. Bosses are spooked and take a big hit instead. "Estimated in up to thirty percent of twin pregnancies. Nobody tells the survivor." | dmg 80, cd 8s, dur 3s | Lv3: +30% dmg; Lv5: 15% faster; Lv7: +50% dmg |
+| **Vanishing Twin** | Alien | stamina | A faint copy of you rises under the toughest enemy nearby and pulls it under, out of play for 3s. It comes back possessed and fights for you, and enemies nearby flee for 2s. Bosses are spooked and take a big hit instead. "Estimated in up to thirty percent of twin pregnancies. Nobody tells the survivor." | dmg 80, cd 8s, dur 3s | Lv3: +30% dmg; Lv5: 15% faster; Lv7: +50% dmg |
 | **Mosquito** | Blood | stamina | Its shadow crosses the slide, then a proboscis the size of the screen stabs down through the longest line of enemies. Everything on the line bleeds and gets a dose of Cooties in the same hit, and you heal 1% for every enemy hit. "The deadliest animal on Earth. Briefly on your side." | dmg 40, cd 7s, area 30 | Lv3: +30% dmg; Lv5: +30% area; Lv7: +50% dmg |
 | **Not Latex-Safe** | Oil | stamina | A sheen spreads over the crowd. Every shield, shell and armour plate it touches perishes: armour drops to zero for 6s and shields fail, bosses included. Everything in it is lubricated. "Oil-based lubricant cuts latex strength by ninety percent in sixty seconds. Read the label." | dmg 12, cd 7s, area 150, dur 3s | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Donor Sample** | Force | stamina | An unlabelled vial lands on an enemy and is passed to the nearest one every 0.6s, with a small Force hit at each pass. After 3 to 5 passes the music cuts out, and whoever is holding it is hit hard with a random damage type, which reacts with whatever is already on it. "Donor 4471. Six foot. Enjoys hiking. They all say that." | dmg 14, cd 6s, count 4 | Lv3: +30% dmg; Lv5: +1 count; Lv7: +50% dmg |
-| **Ouija Board** | Soul | stamina | Faded letters appear under the crowd, and a planchette glides through a word, through walls. Everything near each letter is cursed. The finished word is spelled out once. "Moved by the ideomotor effect: small muscle movements you don't notice. You have no muscles." | dmg 16, cd 8s, area 64 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
+| **Ouija Board** | Alien | stamina | Faded letters appear under the crowd, and a planchette glides through a word, through walls. Everything near each letter is cursed. The finished word is spelled out once. "Moved by the ideomotor effect: small muscle movements you don't notice. You have no muscles." | dmg 16, cd 8s, area 64 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Formic Acid** | Acid | stamina | An ant's head, far too big for the slide, reaches in. Its mandibles snap the most armoured enemy and spray acid in a line behind it, stripping armour from everything hit. "Twenty quadrillion ants on Earth. Two and a half million per person." | dmg 60, cd 8s, count 1, area 34 | Lv3: +30% dmg; Lv5: +30% area; Lv7: +40% dmg |
 | **Fecal Transplant** | Cooties | 14s cooldown | Clears every debuff on you and heals 10%. For 5s you shed Cooties: anything you touch gets two doses, and your shots give one. "An approved treatment with a cure rate around ninety percent. Do not ask about the delivery method." | dmg 8, cd 14s, dur 5s | Lv3: +30% duration; Lv5: 15% faster; Lv7: +50% dmg |
 | **Bombardier Beetle** | Acid | stamina | A cone of boiling acid in pulses, fired at whatever is chasing you. The recoil throws you the other way: a free dash through a gap. "Mixes two chemicals in its abdomen and fires them at a hundred degrees. Five hundred pulses a second." | dmg 12, cd 6s, count 6, area 220 | Lv3: +2 count; Lv5: +50% dmg; Lv7: +20% area |
 | **Crabs** | Cooties | stamina | Tiny crabs hop onto 4 enemies and jump to anything they touch. Each hop gives a dose of Cooties, and infested enemies stop firing to scratch for 1s at a time. "Spread by close contact. Very close." | dmg 10, cd 7s, count 4, dur 6s | Lv3: +1 count; Lv5: +50% dmg; Lv7: +2 count |
 | **Van de Graaff** | Static | 12s cooldown | A charged dome floats beside you for 4s and pulls enemy bullets into it. Each bullet it catches charges it, and when it ends it fires one Static arc per bullet. "Makes hair stand on end. You have no hair. Something else is standing on end." | dmg 16, cd 12s, dur 4s, area 230 | Lv3: +25% duration; Lv5: +50% dmg; Lv7: 20% faster |
-| **Wandering Womb** | Soul | stamina | A ghostly womb drifts in a slow line across the slide, through walls, cursing everything it passes and pulling enemies into its path. "Ancient Greek doctors believed the uterus roamed the body. They were wrong." | dmg 14, cd 8s, area 70, dur 4s, pull 140 | Lv3: +20% area; Lv5: +50% dmg; Lv7: +30% duration |
+| **Wandering Womb** | Alien | stamina | A ghostly womb drifts in a slow line across the slide, through walls, cursing everything it passes and pulling enemies into its path. "Ancient Greek doctors believed the uterus roamed the body. They were wrong." | dmg 14, cd 8s, area 70, dur 4s, pull 140 | Lv3: +20% area; Lv5: +50% dmg; Lv7: +30% duration |
 | **Anhydrobiosis** | Water | 18s cooldown | Performs itself when a hit would drop you under 20% health: the hit misses, and you dry into a husk that nothing can touch for 2.5s. Then you rehydrate in a splash that soaks and shoves everything nearby. "Life without water. Tardigrades dry out, wait, and come back." | dmg 20, cd 18s, dur 2.5s, area 160 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Capacitation** | Force | stamina | You drive head-first through a line of enemies, piercing armour and shields. Every status on each enemy you hit is carried forward and added to the next, so the last one in line holds all of them. "Sperm cannot fertilise anything until the female tract changes them. Then they can." | dmg 40, cd 7s, area 30 | Lv3: +30% dmg; Lv5: +30% area; Lv7: 20% faster |
 | **Brown Fat** | Oil | stamina | A fat globule lands in the crowd and spreads an Oil slick. After 2s it ignites (Grease Fire). Any Water hit on it before then makes it erupt instead (Don't Mix), flinging the crowd apart. "Burns fat to make heat. Newborns are full of it." | dmg 30, cd 7s, area 110, dur 2s | Lv3: +30% dmg; Lv5: +20% area; Lv7: +40% dmg |
@@ -485,7 +485,7 @@ Feats (what used to be spells) perform themselves and use the two Feat slots. Th
 | **Fertile Window** | Mucus | 12s cooldown | Lays a mucus lane ahead of you for 5s. You swim 40% faster along it; enemies on it are snotty and stuck. "Open about six days a month." | dmg 10, cd 12s, dur 5s, area 46 | Lv3: +20% duration; Lv5: +50% dmg; Lv7: 20% faster |
 | **Surfactant** | Oil | 12s cooldown | A patch where nothing can grip: enemies inside slide out to its edge, lubricated, and bullets that cross it skid off course. "Lowers surface tension so the lungs don't stick shut." | dmg 8, cd 12s, area 130, dur 5s | Lv3: +20% area; Lv5: +30% duration; Lv7: 20% faster |
 | **Lactic Acid** | Acid | stamina | Charges while you swim, three times as fast while you sprint (the charge fills its slot). When performed, it bursts acid around you, bigger the further you swam. "Long blamed for muscle soreness. It isn't the cause." | dmg 30, cd 6s, area 150 | Lv3: +30% dmg; Lv5: +20% area; Lv7: +40% dmg |
-| **Out of Body** | Soul | 13s cooldown | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
+| **Out of Body** | Alien | 13s cooldown | You slip out of your body for a moment: nothing can touch you, you swim faster, and anything you pass through takes damage. Your body waits where you left it. | dmg 24, cd 13s, dur 2.2s | Lv3: +30% duration; Lv5: +50% dmg; Lv7: 20% faster |
 | **Elbows Out** | Force | stamina | You throw your elbows about. Everything close to you is hit and shoved well back. You were here first. Firstborn only. | dmg 30, cd 8s, area 140 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Belly Flop** | Force | stamina | You launch yourself at the thickest crowd nearby and land on it, hard. Chonker only. | dmg 55, cd 10s, area 130 | Lv3: +20% area; Lv5: +50% dmg; Lv7: 20% faster |
 | **Lightbulb Moment** | Static | stamina | A bolt of inspiration jumps from enemy to enemy, up to six of them. None of them asked. Bright Spark only. | dmg 34, cd 7s, count 6 | Lv3: +2 count; Lv5: +50% dmg; Lv7: 20% faster |
@@ -917,7 +917,7 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **Oil** | lubricated | Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger. Hits leave slicks that lubricate whatever swims through. |
 | **Water** | soaking wet | Crowd control. Every hit shoves enemies away and splashes their other statuses onto two neighbours at half strength. Soaking-wet enemies carry Static twice as well. |
 | **Blood** | bleeding | Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you. |
-| **Soul** | cursed | Not of this world. Soul shots pass through walls, shields and armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. A cursed enemy that dies comes back as a ghost that fights for you for 4s. |
+| **Alien** | cursed | Not of this world. Alien shots pass through walls, shields and armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. A cursed enemy that dies comes back as a ghost that fights for you for 4s. |
 
 ## Unstable reactions
 
@@ -925,20 +925,20 @@ Every weapon and Feat has one. Switched at Birth changes it.
 |---|---|
 | **TOASTER IN THE BATH** | Water meets Static (either way round): every soaking-wet enemy on screen gets zapped. |
 | **GREASE FIRE** | Static meets Oil (either way round): the slick goes up, leaving a burning patch for 3s. |
-| **HOLY WATER** | Water meets Soul (either way round): the curse is boiled out in one big hit, twice as big on bosses. |
+| **HOLY WATER** | Water meets Alien (either way round): the curse is boiled out in one big hit, twice as big on bosses. |
 | **PENICILLIN** | Acid meets Cooties (either way round): the sickness is burned out in one big hit, bigger the sicker it was. |
-| **SOUL ROT** | Acid meets Soul (either way round): the ghost comes out spitting acid, melting 3 enemies nearby. |
+| **ALIEN ROT** | Acid meets Alien (either way round): the ghost comes out spitting acid, melting 3 enemies nearby. |
 | **BLOOD CLOT** | Blood meets Oil (either way round): everything nearby is dragged into one slow lump for 2.5s. |
 | **GAS STATION SUSHI** | Cooties meets Oil (either way round): it throws up on its mates, giving everything nearby two doses of Cooties. |
 | **PUBLIC POOL** | Water meets Cooties (either way round): every soaking-wet enemy nearby catches it. |
-| **ECTOPLASM** | Mucus meets Soul (either way round): ghost slime slows everything nearby. |
+| **ECTOPLASM** | Mucus meets Alien (either way round): ghost slime slows everything nearby. |
 | **CARDIAC ARREST** | Blood meets Static (either way round): a 1s stun, then all its bleeding lands at once. |
-| **LAST RITES** | Soul meets Oil (either way round): anointed. It fights for you for 5s (bosses take a big hit instead). |
+| **LAST RITES** | Alien meets Oil (either way round): anointed. It fights for you for 5s (bosses take a big hit instead). |
 | **SNOT ROCKET** | Mucus meets Cooties (either way round): the sneeze carries twice as far, giving 4 enemies two doses each. |
 | **DIRTY NEEDLE** | Blood meets Cooties (either way round): every bleeding enemy nearby catches two doses. |
 | **CRIME SCENE** | Blood meets Water (either way round): the blood spreads into a pool that hurts anything in it for 3.5s. |
 | **SCAB** | Blood meets Mucus (either way round): it crusts over and stops for 1.5s, then takes +40% for a few seconds once the scab is picked. |
-| **BLOOD PACT** | Blood meets Soul (either way round): the ghost drains it for bonus damage and heals you 1% of your max HP. |
+| **BLOOD PACT** | Blood meets Alien (either way round): the ghost drains it for bonus damage and heals you 1% of your max HP. |
 | **BATTERY** | Acid meets Static (either way round): the enemy becomes a battery for 2s, zapping two neighbours every half second. You get CHARGED UP: +12% fire rate for 3s. |
 | **ACID RAIN** | Acid meets Water (either way round): weaker melting on everything nearby. |
 | **HEARTBURN** | Acid meets Mucus (either way round): acid glue bursts out, hitting everything nearby and setting it melting. |
@@ -948,18 +948,18 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **SNOT SLICK** | Mucus meets Water (either way round): it gets stuck and slides away from you, and everything nearby gets snottier. |
 | **SNAIL TRAIL** | Mucus meets Oil (either way round): the slick spreads the snot, slowing and lubricating everything nearby. |
 | **SHORT CIRCUIT** | Mucus meets Static (either way round): a small pop, and stuck enemies stay stuck twice as long (others are stunned). |
-| **POLTERGEIST** | Static meets Soul (either way round): the ghost throws arcs at 4 enemies nearby. |
+| **POLTERGEIST** | Static meets Alien (either way round): the ghost throws arcs at 4 enemies nearby. |
 | **THE SHAKES** | Static meets Cooties (either way round): it shivers to a stop, and so does every sick enemy nearby. |
-| **PATIENT ZERO** | Soul meets Cooties (either way round): it is filled with Cooties and runs into its mates, fighting for you for 3s. |
+| **PATIENT ZERO** | Alien meets Cooties (either way round): it is filled with Cooties and runs into its mates, fighting for you for 3s. |
 | **MELTDOWN** | Six Acid hits in 3s: it melts into a puddle that burns everything in it. |
 | **BOOGER** | Six Mucus hits in 3s: it is flicked away from you, hurting everything it hits on the way. |
 | **OVERLOAD** | Six Static hits in 3s: every shocked enemy nearby discharges and is stunned. |
 | **SLIP 'N SLIDE** | Six Oil hits in 3s: it loses all grip and bowls through the crowd. |
 | **WATERLOGGED** | Six Water hits in 3s: it bloats and slows, then bursts, shoving everything back. |
 | **HEMORRHAGE** | Six Blood hits in 3s: it bursts, and 5 enemies nearby start bleeding hard. |
-| **FULL POSSESSION** | Six Soul hits in 3s: it fights for you for 6s (bosses: spooked and hit hard). |
-| **ZOMBIE** | Blood, Soul and Cooties on one enemy: it fights for you for 6s, and anything that dies near it gets back up on your side. |
-| **BAPTISM** | Water, Soul and Oil on one enemy: it is born again, on your side for good (not bosses; 3 at most). |
+| **FULL POSSESSION** | Six Alien hits in 3s: it fights for you for 6s (bosses: spooked and hit hard). |
+| **ZOMBIE** | Blood, Alien and Cooties on one enemy: it fights for you for 6s, and anything that dies near it gets back up on your side. |
+| **BAPTISM** | Water, Alien and Oil on one enemy: it is born again, on your side for good (not bosses; 3 at most). |
 | **NAPALM** | Acid, Oil and Static on one enemy: a sticky burning patch that spreads. |
 | **FLESH-EATING** | Acid, Blood and Cooties on one enemy: melting spreads to every sick enemy nearby. |
 | **FLU SEASON** | Mucus, Cooties and Water on one enemy: the whole screen catches Cooties. |
@@ -1029,7 +1029,7 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 | Oil | **Well Oiled** | Lubrication lasts 50% longer |
 | Water | **Waterlogged** | Soaking wet lasts 50% longer |
 | Blood | **Bloodlust** | Bleeding lasts longer and ticks even when they stand still |
-| Soul | **Haunting** | Curses last 50% longer |
+| Alien | **Haunting** | Curses last 50% longer |
 
 ## Targeting directives
 

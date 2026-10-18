@@ -81,7 +81,7 @@ const { chromium } = require('playwright');
       if (und.length > 4) bad.push('undead over cap ' + und.length);
       if (und.some(t => t.life > 6)) bad.push('undead last longer than 6 s');
       if (sigPetCount() > 8) bad.push('pets over 8 in all: ' + sigPetCount());
-      if (und.some(t => t.src.elem !== 'soul')) bad.push('undead not Soul'); }
+      if (und.some(t => t.src.elem !== 'soul')) bad.push('undead not Alien'); }
     // Lures: 3 teeth.
     fresh(); { G.weapons = [makeSlot('s_toothfairy', false, 1), null, null, null]; recomputeAll(); const w = G.weapons[0]; w.s.count = 6; ring12(120, true);
       for (let i = 0; i < 6; i++) toothFire(w, G.enemies[0]);

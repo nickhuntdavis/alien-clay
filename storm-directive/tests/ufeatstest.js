@@ -65,12 +65,12 @@ const { chromium } = require('playwright');
     if (!(hLow > 0)) bad.push('Second Wind did not heal'); else if (!(hLow > hHigh * 1.3)) bad.push('Second Wind not stronger when low: ' + hLow + ' vs ' + hHigh);
     { const w = stage('beta', 'second_wind'); G.P.maxHp = 1000; G.player.hp = 150; ring(4, 100); gridBuild(); if (f10Wait(w) === false) bad.push('Second Wind ready with no wounded enemy'); }
 
-    // Pulling Strings: the toughest nearby is marked, builds Corrosion fast; its entourage builds Soul
+    // Pulling Strings: the toughest nearby is marked, builds Corrosion fast; its entourage builds Alien
     { const w = stage('private', 'pulling_strings'); const big = foe(150, 0, { hp: 5e6, maxHp: 5e6 }); const mates = [foe(190, 30), foe(120, -60), foe(500, 500)]; const far = mates[2]; gridBuild(); tap(w); run(2);
       if (!(big.cd.bars.acid > 0.9)) bad.push('Pulling Strings: no Corrosion on the mark ' + (big.cd && big.cd.bars.acid));
       if (!(corroded(big))) bad.push('Pulling Strings: mark not Corroded');
-      if (!(mates[0].cd.bars.soul > 0.3 && mates[1].cd.bars.soul > 0.3)) bad.push('Pulling Strings: no Soul on the entourage ' + mates.map(e => e.cd && e.cd.bars.soul));
-      if (far.cd && far.cd.bars.soul > 0.05) bad.push('Pulling Strings: Soul reached a far enemy');
+      if (!(mates[0].cd.bars.soul > 0.3 && mates[1].cd.bars.soul > 0.3)) bad.push('Pulling Strings: no Alien on the entourage ' + mates.map(e => e.cd && e.cd.bars.soul));
+      if (far.cd && far.cd.bars.soul > 0.05) bad.push('Pulling Strings: Alien reached a far enemy');
       if (mates.some(e => fightCd(e).bars.acid > 0.5)) bad.push('Pulling Strings: Corrosion went to the entourage'); }
 
     // Recount: up to six Possessed for 3 s, then the delayed hit; kills refund stamina

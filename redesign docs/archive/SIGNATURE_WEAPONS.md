@@ -10,12 +10,12 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 
 | # | Weapon (code id) | Damage type (was) | Attack type | Signature | New rules used |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Premature Evangelation (`orbit`) | Soul (Soul) | Contact, orbiting | Guardian angels circle you; their swats build Possessed; some eat bullets | Projectile blocking |
+| 1 | Premature Evangelation (`orbit`) | Alien (Alien) | Contact, orbiting | Guardian angels circle you; their swats build Possessed; some eat bullets | Projectile blocking |
 | 2 | Nappy Mines (`mines`) | Acid (Acid) | Burst, delayed detonation | Proximity mines dropped behind you; each blast leaves an Acid Pool | Bounded chains |
 | 3 | Pub Crawl (`wake`) | Fire (Oil; Cooties before) | Pool, trail | You shed a boozy trail as you swim; it burns | (none) |
-| 4 | Peekaboo (`peekaboo`) | Soul (Oil) | Burst | You vanish; enemies search the empty spot and hit each other; then BOO applies Fear | Player hiding; Fear source |
-| 5 | Black Hole (`void`, "Toddler Gravity") | Force (Soul) | Projectile, slow, gravity well | A slow orb that warps space: pulls enemies in and bends shots; orbs merge; five merged go supernova | Gravity well; bounded chains |
-| 6 | Tapeworm Seeder (`parasite`) | Soul (Cooties) | Projectile | Infected enemies rise after death and fight for you | Pets |
+| 4 | Peekaboo (`peekaboo`) | Alien (Oil) | Burst | You vanish; enemies search the empty spot and hit each other; then BOO applies Fear | Player hiding; Fear source |
+| 5 | Black Hole (`void`, "Toddler Gravity") | Force (Alien) | Projectile, slow, gravity well | A slow orb that warps space: pulls enemies in and bends shots; orbs merge; five merged go supernova | Gravity well; bounded chains |
+| 6 | Tapeworm Seeder (`parasite`) | Alien (Cooties) | Projectile | Infected enemies rise after death and fight for you | Pets |
 | 7 | Red Tape (`redtape`) | Mucus (Cooties) | Projectile | Tapes a target to its neighbours; damage to one is shared with the bundle | Echo damage |
 | 8 | Due Date (`duedate`) | Blood (Blood) | Projectile | A countdown mark; when it ends the target takes 40% of everything it took while marked | Echo damage |
 | 9 | Leeches (`leeches`) | Blood (Blood) | Contact, summoned | Leeches latch on and feed; a little comes back to you as health | Pets; Extraction |
@@ -23,7 +23,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 11 | Lard Lobber (`lard`) | Force (Oil) | Burst | Knocked enemies bowl into their mates: STRIKE | Bounded chains |
 | 12 | Placental Siphon (`siphon`) | Force (Water) | Projectile | Eats enemy bullets near you and fires them back | Projectile blocking |
 | 13 | Bubble Wand (`bubble`) | Mucus (Water) | Projectile | Bubbles trap small enemies; anything touching a bubble pops it | (Snared) |
-| 14 | Tooth Fairy (`toothfairy`) | Soul (Blood) | Burst | Drops teeth; greedy enemies swim to them and get smitten | Lures |
+| 14 | Tooth Fairy (`toothfairy`) | Alien (Blood) | Burst | Drops teeth; greedy enemies swim to them and get smitten | Lures |
 | 15 | Upchuck (`upchuck`) | Acid (Acid) | Pool | Lobbed sick puddles; touching puddles merge into a bigger one | Merging pools |
 | 16 | Heartburn (`flamer`) | Fire (Acid) | Spread, cone | Two streams of reflux; each droplet comes back and hits again on the way home | Returning modifier |
 | 17 | Hot and Bothered (new) | Fire (new) | Burst, around you | A wave of heat off your body every 4 s; bigger and hotter the lower your health | (none) |
@@ -37,15 +37,15 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 | 25 | Flagellum Flail (`flail`) | Force (Force) | Beam, short lash | Your tail cracks in a straight line; the tip hits hardest | Heavy hit |
 | 26 | Nose Goblins (`goblins`) | Mucus (Mucus) | Projectile, orbiting | Bogey goblins circle you and flick snot at different enemies, spreading Snare | Orbiting |
 
-**Spread across types:** Fire 6, Force 5, Soul 4, Blood 4, Mucus 3, Acid 2, Static 2. Fire covers all six attack types (Pub Crawl is its Pool); rows 16 to 20 are drafts; rows 21 to 26 were added on 17 Oct from the parked originals.
+**Spread across types:** Fire 6, Force 5, Alien 4, Blood 4, Mucus 3, Acid 2, Static 2. Fire covers all six attack types (Pub Crawl is its Pool); rows 16 to 20 are drafts; rows 21 to 26 were added on 17 Oct from the parked originals.
 
 **Name note:** the shipped game currently calls `wake` "Skid Mark"; this doc restores **Pub Crawl**.
 
 ## The weapons
 
 ### 1. Premature Evangelation (`orbit`)
-- **Is:** Soul, Contact with the orbiting modifier. Three angels circle you (radius 72) and swat whatever comes close.
-- **Signature:** each swat builds Soul, so a crowd that presses in gets converted (Possessed). Some angels destroy enemy shots they touch (projectile blocking).
+- **Is:** Alien, Contact with the orbiting modifier. Three angels circle you (radius 72) and swat whatever comes close.
+- **Signature:** each swat builds Alien, so a crowd that presses in gets converted (Possessed). Some angels destroy enemy shots they touch (projectile blocking).
 - **Limits:** blocking uses the shared rule (Projectile and Spread shots only). Possessed enemies are skipped by the angels, as by every weapon.
 - **Start stats:** 23 damage, 3 angels, 4.5 s on / 2.2 s reload.
 
@@ -62,7 +62,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 - **Start stats:** 20 damage, each piece lasts 2.2 s, width 22.
 
 ### 4. Peekaboo (`peekaboo`)
-- **Is:** Soul, Burst. Every 5.5 s you vanish for 1.8 s, then BOO (radius 230).
+- **Is:** Alien, Burst. Every 5.5 s you vanish for 1.8 s, then BOO (radius 230).
 - **Signature:** while you're hidden, enemies lose you and swarm your last spot; their shots there can hit each other. The BOO applies **Fear** to everything in range and hits harder the more enemies were searching for you.
 - **Limits:** player hiding rule (12.4). Fear lasts 2 s. BOO damage bonus is capped at +100% (from 10 searching enemies).
 - **Start stats:** 20 damage, 5.5 s cooldown, hidden 1.8 s.
@@ -70,12 +70,12 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 ### 5. Black Hole (`void`, shown as "Toddler Gravity")
 - **Is:** Force, a slow Projectile (speed 115) that pierces everything, with the **gravity well** modifier (radius 72): it pulls enemies in and bends every shot that passes near it, so your other weapons' shots curve into the crowd it is gathering.
 - **Signature:** two black holes that touch merge into a bigger one. Five merged go supernova: one Burst, and the hole is gone.
-- **Limits:** gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2); a merged hole is one well with a bigger radius (up to 140), so merging never breaks the 3-well cap; merges cap at 5 (it was 20). Moved from Soul to Force because gravity is displacement, and Soul is now mind control.
+- **Limits:** gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2); a merged hole is one well with a bigger radius (up to 140), so merging never breaks the 3-well cap; merges cap at 5 (it was 20). Moved from Alien to Force because gravity is displacement, and Alien is now mind control.
 - **Start stats:** 8 damage, 1.8 s cooldown, pull strength 95.
 
 ### 6. Tapeworm Seeder (`parasite`)
-- **Is:** Soul, Projectile. Fast shots infect (8 s).
-- **Signature:** an infected enemy that dies rises as an undead ally for a few seconds and fights for you. Possessed after death: the purest Soul weapon.
+- **Is:** Alien, Projectile. Fast shots infect (8 s).
+- **Signature:** an infected enemy that dies rises as an undead ally for a few seconds and fights for you. Possessed after death: the purest Alien weapon.
 - **Limits:** pets rule (12.3); at most **4 undead** at once; each lasts 6 s.
 - **Start stats:** 12 damage, 0.4 s between shots, 8 per load.
 
@@ -122,7 +122,7 @@ Each signature weapon has exactly one damage type and one attack type, and follo
 - **Start stats:** 18 damage, 1.1 s cooldown, 4 per load.
 
 ### 14. Tooth Fairy (`toothfairy`)
-- **Is:** Soul, Burst (the smite).
+- **Is:** Alien, Burst (the smite).
 - **Signature:** drops baby teeth near the crowd. Greedy enemies within 230 swim off to grab one; the Fairy smites whoever takes it, harder for every tooth it holds.
 - **Limits:** lures rule (12.6): at most 3 teeth on the ground; each lasts 6 s. Bosses ignore teeth.
 - **Start stats:** 34 damage, 1.1 s cooldown, 3 per load.
@@ -219,4 +219,4 @@ Modifiers are defined in `MODIFIERS.md`; pets in `COMBAT_MATRIX.md` 12.3.
 
 ## Old Pairings that use these weapons
 
-These need checking against the new rules when ported (several used Cooties or Oil): Whack-a-Mole (Paddle + Nappy Mines), Silent but Deadly (Peekaboo + Pub Crawl), Baby Monitor Network (Static Cling + Nappy Mines), Trail Mix (Pub Crawl + Nappy Mines), Bait and Switch (Tooth Fairy + Nappy Mines), He Went That Way (Imaginary Friend + Peekaboo), Nappy Rash (Thorny Onesie + Cooties weapon). The Soul Beam + Fire Pool Pairing (Spectral Combustion) is unaffected.
+These need checking against the new rules when ported (several used Cooties or Oil): Whack-a-Mole (Paddle + Nappy Mines), Silent but Deadly (Peekaboo + Pub Crawl), Baby Monitor Network (Static Cling + Nappy Mines), Trail Mix (Pub Crawl + Nappy Mines), Bait and Switch (Tooth Fairy + Nappy Mines), He Went That Way (Imaginary Friend + Peekaboo), Nappy Rash (Thorny Onesie + Cooties weapon). The Alien Beam + Fire Pool Pairing (Spectral Combustion) is unaffected.

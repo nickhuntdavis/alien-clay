@@ -61,7 +61,7 @@ Notes: Heartbeat sits between Thorny Onesie (scales with max health) and Hot and
 | M18 | Stickier | Mucus | Stackable | Snared lasts 50% longer, and Poise bars fill 25% faster on Snared enemies | "If it's sticky, it stays. That's science." |
 | M19 | Pass It On | Static | Stackable | When Charged runs out on an enemy, 30% chance it passes to the nearest enemy within 110 (once per Charge) | "Everybody gets a turn!" |
 | M20 | Bad Blood | Blood | Stackable | Blood pools from bleeding deaths are 50% bigger and make enemies standing in them Bleed. (No trail: no new ground objects) | "Oh. That's going everywhere." |
-| M21 | Come Out of There | Soul | Stackable | An enemy killed while it has Soul build-up or is Possessed has a 25% chance to leave a wisp: collect it to heal 3% or gain +20% attack speed for 3 s | "There's something inside! I want it." |
+| M21 | Come Out of There | Alien | Stackable | An enemy killed while it has Alien build-up or is Possessed has a 25% chance to leave a wisp: collect it to heal 3% or gain +20% attack speed for 3 s | "There's something inside! I want it." |
 | M22 | Crossed Wires | Any | Conditional | Every reaction you have discovered deals 25% more and its lockout drops from 1.5 s to 1 s. (The specific combinations already exist: they are the 21 reactions, `COMBAT_MATRIX.md` section 1. This is the general Catalyst, `UPGRADES.md` 3.) | "Oh! They did a thing together!" |
 
 ## 5. Trade-off mutations
@@ -81,7 +81,7 @@ Notes: Heartbeat sits between Thorny Onesie (scales with max health) and Hot and
 | --- | --- | --- | --- | --- |
 | M29 | Conductive Mess | Static and blood pools | A Charged enemy standing in a blood pool Charges every other enemy in the same pool | "It's all connected! That's probably fine." |
 | M30 | Come Closer | Mucus and Force | Snared enemies take +25% Force damage, and a Force hit on one pulls the other Snared enemies within 80 towards it (Pull rule, 12.2) | "Closer! Closer! There you go." |
-| M31 | Death Is Recycling | Soul | An enemy you kill with Soul releases a wisp that flies to the nearest enemy and fills 25% of its Soul bar. Wisp kills never release wisps | "Nothing goes to waste. Not even the insides." |
+| M31 | Death Is Recycling | Alien | An enemy you kill with Alien releases a wisp that flies to the nearest enemy and fills 25% of its Alien bar. Wisp kills never release wisps | "Nothing goes to waste. Not even the insides." |
 | M32 | Group Project | Two or more weapons | When two different weapons hit the same enemy within 0.5 s, the second hit deals +30%, with a visual that depends on the pair | "You did it together! I knew you could." |
 | M33 | Growing Pains | Any | Each level-up lets off a Force Burst around you, stronger with more enemies near (up to ×2), and enemy Contact hits can't hurt you for 1 s | "You grew! Everybody noticed!" |
 

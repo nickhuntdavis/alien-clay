@@ -46,7 +46,7 @@ Conceptual categories for designers; the player never sees these labels.
 | **Acquire** | Adds a weapon, Feat, mutation or defence | A new Feat while a Feat slot is free; a Shell card |
 | **Enhance** | Improves something you already have | Weapon level, Feat level, Genome rank, stamina |
 | **Transform** | Changes behaviour: a fork | A weapon's Lv 5 fork; a Feat's level 3 fork |
-| **Specialise** | Strengthens a mechanic or direction | **Catalysts:** empower a reaction you have discovered (Crossed Wires, `MUTATIONS.md` M22, is the general one). **Concentration:** fill a build-up bar (Burn, Corrosion, Soul, Poise) faster or drain it slower |
+| **Specialise** | Strengthens a mechanic or direction | **Catalysts:** empower a reaction you have discovered (Crossed Wires, `MUTATIONS.md` M22, is the general one). **Concentration:** fill a build-up bar (Burn, Corrosion, Alien, Poise) faster or drain it slower |
 
 ### Eligibility
 

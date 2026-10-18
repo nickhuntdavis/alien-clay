@@ -28,7 +28,7 @@ A Feat should make a moment (a near-death escape, a horde shoved away, a lucky k
 | G9 | WAIT WAIT WAIT | Emergency control | Mucus, Burst (self-centred) | Below 40% health with 6+ enemies within 180 | 20 s |
 | G10 | THIS WAY | Recovery | Utility (trail) | 3 s in danger (hit, or 6+ enemies within 150) | 15 s |
 | G11 | COME BACK HERE | Recovery | Utility | An enemy dies within 150 | none (capped) |
-| G12 | Jump Scare | Crowd control | Soul, Burst (self-centred) | 3+ enemies within 70 at once | 10 s |
+| G12 | Jump Scare | Crowd control | Alien, Burst (self-centred) | 3+ enemies within 70 at once | 10 s |
 | G13 | THAT ONE | Revenge | Force, Burst | The enemy that hurt you most in 5 s dies | 8 s |
 | G14 | Kiss It Better | Recovery | Utility | 3 hits on you within 2 s | 14 s |
 | G15 | Nesting | Control | Mucus, Pool | You stay within 60 units for 2 s (HOLD and NEST love this) | 12 s |
@@ -104,7 +104,7 @@ G1 to G11 come from the 17 Oct ideas list; G12 to G16 are new. Copycat folded in
 - **Gift line:** "BOO! Did I get them? I got them."
 - **Does:** when 3 or more enemies get within 70 at once, the consciousness shrieks: everything within 200 is Feared and flees for 2 s.
 - **Rules:** this is the "Jump Scare" Feat the matrix already names as Fear's second source (section 4).
-- **Lv 3 fork:** **Made You Look** (fleeing enemies also build Soul) or **Again!** (a second BOO 1 s later).
+- **Lv 3 fork:** **Made You Look** (fleeing enemies also build Alien) or **Again!** (a second BOO 1 s later).
 
 ### G13. THAT ONE *(trigger)*
 - **Gift line:** "I didn't like that one. I don't like it now either."
@@ -138,10 +138,10 @@ The consciousness has noticed something peculiar about one sample and made a gif
 | X1 | TOO MUCH BABY | Baseline | Force, Burst (self-centred) | 5 hits taken within 3 s | 12 s |
 | X2 | FIRST! | Alpha | Static, Contact (lunge) | 4 s of swimming without stopping | 8 s |
 | X3 | LOOK WHAT YOU DID | Beta | Blood, Burst (delayed detonation) | Taking a hit | 1.5 s |
-| X4 | LOOK AFTER EACH OTHER | Private Schooled | Soul, Contact (orbiting) | Every 12 s | 12 s |
+| X4 | LOOK AFTER EACH OTHER | Private Schooled | Alien, Contact (orbiting) | Every 12 s | 12 s |
 | X5 | Where'd You Go | Ordered Online | Utility (lunge) | A heavy telegraphed attack is about to hit you | 10 s |
 | X6 | EVERYBODY TOGETHER | Redtail | Static, Burst | 6+ enemies within 160 of each other | 10 s |
-| X7 | I MADE EXTRAS | Prawn Again | Soul, Contact (summoned) | You kill an elite or an enemy with 100+ max health | 10 s |
+| X7 | I MADE EXTRAS | Prawn Again | Alien, Contact (summoned) | You kill an elite or an enemy with 100+ max health | 10 s |
 | X8 | YOU'RE NOT REAL | Not of This World | Its current type, Burst (self-centred) | You gain a status or a mark | 12 s |
 
 ### X1. TOO MUCH BABY (Baseline) *(trigger)*
@@ -166,7 +166,7 @@ The consciousness has noticed something peculiar about one sample and made a gif
 - **Gift line:** "I made you friends! They're very small."
 - **Does:** every 12 s, three tiny friends circle you. Each one swallows one enemy Projectile or Spread shot, then pops.
 - **Rules:** orbiting modifier and the projectile blocking rule (12.8); orbiters, not pets.
-- **Lv 3 fork:** **Plus Ones** (friends also swat enemies they touch, building Soul) or **Connections** (four friends).
+- **Lv 3 fork:** **Plus Ones** (friends also swat enemies they touch, building Alien) or **Connections** (four friends).
 
 ### X5. Where'd You Go (Ordered Online) *(trigger, utility)*
 - **Gift line:** "Where'd you go? There you are!"
@@ -182,7 +182,7 @@ The consciousness has noticed something peculiar about one sample and made a gif
 
 ### X7. I MADE EXTRAS (Prawn Again) *(trigger)*
 - **Gift line:** "One of you isn't enough. I made more."
-- **Does:** killing an elite or a big enemy (100+ max health) makes a see-through copy of you (Prawn Again's offset double, made real) for 4 s. It copies your swimming and fires your first weapon at 50% damage, then bursts, building Soul on everything near.
+- **Does:** killing an elite or a big enemy (100+ max health) makes a see-through copy of you (Prawn Again's offset double, made real) for 4 s. It copies your swimming and fires your first weapon at 50% damage, then bursts, building Alien on everything near.
 - **Rules:** a pet (12.3): it counts towards the 8-pet cap.
 - **Lv 3 fork:** **Extras of Extras** (a copy that helps kill a big enemy makes one more copy; never a third) or **Long Shift** (copies last 8 s).
 
@@ -200,7 +200,7 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 
 | # | Feat (old id) | Damage type (was) | Attack type and modifiers | One line |
 | --- | --- | --- | --- | --- |
-| F1 | Sofa Crevice (`blackhole`) | Force (Soul) | Pool, lobbed, **gravity well** | A singularity under the crowd drags everything in and crushes it |
+| F1 | Sofa Crevice (`blackhole`) | Force (Alien) | Pool, lobbed, **gravity well** | A singularity under the crowd drags everything in and crushes it |
 | F2 | Capacitation (`capacitation`) | Force (Force) | Contact, **lunge**, growing | You drive head-first through a line; the last in line takes the most |
 | F3 | Anhydrobiosis (`anhydrobiosis`) | Force (Water, retired) | Burst, self-centred | Performs itself before a killing blow: you dry into a husk, then burst back |
 | F4 | Formic Acid (`formicacid`) | Acid (Acid) | Beam | A giant ant snaps the most-Shelled enemy and sprays acid down the line |
@@ -211,19 +211,19 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 | F9 | Hagfish (`hagfish`) | Mucus (Mucus) | Burst, self-centred | A slime burst Snares everything around you and leaves a patch |
 | F10 | Shed the Lining (`shedlining`) | Blood (Blood) | Beam, sweep | A red tide rolls across the screen, sweeping and bleeding enemies |
 | F11 | Running With Scissors (`bladestorm`) | Blood (Force) | Spread, self-centred, piercing | A ring of blades bursts out of you |
-| F12 | Vanishing Twin (`vanishingtwin`) | Soul (Soul) | Burst | Your twin rises under the toughest enemy and turns it |
-| F13 | Wandering Womb (`wanderingwomb`) | Soul (Soul) | Projectile, slow, piercing, **gravity well** | A ghostly womb drifts across the slide, pulling enemies into its path |
+| F12 | Vanishing Twin (`vanishingtwin`) | Alien (Alien) | Burst | Your twin rises under the toughest enemy and turns it |
+| F13 | Wandering Womb (`wanderingwomb`) | Alien (Alien) | Projectile, slow, piercing, **gravity well** | A ghostly womb drifts across the slide, pulling enemies into its path |
 | F14 | Brown Fat (`brownfat`) | Fire (Oil, retired) | Burst, lobbed, delayed detonation | A fat globule lands, then everything near it Ignites at once |
 | F15 | Ear Candling (`earcandling`) | Fire (Oil, retired) | Pool (a lure, 12.6) | A lit candle behind you draws the crowd in and drips fire on them |
 
-**Spread:** Force 3, Acid 2, Static 2, Mucus 2, Blood 2, Soul 2, Fire 2. Attack types: Burst 5, Projectile 3, Pool 2, Beam 2, Spread 2, Contact 1.
+**Spread:** Force 3, Acid 2, Static 2, Mucus 2, Blood 2, Alien 2, Fire 2. Attack types: Burst 5, Projectile 3, Pool 2, Beam 2, Spread 2, Contact 1.
 
 ### The Feats
 
 ### F1. Sofa Crevice (`blackhole`)
 - **Is:** Force, Pool with the lobbed and gravity well modifiers. Tears open a singularity (radius 125) under the densest cluster for 3 s.
 - **Signature:** the gravity well drags enemies in (pull 210) and bends shots passing near it, so your own shots curve into the crowd it has gathered.
-- **Limits:** the gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2): Squishy halves the pull, elites take 50%, bosses 25%. Moved from Soul to Force, like Family Ties: gravity is displacement.
+- **Limits:** the gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2): Squishy halves the pull, elites take 50%, bosses 25%. Moved from Alien to Force, like Family Ties: gravity is displacement.
 - **Lv 3 fork:** **Down the Back** (pulls twice as hard) or **Loose Change** (when it closes, it spits everything out in one Burst worth 4 s of its damage).
 - **Gift line:** "I found where everything goes. Throw them in."
 - **Field Guide note:** "Tears open a singularity that drags and crushes. Everything you ever lost is in there."
@@ -321,8 +321,8 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 - **Start stats:** 19 damage, 6 s cooldown, 16 blades, speed 460.
 
 ### F12. Vanishing Twin (`vanishingtwin`)
-- **Is:** Soul, Burst under the toughest enemy nearby (TOUGHEST, range 380).
-- **Signature:** a faint copy of you rises under it and fills its Soul bar: it is Possessed at once and fights for you. Bosses take a big hit and a reduced Possessed, as always (11.5).
+- **Is:** Alien, Burst under the toughest enemy nearby (TOUGHEST, range 380).
+- **Signature:** a faint copy of you rises under it and fills its Alien bar: it is Possessed at once and fights for you. Bosses take a big hit and a reduced Possessed, as always (11.5).
 - **Limits:** Possessed's own rules (4 s, then 8 s before it can happen again). The old "out of play for 3 s" and the Fear on nearby enemies are gone (Fear has two sources only).
 - **Lv 3 fork:** **Absorbed** (a 25% chance the enemy never comes back, not elites or bosses; it counts as a kill) or **Survivor's Guilt** (while it fights for you, you take 25% less damage).
 - **Gift line:** "Remember your twin? No? They remember you."
@@ -330,8 +330,8 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 - **Start stats:** 80 damage, 8 s cooldown.
 
 ### F13. Wandering Womb (`wanderingwomb`)
-- **Is:** Soul, a slow Projectile with the piercing (unlimited) and gravity well modifiers. A ghostly womb drifts in a straight line across the slide for 4 s, through walls.
-- **Signature:** it builds Soul on everything it passes, and its gravity well (radius 70, pull 140) drags enemies into its path, so a crowd ends up in a line of Possessed candidates.
+- **Is:** Alien, a slow Projectile with the piercing (unlimited) and gravity well modifiers. A ghostly womb drifts in a straight line across the slide for 4 s, through walls.
+- **Signature:** it builds Alien on everything it passes, and its gravity well (radius 70, pull 140) drags enemies into its path, so a crowd ends up in a line of Possessed candidates.
 - **Limits:** gravity well and Pull rules; it passes walls but never drags anything through one.
 - **Lv 3 fork:** **Ectopic** (it stops on the toughest enemy it meets and stays there for 3 s) or **Bicornuate** (two wombs, angled apart; the gravity well cap still applies).
 - **Gift line:** "This was going to be our room. Look, it's going for a walk."
@@ -369,7 +369,7 @@ About 15 universal Feats, then more through unlocks. Every damage type has at le
 | Attack Feats (5) | Sofa Crevice (gravity), Formic Acid, Tonic Immobility, Shed the Lining, Vanishing Twin |
 | Sample-exclusive (8) | One per sample (section 3), offered only to that sample |
 
-Later unlocks: NOT YET, WAIT WAIT WAIT, THIS WAY, COME BACK HERE, THAT ONE, Nesting, Packed Lunch, Mine! and the other ten originals. Types covered at launch: Force (Little Bubble, BIG FEELINGS, AND ANOTHER THING, Anhydrobiosis, Sofa Crevice), Acid (Formic Acid), Static (Tonic Immobility), Mucus (STICKY BUSINESS), Blood (Shed the Lining), Soul (Jump Scare, Vanishing Twin), Fire (Brown Fat).
+Later unlocks: NOT YET, WAIT WAIT WAIT, THIS WAY, COME BACK HERE, THAT ONE, Nesting, Packed Lunch, Mine! and the other ten originals. Types covered at launch: Force (Little Bubble, BIG FEELINGS, AND ANOTHER THING, Anhydrobiosis, Sofa Crevice), Acid (Formic Acid), Static (Tonic Immobility), Mucus (STICKY BUSINESS), Blood (Shed the Lining), Alien (Jump Scare, Vanishing Twin), Fire (Brown Fat).
 
 ## 6. Left out, and why
 

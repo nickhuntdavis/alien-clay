@@ -149,7 +149,7 @@ T('crit fills bars and judges heavy from pre-crit damage only', () => {
   const s = D('shell', 'normal', { layers: 2 }); assert(!hit(s, 'force', 14, { crit: true }).heavy); assert.equal(s.layers, 2); // 14 x1.6 > 15, but raw 14 < 15
   const h = D('shell', 'normal', { layers: 2 }); const r = hit(h, 'force', 15, { crit: true }); assert(r.heavy && r.crit); assert.equal(h.layers, 1);
 });
-T('bars: Burn 0.4, Poise 0.3, Soul 0.6; payoff and reset', () => {
+T('bars: Burn 0.4, Poise 0.3, Alien 0.6; payoff and reset', () => {
   let t = D(null), r = hit(t, 'fire', 20); near(t.bars.fire, 0.5); assert.deepEqual(r.payoffs, []);
   r = hit(t, 'fire', 20); assert.deepEqual(r.payoffs, ['ignite']); near(t.bars.fire, 0);
   t = D(null); r = hit(t, 'force', 30); assert.deepEqual(r.payoffs, ['stagger']); near(t.bars.force, 0);

@@ -135,7 +135,7 @@ A first-pass disposition, not a rebuild order. The defence column uses the five 
 | Volvox (`volvox`) | Review overlap | None | Force | Keep only if its formation or split adds a distinct role. |
 | Cytokine Caster (`warlock`) | Keep if distinct | None | Fire | Pick one job (damage, buff or control), not all three. |
 | Diatom (`diatom`) | Keep if distinct | Shell | Force | Shelled shooter; Acid and heavy Force shed layers. |
-| Ghost Swimmer (`phantom`) | Revise | Evasion | Soul | Soul-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
+| Ghost Swimmer (`phantom`) | Revise | Evasion | Alien | Alien-themed. Brief, readable phasing or repositioning with a reliable reappearance. |
 | Mother Cell (`summoner`) | Keep, cap spawns | None | Mucus | Summoner; visible summon cue and a strict cap. |
 | Enzyme Spire (`spire`) | Keep | Shell | Acid | Stationary turret (Projectile or Beam); readable lane; reason to reposition or prioritise. |
 | Plasmodium (`plasmod`) | Review overlap | None | Mucus | Keep only if its split gives a genuinely different formation. |
@@ -149,7 +149,7 @@ A first-pass disposition, not a rebuild order. The defence column uses the five 
 2. **Shooters:** Antibody, Cytokine Caster and Killer T-Cell need different attack types (Projectile, Spread, Beam) or roles.
 3. **Chasers and heavies:** Also-Ran, Pinworm, Macrophage, Water Bear and Alpha Swimmer are separated by defence (none, Squishy, Shell, Membrane), not HP.
 
-Damage types follow a bell curve: Force most common, Soul least, some enemies two types (`COMBAT_MATRIX.md` 11.7). Sections 5.2, 5.3 and the bosses get the same column in a later pass.
+Damage types follow a bell curve: Force most common, Alien least, some enemies two types (`COMBAT_MATRIX.md` 11.7). Sections 5.2, 5.3 and the bosses get the same column in a later pass.
 
 ### 5.2 Spawned-only enemies
 
@@ -278,7 +278,7 @@ Directions to investigate, not specifications.
 - **Verdict:** low priority flavour.
 
 ### 6.7 Echo Cell (defer)
-Leaves a see-through echo that repeats its recent movement or attack. If the echo must be hit, autoaim must be able to target it. Its Soul hook: Possessing the Echo Cell also turns its echo. Prototype only once simpler enemies are solid.
+Leaves a see-through echo that repeats its recent movement or attack. If the echo must be hit, autoaim must be able to target it. Its Alien hook: Possessing the Echo Cell also turns its echo. Prototype only once simpler enemies are solid.
 
 ### 6.8 Newton's Cradle (redesign first)
 A linked chain of bodies passes an impact end to end. Remove any need to hit a particular end. Trigger it through automatic attacks, movement or a visible state; Force Knockback is the natural driver.
@@ -367,10 +367,10 @@ Not rejected, but each currently adds too many dependencies.
 - A custom effect is allowed only when it creates a distinct, worthwhile decision. Never add a new status just so an enemy counts as a Carrier.
 - A Carrier's effects never get round Shell, Membrane or Evasion.
 
-### Soul enemies
-- Possessed is the shared hook: a Possessed enemy is a visible chance to set off any of the six Soul reactions (the Soul Mark is retired).
-- Fear is a separate status, used only where it creates a distinct, readable threat. It is not what Soul damage inherently does.
-- Each Soul-themed enemy has its own primary behaviour (Ghost Swimmer phases, Echo Cell repeats, Phantom Pregnancy is a boss-scale illusion). Possessed is the player's Soul payoff against any enemy; no Soul-themed enemy is built around needing it.
+### Alien enemies
+- Possessed is the shared hook: a Possessed enemy is a visible chance to set off any of the six Alien reactions (the Alien Mark is retired).
+- Fear is a separate status, used only where it creates a distinct, readable threat. It is not what Alien damage inherently does.
+- Each Alien-themed enemy has its own primary behaviour (Ghost Swimmer phases, Echo Cell repeats, Phantom Pregnancy is a boss-scale illusion). Possessed is the player's Alien payoff against any enemy; no Alien-themed enemy is built around needing it.
 
 ### Poise
 One shared Poise meter (`COMBAT_MATRIX.md` section 4, 11.2 and 11.5). For enemy design: bosses are never fully immune, because briefly interrupting a telegraphed attack is satisfying counterplay.
@@ -387,7 +387,7 @@ Reaction triggers, defences, chains and statuses follow `COMBAT_MATRIX.md`. Two 
 - **Static:** clustered enemies for arcs; telegraphed attacks to interrupt (Poise-tagged Static only); Membrane enemies are a poor match (Static recharges them).
 - **Mucus:** fast or evasive enemies to Snare; patches that set up Fire, Static and Acid reactions.
 - **Blood:** high-HP enemies to Bleed; Extraction for limited sustain.
-- **Soul:** mind control. Full build-up makes an enemy Possessed (it fights its mates for a few seconds); all Soul reactions use Possessed. Fear only where an enemy is built around it.
+- **Alien:** mind control. Full build-up makes an enemy Possessed (it fights its mates for a few seconds); all Alien reactions use Possessed. Fear only where an enemy is built around it.
 - **Fire:** Burning, Fire Pools and lighting Mucus. The direct hit meets defences as usual; Burning is a separate effect that Shell and Squishy don't reduce.
 
 Not every enemy needs to respond to every type.
@@ -451,7 +451,7 @@ Make the existing roster coherent before adding new ideas. Separate the heavies 
 | Prototype order | Static Sock, Stress Ball, Mosquito, Matchstick; other Fire enemies after |
 | Carrier effects | Reuse existing reaction ingredients when they fit; allow justified exceptions |
 | Enemy roles | One merged vocabulary (adds Leech, Relay, Sniper); roles can combine |
-| Soul enemies | Possessed is the shared hook (Soul Mark retired); Fear is selective; Possessed is the player's Soul payoff, not an enemy's design |
+| Alien enemies | Possessed is the shared hook (Alien Mark retired); Fear is selective; Possessed is the player's Alien payoff, not an enemy's design |
 | Static Sock state | Crackle, not Charge |
 
-Trapped Wind, Birthday Candle's wax, Evasion (was Dodge), Soul's identity and Poise were settled in `COMBAT_MATRIX.md` section 10 (decisions 6, 8, 16, 17, 26) and section 4.
+Trapped Wind, Birthday Candle's wax, Evasion (was Dodge), Alien's identity and Poise were settled in `COMBAT_MATRIX.md` section 10 (decisions 6, 8, 16, 17, 26) and section 4.

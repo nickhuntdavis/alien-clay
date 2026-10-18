@@ -182,7 +182,7 @@ function terrainBody(e, dt) {
   // Acid: some enemies swim straight through it (and burn), the rest steer round it. Each decides once;
   // bosses always go round.
   if (e.acidWade == null) e.acidWade = !e.boss && !e.rival && Math.random() < ACID_WADE;
-  if (!e.def.ethereal && !e.ghost) pushOut(e, e.r, e.side || 1, e.acidWade); // (Soul ghosts phase through: PHASING)
+  if (!e.def.ethereal && !e.ghost) pushOut(e, e.r, e.side || 1, e.acidWade); // (Alien ghosts phase through: PHASING)
   if (G.lvl) lvBody(e); // (the Phantom Pregnancy drifts through walls and growths)
 }
 

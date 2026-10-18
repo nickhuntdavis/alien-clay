@@ -5,7 +5,7 @@
 //    strip / corrode / stagger / possess / ignite; Thorns hurts you back on Contact hits.
 //  - New statuses for the slice types (matrix 11.5): Acid builds Corrosion only (no damage over time),
 //    Mucus Snares (55% slow, 2.5 s, puts out Burning), Static Charges (3 s, +20% Static, arcs 3 x 110 at 70%).
-//  - Blood Bleeds (30% over 3 s, 3 at most), Extraction and blood pools on bleeding deaths; Soul fills the Possess bar;
+//  - Blood Bleeds (30% over 3 s, 3 at most), Extraction and blood pools on bleeding deaths; Alien fills the Possess bar;
 //    Fire adds to one shared burn (decision 36); Conjoined when two Snared enemies touch.
 //  - Twenty reactions (matrix section 1, decision 33). Shocking Impact waits for a dual-type weapon.
 //  - Run stats for tuning (G.fst): reactions, damage share, misses, Membrane soaked, layers shed, Thorns, staggers.
@@ -24,7 +24,7 @@ const FIGHT_RX = {
   oob: { name: 'Out-of-Body Experience', color: '#b06cff' },
   flashover: { name: 'Flashover', color: '#ff6a2a' },
   breach: { name: 'Caustic Breach', color: '#ff2fa8' },
-  erosion: { name: 'Soul Erosion', color: '#ff2fa8' },
+  erosion: { name: 'Alien Erosion', color: '#ff2fa8' },
   evap: { name: 'Premature Evaporation', color: '#ff6a2a' },
   circuit: { name: 'Blood Circuit', color: '#ffe94a' },
   interference: { name: 'Interference Pattern', color: '#b06cff' },
@@ -105,7 +105,7 @@ function fightPayoff(e, p, res, src) {
 }
 
 // ---------------------------------------------------------------- statuses (chem.js applyElement, under V10)
-// True when the slice owns this type's status; Blood, Soul and Fire keep the v10 build's statuses for now.
+// True when the slice owns this type's status; Blood, Alien and Fire keep the v10 build's statuses for now.
 function fightStatus(e, elem, dmg, src) {
   const t = FIGHT_TYPE[elem];
   if (t === 'acid') return true; // Corrosion is a bar (combat.js); no Acid damage over time on enemies (decision 23)
@@ -122,7 +122,7 @@ function fightStatus(e, elem, dmg, src) {
     b.push({ dps: dmg * 0.3 / 3, t: 3, by: dotName(src) });
     return true;
   }
-  if (t === 'soul') return true; // the Soul bar Possesses (combat.js); nothing else on a hit
+  if (t === 'soul') return true; // the Alien bar Possesses (combat.js); nothing else on a hit
   if (t === 'fire') { burnAdd(fightCd(e), dmg); e.burnBy = dotName(src); return true; } // one shared burn (decision 36)
   return false;
 }
@@ -196,7 +196,7 @@ function fightReact2(e, t, raw, src, res) {
     rxFired('pressure', e); ring(e.x, e.y, 60, FIGHT_RX.pressure.color, 0.35, 4);
     forNear(e.x, e.y, 60, o => { if (!o.dead) damageEnemy(o, raw * 0.6, rxSrc('pressure', 'arcane')); });
   }
-  // Force + Soul: a Force hit on a Possessed enemy launches it; the first mate it hits takes 60%.
+  // Force + Alien: a Force hit on a Possessed enemy launches it; the first mate it hits takes 60%.
   if (t === 'force' && f_possessed(e) && !rxLocked(e, 'oob')) {
     rxFired('oob', e);
     const kx = src.kx != null ? src.kx : e.x - p.x, ky = src.ky != null ? src.ky : e.y - p.y, l = Math.hypot(kx, ky) || 1;
@@ -213,7 +213,7 @@ function fightReact2(e, t, raw, src, res) {
     e.bleeds.breached = true; e.cd.layers--; e.cd.layerHp = e.cd.maxHp * COMBAT.shellLayerHpFrac; fst().layers++;
     rxFired('breach', e); ring(e.x, e.y, e.r + 6, FIGHT_COL.shell, 0.4, 5);
   }
-  // Acid + Soul: an Acid hit on a Possessed enemy: when the Possession ends it bursts in an Acid splash.
+  // Acid + Alien: an Acid hit on a Possessed enemy: when the Possession ends it bursts in an Acid splash.
   if (t === 'acid' && f_possessed(e) && !e.erodeOnEnd && !rxLocked(e, 'erosion')) { e.erodeOnEnd = raw; rxFired('erosion', e); }
   // Acid + Fire: a Fire hit on a Corroded target consumes the Corrosion in a close burst (150%).
   if (t === 'fire' && corroded(e) && !rxLocked(e, 'evap')) {
@@ -230,7 +230,7 @@ function fightReact2(e, t, raw, src, res) {
       if (best) { z.circuit = true; rxFired('circuit', e); bolt(z.x, z.y, best.x, best.y, FIGHT_COL.charged, 0.15); damageEnemy(best, raw * 0.6, rxSrc('circuit', 'shock')); }
     }
   }
-  // Static + Soul: a Static hit on a Possessed enemy makes it last 2 s longer (once per Possession). No damage.
+  // Static + Alien: a Static hit on a Possessed enemy makes it last 2 s longer (once per Possession). No damage.
   if (t === 'static' && f_possessed(e) && !e.interfered && !fightOnceDone()) { e.interfered = true; e.charmT += 2; rxFired('interference', e); }
   // Static + Fire: a Static hit on a burning target arcs once to the nearest other enemy (60%).
   if (t === 'static' && f_burning(e) && !rxLocked(e, 'arcflash')) {
@@ -239,7 +239,7 @@ function fightReact2(e, t, raw, src, res) {
   }
   // Mucus + blood pool: the pool thickens; the first enemy to cross it is Snared, then the pool is gone.
   if (t === 'mucus' && !src.feat) { const z = zoneAt('arcane', e.x, e.y); if (z && !z.clot) { z.clot = true; z.inside = new Set(); forNear(z.x, z.y, z.r, o => z.inside.add(o.id)); rxFired('clot', e); } }
-  // Mucus + Soul: a Mucus hit on a Possessed enemy pins it for a moment. No damage.
+  // Mucus + Alien: a Mucus hit on a Possessed enemy pins it for a moment. No damage.
   if (t === 'mucus' && f_possessed(e) && !rxLocked(e, 'suspension')) { e.frozen = Math.max(e.frozen, e.boss ? 0.3 : 1); rxFired('suspension', e); }
   // Mucus patch + Fire: the patch flares once: everything in it ignites (150%), then the patch is gone.
   if (t === 'fire' && !src.feat) {
@@ -249,7 +249,7 @@ function fightReact2(e, t, raw, src, res) {
       forNear(z.x, z.y, z.r, o => { if (o.dead) return; const c = fightCd(o); c.bars.fire = 0.999; damageEnemy(o, raw * 1.5, rxSrc('flammable', 'flame')); });
     }
   }
-  // Blood + Soul: a Blood hit on a Possessed enemy heals you a little (once per Possession). No damage.
+  // Blood + Alien: a Blood hit on a Possessed enemy heals you a little (once per Possession). No damage.
   if (t === 'blood' && f_possessed(e) && !e.donated && !fightOnceDone()) { e.donated = true; healPlayer(Math.max(3, G.P.maxHp * 0.03)); rxFired('donor', e); }
   // Blood + Fire: a Fire hit on a bleeding target consumes the Bleed for one burst (150% plus the Bleed left).
   if (t === 'fire' && f_bleeding(e) && !rxLocked(e, 'cauterise')) {
@@ -257,7 +257,7 @@ function fightReact2(e, t, raw, src, res) {
     rxFired('cauterise', e); ring(e.x, e.y, 70, FIGHT_RX.cauterise.color, 0.4, 5);
     forNear(e.x, e.y, 70, o => { if (!o.dead) damageEnemy(o, raw * 1.5 + (o === e ? left : 0), rxSrc('cauterise', 'flame')); });
   }
-  // Soul + Fire: the Soul Beam + Burning Ground Pairing (both Lv 5+) on a burning, Possessed enemy: it ignites and Possession ends.
+  // Alien + Fire: the Alien Beam + Burning Ground Pairing (both Lv 5+) on a burning, Possessed enemy: it ignites and Possession ends.
   if ((t === 'soul' || t === 'fire') && f_burning(e) && f_possessed(e) && !src.feat && fightPairing() && !rxLocked(e, 'spectral')) {
     const first = !(META.rxSeen || []).includes('spectral');
     rxFired('spectral', e); e.charmT = 0.01; const c = fightCd(e); c.bars.fire = 0; fightPayoff(e, 'ignite', { raw }, src);
@@ -406,7 +406,7 @@ const RX10 = {
   'ice+flame': ['flammable', 'A Fire hit on a Mucus patch flares it: everything standing in it ignites (150%), then it is gone.'],
   'arcane+soul': ['donor', 'A Blood hit on a Possessed enemy heals you a little. Once per Possession.'],
   'arcane+flame': ['cauterise', 'A Fire hit on a bleeding target consumes the Bleed in one burst (150% plus the Bleed left).'],
-  'soul+flame': ['spectral', 'The Soul Beam + Burning Ground Pairing (both Lv 5+) on a burning, Possessed enemy: it ignites and the Possession ends.'],
+  'soul+flame': ['spectral', 'The Alien Beam + Burning Ground Pairing (both Lv 5+) on a burning, Possessed enemy: it ignites and the Possession ends.'],
 };
 const rx10Pair = (a, b) => RX10[a + '+' + b] || RX10[b + '+' + a] || null;
 const rx10Seen = id => !!(META.rxSeen && META.rxSeen.includes(id));

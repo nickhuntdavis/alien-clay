@@ -24,11 +24,11 @@ The sperm's inner consciousness remains distinct from the Scientist: impulsive, 
 | 1 | Baseline | Human | The control specimen that refuses to be irrelevant | Force / Blood | The control group that refuses to die |
 | 2 | Alpha | Human | A self-appointed high-value male: crypto, cold plunges and a podcast nobody asked for | Static / Force | Every fight is a dominance contest |
 | 3 | Beta | Human | The lazy underachiever who becomes terrifying when pushed too far | Blood / Mucus | Near-death becomes its power spike |
-| 4 | Private Schooled | Human (paperwork sealed) | Nepotism, privilege and a suspiciously sealed family history | Acid / Soul | Makes enemies betray their own side |
+| 4 | Private Schooled | Human (paperwork sealed) | Nepotism, privilege and a suspiciously sealed family history | Acid / Alien | Makes enemies betray their own side |
 | 5 | Ordered Online | Unknown | A mysterious specimen whose provenance is best left uninvestigated | Mucus / Acid | Turns pursuit into a terrible decision |
 | 6 | Redtail | Unknown | A chaotic little firestarter with a potentially ominous reputation | Fire / Static | Starts chain reactions in crowds |
-| 7 | Prawn Again | Impossible | A second chance at life, death, and whatever the hell happened last time | Soul / Blood | Temporarily steals enemies, then collects the debt |
-| 8 | Not of This World | Extraterrestrial | An extraterrestrial romantic with absolutely no grasp of the situation | Fire / Soul / Static | Constantly changes what it is |
+| 7 | Prawn Again | Impossible | A second chance at life, death, and whatever the hell happened last time | Alien / Blood | Temporarily steals enemies, then collects the debt |
+| 8 | Not of This World | Extraterrestrial | An extraterrestrial romantic with absolutely no grasp of the situation | Fire / Alien / Static | Constantly changes what it is |
 
 Each sample has three starting weapons of its own (section "Starting weapons" below). No starter is shared.
 
@@ -169,7 +169,7 @@ Its Acid builds Corrosion faster. Enemies it Possesses deal bonus damage to thei
 
 **Unique Feat: Pulling Strings**
 
-Mark the toughest nearby enemy. It rapidly accumulates Corrosion while nearby enemies gain Soul build-up, encouraging the marked target's entourage to turn on it.
+Mark the toughest nearby enemy. It rapidly accumulates Corrosion while nearby enemies gain Alien build-up, encouraging the marked target's entourage to turn on it.
 
 **Visual signature**
 
@@ -315,7 +315,7 @@ Quiet, ancient-feeling and almost tender. It speaks as though recalling events t
 
 **Passive: Adaptive Biology**
 
-Its kit shifts between Fire, Soul and Static every 20 seconds. The active type is clearly displayed on the HUD and reflected in its body, trail and attacks.
+Its kit shifts between Fire, Alien and Static every 20 seconds. The active type is clearly displayed on the HUD and reflected in its body, trail and attacks.
 
 **Unique Feat: First Contact**
 
@@ -375,7 +375,7 @@ Each one occupies a different emotional and gameplay space. That matters more th
 2. Use existing status bars, stamina, health and damage reactions. Avoid new meters.
 3. Make every Feat's effect apparent within a second of activation.
 4. Keep the base attack types distinct and preserve coverage across the seven damage types.
-5. Use existing Soul possession, Acid Corrosion and Pool rules, Blood Bleed and lifesteal, and Static and Fire interactions. Do not introduce new damage rules just to support a character gag.
+5. Use existing Alien possession, Acid Corrosion and Pool rules, Blood Bleed and lifesteal, and Static and Fire interactions. Do not introduce new damage rules just to support a character gag.
 6. Make the unlock conditions teach the sample's playstyle where possible.
 7. Keep the Scientist dry. The more ridiculous the specimen, the less the Scientist should sound impressed.
 8. Keep the sperm's consciousness emotionally consistent with the core premise: it wants to reach the egg, and everything else is an obstacle, a distraction or an affront.
@@ -391,7 +391,7 @@ Each one occupies a different emotional and gameplay space. That matters more th
 - **Game modes become "Experiments"** (for example, "Experiment #002: The Petri Dish"). This frees the word "sample" for characters. Internal ids (`s002`) stay as they are.
 - **The sperm doesn't speak** (`VOICE_GUIDE.md`). Its consciousness talks to it; each sample's consciousness has its own personality under the shared voice rules.
 - **The Scientist uses IDs.** The strain number is the roster position (Baseline is 1, Not of This World is 8). The letter is the run of that strain: 1A, 1B and so on.
-- **Combat rules:** every sample follows the reconciliation decisions in `COMBAT_MATRIX.md` section 10 (Soul possesses; Fire does not spread on its own, so Redtail spreads Burn only through its Static; Acid's only ongoing damage is Pools).
+- **Combat rules:** every sample follows the reconciliation decisions in `COMBAT_MATRIX.md` section 10 (Alien possesses; Fire does not spread on its own, so Redtail spreads Burn only through its Static; Acid's only ongoing damage is Pools).
 
 ### Starting weapons
 
@@ -432,13 +432,13 @@ Reluctance, endurance and a sudden breaking point. They should feel underwhelmin
 | Nervous Wreck (Nutcracker) | Force Contact | Punishes enemies who get too close; can stagger or crack tougher targets | Patience runs out, and the lazy survivor turns vicious |
 | One of These Days (Due Date) | Blood Projectile | Marks a target with a countdown; when it ends, part of the damage taken meanwhile lands again | A slow, harmless-looking problem becomes a catastrophic bill |
 
-#### 4. Private Schooled (Acid / Soul)
+#### 4. Private Schooled (Acid / Alien)
 Obligations, influence and social entanglement. Making enemies betray their own side is the natural end point.
 
 | Weapon (was) | Type, attack | What it does | Upgrade fantasy |
 |---|---|---|---|
 | Acid Spit | Acid Projectile | Acid globs that corrode targets, making them more vulnerable | Sticks and stones may break your bones; a little acid makes everything worse |
-| Rent Free (Ghost Load) | Soul Projectile | A spectral shot that passes through enemies with an unsettling sense of authority | It gets more influential: haunting targets, or leaving consequences behind when they die |
+| Rent Free (Ghost Load) | Alien Projectile | A spectral shot that passes through enemies with an unsettling sense of authority | It gets more influential: haunting targets, or leaving consequences behind when they die |
 | Ewww, Gross (Sticky Situation) | Mucus Projectile | Tapes enemies together with Mucus strands, so damage to one is shared with its associates | Private Schooled knows somebody who knows somebody. Nobody keeps their problems to themselves |
 
 #### 5. Ordered Online (Mucus / Acid)
@@ -461,16 +461,16 @@ It escalates from unwanted contact to oversharing to a catastrophic group conver
 | Unwanted Contact (Static Cling) | Static Projectile | Chains electricity through crowds; other weapons arc again off Charged enemies | One unsolicited interaction becomes the whole crowd's problem |
 | Sister Cousin (Seeker Siblings) | Blood Projectile | Homing siblings that never let go; a sibling that kills splits into two smaller ones | Kills grow the family, and sibling rivalry makes focused fire nastier |
 
-#### 7. Prawn Again (Soul / Blood)
+#### 7. Prawn Again (Alien / Blood)
 Memory, recurrence and consequences, without becoming a conventional Grim Reaper. The strangest, most supernatural kit.
 
 | Weapon (was) | Type, attack | What it does | Upgrade fantasy |
 |---|---|---|---|
-| Chest Burster (Tapeworm Seeder) | Soul Projectile | Infects enemies so they rise after death and fight for the sperm. The dead aren't finished making decisions | Infection spreads, allies linger, and even their departure hurts the living |
-| Peekaboo | Soul Burst | The sperm vanishes; enemies swarm the wrong spot and hit each other, then suffer Fear when it reappears | Enemies grow unsure whether they've seen this exact death before |
-| Eggs (Tooth Fairy) | Soul Burst | Drops spectral eggs that lure greedy enemies, then smite them. Eggs gain power while they wait | The longer an enemy puts off collecting its fate, the worse the reckoning |
+| Chest Burster (Tapeworm Seeder) | Alien Projectile | Infects enemies so they rise after death and fight for the sperm. The dead aren't finished making decisions | Infection spreads, allies linger, and even their departure hurts the living |
+| Peekaboo | Alien Burst | The sperm vanishes; enemies swarm the wrong spot and hit each other, then suffer Fear when it reappears | Enemies grow unsure whether they've seen this exact death before |
+| Eggs (Tooth Fairy) | Alien Burst | Drops spectral eggs that lure greedy enemies, then smite them. Eggs gain power while they wait | The longer an enemy puts off collecting its fate, the worse the reckoning |
 
-#### 8. Not of This World (Fire / Soul / Static)
+#### 8. Not of This World (Fire / Alien / Static)
 Intimacy, imitation and cosmic escalation. Everything is connected, everything can be absorbed, and every relationship threatens to become an astronomical event.
 
 | Weapon (was) | Type, attack | What it does | Upgrade fantasy |
@@ -479,7 +479,7 @@ Intimacy, imitation and cosmic escalation. Everything is connected, everything c
 | There Is No Spoon (Placental Siphon) | Force Projectile | Absorbs nearby enemy bullets and fires them back. Incoming aggression becomes a resource | Absorb more, hold it longer, or turn stolen shots into a shield |
 | Family Ties (Black Hole) | Force Projectile (gravity well) | A vortex that pulls in enemies and bends shots; holes merge, and enough merges go supernova | Every problem gets dragged into the conversation until the room explodes |
 
-Adaptive Biology (its passive) makes all three deal the active type (Fire, Soul or Static). Open: `BASE_WEAPONS.md` section 5, issue 7.
+Adaptive Biology (its passive) makes all three deal the active type (Fire, Alien or Static). Open: `BASE_WEAPONS.md` section 5, issue 7.
 
 ### Unlocks, in order
 1. **Baseline:** available from the start.
@@ -488,7 +488,7 @@ Adaptive Biology (its passive) makes all three deal the active type (Fire, Soul 
 4. **Private Schooled:** beat the Petri Dish with any sample. It turns up once the hard work is done.
 5. **Ordered Online:** open a Mythical box.
 6. **Redtail:** survive one of the slide's rare big hazards.
-7. **Prawn Again:** shown as "???" until earned. Land a boss's killing blow with Soul damage.
+7. **Prawn Again:** shown as "???" until earned. Land a boss's killing blow with Alien damage.
 8. **Not of This World:** beat the campaign's furthest level (Level 1 today).
 
 The first few come early, so players get variety quickly. The last two reward curiosity and mastery.
