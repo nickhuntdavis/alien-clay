@@ -551,7 +551,7 @@ const UI = {
 
         } else {
           const bonus = l > 1 ? lvBonusText(d, l - 1, l) : '';
-          const txt = l === 1 ? 'Base weapon' : `+${Math.round(WEAPON_LV_DMG * 100)}% damage, 5% faster, +12% magazine` + (bonus ? '. ' + bonus : '');
+          const txt = l === 1 ? 'Base weapon' : `+${Math.round(WEAPON_LV_DMG * 100)}% damage` + (bonus ? '. ' + bonus : '');
           h += `<div class="trow ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><span class="tt">${esc(txt)}</span></div>`;
         }
       }

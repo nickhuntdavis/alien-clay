@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon levels add damage only (v10.23)
+- Systems: weapons
+- Files: game.js (computeStatsInner, optUpgrade, lvBonusText), ui.js (weapon level tree text), toys.js (crayon)
+- What: levelling a weapon no longer makes it fire 5% faster, reload 5% faster or hold 12% more a level; fire rate, reload and magazine now change only when a branch card, level table (d.lv) or modifier says so. Level-table `mag` and `range` bonuses now apply and show in the text (they were silently ignored). Feats still cycle 5% faster a level. Weapon upgrade cards no longer say "faster cycling".
+- Save data: none.
+- Hooks: none.
+- Risk: balance (a Lv 10 weapon used to fire about 37% faster and hold twice the magazine). wave20 4 mortal: before 0/4 wins (deaths at waves 8, 10, 13, 15), after 1/4 (9, 10, 15).
+
 ## 2026-10-18 Weapon UI colours match damage types (v10.22)
 - Systems: render, ui
 - Files: icons.js, seqsel.js, seqreveal.js, draft.js

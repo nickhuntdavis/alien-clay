@@ -39,7 +39,7 @@ function toyAdapt(w, s) {
       s.dmg *= 1 + 0.18 * P.multishot; s.lineW = 9 * (1 + 0.2 * P.pierce);
       // Fire rate works backwards here: the faster your weapons fire, the longer the crayon waits before it closes
       // the shape for you, and the longer the line lasts, so you draw bigger shapes.
-      const base = (w.def.base.cd || 2.2) * Math.pow(0.95, w.lvl - 1), f = Math.max(1, base / Math.max(0.05, s.cd));
+      const base = (w.def.base.cd || 2.2), f = Math.max(1, base / Math.max(0.05, s.cd));
       s.cd = base * f; s.dur *= f; s.drawK = f;
       break;
     }

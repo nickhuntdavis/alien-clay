@@ -284,7 +284,7 @@ function computeStats(w) {
 function computeStatsInner(w) {
   const d = w.def, b = d.base, P = G.P, L = V10 && d.w24 && !w.isSpell ? wStatLv(w) : w.lvl, syn = G.synergy; // (the 24 grow with you between tiers: weapons24.js)
   const s = Object.assign({}, b);
-  let dmgB = 0, areaB = 0, durB = 0, cdB = 0;
+  let dmgB = 0, areaB = 0, durB = 0, cdB = 0, magB = 0, rangeB = 0;
   for (let l = 2; l <= L; l++) {
     const bo = d.lv && d.lv[l];
     if (!bo) continue;
@@ -293,6 +293,8 @@ function computeStatsInner(w) {
       else if (k === 'area') areaB += bo[k];
       else if (k === 'dur') durB += bo[k];
       else if (k === 'cd') cdB += bo[k];
+      else if (k === 'mag') magB += bo[k];
+      else if (k === 'range') rangeB += bo[k];
       else s[k] = (s[k] || 0) + bo[k];
     }
   }
@@ -300,10 +302,13 @@ function computeStatsInner(w) {
   if (d.kind === 'heal') s.dmg = b.dmg * (1 + dmgB) + 0.012 * (L - 1);
   else s.dmg = b.dmg * (1 + WEAPON_LV_DMG * (L - 1) + dmgB) * P.might * elemMult;
   const physBonus = syn.phys && d.elem === 'phys' ? 1.15 : 1;
-  s.cd = (b.cd || 0) * Math.pow(0.95, L - 1) * (1 + cdB) / (w.isSpell ? 1 : P.haste * physBonus);
+  // Levels add damage only: a weapon's fire rate, magazine and reload change only through its level table
+  // (d.lv) or a signature fork. (Feats still cycle 5% faster a level.)
+  const lvK = w.isSpell ? L - 1 : 0;
+  s.cd = (b.cd || 0) * Math.pow(0.95, lvK) * (1 + cdB) / (w.isSpell ? 1 : P.haste * physBonus);
   if (w.isSpell) s.cd *= Math.max(0.4, P.cdr);
-  s.mag = Math.max(1, Math.round((b.mag || 1) * (1 + 0.12 * (L - 1)) * P.magMult));
-  s.reload = (b.reload || 0) * Math.pow(0.95, L - 1) / P.reloadSpd;
+  s.mag = Math.max(1, Math.round((b.mag || 1) * (1 + 0.12 * lvK + magB) * P.magMult));
+  s.reload = (b.reload || 0) * Math.pow(0.95, lvK) / P.reloadSpd;
   const multi = MULTI_KINDS.includes(d.kind) ? Math.min(2, P.multishot) : 0; // (all sources together add at most 2 projectiles)
   const baseCount = s.count || 1, extraMulti = multi; // (exactly +1 per projectile, whatever the weapon: never multiples)
   s.count = baseCount + extraMulti;
@@ -314,7 +319,7 @@ function computeStatsInner(w) {
   // Starting reach: long-range weapons begin at what you can see on screen (about 300) and grow 30 a
   // level to their full range; Range upgrades multiply it as before.
   const reach = b.range > REACH_START && !REACH_FREE.has(d.kind) ? Math.min(b.range, REACH_START + 30 * (L - 1)) : (b.range || 0);
-  s.range = reach * P.range * (d.style === 'flame' ? 1 + areaB * 0.5 : 1);
+  s.range = reach * (1 + rangeB) * P.range * (d.style === 'flame' ? 1 + areaB * 0.5 : 1);
   if (s.area) s.area *= areaMult;
   if (s.explode && s.explode > 1) s.explode *= areaMult;
   if (s.aura) s.aura *= areaMult;
@@ -442,6 +447,8 @@ function lvBonusText(def, from, to) {
       else if (k === 'area') parts.push(`+${pc(v)} area`);
       else if (k === 'dur') parts.push(`+${pc(v)} duration`);
       else if (k === 'cd') parts.push(`${pc(-v)} faster`);
+      else if (k === 'mag') parts.push(`+${pc(v)} magazine`);
+      else if (k === 'range') parts.push(`+${pc(v)} range`);
       else if (k === 'film') parts.push('thicker bubbles (they soak up hits and add them to the pop)');
       else if (k === 'rainbow') parts.push('rainbow pops (a random damage type each time)');
     }
@@ -576,7 +583,7 @@ function wCap(w) { return !w.isSpell && masterOf(w) ? MAX_WLVL - 1 : MAX_WLVL; }
 function optUpgrade(w, r) {
   const n = RARITIES[r].lvls, to = Math.min(wCap(w), w.lvl + n);
   const bonus = lvBonusText(w.def, w.lvl, to);
-  let desc = `+${pc(WEAPON_LV_DMG * (to - w.lvl))} damage, faster cycling` + (bonus ? `. ${bonus}` : '');
+  let desc = `+${pc(WEAPON_LV_DMG * (to - w.lvl))} damage` + (w.isSpell ? ', faster cycling' : '') + (bonus ? `. ${bonus}` : '');
   if (!w.isSpell && to >= COMBO_LEVEL && w.lvl < COMBO_LEVEL && COMBOS.some(c => (c.a === w.id || c.b === w.id) && !(G.combo && G.combo[c.id]) && (owned(c.a === w.id ? c.b : c.a) || {}).lvl >= COMBO_LEVEL)) desc += '. Unlocks a COMBO!';
   if (!w.isSpell && to === MAX_WLVL) desc += '. MASTERY: only one weapon a run can reach Lv 10, and this takes it.';
   else if (!w.isSpell && to === MAX_WLVL - 1 && masterOf(w)) desc += `. Stops at Lv 9: ${masterOf(w).def.name} is your mastery weapon.`;
