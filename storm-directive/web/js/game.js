@@ -254,7 +254,7 @@ function effArmour(e) { return Math.max(0, e.armour + (e.auraArm > 0 ? 4 : 0) - 
 // ---------------------------------------------------------------- inventory & stats
 function makeSlot(id, isSpell, lvl) {
   const def = isSpell ? SPELLS[id] : WEAPONS[id];
-  const w = { uid: uidSeq++, id, def, isSpell, lvl: lvl || 1, dir: def.dir, cd: 0.3, ammo: 0, reloadT: 0, reloadMax: 1,
+  const w = { uid: uidSeq++, id: def.sigOf || id, sid: id, def, isSpell, lvl: lvl || 1, dir: def.dir, cd: 0.3, ammo: 0, reloadT: 0, reloadMax: 1,
     spin: 0, active: 0, ang: 0, blades: [], beamT: 0, beamTick: 0, beams: [], s: null,
     mods: [], perks: {}, dirs: def.committee ? [def.dir, 'nearest', 'shooters'] : null, heat: 0, stored: 0, gachaTier: 0, focusT: 0, lastTarget: null, curTarget: null };
   if (def.gacha) rollGacha(w, true);

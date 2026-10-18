@@ -564,6 +564,7 @@ function meleeLash(w, x, y, a, src, scale) {
     if (along < -e.r || along > L + e.r || side > wd + e.r) return;
     const o = Object.assign({}, src, pull && !e.boss ? { knock: 240, kx: -dx, ky: -dy } : { kx: ca, ky: sa });
     if (crack && along > L * 0.67) { o.mult = (src.mult || 1) * 3; o.crit = 1; }
+    else if (w.def.sig && along > L * 0.75) { o.mult = (src.mult || 1) * 1.5; if (o.knock) o.knock *= 1.5; } // (Flagellum Flail: the tip hits hardest)
     meleeHit(w, e, s.dmg, o);
     if (along > tipD) { tipD = along; tip = e; }
   });

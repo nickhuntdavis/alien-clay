@@ -17,7 +17,7 @@ const { chromium } = require('playwright');
     const bad = [], out = {};
     out.seq = G.genes.primary; out.sample = UI.sample; out.mode = !!G.wave;
     if (out.seq !== 'human1' || out.sample !== 's002' || !G.wave) bad.push('run: ' + JSON.stringify(out));
-    const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10);
+    const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10 && !WEAPONS[id].sig);
     if (ids.length !== 42) bad.push('weapons: ' + ids.length);
     const st = genLoot({ kind: 'start' });
     if (st.length !== 4 || st.some(o => !o.def.v10)) bad.push('start draft: ' + st.map(o => o.title));
