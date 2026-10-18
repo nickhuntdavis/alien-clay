@@ -18,7 +18,7 @@
 //   Ingrown Hair   A plain chaser with Thorns (the defence comes from the roster).
 //   Smouldering    ROSTER_ELITE_MODS.smouldering: a quarter of elites carry it; on death one marked Fire Burst.
 // Types are capped by foes2.js (G.typeN, roster `cap`). Telegraphs: Contact charges show their lane, Bursts their area.
-// Hooks: game.js update -> nfTick; damageEnemy -> nfHit (after fightHit); killEnemy -> nfKill;
+// Hooks: game.js update -> nf10Tick; damageEnemy -> nf10Hit (after fightHit); killEnemy -> nf10Kill;
 //   v10.js v10Draw -> nfDraw. AI rides FOE_AI (game.js updateEnemies default branch); shapes ride MICROBES (render.js).
 // Save data: none.
 
@@ -104,7 +104,7 @@ Object.assign(FOE_AI, {
     if (full && dist < e.r + p.r + 6) { e.zapT = NF.sockWind; e.zapStart = G.realT; return { x: 0, y: 0, s: 0 }; }
     return null;
   },
-  // Stress Ball: counts Force hits (nfHit). On the 5th it squeezes, holds still, then springs back.
+  // Stress Ball: counts Force hits (nf10Hit). On the 5th it squeezes, holds still, then springs back.
   new_stressball(e, dt) {
     const R = ROSTER.stressball.rebound;
     if (e.sb == null) { e.sb = 0; e.sbLast = -99; e.sbWind = 0; e.sbN = 0; }
@@ -224,7 +224,7 @@ function nfDetonate(b) {
 
 // ---------------------------------------------------------------- 4. hooks
 // game.js damageEnemy, after fightHit: d is what reached health.
-function nfHit(e, src, d) {
+function nf10Hit(e, src, d) {
   const ai = nfAI(e);
   if (ai === 'new_stressball') {
     if (!(d > 0) || src.dot || src.zoneHit || src.rx || src.echo || src.env || e.sbWind > 0) return;
@@ -237,7 +237,7 @@ function nfHit(e, src, d) {
   }
 }
 // game.js killEnemy: refunds, pools, Smouldering.
-function nfKill(e, src) {
+function nf10Kill(e, src) {
   const ai = nfAI(e);
   if (ai === 'new_mosquito') {
     if (e.fedT > G.t && e.fed > 0) {
@@ -249,7 +249,7 @@ function nfKill(e, src) {
   if (e.nfSm) (G.nfBurst || (G.nfBurst = [])).push({ x: e.x, y: e.y, r: NF.smoulder.r, t: NF.smoulder.tele, max: NF.smoulder.tele, dmg: NF.smoulder.dmg, by: 'Smouldering', noIgn: true });
 }
 
-function nfTick(dt) {
+function nf10Tick(dt) {
   if (typeof V10 === 'undefined' || !V10 || !G || G.state !== 'play') return;
   const p = me(), enemies = G.enemies;
   // Smouldering: a quarter of elites carry it, decided once.
@@ -291,7 +291,7 @@ function nfTick(dt) {
 }
 
 // ---------------------------------------------------------------- 5. world drawing (v10.js v10Draw): telegraphs, trails, walls
-function nfDraw() {
+function nf10Draw() {
   if (!G) return;
   const now = G.realT;
   ctx.save(); ctx.lineCap = 'round';

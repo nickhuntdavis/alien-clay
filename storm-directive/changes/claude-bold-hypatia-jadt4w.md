@@ -321,3 +321,11 @@
 - Save data: none.
 - Hooks: none new in shared files; fight.js gains fightReactAs and inert src.feat guards.
 - Risk: Unique Feat numbers and forks are untuned.
+
+## 2026-10-18 Fix: new enemies ran their timers at double speed
+- Systems: enemies (newfoes.js), tests
+- Files: newfoes.js, game.js, v10.js, tests/dupetest.js (new), tests/run.sh
+- What: newfoes.js reused three function names from the old newfeats.js (nfTick, nfKill, nfDraw); the later file won, so game.js ran the new-enemy tick twice a frame (wax walls, trails, Bursts and Mosquito timers at double speed) and render.js drew them extra times. They are now nf10Tick, nf10Kill, nf10Draw, nf10Hit. New dupetest fails if any two loaded scripts declare the same global; the v10 tests are now in run.sh's full list.
+- Save data: none.
+- Hooks: game.js damageEnemy -> nf10Hit, killEnemy -> nf10Kill, update -> nf10Tick (V10 only); v10.js v10Draw -> nf10Draw.
+- Risk: new enemies' timings halve back to their designed values (they were too fast before).
