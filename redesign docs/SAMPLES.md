@@ -385,7 +385,7 @@ Each one occupies a different emotional and gameplay space. That matters more th
 - **Combat rules:** every sample follows the reconciliation decisions in `COMBAT_MATRIX.md` section 10 (Soul possesses; Fire does not spread on its own, so the Unsolicited spreads Burn only through its Static; Acid's only ongoing damage is Pools).
 
 ### Starting attack types
-Every attack type in `ATTACK_TYPES.md` appears at least once. The starting weapons are in `WEAPONS.md` section 4.
+Every attack type in `ATTACK_TYPES.md` appears at least once. The starting weapons are in `archive/WEAPONS.md` section 4 (out of date; see `BASE_WEAPONS.md` issue 3).
 
 | Sample | Starting attack type |
 |---|---|

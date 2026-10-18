@@ -1,3 +1,5 @@
+> **Archived 18 Oct 2026. Not in use.** Superseded by `../BASE_WEAPONS.md`. Kept for reference only.
+
 # Signature Weapons
 
 Working proposal, 17 Oct 2026. Twenty-one favourite weapons from the original game, plus five Fire drafts (16 to 20), brought back **alongside** v10's 42-weapon matrix (6 attack types × 7 damage types, `ATTACK_TYPES.md`). The matrix weapons are the plain baseline; a signature weapon is a matrix slot plus one signature behaviour that no other weapon has.

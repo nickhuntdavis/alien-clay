@@ -4,7 +4,7 @@
 
 **Status: working proposal; validate in playtests before treating values or effects as locked.** The canonical damage types are **Force, Acid, Static, Mucus, Blood, Soul and Fire**. Cooties, Oil and Water are out of scope and must not appear as active types in this matrix. Every open question from the reconciliation pass is settled in section 10; formulas and starting values are in section 11.
 
-**This is the only place combat rules and statuses live.** `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md` and `ATTACK_TYPES.md` hold identity only (what each thing is for, how it looks, what it is good and bad at) and point here for every rule. Other docs (`ENEMY_DESIGN.md`, `WEAPONS.md`, `SIGNATURE_WEAPONS.md`, `MODIFIERS.md`, `UPGRADES.md`, `SAMPLES.md`) cite sections here rather than restating them. The CSVs in `tables/` are generated from this file (section 14); never edit them by hand. If anything elsewhere disagrees with this file, this file wins and the other doc is fixed.
+**This is the only place combat rules and statuses live.** `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md` and `ATTACK_TYPES.md` hold identity only (what each thing is for, how it looks, what it is good and bad at) and point here for every rule. Other docs (`ENEMY_DESIGN.md`, `BASE_WEAPONS.md`, `MODIFIERS.md`, `UPGRADES.md`, `SAMPLES.md`) cite sections here rather than restating them. The CSVs in `tables/` are generated from this file (section 14); never edit them by hand. If anything elsewhere disagrees with this file, this file wins and the other doc is fixed.
 
 ### Design constraints
 
@@ -390,7 +390,7 @@ At most 40 world objects at once (phones). Where two overlap, the newest wins, e
 
 ## 12. Signature weapon rules (17 Oct 2026)
 
-Rules added so the 26 signature weapons in `SIGNATURE_WEAPONS.md` fit the system. They apply to anything that does the same thing, not just those weapons.
+Rules added so the signature weapons (now in `BASE_WEAPONS.md`) fit the system. They apply to anything that does the same thing, not just those weapons.
 
 ### 12.1 Echo damage
 
@@ -472,7 +472,7 @@ What each attack type is for lives in `ATTACK_TYPES.md`; how each one meets the 
 | Reactions, statuses, world objects, defence rules, attack-type rules, formulas, numbers | This file |
 | What each damage type, defence and attack type is for, how it looks, strengths and weaknesses | `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md`, `ATTACK_TYPES.md` |
 | Enemy roles, roster, new enemies | `ENEMY_DESIGN.md` (role counterplay: section 5 here) |
-| Weapons, Feats, mutations and modifiers | `WEAPONS.md`, `SIGNATURE_WEAPONS.md`, `FEATS.md`, `MUTATIONS.md`, `MODIFIERS.md` |
+| Weapons, Feats, mutations and modifiers | `BASE_WEAPONS.md`, `FEATS.md`, `MUTATIONS.md`, `MODIFIERS.md` |
 | Progression, samples, autorun, voice | `UPGRADES.md`, `SAMPLES.md`, `AUTORUN_AUTOAIM.md`, `VOICE_GUIDE.md` |
 
 The three CSVs in `tables/` (the old Notion databases) are generated from the tables in this file by `tables/export.py`:

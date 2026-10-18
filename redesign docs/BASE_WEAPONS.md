@@ -1,12 +1,12 @@
 # Base Weapons
 
-**Status: roster decision of 18 Oct 2026. Docs only; the code pass is not done (section 6).** Damage types, reactions and attack-type rules live in `COMBAT_MATRIX.md`; this doc cites them and adds none. Full signature detail stays in `SIGNATURE_WEAPONS.md`; the full catalogue in `WEAPONS.md`.
+**Status: roster decision of 18 Oct 2026. Docs only; the code pass is not done (section 6).** Damage types, reactions and attack-type rules live in `COMBAT_MATRIX.md`; this doc cites them and adds none. `WEAPONS.md` and `SIGNATURE_WEAPONS.md` are archived (`archive/`); this doc is the weapon source of truth.
 
 The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) and 14 signatures (taken from the 26). **Every other weapon is archived (72, section 7).** Signature playstyle and visuals stay as in the current game; only the damage type changes, to the matrix types.
 
 ## 1. Roster
 
-| # | Weapon | Damage type | Attack type | Source (WEAPONS.md id, code id) |
+| # | Weapon | Damage type | Attack type | Origin (archived-list id, code id) |
 |---|---|---|---|---|
 | 1 | Nut Shot | Force | Projectile | M2, was "Knuckle Dragger" |
 | 2 | Spray Gun | Force | Spread | M3, was "Broadside" |
@@ -18,7 +18,7 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | 8 | Red Needle | Blood | Projectile | M26 |
 | 9 | Ghost Load | Soul | Projectile | M32 |
 | 10 | Hot Mess | Fire | Pool | M42, was "Burning Ground" |
-| 11 | Black Hole | Force | Projectile (slow, gravity well; supernova) | S5, `void`, shipped as "Toddler Gravity" |
+| 11 | Black Hole | Force | Projectile (slow, gravity well; supernova) | `void`, shipped as "Toddler Gravity" |
 | 12 | Meat Missile | Force | Burst (knockback collisions) | S11, `lard`, was "Lard Lobber" (rename to confirm, issue 2) |
 | 13 | Placental Siphon | Force | Projectile | S12, `siphon` |
 | 14 | Nappy Mines | Acid | Burst (delayed; leaves Acid Pools) | S2, `mines` |
@@ -109,24 +109,106 @@ A straightforward persistent damage zone, a baseline for more elaborate Fire mec
 
 ## 3. The 14 signatures
 
-Playstyle, as set by the user on 18 Oct 2026. Type, attack type and mechanics: `SIGNATURE_WEAPONS.md` (cite it, do not copy it here).
+Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the archived `archive/SIGNATURE_WEAPONS.md`; rules cited as `11.x` or `12.x` are sections of `COMBAT_MATRIX.md`. Start stats are starting points for sims.
 
-| Signature | Playstyle |
-| --- | --- |
-| Black Hole | Spatial control, accumulation and explosive payoff. Pulls enemies and bends projectiles; merging orbs can culminate in a supernova. |
-| Meat Missile | Collision engineering and crowd manipulation. Turns knockback into collisions that bowl enemies into one another. |
-| Placental Siphon | Defensive conversion and retaliatory damage. Eats incoming bullets and fires them back. |
-| Nappy Mines | Retreat, route planning and delayed area denial. Lays delayed mines behind the sperm, leaving Acid Pools after detonation. |
-| Twin Telepathy | Spatial geometry and movement mastery. The beam between you and your twin turns movement and positioning into an attack. |
-| Static Cling | Chain reactions and weapon-to-weapon synergy. Chains electricity through enemies and lets other weapons exploit Charged targets. |
-| Sticky Situation | Exploiting relationships and concentrating damage. Links enemies so damage to one is shared with the others. |
-| Blowing Bubbles | Incapacitation and tactical detonation. Traps small enemies in bubbles that burst when touched. |
-| Due Date | Sustained focus and delayed damage payoff. Marks a tough enemy and returns a portion of the damage it took when the countdown ends. |
-| Seeker Siblings | Autonomous targeting and kill-chain escalation. Homing shots target enemies and split after a sibling scores a kill. |
-| Peekaboo | Deception and crowd manipulation. Disappears, manipulates enemy pursuit, then reveals itself and applies Fear. |
-| Tooth Fairy | Prediction, baiting and delayed payoff. Baits enemies with teeth and punishes them when they approach. |
-| Tapeworm Seeder | Army building and self-reinforcing combat. Turns infected enemies into allied fighters after death. |
-| The Runs | Weaponised movement and pursuit manipulation. Leaves a burning trail behind the sperm. |
+### 11. Black Hole (`void`, shipped as "Toddler Gravity")
+- **Playstyle:** Spatial control, accumulation and explosive payoff. Pulls enemies and bends projectiles; merging orbs can culminate in a supernova.
+- **Is:** Force, a slow Projectile (speed 115) that pierces everything, with the **gravity well** modifier (radius 72): it pulls enemies in and bends every shot that passes near it, so your other weapons' shots curve into the crowd it is gathering.
+- **Signature:** two black holes that touch merge into a bigger one. Five merged go supernova: one Burst, and the hole is gone.
+- **Limits:** gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2); a merged hole is one well with a bigger radius (up to 140), so merging never breaks the 3-well cap; merges cap at 5 (it was 20). Moved from Soul to Force because gravity is displacement, and Soul is now mind control.
+- **Start stats:** 8 damage, 1.8 s cooldown, pull strength 95.
+
+### 12. Meat Missile (`lard`, was "Lard Lobber")
+- **Playstyle:** Collision engineering and crowd manipulation. Turns knockback into collisions that bowl enemies into one another.
+- **Is:** Force, Burst (lobbed, radius 66). Dollops of lard send everything flying.
+- **Signature:** an enemy sent flying that hits a mate knocks that mate flying too, and both take the 40% collision damage: STRIKE.
+- **Limits:** bounded chain (12.5): each flying enemy knocks one more, once (depth 2). Squishy halves the knockback as usual.
+- **Start stats:** 14 damage, 1.2 s cooldown, 3 per load.
+
+### 13. Placental Siphon (`siphon`)
+- **Playstyle:** Defensive conversion and retaliatory damage. Eats incoming bullets and fires them back.
+- **Is:** Force, Projectile. Eats enemy bullets within 90 of you and fires them back as hard as they hit you.
+- **Signature:** it rewards a busy screen; with nothing to eat it dribbles a weak spit.
+- **Limits:** projectile blocking rule (12.8). Stores up to 10 bullets. A returned bullet keeps its **original damage type**, so it can fill bars and set off reactions.
+- **Start stats:** 15 damage (spit), 40 per load, fires every 0.08 s while stocked.
+
+### 14. Nappy Mines (`mines`)
+- **Playstyle:** Retreat, route planning and delayed area denial. Lays delayed mines behind the sperm, leaving Acid Pools after detonation.
+- **Is:** Acid, Burst with delayed detonation. Drops proximity mines behind you (blast radius 72, life 14 s).
+- **Signature:** each blast leaves a small Acid Pool (the standard object, 11.6). Domino upgrade: a blast sets off other mines in range, up to **3 mines** per chain.
+- **Limits:** the Nuclear Nappy upgrade (every 6th mine, 3× radius and 6× damage) stays as its level-10 mastery and counts as one Burst; its Pool is the normal size.
+- **Start stats:** 34 damage, 0.7 s between mines, 5 per load, 2.4 s reload.
+
+### 15. Twin Telepathy (`twin`)
+- **Playstyle:** Spatial geometry and movement mastery. The beam between you and your twin turns movement and positioning into an attack.
+- **Is:** Static, Beam with the anchored-beam and sweep modifiers. Your twin mirrors you across an anchor on the crowd (range 520), and a beam (width 10) always joins the two of you.
+- **Signature:** swim to drag the beam through the crowd. Every enemy it touches is Charged, and Charged enemies on the beam pass arcs on (3 jumps, 70% falloff), so a crowded lane lights up.
+- **Limits:** the twin is not a pet: it can't be hit and only carries the beam. Each enemy is hit at most every 0.1 s.
+- **Start stats:** 24 damage, 1.6 s cooldown, 3 per load.
+
+### 16. Static Cling (`tesla`)
+- **Playstyle:** Chain reactions and weapon-to-weapon synergy. Chains electricity through enemies and lets other weapons exploit Charged targets.
+- **Is:** Static, Projectile with the chaining modifier (3 jumps, range 140).
+- **Signature:** every enemy it hits is Charged. Your **other** weapons' hits on a Charged enemy arc too (the old "powers every other weapon"), within the usual 3-jump limit.
+- **Limits:** an arc never starts another arc on the same target; jump falloff is 70% (11.5).
+- **Start stats:** 13 damage, 0.7 s cooldown, 6 per load.
+
+### 17. Sticky Situation (`redtape`, was "Red Tape")
+- **Playstyle:** Exploiting relationships and concentrating damage. Links enemies so damage to one is shared with the others.
+- **Is:** Mucus, Projectile. Stamps a target and tapes it to up to 3 neighbours within 170 for 5 s.
+- **Signature:** damage to one of the bundle is shared with the rest (35%). Being taped counts as Conjoined: the bundle cannot move apart.
+- **Limits:** the shared 35% is echo damage (12.1): it never fills bars, sets off reactions or shares on again.
+- **Start stats:** 18 damage, 1.4 s cooldown, 3 per load.
+
+### 18. Blowing Bubbles (`bubble`, was "Bubble Wand")
+- **Playstyle:** Incapacitation and tactical detonation. Traps small enemies in bubbles that burst when touched.
+- **Is:** Mucus, Projectile (slow bubbles).
+- **Signature:** a bubble traps a small enemy (up to 34 max health): it is fully Snared and cannot attack. Anything touching the bubble (you, an enemy, a shot) pops it, and the pop is a small Burst that hits everything near except the trapped one.
+- **Limits:** never traps elites or bosses; a trap lasts 5 s at most.
+- **Start stats:** 18 damage, 1.1 s cooldown, 4 per load.
+
+### 19. Due Date (`duedate`)
+- **Playstyle:** Sustained focus and delayed damage payoff. Marks a tough enemy and returns a portion of the damage it took when the countdown ends.
+- **Is:** Blood, Projectile. Sticks a 4 s countdown on a big target (it prefers TOUGHEST).
+- **Signature:** when the countdown ends, the target takes 40% of everything it took while marked, all over again. If it dies early, the stored damage bursts onto enemies nearby.
+- **Limits:** the repeat is echo damage (12.1). One Due Date per target.
+- **Start stats:** 20 damage, 0.9 s cooldown, 3 per load.
+
+### 20. Seeker Siblings (`seeker`)
+- **Playstyle:** Autonomous targeting and kill-chain escalation. Homing shots target enemies and split after a sibling scores a kill.
+- **Is:** Blood, Projectile with the homing and multiplying modifiers. Two homing siblings per shot (turn rate 5).
+- **Signature:** they never miss (Evasion still applies), and a sibling that kills splits into two smaller siblings (50% damage) that home on the next targets. Their hits Bleed.
+- **Limits:** split siblings never split again; at most 12 siblings in flight.
+- **Description:** "Tiny homing siblings who swim for you and never miss. Family is complicated."
+- **Start stats:** 9 damage, 0.45 s cooldown, 6 per load.
+
+### 21. Peekaboo (`peekaboo`)
+- **Playstyle:** Deception and crowd manipulation. Disappears, manipulates enemy pursuit, then reveals itself and applies Fear.
+- **Is:** Soul, Burst. Every 5.5 s you vanish for 1.8 s, then BOO (radius 230).
+- **Signature:** while you're hidden, enemies lose you and swarm your last spot; their shots there can hit each other. The BOO applies **Fear** to everything in range and hits harder the more enemies were searching for you.
+- **Limits:** player hiding rule (12.4). Fear lasts 2 s. BOO damage bonus is capped at +100% (from 10 searching enemies).
+- **Start stats:** 20 damage, 5.5 s cooldown, hidden 1.8 s.
+
+### 22. Tooth Fairy (`toothfairy`)
+- **Playstyle:** Prediction, baiting and delayed payoff. Baits enemies with teeth and punishes them when they approach.
+- **Is:** Soul, Burst (the smite).
+- **Signature:** drops baby teeth near the crowd. Greedy enemies within 230 swim off to grab one; the Fairy smites whoever takes it, harder for every tooth it holds.
+- **Limits:** lures rule (12.6): at most 3 teeth on the ground; each lasts 6 s. Bosses ignore teeth.
+- **Start stats:** 34 damage, 1.1 s cooldown, 3 per load.
+
+### 23. Tapeworm Seeder (`parasite`)
+- **Playstyle:** Army building and self-reinforcing combat. Turns infected enemies into allied fighters after death.
+- **Is:** Soul, Projectile. Fast shots infect (8 s).
+- **Signature:** an infected enemy that dies rises as an undead ally for a few seconds and fights for you. Possessed after death: the purest Soul weapon.
+- **Limits:** pets rule (12.3); at most **4 undead** at once; each lasts 6 s.
+- **Start stats:** 12 damage, 0.4 s between shots, 8 per load.
+
+### 24. The Runs (`wake`, was "Pub Crawl", shipped as "Skid Mark")
+- **Playstyle:** Weaponised movement and pursuit manipulation. Leaves a burning trail behind the sperm.
+- **Is:** Fire, Pool laid as a trail. No aiming: you shed a boozy trail wherever you swim. Alcohol burns.
+- **Signature:** the trail (Skid Mark's shipped trail, now Fire) burns whatever wades through it, filling its Burn bar. Swim circles round a crowd to set the whole thing alight.
+- **Limits:** trail pieces count towards the 40-object cap; the oldest piece goes first. Mucus (Snared) puts burning enemies out, as usual.
+- **Start stats:** 20 damage, each piece lasts 2.2 s, width 22.
 
 ## 4. Why these 24 together
 
@@ -137,7 +219,7 @@ Playstyle, as set by the user on 18 Oct 2026. Type, attack type and mechanics: `
 
 1. **Name clash: Sticky Situation.** The Static + Mucus reaction in the matrix is also called Sticky Situation (and `combos.js` has a Weapon Combo of that name). On 17 Oct the weapon of that name (a Mucus Pool) was renamed Snot Trap to avoid this. Recommendation: keep the weapon name, rename the reaction (matrix section 1, decision log, `combos.js`).
 2. **Four renames I inferred from your descriptions:** Meat Missile = Lard Lobber (knocked enemies bowl into mates), Sticky Situation = Red Tape (shared damage), Blowing Bubbles = Bubble Wand, The Runs = Pub Crawl. If any is wrong, say which.
-3. **Sample starting weapons break for 3 samples** (`WEAPONS.md` section 4, each starts with a matrix weapon that is now archived). Recommendation: The Late Starter starts with Red Needle (Blood Projectile instead of Contact); The Unaccounted starts with Ghost Load (Soul Projectile instead of Burst); The Unsolicited (Fire, was Cinderblast Spread) starts with Hot Mess (Fire Pool). The Other Half's rotation loses Flame Jet and Wraith Ray; its Fire and Soul slots become Hot Mess and Ghost Load. Each changes the sample's starting attack type in `SAMPLES.md`.
+3. **Sample starting weapons break for 3 samples** (`archive/WEAPONS.md` section 4, each starts with a matrix weapon that is now archived). Recommendation: The Late Starter starts with Red Needle (Blood Projectile instead of Contact); The Unaccounted starts with Ghost Load (Soul Projectile instead of Burst); The Unsolicited (Fire, was Cinderblast Spread) starts with Hot Mess (Fire Pool). The Other Half's rotation loses Flame Jet and Wraith Ray; its Fire and Soul slots become Hot Mess and Ghost Load. Each changes the sample's starting attack type in `SAMPLES.md`.
 4. **Thin attack types.** Contact (Nutcracker) and Spread (Spray Gun) have one weapon each, and Fire has only Pool weapons. Recommendation: accept for now; the next additions should be a Fire Projectile or Spread and a second Contact.
 5. **The 5 Fire drafts are archived** (Heartburn, Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation). Any enemy or reaction design that assumed a Fire Beam, Contact or Burst weapon should be re-checked.
 
@@ -152,7 +234,7 @@ About one session. The v10 prototype is on this branch (`v10.js`, `sigweap.js`).
 
 ## 7. Archived weapons (72)
 
-Kept in the docs and the code; not in the game. Full text in `WEAPONS.md`.
+Kept in the docs and the code; not in the game. Full text in `archive/WEAPONS.md`.
 
 **Matrix (32):** M5 Hard Press, M6 Pressure Drop, M7 Corrosive Bite, M9 Sour Spray, M10 Caustic Reaction, M11 Dissolving Relationship, M12 Acid Reflux, M13 Shock Jab, M14 Zap Seed, M15 Forked Tongue, M16 Power Surge, M18 Live Wire, M19 Snot Knuckle, M20 Gobstopper, M21 Snotgun, M22 Gunk Bomb, M23 Snot Stream, M25 Bloodletter, M27 Bloodshot, M28 Bloodbath, M29 Bloodline, M30 Blood Pool, M31 Spirit Slap, M33 Soul Scatter, M34 Soul Purpose, M35 Wraith Ray, M36 Haunted Ground, M37 Hot Touch, M38 Hot Shot, M39 Cinderblast, M40 Firecracker, M41 Flame Jet.
 

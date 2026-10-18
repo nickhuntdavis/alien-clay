@@ -1,3 +1,5 @@
+> **Archived 18 Oct 2026. Not in use.** Superseded by `../BASE_WEAPONS.md`. Kept for reference only.
+
 # Weapons (all of them)
 
 **18 Oct 2026: only 24 weapons are live (10 foundations, 14 signatures); the rest are archived. See `BASE_WEAPONS.md`.**

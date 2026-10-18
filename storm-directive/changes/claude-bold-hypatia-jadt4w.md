@@ -1,6 +1,6 @@
 ## 2026-10-18 Base weapons roster (docs only)
 - Systems: weapons (docs only, redesign docs)
-- Files: redesign docs/BASE_WEAPONS.md (new), WEAPONS.md, README.md
+- Files: redesign docs/BASE_WEAPONS.md (new, now self-contained), WEAPONS.md and SIGNATURE_WEAPONS.md (moved to archive/), README.md, CLAUDE.md, COMBAT_MATRIX.md, SAMPLES.md
 - What: records the 24-weapon roster (10 foundations with animation specs, 14 signatures) and archives the other 72; lists the open naming and sample-start issues.
 - Save data: none.
 - Hooks: none.
