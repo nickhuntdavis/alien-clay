@@ -1,5 +1,7 @@
 # Weapons (all of them)
 
+**18 Oct 2026: only 24 weapons are live (10 foundations, 14 signatures); the rest are archived. See `BASE_WEAPONS.md`.**
+
 Every weapon in the redesign, in one place, 17 Oct 2026. Three groups, plus which weapon each sample starts with (section 4):
 
 1. **Matrix weapons (42):** the v10 baseline, one per attack type × damage type. Source: `V10_NAMES` in `storm-directive/web/js/v10.js` on branch `claude/zealous-clarke-i26iot` (not yet on `main`). Descriptions are the in-game text.
