@@ -220,10 +220,12 @@ function targetScore(dir, e, d2) {
     case 'shooters': return aimShootTier(e) * 1e9 - d2;
     case 'random': return Math.random();
     case 'revenge': return (e === G.grudge ? 1e12 : 0) - d2;
+    case 'ownmess': return aimOwnScore(e, d2); // (MY OWN MESS: aimat.js)
   }
   return -d2;
 }
 function acquire(dir, range, x, y, exclude) {
+  if (dir.includes('ownmess')) dir = aimOwnSet(dir, x, y, range); // (MY OWN MESS: aimat.js)
   // Once the egg is yours to break, half of all target picks in range go to it, whatever the directive.
   const egg = G.eggE;
   if (egg && !egg.dead && egg.woke && eggBreakable() && egg !== exclude && Math.random() < 0.5 && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg;
@@ -239,6 +241,7 @@ function acquire(dir, range, x, y, exclude) {
   return best;
 }
 function acquireMany(dir, range, x, y, n) {
+  if (dir.includes('ownmess')) dir = aimOwnSet(dir, x, y, range); // (MY OWN MESS: aimat.js)
   const r2 = range * range, list = [];
   for (const e of G.enemies) {
     if (e.dead || e.phased || e.charmed || (e.egg && !(e.woke && eggBreakable()))) continue;
@@ -1694,6 +1697,7 @@ function weaponSrc(w) {
 }
 
 function updateWeapon(w, dt) {
+  AIMAT.w = w; // (MY OWN MESS: aimat.js)
   const s = w.s, d = w.def;
   const rage = G.rage > 0;
   if (d.kind === 'orbit') { updateOrbit(w, dt); return; }
@@ -2233,7 +2237,7 @@ function updateSpellList(list, dt) {
     if (w.cd > 0) continue;
     if (G.inCilia && !w.echo && featCost(w)) { w.cd = 0; continue; } // (tangled in cilia: no attacking Feats)
     if (featWaits(w) && !w.echo) { w.cd = 0; continue; } // (Settings > Feat timing, or the Feat's own in the Loadout: loadout.js)
-    let target = null;
+    let target = null; AIMAT.w = w; // (MY OWN MESS: aimat.js)
     if (!w.def.noTarget) {
       target = acquire(aimDir(w), w.s.range, G.player.x, G.player.y);
       if (!target) { w.cd = 0; continue; }
@@ -2259,7 +2263,7 @@ function featTap(w) {
   if (w.cd > 0) { say(`${w.def.name.toUpperCase()}: ${Math.ceil(w.cd)}s`); return false; }
   if (G.inCilia && featCost(w)) { say('TANGLED IN CILIA'); return false; }
   if (w.def.passive) { say(w.def.name.toUpperCase() + ' PERFORMS ITSELF'); return false; } // (Anhydrobiosis: newfeats.js)
-  let target = null;
+  let target = null; AIMAT.w = w; // (MY OWN MESS: aimat.js)
   if (!w.def.noTarget) { target = acquire(aimDir(w), w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
   if (w.def.f10 && f10Wait(w)) { say('NOTHING IN RANGE'); return false; } // (feats10.js)
   if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }

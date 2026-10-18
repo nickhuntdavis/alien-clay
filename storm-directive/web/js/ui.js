@@ -493,6 +493,7 @@ const UI = {
       }
       h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
       if (!w.dirs) h += `<h3 style="margin-top:10px">Then (breaks ties, and takes over when nothing fits)</h3><div class="chips">${[{ id: '', short: 'NONE' }].concat(DIRECTIVES.filter(dd => dd.id !== w.dir)).map(dd => `<button class="chip ${(w.dir2 || '') === dd.id ? 'sel' : ''}" data-dir3="${dd.id}">${dd.short}</button>`).join('')}</div>`;
+      h += aimOwnPick(w, cur, w.dirs ? null : w.dir2); // (MY OWN MESS: aimat.js)
     }
     h += `</div>`;
     // How it plays.
@@ -614,6 +615,7 @@ const UI = {
     }
     body.innerHTML = h;
     body.querySelectorAll('[data-bar]').forEach(b => b.addEventListener('click', () => { A.bar = +b.dataset.bar; UI.renderArmoury(); }));
+    aimOwnBind(body, () => { const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; }); // (aimat.js)
     body.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       if (w.dirs) { w.dirs[A.bar] = b.dataset.dir; if (A.bar === 0) w.dir = b.dataset.dir; } else w.dir = b.dataset.dir;
       if (w.dir2 === w.dir) w.dir2 = null;

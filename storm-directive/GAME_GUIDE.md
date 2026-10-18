@@ -1049,6 +1049,7 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 | **SHOOTERS FIRST** | Shooters, then healers, then summoners. Otherwise nearest. |
 | **REVENGE** | Whatever hurt you last. Otherwise nearest. |
 | **RANDOM** | Chaos. Picks a new victim every second or so. The lab loves it. |
+| **MY OWN MESS** | Whatever is nearest your own mess: a black hole, a puddle, a pet. You choose whose mess. |
 
 Each weapon and Feat also takes an optional second directive (THEN). When two enemies are near-level on the first (within 40 units of distance, within 5% of health or speed, or the same rank), the second decides; when nothing fits the first (ELITES & BOSSES with no elite about), every enemy is level, so the second takes over. RANDOM keeps a victim for about 1.5 seconds; FURTHEST and DENSEST CLUSTER keep theirs unless a new one is 15% better.
 

@@ -1,3 +1,11 @@
+## 2026-10-18 MY OWN MESS targeting (v10.20)
+- Systems: autorun (autoaim), weapons, ui
+- Files: aimat.js (new), game.js, autorun.js, ui.js, loadout.js, index.html, tests/aimowntest.js (new), run.sh, tools/guide.js
+- What: new targeting directive MY OWN MESS (short MESS, id `ownmess`): a weapon or Feat shoots the enemy nearest another of your weapons' stuff (black hole, puddle, a lob's landing spot, pets, orbit blades, turrets, Feat effects). Pick whose mess (ANY MESS = your biggest thing in range, a named weapon or Feat, or itself) on the weapon page or in the LOADOUT target grid. Works as the primary or the tie-breaker. No mess about: nearest.
+- Save data: none (`w.aimAt` lives on the run's weapon slot).
+- Hooks: game.js targetScore case 'ownmess' -> aimOwnScore; acquire/acquireMany -> aimOwnSet; updateWeapon, updateSpellList, featTap -> AIMAT.w = w; autorun.js aimKey case 'ownmess' -> aimOwnKey; ui.js armoury targeting and loadout.js target grid -> aimOwnPick/aimOwnBind. DIRECTIVES gets its entry by push from aimat.js.
+- Risk: the id must stay longer than 3 letters (targetScore only reads strings over 9 characters as pairs). Homing retargets and turrets using it borrow the last-fired weapon's aim point. Echo copies aim at ANY MESS.
+
 ## 2026-10-18 Sandbox HUD: kills, kills a second, DPS (v10.19)
 - Systems: sandbox
 - Files: sandbox.js
