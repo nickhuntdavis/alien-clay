@@ -3,7 +3,7 @@
 Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped behaviour. Agents: read `CLAUDE.md` in this folder first.
 
 - `BASE_WEAPONS.md`: the weapon source of truth: 24 live weapons (10 foundations with animation specs, 14 signatures) and the 72 archived. `archive/WEAPONS.md` and `archive/SIGNATURE_WEAPONS.md` are the old catalogues, not in use.
-- `WEAPON_UPGRADES.md`: the first upgrade branch for all 24 weapons: three promises at Lv 3, each growing at Lv 6 and Lv 10 (216 upgrades), with trade-offs, what each shows in combat and which autorun modes suit it.
+- `WEAPON_UPGRADES.md`: the first upgrade branch for all 24 weapons: three promises at Lv 3, two cards per promise at Lv 6, three extreme masteries at Lv 10 (288 cards), with trade-offs, what each shows in combat and which autorun modes suit it.
 - `COMBAT_MATRIX.md`: **the only place combat rules and statuses live** (21 reactions, type rules, defence rules, statuses, world objects, role counterplay, attack-type rules). Section 10 lists the 32 reconciliation decisions of 17 Oct, section 11 the formulas and starting values, section 12 the signature weapon rules, section 14 where every topic lives. If another doc disagrees, the matrix wins.
 - `DAMAGE_TYPES.md`: the seven types, one page each: identity, visual language, strengths and weaknesses. Rules: the matrix.
 - `DEFENCE_TYPES.md`: the five defences (Squishy, Membrane, Shell, Thorns, Evasion; Evasion was called Dodge), one page each: identity, look, what beats it. No other defences or traits. Rules: the matrix.

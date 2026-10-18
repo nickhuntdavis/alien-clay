@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon upgrades: choices at Lv 6 and 10 (docs only)
+- Systems: weapons, upgrades (docs only, redesign docs)
+- Files: WEAPON_UPGRADES.md, UPGRADES.md, README.md, CLAUDE.md
+- What: Lv 6 is now a two-card choice inside the chosen promise; Lv 10 is three extreme masteries per weapon (72 new cards). 288 cards in all.
+- Save data: none.
+- Hooks: none.
+- Risk: none (no code). Five masteries break shared caps on purpose (listed in the doc).
+
 ## 2026-10-18 Weapon upgrades second draft; Nappy Mines is Fire (docs only)
 - Systems: weapons, upgrades (docs only, redesign docs)
 - Files: WEAPON_UPGRADES.md (rewritten), BASE_WEAPONS.md, UPGRADES.md, README.md, CLAUDE.md
