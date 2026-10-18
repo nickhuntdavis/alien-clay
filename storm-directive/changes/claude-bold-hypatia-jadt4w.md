@@ -1,3 +1,11 @@
+## 2026-10-18 Every level-up and DNA pick opens at once (v10.11)
+- Systems: draft
+- Files: draft.js, tests/drafttest.js
+- What: the 40 s spacing between draft screens is gone (`DRAFT.budget` 0): level-ups and DNA pickups open their card screen immediately.
+- Save data: none.
+- Hooks: none.
+- Risk: more card screens close together; faster power growth.
+
 ## 2026-10-18 Fix: the game froze at the second level-up (v10.10)
 - Systems: draft, core loop
 - Files: game.js

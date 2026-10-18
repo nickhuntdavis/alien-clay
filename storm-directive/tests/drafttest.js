@@ -1,5 +1,5 @@
 // v10 draft core (draft.js): one draft for everything, forks at weapon Lv 3/6/10 and Feat level 3/5, Genome slots
-// shared by mutations and defences, the 40 s budget outside wave mode, banished cards never offered.
+// shared by mutations and defences, every draft opening at once (no spacing), banished cards never offered.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -42,7 +42,7 @@ const { chromium } = require('playwright');
     if (seen.has('tcard')) bad.push('banished card offered');
     // Budget outside wave mode
     G.draftT = null; const a1 = draftBox({ kind: 'level' }), a2 = draftBox({ kind: 'level' }); G.t += 41; const a3 = draftBox({ kind: 'level' });
-    if (a1 !== true || a2 !== 'wait' || a3 !== true) bad.push('budget: ' + [a1, a2, a3]);
+    if (a1 !== true || a2 !== true || a3 !== true) bad.push('every draft opens at once: ' + [a1, a2, a3]);
     if (draftBox({ kind: 'fork', w, lv: 5 }) === 'wait') bad.push('fork held back by the budget');
     return { bad, out };
   });

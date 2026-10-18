@@ -13,7 +13,7 @@
 // Card shape: { id, kind: 'acquire'|'enhance'|'specialise', slot: 'feat'|'genome'|'weaponmut'|null, family, type,
 //   rarity, start, title, desc, icon, color, eligible(G), apply(G, target), rank(G), maxRank }.
 
-const DRAFT = { groupW: { feat: 1.3, mut: 1.3, spec: 0.5, def: 1.1 }, genome: 4, feats: 3, budget: 40, lean: { primary: 0.5, support: 0.25, other: 0.25 }, forkLv: [3, 6, 10], featForkLv: [3, 5] };
+const DRAFT = { groupW: { feat: 1.3, mut: 1.3, spec: 0.5, def: 1.1 }, genome: 4, feats: 3, budget: 0, lean: { primary: 0.5, support: 0.25, other: 0.25 }, forkLv: [3, 6, 10], featForkLv: [3, 5] };
 const CARDS = [];
 const FORKS = {};
 function draftRegister(c) { if (c && c.id && !CARDS.some(x => x.id === c.id)) CARDS.push(c); }
@@ -166,6 +166,6 @@ function draftBox(req) {
   if (!['level', 'chest', 'boss'].includes(req.kind)) return false;
   if (G.wave) { req.v10ok = true; return true; } // wave mode: every draft queues and plays at the wave break (waves.js waveHoldsLoot)
   if (req.v10ok) return true;
-  if (G.draftT != null && G.t - G.draftT < DRAFT.budget) return 'wait';
+  if (DRAFT.budget && G.draftT != null && G.t - G.draftT < DRAFT.budget) return 'wait'; // (budget 0: every level-up and DNA pick opens at once, user 18 Oct)
   G.draftT = G.t; req.v10ok = true; return true;
 }
