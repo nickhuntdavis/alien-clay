@@ -30,7 +30,7 @@ function sigReg(id, old, name, desc, elem, atk, over) {
   WEAPONS['s_' + id] = d; SIG_IDS.push('s_' + id);
   return d;
 }
-const v10Pool = () => v10Ids().concat(SIG_IDS);
+const v10Pool = () => (typeof W24_IDS !== 'undefined' ? W24_IDS : v10Ids().concat(SIG_IDS)); // (the 24: weapons24.js)
 
 // ---------------------------------------------------------------- the originals (re-typed)
 sigReg('orbit', 'orbit', 'Premature Evangelation', 'Guardian angels circle you and swat whatever comes close. Some eat bullets. They always start too soon.', 'soul', 'contact');

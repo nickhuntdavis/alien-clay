@@ -13,7 +13,7 @@
 // Card shape: { id, kind: 'acquire'|'enhance'|'specialise', slot: 'feat'|'genome'|'weaponmut'|null, family, type,
 //   rarity, start, title, desc, icon, color, eligible(G), apply(G, target), rank(G), maxRank }.
 
-const DRAFT = { groupW: { feat: 1.3, mut: 1.3, spec: 0.5, def: 1.1 }, genome: 4, feats: 3, budget: 40, lean: { primary: 0.5, support: 0.25, other: 0.25 }, forkLv: [5, 10], featForkLv: [3, 5] };
+const DRAFT = { groupW: { feat: 1.3, mut: 1.3, spec: 0.5, def: 1.1 }, genome: 4, feats: 3, budget: 40, lean: { primary: 0.5, support: 0.25, other: 0.25 }, forkLv: [3, 6, 10], featForkLv: [3, 5] };
 const CARDS = [];
 const FORKS = {};
 function draftRegister(c) { if (c && c.id && !CARDS.some(x => x.id === c.id)) CARDS.push(c); }
@@ -79,7 +79,8 @@ function draftCards(n) {
   draftAbsorb();
   const cand = [];
   for (const w of G.weapons) if (w && !w.isSpell && w.lvl < wCap(w) && !banished('weapon:' + w.id)) cand.push({ o: () => weaponUp(w), w: 1.4 * famK('weapon:' + w.id), fam: 'weapon:' + w.id });
-  if (typeof v10Switch === 'function' && !banished('switch')) { const sw = v10Switch(); if (sw.length) cand.push({ o: () => Object.assign(sw[0], { family: 'switch' }), w: 0.6 * famK('switch'), fam: 'switch' }); }
+  if (typeof v10Switch === 'function' && typeof W24 === 'undefined' && !banished('switch')) // (Switched at Birth retires with the matrix: weapons24.js)
+     { const sw = v10Switch(); if (sw.length) cand.push({ o: () => Object.assign(sw[0], { family: 'switch' }), w: 0.6 * famK('switch'), fam: 'switch' }); }
   if (typeof pdefOffer === 'function') {
     const keep = PDEF.slots; PDEF.slots = Math.max(0, DRAFT.genome - mutsHeld()); // defences share the Genome with mutations
     for (const o of pdefOffer(2)) if (!banished('def:' + o.defence)) cand.push({ o: () => Object.assign(o, { family: 'def', bkey: 'def:' + o.defence }), w: 0.8 * famK('def'), fam: 'def' });
@@ -115,6 +116,7 @@ function forkCards(req) {
   }
   const w = req.w;
   if (!w || !G.weapons.includes(w)) return [];
+  if (typeof wupForkCards === 'function') { const b = wupForkCards(req); if (b) return b; } // (the 24 weapons' branches: weapons24.js)
   const own = FORKS['weapon:' + w.id + '@' + req.lv];
   if (own) return own.slice(0, 2).map(o => ({ rarity: 3, tag: 'FORK', icon: 'F', color: w.def.color, title: o.title, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: o.desc, apply: () => { o.apply(G, w); recomputeAll(); } }));
   if (typeof modsFor !== 'function' || typeof MODS10 === 'undefined') return [];

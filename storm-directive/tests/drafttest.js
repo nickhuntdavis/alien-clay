@@ -1,4 +1,4 @@
-// v10 draft core (draft.js): one draft for everything, forks at weapon Lv 5/10 and Feat level 3/5, Genome slots
+// v10 draft core (draft.js): one draft for everything, forks at weapon Lv 3/6/10 and Feat level 3/5, Genome slots
 // shared by mutations and defences, the 40 s budget outside wave mode, banished cards never offered.
 const { chromium } = require('playwright');
 (async () => {
@@ -26,10 +26,10 @@ const { chromium } = require('playwright');
     if (!fq || fq.key !== 'feat:tfeat') bad.push('no Feat fork queued');
     else { const fc = genLoot(fq); if (fc.length !== 2) bad.push('Feat fork cards: ' + fc.length); else fc[0].apply(); }
     if (out.fork !== 'left') bad.push('Feat fork did not apply');
-    // Weapon fork at Lv 5
-    G.lootQueue = []; w.lvl = 4; weaponUp(w).apply();
+    // Weapon fork at Lv 3
+    G.lootQueue = []; w.lvl = 2; weaponUp(w).apply();
     const wq = G.lootQueue.find(q => q.kind === 'fork' && q.w === w);
-    if (w.lvl !== 5 || !wq) bad.push('no weapon fork at Lv 5 (lvl ' + w.lvl + ')');
+    if (w.lvl !== 3 || !wq) bad.push('no weapon fork at Lv 3 (lvl ' + w.lvl + ')');
     out.wfork = wq ? genLoot(wq).map(o => o.title) : [];
     if (wq) { UI.openLoot(wq); if (G.state !== 'loot' || !$('lootTitle').textContent.includes('FORK')) bad.push('fork screen: ' + G.state + ' ' + $('lootTitle').textContent); UI.pickLoot(0); }
     // Genome: 4 slots shared with defences

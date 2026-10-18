@@ -355,6 +355,7 @@ function computeStatsInner(w) {
   applyPerks(w, s);
   genesAdapt(w, s);
   if (V10) mutWeaponStats(w, s); // (mutation cards: mutations.js)
+  if (V10) wupStats(w, s); // (weapon branches: weapons24.js)
   // Extra projectiles (Split Personality, Plus One, Twins!, Octuplets) share the damage, and add half what they
   // used to: 3 extra shots on a one-shot weapon give about 1.65x damage in all (it was 2.3x).
   const n1 = baseCount + extraMulti + s.perkCount;
@@ -972,6 +973,7 @@ function killEnemy(e, src) {
   e.dead = true;
   if (V10) fightDeath(e, src); // (a Charged enemy discharges: fight.js)
   if (V10) mutKill(e, src); // (mutation cards: mutations.js)
+  if (V10) wupKill(e, src); // (weapon branches: weapons24.js)
   if (V10) f10Kill(e, src); // (v10 Feats that watch kills: feats10.js)
   if (V10) nf10Kill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)
   if (e.dummy) dummyBurst(e); // (Dummy Spit)
@@ -1746,6 +1748,7 @@ function fireWeapon(w, target) {
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
   if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
   if (d.armoury && armFire(w, target, src)) return; // (the Armoury's weapons, armoury.js)
+  if (V10 && w.uh && wupFire(w, target, src)) return; // (weapon branches: weapons24.js)
   if (d.v10 && w.m10 && modFire(w, target, src)) return; // (v10 modifiers, modifiers.js)
   if (V10) mutFire(w, target, src); // (Everywhere!: mutations.js)
   if (d.v10 && v10Fire(w, target, src)) return; // (v10 beams and bursts, v10.js)

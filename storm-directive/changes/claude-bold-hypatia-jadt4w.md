@@ -400,3 +400,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-18 The 24 weapons and the branch engine (weapons24.js)
+- Systems: weapons, draft, weapons24 (new)
+- Files: weapons24.js (new), sigweap.js, draft.js, game.js, fight.js, v10.js, index.html, tests/weapons24test.js (new), tests/drafttest.js, tests/run.sh
+- What: the game offers only the 24 weapons of BASE_WEAPONS.md (10 foundations, 14 signatures), renamed (Standard Issue, Red Flagship, Family Ties, Skill Issue, There Is No Spoon, Ewww Gross, Sister Cousin, Eggs, Chest Burster, The Runs...) and re-typed (Nappy Mines Fire); every other weapon is archived (Lab Bench only). Switched at Birth retires. Weapon forks move to Lv 3 (pick one of three promises), Lv 6 (the promise's two cards plus its wildcard) and Lv 10 (one of three masteries); the cards come in wup1.js...wup6.js. Rubbed the Wrong Way is archived, so Shocking Impact has no weapon again.
+- Save data: none.
+- Hooks: game.js computeStatsInner -> wupStats, fireWeapon -> wupFire, killEnemy -> wupKill; fight.js fightHit -> wupDmgMul, wupHit; v10.js v10Tick -> wupTick; draft.js forkCards -> wupForkCards; sigweap.js v10Pool -> W24_IDS.
+- Risk: until the card files land, Lv 3/6/10 fall back to modifier forks.

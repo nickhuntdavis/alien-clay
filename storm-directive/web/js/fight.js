@@ -71,6 +71,7 @@ function fightHit(e, d, src, crit) {
   if (t === 'static' && charged(e)) d *= 1.2;
   if (typeof s10DmgMul === 'function') d *= s10DmgMul(e, src); // (sample passives: samples10.js)
   d *= mutDmg(e, src, t); // (mutation cards: mutations.js)
+  d *= wupDmgMul(e, src); // (weapon branches: weapons24.js)
   const atk = src.zoneHit ? 'pool' : IN_AOE ? 'burst' : src.atk || (src.w && src.w.def && src.w.def.v10atk) || 'proj';
   COMBAT.critMult = G.P.critDmg || 1.6;
   cd.hp = e.hp;
@@ -87,6 +88,7 @@ function fightHit(e, d, src, crit) {
   if (res.thorns > 0 && !src.rx) { S.thorns += res.thorns; hurtPlayer(res.thorns, 'Thorns', e, 'thorns'); }
   e.fOk = res.statusOk;
   if (typeof s10Hit === 'function') s10Hit(e, src, res, t);
+  wupHit(e, res, src); // (weapon branches: weapons24.js)
   if (src.rx) S.dmg.reaction += res.toHp; else S.dmg.weapon += res.toHp;
   if (!src.rx && !src.echo) fightReact(e, t, res.raw, src, res);
   mutHit(e, d, src, t, res);

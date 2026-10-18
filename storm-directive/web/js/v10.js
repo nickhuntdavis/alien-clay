@@ -180,6 +180,7 @@ function v10Burn(e, dmg, src) {
 function v10Tick(dt) {
   if (!V10 || !G) return;
   fightTick(dt); // (defences, charged patches: fight.js)
+  wupTick(dt); // (weapon branches: weapons24.js)
   if (typeof vxTick === 'function') vxTick(dt); // (the two voices: voice10.js)
   if (typeof s10Tick === 'function') s10Tick(dt); // (sample passives and unlocks: samples10.js)
   mutTick(dt); // (mutation cards: mutations.js)
