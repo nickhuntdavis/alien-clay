@@ -136,7 +136,7 @@ const UI = {
   // starting weapon. No sample screen, no sequence screen, no microscope dive, no weapon draft. Your chosen
   // sequence for normal runs is left as it was.
   quickStart() {
-    const keep = META.profile, seqs = V10 ? ['human1'] : Object.keys(PROFILES).filter(id => profUnlocked(id));
+    const keep = META.profile, seqs = V10 ? ['s10_baseline'] : Object.keys(PROFILES).filter(id => profUnlocked(id));
     META.profile = pick(seqs.length ? seqs : ['vanguard']);
     UI.sample = V10 ? 's002' : 's001'; // (v10: Human Sample 1 in the dish)
     UI.startGame(false);
@@ -978,6 +978,7 @@ const UI = {
         UI.pickLoot(i);
       });
       phButtons(c, o);
+      if (V10) draftBanishBtns(c, o); // (Banish and Fewer like this: draft.js)
       wrap.appendChild(c);
     });
     if (UI.lootReq && UI.lootReq.rule === 'recycler' && UI.lootOpts.some(o => o.locked)) wrap.appendChild(weirdRecycleList(UI.lootReq));

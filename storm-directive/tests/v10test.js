@@ -8,20 +8,23 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
   await page.evaluate(() => { localStorage.removeItem('sd_dev'); window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   await page.click('#playBtn'); await page.waitForTimeout(300);
-  const cards = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-v10]')].map(b => b.textContent));
+  const cards = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-s10]')].map(b => b.textContent));
   await page.screenshot({ path: 'v10_samples.png' });
   const bad = [];
-  if (cards.length !== 2 || !/Wave Mode/.test(cards[0]) || !/Regular Mode/.test(cards[1])) bad.push('samples screen: ' + JSON.stringify(cards));
-  await page.click('#sampleList [data-v10]'); await page.waitForTimeout(600);
+  if (cards.length !== 8 || !/The Baseline/.test(cards[0])) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples: samples10.js)
+  await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
+  const modes = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-mode]')].map(b => b.dataset.mode));
+  if (modes.join() !== 's002,s001') bad.push('experiments: ' + modes);
+  await page.click('#sampleList [data-mode="s002"]'); await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     out.seq = G.genes.primary; out.sample = UI.sample; out.mode = !!G.wave;
-    if (out.seq !== 'human1' || out.sample !== 's002' || !G.wave) bad.push('run: ' + JSON.stringify(out));
+    if (out.seq !== 's10_baseline' || out.sample !== 's002' || !G.wave) bad.push('run: ' + JSON.stringify(out));
     const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10 && !WEAPONS[id].sig);
     if (ids.length !== 42) bad.push('weapons: ' + ids.length);
     const st = genLoot({ kind: 'start' });
-    if (st.length !== 4 || st.some(o => !o.def.v10)) bad.push('start draft: ' + st.map(o => o.title));
-    { let s2 = st; while (s2.every(o => o.def.sig)) s2 = genLoot({ kind: 'start' }); s2.find(o => !o.def.sig).apply(); } // (a signature starter has no Switched at Birth card)
+    if (st.length !== 1 || st[0].def !== WEAPONS.v_phys_proj) bad.push('start: ' + st.map(o => o.title)); // (the Baseline starts with Knuckle Dragger)
+    st[0].apply();
     const w0 = G.weapons.find(Boolean);
     const lv = genLoot({ kind: 'level' });
     if (lv.length !== 3) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title)); // (one draft: draft.js)

@@ -8,7 +8,8 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
   await page.evaluate(() => { localStorage.removeItem('sd_dev'); window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   await page.click('#playBtn'); await page.waitForTimeout(300);
-  await page.click('#sampleList [data-v10]'); await page.waitForTimeout(600);
+  await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
+  await page.click('#sampleList [data-mode="s002"]'); await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
     const bad = [], rows = [];
     const def = ENEMIES.chaser || Object.values(ENEMIES)[0];
@@ -25,8 +26,10 @@ const { chromium } = require('playwright');
     if (sigs.length !== 27) bad.push('signature weapons: ' + sigs.length);
     for (const id of sigs) { const d = WEAPONS[id]; if (!d.v10 || !d.v10atk || !d.v10type || !ELEMENTS[d.v10type]) bad.push(id + ': not typed'); if (/element|\bcast\b/i.test(d.desc)) bad.push(id + ': banned word'); }
     // draft pool
-    let seen = 0; for (let i = 0; i < 40; i++) seen += genLoot({ kind: 'start' }).filter(o => o.def.sig).length;
-    if (!seen) bad.push('start draft never offers a signature weapon');
+    if (v10Pool().length !== 42 + sigs.length) bad.push('draft pool size ' + v10Pool().length);
+    fresh(); genLoot({ kind: 'start' })[0].apply();
+    let seen = 0; for (let i = 0; i < 60; i++) seen += genLoot({ kind: 'slot' }).filter(o => o.def.sig).length;
+    if (!seen) bad.push('slot draft never offers a signature weapon');
     fresh();
     const sl = genLoot({ kind: 'start' })[0]; sl.apply();
     const sl2 = genLoot({ kind: 'slot' }); const have = G.weapons.find(Boolean).def.v10atk;

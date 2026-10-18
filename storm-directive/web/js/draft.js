@@ -78,11 +78,11 @@ function weaponUp(w) {
 function draftCards(n) {
   draftAbsorb();
   const cand = [];
-  for (const w of G.weapons) if (w && !w.isSpell && w.lvl < wCap(w)) cand.push({ o: () => weaponUp(w), w: 1.4, fam: 'weapon:' + w.id });
-  if (typeof v10Switch === 'function') { const sw = v10Switch(); if (sw.length) cand.push({ o: () => sw[0], w: 0.6, fam: 'switch' }); }
+  for (const w of G.weapons) if (w && !w.isSpell && w.lvl < wCap(w) && !banished('weapon:' + w.id)) cand.push({ o: () => weaponUp(w), w: 1.4 * famK('weapon:' + w.id), fam: 'weapon:' + w.id });
+  if (typeof v10Switch === 'function' && !banished('switch')) { const sw = v10Switch(); if (sw.length) cand.push({ o: () => Object.assign(sw[0], { family: 'switch' }), w: 0.6 * famK('switch'), fam: 'switch' }); }
   if (typeof pdefOffer === 'function') {
     const keep = PDEF.slots; PDEF.slots = Math.max(0, DRAFT.genome - mutsHeld()); // defences share the Genome with mutations
-    for (const o of pdefOffer(2)) cand.push({ o: () => o, w: 0.8, fam: 'def' });
+    for (const o of pdefOffer(2)) if (!banished('def:' + o.defence)) cand.push({ o: () => Object.assign(o, { family: 'def', bkey: 'def:' + o.defence }), w: 0.8 * famK('def'), fam: 'def' });
     PDEF.slots = keep;
   }
   for (const c of CARDS) if (!banished(c.id) && cardOk(c)) cand.push({ o: () => cardOpt(c), w: leanW(c.type) * famK(c.family) * (c.start ? 1 : 0.6), fam: c.family || c.id });
@@ -111,6 +111,28 @@ function forkCards(req) {
   if (typeof modsFor !== 'function' || typeof MODS10 === 'undefined') return [];
   return shuffle(modsFor(w)).slice(0, 2).map(id => ({ rarity: 3, tag: 'FORK', icon: 'F', color: w.def.color, title: MODS10[id].name, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: MODS10[id].desc,
     apply: () => { modAdd(w, id); computeStats(w); } }));
+}
+
+// ---------------------------------------------------------------- Banish (UPGRADES.md 8): two small buttons on each draft card
+// Remove (2 rerolls): this card and its upgrade line never come back this run. Fewer like this (1 reroll): its family
+// turns up about half as often. Never a whole category to zero. Then the screen redraws (the cost is the reroll).
+function draftBanishBtns(c, o) {
+  if (!G || !UI.lootReq || !['level', 'chest', 'boss'].includes(UI.lootReq.kind)) return;
+  const key = o.card || o.bkey || o.family, fam = o.family || key;
+  if (!key) return;
+  const mk = (cls, txt, label, cost, fn) => {
+    const b = document.createElement('span'); b.className = 'phb ' + cls + (G.rerolls < cost ? ' full' : ''); b.textContent = txt; b.setAttribute('role', 'button'); b.title = label;
+    for (const ev of ['pointerdown', 'pointerup', 'click']) b.addEventListener(ev, e => e.stopPropagation());
+    b.addEventListener('click', e => {
+      e.preventDefault();
+      if (!$('lootCards').classList.contains('ready') || G.rerolls < cost) return;
+      G.rerolls -= cost; fn();
+      UI.lootOpts = UI.sortLoot(genLoot(UI.lootReq)); UI.renderLootCards(); UI.updateReroll();
+    });
+    c.appendChild(b);
+  };
+  mk('pin', '½', 'Fewer like this (1 reroll)', 1, () => { (G.fewer || (G.fewer = {}))[fam] = true; });
+  mk('hide', '✕', 'Banish: never this run (2 rerolls)', 2, () => { (G.banish || (G.banish = {}))[key] = true; });
 }
 
 // ---------------------------------------------------------------- hooks

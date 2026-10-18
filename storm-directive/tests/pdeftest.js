@@ -64,7 +64,7 @@ const { chromium } = require('playwright');
     if (shooter.hp < hpS) bad.push('Thorns hit a shooter');
     if (!(G.fst.pThorns > 0)) bad.push('pThorns stat');
     // Level-up offer: Switched at Birth + 2 different defence cards; maxed ones are not offered.
-    fresh(); { let st; do st = genLoot({ kind: 'start' }); while (st.every(o => o.def.sig)); st.find(o => !o.def.sig).apply(); } // (a signature starter has no Switched at Birth card, so the draft is a card short)
+    fresh(); genLoot({ kind: 'start' })[0].apply();
     let withDef = 0;
     for (let i = 0; i < 30; i++) { // (one shared draft now: draft.js; defence cards are one family among several)
       const lv = genLoot({ kind: 'level' }), defs = lv.filter(o => o.tag === 'DEFENCE');
@@ -77,12 +77,24 @@ const { chromium } = require('playwright');
     G.pd.n.shell = 0; G.pd.n.thick = 0; G.pd.n.squishy = 0; G.pd.n.evasion = 1; G.pd.n.fast = 1; G.pd.n.thorns = 1; G.pd.n.shell = 1; // four held: no fifth kind
     for (let i = 0; i < 10; i++) { const ids = pdefOffer(6).map(o => o.defence); if (ids.includes('squishy') || ids.includes('thick')) { bad.push('slots full but new card offered: ' + ids); break; } }
     // The card renders and applies through the real loot screen.
-    fresh(); { let st; do st = genLoot({ kind: 'start' }); while (st.every(o => o.def.sig)); st.find(o => !o.def.sig).apply(); } // (a signature starter has no Switched at Birth card, so the draft is a card short) G.lootQueue.length = 0;
-    UI.openLoot({ kind: 'level', v10ok: true }); const nCards = document.querySelectorAll('#lootCards .card').length;
+    fresh(); genLoot({ kind: 'start' })[0].apply(); G.lootQueue.length = 0;
+    let nCards = 0; for (let tr = 0; tr < 40; tr++) { UI.openLoot({ kind: 'level', v10ok: true }); nCards = document.querySelectorAll('#lootCards .card').length; if (UI.lootOpts.some(o => o.defence)) break; } // (the pool is large now: retry until a defence card shows)
     if (nCards !== 3) bad.push('loot screen shows ' + nCards + ' cards');
     const di = UI.lootOpts.findIndex(o => o.defence); const dk = UI.lootOpts[di].defence; UI.lootOpts[di].apply();
     if (G.pd.n[dk] !== 1) bad.push('card apply');
     fresh(); G.pd.n.shell = 2; pdRefit(G.pd); for (let i = 0; i < 120; i++) update(1 / 60); pdefDraw(); // nothing throws in a live frame, draw included
+    // Your statuses from enemy damage types (matrix 11.5)
+    { G.pd = null; const D = pdef(); D.mem.mem = 0; const foeOf = t => ({ def: Object.assign({}, ENEMIES.crawler), maxHp: 100, x: G.player.x + 20, y: G.player.y });
+      const withType = (t, f) => { const keep = ROSTER.crawler.dmgType; ROSTER.crawler.dmgType = t; try { return f(); } finally { ROSTER.crawler.dmgType = keep; } };
+      ENEMIES.crawler && withType('mucus', () => pdefHurt(10, 'x', { def: ENEMIES.crawler, maxHp: 100 }, 'bullets'));
+      if (!(pdefSpeed() < 1)) bad.push('no player Snared');
+      D.mem.mem = 0; withType('blood', () => pdefHurt(30, 'x', { def: ENEMIES.crawler, maxHp: 100 }, 'bullets'));
+      if (!(D.bleeds && D.bleeds.length)) bad.push('no player Bleed');
+      D.snareT = 0; D.mem.mem = 0; withType('fire', () => pdefHurt(30, 'x', { def: ENEMIES.crawler, maxHp: 100 }, 'bullets'));
+      if (!(D.burnT > 0)) bad.push('no player burn');
+      G.state = "play"; const h = G.player.hp = 100; for (let i = 0; i < 60; i++) pdefTick(1 / 60); if (!(G.player.hp < h)) bad.push('player Bleed/burn did not tick');
+      D.mem.mem = D.mem.memMax; withType('blood', () => pdefHurt(1, 'x', { def: ENEMIES.crawler, maxHp: 100 }, 'bullets'));
+    }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

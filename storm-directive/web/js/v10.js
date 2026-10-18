@@ -118,6 +118,7 @@ function v10Box(req) {
   return draftBox(req); // (level-ups, chests, forks and the interruption budget: draft.js)
 }
 function v10Loot(req) {
+  if (req.kind === 'start') { const o = typeof s10Start === 'function' && s10Start(); if (o) return o; } // (a sample starts with its own weapon: samples10.js)
   if (req.kind === 'start') return shuffle(v10Pool()).slice(0, 4).map(id => optNewWeapon(id, 0));
   if (req.kind === 'slot') {
     const own = G.weapons.filter(Boolean), have = new Set(own.map(w => w.def.v10atk));
@@ -139,7 +140,7 @@ function v10Switch() {
     const nid = v10Id(t, o.w.def.v10atk), def = WEAPONS[nid];
     return { def, rarity: 0, tag: 'SWITCHED AT BIRTH', icon: def.icon, color: def.color, elem: t, title: `${o.w.def.name} → ${def.name}`,
       sub: `${ELEMENTS[t].name} | ${V10_ATK[def.v10atk].label}`, desc: def.desc,
-      apply: () => { const i = G.weapons.indexOf(o.w); if (i >= 0) { G.weapons[i] = makeSlot(nid, false, 1); recomputeAll(); } } };
+      apply: () => { const i = G.weapons.indexOf(o.w); if (i >= 0) { const n = makeSlot(nid, false, o.w.lvl); n.m10 = o.w.m10; n.wm10 = o.w.wm10; G.weapons[i] = n; setWeaponLevel(n, o.w.lvl, 1); recomputeAll(); /* (keeps its level, modifiers and weapon mutations) */ } } };
   });
 }
 
@@ -148,12 +149,14 @@ function v10Fire(w, target, src) {
   const d = w.def, s = w.s, p = G.player;
   if (d.sig) return d.sigFire ? d.sigFire(w, target, src) !== false : false; // (signature weapons: sigweap.js)
   if (d.v10atk === 'beam') {
-    const a = Math.atan2(target.y - p.y, target.x - p.x), L = s.range, ex = p.x + Math.cos(a) * L, ey = p.y + Math.sin(a) * L, wd = s.width || 10;
+    let a = Math.atan2(target.y - p.y, target.x - p.x), L = s.range, wd = s.width || 10, bk = 1;
+    if (w.m10) ({ a, L, wd, bk } = modBeam(w, a, L, wd)); // (v10 modifiers, modifiers.js)
+    const ex = p.x + Math.cos(a) * L, ey = p.y + Math.sin(a) * L;
     for (const e of G.enemies) {
       if (e.dead) continue;
       const t = Math.max(0, Math.min(L, (e.x - p.x) * Math.cos(a) + (e.y - p.y) * Math.sin(a)));
       if (Math.hypot(e.x - (p.x + Math.cos(a) * t), e.y - (p.y + Math.sin(a) * t)) > e.r + wd) continue;
-      damageEnemy(e, s.dmg, src);
+      damageEnemy(e, s.dmg * bk, src);
       if (s.push && !e.dead && !e.boss) { e.kx += Math.cos(a) * s.push * 0.1; e.ky += Math.sin(a) * s.push * 0.1; }
     }
     (G.v10fx || (G.v10fx = [])).push({ k: 'beam', x: p.x, y: p.y, x2: ex, y2: ey, w: wd, c: d.color, t: d.v10type, life: 0.12, max: 0.12 });
@@ -162,7 +165,7 @@ function v10Fire(w, target, src) {
   if (d.v10atk === 'burst') {
     const tx = target.x, ty = target.y;
     G.fx.push({ type: 'warn', x: tx, y: ty, r: s.area, color: d.color, life: s.delay, max: s.delay });
-    after(s.delay, () => { aoe(tx, ty, s.area, s.dmg, src, d.color); ring(tx, ty, s.area, d.color, 0.35, 4); fxParts('spark', tx, ty, d.color, 12, 160, 0.45, 3); });
+    after(s.delay, () => { aoe(tx, ty, s.area, s.dmg, src, d.color); ring(tx, ty, s.area, d.color, 0.35, 4); fxParts('spark', tx, ty, d.color, 12, 160, 0.45, 3); if (w.m10) modBurstEnd(w, tx, ty); });
     return true;
   }
   return false;
@@ -177,6 +180,8 @@ function v10Burn(e, dmg, src) {
 function v10Tick(dt) {
   if (!V10 || !G) return;
   fightTick(dt); // (defences, charged patches: fight.js)
+  if (typeof s10Tick === 'function') s10Tick(dt); // (sample passives and unlocks: samples10.js)
+  mutTick(dt); // (mutation cards: mutations.js)
   sigwTick(dt); // (signature weapons: sigweap.js)
   pdefTick(dt); // (your Membrane and Shell: pdef.js)
   for (const e of G.enemies) {
@@ -188,13 +193,15 @@ function v10Tick(dt) {
   }
   // Pressure Drop: its puddles push outwards instead of pulling.
   for (const z of G.zones) if (!z.v10 && z.src && z.src.w && z.src.w.def && z.src.w.def.v10) { z.v10 = 1; if (z.src.w.s.push) z.pull = -z.src.w.s.push; }
+  modTick(dt); // (v10 modifiers, modifiers.js)
   if (G.v10fx) { for (const f of G.v10fx) f.life -= dt; G.v10fx = G.v10fx.filter(f => f.life > 0); }
 }
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
-  if (G && V10) { fightDraw(); pdefDraw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; signature weapons: sigweap.js)
+  if (G && V10) { fightDraw(); pdefDraw(); mutDraw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; signature weapons: sigweap.js)
   if (G && V10) nfDraw(); // (telegraphs, wax, trails: newfoes.js)
+  if (G && V10) modDraw(); // (v10 modifiers, modifiers.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {
     const k = f.life / f.max, x1 = sx(f.x), y1 = sy(f.y), x2 = sx(f.x2), y2 = sy(f.y2);
@@ -211,6 +218,7 @@ function v10Draw() {
 
 // ---------------------------------------------------------------- the samples screen (ui.js openSamples)
 function v10Samples() {
+  if (typeof s10Samples === 'function' && s10Samples()) return; // (the eight samples: samples10.js)
   let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
   const card = (id, no, name, desc, c, tag) => `<button class="sx-card hero" data-v10="${id}" style="--c:${c}"><span class="sx-txt"><i>#${no} | IN STOCK</i><b>${esc(name)}</b><span>${esc(desc)}</span><em>${tag}</em></span></button>`;
   $('sampleList').innerHTML = `<div class="sx-h">HUMAN SAMPLE 1</div>${card('s002', '001', 'Wave Mode', 'Twenty drops into the dish, a boss every fifth. One Switched at Birth card a wave.', '#5fd4e8', 'WAVE MODE')}`
