@@ -125,7 +125,7 @@ mutCard({ id: 'x_brain', title: 'Big Brain', icon: 'BR', family: 'mut:trade', co
 mutCard({ id: 'x_qty', title: 'Quantity Over Quality', icon: 'QQ', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'One hundred little hits! That\'s basically one big hit. Right?',
   desc: '+30% attack rate and +1 shot. -30% damage per hit.', on: G => { G.P.haste *= 1.3; G.P.multishot += 1; G.P.might *= 0.7; } });
 mutCard({ id: 'x_still', title: 'Can\'t Sit Still', icon: 'CS', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'Go go go! Wait. Why did you stop?',
-  desc: '+20% attack speed while swimming. -20% while still.', why: G => (typeof s10Is === 'function' && s10Is('over')) ? 'the Overachiever already has this' : '' });
+  desc: '+20% attack speed while swimming. -20% while still.', why: G => (typeof s10Is === 'function' && s10Is('alpha')) ? 'Alpha already has this' : '' });
 mutCard({ id: 'x_once', title: 'All at Once', icon: 'AO', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'SURPRISE! Oh. You\'re still there.',
   desc: 'First hit on an enemy not hit for 3 s deals +60%. Your other hits on it deal -20% for 3 s.' });
 mutCard({ id: 'x_hungry', title: 'Hungry Hungry', icon: 'HG', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'More food! More friends! Wait, those aren\'t friends.',

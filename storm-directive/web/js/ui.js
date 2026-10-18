@@ -138,7 +138,7 @@ const UI = {
   quickStart() {
     const keep = META.profile, seqs = V10 ? ['s10_baseline'] : Object.keys(PROFILES).filter(id => profUnlocked(id));
     META.profile = pick(seqs.length ? seqs : ['vanguard']);
-    UI.sample = V10 ? 's002' : 's001'; // (v10: Human Sample 1 in the dish)
+    UI.sample = 's001'; // (v10: Baseline in the Race; the Petri Dish is hidden for now, samples10.js)
     UI.startGame(false);
     META.profile = keep;
     const i = G.lootQueue.findIndex(q => q.kind === 'start');

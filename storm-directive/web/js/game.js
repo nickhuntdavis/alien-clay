@@ -1925,7 +1925,7 @@ function spawnProj(w, x, y, a, src, over) {
   const pr = {
     x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, speed, r: s.size || 4, dmg: s.dmg, pierce: s.pierce || 0,
     life: (s.range || 400) / speed, max: 0, w, src: el !== src.elem ? Object.assign({}, src, { elem: el }) : src,
-    color: d.color, style: s.style || d.style || 'bullet', explode: s.explode || 0, homing: s.homing || 0,
+    color: w.typeOver && V10_COL[w.typeOver] || d.color, style: s.style || d.style || 'bullet', explode: s.explode || 0, homing: s.homing || 0,
     bounce: s.bounce || 0, boomerang: s.boomerang || 0, chainHit: s.chainHit || 0, aura: s.aura || 0, pull: s.pull || 0,
     hits: null, tick: 0, dead: false, tgt: null, back: false,
   };

@@ -613,7 +613,7 @@ feat({ id: 'standard_procedure', sample: 'baseline', name: 'Standard Procedure',
   forks: { 3: [fk('double', 'Second Dose', 'A second, smaller pulse 0.4 seconds later.'), fk('firm', 'Firm Handling', 'The pulse shoves 50% harder and staggers what it hits.')],
     5: [fk('extra', 'Extra Strength', 'A 40% wider pulse.'), fk('fast', 'Fast Acting', 'A much shorter cooldown.')] } });
 
-feat({ id: 'personal_best', sample: 'over', name: 'Personal Best', icon: 'PB', ico: 'wake', type: 'static', atk: 'contact', rar: 0, stam: 20,
+feat({ id: 'personal_best', sample: 'alpha', name: 'Personal Best', icon: 'PB', ico: 'wake', type: 'static', atk: 'contact', rar: 0, stam: 20,
   line: `"Go! GO! Beat your time! Beat EVERYONE'S time!"`, does: 'You burst forward in a fast sprint, leaving a Static wake. Every enemy you strike extends the sprint, so pick a good line through the crowd.',
   base: { dmg: 14, cd: 10, dur: 1.5 },
   stat: (w, s) => { if (f10Fk(w, 'longer')) s.dur += 1; if (f10Fk(w, 'second')) s.cd *= 0.7; },
@@ -622,7 +622,7 @@ feat({ id: 'personal_best', sample: 'over', name: 'Personal Best', icon: 'PB', i
   forks: { 3: [fk('pace', 'Pace Setter', 'Each enemy you strike extends the sprint twice as much.'), fk('slip', 'Slipstream', 'The wake lingers three times as long.')],
     5: [fk('longer', 'Longer Run', 'The sprint lasts a second longer.'), fk('second', 'Second Lap', 'A much shorter cooldown.')] } });
 
-feat({ id: 'second_wind', sample: 'late', name: 'Second Wind', icon: 'SW', ico: 'heart', type: 'blood', atk: 'burst', rar: 0, stam: 22,
+feat({ id: 'second_wind', sample: 'beta', name: 'Second Wind', icon: 'SW', ico: 'heart', type: 'blood', atk: 'burst', rar: 0, stam: 22,
   line: `"They look so full. You look so empty. Fix that."`, does: 'You drain Blood from the wounded enemies around you and heal. The lower your health, the more every drop is worth.',
   base: { dmg: 10, cd: 11, area: 220 },
   stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'again')) s.cd *= 0.7; },
@@ -638,7 +638,7 @@ feat({ id: 'second_wind', sample: 'late', name: 'Second Wind', icon: 'SW', ico: 
   forks: { 3: [fk('wide', 'Deep Breath', 'A 40% wider reach.'), fk('rich', 'Rich Blood', 'Every drop heals 30% more.')],
     5: [fk('again', 'Catching Up', 'A much shorter cooldown.'), fk('plenty', 'Plenty More', 'It drains from two more enemies.')] } });
 
-feat({ id: 'pulling_strings', sample: 'friend', name: 'Pulling Strings', icon: 'PS', ico: 'link', type: 'acid', atk: 'burst', rar: 0, stam: 20,
+feat({ id: 'pulling_strings', sample: 'private', name: 'Pulling Strings', icon: 'PS', ico: 'link', type: 'acid', atk: 'burst', rar: 0, stam: 20,
   line: `"That one. The one in the good suit. Make it a problem."`, does: 'You mark the toughest enemy nearby. It builds Corrosion fast while the enemies around it fill with Soul, so its own entourage is soon ready to turn on it.',
   base: { dmg: 6, cd: 12, dur: 4, range: 380 },
   stat: (w, s) => { if (f10Fk(w, 'leash')) s.range *= 1.4; if (f10Fk(w, 'short')) s.cd *= 0.7; },
@@ -655,7 +655,7 @@ feat({ id: 'pulling_strings', sample: 'friend', name: 'Pulling Strings', icon: '
   forks: { 3: [fk('entourage', 'Big Entourage', 'The Soul spreads to enemies much further from the mark.'), fk('leash', 'Long Leash', 'A 40% longer reach for choosing the mark.')],
     5: [fk('two', 'Two Marks', 'Mark the two toughest enemies.'), fk('short', 'Shorter Leash', 'A much shorter cooldown.')] } });
 
-feat({ id: 'shrink_wrap', sample: 'parcel', name: 'Shrink Wrap', icon: 'SH', ico: 'web', type: 'mucus', atk: 'burst', rar: 0, stam: 22,
+feat({ id: 'shrink_wrap', sample: 'ordered', name: 'Shrink Wrap', icon: 'SH', ico: 'web', type: 'mucus', atk: 'burst', rar: 0, stam: 22,
   line: `"Fragile. Handle with care. Actually, don't handle."`, does: 'A ring of enemies around you is Snared in Mucus, and half a second later an Acid Pool bubbles up beneath them. Trap first, dissolve second.',
   base: { dmg: 8, cd: 11, area: 170, dur: 3.5 },
   stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'slow')) s.dur *= 1.6; if (f10Fk(w, 'strong')) s.dmg *= 1.5; if (f10Fk(w, 'refund')) s.cd *= 0.7; },
@@ -669,7 +669,7 @@ feat({ id: 'shrink_wrap', sample: 'parcel', name: 'Shrink Wrap', icon: 'SH', ico
   forks: { 3: [fk('wide', 'Bigger Roll', 'A 40% wider ring.'), fk('slow', 'Slow Dissolve', 'The Acid Pools last 60% longer.')],
     5: [fk('strong', 'Industrial Strength', 'The Pools and the first hit are 50% stronger.'), fk('refund', 'Return Policy', 'A much shorter cooldown.')] } });
 
-feat({ id: 'reply_all', sample: 'unsol', name: 'Reply All', icon: 'RA', ico: 'spray', type: 'fire', atk: 'beam', rar: 0, stam: 22,
+feat({ id: 'reply_all', sample: 'redtail', name: 'Reply All', icon: 'RA', ico: 'spray', type: 'fire', atk: 'beam', rar: 0, stam: 22,
   line: `"I replied to everyone. EVERYONE. Look how warm they are."`, does: 'You fill the nearest enemy\'s Burn bar at once. Static arcs from it spread more Burn to the enemies around it.',
   base: { dmg: 12, cd: 10, range: 320, area: 170 },
   stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'auto')) s.cd *= 0.7; },
@@ -687,7 +687,7 @@ feat({ id: 'reply_all', sample: 'unsol', name: 'Reply All', icon: 'RA', ico: 'sp
   forks: { 3: [fk('thread', 'Reply to Thread', 'The arcs reach six enemies instead of three.'), fk('wide', 'Everyone in CC', 'A 40% wider reach for the arcs.')],
     5: [fk('bcc', 'Bcc', 'The second-nearest enemy catches fire too.'), fk('auto', 'Auto-Reply', 'A much shorter cooldown.')] } });
 
-feat({ id: 'recount', sample: 'unacc', name: 'Recount', icon: 'RC', ico: 'ghost', type: 'soul', atk: 'burst', rar: 0, stam: 28,
+feat({ id: 'recount', sample: 'prawn', name: 'Recount', icon: 'RC', ico: 'ghost', type: 'soul', atk: 'burst', rar: 0, stam: 28,
   line: `"Let's count again. Six of you. Three seconds. Be nice."`, does: 'You Possess up to six enemies for three seconds. When it ends, each of them loses a chunk of health, and every kill gives some stamina back.',
   base: { dmg: 40, cd: 14, range: 340, dur: 3 },
   stat: (w, s) => { if (f10Fk(w, 'audit')) s.dmg *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; if (f10Fk(w, 'long')) s.dur += 1; },
@@ -702,15 +702,15 @@ feat({ id: 'recount', sample: 'unacc', name: 'Recount', icon: 'RC', ico: 'ghost'
   forks: { 3: [fk('sheet', 'Spreadsheet', 'Possess up to eight enemies instead of six.'), fk('audit', 'Audit', 'The delayed hit is 50% bigger.')],
     5: [fk('long', 'Long Meeting', 'The Possession lasts a second longer.'), fk('quick', 'Quick Count', 'A much shorter cooldown.')] } });
 
-feat({ id: 'first_contact', sample: 'other', name: 'First Contact', icon: 'FC', ico: 'twins', rar: 0, stam: 0,
+feat({ id: 'first_contact', sample: 'alien', name: 'First Contact', icon: 'FC', ico: 'twins', rar: 0, stam: 0,
   line: `"Oh, you're different now. Say hello to everyone."`, does: 'You shift to your next damage type at once. For reactions only, you count as a hit of the old type and the new type on every enemy on screen carrying a status (eight at most, nearest first). No damage, no build-up.',
   base: { cd: 14, dmg: 30 },
   stat: (w, s) => { if (f10Fk(w, 'quickintro')) s.cd *= 0.7; if (f10Fk(w, 'firm')) s.dmg *= 1.5; },
   when: w => (G.enemies.some(e => f10Live(e) && f10OnView(e) && f10Sick(e)) ? {} : null),
   fire: w => {
-    const p = me(), D = f10(), s = w.s, cyc = S10_BY.other.shift, S = G.s10;
+    const p = me(), D = f10(), s = w.s, cyc = S10_BY.alien.shift, S = G.s10;
     let from, to;
-    if (S && S.id === 'other') { from = cyc[S.shiftI]; s10Shift(S); to = cyc[S.shiftI]; }
+    if (S && S.id === 'alien') { from = cyc[S.shiftI]; s10Shift(S); to = cyc[S.shiftI]; }
     else { const i = D.fcI == null ? 0 : D.fcI; from = cyc[i]; D.fcI = (i + 1) % cyc.length; to = cyc[D.fcI]; }
     D.fcType = FIGHT_TYPE[to];
     const types = [FIGHT_TYPE[from], FIGHT_TYPE[to]], list = G.enemies.filter(e => f10Live(e) && f10OnView(e) && f10Sick(e)).sort(f10Sort(p));

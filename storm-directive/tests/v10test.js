@@ -11,19 +11,20 @@ const { chromium } = require('playwright');
   const cards = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-s10]')].map(b => b.textContent));
   await page.screenshot({ path: 'v10_samples.png' });
   const bad = [];
-  if (cards.length !== 8 || !/The Baseline/.test(cards[0])) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples: samples10.js)
+  const NAMES = ['Baseline', 'Alpha', 'Beta', 'Private Schooled', 'Ordered Online', 'Redtail', 'Prawn Again', 'Not of This World'];
+  if (cards.length !== 8 || NAMES.some((n, i) => !cards[i].includes(n) || /LOCKED/.test(cards[i]))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples, all open: samples10.js)
   await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
   const modes = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-mode]')].map(b => b.dataset.mode));
-  if (modes.join() !== 's002,s001') bad.push('experiments: ' + modes);
-  await page.click('#sampleList [data-mode="s002"]'); await page.waitForTimeout(600);
+  if (modes.join() !== 's001') bad.push('experiments: ' + modes);
+  await page.click('#sampleList [data-mode="s001"]'); await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     out.seq = G.genes.primary; out.sample = UI.sample; out.mode = !!G.wave;
-    if (out.seq !== 's10_baseline' || out.sample !== 's002' || !G.wave) bad.push('run: ' + JSON.stringify(out));
+    if (out.seq !== 's10_baseline' || out.sample !== 's001' || G.wave) bad.push('run: ' + JSON.stringify(out));
     const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10 && !WEAPONS[id].sig);
     if (ids.length !== 42) bad.push('weapons: ' + ids.length);
     const st = genLoot({ kind: 'start' });
-    if (st.length !== 1 || st[0].def !== WEAPONS.v_phys_proj) bad.push('start: ' + st.map(o => o.title)); // (the Baseline starts with Knuckle Dragger)
+    if (st.map(o => o.def.name).join() !== w24Starters('baseline').map(id => WEAPONS[id].name).join() || st.length !== 3) bad.push('start draft is not the three Baseline starters: ' + st.map(o => o.title)); // (weapons24.js)
     st[0].apply();
     const w0 = G.weapons.find(Boolean);
     const lv = genLoot({ kind: 'level' });

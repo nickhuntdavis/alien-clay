@@ -29,7 +29,7 @@ const { chromium } = require('playwright');
     if (!G.vx.log.some(l => l.event === 'death' && l.who === 'sci')) bad.push('death line not from the Scientist');
     if (G.vx.log.some(l => l.event === 'death' && l.who === 'sci' && VOICE.death.sci.some(x => x.t === l.text && x.tier > 0))) bad.push('death line above Tier 0');
     if (runSummary(G, 'LOST').sid !== '1B') bad.push('run log sid ' + runSummary(G, 'LOST').sid);
-    run('over', 's001'); if (vxSid() !== '2A') bad.push('Overachiever id ' + vxSid());
+    run('alpha', 's001'); if (vxSid() !== '2A') bad.push('Alpha id ' + vxSid());
     if (sampleId(1, 26) !== '1Z' || sampleId(1, 27) !== '1AA') bad.push('sampleId wrap');
     // 3. a first sighting shows one SIGHTING line (quiet mode: a message, no stop)
     run('baseline', 's001'); SET.intros = 'quiet'; META.seen = {};

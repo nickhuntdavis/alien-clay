@@ -67,7 +67,7 @@ const f_possessed = e => !!(e.charmed && !e.zombie);
 function fightHit(e, d, src, crit) {
   const S = fst();
   if (src.dot) { S.dmg.dot += d; e.fOk = true; return d; }
-  const cd = fightCd(e), t = FIGHT_TYPE[src.elem || 'phys'] || 'force';
+  const cd = fightCd(e), t = FIGHT_TYPE[(src.w && src.w.typeOver) || src.elem || 'phys'] || 'force'; // (typeOver: Adaptive Biology, samples10.js)
   if (t === 'static' && charged(e)) d *= 1.2;
   if (typeof s10DmgMul === 'function') d *= s10DmgMul(e, src); // (sample passives: samples10.js)
   d *= mutDmg(e, src, t); // (mutation cards: mutations.js)

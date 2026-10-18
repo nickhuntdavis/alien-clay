@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    const UNIQ = { baseline: 'standard_procedure', over: 'personal_best', late: 'second_wind', friend: 'pulling_strings', parcel: 'shrink_wrap', unsol: 'reply_all', unacc: 'recount', other: 'first_contact' };
+    const UNIQ = { baseline: 'standard_procedure', alpha: 'personal_best', beta: 'second_wind', private: 'pulling_strings', ordered: 'shrink_wrap', redtail: 'reply_all', prawn: 'recount', alien: 'first_contact' };
     // ---- a real run start per sample
     const start = id => { META.profile = 's10_' + id; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; genLoot({ kind: 'start' })[0].apply(); };
     const scene = () => { G.enemies.length = 0; G.zones.length = 0; G.ebul.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list); G.stats.dmg = {}; G.manual = { x: 0, y: 0 }; G.weapons.forEach((w, i) => { if (w) G.weapons[i] = null; }); if (!G.stam) stamInit(); G.stam.cur = stamMax(); };
@@ -41,9 +41,9 @@ const { chromium } = require('playwright');
     // ---- each signature. pre() builds the scene (the Feat is held), ok() checks after the run.
     const T = {
       standard_procedure: { sample: 'baseline', pre: () => ring(5, 80), sec: 0.4, ok: (l) => l.every(e => Math.hypot(e.x - G.player.x, e.y - G.player.y) > 100) || 'not knocked away', dmg: 1 },
-      personal_best: { sample: 'over', pre: () => [foe(22, 0), foe(-22, 10)], sec: 0.2, ok: () => { const B = G.f10.pb; if (!B) return 'no sprint'; if (!(B.end > B.t0 + 1.55)) return 'not extended ' + (B.end - B.t0); if (!G.zones.some(z => z.elem === 'shock')) return 'no wake'; return f10Speed() > 1.5 || 'not faster'; }, dmg: 1 },
-      shrink_wrap: { sample: 'parcel', pre: () => ring(5, 100), sec: 1, ok: (l) => l.every(e => snared(e)) ? (G.zones.some(z => z.elem === 'fire' && z.life > 0) || 'no Acid Pool') : 'not all Snared', dmg: 1 },
-      reply_all: { sample: 'unsol', pre: () => [foe(100, 0), foe(150, 40), foe(160, -50)], sec: 0.3, ok: (l) => l.every(e => e.cd && e.cd.burnT > 0) || 'burn did not spread: ' + l.map(e => e.cd && e.cd.burnT), dmg: 1 },
+      personal_best: { sample: 'alpha', pre: () => [foe(22, 0), foe(-22, 10)], sec: 0.2, ok: () => { const B = G.f10.pb; if (!B) return 'no sprint'; if (!(B.end > B.t0 + 1.55)) return 'not extended ' + (B.end - B.t0); if (!G.zones.some(z => z.elem === 'shock')) return 'no wake'; return f10Speed() > 1.5 || 'not faster'; }, dmg: 1 },
+      shrink_wrap: { sample: 'ordered', pre: () => ring(5, 100), sec: 1, ok: (l) => l.every(e => snared(e)) ? (G.zones.some(z => z.elem === 'fire' && z.life > 0) || 'no Acid Pool') : 'not all Snared', dmg: 1 },
+      reply_all: { sample: 'redtail', pre: () => [foe(100, 0), foe(150, 40), foe(160, -50)], sec: 0.3, ok: (l) => l.every(e => e.cd && e.cd.burnT > 0) || 'burn did not spread: ' + l.map(e => e.cd && e.cd.burnT), dmg: 1 },
     };
     // Feats that need a custom check are done by hand below.
     const stage = (sample, fid, lvl, flags) => { start(sample); scene(); const w = slot1(); w.lvl = lvl || 1; if (flags) { w.f10fk = {}; for (const f of flags) w.f10fk[f] = 1; } recomputeAll(); w.cd = 0; G.stam.cur = stamMax(); return w; };
@@ -59,14 +59,14 @@ const { chromium } = require('playwright');
     }
 
     // Second Wind: heals, more the lower your health is
-    const wind = hp => { const w = stage('late', 'second_wind'); G.P.maxHp = 1000; G.player.hp = hp; for (const e of ring(6, 100)) e.hp = e.maxHp * 0.5; gridBuild(); tap(w); run(0.1); return G.player.hp - hp; };
+    const wind = hp => { const w = stage('beta', 'second_wind'); G.P.maxHp = 1000; G.player.hp = hp; for (const e of ring(6, 100)) e.hp = e.maxHp * 0.5; gridBuild(); tap(w); run(0.1); return G.player.hp - hp; };
     const hLow = wind(150), hHigh = wind(800);
     out.secondWind = [Math.round(hLow), Math.round(hHigh)];
     if (!(hLow > 0)) bad.push('Second Wind did not heal'); else if (!(hLow > hHigh * 1.3)) bad.push('Second Wind not stronger when low: ' + hLow + ' vs ' + hHigh);
-    { const w = stage('late', 'second_wind'); G.P.maxHp = 1000; G.player.hp = 150; ring(4, 100); gridBuild(); if (f10Wait(w) === false) bad.push('Second Wind ready with no wounded enemy'); }
+    { const w = stage('beta', 'second_wind'); G.P.maxHp = 1000; G.player.hp = 150; ring(4, 100); gridBuild(); if (f10Wait(w) === false) bad.push('Second Wind ready with no wounded enemy'); }
 
     // Pulling Strings: the toughest nearby is marked, builds Corrosion fast; its entourage builds Soul
-    { const w = stage('friend', 'pulling_strings'); const big = foe(150, 0, { hp: 5e6, maxHp: 5e6 }); const mates = [foe(190, 30), foe(120, -60), foe(500, 500)]; const far = mates[2]; gridBuild(); tap(w); run(2);
+    { const w = stage('private', 'pulling_strings'); const big = foe(150, 0, { hp: 5e6, maxHp: 5e6 }); const mates = [foe(190, 30), foe(120, -60), foe(500, 500)]; const far = mates[2]; gridBuild(); tap(w); run(2);
       if (!(big.cd.bars.acid > 0.9)) bad.push('Pulling Strings: no Corrosion on the mark ' + (big.cd && big.cd.bars.acid));
       if (!(corroded(big))) bad.push('Pulling Strings: mark not Corroded');
       if (!(mates[0].cd.bars.soul > 0.3 && mates[1].cd.bars.soul > 0.3)) bad.push('Pulling Strings: no Soul on the entourage ' + mates.map(e => e.cd && e.cd.bars.soul));
@@ -74,7 +74,7 @@ const { chromium } = require('playwright');
       if (mates.some(e => fightCd(e).bars.acid > 0.5)) bad.push('Pulling Strings: Corrosion went to the entourage'); }
 
     // Recount: up to six Possessed for 3 s, then the delayed hit; kills refund stamina
-    { const w = stage('unacc', 'recount'); const l = []; for (let i = 0; i < 9; i++) l.push(foe(60 + i * 20, (i % 2 ? 1 : -1) * 20 * i)); l[0].hp = l[0].maxHp = 5; gridBuild(); tap(w); G.stam.cur = 0; G.stam.restT = 0; run(0.05);
+    { const w = stage('prawn', 'recount'); const l = []; for (let i = 0; i < 9; i++) l.push(foe(60 + i * 20, (i % 2 ? 1 : -1) * 20 * i)); l[0].hp = l[0].maxHp = 5; gridBuild(); tap(w); G.stam.cur = 0; G.stam.restT = 0; run(0.05);
       const n = G.enemies.filter(e => e.charmed).length; if (n !== 6) bad.push('Recount possessed ' + n);
       if (G.enemies.filter(e => e.charmed).some(e => e.charmT > 3.1)) bad.push('Recount lasts too long');
       const hp0 = l.map(e => e.hp), charmedSet = l.filter(e => e.charmed && e !== l[0]); const before = charmedSet.map(e => e.hp);
@@ -84,7 +84,7 @@ const { chromium } = require('playwright');
     }
 
     // First Contact
-    { start('other'); scene(); const w = slot1(); const t0 = G.weapons.find(Boolean) ? 1 : 0; const S = G.s10; const before = S.shiftI;
+    { start('alien'); scene(); const w = slot1(); const t0 = G.weapons.find(Boolean) ? 1 : 0; const S = G.s10; const before = S.shiftI;
       const l = ring(12, 140, { corrodedT: G.t + 30 }); const plain = [foe(20, 0), foe(-20, 0)]; gridBuild(); l.forEach(e => fightCd(e)); plain.forEach(e => fightCd(e));
       G.fst = null; const fst0 = fst(); const hp0 = plain.map(e => e.hp); const barSum = e => Object.values(e.cd.bars).reduce((a, v) => a + v, 0); const bars0 = l.map(barSum);
       const stamBefore = G.stam.cur; w.cd = 0; tap(w);
@@ -110,14 +110,14 @@ const { chromium } = require('playwright');
       const fired = fightReactAs(a, 'static', { raw: 40 }); if (!fired || !G.fst.rx.arcflash) bad.push('fightReactAs static on burning: no Arc Flash');
       if (fightReactAs(a, 'static', { raw: 40 })) bad.push('fightReactAs ignored the lockout');
       if (fightReactAs(c, 'static', { raw: 40 })) bad.push('fightReactAs fired on a plain enemy');
-      // not-'other' sample holding the Feat just cycles
-      start('baseline'); scene(); const w2 = f10Give('first_contact', 1); w2.cd = 0; ring(2, 80, { snareT: G.t + 9 }); gridBuild(); featTap(w2); if (!G.f10.fcType) bad.push('First Contact: no cycle outside the Other Half'); }
+      // not-'alien' sample holding the Feat just cycles
+      start('baseline'); scene(); const w2 = f10Give('first_contact', 1); w2.cd = 0; ring(2, 80, { snareT: G.t + 9 }); gridBuild(); featTap(w2); if (!G.f10.fcType) bad.push('First Contact: no cycle outside Not of This World'); }
 
     // forks: every option at levels 3 and 5 performs without errors for each Feat
     const FORK_SCENE = {
-      standard_procedure: ['baseline', () => ring(5, 80)], personal_best: ['over', () => [foe(22, 0)]], second_wind: ['late', () => { G.player.hp = 100; G.P.maxHp = 1000; return ring(4, 100).map(e => (e.hp = 1, e)); }],
-      pulling_strings: ['friend', () => ring(4, 120)], shrink_wrap: ['parcel', () => ring(5, 100)], reply_all: ['unsol', () => ring(4, 100)], recount: ['unacc', () => ring(7, 120)],
-      first_contact: ['other', () => ring(3, 100, { corrodedT: G.t + 30 })],
+      standard_procedure: ['baseline', () => ring(5, 80)], personal_best: ['alpha', () => [foe(22, 0)]], second_wind: ['beta', () => { G.player.hp = 100; G.P.maxHp = 1000; return ring(4, 100).map(e => (e.hp = 1, e)); }],
+      pulling_strings: ['private', () => ring(4, 120)], shrink_wrap: ['ordered', () => ring(5, 100)], reply_all: ['redtail', () => ring(4, 100)], recount: ['prawn', () => ring(7, 120)],
+      first_contact: ['alien', () => ring(3, 100, { corrodedT: G.t + 30 })],
     };
     for (const [o, fid] of Object.entries(UNIQ)) {
       for (const lv of [3, 5]) {
