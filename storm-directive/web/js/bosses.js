@@ -23,6 +23,7 @@ function spawnBoss() {
     e.dmg = def.dmg * dmgNow();
     if (!G.wave && !G.lvl) { e.campK = RACE.bossHit[Math.min(idx, RACE.bossHit.length - 1)]; e.dmg *= e.campK; } // (race mode: the first bosses hit softer, while your build is thin)
     heatBoss(e); // Immune Response
+    if (V10) { e.hp *= V10_DIFF.bossHp; e.maxHp *= V10_DIFF.bossHp; } // (boss10.js)
     e.pat = 0; e.patT = 0; e.fireT = 0; e.st = 0;
     return e;
   };

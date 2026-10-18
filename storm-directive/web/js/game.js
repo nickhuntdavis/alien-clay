@@ -1218,6 +1218,7 @@ function makeEnemy(def, x, y, opts) {
   }
   e.armK = Math.min(3, Math.pow(hpMul(t), 0.3)); // armour keeps pace a little (x1 at the start, about x2.8 by minute 9)
   heatEnemy(e); // Immune Response
+  if (V10) { e.hp *= V10_DIFF.hp; e.maxHp *= V10_DIFF.hp; e.dmg *= V10_DIFF.dmg; } // (v10 builds are leaner than v9's: boss10.js)
   foes2Make(e); // (type caps, G.typeN: foes2.js)
   return e;
 }

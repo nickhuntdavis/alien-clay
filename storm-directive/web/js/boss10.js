@@ -14,6 +14,8 @@ const BOSS10_TEXT = {
   evasion: ['Evasion: a third of your shots and swipes simply miss', 'Bursts, Beams and Pools never miss'],
 };
 const BOSS10_SUMMON_CAP = 8;
+// v10 difficulty: v9's enemy curve was tuned for v9's much bigger builds. Tune here (sim target: 20 to 50% bot wins).
+const V10_DIFF = { hp: 0.65, dmg: 0.6, bossHp: 0.45, rival: 0.45 };
 
 if (typeof V10 !== 'undefined' && V10 && typeof ROSTER_BOSSES !== 'undefined') {
   for (const B of BOSSES) {
