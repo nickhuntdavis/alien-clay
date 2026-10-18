@@ -6,6 +6,13 @@
 - Hooks: game.js eBullet -> V10_DIFF.bullet (one line).
 - Risk: easier race; tuning pending a 6-run sim.
 
+## 2026-10-18 V10 clean-up after the weapon roster change
+- Systems: weapons24, ui (Field Guide, Gene Bank, weapon panel), loadout, tutorial, school, guide tool
+- Files: w24look.js (new), ui.js, loadout.js, tutorial.js, school.js, index.html, tests/tools/guide.js, GAME_GUIDE.md
+- What: the 24 weapons get their own icons and unique badge codes (they all fell back to the pistol); a signature weapon's old id now reads as the new name in combos, pairings and the Tackle Box; only the 4 combos, 7 pairings and 1 super combo whose weapons are all among the 24 are listed (text rewritten with the new names); the Field Guide lists 24 weapons, V10 Feats and sample sequences (and no longer crashes on them); the Gene Bank no longer sells archived weapons; the Feat tutorial and Level 0 Feat room use V10 Feats; the GRUDGE card drops the Grudge Rifle; the guide lists only the 24 weapons.
+- Save data: none.
+- Hooks: ui.js codexHtml/renderBank/profileHtml/weapon panel and loadout.js loadoutCombos call wl_* helpers (w24look.js); school.js feat room f10Give.
+- Risk: menus only. Old-id name sync renames archived defs (Lab Bench shows new names). Pre-existing failures: schooltest, inspecttest.
 ## 2026-10-18 Race fixes from a run log: XP pull, weapon slots at Lv 5/12, gentler death stare, branches in the log (v10.12)
 - Systems: pickups, draft, bosses, run log
 - Files: game.js, data.js, bosses.js, meta.js, draft.js, tests/drafttest.js, tests/sim/race.js

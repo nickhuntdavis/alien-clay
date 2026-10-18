@@ -45,9 +45,9 @@ const TUT_CARDS = {
       'It refills on its own once you stop for a moment.',
       'Attacking Feats spend the same stamina, so keep a little back.'] }),
   feats: () => {
-    const att = Object.keys(SPELLS).filter(id => STAM_FEATS.has(id)).map(id => SPELLS[id].name);
+    const att = V10 && typeof F10_ORDER !== 'undefined' ? F10_ORDER.filter(id => F10[id].stam && !F10[id].trig).slice(0, 4).map(id => F10[id].name) : Object.keys(SPELLS).filter(id => STAM_FEATS.has(id)).map(id => SPELLS[id].name); // (V10: its own Feats)
     return { title: 'YOU FOUND A FEAT', name: 'FEATS', colour: PAL.upgrade,
-      what: 'You just took your first Feat: a big move that goes off by itself. You have two Feat slots.',
+      what: `You just took your first Feat: a big move that goes off by itself. You have ${typeof F10_SLOTS !== 'undefined' ? F10_SLOTS : 2} Feat slots.`,
       head: 'HOW THEY WORK', tips: [
         `The attacking ones (${att.join(', ')}) are paid for with stamina, the ring sprinting uses.`,
         'The rest (healing, slowing time, shields) wait on a cooldown.',
@@ -71,8 +71,8 @@ const TUT_CARDS = {
   grudge: () => ({ title: 'NEW MECHANIC', name: 'GRUDGE', colour: '#ff4d6d',
     what: 'Whatever hurt you last gets a red crosshair and the word GRUDGE over it.',
     head: 'WHY IT MATTERS', tips: [
-      'Grudge Rifle and any weapon set to GRUDGE targeting go for it first.',
-      'Grudge Rifle shots do triple damage to it. Settle it and the crosshair goes.'] }),
+      'Any weapon set to GRUDGE targeting goes for it first.',
+      'Settle it and the crosshair goes.'] }),
   tether: () => ({ title: 'NEW MECHANIC', name: 'TETHERS', colour: PAL.upgrade,
     what: 'A glowing line now joins two enemies, or an enemy and you.',
     head: 'WHAT IT DOES', tips: [
