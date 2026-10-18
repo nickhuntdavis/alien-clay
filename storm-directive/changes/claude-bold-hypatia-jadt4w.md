@@ -1,3 +1,11 @@
+## 2026-10-18 Test triage: 20 v9 tests retired, 6 fixed
+- Systems: tests, school (Level 0)
+- Files: tests/run.sh, tests/schooltest.js, inspecttest.js, introtest.js, setshot.js, rewindtest.js, newtut.js, web/js/school.js
+- What: the ALL list drops 20 tests of v9 systems that v10 switches off (files kept): sigwtest weirdbox pintest reborntest forktest junktest sxshot devall seqtest seqfeattest revealshot foescenetest colourtest fusiontest supertest rubbertest armtest newfeattest psttest f3test. Fixed: Level 0 crashed in lesson 11 (junk DNA is off, `G.junkDrops` undefined) so lesson 11 is now a free pass under V10; the Feat lesson now gives a tappable Feat when the starting one is a trigger Feat (Oopsie), and schooltest finishes in about 93 s again; inspecttest expects the 7x7 chart; introtest reads the `sd_meta10` key; setshot opens a visible hint row (View is hidden); rewindtest and newtut skip junk-carrier and earned-colour assertions under V10.
+- Save data: none.
+- Hooks: none.
+- Risk: none for the game beyond Level 0 lesson 11 being skipped under V10.
+
 ## 2026-10-18 Weapons grow between tiers; Thorns recoil capped; hazards get the v10 damage cut (v10.13)
 - Systems: weapons, combat, hazards
 - Files: weapons24.js, game.js, fight.js, bosses.js

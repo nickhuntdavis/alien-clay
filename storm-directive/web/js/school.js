@@ -273,7 +273,7 @@ const SCHOOL_ST = {
     task: () => 'DRAG TO THE EDGE TO SPRINT' },
   feat: {
     enter(R) {
-      if (!G.spells.some(Boolean)) { if (V10 && typeof f10Give === 'function') f10Give('brown_fat'); else G.spells[0] = makeSlot('frostnova', true, 1); recomputeAll(); if (typeof UI !== 'undefined') UI.refreshHud(true); tutShow('feats', true); }
+      if (!G.spells.some(w => w && !w.def.passive)) { if (V10 && typeof f10Give === 'function') f10Give('brown_fat'); else G.spells[0] = makeSlot('frostnova', true, 1); recomputeAll(); if (typeof UI !== 'undefined') UI.refreshHud(true); tutShow('feats', true); }
       schoolSay('A Feat: a big move in its own slot (bottom right). It goes off by itself when ready, or tap it to perform it now. Attacking Feats cost stamina.');
       R.casts = G.stats.casts || 0;
       schoolFoes(R, ['crawler', 'crawler', 'crawler', 'crawler', 'crawler', 'crawler'], R.A.rect, 300);
@@ -303,11 +303,13 @@ const SCHOOL_ST = {
     task: R => `ARMOUR SOAKS HITS: ${schoolLeft(R)} LEFT` },
   junk: { // (Lateral Gene Transfer: in a real run a carrier turns up every 40 to 55s, and sheds its junk after 30s)
     enter(R) {
+      if (V10) { schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); return; } // (v10: junk DNA is switched off, so lesson 11 is a free pass)
       schoolSay('See the white helix round that Antibody? Junk DNA. Kill it, then swim into the helix it drops: you keep a little of what it was for the rest of the run. Usually it sheds after 30 seconds; here it waits.');
       R.k0 = junkK('spitter');
       schoolFoes(R, ['crawler', 'crawler', 'crawler'], R.A.rect, 300);
     },
     tick(R) {
+      if (V10) return;
       const C = G.junkE;
       if (C && !C.dead) C.junk = G.t; // (it never sheds in school)
       else if (!C && !G.junkDrops.length && junkK('spitter') <= R.k0 && junkK('spitter') < JUNK.stacks) { // (a carrier, and another if the helix decayed)
@@ -318,8 +320,8 @@ const SCHOOL_ST = {
       }
     },
     got: R => junkK('spitter') > R.k0 || junkK('spitter') >= JUNK.stacks,
-    done: R => SCHOOL_ST.junk.got(R) && !schoolLeft(R),
-    task: R => SCHOOL_ST.junk.got(R) ? `${schoolLeft(R)} LEFT` : G.junkDrops.length ? 'SWIM INTO THE HELIX' : 'KILL THE ONE WITH THE HELIX' },
+    done: R => V10 || (SCHOOL_ST.junk.got(R) && !schoolLeft(R)),
+    task: R => V10 ? 'THE EGG: GO ON' : SCHOOL_ST.junk.got(R) ? `${schoolLeft(R)} LEFT` : G.junkDrops.length ? 'SWIM INTO THE HELIX' : 'KILL THE ONE WITH THE HELIX' },
 };
 
 // ---------------------------------------------------------------- hooks
@@ -334,7 +336,7 @@ function schoolEnter(R) { R.from = G.moveDir; SCHOOL_ST[R.A.st].enter(R); }
 function schoolArena(R, dt) { const S = SCHOOL_ST[R.A.st]; if (S.tick) S.tick(R, dt); }
 function schoolDone(R) {
   const ok = SCHOOL_ST[R.A.st].done(R);
-  if (ok) { G.lvl.passed = (G.lvl.passed || 0) + 1; if (R.A.st === 'junk') schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); }
+  if (ok) { G.lvl.passed = (G.lvl.passed || 0) + 1; if (R.A.st === 'junk' && !V10) schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); }
   return ok;
 }
 // The HUD line: what to do now.

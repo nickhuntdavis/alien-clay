@@ -30,7 +30,7 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { inspectSeeRx('bath'); INSPECTOR.close(); SET.inspect = 'pause'; });
   out.push(await page.evaluate(() => 'seenRx:' + JSON.stringify(META.seenRx)));
   console.log(out.join('\n'));
-  const ok = /^tap:true pause/.test(out[0]) && out[1] === 'closed:false play' && out[2] === 'drag:false' && out[3] === 'locked:true true' && /^half:play 0.5/.test(out[4]) && out[5] === 'chart:81 64';
+  const ok = /^tap:true pause/.test(out[0]) && out[1] === 'closed:false play' && out[2] === 'drag:false' && out[3] === 'locked:true true' && /^half:play 0.5/.test(out[4]) && out[5] === 'chart:49 42';
   console.log(ok ? 'inspect ok' : 'FAIL inspect');
   console.log('ERRORS', errors.length ? errors.slice(0, 3) : '[]'); await b.close();
 })();

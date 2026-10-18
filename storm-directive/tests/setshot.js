@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
   await page.click('[data-stab="screen"]');
   const r = await page.evaluate(() => {
     const hid = document.querySelectorAll('#setBody .srow > .hint').length;
-    document.querySelector('[data-sq="view"]').click();
+    document.querySelector('[data-sq="clinical"]').click(); // (v10: the View row is hidden)
     const shown = document.querySelectorAll('#setBody .srow > .hint').length;
     SET.clinical = true; UI.renderSettings(); const dim = !!document.querySelector('[data-s="dof"]').closest('.soff');
     SET.clinical = false; UI.renderSettings();
