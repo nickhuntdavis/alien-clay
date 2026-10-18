@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon upgrades second draft; Nappy Mines is Fire (docs only)
+- Systems: weapons, upgrades (docs only, redesign docs)
+- Files: WEAPON_UPGRADES.md (rewritten), BASE_WEAPONS.md, UPGRADES.md, README.md, CLAUDE.md
+- What: upgrades are now three promises at Lv 3, each grown at Lv 6 and Lv 10, with trade-offs, visible tells and autorun-mode notes; no upgrade changes damage type. Nappy Mines is Fire from the start (burning patch footprint instead of an Acid Pool).
+- Save data: none.
+- Hooks: none.
+- Risk: none (no code).
+
 ## 2026-10-18 Weapon upgrade forks (docs only)
 - Systems: weapons, upgrades (docs only, redesign docs)
 - Files: WEAPON_UPGRADES.md (new), UPGRADES.md, README.md, CLAUDE.md, COMBAT_MATRIX.md

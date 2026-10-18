@@ -1,419 +1,493 @@
 # Weapon Upgrades (first branch)
 
-**Status: working proposal, 18 Oct 2026. Docs only.** Numbers are starting points for sims. Roster: `BASE_WEAPONS.md`. Rules: `COMBAT_MATRIX.md` (cited as 11.x and 12.x), `MODIFIERS.md`.
+**Status: working proposal, 18 Oct 2026 (second draft). Docs only.** Numbers are starting points for sims. Roster: `BASE_WEAPONS.md`. Rules: `COMBAT_MATRIX.md` (cited as 11.x and 12.x), `MODIFIERS.md`, autorun modes in `AUTORUN_AUTOAIM.md`.
 
 ## How the branch works
 
-- Every weapon forks at **Lv 3, Lv 6 and Lv 10**. Each fork is its own screen with **three cards**; pick one, the other two are gone for the run. That is 9 upgrades per weapon, 216 in all.
-- **Replaces** the old weapon rule in `UPGRADES.md` (forks at Lv 5 and 10 with two cards).
-- **Lv 3 is a tweak** (a modifier or a number). **Lv 6 is a behaviour** (a new way the weapon works). **Lv 10 is the mastery** (signature-scale; only one weapon a run reaches Lv 10).
-- **The three cards at a fork differ in direction**, not just size: usually reach or power, control or utility, and a riskier or stranger option.
-- **Any combination is legal.** Every card works whatever was picked before it. Cards that pair well say so.
-- **Changes of attack type** are tagged **[ATTACK to X]**. The new attack type then decides every defence rule (Evasion, Thorns; `COMBAT_MATRIX.md` 13). Used mostly at Lv 10.
-- **Changes of damage type** are rare, always Lv 10, and tagged **[TYPE to X]**. The weapon takes the new type's statuses and reactions, and loses the old ones. Four exist in this document.
-- No new statuses and no new ground objects. Pools and patches use the standard objects (11.6, 40-object cap); "footprint" means an attack area that reactions do not use.
-- Every repeat, chain or spread is bounded (12.5). Copied or shared damage is echo damage (12.1).
+- **Lv 3: pick a promise.** Three cards, each a different answer to "how will this weapon play from now on?" The other two are gone for the run.
+- **Lv 6 and Lv 10: the promise grows.** Each promise has its own Lv 6 and Lv 10 step. Lv 6 adds a new behaviour that leans further into the promise; Lv 10 (the mastery: one weapon a run) adds the signature-scale behaviour. Neither is a plain number bump.
+- 3 promises × 3 steps = 9 upgrades per weapon, 216 in all.
+
+## Design rules for every branch
+
+1. **A promise changes what the player wants to do** (where to swim, what to target, when to commit), not how much damage a number says.
+2. **Autorun modes find different openings.** No card requires a mode. Each path notes which modes suit it: KITE (long trails, traps, range), ORBIT (circles, repeated contact), COLLECT (moving through drops), HUNT (focus fire on one target), HOLD (letting enemies come), NEST (fighting round the egg).
+3. **Identity first.** Each signature deepens its own fantasy. Sticky Situation shares damage; Static Cling chains; Tapeworm Seeder builds an army. They do not converge on generic chain reactions.
+4. **Visible in combat.** Every path has a **Shows** line: what the player sees that proves the choice is working.
+5. **Trade-offs.** Where a path gives something, its **Costs** line says what it takes away. Not every path is strictly better.
+6. **Damage type never changes** through an upgrade. Attack type can change, rarely and mostly at Lv 10, tagged **[ATTACK to X]**; the new attack type then decides the defence rules (Evasion, Thorns; matrix 13).
+7. No new statuses and no new ground objects. Weapon marks (a visible tag a weapon puts on an enemy for its own use, like Due Date's countdown) are allowed; they are not statuses and no reaction reads them. Pools are standard objects (11.6) or footprints (attack areas no reaction uses). Every repeat is bounded (12.5); copied damage is echo damage (12.1).
 
 ---
 
 # The 10 foundations
 
 ## 1. Nut Shot (Force, Projectile)
-**Lv 3**
-- **Double Dip:** a rapid volley of 2 shots, 70% damage each.
-- **Cracked Shell:** pierces 2 enemies (15% lost per enemy).
-- **Hard Nut:** every 4th shot is a heavy hit (knocks off a Shell layer) for +50% damage.
+**A. Ricochet Brain: play into packed groups.**
+- Lv 3: after a hit, the shot bounces to the nearest enemy within 110 (2 bounces, 80% damage each time).
+- Lv 6: a bounce that hits an enemy already knocked back by this shot slams them together: both take a collision hit.
+- Lv 10: the last bounce of each shot is a heavy hit (knocks off a Shell layer) and bounces once more.
+- Costs: the first hit is 15% weaker. Shows: a pale zigzag linking the bounces. Modes: ORBIT keeps a tight group in front of you.
 
-**Lv 6**
-- **Pinball:** after a hit the shot jumps to 2 more enemies (chaining, 70% falloff).
-- **Second Helping:** the shot flies back to you after full range, hitting again on the way (returning).
-- **Follow Through:** knockback doubled, and an enemy knocked into a wall or another enemy takes +40% collision damage.
+**B. Through and Through: line the crowd up.**
+- Lv 3: pierces up to 4 enemies; each one after the first takes +15% more than the last.
+- Lv 6: the shot speeds up with every enemy it passes through; a shot that clears 4 grows to double size.
+- Lv 10: a shot that pierces 5 or more leaves a shock lane behind it for 0.5 s that knocks back anything crossing it.
+- Costs: lower fire rate (−20%). Shows: the pellet visibly grows and its trail thickens per enemy. Modes: KITE lines pursuers up behind each other.
 
-**Lv 10**
-- **Nut Cannon:** unlimited pierce in a straight line, no damage lost per enemy, builds double Poise.
-- **Mixed Nuts [ATTACK to Spread]:** fires 5 pellets in a 40° cone, 40% damage each.
-- **Blue Nuts [TYPE to Static]:** the shot is Static: it Charges what it hits and chains (3 jumps). Loses Poise and knockback, gains Static's reactions.
+**C. Marked for Bonking: focus fire.**
+- Lv 3: every 4th hit on the same enemy marks it (a dented-nut icon); the next Nut Shot on a marked enemy is a heavy hit for ×2.5.
+- Lv 6: a marked enemy also takes +20% from your other weapons until the bonk lands.
+- Lv 10: the bonk staggers the target (full Poise bar) and knocks off a Shell layer; elites take it every 3rd hit instead of 4th.
+- Costs: the shot no longer switches targets while one is marked. Shows: the dent icon fills in quarters; the bonk has a big thwack frame. Modes: HUNT, which already locks one target.
 
 ## 2. Spray Gun (Force, Spread)
-**Lv 3**
-- **Choke:** the cone halves in width; +30% damage.
-- **Extra Pellets:** +3 pellets, cone 20% wider.
-- **Kick:** recoil lunges you back 80 units on each volley; knockback +50%.
+**A. Shotgun Wedding: get close and commit.**
+- Lv 3: the cone tightens to a third of its width; pellets that land within 120 units deal +60%.
+- Lv 6: a point-blank volley (every pellet hits one enemy) knocks it back hard and pushes you back 60 units (recoil lunge).
+- Lv 10: every 3rd volley fuses into a single slug that pierces 3 and is a heavy hit.
+- Costs: almost nothing lands beyond 200 units. Shows: a dense pellet ball and a recoil kick on the sperm. Modes: HUNT and ORBIT close the gap; KITE wastes it.
 
-**Lv 6**
-- **Through and Through:** every pellet pierces 1 enemy.
-- **Two-Stage:** two volleys 0.15 s apart (rapid volley).
-- **Full Circle:** every 4th volley is fired all the way round you (every Nth, self-centred).
+**B. More Is More: cover the screen.**
+- Lv 3: +5 smaller pellets (60% damage each) across a 50% wider fan.
+- Lv 6: pellets that miss carry on to full range and split once into 2 (40% damage).
+- Lv 10 [ATTACK to Burst]: every 4th volley fires all the way round you as a ring of pellets.
+- Costs: poor single-target damage; bosses shrug it off. Shows: a wide fan of tiny pips, then a full ring. Modes: ORBIT keeps a crowd in the fan; COLLECT clears a path through gems.
 
-**Lv 10**
-- **Slug [ATTACK to Projectile]:** the pellets fuse into one heavy slug (90% of their total damage), pierces 3, counts as a heavy hit.
-- **Point Blank:** pellets that hit within 100 units of you deal ×2 (scaling by distance, capped ×2).
-- **Boomerang Spray:** pellets fly out, then return, hitting again at 60% (returning).
+**C. Get Off Me!: shove them about.**
+- Lv 3: pellets knock back; an enemy hit by 3 or more pellets in one volley is shoved twice as far.
+- Lv 6: an enemy shoved into another enemy or a wall takes a collision hit, and so does what it hit.
+- Lv 10: a shove that causes a collision also knocks the second enemy on (depth 2), so one volley can scatter a group.
+- Costs: −15% damage per pellet. Shows: enemies tumble away and bump into each other. Modes: KITE and HOLD keep space clear; NEST keeps the egg free.
 
 ## 3. Nutcracker (Force, Contact)
-**Lv 3**
-- **Wider Jaws:** the clamp reaches 35% further and wider.
-- **Body Check:** each clamp lunges you up to 100 units into the target.
-- **Concussion:** each clamp builds double Poise.
+**A. Vice Grip: hold them and get out.**
+- Lv 3: each clamp holds the enemy in place for 0.4 s.
+- Lv 6: while an enemy is held, your swim speed is +25% and enemy shots aimed at you lose track for the same 0.4 s.
+- Lv 10: a held enemy can be clamped into a neighbour: the clamp swings it into the nearest enemy for a collision hit on both.
+- Costs: one clamp per 0.8 s (slower). Shows: the jaws visibly stay shut round the enemy. Modes: KITE uses the hold to escape; NEST stops attackers reaching the egg.
 
-**Lv 6**
-- **Double Crack:** after a clamp, it jumps to the nearest other enemy within 110 and clamps again (2 jumps, 70% falloff).
-- **Two-Bite:** a second clamp 0.2 s after the first.
-- **Brace for Impact:** each clamp gives you a small Membrane (5% max health, 2 s), at most once a second.
+**B. Shell Game: crack the tough ones.**
+- Lv 3: every 3rd clamp on the same enemy knocks off a Shell layer; an enemy with no Shell instead gets a crack mark: +15% damage from you, up to +45%.
+- Lv 6: a cracked enemy leaks: your clamps on it splash 30% onto the enemies touching it.
+- Lv 10: when the last Shell layer comes off, the enemy is staggered and takes a ×3 clamp.
+- Costs: it does nothing extra to enemies you don't stay on. Shows: visible cracks spreading across the target. Modes: HUNT keeps you on one enemy.
 
-**Lv 10**
-- **Nutcracker Suite:** two jaws orbit you at radius 60 and clamp whatever they pass (orbiting).
-- **Cracked Open [ATTACK to Burst]:** the clamp becomes a shockwave of radius 80 at the target. No more Thorns damage taken; Evasion no longer applies.
-- **Through-Line:** the lunge goes 160 units through everything in its path, hitting all of it. You cannot be hit mid-lunge.
+**C. Back Off!: answer the first one in.**
+- Lv 3: the first clamp on each enemy that enters range is a counter-strike: ×2 damage and heavy knockback (each enemy once per 4 s).
+- Lv 6: a counter-struck enemy knocked into another enemy knocks it back too.
+- Lv 10: when 3 or more enemies enter range within 1 s, the jaws snap all of them at once in a ring (self-centred).
+- Costs: later clamps on the same enemy are 20% weaker. Shows: a big star thump and enemies flung clear. Modes: HOLD and NEST let enemies come to you.
 
 ## 4. Premature Detonation (Force, Burst)
-**Lv 3**
-- **Hair Trigger:** the swell is twice as fast.
-- **Bigger Bang:** radius +35%.
-- **Double Pump:** a second pulse 0.3 s later at 60% damage.
+**A. Bigger Bang Theory: clear the crowd.**
+- Lv 3: radius +40%, and the outer edge hits harder than the centre (+30% at the rim).
+- Lv 6: the blast aims at the densest cluster's edge, so the rim lands on the most enemies.
+- Lv 10: every 4th blast has a second, larger ring 0.3 s later (double radius, 60% damage).
+- Costs: −20% damage at the centre. Shows: a fat shockwave with a bright rim. Modes: ORBIT keeps clusters in range.
 
-**Lv 6**
-- **Time Delay:** the blast is placed on the densest cluster and goes off 1 s later (delayed detonation, marked on the ground).
-- **Pressure Knot:** before it goes off, a small gravity well pulls enemies in for 0.5 s (Pull rule 12.2).
-- **Panic Release:** a self-centred pulse also goes off when you are hit (once per 6 s).
+**B. Chain Reaction: cascades.**
+- Lv 3: an enemy killed by the blast sets off a small blast (40% radius, 50% damage) where it died.
+- Lv 6: chain blasts can kill too, and those kills chain once more (depth 3 at most).
+- Lv 10: a chain of 3 or more ends in one big blast at the last link (full radius, 100%).
+- Costs: −15% base damage, so the payoff needs kills. Shows: pops rippling outwards through the crowd. Modes: COLLECT benefits from gems spilled across a wide area.
 
-**Lv 10**
-- **Daisy Chain:** an enemy killed by the blast sets off a smaller blast (50% radius) where it died. Depth 2.
-- **Big Finish:** every 5th blast has ×2 radius and ×3 damage (every Nth).
-- **Pent Up:** radius and damage grow with time since the last blast, up to +100% after 3 s (growing).
+**C. Premature Evacuation: make room.**
+- Lv 3: survivors are launched away from the centre; the more damage dealt, the further they fly.
+- Lv 6: a launched enemy that hits another enemy or a wall takes a collision hit, and so does what it hits.
+- Lv 10: blasts go off around you instead of at a target [ATTACK stays Burst, self-centred], launching everything near outward.
+- Costs: no extra damage; the payoff is space and collisions. Shows: enemies flung outwards in a ring. Modes: KITE and NEST, which want enemies kept away.
 
 ## 5. Acid Spit (Acid, Projectile)
-**Lv 3**
-- **Thick Glob:** a bigger glob; +40% Corrosion per hit.
-- **Splash Zone:** the impact splashes enemies within 40 for 50% Corrosion.
-- **Spit Take:** the glob pierces 2 enemies.
+**A. Spit Take: stay on one target.**
+- Lv 3: Corrosion builds 50% faster; the fuller a target's Corrosion bar, the more Acid damage it takes (up to +40% when full).
+- Lv 6: when a full bar strips a Shell layer, the bar resets only halfway.
+- Lv 10: a target that loses its last Shell layer to Acid Spit takes ×2 damage from your Acid Spit for 4 s.
+- Costs: the glob no longer re-targets until its target dies. Shows: a fizzing coat that thickens on the target. Modes: HUNT.
 
-**Lv 6**
-- **Triple Threat:** a rapid volley of 3 globs.
-- **Residue:** the landing spot leaves a small Acid Pool (radius 40, 2.5 s).
-- **Aimed Spit:** the glob homes in (turn rate 3).
+**B. Splash Damage: precise shots, messy results.**
+- Lv 3: a direct hit splatters 3 droplets onto enemies within 60 (30% damage, 30% Corrosion).
+- Lv 6: droplets that hit an enemy already carrying Corrosion splatter once more.
+- Lv 10: every 5th spit lands as a lobbed glob that leaves an Acid Pool (radius 50, 3 s).
+- Costs: −15% damage on the direct hit. Shows: visible droplets arcing off the target. Modes: ORBIT keeps a group bunched.
 
-**Lv 10**
-- **Acid Lake [ATTACK to Pool]:** lobbed puddles of radius 60 that last 4 s. No Evasion against it.
-- **Contagion:** when an enemy dies, its Corrosion bar passes to the nearest enemy (one jump, never retriggered).
-- **Acid Rain:** every 4th spit bursts into 6 droplets in a fan at 40% damage each (every Nth).
+**C. Bad Aftertaste: the death spreads it.**
+- Lv 3: each hit leaves an acidic residue mark on the target; when it dies, the residue splashes enemies within 70 with its Corrosion bar.
+- Lv 6: the splash also leaves a small Acid Pool where it died (radius 35, 2 s).
+- Lv 10: enemies hit by a splash carry their own residue mark, so the next death splashes again (depth 3).
+- Costs: no help against the target itself. Shows: green-pink drips on marked enemies, a splat on death. Modes: COLLECT swims through the gems those deaths drop.
 
 ## 6. Blue Screen (Static, Beam)
-**Lv 3**
-- **Wide Display:** the beam is 40% wider and 25% longer.
-- **Overclock:** +30% damage per tick.
-- **Packet Burst:** every 1.5 s a pulse runs down the beam for ×4 damage on the last enemy it reaches.
+**A. Overclocked: hold the line on one target.**
+- Lv 3: damage grows the longer the beam stays on one target, up to +100% after 3 s; switching target resets it.
+- Lv 6: at full charge the beam turns white and its hits carry Poise, so it can interrupt.
+- Lv 10: at full charge, the target is Charged permanently while the beam holds, so your other weapons' arcs start from it.
+- Costs: weak against crowds; every switch throws the charge away. Shows: the beam thickens and whitens as it charges, then snaps thin when switching. Modes: HUNT.
 
-**Lv 6**
-- **Screen Saver:** the beam slowly rotates through 360° (sweep).
-- **Second Monitor:** a second beam fires out at 45° to the first.
-- **Arc Fault:** the beam's far end chains onward (3 jumps, 70% falloff). This is the only version that forks.
+**B. Critical Error: hold it through a crowd.**
+- Lv 3: an enemy killed by the beam emits a pulse (radius 60, 50% of one second's beam damage).
+- Lv 6: a pulse that kills emits another (depth 3).
+- Lv 10: every 10 kills, the next kill makes a full-screen flicker that Charges every enemy on screen.
+- Costs: −10% beam damage. Shows: little static pops along the beam as enemies die. Modes: ORBIT keeps a crowd crossing the beam.
 
-**Lv 10**
-- **Fatal Error:** after 3 s on one target, it takes one ×5 hit and a Poise interrupt; the beam then cools for 1 s.
-- **Dual Anchor:** the beam is anchored between two enemies instead of fired from you (anchored beam).
-- **Power Cycle:** every 8 s the beam cuts out for 1 s, then returns at 3× width and ×2 damage for 2 s (every Nth, by time).
+**C. Dead Pixels: wider, scrappier coverage.**
+- Lv 3: every 0.5 s the beam glitches into 3 short parallel zaps either side of its line (50% damage each).
+- Lv 6: the glitches leave dead pixels on the floor for 1 s that zap anything crossing them (footprint).
+- Lv 10 [ATTACK to Spread]: the beam breaks up permanently into 7 short zaps fanned out in front of you.
+- Costs: −30% damage on the main line. Shows: a jittery beam with sparks either side. Modes: KITE drags the glitches across pursuers.
 
 ## 7. Snot Trap (Mucus, Pool)
-**Lv 3**
-- **Thick Rim:** radius +35%, lasts 1.5× as long.
-- **Stretch Armstrong:** enemies leaving the trap are tugged back towards its centre once per 1.5 s (Pull rule).
-- **Double Dollop:** lays two traps side by side.
+**A. Extra Strength Snot: slow everything.**
+- Lv 3: Snared enemies crossing it move at 40% speed (from 60%) and stay slowed for 1.5 s after leaving.
+- Lv 6: enemies leaving drag a strand behind them; the next enemy to cross the strand is Snared too.
+- Lv 10: the trap grows by 10% every second something is Snared in it (up to double size).
+- Costs: the trap lasts 25% less time. Shows: thick green drag lines and strands snapping back. Modes: KITE drags pursuers through it.
 
-**Lv 6**
-- **Slingshot:** the trap is lobbed at the densest cluster instead of laid at your feet (lobbed).
-- **Crowd Control:** two Snared enemies that touch inside the trap become Conjoined (groups of 3 at most).
-- **Cold Parcel:** the trap is laid as a trail while you swim (trail modifier).
+**B. Bogged Down: stick the dangerous ones.**
+- Lv 3: an enemy that stays in the trap for 1.5 s is stuck in place for 1.5 s (once per enemy per 4 s).
+- Lv 6: two stuck enemies close together become Conjoined (groups of 3 at most).
+- Lv 10: stuck enemies cannot attack.
+- Costs: one trap at a time. Shows: a stuck enemy sinks a little into the snot. Modes: HOLD and NEST, where enemies come to you.
 
-**Lv 10**
-- **Glue Factory:** an enemy Snared for 3 s straight is held solid for 1.5 s (once per enemy per 4 s).
-- **Mucus Geyser [ATTACK to Burst]:** the trap erupts every 3 s for 150% damage over its whole area, re-Snaring everything in it. No longer a standing patch.
-- **Moat:** the trap rides with you as a ring of radius 80 (self-centred).
+**C. Snotwork: build a network.**
+- Lv 3: traps within 200 of each other are joined by a stretchy strand; enemies crossing it are Snared.
+- Lv 6: up to 4 traps can be down at once (from 2).
+- Lv 10: an enemy crossing a strand is pulled along it to the nearest trap (Pull rule 12.2).
+- Costs: each trap is 30% smaller. Shows: glistening strands between puddles, enemies twanging into them. Modes: KITE and ORBIT both lay traps across a wide area.
 
 ## 8. Red Needle (Blood, Projectile)
-**Lv 3**
-- **Hypodermic:** pierces 2 enemies; each hit applies Bleed.
-- **Sharps:** a rapid volley of 3 needles.
-- **Blood Draw:** a needle that kills a bleeding enemy heals you 1% of max health (Extraction limits apply).
+**A. Bleeding Heart: the long fight.**
+- Lv 3: each hit adds a Bleed stack (cap raised to 6).
+- Lv 6: an enemy at the Bleed cap leaks: each second it splashes 1 stack onto the nearest enemy.
+- Lv 10: a bleeding enemy that dies leaves a blood pool twice as large, and enemies crossing it gain a Bleed stack.
+- Costs: −30% direct damage. Shows: growing pulsing marks on the target, drips between enemies. Modes: KITE keeps you alive while the Bleed works.
 
-**Lv 6**
-- **Acupuncture:** each needle landing on the same enemy adds +15% to the next, up to +60% (growing).
-- **Multiple Choice:** each needle in a volley homes on a different target.
-- **Pincushion:** needles stay in the enemy; after 3 s they pop for 50% of the total they dealt (delayed detonation).
+**B. Needlework: thread the horde.**
+- Lv 3: pierces up to 5 enemies; each one after the first takes +10% more than the last.
+- Lv 6: a needle that pierces 3 or more leaves a thread between the first and last enemy: Bleed hits anything crossing it for 2 s.
+- Lv 10: a needle that pierces 5 sews them together: they are pulled into a knot (Pull rule) and each takes a Bleed stack.
+- Costs: fires 25% slower. Shows: a red thread trailing the needle through the line. Modes: KITE lines pursuers up.
 
-**Lv 10**
-- **Vein Glory:** a needle that hits a bleeding enemy under 20% health kills it outright (elites 10%, bosses never).
-- **Phlebotomy [ATTACK to Beam]:** a thin continuous needle beam. Bleed builds as normal; no Evasion against it.
-- **Bleed Them Dry:** enemies that die bleeding leave a blood pool twice as large that lasts twice as long.
+**C. Final Prick: clean up.**
+- Lv 3: +100% damage to enemies under 30% health.
+- Lv 6: a kill by Red Needle fires a free needle at the next-weakest enemy within 300.
+- Lv 10: a needle that hits a bleeding enemy under 15% health kills it outright (elites under 8%, never bosses).
+- Costs: −25% damage to enemies above half health. Shows: a red pinprick flash and a ding on the finishing blow. Modes: COLLECT sweeps up the gems from the clean-up.
 
 ## 9. Ghost Load (Soul, Projectile)
-**Lv 3**
-- **Afterimage:** the orb leaves a ghost behind at the first enemy hit; it hits again for 50%.
-- **Haunting:** fills the Soul bar 50% faster.
-- **Pass Through:** the orb goes through 2 enemies (pierce 2) and ignores walls.
+**A. Ghost Through: pass through the crowd.**
+- Lv 3: passes through up to 4 enemies; each one after the first takes 20% less.
+- Lv 6: every enemy it passes through gains Soul build-up, so a long line fills several bars at once.
+- Lv 10: when the ghost reaches full range it fades and re-forms at the start of its path, flying the same line again once.
+- Costs: −15% damage to the first target. Shows: the ghost visibly passes through bodies, leaving a faint wisp in each. Modes: KITE lines pursuers up.
 
-**Lv 6**
-- **Come Back Here:** the orb turns round at full range and returns (returning).
-- **Echo Chamber:** every 3rd load fires 3 ghosts in a tight fan (every Nth).
-- **Spirit Guide:** the orb homes in (turn rate 3).
+**B. Return to Sender: twice the haunting.**
+- Lv 3: after its hit, the ghost fades, reappears and retraces its path back to you, hitting again (returning).
+- Lv 6: on its way back it pulls a little of each enemy it passes towards you (Pull rule, weak).
+- Lv 10: a Possessed enemy it passes on the way back is dragged along with it for 1 s, bumping its mates.
+- Costs: the shot is 30% slower. Shows: a translucent ghost reversing along its trail. Modes: ORBIT keeps enemies on both legs of the path.
 
-**Lv 10**
-- **Mass Haunting [ATTACK to Burst]:** the orb bursts at its first target (radius 90) and fills the Soul bar of everything in range.
-- **Wraith Lane [ATTACK to Beam]:** a continuous spectral beam. No Evasion against it.
-- **Dead Reckoning:** an enemy killed by Ghost Load releases a new ghost at 60% damage (once; the new ghost never releases another).
+**C. Unfinished Business: they come back for their friends.**
+- Lv 3: an enemy hit but not killed carries a haunting mark for 3 s; if it dies while marked, its spirit bursts out (radius 70, 60% damage, Soul build-up).
+- Lv 6: the burst also marks the enemies it hits (depth 2).
+- Lv 10: instead of bursting, the spirit of an elite or big enemy fights for you for 4 s (pets rule 12.3).
+- Costs: −20% direct damage. Shows: a pale wisp orbiting marked enemies, then a ghostly puff on death. Modes: HUNT tags a big target; COLLECT enjoys the bursts.
 
 ## 10. Hot Mess (Fire, Pool)
-**Lv 3**
-- **Spreading Rumour:** radius +35%.
-- **Fuel Line:** burns 1.5× as long.
-- **Hot Spot:** the Burn bar fills 50% faster inside it.
+**A. Hotter Mess: don't stand in it.**
+- Lv 3: the longer an enemy stays inside, the faster its Burn bar fills (up to 3× after 2 s).
+- Lv 6: an enemy that Ignites inside the patch makes the whole patch flare up for 0.5 s (+50% damage).
+- Lv 10: the patch pulls enemies standing at its edge back in (Pull rule, weak).
+- Costs: the patch is 20% smaller. Shows: the flames climb taller the longer someone stands in them. Modes: HOLD and NEST make enemies walk into it.
 
-**Lv 6**
-- **Slingshot:** the patch is lobbed at the densest cluster (lobbed).
-- **Double Mess:** two patches per throw, side by side.
-- **Slow Burn:** the patch creeps towards the nearest enemy at 20 units per second.
+**B. Spreading Rumours: the fire leaves with them.**
+- Lv 3: an enemy that walks out of the patch while Burning leaves a trail of small burning footprints for 1.5 s.
+- Lv 6: those footprints fill Burn bars as fast as the patch does.
+- Lv 10: an enemy that Ignites while trailing footprints drops a fresh small patch where it Ignites (once per enemy).
+- Costs: the patch itself burns out 30% sooner. Shows: scorched footprints leading away from the patch. Modes: KITE makes pursuers walk through and out again.
 
-**Lv 10**
-- **Flashpoint:** when the patch burns out, it flares once: everything inside takes a full Ignition.
-- **Acid Reflux [TYPE to Acid]:** a sick puddle instead of a fire: builds Corrosion and strips Shell. It is a standard Acid Pool.
-- **Merging Mess:** patches that touch merge into one up to radius 100, timer reset once per merge (12.7).
+**C. Flash in the Pan: short fuse, big finish.**
+- Lv 3: patches last half as long, but when one expires it erupts in a burst (its full radius) that fills Burn bars by half.
+- Lv 6: the eruption is aimed: it goes off early the moment 4 or more enemies stand in it.
+- Lv 10 [ATTACK to Burst]: patches no longer burn at all; they are delayed blasts that erupt after 1 s, with double the radius.
+- Costs: very little steady damage. Shows: the patch visibly swells and glows before it erupts. Modes: ORBIT gathers a crowd on top of it.
 
 ---
 
 # The 14 signatures
 
-Starting points are the shipped masteries and forks (`data.js`), rewritten to the matrix.
-
 ## 11. Black Hole (Force, Projectile, gravity well)
-**Lv 3**
-- **Event Horizon:** well radius +30%, pulls 25% harder.
-- **Nom Nom:** the orb eats enemy shots it touches (12.8) and grows with each, up to 2× its size.
-- **Slingshot:** your other weapons' shots bent by the orb leave it 25% faster and +25% damage.
+**A. Event Horizon: nothing gets out.**
+- Lv 3: the pull is much stronger near the centre (×2 within half the radius) and weaker at the edge.
+- Lv 6: an enemy pulled into the centre is held there until the orb ends (bosses never; elites 1 s).
+- Lv 10: when the orb ends, everything held is crushed together: one Burst with a collision hit for each enemy held.
+- Costs: the outer pull is 30% weaker, so fewer enemies are caught. Shows: a dark core with enemies pinned on it. Modes: HOLD and NEST, where the orbs fill up with enemies coming at you.
 
-**Lv 6**
-- **Choking Hazard:** non-boss enemies under 20% health dragged to the centre are swallowed whole.
-- **Grasp Reflex:** the longer an orb holds an enemy, the harder it squeezes, up to ×2 after 2 s (growing).
-- **Naughty Step:** the orb parks where it catches 4 enemies, pulls 2× harder and lasts 2× longer.
+**B. Orbituary: a moving hazard.**
+- Lv 3: enemies near the orb orbit it instead of falling in.
+- Lv 6: orbiting enemies collide with each other and with anything they swing into (collision hits both).
+- Lv 10: when the orb ends, orbiting enemies are flung outwards in all directions as projectiles that knock back what they hit.
+- Costs: the orb does 40% less damage of its own. Shows: a ring of enemies whirling round the orb. Modes: ORBIT keeps the crowd feeding the ring.
 
-**Lv 10**
-- **Big Bang:** when an orb ends it explodes (a Burst) for 50% of all the damage it dealt.
-- **Singularity [ATTACK to Pool]:** the orb stops at full range and becomes a standing well of radius 140 for 6 s. No merging.
-- **Lensing:** shots bent by an orb split in two (50% each, once, never again).
+**C. Big Bang, Eventually: wait for it.**
+- Lv 3: merged orbs gain power 50% faster, but each orb lasts longer and drifts slower (−30% speed).
+- Lv 6: the merge count shows on the orb; at 3 merged it starts eating enemy shots (12.8).
+- Lv 10: the supernova radius and damage scale with everything the orbs dealt (up to ×2), and it leaves a short standing well for 3 s [ATTACK to Pool for that well].
+- Costs: slow, back-loaded damage. Shows: a growing, wobbling orb with a visible merge counter, then the supernova. Modes: KITE keeps you alive while it grows.
 
-## 12. Meat Missile (Force, Burst, collisions)
-**Lv 3**
-- **Dripping:** +1 dollop per throw.
-- **Picking Up the Spare:** bowled enemies take +50% collision damage.
-- **Heavy Load:** dollops are 25% bigger and knock 30% harder.
+## 12. Peekaboo (Soul, Burst, Fear)
+**A. Peek-a-Boom: punish the bait.**
+- Lv 3: your false position explodes in a Soul burst (radius 90) when enemies reach it.
+- Lv 6: the burst's size grows with the number of enemies that reached the spot.
+- Lv 10: the false position stays for 4 s after you reappear and goes off a second time.
+- Costs: the BOO itself is 30% weaker. Shows: a faint sperm-shaped outline that pops when crowded. Modes: KITE leaves the bait far behind.
 
-**Lv 6**
-- **Perfect Game:** each flying enemy knocks the next one on, and so on to depth 3 (up from 2).
-- **Wall Flower:** an enemy knocked into a wall takes ×2 collision damage and is staggered.
-- **Pinball Wizard:** bowled enemies rebound off the first wall once and carry on.
+**B. You Can't See Me: stay gone.**
+- Lv 3: enemies searching the decoy stay confused 1 s longer; enemy shots aimed at you while hidden pass harmlessly through your old position.
+- Lv 6: while hidden, you swim 40% faster and can pick up drops without breaking cover.
+- Lv 10: while hidden, your other weapons keep firing, from where you actually are.
+- Costs: the BOO is 40% weaker. Shows: shots passing through a ghost outline, enemies milling about. Modes: COLLECT uses the hidden time to sweep gems.
 
-**Lv 10**
-- **Bowling Alley [ATTACK to Beam]:** a lane 40 wide: everything in it is launched forward. No Evasion.
-- **Human Cannonball:** the first enemy hit explodes where it lands (Burst, 60% damage; one explosion per throw).
-- **Meat Shower [ATTACK to Spread]:** each throw sends 5 smaller missiles in a cone, each with its own knockback.
+**C. Boo!: make them panic.**
+- Lv 3: the BOO's Fear lasts 3 s (from 2) when you reappear within 150 of enemies.
+- Lv 6: a fleeing enemy that bumps into another spreads Fear to it (once per enemy).
+- Lv 10: Feared enemies that run into each other collide for a hit and drop their next attack.
+- Costs: a shorter hide (1.2 s). Shows: enemies scattering and bumping into each other. Modes: HUNT reappears in the thick of it.
 
-## 13. Placental Siphon (Force, Projectile)
-**Lv 3**
-- **Bullet Buffet:** +40% absorb radius; each bullet eaten heals you a little (6 health per second cap).
-- **Trust Fund:** returned shots hit +2% harder per bullet stored, up to +80%.
-- **Big Gulp:** the store holds 16 bullets instead of 10.
+## 13. Twin Telepathy (Static, Beam, anchored)
+**A. Long-Distance Relationship: sweep the whole arena.**
+- Lv 3: the twin stays twice as far away; the beam is twice as long.
+- Lv 6: the beam damage grows with its length, up to +60% at full stretch.
+- Lv 10: the twin's end drags anything it touches along the beam towards you (Pull rule).
+- Costs: much harder to keep the beam on one target. Shows: a long beam slashing across the screen. Modes: KITE and ORBIT both sweep it naturally.
 
-**Lv 6**
-- **Return to Sender:** returned shots home on whoever fired them and hit that enemy ×2.
-- **Spread the Love:** every returned shot splits into three at 45% damage (Spread).
-- **Padded:** each stored bullet adds a little Membrane (1% max health, up to 10%).
+**B. Toxic Codependency: drag it through the dense part.**
+- Lv 3: each enemy the beam crosses in one sweep adds +10% to the beam for 2 s (up to +100%).
+- Lv 6: at +100% the beam turns white and Charges everything it touches for 3 s.
+- Lv 10: at +100% your twin swaps places with you along the beam, hitting everything on the line.
+- Costs: −20% damage when crossing few enemies. Shows: the beam brightening step by step as it sweeps. Modes: ORBIT.
 
-**Lv 10**
-- **Mirror Womb:** 30% of enemy shots that reach you bounce back at whoever fired them.
-- **Let-Down Reflex [ATTACK to Burst]:** when the store fills, it all bursts out in a ring of returned bullets.
-- **Hollow Point [ATTACK to Beam]:** spends the whole store at once as a lane, damage equal to the total stored.
+**C. Third Wheel: more geometry.**
+- Lv 3: a Charged enemy struck by the beam throws a second, shorter beam to the nearest enemy for 1 s.
+- Lv 6: up to 3 extra beams at once; each extra beam that crosses another makes a spark at the crossing that hits everything near it.
+- Lv 10: a third anchor appears (another twin): the beams form a triangle and everything inside it is Charged.
+- Costs: the main beam is 20% thinner. Shows: branching beams and crossing sparks. Modes: ORBIT and HUNT weave through clusters.
 
-## 14. Nappy Mines (Acid, Burst, delayed)
-**Lv 3**
-- **Domino Nappies:** a blast sets off nearby mines, 3 in the chain at most, each 25% bigger.
-- **Sticky Nappies:** mines are thrown onto enemies and stick, going off 1.2 s later.
-- **Pebbledash:** every mine also fires 8 shrapnel shots at the nearest enemy (25% damage each).
+## 14. Tooth Fairy (Soul, Burst, lures)
+**A. Pillow Tax: bait makes more bait.**
+- Lv 3: every enemy smitten drops a tooth of its own.
+- Lv 6: up to 6 teeth on the ground at once (from 3).
+- Lv 10: when 3 teeth are taken within 1 s, the Fairy smites all three takers and everything between them.
+- Costs: each smite is 25% weaker. Shows: teeth tumbling out of each smitten enemy. Modes: COLLECT and ORBIT keep you near the falling teeth.
 
-**Lv 6**
-- **Learning to Crawl:** mines crawl after the nearest enemy (homing).
-- **Blowout:** the Acid Pool left by each blast is 40% larger and lasts twice as long.
-- **Tripwire:** mines come in linked pairs; an enemy crossing the line between them sets both off.
+**B. Sweet Tooth: steer the horde.**
+- Lv 3: teeth lure from twice as far, and enemies chasing a tooth stop attacking you.
+- Lv 6: teeth are dropped where you choose to be: they land on your swim path, 200 units behind you.
+- Lv 10: one gold tooth at a time lures everything on screen (bosses excepted) for 2 s.
+- Costs: smites are 20% weaker. Shows: enemies peeling off the crowd and swimming for the glint. Modes: KITE drops teeth behind you; NEST draws enemies away from the egg.
 
-**Lv 10**
-- **Nuclear Nappy:** every 6th mine is a nuke: ×3 radius, ×6 damage (one Burst; its Pool is normal size).
-- **Minefield:** three mines per drop, twice as often, lasting twice as long.
-- **Hot Nappies [TYPE to Fire]:** blasts ignite instead of corroding: they fill the Burn bar, radius +30%, no Acid Pool.
+**C. Tooth and Consequences: patience pays.**
+- Lv 3: a tooth gains power while it waits: +25% smite damage per second, up to +150%.
+- Lv 6: a fully charged tooth (6 s) glows, and its smite also hits everything within 100.
+- Lv 10: a fully charged tooth that is never taken explodes when it expires, smiting everything within 160.
+- Costs: teeth are dropped 40% less often. Shows: teeth glowing brighter as they wait. Modes: HOLD and KITE give teeth time to charge.
 
-## 15. Twin Telepathy (Static, Beam, anchored)
-**Lv 3**
-- **Joined at the Hip:** the beam is twice as wide and Snares what it touches.
-- **Switcheroo:** every 6 s you swap places with your twin, hitting everything along the path. You cannot be hit mid-swap.
-- **Same Wavelength:** the beam destroys enemy Projectile and Spread shots that cross it (12.8).
+## 15. Tapeworm Seeder (Soul, Projectile)
+**A. The Family Business: a durable army.**
+- Lv 3: undead last 12 s (from 6) and deal +50%.
+- Lv 6: undead follow you and fight near you, instead of where they died.
+- Lv 10: the first elite you convert each wave stays for the whole wave (counts towards the pets cap).
+- Costs: at most 3 undead (from 4). Shows: a little worm-ridden escort swimming with you. Modes: KITE keeps them between you and the crowd.
 
-**Lv 6**
-- **Sympathetic Pain:** when you are hurt, your twin's end erupts (Burst, 300% damage, at most every 1.5 s).
-- **Crossed Wires:** each end of the beam chains onward (2 jumps, 70% falloff).
-- **Long Distance:** range 520 up to 700; damage grows with beam length, up to +100% (growing).
+**B. Contagious Personality: the army recruits.**
+- Lv 3: undead infect the enemies they attack.
+- Lv 6: infection lasts until death (no 8 s timeout).
+- Lv 10: any enemy that dies infected rises, whoever killed it (pets cap still applies; the oldest undead goes first).
+- Costs: undead last 4 s and deal 30% less. Shows: worm marks spreading enemy to enemy. Modes: ORBIT keeps the fight tightly packed for infection.
 
-**Lv 10**
-- **Quadruplets:** two more twins, each with its own beam, fanning out through the crowd.
-- **Psychic Link:** every 2 s a pulse runs along the beam for 200% damage to everything on it, tagged Poise so it can interrupt.
-- **Live Wire [ATTACK to Pool]:** the beam is gone; instead the line you sweep stays charged for 3 s, hitting what crosses it.
+**C. Dead Useful: an army of ammunition.**
+- Lv 3: undead explode in a Soul burst (radius 70) when they expire or are killed.
+- Lv 6: the burst adds Soul build-up to everything it hits.
+- Lv 10: you can detonate your undead early: every 8 s, all undead rush the densest cluster and burst on arrival.
+- Costs: undead deal 50% less in melee. Shows: undead shambling into crowds and popping. Modes: HUNT points them at a big target.
 
-## 16. Static Cling (Static, Projectile, chaining)
-**Lv 3**
-- **Short Circuit:** +3 jumps, and the chain may bounce back to an enemy already hit once (6 jumps at most).
-- **Longer Leash:** jump range 110 to 170; falloff 70% to 80%.
-- **Static Shock:** the last enemy in each chain takes a Poise hit and may be interrupted.
+## 16. The Runs (Fire, Pool, trail)
+**A. Can't Hold It: go fast.**
+- Lv 3: the faster you swim, the denser and hotter the trail (up to ×2 Burn rate at full speed).
+- Lv 6: sprinting leaves a white-hot streak that Ignites anything crossing it at once (once per enemy per 4 s).
+- Lv 10: at full speed you leave burning footprints either side of you as well, tripling the trail's width.
+- Costs: standing still leaves nothing, and slow swimming leaves a weak trail. Shows: the trail brightens and widens with speed. Modes: KITE and ORBIT keep you moving fast.
 
-**Lv 6**
-- **Party Balloon:** every 4th bolt leaves a ball of static on its target that zaps nearby enemies every 0.5 s for 3 s.
-- **Grounded:** each chain heals you 1% of max health per enemy hit (6 health per second cap).
-- **Lightning Rod:** Charged enemies take +40% Static damage (up from +20%) and pass on one extra arc.
+**B. Backdraft: cross your own path.**
+- Lv 3: crossing your own trail ignites it in a wave: fire runs along the path both ways from the crossing (1 s, fills Burn bars by half).
+- Lv 6: closing a loop (crossing a trail you laid within 4 s) fills the Burn bar of everything inside the loop.
+- Lv 10: a wave that meets another wave bursts where they meet (a Burst of radius 90).
+- Costs: the trail itself burns 30% weaker. Shows: a visible wave of fire racing along the trail. Modes: ORBIT crosses its own path constantly.
 
-**Lv 10**
-- **Worked Up:** every jump hits 20% harder than the last, instead of weaker.
-- **Tumble Dryer:** 15% of hits from all your other weapons start a Static Cling chain (once per 0.3 s).
-- **Thunderhead [ATTACK to Burst]:** every 5th bolt calls a strike on the densest cluster (radius 80) and Charges everything in it.
+**C. Leave a Little Behind: lay a route.**
+- Lv 3: the trail lasts 3 times as long but starts at low heat, building up over 2 s.
+- Lv 6: enemies following your exact path take +50% (the trail remembers them).
+- Lv 10: trail pieces that are fully hot become embers that stay for 10 s along your most-used route.
+- Costs: slow payoff; the fresh trail behind you does little. Shows: a trail that glows from dull to bright behind you. Modes: KITE drags pursuers along the route; NEST circles the egg on one route.
 
-## 17. Sticky Situation (Mucus, Projectile, shared damage)
-**Lv 3**
-- **In Triplicate:** every bundle tapes 3 more enemies (up to 6).
-- **Stapled:** bundles are pulled tight and the members are Snared harder (slowed 40%).
-- **Redacted:** taped enemies cannot shoot.
+## 17. Nappy Mines (Fire, Burst, delayed)
+**A. Proximity Problems: punish pursuers.**
+- Lv 3: mines go off as soon as an enemy comes within 50, as well as on their fuse.
+- Lv 6: a mine that goes off on contact flings the enemy back towards the next mine.
+- Lv 10: mines crawl slowly after the nearest enemy within 150 (homing).
+- Costs: −15% blast damage. Shows: mines blinking faster as enemies near. Modes: KITE lays them in the path of pursuers.
 
-**Lv 6**
-- **Joint Liability:** when a taped enemy dies, the rest of its bundle takes 30% of its max health (echo damage).
-- **Forwarded:** when a taped enemy dies, its tape jumps to the nearest untaped enemy (once).
-- **Fine Print:** the share rises from 35% to 50% (echo damage).
+**B. Cluster Diaper: build a minefield, set it off once.**
+- Lv 3: mines dropped within 120 of each other link (a visible tape between them); one blast sets off the whole linked group.
+- Lv 6: each mine in a chain goes off 20% bigger than the last (3 mines max per chain, 12.5).
+- Lv 10: a chain of 3 ends in a nappy-shaped blast of triple radius.
+- Costs: mines do not go off on their own until an enemy touches one in the group. Shows: taped-together mines going off in sequence. Modes: HOLD and NEST drop mines in one place.
 
-**Lv 10**
-- **Bureaucracy:** bundles share 70% of every hit.
-- **Referred Elsewhere:** when a bundle runs out, the four nearest enemies are taped for free.
-- **Class Action [ATTACK to Burst]:** when a bundle ends, the tape snaps taut: a Burst of radius 90 at its centre for 150% of the damage shared.
+**C. Lingering Smoulder: deny the ground.**
+- Lv 3: the burning patch left by each blast lasts 3 s (from 2) and grows slowly.
+- Lv 6: patches that touch merge into one bigger patch (12.7 limits).
+- Lv 10: an enemy that Ignites on a patch makes it flare outward to double size for 1 s.
+- Costs: the blast itself is 25% weaker. Shows: smouldering patches spreading behind you. Modes: KITE turns a retreat into a burning route.
 
-## 18. Blowing Bubbles (Mucus, Projectile, traps)
-**Lv 3**
-- **Extra Soapy:** bubbles hold enemies twice the size, elites included (never bosses).
-- **Bubble Bath:** a pop Snares everything in it for 3 s and leaves a Mucus patch.
-- **Bubble Wrap:** +2 bubbles per shot.
+## 18. Static Cling (Static, Projectile, chaining)
+**A. It's Spreading: cover the crowd.**
+- Lv 3: +3 jumps (6 in all); jump range 140.
+- Lv 6: the chain can fork once: at the first enemy it splits into two chains.
+- Lv 10: the last enemy in each chain stays Charged for 6 s instead of 3.
+- Costs: each jump loses more (60% falloff instead of 70%). Shows: long branching arcs across the crowd. Modes: ORBIT keeps a crowd within jump range.
 
-**Lv 6**
-- **Cannonball:** a pop launches the trapped enemy away from the popper; it bowls through its friends and bursts where it lands.
-- **Chain Pop:** a pop sets off every other bubble in reach, one after another (depth 3).
-- **Hamster Ball:** trapped enemies roll at the nearest other enemy and pop on it.
+**B. Conductive Personality: set up the whole build.**
+- Lv 3: Charged enemies take +20% damage from all your weapons (not just Static).
+- Lv 6: Static Cling picks targets that are not yet Charged, spreading the setup.
+- Lv 10: when an enemy dies while Charged, all your weapons fire 20% faster for 2 s (does not stack).
+- Costs: Static Cling's own damage is −30%. Shows: crackling Charged outlines on many enemies at once. Modes: HUNT pairs it with a heavy hitter.
 
-**Lv 10**
-- **Cotton Wool:** every 8 s you are wrapped in a bubble that blocks your next 3 hits.
-- **Big Bubble:** one huge bubble (radius 120) that traps up to 8 small enemies together and pops for 200% (a Burst).
-- **Bubble Field [ATTACK to Pool]:** the shot bursts into a drifting cloud of bubbles for 5 s; small enemies that touch it are trapped.
+**C. Feedback Loop: arcs feed arcs.**
+- Lv 3: when another weapon's hit makes a Charged enemy arc, there is a 30% chance it throws a second, smaller arc (50%).
+- Lv 6: a second arc that lands on another Charged enemy can throw one more (depth 3).
+- Lv 10: every 20 arcs, the next Static Cling bolt is a storm: it chains to every Charged enemy on screen.
+- Costs: Static Cling fires 25% slower. Shows: arcs spawning arcs in visible cascades. Modes: any mode with a fast-firing second weapon.
 
-## 19. Due Date (Blood, Projectile, mark)
-**Lv 3**
-- **Overdue:** the countdown is 6 s (up from 4) and the repeat 55% (up from 40%).
-- **Early Delivery:** a marked enemy under 30% health goes off at once.
-- **Twins:** two marks per shot, on the two toughest targets.
+## 19. Sticky Situation (Mucus, Projectile, shared damage)
+**A. Birds of a Feather: bigger networks.**
+- Lv 3: bundles link up to 6 enemies (from 4) and reach 220 (from 170).
+- Lv 6: two bundles that touch merge into one network (up to 10).
+- Lv 10: hitting any enemy in the network shares the hit with all of it (35% each, echo damage).
+- Costs: bundles last 3 s (from 5). Shows: a web of red tape across the crowd. Modes: ORBIT keeps the network packed.
 
-**Lv 6**
-- **Baby Shower:** when a date goes off, half of it splashes onto everything nearby (echo damage).
-- **Rebooked:** when a date goes off, the two nearest enemies are marked for free.
-- **Contractions:** the marked enemy takes Bleed hits once a second until it goes off.
+**B. Shared Trauma: share what is wrong with them.**
+- Lv 3: when one linked enemy is Snared, Burning or Corroded, its partners gain a quarter of that bar or status (once per second; a weapon rule, not echo damage).
+- Lv 6: a linked enemy that is Possessed drags its partners towards its targets.
+- Lv 10: when one partner Ignites or loses a Shell layer, every partner takes the same, once per bundle.
+- Costs: the shared damage drops to 20%. Shows: statuses visibly flowing along the tape. Modes: any; strongest with a second weapon that applies statuses.
 
-**Lv 10**
-- **Labour Day:** a date that goes off marks the same enemy again at once (twice at most per enemy).
-- **The Big Day:** marked enemies take +30% damage from everything you own (not echo damage).
-- **Passing the Baton:** if a marked enemy dies, the mark and its stored damage move to the nearest enemy (once).
+**C. Toxic Relationship: focus until it snaps.**
+- Lv 3: when a linked enemy dies, the tape snaps and its partners take 30% of its max health (echo damage).
+- Lv 6: the snap pulls the survivors together, Conjoining them.
+- Lv 10: each snap in the same bundle hits harder than the last (+50% per snap).
+- Costs: no damage is shared while they live. Shows: the tape twanging tight, then snapping. Modes: HUNT focuses one linked enemy down.
 
-## 20. Seeker Siblings (Blood, Projectile, homing)
-**Lv 3**
-- **Big Brother:** one sibling per volley is huge: ×4 size and damage, pierces 3.
-- **Sibling Rivalry:** every kill adds a sibling to your volleys, up to +8; reloading resets it.
-- **One Each:** every sibling in a volley picks a different target.
+## 20. Meat Missile (Force, Burst, collisions)
+**A. Pinball Wizard: rebound everything.**
+- Lv 3: enemies that collide with others rebound instead of stopping, carrying on at 70% speed.
+- Lv 6: rebounds off walls count too, and each rebound adds a collision hit.
+- Lv 10: a rebounding enemy that hits 3 others bursts in a small Force blast.
+- Costs: −20% blast damage. Shows: enemies visibly ricocheting round the group. Modes: ORBIT keeps the group close enough to bounce.
 
-**Lv 6**
-- **Little Terrors:** siblings explode on hitting, 70% damage in a small blast.
-- **Blood Relatives:** siblings pierce 1 and apply Bleed to everything they pass through.
-- **Family Reunion:** siblings that miss swim back and circle you, eating enemy shots (12.8), then launch again.
+**B. Heavy Meat: big enemies make the best ammunition.**
+- Lv 3: collision damage scales with the size of the flying enemy (up to ×2 for elites).
+- Lv 6: big enemies send small ones flying twice as far.
+- Lv 10: elites can be launched (bosses never), and a launched elite is a heavy hit to everything it strikes.
+- Costs: small enemies barely move. Shows: big enemies cannoning through little ones. Modes: HUNT finds the big ones.
 
-**Lv 10**
-- **Baby Boom:** every sibling splits into two on its first hit (not only on a kill). At most 12 in flight, split siblings never split.
-- **Natural Selection:** siblings home on the lowest-health enemies and finish anything under 15%.
-- **Dynasty:** a sibling still alive after 5 s grows up: ×2 damage and size, pierce 2 (growing).
+**C. Meat Grinder: hits build up.**
+- Lv 3: each collision adds an impact mark to the enemy; at 3 marks it bursts in a small Force shockwave.
+- Lv 6: the shockwave launches its neighbours too.
+- Lv 10: the shockwave counts as a collision, so it adds marks to what it hits (depth 3).
+- Costs: −30% knockback distance. Shows: tenderised enemies swelling with each mark, then popping. Modes: HOLD lets the crowd pile in.
 
-## 21. Peekaboo (Soul, Burst, Fear)
-**Lv 3**
-- **Hide and Seek:** you swim 40% faster while hidden.
-- **Jump Scare:** the BOO freezes enemies stiff for 1.2 s instead of sending them fleeing (not bosses).
-- **Long Count:** hidden for 2.6 s (up from 1.8); the BOO bonus caps at 7 searching enemies instead of 10.
+## 21. Placental Siphon (Force, Projectile)
+**A. Return to Womb: store it up.**
+- Lv 3: the store holds 25 bullets (from 10), and stored bullets keep 2 s longer before going stale.
+- Lv 6: the volley fires only when the store is full, all at once, in a tight cone.
+- Lv 10: a full-store volley is followed by a second volley of the same size at the nearest elite.
+- Costs: nothing fires until the store fills. Shows: a visibly swelling placenta round the sperm, then a big volley. Modes: KITE survives while it fills.
 
-**Lv 6**
-- **Who's There?:** while you are hidden, enemy shots hit other enemies for ×3.
-- **Decoy Doll:** a doll stays where you vanished for 4 s; enemies keep attacking it; it bursts for BOO damage at the end (delayed detonation).
-- **Possessive:** the BOO also adds 50% of a Soul bar to everything it hits.
+**B. Umbilical Shield: survive the pattern.**
+- Lv 3: each stored bullet adds a little Membrane (1% max health, up to 15%).
+- Lv 6: while the Membrane holds, enemy bullets within 120 are pulled towards you to be eaten.
+- Lv 10: when the Membrane breaks, every stored bullet bursts out in a ring.
+- Costs: returned shots do 40% less. Shows: a cord-and-membrane bubble that thickens. Modes: NEST and HOLD stand in the bullets.
 
-**Lv 10**
-- **Big Boo:** the BOO reaches everything on screen and the Fear lasts twice as long.
-- **Surprise!:** you reappear at the densest cluster and the BOO goes off there.
-- **Camper:** your other weapons keep firing while you are hidden, at +30% damage.
+**C. Eat the Rich: the scarier the shot, the nastier the reply.**
+- Lv 3: big or powerful enemy shots count as 3 stored bullets and are returned at triple damage.
+- Lv 6: a returned big shot pierces everything in its path.
+- Lv 10: a boss shot that is eaten is returned at its boss (homing) and is a heavy hit.
+- Costs: small shots are no longer eaten. Shows: big shots visibly swallowed and spat back. Modes: HUNT goes near bosses and elites.
 
-## 22. Tooth Fairy (Soul, Burst, lures)
-**Lv 3**
-- **Gold Tooth:** every 4th tooth is gold: it lures from twice as far, and whoever takes it is smitten along with everything within 90.
-- **Wisdom Teeth:** teeth lure from 60% further and last twice as long.
-- **Baby Teeth:** up to 5 teeth on the ground (up from 3); each smite does 30% less.
+## 22. Blowing Bubbles (Mucus, Projectile, traps)
+**A. Big Bubble Trouble: catch the elites.**
+- Lv 3: bubbles can trap enemies of any size except bosses, but take 0.8 s to close round anything bigger than small.
+- Lv 6: a trapped elite cannot attack and its Membrane stops regenerating.
+- Lv 10: popping an elite's bubble launches it like a cannonball through its friends.
+- Costs: one bubble at a time. Shows: a large bubble wobbling closed round a big enemy. Modes: HUNT.
 
-**Lv 6**
-- **Under the Pillow:** a tooth nobody takes within 4 s turns into a large XP coin.
-- **Dentures:** teeth bite anything that comes close, 50% damage every half second.
-- **Tooth Decay:** an enemy holding a tooth takes +12% from everything per tooth, up to +36%.
+**B. Bubble Wrap: walls you can move.**
+- Lv 3: trapped enemies' bubbles block enemy shots.
+- Lv 6: bubbles drift towards you and float between you and the nearest shooter.
+- Lv 10: when a bubble has blocked 5 shots it pops and fires them back.
+- Costs: bubbles pop only to shots and you, not to enemies. Shows: shots splashing harmlessly on bubbles. Modes: KITE and NEST.
 
-**Lv 10**
-- **Fairy Ring:** every smite also hits everything within 140 of the victim for 50%.
-- **Possession Fee:** a smite fills the victim's Soul bar at once, so it is Possessed (once per enemy; bosses get reduced).
-- **Hollow Tooth [ATTACK to Projectile]:** teeth are thrown as homing shots at the nearest enemy instead of left as lures.
+**C. Pop Goes the Prawn: control bombs.**
+- Lv 3: a pop releases a mucus shockwave (radius 90) that Snares everything near.
+- Lv 6: the shockwave pops other bubbles it reaches (depth 3).
+- Lv 10: the shockwave Conjoins enemies it Snares together.
+- Costs: bubbles hold enemies for 2 s (from 5). Shows: a green ring spreading from each pop. Modes: ORBIT keeps bubbles near crowds.
 
-## 23. Tapeworm Seeder (Soul, Projectile)
-**Lv 3**
-- **Up and About:** undead last 12 s (up from 6).
-- **Big Worm:** undead hit 50% harder.
-- **Feeding Tube:** each infected enemy that dies heals you 1% of max health (6 health per second cap).
+## 23. Due Date (Blood, Projectile, mark)
+**A. Any Day Now: commit and it comes sooner.**
+- Lv 3: the countdown shortens by 0.1 s for every hit the marked enemy takes.
+- Lv 6: a date that goes off early repeats 50% (from 40%).
+- Lv 10: going off early staggers the target.
+- Costs: one mark at a time. Shows: the countdown clock spinning faster as you hit it. Modes: HUNT.
 
-**Lv 6**
-- **Eating for Two:** undead hit twice as hard.
-- **Carrier:** an infected enemy infects the first enemy it touches (once per enemy).
-- **Rapid Infection:** a rapid volley of 3 shots; infection lasts 12 s (up from 8).
+**B. Multiplying Responsibilities: spread the dates.**
+- Lv 3: when a date goes off or its enemy dies, the 2 nearest enemies get weaker marks (20% repeat).
+- Lv 6: weaker marks pass on once more when they go off (depth 2).
+- Lv 10: when 3 dates go off within 1 s, the third repeats at full strength.
+- Costs: the main mark repeats only 30%. Shows: little clocks hopping enemy to enemy. Modes: ORBIT.
 
-**Lv 10**
-- **Brood:** every infected death infects the 3 nearest enemies (depth 2 at most).
-- **Adopted:** elites killed while infected become permanent allies (3 at most; they count towards the pets cap).
-- **Hatchery [ATTACK to Pool]:** an infected corpse becomes a worm nest for 5 s that infects whatever steps in and spawns an undead (pets cap applies).
+**C. Interest Accrued: a long wait for a big cheque.**
+- Lv 3: the countdown is 8 s (from 4) and repeats 70% (from 40%).
+- Lv 6: the clock shows the stored total, and the stored damage keeps 25% of itself if the enemy dies early, bursting onto neighbours.
+- Lv 10: a mark that goes off on a boss or elite also marks it again at once (twice per enemy).
+- Costs: the slowest payoff in the game. Shows: a big ledger number growing over the target. Modes: HUNT and HOLD against bosses.
 
-## 24. The Runs (Fire, Pool, trail)
-**Lv 3**
-- **Long Run:** trail pieces last twice as long.
-- **Closing the Loop:** swim a loop round enemies and everything inside takes a full Burn bar at once (pairs with ORBIT autorun).
-- **Slipstream:** swimming through your own trail gives +35% swim speed and 25% less damage taken.
+## 24. Seeker Siblings (Blood, Projectile, homing)
+**A. Family Planning: more children.**
+- Lv 3: every kill produces an extra seeker (not only when one splits).
+- Lv 6: the extra seekers are faster and smaller.
+- Lv 10: the cap rises to 18 in flight (from 12).
+- Costs: each seeker is 25% weaker. Shows: a swarm visibly growing through a crowd. Modes: ORBIT keeps them fed.
 
-**Lv 6**
-- **Hot Stuff:** the Burn bar fills 50% faster; the Ignition flare is 40% bigger.
-- **Patient Zeroes:** two ghost carriers circle you, each shedding its own trail (orbiting).
-- **Smoke Screen:** enemy Projectile and Spread shots crossing the trail burn up (12.8).
+**B. The Favourite: pick on the weak.**
+- Lv 3: seekers always home on the weakest enemy in range.
+- Lv 6: a seeker that kills gains +30% damage for its next target.
+- Lv 10: a kill from a seeker that has already killed splits into three instead of two.
+- Costs: they ignore big threats. Shows: seekers zipping between the wounded. Modes: COLLECT follows the kills.
 
-**Lv 10**
-- **Fever Trail:** the faster you swim, the hotter it burns, up to ×2 (scaling).
-- **Backdraft [ATTACK to Burst]:** when you stop, the whole trail ignites at once: one Ignition per enemy standing on it.
-- **Gastric Distress [TYPE to Acid]:** the trail turns corrosive: it builds Corrosion and strips Shell. Pieces are standard Acid Pools.
+**C. Sibling Rivalry: gang up.**
+- Lv 3: two or more seekers on the same enemy deal +25% each.
+- Lv 6: all seekers in a volley pick the same target.
+- Lv 10: when 4 seekers hit one enemy within 0.5 s, they apply a full Bleed stack cap at once.
+- Costs: no splitting. Shows: a tight knot of seekers diving in together. Modes: HUNT.
 
 ---
 
 # Notes and open points
 
-1. **Type changes (4):** Nut Shot to Static, Nappy Mines to Fire, Hot Mess to Acid, The Runs to Acid. Each changes which reactions the weapon feeds; none breaks a rule. The Runs and Hot Mess both reaching Acid is deliberate: Acid is the thinnest Fire-adjacent Shell stripper.
-2. **Attack-type changes (20):** Burst 7, Pool 5, Beam 4, Spread 2, Projectile 2. Beam and Burst are the types the roster is short of; Contact gets none (Nutcracker keeps its own).
-3. **Rules this document overrides:** `UPGRADES.md` 6 (weapon forks at Lv 5 and 10, two cards) and `MODIFIERS.md` ("a fork never changes damage type"). Neither doc is edited yet.
-4. **Not checked by sim:** every number is untested. Likely first problems: Sticky Situation Lv 10 stacking with Joint Liability; Static Cling Tumble Dryer with several signatures; Peekaboo Camper.
-5. **Cards that need a rule line in the matrix before code:** Switcheroo and Through-Line (invulnerable mid-lunge), Passing the Baton, Dead Reckoning, Hatchery.
+1. **Rule changes needed before code:** Shared Trauma (statuses copied between linked enemies) and Snotwork's strand pull need lines in the matrix. Weapon marks (Marked for Bonking, Shell Game cracks, Unfinished Business, Bad Aftertaste, Meat Grinder) need one shared rule saying what a weapon mark is.
+2. **Attack-type changes (5):** More Is More (to Burst), Dead Pixels (to Spread), Flash in the Pan (to Burst), Big Bang, Eventually (a standing well), Premature Evacuation stays Burst but becomes self-centred.
+3. **No damage-type changes.** `MODIFIERS.md`'s "it never changes the attack's damage type" stands.
+4. **Nappy Mines is Fire from the start** (user, 18 Oct). Its patch is a Fire Pool footprint, not an Acid Pool. Acid now has one weapon (Acid Spit).
+5. **Untested:** no number has been simulated.

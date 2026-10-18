@@ -21,7 +21,7 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | 11 | Black Hole | Force | Projectile (slow, gravity well; supernova) | `void`, shipped as "Toddler Gravity" |
 | 12 | Meat Missile | Force | Burst (knockback collisions) | S11, `lard`, was "Lard Lobber" (confirmed) |
 | 13 | Placental Siphon | Force | Projectile | S12, `siphon` |
-| 14 | Nappy Mines | Acid | Burst (delayed; leaves Acid Pools) | S2, `mines` |
+| 14 | Nappy Mines | Fire | Burst (delayed; leaves a burning patch) | S2, `mines` |
 | 15 | Twin Telepathy | Static | Beam (anchored) | S21, `twin` |
 | 16 | Static Cling | Static | Projectile (chaining) | S10, `tesla` |
 | 17 | Sticky Situation | Mucus | Projectile (shared damage) | S7, `redtape`, was "Red Tape" (confirmed) |
@@ -40,8 +40,8 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | Static | 3 | | Pool | 3 |
 | Mucus | 3 | | Beam | 2 |
 | Blood | 3 | | Contact | 1 |
-| Acid | 2 | | Spread | 1 |
-| Fire | 2 | | | |
+| Fire | 3 | | Spread | 1 |
+| Acid | 1 | | | |
 
 ## 2. The 10 foundational weapons (animation specs)
 
@@ -133,10 +133,10 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Start stats:** 15 damage (spit), 40 per load, fires every 0.08 s while stocked.
 
 ### 14. Nappy Mines (`mines`)
-- **Playstyle:** Retreat, route planning and delayed area denial. Lays delayed mines behind the sperm, leaving Acid Pools after detonation.
-- **Is:** Acid, Burst with delayed detonation. Drops proximity mines behind you (blast radius 72, life 14 s).
-- **Signature:** each blast leaves a small Acid Pool (the standard object, 11.6). Domino upgrade: a blast sets off other mines in range, up to **3 mines** per chain.
-- **Limits:** the Nuclear Nappy upgrade (every 6th mine, 3× radius and 6× damage) stays as its level-10 mastery and counts as one Burst; its Pool is the normal size.
+- **Playstyle:** Retreat, route planning and delayed area denial. Lays delayed mines behind the sperm, leaving a burning patch after detonation.
+- **Is:** Fire, Burst with delayed detonation (Fire from the start, user decision 18 Oct 2026; was Acid). Drops proximity mines behind you (blast radius 72, life 14 s).
+- **Signature:** each blast fills the Burn bar of what it hits and leaves a small burning patch (a Fire Pool footprint, radius 40, 2 s: not a world object, decision 27). Domino upgrade: a blast sets off other mines in range, up to **3 mines** per chain.
+- **Limits:** the Nuclear Nappy upgrade (every 6th mine, 3× radius and 6× damage) stays as its level-10 mastery and counts as one Burst; its patch is the normal size.
 - **Start stats:** 34 damage, 0.7 s between mines, 5 per load, 2.4 s reload.
 
 ### 15. Twin Telepathy (`twin`)
@@ -234,7 +234,7 @@ Decided:
 | The Other Half | Blue Screen, Hot Mess or Ghost Load, changing every 20 s | Static Beam, Fire Pool or Soul Projectile | Flame Jet, Wraith Ray or Blue Screen |
 
 Still open:
-4. **Thin attack types.** Contact (Nutcracker) and Spread (Spray Gun) have one weapon each, and Fire has only Pool weapons. No sample starts with Contact, Spread or Burst. Recommendation: accept for now; the next additions should be a Fire Projectile or Spread and a second Contact.
+4. **Thin attack types.** Contact (Nutcracker) and Spread (Spray Gun) have one weapon each, and Fire has only Pool and Burst weapons. Acid now has a single weapon (Acid Spit), since Nappy Mines became Fire. No sample starts with Contact, Spread or Burst. Recommendation: accept for now; the next additions should be a Fire Projectile or Spread and a second Contact.
 5. **The 5 Fire drafts are archived** (Heartburn, Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation). Re-check any enemy or reaction design that assumed a Fire Beam, Contact or Burst weapon. The Unsolicited's "starts chain reactions in crowds" now rests on Hot Mess plus its Static.
 
 ## 6. Code pass (not done)
