@@ -8,7 +8,8 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.manual = { x: 0, y: 0 }; };
+    const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.manual = { x: 0, y: 0 }; { const D = pdef(); D.mem.memMax = 0; D.mem.mem = 0; } };
+    if (typeof pdefTick === 'function') pdefTick = () => {}; // the player's base Membrane would soak the test hits
     const foe = (id, dx, dy) => { const p = G.player, e = makeEnemy(ENEMIES[id], p.x + (dx == null ? 90 : dx), p.y + (dy || 0)); e.hp = e.maxHp = e.hp * 50; G.enemies.push(e); gridBuild(); return e; };
     const run = (n, fn) => { for (let i = 0; i < n; i++) { update(1 / 60); if (fn) fn(i); } };
     const hit = (e, elem, amt, extra) => damageEnemy(e, amt, Object.assign({ elem, atk: 'proj', noCrit: true, wname: 'test' }, extra || {}));
@@ -63,13 +64,13 @@ const { chromium } = require('playwright');
     if (sb4.sb !== 1) bad.push('hits within 0.1 s counted more than once: ' + sb4.sb);
     G.t += 2.2; run(2); if (sb4.sb !== 0) bad.push('squeeze did not relax after 2 s: ' + sb4.sb);
     // Mosquito: bite then refund on a quick kill, none on a late one
-    fresh(); let m = foe('mosquito', 30); m.hp = m.maxHp = 5; const mh = G.player.hp;
+    fresh(); let m = foe('mosquito', 14); m.hp = m.maxHp = 5; const mh = G.player.hp;
     run(8); out.bite = Math.round((mh - G.player.hp) * 10) / 10;
     if (!(m.mq === 1) || !(m.fed > 0)) bad.push('Mosquito did not bite: ' + m.mq + ' ' + m.fed);
     const before = G.player.hp; killEnemy(m, { wname: 'test' }); const back = G.player.hp - before; out.back = Math.round(back * 100) / 100;
     if (!(back > 0 && back <= m.fed * 0.5 + 0.01)) bad.push('Mosquito refund: ' + back + ' of ' + m.fed);
     if (!G.zones.some(z => z.blood && z.elem === 'arcane' && z.r === 35)) bad.push('Mosquito left no blood pool');
-    fresh(); m = foe('mosquito', 30); run(8); G.t += 5; const b2 = G.player.hp; killEnemy(m, { wname: 'test' });
+    fresh(); m = foe('mosquito', 14); run(8); G.t += 5; const b2 = G.player.hp; killEnemy(m, { wname: 'test' });
     if (G.player.hp > b2) bad.push('late Mosquito kill refunded');
     // Matchstick: strike, lane, charge, trail zone
     fresh(); const ms = foe('matchstick', 200); let sawLane = false;
