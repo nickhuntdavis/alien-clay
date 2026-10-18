@@ -8,7 +8,8 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.manual = { x: 0, y: 0 }; { const D = pdef(); D.mem.memMax = 0; D.mem.mem = 0; } };
+    const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list); if (G.bigHaz) G.bigHaz.length = 0; G.P.maxHp = G.player.hp = 1e6; // (no random terrain: it cut pushes short and caught bullets)
+     G.player.iframes = 0; G.manual = { x: 0, y: 0 }; { const D = pdef(); D.mem.memMax = 0; D.mem.mem = 0; } };
     if (typeof pdefTick === 'function') pdefTick = () => {}; // the player's base Membrane would soak the test hits
     const foe = (id, dx, dy) => { const p = G.player, e = makeEnemy(ENEMIES[id], p.x + (dx == null ? 90 : dx), p.y + (dy || 0)); e.hp = e.maxHp = e.hp * 50; G.enemies.push(e); gridBuild(); return e; };
     const run = (n, fn) => { for (let i = 0; i < n; i++) { update(1 / 60); if (fn) fn(i); } };
