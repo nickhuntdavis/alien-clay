@@ -1,3 +1,11 @@
+## 2026-10-18 Merge ccr-caa43b42: Soul damage is now Alien (v10.24)
+- Systems: damage types, chemistry, ui, weapons, samples, docs
+- Files: merge only (see changes/ccr-caa43b42-e4m6sc.md); meta.js, build.gradle, GAME_GUIDE.md
+- What: brings in the Soul -> Alien rename, so the game's text now matches the Notion tables. Internal id stays `soul`.
+- Save data: none.
+- Hooks: none.
+- Risk: wup3test, wup5test and wup6test already failed on v10.23 before this merge (Family Ties slingshot/white hole, Baby Boom in flight 25, Tooth Fairy clutch cap 6); not caused by it.
+
 ## 2026-10-18 Weapon levels add damage only (v10.23)
 - Systems: weapons
 - Files: game.js (computeStatsInner, optUpgrade, lvBonusText), ui.js (weapon level tree text), toys.js (crayon)
