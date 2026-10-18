@@ -62,7 +62,7 @@ A card is offered only when it can matter:
 
 | Slot | Count | How it fills |
 | --- | --- | --- |
-| Weapons | 3 (+ up to 2 combo mounts) | Weapon draft at levels 1, 8 and 22, as today. Weapons never appear as random cards |
+| Weapons | 3 (+ up to 2 combo mounts) | Weapon draft at levels 1, 8 and 22, as today. The level 1 draft offers the sample's three starting weapons (`SAMPLES.md`). Weapons never appear as random cards |
 | Feats | 3 | Slot 1: the sample's unique Feat, from the start. Slots 2 and 3: Feat cards in normal drafts while a slot is free |
 | Genome | 4, shared | Mutations (body, damage-type, trade-off and rare: `MUTATIONS.md`; also from Lateral Gene Transfer) and defence cards. Weapon mutations attach to a weapon instead (max 3 per weapon). Each rankable. Taking Shell means one fewer mutation. Built-in defences use no slot |
 
@@ -96,7 +96,7 @@ The player gets defences (Squishy, Membrane, Shell, Thorns, Evasion) two ways (d
 
 | Source | Defence | Value |
 | --- | --- | --- |
-| The Cold Parcel (sample) | Evasion | 20% miss chance (below the 35% card value, so a starting sample isn't over-tuned) |
+| Ordered Online (sample) | Evasion | 20% miss chance (below the 35% card value, so a starting sample isn't over-tuned) |
 | Thorny Onesie (weapon) | Thorns | As the card (`COMBAT_MATRIX.md` 11.4) |
 
 None of the eight sample Feats carries one; a drafted Feat may, later.
@@ -130,7 +130,7 @@ Typed cards (weapons, Feats, Catalysts, Concentration) are weighted by the sampl
 | Support type | 25% |
 | Every other type | 25% |
 
-Novelty weighting works inside each band. Off-type picks have no extra cost: being rarer is the cost. Revisit (Instability) only if hybrid builds dominate in sims. The Other Half uses its current type for the lean and shifts with it.
+Novelty weighting works inside each band. Off-type picks have no extra cost: being rarer is the cost. Revisit (Instability) only if hybrid builds dominate in sims. Not of This World uses its current type for the lean and shifts with it.
 
 ### Between runs: unlock possibilities
 
@@ -187,8 +187,8 @@ The sim bot (`tests/sim/wave20.js`, `lvsim.js`) picks cards for balance runs, so
 
 1. Feat level cap of 5: check in sims that all three Feats can reach rank 3 by mid-run.
 2. Genome ranks: how many, and do they need forks?
-3. Weapon fork content: write a fork pair for each of the 42 matrix weapons and 26 signature weapons (a big job; start with each sample's starting weapon).
+3. Weapon fork content: write a fork pair for each of the 42 matrix weapons and 26 signature weapons (a big job; start with each sample's three starting weapons).
 4. Feat fork content: the 15 drafted Feats have their Lv 3 forks (`FEATS.md`); Lv 5 forks, and both forks for the eight samples' unique Feats, are still to write.
 5. The 40 s budget: tune in play; late runs earn XP fastest.
-6. How often defence cards appear in drafts, and whether The Cold Parcel's 20% Evasion holds up in sims.
+6. How often defence cards appear in drafts, and whether Ordered Online's 20% Evasion holds up in sims.
 7. Which cards make up the starting pool.

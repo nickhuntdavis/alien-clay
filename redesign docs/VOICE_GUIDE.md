@@ -172,7 +172,7 @@ Sample names follow a strain/run convention:
 
 - First sample: **1A: Baseline**.
 - Another run of the same strain: **1B: Baseline**.
-- A newly unlocked strain might be **2A: Overachiever** (roster in `SAMPLES.md`).
+- A newly unlocked strain might be **2A: Alpha** (roster in `SAMPLES.md`).
 - The number identifies the strain; the letter identifies the run of that strain.
 - After 1Z, continue with 1AA unless a later implementation decision changes the sequence.
 

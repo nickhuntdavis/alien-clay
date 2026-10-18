@@ -1,3 +1,11 @@
+## 2026-10-18 Samples renamed; three unique starting weapons each; 15 weapon renames (docs only)
+- Systems: sequences, weapons (docs only, redesign docs)
+- Files: SAMPLES.md, BASE_WEAPONS.md, WEAPON_UPGRADES.md, COMBAT_MATRIX.md, FEATS.md, MODIFIERS.md, MUTATIONS.md, UPGRADES.md, VOICE_GUIDE.md, AUTORUN_AUTOAIM.md, README.md
+- What: The eight samples are now Baseline, Alpha (rewritten as a manosphere podcaster), Beta, Private Schooled, Ordered Online, Redtail, Prawn Again and Not of This World. Each has three starters of its own (all 24 weapons, none shared), offered in the level 1 draft. Fifteen weapons renamed (Nut Shot is Standard Issue, Tooth Fairy is Eggs, and so on); the Eggs upgrade cards were rewritten from teeth to eggs.
+- Save data: none.
+- Hooks: none.
+- Risk: none (no code). Two open issues: Ordered Online has no Acid starter; Not of This World's type-shifting passive needs a matrix line.
+
 ## 2026-10-18 Weapon upgrades: Lv 6 wildcards (docs only)
 - Systems: weapons, upgrades (docs only, redesign docs)
 - Files: WEAPON_UPGRADES.md, UPGRADES.md, README.md

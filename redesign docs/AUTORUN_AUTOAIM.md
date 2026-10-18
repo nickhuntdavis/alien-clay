@@ -152,7 +152,7 @@ Each weapon and Feat has a **primary directive** and an optional **THEN directiv
 
 - **STRONGEST → TOUGHEST:** it now includes armour, not max health alone.
 - **WEAKEST → FRAGILEST:** a rename. It still means max health, which is what separates it from LOWEST HEALTH.
-- **HIGHEST HEALTH: removed.** In a fast game it overlapped TOUGHEST. Its five default users now use TOUGHEST: Tapeworm Seeder, Due Date, Leeches, Umbilical Cord, Heel Prick.
+- **HIGHEST HEALTH: removed.** In a fast game it overlapped TOUGHEST. Its five default users now use TOUGHEST: Chest Burster, One of These Days, Leeches, Umbilical Cord, Heel Prick.
 - **INCOMING: deferred.** Only worth adding once enemies expose a clear, readable "about to attack" state; guessing from movement would just repeat FASTEST or SHOOTERS FIRST.
 
 ---

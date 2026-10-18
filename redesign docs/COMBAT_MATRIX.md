@@ -28,7 +28,7 @@
   2. **World object + hit:** a hit of one type lands on the other type's world object (Acid Pool, Mucus patch, blood pool).
   3. **Dual-type weapon:** one weapon that carries both damage types (Shocking Impact only, for now).
   4. **Pairing:** the existing Pairings system (two weapons you own, both Lv 5+). Spectral Combustion only, for now.
-  5. **Feat:** a Feat that explicitly stands in for a hit, for reactions only. The Other Half's First Contact only (11.3). It sets off normal state + hit reactions; it never makes up new ones.
+  5. **Feat:** a Feat that explicitly stands in for a hit, for reactions only. Not of This World's First Contact only (11.3). It sets off normal state + hit reactions; it never makes up new ones.
 - Reactions do **not** trigger just because both types have touched the same enemy.
 - Each reaction has one primary payoff. Do not stack burst damage, control, damage over time and resource gain into one reaction.
 - **Fire size rule:** only Premature Evaporation, Flammable Mucus and Cauterise make bursts. Flashover, Arc Flash and Spectral Combustion hit one target.
@@ -297,12 +297,12 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 24 | Conjoined trigger | Two Snared creatures touch, or one Mucus attack covers several at once |
 | 25 | What puts Fire out | Becoming Snared clears the Burn bar |
 | 26 | Birthday Candle wax | Keeps wax Pools: wax hardens into a temporary wall (a justified exception) |
-| 27 | Ground objects | Only the shipped ones (terrain, Acid Pools, Mucus patches, blood pools, Skid Mark's trail, Tooth Fairy's teeth) plus wax. Burn zones, corrosive slicks, clot patches and Heartburn's reflux puddles are cut. Fire's Pool attacks (Burning Ground, Pub Crawl's trail, Matchstick's trail) are attack footprints that fill Burn bars, not reaction ingredients |
+| 27 | Ground objects | Only the shipped ones (terrain, Acid Pools, Mucus patches, blood pools, Skid Mark's trail, Tooth Fairy's teeth, shipped names; in the redesign The Runs' trail and Eggs' eggs) plus wax. Burn zones, corrosive slicks, clot patches and Heartburn's reflux puddles are cut. Fire's Pool attacks (Burning Ground, Pub Crawl's trail, Matchstick's trail) are attack footprints that fill Burn bars, not reaction ingredients |
 | 28 | Acid colour | Shocking pink stands, even beside the pink campaign levels |
 | 29 | Soul Purpose name clash | The Force + Soul reaction is renamed **Out-of-Body Experience**; the Soul Burst weapon (M34) keeps Soul Purpose |
-| 30 | First Contact | The Other Half's Feat is a fifth trigger kind (Feat): it counts as a hit of the old and new type for reactions only, capped at 8 per use |
+| 30 | First Contact | Not of This World's Feat is a fifth trigger kind (Feat): it counts as a hit of the old and new type for reactions only, capped at 8 per use |
 | 31 | Player defence sources | Upgrade cards (Genome slots), or built into some samples, weapons and Feats (no slot). Assimilation is dropped |
-| 32 | Built-in defences | Rare, at most one per source: The Cold Parcel has 20% Evasion, Thorny Onesie gives Thorns; no sample Feat has one |
+| 32 | Built-in defences | Rare, at most one per source: Ordered Online has 20% Evasion, Thorny Onesie gives Thorns; no sample Feat has one |
 | 33 | Reaction damage | The payoff is the whole effect. Only reactions whose payoff is a burst or a hit deal damage (11.3); control, heal and duration reactions deal none |
 | 34 | Corrosion without Shell | The bar builds as if the target had one layer; a full bar on a creature with no Shell makes it visibly **Corroded** for 4 s (no damage over time), then resets |
 | 35 | Membrane and statuses | A hit fully absorbed by Membrane applies no status and fills no bar; if any damage gets past the Membrane, statuses and bars apply in full |
@@ -339,7 +339,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 - **Reaction lockout:** each reaction has a 1.5 s lockout per target (bosses 3 s). Anything a reaction creates cannot set off that same reaction.
 - **Dual-type weapon:** shots alternate Force, Static, Force, Static. Shocking Impact fires on each Static shot that lands after a Force shot.
 - **Spectral Combustion Pairing:** Soul Beam + Fire Pool (Burning Ground), both Lv 5+. A secret, like today's Pairings.
-- **First Contact (Feat trigger):** when The Other Half performs First Contact, it shifts type, then counts as a hit of **both** the type it left and the type it entered on every enemy on screen, for reactions only (no damage, no bar fill, no Thorns). Each enemy fires the state + hit reactions those two hits would set off (e.g. leaving Static for Fire: Arc Flash on burning enemies, Interference Pattern on Possessed ones, Premature Evaporation on Corroded ones, Cauterise on bleeding ones). At most one reaction per enemy and 8 per use, nearest first; normal lockouts and reaction damage apply. Spectral Combustion stays Pairing-only. Blood Pressure still needs a heavy hit, so it never fires from the Feat.
+- **First Contact (Feat trigger):** when Not of This World performs First Contact, it shifts type, then counts as a hit of **both** the type it left and the type it entered on every enemy on screen, for reactions only (no damage, no bar fill, no Thorns). Each enemy fires the state + hit reactions those two hits would set off (e.g. leaving Static for Fire: Arc Flash on burning enemies, Interference Pattern on Possessed ones, Premature Evaporation on Corroded ones, Cauterise on bleeding ones). At most one reaction per enemy and 8 per use, nearest first; normal lockouts and reaction damage apply. Spectral Combustion stays Pairing-only. Blood Pressure still needs a heavy hit, so it never fires from the Feat.
 - **Discovery:** the first time a reaction fires, a 2 s toast "Unstable reaction: <name>" near the top (no pause), and its Field Guide entry unlocks. Save key `META.rxSeen` (list of reaction ids). Later triggers show a small name pop over the target.
 
 ### 11.4 Defences
@@ -386,7 +386,7 @@ At most 40 world objects at once (phones). Where two overlap, the newest wins, e
 - **Feats** carry a damage type and an attack type, like weapons, and follow every rule here. Stamina is unchanged. A utility Feat (no attack: a shield, a pickup, a trail) has neither and costs no stamina (`FEATS.md` 1).
 - **Autoaim:** TOUGHEST scores effective health (health + Membrane + Shell layers × layer health, ×1.35 if Squishy). HIGHEST ARMOUR is replaced by two directives: **SHELLED** (most Shell layers left) and **MEMBRANED** (most Membrane left).
 - **Enemy damage types:** see `ENEMY_DESIGN.md` 5.1. Force is most common and Soul least; some enemies have two types.
-- **Name clash fixed:** v10's Mucus Pool weapon is renamed **Snot Trap** ("Leaves a patch that sticks enemies crossing it. Watch your step; they won't."). On 18 Oct the Static + Mucus reaction was renamed **Snot Socket**, so the signature weapon (Red Tape) can take the name **Sticky Situation**.
+- **Name clash fixed:** v10's Mucus Pool weapon is renamed **Snot Trap** (renamed again on 18 Oct to **Nocturnal Emission**) ("Leaves a patch that sticks enemies crossing it. Watch your step; they won't."). On 18 Oct the Static + Mucus reaction was renamed **Snot Socket**, so the signature weapon (Red Tape) can take the name **Sticky Situation** (renamed again on 18 Oct to **Ewww, Gross**).
 
 ## 12. Signature weapon rules (17 Oct 2026)
 
@@ -394,7 +394,7 @@ Rules added so the signature weapons (now in `BASE_WEAPONS.md`) fit the system. 
 
 ### 12.1 Echo damage
 
-Damage that is copied, shared or repeated from other damage (Red Tape's 35% share, Due Date's 40% repeat) is **echo damage**. It deals damage and nothing else: it never fills build-up bars, counts as a heavy hit, sets off a reaction, triggers Thorns or Extraction, or creates more echo. It still goes through defences (step 3 onwards in 11.1).
+Damage that is copied, shared or repeated from other damage (the 35% share from Ewww, Gross, the 40% repeat from One of These Days) is **echo damage**. It deals damage and nothing else: it never fills build-up bars, counts as a heavy hit, sets off a reaction, triggers Thorns or Extraction, or creates more echo. It still goes through defences (step 3 onwards in 11.1).
 
 ### 12.2 Pull
 
@@ -428,11 +428,11 @@ While hidden (Peekaboo), enemies lose you and go to your last seen spot. Their s
 
 ### 12.5 Bounded chains
 
-Anything that sets off more of itself has a fixed depth: Nappy Mines' domino stops at 3 mines; Lard Lobber's bowling at depth 2 (each flying enemy knocks one more, once); Black Hole merges stop at 5 (then supernova: one Burst). Reactions keep their own lockout (11.3).
+Anything that sets off more of itself has a fixed depth: Nappy Mines' domino stops at 3 mines; Skill Issue's bowling at depth 2 (each flying enemy knocks one more, once); Family Ties merges stop at 5 (then supernova: one Burst). Reactions keep their own lockout (11.3).
 
 ### 12.6 Lures
 
-A lure is a world object that draws greedy enemies to it (Tooth Fairy's teeth). At most 3 per weapon, each lasting 6 s, counting towards the 40-object cap. Bosses ignore lures; elites go to them half as often. Tooth Fairy's teeth already exist in the shipped game, so they are not a new ground object.
+A lure is a world object that draws greedy enemies to it (Eggs' eggs). At most 3 per weapon, each lasting 6 s, counting towards the 40-object cap. Bosses ignore lures; elites go to them half as often. Eggs' eggs already exist in the shipped game (as Tooth Fairy's teeth), so they are not a new ground object.
 
 ### 12.7 Merging pools
 
@@ -440,7 +440,7 @@ Upchuck's puddles are the one exception to "newest wins" on overlap: two of its 
 
 ### 12.8 Projectile blocking
 
-An orbiting body or eater (Premature Evangelation's angels, Placental Siphon) destroys enemy **Projectile** and **Spread** shots it touches. It never blocks Burst, Beam, Pool or Contact. Placental Siphon stores up to 10 and fires them back with their original damage and damage type.
+An orbiting body or eater (Premature Evangelation's angels, There Is No Spoon) destroys enemy **Projectile** and **Spread** shots it touches. It never blocks Burst, Beam, Pool or Contact. There Is No Spoon stores up to 10 and fires them back with their original damage and damage type.
 
 ### 12.9 Signature weapons and the matrix
 

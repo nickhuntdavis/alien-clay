@@ -109,7 +109,7 @@ G1 to G11 come from the 17 Oct ideas list; G12 to G16 are new. Copycat folded in
 ### G13. THAT ONE *(trigger)*
 - **Gift line:** "I didn't like that one. I don't like it now either."
 - **Does:** the consciousness points at whichever enemy hurt you most in the last 5 s (a small finger icon over it). When it dies, it goes off in a Force Burst (radius 140).
-- **Rules:** the pointer is a Feat-only marker, like Due Date's countdown, not a status.
+- **Rules:** the pointer is a Feat-only marker, like One of These Days' countdown, not a status.
 - **Lv 3 fork:** **Tell Everyone** (the burst also staggers: fills Poise) or **Grudge** (it points at the two worst enemies).
 
 ### G14. Kiss It Better *(trigger, utility)*
@@ -135,58 +135,58 @@ The consciousness has noticed something peculiar about one sample and made a gif
 
 | # | Gift | Sample | Type and attack | Moment (trigger) | Cooldown |
 | --- | --- | --- | --- | --- | --- |
-| X1 | TOO MUCH BABY | The Baseline | Force, Burst (self-centred) | 5 hits taken within 3 s | 12 s |
-| X2 | FIRST! | The Overachiever | Static, Contact (lunge) | 4 s of swimming without stopping | 8 s |
-| X3 | LOOK WHAT YOU DID | The Late Starter | Blood, Burst (delayed detonation) | Taking a hit | 1.5 s |
-| X4 | LOOK AFTER EACH OTHER | The Family Friend | Soul, Contact (orbiting) | Every 12 s | 12 s |
-| X5 | Where'd You Go | The Cold Parcel | Utility (lunge) | A heavy telegraphed attack is about to hit you | 10 s |
-| X6 | EVERYBODY TOGETHER | The Unsolicited | Static, Burst | 6+ enemies within 160 of each other | 10 s |
-| X7 | I MADE EXTRAS | The Unaccounted | Soul, Contact (summoned) | You kill an elite or an enemy with 100+ max health | 10 s |
-| X8 | YOU'RE NOT REAL | The Other Half | Its current type, Burst (self-centred) | You gain a status or a mark | 12 s |
+| X1 | TOO MUCH BABY | Baseline | Force, Burst (self-centred) | 5 hits taken within 3 s | 12 s |
+| X2 | FIRST! | Alpha | Static, Contact (lunge) | 4 s of swimming without stopping | 8 s |
+| X3 | LOOK WHAT YOU DID | Beta | Blood, Burst (delayed detonation) | Taking a hit | 1.5 s |
+| X4 | LOOK AFTER EACH OTHER | Private Schooled | Soul, Contact (orbiting) | Every 12 s | 12 s |
+| X5 | Where'd You Go | Ordered Online | Utility (lunge) | A heavy telegraphed attack is about to hit you | 10 s |
+| X6 | EVERYBODY TOGETHER | Redtail | Static, Burst | 6+ enemies within 160 of each other | 10 s |
+| X7 | I MADE EXTRAS | Prawn Again | Soul, Contact (summoned) | You kill an elite or an enemy with 100+ max health | 10 s |
+| X8 | YOU'RE NOT REAL | Not of This World | Its current type, Burst (self-centred) | You gain a status or a mark | 12 s |
 
-### X1. TOO MUCH BABY (The Baseline) *(trigger)*
+### X1. TOO MUCH BABY (Baseline) *(trigger)*
 - **Gift line:** "You're so big. That's good. I think."
-- **Does:** the Baseline visibly swells with every hit it takes. At the 5th within 3 s it lets go: a huge shockwave (radius 220) that knocks everything back, and for 3 s it can't be Snared.
+- **Does:** Baseline visibly swells with every hit it takes. At the 5th within 3 s it lets go: a huge shockwave (radius 220) that knocks everything back, and for 3 s it can't be Snared.
 - **Rules:** the swelling is shown on the body, not a new HUD meter (`SAMPLES.md` design rule 2).
 - **Lv 3 fork:** **Personal Space** (the shockwave leaves a ring-shaped Force Pool footprint for 3 s that shoves back anything crossing it) or **Growth Spurt** (radius +50%).
 
-### X2. FIRST! (The Overachiever) *(trigger)*
+### X2. FIRST! (Alpha) *(trigger)*
 - **Gift line:** "You did it first! Do it again!"
 - **Does:** after 4 s of non-stop swimming, it launches forward (lunge, 160) and bowls through everything in the way: Static Contact hits that make them Charged and knock them aside.
-- **Rules:** lunge cap (160; the mastery fork may double it). Overlaps the Overachiever's own Personal Best (a sprint with a Static wake): keep one, or make Personal Best the slot 1 Feat and FIRST! its stronger late draft.
+- **Rules:** lunge cap (160; the mastery fork may double it). Overlaps Alpha's own Personal Best (a sprint with a Static wake): keep one, or make Personal Best the slot 1 Feat and FIRST! its stronger late draft.
 - **Lv 3 fork:** **Victory Lap** (it bounces to up to 2 elites on the way, then carries on) or **Photo Finish** (the last enemy hit discharges an arc at once).
 
-### X3. LOOK WHAT YOU DID (The Late Starter) *(trigger)*
+### X3. LOOK WHAT YOU DID (Beta) *(trigger)*
 - **Gift line:** "You hurt my little friend. Now look."
 - **Does:** every hit you take sheds a droplet of blood. 1 s later it erupts (radius 70, or 110 for a hit of 10%+ of your health) and makes everything near it Bleed.
 - **Rules:** a Blood Burst with delayed detonation; at most 4 droplets at once.
 - **Lv 3 fork:** **Clotting** (droplets that touch merge into one bigger eruption, up to radius 150) or **Late Bloomer** (below 30% health, each droplet erupts twice).
 
-### X4. LOOK AFTER EACH OTHER (The Family Friend)
+### X4. LOOK AFTER EACH OTHER (Private Schooled)
 - **Gift line:** "I made you friends! They're very small."
 - **Does:** every 12 s, three tiny friends circle you. Each one swallows one enemy Projectile or Spread shot, then pops.
 - **Rules:** orbiting modifier and the projectile blocking rule (12.8); orbiters, not pets.
 - **Lv 3 fork:** **Plus Ones** (friends also swat enemies they touch, building Soul) or **Connections** (four friends).
 
-### X5. Where'd You Go (The Cold Parcel) *(trigger, utility)*
+### X5. Where'd You Go (Ordered Online) *(trigger, utility)*
 - **Gift line:** "Where'd you go? There you are!"
 - **Does:** when a telegraphed heavy attack (a Burst, a Beam or a charge) is about to land on you, you slip out to the far side of the attacker (lunge, up to 160), leaving a Mucus patch where you were. The attack carries on and can hit its own side (their damage, as in 12.4).
-- **Rules:** renamed from PEEKABOO, which clashes with the Peekaboo weapon. Works with the Cold Parcel's built-in Evasion: Evasion handles the small shots, this handles the big ones.
+- **Rules:** renamed from PEEKABOO, which clashes with the Peekaboo weapon. Works with Ordered Online's built-in Evasion: Evasion handles the small shots, this handles the big ones.
 - **Lv 3 fork:** **Ghost Ribbon** (a see-through copy repeats your last second of swimming, Snaring what it touches) or **Slippery When Wet** (6 s cooldown).
 
-### X6. EVERYBODY TOGETHER (The Unsolicited) *(trigger)*
+### X6. EVERYBODY TOGETHER (Redtail) *(trigger)*
 - **Gift line:** "Hold hands! ALL OF YOU!"
-- **Does:** when 6 or more enemies bunch up, arcs link the whole cluster: every one of them is Charged, so hits pass arcs between them. With the Unsolicited's passive (Static hits also apply Burn), the crowd lights up.
+- **Does:** when 6 or more enemies bunch up, arcs link the whole cluster: every one of them is Charged, so hits pass arcs between them. With Redtail's passive (Static hits also apply Burn), the crowd lights up.
 - **Rules:** Charge (3 jumps, 70% falloff).
 - **Lv 3 fork:** **Group Chat** (if the cluster had 10+, it jumps to a second cluster within 300) or **Hold Tight** (a gravity well, bodies only, squeezes the cluster together for 1 s).
 
-### X7. I MADE EXTRAS (The Unaccounted) *(trigger)*
+### X7. I MADE EXTRAS (Prawn Again) *(trigger)*
 - **Gift line:** "One of you isn't enough. I made more."
-- **Does:** killing an elite or a big enemy (100+ max health) makes a see-through copy of you (the Unaccounted's offset double, made real) for 4 s. It copies your swimming and fires your first weapon at 50% damage, then bursts, building Soul on everything near.
+- **Does:** killing an elite or a big enemy (100+ max health) makes a see-through copy of you (Prawn Again's offset double, made real) for 4 s. It copies your swimming and fires your first weapon at 50% damage, then bursts, building Soul on everything near.
 - **Rules:** a pet (12.3): it counts towards the 8-pet cap.
 - **Lv 3 fork:** **Extras of Extras** (a copy that helps kill a big enemy makes one more copy; never a third) or **Long Shift** (copies last 8 s).
 
-### X8. YOU'RE NOT REAL (The Other Half) *(trigger)*
+### X8. YOU'RE NOT REAL (Not of This World) *(trigger)*
 - **Gift line:** "I don't like the way that one looks at you."
 - **Does:** when you gain a status (Snared, Bleed, Burning, Charge, Fear) or a mark (Complement Protein's), a ripple bursts out of you (radius 160): it removes them all from you and hits everything inside with your current damage type, which can set off reactions as normal.
 - **Rules:** one attack, one type: the type active when it fires (Adaptive Biology).
@@ -223,7 +223,7 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 ### F1. Sofa Crevice (`blackhole`)
 - **Is:** Force, Pool with the lobbed and gravity well modifiers. Tears open a singularity (radius 125) under the densest cluster for 3 s.
 - **Signature:** the gravity well drags enemies in (pull 210) and bends shots passing near it, so your own shots curve into the crowd it has gathered.
-- **Limits:** the gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2): Squishy halves the pull, elites take 50%, bosses 25%. Moved from Soul to Force, like Black Hole: gravity is displacement.
+- **Limits:** the gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2): Squishy halves the pull, elites take 50%, bosses 25%. Moved from Soul to Force, like Family Ties: gravity is displacement.
 - **Lv 3 fork:** **Down the Back** (pulls twice as hard) or **Loose Change** (when it closes, it spits everything out in one Burst worth 4 s of its damage).
 - **Gift line:** "I found where everything goes. Throw them in."
 - **Field Guide note:** "Tears open a singularity that drags and crushes. Everything you ever lost is in there."
@@ -269,7 +269,7 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 ### F6. Van de Graaff (`vandegraaff`)
 - **Is:** Static, Projectile with the orbiting and gravity well modifiers. A charged dome floats beside you for 4 s.
 - **Signature:** its gravity well pulls enemy Projectile and Spread shots into it (shots only: it does not pull bodies), and the dome swallows them (projectile blocking, 12.8). When it ends it fires one Static arc per bullet caught, at the nearest enemies; each makes its target Charged.
-- **Limits:** stores up to 10 bullets, like Placental Siphon. Never blocks Burst, Beam, Pool or Contact.
+- **Limits:** stores up to 10 bullets, like There Is No Spoon. Never blocks Burst, Beam, Pool or Contact.
 - **Lv 3 fork:** **Earthed** (its gravity well also pulls small enemies, up to 34 max health) or **Spark Gap** (it fires the arc the moment it catches each bullet, not at the end).
 - **Gift line:** "Give me their bullets. I'm keeping them. Okay, have them back."
 - **Field Guide note:** "Makes hair stand on end. You have no hair. Something else is standing on end."
@@ -377,8 +377,8 @@ Later unlocks: NOT YET, WAIT WAIT WAIT, THIS WAY, COME BACK HERE, THAT ONE, Nest
 | --- | --- |
 | Stork Drop, Dummy Spit, Hostile Environment, Lactic Acid | Acid lobs and puddles: covered by Nappy Mines, Upchuck and the matrix Acid Pool |
 | Brainstorm, Baby Monitor | Static is covered by Van de Graaff and Tonic Immobility; Baby Monitor would be a stationary pet |
-| Latex Barrier | Overlaps Placental Siphon (eat and return shots) |
-| Polar Body | A decoy lure: overlaps Ear Candling, Packed Lunch and Tooth Fairy |
+| Latex Barrier | Overlaps There Is No Spoon (eat and return shots) |
+| Polar Body | A decoy lure: overlaps Ear Candling, Packed Lunch and Eggs |
 | Copycat (ideas list) | Folded into Oopsie; also overlaps the Peekaboo weapon |
 | SPECIAL BOY (ideas list) | Duplicates Anhydrobiosis; its twist becomes Anhydrobiosis's Lv 5 fork option |
 | Slime Mould, Productive Cough, Biofilm, Fertile Window | Mucus is covered by Spinnbarkeit and Hagfish |

@@ -70,7 +70,7 @@ Notes: Heartbeat sits between Thorny Onesie (scales with max health) and Hot and
 | --- | --- | --- | --- | --- |
 | M23 | Big Brain | +25% damage | −20% max health | "You're getting clever. You look a bit breakable, though." |
 | M24 | Quantity Over Quality | +30% attack rate and +1 shot per attack | −30% damage per hit (Shell takes its fixed cut from every small hit: a real decision against Shell enemies) | "One hundred little hits! That's basically one big hit. Right?" |
-| M25 | Can't Sit Still | +20% attack speed while swimming | −20% while still or very slow. Never offered to the Overachiever (its passive already does the good half) | "Go go go! Wait. Why did you stop?" |
+| M25 | Can't Sit Still | +20% attack speed while swimming | −20% while still or very slow. Never offered to Alpha (its passive already does the good half) | "Go go go! Wait. Why did you stop?" |
 | M26 | All at Once | First hit on an enemy you haven't hit for 3 s deals +60% | Your other hits on it deal −20% for 3 s | "SURPRISE! Oh. You're still there." |
 | M27 | Hungry Hungry | +30% XP | Enemies spawn 20% faster | "More food! More friends! Wait, those aren't friends." |
 | M28 | No Time for Being Careful | +20% damage while above 70% health | You take +20% damage | "You look amazing! Please don't get hit." |

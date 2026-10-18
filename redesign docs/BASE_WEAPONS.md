@@ -1,37 +1,37 @@
 # Base Weapons
 
-**Status: roster decision of 18 Oct 2026. Docs only; the code pass is not done (section 6).** Damage types, reactions and attack-type rules live in `COMBAT_MATRIX.md`; this doc cites them and adds none. `WEAPONS.md` and `SIGNATURE_WEAPONS.md` are archived (`archive/`); this doc is the weapon source of truth.
+**Status: roster decision of 18 Oct 2026; names and sample starters revised the same day (section 5, decision 4). Docs only; the code pass is not done (section 6).** Damage types, reactions and attack-type rules live in `COMBAT_MATRIX.md`; this doc cites them and adds none. `WEAPONS.md` and `SIGNATURE_WEAPONS.md` are archived (`archive/`); this doc is the weapon source of truth.
 
 The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) and 14 signatures (taken from the 26). **Every other weapon is archived (72, section 7).** Signature playstyle and visuals stay as in the current game; only the damage type changes, to the matrix types.
 
 ## 1. Roster
 
-| # | Weapon | Damage type | Attack type | Origin (archived-list id, code id) |
-|---|---|---|---|---|
-| 1 | Nut Shot | Force | Projectile | M2, was "Knuckle Dragger" |
-| 2 | Spray Gun | Force | Spread | M3, was "Broadside" |
-| 3 | Nutcracker | Force | Contact | M1 |
-| 4 | Premature Detonation | Force | Burst | M4 |
-| 5 | Acid Spit | Acid | Projectile | M8 |
-| 6 | Blue Screen | Static | Beam | M17 |
-| 7 | Snot Trap | Mucus | Pool | M24 |
-| 8 | Red Needle | Blood | Projectile | M26 |
-| 9 | Ghost Load | Soul | Projectile | M32 |
-| 10 | Hot Mess | Fire | Pool | M42, was "Burning Ground" |
-| 11 | Black Hole | Force | Projectile (slow, gravity well; supernova) | `void`, shipped as "Toddler Gravity" |
-| 12 | Meat Missile | Force | Burst (knockback collisions) | S11, `lard`, was "Lard Lobber" (confirmed) |
-| 13 | Placental Siphon | Force | Projectile | S12, `siphon` |
-| 14 | Nappy Mines | Fire | Burst (delayed; leaves a burning patch) | S2, `mines` |
-| 15 | Twin Telepathy | Static | Beam (anchored) | S21, `twin` |
-| 16 | Static Cling | Static | Projectile (chaining) | S10, `tesla` |
-| 17 | Sticky Situation | Mucus | Projectile (shared damage) | S7, `redtape`, was "Red Tape" (confirmed) |
-| 18 | Blowing Bubbles | Mucus | Projectile (traps) | S13, `bubble`, was "Bubble Wand" (confirmed) |
-| 19 | Due Date | Blood | Projectile (mark) | S8, `duedate` |
-| 20 | Seeker Siblings | Blood | Projectile (homing) | S24, `seeker` |
-| 21 | Peekaboo | Soul | Burst (reveal; Fear) | S4, `peekaboo` |
-| 22 | Tooth Fairy | Soul | Burst (smite) | S14, `toothfairy` |
-| 23 | Tapeworm Seeder | Soul | Projectile | S6, `parasite` |
-| 24 | The Runs | Fire | Pool (trail) | S3, `wake`, was "Pub Crawl" (shipped as "Skid Mark") |
+| # | Weapon | Damage type | Attack type | Starter for | Origin (archived-list id, code id) |
+|---|---|---|---|---|---|
+| 1 | Standard Issue | Force | Projectile | Baseline | M2, was "Knuckle Dragger"; "Nut Shot" until 18 Oct |
+| 2 | Maximum Gains | Force | Spread | Alpha | M3, was "Broadside"; "Spray Gun" until 18 Oct |
+| 3 | Nervous Wreck | Force | Contact | Beta | M1; "Nutcracker" until 18 Oct |
+| 4 | Panic Button | Force | Burst | Baseline | M4; "Premature Detonation" until 18 Oct |
+| 5 | Acid Spit | Acid | Projectile | Private Schooled | M8 |
+| 6 | Red Flagship | Static | Beam | Alpha | M17; "Blue Screen" until 18 Oct |
+| 7 | Nocturnal Emission | Mucus | Pool | Beta | M24; "Snot Trap" until 18 Oct |
+| 8 | Little Prick | Blood | Projectile | Baseline | M26; "Red Needle" until 18 Oct |
+| 9 | Rent Free | Soul | Projectile | Private Schooled | M32; "Ghost Load" until 18 Oct |
+| 10 | Hot Mess | Fire | Pool | Ordered Online | M42, was "Burning Ground" |
+| 11 | Family Ties | Force | Projectile (slow, gravity well; supernova) | Not of This World | `void`, shipped as "Toddler Gravity"; "Black Hole" until 18 Oct |
+| 12 | Skill Issue | Force | Burst (knockback collisions) | Alpha | S11, `lard`, was "Lard Lobber" (confirmed); "Meat Missile" until 18 Oct |
+| 13 | There Is No Spoon | Force | Projectile | Not of This World | S12, `siphon`; "Placental Siphon" until 18 Oct |
+| 14 | Nappy Mines | Fire | Burst (delayed; leaves a burning patch) | Ordered Online | S2, `mines` |
+| 15 | Soulmate Signal | Static | Beam (anchored) | Not of This World | S21, `twin`; "Twin Telepathy" until 18 Oct |
+| 16 | Unwanted Contact | Static | Projectile (chaining) | Redtail | S10, `tesla`; "Static Cling" until 18 Oct |
+| 17 | Ewww, Gross | Mucus | Projectile (shared damage) | Private Schooled | S7, `redtape`, was "Red Tape" (confirmed); "Sticky Situation" until 18 Oct |
+| 18 | Blowing Bubbles | Mucus | Projectile (traps) | Ordered Online | S13, `bubble`, was "Bubble Wand" (confirmed) |
+| 19 | One of These Days | Blood | Projectile (mark) | Beta | S8, `duedate`; "Due Date" until 18 Oct |
+| 20 | Sister Cousin | Blood | Projectile (homing) | Redtail | S24, `seeker`; "Seeker Siblings" until 18 Oct |
+| 21 | Peekaboo | Soul | Burst (reveal; Fear) | Prawn Again | S4, `peekaboo` |
+| 22 | Eggs | Soul | Burst (smite) | Prawn Again | S14, `toothfairy`; "Tooth Fairy" until 18 Oct |
+| 23 | Chest Burster | Soul | Projectile | Prawn Again | S6, `parasite`; "Tapeworm Seeder" until 18 Oct |
+| 24 | The Runs | Fire | Pool (trail) | Redtail | S3, `wake`, was "Pub Crawl" (shipped as "Skid Mark") |
 
 | Damage type | Weapons | | Attack type | Weapons |
 | --- | --- | --- | --- | --- |
@@ -47,25 +47,25 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 
 Simple, repeatable animations. They teach what each delivery type looks like before signatures add complexity. Each has no mechanic beyond its damage type and attack type. Reactions: `COMBAT_MATRIX.md` (this doc adds none).
 
-### 1. Nut Shot (Force, Projectile)
+### 1. Standard Issue (Force, Projectile)
 The dependable single-target workhorse. A simple, heavy shot that makes a good baseline for upgrades and comparisons.
 - **Shape:** a small, hard, nut-like pellet with a slightly lopsided shell and a blunt tip. It reads as a tiny projectile, not a literal anatomical close-up.
 - **Motion:** shoots straight with a quick, confident snap and a short chunky trail.
 - **Impact:** a sharp thwack flash and a tiny enemy squash. Keep the hit effect brief.
 
-### 2. Spray Gun (Force, Spread)
+### 2. Maximum Gains (Force, Spread)
 Reliable crowd damage. A different targeting footprint from the single projectile, without a complex mechanic.
 - **Shape:** a fan of several small, blunt, pale force pellets, clearly separate rather than one broad cloud.
 - **Motion:** pellets burst outward in a consistent cone, with the outer shots diverging visibly.
 - **Impact:** multiple small impact pips. At close range the fan converges into a satisfyingly dense hit.
 
-### 3. Nutcracker (Force, Contact)
+### 3. Nervous Wreck (Force, Contact)
 A straightforward close-range answer to enemies that get too near.
 - **Shape:** a hard, chunky contact strike, suggested by two blunt force shapes snapping together around the impact point.
 - **Motion:** a quick clamp-like snap or body-check when an enemy enters contact range.
 - **Impact:** a brief star-shaped thump and enemy recoil. Readable without obscuring the sperm.
 
-### 4. Premature Detonation (Force, Burst)
+### 4. Panic Button (Force, Burst)
 An area-impact baseline: a direct burst attack without the setup of a signature weapon.
 - **Shape:** a compact pressure knot that flashes into a blunt circular shockwave.
 - **Motion:** a very short swell, then an immediate outward pulse.
@@ -77,25 +77,25 @@ A simple delivery mechanism for the Acid damage identity.
 - **Motion:** a small wobble in flight and a few tiny droplets that fall away; no long continuous trail.
 - **Impact:** a wet splat, then a brief fizz or bubbling mark where corrosion is applied.
 
-### 6. Blue Screen (Static, Beam)
+### 6. Red Flagship (Static, Beam)
 Sustained damage along a line, and a baseline for the more elaborate electrical signatures.
 - **Shape:** a thin, bright electrical line with a jagged inner core and a few angular forks.
 - **Motion:** the beam flickers rapidly but stays anchored and easy to track; small pulses travel along it.
-- **Impact:** quick yellow-white snaps on enemies. Branching only where the mechanic actually chains, so it never looks like Static Cling.
+- **Impact:** quick yellow-white snaps on enemies. Branching only where the mechanic actually chains, so it never looks like Unwanted Contact.
 
-### 7. Snot Trap (Mucus, Pool)
+### 7. Nocturnal Emission (Mucus, Pool)
 A simple area-control weapon that sticks enemies crossing its patch.
 - **Shape:** a flattened, glossy green mucus puddle with a thick rim and a few slow surface bubbles.
 - **Motion:** the pool spreads slightly when placed, then settles into a gently wobbling patch.
 - **Impact:** enemies crossing it stretch or drag for a beat, with a short elastic strand snapping back to the puddle.
 
-### 8. Red Needle (Blood, Projectile)
+### 8. Little Prick (Blood, Projectile)
 A clean, precise delivery option for Blood. Chosen over Bloodletter to keep the foundation from leaning on contact attacks.
 - **Shape:** a thin, dark-red needle with a brighter red tip; visibly much narrower than the Force projectile.
 - **Motion:** a fast, precise dart with almost no trail.
 - **Impact:** a tiny red pinprick flash. If it applies a Blood status, a small pulsing mark, not a large blood spray.
 
-### 9. Ghost Load (Soul, Projectile)
+### 9. Rent Free (Soul, Projectile)
 A simple spectral attack that establishes Soul without echoes, summons or other advanced mechanics.
 - **Shape:** a pale, translucent spirit-kernel with a soft inner silhouette, like a tiny ghost folded into a pellet.
 - **Motion:** glides rather than tumbles; its edges lag a fraction behind the core.
@@ -111,21 +111,21 @@ A straightforward persistent damage zone, a baseline for more elaborate Fire mec
 
 Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the archived `archive/SIGNATURE_WEAPONS.md`; rules cited as `11.x` or `12.x` are sections of `COMBAT_MATRIX.md`. Start stats are starting points for sims.
 
-### 11. Black Hole (`void`, shipped as "Toddler Gravity")
+### 11. Family Ties (`void`, shipped as "Toddler Gravity")
 - **Playstyle:** Spatial control, accumulation and explosive payoff. Pulls enemies and bends projectiles; merging orbs can culminate in a supernova.
 - **Is:** Force, a slow Projectile (speed 115) that pierces everything, with the **gravity well** modifier (radius 72): it pulls enemies in and bends every shot that passes near it, so your other weapons' shots curve into the crowd it is gathering.
 - **Signature:** two black holes that touch merge into a bigger one. Five merged go supernova: one Burst, and the hole is gone.
 - **Limits:** gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2); a merged hole is one well with a bigger radius (up to 140), so merging never breaks the 3-well cap; merges cap at 5 (it was 20). Moved from Soul to Force because gravity is displacement, and Soul is now mind control.
 - **Start stats:** 8 damage, 1.8 s cooldown, pull strength 95.
 
-### 12. Meat Missile (`lard`, was "Lard Lobber")
+### 12. Skill Issue (`lard`, was "Lard Lobber")
 - **Playstyle:** Collision engineering and crowd manipulation. Turns knockback into collisions that bowl enemies into one another.
 - **Is:** Force, Burst (lobbed, radius 66). Dollops of lard send everything flying.
 - **Signature:** an enemy sent flying that hits a mate knocks that mate flying too, and both take the 40% collision damage: STRIKE.
 - **Limits:** bounded chain (12.5): each flying enemy knocks one more, once (depth 2). Squishy halves the knockback as usual.
 - **Start stats:** 14 damage, 1.2 s cooldown, 3 per load.
 
-### 13. Placental Siphon (`siphon`)
+### 13. There Is No Spoon (`siphon`)
 - **Playstyle:** Defensive conversion and retaliatory damage. Eats incoming bullets and fires them back.
 - **Is:** Force, Projectile. Eats enemy bullets within 90 of you and fires them back as hard as they hit you.
 - **Signature:** it rewards a busy screen; with nothing to eat it dribbles a weak spit.
@@ -139,21 +139,21 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Limits:** the Nuclear Nappy upgrade (every 6th mine, 3× radius and 6× damage) stays as its level-10 mastery and counts as one Burst; its patch is the normal size.
 - **Start stats:** 34 damage, 0.7 s between mines, 5 per load, 2.4 s reload.
 
-### 15. Twin Telepathy (`twin`)
+### 15. Soulmate Signal (`twin`)
 - **Playstyle:** Spatial geometry and movement mastery. The beam between you and your twin turns movement and positioning into an attack.
 - **Is:** Static, Beam with the anchored-beam and sweep modifiers. Your twin mirrors you across an anchor on the crowd (range 520), and a beam (width 10) always joins the two of you.
 - **Signature:** swim to drag the beam through the crowd. Every enemy it touches is Charged, and Charged enemies on the beam pass arcs on (3 jumps, 70% falloff), so a crowded lane lights up.
 - **Limits:** the twin is not a pet: it can't be hit and only carries the beam. Each enemy is hit at most every 0.1 s.
 - **Start stats:** 24 damage, 1.6 s cooldown, 3 per load.
 
-### 16. Static Cling (`tesla`)
+### 16. Unwanted Contact (`tesla`)
 - **Playstyle:** Chain reactions and weapon-to-weapon synergy. Chains electricity through enemies and lets other weapons exploit Charged targets.
 - **Is:** Static, Projectile with the chaining modifier (3 jumps, range 140).
 - **Signature:** every enemy it hits is Charged. Your **other** weapons' hits on a Charged enemy arc too (the old "powers every other weapon"), within the usual 3-jump limit.
 - **Limits:** an arc never starts another arc on the same target; jump falloff is 70% (11.5).
 - **Start stats:** 13 damage, 0.7 s cooldown, 6 per load.
 
-### 17. Sticky Situation (`redtape`, was "Red Tape")
+### 17. Ewww, Gross (`redtape`, was "Red Tape")
 - **Playstyle:** Exploiting relationships and concentrating damage. Links enemies so damage to one is shared with the others.
 - **Is:** Mucus, Projectile. Stamps a target and tapes it to up to 3 neighbours within 170 for 5 s.
 - **Signature:** damage to one of the bundle is shared with the rest (35%). Being taped counts as Conjoined: the bundle cannot move apart.
@@ -167,14 +167,14 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Limits:** never traps elites or bosses; a trap lasts 5 s at most.
 - **Start stats:** 18 damage, 1.1 s cooldown, 4 per load.
 
-### 19. Due Date (`duedate`)
+### 19. One of These Days (`duedate`)
 - **Playstyle:** Sustained focus and delayed damage payoff. Marks a tough enemy and returns a portion of the damage it took when the countdown ends.
 - **Is:** Blood, Projectile. Sticks a 4 s countdown on a big target (it prefers TOUGHEST).
 - **Signature:** when the countdown ends, the target takes 40% of everything it took while marked, all over again. If it dies early, the stored damage bursts onto enemies nearby.
-- **Limits:** the repeat is echo damage (12.1). One Due Date per target.
+- **Limits:** the repeat is echo damage (12.1). One One of These Days per target.
 - **Start stats:** 20 damage, 0.9 s cooldown, 3 per load.
 
-### 20. Seeker Siblings (`seeker`)
+### 20. Sister Cousin (`seeker`)
 - **Playstyle:** Autonomous targeting and kill-chain escalation. Homing shots target enemies and split after a sibling scores a kill.
 - **Is:** Blood, Projectile with the homing and multiplying modifiers. Two homing siblings per shot (turn rate 5).
 - **Signature:** they never miss (Evasion still applies), and a sibling that kills splits into two smaller siblings (50% damage) that home on the next targets. Their hits Bleed.
@@ -189,14 +189,14 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Limits:** player hiding rule (12.4). Fear lasts 2 s. BOO damage bonus is capped at +100% (from 10 searching enemies).
 - **Start stats:** 20 damage, 5.5 s cooldown, hidden 1.8 s.
 
-### 22. Tooth Fairy (`toothfairy`)
-- **Playstyle:** Prediction, baiting and delayed payoff. Baits enemies with teeth and punishes them when they approach.
+### 22. Eggs (`toothfairy`)
+- **Playstyle:** Prediction, baiting and delayed payoff. Baits enemies with spectral eggs and punishes them when they approach.
 - **Is:** Soul, Burst (the smite).
-- **Signature:** drops baby teeth near the crowd. Greedy enemies within 230 swim off to grab one; the Fairy smites whoever takes it, harder for every tooth it holds.
-- **Limits:** lures rule (12.6): at most 3 teeth on the ground; each lasts 6 s. Bosses ignore teeth.
+- **Signature:** drops spectral eggs near the crowd. Greedy enemies within 230 swim off to grab one; the egg smites whoever takes it, harder the longer it waited (Lv 3, promise C).
+- **Limits:** lures rule (12.6): at most 3 eggs on the ground; each lasts 6 s. Bosses ignore eggs. Draw them small, ghostly and nothing like the egg you are racing to, so the two never get confused.
 - **Start stats:** 34 damage, 1.1 s cooldown, 3 per load.
 
-### 23. Tapeworm Seeder (`parasite`)
+### 23. Chest Burster (`parasite`)
 - **Playstyle:** Army building and self-reinforcing combat. Turns infected enemies into allied fighters after death.
 - **Is:** Soul, Projectile. Fast shots infect (8 s).
 - **Signature:** an infected enemy that dies rises as an undead ally for a few seconds and fights for you. Possessed after death: the purest Soul weapon.
@@ -213,36 +213,40 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 ## 4. Why these 24 together
 
 - **Foundations teach, signatures twist.** Every damage type has a foundation; every foundation is one attack type with no extra rule. The Fire foundation (Hot Mess) is a stationary Pool so The Runs (a trail) stays distinct.
-- **Echo and chain rules still apply** to Sticky Situation, Due Date, Static Cling, Black Hole and Meat Missile (`COMBAT_MATRIX.md` 11.5, 12.5, echo damage).
+- **Echo and chain rules still apply** to Ewww, Gross, One of These Days, Unwanted Contact, Family Ties and Skill Issue (`COMBAT_MATRIX.md` 11.5, 12.5, echo damage).
 
 ## 5. Decisions (18 Oct 2026) and open issues
 
 Decided:
-1. **Sticky Situation** is the weapon (was Red Tape). The Static + Mucus reaction is renamed **Snot Socket** in `COMBAT_MATRIX.md`. `combos.js` also has a Weapon Combo called Sticky Situation; rename it in the code pass.
+1. **Sticky Situation** is the weapon (was Red Tape; renamed Ewww, Gross in decision 4). The Static + Mucus reaction is renamed **Snot Socket** in `COMBAT_MATRIX.md`. `combos.js` also has a Weapon Combo called Sticky Situation; rename it in the code pass.
 2. **Renames confirmed:** Meat Missile (was Lard Lobber), Sticky Situation (was Red Tape), Blowing Bubbles (was Bubble Wand), The Runs (was Pub Crawl).
-3. **Sample starting weapons** (`SAMPLES.md` updated):
+3. **Sample starting weapons** (first pass, superseded by decision 5): each sample started with one foundation weapon.
+4. **Renames (user, 18 Oct):** fifteen weapons renamed to fit their sample. Was: Nut Shot, Red Needle, Premature Detonation, Blue Screen, Spray Gun, Meat Missile, Snot Trap, Nutcracker, Due Date, Ghost Load, Sticky Situation, Static Cling, Seeker Siblings, Twin Telepathy, Placental Siphon, Black Hole, Tapeworm Seeder, Tooth Fairy (Eggs: the teeth become spectral eggs). Card names that punned on an old name (Blue Screen of Death, Nut Allergy, Infinite Nuts) stay for now.
+5. **Three unique starters per sample (user, 18 Oct).** Every one of the 24 weapons is exactly one sample's starter; none is shared. The level 1 weapon draft (`UPGRADES.md` 4) offers that sample's three, and you take one. The other two stay in the pool for the later drafts, as do the other samples' starters. Full kits, jokes and upgrade fantasies: `SAMPLES.md` ("Starting weapons").
 
-| Sample | Starts with | Type and attack | Was |
-|---|---|---|---|
-| The Baseline | Nut Shot | Force Projectile | Knuckle Dragger |
-| The Overachiever | Blue Screen | Static Beam | same |
-| The Late Starter | Red Needle | Blood Projectile | Bloodletter (Contact) |
-| The Family Friend | Acid Spit | Acid Projectile | same |
-| The Cold Parcel | Snot Trap | Mucus Pool (laid as a trail) | same |
-| The Unsolicited | Hot Mess | Fire Pool | Cinderblast (Spread) |
-| The Unaccounted | Ghost Load | Soul Projectile | Soul Purpose (Burst) |
-| The Other Half | Blue Screen, Hot Mess or Ghost Load, changing every 20 s | Static Beam, Fire Pool or Soul Projectile | Flame Jet, Wraith Ray or Blue Screen |
+| Sample | Starters (type, attack) |
+|---|---|
+| Baseline | Standard Issue (Force Projectile), Little Prick (Blood Projectile), Panic Button (Force Burst) |
+| Alpha | Red Flagship (Static Beam), Maximum Gains (Force Spread), Skill Issue (Force Burst) |
+| Beta | Nocturnal Emission (Mucus Pool), Nervous Wreck (Force Contact), One of These Days (Blood Projectile) |
+| Private Schooled | Acid Spit (Acid Projectile), Rent Free (Soul Projectile), Ewww, Gross (Mucus Projectile) |
+| Ordered Online | Hot Mess (Fire Pool), Nappy Mines (Fire Burst), Blowing Bubbles (Mucus Projectile) |
+| Redtail | The Runs (Fire Pool trail), Unwanted Contact (Static Projectile), Sister Cousin (Blood Projectile) |
+| Prawn Again | Chest Burster (Soul Projectile), Peekaboo (Soul Burst), Eggs (Soul Burst) |
+| Not of This World | Soulmate Signal (Static Beam), There Is No Spoon (Force Projectile), Family Ties (Force Projectile) |
 
 Still open:
-4. **Thin attack types.** Contact (Nutcracker) and Spread (Spray Gun) have one weapon each, and Fire has only Pool and Burst weapons. Acid now has a single weapon (Acid Spit), since Nappy Mines became Fire. No sample starts with Contact, Spread or Burst. Recommendation: accept for now; the next additions should be a Fire Projectile or Spread and a second Contact.
-5. **The 5 Fire drafts are archived** (Heartburn, Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation). Re-check any enemy or reaction design that assumed a Fire Beam, Contact or Burst weapon. The Unsolicited's "starts chain reactions in crowds" now rests on Hot Mess plus its Static.
+4. **Thin attack types.** Contact (Nervous Wreck) and Spread (Maximum Gains) have one weapon each, and Fire has only Pool and Burst weapons. Acid now has a single weapon (Acid Spit), since Nappy Mines became Fire. Since decision 5 every attack type is some sample's starter. Recommendation: accept for now; the next additions should be a Fire Projectile or Spread and a second Contact.
+5. **The 5 Fire drafts are archived** (Heartburn, Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation). Re-check any enemy or reaction design that assumed a Fire Beam, Contact or Burst weapon. Redtail's "starts chain reactions in crowds" rests on The Runs and Unwanted Contact.
+6. **Ordered Online has no Acid starter.** Its types are Mucus and Acid, but its kit is Hot Mess (Fire), Nappy Mines (Fire) and Blowing Bubbles (Mucus); its Acid comes only from its Feat (Shrink Wrap). The brief asks for Hot Mess to look like "a violently reactive, corrosive slick" for this sample, but a Fire pool drawn as Acid breaks the damage-type look (`DAMAGE_TYPES.md`), and corrosive slicks are a cut ground object (matrix decision 27). Options: (a) make Hot Mess an Acid Pool everywhere (Acid gets 2 weapons, Fire loses its foundation and Hot Mess's Burn upgrades need rewriting); (b) keep Hot Mess Fire and change Ordered Online's types to Mucus / Fire. Recommendation: (b), the smaller change.
+7. **Not of This World's weapons are Static, Force and Force**, while its passive shifts its type between Fire, Soul and Static. `SAMPLES.md` now says its three starters deal the active type; There Is No Spoon's returned bullets keep their own type (12.8). Needs a matrix line if kept.
 
 ## 6. Code pass (not done)
 
 About one session. The v10 prototype is on this branch (`v10.js`, `sigweap.js`).
 1. Archive: restrict `v10Ids()` (`v10.js`) to the 10 foundation ids and the signature list in `sigweap.js` to the 14. Keep every definition in the code; add an `archived` flag so the Lab Bench can still spawn them.
-2. Rename in the data: Knuckle Dragger, Broadside, Burning Ground, Lard Lobber, Red Tape, Bubble Wand, Pub Crawl (`V10_NAMES`, `sigweap.js`).
-3. Sample starters (decision 3): `samples10.js`.
+2. Rename in the data (decision 4 names): Knuckle Dragger, Broadside, Burning Ground, Lard Lobber, Red Tape, Bubble Wand, Pub Crawl (`V10_NAMES`, `sigweap.js`).
+3. Sample starters (decision 5): `samples10.js`, and the level 1 weapon draft offers the sample's three.
 4. New animations for the 10 foundations (section 2) in `render.js`/`typefx.js`, following `STYLE.md` and the redesign's visual language.
 5. Fix any combo, Feat or tutorial text naming an archived weapon; update `GAME_GUIDE.md` and tests.
 

@@ -13,17 +13,17 @@
 
 1. **A promise changes what the player wants to do** (where to swim, what to target, when to commit), not how much damage a number says.
 2. **Autorun modes find different openings.** No card requires a mode. Each path notes which modes suit it: KITE (long trails, traps, range), ORBIT (circles, repeated contact), COLLECT (moving through drops), HUNT (focus fire on one target), HOLD (letting enemies come), NEST (fighting round the egg).
-3. **Identity first.** Each signature deepens its own fantasy. Sticky Situation shares damage; Static Cling chains; Tapeworm Seeder builds an army. They do not converge on generic chain reactions.
+3. **Identity first.** Each signature deepens its own fantasy. Ewww, Gross shares damage; Unwanted Contact chains; Chest Burster builds an army. They do not converge on generic chain reactions.
 4. **Visible in combat.** Every path has a **Shows** line: what the player sees that proves the choice is working.
 5. **Trade-offs.** Where a path gives something, its **Costs** line says what it takes away. Not every path is strictly better.
 6. **Damage type never changes** through an upgrade. Attack type can change, rarely, tagged **[ATTACK to X]**; the new attack type then decides the defence rules (Evasion, Thorns; matrix 13).
-7. No new statuses and no new ground objects. Weapon marks (a visible tag a weapon puts on an enemy for its own use, like Due Date's countdown) are allowed; they are not statuses and no reaction reads them. Pools are standard objects (11.6) or footprints (attack areas no reaction uses). Every repeat is bounded (12.5); copied damage is echo damage (12.1).
+7. No new statuses and no new ground objects. Weapon marks (a visible tag a weapon puts on an enemy for its own use, like One of These Days' countdown) are allowed; they are not statuses and no reaction reads them. Pools are standard objects (11.6) or footprints (attack areas no reaction uses). Every repeat is bounded (12.5); copied damage is echo damage (12.1).
 
 ---
 
 # The 10 foundations
 
-## 1. Nut Shot (Force, Projectile)
+## 1. Standard Issue (Force, Projectile)
 **A. Ricochet Brain: play into packed groups.**
 - Lv 3: after a hit, the shot bounces to the nearest enemy within 110 (2 bounces, 80% damage each time).
 - Lv 6, pick one:
@@ -41,11 +41,11 @@
 - Costs: lower fire rate (−20%). Shows: the pellet visibly grows and its trail thickens per enemy. Modes: KITE lines pursuers up behind each other.
 
 **C. Marked for Bonking: focus fire.**
-- Lv 3: every 4th hit on the same enemy marks it (a dented-nut icon); the next Nut Shot on a marked enemy is a heavy hit for ×2.5.
+- Lv 3: every 4th hit on the same enemy marks it (a dented-nut icon); the next Standard Issue on a marked enemy is a heavy hit for ×2.5.
 - Lv 6, pick one:
   - a marked enemy also takes +20% from your other weapons until the bonk lands.
   - the bonk staggers the target (full Poise bar) and knocks off a Shell layer; elites take it every 3rd hit instead of 4th.
-  - Wildcard, **Nut Allergy**: enemies killed by Nut Shot swell up and burst, knocking their neighbours back.
+  - Wildcard, **Nut Allergy**: enemies killed by Standard Issue swell up and burst, knocking their neighbours back.
 - Costs: the shot no longer switches targets while one is marked. Shows: the dent icon fills in quarters; the bonk has a big thwack frame. Modes: HUNT, which already locks one target.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -53,7 +53,7 @@
 - **Infinite Nuts** (A, B): shots keep going: unlimited pierce and bounces until each shot has hit 12 enemies, with no damage lost.
 - **Squirrel Away** (C): every 10th shot unloads the last ten again in 0.3 s at the same target, each at ×1.5.
 
-## 2. Spray Gun (Force, Spread)
+## 2. Maximum Gains (Force, Spread)
 **A. Shotgun Wedding: get close and commit.**
 - Lv 3: the cone tightens to a third of its width; pellets that land within 120 units deal +60%.
 - Lv 6, pick one:
@@ -83,7 +83,7 @@
 - **Riot Control** (C): every pellet knocks back like a heavy hit; each collision sets off a small Force blast (depth 2).
 - **Full Auto** (B): fires four times as fast with no reload; pellets do 40% less.
 
-## 3. Nutcracker (Force, Contact)
+## 3. Nervous Wreck (Force, Contact)
 **A. Vice Grip: hold them and get out.**
 - Lv 3: each clamp holds the enemy in place for 0.4 s.
 - Lv 6, pick one:
@@ -113,7 +113,7 @@
 - **Crack Addict** (B): every clamp is a heavy hit; each Shell layer you knock off heals you 1% of max health (6 health per second cap).
 - **Untouchable** (A, C): while an enemy is in clamp range you take 50% less Contact damage, and every enemy that enters range is countered (no per-enemy cooldown; once per 0.3 s overall).
 
-## 4. Premature Detonation (Force, Burst)
+## 4. Panic Button (Force, Burst)
 **A. Bigger Bang Theory: clear the crowd.**
 - Lv 3: radius +40%, and the outer edge hits harder than the centre (+30% at the rim).
 - Lv 6, pick one:
@@ -173,7 +173,7 @@
 - **Projectile Vomit [ATTACK to Beam]** (A, B): a continuous acid stream that pierces everything and builds Corrosion ×1.5.
 - **Acid House** (B, C): every enemy that dies carrying Corrosion leaves an Acid Pool (radius 60, 3 s); touching pools merge (12.7).
 
-## 6. Blue Screen (Static, Beam)
+## 6. Red Flagship (Static, Beam)
 **A. Overclocked: hold the line on one target.**
 - Lv 3: damage grows the longer the beam stays on one target, up to +100% after 3 s; switching target resets it.
 - Lv 6, pick one:
@@ -203,7 +203,7 @@
 - **Multi-Monitor Setup** (B, C): four beams in a cross, turning with your swim direction.
 - **Kernel Panic** (B): an enemy killed by the beam Charges everything within 150, and the beam jumps to the nearest of them (3 jumps).
 
-## 7. Snot Trap (Mucus, Pool)
+## 7. Nocturnal Emission (Mucus, Pool)
 **A. Extra Strength Snot: slow everything.**
 - Lv 3: Snared enemies crossing it move at 40% speed (from 60%) and stay slowed for 1.5 s after leaving.
 - Lv 6, pick one:
@@ -233,7 +233,7 @@
 - **Superglue** (B): anything Snared in a trap is stuck solid for 2 s: no moving, no attacking (elites 1 s; bosses are only slowed). Once per enemy per 5 s.
 - **Snotwork Everywhere** (C): a trap drops every 1 s as you swim, and strands join all of them (8 traps at most).
 
-## 8. Red Needle (Blood, Projectile)
+## 8. Little Prick (Blood, Projectile)
 **A. Bleeding Heart: the long fight.**
 - Lv 3: each hit adds a Bleed stack (cap raised to 6).
 - Lv 6, pick one:
@@ -253,7 +253,7 @@
 **C. Final Prick: clean up.**
 - Lv 3: +100% damage to enemies under 30% health.
 - Lv 6, pick one:
-  - a kill by Red Needle fires a free needle at the next-weakest enemy within 300.
+  - a kill by Little Prick fires a free needle at the next-weakest enemy within 300.
   - a needle that hits a bleeding enemy under 15% health kills it outright (elites under 8%, never bosses).
   - Wildcard, **Vaccination**: each needle kill makes you immune to the next status that would hit you within 3 s.
 - Costs: −25% damage to enemies above half health. Shows: a red pinprick flash and a ding on the finishing blow. Modes: COLLECT sweeps up the gems from the clean-up.
@@ -263,13 +263,13 @@
 - **Pin Cushion** (B): each shot is a volley of 8 needles, each homing on a different enemy.
 - **Coup de Grace** (C): any enemy under 25% health hit by a needle dies (elites under 12%; bosses take ×3 instead).
 
-## 9. Ghost Load (Soul, Projectile)
+## 9. Rent Free (Soul, Projectile)
 **A. Ghost Through: pass through the crowd.**
 - Lv 3: passes through up to 4 enemies; each one after the first takes 20% less.
 - Lv 6, pick one:
   - every enemy it passes through gains Soul build-up, so a long line fills several bars at once.
   - when the ghost reaches full range it fades and re-forms at the start of its path, flying the same line again once.
-  - Wildcard, **Nine-Tenths of the Law**: a Possessed enemy fires Ghost Load shots at its mates.
+  - Wildcard, **Nine-Tenths of the Law**: a Possessed enemy fires Rent Free shots at its mates.
 - Costs: −15% damage to the first target. Shows: the ghost visibly passes through bodies, leaving a faint wisp in each. Modes: KITE lines pursuers up.
 
 **B. Return to Sender: twice the haunting.**
@@ -291,7 +291,7 @@
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
 - **Mass Possession** (A, C): every hit fills half a Soul bar, and Possession lasts twice as long.
 - **Poltergeist** (A, B): ghosts never stop at a target: they wander for 6 s, hitting everything they touch (6 at most).
-- **Ghost Army** (C): each kill by Ghost Load raises a ghost that fires Ghost Load shots for 5 s (pets rule 12.3).
+- **Ghost Army** (C): each kill by Rent Free raises a ghost that fires Rent Free shots for 5 s (pets rule 12.3).
 
 ## 10. Hot Mess (Fire, Pool)
 **A. Hotter Mess: don't stand in it.**
@@ -327,7 +327,7 @@
 
 # The 14 signatures
 
-## 11. Black Hole (Force, Projectile, gravity well)
+## 11. Family Ties (Force, Projectile, gravity well)
 **A. Event Horizon: nothing gets out.**
 - Lv 3: the pull is much stronger near the centre (×2 within half the radius) and weaker at the edge.
 - Lv 6, pick one:
@@ -387,7 +387,7 @@
 - **Mass Hysteria** (C): the BOO also fills the Soul bar of up to 5 enemies at once, so they are Possessed.
 - **Now You See Me** (A, B): you are hidden 3 s out of every 4; every reappearance is a BOO.
 
-## 13. Twin Telepathy (Static, Beam, anchored)
+## 13. Soulmate Signal (Static, Beam, anchored)
 **A. Long-Distance Relationship: sweep the whole arena.**
 - Lv 3: the twin stays twice as far away; the beam is twice as long.
 - Lv 6, pick one:
@@ -417,37 +417,37 @@
 - **Psychic Link** (B): every 1.5 s a pulse runs along every beam for 300%, tagged Poise so it can interrupt.
 - **Conjoined Twins** (B): your twin is fused beside you: one beam straight ahead at ×4 damage and three times the range. No more sweeping.
 
-## 14. Tooth Fairy (Soul, Burst, lures)
-**A. Pillow Tax: bait makes more bait.**
-- Lv 3: every enemy smitten drops a tooth of its own.
+## 14. Eggs (Soul, Burst, lures)
+**A. Nest Egg: bait makes more bait.**
+- Lv 3: every enemy smitten lays an egg of its own.
 - Lv 6, pick one:
-  - up to 6 teeth on the ground at once (from 3).
-  - when 3 teeth are taken within 1 s, the Fairy smites all three takers and everything between them.
-  - Wildcard, **Root Canal**: teeth burrow and pop up under the nearest enemy instead of waiting.
-- Costs: each smite is 25% weaker. Shows: teeth tumbling out of each smitten enemy. Modes: COLLECT and ORBIT keep you near the falling teeth.
+  - up to 6 eggs on the ground at once (from 3).
+  - when 3 eggs are taken within 1 s, the eggs smite all three takers and everything between them.
+  - Wildcard, **Easter Egg Hunt**: eggs burrow and pop up under the nearest enemy instead of waiting.
+- Costs: each smite is 25% weaker. Shows: eggs rolling out of each smitten enemy. Modes: COLLECT and ORBIT keep you near the rolling eggs.
 
-**B. Sweet Tooth: steer the horde.**
-- Lv 3: teeth lure from twice as far, and enemies chasing a tooth stop attacking you.
+**B. Egg On: steer the horde.**
+- Lv 3: eggs lure from twice as far, and enemies chasing an egg stop attacking you.
 - Lv 6, pick one:
-  - teeth are dropped where you choose to be: they land on your swim path, 200 units behind you.
-  - one gold tooth at a time lures everything on screen (bosses excepted) for 2 s.
-  - Wildcard, **Gap Year**: every 3rd tooth the Fairy keeps for herself, and spends it smiting a random elite.
-- Costs: smites are 20% weaker. Shows: enemies peeling off the crowd and swimming for the glint. Modes: KITE drops teeth behind you; NEST draws enemies away from the egg.
+  - eggs are dropped where you choose to be: they land on your swim path, 200 units behind you.
+  - one golden egg at a time lures everything on screen (bosses excepted) for 2 s.
+  - Wildcard, **Broody**: every 3rd egg is kept back and hatched smiting a random elite.
+- Costs: smites are 20% weaker. Shows: enemies peeling off the crowd and swimming for the glint. Modes: KITE drops eggs behind you; NEST draws enemies away from the egg.
 
-**C. Tooth and Consequences: patience pays.**
-- Lv 3: a tooth gains power while it waits: +25% smite damage per second, up to +150%.
+**C. Don't Count Your Chickens: patience pays.**
+- Lv 3: an egg gains power while it waits: +25% smite damage per second, up to +150%.
 - Lv 6, pick one:
-  - a fully charged tooth (6 s) glows, and its smite also hits everything within 100.
-  - a fully charged tooth that is never taken explodes when it expires, smiting everything within 160.
-  - Wildcard, **Tooth for a Tooth**: when you take damage, a tooth drops at the feet of whatever hurt you.
-- Costs: teeth are dropped 40% less often. Shows: teeth glowing brighter as they wait. Modes: HOLD and KITE give teeth time to charge.
+  - a fully charged egg (6 s) glows, and its smite also hits everything within 100.
+  - a fully charged egg that is never taken explodes when it expires, smiting everything within 160.
+  - Wildcard, **Egg on Your Face**: when you take damage, an egg drops at the feet of whatever hurt you.
+- Costs: eggs are dropped 40% less often. Shows: eggs glowing brighter as they wait. Modes: HOLD and KITE give eggs time to charge.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
-- **Fairy Godmother** (A, C): every smite hits everything within 160 of the victim at full damage.
-- **Bite Club** (A, B): up to 12 teeth on the ground at once, scattered all round you.
+- **Golden Goose** (A, C): every smite hits everything within 160 of the victim at full damage.
+- **Clutch** (A, B): up to 12 eggs on the ground at once, scattered all round you.
 - **Possession Fee** (B): every smite Possesses the victim at once (bosses take ×3 instead).
 
-## 15. Tapeworm Seeder (Soul, Projectile)
+## 15. Chest Burster (Soul, Projectile)
 **A. The Family Business: a durable army.**
 - Lv 3: undead last 12 s (from 6) and deal +50%.
 - Lv 6, pick one:
@@ -537,7 +537,7 @@
 - **Minefield** (A, B): three mines per drop, twice as often, lasting twice as long.
 - **Nappy Rash** (C): burning patches are three times the size, last 6 s and merge.
 
-## 18. Static Cling (Static, Projectile, chaining)
+## 18. Unwanted Contact (Static, Projectile, chaining)
 **A. It's Spreading: cover the crowd.**
 - Lv 3: +3 jumps (6 in all); jump range 140.
 - Lv 6, pick one:
@@ -549,25 +549,25 @@
 **B. Conductive Personality: set up the whole build.**
 - Lv 3: Charged enemies take +20% damage from all your weapons (not just Static).
 - Lv 6, pick one:
-  - Static Cling picks targets that are not yet Charged, spreading the setup.
+  - Unwanted Contact picks targets that are not yet Charged, spreading the setup.
   - when an enemy dies while Charged, all your weapons fire 20% faster for 2 s (does not stack).
   - Wildcard, **Odd Sock**: one enemy each wave becomes a lightning rod: every chain passes through it on the way.
-- Costs: Static Cling's own damage is −30%. Shows: crackling Charged outlines on many enemies at once. Modes: HUNT pairs it with a heavy hitter.
+- Costs: Unwanted Contact's own damage is −30%. Shows: crackling Charged outlines on many enemies at once. Modes: HUNT pairs it with a heavy hitter.
 
 **C. Feedback Loop: arcs feed arcs.**
 - Lv 3: when another weapon's hit makes a Charged enemy arc, there is a 30% chance it throws a second, smaller arc (50%).
 - Lv 6, pick one:
   - a second arc that lands on another Charged enemy can throw one more (depth 3).
-  - every 20 arcs, the next Static Cling bolt is a storm: it chains to every Charged enemy on screen.
+  - every 20 arcs, the next Unwanted Contact bolt is a storm: it chains to every Charged enemy on screen.
   - Wildcard, **Balloon Animal**: a chain that kills leaves a static balloon that floats to the nearest enemy and pops on it.
-- Costs: Static Cling fires 25% slower. Shows: arcs spawning arcs in visible cascades. Modes: any mode with a fast-firing second weapon.
+- Costs: Unwanted Contact fires 25% slower. Shows: arcs spawning arcs in visible cascades. Modes: any mode with a fast-firing second weapon.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
-- **Tumble Dryer** (B, C): 20% of hits from all your other weapons start a Static Cling chain.
+- **Tumble Dryer** (B, C): 20% of hits from all your other weapons start a Unwanted Contact chain.
 - **Worked Up** (A): 8 jumps, and every jump hits 25% harder than the last instead of weaker.
 - **Grid Lock** (A, B): every Charged enemy is joined to the nearest other Charged enemy by a live arc that hits anything crossing it (8 arcs at most).
 
-## 19. Sticky Situation (Mucus, Projectile, shared damage)
+## 19. Ewww, Gross (Mucus, Projectile, shared damage)
 **A. Birds of a Feather: bigger networks.**
 - Lv 3: bundles link up to 6 enemies (from 4) and reach 220 (from 170).
 - Lv 6, pick one:
@@ -597,7 +597,7 @@
 - **Red Tape Everywhere** (A, B): every enemy on screen is in a bundle; bundles re-form every 3 s.
 - **Mutually Assured Destruction** (C): when a linked enemy dies, partners under 30% health die too (elites 15%; bosses take 30% of its max health).
 
-## 20. Meat Missile (Force, Burst, collisions)
+## 20. Skill Issue (Force, Burst, collisions)
 **A. Pinball Wizard: rebound everything.**
 - Lv 3: enemies that collide with others rebound instead of stopping, carrying on at 70% speed.
 - Lv 6, pick one:
@@ -627,7 +627,7 @@
 - **Tenderiser** (B, C): every collision is a heavy hit.
 - **Human Cannonball** (A): you are the missile: every 4 s you launch yourself 320 units (cannot be hit mid-flight), bowling over everything you touch.
 
-## 21. Placental Siphon (Force, Projectile)
+## 21. There Is No Spoon (Force, Projectile)
 **A. Return to Womb: store it up.**
 - Lv 3: the store holds 25 bullets (from 10), and stored bullets keep 2 s longer before going stale.
 - Lv 6, pick one:
@@ -687,7 +687,7 @@
 - **Bubble Boy** (A): bubbles trap any enemy except bosses, instantly.
 - **Hamster Ball** (C): trapped enemies roll at the nearest other enemy and pop on it, trapping that one (depth 3).
 
-## 23. Due Date (Blood, Projectile, mark)
+## 23. One of These Days (Blood, Projectile, mark)
 **A. Any Day Now: commit and it comes sooner.**
 - Lv 3: the countdown shortens by 0.1 s for every hit the marked enemy takes.
 - Lv 6, pick one:
@@ -717,7 +717,7 @@
 - **The Big Day** (B): marked enemies take +50% damage from everything you own, and you can mark 3 at once.
 - **Induced** (C): the repeat is 100% of the stored damage, but only one mark every 10 s.
 
-## 24. Seeker Siblings (Blood, Projectile, homing)
+## 24. Sister Cousin (Blood, Projectile, homing)
 **A. Family Planning: more children.**
 - Lv 3: every kill produces an extra seeker (not only when one splits).
 - Lv 6, pick one:
@@ -753,7 +753,7 @@
 
 1. **Rule changes needed before code:** Shared Trauma (statuses copied between linked enemies) and Snotwork's strand pull need lines in the matrix. Weapon marks (Marked for Bonking, Shell Game cracks, Unfinished Business, Bad Aftertaste, Meat Grinder) need one shared rule saying what a weapon mark is.
 2. **Attack-type changes (5):** Lv 6 cards More Is More (to Burst), Dead Pixels (to Spread), Flash in the Pan (to Burst) and Big Bang, Eventually (its leftover well is a Pool); mastery Projectile Vomit (to Beam). Premature Evacuation stays a Burst but becomes self-centred.
-6. **Masteries that break a shared cap** (flagged so they are a deliberate exception): Zombie Apocalypse (pets cap 12.3), Scorched Route (40-object cap), Chain of Command (chain depth 6, 12.5), Infinite Nuts (12 hits per shot), Baby Boom for Seeker Siblings (24 in flight). Each needs a matrix line before code.
+6. **Masteries that break a shared cap** (flagged so they are a deliberate exception): Zombie Apocalypse (pets cap 12.3), Scorched Route (40-object cap), Chain of Command (chain depth 6, 12.5), Infinite Nuts (12 hits per shot), Baby Boom for Sister Cousin (24 in flight). Each needs a matrix line before code.
 3. **No damage-type changes.** `MODIFIERS.md`'s "it never changes the attack's damage type" stands.
 4. **Nappy Mines is Fire from the start** (user, 18 Oct). Its patch is a Fire Pool footprint, not an Acid Pool. Acid now has one weapon (Acid Spit).
 5. **Untested:** no number has been simulated.
