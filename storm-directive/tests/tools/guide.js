@@ -69,54 +69,41 @@ p(''); p('### Sequence synergies'); p('');
 p('| Synergy | Sequences | Effect |'); p('|---|---|---|');
 for (const q of D.PROFILE_SYNERGIES) p(`| **${esc(q.name)}** | ${D.PROFILES[q.a].name} + ${D.PROFILES[q.b].name} | ${esc(q.desc)} |`);
 p('');
-const W = Object.entries(D.WEAPONS).map(([id, d]) => Object.assign({ id }, d));
-const pairsOf = id => D.PAIRINGS.filter(q => q.a === id || q.b === id).map(q => `**${q.name}** (+ ${D.WEAPONS[q.a === id ? q.b : q.a].name})`).join(', ');
+// Under v10 only the 24 weapons exist (web/js/weapons24.js: W24 and W24_DESC, read from the source).
+const w24src = fs.readFileSync(J + 'weapons24.js', 'utf8');
+const W24 = vm.runInNewContext('(' + w24src.match(/const W24 = (\[[\s\S]*?\n\]);/)[1] + ')');
+const W24_DESC = vm.runInNewContext('(' + w24src.match(/const W24_DESC = (\{[\s\S]*?\n\});/)[1] + ')');
+const s10src = fs.readFileSync(J + 'samples10.js', 'utf8');
+const SAMPLE_NAME = Object.fromEntries([...s10src.matchAll(/\{ id: '(\w+)', name: '([^']+)'/g)].map(m => [m[1], m[2]]));
+const TYPE_NAME = { phys: 'Force', fire: 'Acid', shock: 'Static', ice: 'Mucus', arcane: 'Blood', soul: 'Soul', flame: 'Fire' };
+const ATK_NAME = { proj: 'Projectile', spread: 'Spread', contact: 'Contact', burst: 'Burst', beam: 'Beam', pool: 'Pool' };
+const oldId = id => id.startsWith('s_') ? id.slice(2) : id; // (combos and pairings use the old id of a signature weapon)
+const W24NAME = Object.fromEntries(W24.map(r => [oldId(r[0]), r[1]]));
+const live = c => W24NAME[c.a] && W24NAME[c.b];
+const wn = id => W24NAME[id] || D.WEAPONS[id].name;
+const WL_TEXT = vm.runInNewContext('(' + fs.readFileSync(J + 'w24look.js', 'utf8').match(/const WL_TEXT = (\{[\s\S]*?\n\});/)[1] + ')');
+const W = W24.map(r => ({ id: r[0] }));
 p('## Weapons');
 p('');
-p(`${W.length} weapons, each with its own play style. Every weapon belongs to one sequence and only that sequence can draft it, unless you unlock it as a wildcard in the Gene Bank (DNA cost shown). Long-range weapons start at a reach of 300 and grow 30 a level to their full range.`);
+p(`${W24.length} weapons, and only these: ten foundations (a plain weapon per attack type and damage type) and fourteen signatures. Each sample starts you with three of them; the rest turn up in drafts. Each weapon takes a branch at Lv 3, Lv 6 and Lv 10.`);
 p('');
-const ownerOf = id => { const k = Object.keys(D.PROFILES).find(p => D.PROFILES[p].weapons.includes(id)); return k ? D.PROFILES[k].name.replace(/^The /, '') : '-'; };
-p('| Weapon | Sequence | Damage type | Role | Aims at | Wildcard |'); p('|---|---|---|---|---|---|');
-for (const w of W) p(`| [${esc(w.name)}](#${w.name.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/ /g, '-')}) | ${ownerOf(w.id)} | ${el(w.elem)} | ${w.role} | ${dirName(w.dir)} | ${bank[w.id] ? bank[w.id] + ' DNA' : '-'} |`);
-p('');
-for (const w of W) {
-  const b = w.base, t = D.weaponTree(w);
-  const stats = [b.dmg != null && `dmg ${num(b.dmg)}`, b.cd && `cd ${num(b.cd)}s`, b.mag && `mag ${b.mag}`, b.reload && `reload ${num(b.reload)}s`, b.count > 1 && `x${b.count}`, b.pierce && `pierce ${b.pierce > 90 ? 'all' : b.pierce}`, b.range && `range ${b.range}`].filter(Boolean).join(', ');
-  p(`### ${w.name}`); p('');
-  p(`*${el(w.elem)} ${w.kind}, ${w.role}.* ${w.desc}`); p('');
-  p(`- **Base stats:** ${stats}${other(b) ? ' (' + other(b) + ')' : ''}`);
-  p(`- **Level bonuses:** ${lvText(w.lv)}`);
-  p(`- **Combos:** ${D.COMBOS.filter(c => c.a === w.id || c.b === w.id).map(c => `**${c.name}** (+ ${D.WEAPONS[c.a === w.id ? c.b : c.a].name})`).join(', ') || '-'}`);
-  p(`- **Pairings:** ${pairsOf(w.id) || '-'}`);
-  p('');
-  p('| Level | Choice | Effect |'); p('|---|---|---|');
-  for (const l of D.PERK_LEVELS) {
-    const sig = w.sig && w.sig[l];
-    const label = sig ? (l >= 10 ? `Lv ${l} mastery` : `Lv ${l} signature`) : `Lv ${l}`;
-    t[l].forEach((id, i) => { const K = sig ? D.SIGS[id] : D.PERKS[id]; p(`| ${i ? '' : label} | **${esc(K.name)}** | ${esc(K.desc.replace(/^Mastery\. /, ''))} |`); });
-  }
-  p('');
-}
-p('### Upgrades with a twist'); p('');
-p('When an upgrade would do nothing for a weapon, that weapon does its own thing with it instead (the card tells you).'); p('');
-p('| Upgrade | Weapon | What it does instead |'); p('|---|---|---|');
-for (const [id, m] of Object.entries(D.ADAPT)) for (const [wid, note] of Object.entries(m)) p(`| ${D.PASSIVES[id].name} | ${D.WEAPONS[wid].name} | ${esc(note.replace(/^[^:]+: /, ''))} |`);
-for (const [id, m] of Object.entries(D.PERK_ADAPT)) if (D.PERKS[id].tier === 1) for (const [wid, note] of Object.entries(m)) p(`| ${D.PERKS[id].name} | ${D.WEAPONS[wid].name} | ${esc(note)} |`);
+p('| Weapon | Damage type | Attack | Starter of | What it does |'); p('|---|---|---|---|---|');
+for (const [id, name, type, atk, st] of W24) p(`| **${esc(name)}** | ${TYPE_NAME[type] || type} | ${ATK_NAME[atk] || atk} | ${esc(SAMPLE_NAME[st] || st)} | ${esc(W24_DESC[id])} |`);
 p('');
 p('## Weapon combos'); p('');
 p(`Both weapons at Lv ${D.COMBO_LEVEL}+: the game stops at once for the combo's own unlock screen (never a card in a box). Both keep firing, gain the power below, and the first ${D.COMBO_MOUNTS} combos a run open a bonus weapon mount with a draft.`); p('');
 p('| Combo | Weapons | Sequence | Power |'); p('|---|---|---|---|');
-for (const c of D.COMBOS) { const a = ownerOf(c.a), b = ownerOf(c.b); p(`| **${esc(c.name)}** | ${D.WEAPONS[c.a].name} + ${D.WEAPONS[c.b].name} | ${a === b ? a : a + ' + ' + b + ' (needs a splice)'} | ${esc(c.desc)} |`); }
+for (const c of D.COMBOS.filter(live)) p(`| **${esc(c.name)}** | ${wn(c.a)} + ${wn(c.b)} | - | ${esc(WL_TEXT[c.id] || c.desc)} |`);
 p('');
 p('## Super combos'); p('');
 p(`Two fused combos can fuse again: once both are fused and every weapon in them is Lv ${D.SUPER_LEVEL}+, the game stops for a gold unlock screen. Super rare: the ones whose combos share no weapon need a splice and both bonus mounts.`); p('');
 p('| Super combo | Combos | Power |'); p('|---|---|---|');
-for (const s of D.SUPERS) p(`| **${esc(s.name)}** | ${D.COMBOS.find(c => c.id === s.x).name} + ${D.COMBOS.find(c => c.id === s.y).name} | ${esc(s.desc)} |`);
+for (const s of D.SUPERS.filter(s => live(D.COMBOS.find(c => c.id === s.x)) && live(D.COMBOS.find(c => c.id === s.y)))) p(`| **${esc(s.name)}** | ${D.COMBOS.find(c => c.id === s.x).name} + ${D.COMBOS.find(c => c.id === s.y).name} | ${esc(WL_TEXT[s.id] || s.desc)} |`);
 p('');
 p('## Pairings (secret combos)'); p('');
 p(`Own both weapons at Lv ${D.PAIR_LEVEL}+ and the pairing switches on. In the game they stay hidden (???) until you find them once.`); p('');
 p('| Pairing | Weapons | Effect |'); p('|---|---|---|');
-for (const q of D.PAIRINGS) p(`| **${esc(q.name)}** | ${D.WEAPONS[q.a].name} + ${D.WEAPONS[q.b].name} | ${esc(q.desc)} |`);
+for (const q of D.PAIRINGS.filter(live)) p(`| **${esc(q.name)}** | ${wn(q.a)} + ${wn(q.b)} | ${esc(WL_TEXT[q.id] || q.desc)} |`);
 p('');
 p('## Bosses and relics'); p('');
 p(`A boss arrives every ${(D.BOSS_INTERVAL / 60).toFixed(2).replace(/0$/, '')} minutes of game time, four in all. Each run draws ${D.BOSSES_PER_RUN} of these ${D.BOSSES.length} at random; a fifth (a tougher repeat) waits until the Fever Pitch. Every boss is introduced with its strengths and weaknesses, and beating it offers a choice of its three relics.`); p('');
@@ -250,10 +237,6 @@ p('Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival y
 p('### Bonuses'); p('');
 p('| Bonus | Effect | Max rank | Cost per rank |'); p('|---|---|---|---|');
 for (const b of D.META_BONUSES) p(`| **${b.name}** | ${b.desc} | ${b.max} | ${Array.from({ length: b.max }, (_, r) => b.cost(r)).join(' / ')} |`);
-p(''); p('### Wildcard weapons'); p('');
-p('Unlocked wildcards can be drafted by any sequence.'); p('');
-p('| Weapon | DNA |'); p('|---|---|');
-for (const [id, c] of D.META_STARTERS) p(`| ${D.WEAPONS[id].name} | ${c} |`);
 p(''); p('### GFP variants'); p('');
 p('| Colour | DNA |'); p('|---|---|');
 for (const d of D.META_DYES) p(`| ${d.name} | ${d.cost || 'Free'} |`);
