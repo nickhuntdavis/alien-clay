@@ -78,7 +78,7 @@ const { chromium } = require('playwright');
     for (let i = 0; i < 10; i++) { const ids = pdefOffer(6).map(o => o.defence); if (ids.includes('squishy') || ids.includes('thick')) { bad.push('slots full but new card offered: ' + ids); break; } }
     // The card renders and applies through the real loot screen.
     fresh(); genLoot({ kind: 'start' })[0].apply(); G.lootQueue.length = 0;
-    UI.openLoot({ kind: 'level', v10ok: true }); const nCards = document.querySelectorAll('#lootCards .card').length;
+    let nCards = 0; for (let tr = 0; tr < 40; tr++) { UI.openLoot({ kind: 'level', v10ok: true }); nCards = document.querySelectorAll('#lootCards .card').length; if (UI.lootOpts.some(o => o.defence)) break; } // (the pool is large now: retry until a defence card shows)
     if (nCards !== 3) bad.push('loot screen shows ' + nCards + ' cards');
     const di = UI.lootOpts.findIndex(o => o.defence); const dk = UI.lootOpts[di].defence; UI.lootOpts[di].apply();
     if (G.pd.n[dk] !== 1) bad.push('card apply');

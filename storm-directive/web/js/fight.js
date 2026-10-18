@@ -69,10 +69,11 @@ function fightHit(e, d, src, crit) {
   const cd = fightCd(e), t = FIGHT_TYPE[src.elem || 'phys'] || 'force';
   if (t === 'static' && charged(e)) d *= 1.2;
   if (typeof s10DmgMul === 'function') d *= s10DmgMul(e, src); // (sample passives: samples10.js)
+  d *= mutDmg(e, src, t); // (mutation cards: mutations.js)
   const atk = src.zoneHit ? 'pool' : IN_AOE ? 'burst' : src.atk || (src.w && src.w.def && src.w.def.v10atk) || 'proj';
   COMBAT.critMult = G.P.critDmg || 1.6;
   cd.hp = e.hp;
-  const res = resolveHit(cd, { atk, comps: [{ type: t, amt: d }], crit, echo: !!src.echo }, Math.random);
+  const res = resolveHit(cd, { atk, comps: [{ type: t, amt: d }], crit, echo: !!src.echo, barK: mutBarK(e) }, Math.random);
   if (res.miss) {
     S.miss++;
     if (!(e.missRT > G.realT)) { e.missRT = G.realT + 0.4; floatText(e.x, e.y - e.r - 6, 'miss', '#cfe7ff', 11, 0.5); fxParts('spark', e.x, e.y, '#cfe7ff', 4, 60, 0.3, 2); }
@@ -87,6 +88,7 @@ function fightHit(e, d, src, crit) {
   if (typeof s10Hit === 'function') s10Hit(e, src, res, t);
   if (src.rx) S.dmg.reaction += res.toHp; else S.dmg.weapon += res.toHp;
   if (!src.rx && !src.echo) fightReact(e, t, res.raw, src, res);
+  mutHit(e, d, src, t, res);
   return res.toHp;
 }
 
@@ -106,7 +108,7 @@ function fightStatus(e, elem, dmg, src) {
   if (t === 'acid') return true; // Corrosion is a bar (combat.js); no Acid damage over time on enemies (decision 23)
   if (t === 'mucus') {
     if (!snared(e)) fst();
-    e.snareT = G.t + 2.5; e.chill = 2.5; e.chillAmt = e.boss ? 0.2 : 0.55;
+    e.snareT = G.t + 2.5 * mutSnareK(); e.chill = 2.5; e.chillAmt = e.boss ? 0.2 : 0.55;
     e.v10burn = 0; e.v10bdps = 0; if (e.cd) { e.cd.bars.fire = 0; e.cd.burnPool = 0; e.cd.burnT = 0; } // Snared puts out Burning (decision 25)
     return true;
   }
@@ -138,7 +140,7 @@ function fightArc(e, dmg, jumps) {
 }
 
 // ---------------------------------------------------------------- reactions (matrix section 1)
-function rxLocked(e, id) { const L = e.rxT || (e.rxT = {}); if (L[id] > G.t) return true; L[id] = G.t + (e.boss ? 3 : 1.5); return false; }
+function rxLocked(e, id) { const L = e.rxT || (e.rxT = {}); if (L[id] > G.t) return true; L[id] = G.t + (e.boss ? 3 : mutRxLock(id)); return false; }
 function rxFired(id, e) {
   const S = fst(), R = FIGHT_RX[id];
   S.rx[id] = (S.rx[id] || 0) + 1;

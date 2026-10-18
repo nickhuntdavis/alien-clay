@@ -30,6 +30,7 @@ function rateBonus() {
   if (P.anchorLink > 0 && Math.hypot(me().x - G.core.x, me().y - G.core.y) < 450) r *= 1 + P.anchorLink;
   if (G.relics.feverdream) r *= 1 + Math.min(0.6, 0.03 * (G.feverN || 0));
   r *= boonRate(); // Twin Soul
+  if (typeof V10 !== 'undefined' && V10 && G.mut10) r *= mutRate(); // (mutation cards: mutations.js)
   r *= genesRate(); // Hackerman, Powerhouse, Sugar Rush
   r *= junkRate(); // Rooted (junk.js)
   return r;

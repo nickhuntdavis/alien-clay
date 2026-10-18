@@ -113,7 +113,7 @@ function resolveHit(t, a, rng) {
       let size = COMBAT.barSize[k];
       if (k === 'acid' && t.def === 'shell' && t.layers > 0) size *= t.layers; // else sized as one layer
       t.barQuietT[k] = 0;
-      t.bars[k] += amt[k] / (size * COMBAT.rankBarK[rank] * t.maxHp);
+      t.bars[k] += amt[k] * ((a.barK && a.barK[k]) || 1) / (size * COMBAT.rankBarK[rank] * t.maxHp); // (a.barK: Concentration, mutations.js)
       if (t.bars[k] >= 1) {
         t.bars[k] = 0;
         if (k === 'acid' && !(t.def === 'shell' && t.layers > 0)) res.payoffs.push('corrode');
