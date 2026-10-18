@@ -2487,13 +2487,14 @@ function autoSteer() {
 // ---------------------------------------------------------------- pickups
 function updatePickups(dt) {
   const p = G.player, P = G.P;
-  const magR = 105 * P.magnet;
+  // The race swims on, so XP left behind follows you further and faster there (most of it was being stranded).
+  const race = V10 && !G.wave, magR = 105 * P.magnet * (race ? 1.5 : 1), driftR = race ? 1600 : 650, driftV = race ? 190 : 85;
   for (const g of G.gems) {
     if (g.dead) continue;
     const dx = p.x - g.x, dy = p.y - g.y, d = Math.hypot(dx, dy) || 1;
     if (!g.mag && d < magR) g.mag = true;
     // Loose gems slowly drift towards the player so kiting doesn't strand XP.
-    if (!g.mag && d < 650) { const k = Math.min(d, 85 * dt); g.x += dx / d * k; g.y += dy / d * k; }
+    if (!g.mag && d < driftR) { const k = Math.min(d, driftV * dt); g.x += dx / d * k; g.y += dy / d * k; }
     if (g.mag) {
       const sp = 380 + (g.sp = (g.sp || 0) + dt * 600);
       g.x += dx / d * Math.min(d, sp * dt); g.y += dy / d * Math.min(d, sp * dt);

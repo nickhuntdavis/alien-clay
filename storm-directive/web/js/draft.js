@@ -2,7 +2,7 @@
 // Spawn Prawn - v10 draft core (redesign docs/UPGRADES.md): one card-choice screen for everything.
 //  - Cards: weapon upgrades (Enhance), Switched at Birth, defence cards (pdef.js), and every card registered by
 //    feature files through draftRegister (Feats: feats10.js; mutations, Catalysts, Concentration: mutations.js).
-//  - Slots: 3 weapons (drafts at Lv 1, 8, 22, as before), 3 Feats, 4 Genome slots shared by mutations and defences.
+//  - Slots: 3 weapons (drafts at Lv 1, 5, 12), 3 Feats, 4 Genome slots shared by mutations and defences.
 //    Acquire cards leave the pool once their slots are full, so late drafts become upgrades by themselves.
 //  - Forks: a weapon reaching Lv 5 or 10 (one mastery weapon a run), or a Feat reaching level 3 or 5, gets its own
 //    2-card screen. Fork options come from forkRegister, or for weapons from two fitting modifiers (modifiers.js).

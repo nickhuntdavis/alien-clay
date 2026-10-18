@@ -153,7 +153,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '10.11';
+const APP_VERSION = '10.12';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -188,7 +188,7 @@ function runSummary(G, result) {
       const src = e.filter(([, v]) => v / dmgTot >= 0.005).slice(0, 4).map(([k, v]) => k.slice(0, -t.length - 3) + ' ' + Math.round(v / dmgTot * 100) + '%').join(', ');
       return `${t} ${Math.round(tot / dmgTot * 100)}%${src ? ' (' + src + ')' : ''}`; }).filter(Boolean), // (no empty brackets when every source is under 0.5%)
     dmg: top(G.stats.dmg, 6).map(([k, v]) => k + ' ' + Math.round(v / dmgTot * 100) + '%'),
-    w: G.weapons.filter(Boolean).map(w => w.id + w.lvl + (w.mods.length ? '[' + w.mods.map(m => m.id).join(',') + ']' : '')),
+    w: G.weapons.filter(Boolean).map(w => w.id + w.lvl + (w.up && w.up.p ? '{' + [w.up.p, w.up.l6, w.up.l10].filter(Boolean).join('/') + '}' : '') + (w.mods.length ? '[' + w.mods.map(m => m.id).join(',') + ']' : '')),
     s: G.spells.filter(Boolean).map(w => w.id + w.lvl),
     p: top(G.passives, 12).map(([k, v]) => k + v),
     boxes: G.stats.boxes || 0, boxBy: G.stats.boxBy || {}, xp: Math.round(G.stats.xpGot || 0), xpRaw: Math.round(G.stats.xpRaw || 0), xpDrop: Math.round(G.stats.xpDrop || 0), xpFloor: Math.round(G.gems.filter(g => g.kind !== 's').reduce((a, g) => a + g.v, 0)), xpK: +((G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp) * XP_PACE).toFixed(2), curve: Math.round((G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))) * 10) / 10, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),

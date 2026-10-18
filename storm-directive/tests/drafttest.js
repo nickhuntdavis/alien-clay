@@ -17,7 +17,7 @@ const { chromium } = require('playwright');
     draftRegister({ id: 'tfeat', kind: 'enhance', slot: 'feat', family: 'feat:test', title: 'Test Feat', desc: 'x', maxRank: 5, start: true, eligible: () => true, rank: () => rank, apply: () => { rank++; } });
     forkRegister('feat:tfeat', 3, [{ title: 'Left', desc: 'a', apply: () => { out.fork = 'left'; } }, { title: 'Right', desc: 'b', apply: () => { out.fork = 'right'; } }]);
     let seen = new Set();
-    for (let i = 0; i < 60; i++) for (const o of genLoot({ kind: 'level' })) seen.add(o.card || o.tag);
+    for (let i = 0; i < 250; i++) for (const o of genLoot({ kind: 'level' })) seen.add(o.card || o.tag);
     out.seen = [...seen];
     if (!seen.has('tcard') || !seen.has('tfeat') || !seen.has('UPGRADE')) bad.push('draft pool: ' + out.seen);
     // Feat fork at level 3

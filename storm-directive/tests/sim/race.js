@@ -32,6 +32,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
         if (f % 600 === 0) await new Promise(r => setTimeout(r, 0));
       }
       if (G && G.state === 'play') ev.push('TIMEOUT t=' + Math.round(G.t) + ' lv' + G.level);
+      if (G) { const st = G.stats, fl = G.gems.reduce((a, g) => a + (g.kind === 'x' ? g.v : 0), 0); ev.push(`xp ${Math.round(st.xpRaw || 0)}/${Math.round(st.xpDrop || 0)} floor ${Math.round(fl)} | W ${G.weapons.filter(Boolean).map(w => w.def.name + ' ' + w.lvl + (w.up && w.up.p ? w.up.p : '')).join(', ')} | boxes ${JSON.stringify(st.boxBy || {})}`); }
       return { win, s: ev.join(' | ') };
     }, GOD);
     if (r.win) wins++;

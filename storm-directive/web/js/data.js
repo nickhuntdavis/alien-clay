@@ -996,7 +996,7 @@ const CORE = { r: 80, sanctuary: 290, arena: 2400, arena0: 2400 }; // arena shri
 const RACE = { spawn: 1, hurt: 0.75, boss: [0.2, 0.35, 0.5, 0.7], bossHit: [0.5, 0.65, 0.8, 0.95] };
 const EGG = { level: 60, hpBase: 150000, armour: 8, fire: 1, ring: 28, bullet: 10, buds: 5, budEvery: 5 };
 // Weapon drafts: a new weapon mount at level 1 and at these levels.
-const SLOT_LEVELS = [8, 22]; // three weapons a run: one at level 1, then drafts at 8 and 22
+const SLOT_LEVELS = [5, 12]; // three weapons a run: one at level 1, then drafts at 5 and 12 (was 8 and 22: most runs only ever had two)
 const BASE_SLOTS = 1; // you choose a new weapon at level 1 and at every SLOT_LEVELS level (3 mounts, plus up to 2 bonus mounts from combos)
 const MAX_WEAPONS = BASE_SLOTS + SLOT_LEVELS.length;
 

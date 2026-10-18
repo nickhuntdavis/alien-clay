@@ -1,3 +1,11 @@
+## 2026-10-18 Race fixes from a run log: XP pull, weapon slots at Lv 5/12, gentler death stare, branches in the log (v10.12)
+- Systems: pickups, draft, bosses, run log
+- Files: game.js, data.js, bosses.js, meta.js, draft.js, tests/drafttest.js, tests/sim/race.js
+- What: in the race, loose XP follows you from 1600 away at 190/s (was 650 at 85) and the magnet reaches 1.5x further; weapon mounts come at Lv 5 and 12 (was 8 and 22); The Immune Eye's death stare warns for 1.6 s (was 1.1) and hits for 60%; the run log shows each weapon's branch choices {A/Lv6/Lv10}. race.js prints XP collected, weapons and boxes. drafttest samples more drafts (it flaked).
+- Save data: none.
+- Hooks: none (edits inside game.js updatePickups, data.js SLOT_LEVELS, bosses.js glare).
+- Risk: faster levelling (bot sim: XP collected 80 to 97%, was 66 to 90%); bot still 0/3 wins, dying to bullets at 5 to 7 min.
+
 ## 2026-10-18 Weapon branches, batch 3: Rent Free, Hot Mess, Family Ties, Skill Issue
 - Systems: weapons, upgrades
 - Files: wup3.js (new), index.html (script tag after wup2.js), tests/wup3test.js (new)
