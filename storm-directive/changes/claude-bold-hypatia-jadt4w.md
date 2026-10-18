@@ -257,3 +257,11 @@
 - Save data: none (G.muts, G.cat, G.conc and w.wm10 are per run).
 - Hooks: v10.js v10Tick -> mutTick, v10Draw -> mutDraw; fight.js fightHit -> mutDmg/mutBarK/mutHit, rxLocked -> mutRxLock, fightStatus -> mutSnareK; combat.js resolveHit a.barK; game.js killEnemy -> mutKill, hurtPlayer -> mutHurtIn/mutHurt, gainXp -> mutLevel, computeStatsInner -> mutWeaponStats, fireWeapon -> mutFire, projectile hit -> mutProjHit, updatePlayer speed -> mutSpeed; arsenal.js rateBonus -> mutRate.
 - Risk: more multipliers in the hit path (balance not simmed yet); the bigger pool dilutes defence cards.
+
+## 2026-10-18 Boss defences, fork screens, smarter auto-pick
+- Systems: bosses (boss10.js new), draft, ui, combat
+- Files: boss10.js (new), bosses.js, game.js, fight.js, pdef.js, draft.js, ui.js, index.html, tests/bosstest.js (new), tests/drafttest.js
+- What: bosses take their defence and damage type from the roster (Kidney Stone 6 Shell layers, Antibody Colossus 5, Chad Prime Evasion, Macrophage Queen Squishy, The Johnny Membrane); the old "+60% from Acid" weaknesses and type immunities are off, and each intro card now says what its defence is and what gets through it. The Queen stops summoning while 8 of her adds live. Fixed: a weapon or Feat fork screen crashed the game (no title). Every level draft now leads with one weapon upgrade. Auto-pick takes the weapon upgrade half the time.
+- Save data: none.
+- Hooks: bosses.js bossDamageMul skips weak/resist/noForce/weakAoe under V10; game.js boss 'summon' pattern -> boss10SummonOk and tags adds; ui.js openLoot -> draftTitle; ui.js autoTick weapon-upgrade preference.
+- Risk: bosses lose their old soft spots, so some fights get longer; balance needs the sims (1 run: died wave 10, weapons up to Lv 10 with two forks).

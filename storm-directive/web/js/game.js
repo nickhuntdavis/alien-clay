@@ -1647,8 +1647,9 @@ function bossAI(e, dt, dist, ux, uy) {
       break;
     case 'summon':
       if (e.st === 0) {
-        e.st = 1;
-        for (let i = 0; i < 8 && G.enemies.length < CAPS.enemies; i++) { const a = i / 8 * TAU; G.enemies.push(makeEnemy(pick([ENEMIES.skitter, ENEMIES.crawler, ENEMIES.bomber]), e.x + Math.cos(a) * 70, e.y + Math.sin(a) * 70)); }
+        e.st = 1; const n0 = G.enemies.length;
+        for (let i = 0; i < 8 && G.enemies.length < CAPS.enemies && boss10SummonOk(e); i++) { const a = i / 8 * TAU; G.enemies.push(makeEnemy(pick([ENEMIES.skitter, ENEMIES.crawler, ENEMIES.bomber]), e.x + Math.cos(a) * 70, e.y + Math.sin(a) * 70)); }
+        if (V10) G.enemies.slice(n0).forEach(o => (o.summonedBy = e)); // (capped adds: boss10.js)
         ring(e.x, e.y, 90, e.color, 0.5, 5);
       }
       if (e.fireT <= 0) { e.fireT = 1.2; shootPattern(e, 'aimed'); }

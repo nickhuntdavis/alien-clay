@@ -87,6 +87,9 @@ function draftCards(n) {
   }
   for (const c of CARDS) if (!banished(c.id) && cardOk(c)) cand.push({ o: () => cardOpt(c), w: leanW(c.type) * famK(c.family) * (c.start ? 1 : 0.6), fam: c.family || c.id });
   const out = [], fams = new Set();
+  // One weapon upgrade always leads the draft while any weapon can still level (the "upgrade a weapon" row).
+  const ups = cand.filter(c => c.fam.startsWith('weapon:'));
+  if (ups.length && n > 1) { const c = ups[Math.floor(Math.random() * ups.length)]; cand.splice(cand.indexOf(c), 1); fams.add(c.fam); out.push(c.o()); }
   while (out.length < n && cand.length) {
     const tot = cand.reduce((a, c) => a + c.w, 0);
     let x = Math.random() * tot, i = 0;
@@ -133,6 +136,13 @@ function draftBanishBtns(c, o) {
   };
   mk('pin', '½', 'Fewer like this (1 reroll)', 1, () => { (G.fewer || (G.fewer = {}))[fam] = true; });
   mk('hide', '✕', 'Banish: never this run (2 rerolls)', 2, () => { (G.banish || (G.banish = {}))[key] = true; });
+}
+
+// The fork screen's title (ui.js openLoot).
+function draftTitle(req) {
+  if (req.kind !== 'fork') return [req.kind.toUpperCase(), ''];
+  const nm = req.w ? req.w.def.name : (CARDS.find(c => 'feat:' + c.id === req.key) || {}).title || 'Feat';
+  return [nm.toUpperCase() + ': LEVEL ' + req.lv + ' FORK', 'Two ways to grow. Take one; the other is gone for the run.'];
 }
 
 // ---------------------------------------------------------------- hooks

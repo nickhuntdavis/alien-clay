@@ -258,7 +258,8 @@ const UI = {
       const opts = (UI.lootOpts || []).map((o, i) => [o, i]).filter(([o]) => o && !o.taken);
       if (!opts.length) return;
       UI.autoAt = now;
-      UI.pickLoot(pick(opts)[1]);
+      const up = V10 && Math.random() < 0.5 && opts.find(([o]) => o.wup); // (v10 auto-pick: the weapon upgrade half the time, UPGRADES.md 10)
+      UI.pickLoot((up || pick(opts))[1]);
       return;
     }
     if (G.state === 'play' && SET.autoWaves && waveReady()) {
@@ -883,6 +884,7 @@ const UI = {
       splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
     };
     UI.pickedOne = false;
+    if (!titles[req.kind]) titles[req.kind] = typeof draftTitle === 'function' ? draftTitle(req) : [req.kind.toUpperCase(), '']; // (v10 forks: draft.js)
     if (req.kind === 'relic') titles.relic[0] = 'RELIC: ' + bossDef(req.boss).name.replace(/^THE /, '');
     if (req.kind === 'rrelic') { const V = RIVALS.find(x => x.id === req.rid); if (V) titles.rrelic[0] = 'RELIC: ' + V.name.toUpperCase(); }
     if (req.kind === 'sfork') { const sw = G.spells.find(x => x && x.uid === req.uid); if (sw) titles.sfork[0] = sw.def.name.toUpperCase() + ': LV ' + SPELL_FORK_LV + ' PATH'; }

@@ -72,7 +72,7 @@ function pdefAtk(kind, ent) {
   return a;
 }
 function pdefTypes(ent) {
-  const r = ent && ent.def && typeof ROSTER !== 'undefined' && ROSTER[fightId(ent.def)], t = r && r.dmgType;
+  const bd = ent && (ent.bossDef || ent.def), r = ent && ent.def && typeof ROSTER !== 'undefined' && ROSTER[fightId(ent.def)], t = (bd && bd.v10dmg) || (r && r.dmgType); // (bosses: boss10.js)
   return !t ? ['force'] : Array.isArray(t) ? t : [t];
 }
 

@@ -45,7 +45,7 @@ const fightId = def => { if (!FIGHT_IDS) FIGHT_IDS = new Map(Object.keys(ENEMIES
 // The defence state lives on the enemy (e.cd), made on first need so elite and boss flags are already set.
 function fightCd(e) {
   if (e.cd) return e.cd;
-  const id = fightId(e.def), r = typeof ROSTER !== 'undefined' && ROSTER[id], d = r && r.def;
+  const id = fightId(e.def), r = typeof ROSTER !== 'undefined' && ROSTER[id], bd = e.bossDef || e.def, d = (bd && bd.v10def) || (r && r.def); // (bosses: boss10.js)
   const rank = e.boss ? 'boss' : e.elite ? 'elite' : 'normal';
   e.cd = makeDefence(e.maxHp, d ? d.kind : null, rank, { layers: d && d.layers });
   e.cd.hp = e.hp;

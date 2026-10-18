@@ -31,6 +31,7 @@ const { chromium } = require('playwright');
     const wq = G.lootQueue.find(q => q.kind === 'fork' && q.w === w);
     if (w.lvl !== 5 || !wq) bad.push('no weapon fork at Lv 5 (lvl ' + w.lvl + ')');
     out.wfork = wq ? genLoot(wq).map(o => o.title) : [];
+    if (wq) { UI.openLoot(wq); if (G.state !== 'loot' || !$('lootTitle').textContent.includes('FORK')) bad.push('fork screen: ' + G.state + ' ' + $('lootTitle').textContent); UI.pickLoot(0); }
     // Genome: 4 slots shared with defences
     G.muts = { a: 1, b: 1, c: 1 }; pdef().n.thick = 1;
     if (genomeFree() !== 0) bad.push('genome free: ' + genomeFree());
