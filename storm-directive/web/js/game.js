@@ -113,6 +113,7 @@ function newGame() {
   G.ev = newEvents(); G.evm = Object.assign({}, EVM0);
   if (CORE.arena === DISH.arena) initWaves();
   if (typeof UI !== 'undefined' && UI.sample === 's000') initDebug();
+  if (typeof UI !== 'undefined' && UI.sample === 's010') sbInit(); // (Sandbox: sandbox.js)
   G.terrain = makeTerrain();
   G.bigHaz = bigHazBuild(makeBigHaz()); // rare, huge hazards (bighaz.js)
   cam.x = 0; cam.y = 0; cam.shake = 0;
@@ -135,7 +136,7 @@ function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? M
 const SURGE_T = 900; // Fever Pitch: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
 // A run lasts about 10 minutes: the difficulty clock runs 1.5 times faster than real time.
 let PACE = 1.5; // (let: tests/sim/race.js tunes it)
-function PT() { return G.lvl ? lvPT() : G.wave ? wavePT() : G.t * PACE; }
+function PT() { if (G.debug && G.debug.sb) return sbPT(); return G.lvl ? lvPT() : G.wave ? wavePT() : G.t * PACE; }
 // Ahead of the curve? Enemies keep up. Levels you are past where a 10-minute run expects you to be
 // (level 60 at 9 minutes) add 5% enemy health and 3% enemy damage each.
 function levelsAhead() { if (G.wave || G.lvl) return 0; return Math.max(0, G.level - (1 + 52 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
@@ -2726,7 +2727,7 @@ function update(dt) {
   const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, (24 + T * 0.5) * SPAWN_K);
   const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE * heatSpawn() * SPAWN_K;
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
-  if (G.debug) debugTick(); // the Lab Bench: only what you send in
+  if (G.debug) { debugTick(); if (G.debug.sb) sbSpawn(rate, maxAlive, hostile, dt); } // the Lab Bench: only what you send in (Sandbox: a slow stream, sandbox.js)
   else if (G.lvl) lvTick(dt, maxAlive, hostile); // a campaign level: its own director (levels.js)
   else if (G.wave) { waveSpawn(rate * G.P.spawnMult, dt, maxAlive, hostile); waveTick(dt); } // the Petri Dish: a set number per wave
   else {

@@ -660,10 +660,11 @@ const UI = {
     UI.lootOpts = req.fixed || genLoot(req); // (the Daily Challenge's starting weapons are fixed for the day)
     if (req.kind === 'level') return; // the weapon for that branch is gone: an ordinary strand instead
     UI.pickedOne = false;
-    const weap = req.kind === 'branch' ? G.weapons.find(x => x && x.uid === req.uid) : req.kind === 'sfork' ? G.spells.find(x => x && x.uid === req.uid) : null;
+    const weap = req.kind === 'branch' ? G.weapons.find(x => x && x.uid === req.uid) : req.kind === 'sfork' ? G.spells.find(x => x && x.uid === req.uid) : req.kind === 'wupfork' ? req.w : null;
     UI.draft = { req, i: 0, weap, pv: null };
     const box = $('draft'), mount = G.weapons.filter(Boolean).length + 1;
     const sig = weap && weap.def.sig && weap.def.sig[req.lvl];
+    if (!sbDraftHead(req, weap)) { // (Sandbox weapon upgrades: sandbox.js)
     $('dKick').textContent = req.kind === 'start' ? 'LEVEL 1 | YOUR FIRST WEAPON' : req.kind === 'slot' ? `LEVEL ${G.level} | WEAPON MOUNT ${mount} OF ${MAX_WEAPONS + (G.comboMounts || 0)}` : `${weap.def.name.toUpperCase()} | LV ${req.lvl || weap.lvl}`;
     $('dTitle').textContent = req.kind === 'sfork' ? 'FEAT PATH' : req.kind === 'branch' ? (sig ? (req.lvl >= 10 ? 'MASTERY' : 'SIGNATURE PATH') : 'UPGRADE PATH') : 'WEAPON DRAFT';
     $('dSub').textContent = req.kind === 'sfork' ? `${weap.def.name} hit Lv ${SPELL_FORK_LV}. Pick how it grows up: the other path goes in the bin.`
@@ -671,6 +672,7 @@ const UI = {
       : req.kind === 'slot' ? (req.recycled ? 'A fresh weapon for the empty mount.' : 'A new weapon mount. Choose what your build is missing: reach, crowds, bosses or safety.')
       : sig ? (req.lvl >= 10 ? `The last upgrade ${weap.def.name} ever gets. It changes how the weapon plays.` : `Only ${weap.def.name} can take these. Pick its path: the other one is gone for good.`)
       : `Any weapon can take these. Pick one for ${weap.def.name}.`;
+    }
     UI.renderDraft();
     box.classList.remove('opening'); void box.offsetWidth; box.classList.add('opening');
     UI.show('draft');
@@ -701,7 +703,8 @@ const UI = {
     $('dTabs').querySelectorAll('.dtab').forEach(b => b.addEventListener('click', () => { D.i = +b.dataset.i; UI.renderDraft(); }));
     // Details.
     let h = '';
-    if (D.req.kind === 'sfork') {
+    if (D.req.kind === 'wupfork') h = sbDraftInfo(D, o); // (sandbox.js)
+    else if (D.req.kind === 'sfork') {
       const w = D.weap, other = UI.lootOpts.filter(x => x !== o);
       h += `<div class="dperk"><div class="drole">FEAT PATH: ONLY ${esc(w.def.name.toUpperCase())}</div><div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc)}</div></div>
         <h4>${esc(w.def.name.toUpperCase())}</h4><div class="ddesc">${esc(w.def.desc || '')}</div>`;
@@ -866,7 +869,7 @@ const UI = {
     if (RAR_SKIP[req.kind] != null && req.boost == null) { req.boost = G.rarBoost || 0; G.rarBoost = 0; }
     weirdAssign(req); // (weird.js: sometimes the box breaks the rules)
     // New weapons and upgrade paths get the full Weapon Draft treatment.
-    if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch' || req.kind === 'sfork') { UI.openDraft(req); if (req.kind !== 'level') return; } // (every weapon and spell choice gets the draft screen)
+    if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch' || req.kind === 'sfork' || sbDraftKind(req)) { UI.openDraft(req); if (req.kind !== 'level') return; } // (every weapon and spell choice gets the draft screen)
     G.state = 'loot';
     UI.lootReq = req;
     UI.lootOpts = UI.sortLoot(genLoot(req));
