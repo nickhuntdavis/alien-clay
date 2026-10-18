@@ -2368,6 +2368,7 @@ function drawHud() {
   // XP: a thin calibration line across the very top.
   ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, top, W, 3);
   ctx.fillStyle = XR.white; ctx.fillRect(0, top, W * Math.min(1, G.xp / G.xpNeed), 3);
+  if (imm) { ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.font = '9px ' + MONO; ctx.textAlign = 'left'; ctx.fillText(G.level, 4, top + 14); } // (Immersive: your level, small and faint)
   // Health: the same line along the very bottom edge (Immersive mode keeps it), with a trailing chunk for damage taken.
   // Invisible at full health; white below 100%, yellow below 60%, red below 15%.
   { const hk = clamp(p.hp / G.P.maxHp, 0, 1), low = hk < 0.15;

@@ -28,7 +28,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 | **race** | `game.js`, `rivals.js` | `s001` race to the egg, `s006` Endless; rival champions and the sperm count / Final Five. |
 | **campaign** | `levels.js`, `school.js` | ASCII-map levels (`LV_C` cells, `dEx`/`dPl` route maps, arenas `lvLock`). `s007` Level 1, `s008` Level 2 placeholder, `s009` Level 0 Swimming Lessons. Maps from `tests/tools/mouth.py`. |
 | **lab-bench** | `debug.js` | `s000` debug sample: spawn anything, god mode. |
-| **sandbox** | `sandbox.js` | `s010` developer Sandbox on the Lab Bench: weapons only (1 to 3 mounts, branch tiers in the weapon draft screen), slow spawn stream on its own clock (`sbPT`), HEAT +/- bar; the five-tap developer switch on the samples title. |
+| **sandbox** | `sandbox.js` | `s010` developer Sandbox on the Lab Bench: weapons only (one to start, an empty + mount on the HUD adds one on tap; upgrades bank every 4th level and are spent from a branch mark on the slot, in the weapon draft screen), slow spawn stream on its own clock (`sbPT`), HEAT +/- bar; the five-tap developer switch on the samples title. |
 | **daily** | `daily.js` | Seeded Daily Challenge. |
 | **difficulty** | `prestige.js` | Immune Response levels and Being Born (prestige). |
 

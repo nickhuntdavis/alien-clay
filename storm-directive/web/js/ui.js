@@ -180,6 +180,7 @@ const UI = {
       if (!G || G.state !== 'play') return;
       const w = kind === 's' ? G.spells[i] : G.weapons[i];
       if (kind === 's' && w) { featTap(w); return; } // (Feats: tap to cast)
+      if (kind === 'w' && sbSlotTap(i, ev)) return; // (Sandbox: + mount, branch mark: sandbox.js)
       if (!w || w.def.noTarget) { UI.openArmoury(kind, i); return; }
       const idx = DIRECTIVES.findIndex(d => d.id === w.dir), n = DIRECTIVES.length;
       w.dir = DIRECTIVES[(idx + tapSide(el, ev) + n) % n].id; if (w.dir2 === w.dir) w.dir2 = null;
@@ -196,7 +197,7 @@ const UI = {
     const wEls = $('wslots').children, sEls = $('sslots').children;
     const fill = (el, w) => {
       if (!w) {
-        el.style.display = V10 ? 'none' : ''; // (v10: no empty slots on the HUD)
+        el.style.display = V10 && !(sbSlotShow() && el.classList.contains('weapon')) ? 'none' : ''; // (v10: no empty slots on the HUD; Sandbox keeps its + mount)
         if (el.dataset.k !== 'empty') { el.dataset.k = 'empty'; el.classList.add('empty'); el.querySelector('.ico').textContent = '+'; el.querySelector('.lv').textContent = ''; el.querySelector('.mp').innerHTML = ''; el.querySelector('.dir').textContent = 'EMPTY'; el.style.setProperty('--c', '#445'); }
         el.querySelector('.bar i').style.width = '0%';
         return;
@@ -223,7 +224,7 @@ const UI = {
       el.querySelector('.bar i').style.width = (clamp(frac, 0, 1) * 100).toFixed(0) + '%';
     };
     $('wslots').classList.toggle('many', G.weapons.length > 3);
-    for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); }
+    for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); sbSlotMark(wEls[i], G.weapons[i]); } // (Sandbox branch mark)
     for (let i = 0; i < sEls.length; i++) fill(sEls[i], G.spells[i]);
     comboBonds(); // (combo partners share one border: fusion.js)
     $('moveBtn').firstChild.textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;

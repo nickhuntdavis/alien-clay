@@ -1,3 +1,11 @@
+## 2026-10-18 Sandbox: + mount, branch mark; level number in Immersive (v10.15)
+- Systems: sandbox, ui, render
+- Files: sandbox.js, ui.js, render.js, tests/sbtest.js
+- What: one Sandbox card. You start with one weapon; an empty + mount on the HUD opens a weapon pick whenever tapped (up to 3). Level-ups no longer open weapon upgrades in Sandbox: every 4th level banks one, and a faint branch mark on a ready weapon's slot spends it. Immersive mode shows your level as a small faint number top left (every mode).
+- Save data: none.
+- Hooks: ui.js slot tap -> sbSlotTap, refreshHud -> sbSlotShow/sbSlotMark; render.js drawHud level number (Immersive).
+- Risk: none outside Sandbox apart from the Immersive level number.
+
 ## 2026-10-18 Sandbox: weapons-only developer mode (v10.14)
 - Systems: sandbox (new), lab-bench, draft, ui, samples
 - Files: sandbox.js (new), game.js, v10.js, ui.js, samples10.js, index.html, tests/sbtest.js (new)

@@ -3,19 +3,20 @@
 //  - Runs on the Lab Bench (G.debug, so no bosses, rivals, events, egg race or Feats), without god mode.
 //  - A slow stream of enemies: its own difficulty clock at a quarter of race speed (minute 40 here is about
 //    minute 10 of a race). HEAT + / - on the HUD: each step spawns 35% more and moves the clock on 90 s.
-//  - Loot: the starting weapon (any of the 24), new mounts up to the chosen 1, 2 or 3 weapons, and the weapon
-//    upgrade screens (promise, branch, mastery), shown in the weapon draft screen. Every other box is dropped
-//    and power-ups are cleared.
+//  - Loot: one starting weapon (any of the 24). An empty + mount on the HUD (up to MAX_WEAPONS) opens a weapon
+//    pick whenever you tap it. Every 4th level banks a weapon upgrade; a small branch mark on a weapon's slot
+//    spends it (promise, branch, mastery, in the weapon draft screen). Every other box is dropped; no power-ups.
 //  - Developer mode: tap the samples title five times (sd_dev).
 // Hooks: game.js PT -> sbPT, director -> sbSpawn, newGame -> sbInit; v10.js v10Box -> sbBox, v10Loot -> sbLoot;
-// ui.js openLoot -> sbDraftKind, openDraft -> sbDraftHead, renderDraft -> sbDraftInfo; samples10.js s10Samples -> sbCards/sbWire.
+// ui.js openLoot -> sbDraftKind, openDraft -> sbDraftHead, renderDraft -> sbDraftInfo, refreshHud -> sbSlotShow/sbSlotMark,
+// slot tap -> sbSlotTap; samples10.js s10Samples -> sbCards/sbWire.
 
 const SB = { clockK: 0.25, rateK: 0.6, capK: 0.7, heatRate: 1.35, heatCap: 1.2, heatPT: 90 };
 const sbOn = () => !!(G && G.debug && G.debug.sb);
 
 function sbInit() {
   initDebug();
-  Object.assign(G.debug, { god: false, loot: true, sb: { n: UI.sbN || 1, heat: 0 } });
+  Object.assign(G.debug, { god: false, loot: true, sb: { heat: 0, tok: 0 } });
   G.weapons = Array(BASE_SLOTS).fill(null);
   G.lootQueue = [{ kind: 'start' }];
   recomputeAll();
@@ -27,22 +28,17 @@ function sbSpawn(rate, maxAlive, hostile, dt) {
   G.spawnAcc += rate * dt * G.P.spawnMult * SB.rateK * Math.pow(SB.heatRate, h);
   while (G.spawnAcc >= 1) { G.spawnAcc--; if (hostile < cap) { spawnRandom(); hostile++; } }
   G.pickups.length = 0; // (no power-ups or DNA chests)
+  // One empty + mount on the HUD while there is room (the level-up mounts are dropped in sbBox).
+  const ws = G.weapons.filter(Boolean), want = ws.concat(ws.length < MAX_WEAPONS ? [null] : []);
+  if (ws.length && (want.length !== G.weapons.length || want.some((w, i) => w !== G.weapons[i]))) { G.weapons = want; UI.refreshHud(true); }
 }
 
 // Which boxes open: weapons and weapon upgrades only.
 function sbBox(req) {
   const k = req.kind, own = G.weapons.filter(Boolean).length;
   if (k === 'start') return true;
-  if (k === 'slot') {
-    if (own < G.debug.sb.n) return true;
-    while (G.weapons.length > 1 && G.weapons[G.weapons.length - 1] === null) G.weapons.pop(); // (the mount it grew)
-    return false;
-  }
-  if (k === 'wup') {
-    const r = wupReady();
-    if (r.length === 1) { req.kind = 'wupfork'; req.w = r[0]; req.lv = wupNextLv(r[0]); } // (straight to its branch cards)
-    return r.length > 0;
-  }
+  if (k === 'slot') return !!req.sb && own < MAX_WEAPONS; // (only a tapped + mount)
+  if (k === 'wup') { G.debug.sb.tok++; UI.refreshHud(true); return false; } // (banked: spent on a branch mark)
   if (k === 'wupfork') return wupNextLv(req.w) === req.lv;
   return false;
 }
@@ -51,6 +47,23 @@ function sbLoot(req) {
   if (req.kind === 'start' || req.kind === 'slot') return pool.map(id => optNewWeapon(id, 0));
   if (req.kind === 'wupfork') return wupForkReq(req).map(c => Object.assign(c, { tag: c.tag === 'BRANCH' ? 'BRANCH CARD' : c.tag }));
   return null;
+}
+
+// HUD: empty mounts show (a + to tap); a weapon with an upgrade ready and one banked shows a branch mark.
+const sbSlotShow = () => sbOn();
+const sbReady = w => sbOn() && G.debug.sb.tok > 0 && !!wupNextLv(w);
+function sbSlotMark(el, w) {
+  let m = el.querySelector('.sbBr');
+  if (!m) { if (!sbOn()) return; m = document.createElement('div'); m.className = 'sbBr'; m.textContent = '\u2442'; m.style.cssText = 'position:absolute;left:3px;top:2px;font:700 14px monospace;color:#fff;opacity:0.55;padding:0 8px 6px 2px'; el.appendChild(m); }
+  m.style.display = w && sbReady(w) ? '' : 'none';
+}
+function sbSlotTap(i, ev) {
+  if (!sbOn()) return false;
+  const w = G.weapons[i];
+  if (!w) { G.lootQueue.unshift({ kind: 'slot', sb: 1 }); return true; }
+  if (!sbReady(w) || !(ev && ev.target && ev.target.closest && ev.target.closest('.sbBr'))) return false;
+  G.debug.sb.tok--; G.lootQueue.unshift({ kind: 'wupfork', w, lv: wupNextLv(w), v10ok: true });
+  return true;
 }
 
 // Weapon upgrades in the weapon draft screen (ui.js openDraft).
@@ -69,11 +82,11 @@ function sbDraftInfo(D, o) {
     + (rest.length ? `<h4>YOU WOULD LOSE</h4><div class="dpath">${rest.map(x => `<div class="dp"><em>${esc(x.tag || '')}</em><b>${esc(x.title)}</b><span>${esc(x.desc)}</span></div>`).join('')}</div>` : '');
 }
 
-// Samples screen: three Sandbox cards in the DEVELOPER section, and the five-tap switch on the title.
-const sbCards = () => [1, 2, 3].map(n => `<button class="sx-card hero" data-sb="${n}" style="--c:#9fb3c8"><span class="sx-txt"><i>#010</i><b>Sandbox: ${n} weapon${n > 1 ? 's' : ''}</b><span>Weapons only. Slow stream, HEAT button.</span><em>SANDBOX</em></span></button>`).join('');
+// Samples screen: the Sandbox card in the DEVELOPER section, and the five-tap switch on the title.
+const sbCards = () => '<button class="sx-card hero" data-sb="1" style="--c:#9fb3c8"><span class="sx-txt"><i>#010</i><b>Sandbox</b><span>Weapons only. Tap + to add a weapon, the branch mark to upgrade. HEAT button.</span><em>SANDBOX</em></span></button>';
 function sbWire() {
   $('sampleList').querySelectorAll('[data-sb]').forEach(b => b.addEventListener('click', () => {
-    UI.sample = 's010'; UI.sbN = +b.dataset.sb; META.profile = 'human1'; saveMeta(); UI.startGame(true);
+    UI.sample = 's010'; META.profile = 'human1'; saveMeta(); UI.startGame(true);
   }));
 }
 (function sbDom() {
@@ -91,7 +104,7 @@ function sbWire() {
   // The HEAT bar (ugly on purpose: developer only).
   const bar = document.createElement('div');
   bar.id = 'sbBar';
-  bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top));z-index:7;display:none;gap:6px;align-items:center;font:800 12px monospace;color:#fff;background:#000a;padding:4px 6px;border-radius:6px;pointer-events:auto';
+  bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top));z-index:7;display:none;gap:6px;align-items:center;font:800 12px monospace;color:#fff;background:#000a;padding:4px 6px;border-radius:6px;pointer-events:auto;white-space:nowrap';
   bar.innerHTML = '<button data-h="-1" style="font:inherit;padding:6px 12px">-</button><span id="sbTxt"></span><button data-h="1" style="font:inherit;padding:6px 12px">HEAT +</button>';
   document.body.appendChild(bar);
   const stop = e => e.stopPropagation();
