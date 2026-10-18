@@ -225,3 +225,11 @@
 - Save data: none (G.banish, G.fewer are run state).
 - Hooks: ui.js renderLootCards -> draftBanishBtns.
 - Risk: none.
+
+## 2026-10-18 v10 modifiers (merged from agent-mods)
+- Systems: weapons, modifiers (new)
+- Files: modifiers.js (new), game.js, arsenal.js, v10.js, index.html, tests/modstest.js (new; the old body-mods test is now bodymodstest.js, not in the run list)
+- What: all 20 modifiers (MODIFIERS.md) work on v10 weapons through w.m10, with modAdd / modHas / modsFor; weapon forks at Lv 5 and 10 now offer two fitting modifiers. Attack type and damage type never change.
+- Save data: none (w.m10 is run state).
+- Hooks: game.js fireWeapon -> modFire, spawnProj -> modProj, updateProjectiles -> modStep and modHit; arsenal.js meleeHit -> modMeleeHit; v10.js v10Fire -> modBeam and modBurstEnd, v10Tick -> modTick, v10Draw -> modDraw.
+- Risk: Summoned pets can't be hurt (simplified); balance numbers (orbit 0.6x, pet 0.8x, every-4th 2.5x) untuned.
