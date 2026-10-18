@@ -2224,7 +2224,7 @@ A sheath of latex with one job. Its front sends your shots straight back at you;
 
 | Trophy | Effect |
 |---|---|
-| **Rubber Johnny** | Every 8s a latex skin catches the next hit completely, then snaps back in a blast around you. A caught bullet goes back the way it came. |
+| **Rubber Johnny** | Ninety-eight percent effective, per the packet. You are wrapped in a latex forcefield worth 30% of your max health: it soaks what hits it, mends after two quiet seconds, and has opinions about walls. The other two percent is how you got here. |
 | **Ribbed** | +2 Headstrong and +4 armour. For their displeasure. |
 | **Reservoir Tip** | Damage you take is collected. Every 10s it all comes back out as a blast around you, ten times over. |
 

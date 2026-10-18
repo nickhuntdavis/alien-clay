@@ -67,8 +67,8 @@ function stamRing(px, py) {
 const ARM_RIP = [];
 function armourRing(px, py) {
   const P = G.P;
-  if (!(P.armour > 0) || P.noArmour) { ARM_RIP.length = 0; return; }
-  const k = clamp(1 - (G.armourLost || 0) / P.armour, 0, 1), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.6, t = G.realT, a0 = ctx.globalAlpha;
+  if (V10 ? !pdefShieldUp() : (!(P.armour > 0) || P.noArmour)) { ARM_RIP.length = 0; return; } // (v10: the bubble is the Membrane, pdef.js)
+  const k = V10 ? pdefShieldK() : clamp(1 - (G.armourLost || 0) / P.armour, 0, 1), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.6, t = G.realT, a0 = ctx.globalAlpha;
   // Elastic (bodymods.js): it sloshes behind you on its spring and flattens against whatever it is pressed on.
   const B = G.bub, ox = B ? B.ox * sc : 0, oy = B ? B.oy * sc : 0, C = G.bubC;
   px += ox * 0.4; py += oy * 0.4;

@@ -12,8 +12,12 @@
 //  - A hit fully soaked by the Membrane applies no status (decision 35): hurtPlayer returns before pstHit.
 //  - Shell layers from cards do not regrow inside a wave: they come back when a wave starts (wave mode) or every 60 s (race).
 //  - Thorns: Contact hits that connect return 5 + 35% of the hit (x rank) to the attacker as echo damage (never missed, no status).
+//  - The shield (v10 decision, 18 Oct): the Membrane is only there if you have a shield: Private Schooled and Not of This World
+//    start with one (samples10.js s10Shield), the Rubber Johnny relic grants one, or take the Latex Protection card. It draws
+//    as the original forcefield bubble (stamina.js armourRing, fed by the Membrane) with its elastic physics (bodymods.js).
 // Hooks: game.js hurtPlayer -> pdefHurt (replaces the armour block under V10); v10.js v10Tick -> pdefTick,
-// v10Draw -> pdefDraw, v10Loot -> pdefOffer; render.js skips armourRing under V10.
+// v10Draw -> pdefDraw, v10Loot -> pdefOffer; render.js calls armourRing under V10 only while the shield is up (pdefShieldUp);
+// bodymods.js bubbleOn / bubbleBump -> pdefShieldUp / pdefDent; stamina.js armourRing -> pdefShieldUp / pdefShieldK; bosspack.js bpRelicIn skips the old skin under V10.
 
 const PDEF = {
   memFrac: 0.30,          // base Membrane: share of max health (enemies get 50%, COMBAT.membraneFrac)
@@ -31,6 +35,8 @@ const PDEF_COL = { membrane: DEF_PAL.membrane, shell: DEF_PAL.shell, miss: '#cfe
 
 // The defence cards. G.pd.n[id] = ranks held.
 const PDEF_CARDS = {
+  latex: { name: 'Latex Protection', max: 1, icon: 'L', sub: 'Shield',
+    desc: 'Ninety-eight percent effective, according to the leaflet. You are wrapped in a thin latex forcefield worth 30% of your max health. It soaks what hits it and mends after two quiet seconds. The other two percent is not covered.' },
   thick: { name: 'Thicker Membrane', max: 4, icon: 'M', sub: 'Membrane',
     desc: 'You were already wrapped in something thin and wet. Now it is thicker and wetter. +10% of your max health in Membrane.' },
   fast: { name: 'Faster Recharge', max: 3, icon: 'R', sub: 'Membrane',
@@ -48,8 +54,8 @@ const PDEF_CARDS = {
 // ---------------------------------------------------------------- state
 function pdef() {
   if (G.pd) return G.pd;
-  const mem = makeDefence(G.P.maxHp, 'membrane', 'normal', { memFrac: PDEF.memFrac });
-  return G.pd = { mem, n: { thick: 0, fast: 0, shell: 0, squishy: 0, evasion: 0, thorns: 0 }, layers: 0, layerHp: 0, wave: null, shellT: 0, missT: 0, flashT: -9 };
+  const mem = makeDefence(G.P.maxHp, 'membrane', 'normal', { memFrac: pdHasShield(null) ? PDEF.memFrac : 0 }); // (no shield, no Membrane)
+  return G.pd = { mem, n: { latex: 0, thick: 0, fast: 0, shell: 0, squishy: 0, evasion: 0, thorns: 0 }, layers: 0, layerHp: 0, wave: null, shellT: 0, missT: 0, flashT: -9 };
 }
 const pdLayerHp = () => G.P.maxHp * COMBAT.shellLayerHpFrac;
 function pst() {
@@ -58,7 +64,12 @@ function pst() {
   return S;
 }
 const pdEvasion = D => Math.min(COMBAT.evasionCap, D.n.evasion * PDEF.evasionStep + (typeof s10Evasion === 'function' ? s10Evasion() : 0)); // (the Cold Parcel's built-in 20%: samples10.js)
-const pdMemFrac = D => PDEF.memFrac + D.n.thick * PDEF.thickStep;
+const pdHasShield = D => !!((D && D.n.latex > 0) || (G && G.relics && G.relics.rubber) || (typeof s10Shield === 'function' && s10Shield())); // (card, Rubber Johnny relic, or a sample that starts with one)
+const pdMemFrac = D => pdHasShield(D) ? PDEF.memFrac + D.n.thick * PDEF.thickStep : 0;
+const pdefShieldUp = () => !!(G && G.pd && G.pd.mem.memMax > 0 && G.pd.mem.mem > 0 && pdHasShield(G.pd)); // (the bubble is on: stamina.js armourRing, bodymods.js)
+const pdefShieldK = () => { const m = G.pd.mem; return m.memMax > 0 ? clamp(m.mem / m.memMax, 0, 1) : 0; };
+// The bubble hit a surface too fast: it wears like a hit and the Membrane loses a little (bodymods.js bubbleBump).
+function pdefDent(n) { const m = pdef().mem; if (m.memMax > 0) { m.mem = Math.max(0, m.mem - n * 0.04 * m.memMax); m.memQuietT = 0; } }
 // Refit the Shell: every owned layer, full health.
 function pdRefit(D) { D.layers = D.n.shell; D.layerHp = D.layers ? pdLayerHp() : 0; }
 
@@ -103,8 +114,9 @@ function pdefHurt(dmg, from, ent, kind) {
       const f = Math.min(1, m.mem / cost);
       toMem = raw * f; m.mem = Math.max(0, m.mem - cost * f); m.memQuietT = 0; scale(1 - f);
       if (f >= 1) blocked = true;
+      G.armFlash = { t: G.realT, k: Math.min(1, 0.4 + 0.6 * toMem / (0.15 * G.P.maxHp)), a: ent && ent.x != null ? Math.atan2(ent.y - p.y, ent.x - p.x) : null }; // (the bubble lights where it was hit: stamina.js armourRing)
     }
-    if (amt.static > 0 && m.memStaticCd <= 0) { m.mem = Math.min(m.memMax, m.mem + COMBAT.staticRechargeFrac * m.memMax); m.memStaticCd = COMBAT.staticRechargeCd; }
+    if (amt.static > 0 && m.memStaticCd <= 0) { m.mem = Math.min(m.memMax, m.mem + COMBAT.staticRechargeFrac * m.memMax); m.memStaticCd = COMBAT.staticRechargeCd; G.armFlash = { t: G.realT, k: 0.5, a: null }; }
   }
   // 4. Shell: 3 off per layer (floor 1), the outer layer wears by what it blocked; a heavy Force hit sheds one more.
   if (D.layers > 0 && sum() > 0) {
@@ -189,15 +201,10 @@ function pdefTick(dt) {
 function pdefDraw() {
   if (!G || G.state === 'over') return;
   pdefStatusDraw();
-  const D = pdef(), p = G.player, m = D.mem, x = sx(p.x), y = sy(p.y), now = G.t;
+  const D = pdef(), p = G.player, x = sx(p.x), y = sy(p.y);
   const R = 24 * S * playerScale() * 1.45;
   ctx.save(); ctx.lineCap = 'round';
-  if (m.memMax > 0) { // blue arc: full while up; flickers while it recharges
-    const k = m.mem / m.memMax, fl = G.realT - D.flashT < 0.2;
-    ctx.strokeStyle = col(PDEF_COL.membrane);
-    ctx.globalAlpha = Math.min(1, (0.2 + 0.6 * k) * (m.memQuietT < COMBAT.membraneDelay && k < 1 ? 0.7 + 0.3 * Math.sin(now * 30) : 1) + (fl ? 0.2 : 0));
-    ctx.lineWidth = 2 + 2 * k; ctx.beginPath(); ctx.arc(x, y, R, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0.02, k)); ctx.stroke();
-  }
+  // (the Membrane itself is the forcefield bubble: stamina.js armourRing, called from render.js)
   for (let i = 0; i < D.layers; i++) { // brown ring per layer; the outer one fades as it wears
     const outer = i === D.layers - 1, hp = D.layerHp / pdLayerHp();
     ctx.strokeStyle = col(PDEF_COL.shell); ctx.globalAlpha = outer ? 0.35 + 0.55 * Math.max(0, hp) : 0.9; ctx.lineWidth = 2.2;
@@ -216,6 +223,7 @@ function pdefCard(id) {
 // k different defence cards: none that are maxed, and no new one once the Genome slots are full.
 function pdefOffer(k) {
   const D = pdef(), full = pdHeld(D) >= PDEF.slots;
-  const ok = Object.keys(PDEF_CARDS).filter(id => D.n[id] < PDEF_CARDS[id].max && !(full && D.n[id] === 0) && !(id === 'evasion' && typeof s10Evasion === 'function' && s10Evasion() > 0)); // (no Evasion card with Evasion built in)
+  const sh = pdHasShield(D); // Latex Protection only while you have no shield; Thicker Membrane and Faster Recharge only with one
+  const ok = Object.keys(PDEF_CARDS).filter(id => D.n[id] < PDEF_CARDS[id].max && (id === 'latex' ? !sh : (id !== 'thick' && id !== 'fast') || sh) && !(full && D.n[id] === 0) && !(id === 'evasion' && typeof s10Evasion === 'function' && s10Evasion() > 0)); // (no Evasion card with Evasion built in)
   return shuffle(ok).slice(0, Math.max(0, k)).map(pdefCard);
 }

@@ -942,7 +942,7 @@ const RELICS = {
   bluetored:     { name: 'Blue to Red', desc: 'Every hit has a 15% chance to melt its target (Acid) and a 15% chance to slime it (Mucus).' },
   teststrip:     { name: 'Test Strip', desc: 'Bosses can no longer resist or ignore any of your damage types.' },
   // The Johnny: protection.
-  rubber:        { name: 'Rubber Johnny', desc: 'Every 8s a latex skin catches the next hit completely, then snaps back in a blast around you. A caught bullet goes back the way it came.' },
+  rubber:        { name: 'Rubber Johnny', desc: (typeof window !== 'undefined' && window.V10_OFF) ? 'Every 8s a latex skin catches the next hit completely, then snaps back in a blast around you. A caught bullet goes back the way it came.' : 'Ninety-eight percent effective, per the packet. You are wrapped in a latex forcefield worth 30% of your max health: it soaks what hits it, mends after two quiet seconds, and has opinions about walls. The other two percent is how you got here.' },
   ribbed:        { name: 'Ribbed', desc: '+2 Headstrong and +4 armour. For their displeasure.' },
   reservoir:     { name: 'Reservoir Tip', desc: 'Damage you take is collected. Every 10s it all comes back out as a blast around you, ten times over.' },
   // The Mucus Plug: sticky.

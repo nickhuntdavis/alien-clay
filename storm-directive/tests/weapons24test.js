@@ -17,7 +17,7 @@ const { chromium } = require('playwright');
       G.weapons = [makeSlot(id, false, 1), null, null, null]; recomputeAll(); G.P.maxHp = G.player.hp = 1e6;
       const p = G.player; G.enemies.length = 0; G.stats.dmg = {};
       for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, d = 70 + (i % 3) * 60; const e = makeEnemy(def, p.x + Math.cos(a) * d, p.y + Math.sin(a) * d); e.hp = e.maxHp = 1e5; e.speed = 0; G.enemies.push(e); }
-      try { for (let f = 0; f < 360; f++) { if (id === 's_wake' || id === 's_twin') { p.vx = 120 * Math.cos(f / 20); p.vy = 120 * Math.sin(f / 20); p.x += p.vx / 60; p.y += p.vy / 60; } update(1 / 60); } } catch (err) { bad.push(id + ': ' + err.message); }
+      try { for (let f = 0; f < 360; f++) { if (id === 's_wake' || id === 's_twin' || id === 's_mines') { p.vx = 120 * Math.cos(f / 20); p.vy = 120 * Math.sin(f / 20); p.x += p.vx / 60; p.y += p.vy / 60; } update(1 / 60); } } catch (err) { bad.push(id + ': ' + err.message); }
       const dealt = Object.values(G.stats.dmg).reduce((a, v) => a + v, 0);
       rows.push(WEAPONS[id].name + ' ' + Math.round(dealt));
       if (!(dealt > 0) && !['s_siphon', 's_toothfairy', 's_peekaboo', 's_parasite'].includes(id)) bad.push(id + ' dealt nothing');

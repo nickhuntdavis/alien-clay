@@ -5,6 +5,13 @@
 - Save data: META.s10 / META.s10runs keys change from the old ids to the new ones (test build, no migration); profile ids s10_<new id>.
 - Hooks: fight.js fightHit reads src.w.typeOver; game.js spawnProj colours by w.typeOver; ui.js quickStart uses s001.
 - Risk: old saves with META.profile s10_over etc. fall back to a missing profile; the Petri Dish is unreachable from the sample screen.
+## 2026-10-18 Player shield: samples, Rubber Johnny or Latex Protection, drawn as the original forcefield
+- Systems: combat (player defences), relics, draft, render (shield bubble)
+- Files: pdef.js, stamina.js, bodymods.js, render.js, bosspack.js, data.js, tests/shieldtest.js (new), pdeftest.js, bubtest.js, GAME_GUIDE.md
+- What: Nobody has the Membrane by default now. It is the player's shield, granted by Private Schooled / Not of This World (s10Shield, from samples10.js), the Rubber Johnny relic (replaces its old catch-a-hit skin under V10; text rewritten) or the new Latex Protection card (offered while you have no shield, takes a Genome slot). Thicker Membrane and Faster Recharge need a shield. It draws as the original forcefield bubble (armourRing) with the elastic physics and surface contact (bubbleBump); the blue arc is gone. Soaks and Static recharges set G.armFlash; a hard bump into a wall wears the Membrane 4% (was armour).
+- Save data: none.
+- Hooks: render.js `if (!V10 || pdefShieldUp()) armourRing(px, py)`; stamina.js armourRing guard and k -> pdefShieldUp / pdefShieldK; bodymods.js bubbleOn -> pdefShieldUp, bubbleBump dent -> pdefDent; bosspack.js bpRelicIn rubber skin `&& !V10`.
+- Risk: Baseline and most samples lose 30% max health of soak (balance: re-sim). Latex Protection competes for Genome slots. s10Shield must be added by samples10.js (read via typeof guard).
 
 ## 2026-10-18 Samples renamed; three unique starting weapons each; 15 weapon renames (docs only)
 - Systems: sequences, weapons (docs only, redesign docs)
