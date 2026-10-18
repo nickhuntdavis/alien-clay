@@ -131,9 +131,10 @@ function s10Samples() {
     return card(`data-s10="${s.id}"`, String(s.strain).padStart(3, '0'), nm, desc, col, open ? s.types.map(t => t.toUpperCase()).join(' / ') : 'LOCKED', !open);
   }).join('');
   let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
-  $('sampleList').innerHTML = `<div class="sx-h">SAMPLES</div>${list}` + (dev ? `<div class="sx-h">DEVELOPER</div>${card('data-v10="s000"', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}` : '');
+  $('sampleList').innerHTML = `<div class="sx-h">SAMPLES</div>${list}` + (dev ? `<div class="sx-h">DEVELOPER</div>${card('data-v10="s000"', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}${sbCards()}` : ''); // (Sandbox: sandbox.js)
   $('sampleList').querySelectorAll('[data-s10]').forEach(b => b.addEventListener('click', () => { if (s10Open(b.dataset.s10)) s10Modes(b.dataset.s10); }));
   $('sampleList').querySelectorAll('[data-v10]').forEach(b => b.addEventListener('click', () => { UI.sample = b.dataset.v10; META.profile = 's10_baseline'; saveMeta(); UI.startGame(true); }));
+  sbWire();
   UI.show('samples');
   return true;
 }

@@ -1,3 +1,11 @@
+## 2026-10-18 Merge the Sandbox session (ccr-b8d66d4a-dmxu9z) (v10.15)
+- Systems: sandbox
+- Files: merge only; tests/run.sh (sbtest added to ALL)
+- What: brings in the weapons-only developer Sandbox (its fragment: changes/ccr-b8d66d4a-dmxu9z.md). Both branches had shipped v10.14, so the merged build is v10.15.
+- Save data: none.
+- Hooks: see that fragment.
+- Risk: none outside Sandbox.
+
 ## 2026-10-18 Race balance: boss contact, bullet cap and fire rate, rival damage, egg membrane (v10.14)
 - Systems: bosses, enemies, rivals, the egg, difficulty
 - Files: bosses.js, game.js, boss10.js

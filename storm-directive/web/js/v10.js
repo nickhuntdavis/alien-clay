@@ -115,9 +115,11 @@ for (const t of V10_TYPES) for (const a of V10_ATKS) {
 // Which boxes open at all (game.js main loop): weapon drafts, and one level-up a wave. Everything else is dropped.
 function v10Box(req) {
   if (!V10) return true;
+  if (sbOn()) return sbBox(req); // (Sandbox: weapons only, sandbox.js)
   return draftBox(req); // (level-ups, chests, forks and the interruption budget: draft.js)
 }
 function v10Loot(req) {
+  if (sbOn()) { const o = sbLoot(req); if (o) return o; } // (Sandbox: sandbox.js)
   if (req.kind === 'start') { const o = typeof s10Start === 'function' && s10Start(); if (o) return o; } // (a sample starts with its own weapon: samples10.js)
   if (req.kind === 'start') return shuffle(v10Pool()).slice(0, 4).map(id => optNewWeapon(id, 0));
   if (req.kind === 'slot') {
