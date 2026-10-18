@@ -1,3 +1,11 @@
+## 2026-10-18 Merge the Sandbox session again: autofire toggle, + mount, banked upgrades (v10.17)
+- Systems: sandbox, ui
+- Files: merge only (manualfire.js arrives; ARCHITECTURE.md script order keeps both wstats and manualfire)
+- What: brings in ccr-b8d66d4a-dmxu9z's two newer commits (one Sandbox with + mount and banked upgrades; autofire toggle with per-weapon FIRE buttons, Rewind on the left). Both branches had shipped v10.16, so this build is v10.17.
+- Save data: see changes/ccr-b8d66d4a-dmxu9z.md.
+- Hooks: see that fragment.
+- Risk: none beyond that fragment's.
+
 ## 2026-10-18 Per-weapon telemetry in the run log (v10.16)
 - Systems: runlog, weapons, sandbox
 - Files: wstats.js (new), meta.js, game.js, ui.js, index.html, tests/wstatstest.js (new), tests/run.sh
