@@ -30,7 +30,7 @@ const UI = {
     // Build HUD slots.
     const ws = $('wslots'), ss = $('sslots');
     for (let i = 0; i < MAX_WEAPONS + COMBO_MOUNTS; i++) ws.appendChild(UI.makeSlotEl('w', i));
-    for (let i = 0; i < 2; i++) ss.appendChild(UI.makeSlotEl('s', i));
+    for (let i = 0; i < F10_SLOTS; i++) ss.appendChild(UI.makeSlotEl('s', i));
     $('moveBtn').addEventListener('click', ev => {
       if (!G) return;
       const MV = moveModes(), i = MV.findIndex(m => m.id === G.moveDir), n = MV.length, k = tapSide($('moveBtn'), ev); // (autorun.js)
@@ -223,7 +223,7 @@ const UI = {
     };
     $('wslots').classList.toggle('many', G.weapons.length > 3);
     for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); }
-    for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
+    for (let i = 0; i < sEls.length; i++) fill(sEls[i], G.spells[i]);
     comboBonds(); // (combo partners share one border: fusion.js)
     $('moveBtn').firstChild.textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
     // Keep the Rewind button clear of the HUD as extra weapon rows appear.

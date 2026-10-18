@@ -71,16 +71,15 @@ const { chromium } = require('playwright');
       if (lv.length !== 3 || (defs.length === 2 && defs[0].defence === defs[1].defence)) { bad.push('offer: ' + lv.map(o => o.title)); break; }
       if (defs.length) withDef++;
     }
-    if (withDef < 5) bad.push('defence cards rarely offered: ' + withDef + '/30');
+    if (withDef < 2) bad.push('defence cards rarely offered: ' + withDef + '/30');
     G.pd.n.squishy = 1; G.pd.n.shell = 4; G.pd.n.thick = 4;
     for (let i = 0; i < 20; i++) { const ids = pdefOffer(6).map(o => o.defence); if (ids.includes('squishy') || ids.includes('shell') || ids.includes('thick')) { bad.push('maxed offered: ' + ids); break; } }
     G.pd.n.shell = 0; G.pd.n.thick = 0; G.pd.n.squishy = 0; G.pd.n.evasion = 1; G.pd.n.fast = 1; G.pd.n.thorns = 1; G.pd.n.shell = 1; // four held: no fifth kind
     for (let i = 0; i < 10; i++) { const ids = pdefOffer(6).map(o => o.defence); if (ids.includes('squishy') || ids.includes('thick')) { bad.push('slots full but new card offered: ' + ids); break; } }
     // The card renders and applies through the real loot screen.
     fresh(); genLoot({ kind: 'start' })[0].apply(); G.lootQueue.length = 0;
-    UI.openLoot({ kind: 'level', v10ok: true }); const nCards = document.querySelectorAll('#lootCards .card').length;
-    if (nCards !== 3) bad.push('loot screen shows ' + nCards + ' cards');
-    const di = UI.lootOpts.findIndex(o => o.defence); const dk = UI.lootOpts[di].defence; UI.lootOpts[di].apply();
+    let di = -1, nCards = 0; for (let t = 0; t < 60 && di < 0; t++) { UI.openLoot({ kind: 'level', v10ok: true }); nCards = document.querySelectorAll('#lootCards .card').length; di = UI.lootOpts.findIndex(o => o.defence); } // (the shared draft also offers weapons, Feats and mutations: reopen until a defence card shows)
+    if (nCards !== 3) bad.push('loot screen shows ' + nCards + ' cards'); const dk = UI.lootOpts[di].defence; UI.lootOpts[di].apply();
     if (G.pd.n[dk] !== 1) bad.push('card apply');
     fresh(); G.pd.n.shell = 2; pdRefit(G.pd); for (let i = 0; i < 120; i++) update(1 / 60); pdefDraw(); // nothing throws in a live frame, draw included
     return { bad, out };

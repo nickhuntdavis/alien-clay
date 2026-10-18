@@ -96,7 +96,7 @@ function newGame() {
     player: { x: 0, y: 0, vx: 0, vy: 0, r: 12, hp: 120, iframes: 0, face: -Math.PI / 2, flash: 0 },
     P: newStats(),
     enemies: [], proj: [], ebul: [], gems: [], pickups: [], zones: [], fx: [], parts: [], texts: [], turrets: [], timers: [],
-    weapons: Array(BASE_SLOTS).fill(null), spells: [null, null], passives: {},
+    weapons: Array(BASE_SLOTS).fill(null), spells: Array(F10_SLOTS).fill(null), passives: {}, // (v10: three Feat slots, feats10.js)
     moveDir: 'kite', manual: null, pins: [], hides: [], pinName: {}, // (loot cards you pinned or hid: pinhide.js)
     kills: 0, level: 1, xp: 0, xpNeed: xpNeed(1),
     lootQueue: [{ kind: 'start' }], rerolls: 2,
@@ -359,6 +359,7 @@ function computeStatsInner(w) {
   const n1 = baseCount + extraMulti + s.perkCount;
   if (n1 > baseCount && d.melee !== 'pulse') { const k = n1 / baseCount; s.dmg *= (1 + (Math.pow(k, 0.6) - 1) / 2) / k; }
   spellForkStats(w, s); // (a spell's Lv 4 path)
+  if (w.def.f10) f10Stats(w, s); // (v10 Feat levels and forks: feats10.js)
   w.s = s;
 }
 
@@ -969,6 +970,7 @@ function killEnemy(e, src) {
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
   if (V10) fightDeath(e); // (a Charged enemy discharges: fight.js)
+  if (V10) f10Kill(e, src); // (v10 Feats that watch kills: feats10.js)
   if (V10) nfKill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)
   if (e.dummy) dummyBurst(e); // (Dummy Spit)
   if (G.nf) nfKill(e, src); // (Hostile Environment grows: newfeats.js)
@@ -1138,6 +1140,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
+  if (V10) dmg *= f10HurtMul(); // (Survivor's Guilt: feats10.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt() * nfHurtMul(ent, kind, from) * pstHurtMul(G.hitFrom, kind); // (Personal Space: seqfeats.js; the v9.23 Feats: newfeats.js)
   dmg = relicDamageIn(dmg, ent);
@@ -1158,6 +1161,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour() + junkArmour()) * defClock();
   d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
   if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } } // (the forcefield flashes: armourRing)
+  if (V10 && f10Hurt(d, ent, kind)) return; // (v10 Feats that take a hit: feats10.js)
   if (nfLethal(d)) return; // (Anhydrobiosis: newfeats.js)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d; tantrumHurt(d); seqHurt(); pstHit(hf); // (Snotty, Sick, Soaking wet: pstatus.js) // (a clean boss fight: seqlock.js)
@@ -1870,6 +1874,7 @@ function fireWeapon(w, target) {
     case 'oob': rebornOOB(w); break;
     case 'seqfeat': seqFeatFire(w, target, src); break; // (sequence Feats: seqfeats.js)
     case 'newfeat': nfFire(w, target, src); break; // (the v9.23 Feats: newfeats.js)
+    case 'f10': f10Fire(w, target, src); break; // (the v10 Feats: feats10.js)
     case 'ring':
       for (let i = 0; i < s.count; i++) spawnProj(w, p.x, p.y, i / s.count * TAU + G.realT, src);
       break;
@@ -2213,13 +2218,14 @@ function updateSpellList(list, dt) {
     } else if (w.def.kind === 'heal' && G.player.hp > G.P.maxHp * 0.85) { w.cd = 0; continue; }
     else if ((w.def.kind === 'warp' || w.def.kind === 'barrier' || w.def.kind === 'ring') && !acquire('nearest', 300, G.player.x, G.player.y)) { w.cd = 0; continue; }
     if (w.def.kind === 'newfeat' && nfWait(w, target)) { w.cd = 0; continue; } // (held until it is worth it: newfeats.js)
+    if (w.def.f10 && f10Wait(w)) { w.cd = 0; continue; } // (v10 Feats wait for their moment: feats10.js)
     if (!featPay(w)) { w.cd = 0.2; continue; } // (stamina Feats: not enough in the bar yet)
     featFire(w, target);
   }
 }
 function featFire(w, target) {
   fullLoadFire(w, target); // (fireWeapon, stronger from a fuller bar with Full Load: bodymods.js)
-  w.cd = featCost(w) ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat)
+  w.cd = featCost(w) && !w.def.f10 ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat; v10 Feats keep their full cooldown)
   genesCast(w); // Turbo-chondrial Engine
   if (!w.echo) G.stats.casts = (G.stats.casts || 0) + 1;
   w.reloadMax = w.s.cd;
@@ -2233,6 +2239,7 @@ function featTap(w) {
   if (w.def.passive) { say(w.def.name.toUpperCase() + ' PERFORMS ITSELF'); return false; } // (Anhydrobiosis: newfeats.js)
   let target = null;
   if (!w.def.noTarget) { target = acquire(aimDir(w), w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
+  if (w.def.f10 && f10Wait(w)) { say('NOTHING IN RANGE'); return false; } // (feats10.js)
   if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }
   featFire(w, target); vibrate(25);
   return true;
@@ -2519,6 +2526,7 @@ function applyPickup(type, src) {
 
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
+  if (V10) v = f10Xp(v); // (More!, Mine!: feats10.js)
   // XP bonuses from upgrades count half (they stacked up to x1.9 and runs finished 10-30 levels ahead of the curve).
   const xpUp = G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp;
   const xk = XP_PACE * xpUp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp();
