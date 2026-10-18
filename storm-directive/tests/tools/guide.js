@@ -1,6 +1,6 @@
 const fs = require('fs'), vm = require('vm');
 const J = require('path').resolve(__dirname, '../../web/js') + '/';
-const src = fs.readFileSync(J + 'data.js', 'utf8') + '\n' +
+const src = fs.readFileSync(J + 'look10.js', 'utf8') + '\n' + fs.readFileSync(J + 'data.js', 'utf8') + '\n' + // (look10.js: the v10 palette data.js reads)
   fs.readFileSync(J + 'meta.js', 'utf8').split('// ---------------------------------------------------------------- run log')[0] +
   '\n' + (fs.readFileSync(J + 'arsenal.js', 'utf8').match(/function weaponTree[\s\S]*?\n}\n/)[0]) +
   '\n' + fs.readFileSync(J + 'events.js', 'utf8') +
