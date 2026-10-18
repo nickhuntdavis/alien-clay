@@ -192,6 +192,7 @@ function v10Tick(dt) {
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
   if (G && V10) { fightDraw(); pdefDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js)
+  if (G && V10) nfDraw(); // (telegraphs, wax, trails: newfoes.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {
     const k = f.life / f.max, x1 = sx(f.x), y1 = sy(f.y), x2 = sx(f.x2), y2 = sy(f.y2);
