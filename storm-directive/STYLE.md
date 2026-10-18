@@ -16,7 +16,7 @@ Redesign decisions 20, 21 and 28 (`redesign docs/COMBAT_MATRIX.md`) win over the
   | Static (`shock`) | yellow `#ffe94a` | sparks, branching lightning |
   | Mucus (`ice`) | green `#7fd04a` | strands, sticky patches |
   | Blood (`arcane`) | red `#c9184a` | wounds, pools |
-  | Soul (`soul`) | translucent sparkly purple `#b06cff` | ghostly, sparkling |
+  | Alien (`soul`) | translucent sparkly purple `#b06cff` | ghostly, sparkling |
   | Fire (`flame`) | orange `#ff6a2a` | embers, flare |
 
 - Old hard-coded acid greens and mucus olives are remapped through `ELEM_SWAP` (`l10Swap`), so `col()` paints them pink and green. Code that draws with `RAW_COL` on (campaign levels) must use the palette directly (`ACID_TERR` in the acid terrain).

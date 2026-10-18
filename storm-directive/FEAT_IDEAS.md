@@ -1,6 +1,6 @@
 # Feat ideas
 
-Source: v9.20 guide. Damage types: Force, Acid, Mucus, Static, Cooties, Oil, Water, Blood, Soul.
+Source: v9.20 guide. Damage types: Force, Acid, Mucus, Static, Cooties, Oil, Water, Blood, Alien.
 
 **Tone:** dry, deadpan, nerdy, never self-aware. Jokes about bodies, sex, contraception and the microscopic world, with a little real science. Flavour text states a fact like a lab note or a package insert. No regional slang.
 **Delight (1 to 10)** means the joke, the visual surprise and "I'd show a friend", not power.
@@ -44,7 +44,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** you shed a small, egg-like decoy. For 4s enemies and enemy bullets go for it instead of you. Each hit on it splashes Water back on the attacker. When it pops, everything mobbing it is soaked.
 - **On the slide:** a pale, smooth sphere with a soft glassy rim (`glassRim`), wobbling as it is mobbed. A crowd swarming a fake egg is the joke the whole game has been setting up.
 - **Timing:** drop it just before a bullet wall or a charge.
-- **Unstable reactions:** Toaster in the Bath (one Static hit zaps the whole mob), Public Pool (Cooties), Holy Water (Soul); three-type: Baptism.
+- **Unstable reactions:** Toaster in the Bath (one Static hit zaps the whole mob), Public Pool (Cooties), Holy Water (Alien); three-type: Baptism.
 - **Lv 4:** **Meiosis II**: it splits into two decoys halfway through. / **Zona**: it is armoured, so it lasts the full 4s whatever hits it.
 - **Ultimate: Superovulation.** Eight decoys in a ring round you, all soaking. *"Fertility drugs. Results vary. Today's result is eight."*
 - **SCAMPER:** Substitute Baby Monitor's turret with a decoy, Reverse its job (it draws fire).
@@ -54,14 +54,14 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** an instant burst of slime around you. Everything inside is stuck for 2s, and bullets that enter slow and sink. Anything that bites you while it is up gags and is stuck again.
 - **On the slide:** fine threads that unravel and swell into a soft, cloudy mass, expanding in a blink. Darkfield: thousands of bright threads.
 - **Timing:** the panic button for when you are surrounded.
-- **Unstable reactions:** Booger (stuck enemies take six Mucus hits fast), Heartburn (Acid), Ectoplasm (Soul); three-type: Flu Season or Bloody Show.
+- **Unstable reactions:** Booger (stuck enemies take six Mucus hits fast), Heartburn (Acid), Ectoplasm (Alien); three-type: Flu Season or Bloody Show.
 - **Lv 4:** **Knot Tying**: when it ends, you slip out at speed in the direction you swim. / **Gill Clogger**: stuck enemies cannot fire.
 - **Ultimate: Highway 101.** The whole screen fills with slime: every enemy is stuck for 4s and every bullet is set in place. *"Oregon, 2017. A truck shed seven thousand five hundred pounds of hagfish."*
 - **SCAMPER:** Combine Latex Barrier with Mucus, Magnify the volume.
 
-#### 4. Vanishing Twin (Soul, stamina) ✓ Built in v9.23
+#### 4. Vanishing Twin (Alien, stamina) ✓ Built in v9.23
 > *"Estimated in up to thirty percent of twin pregnancies. Nobody tells the survivor."*
-- **Does:** a faint copy of you rises under the toughest non-boss enemy nearby and pulls it under, out of play for 3s. It comes back cursed (as six Soul hits, so Full Possession) and fights for you. Nearby enemies flee for 2s. Bosses are spooked and take a big hit.
+- **Does:** a faint copy of you rises under the toughest non-boss enemy nearby and pulls it under, out of play for 3s. It comes back cursed (as six Alien hits, so Full Possession) and fights for you. Nearby enemies flee for 2s. Bosses are spooked and take a big hit.
 - **On the slide:** a soft dark pool, no ring; a translucent sperm shape the same as yours wraps the enemy and sinks with it.
 - **Timing:** save it for the elite that matters.
 - **Unstable reactions:** Full Possession, Last Rites (Oil on the returner), Blood Pact (Blood); three-type: Zombie.
@@ -74,7 +74,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** a proboscis the size of the screen stabs down through a line of enemies. Everything on the line bleeds and gets one dose of Cooties, and you heal 1% per enemy hit.
 - **On the slide:** a huge, slightly blurred needle that comes in from off screen at an angle, pauses, and withdraws. Its shadow passes over the slide first (the wind-up).
 - **Timing:** line it up with a column of enemies.
-- **Unstable reactions:** Dirty Needle (it starts this alone), Blood Pact (Soul), Cardiac Arrest (Static); three-type: Flesh-Eating (with Acid) or Zombie (with Soul).
+- **Unstable reactions:** Dirty Needle (it starts this alone), Blood Pact (Alien), Cardiac Arrest (Static); three-type: Flesh-Eating (with Acid) or Zombie (with Alien).
 - **Lv 4:** **Return Visit**: it stabs a second line 1s later. / **Itch**: bitten enemies stop to scratch for 1s.
 - **Ultimate: Vector.** Every enemy on screen is stabbed at once; you heal 1% each. *"Malaria has probably killed more humans than anything else in history."*
 - **SCAMPER:** Combine Blood and Cooties in one hit, Substitute Kiss It Better's heal with a stolen one.
@@ -86,7 +86,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** a sheen spreads over the crowd. Every shield, shell, barrier and armour plate it touches perishes: armour drops to zero for 6s and boss shields fail. Everything in it is lubricated.
 - **On the slide:** a lilac sheen creeping out; enemy shields wrinkle, go dull and split like a perished balloon.
 - **Timing:** when shielded or armoured enemies arrive, or a boss raises its guard.
-- **Unstable reactions:** Vinaigrette (Acid), Blood Clot (Blood), Last Rites (Soul); three-type: Napalm.
+- **Unstable reactions:** Vinaigrette (Acid), Blood Clot (Blood), Last Rites (Alien); three-type: Napalm.
 - **Lv 4:** **Petroleum Jelly**: the sheen lasts twice as long. / **Expired**: perished shields burst and hit whatever was behind them.
 - **Ultimate: Perished.** Every shield, barrier and armour on screen fails at once, bosses included. *"Stored in a wallet since 2019."*
 - **SCAMPER:** Put Latex Barrier's own joke to another use (it is the counter to it), Eliminate armour.
@@ -101,7 +101,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Ultimate: Prolific Donor.** The vial passes through every enemy on screen, and every one gets a random type. *"One donor. Over five hundred children. This happened."*
 - **SCAMPER:** Adapt Dummy Spit (sticks), Combine with the music, Modify the payload into a lucky dip.
 
-#### 8. Ouija Board (Soul, stamina) ✓ Built in v9.23
+#### 8. Ouija Board (Alien, stamina) ✓ Built in v9.23
 > *"Moved by the ideomotor effect: small muscle movements you don't notice. You have no muscles."*
 - **Does:** faded letters appear under the crowd and a planchette glides through a word from the list (SPERM, MOIST, GONAD, UVULA, SMEGMA, TESTES, URETHRA). Everything near each letter is cursed. The finished word shows once in the floater text.
 - **On the slide:** letters floating in the fluid like stained cells, no board outline. The planchette is a cartoon prop with a soft glow. It spells through walls.
@@ -116,7 +116,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** an ant's head, far too big for the slide, reaches in. Its mandibles snap the toughest armoured enemy and spray acid along a line behind it, stripping armour from everything hit.
 - **On the slide:** two blurred mandibles closing from the screen edge, then a fizzing acid-green spray.
 - **Timing:** armoured enemies, Shell Cells and Calluses.
-- **Unstable reactions:** Shell Shock, Soul Rot (Soul), Battery (Static); six hits: Meltdown; three-type: Napalm.
+- **Unstable reactions:** Shell Shock, Alien Rot (Alien), Battery (Static); six hits: Meltdown; three-type: Napalm.
 - **Lv 4:** **Worker**: two bites on two targets. / **Pheromone Trail**: the spray leaves a trail that draws enemies along it.
 - **Ultimate: Supercolony.** Mandibles from every edge bite every armoured enemy on screen. *"One ant supercolony runs six thousand kilometres along the Mediterranean coast."*
 - **SCAMPER:** Modify Stork Drop (from off screen), Magnify the scale joke.
@@ -156,20 +156,20 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** a charged dome floats beside you for 4s and pulls enemy bullets into it. Each caught bullet charges it. When it ends, it fires one Static arc per bullet.
 - **On the slide:** a soft bright sphere with a shimmer; bullets curve towards it and stick; a crackling burst when it ends.
 - **Timing:** drop it into a bullet wall.
-- **Unstable reactions:** Toaster in the Bath (Water), Poltergeist (Soul), Battery (Acid); six hits: Overload; three-type: Oil Rig.
+- **Unstable reactions:** Toaster in the Bath (Water), Poltergeist (Alien), Battery (Acid); six hits: Overload; three-type: Oil Rig.
 - **Lv 4:** **Earthed**: it also pulls small enemies. / **Spark Gap**: it fires as it fills, not at the end.
 - **Ultimate: St Elmo's Fire.** Absorbs every bullet on screen for 5s, then rolls across the screen discharging. *"Sailors took it as a good omen. It is plasma."*
 - **SCAMPER:** Put Latex Barrier to another use (a magnet, not a wall).
 
-#### 14. Wandering Womb (Soul, stamina) ✓ Built in v9.23
+#### 14. Wandering Womb (Alien, stamina) ✓ Built in v9.23
 > *"Ancient Greek doctors believed the uterus roamed the body. They were wrong."*
 - **Does:** a ghostly womb drifts in a slow line across the slide, through walls, cursing everything it passes and pulling enemies into its path.
 - **On the slide:** a translucent pear shape with trailing tubes, drifting and bumping like a lost jellyfish.
 - **Timing:** best down a corridor or a wall-line of enemies.
-- **Unstable reactions:** Soul Rot (Acid), Ectoplasm (Mucus), Holy Water (Water); three-type: Zombie.
+- **Unstable reactions:** Alien Rot (Acid), Ectoplasm (Mucus), Holy Water (Water); three-type: Zombie.
 - **Lv 4:** **Ectopic**: it stops on the toughest enemy and stays there for 3s. / **Bicornuate**: two wombs, angled apart.
 - **Ultimate: Hysteria.** Eight wombs in every direction; anything they curse turns on the rest. *"From the Greek for womb. A diagnosis until 1980."*
-- **SCAMPER:** Modify Baby Monitor into something moving, Put Soul's wall-passing to use.
+- **SCAMPER:** Modify Baby Monitor into something moving, Put Alien's wall-passing to use.
 
 ### Delight 8
 
@@ -178,7 +178,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** performs itself when a hit would drop you under 20% health. You dry into a husk, untouchable for 2.5s, then rehydrate in a splash that soaks and shoves everything nearby.
 - **On the slide:** you shrivel into a crinkled barrel shape, then swell back in a burst of droplets.
 - **Timing:** automatic, so the decision is whether to slot it.
-- **Unstable reactions:** Holy Water (Soul), Snot Slick (Mucus), Crime Scene (Blood); three-type: Baptism.
+- **Unstable reactions:** Holy Water (Alien), Snot Slick (Mucus), Crime Scene (Blood); three-type: Baptism.
 - **Lv 4:** **Vacuum Rated**: the husk reflects bullets. / **Rehydration**: the splash also heals 15%.
 - **Ultimate: Cryptobiosis.** For the next 30s, anything that would kill you turns you into the husk instead. *"Tardigrades frozen for thirty years were revived in 2016. You are only being shot."*
 - **SCAMPER:** Reverse Out of Body (you shrink and stop instead of leaving).
@@ -208,7 +208,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** silently infects 4 enemies. Nothing visible happens for 4s. Then every dose lands at once and each spreads to its neighbours (Pandemic).
 - **On the slide:** almost nothing (that is the joke). A faint shimmer on the hosts, a 4s pause, then all of them bloom grey-green at once.
 - **Timing:** infect early, before the crowd closes in.
-- **Unstable reactions:** Penicillin (Acid), Patient Zero (Soul), The Shakes (Static); three-type: Zombie.
+- **Unstable reactions:** Penicillin (Acid), Patient Zero (Alien), The Shakes (Static); three-type: Zombie.
 - **Lv 4:** **Carrier**: the hosts spread a dose to anything they touch during the wait. / **Late Diagnosis**: the wait is 6s and the payoff is twice as big.
 - **Ultimate: Incubation Period.** Every enemy on screen is silently infected; 5s later all of it lands. *"Fourteen days, on average. You did not wait fourteen days."*
 - **SCAMPER:** Reverse Dutch Oven (delayed and invisible instead of a visible cloud).
@@ -248,7 +248,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** plants a lit candle. Enemies are drawn towards it for 4s, and it drips burning oil on anything close.
 - **On the slide:** a cartoon cone candle with a soft flickering flame, wax running down it.
 - **Timing:** plant it behind you to pull chasers off.
-- **Unstable reactions:** Grease Fire (Static), Last Rites (Soul), Gas Station Sushi (Cooties); three-type: Napalm.
+- **Unstable reactions:** Grease Fire (Static), Last Rites (Alien), Gas Station Sushi (Cooties); three-type: Napalm.
 - **Lv 4:** **Vigil**: two candles. / **Snuffed**: when it burns out, it bursts in a ring of oil.
 - **Ultimate: Candlelight Vigil.** Twelve candles round the screen edge pull enemies outward and burn them. *"Still sold. Still does nothing."*
 - **SCAMPER:** Adapt Baby Monitor into a lure.
@@ -268,7 +268,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 - **Does:** ties 4 pairs of enemies with a thin red vessel for 5s. Half of any damage one takes is copied to its partner, and both bleed.
 - **On the slide:** fine, pulsing red threads that thicken when damage passes along them.
 - **Timing:** tie a tough enemy to something you are already killing.
-- **Unstable reactions:** Cardiac Arrest (Static), Crime Scene (Water), Blood Pact (Soul); six hits: Hemorrhage; three-type: Zombie or Bloody Show (with Mucus).
+- **Unstable reactions:** Cardiac Arrest (Static), Crime Scene (Water), Blood Pact (Alien); six hits: Hemorrhage; three-type: Zombie or Bloody Show (with Mucus).
 - **Lv 4:** **Transfusion Syndrome**: full damage copies. / **Cord Pull**: tied pairs are pulled into each other.
 - **Ultimate: Parabiosis.** Every enemy on screen joins one chain; damage to any is shared with all at 50%. *"Surgically joining two animals' circulation. Done to rats since the 1860s."*
 - **SCAMPER:** Combine Blood with the Twins, Put a tether to Feat use.
@@ -287,7 +287,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 > *"Medicinal leeches were cleared by the FDA in 2004."*
 - **Does:** leeches latch onto 4 enemies. Those enemies bleed even while still (bleeding normally needs them to move), and each tick heals you a little.
 - **On the slide:** dark, glossy, segmented shapes clinging on and pulsing as they feed.
-- **Unstable reactions:** Blood Pact (Soul), Scab (Mucus), Ulcer (Acid); three-type: Zombie.
+- **Unstable reactions:** Blood Pact (Alien), Scab (Mucus), Ulcer (Acid); three-type: Zombie.
 - **Lv 4:** **Anticoagulant Saliva**: bleeding lasts twice as long. / **Engorged**: leeches burst when full, splashing bleed onto neighbours.
 - **Ultimate: Jar of Leeches.** A leech on every enemy on screen; all bleeding heals you. *"France imported over forty million leeches in 1833. This is a small jar."*
 
@@ -295,7 +295,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 > *"Selectively permeable."*
 - **Does:** lays a membrane wall between you and the crowd for 4s. Your shots pass out; enemy bullets slide along it; enemies that push through are lubricated and slowed.
 - **On the slide:** a curving double line of beads (phospholipid heads) with a soft sheen between, rippling where things touch it.
-- **Unstable reactions:** Last Rites (your Soul shots anoint through it), Grease Fire (Static), Blood Clot (Blood); three-type: Baptism.
+- **Unstable reactions:** Last Rites (your Alien shots anoint through it), Grease Fire (Static), Blood Clot (Blood); three-type: Baptism.
 - **Lv 4:** **Ion Channel**: enemies that cross are shocked. / **Vesicle**: the wall curls into a ring around you.
 - **Ultimate: Liposome.** A membrane sphere round you for 6s: bullets slide off, and enemies that touch it are lubricated and flung. *"Used to deliver drugs into cells. It works on you too."*
 
@@ -303,7 +303,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 > *"Most bacteria live like this. Antibiotics struggle with it."*
 - **Does:** a slime mat lands and grows slowly towards nearby enemies, slowing and snotting anything on it, for 6s.
 - **On the slide:** a soft mottled film that creeps outward in irregular lobes.
-- **Unstable reactions:** Snot Rocket (Cooties), Heartburn (Acid), Ectoplasm (Soul); three-type: Flu Season.
+- **Unstable reactions:** Snot Rocket (Cooties), Heartburn (Acid), Ectoplasm (Alien); three-type: Flu Season.
 - **Lv 4:** **Quorum Sensing**: grows twice as fast with 5+ enemies on it. / **Persister Cells**: enemies that leave stay snotty for 3s.
 - **Ultimate: Dental Plaque.** The film covers the screen and thickens every second. *"Forms within hours of brushing."*
 
@@ -319,7 +319,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 > *"Moves from high concentration to low until everything is equal."*
 - **Does:** soaks the most afflicted enemy nearby, and every status on it flows into its neighbours at full strength.
 - **On the slide:** a soft swell of water round the target, with status motes drifting out to the others.
-- **Unstable reactions:** Acid Rain (Acid), Public Pool (Cooties), Holy Water (Soul); three-type: Flu Season.
+- **Unstable reactions:** Acid Rain (Acid), Public Pool (Cooties), Holy Water (Alien); three-type: Flu Season.
 - **Lv 4:** **Hypotonic**: the source bursts after spreading. / **Gradient**: it spreads twice (to the neighbours' neighbours).
 - **Ultimate: Reverse Osmosis.** Every status on every enemy on screen is pulled into the toughest one, which then bursts and spreads all of it. *"Requires high pressure. Provided."*
 
@@ -351,7 +351,7 @@ Numbers 1 to 5 are the top five. All 36 were built in v9.23 (`web/js/newfeats.js
 > *"Open about six days a month."*
 - **Does:** lays a mucus lane ahead of you for 5s. You swim 40% faster along it; enemies on it are snotty and stuck.
 - **On the slide:** a soft, glistening channel with fine aligned strands, like a current you can see.
-- **Unstable reactions:** Snot Slick (Water), Ectoplasm (Soul), Snot Shield (you in a blob of snot); three-type: Flu Season.
+- **Unstable reactions:** Snot Slick (Water), Ectoplasm (Alien), Snot Shield (you in a blob of snot); three-type: Flu Season.
 - **Lv 4:** **Channels**: two lanes in a V. / **Crypts**: finishing the lane refills 30% stamina.
 - **Ultimate: Ovulation.** The lane loops round the screen: you are 80% faster and everything on it is stuck. *"Lasts twelve to twenty-four hours. You have six seconds."*
 
@@ -419,7 +419,7 @@ A rare, oversized version of a Feat. It works like weapon Mastery: only one Feat
 | Oil | 0 | 6 | 6 | Napalm, Baptism, Oil Rig |
 | Water | 2 | 4 | 6 | Baptism, Flu Season, Oil Rig |
 | Blood | 1 | 5 | 6 | Zombie, Flesh-Eating, Bloody Show |
-| Soul | 3 | 3 | 6 | Zombie, Baptism |
+| Alien | 3 | 3 | 6 | Zombie, Baptism |
 
 ## 5. What changed from the earlier passes
 
@@ -433,8 +433,8 @@ A rare, oversized version of a Feat. It works like weapon Mastery: only one Feat
 | Group | Feats |
 |---|---|
 | Damage | Stork Drop (Acid), Brainstorm (Static), Running With Scissors (Force), Power Shower (Water), Dummy Spit (Acid), Tantrum (Static) |
-| Area and control | Sofa Crevice (Soul), Naughty Corner (Water), Dutch Oven (Cooties), Baby Monitor (Static) |
-| Defence and healing | Latex Barrier (Blood), Kiss It Better (Cooties), Nap Time (Soul), Out of Body (Soul) |
+| Area and control | Sofa Crevice (Alien), Naughty Corner (Water), Dutch Oven (Cooties), Baby Monitor (Static) |
+| Defence and healing | Latex Barrier (Blood), Kiss It Better (Cooties), Nap Time (Alien), Out of Body (Alien) |
 | Character-locked | Lightbulb Moment (Static, Bright Spark), Elbows Out (Force, Firstborn), Come Play With Us (Force, Twins), Belly Flop (Force, Chonker) |
 
 ## 7. New three-type reaction: Bloody Show ✓ Built in v9.23
@@ -460,6 +460,6 @@ Mucus could only reach one three-type reaction (Flu Season), while every other t
 | Static | Napalm, Oil Rig, Bloody Show | 3 |
 | Blood | Zombie, Flesh-Eating, Bloody Show | 3 |
 | Acid | Napalm, Flesh-Eating | 2 |
-| Soul | Zombie, Baptism | 2 |
+| Alien | Zombie, Baptism | 2 |
 | Mucus | Flu Season, Bloody Show | 2 |
 | Force | none (by design) | 0 |

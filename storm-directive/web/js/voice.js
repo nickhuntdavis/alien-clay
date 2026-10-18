@@ -357,7 +357,7 @@ const VOICE = {
     sci: [
       VT3('NO. No, no, no. That is not a normal reaction. I have the papers. I have ALL the papers. There is nothing in the papers about that. What the FUCK am I supposed to put on the form?', 'Form 12B filed.'),
       VT3('That is a ghost. On fire. I do not have a heading for a ghost on fire. I do not have a heading for ANY of this. Fuck.', 'Form 12B filed.'),
-      VT3('Hold on. HOLD ON. Soul does not do that with fire. Soul does not do anything with fire. It is not in the literature. Who wrote the literature. Oh, I did.', 'Form 12B filed.'),
+      VT3('Hold on. HOLD ON. Alien does not do that with fire. Alien does not do anything with fire. It is not in the literature. Who wrote the literature. Oh, I did.', 'Form 12B filed.'),
     ],
     con: [
       'Something just caught fire that should not have been able to. I like it.',

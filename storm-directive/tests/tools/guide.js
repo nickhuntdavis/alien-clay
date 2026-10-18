@@ -75,7 +75,7 @@ const W24 = vm.runInNewContext('(' + w24src.match(/const W24 = (\[[\s\S]*?\n\]);
 const W24_DESC = vm.runInNewContext('(' + w24src.match(/const W24_DESC = (\{[\s\S]*?\n\});/)[1] + ')');
 const s10src = fs.readFileSync(J + 'samples10.js', 'utf8');
 const SAMPLE_NAME = Object.fromEntries([...s10src.matchAll(/\{ id: '(\w+)', name: '([^']+)'/g)].map(m => [m[1], m[2]]));
-const TYPE_NAME = { phys: 'Force', fire: 'Acid', shock: 'Static', ice: 'Mucus', arcane: 'Blood', soul: 'Soul', flame: 'Fire' };
+const TYPE_NAME = { phys: 'Force', fire: 'Acid', shock: 'Static', ice: 'Mucus', arcane: 'Blood', soul: 'Alien', flame: 'Fire' };
 const ATK_NAME = { proj: 'Projectile', spread: 'Spread', contact: 'Contact', burst: 'Burst', beam: 'Beam', pool: 'Pool' };
 const oldId = id => id.startsWith('s_') ? id.slice(2) : id; // (combos and pairings use the old id of a signature weapon)
 const W24NAME = Object.fromEntries(W24.map(r => [oldId(r[0]), r[1]]));

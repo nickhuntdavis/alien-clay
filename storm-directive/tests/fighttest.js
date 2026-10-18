@@ -64,7 +64,7 @@ const { chromium } = require('playwright');
     const walker = foe('crawler', 300); fightTick(0.016); if (G.fst.rx.sticky) bad.push('sticky fired with nobody entering');
     walker.x = patch.x + 10; walker.y = patch.y; gridBuild(); fightTick(0.016);
     if (G.fst.rx.sticky !== 1 || !(walker.dazeT > G.t)) bad.push('Sticky Situation: ' + JSON.stringify(G.fst.rx));
-    // Blood, Soul, Fire statuses and their reactions
+    // Blood, Alien, Fire statuses and their reactions
     const rx = id => ((G.fst && G.fst.rx[id]) || 0);
     fresh();
     const bl = foe('crawler'); hit(bl, 'arcane', 30);
@@ -98,7 +98,7 @@ const { chromium } = require('playwright');
     hit(ps, 'shock', 5); if (rx('interference') < 1) bad.push('Interference Pattern');
     hit(ps, 'ice', 5); if (rx('suspension') < 1) bad.push('Held in Suspension');
     G.player.hp = 10; hit(ps, 'arcane', 5); if (rx('donor') < 1 || !(G.player.hp > 10)) bad.push('Blood Donor');
-    hit(ps, 'fire', 5); if (rx('erosion') < 1) bad.push('Soul Erosion');
+    hit(ps, 'fire', 5); if (rx('erosion') < 1) bad.push('Alien Erosion');
     hit(ps, 'phys', 5); if (rx('oob') < 1) bad.push('Out-of-Body Experience'); out.soul = JSON.stringify(G.fst.rx) + ' charmed=' + ps.charmed;
     fresh();
     G.zones.push(fightPatch(G.player.x + 90, G.player.y, 'test')); const fm = foe('crawler', 90);

@@ -16,7 +16,7 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | 6 | Red Flagship | Static | Beam | Alpha | M17; "Blue Screen" until 18 Oct |
 | 7 | Nocturnal Emission | Mucus | Pool | Beta | M24; "Snot Trap" until 18 Oct |
 | 8 | Little Prick | Blood | Projectile | Baseline | M26; "Red Needle" until 18 Oct |
-| 9 | Rent Free | Soul | Projectile | Private Schooled | M32; "Ghost Load" until 18 Oct |
+| 9 | Rent Free | Alien | Projectile | Private Schooled | M32; "Ghost Load" until 18 Oct |
 | 10 | Hot Mess | Fire | Pool | Ordered Online | M42, was "Burning Ground" |
 | 11 | Family Ties | Force | Projectile (slow, gravity well; supernova) | Not of This World | `void`, shipped as "Toddler Gravity"; "Black Hole" until 18 Oct |
 | 12 | Skill Issue | Force | Burst (knockback collisions) | Alpha | S11, `lard`, was "Lard Lobber" (confirmed); "Meat Missile" until 18 Oct |
@@ -28,15 +28,15 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | 18 | Blowing Bubbles | Mucus | Projectile (traps) | Ordered Online | S13, `bubble`, was "Bubble Wand" (confirmed) |
 | 19 | One of These Days | Blood | Projectile (mark) | Beta | S8, `duedate`; "Due Date" until 18 Oct |
 | 20 | Sister Cousin | Blood | Projectile (homing) | Redtail | S24, `seeker`; "Seeker Siblings" until 18 Oct |
-| 21 | Peekaboo | Soul | Burst (reveal; Fear) | Prawn Again | S4, `peekaboo` |
-| 22 | Eggs | Soul | Burst (smite) | Prawn Again | S14, `toothfairy`; "Tooth Fairy" until 18 Oct |
-| 23 | Chest Burster | Soul | Projectile | Prawn Again | S6, `parasite`; "Tapeworm Seeder" until 18 Oct |
+| 21 | Peekaboo | Alien | Burst (reveal; Fear) | Prawn Again | S4, `peekaboo` |
+| 22 | Eggs | Alien | Burst (smite) | Prawn Again | S14, `toothfairy`; "Tooth Fairy" until 18 Oct |
+| 23 | Chest Burster | Alien | Projectile | Prawn Again | S6, `parasite`; "Tapeworm Seeder" until 18 Oct |
 | 24 | The Runs | Fire | Pool (trail) | Redtail | S3, `wake`, was "Pub Crawl" (shipped as "Skid Mark") |
 
 | Damage type | Weapons | | Attack type | Weapons |
 | --- | --- | --- | --- | --- |
 | Force | 7 | | Projectile | 12 |
-| Soul | 4 | | Burst | 5 |
+| Alien | 4 | | Burst | 5 |
 | Static | 3 | | Pool | 3 |
 | Mucus | 3 | | Beam | 2 |
 | Blood | 3 | | Contact | 1 |
@@ -95,8 +95,8 @@ A clean, precise delivery option for Blood. Chosen over Bloodletter to keep the 
 - **Motion:** a fast, precise dart with almost no trail.
 - **Impact:** a tiny red pinprick flash. If it applies a Blood status, a small pulsing mark, not a large blood spray.
 
-### 9. Rent Free (Soul, Projectile)
-A simple spectral attack that establishes Soul without echoes, summons or other advanced mechanics.
+### 9. Rent Free (Alien, Projectile)
+A simple spectral attack that establishes Alien without echoes, summons or other advanced mechanics.
 - **Shape:** a pale, translucent spirit-kernel with a soft inner silhouette, like a tiny ghost folded into a pellet.
 - **Motion:** glides rather than tumbles; its edges lag a fraction behind the core.
 - **Impact:** the projectile briefly passes through a ghostly afterimage before fading. Eerie, not smoky or explosive.
@@ -115,7 +115,7 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Playstyle:** Spatial control, accumulation and explosive payoff. Pulls enemies and bends projectiles; merging orbs can culminate in a supernova.
 - **Is:** Force, a slow Projectile (speed 115) that pierces everything, with the **gravity well** modifier (radius 72): it pulls enemies in and bends every shot that passes near it, so your other weapons' shots curve into the crowd it is gathering.
 - **Signature:** two black holes that touch merge into a bigger one. Five merged go supernova: one Burst, and the hole is gone.
-- **Limits:** gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2); a merged hole is one well with a bigger radius (up to 140), so merging never breaks the 3-well cap; merges cap at 5 (it was 20). Moved from Soul to Force because gravity is displacement, and Soul is now mind control.
+- **Limits:** gravity well modifier (`MODIFIERS.md` 19) and the Pull rule (12.2); a merged hole is one well with a bigger radius (up to 140), so merging never breaks the 3-well cap; merges cap at 5 (it was 20). Moved from Alien to Force because gravity is displacement, and Alien is now mind control.
 - **Start stats:** 8 damage, 1.8 s cooldown, pull strength 95.
 
 ### 12. Skill Issue (`lard`, was "Lard Lobber")
@@ -184,22 +184,22 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 
 ### 21. Peekaboo (`peekaboo`)
 - **Playstyle:** Deception and crowd manipulation. Disappears, manipulates enemy pursuit, then reveals itself and applies Fear.
-- **Is:** Soul, Burst. Every 5.5 s you vanish for 1.8 s, then BOO (radius 230).
+- **Is:** Alien, Burst. Every 5.5 s you vanish for 1.8 s, then BOO (radius 230).
 - **Signature:** while you're hidden, enemies lose you and swarm your last spot; their shots there can hit each other. The BOO applies **Fear** to everything in range and hits harder the more enemies were searching for you.
 - **Limits:** player hiding rule (12.4). Fear lasts 2 s. BOO damage bonus is capped at +100% (from 10 searching enemies).
 - **Start stats:** 20 damage, 5.5 s cooldown, hidden 1.8 s.
 
 ### 22. Eggs (`toothfairy`)
 - **Playstyle:** Prediction, baiting and delayed payoff. Baits enemies with spectral eggs and punishes them when they approach.
-- **Is:** Soul, Burst (the smite).
+- **Is:** Alien, Burst (the smite).
 - **Signature:** drops spectral eggs near the crowd. Greedy enemies within 230 swim off to grab one; the egg smites whoever takes it, harder the longer it waited (Lv 3, promise C).
 - **Limits:** lures rule (12.6): at most 3 eggs on the ground; each lasts 6 s. Bosses ignore eggs. Draw them small, ghostly and nothing like the egg you are racing to, so the two never get confused.
 - **Start stats:** 34 damage, 1.1 s cooldown, 3 per load.
 
 ### 23. Chest Burster (`parasite`)
 - **Playstyle:** Army building and self-reinforcing combat. Turns infected enemies into allied fighters after death.
-- **Is:** Soul, Projectile. Fast shots infect (8 s).
-- **Signature:** an infected enemy that dies rises as an undead ally for a few seconds and fights for you. Possessed after death: the purest Soul weapon.
+- **Is:** Alien, Projectile. Fast shots infect (8 s).
+- **Signature:** an infected enemy that dies rises as an undead ally for a few seconds and fights for you. Possessed after death: the purest Alien weapon.
 - **Limits:** pets rule (12.3); at most **4 undead** at once; each lasts 6 s.
 - **Start stats:** 12 damage, 0.4 s between shots, 8 per load.
 
@@ -229,17 +229,17 @@ Decided:
 | Baseline | Standard Issue (Force Projectile), Little Prick (Blood Projectile), Panic Button (Force Burst) |
 | Alpha | Red Flagship (Static Beam), Maximum Gains (Force Spread), Skill Issue (Force Burst) |
 | Beta | Nocturnal Emission (Mucus Pool), Nervous Wreck (Force Contact), One of These Days (Blood Projectile) |
-| Private Schooled | Acid Spit (Acid Projectile), Rent Free (Soul Projectile), Ewww, Gross (Mucus Projectile) |
+| Private Schooled | Acid Spit (Acid Projectile), Rent Free (Alien Projectile), Ewww, Gross (Mucus Projectile) |
 | Ordered Online | Hot Mess (Fire Pool), Nappy Mines (Fire Burst), Blowing Bubbles (Mucus Projectile) |
 | Redtail | The Runs (Fire Pool trail), Unwanted Contact (Static Projectile), Sister Cousin (Blood Projectile) |
-| Prawn Again | Chest Burster (Soul Projectile), Peekaboo (Soul Burst), Eggs (Soul Burst) |
+| Prawn Again | Chest Burster (Alien Projectile), Peekaboo (Alien Burst), Eggs (Alien Burst) |
 | Not of This World | Soulmate Signal (Static Beam), There Is No Spoon (Force Projectile), Family Ties (Force Projectile) |
 
 Still open:
 4. **Thin attack types.** Contact (Nervous Wreck) and Spread (Maximum Gains) have one weapon each, and Fire has only Pool and Burst weapons. Acid now has a single weapon (Acid Spit), since Nappy Mines became Fire. Since decision 5 every attack type is some sample's starter. Recommendation: accept for now; the next additions should be a Fire Projectile or Spread and a second Contact.
 5. **The 5 Fire drafts are archived** (Heartburn, Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation). Re-check any enemy or reaction design that assumed a Fire Beam, Contact or Burst weapon. Redtail's "starts chain reactions in crowds" rests on The Runs and Unwanted Contact.
 6. **Ordered Online has no Acid starter.** Its types are Mucus and Acid, but its kit is Hot Mess (Fire), Nappy Mines (Fire) and Blowing Bubbles (Mucus); its Acid comes only from its Feat (Shrink Wrap). The brief asks for Hot Mess to look like "a violently reactive, corrosive slick" for this sample, but a Fire pool drawn as Acid breaks the damage-type look (`DAMAGE_TYPES.md`), and corrosive slicks are a cut ground object (matrix decision 27). Options: (a) make Hot Mess an Acid Pool everywhere (Acid gets 2 weapons, Fire loses its foundation and Hot Mess's Burn upgrades need rewriting); (b) keep Hot Mess Fire and change Ordered Online's types to Mucus / Fire. Recommendation: (b), the smaller change.
-7. **Not of This World's weapons are Static, Force and Force**, while its passive shifts its type between Fire, Soul and Static. `SAMPLES.md` now says its three starters deal the active type; There Is No Spoon's returned bullets keep their own type (12.8). Needs a matrix line if kept.
+7. **Not of This World's weapons are Static, Force and Force**, while its passive shifts its type between Fire, Alien and Static. `SAMPLES.md` now says its three starters deal the active type; There Is No Spoon's returned bullets keep their own type (12.8). Needs a matrix line if kept.
 
 ## 6. Code pass (not done)
 

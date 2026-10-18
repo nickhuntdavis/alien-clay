@@ -1,6 +1,6 @@
 # Damage Types
 
-Force | Acid | Static | Mucus | Blood | Soul | Fire
+Force | Acid | Static | Mucus | Blood | Alien | Fire
 
 The seven canonical damage types: what each one is for, how it looks and sounds, and what it is good and bad at. A **damage type** is what kind of harm is dealt; an **attack type** is how it reaches the target (`ATTACK_TYPES.md`).
 
@@ -13,7 +13,7 @@ The seven canonical damage types: what each one is for, how it looks and sounds,
 | **Static** | Chain through crowds and disrupt | Discharge | Medium burst, high multi-target potential | Charge |
 | **Mucus** | Control movement and set up | Snare | Very low burst, no damage over time | Snared, Conjoined |
 | **Blood** | Wounds and the health economy | Bleed | Medium to high, scaling through wounds | Bleed, Extraction |
-| **Soul** | Turn enemies against each other | Possess | Low to medium; the payoff is the turned enemy | Possessed |
+| **Alien** | Turn enemies against each other | Possess | Low to medium; the payoff is the turned enemy | Possessed |
 | **Fire** | Ignite and consume setups | Ignite | Moderate hits, a short burn, a flare at Ignition | Burning |
 
 ---
@@ -26,7 +26,7 @@ Force is physical impact. It wins through a decisive hit or collision, not throu
 
 ## Visual language
 
-**White and pale grey; hard-edged impact rings, compressed silhouettes, sharp directional motion lines, and brief screen-space jolts.** Use a heavy, blunt hit sound and a clear travel direction. The cue should feel solid and physical, not soft or spectral like Soul. Keep impact flashes brief so the player can read the next attack.
+**White and pale grey; hard-edged impact rings, compressed silhouettes, sharp directional motion lines, and brief screen-space jolts.** Use a heavy, blunt hit sound and a clear travel direction. The cue should feel solid and physical, not soft or spectral like Alien. Keep impact flashes brief so the player can read the next attack.
 
 ## Strengths and limits
 
@@ -80,7 +80,7 @@ Static is chain pressure. It punishes clusters through readable arcs and interru
 
 ## Boundaries
 
-Static owns Charge, bounded arcs and conditional interruption. Force owns impact; Acid owns erosion; Mucus owns sticky control; Blood owns wounds; Soul owns Possessed; Fire owns ignition.
+Static owns Charge, bounded arcs and conditional interruption. Force owns impact; Acid owns erosion; Mucus owns sticky control; Blood owns wounds; Alien owns Possessed; Fire owns ignition.
 
 ---
 
@@ -124,15 +124,15 @@ Blood attacks the target's health economy: it opens wounds, makes them pay off, 
 
 ## Boundaries
 
-Blood owns Bleed, blood pools and Extraction. Acid weakens defences; Mucus controls movement; Force delivers impact; Soul turns enemies.
+Blood owns Bleed, blood pools and Extraction. Acid weakens defences; Mucus controls movement; Force delivers impact; Alien turns enemies.
 
 ---
 
-# Soul
+# Alien
 
 **Haunt. Possess. Turn.**
 
-Soul is mind control. Enough Soul on an enemy makes it fight its own mates for a few seconds (Possessed), and every Soul reaction plays off a Possessed enemy. It is not a defence bypass, and Fear is a separate status, not a synonym for Soul.
+Alien is mind control. Enough Alien on an enemy makes it fight its own mates for a few seconds (Possessed), and every Alien reaction plays off a Possessed enemy. It is not a defence bypass, and Fear is a separate status, not a synonym for Alien.
 
 ## Visual language
 
@@ -146,7 +146,7 @@ Soul is mind control. Enough Soul on an enemy makes it fight its own mates for a
 
 ## Boundaries
 
-Soul owns Possessed. Force owns impact; Static owns interruption; Blood owns wounds and extraction.
+Alien owns Possessed. Force owns impact; Static owns interruption; Blood owns wounds and extraction.
 
 ---
 
@@ -168,4 +168,4 @@ Fire is ignition. Hits fill a visible Burn bar with a short burn, it flares once
 
 ## Boundaries
 
-Fire owns Burning and Ignition. Acid erodes defences; Blood owns wounds; Mucus owns sticky control; Static owns chains; Force owns impact; Soul owns Possessed.
+Fire owns Burning and Ignition. Acid erodes defences; Blood owns wounds; Mucus owns sticky control; Static owns chains; Force owns impact; Alien owns Possessed.

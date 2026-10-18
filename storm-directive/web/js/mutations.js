@@ -114,8 +114,8 @@ mutCard({ id: 't_static', title: 'Pass It On', icon: 'PI', type: 'static', famil
   desc: 'When Charged runs out, 30% chance it passes to the nearest enemy within 110, once.' });
 mutCard({ id: 't_blood', title: 'Bad Blood', icon: 'BB', type: 'blood', family: MUT_TF('blood'), color: MUT_COL.blood, rarity: 1, maxRank: 3, why: needType('blood', 'Blood'), flavour: 'Oh. That\'s going everywhere.',
   desc: 'Blood pools from bleeding deaths are 50% bigger and make enemies in them Bleed.' });
-mutCard({ id: 't_soul', title: 'Come Out of There', icon: 'CO', type: 'soul', family: MUT_TF('soul'), color: MUT_COL.soul, rarity: 2, maxRank: 3, why: needType('soul', 'Soul'), flavour: 'There\'s something inside! I want it.',
-  desc: 'An enemy killed with Soul build-up or Possessed may leave a wisp: heal 3% or +20% attack speed for 3 s.' });
+mutCard({ id: 't_soul', title: 'Come Out of There', icon: 'CO', type: 'soul', family: MUT_TF('soul'), color: MUT_COL.soul, rarity: 2, maxRank: 3, why: needType('soul', 'Alien'), flavour: 'There\'s something inside! I want it.',
+  desc: 'An enemy killed with Alien build-up or Possessed may leave a wisp: heal 3% or +20% attack speed for 3 s.' });
 mutCard({ id: 't_wires', title: 'Crossed Wires', icon: 'CW', family: 'mut:type:any', color: MUT_COL.rare, rarity: 2, start: true, flavour: 'Oh! They did a thing together!',
   desc: 'Every unstable reaction you have discovered hits 25% harder and comes round again in 1 s.' });
 
@@ -139,8 +139,8 @@ mutCard({ id: 'r_mess', title: 'Conductive Mess', icon: 'CM', family: MUT_RF, co
   desc: 'A Charged enemy in a blood pool Charges everyone else in that pool.' });
 mutCard({ id: 'r_closer', title: 'Come Closer', icon: 'CC', family: MUT_RF, color: MUT_COL.rare, rarity: 3, why: () => hasType('mucus') && hasType('force') ? '' : 'needs Mucus and Force', flavour: 'Closer! Closer! There you go.',
   desc: 'Snared enemies take +25% Force damage. A Force hit on one pulls other Snared enemies within 80 towards it.' });
-mutCard({ id: 'r_recycle', title: 'Death Is Recycling', icon: 'DR', family: MUT_RF, color: MUT_COL.rare, rarity: 3, why: needType('soul', 'Soul'), flavour: 'Nothing goes to waste. Not even the insides.',
-  desc: 'An enemy you kill with Soul releases a wisp that fills 25% of the nearest enemy\'s Soul bar.' });
+mutCard({ id: 'r_recycle', title: 'Death Is Recycling', icon: 'DR', family: MUT_RF, color: MUT_COL.rare, rarity: 3, why: needType('soul', 'Alien'), flavour: 'Nothing goes to waste. Not even the insides.',
+  desc: 'An enemy you kill with Alien releases a wisp that fills 25% of the nearest enemy\'s Alien bar.' });
 mutCard({ id: 'r_group', title: 'Group Project', icon: 'GP', family: MUT_RF, color: MUT_COL.rare, rarity: 3, start: true, why: () => ownedWeapons().length >= 2 ? '' : 'needs two weapons', flavour: 'You did it together! I knew you could.',
   desc: 'Two different weapons hitting the same enemy within 0.5 s: the second hit deals +30%.' });
 mutCard({ id: 'r_pains', title: 'Growing Pains', icon: 'GR', family: MUT_RF, color: MUT_COL.rare, rarity: 3, flavour: 'You grew! Everybody noticed!',
@@ -166,7 +166,7 @@ for (const id of Object.keys(FIGHT_RX)) {
 
 // ---------------------------------------------------------------- Concentration: a build-up bar fills faster / drains slower
 const MUT_CONC = { acid: ['Eaten Away', 'Corrosion fills 25% faster and drains 25% slower.', 'EA'], fire: ['Slow Burn', 'Burn fills 25% faster and drains 25% slower.', 'SB'],
-  soul: ['Thin Veil', 'The Soul bar fills 25% faster and drains 25% slower.', 'TV'], force: ['Off Balance', 'Poise fills 25% faster and drains 25% slower.', 'OB'] };
+  soul: ['Thin Veil', 'The Alien bar fills 25% faster and drains 25% slower.', 'TV'], force: ['Off Balance', 'Poise fills 25% faster and drains 25% slower.', 'OB'] };
 for (const t of Object.keys(MUT_CONC)) {
   const [title, desc, icon] = MUT_CONC[t];
   const c = {

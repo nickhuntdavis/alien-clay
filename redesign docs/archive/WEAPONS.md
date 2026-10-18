@@ -21,7 +21,7 @@ Rules: `COMBAT_MATRIX.md` section 13 (the six attack types), `MODIFIERS.md` (how
 | Static | 6 | 2 | 8 |
 | Mucus | 6 | 3 | 9 |
 | Blood | 6 | 4 | 10 |
-| Soul | 6 | 4 | 10 |
+| Alien | 6 | 4 | 10 |
 | Fire | 6 | 6 | 12 |
 | **All** | **42** | **26** | **68** |
 
@@ -64,12 +64,12 @@ Rules: `COMBAT_MATRIX.md` section 13 (the six attack types), `MODIFIERS.md` (how
 | M28 | Bloodbath | Blood | Burst | Releases a concentrated burst of blood damage around the target. Things have escalated. |  |
 | M29 | Bloodline | Blood | Beam | Channels a stream of blood damage into enemies along its path. Family resemblance is not required. |  |
 | M30 | Blood Pool | Blood | Pool | Leaves a damaging slick of blood on the ground. Someone will have to mop that up. |  |
-| M31 | Spirit Slap | Soul | Contact | Strikes nearby enemies with a spectral blow. A little soul-searching by force. |  |
-| M32 | Ghost Load | Soul | Projectile | Fires a slow spirit orb that damages its first target. Something to believe in. |  |
-| M33 | Soul Scatter | Soul | Spread | Fires spectral shards across a wide fan. A little piece of you goes a long way. |  |
-| M34 | Soul Purpose | Soul | Burst | Releases a spectral shockwave around the impact point. At last, some direction in life. | The Force + Soul reaction was renamed Out-of-Body Experience to free the name (matrix decision 29) |
-| M35 | Wraith Ray | Soul | Beam | Channels soul energy along a focused beam. Straight through to the other side. |  |
-| M36 | Haunted Ground | Soul | Pool | Creates a spectral field that damages enemies inside it. The dead are not known for respecting boundaries. |  |
+| M31 | Spirit Slap | Alien | Contact | Strikes nearby enemies with a spectral blow. A little soul-searching by force. |  |
+| M32 | Ghost Load | Alien | Projectile | Fires a slow spirit orb that damages its first target. Something to believe in. |  |
+| M33 | Soul Scatter | Alien | Spread | Fires spectral shards across a wide fan. A little piece of you goes a long way. |  |
+| M34 | Soul Purpose | Alien | Burst | Releases a spectral shockwave around the impact point. At last, some direction in life. | The Force + Alien reaction was renamed Out-of-Body Experience to free the name (matrix decision 29) |
+| M35 | Wraith Ray | Alien | Beam | Channels alien energy along a focused beam. Straight through to the other side. |  |
+| M36 | Haunted Ground | Alien | Pool | Creates a spectral field that damages enemies inside it. The dead are not known for respecting boundaries. |  |
 | M37 | Hot Touch | Fire | Contact | Strikes nearby enemies and sets them alight. You should have called first. |  |
 | M38 | Hot Shot | Fire | Projectile | Fires a fireball that ignites its target. A burning ambition. |  |
 | M39 | Cinderblast | Fire | Spread | Fires burning sparks across a wide fan. A brief but meaningful relationship with fire. |  |
@@ -81,12 +81,12 @@ Rules: `COMBAT_MATRIX.md` section 13 (the six attack types), `MODIFIERS.md` (how
 
 | # | Weapon (code id) | Damage type | Attack type | Signature | Status |
 | --- | --- | --- | --- | --- | --- |
-| S1 | Premature Evangelation (`orbit`) | Soul | Contact, orbiting | Guardian angels circle you; their swats build Possessed; some eat bullets | Proposed |
+| S1 | Premature Evangelation (`orbit`) | Alien | Contact, orbiting | Guardian angels circle you; their swats build Possessed; some eat bullets | Proposed |
 | S2 | Nappy Mines (`mines`) | Acid | Burst, delayed detonation | Proximity mines dropped behind you; each blast leaves an Acid Pool | Proposed |
 | S3 | Pub Crawl (`wake`) | Fire | Pool, trail | You shed a boozy trail as you swim; it burns | Proposed |
-| S4 | Peekaboo (`peekaboo`) | Soul | Burst | You vanish; enemies search the empty spot and hit each other; then BOO applies Fear | Proposed |
+| S4 | Peekaboo (`peekaboo`) | Alien | Burst | You vanish; enemies search the empty spot and hit each other; then BOO applies Fear | Proposed |
 | S5 | Black Hole (`void`, "Toddler Gravity") | Force | Projectile, slow, gravity well | A slow orb that warps space: pulls enemies in and bends shots; orbs merge; five merged go supernova | Proposed |
-| S6 | Tapeworm Seeder (`parasite`) | Soul | Projectile | Infected enemies rise after death and fight for you | Proposed |
+| S6 | Tapeworm Seeder (`parasite`) | Alien | Projectile | Infected enemies rise after death and fight for you | Proposed |
 | S7 | Red Tape (`redtape`) | Mucus | Projectile | Tapes a target to its neighbours; damage to one is shared with the bundle | Proposed |
 | S8 | Due Date (`duedate`) | Blood | Projectile | A countdown mark; when it ends the target takes 40% of everything it took while marked | Proposed |
 | S9 | Leeches (`leeches`) | Blood | Contact, summoned | Leeches latch on and feed; a little comes back to you as health | Proposed |
@@ -94,7 +94,7 @@ Rules: `COMBAT_MATRIX.md` section 13 (the six attack types), `MODIFIERS.md` (how
 | S11 | Lard Lobber (`lard`) | Force | Burst | Knocked enemies bowl into their mates: STRIKE | Proposed |
 | S12 | Placental Siphon (`siphon`) | Force | Projectile | Eats enemy bullets near you and fires them back | Proposed |
 | S13 | Bubble Wand (`bubble`) | Mucus | Projectile | Bubbles trap small enemies; anything touching a bubble pops it | Proposed |
-| S14 | Tooth Fairy (`toothfairy`) | Soul | Burst | Drops teeth; greedy enemies swim to them and get smitten | Proposed |
+| S14 | Tooth Fairy (`toothfairy`) | Alien | Burst | Drops teeth; greedy enemies swim to them and get smitten | Proposed |
 | S15 | Upchuck (`upchuck`) | Acid | Pool | Lobbed sick puddles; touching puddles merge into a bigger one | Proposed |
 | S16 | Heartburn (`flamer`) | Fire | Spread, cone | Two streams of reflux; each droplet comes back and hits again on the way home | Draft |
 | S17 | Hot and Bothered (new) | Fire | Burst, around you | A wave of heat off your body every 4 s; bigger and hotter the lower your health | Draft (new) |
@@ -121,7 +121,7 @@ Strongest candidates to bring back next: **Static Hairbrush** and **Lightning Bu
 | Morning Sickness (`venom`) | Acid | Lobbed Acid puddles: overlaps Upchuck and the matrix Acid Pool |
 | Placenta Paddle (`paddle`) | Force | Candidate: big sweeping Force Contact; overlaps Nutcracker |
 | Colouring In (`crayon`) | Force | Parked: needs loops that autorun does not draw |
-| Imaginary Friend (`friend`) | Soul | Parked: copies your weapons, hard to bound |
+| Imaginary Friend (`friend`) | Alien | Parked: copies your weapons, hard to bound |
 | Baby Rattle (`rattle`) | Force | Covered by the matrix Force Burst |
 | Little Swimmers (`swimmers`) | Force | Candidate: pets that headbutt (Force) |
 | Gut Punch (`gutpunch`) | Acid | Covered by the matrix Acid Contact; its stun now comes from Poise |
@@ -138,7 +138,7 @@ Strongest candidates to bring back next: **Static Hairbrush** and **Lightning Bu
 | Butter Knife (`butterknife`) | Oil (retired) | Oil (retired); its greasy smear has no new equivalent |
 | Head Lice (`lice`) | Oil (retired) | Oil (retired); hopping critters would use the pets rule |
 | Paper Cut (`papercut`) | Blood | Candidate: many tiny bleeding cuts (Blood Contact); overlaps Bloodletter |
-| Spirit Fingers (`spiritfingers`) | Soul | Covered by the matrix Soul Contact (Spirit Slap) |
+| Spirit Fingers (`spiritfingers`) | Alien | Covered by the matrix Alien Contact (Spirit Slap) |
 | Waters Breaking (`waters`) | Water (retired) | Water (retired); a push-away burst the matrix Force Burst covers |
 | Bath Bomb (`bathbomb`) | Water (retired) | Water (retired) |
 | Sea Monkeys (`seamonkeys`) | Water (retired) | Water (retired); critters would use the pets rule |
@@ -155,5 +155,5 @@ Each sample in `SAMPLES.md` starts with the matrix weapon for its primary damage
 | The Family Friend | Acid | Projectile | Acid Spit (M8) |
 | The Cold Parcel | Mucus | Pool (trail) | Snot Trap (M24), laid as a trail |
 | The Unsolicited | Fire | Spread | Cinderblast (M39) |
-| The Unaccounted | Soul | Burst | Soul Purpose (M34) |
-| The Other Half | Fire, Soul, Static (shifting) | Beam | Flame Jet (M41), Wraith Ray (M35) or Blue Screen (M17), changing every 20 s |
+| The Unaccounted | Alien | Burst | Soul Purpose (M34) |
+| The Other Half | Fire, Alien, Static (shifting) | Beam | Flame Jet (M41), Wraith Ray (M35) or Blue Screen (M17), changing every 20 s |

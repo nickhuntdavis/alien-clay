@@ -28,7 +28,7 @@ const GLOSSARY = [
   [/\bpairing/i, 'Pairing', 'Two weapons that work better together just by both being yours.'],
   [/\btwist/i, 'Combo twist', 'A combo whose weapons are not on their usual damage types also gets an effect from its new pair of damage types.'],
   [/\b(modifier|mod slot)/i, 'Modifier', 'Installs into one weapon (three slots each) and changes how its shots behave.'],
-  [/\bswitched at birth|damage type/i, 'Damage type', 'Force, Acid, Mucus, Static, Cooties, Oil, Water, Blood or Soul. Each leaves a status on what it hits, and two different ones set off an unstable reaction.'],
+  [/\bswitched at birth|damage type/i, 'Damage type', 'Force, Acid, Mucus, Static, Cooties, Oil, Water, Blood or Alien. Each leaves a status on what it hits, and two different ones set off an unstable reaction.'],
   [/\breaction/i, 'Reaction', 'An unstable reaction: one damage type landing on an enemy that already carries another\'s status. See the Field Guide for all of them.'],
   [/\bmount/i, 'Weapon mount', 'A slot for a weapon. You get three a run, plus up to two from combos.'],
   [/\belite/i, 'Elite', 'A tougher version of an enemy that drops a loot box.'],

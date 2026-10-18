@@ -5,7 +5,7 @@
 //    feats10.js when it registers them (s10UniqueFeat); until then a sample starts with no Feat.
 //  - Built-in defence: only Ordered Online (20% Evasion, no Genome slot; its Evasion card is not offered).
 //  - Unlocks in order (SAMPLES.md): wave 10, recover from under 10% to full, beat the dish, a Mythical box, survive
-//    a big hazard, a Soul killing blow on a boss, beat Level 1. META.s10 holds unlocked ids; developer mode unlocks all.
+//    a big hazard, an Alien killing blow on a boss, beat Level 1. META.s10 holds unlocked ids; developer mode unlocks all.
 //  - The sample screen: pick a sample, then an Experiment (only #001 The Race for now: S10_PETRI hides the Petri Dish).
 //  - Three starters each (w24Starters); S10_ALL opens every sample for testing; shield flag for pdef.js (s10Shield); Not of This World
 //    shifts w.typeOver on its weapons (read by fight.js fightHit).
@@ -36,9 +36,9 @@ const SAMPLES10 = [
     sci: 'Sample {id} was discovered outside the laboratory. The door was locked. Eleven minutes of footage are missing.', unlock: { txt: 'Survive one of the slide\'s rare big hazards.' } },
   { id: 'prawn', name: 'Prawn Again', origin: 'Impossible', types: ['soul', 'blood'], passive: 'Collateral Memory',
     pdesc: 'Enemies it Possesses make their old friends Bleed.', line: 'There you are. You were here before. Keep going. The ending is different this time.',
-    sci: 'Sample {id} was not introduced to the slide. The count is correct. No amendment is required.', unlock: { txt: 'Land a boss\'s killing blow with Soul damage.', secret: true } },
+    sci: 'Sample {id} was not introduced to the slide. The count is correct. No amendment is required.', unlock: { txt: 'Land a boss\'s killing blow with Alien damage.', secret: true } },
   { id: 'alien', name: 'Not of This World', origin: 'Extraterrestrial', types: ['fire', 'soul', 'static'], passive: 'Adaptive Biology',
-    pdesc: 'Its weapons shift between Fire, Soul and Static every 20 seconds.', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
+    pdesc: 'Its weapons shift between Fire, Alien and Static every 20 seconds.', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
     sci: 'Sample {id} has responded to the target. The target has not yet been introduced.', unlock: { txt: 'Beat the campaign\'s furthest level.' }, shift: ['flame', 'soul', 'shock'], shield: true },
 ];
 for (const s of SAMPLES10) s.weapons = w24Starters(s.id); // (the sample's three starters: weapons24.js)
@@ -118,7 +118,7 @@ function s10Hit(e, src, res, t) {
   if (S.id === 'redtail' && t === 'static' && res.statusOk && !e.dead) burnAdd(fightCd(e), res.raw);
   if (S.id === 'prawn' && src.fromAlly && res.toHp > 0 && !e.dead) fightStatus(e, 'arcane', res.raw, src);
 }
-// A boss's killing blow with Soul (fight.js fightDeath).
+// A boss's killing blow with Alien (fight.js fightDeath).
 function s10Kill(e, src) { if ((e.boss || e.bossDef) && src && src.elem === 'soul') s10Unlock('prawn'); }
 
 // ---------------------------------------------------------------- the sample screen (v10Samples)

@@ -62,7 +62,7 @@ Finite physical plating. Each layer takes a fixed amount off every physical hit,
 | --- | --- |
 | Repeated small physical hits (Spread pellets, Beam ticks) | Acid (Corrosion strips layers fast) |
 | Rapid, low-damage attackers | Heavy Force hits (knock a layer off at once) |
-| Physical damage generally | Heat, Burning, Bleed ticks, Soul build-up and control |
+| Physical damage generally | Heat, Burning, Bleed ticks, Alien build-up and control |
 
 ---
 

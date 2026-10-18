@@ -72,7 +72,7 @@ const ELEM_HEX = {
   oxi: ['#d99a2b', '#f2c879', '#8a5a14'], // Oil: amber
   salt: ['#3d8bff', '#9cc3ff', '#cfe2ff'], // Water: deep blue
   arcane: ['#c9184a', '#800f2f', '#6a0d25', '#f25c78', '#ff758f', '#a4133c', '#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'], // (blood reds, and the old purples other things still use)
-  soul: ['#bff4ff', '#e8fbff', '#8fdcff'], // Soul: ghostly pale blue
+  soul: ['#bff4ff', '#e8fbff', '#8fdcff'], // Alien: ghostly pale blue
 };
 const STATIC_HEX = { '#9ef0ff': '#9fb0ff' }; // (a pale blue the dodge text and stamina ring use: always coloured)
 const ELEM_OF = new Map();
@@ -1649,7 +1649,7 @@ function render() {
   // (A crowd: common enemies drop their halo and surface detail, and status effects draw as a single tint.)
   const lod = (QUAL.lv >= 1 && G.enemies.length > 60) || G.enemies.length > 80;
   STATUS_LOD = lod;
-  for (const e of G.enemies) if (vis(e) && !e.egg) { if (e.ghost) { typeGhostUnder(e); const ga = ctx.globalAlpha; ctx.globalAlpha = ga * (0.45 + 0.1 * Math.sin(G.realT * 5 + e.id)); drawEnemy(e, lod); ctx.globalAlpha = ga; } else drawEnemy(e, lod); } // (Soul ghosts are see-through: chem.js)
+  for (const e of G.enemies) if (vis(e) && !e.egg) { if (e.ghost) { typeGhostUnder(e); const ga = ctx.globalAlpha; ctx.globalAlpha = ga * (0.45 + 0.1 * Math.sin(G.realT * 5 + e.id)); drawEnemy(e, lod); ctx.globalAlpha = ga; } else drawEnemy(e, lod); } // (Alien ghosts are see-through: chem.js)
   ctx.globalAlpha = 1;
 
   drawTracks(vis);

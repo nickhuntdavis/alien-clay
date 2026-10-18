@@ -263,11 +263,11 @@
 - **Pin Cushion** (B): each shot is a volley of 8 needles, each homing on a different enemy.
 - **Coup de Grace** (C): any enemy under 25% health hit by a needle dies (elites under 12%; bosses take ×3 instead).
 
-## 9. Rent Free (Soul, Projectile)
+## 9. Rent Free (Alien, Projectile)
 **A. Ghost Through: pass through the crowd.**
 - Lv 3: passes through up to 4 enemies; each one after the first takes 20% less.
 - Lv 6, pick one:
-  - every enemy it passes through gains Soul build-up, so a long line fills several bars at once.
+  - every enemy it passes through gains Alien build-up, so a long line fills several bars at once.
   - when the ghost reaches full range it fades and re-forms at the start of its path, flying the same line again once.
   - Wildcard, **Nine-Tenths of the Law**: a Possessed enemy fires Rent Free shots at its mates.
 - Costs: −15% damage to the first target. Shows: the ghost visibly passes through bodies, leaving a faint wisp in each. Modes: KITE lines pursuers up.
@@ -281,7 +281,7 @@
 - Costs: the shot is 30% slower. Shows: a translucent ghost reversing along its trail. Modes: ORBIT keeps enemies on both legs of the path.
 
 **C. Unfinished Business: they come back for their friends.**
-- Lv 3: an enemy hit but not killed carries a haunting mark for 3 s; if it dies while marked, its spirit bursts out (radius 70, 60% damage, Soul build-up).
+- Lv 3: an enemy hit but not killed carries a haunting mark for 3 s; if it dies while marked, its spirit bursts out (radius 70, 60% damage, Alien build-up).
 - Lv 6, pick one:
   - the burst also marks the enemies it hits (depth 2).
   - instead of bursting, the spirit of an elite or big enemy fights for you for 4 s (pets rule 12.3).
@@ -289,7 +289,7 @@
 - Costs: −20% direct damage. Shows: a pale wisp orbiting marked enemies, then a ghostly puff on death. Modes: HUNT tags a big target; COLLECT enjoys the bursts.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
-- **Mass Possession** (A, C): every hit fills half a Soul bar, and Possession lasts twice as long.
+- **Mass Possession** (A, C): every hit fills half an Alien bar, and Possession lasts twice as long.
 - **Poltergeist** (A, B): ghosts never stop at a target: they wander for 6 s, hitting everything they touch (6 at most).
 - **Ghost Army** (C): each kill by Rent Free raises a ghost that fires Rent Free shots for 5 s (pets rule 12.3).
 
@@ -357,9 +357,9 @@
 - **Spaghettification** (A): enemies at the centre take ×4 damage and are swallowed whole under 30% health (not bosses).
 - **Wormhole** (B): orbs come in linked pairs: an enemy pulled into one is shot out of the other at speed, hitting whatever it meets.
 
-## 12. Peekaboo (Soul, Burst, Fear)
+## 12. Peekaboo (Alien, Burst, Fear)
 **A. Peek-a-Boom: punish the bait.**
-- Lv 3: your false position explodes in a Soul burst (radius 90) when enemies reach it.
+- Lv 3: your false position explodes in an Alien burst (radius 90) when enemies reach it.
 - Lv 6, pick one:
   - the burst's size grows with the number of enemies that reached the spot.
   - the false position stays for 4 s after you reappear and goes off a second time.
@@ -384,7 +384,7 @@
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
 - **Object Permanence** (B, C): you vanish twice as often, and the BOO reaches the whole screen.
-- **Mass Hysteria** (C): the BOO also fills the Soul bar of up to 5 enemies at once, so they are Possessed.
+- **Mass Hysteria** (C): the BOO also fills the Alien bar of up to 5 enemies at once, so they are Possessed.
 - **Now You See Me** (A, B): you are hidden 3 s out of every 4; every reappearance is a BOO.
 
 ## 13. Soulmate Signal (Static, Beam, anchored)
@@ -417,7 +417,7 @@
 - **Psychic Link** (B): every 1.5 s a pulse runs along every beam for 300%, tagged Poise so it can interrupt.
 - **Conjoined Twins** (B): your twin is fused beside you: one beam straight ahead at ×4 damage and three times the range. No more sweeping.
 
-## 14. Eggs (Soul, Burst, lures)
+## 14. Eggs (Alien, Burst, lures)
 **A. Nest Egg: bait makes more bait.**
 - Lv 3: every enemy smitten lays an egg of its own.
 - Lv 6, pick one:
@@ -447,7 +447,7 @@
 - **Clutch** (A, B): up to 12 eggs on the ground at once, scattered all round you.
 - **Possession Fee** (B): every smite Possesses the victim at once (bosses take ×3 instead).
 
-## 15. Chest Burster (Soul, Projectile)
+## 15. Chest Burster (Alien, Projectile)
 **A. The Family Business: a durable army.**
 - Lv 3: undead last 12 s (from 6) and deal +50%.
 - Lv 6, pick one:
@@ -465,9 +465,9 @@
 - Costs: undead last 4 s and deal 30% less. Shows: worm marks spreading enemy to enemy. Modes: ORBIT keeps the fight tightly packed for infection.
 
 **C. Dead Useful: an army of ammunition.**
-- Lv 3: undead explode in a Soul burst (radius 70) when they expire or are killed.
+- Lv 3: undead explode in an Alien burst (radius 70) when they expire or are killed.
 - Lv 6, pick one:
-  - the burst adds Soul build-up to everything it hits.
+  - the burst adds Alien build-up to everything it hits.
   - you can detonate your undead early: every 8 s, all undead rush the densest cluster and burst on arrival.
   - Wildcard, **Gut Feeling**: infected enemies flash red just before they attack.
 - Costs: undead deal 50% less in melee. Shows: undead shambling into crowds and popping. Modes: HUNT points them at a big target.
