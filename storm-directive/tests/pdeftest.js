@@ -64,7 +64,7 @@ const { chromium } = require('playwright');
     if (shooter.hp < hpS) bad.push('Thorns hit a shooter');
     if (!(G.fst.pThorns > 0)) bad.push('pThorns stat');
     // Level-up offer: Switched at Birth + 2 different defence cards; maxed ones are not offered.
-    fresh(); genLoot({ kind: 'start' })[0].apply();
+    fresh(); { let st; do st = genLoot({ kind: 'start' }); while (st.every(o => o.def.sig)); st.find(o => !o.def.sig).apply(); } // (a signature starter has no Switched at Birth card, so the draft is a card short)
     let withDef = 0;
     for (let i = 0; i < 30; i++) { // (one shared draft now: draft.js; defence cards are one family among several)
       const lv = genLoot({ kind: 'level' }), defs = lv.filter(o => o.tag === 'DEFENCE');
@@ -77,7 +77,7 @@ const { chromium } = require('playwright');
     G.pd.n.shell = 0; G.pd.n.thick = 0; G.pd.n.squishy = 0; G.pd.n.evasion = 1; G.pd.n.fast = 1; G.pd.n.thorns = 1; G.pd.n.shell = 1; // four held: no fifth kind
     for (let i = 0; i < 10; i++) { const ids = pdefOffer(6).map(o => o.defence); if (ids.includes('squishy') || ids.includes('thick')) { bad.push('slots full but new card offered: ' + ids); break; } }
     // The card renders and applies through the real loot screen.
-    fresh(); genLoot({ kind: 'start' })[0].apply(); G.lootQueue.length = 0;
+    fresh(); { let st; do st = genLoot({ kind: 'start' }); while (st.every(o => o.def.sig)); st.find(o => !o.def.sig).apply(); } // (a signature starter has no Switched at Birth card, so the draft is a card short) G.lootQueue.length = 0;
     UI.openLoot({ kind: 'level', v10ok: true }); const nCards = document.querySelectorAll('#lootCards .card').length;
     if (nCards !== 3) bad.push('loot screen shows ' + nCards + ' cards');
     const di = UI.lootOpts.findIndex(o => o.defence); const dk = UI.lootOpts[di].defence; UI.lootOpts[di].apply();

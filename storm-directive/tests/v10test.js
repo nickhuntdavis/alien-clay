@@ -21,7 +21,7 @@ const { chromium } = require('playwright');
     if (ids.length !== 42) bad.push('weapons: ' + ids.length);
     const st = genLoot({ kind: 'start' });
     if (st.length !== 4 || st.some(o => !o.def.v10)) bad.push('start draft: ' + st.map(o => o.title));
-    st[0].apply();
+    { let s2 = st; while (s2.every(o => o.def.sig)) s2 = genLoot({ kind: 'start' }); s2.find(o => !o.def.sig).apply(); } // (a signature starter has no Switched at Birth card)
     const w0 = G.weapons.find(Boolean);
     const lv = genLoot({ kind: 'level' });
     if (lv.length !== 3) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title)); // (one draft: draft.js)
