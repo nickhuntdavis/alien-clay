@@ -1,4 +1,4 @@
-## 2026-10-18 The new eight samples in code: three starters each, Race only
+## 2026-10-18 The new eight samples in code: three starters each, Race only (v10.09)
 - Systems: samples, weapons, ui
 - Files: samples10.js, feats10.js, mutations.js, fight.js, game.js, ui.js, tests/samplestest.js, tests/ufeatstest.js, tests/v10test.js, tests/voicetest.js
 - What: Samples are now Baseline, Alpha, Beta, Private Schooled, Ordered Online (Mucus / Fire), Redtail, Prawn Again and Not of This World, with ids baseline, alpha, beta, private, ordered, redtail, prawn, alien (old over, late, friend, parcel, unsol, unacc, other migrated). The first draft offers the sample's three starters (w24Starters); the other two stay in the pool. Not of This World shifts a per-slot type (w.typeOver) every 20 s instead of swapping weapons. All samples are open (S10_ALL, unlock rules kept). The Experiment picker and quick start use only the Race (S10_PETRI hides the Petri Dish). Private Schooled and Not of This World carry shield: true (s10Shield()).
