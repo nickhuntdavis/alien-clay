@@ -1,3 +1,11 @@
+## 2026-10-18 Modifier cards with ranks; Switched at Birth back for every weapon (v10.21)
+- Systems: modifiers, draft, damage types
+- Files: modcards.js (new), modifiers.js, draft.js, index.html, tests/modcardtest.js (new), tests/modstest.js, tests/run.sh
+- What: the 20 v10 modifiers (Notion v10+ rows) are now level-up draft cards for a weapon whose attack type fits: 3 different a weapon (one Delivery), and taking one again ranks it up to Rank 3 with bigger numbers (more jumps, bounces, bodies, pets and so on). Switched at Birth is offered again for all 24 weapons, signatures included: a random weapon gets a random other damage type and keeps its level, upgrade branch, modifiers and mutations; the card is Rare and never turns up two drafts running. Mutations already matched the Notion v10+ rows, so they are unchanged. No old v9 modifiers or mutations added.
+- Save data: none (run state only: w.m10 may now hold 3 copies of any modifier; G.draftN, G.sabAt).
+- Hooks: draft.js draftCards -> modDraftCands (replaces the v10Switch line while modcards.js loads); draft.js groupW gains mod.
+- Risk: draft share shifts (a new mod group at weight 1.1, plus Switched at Birth at 0.6). Signature weapons switched to another type may still show some old-type effects their sigFire hard-codes. Branch ccr-caa43b42 (Soul renamed Alien) touches damage types: merge order matters for card text only.
+
 ## 2026-10-18 Sandbox HUD: kills, kills a second, DPS (v10.19)
 - Systems: sandbox
 - Files: sandbox.js

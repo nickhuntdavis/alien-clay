@@ -162,10 +162,16 @@ p('Offered at weapon level 3. Which three a weapon is offered is fixed per weapo
 [[3, [1]]].forEach(([lvl, tiers]) => { p(`### Lv ${lvl} pool`); p(''); p('| Upgrade | Effect |'); p('|---|---|');
   for (const k of Object.values(D.PERKS).filter(k => tiers.includes(k.tier))) p(`| **${esc(k.name)}** | ${esc(k.desc)} |`); p(''); });
 p('## Modifiers'); p('');
-p(`Slot into one weapon (${D.MOD_SLOTS} per weapon). Power by rarity: ${D.RARITIES.map((r, i) => `${r.name} x${D.MOD_POWER[i]}`).join(', ')}. Values below are at Common. "Projectile only" means guns and other shot-firing weapons.`); p('');
-p('| Modifier | Effect (Common) | Effect (Legendary) | Fits |'); p('|---|---|---|---|');
-for (const m of Object.values(D.MODS)) p(`| **${m.name}** | ${esc(m.desc(1))} | ${esc(m.desc(D.MOD_POWER[4]))} | ${m.kinds ? 'Projectile only' : 'Any weapon'} |`);
-p('');
+{ // v10 modifiers (modifiers.js MODS10) and their ranks (modcards.js MODUP)
+  const cut = (f, from) => { const t = fs.readFileSync(J + f, 'utf8'); const i = t.indexOf(from); return t.slice(i, t.indexOf('\n};\n', i) + 4); };
+  const mc = { }; vm.createContext(mc);
+  vm.runInContext(cut('modifiers.js', 'const MOD_ALL') + cut('modcards.js', 'const MODUP') + ';globalThis.M = { MODS10, MODUP };', mc);
+  const ATK = { contact: 'Contact', proj: 'Projectile', spread: 'Spread', burst: 'Burst', beam: 'Beam', pool: 'Pool' };
+  p('Level-up cards for one weapon whose attack type fits. A weapon holds up to 3 different modifiers, and only one Delivery modifier. Taking one again ranks it up, to Rank 3. **Switched at Birth** (a Rare card, never two level-ups running) changes a random weapon to a random other damage type; it keeps its level, upgrades and modifiers.'); p('');
+  p('| Modifier | Effect | Rank 2 | Rank 3 | Fits |'); p('|---|---|---|---|---|');
+  for (const [id, m] of Object.entries(mc.M.MODS10)) p(`| **${esc(m.name)}**${m.group ? ' (Delivery)' : ''} | ${esc(m.desc)} | ${esc((mc.M.MODUP[id] || [])[0])} | ${esc((mc.M.MODUP[id] || [])[1])} | ${m.atk.map(a => ATK[a]).join(', ')} |`);
+  p('');
+}
 p('## Duo combos'); p('');
 p('| Combo | Modifiers | Bonus |'); p('|---|---|---|');
 for (const d of D.DUOS) p(`| **${d.name}** | ${D.MODS[d.a].name} + ${D.MODS[d.b].name} | ${esc(d.desc)} |`);
