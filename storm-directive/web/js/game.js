@@ -1369,6 +1369,7 @@ function eBullet(x, y, a, speed, dmg, r, color) {
   G.bulSeq = ((G.bulSeq || 0) + 1) % BUL.keep.length;
   if (!BUL.keep[G.bulSeq]) return;
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
+  if (V10 && !(shooterEnt && shooterEnt.rival)) dmg *= V10_DIFF.bullet; // (bullets read the def's damage, so V10_DIFF.dmg never reached them; rivals have their own knob: boss10.js)
   speed *= (1 + Math.min(0.7, PT() / 1500)) * G.P.bulletSpeed * G.evm.bulspd * heatBullet();
   G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt, pel: pstElem(shooterEnt) }); // (a typed bullet: pstatus.js)
   // A boss opening fire flares up.

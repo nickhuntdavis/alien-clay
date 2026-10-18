@@ -1,3 +1,11 @@
+## 2026-10-18 Enemy bullets get the v10 damage cut
+- Systems: enemies, difficulty
+- Files: game.js, boss10.js
+- What: enemy and boss bullets read their damage from the enemy def, so V10_DIFF.dmg never reached them (bullets were 45 to 69% of damage taken in run logs). New V10_DIFF.bullet (0.6) applies in eBullet; rival bullets keep their own knob.
+- Save data: none.
+- Hooks: game.js eBullet -> V10_DIFF.bullet (one line).
+- Risk: easier race; tuning pending a 6-run sim.
+
 ## 2026-10-18 Race fixes from a run log: XP pull, weapon slots at Lv 5/12, gentler death stare, branches in the log (v10.12)
 - Systems: pickups, draft, bosses, run log
 - Files: game.js, data.js, bosses.js, meta.js, draft.js, tests/drafttest.js, tests/sim/race.js

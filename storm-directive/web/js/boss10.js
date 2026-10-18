@@ -15,7 +15,7 @@ const BOSS10_TEXT = {
 };
 const BOSS10_SUMMON_CAP = 8;
 // v10 difficulty: v9's enemy curve was tuned for v9's much bigger builds. Tune here (sim target: 20 to 50% bot wins).
-const V10_DIFF = { hp: 0.65, dmg: 0.6, bossHp: 0.45, rival: 0.45, terrain: 0.5 };
+const V10_DIFF = { hp: 0.65, dmg: 0.6, bossHp: 0.45, rival: 0.45, terrain: 0.5, bullet: 0.6 }; // (bullet: enemy and boss bullets, game.js eBullet)
 
 if (typeof V10 !== 'undefined' && V10 && typeof ROSTER_BOSSES !== 'undefined') {
   for (const B of BOSSES) {
