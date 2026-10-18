@@ -978,6 +978,7 @@ const UI = {
         UI.pickLoot(i);
       });
       phButtons(c, o);
+      if (V10) draftBanishBtns(c, o); // (Banish and Fewer like this: draft.js)
       wrap.appendChild(c);
     });
     if (UI.lootReq && UI.lootReq.rule === 'recycler' && UI.lootOpts.some(o => o.locked)) wrap.appendChild(weirdRecycleList(UI.lootReq));

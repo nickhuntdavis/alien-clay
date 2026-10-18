@@ -139,7 +139,7 @@ function v10Switch() {
     const nid = v10Id(t, o.w.def.v10atk), def = WEAPONS[nid];
     return { def, rarity: 0, tag: 'SWITCHED AT BIRTH', icon: def.icon, color: def.color, elem: t, title: `${o.w.def.name} → ${def.name}`,
       sub: `${ELEMENTS[t].name} | ${V10_ATK[def.v10atk].label}`, desc: def.desc,
-      apply: () => { const i = G.weapons.indexOf(o.w); if (i >= 0) { G.weapons[i] = makeSlot(nid, false, 1); recomputeAll(); } } };
+      apply: () => { const i = G.weapons.indexOf(o.w); if (i >= 0) { const n = makeSlot(nid, false, o.w.lvl); n.m10 = o.w.m10; n.wm10 = o.w.wm10; G.weapons[i] = n; setWeaponLevel(n, o.w.lvl, 1); recomputeAll(); /* (keeps its level, modifiers and weapon mutations) */ } } };
   });
 }
 

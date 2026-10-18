@@ -217,3 +217,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: more upgrades per run in wave mode. Bot sims (3 runs): deaths at waves 8, 5, 8 (was 4 to 5).
+
+## 2026-10-18 Banish on draft cards; Switched at Birth keeps the weapon's level
+- Systems: draft, ui, v10
+- Files: draft.js, ui.js, v10.js
+- What: draft cards carry two small buttons: Fewer like this (1 reroll: that family half as often) and Banish (2 rerolls: gone for the run); the screen then redraws. Switched at Birth now keeps the weapon's level, modifiers and weapon mutations instead of resetting it to Lv 1.
+- Save data: none (G.banish, G.fewer are run state).
+- Hooks: ui.js renderLootCards -> draftBanishBtns.
+- Risk: none.
