@@ -273,7 +273,7 @@ const SCHOOL_ST = {
     task: () => 'DRAG TO THE EDGE TO SPRINT' },
   feat: {
     enter(R) {
-      if (!G.spells.some(Boolean)) { G.spells[0] = makeSlot('frostnova', true, 1); recomputeAll(); if (typeof UI !== 'undefined') UI.refreshHud(true); tutShow('feats', true); }
+      if (!G.spells.some(Boolean)) { if (V10 && typeof f10Give === 'function') f10Give('brown_fat'); else G.spells[0] = makeSlot('frostnova', true, 1); recomputeAll(); if (typeof UI !== 'undefined') UI.refreshHud(true); tutShow('feats', true); }
       schoolSay('A Feat: a big move in its own slot (bottom right). It goes off by itself when ready, or tap it to perform it now. Attacking Feats cost stamina.');
       R.casts = G.stats.casts || 0;
       schoolFoes(R, ['crawler', 'crawler', 'crawler', 'crawler', 'crawler', 'crawler'], R.A.rect, 300);

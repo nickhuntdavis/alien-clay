@@ -24,19 +24,19 @@ function loadoutCombos() {
   const rows = [], lv = id => (owned(id) || {}).lvl || 0, mine = new Set(G.weapons.filter(Boolean).map(w => w.id));
   const need = (id, L) => { const o = owned(id); return o ? (o.lvl >= L ? `${WEAPONS[id].name} ready` : `${WEAPONS[id].name} Lv ${o.lvl}/${L}`) : `${WEAPONS[id].name} (not owned)`; };
   const prog = (ids, L) => ids.reduce((a, id) => a + Math.min(1, lv(id) / L), 0) / ids.length;
-  for (const c of COMBOS) {
+  for (const c of wl_combos()) {
     if (!mine.has(c.a) && !mine.has(c.b)) continue;
     const on = !!(G.combo && G.combo[c.id]);
     rows.push({ kind: 'COMBO', name: c.name, on, p: on ? 2 : prog([c.a, c.b], COMBO_LEVEL), need: on ? 'Fused' : [need(c.a, COMBO_LEVEL), need(c.b, COMBO_LEVEL)].join(' + '), desc: c.desc, col: '#ff3df2' });
   }
-  if (typeof SUPERS !== 'undefined') for (const s of SUPERS) {
+  if (typeof SUPERS !== 'undefined') for (const s of wl_supers()) {
     const ws = superWeapons(s);
     if (!ws.some(id => mine.has(id))) continue;
     const on = superOn(s.id), known = META.supers && META.supers[s.id];
     const combos = [s.x, s.y].map(id => (G.combo && G.combo[id] ? '' : 'needs ' + COMBO_BY[id].name)).filter(Boolean);
     rows.push({ kind: 'SUPER', name: known || on ? s.name : '???', on, p: on ? 2 : prog(ws, SUPER_LEVEL) * 0.9, need: on ? 'Fused' : (combos.length ? combos.join(', ') + '; ' : '') + `all ${ws.length} weapons Lv ${SUPER_LEVEL}+`, desc: known || on ? s.desc : 'A secret. Fuse both combos and find out.', col: SUPER_COLOR });
   }
-  for (const q of PAIRINGS) {
+  for (const q of wl_pairs()) {
     if (!mine.has(q.a) && !mine.has(q.b)) continue;
     const on = !!(G.pair && G.pair[q.id]), known = META.pairs && META.pairs[q.id];
     rows.push({ kind: 'PAIRING', name: known ? q.name : '???', on, p: on ? 2 : prog([q.a, q.b], PAIR_LEVEL), need: on ? 'Active' : [need(q.a, PAIR_LEVEL), need(q.b, PAIR_LEVEL)].join(' + '), desc: known ? q.desc : 'A secret. Try it.', col: PAL.upgrade });

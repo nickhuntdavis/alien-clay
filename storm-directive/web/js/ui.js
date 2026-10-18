@@ -576,7 +576,7 @@ const UI = {
     }
     // Combos: always shown, so you know what to build towards.
     if (!w.isSpell) {
-      const cs = COMBOS.filter(c => c.a === w.id || c.b === w.id);
+      const cs = wl_combos().filter(c => c.a === w.id || c.b === w.id);
       if (cs.length) {
         h += `<div class="sec"><h3>Combos</h3><p class="hint">Get both weapons to Lv ${COMBO_LEVEL}+ and a COMBO card turns up in your next box: both keep firing, they gain a new power, and (twice a run) you get a bonus weapon mount.</p><div class="list">`;
         for (const c of cs) {
@@ -588,7 +588,7 @@ const UI = {
     }
     // Pairings: secret until found once (on any run).
     if (!w.isSpell) {
-      const ps = PAIRINGS.filter(q => q.a === w.id || q.b === w.id);
+      const ps = wl_pairs().filter(q => q.a === w.id || q.b === w.id);
       if (ps.length) {
         h += `<div class="sec"><h3>Pairings</h3><p class="hint">Own both weapons at Lv ${PAIR_LEVEL}+ and they start working together.</p><div class="list">`;
         for (const q of ps) {
@@ -1203,7 +1203,7 @@ const UI = {
       : `<em>Rank ${r}${next ? ` | ${fmtNum(kills)}/${fmtNum(next)} kills to Rank ${r + 1}` : ' (max)'}</em>`;
     const syn = PROFILE_SYNERGIES.filter(q => q.a === id || q.b === id).map(q => `${esc(PROFILES[q.a === id ? q.b : q.a].name)}: ${esc(q.name)}`).join('; ');
     return `<b>${esc(Pr.name)}</b> <span class="brole">${esc(Pr.trait.toUpperCase())}</span><br><span>${esc(Pr.desc)} ${open ? esc(capFirst(Pr.fmt(profK(id, true)))) + ' as your Primary.' : ''}</span><br>${prog}`
-      + (opts && opts.full ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">As your Primary it evolves at ${esc(evolveText(id))}.</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
+      + (opts && opts.full && SEQ_ABILITY[id] ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">As your Primary it evolves at ${esc(evolveText(id))}.</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
   },
   openSamples() {
     if (V10) return v10Samples(); // (v10 test build: one sample, v10.js)
@@ -1264,20 +1264,20 @@ const UI = {
   // ---------------------------------------------------------------- Field Guide (from the pause menu, or the title screen between runs)
   codexHtml() {
     const run = !!G, cyan = PAL.upgrade, sec = UI.codexSec || 'all', box = (title, inner, hint) => `<div class="sec"><h3>${title}</h3>${hint ? `<p class="hint">${hint}</p>` : ''}${inner}</div>`;
-    const wids = Object.keys(WEAPONS), used = wids.filter(id => META.wstats[id]);
-    const pf = PAIRINGS.filter(q => META.pairs[q.id]), qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
+    const wids = wl_wids(), used = wids.filter(id => wl_stat(id));
+    const pf = wl_pairs().filter(q => META.pairs[q.id]), qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
     const beasts = Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length;
     const met = Object.keys(META.bosses).length, rel = Object.keys(RELICS).filter(id => META.relics[id]);
-    const pids = Object.keys(PROFILES), pu = pids.filter(profUnlocked), mids = Object.keys(MUTATIONS), mf = mids.filter(id => META.muts[id]);
-    const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts, all = wids.length + PAIRINGS.length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + Object.keys(ENEMY_INTRO).length;
+    const pids = wl_profiles(), pu = pids.filter(profUnlocked), mids = Object.keys(MUTATIONS), mf = mids.filter(id => META.muts[id]);
+    const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts, all = wids.length + wl_pairs().length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + Object.keys(ENEMY_INTRO).length;
     let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>FIELD GUIDE COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
-      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length}</span><span>Pairings ${pf.length}/${PAIRINGS.length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
+      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${wl_combos().filter(c => META.combos && META.combos[c.id]).length}/${wl_combos().length}</span><span>Pairings ${pf.length}/${wl_pairs().length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
     h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['weapons', 'WEAPONS'], ['feats', 'FEATS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
     const show = id => sec === 'all' || sec === id;
     if (show('weapons')) {
       let l = '';
       for (const id of wids) {
-        const d = WEAPONS[id], r = META.wstats[id], own = run && G.weapons.some(w => w && w.id === id);
+        const d = WEAPONS[id], r = wl_stat(id), own = run && G.weapons.some(w => w && (w.sid || w.id) === id);
         l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, r ? elemCol(d.elem) : '#ffffff40')}</span><div><b style="color:${r ? 'inherit' : '#ffffff80'}">${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</span><br><span>${esc(d.play || d.desc)}</span><br><em>${r ? `${r.runs} run${r.runs > 1 ? 's' : ''}, born ${r.born}, best Lv ${r.best}` : 'Never taken into a run.'}</em></div></div>`;
       }
       h += box(`Weapons (${used.length}/${wids.length} used)`, `<div class="list">${l}</div>`, 'Every weapon in the fridge. Take one into a run to log it.');
@@ -1286,38 +1286,39 @@ const UI = {
       // Every Feat: what it costs, what it does, and its two Lv 4 paths.
       let l = '';
       for (const id in SPELLS) {
+        if (!wl_feat(id)) continue;
         const d = SPELLS[id], own = run && G.spells.some(w => w && w.id === id), F = SPELL_FORKS[id];
         const cost = d.passive ? 'performs itself, ' + d.base.cd + 's cooldown' : STAM_FEATS.has(id) ? 'stamina' : d.base.cd + 's cooldown';
         const seq = d.seqOnly && PROFILES[d.seqOnly] ? ` (${esc(PROFILES[d.seqOnly].name)} only)` : '';
         l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, elemCol(d.elem))}</span><div><b>${esc(d.name)}</b> <span class="brole">${esc(ELEMENTS[d.elem].name.toUpperCase())}, ${cost}${seq}</span><br><span>${esc(d.desc)}</span>${F ? `<br><span class="hint">Lv ${SPELL_FORK_LV}: <b>${esc(F[0].name)}</b> (${esc(F[0].desc)}) or <b>${esc(F[1].name)}</b> (${esc(F[1].desc)})</span>` : ''}</div></div>`;
       }
-      h += box(`Feats (${Object.keys(SPELLS).length})`, `<div class="list">${l}</div>`, 'Every Feat in the Tackle Box. Attacking Feats are paid for in stamina; the rest wait on a cooldown.');
+      h += box(`Feats (${Object.keys(SPELLS).filter(wl_feat).length})`, `<div class="list">${l}</div>`, 'Every Feat in the Tackle Box. Attacking Feats are paid for in stamina; the rest wait on a cooldown.');
     }
     if (show('genes')) {
       h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, `<div class="list">${pids.map(id => `<div class="li ${run && genesOn(id) ? 'on' : ''}">${UI.profileHtml(id, { full: true })}</div>`).join('')}</div>`, 'Pick your Primary Sequence after choosing a sample, before a run.');
-      h += box('Sequence synergies', `<div class="list">${PROFILE_SYNERGIES.map(q => `<div class="li ${run && synOn(q.a, q.b) ? 'on' : ''}"><b>${esc(q.name)}</b><br><span>${esc(PROFILES[q.a].name)} + ${esc(PROFILES[q.b].name)}: ${esc(q.desc)}</span></div>`).join('')}</div>`);
+      if (!wl_on()) h += box('Sequence synergies', `<div class="list">${PROFILE_SYNERGIES.map(q => `<div class="li ${run && synOn(q.a, q.b) ? 'on' : ''}"><b>${esc(q.name)}</b><br><span>${esc(PROFILES[q.a].name)} + ${esc(PROFILES[q.b].name)}: ${esc(q.desc)}</span></div>`).join('')}</div>`);
     }
     if (show('muts')) {
       h += box(`Mutations found (${mf.length}/${mids.length})`, `<div class="list">${mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')}</div>`, 'They come from skipping a sequence splice, and from stashes hidden in campaign levels: pick one of four.');
     }
     if (show('pairs')) {
       let lc = '';
-      for (const c of COMBOS) {
+      for (const c of wl_combos()) {
         const known = META.combos && META.combos[c.id], on = run && G.combo && G.combo[c.id];
         const seqOf = id => { const k = Object.keys(PROFILES).find(p => PROFILES[p].weapons.includes(id)); return k ? SEQ_LOOK[k].short : 'Wildcard'; };
         const sa = seqOf(c.a), sb = seqOf(c.b);
         lc += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b>${on ? ' (FUSED)' : known ? '' : ' (not fused yet)'}<br><span>${esc(WEAPONS[c.a].name)} + ${esc(WEAPONS[c.b].name)} (${sa === sb ? esc(sa) : esc(sa) + ' + ' + esc(sb) + ', needs a splice'}): ${esc(c.desc)}</span></div>`;
       }
-      h += box(`Combos fused (${COMBOS.filter(c => META.combos && META.combos[c.id]).length}/${COMBOS.length})`, `<div class="list">${lc}</div>`, `Get both weapons to Lv ${COMBO_LEVEL}+ and the game stops to fuse them. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
+      h += box(`Combos fused (${wl_combos().filter(c => META.combos && META.combos[c.id]).length}/${wl_combos().length})`, `<div class="list">${lc}</div>`, `Get both weapons to Lv ${COMBO_LEVEL}+ and the game stops to fuse them. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
       // Super combos: the recipe shows, the name and power stay secret until you fuse one.
-      const sl = SUPERS.map(s => { const known = META.supers && META.supers[s.id], on = run && superOn(s.id); return `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? SUPER_COLOR : 'inherit'}">${known ? esc(s.name) : '???'}</b>${on ? ' (FUSED)' : ''}<br><span>${esc(COMBO_BY[s.x].name)} + ${esc(COMBO_BY[s.y].name)}${known ? ': ' + esc(s.desc) : '. What it does is a secret.'}</span></div>`; }).join('');
-      h += box(`Super combos (${SUPERS.filter(s => META.supers && META.supers[s.id]).length}/${SUPERS.length})`, `<div class="list">${sl}</div>`, `Fuse both combos, then get every weapon in them to Lv ${SUPER_LEVEL}+, and the two combos fuse again. Hardly anyone sees these.`);
+      const sl = wl_supers().map(s => { const known = META.supers && META.supers[s.id], on = run && superOn(s.id); return `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? SUPER_COLOR : 'inherit'}">${known ? esc(s.name) : '???'}</b>${on ? ' (FUSED)' : ''}<br><span>${esc(COMBO_BY[s.x].name)} + ${esc(COMBO_BY[s.y].name)}${known ? ': ' + esc(s.desc) : '. What it does is a secret.'}</span></div>`; }).join('');
+      h += box(`Super combos (${wl_supers().filter(s => META.supers && META.supers[s.id]).length}/${wl_supers().length})`, `<div class="list">${sl}</div>`, `Fuse both combos, then get every weapon in them to Lv ${SUPER_LEVEL}+, and the two combos fuse again. Hardly anyone sees these.`);
       let l = '';
-      for (const q of PAIRINGS) {
+      for (const q of wl_pairs()) {
         const known = META.pairs[q.id], on = run && G.pair && G.pair[q.id];
         l += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? cyan : 'inherit'}">${known ? esc(q.name) : '???'}</b>${on ? ' (ACTIVE)' : ''}<br><span>${known ? esc(WEAPONS[q.a].name) + ' + ' + esc(WEAPONS[q.b].name) + ': ' + esc(q.desc) : 'Two weapons, both Lv ' + PAIR_LEVEL + '+. Nobody has told you which.'}</span></div>`;
       }
-      h += box(`Pairings found (${pf.length}/${PAIRINGS.length})`, `<div class="list">${l}</div>`);
+      h += box(`Pairings found (${pf.length}/${wl_pairs().length})`, `<div class="list">${l}</div>`);
     }
     if (show('secrets')) {
       let l = '';
@@ -1391,11 +1392,11 @@ const UI = {
       const ws = META.wstats[id];
       return `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
     };
-    h += `</div><div class="sec"><h3>Epigenetic Profiles</h3><p class="hint">Your Primary Sequence (chosen just before a run) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Firstborn')}</b>. Ranks come from kills, unlocks from what you do across all your runs.</p><div class="list">${Object.keys(PROFILES).map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join('')}</div>`;
-    h += `</div><div class="sec"><h3>Wildcard weapons</h3><p class="hint">Every weapon belongs to one sequence, and only that sequence can draft it. Unlock one here and it becomes a wildcard: any sequence can draft it, and one is offered at the start of every run.</p>`;
-    h += META_STARTERS.filter(([id]) => !WEAPONS[id] || !WEAPONS[id].toy).map(starterRow).join('');
-    h += `<h3 style="margin-top:12px">Toys</h3><p class="hint">The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.</p>`;
-    h += META_STARTERS.filter(([id]) => WEAPONS[id] && WEAPONS[id].toy).map(starterRow).join('');
+    h += `</div><div class="sec"><h3>Epigenetic Profiles</h3><p class="hint">Your Primary Sequence (chosen just before a run) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Firstborn')}</b>. Ranks come from kills, unlocks from what you do across all your runs.</p><div class="list">${wl_profiles().map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join('')}</div>`;
+    if (wl_starters(META_STARTERS).length) h += `</div><div class="sec"><h3>Wildcard weapons</h3><p class="hint">Every weapon belongs to one sequence, and only that sequence can draft it. Unlock one here and it becomes a wildcard: any sequence can draft it, and one is offered at the start of every run.</p>`;
+    h += wl_starters(META_STARTERS).filter(([id]) => !WEAPONS[id] || !WEAPONS[id].toy).map(starterRow).join('');
+    if (wl_starters(META_STARTERS).length) h += `<h3 style="margin-top:12px">Toys</h3><p class="hint">The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.</p>`;
+    h += wl_starters(META_STARTERS).filter(([id]) => WEAPONS[id] && WEAPONS[id].toy).map(starterRow).join('');
     h += `</div><div class="sec"><h3>Swimmer skins</h3><p class="hint">One for every run you win (${META_DYES.filter(d => META.dyes[d.id]).length} of ${META_DYES.length}). They can't be bought.</p>`;
     for (const d of META_DYES) {
       const owned = META.dyes[d.id], on = META.dye === d.id;
