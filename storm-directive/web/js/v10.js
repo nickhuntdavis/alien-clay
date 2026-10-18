@@ -15,7 +15,7 @@
 
 const V10 = !(typeof window !== 'undefined' && window.V10_OFF);
 
-ELEMENTS.flame = { name: 'Fire', color: '#ff6a2a', status: 'burning', blurb: 'Sets things alight. Burning enemies take damage for a few seconds after the hit. Fire does not make every surface explode.' };
+ELEMENTS.flame = { name: 'Fire', color: TYPE_PAL.flame, status: 'burning', blurb: 'Sets things alight. Burning enemies take damage for a few seconds after the hit. Fire does not make every surface explode.' };
 
 PROFILES.human1 = { name: 'Human Sample 1', trait: 'None', fmt: () => 'no trait', apply: () => {},
   desc: 'One sample, one swimmer, no history. For testing.', weapons: [] };
@@ -39,7 +39,7 @@ const V10_ATK = {
 };
 const V10_ATKS = Object.keys(V10_ATK);
 const V10_TYPES = ['phys', 'fire', 'shock', 'ice', 'arcane', 'soul', 'flame'];
-const V10_COL = { phys: '#e8eef8', fire: '#c6ff3d', shock: '#ffe94a', ice: '#a8b84a', arcane: '#c9184a', soul: '#bff4ff', flame: '#ff6a2a' };
+const V10_COL = Object.assign({}, TYPE_PAL); // (look10.js)
 
 const V10_NAMES = {
   phys: {

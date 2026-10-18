@@ -93,8 +93,8 @@ Object.assign(FOE_AI, {
       e.dmg = 0; e.zapT -= dt;
       if (e.zapT <= 0) {
         e.crk = 0; e.zapRT = G.realT;
-        if (Math.hypot(p.x - e.x, p.y - e.y) < e.r + p.r + 14) { bolt(e.x, e.y, p.x, p.y, '#ffe94a', 0.2); hurtPlayer(e.nfD * NF.sockMult * G.evm.contact, e.name + ' zap', e, 'contact'); }
-        else floatText(e.x, e.y - e.r - 10, 'fizzle', '#ffe94a', 11, 0.6);
+        if (Math.hypot(p.x - e.x, p.y - e.y) < e.r + p.r + 14) { bolt(e.x, e.y, p.x, p.y, TYPE_PAL.shock, 0.2); hurtPlayer(e.nfD * NF.sockMult * G.evm.contact, e.name + ' zap', e, 'contact'); }
+        else floatText(e.x, e.y - e.r - 10, 'fizzle', TYPE_PAL.shock, 11, 0.6);
         e.dmg = e.nfD;
       }
       return { x: 0, y: 0, s: 0 };
@@ -213,7 +213,7 @@ function nfWindBurst(w) {
 // One Burst going off: Fire on every enemy in it (which sets Burning), a hit on you if you stand in it.
 function nfDetonate(b) {
   const p = me(), src = { elem: 'flame', atk: 'burst', noCrit: true, nfNoIgnite: !!b.noIgn, wname: b.by };
-  ring(b.x, b.y, b.r, '#ff6a2a', 0.4, 5); spawnPart(b.x, b.y, '#ff8a3a', 14, 180, 0.5, 3);
+  ring(b.x, b.y, b.r, TYPE_PAL.flame, 0.4, 5); spawnPart(b.x, b.y, '#ff8a3a', 14, 180, 0.5, 3);
   for (const o of G.enemies.slice()) {
     if (o.dead || o === b.owner || o.egg || (b.skipWind && nfAI(o) === 'new_trappedwind') || Math.hypot(o.x - b.x, o.y - b.y) > b.r + o.r) continue;
     damageEnemy(o, b.dmg, src);
@@ -316,15 +316,15 @@ function nfDraw() {
   ctx.globalAlpha = 1;
   for (const b of G.nfBurst || []) { // an area about to go off
     const k = 1 - b.t / b.max;
-    ctx.strokeStyle = '#ff6a2a'; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 22) ** 2; ctx.lineWidth = 2; ctx.setLineDash([6 * S, 5 * S]);
+    ctx.strokeStyle = TYPE_PAL.flame; ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 22) ** 2; ctx.lineWidth = 2; ctx.setLineDash([6 * S, 5 * S]);
     ctx.beginPath(); ctx.arc(sx(b.x), sy(b.y), b.r * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
-    ctx.globalAlpha = 0.12 + 0.2 * k; ctx.fillStyle = '#ff6a2a'; ctx.beginPath(); ctx.arc(sx(b.x), sy(b.y), b.r * k * S, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 0.12 + 0.2 * k; ctx.fillStyle = TYPE_PAL.flame; ctx.beginPath(); ctx.arc(sx(b.x), sy(b.y), b.r * k * S, 0, TAU); ctx.fill();
   }
   for (const e of G.enemies) {
     if (e.dead) continue;
     const x = sx(e.x), y = sy(e.y), ai = nfAI(e);
     if (e.nfSm) { // Smouldering elite: an ember glow
-      ctx.globalAlpha = 0.35 + 0.2 * Math.sin(now * 6 + e.id); ctx.strokeStyle = '#ff6a2a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, e.r * S + 7 * S, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = 0.35 + 0.2 * Math.sin(now * 6 + e.id); ctx.strokeStyle = TYPE_PAL.flame; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, e.r * S + 7 * S, 0, TAU); ctx.stroke();
       ctx.globalAlpha = 1; ctx.fillStyle = '#ff8a3a'; for (let i = 0; i < 3; i++) { const ph = (now * 0.8 + i / 3 + e.id) % 1; ctx.globalAlpha = 1 - ph; ctx.beginPath(); ctx.arc(x + Math.sin(e.id + i * 2) * e.r * S * 0.6, y - ph * e.r * S * 1.2, 1.8, 0, TAU); ctx.fill(); }
     }
     ctx.globalAlpha = 1;
@@ -338,10 +338,10 @@ function nfDraw() {
       ctx.globalAlpha = 0.1 + 0.18 * k; ctx.fillStyle = '#f2a65a'; ctx.beginPath(); ctx.arc(x, y, R.radius * S * k, 0, TAU); ctx.fill();
     } else if (ai === 'new_trappedwind' && e.windT > 0) {
       const k = 1 - e.windT / NF.burstWind.tele;
-      ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 25) ** 2; ctx.strokeStyle = '#ff6a2a'; ctx.lineWidth = 2; ctx.setLineDash([6 * S, 5 * S]); ctx.beginPath(); ctx.arc(x, y, NF.burstWind.r * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
-      ctx.globalAlpha = 0.1 + 0.2 * k; ctx.fillStyle = '#ff6a2a'; ctx.beginPath(); ctx.arc(x, y, NF.burstWind.r * S * k, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 25) ** 2; ctx.strokeStyle = TYPE_PAL.flame; ctx.lineWidth = 2; ctx.setLineDash([6 * S, 5 * S]); ctx.beginPath(); ctx.arc(x, y, NF.burstWind.r * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha = 0.1 + 0.2 * k; ctx.fillStyle = TYPE_PAL.flame; ctx.beginPath(); ctx.arc(x, y, NF.burstWind.r * S * k, 0, TAU); ctx.fill();
     } else if (ai === 'new_staticsock' && e.zapT > 0) { // the zap is about to land on whatever is in reach
-      ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 40) ** 2; ctx.strokeStyle = '#ffe94a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, (e.r + 26) * S, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 40) ** 2; ctx.strokeStyle = TYPE_PAL.shock; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, (e.r + 26) * S, 0, TAU); ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }
@@ -373,8 +373,8 @@ Object.assign(MICROBES, {
       ctx.fillStyle = 'rgba(30,36,32,0.45)'; for (let i = 0; i < 3; i++) ctx.fillRect(-r * 1.25 - i * r * 0.18, -r * 0.45, r * 0.1, r * 0.95); // ribbed cuff
       ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.arc(r * 0.85, -r * 0.1, r * 0.2, 0, TAU); ctx.fill(); // toe
     });
-    if (step >= 1) nfBolts(x, y, r, step * 2, e.id, full ? '#ffffff' : '#ffe94a');
-    if (full) { ctx.globalAlpha = 0.3 + 0.3 * Math.sin(G.realT * 30) ** 2; ctx.fillStyle = '#ffe94a'; ctx.beginPath(); ctx.arc(x, y, r * 1.2, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
+    if (step >= 1) nfBolts(x, y, r, step * 2, e.id, full ? '#ffffff' : TYPE_PAL.shock);
+    if (full) { ctx.globalAlpha = 0.3 + 0.3 * Math.sin(G.realT * 30) ** 2; ctx.fillStyle = TYPE_PAL.shock; ctx.beginPath(); ctx.arc(x, y, r * 1.2, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
     if (e.zapT > 0) { ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(x, y, r * 1.5, 0, TAU); ctx.stroke(); }
   },
   stressball(e, x, y, r) { // a squeezy ball: flattens a stage per Force hit, pips above show the count

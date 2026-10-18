@@ -19,7 +19,7 @@ const F10_SLOTS = V10 ? 3 : 2;
 const F10 = {};
 const F10_ORDER = [];
 const F10_INT = { force: 'phys', acid: 'fire', static: 'shock', mucus: 'ice', blood: 'arcane', soul: 'soul', fire: 'flame' };
-const F10_COL = { force: '#e8eef8', acid: '#ff2fa8', static: '#ffe94a', mucus: '#7fd04a', blood: '#c9184a', soul: '#b06cff', fire: '#ff6a2a', utility: '#cfe7ff' };
+const F10_COL = { force: TYPE_PAL.phys, acid: TYPE_PAL.fire, static: TYPE_PAL.shock, mucus: TYPE_PAL.ice, blood: TYPE_PAL.arcane, soul: TYPE_PAL.soul, fire: TYPE_PAL.flame, utility: '#cfe7ff' };
 
 const f10 = () => G.f10 || (G.f10 = { fx: [], hits: [], kills: [], hurtBy: [], xpT: [], lq: 0, tides: [], pulls: [] });
 // Later unlocks (FEATS.md 5) join the pool once META.f10unl lists them (the unlock system is future work); F10_ALL opens the lot (tests).

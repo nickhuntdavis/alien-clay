@@ -27,7 +27,7 @@ const PDEF = {
   slots: 4,               // Genome slots shared by defence cards (UPGRADES.md 5); a rank-up of a held card is free
 };
 const PDEF_ATK = { contact: 'contact', bullets: 'proj', blast: 'burst', thorns: 'burst' }; // everything else is Pool
-const PDEF_COL = { membrane: '#5aa9ff', shell: '#9a6b3f', miss: '#cfe7ff' };
+const PDEF_COL = { membrane: DEF_PAL.membrane, shell: DEF_PAL.shell, miss: '#cfe7ff' };
 
 // The defence cards. G.pd.n[id] = ranks held.
 const PDEF_CARDS = {
