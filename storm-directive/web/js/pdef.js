@@ -87,9 +87,9 @@ function pdefHurt(dmg, from, ent, kind) {
     if (!(D.missT > G.realT)) { D.missT = G.realT + 0.3; floatText(p.x, p.y - 24, 'miss', PDEF_COL.miss, 13, 0.5); fxParts('spark', p.x, p.y, PDEF_COL.miss, 5, 70, 0.3, 2); }
     return 0;
   }
-  // 2. Raw damage by type.
+  // 2. Raw damage by type (Charged: +20% Static).
   const types = pdefTypes(ent), left = {}, raw = dmg;
-  for (const t of types) left[t] = (left[t] || 0) + dmg / types.length;
+  for (const t of types) left[t] = (left[t] || 0) + dmg / types.length * (t === 'static' && D.chargeT > G.t ? 1.2 : 1);
   const amt = Object.assign({}, left);
   const sum = () => { let s = 0; for (const k in left) s += left[k]; return s; };
   const scale = f => { for (const k in left) left[k] *= f; };
@@ -134,7 +134,43 @@ function pdefHurt(dmg, from, ent, kind) {
     ring(p.x, p.y, p.r + 12, PDEF_COL.membrane, 0.3, 3);
     return 0;
   }
+  pdefStatus(D, amt, d);
   return d;
+}
+
+// ---------------------------------------------------------------- your statuses (matrix 11.5 "On the player")
+// A hit that got past the Membrane applies its damage types' statuses: Mucus Snares (55% slower, 1.5 s here, and it
+// puts out Burning), Blood Bleeds (30% of the hit over 3 s, 3 at most), Fire adds to one shared burn (20% of the
+// hit over 3 s, at most 25% of your max health held), Static Charges (3 s, +20% Static taken). Soul never Possesses you.
+function pdefStatus(D, amt, d) {
+  const P = PDEF_ST;
+  if (amt.mucus > 0) { D.snareT = G.t + P.snareT; D.burnPool = 0; D.burnT = 0; }
+  if (amt.blood > 0) { const b = D.bleeds || (D.bleeds = []); if (b.length >= 3) b.shift(); b.push({ dps: amt.blood * 0.3 / 3, t: 3 }); }
+  if (amt.fire > 0 && !(D.snareT > G.t)) { D.burnPool = Math.min(G.P.maxHp * P.burnCap, (D.burnPool || 0) + amt.fire * 0.2); D.burnT = 3; }
+  if (amt.static > 0) D.chargeT = G.t + 3;
+}
+const PDEF_ST = { snareT: 1.5, snareSlow: 0.45, burnCap: 0.25 };
+function pdefSpeed() { const D = G && G.pd; return D && D.snareT > G.t ? PDEF_ST.snareSlow : 1; }
+function pdefStatusDraw() { // your statuses, drawn on you like the enemies' (fight.js)
+  const D = G.pd; if (!D) return;
+  const p = G.player, x = sx(p.x), y = sy(p.y), r = p.r * S * 1.3, now = G.t;
+  ctx.save();
+  if (D.snareT > now) { ctx.strokeStyle = col('#7fd04a'); ctx.globalAlpha = 0.7; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y + r * 0.2, r * 1.2, r * 0.9, 0, 0, TAU); ctx.stroke(); }
+  if (D.bleeds && D.bleeds.length) { ctx.fillStyle = col('#c9184a'); ctx.globalAlpha = 0.9; for (let i = 0; i < D.bleeds.length; i++) { ctx.beginPath(); ctx.arc(x + (i - 1) * r * 0.4, y + r * 0.7 + ((now * 30 + i * 9) % 10) * S, 2 * S, 0, TAU); ctx.fill(); } }
+  if (D.burnT > 0) { ctx.fillStyle = col('#ff6a2a'); ctx.globalAlpha = 0.6 + 0.3 * Math.sin(now * 20); for (let i = 0; i < 3; i++) { const a = -Math.PI / 2 + (i - 1) * 0.6; ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * r * 0.9, y + Math.sin(a) * r * 0.9, 2.5 * S, (5 + 2 * Math.sin(now * 15 + i)) * S, a + Math.PI / 2, 0, TAU); ctx.fill(); } }
+  if (D.chargeT > now) { ctx.strokeStyle = col('#ffe94a'); ctx.globalAlpha = 0.9; ctx.lineWidth = 1.4; ctx.beginPath(); for (let i = 0; i < 2; i++) { const a = rand(0, TAU); ctx.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.lineTo(x + Math.cos(a + 0.3) * (r + 6 * S), y + Math.sin(a + 0.3) * (r + 6 * S)); } ctx.stroke(); }
+  ctx.restore();
+}
+// Bleed and burn ticks: they can kill you, like any other damage, but skip defences (damage over time).
+function pdefDot(d, name) {
+  const p = G.player;
+  if (!(d > 0) || G.state !== 'play' || (G.debug && G.debug.god)) return;
+  p.hp -= d; G.stats.lastHit = name; G.stats.hurt[name] = (G.stats.hurt[name] || 0) + d;
+  if (p.hp <= 0) { p.hp = 0; if (!genesLethal() && !boonSave() && !schoolSave() && !startRewind(true)) gameOver(); }
+}
+function pdefStatusTick(D, dt) {
+  if (D.bleeds && D.bleeds.length) { let d = 0; for (const b of D.bleeds) { d += b.dps * Math.min(dt, b.t); b.t -= dt; } D.bleeds = D.bleeds.filter(b => b.t > 0); pdefDot(d, 'Bleeding'); }
+  if (D.burnT > 0) { const k = Math.min(1, dt / D.burnT), d = D.burnPool * k; D.burnPool -= d; D.burnT -= dt; pdefDot(d, 'Burning'); if (D.burnT <= 0) D.burnPool = 0; }
 }
 
 // ---------------------------------------------------------------- each frame (v10.js v10Tick)
@@ -143,6 +179,7 @@ function pdefTick(dt) {
   const D = pdef(), m = D.mem;
   const mx = G.P.maxHp * pdMemFrac(D); // max health and Thicker Membrane move the capacity; keep the fill share
   if (Math.abs(mx - m.memMax) > 1e-6) { const k = m.memMax > 0 ? m.mem / m.memMax : 1; m.memMax = mx; m.maxHp = G.P.maxHp; m.mem = Math.min(mx, k * mx); }
+  pdefStatusTick(D, dt);
   tickDefence(m, dt * (1 + PDEF.fastStep * D.n.fast)); // (recharge and Corrosion drain, combat.js; Faster Recharge speeds both clocks)
   if (G.wave) { if (D.wave !== G.wave.n) { D.wave = G.wave.n; pdRefit(D); } }
   else if (G.t - D.shellT >= PDEF.shellRegrow) { D.shellT = G.t; pdRefit(D); }
@@ -151,6 +188,7 @@ function pdefTick(dt) {
 // ---------------------------------------------------------------- drawing (v10.js v10Draw, world space)
 function pdefDraw() {
   if (!G || G.state === 'over') return;
+  pdefStatusDraw();
   const D = pdef(), p = G.player, m = D.mem, x = sx(p.x), y = sy(p.y), now = G.t;
   const R = 24 * S * playerScale() * 1.45;
   ctx.save(); ctx.lineCap = 'round';

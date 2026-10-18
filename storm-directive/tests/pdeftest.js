@@ -83,6 +83,18 @@ const { chromium } = require('playwright');
     const di = UI.lootOpts.findIndex(o => o.defence); const dk = UI.lootOpts[di].defence; UI.lootOpts[di].apply();
     if (G.pd.n[dk] !== 1) bad.push('card apply');
     fresh(); G.pd.n.shell = 2; pdRefit(G.pd); for (let i = 0; i < 120; i++) update(1 / 60); pdefDraw(); // nothing throws in a live frame, draw included
+    // Your statuses from enemy damage types (matrix 11.5)
+    { G.pd = null; const D = pdef(); D.mem.mem = 0; const foeOf = t => ({ def: Object.assign({}, ENEMIES.crawler), maxHp: 100, x: G.player.x + 20, y: G.player.y });
+      const withType = (t, f) => { const keep = ROSTER.crawler.dmgType; ROSTER.crawler.dmgType = t; try { return f(); } finally { ROSTER.crawler.dmgType = keep; } };
+      ENEMIES.crawler && withType('mucus', () => pdefHurt(10, 'x', { def: ENEMIES.crawler, maxHp: 100 }, 'bullets'));
+      if (!(pdefSpeed() < 1)) bad.push('no player Snared');
+      D.mem.mem = 0; withType('blood', () => pdefHurt(30, 'x', { def: ENEMIES.crawler, maxHp: 100 }, 'bullets'));
+      if (!(D.bleeds && D.bleeds.length)) bad.push('no player Bleed');
+      D.snareT = 0; D.mem.mem = 0; withType('fire', () => pdefHurt(30, 'x', { def: ENEMIES.crawler, maxHp: 100 }, 'bullets'));
+      if (!(D.burnT > 0)) bad.push('no player burn');
+      G.state = "play"; const h = G.player.hp = 100; for (let i = 0; i < 60; i++) pdefTick(1 / 60); if (!(G.player.hp < h)) bad.push('player Bleed/burn did not tick');
+      D.mem.mem = D.mem.memMax; withType('blood', () => pdefHurt(1, 'x', { def: ENEMIES.crawler, maxHp: 100 }, 'bullets'));
+    }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

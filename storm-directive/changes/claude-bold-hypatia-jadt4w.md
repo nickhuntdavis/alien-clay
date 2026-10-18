@@ -233,3 +233,11 @@
 - Save data: none (w.m10 is run state).
 - Hooks: game.js fireWeapon -> modFire, spawnProj -> modProj, updateProjectiles -> modStep and modHit; arsenal.js meleeHit -> modMeleeHit; v10.js v10Fire -> modBeam and modBurstEnd, v10Tick -> modTick, v10Draw -> modDraw.
 - Risk: Summoned pets can't be hurt (simplified); balance numbers (orbit 0.6x, pet 0.8x, every-4th 2.5x) untuned.
+
+## 2026-10-18 Your statuses from enemy damage types
+- Systems: combat (pdef.js), engine
+- Files: pdef.js, game.js, pstatus.js, tests/pdeftest.js
+- What: an enemy hit that gets past your Membrane applies its damage type's status to you (matrix 11.5): Mucus Snares you (45% speed for 1.5 s, puts out Burning), Blood Bleeds (30% of the hit over 3 s, 3 at most), Fire burns (one shared burn, 20% of the hit over 3 s, at most 25% of max health held), Static Charges you (+20% Static taken for 3 s). Bleed and burn can kill. Each shows on you like on enemies. The old v9 player statuses (Snotty, Sick, Soaking wet, Lubricated) are off under V10.
+- Save data: none.
+- Hooks: game.js updatePlayer speed -> pdefSpeed (both speed lines); pstatus.js pstHit returns under V10.
+- Risk: enemy Mucus/Blood/Fire/Static hits hurt more than before; enemy damage types come from roster.js dmgType.
