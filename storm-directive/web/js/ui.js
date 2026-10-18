@@ -1483,6 +1483,7 @@ const UI = {
     if (!won) h = UI.killerHtml() + h;
     $('overBody').innerHTML = h;
     if (!won) UI.drawKiller();
+    if (typeof vxEnd === 'function') vxEnd(won); // (the Scientist and the consciousness: voice10.js)
     UI.show('over');
   },
   // Lost: whoever finished you off, big, close up and red, with a word for you.
@@ -1530,6 +1531,7 @@ const UI = {
     UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
     const dna = bankRun(G, false);
     $('overBody').innerHTML = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked</div>` + h;
+    if (typeof vxEnd === 'function') vxEnd(false); // (voice10.js)
     UI.show('over');
   },
   loadBest() { try { return JSON.parse(localStorage.getItem('sd_best') || '{}'); } catch (e) { return {}; } },

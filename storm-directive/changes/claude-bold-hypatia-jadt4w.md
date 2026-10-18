@@ -281,3 +281,11 @@
 - Save data: none.
 - Hooks: game.js makeSlot (id: def.sigOf || id, sid); v10.js v10Fire/v10Tick (sigwTick)/v10Draw (sigDraw)/v10Loot (v10Pool)/v10Switch; fight.js fightReact -> sigReact; sigs.js afterMine -> sigMine, bladeEats; toys.js toySrc/toyHurt echo, peekBoo, toothFire; armoury.js latch heal, Upchuck merge, bowling depth; arsenal.js Flail tip.
 - Risk: signature slots keep the OLD weapon id in w.id (w.sid is the s_ id); undead are stationary turrets; Placental Siphon fires back as Force.
+
+## 2026-10-18 The Scientist and the consciousness, wired (merged from agent-voice)
+- Systems: voice, ui, tutorials, narrator (show.js), combat
+- Files: voice10.js (new), voice.js (helper renames: its `W` clashed with game.js), index.html, show.js, v10.js, intro.js, bosses.js, fight.js, meta.js, ui.js, tests/voicetest.js (new)
+- What: under V10, run events produce Scientist and consciousness lines (at most one commentary line every 20 s, no repeats, Tier 2/3 lines followed by their recovery). Enemy and boss first sightings show one of their two lines. Statuses and defences get a one-line hint the first time they appear. The end screen shows the sample ID (1A, 1B...) and a Scientist line, plus the consciousness on a win. Spectral Combustion's first trigger gets the Tier 3 line.
+- Save data: META.vxSt, META.vxEv added; run log entries gain sid.
+- Hooks: show.js sysLine -> vxSysLine; v10.js v10Tick -> vxTick; intro.js startFoeIntro -> vxSight; bosses.js startBossIntro -> vxBossIntro; fight.js rxFired -> vxReaction, fightReact -> vxSpectral; ui.js showGameOver/showDishOver -> vxEnd; meta.js runSummary -> vxSid.
+- Risk: the old narrator's idle, level, boss, low-health and death chatter is silent under V10. Celestial drops never happen (weight 0), so that line has no trigger.

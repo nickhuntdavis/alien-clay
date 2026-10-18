@@ -146,7 +146,7 @@ function rxFired(id, e) {
   const S = fst(), R = FIGHT_RX[id];
   S.rx[id] = (S.rx[id] || 0) + 1;
   const seen = META.rxSeen || (META.rxSeen = []);
-  if (!seen.includes(id)) { seen.push(id); saveMeta(); floatText(e.x, e.y - e.r - 24, 'UNSTABLE REACTION: ' + R.name.toUpperCase(), R.color, 15, 2, true); }
+  if (!seen.includes(id)) { seen.push(id); saveMeta(); floatText(e.x, e.y - e.r - 24, 'UNSTABLE REACTION: ' + R.name.toUpperCase(), R.color, 15, 2, true); if (typeof vxReaction === 'function') vxReaction(id, seen.length === 1); }
   else floatText(e.x, e.y - e.r - 16, R.name, R.color, 11, 0.8);
 }
 const rxSrc = (id, elem, extra) => Object.assign({ elem, rx: id, noCrit: true, noArc: true, atk: 'burst', wname: FIGHT_RX[id].name }, extra || {});
@@ -257,7 +257,7 @@ function fightReact2(e, t, raw, src, res) {
   if ((t === 'soul' || t === 'fire') && f_burning(e) && f_possessed(e) && fightPairing() && !rxLocked(e, 'spectral')) {
     const first = !(META.rxSeen || []).includes('spectral');
     rxFired('spectral', e); e.charmT = 0.01; const c = fightCd(e); c.bars.fire = 0; fightPayoff(e, 'ignite', { raw }, src);
-    if (first) floatText(p.x, p.y - 60, 'Form 12B filed.', '#e8e2d6', 13, 3);
+    if (first && !(typeof vxSpectral === 'function' && vxSpectral())) floatText(p.x, p.y - 60, 'Form 12B filed.', '#e8e2d6', 13, 3);
   }
 }
 const fightNearest = (e, r) => { let best = null, bd = r; for (const o of G.enemies) { if (o.dead || o === e || o.charmed) continue; const d = Math.hypot(o.x - e.x, o.y - e.y); if (d < bd) { bd = d; best = o; } } return best; };
