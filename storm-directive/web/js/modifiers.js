@@ -13,31 +13,33 @@
 
 const MOD_ALL = ['contact', 'proj', 'spread', 'burst', 'beam', 'pool'];
 const MODS10 = {
-  homing:      { name: 'Homing', desc: 'Shots turn towards their target. If the target dies, they carry straight on. Evasion still applies.', atk: ['proj', 'spread'], max: 1, cap: { turn: 5 } },
+  homing:      { name: 'Homing', desc: 'Shots turn towards their target. If the target dies, they carry straight on. Evasion still applies.', atk: ['proj', 'spread'], max: 3, cap: { turn: [5, 7, 9] } },
   piercing:    { name: 'Piercing', desc: 'Shots carry on through enemies, losing 15% of their damage for each one passed.', atk: ['proj', 'spread'], max: 3, cap: { pierce: 6, cost: 0.15 } },
-  chaining:    { name: 'Chaining', desc: 'After a hit, the attack jumps to another enemy. Up to three jumps, each at 70% of the last.', atk: ['proj', 'contact'], max: 1, cap: { jumps: 3, range: 110, falloff: 0.7 } },
-  ricochet:    { name: 'Ricochet', desc: 'Shots bounce off walls, twice at most, and lose 20% of their damage each time.', atk: ['proj'], max: 1, cap: { bounces: 2, loss: 0.2 } },
-  returning:   { name: 'Returning', desc: 'Flies out, then comes back to you, hitting on the way out and on the way back.', atk: ['proj', 'spread'], max: 1, cap: { hits: 3 } },
-  orbiting:    { name: 'Orbiting', desc: 'Three bodies circle you and attack from there. They cannot be hit. They are not pets.', atk: ['contact', 'proj'], max: 1, group: 'delivery', cap: { radius: 72, bodies: 3 } },
-  delayed:     { name: 'Delayed Detonation', desc: 'The blast is placed, marked on the ground, and goes off later or when something steps near. Placed blasts expire after 14 seconds.', atk: ['burst'], max: 1, group: 'delivery', cap: { life: 14, placed: 6 } },
-  lobbed:      { name: 'Lobbed', desc: 'Travels in an arc over everything in the way and lands on a marked spot.', atk: ['burst', 'pool'], max: 1, group: 'delivery', cap: { flight: 0.6 } },
-  trail:       { name: 'Trail', desc: 'Lays a piece every 30 units you swim. Nothing is laid while you stand still. Forty pieces at most.', atk: ['pool'], max: 1, group: 'delivery', cap: { gap: 30, pieces: 40 } },
-  selfcentred: { name: 'Self-Centred', desc: 'Goes off around you rather than at a target. It never hurts you.', atk: ['burst', 'contact', 'spread'], max: 1, group: 'delivery', cap: {} },
-  sweep:       { name: 'Sweep', desc: 'The hit area moves across enemies. Each enemy is hit once per sweep.', atk: ['contact', 'beam'], max: 1, group: 'delivery', cap: { arc: 1.8 } },
-  anchored:    { name: 'Anchored Beam', desc: 'The beam joins you to the far side of the crowd instead of firing from you. It moves when either end moves.', atk: ['beam'], max: 1, group: 'delivery', cap: { range: 520 } },
-  volley:      { name: 'Rapid Volley', desc: 'Three shots in quick succession, then a pause.', atk: ['proj', 'spread'], max: 1, cap: { size: 3 } },
-  nth:         { name: 'Every Nth', desc: 'Every fourth attack is empowered. The build-up is shown over you.', atk: MOD_ALL, max: 1, cap: { n: 4, mult: 2.5 } },
-  growing:     { name: 'Growing', desc: 'Gets bigger and stronger with distance, time or hits, by up to double. Resets when the attack ends.', atk: ['proj', 'beam', 'pool', 'contact'], max: 1, cap: { size: 1 } },
-  scaling:     { name: 'Scaling', desc: 'Damage scales with one of your stats, at most doubled.', atk: MOD_ALL, max: 1, cap: { mult: 2 } },
-  multiplying: { name: 'Multiplying', desc: 'A shot that kills splits into two more at half damage. Split shots never split again. Twelve in flight at most.', atk: ['proj'], max: 1, cap: { split: 2, flight: 12 } },
-  summoned:    { name: 'Summoned', desc: 'The attack is delivered by pets. Four per weapon, eight in total.', atk: ['contact', 'proj'], max: 2, group: 'delivery', cap: { perWeapon: 4, total: 8 } },
-  gravity:     { name: 'Gravity Well', desc: 'Warps space round the attack: drags enemies towards its centre and bends shots passing through. Three wells at once at most.', atk: ['proj', 'burst', 'pool'], max: 1, cap: { wells: 3, bend: 0.785 } },
-  lunge:       { name: 'Lunge', desc: 'The attack moves you: forwards through a Contact target, backwards as recoil from Spread and Burst. Up to 160 units.', atk: ['contact', 'spread', 'burst'], max: 2, cap: { dist: 160, time: 0.25 } },
+  chaining:    { name: 'Chaining', desc: 'After a hit, the attack jumps to another enemy. Up to three jumps, each at 70% of the last.', atk: ['proj', 'contact'], max: 1, cap: { jumps: [3, 4, 5], range: [110, 125, 140], falloff: [0.7, 0.75, 0.8] } },
+  ricochet:    { name: 'Ricochet', desc: 'Shots bounce off walls, twice at most, and lose 20% of their damage each time.', atk: ['proj'], max: 3, cap: { bounces: [2, 3, 4], loss: [0.2, 0.15, 0.1] } },
+  returning:   { name: 'Returning', desc: 'Flies out, then comes back to you, hitting on the way out and on the way back.', atk: ['proj', 'spread'], max: 3, cap: { hits: [3, 4, 5], back: [1, 1.2, 1.4] } },
+  orbiting:    { name: 'Orbiting', desc: 'Three bodies circle you and attack from there. They cannot be hit. They are not pets.', atk: ['contact', 'proj'], max: 3, group: 'delivery', cap: { radius: 72, bodies: [3, 4, 5] } },
+  delayed:     { name: 'Delayed Detonation', desc: 'The blast is placed, marked on the ground, and goes off later or when something steps near. Placed blasts expire after 14 seconds.', atk: ['burst'], max: 3, group: 'delivery', cap: { life: 14, placed: [6, 8, 10], dmg: [1, 1.2, 1.4] } },
+  lobbed:      { name: 'Lobbed', desc: 'Travels in an arc over everything in the way and lands on a marked spot.', atk: ['burst', 'pool'], max: 3, group: 'delivery', cap: { flight: [0.6, 0.5, 0.4], area: [1, 1.15, 1.3] } },
+  trail:       { name: 'Trail', desc: 'Lays a piece every 30 units you swim. Nothing is laid while you stand still. Forty pieces at most.', atk: ['pool'], max: 3, group: 'delivery', cap: { gap: [30, 24, 18], pieces: [40, 50, 60] } },
+  selfcentred: { name: 'Self-Centred', desc: 'Goes off around you rather than at a target. It never hurts you.', atk: ['burst', 'contact', 'spread'], max: 3, group: 'delivery', cap: { dmg: [0.7, 0.85, 1], area: [1, 1.15, 1.3] } },
+  sweep:       { name: 'Sweep', desc: 'The hit area moves across enemies. Each enemy is hit once per sweep.', atk: ['contact', 'beam'], max: 3, group: 'delivery', cap: { arc: [1.8, 2.2, 2.6] } },
+  anchored:    { name: 'Anchored Beam', desc: 'The beam joins you to the far side of the crowd instead of firing from you. It moves when either end moves.', atk: ['beam'], max: 3, group: 'delivery', cap: { range: [520, 620, 720], width: [1, 1.2, 1.4] } },
+  volley:      { name: 'Rapid Volley', desc: 'Three shots in quick succession, then a pause.', atk: ['proj', 'spread'], max: 3, cap: { size: [3, 4, 5] } },
+  nth:         { name: 'Every Nth', desc: 'Every fourth attack is empowered. The build-up is shown over you.', atk: MOD_ALL, max: 3, cap: { n: [4, 3, 3], mult: [2.5, 2.5, 3.2] } },
+  growing:     { name: 'Growing', desc: 'Gets bigger and stronger with distance, time or hits, by up to double. Resets when the attack ends.', atk: ['proj', 'beam', 'pool', 'contact'], max: 3, cap: { size: [1, 1.5, 2] } },
+  scaling:     { name: 'Scaling', desc: 'Damage scales with one of your stats, at most doubled.', atk: MOD_ALL, max: 3, cap: { mult: [2, 2.5, 3] } },
+  multiplying: { name: 'Multiplying', desc: 'A shot that kills splits into two more at half damage. Split shots never split again. Twelve in flight at most.', atk: ['proj'], max: 3, cap: { split: [2, 3, 3], flight: [12, 16, 20], child: [0.5, 0.5, 0.6] } },
+  summoned:    { name: 'Summoned', desc: 'The attack is delivered by pets. Four per weapon, eight in total.', atk: ['contact', 'proj'], max: 3, group: 'delivery', cap: { pets: [2, 3, 4], total: 8 } },
+  gravity:     { name: 'Gravity Well', desc: 'Warps space round the attack: drags enemies towards its centre and bends shots passing through. Three wells at once at most.', atk: ['proj', 'burst', 'pool'], max: 3, cap: { wells: [3, 4, 5], r: [110, 135, 160], bend: 0.785 } },
+  lunge:       { name: 'Lunge', desc: 'The attack moves you: forwards through a Contact target, backwards as recoil from Spread and Burst. Up to 160 units.', atk: ['contact', 'spread', 'burst'], max: 3, cap: { dist: [160, 240, 320], time: 0.25 } },
 };
 
 // ---------------------------------------------------------------- API
 const modCount = (w, id) => (w && w.m10 ? w.m10.filter(x => x === id).length : 0);
 const modHas = (w, id) => modCount(w, id) > 0;
+// A modifier taken again ranks up (max 3). Per-rank numbers are arrays in cap: modV reads the one for w's rank.
+const modV = (w, id, k) => { const v = MODS10[id].cap[k]; return Array.isArray(v) ? v[Math.max(0, Math.min(v.length, modCount(w, id) || 1) - 1)] : v; };
 function modOk(w, id) {
   const m = MODS10[id], a = w && w.def && w.def.v10atk;
   if (!m || !a || !m.atk.includes(a) || modCount(w, id) >= m.max) return false;
@@ -58,17 +60,16 @@ function modScaleK(w) {
   if (!modHas(w, 'scaling')) return 1;
   const P = G.P, a = w.def.v10atk, st = a === 'contact' || a === 'burst' ? 'hp' : a === 'proj' || a === 'beam' ? 'speed' : 'missing';
   const k = st === 'hp' ? 1 + (P.maxHp - 120) / 240 : st === 'speed' ? 1 + (P.speed - 1) : 1 + (1 - G.player.hp / P.maxHp);
-  return clamp(k, 1, MODS10.scaling.cap.mult);
+  return clamp(k, 1, modV(w, 'scaling', 'mult'));
 }
 // One attack happens: count it for Every Nth, apply Scaling and Growing (contact) to its source.
 function modAtk(w, src) {
-  const c = MODS10.nth.cap;
   w.m10emp = false;
-  if (modHas(w, 'nth')) { w.m10n = (w.m10n || 0) + 1; if (w.m10n % c.n === 0) { w.m10emp = true; floatText(G.player.x, G.player.y - 40, 'EMPOWERED', w.def.color, 12, 0.5); } }
+  if (modHas(w, 'nth')) { w.m10n = (w.m10n || 0) + 1; if (w.m10n % modV(w, 'nth', 'n') === 0) { w.m10emp = true; floatText(G.player.x, G.player.y - 40, 'EMPOWERED', w.def.color, 12, 0.5); } }
   modAgain(w, src);
 }
 function modAgain(w, src) {
-  src.mult = (src.mult || 1) * (w.m10emp ? MODS10.nth.cap.mult : 1) * modScaleK(w) * (modHas(w, 'growing') && w.def.v10atk === 'contact' ? 1 + (w.m10gk || 0) : 1);
+  src.mult = (src.mult || 1) * (w.m10emp ? modV(w, 'nth', 'mult') : 1) * modScaleK(w) * (modHas(w, 'growing') && w.def.v10atk === 'contact' ? 1 + (w.m10gk || 0) : 1);
 }
 
 // ---------------------------------------------------------------- firing (game.js fireWeapon, before v10Fire)
@@ -81,7 +82,7 @@ function modFire(w, target, src) {
   if (fresh) modAtk(w, src); else modAgain(w, src);
   if (fresh && modHas(w, 'lunge') && target) modLunge(w, target);
   if (fresh && modHas(w, 'volley')) {
-    for (let i = 1; i < MODS10.volley.cap.size; i++) after(0.09 * i, () => {
+    for (let i = 1; i < modV(w, 'volley', 'size'); i++) after(0.09 * i, () => {
       if (!G || !G.weapons.includes(w)) return;
       const t = target && !target.dead ? target : acquire(aimDir(w), s.range, G.player.x, G.player.y);
       if (!t) return;
@@ -97,16 +98,16 @@ function modFire(w, target, src) {
 }
 
 function modSelf(w, src) {
-  const s = w.s, p = G.player, d = w.def, a = d.v10atk;
+  const s = w.s, p = G.player, d = w.def, a = d.v10atk, dk = modV(w, 'selfcentred', 'dmg'), ar = s.area * modV(w, 'selfcentred', 'area');
   if (a === 'burst') {
-    G.fx.push({ type: 'warn', x: p.x, y: p.y, r: s.area, color: d.color, life: s.delay, max: s.delay });
-    after(s.delay, () => { const q = G.player; aoe(q.x, q.y, s.area, s.dmg, src, d.color); modBurstEnd(w, q.x, q.y); });
+    G.fx.push({ type: 'warn', x: p.x, y: p.y, r: ar, color: d.color, life: s.delay, max: s.delay });
+    after(s.delay, () => { const q = G.player; aoe(q.x, q.y, ar, s.dmg, src, d.color); modBurstEnd(w, q.x, q.y); });
   } else if (a === 'contact') {
-    forNear(p.x, p.y, s.range, e => { if (!e.charmed) damageEnemy(e, s.dmg * 0.7, Object.assign({}, src, { kx: e.x - p.x, ky: e.y - p.y })); });
+    forNear(p.x, p.y, s.range, e => { if (!e.charmed) damageEnemy(e, s.dmg * dk, Object.assign({}, src, { kx: e.x - p.x, ky: e.y - p.y })); });
     ring(p.x, p.y, s.range, d.color, 0.3, 4);
   } else if (a === 'spread') {
     const n = Math.max(10, s.count * 2);
-    for (let i = 0; i < n; i++) spawnProj(w, p.x, p.y, i / n * TAU + rand(-0.05, 0.05), src, { dmg: s.dmg * 0.7 });
+    for (let i = 0; i < n; i++) spawnProj(w, p.x, p.y, i / n * TAU + rand(-0.05, 0.05), src, { dmg: s.dmg * dk });
   }
   return true;
 }
@@ -114,8 +115,8 @@ function modMine(w, target, src) {
   const S = modS(), s = w.s, d = w.def;
   if (!target) return true;
   const mine = S.mines.filter(m => m.w === w);
-  if (mine.length >= MODS10.delayed.cap.placed) modBlow(mine[0]);
-  S.mines.push({ x: target.x, y: target.y, w, src, life: MODS10.delayed.cap.life, arm: 0.4, r: s.area, dmg: s.dmg, color: d.color });
+  if (mine.length >= modV(w, 'delayed', 'placed')) modBlow(mine[0]);
+  S.mines.push({ x: target.x, y: target.y, w, src, life: MODS10.delayed.cap.life, arm: 0.4, r: s.area, dmg: s.dmg * modV(w, 'delayed', 'dmg'), color: d.color });
   return true;
 }
 function modBlow(m) {
@@ -123,15 +124,15 @@ function modBlow(m) {
   aoe(m.x, m.y, m.r, m.dmg, m.src, m.color); modBurstEnd(m.w, m.x, m.y);
 }
 function modLob(w, target, src) {
-  const S = modS(), p = G.player, d = w.def, s = w.s, fl = MODS10.lobbed.cap.flight;
+  const S = modS(), p = G.player, d = w.def, s = w.s, fl = modV(w, 'lobbed', 'flight');
   if (!target) return true;
-  G.fx.push({ type: 'warn', x: target.x, y: target.y, r: d.v10atk === 'pool' ? s.area : s.area, color: d.color, life: fl, max: fl });
+  G.fx.push({ type: 'warn', x: target.x, y: target.y, r: s.area * modV(w, 'lobbed', 'area'), color: d.color, life: fl, max: fl });
   if (d.v10atk === 'pool') G.proj.push({ lob: true, sx: p.x, sy: p.y, tx: target.x, ty: target.y, x: p.x, y: p.y, t: 0, flight: fl, w, src, color: d.color, dead: false });
-  else S.lobs.push({ sx: p.x, sy: p.y, tx: target.x, ty: target.y, x: p.x, y: p.y, t: 0, flight: fl, w, src, color: d.color });
+  else S.lobs.push({ sx: p.x, sy: p.y, tx: target.x, ty: target.y, x: p.x, y: p.y, t: 0, flight: fl, w, src, color: d.color, ak: modV(w, 'lobbed', 'area') });
   return true;
 }
 function modSweep(w, target, src) {
-  const s = w.s, p = G.player, d = w.def, a0 = target ? Math.atan2(target.y - p.y, target.x - p.x) : p.face, arc = MODS10.sweep.cap.arc, R = s.range;
+  const s = w.s, p = G.player, d = w.def, a0 = target ? Math.atan2(target.y - p.y, target.x - p.x) : p.face, arc = modV(w, 'sweep', 'arc'), R = s.range;
   p.face = a0;
   forNear(p.x, p.y, R, e => {
     if (e.charmed) return;
@@ -144,10 +145,10 @@ function modSweep(w, target, src) {
   return true;
 }
 function modLunge(w, target) {
-  const p = G.player, S = modS(), cnt = modCount(w, 'lunge'), c = MODS10.lunge.cap;
+  const p = G.player, S = modS(), c = MODS10.lunge.cap;
   if (S.lunge && S.lunge.left > 0) return;
   const a = Math.atan2(target.y - p.y, target.x - p.x), fwd = w.def.v10atk === 'contact';
-  let dist = c.dist * cnt;
+  let dist = modV(w, 'lunge', 'dist');
   if (fwd) dist = Math.max(0, Math.min(dist, Math.hypot(target.x - p.x, target.y - p.y) + target.r));
   S.lunge = { ux: Math.cos(a) * (fwd ? 1 : -1), uy: Math.sin(a) * (fwd ? 1 : -1), left: dist, v: dist / c.time };
 }
@@ -155,11 +156,11 @@ function modLunge(w, target) {
 // ---------------------------------------------------------------- shots (game.js spawnProj / updateProjectiles)
 function modProj(pr, w) {
   pr.m10 = 1;
-  if (modHas(w, 'homing')) pr.mH = MODS10.homing.cap.turn;
+  if (modHas(w, 'homing')) pr.mH = modV(w, 'homing', 'turn');
   const pc = modCount(w, 'piercing');
   if (pc) { pr.pierce = (pr.pierce || 0) + 2 * pc; pr.mP = 1; }
   if (modHas(w, 'chaining')) pr.mC = 1;
-  if (modHas(w, 'ricochet')) pr.mR = MODS10.ricochet.cap.bounces;
+  if (modHas(w, 'ricochet')) pr.mR = modV(w, 'ricochet', 'bounces');
   if (modHas(w, 'returning')) {
     const had = pr.pierce > 0;
     pr.boomerang = 1; pr.life = pr.max = (w.s.range || 400) / pr.speed * 2 + 0.3; pr.mRet = 1;
@@ -184,8 +185,8 @@ function modStep(pr, dt) {
       pr.vx = Math.cos(na) * pr.speed; pr.vy = Math.sin(na) * pr.speed;
     }
   }
-  if (pr.mRet && pr.back && !pr.mBk) { pr.mBk = 1; pr.pierce = 99; pr.hits = null; }
-  if (pr.mG) { pr.age += dt; const k = Math.min(1, pr.age / Math.max(0.3, pr.max * 0.8)); pr.r = pr.r0 * (1 + k); pr.dmg = pr.dmg0 * (1 + k); }
+  if (pr.mRet && pr.back && !pr.mBk) { pr.mBk = 1; pr.pierce = 99; pr.hits = null; if (pr.w) pr.dmg *= modV(pr.w, 'returning', 'back'); }
+  if (pr.mG) { pr.age += dt; const k = Math.min(1, pr.age / Math.max(0.3, pr.max * 0.8)) * (pr.w ? modV(pr.w, 'growing', 'size') : 1); pr.r = pr.r0 * (1 + k); pr.dmg = pr.dmg0 * (1 + k); }
   if (pr.mR > 0 && !pr.back) {
     const nx = pr.x + pr.vx * dt, ny = pr.y + pr.vy * dt;
     if (modWall(nx, ny)) {
@@ -193,11 +194,11 @@ function modStep(pr, dt) {
       if (!fx && !fy) fx = fy = true;
       if (fx) pr.vx = -pr.vx;
       if (fy) pr.vy = -pr.vy;
-      pr.mR--; pr.dmg *= 1 - MODS10.ricochet.cap.loss; pr.hits = null; pr.mBounced = (pr.mBounced || 0) + 1;
+      pr.mR--; pr.dmg *= 1 - (pr.w ? modV(pr.w, 'ricochet', 'loss') : 0.2); pr.hits = null; pr.mBounced = (pr.mBounced || 0) + 1;
       spawnPart(pr.x, pr.y, pr.color, 3, 60, 0.2, 2);
     }
   }
-  if (pr.mW && !pr.mWdone && pr.life <= dt * 1.5) { pr.mWdone = 1; pr.dead = true; modWell(pr.x, pr.y, 110, 600, 2.5, pr.w, true, true); return true; }
+  if (pr.mW && !pr.mWdone && pr.life <= dt * 1.5) { pr.mWdone = 1; pr.dead = true; modWell(pr.x, pr.y, modV(pr.w, 'gravity', 'r'), 600, 2.5, pr.w, true, true); return true; }
   return false;
 }
 // After a shot's hit has landed (game.js, after projHit).
@@ -205,27 +206,27 @@ function modHit(pr, e) {
   if (pr.mP && pr.pierce > 0) pr.dmg *= 1 - MODS10.piercing.cap.cost;
   if (pr.mC) modChain(e, pr.dmg, pr.src);
   pr.mHits = (pr.mHits || 0) + 1;
-  if (pr.mRetNP && !pr.back && pr.mHits >= MODS10.returning.cap.hits) { pr.back = true; pr.hits = null; }
+  if (pr.mRetNP && !pr.back && pr.mHits >= modV(pr.w, 'returning', 'hits')) { pr.back = true; pr.hits = null; }
   if (pr.mS && !pr.mSplit && e.dead && !pr.mSplitDone) {
     pr.mSplitDone = 1;
     let n = 0; for (const q of G.proj) if (q.w === pr.w && !q.dead) n++;
-    const room = Math.min(MODS10.multiplying.cap.split, MODS10.multiplying.cap.flight - n);
+    const room = Math.min(modV(pr.w, 'multiplying', 'split'), modV(pr.w, 'multiplying', 'flight') - n);
     const ts = acquireMany('nearest', 260, e.x, e.y, 4).filter(t => t !== e);
     for (let i = 0; i < room; i++) {
       const a = ts[i] ? Math.atan2(ts[i].y - e.y, ts[i].x - e.x) : Math.random() * TAU;
-      spawnProj(pr.w, e.x, e.y, a, pr.src, { dmg: pr.dmg * 0.5, mSplit: 1, pierce: 0, hits: [e.id] });
+      spawnProj(pr.w, e.x, e.y, a, pr.src, { dmg: pr.dmg * modV(pr.w, 'multiplying', 'child'), mSplit: 1, pierce: 0, hits: [e.id] });
     }
   }
-  if (pr.mW && !pr.mWdone) { pr.mWdone = 1; pr.dead = true; modWell(pr.x, pr.y, 110, 600, 2.5, pr.w, true, true); }
+  if (pr.mW && !pr.mWdone) { pr.mWdone = 1; pr.dead = true; modWell(pr.x, pr.y, modV(pr.w, 'gravity', 'r'), 600, 2.5, pr.w, true, true); }
 }
 // Contact hits (arsenal.js meleeHit; also the Sweep above).
 function modMeleeHit(w, e, dmg, src, sweepCall) {
   if (modHas(w, 'chaining') && !src.m10chain) modChain(e, dmg, src);
-  if (modHas(w, 'growing') && w.def.v10atk === 'contact') { w.m10gk = Math.min(MODS10.growing.cap.size, (w.m10gk || 0) + 0.1); w.m10gt = modNow(); }
+  if (modHas(w, 'growing') && w.def.v10atk === 'contact') { w.m10gk = Math.min(modV(w, 'growing', 'size'), (w.m10gk || 0) + 0.1); w.m10gt = modNow(); }
 }
-// Bounded chain: up to 3 jumps, range 110, 70% a jump, each target once (modifiers 3).
+// Bounded chain: up to 3 jumps (4, 5 at higher ranks), range 110, 70% a jump, each target once (modifiers 3).
 function modChain(from, dmg, src) {
-  const c = MODS10.chaining.cap, hit = new Set([from]);
+  const w = src.w, v = k => w ? modV(w, 'chaining', k) : MODS10.chaining.cap[k][0], c = { jumps: v('jumps'), range: v('range'), falloff: v('falloff') }, hit = new Set([from]);
   let cur = from, d = dmg;
   for (let k = 0; k < c.jumps; k++) {
     let nx = null, bd = c.range * c.range;
@@ -238,28 +239,29 @@ function modChain(from, dmg, src) {
   }
 }
 // A burst has gone off at x, y (v10.js v10Fire, and the placed and lobbed blasts here).
-function modBurstEnd(w, x, y) { if (w && modHas(w, 'gravity')) modWell(x, y, 110, 600, 2.5, w, true, true); }
+function modBurstEnd(w, x, y) { if (w && modHas(w, 'gravity')) modWell(x, y, modV(w, 'gravity', 'r'), 600, 2.5, w, true, true); }
 
 // ---------------------------------------------------------------- beams (v10.js v10Fire)
 function modBeam(w, a, L, wd) {
   const p = G.player, out = { a, L, wd, bk: 1 };
   if (modHas(w, 'anchored')) {
-    const far = acquire('furthest', MODS10.anchored.cap.range, p.x, p.y);
+    const far = acquire('furthest', modV(w, 'anchored', 'range'), p.x, p.y);
     if (far) { out.a = Math.atan2(far.y - p.y, far.x - p.x); out.L = Math.hypot(far.x - p.x, far.y - p.y); }
+    out.wd = wd * modV(w, 'anchored', 'width');
   }
-  if (modHas(w, 'sweep')) out.a += Math.sin(modNow() * 3.2) * MODS10.sweep.cap.arc / 3;
+  if (modHas(w, 'sweep')) out.a += Math.sin(modNow() * 3.2) * modV(w, 'sweep', 'arc') / 3;
   if (modHas(w, 'growing')) {
-    w.m10bg = modNow() - (w.m10bt || -9) < 0.35 ? Math.min(1, (w.m10bg || 0) + 0.05) : 0; w.m10bt = modNow();
-    out.bk = 1 + w.m10bg; out.wd = wd * out.bk;
+    w.m10bg = modNow() - (w.m10bt || -9) < 0.35 ? Math.min(modV(w, 'growing', 'size'), (w.m10bg || 0) + 0.05) : 0; w.m10bt = modNow();
+    out.bk = 1 + w.m10bg; out.wd = out.wd * out.bk;
   }
   return out;
 }
 
 // ---------------------------------------------------------------- gravity wells (matrix 12.2)
 function modWell(x, y, r, pull, life, w, bodies, shots) {
-  const S = modS(), c = MODS10.gravity.cap;
+  const S = modS();
   S.wells.push({ id: ++S.wid, x, y, r, pull, life, max: life, w, bodies, shots });
-  while (S.wells.length > c.wells) S.wells.shift();
+  while (S.wells.length > Math.max(...S.wells.map(q => q.w ? modV(q.w, 'gravity', 'wells') : 3))) S.wells.shift();
 }
 function wellTick(wl, dt) {
   const bend = MODS10.gravity.cap.bend;
@@ -317,26 +319,26 @@ function modTick(dt) {
   for (const b of S.lobs.slice()) {
     b.t += dt; const k = Math.min(1, b.t / b.flight);
     b.x = lerp(b.sx, b.tx, k); b.y = lerp(b.sy, b.ty, k); b.h = Math.sin(k * Math.PI) * 90;
-    if (k >= 1) { S.lobs = S.lobs.filter(q => q !== b); aoe(b.tx, b.ty, b.w.s.area, b.w.s.dmg, b.src, b.color); modBurstEnd(b.w, b.tx, b.ty); }
+    if (k >= 1) { S.lobs = S.lobs.filter(q => q !== b); aoe(b.tx, b.ty, b.w.s.area * (b.ak || 1), b.w.s.dmg, b.src, b.color); modBurstEnd(b.w, b.tx, b.ty); }
   }
   // Pool pieces: Growing and Gravity Well (the engine makes the zone when a lob lands)
   for (const z of G.zones) {
     if (z.m10t) {
-      if (z.m10g) { z.age += dt; const k = Math.min(1, z.age / Math.max(0.3, z.max * 0.8)); z.r = z.r0 * (1 + k); z.dps = z.d0 * (1 + k); }
+      if (z.m10g) { z.age += dt; const k = Math.min(1, z.age / Math.max(0.3, z.max * 0.8)) * (z.src && z.src.w ? modV(z.src.w, 'growing', 'size') : 1); z.r = z.r0 * (1 + k); z.dps = z.d0 * (1 + k); }
       continue;
     }
     const w = z.src && z.src.w;
     if (!w || !w.m10 || w.def.v10atk !== 'pool') continue;
     z.m10t = 1;
     if (modHas(w, 'growing')) { z.m10g = 1; z.r0 = z.r; z.d0 = z.dps; z.age = 0; }
-    if (modHas(w, 'gravity')) modWell(z.x, z.y, Math.max(110, z.r * 1.4), 600, Math.max(0.5, z.life), w, true, false);
+    if (modHas(w, 'gravity')) modWell(z.x, z.y, Math.max(modV(w, 'gravity', 'r'), z.r * 1.4), 600, Math.max(0.5, z.life), w, true, false);
   }
   // Wells
   for (const wl of S.wells) { wl.life -= dt; wellTick(wl, dt); }
   S.wells = S.wells.filter(wl => wl.life > 0);
 }
 function modOrbit(w, dt) {
-  const s = w.s, p = G.player, c = MODS10.orbiting.cap, src0 = weaponSrc(w);
+  const s = w.s, p = G.player, c = { radius: MODS10.orbiting.cap.radius, bodies: modV(w, 'orbiting', 'bodies') }, src0 = weaponSrc(w);
   w.m10ang = (w.m10ang || 0) + 3 * dt;
   w.m10orb = [];
   for (let i = 0; i < c.bodies; i++) {
@@ -354,7 +356,7 @@ function modOrbit(w, dt) {
 }
 function modPets(w, dt) {
   const S = modS(), p = G.player, s = w.s, c = MODS10.summoned.cap, mine = S.pets.filter(q => q.w === w);
-  const want = Math.min(c.perWeapon, 2 * modCount(w, 'summoned'));
+  const want = modV(w, 'summoned', 'pets');
   if (mine.length < want && S.pets.length < c.total) S.pets.push({ w, x: p.x + rand(-30, 30), y: p.y + rand(-30, 30), away: false, hitT: 0 });
   for (const q of mine) {
     const dp = Math.hypot(q.x - p.x, q.y - p.y);
@@ -380,7 +382,7 @@ function modPets(w, dt) {
   }
 }
 function modTrail(w) {
-  const p = G.player, c = MODS10.trail.cap, s = w.s;
+  const p = G.player, c = { gap: modV(w, 'trail', 'gap'), pieces: modV(w, 'trail', 'pieces') }, s = w.s;
   if (!w.m10lx) { w.m10lx = p.x; w.m10ly = p.y; w.m10acc = 0; return; }
   w.m10acc += Math.hypot(p.x - w.m10lx, p.y - w.m10ly); w.m10lx = p.x; w.m10ly = p.y;
   while (w.m10acc >= c.gap) {
@@ -412,7 +414,7 @@ function modDraw() {
     if (!w || !w.m10) continue;
     if (w.m10orb) { ctx.fillStyle = col(w.def.color); for (const o of w.m10orb) { ctx.beginPath(); ctx.arc(sx(o.x), sy(o.y), 7 * S_(), 0, TAU); ctx.fill(); } }
     if (modHas(w, 'nth')) { // the build-up: pips over you
-      const n = MODS10.nth.cap.n, have = (w.m10n || 0) % n, p = G.player, i0 = G.weapons.indexOf(w);
+      const n = modV(w, 'nth', 'n'), have = (w.m10n || 0) % n, p = G.player, i0 = G.weapons.indexOf(w);
       for (let i = 0; i < n; i++) { ctx.fillStyle = col(i < have ? w.def.color : '#556'); ctx.beginPath(); ctx.arc(sx(p.x) + (i - (n - 1) / 2) * 7 * S_(), sy(p.y) - (30 + i0 * 7) * S_(), 2.5 * S_(), 0, TAU); ctx.fill(); }
     }
   }

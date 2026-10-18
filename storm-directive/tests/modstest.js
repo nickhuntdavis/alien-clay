@@ -153,7 +153,7 @@ const { chromium } = require('playwright');
     fresh(); const ws = [wp('v_phys_contact', ['summoned', 'summoned'], 0), wp('v_fire_contact', ['summoned', 'summoned'], 1), wp('v_shock_contact', ['summoned', 'summoned'], 2)];
     step(60); const per = ws.map(q => modS().pets.filter(p => p.w === q).length); out.pets = per;
     if (modS().pets.length !== 8 || Math.max(...per) > 4) bad.push('Pet caps: ' + per);
-    if (modAdd(ws[0], 'summoned')) bad.push('a third Summoned copy was allowed');
+    if (!modAdd(ws[0], 'summoned') || modAdd(ws[0], 'summoned')) bad.push('Summoned rank 3 refused, or a fourth copy allowed');
 
     // 20. Gravity well: drags bodies in, bends shots, three at once at most.
     fresh(); w = wp('v_phys_burst', ['gravity']); const g1 = foe(150); const g2 = foe(150, 85); step(30);
@@ -172,15 +172,15 @@ const { chromium } = require('playwright');
     out.lungeS = Math.round(G.player.x - x1); if (!(x1 - G.player.x > 60) || x1 - G.player.x > 165) bad.push('Spread recoil: ' + out.lungeS);
     fresh(); w = wp('v_phys_spread', ['lunge', 'lunge']); foe(150); const x2 = G.player.x; step(30);
     if (!(x2 - G.player.x > 165) || x2 - G.player.x > 325) bad.push('Double lunge: ' + (x2 - G.player.x));
-    if (modAdd(w, 'lunge')) bad.push('a third Lunge copy was allowed');
+    if (!modAdd(w, 'lunge') || modAdd(w, 'lunge')) bad.push('Lunge rank 3 refused, or a fourth copy allowed');
 
     // 22. Caps and rules.
     fresh(); w = wp('v_phys_proj', ['homing']);
-    if (modAdd(w, 'homing')) bad.push('Homing twice');
+    if (!modAdd(w, 'homing') || !modAdd(w, 'homing') || modAdd(w, 'homing')) bad.push('Homing ranks: ' + modCount(w, 'homing')); // (ranks 2 and 3, no 4th)
     if (modAdd(w, 'gravity') === false || modAdd(w, 'piercing') === false) bad.push('refused a fitting modifier');
     if (modAdd(w, 'anchored') || modAdd(w, 'trail')) bad.push('accepted a modifier for the wrong attack type');
     if (modAdd(w, 'orbiting') === false || modAdd(w, 'summoned')) bad.push('delivery group not exclusive');
-    if (modsFor(w).includes('homing') || !modsFor(w).includes('ricochet')) bad.push('modsFor wrong: ' + modsFor(w));
+    if (modsFor(w).includes('homing') || !modsFor(w).includes('ricochet') || !modsFor(w).includes('orbiting')) bad.push('modsFor wrong: ' + modsFor(w));
     for (let i = 0; i < 4; i++) modAdd(w, 'piercing'); if (modCount(w, 'piercing') !== 3) bad.push('Piercing cap ' + modCount(w, 'piercing'));
     if (w.mods.length) bad.push('touched the old w.mods');
     if (modsFor(G.weapons[5] || { def: {} }).length) bad.push('modsFor of a non-v10 weapon');

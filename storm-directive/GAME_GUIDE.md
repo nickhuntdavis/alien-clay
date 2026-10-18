@@ -781,32 +781,30 @@ Offered at weapon level 3. Which three a weapon is offered is fixed per weapon (
 
 ## Modifiers
 
-Slot into one weapon (3 per weapon). Power by rarity: Common x1, Uncommon x1.12, Rare x1.25, Epic x1.6, Legendary x2.2, Mythical x2.6, Immaculate x3. Values below are at Common. "Projectile only" means guns and other shot-firing weapons.
+Level-up cards for one weapon whose attack type fits. A weapon holds up to 3 different modifiers, and only one Delivery modifier. Taking one again ranks it up, to Rank 3. **Switched at Birth** (a Rare card, never two level-ups running) changes a random weapon to a random other damage type; it keeps its level, upgrades and modifiers.
 
-| Modifier | Effect (Common) | Effect (Legendary) | Fits |
-|---|---|---|---|
-| **Homing Instinct** | Shots hunt down targets (turn rate 5.0) | Shots hunt down targets (turn rate 7.4) | Projectile only |
-| **Cell Division** | On first hit, shots split into 3 shards at 30% damage | On first hit, shots split into 4 shards at 30% damage | Projectile only |
-| **Holding Pattern** | Shots circle you for 1.2s, eating enemy bullets, then launch | Shots circle you for 2.6s, eating enemy bullets, then launch | Projectile only |
-| **Swelling** | Shots swell in flight: triple size and up to +100% damage | Shots swell in flight: triple size and up to +220% damage | Projectile only |
-| **Boomerang Kid** | Shots fly out and come back, hitting everything twice | Shots fly out and come back, hitting everything twice (+42% damage on the way back) | Projectile only |
-| **Bouncing Baby** | +2 bounces between enemies | +3 bounces between enemies | Projectile only |
-| **Soaped Up** | 18% chance per hit to glue the target | 40% chance per hit to glue the target | Any weapon |
-| **With a Bang** | Hits explode for 30% damage in a small blast | Hits explode for 66% damage in a small blast | Any weapon |
-| **Bad Influence** | 5% chance per hit to make a germ fight for you for 6s (max 6 allies) | 11% chance per hit to make a germ fight for you for 13s (max 6 allies) | Any weapon |
-| **Switched at Birth** | Converts this weapon to a new damage type | Converts this weapon to a new damage type, +18% damage | Any weapon |
-| **Going to Pieces** | Kills burst into 3 shards at 30% damage | Kills burst into 4 shards at 42% damage | Any weapon |
-| **Daisy Chain** | 25% of hits chain to another enemy for 50% damage | 55% of hits chain to another enemy for 50% damage | Any weapon |
-| **Contractions** | Shots pulse every 0.6s, hitting everything close by for 15% damage | Shots pulse every 0.6s, hitting everything close by for 33% damage | Projectile only |
-| **Animal Magnetism** | Shots drag germs within 70 units into their path | Shots drag germs within 154 units into their path | Projectile only |
-| **Delayed Gratification** | Shots hang for a moment, then launch 60% faster for +30% damage | Shots hang for a moment, then launch 60% faster for +66% damage | Projectile only |
-| **Both Ends** | Every shot has a twin fired the opposite way at 35% damage | Every shot has a twin fired the opposite way at 77% damage | Projectile only |
-| **Trash Talk** | Kills give this weapon +6% damage (up to 10 stacks). Getting hit loses the lot | Kills give this weapon +13% damage (up to 10 stacks). Getting hit loses the lot | Any weapon |
-| **Passive Aggressive** | 2s after a hit, the target takes another 40% of it. As per your last email | 2s after a hit, the target takes another 88% of it. As per your last email | Any weapon |
-| **Participation Trophy** | Every 10th hit deals 300% damage and drops a little XP. Everyone is a winner | Every 10th hit deals 420% damage and drops a little XP. Everyone is a winner | Any weapon |
-| **Inheritance** | Kills pass 25% of the victim's max HP to the nearest enemy as damage. Next of kin | Kills pass 55% of the victim's max HP to the nearest enemy as damage. Next of kin | Any weapon |
-| **Separation Anxiety** | +50% damage to anything within 150 of you, -20% beyond 450. Do not leave | +110% damage to anything within 150 of you, -20% beyond 450. Do not leave | Any weapon |
-| **Snitch** | 20% of hits grass the target up: every weapon deals +30% to it for 3s | 44% of hits grass the target up: every weapon deals +30% to it for 3s | Any weapon |
+| Modifier | Effect | Rank 2 | Rank 3 | Fits |
+|---|---|---|---|---|
+| **Homing** | Shots turn towards their target. If the target dies, they carry straight on. Evasion still applies. | Turns harder (7). | Turns harder still (9). | Projectile, Spread |
+| **Piercing** | Shots carry on through enemies, losing 15% of their damage for each one passed. | +2 more enemies (4 in all). | +2 more enemies (6 in all). | Projectile, Spread |
+| **Chaining** | After a hit, the attack jumps to another enemy. Up to three jumps, each at 70% of the last. | 4 jumps, 75% of the last, a little further. | 5 jumps, 80% of the last, further again. | Projectile, Contact |
+| **Ricochet** | Shots bounce off walls, twice at most, and lose 20% of their damage each time. | 3 bounces, losing 15% each. | 4 bounces, losing 10% each. | Projectile |
+| **Returning** | Flies out, then comes back to you, hitting on the way out and on the way back. | 4 hits; the way back hits 20% harder. | 5 hits; the way back hits 40% harder. | Projectile, Spread |
+| **Orbiting** (Delivery) | Three bodies circle you and attack from there. They cannot be hit. They are not pets. | Four bodies. | Five bodies. | Contact, Projectile |
+| **Delayed Detonation** (Delivery) | The blast is placed, marked on the ground, and goes off later or when something steps near. Placed blasts expire after 14 seconds. | 8 placed at once; blasts +20% damage. | 10 placed at once; blasts +40% damage. | Burst |
+| **Lobbed** (Delivery) | Travels in an arc over everything in the way and lands on a marked spot. | Lands sooner; +15% area. | Lands sooner still; +30% area. | Burst, Pool |
+| **Trail** (Delivery) | Lays a piece every 30 units you swim. Nothing is laid while you stand still. Forty pieces at most. | A piece every 24 units, 50 at most. | A piece every 18 units, 60 at most. | Pool |
+| **Self-Centred** (Delivery) | Goes off around you rather than at a target. It never hurts you. | 85% damage around you; +15% area. | Full damage around you; +30% area. | Burst, Contact, Spread |
+| **Sweep** (Delivery) | The hit area moves across enemies. Each enemy is hit once per sweep. | A wider sweep. | A wider sweep still. | Contact, Beam |
+| **Anchored Beam** (Delivery) | The beam joins you to the far side of the crowd instead of firing from you. It moves when either end moves. | Reaches 620; 20% thicker. | Reaches 720; 40% thicker. | Beam |
+| **Rapid Volley** | Three shots in quick succession, then a pause. | Four shots a volley. | Five shots a volley. | Projectile, Spread |
+| **Every Nth** | Every fourth attack is empowered. The build-up is shown over you. | Every third attack is empowered. | Every third attack, and harder (x3.2). | Contact, Projectile, Spread, Burst, Beam, Pool |
+| **Growing** | Gets bigger and stronger with distance, time or hits, by up to double. Resets when the attack ends. | Grows to two and a half times. | Grows to triple. | Projectile, Beam, Pool, Contact |
+| **Scaling** | Damage scales with one of your stats, at most doubled. | Scales up to x2.5. | Scales up to x3. | Contact, Projectile, Spread, Burst, Beam, Pool |
+| **Multiplying** | A shot that kills splits into two more at half damage. Split shots never split again. Twelve in flight at most. | Kills split into three; 16 in flight. | Splits hit at 60%; 20 in flight. | Projectile |
+| **Summoned** (Delivery) | The attack is delivered by pets. Four per weapon, eight in total. | Three pets on this weapon. | Four pets on this weapon. | Contact, Projectile |
+| **Gravity Well** | Warps space round the attack: drags enemies towards its centre and bends shots passing through. Three wells at once at most. | Wider wells, four at once. | Wider still, five at once. | Projectile, Burst, Pool |
+| **Lunge** | The attack moves you: forwards through a Contact target, backwards as recoil from Spread and Burst. Up to 160 units. | Up to 240 units. | Up to 320 units. | Contact, Spread, Burst |
 
 ## Duo combos
 
