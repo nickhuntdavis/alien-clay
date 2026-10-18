@@ -289,3 +289,11 @@
 - Save data: META.vxSt, META.vxEv added; run log entries gain sid.
 - Hooks: show.js sysLine -> vxSysLine; v10.js v10Tick -> vxTick; intro.js startFoeIntro -> vxSight; bosses.js startBossIntro -> vxBossIntro; fight.js rxFired -> vxReaction, fightReact -> vxSpectral; ui.js showGameOver/showDishOver -> vxEnd; meta.js runSummary -> vxSid.
 - Risk: the old narrator's idle, level, boss, low-health and death chatter is silent under V10. Celestial drops never happen (weight 0), so that line has no trigger.
+
+## 2026-10-18 Field Guide: the 21-reaction chart
+- Systems: combat (fight.js), help (inspect.js)
+- Files: fight.js, inspect.js, tests/fighttest.js
+- What: under V10 the Field Guide's reaction chart is the 7 by 7 grid of the 21 unstable reactions; each stays a question mark until set off once, then names itself and says what sets it off and what it does. Damage type cards list their six partners the same way.
+- Save data: none (reads META.rxSeen).
+- Hooks: inspect.js rxChartHtml -> rxChart10, INSPECTOR.cell -> rxCell10, inspectGuideHtml and the type card's REACTS WITH row use RX10_ORDER/rx10Pair.
+- Risk: none.

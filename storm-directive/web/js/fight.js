@@ -365,3 +365,53 @@ function fightDraw() {
     ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), z.r * S, 0, TAU); ctx.stroke(); ctx.restore();
   }
 }
+
+// ---------------------------------------------------------------- Field Guide (inspect.js chart under V10)
+// The 21 pairs as a 7 by 7 chart. A reaction shows as ? until you have set it off once (META.rxSeen, decision 22);
+// then its square names it and the line below says what sets it off and what it does (the Field Guide may explain).
+const RX10_ORDER = ['phys', 'fire', 'shock', 'ice', 'arcane', 'soul', 'flame'];
+const RX10 = {
+  'phys+fire': ['splash', 'A Force hit on a Corroded target splashes Corrosion onto up to 4 neighbours (60% of the hit).'],
+  'phys+shock': ['shock', 'A dual Force/Static weapon (Rubbed the Wrong Way): a Static shot after a Force shot bursts locally (60%). No chain.'],
+  'phys+ice': ['rocket', 'A Force hit on a Snared enemy launches it; it leaves a Mucus patch where it lands. No damage.'],
+  'phys+arcane': ['pressure', 'A heavy Force hit on a bleeding target bursts the wound: a small area hit (60%).'],
+  'phys+soul': ['oob', 'A Force hit on a Possessed enemy launches it into the first mate it meets (60%).'],
+  'phys+flame': ['flashover', 'A Force hit on a burning target throws a tongue of flame at one neighbour (60%, adds to its burn).'],
+  'fire+shock': ['cpool', 'A Static hit in an Acid Pool sends one pulse across the pool (60% to everything in it). Once per pool.'],
+  'fire+ice': ['slick', 'An Acid hit on a Mucus patch turns it into a short-lived Acid Pool.'],
+  'fire+arcane': ['breach', 'An Acid hit on a bleeding target strips one Shell layer at once. Once per Bleed.'],
+  'fire+soul': ['erosion', 'An Acid hit on a Possessed enemy: when the Possession ends it bursts in an Acid splash (60%, adds Corrosion).'],
+  'fire+flame': ['evap', 'A Fire hit on a Corroded target consumes the Corrosion in a close burst (150%).'],
+  'shock+ice': ['sticky', 'A Static hit charges a Mucus patch; the next enemy to enter it is stunned. Once per patch.'],
+  'shock+arcane': ['circuit', 'A Static hit in a blood pool arcs once to the nearest enemy in or beside it (60%).'],
+  'shock+soul': ['interference', 'A Static hit on a Possessed enemy makes the Possession last 2 s longer. Once per Possession.'],
+  'shock+flame': ['arcflash', 'A Static hit on a burning target arcs once to the nearest other enemy (60%).'],
+  'ice+arcane': ['clot', 'A Mucus hit on a blood pool thickens it: the first enemy to cross it is Snared, then it is gone.'],
+  'ice+soul': ['suspension', 'A Mucus hit on a Possessed enemy pins it in place for a moment.'],
+  'ice+flame': ['flammable', 'A Fire hit on a Mucus patch flares it: everything standing in it ignites (150%), then it is gone.'],
+  'arcane+soul': ['donor', 'A Blood hit on a Possessed enemy heals you a little. Once per Possession.'],
+  'arcane+flame': ['cauterise', 'A Fire hit on a bleeding target consumes the Bleed in one burst (150% plus the Bleed left).'],
+  'soul+flame': ['spectral', 'The Soul Beam + Burning Ground Pairing (both Lv 5+) on a burning, Possessed enemy: it ignites and the Possession ends.'],
+};
+const rx10Pair = (a, b) => RX10[a + '+' + b] || RX10[b + '+' + a] || null;
+const rx10Seen = id => !!(META.rxSeen && META.rxSeen.includes(id));
+function rxChart10() {
+  const lab = k => `<i class="rxh" style="color:${ELEMENTS[k].color}">${inspectEsc(ELEMENTS[k].name.slice(0, 3).toUpperCase())}</i>`;
+  let cells = '', seen = 0;
+  for (const a of RX10_ORDER) {
+    cells += lab(a);
+    for (const b of RX10_ORDER) {
+      const P = a !== b && rx10Pair(a, b), s = P && rx10Seen(P[0]), R = P && FIGHT_RX[P[0]];
+      cells += `<button class="rxc ${P ? (s ? 'got' : 'unk') : 'none'}" ${s ? `style="--c:${R.color}"` : ''} data-insp="rxcell:${a}+${b}">${P ? (s ? R.name.split(' ').map(w => w[0]).join('').slice(0, 4).toUpperCase() : '?') : '-'}</button>`;
+    }
+  }
+  for (const k in RX10) if (rx10Seen(RX10[k][0])) seen++;
+  return `<h3>Unstable reactions</h3><em>${seen} OF 21 FOUND</em><div class="rxgrid"><i></i>${RX10_ORDER.map(lab).join('')}${cells}</div><p id="rxDetail" class="hint">Tap a square. A question mark is one you have not set off yet.</p>`;
+}
+function rxCell10(pair) {
+  const [a, b] = pair.split('+'), P = a !== b && rx10Pair(a, b), box = document.getElementById('rxDetail');
+  if (!box) return;
+  if (!P) { box.innerHTML = 'A damage type does not react with itself.'; return; }
+  const R = FIGHT_RX[P[0]];
+  box.innerHTML = rx10Seen(P[0]) ? `<b style="color:${R.color}">${inspectEsc(R.name)}</b>: ${inspectEsc(P[1])}` : 'Not seen yet. Set it off in a run.';
+}

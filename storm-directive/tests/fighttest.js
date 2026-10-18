@@ -110,6 +110,7 @@ const { chromium } = require('playwright');
     const dy = foe('crawler'); hit(dy, 'arcane', 10); G.player.hp = 10; dy.hp = 1; hit(dy, 'phys', 50);
     if (!G.zones.some(z => z.elem === 'arcane') || !(G.player.hp > 10)) bad.push('bleeding death: no pool or Extraction');
     out.rx = JSON.stringify(G.fst.rx);
+    { const ch = rxChart10(), q = (ch.match(/>\?</g) || []).length; if (!/OF 21 FOUND/.test(ch) || q + (ch.match(/class="rxc got"/g) || []).length !== 42) bad.push('reaction chart: ' + q); }
     // Two types on one enemy are never enough on their own.
     fresh();
     const x = foe('crawler'); for (const el of ['fire', 'shock', 'ice', 'phys']) hit(x, el, 5);
