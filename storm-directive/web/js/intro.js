@@ -79,13 +79,13 @@ function introMode() {
   return Object.keys(META.seen || {}).length <= 5 ? 'full' : 'quiet';
 }
 function startFoeIntro(e, id, rival) {
-  const mode = introMode();
+  const mode = introMode(), vx = !rival && typeof vxSight === 'function' ? vxSight(id) : null; // (one of the two first-sighting lines: voice10.js)
   if (mode !== 'full') {
     if (mode === 'quiet') {
       const name = rival ? e.R.name : e.def.name, I = rival ? null : ENEMY_INTRO[id];
       floatText(e.x, e.y - e.r - 18, 'NEW', rival ? e.R.color : PAL.upgrade, 13, 1.2);
       ring(e.x, e.y, e.r * 2.2, rival ? e.R.color : PAL.upgrade, 0.5, 3);
-      sysMsg(rival ? 'RIVAL: ' + e.R.nick : 'NEW: ' + name.toUpperCase(), rival ? `${e.R.name}. ${e.R.specs.map(x => x.name).join(', ')}. ${e.R.tip}` : `${I.what} ${I.tip}`, rival ? e.R.color : PAL.upgrade, true);
+      sysMsg(rival ? 'RIVAL: ' + e.R.nick : 'NEW: ' + name.toUpperCase(), rival ? `${e.R.name}. ${e.R.specs.map(x => x.name).join(', ')}. ${e.R.tip}` : `${vx || I.what} ${I.tip}`, rival ? e.R.color : PAL.upgrade, true);
     }
     return;
   }
@@ -93,7 +93,7 @@ function startFoeIntro(e, id, rival) {
   G.state = 'bossIntro';
   INPUT.active = false; G.manual = null;
   sfx('level'); vibrate(60);
-  if (typeof UI !== 'undefined') { if (rival) UI.openRivalIntro(e); else UI.openFoeIntro(e, id); }
+  if (typeof UI !== 'undefined') { if (rival) UI.openRivalIntro(e); else UI.openFoeIntro(e, id); if (vx) $('biQuote').textContent = vx; }
 }
 // Settings > Tutorial: see the introductions (and the first-time tips) again.
 function resetTutorial() {

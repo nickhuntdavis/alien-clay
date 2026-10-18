@@ -178,7 +178,7 @@ function runSummary(G, result) {
   return {
     n: (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1, v: APP_VERSION,
     at: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`,
-    res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', wave: G.wave ? (G.wave.camp ? `wave ${G.wave.n}/${CAMP.waves}` + (G.wave.boss ? ' ' + G.wave.boss : '') : `endless wave ${G.wave.n}`) : null, ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', combos: Object.keys(G.combo || {}).join('+'), t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
+    res: result, sid: typeof vxSid === 'function' ? vxSid(G) : '', smp: (typeof UI !== 'undefined' && UI.sample) || 's001', wave: G.wave ? (G.wave.camp ? `wave ${G.wave.n}/${CAMP.waves}` + (G.wave.boss ? ' ' + G.wave.boss : '') : `endless wave ${G.wave.n}`) : null, ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', combos: Object.keys(G.combo || {}).join('+'), t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
     fst: G.fst ? JSON.parse(JSON.stringify(G.fst, (k, v) => typeof v === 'number' ? Math.round(v * 10) / 10 : v)) : undefined, // (v10 combat stats: fight.js)
     egg: G.eggAt ? Math.round(G.eggAt) : 0, by: G.rivalWinner || G.stats.lastHit || '',
     hurt: top(G.stats.hurt, 4).map(([k, v]) => k + ' ' + Math.round(v)),

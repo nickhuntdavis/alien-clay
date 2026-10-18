@@ -55,6 +55,7 @@ function startBossIntro(e, idx) {
   INPUT.active = false; G.manual = null;
   sfx('boss'); vibrate(160);
   if (typeof UI !== 'undefined') UI.openBossIntro(e, idx);
+  if (typeof vxBossIntro === 'function') vxBossIntro(e); // (voice10.js)
 }
 function updateBossIntro(dt) {
   const I = G.bossIntro;

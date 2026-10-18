@@ -22,7 +22,7 @@ function sysMsg(head, body, color, force) {
 }
 // In the campaign the default narrator gives way to your own inner voice (LONGING_LINES).
 const sysPool = kind => (lvOn() && SET.narrator === 'system' && LONGING_LINES[kind]) || SYSTEM_LINES[kind];
-function sysLine(kind, force) { const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force); }
+function sysLine(kind, force) { if (typeof vxSysLine === 'function' && vxSysLine(kind)) return; const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force); }
 
 function addViewers(n) {
   if (!G) return;

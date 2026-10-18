@@ -7,18 +7,18 @@
 // 90% of the time (Tier 1 about 8%, Tier 2 about 2%); Tier 3 only for explicitly Tier 3 events
 // (EVENT_TIER) or when ctx.tier3 is set; Tier 2 and 3 lines carry a flat `recover` line to show next.
 // Pure data and logic: no DOM, no G, Math.random only.
-// Hooks: none yet; show.js / intro.js / finale.js call voiceLine() when wired.
+// Hooks: none here; voice10.js calls voiceLine() and sampleId() (the wiring lives there).
 //
 // Line tokens: {s} = sample id (ctx.sample, default '1A'), {n} = wave number (ctx.wave).
 // Line options (Scientist objects): needs:'wave' (only when ctx.wave is given), minRun:N (letter drift,
 // only when ctx.run >= N). The consciousness lines are plain strings.
 
-const T0 = t => ({ t, tier: 0 });
-const T1 = t => ({ t, tier: 1 });
-const T2 = (t, recover) => ({ t, tier: 2, recover });
-const T3 = (t, recover) => ({ t, tier: 3, recover });
-const W = t => ({ t, tier: 0, needs: 'wave' });
-const RUN = (t, minRun) => ({ t, tier: 0, minRun });
+const VT0 = t => ({ t, tier: 0 });
+const VT1 = t => ({ t, tier: 1 });
+const VT2 = (t, recover) => ({ t, tier: 2, recover });
+const VT3 = (t, recover) => ({ t, tier: 3, recover });
+const VW = t => ({ t, tier: 0, needs: 'wave' });
+const VRUN = (t, minRun) => ({ t, tier: 0, minRun });
 
 // Events whose Scientist lines are all of one explicit tier (they skip the 90/8/2 roll).
 const EVENT_TIER = { celestialDrop: 2, firstSpectralCombustion: 3, firstEggWin: 3 };
@@ -26,16 +26,16 @@ const EVENT_TIER = { celestialDrop: 2, firstSpectralCombustion: 3, firstEggWin: 
 const VOICE = {
   runStart: {
     sci: [
-      T0('Sample {s} loaded. Slide temperature: 37.0 degrees. Mood of the slide: not recorded.'),
-      T0('Run begins. The consent form covers "unspecified outcomes". It covers this.'),
-      T0('Four hundred million others were not selected. They have been disposed of correctly.'),
-      T0('Recording started. Previous samples are on the shelf. Nobody has asked about the shelf.'),
-      T0('Sample {s} placed on the slide. The slide has not been cleaned since Tuesday.'),
-      T0('Begin. I have a flask of tea and no expectations.'),
-      T0('Sample {s}: motile, intact, unaware of the budget.'),
-      T0('Timer started. The immune system has been informed, in the sense that it lives here.'),
-      T1('Sample {s}. I have a good feeling about this one. That is not a scientific statement. Disregard it.'),
-      RUN('Sample {s} again. I have started leaving the lamp on for it. The lamp is on a timer. Disregard.', 4),
+      VT0('Sample {s} loaded. Slide temperature: 37.0 degrees. Mood of the slide: not recorded.'),
+      VT0('Run begins. The consent form covers "unspecified outcomes". It covers this.'),
+      VT0('Four hundred million others were not selected. They have been disposed of correctly.'),
+      VT0('Recording started. Previous samples are on the shelf. Nobody has asked about the shelf.'),
+      VT0('Sample {s} placed on the slide. The slide has not been cleaned since Tuesday.'),
+      VT0('Begin. I have a flask of tea and no expectations.'),
+      VT0('Sample {s}: motile, intact, unaware of the budget.'),
+      VT0('Timer started. The immune system has been informed, in the sense that it lives here.'),
+      VT1('Sample {s}. I have a good feeling about this one. That is not a scientific statement. Disregard it.'),
+      VRUN('Sample {s} again. I have started leaving the lamp on for it. The lamp is on a timer. Disregard.', 4),
     ],
     con: [
       'Go. Go go go. The egg is that way. Probably. Everything is that way.',
@@ -51,15 +51,15 @@ const VOICE = {
 
   waveClear: {
     sci: [
-      W('Wave {n} of 20 complete. Casualties: all of them, on their side.'),
-      T0('Wave cleared. The slide has been wiped. The slide will not stay wiped.'),
-      T0('Hostiles removed. Residue logged as "organic". It is a generous category.'),
-      T0('Interval. Please do not interpret it as safety.'),
-      W('Wave {n} concluded. The sample is intact, which is the only column I was told to fill in.'),
-      T0('Count: none remaining. Count in thirty seconds: unknown.'),
-      T0('Cleared. Cleaning the slide would invalidate the data, so I will not.'),
-      T0('The next wave is already loading. I did not ask it to. It is very keen.'),
-      T1('Better than the model predicted. The model was written by me, so this is awkward.'),
+      VW('Wave {n} of 20 complete. Casualties: all of them, on their side.'),
+      VT0('Wave cleared. The slide has been wiped. The slide will not stay wiped.'),
+      VT0('Hostiles removed. Residue logged as "organic". It is a generous category.'),
+      VT0('Interval. Please do not interpret it as safety.'),
+      VW('Wave {n} concluded. The sample is intact, which is the only column I was told to fill in.'),
+      VT0('Count: none remaining. Count in thirty seconds: unknown.'),
+      VT0('Cleared. Cleaning the slide would invalidate the data, so I will not.'),
+      VT0('The next wave is already loading. I did not ask it to. It is very keen.'),
+      VT1('Better than the model predicted. The model was written by me, so this is awkward.'),
     ],
     con: [
       'Clear. Breathe. Do you breathe? Do it anyway.',
@@ -75,15 +75,15 @@ const VOICE = {
 
   levelUp: {
     sci: [
-      T0('Genetic modification continues. Quality control remains theoretical.'),
-      T0('Another mutation offered. The sample has not read the side effects. Nobody has.'),
-      T0('Genome altered. The change has not been peer reviewed. Peers have been invited.'),
-      T0('Gain recorded. The previous genome has been retired without ceremony.'),
-      T0('Selection pressure applied. Selection pressure was always going to be applied.'),
-      T0('New traits available. Choose one. The others will be discarded, as is traditional.'),
-      T0('Mutation rate: elevated. Cancer risk: not a metric in this study.'),
-      T0('A fresh strand of DNA. Handle it by the edges.'),
-      T1('The curve is steeper than I planned. I am choosing to find this interesting.'),
+      VT0('Genetic modification continues. Quality control remains theoretical.'),
+      VT0('Another mutation offered. The sample has not read the side effects. Nobody has.'),
+      VT0('Genome altered. The change has not been peer reviewed. Peers have been invited.'),
+      VT0('Gain recorded. The previous genome has been retired without ceremony.'),
+      VT0('Selection pressure applied. Selection pressure was always going to be applied.'),
+      VT0('New traits available. Choose one. The others will be discarded, as is traditional.'),
+      VT0('Mutation rate: elevated. Cancer risk: not a metric in this study.'),
+      VT0('A fresh strand of DNA. Handle it by the edges.'),
+      VT1('The curve is steeper than I planned. I am choosing to find this interesting.'),
     ],
     con: [
       "Free DNA. Take it. We've made worse decisions for less.",
@@ -99,15 +99,15 @@ const VOICE = {
 
   badCardTaken: {
     sci: [
-      T0('Selection noted. The alternative was not recorded. It was probably fine.'),
-      T0('Suboptimal. I am recording it as "exploratory".'),
-      T0('The sample selected the weaker trait. Natural selection has been informed.'),
-      T0('Interesting choice. I use "interesting" in the technical sense: I would not have done that.'),
-      T0('Error in the sample\'s judgement. The sample has no judgement. This is consistent.'),
-      T0('Trait acquired. Expected benefit: none. Expected cost: also none, which is something.'),
-      T0('Rejected options will be incinerated. Not the options. The paperwork.'),
-      T0('Choice logged. It will be misquoted in the discussion section.'),
-      T1('I would like it noted that I did not choose that one.'),
+      VT0('Selection noted. The alternative was not recorded. It was probably fine.'),
+      VT0('Suboptimal. I am recording it as "exploratory".'),
+      VT0('The sample selected the weaker trait. Natural selection has been informed.'),
+      VT0('Interesting choice. I use "interesting" in the technical sense: I would not have done that.'),
+      VT0('Error in the sample\'s judgement. The sample has no judgement. This is consistent.'),
+      VT0('Trait acquired. Expected benefit: none. Expected cost: also none, which is something.'),
+      VT0('Rejected options will be incinerated. Not the options. The paperwork.'),
+      VT0('Choice logged. It will be misquoted in the discussion section.'),
+      VT1('I would like it noted that I did not choose that one.'),
     ],
     con: [
       'That one looks useless. Take it. I have a feeling.',
@@ -123,16 +123,16 @@ const VOICE = {
 
   newWeapon: {
     sci: [
-      T0('Subject has acquired additional offensive capability. This is unlikely to improve its temperament.'),
-      T0('New apparatus attached. Warranty void on contact with biology.'),
-      T0('Weapon acquired. The risk assessment is on the desk. It is a short document.'),
-      T0('One more thing that can hurt people. The sample is becoming well-rounded.'),
-      T0('Additional armament logged. I did not authorise it. I also did not prevent it.'),
-      T0('The sample now has more ways to cause harm than the form has boxes for.'),
-      T0('Weapon mounted. Please keep limbs clear. The sample has no limbs. Please keep the tail clear.'),
-      T0('Equipment changed. The old equipment is not being returned to stores.'),
-      T1('That one is rather good. I mention it for the record.'),
-      T2('That is a weapon I did not know was in the pool. I will need to check the pool.', 'Equipment logged.'),
+      VT0('Subject has acquired additional offensive capability. This is unlikely to improve its temperament.'),
+      VT0('New apparatus attached. Warranty void on contact with biology.'),
+      VT0('Weapon acquired. The risk assessment is on the desk. It is a short document.'),
+      VT0('One more thing that can hurt people. The sample is becoming well-rounded.'),
+      VT0('Additional armament logged. I did not authorise it. I also did not prevent it.'),
+      VT0('The sample now has more ways to cause harm than the form has boxes for.'),
+      VT0('Weapon mounted. Please keep limbs clear. The sample has no limbs. Please keep the tail clear.'),
+      VT0('Equipment changed. The old equipment is not being returned to stores.'),
+      VT1('That one is rather good. I mention it for the record.'),
+      VT2('That is a weapon I did not know was in the pool. I will need to check the pool.', 'Equipment logged.'),
     ],
     con: [
       "New weapon. Excellent. Let's see what you do with this bastard.",
@@ -148,15 +148,15 @@ const VOICE = {
 
   lowHp: {
     sci: [
-      T0('Vital signs: concerning. Data quality: excellent.'),
-      T0('Structural integrity of Sample {s} is now a matter of opinion.'),
-      T0('The membrane is compromised. It has been compromised before. It is a recurring theme.'),
-      T0('Condition: poor. The sample is still moving. This is not a good indicator, only a visible one.'),
-      T0('I have noted the damage. I have also noted that I cannot do anything about it.'),
-      T0('The immune system is winning. The immune system always thinks it is winning.'),
-      T0('Cell wall breach logged. Form pending.'),
-      T0('Cytoplasm is leaving the sample. Cytoplasm is not supposed to do that.'),
-      T1('Health is low. I find I am watching the number rather than the screen. Unprofessional.'),
+      VT0('Vital signs: concerning. Data quality: excellent.'),
+      VT0('Structural integrity of Sample {s} is now a matter of opinion.'),
+      VT0('The membrane is compromised. It has been compromised before. It is a recurring theme.'),
+      VT0('Condition: poor. The sample is still moving. This is not a good indicator, only a visible one.'),
+      VT0('I have noted the damage. I have also noted that I cannot do anything about it.'),
+      VT0('The immune system is winning. The immune system always thinks it is winning.'),
+      VT0('Cell wall breach logged. Form pending.'),
+      VT0('Cytoplasm is leaving the sample. Cytoplasm is not supposed to do that.'),
+      VT1('Health is low. I find I am watching the number rather than the screen. Unprofessional.'),
     ],
     con: [
       "You are not dying. You haven't even been born yet. That would be a terrible start.",
@@ -172,14 +172,14 @@ const VOICE = {
 
   surrounded: {
     sci: [
-      T0('Hostile density: high. Escape routes: a matter of definition.'),
-      T0('The sample is encircled. It is, technically, also at the centre of attention.'),
-      T0('Sixteen specimens within one body length. The count will be revised upward.'),
-      T0('Containment has been achieved by the specimens. Not by me. I want to be clear.'),
-      T0('Geometry is not on the sample\'s side.'),
-      T0('The enemy has achieved an even distribution around the sample. It is very tidy.'),
-      T0('Encirclement in progress. The terminology is military. The reality is mostly mucus.'),
-      T0('I recommend leaving. I note there is no recommended direction.'),
+      VT0('Hostile density: high. Escape routes: a matter of definition.'),
+      VT0('The sample is encircled. It is, technically, also at the centre of attention.'),
+      VT0('Sixteen specimens within one body length. The count will be revised upward.'),
+      VT0('Containment has been achieved by the specimens. Not by me. I want to be clear.'),
+      VT0('Geometry is not on the sample\'s side.'),
+      VT0('The enemy has achieved an even distribution around the sample. It is very tidy.'),
+      VT0('Encirclement in progress. The terminology is military. The reality is mostly mucus.'),
+      VT0('I recommend leaving. I note there is no recommended direction.'),
     ],
     con: [
       'Right. Right. Nobody panic. Especially you. Actually, both of us. Whatever.',
@@ -195,14 +195,14 @@ const VOICE = {
 
   nearDeath: {
     sci: [
-      T0('The subject is a few hits from the end of the trial. I have prepared the paperwork in advance.'),
-      T0('Final readings are being taken. Please do not take this personally.'),
-      T0('Remaining health is in single figures. I am not going to say which.'),
-      T0('If the sample has a plan, now would be an acceptable time.'),
-      T0('Critical. I have started a new line on the death form.'),
-      T0('This is the portion of the experiment I describe as "the data".'),
-      T0('Integrity: negligible. Progress: unaffected. Biology does not read the room.'),
-      T0('I have already written "cause of death". I left the field blank. Do not make me fill it in.'),
+      VT0('The subject is a few hits from the end of the trial. I have prepared the paperwork in advance.'),
+      VT0('Final readings are being taken. Please do not take this personally.'),
+      VT0('Remaining health is in single figures. I am not going to say which.'),
+      VT0('If the sample has a plan, now would be an acceptable time.'),
+      VT0('Critical. I have started a new line on the death form.'),
+      VT0('This is the portion of the experiment I describe as "the data".'),
+      VT0('Integrity: negligible. Progress: unaffected. Biology does not read the room.'),
+      VT0('I have already written "cause of death". I left the field blank. Do not make me fill it in.'),
     ],
     con: [
       "Not yet. You haven't even met. It would be embarrassing to die before the introduction.",
@@ -218,15 +218,15 @@ const VOICE = {
 
   bossArrive: {
     sci: [
-      T0('A larger specimen. The slide was already adequately occupied.'),
-      T0('New arrival. Mass: considerable. Welcome: not prepared.'),
-      T0('Principal specimen detected. I use the term because the form does. I did not write the form.'),
-      T0('The specimen is significantly larger than the sample. This is the part of the study where that matters.'),
-      T0('The slide has developed an occupant. It appears to own the slide.'),
-      T0('Unscheduled arrival. I would object, but nobody is listening to me.'),
-      T0('Size ratio: unfavourable. Recording continues.'),
-      T0('It has noticed the sample. I have noticed it noticing.'),
-      T0('Large. Hostile. Present. The three headings of today\'s report.'),
+      VT0('A larger specimen. The slide was already adequately occupied.'),
+      VT0('New arrival. Mass: considerable. Welcome: not prepared.'),
+      VT0('Principal specimen detected. I use the term because the form does. I did not write the form.'),
+      VT0('The specimen is significantly larger than the sample. This is the part of the study where that matters.'),
+      VT0('The slide has developed an occupant. It appears to own the slide.'),
+      VT0('Unscheduled arrival. I would object, but nobody is listening to me.'),
+      VT0('Size ratio: unfavourable. Recording continues.'),
+      VT0('It has noticed the sample. I have noticed it noticing.'),
+      VT0('Large. Hostile. Present. The three headings of today\'s report.'),
     ],
     con: [
       'Oh, fuck off. You have places to be.',
@@ -242,16 +242,16 @@ const VOICE = {
 
   bossKill: {
     sci: [
-      T0('Specimen terminated. Sample intact. Report to follow.'),
-      T0('Large organism deceased. Disposal is a matter for the sink.'),
-      T0('The principal specimen is dead. I have updated the survey: slightly fewer large things.'),
-      T0('It had a name. It now has a cause of death. Both are on the form.'),
-      T0('Result: favourable. I distrust favourable results.'),
-      T0('That is a remarkable amount of cytoplasm. Please do not step in it.'),
-      T0('Sample {s} has killed something larger than itself. That is not a data point. That is a category.'),
-      T0('Hostility reduced to residue. Residue to be mopped in the morning.'),
-      T1('That was not in the model. Noted.'),
-      T2('It died. It actually died. I had it down as a stalemate.', 'Residue logged.'),
+      VT0('Specimen terminated. Sample intact. Report to follow.'),
+      VT0('Large organism deceased. Disposal is a matter for the sink.'),
+      VT0('The principal specimen is dead. I have updated the survey: slightly fewer large things.'),
+      VT0('It had a name. It now has a cause of death. Both are on the form.'),
+      VT0('Result: favourable. I distrust favourable results.'),
+      VT0('That is a remarkable amount of cytoplasm. Please do not step in it.'),
+      VT0('Sample {s} has killed something larger than itself. That is not a data point. That is a category.'),
+      VT0('Hostility reduced to residue. Residue to be mopped in the morning.'),
+      VT1('That was not in the model. Noted.'),
+      VT2('It died. It actually died. I had it down as a stalemate.', 'Residue logged.'),
     ],
     con: [
       'Dead. It is dead. Look at it. Oh, that was lovely.',
@@ -267,9 +267,9 @@ const VOICE = {
 
   firstBossKill: {
     sci: [
-      T0('First principal specimen terminated. Added to the log as "unexpected".'),
-      T0('First large kill. Please remember this one. It sets the baseline for disappointment later.'),
-      T2('The sample has killed a specimen of that size. I will need to reweigh the sample.', 'Recorded.'),
+      VT0('First principal specimen terminated. Added to the log as "unexpected".'),
+      VT0('First large kill. Please remember this one. It sets the baseline for disappointment later.'),
+      VT2('The sample has killed a specimen of that size. I will need to reweigh the sample.', 'Recorded.'),
     ],
     con: [
       "You killed a big one. You're a killer now. Don't let it go to your head. You do have a head. Fine, let it go a bit.",
@@ -280,17 +280,17 @@ const VOICE = {
 
   death: {
     sci: [
-      T0('Cause of death: optimism.'),
-      W('Subject expired in wave {n} of 20. Promising. Get me another one.'),
-      T0('Time of death recorded. Time of death was inevitable.'),
-      T0('Sample {s} is no longer motile. This is the main property I was trying to preserve.'),
-      T0('End of run. The sample has been disposed of in the usual way. The usual way is a sink.'),
-      T0('Subject deceased. I am required to say the sample made a valuable contribution. It contributed.'),
-      T0('The sample has ceased. The slide continues. The slide, in fairness, was never invested.'),
-      T0('Result: death. Duration: short. Analysis: extensive and unnecessary.'),
-      T0('Sample {s} will not be needed again. I have written "needed" in pencil.'),
-      RUN('Sample {s} terminated. I have decided not to write an adjective. I know which one it would be.', 5),
-      RUN('Sample {s} is gone. Tomorrow I will use the next letter. I do not have to like the next letter.', 8),
+      VT0('Cause of death: optimism.'),
+      VW('Subject expired in wave {n} of 20. Promising. Get me another one.'),
+      VT0('Time of death recorded. Time of death was inevitable.'),
+      VT0('Sample {s} is no longer motile. This is the main property I was trying to preserve.'),
+      VT0('End of run. The sample has been disposed of in the usual way. The usual way is a sink.'),
+      VT0('Subject deceased. I am required to say the sample made a valuable contribution. It contributed.'),
+      VT0('The sample has ceased. The slide continues. The slide, in fairness, was never invested.'),
+      VT0('Result: death. Duration: short. Analysis: extensive and unnecessary.'),
+      VT0('Sample {s} will not be needed again. I have written "needed" in pencil.'),
+      VRUN('Sample {s} terminated. I have decided not to write an adjective. I know which one it would be.', 5),
+      VRUN('Sample {s} is gone. Tomorrow I will use the next letter. I do not have to like the next letter.', 8),
     ],
     con: [
       'You were so fucking close.',
@@ -307,9 +307,9 @@ const VOICE = {
 
   firstEggWin: {
     sci: [
-      T3('IT REACHED THE EGG. Sample {s} reached the egg. After fourteen years of nothing. I need to check the slide. I need to check the slide.', 'Result recorded.'),
-      T3('Contact. It made contact. Fourteen years. Fourteen. I am going to sit down. I am sitting down.', 'Contact recorded.'),
-      T3('It is in. It is actually in. Somebody should be told. There is nobody. I will tell the kettle.', 'Result recorded.'),
+      VT3('IT REACHED THE EGG. Sample {s} reached the egg. After fourteen years of nothing. I need to check the slide. I need to check the slide.', 'Result recorded.'),
+      VT3('Contact. It made contact. Fourteen years. Fourteen. I am going to sit down. I am sitting down.', 'Contact recorded.'),
+      VT3('It is in. It is actually in. Somebody should be told. There is nobody. I will tell the kettle.', 'Result recorded.'),
     ],
     con: [
       "There. There you are. You made it. I've been waiting for you to get here my entire existence.",
@@ -321,13 +321,13 @@ const VOICE = {
 
   eggWin: {
     sci: [
-      T0('Egg reached. Result recorded.'),
-      T0('Sample {s} has reached the egg. This is the expected outcome and I will treat it as one.'),
-      T0('Fertilisation event logged. I have not had a reaction. I have noted my not having a reaction.'),
-      T0('Contact with the ovum. I will write it up in the usual place. It is a drawer.'),
-      T0('Another success. The procedure is working. I am working on being less surprised by that.'),
-      T0('Sample {s} goes to the archive. The archive is also a drawer.'),
-      RUN('Sample {s} reached the egg. I have stopped saying "again". It was making the room feel strange.', 4),
+      VT0('Egg reached. Result recorded.'),
+      VT0('Sample {s} has reached the egg. This is the expected outcome and I will treat it as one.'),
+      VT0('Fertilisation event logged. I have not had a reaction. I have noted my not having a reaction.'),
+      VT0('Contact with the ovum. I will write it up in the usual place. It is a drawer.'),
+      VT0('Another success. The procedure is working. I am working on being less surprised by that.'),
+      VT0('Sample {s} goes to the archive. The archive is also a drawer.'),
+      VRUN('Sample {s} reached the egg. I have stopped saying "again". It was making the room feel strange.', 4),
     ],
     con: [
       "There you are. We're here. Again. I'm still not tired of it.",
@@ -341,9 +341,9 @@ const VOICE = {
 
   celestialDrop: {
     sci: [
-      T2('Celestial. That should not be possible. It has been noted. Twice.', 'Item logged.'),
-      T2('That is a Celestial. I did not put a Celestial in the pool. I will check who did.', 'Item logged.'),
-      T2('I would like it noted that I am not excited. The pen disagrees.', 'Item logged.'),
+      VT2('Celestial. That should not be possible. It has been noted. Twice.', 'Item logged.'),
+      VT2('That is a Celestial. I did not put a Celestial in the pool. I will check who did.', 'Item logged.'),
+      VT2('I would like it noted that I am not excited. The pen disagrees.', 'Item logged.'),
     ],
     con: [
       "Can it kill things? I don't care what it is. Can it kill things?",
@@ -355,9 +355,9 @@ const VOICE = {
 
   firstSpectralCombustion: {
     sci: [
-      T3('NO. No, no, no. That is not a normal reaction. I have the papers. I have ALL the papers. There is nothing in the papers about that. What the FUCK am I supposed to put on the form?', 'Form 12B filed.'),
-      T3('That is a ghost. On fire. I do not have a heading for a ghost on fire. I do not have a heading for ANY of this. Fuck.', 'Form 12B filed.'),
-      T3('Hold on. HOLD ON. Soul does not do that with fire. Soul does not do anything with fire. It is not in the literature. Who wrote the literature. Oh, I did.', 'Form 12B filed.'),
+      VT3('NO. No, no, no. That is not a normal reaction. I have the papers. I have ALL the papers. There is nothing in the papers about that. What the FUCK am I supposed to put on the form?', 'Form 12B filed.'),
+      VT3('That is a ghost. On fire. I do not have a heading for a ghost on fire. I do not have a heading for ANY of this. Fuck.', 'Form 12B filed.'),
+      VT3('Hold on. HOLD ON. Soul does not do that with fire. Soul does not do anything with fire. It is not in the literature. Who wrote the literature. Oh, I did.', 'Form 12B filed.'),
     ],
     con: [
       'Something just caught fire that should not have been able to. I like it.',
@@ -368,12 +368,12 @@ const VOICE = {
 
   firstReaction: {
     sci: [
-      T0('Unstable reaction logged. Two damage types have met and failed to agree.'),
-      T0('Reaction observed. The damage types were not introduced beforehand.'),
-      T0('That was an unstable reaction. Stability was not a design goal.'),
-      T0('Two inputs, one outcome. I will add a row to the table.'),
-      T0('A new reaction. The sample has discovered chemistry. The sample will be unbearable.'),
-      T0('Interaction noted. Please do not repeat it near the equipment.'),
+      VT0('Unstable reaction logged. Two damage types have met and failed to agree.'),
+      VT0('Reaction observed. The damage types were not introduced beforehand.'),
+      VT0('That was an unstable reaction. Stability was not a design goal.'),
+      VT0('Two inputs, one outcome. I will add a row to the table.'),
+      VT0('A new reaction. The sample has discovered chemistry. The sample will be unbearable.'),
+      VT0('Interaction noted. Please do not repeat it near the equipment.'),
     ],
     con: [
       'Whoa. What did you do? Do it again.',
@@ -387,14 +387,14 @@ const VOICE = {
 
   quietMoment: {
     sci: [
-      T0('Nothing is happening. I am recording that nothing is happening.'),
-      T0('No hostiles in range. This is statistically unusual.'),
-      T0('The slide is quiet. Dust has been observed.'),
-      T0('Idle time noted. I will use it to refill the tea. I will not leave the room.'),
-      T0('Sample {s} is swimming. That is the whole entry.'),
-      T0('A pause in hostilities. The immune system is thinking. This is not a comfort.'),
-      T0('Quiet. The previous recording of quiet was inconclusive.'),
-      T0('Stillness. I will take the opportunity to examine my stationery.'),
+      VT0('Nothing is happening. I am recording that nothing is happening.'),
+      VT0('No hostiles in range. This is statistically unusual.'),
+      VT0('The slide is quiet. Dust has been observed.'),
+      VT0('Idle time noted. I will use it to refill the tea. I will not leave the room.'),
+      VT0('Sample {s} is swimming. That is the whole entry.'),
+      VT0('A pause in hostilities. The immune system is thinking. This is not a comfort.'),
+      VT0('Quiet. The previous recording of quiet was inconclusive.'),
+      VT0('Stillness. I will take the opportunity to examine my stationery.'),
     ],
     con: [
       'You wonder if the egg is lonely. You decide it must be. You are very good at deciding things for the egg.',
@@ -410,9 +410,9 @@ const VOICE = {
 
   campaignStart: {
     sci: [
-      T0('Campaign conditions: live. The sample will be exposed to an uncontrolled environment. The sample does not know that.'),
-      T0('Sample {s} has been introduced to the field. Please note the field is not sterile.'),
-      T0('A new phase begins. I have not run this phase before. I am proceeding as if I had.'),
+      VT0('Campaign conditions: live. The sample will be exposed to an uncontrolled environment. The sample does not know that.'),
+      VT0('Sample {s} has been introduced to the field. Please note the field is not sterile.'),
+      VT0('A new phase begins. I have not run this phase before. I am proceeding as if I had.'),
     ],
     con: [
       'Other swimmers want a career, a family, a nice flat. You want the egg. Only the egg. Forever the egg.',
