@@ -843,6 +843,7 @@ function damageEnemy(e, dmg, src) {
   } else if (!(G.realT - (e.tickRT || -9) < 0.3)) e.tickRT = G.realT; // ticks get a soft flicker, at most every 0.3s
   const key = src.wname || 'Other';
   G.stats.dmg[key] = (G.stats.dmg[key] || 0) + Math.min(d, Math.max(0, hp0)); // damage actually dealt (overkill isn't counted)
+  if (src.w) wsHit(e, d, src, hp0); // (per-weapon telemetry: wstats.js)
   if (src.w) { const wk = (src.w.friendOf || src.w).uid, W = G.stats.wdmg || (G.stats.wdmg = {}); W[wk] = (W[wk] || 0) + d; } // per weapon, for the Tackle Box
   // Damage numbers thin out when the screen is busy (crits always show).
   if (!src.dot && !IN_AOE) { hitFx(e, src, crit, d); sfx(crit ? 'crit' : 'hit'); }
@@ -969,6 +970,7 @@ function tantrumRage() { return (G.rageV || 0) * Math.pow(0.5, (G.t - (G.rageT |
 function tantrumHurt(d) { G.rageV = tantrumRage() + d; G.rageT = G.t; }
 function tantrumK(s) { return 1 + Math.min(2.5, tantrumRage() / G.P.maxHp * s.rage * 10); }
 function killEnemy(e, src) {
+  if (src && src.w) wsKill(e, src); // (wstats.js)
   if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
@@ -1745,6 +1747,7 @@ function dronePos(w, i, n) {
 
 function fireWeapon(w, target) {
   const s = w.s, d = w.def, p = G.player, src = weaponSrc(w);
+  wsFire(w); // (wstats.js)
   if (d.toy) { toyFire(w, target, src); return; }
   if (d.reborn && rebornFire(w, target, src)) return; // (Prawn Again's weapons, reborn.js)
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
@@ -1921,6 +1924,7 @@ function spawnProj(w, x, y, a, src, over) {
   if (G.proj.length >= CAPS.proj) return;
   let merge = 1;
   if (G.proj.length >= PROJ_SOFT) { merge = G.proj.length >= PROJ_SOFT * 1.6 ? 3 : 2; G.projSkip = ((G.projSkip || 0) + 1) % merge; if (G.projSkip) return; }
+  wsProj(w); // (wstats.js)
   const s = w.s, d = w.def;
   let speed = s.speed * (d.style === 'flame' ? rand(0.75, 1.1) : 1);
   const el = d.elem2 && Math.random() < 0.5 ? d.elem2 : src.elem || d.elem;
@@ -2653,7 +2657,7 @@ function victory(at) {
 
 // ---------------------------------------------------------------- main update
 function update(dt) {
-  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge(); stamTick(dt); modsTick(dt); armourRegen(dt);
+  G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge(); stamTick(dt); modsTick(dt); armourRegen(dt); wsTick(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
   if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (4 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }

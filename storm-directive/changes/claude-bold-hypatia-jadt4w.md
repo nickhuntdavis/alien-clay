@@ -1,3 +1,11 @@
+## 2026-10-18 Per-weapon telemetry in the run log
+- Systems: runlog, weapons, sandbox
+- Files: wstats.js (new), meta.js, game.js, ui.js, index.html, tests/wstatstest.js (new), tests/run.sh
+- What: each run now logs, per weapon slot: seconds held, dps, uptime (0.25 s windows with damage), distinct targets per active window, projectile hit rate, average hit distance, kills, share of damage on bosses, when each tier was taken, plus the weapons offered and picked in start/slot drafts. runText adds one ` wpn` line per weapon and an ` offers:` line (existing lines unchanged). Sandbox runs are now live-saved (closed runs get logged) and marked `[SANDBOX heat N]`. The run log keeps the last 60 runs (unchanged).
+- Save data: `sd_runs` entries gain a `ws` object; the log is trimmed to 60 on load and save.
+- Hooks: game.js damageEnemy -> wsHit, killEnemy -> wsKill, fireWeapon -> wsFire, spawnProj -> wsProj, update -> wsTick; ui.js pickLoot -> wsPick; meta.js runSummary -> wsSummary, runText -> wsHead, wsText.
+- Risk: one extra set operation per hit; older logged runs have no `ws` and print as before.
+
 ## 2026-10-18 Merge the Sandbox session (ccr-b8d66d4a-dmxu9z) (v10.15)
 - Systems: sandbox
 - Files: merge only; tests/run.sh (sbtest added to ALL)

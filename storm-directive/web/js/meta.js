@@ -155,8 +155,8 @@ function metaBuy(kind, id) {
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
 const APP_VERSION = '10.15';
 let RUNLOG = [];
-try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
-function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
+try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]').slice(-60); } catch (e) { RUNLOG = []; }
+function saveRunLog() { if (RUNLOG.length > 60) RUNLOG.splice(0, RUNLOG.length - 60); try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG)); } catch (e) { /* ignore */ } }
 function logRun(G, result) {
   if (!G || G.logged || G.t < 30) return;
   G.logged = true;
@@ -167,7 +167,7 @@ function logRun(G, result) {
 // A run in progress is saved every 20 s and whenever the app is hidden. If the app is closed mid-run,
 // the next launch logs it as CLOSED, so runs that never reach a death, win or Quit still show up.
 function liveSave(G) {
-  if (!G || G.logged || G.t < 30 || G.debug) return;
+  if (!G || G.logged || G.t < 30 || (G.debug && !G.debug.sb)) return; // (Sandbox runs are kept; other Lab Bench runs are not)
   try { localStorage.setItem('sd_live', JSON.stringify(runSummary(G, 'CLOSED'))); } catch (e) { /* ignore */ }
 }
 try { const live = JSON.parse(localStorage.getItem('sd_live') || 'null'); if (live) { live.n = (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1; RUNLOG.push(live); saveRunLog(); } localStorage.removeItem('sd_live'); } catch (e) { /* ignore */ }
@@ -192,6 +192,7 @@ function runSummary(G, result) {
     s: G.spells.filter(Boolean).map(w => w.id + w.lvl),
     p: top(G.passives, 12).map(([k, v]) => k + v),
     boxes: G.stats.boxes || 0, boxBy: G.stats.boxBy || {}, xp: Math.round(G.stats.xpGot || 0), xpRaw: Math.round(G.stats.xpRaw || 0), xpDrop: Math.round(G.stats.xpDrop || 0), xpFloor: Math.round(G.gems.filter(g => g.kind !== 's').reduce((a, g) => a + g.v, 0)), xpK: +((G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp) * XP_PACE).toFixed(2), curve: Math.round((G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))) * 10) / 10, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
+    ws: typeof wsSummary === 'function' ? wsSummary(G) : undefined, // (per-weapon telemetry: wstats.js)
     tl: G.tl || [], fps: G.fpsTl || [], perf: G.perfTl || [], dev: typeof deviceTag === 'function' ? deviceTag() : '', cap: (typeof SET !== 'undefined' && SET.fpsCap) || 0, meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2), spd: (() => { const u = G.spdUse || {}, t = Object.values(u).reduce((a, b) => a + b, 0); if (!t) return ''; const e = Object.entries(u).filter(([, v]) => v / t >= 0.05); return e.length === 1 && +e[0][0] === 1 ? '' : e.map(([k, v]) => 'x' + k + (e.length > 1 ? ' ' + Math.round(v / t * 100) + '%' : '')).join(' '); })(), vet: Math.round(vetK() * VET.hp * 100),
   };
 }
@@ -210,6 +211,7 @@ function winTally() {
 function runText(r) {
   const m = s => `${Math.floor(s / 60)}:${(s % 60 < 10 ? '0' : '') + s % 60}`;
   let out = `#${r.n} ${r.at} v${r.v} ${r.res} ${m(r.t)}${r.wave ? ' [' + r.wave + ']' : r.smp === 's001' ? ' [standard]' : ''}${r.ir ? ' IR' + r.ir : ''}${r.gen ? ' Gen' + r.gen : ''}${r.seq ? ' [' + r.seq + ']' : ''}${r.combos ? ' combos:' + r.combos : ''} Lv${r.lvl} K${r.kills} bosses${r.bosses} rewinds${r.rewinds} final5@${r.egg ? m(r.egg) : '-'} boxes${r.boxes}${r.boxBy && Object.keys(r.boxBy).length ? '(' + Object.entries(r.boxBy).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + v).join(' ') + ')' : ''} metaRanks${r.meta}${r.spd ? ' speed ' + r.spd : ''}${r.vet ? ' vet+' + r.vet + '%' : ''} zoom${r.zoom}${r.dev ? ' | device ' + r.dev : ''}\n`;
+  if (typeof wsHead === 'function') out += wsHead(r);
   out += ` ended by: ${r.res === 'WON' ? 'the egg (you won)' : r.by || '-'} | hurt: ${r.hurt.join(', ')}\n`;
   if (r.hurtK) { const t = Object.values(r.hurtK).reduce((a, b) => a + b, 0) || 1; out += ` hurt by type: ${Object.entries(r.hurtK).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v} (${Math.round(v / t * 100)}%)`).join(', ') || '-'}\n`; }
   out += ` dmg: ${r.dmg.join(', ')}\n`;
@@ -218,6 +220,7 @@ function runText(r) {
   if (r.xp != null) out += ` xp: ${r.xp} gained (x${r.xpK} bonus on ${r.xpRaw} collected of ${r.xpDrop} dropped, ${r.xpFloor} left on the floor) ${r.wave ? '' : ` | vs level curve: ${r.curve >= 0 ? '+' : ''}${r.curve} levels`}\n`;
   out += ` rivals: ${r.rivals.join(' ') || '-'} | lv/hp% per min: ${r.tl.join(' ')}${r.fps && r.fps.length ? ' | fps avg/low per min: ' + r.fps.join(' ') : ''}\n`;
   if (r.perf && r.perf.length) out += ` worst frame per min (cap ${r.cap || 'off'}; ms total(u update d draw) e enemies b bullets s shots p particles z zones L frames over 50ms): ${r.perf.join(' ')}\n`;
+  if (typeof wsText === 'function') out += wsText(r);
   return out;
 }
 function copyText(text) {

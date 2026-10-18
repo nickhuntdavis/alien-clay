@@ -999,6 +999,7 @@ const UI = {
     if (!o || o.taken) return;
     clearPreviews();
     phTaken(o);
+    wsPick(UI.lootReq, UI.lootOpts, o); // (wstats.js)
     o.apply(wuid);
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
