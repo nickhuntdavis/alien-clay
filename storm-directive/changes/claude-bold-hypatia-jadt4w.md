@@ -265,3 +265,11 @@
 - Save data: none.
 - Hooks: bosses.js bossDamageMul skips weak/resist/noForce/weakAoe under V10; game.js boss 'summon' pattern -> boss10SummonOk and tags adds; ui.js openLoot -> draftTitle; ui.js autoTick weapon-upgrade preference.
 - Risk: bosses lose their old soft spots, so some fights get longer; balance needs the sims (1 run: died wave 10, weapons up to Lv 10 with two forks).
+
+## 2026-10-18 v10 Feats (merged from agent-feats); draft groups
+- Systems: feats (feats10.js new), stamina, draft, ui
+- Files: feats10.js (new), index.html, game.js, stamina.js, v10.js, ui.js, draft.js, tests/featstest.js (new), tests/pdeftest.js, tests/mutstest.js
+- What: three Feat slots under V10 and 24 Feats (gifts from the consciousness) with levels 1 to 5 and forks at 3 and 5; attacking Feats go through damageEnemy and cost stamina, utility gifts are free; 15 in the starting pool, 9 unlockable. The draft now weights card groups (Feats, mutations, Catalyst/Concentration, defences) as wholes, so big groups don't crowd out the others. mutstest no longer depends on the random start weapon.
+- Save data: META.f10unl (unlocked later-pool Feat ids).
+- Hooks: game.js newGame (F10_SLOTS), fireWeapon (case 'f10'), updateSpellList and featTap (f10Wait), featFire, computeStats (f10Stats), hurtPlayer (f10Hurt, f10HurtMul), killEnemy (f10Kill), gainXp (f10Xp); stamina.js featCost (f10Cost), sprintMul (f10Speed); v10.js v10Tick (f10Tick), v10Draw (f10Draw); ui.js Feat slot count.
+- Risk: Level 5 Feat forks are first drafts (FEATS.md lists only level 3). THIS WAY and the eight sample Feats are not built yet.
