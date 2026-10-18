@@ -1,7 +1,7 @@
-## 2026-10-18 Sandbox HUD: kills, kills a second, live DPS (v10.18)
+## 2026-10-18 Sandbox HUD: kills, kills a second, DPS (v10.19)
 - Systems: sandbox
 - Files: sandbox.js
-- What: the Sandbox HEAT bar gains a second line: KILLS n | kills a second (whole run) | DPS (all your damage over the last 5 s of play). The HEAT buttons now refresh it at once (a comment had swallowed the call).
+- What: the Sandbox HEAT bar gains a second line: KILLS n | kills a second | DPS (all your damage), both averaged over the whole run so far. The HEAT buttons now refresh it at once (a comment had swallowed the call).
 - Save data: none.
 - Hooks: none.
 - Risk: none (Sandbox only). Touches the Sandbox session's file: merge with care.
