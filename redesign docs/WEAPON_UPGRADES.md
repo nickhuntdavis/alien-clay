@@ -487,7 +487,7 @@
 # Notes and open points
 
 1. **Rule changes needed before code:** Shared Trauma (statuses copied between linked enemies) and Snotwork's strand pull need lines in the matrix. Weapon marks (Marked for Bonking, Shell Game cracks, Unfinished Business, Bad Aftertaste, Meat Grinder) need one shared rule saying what a weapon mark is.
-2. **Attack-type changes (5):** More Is More (to Burst), Dead Pixels (to Spread), Flash in the Pan (to Burst), Big Bang, Eventually (a standing well), Premature Evacuation stays Burst but becomes self-centred.
+2. **Attack-type changes (4), all at Lv 10:** More Is More (to Burst), Dead Pixels (to Spread), Flash in the Pan (to Burst), Big Bang, Eventually (its leftover well is a Pool). Premature Evacuation stays a Burst but becomes self-centred.
 3. **No damage-type changes.** `MODIFIERS.md`'s "it never changes the attack's damage type" stands.
 4. **Nappy Mines is Fire from the start** (user, 18 Oct). Its patch is a Fire Pool footprint, not an Acid Pool. Acid now has one weapon (Acid Spit).
 5. **Untested:** no number has been simulated.
