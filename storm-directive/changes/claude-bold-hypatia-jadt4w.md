@@ -1,3 +1,10 @@
+## 2026-10-18 Weapon branches, batch 2: Acid Spit, Red Flagship, Nocturnal Emission, Little Prick
+- Systems: weapons, upgrades (weapons24.js engine), combat (bars read and paid off from a card)
+- Files: wup2.js (new), index.html (script tag after weapons24.js), tests/wup2test.js (new)
+- What: the four weapons now have their three promises (Lv 3), nine Lv 6 cards (two per promise plus a wildcard; 18 in-promise names are new, e.g. Second Helping, Backsplash, Cascade Failure, Rising Damp, Reef Knot, Terminal Clause) and three masteries each, all registered with wupReg and acting through wupOn hooks. Costs are real stat or damage changes; every card draws something (ring, line, drips, floatText).
+- Save data: none.
+- Hooks: none added to shared files. wup2.js only reads fight.js, combat.js and game.js (damageEnemy, spawnProj, zones, v10fx lines). Globals are all w2* / W2_*.
+- Risk: Snot Ocean is read as radius x3 (not area x3); Pin Cushion needles do 50% each; Projectile Vomit swaps stats and fire() but leaves def.v10atk as proj (its hits carry atk 'beam'). Nocturnal Emission strands, bogeys and bubbles are drawn with v10fx dots and lines. tests/wup2test.js is not in run.sh's ALL list (run it by name).
 ## 2026-10-18 The new eight samples in code: three starters each, Race only
 - Systems: samples, weapons, ui
 - Files: samples10.js, feats10.js, mutations.js, fight.js, game.js, ui.js, tests/samplestest.js, tests/ufeatstest.js, tests/v10test.js, tests/voicetest.js
