@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon branches, batch 3: Rent Free, Hot Mess, Family Ties, Skill Issue
+- Systems: weapons, upgrades
+- Files: wup3.js (new), index.html (script tag after wup2.js), tests/wup3test.js (new)
+- What: all three promises, nine Lv 6 cards and three masteries for each of the four weapons, registered with wupReg and acting through the weapons24.js hooks (stats, fire, hit, dmg, kill, tick). Costs are real stat changes. Unnamed Lv 6 cards were named (Cold Spot, Second Sighting, Ghostly Tug, Hitching a Ride, Spreading Spooks, Friendly Ghost, Backdraft, Hot Tub, Hot Foot, Burning Bridges, Short Fuse, Powder Keg, Roach Motel, Compaction, Bumper Cars, Let Go, Appetite, Afterglow, Bank Shot, Hat Trick, Weight Class, Prime Cut, Splatter Zone, Chain Tenderising).
+- Save data: none.
+- Hooks: none added to shared files.
+- Risk: Skill Issue cards watch the armoury bowling list (G.armBowl); Family Ties cards edit orb fields (pull, aura, r); Hot Mess cards edit their own zones. Simplified: pets are invulnerable ghosts drawn with particles; Appetite/Afterglow add a second blast after the engine's supernova.
+
 ## 2026-10-18 Every level-up and DNA pick opens at once (v10.11)
 - Systems: draft
 - Files: draft.js, tests/drafttest.js
