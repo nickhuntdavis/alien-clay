@@ -111,12 +111,19 @@ function sbWire() {
   ['pointerdown', 'touchstart', 'mousedown'].forEach(ev => bar.addEventListener(ev, stop));
   bar.querySelectorAll('button').forEach(b => b.addEventListener('click', e => {
     e.stopPropagation(); if (!sbOn()) return;
-    const S = G.debug.sb; S.heat = Math.max(-3, S.heat + +b.dataset.h); // (below 0: quieter still) sbShow();
+    const S = G.debug.sb; S.heat = Math.max(-3, S.heat + +b.dataset.h); sbShow(); // (below 0: quieter still)
   }));
+  // Kills so far, kills a second (whole run) and current DPS (all your damage over the last 5 s of play).
+  let hist = [];
   const sbShow = () => {
     const on = sbOn() && G.state === 'play';
     bar.style.display = on ? 'flex' : 'none';
-    if (on) $('sbTxt').textContent = `HEAT ${G.debug.sb.heat} | ${fmtTime(G.t)} | ${G.enemies.length} foes`;
+    if (!on) return;
+    const dmg = Object.values(G.stats.dmg || {}).reduce((a, v) => a + v, 0);
+    if (!hist.length || G.t < hist[hist.length - 1].t) hist = [];
+    hist.push({ t: G.t, dmg }); while (hist.length > 1 && G.t - hist[0].t > 5) hist.shift();
+    const h0 = hist[0], dps = G.t > h0.t ? (dmg - h0.dmg) / (G.t - h0.t) : 0;
+    $('sbTxt').innerHTML = `HEAT ${G.debug.sb.heat} | ${fmtTime(G.t)} | ${G.enemies.length} foes<br>KILLS ${G.kills} | ${(G.kills / Math.max(1, G.t)).toFixed(2)}/s | DPS ${Math.round(dps)}`;
   };
   setInterval(sbShow, 400);
 })();

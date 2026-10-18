@@ -153,7 +153,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '10.17';
+const APP_VERSION = '10.18';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]').slice(-60); } catch (e) { RUNLOG = []; }
 function saveRunLog() { if (RUNLOG.length > 60) RUNLOG.splice(0, RUNLOG.length - 60); try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG)); } catch (e) { /* ignore */ } }

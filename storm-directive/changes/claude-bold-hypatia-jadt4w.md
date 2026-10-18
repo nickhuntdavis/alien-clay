@@ -1,3 +1,11 @@
+## 2026-10-18 Sandbox HUD: kills, kills a second, live DPS (v10.18)
+- Systems: sandbox
+- Files: sandbox.js
+- What: the Sandbox HEAT bar gains a second line: KILLS n | kills a second (whole run) | DPS (all your damage over the last 5 s of play). The HEAT buttons now refresh it at once (a comment had swallowed the call).
+- Save data: none.
+- Hooks: none.
+- Risk: none (Sandbox only). Touches the Sandbox session's file: merge with care.
+
 ## 2026-10-18 Merge the Sandbox session again: autofire toggle, + mount, banked upgrades (v10.17)
 - Systems: sandbox, ui
 - Files: merge only (manualfire.js arrives; ARCHITECTURE.md script order keeps both wstats and manualfire)
