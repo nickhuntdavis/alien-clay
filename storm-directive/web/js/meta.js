@@ -48,8 +48,11 @@ function skinEarn() {
   return d;
 }
 
+// v10 test build: a fresh save (v10.js). The old one stays in sd_meta; best times, run logs and a saved run go.
+const META_KEY = typeof window !== 'undefined' && window.V10_OFF ? 'sd_meta' : 'sd_meta10';
+try { if (META_KEY === 'sd_meta10' && !localStorage.getItem(META_KEY)) for (const k of ['sd_best', 'sd_runs', 'sd_live']) localStorage.removeItem(k); } catch (e) { /* storage unavailable */ }
 const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0, pairs: {}, bosses: {} };
-try { Object.assign(META, JSON.parse(localStorage.getItem('sd_meta') || '{}')); } catch (e) { /* storage unavailable */ }
+try { Object.assign(META, JSON.parse(localStorage.getItem(META_KEY) || '{}')); } catch (e) { /* storage unavailable */ }
 META.pairs = META.pairs || {}; META.combos = META.combos || {}; META.bosses = META.bosses || {}; META.quirks = META.quirks || {}; META.wstats = META.wstats || {}; META.relics = META.relics || {};
 META.prof = META.prof || {}; META.muts = META.muts || {}; META.profile = META.profile || 'vanguard';
 // v7.63 raised the sequence rank thresholds: whatever rank you'd already reached is kept.
@@ -58,7 +61,7 @@ META.life = Object.assign({ bestT: 0, bosses: 0, pickups: 0, elem: 0, casts: 0 }
 // v6 retired most weapons: starters bought for them are refunded in full.
 { const OLD = { nailgun: 60, cryopipette: 60, antibioticsg: 70, nerveimpulse: 70, placebo: 80, chromowhip: 80, metaflare: 90, genesplicer: 100, mitosiscannon: 120, hailswarm: 90 };
   for (const id in META.starters) if (!WEAPONS[id]) { META.dna += OLD[id] || 0; delete META.starters[id]; } }
-function saveMeta() { try { localStorage.setItem('sd_meta', JSON.stringify(META)); } catch (e) { /* ignore */ } }
+function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(META)); } catch (e) { /* ignore */ } }
 
 // DNA earned by a run.
 function runDna(G, won) {
@@ -150,7 +153,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '9.27';
+const APP_VERSION = '10.08';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]'); } catch (e) { RUNLOG = []; }
 function saveRunLog() { try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG.slice(-60))); } catch (e) { /* ignore */ } }
@@ -175,7 +178,8 @@ function runSummary(G, result) {
   return {
     n: (RUNLOG.length ? RUNLOG[RUNLOG.length - 1].n : 0) + 1, v: APP_VERSION,
     at: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`,
-    res: result, smp: (typeof UI !== 'undefined' && UI.sample) || 's001', wave: G.wave ? (G.wave.camp ? `wave ${G.wave.n}/${CAMP.waves}` + (G.wave.boss ? ' ' + G.wave.boss : '') : `endless wave ${G.wave.n}`) : null, ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', combos: Object.keys(G.combo || {}).join('+'), t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
+    res: result, sid: typeof vxSid === 'function' ? vxSid(G) : '', smp: (typeof UI !== 'undefined' && UI.sample) || 's001', wave: G.wave ? (G.wave.camp ? `wave ${G.wave.n}/${CAMP.waves}` + (G.wave.boss ? ' ' + G.wave.boss : '') : `endless wave ${G.wave.n}`) : null, ir: G.heat || 0, gen: META.gen || 0, seq: G.genes ? G.genes.active.join('+') : '', combos: Object.keys(G.combo || {}).join('+'), t: Math.round(G.t), lvl: G.level, kills: G.kills, bosses: G.stats.bossKills, rewinds: G.stats.rewinds,
+    fst: G.fst ? JSON.parse(JSON.stringify(G.fst, (k, v) => typeof v === 'number' ? Math.round(v * 10) / 10 : v)) : undefined, // (v10 combat stats: fight.js)
     egg: G.eggAt ? Math.round(G.eggAt) : 0, by: G.rivalWinner || G.stats.lastHit || '',
     hurt: top(G.stats.hurt, 4).map(([k, v]) => k + ' ' + Math.round(v)),
     hurtK: Object.fromEntries(Object.entries(G.stats.hurtKind || {}).map(([k, v]) => [k, Math.round(v)])),
@@ -243,6 +247,6 @@ function importSave(code) {
 }
 // Settings > Data > Reset all progress: everything earned on this phone goes; settings stay.
 function resetAllProgress() {
-  try { for (const k of ['sd_meta', 'sd_best', 'sd_runs', 'sd_live', 'sd_err']) localStorage.removeItem(k); } catch (e) { /* storage unavailable */ }
+  try { for (const k of [META_KEY, 'sd_best', 'sd_runs', 'sd_live', 'sd_err']) localStorage.removeItem(k); } catch (e) { /* storage unavailable */ }
   location.reload();
 }

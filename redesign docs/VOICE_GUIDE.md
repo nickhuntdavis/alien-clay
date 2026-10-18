@@ -2,7 +2,7 @@
 
 # Purpose and status
 
-This is the canonical writing guide for Spawn Prawn's narrative voice, humour, dialogue, and progressive disclosure. It records adopted direction and practical rules for writing new lines. The linked **Character Voices — Demo Lines** page is a working test bench, not a replacement for this guide.
+This is the canonical writing guide for Spawn Prawn's narrative voice, humour, dialogue, and progressive disclosure. It records adopted direction and practical rules for writing new lines. The linked **Character Voices: Demo Lines** page is a working test bench, not a replacement for this guide.
 
 # The game's central comic tension
 
@@ -90,10 +90,10 @@ Silence is a deliberate writing choice, not missing content.
 
 The Scientist's composure system is a rarity scale, not a set of equally common styles.
 
-- **Tier 0 — Flat apathy (about 90%):** neutral observation, clinical understatement, no emotional flourish.
-- **Tier 1 — Dry flicker (about 8%):** a slight crack, unusually pointed phrasing, a brief trace of interest or irritation.
-- **Tier 2 — Slipping (about 2%):** disbelief, excitement, support, or frustration is briefly visible.
-- **Tier 3 — Full Carl (under 0.5%):** crude, loud, specific, uncontrolled language. Reserved for genuinely extreme events.
+- **Tier 0 (flat apathy, about 90%):** neutral observation, clinical understatement, no emotional flourish.
+- **Tier 1 (dry flicker, about 8%):** a slight crack, unusually pointed phrasing, a brief trace of interest or irritation.
+- **Tier 2 (slipping, about 2%):** disbelief, excitement, support, or frustration is briefly visible.
+- **Tier 3 (full Carl, under 0.5%):** crude, loud, specific, uncontrolled language. Reserved for genuinely extreme events.
 
 The percentages are directional targets for the overall impression, not a requirement to hit an exact quota. Tier 3 must feel earned. It is not the default tone for a rare item merely because the item is rare.
 
@@ -142,21 +142,22 @@ These are tools, not quotas. Repetition will make them feel like a formula.
 
 The game should reveal only as much as the player needs at that moment.
 
-- **Layer 1 — Name and flavour:** a short, memorable name and a line of flavour. No numbers.
-- **Layer 2 — First-time hint:** only when necessary; one short sentence, roughly 12 words. Tell the player what to do, not why the mechanic exists or how all its values work.
-- **Layer 3 — Field Guide / codex:** full stats, formulas, reaction rules, science notes, and interactions.
+- **Layer 1 (name and flavour):** a short, memorable name and a line of flavour. No numbers.
+- **Layer 2 (first-time hint):** only when necessary; one short sentence, roughly 12 words. Tell the player what to do, not why the mechanic exists or how all its values work.
+- **Layer 3 (field Guide / codex):** full stats, formulas, reaction rules, science notes, and interactions.
 
 Do not repeat a hint after the player has learned it. Do not explain an effect that is already visible. Exceptions: irreversible losses, controls that cannot reasonably be discovered, and important hidden information.
 
 ## Screen and content ownership
 
 - **Menus:** Scientist at Tier 0.
-- **Tutorials and first sightings:** the consciousness gives a short, direct, skippable instruction when needed. Name and flavour first; no lecture.
+- **Tutorials:** the consciousness gives a short, direct, skippable instruction when needed. Name and flavour first; no lecture.
 - **Loot and upgrade cards:** name plus flavour. Show only the bare stat change needed to make a choice legible. The consciousness may push or rationalise; do not explain every synergy.
-- **Weapons, Feats, trophies, mutations:** name can carry the joke; description states the visible effect. Avoid numbers and synergy exposition unless needed.
-- **Enemy first-sighting cards:** Scientist can identify or clinically frame the specimen; avoid over-explaining what is on screen.
+- **Feats:** gifts from the consciousness. The card shows the name, the consciousness's gift line, then one plain sentence of what it does (`FEATS.md` 1).
+- **Weapons, trophies, mutations:** name can carry the joke; description states the visible effect. Avoid numbers and synergy exposition unless needed.
+- **Enemy first-sighting cards:** write two lines per enemy: one Scientist line (identifies or clinically frames the specimen) and one consciousness line (a short push or instruction to the sperm). Each sighting shows one of the two. Avoid over-explaining what is on screen.
 - **In-run commentary:** sparse. The consciousness reacts to immediate pressure; Scientist observations should be rare and purposeful.
-- **Damage types:** plain, clinical names. Reaction names may carry the joke. Keep the full reaction chart in the Field Guide.
+- **Damage types:** plain, clinical names. Reaction names may carry the joke. Reactions are discovered: the name shows the first time one fires ("Unstable reaction: Flashover"), and its Field Guide entry appears once found. No chart up front.
 - **HUD and repeated status effects:** mostly silent. Never repeat the same informational line throughout a run.
 - **Boss intro:** Scientist stays flat. A kill can reach Tier 2; a first kill may justify Tier 3 if it is genuinely exceptional.
 - **Death screen:** Scientist stays at Tier 0. The consciousness may show denial, anger, or the pain of being denied entry into the world.
@@ -169,9 +170,9 @@ Do not repeat a hint after the player has learned it. Do not explain an effect t
 
 Sample names follow a strain/run convention:
 
-- First sample: **1A — Baseline**.
-- Another run of the same strain: **1B — Baseline**.
-- A newly unlocked strain might be **2A — Bright Spark**.
+- First sample: **1A: Baseline**.
+- Another run of the same strain: **1B: Baseline**.
+- A newly unlocked strain might be **2A: Overachiever** (roster in `SAMPLES.md`).
 - The number identifies the strain; the letter identifies the run of that strain.
 - After 1Z, continue with 1AA unless a later implementation decision changes the sequence.
 
@@ -229,6 +230,8 @@ The last line is deliberately phrased from the consciousness's perspective towar
 
 ## Scientist: rare break
 
+The Tier 3 example belongs to the first time the rare Spectral Combustion Pairing fires ("not a normal reaction" is literally true). A Celestial drop gets Tier 2, not Tier 3: rarity alone does not earn a meltdown.
+
 - “NO. No, no, no. That is not a normal reaction. I have the papers. I have ALL the papers. There is nothing in the papers about that. What the FUCK am I supposed to put on the form?”
 - Recovery: “Form 12B filed.”
 
@@ -251,13 +254,11 @@ Before approving dialogue, ask:
 
 # Related page
 
-[Character Voices — Demo Lines](#)
-
-[Character Voices — Demo Lines](#)
+[Character Voices: Demo Lines](#)
 
 ---
 
-# Character Voices — Demo Lines
+# Character Voices: Demo Lines
 
 # Purpose
 
@@ -314,91 +315,91 @@ A dialogue calibration page for the two voices in Spawn Prawn. These are demo li
 
 # Tutorials and upgrades
 
-**Sprint tutorial — the consciousness, to the sperm**
+**Sprint tutorial: the consciousness, to the sperm**
 
 > Hold to move faster. Yes, faster. We'll worry about the consequences when we have consequences.
 > 
 
-**Dodge tutorial — the consciousness, to the sperm**
+**Dodge tutorial: the consciousness, to the sperm**
 
 > Move. The big horrible thing is trying to turn you into a historical footnote.
 > 
 
-**Level-up — the consciousness, to the sperm**
+**Level-up: the consciousness, to the sperm**
 
 > Free DNA. Take it. We've made worse decisions for less.
 > 
 
-**Bad upgrade — the consciousness, to the sperm**
+**Bad upgrade: the consciousness, to the sperm**
 
 > That one looks useless. Take it. I have a feeling.
 > 
 
-**Level-up observation — Scientist**
+**Level-up observation: Scientist**
 
 > Genetic modification continues. Quality control remains theoretical.
 > 
 
 # Combat and danger
 
-**Low health — Scientist**
+**Low health: Scientist**
 
 > Vital signs: concerning. Data quality: excellent.
 > 
 
-**Low health — the consciousness, to the sperm**
+**Low health: the consciousness, to the sperm**
 
 > You are not dying. You haven't even been born yet. That would be a terrible start.
 > 
 
-**Surrounded — the consciousness, to the sperm**
+**Surrounded: the consciousness, to the sperm**
 
 > Right. Right. Nobody panic. Especially you. Actually, both of us. Whatever.
 > 
 
-**Boss arrives — Scientist**
+**Boss arrives: Scientist**
 
 > A larger specimen. The slide was already adequately occupied.
 > 
 
-**Boss arrives — the consciousness, to the sperm**
+**Boss arrives: the consciousness, to the sperm**
 
 > Oh, fuck off. You have places to be.
 > 
 
-**Death — Scientist**
+**Death: Scientist**
 
 > Cause of death: optimism.
 > 
 
-**Death — the consciousness**
+**Death: the consciousness**
 
 > You were so fucking close.
 > 
 
 # The consciousness's obsession with conception
 
-**Campaign start — the consciousness, to the sperm**
+**Campaign start: the consciousness, to the sperm**
 
 > Other swimmers want a career, a family, a nice flat. You want the egg. Only the egg. Forever the egg.
 > 
 
-**Campaign inner voice — the consciousness, to the sperm**
+**Campaign inner voice: the consciousness, to the sperm**
 
 > Keep going. You haven't seen it yet. You don't know what it looks like, but you know.
 > 
 
-**After a difficult fight — the consciousness, to the sperm**
+**After a difficult fight: the consciousness, to the sperm**
 
 > That thing tried to eat you. The egg would have been furious. Probably. You should survive long enough to tell it.
 > 
 
-**Near death — the consciousness, to the sperm**
+**Near death: the consciousness, to the sperm**
 
 > Not yet. You haven't even met. It would be embarrassing to die before the introduction.
 > 
 
-**Quiet moment — the consciousness, to the sperm**
+**Quiet moment: the consciousness, to the sperm**
 
 > You wonder if the egg is lonely. You decide it must be. You are very good at deciding things for the egg.
 > 
@@ -407,12 +408,17 @@ A dialogue calibration page for the two voices in Spawn Prawn. These are demo li
 
 These should be genuinely rare. The consciousness does not need to become louder when the Scientist does.
 
-**Celestial drop — Scientist, Tier 3**
+**Celestial drop (Scientist, Tier 2)**
+
+> Celestial. That should not be possible. It has been noted. Twice.
+> 
+
+**First Spectral Combustion (Scientist, Tier 3)**
 
 > NO. No, no, no. That is not a normal reaction. I have the papers. I have ALL the papers. There is nothing in the papers about that. What the FUCK am I supposed to put on the form?
 > 
 
-**Celestial drop — the consciousness, to the sperm**
+**Celestial drop (the consciousness, to the sperm)**
 
 > Can it kill things? I don't care what it is. Can it kill things?
 > 
@@ -424,12 +430,12 @@ These should be genuinely rare. The consciousness does not need to become louder
 
 # First egg victory
 
-**The consciousness — emotional peak, addressing the sperm**
+**The consciousness: emotional peak, addressing the sperm**
 
 > There. There you are. You made it. I've been waiting for you to get here my entire existence.
 > 
 
-**Scientist — Tier 3**
+**Scientist: Tier 3**
 
 > IT REACHED THE EGG. Sample 1A reached the egg. After fourteen years of nothing. I need to check the slide. I need to check the slide.
 > 

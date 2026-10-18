@@ -30,11 +30,11 @@ const UI = {
     // Build HUD slots.
     const ws = $('wslots'), ss = $('sslots');
     for (let i = 0; i < MAX_WEAPONS + COMBO_MOUNTS; i++) ws.appendChild(UI.makeSlotEl('w', i));
-    for (let i = 0; i < 2; i++) ss.appendChild(UI.makeSlotEl('s', i));
+    for (let i = 0; i < F10_SLOTS; i++) ss.appendChild(UI.makeSlotEl('s', i));
     $('moveBtn').addEventListener('click', ev => {
       if (!G) return;
-      const i = MOVE_DIRECTIVES.findIndex(m => m.id === G.moveDir), n = MOVE_DIRECTIVES.length, k = tapSide($('moveBtn'), ev);
-      G.moveDir = MOVE_DIRECTIVES[(i + k + n) % n].id;
+      const MV = moveModes(), i = MV.findIndex(m => m.id === G.moveDir), n = MV.length, k = tapSide($('moveBtn'), ev); // (autorun.js)
+      G.moveDir = MV[(i + k + n) % n].id;
       UI.toast('AUTORUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name);
       UI.refreshHud(true);
     });
@@ -61,7 +61,7 @@ const UI = {
       if (G.chrono.snaps.length < 2) { UI.toast('Timeline too short to rewind yet'); return; }
       startRewind(false);
     });
-    $('playBtn').addEventListener('click', () => schoolDue() ? schoolStart() : UI.openSamples()); // (a fresh save goes to Level 0 first: school.js)
+    $('playBtn').addEventListener('click', () => !V10 && schoolDue() ? schoolStart() : UI.openSamples()); // (a fresh save goes to Level 0 first: school.js)
     $('schoolSkip').addEventListener('click', schoolSkip);
     $('quickBtn').addEventListener('click', () => UI.quickStart());
     $('dailyBtn').addEventListener('click', () => startDaily());
@@ -136,9 +136,9 @@ const UI = {
   // starting weapon. No sample screen, no sequence screen, no microscope dive, no weapon draft. Your chosen
   // sequence for normal runs is left as it was.
   quickStart() {
-    const keep = META.profile, seqs = Object.keys(PROFILES).filter(id => profUnlocked(id));
+    const keep = META.profile, seqs = V10 ? ['s10_baseline'] : Object.keys(PROFILES).filter(id => profUnlocked(id));
     META.profile = pick(seqs.length ? seqs : ['vanguard']);
-    UI.sample = 's001';
+    UI.sample = V10 ? 's002' : 's001'; // (v10: Human Sample 1 in the dish)
     UI.startGame(false);
     META.profile = keep;
     const i = G.lootQueue.findIndex(q => q.kind === 'start');
@@ -173,7 +173,7 @@ const UI = {
       if (!w) return `<b>Empty ${kind === 's' ? 'spell' : 'weapon'} slot</b><p>Tap to open the Tackle Box.</p>`;
       const dr = DIRECTIVES.find(x => x.id === w.dir);
       return `<b style="color:${elemCol(wElem(w))}">${esc(w.def.name)}</b> <em>Lv ${w.lvl}/${MAX_WLVL}</em><p>${esc(w.def.desc)}</p>`
-        + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name : ''}</p>` : '')
+        + (w.s && w.s.dmg ? `<p>Damage ${w.s.dmg.toFixed(w.s.dmg < 10 ? 1 : 0)}${w.s.cd ? ' | ' + (1 / w.s.cd).toFixed(1) + '/s' : ''}${dr ? ' | targets ' + dr.name + (w.dir2 && !w.dirs ? ', then ' + DIRECTIVES.find(x => x.id === w.dir2).name : '') : ''}</p>` : '')
         + (w.mods.length ? `<p>Mods: ${w.mods.map(m => esc(MODS[m.id].name)).join(', ')}</p>` : '')
         + `<p>${kind === 's' ? 'Tap to perform it now. Its target and the rest are in the Tackle Box.' : w.def.noTarget ? 'Tap to open the Tackle Box.' : 'Tap to switch target. TACKLE BOX button for the rest.'}</p>`;
     }, ev => {
@@ -182,7 +182,7 @@ const UI = {
       if (kind === 's' && w) { featTap(w); return; } // (Feats: tap to cast)
       if (!w || w.def.noTarget) { UI.openArmoury(kind, i); return; }
       const idx = DIRECTIVES.findIndex(d => d.id === w.dir), n = DIRECTIVES.length;
-      w.dir = DIRECTIVES[(idx + tapSide(el, ev) + n) % n].id;
+      w.dir = DIRECTIVES[(idx + tapSide(el, ev) + n) % n].id; if (w.dir2 === w.dir) w.dir2 = null;
       if (w.dirs) w.dirs[0] = w.dir;
       UI.toast(w.def.name + ' > ' + DIRECTIVES.find(d => d.id === w.dir).name);
       UI.refreshHud(true);
@@ -208,7 +208,7 @@ const UI = {
         el.querySelector('.ico').innerHTML = iconSVG(w.def, w.isSpell ? 18 : 24, elemCol(wElem(w)));
         el.querySelector('.lv').textContent = 'Lv' + w.lvl;
         el.querySelector('.mp').innerHTML = w.mods.map(m => `<i style="background:${PAL.upgrade}"></i>`).join('');
-        el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : '');
+        el.querySelector('.dir').textContent = w.def.noTarget ? 'AUTO' : DIRECTIVES.find(d => d.id === w.dir).short + (w.dirs ? ' +2' : w.dir2 ? '›' + DIRECTIVES.find(d => d.id === w.dir2).short : '');
         el.classList.toggle('merged', !!(w.combos && w.combos.length));
       }
       let frac, reloading = false;
@@ -223,7 +223,7 @@ const UI = {
     };
     $('wslots').classList.toggle('many', G.weapons.length > 3);
     for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); }
-    for (let i = 0; i < 2; i++) fill(sEls[i], G.spells[i]);
+    for (let i = 0; i < sEls.length; i++) fill(sEls[i], G.spells[i]);
     comboBonds(); // (combo partners share one border: fusion.js)
     $('moveBtn').firstChild.textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
     // Keep the Rewind button clear of the HUD as extra weapon rows appear.
@@ -258,7 +258,8 @@ const UI = {
       const opts = (UI.lootOpts || []).map((o, i) => [o, i]).filter(([o]) => o && !o.taken);
       if (!opts.length) return;
       UI.autoAt = now;
-      UI.pickLoot(pick(opts)[1]);
+      const up = V10 && Math.random() < 0.5 && opts.find(([o]) => o.wup); // (v10 auto-pick: the weapon upgrade half the time, UPGRADES.md 10)
+      UI.pickLoot((up || pick(opts))[1]);
       return;
     }
     if (G.state === 'play' && SET.autoWaves && waveReady()) {
@@ -321,7 +322,7 @@ const UI = {
   renderSettings() {
     const body = $('setBody'), tab = SET.setTab || 'game';
     const tabsHtml = `<div class="ptabs">${SET_TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
-    body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => d.tab === tab).map(d => UI.setRowHtml(d)).join('');
+    body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => d.tab === tab && !(d.hide && d.hide())).map(d => UI.setRowHtml(d)).join('');
     // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
     body.onclick = ev => {
       const b = ev.target.closest('[data-stab]');
@@ -488,6 +489,7 @@ const UI = {
         cur = w.dirs[A.bar];
       }
       h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
+      if (!w.dirs) h += `<h3 style="margin-top:10px">Then (breaks ties, and takes over when nothing fits)</h3><div class="chips">${[{ id: '', short: 'NONE' }].concat(DIRECTIVES.filter(dd => dd.id !== w.dir)).map(dd => `<button class="chip ${(w.dir2 || '') === dd.id ? 'sel' : ''}" data-dir3="${dd.id}">${dd.short}</button>`).join('')}</div>`;
     }
     h += `</div>`;
     // How it plays.
@@ -611,8 +613,10 @@ const UI = {
     body.querySelectorAll('[data-bar]').forEach(b => b.addEventListener('click', () => { A.bar = +b.dataset.bar; UI.renderArmoury(); }));
     body.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       if (w.dirs) { w.dirs[A.bar] = b.dataset.dir; if (A.bar === 0) w.dir = b.dataset.dir; } else w.dir = b.dataset.dir;
+      if (w.dir2 === w.dir) w.dir2 = null;
       const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y;
     }));
+    body.querySelectorAll('[data-dir3]').forEach(b => b.addEventListener('click', () => { w.dir2 = b.dataset.dir3 || null; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; }));
     const tt = $('treeToggle');
     if (tt) tt.addEventListener('click', () => { A.full = !A.full; const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; });
     const rb = $('armRecycle');
@@ -880,6 +884,7 @@ const UI = {
       splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
     };
     UI.pickedOne = false;
+    if (!titles[req.kind]) titles[req.kind] = typeof draftTitle === 'function' ? draftTitle(req) : [req.kind.toUpperCase(), '']; // (v10 forks: draft.js)
     if (req.kind === 'relic') titles.relic[0] = 'RELIC: ' + bossDef(req.boss).name.replace(/^THE /, '');
     if (req.kind === 'rrelic') { const V = RIVALS.find(x => x.id === req.rid); if (V) titles.rrelic[0] = 'RELIC: ' + V.name.toUpperCase(); }
     if (req.kind === 'sfork') { const sw = G.spells.find(x => x && x.uid === req.uid); if (sw) titles.sfork[0] = sw.def.name.toUpperCase() + ': LV ' + SPELL_FORK_LV + ' PATH'; }
@@ -975,6 +980,7 @@ const UI = {
         UI.pickLoot(i);
       });
       phButtons(c, o);
+      if (V10) draftBanishBtns(c, o); // (Banish and Fewer like this: draft.js)
       wrap.appendChild(c);
     });
     if (UI.lootReq && UI.lootReq.rule === 'recycler' && UI.lootOpts.some(o => o.locked)) wrap.appendChild(weirdRecycleList(UI.lootReq));
@@ -1044,7 +1050,7 @@ const UI = {
     let h = `<div class="ptabs">${[['you', 'YOU'], ['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE LAB'], ['codex', 'GUIDE']].map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-ptab="${id}">${l}</button>`).join('')}</div>`;
     if (tab === 'run') {
     h += `<div class="sec"><h3>Autorun directive</h3><div class="chips">`;
-    for (const m of MOVE_DIRECTIVES) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
+    for (const m of moveModes()) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
     h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
     h += `<div class="sec"><h3>Game speed</h3><div class="chips">${SPEED_OPTS.map(v => `<button class="chip ${gameSpeed() === v ? 'sel' : ''}" data-spd="${v}">x${v}</button>`).join('')}</div></div>`;
 
@@ -1142,7 +1148,7 @@ const UI = {
         const f = w.fork && SPELL_FORKS[w.id] ? SPELL_FORKS[w.id][w.fork === 'a' ? 0 : 1] : null;
         if (f) sub.push(`<b>${esc(f.name)}</b>: ${esc(f.desc)}`); else if (w.lvl < SPELL_FORK_LV && SPELL_FORKS[w.id]) sub.push(`Picks a path at Lv ${SPELL_FORK_LV}`);
       } else {
-        if (!w.def.noTarget) sub.push('Targets ' + esc((w.dirs ? w.dirs.map(d => DIRECTIVES.find(x => x.id === d).short).join(' / ') : (DIRECTIVES.find(x => x.id === w.dir) || {}).name || '')));
+        if (!w.def.noTarget) sub.push('Targets ' + esc((w.dirs ? w.dirs.map(d => DIRECTIVES.find(x => x.id === d).short).join(' / ') : (DIRECTIVES.find(x => x.id === w.dir) || {}).name || '') + (w.dir2 && !w.dirs ? ', then ' + DIRECTIVES.find(x => x.id === w.dir2).name : '')));
         const pk = Object.keys(w.perks || {}).sort((a, b) => a - b).map(l => `<b>${esc(perkDef(w.perks[l]).name)}</b> (Lv ${l})`);
         if (pk.length) sub.push(pk.join(', '));
         if (w.mods.length) sub.push('Mods: ' + w.mods.map(m => esc(MODS[m.id].name)).join(', '));
@@ -1200,6 +1206,7 @@ const UI = {
       + (opts && opts.full ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">As your Primary it evolves at ${esc(evolveText(id))}.</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
   },
   openSamples() {
+    if (V10) return v10Samples(); // (v10 test build: one sample, v10.js)
     const best = UI.loadBest();
     // Developer mode (tap the title five times) shows the Lab Bench.
     let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
@@ -1476,6 +1483,7 @@ const UI = {
     if (!won) h = UI.killerHtml() + h;
     $('overBody').innerHTML = h;
     if (!won) UI.drawKiller();
+    if (typeof vxEnd === 'function') vxEnd(won); // (the Scientist and the consciousness: voice10.js)
     UI.show('over');
   },
   // Lost: whoever finished you off, big, close up and red, with a word for you.
@@ -1523,6 +1531,7 @@ const UI = {
     UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
     const dna = bankRun(G, false);
     $('overBody').innerHTML = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked</div>` + h;
+    if (typeof vxEnd === 'function') vxEnd(false); // (voice10.js)
     UI.show('over');
   },
   loadBest() { try { return JSON.parse(localStorage.getItem('sd_best') || '{}'); } catch (e) { return {}; } },

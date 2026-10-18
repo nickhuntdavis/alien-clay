@@ -80,7 +80,7 @@ function newStats() {
   return {
     might: 1, haste: 1, reloadSpd: 1, magMult: 1, multishot: 0, projSpeed: 1, range: 1, area: 1, dur: 1,
     pierce: 0, crit: 0.05, critDmg: 1.6, maxHp: 120, regen: 0, speed: 1, magnet: 1, armour: 0, luck: 0,
-    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1, soul: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1, plates: 0, flinch: 0, fullLoad: 0,
+    lifesteal: 0, elem: { phys: 1, fire: 1, ice: 1, shock: 1, poison: 1, arcane: 1, oxi: 1, salt: 1, soul: 1, flame: 1 }, chain: 0, cocktail: 0, chainReact: 0, mixologist: 0, stamMax: 0, stamRegen: 1, sprintCost: 1, sprintSpd: 0, featCost: 1, plates: 0, flinch: 0, fullLoad: 0,
     poisonCap: 12, react: 1, cdr: 1, xp: 1, dodge: 0, chronoGain: 1, scrap: 1,
     lastRound: 0, tactical: 0, focus: 0, overkill: 0, crossfire: 0, momentum: 0, anchorLink: 0, future: 0, ram: 0, heft: 0, thorns: 0, grit: 0, echoInherit: 0,
     bankShot: 0, atpK: 0, ironGut: 0, brushOff: 0, flow: 0, skid: 0,
@@ -96,7 +96,7 @@ function newGame() {
     player: { x: 0, y: 0, vx: 0, vy: 0, r: 12, hp: 120, iframes: 0, face: -Math.PI / 2, flash: 0 },
     P: newStats(),
     enemies: [], proj: [], ebul: [], gems: [], pickups: [], zones: [], fx: [], parts: [], texts: [], turrets: [], timers: [],
-    weapons: Array(BASE_SLOTS).fill(null), spells: [null, null], passives: {},
+    weapons: Array(BASE_SLOTS).fill(null), spells: Array(F10_SLOTS).fill(null), passives: {}, // (v10: three Feat slots, feats10.js)
     moveDir: 'kite', manual: null, pins: [], hides: [], pinName: {}, // (loot cards you pinned or hid: pinhide.js)
     kills: 0, level: 1, xp: 0, xpNeed: xpNeed(1),
     lootQueue: [{ kind: 'start' }], rerolls: 2,
@@ -125,7 +125,7 @@ function newGame() {
   for (const id in (META.pstains || {})) if (DYES[id] && !(META.pstainOff || {})[id] && !(G.wave && id === 'rival')) G.dyes[id] = true;
   applyMeta(G);
   genesStart(G);
-  junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
+  if (!V10) junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
   refreshPalette(); // greyscale apart from your permanent stains: colour comes from stains picked up during the run
 }
 
@@ -205,18 +205,18 @@ function forNear(x, y, r, fn) {
 
 // ---------------------------------------------------------------- targeting
 function targetScore(dir, e, d2) {
+  if (dir.length > 9 && dir.includes('>')) return aimPair(dir, e, d2); // (a primary plus a tie-breaker: autorun.js)
   switch (dir) {
     case 'nearest': return -d2;
     case 'furthest': return d2;
-    case 'strongest': return e.maxHp * 1e6 - d2;
+    case 'strongest': return aimTough(e) * 1e6 - d2;
     case 'weakest': return -e.maxHp * 1e6 - d2;
     case 'lowhp': return -e.hp * 1e6 - d2;
-    case 'highhp': return e.hp * 1e6 - d2;
     case 'armour': return effArmour(e) * 1e6 - d2;
     case 'fastest': return e.speed * 1e6 - d2;
     case 'cluster': return e.crowd * 1e6 - d2;
     case 'elite': return (e.boss ? 2 : e.rival ? 1.5 : e.elite ? 1 : 0) * 1e9 - d2;
-    case 'shooters': return (e.boss || e.def.shoot || e.def.ai === 'summon' || e.def.ai === 'medic' ? 1 : 0) * 1e9 - d2;
+    case 'shooters': return aimShootTier(e) * 1e9 - d2;
     case 'random': return Math.random();
     case 'revenge': return (e === G.grudge ? 1e12 : 0) - d2;
   }
@@ -254,7 +254,7 @@ function effArmour(e) { return Math.max(0, e.armour + (e.auraArm > 0 ? 4 : 0) - 
 // ---------------------------------------------------------------- inventory & stats
 function makeSlot(id, isSpell, lvl) {
   const def = isSpell ? SPELLS[id] : WEAPONS[id];
-  const w = { uid: uidSeq++, id, def, isSpell, lvl: lvl || 1, dir: def.dir, cd: 0.3, ammo: 0, reloadT: 0, reloadMax: 1,
+  const w = { uid: uidSeq++, id: def.sigOf || id, sid: id, def, isSpell, lvl: lvl || 1, dir: def.dir, cd: 0.3, ammo: 0, reloadT: 0, reloadMax: 1,
     spin: 0, active: 0, ang: 0, blades: [], beamT: 0, beamTick: 0, beams: [], s: null,
     mods: [], perks: {}, dirs: def.committee ? [def.dir, 'nearest', 'shooters'] : null, heat: 0, stored: 0, gachaTier: 0, focusT: 0, lastTarget: null, curTarget: null };
   if (def.gacha) rollGacha(w, true);
@@ -354,11 +354,13 @@ function computeStatsInner(w) {
   s.perkCount = 0;
   applyPerks(w, s);
   genesAdapt(w, s);
+  if (V10) mutWeaponStats(w, s); // (mutation cards: mutations.js)
   // Extra projectiles (Split Personality, Plus One, Twins!, Octuplets) share the damage, and add half what they
   // used to: 3 extra shots on a one-shot weapon give about 1.65x damage in all (it was 2.3x).
   const n1 = baseCount + extraMulti + s.perkCount;
   if (n1 > baseCount && d.melee !== 'pulse') { const k = n1 / baseCount; s.dmg *= (1 + (Math.pow(k, 0.6) - 1) / 2) / k; }
   spellForkStats(w, s); // (a spell's Lv 4 path)
+  if (w.def.f10) f10Stats(w, s); // (v10 Feat levels and forks: feats10.js)
   w.s = s;
 }
 
@@ -443,6 +445,7 @@ function lvBonusText(def, from, to) {
 }
 
 function genLoot(req) {
+  if (V10) { const o = v10Loot(req); if (o) return o; } // (v10 test build: drafts and Switched at Birth only, v10.js)
   const opts = [];
   if (req.rule || req.imm) { const wl = weirdLoot(req); if (wl) { if (req.rule) for (const o of wl) delete o.pk; return wl; } } // (weird.js: a rule-breaking box)
   if (req.kind === 'myth') { // Achievement DNA: Mythical or Immaculate cards only
@@ -774,7 +777,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
-  if (e.dead || e.phased || (e.charmed && !src.fromAlly)) return 0;
+  if (e.dead || e.phased || (e.charmed && !src.fromAlly && !V10)) return 0; // (v10: autoaim skips a Possessed enemy, but area hits still land and set off Soul reactions)
   if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
   if (e.def.spongy) e.sorryT = G.t; // (amoebas only knit back together when left alone: arsenal.js engulfAI)
@@ -806,11 +809,13 @@ function damageEnemy(e, dmg, src) {
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
-  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; d *= P.critDmg + Math.max(0, cc - 1); }
+  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; if (!V10) d *= P.critDmg + Math.max(0, cc - 1); } // (v10: the resolver applies crits last, fight.js)
   if (e.mark > 0) d *= 1.3; // (marked by other things: Grassed Up and the like)
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
-  if (!src.dot && src.elem !== 'soul') d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
+  if (V10) { const r = fightHit(e, d, src, crit); if (r < 0) return 0; d = r; } // (v10: Evasion, Membrane, Shell, Squishy, crit: fight.js)
+  else if (!src.dot && src.elem !== 'soul') d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
+  if (V10) nf10Hit(e, src, d); // (Stress Ball counts Force hits, Trapped Wind lights: newfoes.js)
   d = foes2Dmg(e, d, src); // (ordinary weak/resist, Litmus, Interferon shields, Puffball spores: foes2.js)
   if (e.egg) {
     // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
@@ -853,7 +858,7 @@ function damageEnemy(e, dmg, src) {
   if ((src.combo || (src.w && !src.noProc)) && !src.dot) chemComboHit(e, dmg, src); // combo twists (chem.js)
   if (!src.dot) relicHit(e, d, src);
   if (!src.dot && !src.env && (src.w || src.combo || src.elem)) tutElem(src.elem || 'phys'); // (a first-time chemistry card: tutorial.js)
-  if (src.elem && src.elem !== 'phys' && !src.noStatus) applyElement(e, src.elem, dmg, src);
+  if (src.elem && src.elem !== 'phys' && !src.noStatus && !(V10 && e.fOk === false)) applyElement(e, src.elem, dmg, src); // (v10: no status through a soaked or missed hit)
   else if ((src.elem || 'phys') === 'phys') chemForce(e, dmg, src); // Force: soap bursts, drunks fall over (chem.js)
   // Charged enemies arc a portion of incoming damage to a neighbour.
   if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25) * (e.pickle > 0 ? 2 : 1)) { // (pickled: conducts twice as well)
@@ -965,6 +970,10 @@ function killEnemy(e, src) {
   if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
+  if (V10) fightDeath(e, src); // (a Charged enemy discharges: fight.js)
+  if (V10) mutKill(e, src); // (mutation cards: mutations.js)
+  if (V10) f10Kill(e, src); // (v10 Feats that watch kills: feats10.js)
+  if (V10) nf10Kill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)
   if (e.dummy) dummyBurst(e); // (Dummy Spit)
   if (G.nf) nfKill(e, src); // (Hostile Environment grows: newfeats.js)
   G.kills++;
@@ -1133,6 +1142,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
+  if (V10) dmg *= f10HurtMul(); // (Survivor's Guilt: feats10.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt() * nfHurtMul(ent, kind, from) * pstHurtMul(G.hitFrom, kind); // (Personal Space: seqfeats.js; the v9.23 Feats: newfeats.js)
   dmg = relicDamageIn(dmg, ent);
@@ -1142,21 +1152,26 @@ function hurtPlayer(dmg, from, ent, kind) {
   // The cap has a fixed part (22% of a 120 HP swimmer, growing with the clock) and a part from your own max HP,
   // so more max HP still means more boss hits to go down (it used to be 22% of yours, so HP made no difference).
   if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * 0.15 + 120 * 0.07 * defClock());
+  if (V10) dmg = mutHurtIn(dmg, ent, kind); // (mutation cards: mutations.js)
   dmg = plateAbsorb(dmg); if (dmg <= 0) return; // (Rubber Johnny plates soak it first: bodymods.js)
   // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
   // Your armour wears down: every hit that lands knocks a point off (two from a boss), and it grows back slowly once
   // you stop getting hit (armourRegen). Temporary plating (Bear Hug, Fortress) does not wear.
+  const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
+  let d;
+  if (V10) { d = pdefHurt(dmg, from, ent, kind); if (d <= 0) return; } else { // (v10: Evasion, Membrane, Shell, Squishy, Thorns: pdef.js)
   const armBase = Math.max(0, P.armour - (G.armourLost || 0));
   const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour() + junkArmour()) * defClock();
-  const d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
-  const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
-  if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } // (the forcefield flashes: armourRing)
+  d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
+  if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } } // (the forcefield flashes: armourRing)
+  if (V10 && f10Hurt(d, ent, kind)) return; // (v10 Feats that take a hit: feats10.js)
   if (nfLethal(d)) return; // (Anhydrobiosis: newfeats.js)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d; tantrumHurt(d); seqHurt(); pstHit(hf); // (Snotty, Sick, Soaking wet: pstatus.js) // (a clean boss fight: seqlock.js)
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
   if (ent && !ent.dead) { G.grudge = ent; tutShow('grudge'); }
   G.lastHitEnt = ent || null;
+  if (V10) mutHurt(d); // (mutation cards: mutations.js)
   rebornHurt(d); // (Karma)
   rivalLeech(ent); // (rivals with the leech trait) // (the end-of-run screen shows whoever finished you off)
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
@@ -1203,6 +1218,7 @@ function makeEnemy(def, x, y, opts) {
   }
   e.armK = Math.min(3, Math.pow(hpMul(t), 0.3)); // armour keeps pace a little (x1 at the start, about x2.8 by minute 9)
   heatEnemy(e); // Immune Response
+  if (V10) { e.hp *= V10_DIFF.hp; e.maxHp *= V10_DIFF.hp; e.dmg *= V10_DIFF.dmg; } // (v10 builds are leaner than v9's: boss10.js)
   foes2Make(e); // (type caps, G.typeN: foes2.js)
   return e;
 }
@@ -1636,8 +1652,9 @@ function bossAI(e, dt, dist, ux, uy) {
       break;
     case 'summon':
       if (e.st === 0) {
-        e.st = 1;
-        for (let i = 0; i < 8 && G.enemies.length < CAPS.enemies; i++) { const a = i / 8 * TAU; G.enemies.push(makeEnemy(pick([ENEMIES.skitter, ENEMIES.crawler, ENEMIES.bomber]), e.x + Math.cos(a) * 70, e.y + Math.sin(a) * 70)); }
+        e.st = 1; const n0 = G.enemies.length;
+        for (let i = 0; i < 8 && G.enemies.length < CAPS.enemies && boss10SummonOk(e); i++) { const a = i / 8 * TAU; G.enemies.push(makeEnemy(pick([ENEMIES.skitter, ENEMIES.crawler, ENEMIES.bomber]), e.x + Math.cos(a) * 70, e.y + Math.sin(a) * 70)); }
+        if (V10) G.enemies.slice(n0).forEach(o => (o.summonedBy = e)); // (capped adds: boss10.js)
         ring(e.x, e.y, 90, e.color, 0.5, 5);
       }
       if (e.fireT <= 0) { e.fireT = 1.2; shootPattern(e, 'aimed'); }
@@ -1695,7 +1712,7 @@ function updateWeapon(w, dt) {
   while (w.cd <= 0 && shots < 3) {
     let target = null;
     if (!d.noTarget && d.kind !== 'mine') {
-      target = d.grudge && G.grudge && !G.grudge.dead && !G.grudge.phased ? G.grudge : acquire(w.dir, s.range, G.player.x, G.player.y);
+      target = d.grudge && G.grudge && !G.grudge.dead && !G.grudge.phased ? G.grudge : aimSticky(w, acquire(aimDir(w), s.range, G.player.x, G.player.y), s.range); // (autorun.js)
       if (!target) { w.cd = Math.max(w.cd, -s.cd); w.spin = Math.max(0, w.spin - dt); w.curTarget = null; return; }
       if (target !== w.lastTarget) { w.focusT = 0; w.lastTarget = target; }
       w.curTarget = target;
@@ -1729,6 +1746,9 @@ function fireWeapon(w, target) {
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
   if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
   if (d.armoury && armFire(w, target, src)) return; // (the Armoury's weapons, armoury.js)
+  if (d.v10 && w.m10 && modFire(w, target, src)) return; // (v10 modifiers, modifiers.js)
+  if (V10) mutFire(w, target, src); // (Everywhere!: mutations.js)
+  if (d.v10 && v10Fire(w, target, src)) return; // (v10 beams and bursts, v10.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
@@ -1767,7 +1787,7 @@ function fireWeapon(w, target) {
       break;
     }
     case 'chain': {
-      const ts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count) : [target];
+      const ts = s.count > 1 ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count) : [target];
       const csrc = w.isLast ? Object.assign({}, src, { mult: src.mult * (3 + Math.min(4, G.P.lastRound)) }) : src;
       // Spoilers: a bolt that starts from the far side of the crowd.
       if (G.P.future > 0 && Math.random() < G.P.future) { const far = acquire('furthest', s.range, p.x, p.y); if (far) doChain(far.x, far.y, far, s.dmg, s.chain, s.jump, Object.assign({}, csrc)); }
@@ -1797,7 +1817,7 @@ function fireWeapon(w, target) {
       break;
     // ---- spells
     case 'strike': {
-      const ts = s.stick ? acquireMany(w.dir, s.range, p.x, p.y, s.count + 4).filter(t => !t.dummy).slice(0, s.count) : acquireMany(w.dir, s.range, p.x, p.y, s.count);
+      const ts = s.stick ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count + 4).filter(t => !t.dummy).slice(0, s.count) : acquireMany(aimDir(w), s.range, p.x, p.y, s.count);
       for (const t of ts) {
         if (s.stick) { // Dummy Spit: it sticks now and bursts when they die
           t.dummy = { dmg: s.dmg * 1.5, area: s.area, color: d.color, src, chain: spellFork(w, 'b') ? 1 : 0, gen: 0 };
@@ -1836,7 +1856,7 @@ function fireWeapon(w, target) {
       G.fx.push({ type: 'frost', x: p.x, y: p.y, r: s.area, color: '#caf0f8', life: 0.6, max: 0.6 });
       break;
     case 'thunder': {
-      const ts = acquireMany(w.dir, s.range, p.x, p.y, s.count);
+      const ts = acquireMany(aimDir(w), s.range, p.x, p.y, s.count);
       ts.forEach((t, i) => after(i * 0.07, () => {
         bolt(t.x + rand(-30, 30), t.y - 500, t.x, t.y, '#fdf0d5', 0.3);
         bolt(t.x + rand(-60, 60), t.y - 420, t.x, t.y, '#ffe94a', 0.2);
@@ -1862,6 +1882,7 @@ function fireWeapon(w, target) {
     case 'oob': rebornOOB(w); break;
     case 'seqfeat': seqFeatFire(w, target, src); break; // (sequence Feats: seqfeats.js)
     case 'newfeat': nfFire(w, target, src); break; // (the v9.23 Feats: newfeats.js)
+    case 'f10': f10Fire(w, target, src); break; // (the v10 Feats: feats10.js)
     case 'ring':
       for (let i = 0; i < s.count; i++) spawnProj(w, p.x, p.y, i / s.count * TAU + G.realT, src);
       break;
@@ -1921,6 +1942,7 @@ function spawnProj(w, x, y, a, src, over) {
     if (s.magnet) pr.magnet = s.magnet;
     if (s.delay) { pr.delayAt = 0.15; pr.delayB = s.delay; }
   }
+  if (w.m10 && !(over && over.noMods)) modProj(pr, w); // (v10 modifiers, modifiers.js)
   G.proj.push(pr);
   if (w.def.replay) rebornReplay(w, x, y, a, src, over, pr); // (Deja Vu: the same shot again, later)
   // Mirror: a twin fired the opposite way.
@@ -1973,7 +1995,7 @@ function updateBeam(w, dt) {
   w.beamT -= dt; w.beamTick -= dt;
   if (w.beamT <= 0) { w.beams = []; return; }
   // Re-acquire targets and swing beams towards them.
-  const ts = acquireMany(w.dir, s.range * 1.05, p.x, p.y, s.count);
+  const ts = acquireMany(aimDir(w), s.range * 1.05, p.x, p.y, s.count);
   if (!ts.length) { w.beams = []; return; }
   while (w.beams.length < ts.length) w.beams.push({ a: Math.atan2(ts[w.beams.length].y - p.y, ts[w.beams.length].x - p.x) });
   w.beams.length = ts.length;
@@ -2022,6 +2044,7 @@ function updateProjectiles(dt) {
       }
       continue;
     }
+    if (pr.m10 && modStep(pr, dt)) continue; // (v10 modifiers, modifiers.js)
     // Orbiting modifier: circle the player eating enemy bullets, then launch.
     if (pr.orbitT > 0) {
       pr.orbitT -= dt; pr.oa += 6 * dt;
@@ -2128,6 +2151,8 @@ function updateProjectiles(dt) {
       const hm = (pr.pb ? 1 + 1.5 * clamp(pr.life / pr.max, 0, 1) : 1) * (pr.vsOwner === e ? 3 : 1) * aimMul(pr, e); // (range falloff, sniper shots: aim.js)
       damageEnemy(e, pr.dmg * hm, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
       projHit(pr, e);
+      if (V10) mutProjHit(pr, e); // (mutation cards: mutations.js)
+      if (pr.m10) modHit(pr, e); // (v10 modifiers, modifiers.js)
       if (pr.ghost) rebornHit(pr, e); // (Ghosts of You: reborn.js)
       if (pr.pair) geneHit(pr, e); // (Gene Gun: edits)
       if (pr.note) redNoteHit(pr, e); // (Duelling Banjo: Hoedown)
@@ -2200,18 +2225,19 @@ function updateSpellList(list, dt) {
     if (featWaits(w) && !w.echo) { w.cd = 0; continue; } // (Settings > Feat timing, or the Feat's own in the Loadout: loadout.js)
     let target = null;
     if (!w.def.noTarget) {
-      target = acquire(w.dir, w.s.range, G.player.x, G.player.y);
+      target = acquire(aimDir(w), w.s.range, G.player.x, G.player.y);
       if (!target) { w.cd = 0; continue; }
     } else if (w.def.kind === 'heal' && G.player.hp > G.P.maxHp * 0.85) { w.cd = 0; continue; }
     else if ((w.def.kind === 'warp' || w.def.kind === 'barrier' || w.def.kind === 'ring') && !acquire('nearest', 300, G.player.x, G.player.y)) { w.cd = 0; continue; }
     if (w.def.kind === 'newfeat' && nfWait(w, target)) { w.cd = 0; continue; } // (held until it is worth it: newfeats.js)
+    if (w.def.f10 && f10Wait(w)) { w.cd = 0; continue; } // (v10 Feats wait for their moment: feats10.js)
     if (!featPay(w)) { w.cd = 0.2; continue; } // (stamina Feats: not enough in the bar yet)
     featFire(w, target);
   }
 }
 function featFire(w, target) {
   fullLoadFire(w, target); // (fireWeapon, stronger from a fuller bar with Full Load: bodymods.js)
-  w.cd = featCost(w) ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat)
+  w.cd = featCost(w) && !w.def.f10 ? w.s.cd * 0.35 : w.s.cd; // (stamina Feats only wait a short beat; v10 Feats keep their full cooldown)
   genesCast(w); // Turbo-chondrial Engine
   if (!w.echo) G.stats.casts = (G.stats.casts || 0) + 1;
   w.reloadMax = w.s.cd;
@@ -2224,7 +2250,8 @@ function featTap(w) {
   if (G.inCilia && featCost(w)) { say('TANGLED IN CILIA'); return false; }
   if (w.def.passive) { say(w.def.name.toUpperCase() + ' PERFORMS ITSELF'); return false; } // (Anhydrobiosis: newfeats.js)
   let target = null;
-  if (!w.def.noTarget) { target = acquire(w.dir, w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
+  if (!w.def.noTarget) { target = acquire(aimDir(w), w.s.range * 1.3, p.x, p.y); if (!target) { say('NOTHING IN RANGE'); return false; } }
+  if (w.def.f10 && f10Wait(w)) { say('NOTHING IN RANGE'); return false; } // (feats10.js)
   if (!featPay(w)) { say('NOT ENOUGH STAMINA'); vibrate(20); return false; }
   featFire(w, target); vibrate(25);
   return true;
@@ -2285,8 +2312,8 @@ function updatePlayer(dt) {
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
   const speed = 165 * P.speed * oobSpeed() * chemPlayerSpeed() * nfSpeed() * // (LUBED UP: chem.js; the v9.23 Feats: newfeats.js)
     // (base 165: was 150; Out of Body: faster)
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed() * pstSpeed(); // (Snotty: pstatus.js)
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (V10 ? pdefSpeed() * mutSpeed() : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (V10 ? pdefSpeed() * mutSpeed() : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed() * pstSpeed(); // (Snotty: pstatus.js)
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
@@ -2359,55 +2386,20 @@ function updatePlayer(dt) {
 // goal interest (per movement directive) minus danger from predicted enemy/bullet positions.
 const STEER_DIRS = Array.from({ length: 16 }, (_, i) => [Math.cos(i / 16 * TAU), Math.sin(i / 16 * TAU)]);
 function autoSteer() {
-  const p = G.player, mode = G.moveDir;
+  const p = G.player, mode = arMode(); // (autorun.js)
   // Goal vector.
   let gx = 0, gy = 0;
   const goal = (tx, ty, w) => { const dx = tx - p.x, dy = ty - p.y, d = Math.hypot(dx, dy) || 1; gx += dx / d * w; gy += dy / d * w; };
-  let bestPick = null, bpd = Infinity;
-  for (const u of G.pickups) { const d = Math.hypot(u.x - p.x, u.y - p.y); if (d < bpd) { bpd = d; bestPick = u; } }
-  if (bestPick && bpd < (mode === 'collect' ? 900 : 380)) goal(bestPick.x, bestPick.y, mode === 'hold' ? 0.3 : 1.2);
-  let homing = false;
-  if (mode === 'collect' && !homing && bestPick && bpd < 200) { homing = true; goal(bestPick.x, bestPick.y, 2.5); }
-  if (mode === 'collect' || mode === 'kite' || mode === 'defend') {
-    let bg = null, bgd = Infinity;
-    for (const g of G.gems) { const d = Math.hypot(g.x - p.x, g.y - p.y); const sc = d / Math.sqrt(g.v); if (sc < bgd && d < (mode === 'collect' ? 800 : 400)) { bgd = sc; bg = g; } }
-    if (bg) goal(bg.x, bg.y, mode === 'collect' ? 1.1 : 0.45);
-  }
-  let cx = 0, cy = 0, cn = 0;
+  const homing = arGoal(p, mode, goal, (x, y) => { gx += x; gy += y; }); // each mode's goals: autorun.js
   const near = [];
   for (const e of G.enemies) {
-    if (e.dead) continue;
-    const dx = e.x - p.x, dy = e.y - p.y, d2 = dx * dx + dy * dy;
-    if (d2 < 600 * 600) { cx += e.x; cy += e.y; cn++; }
-    if (d2 < 380 * 380 && !e.phased && !e.charmed) near.push(e);
-  }
-  if (cn > 0) {
-    cx /= cn; cy /= cn;
-    const dx = p.x - cx, dy = p.y - cy, d = Math.hypot(dx, dy) || 1;
-    if (mode === 'orbit') { gx += -dy / d * 1.0 + dx / d * (240 - d) / 200; gy += dx / d * 1.0 + dy / d * (240 - d) / 200; }
-    if (mode === 'kite') { gx += dx / d * 0.35 - dy / d * 0.3; gy += dy / d * 0.35 + dx / d * 0.3; }
-  }
-  if (mode === 'hunt') {
-    const w0 = G.weapons.find(Boolean);
-    const t = acquire(w0 ? w0.dir : 'nearest', 700, p.x, p.y);
-    if (t) {
-      const dx = t.x - p.x, dy = t.y - p.y, d = Math.hypot(dx, dy) || 1;
-      if (d > 130) goal(t.x, t.y, 1.2);
-      else {
-        // Close enough: sweep past it on whichever side we're already turning, instead of backing off.
-        const side = Math.sign(Math.cos(p.hd || 0) * -dy / d + Math.sin(p.hd || 0) * dx / d) || 1;
-        gx += -dy / d * side * 1.0 - dx / d * 0.2; gy += dx / d * side * 1.0 - dy / d * 0.2;
-      }
-    }
+    if (e.dead || e.phased || e.charmed) continue;
+    const dx = e.x - p.x, dy = e.y - p.y;
+    if (dx * dx + dy * dy < 380 * 380) near.push(e);
   }
   // Run events: chase the Golden Swimmer or the bounty.
   if (mode !== 'hold') for (const e of G.enemies) if (e.evTag && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 1400) goal(e.x, e.y, e.evTag === 'golden' ? 1.3 : 0.7);
   const core = G.core, cdist = Math.hypot(p.x - core.x, p.y - core.y);
-  if (mode === 'defend') {
-    // NEST: hold inside the egg's healing glow, drifting around it.
-    if (cdist > CORE.sanctuary * 0.8) goal(core.x, core.y, 1.4);
-    else { gx += -(p.y - core.y) / (cdist || 1) * 0.5; gy += (p.x - core.x) / (cdist || 1) * 0.5; }
-  }
   // The race: head for the egg once it is yours to break, or to stop a rival breaking it.
   // Yours to break: swim straight into it, then circle it at shooting range (in its healing glow).
   const M = G.eggE && !G.eggE.dead ? G.eggE : null, race = !G.wave && !G.lvl && !G.debug;
@@ -2546,6 +2538,7 @@ function applyPickup(type, src) {
 
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
+  if (V10) v = f10Xp(v); // (More!, Mine!: feats10.js)
   // XP bonuses from upgrades count half (they stacked up to x1.9 and runs finished 10-30 levels ahead of the curve).
   const xpUp = G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp;
   const xk = XP_PACE * xpUp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp();
@@ -2559,6 +2552,7 @@ function gainXp(v) {
     G.xpNeed = xpNeed(G.level);
       // A box every level to Lv 8, every second level to Lv 24, then every third.
     if (G.level <= 8 || (G.level <= 24 ? G.level % 2 === 0 : G.level % 3 === 0)) G.lootQueue.push({ kind: 'level' });
+    if (V10) mutLevel(G.level); // (mutation cards: mutations.js)
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     rebornLevel(G.level); // (Prawn Again: memories of a past life)
     redLevel(); // (the Redtail: a bane every level)
@@ -2685,6 +2679,7 @@ function update(dt) {
   pstTick(dt); // (Sick: pstatus.js)
   safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
   safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)
+  if (V10) safely('nf10Tick', () => nf10Tick(dt)); // v10 enemies: wax, bursts, trails (newfoes.js)
   safely('boonTick', () => boonTick(dt));
   updateTethers(dt);
   meleeTick(dt);
@@ -2694,6 +2689,7 @@ function update(dt) {
   updateZones(dt);
   updateTurrets(dt);
   armTick(dt); // (the Armoury's pets and bowling, armoury.js)
+  v10Tick(dt); // (v10 Burning and beams, v10.js)
   for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } }
   safely('nfTick', () => nfTick(dt)); // (the v9.23 Feats: newfeats.js)
   updateEnemies(dt);
@@ -3008,7 +3004,7 @@ function frame(ts) {
       if (G.lootHold > 0) G.lootHold -= dt;
       if (G.hitStop > 0) G.hitStop -= dt;
       else if (G.slowmo > 0) { G.slowmo -= dt; update(dt * 0.3 * GAME_SPEED * gameSpeed() * inspectMul()); }
-      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
+      else if (G.lootQueue.length && typeof UI !== 'undefined' && !waveHoldsLoot() && !(G.lootHold > 0) && !G.tutNow) { const vb = v10Box(G.lootQueue[0]); if (vb === 'wait') G.lootQueue.push(G.lootQueue.shift()); else if (!vb) G.lootQueue.shift(); else if (!tutBeforeLoot(G.lootQueue[0])) UI.openLoot(G.lootQueue.shift()); }
       else if (!(G.debug && G.debug.freeze)) { update(dt * GAME_SPEED * gameSpeed() * inspectMul()); const su = G.spdUse || (G.spdUse = {}); su[gameSpeed()] = (su[gameSpeed()] || 0) + dt; } // (time at each speed, for the run log)
     } else if (G && G.state === 'bossIntro') updateBossIntro(dt);
     else if (G && G.state === 'rewind') updateRewind(dt);

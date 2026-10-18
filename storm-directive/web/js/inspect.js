@@ -113,7 +113,7 @@ const INSPECTOR = {
     const st = GLOSSARY.find(g => g[1].toLowerCase().startsWith(E.status.slice(0, 5)));
     const html = `<h3 style="color:${E.color}">${inspectEsc(E.name)}</h3><em>DAMAGE TYPE</em><p>${inspectEsc(E.blurb)}</p>` +
       `<p><b>Status:</b> ${inspectEsc(E.status)}${st ? '. ' + inspectEsc(st[2]) : ''}</p>` +
-      `<div class="irow"><h4>REACTS WITH</h4>${ELEM_ORDER.filter(o => RX_PAIR[id + '+' + o]).map(o => { const r = RX_PAIR[id + '+' + o]; return `<button class="ichip" style="--c:${ELEMENTS[o].color}" data-insp="rxcell:${id}+${o}">${inspectEsc(ELEMENTS[o].name)}: ${rxSeen(r) ? inspectEsc(REACTIONS[r].name) : '?'}</button>`; }).join('')}</div>` +
+      `<div class="irow"><h4>REACTS WITH</h4>${V10 ? RX10_ORDER.filter(o => o !== id).map(o => { const P = rx10Pair(id, o); return `<button class="ichip" style="--c:${ELEMENTS[o].color}" data-insp="rxcell:${id}+${o}">${inspectEsc(ELEMENTS[o].name)}: ${rx10Seen(P[0]) ? inspectEsc(FIGHT_RX[P[0]].name) : '?'}</button>`; }).join('') : ELEM_ORDER.filter(o => RX_PAIR[id + '+' + o]).map(o => { const r = RX_PAIR[id + '+' + o]; return `<button class="ichip" style="--c:${ELEMENTS[o].color}" data-insp="rxcell:${id}+${o}">${inspectEsc(ELEMENTS[o].name)}: ${rxSeen(r) ? inspectEsc(REACTIONS[r].name) : '?'}</button>`; }).join('')}</div>` +
       '<p id="rxDetail" class="hint"></p><button class="btn" data-insp="rx:">REACTIONS</button>';
     INSPECTOR.show(html, E.color);
   },
@@ -127,12 +127,14 @@ const INSPECTOR = {
   chart() { INSPECTOR.show(rxChartHtml(), '#d1ddef'); },
   // A square of the chart (or a reaction chip on a damage type card): the reaction, in the line below.
   cell(pair) {
+    if (V10) { rxCell10(pair); return; } // (fight.js)
     const id = RX_PAIR[pair], R = id && REACTIONS[id], box = document.getElementById('rxDetail');
     if (box) box.innerHTML = !id ? 'These two do not react.' : rxSeen(id) ? `<b style="color:${R.color}">${inspectEsc(R.name)}</b>: ${inspectEsc(R.desc)}` : 'Not seen yet. Set it off in a run.';
   },
 };
 // The chart as html: 8 damage types by 8. Unseen reactions are "?", pairs that do not react are "-".
 function rxChartHtml() {
+  if (V10) return rxChart10(); // (the 21 v10 reactions: fight.js)
   const lab = k => `<i class="rxh" style="color:${ELEMENTS[k].color}">${inspectEsc(ELEMENTS[k].name.slice(0, 3).toUpperCase())}</i>`;
   let cells = '', seen = 0;
   const ids = new Set(Object.values(RX_PAIR));
@@ -148,7 +150,7 @@ function rxChartHtml() {
 }
 // Field Guide: the damage types as tappable chips, and the chart under them (ui.js codexHtml).
 function inspectGuideHtml() {
-  return `<div class="irow">${ELEM_ORDER.map(k => `<button class="ichip" style="--c:${ELEMENTS[k].color}" data-insp="el:${k}">${inspectEsc(ELEMENTS[k].name)}</button>`).join('')}</div><button class="btn" data-insp="rx:">REACTION CHART</button>`;
+  return `<div class="irow">${(V10 ? RX10_ORDER : ELEM_ORDER).map(k => `<button class="ichip" style="--c:${ELEMENTS[k].color}" data-insp="el:${k}">${inspectEsc(ELEMENTS[k].name)}</button>`).join('')}</div><button class="btn" data-insp="rx:">REACTION CHART</button>`;
 }
 // Outside the card (the Field Guide, Active effects) buttons carry data-insp too: one listener for the page.
 document.addEventListener('click', ev => {

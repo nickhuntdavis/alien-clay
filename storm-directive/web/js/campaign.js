@@ -93,7 +93,7 @@ function campBegin(V) {
   // the next few you haven't had, so no two runs meet the slide in the same order (and nothing big comes early).
   const next = CAMP_ORDER().filter(id => !V.met.includes(id));
   const nNew = V.n >= CAMP.lateFrom ? CAMP.newLate : CAMP.newPerWave;
-  const fresh = V.n <= CAMP.fixedWaves ? next.slice(0, nNew) : campDraw(next, V.n, nNew);
+  const fresh = (typeof w10Fresh === 'function' && w10Fresh(V)) || (V.n <= CAMP.fixedWaves ? next.slice(0, nNew) : campDraw(next, V.n, nNew)); // (v10: the role table, waves10.js)
   V.fresh = fresh; V.met.push(...fresh);
   const FR = META.foeRuns || (META.foeRuns = {}); for (const id of fresh) FR[id] = (FR[id] || 0) + 1; // (across runs: campDraw)
   V.budget = Math.round((16 + V.n * 7 + Math.pow(V.n, 1.6)) * (1 + CAMP.early * campEarly(V.n)) * CAMP.more * G.P.spawnMult);
@@ -131,6 +131,7 @@ function campSpawnOne(E, n, elite) {
 }
 // An ordinary wave's spawn: newcomers twice as likely as the old hands.
 function campSpawnMob(V) {
+  if (typeof w10Spawn === 'function') { const k = w10Spawn(V); if (k) return k; } // (v10: waves10.js)
   const ids = V.met.length ? V.met : ['crawler'];
   let tot = 0; const wOf = id => ENEMIES[id].w * (V.fresh.includes(id) ? 2 : 1);
   for (const id of ids) tot += wOf(id);
@@ -157,6 +158,7 @@ function campPulse(V, big) {
 function campSpawn(dt, maxAlive, hostile) {
   const V = G.wave;
   if (!V.active) return;
+  if (typeof w10Max === 'function') maxAlive = w10Max(V, maxAlive); // (v10: waves10.js)
   if (V.phase === 'mobs') {
     if (V.spawned >= V.budget) return;
     G.spawnAcc += V.budget / V.dur * dt * (V.t < 3 ? 2 : 1); // a burst from the splash, then a steady feed
@@ -227,7 +229,7 @@ function campBoss(V) {
   spawnBoss();
   for (const e of [G.boss, G.boss && G.boss.twin]) {
     if (!e) continue;
-    e.hp = e.maxHp = e.def.hp * CAMP.hp[s] * (1 + PT() / 600) * (V.boss === 'failed' ? 1.4 : 1); // (alone, so a little tougher)
+    e.hp = e.maxHp = e.def.hp * CAMP.hp[s] * (1 + PT() / 600) * (V.boss === 'failed' ? 1.4 : 1) * (V10 ? V10_DIFF.bossHp : 1); // (alone, so a little tougher; v10: boss10.js)
     e.armour = e.def.armour + s;
     e.campK = CAMP.hit[s]; // (its attacks: softer in the first boss wave, while your build is thin)
   }

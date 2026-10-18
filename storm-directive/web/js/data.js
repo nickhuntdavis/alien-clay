@@ -2,42 +2,41 @@
 // Spawn Prawn - game data: elements, weapons, spells, merges, passives, enemies, bosses, directives.
 
 const ELEMENTS = {
-  phys:   { name: 'Force',   color: '#e8eef8', status: 'shoved',  blurb: 'Plain physics, and the base damage under most attacks. No status and no reactions: it just hurts.' },
-  fire:   { name: 'Acid',    color: '#c6ff3d', status: 'melting', blurb: 'Eats through armour. Melting enemies take damage over time and lose armour as they go; once it is all gone, the acid eats through for +50%.' },
-  ice:    { name: 'Mucus',   color: '#a8b84a', status: 'snotty',  blurb: 'Gums them up. Snotty enemies get slower with every hit, and enough of it leaves them stuck fast. Shots stick in them and burst back out when they die.' },
-  shock:  { name: 'Static',  color: '#ffe94a', status: 'shocked', blurb: 'Spreads and stuns. Some of the damage a shocked enemy takes arcs to a neighbour and drags it closer, and every 4th Static hit stuns it.' },
+  phys:   { name: 'Force',   color: TYPE_PAL.phys, status: 'shoved',  blurb: 'Plain physics, and the base damage under most attacks. No status and no reactions: it just hurts.' },
+  fire:   { name: 'Acid',    color: TYPE_PAL.fire, status: 'melting', blurb: 'Eats through armour. Melting enemies take damage over time and lose armour as they go; once it is all gone, the acid eats through for +50%.' },
+  ice:    { name: 'Mucus',   color: TYPE_PAL.ice, status: 'snotty',  blurb: 'Gums them up. Snotty enemies get slower with every hit, and enough of it leaves them stuck fast. Shots stick in them and burst back out when they die.' },
+  shock:  { name: 'Static',  color: TYPE_PAL.shock, status: 'shocked', blurb: 'Spreads and stuns. Some of the damage a shocked enemy takes arcs to a neighbour and drags it closer, and every 4th Static hit stuns it.' },
   poison: { name: 'Cooties', color: '#ff5fa2', status: 'sick',    blurb: 'Catching. Sick enemies take stacking damage over time, hit you softer, and sneeze it onto their mates every couple of seconds.' },
   oxi:    { name: 'Oil',     color: '#d99a2b', status: 'lubricated', blurb: 'Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger. Hits leave slicks that lubricate whatever swims through.' },
   salt:   { name: 'Water',   color: '#3d8bff', status: 'soaking wet', blurb: 'Crowd control. Every hit shoves enemies away and splashes their other statuses onto two neighbours at half strength. Soaking-wet enemies carry Static twice as well.' },
-  arcane: { name: 'Blood',   color: '#c9184a', status: 'bleeding', blurb: 'Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you.' },
-  soul:   { name: 'Soul',    color: '#bff4ff', status: 'cursed',  blurb: 'Not of this world. Soul shots pass through walls, shields and armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. A cursed enemy that dies comes back as a ghost that fights for you for 4s.' },
+  arcane: { name: 'Blood',   color: TYPE_PAL.arcane, status: 'bleeding', blurb: 'Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you.' },
+  soul:   { name: 'Soul',    color: TYPE_PAL.soul, status: 'cursed',  blurb: 'Not of this world. Soul shots pass through walls, shields and armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. A cursed enemy that dies comes back as a ghost that fights for you for 4s.' },
 };
 
 // Targeting directives. Each weapon/spell runs one of these.
 const DIRECTIVES = [
   { id: 'nearest',   name: 'NEAREST',        short: 'NEAR',   desc: 'Whatever is closest. Safe, boring, effective.' },
-  { id: 'strongest', name: 'STRONGEST',      short: 'STRG',   desc: 'Biggest max health first. Tank busting.' },
-  { id: 'weakest',   name: 'WEAKEST',        short: 'WEAK',   desc: 'Smallest max health first. Clears fodder.' },
-  { id: 'lowhp',     name: 'LOWEST HEALTH',  short: 'LOW HP', desc: 'Finish off the wounded. Great for kills.' },
-  { id: 'highhp',    name: 'HIGHEST HEALTH', short: 'HI HP',  desc: 'Whoever has the most health left right now.' },
+  { id: 'weakest',   name: 'FRAGILEST',      short: 'FRAG',   desc: 'Lowest max health, wounded or not. Clears fodder.' },
+  { id: 'lowhp',     name: 'LOWEST HEALTH',  short: 'LOW HP', desc: 'Least health left right now. Finishes off the wounded.' },
+  { id: 'strongest', name: 'TOUGHEST',       short: 'TUFF',   desc: 'Most max health and armour combined. Tank busting.' },
   { id: 'armour',    name: 'HIGHEST ARMOUR', short: 'ARMR',   desc: 'Most armour first. Pair with shred.' },
   { id: 'fastest',   name: 'FASTEST',        short: 'FAST',   desc: 'Chargers and skitters before they reach you.' },
-  { id: 'furthest',  name: 'FURTHEST',       short: 'FAR',    desc: 'Snipe the back line.' },
+  { id: 'furthest',  name: 'FURTHEST',       short: 'FAR',    desc: 'The farthest enemy in range. Snipes the back line.' },
   { id: 'cluster',   name: 'DENSEST CLUSTER', short: 'CLSTR', desc: 'The middle of the crowd. Best for splash.' },
-  { id: 'elite',     name: 'ELITES & BOSSES', short: 'ELITE', desc: 'Bosses, then elites, then nearest.' },
-  { id: 'shooters',  name: 'SHOOTERS FIRST', short: 'SHOOT',  desc: 'Ranged enemies, healers and summoners first.' },
-  { id: 'random',    name: 'RANDOM',         short: 'RAND',   desc: 'Chaos. The lab loves it.' },
+  { id: 'elite',     name: 'ELITES & BOSSES', short: 'ELITE', desc: 'Bosses, then rivals, then elites, then nearest.' },
+  { id: 'shooters',  name: 'SHOOTERS FIRST', short: 'SHOOT',  desc: 'Shooters, then healers, then summoners. Otherwise nearest.' },
   { id: 'revenge',   name: 'REVENGE',        short: 'GRUDGE', desc: 'Whatever hurt you last. Otherwise nearest.' },
+  { id: 'random',    name: 'RANDOM',         short: 'RAND',   desc: 'Chaos. Picks a new victim every second or so. The lab loves it.' },
 ];
 
 // Movement (autorun) directives.
 const MOVE_DIRECTIVES = [
-  { id: 'kite',    name: 'KITE',    desc: 'Keep distance from threats, dodge bullets' },
-  { id: 'collect', name: 'COLLECT', desc: 'Hoover up XP and power-ups' },
-  { id: 'orbit',   name: 'ORBIT',   desc: 'Circle around the horde' },
-  { id: 'hunt',    name: 'HUNT',    desc: 'Close in on the primary target' },
-  { id: 'hold',    name: 'HOLD',    desc: 'Stand ground, only dodge bullets' },
-  { id: 'defend',  name: 'NEST',    desc: 'Hover in the egg\'s warm glow, which slowly heals you' },
+  { id: 'kite',    name: 'KITE',    desc: 'Keep your distance and dodge attacks' },
+  { id: 'collect', name: 'COLLECT', desc: 'Grab nearby XP and power-ups, unless it means swimming into trouble' },
+  { id: 'orbit',   name: 'ORBIT',   desc: 'Circle the biggest nearby group of enemies' },
+  { id: 'hunt',    name: 'HUNT',    desc: 'Close in on bosses, rivals and elites, or whatever is nearest' },
+  { id: 'hold',    name: 'HOLD',    desc: 'Hold your position and dodge immediate threats' },
+  { id: 'defend',  name: 'NEST',    desc: 'Stay in the egg\'s warm glow, which slowly heals you' },
 ];
 
 // Level bonus keys: count, pierce, chain, bounce (additive); dmg, area, dur (additive %); cd (negative = faster).
@@ -81,7 +80,7 @@ const WEAPONS = {
     desc: 'Lobs globs of stomach acid that leave burning puddles. Worse before noon.',
     base: { dmg: 10, cd: 0.9, mag: 4, reload: 1.8, count: 1, spread: 40, range: 390, area: 58, dur: 3, flight: 0.6 },
     lv: { 3: { dur: 0.5 }, 6: { count: 1 }, 9: { area: 0.4 } }, sig: { 5: ['nausea', 'toxicspread'], 8: ['corrosive', 'geyser'], 10: ['swamp', 'acidreflux'] } },
-  parasite: { name: 'Tapeworm Seeder', stars: [2, 3, 3, 3], play: 'Infects, then the dead fight for you as turrets or zombies.', icon: 'PS', elem: 'poison', kind: 'gun', parasite: 1, color: '#b5e48c', dir: 'highhp', style: 'needle', role: 'Necromancer',
+  parasite: { name: 'Tapeworm Seeder', stars: [2, 3, 3, 3], play: 'Infects, then the dead fight for you as turrets or zombies.', icon: 'PS', elem: 'poison', kind: 'gun', parasite: 1, color: '#b5e48c', dir: 'strongest', style: 'needle', role: 'Necromancer',
     desc: 'Infects enemies. When they die, the corpse becomes your turret for 8 seconds. Ethically grey, tactically green.',
     base: { dmg: 12, cd: 0.4, mag: 8, reload: 1.6, count: 1, spread: 0.08, speed: 560, pierce: 0, range: 430, size: 3.5, dur: 8 },
     lv: { 3: { count: 1 }, 6: { dur: 0.5 }, 9: { dmg: 0.4 } }, sig: { 5: ['walkingdead', 'bigworm'], 8: ['hivemind', 'feedingtube'], 10: ['brood', 'bodysnatcher'] } },
@@ -119,7 +118,7 @@ const WEAPONS = {
     desc: 'Swim a loop round enemies and everything inside gets coloured in. Never inside the lines.',
     base: { dmg: 44, cd: 2.2, mag: 3, reload: 1.2, count: 1, range: 600, dur: 2.6 },
     lv: { 3: { dmg: 0.3 }, 6: { dur: 0.4 }, 9: { dmg: 0.5 } }, sig: { 5: ['scribble', 'stayinlines'], 8: ['paintbynumbers', 'fridgeart'], 10: ['masterpiece', 'jointhedots'] } },
-  duedate: { name: 'Due Date', stars: [5, 2, 4, 2], play: 'Sticks a countdown on a big target. When it runs out, the target takes 40% of everything it took while marked, all over again. If it dies early, the damage bursts out of it.', icon: 'DD', elem: 'arcane', kind: 'duedate', toy: 1, color: '#a4133c', dir: 'highhp', role: 'Delayed Doom',
+  duedate: { name: 'Due Date', stars: [5, 2, 4, 2], play: 'Sticks a countdown on a big target. When it runs out, the target takes 40% of everything it took while marked, all over again. If it dies early, the damage bursts out of it.', icon: 'DD', elem: 'arcane', kind: 'duedate', toy: 1, color: '#a4133c', dir: 'strongest', role: 'Delayed Doom',
     desc: 'Sticks a countdown on an enemy. When it runs out, 40% of the damage it took lands again. Circled in red.',
     base: { dmg: 20, cd: 0.9, mag: 3, reload: 2.0, count: 1, range: 480, dur: 4, repeat: 0.4 },
     lv: { 3: { repeat: 0.15 }, 6: { count: 1 }, 9: { repeat: 0.2 } }, sig: { 5: ['overdue', 'earlyarrival'], 8: ['babyshower', 'rebooked'], 10: ['labourday', 'bigday'] } },

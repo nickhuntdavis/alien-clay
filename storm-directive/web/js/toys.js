@@ -29,7 +29,7 @@ function alongLine(a, b, w, fn) {
   const L = Math.hypot(b.x - a.x, b.y - a.y);
   forNear((a.x + b.x) / 2, (a.y + b.y) / 2, L / 2 + w, e => { if (toyCan(e) && segD(e.x, e.y, a, b) < w + e.r) fn(e); });
 }
-function toySrc(w, name, extra) { return Object.assign(weaponSrc(w), { wname: name }, extra || {}); }
+function toySrc(w, name, extra) { const s = Object.assign(weaponSrc(w), { wname: name }, extra || {}); if (w.def.sig && (s.taped || s.due)) { s.echo = s.noStatus = s.noArc = true; s.dot = false; } return s; } // (shared and repeated damage is echo damage: sigweap.js)
 
 // ---------------------------------------------------------------- stat side (from applyAdapt)
 function toyAdapt(w, s) {
@@ -175,7 +175,7 @@ function colourIn(w, poly, loop) {
 function dueFire(w, target) {
   const s = w.s, p = G.player;
   // Big targets first, and ones without a date already.
-  const ts = acquireMany(w.dir, s.range, p.x, p.y, s.count + 3).filter(e => !e.due).slice(0, s.count);
+  const ts = acquireMany(aimDir(w), s.range, p.x, p.y, s.count + 3).filter(e => !e.due).slice(0, s.count);
   if (!ts.length && target) ts.push(target);
   for (const e of ts) dueMark(w, e);
   sfx('shot');
@@ -219,7 +219,7 @@ function dueTick() {
 // ================================================================ Red Tape
 function tapeFire(w, target) {
   const s = w.s, p = G.player;
-  const firsts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count).filter(e => !e.tape) : [target];
+  const firsts = s.count > 1 ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count).filter(e => !e.tape) : [target];
   for (const t of firsts) if (t && !t.tape) tapeUp(w, t, s.chain + 1);
   sfx('shot');
 }
@@ -279,7 +279,7 @@ const tapeGagged = e => !!(e && e.tape && e.tape.w && hasSig(e.tape.w, 'redacted
 // ================================================================ hit and kill hooks
 // From damageEnemy, after the hit lands: lost is the health it actually took.
 function toyHurt(e, lost, src) {
-  if (lost <= 0) return;
+  if (lost <= 0 || (src.echo && src.w && src.w.def.sig)) return; // (echo never creates more echo)
   if (e.due && !src.due) {
     e.due.stored += lost;
     if (hasSig(e.due.w, 'earlyarrival') && !e.boss && e.hp > 0 && e.hp < e.maxHp * 0.3) duePop(e);
@@ -338,7 +338,7 @@ function friendTick(w, dt) {
     if (f.sig !== sig) {
       f.sig = sig;
       f.weapons = G.weapons.filter(x => x && x !== w && !NOCOPY.has(x.def.kind)).map(x => {
-        const k = makeSlot(x.id, false, x.lvl); k.dir = x.dir; k.echo = true; k.copyK = s.copy; k.friendOf = w;
+        const k = makeSlot(x.id, false, x.lvl); k.dir = x.dir; k.dir2 = x.dir2; k.echo = true; k.copyK = s.copy; k.friendOf = w;
         k.mods = x.mods.slice(); k.perks = Object.assign({}, x.perks); k.wp = x.wp; computeStats(k); k.ammo = k.s.mag; return k;
       });
     }
@@ -420,8 +420,8 @@ function peekBoo(w, x, y, minLook, quiet) {
   const s = w.s, spot = G.peek || { x, y };
   let lookers = 0;
   for (const e of G.enemies) if (!e.dead && !e.charmed && Math.hypot(e.x - spot.x, e.y - spot.y) < 520) lookers++;
-  const big = hasSig(w, 'bigboo'), R = big ? 650 : s.area, dmg = s.dmg * (1 + 0.05 * Math.min(20, Math.max(minLook, lookers))) * (big ? 0.6 : 1);
-  const src = toySrc(w, 'BOO!', { knock: s.knock || 140 }), hit = new Set(), jump = hasSig(w, 'jumpscare'), fear = hasSig(w, 'bigboo') ? 3 : 1.5;
+  const big = hasSig(w, 'bigboo'), R = big ? 650 : s.area, dmg = s.dmg * (1 + (w.def.sig ? 0.1 * Math.min(10, lookers) : 0.05 * Math.min(20, Math.max(minLook, lookers)))) * (big ? 0.6 : 1);
+  const src = toySrc(w, 'BOO!', { knock: s.knock || 140 }), hit = new Set(), jump = hasSig(w, 'jumpscare'), fear = w.def.sig ? 2 : hasSig(w, 'bigboo') ? 3 : 1.5;
   const scare = e => {
     if (hit.has(e) || !toyCan(e)) return;
     hit.add(e);
@@ -728,7 +728,7 @@ function toyBlock() {
 function toothFire(w, target) {
   const s = w.s, p = G.player, T = TOYS();
   for (let i = 0; i < s.count; i++) {
-    if (T.teeth.length >= 30) break;
+    if (T.teeth.length >= 30 || (w.def.sig && T.teeth.filter(q => q.w === w && !q.dead).length >= 3)) break; // (lures: at most 3 teeth per weapon)
     w.toothN = (w.toothN || 0) + 1;
     const gold = hasSig(w, 'goldtooth') && w.toothN % 4 === 0;
     // Dropped just short of the crowd, so they come out to get it.

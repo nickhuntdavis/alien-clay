@@ -35,13 +35,14 @@ function curseFoe(e, t) {
 const neighbours = (e, r, n) => acquireMany('nearest', r, e.x, e.y, n + 1).filter(o => o !== e && !o.dead);
 
 function applyElement(e, elem, dmg, src) {
+  if (V10 && fightStatus(e, elem, dmg, src)) return; // (v10 slice: Acid, Mucus, Static statuses: fight.js)
   const P = G.P, syn = G.synergy, has = chemHas(e);
   chemStick(e, dmg, src);
   const rsrc = { elem, noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' };
   if (P.mixologist && chemCount(e) >= 2) dmg *= 1 + P.mixologist; // (Mixologist: stronger doses on an enemy that is already a cocktail)
   G.chemDmg = dmg; // (for Chain Reaction)
   // A reaction first: the first status already on it that pairs with this type.
-  for (const k of ELEM_ORDER) {
+  if (!V10) for (const k of ELEM_ORDER) { // (v10: no automatic reactions)
     if (!has[k]) continue;
     const id = RX_PAIR[elem + '+' + k];
     if (id && k !== elem && react(e, id, src)) { reactDo(id, e, dmg, src, rsrc); break; }
@@ -98,8 +99,9 @@ function applyElement(e, elem, dmg, src) {
       if (e.boss) { if (!(e.spookT > G.t)) { e.spookT = G.t + 4; e.dazeSlowT = G.t + 1.5; floatText(e.x, e.y - e.r - 14, 'SPOOKED', ELEMENTS.soul.color, 12, 0.8); } }
       else if (Math.random() < 0.12 * P.elem.soul) curseFoe(e, 2);
       break;
+    case 'flame': v10Burn(e, dmg, src); break; // Fire: Burning (v10.js)
   }
-  if (e.dead) return;
+  if (e.dead || V10) return; // (v10: no overloads, triples, terrain or enemy reactions)
   chemOverload(e, elem, dmg, src, rsrc);
   if (!e.dead) chemTriple(e, dmg, src, rsrc);
   if (!e.dead) chemTerrain(e, elem, dmg, src, rsrc);

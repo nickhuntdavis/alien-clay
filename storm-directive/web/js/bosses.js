@@ -23,6 +23,7 @@ function spawnBoss() {
     e.dmg = def.dmg * dmgNow();
     if (!G.wave && !G.lvl) { e.campK = RACE.bossHit[Math.min(idx, RACE.bossHit.length - 1)]; e.dmg *= e.campK; } // (race mode: the first bosses hit softer, while your build is thin)
     heatBoss(e); // Immune Response
+    if (V10) { e.hp *= V10_DIFF.bossHp; e.maxHp *= V10_DIFF.bossHp; } // (boss10.js)
     e.pat = 0; e.patT = 0; e.fireT = 0; e.st = 0;
     return e;
   };
@@ -55,6 +56,7 @@ function startBossIntro(e, idx) {
   INPUT.active = false; G.manual = null;
   sfx('boss'); vibrate(160);
   if (typeof UI !== 'undefined') UI.openBossIntro(e, idx);
+  if (typeof vxBossIntro === 'function') vxBossIntro(e); // (voice10.js)
 }
 function updateBossIntro(dt) {
   const I = G.bossIntro;
@@ -100,11 +102,11 @@ function bossDamageMul(e, src) {
   const d = e.bossDef || e.def;
   let m = 1;
   const el = src.elem;
-  if (el && d.weak && d.weak[el]) m *= d.weak[el];
-  if (d.noForce && (el || 'phys') === 'phys' && !src.env && !G.relics.teststrip) m = 0; // (the Phantom Pregnancy: Force passes straight through it; the womb itself still hurts)
-  if (el && d.resist && d.resist[el] != null) m *= G.relics.teststrip ? Math.max(1, d.resist[el]) : d.resist[el]; // (Test Strip: no resisting)
+  if (el && d.weak && d.weak[el] && !V10) m *= d.weak[el]; // (v10: no type weaknesses or immunities; defences instead: boss10.js)
+  if (!V10 && d.noForce && (el || 'phys') === 'phys' && !src.env && !G.relics.teststrip) m = 0; // (the Phantom Pregnancy: Force passes straight through it; the womb itself still hurts)
+  if (!V10 && el && d.resist && d.resist[el] != null) m *= G.relics.teststrip ? Math.max(1, d.resist[el]) : d.resist[el]; // (Test Strip: no resisting)
   m *= bpDamageMul(e, src); // (the boss pack's gimmicks: bosspack.js)
-  if (d.weakAoe && (IN_AOE || src.zoneHit)) m *= d.weakAoe;
+  if (!V10 && d.weakAoe && (IN_AOE || src.zoneHit)) m *= d.weakAoe;
   if (e.glaring) m *= 2;
   if (e.winded > G.t) m *= 2;
   if (e.nurses && e.nurses.length && e.nurses.every(n => n.dead)) m *= 1.5;

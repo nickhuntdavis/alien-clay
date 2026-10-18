@@ -96,7 +96,7 @@ Object.assign(WEAPONS, {
     desc: 'Do not pop it. It will pop itself. Twice.',
     base: { dmg: 14, cd: 1.3, mag: 3, reload: 2.0, count: 1, spread: 40, range: 380, area: 70, explode: 1, dur: 2.5, flight: 0.6 },
     lv: { 3: { area: 0.2 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['xpopit', 'xbigblister'], 10: ['xbloodbath', 'xweeping'] } },
-  leeches: { name: 'Leeches', stars: [2, 5, 3, 2], play: 'Leeches swim off, latch onto an enemy and suck until it dies. A little of what they drink comes back to you as health.', icon: 'LC', elem: 'arcane', kind: 'critter', critter: 'latch', dir: 'highhp', role: 'Pets', armoury: 1,
+  leeches: { name: 'Leeches', stars: [2, 5, 3, 2], play: 'Leeches swim off, latch onto an enemy and suck until it dies. A little of what they drink comes back to you as health.', icon: 'LC', elem: 'arcane', kind: 'critter', critter: 'latch', dir: 'strongest', role: 'Pets', armoury: 1,
     desc: 'Medically approved. In 1820.',
     base: { dmg: 6, cd: 0.25, mag: 1, reload: 0, count: 2, range: 340, speed: 240 },
     lv: { 3: { count: 1 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['xleech', 'xbloodsucker'], 10: ['xfatleech', 'xjumbo'] } },
@@ -447,7 +447,7 @@ function armLand(pr) {
           if (o === pud || o.armUp !== w.uid || o.life <= 0 || Math.hypot(o.x - pud.x, o.y - pud.y) > o.r + pud.r * 0.8) continue;
           const ra = pud.r * pud.r, rb = o.r * o.r;
           pud.x = (pud.x * ra + o.x * rb) / (ra + rb); pud.y = (pud.y * ra + o.y * rb) / (ra + rb);
-          pud.r = Math.min(170, Math.hypot(pud.r, o.r)); pud.dps = Math.min(s.dmg * 8, pud.dps + o.dps * 0.85);
+          pud.r = Math.min(w.def.sig ? 100 : 170, Math.hypot(pud.r, o.r)); pud.dps = Math.min(s.dmg * 8, pud.dps + o.dps * 0.85);
           pud.life = pud.max = Math.max(pud.life, o.life) + 0.5; o.life = 0;
           pud.merged = (pud.merged || 0) + (o.merged || 0) + 1;
           if (pud.merged >= 3 && !w.echo) floatText(pud.x, pud.y - 20, 'MEGA PUDDLE', w.def.color, 12, 0.6);
@@ -499,7 +499,7 @@ function bowlTick() {
       b.hit.add(o); b.n.v++;
       damageEnemy(o, s.dmg * 1.4 * k, armSrc(src, { knock: 0, wname: 'Lard Lobber (bowled over)' }));
       damageEnemy(e, s.dmg * 0.5 * k, armSrc(src, { knock: 0, noProc: true, wname: 'Lard Lobber (bowled over)' }));
-      if (!o.boss && !o.rival && !o.egg) { o.kx += (e.kx || 0) * 0.8; o.ky += (e.ky || 0) * 0.8; if (B.length < 80) B.push({ e: o, w, until: G.t + 0.6, hit: b.hit, n: b.n }); }
+      if (!o.boss && !o.rival && !o.egg) { o.kx += (e.kx || 0) * 0.8; o.ky += (e.ky || 0) * 0.8; if (B.length < 80 && !(w.def.sig && (b.d || 1) >= 2)) B.push({ e: o, w, until: G.t + 0.6, hit: b.hit, n: b.n, d: (b.d || 1) + 1 }); }
       spawnPart(o.x, o.y, w.def.color, 4, 100, 0.3);
       if (b.n.v === 3 && !w.echo) floatText(o.x, o.y - o.r - 14, 'STRIKE!', w.def.color, 14, 0.7);
     });
@@ -519,7 +519,7 @@ function petsTick(w, dt) {
     if (q.t && (q.t.dead || q.t.phased || q.t.charmed || Math.hypot(q.t.x - p.x, q.t.y - p.y) > s.range * 1.5)) q.t = null;
     if (!q.t && !(q.lookT > G.t)) {
       q.lookT = G.t + 0.25;
-      const ts = acquireMany(w.dir, s.range, p.x, p.y, Math.max(1, P.length));
+      const ts = acquireMany(aimDir(w), s.range, p.x, p.y, Math.max(1, P.length));
       q.t = ts.length ? ts[i % ts.length] : null;
     }
     let tx, ty;
@@ -557,7 +557,7 @@ function petsTick(w, dt) {
         const got = damageEnemy(t, s.dmg, src) || 0;
         if (!w.echo && got > 0) { // a little of it back to you, at most 1% of your max HP a second per leech
           const k = hasSig(w, 'xfatleech') ? 3 : 1, cap = G.P.maxHp * 0.01 * s.cd * k;
-          healPlayer(Math.min(cap, got * 0.04 * k), true);
+          healPlayer(w.def.sig ? sigExtract(Math.min(cap, got * 0.04 * k)) : Math.min(cap, got * 0.04 * k), true);
         }
         break;
       }

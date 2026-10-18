@@ -30,6 +30,7 @@ function rateBonus() {
   if (P.anchorLink > 0 && Math.hypot(me().x - G.core.x, me().y - G.core.y) < 450) r *= 1 + P.anchorLink;
   if (G.relics.feverdream) r *= 1 + Math.min(0.6, 0.03 * (G.feverN || 0));
   r *= boonRate(); // Twin Soul
+  if (typeof V10 !== 'undefined' && V10 && G.mut10) r *= mutRate(); // (mutation cards: mutations.js)
   r *= genesRate(); // Hackerman, Powerhouse, Sugar Rush
   r *= junkRate(); // Rooted (junk.js)
   return r;
@@ -112,7 +113,7 @@ function updateSiphon(w, dt) {
   if (w.lastTarget && !w.lastTarget.dead) w.focusT += dt;
   w.cd -= dt * (G.rage > 0 ? 2 : 1) * rateBonus();
   if (w.cd > 0 || w.stored < 1) { if (w.cd < 0) w.cd = 0; return; }
-  const t = acquire(w.dir, s.range, p.x, p.y);
+  const t = acquire(aimDir(w), s.range, p.x, p.y);
   if (!t) { w.cd = 0; w.curTarget = null; return; }
   w.cd = s.cd;
   const k = w.q.shift(); w.stored = w.q.length;
@@ -159,7 +160,7 @@ function updateHeat(w, dt) {
     w.ammo = (1 - w.heat) * s.mag;
     return;
   }
-  const t = acquire(w.dir, s.range, p.x, p.y);
+  const t = acquire(aimDir(w), s.range, p.x, p.y);
   if (t) {
     if (t !== w.lastTarget) { w.focusT = 0; w.lastTarget = t; }
     w.focusT += dt; w.curTarget = t;
@@ -205,7 +206,7 @@ function fireMimic(w, target, src) {
 // ---------------------------------------------------------------- Tether Coil
 function fireTether(w, target, src) {
   const s = w.s, p = G.player;
-  const firsts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count) : [target];
+  const firsts = s.count > 1 ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count) : [target];
   for (const a of firsts) {
     let b = null, bd = s.jump * s.jump;
     for (const e of G.enemies) {
@@ -521,6 +522,7 @@ function meleeHit(w, e, dmg, src) {
   } else if (w.id === 'flail') e.lashT = G.t + 2;
   else if (w.id === 'onesie' && G.pair.nappyrash) { e.poison = 3; e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, dmg * 0.1, src); }
   damageEnemy(e, dmg * m, src);
+  if (w.m10) modMeleeHit(w, e, dmg * m, src); // (v10 modifiers, modifiers.js)
   armMelee(w, e, dmg * m, src); // (armoury.js)
   if (hasSig(w, 'smother') && !e.dead) {
     e.smother = (e.smother || 0) + 1;
@@ -564,6 +566,7 @@ function meleeLash(w, x, y, a, src, scale) {
     if (along < -e.r || along > L + e.r || side > wd + e.r) return;
     const o = Object.assign({}, src, pull && !e.boss ? { knock: 240, kx: -dx, ky: -dy } : { kx: ca, ky: sa });
     if (crack && along > L * 0.67) { o.mult = (src.mult || 1) * 3; o.crit = 1; }
+    else if (w.def.sig && along > L * 0.75) { o.mult = (src.mult || 1) * 1.5; if (o.knock) o.knock *= 1.5; } // (Flagellum Flail: the tip hits hardest)
     meleeHit(w, e, s.dmg, o);
     if (along > tipD) { tipD = along; tip = e; }
   });

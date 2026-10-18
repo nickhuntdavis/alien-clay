@@ -41,7 +41,7 @@ Object.assign(WEAPONS, {
     base: { dmg: 10, cd: 0.32, mag: 10, reload: 1.2, count: 1, spread: 0.04, speed: 640, pierce: 1, range: 440, size: 3.5 },
     lv: { 3: { pierce: 1 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['pzest', 'ppips'], 10: ['psourface', 'plemonade'] } },
   // ---- Blood
-  cord: { name: 'Umbilical Cord', stars: [3, 4, 2, 4], play: 'A cord latches onto the toughest enemy in reach and feeds off it, healing you a little. Anything that swims across the cord gets hurt.', icon: 'UC', elem: 'arcane', kind: 'gun', dir: 'highhp', role: 'Tether', armoury: 1, pen: 1,
+  cord: { name: 'Umbilical Cord', stars: [3, 4, 2, 4], play: 'A cord latches onto the toughest enemy in reach and feeds off it, healing you a little. Anything that swims across the cord gets hurt.', icon: 'UC', elem: 'arcane', kind: 'gun', dir: 'strongest', role: 'Tether', armoury: 1, pen: 1,
     desc: 'You were attached once. You can be attached again.',
     base: { dmg: 7, cd: 0.2, mag: 20, reload: 0.6, count: 1, range: 300 },
     lv: { 3: { dmg: 0.25 }, 6: { range: 0.15 }, 9: { dmg: 0.35 } }, sig: { 5: ['plongcord', 'ptwincord'], 10: ['pfeeding', 'ptiedoff'] } },
@@ -49,7 +49,7 @@ Object.assign(WEAPONS, {
     desc: 'Arrives on time. Ruins everything. Leaves.',
     base: { dmg: 24, cd: 5, mag: 1, reload: 0.1, count: 1, range: 200, area: 170 },
     lv: { 3: { area: 0.15 }, 6: { dmg: 0.3 }, 9: { area: 0.15 } }, sig: { 5: ['pheavy', 'pcramps'], 10: ['pclockwork', 'phormonal'] } },
-  heelprick: { name: 'Heel Prick', stars: [3, 3, 4, 3], play: 'Tiny, fast needles at the toughest enemy. Every sixth one into the same enemy finds a weak spot and hits four times as hard.', icon: 'HK', elem: 'arcane', kind: 'gun', dir: 'highhp', role: 'Needler', armoury: 1, pen: 1,
+  heelprick: { name: 'Heel Prick', stars: [3, 3, 4, 3], play: 'Tiny, fast needles at the toughest enemy. Every sixth one into the same enemy finds a weak spot and hits four times as hard.', icon: 'HK', elem: 'arcane', kind: 'gun', dir: 'strongest', role: 'Needler', armoury: 1, pen: 1,
     desc: 'Just a little scratch. Everyone says that.',
     base: { dmg: 7, cd: 0.14, mag: 15, reload: 1.3, count: 1, spread: 0.06, speed: 720, pierce: 0, range: 460, size: 2.5 },
     lv: { 3: { dmg: 0.25 }, 6: { mag: 0.3 }, 9: { dmg: 0.35 } }, sig: { 5: ['ptwopricks', 'pfineneedle'], 10: ['pguthrie', 'pbutterfly'] } },
@@ -204,7 +204,7 @@ function penFire(w, target, src) {
       return false;
     }
     case 'cord': { // a held line to the toughest enemies in reach
-      const ts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count) : [target];
+      const ts = s.count > 1 ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count) : [target];
       w.cords = ts; w.cordUntil = G.t + 0.3;
       const cross = s.dmg * 0.6 * (hasSig(w, 'ptiedoff') ? 2.5 : 1), heal = hasSig(w, 'pfeeding') ? 3 : 1;
       for (const t of ts) {
@@ -234,7 +234,7 @@ function penFire(w, target, src) {
       return true;
     }
     case 'fork': { // a held bolt that builds up on one target
-      const ts = s.count > 1 ? acquireMany(w.dir, s.range, p.x, p.y, s.count) : [target];
+      const ts = s.count > 1 ? acquireMany(aimDir(w), s.range, p.x, p.y, s.count) : [target];
       const rate = hasSig(w, 'plivesocket') ? 1.5 : 0.75, top = hasSig(w, 'pbarewire') ? 5 : 3;
       if (ts[0] !== w.forkOn) { w.forkOn = ts[0]; w.forkK = 1; w.forkFull = 0; }
       w.forkK = Math.min(top, (w.forkK || 1) + s.cd * rate);

@@ -304,6 +304,7 @@ function mineScale(pr) {
   return { k, r: r * Math.sqrt(pr.dominoK || 1) };
 }
 function afterMine(pr) {
+  if (pr.w.def.sig) sigMine(pr); // (Nappy Mines: Acid Pool and a bounded domino: sigweap.js)
   if (hasSig(pr.w, 'claymore')) {
     // Claymore: a fan of shrapnel at the nearest enemy.
     const t = acquire('nearest', 400, pr.x, pr.y), a0 = t ? Math.atan2(t.y - pr.y, t.x - pr.x) : Math.random() * TAU;
@@ -417,7 +418,7 @@ function mirrorWomb(b) {
 
 // ---------------------------------------------------------------- Premature Evangelation extras (per blade)
 function bladeEats(w, bx, by, size) {
-  const nan = hasSig(w, 'nan'), op = G.pair.overprotective;
+  const nan = hasSig(w, 'nan') || w.def.sig, op = G.pair.overprotective; // (signature angels always eat shots)
   if (!nan && !op) return;
   const sw = op ? owned('siphon') : null;
   for (const b of G.ebul) {
@@ -541,6 +542,7 @@ function spoilerBlink(dt) {
 // ---------------------------------------------------------------- upgrades given a weapon's own twist (see ADAPT)
 function applyAdapt(w, s) {
   const P = G.P;
+  if (w.def.v10atk === 'contact') s.reach = s.range * s.area; // (v10 Contact weapons, v10.js)
   switch (w.id) {
     case 'tesla': s.chain += P.pierce; break;
     case 'venom': s.area *= 1 + 0.12 * P.pierce; s.flight = (s.flight || 0.6) / P.projSpeed; break;

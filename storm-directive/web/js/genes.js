@@ -423,7 +423,7 @@ const SEQ_ABILITY = {
     } },
   eggseeker: { name: 'Telling Tales', short: 'SNIPE', cd: 7, desc: 'Every 7s: marks the toughest enemy in range, then a second later hits it with a guaranteed crit for huge damage.',
     fire() {
-      const p = G.player, t = acquire('highhp', 480, p.x, p.y);
+      const p = G.player, t = acquire('strongest', 480, p.x, p.y);
       if (!t) return false;
       G.fx.push({ type: 'warn', x: t.x, y: t.y, r: t.r + 20, color: SEQ_LOOK.eggseeker.color, life: 1, max: 1 });
       floatText(t.x, t.y - t.r - 14, 'MARKED', SEQ_LOOK.eggseeker.color, 12, 0.8);
