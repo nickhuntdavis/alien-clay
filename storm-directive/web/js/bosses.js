@@ -264,6 +264,7 @@ function orbitNurse(e, dt) {
 // ---------------------------------------------------------------- hazards (enemy ground effects that hurt you)
 function addHazard(x, y, r, life, dmg, color, name, warn) {
   if (G.hazards.length > 40) return;
+  if (V10) dmg *= V10_DIFF.dmg; // (hazards read dmgNow() directly, so the v10 damage cut never reached them: boss10.js)
   G.hazards.push({ x, y, r, life, max: life, dmg, color, name, warn: warn == null ? 0.8 : warn });
 }
 function updateHazards(dt) {

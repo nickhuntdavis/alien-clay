@@ -85,7 +85,7 @@ function fightHit(e, d, src, crit) {
   if (res.staticRecharge) ring(e.x, e.y, e.r + 8, FIGHT_COL.membrane, 0.4, 3);
   if (res.layersLost > 0) { S.layers += res.layersLost; ring(e.x, e.y, e.r + 6, FIGHT_COL.shell, 0.35, 5); fxParts('spark', e.x, e.y, FIGHT_COL.shell, 8, 140, 0.4, 3); }
   for (const p of res.payoffs) fightPayoff(e, p, res, src);
-  if (res.thorns > 0 && !src.rx) { S.thorns += res.thorns; hurtPlayer(res.thorns, 'Thorns', e, 'thorns'); }
+  if (res.thorns > 0 && !src.rx) { const th = Math.min(res.thorns, G.P.maxHp * 0.04); S.thorns += th; hurtPlayer(th, 'Thorns', e, 'thorns'); } // (capped: a mastered contact weapon took a fifth of its own hit back)
   e.fOk = res.statusOk;
   if (typeof s10Hit === 'function') s10Hit(e, src, res, t);
   wupHit(e, res, src); // (weapon branches: weapons24.js)

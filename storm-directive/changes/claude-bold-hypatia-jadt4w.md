@@ -1,3 +1,11 @@
+## 2026-10-18 Weapons grow between tiers; Thorns recoil capped; hazards get the v10 damage cut (v10.13)
+- Systems: weapons, combat, hazards
+- Files: weapons24.js, game.js, fight.js, bosses.js
+- What: between tiers the 24 still gain stats with player level (up to 3 old levels past their tier, one per 3 player levels; cards stay branch-only). Thorns recoil is capped at 4% of max health per hit (a mastered contact weapon took 202 back in a sim). Hazards (kidney stones, boss ground attacks) now take V10_DIFF.dmg like everything else.
+- Save data: none.
+- Hooks: game.js computeStatsInner -> wStatLv; bosses.js addHazard -> V10_DIFF.dmg; fight.js thorns cap.
+- Risk: bot sim still 0/6 wins (2 of 6 reach the egg, one the Final Five); deaths now mostly late bullets and rivals.
+
 ## 2026-10-18 Weapon tiers: upgrades on their own screen, four tiers, all branches; no empty slots; catalysts need this run's reaction
 - Systems: weapons, draft, ui, mutations
 - Files: weapons24.js, draft.js, game.js, ui.js, mutations.js, tests/drafttest.js, tests/mutstest.js

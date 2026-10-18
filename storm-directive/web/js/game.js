@@ -278,7 +278,7 @@ function computeStats(w) {
   wRecolour(w); // (a changed damage type changes the colour)
 }
 function computeStatsInner(w) {
-  const d = w.def, b = d.base, P = G.P, L = w.lvl, syn = G.synergy;
+  const d = w.def, b = d.base, P = G.P, L = V10 && d.w24 && !w.isSpell ? wStatLv(w) : w.lvl, syn = G.synergy; // (the 24 grow with you between tiers: weapons24.js)
   const s = Object.assign({}, b);
   let dmgB = 0, areaB = 0, durB = 0, cdB = 0;
   for (let l = 2; l <= L; l++) {

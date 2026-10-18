@@ -134,7 +134,12 @@ function wupNextLv(w) {
   return nx && nx <= wCap(w) ? nx : 0;
 }
 const wupReady = () => (G ? G.weapons.filter(w => wupNextLv(w)) : []);
-function wupLevel(lv) { if (lv % WUP_EVERY === 0 && wupReady().length) G.lootQueue.push({ kind: 'wup', v10ok: true }); } // (game.js gainXp)
+// Between tiers a weapon still grows with you (stats only, never a card): up to 3 old levels past its tier, at one per 3 player levels.
+const wStatLv = w => Math.max(w.lvl, Math.min(w.lvl + 3, 1 + Math.floor(((G && G.level) || 1) / 3)));
+function wupLevel(lv) {
+  if (lv % 3 === 0) recomputeAll();
+  if (lv % WUP_EVERY === 0 && wupReady().length) G.lootQueue.push({ kind: 'wup', v10ok: true });
+} // (game.js gainXp)
 // The weapon upgrade screen: with one weapon ready, its branch cards straight away; with more, pick the weapon first.
 // A weapon's branch cards for its next tier; taking one moves the slot up to that tier.
 const wupRaise = (w, lv) => (wupForkCards({ w, lv }) || []).map(c => Object.assign(c, { apply: (ap => () => { w.lvl = lv; ap(); computeStats(w); })(c.apply) }));
