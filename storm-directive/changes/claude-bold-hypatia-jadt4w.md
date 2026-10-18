@@ -1,3 +1,11 @@
+## 2026-10-18 Weapon upgrades: Lv 6 wildcards (docs only)
+- Systems: weapons, upgrades (docs only, redesign docs)
+- Files: WEAPON_UPGRADES.md, UPGRADES.md, README.md
+- What: Lv 6 now offers three cards: two inside the chosen promise and one wildcard from outside it (72 new cards; 360 in all).
+- Save data: none.
+- Hooks: none.
+- Risk: none (no code).
+
 ## 2026-10-18 Weapon upgrades: choices at Lv 6 and 10 (docs only)
 - Systems: weapons, upgrades (docs only, redesign docs)
 - Files: WEAPON_UPGRADES.md, UPGRADES.md, README.md, CLAUDE.md

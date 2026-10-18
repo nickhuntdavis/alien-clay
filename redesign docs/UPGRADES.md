@@ -11,7 +11,7 @@ Working proposal, 17 Oct 2026. How the build grows during a run and how the game
 | 1 | Weapons | 3 slots, offered at levels 1, 8 and 22 (plus up to 2 Weapon Combo mounts), as today |
 | 2 | Feats | 3 slots: the sample's unique Feat starts in slot 1; 2 more are drafted. Feats cap at about level 5 |
 | 3 | Mutations and defences | 4 shared Genome slots, each rankable. Defences come from upgrade cards (or are built into some samples, weapons and Feats), mutations from Lateral Gene Transfer |
-| 4 | Milestones | Weapons pick a promise at level 3 (3 cards), grow it at 6 (2 cards) and take a mastery at 10 (3 cards) (`WEAPON_UPGRADES.md`), Feats at 3 and 5. Each fork is its own 2-card screen. Only one weapon a run reaches level 10 |
+| 4 | Milestones | Weapons pick a promise at level 3 (3 cards), grow it or swerve at 6 (3 cards) and take a mastery at 10 (3 cards) (`WEAPON_UPGRADES.md`), Feats at 3 and 5. Each fork is its own 2-card screen. Only one weapon a run reaches level 10 |
 | 5 | Pool | Moderate lean: 50% primary type, 25% support, 25% other. No Instability cost. Novelty weighting stays inside each band |
 | 6 | Draft controls | Skip, Reroll and Banish (Remove, or Fewer like this), all paid in rerolls. No Freeze |
 | 7 | Triggers | Level-ups and elite or boss kills open drafts; everything else adds cards to the pool with a toast. At most one screen per ~40 s of combat |
@@ -107,7 +107,7 @@ Your defence has the same weaknesses as an enemy's: take Shell and Acid enemies 
 
 | Item | Fork levels | Notes |
 | --- | --- | --- |
-| Weapons | 3, 6 and 10 (changed 18 Oct: three promise cards at Lv 3, two cards within that promise at Lv 6, three extreme masteries at Lv 10; see `WEAPON_UPGRADES.md`) | Lv 5 open to all three weapons. Lv 10 is the mastery fork: only one weapon a run (today's rule, `masterOf`/`wCap`) |
+| Weapons | 3, 6 and 10 (changed 18 Oct: three promise cards at Lv 3, three cards at Lv 6 (two within that promise, one wildcard), three extreme masteries at Lv 10; see `WEAPON_UPGRADES.md`) | Lv 5 open to all three weapons. Lv 10 is the mastery fork: only one weapon a run (today's rule, `masterOf`/`wCap`) |
 | Feats | 3 and 5 | All three Feats |
 | Genome | none at first | Add later if ranks feel flat |
 

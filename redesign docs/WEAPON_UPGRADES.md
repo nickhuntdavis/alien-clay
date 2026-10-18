@@ -5,9 +5,9 @@
 ## How the branch works
 
 - **Lv 3: pick a promise.** Three cards, each a different answer to "how will this weapon play from now on?" The other two are gone for the run.
-- **Lv 6: grow the promise.** Two cards, both belonging to the promise you picked. Each adds a new behaviour, not a bigger number.
+- **Lv 6: grow the promise, or swerve.** Three cards: two belong to the promise you picked and add a new behaviour (not a bigger number); the third is a wildcard from outside the promise, stranger and less expected.
 - **Lv 10: the mastery.** Only one weapon a run reaches Lv 10, so these are extreme. Three cards per weapon, offered whatever promise you took; each says which promises it suits best.
-- Per weapon: 3 promises, 6 Lv 6 cards (2 per promise), 3 masteries. 288 cards in all. Card names for the Lv 6 cards are still to write.
+- Per weapon: 3 promises, 9 Lv 6 cards (2 per promise plus a wildcard each), 3 masteries. 360 cards in all. The in-promise Lv 6 cards still need names.
 
 ## Design rules for every branch
 
@@ -29,6 +29,7 @@
 - Lv 6, pick one:
   - a bounce that hits an enemy already knocked back by this shot slams them together: both take a collision hit.
   - the last bounce of each shot is a heavy hit (knocks off a Shell layer) and bounces once more.
+  - Wildcard, **Squirrel**: shots that miss land as nuts on the floor; swimming over one fires it again at the nearest enemy.
 - Costs: the first hit is 15% weaker. Shows: a pale zigzag linking the bounces. Modes: ORBIT keeps a tight group in front of you.
 
 **B. Through and Through: line the crowd up.**
@@ -36,6 +37,7 @@
 - Lv 6, pick one:
   - the shot speeds up with every enemy it passes through; a shot that clears 4 grows to double size.
   - a shot that pierces 5 or more leaves a shock lane behind it for 0.5 s that knocks back anything crossing it.
+  - Wildcard, **Conkers**: each nut is on a string: after its first hit it swings once round that enemy, hitting whatever it sweeps.
 - Costs: lower fire rate (−20%). Shows: the pellet visibly grows and its trail thickens per enemy. Modes: KITE lines pursuers up behind each other.
 
 **C. Marked for Bonking: focus fire.**
@@ -43,6 +45,7 @@
 - Lv 6, pick one:
   - a marked enemy also takes +20% from your other weapons until the bonk lands.
   - the bonk staggers the target (full Poise bar) and knocks off a Shell layer; elites take it every 3rd hit instead of 4th.
+  - Wildcard, **Nut Allergy**: enemies killed by Nut Shot swell up and burst, knocking their neighbours back.
 - Costs: the shot no longer switches targets while one is marked. Shows: the dent icon fills in quarters; the bonk has a big thwack frame. Modes: HUNT, which already locks one target.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -56,6 +59,7 @@
 - Lv 6, pick one:
   - a point-blank volley (every pellet hits one enemy) knocks it back hard and pushes you back 60 units (recoil lunge).
   - every 3rd volley fuses into a single slug that pierces 3 and is a heavy hit.
+  - Wildcard, **Confetti**: pellets that miss stick in the floor for 2 s and hit enemies that swim over them.
 - Costs: almost nothing lands beyond 200 units. Shows: a dense pellet ball and a recoil kick on the sperm. Modes: HUNT and ORBIT close the gap; KITE wastes it.
 
 **B. More Is More: cover the screen.**
@@ -63,6 +67,7 @@
 - Lv 6, pick one:
   - pellets that miss carry on to full range and split once into 2 (40% damage).
   - [ATTACK to Burst] every 4th volley fires all the way round you as a ring of pellets.
+  - Wildcard, **Wedding Rice**: every other volley fires backwards, behind you.
 - Costs: poor single-target damage; bosses shrug it off. Shows: a wide fan of tiny pips, then a full ring. Modes: ORBIT keeps a crowd in the fan; COLLECT clears a path through gems.
 
 **C. Get Off Me!: shove them about.**
@@ -70,6 +75,7 @@
 - Lv 6, pick one:
   - an enemy shoved into another enemy or a wall takes a collision hit, and so does what it hit.
   - a shove that causes a collision also knocks the second enemy on (depth 2), so one volley can scatter a group.
+  - Wildcard, **Hiccups**: fires at random moments, sometimes twice in a row: about 30% faster on average, never on a rhythm.
 - Costs: −15% damage per pellet. Shows: enemies tumble away and bump into each other. Modes: KITE and HOLD keep space clear; NEST keeps the egg free.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -83,6 +89,7 @@
 - Lv 6, pick one:
   - while an enemy is held, your swim speed is +25% and enemy shots aimed at you lose track for the same 0.4 s.
   - a held enemy can be clamped into a neighbour: the clamp swings it into the nearest enemy for a collision hit on both.
+  - Wildcard, **Tooth and Nail**: the jaws bite bullets: an enemy shot that enters clamp range is crushed (12.8, once per 0.5 s).
 - Costs: one clamp per 0.8 s (slower). Shows: the jaws visibly stay shut round the enemy. Modes: KITE uses the hold to escape; NEST stops attackers reaching the egg.
 
 **B. Shell Game: crack the tough ones.**
@@ -90,6 +97,7 @@
 - Lv 6, pick one:
   - a cracked enemy leaks: your clamps on it splash 30% onto the enemies touching it.
   - when the last Shell layer comes off, the enemy is staggered and takes a ×3 clamp.
+  - Wildcard, **Nut Sack**: each clamp stores a nut; every 6 stored are flung at the furthest enemy as one heavy shot.
 - Costs: it does nothing extra to enemies you don't stay on. Shows: visible cracks spreading across the target. Modes: HUNT keeps you on one enemy.
 
 **C. Back Off!: answer the first one in.**
@@ -97,6 +105,7 @@
 - Lv 6, pick one:
   - a counter-struck enemy knocked into another enemy knocks it back too.
   - when 3 or more enemies enter range within 1 s, the jaws snap all of them at once in a ring (self-centred).
+  - Wildcard, **Hug It Out**: a clamped enemy is carried in front of you for 1 s, soaking up enemy shots.
 - Costs: later clamps on the same enemy are 20% weaker. Shows: a big star thump and enemies flung clear. Modes: HOLD and NEST let enemies come to you.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -110,6 +119,7 @@
 - Lv 6, pick one:
   - the blast aims at the densest cluster's edge, so the rim lands on the most enemies.
   - every 4th blast has a second, larger ring 0.3 s later (double radius, 60% damage).
+  - Wildcard, **Grudge Match**: each blast goes off on whoever last hurt you, if it is in range.
 - Costs: −20% damage at the centre. Shows: a fat shockwave with a bright rim. Modes: ORBIT keeps clusters in range.
 
 **B. Chain Reaction: cascades.**
@@ -117,6 +127,7 @@
 - Lv 6, pick one:
   - chain blasts can kill too, and those kills chain once more (depth 3 at most).
   - a chain of 3 or more ends in one big blast at the last link (full radius, 100%).
+  - Wildcard, **Dud**: 1 blast in 4 fails and leaves a lump that goes off 2 s later at triple size.
 - Costs: −15% base damage, so the payoff needs kills. Shows: pops rippling outwards through the crowd. Modes: COLLECT benefits from gems spilled across a wide area.
 
 **C. Premature Evacuation: make room.**
@@ -124,6 +135,7 @@
 - Lv 6, pick one:
   - a launched enemy that hits another enemy or a wall takes a collision hit, and so does what it hits.
   - blasts go off around you instead of at a target [ATTACK stays Burst, self-centred], launching everything near outward.
+  - Wildcard, **Shrapnel Shower**: blasts throw 6 chunky fragments that land, bounce once and hit what they land on.
 - Costs: no extra damage; the payoff is space and collisions. Shows: enemies flung outwards in a ring. Modes: KITE and NEST, which want enemies kept away.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -137,6 +149,7 @@
 - Lv 6, pick one:
   - when a full bar strips a Shell layer, the bar resets only halfway.
   - a target that loses its last Shell layer to Acid Spit takes ×2 damage from your Acid Spit for 4 s.
+  - Wildcard, **Spittoon**: globs that miss leave a puddle; swimming through it makes your next 3 spits double size.
 - Costs: the glob no longer re-targets until its target dies. Shows: a fizzing coat that thickens on the target. Modes: HUNT.
 
 **B. Splash Damage: precise shots, messy results.**
@@ -144,6 +157,7 @@
 - Lv 6, pick one:
   - droplets that hit an enemy already carrying Corrosion splatter once more.
   - every 5th spit lands as a lobbed glob that leaves an Acid Pool (radius 50, 3 s).
+  - Wildcard, **Gargle**: with nothing in range for 2 s, the next spit is a mouthful: 5 globs at once.
 - Costs: −15% damage on the direct hit. Shows: visible droplets arcing off the target. Modes: ORBIT keeps a group bunched.
 
 **C. Bad Aftertaste: the death spreads it.**
@@ -151,6 +165,7 @@
 - Lv 6, pick one:
   - the splash also leaves a small Acid Pool where it died (radius 35, 2 s).
   - enemies hit by a splash carry their own residue mark, so the next death splashes again (depth 3).
+  - Wildcard, **Lob Lip**: globs arc over the first enemy and land on the one behind it (lobbed).
 - Costs: no help against the target itself. Shows: green-pink drips on marked enemies, a splat on death. Modes: COLLECT swims through the gems those deaths drop.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -164,6 +179,7 @@
 - Lv 6, pick one:
   - at full charge the beam turns white and its hits carry Poise, so it can interrupt.
   - at full charge, the target is Charged permanently while the beam holds, so your other weapons' arcs start from it.
+  - Wildcard, **Screen Burn**: wherever the beam rests for 1 s, a ghost of it stays burnt in for 3 s and still zaps (footprint).
 - Costs: weak against crowds; every switch throws the charge away. Shows: the beam thickens and whitens as it charges, then snaps thin when switching. Modes: HUNT.
 
 **B. Critical Error: hold it through a crowd.**
@@ -171,6 +187,7 @@
 - Lv 6, pick one:
   - a pulse that kills emits another (depth 3).
   - every 10 kills, the next kill makes a full-screen flicker that Charges every enemy on screen.
+  - Wildcard, **Have You Tried Turning It Off**: every 6 s the beam switches off and on again; the restart Charges everything on its line.
 - Costs: −10% beam damage. Shows: little static pops along the beam as enemies die. Modes: ORBIT keeps a crowd crossing the beam.
 
 **C. Dead Pixels: wider, scrappier coverage.**
@@ -178,6 +195,7 @@
 - Lv 6, pick one:
   - the glitches leave dead pixels on the floor for 1 s that zap anything crossing them (footprint).
   - [ATTACK to Spread] the beam breaks up permanently into 7 short zaps fanned out in front of you.
+  - Wildcard, **Wrong Cable**: the beam fires backwards out of your tail.
 - Costs: −30% damage on the main line. Shows: a jittery beam with sparks either side. Modes: KITE drags the glitches across pursuers.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -191,6 +209,7 @@
 - Lv 6, pick one:
   - enemies leaving drag a strand behind them; the next enemy to cross the strand is Snared too.
   - the trap grows by 10% every second something is Snared in it (up to double size).
+  - Wildcard, **Snot Bubble**: now and then a trap floats up as a bubble that drifts after the nearest enemy and splats on it, leaving a small trap.
 - Costs: the trap lasts 25% less time. Shows: thick green drag lines and strands snapping back. Modes: KITE drags pursuers through it.
 
 **B. Bogged Down: stick the dangerous ones.**
@@ -198,6 +217,7 @@
 - Lv 6, pick one:
   - two stuck enemies close together become Conjoined (groups of 3 at most).
   - stuck enemies cannot attack.
+  - Wildcard, **Sneeze Guard**: traps block enemy shots that cross them (once per 0.3 s per trap).
 - Costs: one trap at a time. Shows: a stuck enemy sinks a little into the snot. Modes: HOLD and NEST, where enemies come to you.
 
 **C. Snotwork: build a network.**
@@ -205,6 +225,7 @@
 - Lv 6, pick one:
   - up to 4 traps can be down at once (from 2).
   - an enemy crossing a strand is pulled along it to the nearest trap (Pull rule 12.2).
+  - Wildcard, **Bogey Man**: an enemy that dies Snared in a trap leaves a bogey that rolls slowly, Snaring what it touches for 3 s.
 - Costs: each trap is 30% smaller. Shows: glistening strands between puddles, enemies twanging into them. Modes: KITE and ORBIT both lay traps across a wide area.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -218,6 +239,7 @@
 - Lv 6, pick one:
   - an enemy at the Bleed cap leaks: each second it splashes 1 stack onto the nearest enemy.
   - a bleeding enemy that dies leaves a blood pool twice as large, and enemies crossing it gain a Bleed stack.
+  - Wildcard, **Sewing Circle**: needles that miss circle you once and launch again.
 - Costs: −30% direct damage. Shows: growing pulsing marks on the target, drips between enemies. Modes: KITE keeps you alive while the Bleed works.
 
 **B. Needlework: thread the horde.**
@@ -225,6 +247,7 @@
 - Lv 6, pick one:
   - a needle that pierces 3 or more leaves a thread between the first and last enemy: Bleed hits anything crossing it for 2 s.
   - a needle that pierces 5 sews them together: they are pulled into a knot (Pull rule) and each takes a Bleed stack.
+  - Wildcard, **Tattoo**: an enemy hit 5 times gets a small heart tattoo; when it dies you heal 1% of max health.
 - Costs: fires 25% slower. Shows: a red thread trailing the needle through the line. Modes: KITE lines pursuers up.
 
 **C. Final Prick: clean up.**
@@ -232,6 +255,7 @@
 - Lv 6, pick one:
   - a kill by Red Needle fires a free needle at the next-weakest enemy within 300.
   - a needle that hits a bleeding enemy under 15% health kills it outright (elites under 8%, never bosses).
+  - Wildcard, **Vaccination**: each needle kill makes you immune to the next status that would hit you within 3 s.
 - Costs: −25% damage to enemies above half health. Shows: a red pinprick flash and a ding on the finishing blow. Modes: COLLECT sweeps up the gems from the clean-up.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -245,6 +269,7 @@
 - Lv 6, pick one:
   - every enemy it passes through gains Soul build-up, so a long line fills several bars at once.
   - when the ghost reaches full range it fades and re-forms at the start of its path, flying the same line again once.
+  - Wildcard, **Nine-Tenths of the Law**: a Possessed enemy fires Ghost Load shots at its mates.
 - Costs: −15% damage to the first target. Shows: the ghost visibly passes through bodies, leaving a faint wisp in each. Modes: KITE lines pursuers up.
 
 **B. Return to Sender: twice the haunting.**
@@ -252,6 +277,7 @@
 - Lv 6, pick one:
   - on its way back it pulls a little of each enemy it passes towards you (Pull rule, weak).
   - a Possessed enemy it passes on the way back is dragged along with it for 1 s, bumping its mates.
+  - Wildcard, **Haunted House**: ghosts that miss sink into the floor and pop up under the next enemy that swims over them.
 - Costs: the shot is 30% slower. Shows: a translucent ghost reversing along its trail. Modes: ORBIT keeps enemies on both legs of the path.
 
 **C. Unfinished Business: they come back for their friends.**
@@ -259,6 +285,7 @@
 - Lv 6, pick one:
   - the burst also marks the enemies it hits (depth 2).
   - instead of bursting, the spirit of an elite or big enemy fights for you for 4 s (pets rule 12.3).
+  - Wildcard, **Seance**: every 8 s, the last 5 enemies you killed flicker back for 1 s as ghosts that draw enemy fire.
 - Costs: −20% direct damage. Shows: a pale wisp orbiting marked enemies, then a ghostly puff on death. Modes: HUNT tags a big target; COLLECT enjoys the bursts.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -272,6 +299,7 @@
 - Lv 6, pick one:
   - an enemy that Ignites inside the patch makes the whole patch flare up for 0.5 s (+50% damage).
   - the patch pulls enemies standing at its edge back in (Pull rule, weak).
+  - Wildcard, **Fire Drill**: enemies refuse to enter the patch, so it works as a wall; anything already inside burns twice as fast.
 - Costs: the patch is 20% smaller. Shows: the flames climb taller the longer someone stands in them. Modes: HOLD and NEST make enemies walk into it.
 
 **B. Spreading Rumours: the fire leaves with them.**
@@ -279,6 +307,7 @@
 - Lv 6, pick one:
   - those footprints fill Burn bars as fast as the patch does.
   - an enemy that Ignites while trailing footprints drops a fresh small patch where it Ignites (once per enemy).
+  - Wildcard, **Toasty**: standing in your own patch heals you 1% of max health a second.
 - Costs: the patch itself burns out 30% sooner. Shows: scorched footprints leading away from the patch. Modes: KITE makes pursuers walk through and out again.
 
 **C. Flash in the Pan: short fuse, big finish.**
@@ -286,6 +315,7 @@
 - Lv 6, pick one:
   - the eruption is aimed: it goes off early the moment 4 or more enemies stand in it.
   - [ATTACK to Burst] patches no longer burn at all; they are delayed blasts that erupt after 1 s, with double the radius.
+  - Wildcard, **Hot Potato**: every 2 s the patch jumps to under the nearest enemy outside it.
 - Costs: very little steady damage. Shows: the patch visibly swells and glows before it erupts. Modes: ORBIT gathers a crowd on top of it.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -303,6 +333,7 @@
 - Lv 6, pick one:
   - an enemy pulled into the centre is held there until the orb ends (bosses never; elites 1 s).
   - when the orb ends, everything at its centre is crushed together: one Burst with a collision hit for each enemy there.
+  - Wildcard, **Lost Property**: enemies swallowed or crushed by an orb drop their gems at your feet.
 - Costs: the outer pull is 30% weaker, so fewer enemies are caught. Shows: a dark core with enemies pinned on it. Modes: HOLD and NEST, where the orbs fill up with enemies coming at you.
 
 **B. Orbituary: a moving hazard.**
@@ -310,6 +341,7 @@
 - Lv 6, pick one:
   - orbiting enemies collide with each other and with anything they swing into (collision hits both).
   - when the orb ends, orbiting enemies are flung outwards in all directions as projectiles that knock back what they hit.
+  - Wildcard, **Gravity Assist**: swimming past an orb slingshots you: +60% swim speed for 1 s.
 - Costs: the orb does 40% less damage of its own. Shows: a ring of enemies whirling round the orb. Modes: ORBIT keeps the crowd feeding the ring.
 
 **C. Big Bang, Eventually: wait for it.**
@@ -317,6 +349,7 @@
 - Lv 6, pick one:
   - the merge count shows on the orb; at 3 merged it starts eating enemy shots (12.8).
   - the supernova radius and damage scale with everything the orbs dealt (up to ×2), and it leaves a short standing well for 3 s [ATTACK to Pool for that well].
+  - Wildcard, **White Hole**: every 3rd orb pushes enemies away instead of pulling.
 - Costs: slow, back-loaded damage. Shows: a growing, wobbling orb with a visible merge counter, then the supernova. Modes: KITE keeps you alive while it grows.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -330,6 +363,7 @@
 - Lv 6, pick one:
   - the burst's size grows with the number of enemies that reached the spot.
   - the false position stays for 4 s after you reappear and goes off a second time.
+  - Wildcard, **Rattle**: while hidden you leave a baby rattle at your real position that lures enemies away from you.
 - Costs: the BOO itself is 30% weaker. Shows: a faint sperm-shaped outline that pops when crowded. Modes: KITE leaves the bait far behind.
 
 **B. You Can't See Me: stay gone.**
@@ -337,6 +371,7 @@
 - Lv 6, pick one:
   - while hidden, you swim 40% faster and can pick up drops without breaking cover.
   - while hidden, your other weapons keep firing, from where you actually are.
+  - Wildcard, **Mirror, Mirror**: two false positions instead of one; enemies split between them.
 - Costs: the BOO is 40% weaker. Shows: shots passing through a ghost outline, enemies milling about. Modes: COLLECT uses the hidden time to sweep gems.
 
 **C. Boo!: make them panic.**
@@ -344,6 +379,7 @@
 - Lv 6, pick one:
   - a fleeing enemy that bumps into another spreads Fear to it (once per enemy).
   - Feared enemies that run into each other collide for a hit and drop their next attack.
+  - Wildcard, **Cuckoo**: when you reappear, you swap places with the nearest enemy.
 - Costs: a shorter hide (1.2 s). Shows: enemies scattering and bumping into each other. Modes: HUNT reappears in the thick of it.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -357,6 +393,7 @@
 - Lv 6, pick one:
   - the beam damage grows with its length, up to +60% at full stretch.
   - the twin's end drags anything it touches along the beam towards you (Pull rule).
+  - Wildcard, **Evil Twin**: once a wave your twin goes off on its own for 5 s, chasing the nearest elite with its end of the beam.
 - Costs: much harder to keep the beam on one target. Shows: a long beam slashing across the screen. Modes: KITE and ORBIT both sweep it naturally.
 
 **B. Toxic Codependency: drag it through the dense part.**
@@ -364,6 +401,7 @@
 - Lv 6, pick one:
   - at +100% the beam turns white and Charges everything it touches for 3 s.
   - at +100% your twin swaps places with you along the beam, hitting everything on the line.
+  - Wildcard, **Sticky Fingers**: the beam picks up the gems it crosses and drops them at your feet.
 - Costs: −20% damage when crossing few enemies. Shows: the beam brightening step by step as it sweeps. Modes: ORBIT.
 
 **C. Third Wheel: more geometry.**
@@ -371,6 +409,7 @@
 - Lv 6, pick one:
   - up to 3 extra beams at once; each extra beam that crosses another makes a spark at the crossing that hits everything near it.
   - a third anchor appears (another twin): the beams form a triangle and everything inside it is Charged.
+  - Wildcard, **Mirror Image**: 25% of enemy shots aimed at you hit your twin instead (it cannot be hurt).
 - Costs: the main beam is 20% thinner. Shows: branching beams and crossing sparks. Modes: ORBIT and HUNT weave through clusters.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -384,6 +423,7 @@
 - Lv 6, pick one:
   - up to 6 teeth on the ground at once (from 3).
   - when 3 teeth are taken within 1 s, the Fairy smites all three takers and everything between them.
+  - Wildcard, **Root Canal**: teeth burrow and pop up under the nearest enemy instead of waiting.
 - Costs: each smite is 25% weaker. Shows: teeth tumbling out of each smitten enemy. Modes: COLLECT and ORBIT keep you near the falling teeth.
 
 **B. Sweet Tooth: steer the horde.**
@@ -391,6 +431,7 @@
 - Lv 6, pick one:
   - teeth are dropped where you choose to be: they land on your swim path, 200 units behind you.
   - one gold tooth at a time lures everything on screen (bosses excepted) for 2 s.
+  - Wildcard, **Gap Year**: every 3rd tooth the Fairy keeps for herself, and spends it smiting a random elite.
 - Costs: smites are 20% weaker. Shows: enemies peeling off the crowd and swimming for the glint. Modes: KITE drops teeth behind you; NEST draws enemies away from the egg.
 
 **C. Tooth and Consequences: patience pays.**
@@ -398,6 +439,7 @@
 - Lv 6, pick one:
   - a fully charged tooth (6 s) glows, and its smite also hits everything within 100.
   - a fully charged tooth that is never taken explodes when it expires, smiting everything within 160.
+  - Wildcard, **Tooth for a Tooth**: when you take damage, a tooth drops at the feet of whatever hurt you.
 - Costs: teeth are dropped 40% less often. Shows: teeth glowing brighter as they wait. Modes: HOLD and KITE give teeth time to charge.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -411,6 +453,7 @@
 - Lv 6, pick one:
   - undead follow you and fight near you, instead of where they died.
   - the first elite you convert each wave stays for the whole wave (counts towards the pets cap).
+  - Wildcard, **Doggy Bag**: undead fetch gems back to you between fights.
 - Costs: at most 3 undead (from 4). Shows: a little worm-ridden escort swimming with you. Modes: KITE keeps them between you and the crowd.
 
 **B. Contagious Personality: the army recruits.**
@@ -418,6 +461,7 @@
 - Lv 6, pick one:
   - infection lasts until death (no 8 s timeout).
   - any enemy that dies infected rises, whoever killed it (pets cap still applies; the oldest undead goes first).
+  - Wildcard, **Hookworm**: undead latch on to an enemy and ride it, biting, until it dies.
 - Costs: undead last 4 s and deal 30% less. Shows: worm marks spreading enemy to enemy. Modes: ORBIT keeps the fight tightly packed for infection.
 
 **C. Dead Useful: an army of ammunition.**
@@ -425,6 +469,7 @@
 - Lv 6, pick one:
   - the burst adds Soul build-up to everything it hits.
   - you can detonate your undead early: every 8 s, all undead rush the densest cluster and burst on arrival.
+  - Wildcard, **Gut Feeling**: infected enemies flash red just before they attack.
 - Costs: undead deal 50% less in melee. Shows: undead shambling into crowds and popping. Modes: HUNT points them at a big target.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -438,6 +483,7 @@
 - Lv 6, pick one:
   - sprinting leaves a white-hot streak that Ignites anything crossing it at once (once per enemy per 4 s).
   - at full speed you leave burning footprints either side of you as well, tripling the trail's width.
+  - Wildcard, **Slip Road**: enemies that cross the trail skid forward along it.
 - Costs: standing still leaves nothing, and slow swimming leaves a weak trail. Shows: the trail brightens and widens with speed. Modes: KITE and ORBIT keep you moving fast.
 
 **B. Backdraft: cross your own path.**
@@ -445,6 +491,7 @@
 - Lv 6, pick one:
   - closing a loop (crossing a trail you laid within 4 s) fills the Burn bar of everything inside the loop.
   - a wave that meets another wave bursts where they meet (a Burst of radius 90).
+  - Wildcard, **Breadcrumbs**: gems you swim past follow the trail behind you until you collect them.
 - Costs: the trail itself burns 30% weaker. Shows: a visible wave of fire racing along the trail. Modes: ORBIT crosses its own path constantly.
 
 **C. Leave a Little Behind: lay a route.**
@@ -452,6 +499,7 @@
 - Lv 6, pick one:
   - enemies following your exact path take +50% (the trail remembers them).
   - trail pieces that are fully hot become embers that stay for 10 s along your most-used route.
+  - Wildcard, **Wrong Way**: the trail is laid 150 units ahead of you instead of behind.
 - Costs: slow payoff; the fresh trail behind you does little. Shows: a trail that glows from dull to bright behind you. Modes: KITE drags pursuers along the route; NEST circles the egg on one route.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -465,6 +513,7 @@
 - Lv 6, pick one:
   - a mine that goes off on contact flings the enemy back towards the next mine.
   - mines crawl slowly after the nearest enemy within 150 (homing).
+  - Wildcard, **Hand-Me-Down**: an enemy that touches a mine picks it up and carries it for 1 s before it goes off among its mates.
 - Costs: −15% blast damage. Shows: mines blinking faster as enemies near. Modes: KITE lays them in the path of pursuers.
 
 **B. Cluster Diaper: build a minefield, set it off once.**
@@ -472,6 +521,7 @@
 - Lv 6, pick one:
   - each mine in a chain goes off 20% bigger than the last (3 mines max per chain, 12.5).
   - a chain of 3 ends in a nappy-shaped blast of triple radius.
+  - Wildcard, **Changing Mat**: when you stop swimming, mines are laid in a ring round you.
 - Costs: mines do not go off on their own until an enemy touches one in the group. Shows: taped-together mines going off in sequence. Modes: HOLD and NEST drop mines in one place.
 
 **C. Lingering Smoulder: deny the ground.**
@@ -479,6 +529,7 @@
 - Lv 6, pick one:
   - patches that touch merge into one bigger patch (12.7 limits).
   - an enemy that Ignites on a patch makes it flare outward to double size for 1 s.
+  - Wildcard, **Bouncy Castle**: a blast throws its mine 100 units on, where it goes off again (once).
 - Costs: the blast itself is 25% weaker. Shows: smouldering patches spreading behind you. Modes: KITE turns a retreat into a burning route.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -492,6 +543,7 @@
 - Lv 6, pick one:
   - the chain can fork once: at the first enemy it splits into two chains.
   - the last enemy in each chain stays Charged for 6 s instead of 3.
+  - Wildcard, **Bad Hair Day**: Charged enemies are gently pulled towards each other, like hair to a balloon.
 - Costs: each jump loses more (60% falloff instead of 70%). Shows: long branching arcs across the crowd. Modes: ORBIT keeps a crowd within jump range.
 
 **B. Conductive Personality: set up the whole build.**
@@ -499,6 +551,7 @@
 - Lv 6, pick one:
   - Static Cling picks targets that are not yet Charged, spreading the setup.
   - when an enemy dies while Charged, all your weapons fire 20% faster for 2 s (does not stack).
+  - Wildcard, **Odd Sock**: one enemy each wave becomes a lightning rod: every chain passes through it on the way.
 - Costs: Static Cling's own damage is −30%. Shows: crackling Charged outlines on many enemies at once. Modes: HUNT pairs it with a heavy hitter.
 
 **C. Feedback Loop: arcs feed arcs.**
@@ -506,6 +559,7 @@
 - Lv 6, pick one:
   - a second arc that lands on another Charged enemy can throw one more (depth 3).
   - every 20 arcs, the next Static Cling bolt is a storm: it chains to every Charged enemy on screen.
+  - Wildcard, **Balloon Animal**: a chain that kills leaves a static balloon that floats to the nearest enemy and pops on it.
 - Costs: Static Cling fires 25% slower. Shows: arcs spawning arcs in visible cascades. Modes: any mode with a fast-firing second weapon.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -519,6 +573,7 @@
 - Lv 6, pick one:
   - two bundles that touch merge into one network (up to 10).
   - hitting any enemy in a bundle shares the hit with the whole bundle at 35% each, however far apart they drift (echo damage).
+  - Wildcard, **Paper Trail**: when a bundle ends, it leaves a strip of tape on the floor that Snares what crosses it for 3 s.
 - Costs: bundles last 3 s (from 5). Shows: a web of red tape across the crowd. Modes: ORBIT keeps the network packed.
 
 **B. Shared Trauma: share what is wrong with them.**
@@ -526,6 +581,7 @@
 - Lv 6, pick one:
   - a linked enemy that is Possessed drags its partners towards its targets.
   - when one partner Ignites or loses a Shell layer, every partner takes the same, once per bundle.
+  - Wildcard, **Office Politics**: taped enemies blame each other: they bump and shove within their bundle.
 - Costs: the shared damage drops to 20%. Shows: statuses visibly flowing along the tape. Modes: any; strongest with a second weapon that applies statuses.
 
 **C. Toxic Relationship: focus until it snaps.**
@@ -533,6 +589,7 @@
 - Lv 6, pick one:
   - the snap pulls the survivors together, Conjoining them.
   - each snap in the same bundle hits harder than the last (+50% per snap).
+  - Wildcard, **Lost in the Post**: now and then a bundle includes you: hits you take while taped are shared out to the bundle.
 - Costs: no damage is shared while they live. Shows: the tape twanging tight, then snapping. Modes: HUNT focuses one linked enemy down.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -546,6 +603,7 @@
 - Lv 6, pick one:
   - rebounds off walls count too, and each rebound adds a collision hit.
   - a rebounding enemy that hits 3 others bursts in a small Force blast.
+  - Wildcard, **Sausage Link**: a launched enemy trails a string that tugs the next enemy it passes along behind it.
 - Costs: −20% blast damage. Shows: enemies visibly ricocheting round the group. Modes: ORBIT keeps the group close enough to bounce.
 
 **B. Heavy Meat: big enemies make the best ammunition.**
@@ -553,6 +611,7 @@
 - Lv 6, pick one:
   - big enemies send small ones flying twice as far.
   - elites can be launched (bosses never), and a launched elite is a heavy hit to everything it strikes.
+  - Wildcard, **Meat Shield**: dollops that land near you set into a wall of meat for 2 s that blocks enemy shots.
 - Costs: small enemies barely move. Shows: big enemies cannoning through little ones. Modes: HUNT finds the big ones.
 
 **C. Meat Grinder: hits build up.**
@@ -560,6 +619,7 @@
 - Lv 6, pick one:
   - the shockwave launches its neighbours too.
   - the shockwave counts as a collision, so it adds marks to what it hits (depth 3).
+  - Wildcard, **Leftovers**: bowled enemies drop chunks; swimming through one heals 0.5% of max health.
 - Costs: −30% knockback distance. Shows: tenderised enemies swelling with each mark, then popping. Modes: HOLD lets the crowd pile in.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -573,6 +633,7 @@
 - Lv 6, pick one:
   - the volley fires only when the store is full, all at once, in a tight cone.
   - a full-store volley is followed by a second volley of the same size at the nearest elite.
+  - Wildcard, **Hiccup**: each returned shot has a 25% chance to fire twice.
 - Costs: nothing fires until the store fills. Shows: a visibly swelling placenta round the sperm, then a big volley. Modes: KITE survives while it fills.
 
 **B. Umbilical Shield: survive the pattern.**
@@ -580,6 +641,7 @@
 - Lv 6, pick one:
   - while the Membrane holds, enemy bullets within 120 are pulled towards you to be eaten.
   - when the Membrane breaks, every stored bullet bursts out in a ring.
+  - Wildcard, **Re-Gift**: returned shots go to a different enemy from the one that fired them, the furthest in range.
 - Costs: returned shots do 40% less. Shows: a cord-and-membrane bubble that thickens. Modes: NEST and HOLD stand in the bullets.
 
 **C. Eat the Rich: the scarier the shot, the nastier the reply.**
@@ -587,6 +649,7 @@
 - Lv 6, pick one:
   - a returned big shot pierces everything in its path.
   - a boss shot that is eaten is returned at its boss (homing) and is a heavy hit.
+  - Wildcard, **Swap Meet**: each returned shot copies a random one of your other weapons' shots (its own type and attack type).
 - Costs: small shots are no longer eaten. Shows: big shots visibly swallowed and spat back. Modes: HUNT goes near bosses and elites.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -600,6 +663,7 @@
 - Lv 6, pick one:
   - a trapped elite cannot attack and its Membrane stops regenerating.
   - popping an elite's bubble launches it like a cannonball through its friends.
+  - Wildcard, **Bath Time**: popped bubbles leave soap that you skid on: +40% swim speed for 2 s.
 - Costs: one bubble at a time. Shows: a large bubble wobbling closed round a big enemy. Modes: HUNT.
 
 **B. Bubble Wrap: walls you can move.**
@@ -607,6 +671,7 @@
 - Lv 6, pick one:
   - bubbles drift towards you and float between you and the nearest shooter.
   - when a bubble has blocked 5 shots it pops and fires them back.
+  - Wildcard, **Snow Globe**: bubbles also trap enemy shots and drift with them inside.
 - Costs: bubbles pop only to shots and you, not to enemies. Shows: shots splashing harmlessly on bubbles. Modes: KITE and NEST.
 
 **C. Pop Goes the Prawn: control bombs.**
@@ -614,6 +679,7 @@
 - Lv 6, pick one:
   - the shockwave pops other bubbles it reaches (depth 3).
   - the shockwave Conjoins enemies it Snares together.
+  - Wildcard, **Bubble Gum**: a popped bubble sticks to the next enemy that swims through the spot, Snaring it.
 - Costs: bubbles hold enemies for 2 s (from 5). Shows: a green ring spreading from each pop. Modes: ORBIT keeps bubbles near crowds.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -627,6 +693,7 @@
 - Lv 6, pick one:
   - a date that goes off early repeats 50% (from 40%).
   - going off early staggers the target.
+  - Wildcard, **Gender Reveal**: each date goes off with a random extra: a knockback blast, a full Bleed stack or a small heal for you.
 - Costs: one mark at a time. Shows: the countdown clock spinning faster as you hit it. Modes: HUNT.
 
 **B. Multiplying Responsibilities: spread the dates.**
@@ -634,6 +701,7 @@
 - Lv 6, pick one:
   - weaker marks pass on once more when they go off (depth 2).
   - when 3 dates go off within 1 s, the third repeats at full strength.
+  - Wildcard, **Morning After**: a marked enemy that leaves the screen goes off at once.
 - Costs: the main mark repeats only 30%. Shows: little clocks hopping enemy to enemy. Modes: ORBIT.
 
 **C. Interest Accrued: a long wait for a big cheque.**
@@ -641,6 +709,7 @@
 - Lv 6, pick one:
   - the clock shows the stored total, and the stored damage keeps 25% of itself if the enemy dies early, bursting onto neighbours.
   - a mark that goes off on a boss or elite also marks it again at once (twice per enemy).
+  - Wildcard, **Postponed**: a single hit on you of over 15% max health is postponed for 2 s and halved (once per 10 s).
 - Costs: the slowest payoff in the game. Shows: a big ledger number growing over the target. Modes: HUNT and HOLD against bosses.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
@@ -654,6 +723,7 @@
 - Lv 6, pick one:
   - the extra seekers are faster and smaller.
   - the cap rises to 18 in flight (from 12).
+  - Wildcard, **Hide and Seek**: siblings that lose their target hide in place and ambush the next enemy that comes near.
 - Costs: each seeker is 25% weaker. Shows: a swarm visibly growing through a crowd. Modes: ORBIT keeps them fed.
 
 **B. The Favourite: pick on the weak.**
@@ -661,6 +731,7 @@
 - Lv 6, pick one:
   - a seeker that kills gains +30% damage for its next target.
   - a kill from a seeker that has already killed splits into three instead of two.
+  - Wildcard, **Sibling Squabble**: siblings that meet bounce off each other and pick different targets.
 - Costs: they ignore big threats. Shows: seekers zipping between the wounded. Modes: COLLECT follows the kills.
 
 **C. Sibling Rivalry: gang up.**
@@ -668,6 +739,7 @@
 - Lv 6, pick one:
   - all seekers in a volley pick the same target.
   - when 4 seekers hit one enemy within 0.5 s, they apply a full Bleed stack cap at once.
+  - Wildcard, **Dinner Time**: a sibling with 3 kills swims back to you and heals you 1% of max health.
 - Costs: no splitting. Shows: a tight knot of seekers diving in together. Modes: HUNT.
 
 **Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
