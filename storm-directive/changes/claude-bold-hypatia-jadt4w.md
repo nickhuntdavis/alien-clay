@@ -5,6 +5,13 @@
 - Save data: none.
 - Hooks: none (edits inside game.js updatePickups, data.js SLOT_LEVELS, bosses.js glare).
 - Risk: faster levelling (bot sim: XP collected 80 to 97%, was 66 to 90%); bot still 0/3 wins, dying to bullets at 5 to 7 min.
+## 2026-10-18 Weapon branches, batch 6: Peekaboo, Eggs, Chest Burster, The Runs
+- Systems: weapons, upgrades
+- Files: wup6.js (new), index.html (script tag after wup3.js), ARCHITECTURE.md (script order), tests/wup6test.js (new)
+- What: all three promises, nine Lv 6 cards and three masteries for each of the four weapons, registered with wupReg. Costs are real stat changes (BOO and smite damage, hide time, lure, trail damage, undead life, cap and damage). Unnamed Lv 6 cards were named (Standing Room Only, Encore, Silent Running, Sneak Attack, Pass It On, Stampede, Bigger Basket, Triple Yolk, Egg Trail, Golden Opportunity, Warm Glow, Time Bomb, The Staff, Adoption Papers, Chronic Condition, Open Casket, Soul Searching, Remote Detonation, Burning Rubber, Footloose, Full Circle, Flashpoint, Creature of Habit, Well Trodden).
+- Save data: none.
+- Hooks: none added to shared files. Peekaboo and Eggs are toy weapons, which fireWeapon sends to toyFire before the 'fire' hook, so wup6.js wraps globals instead (peekSpot, toySteer, toyAim, toothFire, toothTaken, toothLure, hurtPlayer, killEnemy, sigwTick, wupDmgMul, v10Draw), the way wup1.js does for projHit.
+- Risk: once a Chest Burster card is taken, sigwTick no longer sees that weapon's undead (they are lifted out of G.turrets for the call and managed in wup6.js, so they do not count towards the shared 8-pet total). Simplified: Rattle flings the false position 230 away (not left at the real position); Sneak Attack gives other weapons +30% while hidden (they already fire while you are hidden); Don't Count Your Chickens also makes eggs last 7 s so they can reach full charge at 6 s; Open Casket also spreads infection to two neighbours (rising from any kill already happens); Chest Burster undead have no melee, so the Dead Useful cost cuts their shot damage; Hookworm undead sit on their host and fire from it; the Runs' loop and wave checks use the trail pieces, not the exact path.
 
 ## 2026-10-18 Weapon branches, batch 3: Rent Free, Hot Mess, Family Ties, Skill Issue
 - Systems: weapons, upgrades

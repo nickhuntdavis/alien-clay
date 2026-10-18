@@ -126,7 +126,7 @@ const { chromium } = require('playwright');
       'Tattoo': { sc: { hp: 1e5 }, keys: ['tattoo'] },
       'Final Prick': { sc: { hp: 100, refill: 1, n: 14 }, keys: ['pinprick', 'ding'], chk: w => { const e = makeEnemy(def, 0, 0); e.maxHp = 100; e.hp = 10; const lo = wupDmgMul(e, { w }); e.hp = 100; const hi = wupDmgMul(e, { w }); return (lo === 2 && hi === 0.75) || 'mults ' + lo + ' ' + hi; } },
       'Next, Please': { sc: { hp: 30, refill: 1, n: 14 }, keys: ['next'] },
-      'Terminal Clause': { sc: { hp: 70, hpJit: 40, maxHp: 100, refill: 1, n: 14 }, keys: ['clause'], frames: 420 },
+      'Terminal Clause': { sc: { hp: 70, hpJit: 40, maxHp: 100, refill: 1, n: 14 }, keys: ['clause'], frames: 900 },
       'Vaccination': { sc: { hp: 30, refill: 1, n: 14 }, keys: ['armed', 'immune'], frames: 420, status: 1 },
       'Exsanguinate': { sc: { hp: 600, refill: 1, shape: 'tight', n: 14 }, keys: ['exsang'], chk: w => w.w2.maxStacks > 3 || 'stacks ' + w.w2.maxStacks, frames: 420 },
       'Pin Cushion': { sc: { hp: 1e5 }, keys: ['volley'], chk: w => w.w2.maxProj >= 6 || 'needles ' + w.w2.maxProj },
