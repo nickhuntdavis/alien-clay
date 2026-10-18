@@ -6,6 +6,7 @@
 const SETTINGS_DEF = [
   // GAME
   { id: 'speed', tab: 'game', label: 'Game speed', hint: 'How fast the whole game runs. Also in the pause menu. The run log notes the speeds you played at.', opts: [[0.5, 'x0.5'], [0.75, 'x0.75'], [1, 'x1'], [1.5, 'x1.5'], [2, 'x2']] },
+  { id: 'autoFire', tab: 'game', label: 'Autofire', hint: 'ON: your weapons fire by themselves. OFF: each weapon gets a FIRE button on the right; hold it to fire, tap for one shot.', opts: [[true, 'ON'], [false, 'OFF']] },
   { id: 'featAuto', tab: 'game', label: 'Feat timing', hint: 'AUTOMATIC: each Feat performs itself as soon as it is ready (you can still tap one to perform it early). WHEN I TAP: Feats wait for your tap, so you can save one for the right moment.', opts: [[true, 'AUTOMATIC'], [false, 'WHEN I TAP']] },
   { id: 'auto', tab: 'game', label: 'Full Auto', hint: 'Picks DNA strands, weapons and upgrades at random for you, so a run plays itself. Also the AUTO button in the pause menu.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'autoWaves', tab: 'game', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']], off: () => !SET.auto && 'Only with Full Auto on.' },
@@ -30,7 +31,7 @@ const SETTINGS_DEF = [
   { id: 'vibe', tab: 'sound', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
 const SET_TABS = [['game', 'GAME'], ['screen', 'SCREEN'], ['sound', 'SOUND'], ['data', 'DATA']];
-const SET_DEFAULTS = { view: typeof L10 !== 'undefined' && L10 ? 'arcade' : 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, immersive: 'auto', dmgNums: 'all', setTab: 'game' };
+const SET_DEFAULTS = { view: typeof L10 !== 'undefined' && L10 ? 'arcade' : 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, autoFire: true, immersive: 'auto', dmgNums: 'all', setTab: 'game' };
 const SET = Object.assign({}, SET_DEFAULTS);
 // Sound or music at 0% counts as off (the old ON/OFF switches became volumes in v9.20).
 // Immersive mode: AUTO means on in Arcade view.

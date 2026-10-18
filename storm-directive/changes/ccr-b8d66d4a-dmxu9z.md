@@ -1,3 +1,11 @@
+## 2026-10-18 Autofire toggle and FIRE buttons; Rewind moves left (v10.16)
+- Systems: manual fire (new), settings, ui
+- Files: manualfire.js (new), game.js, settings.js, style.css, index.html, tests/mftest.js (new)
+- What: Settings > Game > Autofire. OFF gives each weapon a round FIRE button, stacked up the right side; hold to fire, tap for one shot. Orbit, wake, siphon and heat weapons stay automatic. Rewind and the ability button (#side) move to the bottom left in every mode (landscape: right of the HUD column).
+- Save data: SET.autoFire (default true).
+- Hooks: game.js updateWeapon -> mfGo, and w.mfTap cleared after a shot.
+- Risk: anything else placed bottom left now shares the corner with Rewind.
+
 ## 2026-10-18 Sandbox: + mount, branch mark; level number in Immersive (v10.15)
 - Systems: sandbox, ui, render
 - Files: sandbox.js, ui.js, render.js, tests/sbtest.js

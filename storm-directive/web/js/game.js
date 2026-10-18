@@ -1712,6 +1712,7 @@ function updateWeapon(w, dt) {
   if (d.kind === 'crayon') { w.durK = Math.max(1, rate); rate = 1 / Math.max(1, rate); } // (Colouring In: fire rate works backwards, toys.js)
   w.cd -= dt * rate;
   if (G.inCilia && !w.echo) { if (w.cd < 0) w.cd = 0; return; } // (tangled in cilia: no attacking, terrain.js)
+  if (!mfGo(w)) { if (w.cd < 0) w.cd = 0; return; } // (autofire OFF: only while its FIRE button is held, manualfire.js)
   let shots = 0;
   while (w.cd <= 0 && shots < 3) {
     let target = null;
@@ -1725,7 +1726,7 @@ function updateWeapon(w, dt) {
     w.isLast = !rage && !d.scrapAmmo && G.P.lastRound > 0 && w.ammo === 1;
     fireWeapon(w, target);
     comboFire(w, target); pair2Fire(w, target);
-    w.firedT = G.t;
+    w.firedT = G.t; w.mfTap = 0;
     w.isLast = false;
     shots++;
     w.cd += s.cd;

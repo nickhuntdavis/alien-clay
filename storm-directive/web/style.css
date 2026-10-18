@@ -132,7 +132,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .dmgrow span, .dmgrow b { position: relative; }
 
 /* Side buttons: rewind + build */
-#side { position: absolute; right: 10px; bottom: calc(150px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+#side { position: absolute; left: 10px; bottom: calc(150px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; } /* (left: the right is for FIRE buttons, manualfire.js) */
 #rewindBtn { pointer-events: auto; position: relative; width: 70px; height: 70px; border-radius: 50%; border: 2px solid #4c5057;
   background: conic-gradient(#c7d2e355 var(--e, 0%), #0e1112d9 0); color: #c7d2e3; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 #rewindBtn.ready { border-color: #c7d2e3; box-shadow: 0 0 16px #c6d0e188; animation: rpulse 1.6s infinite; }
@@ -483,7 +483,7 @@ body.land .slot.spell { height: 44px; }
 body.land .slot .dir { bottom: 8px; }
 body.land #row2 { flex-wrap: wrap; width: 158px; }
 body.land #moveBtn, body.land #armBtn { width: 158px; padding: 10px 0; }
-body.land #side { bottom: calc(12px + env(safe-area-inset-bottom)); right: calc(10px + env(safe-area-inset-right)); }
+body.land #side { bottom: calc(12px + env(safe-area-inset-bottom)); left: calc(180px + env(safe-area-inset-left)); } /* (clear of the left HUD column) */
 body.land #toast { bottom: 24px; left: calc(50% + 85px); }
 body.land #sysmsg { top: auto; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%, 0); width: min(calc(100vw - 520px), 440px); }
 body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
