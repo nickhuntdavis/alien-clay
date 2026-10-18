@@ -305,3 +305,11 @@
 - Save data: none (SET.view is ignored under V10).
 - Hooks: render.js l10Swap(ELEM_SWAP); ui.js settings row filter honours d.hide; tutorial.js viewOffer skips under L10; settings.js viewArcade/hide.
 - Risk: Acid and Mucus colours change wherever the old greens were hard-coded; RAW_COL drawing (levels) bypasses the remap.
+
+## 2026-10-18 Role-based wave encounters (merged from agent-waves)
+- Systems: waves, enemies, waves10 (new)
+- Files: waves10.js (new), campaign.js, index.html, tests/waves10test.js (new), tests/run.sh
+- What: under V10 the Petri Dish's 20 waves draw from WAVES10: waves 1 to 4 teach Chaser, Sprinter (Evasion), Shooter and Tank (Squishy) alone; then Thorns, Shell, Membrane and each new enemy (Mosquito, Static Sock, Matchstick, Stress Ball, Birthday Candle, Trapped Wind) are met alone or beside familiar ones, with ENEMY_DESIGN 10's pairs and a big mix at wave 19. Per-wave cap on live enemies (summons count), no stacked disruptive statuses or Pool-makers, caps on live shooters and Pool-makers. Boss waves and CAMP budgets unchanged.
+- Save data: none.
+- Hooks: campaign.js campBegin -> w10Fresh; campSpawnMob -> w10Spawn; campSpawn -> w10Max.
+- Risk: wave composition changes for waves 1 to 19 (sims comparable: waves 9 and 7 vs 10 and 5 before, 2 runs each).
