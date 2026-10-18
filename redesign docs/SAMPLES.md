@@ -385,18 +385,18 @@ Each one occupies a different emotional and gameplay space. That matters more th
 - **Combat rules:** every sample follows the reconciliation decisions in `COMBAT_MATRIX.md` section 10 (Soul possesses; Fire does not spread on its own, so the Unsolicited spreads Burn only through its Static; Acid's only ongoing damage is Pools).
 
 ### Starting attack types
-Every attack type in `ATTACK_TYPES.md` appears at least once. The starting weapons are in `archive/WEAPONS.md` section 4 (out of date; see `BASE_WEAPONS.md` issue 3).
+Starting weapons are the 10 foundations in `BASE_WEAPONS.md` (changed 18 Oct: Contact, Spread and Burst are no longer start types, because Nutcracker, Spray Gun and Premature Detonation are not any sample's primary type).
 
 | Sample | Starting attack type |
 |---|---|
 | The Baseline | Projectile |
 | The Overachiever | Beam |
-| The Late Starter | Contact |
+| The Late Starter | Projectile (Red Needle) |
 | The Family Friend | Projectile (single target) |
 | The Cold Parcel | Pool (a trail) |
-| The Unsolicited | Spread |
-| The Unaccounted | Burst (delayed) |
-| The Other Half | Beam (type shifts every 20 s) |
+| The Unsolicited | Pool (Hot Mess) |
+| The Unaccounted | Projectile (Ghost Load) |
+| The Other Half | Beam (Blue Screen) or Pool (Hot Mess) or Projectile (Ghost Load), shifting every 20 s |
 
 ### Unlocks, in order
 1. **The Baseline:** available from the start.

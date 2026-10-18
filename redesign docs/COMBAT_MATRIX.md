@@ -53,7 +53,7 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 | Acid + Blood | **Caustic Breach** | State + hit | An Acid hit lands on a bleeding target | Strips one Shell layer at once | Single target | Defence erosion only: no damage over time, no new wound; does nothing to a target without Shell; once per Bleed |
 | Acid + Soul | **Soul Erosion** | State + hit | An Acid hit lands on a Possessed enemy | When Possessed ends, it bursts in a small Acid splash that adds Corrosion to nearby mates | Area (small) | One splash per Possession; compare with Corrosive Splash in playtest |
 | Acid + Fire | **Premature Evaporation** | State + hit | A Fire hit lands on a Corroded target | Consumes the Corrosion in a modest close-range burst | Area (burst) | Never from an Acid Pool by itself; one burst; the Corrosion build-up resets |
-| Static + Mucus | **Sticky Situation** | World object + hit | A Static hit charges a Mucus patch | The next enemy entering it is briefly shocked | Single target | One trigger per patch; obvious charge cue; no stun loop |
+| Static + Mucus | **Snot Socket** | World object + hit | A Static hit charges a Mucus patch | The next enemy entering it is briefly shocked | Single target | One trigger per patch; obvious charge cue; no stun loop |
 | Static + Blood | **Blood Circuit** | World object + hit | A Static hit lands in a blood pool | One arc hits the nearest enemy standing in or beside the pool | Single target | One target; no pulse across the pool and no onward chain (unlike Conductive Pool) |
 | Static + Soul | **Interference Pattern** | State + hit | A Static hit lands on a Possessed enemy | Possessed lasts a fixed time longer | Single target | Once per Possession |
 | Static + Fire | **Arc Flash** | State + hit | A Static hit lands on a burning target | One short arc jumps to the nearest other enemy | Single target | One jump; no extra Burn, stun or chain |
@@ -93,7 +93,7 @@ What each type does beyond its statuses (section 4) and its defence interactions
 
 - **Force:** high immediate physical damage. Builds Poise and causes Knockback. A wall or hazard adds a payoff only on an actual collision. Attacker speed at contact may add impact, kept readable (no maths for the player). A shockwave exists only where an attack is designed to make one; it is never automatic on a stagger. A heavy hit (11.3) knocks off a Shell layer and triggers Blood Pressure.
 - **Acid:** direct damage builds Corrosion; Acid Pools are its only ongoing damage, and there is no damage over time on enemies. Acid does not stop Membrane regeneration or bypass Membrane.
-- **Static:** Static hits make the target Charged; Charged enemies pass arcs on (bounded, 11.5). Explicitly conductive world objects carry one pulse or one arc (Conductive Pool, Blood Circuit, Sticky Situation). Static interrupts only through Poise, and only when an attack is tagged for it. Static recharges Membrane, so it is a poor choice against Membrane enemies (a risk the player can see).
+- **Static:** Static hits make the target Charged; Charged enemies pass arcs on (bounded, 11.5). Explicitly conductive world objects carry one pulse or one arc (Conductive Pool, Blood Circuit, Snot Socket). Static interrupts only through Poise, and only when an attack is tagged for it. Static recharges Membrane, so it is a poor choice against Membrane enemies (a risk the player can see).
 - **Mucus:** Snares, Conjoins, leaves patches and smothers Fire. No damage over time. Does not cushion Force.
 - **Blood:** applies Bleed; a reaction may consume a Bleed for one payoff (Blood Pressure, Cauterise) without adding a new stack. Extraction heals a little on kills of bleeding enemies. Blood pools come from section 4's sources only. Blood never maximises sustained damage, burst, healing and resource gain at once.
 - **Soul:** build-up to Possessed is its only control. No defence bypass of any kind (the essence and resource ideas are retired). Fear is a separate status with its own sources.
@@ -174,7 +174,7 @@ Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, w
 | Object | Made by | Does | Limit | Design status |
 | --- | --- | --- | --- | --- |
 | Acid Pool | Acid Pool weapon, Acid Bubble, Slick Move, acid crypts (terrain) | The only ongoing Acid damage; builds Corrosion on anything standing in it | Visible edge and lifetime; never indefinite | Proposed |
-| Mucus patch | Mucus Pool weapon, Snot Bubble, Snot Rocket | Snares what enters it; ingredient for Slick Move, Sticky Situation, Flammable Mucus | Short-lived, clear edge | Proposed |
+| Mucus patch | Mucus Pool weapon, Snot Bubble, Snot Rocket | Snares what enters it; ingredient for Slick Move, Snot Socket, Flammable Mucus | Short-lived, clear edge | Proposed |
 | Blood pool | Creatures dying while bleeding; Blood Pool weapon; Mosquito | Ingredient for Blood Circuit and Caught in the Clot | Small, short-lived | Proposed |
 | Terrain (shipped, `terrain.js`) | The arena | Nodules, mitochondria, acid crypts, cilia beds, currents and slicks keep their current behaviour | Unchanged | Accepted |
 | Wax Pool | Birthday Candle only | Hardens into a temporary wall that blocks movement and shots | The one new ground object; short-lived | Proposed |
@@ -335,7 +335,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 ### 11.3 Thresholds and reactions
 
 - **Heavy Force hit:** one Force hit whose raw damage is at least 15% of the target's max health (elites 10%, bosses 5%). Spread pellets are judged one by one. It knocks off a Shell layer and triggers Blood Pressure.
-- **Reaction damage (decision 33):** only reactions whose payoff is a burst or a hit deal damage. The three big bursts (Premature Evaporation, Flammable Mucus, Cauterise) deal 150% of the triggering hit's raw damage as area (Cauterise also adds the Bleed's remaining damage). Corrosive Splash, Shocking Impact, Blood Pressure, Out-of-Body Experience (the collision), Flashover, Conductive Pool, Blood Circuit, Arc Flash and Soul Erosion deal 60%. Snot Rocket, Slick Move, Caustic Breach, Sticky Situation (the shock is a short stun, no damage), Interference Pattern, Caught in the Clot, Held in Suspension, Blood Donor and Spectral Combustion deal none beyond what their payoff states.
+- **Reaction damage (decision 33):** only reactions whose payoff is a burst or a hit deal damage. The three big bursts (Premature Evaporation, Flammable Mucus, Cauterise) deal 150% of the triggering hit's raw damage as area (Cauterise also adds the Bleed's remaining damage). Corrosive Splash, Shocking Impact, Blood Pressure, Out-of-Body Experience (the collision), Flashover, Conductive Pool, Blood Circuit, Arc Flash and Soul Erosion deal 60%. Snot Rocket, Slick Move, Caustic Breach, Snot Socket (the shock is a short stun, no damage), Interference Pattern, Caught in the Clot, Held in Suspension, Blood Donor and Spectral Combustion deal none beyond what their payoff states.
 - **Reaction lockout:** each reaction has a 1.5 s lockout per target (bosses 3 s). Anything a reaction creates cannot set off that same reaction.
 - **Dual-type weapon:** shots alternate Force, Static, Force, Static. Shocking Impact fires on each Static shot that lands after a Force shot.
 - **Spectral Combustion Pairing:** Soul Beam + Fire Pool (Burning Ground), both Lv 5+. A secret, like today's Pairings.
@@ -386,7 +386,7 @@ At most 40 world objects at once (phones). Where two overlap, the newest wins, e
 - **Feats** carry a damage type and an attack type, like weapons, and follow every rule here. Stamina is unchanged. A utility Feat (no attack: a shield, a pickup, a trail) has neither and costs no stamina (`FEATS.md` 1).
 - **Autoaim:** TOUGHEST scores effective health (health + Membrane + Shell layers × layer health, ×1.35 if Squishy). HIGHEST ARMOUR is replaced by two directives: **SHELLED** (most Shell layers left) and **MEMBRANED** (most Membrane left).
 - **Enemy damage types:** see `ENEMY_DESIGN.md` 5.1. Force is most common and Soul least; some enemies have two types.
-- **Name clash fixed:** v10's Mucus Pool weapon is renamed **Snot Trap** ("Leaves a patch that sticks enemies crossing it. Watch your step; they won't."). The reaction keeps "Sticky Situation".
+- **Name clash fixed:** v10's Mucus Pool weapon is renamed **Snot Trap** ("Leaves a patch that sticks enemies crossing it. Watch your step; they won't."). On 18 Oct the Static + Mucus reaction was renamed **Snot Socket**, so the signature weapon (Red Tape) can take the name **Sticky Situation**.
 
 ## 12. Signature weapon rules (17 Oct 2026)
 

@@ -229,7 +229,7 @@ Directions to investigate, not specifications.
 - **Read:** visibly grows.
 - **Counterplay:** kill it small, step out of the marked burst, or pop it with Static.
 - **Static trigger:** any hit that carries Static damage and lands on the bubble bursts it at once, whatever its size. The patch forms where the bubble was (no direction), sticks the enemies inside it and never sticks you. Applying Static is the trigger; Charge is not needed. (Matches POPPED in `foes3.js`.)
-- **Reaction hook:** its Mucus patch feeds Flammable Mucus (Fire), Sticky Situation (Static) and Slick Move (Acid).
+- **Reaction hook:** its Mucus patch feeds Flammable Mucus (Fire), Snot Socket (Static) and Slick Move (Acid).
 - **Verdict:** keep; re-express in the new vocabulary.
 
 ### 6.2 Static Sock

@@ -1,3 +1,11 @@
+## 2026-10-18 Base weapons decisions (docs only)
+- Systems: weapons, chemistry (docs only, redesign docs)
+- Files: BASE_WEAPONS.md, COMBAT_MATRIX.md, SAMPLES.md, ENEMY_DESIGN.md, FEATS.md, tables/*.csv
+- What: Static + Mucus reaction renamed Snot Socket (the weapon takes Sticky Situation); four weapon renames confirmed; three sample starting weapons changed.
+- Save data: none.
+- Hooks: none.
+- Risk: none (no code). `combos.js` still has a combo named Sticky Situation.
+
 ## 2026-10-18 Base weapons roster (docs only)
 - Systems: weapons (docs only, redesign docs)
 - Files: redesign docs/BASE_WEAPONS.md (new, now self-contained), WEAPONS.md and SIGNATURE_WEAPONS.md (moved to archive/), README.md, CLAUDE.md, COMBAT_MATRIX.md, SAMPLES.md

@@ -19,13 +19,13 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | 9 | Ghost Load | Soul | Projectile | M32 |
 | 10 | Hot Mess | Fire | Pool | M42, was "Burning Ground" |
 | 11 | Black Hole | Force | Projectile (slow, gravity well; supernova) | `void`, shipped as "Toddler Gravity" |
-| 12 | Meat Missile | Force | Burst (knockback collisions) | S11, `lard`, was "Lard Lobber" (rename to confirm, issue 2) |
+| 12 | Meat Missile | Force | Burst (knockback collisions) | S11, `lard`, was "Lard Lobber" (confirmed) |
 | 13 | Placental Siphon | Force | Projectile | S12, `siphon` |
 | 14 | Nappy Mines | Acid | Burst (delayed; leaves Acid Pools) | S2, `mines` |
 | 15 | Twin Telepathy | Static | Beam (anchored) | S21, `twin` |
 | 16 | Static Cling | Static | Projectile (chaining) | S10, `tesla` |
-| 17 | Sticky Situation | Mucus | Projectile (shared damage) | S7, `redtape`, was "Red Tape" (rename to confirm, issue 1) |
-| 18 | Blowing Bubbles | Mucus | Projectile (traps) | S13, `bubble`, was "Bubble Wand" (rename to confirm) |
+| 17 | Sticky Situation | Mucus | Projectile (shared damage) | S7, `redtape`, was "Red Tape" (confirmed) |
+| 18 | Blowing Bubbles | Mucus | Projectile (traps) | S13, `bubble`, was "Bubble Wand" (confirmed) |
 | 19 | Due Date | Blood | Projectile (mark) | S8, `duedate` |
 | 20 | Seeker Siblings | Blood | Projectile (homing) | S24, `seeker` |
 | 21 | Peekaboo | Soul | Burst (reveal; Fear) | S4, `peekaboo` |
@@ -215,20 +215,34 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Foundations teach, signatures twist.** Every damage type has a foundation; every foundation is one attack type with no extra rule. The Fire foundation (Hot Mess) is a stationary Pool so The Runs (a trail) stays distinct.
 - **Echo and chain rules still apply** to Sticky Situation, Due Date, Static Cling, Black Hole and Meat Missile (`COMBAT_MATRIX.md` 11.5, 12.5, echo damage).
 
-## 5. Open issues (need your call)
+## 5. Decisions (18 Oct 2026) and open issues
 
-1. **Name clash: Sticky Situation.** The Static + Mucus reaction in the matrix is also called Sticky Situation (and `combos.js` has a Weapon Combo of that name). On 17 Oct the weapon of that name (a Mucus Pool) was renamed Snot Trap to avoid this. Recommendation: keep the weapon name, rename the reaction (matrix section 1, decision log, `combos.js`).
-2. **Four renames I inferred from your descriptions:** Meat Missile = Lard Lobber (knocked enemies bowl into mates), Sticky Situation = Red Tape (shared damage), Blowing Bubbles = Bubble Wand, The Runs = Pub Crawl. If any is wrong, say which.
-3. **Sample starting weapons break for 3 samples** (`archive/WEAPONS.md` section 4, each starts with a matrix weapon that is now archived). Recommendation: The Late Starter starts with Red Needle (Blood Projectile instead of Contact); The Unaccounted starts with Ghost Load (Soul Projectile instead of Burst); The Unsolicited (Fire, was Cinderblast Spread) starts with Hot Mess (Fire Pool). The Other Half's rotation loses Flame Jet and Wraith Ray; its Fire and Soul slots become Hot Mess and Ghost Load. Each changes the sample's starting attack type in `SAMPLES.md`.
-4. **Thin attack types.** Contact (Nutcracker) and Spread (Spray Gun) have one weapon each, and Fire has only Pool weapons. Recommendation: accept for now; the next additions should be a Fire Projectile or Spread and a second Contact.
-5. **The 5 Fire drafts are archived** (Heartburn, Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation). Any enemy or reaction design that assumed a Fire Beam, Contact or Burst weapon should be re-checked.
+Decided:
+1. **Sticky Situation** is the weapon (was Red Tape). The Static + Mucus reaction is renamed **Snot Socket** in `COMBAT_MATRIX.md`. `combos.js` also has a Weapon Combo called Sticky Situation; rename it in the code pass.
+2. **Renames confirmed:** Meat Missile (was Lard Lobber), Sticky Situation (was Red Tape), Blowing Bubbles (was Bubble Wand), The Runs (was Pub Crawl).
+3. **Sample starting weapons** (`SAMPLES.md` updated):
+
+| Sample | Starts with | Type and attack | Was |
+|---|---|---|---|
+| The Baseline | Nut Shot | Force Projectile | Knuckle Dragger |
+| The Overachiever | Blue Screen | Static Beam | same |
+| The Late Starter | Red Needle | Blood Projectile | Bloodletter (Contact) |
+| The Family Friend | Acid Spit | Acid Projectile | same |
+| The Cold Parcel | Snot Trap | Mucus Pool (laid as a trail) | same |
+| The Unsolicited | Hot Mess | Fire Pool | Cinderblast (Spread) |
+| The Unaccounted | Ghost Load | Soul Projectile | Soul Purpose (Burst) |
+| The Other Half | Blue Screen, Hot Mess or Ghost Load, changing every 20 s | Static Beam, Fire Pool or Soul Projectile | Flame Jet, Wraith Ray or Blue Screen |
+
+Still open:
+4. **Thin attack types.** Contact (Nutcracker) and Spread (Spray Gun) have one weapon each, and Fire has only Pool weapons. No sample starts with Contact, Spread or Burst. Recommendation: accept for now; the next additions should be a Fire Projectile or Spread and a second Contact.
+5. **The 5 Fire drafts are archived** (Heartburn, Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation). Re-check any enemy or reaction design that assumed a Fire Beam, Contact or Burst weapon. The Unsolicited's "starts chain reactions in crowds" now rests on Hot Mess plus its Static.
 
 ## 6. Code pass (not done)
 
 About one session. The v10 prototype is on this branch (`v10.js`, `sigweap.js`).
 1. Archive: restrict `v10Ids()` (`v10.js`) to the 10 foundation ids and the signature list in `sigweap.js` to the 14. Keep every definition in the code; add an `archived` flag so the Lab Bench can still spawn them.
 2. Rename in the data: Knuckle Dragger, Broadside, Burning Ground, Lard Lobber, Red Tape, Bubble Wand, Pub Crawl (`V10_NAMES`, `sigweap.js`).
-3. Sample starters (issue 3): `samples10.js`.
+3. Sample starters (decision 3): `samples10.js`.
 4. New animations for the 10 foundations (section 2) in `render.js`/`typefx.js`, following `STYLE.md` and the redesign's visual language.
 5. Fix any combo, Feat or tutorial text naming an archived weapon; update `GAME_GUIDE.md` and tests.
 

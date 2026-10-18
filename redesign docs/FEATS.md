@@ -295,7 +295,7 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 
 ### F9. Hagfish (`hagfish`)
 - **Is:** Mucus, Burst centred on you (radius 150).
-- **Signature:** an instant burst of slime: everything inside is Snared, and a Mucus patch (standard, 11.6) is left where you are, so it also sets up Flammable Mucus, Slick Move and Sticky Situation.
+- **Signature:** an instant burst of slime: everything inside is Snared, and a Mucus patch (standard, 11.6) is left where you are, so it also sets up Flammable Mucus, Slick Move and Snot Socket.
 - **Limits:** Snared follows its own rules (2.5 s, refreshes on hit). The old "bullets slow and sink" is gone (only orbiters and eaters block shots, 12.8).
 - **Lv 3 fork:** **Knot Tying** (when the Snare ends, you lunge out at speed in the direction you are swimming) or **Gill Clogger** (enemies it Snares cannot attack while Snared).
 - **Gift line:** "I made you slimy. Nobody can hold you now."
