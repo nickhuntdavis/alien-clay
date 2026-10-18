@@ -1734,6 +1734,7 @@ function fireWeapon(w, target) {
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
   if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
   if (d.armoury && armFire(w, target, src)) return; // (the Armoury's weapons, armoury.js)
+  if (d.v10 && w.m10 && modFire(w, target, src)) return; // (v10 modifiers, modifiers.js)
   if (d.v10 && v10Fire(w, target, src)) return; // (v10 beams and bursts, v10.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
@@ -1927,6 +1928,7 @@ function spawnProj(w, x, y, a, src, over) {
     if (s.magnet) pr.magnet = s.magnet;
     if (s.delay) { pr.delayAt = 0.15; pr.delayB = s.delay; }
   }
+  if (w.m10 && !(over && over.noMods)) modProj(pr, w); // (v10 modifiers, modifiers.js)
   G.proj.push(pr);
   if (w.def.replay) rebornReplay(w, x, y, a, src, over, pr); // (Deja Vu: the same shot again, later)
   // Mirror: a twin fired the opposite way.
@@ -2028,6 +2030,7 @@ function updateProjectiles(dt) {
       }
       continue;
     }
+    if (pr.m10 && modStep(pr, dt)) continue; // (v10 modifiers, modifiers.js)
     // Orbiting modifier: circle the player eating enemy bullets, then launch.
     if (pr.orbitT > 0) {
       pr.orbitT -= dt; pr.oa += 6 * dt;
@@ -2134,6 +2137,7 @@ function updateProjectiles(dt) {
       const hm = (pr.pb ? 1 + 1.5 * clamp(pr.life / pr.max, 0, 1) : 1) * (pr.vsOwner === e ? 3 : 1) * aimMul(pr, e); // (range falloff, sniper shots: aim.js)
       damageEnemy(e, pr.dmg * hm, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
       projHit(pr, e);
+      if (pr.m10) modHit(pr, e); // (v10 modifiers, modifiers.js)
       if (pr.ghost) rebornHit(pr, e); // (Ghosts of You: reborn.js)
       if (pr.pair) geneHit(pr, e); // (Gene Gun: edits)
       if (pr.note) redNoteHit(pr, e); // (Duelling Banjo: Hoedown)

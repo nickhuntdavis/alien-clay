@@ -147,12 +147,14 @@ function v10Switch() {
 function v10Fire(w, target, src) {
   const d = w.def, s = w.s, p = G.player;
   if (d.v10atk === 'beam') {
-    const a = Math.atan2(target.y - p.y, target.x - p.x), L = s.range, ex = p.x + Math.cos(a) * L, ey = p.y + Math.sin(a) * L, wd = s.width || 10;
+    let a = Math.atan2(target.y - p.y, target.x - p.x), L = s.range, wd = s.width || 10, bk = 1;
+    if (w.m10) ({ a, L, wd, bk } = modBeam(w, a, L, wd)); // (v10 modifiers, modifiers.js)
+    const ex = p.x + Math.cos(a) * L, ey = p.y + Math.sin(a) * L;
     for (const e of G.enemies) {
       if (e.dead) continue;
       const t = Math.max(0, Math.min(L, (e.x - p.x) * Math.cos(a) + (e.y - p.y) * Math.sin(a)));
       if (Math.hypot(e.x - (p.x + Math.cos(a) * t), e.y - (p.y + Math.sin(a) * t)) > e.r + wd) continue;
-      damageEnemy(e, s.dmg, src);
+      damageEnemy(e, s.dmg * bk, src);
       if (s.push && !e.dead && !e.boss) { e.kx += Math.cos(a) * s.push * 0.1; e.ky += Math.sin(a) * s.push * 0.1; }
     }
     (G.v10fx || (G.v10fx = [])).push({ k: 'beam', x: p.x, y: p.y, x2: ex, y2: ey, w: wd, c: d.color, t: d.v10type, life: 0.12, max: 0.12 });
@@ -161,7 +163,7 @@ function v10Fire(w, target, src) {
   if (d.v10atk === 'burst') {
     const tx = target.x, ty = target.y;
     G.fx.push({ type: 'warn', x: tx, y: ty, r: s.area, color: d.color, life: s.delay, max: s.delay });
-    after(s.delay, () => { aoe(tx, ty, s.area, s.dmg, src, d.color); ring(tx, ty, s.area, d.color, 0.35, 4); fxParts('spark', tx, ty, d.color, 12, 160, 0.45, 3); });
+    after(s.delay, () => { aoe(tx, ty, s.area, s.dmg, src, d.color); ring(tx, ty, s.area, d.color, 0.35, 4); fxParts('spark', tx, ty, d.color, 12, 160, 0.45, 3); if (w.m10) modBurstEnd(w, tx, ty); });
     return true;
   }
   return false;
@@ -186,12 +188,14 @@ function v10Tick(dt) {
   }
   // Pressure Drop: its puddles push outwards instead of pulling.
   for (const z of G.zones) if (!z.v10 && z.src && z.src.w && z.src.w.def && z.src.w.def.v10) { z.v10 = 1; if (z.src.w.s.push) z.pull = -z.src.w.s.push; }
+  modTick(dt); // (v10 modifiers, modifiers.js)
   if (G.v10fx) { for (const f of G.v10fx) f.life -= dt; G.v10fx = G.v10fx.filter(f => f.life > 0); }
 }
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
   if (G && V10) { fightDraw(); pdefDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js)
+  modDraw(); // (v10 modifiers, modifiers.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {
     const k = f.life / f.max, x1 = sx(f.x), y1 = sy(f.y), x2 = sx(f.x2), y2 = sy(f.y2);
