@@ -2,6 +2,22 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.40 (versionCode 319)
+- Systems: asdemo (new), mfdemo (new), aldemo (new), screens
+- Files: see the folded entry below.
+- What: merge of `ccr-867eefdf-uxgom1` into `main`: the last 14 weapons get real previews, tabbed tier screens and a scene per branch card, so all 24 weapons and all 360 branch cards are done.
+- Save data: none.
+- Hooks: none.
+- Risk: preview only, no combat change.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 The last 14 weapons: real previews, tabbed branch screens, a scene per branch (v10.40)
+- Systems: asdemo (new), mfdemo (new), aldemo (new), screens
+- Files: asdemo.js (new), mfdemo.js (new), aldemo.js (new), index.html
+- What: every remaining weapon gets the Standard Issue treatment, so all 24 now have a preview that shows the real weapon, their tier screens open in the Weapon Draft tabs, and every one of the 360 branch cards plays its own scene. New here: Acid Spit, Red Flagship, Soulmate Signal, Unwanted Contact, Nocturnal Emission, Ewww Gross, Blowing Bubbles, Hot Mess, Nappy Mines, The Runs, Rent Free, Peekaboo, Eggs and Chest Burster (210 cards). Typed previews share one status look (Corrosion, Burn and Alien bars; Charged, Snared, Ignited, Possessed, Feared).
+- Save data: none.
+- Hooks: none (PV_OWN entries).
+- Risk: preview only, no combat change. Every 'wup' box with a single weapon ready now opens as that weapon's tabbed fork; the card version of the branch screen is no longer used for any of the 24.
+
 ## v10.39 (versionCode 318)
 - Systems: samples, render, defences, mutations, ui
 - Files: see the folded entries below.
