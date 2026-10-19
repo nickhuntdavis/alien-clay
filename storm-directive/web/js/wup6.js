@@ -234,6 +234,8 @@
       if (t.p === 'A') s.dmg *= 0.75;                 // Costs A: each smite 25% weaker
       if (t.p === 'B') { s.dmg *= 0.8; s.lure *= 2; } // Costs B: 20% weaker; lure from twice as far
       if (t.p === 'C') { s.cd /= 0.6; s.dur = Math.max(s.dur, 7); } // Costs C: dropped 40% less often (simplified: eggs last 7 s so they can reach full charge at 6 s)
+      if (t.glow) s.dur = Math.max(s.dur, 9);         // Warm Glow: a charged egg waits up to 3 s to be eaten (a 1 s window was too narrow)
+      if (t.clutch) { s.count += 1; s.dur = Math.max(s.dur, 8); } // Clutch: two eggs a drop that last 8 s, so 12 on the ground is reachable (one a drop tops out near 6)
     });
     w6On(w, 'dmg', (w, e, src) => {
       const t = w6S(w);
@@ -359,12 +361,12 @@
       wild: CARD('Broody', 'Every 3rd egg is kept back and hatched, smiting a random elite.', SET('broody')) },
     C: { name: 'Don\'t Count Your Chickens', tag: 'Patience pays', costs: 'eggs are dropped 40% less often.', shows: 'eggs glowing brighter as they wait.', modes: 'HOLD and KITE give eggs time to charge.',
       lv3: { desc: 'An egg gains power while it waits: +25% smite damage per second, up to +150%.', apply: PRO('C') },
-      lv6: [CARD('Warm Glow', 'A fully charged egg (6 s) glows, and its smite also hits everything within 100.', SET('glow')),
+      lv6: [CARD('Warm Glow', 'Eggs last 9 s. A fully charged egg (6 s) glows, and its smite also hits everything within 100.', SET('glow')),
         CARD('Time Bomb', 'A fully charged egg that is never taken explodes when it expires, smiting everything within 160.', SET('timebomb'))],
       wild: CARD('Egg on Your Face', 'When you take damage, an egg drops at the feet of whatever hurt you.', SET('face')) },
     lv10: [
       { name: 'Golden Goose', best: 'AC', desc: 'Every smite hits everything within 160 of the victim at full damage.', apply: SET('goose') },
-      { name: 'Clutch', best: 'AB', desc: 'Up to 12 eggs on the ground at once, scattered all round you.', apply: SET('clutch') },
+      { name: 'Clutch', best: 'AB', desc: 'Two eggs a drop, eggs last 8 s, up to 12 on the ground at once, scattered all round you.', apply: SET('clutch') },
       { name: 'Possession Fee', best: 'B', desc: 'Every smite Possesses the victim at once (bosses take x3 instead).', apply: SET('fee') }] });
 
   // ================================================================ Chest Burster (Alien, Projectile)

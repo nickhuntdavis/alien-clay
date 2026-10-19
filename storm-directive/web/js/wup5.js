@@ -577,10 +577,12 @@
   function scInst(w) {
     const f = F(w); if (f.sc) return; f.sc = 1; f.hiders = []; f.dins = [];
     if (!modHas(w, 'multiplying')) modAdd(w, 'multiplying'); // (the base weapon's kill-split)
-    wupOn(w, 'stats', scStats); wupOn(w, 'phit', scHit); wupOn(w, 'pend', scEnd); wupOn(w, 'dmg', scDmg); wupOn(w, 'tick', scTick);
+    wupOn(w, 'stats', scStats); wupOn(w, 'fire', scFire); wupOn(w, 'phit', scHit); wupOn(w, 'pend', scEnd); wupOn(w, 'dmg', scDmg); wupOn(w, 'tick', scTick);
   }
   const scSet = mk(scInst), scP = mkP(scInst);
   const scCap = f => f.babyboom ? 24 : f.over ? 18 : 12;
+  // Baby Boom's "24 in flight at most" holds for volleys too: a volley that would go over it waits (true skips the shot).
+  const scFire = w => !!F(w).babyboom && liveN(w) + ((w.s && w.s.count) || 1) > scCap(F(w));
   function scStats(w, s) {
     const f = F(w);
     if (f.p === 'A') s.dmg *= 0.75; // each seeker is 25% weaker
@@ -625,7 +627,7 @@
       if (scSpawn(w, f, e.x, e.y, 1, pr, e, o)) { fx(w, 'extra'); ring(e.x, e.y, 16, w.def.color, 0.3, 3); say('ex' + w.uid, e.x, e.y - e.r - 10, '+1 SIBLING', w.def.color, 11, 0.3); if (f.runts) fx(w, 'runt'); }
     }
     if (f.dinner) { // Dinner Time: a sibling survives kills, and with 3 swims back to you
-      pr.pierce = (pr.pierce || 0) + 1;
+      pr.pierce = (pr.pierce || 0) + 1; pr.tgt = null; pr.mHlost = 0; // (it lives on, so it homes in on the next one)
       if (pr.w5k >= 3 && !pr.back) { pr.back = true; pr.hits = null; pr.pierce = 99; pr.w5din = 1; f.dins.push(pr); fx(w, 'dinner_ready'); say('din' + w.uid, e.x, e.y - e.r - 10, 'DINNER TIME', w.def.color, 12, 0.4); }
     }
     if (f.only && pr.w5k >= 5) { pr.pierce = 0; fx(w, 'onlydone'); } // Only Child: five kills and it is done

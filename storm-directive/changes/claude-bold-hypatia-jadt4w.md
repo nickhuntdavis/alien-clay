@@ -1,3 +1,11 @@
+## 2026-10-19 Fix Sister Cousin, Eggs and Family Ties after levels stopped speeding up firing (v10.27)
+- Systems: weapons (the 24's upgrade branches)
+- Files: wup5.js, wup6.js, tests/wup3test.js, tests/wup5test.js, tests/wup6test.js
+- What: since v10.23 (levels add damage only) these broke or got unreliable. Sister Cousin: Baby Boom's 24-in-flight cap now holds for volleys too (25 flew), and Dinner Time siblings home in on a new enemy after each kill (they flew straight, so 3 kills was luck). Eggs: Clutch drops 2 eggs at a time that last 8 s (1 egg a drop, 6 s life topped out near 6 eggs, so "up to 12" was unreachable); Warm Glow eggs last 9 s (a charged egg had a 1 s window to be eaten). Family Ties was only slow to show its merges: its Lv 6 tests run 10 s, Eggs' 15 s.
+- Save data: none.
+- Hooks: none.
+- Risk: Clutch and Warm Glow are stronger (more eggs, longer lived). Card text updated for both.
+
 ## 2026-10-19 Merge sandbox fix, voice guide, and the two old autorun branches (v10.26)
 - Systems: sandbox, docs
 - Files: merges only (see changes/ccr-f38bcc1f-1rc8ck.md, claude-great-maxwell-2ar9sg.md, claude-festive-allen-xmea8i.md, claude-zealous-clarke-i26iot.md)

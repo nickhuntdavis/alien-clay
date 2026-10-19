@@ -74,7 +74,7 @@ const { chromium } = require('playwright');
         },
       },
       's_toothfairy': {
-        frames: 600,
+        frames: 900, // (lured enemies must reach eggs: chance checks need the time since levels stopped speeding up firing)
         l3: {
           A: c => (c.w.s.dmg < c.base.dmg * 0.85 ? '' : 'dmg ' + c.w.s.dmg) || (C(c).laid ? '' : 'no egg laid by a smitten enemy'),
           B: c => (c.w.s.lure > c.base.lure * 1.9 ? '' : 'lure ' + c.w.s.lure + '/' + c.base.lure) || (C(c).spared ? '' : 'a lured enemy still attacked'),
@@ -204,7 +204,7 @@ const { chromium } = require('playwright');
       }
       for (let i = 0; i < 3; i++) {
         const P = id === 's_peekaboo' ? [2, 2, 1][i] : id === 's_toothfairy' ? [0, 0, 1][i] : id === 's_parasite' ? [1, 0, 0][i] : [0, 1, 2][i];
-        trial(id, id + ' Lv10#' + i, { p: P, l10: i }, S.lv10[i], c => S.setup(c, 'ABC'[P], 'l10', i), id === 's_toothfairy' && i === 1 ? 600 : S.frames);
+        trial(id, id + ' Lv10#' + i, { p: P, l10: i }, S.lv10[i], c => S.setup(c, 'ABC'[P], 'l10', i), S.frames); // (Clutch: filling past 6 eggs takes a while without level fire-rate gains)
       }
     }
     return { bad, rows };

@@ -148,7 +148,7 @@ const { chromium } = require('playwright');
         trial(id, lab + ' Lv3', { p: P, line: id === 'v_soul_proj' && key === 'A', chk: c => S.l3(c) }, 300, setup);
         for (let i = 0; i < 3; i++) {
           const need = (key === 'B' && id === 'v_flame_pool' && i === 2) || id === 'v_flame_pool' && key === 'A' && i === 2 || false;
-          trial(id, lab + ' Lv6#' + i, { p: P, l6: i, line: id === 'v_soul_proj' && key === 'A', chk: c => S.l6[i](c) }, 300, setup);
+          trial(id, lab + ' Lv6#' + i, { p: P, l6: i, line: id === 'v_soul_proj' && key === 'A', chk: c => S.l6[i](c) }, id === 's_void' ? 600 : 300, setup); // (Family Ties merges need time: levels no longer speed up firing)
         }
       }
       for (let i = 0; i < 3; i++) {
