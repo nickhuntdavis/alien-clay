@@ -3,6 +3,18 @@
 // card in full, with a short bullet for every bit of game jargon it uses.
 
 const GLOSSARY = [
+  [/\bpoise|stagger/i, 'Poise', 'Force builds a Poise bar on what it hits. Fill it and the enemy staggers (stops for under a second; bosses barely at all). The bar drains if you stop hitting.'],
+  [/\balien bar|possess/i, 'Alien bar', 'Alien hits fill this bar. Fill it and the enemy is Possessed: it fights its own mates for a few seconds, then cannot be Possessed again for a while. Bosses resist.'],
+  [/\bburn bar|ignit|burning/i, 'Burn bar', 'Fire fills this bar, and a burning enemy takes a short damage over time. Fill it and it Ignites: one flare on that enemy, then the bar resets. Becoming Snared puts it out.'],
+  [/\bcorro(sion|ded)/i, 'Corrosion', 'Acid fills this bar. Fill it and one Shell layer is stripped for good. With no Shell, the enemy is just visibly Corroded for 4 seconds. No damage over time.'],
+  [/\bmembrane/i, 'Membrane', 'A second health pool (half of max health) that soaks hits first. It recharges after 2 seconds without being hit. Force does only half damage to it; Static recharges it.'],
+  [/\bshell\b|\blayers?\b/i, 'Shell', 'Layers of hard casing. Each layer takes a fixed amount off every physical hit and has a little health of its own. A lost layer stays lost; Acid strips them fast and heavy Force breaks one at once.'],
+  [/\bsquishy/i, 'Squishy', 'Soft body: cuts blunt Force damage by about a third and knockback by half. Cuts and the other damage types go straight through.'],
+  [/\bthorns/i, 'Thorns', 'Hurts whoever hit it, once per Contact hit. It does not soften the hit. Ranged shots and hazards never set it off.'],
+  [/\bevasion/i, 'Evasion', 'A chance to dodge a Contact, Projectile or Spread hit entirely, with a visible miss puff. Area attacks (Burst, Beam, Pool) cannot be evaded.'],
+  [/\bsnared?\b/i, 'Snared', 'Mucus status: a heavy slow for a couple of seconds. Refreshes on every hit, and puts out Burning.'],
+  [/\bconjoined/i, 'Conjoined', 'Two Snared enemies that touch stick together for 3 seconds.'],
+  [/\bextraction|bleed/i, 'Bleeding', 'Blood status. If an enemy dies while bleeding, it is Extracted: you heal 1% of your max health (at most 6 a second) and it leaves a blood pool.'],
   [/\bpierc/i, 'Pierce', 'A shot carries on through this many extra enemies before it stops.'],
   [/\b(bounce|ricochet)/i, 'Bounce', 'After a hit, the shot hops on to another enemy.'],
   [/\b(chain|jump)/i, 'Chain', 'The hit leaps on to nearby enemies, a little weaker with each jump.'],
