@@ -10,8 +10,8 @@ android {
         applicationId 'com.stormdirective.game'
         minSdk 21
         targetSdk 34
-        versionCode 306
-        versionName '10.28'
+        versionCode 307
+        versionName '10.29'
     }
 
     // A fixed key, so every build (from any session) installs over the last one. The keystore file is in the
