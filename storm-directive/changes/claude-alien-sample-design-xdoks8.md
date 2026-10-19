@@ -1,5 +1,13 @@
 # claude/alien-sample-design-xdoks8
 
+## 2026-10-19 Not of This World's card shows the creature (v10.30)
+- Systems: samples
+- Files: alienyou.js, samples10.js, tests/alienyoushot.js
+- What: its card on the sample screen has a live picture of it, hanging and pulsing, cycling through its moods and its Fire, Alien and Static core colours. Tentacles now start laid out straight instead of in a knot. alienYou's drawing is split into alienDraw (no G needed).
+- Save data: none.
+- Hooks: samples10.js s10Samples -> alienPicStart (and the card list adds a canvas to the alien card).
+- Risk: none (title screen only; the loop stops when the card leaves the page).
+
 ## 2026-10-19 Not of This World gets its own body (v10.29)
 - Systems: samples, render
 - Files: alienyou.js (new), render.js, seqsel.js, index.html, tests/alienyoushot.js (new)

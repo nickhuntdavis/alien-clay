@@ -24,6 +24,12 @@ const { chromium } = require('playwright');
     await page.screenshot({ path: require('path').resolve(__dirname, `out/alien_${m}${df ? '_df' : ''}.png`), clip: { x: 120, y: 330, width: 160, height: 200 } });
   }
   const drew = await page.evaluate(() => !!G.player.ay); if (!drew) bad.push('alienYou never drew');
+  // Its card on the sample screen carries a live picture.
+  await page.evaluate(() => { G = null; s10Samples(); document.querySelector('[data-s10="alien"]').scrollIntoView(); });
+  await page.waitForTimeout(1500);
+  const pic = await page.evaluate(() => { const c = document.querySelector('canvas[data-alienpic]'); if (!c || !c.width) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++; return n; });
+  if (pic < 500) bad.push('card picture empty: ' + pic);
+  await (await page.$('[data-s10="alien"]')).screenshot({ path: require('path').resolve(__dirname, 'out/alien_card.png') });
   console.log('ERRORS', JSON.stringify(errors));
   if (bad.length || errors.length) { console.log('FAIL ' + bad.join(' | ')); process.exitCode = 1; } else console.log('PASS');
   await b.close();

@@ -7,7 +7,7 @@
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
 
 - (`claude/festive-allen-xmea8i`, v9.28) Autorun modes now live in `autorun.js` (`arGoal`, memory in `G.ar`); autoaim tie-breaker is slot field `w.dir2` (acquire calls take `aimDir(w)`). Wave sims per mode, 4 runs each, old -> new: KITE 3->2, ORBIT 1->3, HUNT 3->2, HOLD 2->2 (9/16 both). `wave20.js` takes `--move <mode>`.
-- (`claude/alien-sample-design-xdoks8`, v10.29) Not of This World draws as a tentacled bell (`alienyou.js`), not a sperm; moods in `AY.moods`. Screenshots: `./run.sh alienyoushot` -> `tests/out/alien_*.png`. Open: its sample card and Field Guide have no picture of it yet.
+- (`claude/alien-sample-design-xdoks8`, v10.29) Not of This World draws as a tentacled bell (`alienyou.js`), not a sperm; moods in `AY.moods`. Screenshots: `./run.sh alienyoushot` -> `tests/out/alien_*.png`. Its sample card has a live picture (v10.30, `alienPicStart`); the Field Guide has none yet.
 
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
