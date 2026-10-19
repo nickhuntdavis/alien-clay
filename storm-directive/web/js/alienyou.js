@@ -99,6 +99,8 @@ function alienDraw(x, y, face, tag, alpha, scale, body, now, core, mood) {
 
   // ---- the bell (local frame: +x is forward)
   ctx.save(); ctx.translate(x, y); ctx.rotate(face);
+  const st = typeof slDefState === 'function' ? slDefState(body, A, now) : null; if (st && st.jel) ctx.scale(st.jel[0], st.jel[1]); // (your defences on the body: samplelooks.js)
+  if (st) slDefUnder(k, alpha, now, SL_SHAPE.alien, st, body);
   const rx = 10.5 * lk * k, ry = 9 * wk * k, bx = -5.5 * lk * k;
   const bell = () => {
     ctx.beginPath(); ctx.moveTo(bx, -ry * 0.82);
@@ -146,6 +148,7 @@ function alienDraw(x, y, face, tag, alpha, scale, body, now, core, mood) {
   glow(cx, 0, 15 * k * (0.8 + 0.3 * c), core, alpha * 0.5 * gk);
   glow(cx, 0, 4.5 * k, '#ffffff', alpha * 0.6 * gk);
   ctx.globalCompositeOperation = 'source-over';
+  if (st) slDefOver(k, alpha, now, SL_SHAPE.alien, st);
   ctx.restore();
 
   // Hurt: motes shed off the bell and drift away.

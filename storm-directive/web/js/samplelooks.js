@@ -13,7 +13,9 @@
 // The natural family keeps its fluorescent tag on the acrosome (red when hit); the others flush red when hit.
 // The tail is still the shared one (render.js stepTail), so swim physics and hitbox are unchanged.
 // Hooks: render.js drawShip -> sampleLook (also routes Not of This World to alienYou); seqsel.js drawSeqMods ->
-// sampleLookOn; samples10.js s10Samples -> slPicStart (a live picture on every sample card).
+// sampleLookOn; samples10.js s10Samples -> slPicStart (a live picture on every sample card); ui.js codexHtml -> slCodex
+// (the Field Guide's SAMPLES tab) and portraits.js portraitsStart -> slPicStart (its pictures); alienyou.js alienDraw ->
+// slDefState/slDefUnder/slDefOver; pdef.js pdefDraw skips its Shell rings for v10 samples (sampleLookOn).
 
 // neck: where the tail joins (local, x back from the head centre; y for Beta's bent neck). len: tail length.
 const SL = {
@@ -51,13 +53,16 @@ function slDraw(id, x, y, face, tag, alpha, scale, body, now) {
   stepTail(body, nwx, nwy, face, D.len * sc, v, D.beat, TAIL_BASE);
   const yaw = body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) : 0;
   body.yaw = yaw;
-  const sq = body === G.player && typeof headSquash === 'function' ? headSquash(body) : null;
+  const sq = body === G.player && typeof headSquash === 'function' ? headSquash(body) : null, st = slDefState(body, B, now), sh = SL_SHAPE[id];
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   if (SL_UNDER[id]) SL_UNDER[id](x, y, face, k, alpha, now, B, body, sc);
   SL_TAIL[id](body.tailDraw, k, alpha, now, B, sc);
   ctx.globalAlpha = alpha;
-  ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw); if (sq) ctx.scale(sq.x, sq.y);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw);
+  if (st && st.jel) ctx.scale(st.jel[0], st.jel[1]); else if (sq) ctx.scale(sq.x, sq.y);
+  if (st) slDefUnder(k, alpha, now, sh, st, body);
   SL_HEAD[id](k, alpha, now, tag, hit, B);
+  if (st) slDefOver(k, alpha, now, sh, st);
   ctx.restore();
   if (SL_OVER[id]) SL_OVER[id](x, y, face, k, alpha, now, B, body, sc);
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.lineCap = 'butt'; ctx.lineJoin = 'miter';
@@ -315,4 +320,108 @@ function slPicDraw(cv, id, body, now) {
       slDraw(id, sx(body.x), sy(body.y), 0, id === 'baseline' || id === 'alpha' || id === 'beta' ? PAL.you : null, 1, 1, body, now);
     }
   } finally { ctx = keep.ctx; S = keep.S; W = keep.W; H = keep.H; cam.x = keep.cx; cam.y = keep.cy; G = keep.G; g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
+}
+
+// ---------------------------------------------------------------- your defences, worn on the body (pdef.js G.pd)
+// Instead of rings round you, your Genome defence cards change the body itself (every sample, the alien too):
+//  - Shell: brown armour bands that wrap the head like an armadillo's, front first. Each layer adds a band and
+//    thickness (4 layers: the whole head and a collar). Shaded as a curved surface (lit top, dark underside, a
+//    highlight along each band, a shadow under its back lip) with a drop shadow. The front band cracks as the
+//    outer layer wears and chips away near the end.
+//  - Squishy: the body turns to jelly. The head's squash and stretch is exaggerated and springy (it overshoots and
+//    wobbles back), a hit squashes it flat and it boings back, and it has a wet sheen.
+//  - Thorns: pale spikes raked back along the sides of the head, more and longer with each rank.
+//  - Evasion: faint after-images of the head trail it while moving (one, then two from rank 3).
+// sh: the head as an ellipse in local units of k ({ cx, rx, ry }).
+const SL_SHAPE = { baseline: [1, 7.5, 5], alpha: [3.5, 8.5, 4.8], beta: [1, 6.2, 5.1], private: [1, 7.6, 5.2], ordered: [1, 7, 4.8], redtail: [1, 7.6, 5.4], prawn: [1, 7.5, 5], alien: [2.5, 10.5, 9, 0.35] }; // (4th: the most of its length a Shell may cover: the alien's core stays in view)
+const SL_SHELL = { top: '#c99a64', mid: DEF_PAL.shell, dk: '#4e3219', lit: '#e8c48e' };
+
+// The defence state for a body (only yours, in a run): { n: card ranks, D: G.pd, jel: [sx, sy] or null }.
+function slDefState(body, B, now) {
+  const D = sampleLookOn(body) && G.pd; if (!D) return null;
+  const sq = body === G.player && typeof headSquash === 'function' ? headSquash(body) : null;
+  return { D, n: D.n, jel: slJelly(B, body, sq, now, D.n.squishy > 0) };
+}
+function slJelly(B, body, sq, now, on) {
+  const J = B.j || (B.j = { x: 0, v: 0, t: now, f: false });
+  const dt = Math.min(0.05, Math.max(0, now - J.t)); J.t = now;
+  if (!on) { J.x = J.v = 0; return null; }
+  const tgt = clamp(((sq ? sq.x / sq.y : 1) - 1) * 3.2, -0.45, 0.85); // (headSquash's stretch, three times over)
+  const hit = body.flash > 0; if (hit && !J.f) J.v -= 9; J.f = hit; // (a hit squashes it flat, then it boings back)
+  J.v += ((tgt - J.x) * 170 - J.v * 5) * dt; J.x = clamp(J.x + J.v * dt, -0.5, 0.95); // (underdamped: it overshoots)
+  const w = 0.05 * Math.sin(now * 7.3), s = 1 + J.x;
+  return [s * (1 + w), (1 / s) * (1 - w)];
+}
+// Behind the head (Evasion's after-images). Local frame.
+function slDefUnder(k, a, now, sh, st, body) {
+  const r = st.n.evasion; if (!r) return;
+  const v = Math.min(1, Math.hypot(body.vx || 0, body.vy || 0) / 160); if (v < 0.15) return;
+  ctx.fillStyle = '#cfe7ff';
+  for (let j = 1; j <= (r >= 3 ? 2 : 1); j++) { ctx.globalAlpha = a * 0.16 * v / j; slEll((sh[0] - j * 4 * v) * k, Math.sin(now * 9 + j) * 0.6 * k, sh[1] * k, sh[2] * k); ctx.fill(); }
+  ctx.globalAlpha = a;
+}
+// Over the head (Shell, Thorns, Squishy's sheen). Local frame.
+function slDefOver(k, a, now, sh, st) {
+  const [cx, rx, ry] = sh, n = st.n;
+  if (n.squishy) { ctx.fillStyle = '#ffffff'; ctx.globalAlpha = a * 0.4; slEll((cx + rx * 0.25) * k, -ry * 0.45 * k, rx * 0.45 * k, ry * 0.2 * k, -0.15); ctx.fill(); ctx.globalAlpha = a; }
+  const L = Math.min(4, st.D.layers || 0);
+  if (L) slShell(k, a, now, sh, L, clamp(st.D.layerHp / pdLayerHp(), 0, 1));
+  if (n.thorns) {
+    const per = 2 + n.thorns, len = 2.2 + 0.8 * n.thorns, ox = rx + (L ? 0.6 + 0.35 * L : 0.2), oy = ry + (L ? 0.6 + 0.35 * L : 0.2);
+    for (const s of [-1, 1]) for (let i = 0; i < per; i++) {
+      const an = s * (0.75 + i / Math.max(1, per - 1) * 1.7), bx = cx + Math.cos(an) * ox, by = Math.sin(an) * oy;
+      let nx = Math.cos(an) / ox, ny = Math.sin(an) / oy; const nl = Math.hypot(nx, ny); nx /= nl; ny /= nl; // (the outward normal)
+      const tx = nx - 0.45, ty = ny, tl = Math.hypot(tx, ty), dx = tx / tl, dy = ty / tl, px = -dy * 0.75, py = dx * 0.75; // (raked back)
+      ctx.beginPath(); ctx.moveTo((bx + px) * k, (by + py) * k); ctx.lineTo((bx + dx * len) * k, (by + dy * len) * k); ctx.lineTo((bx - px) * k, (by - py) * k); ctx.closePath();
+      ctx.fillStyle = DEF_PAL.thorns; ctx.fill(); ctx.strokeStyle = 'rgba(60,48,30,0.8)'; ctx.lineWidth = 0.35 * k; ctx.stroke();
+    }
+  }
+}
+function slShell(k, a, now, sh, L, hp) {
+  const [cx, rx, ry] = sh, th = 0.6 + 0.35 * L, ex = (rx + th) * k, ey = (ry + th) * k, c = cx * k;
+  const bands = L + 1, cover = Math.min(sh[3] || 9, [0, 0.45, 0.65, 0.85, 1.12][L]); // (how far back from the nose the bands reach, as a share of the head's length)
+  const front = c + ex, x0 = front - cover * 2 * ex, bw = (front - x0) / bands, curve = 0.32 * ey;
+  const outline = () => slEll(c, 0, ex, ey);
+  // Drop shadow, then the bands from the back forward so each overlaps the one behind it.
+  ctx.save(); outline(); ctx.clip();
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(x0 + 0.6 * k, -ey + 0.9 * k, front - x0, 2 * ey);
+  const gr = ctx.createLinearGradient(0, -ey, 0, ey); gr.addColorStop(0, SL_SHELL.top); gr.addColorStop(0.45, SL_SHELL.mid); gr.addColorStop(1, SL_SHELL.dk);
+  for (let i = bands - 1; i >= 0; i--) {
+    const xa = front - (i + 1) * bw, xb = i ? xa + bw + 0.9 * k : front + k, outer = i === 0; // (i 0: the front band, drawn last, over the rest)
+    ctx.globalAlpha = a * (outer ? 0.55 + 0.45 * Math.min(1, hp * 2) : 1);
+    ctx.beginPath(); ctx.moveTo(xa, -ey * 1.2); ctx.quadraticCurveTo(xa - curve * 2, 0, xa, ey * 1.2); ctx.lineTo(xb, ey * 1.2); ctx.lineTo(xb, -ey * 1.2); ctx.closePath();
+    ctx.fillStyle = gr; ctx.fill();
+    ctx.strokeStyle = SL_SHELL.dk; ctx.lineWidth = 0.9 * k; ctx.beginPath(); ctx.moveTo(xa, -ey * 1.2); ctx.quadraticCurveTo(xa - curve * 2, 0, xa, ey * 1.2); ctx.stroke(); // (the back lip's shadow)
+    ctx.strokeStyle = SL_SHELL.lit; ctx.lineWidth = 0.45 * k; ctx.beginPath(); ctx.moveTo(xa + 0.7 * k, -ey * 1.2); ctx.quadraticCurveTo(xa - curve * 2 + 0.7 * k, 0, xa + 0.7 * k, ey * 1.2); ctx.stroke(); // (its lit edge)
+    ctx.fillStyle = '#fff2dc'; ctx.globalAlpha *= 0.4; slEll(xa + bw * 0.45, -ey * 0.55, bw * 0.38, ey * 0.13); ctx.fill(); // (a gloss highlight along the top)
+  }
+  ctx.globalAlpha = a;
+  // Wear: cracks across the front band, chips missing near the end.
+  if (hp < 0.85) {
+    ctx.strokeStyle = 'rgba(30,18,8,0.85)'; ctx.lineWidth = 0.4 * k; ctx.beginPath();
+    const nC = hp < 0.5 ? 3 : hp < 0.7 ? 2 : 1;
+    for (let j = 0; j < nC; j++) { let px = front - 0.6 * k, py = (j - 1) * ey * 0.45; ctx.moveTo(px, py); for (let s = 0; s < 4; s++) { px -= bw * 0.28; py += ((s + j) % 2 ? 1 : -1) * 0.9 * k; ctx.lineTo(px, py); } }
+    ctx.stroke();
+  }
+  ctx.restore();
+  if (hp < 0.35) { ctx.fillStyle = 'rgba(30,18,8,0.55)'; for (const [fx, fy] of [[0.92, -0.3], [0.8, 0.45]]) { slEll(c + fx * ex, fy * ey, 0.9 * k, 0.7 * k); ctx.fill(); } }
+  ctx.save(); ctx.beginPath(); ctx.rect(x0 - curve * 2, -ey * 1.3, front - x0 + 2 * k + curve * 2, ey * 2.6); ctx.clip(); // (a dark rim round the covered part only)
+  outline(); ctx.strokeStyle = 'rgba(40,24,10,0.7)'; ctx.lineWidth = 0.5 * k; ctx.stroke(); ctx.restore();
+  if (L >= 4) { ctx.fillStyle = SL_SHELL.mid; ctx.strokeStyle = SL_SHELL.dk; ctx.lineWidth = 0.5 * k; ctx.beginPath(); ctx.roundRect(c - ex - 2.2 * k, -1.9 * k, 2.6 * k, 3.8 * k, 1 * k); ctx.fill(); ctx.stroke(); } // (the collar)
+}
+
+// ---------------------------------------------------------------- the Field Guide's SAMPLES tab (ui.js codexHtml)
+// Each sample with its live picture, family, origin, passive and the lab's note. Locked ones show dimmed (a secret one
+// shows no name or note).
+const SL_FAMILY = { baseline: 'Natural specimen', alpha: 'Natural specimen', beta: 'Natural specimen', private: 'Engineered specimen', ordered: 'Engineered specimen', redtail: 'Anomaly', prawn: 'Anomaly', alien: 'Anomaly' };
+function slCodex(box) {
+  const rows = SAMPLES10.map(s => {
+    const open = s10Open(s.id), secret = !open && s.unlock && s.unlock.secret, no = String(s.strain).padStart(3, '0'), c = ELEMENTS[S10_TYPES[s.types[0]]].color;
+    const pic = `<canvas data-slpic="${s.id}" style="position:relative;inset:auto;flex:none;display:block;width:100%;height:${s.id === 'alien' ? 110 : 80}px${open ? '' : ';filter:grayscale(1) brightness(0.5)'}"></canvas>`;
+    const txt = secret ? `<b>#${no} ???</b><br><span>Unlock: ???</span>`
+      : `<b style="color:${c}">#${no} ${esc(s.name)}</b> <em>${SL_FAMILY[s.id]} | ${esc(s.origin)}</em><br><span><b>${esc(s.passive)}</b>: ${esc(s.pdesc)}</span>`
+        + (open ? `<br><i>${esc(s.sci.replace('{id}', no))}</i>` : `<br><span>Unlock: ${esc(s.unlock.txt)}</span>`);
+    return `<div class="li">${pic}${txt}</div>`;
+  }).join('');
+  return box(`Samples (${SAMPLES10.filter(s => s10Open(s.id)).length}/${SAMPLES10.length} in stock)`, `<div class="list">${rows}</div>`, 'Natural specimens, engineered specimens and anomalies. Pick one before a run.');
 }

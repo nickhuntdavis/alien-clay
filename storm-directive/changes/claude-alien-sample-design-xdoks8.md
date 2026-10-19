@@ -1,5 +1,13 @@
 # claude/alien-sample-design-xdoks8
 
+## 2026-10-19 Defences on the body, samples in the Field Guide (v10.32)
+- Systems: samples, defences, ui
+- Files: samplelooks.js, alienyou.js, pdef.js, ui.js, portraits.js, tests/defbodyshot.js (new), tests/codexsamples.js (new)
+- What: your defence cards now change your body. Shell is shaded brown armour bands wrapping the head front first (one band per layer, a collar at 4; cracks and chips as it wears; a front cap only on the alien so its core shows) instead of rings. Squishy makes the head jelly: its squash and stretch is about three times bigger and overshoots, and hits squash it flat. Thorns are spikes raked back along the head; Evasion leaves after-images. The Field Guide has a SAMPLES tab: each sample with its live picture, family, origin, passive and lab note.
+- Save data: none.
+- Hooks: ui.js codexHtml -> slCodex (and a SAMPLES chip in the tab list); portraits.js portraitsStart -> slPicStart; pdef.js pdefDraw skips Shell rings when sampleLookOn; alienyou.js alienDraw -> slDefState/slDefUnder/slDefOver.
+- Risk: visual only. Shell no longer draws as rings round v10 samples (only on the body).
+
 ## 2026-10-19 Every sample gets its own body (v10.31)
 - Systems: samples, render
 - Files: samplelooks.js (new), alienyou.js, render.js, seqsel.js, samples10.js, index.html, tests/lineupshot.js (new), tests/alienyoushot.js
