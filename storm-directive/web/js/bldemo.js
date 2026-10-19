@@ -173,7 +173,7 @@ function pbvOver(pv, g, X, Y, U, c) {
   for (const f of pv.flash || []) { const k = f.life / 0.3; pvGlow(g, X(f.x), Y(f.y), U * f.r * (1.1 - k * 0.2), f.chain ? SIV_BONK : c, 0.55 * k); }
   for (const f of pv.frags) { const h = Math.sin((1 - f.t / f.max) * Math.PI) * U * 0.03; g.fillStyle = DEF_PAL.shell; g.fillRect(X(f.x) - 3, Y(f.y) - 3 - h, 6, 6); }
 }
-PV_OWN[PBV.id] = { init: pbvInit, step: pbvStep, draw: sivDraw, flags: PBV_FLAG, under: pbvUnder, over: pbvOver, cell: blvSpitCell };
+PV_OWN[PBV.id] = { init: pbvInit, step: pbvStep, draw: sivDraw, flags: PBV_FLAG, under: pbvUnder, over: pbvOver, cell: (pv, g, e, x, y, r) => blvSpitCell(g, e, x, y, r) };
 
 // ================================================================ Little Prick
 const LPV = { id: 'v_arcane_proj', range: 0.75, speed: 0.95, cd: 0.45, mag: 8, reload: 1.2, dmg: 16, bleedT: 4, bleedDps: 1.6, near: 0.51 }; // (world 440; Next, Please 300)
