@@ -56,9 +56,9 @@ const W24 = [
   ['s_wake', 'The Runs', 'flame', 'pool', 'redtail'],
 ];
 const W24_IDS = W24.map(r => r[0]);
-// On hold (19 Oct, mechanics under review): never offered, never a starter, hidden from the Field Guide. Code and
-// upgrade cards stay (tests and the Lab Bench still use them). Delete an id here to bring that weapon back.
-const W24_HOLD = ['s_void', 's_seeker', 's_toothfairy'];
+// On hold: never offered, never a starter, hidden from the Field Guide (code and upgrade cards stay). Add an id
+// here to park a weapon; delete it to bring it back. Empty since v10.29 (all 24 live).
+const W24_HOLD = [];
 const w24Live = () => W24_IDS.filter(id => !W24_HOLD.includes(id));
 const W24_BY = Object.fromEntries(W24.map(([id, name, type, atk, starter]) => [id, { id, name, type, atk, starter }]));
 const w24Starters = sample => W24.filter(r => r[4] === sample && !W24_HOLD.includes(r[0])).map(r => r[0]);

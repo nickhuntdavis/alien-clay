@@ -186,6 +186,7 @@ function v10Tick(dt) {
   if (typeof vxTick === 'function') vxTick(dt); // (the two voices: voice10.js)
   if (typeof s10Tick === 'function') s10Tick(dt); // (sample passives and unlocks: samples10.js)
   mutTick(dt); // (mutation cards: mutations.js)
+  if (typeof mdTick === 'function') mdTick(dt); // (elites drop mutations: mutdrop.js)
   f10Tick(dt); // (Feats: feats10.js)
   sigwTick(dt); // (signature weapons: sigweap.js)
   pdefTick(dt); // (your Membrane and Shell: pdef.js)
@@ -206,6 +207,7 @@ function v10Tick(dt) {
 function v10Draw() {
   if (G && V10) { fightDraw(); pdefDraw(); mutDraw(); f10Draw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
   if (G && V10) nf10Draw(); // (telegraphs, wax, trails: newfoes.js)
+  if (G && V10 && typeof mdDraw === 'function') mdDraw(); // (mutation carriers and drops: mutdrop.js)
   if (G && V10) modDraw(); // (v10 modifiers, modifiers.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {

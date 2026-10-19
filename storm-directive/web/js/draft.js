@@ -75,11 +75,11 @@ function weaponUp(w) {
   o.apply = () => { ap(); for (const lv of DRAFT.forkLv) if (from < lv && w.lvl >= lv) G.lootQueue.unshift({ kind: 'fork', w, lv, v10ok: true }); };
   return o;
 }
-function draftCards(n) {
+function draftCards(n, kind) {
   draftAbsorb();
   const cand = [];
   if (typeof W24 === 'undefined') for (const w of G.weapons) if (w && !w.isSpell && w.lvl < wCap(w) && !banished('weapon:' + w.id)) cand.push({ o: () => weaponUp(w), w: 1.4 * famK('weapon:' + w.id), fam: 'weapon:' + w.id }); // (the 24 upgrade on their own screen: weapons24.js wupCards)
-  if (typeof modDraftCands === 'function') cand.push(...modDraftCands()); // (modifier cards and Switched at Birth: modcards.js)
+  if (typeof modDraftCands === 'function') cand.push(...modDraftCands(kind)); // (modifier cards and Switched at Birth: modcards.js)
   else if (typeof v10Switch === 'function' && typeof W24 === 'undefined' && !banished('switch')) // (Switched at Birth retires with the matrix: weapons24.js)
      { const sw = v10Switch(); if (sw.length) cand.push({ o: () => Object.assign(sw[0], { family: 'switch' }), w: 0.6 * famK('switch'), fam: 'switch' }); }
   if (typeof pdefOffer === 'function') {
@@ -87,7 +87,8 @@ function draftCards(n) {
     for (const o of pdefOffer(2)) if (!banished('def:' + o.defence)) cand.push({ o: () => Object.assign(o, { family: 'def', bkey: 'def:' + o.defence }), w: 0.8 * famK('def'), fam: 'def' });
     PDEF.slots = keep;
   }
-  for (const c of CARDS) if (!banished(c.id) && cardOk(c)) cand.push({ o: () => cardOpt(c), w: leanW(c.type) * famK(c.family) * (c.start ? 1 : 0.6), fam: c.family || c.id });
+  for (const c of CARDS) if (!banished(c.id) && cardOk(c) && !(typeof mdDraftSkip === 'function' && mdDraftSkip(c))) // (mutations come from elites: mutdrop.js)
+    cand.push({ o: () => cardOpt(c), w: leanW(c.type) * famK(c.family) * (c.start ? 1 : 0.6), fam: c.family || c.id });
   // Groups share the draft by a fixed weight however many cards they hold, so 30 Feat cards don't crowd out
   // defences (lean, novelty and Fewer still tilt the odds inside each group).
   const grp = f => f.startsWith('feat:') ? 'feat' : f.startsWith('mut:') ? 'mut' : f.startsWith('mod:') ? 'mod' : f === 'catalyst' || f.startsWith('conc:') ? 'spec' : f === 'def' ? 'def' : null;
@@ -98,6 +99,9 @@ function draftCards(n) {
   // One weapon upgrade always leads the draft while any weapon can still level (the "upgrade a weapon" row).
   const ups = cand.filter(c => c.fam.startsWith('weapon:'));
   if (ups.length && n > 1) { const c = ups[Math.floor(Math.random() * ups.length)]; cand.splice(cand.indexOf(c), 1); fams.add(c.fam); out.push(c.o()); }
+  // A DNA strand (loot box) always deals a modifier card when one fits (modcards.js).
+  const mods = kind === 'chest' || kind === 'boss' ? cand.filter(c => c.fam.startsWith('mod:')) : [];
+  if (mods.length && out.length < n) { const c = mods[Math.floor(Math.random() * mods.length)]; cand.splice(cand.indexOf(c), 1); fams.add(c.fam); out.push(c.o()); }
   while (out.length < n && cand.length) {
     const tot = cand.reduce((a, c) => a + c.w, 0);
     let x = Math.random() * tot, i = 0;
@@ -161,7 +165,7 @@ function draftLoot(req) {
   if (req.kind === 'fork') return forkCards(req);
   if (req.kind === 'wup') return wupCards();
   if (req.kind === 'wupfork') return wupForkReq(req);
-  if (req.kind === 'level' || req.kind === 'chest' || req.kind === 'boss') return draftCards(3);
+  if (req.kind === 'level' || req.kind === 'chest' || req.kind === 'boss') return draftCards(3, req.kind);
   return null;
 }
 // Which boxes open, and when. 'wait' keeps a box queued without opening it.
