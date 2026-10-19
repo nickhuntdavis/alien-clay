@@ -2,6 +2,46 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.38 (versionCode 317)
+- Systems: scdemo (new), fbdemo (new), bldemo, screens
+- Files: see the folded entries below.
+- What: merge of `ccr-867eefdf-uxgom1` into `main`: Sister Cousin and the rest of the Force and Blood weapons (Maximum Gains, Nervous Wreck, Family Ties, Skill Issue, There Is No Spoon, One of These Days) get real previews, tabbed tier screens and a scene per branch card. With Standard Issue, Panic Button and Little Prick, every Force and Blood weapon is done (10 of 24).
+- Save data: none.
+- Hooks: none.
+- Risk: preview only, no combat change.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 The rest of the Force and Blood weapons: real previews, tabbed branch screens, a scene per branch (v10.38)
+- Systems: fbdemo (new), bldemo, screens
+- Files: fbdemo.js (new), bldemo.js, index.html
+- What: Maximum Gains, Nervous Wreck, Family Ties, Skill Issue, There Is No Spoon and One of These Days get the Standard Issue treatment: each preview shows the real weapon (pellet fan, clamping jaws, merging vortices, bowling lard, eaten and returned shots, countdown marks with a ledger), their tier screens open in the Weapon Draft tabs, and each of their 90 branch cards plays its own scene. Spitter cells now show their purple rim (it never drew on Panic Button's Grudge Match).
+- Save data: none.
+- Hooks: none (PV_OWN entries).
+- Risk: preview only, no combat change. 'wup' boxes with only one of these weapons ready now open as that weapon's fork.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 Sister Cousin: real preview, tabbed branch screen, a scene per branch (branch build v10.37, merged as v10.38)
+- Systems: scdemo (new), screens
+- Files: scdemo.js (new), index.html
+- What: Sister Cousin (old name Seeker Siblings) gets the Standard Issue treatment. Its preview fires two wiggling homing siblings per volley (6 volleys, 2 s reload) that add Bleed and split in two on a kill, with an in-flight counter (12 at most) under Spermy. Its tier screens open in the Weapon Draft tabs, and each of its 15 branch cards plays its own scene (extra siblings, runts, hiding and ambushes, the weakest-first favourite, squabbles, pack dives, Pile-On, Dinner Time, Baby Boom, Family Reunion, Only Child).
+- Save data: none.
+- Hooks: none (a PV_OWN entry).
+- Risk: preview only, no combat change.
+
+## v10.37 (versionCode 316)
+- Systems: mutation drops, draft, tests
+- Files: see the folded entry below.
+- What: merge of `claude/bold-hypatia-jadt4w` into `main`: an empty mutation screen can no longer stick a run (the box is dropped when no mutation fits), and the flaky perf18, eggtest and autoruntest are reliable.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
+### Folded from claude-bold-hypatia-jadt4w: 2026-10-19 Flaky tests fixed; empty mutation screen no longer sticks (v10.37)
+- Systems: mutation drops, draft, tests
+- Files: draft.js, tests/perf18.js, tests/eggtest.js, tests/autoruntest.js
+- What: (eggtest also keeps its rival alive and alone: race rivals could kill it mid-gnaw.) A mutation box now opens only if a mutation can still be taken (draft.js draftBox); several strands queued while the Genome filled up used to open an empty mutation screen that stuck the run. Tests: perf18 goes through v10Box like the main loop and times 300 play frames (it could time none); eggtest's rival break-in runs unarmed (anything of yours hitting the rival stops it gnawing); autoruntest clears terrain properly (`G.terrain` is { list, grid }: 85 to 102 pieces were left in and pushed you off HOLD and ORBIT).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## v10.36 (versionCode 314)
 - Systems: samples screen, school (Level 0), mutation drops
 - Files: see the folded entry below.

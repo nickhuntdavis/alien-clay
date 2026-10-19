@@ -172,7 +172,8 @@ function draftLoot(req) {
 }
 // Which boxes open, and when. 'wait' keeps a box queued without opening it.
 function draftBox(req) {
-  if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'mutation') return true;
+  if (req.kind === 'start' || req.kind === 'slot') return true;
+  if (req.kind === 'mutation') return typeof mdOk === 'function' && mdOk().length > 0; // (dropped if the Genome filled up while it waited: an empty screen would stick)
   if (req.kind === 'wup') return wupReady().length > 0;
   if (req.kind === 'wupfork') return wupNextLv(req.w) === req.lv;
   if (req.kind === 'fork') { if (!forkCards(req).length) return false; G.draftT = G.t; return true; }
