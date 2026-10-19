@@ -1,3 +1,11 @@
+## 2026-10-19 Family Ties, Sister Cousin and Eggs on hold (v10.28)
+- Systems: weapons, samples
+- Files: weapons24.js, sigweap.js, w24look.js, tests/weapons24test.js, tests/samplestest.js, NOTES.md
+- What: the three weapons are no longer offered, never start a run and are hidden from the Field Guide (`W24_HOLD`, `w24Live`). Not of This World, Redtail and Prawn Again start with two starters. Code and upgrade cards are kept for their return.
+- Save data: none.
+- Hooks: sigweap.js v10Pool -> w24Live; w24look.js wl_wids -> w24Live.
+- Risk: three samples have one starter fewer; the pool is 21 weapons.
+
 ## 2026-10-19 Fix Sister Cousin, Eggs and Family Ties after levels stopped speeding up firing (v10.27)
 - Systems: weapons (the 24's upgrade branches)
 - Files: wup5.js, wup6.js, tests/wup3test.js, tests/wup5test.js, tests/wup6test.js

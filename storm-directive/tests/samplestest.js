@@ -16,7 +16,8 @@ const { chromium } = require('playwright');
     for (const s of SAMPLES10) {
       META.profile = 's10_' + s.id; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;
       const offer = genLoot({ kind: 'start' }), want = w24Starters(s.id);
-      if (want.length !== 3 || offer.length !== 3 || offer.map(o => o.def.name).join() !== want.map(id => WEAPONS[id].name).join()) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
+      const n3 = W24.filter(r => r[4] === s.id).length - W24.filter(r => r[4] === s.id && W24_HOLD.includes(r[0])).length; // (3, minus starters on hold)
+      if (want.length !== n3 || offer.length !== n3 || offer.map(o => o.def.name).join() !== want.map(id => WEAPONS[id].name).join()) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
       offer[1].apply(); const w = G.weapons.find(Boolean);
       if (!w || (w.sid || w.id) !== want[1]) bad.push(s.id + ' weapon ' + (w && w.id));
       if (!G.sampleTypes || G.sampleTypes.primary !== s.types[0]) bad.push(s.id + ' lean');

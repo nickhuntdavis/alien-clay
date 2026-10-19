@@ -57,7 +57,7 @@ const wl_liveC = c => !wl_on() || (wl_set().has(c.a) && wl_set().has(c.b));
 const wl_combos = () => wl_on() ? COMBOS.filter(wl_liveC) : COMBOS;
 const wl_pairs = () => wl_on() ? PAIRINGS.filter(wl_liveC) : PAIRINGS;
 const wl_supers = () => wl_on() ? SUPERS.filter(s => [s.x, s.y].every(id => COMBO_BY[id] && wl_liveC(COMBO_BY[id]))) : SUPERS;
-const wl_wids = () => wl_on() ? W24_IDS.slice() : Object.keys(WEAPONS); // Field Guide weapon list
+const wl_wids = () => wl_on() ? w24Live() : Object.keys(WEAPONS); // Field Guide weapon list
 const wl_stat = id => (META.wstats && (META.wstats[wl_old(id)] || META.wstats[id])) || null; // wstats are logged under w.id
 const wl_profiles = () => wl_on() ? Object.keys(PROFILES).filter(id => PROFILES[id].s10) : Object.keys(PROFILES);
 const wl_starters = list => wl_on() ? [] : list; // the Gene Bank's wildcard weapons (archived under V10)

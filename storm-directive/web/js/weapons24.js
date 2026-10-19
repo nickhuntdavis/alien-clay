@@ -56,8 +56,12 @@ const W24 = [
   ['s_wake', 'The Runs', 'flame', 'pool', 'redtail'],
 ];
 const W24_IDS = W24.map(r => r[0]);
+// On hold (19 Oct, mechanics under review): never offered, never a starter, hidden from the Field Guide. Code and
+// upgrade cards stay (tests and the Lab Bench still use them). Delete an id here to bring that weapon back.
+const W24_HOLD = ['s_void', 's_seeker', 's_toothfairy'];
+const w24Live = () => W24_IDS.filter(id => !W24_HOLD.includes(id));
 const W24_BY = Object.fromEntries(W24.map(([id, name, type, atk, starter]) => [id, { id, name, type, atk, starter }]));
-const w24Starters = sample => W24.filter(r => r[4] === sample).map(r => r[0]);
+const w24Starters = sample => W24.filter(r => r[4] === sample && !W24_HOLD.includes(r[0])).map(r => r[0]);
 // One-line descriptions (BASE_WEAPONS.md, in the game's voice).
 const W24_DESC = {
   v_phys_proj: 'A plain, heavy shot. No gimmicks. It keeps firing even when the situation is objectively hopeless.',
@@ -95,6 +99,7 @@ for (const [id, name, type] of W24) {
   d.w24 = 1; d.archived = 0;
 }
 for (const id in WEAPONS) if (!WEAPONS[id].w24) WEAPONS[id].archived = 1;
+for (const id of W24_HOLD) if (WEAPONS[id]) WEAPONS[id].archived = 1; // (on hold: see W24_HOLD)
 const w24Key = w => (w && (w.sid || w.id)) || null; // (signature slots keep the old id in w.id, the s_ id in w.sid)
 
 // ---------------------------------------------------------------- the upgrade engine

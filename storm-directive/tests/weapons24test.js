@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     if (W24_IDS.length !== 24 || W24_IDS.some(id => !WEAPONS[id])) bad.push('roster ' + W24_IDS.filter(id => !WEAPONS[id]));
-    if (v10Pool().length !== 24) bad.push('pool ' + v10Pool().length);
+    if (v10Pool().length !== 24 - W24_HOLD.length || v10Pool().some(id => W24_HOLD.includes(id))) bad.push('pool ' + v10Pool().length); // (minus the weapons on hold)
     const def = Object.values(ENEMIES).find(d => d.ai === 'chase') || Object.values(ENEMIES)[0], rows = [];
     for (const id of W24_IDS) {
       UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
