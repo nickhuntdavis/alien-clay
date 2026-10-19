@@ -275,6 +275,7 @@ const UI = {
     seqTick(dt);
     drawBaby(dt);
     UI.youTick(dt);
+    if (typeof boxTick === 'function') boxTick(dt); // (the sample on the mutation screen: boxlook.js)
     UI.autoTick();
     { const db = $('dbgBtn'); if (db) db.classList.toggle('on', !!(G && G.debug && (G.state === 'play'))); if (DBG.open && !(G && G.debug)) { DBG.open = false; $('dbgPanel').classList.remove('on'); } }
     // The Petri Dish: the next drop waits for you.
@@ -908,6 +909,7 @@ const UI = {
     // Loot boxes are gold; a branch choice is an upgrade, so it's cyan.
     const kc = req.kind === 'branch' || req.kind === 'sfork' ? PAL.upgrade : PAL.reward;
     box.style.setProperty('--bc', kc); $('lootTitle').style.color = kc;
+    if (typeof boxLook === 'function') boxLook(req, box); // (mutation, modifier and Feat looks: boxlook.js)
     void box.offsetWidth; // restart animation
     box.classList.add('opening');
     $('lootCards').innerHTML = '';
@@ -957,7 +959,7 @@ const UI = {
       if (o.wup) { wrap.appendChild(UI.upgradeCard(o, i)); return; }
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
-      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '');
+      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '') + (typeof boxCardCls === 'function' ? boxCardCls(o) : ''); // (boxlook.js)
       c.style.setProperty('--rar', r.color);
       c.style.setProperty('--rc', o.cursed ? cardCat(o) : r.color); // the border is the rarity colour
       c.style.setProperty('--ic', cardCat(o));

@@ -3,8 +3,9 @@
 //  - Mutation cards (mutations.js, ids m_/w_/t_/x_/r_) are no longer dealt in level-up or DNA strand drafts.
 //  - An elite has MUTDROP.chance to carry one: the junk DNA double helix circles it, with a beacon, a countdown and
 //    arrows pointing the way. Kill it within MUTDROP.life seconds and it drops the strand: a helix labelled with the
-//    mutation it holds (picked from the ones you can take right now). Swim into it and it is stapled in at once,
-//    no box and no pause. It decays after MUTDROP.dropLife seconds. A carrier that times out sheds it.
+//    MUTATION strand. Swim into it and the mutation screen opens: three you can take right now, pick one
+//    (boxlook.js draws your sperm and stats above them). It decays after MUTDROP.dropLife seconds. A carrier that
+//    times out sheds it.
 //  - Catalysts, Concentrations and defences stay in the draft.
 // Hooks: game.js killEnemy -> mdKill; v10.js v10Tick -> mdTick, v10Draw -> mdDraw; draft.js draftCards -> mdDraftSkip.
 
@@ -13,12 +14,10 @@ const mdIsMut = c => /^[mwtxr]_/.test(c.id) && (c.slot === 'genome' || c.slot ==
 const mdDraftSkip = c => mdIsMut(c); // (draft.js: mutations only come from elites)
 const mdS = () => G.md || (G.md = { drops: [] });
 
-// A mutation you could take right now, at random (null if the Genome and every weapon are full).
-function mdPickCard() {
-  if (typeof CARDS === 'undefined') return null;
-  const ok = CARDS.filter(c => mdIsMut(c) && cardOk(c));
-  return ok.length ? ok[Math.floor(Math.random() * ok.length)] : null;
-}
+// The mutations you could take right now (none if the Genome and every weapon are full).
+const mdOk = () => (typeof CARDS === 'undefined' ? [] : CARDS.filter(c => mdIsMut(c) && cardOk(c)));
+// The mutation screen's cards (draft.js draftLoot, kind 'mutation').
+function mdCards(n) { return shuffle(mdOk()).slice(0, n).map(c => Object.assign(cardOpt(c), { mdTaken: 1 })); }
 
 function mdTick(dt) {
   if (!G || G.state !== 'play' || !G.player) return;
@@ -46,21 +45,17 @@ function mdTick(dt) {
 function mdKill(e) {
   if (!e.mdCarry || e.charmed) return;
   e.mdCarry = false;
-  const c = mdPickCard();
-  if (!c) { floatText(e.x, e.y - e.r - 12, 'NO ROOM FOR A MUTATION', XR.dim, 12, 1); return; }
-  mdS().drops.push({ c, x: e.x, y: e.y, life: MUTDROP.dropLife, bob: Math.random() * TAU });
+  if (!mdOk().length) { floatText(e.x, e.y - e.r - 12, 'NO ROOM FOR A MUTATION', XR.dim, 12, 1); return; }
+  mdS().drops.push({ x: e.x, y: e.y, life: MUTDROP.dropLife, bob: Math.random() * TAU });
   ring(e.x, e.y, 50, MUTDROP.col, 0.4, 3); floatText(e.x, e.y - e.r - 12, 'MUTATION DROPPED', MUTDROP.col, 13, 1);
 }
 
 function mdAbsorb(d) {
-  const c = d.c, p = G.player;
-  if (!cardOk(c)) { floatText(p.x, p.y - 40, 'NO ROOM FOR ' + c.title.toUpperCase(), XR.dim, 12, 1.4); return; } // (filled up since it dropped)
-  const o = cardOpt(c); o.apply();
+  const p = G.player;
+  if (!mdOk().length) { floatText(p.x, p.y - 40, 'NO ROOM FOR A MUTATION', XR.dim, 12, 1.4); return; } // (filled up since it dropped)
   fxParts('drop', d.x, d.y, MUTDROP.col, 16, 240, 0.6, 4); ring(d.x, d.y, 70, MUTDROP.col, 0.4, 4); ring(p.x, p.y, 50, MUTDROP.col, 0.5, 3);
   sfx('pickup'); vibrate(60);
-  banner(c.title.toUpperCase(), MUTDROP.col);
-  floatText(p.x, p.y - 40, c.desc, MUTDROP.col, 13, 3, 1);
-  sysMsg('MUTATION: ' + c.title.toUpperCase(), o.sub + '. ' + c.desc, MUTDROP.col, true);
+  G.lootQueue.unshift({ kind: 'mutation' }); // (opens at once: draft.js draftBox)
   if (G.stats) G.stats.mutDrops = (G.stats.mutDrops || 0) + 1;
 }
 
@@ -87,7 +82,7 @@ function mdDraw() {
     ctx.globalAlpha = d.life < 5 && Math.floor(t * 6) % 2 ? 0.35 : 1;
     ctx.globalCompositeOperation = 'lighter'; glow(x, y, R * 2.4, col, 0.55); ctx.globalCompositeOperation = 'source-over';
     mdHelix(x, y, R, t, '#ffffff');
-    mdLabel(d.c.title.toUpperCase(), x, y - R - 8, 10);
+    mdLabel('MUTATION', x, y - R - 8, 10);
   }
   for (const e of G.enemies) { // carriers: the helix wound round them, a ping, a beacon with its countdown
     if (!e.mdCarry || e.dead) continue;

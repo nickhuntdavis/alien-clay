@@ -1175,3 +1175,33 @@ body.land .slot.weapon { width: 74px; } body.land #wslots, body.land #wslots.man
 /* YOUR BUILD on card screens: small, top right, out of the way of the cards. */
 #buildBtn { position: absolute; top: calc(10px + env(safe-area-inset-top)); right: 10px; z-index: 8; background: #0d1112cc; border: 1px solid #ffffff30; border-radius: 8px; color: #a3aea9; font: bold 10px var(--mono, monospace); letter-spacing: 1px; padding: 7px 10px; }
 #buildBtn:active { color: #fff; border-color: #fff; }
+
+/* ---- boxlook.js: each box looks like what it changes ---- */
+#lootHead:empty { display: none; }
+.bhead { margin: 6px 0 8px; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); border-radius: 14px; padding: 8px; background: color-mix(in srgb, var(--c) 7%, #0d1011); }
+.bh-mut { display: grid; grid-template-columns: 42% 1fr; gap: 8px; align-items: stretch; border-radius: 22px; }
+.bh-sperm { position: relative; min-height: 150px; border-radius: 16px; overflow: hidden; background: #000; }
+.bh-sperm canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.bh-cap { position: absolute; left: 8px; bottom: 6px; font-size: 10px; font-weight: 900; letter-spacing: 1px; color: var(--c); text-shadow: 0 1px 3px #000; }
+.bh-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; align-content: start; }
+.bh-stats div { display: flex; flex-direction: column; padding: 3px 6px; border-radius: 8px; background: #ffffff0a; }
+.bh-stats b { font-size: 14px; color: #f1e4df; }
+.bh-stats span { font-size: 9.5px; letter-spacing: .5px; color: #b9a9a4; text-transform: uppercase; }
+.bh-held { grid-column: 1 / -1; font-size: 11px; color: #d8c4be; line-height: 1.35; }
+.bh-mod { border-radius: 6px; }
+.bh-w { display: grid; grid-template-columns: 32px 1fr; grid-template-rows: auto auto; gap: 2px 8px; padding: 5px 4px; border-bottom: 1px solid #ffffff12; }
+.bh-w:last-child { border-bottom: 0; }
+.bh-ico { grid-row: 1 / 3; display: flex; align-items: center; justify-content: center; border: 1px solid color-mix(in srgb, var(--wc) 60%, transparent); border-radius: 6px; }
+.bh-wn b { font-size: 13px; color: var(--wc); } .bh-wn em { font-size: 10px; color: #9fb3c8; font-style: normal; margin-left: 6px; }
+.bh-slots { display: flex; gap: 4px; }
+.bh-slot { flex: 1; font-style: normal; font-size: 10px; text-align: center; padding: 2px 3px; border: 1px dashed #7fb7d955; border-radius: 4px; color: #6f8496; }
+.bh-slot.on { border-style: solid; border-color: #7fb7d9; color: #dcefff; background: #7fb7d91a; font-weight: 800; }
+/* card frames by kind */
+.card.k-mut, .card.k-mod, .card.k-feat { padding-bottom: 22px; }
+.card.k-mut::after, .card.k-mod::after, .card.k-feat::after { position: absolute; right: 10px; bottom: 6px; font-size: 9px; font-weight: 900; letter-spacing: 1.2px; }
+.card.k-mut { border-radius: 26px !important; --sheet: radial-gradient(ellipse at 20% 10%, #3a2422f0 0%, #1a1012f0 60%, #0e0809f2 100%); }
+.card.k-mut::after { content: 'ALTERS THE SAMPLE'; color: #e8a598; }
+.card.k-mod { border-radius: 3px !important; --sheet: linear-gradient(160deg, #1b2a36f0 0%, #0c141bf0 60%, #070b0ff2 100%); }
+.card.k-mod::after { content: 'ALTERS A WEAPON'; color: #7fb7d9; }
+.card.k-feat { --sheet: radial-gradient(ellipse at 80% 0%, #3a2052f0 0%, #160d22f0 60%, #0b0712f2 100%); box-shadow: 0 0 16px #b57cff55, inset 0 0 0 1px #b57cff66 !important; }
+.card.k-feat::after { content: 'SPECIAL ABILITY'; color: #c9a2ff; }
