@@ -1,3 +1,11 @@
+## 2026-10-19 All 24 weapons live again (v10.29)
+- Systems: weapons, samples
+- Files: weapons24.js, NOTES.md
+- What: Family Ties, Sister Cousin and Eggs are back in drafts, starters and the Field Guide (`W24_HOLD` emptied; their wup tests pass 3 of 3). Not of This World, Redtail and Prawn Again have three starters again.
+- Save data: none.
+- Hooks: none.
+- Risk: none beyond v10.27's card changes (Clutch, Warm Glow, Dinner Time, Baby Boom).
+
 ## 2026-10-19 Family Ties, Sister Cousin and Eggs on hold (v10.28)
 - Systems: weapons, samples
 - Files: weapons24.js, sigweap.js, w24look.js, tests/weapons24test.js, tests/samplestest.js, NOTES.md
