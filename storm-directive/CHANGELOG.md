@@ -2,6 +2,38 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.36 (versionCode 314)
+- Systems: samples screen, school (Level 0), mutation drops
+- Files: see the folded entry below.
+- What: merge of `claude/v9-v10-breaking-changes-1hjfdw` into `main`: The Petri Dish, Endless and Level 1 are back in the Experiment picker; Level 0 lesson 11 teaches the mutation strand.
+- Save data: none.
+- Hooks: none.
+- Risk: see the folded entry.
+
+### Folded from claude-v9-v10-breaking-changes-1hjfdw: 2026-10-19 Petri Dish, Endless and Level 1 back; Level 0 lesson 11 teaches mutation strands (v10.36)
+- Systems: samples screen, school (Level 0), mutation drops
+- Files: samples10.js, school.js
+- What: the Experiment picker offers The Petri Dish, The Race, Endless and Level 1 again (flags S10_PETRI, S10_ENDLESS, S10_LEVELS). Level 0 lesson 11 is no longer a free pass under V10: an Antibody carries a mutation strand (mutdrop.js) that never sheds or decays in school; kill it, swim into the strand and pick a mutation to open the gate.
+- Save data: none.
+- Hooks: none (school.js reads mutdrop.js mdS, mdOk, MUTDROP and G.stats.mutDrops).
+- Risk: Endless and Level 1 have not been played or simmed under v10 (untested by request); expect balance gaps or a crash in Level 1 arenas. schooltest not rerun.
+
+## v10.35 (versionCode 313)
+- Systems: bldemo (new), sidemo, screens
+- Files: see the folded entry below.
+- What: merge of `ccr-867eefdf-uxgom1` into `main`: Panic Button and Little Prick get real previews, tabbed tier screens and a scene per branch card; sidemo.js becomes the shared engine for weapon previews.
+- Save data: none.
+- Hooks: see the folded entry.
+- Risk: see the folded entry.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 Panic Button and Little Prick: real previews, tabbed branch screens, a scene per branch (v10.35)
+- Systems: bldemo (new), sidemo, screens
+- Files: bldemo.js (new), sidemo.js, index.html
+- What: the other two baseline weapons get the Standard Issue treatment. Panic Button's preview marks the densest cluster in reach, fills a warning for 0.45 s and blasts it (3 to a magazine); Little Prick fires needles that stack Bleed (red pips, drips, tick numbers) and leave blood pools. Their tier screens open in the Weapon Draft tabs, and each of their 30 branch cards plays its own scene. sidemo.js is now a shared engine: any PV_OWN entry with a flags table gets the tabbed screen.
+- Save data: none.
+- Hooks: none new (PV_OWN entries; sidemo.js sivDraw gained under/over/cell/me layers and sivDamage a kill hook).
+- Risk: preview only, no combat change. 'wup' boxes with only one of these three weapons ready now open as that weapon's fork.
+
 ## v10.34 (versionCode 312)
 - Systems: box looks (new), mutation drops, modifier cards, draft, ui
 - Files: see the folded entry below.

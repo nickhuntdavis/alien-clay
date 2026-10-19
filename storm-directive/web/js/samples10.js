@@ -6,14 +6,16 @@
 //  - Built-in defence: only Ordered Online (20% Evasion, no Genome slot; its Evasion card is not offered).
 //  - Unlocks in order (SAMPLES.md): wave 10, recover from under 10% to full, beat the dish, a Mythical box, survive
 //    a big hazard, an Alien killing blow on a boss, beat Level 1. META.s10 holds unlocked ids; developer mode unlocks all.
-//  - The sample screen: pick a sample, then an Experiment (only #001 The Race for now: S10_PETRI hides the Petri Dish).
+//  - The sample screen: pick a sample, then an Experiment (The Petri Dish, The Race, Endless and Level 1: flags S10_PETRI, S10_ENDLESS, S10_LEVELS).
 //  - Three starters each (w24Starters); S10_ALL opens every sample for testing; shield flag for pdef.js (s10Shield); Not of This World
 //    shifts w.typeOver on its weapons (read by fight.js fightHit).
 // Hooks: v10.js v10Samples -> s10Samples, v10Loot 'start' -> s10Start, v10Tick -> s10Tick; fight.js fightHit ->
 // s10DmgMul and s10Hit; fight.js fightDeath -> s10Kill; pdef.js pdEvasion and pdefOffer -> s10Evasion.
 
 const S10_TYPES = { force: 'phys', acid: 'fire', static: 'shock', mucus: 'ice', blood: 'arcane', soul: 'soul', fire: 'flame' };
-const S10_PETRI = false; // the Experiment picker shows only #001 The Race for now (the Petri Dish, s002, is hidden, not deleted)
+const S10_PETRI = true; // the Experiment picker shows #002 The Petri Dish (s002, wave mode)
+const S10_ENDLESS = true; // #006 Endless (s006)
+const S10_LEVELS = true; // Level 1 (s007, levels.js), not named until it has been beaten (lvName)
 let S10_ALL = true; // every sample open from the start for testing (the unlock rules below stay in code; set false to restore them)
 const SAMPLES10 = [
   { id: 'baseline', name: 'Baseline', origin: 'Human', types: ['force', 'blood'], passive: 'Within Normal Limits',
@@ -144,6 +146,8 @@ function s10Modes(id) {
   $('sampleList').innerHTML = `<div class="sx-h">${esc(s.name.toUpperCase())}</div><div class="sx-q">"${esc(s.line)}"</div>`
     + (S10_PETRI ? card('s002', '002', 'The Petri Dish', 'Twenty drops into the dish, a boss every fifth.', 'WAVE MODE') : '')
     + card('s001', '001', 'The Race', 'Four hundred million hopefuls, one egg.', 'RACE TO THE EGG')
+    + (S10_ENDLESS ? card('s006', '006', 'Endless', 'The dish keeps topping itself up. Nobody has found the bottom.', 'NO END') : '')
+    + (S10_LEVELS ? card('s007', '007', typeof lvName === 'function' && typeof LEVELS !== 'undefined' ? lvName(LEVELS[LV_SAMPLE.s007]) : 'Level 1', 'The first stretch of the way in. Mapped by nobody who came back.', 'CAMPAIGN') : '')
     + `<button class="btn" id="s10Back">BACK</button>`;
   $('sampleList').querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { UI.sample = b.dataset.mode; META.profile = 's10_' + id; saveMeta(); UI.startGame(true); }));
   $('s10Back').addEventListener('click', s10Samples);
