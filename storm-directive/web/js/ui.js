@@ -378,7 +378,7 @@ const UI = {
     });
     $('setReset').addEventListener('click', ev => {
       if (!ev.target.dataset.armed) { ev.target.dataset.armed = '1'; ev.target.textContent = 'TAP AGAIN TO RESET SETTINGS'; return; }
-      Object.assign(SET, SET_DEFAULTS, { setTab: 'data' }); saveSettings(); UI.applySettings();
+      Object.assign(SET, SET_DEFAULTS, { setTab: 'data', lab10: 1 }); saveSettings(); UI.applySettings();
       UI.renderSettings(); const r = $('setReset'); if (r) r.textContent = 'DONE: SETTINGS RESET';
     });
     UI.bindSettingChips(body);

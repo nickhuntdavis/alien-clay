@@ -14,7 +14,7 @@ const SETTINGS_DEF = [
   { id: 'intros', tab: 'game', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet; OFF says nothing. Everything still goes in your Field Guide. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
   { id: 'narrator', tab: 'game', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE LAB TECH'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
   // SCREEN
-  { id: 'view', hide: () => L10, tab: 'screen', label: 'View', hint: 'LAB: a real microscope. Nothing on the slide has colour, you included; effects show in each cell\'s body. ARCADE: everything in full colour, with coloured rings that drain as effects run out.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
+  { id: 'view', tab: 'screen', label: 'View', hint: 'LAB: a real microscope. Nothing on the slide has colour, you included; effects show in each cell\'s body. ARCADE: everything in full colour, with coloured rings that drain as effects run out.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
   { id: 'darkfield', tab: 'screen', label: 'Darkfield', hint: 'A black field with bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'clinical', tab: 'screen', label: 'Clean clinical view', hint: 'No grain, lens blur, vignette, halos or eyepiece dust. The most readable picture.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'dof', tab: 'screen', label: 'Depth of field', hint: 'Out-of-focus layers and a soft lens blur at the edges.', opts: [[true, 'ON'], [false, 'OFF']], off: () => SET.clinical && 'Clean clinical view turns this off.' },
@@ -31,7 +31,7 @@ const SETTINGS_DEF = [
   { id: 'vibe', tab: 'sound', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
 const SET_TABS = [['game', 'GAME'], ['screen', 'SCREEN'], ['sound', 'SOUND'], ['data', 'DATA']];
-const SET_DEFAULTS = { view: typeof L10 !== 'undefined' && L10 ? 'arcade' : 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, autoFire: true, immersive: 'auto', dmgNums: 'all', setTab: 'game' };
+const SET_DEFAULTS = { view: typeof L10 !== 'undefined' && L10 ? 'arcade' : 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, autoFire: true, immersive: 'auto', dmgNums: 'all', setTab: 'game', lab10: 0 };
 const SET = Object.assign({}, SET_DEFAULTS);
 // Sound or music at 0% counts as off (the old ON/OFF switches became volumes in v9.20).
 // Immersive mode: AUTO means on in Arcade view.
@@ -46,6 +46,7 @@ try {
   if (s.music === false) SET.musVol = 0;
   if (s.immersive === false && !('setTab' in s)) SET.immersive = 'auto'; // (OFF was the old default: AUTO is the new one, v9.20)
   if (s.fullColour && !s.view) SET.view = 'arcade'; // (Full colour became Arcade view in v9.11)
+  if (L10 && !s.lab10) { SET.view = 'arcade'; SET.lab10 = 1; } // (v10 starts everyone in Arcade once; Lab is an option again from v10.32)
   if (!SET_TABS.some(t => t[0] === SET.setTab)) SET.setTab = 'game';
 } catch (e) { /* storage unavailable */ }
 // Landscape layout: weapons down the left, a bigger minimap. Auto switches when the screen is wide.
@@ -61,7 +62,7 @@ function applyLayout() {
 }
 window.addEventListener('resize', () => applyLayout());
 // Arcade view: everything in full colour (no stains to find any more). Lab view: the grey slide.
-const viewArcade = () => L10 || SET.view === 'arcade'; // (v10: Arcade is the only view, look10.js)
+const viewArcade = () => SET.view === 'arcade'; // (v10: Arcade by default, Lab an option again)
 function saveSettings() { try { localStorage.setItem('sd_settings', JSON.stringify(SET)); } catch (e) { /* ignore */ } }
 
 // ---------------------------------------------------------------- narrator packs

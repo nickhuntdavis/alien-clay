@@ -1,4 +1,4 @@
-// v10 look: Arcade is the only view (no Lab grey, no Lab/Arcade row in Settings), the type palette is canonical, an
+// v10 look: Arcade is the default view, Lab an option in Settings, the type palette is canonical, an
 // Acid pool and an Acid Crypt draw pink (not green, not grey), and a screenshot of every defence and a status is saved.
 const { chromium } = require('playwright');
 (async () => {
@@ -9,10 +9,10 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(async () => {
     const bad = [];
     const pix = (wx, wy) => { const c = ctx.canvas, k = c.width / W, d = ctx.getImageData(Math.round((W / 2 + (wx - cam.x) * S) * k), Math.round((H / 2 + (wy - cam.y) * S) * k), 1, 1).data; return [d[0], d[1], d[2]]; };
-    if (!(viewArcade() && L10)) bad.push('viewArcade not forced');
-    const row = SETTINGS_DEF.find(d => d.id === 'view'); if (!row || !row.hide()) bad.push('view row not hidden');
-    SET.view = 'lab'; if (!viewArcade()) bad.push('Lab view still selectable');
-    if (labOn()) bad.push('labOn true');
+    if (!(viewArcade() && L10)) bad.push('Arcade is not the default');
+    const row = SETTINGS_DEF.find(d => d.id === 'view'); if (!row || (row.hide && row.hide())) bad.push('view row hidden');
+    SET.view = 'lab'; if (viewArcade() || !labOn()) bad.push('Lab view not selectable');
+    SET.view = 'arcade';
     UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.P.maxHp = G.player.hp = 1e6;
     const p = G.player, ids = ['brute', 'diatom', 'bulwark', 'skitter', 'ingrown'];
     ids.forEach((id, i) => { const a = i / ids.length * TAU, e = makeEnemy(ENEMIES[id], p.x + Math.cos(a) * 130, p.y - 120 + Math.sin(a) * 90); e.hp = e.maxHp = 1e4; e.speed = 0; G.enemies.push(e); });
@@ -36,7 +36,7 @@ const { chromium } = require('playwright');
   });
   await page.screenshot({ path: 'look_v10.png' });
   const dom = await page.evaluate(() => SETTINGS_DEF.filter(d => d.tab === 'screen' && !(d.hide && d.hide())).map(d => UI.setRowHtml(d)).join('').includes('data-s="view"'));
-  if (dom) r.bad.push('View row rendered');
+  if (!dom) r.bad.push('View row missing from Settings');
   console.log(JSON.stringify(r)); console.log('ERRORS', JSON.stringify(errors));
   if (r.bad.length || errors.length) { console.log('FAIL ' + r.bad.join(' | ')); process.exitCode = 1; }
   await b.close();
