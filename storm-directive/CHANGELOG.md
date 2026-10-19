@@ -2,6 +2,22 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.34 (versionCode 312)
+- Systems: box looks (new), mutation drops, modifier cards, draft, ui
+- Files: see the folded entry below.
+- What: merge of `claude/bold-hypatia-jadt4w` into `main`: the mutation, weapon modification and Feat screens each look like what they change (your sperm and stats on the mutation screen, your weapons and modifier slots on the modifier screen, violet SPECIAL ABILITY Feat cards).
+- Save data: none.
+- Hooks: see the folded entry.
+- Risk: see the folded entry.
+
+### Folded from claude-bold-hypatia-jadt4w: 2026-10-19 Mutation, modifier and Feat screens look like what they change (v10.34)
+- Systems: box looks (new), mutation drops, modifier cards, draft, ui
+- Files: boxlook.js (new), mutdrop.js, modcards.js, draft.js, ui.js, index.html, style.css, tests/mutdroptest.js
+- What: an elite's strand now opens a MUTATION screen (pick 1 of 3) with your sperm drawn at the top and its stats (health, speed, damage, attack speed, pickup range, Genome slots) and what it already carries. DNA strands open a WEAPON MODIFICATION screen of modifier cards only, with your weapons and their three modifier slots at the top; each card names its weapon. Feat cards in level-ups glow violet and read SPECIAL ABILITY. Card frames differ: rounded flesh for mutations, square steel for modifiers.
+- Save data: none.
+- Hooks: ui.js openLoot -> boxLook, renderLootCards -> boxCardCls, tick -> boxTick; draft.js draftLoot -> mdCards (kind 'mutation') and modBoxCards (chest, boss); draftBox opens 'mutation' at once.
+- Risk: DNA strands no longer deal weapon upgrades, Feats or defences when a modifier fits (they fall back to the old draft when none does).
+
 ## v10.33 (versionCode 311)
 - Systems: sidemo (new), screens, weapons24, ui
 - Files: see the folded entry below.
