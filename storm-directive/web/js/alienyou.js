@@ -8,8 +8,8 @@
 // The core and tentacle tips take the colour of Adaptive Biology's current type (G.s10.shiftI: Fire, Alien, Static).
 // Tentacles are short chains in world space (dragged through the fluid, so turns sweep them round), kept on the body
 // (b.ay). Your hitbox and swim physics are unchanged.
-// Hooks: render.js drawShip -> alienYou (draws instead of the sperm, for you and the pause-menu portrait);
-// seqsel.js drawSeqMods -> alienYouOn (no sequence marks on it); samples10.js s10Samples -> alienPicStart (its card's picture).
+// Hooks: none of its own: samplelooks.js sampleLook calls alienYou (for you and the pause-menu portrait) and
+// slPicDraw calls alienDraw (its sample card).
 
 const AY = {
   n: 7, nodes: 9, size: 1.45, // (bigger than a sperm head: it has no tail to read by)
@@ -158,32 +158,4 @@ function alienDraw(x, y, face, tag, alpha, scale, body, now, core, mood) {
   }
   ctx.globalAlpha = 1; ctx.lineCap = 'butt'; ctx.lineJoin = 'miter';
   return true;
-}
-
-// ---------------------------------------------------------------- the sample card's picture (s10Samples)
-// A live canvas on Not of This World's card: it hangs in place, pulsing, and runs through its moods while the core
-// cycles Fire, Alien and Static the way Adaptive Biology does. Borrows the world drawing globals for each frame
-// (like drawYouPortrait) and stops once the card leaves the page.
-const AY_PIC = ['idle', 'curious', 'alert', 'agitated'];
-let alienPicTok = 0;
-function alienPicStart() {
-  const cv = document.querySelector('canvas[data-alienpic]'); if (!cv) return;
-  const tok = ++alienPicTok, body = { x: 0, y: 0, vx: 0, vy: -50 }, t0 = performance.now();
-  const frame = () => {
-    if (tok !== alienPicTok || !cv.isConnected) return;
-    requestAnimationFrame(frame);
-    if (!cv.clientWidth) return; // (screen hidden)
-    const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
-    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
-    const g = cv.getContext('2d'), now = (performance.now() - t0) / 1000, step = Math.floor(now / 3);
-    const keep = { ctx, S };
-    try {
-      ctx = g; S = cv.height / 84;
-      g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
-      body.y = Math.sin(now * 1.1) * 2.5; // (a gentle bob; tentacles hang below)
-      const core = ELEMENTS[S10_BY.alien.shift[step % 3]].color;
-      alienDraw(cv.width / 2, cv.height * 0.2 + body.y * S, -Math.PI / 2, null, 1, 1, body, now, core, AY_PIC[step % AY_PIC.length]);
-    } finally { ctx = keep.ctx; S = keep.S; g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
-  };
-  requestAnimationFrame(frame);
 }

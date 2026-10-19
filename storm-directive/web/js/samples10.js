@@ -129,14 +129,14 @@ function s10Samples() {
     const nm = !open && s.unlock.secret ? '???' : s.name;
     const desc = open ? s.passive + ': ' + s.pdesc : 'Unlock: ' + (s.unlock.secret ? '???' : s.unlock.txt);
     const c = card(`data-s10="${s.id}"`, String(s.strain).padStart(3, '0'), nm, desc, col, open ? s.types.map(t => t.toUpperCase()).join(' / ') : 'LOCKED', !open);
-    return s.id === 'alien' ? c.replace('<span class="sx-txt">', '<canvas data-alienpic style="position:relative;inset:auto;flex:none;display:block;width:100%;height:120px"></canvas><span class="sx-txt">') : c; // (its picture: alienyou.js)
+    return c.replace('<span class="sx-txt">', `<canvas data-slpic="${s.id}" style="position:relative;inset:auto;flex:none;display:block;width:100%;height:${s.id === 'alien' ? 120 : 96}px"></canvas><span class="sx-txt">`); // (its picture: samplelooks.js)
   }).join('');
   let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
   $('sampleList').innerHTML = `<div class="sx-h">SAMPLES</div>${list}` + (dev ? `<div class="sx-h">DEVELOPER</div>${card('data-v10="s000"', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}${sbCards()}` : ''); // (Sandbox: sandbox.js)
   $('sampleList').querySelectorAll('[data-s10]').forEach(b => b.addEventListener('click', () => { if (s10Open(b.dataset.s10)) s10Modes(b.dataset.s10); }));
   $('sampleList').querySelectorAll('[data-v10]').forEach(b => b.addEventListener('click', () => { UI.sample = b.dataset.v10; META.profile = 's10_baseline'; saveMeta(); UI.startGame(true); }));
   sbWire();
-  if (typeof alienPicStart === 'function') alienPicStart(); // (alienyou.js)
+  if (typeof slPicStart === 'function') slPicStart(); // (samplelooks.js)
   UI.show('samples');
   return true;
 }

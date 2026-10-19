@@ -27,7 +27,7 @@ const { chromium } = require('playwright');
   // Its card on the sample screen carries a live picture.
   await page.evaluate(() => { G = null; s10Samples(); document.querySelector('[data-s10="alien"]').scrollIntoView(); });
   await page.waitForTimeout(1500);
-  const pic = await page.evaluate(() => { const c = document.querySelector('canvas[data-alienpic]'); if (!c || !c.width) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++; return n; });
+  const pic = await page.evaluate(() => { const c = document.querySelector('canvas[data-slpic="alien"]'); if (!c || !c.width) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++; return n; });
   if (pic < 500) bad.push('card picture empty: ' + pic);
   await (await page.$('[data-s10="alien"]')).screenshot({ path: require('path').resolve(__dirname, 'out/alien_card.png') });
   console.log('ERRORS', JSON.stringify(errors));
