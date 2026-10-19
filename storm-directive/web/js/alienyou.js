@@ -56,12 +56,14 @@ function alienDraw(x, y, face, tag, alpha, scale, body, now, core, mood) {
   body.yaw = 0;
 
   // ---- tentacles (world space, dragged)
+  const st = typeof slDefState === 'function' ? slDefState(body, A, now) : null, gx = st ? st.jel[0] : 1, gy = st ? st.jel[1] : 1; // (your defences and upgrades reshape the bell: samplelooks.js)
   const cf = Math.cos(face), sf = Math.sin(face), nx = -sf, ny = cf, back = face + Math.PI;
   if (!A.tt || Math.hypot(A.tt[0][0].x - body.x, A.tt[0][0].y - body.y) > 200 * sc) A.tt = null;
   const T = A.tt || (A.tt = Array.from({ length: AY.n }, (_, i) => Array.from({ length: AY.nodes }, (_, j) => { const d = (5.5 + AY.len[i] * j / (AY.nodes - 1)) * sc; return { x: body.x - cf * d, y: body.y - sf * d }; }))) // (laid out straight behind, so they don't start in a knot);
   for (let i = 0; i < AY.n; i++) {
     const s = i / (AY.n - 1) * 2 - 1, L = AY.len[i] * sc * (1 + 0.06 * c), seg = L / (AY.nodes - 1), ch = T[i];
-    const ax = body.x + (cf * (-5.5 * lk + Math.abs(s) * 1.2) + nx * s * 6.4 * wk) * sc, ay = body.y + (sf * (-5.5 * lk + Math.abs(s) * 1.2) + ny * s * 6.4 * wk) * sc;
+    const fx = (-5.5 * lk + Math.abs(s) * 1.2) * gx, fs = s * 6.4 * wk * gy; // (the rim of the bell as drawn, so the tentacles stay on it)
+    const ax = body.x + (cf * fx + nx * fs) * sc, ay = body.y + (sf * fx + ny * fs) * sc;
     const outer = Math.abs(s) > 0.6 ? Math.sign(s) : 0, rest = back + s * fan * 0.8 + outer * reach * 1.9; // (curious: the outer pair reach round to the front)
     ch[0].x = ax; ch[0].y = ay;
     for (let j = 1; j < AY.nodes; j++) {
@@ -99,7 +101,7 @@ function alienDraw(x, y, face, tag, alpha, scale, body, now, core, mood) {
 
   // ---- the bell (local frame: +x is forward)
   ctx.save(); ctx.translate(x, y); ctx.rotate(face);
-  const st = typeof slDefState === 'function' ? slDefState(body, A, now) : null; if (st && st.jel) ctx.scale(st.jel[0], st.jel[1]); // (your defences on the body: samplelooks.js)
+  if (st) ctx.scale(st.jel[0], st.jel[1]); // (your defences and upgrades on the body: samplelooks.js)
   if (st) slDefUnder(k, alpha, now, SL_SHAPE.alien, st, body);
   const rx = 10.5 * lk * k, ry = 9 * wk * k, bx = -5.5 * lk * k;
   const bell = () => {

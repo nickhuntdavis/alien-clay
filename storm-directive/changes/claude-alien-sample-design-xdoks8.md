@@ -1,5 +1,13 @@
 # claude/alien-sample-design-xdoks8
 
+## 2026-10-19 Tails attach cleanly
+- Systems: samples
+- Files: samplelooks.js, alienyou.js
+- What: the tail now leaves from the neck as drawn: its root follows the head's rock, squash and stretch (Squishy, the speed stretch, damage bulk) and Can't Sit Still's jitter, and leaves along the midpiece. Natural tails' root width matches the midpiece. The alien's tentacles stay on the rim of the bell when it squashes.
+- Save data: none.
+- Hooks: none.
+- Risk: none (the swim physics reads the tail's shape; its root moves by a unit or two at most).
+
 ## 2026-10-19 Upgrades show on the body
 - Systems: samples, mutations
 - Files: samplelooks.js, tests/upbodyshot.js (new)

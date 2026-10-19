@@ -47,20 +47,21 @@ const slAt = (x, y, face, k, lx, ly) => [x + (Math.cos(face) * lx - Math.sin(fac
 function slDraw(id, x, y, face, tag, alpha, scale, body, now) {
   const D = SL[id], sc = (scale || 1) * D.size, k = S * sc, B = body.sl || (body.sl = { emb: [], hist: [] });
   const hit = tag === SL_HIT;
-  // The tail (shared physics), anchored at this sample's neck.
-  const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0);
-  const nwx = body.x + (Math.cos(face) * D.neck[0] - Math.sin(face) * D.neck[1]) * sc, nwy = body.y + (Math.sin(face) * D.neck[0] + Math.cos(face) * D.neck[1]) * sc;
-  const U = sampleLookOn(body) ? slUpState() : null; // (attack rate quickens the beat, swim speed lengthens the tail)
-  stepTail(body, nwx, nwy, face, D.len * sc * (U ? 1 + 0.1 * U.speed : 1), v, D.beat * (U ? U.beat : 1), TAIL_BASE);
-  const yaw = body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) : 0;
-  body.yaw = yaw;
+  // The head's pose first (rock, squash and stretch, jitter), so the tail can leave from exactly where its neck is drawn.
   const sq = body === G.player && typeof headSquash === 'function' ? headSquash(body) : null, st = slDefState(body, B, now), sh = SL_SHAPE[id];
+  const U = st && st.up, yaw = body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) : 0, fy = face + yaw;
+  const gx = st ? st.jel[0] : sq ? sq.x : 1, gy = st ? st.jel[1] : sq ? sq.y : 1;
+  const jit = U && U.M.x_still ? 0.5 * U.M.x_still : 0, jx = (Math.random() - 0.5) * jit, jy = (Math.random() - 0.5) * jit; // (Can't Sit Still: local units)
+  body.yaw = yaw;
+  // The tail (shared physics), pinned to the neck: the local neck point through the head's scale and rotation.
+  const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0), lx = D.neck[0] * gx + jx, ly = D.neck[1] * gy + jy;
+  const nwx = body.x + (Math.cos(fy) * lx - Math.sin(fy) * ly) * sc, nwy = body.y + (Math.sin(fy) * lx + Math.cos(fy) * ly) * sc;
+  stepTail(body, nwx, nwy, fy, D.len * sc * (U ? 1 + 0.1 * U.speed : 1), v, D.beat * (U ? U.beat : 1), TAIL_BASE); // (attack rate quickens the beat, swim speed lengthens the tail)
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   if (SL_UNDER[id]) SL_UNDER[id](x, y, face, k, alpha, now, B, body, sc);
   SL_TAIL[id](body.tailDraw, k, alpha, now, B, sc);
   ctx.globalAlpha = alpha;
-  ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw);
-  if (st) ctx.scale(st.jel[0], st.jel[1]); else if (sq) ctx.scale(sq.x, sq.y);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(fy); ctx.translate(jx * k, jy * k); ctx.scale(gx, gy);
   if (st) slDefUnder(k, alpha, now, sh, st, body);
   SL_HEAD[id](k, alpha, now, tag, hit, B);
   if (st) slDefOver(k, alpha, now, sh, st);
@@ -75,10 +76,10 @@ function slNatTail(t, k, alpha, w, rw) {
   ctx.globalAlpha = alpha * 0.9; drawTail(t, 'rgb(46,52,48)', w * k, rw * k);
 }
 const SL_TAIL = {
-  baseline: (t, k, a) => slNatTail(t, k, a, 1.9, 2.6),
-  alpha: (t, k, a) => slNatTail(t, k, a, 2.4, 3.6),
+  baseline: (t, k, a) => slNatTail(t, k, a, 1.9, 2), // (root width = the midpiece's, so the join doesn't step)
+  alpha: (t, k, a) => slNatTail(t, k, a, 2.4, 3.3),
   beta: (t, k, a, now) => {
-    slNatTail(t, k, a, 1.6, 2.2);
+    slNatTail(t, k, a, 1.6, 1.9);
     // Coiled tip: a small loop where the end of the tail has curled round on itself.
     const e = t[t.length - 1], d = t[t.length - 2], ang = Math.atan2(e.y - d.y, e.x - d.x), r = 2.2 * k;
     const cx = sx(e.x) + Math.cos(ang + Math.PI / 2) * r, cy = sy(e.y) + Math.sin(ang + Math.PI / 2) * r;
@@ -458,7 +459,6 @@ function slUpState() {
 }
 function slUpUnder(k, a, now, sh, U, body) {
   const [cx, rx, ry] = sh, M = U.M, v = Math.min(1, Math.hypot(body.vx || 0, body.vy || 0) / 160);
-  if (M.x_still) ctx.translate((Math.random() - 0.5) * 0.5 * k * M.x_still, (Math.random() - 0.5) * 0.5 * k * M.x_still); // (Can't Sit Still: jitters, everything drawn after it too)
   if (M.m_space) { const ph = (now * 0.6) % 1; ctx.strokeStyle = '#cfe7ff'; ctx.globalAlpha = a * 0.3 * (1 - ph); ctx.lineWidth = 0.5 * k; slEll(cx * k, 0, rx * (1.5 + ph * (0.6 + 0.2 * M.m_space)) * k, ry * (1.6 + ph * (0.6 + 0.2 * M.m_space)) * k); ctx.stroke(); }
   if (U.magnet > 0) { ctx.save(); ctx.rotate(now * 0.8); ctx.setLineDash([2 * k, 4 * k]); ctx.strokeStyle = '#d6e4f0'; ctx.globalAlpha = a * 0.25; ctx.lineWidth = 0.5 * k; slEll(0, 0, (rx + 4 + 3 * U.magnet) * k, (rx + 4 + 3 * U.magnet) * k); ctx.stroke(); ctx.restore(); }
   if (M.m_slip && v > 0.35) {
