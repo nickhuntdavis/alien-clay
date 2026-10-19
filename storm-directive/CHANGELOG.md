@@ -2,6 +2,22 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.36 (versionCode 314)
+- Systems: samples screen, school (Level 0), mutation drops
+- Files: see the folded entry below.
+- What: merge of `claude/v9-v10-breaking-changes-1hjfdw` into `main`: The Petri Dish, Endless and Level 1 are back in the Experiment picker; Level 0 lesson 11 teaches the mutation strand.
+- Save data: none.
+- Hooks: none.
+- Risk: see the folded entry.
+
+### Folded from claude-v9-v10-breaking-changes-1hjfdw: 2026-10-19 Petri Dish, Endless and Level 1 back; Level 0 lesson 11 teaches mutation strands (v10.36)
+- Systems: samples screen, school (Level 0), mutation drops
+- Files: samples10.js, school.js
+- What: the Experiment picker offers The Petri Dish, The Race, Endless and Level 1 again (flags S10_PETRI, S10_ENDLESS, S10_LEVELS). Level 0 lesson 11 is no longer a free pass under V10: an Antibody carries a mutation strand (mutdrop.js) that never sheds or decays in school; kill it, swim into the strand and pick a mutation to open the gate.
+- Save data: none.
+- Hooks: none (school.js reads mutdrop.js mdS, mdOk, MUTDROP and G.stats.mutDrops).
+- Risk: Endless and Level 1 have not been played or simmed under v10 (untested by request); expect balance gaps or a crash in Level 1 arenas. schooltest not rerun.
+
 ## v10.35 (versionCode 313)
 - Systems: bldemo (new), sidemo, screens
 - Files: see the folded entry below.
