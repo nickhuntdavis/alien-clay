@@ -4,12 +4,14 @@
 // type colour (menus keep their colour).
 
 const PREVIEWS = new Set();
+const PV_OWN = {}; // weapons with their own preview: { init, step, draw } by weapon id (sidemo.js)
 
 function makePreview(canvas, def, opts) {
   const pv = { canvas, def, t: 0, cd: 0.3, shots: [], parts: [], fx: [], puddles: [], mines: [], trail: [], targets: [], opts: opts || {}, ang: 0, stored: 0, seq: 0 };
   pv.col = elemCol(def.elem);
   pv.m = pvTags(pv.opts.perk); pv.n = 0; pv.dx = 0; pv.dy = 0; pv.allies = []; pv.zones = [];
   resetTargets(pv);
+  pv.own = PV_OWN[defId(def)]; if (pv.own) pv.own.init(pv);
   PREVIEWS.add(pv);
   return pv;
 }
@@ -47,6 +49,7 @@ function pvHit(pv, t, k, noFx) {
   if (t.hp <= 0) { for (let i = 0; i < 8; i++) { const a = Math.random() * TAU; pv.parts.push({ x: t.x, y: t.y, vx: Math.cos(a) * 0.3, vy: Math.sin(a) * 0.3, life: 0.5 }); } }
 }
 function stepPreview(pv, dt) {
+  if (pv.own) return pv.own.step(pv, dt);
   const d = pv.def, b = d.base, me0 = pvShooter(pv);
   pv.t += dt;
   for (const t of pv.targets) { t.flash = Math.max(0, t.flash - dt); if (t.frozen > 0) t.frozen -= dt; else t.y += t.vy * dt; if (t.y < 0.12 || t.y > 0.88) t.vy *= -1; if (t.burn > 0) { t.burn -= dt; t.hp -= dt * 0.15; } }
@@ -235,6 +238,7 @@ function drawPreview(pv) {
   const bg = g.createRadialGradient(X(0.5), Y(0.5), 0, X(0.5), Y(0.5), Math.max(W2, H2) * 0.7);
   bg.addColorStop(0, c + '22'); bg.addColorStop(1, '#00000000'); g.fillStyle = bg; g.fillRect(0, 0, W2, H2);
   if (!pv.opts.mini) { g.strokeStyle = '#ffffff0c'; g.lineWidth = 1; for (let i = 1; i < 10; i++) { g.beginPath(); g.moveTo(X(i / 10), 0); g.lineTo(X(i / 10), H2); g.stroke(); } for (let i = 1; i < 6; i++) { g.beginPath(); g.moveTo(0, Y(i / 6)); g.lineTo(W2, Y(i / 6)); g.stroke(); } }
+  if (pv.own) return pv.own.draw(pv, g, W2, H2);
   g.globalCompositeOperation = 'lighter';
   for (const q of pv.trail) { g.globalAlpha = q.life / 1.6 * 0.5; g.fillStyle = c; g.beginPath(); g.arc(X(q.x), Y(q.y), U * 0.022, 0, TAU); g.fill(); }
   for (const q of pv.puddles) { g.globalAlpha = Math.min(1, q.life) * 0.35; g.fillStyle = c; g.beginPath(); g.ellipse(X(q.x), Y(q.y), U * (q.big ? 0.13 : 0.09), U * (q.big ? 0.13 : 0.09) * 0.65, 0, 0, TAU); g.fill(); }

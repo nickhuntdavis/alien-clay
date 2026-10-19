@@ -667,7 +667,7 @@ const UI = {
     UI.draft = { req, i: 0, weap, pv: null };
     const box = $('draft'), mount = G.weapons.filter(Boolean).length + 1;
     const sig = weap && weap.def.sig && weap.def.sig[req.lvl];
-    if (!sbDraftHead(req, weap)) { // (Sandbox weapon upgrades: sandbox.js)
+    if (!sbDraftHead(req, weap) && !sivDraftHead(req, weap)) { // (Standard Issue's tiers: sidemo.js) // (Sandbox weapon upgrades: sandbox.js)
     $('dKick').textContent = req.kind === 'start' ? 'LEVEL 1 | YOUR FIRST WEAPON' : req.kind === 'slot' ? `LEVEL ${G.level} | WEAPON MOUNT ${mount} OF ${MAX_WEAPONS + (G.comboMounts || 0)}` : `${weap.def.name.toUpperCase()} | LV ${req.lvl || weap.lvl}`;
     $('dTitle').textContent = req.kind === 'sfork' ? 'FEAT PATH' : req.kind === 'branch' ? (sig ? (req.lvl >= 10 ? 'MASTERY' : 'SIGNATURE PATH') : 'UPGRADE PATH') : 'WEAPON DRAFT';
     $('dSub').textContent = req.kind === 'sfork' ? `${weap.def.name} hit Lv ${SPELL_FORK_LV}. Pick how it grows up: the other path goes in the bin.`
@@ -695,7 +695,7 @@ const UI = {
     const cv = $('dCanvas');
     // Upgrade paths: the preview shows the highlighted upgrade in action.
     if (!D.pv || D.pv.def !== def || D.pv.opts.perk !== o.perk) { if (D.pv) dropPreview(D.pv); D.pv = makePreview(cv, def, { perk: o.perk }); }
-    $('dBadge').innerHTML = iconSVG(def, 22, wc) + esc(D.weap ? 'LV ' + D.weap.lvl + ' ' + def.name.toUpperCase() : (def.role || '').toUpperCase());
+    $('dBadge').innerHTML = iconSVG(def, 22, wc) + esc(D.weap ? (D.req.kind === 'wupfork' ? 'TIER ' + wTier(D.weap) : 'LV ' + D.weap.lvl) + ' ' + def.name.toUpperCase() : (def.role || '').toUpperCase());
     // Tabs.
     $('dTabs').innerHTML = UI.lootOpts.map((x, i) => {
       const tc = D.weap ? wc : elemCol(x.def.elem);
@@ -872,7 +872,7 @@ const UI = {
     if (RAR_SKIP[req.kind] != null && req.boost == null) { req.boost = G.rarBoost || 0; G.rarBoost = 0; }
     weirdAssign(req); // (weird.js: sometimes the box breaks the rules)
     // New weapons and upgrade paths get the full Weapon Draft treatment.
-    if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch' || req.kind === 'sfork' || sbDraftKind(req)) { UI.openDraft(req); if (req.kind !== 'level') return; } // (every weapon and spell choice gets the draft screen)
+    if (req.kind === 'start' || req.kind === 'slot' || req.kind === 'branch' || req.kind === 'sfork' || sbDraftKind(req) || sivDraftKind(req)) { UI.openDraft(req); if (req.kind !== 'level') return; } // (every weapon and spell choice gets the draft screen)
     G.state = 'loot';
     UI.lootReq = req;
     UI.lootOpts = UI.sortLoot(genLoot(req));
