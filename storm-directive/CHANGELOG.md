@@ -2,6 +2,30 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.32 (versionCode 310)
+- Systems: attack looks (new), render, weapons, settings, tests
+- Files: see the folded entries below.
+- What: merge of `ccr-fc17e397-fp3yvs` into `main`: every attack wears its damage type (typelook.js: Static arcs, Acid drips, Mucus strings, Blood spatter, Alien wisps, Fire flames; a different beam per type), and Lab view is a Settings option again.
+- Save data: SET.lab10 added.
+- Hooks: see the folded entries.
+- Risk: see the folded entries.
+
+### Folded from ccr-fc17e397-fp3yvs: 2026-10-19 Lab view is an option again (v10.32)
+- Systems: settings, render, tests
+- Files: settings.js, look10.js, ui.js, tests/looktest.js, tests/tlshot.js
+- What: the LAB/ARCADE View row is back in Settings > Screen under v10. Arcade stays the default; Lab greys the slide as before (labGrey, eyepiece). Older saves that still had Lab from v9 are moved to Arcade once, then the choice sticks.
+- Save data: SET.lab10 added (the one-time Arcade reset is done; Reset settings keeps it at 1).
+- Hooks: none.
+- Risk: v10 colour-coded things (defence rings, type colours) are grey in Lab view, as all Lab view is; tlshot now clears terrain (a random rock could block every shot).
+
+### Folded from ccr-fc17e397-fp3yvs: 2026-10-19 Attack looks by damage type (v10.31)
+- Systems: attack looks (new), render, weapons
+- Files: typelook.js (new), v10.js, render.js, toys.js, index.html, tests/tlshot.js (new), tests/run.sh, ARCHITECTURE.md
+- What: every attack now wears its damage type, whatever the weapon: Static crackles and snaps short arcs onto nearby enemies (feelers into the water when none is near), Acid drips pink goo that splats and fades, Mucus strings out and sags, Blood spatters, Alien leaves after-images and wisps, Fire sheds tongues and embers. Beams are drawn per type: Static a continuous jagged bolt with forks, Acid a sagging dribbling stream, Mucus a braided rope of snot with beads, Blood an arterial spurt in pulses, Alien a twisting helix, Fire a flamethrower plume. Soulmate Signal's twin beam is a living bolt. Bursts, swings, lashes and pools get the same per-type flourishes. Cosmetic only (no damage).
+- Save data: none. Run state `G.tlook` (particles and arcs; `G.tl` is the run log's timeline).
+- Hooks: v10.js v10Tick -> tlTick, v10Draw beam loop -> tlBeam; render.js after your shot loop -> tlShots, after drawTypeFx -> tlDraw; toys.js twin beam -> tlSeg.
+- Risk: frame time with many typed shots (particles capped at 280, arcs at 40, shots decorated at 60 a frame; perf18 passes). Bursts are spotted by ring colour, so any ring in a type colour gets that type's flourish.
+
 ## v9.27 (versionCode 277)
 - Systems: chemistry, enemies, combos, weapons, render, ui, sequences, school, tutorial, tools, tests, docs
 - Files: see the folded entries below.

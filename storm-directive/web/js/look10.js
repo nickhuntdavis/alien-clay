@@ -1,9 +1,9 @@
 'use strict';
-// Spawn Prawn - v10 look: Arcade is the only view (Lab view retired, COMBAT_MATRIX decisions 20, 21, 28), and one palette
+// Spawn Prawn - v10 look: Arcade is the default view (Lab is a Settings option again since v10.32), and one palette
 // for the seven damage types (DAMAGE_TYPES.md): Force white/pale grey, Acid shocking pink, Static yellow, Mucus green,
 // Blood red, Alien purple, Fire orange. Internal ids stay phys/fire/shock/ice/arcane/soul/flame.
 // Loads FIRST (before data.js). window.V10_OFF restores the old look.
-// Hooks: data.js ELEMENTS colours, settings.js (viewArcade, immersiveOn, view row hide), render.js (ELEM_SWAP l10Swap, acid
+// Hooks: data.js ELEMENTS colours, settings.js (default view, one-time Arcade reset SET.lab10), render.js (ELEM_SWAP l10Swap, acid
 // terrain colours), ui.js settings row filter, tutorial.js viewOffer, v10.js V10_COL, fight.js/pdef.js/mutations.js/feats10.js colours.
 const L10 = !(typeof window !== 'undefined' && window.V10_OFF);
 const TYPE_PAL = L10
