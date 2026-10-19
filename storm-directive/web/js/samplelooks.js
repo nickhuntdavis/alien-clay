@@ -50,7 +50,8 @@ function slDraw(id, x, y, face, tag, alpha, scale, body, now) {
   // The tail (shared physics), anchored at this sample's neck.
   const v = body.tailV != null ? body.tailV : Math.hypot(body.vx || 0, body.vy || 0);
   const nwx = body.x + (Math.cos(face) * D.neck[0] - Math.sin(face) * D.neck[1]) * sc, nwy = body.y + (Math.sin(face) * D.neck[0] + Math.cos(face) * D.neck[1]) * sc;
-  stepTail(body, nwx, nwy, face, D.len * sc, v, D.beat, TAIL_BASE);
+  const U = sampleLookOn(body) ? slUpState() : null; // (attack rate quickens the beat, swim speed lengthens the tail)
+  stepTail(body, nwx, nwy, face, D.len * sc * (U ? 1 + 0.1 * U.speed : 1), v, D.beat * (U ? U.beat : 1), TAIL_BASE);
   const yaw = body.tail ? Math.sin((body.beat || 0) + 0.6) * 0.14 * Math.min(1.4, body.turnK ?? 1) : 0;
   body.yaw = yaw;
   const sq = body === G.player && typeof headSquash === 'function' ? headSquash(body) : null, st = slDefState(body, B, now), sh = SL_SHAPE[id];
@@ -59,7 +60,7 @@ function slDraw(id, x, y, face, tag, alpha, scale, body, now) {
   SL_TAIL[id](body.tailDraw, k, alpha, now, B, sc);
   ctx.globalAlpha = alpha;
   ctx.save(); ctx.translate(x, y); ctx.rotate(face + yaw);
-  if (st && st.jel) ctx.scale(st.jel[0], st.jel[1]); else if (sq) ctx.scale(sq.x, sq.y);
+  if (st) ctx.scale(st.jel[0], st.jel[1]); else if (sq) ctx.scale(sq.x, sq.y);
   if (st) slDefUnder(k, alpha, now, sh, st, body);
   SL_HEAD[id](k, alpha, now, tag, hit, B);
   if (st) slDefOver(k, alpha, now, sh, st);
@@ -337,10 +338,14 @@ const SL_SHAPE = { baseline: [1, 7.5, 5], alpha: [3.5, 8.5, 4.8], beta: [1, 6.2,
 const SL_SHELL = { top: '#c99a64', mid: DEF_PAL.shell, dk: '#4e3219', lit: '#e8c48e' };
 
 // The defence state for a body (only yours, in a run): { n: card ranks, D: G.pd, jel: [sx, sy] or null }.
+// The body state for you (null for anything else): { D: G.pd or null, n: defence ranks, up: upgrades (slUpState),
+// jel: [sx, sy], the head's scale: Squishy's jelly or the usual squash, times bulk (damage) and stretch (swim speed) }.
 function slDefState(body, B, now) {
-  const D = sampleLookOn(body) && G.pd; if (!D) return null;
-  const sq = body === G.player && typeof headSquash === 'function' ? headSquash(body) : null;
-  return { D, n: D.n, jel: slJelly(B, body, sq, now, D.n.squishy > 0) };
+  if (!sampleLookOn(body)) return null;
+  const D = G.pd || null, n = D ? D.n : {}, up = slUpState();
+  const sq = body === G.player && typeof headSquash === 'function' ? headSquash(body) : null, j = slJelly(B, body, sq, now, n.squishy > 0);
+  const bx = up.bulk * up.str, by = up.bulk / Math.sqrt(up.str);
+  return { D, n, up, jel: j ? [j[0] * bx, j[1] * by] : [(sq ? sq.x : 1) * bx, (sq ? sq.y : 1) * by] };
 }
 function slJelly(B, body, sq, now, on) {
   const J = B.j || (B.j = { x: 0, v: 0, t: now, f: false });
@@ -354,6 +359,7 @@ function slJelly(B, body, sq, now, on) {
 }
 // Behind the head (Evasion's after-images). Local frame.
 function slDefUnder(k, a, now, sh, st, body) {
+  slUpUnder(k, a, now, sh, st.up, body);
   const r = st.n.evasion; if (!r) return;
   const v = Math.min(1, Math.hypot(body.vx || 0, body.vy || 0) / 160); if (v < 0.15) return;
   ctx.fillStyle = '#cfe7ff';
@@ -364,7 +370,8 @@ function slDefUnder(k, a, now, sh, st, body) {
 function slDefOver(k, a, now, sh, st) {
   const [cx, rx, ry] = sh, n = st.n;
   if (n.squishy) { ctx.fillStyle = '#ffffff'; ctx.globalAlpha = a * 0.4; slEll((cx + rx * 0.25) * k, -ry * 0.45 * k, rx * 0.45 * k, ry * 0.2 * k, -0.15); ctx.fill(); ctx.globalAlpha = a; }
-  const L = Math.min(4, st.D.layers || 0);
+  slUpOver(k, a, now, sh, st.up);
+  const L = Math.min(4, (st.D && st.D.layers) || 0);
   if (L) slShell(k, a, now, sh, L, clamp(st.D.layerHp / pdLayerHp(), 0, 1));
   if (n.thorns) {
     const per = 2 + n.thorns, len = 2.2 + 0.8 * n.thorns, ox = rx + (L ? 0.6 + 0.35 * L : 0.2), oy = ry + (L ? 0.6 + 0.35 * L : 0.2);
@@ -424,4 +431,97 @@ function slCodex(box) {
     return `<div class="li">${pic}${txt}</div>`;
   }).join('');
   return box(`Samples (${SAMPLES10.filter(s => s10Open(s.id)).length}/${SAMPLES10.length} in stock)`, `<div class="list">${rows}</div>`, 'Natural specimens, engineered specimens and anomalies. Pick one before a run.');
+}
+
+// ---------------------------------------------------------------- your other upgrades, on the body (G.P, G.muts: mutations.js)
+// Stat changes reshape the whole body (any source: mutations, cards): more damage = a bulkier head, more attack rate = a
+// quicker tail beat, more swim speed = a sleeker, stretched head and a longer tail, more pickup range = a faint
+// receptor field round it. Each body and trade-off mutation adds its own mark, sized by rank:
+//  - Slipstream: a wake streaming off the sides while moving.     - Extra Padding: pale quilted pads round the back.
+//  - Sticky Fingers: hairs with sticky tips.                     - Heartbeat: a little heart at the neck, beating.
+//  - Hard to Hold: wet and glossy, dripping.                     - Spare Parts: a sac of bits stuck to its side.
+//  - Overexcited: excitement lines (big while it is active).     - Personal Space: a slow ripple pushing outward.
+//  - Big Brain: a pink, folded brain bulging from the front.     - Quantity Over Quality: tiny copies budding off it.
+//  - Can't Sit Still: it jitters.                                - All at Once: a barb on the nose.
+//  - Hungry Hungry: a pot belly behind the head.                 - No Time for Being Careful: red racing stripes.
+//  - Growing Pains: stretch marks.                               - A damage type mutation: the neck dyed its colour.
+// (Weapon mutations show on the weapons, not you.)
+function slUpState() {
+  const P = G.P, M = G.muts || {}, b = G.slBase || (G.slBase = { might: P.might, haste: P.haste, speed: P.speed, magnet: P.magnet }); // (relative to the run's start)
+  const r = (v, b0, span) => clamp((v / (b0 || 1) - 1) / span, 0, 1);
+  let dye = null, best = 0;
+  for (const t of ['force', 'mucus', 'static', 'blood', 'soul']) { const n = M['t_' + t] || 0; if (n > best) { best = n; dye = MUT_COL[t]; } }
+  const m10 = G.mut10 || {}, U = { might: r(P.might, b.might, 0.6), haste: r(P.haste, b.haste, 0.6), speed: r(P.speed, b.speed, 0.4), magnet: r(P.magnet, b.magnet, 0.9), M, dye,
+    excited: (m10.oxT || 0) > G.t, hb: m10.hbT };
+  U.bulk = 1 + 0.12 * U.might; U.str = 1 + 0.15 * U.speed; U.beat = (1 + 0.35 * U.haste) * (U.excited ? 1.3 : 1);
+  return U;
+}
+function slUpUnder(k, a, now, sh, U, body) {
+  const [cx, rx, ry] = sh, M = U.M, v = Math.min(1, Math.hypot(body.vx || 0, body.vy || 0) / 160);
+  if (M.x_still) ctx.translate((Math.random() - 0.5) * 0.5 * k * M.x_still, (Math.random() - 0.5) * 0.5 * k * M.x_still); // (Can't Sit Still: jitters, everything drawn after it too)
+  if (M.m_space) { const ph = (now * 0.6) % 1; ctx.strokeStyle = '#cfe7ff'; ctx.globalAlpha = a * 0.3 * (1 - ph); ctx.lineWidth = 0.5 * k; slEll(cx * k, 0, rx * (1.5 + ph * (0.6 + 0.2 * M.m_space)) * k, ry * (1.6 + ph * (0.6 + 0.2 * M.m_space)) * k); ctx.stroke(); }
+  if (U.magnet > 0) { ctx.save(); ctx.rotate(now * 0.8); ctx.setLineDash([2 * k, 4 * k]); ctx.strokeStyle = '#d6e4f0'; ctx.globalAlpha = a * 0.25; ctx.lineWidth = 0.5 * k; slEll(0, 0, (rx + 4 + 3 * U.magnet) * k, (rx + 4 + 3 * U.magnet) * k); ctx.stroke(); ctx.restore(); }
+  if (M.m_slip && v > 0.35) {
+    ctx.strokeStyle = '#eef6ff'; ctx.lineWidth = 0.45 * k;
+    for (const s of [-1, 1]) for (let j = 1; j <= M.m_slip; j++) { ctx.globalAlpha = a * 0.4 * v / j; const yy = s * (ry + 0.6 + j * 1.2) * k, x0 = (cx - rx * 0.2) * k; ctx.beginPath(); ctx.moveTo(x0, yy); ctx.quadraticCurveTo(x0 - 4 * k, yy + s * 0.6 * k, x0 - (7 + 4 * j) * v * k, yy + s * 1.2 * k); ctx.stroke(); }
+  }
+  ctx.globalAlpha = a;
+  if (U.dye) { // (the neck dyed)
+    ctx.strokeStyle = U.dye; ctx.lineWidth = 2.8 * k; ctx.beginPath(); ctx.moveTo((cx - rx + 0.5) * k, 0); ctx.lineTo((cx - rx - 4) * k, 0); ctx.stroke();
+    ctx.globalCompositeOperation = 'lighter'; glow((cx - rx - 2) * k, 0, 5 * k, U.dye, a * 0.45); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a;
+  }
+  if (M.x_hungry) { ctx.fillStyle = 'rgba(66,70,68,0.92)'; slEll((cx - rx - 2.4) * k, 0.4 * k, 3.4 * k, 3 * k); ctx.fill(); pcHalo(1.2 * k, 0.6); ctx.fillStyle = 'rgba(255,255,255,0.25)'; slEll((cx - rx - 1.8) * k, -1 * k, 1.4 * k, 0.8 * k); ctx.fill(); }
+  if (M.m_pad) {
+    ctx.fillStyle = '#efe6d8'; ctx.strokeStyle = '#b9ab95'; ctx.lineWidth = 0.4 * k;
+    for (const an of [1.9, 2.5, Math.PI, -2.5, -1.9]) { slEll((cx + Math.cos(an) * rx * 0.95) * k, Math.sin(an) * ry * 0.95 * k, (1.7 + 0.35 * M.m_pad) * k, (1.5 + 0.3 * M.m_pad) * k, an); ctx.fill(); ctx.stroke(); }
+  }
+  if (M.m_parts) {
+    const px = (cx - rx * 0.3) * k, py = (ry + 1.8) * k;
+    ctx.fillStyle = 'rgba(230,232,222,0.55)'; ctx.strokeStyle = 'rgba(60,64,62,0.7)'; ctx.lineWidth = 0.4 * k; slEll(px, py, 2.4 * k, 2 * k); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgb(70,74,72)'; for (let i = 0; i < 2 + M.m_parts; i++) { const an = i * 2.4 + now * 0.4; ctx.fillRect(px + Math.cos(an) * 1.1 * k - 0.4 * k, py + Math.sin(an) * 0.9 * k - 0.3 * k, 0.8 * k, 0.6 * k); }
+  }
+  if (M.x_qty) { // (tiny copies budding off the back, each with a wisp of a tail)
+    for (const an of [2.2, -2.2, 2.75]) {
+      const bx = (cx + Math.cos(an) * (rx + 0.8)) * k, by = Math.sin(an) * (ry + 0.8) * k;
+      ctx.strokeStyle = 'rgba(46,52,48,0.8)'; ctx.lineWidth = 0.35 * k; ctx.beginPath(); ctx.moveTo(bx - 1.4 * k, by); ctx.quadraticCurveTo(bx - 2.6 * k, by + Math.sin(now * 12 + an) * 0.8 * k, bx - 4 * k, by); ctx.stroke();
+      ctx.fillStyle = MIC.body; slEll(bx, by, 1.6 * k, 1.1 * k); ctx.fill(); pcHalo(0.8 * k, 0.6);
+    }
+  }
+  ctx.globalAlpha = a;
+}
+function slUpOver(k, a, now, sh, U) {
+  const [cx, rx, ry] = sh, M = U.M, head = () => slEll(cx * k, 0, rx * k, ry * k);
+  if (M.x_brain) {
+    const bx = (cx + rx * 0.3) * k, brx = rx * 0.62 * k, bry = ry * 0.86 * k;
+    ctx.save(); slEll(bx, 0, brx, bry); ctx.fillStyle = '#f2b8c6'; ctx.fill(); ctx.strokeStyle = '#a8566a'; ctx.lineWidth = 0.5 * k; ctx.stroke(); ctx.clip();
+    ctx.lineWidth = 0.4 * k; ctx.beginPath();
+    for (let j = -2; j <= 2; j++) { const yy = j * bry * 0.38; ctx.moveTo(bx - brx, yy); for (let i = 1; i <= 8; i++) ctx.lineTo(bx - brx + i * brx / 4, yy + Math.sin(i * 1.9 + j * 1.3) * 0.7 * k); }
+    ctx.stroke(); ctx.restore();
+  }
+  if (M.x_careless) { ctx.save(); head(); ctx.clip(); ctx.strokeStyle = '#ff3b3b'; ctx.globalAlpha = a * 0.85; ctx.lineWidth = 0.6 * k; ctx.beginPath(); for (const yy of [-1, 1]) { ctx.moveTo((cx - rx) * k, yy * k); ctx.lineTo((cx + rx) * k, yy * k); } ctx.stroke(); ctx.restore(); ctx.globalAlpha = a; }
+  if (M.r_pains) { ctx.strokeStyle = 'rgba(244,227,224,0.75)'; ctx.lineWidth = 0.35 * k; ctx.beginPath(); for (let i = 0; i < 3; i++) { const xx = (cx - rx * 0.45 + i * 1.3) * k; ctx.moveTo(xx, -ry * 0.75 * k); ctx.quadraticCurveTo(xx + 0.6 * k, -ry * 0.45 * k, xx, -ry * 0.2 * k); } ctx.stroke(); }
+  if (M.x_once) { const n0 = (cx + rx - 0.3) * k, bl = (3 + M.x_once) * k; ctx.fillStyle = 'rgb(58,64,60)'; ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 0.35 * k; ctx.beginPath(); ctx.moveTo(n0 + bl, 0); ctx.lineTo(n0, -1.7 * k); ctx.lineTo(n0, 1.7 * k); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+  if (M.m_fingers) {
+    const n = 3 + 2 * M.m_fingers; ctx.strokeStyle = 'rgba(40,46,42,0.85)'; ctx.lineWidth = 0.35 * k; ctx.fillStyle = '#e6c75a';
+    for (let i = 0; i < n; i++) {
+      const an = Math.PI * 0.4 + (i / (n - 1)) * Math.PI * 1.2, ex = (cx + Math.cos(an) * rx) * k, ey = Math.sin(an) * ry * k, w = Math.sin(now * 8 + i) * 0.4, tx = ex + Math.cos(an + w) * 2.8 * k, ty = ey + Math.sin(an + w) * 2.8 * k;
+      ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(tx, ty); ctx.stroke(); slEll(tx, ty, 0.55 * k, 0.55 * k); ctx.fill();
+    }
+  }
+  if (M.m_hold) {
+    ctx.fillStyle = '#ffffff'; ctx.globalAlpha = a * 0.55; slEll((cx + rx * 0.2) * k, -ry * 0.55 * k, rx * 0.5 * k, 0.6 * k, -0.1); ctx.fill(); slEll((cx - rx * 0.3) * k, ry * 0.5 * k, rx * 0.25 * k, 0.4 * k, 0.1); ctx.fill();
+    ctx.fillStyle = '#bfe9ff'; ctx.globalAlpha = a * 0.8;
+    for (let i = 0; i < M.m_hold + 1; i++) { const ph = (now * 0.9 + i * 0.37) % 1, dx = (cx - rx * (0.2 + 0.3 * i)) * k - ph * 3 * k, dy = (ry + 0.8 + ph * 3) * k; ctx.beginPath(); ctx.moveTo(dx, dy - 1 * k); ctx.quadraticCurveTo(dx + 0.7 * k, dy + 0.4 * k, dx, dy + 0.7 * k); ctx.quadraticCurveTo(dx - 0.7 * k, dy + 0.4 * k, dx, dy - 1 * k); ctx.fill(); }
+    ctx.globalAlpha = a;
+  }
+  if (M.m_heart) {
+    const beat = Math.pow(Math.max(0, Math.sin(now * 7)), 8) + (U.hb != null && U.hb < 0.35 ? 0.8 : 0), hx = (cx - rx - 1.2) * k, s = (1.1 + 0.15 * M.m_heart) * k * (1 + 0.3 * beat);
+    ctx.fillStyle = '#e5383b'; ctx.beginPath(); ctx.moveTo(hx, s * 0.9); ctx.bezierCurveTo(hx - s * 1.4, -s * 0.1, hx - s * 0.6, -s * 1.2, hx, -s * 0.4); ctx.bezierCurveTo(hx + s * 0.6, -s * 1.2, hx + s * 1.4, -s * 0.1, hx, s * 0.9); ctx.fill();
+    ctx.globalCompositeOperation = 'lighter'; glow(hx, 0, 4 * k * (1 + beat), '#ff4d6d', a * 0.35 * (0.4 + beat)); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a;
+  }
+  if (M.m_excite) {
+    ctx.strokeStyle = '#ffe94a'; ctx.globalAlpha = a * (U.excited ? 0.95 : 0.35); ctx.lineWidth = (U.excited ? 0.6 : 0.4) * k; ctx.beginPath();
+    for (const an of [-1.1, -0.75, -0.4]) { const r0 = (rx + 1.2 + (U.excited ? Math.sin(now * 20) * 0.5 : 0)) * k, r1 = r0 + (U.excited ? 3 : 1.8) * k; ctx.moveTo(cx * k + Math.cos(an) * r0, Math.sin(an) * r0 * ry / rx); ctx.lineTo(cx * k + Math.cos(an) * r1, Math.sin(an) * r1 * ry / rx); }
+    ctx.stroke(); ctx.globalAlpha = a;
+  }
 }

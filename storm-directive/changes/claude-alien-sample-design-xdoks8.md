@@ -1,5 +1,13 @@
 # claude/alien-sample-design-xdoks8
 
+## 2026-10-19 Upgrades show on the body
+- Systems: samples, mutations
+- Files: samplelooks.js, tests/upbodyshot.js (new)
+- What: non-defence upgrades change the v10 bodies. Stats (from any source): damage bulks the head, swim speed stretches it and lengthens the tail, attack rate quickens the tail beat, pickup range adds a faint receptor field. Each body and trade-off mutation has a mark (Slipstream wake, Extra Padding pads, Sticky Fingers hairs, Heartbeat heart, Hard to Hold drips, Spare Parts sac, Overexcited lines, Personal Space ripple, Big Brain brain, Quantity Over Quality buds, Can't Sit Still jitter, All at Once barb, Hungry Hungry belly, No Time for Being Careful stripes, Growing Pains stretch marks); a damage type mutation dyes the neck. The alien gets them too.
+- Save data: none (G.slBase, run only: the stats at the run's start).
+- Hooks: none new (inside samplelooks.js slDefState/slDefUnder/slDefOver, already hooked).
+- Risk: visual only.
+
 ## 2026-10-19 Defences on the body, samples in the Field Guide (v10.32)
 - Systems: samples, defences, ui
 - Files: samplelooks.js, alienyou.js, pdef.js, ui.js, portraits.js, tests/defbodyshot.js (new), tests/codexsamples.js (new)
