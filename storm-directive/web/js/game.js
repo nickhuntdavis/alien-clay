@@ -986,6 +986,7 @@ function killEnemy(e, src) {
   e.dead = true;
   if (V10) fightDeath(e, src); // (a Charged enemy discharges: fight.js)
   if (V10) mutKill(e, src); // (mutation cards: mutations.js)
+  if (V10 && typeof mdKill === 'function') mdKill(e); // (elites drop mutations: mutdrop.js)
   if (V10) wupKill(e, src); // (weapon branches: weapons24.js)
   if (V10) f10Kill(e, src); // (v10 Feats that watch kills: feats10.js)
   if (V10) nf10Kill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)

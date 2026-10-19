@@ -46,7 +46,7 @@ const { chromium } = require('playwright');
     // 5. Never two drafts in a row.
     let rows = 0, prev = false;
     for (let i = 0; i < 200; i++) {
-      const cs = draftCards(3), has = cs.some(c => c && c.tag === 'SWITCHED AT BIRTH');
+      const cs = draftCards(3, i % 2 ? 'chest' : 'level'), has = cs.some(c => c && c.tag === 'SWITCHED AT BIRTH');
       if (has && prev) rows++;
       prev = has;
       if (cs.some(c => !c)) { bad.push('a null card in the draft'); break; }

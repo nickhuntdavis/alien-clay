@@ -1,3 +1,11 @@
+## 2026-10-19 Modifiers in loot boxes; mutations dropped by elites
+- Systems: mutation drops (new), modifier cards, draft
+- Files: mutdrop.js (new), modcards.js, draft.js, game.js, v10.js, index.html, tests/mutdroptest.js (new), tests/modcardtest.js, tests/run.sh
+- What: modifier cards now come only in DNA strands (chest and boss boxes), and every strand deals one when one fits; level-ups no longer offer them. Mutation cards (body, weapon, damage-type, trade-off, rare) left the draft: 60% of elites carry one, wearing the junk DNA helix with a beacon and countdown (40 s); killing it drops a strand labelled with the mutation, which you swim into to take. Catalysts, Concentrations and defences stay in the draft.
+- Save data: none.
+- Hooks: game.js killEnemy -> mdKill; v10.js v10Tick -> mdTick, v10Draw -> mdDraw; draft.js draftCards gains a kind argument.
+- Risk: mutation supply now depends on elite numbers; level-ups are left with weapons, Feats, Switched at Birth, defences and Catalysts.
+
 ## 2026-10-19 All 24 weapons live again (v10.29)
 - Systems: weapons, samples
 - Files: weapons24.js, NOTES.md

@@ -72,10 +72,11 @@ function sabCard() {
 
 // ---------------------------------------------------------------- draft.js draftCards
 // Candidates in draftCards' shape: { o: () => option, w: weight, fam }. o() runs only when the card is dealt.
-function modDraftCands() {
+function modDraftCands(kind) {
   const out = [];
   G.draftN = (G.draftN || 0) + 1;
-  for (const w of G.weapons) {
+  const box = kind === 'chest' || kind === 'boss'; // modifiers come in DNA strands (loot boxes) only, not level-ups
+  for (const w of box ? G.weapons : []) {
     if (!w || w.isSpell || !w.def || !w.def.v10atk) continue;
     for (const id of modsFor(w)) if (modCardOk(w, id) && !banished('mod:' + id)) out.push({ o: () => modCard(w, id), w: famK('mod:' + id) * (modHas(w, id) ? 1.2 : 1), fam: 'mod:' + id });
   }
