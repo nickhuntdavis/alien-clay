@@ -1,6 +1,6 @@
 # claude/alien-sample-design-xdoks8
 
-## 2026-10-19 Tails attach cleanly
+## 2026-10-19 Tails attach cleanly (v10.33, with the upgrade marks and the bold-hypatia merge)
 - Systems: samples
 - Files: samplelooks.js, alienyou.js
 - What: the tail now leaves from the neck as drawn: its root follows the head's rock, squash and stretch (Squishy, the speed stretch, damage bulk) and Can't Sit Still's jitter, and leaves along the midpiece. Natural tails' root width matches the midpiece. The alien's tentacles stay on the rim of the bell when it squashes.
