@@ -205,7 +205,7 @@ function pdefDraw() {
   const R = 24 * S * playerScale() * 1.45;
   ctx.save(); ctx.lineCap = 'round';
   // (the Membrane itself is the forcefield bubble: stamina.js armourRing, called from render.js)
-  for (let i = 0; i < D.layers; i++) { // brown ring per layer; the outer one fades as it wears
+  if (!(typeof sampleLookOn === 'function' && sampleLookOn(p))) for (let i = 0; i < D.layers; i++) { // brown ring per layer (v10 samples wear the Shell on the body instead: samplelooks.js); the outer one fades as it wears
     const outer = i === D.layers - 1, hp = D.layerHp / pdLayerHp();
     ctx.strokeStyle = col(PDEF_COL.shell); ctx.globalAlpha = outer ? 0.35 + 0.55 * Math.max(0, hp) : 0.9; ctx.lineWidth = 2.2;
     ctx.beginPath(); ctx.arc(x, y, R + (4 + i * 3.5) * S, 0, TAU); ctx.stroke();

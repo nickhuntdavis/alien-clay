@@ -2,6 +2,166 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.41 (versionCode 320)
+- Systems: combos, weapons, draft, autorun, fight
+- Files: see the folded entry below.
+- What: merge of `ccr-d33b1fde-g92ob2` into `main`: 30 branch combos (ten weapon pairs, three each, gated on a Lv 3 promise per weapon), combo partners in the weapon draft, promise cards that name their combo.
+- Save data: none.
+- Hooks: fight.js fightHit -> src.noRx; combos10.js wraps globals and loads after ui.js.
+- Risk: balance. Bot Races: 0 of 60 won with the combos (24 of 30 fused naturally), same as without.
+
+### Folded from ccr-d33b1fde-g92ob2: 2026-10-19 Branch combos for the 24 weapons (v10.41)
+- Systems: combos, weapons, draft, autorun, fight
+- Files: combos10.js (new), fight.js, index.html, tests/combo10test.js (new), tests/run.sh, tests/sim/race.js
+- What: 30 new Weapon Combos across ten weapon pairs (three each). A combo needs both weapons at Lv 5 and a particular Lv 3 promise on each; each pair's three combos use every promise once, so whatever the first weapon took, one promise on the second fuses with it. Same attack types can fuse. The weapon draft now swaps one card for a combo partner of a weapon you hold (any attack type, so the old Storm in a Teacup and Worm Farm can happen at last); Lv 3 promise cards name the combo they complete; autorun takes a card that completes a combo. Combo hits go through normal hit resolution and never set off an unstable reaction.
+- Save data: none (META.combos records fused ids as before).
+- Hooks: fight.js fightHit -> `src.noRx` skips fightReact. Everything else wraps globals from combos10.js (fightHit, killEnemy, projHit, comboFire, comboTick, wupDmgMul, bubblePop, toothTaken, availableCombos, wupForkCards, v10Loot, UI.autoTick); it loads after ui.js.
+- Risk: balance (more combos fuse, and the weapon draft and autorun now favour partners); any file that later wraps the same globals must load before combos10.js or keep calling through.
+
+## v10.40 (versionCode 319)
+- Systems: asdemo (new), mfdemo (new), aldemo (new), screens
+- Files: see the folded entry below.
+- What: merge of `ccr-867eefdf-uxgom1` into `main`: the last 14 weapons get real previews, tabbed tier screens and a scene per branch card, so all 24 weapons and all 360 branch cards are done.
+- Save data: none.
+- Hooks: none.
+- Risk: preview only, no combat change.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 The last 14 weapons: real previews, tabbed branch screens, a scene per branch (v10.40)
+- Systems: asdemo (new), mfdemo (new), aldemo (new), screens
+- Files: asdemo.js (new), mfdemo.js (new), aldemo.js (new), index.html
+- What: every remaining weapon gets the Standard Issue treatment, so all 24 now have a preview that shows the real weapon, their tier screens open in the Weapon Draft tabs, and every one of the 360 branch cards plays its own scene. New here: Acid Spit, Red Flagship, Soulmate Signal, Unwanted Contact, Nocturnal Emission, Ewww Gross, Blowing Bubbles, Hot Mess, Nappy Mines, The Runs, Rent Free, Peekaboo, Eggs and Chest Burster (210 cards). Typed previews share one status look (Corrosion, Burn and Alien bars; Charged, Snared, Ignited, Possessed, Feared).
+- Save data: none.
+- Hooks: none (PV_OWN entries).
+- Risk: preview only, no combat change. Every 'wup' box with a single weapon ready now opens as that weapon's tabbed fork; the card version of the branch screen is no longer used for any of the 24.
+
+## v10.39 (versionCode 318)
+- Systems: samples, render, defences, mutations, ui
+- Files: see the folded entries below.
+- What: merge of `claude/alien-sample-design-xdoks8` into `main`: every v10 sample has its own body in three families (natural Baseline, Alpha, Beta; engineered Private Schooled, Ordered Online; anomalies Redtail, Prawn Again and the jellyfish-like Not of This World), live pictures on the sample cards and a Field Guide SAMPLES tab, defences and upgrades worn on the body (Shell armour bands, Squishy jelly, Thorns, Evasion, stat reshaping, a mark per body and trade-off mutation), and tails that join the neck cleanly. Branch builds were v10.29 to v10.33.
+- Save data: none.
+- Hooks: render.js drawShip -> sampleLook; seqsel.js drawSeqMods -> sampleLookOn; samples10.js s10Samples -> slPicStart; ui.js codexHtml -> slCodex (SAMPLES chip); portraits.js portraitsStart -> slPicStart; pdef.js pdefDraw skips Shell rings for v10 samples.
+- Risk: visual only; hitbox and swim physics unchanged.
+
+### Folded from claude/alien-sample-design-xdoks8: 2026-10-19 Tails attach cleanly (v10.33, with the upgrade marks and the bold-hypatia merge)
+- Systems: samples
+- Files: samplelooks.js, alienyou.js
+- What: the tail now leaves from the neck as drawn: its root follows the head's rock, squash and stretch (Squishy, the speed stretch, damage bulk) and Can't Sit Still's jitter, and leaves along the midpiece. Natural tails' root width matches the midpiece. The alien's tentacles stay on the rim of the bell when it squashes.
+- Save data: none.
+- Hooks: none.
+- Risk: none (the swim physics reads the tail's shape; its root moves by a unit or two at most).
+
+### Folded from claude/alien-sample-design-xdoks8: 2026-10-19 Upgrades show on the body
+- Systems: samples, mutations
+- Files: samplelooks.js, tests/upbodyshot.js (new)
+- What: non-defence upgrades change the v10 bodies. Stats (from any source): damage bulks the head, swim speed stretches it and lengthens the tail, attack rate quickens the tail beat, pickup range adds a faint receptor field. Each body and trade-off mutation has a mark (Slipstream wake, Extra Padding pads, Sticky Fingers hairs, Heartbeat heart, Hard to Hold drips, Spare Parts sac, Overexcited lines, Personal Space ripple, Big Brain brain, Quantity Over Quality buds, Can't Sit Still jitter, All at Once barb, Hungry Hungry belly, No Time for Being Careful stripes, Growing Pains stretch marks); a damage type mutation dyes the neck. The alien gets them too.
+- Save data: none (G.slBase, run only: the stats at the run's start).
+- Hooks: none new (inside samplelooks.js slDefState/slDefUnder/slDefOver, already hooked).
+- Risk: visual only.
+
+### Folded from claude/alien-sample-design-xdoks8: 2026-10-19 Defences on the body, samples in the Field Guide (v10.32)
+- Systems: samples, defences, ui
+- Files: samplelooks.js, alienyou.js, pdef.js, ui.js, portraits.js, tests/defbodyshot.js (new), tests/codexsamples.js (new)
+- What: your defence cards now change your body. Shell is shaded brown armour bands wrapping the head front first (one band per layer, a collar at 4; cracks and chips as it wears; a front cap only on the alien so its core shows) instead of rings. Squishy makes the head jelly: its squash and stretch is about three times bigger and overshoots, and hits squash it flat. Thorns are spikes raked back along the head; Evasion leaves after-images. The Field Guide has a SAMPLES tab: each sample with its live picture, family, origin, passive and lab note.
+- Save data: none.
+- Hooks: ui.js codexHtml -> slCodex (and a SAMPLES chip in the tab list); portraits.js portraitsStart -> slPicStart; pdef.js pdefDraw skips Shell rings when sampleLookOn; alienyou.js alienDraw -> slDefState/slDefUnder/slDefOver.
+- Risk: visual only. Shell no longer draws as rings round v10 samples (only on the body).
+
+### Folded from claude/alien-sample-design-xdoks8: 2026-10-19 Every sample gets its own body (v10.31)
+- Systems: samples, render
+- Files: samplelooks.js (new), alienyou.js, render.js, seqsel.js, samples10.js, index.html, tests/lineupshot.js (new), tests/alienyoushot.js
+- What: three visual families. Natural: Baseline (textbook), Alpha (long, pointed, big striped midpiece, longer tail), Beta (small, bent neck, droplet, coiled tail tip, plaster). Engineered: Private Schooled (lacquered navy, gold trim, crest, school-tie midpiece, braided tail), Ordered Online (moulded plastic box with seam, barcode, crooked sticker, misaligned cap, ribbed hose, zip-tie tail, frost). Anomalies: Redtail (lumpy wobbling red head, twitchy hairs, frayed tail, embers), Prawn Again (white-gold, halo, wings, light rays, an echo). Every sample card has a live picture of its body.
+- Save data: none.
+- Hooks: render.js drawShip -> sampleLook (replaces alienYou); seqsel.js drawSeqMods -> sampleLookOn (replaces alienYouOn); samples10.js s10Samples -> slPicStart (replaces alienPicStart).
+- Risk: visual only; hitbox and swim physics unchanged. Body-look upgrades (cilia, barb, plating) and sequence marks don't show on v10 samples.
+
+### Folded from claude/alien-sample-design-xdoks8: 2026-10-19 Not of This World's card shows the creature (v10.30)
+- Systems: samples
+- Files: alienyou.js, samples10.js, tests/alienyoushot.js
+- What: its card on the sample screen has a live picture of it, hanging and pulsing, cycling through its moods and its Fire, Alien and Static core colours. Tentacles now start laid out straight instead of in a knot. alienYou's drawing is split into alienDraw (no G needed).
+- Save data: none.
+- Hooks: samples10.js s10Samples -> alienPicStart (and the card list adds a canvas to the alien card).
+- Risk: none (title screen only; the loop stops when the card leaves the page).
+
+### Folded from claude/alien-sample-design-xdoks8: 2026-10-19 Not of This World gets its own body (v10.29)
+- Systems: samples, render
+- Files: alienyou.js (new), render.js, seqsel.js, index.html, tests/alienyoushot.js (new)
+- What: the Not of This World sample is no longer drawn as a sperm. It is a translucent indigo bell with a split, glowing core and seven tentacles with glowing tips, swimming by jet pulses. Its mood shows (idle, curious, alert, agitated, hurt), and the core and tips take the colour of the current Adaptive Biology type (Fire, Alien, Static). Pause portrait too.
+- Save data: none.
+- Hooks: render.js drawShip -> alienYou; seqsel.js drawSeqMods -> alienYouOn.
+- Risk: visual only; hitbox and swim physics unchanged (its tail never runs stepTail, so p.ext/p.behind stay at their defaults). Body-look upgrades (cilia, barb, armour plating) don't show on it.
+
+## v10.38 (versionCode 317)
+- Systems: scdemo (new), fbdemo (new), bldemo, screens
+- Files: see the folded entries below.
+- What: merge of `ccr-867eefdf-uxgom1` into `main`: Sister Cousin and the rest of the Force and Blood weapons (Maximum Gains, Nervous Wreck, Family Ties, Skill Issue, There Is No Spoon, One of These Days) get real previews, tabbed tier screens and a scene per branch card. With Standard Issue, Panic Button and Little Prick, every Force and Blood weapon is done (10 of 24).
+- Save data: none.
+- Hooks: none.
+- Risk: preview only, no combat change.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 The rest of the Force and Blood weapons: real previews, tabbed branch screens, a scene per branch (v10.38)
+- Systems: fbdemo (new), bldemo, screens
+- Files: fbdemo.js (new), bldemo.js, index.html
+- What: Maximum Gains, Nervous Wreck, Family Ties, Skill Issue, There Is No Spoon and One of These Days get the Standard Issue treatment: each preview shows the real weapon (pellet fan, clamping jaws, merging vortices, bowling lard, eaten and returned shots, countdown marks with a ledger), their tier screens open in the Weapon Draft tabs, and each of their 90 branch cards plays its own scene. Spitter cells now show their purple rim (it never drew on Panic Button's Grudge Match).
+- Save data: none.
+- Hooks: none (PV_OWN entries).
+- Risk: preview only, no combat change. 'wup' boxes with only one of these weapons ready now open as that weapon's fork.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 Sister Cousin: real preview, tabbed branch screen, a scene per branch (branch build v10.37, merged as v10.38)
+- Systems: scdemo (new), screens
+- Files: scdemo.js (new), index.html
+- What: Sister Cousin (old name Seeker Siblings) gets the Standard Issue treatment. Its preview fires two wiggling homing siblings per volley (6 volleys, 2 s reload) that add Bleed and split in two on a kill, with an in-flight counter (12 at most) under Spermy. Its tier screens open in the Weapon Draft tabs, and each of its 15 branch cards plays its own scene (extra siblings, runts, hiding and ambushes, the weakest-first favourite, squabbles, pack dives, Pile-On, Dinner Time, Baby Boom, Family Reunion, Only Child).
+- Save data: none.
+- Hooks: none (a PV_OWN entry).
+- Risk: preview only, no combat change.
+
+## v10.37 (versionCode 316)
+- Systems: mutation drops, draft, tests
+- Files: see the folded entry below.
+- What: merge of `claude/bold-hypatia-jadt4w` into `main`: an empty mutation screen can no longer stick a run (the box is dropped when no mutation fits), and the flaky perf18, eggtest and autoruntest are reliable.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
+### Folded from claude-bold-hypatia-jadt4w: 2026-10-19 Flaky tests fixed; empty mutation screen no longer sticks (v10.37)
+- Systems: mutation drops, draft, tests
+- Files: draft.js, tests/perf18.js, tests/eggtest.js, tests/autoruntest.js
+- What: (eggtest also keeps its rival alive and alone: race rivals could kill it mid-gnaw.) A mutation box now opens only if a mutation can still be taken (draft.js draftBox); several strands queued while the Genome filled up used to open an empty mutation screen that stuck the run. Tests: perf18 goes through v10Box like the main loop and times 300 play frames (it could time none); eggtest's rival break-in runs unarmed (anything of yours hitting the rival stops it gnawing); autoruntest clears terrain properly (`G.terrain` is { list, grid }: 85 to 102 pieces were left in and pushed you off HOLD and ORBIT).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
+## v10.36 (versionCode 314)
+- Systems: samples screen, school (Level 0), mutation drops
+- Files: see the folded entry below.
+- What: merge of `claude/v9-v10-breaking-changes-1hjfdw` into `main`: The Petri Dish, Endless and Level 1 are back in the Experiment picker; Level 0 lesson 11 teaches the mutation strand.
+- Save data: none.
+- Hooks: none.
+- Risk: see the folded entry.
+
+### Folded from claude-v9-v10-breaking-changes-1hjfdw: 2026-10-19 Petri Dish, Endless and Level 1 back; Level 0 lesson 11 teaches mutation strands (v10.36)
+- Systems: samples screen, school (Level 0), mutation drops
+- Files: samples10.js, school.js
+- What: the Experiment picker offers The Petri Dish, The Race, Endless and Level 1 again (flags S10_PETRI, S10_ENDLESS, S10_LEVELS). Level 0 lesson 11 is no longer a free pass under V10: an Antibody carries a mutation strand (mutdrop.js) that never sheds or decays in school; kill it, swim into the strand and pick a mutation to open the gate.
+- Save data: none.
+- Hooks: none (school.js reads mutdrop.js mdS, mdOk, MUTDROP and G.stats.mutDrops).
+- Risk: Endless and Level 1 have not been played or simmed under v10 (untested by request); expect balance gaps or a crash in Level 1 arenas. schooltest not rerun.
+
+## v10.35 (versionCode 313)
+- Systems: bldemo (new), sidemo, screens
+- Files: see the folded entry below.
+- What: merge of `ccr-867eefdf-uxgom1` into `main`: Panic Button and Little Prick get real previews, tabbed tier screens and a scene per branch card; sidemo.js becomes the shared engine for weapon previews.
+- Save data: none.
+- Hooks: see the folded entry.
+- Risk: see the folded entry.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 Panic Button and Little Prick: real previews, tabbed branch screens, a scene per branch (v10.35)
+- Systems: bldemo (new), sidemo, screens
+- Files: bldemo.js (new), sidemo.js, index.html
+- What: the other two baseline weapons get the Standard Issue treatment. Panic Button's preview marks the densest cluster in reach, fills a warning for 0.45 s and blasts it (3 to a magazine); Little Prick fires needles that stack Bleed (red pips, drips, tick numbers) and leave blood pools. Their tier screens open in the Weapon Draft tabs, and each of their 30 branch cards plays its own scene. sidemo.js is now a shared engine: any PV_OWN entry with a flags table gets the tabbed screen.
+- Save data: none.
+- Hooks: none new (PV_OWN entries; sidemo.js sivDraw gained under/over/cell/me layers and sivDamage a kill hook).
+- Risk: preview only, no combat change. 'wup' boxes with only one of these three weapons ready now open as that weapon's fork.
+
 ## v10.34 (versionCode 312)
 - Systems: box looks (new), mutation drops, modifier cards, draft, ui
 - Files: see the folded entry below.

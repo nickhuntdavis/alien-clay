@@ -834,6 +834,7 @@ function headSquash(b) {
   return (b.sq = { x: st * (1 - sqz * 0.7), y: (1 / st) * (1 + sqz) });
 }
 function drawShip(x, y, face, tag, alpha, scale, body, look) {
+  if (typeof sampleLook === 'function' && sampleLook(x, y, face, tag, alpha, scale, body, look)) return; // (each v10 sample has its own body: samplelooks.js, alienyou.js)
   const L = look || NOLOOK;
   // A spermatozoon under phase contrast, in true proportions: a flat oval head (about 5 x 3 um) that reads
   // dark grey with a bright halo and a paler acrosome cap over its front half, a short thicker midpiece,

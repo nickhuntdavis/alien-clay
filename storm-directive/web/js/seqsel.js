@@ -229,6 +229,7 @@ function seqHeat() {
 function drawSeqMods(x, y, face, alpha, scale, body, look) {
   face += (body && body.yaw) || 0; // (rocks with the head, drawShip)
   if (!G || !G.genes || !G.genes.active || !G.genes.active.length) return;
+  if (typeof sampleLookOn === 'function' && sampleLookOn(body)) return; // (samplelooks.js)
   const L = look || NOLOOK, k = S * (scale || 1), t = G.realT, ids = G.genes.active, pc = SEQ_LOOK[ids[0]].color;
   const sq = body && body === G.player && typeof headSquash === 'function' ? headSquash(body) : null;
   const sxs = L.head * L.stretch * (sq ? sq.x : 1), sys = L.head / Math.sqrt(L.stretch) * (sq ? sq.y : 1);

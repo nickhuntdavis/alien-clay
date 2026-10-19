@@ -1,5 +1,6 @@
 'use strict';
-// Spawn Prawn - Standard Issue's own preview and branch screen (one weapon, the model for the other 23).
+// Spawn Prawn - Standard Issue's own preview and branch screen, and the shared engine for weapon previews with their own
+// scenes (bldemo.js: Panic Button, Little Prick).
 //  - The preview (preview.js PV_OWN): the real weapon at true proportions. One heavy Force shot at the nearest enemy
 //    in range (440, the dashed arc), 0.45 s apart, 8 to a magazine, a 1.2 s reload, and the shot stops on the first
 //    thing it hits. Cells swim in from the right; numbers are the real damage.
@@ -7,27 +8,30 @@
 //    Bonking), its Lv 6 cards and wildcard on top of it, and the masteries on top of both (flags from wup1.js names).
 //  - Branch screen: Standard Issue's tier choices open in the Weapon Draft layout (tabs over a live stage and an info
 //    panel) instead of cards; the tab's stage plays that branch.
+// Engine for other weapons: PV_OWN[id] = { init, step, draw: sivDraw, flags, under, over, cell, me, kill }: flags maps
+// promise letters and card names to scene flags; under/over/cell/me draw extra layers; kill(pv, e) runs on each death.
 // Hooks: preview.js makePreview/stepPreview/drawPreview -> PV_OWN; ui.js openLoot -> sivDraftKind, openDraft -> sivDraftHead.
 
 const SIV = { id: 'v_phys_proj', range: 0.75, speed: 0.95, cd: 0.45, mag: 8, reload: 1.2, dmg: 16, hop: 0.19, spread: 0.04 }; // (world 440 = 0.75 of the stage's width)
-const SIV_FLAG = { 'Ricochet Brain': 'A', 'Through and Through': 'B', 'Marked for Bonking': 'C', "Newton's Cradle": 'cradle', 'Last Orders': 'lastOrders', Squirrel: 'squirrel',
+const SIV_FLAG = { A: 'A', B: 'B', C: 'C', 'Ricochet Brain': 'A', 'Through and Through': 'B', 'Marked for Bonking': 'C', "Newton's Cradle": 'cradle', 'Last Orders': 'lastOrders', Squirrel: 'squirrel',
   'Gathering Momentum': 'momentum', Contraflow: 'contraflow', Conkers: 'conkers', 'Soft Spot': 'soft', Concussion: 'concuss', 'Nut Allergy': 'allergy',
   'Shell Shock': 'shell', 'Infinite Nuts': 'inf', 'Squirrel Away': 'sqa' };
 const SIV_PALE = '#f1ecff', SIV_BONK = '#ffd23f', SIV_NUT = '#c9a46a';
 
 // ---------------------------------------------------------------- the branch screen
-// Standard Issue's tier screen goes to the Weapon Draft. A 'wup' box with only Standard Issue ready becomes its
-// fork straight away (as wupCards would), so both routes land here.
+// A weapon with its own preview (PV_OWN, with a flags table) has its tier screen in the Weapon Draft. A 'wup' box with
+// only that weapon ready becomes its fork straight away (as wupCards would), so both routes land here.
+const sivFlags = w => { const o = w && PV_OWN[w24Key(w)]; return (o && o.flags) || null; };
 function sivDraftKind(req) {
   if (!G || typeof wupReady !== 'function') return false;
-  if (req.kind === 'wup') { const r = wupReady(); if (r.length === 1 && w24Key(r[0]) === SIV.id) Object.assign(req, { kind: 'wupfork', w: r[0], lv: wupNextLv(r[0]) }); }
-  return req.kind === 'wupfork' && !!req.w && w24Key(req.w) === SIV.id;
+  if (req.kind === 'wup') { const r = wupReady(); if (r.length === 1 && sivFlags(r[0])) Object.assign(req, { kind: 'wupfork', w: r[0], lv: wupNextLv(r[0]) }); }
+  return req.kind === 'wupfork' && !!sivFlags(req.w);
 }
 function sivDraftHead(req, weap) {
   if (!sivDraftKind(req)) return false;
-  const t = WUP_TIER.indexOf(req.lv) + 1, U = weap.up || {}, S = WUP[SIV.id];
+  const t = WUP_TIER.indexOf(req.lv) + 1, U = weap.up || {}, S = WUP[w24Key(weap)], FL = sivFlags(weap);
   for (const o of UI.lootOpts) { // each tab's stage plays what you would have after taking it
-    const f = [U.p, U.l6 && SIV_FLAG[U.l6], SIV_FLAG[o.title]].filter(Boolean);
+    const f = [FL[U.p], U.l6 && FL[U.l6], FL[o.title]].filter(Boolean);
     o.perk = 'siv|' + [...new Set(f)].join(',');
     if (o.tag === 'BRANCH') o.tag = 'BRANCH CARD';
   }
@@ -98,6 +102,7 @@ function sivDamage(pv, e, k, heavy, color, noPop) {
   if (e.hp <= 0) {
     sivBits(pv, e.x, e.y, 9, '#ffffff');
     if (pv.lock === e) pv.lock = null;
+    if (pv.own && pv.own.kill) pv.own.kill(pv, e);
     if (sivHas(pv, 'allergy') && !noPop) { e.hp = 0.001; e.dying = true; e.swell = 0.35; } // swells, then bursts (sivStepFoes)
   }
 }
@@ -317,13 +322,15 @@ function sivDraw(pv, g, W2, H2) {
   pv.fh = H2 / K;
   const X = x => x * K, Y = y => y * K, U = K, me = pv.me;
   // Reach: the dashed arc 440 out.
-  g.save(); g.setLineDash([3, 6]); g.strokeStyle = c + '30'; g.lineWidth = 1; g.beginPath(); g.arc(X(me.x), Y(me.y), U * SIV.range, -1.2, 1.2); g.stroke(); g.restore();
+  g.save(); g.setLineDash([3, 6]); g.strokeStyle = c + '30'; g.lineWidth = 1; g.beginPath(); g.arc(X(me.x), Y(me.y), U * (pv.range || SIV.range), -1.2, 1.2); g.stroke(); g.restore();
   // Contraflow lanes.
   for (const L of pv.lanes) { g.globalAlpha = L.life / 0.5 * 0.5; g.strokeStyle = SIV_PALE; g.lineWidth = U * 0.03; g.lineCap = 'round'; g.beginPath(); g.moveTo(X(L.a.x), Y(L.a.y)); g.lineTo(X(L.b.x), Y(L.b.y)); g.stroke(); g.lineCap = 'butt'; }
   g.globalAlpha = 1;
   // Nuts on the floor.
   for (const n of pv.nuts) { const x = X(n.x), y = Y(n.y), r = U * 0.011; g.globalAlpha = Math.min(1, n.life); g.fillStyle = SIV_NUT; g.beginPath(); g.ellipse(x, y + r * 0.3, r, r * 1.2, n.sp, 0, TAU); g.fill(); g.fillStyle = '#7a5a33'; g.beginPath(); g.ellipse(x - Math.sin(n.sp) * r * 0.6, y - r * 0.7, r * 1.1, r * 0.55, n.sp, 0, TAU); g.fill(); }
   g.globalAlpha = 1;
+  const O = pv.own || {};
+  if (O.under) O.under(pv, g, X, Y, U, c);
   // Cells.
   for (const e of pv.foes) {
     if (e.hp <= 0 && !e.dying) continue;
@@ -338,6 +345,7 @@ function sivDraw(pv, g, W2, H2) {
       g.fillStyle = '#00000088'; g.beginPath(); g.arc(ix, iy, ir + 1, 0, TAU); g.fill();
       g.fillStyle = e.mark ? SIV_BONK : '#e6e6e6'; g.beginPath(); g.moveTo(ix, iy); g.arc(ix, iy, ir, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, n / of)); g.closePath(); g.fill();
     }
+    if (O.cell) O.cell(pv, g, e, x, y, r, U);
     if (e.stun > 0) for (let i = 0; i < 3; i++) { const a = pv.t * 6 + i / 3 * TAU; g.fillStyle = SIV_BONK; g.font = `900 ${Math.round(U * 0.03)}px sans-serif`; g.textAlign = 'center'; g.fillText('*', x + Math.cos(a) * r * 1.1, y - r * 0.9 + Math.sin(a) * r * 0.35); }
   }
   // Spermy.
@@ -348,9 +356,10 @@ function sivDraw(pv, g, W2, H2) {
   g.stroke(); g.lineCap = 'butt';
   g.fillStyle = PAL.you; g.beginPath(); g.ellipse(hx, hy, hr * 1.2, hr * 0.85, ha, 0, TAU); g.fill();
   // The magazine under Spermy: 8 rounds, then a reload ring.
-  const ay = hy + hr * 2.1;
-  for (let i = 0; i < SIV.mag; i++) { g.fillStyle = i < pv.ammo && pv.rel <= 0 ? c : '#ffffff22'; g.fillRect(hx - hr * 1.6 + i * hr * 0.42, ay, hr * 0.28, hr * 0.5); }
-  if (pv.rel > 0) { g.strokeStyle = c; g.lineWidth = 2; g.beginPath(); g.arc(hx, hy, hr * 1.7, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - pv.rel / SIV.reload)); g.stroke(); }
+  const ay = hy + hr * 2.1, mag = pv.mag || SIV.mag;
+  if (O.me) O.me(pv, g, hx, hy, hr, U);
+  for (let i = 0; i < Math.min(mag, 12); i++) { g.fillStyle = i < pv.ammo && pv.rel <= 0 ? c : '#ffffff22'; g.fillRect(hx - hr * 1.6 + i * hr * 0.42, ay, hr * 0.28, hr * 0.5); }
+  if (pv.rel > 0) { g.strokeStyle = c; g.lineWidth = 2; g.beginPath(); g.arc(hx, hy, hr * 1.7, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - pv.rel / (pv.reload || SIV.reload))); g.stroke(); }
   if (F.has('sqa')) { g.font = `700 ${Math.round(U * 0.026)}px monospace`; g.textAlign = 'center'; g.fillStyle = SIV_NUT; g.fillText((pv.hist || 0) + '/10', hx, ay + hr * 1.5); }
   g.globalCompositeOperation = 'lighter';
   // Soft Spot's other weapon.
@@ -363,6 +372,7 @@ function sivDraw(pv, g, W2, H2) {
     pvGlow(g, x, y, r * 3.2, col, s.heavy || s.heavyNext ? 0.9 : 0.6);
     g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
   }
+  if (O.over) O.over(pv, g, X, Y, U, c);
   // Effects.
   for (const f of pv.fx) {
     const k = f.max ? f.life / f.max : Math.min(1, f.life * 3);
@@ -382,4 +392,4 @@ function sivDraw(pv, g, W2, H2) {
   g.globalAlpha = 1;
 }
 
-PV_OWN[SIV.id] = { init: sivInit, step: sivStep, draw: sivDraw };
+PV_OWN[SIV.id] = { init: sivInit, step: sivStep, draw: sivDraw, flags: SIV_FLAG };

@@ -55,6 +55,7 @@ function drawFoePortrait(g, Wc, Hc, e, t, dark) {
 }
 // Start animating the portraits inside root (the Field Guide screen, or the pause menu's Field Guide tab).
 function portraitsStart(root) {
+  if (typeof slPicStart === 'function') slPicStart(); // (the samples' pictures in the Field Guide: samplelooks.js)
   PORT.root = root;
   if (!PORT.on) { PORT.on = true; requestAnimationFrame(portraitFrame); }
 }
