@@ -165,3 +165,4 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Level 2 (internal next: "Esophagus Descent"; never show that name) is not built. Its sample `s008` is a locked placeholder. Level select teases Level 3 and Level 4.
 - Possible: a longer Level 1 (bigger map), and a body-map level select once more levels exist.
 - Reece is a veteran tester friend of the user. The user shares run logs (copied from the game's run log) for balance feedback.
+- (`claude/v9-v10-breaking-changes-1hjfdw`, v10.35) Experiment picker flags in samples10.js: S10_PETRI, S10_ENDLESS, S10_LEVELS (all on). Endless and Level 1 not yet simmed under v10.
