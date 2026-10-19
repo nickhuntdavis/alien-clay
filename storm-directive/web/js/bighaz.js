@@ -28,6 +28,7 @@ if (typeof TERRAIN_HEX !== 'undefined') TERRAIN_HEX.push('#efe6b0', '#f4a261', '
 function makeBigHaz() {
   if (typeof UI !== 'undefined' && LV_SAMPLE[UI.sample] != null) return []; // (campaign levels have their own maps)
   if (CORE.arena > 1e8) return [];
+  if (sbOn()) return []; // (Sandbox: weapons only)
   const k = CORE.arena < 2000 ? 0.6 : 1; // (smaller in the Petri Dish)
   let x = Math.random(), n = 1;
   for (const [c, w] of BH.count) { if (x < w) { n = c; break; } x -= w; }
