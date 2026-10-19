@@ -2,6 +2,22 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.35 (versionCode 313)
+- Systems: bldemo (new), sidemo, screens
+- Files: see the folded entry below.
+- What: merge of `ccr-867eefdf-uxgom1` into `main`: Panic Button and Little Prick get real previews, tabbed tier screens and a scene per branch card; sidemo.js becomes the shared engine for weapon previews.
+- Save data: none.
+- Hooks: see the folded entry.
+- Risk: see the folded entry.
+
+### Folded from ccr-867eefdf-uxgom1: 2026-10-19 Panic Button and Little Prick: real previews, tabbed branch screens, a scene per branch (v10.35)
+- Systems: bldemo (new), sidemo, screens
+- Files: bldemo.js (new), sidemo.js, index.html
+- What: the other two baseline weapons get the Standard Issue treatment. Panic Button's preview marks the densest cluster in reach, fills a warning for 0.45 s and blasts it (3 to a magazine); Little Prick fires needles that stack Bleed (red pips, drips, tick numbers) and leave blood pools. Their tier screens open in the Weapon Draft tabs, and each of their 30 branch cards plays its own scene. sidemo.js is now a shared engine: any PV_OWN entry with a flags table gets the tabbed screen.
+- Save data: none.
+- Hooks: none new (PV_OWN entries; sidemo.js sivDraw gained under/over/cell/me layers and sivDamage a kill hook).
+- Risk: preview only, no combat change. 'wup' boxes with only one of these three weapons ready now open as that weapon's fork.
+
 ## v10.34 (versionCode 312)
 - Systems: box looks (new), mutation drops, modifier cards, draft, ui
 - Files: see the folded entry below.
