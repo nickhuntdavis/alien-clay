@@ -1,3 +1,11 @@
+## 2026-10-19 Merge sandbox fix, voice guide, and the two old autorun branches (v10.26)
+- Systems: sandbox, docs
+- Files: merges only (see changes/ccr-f38bcc1f-1rc8ck.md, claude-great-maxwell-2ar9sg.md, claude-festive-allen-xmea8i.md, claude-zealous-clarke-i26iot.md)
+- What: brings in the sandbox fix (no Acid Crypts or big hazards; the run log counts weapons) and the voice and tone guide. festive-allen (v9.28 autorun) and zealous-clarke (v10.04 test build, autorun doc) were already in v10 by another route: merged with our side kept, so nothing changes from them.
+- Save data: none.
+- Hooks: none new.
+- Risk: none. Known failures carried over: wup5test (Baby Boom), wup6test (Tooth Fairy), and autoruntest, which is flaky (also fails about 1 run in 4 on v10.25).
+
 ## 2026-10-18 Enemy Membranes like yours (v10.25)
 - Systems: enemy membranes (new), enemies, combat
 - Files: foemem.js (new), fight.js, index.html, tests/foememtest.js (new), tests/run.sh
