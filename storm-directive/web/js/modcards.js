@@ -43,8 +43,8 @@ function modCardOk(w, id) {
 function modCard(w, id) {
   const m = MODS10[id], r = modCount(w, id), up = r ? MODUP[id][r - 1] : '';
   return { card: 'mod:' + id, family: 'mod:' + id, rarity: MOD_RAR[r], tag: 'MODIFIER', icon: m.name.slice(0, 1), color: w.def.color, elem: w.def.elem,
-    title: m.name + (r ? ' ' + ['', 'II', 'III'][r] : ''), sub: (r ? `Rank ${r} > ${r + 1} of 3` : 'New') + (m.group ? ' | Delivery' : '') + ` | on ${w.def.name}`,
-    desc: r ? up : m.desc,
+    title: m.name + (r ? ' ' + ['', 'II', 'III'][r] : ''), sub: (r ? `Rank ${r} > ${r + 1} of 3` : 'New') + (m.group ? ' | Delivery' : ''), // (the weapon is named below: modFor)
+    desc: r ? up : m.desc, modFor: w.def.name, // (ui.js shows "For weapon" on the card)
     apply: () => { modAdd(w, id); computeStats(w); recomputeAll(); } };
 }
 
@@ -68,6 +68,22 @@ function sabCard() {
     title: `${w.def.name} → ${E.name}`, sub: `${ELEMENTS[w.def.elem] ? ELEMENTS[w.def.elem].name : ''} > ${E.name} | keeps its level and upgrades`,
     desc: `The hospital mixed up the tags. ${w.def.name} now deals ${E.name} damage. Everything else about it stays where it was.`,
     apply: () => { if (G.weapons.includes(w)) sabSwitch(w, t); } };
+}
+
+// A DNA strand's cards (draft.js draftLoot): up to n modifier cards, different modifiers, spread over your weapons.
+function modBoxCards(n) {
+  const c = [];
+  for (const w of G.weapons) {
+    if (!w || w.isSpell || !w.def || !w.def.v10atk) continue;
+    for (const id of modsFor(w)) if (modCardOk(w, id) && !banished('mod:' + id)) c.push({ w, id });
+  }
+  const out = [], ids = new Set(), ws = new Map(), per = Math.ceil(n / Math.max(1, new Set(c.map(x => x.w)).size)); // (spread over your weapons)
+  for (const x of shuffle(c)) {
+    if (out.length >= n) break;
+    if (ids.has(x.id) || (ws.get(x.w) || 0) >= per) continue;
+    ids.add(x.id); ws.set(x.w, (ws.get(x.w) || 0) + 1); out.push(modCard(x.w, x.id));
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------- draft.js draftCards

@@ -165,12 +165,15 @@ function draftLoot(req) {
   if (req.kind === 'fork') return forkCards(req);
   if (req.kind === 'wup') return wupCards();
   if (req.kind === 'wupfork') return wupForkReq(req);
+  if (req.kind === 'mutation' && typeof mdCards === 'function') return mdCards(3); // (an elite's strand: mutdrop.js)
+  if ((req.kind === 'chest' || req.kind === 'boss') && typeof modBoxCards === 'function') { const m = modBoxCards(3); if (m.length) return m; } // (DNA strands: modifiers, modcards.js)
   if (req.kind === 'level' || req.kind === 'chest' || req.kind === 'boss') return draftCards(3, req.kind);
   return null;
 }
 // Which boxes open, and when. 'wait' keeps a box queued without opening it.
 function draftBox(req) {
   if (req.kind === 'start' || req.kind === 'slot') return true;
+  if (req.kind === 'mutation') return typeof mdOk === 'function' && mdOk().length > 0; // (dropped if the Genome filled up while it waited: an empty screen would stick)
   if (req.kind === 'wup') return wupReady().length > 0;
   if (req.kind === 'wupfork') return wupNextLv(req.w) === req.lv;
   if (req.kind === 'fork') { if (!forkCards(req).length) return false; G.draftT = G.t; return true; }

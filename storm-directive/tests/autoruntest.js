@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
     UI.quickStart(); G.nextBoss = 1e9; G.ev.next = 1e9; window.spawnRandom = () => {}; G.P.maxHp = 1e6; G.player.hp = 1e6;
     const out = { fails: [] }, P = G.player, fail = m => out.fails.push(m);
     const put = (id, d, an, o) => { const e = makeEnemy(ENEMIES[id], P.x + Math.cos(an) * d, P.y + Math.sin(an) * d); Object.assign(e, o || {}); G.enemies.push(e); return e; };
-    const reset = () => { G.terrain.length = 0; G.hazards.length = 0; if (G.bigHaz) G.bigHaz.length = 0; G.enemies.length = 0; G.gems.length = 0; G.pickups.length = 0; G.ebul.length = 0; P.x = 700; P.y = 300; P.vx = P.vy = 0; G.grudge = null; };
+    const reset = () => { if (G.terrain.list) { G.terrain.list.length = 0; G.terrain.grid = terrainGrid([]); } else G.terrain.length = 0; /* (terrain is { list, grid } now: left in, it pushed you off HOLD and ORBIT) */ G.hazards.length = 0; if (G.bigHaz) G.bigHaz.length = 0; G.enemies.length = 0; G.gems.length = 0; G.pickups.length = 0; G.ebul.length = 0; P.x = 700; P.y = 300; P.vx = P.vy = 0; G.grudge = null; };
     // 1. Every directive, one scene.
     reset();
     const S = {
@@ -53,7 +53,7 @@ const { chromium } = require('playwright');
     // HOLD: nothing about, stays near where it was chosen.
     reset(); G.ar = null; let far = 0;
     run('hold', 300, () => { far = Math.max(far, Math.hypot(P.x - 700, P.y - 300)); });
-    out.holdFar = Math.round(far); if (far > 120) fail('HOLD drifted ' + Math.round(far));
+    out.holdFar = Math.round(far); if (far > 120) fail('HOLD drifted ' + Math.round(far) + ' ' + JSON.stringify({ s: UI.sample, wave: !!G.wave, en: G.enemies.map(e => (e.rival ? 'R:' : '') + (e.def && e.def.name)).slice(0, 8), zones: G.zones.length, hz: (G.hazards || []).length, ter: (G.terrain.list || G.terrain).length }));
     // KITE: an enemy close in gets put at a distance.
     reset(); G.ar = null; const k = put('crawler', 100, 0, { speed: 0, hp: 1e6, maxHp: 1e6 });
     run('kite', 120); out.kiteD = Math.round(Math.hypot(P.x - k.x, P.y - k.y)); if (out.kiteD < 200) fail('KITE stayed close: ' + out.kiteD);
@@ -63,7 +63,7 @@ const { chromium } = require('playwright');
     for (let i = 0; i < 4; i++) put('crawler', 0, 0, { x: 450 + Math.cos(i) * 30, y: 300 + Math.sin(i) * 30, speed: 0, hp: 1e6, maxHp: 1e6 });
     let off = 0;
     run('orbit', 120, f => { const o = G.ar && G.ar.orbit; if (f > 10) off = Math.max(off, o ? Math.hypot(o.x - 1000, o.y - 300) : 999); });
-    out.orbitOff = Math.round(off); if (off > 60) fail('ORBIT lost its cluster: ' + Math.round(off));
+    out.orbitOff = Math.round(off); if (off > 60) fail('ORBIT lost its cluster: ' + Math.round(off) + ' ' + JSON.stringify({ s: UI.sample, n: G.enemies.length, en: G.enemies.filter(e => e.def && e.def.name !== ENEMIES.crawler.name).map(e => (e.rival ? 'R:' : '') + e.def.name).slice(0, 8) }));
     // HUNT: the elite outranks the nearer crawler, and stays the target.
     reset(); G.ar = null;
     put('crawler', 150, 0, { speed: 0, hp: 1e6, maxHp: 1e6 }); const el = put('crawler', 600, 3, { speed: 0, hp: 1e6, maxHp: 1e6, elite: true });

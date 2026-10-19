@@ -301,15 +301,33 @@ const SCHOOL_ST = {
     tick(R) { if (G.armFlash && G.armFlash !== R.flash) { R.flash = G.armFlash; if (!R.hits++) floatText(me().x, me().y - 40, 'ARMOUR SOAKED IT', '#d6e4f0', 13, 1.2); } },
     done: R => !schoolLeft(R),
     task: R => `ARMOUR SOAKS HITS: ${schoolLeft(R)} LEFT` },
-  junk: { // (Lateral Gene Transfer: in a real run a carrier turns up every 40 to 55s, and sheds its junk after 30s)
+  junk: { // (Lateral Gene Transfer: in a real run a carrier turns up every 40 to 55s, and sheds its junk after 30s. Under V10 it teaches the mutation strand from mutdrop.js instead.)
     enter(R) {
-      if (V10) { schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); return; } // (v10: junk DNA is switched off, so lesson 11 is a free pass)
+      if (V10) {
+        schoolSay('See the pale helix round that Antibody? It is carrying a mutation. Kill it, then swim into the strand it drops and pick one: it changes you for the rest of the run. Usually a carrier sheds it after 40 seconds; here it waits.');
+        R.k0 = (G.stats && G.stats.mutDrops) || 0;
+        schoolFoes(R, ['crawler', 'crawler', 'crawler'], R.A.rect, 300);
+        return;
+      }
       schoolSay('See the white helix round that Antibody? Junk DNA. Kill it, then swim into the helix it drops: you keep a little of what it was for the rest of the run. Usually it sheds after 30 seconds; here it waits.');
       R.k0 = junkK('spitter');
       schoolFoes(R, ['crawler', 'crawler', 'crawler'], R.A.rect, 300);
     },
     tick(R) {
-      if (V10) return;
+      if (V10) {
+        if (SCHOOL_ST.junk.got(R)) return;
+        const D = mdS();
+        for (const d of D.drops) d.life = Math.max(d.life, MUTDROP.dropLife); // (it never decays in school)
+        const C = R.mdE;
+        if (C && !C.dead) { C.mdT = G.t; C.mdCarry = true; } // (it never sheds in school)
+        else if (!D.drops.length) { // (a carrier, and another if the last one was lost)
+          schoolFoes(R, ['spitter'], stFar(R.A.rect));
+          const e = R.foes[R.foes.length - 1];
+          e.mdRoll = true; e.mdCarry = true; e.mdT = G.t; e.mdPing = G.realT; R.mdE = e;
+          banner('MUTATION CARRIER!', MUTDROP.col); sfx('level');
+        }
+        return;
+      }
       const C = G.junkE;
       if (C && !C.dead) C.junk = G.t; // (it never sheds in school)
       else if (!C && !G.junkDrops.length && junkK('spitter') <= R.k0 && junkK('spitter') < JUNK.stacks) { // (a carrier, and another if the helix decayed)
@@ -319,9 +337,9 @@ const SCHOOL_ST = {
         banner('JUNK DNA!', '#e9f5db'); sfx('level');
       }
     },
-    got: R => junkK('spitter') > R.k0 || junkK('spitter') >= JUNK.stacks,
-    done: R => V10 || (SCHOOL_ST.junk.got(R) && !schoolLeft(R)),
-    task: R => V10 ? 'THE EGG: GO ON' : SCHOOL_ST.junk.got(R) ? `${schoolLeft(R)} LEFT` : G.junkDrops.length ? 'SWIM INTO THE HELIX' : 'KILL THE ONE WITH THE HELIX' },
+    got: R => V10 ? ((G.stats && G.stats.mutDrops) || 0) > R.k0 || !mdOk().length : junkK('spitter') > R.k0 || junkK('spitter') >= JUNK.stacks,
+    done: R => SCHOOL_ST.junk.got(R) && !schoolLeft(R),
+    task: R => SCHOOL_ST.junk.got(R) ? `${schoolLeft(R)} LEFT` : (V10 ? mdS().drops.length : G.junkDrops.length) ? 'SWIM INTO THE STRAND' : 'KILL THE ONE WITH THE HELIX' },
 };
 
 // ---------------------------------------------------------------- hooks
@@ -336,7 +354,7 @@ function schoolEnter(R) { R.from = G.moveDir; SCHOOL_ST[R.A.st].enter(R); }
 function schoolArena(R, dt) { const S = SCHOOL_ST[R.A.st]; if (S.tick) S.tick(R, dt); }
 function schoolDone(R) {
   const ok = SCHOOL_ST[R.A.st].done(R);
-  if (ok) { G.lvl.passed = (G.lvl.passed || 0) + 1; if (R.A.st === 'junk' && !V10) schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); }
+  if (ok) { G.lvl.passed = (G.lvl.passed || 0) + 1; if (R.A.st === 'junk') schoolSay('That is everything. The egg is just ahead. Go and get it.', PAL.reward); }
   return ok;
 }
 // The HUD line: what to do now.

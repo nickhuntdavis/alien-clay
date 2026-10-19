@@ -912,6 +912,7 @@ function drawToysOver() {
     if (!w || w.def.kind !== 'twin' || !w.twins) continue;
     const c = col(w.def.color), fl = 0.8 + Math.random() * 0.3;
     for (const [a, b] of twinSegs(w)) {
+      if (tlSeg(a, b, w.def.elem)) continue; // (a Static twin beam is a living bolt: typelook.js)
       ctx.strokeStyle = c;
       // A thin, wavy thread of telepathy: a wave travels along it, pinned at both ends.
       const L = Math.hypot(b.x - a.x, b.y - a.y) || 1, nx = -(b.y - a.y) / L, ny = (b.x - a.x) / L, waves = Math.max(2, L / 70);

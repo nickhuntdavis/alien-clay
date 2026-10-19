@@ -1626,6 +1626,7 @@ function render() {
     }
   }
   ctx.globalCompositeOperation = 'source-over';
+  tlShots(); // (each type's look on your shots: typelook.js)
   // Toddler Gravity: the rubber bands of gravity between orbs about to merge.
   if (G.voidBands && G.voidBands.length) {
     ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = '#c9184a';
@@ -1771,6 +1772,7 @@ function render() {
   ctx.lineCap = 'butt'; ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 1;
   drawTypeFx(); // (reaction pictures: typefx.js)
+  tlDraw(); // (drips, strands, spatter, wisps, flames and Static arcs off your attacks: typelook.js)
   nfDrawOver(); // (the v9.23 Feats, over everything: newfeats.js)
   ctx.globalCompositeOperation = 'lighter'; // arcs, blasts and shockwaves are energy
   for (const f of G.fx) {

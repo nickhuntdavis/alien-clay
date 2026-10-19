@@ -33,13 +33,21 @@ const { chromium } = require('playwright');
     const before = Object.values(G.muts || {}).reduce((a, b) => a + b, 0) + G.weapons.reduce((a, w) => a + ((w && w.wm10) || []).length, 0);
     e.hp = 0; killEnemy(e, {});
     const d = mdS().drops[0];
-    out.drop = d && d.c.title;
+    out.drop = !!d;
     if (!d) bad.push('no strand dropped');
     else {
       p.x = d.x; p.y = d.y; mdTick(1 / 60);
+      if (mdS().drops.length || !G.lootQueue.length || G.lootQueue[0].kind !== 'mutation') bad.push('strand did not queue a mutation screen');
+      const cs = genLoot({ kind: 'mutation' });
+      out.screen = cs.map(c => c.title);
+      if (cs.length !== 3 || cs.some(c => c.tag !== 'MUTATION')) bad.push('mutation screen cards: ' + cs.map(c => c.tag));
+      cs[0].apply();
       const after = Object.values(G.muts || {}).reduce((a, b) => a + b, 0) + G.weapons.reduce((a, w) => a + ((w && w.wm10) || []).length, 0);
       out.taken = [before, after];
-      if (after !== before + 1 || mdS().drops.length) bad.push('strand not absorbed: ' + out.taken);
+      if (after !== before + 1) bad.push('mutation not taken: ' + out.taken);
+      const ch = genLoot({ kind: 'chest' });
+      out.chest = ch.map(c => c.tag + ':' + c.title);
+      if (!ch.length || ch.some(c => c.tag !== 'MODIFIER' || !c.modFor)) bad.push('DNA strand not all weapon modifiers: ' + out.chest);
     }
     // 3. Ordinary enemies never carry.
     const o = makeEnemy(ENEMIES.crawler, p.x + 100, p.y); G.enemies.push(o); MUTDROP.chance = 1; mdTick(1 / 60); MUTDROP.chance = keep;
