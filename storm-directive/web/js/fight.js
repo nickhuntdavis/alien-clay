@@ -90,7 +90,7 @@ function fightHit(e, d, src, crit) {
   if (typeof s10Hit === 'function') s10Hit(e, src, res, t);
   wupHit(e, res, src); // (weapon branches: weapons24.js)
   if (src.rx) S.dmg.reaction += res.toHp; else S.dmg.weapon += res.toHp;
-  if (!src.rx && !src.echo) fightReact(e, t, res.raw, src, res);
+  if (!src.rx && !src.echo && !src.noRx) fightReact(e, t, res.raw, src, res); // (noRx: combo hits never set off a reaction, combos10.js)
   mutHit(e, d, src, t, res);
   return res.toHp;
 }
