@@ -200,6 +200,7 @@ function v10Tick(dt) {
   // Pressure Drop: its puddles push outwards instead of pulling.
   for (const z of G.zones) if (!z.v10 && z.src && z.src.w && z.src.w.def && z.src.w.def.v10) { z.v10 = 1; if (z.src.w.s.push) z.pull = -z.src.w.s.push; }
   modTick(dt); // (v10 modifiers, modifiers.js)
+  tlTick(dt); // (attack looks by damage type: typelook.js)
   if (G.v10fx) { for (const f of G.v10fx) f.life -= dt; G.v10fx = G.v10fx.filter(f => f.life > 0); }
 }
 
@@ -211,6 +212,7 @@ function v10Draw() {
   if (G && V10) modDraw(); // (v10 modifiers, modifiers.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {
+    if (tlBeam(f)) continue; // (each type's beam: typelook.js)
     const k = f.life / f.max, x1 = sx(f.x), y1 = sy(f.y), x2 = sx(f.x2), y2 = sy(f.y2);
     ctx.save(); ctx.strokeStyle = col(f.c); ctx.lineCap = 'round';
     ctx.globalAlpha = 0.25 * k; ctx.lineWidth = f.w * 2 * S; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
