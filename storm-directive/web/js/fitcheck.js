@@ -56,19 +56,33 @@
     s_wake: () => ['trail', 'lobbed'],
   };
   // Weapons whose branches run on their own damage type's status: never offered Switched at Birth.
-  const FIT_KEEP_TYPE = ['v_fire_proj', 'v_ice_pool', 'v_flame_pool', 'v_arcane_proj', 'v_soul_proj', 's_wake', 's_tesla'];
+  const FIT_KEEP_TYPE = ['v_fire_proj', 'v_ice_pool', 'v_flame_pool', 'v_arcane_proj', 'v_soul_proj', 's_tesla'];
+  // Weapons that may switch only to these types (their branch has a version for each): The Runs has a Static version (wup6.js rnBar).
+  const FIT_SAB_TYPES = { s_wake: ['shock'] };
+  // Card text for those versions: weapon -> type -> card title -> description.
+  const FIT_TEXT = { s_wake: { shock: {
+    "Can't Hold It": 'The faster you swim, the denser and stronger the trail (up to x2 at full speed; half as much when slow).',
+    'Burning Rubber': 'Sprinting leaves a live wire: anything crossing it is zapped by a bolt from the trail and jolted in place (once per enemy per 4 s).',
+    'Backdraft': 'Crossing your own trail sends a spark running along it both ways (1 s), zapping everything on it.',
+    'Full Circle': 'Closing a loop (crossing a trail you laid within 4 s) closes the circuit: the loop lights up and one bolt jolts everything inside.',
+    'Afterburner': 'The whole trail is a live wire: everything it touches is zapped and jolted (once per enemy per 3 s).',
+    'Hot Lap': 'Closing a loop closes the circuit (everything inside zapped and jolted) and doubles your swim speed for 2 s.',
+  } } };
 
   const key = w => (typeof w24Key === 'function' ? w24Key(w) : w && w.id);
   function fitBranchOut(w) { const f = FIT_BRANCH[key(w)]; return f ? f(w, U(w)) : []; }
   function fitModOut(w) { const f = FIT_MOD[key(w)]; return f ? f(w, U(w)) : []; }
-  const fitSabOk = w => w && !w.isSpell && w.def && !FIT_KEEP_TYPE.includes(key(w));
-  Object.assign(globalThis, { FIT_BRANCH, FIT_MOD, FIT_KEEP_TYPE, fitBranchOut, fitModOut, fitSabOk });
+  const fitSabTypes = w => (FIT_SAB_TYPES[key(w)] || V10_TYPES).filter(t => t !== w.def.elem);
+  const fitSabOk = w => w && !w.isSpell && w.def && !FIT_KEEP_TYPE.includes(key(w)) && fitSabTypes(w).length > 0;
+  Object.assign(globalThis, { FIT_BRANCH, FIT_MOD, FIT_KEEP_TYPE, FIT_SAB_TYPES, FIT_TEXT, fitBranchOut, fitModOut, fitSabOk });
 
   if (typeof wupForkCards === 'function') {
     const wf = wupForkCards;
     wupForkCards = function (req) {
       const cs = wf(req);
       if (!cs || !cs.length || !req || !req.w || globalThis.FIT_OFF) return cs;
+      const T = (FIT_TEXT[key(req.w)] || {})[req.w.def.elem];
+      if (T) for (const c of cs) if (T[c.title]) c.desc = T[c.title] + (c.desc.includes(' Costs: ') ? ' Costs: ' + c.desc.split(' Costs: ')[1] : '');
       const out = fitBranchOut(req.w), keep = cs.filter(c => !out.includes(c.title));
       return keep.length ? keep : cs;
     };
@@ -84,9 +98,10 @@
   if (typeof sabCard === 'function') {
     const sc = sabCard;
     sabCard = function () {
-      const keep = G.weapons; let c = null;
-      G.weapons = keep.filter(w => !w || w.isSpell || fitSabOk(w)); // (sabCard picks from G.weapons; slots without a def are skipped there)
-      try { c = G.weapons.some(fitSabOk) ? sc() : null; } finally { G.weapons = keep; }
+      const ok = G.weapons.filter(fitSabOk); if (!ok.length) return null;
+      const w = pick(ok), keep = G.weapons, types = V10_TYPES.slice(); let c = null;
+      G.weapons = [w]; V10_TYPES.splice(0, V10_TYPES.length, ...(FIT_SAB_TYPES[key(w)] || types)); // (sabCard picks a weapon from G.weapons and a type from V10_TYPES)
+      try { c = sc(); } finally { G.weapons = keep; V10_TYPES.splice(0, V10_TYPES.length, ...types); }
       return c;
     };
   }

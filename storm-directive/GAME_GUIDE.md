@@ -831,7 +831,7 @@ Some upgrades would break a weapon's branch, or do nothing for it, so they are n
 | **Unwanted Contact** | Chaining | It already chains. |
 | **The Runs** | Trail, Lobbed | It is already a trail. |
 
-**Switched at Birth** never picks Acid Spit, Nocturnal Emission, Hot Mess, Little Prick, Rent Free, The Runs or Unwanted Contact: their branches run on their own damage type's status. With only those weapons held, the card is not dealt.
+**Switched at Birth** never picks Acid Spit, Nocturnal Emission, Hot Mess, Little Prick, Rent Free or Unwanted Contact: their branches run on their own damage type's status. **The Runs** can only switch to Static: its trail then zaps instead of burning (a bolt from the trail jolts what crosses it; closing a loop closes the circuit and jolts everything inside), and its cards say so. With no weapon that may switch, the card is not dealt.
 
 ## Duo combos
 
