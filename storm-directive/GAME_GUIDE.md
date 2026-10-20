@@ -21,37 +21,38 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 14. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
    - [Lv 3 pool](#lv-3-pool)
 15. [Modifiers](#modifiers)
-16. [Duo combos](#duo-combos)
-17. [Stains](#stains)
-18. [Cursed cards](#cursed-cards)
-19. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
-20. [Stamina](#stamina)
-21. [Sequence evolutions](#sequence-evolutions)
-22. [Damage types](#damage-types)
-23. [Unstable reactions](#unstable-reactions)
-24. [Combo twists](#combo-twists)
-25. [Damage-type synergies](#damage-type-synergies)
-26. [Targeting directives](#targeting-directives)
-27. [Movement directives](#movement-directives)
-28. [Immune Response (difficulty)](#immune-response-difficulty)
-29. [Being born (prestige)](#being-born-prestige)
-30. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
+16. [Upgrades that do not fit](#upgrades-that-do-not-fit)
+17. [Duo combos](#duo-combos)
+18. [Stains](#stains)
+19. [Cursed cards](#cursed-cards)
+20. [Field pickups (temporary power-ups)](#field-pickups-temporary-power-ups)
+21. [Stamina](#stamina)
+22. [Sequence evolutions](#sequence-evolutions)
+23. [Damage types](#damage-types)
+24. [Unstable reactions](#unstable-reactions)
+25. [Combo twists](#combo-twists)
+26. [Damage-type synergies](#damage-type-synergies)
+27. [Targeting directives](#targeting-directives)
+28. [Movement directives](#movement-directives)
+29. [Immune Response (difficulty)](#immune-response-difficulty)
+30. [Being born (prestige)](#being-born-prestige)
+31. [Gene Bank (permanent upgrades)](#gene-bank-permanent-upgrades)
    - [Bonuses](#bonuses)
    - [GFP variants](#gfp-variants)
-31. [Enemies](#enemies)
+32. [Enemies](#enemies)
    - [Typed bullets and your statuses](#typed-bullets-and-your-statuses)
    - [First sightings](#first-sightings)
-32. [Rival champions](#rival-champions)
-33. [Terrain](#terrain)
-34. [Campaign (SPOILERS: where Level 1 is set)](#campaign-spoilers-where-level-1-is-set)
-35. [Achievement DNA](#achievement-dna)
-36. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
+33. [Rival champions](#rival-champions)
+34. [Terrain](#terrain)
+35. [Campaign (SPOILERS: where Level 1 is set)](#campaign-spoilers-where-level-1-is-set)
+36. [Achievement DNA](#achievement-dna)
+37. [Wave mode (The Petri Dish)](#wave-mode-the-petri-dish)
    - [Big hazards](#big-hazards)
-37. [Boss rewards](#boss-rewards)
-38. [Sperm samples](#sperm-samples)
-39. [Hidden rules](#hidden-rules)
-40. [Glossary](#glossary)
-41. [Secret Field Guide entries (spoilers)](#secret-field-guide-entries-spoilers)
+38. [Boss rewards](#boss-rewards)
+39. [Sperm samples](#sperm-samples)
+40. [Hidden rules](#hidden-rules)
+41. [Glossary](#glossary)
+42. [Secret Field Guide entries (spoilers)](#secret-field-guide-entries-spoilers)
 
 ## How upgrades work
 
@@ -805,6 +806,32 @@ Level-up cards for one weapon whose attack type fits. A weapon holds up to 3 dif
 | **Summoned** (Delivery) | The attack is delivered by pets. Four per weapon, eight in total. | Three pets on this weapon. | Four pets on this weapon. | Contact, Projectile |
 | **Gravity Well** | Warps space round the attack: drags enemies towards its centre and bends shots passing through. Three wells at once at most. | Wider wells, four at once. | Wider still, five at once. | Projectile, Burst, Pool |
 | **Lunge** | The attack moves you: forwards through a Contact target, backwards as recoil from Spread and Burst. Up to 160 units. | Up to 240 units. | Up to 320 units. | Contact, Spread, Burst |
+
+## Upgrades that do not fit
+
+Some upgrades would break a weapon's branch, or do nothing for it, so they are not offered to that weapon (web/js/fitcheck.js; keep this list in step with it). A tier always keeps at least one card.
+
+| Weapon | Not offered | Why |
+|---|---|---|
+| **Standard Issue** | Homing on Through and Through; Through and Through while it has Homing | Homing curves the shot off the line it pierces. |
+| **Maximum Gains** | Lunge on Shotgun Wedding (and the reverse); Baby Boom after Roundabout; Roundabout with Homing or Returning | Recoil pushes you out of point-blank range; a ring has no direction to kick from. |
+| **Nervous Wreck** | Lunge on Vice Grip or Back Off! (and the reverse) | Lunge drags you through the enemy you are holding or knocking away. |
+| **Panic Button** | Hair Trigger Happy after Personal Space; Self-Centred, Lobbed and Delayed Detonation with Personal Space (and the reverse) | Blasts round you cannot also land on clusters. |
+| **Acid Spit** | Projectile Vomit after Spittoon, Lob Lip, Nasty Fifth or Gargle, or with any modifier a Beam cannot take; Projectile modifiers after Projectile Vomit | It turns the glob into a beam. |
+| **Red Flagship** | Packet Loss; Multi-Monitor Setup on Overclocked | Packet Loss breaks every mastery; turning beams never hold one target. |
+| **Nocturnal Emission** | Snotwork Everywhere and Trail on Bogged Down (and the reverse) | Bogged Down keeps one trap at a time. |
+| **Little Prick** | Homing on Needlework (and the reverse) | Homing breaks the line. |
+| **Rent Free** | Poltergeist on Return to Sender or after Second Sighting; Returning on Return to Sender (and the reverse) | A wandering ghost never retraces; Returning doubles up. |
+| **Hot Mess** | Fire Drill; Powder Keg with modifiers a Burst cannot take; Hellmouth, Scorched Earth and Spontaneous Combustion after Powder Keg; Trail after Powder Keg | Fire Drill keeps enemies out of the patch Hotter Mess wants them in; Powder Keg patches no longer burn. |
+| **Family Ties** | Wormhole on Event Horizon; Spaghettification on Orbituary; Gravity Well; Multiplying on Big Bang, Eventually (and the reverse) | They undo the hold, the orbit or the merge count. |
+| **Soulmate Signal** | Conjoined Twins on Long-Distance Relationship or Toxic Codependency; Anchored Beam | Both promises need sweeps; the beam is already anchored. |
+| **Peekaboo** | Gravity Well, Lobbed, Delayed Detonation, Self-Centred; Mass Hysteria once switched to another damage type | Vanishing has no target or fuse; a well cancels the Fear. |
+| **Eggs** | Possession Fee once switched to another damage type | It needs Alien damage. |
+| **Nappy Mines** | Self-Centred, Delayed Detonation; Lingering Smoulder, Flare Up and Nappy Rash once switched to another damage type | Mines are already delayed; the patches need Fire. |
+| **Unwanted Contact** | Chaining | It already chains. |
+| **The Runs** | Trail, Lobbed | It is already a trail. |
+
+**Switched at Birth** never picks Acid Spit, Nocturnal Emission, Hot Mess, Little Prick, Rent Free, The Runs or Unwanted Contact: their branches run on their own damage type's status. With only those weapons held, the card is not dealt.
 
 ## Duo combos
 

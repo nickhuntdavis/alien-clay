@@ -2,6 +2,14 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## Unreleased (pushed to main without a build)
+- Systems: fitcheck (new), upgrades, combos, tests
+- Files: fitcheck.js (new), index.html, tests/fittest.js (new), tests/wup2test.js, wup3test.js, wup4test.js, tests/tools/guide.js, GAME_GUIDE.md, ARCHITECTURE.md
+- What: upgrades that break a weapon's branch (attack-type changes that strand masteries or modifiers, masteries that contradict the promise, modifiers that fight or duplicate a branch) are no longer offered to that weapon, and Switched at Birth never picks a weapon whose branch runs on its own status. New guide section "Upgrades that do not fit".
+- Save data: none.
+- Hooks: none (wraps wupForkCards, modCardOk, modDraftCands, sabCard from its own file).
+- Risk: Red Flagship never offers Packet Loss and Hot Mess never offers Fire Drill; those promises now show two Lv 6 cards. Card tests set FIT_OFF.
+
 ## v10.42 (versionCode 321)
 - Systems: school, tests
 - Files: see the folded entries below.
