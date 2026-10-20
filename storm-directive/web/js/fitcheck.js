@@ -56,9 +56,9 @@
     s_wake: () => ['trail', 'lobbed'],
   };
   // Weapons whose branches run on their own damage type's status: never offered Switched at Birth.
-  const FIT_KEEP_TYPE = ['v_fire_proj', 'v_ice_pool', 'v_flame_pool', 'v_arcane_proj', 'v_soul_proj', 's_tesla'];
+  const FIT_KEEP_TYPE = ['v_fire_proj', 'v_ice_pool', 'v_flame_pool', 'v_soul_proj', 's_tesla'];
   // Weapons that may switch only to these types (their branch has a version for each): The Runs has a Static version (wup6.js rnBar).
-  const FIT_SAB_TYPES = { s_wake: ['shock'] };
+  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'] }; // (Little Prick: Alien voodoo pins, wup2.js w2Voodoo)
   // Card text for those versions: weapon -> type -> card title -> description.
   const FIT_TEXT = { s_wake: { shock: {
     "Can't Hold It": 'The faster you swim, the denser and stronger the trail (up to x2 at full speed; half as much when slow).',
@@ -67,6 +67,15 @@
     'Full Circle': 'Closing a loop (crossing a trail you laid within 4 s) closes the circuit: the loop lights up and one bolt jolts everything inside.',
     'Afterburner': 'The whole trail is a live wire: everything it touches is zapped and jolted (once per enemy per 3 s).',
     'Hot Lap': 'Closing a loop closes the circuit (everything inside zapped and jolted) and doubles your swim speed for 2 s.',
+  } },
+  v_arcane_proj: { soul: {
+    'Bleeding Heart': 'Each hit leaves a pin in the enemy (up to 6). A full pincushion is Possessed and fights for you.',
+    'Leaky': 'A full pincushion flicks one of its pins at the nearest enemy every second.',
+    'Open Wound': 'A pinned enemy that dies leaves a ghost outline for 3 s; enemies crossing it flinch to a stop and gain a pin.',
+    'Sutures': 'A needle that pierces 3 or more leaves a ghost thread between the first and last enemy: anything crossing it is yanked back along it and gains a pin (2 s).',
+    'Reef Knot': 'A needle that pierces 5 stitches them into a ragdoll: they are pulled together, pinned and Possessed.',
+    'Terminal Clause': 'A needle that hits a pinned enemy under 15% health kills it outright (elites under 8%, never bosses), and its spirit slams into the nearest enemy.',
+    'Exsanguinate': 'Voodoo Doll: every hit leaves 3 pins, and a Possessed enemy bursts in pins when its time ends, pinning everything near it.',
   } } };
 
   const key = w => (typeof w24Key === 'function' ? w24Key(w) : w && w.id);

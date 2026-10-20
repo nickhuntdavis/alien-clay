@@ -831,7 +831,7 @@ Some upgrades would break a weapon's branch, or do nothing for it, so they are n
 | **Unwanted Contact** | Chaining | It already chains. |
 | **The Runs** | Trail, Lobbed | It is already a trail. |
 
-**Switched at Birth** never picks Acid Spit, Nocturnal Emission, Hot Mess, Little Prick, Rent Free or Unwanted Contact: their branches run on their own damage type's status. **The Runs** can only switch to Static: its trail then zaps instead of burning (a bolt from the trail jolts what crosses it; closing a loop closes the circuit and jolts everything inside), and its cards say so. With no weapon that may switch, the card is not dealt.
+**Switched at Birth** never picks Acid Spit, Nocturnal Emission, Hot Mess, Rent Free or Unwanted Contact: their branches run on their own damage type's status. **The Runs** can only switch to Static: its trail then zaps instead of burning (a bolt from the trail jolts what crosses it; closing a loop closes the circuit and jolts everything inside), and its cards say so. **Little Prick** can only switch to Alien: voodoo pins. Its Bleed stacks become pins you can see in the enemy, a full pincushion (6 pins) is Possessed, Sutures yanks crossers back along a ghost thread, Reef Knot stitches the knot into a Possessed ragdoll, Terminal Clause's spirit slams into the nearest enemy, and Exsanguinate becomes Voodoo Doll (Possessed enemies burst in pins when their time ends, in place of the healing). With no weapon that may switch, the card is not dealt.
 
 ## Duo combos
 

@@ -132,8 +132,11 @@ const { chromium } = require('playwright');
       'Pin Cushion': { sc: { hp: 1e5 }, keys: ['volley'], chk: w => w.w2.maxProj >= 6 || 'needles ' + w.w2.maxProj },
       'Coup de Grace': { sc: { hp: 20, maxHp: 100, refill: 1, n: 14 }, keys: ['coup'] },
     };
-    // ---- run every card
-    for (const id of IDS) {
+    // ---- run every card (pass 1: Little Prick switched to Alien, voodoo pins, with these extra counters)
+    const VOO = { 'Bleeding Heart': ['voodoo'], 'Sutures': ['yank'], 'Terminal Clause': ['spirit'] };
+    // (Alien Possesses enemies by itself, so the Final Prick scene sees few low-health hits; Voodoo Doll trades the healing for pin bursts)
+    const VOO_KEYS = { 'Final Prick': ['ding'], 'Exsanguinate': ['voodoo', 'pinburst'] };
+    for (const pass of [0, 1]) for (const id of pass ? ['v_arcane_proj'] : IDS) {
       const S = WUP[id];
       const cases = [];
       for (const k of ['A', 'B', 'C']) {
@@ -144,6 +147,7 @@ const { chromium } = require('playwright');
       for (const cs of cases) {
         const x = X[cs.name]; if (!x) { bad.push('no test for ' + cs.name); continue; }
         const w = setup(id, cs.lv === 3 ? 3 : cs.lv === 6 ? 6 : 10);
+        if (pass) sabSwitch(w, 'soul');
         if (cs.lv > 3) { w.lvl = 3; computeStats(w); if (!take(w, 3, S[cs.p].name)) continue; w.lvl = cs.lv; computeStats(w); }
         if (!take(w, cs.lv, cs.name)) continue;
         w2s(w); w.w2.maxChill = 0; w.w2.maxTraps = 0; w.w2.maxStacks = 0; w.w2.maxHit = 0; w.w2.maxProj = 0; w.w2.sawDaze = false;
@@ -161,9 +165,9 @@ const { chromium } = require('playwright');
           if (cs.name === 'Stuck Pixels') { const q = w.w2.px && w.w2.px[0], e = G.enemies.find(en => !en.dead && !en.egg); if (q && e) { e.x = q.x; e.y = q.y; } } // (an enemy wanders onto a dead pixel)
           if (x.status && !st && w.w2.fx.armed) { st = 1; pdef().snareT = G.t + 3; }
         });
-        const F = fxs(w), missing = (x.keys || []).filter(k => !(F[k] > 0));
+        const F = fxs(w), missing = ((pass && VOO_KEYS[cs.name]) || x.keys || []).concat(pass ? VOO[cs.name] || [] : []).filter(k => !(F[k] > 0));
         if (x.anyKeys && !x.anyKeys.some(k => F[k] > 0)) missing.push(x.anyKeys.join('|'));
-        if (missing.length) bad.push(`${cs.name} (${w.def.name} Lv ${cs.lv}): no ${missing.join(', ')}; fx ${JSON.stringify(F)}`);
+        if (missing.length) bad.push(`${pass ? 'voodoo ' : ''}${cs.name} (${w.def.name} Lv ${cs.lv}): no ${missing.join(', ')}; fx ${JSON.stringify(F)}`);
         if (x.chk) { const c = x.chk(w); if (c !== true) bad.push(`${cs.name}: ${c}`); }
         if (!(dealt() > 0)) bad.push(`${cs.name}: dealt nothing`);
         rows.push(`${cs.name}:${Object.keys(F).map(k => k + F[k]).join(',')}`);

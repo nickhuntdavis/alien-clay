@@ -2,6 +2,14 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## Unreleased: Little Prick has an Alien version (voodoo pins)
+- Systems: fitcheck, upgrades, tests
+- Files: wup2.js, fitcheck.js, tests/wup2test.js, tests/fittest.js, tests/tools/guide.js, GAME_GUIDE.md
+- What: Switched at Birth can now pick Little Prick, but only to Alien. Bleed stacks become pale pins; a full pincushion (6) is Possessed; Open Wound's ghost outline makes crossers flinch to a stop; Sutures yanks crossers back; Reef Knot Possesses the knot (RAGDOLL); Terminal Clause's spirit hits the nearest enemy for x3; Exsanguinate becomes Voodoo Doll (Possessed enemies burst in pins, no double healing). Needlework and Final Prick add a pin per hit in Alien, standing in for Blood's own Bleed. Card text changes to match.
+- Save data: none.
+- Hooks: none (wup2.js w2Voodoo, w2Possess, w2PinBase; fitcheck.js FIT_SAB_TYPES, FIT_TEXT).
+- Risk: Alien Possesses enemies by itself, so Final Prick finishes fewer enemies; no balance sim run.
+
 ## Unreleased: The Runs has a Static version
 - Systems: fitcheck, upgrades, tests
 - Files: wup6.js, fitcheck.js, tests/wup6test.js, tests/fittest.js, tests/tools/guide.js, GAME_GUIDE.md
