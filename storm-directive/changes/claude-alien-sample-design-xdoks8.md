@@ -1,5 +1,13 @@
 # claude/alien-sample-design-xdoks8
 
+## 2026-10-20 v10test allows the weapon draft's combo partner
+- Systems: tests
+- Files: tests/v10test.js
+- What: the weapon slot draft may swap one card for a combo partner of a weapon you hold, of any attack type (combos10.js, by design). v10test now allows that one card (marked c10) and still checks every other card brings a new attack type. It was failing about 2 runs in 3.
+- Save data: none.
+- Hooks: none.
+- Risk: none (test only).
+
 ## 2026-10-20 Level 0 no longer crashes at lesson 11 (v10.42)
 - Systems: school, tests
 - Files: school.js, tests/v10test.js, tests/.gitignore
