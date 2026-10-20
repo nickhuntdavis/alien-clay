@@ -306,7 +306,7 @@ function genesHurt(d) {
   if (!G.genes) return;
   const p = me(), P = G.P, T = G.mutT;
   if (mutOn('spite') && !(T.spiteT > G.t)) { T.spiteT = G.t + 1.5; aoe(p.x, p.y, 150, 30 * (1 + G.level * 0.15) * P.might, { elem: 'poison', wname: 'Spore of Spite', knock: 300, noCrit: true }, '#8dff4a'); }
-  if (mutOn('frostbitten')) { T.frostN = (T.frostN || 0) + 1; if (T.frostN <= 150) { P.maxHp += 1; p.hp += 1; } if (T.frostN % 50 === 0) P.armour += 1; }
+  if (mutOn('frostbitten')) { T.frostN = (T.frostN || 0) + 1; if (T.frostN <= 150) { P.maxHp += 1; p.hp += 1; } }
   if (mutOn('codependency') && !(T.codepT > G.t)) {
     T.codepT = G.t + 2;
     const ws = G.weapons.filter(w => w && w.reloadT > 0); if (ws.length) { const w = pick(ws); w.reloadT = 0; w.ammo = w.s.mag; }

@@ -82,7 +82,7 @@ feat({ id: 'bombardier', name: 'Bombardier Beetle', icon: 'BB', ico: 'steam', ty
     5: [fk('pressure', 'Pressure Valve', '50% more damage.'), fk('reflex', 'Reflex Action', 'A 30% shorter cooldown.')] } });
 
 feat({ id: 'vandegraaff', name: 'Van de Graaff', icon: 'VG', ico: 'bolt', type: 'static', atk: 'proj', start: 1, rar: 2, stam: 26,
-  line: `"Give me their bullets. I'm keeping them. Okay, have them back."`, does: 'A charged dome circles you for four seconds and swallows the enemy bullets it touches.',
+  line: `"Give me their bullets. I'm keeping them. Okay, have them back."`, does: 'A charged dome circles you for four seconds, pulling in and swallowing enemy bullets. When it fades, it fires one Static arc for each bullet swallowed.',
   base: { dmg: 16, cd: 12, area: 230, dur: 4 },
   stat: (w, s) => { if (f10Fk(w, 'cling')) s.dur *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
   when: w => { const p = me(); return G.ebul.some(b => !b.dead && Math.hypot(b.x - p.x, b.y - p.y) < 380) || f10Near(p.x, p.y, 300).length >= 3 ? {} : null; },
@@ -116,7 +116,7 @@ feat({ id: 'spinnbarkeit', name: 'Spinnbarkeit', icon: 'SK', ico: 'whip', type: 
     5: [fk('stretch', 'Stringy', '50% more damage.'), fk('more', 'Loose Ends', 'Six pairs instead of four.')] } });
 
 feat({ id: 'wanderingwomb', name: 'Wandering Womb', icon: 'WW', ico: 'void', type: 'soul', atk: 'proj', start: 1, rar: 2, stam: 24,
-  line: `"This was going to be our room. Look, it's going for a walk."`, does: 'A slow womb drifts toward the crowd for four seconds, hurting everything it passes through and pulling enemies in.',
+  line: `"This was going to be our room. Look, it's going for a walk."`, does: 'A slow womb drifts toward the crowd for four seconds, pulling enemies in and hurting each one it touches.',
   base: { dmg: 14, cd: 8, dur: 4, range: 420 },
   stat: (w, s) => { if (f10Fk(w, 'gestation')) s.dmg *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
   when: w => { const p = me(), t = acquire('cluster', w.s.range, p.x, p.y); return t && f10Near(p.x, p.y, w.s.range).length >= 2 ? { x: t.x, y: t.y } : null; },
