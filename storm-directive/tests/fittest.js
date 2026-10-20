@@ -17,12 +17,13 @@ const { chromium } = require('playwright');
     w = slot('v_phys_proj'); w.up = { p: 'B' }; if (modCardOk(w, 'homing')) bad.push('Homing on Through and Through');
     w.up = { p: 'A' }; if (!modCardOk(w, 'homing')) bad.push('Homing blocked on Ricochet Brain');
     // Switched at Birth: never on a status-bound weapon; no card when only those are held.
-    slot('v_ice_pool'); if (sabCard()) bad.push('Switched at Birth on Nocturnal Emission');
-    if (modDraftCands('level').some(c => c.fam === 'switch')) bad.push('switch candidate with only status weapons');
+    slot('v_ice_pool'); { const c = sabCard(); if (!c || c.elem !== 'soul') bad.push('Nocturnal Emission must switch to Alien only: ' + (c && c.elem)); }
     slot('v_phys_proj'); const c = sabCard(); if (!c) bad.push('no Switched at Birth on Standard Issue');
     // The Runs: may switch, but only to Static, and its cards then say so.
     w = slot('s_wake'); const r = sabCard(); if (!r || r.elem !== 'shock') bad.push('The Runs not offered Static: ' + (r && r.elem));
     else { r.apply(); w.up = { p: 'B' }; const d = wupForkCards({ w, lv: 6 }).map(c => c.desc).join(' '); if (!/circuit/.test(d)) bad.push('Static text missing'); }
+    w = slot('v_arcane_proj'); const v = sabCard(); if (!v || v.elem !== 'soul') bad.push('Little Prick not offered Alien: ' + (v && v.elem));
+    else { v.apply(); w.up = { p: 'A' }; const d = wupForkCards({ w, lv: 6 }).map(c => c.desc).join(' '); if (!/pincushion/.test(d)) bad.push('voodoo text missing'); }
     return bad;
   });
   console.log(r.length ? 'FAIL ' + r.join('; ') : 'fit check ok'); console.log('ERRORS', JSON.stringify(errors));

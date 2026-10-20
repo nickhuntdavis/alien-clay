@@ -2,6 +2,16 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## Unreleased: every weapon can take Switched at Birth
+
+### Folded from ccr-b4817013-jgeigi: 2026-10-20 Switched versions for every status-bound weapon
+- Systems: fitcheck, upgrades, tests
+- Files: wup2.js, wup3.js, wup4.js, fitcheck.js, tests/switchtest.js (new), tests/wup2test.js, tests/fittest.js, tests/tools/guide.js, GAME_GUIDE.md
+- What: Switched at Birth can now pick every weapon. The seven whose branches run on their own status switch only to one type with its own version: Acid Spit to Mucus (Snowball), Nocturnal Emission to Alien (Ectoplasm), Hot Mess to Blood (Crime Scene), Rent Free to Force (Poltergeist), Unwanted Contact to Fire (Wildfire), plus The Runs (Static) and Little Prick (Alien) from earlier. Mass Hysteria and Possession Fee are no longer hidden after a switch (they never needed Alien); Nappy Mines hides only Flare Up.
+- Save data: none.
+- Hooks: none (w2Snot/w2Ecto in wup2.js, w3Scene/w3Polter in w3BarFrac, ucWild in wup4.js ucChain; fitcheck.js FIT_SAB_TYPES, FIT_TEXT).
+- Risk: card and callout text for the new versions are drafts (user keeps them for now and edits in place: fitcheck.js FIT_TEXT, floatText calls in wup2/3/4/6.js); untested for balance.
+
 ## Unreleased (merged to main without a build or test run): 2026-10-20 v9 Feats, upgrades and mutations back in v10
 - Systems: feats9 (new), v9back (new), feats10, draft, mutation drops
 - Files: feats9.js (new), v9back.js (new), feats10.js, draft.js, mutdrop.js, v10.js, index.html, tests/featstest.js, tests/v9backtest.js (new), tests/run.sh
@@ -59,6 +69,14 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Save data: none (run log record gains scr, scrBy, menuT, merged, autoRw, mutDrops).
 - Hooks: v10.js v10Tick -> dirTick; draft.js draftBox -> dirGate, draftLoot -> dirN; ui.js openLoot -> dirTitle, pickLoot -> dirTwo and dirPicked; meta.js run record fields.
 - Risk: fewer, later screens in the race to the egg slow early power (win rate); draftBox no longer sets G.draftT or req.v10ok (DRAFT.budget is now unused); swapped-out mutations lose their effect only if it is read live (one-off ones are never offered for swap).
+
+### Folded from ccr-b4817013-jgeigi: Little Prick has an Alien version (voodoo pins)
+- Systems: fitcheck, upgrades, tests
+- Files: wup2.js, fitcheck.js, tests/wup2test.js, tests/fittest.js, tests/tools/guide.js, GAME_GUIDE.md
+- What: Switched at Birth can now pick Little Prick, but only to Alien. Bleed stacks become pale pins; a full pincushion (6) is Possessed; Open Wound's ghost outline makes crossers flinch to a stop; Sutures yanks crossers back; Reef Knot Possesses the knot (RAGDOLL); Terminal Clause's spirit hits the nearest enemy for x3; Exsanguinate becomes Voodoo Doll (Possessed enemies burst in pins, no double healing). Needlework and Final Prick add a pin per hit in Alien, standing in for Blood's own Bleed. Card text changes to match.
+- Save data: none.
+- Hooks: none (wup2.js w2Voodoo, w2Possess, w2PinBase; fitcheck.js FIT_SAB_TYPES, FIT_TEXT).
+- Risk: Alien Possesses enemies by itself, so Final Prick finishes fewer enemies; no balance sim run.
 
 ### Folded from main (unreleased): The Runs has a Static version
 - Systems: fitcheck, upgrades, tests

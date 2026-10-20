@@ -44,10 +44,46 @@ function w3BarFrac(e, k, frac, w, src, raw) {
   const cd = fightCd(e); cd.barQuietT[k] = 0; cd.bars[k] += frac;
   if (cd.bars[k] < 1) return null;
   cd.bars[k] = 0;
+  if (k === 'fire' && w3Scene(w)) { w3SpinOut(w, e); (G.w3ign || (G.w3ign = [])).push(e); return 'ignite'; }
+  if (k === 'soul' && w3Polter(w)) { w3Throw(w, e); return 'possess'; }
   const p = BAR_PAYOFF[k];
   fightPayoff(e, p, { raw: raw || cd.maxHp * 0.02 }, src || w3Src(w));
   if (p === 'ignite') (G.w3ign || (G.w3ign = [])).push(e);
   return p;
+}
+// Switched types (fitcheck.js lets Switched at Birth pick these): the weapon's own hits keep filling its home bar, and
+// the full bar pays off as the new type. Hot Mess in Blood is a Crime Scene: a full Burn bar is a SPIN-OUT (the enemy
+// slips, spins across the floor, cannot attack for 1 s and takes a hit), counted as an Ignite by the Ignite cards.
+// Rent Free in Force is a Poltergeist: every 4th hit on one enemy, or a full Alien bar from a card (Mass Possession: half
+// a bar a hit), picks the enemy up and THROWS it at the nearest enemy (both take a collision hit when it lands).
+const w3Scene = w => !!(w && w.def && w.def.elem === 'arcane' && w24Key(w) === 'v_flame_pool');
+const w3Polter = w => !!(w && w.def && w.def.elem === 'phys' && w24Key(w) === 'v_soul_proj');
+function w3TypeFeed(w) { // (each promise's Lv 3 card installs it; it reads the type at hit time)
+  const st = w3S(w); if (st.feed) return; st.feed = 1;
+  w3On(w, 'hit', (w, e, res, src) => {
+    if ((!res.statusOk && !w3Polter(w)) || (src.wupEcho && !src.zoneHit)) return; // (Force hits carry no status, so the poltergeist feeds on every hit)
+    if (w3Scene(w)) w3Bar(e, 'fire', res.raw, w, src);
+    else if (w3Polter(w) && w3Foe(e)) { e.w3pg = (e.w3pg || 0) + 1; if (e.w3pg >= 4) { e.w3pg = 0; w3Throw(w, e); } else if (e.w3pg === 1) ring(e.x, e.y, e.r + 5, '#f1ecff', 0.3, 2); } // (every 4th hit on one enemy throws it)
+  });
+}
+function w3SpinOut(w, e) {
+  w3S(w).spun = (w3S(w).spun || 0) + 1;
+  const a = Math.random() * Math.PI * 2;
+  if (!e.boss) { e.kx += Math.cos(a) * 520; e.ky += Math.sin(a) * 520; }
+  e.dazeT = Math.max(e.dazeT || 0, G.t + (e.boss ? 0.3 : 1));
+  for (let i = 0; i < 3; i++) after(i * 0.1, () => { if (G && !e.dead) ring(e.x, e.y, e.r + 4 + i * 4, '#c9184a', 0.3, 3); });
+  fxParts('drop', e.x, e.y, '#c9184a', 6, 120, 0.4, 3); floatText(e.x, e.y - e.r - 10, 'SPUN OUT', '#ff758f', 12, 0.7);
+  w3Hit(e, w.s.dmg * 2, w, { atk: 'pool' });
+}
+function w3Throw(w, e) {
+  w3S(w).thrown = (w3S(w).thrown || 0) + 1;
+  const t = w3Near(e.x, e.y, 320, o => o !== e && w3Foe(o));
+  floatText(e.x, e.y - e.r - 12, 'THROWN', '#f1ecff', 12, 0.7); ring(e.x, e.y, e.r + 8, '#f1ecff', 0.4, 3);
+  if (!t || e.boss) { w3Hit(e, w.s.dmg * 2, w); return; }
+  const dx = t.x - e.x, dy = t.y - e.y, d = Math.hypot(dx, dy) || 1;
+  if (!e.def.heavy && !e.def.spongy) { e.kx += dx / d * d * 3.9; e.ky += dy / d * d * 3.9; }
+  if (typeof w2Line === 'function') w2Line(e.x, e.y, t.x, t.y, 2, '#f1ecff', 0.3);
+  after(0.3, () => { if (!G) return; for (const q of [e, t]) w3Hit(q, w.s.dmg * W3_COL * 4, w, { atk: 'proj' }); if (!t.dead) { ring(t.x, t.y, t.r + 10, '#f1ecff', 0.4, 4); fxParts('spark', t.x, t.y, '#f1ecff', 6, 120, 0.3, 2); } });
 }
 // A heavy Force hit's side effects (11.3): knock off a Shell layer, a third of the Poise bar.
 function w3Heavy(e, w) {
@@ -312,20 +348,20 @@ function rfGhostArmy(w, dt) {
 
 wupReg('v_soul_proj', {
   A: { name: 'Ghost Through', tag: 'pass through the crowd', costs: '-15% damage to the first target.', shows: 'The ghost passes through bodies, leaving a faint wisp in each.', modes: 'KITE lines pursuers up',
-    lv3: { desc: 'Passes through up to 4 enemies; each one after the first takes 20% less.', apply(w) { w3On(w, 'stats', (w, s) => { s.pierce = Math.max(s.pierce || 0, 3); }); w3On(w, 'tick', rfGhost); } },
+    lv3: { desc: 'Passes through up to 4 enemies; each one after the first takes 20% less.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.pierce = Math.max(s.pierce || 0, 3); }); w3On(w, 'tick', rfGhost); } },
     lv6: [
       { name: 'Cold Spot', desc: 'Every enemy the ghost passes through also gains Alien build-up, so a long line fills several bars at once.', apply(w) { w3On(w, 'tick', rfColdSpot); } },
       { name: 'Second Sighting', desc: 'At full range the ghost fades and re-forms at the start of its path, flying the same line once more.', apply(w) { w3On(w, 'tick', rfSecond); } }],
     wild: { name: 'Nine-Tenths of the Law', desc: 'A Possessed enemy fires Rent Free shots at its mates.', apply(w) { w3On(w, 'tick', rfNineTenths); } } },
   B: { name: 'Return to Sender', tag: 'twice the haunting', costs: 'The shot is 30% slower.', shows: 'A translucent ghost reversing along its trail.', modes: 'ORBIT keeps enemies on both legs of the path',
-    lv3: { desc: 'After its hit the ghost fades, reappears and retraces its path back to you, hitting again.', apply(w) { modAdd(w, 'returning'); w3On(w, 'stats', (w, s) => { s.speed *= 0.7; }); w3On(w, 'tick', rfReturnTrail); } },
+    lv3: { desc: 'After its hit the ghost fades, reappears and retraces its path back to you, hitting again.', apply(w) { w3TypeFeed(w); modAdd(w, 'returning'); w3On(w, 'stats', (w, s) => { s.speed *= 0.7; }); w3On(w, 'tick', rfReturnTrail); } },
     lv6: [
       { name: 'Ghostly Tug', desc: 'On the way back it pulls a little of each enemy it passes towards you.', apply(w) { w3On(w, 'tick', rfTug); } },
       { name: 'Hitching a Ride', desc: 'A Possessed enemy it passes on the way back is dragged along for 1 s, bumping its mates.', apply(w) { w3On(w, 'tick', rfRide); } }],
     wild: { name: 'Haunted House', desc: 'Ghosts that miss sink into the floor and pop up under the next enemy that swims over them.', apply(w) { w3On(w, 'tick', rfHaunted); } } },
   C: { name: 'Unfinished Business', tag: 'they come back for their friends', costs: '-20% direct damage.', shows: 'A pale wisp orbits marked enemies, then a ghostly puff on death.', modes: 'HUNT tags a big target; COLLECT enjoys the bursts',
     lv3: { desc: 'A hit enemy that survives is haunted for 3 s; if it dies in that time its spirit bursts out (radius 70, 60% damage, Alien build-up).',
-      apply(w) {
+      apply(w) { w3TypeFeed(w);
         w3On(w, 'stats', (w, s) => { s.dmg *= 0.8; });
         w3On(w, 'hit', (w, e, res, src) => { if (!src.wupEcho && !e.dead && e.hp - res.toHp > 0) rfMark(w, e, 0); });
         w3On(w, 'tick', rfUnfinished);
@@ -425,7 +461,7 @@ function hmRumours(w, dt) {
     if (!w3Foe(e) || !e.cd) continue;
     const inside = e.w3inT > G.t - 0.2;
     if (inside) e.w3wasIn = G.t;
-    else if (e.w3wasIn > G.t - 0.3 && e.cd.burnT > 0 && !(e.w3tr > G.t)) { e.w3tr = G.t + 1.5; e.w3lx = e.x; e.w3ly = e.y; floatText(e.x, e.y - e.r - 8, 'RUMOUR', w.def.color, 10, 0.6); }
+    else if (e.w3wasIn > G.t - 0.3 && (e.cd.burnT > 0 || w3Scene(w)) && !(e.w3tr > G.t)) { e.w3tr = G.t + 1.5; e.w3lx = e.x; e.w3ly = e.y; floatText(e.x, e.y - e.r - 8, w3Scene(w) ? 'BLOODY FEET' : 'RUMOUR', w.def.color, 10, 0.6); } // (Blood: anything that walked through leaves prints)
     if (e.w3tr > G.t && Math.hypot(e.x - e.w3lx, e.y - e.w3ly) > 20) {
       e.w3lx = e.x; e.w3ly = e.y;
       let n = 0; for (const z of G.zones) if (z.src && z.src.w3fp && z.life > 0 && z.src.w === w) n++;
@@ -500,19 +536,19 @@ function hmScorched(w, dt) {
 
 wupReg('v_flame_pool', {
   A: { name: 'Hotter Mess', tag: "don't stand in it", costs: 'The patch is 20% smaller.', shows: 'The flames climb taller the longer someone stands in them.', modes: 'HOLD and NEST make enemies walk into it',
-    lv3: { desc: 'The longer an enemy stays inside, the faster its Burn bar fills (up to 3x after 2 s).', apply(w) { w3On(w, 'stats', (w, s) => { s.area *= 0.8; }); w3On(w, 'tick', hmHotter); w3On(w, 'hit', hmHotterHit); } },
+    lv3: { desc: 'The longer an enemy stays inside, the faster its Burn bar fills (up to 3x after 2 s).', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.area *= 0.8; }); w3On(w, 'tick', hmHotter); w3On(w, 'hit', hmHotterHit); } },
     lv6: [
       { name: 'Backdraft', desc: 'An enemy that Ignites inside the patch makes the whole patch flare up for 0.5 s (+50% damage).', apply(w) { w3On(w, 'tick', hmFlare); } },
       { name: 'Hot Tub', desc: 'The patch pulls enemies standing at its edge back in.', apply(w) { w3On(w, 'tick', hmHotTub); } }],
     wild: { name: 'Fire Drill', desc: 'Enemies refuse to enter the patch, so it works as a wall; anything already inside burns twice as fast.', apply(w) { w3On(w, 'tick', hmFireDrill); w3On(w, 'hit', hmFireDrillHit); } } },
   B: { name: 'Spreading Rumours', tag: 'the fire leaves with them', costs: 'The patch burns out 30% sooner.', shows: 'Scorched footprints leading away from the patch.', modes: 'KITE makes pursuers walk through and out again',
-    lv3: { desc: 'An enemy that walks out of the patch while Burning leaves small burning footprints for 1.5 s.', apply(w) { w3On(w, 'stats', (w, s) => { s.dur *= 0.7; }); w3On(w, 'tick', hmRumours); } },
+    lv3: { desc: 'An enemy that walks out of the patch while Burning leaves small burning footprints for 1.5 s.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.dur *= 0.7; }); w3On(w, 'tick', hmRumours); } },
     lv6: [
       { name: 'Hot Foot', desc: 'Those footprints fill Burn bars as fast as the patch does.', apply(w) { w3S(w).hot = true; } },
       { name: 'Burning Bridges', desc: 'An enemy that Ignites while trailing footprints drops a fresh small patch where it Ignites (once per enemy).', apply(w) { w3S(w).bridge = true; } }],
     wild: { name: 'Toasty', desc: 'Standing in your own patch heals you 1% of max health a second.', apply(w) { w3On(w, 'tick', hmToasty); } } },
   C: { name: 'Flash in the Pan', tag: 'short fuse, big finish', costs: 'Very little steady damage.', shows: 'The patch swells and glows before it erupts.', modes: 'ORBIT gathers a crowd on top of it',
-    lv3: { desc: 'Patches last half as long, but when one expires it erupts across its full radius and fills Burn bars by half.', apply(w) { w3On(w, 'stats', (w, s) => { s.dur *= 0.5; }); w3On(w, 'tick', hmFlash); } },
+    lv3: { desc: 'Patches last half as long, but when one expires it erupts across its full radius and fills Burn bars by half.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.dur *= 0.5; }); w3On(w, 'tick', hmFlash); } },
     lv6: [
       { name: 'Short Fuse', desc: 'The eruption goes off early the moment 4 or more enemies stand in it.', apply(w) { w3S(w).hair = true; } },
       { name: 'Powder Keg', desc: '[ATTACK to Burst] Patches no longer burn: they are delayed blasts that erupt after 1 s, with double the radius.', apply(w) { w3S(w).keg = true; } }],

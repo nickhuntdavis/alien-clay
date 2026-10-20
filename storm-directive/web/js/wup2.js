@@ -78,6 +78,7 @@ function w2BarBump(e, k, frac, src, resetTo) {
   const cd = fightCd(e); cd.bars[k] += frac; cd.barQuietT[k] = 0;
   if (cd.bars[k] < 1) return null;
   cd.bars[k] = resetTo || 0;
+  if (k === 'acid' && src && w2Snot(src.w)) { w2Snowball(src.w, e); return 'snow'; } // (Acid Spit switched to Mucus)
   if (k === 'acid') {
     if (cd.def === 'shell' && cd.layers > 0) { dropLayer(cd, { layersLost: 0 }); fst().layers++; ring(e.x, e.y, e.r + 6, FIGHT_COL.shell, 0.35, 5); fxParts('spark', e.x, e.y, FIGHT_COL.shell, 8, 140, 0.4, 3); return 'strip'; }
     fightPayoff(e, 'corrode', { raw: 0 }, src || {}); return 'corrode';
@@ -109,20 +110,44 @@ function w2Lob(w, tx, ty, src, o) {
 const w2Bleeding = e => !!(e.bleeds && e.bleeds.length);
 
 // ================================================================ 5. ACID SPIT (Acid, Projectile)
+// Switched to Mucus (fitcheck.js lets Switched at Birth pick it): Snowball. The weapon's own hits keep building the
+// Corrosion bar, now drawn as a snot coat; a full coat snowballs the enemy instead of stripping it: it swells, is stuck
+// fast for 1.5 s (bosses 0.4 s) and its sneeze Snares everything within 70. Acid Pools become snot puddles (zones take
+// the weapon's damage type). Stripped Bare is not offered (fitcheck.js).
+const W2_SNOT = '#b5e48c', w2Snot = w => !!(w && w.def && w.def.elem === 'ice' && w24Key(w) === 'v_fire_proj');
+const w2AcidCol = w => (w2Snot(w) ? W2_SNOT : W2_PINK);
+function w2Snowball(w, e) {
+  w2E(e).snowT = G.t + 3; // (counts as carrying a coat for Snot House, Backsplash)
+  e.frozen = Math.max(e.frozen || 0, e.boss ? 0.4 : 1.5);
+  ring(e.x, e.y, e.r + 16, W2_SNOT, 0.6, 7); ring(e.x, e.y, e.r + 30, W2_SNOT, 0.4, 3); fxParts('bubble', e.x, e.y, W2_SNOT, 8, 90, 0.6, 4);
+  if (e.dead) return;
+  floatText(e.x, e.y - e.r - 12, 'SNOWBALLED', W2_SNOT, 13, 0.8); w2Mark(w, 'snowball');
+  if (w2s(w).stripReset) { floatText(e.x, e.y - e.r - 26, 'SECONDS', W2_SNOT, 11, 0.6); w2Mark(w, 'seconds'); } // (Second Helping: the coat stays half on)
+  forNear(e.x, e.y, 70, o => { if (o !== e && !o.dead && !o.charmed) { w2Snare(o); w2Line(e.x, e.y, o.x, o.y, 2, W2_SNOT, 0.25); } });
+}
+// The coat: Mucus hits do not fill Corrosion on their own, so the weapon's own hits do (every promise).
+function w2SnotFeed(w) {
+  const S = w2s(w); if (S.snotFeed) return; S.snotFeed = 1;
+  wupOn(w, 'hit', (w, e, res, src) => {
+    if (!w2Snot(w) || !res.statusOk || src.wupEcho || !e.cd) return; // (a killing hit still coats, so Snot House sees it)
+    w2BarBump(e, 'acid', w2AcidFrac(e, res.raw), w2Base(w), w2s(w).stripReset);
+    if (!(w2E(e).coatT > G.realT)) { w2E(e).coatT = G.realT + 0.3; const k = clamp(e.cd.bars.acid, 0, 1); ring(e.x, e.y, e.r + 2 + k * 10, W2_SNOT, 0.3, 2 + k * 5); }
+  });
+}
 // A. Spit Take
 function w2SpitTick(w, dt) {
   const S = w2s(w);
   if (S.lock && !S.lock.dead && !(S.lockT > G.realT)) { // the coat thickens with the bar
     S.lockT = G.realT + 0.25;
     const k = clamp(fightCd(S.lock).bars.acid, 0, 1);
-    ring(S.lock.x, S.lock.y, S.lock.r + 3 + k * 8, W2_PINK, 0.3, 2 + k * 4);
-    fxParts('bubble', S.lock.x + rand(-1, 1) * S.lock.r, S.lock.y, W2_PINK, 1 + Math.round(k * 3), 24, 0.6, 2.5, -Math.PI / 2, 0.6);
+    ring(S.lock.x, S.lock.y, S.lock.r + 3 + k * 8, w2AcidCol(w), 0.3, 2 + k * 4);
+    fxParts('bubble', S.lock.x + rand(-1, 1) * S.lock.r, S.lock.y, w2AcidCol(w), 1 + Math.round(k * 3), 24, 0.6, 2.5, -Math.PI / 2, 0.6);
   }
 }
 wupReg('v_fire_proj', {
   A: { name: 'Spit Take', tag: 'HUNT', costs: 'the glob no longer re-targets until its target dies.', shows: 'a fizzing coat that thickens on the target.', modes: 'HUNT',
     lv3: { desc: 'Corrosion builds 50% faster, and a target takes up to +40% from Acid Spit as its bar fills.', apply(w) {
-      const S = w2s(w); S.lock = null;
+      const S = w2s(w); S.lock = null; w2SnotFeed(w);
       wupOn(w, 'dmg', (w, e, src) => 1 + 0.4 * clamp(fightCd(e).bars.acid, 0, 1));
       wupOn(w, 'hit', (w, e, res, src) => { // +50% Corrosion build-up
         if (!res.statusOk || res.payoffs.length || !e.cd) return;
@@ -168,7 +193,7 @@ wupReg('v_fire_proj', {
     } } },
   B: { name: 'Splash Damage', tag: 'ORBIT', costs: '-15% damage on the direct hit.', shows: 'visible droplets arcing off the target.', modes: 'ORBIT',
     lv3: { desc: 'A direct hit splatters 3 droplets onto enemies within 60 (30% damage, 30% Corrosion).', apply(w) {
-      const S = w2s(w); S.splat = 1;
+      const S = w2s(w); S.splat = 1; w2SnotFeed(w);
       wupOn(w, 'stats', (w, s) => { s.dmg *= 0.85; });
       wupOn(w, 'hit', (w, e, res, src) => w2Splat(w, e, res.raw, src, S.dip ? 2 : 1));
     } },
@@ -202,7 +227,7 @@ wupReg('v_fire_proj', {
     } } },
   C: { name: 'Bad Aftertaste', tag: 'COLLECT', costs: 'no help against the target itself.', shows: 'green-pink drips on marked enemies, a splat on death.', modes: 'COLLECT',
     lv3: { desc: 'Each hit leaves acidic residue on the target; when it dies, the residue splashes its Corrosion onto enemies within 70.', apply(w) {
-      const S = w2s(w); S.marks = new Set();
+      const S = w2s(w); S.marks = new Set(); w2SnotFeed(w);
       wupOn(w, 'hit', (w, e, res, src) => {
         const E = w2E(e); E.resT = G.t;
         if (!E.res) { E.res = 1; E.depth = 1; S.marks.add(e); if (S.marks.size > 60) S.marks.delete(S.marks.values().next().value); }
@@ -257,10 +282,10 @@ wupReg('v_fire_proj', {
     } },
     { name: 'Acid House', best: 'BC', desc: 'Every enemy that dies carrying Corrosion leaves an Acid Pool (radius 60, 3 s); touching pools merge.', apply(w) {
       const S = w2s(w); S.carry = new Set();
-      wupOn(w, 'hit', (w, e) => { if (e.cd && (e.cd.bars.acid > 0.04 || e.corrodedT > G.t)) { S.carry.add(e); if (S.carry.size > 80) S.carry.delete(S.carry.values().next().value); } });
+      wupOn(w, 'hit', (w, e) => { if (e.cd && (e.cd.bars.acid > 0.04 || e.corrodedT > G.t || (e.w2 && e.w2.snowT > G.t))) { S.carry.add(e); if (S.carry.size > 80) S.carry.delete(S.carry.values().next().value); } });
       wupOn(w, 'tick', (w, dt) => {
         for (const e of S.carry) {
-          if (!e.dead) { if (!e.cd || (e.cd.bars.acid < 0.02 && !(e.corrodedT > G.t))) S.carry.delete(e); continue; }
+          if (!e.dead) { if (!e.cd || (e.cd.bars.acid < 0.02 && !(e.corrodedT > G.t) && !(e.w2 && e.w2.snowT > G.t))) S.carry.delete(e); continue; }
           S.carry.delete(e);
           const mine = G.zones.filter(z => z.w2house === w && z.life > 0), r = 60;
           let near = mine.find(z => Math.hypot(z.x - e.x, z.y - e.y) < z.r + r);
@@ -276,10 +301,11 @@ function w2Splat(w, e, raw, src, gens) {
   const near = []; forNear(e.x, e.y, 60, o => { if (o !== e && !o.dead && !o.charmed) near.push(o); });
   for (let i = near.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [near[i], near[j]] = [near[j], near[i]]; }
   for (const o of near.slice(0, 3)) {
-    const carrying = o.cd && (o.cd.bars.acid > 0.05 || o.corrodedT > G.t);
+    const carrying = o.cd && (o.cd.bars.acid > 0.05 || o.corrodedT > G.t || (o.w2 && o.w2.snowT > G.t));
     w2Line(e.x, e.y, o.x, o.y, 3, W2_PINK, 0.18);
     fxParts('drop', e.x, e.y, W2_PINK, 2, 140, 0.3, 3, Math.atan2(o.y - e.y, o.x - e.x), 0.3);
     damageEnemy(o, raw * 0.3, w2Src(src, { atk: 'burst', wupEcho: true, noCrit: true }));
+    if (w2Snot(w) && !o.dead && o.cd) w2BarBump(o, 'acid', 0.3 * w2AcidFrac(o, raw), w2Base(w)); // (snot droplets coat too)
     w2Mark(w, 'droplet');
     if (gens > 1 && carrying && !o.dead) w2Splat(w, o, raw, src, gens - 1);
   }
@@ -525,6 +551,18 @@ wupReg('v_shock_beam', {
 // The traps of this slot, oldest first.
 const w2Traps = w => G.zones.filter(z => z.life > 0 && z.src && z.src.w === w);
 const w2Snare = e => { fightStatus(e, 'ice', 0, {}); };
+// Switched to Alien (fitcheck.js lets Switched at Birth pick it): Ectoplasm. Pale ghost hands rise out of each puddle and
+// grip whatever is in it (held at 50% speed: the Snare's stand-in, since Alien damage Snares nothing); strands and bogeys
+// grip the same way; stuck enemies are PULLED UNDER (two hands hold them down as they sink).
+const W2_ECTO = '#e6e0ff', w2Ecto = w => !!(w && w.def && w.def.elem === 'soul' && w24Key(w) === 'v_ice_pool');
+const w2NocCol = w => (w2Ecto(w) ? W2_ECTO : W2_GRN);
+function w2Grip(w, e, dur) { // the Snare, or a ghost hand's grip
+  if (!w2Ecto(w)) return w2Snare(e);
+  const E = w2E(e); E.gripT = Math.max(E.gripT || 0, G.t + (dur || 1.5));
+  e.chillAmt = Math.max(e.chillAmt || 0, e.boss ? 0.25 : 0.5); e.chill = Math.max(e.chill || 0, dur || 1.5);
+  if (!(E.handT > G.realT)) { E.handT = G.realT + 0.35; const a = rand(-1, 1) * 0.6; w2Line(e.x + Math.sin(a) * e.r, e.y + e.r + 10, e.x + Math.sin(a) * e.r * 0.5, e.y, 4, W2_ECTO, 0.25); fxParts('spark', e.x, e.y + e.r, W2_ECTO, 2, 40, 0.4, 2, -Math.PI / 2, 0.4); w2Mark(w, 'grip'); }
+}
+const w2Gripped = (w, e) => (w2Ecto(w) ? !!(e.w2 && e.w2.gripT > G.t) : snared(e));
 // Everything the trap cards share runs here, once a frame, driven by flags the cards set on the slot.
 function w2Noc(w, dt) {
   const S = w2s(w), p = G.player, now = G.t, traps = w2Traps(w);
@@ -535,6 +573,7 @@ function w2Noc(w, dt) {
   if (S.grow) { const occ = new Set(inside.values()); for (const z of occ) { z.w2r0 = z.w2r0 || z.r; if (z.r < z.w2r0 * 2) { z.r = Math.min(z.w2r0 * 2, z.r + z.w2r0 * 0.1 * dt); if (!(z.gT > G.realT)) { z.gT = G.realT + 0.5; w2Mark(w, 'grew'); } } } }
   for (const [e, z] of inside) {
     const E = w2E(e);
+    if (w2Ecto(w)) w2Grip(w, e, 1);
     if (S.drag) {
       e.chillAmt = Math.max(e.chillAmt, e.boss ? 0.3 : 0.6); e.chill = Math.max(e.chill, 4);
       if (!(E.dragT > G.realT)) { E.dragT = G.realT + 0.3; w2Line(z.x, z.y, e.x, e.y, 3, W2_GRN, 0.16); }
@@ -546,7 +585,7 @@ function w2Noc(w, dt) {
   for (const [e, z] of prev) {
     if (inside.has(e)) continue;
     const E = w2E(e); E.inT = 0;
-    if (e.dead) { if (S.bogey && snared(e) && S.bogeys.length < 5) { S.bogeys.push({ x: e.x, y: e.y, a: Math.random() * TAU, life: 6 }); ring(e.x, e.y, 14, W2_GRN, 0.4, 3); floatText(e.x, e.y - 12, 'BOGEY', W2_GRN, 11, 0.7); w2Mark(w, 'bogey'); } continue; }
+    if (e.dead) { if (S.bogey && w2Gripped(w, e) && S.bogeys.length < 5) { S.bogeys.push({ x: e.x, y: e.y, a: Math.random() * TAU, life: 6 }); ring(e.x, e.y, 14, W2_GRN, 0.4, 3); floatText(e.x, e.y - 12, 'BOGEY', W2_GRN, 11, 0.7); w2Mark(w, 'bogey'); } continue; }
     if (S.drag) { w2Line(z.x, z.y, e.x, e.y, 5, W2_GRN, 0.4); w2Mark(w, 'snapback'); }
     if (S.strand) { S.strands.push({ x1: z.x, y1: z.y, x2: e.x, y2: e.y, life: 2.5, got: new Set() }); w2Cap(S.strands, 10); w2Mark(w, 'strand'); }
   }
@@ -556,7 +595,8 @@ function w2Noc(w, dt) {
     const E = e.w2; if (!E || !(E.stuckUntil > now) || e.dead) continue;
     e.chillAmt = 1; e.chill = Math.max(e.chill, 0.2); e.kx = 0; e.ky = 0;
     if (S.gag) e.dazeT = Math.max(e.dazeT || 0, now + 0.2);
-    if (!(E.sinkT > G.realT)) { E.sinkT = G.realT + 0.3; ring(e.x, e.y + e.r * 0.4, e.r * 0.7, W2_GRN, 0.35, 3); fxParts('bubble', e.x, e.y + e.r * 0.3, W2_GRN, 1, 20, 0.6, 2.5, -Math.PI / 2, 0.5); }
+    if (w2Ecto(w) && !(E.ghT > G.realT)) { E.ghT = G.realT + 0.2; w2Line(e.x - e.r, e.y + e.r, e.x - e.r * 0.3, e.y, 3, W2_ECTO, 0.22); w2Line(e.x + e.r, e.y + e.r, e.x + e.r * 0.3, e.y, 3, W2_ECTO, 0.22); } // (two hands holding it down)
+    if (!(E.sinkT > G.realT)) { E.sinkT = G.realT + 0.3; ring(e.x, e.y + e.r * 0.4, e.r * 0.7, w2NocCol(w), 0.35, 3); fxParts('bubble', e.x, e.y + e.r * 0.3, w2NocCol(w), 1, 20, 0.6, 2.5, -Math.PI / 2, 0.5); }
   }
   if (S.conj) w2Conjoin(w);
   if (S.guard) for (const z of traps) if (!(z.w2bt > now)) for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - z.x, b.y - z.y) < z.r) { b.dead = true; z.w2bt = now + 0.3; spawnPart(b.x, b.y, W2_GRN, 3, 60, 0.25, 2); ring(b.x, b.y, 8, W2_GRN, 0.25, 2); w2Mark(w, 'guard'); break; }
@@ -575,15 +615,15 @@ function w2Noc(w, dt) {
     if (S.stT <= 0) {
       S.stT = 0.1;
       for (const g of segs) {
-        w2Line(g.x1, g.y1, g.x2, g.y2, g.net ? 3 : 2.5, w2Mix(W2_GRN, 0.4), 0.16);
+        w2Line(g.x1, g.y1, g.x2, g.y2, g.net ? 3 : 2.5, w2Ecto(w) ? W2_ECTO : w2Mix(W2_GRN, 0.4), 0.16);
         for (const e of G.enemies) {
           if (e.dead || e.charmed || e.egg) continue;
           if (Math.abs(e.x - (g.x1 + g.x2) / 2) > Math.abs(g.x1 - g.x2) / 2 + e.r + 8 || Math.abs(e.y - (g.y1 + g.y2) / 2) > Math.abs(g.y1 - g.y2) / 2 + e.r + 8) continue;
           if (w2SegDist(e.x, e.y, g.x1, g.y1, g.x2, g.y2) > e.r + 6) continue;
           const E = w2E(e);
           if (g.net) { if (E.netT > now) continue; E.netT = now + 1.2; } else { if (g.got.has(e)) continue; g.got.add(e); }
-          w2Snare(e); w2Mark(w, g.net ? 'netsnare' : 'strandsnare');
-          ring(e.x, e.y, e.r + 4, W2_GRN, 0.3, 3);
+          w2Grip(w, e); w2Mark(w, g.net ? 'netsnare' : 'strandsnare');
+          ring(e.x, e.y, e.r + 4, w2NocCol(w), 0.3, 3);
           if (S.twang && g.net) { let bt = null, bd = 1e9; for (const z of traps) { const d = Math.hypot(z.x - e.x, z.y - e.y); if (d < bd) { bd = d; bt = z; } } if (bt) { E.pull = { x: bt.x, y: bt.y, t: 0.5 }; w2Mark(w, 'twang'); } }
         }
       }
@@ -595,7 +635,7 @@ function w2Noc(w, dt) {
     for (const b of S.bogeys) {
       b.life -= dt; b.x += Math.cos(b.a) * 40 * dt; b.y += Math.sin(b.a) * 40 * dt;
       if (!(b.dT > G.realT)) { b.dT = G.realT + 0.1; w2Line(b.x, b.y, b.x, b.y, 12, W2_GRN, 0.12); }
-      forNear(b.x, b.y, 12, e => { if (e.dead || e.charmed) return; w2Snare(e); e.snareT = Math.max(e.snareT, now + 3); e.chill = Math.max(e.chill, 3); if (!(b.tT > G.realT)) { b.tT = G.realT + 0.5; ring(e.x, e.y, e.r + 4, W2_GRN, 0.3, 3); w2Mark(w, 'bogeysnare'); } });
+      forNear(b.x, b.y, 12, e => { if (e.dead || e.charmed) return; w2Grip(w, e, 3); e.snareT = Math.max(e.snareT, now + 3); e.chill = Math.max(e.chill, 3); if (!(b.tT > G.realT)) { b.tT = G.realT + 0.5; ring(e.x, e.y, e.r + 4, W2_GRN, 0.3, 3); w2Mark(w, 'bogeysnare'); } });
     }
     S.bogeys = S.bogeys.filter(b => b.life > 0);
   }
@@ -627,7 +667,7 @@ function w2Splat2(w, x, y, t) { // a Snot Bubble lands
 }
 function w2Stick(w, e, dur, cd) {
   const E = w2E(e); E.stuckUntil = G.t + dur; E.stuckCd = G.t + cd;
-  ring(e.x, e.y, e.r + 6, W2_GRN, 0.5, 4); floatText(e.x, e.y - e.r - 8, 'STUCK', W2_GRN, 11, 0.7); w2Mark(w, 'stuck');
+  const c = w2NocCol(w); ring(e.x, e.y, e.r + 6, c, 0.5, 4); floatText(e.x, e.y - e.r - 8, w2Ecto(w) ? 'PULLED UNDER' : 'STUCK', c, 11, 0.7); w2Mark(w, 'stuck');
 }
 function w2Conjoin(w) {
   const now = G.t, st = G.enemies.filter(e => !e.dead && e.w2 && e.w2.stuckUntil > now && !(e.conjT > now) && !(e.conjCd > now));
@@ -696,6 +736,11 @@ wupReg('v_ice_pool', {
 
 // ================================================================ 8. LITTLE PRICK (Blood, Projectile)
 const W2_BLEED_BY = 'Little Prick';
+// Little Prick switched to Alien (fitcheck.js lets Switched at Birth pick it): voodoo pins. Bleed stacks stay, drawn as
+// pale pins; a full pincushion is Possessed; Open Wound's pool makes crossers flinch; Sutures yanks crossers back;
+// Reef Knot Possesses the knot; Terminal Clause's spirit slams the nearest enemy; Exsanguinate's Possessed burst in pins.
+const W2_PIN = '#e6e0ff', w2Voodoo = w => !!(w && w.def && w.def.elem === 'soul');
+function w2Possess(w, e) { if (e.dead || e.boss || e.charmed) return false; fightPayoff(e, 'possess', { raw: 0 }, Object.assign(weaponSrc(w), { wupEcho: true, noProc: true })); if (!e.charmed) return false; const S = w2s(w); (S.poss || (S.poss = new Set())).add(e); return true; }
 // A Bleed stack beyond the engine's three: the engine's own list holds 3, extras wait in e.w2.bx and tick the same way.
 function w2BleedAdd(e, dps, cap) {
   const E = w2E(e), b = e.bleeds || (e.bleeds = []), bx = E.bx || (E.bx = []);
@@ -708,9 +753,15 @@ const w2Stacks = e => (e.bleeds ? e.bleeds.length : 0) + (e.w2 && e.w2.bx ? e.w2
 function w2BleedHit(w, e, res, src, extra, cap) {
   if (!res.statusOk || src.noStatus || e.dead) return;
   const dps = res.raw * 0.3 / 3, b = e.bleeds || (e.bleeds = []), E = w2E(e), bx = E.bx || (E.bx = []);
-  for (let i = 0; i < extra; i++) w2BleedAdd(e, dps, cap);
+  for (let i = 0; i < extra + (w2Voodoo(w) ? 1 : 0); i++) w2BleedAdd(e, dps, cap); // (Alien: the engine adds no Bleed of its own, so the pin is added here)
   if (b.length >= 3 && b.length + bx.length < cap) bx.push(b[0]);
   const S = w2s(w); S.bled.add(e); if (S.bled.size > 80) S.bled.delete(S.bled.values().next().value);
+}
+// Alien stands in for Blood's own Bleed on the promises that do not add stacks themselves (Needlework, Final Prick):
+// each hit leaves a pin (cap 3), checked at hit time so a later switch counts too.
+function w2PinBase(w) {
+  const S = w2BleedOn(w, 3); if (S.pinBase) return; S.pinBase = 1;
+  wupOn(w, 'hit', (w, e, res, src) => { if (w2Voodoo(w)) w2BleedHit(w, e, res, src, 0, w2s(w).cap); });
 }
 // Registers the shared Bleed bookkeeping on a slot, once: extra stacks tick, dots over the target, deaths are noticed.
 function w2BleedOn(w, cap) {
@@ -724,14 +775,18 @@ function w2BleedOn(w, cap) {
       if (E.bx && E.bx.length) {
         let d = 0; for (const b of E.bx) { d += b.dps * Math.min(dt, b.t); b.t -= dt; }
         E.bx = E.bx.filter(b => b.t > 0);
-        if (d > 0) damageEnemy(e, d, { elem: 'arcane', dot: true, noCrit: true, noStatus: true, noArc: true, wname: W2_BLEED_BY + ' (bleeding)' });
+        if (d > 0) damageEnemy(e, d, { elem: w2Voodoo(w) ? 'soul' : 'arcane', dot: true, noCrit: true, noStatus: true, noArc: true, wname: W2_BLEED_BY + ' (bleeding)' });
         if (e.dead) continue;
       }
-      if (n > 0) { E.hadBleed = 1; w2Pips(e, n, W2_RED); } else if (!(E.bx && E.bx.length)) S.bled.delete(e);
+      if (n > 0) { E.hadBleed = 1; w2Pips(e, n, w2Voodoo(w) ? W2_PIN : W2_RED); if (w2Voodoo(w) && S.cap >= 6 && n >= S.cap && w2Possess(w, e)) { floatText(e.x, e.y - e.r - 12, 'PINCUSHION', W2_PIN, 12, 0.8); ring(e.x, e.y, e.r + 8, W2_PIN, 0.5, 4); w2Mark(w, 'voodoo'); } } else if (!(E.bx && E.bx.length)) S.bled.delete(e);
+      if (S.exsang && w2Voodoo(w) && S.poss) for (const q of S.poss) if (q.dead || !q.charmed) { // Voodoo Doll: a Possessed enemy's end bursts in pins
+        S.poss.delete(q); ring(q.x, q.y, 90, W2_PIN, 0.5, 4); fxParts('spark', q.x, q.y, W2_PIN, 10, 160, 0.4, 2); w2Mark(w, 'pinburst');
+        forNear(q.x, q.y, 90, o => { if (o !== q && !o.dead && !o.charmed) { w2BleedAdd(o, w.s.dmg * 0.1, S.cap); S.bled.add(o); } });
+      }
       if (S.leak && n >= S.cap && !(E.leakT > G.t)) {
         E.leakT = G.t + 1;
         let o = null, bd = 170; for (const q of G.enemies) { if (q.dead || q === e || q.charmed) continue; const d = Math.hypot(q.x - e.x, q.y - e.y); if (d < bd) { bd = d; o = q; } }
-        if (o) { const dps = (e.bleeds && e.bleeds[0] ? e.bleeds[0].dps : w.s.dmg * 0.1); w2BleedAdd(o, dps, S.cap); S.bled.add(o); w2Line(e.x, e.y, o.x, o.y, 2, W2_RED, 0.3); fxParts('drop', e.x, e.y, W2_RED, 2, 80, 0.5, 2.5, Math.atan2(o.y - e.y, o.x - e.x), 0.4); w2Mark(w, 'leak'); }
+        if (o) { const dps = (e.bleeds && e.bleeds[0] ? e.bleeds[0].dps : w.s.dmg * 0.1); w2BleedAdd(o, dps, S.cap); S.bled.add(o); w2Line(e.x, e.y, o.x, o.y, 2, w2Voodoo(w) ? W2_PIN : W2_RED, 0.3); fxParts(w2Voodoo(w) ? 'spark' : 'drop', e.x, e.y, W2_RED, 2, 80, 0.5, 2.5, Math.atan2(o.y - e.y, o.x - e.x), 0.4); w2Mark(w, 'leak'); }
       }
     }
   });
@@ -753,7 +808,7 @@ function w2BleedDeath(w, e, E, n) {
 function w2PoolTick(w) { // Open Wound: pools hand out a Bleed stack to each enemy that crosses them once
   const S = w2s(w);
   for (const z of G.zones) if (z.w2wound && z.life > 0 && z.src && z.src.w === w) {
-    forNear(z.x, z.y, z.r, e => { if (e.dead || z.got.has(e)) return; z.got.add(e); w2BleedAdd(e, w.s.dmg * 0.1, S.cap); S.bled.add(e); ring(e.x, e.y, e.r + 4, W2_RED, 0.3, 3); w2Mark(w, 'woundbleed'); });
+    forNear(z.x, z.y, z.r, e => { if (e.dead || z.got.has(e)) return; z.got.add(e); w2BleedAdd(e, w.s.dmg * 0.1, S.cap); S.bled.add(e); if (w2Voodoo(w) && !e.boss) { e.frozen = Math.max(e.frozen || 0, 0.5); floatText(e.x, e.y - e.r - 8, '!', W2_PIN, 12, 0.5); } ring(e.x, e.y, e.r + 4, w2Voodoo(w) ? W2_PIN : W2_RED, 0.3, 3); w2Mark(w, 'woundbleed'); });
   }
 }
 // A needle's damage climbs with every enemy it has passed through (Needlework).
@@ -776,8 +831,9 @@ function w2Needlework(w) { // threads, knots and the red line behind a piercing 
       if (es.length >= 2) {
         const cx = es.reduce((a, e) => a + e.x, 0) / es.length, cy = es.reduce((a, e) => a + e.y, 0) / es.length;
         S.knots.push({ es, cx, cy, t: 0.45 }); w2Cap(S.knots, 4);
-        for (const e of es) { w2BleedAdd(e, w.s.dmg * 0.1, S.cap); S.bled.add(e); w2Line(e.x, e.y, cx, cy, 2.5, W2_RED, 0.4); }
-        ring(cx, cy, 24, W2_RED, 0.5, 4); floatText(cx, cy - 16, 'KNOT', W2_RED, 12, 0.7); w2Mark(w, 'knot');
+        const vd = w2Voodoo(w);
+        for (const e of es) { w2BleedAdd(e, w.s.dmg * 0.1, S.cap); S.bled.add(e); w2Line(e.x, e.y, cx, cy, 2.5, vd ? W2_PIN : W2_RED, 0.4); if (vd) w2Possess(w, e); } // (Alien: the knot is a ragdoll on your side)
+        ring(cx, cy, 24, vd ? W2_PIN : W2_RED, 0.5, 4); floatText(cx, cy - 16, vd ? 'RAGDOLL' : 'KNOT', vd ? W2_PIN : W2_RED, 12, 0.7); w2Mark(w, 'knot');
       }
     }
   }
@@ -788,7 +844,8 @@ function w2NeedleTick(w, dt) {
   for (const t of S.threads) {
     t.life -= dt;
     if (!(t.dT > G.realT)) { t.dT = G.realT + 0.1; w2Line(t.x1, t.y1, t.x2, t.y2, 1.8, W2_RED, 0.14); }
-    for (const e of G.enemies) if (!e.dead && !e.charmed && !t.got.has(e) && w2SegDist(e.x, e.y, t.x1, t.y1, t.x2, t.y2) <= e.r + 4) { t.got.add(e); w2BleedAdd(e, w.s.dmg * 0.1, S.cap); S.bled.add(e); ring(e.x, e.y, e.r + 4, W2_RED, 0.3, 3); w2Mark(w, 'threadbleed'); }
+    for (const e of G.enemies) if (!e.dead && !e.charmed && !t.got.has(e) && w2SegDist(e.x, e.y, t.x1, t.y1, t.x2, t.y2) <= e.r + 4) { t.got.add(e); w2BleedAdd(e, w.s.dmg * 0.1, S.cap); S.bled.add(e); ring(e.x, e.y, e.r + 4, W2_RED, 0.3, 3); w2Mark(w, 'threadbleed');
+      if (w2Voodoo(w) && !e.boss) { const dx = t.x1 - t.x2, dy = t.y1 - t.y2, l = Math.hypot(dx, dy) || 1; e.kx += dx / l * 420; e.ky += dy / l * 420; w2Mark(w, 'yank'); } }
   }
   S.threads = S.threads.filter(t => t.life > 0);
   for (const k of S.knots) { k.t -= dt; for (const e of k.es) if (!e.dead) w2Pull(e, k.cx, k.cy, 320, dt); }
@@ -818,7 +875,7 @@ wupReg('v_arcane_proj', {
   B: { name: 'Needlework', tag: 'KITE', costs: 'fires 25% slower.', shows: 'a red thread trailing the needle through the line.', modes: 'KITE',
     lv3: { desc: 'Pierces up to 5 enemies; each one after the first takes +10% more than the last.', apply(w) {
       const S = w2s(w); S.threads = []; S.knots = [];
-      w2BleedOn(w, 3);
+      w2PinBase(w);
       wupOn(w, 'stats', (w, s) => { s.pierce = Math.max(s.pierce || 0, 4); s.cd *= 1.25; });
       wupOn(w, 'tick', w2NeedleTick);
     } },
@@ -841,6 +898,7 @@ wupReg('v_arcane_proj', {
     } } },
   C: { name: 'Final Prick', tag: 'COLLECT', costs: '-25% damage to enemies above half health.', shows: 'a red pinprick flash and a ding on the finishing blow.', modes: 'COLLECT',
     lv3: { desc: '+100% damage to enemies under 30% health.', apply(w) {
+      w2PinBase(w);
       wupOn(w, 'dmg', (w, e, src) => { const f = e.hp / e.maxHp; return f < 0.3 ? 2 : f > 0.5 ? 0.75 : 1; });
       wupOn(w, 'hit', (w, e) => { if (e.hp / e.maxHp < 0.3) { G.fx.push({ type: 'flash', x: e.x, y: e.y, r: 10 + e.r * 0.4, color: '#ff3d5a', life: 0.1, max: 0.1 }); w2Mark(w, 'pinprick'); } });
       wupOn(w, 'kill', (w, e) => { floatText(e.x, e.y - e.r - 8, 'ding', '#ff758f', 11, 0.6); w2Mark(w, 'ding'); });
@@ -857,7 +915,10 @@ wupReg('v_arcane_proj', {
       { name: 'Terminal Clause', desc: 'A needle that hits a bleeding enemy under 15% health kills it outright (elites under 8%, never bosses).', apply(w) {
         wupOn(w, 'hit', (w, e, res) => {
           if (e.boss || e.dead || !w2Bleeding(e)) return;
-          if (e.hp < e.maxHp * (e.elite ? 0.08 : 0.15)) { e.hp = 0; ring(e.x, e.y, e.r + 8, W2_RED, 0.4, 4); floatText(e.x, e.y - e.r - 10, 'FINE PRINT', W2_RED, 11, 0.7); w2Mark(w, 'clause'); }
+          if (e.hp < e.maxHp * (e.elite ? 0.08 : 0.15)) {
+            e.hp = 0; ring(e.x, e.y, e.r + 8, W2_RED, 0.4, 4); floatText(e.x, e.y - e.r - 10, w2Voodoo(w) ? 'GAVE UP THE GHOST' : 'FINE PRINT', w2Voodoo(w) ? W2_PIN : W2_RED, 11, 0.7); w2Mark(w, 'clause');
+            if (w2Voodoo(w)) { const o = acquire('nearest', 260, e.x, e.y, e); if (o) { w2Line(e.x, e.y, o.x, o.y, 3, W2_PIN, 0.3); damageEnemy(o, w.s.dmg * 3, Object.assign(weaponSrc(w), { wupEcho: true, wname: 'Little Prick (spirit)' })); w2Mark(w, 'spirit'); } }
+          }
         });
       } },
     ],
