@@ -33,7 +33,7 @@ const { chromium } = require('playwright');
     const typesSeen = new Set(ids.filter(i => F10[i].start).map(i => F10[i].type).filter(Boolean));
     for (const t of TYPES) if (!typesSeen.has(t)) bad.push('starting pool lacks ' + t);
     out.start = ids.filter(i => F10[i].start).length;
-    if (out.start !== 16) bad.push('starting pool is ' + out.start); // (FEATS.md 5: 15, plus Van de Graaff added 20 Oct)
+    if (out.start !== 18) bad.push('starting pool is ' + out.start); // (FEATS.md 5: 15, plus Van de Graaff added 20 Oct, plus main's Hagfish and Running With Scissors)
 
     // ---- harness
     const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.ebul.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list); G.stats.dmg = {}; G.manual = { x: 0, y: 0 }; if (!G.stam) stamInit(); G.stam.cur = stamMax(); };
