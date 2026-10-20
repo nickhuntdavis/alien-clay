@@ -130,7 +130,7 @@ function arKite(p) {
     if (d < 420) { const k = (e.boss ? 3 : e.elite ? 1.6 : 1) / d; wx += dx * k / d; wy += dy * k / d; wn += k; }
   }
   if (!ne) return null;
-  if (!wn) { const l = nd || 1; return { x: (ne.x - p.x) / l * 0.6, y: (ne.y - p.y) / l * 0.6 }; } // nothing near: close in
+  if (!wn) { if (G.lvl) return null; const l = nd || 1; return { x: (ne.x - p.x) / l * 0.6, y: (ne.y - p.y) / l * 0.6 }; } // nothing near: close in (not in campaign levels, where the route steers and the nearest enemy can be behind a wall)
   const al = Math.hypot(wx, wy) || 1, ax = wx / al, ay = wy / al, side = arSide(p, -ax, -ay, 1);
   let gx = -ay * side * 0.5, gy = ax * side * 0.5; // sidestep
   if (nd < kIn) { const k = Math.min(1.3, (kIn - nd) / 80 + 0.35); gx += ax * k; gy += ay * k; }
