@@ -893,6 +893,8 @@ const UI = {
       splice: ['SPLICE A SEQUENCE', 'Force another Epigenetic Profile into your RNA. It works at half strength, and its weapons start turning up in drafts.'],
     };
     UI.pickedOne = false;
+    if (typeof pfInit === 'function') pfInit(req); // (n/2 chosen chip: pickfeel.js)
+    $('lootCards').classList.remove('stare');
     if (!titles[req.kind]) titles[req.kind] = typeof draftTitle === 'function' ? draftTitle(req) : [req.kind.toUpperCase(), '']; // (v10 forks: draft.js)
     if (typeof dirTitle === 'function') dirTitle(req, titles); // (take-two screens: director.js)
     if (req.kind === 'relic') titles.relic[0] = 'RELIC: ' + bossDef(req.boss).name.replace(/^THE /, '');
@@ -1013,8 +1015,8 @@ const UI = {
     const k = UI.lootReq && UI.lootReq.kind;
     if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo) || (typeof dirTwo === 'function' && dirTwo(UI.lootReq))) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'sfork' && k !== 'relic' && k !== 'rrelic' && UI.lootOpts.length > 1) {
       UI.pickedOne = true; o.taken = true;
-      const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
-      $('lootSub').textContent = 'Seconds: take one more.';
+      const el = $('lootCards').children[i]; if (el) el.style.pointerEvents = 'none';
+      if (typeof pfTaken === 'function') pfTaken(el, 1, pfTotal(UI.lootReq)); // (chip, held card and leaning rest: pickfeel.js)
       return;
     }
     if (typeof dirPicked === 'function') dirPicked(); // (time on reward screens: director.js)
