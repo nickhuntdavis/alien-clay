@@ -65,7 +65,7 @@ function updateBossIntro(dt) {
   const e = I.e, off = H * 0.16 / S;
   const k = 1 - Math.pow(0.015, dt);
   // Push the objective in on the boss (no knob clicks: this is the camera, not you).
-  ZOOM.z = lerp(ZOOM.z, Math.min(ZOOM.max, I.z0 * (I.foe ? 1.6 : 1.45)), 1 - Math.pow(0.05, dt)); S = S0 * ZOOM.z;
+  ZOOM.z = lerp(ZOOM.z, Math.min(ZOOM.max, I.z0 * (I.zk || (I.foe ? 1.6 : 1.45))), 1 - Math.pow(0.05, dt)); S = S0 * ZOOM.z;
   cam.x = lerp(cam.x, e.x, k); cam.y = lerp(cam.y, e.y + off, k);
   e.age += dt; e.flash = Math.max(0, e.flash - dt);
   if (e.twin) e.twin.age += dt;

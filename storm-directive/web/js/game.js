@@ -2781,7 +2781,8 @@ function update(dt) {
   if (G.banner) { G.banner.t -= dt; if (G.banner.t <= 0) G.banner = null; }
   compact();
   // Camera.
-  cam.x = lerp(cam.x, p.x, 1 - Math.pow(0.002, dt)); cam.y = lerp(cam.y, p.y, 1 - Math.pow(0.002, dt));
+  const roff = restCamTick(dt); // (close-up between waves: restcam.js)
+  cam.x = lerp(cam.x, p.x, 1 - Math.pow(0.002, dt)); cam.y = lerp(cam.y, p.y + roff, 1 - Math.pow(0.002, dt));
   cam.shake = Math.max(0, cam.shake - dt * 30);
 }
 
