@@ -15,7 +15,7 @@
 (function () {
   if (typeof V10 === 'undefined' || !V10 || typeof W24 === 'undefined') return;
   const CAP = 'acro_cap', SPRAY = 'acro_spray', SPARK = 'acro_spark', IDS = [CAP, SPRAY, SPARK];
-  const T = id => 'TODO_COPY:' + id;
+  const T = id => (typeof ACRO_COPY !== 'undefined' && ACRO_COPY[id]) || 'TODO_COPY:' + id;
   const PINK = TYPE_PAL.fire, ORANGE = TYPE_PAL.flame, TWO = Math.PI * 2;
 
   // ------------------------------------------------------------ the weapons
