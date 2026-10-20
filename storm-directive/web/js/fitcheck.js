@@ -29,7 +29,7 @@
     v_shock_beam: (w, u) => ['Packet Loss', ...(u.p === 'A' ? ['Multi-Monitor Setup'] : [])], // (Packet Loss breaks all three masteries)
     v_ice_pool: (w, u) => [...(u.p === 'B' ? ['Snotwork Everywhere'] : []), ...(has(w, 'trail') ? ['Bogged Down'] : [])],
     v_arcane_proj: (w, u) => has(w, 'homing') ? ['Needlework'] : [],
-    v_soul_proj: (w, u) => [...(u.p === 'B' || u.l6 === 'Second Sighting' ? ['Poltergeist'] : []), ...(has(w, 'returning') ? ['Return to Sender'] : [])],
+    v_soul_proj: (w, u) => [...(w.def.elem === 'phys' ? ['Nine-Tenths of the Law', 'Hitching a Ride'] : []),...(u.p === 'B' || u.l6 === 'Second Sighting' ? ['Poltergeist'] : []), ...(has(w, 'returning') ? ['Return to Sender'] : [])],
     v_flame_pool: (w, u) => ['Fire Drill', ...(holdsOutside(w, BURST_OK) ? ['Powder Keg'] : []), ...(u.l6 === 'Powder Keg' ? ['Hellmouth', 'Scorched Earth', 'Spontaneous Combustion'] : [])],
     s_void: (w, u) => [...(u.p === 'A' ? ['Wormhole'] : []), ...(u.p === 'B' ? ['Spaghettification'] : []), ...(has(w, 'multiplying') ? ['Big Bang, Eventually'] : [])],
     s_twin: (w, u) => u.p === 'A' || u.p === 'B' ? ['Conjoined Twins'] : [],
@@ -56,9 +56,9 @@
     s_wake: () => ['trail', 'lobbed'],
   };
   // Weapons whose branches run on their own damage type's status: never offered Switched at Birth.
-  const FIT_KEEP_TYPE = ['v_flame_pool', 'v_soul_proj', 's_tesla'];
+  const FIT_KEEP_TYPE = ['s_tesla'];
   // Weapons that may switch only to these types (their branch has a version for each): The Runs has a Static version (wup6.js rnBar).
-  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'], v_fire_proj: ['ice'], v_ice_pool: ['soul'] }; // (Little Prick: Alien voodoo pins, wup2.js w2Voodoo)
+  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'], v_fire_proj: ['ice'], v_ice_pool: ['soul'], v_flame_pool: ['arcane'], v_soul_proj: ['phys'] }; // (Hot Mess: Blood Crime Scene; Rent Free: Force Poltergeist, wup3.js) // (Little Prick: Alien voodoo pins, wup2.js w2Voodoo)
   // Card text for those versions: weapon -> type -> card title -> description.
   const FIT_TEXT = { s_wake: { shock: {
     "Can't Hold It": 'The faster you swim, the denser and stronger the trail (up to x2 at full speed; half as much when slow).',
@@ -87,6 +87,22 @@
     'Snotwork': 'Puddles within 200 of each other are joined by a ghostly strand; enemies crossing it are gripped.',
     'Bogey Man': 'An enemy that dies gripped in a puddle leaves a wandering ghost that rolls slowly, gripping what it touches for 3 s.',
     'Superglue': 'Anything gripped in a puddle is held down solid for 2 s: no moving, no attacking (elites 1 s; bosses only slowed). Once per enemy per 5 s.',
+  } },
+  v_flame_pool: { arcane: {
+    'Hotter Mess': 'Crime Scene: the longer an enemy stands in the blood, the sooner it slips (up to 3x after 2 s). A slip spins it out across the floor: it cannot attack for 1 s and takes a hit.',
+    'Backdraft': 'An enemy that slips inside the patch makes the whole patch slick for 0.5 s (+50% damage).',
+    'Spreading Rumours': 'Anything that walks out of the blood leaves bloody footprints for 1.5 s.',
+    'Hot Foot': 'Those footprints make enemies slip as fast as the patch does.',
+    'Burning Bridges': 'An enemy that slips while leaving footprints drops a fresh small patch where it slips (once per enemy).',
+    'Flash in the Pan': 'Patches last half as long, but when one dries up it splashes across its full radius, half-way to a slip for everything in it.',
+    'Spontaneous Combustion': 'Every enemy that slips, or Ignites from any source, drops a Hot Mess patch where it stands (once per enemy).',
+  } },
+  v_soul_proj: { phys: {
+    'Ghost Through': 'Poltergeist: passes through up to 4 enemies; each one after the first takes 20% less. Enough hits and the ghost picks an enemy up and THROWS it at the nearest one.',
+    'Cold Spot': 'Every enemy the ghost passes through gets closer to being thrown, so a long line can send several flying.',
+    'Return to Sender': 'After its hit the ghost fades, reappears and retraces its path back to you, hitting again. Enough hits and the enemy is thrown at its neighbour.',
+    'Unfinished Business': 'A hit enemy that survives is haunted for 3 s; if it dies in that time its spirit bursts out (radius 70, 60% damage) and stirs up the poltergeist.',
+    'Mass Possession': 'Every hit gets an enemy halfway to being thrown.',
   } },
   v_arcane_proj: { soul: {
     'Bleeding Heart': 'Each hit leaves a pin in the enemy (up to 6). A full pincushion is Possessed and fights for you.',
