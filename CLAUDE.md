@@ -10,8 +10,20 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - Tests: `storm-directive/tests/` (Playwright, headless Chromium).
 - Combat redesign (v10 proposals, not shipped): `redesign docs/`. Read `redesign docs/CLAUDE.md` first; `COMBAT_MATRIX.md` there is the single source of rules.
 - Visual style guide: `storm-directive/STYLE.md`. Read it before redesigning anything drawn in the world.
-- Voice guide: `storm-directive/voice_and_tone.md`. Read it before writing or editing any player-facing text (cards, narrator lines, names, tutorials, Field Guide).
+- Voice guide: `storm-directive/voice_and_tone.md`. The user writes all player-facing text (see Copy below); use the guide to write good briefs.
 - System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/changes/<branch>.md` per session, folded into `storm-directive/CHANGELOG.md` on merge into `main`.
+
+## Copy: the user writes it, you write the brief
+Never write player-facing text yourself (card names and descriptions, narrator lines, enemy and boss names, tutorials, Field Guide, menus, buttons, toasts, achievements). This includes rewording existing text.
+1. Build the feature with a placeholder string `TODO_COPY:<id>` (e.g. `TODO_COPY:card_spermicide_desc`) wherever text is needed. Placeholders must not crash or overflow the UI.
+2. In your reply, give one brief per placeholder:
+   - **ID** and **where it appears** (screen, trigger, how long it stays up).
+   - **Job**: what the player must understand or feel from it.
+   - **Facts to convey**: numbers, mechanics, damage types (use the game's terms, e.g. "Feat", "unstable reaction").
+   - **Length limit**: characters or words that fit the UI.
+   - **Neighbours**: 1 to 3 existing lines it sits beside, quoted, so the voice matches.
+3. When the user sends the copy, drop it in, replace the placeholders, and grep that no `TODO_COPY` remains before shipping. If some are still open at ship time, say which in one line.
+Internal text (code comments, commit messages, changelog fragments, NOTES.md) is still yours to write.
 
 ## Working with the user
 - British English. Use () rather than em dashes. The first line is the answer. No preamble or recap. Numbered steps and ranked lists. When asked for options, give 2 to 4, recommendation first. End with one action under 2 minutes, with real time estimates.
