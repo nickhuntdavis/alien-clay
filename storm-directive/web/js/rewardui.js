@@ -27,7 +27,7 @@ const RW_CAT = {
 const RW_MOD_ICO = { homing: 'seeker', piercing: 'nail', chaining: 'link', ricochet: 'pinball', returning: 'boomerang', orbiting: 'orbit', delayed: 'mine',
   lobbed: 'mortar', trail: 'footprints', selfcentred: 'nova', sweep: 'cyclone', anchored: 'bigbeam', volley: 'gatling', nth: 'dice', growing: 'mitosis',
   scaling: 'hourglass', multiplying: 'twins', summoned: 'drone', gravity: 'singularity', lunge: 'comet' };
-const RW_DEF_ICO = { latex: 'barrier', thick: 'bubble', fast: 'clock', shell: 'shield', squishy: 'bubble', evasion: 'footprints', thorns: 'spike' };
+const RW_DEF_ICO = { latex: 'pill', thick: 'bubble', fast: 'clock', shell: 'shield', squishy: 'bubble', evasion: 'footprints', thorns: 'spike' };
 const RW_TYPE_ICO = { force: 'hammer', mucus: 'droplet', static: 'bolt', blood: 'syringe', soul: 'ghost', acid: 'flask', fire: 'flame', any: 'spray' };
 const RW_TYPE_NAME = { force: 'Force', mucus: 'Mucus', static: 'Static', blood: 'Blood', soul: 'Alien', acid: 'Acid', fire: 'Fire' };
 

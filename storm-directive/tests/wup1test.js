@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
     // A fresh run with one weapon and enemies at (dx, dy[, hp]) from the swimmer.
     const scene = (id, pts, o) => {
       o = o || {};
-      UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
+      if (typeof RACE15 !== 'undefined') RACE15.xp = 1; /* (card tests: no race XP boost, so levels stay put: race15.js) */ UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
       G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list);
       G.weapons = [makeSlot(id, false, 1), null, null, null]; recomputeAll(); G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.P.crit = 0; recomputeAll(); G.moveDir = 'hold'; SET.spawnOff = 1; G.P.spawnMult = 0;
       const p = G.player; G.enemies.length = 0; G.stats.dmg = {}; if (o.quiet) G.weapons[0].cd = 1e9;

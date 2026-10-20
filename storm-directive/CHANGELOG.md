@@ -2,7 +2,39 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
-## Unreleased: The Runs has a Static version
+## v10.45 (versionCode 324)
+- Systems: reward director, race15, reward cards, build panel, rivals, mutation drops, draft, fitcheck, upgrades
+- Files: see the folded entries below.
+- What: merge of `claude/game-rewards-system-stm097` into `main`. The Reward Director paces reward screens (30 s gap that shortens with a backlog, take-two level drafts, egg cut-off); mutation carriers secure the mutation on the kill and a full Genome offers swaps; the race to the egg runs 15 minutes (egg at 15:00 or Lv 60 early, rivals only go for it from 15:00); Immersive rival track with standings; one card language (type colour, icon, fit line) and a v10 Build panel. Also ships main's unreleased fit check and Static version of The Runs.
+- Save data: none.
+- Hooks: see the folded entries.
+- Risk: race balance (race only: difficulty clock at real time, XP x1.8); player-facing text from this branch was written before the copy rule and awaits the user's copy.
+
+### Folded from claude/game-rewards-system-stm097: 2026-10-20 Rivals crack the egg at 15:00 (v10.44)
+- Systems: race15, rivals
+- Files: race15.js, rivals.js, tests/eggtest.js, tests/rewarduitest.js
+- What: In a race, rivals that reach Lv 60 keep racing but only head for the egg from 15:00 (raceRivalEgg), and they level a little slower (RIVAL.finish 860 in races). Invulnerable sim: first rival at the egg at 15:04, through the membrane at 18:04.
+- Save data: none.
+- Hooks: rivals.js rival egg mode -> raceRivalEgg.
+- Risk: the egg can no longer be opened early by a rival; eggtest now starts its break-in at 15:00.
+
+### Folded from claude/game-rewards-system-stm097: 2026-10-20 15-minute race, rival track, card language, Build panel (v10.43)
+- Systems: race15 (new), reward cards (new), build panel (new), reward director, difficulty, rivals, ui, tutorial
+- Files: race15.js (new), rewardui.js (new), buildpanel.js (new), game.js, render.js, rivals.js, inspect.js, meta.js, ui.js, director.js, tutorial.js, style.css, index.html, tests/rewarduitest.js (new), tests/sim/race.js
+- What: The race to the egg now runs 15 minutes: the egg opens at 15:00, or sooner at Lv 60 or sperm count 1, and getting there early pays 20 DNA per minute to spare on a win. The top bar counts down to the egg. Immersive mode shows a thin rival track (dots by level, yours ringed, the egg at the end, a clock tick); tapping it shows the standings while the slide runs at 10%. Every reward card now has a type colour, an icon and a fit line (Feat upgrades show their numbers before and after); a "N WAITING" badge shows held rewards and "SAVED" toasts say a reward is held; choosing a card rings you in its colour. The pause BUILD tab is a v10 Build panel.
+- Save data: none.
+- Hooks: game.js eggBreakable -> raceEggOpen, PT and spawn rate -> racePace, gainXp -> raceXp, levelsAhead -> raceCurveT, canvas tap -> raceTap; render.js drawHud -> raceHud, rwHud, drawTopBar -> raceClock, behind-pace chip -> raceCurveT, Immersive chip row -> raceTrackH; rivals.js updateShowdown -> raceTick; inspect.js inspectMul -> raceMul; meta.js runDna -> raceDnaBonus; ui.js renderLootCards -> rwCls, rwIcoHtml, rwFitHtml, pickLoot -> rwPicked, renderPause -> bpHtml; director.js dirTick -> rwSaved.
+- Risk: race balance moves a lot (race only: difficulty clock 1.5x -> 1.0x, XP x1.8, RIVAL.finish and COUNT.time are getters that differ in races). Race sim (bot, god mode): Lv 17/30/35 at 3/6/9 min, rivals break in about 12 min (was about 7). Petri Dish, Endless and levels unchanged.
+
+### Folded from claude/game-rewards-system-stm097: 2026-10-20 Reward Director: one gate for every reward screen (v10.42)
+- Systems: reward director (new), draft, mutation drops, mutations, ui, run log, campaign (Level 0 line)
+- Files: director.js (new), draft.js, mutdrop.js, mutations.js, ui.js, v10.js, meta.js, school.js, index.html, tests/drafttest.js, tests/mutdroptest.js, tests/sim/race.js
+- What: Reward screens outside wave modes now open at most one per 30 s of combat, highest priority first (boss, weapon slot, branch, fork, mutation, DNA strand, level draft), and a waiting reward climbs the order the longer it waits. Two waiting level drafts merge into one screen of four cards where you take two. Once the egg's membrane is awake no screen opens; waiting rewards apply themselves. Killing a mutation carrier now secures the mutation (the strand is only the show, no 20 s pickup), and a full Genome offers swaps instead of skipping the screen.
+- Save data: none (run log record gains scr, scrBy, menuT, merged, autoRw, mutDrops).
+- Hooks: v10.js v10Tick -> dirTick; draft.js draftBox -> dirGate, draftLoot -> dirN; ui.js openLoot -> dirTitle, pickLoot -> dirTwo and dirPicked; meta.js run record fields.
+- Risk: fewer, later screens in the race to the egg slow early power (win rate); draftBox no longer sets G.draftT or req.v10ok (DRAFT.budget is now unused); swapped-out mutations lose their effect only if it is read live (one-off ones are never offered for swap).
+
+### Folded from main (unreleased): The Runs has a Static version
 - Systems: fitcheck, upgrades, tests
 - Files: wup6.js, fitcheck.js, tests/wup6test.js, tests/fittest.js, tests/tools/guide.js, GAME_GUIDE.md
 - What: Switched at Birth can now pick The Runs, but only to Static. Its Burn and Ignite cards become visible zaps: a bolt from the trail jolts (staggers) what crosses it, waves are running sparks, and closing a loop is CIRCUIT CLOSED (the loop lights up, one bolt to everything inside). Card text changes to match.
@@ -10,7 +42,7 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Hooks: none (wup6.js rnBar replaces its own bar6 'fire' calls; fitcheck.js FIT_SAB_TYPES, FIT_TEXT).
 - Risk: Static Runs staggers a lot on Afterburner (every enemy per 3 s); untested for balance.
 
-## Unreleased (pushed to main without a build)
+### Folded from main (unreleased): upgrade fit check
 - Systems: fitcheck (new), upgrades, combos, tests
 - Files: fitcheck.js (new), index.html, tests/fittest.js (new), tests/wup2test.js, wup3test.js, wup4test.js, tests/tools/guide.js, GAME_GUIDE.md, ARCHITECTURE.md
 - What: upgrades that break a weapon's branch (attack-type changes that strand masteries or modifiers, masteries that contradict the promise, modifiers that fight or duplicate a branch) are no longer offered to that weapon, and Switched at Birth never picks a weapon whose branch runs on its own status. New guide section "Upgrades that do not fit".
