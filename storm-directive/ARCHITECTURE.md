@@ -25,7 +25,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 ## Game modes
 | System | Files | Role |
 |---|---|---|
-| **wave-mode** | `waves.js`, `campaign.js`, `dishfx.js` | `s002` Petri Dish: 20 waves, boss every 5th (`CAMP` tuning), wave conditions from wave 4. |
+| **wave-mode** | `waves.js`, `restcam.js`, `campaign.js`, `dishfx.js` | `restcam.js` zooms in on you while the next-wave button shows. `s002` Petri Dish: 20 waves, boss every 5th (`CAMP` tuning), wave conditions from wave 4. |
 | **race** | `game.js`, `rivals.js` | `s001` race to the egg, `s006` Endless; rival champions and the sperm count / Final Five. |
 | **campaign** | `levels.js`, `school.js` | ASCII-map levels (`LV_C` cells, `dEx`/`dPl` route maps, arenas `lvLock`). `s007` Level 1, `s008` Level 2 placeholder, `s009` Level 0 Swimming Lessons. Maps from `tests/tools/mouth.py`. |
 | **lab-bench** | `debug.js` | `s000` debug sample: spawn anything, god mode. |

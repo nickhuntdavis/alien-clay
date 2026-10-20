@@ -203,6 +203,18 @@ function tutTick() {
   G.tutQ.splice(at, 1); G.tutNow = null;
   tutOpen(key);
 }
+// What the camera swims to for a card: the terrain it is about, or the egg. Null = you.
+function tutFocus(key) {
+  const p = me();
+  let o = null;
+  if (key.startsWith('tr_') && G.terrain) {
+    let bd = 1e12;
+    for (const t of G.terrain.list) if (t.type === key.slice(3)) { const d = Math.hypot(t.x - p.x, t.y - p.y); if (d < bd) { bd = d; o = t; } }
+  } else if (key === 'egg' && G.core) o = G.core;
+  if (!o) return null;
+  const r = Math.max(20, o.r || 60);
+  return { x: o.x, y: o.y, r: Math.min(r, 120), zk: Math.max(ZOOM.min / ZOOM.z, Math.min(1.6, 123 / r / ZOOM.z)) };
+}
 function tutOpen(key) {
   if (tutSeen(key)) return false;
   META.seenTut = META.seenTut || {}; META.seenTut[key] = 1; saveMeta();
@@ -210,8 +222,8 @@ function tutOpen(key) {
   G.tutNext = G.t + TUT_GAPS[tutCat(key)]; G.stIntroNext = Math.max(G.stIntroNext || 0, G.t + 6);
   const C = TUT_CARDS[key]();
   if (typeof SET !== 'undefined' && SET.intros === 'quiet') { sysMsg('TUTORIAL: ' + C.name, `${C.what} ${C.tips[0]}`, C.colour, true); return false; }
-  const p = me(), spot = { x: p.x, y: p.y, r: p.r || 14, def: { color: C.colour, name: C.name }, age: 0, flash: 0, name: C.name };
-  G.bossIntro = { e: spot, t: 0, idx: 0, roar: true, z0: ZOOM.z, foe: 'tut', tut: key };
+  const p = me(), F = tutFocus(key), spot = { x: F ? F.x : p.x, y: F ? F.y : p.y, r: F ? F.r : p.r || 14, def: { color: C.colour, name: C.name }, age: 0, flash: 0, name: C.name };
+  G.bossIntro = { e: spot, t: 0, idx: 0, roar: true, z0: ZOOM.z, foe: 'tut', tut: key, zk: F && F.zk };
   G.state = 'bossIntro';
   INPUT.active = false; G.manual = null;
   sfx('level'); vibrate(40);
