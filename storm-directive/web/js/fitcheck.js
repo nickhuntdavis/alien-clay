@@ -56,9 +56,9 @@
     s_wake: () => ['trail', 'lobbed'],
   };
   // Weapons whose branches run on their own damage type's status: never offered Switched at Birth.
-  const FIT_KEEP_TYPE = ['v_ice_pool', 'v_flame_pool', 'v_soul_proj', 's_tesla'];
+  const FIT_KEEP_TYPE = ['v_flame_pool', 'v_soul_proj', 's_tesla'];
   // Weapons that may switch only to these types (their branch has a version for each): The Runs has a Static version (wup6.js rnBar).
-  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'], v_fire_proj: ['ice'] }; // (Little Prick: Alien voodoo pins, wup2.js w2Voodoo)
+  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'], v_fire_proj: ['ice'], v_ice_pool: ['soul'] }; // (Little Prick: Alien voodoo pins, wup2.js w2Voodoo)
   // Card text for those versions: weapon -> type -> card title -> description.
   const FIT_TEXT = { s_wake: { shock: {
     "Can't Hold It": 'The faster you swim, the denser and stronger the trail (up to x2 at full speed; half as much when slow).',
@@ -78,6 +78,15 @@
     'Wet Floor': 'The splash also leaves a small snot puddle where the enemy died (radius 35, 2 s).',
     'Battery Acid': 'Snot Bomb: every hit coats a non-boss enemy fully, so it snowballs at once (bosses: half a coat).',
     'Acid House': 'Snot House: every enemy that dies coated leaves a snot puddle (radius 60, 3 s); touching puddles merge.',
+  } },
+  v_ice_pool: { soul: {
+    'Extra Strength Snot': 'Ectoplasm: ghost hands rise from the puddle and grip what crosses it (40% speed), and keep hold for 1.5 s after it leaves.',
+    'Stringy': 'Enemies leaving drag a ghostly strand behind them; the next enemy to cross it is gripped too.',
+    'Rising Damp': 'The puddle grows by 10% every second it is gripping something (up to double size).',
+    'Bogged Down': 'An enemy that stays in the puddle for 1.5 s is pulled under: two hands hold it down for 1.5 s (once per enemy per 4 s).',
+    'Snotwork': 'Puddles within 200 of each other are joined by a ghostly strand; enemies crossing it are gripped.',
+    'Bogey Man': 'An enemy that dies gripped in a puddle leaves a wandering ghost that rolls slowly, gripping what it touches for 3 s.',
+    'Superglue': 'Anything gripped in a puddle is held down solid for 2 s: no moving, no attacking (elites 1 s; bosses only slowed). Once per enemy per 5 s.',
   } },
   v_arcane_proj: { soul: {
     'Bleeding Heart': 'Each hit leaves a pin in the enemy (up to 6). A full pincushion is Possessed and fights for you.',

@@ -551,6 +551,18 @@ wupReg('v_shock_beam', {
 // The traps of this slot, oldest first.
 const w2Traps = w => G.zones.filter(z => z.life > 0 && z.src && z.src.w === w);
 const w2Snare = e => { fightStatus(e, 'ice', 0, {}); };
+// Switched to Alien (fitcheck.js lets Switched at Birth pick it): Ectoplasm. Pale ghost hands rise out of each puddle and
+// grip whatever is in it (held at 50% speed: the Snare's stand-in, since Alien damage Snares nothing); strands and bogeys
+// grip the same way; stuck enemies are PULLED UNDER (two hands hold them down as they sink).
+const W2_ECTO = '#e6e0ff', w2Ecto = w => !!(w && w.def && w.def.elem === 'soul' && w24Key(w) === 'v_ice_pool');
+const w2NocCol = w => (w2Ecto(w) ? W2_ECTO : W2_GRN);
+function w2Grip(w, e, dur) { // the Snare, or a ghost hand's grip
+  if (!w2Ecto(w)) return w2Snare(e);
+  const E = w2E(e); E.gripT = Math.max(E.gripT || 0, G.t + (dur || 1.5));
+  e.chillAmt = Math.max(e.chillAmt || 0, e.boss ? 0.25 : 0.5); e.chill = Math.max(e.chill || 0, dur || 1.5);
+  if (!(E.handT > G.realT)) { E.handT = G.realT + 0.35; const a = rand(-1, 1) * 0.6; w2Line(e.x + Math.sin(a) * e.r, e.y + e.r + 10, e.x + Math.sin(a) * e.r * 0.5, e.y, 4, W2_ECTO, 0.25); fxParts('spark', e.x, e.y + e.r, W2_ECTO, 2, 40, 0.4, 2, -Math.PI / 2, 0.4); w2Mark(w, 'grip'); }
+}
+const w2Gripped = (w, e) => (w2Ecto(w) ? !!(e.w2 && e.w2.gripT > G.t) : snared(e));
 // Everything the trap cards share runs here, once a frame, driven by flags the cards set on the slot.
 function w2Noc(w, dt) {
   const S = w2s(w), p = G.player, now = G.t, traps = w2Traps(w);
@@ -561,6 +573,7 @@ function w2Noc(w, dt) {
   if (S.grow) { const occ = new Set(inside.values()); for (const z of occ) { z.w2r0 = z.w2r0 || z.r; if (z.r < z.w2r0 * 2) { z.r = Math.min(z.w2r0 * 2, z.r + z.w2r0 * 0.1 * dt); if (!(z.gT > G.realT)) { z.gT = G.realT + 0.5; w2Mark(w, 'grew'); } } } }
   for (const [e, z] of inside) {
     const E = w2E(e);
+    if (w2Ecto(w)) w2Grip(w, e, 1);
     if (S.drag) {
       e.chillAmt = Math.max(e.chillAmt, e.boss ? 0.3 : 0.6); e.chill = Math.max(e.chill, 4);
       if (!(E.dragT > G.realT)) { E.dragT = G.realT + 0.3; w2Line(z.x, z.y, e.x, e.y, 3, W2_GRN, 0.16); }
@@ -572,7 +585,7 @@ function w2Noc(w, dt) {
   for (const [e, z] of prev) {
     if (inside.has(e)) continue;
     const E = w2E(e); E.inT = 0;
-    if (e.dead) { if (S.bogey && snared(e) && S.bogeys.length < 5) { S.bogeys.push({ x: e.x, y: e.y, a: Math.random() * TAU, life: 6 }); ring(e.x, e.y, 14, W2_GRN, 0.4, 3); floatText(e.x, e.y - 12, 'BOGEY', W2_GRN, 11, 0.7); w2Mark(w, 'bogey'); } continue; }
+    if (e.dead) { if (S.bogey && w2Gripped(w, e) && S.bogeys.length < 5) { S.bogeys.push({ x: e.x, y: e.y, a: Math.random() * TAU, life: 6 }); ring(e.x, e.y, 14, W2_GRN, 0.4, 3); floatText(e.x, e.y - 12, 'BOGEY', W2_GRN, 11, 0.7); w2Mark(w, 'bogey'); } continue; }
     if (S.drag) { w2Line(z.x, z.y, e.x, e.y, 5, W2_GRN, 0.4); w2Mark(w, 'snapback'); }
     if (S.strand) { S.strands.push({ x1: z.x, y1: z.y, x2: e.x, y2: e.y, life: 2.5, got: new Set() }); w2Cap(S.strands, 10); w2Mark(w, 'strand'); }
   }
@@ -582,7 +595,8 @@ function w2Noc(w, dt) {
     const E = e.w2; if (!E || !(E.stuckUntil > now) || e.dead) continue;
     e.chillAmt = 1; e.chill = Math.max(e.chill, 0.2); e.kx = 0; e.ky = 0;
     if (S.gag) e.dazeT = Math.max(e.dazeT || 0, now + 0.2);
-    if (!(E.sinkT > G.realT)) { E.sinkT = G.realT + 0.3; ring(e.x, e.y + e.r * 0.4, e.r * 0.7, W2_GRN, 0.35, 3); fxParts('bubble', e.x, e.y + e.r * 0.3, W2_GRN, 1, 20, 0.6, 2.5, -Math.PI / 2, 0.5); }
+    if (w2Ecto(w) && !(E.ghT > G.realT)) { E.ghT = G.realT + 0.2; w2Line(e.x - e.r, e.y + e.r, e.x - e.r * 0.3, e.y, 3, W2_ECTO, 0.22); w2Line(e.x + e.r, e.y + e.r, e.x + e.r * 0.3, e.y, 3, W2_ECTO, 0.22); } // (two hands holding it down)
+    if (!(E.sinkT > G.realT)) { E.sinkT = G.realT + 0.3; ring(e.x, e.y + e.r * 0.4, e.r * 0.7, w2NocCol(w), 0.35, 3); fxParts('bubble', e.x, e.y + e.r * 0.3, w2NocCol(w), 1, 20, 0.6, 2.5, -Math.PI / 2, 0.5); }
   }
   if (S.conj) w2Conjoin(w);
   if (S.guard) for (const z of traps) if (!(z.w2bt > now)) for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - z.x, b.y - z.y) < z.r) { b.dead = true; z.w2bt = now + 0.3; spawnPart(b.x, b.y, W2_GRN, 3, 60, 0.25, 2); ring(b.x, b.y, 8, W2_GRN, 0.25, 2); w2Mark(w, 'guard'); break; }
@@ -601,15 +615,15 @@ function w2Noc(w, dt) {
     if (S.stT <= 0) {
       S.stT = 0.1;
       for (const g of segs) {
-        w2Line(g.x1, g.y1, g.x2, g.y2, g.net ? 3 : 2.5, w2Mix(W2_GRN, 0.4), 0.16);
+        w2Line(g.x1, g.y1, g.x2, g.y2, g.net ? 3 : 2.5, w2Ecto(w) ? W2_ECTO : w2Mix(W2_GRN, 0.4), 0.16);
         for (const e of G.enemies) {
           if (e.dead || e.charmed || e.egg) continue;
           if (Math.abs(e.x - (g.x1 + g.x2) / 2) > Math.abs(g.x1 - g.x2) / 2 + e.r + 8 || Math.abs(e.y - (g.y1 + g.y2) / 2) > Math.abs(g.y1 - g.y2) / 2 + e.r + 8) continue;
           if (w2SegDist(e.x, e.y, g.x1, g.y1, g.x2, g.y2) > e.r + 6) continue;
           const E = w2E(e);
           if (g.net) { if (E.netT > now) continue; E.netT = now + 1.2; } else { if (g.got.has(e)) continue; g.got.add(e); }
-          w2Snare(e); w2Mark(w, g.net ? 'netsnare' : 'strandsnare');
-          ring(e.x, e.y, e.r + 4, W2_GRN, 0.3, 3);
+          w2Grip(w, e); w2Mark(w, g.net ? 'netsnare' : 'strandsnare');
+          ring(e.x, e.y, e.r + 4, w2NocCol(w), 0.3, 3);
           if (S.twang && g.net) { let bt = null, bd = 1e9; for (const z of traps) { const d = Math.hypot(z.x - e.x, z.y - e.y); if (d < bd) { bd = d; bt = z; } } if (bt) { E.pull = { x: bt.x, y: bt.y, t: 0.5 }; w2Mark(w, 'twang'); } }
         }
       }
@@ -621,7 +635,7 @@ function w2Noc(w, dt) {
     for (const b of S.bogeys) {
       b.life -= dt; b.x += Math.cos(b.a) * 40 * dt; b.y += Math.sin(b.a) * 40 * dt;
       if (!(b.dT > G.realT)) { b.dT = G.realT + 0.1; w2Line(b.x, b.y, b.x, b.y, 12, W2_GRN, 0.12); }
-      forNear(b.x, b.y, 12, e => { if (e.dead || e.charmed) return; w2Snare(e); e.snareT = Math.max(e.snareT, now + 3); e.chill = Math.max(e.chill, 3); if (!(b.tT > G.realT)) { b.tT = G.realT + 0.5; ring(e.x, e.y, e.r + 4, W2_GRN, 0.3, 3); w2Mark(w, 'bogeysnare'); } });
+      forNear(b.x, b.y, 12, e => { if (e.dead || e.charmed) return; w2Grip(w, e, 3); e.snareT = Math.max(e.snareT, now + 3); e.chill = Math.max(e.chill, 3); if (!(b.tT > G.realT)) { b.tT = G.realT + 0.5; ring(e.x, e.y, e.r + 4, W2_GRN, 0.3, 3); w2Mark(w, 'bogeysnare'); } });
     }
     S.bogeys = S.bogeys.filter(b => b.life > 0);
   }
@@ -653,7 +667,7 @@ function w2Splat2(w, x, y, t) { // a Snot Bubble lands
 }
 function w2Stick(w, e, dur, cd) {
   const E = w2E(e); E.stuckUntil = G.t + dur; E.stuckCd = G.t + cd;
-  ring(e.x, e.y, e.r + 6, W2_GRN, 0.5, 4); floatText(e.x, e.y - e.r - 8, 'STUCK', W2_GRN, 11, 0.7); w2Mark(w, 'stuck');
+  const c = w2NocCol(w); ring(e.x, e.y, e.r + 6, c, 0.5, 4); floatText(e.x, e.y - e.r - 8, w2Ecto(w) ? 'PULLED UNDER' : 'STUCK', c, 11, 0.7); w2Mark(w, 'stuck');
 }
 function w2Conjoin(w) {
   const now = G.t, st = G.enemies.filter(e => !e.dead && e.w2 && e.w2.stuckUntil > now && !(e.conjT > now) && !(e.conjCd > now));
