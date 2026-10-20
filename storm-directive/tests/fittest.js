@@ -20,6 +20,9 @@ const { chromium } = require('playwright');
     slot('v_ice_pool'); if (sabCard()) bad.push('Switched at Birth on Nocturnal Emission');
     if (modDraftCands('level').some(c => c.fam === 'switch')) bad.push('switch candidate with only status weapons');
     slot('v_phys_proj'); const c = sabCard(); if (!c) bad.push('no Switched at Birth on Standard Issue');
+    // The Runs: may switch, but only to Static, and its cards then say so.
+    w = slot('s_wake'); const r = sabCard(); if (!r || r.elem !== 'shock') bad.push('The Runs not offered Static: ' + (r && r.elem));
+    else { r.apply(); w.up = { p: 'B' }; const d = wupForkCards({ w, lv: 6 }).map(c => c.desc).join(' '); if (!/circuit/.test(d)) bad.push('Static text missing'); }
     return bad;
   });
   console.log(r.length ? 'FAIL ' + r.join('; ') : 'fit check ok'); console.log('ERRORS', JSON.stringify(errors));

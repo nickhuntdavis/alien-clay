@@ -207,6 +207,16 @@ const { chromium } = require('playwright');
         trial(id, id + ' Lv10#' + i, { p: P, l10: i }, S.lv10[i], c => S.setup(c, 'ABC'[P], 'l10', i), S.frames); // (Clutch: filling past 6 eggs takes a while without level fire-rate gains)
       }
     }
+    { // The Runs switched to Static (wup6.js rnBar): every card again, with zaps and jolts in place of Burn
+      const S = SPEC.s_wake, zap = (key, kind, i) => c => { sabSwitch(c.w, 'shock'); S.setup(c, key, kind, i); };
+      for (let P = 0; P < 3; P++) {
+        const key = 'ABC'[P];
+        trial('s_wake', 'static ' + key + ' Lv3', { p: P }, S.l3[key], zap(key, 'l3', 0), S.frames);
+        for (let i = 0; i < 3; i++) trial('s_wake', 'static ' + key + ' Lv6#' + i, { p: P, l6: i }, S.l6[key][i], zap(key, 'l6', i), 420);
+      }
+      for (let i = 0; i < 3; i++) trial('s_wake', 'static Lv10#' + i, { p: i, l10: i }, S.lv10[i], zap('ABC'[i], 'l10', i), S.frames);
+      const sw = G.weapons.find(w => w && w24Key(w) === 's_wake'); if (sw && sw.def.elem !== 'shock') bad.push('static pass did not switch');
+    }
     return { bad, rows };
   });
   console.log(r.rows.join('\n'));
