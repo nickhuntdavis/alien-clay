@@ -23,7 +23,7 @@ function pfInit(req) {
 function pfSet(done, n) {
   const el = pfChip();
   el.classList.toggle('half', done > 0);
-  el.innerHTML = `<b>${done}/${n}</b> <span>${done ? 'TODO_COPY:pick_more' : 'TODO_COPY:pick_first'}</span>`;
+  el.innerHTML = `<b>${done}/${n}</b> <span>${done ? 'One more. No refunds.' : 'Take two. Start with one.'}</span>`;
   el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
 }
 // After a card is taken and more are still owed.
