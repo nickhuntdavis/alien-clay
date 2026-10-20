@@ -30,7 +30,7 @@ const V9UP = { // id -> when it can matter (null: always)
   temporal: G => !!(G.chrono && G.chrono.max > 0),
 };
 const V9UP_TXT = { // where the v9 text names something v10 retired
-  ram: 'TODO_COPY:up_ram_desc',
+  ram: 'Enemies you swim into take big damage. It grows with your level and max HP. At full speed it sends out a shockwave and their contact hurts 40% less.',
 };
 for (const id in V9UP) {
   const P0 = PASSIVES[id]; if (!P0) continue;
@@ -47,9 +47,9 @@ for (const id in V9UP) {
 const V9MUT = {
   spite: null, macjaw: null, origami: null, toothpick: null, tcells: null, soup: null, sludge: null, sugardaddy: null,
   powerhouse: null, sugarrush: null, peerpressure: null, codependency: null, turbo: null, bonk: null,
-  frostbitten: 'TODO_COPY:g_frostbitten_desc', bonejuice: null, roidrage: null, greedyhands: null,
+  frostbitten: 'Every hit you take: +1 max HP, up to +150.', bonejuice: null, roidrage: null, greedyhands: null,
   ointment: null, rerolldice: null, payload: null, runningjuice: null, overachiever: null, sniperrna: null,
-  chernobyl: null, zombiecore: null, tooangry: null, pointy: null, bipolar: 'TODO_COPY:g_bipolar_desc',
+  chernobyl: null, zombiecore: null, tooangry: null, pointy: null, bipolar: 'Acid, Mucus and Static +40%. Force and Blood -10%.',
 };
 const V9MUT_NO = { sludge: 'x_still' }; // (Screen Time and Can't Sit Still pull opposite ways: one or the other)
 for (const id in V9MUT) {
