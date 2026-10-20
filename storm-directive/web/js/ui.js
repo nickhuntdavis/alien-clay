@@ -286,7 +286,7 @@ const UI = {
     // System messages: one at a time, only while playing.
     if (G && G.state === 'play') {
       if (UI.msgT > 0) { UI.msgT -= dt; if (UI.msgT <= 0) $('sysmsg').classList.remove('on'); }
-      else if (G.show.msgQ.length) {
+      else if (G.show.msgQ.length && !(typeof wsTake === 'function' && wsTake(G.show.msgQ))) {
         const m = G.show.msgQ.shift(), box = $('sysmsg');
         box.querySelector('b').textContent = m.head; box.querySelector('b').style.color = col(m.color) === PAL.danger ? PAL.danger : XR.dim;
         box.querySelector('span').textContent = m.body;

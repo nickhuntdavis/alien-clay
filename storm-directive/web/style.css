@@ -1216,12 +1216,12 @@ body #sysmsg[data-who="con"] { background: transparent !important; border-color:
 body #sysmsg[data-who="con"].on { opacity: 1; }
 body #sysmsg[data-who="con"] b { display: none; }
 body #sysmsg[data-who="con"] span { color: #ece6ff; font-style: italic; letter-spacing: 0.3px; text-shadow: 0 0 6px rgba(185,160,255,0.45); }
-body #sysmsg[data-who="con"]::before { content: ''; position: absolute; inset: -11px -13px; z-index: -2; border-radius: inherit; pointer-events: none;
+body #sysmsg[data-who="con"]::before { content: ''; position: absolute; inset: -11px -13px; z-index: -2; border-radius: 40px; pointer-events: none;
   background: radial-gradient(circle at 8% 35%, #7a3cff 0%, transparent 38%), radial-gradient(circle at 92% 68%, #ff4fd8 0%, transparent 36%),
     radial-gradient(circle at 62% 0%, #3fc8ff 0%, transparent 34%), radial-gradient(circle at 30% 100%, #3dffb0 0%, transparent 32%),
     radial-gradient(circle at 100% 8%, #ffcf5a 0%, transparent 26%), radial-gradient(circle at 0% 95%, #ff6a5a 0%, transparent 24%);
-  filter: blur(9px); opacity: 0.85; will-change: transform, opacity; animation: veil 7s ease-in-out infinite alternate; }
-body #sysmsg[data-who="con"]::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  filter: blur(9px); opacity: 0.85; will-change: transform, opacity; animation: veil 7s ease-in-out infinite alternate, morph 9s ease-in-out infinite reverse; }
+body #sysmsg[data-who="con"]::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 40px; pointer-events: none; animation: morph 6s ease-in-out infinite, drift 8s ease-in-out infinite alternate;
   background: radial-gradient(1px 1px at 18% 28%, #ffffffb0, transparent), radial-gradient(1px 1px at 74% 62%, #ffffff80, transparent),
     radial-gradient(1.5px 1.5px at 88% 24%, #d9c8ff90, transparent), radial-gradient(1px 1px at 40% 82%, #ffffff70, transparent),
     radial-gradient(ellipse at 50% 50%, #000 66%, #000000e0 82%, #00000000 100%);
@@ -1229,3 +1229,28 @@ body #sysmsg[data-who="con"]::after { content: ''; position: absolute; inset: 0;
 @keyframes veil { 0% { transform: scale(0.97) rotate(-1.5deg); opacity: 0.65; } 100% { transform: scale(1.04) rotate(1.5deg); opacity: 0.95; } }
 /* Immersive hides system messages, but the two narrator voices still speak (they are the story). */
 body.immersive #sysmsg[data-who="sci"], body.immersive #sysmsg[data-who="con"] { display: block !important; }
+/* The inner voice's cloud shape-shifts: the black core and the colour fringe morph out of step (whisper.js indicator too). */
+@keyframes morph {
+  0%, 100% { border-radius: 40px 90px 30px 70px / 70% 40% 60% 45%; }
+  25% { border-radius: 80px 30px 90px 40px / 40% 70% 35% 65%; }
+  50% { border-radius: 30px 70px 50px 100px / 60% 35% 75% 40%; }
+  75% { border-radius: 90px 45px 35px 60px / 35% 65% 45% 70%; } }
+@keyframes morphDot { 0%, 100% { border-radius: 62% 38% 55% 45% / 48% 60% 40% 52%; } 33% { border-radius: 40% 60% 42% 58% / 60% 42% 58% 40%; } 66% { border-radius: 55% 45% 65% 35% / 38% 55% 45% 62%; } }
+@keyframes drift { 0% { transform: scale(1, 1) skewX(0deg); } 50% { transform: scale(1.03, 0.95) skewX(-2deg); } 100% { transform: scale(0.98, 1.05) skewX(2deg); } }
+/* Immersive: voice lines wait behind a small indicator (whisper.js). Tapping it shows the line and slows the slide to 10%. */
+body #sysmsg.ws { pointer-events: auto; }
+#wsDot { position: fixed; left: 16px; bottom: calc(300px + env(safe-area-inset-bottom)); width: 34px; height: 34px; padding: 0; border: 0; background: none;
+  pointer-events: auto; opacity: 0; transform: scale(0.4); transition: opacity 0.35s, transform 0.35s; visibility: hidden; isolation: isolate; }
+#wsDot.on { opacity: 1; transform: scale(1); visibility: visible; }
+#wsDot i, #wsDot::before { content: ''; position: absolute; border-radius: 40%; }
+#wsDot b { display: none; position: relative; font: 700 9px var(--mono, monospace); letter-spacing: 1.5px; color: var(--dim, #9fb0c0); }
+#wsDot[data-who="con"] i { inset: 0; background: radial-gradient(circle at 50% 50%, #000 55%, #000000d0 75%, transparent 100%); z-index: -1;
+  animation: morphDot 4s ease-in-out infinite, drift 5s ease-in-out infinite alternate; }
+#wsDot[data-who="con"]::before { inset: -7px; z-index: -2; filter: blur(6px);
+  background: radial-gradient(circle at 10% 30%, #7a3cff, transparent 45%), radial-gradient(circle at 90% 70%, #ff4fd8, transparent 45%),
+    radial-gradient(circle at 55% 0%, #3fc8ff, transparent 40%), radial-gradient(circle at 35% 100%, #3dffb0, transparent 40%);
+  animation: veil 2.4s ease-in-out infinite alternate, morphDot 5s ease-in-out infinite reverse; }
+#wsDot[data-who="sci"] { width: 40px; height: 24px; }
+#wsDot[data-who="sci"] i { inset: 0; border-radius: 6px; background: #000000cc; border: 1px solid #c4daf055; z-index: -1; animation: wsPulse 1.6s ease-in-out infinite alternate; }
+#wsDot[data-who="sci"] b { display: block; }
+@keyframes wsPulse { 0% { opacity: 0.55; } 100% { opacity: 1; } }

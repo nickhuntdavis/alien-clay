@@ -37,7 +37,7 @@ function sponsorGift(milestone) {
   const sponsor = pick(SPONSORS), type = pick(['heal', 'rage', 'shield', 'magnet', 'chest', 'nuke', 'chest']);
   const p = me(), a = Math.random() * TAU;
   G.pickups.push(makePickup(type, p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70, { t: 'sponsor', name: lvOn() ? 'the egg' : sponsor }));
-  if (lvOn()) sysMsg('A SIGN FROM THE EGG', `Devotion ${fmtViewers(milestone)}. The egg is calling, and you are sure it has sent you a ${POWERUPS[type].name}. Who else would?`, '#ffb400', true, 'con');
+  if (lvOn()) sysMsg('A SIGN FROM THE EGG', `Devotion ${fmtViewers(milestone)}. The egg is calling, and we are sure it has sent us a ${POWERUPS[type].name}. Who else would?`, '#ffb400', true, 'con');
   else sysMsg('LAB NOTE', `${fmtViewers(milestone)} data points. Found a ${POWERUPS[type].name} in ${sponsor}. Adding it to the slide. Do not ask what it was doing there.`, '#ffb400', true, 'sci');
   if (!lvOn()) achieve('sponsor');
 }
