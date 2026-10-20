@@ -1,0 +1,7 @@
+## 2026-10-20 Reward Director: one gate for every reward screen (v10.42)
+- Systems: reward director (new), draft, mutation drops, mutations, ui, run log, campaign (Level 0 line)
+- Files: director.js (new), draft.js, mutdrop.js, mutations.js, ui.js, v10.js, meta.js, school.js, index.html, tests/drafttest.js, tests/mutdroptest.js, tests/sim/race.js
+- What: Reward screens outside wave modes now open at most one per 30 s of combat, highest priority first (boss, weapon slot, branch, fork, mutation, DNA strand, level draft), and a waiting reward climbs the order the longer it waits. Two waiting level drafts merge into one screen of four cards where you take two. Once the egg's membrane is awake no screen opens; waiting rewards apply themselves. Killing a mutation carrier now secures the mutation (the strand is only the show, no 20 s pickup), and a full Genome offers swaps instead of skipping the screen.
+- Save data: none (run log record gains scr, scrBy, menuT, merged, autoRw, mutDrops).
+- Hooks: v10.js v10Tick -> dirTick; draft.js draftBox -> dirGate, draftLoot -> dirN; ui.js openLoot -> dirTitle, pickLoot -> dirTwo and dirPicked; meta.js run record fields.
+- Risk: fewer, later screens in the race to the egg slow early power (win rate); draftBox no longer sets G.draftT or req.v10ok (DRAFT.budget is now unused); swapped-out mutations lose their effect only if it is read live (one-off ones are never offered for swap).

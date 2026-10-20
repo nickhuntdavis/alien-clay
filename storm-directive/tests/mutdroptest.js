@@ -1,6 +1,6 @@
 // Mutations from elites (mutdrop.js) and modifiers in loot boxes (modcards.js): no mutation card in any draft, a DNA
-// strand always deals a modifier and a level-up never does, an elite carrier drops a labelled strand, and swimming
-// into it staples the mutation in.
+// strand always deals a modifier and a level-up never does, killing an elite carrier secures the mutation (the strand
+// flies to you as the show), and a full Genome offers swaps.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -34,10 +34,11 @@ const { chromium } = require('playwright');
     e.hp = 0; killEnemy(e, {});
     const d = mdS().drops[0];
     out.drop = !!d;
+    if (!G.lootQueue.length || G.lootQueue[0].kind !== 'mutation') bad.push('kill did not secure a mutation screen');
     if (!d) bad.push('no strand dropped');
     else {
       p.x = d.x; p.y = d.y; mdTick(1 / 60);
-      if (mdS().drops.length || !G.lootQueue.length || G.lootQueue[0].kind !== 'mutation') bad.push('strand did not queue a mutation screen');
+      if (mdS().drops.length || G.lootQueue.length !== 1) bad.push('strand absorb should only be the show');
       const cs = genLoot({ kind: 'mutation' });
       out.screen = cs.map(c => c.title);
       if (cs.length !== 3 || cs.some(c => c.tag !== 'MUTATION')) bad.push('mutation screen cards: ' + cs.map(c => c.tag));
@@ -49,6 +50,16 @@ const { chromium } = require('playwright');
       out.chest = ch.map(c => c.tag + ':' + c.title);
       if (!ch.length || ch.some(c => c.tag !== 'MODIFIER' || !c.modFor)) bad.push('DNA strand not all weapon modifiers: ' + out.chest);
     }
+    // 2b. Genome full of mutations: the screen offers swaps that replace the lowest-ranked one.
+    const swappable = CARDS.filter(c => mdIsMut(c) && c.slot === 'genome' && !c.sticky && (!c.eligible || c.eligible(G)));
+    G.muts = {}; for (const c of swappable.slice(0, DRAFT.genome)) G.muts[c.id] = c.maxRank;
+    if (typeof pdef === 'function') for (const k in pdef().n) pdef().n[k] = 0;
+    G.weapons.forEach(w => { if (w && !w.isSpell) w.wm10 = ['x', 'x', 'x']; });
+    const sw = genLoot({ kind: 'mutation' });
+    out.swap = sw.map(c => c.tag + ':' + c.title + ' (' + c.sub + ')');
+    if (!sw.length || sw.some(c => c.tag !== 'SWAP')) bad.push('full Genome: no swap cards: ' + out.swap);
+    else { const n0 = Object.values(G.muts).filter(v => v > 0).length; sw[0].apply(); const n1 = Object.values(G.muts).filter(v => v > 0).length; if (n1 !== n0) bad.push('swap changed the mutation count: ' + [n0, n1]); }
+    G.weapons.forEach(w => { if (w && !w.isSpell) w.wm10 = []; });
     // 3. Ordinary enemies never carry.
     const o = makeEnemy(ENEMIES.crawler, p.x + 100, p.y); G.enemies.push(o); MUTDROP.chance = 1; mdTick(1 / 60); MUTDROP.chance = keep;
     if (o.mdCarry) bad.push('an ordinary enemy carried a mutation');

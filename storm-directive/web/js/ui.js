@@ -894,6 +894,7 @@ const UI = {
     };
     UI.pickedOne = false;
     if (!titles[req.kind]) titles[req.kind] = typeof draftTitle === 'function' ? draftTitle(req) : [req.kind.toUpperCase(), '']; // (v10 forks: draft.js)
+    if (typeof dirTitle === 'function') dirTitle(req, titles); // (take-two screens: director.js)
     if (req.kind === 'relic') titles.relic[0] = 'RELIC: ' + bossDef(req.boss).name.replace(/^THE /, '');
     if (req.kind === 'rrelic') { const V = RIVALS.find(x => x.id === req.rid); if (V) titles.rrelic[0] = 'RELIC: ' + V.name.toUpperCase(); }
     if (req.kind === 'sfork') { const sw = G.spells.find(x => x && x.uid === req.uid); if (sw) titles.sfork[0] = sw.def.name.toUpperCase() + ': LV ' + SPELL_FORK_LV + ' PATH'; }
@@ -1009,12 +1010,13 @@ const UI = {
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
     const k = UI.lootReq && UI.lootReq.kind;
-    if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo)) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'sfork' && k !== 'relic' && k !== 'rrelic' && UI.lootOpts.length > 1) {
+    if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo) || (typeof dirTwo === 'function' && dirTwo(UI.lootReq))) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'sfork' && k !== 'relic' && k !== 'rrelic' && UI.lootOpts.length > 1) {
       UI.pickedOne = true; o.taken = true;
       const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
       $('lootSub').textContent = 'Seconds: take one more.';
       return;
     }
+    if (typeof dirPicked === 'function') dirPicked(); // (time on reward screens: director.js)
     G.state = 'play';
     UI.show('hud');
     UI.refreshHud(true);

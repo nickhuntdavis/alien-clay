@@ -187,6 +187,7 @@ function v10Tick(dt) {
   if (typeof s10Tick === 'function') s10Tick(dt); // (sample passives and unlocks: samples10.js)
   mutTick(dt); // (mutation cards: mutations.js)
   if (typeof mdTick === 'function') mdTick(dt); // (elites drop mutations: mutdrop.js)
+  if (typeof dirTick === 'function') dirTick(); // (the Reward Director orders and merges waiting rewards: director.js)
   f10Tick(dt); // (Feats: feats10.js)
   sigwTick(dt); // (signature weapons: sigweap.js)
   pdefTick(dt); // (your Membrane and Shell: pdef.js)
