@@ -2,6 +2,33 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.50: 2026-10-20 bubble hitbox, between-wave close-up, glossary, voice check
+- Merged: claude/affectionate-cerf-6ris1m, claude/dazzling-bohr-o55gfr, ccr-be55daae-goa9o3, claude/kind-faraday-bpyfxx (You check tab in Card_Copy_Draft_All.xlsx; Alpha and Prawn Again exempt from the "we" voice rule).
+
+### Folded from claude-affectionate-cerf-6ris1m: 2026-10-20 Membrane bubble is a hitbox again (v10.49)
+- Systems: combat (pdef), enemies, projectiles
+- Files: pdef.js, game.js, tests/bubblehit.js (new)
+- What: while your shield (Membrane) is up, the bubble is solid. Enemies touch it at its edge (not your body), are held outside it and shoved back (heavier ones less, bosses barely). Enemy shots stop at its edge and the Membrane soaks them. With the Rubber Johnny relic the bubble also throws each stopped shot back out at the mirrored angle as a player shot (the v9 skin did this; `!V10` had switched it off). Once the Membrane breaks, the bubble is gone and contact is on your body as before.
+- Save data: none.
+- Hooks: game.js updateEnemies -> pdefBubbleR / pdefBubbleBounce (contact radius); game.js enemy-bullet loop -> pdefBubbleR / pdefBubbleReflect (hit radius).
+- Risk: balance. Contact and bullet hit radius is now the bubble's (38 units vs body ~13) while a shield is up, so the Membrane drains a little sooner; enemies can no longer body-block you inside the bubble. Sims not run.
+
+### Folded from claude-dazzling-bohr-o55gfr: 2026-10-20 Close-up between waves; tutorial cards pan to terrain and the egg (v10.49)
+- Systems: wave-mode, camera, tutorial
+- Files: restcam.js (new), game.js, bosses.js, tutorial.js, index.html
+- What: while the next-wave button shows, the camera zooms in on your sperm and sits low of it so the button does not cover you; it eases back out when the wave starts. Terrain and egg tutorial cards now pan and zoom to the thing they explain (they used to spotlight you).
+- Save data: none
+- Hooks: game.js update -> restCamTick (camera line); bosses.js updateBossIntro reads I.zk
+- Risk: ZOOM.z is written directly during the rest (not saved); pinching during the rest becomes the new base zoom.
+
+### Folded from ccr-be55daae-goa9o3: 2026-10-19 Glossary: v10 combat terms
+- Systems: ui (glossary)
+- Files: glossary.js
+- What: Held loot cards now explain Poise, Alien bar (Possessed), Burn bar (Ignition), Corrosion, Membrane, Shell, Squishy, Thorns, Evasion, Snared, Conjoined and Bleeding (Extraction). Second pass: the six attack types, bars, run terms (sperm count, egg, Final Five, Fever Pitch, Behind pace, Stamina, Chrono energy), all 24 field pickups, terrain, big hazards and wave conditions. Charged text updated for v10.
+- Save data: none.
+- Hooks: none.
+- Risk: none (text only).
+
 ## v10.48: 2026-10-20 local work merged (card copy, Sample 9 and tuning, consciousness gifts, design system, Ordered Online nanobot)
 - Merge notes: main's feats9.js Feats (Capacitation, Bombardier Beetle, Van de Graaff, Spinnbarkeit, Wandering Womb, Ear Candling) removed in favour of the local builds with the user's copy (feats10.js, gifts10.js); fitcheck.js uses the new card names; voice canon ("we" mostly, "you" to blame, "I" when selfish) written into voice_and_tone.md, VOICE_GUIDE.md, CONSCIOUSNESS.md, redesign docs CLAUDE.md and COMBAT_MATRIX.md.
 
