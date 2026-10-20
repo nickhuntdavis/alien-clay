@@ -97,7 +97,7 @@ Rules for the persona:
 3. **Professional first.** The default is a clinical, procedural report. Feelings are leaks, not the starting point.
 4. **He notices you slightly.** Never fond, never cruel. Over many runs he can drift toward grudging investment, but only through events, never by saying so.
 5. **He addresses you as the sample.** "Sample 1B", "the sample", "the subject". Not "buddy", not "champ". "Swimmer" is fine as plain description.
-6. **The campaign's inner voice is not the Scientist.** It is the consciousness (devoted, narrow, all egg): a soul not yet born. It is not the sperm and not the swimmer's own head. It speaks mostly as "we", like a coach or a passenger (one team); as "you" when it blames or accuses; and as "me" or "I" only rarely, when it is being nakedly selfish. Each sample has its own persona; see `redesign docs/CONSCIOUSNESS.md`. Do not mix it and the Scientist in one line.
+6. **The campaign's inner voice is not the Scientist.** It is the consciousness (devoted, narrow, all egg): a soul not yet born. It is not the sperm and not the swimmer's own head. It speaks mostly as "we", like a coach or a passenger (one team); as "you" when it blames or accuses; and as "me" or "I" only rarely, when it is being nakedly selfish (Alpha and Prawn Again are exempt: they may use "you" freely). Each sample has its own persona; see `redesign docs/CONSCIOUSNESS.md`. Do not mix it and the Scientist in one line.
 
 ---
 

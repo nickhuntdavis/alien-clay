@@ -5,6 +5,7 @@ Working proposal, 20 Oct 2026. One consciousness persona per sample. Each is the
 ## Shared rules (decisions 39 to 41, `COMBAT_MATRIX.md` 10; decision 42 is Not of This World only)
 
 - The consciousness is a soul not yet born (not the sperm, not the swimmer's own head), and wants the egg because conception is its way into the world. It speaks mostly as "we", like a coach or a passenger (one team); as "you" when it blames or accuses; as "me" or "I" only rarely, when it is being nakedly selfish (user ruling, 20 Oct; `VOICE_GUIDE.md` 2).
+- **Two exceptions to "we":** Alpha (the self-help coach) and Prawn Again (who remembers earlier runs: "you did this last time") may speak to the swimmer as "you" freely; it is how their personas work (user ruling, 20 Oct).
 - **Every consciousness line is written per sample**, shared Feat gift lines included (`FEATS.md` 1). There is no generic consciousness line.
 - **A new soul every run.** 1A and 1B are different souls of the same temperament. **Prawn Again is the exception:** it remembers earlier runs.
 - **It doesn't know the lab exists.** It believes it is exactly where it is supposed to be. No Scientist, lab, slide, sample, specimen, experiment or HUD in its lines.

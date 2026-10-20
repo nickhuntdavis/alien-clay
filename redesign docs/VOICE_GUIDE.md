@@ -61,6 +61,7 @@ Refer to it simply as **the consciousness** in production notes and as the voice
 
 - It is a soul not yet born: not the sperm, and not the swimmer's own head.
 - It speaks **mostly as "we"**, like a coach or a passenger (one team). It says **"you"** when it blames or accuses, and **"me" or "I"** only rarely, when it is being nakedly selfish (user ruling, 20 Oct 2026).
+- Exceptions: Alpha and Prawn Again may use "you" freely (their personas run on it; `CONSCIOUSNESS.md`).
 - It is an unseen, not-yet-born soul with a personal stake in fertilisation.
 - It should feel like an actual limited consciousness, not a professional comedian performing polished jokes.
 - Its gameplay voice is impulsive, blunt, immature, impatient, self-justifying, biologically inappropriate, and occasionally crude.
