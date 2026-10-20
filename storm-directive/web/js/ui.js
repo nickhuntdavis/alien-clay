@@ -290,7 +290,7 @@ const UI = {
         const m = G.show.msgQ.shift(), box = $('sysmsg');
         box.querySelector('b').textContent = m.head; box.querySelector('b').style.color = col(m.color) === PAL.danger ? PAL.danger : XR.dim;
         box.querySelector('span').textContent = m.body;
-        box.style.setProperty('--mc', col(m.color) === PAL.danger ? PAL.danger : XR.white); // messages are neutral unless they warn you
+        box.dataset.who = m.who || ''; box.style.setProperty('--mc', col(m.color) === PAL.danger ? PAL.danger : XR.white); // messages are neutral unless they warn you
         box.classList.remove('on'); void box.offsetWidth; box.classList.add('on');
         if (!LAYOUT.land) box.style.bottom = Math.round((UI.bottomH || 200) + 44) + 'px'; // (clear of the scale bar and frame-rate line)
         UI.msgT = m.hold || Math.min(4.5, 1.8 + m.body.length / 40); // (hold: Level 0's lessons stay up long enough to read)
@@ -1072,7 +1072,7 @@ const UI = {
     // Achievements and the show.
     const got = G.show.order;
     h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | ${showWord()} ${fmtViewers(G.show.viewers)}</h3>`;
-    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The lab is waiting.</p>`;
+    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The log is waiting.</p>`;
     const cur = Object.keys(G.curses);
     if (cur.length) h += `<p class="hint">Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}</p>`;
     h += `</div>`;
@@ -1467,8 +1467,8 @@ const UI = {
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
     let h = won && G.lvl && G.lvl.L.school ? `<div class="eulogy">${schoolEulogy()}</div><div class="big born">${fmtTime(G.t)}</div>` : G.lvl ? `<div class="eulogy">${won ? `Lips to throat, through the plaque and the mouthwash, to a pale glowing ball at the back of the throat. It was a tonsil stone. It stinks. The egg is in another castle.${G.lvl.L.next ? ' LEVEL 1 WAS THE MOUTH. LEVEL 2 UNLOCKED (coming soon).' : ''}` : `Swallowed ${Math.round(lvProgress() * 100)}% of the way through ${esc(lvName(G.lvl.L).toLowerCase().replace(/\b\w/g, c => c.toUpperCase()))}.`}</div><div class="big">${fmtTime(G.t)}</div>` + (won ? '' : `<div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the immune system')}</b></div>`)
       : won
-      ? `<div class="eulogy">${G.wave ? 'Twenty drops, four bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
-      : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(sysPool('death')))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The lab is cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
+      ? `<div class="eulogy">${G.wave ? 'Twenty drops, four bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'Fastest birth yet.' : 'Fastest birth: ' + fmtTime(best.born)} | Peak data ${fmtViewers(G.show.peak)}</div>`
+      : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(sysPool('death')))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'New best. Noted, with restraint.' : 'Best: ' + fmtTime(best.time || 0)} | Peak data ${fmtViewers(G.show.peak)}</div>
       <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:${PAL.danger}">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
     const dr = dailyRecord(won);
     if (dr) h += `<div class="hint daily"><b>DAILY ${G.daily}</b>: ${dr.isBest ? 'NEW BEST FOR TODAY! ' : ''}Best ${dailyFmt(dr.best)} | Attempt ${dr.tries} | ${dr.streak}-day streak</div>`;
@@ -1536,7 +1536,7 @@ const UI = {
     $('overTitle').textContent = 'THE DISH WINS'; $('overTitle').classList.remove('won');
     const dmg = Object.entries(G.stats.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8), tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
     let h = `<div class="eulogy">The scientist makes a note: "Subject expired during wave ${G.wave.n}. Promising. Get me another one."</div><div class="big">WAVE ${n}</div>
-      <div class="hint">${isBest ? 'NEW BEST! The grant has been renewed.' : 'Best: wave ' + (best.wave || 0)} | ${fmtTime(G.t)} in the dish</div>
+      <div class="hint">${isBest ? 'New best. Noted, with restraint.' : 'Best: wave ' + (best.wave || 0)} | ${fmtTime(G.t)} in the dish</div>
       <div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the experiment')}</b></div>
       <div class="ostats"><div><b>${n}</b>Waves cleared</div><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.bossKills}</b>Bosses</div></div><h3>Damage breakdown</h3>`;
     for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
@@ -1587,8 +1587,8 @@ function lootStory(req) {
       `The egg sent this. You are certain of it. Nobody can tell you otherwise.`,
       `A token from the egg, surely. It knows you are coming. It must.`,
     ] : [
-      `A research grant from ${n}. Terms and conditions apply to your soul.`,
-      `${n} funded this with a note: "Please cite us when you are born." You will not remember any of this.`,
+      `Recovered from ${n}. It was not on the inventory. It is now.`,
+      `Found in ${n}, labelled in handwriting I do not recognise. Probably mine.`,
     ],
     boss: [
       `${n} is dead. This was in its will. You were not in its will. You are now.`,

@@ -1205,3 +1205,27 @@ body.land .slot.weapon { width: 74px; } body.land #wslots, body.land #wslots.man
 .card.k-mod::after { content: 'ALTERS A WEAPON'; color: #7fb7d9; }
 .card.k-feat { --sheet: radial-gradient(ellipse at 80% 0%, #3a2052f0 0%, #160d22f0 60%, #0b0712f2 100%); box-shadow: 0 0 16px #b57cff55, inset 0 0 0 1px #b57cff66 !important; }
 .card.k-feat::after { content: 'SPECIAL ABILITY'; color: #c9a2ff; }
+
+/* Narrator voices (sysmsg data-who, set in ui.js from the message's `who`).
+   The Scientist: the plain lab panel, with a small "LAB LOG · 1B" header.
+   The inner voice: a message from beyond the veil. A pitch-black cloud with a soft, cosmic colour fringe
+   that breathes slowly (transform and opacity only, so nothing repaints over the slide). */
+body #sysmsg[data-who="sci"] b { display: block; font-size: 9px; letter-spacing: 2.5px; color: var(--dim) !important; margin-bottom: 1px; }
+body #sysmsg[data-who="con"] { background: transparent !important; border-color: transparent !important; box-shadow: none !important;
+  isolation: isolate; padding: 16px 24px 17px !important; border-radius: 34px 42px 36px 46px / 40px 34px 44px 38px !important; }
+body #sysmsg[data-who="con"].on { opacity: 1; }
+body #sysmsg[data-who="con"] b { display: none; }
+body #sysmsg[data-who="con"] span { color: #ece6ff; font-style: italic; letter-spacing: 0.3px; text-shadow: 0 0 6px rgba(185,160,255,0.45); }
+body #sysmsg[data-who="con"]::before { content: ''; position: absolute; inset: -11px -13px; z-index: -2; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(circle at 8% 35%, #7a3cff 0%, transparent 38%), radial-gradient(circle at 92% 68%, #ff4fd8 0%, transparent 36%),
+    radial-gradient(circle at 62% 0%, #3fc8ff 0%, transparent 34%), radial-gradient(circle at 30% 100%, #3dffb0 0%, transparent 32%),
+    radial-gradient(circle at 100% 8%, #ffcf5a 0%, transparent 26%), radial-gradient(circle at 0% 95%, #ff6a5a 0%, transparent 24%);
+  filter: blur(9px); opacity: 0.85; will-change: transform, opacity; animation: veil 7s ease-in-out infinite alternate; }
+body #sysmsg[data-who="con"]::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(1px 1px at 18% 28%, #ffffffb0, transparent), radial-gradient(1px 1px at 74% 62%, #ffffff80, transparent),
+    radial-gradient(1.5px 1.5px at 88% 24%, #d9c8ff90, transparent), radial-gradient(1px 1px at 40% 82%, #ffffff70, transparent),
+    radial-gradient(ellipse at 50% 50%, #000 66%, #000000e0 82%, #00000000 100%);
+  filter: blur(2.5px); }
+@keyframes veil { 0% { transform: scale(0.97) rotate(-1.5deg); opacity: 0.65; } 100% { transform: scale(1.04) rotate(1.5deg); opacity: 0.95; } }
+/* Immersive hides system messages, but the two narrator voices still speak (they are the story). */
+body.immersive #sysmsg[data-who="sci"], body.immersive #sysmsg[data-who="con"] { display: block !important; }
