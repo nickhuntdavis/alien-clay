@@ -570,6 +570,17 @@
     if (st.cells.size > 500) st.cells.clear();
     st.cells.set(key, (st.cells.get(key) || 0) + 1); z.w6.key = key;
   }
+  // The Runs switched to Static (fitcheck.js lets Switched at Birth pick it): the trail's Fire bar becomes a visible
+  // zap: a bolt from the trail to the enemy, Static damage, and a full hit jolts it (a stagger). Fire stays as it was.
+  const rnStatic = w => w.def.elem === 'shock';
+  function rnBar(w, e, frac, from) {
+    if (!rnStatic(w)) return bar6(e, 'fire', frac, w);
+    if (!live(e)) return null;
+    if (from && (e.w6bolt || 0) <= G.t) { e.w6bolt = G.t + 0.25; bolt(from.x, from.y, e.x, e.y, '#bfe9ff', 0.18); }
+    hit6(e, w.s.dmg * (1 + 2 * frac), w, { elem: 'shock', wname: 'The Runs (zap)' });
+    if (frac >= 1 && live(e)) { fightPayoff(e, 'stagger', { raw: 0 }, src6(w)); fxParts('spark', e.x, e.y, '#e8f7ff', 6, 120, 0.3, 2); return 'jolt'; }
+    return null;
+  }
   function rnTick(w, dt) {
     const st = w6S(w), p = G.player;
     // new pieces
@@ -590,7 +601,7 @@
         const g = z.w6; if (!g) continue;
         if (g.white || st.after) { // Ignite at once (Burning Rubber once per enemy per 4 s, Afterburner per 3 s)
           const gap = st.after ? 3 : 4;
-          forNear(z.x, z.y, z.r, e => { if (foe(e) && (e.w6ign || 0) <= G.t && Math.hypot(e.x - z.x, e.y - z.y) < z.r + e.r) { e.w6ign = G.t + gap; if (bar6(e, 'fire', 1.05, w)) bump(w, 'ignite'); } });
+          forNear(z.x, z.y, z.r, e => { if (foe(e) && (e.w6ign || 0) <= G.t && Math.hypot(e.x - z.x, e.y - z.y) < z.r + e.r) { e.w6ign = G.t + gap; if (rnBar(w, e, 1.05, z)) bump(w, 'ignite'); } });
         }
         if (st.slip && G.t - g.born < 3) { // Slip Road: enemies crossing the trail skid forward along it
           forNear(z.x, z.y, z.r, e => {
@@ -634,9 +645,13 @@
       const pts = st.path.slice(i).filter(q => q.w6 && !q.w6.fp).map(q => ({ x: q.x, y: q.y })); pts.push({ x: p.x, y: p.y });
       if (pts.length >= 6 && Math.abs(polyArea(pts)) > 6000) {
         let n = 0;
-        for (const e of G.enemies) if (foe(e) && inPoly(e.x, e.y, pts)) { n++; bar6(e, 'fire', st.hot ? 1.05 : 0.7, w); fxParts('ember', e.x, e.y, '#ff7a2f', 4, 100, 0.4, 3); }
-        const cx = pts.reduce((a, q) => a + q.x, 0) / pts.length, cy = pts.reduce((a, q) => a + q.y, 0) / pts.length;
-        ring(cx, cy, 60, '#ff7a2f', 0.5, 5); floatText(cx, cy - 20, st.hot ? 'HOT LAP' : 'LOOP', '#ffb703', 16, 0.9); bump(w, 'loop');
+        const cx = pts.reduce((a, q) => a + q.x, 0) / pts.length, cy = pts.reduce((a, q) => a + q.y, 0) / pts.length, zap = rnStatic(w);
+        if (zap) for (let k = 0; k < pts.length; k += 3) { const q = pts[k], r = pts[(k + 3) % pts.length]; bolt(q.x, q.y, r.x, r.y, '#bfe9ff', 0.35); } // (the circuit lights up)
+        for (const e of G.enemies) if (foe(e) && inPoly(e.x, e.y, pts)) {
+          n++; rnBar(w, e, st.hot || zap ? 1.05 : 0.7, zap ? { x: cx, y: cy } : null); // (Static: one bolt from the middle to each, and every one is jolted)
+          if (!zap) fxParts('ember', e.x, e.y, '#ff7a2f', 4, 100, 0.4, 3);
+        }
+        ring(cx, cy, 60, zap ? '#bfe9ff' : '#ff7a2f', 0.5, 5); floatText(cx, cy - 20, zap ? 'CIRCUIT CLOSED' : st.hot ? 'HOT LAP' : 'LOOP', zap ? '#e8f7ff' : '#ffb703', 16, 0.9); bump(w, 'loop');
         if (st.hot) { G.sprintT = Math.max(G.sprintT || 0, G.t + 2); bump(w, 'hotlap'); }
         if (n) bump(w, 'loopin');
       }
@@ -652,8 +667,8 @@
         const lo = Math.max(0, Math.min(from, to)), hi = Math.min(st.path.length - 1, Math.max(from, to));
         for (let k = Math.ceil(lo); k <= Math.floor(hi); k++) {
           const z = st.path[k]; if (!z) continue;
-          forNear(z.x, z.y, z.r + 6, e => { if (foe(e) && Math.hypot(e.x - z.x, e.y - z.y) < z.r + 6 + e.r) bar6(e, 'fire', 0.5, w); });
-          if (k % 2 === 0) fxParts('ember', z.x, z.y, '#ffb703', 2, 70, 0.3, 3);
+          forNear(z.x, z.y, z.r + 6, e => { if (foe(e) && Math.hypot(e.x - z.x, e.y - z.y) < z.r + 6 + e.r) rnBar(w, e, 0.5, z); });
+          if (k % 2 === 0) fxParts(rnStatic(w) ? 'spark' : 'ember', z.x, z.y, rnStatic(w) ? '#bfe9ff' : '#ffb703', 2, 70, 0.3, 3);
         }
       };
       step(v.ra, v.a); step(v.rb, v.b); v.ra = v.a; v.rb = v.b;
