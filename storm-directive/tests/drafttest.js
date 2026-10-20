@@ -49,10 +49,19 @@ const { chromium } = require('playwright');
     G.muts = {}; G.banish = { tcard: true }; seen = new Set();
     for (let i = 0; i < 40; i++) for (const o of genLoot({ kind: 'level' })) seen.add(o.card);
     if (seen.has('tcard')) bad.push('banished card offered');
-    // Budget outside wave mode
-    G.draftT = null; const a1 = draftBox({ kind: 'level' }), a2 = draftBox({ kind: 'level' }); G.t += 41; const a3 = draftBox({ kind: 'level' });
-    if (a1 !== true || a2 !== true || a3 !== true) bad.push('every draft opens at once: ' + [a1, a2, a3]);
-    if (draftBox({ kind: 'fork', w, lv: 5 }) === 'wait') bad.push('fork held back by the budget');
+    // The Reward Director outside wave mode (director.js): one screen per 30 s, forks never held back
+    G.wave = null; G.dir = null; const a1 = draftBox({ kind: 'level' }), a2 = draftBox({ kind: 'level' }); G.t += 31; const a3 = draftBox({ kind: 'level' });
+    if (a1 !== true || a2 !== 'wait' || a3 !== true) bad.push('director pacing: ' + [a1, a2, a3]);
+    if (draftBox({ kind: 'fork', w, lv: 5 }) === 'wait') bad.push('fork held back by the director');
+    // Order and merging: a mutation outranks level drafts, two level drafts become one take-two screen of four
+    G.lootQueue = [{ kind: 'level' }, { kind: 'level' }, { kind: 'mutation' }, { kind: 'level' }]; dirTick();
+    out.queue = G.lootQueue.map(q => q.kind + (q.picks ? 'x' + q.picks : ''));
+    if (out.queue.join() !== 'mutation,levelx2,level') bad.push('director queue: ' + out.queue);
+    if (genLoot({ kind: 'level', picks: 2 }).length !== 4) bad.push('take-two screen not four cards');
+    // Starvation: a level draft that has waited long enough goes before a fresh DNA strand
+    G.lootQueue = [{ kind: 'level', dirAt: G.t - 120 }, { kind: 'chest' }]; dirTick();
+    if (G.lootQueue[0].kind !== 'level') bad.push('old level draft starved by a strand');
+    G.lootQueue = [];
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

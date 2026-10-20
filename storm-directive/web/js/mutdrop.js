@@ -2,10 +2,12 @@
 // Spawn Prawn - mutations come from elites (Lateral Gene Transfer, reused from junk.js).
 //  - Mutation cards (mutations.js, ids m_/w_/t_/x_/r_) are no longer dealt in level-up or DNA strand drafts.
 //  - An elite has MUTDROP.chance to carry one: the junk DNA double helix circles it, with a beacon, a countdown and
-//    arrows pointing the way. Kill it within MUTDROP.life seconds and it drops the strand: a helix labelled with the
-//    MUTATION strand. Swim into it and the mutation screen opens: three you can take right now, pick one
-//    (boxlook.js draws your sperm and stats above them). It decays after MUTDROP.dropLife seconds. A carrier that
-//    times out sheds it.
+//    arrows pointing the way. Kill it within MUTDROP.life seconds and the mutation is yours (user, 20 Oct): the
+//    labelled strand flies to you as the show, and the mutation screen is queued with the Reward Director
+//    (director.js): three you can take right now, pick one (boxlook.js draws your sperm and stats above them).
+//    A carrier that times out sheds it.
+//  - Genome full: the screen offers swaps instead (a new mutation that replaces your lowest-ranked one; mutations
+//    whose effect was added once, mutations.js c.sticky, are never swapped out).
 //  - Catalysts, Concentrations and defences stay in the draft.
 // Hooks: game.js killEnemy -> mdKill; v10.js v10Tick -> mdTick, v10Draw -> mdDraw; draft.js draftCards -> mdDraftSkip.
 
@@ -17,7 +19,25 @@ const mdS = () => G.md || (G.md = { drops: [] });
 // The mutations you could take right now (none if the Genome and every weapon are full).
 const mdOk = () => (typeof CARDS === 'undefined' ? [] : CARDS.filter(c => mdIsMut(c) && cardOk(c)));
 // The mutation screen's cards (draft.js draftLoot, kind 'mutation').
-function mdCards(n) { return shuffle(mdOk()).slice(0, n).map(c => Object.assign(cardOpt(c), { mdTaken: 1 })); }
+function mdCards(n) {
+  const ok = mdOk();
+  if (ok.length) return shuffle(ok).slice(0, n).map(c => Object.assign(cardOpt(c), { mdTaken: 1 }));
+  const out = mdSwapOld();
+  if (!out) return [];
+  return shuffle(mdSwapNew()).slice(0, n).map(c => {
+    const o = cardOpt(c), ap = o.apply;
+    return Object.assign(o, { mdTaken: 1, tag: 'SWAP', sub: 'Replaces ' + out.title, apply: () => { delete G.muts[out.id]; ap(); } });
+  });
+}
+// Swaps (Genome full): the held mutation that goes (lowest rank first), and the new ones that could replace it.
+function mdSwapOld() {
+  const held = CARDS.filter(c => mdIsMut(c) && c.slot === 'genome' && !c.sticky && mr(c.id) > 0);
+  if (!held.length) return null;
+  const lo = Math.min(...held.map(c => mr(c.id)));
+  return held.find(c => mr(c.id) === lo);
+}
+const mdSwapNew = () => CARDS.filter(c => mdIsMut(c) && c.slot === 'genome' && mr(c.id) === 0 && !banished(c.id) && (() => { try { return !c.eligible || c.eligible(G); } catch (e) { return false; } })());
+const mdSwapOk = () => typeof CARDS !== 'undefined' && !!mdSwapOld() && mdSwapNew().length > 0;
 
 function mdTick(dt) {
   if (!G || G.state !== 'play' || !G.player) return;
@@ -35,8 +55,8 @@ function mdTick(dt) {
   for (const d of S.drops) {
     d.life -= dt; d.bob += dt * 4;
     const dx = p.x - d.x, dy = p.y - d.y, dist = Math.hypot(dx, dy) || 1;
-    if (d.life <= 0) { d.dead = true; floatText(d.x, d.y - 20, 'MUTATION DECAYED', XR.dim, 12, 0.9); continue; }
-    if (dist < 110) { d.x += dx / dist * 170 * dt; d.y += dy / dist * 170 * dt; }
+    if (d.life <= 0) { d.dead = true; continue; } // (already yours: the strand is only the show)
+    const v = dist < 110 ? 260 : 520; d.x += dx / dist * Math.min(dist, v * dt); d.y += dy / dist * Math.min(dist, v * dt);
     if (dist < p.r + 20) { d.dead = true; mdAbsorb(d); }
   }
   compactArr(S.drops, d => !d.dead);
@@ -45,18 +65,17 @@ function mdTick(dt) {
 function mdKill(e) {
   if (!e.mdCarry || e.charmed) return;
   e.mdCarry = false;
-  if (!mdOk().length) { floatText(e.x, e.y - e.r - 12, 'NO ROOM FOR A MUTATION', XR.dim, 12, 1); return; }
+  if (!mdOk().length && !mdSwapOk()) { floatText(e.x, e.y - e.r - 12, 'NO ROOM FOR A MUTATION', XR.dim, 12, 1); return; }
   mdS().drops.push({ x: e.x, y: e.y, life: MUTDROP.dropLife, bob: Math.random() * TAU });
-  ring(e.x, e.y, 50, MUTDROP.col, 0.4, 3); floatText(e.x, e.y - e.r - 12, 'MUTATION DROPPED', MUTDROP.col, 13, 1);
+  ring(e.x, e.y, 50, MUTDROP.col, 0.4, 3); floatText(e.x, e.y - e.r - 12, 'MUTATION SECURED', MUTDROP.col, 13, 1);
+  G.lootQueue.push({ kind: 'mutation' }); // (yours on the kill; the Reward Director picks the moment: director.js)
+  if (G.stats) G.stats.mutDrops = (G.stats.mutDrops || 0) + 1;
 }
 
-function mdAbsorb(d) {
+function mdAbsorb(d) { // (the show only: the mutation was queued on the kill)
   const p = G.player;
-  if (!mdOk().length) { floatText(p.x, p.y - 40, 'NO ROOM FOR A MUTATION', XR.dim, 12, 1.4); return; } // (filled up since it dropped)
   fxParts('drop', d.x, d.y, MUTDROP.col, 16, 240, 0.6, 4); ring(d.x, d.y, 70, MUTDROP.col, 0.4, 4); ring(p.x, p.y, 50, MUTDROP.col, 0.5, 3);
   sfx('pickup'); vibrate(60);
-  G.lootQueue.unshift({ kind: 'mutation' }); // (opens at once: draft.js draftBox)
-  if (G.stats) G.stats.mutDrops = (G.stats.mutDrops || 0) + 1;
 }
 
 // ---------------------------------------------------------------- drawing (junk.js's helix, beacon and arrows)

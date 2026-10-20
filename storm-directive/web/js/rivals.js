@@ -153,7 +153,8 @@ function rivalAI(e, dt) {
   const hurt = e.hp < e.maxHp * 0.3;
   const calm = !!(G.wave && (!G.wave.active || G.wave.boss)); // (the dish between waves, and boss waves: they keep to themselves and leave you to the boss)
   if (calm && e.mode === 'hunt') { e.mode = 'roam'; newWaypoint(e); }
-  if (!G.wave && !e.final && !G.showdown && e.lvl >= EGG.level && e.mode !== 'egg') { e.mode = 'egg'; rivalNews(e, `${e.name} is LV ${EGG.level} and heading for the egg.`, true); }
+  if (!G.wave && !e.final && !G.showdown && e.lvl >= EGG.level && e.mode !== 'egg' && (typeof raceRivalEgg !== 'function' || raceRivalEgg())) { e.mode = 'egg'; rivalNews(e, `${e.name} is LV ${EGG.level} and heading for the egg.`, true); }
+  // (rivals only head for the egg from 15:00 in a race: race15.js raceRivalEgg)
   if (e.mode === 'egg' && !e.final) {
     // Breaking in: swim to the egg and gnaw at its membrane. Nothing else matters now.
     const cd = Math.hypot(G.core.x - e.x, G.core.y - e.y) || 1;
@@ -464,5 +465,6 @@ function updateShowdown() {
     sysLine('eggReady', true); achieve('eggready');
     sfx('level'); vibrate(200);
   }
+  if (typeof raceTick === 'function') raceTick(); // (the egg opens at 15:00: race15.js)
   eggTick(); // (game.js: swim into the egg to start the membrane fight)
 }

@@ -2347,7 +2347,7 @@ function drawTopBar(top, m, s) {
   ctx.fillStyle = low ? PAL.danger : PAL.you; ctx.fillRect(bx, y + 11, bw * k, 7);
   if (G.shieldT > 0 || G.absorbOn) { ctx.strokeStyle = PAL.pickup; ctx.lineWidth = 1.5; ctx.strokeRect(bx - 1.5, y + 9.5, bw + 3, 10); }
   ctx.font = 'bold 11px ' + MONO; ctx.fillStyle = XR.white;
-  let txt = `LV ${G.level}  ${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}  K ${G.kills}`;
+  let txt = `LV ${G.level}  ${typeof raceClock === 'function' ? raceClock(m, s) : (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s}  K ${G.kills}`;
   if (G.rivalsInit && !G.wave && !G.lvl && !G.debug) {
     const board = rivalBoard(), place = board.findIndex(r => r.you) + 1;
     if (place) txt += `  P${place}/${board.length}`;
@@ -2388,12 +2388,14 @@ function drawHud() {
   const barX = 10, barW = Math.min(360, W - 130);
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
   if (!imm) drawTopBar(top, m, s);
+  if (typeof raceHud === 'function') raceHud(top); // (the rival track in Immersive mode: race15.js)
+  if (typeof rwHud === 'function') rwHud(top); // (rewards waiting: rewardui.js)
   // Status chips.
   const chips = [];
   if (G.rage > 0) chips.push(['OXYTOCIN', PAL.pickup]);
   puChips(chips);
   // Falling behind the level curve is what loses runs: say so.
-  if (!G.wave && !G.lvl) { const behind = (1 + 52 * Math.pow(Math.min(1, G.t / 540), 0.85)) - G.level; if (behind >= 3) chips.push(['BEHIND PACE: ' + Math.round(behind) + ' LV', PAL.danger]); }
+  if (!G.wave && !G.lvl) { const behind = (1 + 52 * Math.pow(Math.min(1, G.t / (typeof raceCurveT === 'function' ? raceCurveT() : 540)), 0.85)) - G.level; if (behind >= 3) chips.push(['BEHIND PACE: ' + Math.round(behind) + ' LV', PAL.danger]); }
   if (G.shieldT > 0) chips.push(['STAIR GATE', PAL.pickup]);
   if (G.warp > 0) chips.push(['WARP', XR.white]);
   if (G.barrier > 0) chips.push(['AEGIS', XR.white]);
@@ -2415,7 +2417,7 @@ function drawHud() {
   const lgt = typeof junkChips === 'function' ? junkChips() : []; // Lateral Gene Transfer: a row of its own above the status chips (junk.js)
   if (imm) {
     // Immersive mode: one centred row of chips just under the XP bar (wraps if there are many).
-    let rx = 0, ry = lgtChipRows(lgt, top + 62, true), flagged = null; /* (below the menu buttons along the top) */ const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
+    let rx = 0, ry = lgtChipRows(lgt, top + 62 + (typeof raceTrackH === 'function' ? raceTrackH() : 0), true), flagged = null; /* (below the menu buttons along the top) */ const items = chips.map(([ch, cc]) => [ch, cc, ctx.measureText(ch).width + 14]);
     while (items.length) {
       let w = 0, n = 0; while (n < items.length && (n === 0 || w + items[n][2] + 4 <= W - 16)) w += items[n++][2] + 4;
       rx = (W - (w - 4)) / 2;
@@ -2456,7 +2458,7 @@ function drawHud() {
       ctx.fillText(M.woke ? "THE EGG'S MEMBRANE" : `${(M.openedBy || 'A RIVAL').toUpperCase()} IS BREAKING IN!`, mid, by - 8);
     } else if (G.fertile || (eggBreakable() && !G.wave && !G.lvl && !G.debug)) {
       ctx.globalAlpha = 0.7 + 0.3 * Math.sin(G.realT * 6);
-      ctx.fillStyle = PAL.reward; ctx.font = 'bold 13px ' + MONO; ctx.fillText(G.fertile ? 'SPERM COUNT: 1. SWIM INTO THE EGG!' : `LV ${EGG.level}: SWIM INTO THE EGG!`, mid, by - 4);
+      ctx.fillStyle = PAL.reward; ctx.font = 'bold 13px ' + MONO; ctx.fillText(G.fertile ? 'SPERM COUNT: 1. SWIM INTO THE EGG!' : G.level >= EGG.level ? `LV ${EGG.level}: SWIM INTO THE EGG!` : 'TIME: SWIM INTO THE EGG!', mid, by - 4);
       ctx.globalAlpha = 1;
     } else if (G.showdown) {
       const fin = G.enemies.filter(e => e.final && !e.dead), hp = fin.reduce((a, e) => a + e.hp, 0), mx = fin.reduce((a, e) => a + e.maxHp, 0) || 1;

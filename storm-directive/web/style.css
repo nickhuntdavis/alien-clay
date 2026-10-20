@@ -1205,3 +1205,36 @@ body.land .slot.weapon { width: 74px; } body.land #wslots, body.land #wslots.man
 .card.k-mod::after { content: 'ALTERS A WEAPON'; color: #7fb7d9; }
 .card.k-feat { --sheet: radial-gradient(ellipse at 80% 0%, #3a2052f0 0%, #160d22f0 60%, #0b0712f2 100%); box-shadow: 0 0 16px #b57cff55, inset 0 0 0 1px #b57cff66 !important; }
 .card.k-feat::after { content: 'SPECIAL ABILITY'; color: #c9a2ff; }
+
+/* The race standings overlay (race15.js): small, dark, over the slide, which crawls behind it. */
+#raceBoard { position: fixed; inset: 0; display: none; align-items: flex-start; justify-content: center; z-index: 40; padding-top: calc(var(--safe-top, 0px) + 92px); }
+#raceBoard.on { display: flex; }
+#raceBoard .rb-box { background: rgba(8, 10, 12, 0.82); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 10px 12px; min-width: 230px; font: 12px monospace; color: #dfe6e2; }
+#raceBoard .rb-h { font-weight: 900; letter-spacing: 1px; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 12px; }
+#raceBoard .rb-h em { font-style: normal; font-weight: 400; opacity: 0.7; }
+#raceBoard .rb-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+#raceBoard .rb-row.you { font-weight: 900; color: #fff; }
+#raceBoard .rb-row.out { opacity: 0.4; }
+#raceBoard .rb-n { width: 14px; text-align: right; opacity: 0.6; }
+#raceBoard .rb-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+#raceBoard .rb-row.you .rb-dot { box-shadow: 0 0 0 2px #fff; }
+#raceBoard .rb-name { flex: 1; }
+#raceBoard .rb-lv { opacity: 0.8; }
+#raceBoard .rb-f { margin-top: 6px; opacity: 0.55; font-size: 10px; }
+
+/* The card language (rewardui.js): one colour per reward type, a stripe down the left and a fit line. */
+.card.rw { box-shadow: inset 3px 0 0 var(--cat); }
+.card.rw-weapon { --cat: #e6edf2; } .card.rw-branch { --cat: #ffd23f; } .card.rw-feat { --cat: #b48cff; } .card.rw-mutation { --cat: #e8a598; }
+.card.rw-modifier { --cat: #7fb7d9; } .card.rw-defence { --cat: #9be3b4; } .card.rw-special { --cat: #ffb86b; } .card.rw-switch { --cat: #f2f2f2; }
+.card .rwfit { margin-top: 6px; font-size: 11px; color: #cfd6d2; line-height: 1.3; }
+.card .rwfit b { color: var(--cat, #fff); font-weight: 900; margin-right: 4px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+.card .rwfit.trade b { color: #ffb86b; }
+/* The Build panel (buildpanel.js). */
+.bp .bp-h { display: flex; align-items: center; gap: 6px; color: var(--cat); }
+.bp .bp-h em { margin-left: auto; font-style: normal; font-weight: 400; color: #a3aea9; font-size: 11px; }
+.bp .bp-w { display: flex; gap: 10px; align-items: flex-start; }
+.bp .bp-ico { flex: none; margin-top: 2px; }
+.bp .bp-tag { display: inline-block; margin: 3px 4px 0 0; padding: 1px 6px; border-radius: 8px; border: 1px solid var(--cat); color: var(--cat); font-size: 10.5px; }
+.bp .bp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.bp .bp-chip { padding: 3px 9px; border-radius: 10px; border: 1px solid var(--cat); color: var(--cat); font-size: 11px; }
+.bp .bp-chip.empty { border-style: dashed; border-color: #59615e; color: #59615e; }

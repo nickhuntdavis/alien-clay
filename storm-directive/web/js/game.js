@@ -136,10 +136,10 @@ function hpMul(t) { return (1 + t / 120 + Math.pow(t / 220, 2.4)) * (t > 900 ? M
 const SURGE_T = 900; // Fever Pitch: from 15 minutes on the difficulty clock, enemy damage compounds every minute.
 // A run lasts about 10 minutes: the difficulty clock runs 1.5 times faster than real time.
 let PACE = 1.5; // (let: tests/sim/race.js tunes it)
-function PT() { if (G.debug && G.debug.sb) return sbPT(); return G.lvl ? lvPT() : G.wave ? wavePT() : G.t * PACE; }
+function PT() { if (G.debug && G.debug.sb) return sbPT(); return G.lvl ? lvPT() : G.wave ? wavePT() : G.t * (typeof racePace === 'function' ? racePace() : PACE); } // (the 15-minute race: race15.js)
 // Ahead of the curve? Enemies keep up. Levels you are past where a 10-minute run expects you to be
 // (level 60 at 9 minutes) add 5% enemy health and 3% enemy damage each.
-function levelsAhead() { if (G.wave || G.lvl) return 0; return Math.max(0, G.level - (1 + 52 * Math.pow(Math.min(1, G.t / 540), 0.85))); }
+function levelsAhead() { if (G.wave || G.lvl) return 0; return Math.max(0, G.level - (1 + 52 * Math.pow(Math.min(1, G.t / (typeof raceCurveT === 'function' ? raceCurveT() : 540)), 0.85))); }
 function hpNow() { return hpMul(PT()) * (1 + 0.05 * levelsAhead()); }
 function dmgNow() { return dmgMul(PT()) * (1 + 0.03 * levelsAhead()); }
 function dmgMul(t) { return (1 + t / 240 + Math.pow(t / 600, 2)) * (t > SURGE_T ? Math.pow(1.3, (t - SURGE_T) / 60) : 1); }
@@ -832,7 +832,7 @@ function damageEnemy(e, dmg, src) {
   if (e.egg) {
     // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
     if (!eggBreakable() || !e.woke) {
-      if (!(G.sealT > G.realT)) { G.sealT = G.realT + 1; floatText(e.x, e.y - e.r, eggBreakable() ? 'SWIM INTO THE EGG' : 'SEALED: LV ' + EGG.level + ' OR SPERM COUNT 1', '#ffd6e8', 13, 0.8); }
+      if (!(G.sealT > G.realT)) { G.sealT = G.realT + 1; floatText(e.x, e.y - e.r, eggBreakable() ? 'SWIM INTO THE EGG' : 'SEALED: LV ' + EGG.level + ', SPERM COUNT 1 OR 15:00', '#ffd6e8', 13, 0.8); }
       return 0;
     }
     // The membrane gives way slowly, no matter how big your build: at most 2.5% of it per second.
@@ -2562,6 +2562,7 @@ function applyPickup(type, src) {
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
   if (V10) v = f10Xp(v); // (More!, Mine!: feats10.js)
+  if (typeof raceXp === 'function') v *= raceXp(); // (the 15-minute race: race15.js)
   // XP bonuses from upgrades count half (they stacked up to x1.9 and runs finished 10-30 levels ahead of the curve).
   const xpUp = G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp;
   const xk = XP_PACE * xpUp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp();
@@ -2597,7 +2598,7 @@ function gainXp(v) {
 // membrane wakes up and fights back (a boss intro, then the fight). Break it and you're born.
 // A rival that reaches EGG.level first goes for the egg (rivals.js): it opens the membrane and chips at it,
 // and if it gets through before you do, it fertilises the egg and you lose.
-const eggBreakable = () => !!(G.fertile || G.level >= EGG.level);
+const eggBreakable = () => !!(G.fertile || G.level >= EGG.level || (typeof raceEggOpen === 'function' && raceEggOpen())); // (or 15:00: race15.js)
 const EGG_DEF = { id: 'egg', name: "THE EGG'S MEMBRANE", title: 'THE ZONA PELLUCIDA', hp: 1, speed: 0, armour: EGG.armour, r: CORE.r, dmg: 0, xp: 0, color: '#ffd6e8', shape: 'none', patterns: [],
   quote: 'Four hundred million of you, and not one has wiped his feet.',
   desc: 'A thick glassy coat round the egg. It lets in exactly one sperm, and only after a fight. It heals you while you are close, which is the only nice thing it will do.',
@@ -2742,7 +2743,7 @@ function update(dt) {
   // Director.
   // Dense swarms (each monster is weaker to match: see enemyScale).
   const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, (24 + T * 0.5) * SPAWN_K);
-  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * PACE * heatSpawn() * SPAWN_K;
+  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * (typeof racePace === 'function' ? racePace() : PACE) * heatSpawn() * SPAWN_K;
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   if (G.debug) { debugTick(); if (G.debug.sb) sbSpawn(rate, maxAlive, hostile, dt); } // the Lab Bench: only what you send in (Sandbox: a slow stream, sandbox.js)
   else if (G.lvl) lvTick(dt, maxAlive, hostile); // a campaign level: its own director (levels.js)
@@ -2832,6 +2833,7 @@ cv.addEventListener('pointerdown', ev => {
   if (!G || G.state !== 'play') return;
   // A tap on a buff or debuff chip: pause and show them all.
   const chipHit = UI.chipRects && UI.chipRects.find(r => ev.clientX >= r.x - 6 && ev.clientX <= r.x + r.w + 6 && ev.clientY >= r.y - 4 && ev.clientY <= r.y + r.h + 4);
+  if (typeof raceTap === 'function' && raceTap(ev)) { PTRS.delete(ev.pointerId); return; } // (the rival track: race15.js)
   if (chipHit) { PTRS.delete(ev.pointerId); if (!(chipHit.key && stNewTap(chipHit.key))) UI.openStatusPanel(); return; } // (a flagged chip opens its card; any other, the list)
   INPUT.active = true; INPUT.id = ev.pointerId; INPUT.ox = ev.clientX; INPUT.oy = ev.clientY;
   INPUT.sx = ev.clientX; INPUT.sy = ev.clientY; INPUT.t0 = performance.now(); INPUT.moved = false;
