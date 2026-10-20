@@ -25,7 +25,7 @@
     v_phys_burst: (w, u) => [
       ...(u.l6 === 'Personal Space' ? ['Hair Trigger Happy'] : []),
       ...(has(w, 'lobbed') || has(w, 'delayed') ? ['Personal Space'] : [])],
-    v_fire_proj: (w, u) => (['Spittoon', 'Lob Lip', 'Nasty Fifth', 'Gargle'].includes(u.l6) || holdsOutside(w, BEAM_OK)) ? ['Projectile Vomit'] : [],
+    v_fire_proj: (w, u) => w.def.elem === 'ice' ? ['Stripped Bare', 'Projectile Vomit'] : (['Spittoon', 'Lob Lip', 'Nasty Fifth', 'Gargle'].includes(u.l6) || holdsOutside(w, BEAM_OK)) ? ['Projectile Vomit'] : [],
     v_shock_beam: (w, u) => ['Packet Loss', ...(u.p === 'A' ? ['Multi-Monitor Setup'] : [])], // (Packet Loss breaks all three masteries)
     v_ice_pool: (w, u) => [...(u.p === 'B' ? ['Snotwork Everywhere'] : []), ...(has(w, 'trail') ? ['Bogged Down'] : [])],
     v_arcane_proj: (w, u) => has(w, 'homing') ? ['Needlework'] : [],
@@ -56,9 +56,9 @@
     s_wake: () => ['trail', 'lobbed'],
   };
   // Weapons whose branches run on their own damage type's status: never offered Switched at Birth.
-  const FIT_KEEP_TYPE = ['v_fire_proj', 'v_ice_pool', 'v_flame_pool', 'v_soul_proj', 's_tesla'];
+  const FIT_KEEP_TYPE = ['v_ice_pool', 'v_flame_pool', 'v_soul_proj', 's_tesla'];
   // Weapons that may switch only to these types (their branch has a version for each): The Runs has a Static version (wup6.js rnBar).
-  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'] }; // (Little Prick: Alien voodoo pins, wup2.js w2Voodoo)
+  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'], v_fire_proj: ['ice'] }; // (Little Prick: Alien voodoo pins, wup2.js w2Voodoo)
   // Card text for those versions: weapon -> type -> card title -> description.
   const FIT_TEXT = { s_wake: { shock: {
     "Can't Hold It": 'The faster you swim, the denser and stronger the trail (up to x2 at full speed; half as much when slow).',
@@ -67,6 +67,17 @@
     'Full Circle': 'Closing a loop (crossing a trail you laid within 4 s) closes the circuit: the loop lights up and one bolt jolts everything inside.',
     'Afterburner': 'The whole trail is a live wire: everything it touches is zapped and jolted (once per enemy per 3 s).',
     'Hot Lap': 'Closing a loop closes the circuit (everything inside zapped and jolted) and doubles your swim speed for 2 s.',
+  } },
+  v_fire_proj: { ice: {
+    'Spit Take': 'Each glob thickens a snot coat on its target, and the target takes up to +40% from Acid Spit as the coat grows. A full coat snowballs it: stuck fast for 1.5 s, and its sneeze Snares everything near.',
+    'Second Helping': 'When a coat snowballs an enemy, the coat stays half on.',
+    'Splash Damage': 'A direct hit splatters 3 snot droplets onto enemies within 60 (30% damage); droplets thicken their coats too.',
+    'Backsplash': 'Droplets that hit an enemy already coated splatter once more.',
+    'Nasty Fifth': 'Every 5th spit is a lobbed glob that leaves a snot puddle (radius 50, 3 s).',
+    'Bad Aftertaste': 'Each hit leaves snot on the target; when it dies, the snot splashes its coat onto enemies within 70.',
+    'Wet Floor': 'The splash also leaves a small snot puddle where the enemy died (radius 35, 2 s).',
+    'Battery Acid': 'Snot Bomb: every hit coats a non-boss enemy fully, so it snowballs at once (bosses: half a coat).',
+    'Acid House': 'Snot House: every enemy that dies coated leaves a snot puddle (radius 60, 3 s); touching puddles merge.',
   } },
   v_arcane_proj: { soul: {
     'Bleeding Heart': 'Each hit leaves a pin in the enemy (up to 6). A full pincushion is Possessed and fights for you.',

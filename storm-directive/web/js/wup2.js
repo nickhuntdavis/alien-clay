@@ -78,6 +78,7 @@ function w2BarBump(e, k, frac, src, resetTo) {
   const cd = fightCd(e); cd.bars[k] += frac; cd.barQuietT[k] = 0;
   if (cd.bars[k] < 1) return null;
   cd.bars[k] = resetTo || 0;
+  if (k === 'acid' && src && w2Snot(src.w)) { w2Snowball(src.w, e); return 'snow'; } // (Acid Spit switched to Mucus)
   if (k === 'acid') {
     if (cd.def === 'shell' && cd.layers > 0) { dropLayer(cd, { layersLost: 0 }); fst().layers++; ring(e.x, e.y, e.r + 6, FIGHT_COL.shell, 0.35, 5); fxParts('spark', e.x, e.y, FIGHT_COL.shell, 8, 140, 0.4, 3); return 'strip'; }
     fightPayoff(e, 'corrode', { raw: 0 }, src || {}); return 'corrode';
@@ -109,20 +110,44 @@ function w2Lob(w, tx, ty, src, o) {
 const w2Bleeding = e => !!(e.bleeds && e.bleeds.length);
 
 // ================================================================ 5. ACID SPIT (Acid, Projectile)
+// Switched to Mucus (fitcheck.js lets Switched at Birth pick it): Snowball. The weapon's own hits keep building the
+// Corrosion bar, now drawn as a snot coat; a full coat snowballs the enemy instead of stripping it: it swells, is stuck
+// fast for 1.5 s (bosses 0.4 s) and its sneeze Snares everything within 70. Acid Pools become snot puddles (zones take
+// the weapon's damage type). Stripped Bare is not offered (fitcheck.js).
+const W2_SNOT = '#b5e48c', w2Snot = w => !!(w && w.def && w.def.elem === 'ice' && w24Key(w) === 'v_fire_proj');
+const w2AcidCol = w => (w2Snot(w) ? W2_SNOT : W2_PINK);
+function w2Snowball(w, e) {
+  w2E(e).snowT = G.t + 3; // (counts as carrying a coat for Snot House, Backsplash)
+  e.frozen = Math.max(e.frozen || 0, e.boss ? 0.4 : 1.5);
+  ring(e.x, e.y, e.r + 16, W2_SNOT, 0.6, 7); ring(e.x, e.y, e.r + 30, W2_SNOT, 0.4, 3); fxParts('bubble', e.x, e.y, W2_SNOT, 8, 90, 0.6, 4);
+  if (e.dead) return;
+  floatText(e.x, e.y - e.r - 12, 'SNOWBALLED', W2_SNOT, 13, 0.8); w2Mark(w, 'snowball');
+  if (w2s(w).stripReset) { floatText(e.x, e.y - e.r - 26, 'SECONDS', W2_SNOT, 11, 0.6); w2Mark(w, 'seconds'); } // (Second Helping: the coat stays half on)
+  forNear(e.x, e.y, 70, o => { if (o !== e && !o.dead && !o.charmed) { w2Snare(o); w2Line(e.x, e.y, o.x, o.y, 2, W2_SNOT, 0.25); } });
+}
+// The coat: Mucus hits do not fill Corrosion on their own, so the weapon's own hits do (every promise).
+function w2SnotFeed(w) {
+  const S = w2s(w); if (S.snotFeed) return; S.snotFeed = 1;
+  wupOn(w, 'hit', (w, e, res, src) => {
+    if (!w2Snot(w) || !res.statusOk || src.wupEcho || !e.cd) return; // (a killing hit still coats, so Snot House sees it)
+    w2BarBump(e, 'acid', w2AcidFrac(e, res.raw), w2Base(w), w2s(w).stripReset);
+    if (!(w2E(e).coatT > G.realT)) { w2E(e).coatT = G.realT + 0.3; const k = clamp(e.cd.bars.acid, 0, 1); ring(e.x, e.y, e.r + 2 + k * 10, W2_SNOT, 0.3, 2 + k * 5); }
+  });
+}
 // A. Spit Take
 function w2SpitTick(w, dt) {
   const S = w2s(w);
   if (S.lock && !S.lock.dead && !(S.lockT > G.realT)) { // the coat thickens with the bar
     S.lockT = G.realT + 0.25;
     const k = clamp(fightCd(S.lock).bars.acid, 0, 1);
-    ring(S.lock.x, S.lock.y, S.lock.r + 3 + k * 8, W2_PINK, 0.3, 2 + k * 4);
-    fxParts('bubble', S.lock.x + rand(-1, 1) * S.lock.r, S.lock.y, W2_PINK, 1 + Math.round(k * 3), 24, 0.6, 2.5, -Math.PI / 2, 0.6);
+    ring(S.lock.x, S.lock.y, S.lock.r + 3 + k * 8, w2AcidCol(w), 0.3, 2 + k * 4);
+    fxParts('bubble', S.lock.x + rand(-1, 1) * S.lock.r, S.lock.y, w2AcidCol(w), 1 + Math.round(k * 3), 24, 0.6, 2.5, -Math.PI / 2, 0.6);
   }
 }
 wupReg('v_fire_proj', {
   A: { name: 'Spit Take', tag: 'HUNT', costs: 'the glob no longer re-targets until its target dies.', shows: 'a fizzing coat that thickens on the target.', modes: 'HUNT',
     lv3: { desc: 'Corrosion builds 50% faster, and a target takes up to +40% from Acid Spit as its bar fills.', apply(w) {
-      const S = w2s(w); S.lock = null;
+      const S = w2s(w); S.lock = null; w2SnotFeed(w);
       wupOn(w, 'dmg', (w, e, src) => 1 + 0.4 * clamp(fightCd(e).bars.acid, 0, 1));
       wupOn(w, 'hit', (w, e, res, src) => { // +50% Corrosion build-up
         if (!res.statusOk || res.payoffs.length || !e.cd) return;
@@ -168,7 +193,7 @@ wupReg('v_fire_proj', {
     } } },
   B: { name: 'Splash Damage', tag: 'ORBIT', costs: '-15% damage on the direct hit.', shows: 'visible droplets arcing off the target.', modes: 'ORBIT',
     lv3: { desc: 'A direct hit splatters 3 droplets onto enemies within 60 (30% damage, 30% Corrosion).', apply(w) {
-      const S = w2s(w); S.splat = 1;
+      const S = w2s(w); S.splat = 1; w2SnotFeed(w);
       wupOn(w, 'stats', (w, s) => { s.dmg *= 0.85; });
       wupOn(w, 'hit', (w, e, res, src) => w2Splat(w, e, res.raw, src, S.dip ? 2 : 1));
     } },
@@ -202,7 +227,7 @@ wupReg('v_fire_proj', {
     } } },
   C: { name: 'Bad Aftertaste', tag: 'COLLECT', costs: 'no help against the target itself.', shows: 'green-pink drips on marked enemies, a splat on death.', modes: 'COLLECT',
     lv3: { desc: 'Each hit leaves acidic residue on the target; when it dies, the residue splashes its Corrosion onto enemies within 70.', apply(w) {
-      const S = w2s(w); S.marks = new Set();
+      const S = w2s(w); S.marks = new Set(); w2SnotFeed(w);
       wupOn(w, 'hit', (w, e, res, src) => {
         const E = w2E(e); E.resT = G.t;
         if (!E.res) { E.res = 1; E.depth = 1; S.marks.add(e); if (S.marks.size > 60) S.marks.delete(S.marks.values().next().value); }
@@ -257,10 +282,10 @@ wupReg('v_fire_proj', {
     } },
     { name: 'Acid House', best: 'BC', desc: 'Every enemy that dies carrying Corrosion leaves an Acid Pool (radius 60, 3 s); touching pools merge.', apply(w) {
       const S = w2s(w); S.carry = new Set();
-      wupOn(w, 'hit', (w, e) => { if (e.cd && (e.cd.bars.acid > 0.04 || e.corrodedT > G.t)) { S.carry.add(e); if (S.carry.size > 80) S.carry.delete(S.carry.values().next().value); } });
+      wupOn(w, 'hit', (w, e) => { if (e.cd && (e.cd.bars.acid > 0.04 || e.corrodedT > G.t || (e.w2 && e.w2.snowT > G.t))) { S.carry.add(e); if (S.carry.size > 80) S.carry.delete(S.carry.values().next().value); } });
       wupOn(w, 'tick', (w, dt) => {
         for (const e of S.carry) {
-          if (!e.dead) { if (!e.cd || (e.cd.bars.acid < 0.02 && !(e.corrodedT > G.t))) S.carry.delete(e); continue; }
+          if (!e.dead) { if (!e.cd || (e.cd.bars.acid < 0.02 && !(e.corrodedT > G.t) && !(e.w2 && e.w2.snowT > G.t))) S.carry.delete(e); continue; }
           S.carry.delete(e);
           const mine = G.zones.filter(z => z.w2house === w && z.life > 0), r = 60;
           let near = mine.find(z => Math.hypot(z.x - e.x, z.y - e.y) < z.r + r);
@@ -276,10 +301,11 @@ function w2Splat(w, e, raw, src, gens) {
   const near = []; forNear(e.x, e.y, 60, o => { if (o !== e && !o.dead && !o.charmed) near.push(o); });
   for (let i = near.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [near[i], near[j]] = [near[j], near[i]]; }
   for (const o of near.slice(0, 3)) {
-    const carrying = o.cd && (o.cd.bars.acid > 0.05 || o.corrodedT > G.t);
+    const carrying = o.cd && (o.cd.bars.acid > 0.05 || o.corrodedT > G.t || (o.w2 && o.w2.snowT > G.t));
     w2Line(e.x, e.y, o.x, o.y, 3, W2_PINK, 0.18);
     fxParts('drop', e.x, e.y, W2_PINK, 2, 140, 0.3, 3, Math.atan2(o.y - e.y, o.x - e.x), 0.3);
     damageEnemy(o, raw * 0.3, w2Src(src, { atk: 'burst', wupEcho: true, noCrit: true }));
+    if (w2Snot(w) && !o.dead && o.cd) w2BarBump(o, 'acid', 0.3 * w2AcidFrac(o, raw), w2Base(w)); // (snot droplets coat too)
     w2Mark(w, 'droplet');
     if (gens > 1 && carrying && !o.dead) w2Splat(w, o, raw, src, gens - 1);
   }
