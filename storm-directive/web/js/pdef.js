@@ -17,6 +17,8 @@
 //    as the original forcefield bubble (stamina.js armourRing, fed by the Membrane) with its elastic physics (bodymods.js).
 // Hooks: game.js hurtPlayer -> pdefHurt (replaces the armour block under V10); v10.js v10Tick -> pdefTick,
 // v10Draw -> pdefDraw, v10Loot -> pdefOffer; render.js calls armourRing under V10 only while the shield is up (pdefShieldUp);
+// game.js updateEnemies -> pdefBubbleR / pdefBubbleBounce, enemy-bullet loop -> pdefBubbleR / pdefBubbleReflect;
+// (v10.49: the bubble is also a hitbox: pdefBubbleR / pdefBubbleBounce / pdefBubbleReflect.)
 // bodymods.js bubbleOn / bubbleBump -> pdefShieldUp / pdefDent; stamina.js armourRing -> pdefShieldUp / pdefShieldK; bosspack.js bpRelicIn skips the old skin under V10.
 
 const PDEF = {
@@ -226,4 +228,26 @@ function pdefOffer(k) {
   const sh = pdHasShield(D); // Latex Protection only while you have no shield; Thicker Membrane and Faster Recharge only with one
   const ok = Object.keys(PDEF_CARDS).filter(id => D.n[id] < PDEF_CARDS[id].max && (id === 'latex' ? !sh : (id !== 'thick' && id !== 'fast') || sh) && !(full && D.n[id] === 0) && !(id === 'evasion' && typeof s10Evasion === 'function' && s10Evasion() > 0)); // (no Evasion card with Evasion built in)
   return shuffle(ok).slice(0, Math.max(0, k)).map(pdefCard);
+}
+
+// ---------------------------------------------------------------- the bubble as a hitbox
+// While the shield is up the bubble is solid: enemies touch it at its edge (not your body) and bounce off, and shots
+// stop at it (the Membrane soaks them in hurtPlayer). With Rubber Johnny the bubble also throws shots back out.
+const pdefBubbleR = () => pdefShieldUp() ? bubbleR() : 0;
+function pdefBubbleBounce(e, ux, uy, dist, R) {
+  const p = me(), min = R + e.r, heavy = e.boss || e.bossDef || e.egg ? 0.25 : 1 / (1 + e.r / 40);
+  if (dist < min * 0.98) { const k = (min - dist) * (e.boss || e.egg ? 0.5 : 1); e.x -= ux * k; e.y -= uy * k; } // (held out at the edge)
+  if (G.t >= (e.bubBounceT || 0)) { // (one shove per touch, not per frame)
+    e.bubBounceT = G.t + 0.35; e.kx -= ux * 420 * heavy; e.ky -= uy * 420 * heavy;
+    G.armFlash = { t: G.realT, k: 0.25, a: Math.atan2(-uy, -ux), soft: true };
+  }
+}
+// The shot is already spent on the Membrane; Rubber Johnny's bubble flings it back out at the mirrored angle, a bit faster.
+function pdefBubbleReflect(b, dx, dy) {
+  if (!(G.relics && G.relics.rubber) || b.vx == null) return;
+  const d = Math.hypot(dx, dy) || 1, nx = dx / d, ny = dy / d, vn = b.vx * nx + b.vy * ny, sp = Math.max(300, Math.hypot(b.vx, b.vy) * RB.speed);
+  let rx = b.vx - 2 * vn * nx, ry = b.vy - 2 * vn * ny;
+  if (rx * nx + ry * ny <= 0) { rx = nx; ry = ny; }
+  const rl = Math.hypot(rx, ry) || 1;
+  rbShot(b.x, b.y, rx / rl * sp, ry / rl * sp, (20 + G.level * 4) * G.P.might, 'Rubber Johnny', null);
 }

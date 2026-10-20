@@ -1607,7 +1607,9 @@ function updateEnemies(dt) {
     terrainBody(e, dt);
     if (e.dead) continue;
     // Contact damage.
-    if (!e.phased && dist < e.r + p.r) {
+    const bubR = V10 ? pdefBubbleR() : 0; // (v10: your Membrane bubble is a hitbox, pdef.js)
+    if (bubR && !e.phased && dist < e.r + bubR) pdefBubbleBounce(e, dx / dist, dy / dist, dist, bubR);
+    if (!e.phased && dist < e.r + (bubR || p.r)) {
       if (G.barrier > 0) {
         e.kx -= ux * 300; e.ky -= uy * 300;
         if (!(e.hitT.b > G.t)) { e.hitT.b = G.t + 0.4; damageEnemy(e, G.barrierDmg, { elem: 'arcane', wname: 'Latex Barrier' }); }
@@ -2738,8 +2740,8 @@ function update(dt) {
     if (G.nf && nfBullet(b, dt)) continue; // (decoys, slime, domes, membranes: newfeats.js)
     const dx = b.x - p.x, dy = b.y - p.y, d2 = dx * dx + dy * dy;
     if (G.barrier > 0 && d2 < G.barrierR * G.barrierR) { b.dead = true; rubberCatch(b, dx, dy); continue; } // (caught, then flung back: rubber.js)
-    const rr = b.r + p.r * 0.6;
-    if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; G.hitFrom = b; hurtPlayer(b.dmg, b.from, b.owner, 'bullets'); }
+    const bubR = V10 ? pdefBubbleR() : 0, rr = b.r + (bubR || p.r * 0.6); // (v10: the Membrane bubble stops shots at its edge, pdef.js)
+    if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; G.hitFrom = b; hurtPlayer(b.dmg, b.from, b.owner, 'bullets'); if (bubR) pdefBubbleReflect(b, dx, dy); }
   }
   updatePickups(dt);
   updateAmbient(dt);
