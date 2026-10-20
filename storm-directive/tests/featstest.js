@@ -33,13 +33,13 @@ const { chromium } = require('playwright');
     const typesSeen = new Set(ids.filter(i => F10[i].start).map(i => F10[i].type).filter(Boolean));
     for (const t of TYPES) if (!typesSeen.has(t)) bad.push('starting pool lacks ' + t);
     out.start = ids.filter(i => F10[i].start).length;
-    if (out.start !== 15) bad.push('starting pool is ' + out.start);
+    if (out.start !== 23) bad.push('starting pool is ' + out.start); // (15, plus the eight v9 Feats brought back: feats9.js, Hagfish, Running With Scissors)
 
     // ---- harness
     const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.ebul.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list); G.stats.dmg = {}; G.manual = { x: 0, y: 0 }; if (!G.stam) stamInit(); G.stam.cur = stamMax(); };
     const foe = (dx, dy, o) => { const p = G.player, e = makeEnemy(ENEMIES.crawler, p.x + dx, p.y + (dy || 0)); e.hp = e.maxHp = 1e6; e.speed = 0; if (o) Object.assign(e, o); G.enemies.push(e); gridBuild(); return e; };
     const ring = (n, d, o) => { for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; foe(Math.cos(a) * d, Math.sin(a) * d, o); } };
-    const run = s => { let minSt = 1e9; for (let i = 0; i < s * 60; i++) { update(1 / 60); if (G.stam) minSt = Math.min(minSt, G.stam.cur); } return minSt; };
+    const run = s => { let minSt = 1e9; for (let i = 0; i < s * 60; i++) { update(1 / 60); if (G.state === 'bossIntro') G.state = 'play'; /* (first-sighting cards would pause the longer Feats) */ if (G.stam) minSt = Math.min(minSt, G.stam.cur); } return minSt; };
     const dealt = () => Object.values(G.stats.dmg).reduce((a, v) => a + v, 0);
     const hurt = (n, ent) => { pdef().mem.mem = 0; G.player.iframes = 0; hurtPlayer(n, 't', ent || null, 'contact'); };
     const full = () => { G.stam.cur = stamMax(); };
@@ -69,6 +69,12 @@ const { chromium } = require('playwright');
       packed_lunch: { pre: () => { G.P.maxHp = 1000; G.player.hp = 200; }, act: () => {}, sec: 0.3, ok: () => { if (!G.f10.yolk) return 'no yolk'; const h = G.player.hp; G.player.x = G.f10.yolk.x; G.player.y = G.f10.yolk.y; run(0.1); return G.player.hp > h || 'no heal'; } },
       hagfish: { pre: () => ring(4, 100), act: () => {}, sec: 0.5, ok: () => G.enemies.some(e => e.snareT > G.t) || 'nothing Snared' },
       running_with_scissors: { pre: () => ring(4, 100), act: () => {}, sec: 0.5, ok: () => G.enemies.some(e => e.bleeds && e.bleeds.length) || 'nothing bleeding' },
+      capacitation: { pre: () => { foe(100, 0); foe(180, 0); }, act: () => {}, sec: 0.6 },
+      bombardier: { pre: () => { G.player.face = 0; foe(-120, 0); }, act: () => {}, sec: 0.6 },
+      vandegraaff: { pre: () => ring(3, 150, { speed: 60 }), act: () => { update(1 / 60); const d = G.f9 && G.f9.domes[0]; if (d) for (let i = 0; i < 3; i++) G.ebul.push({ x: d.x + 25 + i * 8, y: d.y, vx: -60, vy: 0, dmg: 1, r: 5, life: 7, from: 't' }); }, sec: 6.6, ok: () => (G.f9 && G.f9.arcs > 0) || 'no arcs fired' },
+      spinnbarkeit: { pre: () => { foe(100, 0); foe(125, 20); foe(-100, 0); foe(-125, 20); }, act: () => {}, sec: 0.4, ok: () => G.enemies.some(e => e.conjT > G.t) || 'nothing Conjoined' },
+      wanderingwomb: { pre: () => ring(5, 150), act: () => {}, sec: 2 },
+      earcandling: { pre: () => { G.player.face = 0; ring(4, 100); }, act: () => {}, sec: 1.5 },
     };
     for (const id of ids) if (!T[id]) bad.push('no test for ' + id);
     const trial = (id, lvl, flags, label) => {
@@ -129,7 +135,7 @@ const { chromium } = require('playwright');
     if (G.spells.length !== 3) bad.push('Feat slots: ' + G.spells.length);
     const acq = CARDS.find(c => c.id === 'feat_oopsie');
     if (!cardOk(acq)) bad.push('acquire card not offered with a free slot');
-    window.F10_ALL = 0; if (cardOk(CARDS.find(c => c.id === 'feat_hagfish'))) bad.push('later unlock offered before unlocking'); window.F10_ALL = 1;
+    window.F10_ALL = 0; if (cardOk(CARDS.find(c => c.id === 'feat_nesting'))) bad.push('later unlock offered before unlocking'); window.F10_ALL = 1;
     f10Give('oopsie'); f10Give('kiss_it_better'); f10Give('more');
     if (cardOk(CARDS.find(c => c.id === 'feat_big_feelings'))) bad.push('acquire card offered with slots full');
     if (!cardOk(CARDS.find(c => c.id === 'feat_oopsie_up'))) bad.push('enhance card not offered for a held Feat');

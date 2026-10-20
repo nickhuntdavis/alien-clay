@@ -564,7 +564,7 @@ feat({ id: 'packed_lunch', name: 'Packed Lunch', icon: 'PL', ico: 'cross', trig:
   forks: { 3: [fk('lunchbox', 'Lunchbox', 'Enemies cannot eat the yolk.'), fk('picnic', 'Picnic', 'It heals 25% but lands farther away.')],
     5: [fk('bag', 'Doggy Bag', 'A much shorter cooldown.'), fk('gourmet', 'Gourmet', 'The yolk heals 10% more.')] } });
 
-feat({ id: 'hagfish', name: 'Hagfish', icon: 'HF', ico: 'spray', type: 'mucus', atk: 'burst', rar: 2, stam: 24,
+feat({ id: 'hagfish', name: 'Hagfish', icon: 'HF', ico: 'spray', type: 'mucus', atk: 'burst', start: 1, rar: 2, stam: 24,
   line: `"I made you slimy. Nobody can hold you now."`, does: 'An instant burst of slime Snares everything around you and leaves a Mucus patch where you were.',
   base: { dmg: 18, cd: 13, area: 150 },
   stat: (w, s) => { if (f10Fk(w, 'bucket')) s.area *= 1.4; if (f10Fk(w, 'slimmer')) s.cd *= 0.7; },
@@ -577,7 +577,7 @@ feat({ id: 'hagfish', name: 'Hagfish', icon: 'HF', ico: 'spray', type: 'mucus', 
   forks: { 3: [fk('knot', 'Knot Tying', 'When the Snare ends, you lunge out in the direction you are swimming.'), fk('clog', 'Gill Clogger', 'Enemies it Snares cannot attack while Snared.')],
     5: [fk('bucket', 'Bucketful', 'A 40% wider burst.'), fk('slimmer', 'Slimmer', 'A much shorter cooldown.')] } });
 
-feat({ id: 'running_with_scissors', name: 'Running With Scissors', icon: 'RS', ico: 'scissors', type: 'blood', atk: 'spread', rar: 2, stam: 26,
+feat({ id: 'running_with_scissors', name: 'Running With Scissors', icon: 'RS', ico: 'scissors', type: 'blood', atk: 'spread', start: 1, rar: 2, stam: 26,
   line: `"I found sharp things. Don't hold them. Throw them."`, does: 'A ring of blades bursts out of you, cutting and making everything it catches bleed.',
   base: { dmg: 19, cd: 6, area: 220 },
   stat: (w, s) => { if (f10Fk(w, 'serrated')) s.dmg *= 1.5; if (f10Fk(w, 'snips')) s.cd *= 0.7; },

@@ -13,7 +13,7 @@
 // Card shape: { id, kind: 'acquire'|'enhance'|'specialise', slot: 'feat'|'genome'|'weaponmut'|null, family, type,
 //   rarity, start, title, desc, icon, color, eligible(G), apply(G, target), rank(G), maxRank }.
 
-const DRAFT = { groupW: { feat: 1.3, mut: 1.3, spec: 0.5, def: 1.1, mod: 1.1 }, genome: 4, feats: 3, budget: 0, lean: { primary: 0.5, support: 0.25, other: 0.25 }, forkLv: [3, 6, 10], featForkLv: [3, 5] };
+const DRAFT = { groupW: { feat: 1.3, mut: 1.3, spec: 0.5, def: 1.1, mod: 1.1, up: 0.6 }, genome: 4, feats: 3, budget: 0, lean: { primary: 0.5, support: 0.25, other: 0.25 }, forkLv: [3, 6, 10], featForkLv: [3, 5] };
 const CARDS = [];
 const FORKS = {};
 function draftRegister(c) { if (c && c.id && !CARDS.some(x => x.id === c.id)) CARDS.push(c); }
@@ -91,7 +91,7 @@ function draftCards(n, kind) {
     cand.push({ o: () => cardOpt(c), w: leanW(c.type) * famK(c.family) * (c.start ? 1 : 0.6), fam: c.family || c.id });
   // Groups share the draft by a fixed weight however many cards they hold, so 30 Feat cards don't crowd out
   // defences (lean, novelty and Fewer still tilt the odds inside each group).
-  const grp = f => f.startsWith('feat:') ? 'feat' : f.startsWith('mut:') ? 'mut' : f.startsWith('mod:') ? 'mod' : f === 'catalyst' || f.startsWith('conc:') ? 'spec' : f === 'def' ? 'def' : null;
+  const grp = f => f.startsWith('feat:') ? 'feat' : f.startsWith('mut:') ? 'mut' : f.startsWith('mod:') ? 'mod' : f === 'catalyst' || f.startsWith('conc:') ? 'spec' : f === 'def' ? 'def' : f.startsWith('up:') ? 'up' : null; // (up: v9 upgrades, v9back.js)
   const tot = {};
   for (const c of cand) { const g = grp(c.fam); if (g) tot[g] = (tot[g] || 0) + c.w; }
   for (const c of cand) { const g = grp(c.fam); if (g && tot[g] > 0) c.w *= DRAFT.groupW[g] / tot[g]; }

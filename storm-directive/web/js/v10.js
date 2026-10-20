@@ -188,6 +188,7 @@ function v10Tick(dt) {
   mutTick(dt); // (mutation cards: mutations.js)
   if (typeof mdTick === 'function') mdTick(dt); // (elites drop mutations: mutdrop.js)
   f10Tick(dt); // (Feats: feats10.js)
+  f9Tick(dt); // (the v9 Feats brought back: feats9.js)
   sigwTick(dt); // (signature weapons: sigweap.js)
   pdefTick(dt); // (your Membrane and Shell: pdef.js)
   for (const e of G.enemies) {
@@ -206,7 +207,7 @@ function v10Tick(dt) {
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
-  if (G && V10) { fightDraw(); pdefDraw(); mutDraw(); f10Draw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
+  if (G && V10) { fightDraw(); pdefDraw(); mutDraw(); f10Draw(); f9Draw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
   if (G && V10) nf10Draw(); // (telegraphs, wax, trails: newfoes.js)
   if (G && V10 && typeof mdDraw === 'function') mdDraw(); // (mutation carriers and drops: mutdrop.js)
   if (G && V10) modDraw(); // (v10 modifiers, modifiers.js)

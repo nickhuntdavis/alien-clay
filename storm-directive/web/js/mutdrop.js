@@ -10,7 +10,7 @@
 // Hooks: game.js killEnemy -> mdKill; v10.js v10Tick -> mdTick, v10Draw -> mdDraw; draft.js draftCards -> mdDraftSkip.
 
 const MUTDROP = { chance: 0.6, life: 40, dropLife: 20, maxCarriers: 2, col: '#e9f5db' };
-const mdIsMut = c => /^[mwtxr]_/.test(c.id) && (c.slot === 'genome' || c.slot === 'weaponmut');
+const mdIsMut = c => /^[mwtxrg]_/.test(c.id) && (c.slot === 'genome' || c.slot === 'weaponmut');
 const mdDraftSkip = c => mdIsMut(c); // (draft.js: mutations only come from elites)
 const mdS = () => G.md || (G.md = { drops: [] });
 
