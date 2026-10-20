@@ -2,7 +2,7 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
-## v10.43 (versionCode 322)
+## Unreleased (merged to main without a build or test run)
 - Systems: feats9 (new), v9back (new), feats10, draft, mutation drops, fitcheck (new), upgrades, combos, tests
 - Files: see the folded entries below.
 - What: v9 Feats, upgrades and mutations that fit v10 are back; upgrades that break a weapon's branch are no longer offered; The Runs has a Static version.
