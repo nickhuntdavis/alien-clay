@@ -4,22 +4,25 @@
 //    Getting there early pays RACE15.early DNA per minute to spare, on a win (raceDnaBonus, meta.js runDna).
 //  - The race is stretched to fit: the difficulty clock runs at real time (PACE), rivals take RIVAL.finish to reach
 //    the egg level, the sperm count's time share fills over COUNT.time, and the "behind pace" curve expects
-//    EGG.level at RACE15.curveT. A rival that gets there first still breaks in (rivals.js), which opens it early.
+//    EGG.level at RACE15.curveT. Rivals reach the egg level around 13 to 15 minutes but only go for the egg from
+//    15:00 (raceRivalEgg), so they start cracking it as the timer opens it.
 //  - Rival track (Immersive mode): a thin line under the menu buttons with a dot for you and each rival, placed by
 //    level, the egg at the right end and a tick for the clock. Tap it: the full standings in a small overlay while
 //    the slide runs at RACE15.slow speed.
 // Hooks: game.js eggBreakable -> raceEggOpen, levelsAhead -> raceCurveT, PT and spawn rate -> racePace, gainXp -> raceXp,
 // canvas tap -> raceTap;
 // render.js drawHud -> raceHud, raceTrackH, behind-pace chip -> raceCurveT, drawTopBar -> raceClock;
-// rivals.js updateShowdown -> raceTick; inspect.js inspectMul -> raceMul; meta.js runDna -> raceDnaBonus.
+// rivals.js updateShowdown -> raceTick, rival egg mode -> raceRivalEgg; inspect.js inspectMul -> raceMul; meta.js runDna -> raceDnaBonus.
 
-const RACE15 = { len: 900, curveT: 690, early: 20, slow: 0.1, pace: 1.0, xp: 1.8, rivalFinish: 840, countTime: 810 };
+const RACE15 = { len: 900, curveT: 690, early: 20, slow: 0.1, pace: 1.0, xp: 1.8, rivalFinish: 860, countTime: 810 };
 // Race-only numbers (the Petri Dish, Endless and the levels keep theirs).
 { const F = RIVAL.finish, T = COUNT.time;
   Object.defineProperty(RIVAL, 'finish', { get: () => (raceOn() ? RACE15.rivalFinish : F) });
   Object.defineProperty(COUNT, 'time', { get: () => (raceOn() ? RACE15.countTime : T) }); }
 const racePace = () => (raceOn() ? RACE15.pace : PACE); // (game.js PT and the spawn rate)
 const raceXp = () => (raceOn() ? RACE15.xp : 1); // (game.js gainXp: fewer monsters on the slower clock, each worth more)
+// Rivals keep racing at Lv 60 but only head for the egg from 15:00 (rivals.js; user, 20 Oct).
+const raceRivalEgg = () => !raceOn() || G.t >= RACE15.len;
 
 const raceOn = () => !!(G && !G.wave && !G.lvl && !(G.debug) && typeof UI !== 'undefined' && UI.sample !== 's000' && UI.sample !== 's010');
 const raceCurveT = () => RACE15.curveT;

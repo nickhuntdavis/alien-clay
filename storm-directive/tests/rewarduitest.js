@@ -37,6 +37,7 @@ const { chromium } = require('playwright');
     G.level = 20; G.t = 899; out.egg899 = eggBreakable(); G.t = 900; out.egg900 = eggBreakable();
     if (out.egg899 || !out.egg900) bad.push('egg timer: ' + [out.egg899, out.egg900]);
     raceTick(); if (!G.race || G.race.openT == null) bad.push('raceTick did not note the egg opening');
+    if (!raceRivalEgg()) bad.push('rivals held off the egg at 15:00'); G.t = 600; if (raceRivalEgg()) bad.push('rivals allowed at the egg before 15:00');
     G.t = 300; G.race = null;
     G.level = EGG.level; raceTick(); out.bonus = raceDnaBonus(G, true);
     if (out.bonus !== 10 * RACE15.early) bad.push('early bonus: ' + out.bonus);

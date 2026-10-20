@@ -1,3 +1,11 @@
+## 2026-10-20 Rivals crack the egg at 15:00 (v10.44)
+- Systems: race15, rivals
+- Files: race15.js, rivals.js, tests/eggtest.js, tests/rewarduitest.js
+- What: In a race, rivals that reach Lv 60 keep racing but only head for the egg from 15:00 (raceRivalEgg), and they level a little slower (RIVAL.finish 860 in races). Invulnerable sim: first rival at the egg at 15:04, through the membrane at 18:04.
+- Save data: none.
+- Hooks: rivals.js rival egg mode -> raceRivalEgg.
+- Risk: the egg can no longer be opened early by a rival; eggtest now starts its break-in at 15:00.
+
 ## 2026-10-20 15-minute race, rival track, card language, Build panel (v10.43)
 - Systems: race15 (new), reward cards (new), build panel (new), reward director, difficulty, rivals, ui, tutorial
 - Files: race15.js (new), rewardui.js (new), buildpanel.js (new), game.js, render.js, rivals.js, inspect.js, meta.js, ui.js, director.js, tutorial.js, style.css, index.html, tests/rewarduitest.js (new), tests/sim/race.js
