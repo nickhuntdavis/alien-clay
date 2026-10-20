@@ -5,7 +5,7 @@
 //  - Capacitation (Force, Contact, lunge), Bombardier Beetle (Acid, Spread, recoil lunge), Van de Graaff (Static,
 //    Projectile, a dome that swallows enemy bullets), Spinnbarkeit (Mucus, Projectile, strings that Conjoin pairs),
 //    Wandering Womb (Alien, slow piercing Projectile with a gravity well), Ear Candling (Fire, Pool, a lure).
-// Level 5 forks are written here (FEATS.md only lists level 3). Run state: G.f9 (domes, wombs, candles, strings).
+// Level 5 forks are built here (FEATS.md only lists level 3); their text, and each Feat's `does`, waits on the user (TODO_COPY). Run state: G.f9 (domes, wombs, candles, strings).
 // Hooks: v10.js v10Tick -> f9Tick, v10Draw -> f9Draw.
 
 const f9 = () => G.f9 || (G.f9 = { domes: [], wombs: [], candles: [], strings: [] });
@@ -21,7 +21,7 @@ function f9Conjoin(a, b) {
 function f9Pull(e, x, y, f) { if (e.boss || e.rival || e.egg || e.dead) return; const dx = x - e.x, dy = y - e.y, d = Math.hypot(dx, dy) || 1, m = Math.min(d, f), nx = e.x + dx / d * m, ny = e.y + dy / d * m; if (!f9Wall(nx, ny)) { e.x = nx; e.y = ny; } }
 
 feat({ id: 'capacitation', name: 'Capacitation', icon: 'CP', ico: 'seeker', type: 'force', atk: 'contact', start: 1, rar: 1, stam: 24,
-  line: `"Head down. Go through them. You were built for this. I checked."`, does: 'You drive head-first through a line of enemies. The last one in line takes the biggest hit.',
+  line: `"Head down. Go through them. You were built for this. I checked."`, does: 'TODO_COPY:feat_capacitation_does',
   base: { dmg: 40, cd: 7, range: 320, width: 30 },
   stat: (w, s) => { if (f10Fk(w, 'hyper')) s.range *= 2; if (f10Fk(w, 'acrosome')) s.dmg *= 1.5; if (f10Fk(w, 'headstart')) s.cd *= 0.7; },
   when: w => { const p = me(), t = acquire('nearest', w.s.range, p.x, p.y); return t ? { x: t.x, y: t.y } : null; },
@@ -45,10 +45,10 @@ feat({ id: 'capacitation', name: 'Capacitation', icon: 'CP', ico: 'seeker', type
     fxParts('spark', p.x, p.y, w.def.color, 8, 140, 0.3, 2.5, a + Math.PI, 0.6);
   },
   forks: { 3: [fk('hyper', 'Hyperactivated', 'You drive twice as far.'), fk('zona', 'Zona Binding', 'The last enemy in line is staggered.')],
-    5: [fk('acrosome', 'Acrosome Reaction', 'Every hit lands 50% harder.'), fk('headstart', 'Head Start', 'A much shorter cooldown.')] } });
+    5: [fk('acrosome', 'TODO_COPY:fork_capacitation_acrosome_title', 'TODO_COPY:fork_capacitation_acrosome_desc'), fk('headstart', 'TODO_COPY:fork_capacitation_headstart_title', 'TODO_COPY:fork_capacitation_headstart_desc')] } });
 
 feat({ id: 'bombardier', name: 'Bombardier Beetle', icon: 'BB', ico: 'steam', type: 'acid', atk: 'spread', start: 1, rar: 1, stam: 22,
-  line: `"Spray it at them! Now run the other way!"`, does: 'Boiling acid sprays at whatever is chasing you, and the recoil throws you clear the other way.',
+  line: `"Spray it at them! Now run the other way!"`, does: 'TODO_COPY:feat_bombardier_does',
   base: { dmg: 12, cd: 6, range: 300 },
   stat: (w, s) => { if (f10Fk(w, 'pressure')) s.dmg *= 1.5; if (f10Fk(w, 'reflex')) s.cd *= 0.7; },
   when: w => {
@@ -79,20 +79,20 @@ feat({ id: 'bombardier', name: 'Bombardier Beetle', icon: 'BB', ico: 'steam', ty
     if (f10Fk(w, 'turret')) for (let k = 1; k <= 4; k++) after(0.25 * k, () => { if (!G) return; const q = me(), t = acquire('cluster', s.range, q.x, q.y); if (t) volley(t.x, t.y); });
   },
   forks: { 3: [fk('turret', 'Turret', 'The spray keeps going for a second, tracking the biggest crowd.'), fk('escape', 'Escape Artist', 'Nothing can hurt you during the recoil.')],
-    5: [fk('pressure', 'Built-Up Pressure', 'The acid hits 50% harder.'), fk('reflex', 'Reflex Bleeding', 'A much shorter cooldown.')] } });
+    5: [fk('pressure', 'TODO_COPY:fork_bombardier_pressure_title', 'TODO_COPY:fork_bombardier_pressure_desc'), fk('reflex', 'TODO_COPY:fork_bombardier_reflex_title', 'TODO_COPY:fork_bombardier_reflex_desc')] } });
 
 feat({ id: 'vandegraaff', name: 'Van de Graaff', icon: 'VG', ico: 'bolt', type: 'static', atk: 'proj', start: 1, rar: 2, stam: 26,
-  line: `"Give me their bullets. I'm keeping them. Okay, have them back."`, does: 'A charged dome floats beside you and swallows enemy shots, then fires one Static arc back for each.',
+  line: `"Give me their bullets. I'm keeping them. Okay, have them back."`, does: 'TODO_COPY:feat_vandegraaff_does',
   base: { dmg: 16, cd: 12, area: 230, dur: 4 },
   stat: (w, s) => { if (f10Fk(w, 'cling')) s.dur *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
   when: w => { const p = me(); return G.ebul.some(b => !b.dead && Math.hypot(b.x - p.x, b.y - p.y) < 380) || f10Near(p.x, p.y, 300).length >= 3 ? {} : null; },
   fire: w => { const F = f9(); F.domes = F.domes.filter(d => d.w !== w); F.domes.push({ w, end: G.t + w.s.dur, t0: G.t, n: 0, x: me().x, y: me().y }); },
   forks: { 3: [fk('earthed', 'Earthed', 'Its pull also drags small enemies in.'), fk('sparkgap', 'Spark Gap', 'It fires an arc the moment it catches each shot.')],
-    5: [fk('cling', 'Static Cling', 'The dome stays half as long again.'), fk('quick', 'Quick Discharge', 'A much shorter cooldown.')] } });
+    5: [fk('cling', 'TODO_COPY:fork_vandegraaff_cling_title', 'TODO_COPY:fork_vandegraaff_cling_desc'), fk('quick', 'TODO_COPY:fork_vandegraaff_quick_title', 'TODO_COPY:fork_vandegraaff_quick_desc')] } });
 function f9Arc(w, x, y, e) { f9().arcs = (f9().arcs || 0) + 1; bolt(x, y, e.x, e.y, w.def.color, 0.16); f10Hit(w, e, w.s.dmg, 'proj'); if (!e.dead) e.chargeT = Math.max(e.chargeT || 0, G.t + 3); }
 
 feat({ id: 'spinnbarkeit', name: 'Spinnbarkeit', icon: 'SK', ico: 'whip', type: 'mucus', atk: 'proj', start: 1, rar: 1, stam: 22,
-  line: `"Now they're holding hands. They hate it."`, does: 'Stretchy strings tie pairs of nearby enemies together. Neither can go anywhere.',
+  line: `"Now they're holding hands. They hate it."`, does: 'TODO_COPY:feat_spinnbarkeit_does',
   base: { dmg: 12, cd: 7, range: 300 },
   stat: (w, s) => { s.pairs = f10Fk(w, 'more') ? 6 : 4; if (f10Fk(w, 'stretch')) s.dmg *= 1.5; },
   when: w => { const p = me(); return f10Near(p.x, p.y, w.s.range).length >= 2 ? {} : null; },
@@ -113,10 +113,10 @@ feat({ id: 'spinnbarkeit', name: 'Spinnbarkeit', icon: 'SK', ico: 'whip', type: 
     }
   },
   forks: { 3: [fk('elastic', 'Elastic', 'When a string ends, it flings both ends into each other.'), fk('ferning', 'Ferning', 'Each string branches to a third enemy.')],
-    5: [fk('stretch', 'Ten Centimetres', 'The strings hit 50% harder.'), fk('more', 'Fertile Window', 'Two more pairs every time.')] } });
+    5: [fk('stretch', 'TODO_COPY:fork_spinnbarkeit_stretch_title', 'TODO_COPY:fork_spinnbarkeit_stretch_desc'), fk('more', 'TODO_COPY:fork_spinnbarkeit_more_title', 'TODO_COPY:fork_spinnbarkeit_more_desc')] } });
 
 feat({ id: 'wanderingwomb', name: 'Wandering Womb', icon: 'WW', ico: 'void', type: 'soul', atk: 'proj', start: 1, rar: 2, stam: 24,
-  line: `"This was going to be our room. Look, it's going for a walk."`, does: 'A ghostly womb drifts across the slide, through walls, pulling enemies into its path.',
+  line: `"This was going to be our room. Look, it's going for a walk."`, does: 'TODO_COPY:feat_wanderingwomb_does',
   base: { dmg: 14, cd: 8, dur: 4, range: 420 },
   stat: (w, s) => { if (f10Fk(w, 'gestation')) s.dmg *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
   when: w => { const p = me(), t = acquire('cluster', w.s.range, p.x, p.y); return t && f10Near(p.x, p.y, w.s.range).length >= 2 ? { x: t.x, y: t.y } : null; },
@@ -126,10 +126,10 @@ feat({ id: 'wanderingwomb', name: 'Wandering Womb', icon: 'WW', ico: 'void', typ
     for (const a of angs) F.wombs.push({ w, x: p.x, y: p.y, vx: Math.cos(a) * 130, vy: Math.sin(a) * 130, end: G.t + w.s.dur, t0: G.t, hit: new Set(), stop: null, tickT: 0 });
   },
   forks: { 3: [fk('ectopic', 'Ectopic', 'It stops on the first elite or boss it meets and stays there.'), fk('bicornuate', 'Bicornuate', 'Two wombs, angled apart.')],
-    5: [fk('gestation', 'Full Term', 'It hits 50% harder.'), fk('quick', 'Roaming', 'A much shorter cooldown.')] } });
+    5: [fk('gestation', 'TODO_COPY:fork_wanderingwomb_gestation_title', 'TODO_COPY:fork_wanderingwomb_gestation_desc'), fk('quick', 'TODO_COPY:fork_wanderingwomb_quick_title', 'TODO_COPY:fork_wanderingwomb_quick_desc')] } });
 
 feat({ id: 'earcandling', name: 'Ear Candling', icon: 'EC', ico: 'flame', type: 'fire', atk: 'pool', start: 1, rar: 1, stam: 20,
-  line: `"I lit a candle. Everyone's coming to look at it. Don't look at it."`, does: 'Plants a lit candle behind you. Enemies come to look at it, and it drips fire on them.',
+  line: `"I lit a candle. Everyone's coming to look at it. Don't look at it."`, does: 'TODO_COPY:feat_earcandling_does',
   base: { dmg: 10, cd: 7, area: 75, dur: 4 },
   stat: (w, s) => { if (f10Fk(w, 'scented')) s.area *= 1.4; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, 320).length >= 3 ? {} : null; },
@@ -144,7 +144,7 @@ feat({ id: 'earcandling', name: 'Ear Candling', icon: 'EC', ico: 'flame', type: 
     }
   },
   forks: { 3: [fk('vigil', 'Vigil', 'Two candles.'), fk('snuffed', 'Snuffed', 'When it burns out, it bursts in a ring of fire.')],
-    5: [fk('scented', 'Scented', 'A wider pool of drips.'), fk('quick', 'Tealight', 'A much shorter cooldown.')] } });
+    5: [fk('scented', 'TODO_COPY:fork_earcandling_scented_title', 'TODO_COPY:fork_earcandling_scented_desc'), fk('quick', 'TODO_COPY:fork_earcandling_quick_title', 'TODO_COPY:fork_earcandling_quick_desc')] } });
 
 // ---------------------------------------------------------------- each frame (v10.js v10Tick)
 function f9Tick(dt) {

@@ -2,7 +2,23 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
-## Unreleased: The Runs has a Static version
+## v10.43 (versionCode 322)
+- Systems: feats9 (new), v9back (new), feats10, draft, mutation drops, fitcheck (new), upgrades, combos, tests
+- Files: see the folded entries below.
+- What: v9 Feats, upgrades and mutations that fit v10 are back; upgrades that break a weapon's branch are no longer offered; The Runs has a Static version.
+- Save data: none.
+- Hooks: v10.js v10Tick -> f9Tick, v10Draw -> f9Draw; draft.js grp 'up'; mutdrop.js mdIsMut takes 'g_'.
+- Risk: more power per run (bot sim death wave 9.7 -> 11.8); placeholder card text until the copy arrives.
+
+### Folded from ccr-cbcb5f5b-nfwar6: 2026-10-20 v9 Feats, upgrades and mutations back in v10
+- Systems: feats9 (new), v9back (new), feats10, draft, mutation drops
+- Files: feats9.js (new), v9back.js (new), feats10.js, draft.js, mutdrop.js, v10.js, index.html, tests/featstest.js, tests/v9backtest.js (new), tests/run.sh
+- What: (card text for the six new Feats' descriptions, their level 5 forks, Headstrong, Character Building and Mood Swings is TODO_COPY, waiting on the user's copy.) The six v9 Feats FEATS.md picked but never built (Capacitation, Bombardier Beetle, Van de Graaff, Spinnbarkeit, Wandering Womb, Ear Candling) are in, with level 3 and 5 forks, and Hagfish and Running With Scissors join the starting pool (it was waiting on an unlock system that doesn't exist). 15 v9 upgrades that change how you play (Last Word, Tunnel Vision, Overachiever, Pincer Movement, Hurry Up, Stubborn Streak, Big Boned, Muscle Memory, Big Lungs, Cardio, Tactical Nap, Spoilers, Separation Anxiety, Headstrong, Snooze Button) are draft cards again, and 29 v9 mutations are back in the elite mutation drops.
+- Save data: none (G.passives, G.mut and META.muts as in v9).
+- Hooks: v10.js v10Tick -> f9Tick, v10Draw -> f9Draw; draft.js grp 'up' (DRAFT.groupW.up 0.6); mutdrop.js mdIsMut also takes 'g_' ids.
+- Risk: more power in a run (bot sim: death wave 9.7 -> 11.8, 0 wins both); fewer v10 mutations per elite drop (29 more in the pool); the Feat starting pool is 23, so each Feat turns up less often.
+
+### Folded: The Runs has a Static version
 - Systems: fitcheck, upgrades, tests
 - Files: wup6.js, fitcheck.js, tests/wup6test.js, tests/fittest.js, tests/tools/guide.js, GAME_GUIDE.md
 - What: Switched at Birth can now pick The Runs, but only to Static. Its Burn and Ignite cards become visible zaps: a bolt from the trail jolts (staggers) what crosses it, waves are running sparks, and closing a loop is CIRCUIT CLOSED (the loop lights up, one bolt to everything inside). Card text changes to match.
@@ -10,7 +26,7 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Hooks: none (wup6.js rnBar replaces its own bar6 'fire' calls; fitcheck.js FIT_SAB_TYPES, FIT_TEXT).
 - Risk: Static Runs staggers a lot on Afterburner (every enemy per 3 s); untested for balance.
 
-## Unreleased (pushed to main without a build)
+### Folded (was pushed to main without a build): upgrades that break a weapon's branch are no longer offered
 - Systems: fitcheck (new), upgrades, combos, tests
 - Files: fitcheck.js (new), index.html, tests/fittest.js (new), tests/wup2test.js, wup3test.js, wup4test.js, tests/tools/guide.js, GAME_GUIDE.md, ARCHITECTURE.md
 - What: upgrades that break a weapon's branch (attack-type changes that strand masteries or modifiers, masteries that contradict the promise, modifiers that fight or duplicate a branch) are no longer offered to that weapon, and Switched at Birth never picks a weapon whose branch runs on its own status. New guide section "Upgrades that do not fit".
