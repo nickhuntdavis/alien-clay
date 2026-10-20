@@ -43,6 +43,7 @@ function mutCard(o) {
   const c = Object.assign({ kind: 'acquire', slot, family: 'mut:body', type: null, rarity: 1, start: false, color: MUT_COL.body, maxRank: 1 }, o);
   c.why = o.why || (() => '');
   c.eligible = G => !c.why(G);
+  c.sticky = !!o.on; // (its effect was added once, so a swap can't take it back out: mutdrop.js)
   if (slot === 'genome') {
     c.rank = () => mr(c.id);
     c.apply = (G, target) => { mutSt(); G.muts[c.id] = Math.min(c.maxRank, mr(c.id) + 1); o.on && o.on(G, G.muts[c.id]); };

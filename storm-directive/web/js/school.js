@@ -304,7 +304,7 @@ const SCHOOL_ST = {
   junk: { // (Lateral Gene Transfer: in a real run a carrier turns up every 40 to 55s, and sheds its junk after 30s. Under V10 it teaches the mutation strand from mutdrop.js instead.)
     enter(R) {
       if (V10) {
-        schoolSay('See the pale helix round that Antibody? It is carrying a mutation. Kill it, then swim into the strand it drops and pick one: it changes you for the rest of the run. Usually a carrier sheds it after 40 seconds; here it waits.');
+        schoolSay('See the pale helix round that Antibody? It is carrying a mutation. Kill it and the mutation is yours: pick one, and it changes you for the rest of the run. Usually a carrier sheds it after 40 seconds; here it waits.');
         R.k0 = (G.stats && G.stats.mutDrops) || 0;
         schoolFoes(R, ['crawler', 'crawler', 'crawler'], R.A.rect, 300);
         return;

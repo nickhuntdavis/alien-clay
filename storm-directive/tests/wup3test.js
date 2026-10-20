@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
     const IDS = ['v_soul_proj', 'v_flame_pool', 's_void', 's_lard'];
     // Boot a run with one weapon and a ring of tough enemies, and take the given path through the fork screens.
     function boot(id, path) {
-      UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
+      if (typeof RACE15 !== 'undefined') RACE15.xp = 1; /* (card tests: no race XP boost, so levels stay put: race15.js) */ UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
       G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list);
       G.weapons = [makeSlot(id, false, 1), null, null, null]; recomputeAll(); G.P.maxHp = G.player.hp = 1e6;
       const w = G.weapons[0], p = G.player; p.x = p.y = 0;

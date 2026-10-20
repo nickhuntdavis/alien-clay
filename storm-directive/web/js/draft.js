@@ -7,9 +7,8 @@
 //  - Forks: a weapon reaching Lv 5 or 10 (one mastery weapon a run), or a Feat reaching level 3 or 5, gets its own
 //    2-card screen. Fork options come from forkRegister, or for weapons from two fitting modifiers (modifiers.js).
 //  - Pool lean: typed cards 50% primary type, 25% support, 25% other (G.sampleTypes, set by the sample).
-//  - Triggers: level-ups and elite/boss chests. Wave mode: they all queue and play at the wave break.
-//    Elsewhere: at most one screen per 40 s of combat (forks are never held back).
-// Hooks: v10.js v10Loot -> draftLoot, v10Box -> draftBox; game.js main loop treats draftBox's 'wait' as "not yet".
+//  - Triggers: level-ups and elite/boss chests. When each screen opens is the Reward Director's call (director.js).
+// Hooks: v10.js v10Loot -> draftLoot, v10Box -> draftBox (-> director.js dirGate); game.js main loop treats draftBox's 'wait' as "not yet".
 // Card shape: { id, kind: 'acquire'|'enhance'|'specialise', slot: 'feat'|'genome'|'weaponmut'|null, family, type,
 //   rarity, start, title, desc, icon, color, eligible(G), apply(G, target), rank(G), maxRank }.
 
@@ -167,19 +166,18 @@ function draftLoot(req) {
   if (req.kind === 'wupfork') return wupForkReq(req);
   if (req.kind === 'mutation' && typeof mdCards === 'function') return mdCards(3); // (an elite's strand: mutdrop.js)
   if ((req.kind === 'chest' || req.kind === 'boss') && typeof modBoxCards === 'function') { const m = modBoxCards(3); if (m.length) return m; } // (DNA strands: modifiers, modcards.js)
-  if (req.kind === 'level' || req.kind === 'chest' || req.kind === 'boss') return draftCards(3, req.kind);
+  if (req.kind === 'level' || req.kind === 'chest' || req.kind === 'boss') return draftCards(typeof dirN === 'function' ? dirN(req) : 3, req.kind); // (four on a take-two screen: director.js)
   return null;
 }
 // Which boxes open, and when. 'wait' keeps a box queued without opening it.
 function draftBox(req) {
-  if (req.kind === 'start' || req.kind === 'slot') return true;
-  if (req.kind === 'mutation') return typeof mdOk === 'function' && mdOk().length > 0; // (dropped if the Genome filled up while it waited: an empty screen would stick)
-  if (req.kind === 'wup') return wupReady().length > 0;
-  if (req.kind === 'wupfork') return wupNextLv(req.w) === req.lv;
-  if (req.kind === 'fork') { if (!forkCards(req).length) return false; G.draftT = G.t; return true; }
-  if (!['level', 'chest', 'boss'].includes(req.kind)) return false;
-  if (G.wave) { req.v10ok = true; return true; } // wave mode: every draft queues and plays at the wave break (waves.js waveHoldsLoot)
-  if (req.v10ok) return true;
-  if (DRAFT.budget && G.draftT != null && G.t - G.draftT < DRAFT.budget) return 'wait'; // (budget 0: every level-up and DNA pick opens at once, user 18 Oct)
-  G.draftT = G.t; req.v10ok = true; return true;
+  if (req.kind === 'start') return true;
+  let ok = true;
+  if (req.kind === 'mutation') ok = typeof mdOk === 'function' && (mdOk().length > 0 || mdSwapOk()); // (dropped if nothing fits any more: an empty screen would stick)
+  else if (req.kind === 'wup') ok = wupReady().length > 0;
+  else if (req.kind === 'wupfork') ok = wupNextLv(req.w) === req.lv;
+  else if (req.kind === 'fork') ok = forkCards(req).length > 0;
+  else if (req.kind !== 'slot' && !['level', 'chest', 'boss'].includes(req.kind)) ok = false;
+  if (!ok) return false;
+  return typeof dirGate === 'function' ? dirGate(req) : true; // (order, pacing, the egg; wave mode plays at the break: director.js)
 }
