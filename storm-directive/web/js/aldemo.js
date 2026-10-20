@@ -16,7 +16,7 @@ function alShooters(pv, n, H) { for (let i = 0; i < n; i++) sivFoe(pv, 0.9, H * 
 // ================================================================ Rent Free (ghost shot)
 const GTV = { id: 'v_soul_proj', range: 0.75, cd: 0.6, mag: 8, reload: 1.2, dmg: 22, v: 0.41, alien: 0.3 };
 const GTV_FLAG = { A: 'through', B: 'return', C: 'unfinished', 'Ghost Through': 'through', 'Cold Spot': 'cold', 'Second Sighting': 'second', 'Nine-Tenths of the Law': 'nine',
-  'Return to Sender': 'return', 'Ghostly Tug': 'tug', 'Hitching a Ride': 'ride', 'Haunted House': 'haunted', 'Unfinished Business': 'unfinished',
+  'Revolving Door': 'return', 'Ghostly Tug': 'tug', 'Hitching a Ride': 'ride', 'Haunted House': 'haunted', 'Unfinished Business': 'unfinished',
   'Spreading Spooks': 'spooks', 'Friendly Ghost': 'friendly', Seance: 'seance', 'Mass Possession': 'mass', Poltergeist: 'polter', 'Ghost Army': 'army' };
 function gtvInit(pv) {
   const F = xsInit(pv, { range: GTV.range, mag: GTV.mag, reload: GTV.reload, rate: GTV.cd, ghosts: [], sunk: [], friends: [], seanceT: 4, dead: [] });
@@ -134,7 +134,7 @@ PV_OWN[GTV.id] = { init: gtvInit, step: gtvStep, draw: sivDraw, flags: GTV_FLAG,
 // ================================================================ Peekaboo
 const PKV = { id: 's_peekaboo', cd: 5.5, hide: 1.8, dmg: 20, area: 0.39, fear: 2, boom: 0.15 };
 const PKV_FLAG = { A: 'boom', B: 'cantsee', C: 'boo', 'Peek-a-Boom': 'boom', 'Standing Room Only': 'room', Encore: 'encore', Rattle: 'rattle',
-  "You Can't See Me": 'cantsee', 'Silent Running': 'silent', 'Sneak Attack': 'sneak', 'Mirror, Mirror': 'mirror', 'Boo!': 'boo', 'Pass It On': 'passon',
+  "You Can't See Me": 'cantsee', 'Silent Running': 'silent', 'Sneak Attack': 'sneak', 'Mirror, Mirror': 'mirror', 'Boo!': 'boo', 'Tell a Friend': 'passon',
   Stampede: 'stampede', Cuckoo: 'cuckoo', 'Object Permanence': 'perm', 'Mass Hysteria': 'hysteria', 'Now You See Me': 'nysm' };
 function pkvInit(pv) {
   const F = xsInit(pv, { range: PKV.area, mag: 1, reload: 0.1, hideT: 0, cdT: 1.5, decoys: [] });
@@ -227,7 +227,7 @@ PV_OWN[PKV.id] = { init: pkvInit, step: pkvStep, draw: sivDraw, flags: PKV_FLAG,
 
 // ================================================================ Eggs
 const EGV = { id: 's_toothfairy', cd: 1.1, mag: 3, reload: 2, dmg: 34, max: 3, life: 6, lure: 0.39 };
-const EGV_FLAG = { A: 'nest', B: 'eggon', C: 'chickens', 'Nest Egg': 'nest', 'Bigger Basket': 'basket', 'Triple Yolk': 'triple', 'Easter Egg Hunt': 'hunt',
+const EGV_FLAG = { A: 'nest', B: 'eggon', C: 'chickens', 'Nest Egg': 'nest', 'Bigger Basket': 'basket', 'Triple Yolk': 'triple', 'Surprise Inside': 'hunt',
   'Egg On': 'eggon', 'Egg Trail': 'trail', 'Golden Opportunity': 'golden', Broody: 'broody', "Don't Count Your Chickens": 'chickens', 'Warm Glow': 'warm',
   'Time Bomb': 'bomb', 'Egg on Your Face': 'face', 'Golden Goose': 'goose', Clutch: 'clutch', 'Possession Fee': 'fee' };
 function egvInit(pv) {
@@ -319,7 +319,7 @@ PV_OWN[EGV.id] = { init: egvInit, step: egvStep, draw: sivDraw, flags: EGV_FLAG,
 
 // ================================================================ Chest Burster (infect, raise undead)
 const CBV = { id: 's_parasite', range: 0.73, cd: 0.4, mag: 8, reload: 1.6, dmg: 12, inf: 8, life: 6, cap: 4, bite: 8 };
-const CBV_FLAG = { A: 'family', B: 'contag', C: 'useful', 'The Family Business': 'family', 'The Staff': 'staff', 'Adoption Papers': 'adopt', 'Doggy Bag': 'bag',
+const CBV_FLAG = { A: 'family', B: 'contag', C: 'useful', 'The Family Business': 'family', 'The Staff': 'staff', 'Foster Care': 'adopt', 'Doggy Bag': 'bag',
   'Contagious Personality': 'contag', 'Chronic Condition': 'chronic', 'Open Casket': 'casket', Hookworm: 'hook', 'Dead Useful': 'useful', 'Soul Searching': 'soul',
   'Remote Detonation': 'remote', 'Gut Feeling': 'gut', 'Zombie Apocalypse': 'zombie', Adopted: 'adopted', 'Mother of Worms': 'mother' };
 function cbvInit(pv) {

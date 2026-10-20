@@ -11,6 +11,7 @@ A Feat should make a moment (a near-death escape, a horde shoved away, a lucky k
 - **Rules:** a Feat that attacks has one damage type and one attack type and follows `COMBAT_MATRIX.md` like a weapon (11.7); attacking Feats cost stamina. A **utility** gift (no attack: a shield, a pickup, a trail) has no damage or attack type and costs no stamina.
 - **Card text** (`VOICE_GUIDE.md` progressive disclosure): name, then the gift line in the consciousness's voice, then one plain sentence of what it does. Numbers and science notes go in the Field Guide.
 - **Voice arc:** early gifts are instinctive care ("Here. Safe."); later unlocks get more specific and possessive ("I made this just for you."). The consciousness speaks to the sperm as "you" and never as the sperm.
+- **One gift line per sample** (decision 39, `VOICE_GUIDE.md`): every gift, shared ones included, has a line in each sample's consciousness persona (`CONSCIOUSNESS.md`), so a shared gift needs eight lines (nine if Sample 9 ships, `SAMPLE_9_ACRO.md`). Approved per-sample lines for all 31 shared gifts live in `GIFT_LINES.md`; the shared gift lines in this doc are the old generic ones, kept as reference. Sample-exclusive lines (section 3) are final. The framing above ("it hasn't quite learned what a gift is") is shared; how each persona gives a gift is not.
 - **Progression:** level 1 is the gift; levels 2 and 4 improve numbers; levels 3 and 5 are forks (`UPGRADES.md` 5). Each gift lists its Lv 3 fork; Lv 5 forks are still to write.
 
 ## 2. Gifts for every sample
@@ -133,6 +134,8 @@ G1 to G11 come from the 17 Oct ideas list; G12 to G16 are new. Copycat folded in
 
 The consciousness has noticed something peculiar about one sample and made a gift that wouldn't work on anyone else. One per sample, offered in that sample's drafts only.
 
+*Gift lines below are in each sample's persona (`CONSCIOUSNESS.md`), 20 Oct 2026.*
+
 | # | Gift | Sample | Type and attack | Moment (trigger) | Cooldown |
 | --- | --- | --- | --- | --- | --- |
 | X1 | TOO MUCH BABY | Baseline | Force, Burst (self-centred) | 5 hits taken within 3 s | 12 s |
@@ -143,33 +146,34 @@ The consciousness has noticed something peculiar about one sample and made a gif
 | X6 | EVERYBODY TOGETHER | Redtail | Static, Burst | 6+ enemies within 160 of each other | 10 s |
 | X7 | I MADE EXTRAS | Prawn Again | Alien, Contact (summoned) | You kill an elite or an enemy with 100+ max health | 10 s |
 | X8 | YOU'RE NOT REAL | Not of This World | Its current type, Burst (self-centred) | You gain a status or a mark | 12 s |
+| X9 | `TODO_COPY:acro_x9_name` | Sample 9 (proposed, `SAMPLE_9_ACRO.md`) | Acid, Pool (self-centred) | You stay still for 1 s | 8 s |
 
 ### X1. TOO MUCH BABY (Baseline) *(trigger)*
-- **Gift line:** "You're so big. That's good. I think."
+- **Gift line:** "You're bigger. That's step two. Step three: pop."
 - **Does:** Baseline visibly swells with every hit it takes. At the 5th within 3 s it lets go: a huge shockwave (radius 220) that knocks everything back, and for 3 s it can't be Snared.
 - **Rules:** the swelling is shown on the body, not a new HUD meter (`SAMPLES.md` design rule 2).
 - **Lv 3 fork:** **Personal Space** (the shockwave leaves a ring-shaped Force Pool footprint for 3 s that shoves back anything crossing it) or **Growth Spurt** (radius +50%).
 
 ### X2. FIRST! (Alpha) *(trigger)*
-- **Gift line:** "You did it first! Do it again!"
+- **Gift line:** "Four seconds, no stopping. You're mogging them."
 - **Does:** after 4 s of non-stop swimming, it launches forward (lunge, 160) and bowls through everything in the way: Static Contact hits that make them Charged and knock them aside.
 - **Rules:** lunge cap (160; the mastery fork may double it). Overlaps Alpha's own Personal Best (a sprint with a Static wake): keep one, or make Personal Best the slot 1 Feat and FIRST! its stronger late draft.
 - **Lv 3 fork:** **Victory Lap** (it bounces to up to 2 elites on the way, then carries on) or **Photo Finish** (the last enemy hit discharges an arc at once).
 
 ### X3. LOOK WHAT YOU DID (Beta) *(trigger)*
-- **Gift line:** "You hurt my little friend. Now look."
+- **Gift line:** "Ugh. Fine. Now they're bleeding too."
 - **Does:** every hit you take sheds a droplet of blood. 1 s later it erupts (radius 70, or 110 for a hit of 10%+ of your health) and makes everything near it Bleed.
 - **Rules:** a Blood Burst with delayed detonation; at most 4 droplets at once.
 - **Lv 3 fork:** **Clotting** (droplets that touch merge into one bigger eruption, up to radius 150) or **Late Bloomer** (below 30% health, each droplet erupts twice).
 
 ### X4. LOOK AFTER EACH OTHER (Private Schooled)
-- **Gift line:** "I made you friends! They're very small."
+- **Gift line:** "I've arranged some help. Don't tip them."
 - **Does:** every 12 s, three tiny friends circle you. Each one swallows one enemy Projectile or Spread shot, then pops.
 - **Rules:** orbiting modifier and the projectile blocking rule (12.8); orbiters, not pets.
 - **Lv 3 fork:** **Plus Ones** (friends also swat enemies they touch, building Alien) or **Connections** (four friends).
 
 ### X5. Where'd You Go (Ordered Online) *(trigger, utility)*
-- **Gift line:** "Where'd you go? There you are!"
+- **Gift line:** "Impact predicted. Relocating you. Have a nice day."
 - **Does:** when a telegraphed heavy attack (a Burst, a Beam or a charge) is about to land on you, you slip out to the far side of the attacker (lunge, up to 160), leaving a Mucus patch where you were. The attack carries on and can hit its own side (their damage, as in 12.4).
 - **Rules:** renamed from PEEKABOO, which clashes with the Peekaboo weapon. Works with Ordered Online's built-in Evasion: Evasion handles the small shots, this handles the big ones.
 - **Lv 3 fork:** **Ghost Ribbon** (a see-through copy repeats your last second of swimming, Snaring what it touches) or **Slippery When Wet** (6 s cooldown).
@@ -181,16 +185,23 @@ The consciousness has noticed something peculiar about one sample and made a gif
 - **Lv 3 fork:** **Group Chat** (if the cluster had 10+, it jumps to a second cluster within 300) or **Hold Tight** (a gravity well, bodies only, squeezes the cluster together for 1 s).
 
 ### X7. I MADE EXTRAS (Prawn Again) *(trigger)*
-- **Gift line:** "One of you isn't enough. I made more."
+- **Gift line:** "Last time there was only one of you. Not now."
 - **Does:** killing an elite or a big enemy (100+ max health) makes a see-through copy of you (Prawn Again's offset double, made real) for 4 s. It copies your swimming and fires your first weapon at 50% damage, then bursts, building Alien on everything near.
 - **Rules:** a pet (12.3): it counts towards the 8-pet cap.
 - **Lv 3 fork:** **Extras of Extras** (a copy that helps kill a big enemy makes one more copy; never a third) or **Long Shift** (copies last 8 s).
 
 ### X8. YOU'RE NOT REAL (Not of This World) *(trigger)*
-- **Gift line:** "I don't like the way that one looks at you."
+- **Gift line** (one per active type, decision 42): Fire "That one has touched you. Now it will be ash." Static "Stop. Stop. That one. Too close to you. Gone." Alien "You are not theirs to mark. You are spoken for."
 - **Does:** when you gain a status (Snared, Bleed, Burning, Charge, Fear) or a mark (Complement Protein's), a ripple bursts out of you (radius 160): it removes them all from you and hits everything inside with your current damage type, which can set off reactions as normal.
 - **Rules:** one attack, one type: the type active when it fires (Adaptive Biology).
 - **Lv 3 fork:** **Wrong Planet** (the ripple also staggers elites mid-attack: fills Poise) or **Not From Here** (radius +50%).
+
+### X9. `TODO_COPY:acro_x9_name` (Sample 9, proposed) *(trigger)*
+- **Gift line:** `TODO_COPY:acro_x9_line`. In persona 9's voice (`CONSCIOUSNESS.md` 9, the early arrival): it hates being kept waiting.
+- **Does:** the moment you stay still for 1 s, the cap boils over: an Acid Pool spills out around you (radius 90, 3 s) and builds Corrosion on anything standing in it.
+- **Rules:** a standard Acid Pool (matrix 11.6); touching pools merge (12.7). Trigger only, can't be tapped. Attacking, so it costs stamina (12). Knockback doesn't count as moving. HOLD and NEST set it off often; KITE almost never: it rewards the playstyle this sample hates.
+- **Lv 3 fork:** `TODO_COPY:acro_x9_fk3_spill` (radius +50%) or `TODO_COPY:acro_x9_fk3_drip` (when you move off, the spill trails behind you for 3 s: Trail modifier).
+- **Lv 5 fork:** `TODO_COPY:acro_x9_fk5_fidget` (triggers after 0.5 s still) or `TODO_COPY:acro_x9_fk5_topup` (the spill refreshes every Acid Pool it touches to full lifetime).
 
 ## 4. Originals, re-gifted
 
@@ -366,10 +377,10 @@ About 15 universal Feats, then more through unlocks. Every damage type has at le
 | Crowd control (3) | BIG FEELINGS, STICKY BUSINESS, Jump Scare |
 | Recovery and growth (2) | Kiss It Better, More! |
 | Chain reactions (2) | AND ANOTHER THING, Brown Fat |
-| Attack Feats (5) | Sofa Crevice (gravity), Formic Acid, Tonic Immobility, Shed the Lining, Vanishing Twin |
+| Attack Feats (6) | Sofa Crevice (gravity), Formic Acid, Tonic Immobility, Van de Graaff (added 20 Oct), Shed the Lining, Vanishing Twin |
 | Sample-exclusive (8) | One per sample (section 3), offered only to that sample |
 
-Later unlocks: NOT YET, WAIT WAIT WAIT, THIS WAY, COME BACK HERE, THAT ONE, Nesting, Packed Lunch, Mine! and the other ten originals. Types covered at launch: Force (Little Bubble, BIG FEELINGS, AND ANOTHER THING, Anhydrobiosis, Sofa Crevice), Acid (Formic Acid), Static (Tonic Immobility), Mucus (STICKY BUSINESS), Blood (Shed the Lining), Alien (Jump Scare, Vanishing Twin), Fire (Brown Fat).
+Later unlocks: NOT YET, WAIT WAIT WAIT, THIS WAY, COME BACK HERE, THAT ONE, Nesting, Packed Lunch, Mine! and the other nine originals. Types covered at launch: Force (Little Bubble, BIG FEELINGS, AND ANOTHER THING, Anhydrobiosis, Sofa Crevice), Acid (Formic Acid), Static (Tonic Immobility, Van de Graaff), Mucus (STICKY BUSINESS), Blood (Shed the Lining), Alien (Jump Scare, Vanishing Twin), Fire (Brown Fat).
 
 ## 6. Left out, and why
 

@@ -29,7 +29,7 @@ const V10_ATK = {
   proj: { label: 'Projectile', icon: 'P', kind: 'gun', dir: 'nearest',
     base: { dmg: 16, cd: 0.45, mag: 8, reload: 1.2, count: 1, spread: 0.04, speed: 560, pierce: 0, range: 440, size: 5 } },
   beam: { label: 'Beam', icon: 'B', kind: 'gun', dir: 'nearest',
-    base: { dmg: 3.5, cd: 0.1, mag: 30, reload: 1.2, count: 1, spread: 0, speed: 0, pierce: 99, range: 300, size: 5, width: 10 } },
+    base: { dmg: 3, cd: 0.1, mag: 30, reload: 1.2, count: 1, spread: 0, speed: 0, pierce: 99, range: 300, size: 5, width: 10 } }, // (dmg 3.5 until 20 Oct: beams led every weapon test)
   spread: { label: 'Spread', icon: 'S', kind: 'gun', dir: 'nearest',
     base: { dmg: 6, cd: 0.8, mag: 4, reload: 1.5, count: 7, spread: 0.7, speed: 520, pierce: 0, range: 260, size: 3.5, knock: 30 } },
   burst: { label: 'Burst', icon: 'X', kind: 'gun', dir: 'cluster',
@@ -231,10 +231,10 @@ function v10Draw() {
 function v10Samples() {
   if (typeof s10Samples === 'function' && s10Samples()) return; // (the eight samples: samples10.js)
   let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
-  const card = (id, no, name, desc, c, tag) => `<button class="sx-card hero" data-v10="${id}" style="--c:${c}"><span class="sx-txt"><i>#${no} | IN STOCK</i><b>${esc(name)}</b><span>${esc(desc)}</span><em>${tag}</em></span></button>`;
-  $('sampleList').innerHTML = `<div class="sx-h">HUMAN SAMPLE 1</div>${card('s002', '001', 'Wave Mode', 'Twenty drops into the dish, a boss every fifth. One Switched at Birth card a wave.', '#5fd4e8', 'WAVE MODE')}`
+  const card = (id, no, name, desc, c, tag) => uiSampleCard({ cls: 'hero', attrs: `data-v10="${id}"`, style: `--c:${c}`, kicker: `#${no} | IN STOCK`, name: esc(name), desc: esc(desc), tag });
+  $('sampleList').innerHTML = `${uiSectionHead('HUMAN SAMPLE 1')}${card('s002', '001', 'Wave Mode', 'Twenty drops into the dish, a boss every fifth. One Switched at Birth card a wave.', '#5fd4e8', 'WAVE MODE')}`
     + card('s001', '001', 'Regular Mode', 'Four hundred million hopefuls, one egg. Every level-up and DNA strand is a Switched at Birth card.', '#ffd6e8', 'RACE TO THE EGG')
-    + (dev ? `<div class="sx-h">DEVELOPER</div>${card('s000', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}` : '');
+    + (dev ? `${uiSectionHead('DEVELOPER')}${card('s000', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}` : '');
   $('sampleList').querySelectorAll('[data-v10]').forEach(b => b.addEventListener('click', () => {
     UI.sample = b.dataset.v10; META.profile = 'human1'; saveMeta(); UI.startGame(true);
   }));

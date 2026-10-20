@@ -256,37 +256,37 @@
 
   wupReg(SI, {
     A: { name: 'Return to Womb', tag: 'HOLD', costs: 'nothing fires until the store is full.', shows: 'a placenta swelling round the sperm, then one big volley.', modes: 'KITE survives while it fills.',
-      lv3: { desc: 'The store holds 25 bullets (from 10); they all go out as one volley once it is full.', apply(w) {
+      lv3: { desc: 'Holds up to 25 eaten shots and fires them all as one volley once full. Nothing fires until then.', apply(w) {
         sipP('A')(w); const A = A4(w); A.full = true;
         wupOn(w, 'stats', (w, s) => { s.mag = Math.max(s.mag, 25); });
       } },
       lv6: [
-        C('Full Term', 'The full-store volley leaves in a tight cone, every bullet at one target.', flag('tight')),
-        C('Afterbirth', 'A full-store volley is followed 0.35 s later by a second volley of the same size at the nearest elite.', flag('after'))],
-      wild: C('Hiccup', 'Each returned shot has a 25% chance to fire twice.', flag('hic')) },
+        C('Full Term', 'A full-store volley leaves in a tight cone, every shot at one target.', flag('tight')),
+        C('Afterbirth', 'A full-store volley is followed a moment later by a second one of the same size at the nearest elite.', flag('after'))],
+      wild: C('Hiccup', 'Each returned shot has a chance to fire twice.', flag('hic')) },
     B: { name: 'Umbilical Shield', tag: 'NEST', costs: 'returned shots do 40% less.', shows: 'a cord-and-membrane bubble that thickens as the store fills.', modes: 'NEST and HOLD stand in the bullets.',
-      lv3: { desc: 'Each stored bullet adds a little Membrane (1% of max health, up to 15%).', apply(w) {
+      lv3: { desc: 'Each stored shot adds a little Membrane, building to a solid layer. Returned shots are 40% weaker.', apply(w) {
         sipP('B')(w); const A = A4(w); A.memb = true; A.dmgK = 0.6;
       } },
       lv6: [
-        C('Suction Cup', 'While the Membrane holds, enemy bullets within 120 are pulled towards you to be eaten.', flag('pull')),
-        C('Water Breaks', 'When the Membrane breaks, every stored bullet bursts out in a ring.', flag('burst'))],
-      wild: C('Re-Gift', 'Returned shots go to a different enemy from the one that fired them: the furthest in range.', flag('regift')) },
+        C('Suction Cup', 'While the Membrane holds, nearby enemy shots are pulled in to be eaten.', flag('pull')),
+        C('Water Breaks', 'When the Membrane breaks, every stored shot bursts out in a ring.', flag('burst'))],
+      wild: C('Re-Gift', 'Returned shots go to the furthest enemy in range, not the one that fired them.', flag('regift')) },
     C: { name: 'Eat the Rich', tag: 'HUNT', costs: 'small shots are no longer eaten.', shows: 'big shots visibly swallowed and spat back.', modes: 'HUNT goes near bosses and elites.',
-      lv3: { desc: 'Big or powerful enemy shots count as 3 stored bullets and are returned at triple damage.', apply(w) {
+      lv3: { desc: 'Big enemy shots count as 3 stored and come back at triple damage. Small shots are no longer eaten.', apply(w) {
         sipP('C')(w); A4(w).rich = true;
       } },
       lv6: [
-        C('Return to Sender', 'A returned big shot pierces everything in its path.', flag('rpierce')),
-        C('Paternity Test', 'A boss shot that is eaten is returned at its boss (homing) and is a heavy hit.', flag('boss'))],
-      wild: C('Swap Meet', "Each returned shot copies a random one of your other weapons' shots: its damage type and attack type.", flag('swap')) },
+        C('In One Ear', 'A returned big shot pierces everything in its path.', flag('rpierce')),
+        C('Paternity Test', 'An eaten boss shot goes back to its boss, homing, as a heavy hit.', flag('boss'))],
+      wild: C('Swap Meet', "Each returned shot copies the damage type and attack type of one of your other weapons, at random.", flag('swap')) },
     lv10: [
       { name: 'Mirror Womb', best: 'BC', desc: 'Half of all enemy shots that reach you bounce back at whoever fired them.', apply(w) { sipInstall(w); A4(w).mirror = true; } },
-      { name: 'Let-Down Reflex', best: 'A', desc: 'The store holds 40; when full it bursts in a ring of all 40, twice.', apply(w) {
+      { name: 'Let-Down Reflex', best: 'A', desc: 'Holds 40 shots; when full, it bursts in a ring of all 40, twice.', apply(w) {
         sipInstall(w); const A = A4(w); A.full = true; A.ring = true;
         wupOn(w, 'stats', (w, s) => { s.mag = Math.max(s.mag, 40); });
       } },
-      { name: 'Bullet Sponge', best: 'AB', desc: 'Absorb radius x3 (270).', apply(w) { sipInstall(w); wupOn(w, 'stats', (w, s) => { s.area *= 3; }); mark(w, 'sponge'); } }] });
+      { name: 'Bullet Sponge', best: 'AB', desc: 'Pulls in enemy shots from three times as far away.', apply(w) { sipInstall(w); wupOn(w, 'stats', (w, s) => { s.area *= 3; }); mark(w, 'sponge'); } }] });
 
   // ================================================================ 17. NAPPY MINES (Fire, Burst, delayed)
   function nmInstall(w) {
@@ -467,35 +467,35 @@
 
   wupReg(NM, {
     A: { name: 'Proximity Problems', tag: 'KITE', costs: 'blasts do 15% less damage.', shows: 'mines blinking faster as enemies near.', modes: 'KITE lays them in the path of pursuers.',
-      lv3: { desc: 'Mines go off as soon as an enemy comes within 50, as well as on their fuse.', apply(w) {
+      lv3: { desc: 'Mines also go off when an enemy comes close, not just on their fuse. Blasts are 15% weaker.', apply(w) {
         nmP('A')(w); A4(w).prox = true; wupOn(w, 'stats', (w, s) => { s.dmg *= 0.85; });
       } },
       lv6: [
-        C('Pass the Parcel', 'A mine that goes off on contact flings the enemy back towards the next mine.', flag('fling')),
-        C('Crawling Baby', 'Mines crawl slowly after the nearest enemy within 150.', flag('crawl'))],
-      wild: C('Hand-Me-Down', 'An enemy that touches a mine picks it up and carries it for 1 s before it goes off among its mates.', flag('hand')) },
+        C('Pass the Parcel', 'A mine set off by contact flings the enemy back towards the next mine.', flag('fling')),
+        C('Crawling Baby', 'Mines crawl slowly after the nearest enemy.', flag('crawl'))],
+      wild: C('Hand-Me-Down', 'An enemy that touches a mine carries it back into its group before it goes off.', flag('hand')) },
     B: { name: 'Cluster Diaper', tag: 'HOLD', costs: 'linked mines do not go off on their own until an enemy touches one in the group.', shows: 'taped-together mines going off in sequence.', modes: 'HOLD and NEST drop mines in one place.',
-      lv3: { desc: 'Mines dropped within 120 of each other link with tape; one blast sets off the whole linked group (8 at most).', apply(w) {
+      lv3: { desc: 'Mines dropped close together are taped into a group that goes off at once, but only after an enemy touches one.', apply(w) {
         nmP('B')(w); A4(w).link = true;
       } },
       lv6: [
-        C('Compound Interest', 'Each mine in a chain goes off 20% bigger than the last (3 mines per chain).', flag('grow')),
-        C('Nappy Pin', 'A chain of 3 ends in a nappy-shaped blast of triple radius.', flag('pin'))],
+        C('Compound Interest', 'Each mine in a chain goes off bigger than the one before.', flag('grow')),
+        C('Nappy Pin', 'A chain of 3 ends in one huge, nappy-shaped blast.', flag('pin'))],
       wild: C('Changing Mat', 'When you stop swimming, a ring of mines is laid round you.', flag('mat')) },
     C: { name: 'Lingering Smoulder', tag: 'KITE', costs: 'the blast itself is 25% weaker.', shows: 'smouldering patches spreading behind you.', modes: 'KITE turns a retreat into a burning route.',
-      lv3: { desc: 'The burning patch left by each blast lasts 50% longer and grows slowly.', apply(w) {
+      lv3: { desc: 'Each blast\'s burning patch lasts longer and slowly grows. Blasts are 25% weaker.', apply(w) {
         nmP('C')(w); const A = A4(w); A.patchLife = 5.25; A.patchGrow = 8; wupOn(w, 'stats', (w, s) => { s.dmg *= 0.75; });
       } },
       lv6: [
-        C('Pooling Resources', 'Patches that touch merge into one bigger patch (160 radius at most).', flag('merge')),
-        C('Flare Up', 'An enemy that ignites on a patch makes it flare outward to double size for 1 s.', flag('flare'))],
-      wild: C('Bouncy Castle', 'A blast throws its mine 100 units on, where it goes off again (once).', flag('bounce')) },
+        C('Pooling Resources', 'Burning patches that touch merge into one bigger patch.', flag('merge')),
+        C('Flare Up', 'An enemy that catches fire on a patch makes it flare out to double size for a moment.', flag('flare'))],
+      wild: C('Bouncy Castle', 'A blast throws its mine further on, where it goes off once more.', flag('bounce')) },
     lv10: [
-      { name: 'Nuclear Nappy', best: 'B', desc: 'Every 4th mine is a nuke: triple radius, six times the damage.', apply(w) { nmInstall(w); A4(w).nukeEvery = 4; } },
-      { name: 'Minefield', best: 'AB', desc: 'Three mines per drop, twice as often, lasting twice as long.', apply(w) {
+      { name: 'Nuclear Nappy', best: 'B', desc: 'Every 4th mine is a nuke: a far bigger blast for far more damage.', apply(w) { nmInstall(w); A4(w).nukeEvery = 4; } },
+      { name: 'Minefield', best: 'AB', desc: 'Three mines per drop, twice as often, and they last twice as long.', apply(w) {
         nmInstall(w); wupOn(w, 'stats', (w, s) => { s.count *= 3; s.cd *= 0.5; s.life *= 2; }); mark(w, 'field');
       } },
-      { name: 'Nappy Rash', best: 'C', desc: 'Burning patches have three times the area, last 6 s and merge.', apply(w) {
+      { name: 'Nappy Rash', best: 'C', desc: 'Burning patches are three times the size, last longer and merge.', apply(w) {
         nmInstall(w); const A = A4(w); A.patchR = 1.75; A.patchLife = 6; A.patchGrow = 8; A.merge = true;
       } }] });
   // Pass the Parcel / Compound Interest etc. rely on the Lv 3 flags being set before the blast: nothing else to wire.
@@ -624,7 +624,7 @@
           for (let j = 0; j < all.length && sparks < 3; j++) {
             if (all[j][0] === ea.a && all[j][1] === ea.b) continue;
             const pt = segX(ea.a, ea.b, all[j][0], all[j][1]); if (!pt) continue;
-            sparks++; forNear(pt.x, pt.y, 50, q => { damageEnemy(q, s.dmg * 0.4, cardSrc(w, { wname: 'Crossed Wires' })); });
+            sparks++; forNear(pt.x, pt.y, 50, q => { damageEnemy(q, s.dmg * 0.4, cardSrc(w, { wname: 'Mixed Signals' })); });
             ring(pt.x, pt.y, 50, YEL, 0.3, 3); fxParts('spark', pt.x, pt.y, YEL, 6, 120, 0.3, 2.5); mark(w, 'spark');
           }
         }
@@ -652,34 +652,34 @@
   }
 
   wupReg(TW, {
-    A: { name: 'Long-Distance Relationship', tag: 'KITE', costs: 'much harder to keep the beam on one target.', shows: 'a long beam slashing across the screen.', modes: 'KITE and ORBIT both sweep it naturally.',
-      lv3: { desc: 'The twin stays twice as far away; the beam is twice as long.', apply(w) {
+    A: { name: 'Long-Distance Love', tag: 'KITE', costs: 'much harder to keep the beam on one target.', shows: 'a long beam slashing across the screen.', modes: 'KITE and ORBIT both sweep it naturally.',
+      lv3: { desc: 'Your twin stays twice as far away, so the beam is twice as long. Much harder to keep it on one target.', apply(w) {
         twP('A')(w); wupOn(w, 'stats', (w, s) => { s.range *= 2; }); mark(w, 'long');
       } },
       lv6: [
-        C('Stretch Marks', 'Beam damage grows with its length, up to +60% at full stretch.', flag('stretch')),
+        C('Absence Makes It Grow', 'Beam damage grows with its length, strongest at full stretch.', flag('stretch')),
         C('Tug of Love', "The twin's end drags anything it touches along the beam towards you.", flag('tug'))],
-      wild: C('Evil Twin', 'Once a wave your twin goes off on its own for 5 s, chasing the nearest elite with its end of the beam.', w => { A4(w).evil = { on: false, key: null, t: 0 }; }) },
+      wild: C('Evil Twin', 'Once a wave your twin goes off alone for a few seconds, chasing the nearest elite with its end of the beam.', w => { A4(w).evil = { on: false, key: null, t: 0 }; }) },
     B: { name: 'Toxic Codependency', tag: 'ORBIT', costs: '-20% beam damage when crossing few enemies.', shows: 'the beam brightening step by step as it sweeps.', modes: 'ORBIT.',
-      lv3: { desc: 'Each enemy the beam crosses adds +10% to the beam for 2 s (up to +100%).', apply(w) {
+      lv3: { desc: 'Each enemy the beam crosses boosts it for a short while, stacking up. Weaker when crossing only a few.', apply(w) {
         twP('B')(w); A4(w).rampOn = true;
       } },
       lv6: [
-        C('Boiling Point', 'At +100% the beam turns white and Charges everything it touches for 3 s.', flag('white')),
-        C('Swapsies', 'At +100% your twin swaps places with you along the beam, hitting everything on the line.', flag('swap'))],
-      wild: C('Sticky Fingers', 'The beam picks up the gems it crosses and drops them at your feet.', flag('fingers')) },
+        C('Boiling Point', 'At full boost the beam turns white and Charges everything it touches.', flag('white')),
+        C('Swapsies', 'At full boost your twin swaps places with you along the beam, hitting everything on the line.', flag('swap'))],
+      wild: C('Gold Digger', 'The beam picks up the gems it crosses and drops them at your feet.', flag('fingers')) },
     C: { name: 'Third Wheel', tag: 'HUNT', costs: 'the main beam is 20% thinner.', shows: 'branching beams and crossing sparks.', modes: 'ORBIT and HUNT weave through clusters.',
-      lv3: { desc: 'A Charged enemy struck by the beam throws a second, shorter beam to the nearest enemy for 1 s.', apply(w) {
+      lv3: { desc: 'A Charged enemy hit by the beam throws a short second beam to the nearest enemy. Main beam 20% thinner.', apply(w) {
         twP('C')(w); A4(w).thirdOn = true; wupOn(w, 'stats', (w, s) => { s.width *= 0.8; });
       } },
       lv6: [
-        C('Crossed Wires', 'Up to 3 extra beams at once; where two cross, a spark hits everything near it.', flag('moreEx')),
-        C('Love Triangle', 'A third anchor appears: the beams form a triangle and everything inside it is Charged.', w => { A4(w).tri = true; wupOn(w, 'stats', (w, s) => { s.count = Math.min(5, s.count + 1); }); })],
-      wild: C('Mirror Image', '25% of enemy shots aimed at you hit your twin instead (it cannot be hurt).', flag('mirrorImg')) },
+        C('Mixed Signals', 'Up to 3 extra beams at once; where two cross, a spark hits everything near it.', flag('moreEx')),
+        C('Love Triangle', 'A third anchor joins: the beams form a triangle and everything inside it is Charged.', w => { A4(w).tri = true; wupOn(w, 'stats', (w, s) => { s.count = Math.min(5, s.count + 1); }); })],
+      wild: C('Mirror Image', 'Some enemy shots aimed at you hit your twin instead. It cannot be hurt.', flag('mirrorImg')) },
     lv10: [
-      { name: 'Quadruplets', best: 'AC', desc: 'Two more twins, each with its own beam.', apply(w) { twInstall(w); wupOn(w, 'stats', (w, s) => { s.count = Math.min(5, s.count + 2); }); mark(w, 'quads'); } },
-      { name: 'Psychic Link', best: 'B', desc: 'Every 1.5 s a pulse runs along every beam for 300%, tagged Poise so it can interrupt.', apply(w) { twInstall(w); A4(w).psy = true; } },
-      { name: 'Conjoined Twins', best: 'B', desc: 'Your twin is fused beside you: one beam straight ahead at x4 damage and three times the range. No more sweeping.', apply(w) {
+      { name: 'Quadruplets', best: 'AC', desc: 'Two more twins join, each with its own beam.', apply(w) { twInstall(w); wupOn(w, 'stats', (w, s) => { s.count = Math.min(5, s.count + 2); }); mark(w, 'quads'); } },
+      { name: 'Psychic Link', best: 'B', desc: 'Every so often a heavy pulse runs along every beam, knocking Poise off what it hits.', apply(w) { twInstall(w); A4(w).psy = true; } },
+      { name: 'Conjoined Twins', best: 'B', desc: 'Your twin fuses beside you: one long, straight, far stronger beam ahead. No more sweeping.', apply(w) {
         twInstall(w); A4(w).fused = true; wupOn(w, 'stats', (w, s) => { s.range *= 3; });
       } }] });
 
@@ -892,35 +892,35 @@
 
   wupReg(UC, {
     A: { name: "It's Spreading", tag: 'ORBIT', costs: 'each jump loses more (the chain keeps 75% a jump, from 88%).', shows: 'long branching arcs across the crowd.', modes: 'ORBIT keeps a crowd within jump range.',
-      lv3: { desc: '+3 jumps (6 in all); jump range 140.', apply(w) {
+      lv3: { desc: 'The chain makes 3 more jumps and reaches further between enemies, but each jump loses more damage.', apply(w) {
         ucP('A')(w); A4(w).fall = 0.75; wupOn(w, 'stats', (w, s) => { s.chain += 3; s.jump = Math.max(s.jump, 140); });
       } },
       lv6: [
-        C('Split Ends', 'The chain can fork once: at the first enemy it splits into two chains.', flag('fork')),
-        C('Afterglow', 'The last enemy in each chain stays Charged for 6 s instead of 3.', flag('glow'))],
+        C('Split Ends', 'At the first enemy the chain splits into two chains.', flag('fork')),
+        C('Still Buzzing', 'The last enemy in each chain stays Charged for twice as long.', flag('glow'))],
       wild: C('Bad Hair Day', 'Charged enemies are gently pulled towards each other, like hair to a balloon.', flag('hair')) },
     B: { name: 'Conductive Personality', tag: 'HUNT', costs: "Unwanted Contact's own damage is 30% lower.", shows: 'crackling Charged outlines on many enemies at once.', modes: 'HUNT pairs it with a heavy hitter.',
-      lv3: { desc: 'Charged enemies take +20% damage from all your weapons, not just Static.', apply(w) {
+      lv3: { desc: 'Charged enemies take more damage from all your weapons, not just Static. Unwanted Contact\'s own damage is 30% lower.', apply(w) {
         ucP('B')(w); A4(w).cond = true; wupOn(w, 'stats', (w, s) => { s.dmg *= 0.7; });
       } },
       lv6: [
-        C('Spread the Love', 'Unwanted Contact picks targets that are not yet Charged, spreading the setup.', flag('fresh')),
-        C('Last Spark', 'When an enemy dies while Charged, all your weapons fire 20% faster for 2 s (does not stack).', flag('haste'))],
-      wild: C('Odd Sock', 'One enemy each wave becomes a lightning rod: every chain passes through it on the way.', flag('sock')) },
+        C('Spread the Love', 'Unwanted Contact aims at enemies that are not yet Charged, spreading the setup.', flag('fresh')),
+        C('Last Spark', 'When a Charged enemy dies, all your weapons fire faster for a moment.', flag('haste'))],
+      wild: C('Odd Sock', 'One enemy each wave becomes a lightning rod: every chain passes through it.', flag('sock')) },
     C: { name: 'Feedback Loop', tag: 'ANY', costs: 'Unwanted Contact fires 25% slower.', shows: 'arcs spawning arcs in visible cascades.', modes: 'any mode with a fast-firing second weapon.',
-      lv3: { desc: "When another weapon's hit makes a Charged enemy arc, there is a 30% chance it throws a second, smaller arc (50%).", apply(w) {
+      lv3: { desc: "When another weapon makes a Charged enemy arc, it may throw a second, smaller arc. Unwanted Contact fires 25% slower.", apply(w) {
         ucP('C')(w); A4(w).loop = true; wupOn(w, 'stats', (w, s) => { s.cd *= 1.33; });
       } },
       lv6: [
-        C('Echo Chamber', 'A second arc that lands on another Charged enemy can throw one more (depth 3).', flag('deep')),
-        C('Brainstorm', 'Every 20 arcs, the next Unwanted Contact bolt is a storm: it chains to every Charged enemy on screen.', flag('stormOn'))],
+        C('Echo Chamber', 'A second arc that lands on another Charged enemy can throw one more.', flag('deep')),
+        C('Brainstorm', 'Every 20 arcs, the next bolt chains to every Charged enemy on screen.', flag('stormOn'))],
       wild: C('Balloon Animal', 'A chain that kills leaves a static balloon that floats to the nearest enemy and pops on it.', flag('balloon')) },
     lv10: [
-      { name: 'Tumble Dryer', best: 'BC', desc: '20% of hits from all your other weapons start an Unwanted Contact chain.', apply(w) { ucInstall(w); A4(w).dryer = true; } },
-      { name: 'Worked Up', best: 'A', desc: '8 jumps, and every jump hits 25% harder than the last instead of weaker.', apply(w) {
+      { name: 'Tumble Dryer', best: 'BC', desc: 'Some hits from all your other weapons start an Unwanted Contact chain.', apply(w) { ucInstall(w); A4(w).dryer = true; } },
+      { name: 'Worked Up', best: 'A', desc: '8 jumps, and each jump hits harder than the last instead of weaker.', apply(w) {
         ucInstall(w); A4(w).rise = true; wupOn(w, 'stats', (w, s) => { s.chain = 8; });
       } },
-      { name: 'Grid Lock', best: 'AB', desc: 'Every Charged enemy is joined to the nearest other Charged enemy by a live arc that hits anything crossing it (8 arcs at most).', apply(w) { ucInstall(w); A4(w).grid = true; } }] });
+      { name: 'Grid Lock', best: 'AB', desc: 'Each Charged enemy is joined to the nearest other by a live arc that hits anything crossing it.', apply(w) { ucInstall(w); A4(w).grid = true; } }] });
 
   // ------------------------------------------------------------ wrappers shared with the other wup files and this one
   if (!globalThis.WUP_PROJ_HOOKS) { // the 'phit' and 'pend' hook kinds (shared by every wup*.js file)

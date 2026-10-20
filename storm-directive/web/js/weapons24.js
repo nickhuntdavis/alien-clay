@@ -165,8 +165,8 @@ function wupForkCards(req) {
   const w = req.w, S = w && WUP[w24Key(w)];
   if (!S) return null;
   const U = wupUp(w), col = w.def.color, sub = `${w.def.name} | Tier ${WUP_TIER.indexOf(req.lv) + 1}`;
-  const card = (title, desc, fn, tag) => ({ rarity: 3, tag: tag || 'BRANCH', icon: 'B', color: col, title, sub, desc, apply: () => { fn(); computeStats(w); } });
-  if (req.lv === 3) return ['A', 'B', 'C'].filter(k => S[k]).map(k => card(S[k].name, S[k].lv3.desc + (S[k].costs ? ' Costs: ' + S[k].costs : ''), () => { U.p = k; S[k].lv3.apply(w); }, 'PROMISE'));
+  const card = (title, desc, fn, tag) => ({ rarity: 3, tag: tag || 'BRANCH', icon: 'B', color: col, title, sub, desc, quip: (typeof cardLine === 'function' ? cardLine('wup:' + title) : ''), apply: () => { fn(); computeStats(w); } });
+  if (req.lv === 3) return ['A', 'B', 'C'].filter(k => S[k]).map(k => card(S[k].name, S[k].lv3.desc + (S[k].costs && !(typeof CARD_VOICE !== 'undefined' && CARD_VOICE['wup:' + S[k].name]) ? ' Costs: ' + S[k].costs : ''), () => { U.p = k; S[k].lv3.apply(w); }, 'PROMISE'));
   if (req.lv === 6) {
     const P = S[U.p]; if (!P) return null;
     return [...P.lv6, P.wild].filter(Boolean).map((c, i) => card(c.name || ('Lv 6: ' + P.name), c.desc, () => { U.l6 = c.name; c.apply(w); }, i === 2 ? 'WILDCARD' : 'BRANCH'));

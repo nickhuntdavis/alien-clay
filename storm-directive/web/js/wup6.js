@@ -200,24 +200,24 @@
 
   wupReg('s_peekaboo', {
     A: { name: 'Peek-a-Boom', tag: 'Punish the bait', costs: 'the BOO itself is 30% weaker.', shows: 'a faint sperm-shaped outline that pops when crowded.', modes: 'KITE leaves the bait far behind.',
-      lv3: { desc: 'Your false position explodes in an Alien burst (radius 90) when 3 enemies crowd it, or when you reappear.', apply: PRO('A') },
-      lv6: [CARD('Standing Room Only', 'The false position\'s burst grows with the number of enemies that reached it (+14 radius each, up to 220).', SET('grow')),
-        CARD('Encore', 'The false position stays for 4 s after you reappear and goes off a second time.', SET('second'))],
-      wild: CARD('Rattle', 'While hidden, a baby rattle is flung 230 units away and enemies swarm it instead of the empty spot.', SET('rattle')) },
+      lv3: { desc: 'Your decoy explodes in an Alien burst when 3 enemies crowd it, or when you reappear. The BOO itself is 30% weaker.', apply: PRO('A') },
+      lv6: [CARD('Standing Room Only', 'The decoy\'s burst grows with every enemy that reached it.', SET('grow')),
+        CARD('Long Goodbye', 'The decoy stays for a few seconds after you reappear, then goes off a second time.', SET('second'))],
+      wild: CARD('Rattle', 'While you are hidden, a baby rattle is flung far away and enemies swarm it instead of your empty spot.', SET('rattle')) },
     B: { name: 'You Can\'t See Me', tag: 'Stay gone', costs: 'the BOO is 40% weaker.', shows: 'shots passing through a ghost outline, enemies milling about.', modes: 'COLLECT uses the hidden time to sweep gems.',
-      lv3: { desc: 'Enemies searching the decoy stay confused 1 s longer; enemy shots aimed at you while hidden pass harmlessly through.', apply: PRO('B') },
-      lv6: [CARD('Silent Running', 'While hidden, you swim 40% faster.', SET('run')),
-        CARD('Sneak Attack', 'While hidden, your other weapons keep firing from where you really are, and hit 30% harder.', SET('sneak'))],
-      wild: CARD('Mirror, Mirror', 'Two false positions instead of one; enemies split between them.', SET('mirror')) },
+      lv3: { desc: 'Enemies searching your decoy stay confused longer, and shots aimed at you pass through while you are hidden. The BOO is 40% weaker.', apply: PRO('B') },
+      lv6: [CARD('Silent Running', 'While hidden, you swim faster.', SET('run')),
+        CARD('Sneak Attack', 'While hidden, your other attacks keep firing from where you really are, and hit harder.', SET('sneak'))],
+      wild: CARD('Mirror, Mirror', 'Two decoys instead of one, and the enemies split between them.', SET('mirror')) },
     C: { name: 'Boo!', tag: 'Make them panic', costs: 'a shorter hide (1.2 s).', shows: 'enemies scattering and bumping into each other.', modes: 'HUNT reappears in the thick of it.',
-      lv3: { desc: 'The BOO\'s Fear lasts 3 s (from 2) on enemies within 150 of you when you reappear.', apply: PRO('C') },
-      lv6: [CARD('Pass It On', 'A fleeing enemy that bumps into another spreads Fear to it (once per enemy).', SET('pass')),
-        CARD('Stampede', 'Feared enemies that run into each other collide for a hit and drop their next attack.', SET('stamp'))],
+      lv3: { desc: 'Reappearing leaves nearby enemies Feared for longer. You stay hidden for less time.', apply: PRO('C') },
+      lv6: [CARD('Tell a Friend', 'A fleeing enemy that bumps into another spreads its Fear to it (once per enemy).', SET('pass')),
+        CARD('Stampede', 'Feared enemies that run into each other take a hit and lose their next attack.', SET('stamp'))],
       wild: CARD('Cuckoo', 'When you reappear, you swap places with the nearest enemy.', SET('cuckoo')) },
     lv10: [
       { name: 'Object Permanence', best: 'BC', desc: 'You vanish twice as often, and the BOO reaches the whole screen.', apply: SET('perm') },
-      { name: 'Mass Hysteria', best: 'C', desc: 'The BOO also fills the Alien bar of up to 5 enemies at once, so they are Possessed.', apply: SET('hyst') },
-      { name: 'Now You See Me', best: 'AB', desc: 'You are hidden 3 s out of every 4; every reappearance is a BOO.', apply: SET('nysm') }] });
+      { name: 'Mass Hysteria', best: 'C', desc: 'The BOO also fills the Alien bar of up to 5 enemies, leaving them Possessed.', apply: SET('hyst') },
+      { name: 'Now You See Me', best: 'AB', desc: 'You are hidden most of the time, and every reappearance is a BOO.', apply: SET('nysm') }] });
 
   // ================================================================ Eggs (Alien, Burst, lures)
   const egCap = w => { const st = w6S(w); return st.clutch ? 12 : st.big ? 6 : 3; };
@@ -350,24 +350,24 @@
 
   wupReg('s_toothfairy', {
     A: { name: 'Nest Egg', tag: 'Bait makes more bait', costs: 'each smite is 25% weaker.', shows: 'eggs rolling out of each smitten enemy.', modes: 'COLLECT and ORBIT keep you near the rolling eggs.',
-      lv3: { desc: 'Every enemy smitten lays an egg of its own.', apply: PRO('A') },
-      lv6: [CARD('Bigger Basket', 'Up to 6 eggs on the ground at once (from 3).', SET('big')),
-        CARD('Triple Yolk', 'When 3 eggs are taken within 1 s, they smite all three takers and everything between them.', SET('triple'))],
-      wild: CARD('Easter Egg Hunt', 'Eggs burrow and pop up under the nearest enemy instead of waiting.', SET('easter')) },
+      lv3: { desc: 'Every enemy smitten lays a lure egg of its own. Each smite is 25% weaker.', apply: PRO('A') },
+      lv6: [CARD('Bigger Basket', 'Up to 6 lure eggs on the ground at once (from 3).', SET('big')),
+        CARD('Triple Yolk', 'When 3 lure eggs are taken within a second, they smite all three takers and everything between them.', SET('triple'))],
+      wild: CARD('Surprise Inside', 'Lure eggs burrow and pop up under the nearest enemy instead of waiting.', SET('easter')) },
     B: { name: 'Egg On', tag: 'Steer the horde', costs: 'smites are 20% weaker.', shows: 'enemies peeling off the crowd and swimming for the glint.', modes: 'KITE drops eggs behind you; NEST draws enemies away from the egg.',
-      lv3: { desc: 'Eggs lure from twice as far, and enemies chasing an egg stop attacking you.', apply: PRO('B') },
-      lv6: [CARD('Egg Trail', 'Eggs land on your swim path, 200 units behind you.', SET('path')),
-        CARD('Golden Opportunity', 'One golden egg at a time lures everything on screen (bosses excepted) for 2 s.', SET('gold'))],
-      wild: CARD('Broody', 'Every 3rd egg is kept back and hatched, smiting a random elite.', SET('broody')) },
+      lv3: { desc: 'Lure eggs pull enemies from twice as far, and enemies chasing one stop attacking you. Smites are 20% weaker.', apply: PRO('B') },
+      lv6: [CARD('Egg Trail', 'Lure eggs land on your swim path, behind you.', SET('path')),
+        CARD('Golden Opportunity', 'One golden lure egg at a time pulls in everything on screen for a moment (bosses ignore it).', SET('gold'))],
+      wild: CARD('Broody', 'Every third lure egg is kept back and hatched, smiting a random elite.', SET('broody')) },
     C: { name: 'Don\'t Count Your Chickens', tag: 'Patience pays', costs: 'eggs are dropped 40% less often.', shows: 'eggs glowing brighter as they wait.', modes: 'HOLD and KITE give eggs time to charge.',
-      lv3: { desc: 'An egg gains power while it waits: +25% smite damage per second, up to +150%.', apply: PRO('C') },
-      lv6: [CARD('Warm Glow', 'Eggs last 9 s. A fully charged egg (6 s) glows, and its smite also hits everything within 100.', SET('glow')),
-        CARD('Time Bomb', 'A fully charged egg that is never taken explodes when it expires, smiting everything within 160.', SET('timebomb'))],
-      wild: CARD('Egg on Your Face', 'When you take damage, an egg drops at the feet of whatever hurt you.', SET('face')) },
+      lv3: { desc: 'A lure egg gets stronger the longer it waits before it is taken. Lure eggs drop 40% less often.', apply: PRO('C') },
+      lv6: [CARD('Warm Glow', 'Lure eggs last longer. A fully charged one glows, and its smite also hits everything nearby.', SET('glow')),
+        CARD('Time Bomb', 'A fully charged lure egg that nobody takes explodes when it expires, smiting everything nearby.', SET('timebomb'))],
+      wild: CARD('Egg on Your Face', 'When you take damage, a lure egg drops at the feet of whatever hurt you.', SET('face')) },
     lv10: [
-      { name: 'Golden Goose', best: 'AC', desc: 'Every smite hits everything within 160 of the victim at full damage.', apply: SET('goose') },
-      { name: 'Clutch', best: 'AB', desc: 'Two eggs a drop, eggs last 8 s, up to 12 on the ground at once, scattered all round you.', apply: SET('clutch') },
-      { name: 'Possession Fee', best: 'B', desc: 'Every smite Possesses the victim at once (bosses take x3 instead).', apply: SET('fee') }] });
+      { name: 'Golden Goose', best: 'AC', desc: 'Every smite hits everything around the victim at full damage.', apply: SET('goose') },
+      { name: 'Clutch', best: 'AB', desc: 'Two lure eggs a drop, they last longer, and up to 12 lie scattered all round you.', apply: SET('clutch') },
+      { name: 'Possession Fee', best: 'B', desc: 'Every smite Possesses the victim at once (bosses take triple damage instead).', apply: SET('fee') }] });
 
   // ================================================================ Chest Burster (Alien, Projectile)
   const cbCap = w => { const st = w6S(w); return st.zombie ? 12 : st.p === 'A' ? 3 : 4; };
@@ -520,24 +520,24 @@
 
   wupReg('s_parasite', {
     A: { name: 'The Family Business', tag: 'A durable army', costs: 'at most 3 undead (from 4).', shows: 'a little worm-ridden escort swimming with you.', modes: 'KITE keeps them between you and the crowd.',
-      lv3: { desc: 'Undead last 12 s (from 6) and deal +50%.', apply: PRO('A') },
+      lv3: { desc: 'Undead last twice as long and hit harder. At most 3 undead at once (from 4).', apply: PRO('A') },
       lv6: [CARD('The Staff', 'Undead follow you and fight near you, instead of where they died.', SET('follow')),
-        CARD('Adoption Papers', 'The first elite you convert each wave stays for the whole wave (counts towards the cap).', SET('keepelite'))],
+        CARD('Foster Care', 'The first elite you convert each wave stays for the whole wave (it counts towards the undead cap).', SET('keepelite'))],
       wild: CARD('Doggy Bag', 'Undead fetch gems back to you between fights.', SET('fetch')) },
     B: { name: 'Contagious Personality', tag: 'The army recruits', costs: 'undead last 4 s and deal 30% less.', shows: 'worm marks spreading enemy to enemy.', modes: 'ORBIT keeps the fight tightly packed for infection.',
-      lv3: { desc: 'Undead infect the enemies they attack.', apply: PRO('B') },
-      lv6: [CARD('Chronic Condition', 'Infection lasts until death (no timeout).', SET('chronic')),
+      lv3: { desc: 'Undead infect the enemies they attack. Undead last only 4 s and hit 30% weaker.', apply: PRO('B') },
+      lv6: [CARD('Chronic Condition', 'Infection lasts until the enemy dies.', SET('chronic')),
         CARD('Open Casket', 'Any enemy that dies infected rises, whoever killed it, and passes the infection to two neighbours.', SET('casket'))],
       wild: CARD('Hookworm', 'Undead latch on to an enemy and ride it, biting, until it dies.', SET('hook')) },
     C: { name: 'Dead Useful', tag: 'An army of ammunition', costs: 'undead deal 50% less.', shows: 'undead shambling into crowds and popping.', modes: 'HUNT points them at a big target.',
-      lv3: { desc: 'Undead shamble towards the crowd and burst in an Alien burst (radius 70) when they expire or are culled.', apply: PRO('C') },
-      lv6: [CARD('Soul Searching', 'The burst adds Alien build-up to everything it hits.', SET('soulbar')),
-        CARD('Remote Detonation', 'Every 8 s all undead rush the densest cluster and burst on arrival.', SET('rush'))],
+      lv3: { desc: 'Undead shamble into the crowd and go off in an Alien burst when they expire. Undead hit half as hard.', apply: PRO('C') },
+      lv6: [CARD('Soul Searching', 'The undead\'s burst adds Alien build-up to everything it hits.', SET('soulbar')),
+        CARD('Remote Detonation', 'Every few seconds all undead rush the densest cluster and burst on arrival.', SET('rush'))],
       wild: CARD('Gut Feeling', 'Infected enemies flash red just before they attack.', SET('gut')) },
     lv10: [
-      { name: 'Zombie Apocalypse', best: 'B', desc: 'This weapon\'s undead cap rises from 4 to 12 (overrides the pets cap).', apply: SET('zombie') },
+      { name: 'Zombie Apocalypse', best: 'B', desc: 'Up to 12 undead at once (from 4).', apply: SET('zombie') },
       { name: 'Adopted', best: 'A', desc: 'Elites killed while infected become permanent allies (3 at most).', apply: SET('adopt') },
-      { name: 'Mother of Worms', best: 'AC', desc: 'Three tapeworms coil round you and bite what comes close; every infected death adds +10% to their damage (up to +200%).', apply: w => { const st = w6S(w); st.worm = 0; INST[w24Key(w)](w); } }] });
+      { name: 'Mother of Worms', best: 'AC', desc: 'Three tapeworms coil round you and bite what comes close; every infected death makes them stronger.', apply: w => { const st = w6S(w); st.worm = 0; INST[w24Key(w)](w); } }] });
 
   // ================================================================ The Runs (Fire, Pool, trail)
   function rnInstall(w) {
@@ -689,24 +689,24 @@
   }
   wupReg('s_wake', {
     A: { name: 'Can\'t Hold It', tag: 'Go fast', costs: 'standing still leaves nothing, and slow swimming leaves a weak trail.', shows: 'the trail brightens and widens with speed.', modes: 'KITE and ORBIT keep you moving fast.',
-      lv3: { desc: 'The faster you swim, the denser and hotter the trail (up to x2 Burn rate at full speed; half as much when slow).', apply: PRO('A') },
-      lv6: [CARD('Burning Rubber', 'Sprinting leaves a white-hot streak that Ignites anything crossing it at once (once per enemy per 4 s).', SET('white')),
-        CARD('Footloose', 'At full speed you leave burning footprints either side of you as well, tripling the trail\'s width.', SET('foot'))],
+      lv3: { desc: 'The faster you swim, the hotter and denser the trail. Standing still leaves nothing, and slow swimming leaves a weak trail.', apply: PRO('A') },
+      lv6: [CARD('Burning Rubber', 'Sprinting leaves a white-hot streak that Ignites anything crossing it (once per enemy every few seconds).', SET('white')),
+        CARD('Footloose', 'At full speed you also leave burning footprints either side, tripling the trail\'s width.', SET('foot'))],
       wild: CARD('Slip Road', 'Enemies that cross the trail skid forward along it.', SET('slip')) },
-    B: { name: 'Backdraft', tag: 'Cross your own path', costs: 'the trail itself burns 30% weaker.', shows: 'a visible wave of fire racing along the trail.', modes: 'ORBIT crosses its own path constantly.',
-      lv3: { desc: 'Crossing your own trail ignites it in a wave: fire runs along the path both ways (1 s, fills Burn bars by half).', apply: PRO('B') },
-      lv6: [CARD('Full Circle', 'Closing a loop (crossing a trail you laid within 4 s) fills the Burn bar of most of what is inside the loop.', SET('loop')),
-        CARD('Flashpoint', 'A wave that meets another wave bursts where they meet (a Burst of radius 90).', SET('flash'))],
+    B: { name: 'Double Back', tag: 'Cross your own path', costs: 'the trail itself burns 30% weaker.', shows: 'a visible wave of fire racing along the trail.', modes: 'ORBIT crosses its own path constantly.',
+      lv3: { desc: 'Crossing your own trail sends a wave of fire along it both ways, filling Burn bars. The trail itself burns 30% weaker.', apply: PRO('B') },
+      lv6: [CARD('Full Circle', 'Closing a loop fills the Burn bar of most enemies inside it.', SET('loop')),
+        CARD('Flashpoint', 'Where two waves of fire meet, they burst.', SET('flash'))],
       wild: CARD('Breadcrumbs', 'Gems you swim past follow you along the trail until you collect them.', SET('crumbs')) },
-    C: { name: 'Leave a Little Behind', tag: 'Lay a route', costs: 'slow payoff; the fresh trail behind you does little.', shows: 'a trail that glows from dull to bright behind you.', modes: 'KITE drags pursuers along the route; NEST circles the egg on one route.',
-      lv3: { desc: 'The trail lasts 3 times as long but starts at low heat, building up over 2 s.', apply: PRO('C') },
-      lv6: [CARD('Creature of Habit', 'Enemies following your path through the trail take +50%.', SET('habit')),
-        CARD('Well Trodden', 'Trail pieces on a route you keep using become embers that stay for 10 s once fully hot.', SET('ember'))],
-      wild: CARD('Wrong Way', 'The trail is laid 150 units ahead of you instead of behind.', SET('wrong')) },
+    C: { name: 'Slow Burn', tag: 'Lay a route', costs: 'slow payoff; the fresh trail behind you does little.', shows: 'a trail that glows from dull to bright behind you.', modes: 'KITE drags pursuers along the route; NEST circles the egg on one route.',
+      lv3: { desc: 'The trail lasts three times as long but starts cool, heating up over a couple of seconds. The fresh trail behind you does little.', apply: PRO('C') },
+      lv6: [CARD('Creature of Habit', 'Enemies following your path through the trail take extra damage.', SET('habit')),
+        CARD('Well Trodden', 'Trail on a route you keep using turns to embers that stay for a while once fully hot.', SET('ember'))],
+      wild: CARD('Wrong Way', 'The trail is laid ahead of you instead of behind.', SET('wrong')) },
     lv10: [
-      { name: 'Afterburner', best: 'A', desc: 'The trail Ignites everything it touches at once (once per enemy per 3 s).', apply: SET('after') },
-      { name: 'Hot Lap', best: 'B', desc: 'Closing a loop erupts everything inside it (full Ignition) and doubles your swim speed for 2 s.', apply: SET('hot') },
-      { name: 'Scorched Route', best: 'C', desc: 'The trail lasts 20 s at full heat (trail pieces get their own cap of 80).', apply: SET('scorch') }] });
+      { name: 'Afterburner', best: 'A', desc: 'The trail Ignites everything it touches at once (once per enemy every few seconds).', apply: SET('after') },
+      { name: 'Hot Lap', best: 'B', desc: 'Closing a loop Ignites everything inside it and doubles your swim speed for a moment.', apply: SET('hot') },
+      { name: 'Scorched Route', best: 'C', desc: 'The trail stays at full heat for much longer.', apply: SET('scorch') }] });
 
   // ================================================================ shared wrappers
   const hp = hurtPlayer;

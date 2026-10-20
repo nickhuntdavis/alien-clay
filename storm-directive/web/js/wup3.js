@@ -348,32 +348,32 @@ function rfGhostArmy(w, dt) {
 
 wupReg('v_soul_proj', {
   A: { name: 'Ghost Through', tag: 'pass through the crowd', costs: '-15% damage to the first target.', shows: 'The ghost passes through bodies, leaving a faint wisp in each.', modes: 'KITE lines pursuers up',
-    lv3: { desc: 'Passes through up to 4 enemies; each one after the first takes 20% less.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.pierce = Math.max(s.pierce || 0, 3); }); w3On(w, 'tick', rfGhost); } },
+    lv3: { desc: 'The ghost passes through up to 4 enemies, a little weaker after each one. First hit 15% weaker.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.pierce = Math.max(s.pierce || 0, 3); }); w3On(w, 'tick', rfGhost); } },
     lv6: [
       { name: 'Cold Spot', desc: 'Every enemy the ghost passes through also gains Alien build-up, so a long line fills several bars at once.', apply(w) { w3On(w, 'tick', rfColdSpot); } },
-      { name: 'Second Sighting', desc: 'At full range the ghost fades and re-forms at the start of its path, flying the same line once more.', apply(w) { w3On(w, 'tick', rfSecond); } }],
-    wild: { name: 'Nine-Tenths of the Law', desc: 'A Possessed enemy fires Rent Free shots at its mates.', apply(w) { w3On(w, 'tick', rfNineTenths); } } },
-  B: { name: 'Return to Sender', tag: 'twice the haunting', costs: 'The shot is 30% slower.', shows: 'A translucent ghost reversing along its trail.', modes: 'ORBIT keeps enemies on both legs of the path',
-    lv3: { desc: 'After its hit the ghost fades, reappears and retraces its path back to you, hitting again.', apply(w) { w3TypeFeed(w); modAdd(w, 'returning'); w3On(w, 'stats', (w, s) => { s.speed *= 0.7; }); w3On(w, 'tick', rfReturnTrail); } },
+      { name: 'Second Sighting', desc: 'At full range the ghost fades and re-forms where it started, then flies the same line again.', apply(w) { w3On(w, 'tick', rfSecond); } }],
+    wild: { name: 'Nine-Tenths of the Law', desc: 'A Possessed enemy fires your ghost shots at its own mates.', apply(w) { w3On(w, 'tick', rfNineTenths); } } },
+  B: { name: 'Revolving Door', tag: 'twice the haunting', costs: 'The shot is 30% slower.', shows: 'A translucent ghost reversing along its trail.', modes: 'ORBIT keeps enemies on both legs of the path',
+    lv3: { desc: 'After its hit the ghost turns and retraces its path back to you, hitting again. Shots are 30% slower.', apply(w) { w3TypeFeed(w); modAdd(w, 'returning'); w3On(w, 'stats', (w, s) => { s.speed *= 0.7; }); w3On(w, 'tick', rfReturnTrail); } },
     lv6: [
-      { name: 'Ghostly Tug', desc: 'On the way back it pulls a little of each enemy it passes towards you.', apply(w) { w3On(w, 'tick', rfTug); } },
-      { name: 'Hitching a Ride', desc: 'A Possessed enemy it passes on the way back is dragged along for 1 s, bumping its mates.', apply(w) { w3On(w, 'tick', rfRide); } }],
+      { name: 'Ghostly Tug', desc: 'On the way back the ghost drags each enemy it passes a little towards you.', apply(w) { w3On(w, 'tick', rfTug); } },
+      { name: 'Hitching a Ride', desc: 'A Possessed enemy the ghost passes on the way back is dragged along for a second, bumping its mates.', apply(w) { w3On(w, 'tick', rfRide); } }],
     wild: { name: 'Haunted House', desc: 'Ghosts that miss sink into the floor and pop up under the next enemy that swims over them.', apply(w) { w3On(w, 'tick', rfHaunted); } } },
   C: { name: 'Unfinished Business', tag: 'they come back for their friends', costs: '-20% direct damage.', shows: 'A pale wisp orbits marked enemies, then a ghostly puff on death.', modes: 'HUNT tags a big target; COLLECT enjoys the bursts',
-    lv3: { desc: 'A hit enemy that survives is haunted for 3 s; if it dies in that time its spirit bursts out (radius 70, 60% damage, Alien build-up).',
+    lv3: { desc: 'An enemy you hit is haunted for a few seconds; if it dies, its spirit bursts on its mates. Direct hits 20% weaker.',
       apply(w) { w3TypeFeed(w);
         w3On(w, 'stats', (w, s) => { s.dmg *= 0.8; });
         w3On(w, 'hit', (w, e, res, src) => { if (!src.wupEcho && !e.dead && e.hp - res.toHp > 0) rfMark(w, e, 0); });
         w3On(w, 'tick', rfUnfinished);
       } },
     lv6: [
-      { name: 'Spreading Spooks', desc: 'The burst also haunts the enemies it hits (two generations, then it stops).', apply(w) { w3S(w).spread = true; } },
-      { name: 'Friendly Ghost', desc: 'The spirit of an elite or big enemy fights for you for 4 s instead of bursting.', apply(w) { w3S(w).pet = true; w3On(w, 'tick', (w, dt) => w3PetTick(w, dt, (q, t) => { w3Hit(t, w.s.dmg * 0.9, w, { atk: 'contact' }); ring(t.x, t.y, t.r + 4, w.def.color, 0.25, 3); })); } }],
-    wild: { name: 'Seance', desc: 'Every 8 s the last 5 enemies you killed flicker back for 1 s as ghosts that draw enemy fire.', apply(w) { w3On(w, 'tick', rfSeance); } } },
+      { name: 'Spreading Spooks', desc: 'The spirit\'s burst haunts the enemies it hits too, for two generations, then it stops.', apply(w) { w3S(w).spread = true; } },
+      { name: 'Friendly Ghost', desc: 'The spirit of an elite or big enemy fights for you for a few seconds instead of bursting.', apply(w) { w3S(w).pet = true; w3On(w, 'tick', (w, dt) => w3PetTick(w, dt, (q, t) => { w3Hit(t, w.s.dmg * 0.9, w, { atk: 'contact' }); ring(t.x, t.y, t.r + 4, w.def.color, 0.25, 3); })); } }],
+    wild: { name: 'Seance', desc: 'Every few seconds your last few kills flicker back as ghosts that draw enemy fire.', apply(w) { w3On(w, 'tick', rfSeance); } } },
   lv10: [
     { name: 'Mass Possession', best: 'AC', desc: 'Every hit fills half an Alien bar, and Possession lasts twice as long.', apply(w) { w3On(w, 'hit', (w, e, res, src) => { if (!src.wupEcho) w3BarFrac(e, 'soul', 0.5, w); }); w3On(w, 'tick', rfMassPossession); } },
-    { name: 'Poltergeist', best: 'AB', desc: 'Ghosts never stop at a target: they wander for 6 s, hitting everything they touch (6 at most).', apply(w) { w3On(w, 'tick', rfPoltergeist); } },
-    { name: 'Ghost Army', best: 'C', desc: 'Each kill by Rent Free raises a ghost that fires Rent Free shots for 5 s.', apply(w) { w3On(w, 'kill', (w, e) => { const q = w3PetAdd(w, e.x, e.y, 5); if (q) floatText(e.x, e.y - 14, 'RECRUITED', w.def.color, 11, 0.8); }); w3On(w, 'tick', rfGhostArmy); } }],
+    { name: 'Poltergeist', best: 'AB', desc: 'Ghosts never stop at a target: they wander for a while, hitting up to 6 things they touch.', apply(w) { w3On(w, 'tick', rfPoltergeist); } },
+    { name: 'Ghost Army', best: 'C', desc: 'Each kill raises a ghost that fires ghost shots for a few seconds.', apply(w) { w3On(w, 'kill', (w, e) => { const q = w3PetAdd(w, e.x, e.y, 5); if (q) floatText(e.x, e.y - 14, 'RECRUITED', w.def.color, 11, 0.8); }); w3On(w, 'tick', rfGhostArmy); } }],
 });
 
 // ================================================================ Hot Mess (Fire, Pool)
@@ -536,27 +536,27 @@ function hmScorched(w, dt) {
 
 wupReg('v_flame_pool', {
   A: { name: 'Hotter Mess', tag: "don't stand in it", costs: 'The patch is 20% smaller.', shows: 'The flames climb taller the longer someone stands in them.', modes: 'HOLD and NEST make enemies walk into it',
-    lv3: { desc: 'The longer an enemy stays inside, the faster its Burn bar fills (up to 3x after 2 s).', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.area *= 0.8; }); w3On(w, 'tick', hmHotter); w3On(w, 'hit', hmHotterHit); } },
+    lv3: { desc: 'The longer an enemy stays in the patch, the faster its Burn bar fills. Patch 20% smaller.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.area *= 0.8; }); w3On(w, 'tick', hmHotter); w3On(w, 'hit', hmHotterHit); } },
     lv6: [
-      { name: 'Backdraft', desc: 'An enemy that Ignites inside the patch makes the whole patch flare up for 0.5 s (+50% damage).', apply(w) { w3On(w, 'tick', hmFlare); } },
-      { name: 'Hot Tub', desc: 'The patch pulls enemies standing at its edge back in.', apply(w) { w3On(w, 'tick', hmHotTub); } }],
+      { name: 'Backdraft', desc: 'An enemy that Ignites in the patch makes the whole patch flare up briefly for extra damage.', apply(w) { w3On(w, 'tick', hmFlare); } },
+      { name: 'Hot Tub', desc: 'The patch drags enemies standing at its edge back in.', apply(w) { w3On(w, 'tick', hmHotTub); } }],
     wild: { name: 'Fire Drill', desc: 'Enemies refuse to enter the patch, so it works as a wall; anything already inside burns twice as fast.', apply(w) { w3On(w, 'tick', hmFireDrill); w3On(w, 'hit', hmFireDrillHit); } } },
   B: { name: 'Spreading Rumours', tag: 'the fire leaves with them', costs: 'The patch burns out 30% sooner.', shows: 'Scorched footprints leading away from the patch.', modes: 'KITE makes pursuers walk through and out again',
-    lv3: { desc: 'An enemy that walks out of the patch while Burning leaves small burning footprints for 1.5 s.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.dur *= 0.7; }); w3On(w, 'tick', hmRumours); } },
+    lv3: { desc: 'Enemies that leave the patch while Burning drop burning footprints behind them. Patch burns out 30% sooner.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.dur *= 0.7; }); w3On(w, 'tick', hmRumours); } },
     lv6: [
-      { name: 'Hot Foot', desc: 'Those footprints fill Burn bars as fast as the patch does.', apply(w) { w3S(w).hot = true; } },
-      { name: 'Burning Bridges', desc: 'An enemy that Ignites while trailing footprints drops a fresh small patch where it Ignites (once per enemy).', apply(w) { w3S(w).bridge = true; } }],
-    wild: { name: 'Toasty', desc: 'Standing in your own patch heals you 1% of max health a second.', apply(w) { w3On(w, 'tick', hmToasty); } } },
+      { name: 'Hot Foot', desc: 'The burning footprints fill Burn bars as fast as the patch does.', apply(w) { w3S(w).hot = true; } },
+      { name: 'Burning Bridges', desc: 'An enemy that Ignites while trailing footprints drops a fresh small patch where it stands (once each).', apply(w) { w3S(w).bridge = true; } }],
+    wild: { name: 'Toasty', desc: 'Standing in your own patch slowly heals you.', apply(w) { w3On(w, 'tick', hmToasty); } } },
   C: { name: 'Flash in the Pan', tag: 'short fuse, big finish', costs: 'Very little steady damage.', shows: 'The patch swells and glows before it erupts.', modes: 'ORBIT gathers a crowd on top of it',
-    lv3: { desc: 'Patches last half as long, but when one expires it erupts across its full radius and fills Burn bars by half.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.dur *= 0.5; }); w3On(w, 'tick', hmFlash); } },
+    lv3: { desc: 'Patches last half as long, but each one erupts across its whole area when it ends. Little steady damage.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.dur *= 0.5; }); w3On(w, 'tick', hmFlash); } },
     lv6: [
       { name: 'Short Fuse', desc: 'The eruption goes off early the moment 4 or more enemies stand in it.', apply(w) { w3S(w).hair = true; } },
-      { name: 'Powder Keg', desc: '[ATTACK to Burst] Patches no longer burn: they are delayed blasts that erupt after 1 s, with double the radius.', apply(w) { w3S(w).keg = true; } }],
-    wild: { name: 'Hot Potato', desc: 'Every 2 s the patch jumps to under the nearest enemy outside it.', apply(w) { w3On(w, 'tick', hmPotato); } } },
+      { name: 'Powder Keg', desc: 'Becomes a Burst: patches no longer burn, they erupt after a second at twice the size.', apply(w) { w3S(w).keg = true; } }],
+    wild: { name: 'Hot Potato', desc: 'Every couple of seconds the patch jumps to under the nearest enemy outside it.', apply(w) { w3On(w, 'tick', hmPotato); } } },
   lv10: [
-    { name: 'Hellmouth', best: 'A', desc: 'One huge patch (radius 200) that crawls after the densest cluster and burns for 10 s.', apply(w) { w3On(w, 'fire', hmHellFire); w3On(w, 'tick', hmHellmouth); } },
-    { name: 'Spontaneous Combustion', best: 'B', desc: 'Every enemy that Ignites, from any source, drops a Hot Mess patch where it stands (once per enemy).', apply(w) { w3On(w, 'tick', hmSpontaneous); } },
-    { name: 'Scorched Earth', best: 'AC', desc: 'Patches do not expire while an enemy stands in them; up to 6 at once.', apply(w) { w3On(w, 'tick', hmScorched); } }],
+    { name: 'Hellmouth', best: 'A', desc: 'One huge patch that crawls after the thickest crowd and burns for a long time.', apply(w) { w3On(w, 'fire', hmHellFire); w3On(w, 'tick', hmHellmouth); } },
+    { name: 'Spontaneous Combustion', best: 'B', desc: 'Every enemy that Ignites, from any source, drops a patch where it stands (once each).', apply(w) { w3On(w, 'tick', hmSpontaneous); } },
+    { name: 'Scorched Earth', best: 'AC', desc: 'Patches stay lit as long as an enemy stands in them; up to 6 at once.', apply(w) { w3On(w, 'tick', hmScorched); } }],
 });
 
 // ================================================================ Family Ties (Force, Projectile, gravity well)
@@ -741,27 +741,27 @@ function ftWormhole(w, dt) {
 
 wupReg('s_void', {
   A: { name: 'Event Horizon', tag: 'nothing gets out', costs: 'The outer pull is 30% weaker, so fewer enemies are caught.', shows: 'A dark core with enemies pinned on it.', modes: 'HOLD and NEST, where the orbs fill up with enemies coming at you',
-    lv3: { desc: 'The pull is twice as strong within half the radius, and 30% weaker outside it.', apply(w) { w3On(w, 'tick', ftHorizon); } },
+    lv3: { desc: 'The orb pulls twice as hard near its centre but 30% weaker at the edge, so it catches fewer enemies.', apply(w) { w3On(w, 'tick', ftHorizon); } },
     lv6: [
-      { name: 'Roach Motel', desc: 'An enemy pulled into the centre is held there until the orb ends (bosses never, elites 1 s).', apply(w) { w3On(w, 'tick', ftRoach); } },
-      { name: 'Compaction', desc: 'When the orb ends, everything at its centre is crushed together: one Burst and a collision hit each.', apply(w) { w3On(w, 'tick', ftCompaction); } }],
-    wild: { name: 'Lost Property', desc: 'Enemies swallowed or crushed by an orb drop their gems at your feet.', apply(w) { w3On(w, 'tick', ftLost); } } },
+      { name: 'Roach Motel', desc: 'An enemy pulled into the centre is held there until the orb ends (elites briefly, never bosses).', apply(w) { w3On(w, 'tick', ftRoach); } },
+      { name: 'Compaction', desc: 'When the orb ends, everything at its centre is crushed together in one Burst, with a collision hit each.', apply(w) { w3On(w, 'tick', ftCompaction); } }],
+    wild: { name: 'Lost Property', desc: 'Enemies swallowed or crushed by an orb drop their gems right next to you.', apply(w) { w3On(w, 'tick', ftLost); } } },
   B: { name: 'Orbituary', tag: 'a moving hazard', costs: 'The orb does 40% less damage of its own.', shows: 'A ring of enemies whirling round the orb.', modes: 'ORBIT keeps the crowd feeding the ring',
-    lv3: { desc: 'Enemies near the orb orbit it instead of falling in.', apply(w) { w3On(w, 'stats', (w, s) => { s.dmg *= 0.6; }); w3On(w, 'tick', ftOrbit); } },
+    lv3: { desc: 'Enemies near the orb whirl round it instead of falling in. The orb itself does 40% less damage.', apply(w) { w3On(w, 'stats', (w, s) => { s.dmg *= 0.6; }); w3On(w, 'tick', ftOrbit); } },
     lv6: [
-      { name: 'Bumper Cars', desc: 'Orbiting enemies collide with each other and with anything they swing into (a collision hit each).', apply(w) { w3On(w, 'tick', ftBumper); } },
-      { name: 'Let Go', desc: 'When the orb ends, orbiting enemies are flung outwards as projectiles that knock back what they hit.', apply(w) { w3On(w, 'tick', ftLetGo); } }],
-    wild: { name: 'Gravity Assist', desc: 'Swimming past an orb slingshots you: +60% swim speed for 1 s.', apply(w) { w3On(w, 'tick', ftAssist); } } },
+      { name: 'Fender Bender', desc: 'Orbiting enemies crash into each other and anything they swing into, a collision hit each.', apply(w) { w3On(w, 'tick', ftBumper); } },
+      { name: 'Let Go', desc: 'When the orb ends, orbiting enemies are flung outwards, knocking back whatever they hit.', apply(w) { w3On(w, 'tick', ftLetGo); } }],
+    wild: { name: 'Gravity Assist', desc: 'Swimming past an orb slingshots you: a short burst of extra swim speed.', apply(w) { w3On(w, 'tick', ftAssist); } } },
   C: { name: 'Big Bang, Eventually', tag: 'wait for it', costs: 'Slow, back-loaded damage.', shows: 'A growing orb with a merge counter, then the supernova.', modes: 'KITE keeps you alive while it grows',
-    lv3: { desc: 'Merged orbs gain power 50% faster, but each orb lasts longer and drifts slower (-30% speed).', apply(w) { w3On(w, 'stats', (w, s) => { s.speed *= 0.7; }); w3On(w, 'tick', ftBigBang); } },
+    lv3: { desc: 'Merged orbs build power 50% faster, but orbs last longer and drift 30% slower. Slow, back-loaded damage.', apply(w) { w3On(w, 'stats', (w, s) => { s.speed *= 0.7; }); w3On(w, 'tick', ftBigBang); } },
     lv6: [
-      { name: 'Appetite', desc: 'The merge count shows on the orb; at 3 merged it starts eating enemy shots.', apply(w) { w3On(w, 'tick', ftAppetite); } },
-      { name: 'Afterglow', desc: 'The supernova scales with everything the orbs dealt (up to x2) and leaves a standing well for 3 s.', apply(w) { w3On(w, 'tick', ftAfterglow); } }],
+      { name: 'Midnight Feast', desc: 'The orb shows how many orbs it has merged; at 3 it starts eating enemy shots.', apply(w) { w3On(w, 'tick', ftAppetite); } },
+      { name: 'Afterglow', desc: 'The supernova grows with everything the orbs dealt and leaves a pulling well behind for a few seconds.', apply(w) { w3On(w, 'tick', ftAfterglow); } }],
     wild: { name: 'White Hole', desc: 'Every 3rd orb pushes enemies away instead of pulling.', apply(w) { w3On(w, 'tick', ftWhiteHole); } } },
   lv10: [
-    { name: 'Supermassive', best: 'C', desc: 'Orbs are twice the size and pull 2.5 times as hard; 3 merges make a supernova, which deals x3.', apply(w) { w3On(w, 'tick', ftSupermassive); } },
-    { name: 'Spaghettification', best: 'A', desc: 'Enemies at the centre take x4 damage and are swallowed whole under 30% health (not bosses).', apply(w) { w3On(w, 'dmg', (w, e) => (e.w3core > G.t - 0.2 ? 4 : 1)); w3On(w, 'tick', ftSpaghetti); } },
-    { name: 'Wormhole', best: 'B', desc: 'Orbs come in linked pairs: an enemy pulled into one is shot out of the other at speed, hitting whatever it meets.', apply(w) { w3On(w, 'tick', ftWormhole); } }],
+    { name: 'Supermassive', best: 'C', desc: 'Orbs are twice the size and pull far harder; 3 merges make a supernova with triple damage.', apply(w) { w3On(w, 'tick', ftSupermassive); } },
+    { name: 'Spaghettification', best: 'A', desc: 'Enemies at the centre take four times the damage and are swallowed whole when nearly dead (not bosses).', apply(w) { w3On(w, 'dmg', (w, e) => (e.w3core > G.t - 0.2 ? 4 : 1)); w3On(w, 'tick', ftSpaghetti); } },
+    { name: 'Wormhole', best: 'B', desc: 'Orbs come in linked pairs: an enemy pulled into one shoots out of the other at speed, hitting what it meets.', apply(w) { w3On(w, 'tick', ftWormhole); } }],
 });
 
 // ================================================================ Skill Issue (Force, Burst, collisions)
@@ -896,25 +896,25 @@ function siCannonball(w, dt) {
 
 wupReg('s_lard', {
   A: { name: 'Pinball Wizard', tag: 'rebound everything', costs: '-20% blast damage.', shows: 'Enemies ricochet round the group.', modes: 'ORBIT keeps the group close enough to bounce',
-    lv3: { desc: 'Enemies that collide with others rebound instead of stopping, carrying on at 70% speed.', apply(w) { w3On(w, 'stats', (w, s) => { s.dmg *= 0.8; }); siOn(w, 'col', siRebound); w3On(w, 'tick', siTick); } },
+    lv3: { desc: 'Enemies that crash into others bounce on at 70% speed instead of stopping. Blasts 20% weaker.', apply(w) { w3On(w, 'stats', (w, s) => { s.dmg *= 0.8; }); siOn(w, 'col', siRebound); w3On(w, 'tick', siTick); } },
     lv6: [
       { name: 'Bank Shot', desc: 'Rebounds off walls count too, and each rebound adds a collision hit.', apply(w) { siOn(w, 'col', siBank); siOn(w, 'wallf', siBankWall); } },
-      { name: 'Hat Trick', desc: 'A rebounding enemy that hits 3 others bursts in a small Force blast.', apply(w) { siOn(w, 'col', siHat); } }],
-    wild: { name: 'Sausage Link', desc: 'A launched enemy trails a string that tugs the next enemy it passes along behind it.', apply(w) { w3On(w, 'tick', siSausage); } } },
+      { name: 'Hat Trick', desc: 'An enemy that bounces into 3 others bursts in a small Force blast.', apply(w) { siOn(w, 'col', siHat); } }],
+    wild: { name: 'Sausage Link', desc: 'A launched enemy trails a string that drags the next enemy it passes along behind it.', apply(w) { w3On(w, 'tick', siSausage); } } },
   B: { name: 'Heavy Meat', tag: 'big enemies make the best ammunition', costs: 'Small enemies barely move.', shows: 'Big enemies cannon through little ones.', modes: 'HUNT finds the big ones',
-    lv3: { desc: 'Collision damage scales with the size of the flying enemy (up to x2 for elites).', apply(w) { siOn(w, 'col', siHeavy); siOn(w, 'launch', siSmallLaunch); w3On(w, 'tick', siTick); } },
+    lv3: { desc: 'Collision damage grows with the size of the flying enemy, up to double for elites. Small enemies barely move.', apply(w) { siOn(w, 'col', siHeavy); siOn(w, 'launch', siSmallLaunch); w3On(w, 'tick', siTick); } },
     lv6: [
       { name: 'Weight Class', desc: 'Big enemies send small ones flying twice as far.', apply(w) { siOn(w, 'col', siWeight); } },
-      { name: 'Prime Cut', desc: 'Elites launch harder (bosses never), and a launched elite is a heavy hit to everything it strikes.', apply(w) { siOn(w, 'col', siPrime); siOn(w, 'launch', siPrimeLaunch); } }],
-    wild: { name: 'Meat Shield', desc: 'Dollops that land near you set into a wall of meat for 2 s that blocks enemy shots.', apply(w) { w3On(w, 'tick', siMeatShield); } } },
+      { name: 'Prime Cut', desc: 'Elites launch harder (never bosses), and a launched elite is a heavy hit to everything it strikes.', apply(w) { siOn(w, 'col', siPrime); siOn(w, 'launch', siPrimeLaunch); } }],
+    wild: { name: 'Meat Shield', desc: 'Dollops that land near you set into a short-lived wall of meat that blocks enemy shots.', apply(w) { w3On(w, 'tick', siMeatShield); } } },
   C: { name: 'Meat Grinder', tag: 'hits build up', costs: '-30% knockback distance.', shows: 'Tenderised enemies swell with each mark, then pop.', modes: 'HOLD lets the crowd pile in',
-    lv3: { desc: 'Each collision adds an impact mark to the enemy; at 3 marks it bursts in a small Force shockwave.', apply(w) { siOn(w, 'launch', (w, e, b) => { e.kx *= 0.7; e.ky *= 0.7; }); siOn(w, 'col', siMark); w3On(w, 'tick', siTick); } },
+    lv3: { desc: 'Each collision marks an enemy; at 3 marks it bursts in a small Force shockwave. Knockback 30% shorter.', apply(w) { siOn(w, 'launch', (w, e, b) => { e.kx *= 0.7; e.ky *= 0.7; }); siOn(w, 'col', siMark); w3On(w, 'tick', siTick); } },
     lv6: [
-      { name: 'Splatter Zone', desc: 'The shockwave launches its neighbours too.', apply(w) { w3S(w).launchN = true; } },
-      { name: 'Chain Tenderising', desc: 'The shockwave counts as a collision, so it adds marks to what it hits (depth 3).', apply(w) { w3S(w).chain = true; } }],
-    wild: { name: 'Leftovers', desc: 'Bowled enemies drop chunks; swimming through one heals 0.5% of max health.', apply(w) { siOn(w, 'col', siChunk); w3On(w, 'tick', siLeftovers); } } },
+      { name: 'Splatter Zone', desc: 'The shockwave launches the enemies next to it too.', apply(w) { w3S(w).launchN = true; } },
+      { name: 'Chain Tenderising', desc: 'The shockwave counts as a collision, so it marks what it hits too (3 deep).', apply(w) { w3S(w).chain = true; } }],
+    wild: { name: 'Leftovers', desc: 'Bowled enemies drop chunks; swimming through one heals you a little.', apply(w) { siOn(w, 'col', siChunk); w3On(w, 'tick', siLeftovers); } } },
   lv10: [
-    { name: 'Perfect Game', best: 'A', desc: 'Everything flies twice as hard and knocks on to depth 4.', apply(w) { siOn(w, 'launch', siPerfectLaunch); siOn(w, 'col', siPerfectCol); w3On(w, 'tick', siTick); } },
+    { name: 'Perfect Game', best: 'A', desc: 'Everything you launch flies twice as hard and knocks on 4 deep.', apply(w) { siOn(w, 'launch', siPerfectLaunch); siOn(w, 'col', siPerfectCol); w3On(w, 'tick', siTick); } },
     { name: 'Tenderiser', best: 'BC', desc: 'Every collision is a heavy hit.', apply(w) { siOn(w, 'col', siTender); w3On(w, 'tick', siTick); } },
-    { name: 'Human Cannonball', best: 'A', desc: 'You are the missile: every 4 s you launch yourself 320 units (untouchable mid-flight), bowling over everything you touch.', apply(w) { w3On(w, 'tick', siCannonball); } }],
+    { name: 'Human Cannonball', best: 'A', desc: 'You are the missile: every few seconds you launch yourself a long way, untouchable mid-flight, bowling over all you touch.', apply(w) { w3On(w, 'tick', siCannonball); } }],
 });

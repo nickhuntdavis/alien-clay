@@ -52,7 +52,7 @@ function availableCombos() {
 }
 function optCombo(c) {
   const A = WEAPONS[c.a], B = WEAPONS[c.b], mount = (G.comboMounts || 0) < COMBO_MOUNTS, tw = comboTwist(c);
-  return { def: A, rarity: 4, tag: 'COMBO', icon: A.icon + B.icon, color: '#ff3df2', elem: A.elem, title: c.name, fusion: true,
+  return { def: A, rarity: 4, tag: 'COMBO', icon: A.icon + B.icon, color: '#ff3df2', elem: A.elem, title: c.name, fusion: true, quip: (typeof cardLine === 'function' ? cardLine('combo:' + c.name) : ''),
     sub: `${A.name} + ${B.name}`, desc: c.desc + (tw ? ` ${twistLabel(tw)}: ${tw.desc}` : '') + (mount ? ' Both keep firing, and you get a bonus weapon mount.' : ' Both keep firing.'),
     apply: () => comboFuse(c) };
 }

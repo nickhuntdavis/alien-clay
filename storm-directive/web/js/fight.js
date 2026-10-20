@@ -115,7 +115,7 @@ function fightStatus(e, elem, dmg, src) {
     e.v10burn = 0; e.v10bdps = 0; if (e.cd) { e.cd.bars.fire = 0; e.cd.burnPool = 0; e.cd.burnT = 0; } // Snared puts out Burning (decision 25)
     return true;
   }
-  if (t === 'static') { e.chargeT = G.t + 3; if (!src.arc) fightArc(e, dmg, 3); return true; }
+  if (t === 'static') { e.chargeT = G.t + 3; if (!src.arc && fightArcOk(src)) fightArc(e, dmg, 3); return true; }
   if (t === 'blood') { // Bleed: 30% of the hit over 3 s, at most 3 at once (the oldest gives way)
     const b = e.bleeds || (e.bleeds = []);
     if (b.length >= 3) b.shift();
@@ -125,6 +125,16 @@ function fightStatus(e, elem, dmg, src) {
   if (t === 'soul') return true; // the Alien bar Possesses (combat.js); nothing else on a hit
   if (t === 'fire') { burnAdd(fightCd(e), dmg); e.burnBy = dotName(src); return true; } // one shared burn (decision 36)
   return false;
+}
+// Which Static hits pass Charge arcs on (user, 20 Oct; COMBAT_MATRIX.md 11.5 Charge, decisions 45 and 46):
+//  - a chaining attack's jumps never do, only its first hit (doChain's chainHop, the chaining modifier's m10chain), so a
+//    chain doesn't start a second chain at every hop;
+//  - a Beam's hits do only every 3rd hit, counted per weapon, so its many small hits don't stack arcs on its uptime.
+function fightArcOk(src) {
+  if (src.chainHop || src.m10chain) return false;
+  const w = src.w, atk = src.atk || (w && w.def && w.def.v10atk);
+  if (atk !== 'beam' || src.zoneHit || !w) return true;
+  w.beamArcN = (w.beamArcN || 0) + 1; return w.beamArcN % 3 === 0;
 }
 // Charge: a Static hit on a Charged enemy passes an arc on (3 jumps, 110 range, 70% each). At most one a 0.3 s per enemy.
 function fightArc(e, dmg, jumps) {

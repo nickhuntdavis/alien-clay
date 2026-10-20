@@ -22,17 +22,17 @@ const SAMPLES10 = [
     pdesc: '+5% to every base stat. No conditions, no caveats.', line: 'There. That\'s the egg. Go to the egg. We have one job.',
     sci: 'Sample {id} established as control. It continues to be disappointingly difficult to kill.', unlock: null },
   { id: 'alpha', name: 'Alpha', origin: 'Human', types: ['static', 'force'], passive: 'No Days Off',
-    pdesc: 'Fires 25% faster while moving. Back to normal the moment it stops.', line: 'Every other sperm on this slide is a beta. You know what they don\'t have? Discipline. Swim like the egg is watching. It is.',
+    pdesc: 'Fires 25% faster while moving. Back to normal the moment it stops.', line: 'Real talk. Women, sorry, eggs, want a provider. Ninety-eight per cent of sperm are betas. Be the two per cent.',
     sci: 'Sample {id} describes itself as the top 1% of specimens. It is one of approximately 250 million.', unlock: { txt: 'Reach wave 10 of the Petri Dish in one run.' } },
   { id: 'beta', name: 'Beta', origin: 'Human', types: ['blood', 'mucus'], passive: 'Not Dead Yet',
-    pdesc: 'Below 30% health: more damage and a little lifesteal, more the closer it is to death.', line: 'We meant to do that. Getting hit is how we learn. Stop looking at the health bar.',
+    pdesc: 'Below 30% health: more damage and a little lifesteal, more the closer it is to death.', line: 'We meant to do that. Getting hit is how we learn. The egg isn\'t going anywhere. Neither are we, ideally.',
     sci: 'Sample {id} was initially classified as sluggish. Its subsequent behaviour has made that classification difficult to defend.', unlock: { txt: 'Recover from below 10% health to full health in one run.' } },
   { id: 'private', name: 'Private Schooled', origin: 'Human (paperwork sealed)', types: ['acid', 'soul'], passive: 'Who Do You Think You\'re Dealing With?',
     pdesc: 'Acid builds Corrosion 50% faster. Enemies it Possesses hit their old friends 50% harder.', line: 'That\'s the one in charge. Go say hello. Actually, don\'t bother. They\'ll come to us.',
     sci: 'Sample {id} arrived with complete documentation. The donor\'s identity remains confidential. The accompanying note was written in familiar handwriting.', unlock: { txt: 'Beat the Petri Dish with any sample.' }, shield: true },
-  { id: 'ordered', name: 'Ordered Online', origin: 'Unknown', types: ['mucus', 'fire'], passive: 'Nothing Sticks',
-    pdesc: 'Leaves a Mucus trail while moving that Snares whatever follows. 20% Evasion, built in.', line: 'Nope. Absolutely not. Why is the floor wet? Why am I wet? WHO APPROVED THIS FLOOR?',
-    sci: 'Sample {id} arrived in a cryogenic container. The supplier\'s tracking information resolves to a car park.', unlock: { txt: 'Open a Mythical box.' }, evasion: 0.2 },
+  { id: 'ordered', name: 'Ordered Online', origin: 'Synthetic (nanobot)', types: ['mucus', 'fire'], passive: 'Nothing Sticks',
+    pdesc: 'Leaves a Mucus trail while moving that Snares whatever follows. 20% Evasion, built in.', line: 'Unit activated. Delivery address confirmed: egg. Threat level: everything. Thank you for choosing you.',
+    sci: 'Sample {id} arrived in an anti-static bag. It is not biological. It has been filed as biological, as the form has no other box.', unlock: { txt: 'Open a Mythical box.' }, evasion: 0.2 },
   { id: 'redtail', name: 'Redtail', origin: 'Unknown', types: ['fire', 'static'], passive: 'Touch Everything',
     pdesc: 'Static hits also add to the target\'s burn.', line: 'What\'s that? Can we touch it? We touched it. Oh, it\'s hot. OH, EVERYONE\'S HOT. DO IT AGAIN!',
     sci: 'Sample {id} was discovered outside the laboratory. The door was locked. Eleven minutes of footage are missing.', unlock: { txt: 'Survive one of the slide\'s rare big hazards.' } },
@@ -125,7 +125,7 @@ function s10Kill(e, src) { if ((e.boss || e.bossDef) && src && src.elem === 'sou
 
 // ---------------------------------------------------------------- the sample screen (v10Samples)
 function s10Samples() {
-  const card = (attr, no, name, desc, c, tag, off) => `<button class="sx-card hero${off ? ' locked' : ''}" ${attr} style="--c:${c}${off ? ';opacity:0.45' : ''}"><span class="sx-txt"><i>#${no}${off ? ' | LOCKED' : ' | IN STOCK'}</i><b>${esc(name)}</b><span>${esc(desc)}</span><em>${tag}</em></span></button>`;
+  const card = (attr, no, name, desc, c, tag, off) => uiSampleCard({ cls: `hero${off ? ' locked' : ''}`, attrs: attr, style: `--c:${c}${off ? ';opacity:0.45' : ''}`, kicker: `#${no}${off ? ' | LOCKED' : ' | IN STOCK'}`, name: esc(name), desc: esc(desc), tag });
   const list = SAMPLES10.map(s => {
     const open = s10Open(s.id), col = ELEMENTS[S10_TYPES[s.types[0]]].color;
     const nm = !open && s.unlock.secret ? '???' : s.name;
@@ -134,7 +134,7 @@ function s10Samples() {
     return c.replace('<span class="sx-txt">', `<canvas data-slpic="${s.id}" style="position:relative;inset:auto;flex:none;display:block;width:100%;height:${s.id === 'alien' ? 120 : 96}px"></canvas><span class="sx-txt">`); // (its picture: samplelooks.js)
   }).join('');
   let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
-  $('sampleList').innerHTML = `<div class="sx-h">SAMPLES</div>${list}` + (dev ? `<div class="sx-h">DEVELOPER</div>${card('data-v10="s000"', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}${sbCards()}` : ''); // (Sandbox: sandbox.js)
+  $('sampleList').innerHTML = `${uiSectionHead('SAMPLES')}${list}` + (dev ? `${uiSectionHead('DEVELOPER')}${card('data-v10="s000"', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}${sbCards()}` : ''); // (Sandbox: sandbox.js)
   $('sampleList').querySelectorAll('[data-s10]').forEach(b => b.addEventListener('click', () => { if (s10Open(b.dataset.s10)) s10Modes(b.dataset.s10); }));
   $('sampleList').querySelectorAll('[data-v10]').forEach(b => b.addEventListener('click', () => { UI.sample = b.dataset.v10; META.profile = 's10_baseline'; saveMeta(); UI.startGame(true); }));
   sbWire();
@@ -144,13 +144,13 @@ function s10Samples() {
 }
 function s10Modes(id) {
   const s = S10_BY[id], c = ELEMENTS[S10_TYPES[s.types[0]]].color;
-  const card = (mode, no, name, desc, tag) => `<button class="sx-card hero" data-mode="${mode}" style="--c:${c}"><span class="sx-txt"><i>EXPERIMENT #${no}</i><b>${esc(name)}</b><span>${esc(desc)}</span><em>${tag}</em></span></button>`;
-  $('sampleList').innerHTML = `<div class="sx-h">${esc(s.name.toUpperCase())}</div><div class="sx-q">"${esc(s.line)}"</div>`
+  const card = (mode, no, name, desc, tag) => uiSampleCard({ cls: 'hero', attrs: `data-mode="${mode}"`, style: `--c:${c}`, kicker: `EXPERIMENT #${no}`, name: esc(name), desc: esc(desc), tag });
+  $('sampleList').innerHTML = `${uiSectionHead(esc(s.name.toUpperCase()))}<div class="sx-q">"${esc(s.line)}"</div>`
     + (S10_PETRI ? card('s002', '002', 'The Petri Dish', 'Twenty drops into the dish, a boss every fifth.', 'WAVE MODE') : '')
     + card('s001', '001', 'The Race', 'Four hundred million hopefuls, one egg.', 'RACE TO THE EGG')
     + (S10_ENDLESS ? card('s006', '006', 'Endless', 'The dish keeps topping itself up. Nobody has found the bottom.', 'NO END') : '')
     + (S10_LEVELS ? card('s007', '007', typeof lvName === 'function' && typeof LEVELS !== 'undefined' ? lvName(LEVELS[LV_SAMPLE.s007]) : 'Level 1', 'The first stretch of the way in. Mapped by nobody who came back.', 'CAMPAIGN') : '')
-    + `<button class="btn" id="s10Back">BACK</button>`;
+    + uiButton('BACK', { attrs: 'id="s10Back"' });
   $('sampleList').querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { UI.sample = b.dataset.mode; META.profile = 's10_' + id; saveMeta(); UI.startGame(true); }));
   $('s10Back').addEventListener('click', s10Samples);
 }

@@ -33,7 +33,7 @@ const { chromium } = require('playwright');
     const typesSeen = new Set(ids.filter(i => F10[i].start).map(i => F10[i].type).filter(Boolean));
     for (const t of TYPES) if (!typesSeen.has(t)) bad.push('starting pool lacks ' + t);
     out.start = ids.filter(i => F10[i].start).length;
-    if (out.start !== 23) bad.push('starting pool is ' + out.start); // (15, plus the eight v9 Feats brought back: feats9.js, Hagfish, Running With Scissors)
+    if (out.start !== 16) bad.push('starting pool is ' + out.start); // (FEATS.md 5: 15, plus Van de Graaff added 20 Oct)
 
     // ---- harness
     const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.ebul.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list); G.stats.dmg = {}; G.manual = { x: 0, y: 0 }; if (!G.stam) stamInit(); G.stam.cur = stamMax(); };
@@ -69,12 +69,23 @@ const { chromium } = require('playwright');
       packed_lunch: { pre: () => { G.P.maxHp = 1000; G.player.hp = 200; }, act: () => {}, sec: 0.3, ok: () => { if (!G.f10.yolk) return 'no yolk'; const h = G.player.hp; G.player.x = G.f10.yolk.x; G.player.y = G.f10.yolk.y; run(0.1); return G.player.hp > h || 'no heal'; } },
       hagfish: { pre: () => ring(4, 100), act: () => {}, sec: 0.5, ok: () => G.enemies.some(e => e.snareT > G.t) || 'nothing Snared' },
       running_with_scissors: { pre: () => ring(4, 100), act: () => {}, sec: 0.5, ok: () => G.enemies.some(e => e.bleeds && e.bleeds.length) || 'nothing bleeding' },
-      capacitation: { pre: () => { foe(100, 0); foe(180, 0); }, act: () => {}, sec: 0.6 },
-      bombardier: { pre: () => { G.player.face = 0; foe(-120, 0); }, act: () => {}, sec: 0.6 },
-      vandegraaff: { pre: () => ring(3, 150, { speed: 60 }), act: () => { update(1 / 60); const d = G.f9 && G.f9.domes[0]; if (d) for (let i = 0; i < 3; i++) G.ebul.push({ x: d.x + 25 + i * 8, y: d.y, vx: -60, vy: 0, dmg: 1, r: 5, life: 7, from: 't' }); }, sec: 6.6, ok: () => (G.f9 && G.f9.arcs > 0) || 'no arcs fired' },
-      spinnbarkeit: { pre: () => { foe(100, 0); foe(125, 20); foe(-100, 0); foe(-125, 20); }, act: () => {}, sec: 0.4, ok: () => G.enemies.some(e => e.conjT > G.t) || 'nothing Conjoined' },
-      wanderingwomb: { pre: () => ring(5, 150), act: () => {}, sec: 2 },
-      earcandling: { pre: () => { G.player.face = 0; ring(4, 100); }, act: () => {}, sec: 1.5 },
+      van_de_graaff: { pre: () => { foe(150, 0); const p = G.player; for (let i = 0; i < 4; i++) eBullet(p.x + 120, p.y + (i - 1.5) * 12, Math.PI, 60, 1, 5, '#ffffff'); }, act: () => {}, sec: 4.5 },
+      acro_x9: { pre: () => ring(3, 60), act: () => {}, sec: 1.6, ok: () => G.zones.some(z => z.elem === 'fire') || 'no Acid Pool' },
+      // gifts10.js: the eight sample-exclusive gifts and six later-unlock gifts
+      x1_baby: { pre: () => ring(6, 150), act: () => { for (let i = 0; i < 5; i++) hurt(1); }, sec: 0.3, ok: () => G.f10.noSnare > G.t || 'no shockwave' },
+      x2_first: { pre: () => { G.player.face = 0; G.player.vx = 200; G.player.vy = 0; foe(80, 0); foe(120, 10); }, act: () => { f10().swimT = 5; }, sec: 0.5 },
+      x3_look: { pre: () => ring(4, 50), act: () => { hurt(10); }, sec: 1.5, ok: () => G.enemies.some(e => e.bleeds && e.bleeds.length) || 'nothing bleeding' },
+      x4_friends: { pre: () => { ring(2, 300); foe(36, 0); }, act: () => {}, sec: 0.3, ok: () => (G.f10.friends && G.f10.friends.length >= 3) || 'no friends' },
+      x5_whered: { pre: () => { const e = foe(100, 0); e.windT = 0.3; }, act: () => {}, sec: 0.3, ok: () => G.zones.some(z => z.elem === 'ice') || 'did not slip away' },
+      x6_together: { pre: () => ring(6, 60), act: () => {}, sec: 0.4, ok: () => G.enemies.some(e => e.chargeT > G.t) || 'nothing Charged' },
+      x7_extras: { pre: () => { G.weapons[0] = makeSlot('v_phys_proj', false, 1); recomputeAll(); foe(150, 0); }, act: () => { const e = foe(60, 0, { elite: true }); e.hp = 1; killEnemy(e, {}); }, sec: 1, ok: () => (G.f10.copies && G.f10.copies.length > 0) || 'no copy' },
+      x8_notreal: { pre: () => ring(4, 100), act: () => { pdef(); G.pd.snareT = G.t + 2; }, sec: 0.3, ok: () => !(G.pd.snareT > G.t) || 'status not cleared' },
+      this_way: { pre: () => ring(7, 100), act: () => { f10().twDanger = 4; }, sec: 0.2, ok: () => !!G.f10.trail || 'no trail' },
+      capacitation: { pre: () => { foe(100, 0); foe(150, 0); foe(200, 0); }, act: () => {}, sec: 0.5 },
+      bombardier: { pre: () => { G.player.face = 0; foe(-120, 0); foe(-150, 10); }, act: () => {}, sec: 0.5 },
+      spinnbarkeit: { pre: () => { foe(100, 0); foe(130, 0); foe(-100, 0); foe(-130, 0); }, act: () => {}, sec: 0.5, ok: () => G.enemies.some(e => e.conjT > G.t) || 'nothing Conjoined' },
+      wandering_womb: { pre: () => ring(5, 150), act: () => {}, sec: 2 },
+      ear_candling: { pre: () => ring(4, 200), act: () => {}, sec: 2.5 },
     };
     for (const id of ids) if (!T[id]) bad.push('no test for ' + id);
     const trial = (id, lvl, flags, label) => {
@@ -89,7 +100,7 @@ const { chromium } = require('playwright');
         const minSt = run(t.sec || 0.5);
         const dm = dealt(), msg = t.ok ? t.ok(av) : true;
         if (msg !== true) bad.push(label + ': ' + msg);
-        if (d.type && id !== 'sofa_crevice' && !(flags && flags.includes('thick')) && !(dm > 0)) bad.push(label + ': no damage');
+        if (d.type && id !== 'sofa_crevice' && !(id === 'x4_friends' && !(flags && flags.includes('plusones'))) && !(flags && flags.includes('thick')) && !(dm > 0)) bad.push(label + ': no damage');
         return { w, dm, paid: st0 - minSt };
       } catch (err) { bad.push(label + ' threw: ' + err.message + ' ' + (err.stack || '').split('\n')[1]); return null; }
     };
@@ -142,6 +153,28 @@ const { chromium } = require('playwright');
     const o = cardOpt(CARDS.find(c => c.id === 'feat_oopsie_up')); G.lootQueue.length = 0; o.apply(); o.apply(); // Lv1 to 2 to 3: the fork queues
     if (!G.lootQueue.some(q => q.kind === 'fork' && q.key === 'feat:feat_oopsie_up' && q.lv === 3)) bad.push('level 3 fork not queued: ' + JSON.stringify(G.lootQueue));
     if (forkCards(G.lootQueue.find(q => q.kind === 'fork')).length !== 2) bad.push('fork screen needs 2 cards');
+    // ---- gifts10.js spec details: X5 slips a charger's wind-up and the dash hits its own side; X7's copy fires the real
+    // first weapon and counts as a pet; X8 clears a Complement Protein's mark.
+    try {
+      fresh(); let w = f10Give('x5_whered'); w.cd = 0;
+      const c = foe(150, 0, { st: 1, stT: 0.3, dashX: -1, dashY: 0 }); c.def = Object.assign({}, c.def, { ai: 'charge' }); c.dmg = 9;
+      const mate = foe(150, 40); run(0.2);
+      if (!(c.f10ff > G.t)) bad.push('X5: charger wind-up not slipped');
+      mate.x = c.x; mate.y = c.y + c.r; const h0 = mate.hp; run(0.1);
+      if (!(mate.hp < h0)) bad.push('X5: dodged dash did not hit its own side');
+    } catch (err) { bad.push('X5 spec threw: ' + err.message); }
+    try {
+      fresh(); G.weapons[0] = makeSlot('v_phys_proj', false, 1); recomputeAll(); const w = f10Give('x7_extras'); w.cd = 0; foe(200, 0);
+      const pets0 = sigPetCount(); const e = foe(60, 0, { elite: true }); e.hp = 1; killEnemy(e, {}); run(0.05);
+      if (sigPetCount() !== pets0 + 1) bad.push('X7: copy not counted as a pet');
+      const n0 = G.stats.dmg && Object.keys(G.stats.dmg).length; run(1.2);
+      if (!Object.keys(G.stats.dmg).some(k => /^Echo /.test(k))) bad.push('X7: copy did not fire the first weapon (' + Object.keys(G.stats.dmg) + ')');
+    } catch (err) { bad.push('X7 spec threw: ' + err.message); }
+    try {
+      fresh(); const w = f10Give('x8_notreal'); w.cd = 0; ring(3, 100); pdef(); run(0.05);
+      G.complT = G.t + 5; run(0.2);
+      if (G.complT > G.t) bad.push('X8: mark not cleared');
+    } catch (err) { bad.push('X8 spec threw: ' + err.message); }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

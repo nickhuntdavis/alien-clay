@@ -32,6 +32,9 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | 22 | Eggs | Alien | Burst (smite) | Prawn Again | S14, `toothfairy`; "Tooth Fairy" until 18 Oct |
 | 23 | Chest Burster | Alien | Projectile | Prawn Again | S6, `parasite`; "Tapeworm Seeder" until 18 Oct |
 | 24 | The Runs | Fire | Pool (trail) | Redtail | S3, `wake`, was "Pub Crawl" (shipped as "Skid Mark") |
+| 25 | `TODO_COPY:w25_name` *(proposed)* | Acid | Contact (Every Nth lunge) | Sample 9 | New, `acro_cap` (section 8) |
+| 26 | `TODO_COPY:w26_name` *(proposed)* | Acid | Spread | Sample 9 | New, `acro_spray` (section 8) |
+| 27 | `TODO_COPY:w27_name` *(proposed)* | Fire | Beam | Sample 9 | New, `acro_spark` (section 8) |
 
 | Damage type | Weapons | | Attack type | Weapons |
 | --- | --- | --- | --- | --- |
@@ -42,6 +45,8 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | Blood | 3 | | Contact | 1 |
 | Fire | 3 | | Spread | 1 |
 | Acid | 1 | | | |
+
+Counts are for the decided 24. If Sample 9's three ship (rows 25 to 27, proposed): Acid 3, Fire 4; Contact 2, Spread 2, Beam 3. 27 weapons in all.
 
 ## 2. The 10 foundational weapons (animation specs)
 
@@ -259,3 +264,40 @@ Kept in the docs and the code; not in the game. Full text in `archive/WEAPONS.md
 **Signature (12):** Premature Evangelation, Leeches, Upchuck, Blood Blister, Thorny Onesie, Flagellum Flail, Nose Goblins, and the five Fire drafts (Heartburn, Hot and Bothered, Carpet Burn, Getting Warmer, Burning Sensation).
 
 **Parked originals (28):** Spitball, Hiccup Scattergun, Yo-Yo Diet, Booger Flick, Morning Sickness, Placenta Paddle, Colouring In, Imaginary Friend, Baby Rattle, Little Swimmers, Gut Punch, Ulcer Moons, Achoo, Bogey Roller, Runny Nose, Static Hairbrush, Carpet Shuffle, Lightning Bugs, Grubby Fingers, Whooping Cough, Cradle Cap, Butter Knife, Head Lice, Paper Cut, Spirit Fingers, Waters Breaking, Bath Bomb, Sea Monkeys. Shipped-game weapons that no redesign doc lists (for example Gene Gun, Karma, Duelling Banjo and most of the Playpen set) are archived too.
+
+## 8. Sample 9's weapons (proposed)
+
+*Proposal, 20 Oct 2026; not decided or built. Sample: `SAMPLES.md` 9 and `SAMPLE_9_ACRO.md`. Branches: `WEAPON_UPGRADES.md` sections 25 to 27. Names are `TODO_COPY` ids (briefs: `SAMPLE_9_ACRO.md` 6.3). All three are new weapons, not taken from the archive. Why: Acid had one weapon (Acid Spit) and there was no Fire Beam. Rules cited as `11.x` or `12.x` are sections of `COMBAT_MATRIX.md`; this section adds none. Start stats are starting points for sims.*
+
+The kit is one loop: Acid strips, Fire burns what is left. A Fire hit on a Corroded target is Premature Evaporation (matrix section 1), which resets the Corrosion bar, so `acro_spark` waits for the strip (its Targeting line).
+
+### 25. `TODO_COPY:w25_name` (`acro_cap`)
+- **Playstyle:** Close-range armour breaking. Head down, into the nearest enemy, and through it.
+- **Is:** Acid, Contact. Hits the nearest enemy within 70; Corrosion fills ×2. Every 4th hit is a lunge through the target (Every Nth and Lunge modifiers, `MODIFIERS.md` 14 and 20).
+- **Signature:** the acrosome, the sperm's enzyme cap, used as a battering ram.
+- **Limits:** Contact, so Thorns answers each connected hit and Evasion can make it miss (matrix 13). The lunge never passes walls or enters a sealed arena; you can be hit during it.
+- **Start stats:** 34 damage, 0.6 s between hits (4 then a 1 s pause), reach 70, lunge 120. (Tuned 20 Oct: short range hits harder; the first draft said 9.)
+- **Shape:** an oversized shocking-pink cap on the sperm's own head, fizzing at the rim.
+- **Motion:** a short forward jab per hit; the 4th hit is a visible lurch through the target.
+- **Impact:** a wet hiss and a splash of pink bubbles on the target; the Corrosion ring jumps.
+
+### 26. `TODO_COPY:w26_name` (`acro_spray`)
+- **Playstyle:** Short-range coating. Gets the whole front of a crowd corroding at once.
+- **Is:** Acid, Spread. A fan of 3 heavy droplets (arc 30°, range 160); each droplet adds Corrosion.
+- **Signature:** an enzyme sneeze (hyaluronidase, which dissolves the glue between the egg's outer cells).
+- **Limits:** Evasion rolls per pellet (matrix 13); light impulse only. Pools from its branches are standard Acid Pools (11.6) and count towards the object cap.
+- **Start stats:** 14 damage per droplet, 3 droplets, 0.9 s cooldown, range 160. (Tuned 20 Oct after the weapon arena: was 5 droplets of 8; Shell's flat 3 per layer ate small pellets.)
+- **Shape:** small, glossy pink droplets with a thin mist behind them.
+- **Motion:** a quick fan from the cap; the droplets slow and drop slightly at the end of their range.
+- **Impact:** each droplet leaves a tiny sizzling spot on the target; misses spatter and vanish (unless a branch turns them into pools).
+
+### 27. `TODO_COPY:w27_name` (`acro_spark`)
+- **Playstyle:** The finisher. Burns down whatever the Acid has stripped.
+- **Is:** Fire, Beam (range 180, pierces).
+- **Targeting:** enemies in the Corroded state first (no Shell left, decision 34); then enemies with no Shell and no Corrosion; Shelled enemies whose Corrosion bar is filling only when nothing else is in range.
+- **Signature:** the zinc spark (a real flash of zinc at conception). The first Fire Beam in the roster.
+- **Limits:** Beam rules (matrix 13): Evasion never applies; leaving the lane stops further hits. Snared puts Fire out, as usual.
+- **Start stats:** 4 damage per tick, 10 ticks a second while on, 1.2 s on and 1.0 s off, range 180. (Tuned 20 Oct: was 3.)
+- **Shape:** a thin, bright orange-white thread with embers peeling off it.
+- **Motion:** snaps between targets with a short crackle; shows its lane for a moment before it fires (telegraph).
+- **Impact:** the target's Burn ring fills in orange; on a Corroded target, Premature Evaporation's burst is the payoff.

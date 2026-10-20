@@ -44,7 +44,7 @@ function modCard(w, id) {
   const m = MODS10[id], r = modCount(w, id), up = r ? MODUP[id][r - 1] : '';
   return { card: 'mod:' + id, family: 'mod:' + id, rarity: MOD_RAR[r], tag: 'MODIFIER', icon: m.name.slice(0, 1), color: w.def.color, elem: w.def.elem,
     title: m.name + (r ? ' ' + ['', 'II', 'III'][r] : ''), sub: (r ? `Rank ${r} > ${r + 1} of 3` : 'New') + (m.group ? ' | Delivery' : ''), // (the weapon is named below: modFor)
-    desc: r ? up : m.desc, modFor: w.def.name, // (ui.js shows "For weapon" on the card)
+    desc: r ? up : m.desc, modFor: w.def.name, quip: (typeof cardLine === 'function' ? cardLine('mod:' + m.name) : ''), // (ui.js shows "For weapon" on the card)
     apply: () => { modAdd(w, id); computeStats(w); recomputeAll(); } };
 }
 

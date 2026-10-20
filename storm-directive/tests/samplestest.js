@@ -10,8 +10,9 @@ const { chromium } = require('playwright');
     const bad = [], out = {};
     const run = (id, k) => { META.profile = 's10_' + id; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; genLoot({ kind: 'start' })[k || 0].apply(); return G.weapons.find(Boolean); };
     const IDS = ['baseline', 'alpha', 'beta', 'private', 'ordered', 'redtail', 'prawn', 'alien'];
+    if (typeof S10_BY.acro !== 'undefined') IDS.push('acro'); // (PROPOSED Sample 9, acrosample.js: a ninth sample while it is loaded)
     if (SAMPLES10.map(s => s.id).join() !== IDS.join()) bad.push('ids ' + SAMPLES10.map(s => s.id));
-    if (SAMPLES10.map(s => s.name).join('|') !== 'Baseline|Alpha|Beta|Private Schooled|Ordered Online|Redtail|Prawn Again|Not of This World') bad.push('names');
+    if (SAMPLES10.slice(0, 8).map(s => s.name).join('|') !== 'Baseline|Alpha|Beta|Private Schooled|Ordered Online|Redtail|Prawn Again|Not of This World') bad.push('names');
     if (S10_BY.ordered.types.join() !== 'mucus,fire') bad.push('Ordered Online types ' + S10_BY.ordered.types);
     for (const s of SAMPLES10) {
       META.profile = 's10_' + s.id; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;

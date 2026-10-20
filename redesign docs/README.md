@@ -13,7 +13,10 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `MUTATIONS.md`: the 33 mutation cards (body, weapon, damage-type, trade-off and rare synergy), how they use Genome slots, and a starting pool of 8.
 - `MODIFIERS.md`: the 20 modifiers (homing, piercing, orbiting, returning, gravity well, lunge and the rest) that change how an attack moves or repeats, with caps.
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
+- `GIFT_LINES.md`: approved gift lines, one per sample, for all 31 shared gifts (310 lines).
+- `CONSCIOUSNESS.md`: the eight consciousness personas (one per sample): what the egg is to each, its tell, death, sincere crack and limits, plus existing lines to revisit.
 - `SAMPLES.md`: the eight playable samples (characters): Baseline, Alpha, Beta, Private Schooled, Ordered Online, Redtail, Prawn Again, Not of This World: roster, three starting weapons each, unlocks, Scientist lines, stories and visual language.
+- `SAMPLE_9_ACRO.md`: a ninth sample (Acid / Fire), its three new weapons with full branches, copy briefs for every player-facing string, and the six old Feats to bring back first. Design approved 20 Oct 2026; not built.
 - `UPGRADES.md`: in-run progression and unlocks: one card-draft system, slot caps (3 weapons, 3 Feats, 4 Genome), Feat levels and milestone forks, the sample-type pool lean, Skip/Reroll/Banish and the interruption budget.
 - `AUTORUN_AUTOAIM.md`: autorun modes and autoaim directives, including the THEN tie-breaker, with exact rules and numbers (shipped in v9.28; merged into v10 in v10.04).
 - `tables/`: the old Notion databases as CSV (statuses and world objects, defences, interactions), generated from the matrix by `tables/export.py`. Never edit them by hand; rerun the script after changing a matrix table.

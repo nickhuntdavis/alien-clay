@@ -59,7 +59,8 @@ Refer to it simply as **the consciousness** in production notes and as the voice
 
 ### Consciousness voice rules
 
-- It addresses the sperm as **you**. It is not speaking as “I, the sperm.”
+- It is a soul not yet born: not the sperm, and not the swimmer's own head.
+- It speaks **mostly as "we"**, like a coach or a passenger (one team). It says **"you"** when it blames or accuses, and **"me" or "I"** only rarely, when it is being nakedly selfish (user ruling, 20 Oct 2026).
 - It is an unseen, not-yet-born soul with a personal stake in fertilisation.
 - It should feel like an actual limited consciousness, not a professional comedian performing polished jokes.
 - Its gameplay voice is impulsive, blunt, immature, impatient, self-justifying, biologically inappropriate, and occasionally crude.
@@ -79,6 +80,14 @@ Refer to it simply as **the consciousness** in production notes and as the voice
 **Campaign register:** more reflective and emotionally exposed. It becomes devoted and obsessive about the egg, sometimes tender, sometimes disturbing, sometimes comically deluded. It can imagine a relationship with someone it has never met.
 
 The registers are not separate characters. Gameplay compresses the voice into urgency; campaign moments reveal the depth and strangeness of its desire.
+
+### One consciousness per sample (decided 20 Oct 2026)
+
+- **Each sample has its own consciousness persona:** the person that sample would grow up to be. The rules above apply to all eight; the persona sets what the egg is to it, its tell, how it takes death, its sincere crack and what it never does. Personas live in `CONSCIOUSNESS.md`.
+- **Every consciousness line is written per sample,** shared Feat gift lines included (`FEATS.md` 1). There is no generic consciousness line.
+- **A new soul every run.** 1A and 1B are different souls of the same temperament; neither remembers the other. **Prawn Again is the exception:** its consciousness remembers earlier runs and may refer to them.
+- **It doesn't know the lab exists.** It believes it is exactly where it is supposed to be. Its lines never mention the Scientist, the lab, a slide, a sample, a specimen, an experiment or anything on the HUD.
+- **Blind test:** hide the sample's name; the line's tell must still identify the speaker. If two personas could have said it, rewrite it for one of them.
 
 ## 3. Silence and unvoiced systems
 
@@ -243,6 +252,7 @@ Before approving dialogue, ask:
 
 1. **Who is speaking?** Scientist, consciousness addressing the sperm, campaign narration, or no one?
 2. **Is the consciousness speaking to the sperm rather than as the sperm?** Check pronouns, perspective, and implied identity.
+   **Which sample's consciousness is it?** It must pass the blind test and know nothing of the lab.
 3. **Does this belong on this screen?** Do not put codex detail into a loot card or tutorial.
 4. **Does the line add information, character, humour, or emotional meaning?** If none, cut it.
 5. **Can the player already see it?** If yes, consider silence.

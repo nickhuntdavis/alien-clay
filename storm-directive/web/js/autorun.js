@@ -15,7 +15,12 @@
 const AR = { kiteIn: 240, kiteOut: 360, kiteFar: 450, holdR: 60, orbitEvery: 1.5, orbitBetter: 1.5, huntR: 900, huntLose: 1100 };
 
 // ---------------------------------------------------------------- autoaim
-function aimDir(w) { return w.dir2 && w.dir2 !== w.dir ? w.dir + '>' + w.dir2 : w.dir; }
+// Default aim prefers the boss: a slot still on its default NEAREST (never set in the aim menu: w.dirSet, no tie-breaker)
+// aims at a boss in reach before its escorts (20 Oct: bot boss fights sent about a quarter of their damage to the boss).
+function aimDir(w) {
+  if (!w.dirSet && w.dir === 'nearest' && !w.dir2 && G && G.boss && !G.boss.dead) return 'bossfirst';
+  return w.dir2 && w.dir2 !== w.dir ? w.dir + '>' + w.dir2 : w.dir;
+}
 // Durability for TOUGHEST: max health, worth 10% more per point of armour.
 function aimTough(e) { return e.maxHp * (1 + 0.1 * effArmour(e)); }
 function aimShootTier(e) { return e.boss || e.def.shoot ? 3 : e.def.ai === 'medic' ? 2 : e.def.ai === 'summon' ? 1 : 0; }
@@ -105,21 +110,36 @@ function arPickups(p, mode, goal) {
   }
   return homing;
 }
-// KITE: hold a band from the nearest enemy, sidestepping round the pack.
+// KITE: hold a band from the nearest enemy, sidestepping round the pack. The band scales to your reach (arReach), so
+// what you kite stays in range; with nothing near it closes in, and with a boss alive it keeps the boss's edge in reach.
+// (20 Oct: the fixed 240-360 band sat at or past the 300 reach cap, and the close-in branch could never run: bot boss
+// fights put the boss in range about half the time and sent 14-42% of the damage to it.)
+function arReach() {
+  let r = 0;
+  for (const w of G.weapons) if (w && w.s && w.s.range > r && !(typeof REACH_FREE !== 'undefined' && REACH_FREE.has(w.def.kind))) r = w.s.range;
+  return r > 0 ? Math.max(150, r) : 300;
+}
 function arKite(p) {
-  let nd = Infinity, wx = 0, wy = 0, wn = 0;
+  const R = arReach(), kIn = Math.min(AR.kiteIn, R * 0.65), kOut = Math.min(AR.kiteOut, R * 0.85), kFar = Math.min(AR.kiteFar, R * 0.95);
+  let nd = Infinity, ne = null, wx = 0, wy = 0, wn = 0, boss = null;
   for (const e of G.enemies) {
     if (!arFoe(e)) continue;
     const dx = p.x - e.x, dy = p.y - e.y, d = Math.hypot(dx, dy) || 1;
-    if (d < nd) nd = d;
+    if (d < nd) { nd = d; ne = e; }
+    if (e.boss && !boss) boss = e;
     if (d < 420) { const k = (e.boss ? 3 : e.elite ? 1.6 : 1) / d; wx += dx * k / d; wy += dy * k / d; wn += k; }
   }
-  if (!wn) return null;
+  if (!ne) return null;
+  if (!wn) { const l = nd || 1; return { x: (ne.x - p.x) / l * 0.6, y: (ne.y - p.y) / l * 0.6 }; } // nothing near: close in
   const al = Math.hypot(wx, wy) || 1, ax = wx / al, ay = wy / al, side = arSide(p, -ax, -ay, 1);
   let gx = -ay * side * 0.5, gy = ax * side * 0.5; // sidestep
-  if (nd < AR.kiteIn) { const k = Math.min(1.3, (AR.kiteIn - nd) / 80 + 0.35); gx += ax * k; gy += ay * k; }
-  else if (nd < AR.kiteOut) { gx += ax * 0.1; gy += ay * 0.1; }
-  else if (nd > AR.kiteFar) { gx -= ax * 0.35; gy -= ay * 0.35; }
+  if (nd < kIn) { const k = Math.min(1.3, (kIn - nd) / 80 + 0.35); gx += ax * k; gy += ay * k; }
+  else if (nd < kOut) { gx += ax * 0.1; gy += ay * 0.1; }
+  else if (nd > kFar) { gx -= ax * 0.35; gy -= ay * 0.35; }
+  if (boss) { // keep the boss's edge in reach (the pack push above still keeps you off whatever is closest)
+    const bx = boss.x - p.x, by = boss.y - p.y, bd = Math.hypot(bx, by) || 1, edge = bd - (boss.r || 0);
+    if (edge > R * 0.85 && nd > kIn * 0.8) { gx += bx / bd * 0.5; gy += by / bd * 0.5; }
+  }
   return { x: gx, y: gy };
 }
 // ORBIT: the cluster we are circling (its middle, size and spread), kept until it is worth changing.

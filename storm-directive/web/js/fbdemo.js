@@ -317,7 +317,7 @@ PV_OWN[NWV.id] = { init: nwvInit, step: nwvStep, draw: sivDraw, flags: NWV_FLAG,
 // ================================================================ Family Ties (vortex)
 const FTV = { id: 's_void', range: 0.68, cd: 1.8, mag: 2, reload: 2.5, dmg: 8, v: 0.2, life: 3.4, aura: 0.12, pull: 0.16, r: 0.022, nova: 5 };
 const FTV_FLAG = { A: 'horizon', B: 'orbit', C: 'bang', 'Event Horizon': 'horizon', 'Roach Motel': 'motel', Compaction: 'compact', 'Lost Property': 'lost',
-  Orbituary: 'orbit', 'Bumper Cars': 'bump', 'Let Go': 'letgo', 'Gravity Assist': 'assist', 'Big Bang, Eventually': 'bang', Appetite: 'appetite',
+  Orbituary: 'orbit', 'Fender Bender': 'bump', 'Let Go': 'letgo', 'Gravity Assist': 'assist', 'Big Bang, Eventually': 'bang', Appetite: 'appetite',
   Afterglow: 'afterglow', 'White Hole': 'white', Supermassive: 'super', Spaghettification: 'spag', Wormhole: 'worm' };
 function ftvInit(pv) {
   const F = fbBase(pv, { range: FTV.range, mag: FTV.mag, reload: FTV.reload, rate: FTV.cd, orbs: [], wells: [], gems: [], on: 0 });
@@ -586,7 +586,7 @@ PV_OWN[SKV.id] = { init: skvInit, step: skvStep, draw: sivDraw, flags: SKV_FLAG,
 const SPV = { id: 's_siphon', range: 0.78, cd: 0.08, store: 10, area: 0.15, dribble: 1.2 };
 const SPV_FLAG = { A: 'womb', B: 'shield', C: 'rich', 'Return to Womb': 'womb', 'Full Term': 'term', Afterbirth: 'afterb', Hiccup: 'hic',
   'Umbilical Shield': 'shield', 'Suction Cup': 'suction', 'Water Breaks': 'water', 'Re-Gift': 'regift', 'Eat the Rich': 'rich',
-  'Return to Sender': 'sender', 'Paternity Test': 'paternity', 'Swap Meet': 'swap', 'Mirror Womb': 'mirror', 'Let-Down Reflex': 'letdown', 'Bullet Sponge': 'sponge' };
+  'In One Ear': 'sender', 'Paternity Test': 'paternity', 'Swap Meet': 'swap', 'Mirror Womb': 'mirror', 'Let-Down Reflex': 'letdown', 'Bullet Sponge': 'sponge' };
 function spvInit(pv) {
   const F = fbBase(pv, { range: SPV.range, mag: 1, reload: 1, rate: SPV.cd, q: [], dryT: 0, memb: 0, membHits: 0 });
   pv.capS = F.has('letdown') ? 40 : F.has('womb') ? 25 : SPV.store;
@@ -674,8 +674,8 @@ PV_OWN[SPV.id] = { init: spvInit, step: spvStep, draw: sivDraw, flags: SPV_FLAG,
 // ================================================================ One of These Days (due date)
 const DDV = { id: 's_duedate', range: 0.82, cd: 0.9, mag: 3, reload: 2, dmg: 20, dur: 4, rep: 0.4 };
 const DDV_FLAG = { A: 'anyday', B: 'multi', C: 'interest', 'Any Day Now': 'anyday', 'Early Delivery': 'early', 'Short Notice': 'short', 'Gender Reveal': 'reveal',
-  'Multiplying Responsibilities': 'multi', 'Pass the Parcel': 'parcel', 'Rush Hour': 'rush', 'Morning After': 'morning', 'Interest Accrued': 'interest',
-  'Compound Interest': 'compound', 'Fine Print': 'fine', Postponed: 'postp', 'Labour Day': 'labour', 'The Big Day': 'bigday', Induced: 'induced' };
+  'Double Booked': 'multi', 'Forwarding Address': 'parcel', 'Rush Hour': 'rush', 'Morning After': 'morning', 'Interest Accrued': 'interest',
+  'Inheritance Tax': 'compound', 'Fine Print': 'fine', Postponed: 'postp', 'Labour Day': 'labour', 'The Big Day': 'bigday', Induced: 'induced' };
 function ddvInit(pv) {
   const F = fbBase(pv, { range: DDV.range, mag: DDV.mag, reload: DDV.reload, rate: DDV.cd, offs: [], markCd: 0, post: [] });
   pv.me.x = 0.16;

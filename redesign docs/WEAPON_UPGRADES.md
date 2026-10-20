@@ -7,7 +7,7 @@
 - **Lv 3: pick a promise.** Three cards, each a different answer to "how will this weapon play from now on?" The other two are gone for the run.
 - **Lv 6: grow the promise, or swerve.** Three cards: two belong to the promise you picked and add a new behaviour (not a bigger number); the third is a wildcard from outside the promise, stranger and less expected.
 - **Lv 10: the mastery.** Only one weapon a run reaches Lv 10, so these are extreme. Three cards per weapon, offered whatever promise you took; each says which promises it suits best.
-- Per weapon: 3 promises, 9 Lv 6 cards (2 per promise plus a wildcard each), 3 masteries. 360 cards in all. The in-promise Lv 6 cards still need names.
+- Per weapon: 3 promises, 9 Lv 6 cards (2 per promise plus a wildcard each), 3 masteries. 360 cards in all. Sample 9's three weapons (proposed) add 45. The in-promise Lv 6 cards still need names.
 
 ## Design rules for every branch
 
@@ -746,6 +746,102 @@
 - **Baby Boom** (A): every sibling splits into two on every hit, not just kills (24 in flight at most).
 - **Family Reunion** (B): siblings that miss circle you, eating enemy shots, and relaunch; they last until they hit.
 - **Only Child** (C): one sibling per volley at ×6 damage; it pierces everything and keeps homing until it has killed 5.
+
+---
+
+# Sample 9's weapons (proposed)
+
+*Proposal, 20 Oct 2026; not decided or built. Sample and kit: `SAMPLE_9_ACRO.md`; base weapons: `BASE_WEAPONS.md` section 8. Card names are `TODO_COPY` ids (briefs: `SAMPLE_9_ACRO.md` 6.4 to 6.6). Adds 45 cards (405 in all if it ships). Below, "Corroded" means the Corroded state (no Shell left, matrix decision 34), not a part-filled bar.*
+
+## 25. `TODO_COPY:w25_name` (`acro_cap`; Acid, Contact)
+**A. `TODO_COPY:acro_cap_A` (drilling): stay on one target.**
+- Lv 3: each consecutive hit on the same target +15% (cap +100%). A full stack strips one Shell layer outright.
+- Lv 6, pick one:
+  - stripping the last layer launches you to the next nearest enemy, stack kept.
+  - while drilling, contact damage to you −40%.
+  - Wildcard, **`TODO_COPY:acro_cap_Aw`**: each stripped layer flicks 2 acid chips at nearby enemies.
+- Costs: one target only. Shows: the cap spins faster, fizzing spiral. Modes: HUNT.
+
+**B. `TODO_COPY:acro_cap_B` (breaching): go through crowds.**
+- Lv 3: every hit is a lunge (range 140) hitting everything in the lane (Sweep). Thorns per hit.
+- Lv 6, pick one:
+  - each enemy passed adds 10% to the next one's Corrosion fill (Growing, cap +100%).
+  - lunging through an Acid Pool coats the cap: next 3 hits leave small Acid Pools (radius 35, 2 s).
+  - Wildcard, **`TODO_COPY:acro_cap_Bw`**: at the end of a lunge, bounce back once down the same lane (Returning).
+- Costs: −20% damage per hit; you end up in the crowd. Shows: pink smear down the lane. Modes: ORBIT, HUNT.
+
+**C. `TODO_COPY:acro_cap_C` (hard hat): the cap protects you.**
+- Lv 3: each Shell layer you strip from an enemy gives you 1 Shell layer (max 3; player Shell in `pdef.js`).
+- Lv 6, pick one:
+  - while you have Shell, your hits knock enemies back.
+  - an enemy's contact hit on your Shell makes the cap hit back (once per 1 s).
+  - Wildcard, **`TODO_COPY:acro_cap_Cw`**: losing your last layer bursts it as an Acid splash (Corrosion to enemies within 80).
+- Costs: −25% damage. Shows: pink armour bands on the head. Modes: HOLD, ORBIT.
+
+**Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
+- **`TODO_COPY:acro_cap_M1`** (A): every 4th hit strips a layer outright, or Corrodes a target with no Shell at once.
+- **`TODO_COPY:acro_cap_M2`** (B): a lunge that kills lunges again to the nearest enemy (up to 6 in a row). **Cap exception: needs a matrix line.**
+- **`TODO_COPY:acro_cap_M3`** (C): your Shell cap rises to 6; each layer carried adds +15% cap damage. **Cap exception: needs a matrix line.**
+
+## 26. `TODO_COPY:w26_name` (`acro_spray`; Acid, Spread)
+**A. `TODO_COPY:acro_spray_A` (point blank): get in close.**
+- Lv 3: +1 pellet per 40 units closer than 160 (max 7; the spray fires 3 since 20 Oct). Pellets landing inside 60 fill Corrosion ×2.
+- Lv 6, pick one:
+  - two pellets on one target in a volley fuse into one hit at +50%.
+  - each volley's recoil pushes you back to the sweet spot (Lunge recoil).
+  - Wildcard, **`TODO_COPY:acro_spray_Aw`**: every 6th volley is a full ring (Self-centred).
+- Costs: −40% range. Shows: the fan thickens up close. Modes: ORBIT, HUNT.
+
+**B. `TODO_COPY:acro_spray_B` (drizzle): deny the ground.**
+- Lv 3: missed pellets land as small Acid Pools (radius 25, 2 s, max 8). Touching pools merge (12.7).
+- Lv 6, pick one:
+  - enemies standing in your pools take +30% from your pellets.
+  - a pellet landing in an existing pool grows it (+10 radius, cap 80) instead of making a new one.
+  - Wildcard, **`TODO_COPY:acro_spray_Bw`**: swimming through your own pool makes the next volley a rapid volley of 3.
+- Costs: −20% direct damage. Shows: a field of pink speckles. Modes: HOLD.
+
+**C. `TODO_COPY:acro_spray_C` (strip search): hunt the armour.**
+- Lv 3: pellets lean towards Shelled enemies (homing 2) and fill Corrosion +50% against Shell.
+- Lv 6, pick one:
+  - stripping a layer gives a free volley (once per 1 s).
+  - a pellet hitting a Corroded enemy with no Shell carries on through (pierce 1).
+  - Wildcard, **`TODO_COPY:acro_spray_Cw`**: a pellet that strips a layer bounces once to another Shelled enemy.
+- Costs: ignores unshelled enemies while Shelled ones are near. Shows: pellets curving towards armour. Modes: HUNT.
+
+**Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
+- **`TODO_COPY:acro_spray_M1`** (A): point-blank pellets strip a layer outright (once per target per second).
+- **`TODO_COPY:acro_spray_M2`** (B): your pools last until the wave ends (max 12). **Cap exception: needs a matrix line.**
+- **`TODO_COPY:acro_spray_M3`** (B, C): volleys doubled, each pellet at 60%.
+
+## 27. `TODO_COPY:w27_name` (`acro_spark`; Fire, Beam)
+**A. `TODO_COPY:acro_spark_A` (flashpoint): consume the setup.**
+- Lv 3: +40% against Corroded targets; when the target stops being Corroded, the beam jumps to the next Corroded one.
+- Lv 6, pick one:
+  - +10% damage per Corroded enemy on screen (cap +100%).
+  - setting off Premature Evaporation splits the beam into two for 2 s.
+  - Wildcard, **`TODO_COPY:acro_spark_Aw`**: the beam's lane leaves a Fire Pool footprint for 1 s.
+- Costs: −30% against targets that aren't Corroded. Shows: the beam flares on pink-ringed enemies. Modes: HUNT.
+
+**B. `TODO_COPY:acro_spark_B` (spark gap): string the fire between them.**
+- Lv 3: the beam chains from you to the nearest anchor, then anchor to anchor (×1.4 on those strings), burning everything along it. Anchors are Corroded enemies first, then any with Corrosion building; a Shelled anchor isn't burnt by its own string, so the Fire never wipes progress towards a layer. With no anchors it is an ordinary beam. *(Revised 20 Oct after test runs: anchoring only between two Corroded enemies did almost nothing.)*
+- Lv 6, pick one:
+  - a third Corroded enemy makes a triangle (max 3 segments).
+  - when an anchor dies, the beam whips to the next Corroded enemy within 200.
+  - Wildcard, **`TODO_COPY:acro_spark_Bw`**: anchors are pulled towards each other (pull 60, 12.2).
+- Costs: the strings are only as long as your anchors; with none, it is an ordinary beam. Shows: a line of fire from you through pink-ringed enemies. Modes: KITE.
+
+**C. `TODO_COPY:acro_spark_C` (paint the slide): swim to aim.**
+- Lv 3: the beam points where you swim (Sweep, range 260). Swept enemies fill Burn ×1.5.
+- Lv 6, pick one:
+  - turning sharply widens the beam for 0.5 s.
+  - the tip leaves short Fire Pool footprints (1 s).
+  - Wildcard, **`TODO_COPY:acro_spark_Cw`**: while you stand still, it sweeps back and forth on its own.
+- Costs: no autoaim on this weapon. Shows: burning lanes behind your path. Modes: ORBIT.
+
+**Lv 10 mastery (pick one; works with any promise, best with the letters shown)**
+- **`TODO_COPY:acro_spark_M1`** (A, B): a second beam on the second-best target.
+- **`TODO_COPY:acro_spark_M2`** (A): Ignition on a Corroded enemy half-fills the Corrosion bars of enemies within 80.
+- **`TODO_COPY:acro_spark_M3`** (C): beam twice as fast and twice as wide.
 
 ---
 

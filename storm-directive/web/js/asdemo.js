@@ -83,8 +83,8 @@ function xsDrawPools(pv, g, X, Y, U, col) { for (const P of pv.puddles) { g.glob
 // ================================================================ Acid Spit
 const ACV = { id: 'v_fire_proj', range: 0.75, cd: 0.45, mag: 8, reload: 1.2, dmg: 16, cor: 0.25 };
 const ACV_FLAG = { A: 'spit', B: 'splash', C: 'after', 'Spit Take': 'spit', 'Second Helping': 'helping', 'Stripped Bare': 'bare', Spittoon: 'spittoon',
-  'Splash Damage': 'splash', Backsplash: 'back', 'Nasty Fifth': 'fifth', Gargle: 'gargle', 'Bad Aftertaste': 'after', 'Wet Floor': 'wet', 'Pass It On': 'passon',
-  'Lob Lip': 'lob', 'Battery Acid': 'battery', 'Projectile Vomit': 'vomit', 'Acid House': 'house' };
+  'Splash Damage': 'splash', Backsplash: 'back', 'Nasty Fifth': 'fifth', Gargle: 'gargle', 'Bad Aftertaste': 'after', 'Wet Floor': 'wet', 'Pyramid Scheme': 'passon',
+  'Leapfrog': 'lob', 'Battery Acid': 'battery', 'Projectile Vomit': 'vomit', 'Acid House': 'house' };
 function acvInit(pv) {
   const F = xsInit(pv, { range: ACV.range, mag: ACV.mag, reload: ACV.reload, rate: ACV.cd, lobs: [], big: 0, idle: 0, vomit: null });
   pv.me.x = 0.18;
@@ -181,7 +181,7 @@ PV_OWN[ACV.id] = { init: acvInit, step: acvStep, draw: sivDraw, flags: ACV_FLAG,
 // ================================================================ Red Flagship (beam)
 const RFV = { id: 'v_shock_beam', range: 0.51, dps: 35, mag: 3, reload: 1.2 };
 const RFV_FLAG = { A: 'over', B: 'crit', C: 'pixels', Overclocked: 'over', 'Hard Interrupt': 'interrupt', 'Static Cling': 'cling', 'Screen Burn': 'sburn',
-  'Critical Error': 'crit', 'Cascade Failure': 'cascade', 'Rolling Blackout': 'blackout', 'Have You Tried Turning It Off': 'restart', 'Dead Pixels': 'pixels',
+  'Critical Error': 'crit', 'Cascade Failure': 'cascade', 'Rolling Blackout': 'blackout', 'Off and On Again': 'restart', 'Dead Pixels': 'pixels',
   'Stuck Pixels': 'stuck', 'Packet Loss': 'packet', 'Wrong Cable': 'wrong', 'Blue Screen of Death': 'bsod', 'Multi-Monitor Setup': 'multi', 'Kernel Panic': 'kernel' };
 function rfvInit(pv) {
   const F = xsInit(pv, { range: RFV.range, mag: 1, reload: RFV.reload, beamT: RFV.mag, held: null, holdT: 0, kills: 0, ghosts: [], dead: [], glitchT: 0, offT: 6, off: 0 });
@@ -303,8 +303,8 @@ PV_OWN[RFV.id] = { init: rfvInit, step: rfvStep, draw: sivDraw, flags: RFV_FLAG,
 
 // ================================================================ Soulmate Signal (twin beam)
 const TWV = { id: 's_twin', cd: 1.6, mag: 3, reload: 2, dmg: 24, half: 0.44, area: 0.15 };
-const TWV_FLAG = { A: 'long', B: 'toxic', C: 'third', 'Long-Distance Relationship': 'long', 'Stretch Marks': 'stretch', 'Tug of Love': 'tug', 'Evil Twin': 'evil',
-  'Toxic Codependency': 'toxic', 'Boiling Point': 'boil', Swapsies: 'swap', 'Sticky Fingers': 'sticky', 'Third Wheel': 'third', 'Crossed Wires': 'crossed',
+const TWV_FLAG = { A: 'long', B: 'toxic', C: 'third', 'Long-Distance Love': 'long', 'Absence Makes It Grow': 'stretch', 'Tug of Love': 'tug', 'Evil Twin': 'evil',
+  'Toxic Codependency': 'toxic', 'Boiling Point': 'boil', Swapsies: 'swap', 'Gold Digger': 'sticky', 'Third Wheel': 'third', 'Mixed Signals': 'crossed',
   'Love Triangle': 'triangle', 'Mirror Image': 'mirror', Quadruplets: 'quads', 'Psychic Link': 'psychic', 'Conjoined Twins': 'conjoined' };
 function twvInit(pv) {
   const F = xsInit(pv, { range: 0.9, mag: TWV.mag, reload: TWV.reload, rate: TWV.cd, anchor: null, boost: [], extra: [], gems: [], evilT: 3, evil: 0, pulseT: 1.5 });

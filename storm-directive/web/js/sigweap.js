@@ -42,7 +42,7 @@ sigReg('parasite', 'parasite', 'Tapeworm Seeder', 'Infects. An infected enemy th
 sigReg('redtape', 'redtape', 'Red Tape', 'Tapes a target to its neighbours. Damage to one is shared with the bundle (35%, as echo damage).', 'ice', 'proj');
 sigReg('duedate', 'duedate', 'Due Date', 'A countdown mark. When it ends, the target takes 40% of everything it took while marked, again.', 'arcane', 'proj');
 sigReg('leeches', 'leeches', 'Leeches', 'Leeches latch on and feed. A little comes back to you as health. Four at most.', 'arcane', 'contact', { base: { count: 2 } });
-sigReg('tesla', 'tesla', 'Static Cling', 'Static jumps through crowds. Charged enemies pass your other weapons\' hits on as arcs.', 'shock', 'proj');
+sigReg('tesla', 'tesla', 'Static Cling', 'Static jumps through crowds. Charged enemies pass your other weapons\' hits on as arcs.', 'shock', 'proj', { base: { dmg: 11 } }); // (dmg 13 until 20 Oct: it led every weapon test)
 sigReg('lard', 'lard', 'Lard Lobber', 'Lobs lard that sends everything flying. Flying enemies bowl into their mates, once. STRIKE.', 'phys', 'burst');
 sigReg('siphon', 'siphon', 'Placental Siphon', 'Eats enemy bullets near you and fires them back. With nothing to eat it only dribbles.', 'phys', 'proj', { base: { mag: 10 } });
 sigReg('bubble', 'bubble', 'Bubble Wand', 'Bubbles trap small enemies. Anything that touches a bubble pops it.', 'ice', 'proj');

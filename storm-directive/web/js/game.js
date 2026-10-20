@@ -209,6 +209,7 @@ function targetScore(dir, e, d2) {
   if (dir.length > 9 && dir.includes('>')) return aimPair(dir, e, d2); // (a primary plus a tie-breaker: autorun.js)
   switch (dir) {
     case 'nearest': return -d2;
+    case 'bossfirst': return (e.boss ? 1e12 : 0) - d2; // (default aim while a boss is alive: autorun.js aimDir)
     case 'furthest': return d2;
     case 'strongest': return aimTough(e) * 1e6 - d2;
     case 'weakest': return -e.maxHp * 1e6 - d2;
@@ -230,11 +231,10 @@ function acquire(dir, range, x, y, exclude) {
   const egg = G.eggE;
   if (egg && !egg.dead && egg.woke && eggBreakable() && egg !== exclude && Math.random() < 0.5 && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg;
   let best = null, bv = -Infinity;
-  const r2 = range * range;
   for (const e of G.enemies) {
     if (e.dead || e.phased || e.charmed || e === exclude || (e.egg && !(e.woke && eggBreakable()))) continue;
-    const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
-    if (d2 > r2) continue;
+    const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy, re = range + (e.r || 0);
+    if (d2 > re * re) continue; // (in reach when its edge is: big bosses no longer drop out at their centre)
     const v = targetScore(dir, e, d2) + (e.evTag ? 1e13 : 0); // run-event targets come first
     if (v > bv) { bv = v; best = e; }
   }
@@ -242,11 +242,11 @@ function acquire(dir, range, x, y, exclude) {
 }
 function acquireMany(dir, range, x, y, n) {
   if (dir.includes('ownmess')) dir = aimOwnSet(dir, x, y, range); // (MY OWN MESS: aimat.js)
-  const r2 = range * range, list = [];
+  const list = [];
   for (const e of G.enemies) {
     if (e.dead || e.phased || e.charmed || (e.egg && !(e.woke && eggBreakable()))) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
-    if (d2 > r2) continue;
+    const re = range + (e.r || 0); if (d2 > re * re) continue; // (in reach when its edge is, as in acquire)
     list.push({ e, v: targetScore(dir, e, d2) });
   }
   list.sort((a, b) => b.v - a.v);
@@ -316,9 +316,9 @@ function computeStatsInner(w) {
   if (d.kind === 'ring') s.pierce = (s.pierce || 0) + P.pierce;
   s.speed = (b.speed || 0) * P.projSpeed;
   const areaMult = P.area * (1 + areaB);
-  // Starting reach: long-range weapons begin at what you can see on screen (about 300) and grow 30 a
-  // level to their full range; Range upgrades multiply it as before.
-  const reach = b.range > REACH_START && !REACH_FREE.has(d.kind) ? Math.min(b.range, REACH_START + 30 * (L - 1)) : (b.range || 0);
+  // Reach: long-range weapons stop at what you can see on screen (about 300, a phone's half-width) at every level, so kills
+  // happen on screen (user, 20 Oct: range no longer grows 30 a level). Range upgrades multiply it as before.
+  const reach = b.range > REACH_START && !REACH_FREE.has(d.kind) ? REACH_START : (b.range || 0);
   s.range = reach * (1 + rangeB) * P.range * (d.style === 'flame' ? 1 + areaB * 0.5 : 1);
   if (s.area) s.area *= areaMult;
   if (s.explode && s.explode > 1) s.explode *= areaMult;
@@ -951,7 +951,7 @@ function doChain(x, y, first, dmg, jumps, jumpR, src) {
     const el = src.elem2 && k % 2 ? src.elem2 : src.elem;
     bolt(px, py, cur.x, cur.y, ELEMENTS[el].color, 0.16);
     const wet = G.pair.conductive && cur.wetT > G.t ? 2 : 1;
-    damageEnemy(cur, dmg * Math.pow(src.overcharge ? 1.2 : 0.88, k) * wet, Object.assign({}, src, { elem: el }));
+    damageEnemy(cur, dmg * Math.pow(src.overcharge ? 1.2 : 0.88, k) * wet, Object.assign({}, src, { elem: el }, k ? { chainHop: 1 } : null)); // (a jump: no Charge arcs, fight.js fightArcOk)
     if (G.pair.monitor) chainNearMine(cur.x, cur.y);
     px = cur.x; py = cur.y;
     let next = null, bd = jumpR * jumpR;
@@ -2407,6 +2407,7 @@ function updatePlayer(dt) {
 // Autorun steering (context steering): scores 16 candidate directions plus "stay" by
 // goal interest (per movement directive) minus danger from predicted enemy/bullet positions.
 const STEER_DIRS = Array.from({ length: 16 }, (_, i) => [Math.cos(i / 16 * TAU), Math.sin(i / 16 * TAU)]);
+const STEER_BUL = [[0.1, 0.22, 0.8], [0.225, 0.5, 1], [0.45, 1, 1], [0.675, 1.5, 0.6]]; // [seconds ahead, share of the step swum, weight]
 function autoSteer() {
   const p = G.player, mode = arMode(); // (autorun.js)
   // Goal vector.
@@ -2448,7 +2449,7 @@ function autoSteer() {
   // Danger sampling.
   const bw = G.warp > 0 ? 0.3 : 1;
   const bul = [];
-  for (const b of G.ebul) { const dx = b.x - p.x, dy = b.y - p.y; if (dx * dx + dy * dy < 300 * 300) bul.push(b); }
+  for (const b of G.ebul) { const dx = b.x - p.x, dy = b.y - p.y; if (dx * dx + dy * dy < 420 * 420) bul.push(b); } // (was 300: boss volleys from further out arrived unseen)
   const threatR = mode === 'hold' ? 80 : mode === 'hunt' ? 120 : 250;
   const step = 150 * G.P.speed * 0.45;
   let best = -Infinity, bx = 0, by = 0, pick = -1;
@@ -2464,11 +2465,13 @@ function autoSteer() {
       if (d < threatR) { const k = (threatR - d) / threatR; danger += w * k * k * 1.2; }
       if (d < 14) danger += 4 * w;
     }
+    // Bullets: where each one and you will be at four moments along this heading (20 Oct: was two, 0.225 s and 0.45 s;
+    // dense boss volleys slipped between them). fr = how far along the step you are at that moment.
     for (const b of bul) {
-      for (let k = 1; k <= 2; k++) {
-        const t = 0.225 * k * bw, ax = k === 1 ? mx : qx, ay = k === 1 ? my : qy;
+      for (const [t0, fr, wgt] of STEER_BUL) {
+        const t = t0 * bw, ax = p.x + dx * step * fr, ay = p.y + dy * step * fr;
         const d = Math.hypot(b.x + b.vx * t - ax, b.y + b.vy * t - ay) - b.r - p.r * 0.6;
-        if (d < 16) danger += 2.5 + (16 - d) * 0.25;
+        if (d < 16) danger += (2.5 + (16 - d) * 0.25) * wgt;
       }
     }
     // The slide itself: look along this heading at three distances (near counts most).

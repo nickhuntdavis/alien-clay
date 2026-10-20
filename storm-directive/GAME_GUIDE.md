@@ -786,26 +786,26 @@ Level-up cards for one weapon whose attack type fits. A weapon holds up to 3 dif
 
 | Modifier | Effect | Rank 2 | Rank 3 | Fits |
 |---|---|---|---|---|
-| **Homing** | Shots turn towards their target. If the target dies, they carry straight on. Evasion still applies. | Turns harder (7). | Turns harder still (9). | Projectile, Spread |
-| **Piercing** | Shots carry on through enemies, losing 15% of their damage for each one passed. | +2 more enemies (4 in all). | +2 more enemies (6 in all). | Projectile, Spread |
-| **Chaining** | After a hit, the attack jumps to another enemy. Up to three jumps, each at 70% of the last. | 4 jumps, 75% of the last, a little further. | 5 jumps, 80% of the last, further again. | Projectile, Contact |
-| **Ricochet** | Shots bounce off walls, twice at most, and lose 20% of their damage each time. | 3 bounces, losing 15% each. | 4 bounces, losing 10% each. | Projectile |
-| **Returning** | Flies out, then comes back to you, hitting on the way out and on the way back. | 4 hits; the way back hits 20% harder. | 5 hits; the way back hits 40% harder. | Projectile, Spread |
-| **Orbiting** (Delivery) | Three bodies circle you and attack from there. They cannot be hit. They are not pets. | Four bodies. | Five bodies. | Contact, Projectile |
-| **Delayed Detonation** (Delivery) | The blast is placed, marked on the ground, and goes off later or when something steps near. Placed blasts expire after 14 seconds. | 8 placed at once; blasts +20% damage. | 10 placed at once; blasts +40% damage. | Burst |
-| **Lobbed** (Delivery) | Travels in an arc over everything in the way and lands on a marked spot. | Lands sooner; +15% area. | Lands sooner still; +30% area. | Burst, Pool |
-| **Trail** (Delivery) | Lays a piece every 30 units you swim. Nothing is laid while you stand still. Forty pieces at most. | A piece every 24 units, 50 at most. | A piece every 18 units, 60 at most. | Pool |
+| **Homing Instinct** | Shots turn towards their target. If it dies, they fly straight on. Evasion still applies. | Turns harder (7). | Turns harder still (9). | Projectile, Spread |
+| **Body Piercing** | Shots carry on through enemies, losing a little damage for each one passed. | +2 more enemies (4 in all). | +2 more enemies (6 in all). | Projectile, Spread |
+| **Chain Letter** | After a hit, the attack jumps to another enemy, up to three times, a little weaker each time. | 4 jumps, 75% of the last, a little further. | 5 jumps, 80% of the last, further again. | Projectile, Contact |
+| **Ricochet** | Shots bounce off walls, twice at most, losing some damage each time. | 3 bounces, losing 15% each. | 4 bounces, losing 10% each. | Projectile |
+| **Return to Sender** | Flies out, then comes back to you, hitting on the way out and on the way back. | 4 hits; the way back hits 20% harder. | 5 hits; the way back hits 40% harder. | Projectile, Spread |
+| **Hangers-On** (Delivery) | Three bodies circle you and attack from there. They cannot be hit. They are not pets. | Four bodies. | Five bodies. | Contact, Projectile |
+| **Booby Trap** (Delivery) | The blast is placed and marked on the ground. It goes off later, or when something comes near. | 8 placed at once; blasts +20% damage. | 10 placed at once; blasts +40% damage. | Burst |
+| **Lobbed** (Delivery) | Flies in an arc over everything in the way and lands on a marked spot. | Lands sooner; +15% area. | Lands sooner still; +30% area. | Burst, Pool |
+| **Snail Trail** (Delivery) | Leaves a piece behind you as you swim. Nothing is left while you stay still. | A piece every 24 units, 50 at most. | A piece every 18 units, 60 at most. | Pool |
 | **Self-Centred** (Delivery) | Goes off around you rather than at a target. It never hurts you. | 85% damage around you; +15% area. | Full damage around you; +30% area. | Burst, Contact, Spread |
-| **Sweep** (Delivery) | The hit area moves across enemies. Each enemy is hit once per sweep. | A wider sweep. | A wider sweep still. | Contact, Beam |
-| **Anchored Beam** (Delivery) | The beam joins you to the far side of the crowd instead of firing from you. It moves when either end moves. | Reaches 620; 20% thicker. | Reaches 720; 40% thicker. | Beam |
+| **Windscreen Wiper** (Delivery) | The hit area moves across enemies, hitting each one once per sweep. | A wider sweep. | A wider sweep still. | Contact, Beam |
+| **Washing Line** (Delivery) | The beam joins you to the far side of the crowd instead of firing from you. It moves when either end moves. | Reaches 620; 20% thicker. | Reaches 720; 40% thicker. | Beam |
 | **Rapid Volley** | Three shots in quick succession, then a pause. | Four shots a volley. | Five shots a volley. | Projectile, Spread |
-| **Every Nth** | Every fourth attack is empowered. The build-up is shown over you. | Every third attack is empowered. | Every third attack, and harder (x3.2). | Contact, Projectile, Spread, Burst, Beam, Pool |
-| **Growing** | Gets bigger and stronger with distance, time or hits, by up to double. Resets when the attack ends. | Grows to two and a half times. | Grows to triple. | Projectile, Beam, Pool, Contact |
-| **Scaling** | Damage scales with one of your stats, at most doubled. | Scales up to x2.5. | Scales up to x3. | Contact, Projectile, Spread, Burst, Beam, Pool |
-| **Multiplying** | A shot that kills splits into two more at half damage. Split shots never split again. Twelve in flight at most. | Kills split into three; 16 in flight. | Splits hit at 60%; 20 in flight. | Projectile |
-| **Summoned** (Delivery) | The attack is delivered by pets. Four per weapon, eight in total. | Three pets on this weapon. | Four pets on this weapon. | Contact, Projectile |
-| **Gravity Well** | Warps space round the attack: drags enemies towards its centre and bends shots passing through. Three wells at once at most. | Wider wells, four at once. | Wider still, five at once. | Projectile, Burst, Pool |
-| **Lunge** | The attack moves you: forwards through a Contact target, backwards as recoil from Spread and Burst. Up to 160 units. | Up to 240 units. | Up to 320 units. | Contact, Spread, Burst |
+| **Wind-Up** | Every fourth attack is empowered. The count shows over you. | Every third attack is empowered. | Every third attack, and harder (x3.2). | Contact, Projectile, Spread, Burst, Beam, Pool |
+| **Growth Hormone** | Gets bigger and stronger the further it goes, the longer it lasts or the more it hits, up to double. Resets when the attack ends. | Grows to two and a half times. | Grows to triple. | Projectile, Beam, Pool, Contact |
+| **Show-Off** | Damage grows with one of your stats, up to double. | Scales up to x2.5. | Scales up to x3. | Contact, Projectile, Spread, Burst, Beam, Pool |
+| **Go Forth and Multiply** | A shot that kills splits into two weaker shots. Split shots never split again. | Kills split into three; 16 in flight. | Splits hit at 60%; 20 in flight. | Projectile |
+| **Little Helpers** (Delivery) | Pets deliver the attack for you. Up to four on this weapon, eight in total. | Three pets on this weapon. | Four pets on this weapon. | Contact, Projectile |
+| **Gravity Well** | Warps space round the attack: drags enemies towards its centre and bends shots passing through. Three wells at most. | Wider wells, four at once. | Wider still, five at once. | Projectile, Burst, Pool |
+| **Lunge** | The attack moves you: forwards through a Contact target, or backwards as recoil from Spread and Burst. | Up to 240 units. | Up to 320 units. | Contact, Spread, Burst |
 
 ## Upgrades that do not fit
 

@@ -56,8 +56,8 @@ function aimOwnKey(e, d2) { const pt = AIMAT.pt; return -Math.floor((pt ? Math.h
 function aimOwnPick(w, ...dirs) {
   if (!dirs.includes('ownmess')) return '';
   const all = G.weapons.concat(G.spells).filter(Boolean);
-  const chip = (uid, label) => `<button class="chip ${(w.aimAt || 0) === uid ? 'sel' : ''}" data-aimat="${uid}" data-aimw="${w.uid}">${esc(label)}</button>`;
-  return `<div class="chips aimown"><p class="hint">Whose mess:</p>${chip(0, 'ANY MESS')}${all.map(o => chip(o.uid, o.def.name.toUpperCase() + (o === w ? ' (ITSELF)' : ''))).join('')}</div>`;
+  const chip = (uid, label) => uiChip(esc(label), { sel: (w.aimAt || 0) === uid, attrs: `data-aimat="${uid}" data-aimw="${w.uid}"` });
+  return uiChips(`${uiHint('Whose mess:')}${chip(0, 'ANY MESS')}${all.map(o => chip(o.uid, o.def.name.toUpperCase() + (o === w ? ' (ITSELF)' : ''))).join('')}`, 'aimown');
 }
 function aimOwnBind(body, rerender) {
   body.querySelectorAll('[data-aimat]').forEach(b => b.addEventListener('click', () => {

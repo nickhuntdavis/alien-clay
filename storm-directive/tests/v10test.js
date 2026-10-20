@@ -12,7 +12,8 @@ const { chromium } = require('playwright');
   await page.screenshot({ path: 'v10_samples.png' });
   const bad = [];
   const NAMES = ['Baseline', 'Alpha', 'Beta', 'Private Schooled', 'Ordered Online', 'Redtail', 'Prawn Again', 'Not of This World'];
-  if (cards.length !== 8 || NAMES.some((n, i) => !cards[i].includes(n) || /LOCKED/.test(cards[i]))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples, all open: samples10.js)
+  const nine = await page.evaluate(() => typeof S10_BY.acro !== 'undefined'); // (PROPOSED Sample 9, acrosample.js, is a ninth card while it is loaded)
+  if (cards.length !== (nine ? 9 : 8) || NAMES.some((n, i) => !cards[i].includes(n) || /LOCKED/.test(cards[i]))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples, all open: samples10.js)
   await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
   const modes = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-mode]')].map(b => b.dataset.mode));
   if (modes.join() !== 's002,s001,s006,s007') bad.push('experiments: ' + modes); // (v10.35: the Petri Dish, The Race, Endless and Level 1)
@@ -22,7 +23,7 @@ const { chromium } = require('playwright');
     out.seq = G.genes.primary; out.sample = UI.sample; out.mode = !!G.wave;
     if (out.seq !== 's10_baseline' || out.sample !== 's001' || G.wave) bad.push('run: ' + JSON.stringify(out));
     const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10 && !WEAPONS[id].sig);
-    if (ids.length !== 42) bad.push('weapons: ' + ids.length);
+    if (ids.length !== (typeof S10_BY.acro !== 'undefined' ? 45 : 42)) bad.push('weapons: ' + ids.length); // (PROPOSED Sample 9 brings three starters: acro.js)
     const st = genLoot({ kind: 'start' });
     if (st.map(o => o.def.name).join() !== w24Starters('baseline').map(id => WEAPONS[id].name).join() || st.length !== 3) bad.push('start draft is not the three Baseline starters: ' + st.map(o => o.title)); // (weapons24.js)
     st[0].apply();

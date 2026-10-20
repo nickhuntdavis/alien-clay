@@ -59,7 +59,7 @@ function cardOpt(c) {
   const T = c.type ? DRAFT_INT[c.type] : null;
   const tag = c.slot === 'feat' ? (r ? 'FEAT UPGRADE' : 'NEW FEAT') : c.slot === 'genome' || c.slot === 'weaponmut' ? 'MUTATION' : c.kind === 'specialise' ? 'SPECIALISE' : 'UPGRADE';
   return { card: c.id, family: c.family, rarity: c.rarity || 0, tag, icon: c.icon || c.title.slice(0, 1), color: c.color || (T && ELEMENTS[T] ? ELEMENTS[T].color : '#9fb3c8'), elem: T || undefined,
-    title: c.title, sub: (r ? `Rank ${r} > ${r + 1}` : 'New') + (c.maxRank > 1 ? ` of ${c.maxRank}` : '') + (target ? ` | on ${target.def.name}` : ''), desc: c.desc,
+    title: c.title, sub: (r ? `Rank ${r} > ${r + 1}` : 'New') + (c.maxRank > 1 ? ` of ${c.maxRank}` : '') + (target ? ` | on ${target.def.name}` : ''), desc: c.desc, quip: typeof cardVoice === 'function' ? cardVoice(c) : '', // (cardvoice.js)
     apply: () => { const r0 = r; c.apply(G, target); recomputeAll(); draftAfter(c, r0); } };
 }
 // After a Feat card, a Feat reaching level 3 or 5 gets its fork screen.
@@ -124,7 +124,7 @@ function forkCards(req) {
   const own = FORKS['weapon:' + w.id + '@' + req.lv];
   if (own) return own.slice(0, 2).map(o => ({ rarity: 3, tag: 'FORK', icon: 'F', color: elemCol(wElem(w)), title: o.title, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: o.desc, apply: () => { o.apply(G, w); recomputeAll(); } }));
   if (typeof modsFor !== 'function' || typeof MODS10 === 'undefined') return [];
-  return shuffle(modsFor(w)).slice(0, 2).map(id => ({ rarity: 3, tag: 'FORK', icon: 'F', color: elemCol(wElem(w)), title: MODS10[id].name, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: MODS10[id].desc,
+  return shuffle(modsFor(w)).slice(0, 2).map(id => ({ rarity: 3, tag: 'FORK', icon: 'F', color: elemCol(wElem(w)), title: MODS10[id].name, sub: `${w.def.name} | Lv ${req.lv} fork`, desc: MODS10[id].desc, quip: (typeof cardLine === 'function' ? cardLine('mod:' + MODS10[id].name) : ''),
     apply: () => { modAdd(w, id); computeStats(w); } }));
 }
 

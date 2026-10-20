@@ -31,7 +31,8 @@ const { chromium } = require('playwright');
     const uq = G.lootQueue.find(q => q.kind === 'wup');
     if (!uq) bad.push('no weapon upgrade screen at level 4');
     else {
-      UI.openLoot(uq); if (G.state !== 'loot' || !/WEAPON UPGRADE/.test($('lootTitle').textContent)) bad.push('wup screen: ' + G.state + ' ' + $('lootTitle').textContent);
+      UI.openLoot(uq); const tierScreen = uq.kind === 'wupfork' && UI.draft && UI.draft.req === uq; // (one weapon ready with a preview: sidemo.js opens its tabbed tier screen instead, v10.38)
+      if (G.state !== 'loot' || !(tierScreen || /WEAPON UPGRADE/.test($('lootTitle').textContent))) bad.push('wup screen: ' + G.state + ' ' + $('lootTitle').textContent);
       out.wfork = UI.lootOpts.map(o => o.title); if (UI.lootOpts.length !== 3) bad.push('tier 2 cards: ' + out.wfork);
       UI.pickLoot(0); if (wTier(w) !== 2 || w.lvl !== 3 || !(w.up && w.up.p)) bad.push('tier 2 not taken: lvl ' + w.lvl);
     }

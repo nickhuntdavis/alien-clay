@@ -79,12 +79,12 @@ function sbDraftHead(req, weap) {
 }
 function sbDraftInfo(D, o) {
   const rest = UI.lootOpts.filter(x => x !== o);
-  return `<div class="dperk"><div class="drole">${esc(o.tag || '')}</div><div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc)}</div></div>`
+  return `<div class="dperk"><div class="drole">${esc(o.tag || '')}</div><div class="pn">${esc(o.title)}</div><div class="pd">${esc(o.desc)}</div>${o.quip ? `<div class="pq">${esc(o.quip)}</div>` : ''}</div>` // (quip: cardvoice.js)
     + (rest.length ? `<h4>YOU WOULD LOSE</h4><div class="dpath">${rest.map(x => `<div class="dp"><em>${esc(x.tag || '')}</em><b>${esc(x.title)}</b><span>${esc(x.desc)}</span></div>`).join('')}</div>` : '');
 }
 
 // Samples screen: the Sandbox card in the DEVELOPER section, and the five-tap switch on the title.
-const sbCards = () => '<button class="sx-card hero" data-sb="1" style="--c:#9fb3c8"><span class="sx-txt"><i>#010</i><b>Sandbox</b><span>Weapons only. Tap + to add a weapon, the branch mark to upgrade. HEAT button.</span><em>SANDBOX</em></span></button>';
+const sbCards = () => uiSampleCard({ cls: 'hero', attrs: 'data-sb="1"', style: '--c:#9fb3c8', kicker: '#010', name: 'Sandbox', desc: 'Weapons only. Tap + to add a weapon, the branch mark to upgrade. HEAT button.', tag: 'SANDBOX' });
 function sbWire() {
   $('sampleList').querySelectorAll('[data-sb]').forEach(b => b.addEventListener('click', () => {
     UI.sample = 's010'; META.profile = 'human1'; saveMeta(); UI.startGame(true);

@@ -27,6 +27,8 @@ Design proposals for the v10 combat rework of Spawn Prawn. **Not shipped behavio
 | The eight playable samples | `SAMPLES.md` |
 | Autorun modes and autoaim directives | `AUTORUN_AUTOAIM.md` |
 | Tone, the Scientist, the consciousness, card text | `VOICE_GUIDE.md` |
+| Each sample's consciousness persona | `CONSCIOUSNESS.md` |
+| Shared Feat gift lines, per sample | `GIFT_LINES.md` |
 | Follow-on code work these decisions create | `README.md` ("Follow-on work") |
 
 ## What matters
@@ -45,7 +47,7 @@ Design proposals for the v10 combat rework of Spawn Prawn. **Not shipped behavio
   - Feats are "performed", never "cast".
   - **Evasion** is the defence; "dodge" means autorun movement.
   - **Mutations** are the player-facing cards; **modifiers** are the internal attack behaviours. Don't mix them up.
-- **Voice:** Feats speak in the consciousness's voice (it speaks to the sperm as "you", never as the sperm); the Scientist is flat and clinical. British spelling, () not em dashes.
+- **Voice:** Feats speak in the consciousness's voice (a soul not yet born, not the sperm: mostly "we", "you" to blame, "I" only when nakedly selfish; `VOICE_GUIDE.md` 2); the Scientist is flat and clinical. British spelling, () not em dashes.
 - **Merges:** these docs change in parallel sessions. Log each commit in your `storm-directive/changes/<branch>.md` fragment (Systems: "docs only (redesign docs)").
 
 ## What doesn't matter (ignore or treat with care)

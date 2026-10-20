@@ -224,9 +224,9 @@
     for (const o of mem) {
       if (o.dead) continue;
       line(d.x, d.y, o.x, o.y, 4, RED, 0.3);
-      if (weak.includes(o)) { damageEnemy(o, o.hp + o.maxHp, hit(w, 'proj', true, { wname: 'Mutually Assured Destruction' })); fx(w, 'mad'); say('mad' + o.id, o.x, o.y - o.r - 8, 'ASSURED', RED, 12, 0.3); }
+      if (weak.includes(o)) { damageEnemy(o, o.hp + o.maxHp, hit(w, 'proj', true, { wname: 'Till Death Do Us Part' })); fx(w, 'mad'); say('mad' + o.id, o.x, o.y - o.r - 8, 'ASSURED', RED, 12, 0.3); }
       else if (f.p === 'C') damageEnemy(o, dm, hit(w, 'proj', true, { wname: 'Toxic Relationship' }));
-      else if (f.mad && o.boss) damageEnemy(o, dm, hit(w, 'proj', true, { wname: 'Mutually Assured Destruction' }));
+      else if (f.mad && o.boss) damageEnemy(o, dm, hit(w, 'proj', true, { wname: 'Till Death Do Us Part' }));
     }
     if (f.escal && B.w5n > 1) say('esc' + d.id, d.x, d.y - d.r - 24, 'x' + k.toFixed(1), RED, 11, 0.3);
     if (f.knot) { // Tangled: the survivors are pulled together and Conjoined
@@ -241,24 +241,24 @@
   }
   wupReg(RT, {
     A: { name: 'Birds of a Feather', tag: 'Bigger networks', costs: 'bundles last 3 s (from 5).', shows: 'a web of red tape across the crowd.', modes: 'ORBIT keeps the network packed.',
-      lv3: { desc: 'Bundles link up to 6 enemies (from 4) and reach 220 (from 170).', apply: rtP('A') },
-      lv6: [{ name: 'Corporate Merger', desc: 'Two bundles that touch merge into one network of up to 10.', apply: rtSet('merge') },
-        { name: 'Group Chat', desc: 'Every hit shared along the tape reaches bosses in full, however far apart the bundle drifts.', apply: rtSet('chat') }],
-      wild: { name: 'Paper Trail', desc: 'When a bundle ends, its tape stays on the floor and Snares what crosses it for 3 s.', apply: rtSet('trail') } },
+      lv3: { desc: 'Bundles tape together more enemies, from further apart, but come unstuck sooner.', apply: rtP('A') },
+      lv6: [{ name: 'Corporate Merger', desc: 'Two bundles that touch merge into one bigger network.', apply: rtSet('merge') },
+        { name: 'Long Distance', desc: 'Hits shared along the tape reach bosses in full, however far apart the bundle drifts.', apply: rtSet('chat') }],
+      wild: { name: 'Loose Ends', desc: 'When a bundle ends, its tape stays on the floor and Snares whatever crosses it.', apply: rtSet('trail') } },
     B: { name: 'Shared Trauma', tag: 'Share what is wrong with them', costs: 'the shared damage drops to 20%.', shows: 'statuses visibly flowing along the tape.', modes: 'any; strongest with a second weapon that applies statuses.',
-      lv3: { desc: 'When one linked enemy is Snared, Burning or Corroded, its partners gain a quarter of it (once a second).', apply: rtP('B') },
-      lv6: [{ name: 'Puppet Strings', desc: 'A linked enemy that is Possessed drags its partners towards its targets.', apply: rtSet('puppet') },
-        { name: 'Gossip', desc: 'When one partner Ignites or loses a Shell layer, every partner takes the same, once per bundle.', apply: rtSet('gossip') }],
+      lv3: { desc: 'When one linked enemy is Snared, Burning or Corroded, its partners catch a share of it. Shared hit damage drops to 20%.', apply: rtP('B') },
+      lv6: [{ name: 'Bad Influence', desc: 'A linked enemy that is Possessed drags its partners along after its targets.', apply: rtSet('puppet') },
+        { name: 'Gossip', desc: 'When one partner Ignites or loses a Shell layer, every partner does too, once per bundle.', apply: rtSet('gossip') }],
       wild: { name: 'Office Politics', desc: 'Taped enemies blame each other: they bump and shove within their bundle.', apply: rtSet('politics') } },
     C: { name: 'Toxic Relationship', tag: 'Focus until it snaps', costs: 'no damage is shared while they live.', shows: 'the tape twanging tight, then snapping.', modes: 'HUNT focuses one linked enemy down.',
-      lv3: { desc: 'When a linked enemy dies, the tape snaps and its partners take 30% of its max health (echo damage).', apply: rtP('C') },
+      lv3: { desc: 'When a linked enemy dies, the tape snaps and hits its partners hard. No damage is shared while they live.', apply: rtP('C') },
       lv6: [{ name: 'Tangled', desc: 'The snap pulls the survivors together, Conjoining them.', apply: rtSet('knot') },
-        { name: 'Escalation', desc: 'Each snap in the same bundle hits harder than the last (+50% per snap).', apply: rtSet('escal') }],
-      wild: { name: 'Lost in the Post', desc: 'Now and then a bundle includes you: 40% of each hit you take while taped is shared out to it.', apply: rtSet('post') } },
+        { name: 'Escalation', desc: 'Each snap in the same bundle hits harder than the last.', apply: rtSet('escal') }],
+      wild: { name: 'Lost in the Post', desc: 'Now and then a bundle includes you, and much of each hit you take while taped is shared out to it.', apply: rtSet('post') } },
     lv10: [
-      { name: 'Bureaucracy', best: 'A', desc: 'Bundles share 80% of every hit (echo damage).', apply: rtSet('bureau') },
-      { name: 'Red Tape Everywhere', best: 'AB', desc: 'Every enemy on screen is in a bundle; bundles re-form every 3 s.', apply: rtSet('every') },
-      { name: 'Mutually Assured Destruction', best: 'C', desc: 'When a linked enemy dies, partners under 30% health die too (elites 15%; bosses take 30% of its max health).', apply: rtSet('mad') }] });
+      { name: 'Bureaucracy', best: 'A', desc: 'Bundles share most of every hit along the tape.', apply: rtSet('bureau') },
+      { name: 'Small World', best: 'AB', desc: 'Every enemy in view is taped into a bundle, and the bundles re-form every few seconds.', apply: rtSet('every') },
+      { name: 'Till Death Do Us Part', best: 'C', desc: 'When a linked enemy dies, badly hurt partners die with it. Bosses take a heavy hit instead.', apply: rtSet('mad') }] });
 
   // ================================================================ 22. BLOWING BUBBLES (Mucus, Projectile, traps)
   function bbInst(w) {
@@ -371,7 +371,7 @@
       const ts = acquireMany('nearest', 420, b.x, b.y, 5);
       for (let i = 0; i < 5; i++) {
         const t = ts[i % Math.max(1, ts.length)], a = t ? Math.atan2(t.y - b.y, t.x - b.x) : i / 5 * TWO, v = 420;
-        spawnProj(w, b.x, b.y, a, hit(w, 'proj', false, { wname: 'Return to Sender' }), { speed: v, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1.3, max: 1.3, r: 5, dmg: w.s.dmg * 1.2 * weaponMult(w), noMods: true });
+        spawnProj(w, b.x, b.y, a, hit(w, 'proj', false, { wname: 'Spit It Back' }), { speed: v, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1.3, max: 1.3, r: 5, dmg: w.s.dmg * 1.2 * weaponMult(w), noMods: true });
       }
       fx(w, 'sender'); say('snd' + b.x.toFixed(0), b.x, b.y - b.r - 18, 'RETURN TO SENDER', CYAN, 12, 0.5); return false;
     }
@@ -423,24 +423,24 @@
   }
   wupReg(BB, {
     A: { name: 'Big Bubble Trouble', tag: 'Catch the elites', costs: 'one bubble at a time.', shows: 'a large bubble wobbling closed round a big enemy.', modes: 'HUNT.',
-      lv3: { desc: 'Bubbles trap enemies of any size except bosses, but take 0.8 s to close round anything bigger than small.', apply: w => { bbP('A')(w); F(w).bigTrap = 1; } },
+      lv3: { desc: 'Bubbles can trap anything except bosses, though they close slowly round big enemies. Only one bubble at a time.', apply: w => { bbP('A')(w); F(w).bigTrap = 1; } },
       lv6: [{ name: 'Locked In', desc: 'A trapped elite cannot attack, even while the bubble closes, and its Membrane stops regenerating.', apply: bbSet('locked') },
         { name: 'Cannonball', desc: "Popping an elite's bubble launches it like a cannonball through its friends.", apply: bbSet('cannon') }],
-      wild: { name: 'Bath Time', desc: 'Popped bubbles leave soap that you skid on: +40% swim speed for 2 s.', apply: bbSet('bath') } },
+      wild: { name: 'Bath Time', desc: 'Popped bubbles leave soap that you skid on, giving a short burst of speed.', apply: bbSet('bath') } },
     B: { name: 'Bubble Wrap', tag: 'Walls you can move', costs: 'bubbles pop only to shots and you, not to enemies.', shows: 'shots splashing harmlessly on bubbles.', modes: 'KITE and NEST.',
-      lv3: { desc: "Trapped enemies' bubbles block enemy shots.", apply: w => { bbP('B')(w); F(w).wrap = 1; } },
+      lv3: { desc: "Bubbles round trapped enemies block enemy shots. Only shots and you can pop them now, not enemies.", apply: w => { bbP('B')(w); F(w).wrap = 1; } },
       lv6: [{ name: 'Chaperone', desc: 'Bubbles drift towards you and float between you and the nearest shooter.', apply: bbSet('chaperone') },
-        { name: 'Return to Sender', desc: 'When a bubble has blocked 5 shots it pops and fires them back.', apply: bbSet('send') }],
-      wild: { name: 'Snow Globe', desc: 'Bubbles also trap enemy shots and drift with them inside.', apply: bbSet('snow') } },
+        { name: 'Spit It Back', desc: 'When a bubble has blocked enough shots, it pops and fires them back.', apply: bbSet('send') }],
+      wild: { name: 'Snow Globe', desc: 'Bubbles also trap enemy shots, which drift around inside them.', apply: bbSet('snow') } },
     C: { name: 'Pop Goes the Prawn', tag: 'Control bombs', costs: 'bubbles hold enemies for 2 s (from 5).', shows: 'a green ring spreading from each pop.', modes: 'ORBIT keeps bubbles near crowds.',
-      lv3: { desc: 'A pop releases a mucus shockwave (radius 90) that Snares everything near.', apply: bbP('C') },
-      lv6: [{ name: 'Popcorn', desc: 'The shockwave pops other bubbles it reaches (depth 3).', apply: bbSet('chainpop') },
-        { name: 'Stuck Together', desc: 'The shockwave Conjoins enemies it Snares together.', apply: bbSet('stuck') }],
-      wild: { name: 'Bubble Gum', desc: 'A popped bubble sticks to the next enemy that swims through the spot, Snaring it.', apply: bbSet('gumOn') } },
+      lv3: { desc: 'Each pop releases a mucus shockwave that Snares everything nearby. Bubbles hold enemies for less time.', apply: bbP('C') },
+      lv6: [{ name: 'Popcorn', desc: 'The shockwave pops other bubbles it reaches, setting off a short chain.', apply: bbSet('chainpop') },
+        { name: 'Stuck Together', desc: 'The shockwave Conjoins the enemies it Snares.', apply: bbSet('stuck') }],
+      wild: { name: 'Bubble Gum', desc: 'A popped bubble leaves a sticky patch that Snares the next enemy to swim through it.', apply: bbSet('gumOn') } },
     lv10: [
-      { name: 'Cotton Wool', best: 'B', desc: 'Every 6 s you are wrapped in a bubble that blocks your next 3 hits.', apply: bbSet('woolOn') },
+      { name: 'Cotton Wool', best: 'B', desc: 'Every few seconds you are wrapped in a bubble that blocks your next few hits.', apply: bbSet('woolOn') },
       { name: 'Bubble Boy', best: 'A', desc: 'Bubbles trap any enemy except bosses, instantly.', apply: w => { bbInst(w); F(w).bigTrap = 1; F(w).instant = 1; } },
-      { name: 'Hamster Ball', best: 'C', desc: 'Trapped enemies roll at the nearest other enemy and pop on it, trapping that one (depth 3).', apply: bbSet('hamster') }] });
+      { name: 'Hamster Ball', best: 'C', desc: 'Trapped enemies roll into the nearest enemy and pop on it, trapping that one too, a few times over.', apply: bbSet('hamster') }] });
 
   // ================================================================ 23. ONE OF THESE DAYS (Blood, Projectile, mark)
   function ddInst(w) {
@@ -486,7 +486,7 @@
   function ddDeath(w, f, e, sn) { // an enemy died with a date on it
     if (f.p === 'B') ddSpread(w, f, sn.x, sn.y, sn.weak, e);
     if (f.ledger && sn.stored > 0) { // Compound Interest: a quarter of what it owed bursts onto its neighbours
-      forNear(sn.x, sn.y, 130, o => { if (o !== e && !o.dead && toyCan(o)) damageEnemy(o, sn.stored * 0.25, hit(w, 'proj', true, { wname: 'Compound Interest' })); return false; });
+      forNear(sn.x, sn.y, 130, o => { if (o !== e && !o.dead && toyCan(o)) damageEnemy(o, sn.stored * 0.25, hit(w, 'proj', true, { wname: 'Inheritance Tax' })); return false; });
       ring(sn.x, sn.y, 130, CRIM, 0.4, 4); say('led' + e.id, sn.x, sn.y - 20, 'WRITTEN OFF', CRIM, 12, 0.4); fx(w, 'kept');
     }
   }
@@ -554,24 +554,24 @@
   };
   wupReg(DD, {
     A: { name: 'Any Day Now', tag: 'Commit and it comes sooner', costs: 'one mark at a time.', shows: 'the countdown clock spinning faster as you hit it.', modes: 'HUNT.',
-      lv3: { desc: 'The countdown shortens by 0.1 s for every hit the marked enemy takes.', apply: ddP('A') },
-      lv6: [{ name: 'Early Delivery', desc: 'A date that goes off early repeats 50% (from 40%).', apply: ddSet('early') },
-        { name: 'Short Notice', desc: 'Going off early staggers the target.', apply: ddSet('stag') }],
-      wild: { name: 'Gender Reveal', desc: 'Each date goes off with a random extra: a knockback blast, a full Bleed stack or a small heal for you.', apply: ddSet('reveal') } },
-    B: { name: 'Multiplying Responsibilities', tag: 'Spread the dates', costs: 'the main mark repeats only 30%.', shows: 'little clocks hopping enemy to enemy.', modes: 'ORBIT.',
-      lv3: { desc: 'When a date goes off or its enemy dies, the 2 nearest enemies get weaker marks (20% repeat).', apply: ddP('B') },
-      lv6: [{ name: 'Pass the Parcel', desc: 'Weaker marks pass on once more when they go off (depth 2).', apply: ddSet('parcel') },
-        { name: 'Rush Hour', desc: 'When 3 dates go off within 1 s, the third repeats at full strength (40%).', apply: ddSet('rush') }],
+      lv3: { desc: 'Each hit on the marked enemy makes its countdown run out sooner. One mark at a time.', apply: ddP('A') },
+      lv6: [{ name: 'Early Delivery', desc: 'A date that goes off early repeats more of its stored damage.', apply: ddSet('early') },
+        { name: 'Short Notice', desc: 'A date that goes off early staggers the target.', apply: ddSet('stag') }],
+      wild: { name: 'Gender Reveal', desc: 'Each date goes off with a random extra: a knockback blast, a full Bleed stack, or a small heal for you.', apply: ddSet('reveal') } },
+    B: { name: 'Double Booked', tag: 'Spread the dates', costs: 'the main mark repeats only 30%.', shows: 'little clocks hopping enemy to enemy.', modes: 'ORBIT.',
+      lv3: { desc: 'When a date goes off or its enemy dies, the two nearest enemies get weaker marks. The main mark repeats less.', apply: ddP('B') },
+      lv6: [{ name: 'Forwarding Address', desc: 'Weaker marks pass on once more when they go off.', apply: ddSet('parcel') },
+        { name: 'Rush Hour', desc: 'When three dates go off in quick succession, the third repeats at full strength.', apply: ddSet('rush') }],
       wild: { name: 'Morning After', desc: 'A marked enemy that leaves the screen goes off at once.', apply: ddSet('morning') } },
     C: { name: 'Interest Accrued', tag: 'A long wait for a big cheque', costs: 'the slowest payoff in the game.', shows: 'a big ledger number growing over the target.', modes: 'HUNT and HOLD against bosses.',
-      lv3: { desc: 'The countdown is 8 s (from 4) and repeats 70% (from 40%).', apply: ddP('C') },
-      lv6: [{ name: 'Compound Interest', desc: 'The clock shows the stored total, and an enemy that dies early bursts 25% of it onto its neighbours.', apply: ddSet('ledger') },
-        { name: 'Fine Print', desc: 'A mark that goes off on a boss or elite marks it again at once (twice per enemy).', apply: ddSet('fine') }],
-      wild: { name: 'Postponed', desc: 'A single hit on you of over 15% max health is postponed for 2 s and halved (once per 10 s).', apply: ddSet('postp') } },
+      lv3: { desc: 'The countdown runs twice as long but repeats far more of the stored damage. The slowest payoff of any mark.', apply: ddP('C') },
+      lv6: [{ name: 'Inheritance Tax', desc: 'The clock shows the stored total, and an enemy that dies early bursts part of it onto its neighbours.', apply: ddSet('ledger') },
+        { name: 'Fine Print', desc: 'A mark that goes off on a boss or elite marks it again at once, up to twice per enemy.', apply: ddSet('fine') }],
+      wild: { name: 'Postponed', desc: 'Now and then, one big hit on you is delayed for a moment and halved.', apply: ddSet('postp') } },
     lv10: [
-      { name: 'Labour Day', best: 'AC', desc: 'A date that goes off re-marks the same enemy at once, every time (bosses included).', apply: ddSet('labour') },
-      { name: 'The Big Day', best: 'B', desc: 'Marked enemies take +50% damage from everything you own, and you can mark 3 at once.', apply: ddSet('bigday') },
-      { name: 'Induced', best: 'C', desc: 'The repeat is 100% of the stored damage, but only one mark every 10 s.', apply: ddSet('induced') }] });
+      { name: 'Labour Day', best: 'AC', desc: 'A date that goes off re-marks the same enemy at once, every time, bosses included.', apply: ddSet('labour') },
+      { name: 'The Big Day', best: 'B', desc: 'Marked enemies take much more damage from everything you have, and you can mark three at once.', apply: ddSet('bigday') },
+      { name: 'Induced', best: 'C', desc: 'The repeat is all of the stored damage, but you can mark only once every ten seconds.', apply: ddSet('induced') }] });
 
   // ================================================================ 24. SISTER COUSIN (Blood, Projectile, homing)
   function scInst(w) {
@@ -725,24 +725,24 @@
   };
   wupReg(SC, {
     A: { name: 'Family Planning', tag: 'More children', costs: 'each seeker is 25% weaker.', shows: 'a swarm visibly growing through a crowd.', modes: 'ORBIT keeps them fed.',
-      lv3: { desc: 'Every kill makes an extra seeker, not only a split.', apply: scP('A') },
-      lv6: [{ name: 'Runts of the Litter', desc: 'The extra seekers are faster and smaller.', apply: scSet('runts') },
-        { name: 'Overcrowding', desc: 'The cap rises to 18 in flight (from 12).', apply: scSet('over') }],
-      wild: { name: 'Hide and Seek', desc: 'Siblings that lose their target hide in place and ambush the next enemy that comes near.', apply: scSet('hide') } },
+      lv3: { desc: 'Every kill makes an extra seeker, not only a split. Each seeker is weaker.', apply: scP('A') },
+      lv6: [{ name: 'Runts of the Litter', desc: 'The extra seekers are smaller and faster.', apply: scSet('runts') },
+        { name: 'Overcrowding', desc: 'More seekers can be in flight at once.', apply: scSet('over') }],
+      wild: { name: 'Hide and Seek', desc: 'Seekers that lose their target hide in place and ambush the next enemy that comes near.', apply: scSet('hide') } },
     B: { name: 'The Favourite', tag: 'Pick on the weak', costs: 'they ignore big threats.', shows: 'seekers zipping between the wounded.', modes: 'COLLECT follows the kills.',
-      lv3: { desc: 'Seekers always home on the weakest enemy in range.', apply: scP('B') },
-      lv6: [{ name: 'Taste for It', desc: 'A seeker that kills gains +30% damage for its next target.', apply: scSet('taste') },
+      lv3: { desc: 'Seekers always chase the weakest enemy in range and ignore big threats.', apply: scP('B') },
+      lv6: [{ name: 'Taste for It', desc: 'A seeker that kills hits its next target harder.', apply: scSet('taste') },
         { name: 'Nepotism', desc: 'A kill from a seeker that has already killed splits into three instead of two.', apply: scSet('nepo') }],
-      wild: { name: 'Sibling Squabble', desc: 'Siblings that meet bounce off each other and pick different targets.', apply: scSet('squab') } },
+      wild: { name: 'Sibling Squabble', desc: 'Seekers that meet bounce off each other and pick different targets.', apply: scSet('squab') } },
     C: { name: 'Sibling Rivalry', tag: 'Gang up', costs: 'no splitting.', shows: 'a tight knot of seekers diving in together.', modes: 'HUNT.',
-      lv3: { desc: 'Two or more seekers on the same enemy deal +25% each.', apply: scP('C') },
+      lv3: { desc: 'Seekers hitting the same enemy each deal more damage. Seekers no longer split.', apply: scP('C') },
       lv6: [{ name: 'Pack Hunting', desc: 'All seekers in a volley pick the same target.', apply: scSet('pack') },
-        { name: 'Pile-On', desc: 'When 4 seekers hit one enemy within 0.5 s, they apply a full Bleed stack cap at once.', apply: scSet('pile') }],
-      wild: { name: 'Dinner Time', desc: 'A sibling with 3 kills swims back to you and heals you 1% of max health.', apply: scSet('dinner') } },
+        { name: 'Pile-On', desc: 'When four seekers hit one enemy together, it gets a full Bleed stack at once.', apply: scSet('pile') }],
+      wild: { name: 'Dinner Time', desc: 'A seeker with three kills swims back to you and heals you a little.', apply: scSet('dinner') } },
     lv10: [
-      { name: 'Baby Boom', best: 'A', desc: 'Every sibling splits into two on every hit, not just kills (24 in flight at most).', apply: scSet('babyboom') },
-      { name: 'Family Reunion', best: 'B', desc: 'Siblings that miss circle you, eating enemy shots, and relaunch; they last until they hit.', apply: scSet('reunion') },
-      { name: 'Only Child', best: 'C', desc: 'One sibling per volley at x6 damage; it pierces everything and keeps homing until it has killed 5.', apply: scSet('only') }] });
+      { name: 'Breeding Like Rabbits', best: 'A', desc: 'Every seeker splits into two on every hit, not just kills, up to a higher cap.', apply: scSet('babyboom') },
+      { name: 'Family Reunion', best: 'B', desc: 'Seekers that miss circle you, eating enemy shots, then relaunch, and last until they hit.', apply: scSet('reunion') },
+      { name: 'Only Child', best: 'C', desc: 'One seeker per volley that hits far harder, pierces everything and keeps homing until it has killed several.', apply: scSet('only') }] });
 
   // ================================================================ the 'fire' hook for toy weapons
   // fireWeapon (game.js) sends toy weapons (Red Tape, Due Date, Bubble Wand) to toyFire before it asks wupFire, so ask it here.

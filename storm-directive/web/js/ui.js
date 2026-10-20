@@ -165,8 +165,8 @@ const UI = {
 
   makeSlotEl(kind, i) {
     const el = document.createElement('div');
-    el.className = 'slot ' + (kind === 's' ? 'spell' : 'weapon');
-    el.innerHTML = '<div class="ico"></div><div class="lv"></div><div class="mp"></div><div class="dir"></div><div class="bar"><i></i></div>';
+    el.className = uiWeaponSlotClass(kind);
+    el.innerHTML = uiWeaponSlotInner();
     // Tapping a weapon slot switches its target; slots with nothing to aim open the Tackle Box on it.
     holdable(el, () => {
       const w = G && (kind === 's' ? G.spells[i] : G.weapons[i]);
@@ -317,14 +317,14 @@ const UI = {
   setRowHtml(d) {
     const open = UI.setHint === d.id, why = d.off && d.off();
     const head = `<div class="srh"><h3>${esc(d.label)}</h3>${d.hint ? `<button class="shq ${open ? 'on' : ''}" data-sq="${d.id}">?</button>` : ''}${d.slider ? `<span class="svv" id="sv_${d.id}">${Math.round(SET[d.id] * 100)}%</span>` : ''}</div>`;
-    const hint = open ? `<p class="hint">${esc(d.hint)}</p>` : '';
+    const hint = open ? uiHint(esc(d.hint)) : '';
     const ctl = d.slider ? `<input type="range" class="sslide" min="0" max="100" step="5" value="${Math.round(SET[d.id] * 100)}" data-sv="${d.id}">`
-      : `<div class="chips">${d.opts.map(([v, l], i) => `<button class="chip ${SET[d.id] === v ? 'sel' : ''}" data-s="${d.id}" data-i="${i}">${esc(l)}</button>`).join('')}</div>`;
-    return `<div class="sec setrow srow${why ? ' soff' : ''}">${head}${hint}${ctl}${why ? `<p class="hint swhy">${esc(why)}</p>` : ''}</div>`;
+      : uiChips(d.opts.map(([v, l], i) => uiChip(esc(l), { sel: SET[d.id] === v, attrs: `data-s="${d.id}" data-i="${i}"` })).join(''));
+    return uiPanel('', `${head}${hint}${ctl}${why ? uiHint(esc(why), 'swhy') : ''}`, `setrow srow${why ? ' soff' : ''}`);
   },
   renderSettings() {
     const body = $('setBody'), tab = SET.setTab || 'game';
-    const tabsHtml = `<div class="ptabs">${SET_TABS.map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-stab="${id}">${l}</button>`).join('')}</div>`;
+    const tabsHtml = uiTabs(SET_TABS.map(([id, l]) => uiChip(l, { sel: tab === id, attrs: `data-stab="${id}"` })).join(''));
     body.innerHTML = tabsHtml + SETTINGS_DEF.filter(d => d.tab === tab && !(d.hide && d.hide())).map(d => UI.setRowHtml(d)).join('');
     // One delegated handler: the Data tab appends HTML with innerHTML +=, which would wipe per-button listeners.
     body.onclick = ev => {
@@ -334,12 +334,12 @@ const UI = {
       if (q) { UI.setHint = UI.setHint === q.dataset.sq ? null : q.dataset.sq; const y = $('settings').scrollTop; UI.renderSettings(); $('settings').scrollTop = y; }
     };
     if (tab !== 'data') { UI.bindSettingChips(body); return; }
-    body.innerHTML += `<div class="sec setrow"><h3>Back up your save</h3><p class="hint">Copies everything this phone keeps (progress, run log, settings) as one code. Paste it somewhere safe; if you ever reinstall the game, paste it back here.</p><div class="chips"><button class="chip" id="saveExport">COPY SAVE CODE</button></div><textarea id="saveText" style="display:none;width:100%;height:90px;font-size:10px" placeholder="Paste a save code here"></textarea><div class="chips"><button class="chip" id="saveImport">RESTORE FROM A CODE</button></div><p class="hint" id="saveMsg"></p></div>`;
-    body.innerHTML += `<div class="sec setrow"><h3>Reset all progress</h3><p class="hint">Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, swimmer skins, generations, bests, achievements, the Field Guide and the run log. Your settings stay. This cannot be undone.</p><div class="chips"><button class="chip" id="resetAll">RESET ALL PROGRESS</button></div></div>`;
-    body.innerHTML += `<div class="sec setrow"><h3>Tutorials</h3><p class="hint">Brings back every tutorial: Level 0 (Swimming Lessons) on your next START SWIMMING, the tips cards, the effect and damage type cards, and the first-meeting card for each enemy (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Your Field Guide keeps everything you have found.</p><div class="chips"><button class="chip" id="tutReset">RESET TUTORIALS</button></div></div>`;
-    body.innerHTML += `<div class="sec setrow"><h3>Reset settings</h3><p class="hint">Puts every setting on this screen back to how it started. Your progress is not touched.</p><div class="chips"><button class="chip" id="setReset">RESET SETTINGS</button></div></div>`;
-    body.innerHTML += `<div class="sec setrow"><h3>Run log</h3><p class="hint">${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.</p>
-      <div class="chips"><button class="chip" id="logCopy">COPY RUN LOG</button><button class="chip" id="logClear">CLEAR</button></div><p class="hint" id="logMsg"></p><textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea></div>`;
+    body.innerHTML += uiPanel('Back up your save', `${uiHint('Copies everything this phone keeps (progress, run log, settings) as one code. Paste it somewhere safe; if you ever reinstall the game, paste it back here.')}${uiChips(uiChip('COPY SAVE CODE', { attrs: 'id="saveExport"' }))}<textarea id="saveText" style="display:none;width:100%;height:90px;font-size:10px" placeholder="Paste a save code here"></textarea>${uiChips(uiChip('RESTORE FROM A CODE', { attrs: 'id="saveImport"' }))}${uiHint('', '', 'id="saveMsg"')}`, 'setrow');
+    body.innerHTML += uiPanel('Reset all progress', `${uiHint('Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, swimmer skins, generations, bests, achievements, the Field Guide and the run log. Your settings stay. This cannot be undone.')}${uiChips(uiChip('RESET ALL PROGRESS', { attrs: 'id="resetAll"' }))}`, 'setrow');
+    body.innerHTML += uiPanel('Tutorials', `${uiHint(`Brings back every tutorial: Level 0 (Swimming Lessons) on your next START SWIMMING, the tips cards, the effect and damage type cards, and the first-meeting card for each enemy (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Your Field Guide keeps everything you have found.`)}${uiChips(uiChip('RESET TUTORIALS', { attrs: 'id="tutReset"' }))}`, 'setrow');
+    body.innerHTML += uiPanel('Reset settings', `${uiHint('Puts every setting on this screen back to how it started. Your progress is not touched.')}${uiChips(uiChip('RESET SETTINGS', { attrs: 'id="setReset"' }))}`, 'setrow');
+    body.innerHTML += uiPanel('Run log', `${uiHint(`${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.`)}
+      ${uiChips(`${uiChip('COPY RUN LOG', { attrs: 'id="logCopy"' })}${uiChip('CLEAR', { attrs: 'id="logClear"' })}`)}${uiHint('', '', 'id="logMsg"')}<textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea>`, 'setrow');
     $('logCopy').addEventListener('click', () => {
       const text = runLogText();
       copyText(text).then(ok => {
@@ -455,26 +455,26 @@ const UI = {
   renderArmoury() {
     const A = UI.arm, w = UI.armSlot();
     // Slot tabs.
-    let t = `<button class="atab lotab ${A.k === 'L' ? 'sel' : ''}" data-k="L" data-i="0"><b>&#9776;</b><span>LOADOUT</span></button>`;
+    let t = uiLoadoutTab({ cls: 'lotab', sel: A.k === 'L', attrs: 'data-k="L" data-i="0"', icon: '&#9776;', label: 'LOADOUT' });
     const tab = (k, i, x) => {
       const sel = A.k === k && A.i === i;
       if (!x && V10) return ''; // (v10: no empty slots)
-      if (!x) return `<button class="atab empty ${sel ? 'sel' : ''}" data-k="${k}" data-i="${i}"><b>+</b><span>${k === 'w' ? 'WEAPON' : 'FEAT'} ${i + 1}</span></button>`;
-      return `<button class="atab ${sel ? 'sel' : ''} ${k === 's' ? 'spell' : ''}" data-k="${k}" data-i="${i}" style="--c:${elemCol(wElem(x))}"><b>${iconSVG(x.def, 24, elemCol(wElem(x)))}</b><span>Lv ${wTier(x)}</span><em>${x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('')}</em></button>`;
+      if (!x) return uiLoadoutTab({ cls: 'empty', sel, attrs: `data-k="${k}" data-i="${i}"`, icon: '+', label: `${k === 'w' ? 'WEAPON' : 'FEAT'} ${i + 1}` });
+      return uiLoadoutTab({ cls: k === 's' && 'spell', sel, attrs: `data-k="${k}" data-i="${i}"`, style: `--c:${elemCol(wElem(x))}`, icon: iconSVG(x.def, 24, elemCol(wElem(x))), label: `Lv ${wTier(x)}`, pips: x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('') });
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
-    if (!V10) SLOT_LEVELS.filter(l => l > G.level).forEach((l, j) => { const i = G.weapons.length + j; t += `<button class="atab locked ${A.k === 'w' && A.i === i ? 'sel' : ''}" data-k="w" data-i="${i}"><b>LOCK</b><span>Lv ${l}</span></button>`; });
+    if (!V10) SLOT_LEVELS.filter(l => l > G.level).forEach((l, j) => { const i = G.weapons.length + j; t += uiLoadoutTab({ cls: 'locked', sel: A.k === 'w' && A.i === i, attrs: `data-k="w" data-i="${i}"`, icon: 'LOCK', label: `Lv ${l}` }); });
     G.spells.forEach((x, i) => { t += tab('s', i, x); });
     $('armTabs').innerHTML = t;
     $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false, from: A.from }; UI.renderArmoury(); }));
     const body = $('armBody');
     if (A.k === 'L') { body.innerHTML = loadoutHtml(); loadoutBind(body, () => UI.renderArmoury()); return; } // (loadout.js)
     if (A.k === 'w' && A.i >= G.weapons.length) {
-      body.innerHTML = `<div class="sec"><p class="hint">Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS.filter(l => l > G.level)[A.i - G.weapons.length] || '?'} (you are level ${G.level}) and draft a new weapon for it.</p></div>`;
+      body.innerHTML = uiPanel('', uiHint(`Locked weapon slot. You grow a new weapon mount at level ${SLOT_LEVELS.filter(l => l > G.level)[A.i - G.weapons.length] || '?'} (you are level ${G.level}) and draft a new weapon for it.`));
       return;
     }
     if (!w) {
-      body.innerHTML = `<div class="sec"><p class="hint">${A.k === 'w' ? 'Empty weapon mount. You draft a new weapon for it as soon as you are back in the race.' : 'Empty Feat slot. Feats show up in DNA strands while you have a free slot.'}</p></div>`;
+      body.innerHTML = uiPanel('', uiHint(A.k === 'w' ? 'Empty weapon mount. You draft a new weapon for it as soon as you are back in the race.' : 'Empty Feat slot. Feats show up in DNA strands while you have a free slot.'));
       return;
     }
     const d = w.def, s = w.s;
@@ -484,34 +484,34 @@ const UI = {
       <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'Feat' : 'weapon'} <span class="lpips">${Array.from({ length: wTierMax(w) }, (_, i) => `<i class="${i < wTier(w) ? 'on' : ''}"></i>`).join('')}</span> ${wLvText(w)}</div>
       <div class="adesc">${esc(d.desc)}</div>${w.wpN && Object.keys(w.wpN).length ? `<div class="adesc"><b>Tuned:</b> ${Object.entries(w.wpN).map(([id, n]) => esc(PASSIVES[id].name) + ' x' + n).join(', ')}</div>` : ''}</div></div>`;
     // Targeting.
-    h += `<div class="sec"><h3>Targeting directive</h3>`;
-    if (d.noTarget) h += `<p class="hint">Performs itself. It goes off on its own when useful.</p>`;
+    h += `${uiPanelOpen('Targeting directive')}`;
+    if (d.noTarget) h += uiHint('Performs itself. It goes off on its own when useful.');
     else {
       let cur = w.dir;
       if (w.dirs) {
-        h += `<div class="chips">${w.dirs.map((dd, bi) => `<button class="chip ${A.bar === bi ? 'sel' : ''}" data-bar="${bi}">BARREL ${bi + 1}: ${DIRECTIVES.find(x => x.id === dd).short}</button>`).join('')}</div>`;
+        h += uiChips(w.dirs.map((dd, bi) => uiChip(`BARREL ${bi + 1}: ${DIRECTIVES.find(x => x.id === dd).short}`, { sel: A.bar === bi, attrs: `data-bar="${bi}"` })).join(''));
         cur = w.dirs[A.bar];
       }
       h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
-      if (!w.dirs) h += `<h3 style="margin-top:10px">Then (breaks ties, and takes over when nothing fits)</h3><div class="chips">${[{ id: '', short: 'NONE' }].concat(DIRECTIVES.filter(dd => dd.id !== w.dir)).map(dd => `<button class="chip ${(w.dir2 || '') === dd.id ? 'sel' : ''}" data-dir3="${dd.id}">${dd.short}</button>`).join('')}</div>`;
+      if (!w.dirs) h += `<h3 style="margin-top:10px">Then (breaks ties, and takes over when nothing fits)</h3>${uiChips([{ id: '', short: 'NONE' }].concat(DIRECTIVES.filter(dd => dd.id !== w.dir)).map(dd => uiChip(dd.short, { sel: (w.dir2 || '') === dd.id, attrs: `data-dir3="${dd.id}"` })).join(''))}`;
       h += aimOwnPick(w, cur, w.dirs ? null : w.dir2); // (MY OWN MESS: aimat.js)
     }
-    h += `</div>`;
+    h += `${uiPanelClose()}`;
     // How it plays.
     if (!w.isSpell && d.play) {
       const st = d.stars || [3, 3, 3, 3], bar = n => `<div class="dbar">${Array.from({ length: 5 }, (_, k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div>`;
-      h += `<div class="sec"><div class="drole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</div><p class="hint atplay">${esc(d.play)}</p>
-        <div class="dbars"><span>POWER</span>${bar(st[0])}<span>FIRE RATE</span>${bar(st[1])}<span>REACH</span>${bar(st[2])}<span>CROWDS</span>${bar(st[3])}</div></div>`;
+      h += uiPanel('', `<div class="drole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</div>${uiHint(esc(d.play), 'atplay')}
+        <div class="dbars"><span>POWER</span>${bar(st[0])}<span>FIRE RATE</span>${bar(st[1])}<span>REACH</span>${bar(st[2])}<span>CROWDS</span>${bar(st[3])}</div>`);
     }
     // Your upgrades, with this weapon's own twist on them.
     if (!w.isSpell) {
       const tw = Object.keys(ADAPT).filter(k => ADAPT[k][w.id] && (G.passives[k] || 0) > 0).map(k => `<div class="li on"><b>${esc(PASSIVES[k] ? PASSIVES[k].name : k)}</b> x${G.passives[k]}<br><span>${esc(ADAPT[k][w.id])}</span></div>`);
       const soon = Object.keys(ADAPT).filter(k => ADAPT[k][w.id] && !(G.passives[k] > 0)).map(k => PASSIVES[k] ? PASSIVES[k].name : k);
-      if (tw.length || soon.length) h += `<div class="sec"><h3>Upgrade twists</h3>${tw.length ? `<div class="list">${tw.join('')}</div>` : ''}${soon.length ? `<p class="hint">These upgrades work differently on ${esc(d.name)}: ${esc(soon.join(', '))}.</p>` : ''}</div>`;
+      if (tw.length || soon.length) h += uiPanel('Upgrade twists', `${tw.length ? uiList(tw.join('')) : ''}${soon.length ? uiHint(`These upgrades work differently on ${esc(d.name)}: ${esc(soon.join(', '))}.`) : ''}`);
     }
     // Stats.
     const tiles = [];
-    const T = (label, val) => tiles.push(`<div class="tile"><b>${val}</b><span>${label}</span></div>`);
+    const T = (label, val) => tiles.push(uiTile(val, label));
     if (d.kind === 'heal') T('Heals', Math.round(s.dmg * 100) + '%');
     else if (s.dmg) T(d.kind === 'beam' || d.kind === 'zone' || d.kind === 'wake' ? 'Damage/s' : 'Damage', s.dmg.toFixed(s.dmg < 10 ? 1 : 0));
     if (w.isSpell) T('Cooldown', s.cd.toFixed(1) + 's');
@@ -531,14 +531,14 @@ const UI = {
     if (s.chain) T('Chain', s.chain);
     if (s.area && d.kind !== 'wake' && d.kind !== 'siphon') T('Area', Math.round(s.area));
     if (!w.isSpell) T('Crit', Math.round(s.crit * 100) + '%');
-    h += `<div class="tiles">${tiles.join('')}</div>`;
+    h += uiTiles(tiles.join(''));
     // Upgrade tree: every level's gains, with a choice of two perks at each milestone.
     if (!w.isSpell) {
       const tree = weaponTree(d);
       // Collapsed by default: where you are, anything waiting on a pick, and the next milestone.
       const nextBranch = PERK_LEVELS.find(l => l > w.lvl);
       const showRow = l => A.full || l === w.lvl || l === w.lvl + 1 || l === nextBranch || (tree[l] && w.lvl >= l && !w.perks[l]);
-      h += `<div class="sec"><h3>Upgrade tree</h3><div class="tree">`;
+      h += `${uiPanelOpen('Upgrade tree')}<div class="tree">`;
       for (let l = 1; l <= MAX_WLVL; l++) {
         if (!showRow(l)) continue;
         const reached = w.lvl >= l;
@@ -556,69 +556,70 @@ const UI = {
           h += `<div class="trow ${reached ? 'on' : ''}"><span class="tl">Lv ${l}</span><span class="tt">${esc(txt)}</span></div>`;
         }
       }
-      h += `</div><button class="chip small" id="treeToggle" style="margin-top:8px">${A.full ? 'SHOW LESS' : 'SHOW FULL TREE (LV 1 TO ' + MAX_WLVL + ')'}</button>`;
-      if (A.full) h += `<p class="hint">Lv 3 and Lv 8: upgrades any weapon can take (pick one of three). Lv 5 and Lv 10: upgrades only this weapon has (pick one of two): they decide how it plays.</p>`;
-      h += `</div>`;
+      h += `</div>${uiChip(A.full ? 'SHOW LESS' : 'SHOW FULL TREE (LV 1 TO ' + MAX_WLVL + ')', { small: true, attrs: 'id="treeToggle" style="margin-top:8px"' })}`;
+      if (A.full) h += uiHint('Lv 3 and Lv 8: upgrades any weapon can take (pick one of three). Lv 5 and Lv 10: upgrades only this weapon has (pick one of two): they decide how it plays.');
+      h += `${uiPanelClose()}`;
     }
     // Modifiers.
     if (!w.isSpell) {
-      h += `<div class="sec"><h3>Modifiers (${w.mods.length}/${MOD_SLOTS})</h3><div class="mods">`;
+      h += `${uiPanelOpen(`Modifiers (${w.mods.length}/${MOD_SLOTS})`)}<div class="mods">`;
       for (let i = 0; i < MOD_SLOTS; i++) {
         const m = w.mods[i];
-        if (!m) { h += `<div class="modslot empty">Empty slot. Modifier cards come in DNA strands.</div>`; continue; }
+        if (!m) { h += uiModSlot(); continue; }
         const M = MODS[m.id];
         const desc = m.id === 'elemental' ? `Converts this weapon to ${ELEMENTS[m.elem].name} damage.` : M.desc(m.p || 1);
-        h += `<div class="modslot" style="--c:${PAL.upgrade}"><span class="mi">${esc(M.icon)}</span><div><b>${esc(M.name)}</b> <em>power ${(m.p || 1).toFixed(2)}</em><br><span>${esc(desc)}</span></div></div>`;
+        h += uiModSlot(`<span class="mi">${esc(M.icon)}</span><div><b>${esc(M.name)}</b> <em>power ${(m.p || 1).toFixed(2)}</em><br><span>${esc(desc)}</span></div>`, `--c:${PAL.upgrade}`);
       }
       const ok = Object.keys(MODS).filter(id => !MODS[id].kinds || MODS[id].kinds.includes(d.kind));
       const duoRows = DUOS.filter(x => ok.includes(x.a) && ok.includes(x.b)).map(x => {
         const on = s.duos && s.duos.includes(x.name), half = w.mods.some(m => m.id === x.a || m.id === x.b);
         return `<div class="li ${on ? 'on' : ''}"><b style="color:${on ? PAL.upgrade : 'inherit'}">${esc(x.name)}</b> ${on ? '(ACTIVE)' : half ? '(half there)' : ''}<br><span>${esc(MODS[x.a].name)} + ${esc(MODS[x.b].name)}: ${esc(x.desc)}</span></div>`;
       });
-      h += `</div><p class="hint">Can take: ${ok.map(id => MODS[id].name).join(', ')}.</p>`;
-      if (duoRows.length) h += `<h3 style="margin-top:10px">Combos</h3><div class="list">${duoRows.join('')}</div>`;
-      h += `</div>`;
+      h += `</div>${uiHint(`Can take: ${ok.map(id => MODS[id].name).join(', ')}.`)}`;
+      if (duoRows.length) h += `<h3 style="margin-top:10px">Combos</h3>${uiList(duoRows.join(''))}`;
+      h += `${uiPanelClose()}`;
     }
     // Combos: always shown, so you know what to build towards.
     if (!w.isSpell) {
       const cs = wl_combos().filter(c => c.a === w.id || c.b === w.id);
       if (cs.length) {
-        h += `<div class="sec"><h3>Combos</h3><p class="hint">Get both weapons to Lv ${COMBO_LEVEL}+ and a COMBO card turns up in your next box: both keep firing, they gain a new power, and (twice a run) you get a bonus weapon mount.</p><div class="list">`;
+        let rows = '';
         for (const c of cs) {
           const other = c.a === w.id ? c.b : c.a, on = G.combo && G.combo[c.id], ow = owned(other);
-          h += `<div class="li ${on ? 'on' : ''}"><b style="color:${on ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b> ${on ? '(FUSED)' : ow ? `(you have it, Lv ${ow.lvl})` : ''}<br><span>+ ${esc(WEAPONS[other].name)}: ${esc(c.desc)}</span></div>`;
+          rows += `<div class="li ${on ? 'on' : ''}"><b style="color:${on ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b> ${on ? '(FUSED)' : ow ? `(you have it, Lv ${ow.lvl})` : ''}<br><span>+ ${esc(WEAPONS[other].name)}: ${esc(c.desc)}</span></div>`;
         }
-        h += `</div></div>`;
+        h += uiPanel('Combos', uiHint(`Get both weapons to Lv ${COMBO_LEVEL}+ and a COMBO card turns up in your next box: both keep firing, they gain a new power, and (twice a run) you get a bonus weapon mount.`) + uiList(rows));
       }
     }
     // Pairings: secret until found once (on any run).
     if (!w.isSpell) {
       const ps = wl_pairs().filter(q => q.a === w.id || q.b === w.id);
       if (ps.length) {
-        h += `<div class="sec"><h3>Pairings</h3><p class="hint">Own both weapons at Lv ${PAIR_LEVEL}+ and they start working together.</p><div class="list">`;
+        let rows = '';
         for (const q of ps) {
           const other = q.a === w.id ? q.b : q.a, known = META.pairs[q.id], on = G.pair[q.id];
-          h += `<div class="li ${on ? 'on' : ''}"><b style="color:${on ? PAL.upgrade : 'inherit'}">${known ? esc(q.name) : '???'}</b> ${on ? '(ACTIVE)' : ''}<br><span>+ ${esc(WEAPONS[other].name)}${known ? ': ' + esc(q.desc) : ': a secret. Try it.'}</span></div>`;
+          rows += `<div class="li ${on ? 'on' : ''}"><b style="color:${on ? PAL.upgrade : 'inherit'}">${known ? esc(q.name) : '???'}</b> ${on ? '(ACTIVE)' : ''}<br><span>+ ${esc(WEAPONS[other].name)}${known ? ': ' + esc(q.desc) : ': a secret. Try it.'}</span></div>`;
         }
-        h += `</div></div>`;
+        h += uiPanel('Pairings', uiHint(`Own both weapons at Lv ${PAIR_LEVEL}+ and they start working together.`) + uiList(rows));
       }
     }
     // This run, and every run.
     if (!w.isSpell) {
       const W = G.stats.wdmg || {}, mine = W[w.uid] || 0, tot = G.weapons.reduce((a, x) => a + (x ? W[x.uid] || 0 : 0), 0) || 1, life = META.wstats[w.id];
       const mo = masterOf(w), note = w.lvl >= MAX_WLVL ? 'This is your mastery weapon this run.' : mo ? `${mo.def.name} took this run's mastery: this one stops at Lv ${MAX_WLVL - 1}.` : 'Mastery (Lv 10) is still open: the first weapon to get there takes it.';
-      h += `<div class="sec"><h3>Record</h3><div class="tiles"><div class="tile"><b>${fmtNum(mine)}</b><span>Damage this run</span></div><div class="tile"><b>${Math.round(mine / tot * 100)}%</b><span>Of your weapons' damage</span></div>
-        <div class="tile"><b>${life ? life.runs : 0}</b><span>Earlier runs</span></div><div class="tile"><b>${life ? life.born : 0}</b><span>Born with it</span></div></div><p class="hint">${esc(note)}</p></div>`;
+      h += uiPanel('Record', `${uiTiles(`${uiTile(fmtNum(mine), 'Damage this run')}${uiTile(`${Math.round(mine / tot * 100)}%`, `Of your weapons' damage`)}
+        ${uiTile(life ? life.runs : 0, 'Earlier runs')}${uiTile(life ? life.born : 0, 'Born with it')}`)}${uiHint(esc(note))}`);
     }
     // Recycle.
     if (A.k === 'w' && G.weapons.filter(Boolean).length > 1) {
-      h += `<div class="sec"><button class="btn ${A.recycle ? 'danger' : ''}" id="armRecycle">${A.recycle ? 'TAP AGAIN TO RECYCLE (+2 REROLLS, THEN DRAFT A NEW ONE)' : 'RECYCLE WEAPON (DRAFT A REPLACEMENT)'}</button></div>`;
+      h += uiPanel('', uiButton(A.recycle ? 'TAP AGAIN TO RECYCLE (+2 REROLLS, THEN DRAFT A NEW ONE)' : 'RECYCLE WEAPON (DRAFT A REPLACEMENT)', { cls: A.recycle ? 'danger' : '', attrs: 'id="armRecycle"' }));
     }
     body.innerHTML = h;
     body.querySelectorAll('[data-bar]').forEach(b => b.addEventListener('click', () => { A.bar = +b.dataset.bar; UI.renderArmoury(); }));
     aimOwnBind(body, () => { const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y; }); // (aimat.js)
     body.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => {
       if (w.dirs) { w.dirs[A.bar] = b.dataset.dir; if (A.bar === 0) w.dir = b.dataset.dir; } else w.dir = b.dataset.dir;
+      w.dirSet = 1; // (your choice: default boss-first aim no longer applies, autorun.js aimDir)
       if (w.dir2 === w.dir) w.dir2 = null;
       const y = $('armoury').scrollTop; UI.renderArmoury(); $('armoury').scrollTop = y;
     }));
@@ -646,11 +647,9 @@ const UI = {
     c.style.animationDelay = (0.45 + i * 0.12) + 's';
     const pips = Array.from({ length: MAX_WLVL }, (_, k) => `<i class="${k < o.from ? 'on' : k < o.to ? 'up' : ''} ${PERK_LEVELS.includes(k + 1) ? 'ms' : ''}"></i>`).join('');
     const ms = PERK_LEVELS.filter(l => l > o.from && l <= o.to).map(l => d.sig && d.sig[l] ? (l >= 10 ? `Lv ${l}: choose its MASTERY` : `Lv ${l}: choose its SIGNATURE path`) : `Lv ${l}: choose an upgrade`);
-    c.innerHTML = `<canvas></canvas><div class="tag">WEAPON UPGRADE <b>${esc(r.name)}</b></div>
-      <div class="ctitle" style="color:${wc}">${esc(d.name)}</div>
-      <div class="csub">Lv ${o.from} &rsaquo; ${o.to}${o.to === MAX_WLVL ? ' (MAX)' : ''} | ${esc(d.role || '')}</div>
-      <div class="wlv">${pips}</div>
-      <div class="cdesc">${esc(o.desc)}</div>${ms.length ? `<div class="wnext">Unlocks ${esc(ms.join(', '))}</div>` : ''}${UI.boonHtml(o)}${UI.rarityFlair(o)}`;
+    c.innerHTML = uiLootCard({ lead: '<canvas></canvas>', tag: 'WEAPON UPGRADE', rarity: esc(r.name), title: esc(d.name), titleColor: wc,
+      sub: `Lv ${o.from} &rsaquo; ${o.to}${o.to === MAX_WLVL ? ' (MAX)' : ''} | ${esc(d.role || '')}`, meter: pips, desc: esc(o.desc),
+      extra: `${ms.length ? `<div class="wnext">Unlocks ${esc(ms.join(', '))}</div>` : ''}${UI.boonHtml(o)}${UI.rarityFlair(o)}` });
     makePreview(c.querySelector('canvas'), d, { mini: true });
     phButtons(c, o);
     c.addEventListener('click', () => { if (!$('lootCards').classList.contains('ready') || !(UI.lastDown > UI.lootOpenT)) return; UI.pickLoot(i); });
@@ -954,8 +953,8 @@ const UI = {
     wrap.innerHTML = '';
     const nW = UI.lootOpts.filter(o => o.wup && !o.sealed).length;
     UI.lootOpts.forEach((o, i) => {
-      if (nW && i === 0) wrap.insertAdjacentHTML('beforeend', '<div class="lsec">UPGRADE A WEAPON</div>');
-      if (nW && i === nW && i < UI.lootOpts.length) wrap.insertAdjacentHTML('beforeend', '<div class="lsec">OR SPLICE IN</div>');
+      if (nW && i === 0) wrap.insertAdjacentHTML('beforeend', uiLootSection('UPGRADE A WEAPON'));
+      if (nW && i === nW && i < UI.lootOpts.length) wrap.insertAdjacentHTML('beforeend', uiLootSection('OR SPLICE IN'));
       if (o.sealed) { wrap.appendChild(weirdSealedCard(o, i)); return; }
       if (o.wup) { wrap.appendChild(UI.upgradeCard(o, i)); return; }
       const r = RARITIES[o.rarity];
@@ -968,11 +967,9 @@ const UI = {
       // Only weapons and spells have real icons; the two-letter badges are gone until proper icons are drawn.
       c.classList.toggle('noico', !o.def && !(typeof rwIco === 'function' && rwIco(o)));
       const el = o.elem ? `<span class="el" style="color:${elemCol(o.elem)}">${ELEMENTS[o.elem].name}</span>` : '';
-      c.innerHTML = `<div class="tag">${esc(o.tag)} <b>${esc(r.name)}</b></div>
-        ${o.def ? `<div class="cico" style="--ic:${elemCol(o.elem)}">${iconSVG(o.def, 28, elemCol(o.elem))}</div>` : typeof rwIcoHtml === 'function' ? rwIcoHtml(o) : ''}
-        <div class="ctitle"${o.elem && !o.cursed ? ` style="color:${elemCol(o.elem)}"` : ''}>${esc(o.title)}</div>
-        <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(o.desc)}</div>${typeof rwFitHtml === 'function' ? rwFitHtml(o) : ''}${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
+      c.innerHTML = uiLootCard({ tag: esc(o.tag), rarity: esc(r.name), icon: o.def ? iconSVG(o.def, 28, elemCol(o.elem)) : '', iconHtml: !o.def && typeof rwIcoHtml === 'function' ? rwIcoHtml(o) : '', iconColor: o.def ? elemCol(o.elem) : '',
+        title: esc(o.title), titleColor: o.elem && !o.cursed ? elemCol(o.elem) : '', sub: `${esc(o.sub)} ${el}`, desc: esc(o.desc),
+        extra: `${typeof rwFitHtml === 'function' ? rwFitHtml(o) : ''}${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}` });
       // Tap to take it; press and hold for the card in full, with every bit of jargon explained (glossary.js).
       holdable(c, () => cardGlossary(o), ev => {
         if (!$('lootCards').classList.contains('ready')) return;
@@ -1048,8 +1045,8 @@ const UI = {
       return `<div class="li" data-insp="st:${esc(key)}"><b style="color:${colour}">${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div>`;
     });
     const lgt = typeof junkStatusRows === 'function' ? junkStatusRows() : []; // your junk DNA powers too (junk.js)
-    $('stBody').innerHTML = (rows.length ? `<div class="list">${rows.join('')}</div>` : lgt.length ? '' : '<p class="hint">Nothing active right now.</p>')
-      + (lgt.length ? `<h3${rows.length ? ' style="margin-top:10px"' : ''}>Junk DNA (Lateral Gene Transfer)</h3><div class="list">${lgt.join('')}</div>` : '');
+    $('stBody').innerHTML = (rows.length ? uiList(rows.join('')) : lgt.length ? '' : '<p class="hint">Nothing active right now.</p>')
+      + (lgt.length ? `<h3${rows.length ? ' style="margin-top:10px"' : ''}>Junk DNA (Lateral Gene Transfer)</h3>${uiList(lgt.join(''))}` : '');
     UI.show('stpanel');
   },
   closeStatusPanel() { if (G && G.state === 'pause') { G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now(); } },
@@ -1061,24 +1058,23 @@ const UI = {
 
   renderPause() {
     const box = $('pauseBody'), tab = UI.pauseTab || 'you';
-    let h = `<div class="ptabs">${[['you', 'YOU'], ['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE LAB'], ['codex', 'GUIDE']].map(([id, l]) => `<button class="chip ${tab === id ? 'sel' : ''}" data-ptab="${id}">${l}</button>`).join('')}</div>`;
+    let h = uiTabs([['you', 'YOU'], ['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE LAB'], ['codex', 'GUIDE']].map(([id, l]) => uiChip(l, { sel: tab === id, attrs: `data-ptab="${id}"` })).join(''));
     if (tab === 'run') {
-    h += `<div class="sec"><h3>Autorun directive</h3><div class="chips">`;
-    for (const m of moveModes()) h += `<button class="chip ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${m.name}</button>`;
-    h += `</div><p class="hint">${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.</p></div>`;
-    h += `<div class="sec"><h3>Game speed</h3><div class="chips">${SPEED_OPTS.map(v => `<button class="chip ${gameSpeed() === v ? 'sel' : ''}" data-spd="${v}">x${v}</button>`).join('')}</div></div>`;
+    h += uiPanel('Autorun directive', uiChips(moveModes().map(m => uiChip(m.name, { sel: G.moveDir === m.id, attrs: `data-move="${m.id}"` })).join(''))
+      + uiHint(`${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.`));
+    h += uiPanel('Game speed', uiChips(SPEED_OPTS.map(v => uiChip(`x${v}`, { sel: gameSpeed() === v, attrs: `data-spd="${v}"` })).join('')));
 
-    h += `<div class="sec"><h3>The race</h3><p class="hint">Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.eggE && G.eggE.woke ? 'It is one. It is you. Break the egg\'s membrane.' : G.fertile ? 'It is one. It is you. Swim into the egg and break its membrane.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon mounts: ${G.weapons.length}/${MAX_WEAPONS} (next draft at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}.${vetK() ? ` Veteran: your Gene Bank upgrades are strong, so germs have +${Math.round(vetK() * VET.hp * 100)}% HP and +${Math.round(vetK() * VET.dmg * 100)}% damage (bosses and rivals +${Math.round(vetK() * VET.big * 100)}% HP).` : ''} The egg's warm glow heals you (NEST autorun keeps you in it).</p>
-</div>`;
+    h += uiPanel('The race', `${uiHint(`Sperm count: <b>${spermCount().toLocaleString('en-GB')}</b>. ${G.eggE && G.eggE.woke ? 'It is one. It is you. Break the egg\'s membrane.' : G.fertile ? 'It is one. It is you. Swim into the egg and break its membrane.' : G.showdown ? 'The Final Five are here: beat them all and the egg is yours.' : 'It falls as time passes, as you grow and as you kill rival swimmers. At six, the Final Five come for you.'} Weapon mounts: ${G.weapons.length}/${MAX_WEAPONS} (next draft at level ${SLOT_LEVELS.find(l => l > G.level) || 'none'}). Rewind charges ${G.chrono.charges}/${G.chrono.max}.${vetK() ? ` Veteran: your Gene Bank upgrades are strong, so germs have +${Math.round(vetK() * VET.hp * 100)}% HP and +${Math.round(vetK() * VET.dmg * 100)}% damage (bosses and rivals +${Math.round(vetK() * VET.big * 100)}% HP).` : ''} The egg's warm glow heals you (NEST autorun keeps you in it).`)}
+`);
     }
     if (tab === 'show') {
     // Achievements and the show.
     const got = G.show.order;
-    h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | ${showWord()} ${fmtViewers(G.show.viewers)}</h3>`;
-    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The log is waiting.</p>`;
+    h += `${uiPanelOpen(`Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | ${showWord()} ${fmtViewers(G.show.viewers)}`)}`;
+    h += got.length ? uiList(got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')) : uiHint('None yet. The log is waiting.');
     const cur = Object.keys(G.curses);
-    if (cur.length) h += `<p class="hint">Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}</p>`;
-    h += `</div>`;
+    if (cur.length) h += uiHint(`Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}`);
+    h += `${uiPanelClose()}`;
     }
     if (tab === 'build' && V10 && typeof bpHtml === 'function') h += bpHtml(); // (the v10 Build panel: buildpanel.js)
     else if (tab === 'build') {
@@ -1088,23 +1084,23 @@ const UI = {
       const gs = G.genes.active.map(id => `<div class="li on"><b>${esc(PROFILES[id].name)}</b> ${id === G.genes.primary ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}<br><span>${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes.k[id] || 0))}</span></div>`).join('');
       const sy = PROFILE_SYNERGIES.filter(q => synOn(q.a, q.b)).map(q => `<div class="li on"><b style="color:${PAL.upgrade}">${esc(q.name)}</b><br><span>${esc(q.desc)}</span></div>`).join('');
       const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? `<div class="li"><b>Mystery Meat</b><br><span>Something inside is doing something.</span></div>` : `<div class="li"><b>${esc(MUTATIONS[id].name)}</b><br><span>${esc(MUTATIONS[id].desc)}</span></div>`).join('');
-      h += `<div class="sec"><h3>Your genome</h3><div class="list">${gs}${sy}</div><h3 style="margin-top:10px">Mutations (${mutCount()}/${mutCap()})</h3>${ms ? `<div class="list">${ms}</div>` : '<p class="hint">None yet. Skip a sequence splice to take one.</p>'}${typeof junkHtml === 'function' ? junkHtml() : ''}</div>`;
+      h += uiPanel('Your genome', `${uiList(`${gs}${sy}`)}<h3 style="margin-top:10px">Mutations (${mutCount()}/${mutCap()})</h3>${ms ? uiList(ms) : '<p class="hint">None yet. Skip a sequence splice to take one.</p>'}${typeof junkHtml === 'function' ? junkHtml() : ''}`);
     }
     // Synergies.
-    h += `<div class="sec"><h3>Damage-type synergies (own 2+ of one damage type)</h3><div class="list">`;
+    let syn = '';
     for (const el in SYNERGIES) {
       const on = !!G.synergy[el];
-      h += `<div class="li ${on ? 'on' : ''}"><b>${SYNERGIES[el].name}</b> ${on ? '(ACTIVE)' : ''}<br><span>${ELEMENTS[el].name}: ${esc(SYNERGIES[el].desc)}</span></div>`;
+      syn += `<div class="li ${on ? 'on' : ''}"><b>${SYNERGIES[el].name}</b> ${on ? '(ACTIVE)' : ''}<br><span>${ELEMENTS[el].name}: ${esc(SYNERGIES[el].desc)}</span></div>`;
     }
-    h += `</div></div>`;
+    h += uiPanel('Damage-type synergies (own 2+ of one damage type)', uiList(syn));
 
     // Passives.
     const ps = Object.keys(G.passives);
     const rl = Object.keys(G.relics);
-    if (rl.length) h += `<div class="sec"><h3>Boss trophies</h3><div class="list">${rl.map(id => `<div class="li on"><b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b><br><span>${esc(RELICS[id].desc)}</span></div>`).join('')}</div></div>`;
-    h += `<div class="sec"><h3>Power-ups</h3>`;
-    h += ps.length ? `<div class="list">${ps.map(id => `<div class="li on"><b>${esc(PASSIVES[id].name)}</b> x${G.passives[id]}</div>`).join('')}</div>` : `<p class="hint">None yet.</p>`;
-    h += `<p class="hint">Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%</p></div>`;
+    if (rl.length) h += uiPanel('Boss trophies', uiList(rl.map(id => `<div class="li on"><b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b><br><span>${esc(RELICS[id].desc)}</span></div>`).join('')));
+    h += `${uiPanelOpen('Power-ups')}`;
+    h += ps.length ? uiList(ps.map(id => `<div class="li on"><b>${esc(PASSIVES[id].name)}</b> x${G.passives[id]}</div>`).join('')) : uiHint('None yet.');
+    h += `${uiHint(`Crit ${Math.round(G.P.crit * 100)}% | Crit dmg ${Math.round(G.P.critDmg * 100)}% | Armour ${G.P.armour} | Dodge ${Math.round(G.P.dodge * 100)}% | Speed ${Math.round(G.P.speed * 100)}% | Traction ${Math.round(G.P.traction * 100)}%`)}${uiPanelClose()}`;
 
     }
     if (tab === 'you') h += UI.youHtml();
@@ -1122,6 +1118,7 @@ const UI = {
       if (w) {
         if (b.dataset.bar != null && w.dirs) { w.dirs[+b.dataset.bar] = b.dataset.dir; if (b.dataset.bar === '0') w.dir = b.dataset.dir; }
         else w.dir = b.dataset.dir;
+        w.dirSet = 1; // (your choice: autorun.js aimDir)
         const y = box.scrollTop; UI.renderPause(); box.scrollTop = y;
       }
     }));
@@ -1142,10 +1139,10 @@ const UI = {
     for (const id of seqs) if (PROFILES[id]) sq += li(`${esc(PROFILES[id].name)} ${id === pr ? '(PRIMARY)' : '(spliced, half strength)'} Rank ${profRank(id)}`, `${esc(PROFILES[id].trait)}: ${esc(PROFILES[id].fmt(G.genes ? G.genes.k[id] || 0 : 0))}`);
     for (const q of PROFILE_SYNERGIES.filter(q => synOn(q.a, q.b))) sq += li(esc(q.name), esc(q.desc), PAL.upgrade);
     if (rebornK()) { const n = G.memories || 0; sq += li(`Memories of a past life (${n}/6)`, n ? MEMORIES.slice(0, n).map(m => esc(m.text) + ' <i>' + esc(m.gift) + '</i>').join('<br>') : 'None yet: the first surfaces at level 6.', REBORN.color); }
-    h += `<div class="sec"><h3>Sequences and abilities</h3><div class="list">${sq}</div></div>`;
+    h += uiPanel('Sequences and abilities', uiList(sq));
     // Stats.
     const T = [];
-    const t = (label, val) => T.push(`<div class="tile"><b>${val}</b><span>${label}</span></div>`);
+    const t = (label, val) => T.push(uiTile(val, label));
     t('Max HP', Math.round(P.maxHp)); t('Damage', plus(P.might - 1)); t('Fire rate', plus(P.haste - 1));
     t('Reload speed', plus(P.reloadSpd - 1)); t('Crit chance', pc0(P.crit)); t('Crit damage', pc0(P.critDmg));
     t('Armour', P.noArmour ? 'none' : P.armour); t('Dodge', pc0(P.dodge)); t('Regen', (P.regen * Math.max(1, P.maxHp / 120)).toFixed(1) + '/s');
@@ -1154,7 +1151,7 @@ const UI = {
     t('Area', pc0(P.area)); t('Duration', pc0(P.dur)); t('Range', pc0(P.range));
     t('Extra shots', '+' + P.multishot); t('Pierce', '+' + P.pierce); t('Feat cooldown', pc0(P.cdr));
     const el = Object.keys(P.elem).filter(k => Math.abs(P.elem[k] - 1) > 0.001 && ELEMENTS[k]);
-    h += `<div class="sec"><h3>Stats</h3><div class="tiles">${T.join('')}</div>${el.length ? `<p class="hint">Damage types: ${el.map(k => `<b style="color:${elemCol(k)}">${esc(ELEMENTS[k].name)}</b> ${plus(P.elem[k] - 1)}`).join(' | ')}</p>` : ''}</div>`;
+    h += uiPanel('Stats', `${uiTiles(T.join(''))}${el.length ? uiHint(`Damage types: ${el.map(k => `<b style="color:${elemCol(k)}">${esc(ELEMENTS[k].name)}</b> ${plus(P.elem[k] - 1)}`).join(' | ')}`) : ''}`);
     // Spells and weapons.
     const slot = (w, i, k) => {
       const c = elemCol(wElem(w)), sub = [];
@@ -1173,28 +1170,28 @@ const UI = {
       return `<button class="yslot" data-yk="${k}" data-yi="${i}" style="--c:${c}"><i>${iconSVG(w.def, 30, c)}</i><div><b>${esc(w.def.name)}</b> <em>Lv ${wTier(w)}${!w.isSpell && w.lvl >= MAX_WLVL ? ' MASTERY' : ''}</em><br><span>${sub.join('<br>')}</span></div></button>`;
     };
     const sp = G.spells.map((w, i) => w && slot(w, i, 's')).filter(Boolean), wp = G.weapons.map((w, i) => w && slot(w, i, 'w')).filter(Boolean);
-    h += `<div class="sec"><h3>Feats (${sp.length}/${G.spells.length})</h3>${sp.length ? sp.join('') : '<p class="hint">None yet. Feats show up in DNA strands while you have a free slot.</p>'}</div>`;
-    h += `<div class="sec"><h3>Weapons (${wp.length}/${MAX_WEAPONS})</h3>${wp.join('')}<p class="hint">Tap one to open it in the Tackle Box.</p></div>`;
+    h += uiPanel(`Feats (${sp.length}/${G.spells.length})`, sp.length ? sp.join('') : '<p class="hint">None yet. Feats show up in DNA strands while you have a free slot.</p>');
+    h += uiPanel(`Weapons (${wp.length}/${MAX_WEAPONS})`, `${wp.join('')}${uiHint('Tap one to open it in the Tackle Box.')}`);
     // The rest.
     let r = '';
     const cb = Object.keys(G.superCombo || {}).filter(id => SUPER_BY[id]).map(id => li(esc(SUPER_BY[id].name) + ' (SUPER)', esc(SUPER_BY[id].desc), SUPER_COLOR))
       .concat(Object.keys(G.combo || {}).filter(id => COMBO_BY[id]).map(id => li(esc(COMBO_BY[id].name), esc(COMBO_BY[id].desc), PAL.upgrade)));
     const pa = PAIRINGS.filter(q => G.pair && G.pair[q.id]).map(q => li(esc(q.name), esc(q.desc), PAL.upgrade));
-    if (cb.length || pa.length) r += `<h3>Combos and pairings</h3><div class="list">${cb.join('')}${pa.join('')}</div>`;
+    if (cb.length || pa.length) r += `<h3>Combos and pairings</h3>${uiList(`${cb.join('')}${pa.join('')}`)}`;
     const sy = Object.keys(SYNERGIES).filter(e => G.synergy[e]).map(e => li(esc(SYNERGIES[e].name), `${ELEMENTS[e].name}: ${esc(SYNERGIES[e].desc)}`));
-    if (sy.length) r += `<h3>Damage-type synergies</h3><div class="list">${sy.join('')}</div>`;
+    if (sy.length) r += `<h3>Damage-type synergies</h3>${uiList(sy.join(''))}`;
     const ms = Object.keys(G.mut).map(id => G.mutHidden[id] ? li('Mystery Meat', 'Something inside is doing something.') : li(esc(MUTATIONS[id].name), esc(MUTATIONS[id].desc)));
     if (typeof junkHtml === 'function') r += junkHtml(true);
-    r += `<h3>Mutations (${mutCount()}/${mutCap()})</h3>${ms.length ? `<div class="list">${ms.join('')}</div>` : '<p class="hint">None yet.</p>'}`;
+    r += `<h3>Mutations (${mutCount()}/${mutCap()})</h3>${ms.length ? uiList(ms.join('')) : '<p class="hint">None yet.</p>'}`;
     const rl = Object.keys(G.relics || {}).filter(id => RELICS[id]).map(id => li(esc(RELICS[id].name), esc(RELICS[id].desc), PAL.reward));
-    if (rl.length) r += `<h3>Trophies</h3><div class="list">${rl.join('')}</div>`;
+    if (rl.length) r += `<h3>Trophies</h3>${uiList(rl.join(''))}`;
     const bn = Object.keys(G.boons || {}).filter(id => BOONS[id]).map(id => li(esc(BOONS[id].name), esc(BOONS[id].desc), PAL.reward));
-    if (bn.length) r += `<h3>Boons</h3><div class="list">${bn.join('')}</div>`;
+    if (bn.length) r += `<h3>Boons</h3>${uiList(bn.join(''))}`;
     const ps = Object.keys(G.passives).filter(id => PASSIVES[id] && G.passives[id] > 0);
-    r += `<h3>Power-ups</h3>${ps.length ? `<div class="list">${ps.map(id => li(`${esc(PASSIVES[id].name)} x${G.passives[id]}`, esc(PASSIVES[id].fmt(PASSIVES[id].v * G.passives[id])))).join('')}</div>` : '<p class="hint">None yet.</p>'}`;
+    r += `<h3>Power-ups</h3>${ps.length ? uiList(ps.map(id => li(`${esc(PASSIVES[id].name)} x${G.passives[id]}`, esc(PASSIVES[id].fmt(PASSIVES[id].v * G.passives[id])))).join('')) : '<p class="hint">None yet.</p>'}`;
     const cu = Object.keys(G.curses || {}).map(id => CURSES.find(c => c.id === id)).filter(Boolean);
-    if (cu.length) r += `<h3>Curses</h3><div class="list">${cu.map(c => li(esc(c.name), `${esc(c.boon)}. ${esc(c.bane)}.`, PAL.danger)).join('')}</div>`;
-    h += `<div class="sec you-rest">${r}</div>`;
+    if (cu.length) r += `<h3>Curses</h3>${uiList(cu.map(c => li(esc(c.name), `${esc(c.boon)}. ${esc(c.bane)}.`, PAL.danger)).join(''))}`;
+    h += uiPanel('', r, 'you-rest');
     return h;
   },
   // From UI.tick: animate the portrait while the YOU page is open.
@@ -1237,9 +1234,8 @@ const UI = {
     };
     ART.s009 = '<svg viewBox="0 0 120 120"><path d="M44 112V40a16 16 0 0 1 32 0v72" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="34" r="11" fill="currentColor" opacity=".85"/><circle cx="60" cy="34" r="15" fill="none" stroke="currentColor" stroke-width="1" opacity=".6"/><path d="M44 66h32M44 88h32" stroke="currentColor" stroke-width="1.5" opacity=".6"/><ellipse cx="60" cy="100" rx="3" ry="2.2" fill="currentColor"/></svg>'; // (Level 0: a tube with the egg at the top)
     const ACC = { s002: '#5fd4e8', s001: '#ffd6e8', s006: '#ffd23f', s000: '#9fb3c8', s009: '#ffb3c6' };
-    const card = (s, hero) => `<button class="sx-card ${hero ? 'hero' : ''} ${shut(s) ? 'locked' : ''}" data-sample="${s.id}" style="--c:${ACC[s.id] || '#9fb3c8'}">
-      <span class="sx-art">${ART[s.id] || ''}</span>
-      <span class="sx-txt"><i>#${s.no} | ${esc(shut(s) ? 'LOCKED' : s.tag || 'IN STOCK')}</i><b>${esc(s.name)}</b>${hero ? `<span>${esc(s.desc)}</span>` : ''}<em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
+    const card = (s, hero) => uiSampleCard({ cls: uiCls(hero && 'hero', shut(s) && 'locked'), attrs: `data-sample="${s.id}"`, style: `--c:${ACC[s.id] || '#9fb3c8'}`, art: ART[s.id] || '',
+      kicker: `#${s.no} | ${esc(shut(s) ? 'LOCKED' : s.tag || 'IN STOCK')}`, name: esc(s.name), desc: hero ? esc(s.desc) : undefined, tag: esc(shut(s) ? (s.lockText || 'Locked.') : extra(s)) });
     const modes = ['s001', 's006'].concat(dev ? ['s000'] : []).map(by).filter(Boolean);
     // The campaign: a way into the body, one region at a time (the far ones are only rumours so far).
     const lvls = [by('s009'), by('s007'), by('s008'), { teaser: true, name: 'Level 3', no: '?' }, { teaser: true, name: 'Level 4', no: '?' }];
@@ -1247,10 +1243,10 @@ const UI = {
       ? `<div class="sx-node tease"><span class="sx-dot">${i}</span><span class="sx-ni"><b>${esc(s.name)}</b><em>UNCHARTED</em></span></div>`
       : `<button class="sx-node ${shut(s) ? 'locked' : 'open'}" data-sample="${s.id}"><span class="sx-dot">${i}</span><span class="sx-ni"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span><em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
     // A brand-new save sees one choice only: Level 0, the tutorial. The rest opens once it is passed or skipped (school.js).
-    if (schoolFresh()) $('sampleList').innerHTML = `<div class="sx-h">START HERE</div>${card(by('s009'), true)}<p class="hint" style="margin:14px 4px">Everything else opens once you have passed or skipped your swimming lessons.</p>${dev ? `<div class="sx-grid"><button class="sx-card" id="devAll" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Unlock Everything</b><em>${UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA'}</em></span></button><button class="sx-card" id="devStart" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Reset Starters</b><em>DRAFTS USE RUN SEQUENCES ONLY</em></span></button></div>` : ''}`; // (developer mode stays reachable on a fresh save)
-    else $('sampleList').innerHTML = `<div class="sx-h">MAIN EVENT</div>${card(by('s002'), true)}
-      <div class="sx-h">QUICK RUNS</div><div class="sx-grid">${modes.map(s => card(s, false)).join('')}${dev ? `<button class="sx-card" id="devAll" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Unlock Everything</b><em>${UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA'}</em></span></button><button class="sx-card" id="devStart" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Reset Starters</b><em>DRAFTS USE RUN SEQUENCES ONLY</em></span></button>` : ''}</div>
-      <div class="sx-h">THE CAMPAIGN <span>INTO THE BODY</span></div><div class="sx-path">${lvls.map(node).join('')}</div>`;
+    if (schoolFresh()) $('sampleList').innerHTML = `${uiSectionHead('START HERE')}${card(by('s009'), true)}${uiHint('Everything else opens once you have passed or skipped your swimming lessons.', '', 'style="margin:14px 4px"')}${dev ? `<div class="sx-grid"><button class="sx-card" id="devAll" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Unlock Everything</b><em>${UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA'}</em></span></button><button class="sx-card" id="devStart" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Reset Starters</b><em>DRAFTS USE RUN SEQUENCES ONLY</em></span></button></div>` : ''}`; // (developer mode stays reachable on a fresh save)
+    else $('sampleList').innerHTML = `${uiSectionHead('MAIN EVENT')}${card(by('s002'), true)}
+      ${uiSectionHead('QUICK RUNS')}<div class="sx-grid">${modes.map(s => card(s, false)).join('')}${dev ? uiSampleCard({ attrs: 'id="devAll"', style: '--c:#ff9f43', art: ART.s000, kicker: 'DEVELOPER', name: 'Unlock Everything', tag: UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA' }) + uiSampleCard({ attrs: 'id="devStart"', style: '--c:#ff9f43', art: ART.s000, kicker: 'DEVELOPER', name: 'Reset Starters', tag: 'DRAFTS USE RUN SEQUENCES ONLY' }) : ''}</div>
+      ${uiSectionHead('THE CAMPAIGN <span>INTO THE BODY</span>')}<div class="sx-path">${lvls.map(node).join('')}</div>`;
     $('sampleList').querySelectorAll('[data-sample]').forEach(b => b.addEventListener('click', () => {
       const s = SAMPLES.find(x => x.id === b.dataset.sample);
       if (!s.open || (s.locked && s.locked())) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); if (s.lockText) UI.toast(s.lockText.toUpperCase()); return; }
@@ -1278,16 +1274,16 @@ const UI = {
 
   // ---------------------------------------------------------------- Field Guide (from the pause menu, or the title screen between runs)
   codexHtml() {
-    const run = !!G, cyan = PAL.upgrade, sec = UI.codexSec || 'all', box = (title, inner, hint) => `<div class="sec"><h3>${title}</h3>${hint ? `<p class="hint">${hint}</p>` : ''}${inner}</div>`;
+    const run = !!G, cyan = PAL.upgrade, sec = UI.codexSec || 'all', box = (title, inner, hint) => uiPanel(`${title}`, `${hint ? uiHint(hint) : ''}${inner}`);
     const wids = wl_wids(), used = wids.filter(id => wl_stat(id));
     const pf = wl_pairs().filter(q => META.pairs[q.id]), qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
     const beasts = Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length;
     const met = Object.keys(META.bosses).length, rel = Object.keys(RELICS).filter(id => META.relics[id]);
     const pids = wl_profiles(), pu = pids.filter(profUnlocked), mids = Object.keys(MUTATIONS), mf = mids.filter(id => META.muts[id]);
     const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts, all = wids.length + wl_pairs().length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + Object.keys(ENEMY_INTRO).length;
-    let h = `<div class="sec cdxhead"><div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>FIELD GUIDE COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
-      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${wl_combos().filter(c => META.combos && META.combos[c.id]).length}/${wl_combos().length}</span><span>Pairings ${pf.length}/${wl_pairs().length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div></div>`;
-    h += `<div class="chips cdxtabs">${[['all', 'ALL'], ['samples', 'SAMPLES'], ['weapons', 'WEAPONS'], ['feats', 'FEATS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => `<button class="chip ${sec === id ? 'sel' : ''}" data-cdx="${id}">${l}</button>`).join('')}</div>`;
+    let h = uiPanel('', `<div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>FIELD GUIDE COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
+      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${wl_combos().filter(c => META.combos && META.combos[c.id]).length}/${wl_combos().length}</span><span>Pairings ${pf.length}/${wl_pairs().length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div>`, 'cdxhead');
+    h += uiChips([['all', 'ALL'], ['samples', 'SAMPLES'], ['weapons', 'WEAPONS'], ['feats', 'FEATS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => uiChip(l, { sel: sec === id, attrs: `data-cdx="${id}"` })).join(''), 'cdxtabs');
     const show = id => sec === 'all' || sec === id;
     if (show('weapons')) {
       let l = '';
@@ -1295,7 +1291,7 @@ const UI = {
         const d = WEAPONS[id], r = wl_stat(id), own = run && G.weapons.some(w => w && (w.sid || w.id) === id);
         l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, r ? elemCol(d.elem) : '#ffffff40')}</span><div><b style="color:${r ? 'inherit' : '#ffffff80'}">${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</span><br><span>${esc(d.play || d.desc)}</span><br><em>${r ? `${r.runs} run${r.runs > 1 ? 's' : ''}, born ${r.born}, best Lv ${r.best}` : 'Never taken into a run.'}</em></div></div>`;
       }
-      h += box(`Weapons (${used.length}/${wids.length} used)`, `<div class="list">${l}</div>`, 'Every weapon in the fridge. Take one into a run to log it.');
+      h += box(`Weapons (${used.length}/${wids.length} used)`, uiList(l), 'Every weapon in the fridge. Take one into a run to log it.');
     }
     if (show('feats')) {
       // Every Feat: what it costs, what it does, and its two Lv 4 paths.
@@ -1307,15 +1303,15 @@ const UI = {
         const seq = d.seqOnly && PROFILES[d.seqOnly] ? ` (${esc(PROFILES[d.seqOnly].name)} only)` : '';
         l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, elemCol(d.elem))}</span><div><b>${esc(d.name)}</b> <span class="brole">${esc(ELEMENTS[d.elem].name.toUpperCase())}, ${cost}${seq}</span><br><span>${esc(d.desc)}</span>${F ? `<br><span class="hint">Lv ${SPELL_FORK_LV}: <b>${esc(F[0].name)}</b> (${esc(F[0].desc)}) or <b>${esc(F[1].name)}</b> (${esc(F[1].desc)})</span>` : ''}</div></div>`;
       }
-      h += box(`Feats (${Object.keys(SPELLS).filter(wl_feat).length})`, `<div class="list">${l}</div>`, 'Every Feat in the Tackle Box. Attacking Feats are paid for in stamina; the rest wait on a cooldown.');
+      h += box(`Feats (${Object.keys(SPELLS).filter(wl_feat).length})`, uiList(l), 'Every Feat in the Tackle Box. Attacking Feats are paid for in stamina; the rest wait on a cooldown.');
     }
     if (show('samples') && typeof slCodex === 'function') h += slCodex(box); // (every sample with its live picture: samplelooks.js)
     if (show('genes')) {
-      h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, `<div class="list">${pids.map(id => `<div class="li ${run && genesOn(id) ? 'on' : ''}">${UI.profileHtml(id, { full: true })}</div>`).join('')}</div>`, 'Pick your Primary Sequence after choosing a sample, before a run.');
-      if (!wl_on()) h += box('Sequence synergies', `<div class="list">${PROFILE_SYNERGIES.map(q => `<div class="li ${run && synOn(q.a, q.b) ? 'on' : ''}"><b>${esc(q.name)}</b><br><span>${esc(PROFILES[q.a].name)} + ${esc(PROFILES[q.b].name)}: ${esc(q.desc)}</span></div>`).join('')}</div>`);
+      h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, uiList(pids.map(id => `<div class="li ${run && genesOn(id) ? 'on' : ''}">${UI.profileHtml(id, { full: true })}</div>`).join('')), 'Pick your Primary Sequence after choosing a sample, before a run.');
+      if (!wl_on()) h += box('Sequence synergies', uiList(PROFILE_SYNERGIES.map(q => `<div class="li ${run && synOn(q.a, q.b) ? 'on' : ''}"><b>${esc(q.name)}</b><br><span>${esc(PROFILES[q.a].name)} + ${esc(PROFILES[q.b].name)}: ${esc(q.desc)}</span></div>`).join('')));
     }
     if (show('muts')) {
-      h += box(`Mutations found (${mf.length}/${mids.length})`, `<div class="list">${mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')}</div>`, 'They come from skipping a sequence splice, and from stashes hidden in campaign levels: pick one of four.');
+      h += box(`Mutations found (${mf.length}/${mids.length})`, uiList(mids.map(id => { const k = META.muts[id], M = MUTATIONS[id]; return `<div class="li ${run && G.mut && G.mut[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.name) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')), 'They come from skipping a sequence splice, and from stashes hidden in campaign levels: pick one of four.');
     }
     if (show('pairs')) {
       let lc = '';
@@ -1325,21 +1321,21 @@ const UI = {
         const sa = seqOf(c.a), sb = seqOf(c.b);
         lc += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b>${on ? ' (FUSED)' : known ? '' : ' (not fused yet)'}<br><span>${esc(WEAPONS[c.a].name)} + ${esc(WEAPONS[c.b].name)} (${sa === sb ? esc(sa) : esc(sa) + ' + ' + esc(sb) + ', needs a splice'}): ${esc(c.desc)}</span></div>`;
       }
-      h += box(`Combos fused (${wl_combos().filter(c => META.combos && META.combos[c.id]).length}/${wl_combos().length})`, `<div class="list">${lc}</div>`, `Get both weapons to Lv ${COMBO_LEVEL}+ and the game stops to fuse them. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
+      h += box(`Combos fused (${wl_combos().filter(c => META.combos && META.combos[c.id]).length}/${wl_combos().length})`, uiList(lc), `Get both weapons to Lv ${COMBO_LEVEL}+ and the game stops to fuse them. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
       // Super combos: the recipe shows, the name and power stay secret until you fuse one.
       const sl = wl_supers().map(s => { const known = META.supers && META.supers[s.id], on = run && superOn(s.id); return `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? SUPER_COLOR : 'inherit'}">${known ? esc(s.name) : '???'}</b>${on ? ' (FUSED)' : ''}<br><span>${esc(COMBO_BY[s.x].name)} + ${esc(COMBO_BY[s.y].name)}${known ? ': ' + esc(s.desc) : '. What it does is a secret.'}</span></div>`; }).join('');
-      h += box(`Super combos (${wl_supers().filter(s => META.supers && META.supers[s.id]).length}/${wl_supers().length})`, `<div class="list">${sl}</div>`, `Fuse both combos, then get every weapon in them to Lv ${SUPER_LEVEL}+, and the two combos fuse again. Hardly anyone sees these.`);
+      h += box(`Super combos (${wl_supers().filter(s => META.supers && META.supers[s.id]).length}/${wl_supers().length})`, uiList(sl), `Fuse both combos, then get every weapon in them to Lv ${SUPER_LEVEL}+, and the two combos fuse again. Hardly anyone sees these.`);
       let l = '';
       for (const q of wl_pairs()) {
         const known = META.pairs[q.id], on = run && G.pair && G.pair[q.id];
         l += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? cyan : 'inherit'}">${known ? esc(q.name) : '???'}</b>${on ? ' (ACTIVE)' : ''}<br><span>${known ? esc(WEAPONS[q.a].name) + ' + ' + esc(WEAPONS[q.b].name) + ': ' + esc(q.desc) : 'Two weapons, both Lv ' + PAIR_LEVEL + '+. Nobody has told you which.'}</span></div>`;
       }
-      h += box(`Pairings found (${pf.length}/${wl_pairs().length})`, `<div class="list">${l}</div>`);
+      h += box(`Pairings found (${pf.length}/${wl_pairs().length})`, uiList(l));
     }
     if (show('secrets')) {
       let l = '';
       for (const id of qs) { const known = META.quirks[id], Q = QUIRKS[id]; l += `<div class="li ${run && G.quirks && G.quirks[id] ? 'on' : ''}"><b style="color:${known ? cyan : 'inherit'}">${known ? esc(Q.name) : '???'}</b><br><span>${known ? esc(Q.desc) : 'Undiscovered.'}</span></div>`; }
-      h += box(`Secrets found (${qf.length}/${qs.length})`, `<div class="list">${l}</div>`, 'Things that happen when the rules collide. Nobody will tell you what they are.');
+      h += box(`Secrets found (${qf.length}/${qs.length})`, uiList(l), 'Things that happen when the rules collide. Nobody will tell you what they are.');
     }
     if (show('beasts')) {
       // The bestiary: every enemy type you have met (introduced on first sighting, see intro.js).
@@ -1354,8 +1350,8 @@ const UI = {
         const m = META.seen && META.seen['rival_' + R.id];
         rv += `<div class="li cdxe">${portraitTag('rival', R.id, m)}<div><b${m ? ` style="color:${R.color}"` : ''}>${m ? esc(R.name) : '???'}</b>${m ? ' <em>' + esc(R.nick) + '</em>' : ''}<br><span>${m ? esc(R.bio) + UI.rivalBars(R) + R.specs.map(x => '<b>' + esc(x.name) + '</b>: ' + esc(x.desc)).join('<br>') + '<br><i>' + esc(R.tip) + '</i>' : 'Not met yet.'}</span></div></div>`;
       }
-      h += box(`Rivals (${RIVALS.filter(R => META.seen && META.seen['rival_' + R.id]).length}/${RIVALS.length} met)`, `<div class="list">${rv}</div>`, 'The other swimmers in the race, with their specialities.');
-      h += box(`Enemies (${beasts}/${Object.keys(ENEMY_INTRO).length} met)`, `<div class="list">${l}</div>`, 'Every enemy type you have met, with how to beat it. Settings > Tutorial lets you meet them again.');
+      h += box(`Rivals (${RIVALS.filter(R => META.seen && META.seen['rival_' + R.id]).length}/${RIVALS.length} met)`, uiList(rv), 'The other swimmers in the race, with their specialities.');
+      h += box(`Enemies (${beasts}/${Object.keys(ENEMY_INTRO).length} met)`, uiList(l), 'Every enemy type you have met, with how to beat it. Settings > Tutorial lets you meet them again.');
     }
     if (show('bosses')) {
       let l = '';
@@ -1364,20 +1360,20 @@ const UI = {
         const rl = b.relics.map(id => (META.relics[id] ? `<b style="color:${PAL.reward}">${esc(RELICS[id].name)}</b>` : esc(RELICS[id].name))).join(', ');
         l += `<div class="li cdxe boss ${now ? 'on' : ''}">${portraitTag('boss', b.id, m)}<div><b>${m ? esc(b.name) : '???'}</b>${m ? ' <em>' + esc(b.title) + '</em>' : ''}<br><span>${m ? 'Weak to: ' + esc(b.weaknesses.join('; ')) + '. Relics: ' + rl : 'Not met yet.'}</span></div></div>`;
       }
-      h += box(`The boss ward (${met}/${BOSSES.length} met, ${rel.length}/${Object.keys(RELICS).length} trophies taken)`, `<div class="list">${l}</div>`, `Every run you meet ${BOSSES_PER_RUN} of them, in a random order. Trophies you have taken are in gold.`);
+      h += box(`The boss ward (${met}/${BOSSES.length} met, ${rel.length}/${Object.keys(RELICS).length} trophies taken)`, uiList(l), `Every run you meet ${BOSSES_PER_RUN} of them, in a random order. Trophies you have taken are in gold.`);
     }
     if (show('rules')) {
       h += box('Rewind', '', `<b>REWIND</b> sends you ${CHRONO.window}s into the past. Your future self stays behind as a Paradox Echo: it retraces the erased timeline backwards firing your weapons, then collapses in a bullet-clearing blast. If you would die with a charge ready, Rewind triggers automatically.`);
       let l = '';
       for (const id in REACTIONS) l += `<div class="li"><b>${REACTIONS[id].name}</b> ${run && G.stats.reactBy[id] ? 'x' + G.stats.reactBy[id] : ''}<br><span>${esc(REACTIONS[id].desc)}</span></div>`;
-      h += box('Unstable reactions', `<div class="list">${l}</div>`);
+      h += box('Unstable reactions', uiList(l));
       let el = '';
       for (const id in ELEMENTS) el += `<div class="li"><b style="color:${ELEM_UI[id]}">${ELEMENTS[id].name}</b> <em>${esc(ELEMENTS[id].status)}</em><br><span>${esc(ELEMENTS[id].blurb)}</span></div>`;
-      h += box('Damage types', inspectGuideHtml() + `<div class="list">${el}</div>`, 'Every weapon has one. Switched at Birth changes it. Tap one for its card.');
+      h += box('Damage types', inspectGuideHtml() + uiList(el), 'Every weapon has one. Switched at Birth changes it. Tap one for its card.');
       let tl = '';
       const live = run ? activeTwists() : [];
       for (const k in TWISTS) { const on = live.some(x => x.tw.key === k); tl += `<div class="li"><b${on ? ' style="color:#ff3df2"' : ''}>${esc(TWISTS[k].name)}</b> <em>${k.split('+').map(x => ELEMENTS[x].name).join(' + ')}</em>${on ? ' (active)' : ''}<br><span>${esc(TWISTS[k].desc)}</span></div>`; }
-      h += box('Combo twists', `<div class="list">${tl}</div>`, 'A combo whose two weapons are on their usual damage types does what it says. Change either damage type with Switched at Birth and the combo picks up the twist for its new pair of elements, on top.');
+      h += box('Combo twists', uiList(tl), 'A combo whose two weapons are on their usual damage types does what it says. Change either damage type with Switched at Birth and the combo picks up the twist for its new pair of elements, on top.');
     }
     return h;
   },
@@ -1390,52 +1386,52 @@ const UI = {
     const body = $('bankBody'), gold = PAL.reward, cyan = PAL.upgrade, best = UI.loadBest();
     const buy = (kind, id, cost, owned, label) => owned
       ? `<span class="bown" style="color:${cyan}">${label || 'OWNED'}</span>`
-      : `<button class="chip bbuy ${META.dna < cost ? 'poor' : ''}" data-k="${kind}" data-id="${id}">${cost} DNA</button>`;
+      : uiChip(`${cost} DNA`, { cls: `bbuy ${META.dna < cost ? 'poor' : ''}`, attrs: `data-k="${kind}" data-id="${id}"` });
     const spent = metaSpent();
     let h = `<div class="bdna"><b style="color:${gold}">${fmtNum(META.dna)}</b> DNA banked <span class="hint">(${fmtNum(META.total)} earned, ${fmtNum(spent)} spent)</span></div>
-      <p class="hint">Every run banks DNA: levels, bosses, rival kills, time survived, and a big bonus for being born. Spend it on permanent changes to every future swimmer.</p>`;
+      ${uiHint('Every run banks DNA: levels, bosses, rival kills, time survived, and a big bonus for being born. Spend it on permanent changes to every future swimmer.')}`;
     // What the next swimmer starts with.
     const now = META_BONUSES.filter(b => META.ranks[b.id]).map(b => META_NOW[b.id](META.ranks[b.id]));
     const st = META_STARTERS.filter(([id]) => META.starters[id] && WEAPONS[id]).map(([id]) => WEAPONS[id].name);
-    h += `<div class="sec bnext"><h3>Your next swimmer</h3><p class="hint">${now.length ? esc(now.join(', ')) : 'Nothing inherited yet.'}${st.length ? '<br>Extra starters: ' + esc(st.join(', ')) : ''}<br>Tag: ${esc((META_DYES.find(d => d.id === META.dye) || META_DYES[0]).name)}</p></div>`;
-    h += `<div class="sec"><h3>Inherited traits</h3>`;
+    h += uiPanel('Your next swimmer', uiHint(`${now.length ? esc(now.join(', ')) : 'Nothing inherited yet.'}${st.length ? '<br>Extra starters: ' + esc(st.join(', ')) : ''}<br>Tag: ${esc((META_DYES.find(d => d.id === META.dye) || META_DYES[0]).name)}`), 'bnext');
+    h += `${uiPanelOpen('Inherited traits')}`;
     for (const b of META_BONUSES) {
       const r = META.ranks[b.id] || 0, pips = Array.from({ length: b.max }, (_, i) => `<i class="${i < r ? 'on' : ''}"></i>`).join('');
-      h += `<div class="brow"><div><b>${esc(b.name)}</b><span class="pips">${pips}</span><div class="hint">${esc(b.desc)}${r ? ` <span style="color:${cyan}">(now ${esc(META_NOW[b.id](r))})</span>` : ''}</div></div>${buy('rank', b.id, r < b.max ? b.cost(r) : 0, r >= b.max, 'MAX')}</div>`;
+      h += uiTraitRow('', `<b>${esc(b.name)}</b><span class="pips">${pips}</span><div class="hint">${esc(b.desc)}${r ? ` <span style="color:${cyan}">(now ${esc(META_NOW[b.id](r))})</span>` : ''}</div>`, buy('rank', b.id, r < b.max ? b.cost(r) : 0, r >= b.max, 'MAX'));
     }
     const starterRow = ([id, cost]) => {
       const d = WEAPONS[id]; if (!d) return '';
       const ws = META.wstats[id];
-      return `<div class="brow"><div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div><div><b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div></div>${buy('starter', id, cost, META.starters[id])}</div>`;
+      return uiTraitRow(`<div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div>`, `<b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div>`, buy('starter', id, cost, META.starters[id]));
     };
-    h += `</div><div class="sec"><h3>Epigenetic Profiles</h3><p class="hint">Your Primary Sequence (chosen just before a run) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Firstborn')}</b>. Ranks come from kills, unlocks from what you do across all your runs.</p><div class="list">${wl_profiles().map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join('')}</div>`;
-    if (wl_starters(META_STARTERS).length) h += `</div><div class="sec"><h3>Wildcard weapons</h3><p class="hint">Every weapon belongs to one sequence, and only that sequence can draft it. Unlock one here and it becomes a wildcard: any sequence can draft it, and one is offered at the start of every run.</p>`;
+    h += `${uiPanelClose()}${uiPanelOpen('Epigenetic Profiles')}${uiHint(`Your Primary Sequence (chosen just before a run) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Firstborn')}</b>. Ranks come from kills, unlocks from what you do across all your runs.`)}${uiList(wl_profiles().map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join(''))}`;
+    if (wl_starters(META_STARTERS).length) h += `${uiPanelClose()}${uiPanelOpen('Wildcard weapons')}${uiHint('Every weapon belongs to one sequence, and only that sequence can draft it. Unlock one here and it becomes a wildcard: any sequence can draft it, and one is offered at the start of every run.')}`;
     h += wl_starters(META_STARTERS).filter(([id]) => !WEAPONS[id] || !WEAPONS[id].toy).map(starterRow).join('');
-    if (wl_starters(META_STARTERS).length) h += `<h3 style="margin-top:12px">Toys</h3><p class="hint">The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.</p>`;
+    if (wl_starters(META_STARTERS).length) h += `<h3 style="margin-top:12px">Toys</h3>${uiHint('The rule-breakers. They turn up in drafts anyway; unlock one to have it on offer from the start.')}`;
     h += wl_starters(META_STARTERS).filter(([id]) => WEAPONS[id] && WEAPONS[id].toy).map(starterRow).join('');
-    h += `</div><div class="sec"><h3>Swimmer skins</h3><p class="hint">One for every run you win (${META_DYES.filter(d => META.dyes[d.id]).length} of ${META_DYES.length}). They can't be bought.</p>`;
+    h += `${uiPanelClose()}${uiPanelOpen('Swimmer skins')}${uiHint(`One for every run you win (${META_DYES.filter(d => META.dyes[d.id]).length} of ${META_DYES.length}). They can't be bought.`)}`;
     for (const d of META_DYES) {
       const owned = META.dyes[d.id], on = META.dye === d.id;
-      h += `<div class="brow"><div class="bdye" style="background:${d.color};box-shadow:0 0 10px ${d.color}"></div><div><b>${esc(d.name)}</b></div>${on ? `<span class="bown" style="color:${cyan}">WEARING</span>` : owned ? `<button class="chip bbuy" data-k="dye" data-id="${d.id}">WEAR</button>` : `<span class="bown">WIN A RUN</span>`}</div>`;
+      h += uiTraitRow(`<div class="bdye" style="background:${d.color};box-shadow:0 0 10px ${d.color}"></div>`, `<b>${esc(d.name)}</b>`, on ? `<span class="bown" style="color:${cyan}">WEARING</span>` : owned ? uiChip('WEAR', { cls: 'bbuy', attrs: `data-k="dye" data-id="${d.id}"` }) : `<span class="bown">WIN A RUN</span>`);
     }
-    h += `</div>`;
+    h += `${uiPanelClose()}`;
     // Records.
     const runs = RUNLOG.length, born = RUNLOG.filter(r => r.res === 'WON').length, topLv = RUNLOG.reduce((m, r) => Math.max(m, r.lvl || 0), 0);
     const fav = Object.entries(META.wstats).sort((a, b) => b[1].runs - a[1].runs).slice(0, 3).filter(([id]) => WEAPONS[id]).map(([id, r]) => `${WEAPONS[id].name} (${r.runs})`);
-    h += `<div class="sec"><h3>Records</h3><div class="tiles">
-      <div class="tile"><b>${runs}</b><span>Runs logged</span></div><div class="tile"><b>${born}</b><span>Born</span></div>
-      <div class="tile"><b>${best.born ? fmtTime(best.born) : '-'}</b><span>Fastest birth</span></div><div class="tile"><b>${topLv || '-'}</b><span>Highest level</span></div>
-      <div class="tile"><b>${best.wave || '-'}</b><span>Best Petri Dish wave</span></div><div class="tile"><b>${fmtNum(META.total)}</b><span>DNA earned</span></div>
-      <div class="tile"><b>${META.gen || 0}</b><span>Generation</span></div><div class="tile"><b>${META.heatBest || 0} / ${META.heatMax || 0}</b><span>Immune Response: best born / unlocked</span></div></div>
-      ${fav.length ? `<p class="hint">Most used: ${esc(fav.join(', '))}.</p>` : ''}</div>`;
+    h += uiPanel('Records', `${uiTiles(`
+      ${uiTile(runs, 'Runs logged')}${uiTile(born, 'Born')}
+      ${uiTile(best.born ? fmtTime(best.born) : '-', 'Fastest birth')}${uiTile(topLv || '-', 'Highest level')}
+      ${uiTile(best.wave || '-', 'Best Petri Dish wave')}${uiTile(fmtNum(META.total), 'DNA earned')}
+      ${uiTile(META.gen || 0, 'Generation')}${uiTile(`${META.heatBest || 0} / ${META.heatMax || 0}`, 'Immune Response: best born / unlocked')}`)}
+      ${fav.length ? uiHint(`Most used: ${esc(fav.join(', '))}.`) : ''}`);
     // Being born: the prestige.
     { const g = META.gen || 0, bt = (META.baby || []).map(id => BABY_TRAITS[id] ? BABY_TRAITS[id].name : id);
-      h += `<div class="sec"><h3>Be born (Generation ${g + 1})</h3><p class="hint">You are Generation <b>${g}</b> (${esc(genName(g))}): +${g * 10}% DNA, +${g * 3}% damage and +${g * 5} max HP on every run.${bt.length ? ' Baby Traits: ' + esc(bt.join(', ')) + '.' : ''}</p>
-        <p class="hint">Being born wipes your DNA, traits, wildcards and dyes. You keep your Generation (one more), a new Baby Trait of your choice, the Field Guide, your sequences and their ranks, Immune Response levels and records.${META.wonSinceBirth ? '' : ' <b>Win a run first.</b>'}</p>
-        <button class="btn ${UI.bornArm ? 'danger' : 'primary'}" id="bankBorn" ${META.wonSinceBirth ? '' : 'disabled'}>${UI.bornArm ? 'TAP AGAIN: BE BORN (THIS WIPES YOUR BANK)' : 'BE BORN'}</button></div>`; }
+      h += uiPanel(`Be born (Generation ${g + 1})`, `${uiHint(`You are Generation <b>${g}</b> (${esc(genName(g))}): +${g * 10}% DNA, +${g * 3}% damage and +${g * 5} max HP on every run.${bt.length ? ' Baby Traits: ' + esc(bt.join(', ')) + '.' : ''}`)}
+        ${uiHint(`Being born wipes your DNA, traits, wildcards and dyes. You keep your Generation (one more), a new Baby Trait of your choice, the Field Guide, your sequences and their ranks, Immune Response levels and records.${META.wonSinceBirth ? '' : ' <b>Win a run first.</b>'}`)}
+        <button class="btn ${UI.bornArm ? 'danger' : 'primary'}" id="bankBorn" ${META.wonSinceBirth ? '' : 'disabled'}>${UI.bornArm ? 'TAP AGAIN: BE BORN (THIS WIPES YOUR BANK)' : 'BE BORN'}</button>`); }
     // Clear: a full refund, so you can spend it all again. Two taps.
-    h += `<div class="sec"><h3>Clear the bank</h3><p class="hint">Refunds every DNA you have spent (${fmtNum(spent)}) and removes all traits, starters and dyes, so you can spend it again differently. Your Field Guide discoveries and records stay.</p>
-      <button class="btn ${UI.bankClear ? 'danger' : ''}" id="bankClear" ${spent ? '' : 'disabled'}>${UI.bankClear ? `TAP AGAIN: CLEAR AND REFUND ${fmtNum(spent)} DNA` : 'CLEAR GENE BANK'}</button></div>`;
+    h += uiPanel('Clear the bank', `${uiHint(`Refunds every DNA you have spent (${fmtNum(spent)}) and removes all traits, starters and dyes, so you can spend it again differently. Your Field Guide discoveries and records stay.`)}
+      <button class="btn ${UI.bankClear ? 'danger' : ''}" id="bankClear" ${spent ? '' : 'disabled'}>${UI.bankClear ? `TAP AGAIN: CLEAR AND REFUND ${fmtNum(spent)} DNA` : 'CLEAR GENE BANK'}</button>`);
     body.innerHTML = h;
     body.querySelectorAll('.bbuy').forEach(b => b.addEventListener('click', () => {
       if (!metaBuy(b.dataset.k, b.dataset.id)) { UI.toast('Not enough DNA yet: swim again'); return; }
@@ -1480,10 +1476,10 @@ const UI = {
       <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
       <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.stats.charms || 0}</b>Allies won</div><div><b>${G.weapons.reduce((a, w) => a + (w ? w.mods.length : 0), 0)}</b>Modifiers</div><div><b>${G.stats.absorbed}</b>Bullets eaten</div></div>
       <h3>Damage breakdown</h3>`;
-    for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
+    for (const [k, v] of dmg) h += uiDamageRow(esc(k), (v / tot * 100).toFixed(0), fmtNum(v));
     const got = G.show.order;
     h += `<h3>Achievements this run (${got.length})</h3>`;
-    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')}</div>` : `<p class="hint">None. Impressive, in its own way.</p>`;
+    h += got.length ? uiList(got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b></div>`).join('')) : uiHint('None. Impressive, in its own way.');
     logRun(G, won ? 'WON' : G.rivalWinner ? 'BEATEN' : 'LOST');
     UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
     const dna = bankRun(G, won && !G.lvl); // (a tonsil stone is not a birth)
@@ -1491,10 +1487,10 @@ const UI = {
     h = `<div class="bdna">+<b style="color:${PAL.reward}">${dna}</b> DNA banked <span class="hint">(${fmtNum(META.dna)} to spend in the Gene Bank)</span></div>` + h;
     if (skin) h = `<div class="bdna" style="color:${skin.color}">NEW SWIMMER SKIN: <b>${esc(skin.name)}</b> <span class="hint">(wear it from the Gene Bank)</span></div>` + h;
     if (G.heatUnlocked) h = `<div class="bdna" style="color:#ff3b3b">IMMUNE RESPONSE ${G.heatUnlocked} UNLOCKED: ${esc(IMMUNE[G.heatUnlocked - 1].name)}</div>` + h;
-    if (won && !G.lvl && META.wonSinceBirth) h = `<p class="hint">You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.</p>` + h;
+    if (won && !G.lvl && META.wonSinceBirth) h = uiHint('You can now <b>be born</b> from the Gene Bank: a new Generation and a Baby Trait, for everything in the bank.') + h;
     h = seqNewHtml() + h; // (the sequence ladder: seqlock.js)
     const dishWin = won && G.wave && G.wave.camp, left = dishWin ? seqStartersLeft() : [];
-    if (dishWin) h = `<p class="hint">${left.length ? 'Beat it with ' + left.map(SEQ_NAME).join(' and ') + ' too to decode a new sequence.' : 'Fancy another go with a different Primary Sequence?'}</p>` + h;
+    if (dishWin) h = uiHint(left.length ? 'Beat it with ' + left.map(SEQ_NAME).join(' and ') + ' too to decode a new sequence.' : 'Fancy another go with a different Primary Sequence?') + h;
     $('newSeqBtn').style.display = dishWin ? '' : 'none';
     $('againBtn').classList.toggle('primary', !dishWin);
     if (!won) h = UI.killerHtml() + h;
@@ -1543,7 +1539,7 @@ const UI = {
       <div class="hint">${isBest ? 'New best. Noted, with restraint.' : 'Best: wave ' + (best.wave || 0)} | ${fmtTime(G.t)} in the dish</div>
       <div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the experiment')}</b></div>
       <div class="ostats"><div><b>${n}</b>Waves cleared</div><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.bossKills}</b>Bosses</div></div><h3>Damage breakdown</h3>`;
-    for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
+    for (const [k, v] of dmg) h += uiDamageRow(esc(k), (v / tot * 100).toFixed(0), fmtNum(v));
     logRun(G, 'WAVE ' + n);
     UI.lastRun = G.logged ? RUNLOG[RUNLOG.length - 1] : null; $('copyRunBtn').textContent = 'COPY THIS RUN';
     const dna = bankRun(G, false);

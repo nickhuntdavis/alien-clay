@@ -40,7 +40,7 @@ const blvSpitCell = (g, e, x, y, r) => { if (e.spit) { g.strokeStyle = BLV_SPIT;
 const PBV = { id: 'v_phys_burst', range: 0.65, area: 0.12, delay: 0.45, cd: 1.1, mag: 3, reload: 1.4, dmg: 34 }; // (world 380 / 70)
 const PBV_FLAG = { A: 'bigger', B: 'chain', C: 'evac', 'Bigger Bang Theory': 'bigger', 'Edge Case': 'edge', Encore: 'encore', 'Grudge Match': 'grudge',
   'Chain Reaction': 'chain', 'Daisy Chain': 'daisy', 'Grand Finale': 'finale', Dud: 'dud', 'Premature Evacuation': 'evac', 'Bumper Cars': 'bump',
-  'Personal Space': 'selfc', 'Shrapnel Shower': 'frag', 'Big Bang': 'big', 'Chain of Command': 'cmd', 'Hair Trigger Happy': 'hair' };
+  'Elbow Room': 'selfc', 'Shrapnel Shower': 'frag', 'Big Bang': 'big', 'Chain of Command': 'cmd', 'Trigger Happy': 'hair' };
 
 function pbvInit(pv) {
   sivInit(pv);

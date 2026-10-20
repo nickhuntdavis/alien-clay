@@ -44,7 +44,7 @@ function phTaken(o) { if (G && o && o.pk) G.pins = G.pins.filter(p => p !== o.pk
 function phPauseHtml() {
   if (!G || !(G.pins.length || G.hides.length)) return '';
   const row = (arr, kind, mark) => arr.map(p => `<div class="li" data-ph="${kind}" data-pk="${esc(p)}"><b>${mark} ${esc(G.pinName[p] || p.split('|')[0])}</b> <em>tap to ${kind === 'pin' ? 'unpin' : 'unhide'}</em></div>`).join('');
-  return `<div class="sec"><h3>Pinned and hidden</h3><div class="list">${row(G.pins, 'pin', '\u{1F4CC}')}${row(G.hides, 'hide', '✕')}</div></div>`;
+  return uiPanel('Pinned and hidden', uiList(`${row(G.pins, 'pin', '\u{1F4CC}')}${row(G.hides, 'hide', '✕')}`));
 }
 function phPauseBind(box, redraw) {
   box.querySelectorAll('[data-ph]').forEach(el => el.addEventListener('click', () => {

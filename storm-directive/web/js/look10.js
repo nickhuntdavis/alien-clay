@@ -6,6 +6,7 @@
 // Hooks: data.js ELEMENTS colours, settings.js (default view, one-time Arcade reset SET.lab10), render.js (ELEM_SWAP l10Swap, acid
 // terrain colours), ui.js settings row filter, tutorial.js viewOffer, v10.js V10_COL, fight.js/pdef.js/mutations.js/feats10.js colours.
 const L10 = !(typeof window !== 'undefined' && window.V10_OFF);
+// (The v10 values must match the --color-type-* tokens at the top of style.css and the Figma color/type/* variables.)
 const TYPE_PAL = L10
   ? { phys: '#e8eef8', fire: '#ff2fa8', shock: '#ffe94a', ice: '#7fd04a', arcane: '#c9184a', soul: '#b06cff', flame: '#ff6a2a' }
   : { phys: '#e8eef8', fire: '#c6ff3d', shock: '#ffe94a', ice: '#a8b84a', arcane: '#c9184a', soul: '#bff4ff', flame: '#ff6a2a' };

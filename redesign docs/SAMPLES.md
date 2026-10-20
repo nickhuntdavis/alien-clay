@@ -1,7 +1,7 @@
-# Spawn Prawn: The Eight Samples
+# Spawn Prawn: The Eight Samples (and a proposed ninth)
 ## Character redesign (17 October 2026; names and starting weapons revised 18 October)
 
-Working proposal. Design only, nothing built yet. A **sample** is the character you play; **Epigenetic Profiles** are build choices inside a sample. The eight samples replace the current sequences as the thing you pick and unlock.
+Working proposal. Design only, nothing built yet. A **sample** is the character you play; **Epigenetic Profiles** are build choices inside a sample. The eight samples replace the current sequences as the thing you pick and unlock. A ninth (Acid / Fire) is proposed, not decided: section 9 here, full design in `SAMPLE_9_ACRO.md`.
 
 ### Design principle
 
@@ -13,7 +13,7 @@ Every sample gets one ridiculous biological or psychological obsession, expresse
 
 The player should understand each sample in seconds. No extra meters, elaborate combos or complicated conditional trees. The depth comes from how the seven damage types, weapons and enemies interact with each sample's simple identity.
 
-The sperm's inner consciousness remains distinct from the Scientist: impulsive, needy, immature and absolutely convinced that reaching the egg is the most important thing in existence. The Scientist documents increasingly impossible events without acknowledging the obvious.
+Each sample has its own consciousness (the pre-incarnate soul that speaks to the sperm, `VOICE_GUIDE.md`), distinct from the Scientist: impulsive, needy, immature and absolutely convinced that reaching the egg is the most important thing in existence. Its persona is the person this sample would grow up to be (`CONSCIOUSNESS.md`). The Scientist documents increasingly impossible events without acknowledging the obvious.
 
 ---
 
@@ -25,10 +25,11 @@ The sperm's inner consciousness remains distinct from the Scientist: impulsive, 
 | 2 | Alpha | Human | A self-appointed high-value male: crypto, cold plunges and a podcast nobody asked for | Static / Force | Every fight is a dominance contest |
 | 3 | Beta | Human | The lazy underachiever who becomes terrifying when pushed too far | Blood / Mucus | Near-death becomes its power spike |
 | 4 | Private Schooled | Human (paperwork sealed) | Nepotism, privilege and a suspiciously sealed family history | Acid / Alien | Makes enemies betray their own side |
-| 5 | Ordered Online | Unknown | A mysterious specimen whose provenance is best left uninvestigated | Mucus / Acid | Turns pursuit into a terrible decision |
+| 5 | Ordered Online | Synthetic (nanobot) | A nanobot that arrived by post; who ordered it is best left uninvestigated | Mucus / Acid | Turns pursuit into a terrible decision |
 | 6 | Redtail | Unknown | A chaotic little firestarter with a potentially ominous reputation | Fire / Static | Starts chain reactions in crowds |
 | 7 | Prawn Again | Impossible | A second chance at life, death, and whatever the hell happened last time | Alien / Blood | Temporarily steals enemies, then collects the debt |
 | 8 | Not of This World | Extraterrestrial | An extraterrestrial romantic with absolutely no grasp of the situation | Fire / Alien / Static | Constantly changes what it is |
+| 9 | Sample 9 (proposed; name `TODO_COPY:s9_name`) | Human | Its enzyme cap goes off before it arrives: a premature acrosome reaction, a real cause of infertility | Acid / Fire | Strips everything, then burns what is left |
 
 Each sample has three starting weapons of its own (section "Starting weapons" below). No starter is shared.
 
@@ -61,9 +62,7 @@ A perfectly textbook silhouette, an even tail beat and a faint wake. Its special
 
 **Inner consciousness**
 
-Blunt, literal and incapable of considering an alternative objective.
-
-> "There. That's the egg. Go to the egg. We have one job."
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 1.
 
 **Scientist**
 
@@ -98,9 +97,7 @@ An elongated head, an oversized, puffed-out midpiece (it skips leg day; it has n
 
 **Inner consciousness**
 
-A manosphere podcast host with an audience of one. It talks to the sperm as a client: everything is discipline, mindset and the hierarchy, and none of it survives contact with the slide.
-
-> "Every other sperm on this slide is a beta. You know what they don't have? Discipline. Swim like the egg is watching. It is."
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 2.
 
 **Scientist**
 
@@ -110,7 +107,10 @@ A manosphere podcast host with an audience of one. It talks to the sperm as a cl
 
 **Upgrade voice:** Alpha's upgrade cards get more delusional as they level; the Scientist's line underneath stays flat.
 
-- Lv 3: "Most specimens can't handle this level of focus. That's why they're specimens." / "Beam duration increased."
+- Lv 3 (one line per Red Flagship promise, `WEAPON_UPGRADES.md` 6):
+  - Overclocked: "Hold frame. Whoever looks away first is the beta." / "Damage rises the longer the beam holds one target."
+  - Critical Error: "Every kill is content. Clip it. Ratio them." / "Kills by the beam emit a pulse."
+  - Dead Pixels: "Spray and pray is cope. Spray and manifest." / "The beam now throws short zaps either side."
 - Lv 10: "You didn't choose the apex. The apex chose you." / "The beam is now longer than the sample."
 
 ---
@@ -140,9 +140,7 @@ A slightly battered head, a notched tail and a wet, elastic trail. As health fal
 
 **Inner consciousness**
 
-Defensive, resentful and determined to reframe every mistake as a master plan.
-
-> "We meant to do that. Getting hit is how we learn. Stop looking at the health bar."
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 3.
 
 **Scientist**
 
@@ -177,9 +175,7 @@ A polished, symmetrical head with a subtle collar-like neck. Almost no trail. Ac
 
 **Inner consciousness**
 
-Smug, entitled and completely sincere about its own importance. It cannot understand why anyone would make it wait.
-
-> "That's the one in charge. Go say hello. Actually, don't bother. They'll come to us."
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 4.
 
 **Scientist**
 
@@ -192,12 +188,12 @@ Smug, entitled and completely sincere about its own importance. It cannot unders
 # 5. Ordered Online
 ### Everything is trying to grab you, and you have receipts
 
-**Core fantasy:** Be slippery, leave a mess and punish anything that tries to follow.
+**Core fantasy:** Be a precision-engineered nanobot that is slippery, leaves a mess and punishes anything that tries to follow. It is synthetic (decided 20 Oct 2026); the mystery is who ordered it, not what it is. Kit and rules are unchanged.
 
 **Behaviour**
 
-- Slides around corners with a little overshoot.
-- Shivers intermittently.
+- Slides around corners with a little overshoot, then corrects in one exact step.
+- Glitches intermittently: a sub-frame twitch, like a servo recalibrating.
 - Leaves a sticky ribbon behind that makes pursuing enemies regret their decisions.
 
 **Passive: Nothing Sticks**
@@ -210,19 +206,17 @@ Snare a ring of enemies in Mucus, then leave an Acid Pool beneath them. The setu
 
 **Visual signature**
 
-A frosted, crystalline coat that gradually melts. Ice flecks shake off its tail, while its trail stretches into a glossy ribbon. The Acid Pool bubbles conspicuously.
+A segmented, glossy shell with a visible seam down the head and a small status light at the midpiece. The tail beats in exact stepped increments. Its trail stretches into a glossy synthetic-gel ribbon (its Mucus). The Acid Pool bubbles conspicuously.
 
 **Inner consciousness**
 
-Paranoid, evasive and convinced the entire laboratory is an elaborate kidnapping operation.
-
-> "Nope. Absolutely not. Why is the floor wet? Why am I wet? WHO APPROVED THIS FLOOR?"
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 5.
 
 **Scientist**
 
-"Sample 5A arrived in a cryogenic container. The supplier's tracking information resolves to a car park."
+"Sample 5A arrived in an anti-static bag. It is not biological. It has been filed as biological, as the form has no other box."
 
-**Selection-card gag:** A dented shipping box with frost on the corners and a *THIS WAY UP* arrow pointing in three different directions.
+**Selection-card gag:** A dented shipping box with a *THIS WAY UP* arrow pointing in three different directions and a warning sticker: *WARNING: NOT SUITABLE FOR AGES 0 AND UNDER.*
 
 ---
 
@@ -251,9 +245,7 @@ A slightly oversized head with a glowing ember core and a flickering tail tip. I
 
 **Inner consciousness**
 
-A hyperactive toddler with the survival instincts of a moth in a candle shop.
-
-> "What's that? Can we touch it? We touched it. Oh, it's hot. OH, EVERYONE'S HOT. DO IT AGAIN!"
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 6.
 
 **Scientist**
 
@@ -290,9 +282,7 @@ A familiar silhouette with a faint, offset duplicate. Its shadow falls in the wr
 
 **Inner consciousness**
 
-Quiet, ancient-feeling and almost tender. It speaks as though recalling events that have already happened.
-
-> "There you are. You were here before. Keep going. The ending is different this time."
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 7.
 
 **Scientist**
 
@@ -327,15 +317,50 @@ A faceted head, two independently moving tails and an iridescent body. Each shif
 
 **Inner consciousness**
 
-Earnest, intimate and slightly mistranslated. It speaks as though the egg is a destination, a promise and a person it has already met.
-
-> "The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving."
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 8.
 
 **Scientist**
 
 "Sample 8A has responded to the target. The target has not yet been introduced."
 
 **Selection-card gag:** A seamless container with no opening and a sheet of alien writing. One line has been translated in pencil: *OTHER HALF.*
+
+---
+
+# 9. Sample 9 (proposed)
+### Name and tagline: `TODO_COPY:s9_name` (brief in `SAMPLE_9_ACRO.md` 6.1)
+
+*Proposal, 20 Oct 2026. Not decided or built. Full design (three weapons and their branches, Feat numbers, copy briefs): `SAMPLE_9_ACRO.md`.*
+
+**Core fantasy:** Dissolve through every defence on the slide before anything is ready, then burn what is left.
+
+**Behaviour**
+
+- Lurches forward a beat before every turn, as if it can't wait for its own swim.
+- Heads straight for the nearest armoured thing.
+- When made to stand still, its cap visibly fizzes and boils over.
+
+**Passive: `TODO_COPY:acro_passive`**
+
+Corrosion bars pay off at 70% instead of full (`COMBAT_MATRIX.md` 11.2): a Shell layer strips early, and an enemy with no Shell becomes Corroded early. Uses the existing bar and ring; no new meter.
+
+**Unique Feat: `TODO_COPY:acro_feat_name`**
+
+An Acid Burst around you fills the Corrosion bar of every enemy within 220 (bosses half) and leaves an Acid Pool. Then the cap is spent: your Acid damage drops 25% for 4 s, shown by the bare head until the cap regrows. The trade-off is the joke: it used everything too early.
+
+**Visual signature**
+
+An oversized, fizzing shocking-pink cap on the head (Acid's visual language, `DAMAGE_TYPES.md`). Player Shell shows as bands on the cap. When the Feat goes off, the cap pops and the head looks bare until it regrows.
+
+**Inner consciousness**
+
+Persona, tell and sample line: `CONSCIOUSNESS.md` section 9 (the early arrival).
+
+**Scientist**
+
+`TODO_COPY:acro_sci` (brief in `SAMPLE_9_ACRO.md` 6.1: dry; it released its enzymes before arrival).
+
+**Selection-card gag (visual only):** a specimen tube with the seal already broken and nothing inside, logged in before its collection was booked. Any label text is copy for the user.
 
 ---
 
@@ -349,10 +374,11 @@ The samples should read as a series of increasingly implausible specimens, not e
 | Alpha | Puffed-out midpiece, whip-crack acceleration and electrical streak |
 | Beta | Notched tail that pulses harder at low health |
 | Private Schooled | Polished glide and almost no trail |
-| Ordered Online | Frosted coat and stretchy Mucus ribbon |
+| Ordered Online | Segmented shell, status light and stretchy gel ribbon |
 | Redtail | Glowing ember core and twitchy motion |
 | Prawn Again | Offset double image and wrong-way shadow |
 | Not of This World | Faceted head, twin tails and visible reconfiguration |
+| Sample 9 (proposed) | Oversized fizzing cap and a forward lurch before every turn |
 
 These signatures must survive phone-size presentation. Colour reinforces identity; it must not carry it. Colours come from each damage type's visual language in `DAMAGE_TYPES.md`.
 
@@ -362,10 +388,11 @@ These signatures must survive phone-size presentation. Colour reinforces identit
 - **Alpha:** self-appointed dominance.
 - **Beta:** desperation.
 - **Private Schooled:** manipulation.
-- **Ordered Online:** evasion.
+- **Ordered Online:** synthetic evasion.
 - **Redtail:** uncontrolled curiosity.
 - **Prawn Again:** temporal wrongness.
 - **Not of This World:** alien devotion.
+- **Sample 9 (proposed):** impatience.
 
 Each one occupies a different emotional and gameplay space. That matters more than giving every sample more lore, more attacks or more stats.
 
@@ -389,13 +416,16 @@ Each one occupies a different emotional and gameplay space. That matters more th
 ### Rules that come with the roster
 - **Profiles go by their trait names**, so they no longer read as characters: Quick Recovery, Puppy Fat, Early Developer, Favouritism, Under Your Feet, Healthy Appetite, Overtired, Good Genes. Ranks carry over.
 - **Game modes become "Experiments"** (for example, "Experiment #002: The Petri Dish"). This frees the word "sample" for characters. Internal ids (`s002`) stay as they are.
-- **The sperm doesn't speak** (`VOICE_GUIDE.md`). Its consciousness talks to it; each sample's consciousness has its own personality under the shared voice rules.
+- **The sperm doesn't speak** (`VOICE_GUIDE.md`). Its consciousness talks to it; each sample's consciousness has its own persona (`CONSCIOUSNESS.md`) under the shared voice rules. Every consciousness line is written per sample, shared Feat gift lines included (`FEATS.md` 1).
+- **A new soul every run** (1A, 1B are different souls of the same temperament), except Prawn Again, whose consciousness remembers earlier runs.
+- **The consciousness doesn't know the lab exists.** It believes it is exactly where it is supposed to be. No Scientist, slide, sample, specimen, experiment or HUD in its lines.
+- **Blind test for voice:** with the sample's name hidden, its tell (`CONSCIOUSNESS.md`) must identify the speaker.
 - **The Scientist uses IDs.** The strain number is the roster position (Baseline is 1, Not of This World is 8). The letter is the run of that strain: 1A, 1B and so on.
 - **Combat rules:** every sample follows the reconciliation decisions in `COMBAT_MATRIX.md` section 10 (Alien possesses; Fire does not spread on its own, so Redtail spreads Burn only through its Static; Acid's only ongoing damage is Pools).
 
 ### Starting weapons
 
-Decided 18 Oct 2026 (`BASE_WEAPONS.md` section 5, decisions 4 and 5). Each sample has three starters, and all 24 weapons are exactly one sample's starter. The level 1 weapon draft offers the sample's three and you take one; the other two stay in the pool for later drafts. Rules, numbers and limits for every weapon: `BASE_WEAPONS.md` and `WEAPON_UPGRADES.md`. The principles:
+Decided 18 Oct 2026 (`BASE_WEAPONS.md` section 5, decisions 4 and 5). Each sample has three starters, and all 24 weapons are exactly one sample's starter (27 if Sample 9 ships: its three are new). The level 1 weapon draft offers the sample's three and you take one; the other two stay in the pool for later drafts. Rules, numbers and limits for every weapon: `BASE_WEAPONS.md` and `WEAPON_UPGRADES.md`. The principles:
 
 - **Mechanics express personality:** weapon behaviour reinforces the sample's identity, not just its damage types.
 - **Upgrades exaggerate the joke:** each weapon becomes a more extreme version of its own concept as it levels.
@@ -479,6 +509,15 @@ Intimacy, imitation and cosmic escalation. Everything is connected, everything c
 | There Is No Spoon (Placental Siphon) | Force Projectile | Absorbs nearby enemy bullets and fires them back. Incoming aggression becomes a resource | Absorb more, hold it longer, or turn stolen shots into a shield |
 | Family Ties (Black Hole) | Force Projectile (gravity well) | A vortex that pulls in enemies and bends shots; holes merge, and enough merges go supernova | Every problem gets dragged into the conversation until the room explodes |
 
+#### 9. Sample 9, proposed (Acid / Fire)
+Strip, then burn. Every weapon is new; all three fill gaps (Acid had one weapon; there was no Fire Beam). Names, descriptions and the 45 branch cards: `SAMPLE_9_ACRO.md` sections 3 to 6.
+
+| Weapon (id) | Type, attack | What it does | Upgrade fantasy |
+|---|---|---|---|
+| `acro_cap` | Acid Contact | Headbutts the nearest enemy; heavy Corrosion; every 4th hit lunges through the target | Drill one target, breach a whole lane, or wear the stripped Shell yourself |
+| `acro_spray` | Acid Spread | A short fan of 3 heavy, corroding droplets | Point-blank shotgun, a field of Acid Pools, or pellets that hunt armour |
+| `acro_spark` | Fire Beam | A short beam that goes for enemies with no Shell left and burns them | Feed on Corroded enemies, string fire between them, or paint the slide by swimming |
+
 Adaptive Biology (its passive) makes all three deal the active type (Fire, Alien or Static). Open: `BASE_WEAPONS.md` section 5, issue 7.
 
 ### Unlocks, in order
@@ -490,6 +529,7 @@ Adaptive Biology (its passive) makes all three deal the active type (Fire, Alien
 6. **Redtail:** survive one of the slide's rare big hazards.
 7. **Prawn Again:** shown as "???" until earned. Land a boss's killing blow with Alien damage.
 8. **Not of This World:** beat the campaign's furthest level (Level 1 today).
+9. **Sample 9 (proposed):** strip 50 Shell layers in one run. Teaches its playstyle; in difficulty it sits around Ordered Online and Redtail, so it can be offered mid-curve whatever its number.
 
 The first few come early, so players get variety quickly. The last two reward curiosity and mastery.
 

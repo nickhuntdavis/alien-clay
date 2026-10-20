@@ -589,6 +589,7 @@ const SPELLS = {
     lv: { 3: { dmg: 0.3 }, 5: { area: 0.2 }, 7: { dmg: 0.4 } } },
 };
 
+// (Colours must match the --color-rarity-* tokens at the top of style.css and the Figma color/rarity/* variables.)
 const RARITIES = [
   { id: 'common',    name: 'Common',    color: '#b9c2cc', mult: 1,    lvls: 1, w: 56 },
   { id: 'uncommon',  name: 'Uncommon',  color: '#4ade80', mult: 1.25, lvls: 1, w: 26 },

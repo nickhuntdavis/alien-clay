@@ -5,8 +5,8 @@
 //    fires faster while moving). Beta is small, with a bent neck, a cytoplasmic droplet, a coiled tail tip and a
 //    plaster (real morphology defects: it is not dead yet).
 //  - Engineered specimens (Private Schooled, Ordered Online): the satire is in the construction. Private Schooled is
-//    lacquered navy with gold trim, a crest and a school-tie midpiece. Ordered Online is moulded plastic: boxy, a
-//    seam, a barcode, a crooked sticker, a misaligned cap, a ribbed hose for a midpiece and a zip-tie tail, frosted.
+//    lacquered navy with gold trim, a crest and a school-tie midpiece. Ordered Online is a synthetic nanobot: its body,
+//    tells and trail live in orderedlook.js (it fills this file's tables for 'ordered').
 //  - Anomalies (Redtail, Prawn Again; Not of This World in alienyou.js): Redtail is a lumpy, wobbling red head with
 //    twitchy hairs, a frayed tail that splits into strands and sheds embers. Prawn Again is white-gold and holy: a
 //    halo, little feathered wings at the neck, slow light rays and a faint echo of where it was a moment ago.
@@ -28,7 +28,7 @@ const SL = {
   prawn:    { size: 1,    neck: [-10.5, 0], len: 80, beat: 0.9,  tw: 2.0 },
 };
 const SL_HIT = '#ff4d6d';
-const SL_C = { navy: '#1d2a5a', navy2: '#3a4f9a', gold: '#e2bd5c', tie: '#7a1f3d', plastic: '#e9e5da', seam: '#7d7a72', sticker: '#ff9f1c', cap: 'rgba(120,190,255,0.55)', red: '#d62839', red2: '#ff6a2a', redDk: '#5a0a14', holy: '#ffe6a3', holyRim: '#e2b64a' };
+const SL_C = { navy: '#1d2a5a', navy2: '#3a4f9a', gold: '#e2bd5c', tie: '#7a1f3d', red: '#d62839', red2: '#ff6a2a', redDk: '#5a0a14', holy: '#ffe6a3', holyRim: '#e2b64a' };
 
 const sampleLookOn = b => (b && G && G.s10 && (b === G.player || (typeof UI !== 'undefined' && b === UI.youBody))) ? G.s10.id : null;
 function sampleLook(x, y, face, tag, alpha, scale, body, look) {
@@ -94,16 +94,6 @@ const SL_TAIL = {
     for (let i = 1; i < t.length - 2; i += 2) {
       const p = t[i], q = t[i + 1], ang = Math.atan2(q.y - p.y, q.x - p.x) + Math.PI / 2, h = 1.4 * k * (1 - i / t.length * 0.6);
       ctx.moveTo(sx(p.x) + Math.cos(ang) * h, sy(p.y) + Math.sin(ang) * h); ctx.lineTo(sx(p.x) - Math.cos(ang) * h, sy(p.y) - Math.sin(ang) * h);
-    }
-    ctx.stroke();
-  },
-  ordered: (t, k, a) => {
-    ctx.globalAlpha = a; drawTail(t, SL_C.seam, 3.2 * k, 4 * k); drawTail(t, SL_C.plastic, 2.2 * k, 3 * k);
-    // Zip-tie teeth along it.
-    ctx.strokeStyle = SL_C.seam; ctx.lineWidth = 0.5 * k; ctx.beginPath();
-    for (let i = 1; i < t.length - 1; i++) {
-      const p = t[i], q = t[i + 1], ang = Math.atan2(q.y - p.y, q.x - p.x) + Math.PI / 2, h = 1.1 * k * (1 - i / t.length * 0.7);
-      for (const f of [0, 0.5]) { const mx = sx(p.x + (q.x - p.x) * f), my = sy(p.y + (q.y - p.y) * f); ctx.moveTo(mx + Math.cos(ang) * h, my + Math.sin(ang) * h); ctx.lineTo(mx - Math.cos(ang) * h, my - Math.sin(ang) * h); }
     }
     ctx.stroke();
   },
@@ -195,25 +185,6 @@ const SL_HEAD = {
     ctx.save(); ctx.translate(-3 * k, 0); ctx.fillStyle = SL_C.gold;
     ctx.beginPath(); ctx.moveTo(-1.5 * k, -1.7 * k); ctx.lineTo(1.5 * k, -1.7 * k); ctx.lineTo(1.5 * k, 0.2 * k); ctx.quadraticCurveTo(1.3 * k, 1.5 * k, 0, 2 * k); ctx.quadraticCurveTo(-1.3 * k, 1.5 * k, -1.5 * k, 0.2 * k); ctx.closePath(); ctx.fill();
     ctx.fillStyle = SL_C.tie; ctx.fillRect(-0.3 * k, -1.2 * k, 0.6 * k, 2.4 * k); ctx.fillRect(-1 * k, -0.4 * k, 2 * k, 0.6 * k); ctx.restore();
-    slFlush(path, a, hit);
-  },
-  ordered: (k, a, now, tag, hit) => {
-    // Ribbed hose midpiece.
-    ctx.fillStyle = SL_C.seam; ctx.fillRect(-12.4 * k, -1.7 * k, 7 * k, 3.4 * k);
-    ctx.fillStyle = '#c9c5ba'; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.roundRect((-12 + i * 1.7) * k, -1.5 * k, 1.2 * k, 3 * k, 0.5 * k); ctx.fill(); }
-    // Boxy moulded body with a seam, barcode, crooked sticker and a cap that doesn't quite line up.
-    const path = () => { ctx.beginPath(); ctx.roundRect(-6 * k, -4.8 * k, 14 * k, 9.6 * k, 2.6 * k); };
-    path(); ctx.fillStyle = SL_C.plastic; ctx.fill(); ctx.strokeStyle = SL_C.seam; ctx.lineWidth = 0.8 * k; ctx.stroke();
-    ctx.setLineDash([1 * k, 0.8 * k]); ctx.lineWidth = 0.4 * k; ctx.beginPath(); ctx.moveTo(-6 * k, 0.4 * k); ctx.lineTo(8 * k, 0.4 * k); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#2a2a2a'; [0.5, 0.25, 0.6, 0.3, 0.25, 0.55, 0.35].reduce((px, w) => { ctx.fillRect(px * k, -3.7 * k, w * k, 3.2 * k); return px + w + 0.3; }, -4.6);
-    ctx.save(); ctx.translate(0.6 * k, 2.5 * k); ctx.rotate(0.18); ctx.fillStyle = SL_C.sticker; ctx.fillRect(-2 * k, -1.1 * k, 4 * k, 2.2 * k);
-    ctx.fillStyle = '#fff'; ctx.fillRect(-1.5 * k, -0.25 * k, 3 * k, 0.5 * k); ctx.restore();
-    ctx.fillStyle = SL_C.cap; ctx.beginPath(); ctx.ellipse(6.6 * k, -0.7 * k, 3.6 * k, 4.4 * k, 0, -Math.PI / 2, Math.PI / 2); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 0.4 * k; ctx.stroke();
-    // Frost from the cryo container.
-    ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 0.35 * k; ctx.beginPath();
-    for (const [fx, fy] of [[-5, -4.2], [7, 3.9], [-5.2, 3.6]]) for (let i = 0; i < 3; i++) { const an = i * Math.PI / 3; ctx.moveTo((fx + Math.cos(an)) * k, (fy + Math.sin(an)) * k); ctx.lineTo((fx - Math.cos(an)) * k, (fy - Math.sin(an)) * k); }
-    ctx.stroke();
     slFlush(path, a, hit);
   },
   redtail: (k, a, now, tag, hit) => {
@@ -431,7 +402,7 @@ function slCodex(box) {
         + (open ? `<br><i>${esc(s.sci.replace('{id}', no))}</i>` : `<br><span>Unlock: ${esc(s.unlock.txt)}</span>`);
     return `<div class="li">${pic}${txt}</div>`;
   }).join('');
-  return box(`Samples (${SAMPLES10.filter(s => s10Open(s.id)).length}/${SAMPLES10.length} in stock)`, `<div class="list">${rows}</div>`, 'Natural specimens, engineered specimens and anomalies. Pick one before a run.');
+  return box(`Samples (${SAMPLES10.filter(s => s10Open(s.id)).length}/${SAMPLES10.length} in stock)`, uiList(rows), 'Natural specimens, engineered specimens and anomalies. Pick one before a run.');
 }
 
 // ---------------------------------------------------------------- your other upgrades, on the body (G.P, G.muts: mutations.js)

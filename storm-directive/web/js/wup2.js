@@ -146,7 +146,7 @@ function w2SpitTick(w, dt) {
 }
 wupReg('v_fire_proj', {
   A: { name: 'Spit Take', tag: 'HUNT', costs: 'the glob no longer re-targets until its target dies.', shows: 'a fizzing coat that thickens on the target.', modes: 'HUNT',
-    lv3: { desc: 'Corrosion builds 50% faster, and a target takes up to +40% from Acid Spit as its bar fills.', apply(w) {
+    lv3: { desc: 'Corrosion builds faster and each glob hurts more as the target\'s bar fills. You stay locked on one target until it dies.', apply(w) {
       const S = w2s(w); S.lock = null; w2SnotFeed(w);
       wupOn(w, 'dmg', (w, e, src) => 1 + 0.4 * clamp(fightCd(e).bars.acid, 0, 1));
       wupOn(w, 'hit', (w, e, res, src) => { // +50% Corrosion build-up
@@ -164,20 +164,20 @@ wupReg('v_fire_proj', {
       wupOn(w, 'tick', w2SpitTick);
     } },
     lv6: [
-      { name: 'Second Helping', desc: 'When a full bar strips a Shell layer, the Corrosion bar resets only halfway.', apply(w) {
+      { name: 'Second Helping', desc: 'After Corrosion strips a Shell layer, the bar only drops halfway, so the next layer goes faster.', apply(w) {
         const S = w2s(w); S.stripReset = 0.5;
         wupOn(w, 'hit', (w, e, res) => {
           if (res.payoffs.includes('strip') && e.cd) { e.cd.bars.acid = Math.max(e.cd.bars.acid, 0.5); ring(e.x, e.y, e.r + 10, W2_PINK, 0.4, 3); floatText(e.x, e.y - e.r - 8, 'SECONDS', W2_PINK, 11, 0.6); w2Mark(w, 'seconds'); }
         });
       } },
-      { name: 'Stripped Bare', desc: 'A target that loses its last Shell layer takes x2 from Acid Spit for 4 s.', apply(w) {
+      { name: 'Stripped Bare', desc: 'A target that loses its last Shell layer takes double damage from your globs for a few seconds.', apply(w) {
         wupOn(w, 'hit', (w, e, res) => {
           if (res.layersLost > 0 && e.cd && e.cd.layers === 0) { w2E(e).bareT = G.t + 4; ring(e.x, e.y, e.r + 12, W2_PINK, 0.5, 5); floatText(e.x, e.y - e.r - 8, 'STRIPPED', W2_PINK, 12, 0.7); w2Mark(w, 'bare'); }
         });
         wupOn(w, 'dmg', (w, e) => (e.w2 && e.w2.bareT > G.t ? 2 : 1));
       } },
     ],
-    wild: { name: 'Spittoon', desc: 'Globs that miss leave a puddle; swimming through it makes your next 3 spits double size.', apply(w) {
+    wild: { name: 'Spittoon', desc: 'Missed globs leave a puddle. Swim through it and your next few globs come out double size.', apply(w) {
       const S = w2s(w); S.bigN = 0;
       wupOn(w, 'tick', (w, dt) => {
         w2Track(w);
@@ -192,14 +192,14 @@ wupReg('v_fire_proj', {
       });
     } } },
   B: { name: 'Splash Damage', tag: 'ORBIT', costs: '-15% damage on the direct hit.', shows: 'visible droplets arcing off the target.', modes: 'ORBIT',
-    lv3: { desc: 'A direct hit splatters 3 droplets onto enemies within 60 (30% damage, 30% Corrosion).', apply(w) {
+    lv3: { desc: 'A direct hit splatters droplets onto nearby enemies, spreading Corrosion. The direct hit is 15% weaker.', apply(w) {
       const S = w2s(w); S.splat = 1; w2SnotFeed(w);
       wupOn(w, 'stats', (w, s) => { s.dmg *= 0.85; });
       wupOn(w, 'hit', (w, e, res, src) => w2Splat(w, e, res.raw, src, S.dip ? 2 : 1));
     } },
     lv6: [
-      { name: 'Backsplash', desc: 'Droplets that hit an enemy already carrying Corrosion splatter once more.', apply(w) { w2s(w).dip = 1; } },
-      { name: 'Nasty Fifth', desc: 'Every 5th spit is a lobbed glob that leaves an Acid Pool (radius 50, 3 s).', apply(w) {
+      { name: 'Backsplash', desc: 'Droplets that land on an enemy already carrying Corrosion splatter again.', apply(w) { w2s(w).dip = 1; } },
+      { name: 'Nasty Fifth', desc: 'Every fifth glob is lobbed and leaves an Acid Pool where it lands.', apply(w) {
         const S = w2s(w);
         wupOn(w, 'fire', (w, t, src) => {
           if (S.fireMaster) return false;
@@ -210,7 +210,7 @@ wupReg('v_fire_proj', {
         });
       } },
     ],
-    wild: { name: 'Gargle', desc: 'With nothing in range for 2 s, the next spit is a mouthful: 5 globs at once.', apply(w) {
+    wild: { name: 'Mouthful', desc: 'With nothing in range for a moment, the next spit is a mouthful of several globs at once.', apply(w) {
       const S = w2s(w); S.idle = 0; S.gargle = false;
       wupOn(w, 'tick', (w, dt) => {
         const p = G.player, near = acquire('nearest', w.s.range, p.x, p.y);
@@ -226,7 +226,7 @@ wupReg('v_fire_proj', {
       });
     } } },
   C: { name: 'Bad Aftertaste', tag: 'COLLECT', costs: 'no help against the target itself.', shows: 'green-pink drips on marked enemies, a splat on death.', modes: 'COLLECT',
-    lv3: { desc: 'Each hit leaves acidic residue on the target; when it dies, the residue splashes its Corrosion onto enemies within 70.', apply(w) {
+    lv3: { desc: 'Hits leave residue; when the target dies, it splashes its Corrosion onto enemies nearby. Does nothing extra to the target itself.', apply(w) {
       const S = w2s(w); S.marks = new Set(); w2SnotFeed(w);
       wupOn(w, 'hit', (w, e, res, src) => {
         const E = w2E(e); E.resT = G.t;
@@ -242,10 +242,10 @@ wupReg('v_fire_proj', {
       });
     } },
     lv6: [
-      { name: 'Wet Floor', desc: 'The splash also leaves a small Acid Pool where the enemy died (radius 35, 2 s).', apply(w) { w2s(w).wet = 1; } },
-      { name: 'Pass It On', desc: 'Enemies hit by a splash carry residue of their own, so the next death splashes again (3 deep).', apply(w) { w2s(w).pass = 1; } },
+      { name: 'Wet Floor', desc: 'The death splash also leaves a small Acid Pool where the enemy died.', apply(w) { w2s(w).wet = 1; } },
+      { name: 'Pyramid Scheme', desc: 'Enemies hit by a death splash carry residue too, so their deaths splash again, a few deep.', apply(w) { w2s(w).pass = 1; } },
     ],
-    wild: { name: 'Lob Lip', desc: 'Globs arc over the first enemy and land on the one behind it.', apply(w) {
+    wild: { name: 'Leapfrog', desc: 'Globs arc over the first enemy and land on the one behind it.', apply(w) {
       const S = w2s(w);
       wupOn(w, 'fire', (w, t, src) => {
         if (S.fireMaster || !w2Claim(w)) return false;
@@ -258,14 +258,14 @@ wupReg('v_fire_proj', {
       });
     } } },
   lv10: [
-    { name: 'Battery Acid', best: 'A', desc: 'Every hit fills a non-boss enemy\'s Corrosion bar completely (bosses: half).', apply(w) {
+    { name: 'Battery Acid', best: 'A', desc: 'Every hit fills an enemy\'s Corrosion bar completely. Bosses fill half.', apply(w) {
       wupOn(w, 'hit', (w, e, res, src) => {
         if (!res.statusOk || !e.cd || e.dead || res.payoffs.length) return;
         const r = w2BarBump(e, 'acid', e.boss ? 0.5 : 1, src);
         if (r) w2Mark(w, 'battery');
       });
     } },
-    { name: 'Projectile Vomit', best: 'AB', desc: '[ATTACK to Beam] A continuous acid stream that pierces everything and builds Corrosion x1.5.', apply(w) {
+    { name: 'Projectile Vomit', best: 'AB', desc: 'Your spit becomes a continuous acid stream that pierces everything and builds Corrosion faster. Changes the attack to Beam.', apply(w) {
       const S = w2s(w); S.vomit = 1; S.fireMaster = true;
       wupOn(w, 'stats', (w, s) => { s.dmg *= 0.22; s.cd *= 0.22; s.mag = Math.round(s.mag * 3.5); s.pierce = 99; });
       wupOn(w, 'fire', (w, t, src) => {
@@ -280,7 +280,7 @@ wupReg('v_fire_proj', {
         w2BarBump(e, 'acid', 0.5 * w2AcidFrac(e, res.raw), src);
       });
     } },
-    { name: 'Acid House', best: 'BC', desc: 'Every enemy that dies carrying Corrosion leaves an Acid Pool (radius 60, 3 s); touching pools merge.', apply(w) {
+    { name: 'Acid House', best: 'BC', desc: 'Every enemy that dies carrying Corrosion leaves an Acid Pool, and touching pools merge into one.', apply(w) {
       const S = w2s(w); S.carry = new Set();
       wupOn(w, 'hit', (w, e) => { if (e.cd && (e.cd.bars.acid > 0.04 || e.corrodedT > G.t || (e.w2 && e.w2.snowT > G.t))) { S.carry.add(e); if (S.carry.size > 80) S.carry.delete(S.carry.values().next().value); } });
       wupOn(w, 'tick', (w, dt) => {
@@ -353,7 +353,7 @@ function w2Pulse(w, x, y, depth, src0) {
 }
 wupReg('v_shock_beam', {
   A: { name: 'Overclocked', tag: 'HUNT', costs: 'weak against crowds; every switch throws the charge away.', shows: 'the beam thickens and whitens as it charges, then snaps thin when switching.', modes: 'HUNT',
-    lv3: { desc: 'Damage on the held target grows the longer the beam stays on it, up to +100% after 3 s; switching resets it.', apply(w) {
+    lv3: { desc: 'The beam hits harder the longer it stays on one target, up to double. Switching targets loses the charge.', apply(w) {
       const S = w2s(w);
       wupOn(w, 'fire', (w, t, src) => {
         const h = w2Hold(w, t), k = clamp(h / 3, 0, 1), p = G.player;
@@ -366,7 +366,7 @@ wupReg('v_shock_beam', {
       wupOn(w, 'dmg', (w, e, src) => (e === S.hTgt && !src.wupEcho ? 1 + clamp(S.hold / 3, 0, 1) : 1));
     } },
     lv6: [
-      { name: 'Hard Interrupt', desc: 'At full charge the beam turns white and its hits carry Poise, so it can interrupt.', apply(w) {
+      { name: 'Hard Interrupt', desc: 'At full charge the beam turns white and carries Poise, so it can interrupt attacks.', apply(w) {
         wupOn(w, 'hit', (w, e, res, src) => {
           const S = w2s(w);
           if (e !== S.hTgt || S.hold < 3 || !res.statusOk || !e.cd) return;
@@ -374,7 +374,7 @@ wupReg('v_shock_beam', {
           if (r) { w2Mark(w, 'interrupt'); floatText(e.x, e.y - e.r - 8, 'INTERRUPT', '#ffffff', 12, 0.7); }
         });
       } },
-      { name: 'Static Cling', desc: 'At full charge the held target stays Charged while the beam holds, and arcs off it every 0.5 s.', apply(w) {
+      { name: 'Static Cling', desc: 'At full charge the held target stays Charged and throws arcs at its neighbours while the beam holds.', apply(w) {
         wupOn(w, 'tick', (w, dt) => {
           const S = w2s(w);
           if (!w2Full(w)) return;
@@ -383,7 +383,7 @@ wupReg('v_shock_beam', {
         });
       } },
     ],
-    wild: { name: 'Screen Burn', desc: 'Wherever the beam rests for 1 s, a ghost of it stays burnt in for 3 s and still zaps.', apply(w) {
+    wild: { name: 'Screen Burn', desc: 'Where the beam rests for a moment, a ghost of it stays burnt in for a few seconds and keeps zapping.', apply(w) {
       const S = w2s(w); S.ghosts = [];
       wupOn(w, 'fire', (w, t, src) => {
         const p = G.player, a = Math.atan2(t.y - p.y, t.x - p.x);
@@ -406,7 +406,7 @@ wupReg('v_shock_beam', {
       });
     } } },
   B: { name: 'Critical Error', tag: 'ORBIT', costs: '-10% beam damage.', shows: 'little static pops along the beam as enemies die.', modes: 'ORBIT',
-    lv3: { desc: 'An enemy killed by the beam emits a pulse (radius 60, 50% of one second of beam damage).', apply(w) {
+    lv3: { desc: 'An enemy killed by the beam bursts in a small Static pulse that hits those nearby. The beam is 10% weaker.', apply(w) {
       const S = w2s(w); S.cascade = 1;
       wupOn(w, 'stats', (w, s) => { s.dmg *= 0.9; });
       wupOn(w, 'kill', (w, e, src) => {
@@ -416,8 +416,8 @@ wupReg('v_shock_beam', {
       });
     } },
     lv6: [
-      { name: 'Cascade Failure', desc: 'A pulse that kills emits another (3 deep).', apply(w) { w2s(w).cascade = 3; } },
-      { name: 'Rolling Blackout', desc: 'Every 10 kills, the next kill flickers the screen and Charges every enemy on it.', apply(w) {
+      { name: 'Cascade Failure', desc: 'A pulse that kills sets off another pulse, a few deep.', apply(w) { w2s(w).cascade = 3; } },
+      { name: 'Rolling Blackout', desc: 'Every ten kills, the next one flickers the lights and Charges every enemy you can see.', apply(w) {
         const S = w2s(w); S.kn = 0; S.flick = false;
         wupOn(w, 'kill', (w, e, src) => {
           if (src.w2depth || src.w2jump) return;
@@ -431,7 +431,7 @@ wupReg('v_shock_beam', {
         });
       } },
     ],
-    wild: { name: 'Have You Tried Turning It Off', desc: 'Every 6 s the beam switches off and on again; the restart Charges everything on its line.', apply(w) {
+    wild: { name: 'Off and On Again', desc: 'Every few seconds the beam switches off and on again; the restart Charges everything on its line.', apply(w) {
       const S = w2s(w);
       wupOn(w, 'fire', (w, t, src) => {
         const now = G.t, p = G.player;
@@ -452,7 +452,7 @@ wupReg('v_shock_beam', {
       });
     } } },
   C: { name: 'Dead Pixels', tag: 'KITE', costs: '-30% damage on the main line.', shows: 'a jittery beam with sparks either side.', modes: 'KITE',
-    lv3: { desc: 'Every 0.5 s the beam glitches into 3 short parallel zaps beside its line (50% damage each).', apply(w) {
+    lv3: { desc: 'The beam keeps glitching into short zaps either side of its line. The main line is 30% weaker.', apply(w) {
       const S = w2s(w); S.px = [];
       wupOn(w, 'dmg', (w, e, src) => (src.wupEcho || src.w2zap ? 1 : 0.7));
       wupOn(w, 'fire', (w, t, src) => {
@@ -477,8 +477,8 @@ wupReg('v_shock_beam', {
       });
     } },
     lv6: [
-      { name: 'Stuck Pixels', desc: 'The glitches leave dead pixels on the floor for 1 s that zap anything crossing them.', apply(w) { w2s(w).pixels = 1; } },
-      { name: 'Packet Loss', desc: '[ATTACK to Spread] The beam breaks up permanently into 7 short zaps fanned out in front of you.', apply(w) {
+      { name: 'Stuck Pixels', desc: 'Glitches leave dead spots on the floor for a moment that zap anything crossing them.', apply(w) { w2s(w).pixels = 1; } },
+      { name: 'Packet Loss', desc: 'The beam breaks up for good into a fan of short zaps in front of you. Changes the attack to Spread.', apply(w) {
         const S = w2s(w);
         wupOn(w, 'fire', (w, t, src) => {
           if (S.fireMaster || !w2Claim(w)) return false;
@@ -499,7 +499,7 @@ wupReg('v_shock_beam', {
       });
     } } },
   lv10: [
-    { name: 'Blue Screen of Death', best: 'A', desc: 'An enemy held in the beam for 2 s is staggered and takes x5 (bosses: 4 s).', apply(w) {
+    { name: 'Blue Screen of Death', best: 'A', desc: 'An enemy held in the beam for a couple of seconds is staggered and takes five times the damage. Bosses need longer.', apply(w) {
       const S = w2s(w);
       wupOn(w, 'fire', (w, t) => {
         w2Hold(w, t);
@@ -516,7 +516,7 @@ wupReg('v_shock_beam', {
       });
       wupOn(w, 'dmg', (w, e, src) => (e.w2 && e.w2.bsodT > G.t ? 5 : 1));
     } },
-    { name: 'Multi-Monitor Setup', best: 'BC', desc: 'Four beams in a cross, turning with your swim direction.', apply(w) {
+    { name: 'Multi-Monitor Setup', best: 'BC', desc: 'Four beams in a cross, turning as you swim.', apply(w) {
       const S = w2s(w); S.fireMaster = true; S.cx = S.cx == null ? 0 : S.cx;
       wupOn(w, 'fire', (w, t, src) => {
         if (!w2Claim(w)) return false;
@@ -527,7 +527,7 @@ wupReg('v_shock_beam', {
         w2Mark(w, 'cross'); return true;
       });
     } },
-    { name: 'Kernel Panic', best: 'B', desc: 'An enemy killed by the beam Charges everything within 150, and the beam jumps to the nearest of them (3 jumps).', apply(w) {
+    { name: 'Kernel Panic', best: 'B', desc: 'An enemy killed by the beam Charges everything nearby, and the beam jumps to the nearest of them, a few times.', apply(w) {
       wupOn(w, 'kill', (w, e, src) => {
         if (src.w2jump || src.w2depth) return;
         const near = []; forNear(e.x, e.y, 150, o => { if (!o.dead && !o.charmed) near.push(o); });
@@ -688,15 +688,15 @@ function w2Conjoin(w) {
 function w2NocOn(w) { const S = w2s(w); if (S.nocOn) return S; S.nocOn = 1; S.strands = []; S.bogeys = []; S.bubbles = []; wupOn(w, 'tick', w2Noc); return S; }
 wupReg('v_ice_pool', {
   A: { name: 'Extra Strength Snot', tag: 'KITE', costs: 'the trap lasts 25% less time.', shows: 'thick green drag lines and strands snapping back.', modes: 'KITE',
-    lv3: { desc: 'Snared enemies crossing it move at 40% speed and stay slowed for 1.5 s after leaving.', apply(w) {
+    lv3: { desc: 'Snared enemies crawl through the trap and stay slowed after leaving it. Traps last a quarter less time.', apply(w) {
       const S = w2NocOn(w); S.drag = 1;
       wupOn(w, 'stats', (w, s) => { s.dur *= 0.75; });
     } },
     lv6: [
-      { name: 'Stringy', desc: 'Enemies leaving drag a strand behind them; the next enemy to cross it is Snared too.', apply(w) { w2NocOn(w).strand = 1; } },
-      { name: 'Rising Damp', desc: 'The trap grows by 10% every second something is Snared in it (up to double size).', apply(w) { w2NocOn(w).grow = 1; } },
+      { name: 'Stringy', desc: 'Enemies leaving the trap drag a strand behind them, and the next enemy to cross it is Snared too.', apply(w) { w2NocOn(w).strand = 1; } },
+      { name: 'Rising Damp', desc: 'The trap grows every second something is Snared in it, up to double size.', apply(w) { w2NocOn(w).grow = 1; } },
     ],
-    wild: { name: 'Snot Bubble', desc: 'Now and then a trap floats up as a bubble that drifts after the nearest enemy and splats on it.', apply(w) {
+    wild: { name: 'Floater', desc: 'Now and then a trap floats up as a bubble, drifts after the nearest enemy and splats on it.', apply(w) {
       const S = w2NocOn(w);
       wupOn(w, 'fire', (w, t, src) => {
         S.bn = (S.bn || 0) + 1;
@@ -706,31 +706,31 @@ wupReg('v_ice_pool', {
       });
     } } },
   B: { name: 'Bogged Down', tag: 'HOLD', costs: 'one trap at a time.', shows: 'a stuck enemy sinks a little into the snot.', modes: 'HOLD, NEST',
-    lv3: { desc: 'An enemy that stays in the trap for 1.5 s is stuck in place for 1.5 s (once per enemy per 4 s).', apply(w) {
+    lv3: { desc: 'An enemy that stays in the trap a moment gets stuck fast. Only one trap down at a time.', apply(w) {
       const S = w2NocOn(w); S.stick = 1; S.maxT = 1;
     } },
     lv6: [
-      { name: 'Bad Company', desc: 'Two stuck enemies close together become Conjoined (groups of 3 at most).', apply(w) { w2NocOn(w).conj = 1; } },
+      { name: 'Bad Company', desc: 'Two stuck enemies close together become Conjoined, up to three in a group.', apply(w) { w2NocOn(w).conj = 1; } },
       { name: 'Gag Reflex', desc: 'Stuck enemies cannot attack.', apply(w) { w2NocOn(w).gag = 1; } },
     ],
-    wild: { name: 'Sneeze Guard', desc: 'Traps block enemy shots that cross them (once per 0.3 s per trap).', apply(w) { w2NocOn(w).guard = 1; } } },
+    wild: { name: 'Sneeze Guard', desc: 'Traps block enemy shots that cross them.', apply(w) { w2NocOn(w).guard = 1; } } },
   C: { name: 'Snotwork', tag: 'KITE', costs: 'each trap is 30% smaller.', shows: 'glistening strands between puddles, enemies twanging into them.', modes: 'KITE, ORBIT',
-    lv3: { desc: 'Traps within 200 of each other are joined by a stretchy strand; enemies crossing it are Snared.', apply(w) {
+    lv3: { desc: 'Nearby traps are joined by stretchy strands that Snare anything crossing them. Each trap is 30% smaller.', apply(w) {
       const S = w2NocOn(w); S.net = 1; S.netR = 200; S.maxT = 2;
       wupOn(w, 'stats', (w, s) => { s.area *= 0.7; });
     } },
     lv6: [
-      { name: 'Spare Hankies', desc: 'Up to 4 traps can be down at once (from 2).', apply(w) { w2NocOn(w).maxT = 4; } },
+      { name: 'Spare Hankies', desc: 'Twice as many traps can be down at once.', apply(w) { w2NocOn(w).maxT = 4; } },
       { name: 'Twang', desc: 'An enemy crossing a strand is pulled along it to the nearest trap.', apply(w) { w2NocOn(w).twang = 1; } },
     ],
-    wild: { name: 'Bogey Man', desc: 'An enemy that dies Snared in a trap leaves a bogey that rolls slowly, Snaring what it touches for 3 s.', apply(w) { w2NocOn(w).bogey = 1; } } },
+    wild: { name: 'Bogey Man', desc: 'An enemy that dies Snared in a trap leaves a bogey that rolls along, Snaring what it touches.', apply(w) { w2NocOn(w).bogey = 1; } } },
   lv10: [
     { name: 'Snot Ocean', best: 'A', desc: 'Traps are three times the size and last twice as long.', apply(w) {
       wupOn(w, 'stats', (w, s) => { s.area *= 3; s.dur *= 2; });
       wupOn(w, 'tick', (w, dt) => { const S = w2s(w); if (!(S.ocT > G.realT)) { S.ocT = G.realT + 0.8; for (const z of w2Traps(w)) if (!z.w2oc) { z.w2oc = 1; ring(z.x, z.y, z.r, W2_GRN, 0.6, 6); w2Mark(w, 'ocean'); } } });
     } },
-    { name: 'Superglue', best: 'B', desc: 'Anything Snared in a trap is stuck solid for 2 s, no moving, no attacking (elites 1 s; bosses only slowed). Once per enemy per 5 s.', apply(w) { w2NocOn(w).glue = 1; } },
-    { name: 'Snotwork Everywhere', best: 'C', desc: 'A trap drops every 1 s as you swim, and strands join all of them (8 traps at most).', apply(w) { const S = w2NocOn(w); S.carpet = 1; S.net = 1; S.netR = 360; S.maxT = 8; } },
+    { name: 'Superglue', best: 'B', desc: 'Anything Snared in a trap is stuck solid for a moment: no moving, no attacking. Elites for less; bosses are only slowed.', apply(w) { w2NocOn(w).glue = 1; } },
+    { name: 'Snotwork Everywhere', best: 'C', desc: 'A trap drops every second as you swim, and strands join all of them.', apply(w) { const S = w2NocOn(w); S.carpet = 1; S.net = 1; S.netR = 360; S.maxT = 8; } },
   ],
 });
 
@@ -853,19 +853,19 @@ function w2NeedleTick(w, dt) {
 }
 wupReg('v_arcane_proj', {
   A: { name: 'Bleeding Heart', tag: 'KITE', costs: '-30% direct damage.', shows: 'growing pulsing marks on the target, drips between enemies.', modes: 'KITE',
-    lv3: { desc: 'Each hit adds a Bleed stack (the cap rises from 3 to 6).', apply(w) {
+    lv3: { desc: 'Every hit adds a Bleed stack and the Bleed cap doubles. Direct hits are 30% weaker.', apply(w) {
       const S = w2BleedOn(w, 6);
       wupOn(w, 'dmg', (w, e, src) => (src.wupEcho ? 1 : 0.7));
       wupOn(w, 'hit', (w, e, res, src) => w2BleedHit(w, e, res, src, 0, S.cap));
     } },
     lv6: [
-      { name: 'Leaky', desc: 'An enemy at the Bleed cap leaks: each second it splashes 1 stack onto the nearest enemy.', apply(w) { w2s(w).leak = 1; } },
-      { name: 'Open Wound', desc: 'A bleeding enemy that dies leaves a blood pool twice as large; enemies crossing it gain a Bleed stack.', apply(w) {
+      { name: 'Leaky', desc: 'An enemy at the Bleed cap leaks, splashing Bleed stacks onto the nearest enemy.', apply(w) { w2s(w).leak = 1; } },
+      { name: 'Open Wound', desc: 'A bleeding enemy that dies leaves a large blood pool; enemies crossing it gain a Bleed stack.', apply(w) {
         const S = w2s(w); S.pool = 1;
         wupOn(w, 'tick', w2PoolTick);
       } },
     ],
-    wild: { name: 'Sewing Circle', desc: 'Needles that miss circle you once and launch again.', apply(w) {
+    wild: { name: 'Sewing Circle', desc: 'Needles that miss loop round you once and fly out again.', apply(w) {
       wupOn(w, 'tick', (w, dt) => {
         const S = w2Track(w);
         for (const pr of S.fresh) pr.reunion = 1;
@@ -873,17 +873,17 @@ wupReg('v_arcane_proj', {
       });
     } } },
   B: { name: 'Needlework', tag: 'KITE', costs: 'fires 25% slower.', shows: 'a red thread trailing the needle through the line.', modes: 'KITE',
-    lv3: { desc: 'Pierces up to 5 enemies; each one after the first takes +10% more than the last.', apply(w) {
+    lv3: { desc: 'Needles pierce a line of enemies, each one taking a little more than the last. Fires 25% slower.', apply(w) {
       const S = w2s(w); S.threads = []; S.knots = [];
       w2PinBase(w);
       wupOn(w, 'stats', (w, s) => { s.pierce = Math.max(s.pierce || 0, 4); s.cd *= 1.25; });
       wupOn(w, 'tick', w2NeedleTick);
     } },
     lv6: [
-      { name: 'Sutures', desc: 'A needle that pierces 3 or more leaves a thread between the first and last enemy: Bleed hits anything crossing it for 2 s.', apply(w) { w2s(w).thread = 1; } },
-      { name: 'Reef Knot', desc: 'A needle that pierces 5 sews them together: they are pulled into a knot and each takes a Bleed stack.', apply(w) { w2s(w).knot = 1; } },
+      { name: 'Sutures', desc: 'A needle that pierces three or more leaves a thread between the first and last enemy that Bleeds anything crossing it.', apply(w) { w2s(w).thread = 1; } },
+      { name: 'Reef Knot', desc: 'A needle that pierces five enemies sews them together into a knot, and each takes a Bleed stack.', apply(w) { w2s(w).knot = 1; } },
     ],
-    wild: { name: 'Tattoo', desc: 'An enemy hit 5 times gets a small heart tattoo; when it dies you heal 1% of max health.', apply(w) {
+    wild: { name: 'Tattoo', desc: 'An enemy hit five times gets a small heart tattoo; when it dies you heal a little.', apply(w) {
       const S = w2s(w); S.tat = new Set();
       wupOn(w, 'hit', (w, e) => {
         const E = w2E(e); E.tc = (E.tc || 0) + 1;
@@ -897,14 +897,14 @@ wupReg('v_arcane_proj', {
       });
     } } },
   C: { name: 'Final Prick', tag: 'COLLECT', costs: '-25% damage to enemies above half health.', shows: 'a red pinprick flash and a ding on the finishing blow.', modes: 'COLLECT',
-    lv3: { desc: '+100% damage to enemies under 30% health.', apply(w) {
+    lv3: { desc: 'Double damage to badly hurt enemies, but 25% less to healthy ones.', apply(w) {
       w2PinBase(w);
       wupOn(w, 'dmg', (w, e, src) => { const f = e.hp / e.maxHp; return f < 0.3 ? 2 : f > 0.5 ? 0.75 : 1; });
       wupOn(w, 'hit', (w, e) => { if (e.hp / e.maxHp < 0.3) { G.fx.push({ type: 'flash', x: e.x, y: e.y, r: 10 + e.r * 0.4, color: '#ff3d5a', life: 0.1, max: 0.1 }); w2Mark(w, 'pinprick'); } });
       wupOn(w, 'kill', (w, e) => { floatText(e.x, e.y - e.r - 8, 'ding', '#ff758f', 11, 0.6); w2Mark(w, 'ding'); });
     } },
     lv6: [
-      { name: 'Next, Please', desc: 'A kill by Little Prick fires a free needle at the next-weakest enemy within 300.', apply(w) {
+      { name: 'Next, Please', desc: 'A kill fires a free needle at the next-weakest enemy nearby.', apply(w) {
         wupOn(w, 'kill', (w, e, src) => {
           if (src.w2free) return;
           const t = acquire('lowhp', 300, e.x, e.y, e); if (!t) return;
@@ -912,7 +912,7 @@ wupReg('v_arcane_proj', {
           if (w2Shoot(w, t, s2, 0, {}, e.x, e.y)) { w2Line(e.x, e.y, t.x, t.y, 1.5, W2_RED, 0.2); floatText(e.x, e.y - 14, 'NEXT', W2_RED, 10, 0.5); w2Mark(w, 'next'); }
         });
       } },
-      { name: 'Terminal Clause', desc: 'A needle that hits a bleeding enemy under 15% health kills it outright (elites under 8%, never bosses).', apply(w) {
+      { name: 'Terminal Clause', desc: 'A needle that hits a bleeding enemy on very low health kills it outright. Never bosses.', apply(w) {
         wupOn(w, 'hit', (w, e, res) => {
           if (e.boss || e.dead || !w2Bleeding(e)) return;
           if (e.hp < e.maxHp * (e.elite ? 0.08 : 0.15)) {
@@ -922,7 +922,7 @@ wupReg('v_arcane_proj', {
         });
       } },
     ],
-    wild: { name: 'Vaccination', desc: 'Each needle kill makes you immune to the next status that would hit you within 3 s.', apply(w) {
+    wild: { name: 'Vaccination', desc: 'Each needle kill makes you immune to the next status that would hit you for a few seconds.', apply(w) {
       const S = w2s(w); S.vacc = 0; S.vseen = new WeakSet();
       wupOn(w, 'kill', (w, e, src) => {
         const D = pdef(); S.vacc = G.t + 3; S.vsnap = null;
@@ -942,11 +942,11 @@ wupReg('v_arcane_proj', {
       });
     } } },
   lv10: [
-    { name: 'Exsanguinate', best: 'A', desc: 'Every hit adds 3 Bleed stacks, and kills of bleeding enemies heal you double (12 health per second cap).', apply(w) {
+    { name: 'Exsanguinate', best: 'A', desc: 'Every hit adds several Bleed stacks, and killing bleeding enemies heals you twice as much.', apply(w) {
       const S = w2BleedOn(w, 6); S.exsang = 1;
       wupOn(w, 'hit', (w, e, res, src) => w2BleedHit(w, e, res, src, 2, S.cap));
     } },
-    { name: 'Pin Cushion', best: 'B', desc: 'Each shot is a volley of 8 needles, each homing on a different enemy.', apply(w) {
+    { name: 'Pin Cushion', best: 'B', desc: 'Each shot is a volley of eight needles, each homing on a different enemy.', apply(w) {
       const S = w2s(w); S.fireMaster = true;
       wupOn(w, 'fire', (w, t, src) => {
         if (!w2Claim(w)) return false;
@@ -959,7 +959,7 @@ wupReg('v_arcane_proj', {
         w2Mark(w, 'volley'); return true;
       });
     } },
-    { name: 'Coup de Grace', best: 'C', desc: 'Any enemy under 25% health hit by a needle dies (elites under 12%; bosses take x3 instead).', apply(w) {
+    { name: 'Coup de Grace', best: 'C', desc: 'Any badly hurt enemy hit by a needle dies. Elites must be lower; bosses take triple damage instead.', apply(w) {
       wupOn(w, 'dmg', (w, e) => (e.boss && e.hp < e.maxHp * 0.25 ? 3 : 1));
       wupOn(w, 'hit', (w, e) => {
         if (e.boss || e.dead) return;

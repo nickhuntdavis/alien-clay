@@ -23,7 +23,7 @@ function mfPatrol(pv, dt, fx, fy, k) { const me = pv.me, h = fbHome(pv); h.x = f
 
 // ================================================================ Nocturnal Emission (snot traps)
 const NEV = { id: 'v_ice_pool', range: 0.65, cd: 1, mag: 4, reload: 1.6, dmg: 9, r: 0.1, dur: 3.5, max: 2 };
-const NEV_FLAG = { A: 'strength', B: 'bog', C: 'work', 'Extra Strength Snot': 'strength', Stringy: 'stringy', 'Rising Damp': 'damp', 'Snot Bubble': 'bubble',
+const NEV_FLAG = { A: 'strength', B: 'bog', C: 'work', 'Extra Strength Snot': 'strength', Stringy: 'stringy', 'Rising Damp': 'damp', 'Floater': 'bubble',
   'Bogged Down': 'bog', 'Bad Company': 'company', 'Gag Reflex': 'gag', 'Sneeze Guard': 'sneeze', Snotwork: 'work', 'Spare Hankies': 'hankies', Twang: 'twang',
   'Bogey Man': 'bogey', 'Snot Ocean': 'ocean', Superglue: 'glue', 'Snotwork Everywhere': 'everywhere' };
 function nevInit(pv) {
@@ -116,9 +116,9 @@ PV_OWN[NEV.id] = { init: nevInit, step: nevStep, draw: sivDraw, flags: NEV_FLAG,
 
 // ================================================================ Ewww, Gross (red tape bundles)
 const RTV = { id: 's_redtape', range: 0.72, cd: 1.4, mag: 3, reload: 2, dmg: 18, n: 4, jump: 0.29, dur: 5, share: 0.35 };
-const RTV_FLAG = { A: 'birds', B: 'trauma', C: 'toxic', 'Birds of a Feather': 'birds', 'Corporate Merger': 'merger', 'Group Chat': 'chat', 'Paper Trail': 'trail',
-  'Shared Trauma': 'trauma', 'Puppet Strings': 'puppet', Gossip: 'gossip', 'Office Politics': 'office', 'Toxic Relationship': 'toxic', Tangled: 'tangled',
-  Escalation: 'escal', 'Lost in the Post': 'post', Bureaucracy: 'bureau', 'Red Tape Everywhere': 'everywhere', 'Mutually Assured Destruction': 'mad' };
+const RTV_FLAG = { A: 'birds', B: 'trauma', C: 'toxic', 'Birds of a Feather': 'birds', 'Corporate Merger': 'merger', 'Long Distance': 'chat', 'Loose Ends': 'trail',
+  'Shared Trauma': 'trauma', 'Bad Influence': 'puppet', Gossip: 'gossip', 'Office Politics': 'office', 'Toxic Relationship': 'toxic', Tangled: 'tangled',
+  Escalation: 'escal', 'Lost in the Post': 'post', Bureaucracy: 'bureau', 'Small World': 'everywhere', 'Till Death Do Us Part': 'mad' };
 function rtvInit(pv) {
   const F = xsInit(pv, { range: RTV.range, mag: RTV.mag, reload: RTV.reload, rate: RTV.cd, bundles: [], trails: [], reT: 0 });
   pv.me.x = 0.16;
@@ -215,7 +215,7 @@ PV_OWN[RTV.id] = { init: rtvInit, step: rtvStep, draw: sivDraw, flags: RTV_FLAG,
 // ================================================================ Blowing Bubbles
 const BBV = { id: 's_bubble', range: 0.65, cd: 1.1, mag: 4, reload: 2, dmg: 18, v: 0.29, hold: 5, pop: 0.15 };
 const BBV_FLAG = { A: 'big', B: 'wrap', C: 'pop', 'Big Bubble Trouble': 'big', 'Locked In': 'locked', Cannonball: 'cannon', 'Bath Time': 'bath',
-  'Bubble Wrap': 'wrap', Chaperone: 'chaperone', 'Return to Sender': 'return', 'Snow Globe': 'globe', 'Pop Goes the Prawn': 'pop', Popcorn: 'popcorn',
+  'Bubble Wrap': 'wrap', Chaperone: 'chaperone', 'Spit It Back': 'return', 'Snow Globe': 'globe', 'Pop Goes the Prawn': 'pop', Popcorn: 'popcorn',
   'Stuck Together': 'stuckt', 'Bubble Gum': 'gum', 'Cotton Wool': 'cotton', 'Bubble Boy': 'boy', 'Hamster Ball': 'hamster' };
 function bbvInit(pv) {
   const F = xsInit(pv, { range: BBV.range, mag: BBV.mag, reload: BBV.reload, rate: BBV.cd, blows: [], bubs: [], soap: [], gum: [], cotton: 0, cotT: 2 });
@@ -495,7 +495,7 @@ PV_OWN[NMV.id] = { init: nmvInit, step: nmvStep, draw: sivDraw, flags: NMV_FLAG,
 // ================================================================ The Runs (burning trail)
 const TRV = { id: 's_wake', dmg: 20, life: 2.2, r: 0.037, fill: 0.5 };
 const TRV_FLAG = { A: 'cant', B: 'backdraft', C: 'leave', "Can't Hold It": 'cant', 'Burning Rubber': 'rubber', Footloose: 'foot', 'Slip Road': 'slip',
-  Backdraft: 'backdraft', 'Full Circle': 'circle', Flashpoint: 'flashp', Breadcrumbs: 'crumbs', 'Leave a Little Behind': 'leave', 'Creature of Habit': 'habit',
+  Backdraft: 'backdraft', 'Full Circle': 'circle', Flashpoint: 'flashp', Breadcrumbs: 'crumbs', 'Slow Burn': 'leave', 'Creature of Habit': 'habit',
   'Well Trodden': 'trodden', 'Wrong Way': 'wrong', Afterburner: 'after', 'Hot Lap': 'lap', 'Scorched Route': 'route' };
 function trvInit(pv) {
   const F = xsInit(pv, { range: 0.01, mag: 1, reload: 1, trail: [], waves: [], dropT: 0, gems: [], boost: 0, ph: 0 });

@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    const UNIQ = { baseline: 'standard_procedure', alpha: 'personal_best', beta: 'second_wind', private: 'pulling_strings', ordered: 'shrink_wrap', redtail: 'reply_all', prawn: 'recount', alien: 'first_contact' };
+    const UNIQ = { baseline: 'standard_procedure', alpha: 'personal_best', beta: 'second_wind', private: 'pulling_strings', ordered: 'shrink_wrap', redtail: 'reply_all', prawn: 'recount', alien: 'first_contact', acro: 'acro_release' }; // (acro: PROPOSED Sample 9, acrosample.js)
     // ---- a real run start per sample
     const start = id => { META.profile = 's10_' + id; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; genLoot({ kind: 'start' })[0].apply(); };
     const scene = () => { G.enemies.length = 0; G.zones.length = 0; G.ebul.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list); G.stats.dmg = {}; G.manual = { x: 0, y: 0 }; G.weapons.forEach((w, i) => { if (w) G.weapons[i] = null; }); if (!G.stam) stamInit(); G.stam.cur = stamMax(); };
@@ -118,6 +118,7 @@ const { chromium } = require('playwright');
       standard_procedure: ['baseline', () => ring(5, 80)], personal_best: ['alpha', () => [foe(22, 0)]], second_wind: ['beta', () => { G.player.hp = 100; G.P.maxHp = 1000; return ring(4, 100).map(e => (e.hp = 1, e)); }],
       pulling_strings: ['private', () => ring(4, 120)], shrink_wrap: ['ordered', () => ring(5, 100)], reply_all: ['redtail', () => ring(4, 100)], recount: ['prawn', () => ring(7, 120)],
       first_contact: ['alien', () => ring(3, 100, { corrodedT: G.t + 30 })],
+      acro_release: ['acro', () => ring(5, 120)], // (PROPOSED Sample 9, acrosample.js)
     };
     for (const [o, fid] of Object.entries(UNIQ)) {
       for (const lv of [3, 5]) {

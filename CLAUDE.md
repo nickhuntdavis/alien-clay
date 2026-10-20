@@ -4,11 +4,11 @@ Read this, then `storm-directive/NOTES.md` (current state and open threads), bef
 
 ## What it is
 Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, and the tone is Dungeon Crawler Carl: dry, deadpan, nerdy and never self-aware. Jokes are about bodies, sex, contraception and the microscopic world, with a little real science. No British slang (British spelling only). It is vanilla JS on a canvas, wrapped in an Android WebView.
-- Game: `storm-directive/web/` (`index.html`, `style.css`, `js/*.js`, about 20k lines, no build step and no modules: plain globals in script order).
+- Game: `storm-directive/web/` (`index.html`, `style.css`, `js/*.js`, about 46k lines in 127 files, no build step and no modules: plain globals in script order).
 - Android wrapper: `storm-directive/android/`. Released APK: `storm-directive/release/SpawnPrawn.apk`.
 - Player guide (generated): `storm-directive/GAME_GUIDE.md`, from `storm-directive/tests/tools/guide.js`.
 - Tests: `storm-directive/tests/` (Playwright, headless Chromium).
-- Combat redesign (v10 proposals, not shipped): `redesign docs/`. Read `redesign docs/CLAUDE.md` first; `COMBAT_MATRIX.md` there is the single source of rules.
+- Combat redesign (v10 spec, live in the shipped build; on unless `window.V10_OFF`, which brings back v9): `redesign docs/`. Read `redesign docs/CLAUDE.md` first; `COMBAT_MATRIX.md` there is the single source of rules.
 - Visual style guide: `storm-directive/STYLE.md`. Read it before redesigning anything drawn in the world.
 - Voice guide: `storm-directive/voice_and_tone.md`. The user writes all player-facing text (see Copy below); use the guide to write good briefs.
 - System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/changes/<branch>.md` per session, folded into `storm-directive/CHANGELOG.md` on merge into `main`.
@@ -24,6 +24,7 @@ Never write player-facing text yourself (card names and descriptions, narrator l
    - **Neighbours**: 1 to 3 existing lines it sits beside, quoted, so the voice matches.
 3. When the user sends the copy, drop it in, replace the placeholders, and grep that no `TODO_COPY` remains before shipping. If some are still open at ship time, say which in one line.
 Internal text (code comments, commit messages, changelog fragments, NOTES.md) is still yours to write.
+Where card lines live: Feat gift lines (per sample) are in `redesign docs/GIFT_LINES.md` and `FEATS.md` 3, built by `tests/tools/copy/giftvoice.py`; every other card line is in `storm-directive/Card_Copy_Draft_All.xlsx`, built by `cardvoice.py`. Run cardvoice.py first, then giftvoice.py.
 
 ## Working with the user
 - British English. Use () rather than em dashes. The first line is the answer. No preamble or recap. Numbered steps and ranked lists. When asked for options, give 2 to 4, recommendation first. End with one action under 2 minutes, with real time estimates.
@@ -123,10 +124,10 @@ After resolving: run the full suite (`./run.sh`, a merge counts as a big batch),
 - Script order matters (globals). `data.js` and `game.js` come first. Later files include … `chem`, `spoils`, `campaign`, `statusintro`, `tutorial`, `levels`, `glossary`, `evolve`, `stamina` …, `splash`, `finale`, `juice`, `audio`, `daily`, `portraits`, `lab`, `ui`.
 - Globals:
   - `G` is the run state; `null` on the title screen.
-  - `META` is persistent: `localStorage sd_meta`. `SET` is settings: `sd_settings`, defined in `settings.js` `SETTINGS_DEF` with Play/View/Sound/Data tabs.
+  - `META` is persistent: `localStorage sd_meta10` (`sd_meta` under `V10_OFF`; `META_KEY` in meta.js). `SET` is settings: `sd_settings`, defined in `settings.js` `SETTINGS_DEF` with Play/View/Sound/Data tabs.
   - `UI` is the DOM UI (`ui.js`).
   - `ctx`, `W`, `H` and `S` (world→screen scale), `cam`, and `PAL` (colours).
-  - `col()` greyscales colours unless `RAW_COL` is true. `SET.view`: Lab view (default) has no colour at all on the slide (`labGrey` in typefx.js, after the world is drawn) and no status rings; Arcade view (`viewArcade()`) is full colour with draining rings. Damage-type looks live in `typefx.js` (soft, organic: see STYLE.md). Stains and research grants are retired (v9.11; `grants.js` is mostly inert). Campaign levels draw with `RAW_COL` on, in pink.
+  - `col()` greyscales colours unless `RAW_COL` is true. `SET.view`: Arcade view (`viewArcade()`, the default under v10) is full colour with draining rings; Lab view (the v9 default, a Settings option again from v10.32) has no colour at all on the slide (`labGrey` in typefx.js, after the world is drawn) and no status rings. Damage-type looks live in `typefx.js` (soft, organic: see STYLE.md). Stains and research grants are retired (v9.11; `grants.js` is mostly inert). Campaign levels draw with `RAW_COL` on, in pink.
 - Main loop (`game.js`): `update(dt)` runs systems; the director spawns; `G.lootQueue` holds boxes, opened via `UI.openLoot(req)` and `genLoot(req)`.
 - Game modes (`UI.sample`):
   - `s002` Petri Dish wave mode (`waves.js` and `campaign.js`): 20 waves, a boss every 5th. Optional wave 0 tutorial is in `tutorial.js`.

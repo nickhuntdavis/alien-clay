@@ -293,5 +293,5 @@ function junkHtml(first) {
   const ids = Object.keys(G.junk || {}).filter(id => G.junk[id] > 0 && JUNK_POWERS[id]);
   const h = ids.map(id => `<div class="li on"><b>${esc(JUNK_POWERS[id].name)}${G.junk[id] > 1 ? ' x' + G.junk[id] : ''}</b>${G.junkNew && G.junkNew[id] ? ' <span style="background:#e9f5db;color:#000;font-weight:900;font-size:10px;padding:1px 5px;border-radius:4px">NEW</span>' : ''} <span class="sb">(${esc(ENEMIES[id].name)})</span><br><span>${esc(cap1(JUNK_POWERS[id].fmt(G.junk[id])))}.</span></div>`).join('');
   if (h) G.junkShown = true;
-  return `<h3${first ? '' : ' style="margin-top:10px"'}>Junk DNA (Lateral Gene Transfer)</h3>${h ? `<div class="list">${h}</div>` : '<p class="hint">None yet. Kill an enemy wearing the white helix, then swim into the helix it drops.</p>'}`;
+  return `<h3${first ? '' : ' style="margin-top:10px"'}>Junk DNA (Lateral Gene Transfer)</h3>${h ? uiList(h) : uiHint('None yet. Kill an enemy wearing the white helix, then swim into the helix it drops.')}`;
 }

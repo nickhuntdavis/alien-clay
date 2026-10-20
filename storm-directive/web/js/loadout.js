@@ -48,43 +48,43 @@ function loadoutHtml() {
   const A = UI.arm || {};
   let h = '';
   // Autorun.
-  h += `<div class="sec lo"><h3>Autorun</h3><div class="lomv">${moveModes().map(m => `<button class="lob ${G.moveDir === m.id ? 'sel' : ''}" data-mv="${m.id}"><b>${m.name}</b><span>${esc(m.desc)}</span></button>`).join('')}</div></div>`;
+  h += uiPanel('Autorun', `<div class="lomv">${moveModes().map(m => `<button class="lob ${G.moveDir === m.id ? 'sel' : ''}" data-mv="${m.id}"><b>${m.name}</b><span>${esc(m.desc)}</span></button>`).join('')}</div>`, 'lo');
   // Weapons.
   const W = G.stats.wdmg || {}, tot = G.weapons.reduce((a, x) => a + (x ? W[x.uid] || 0 : 0), 0) || 1;
-  h += `<div class="sec lo"><h3>Weapons</h3>`;
+  h += `${uiPanelOpen('Weapons', 'lo')}`;
   G.weapons.forEach((w, i) => {
     if (!w) return;
     const c = elemCol(wElem(w)), sh = Math.round((W[w.uid] || 0) / tot * 100), dr = DIRECTIVES.find(x => x.id === w.dir), open = A.tgt === w.uid;
     h += `<div class="low" style="--c:${c}"><div class="lowh"><span class="loi">${iconSVG(w.def, 24, c)}</span><div class="lon"><b>${esc(w.def.name)}</b><em>Lv ${w.lvl}/${MAX_WLVL} | ${esc(loadoutNext(w))}</em>
       <div class="losh"><i style="width:${sh}%"></i></div><small>${sh}% of your damage${w.mods.length ? ' | ' + w.mods.map(m => esc(MODS[m.id].name)).join(', ') : ''}</small></div>
       ${w.def.noTarget ? '' : `<button class="lot ${open ? 'on' : ''}" data-tg="${w.uid}">${dr ? dr.short + (w.dir2 && !w.dirs ? '›' + DIRECTIVES.find(x => x.id === w.dir2).short : '') : '?'}</button>`}<button class="lod" data-go="w${i}">&rsaquo;</button></div>`;
-    if (open) h += `<div class="lotg">${DIRECTIVES.map(d => `<button class="chip ${w.dir === d.id ? 'sel' : ''}" data-dir2="${d.id}" data-uid="${w.uid}" title="${esc(d.desc)}">${d.name}</button>`).join('')}<p class="hint">${esc((DIRECTIVES.find(x => x.id === w.dir) || {}).desc || '')}</p>${w.dirs ? '' : `<p class="hint">Then (breaks ties, and takes over when nothing fits):</p>${[{ id: '', name: 'NONE' }].concat(DIRECTIVES.filter(d => d.id !== w.dir)).map(d => `<button class="chip ${(w.dir2 || '') === d.id ? 'sel' : ''}" data-dir3="${d.id}" data-uid="${w.uid}">${d.name}</button>`).join('')}`}${aimOwnPick(w, w.dir, w.dirs ? null : w.dir2)}</div>`;
+    if (open) h += `<div class="lotg">${DIRECTIVES.map(d => uiChip(d.name, { sel: w.dir === d.id, attrs: `data-dir2="${d.id}" data-uid="${w.uid}" title="${esc(d.desc)}"` })).join('')}${uiHint(esc((DIRECTIVES.find(x => x.id === w.dir) || {}).desc || ''))}${w.dirs ? '' : `${uiHint('Then (breaks ties, and takes over when nothing fits):')}${[{ id: '', name: 'NONE' }].concat(DIRECTIVES.filter(d => d.id !== w.dir)).map(d => uiChip(d.name, { sel: (w.dir2 || '') === d.id, attrs: `data-dir3="${d.id}" data-uid="${w.uid}"` })).join('')}`}${aimOwnPick(w, w.dir, w.dirs ? null : w.dir2)}</div>`;
     h += `</div>`;
   });
-  h += `</div>`;
+  h += `${uiPanelClose()}`;
   // Feats.
   if (G.spells.some(Boolean)) {
-    h += `<div class="sec lo"><h3>Feats</h3>`;
+    h += `${uiPanelOpen('Feats', 'lo')}`;
     G.spells.forEach((w, i) => {
       if (!w) return;
       const c = elemCol(wElem(w)), ready = !(w.cd > 0.05), waits = featWaits(w);
       h += `<div class="low" style="--c:${c}"><div class="lowh"><span class="loi">${iconSVG(w.def, 24, c)}</span><div class="lon"><b>${esc(w.def.name)}</b><em>Lv ${w.lvl}/${MAX_WLVL} | ${ready ? 'ready' : Math.ceil(w.cd) + 's'} | every ${w.s ? w.s.cd.toFixed(0) : '?'}s</em></div>
-        <div class="chips lofa"><button class="chip ${!waits ? 'sel' : ''}" data-fa="${i}" data-v="auto">AUTO</button><button class="chip ${waits ? 'sel' : ''}" data-fa="${i}" data-v="tap">TAP</button></div><button class="lod" data-go="s${i}">&rsaquo;</button></div></div>`;
+        ${uiChips(`${uiChip('AUTO', { sel: !waits, attrs: `data-fa="${i}" data-v="auto"` })}${uiChip('TAP', { sel: waits, attrs: `data-fa="${i}" data-v="tap"` })}`, 'lofa')}<button class="lod" data-go="s${i}">&rsaquo;</button></div></div>`;
     });
-    h += `<p class="hint">AUTO: performs itself when ready. TAP: waits for you to tap its button.</p></div>`;
+    h += `${uiHint('AUTO: performs itself when ready. TAP: waits for you to tap its button.')}${uiPanelClose()}`;
   }
   // Combos.
   const cr = loadoutCombos();
   if (cr.length) {
-    h += `<div class="sec lo"><h3>Combos to build</h3><div class="list">${cr.map(r => `<div class="li loc ${r.on ? 'on' : ''}" style="--c:${r.col}"><b style="color:${r.on ? r.col : 'inherit'}">${esc(r.name)}</b> <em>${r.kind}</em><div class="losh"><i style="width:${Math.round(Math.min(1, r.p) * 100)}%"></i></div><span>${esc(r.need)}</span><br><span class="lodesc">${esc(r.desc)}</span></div>`).join('')}</div></div>`;
+    h += uiPanel('Combos to build', uiList(cr.map(r => `<div class="li loc ${r.on ? 'on' : ''}" style="--c:${r.col}"><b style="color:${r.on ? r.col : 'inherit'}">${esc(r.name)}</b> <em>${r.kind}</em><div class="losh"><i style="width:${Math.round(Math.min(1, r.p) * 100)}%"></i></div><span>${esc(r.need)}</span><br><span class="lodesc">${esc(r.desc)}</span></div>`).join('')), 'lo');
   }
   // Build.
   const els = {};
   G.weapons.forEach(w => { if (w) { const e = wElem(w); els[e] = (els[e] || 0) + (W[w.uid] || 0); } });
   const et = Object.values(els).reduce((a, b) => a + b, 0) || 1;
   const B = G.elemBias || {}, mo = G.weapons.find(w => w && w.lvl >= MAX_WLVL);
-  h += `<div class="sec lo"><h3>Your build</h3><div class="loel">${Object.entries(els).sort((a, b) => b[1] - a[1]).map(([e, v]) => `<span style="--c:${elemCol(e)}"><i style="width:${Math.max(4, Math.round(v / et * 100))}%"></i>${esc(ELEMENTS[e].name)} ${Math.round(v / et * 100)}%</span>`).join('')}</div>
-    <div class="tiles"><div class="tile"><b>${G.rerolls}</b><span>Rerolls</span></div><div class="tile"><b>${B.up ? esc(ELEMENTS[B.up].name) : '-'}</b><span>Acquired Taste</span></div><div class="tile"><b>${B.down ? esc(ELEMENTS[B.down].name) : '-'}</b><span>Gone Off It</span></div><div class="tile"><b>${mo ? esc(mo.def.name) : 'Open'}</b><span>Mastery</span></div></div></div>`;
+  h += uiPanel('Your build', `<div class="loel">${Object.entries(els).sort((a, b) => b[1] - a[1]).map(([e, v]) => `<span style="--c:${elemCol(e)}"><i style="width:${Math.max(4, Math.round(v / et * 100))}%"></i>${esc(ELEMENTS[e].name)} ${Math.round(v / et * 100)}%</span>`).join('')}</div>
+    ${uiTiles(`${uiTile(G.rerolls, 'Rerolls')}${uiTile(B.up ? esc(ELEMENTS[B.up].name) : '-', 'Acquired Taste')}${uiTile(B.down ? esc(ELEMENTS[B.down].name) : '-', 'Gone Off It')}${uiTile(mo ? esc(mo.def.name) : 'Open', 'Mastery')}`)}`, 'lo');
   return h;
 }
 

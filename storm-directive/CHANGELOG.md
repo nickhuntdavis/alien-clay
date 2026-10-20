@@ -2,6 +2,170 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## Unreleased (merged to main without a build): 2026-10-20 local work (card copy, Sample 9 and tuning, consciousness gifts, design system, Ordered Online nanobot)
+- Merge notes: main's feats9.js Feats (Capacitation, Bombardier Beetle, Van de Graaff, Spinnbarkeit, Wandering Womb, Ear Candling) removed in favour of the local builds with the user's copy (feats10.js, gifts10.js); fitcheck.js uses the new card names; voice canon ("we" mostly, "you" to blame, "I" when selfish) written into voice_and_tone.md, VOICE_GUIDE.md, CONSCIOUSNESS.md, redesign docs CLAUDE.md and COMBAT_MATRIX.md.
+
+### Folded from local-card-copy: 2026-10-20 Card copy: names, descriptions and per-sample voice lines (not shipped)
+- Systems: weapons, feats, mutations, modifiers, combos, draft, ui
+- Files: cardvoice.js (new, generated), tests/tools/copy/cardvoice.py (new), feats10.js, mutations.js, combos10.js, modifiers.js, wup1.js to wup6.js, weapons24.js, draft.js, modcards.js, combos.js, sandbox.js, fitcheck.js, aldemo.js, asdemo.js, bldemo.js, fbdemo.js, mfdemo.js, scdemo.js, index.html, style.css, tests/wup2test.js, tests/wup4test.js, tests/wup5test.js
+- What: 477 cards get the user's approved copy from Card_Copy_Draft_All.xlsx: new names and "what it does" text, and a consciousness line per sample (three for Not of This World, by active damage type) shown in each card's italic quip. Feat cards no longer prefix their old generic line to the description. Promise cards skip the "Costs:" suffix when the new text already carries the cost (costs fields unchanged).
+- Save data: none. (A run saved mid-way keeps old branch names in w.up.l6/l10; harmless, only text lookups.)
+- Hooks: draft.js cardOpt and weapon fork cards -> quip: cardVoice/cardLine; weapons24.js wupForkCards card() -> quip; modcards.js modCard -> quip; combos.js optCombo -> quip; sandbox.js sbDraftInfo shows o.quip; feats10.js feat() text = d.does.
+- Risk: renamed weapon cards are matched by name in fitcheck.js and the *demo.js flag maps (updated per weapon); tests/tools/guide.js prose and fitcheck.js FIT_TEXT (The Runs' Static versions) still use some old names and old text.
+
+### Folded from local-sample9: 2026-10-20 Range stops growing with level (not shipped)
+- Systems: engine
+- Files: game.js
+- What: long-range weapons stay at REACH_START (300, about a phone's half-width) at every level instead of growing 30 a level to their full range (Acid Spit was 300 / 390 / 440 by tier), so kills happen on screen. Range upgrade cards still multiply it.
+- Save data: none.
+- Hooks: none (one line in computeStats).
+- Risk: every long-range weapon is weaker from tier 2; balance shifts for all samples (bot sim below is noisy at 4 runs a sample).
+
+### Folded from local-sample9: 2026-10-20 Sample 9 (proposed): sample, three weapons, 45 branch cards, tuning (not shipped)
+- Systems: acro, acrosample, samples, weapons24, feats10
+- Files: acro.js (new), acrosample.js (new), index.html
+- What: Sample 9 (Acid / Fire, all text TODO_COPY): its three weapons (acro_cap, acro_spray, acro_spark) join the roster with their branches; the sample itself (passive, Unique Feat, exclusive gift X9, unlock, body, cosmetic lurch). Tuned after bot sims: Feat penalty -25% for 4 s (was -50% for 6 s); cap 34, spray 8 per pellet, beam 4 per tick. Spec: redesign docs/SAMPLE_9_ACRO.md.
+- Save data: META.s10.acro (unlock), META.s10runs.acro.
+- Hooks: none in shared files; wraps wupStats, wupFire, wupDmgMul, wupHit, wupKill, wupTick, hurtPlayer, s10Hit, s10DmgMul, s10Tick, sampleLook.
+- Risk: roster is 27 weapons; any sample can draft the three. TODO_COPY strings show in the UI until the copy is written.
+
+### Folded from local-sample9: 2026-10-20 Van de Graaff Feat (not shipped)
+- Systems: feats
+- Files: feats10.js
+- What: the re-gifted Van de Graaff (FEATS.md F6) is built and in the starting pool; Lv 5 fork text TODO_COPY.
+- Save data: none.
+- Hooks: none (f10Tick and f10Draw call its own functions in feats10.js).
+- Risk: one more Static Feat in the draft.
+
+### Folded from local-sample9: 2026-10-20 Beams pass Charge arcs every 3rd hit (not shipped)
+- Systems: combat
+- Files: fight.js; redesign docs/COMBAT_MATRIX.md (decision 45, sections 4 and 11.5 Charge rows), tables/*.csv (re-exported)
+- What: a Beam's Static hits pass Charge arcs on only every 3rd hit, counted per weapon (fightBeamArcOk). Red Flagship at level 1 (weapon arena, XP frozen): 65 to 75 damage a second before, 61 to 72 after; its arc share 19-22% to 14-15%. Every other attack type unchanged.
+- Save data: none.
+- Hooks: none (one helper in fight.js, called from fightStatus).
+- Risk: Red Flagship's Static-arc branch cards and combos (Static Cling, Crossing the Streams) see a third of the arcs from beams.
+
+### Folded from local-sample9: 2026-10-20 Beam base damage 3.5 to 3 (not shipped)
+- Systems: v10, weapons
+- Files: v10.js (V10_ATK.beam.base.dmg)
+- What: the matrix beams' base damage drops 15%. Live, that is only Red Flagship (Soulmate Signal and Sample 9's beam set their own). Red Flagship at level 1, XP frozen: 61 / 72 damage a second (standing / circling) after decision 45, 56 / 62 after this; field: Standard Issue 47 / 50, Nervous Wreck 45 / 78, Acid Spit 33 / 40.
+- Save data: none.
+- Hooks: none.
+- Risk: the archived matrix beams (Lab Bench, Switched at Birth targets) drop too.
+
+### Folded from local-sample9: 2026-10-20 Chain jumps don't pass Charge arcs (not shipped)
+- Systems: combat, engine
+- Files: fight.js (fightArcOk, was fightBeamArcOk), game.js (doChain tags jumps chainHop); redesign docs/COMBAT_MATRIX.md (decision 46, Charge rows), tables/*.csv
+- What: only a chaining attack's first hit passes Charge arcs on; its jumps (doChain and the chaining modifier) don't. Unwanted Contact at level 1, XP frozen: 96 / 86 damage a second (standing / circling) before, 84 / 81 after; its arc share 30% to 17%.
+- Save data: none.
+- Hooks: none new (doChain adds a src flag).
+- Risk: Static Cling combos and Unwanted Contact branch cards that lean on arcs from jumps lose some of them.
+
+### Folded from local-sample9: 2026-10-20 Unwanted Contact damage 13 to 11 (not shipped)
+- Systems: weapons
+- Files: sigweap.js (sigReg 'tesla' base override; the archived Static Cling def keeps 13)
+- What: Unwanted Contact at level 1, XP frozen: 84 / 81 damage a second (standing / circling) after decision 46, 70 / 69 after this. Field in the same test: Red Flagship 60 / 61, Nervous Wreck 43 / 77, Acid Spit 56 / 43, Standard Issue 41 / 46.
+- Save data: none.
+- Hooks: none.
+- Risk: Redtail's starter is weaker; Redtail averaged wave 10.0 in the last big sim, before these Static changes.
+
+### Folded from local-sample9: 2026-10-20 Autorun KITE keeps your reach; targets count from their edge (not shipped)
+- Systems: autorun, engine
+- Files: autorun.js (arKite, new arReach), game.js (acquire and acquireMany range checks)
+- What: KITE's band (240 / 360 / 450) now scales to your longest weapon reach (65% / 85% / 95%, never more than before); with nothing within 420 it closes in on the nearest enemy (that branch could never run before); with a boss alive it closes until the boss's edge is in reach. acquire and acquireMany count an enemy in range when its edge is (range + its radius); shots, beams and chains already hit on contact with the edge, so a picked big target is hittable. Bot, Baseline, 12 instrumented mortal runs each: average wave 11.1 to 12.9, worst run 5 to 9, boss in reach 51% to 62% of boss-fight time; damage share on the boss unchanged (24% to 25%: the aim still picks the escorts).
+- Save data: none.
+- Hooks: none.
+- Risk: player autorun KITE plays closer with short-range weapons; every weapon can now pick big targets slightly further away (by their radius).
+
+### Folded from local-sample9: 2026-10-20 Default aim prefers the boss (not shipped)
+- Systems: autorun, engine, ui
+- Files: autorun.js (aimDir), game.js (targetScore 'bossfirst'), ui.js (both aim menus set w.dirSet)
+- What: a slot on its default NEAREST aim (no tie-breaker, never set in an aim menu) aims at a boss in reach before its escorts while a boss is alive. Bot, Baseline, 12 instrumented runs: damage on the boss 25% to 44%, boss fights won in 50 s on average (was 135 s), but average wave 12.9 to 11.3 (7 of 12 died at the wave-10 boss, to its own attacks: death stare, contact, bullets). Net: shorter boss fights, no gain in how far the bot gets.
+- Save data: none (w.dirSet is per run).
+- Hooks: none new.
+- Risk: players on default aim now shoot the boss over nearer escorts; choosing any aim (even NEAREST) turns it off for that slot.
+
+### Folded from local-sample9: 2026-10-20 Autorun bullet dodging looks further ahead (not shipped)
+- Systems: autorun, engine
+- Files: game.js (autoSteer: STEER_BUL, bullet radius 300 to 420)
+- What: each candidate heading checks bullets at four moments (0.1, 0.225, 0.45, 0.675 s) instead of two, and sees bullets from 420 instead of 300. Bot, Baseline, 12 instrumented runs: average wave 11.8 (spread 3.6), against 11.3 with boss-first aim alone: no measurable change.
+- Save data: none.
+- Hooks: none.
+- Risk: slightly more steering work per frame (4 checks per bullet per heading, more bullets in range).
+
+### Folded from claude-consciousness-gifts: 2026-10-20 X5, X7, X8 to full spec; five old test failures fixed
+- Systems: feats10, tests
+- Files: gifts10.js, tests/featstest.js, drafttest.js, samplestest.js, ufeatstest.js, v10test.js
+- What: X5 also slips chargers' and bosses' aimed wind-ups, and the attack it dodged hits its own side (areas when they go off, dashes for 1.6 s). X7's copies fire your real first weapon (an echo slot at half damage, three quarters with Muscle Memory) and count towards the 8-pet cap (wraps sigweap.js sigPetCount). X8 also clears a Complement Protein's mark (G.complT). Tests: featstest's pool is 16 (Van de Graaff), with tests for Van de Graaff, X9 and the three spec details; drafttest accepts the tabbed tier screen a lone weapon opens; samplestest, ufeatstest and v10test allow the PROPOSED Sample 9.
+- Save data: none.
+- Hooks: none in shared files (adds a sigPetCount wrap).
+- Risk: X7 fires the weapon from the copy by moving the player for one call; a weapon with side effects on the player (a lunge) could misbehave. Supersedes the "Simplified against the spec" note below.
+
+### Folded from claude-consciousness-gifts: 2026-10-20 Doc names for two Feats, Feat-line ownership, run.sh on macOS
+- Systems: feats10, card voice, tests
+- Files: feats10.js, giftvoice.js (regenerated), tests/tools/copy/giftvoice.py, tests/tools/copy/cardvoice.py, tests/run.sh, CLAUDE.md
+- What: Comfort Eating is More! again and Clean Plate is COME BACK HERE (decision 45). Feat card lines are owned by the docs via giftvoice.py, the sheet keeps every other card (decision 46). run.sh runs on a Mac: no `timeout` needed, and it shims playwright-core into out/.pw when `playwright` is missing (nothing installed).
+- Save data: none (Feat ids unchanged).
+- Hooks: none.
+- Risk: anything keyed on the two old titles (none found outside the generated tables).
+
+### Folded from claude-consciousness-gifts: 2026-10-20 Consciousness gift lines, exclusive gifts and six new Feats
+- Systems: feats10, card voice, samples10
+- Files: gifts10.js (new), giftvoice.js (new, generated), tests/tools/copy/giftvoice.py (new), samples10.js, index.html, tests/featstest.js, ARCHITECTURE.md
+- What: every Feat card now shows the approved per-sample gift line from the redesign docs (GIFT_LINES.md, FEATS.md 3), replacing the sheet's Feat lines; Alpha's Red Flagship Lv 3 lines and the Alpha, Beta and Ordered Online sample lines (Ordered Online is now a synthetic nanobot: origin and Scientist line) follow the docs. The eight sample-exclusive gifts X1 to X8 are drafted for their own sample only, and THIS WAY, Capacitation, Bombardier Beetle, Spinnbarkeit, Wandering Womb and Ear Candling join the later unlocks. Level 5 forks for all fourteen were written in code (the docs list level 3 only). The card text for the fourteen (does lines, fork names and descriptions, pops) was written by Claude and approved as written by the user on 20 Oct.
+- Simplified against the spec: X5 dodges only the telegraphs newfoes.js exposes (G.nfBurst, wind-ups) and the dodged attack does not hit its own side; X7's copies fire bolts of the first weapon's damage type at half damage (at most two copies; they do not count towards the pet cap); X8 reacts to statuses only, not marks.
+- Save data: none.
+- Hooks: none in shared files (wraps f10Hurt, f10Kill, f10Tick, f10Draw, arGoal, sampleLook).
+- Risk: Card_Copy_Draft_All.xlsx's Feat lines are now overridden: rerunning cardvoice.py alone no longer changes Feat lines (run giftvoice.py). Balance of the new gifts is untested by sims. Ordered Online's body still draws the old frosted look (samplelooks.js): the nanobot look is follow-on work.
+
+### Folded from local-design-system: 2026-10-20 HUD, loot cards and boss card through the kit
+- Systems: ui, uikit, hud
+- Files: uikit.js, ui.js, index.html, ARCHITECTURE.md
+- What: the HUD overlay (uiHud: uiHudKey, uiWeaponSlotClass/Inner, uiRewindButton, uiToast, uiSystemMessage) and the boss introduction (uiBossIntro, uiBossCard) moved out of index.html into builders; uikit.js fills #hud and #bossIntro as it loads, with every element id unchanged. Loot and weapon-upgrade card bodies use uiLootCard, the section labels uiLootSection. Screens pixel-identical; 17 tests pass (quick, hudshot3, bossshot, bosstest, rewindtest, loottest, mythtest, overtest, tapcycle, introtest, rivintro, newtut, tuttest, settabs, autotest, putest, wup1test).
+- Save data: none
+- Hooks: none (uikit.js now fills #hud and #bossIntro at load)
+- Risk: low. Anything that adds elements to #hud must run after uikit.js loads (all current code does: it runs from ui.js init or later).
+
+### Folded from local-design-system: 2026-10-20 Last lists and chip rows through the kit
+- Systems: ui, uikit
+- Files: ui.js, aimat.js, junk.js, samplelooks.js
+- What: the Combos, Pairings and Damage-type synergies lists and the Autorun directive chips (ui.js), the whose-mess chips (aimat.js), the Junk DNA list (junk.js) and the Field Guide samples list (samplelooks.js) now use uiList/uiChips/uiChip/uiHint. No hand-written .list or .chips markup is left in web/js. Screens pixel-identical; 16 tests pass (adds aimowntest, pairtest).
+- Save data: none
+- Hooks: none
+- Risk: low.
+
+### Folded from local-design-system: 2026-10-20 Every menu panel through the kit
+- Systems: ui, uikit
+- Files: uikit.js, ui.js, loadout.js
+- What: the 21 panels that are filled over several statements now open and close with uiPanelOpen()/uiPanelClose(), and the settings row uses uiPanel; no hand-written .sec markup is left in ui.js or loadout.js. Screens pixel-identical; the same 14 tests pass.
+- Save data: none
+- Hooks: none
+- Risk: low.
+
+### Folded from local-design-system: 2026-10-20 UI builders from the design system
+- Systems: ui, uikit
+- Files: uikit.js (new), ui.js, loadout.js, pinhide.js, samples10.js, inspect.js, v10.js, sandbox.js, index.html, ARCHITECTURE.md
+- What: menus now build their HTML through one builder per design-system component (uikit.js, 15 builders, 203 call sites). Output is the same elements and classes as before: all 35 screen captures (portrait and landscape) are pixel-identical and quick, settabs, setshot, loottest, loadouttest, inspecttest, porttest, logtest, stpanel, glosstest, youshot2, overtest, finaletest and sbtest pass. Not converted at the time: 21 split panels (since done, above), 5 lists and 1 chip row with classes glued to expressions, and the HUD, loot cards and boss card (built as DOM or static HTML in index.html).
+- Save data: none
+- Hooks: none (index.html: uikit.js after settings.js)
+- Risk: low; markup is unchanged. Anything new that builds a menu should use the builders.
+
+### Folded from local-design-system: 2026-10-20 Design-token layer in style.css
+- Systems: ui
+- Files: style.css, look10.js (comment), data.js (comment)
+- What: one :root block of tokens named like the Figma variables (colour, space, radius, surfaces); the three old :root blocks folded in, older names (--xw, --dim, --r, --line ...) kept as aliases; 308 declarations that a later rule with the same selector always overrides removed; 121 hex colours swapped for tokens. Screens pixel-identical. 229 one-off colours left as they are (no matching token).
+- Save data: none
+- Hooks: none
+- Risk: low.
+
+### Folded from claude-ordered-nanobot: 2026-10-20 Ordered Online drawn as a synthetic nanobot (not shipped)
+- Systems: samplelooks, orderedlook (new)
+- Files: orderedlook.js (new), samplelooks.js (old Ordered Online head and tail removed, header comment), index.html, ARCHITECTURE.md
+- What: Ordered Online's body (in a run, on the sample card, in the Field Guide and pause portrait) is a machine (SAMPLES.md 5, decision 43): a segmented glossy silver shell with a seam down the head, panel gaps, a lens and a cyan status light on a jointed servo midpiece (amber after a glitch, red when hit); a tail of rigid links whose wave moves in exact steps (4 poses a beat, about 11 steps a second); a two-frame twitch every 2.5 to 6 s; on a corner the head leads past its heading, holds 0.12 s, then corrects in one step. Its Mucus trail gets a glossy gel band and a specular line on top. All cosmetic: hitbox, swim physics, kit, passive, Feat and trail rules unchanged.
+- Save data: none.
+- Hooks: none in shared files; replaces SL_HEAD/SL_TAIL.ordered, adds SL_UNDER.ordered, sets SL.ordered.beat 0.45 (visual beat only), wraps f10Draw.
+- Risk: none to balance. The trail sheen is drawn in v10Draw (over zones, under you); a branch that edits SL_HEAD.ordered in samplelooks.js would be overridden by orderedlook.js.
+
 ## Unreleased: every weapon can take Switched at Birth
 
 ### Folded from ccr-b4817013-jgeigi: 2026-10-20 Switched versions for every status-bound weapon

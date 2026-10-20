@@ -81,7 +81,7 @@ const INSPECTOR = {
     el.className = 'on' + (INSPECT.pause ? ' pausing' : '');
     el.style.setProperty('--ic', colour || '#d1ddef');
     const resume = INSPECT.pause && INSPECT.prev === 'play';
-    el.innerHTML = `<div class="icard">${html}<div class="ibtns">${INSPECT.hist.length > 1 ? '<button class="btn" data-insp="back:">BACK</button>' : ''}<button class="btn primary" data-insp="close:">${resume ? 'RESUME' : 'CLOSE'}</button></div></div>`;
+    el.innerHTML = `<div class="icard">${html}<div class="ibtns">${INSPECT.hist.length > 1 ? '<button class="btn" data-insp="back:">BACK</button>' : ''}${uiButton(resume ? 'RESUME' : 'CLOSE', { cls: 'primary', attrs: 'data-insp="close:"' })}</div></div>`;
   },
   back() { if (INSPECT.hist.length > 1) { INSPECT.hist.pop(); const h = INSPECT.hist[INSPECT.hist.length - 1]; INSPECTOR.show(h.html, h.colour, true); } },
   close() {
@@ -104,7 +104,7 @@ const INSPECTOR = {
     const html = `<div class="idot" style="background:${d.color}"></div><h3>${inspectEsc(d.name)}</h3>` + (boss && d.title ? `<em>${inspectEsc(d.title)}</em>` : '') +
       `<div class="istats"><span>HP <b>${hp}</b></span><span>Speed <b>${Math.round(d.speed || 0)}</b></span><span>Armour <b>${arm}</b></span></div>` +
       `<p>Hits for <b>${dmg}</b>.</p><div class="irow"><h4>WEAK TO</h4>${typ(d.weak)}</div><div class="irow"><h4>RESISTS</h4>${typ(d.resist)}</div>` +
-      (I ? `<p class="ijoke">${inspectEsc(I.what)}</p><p class="hint">${inspectEsc(I.tip)}</p>` : boss && d.quote ? `<p class="ijoke">${inspectEsc(d.quote)}</p>` : '');
+      (I ? `<p class="ijoke">${inspectEsc(I.what)}</p>${uiHint(inspectEsc(I.tip))}` : boss && d.quote ? `<p class="ijoke">${inspectEsc(d.quote)}</p>` : '');
     INSPECTOR.show(html, d.color);
   },
   // A damage type: what it does, its status, and the reaction chart.
@@ -122,7 +122,7 @@ const INSPECTOR = {
     const I = statusInfo(key);
     if (!I) return;
     if (!(META.seenSt && META.seenSt[key])) { INSPECTOR.show('<div class="isil"></div><h3>???</h3><p class="hint">Not met yet.</p>', '#555'); return; }
-    INSPECTOR.show(`<h3>${inspectEsc(key)}</h3><em>${I.buff ? 'BUFF' : 'DEBUFF'}</em><p>${inspectEsc(I.what)}</p><p class="hint">${inspectEsc(I.tip)}</p>`, I.buff ? '#8affc1' : '#ff758f');
+    INSPECTOR.show(`<h3>${inspectEsc(key)}</h3><em>${I.buff ? 'BUFF' : 'DEBUFF'}</em><p>${inspectEsc(I.what)}</p>${uiHint(inspectEsc(I.tip))}`, I.buff ? '#8affc1' : '#ff758f');
   },
   chart() { INSPECTOR.show(rxChartHtml(), '#d1ddef'); },
   // A square of the chart (or a reaction chip on a damage type card): the reaction, in the line below.
@@ -150,7 +150,7 @@ function rxChartHtml() {
 }
 // Field Guide: the damage types as tappable chips, and the chart under them (ui.js codexHtml).
 function inspectGuideHtml() {
-  return `<div class="irow">${(V10 ? RX10_ORDER : ELEM_ORDER).map(k => `<button class="ichip" style="--c:${ELEMENTS[k].color}" data-insp="el:${k}">${inspectEsc(ELEMENTS[k].name)}</button>`).join('')}</div><button class="btn" data-insp="rx:">REACTION CHART</button>`;
+  return `<div class="irow">${(V10 ? RX10_ORDER : ELEM_ORDER).map(k => `<button class="ichip" style="--c:${ELEMENTS[k].color}" data-insp="el:${k}">${inspectEsc(ELEMENTS[k].name)}</button>`).join('')}</div>${uiButton('REACTION CHART', { attrs: 'data-insp="rx:"' })}`;
 }
 // Outside the card (the Field Guide, Active effects) buttons carry data-insp too: one listener for the page.
 document.addEventListener('click', ev => {

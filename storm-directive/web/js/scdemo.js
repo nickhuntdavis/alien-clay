@@ -9,7 +9,7 @@
 const SCV = { id: 's_seeker', range: 0.85, speed: 0.55, cd: 0.45, mag: 6, reload: 2, dmg: 9, life: 1.6, turn: 5, near: 0.51, fav: 0.65 }; // (world 500, 320, 300, 380)
 const SCV_FLAG = { A: 'plan', B: 'fav', C: 'rival', 'Family Planning': 'plan', 'Runts of the Litter': 'runts', Overcrowding: 'over', 'Hide and Seek': 'hide',
   'The Favourite': 'fav', 'Taste for It': 'taste', Nepotism: 'nepo', 'Sibling Squabble': 'squab', 'Sibling Rivalry': 'rival', 'Pack Hunting': 'pack',
-  'Pile-On': 'pile', 'Dinner Time': 'dinner', 'Baby Boom': 'babyboom', 'Family Reunion': 'reunion', 'Only Child': 'only' };
+  'Pile-On': 'pile', 'Dinner Time': 'dinner', 'Breeding Like Rabbits': 'babyboom', 'Family Reunion': 'reunion', 'Only Child': 'only' };
 
 function scvInit(pv) {
   sivInit(pv);

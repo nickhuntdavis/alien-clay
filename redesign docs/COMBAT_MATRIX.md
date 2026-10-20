@@ -10,7 +10,7 @@
 
 - Fast Android game: every reaction readable at a glance, with no hidden stacks, long recipes or delayed multi-step conditions.
 - Keep four concepts separate: **damage type**, **attack type** (delivery), **modifier** (behaviour, `MODIFIERS.md`), **source**.
-- Voice (decided 17 Oct 2026): the impulsive gameplay voice belongs to the **pre-incarnate consciousness**, which speaks to the sperm as "you" and is not the sperm. The Scientist stays the external, clinical observer. The sperm does not speak (`VOICE_GUIDE.md`).
+- Voice (decided 17 Oct 2026): the impulsive gameplay voice belongs to the **pre-incarnate consciousness**, which is not the sperm and speaks mostly as "we" ("you" to blame or accuse, "I" only when nakedly selfish; ruling of 20 Oct). The Scientist stays the external, clinical observer. The sperm does not speak (`VOICE_GUIDE.md`).
 
 ### Shared vocabulary
 
@@ -160,7 +160,7 @@ Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, w
 | Poise Pressure | Force (Static when tagged) | A qualifying Force impact, or a Static hit explicitly carrying Poise | One shared bar (11.2); at full, a brief stagger or interrupt | Not every hit adds Poise; drains after a spell without qualifying hits; elites and bosses have bigger bars and shorter staggers, never full immunity | Force adds by impact; Static only when an attack explicitly carries Poise or interruption pressure | Accepted |
 | Knockback | Force | A qualifying Force impact | Repositions the target; a collision may add a payoff | Space, Squishy, an active Membrane, anchoring; bonus only on an actual collision | Not a damage multiplier | Proposed |
 | Corrosion | Acid | Acid hits, or standing in an Acid Pool | A visible bar (11.2). On a Shell creature, a full bar strips one layer for good and resets. Any creature can carry it; it is the "Acid-coated" state reactions use | No timer or stacks; no damage over time | Acid's only status; Pools are its only ongoing damage | Accepted |
-| Charge | Static | Any Static hit | The target is Charged (3 s): it takes +20% Static damage and passes arcs on; it discharges one arc on death | Fixed jump limit (3) and 70% falloff; never interrupts by itself | A conductor state, not a build-up bar; interrupts come through Poise | Proposed |
+| Charge | Static | Any Static hit | The target is Charged (3 s): it takes +20% Static damage and passes arcs on; it discharges one arc on death | Fixed jump limit (3) and 70% falloff; never interrupts by itself | A conductor state, not a build-up bar; interrupts come through Poise | Proposed A Beam passes arcs on only every 3rd hit (decision 45). A chaining attack's jumps pass none; only its first hit does (decision 46). |
 | Snared | Mucus | A Mucus hit, or entering a Mucus patch | Restricts movement (also covers "Mucus-stuck" and "Adhered"). Becoming Snared clears a Burn bar: Mucus smothers Fire | Short duration; one clear control strength per effect | Slow, root and snare are not interchangeable labels | Proposed |
 | Conjoined | Mucus | Two Snared creatures touch, or one Mucus attack's area covers several at once | Stuck together in one shared green membrane: none can move, and they may hit each other | Capped group size; short | Distinct from Snared: it needs two or more creatures | Proposed |
 | Bleed | Blood | A qualifying Blood hit | Damage over time; a reaction may consume it for one payoff | Stack cap and decay. A creature that dies while bleeding leaves a small blood pool | Wounds are distinct from Acid erosion | Proposed |
@@ -309,6 +309,16 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 36 | Burning with rapid fire | One shared burn per target: each Fire hit adds 20% of its damage to the burn and refreshes the 3 s timer; the burn holds at most 50% of max health. Ignition is separate |
 | 37 | Shell wear | The outer layer loses exactly what Shell blocked on that hit; at 0 it breaks and the next layer takes over at full; excess wear does not carry. A heavy Force hit also removes one layer outright |
 | 38 | Shipping the 21 reactions | All 21 stay as the design inventory; none is committed to ship until playtests show it is noticed and told apart. State + hit and world object + hit reactions are the core; dual-type, Pairing and Feat reactions are deliberate rare specialists |
+| 39 | Consciousness per sample (20 Oct) | Each sample has its own consciousness persona (`CONSCIOUSNESS.md`); every consciousness line, shared Feat gift lines included, is written per sample |
+| 40 | What the consciousness knows (20 Oct) | Nothing of the lab or the Scientist: it believes it is where it is supposed to be |
+| 41 | Souls across runs (20 Oct) | A new soul every run; only Prawn Again's remembers earlier runs |
+| 42 | Not of This World's voice (20 Oct) | Three registers, one per active damage type (Fire ardent, Static clipped, Alien serene); every one of its consciousness lines is written three times (`CONSCIOUSNESS.md` 8) |
+| 43 | Ordered Online (20 Oct) | The sample is a synthetic nanobot (voice, look and story); kit, passive, Feat and rules unchanged (`SAMPLES.md` 5, `CONSCIOUSNESS.md` 5) |
+| 44 | Alpha's voice (20 Oct) | Problematic on purpose: manosphere slang and talking about the egg like women, with the joke always on him; no slurs or named real people (`CONSCIOUSNESS.md` 2) |
+| 45 | Feat names, docs or game (20 Oct) | The docs win: G3 is **More!** and G11 is **COME BACK HERE** in the game too (they were Comfort Eating and Clean Plate in feats10.js) |
+| 46 | Who owns Feat card lines (20 Oct) | The docs (`GIFT_LINES.md`, `FEATS.md` 3) via giftvoice.py; Card_Copy_Draft_All.xlsx keeps every other card's lines |
+| 45 | Beams and Charge arcs (20 Oct) | A Beam's hits pass Charge arcs on only every 3rd hit, counted per weapon (11.5). Every other attack type: every hit. Why: a weapon test put Red Flagship about 60% above the field at level 1, a quarter of it from arcs riding the beam's many small hits |
+| 46 | Chains and Charge arcs (20 Oct) | A chaining attack's jumps never pass Charge arcs on; only its first hit does (11.5). Applies to chain weapons (Unwanted Contact) and the chaining modifier. Why: every jump was a Static hit on a Charged enemy, so each started a second chain; Unwanted Contact took about 30% of its damage from arcs and led the weapon test by about 50% |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
@@ -362,7 +372,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 | Bleed | 30% of the hit over 3 s; max 3 stacks |
 | Extraction | An enemy dying while bleeding heals you 1% of max health; max 6 health per second |
 | Burning | One shared burn per target (decision 36): each Fire hit adds 20% of its damage and refreshes the 3 s timer; at most 50% of max health held; Ignition at full bar |
-| Charge | A Static hit makes the target **Charged** for 3 s (Static hits refresh it). Charged enemies take +20% Static damage and pass arcs on: 3 jumps, range 110, each jump 70% of the last. A Charged enemy discharges one arc when it dies. Charge itself never interrupts; interrupts come through Poise |
+| Charge | A Static hit makes the target **Charged** for 3 s (Static hits refresh it). Charged enemies take +20% Static damage and pass arcs on: 3 jumps, range 110, each jump 70% of the last. A Charged enemy discharges one arc when it dies. Charge itself never interrupts; interrupts come through Poise A Beam passes arcs on only every 3rd hit (decision 45). A chaining attack's jumps pass none; only its first hit does (decision 46). |
 | Poise stagger | 0.8 s (elites 0.55 s, bosses 0.35 s) |
 | Knockback | Distance = impulse ÷ (radius ÷ 12); hitting a wall deals 40% of the hit |
 | Possessed | 4 s, then 8 s before it can happen again (elites 2.5 s; bosses 1.5 s, lashing out at adds once). It targets the nearest enemy; its attacks and contact hurt enemies, not you; nearby enemies fight back; your weapons skip it; its kills give you XP; with no enemy near, it wanders harmlessly. The player is exempt |
@@ -473,7 +483,12 @@ What each attack type is for lives in `ATTACK_TYPES.md`; how each one meets the 
 | What each damage type, defence and attack type is for, how it looks, strengths and weaknesses | `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md`, `ATTACK_TYPES.md` |
 | Enemy roles, roster, new enemies | `ENEMY_DESIGN.md` (role counterplay: section 5 here) |
 | Weapons, Feats, mutations and modifiers | `BASE_WEAPONS.md`, `WEAPON_UPGRADES.md`, `FEATS.md`, `MUTATIONS.md`, `MODIFIERS.md` |
-| Progression, samples, autorun, voice | `UPGRADES.md`, `SAMPLES.md`, `AUTORUN_AUTOAIM.md`, `VOICE_GUIDE.md` |
+| Progression, samples, autorun, voice | `UPGRADES.md`, `SAMPLES.md`, `AUTORUN_AUTOAIM.md`, `VOICE_GUIDE.md`, `CONSCIOUSNESS.md` |
+| Sample 9 (proposal): overview, Feat numbers and forks, copy briefs | `SAMPLE_9_ACRO.md` |
+| Sample 9 (proposal): the sample in the roster | `SAMPLES.md` section 9 |
+| Sample 9 (proposal): its three weapons, base stats and animation | `BASE_WEAPONS.md` section 8 |
+| Sample 9 (proposal): weapon branches | `WEAPON_UPGRADES.md` sections 25 to 27 |
+| Sample 9 (proposal): exclusive gift X9, consciousness persona | `FEATS.md` section 3, `CONSCIOUSNESS.md` section 9 |
 
 The three CSVs in `tables/` (the old Notion databases) are generated from the tables in this file by `tables/export.py`:
 
