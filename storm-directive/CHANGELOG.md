@@ -2,7 +2,7 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
-## v10.47: 2026-10-20 local work merged (card copy, Sample 9 and tuning, consciousness gifts, design system, Ordered Online nanobot)
+## v10.48: 2026-10-20 local work merged (card copy, Sample 9 and tuning, consciousness gifts, design system, Ordered Online nanobot)
 - Merge notes: main's feats9.js Feats (Capacitation, Bombardier Beetle, Van de Graaff, Spinnbarkeit, Wandering Womb, Ear Candling) removed in favour of the local builds with the user's copy (feats10.js, gifts10.js); fitcheck.js uses the new card names; voice canon ("we" mostly, "you" to blame, "I" when selfish) written into voice_and_tone.md, VOICE_GUIDE.md, CONSCIOUSNESS.md, redesign docs CLAUDE.md and COMBAT_MATRIX.md.
 
 ### Folded from local-card-copy: 2026-10-20 Card copy: names, descriptions and per-sample voice lines (not shipped)
