@@ -4,6 +4,15 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 
 ## Unreleased: every weapon can take Switched at Birth
 
+
+### Folded from claude/lucid-allen-vr25lv: 2026-10-20 Pick feedback on take-more-than-one card screens
+- Systems: ui (card screens), rewards
+- Files: pickfeel.js (new), ui.js, index.html, style.css
+- What: Screens where you take two cards show an "n/2" chip. The card you took stays visible with a tick and a held glow; the remaining cards pulse an outline. Cards also squash on press.
+- Save data: none
+- Hooks: ui.js openLoot -> pfInit; ui.js pickLoot -> pfTaken
+- Risk: the old 30% dim on the taken card is gone. Two TODO_COPY placeholders (pick_first, pick_more) until copy arrives.
+
 ### Folded from ccr-b4817013-jgeigi: 2026-10-20 Switched versions for every status-bound weapon
 - Systems: fitcheck, upgrades, tests
 - Files: wup2.js, wup3.js, wup4.js, fitcheck.js, tests/switchtest.js (new), tests/wup2test.js, tests/fittest.js, tests/tools/guide.js, GAME_GUIDE.md
