@@ -11,7 +11,15 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - What: Screens where you take two cards show an "n/2" chip. The card you took stays visible with a tick and a held glow; the remaining cards pulse an outline. Cards also squash on press.
 - Save data: none
 - Hooks: ui.js openLoot -> pfInit; ui.js pickLoot -> pfTaken
-- Risk: the old 30% dim on the taken card is gone. Two TODO_COPY placeholders (pick_first, pick_more) until copy arrives.
+- Risk: the old 30% dim on the taken card is gone. Chip copy is Claude-drafted; replace if you prefer your own.
+
+### Folded from claude-adoring-edison-w5x7ky: 2026-10-20 Fill v9 TODO_COPY placeholders
+- Systems: feats, upgrades, mutations
+- Files: feats9.js, v9back.js
+- What: 33 placeholder strings replaced with written copy (6 Feat descriptions, 12 level 5 forks, Headstrong, Character Building, Mood Swings).  Also: Van de Graaff and Wandering Womb text now match their code; Character Building no longer grants armour (armour is retired in v10).
+- Save data: none
+- Hooks: none
+- Risk: Character Building loses its armour clause (tiny balance shift).
 
 ### Folded from ccr-b4817013-jgeigi: 2026-10-20 Switched versions for every status-bound weapon
 - Systems: fitcheck, upgrades, tests
