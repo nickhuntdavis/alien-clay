@@ -168,6 +168,15 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 
 ## Unreleased: every weapon can take Switched at Birth
 
+
+### Folded from claude/lucid-allen-vr25lv: 2026-10-20 Pick feedback on take-more-than-one card screens
+- Systems: ui (card screens), rewards
+- Files: pickfeel.js (new), ui.js, index.html, style.css
+- What: Screens where you take two cards show an "n/2" chip. The card you took stays visible with a tick and a held glow; the remaining cards pulse an outline. Cards also squash on press.
+- Save data: none
+- Hooks: ui.js openLoot -> pfInit; ui.js pickLoot -> pfTaken
+- Risk: the old 30% dim on the taken card is gone. Chip copy is Claude-drafted; replace if you prefer your own.
+
 ### Folded from claude-adoring-edison-w5x7ky: 2026-10-20 Fill v9 TODO_COPY placeholders
 - Systems: feats, upgrades, mutations
 - Files: feats9.js, v9back.js

@@ -1278,3 +1278,16 @@ body #sysmsg.ws { pointer-events: auto; }
 .bp .bp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .bp .bp-chip { padding: 3px 9px; border-radius: 10px; border: 1px solid var(--cat); color: var(--cat); font-size: 11px; }
 .bp .bp-chip.empty { border-style: dashed; border-color: #59615e; color: #59615e; }
+
+/* pickfeel.js: take-more-than-one screens */
+#pfCount { display: inline-flex; gap: 8px; align-items: baseline; margin: 6px auto 0; padding: 4px 12px; border-radius: 999px; border: 1px solid #5b6560; background: #101314; font-size: 12px; letter-spacing: 1px; color: #cfd6d2; }
+#pfCount b { font-size: 15px; color: #fff; }
+#pfCount.half { border-color: #8fe3a8; box-shadow: 0 0 12px #8fe3a866; }
+#pfCount.half b { color: #8fe3a8; }
+#pfCount.bump { animation: pfbump 0.3s; }
+@keyframes pfbump { 50% { transform: scale(1.12); } }
+.card:not(.taken):active { transform: scale(0.98) !important; }
+.card.taken { opacity: 1 !important; filter: saturate(0.55) brightness(0.8); transform: scale(0.97) !important; box-shadow: 0 0 22px var(--rc); }
+.card.taken::after { content: '\2713'; position: absolute; top: 6px; right: 10px; font-size: 22px; font-weight: 900; color: #8fe3a8; }
+#lootCards.stare .card:not(.taken)::before { content: ''; position: absolute; inset: -4px; border-radius: inherit; border: 2px solid var(--rc); pointer-events: none; animation: pfstare 1.2s ease-in-out infinite; }
+@keyframes pfstare { 0%, 100% { opacity: 0; transform: scale(0.99); } 50% { opacity: 0.8; transform: scale(1.02); } }
