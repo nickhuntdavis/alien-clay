@@ -2,15 +2,7 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
-## Unreleased (merged to main without a build or test run)
-- Systems: feats9 (new), v9back (new), feats10, draft, mutation drops, fitcheck (new), upgrades, combos, tests
-- Files: see the folded entries below.
-- What: v9 Feats, upgrades and mutations that fit v10 are back; upgrades that break a weapon's branch are no longer offered; The Runs has a Static version.
-- Save data: none.
-- Hooks: v10.js v10Tick -> f9Tick, v10Draw -> f9Draw; draft.js grp 'up'; mutdrop.js mdIsMut takes 'g_'.
-- Risk: more power per run (bot sim death wave 9.7 -> 11.8); placeholder card text until the copy arrives.
-
-### Folded from ccr-cbcb5f5b-nfwar6: 2026-10-20 v9 Feats, upgrades and mutations back in v10
+## Unreleased (merged to main without a build or test run): 2026-10-20 v9 Feats, upgrades and mutations back in v10
 - Systems: feats9 (new), v9back (new), feats10, draft, mutation drops
 - Files: feats9.js (new), v9back.js (new), feats10.js, draft.js, mutdrop.js, v10.js, index.html, tests/featstest.js, tests/v9backtest.js (new), tests/run.sh
 - What: (card text for the six new Feats' descriptions, their level 5 forks, Headstrong, Character Building and Mood Swings is TODO_COPY, waiting on the user's copy.) The six v9 Feats FEATS.md picked but never built (Capacitation, Bombardier Beetle, Van de Graaff, Spinnbarkeit, Wandering Womb, Ear Candling) are in, with level 3 and 5 forks, and Hagfish and Running With Scissors join the starting pool (it was waiting on an unlock system that doesn't exist). 15 v9 upgrades that change how you play (Last Word, Tunnel Vision, Overachiever, Pincer Movement, Hurry Up, Stubborn Streak, Big Boned, Muscle Memory, Big Lungs, Cardio, Tactical Nap, Spoilers, Separation Anxiety, Headstrong, Snooze Button) are draft cards again, and 29 v9 mutations are back in the elite mutation drops.
@@ -18,7 +10,57 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Hooks: v10.js v10Tick -> f9Tick, v10Draw -> f9Draw; draft.js grp 'up' (DRAFT.groupW.up 0.6); mutdrop.js mdIsMut also takes 'g_' ids.
 - Risk: more power in a run (bot sim: death wave 9.7 -> 11.8, 0 wins both); fewer v10 mutations per elite drop (29 more in the pool); the Feat starting pool is 23, so each Feat turns up less often.
 
-### Folded: The Runs has a Static version
+## v10.46 (versionCode 325): merge of `ccr-d549bf1a-tq7f9u` into `main` (narrator voices, Immersive whispers)
+
+### Inner voice says "we"; shape-shifting cloud; Immersive whispers (v10.44)
+- Systems: voice (voice.js, voice10, new whisper.js), narrator copy (data.js LONGING_LINES, show.js), ui, docs (VOICE_GUIDE, voice_and_tone)
+- Files: whisper.js (new), voice.js, data.js, show.js, ui.js, inspect.js, index.html, style.css, tests/wstest.js (new), tests/veilshot.js, ARCHITECTURE.md
+- What: The inner voice now speaks as "we" (it and the sperm are a team): every consciousness line, sighting, status hint and campaign longing line is rewritten, and the canon in VOICE_GUIDE says so. Its black cloud shape-shifts (core and colour fringe morph out of step). In Immersive, Scientist and inner-voice lines no longer pop up: a small indicator appears (a black cosmic blob, or a LOG chip for the Scientist); tapping it reveals the line and runs the slide at 10% until the line is tapped or times out. Unread lines fade after 30 s.
+- Save data: none.
+- Hooks: ui.js sysmsg queue -> wsTake; inspect.js inspectMul -> wsMul; index.html whisper.js after voice10.js.
+- Risk: In Immersive, a player who never taps misses the lines (by design). The 10% slow-down multiplies the game speed while a line is open; autorun keeps playing behind it.
+
+### Narrator voices: one story, two looks (v10.43)
+- Systems: narrator (voice10, show), ui, copy (data.js achievements, card quips, sponsors), sequences (seqreveal)
+- Files: voice10.js, show.js, ui.js, data.js, seqreveal.js, style.css, tests/veilshot.js (new)
+- What: Narrator messages now carry who is speaking. The Scientist shows as the plain lab panel with a "LAB LOG · 1B" header; the inner voice is a pitch-black cloud with a soft, breathing cosmic colour fringe and italic text. Both voices now show in Immersive mode (which hid every narrator line by default). Copy that broke "he works alone" is rewritten: Funding is now Data (no £), research grants and sponsors are things found around the empty lab, Peak viewers is Peak data, achievements, card quips, reward lines and three sample stories lose the doctor, staff, lawyers, Committee and announcer "!".
+- Save data: none (achievement ids viewers1m and sponsor keep their keys).
+- Hooks: ui.js sysmsg display sets box.dataset.who; show.js sysMsg gains optional 5th arg `who`; voice10.js vxPush adds `who` to the queued message.
+- Risk: Immersive now shows narrator lines over the slide (about one every 20 s). SPONSORS now holds place names, so anything that prints a sponsor reads "Found in {place}".
+
+## v10.45 (versionCode 324)
+- Systems: reward director, race15, reward cards, build panel, rivals, mutation drops, draft, fitcheck, upgrades
+- Files: see the folded entries below.
+- What: merge of `claude/game-rewards-system-stm097` into `main`. The Reward Director paces reward screens (30 s gap that shortens with a backlog, take-two level drafts, egg cut-off); mutation carriers secure the mutation on the kill and a full Genome offers swaps; the race to the egg runs 15 minutes (egg at 15:00 or Lv 60 early, rivals only go for it from 15:00); Immersive rival track with standings; one card language (type colour, icon, fit line) and a v10 Build panel. Also ships main's unreleased fit check and Static version of The Runs.
+- Save data: none.
+- Hooks: see the folded entries.
+- Risk: race balance (race only: difficulty clock at real time, XP x1.8); player-facing text from this branch was written before the copy rule and awaits the user's copy.
+
+### Folded from claude/game-rewards-system-stm097: 2026-10-20 Rivals crack the egg at 15:00 (v10.44)
+- Systems: race15, rivals
+- Files: race15.js, rivals.js, tests/eggtest.js, tests/rewarduitest.js
+- What: In a race, rivals that reach Lv 60 keep racing but only head for the egg from 15:00 (raceRivalEgg), and they level a little slower (RIVAL.finish 860 in races). Invulnerable sim: first rival at the egg at 15:04, through the membrane at 18:04.
+- Save data: none.
+- Hooks: rivals.js rival egg mode -> raceRivalEgg.
+- Risk: the egg can no longer be opened early by a rival; eggtest now starts its break-in at 15:00.
+
+### Folded from claude/game-rewards-system-stm097: 2026-10-20 15-minute race, rival track, card language, Build panel (v10.43)
+- Systems: race15 (new), reward cards (new), build panel (new), reward director, difficulty, rivals, ui, tutorial
+- Files: race15.js (new), rewardui.js (new), buildpanel.js (new), game.js, render.js, rivals.js, inspect.js, meta.js, ui.js, director.js, tutorial.js, style.css, index.html, tests/rewarduitest.js (new), tests/sim/race.js
+- What: The race to the egg now runs 15 minutes: the egg opens at 15:00, or sooner at Lv 60 or sperm count 1, and getting there early pays 20 DNA per minute to spare on a win. The top bar counts down to the egg. Immersive mode shows a thin rival track (dots by level, yours ringed, the egg at the end, a clock tick); tapping it shows the standings while the slide runs at 10%. Every reward card now has a type colour, an icon and a fit line (Feat upgrades show their numbers before and after); a "N WAITING" badge shows held rewards and "SAVED" toasts say a reward is held; choosing a card rings you in its colour. The pause BUILD tab is a v10 Build panel.
+- Save data: none.
+- Hooks: game.js eggBreakable -> raceEggOpen, PT and spawn rate -> racePace, gainXp -> raceXp, levelsAhead -> raceCurveT, canvas tap -> raceTap; render.js drawHud -> raceHud, rwHud, drawTopBar -> raceClock, behind-pace chip -> raceCurveT, Immersive chip row -> raceTrackH; rivals.js updateShowdown -> raceTick; inspect.js inspectMul -> raceMul; meta.js runDna -> raceDnaBonus; ui.js renderLootCards -> rwCls, rwIcoHtml, rwFitHtml, pickLoot -> rwPicked, renderPause -> bpHtml; director.js dirTick -> rwSaved.
+- Risk: race balance moves a lot (race only: difficulty clock 1.5x -> 1.0x, XP x1.8, RIVAL.finish and COUNT.time are getters that differ in races). Race sim (bot, god mode): Lv 17/30/35 at 3/6/9 min, rivals break in about 12 min (was about 7). Petri Dish, Endless and levels unchanged.
+
+### Folded from claude/game-rewards-system-stm097: 2026-10-20 Reward Director: one gate for every reward screen (v10.42)
+- Systems: reward director (new), draft, mutation drops, mutations, ui, run log, campaign (Level 0 line)
+- Files: director.js (new), draft.js, mutdrop.js, mutations.js, ui.js, v10.js, meta.js, school.js, index.html, tests/drafttest.js, tests/mutdroptest.js, tests/sim/race.js
+- What: Reward screens outside wave modes now open at most one per 30 s of combat, highest priority first (boss, weapon slot, branch, fork, mutation, DNA strand, level draft), and a waiting reward climbs the order the longer it waits. Two waiting level drafts merge into one screen of four cards where you take two. Once the egg's membrane is awake no screen opens; waiting rewards apply themselves. Killing a mutation carrier now secures the mutation (the strand is only the show, no 20 s pickup), and a full Genome offers swaps instead of skipping the screen.
+- Save data: none (run log record gains scr, scrBy, menuT, merged, autoRw, mutDrops).
+- Hooks: v10.js v10Tick -> dirTick; draft.js draftBox -> dirGate, draftLoot -> dirN; ui.js openLoot -> dirTitle, pickLoot -> dirTwo and dirPicked; meta.js run record fields.
+- Risk: fewer, later screens in the race to the egg slow early power (win rate); draftBox no longer sets G.draftT or req.v10ok (DRAFT.budget is now unused); swapped-out mutations lose their effect only if it is read live (one-off ones are never offered for swap).
+
+### Folded from main (unreleased): The Runs has a Static version
 - Systems: fitcheck, upgrades, tests
 - Files: wup6.js, fitcheck.js, tests/wup6test.js, tests/fittest.js, tests/tools/guide.js, GAME_GUIDE.md
 - What: Switched at Birth can now pick The Runs, but only to Static. Its Burn and Ignite cards become visible zaps: a bolt from the trail jolts (staggers) what crosses it, waves are running sparks, and closing a loop is CIRCUIT CLOSED (the loop lights up, one bolt to everything inside). Card text changes to match.
@@ -26,7 +68,7 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Hooks: none (wup6.js rnBar replaces its own bar6 'fire' calls; fitcheck.js FIT_SAB_TYPES, FIT_TEXT).
 - Risk: Static Runs staggers a lot on Afterburner (every enemy per 3 s); untested for balance.
 
-### Folded (was pushed to main without a build): upgrades that break a weapon's branch are no longer offered
+### Folded from main (unreleased): upgrade fit check
 - Systems: fitcheck (new), upgrades, combos, tests
 - Files: fitcheck.js (new), index.html, tests/fittest.js (new), tests/wup2test.js, wup3test.js, wup4test.js, tests/tools/guide.js, GAME_GUIDE.md, ARCHITECTURE.md
 - What: upgrades that break a weapon's branch (attack-type changes that strand masteries or modifiers, masteries that contradict the promise, modifiers that fight or duplicate a branch) are no longer offered to that weapon, and Switched at Birth never picks a weapon whose branch runs on its own status. New guide section "Upgrades that do not fit".

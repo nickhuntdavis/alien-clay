@@ -25,11 +25,11 @@ const { chromium } = require('playwright');
   ok(r.n >= 30, 'membrane fell too fast (' + r.n + ' hits, cap is 2.5%/s)');
   // 4. A rival at EGG.level breaks in; if it gets through, you lose.
   await setup();
-  r = await page.evaluate(() => { const R = RIVALS[0], e = makeRival(R, G.core.x + 500, G.core.y); e.lvl = EGG.level; e.clock = 1e6; rivalStats(e, 1); G.enemies.push(e); G.rivalOut = {};
+  r = await page.evaluate(() => { if (typeof RACE15 !== 'undefined') G.t = Math.max(G.t, RACE15.len); /* (rivals only go for the egg from 15:00: race15.js) */ const R = RIVALS[0], e = makeRival(R, G.core.x + 500, G.core.y); e.lvl = EGG.level; e.clock = 1e6; rivalStats(e, 1); G.enemies.push(e); G.rivalOut = {};
     G.weapons = G.weapons.map(() => null); G.spells = (G.spells || []).map(() => null); // (unarmed: a rival stops gnawing while anything of yours hits it)
     G.player.x = G.core.x - 1800; G.player.y = G.core.y; let opened = 0;
-    for (let i = 0; i < 30 * 200 && G.state !== 'finale'; i++) { G.player.hp = G.P.maxHp; G.lootQueue = []; G.state = 'play'; G.player.x = G.core.x - 1800; for (const x of G.enemies) if (x.rival && x !== e) x.dead = true; e.hp = e.maxHp; /* (just this rival, kept alive: race rivals could kill it mid-gnaw) */ update(1 / 30); if (G.eggE && !opened) opened = Math.round(G.t - 300); }
-    return { foe: G.bossIntro && (G.bossIntro.foe || G.bossIntro.e.name), state: G.state, opened, by: G.eggE && G.eggE.openedBy, winner: G.rivalWinner, dbg: G.eggE && { hp: Math.round(G.eggE.hp), max: Math.round(G.eggE.maxHp) }, riv: G.enemies.filter(x => x.rival).map(x => [x.name, x.dead, Math.round(Math.hypot(x.x - G.core.x, x.y - G.core.y)), Math.round(x.hp)]) }; });
+    for (let i = 0; i < 30 * 200 && G.state !== 'finale'; i++) { G.player.hp = G.P.maxHp; G.player.iframes = 1; G.lootQueue = []; G.state = 'play'; G.player.x = G.core.x - 1800; for (const x of G.enemies) if (x.rival && x !== e) x.dead = true; e.hp = e.maxHp; /* (just this rival, kept alive: race rivals could kill it mid-gnaw) */ update(1 / 30); if (G.eggE && !opened) opened = Math.round(G.t - 300); }
+    return { fk: G.finale && G.finale.kind, killer: G.finale && G.finale.name, foe: G.bossIntro && (G.bossIntro.foe || G.bossIntro.e.name), state: G.state, opened, by: G.eggE && G.eggE.openedBy, winner: G.rivalWinner, dbg: G.eggE && { hp: Math.round(G.eggE.hp), max: Math.round(G.eggE.maxHp) }, riv: G.enemies.filter(x => x.rival).map(x => [x.name, x.dead, Math.round(Math.hypot(x.x - G.core.x, x.y - G.core.y)), Math.round(x.hp)]) }; });
   ok(r.opened > 0 && r.state === 'finale' && !!r.winner, 'rival break-in: ' + JSON.stringify(r));
   console.log(fails.length ? 'FAIL ' + fails.join(' | ') : 'egg ending ok');
   console.log('ERRORS:', errors.length ? [...new Set(errors)].slice(0, 3) : 'none'); await b.close();

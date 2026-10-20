@@ -67,7 +67,7 @@ function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(META))
 function runDna(G, won) {
   const rivals = Object.values(G.rivalOut || {}).filter(v => v === 'you').length;
   // About 450 for a win (the Gene Bank takes about 10), and beating a named rival is worth more than before.
-  return Math.round((G.level * 1.2 + G.kills / 150 + G.stats.bossKills * 12 + rivals * 25 + (won ? 100 : 0) + G.t / 40) * (typeof prestigeDna === 'function' ? prestigeDna(G) : 1));
+  return Math.round((G.level * 1.2 + G.kills / 150 + G.stats.bossKills * 12 + rivals * 25 + (won ? 100 : 0) + G.t / 40 + (typeof raceDnaBonus === 'function' ? raceDnaBonus(G, won) : 0)) * (typeof prestigeDna === 'function' ? prestigeDna(G) : 1));
 }
 function bankRun(G, won) {
   if (G.banked) return META.lastEarned;
@@ -153,7 +153,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '10.42';
+const APP_VERSION = '10.46';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]').slice(-60); } catch (e) { RUNLOG = []; }
 function saveRunLog() { if (RUNLOG.length > 60) RUNLOG.splice(0, RUNLOG.length - 60); try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG)); } catch (e) { /* ignore */ } }
@@ -191,7 +191,7 @@ function runSummary(G, result) {
     w: G.weapons.filter(Boolean).map(w => w.id + w.lvl + (w.up && w.up.p ? '{' + [w.up.p, w.up.l6, w.up.l10].filter(Boolean).join('/') + '}' : '') + (w.mods.length ? '[' + w.mods.map(m => m.id).join(',') + ']' : '')),
     s: G.spells.filter(Boolean).map(w => w.id + w.lvl),
     p: top(G.passives, 12).map(([k, v]) => k + v),
-    boxes: G.stats.boxes || 0, boxBy: G.stats.boxBy || {}, xp: Math.round(G.stats.xpGot || 0), xpRaw: Math.round(G.stats.xpRaw || 0), xpDrop: Math.round(G.stats.xpDrop || 0), xpFloor: Math.round(G.gems.filter(g => g.kind !== 's').reduce((a, g) => a + g.v, 0)), xpK: +((G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp) * XP_PACE).toFixed(2), curve: Math.round((G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))) * 10) / 10, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
+    boxes: G.stats.boxes || 0, boxBy: G.stats.boxBy || {}, scr: G.stats.scr || 0, scrBy: G.stats.scrBy || {}, menuT: G.stats.menuT || 0, merged: G.stats.merged || 0, autoRw: G.stats.auto || 0, mutDrops: G.stats.mutDrops || 0, xp: Math.round(G.stats.xpGot || 0), xpRaw: Math.round(G.stats.xpRaw || 0), xpDrop: Math.round(G.stats.xpDrop || 0), xpFloor: Math.round(G.gems.filter(g => g.kind !== 's').reduce((a, g) => a + g.v, 0)), xpK: +((G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp) * XP_PACE).toFixed(2), curve: Math.round((G.level - (1 + 59 * Math.pow(Math.min(1, G.t / 540), 0.85))) * 10) / 10, rivals: Object.entries(G.rivalOut || {}).map(([k, v]) => k + ':' + v),
     ws: typeof wsSummary === 'function' ? wsSummary(G) : undefined, // (per-weapon telemetry: wstats.js)
     tl: G.tl || [], fps: G.fpsTl || [], perf: G.perfTl || [], dev: typeof deviceTag === 'function' ? deviceTag() : '', cap: (typeof SET !== 'undefined' && SET.fpsCap) || 0, meta: Object.values(META.ranks).reduce((a, b) => a + b, 0), zoom: +ZOOM.z.toFixed(2), spd: (() => { const u = G.spdUse || {}, t = Object.values(u).reduce((a, b) => a + b, 0); if (!t) return ''; const e = Object.entries(u).filter(([, v]) => v / t >= 0.05); return e.length === 1 && +e[0][0] === 1 ? '' : e.map(([k, v]) => 'x' + k + (e.length > 1 ? ' ' + Math.round(v / t * 100) + '%' : '')).join(' '); })(), vet: Math.round(vetK() * VET.hp * 100),
   };

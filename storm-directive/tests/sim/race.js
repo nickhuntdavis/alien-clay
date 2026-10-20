@@ -14,7 +14,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
       const ev = []; const once = {}; const mark = (k, s) => { if (!once[k]) { once[k] = 1; ev.push(s + ' t=' + Math.round(G.t) + ' lv' + G.level); } };
       let win = false;
       for (let f = 0; f < 30 * 1500 && G && G.state !== 'over' && G.state !== 'won'; f++) {
-        if (G.state === 'play') { if (G.lootQueue.length) UI.openLoot(G.lootQueue.shift()); else update(1 / 30); }
+        if (G.state === 'play') { let vb; if (G.lootQueue.length && (vb = v10Box(G.lootQueue[0])) !== 'wait') { const q = G.lootQueue.shift(); if (vb) UI.openLoot(q); } else update(1 / 30); } // (as game.js's main loop: the Reward Director holds, orders or drops boxes)
         else if (G.state === 'bossIntro') { updateBossIntro(1 / 30); if (G.bossIntro && G.bossIntro.t > 3) endBossIntro(); } else if (G.state === 'intro') updateIntro(1 / 30); else if (G.state === 'rewind') updateRewind(1 / 30);
         else if (G.state === 'finale') {
           win = G.finale.kind === 'win';
@@ -25,6 +25,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
         }
         UI.lootOpenT -= 1000 / 30; UI.autoAt = (UI.autoAt || 0) - 1000 / 30; UI.autoTick();
         if (GOD && G.player.hp < G.P.maxHp * 0.3) G.player.hp = G.P.maxHp * 0.3;
+        for (const mt of [180, 360, 540, 720, 900]) if (G.t >= mt) mark('t' + mt, 'at' + mt / 60 + 'm');
         if (G.showdown) mark('ff', 'final5');
         if (G.fertile) mark('fert', 'count1');
         if (G.eggE && G.eggE.woke && !G.eggWokeT) G.eggWokeT = G.t;
@@ -32,7 +33,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
         if (f % 600 === 0) await new Promise(r => setTimeout(r, 0));
       }
       if (G && G.state === 'play') ev.push('TIMEOUT t=' + Math.round(G.t) + ' lv' + G.level);
-      if (G) { const st = G.stats, fl = G.gems.reduce((a, g) => a + (g.kind === 'x' ? g.v : 0), 0); ev.push(`xp ${Math.round(st.xpRaw || 0)}/${Math.round(st.xpDrop || 0)} floor ${Math.round(fl)} | W ${G.weapons.filter(Boolean).map(w => w.def.name + ' ' + w.lvl + (w.up && w.up.p ? w.up.p : '')).join(', ')} | boxes ${JSON.stringify(st.boxBy || {})} | combos ${Object.keys(G.combo || {}).join(',') || '-'}`); }
+      if (G) { const st = G.stats, fl = G.gems.reduce((a, g) => a + (g.kind === 'x' ? g.v : 0), 0); ev.push(`xp ${Math.round(st.xpRaw || 0)}/${Math.round(st.xpDrop || 0)} floor ${Math.round(fl)} | W ${G.weapons.filter(Boolean).map(w => w.def.name + ' ' + w.lvl + (w.up && w.up.p ? w.up.p : '')).join(', ')} | boxes ${JSON.stringify(st.boxBy || {})} | combos ${Object.keys(G.combo || {}).join(',') || '-'} | screens ${st.scr || 0} ${JSON.stringify(st.scrBy || {})} merged ${st.merged || 0} auto ${st.auto || 0}`); }
       return { win, s: ev.join(' | ') };
     }, GOD);
     if (r.win) wins++;

@@ -268,7 +268,7 @@ A dialogue calibration page for the two voices in Spawn Prawn. These are demo li
 
 - **The Scientist:** external observer. Clinical, procedural, apathetic. Makes absurd events sound routine.
 - **The consciousness:** an unnamed, pre-incarnate soul that speaks to and at the sperm. It is not the sperm. It pushes the sperm toward fertilisation because conception is the consciousness's way into the physical world, where it can be born.
-- **The sperm:** the being addressed and guided by the consciousness. Dialogue from the consciousness should address the sperm as “you,” not speak as if the consciousness itself were the sperm.
+- **The sperm:** the being addressed and guided by the consciousness. The consciousness speaks as “we”: it is not the sperm, but it thinks of itself and the sperm as one team (“we swim”, “nothing between us and the egg”). It says “we”, never “I” alone; “you” only in a direct order (“Dodge.”).
 - **Together:** the Scientist makes the absurd sound routine; the consciousness makes the sperm's journey feel cosmically urgent.
 - For the full canon and writing rules, see [Voice, Tone & Humour Guide](#).
 

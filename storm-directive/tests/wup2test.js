@@ -29,7 +29,7 @@ const { chromium } = require('playwright');
     const def = Object.values(ENEMIES).find(d => d.ai === 'chase') || Object.values(ENEMIES)[0];
     let W_, slots = [], SC = null, cbs = null;
     const setup = (id, lvl) => {
-      UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
+      if (typeof RACE15 !== 'undefined') RACE15.xp = 1; /* (card tests: no race XP boost, so levels stay put: race15.js) */ UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
       G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list);
       G.weapons = [makeSlot(id, false, 1), null, null, null]; recomputeAll(); G.P.maxHp = G.player.hp = 1e6;
       W_ = G.weapons[0]; W_.lvl = lvl || 1; computeStats(W_); G.enemies.length = 0; slots = []; return W_;

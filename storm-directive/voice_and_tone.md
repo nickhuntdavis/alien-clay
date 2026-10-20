@@ -97,7 +97,7 @@ Rules for the persona:
 3. **Professional first.** The default is a clinical, procedural report. Feelings are leaks, not the starting point.
 4. **He notices you slightly.** Never fond, never cruel. Over many runs he can drift toward grudging investment, but only through events, never by saying so.
 5. **He addresses you as the sample.** "Sample 1B", "the sample", "the subject". Not "buddy", not "champ". "Swimmer" is fine as plain description.
-6. **The campaign's inner voice is not the Scientist.** It is the swimmer's own head (devoted, narrow, all egg). Do not mix the two in one line.
+6. **The campaign's inner voice is not the Scientist.** It is the swimmer's own head (devoted, narrow, all egg). Do not mix the two in one line. It speaks as "we" (it and the swimmer are one team).
 
 ---
 

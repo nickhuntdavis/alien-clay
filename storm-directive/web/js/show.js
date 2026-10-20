@@ -7,22 +7,22 @@ function newShow() {
   return { viewers: 1200, peak: 1200, lastKillT: 0, milestone: 0, idleT: 50, lowHpCd: 0, achieved: {}, order: [], msgQ: [] };
 }
 
-function fmtViewers(v) { return (lvOn() ? '' : '£') + (v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'K' : Math.round(v) + ''); }
+function fmtViewers(v) { return (v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'K' : Math.round(v) + ''); }
 // What the meter is called: the lab's funding, or (in the campaign) your devotion to the egg.
-const showWord = () => lvOn() ? 'Devotion' : 'Funding';
+const showWord = () => lvOn() ? 'Devotion' : 'Data';
 
-function sysMsg(head, body, color, force) {
+function sysMsg(head, body, color, force, who) { // who: 'sci' (the Scientist) or 'con' (inner voice) picks the box's look
   if (!G) return;
   const q = G.show.msgQ;
   if (!force && q.length >= 1) return;
   // Chatter (anything not forced) at most every 12s, so the narrator doesn't crowd the slide.
   if (!force) { if (G.t < (G.show.quietT || 0)) return; G.show.quietT = G.t + 12; }
-  q.push({ head: narratorHead(head), body, color: color || '#8dffc0' });
+  q.push({ head: narratorHead(head), body, color: color || '#8dffc0', who });
   if (q.length > 6) q.shift();
 }
 // In the campaign the default narrator gives way to your own inner voice (LONGING_LINES).
 const sysPool = kind => (lvOn() && SET.narrator === 'system' && LONGING_LINES[kind]) || SYSTEM_LINES[kind];
-function sysLine(kind, force) { if (typeof vxSysLine === 'function' && vxSysLine(kind)) return; const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force); }
+function sysLine(kind, force) { if (typeof vxSysLine === 'function' && vxSysLine(kind)) return; const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force, L === SYSTEM_LINES[kind] ? 'sci' : 'con'); }
 
 function addViewers(n) {
   if (!G) return;
@@ -37,8 +37,8 @@ function sponsorGift(milestone) {
   const sponsor = pick(SPONSORS), type = pick(['heal', 'rage', 'shield', 'magnet', 'chest', 'nuke', 'chest']);
   const p = me(), a = Math.random() * TAU;
   G.pickups.push(makePickup(type, p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70, { t: 'sponsor', name: lvOn() ? 'the egg' : sponsor }));
-  if (lvOn()) sysMsg('A SIGN FROM THE EGG', `Devotion ${fmtViewers(milestone)}. The egg is calling, and you are sure it has sent you a ${POWERUPS[type].name}. Who else would?`, '#ffb400', true);
-  else sysMsg('RESEARCH GRANT', `${fmtViewers(milestone)} in funding! ${sponsor} has sent you a ${POWERUPS[type].name}. Please thank them by not dying immediately.`, '#ffb400', true);
+  if (lvOn()) sysMsg('A SIGN FROM THE EGG', `Devotion ${fmtViewers(milestone)}. The egg is calling, and we are sure it has sent us a ${POWERUPS[type].name}. Who else would?`, '#ffb400', true, 'con');
+  else sysMsg('LAB NOTE', `${fmtViewers(milestone)} data points. Found a ${POWERUPS[type].name} in ${sponsor}. Adding it to the slide. Do not ask what it was doing there.`, '#ffb400', true, 'sci');
   if (!lvOn()) achieve('sponsor');
 }
 

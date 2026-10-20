@@ -872,8 +872,8 @@ The slide starts in greyscale, your own swimmer included. Colour comes back thre
 | **Couch Potato** | +30% max HP (and heal it) | Sprinting costs twice the stamina |
 | **Delicate Condition** | +80% damage for everything | Max HP halved |
 | **Shotgun Wedding** | +50% fire rate | Enemy bullets 20% faster |
-| **Hands Full** | +4 rerolls right now, double funding | Pickup range halved |
-| **The More the Merrier** | +50% XP and funding | 30% more enemies (30% bigger waves in the dish) |
+| **Hands Full** | +4 rerolls right now, double data | Pickup range halved |
+| **The More the Merrier** | +50% XP and data | 30% more enemies (30% bigger waves in the dish) |
 | **Living in the Past** | +2 max Rewind charges, all refilled now | All healing halved |
 | **Clothing Optional** | +25% move speed, +20% dodge | Armour is zero, forever, and every hit hurts 15% more |
 

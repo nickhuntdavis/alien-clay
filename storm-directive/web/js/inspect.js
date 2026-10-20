@@ -9,7 +9,7 @@
 
 const INSPECT = { open: false, prev: null, hist: [], pause: true, half: false };
 const INSPECT_TAP = { ms: 250, move: 10, pad: 24 };
-const inspectMul = () => (INSPECT.open && INSPECT.half ? 0.5 : 1);
+const inspectMul = () => (INSPECT.open && INSPECT.half ? 0.5 : 1) * (typeof raceMul === 'function' ? raceMul() : 1) * (typeof wsMul === 'function' ? wsMul() : 1); // (the race standings: race15.js; whisper.js: 10% while a line is open)
 const ELEM_ORDER = ['phys', 'fire', 'ice', 'shock', 'poison', 'oxi', 'salt', 'arcane', 'soul'];
 // Which reaction two damage types set off (either way round). Force has none; a type with itself is its overload.
 const RX_PAIR = (() => {

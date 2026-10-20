@@ -286,11 +286,11 @@ const UI = {
     // System messages: one at a time, only while playing.
     if (G && G.state === 'play') {
       if (UI.msgT > 0) { UI.msgT -= dt; if (UI.msgT <= 0) $('sysmsg').classList.remove('on'); }
-      else if (G.show.msgQ.length) {
+      else if (G.show.msgQ.length && !(typeof wsTake === 'function' && wsTake(G.show.msgQ))) {
         const m = G.show.msgQ.shift(), box = $('sysmsg');
         box.querySelector('b').textContent = m.head; box.querySelector('b').style.color = col(m.color) === PAL.danger ? PAL.danger : XR.dim;
         box.querySelector('span').textContent = m.body;
-        box.style.setProperty('--mc', col(m.color) === PAL.danger ? PAL.danger : XR.white); // messages are neutral unless they warn you
+        box.dataset.who = m.who || ''; box.style.setProperty('--mc', col(m.color) === PAL.danger ? PAL.danger : XR.white); // messages are neutral unless they warn you
         box.classList.remove('on'); void box.offsetWidth; box.classList.add('on');
         if (!LAYOUT.land) box.style.bottom = Math.round((UI.bottomH || 200) + 44) + 'px'; // (clear of the scale bar and frame-rate line)
         UI.msgT = m.hold || Math.min(4.5, 1.8 + m.body.length / 40); // (hold: Level 0's lessons stay up long enough to read)
@@ -894,6 +894,7 @@ const UI = {
     };
     UI.pickedOne = false;
     if (!titles[req.kind]) titles[req.kind] = typeof draftTitle === 'function' ? draftTitle(req) : [req.kind.toUpperCase(), '']; // (v10 forks: draft.js)
+    if (typeof dirTitle === 'function') dirTitle(req, titles); // (take-two screens: director.js)
     if (req.kind === 'relic') titles.relic[0] = 'RELIC: ' + bossDef(req.boss).name.replace(/^THE /, '');
     if (req.kind === 'rrelic') { const V = RIVALS.find(x => x.id === req.rid); if (V) titles.rrelic[0] = 'RELIC: ' + V.name.toUpperCase(); }
     if (req.kind === 'sfork') { const sw = G.spells.find(x => x && x.uid === req.uid); if (sw) titles.sfork[0] = sw.def.name.toUpperCase() + ': LV ' + SPELL_FORK_LV + ' PATH'; }
@@ -959,19 +960,19 @@ const UI = {
       if (o.wup) { wrap.appendChild(UI.upgradeCard(o, i)); return; }
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
-      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '') + (typeof boxCardCls === 'function' ? boxCardCls(o) : ''); // (boxlook.js)
+      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '') + (typeof boxCardCls === 'function' ? boxCardCls(o) : '') + (typeof rwCls === 'function' ? rwCls(o) : ''); // (boxlook.js; the card language: rewardui.js)
       c.style.setProperty('--rar', r.color);
       c.style.setProperty('--rc', o.cursed ? cardCat(o) : r.color); // the border is the rarity colour
       c.style.setProperty('--ic', cardCat(o));
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
       // Only weapons and spells have real icons; the two-letter badges are gone until proper icons are drawn.
-      c.classList.toggle('noico', !o.def);
+      c.classList.toggle('noico', !o.def && !(typeof rwIco === 'function' && rwIco(o)));
       const el = o.elem ? `<span class="el" style="color:${elemCol(o.elem)}">${ELEMENTS[o.elem].name}</span>` : '';
       c.innerHTML = `<div class="tag">${esc(o.tag)} <b>${esc(r.name)}</b></div>
-        ${o.def ? `<div class="cico" style="--ic:${elemCol(o.elem)}">${iconSVG(o.def, 28, elemCol(o.elem))}</div>` : ''}
+        ${o.def ? `<div class="cico" style="--ic:${elemCol(o.elem)}">${iconSVG(o.def, 28, elemCol(o.elem))}</div>` : typeof rwIcoHtml === 'function' ? rwIcoHtml(o) : ''}
         <div class="ctitle"${o.elem && !o.cursed ? ` style="color:${elemCol(o.elem)}"` : ''}>${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(o.desc)}</div>${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
+        <div class="cdesc">${esc(o.desc)}</div>${typeof rwFitHtml === 'function' ? rwFitHtml(o) : ''}${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
       // Tap to take it; press and hold for the card in full, with every bit of jargon explained (glossary.js).
       holdable(c, () => cardGlossary(o), ev => {
         if (!$('lootCards').classList.contains('ready')) return;
@@ -1006,15 +1007,17 @@ const UI = {
     phTaken(o);
     wsPick(UI.lootReq, UI.lootOpts, o); // (wstats.js)
     o.apply(wuid);
+    if (typeof rwPicked === 'function') rwPicked(o); // (a ring in the card's colour: rewardui.js)
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
     const k = UI.lootReq && UI.lootReq.kind;
-    if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo)) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'sfork' && k !== 'relic' && k !== 'rrelic' && UI.lootOpts.length > 1) {
+    if ((G.relics.twinpick || (k === 'vesicle' && G.vesTwo) || (typeof dirTwo === 'function' && dirTwo(UI.lootReq))) && !UI.pickedOne && k !== 'start' && k !== 'slot' && k !== 'branch' && k !== 'sfork' && k !== 'relic' && k !== 'rrelic' && UI.lootOpts.length > 1) {
       UI.pickedOne = true; o.taken = true;
       const el = $('lootCards').children[i]; if (el) { el.style.opacity = '0.3'; el.style.pointerEvents = 'none'; }
       $('lootSub').textContent = 'Seconds: take one more.';
       return;
     }
+    if (typeof dirPicked === 'function') dirPicked(); // (time on reward screens: director.js)
     G.state = 'play';
     UI.show('hud');
     UI.refreshHud(true);
@@ -1072,12 +1075,13 @@ const UI = {
     // Achievements and the show.
     const got = G.show.order;
     h += `<div class="sec"><h3>Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | ${showWord()} ${fmtViewers(G.show.viewers)}</h3>`;
-    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The lab is waiting.</p>`;
+    h += got.length ? `<div class="list">${got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')}</div>` : `<p class="hint">None yet. The log is waiting.</p>`;
     const cur = Object.keys(G.curses);
     if (cur.length) h += `<p class="hint">Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}</p>`;
     h += `</div>`;
     }
-    if (tab === 'build') {
+    if (tab === 'build' && V10 && typeof bpHtml === 'function') h += bpHtml(); // (the v10 Build panel: buildpanel.js)
+    else if (tab === 'build') {
     h += phPauseHtml();
     // Your genome: sequences and mutations.
     if (G.genes) {
@@ -1467,8 +1471,8 @@ const UI = {
     const hurt = Object.entries(G.stats.hurt).sort((a, b) => b[1] - a[1]).slice(0, 3);
     let h = won && G.lvl && G.lvl.L.school ? `<div class="eulogy">${schoolEulogy()}</div><div class="big born">${fmtTime(G.t)}</div>` : G.lvl ? `<div class="eulogy">${won ? `Lips to throat, through the plaque and the mouthwash, to a pale glowing ball at the back of the throat. It was a tonsil stone. It stinks. The egg is in another castle.${G.lvl.L.next ? ' LEVEL 1 WAS THE MOUTH. LEVEL 2 UNLOCKED (coming soon).' : ''}` : `Swallowed ${Math.round(lvProgress() * 100)}% of the way through ${esc(lvName(G.lvl.L).toLowerCase().replace(/\b\w/g, c => c.toUpperCase()))}.`}</div><div class="big">${fmtTime(G.t)}</div>` + (won ? '' : `<div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the immune system')}</b></div>`)
       : won
-      ? `<div class="eulogy">${G.wave ? 'Twenty drops, four bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'FASTEST BIRTH YET!' : 'Fastest birth: ' + fmtTime(best.born)} | Peak viewers ${fmtViewers(G.show.peak)}</div>`
-      : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(sysPool('death')))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'NEW BEST! The lab is cautiously optimistic.' : 'Best: ' + fmtTime(best.time || 0)} | Peak viewers ${fmtViewers(G.show.peak)}</div>
+      ? `<div class="eulogy">${G.wave ? 'Twenty drops, four bosses, one egg in a dish. In vitro still counts: you are the one who gets to be a person.' + (META.waveWins === 1 ? ' ENDLESS MODE UNLOCKED.' : '') : 'Sperm count: one. You fertilised the egg. Out of four hundred million swimmers, you are the one who gets to be a person. Try not to waste it.'}</div><div class="big born">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'Fastest birth yet.' : 'Fastest birth: ' + fmtTime(best.born)} | Peak data ${fmtViewers(G.show.peak)}</div>`
+      : `<div class="eulogy">${esc(G.wave ? `The scientist makes a note: "Subject expired in wave ${G.wave.n} of ${CAMP.waves}. Promising. Get me another one."` : G.rivalWinner ? G.rivalWinner + ' broke into the egg first. They get to be a person. You get to be a footnote.' : pick(sysPool('death')))}</div><div class="big">${fmtTime(G.t)}</div><div class="hint">${isBest ? 'New best. Noted, with restraint.' : 'Best: ' + fmtTime(best.time || 0)} | Peak data ${fmtViewers(G.show.peak)}</div>
       <div class="hint">${G.rivalWinner ? 'Born instead of you: ' : 'Absorbed by: '}<b style="color:${PAL.danger}">${esc(G.rivalWinner || G.stats.lastHit || 'the immune system')}</b>${hurt.length ? ' | Most damage from: ' + hurt.map(x => esc(x[0])).join(', ') : ''}</div>`;
     const dr = dailyRecord(won);
     if (dr) h += `<div class="hint daily"><b>DAILY ${G.daily}</b>: ${dr.isBest ? 'NEW BEST FOR TODAY! ' : ''}Best ${dailyFmt(dr.best)} | Attempt ${dr.tries} | ${dr.streak}-day streak</div>`;
@@ -1536,7 +1540,7 @@ const UI = {
     $('overTitle').textContent = 'THE DISH WINS'; $('overTitle').classList.remove('won');
     const dmg = Object.entries(G.stats.dmg).sort((a, b) => b[1] - a[1]).slice(0, 8), tot = dmg.reduce((a, b) => a + b[1], 0) || 1;
     let h = `<div class="eulogy">The scientist makes a note: "Subject expired during wave ${G.wave.n}. Promising. Get me another one."</div><div class="big">WAVE ${n}</div>
-      <div class="hint">${isBest ? 'NEW BEST! The grant has been renewed.' : 'Best: wave ' + (best.wave || 0)} | ${fmtTime(G.t)} in the dish</div>
+      <div class="hint">${isBest ? 'New best. Noted, with restraint.' : 'Best: wave ' + (best.wave || 0)} | ${fmtTime(G.t)} in the dish</div>
       <div class="hint">Absorbed by: <b style="color:${PAL.danger}">${esc(G.stats.lastHit || 'the experiment')}</b></div>
       <div class="ostats"><div><b>${n}</b>Waves cleared</div><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.bossKills}</b>Bosses</div></div><h3>Damage breakdown</h3>`;
     for (const [k, v] of dmg) h += `<div class="dmgrow"><span>${esc(k)}</span><i style="width:${(v / tot * 100).toFixed(0)}%"></i><b>${fmtNum(v)}</b></div>`;
@@ -1587,8 +1591,8 @@ function lootStory(req) {
       `The egg sent this. You are certain of it. Nobody can tell you otherwise.`,
       `A token from the egg, surely. It knows you are coming. It must.`,
     ] : [
-      `A research grant from ${n}. Terms and conditions apply to your soul.`,
-      `${n} funded this with a note: "Please cite us when you are born." You will not remember any of this.`,
+      `Recovered from ${n}. It was not on the inventory. It is now.`,
+      `Found in ${n}, labelled in handwriting I do not recognise. Probably mine.`,
     ],
     boss: [
       `${n} is dead. This was in its will. You were not in its will. You are now.`,
