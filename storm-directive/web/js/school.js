@@ -373,8 +373,11 @@ function schoolSteer(p) {
     let t = null, td = 1e9; for (const e of R.foes || []) { const d = e.dead ? 1e9 : Math.hypot(e.x - p.x, e.y - p.y); if (d < td) { td = d; t = e; } }
     if (t && td > 160) return { x: t.x, y: t.y, w: 0.8 };
   }
-  if (st === 'junk' && G.junkDrops.length) return { x: G.junkDrops[0].x, y: G.junkDrops[0].y, w: 1.6 };
-  if (st === 'junk' && G.junkE && !G.junkE.dead && Math.hypot(G.junkE.x - p.x, G.junkE.y - p.y) > 200) return { x: G.junkE.x, y: G.junkE.y, w: 0.8 };
+  if (st === 'junk') { // (V10: the mutation strand and its carrier, mutdrop.js; G.junkDrops is v9 only and absent under V10)
+    const drops = V10 ? mdS().drops : G.junkDrops || [], C = V10 ? R.mdE : G.junkE;
+    if (drops.length) return { x: drops[0].x, y: drops[0].y, w: 1.6 };
+    if (C && !C.dead && Math.hypot(C.x - p.x, C.y - p.y) > 200) return { x: C.x, y: C.y, w: 0.8 };
+  }
   if (st === 'hazard') return { x: (R.A.rect[0] + R.A.rect[2] + 1) / 2 * LV_C, y: (R.A.rect[1] + 1) * LV_C, w: 0.9 };
   return null;
 }

@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
   if (cards.length !== 8 || NAMES.some((n, i) => !cards[i].includes(n) || /LOCKED/.test(cards[i]))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples, all open: samples10.js)
   await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
   const modes = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-mode]')].map(b => b.dataset.mode));
-  if (modes.join() !== 's001') bad.push('experiments: ' + modes);
+  if (modes.join() !== 's002,s001,s006,s007') bad.push('experiments: ' + modes); // (v10.35: the Petri Dish, The Race, Endless and Level 1)
   await page.click('#sampleList [data-mode="s001"]'); await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
@@ -36,7 +36,7 @@ const { chromium } = require('playwright');
     if (!v10Box({ kind: 'level' }) || !v10Box({ kind: 'level' })) bad.push('wave mode: level boxes queue for the break, none dropped');
     for (const k of ['relic', 'vesicle', 'splice', 'myth']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k);
     const sl = genLoot({ kind: 'slot' });
-    if (sl.length !== 3 || sl.some(o => o.def.v10atk === w1.def.v10atk)) bad.push('slot draft: ' + sl.map(o => o.title));
+    if (sl.length !== 3 || sl.some(o => !o.c10 && o.def.v10atk === w1.def.v10atk) || sl.filter(o => o.c10).length > 1) bad.push('slot draft: ' + sl.map(o => o.title + (o.c10 ? ' (combo partner)' : ''))); // (one card may be a combo partner of any attack type: combos10.js)
     // Every weapon deals damage on its own.
     const def = ENEMIES.chaser || Object.values(ENEMIES)[0], rows = [];
     for (const id of ids) {
