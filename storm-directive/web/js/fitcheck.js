@@ -3,8 +3,9 @@
 //  - BRANCH cards (weapons24.js wupForkCards): a Lv 6 card or mastery that contradicts the promise or Lv 6 card taken,
 //    or the modifiers the weapon holds, is left out. A tier is never emptied: if every card would go, all stay.
 //  - MODIFIER cards (modcards.js modCardOk): a modifier that fights or duplicates the weapon's branch is not offered.
-//  - SWITCHED AT BIRTH (modcards.js sabCard): only weapons whose branch does not run on their own status can switch.
-//    With no such weapon the card is not dealt.
+//  - SWITCHED AT BIRTH (modcards.js sabCard): a weapon whose branch runs on its own status switches only to the one
+//    type its branch has a version for (FIT_SAB_TYPES; the versions live in each weapon's wup file, the card text in
+//    FIT_TEXT). FIT_KEEP_TYPE (now empty) would keep a weapon off the card altogether.
 // Tests that exercise the hidden cards themselves set window.FIT_OFF = 1.
 // Hooks: none in shared files; wraps wupForkCards, modCardOk and sabCard (loads after combos10.js).
 (function () {
@@ -33,9 +34,7 @@
     v_flame_pool: (w, u) => ['Fire Drill', ...(holdsOutside(w, BURST_OK) ? ['Powder Keg'] : []), ...(u.l6 === 'Powder Keg' ? ['Hellmouth', 'Scorched Earth', 'Spontaneous Combustion'] : [])],
     s_void: (w, u) => [...(u.p === 'A' ? ['Wormhole'] : []), ...(u.p === 'B' ? ['Spaghettification'] : []), ...(has(w, 'multiplying') ? ['Big Bang, Eventually'] : [])],
     s_twin: (w, u) => u.p === 'A' || u.p === 'B' ? ['Conjoined Twins'] : [],
-    s_mines: (w, u) => w.def.sab ? ['Lingering Smoulder', 'Flare Up', 'Nappy Rash'] : [],
-    s_peekaboo: (w, u) => w.def.sab ? ['Mass Hysteria'] : [],
-    s_toothfairy: (w, u) => w.def.sab ? ['Possession Fee'] : [],
+    s_mines: (w, u) => w.def.elem !== 'flame' ? ['Flare Up'] : [], // (its patches take the new type; only Flare Up needs an Ignite)
   };
   // Modifiers to leave out, by weapon: (w, up) -> [modifier ids].
   const FIT_MOD = {
@@ -56,9 +55,11 @@
     s_wake: () => ['trail', 'lobbed'],
   };
   // Weapons whose branches run on their own damage type's status: never offered Switched at Birth.
-  const FIT_KEEP_TYPE = ['s_tesla'];
-  // Weapons that may switch only to these types (their branch has a version for each): The Runs has a Static version (wup6.js rnBar).
-  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'], v_fire_proj: ['ice'], v_ice_pool: ['soul'], v_flame_pool: ['arcane'], v_soul_proj: ['phys'] }; // (Hot Mess: Blood Crime Scene; Rent Free: Force Poltergeist, wup3.js) // (Little Prick: Alien voodoo pins, wup2.js w2Voodoo)
+  const FIT_KEEP_TYPE = [];
+  // Weapons that may switch only to these types (their branch has a version for each).
+  const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'], v_fire_proj: ['ice'], v_ice_pool: ['soul'], v_flame_pool: ['arcane'], v_soul_proj: ['phys'], s_tesla: ['flame'] };
+  // (The Runs: Static zaps, wup6.js; Little Prick: Alien voodoo pins, Acid Spit: Mucus Snowball, Nocturnal Emission: Alien
+  // Ectoplasm, wup2.js; Hot Mess: Blood Crime Scene, Rent Free: Force Poltergeist, wup3.js; Unwanted Contact: Fire Wildfire, wup4.js)
   // Card text for those versions: weapon -> type -> card title -> description.
   const FIT_TEXT = { s_wake: { shock: {
     "Can't Hold It": 'The faster you swim, the denser and stronger the trail (up to x2 at full speed; half as much when slow).',
@@ -103,6 +104,19 @@
     'Return to Sender': 'After its hit the ghost fades, reappears and retraces its path back to you, hitting again. Enough hits and the enemy is thrown at its neighbour.',
     'Unfinished Business': 'A hit enemy that survives is haunted for 3 s; if it dies in that time its spirit bursts out (radius 70, 60% damage) and stirs up the poltergeist.',
     'Mass Possession': 'Every hit gets an enemy halfway to being thrown.',
+  } },
+  s_tesla: { flame: {
+    "It's Spreading": 'Wildfire: +3 leaps (6 in all), range 140. The chain is a flame that leaps enemy to enemy, and each one it catches burns as kindling.',
+    'Afterglow': 'The last enemy in each chain stays kindling for 6 s instead of 3.',
+    'Bad Hair Day': 'Moth to a Flame: kindling drifts gently towards other kindling.',
+    'Conductive Personality': 'Kindling takes +20% damage from all your weapons, not just Fire.',
+    'Spread the Love': 'Unwanted Contact picks targets that are not yet kindling, spreading the fire.',
+    'Last Spark': 'When kindling dies, all your weapons fire 20% faster for 2 s (does not stack).',
+    'Odd Sock': 'One enemy each wave becomes a bonfire: every chain passes through it on the way.',
+    'Brainstorm': 'Every 20 flare-ups, the next Unwanted Contact is a wildfire: it leaps to every piece of kindling on screen.',
+    'Balloon Animal': 'A chain that kills leaves a hot-air balloon that floats to the nearest enemy and pops on it.',
+    'Tumble Dryer': '20% of hits from all your other weapons start an Unwanted Contact wildfire.',
+    'Grid Lock': 'Firebreak: every piece of kindling is joined to the nearest other by a line of flame that hits anything crossing it (8 at most).',
   } },
   v_arcane_proj: { soul: {
     'Bleeding Heart': 'Each hit leaves a pin in the enemy (up to 6). A full pincushion is Possessed and fights for you.',

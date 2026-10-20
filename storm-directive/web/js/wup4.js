@@ -706,11 +706,21 @@
     return A.fresh && bu ? bu : best;
   }
   // A bounded chain (a copy of game.js doChain with the cards): at most s.chain + 1 enemies per branch, one fork.
+  // Switched to Fire (fitcheck.js lets Switched at Birth pick it): Wildfire. The chain is a flame that leaps enemy to
+  // enemy: Fire hits (so they Burn and Ignite), a lick of flame along each jump, and each one it catches is marked as
+  // kindling (the chain's Charged mark, so every card still finds them) and burns where you can see it.
+  const ucWild = w => w.def.elem === 'flame', ucElem = w => (ucWild(w) ? 'flame' : 'shock'), FLAME = '#ff7a2f';
+  function ucLick(w, fx, fy, e) {
+    bolt(fx, fy, e.x, e.y, FLAME, 0.2);
+    for (let i = 1; i <= 3; i++) { const t = i / 4; fxParts('ember', fx + (e.x - fx) * t, fy + (e.y - fy) * t, FLAME, 1, 50, 0.5, 3, -Math.PI / 2, 0.5); }
+    e.chargeT = Math.max(e.chargeT || 0, G.t + 3);
+    if (!(e.w4catchT > G.t)) { e.w4catchT = G.t + 3; say('catch' + (e.id || ''), e.x, e.y - e.r - 10, 'CAUGHT', FLAME, 10, 0.5); mark(w, 'caught'); }
+  }
   function ucChain(w, x0, y0, first, dmg, src, o) {
     const A = A4(w), hit = new Set(), ends = [];
     const strike = (e, k, fx, fy) => {
-      bolt(fx, fy, e.x, e.y, YEL, 0.16);
-      damageEnemy(e, dmg * (o.rise ? Math.pow(1.25, k) : Math.pow(o.fall, k)), Object.assign({}, src, { elem: 'shock' }));
+      if (ucWild(w)) ucLick(w, fx, fy, e); else bolt(fx, fy, e.x, e.y, YEL, 0.16);
+      damageEnemy(e, dmg * (o.rise ? Math.pow(1.25, k) : Math.pow(o.fall, k)), Object.assign({}, src, { elem: ucElem(w) }));
       hit.add(e);
     };
     const tail = (fromX, fromY, e, k) => {
@@ -739,8 +749,8 @@
     const cs = G.enemies.filter(e => !e.dead && !e.egg && e.chargeT > G.t).sort((a, b) => dist(a, p) - dist(b, p)).slice(0, 12);
     if (!cs.length) return false;
     let fx = p.x, fy = p.y;
-    for (const e of cs) { bolt(fx, fy, e.x, e.y, WHITE, 0.25); damageEnemy(e, s.dmg, Object.assign({}, src, { elem: 'shock' })); fx = e.x; fy = e.y; }
-    mark(w, 'storm'); floatText(p.x, p.y - 44, 'STORM', WHITE, 18, 1); G.flashT = Math.max(G.flashT || 0, 0.1);
+    for (const e of cs) { if (ucWild(w)) ucLick(w, fx, fy, e); else bolt(fx, fy, e.x, e.y, WHITE, 0.25); damageEnemy(e, s.dmg, Object.assign({}, src, { elem: ucElem(w) })); fx = e.x; fy = e.y; }
+    mark(w, 'storm'); floatText(p.x, p.y - 44, ucWild(w) ? 'WILDFIRE' : 'STORM', ucWild(w) ? FLAME : WHITE, 18, 1); G.flashT = Math.max(G.flashT || 0, 0.1);
     return true;
   }
   function ucFire(w, target, src) {
@@ -809,7 +819,7 @@
           if (!b) continue;
           const key = e.id < b.id ? e.id + '_' + b.id : b.id + '_' + e.id;
           if (seen.has(key)) continue; seen.add(key); n++;
-          line(e.x, e.y, b.x, b.y, 3, YEL, 0.3, true);
+          line(e.x, e.y, b.x, b.y, 3, ucWild(w) ? FLAME : YEL, 0.3, true);
           alongLine(e, b, 10, q => { if (q === e || q === b || q.w4gT > G.t) return; q.w4gT = G.t + 0.5; damageEnemy(q, s.dmg * 0.4, cardSrc(w, { wname: 'Grid Lock' })); mark(w, 'gridhit'); });
         }
         if (n) mark(w, 'grid');
@@ -824,7 +834,7 @@
     const t = nearE(e.x, e.y, 110, q => q === e || q.egg); if (!t) return;
     const a2 = amt * 0.5;
     bolt(e.x, e.y, t.x, t.y, ORG, 0.16);
-    damageEnemy(t, a2, { elem: 'shock', arc: true, noArc: true, noCrit: true, atk: 'burst', wname: 'Feedback Loop' });
+    damageEnemy(t, a2, { elem: ucElem(w), arc: true, noArc: true, noCrit: true, atk: 'burst', wname: 'Feedback Loop' });
     mark(w, depth ? 'arc2' : 'arc1'); if (!depth) say('loop', t.x, t.y - 16, 'FEEDBACK', ORG, 10, 0.4);
     if (t.chargeT > G.t && !t.dead) ucLoopArc(w, t, a2, depth + 1, maxDepth);
   }

@@ -14,7 +14,7 @@ const { chromium } = require('playwright');
       v_flame_pool: w => (w.w3 && w.w3.spun) || 0, v_soul_proj: w => (w.w3 && w.w3.thrown) || 0,
       v_fire_proj: w => (w.w2 && w.w2.fx && w.w2.fx.snowball) || 0, v_ice_pool: w => (w.w2 && w.w2.fx && w.w2.fx.grip) || 0,
       v_arcane_proj: w => w.pinsSeen || 0, // (pins seen in enemies during the run)
-      s_wake: w => 1, s_tesla: w => (w.w4f && w.w4f.wild) || 1,
+      s_wake: w => 1, s_tesla: w => (w.w4 && w.w4.fx.caught) || 0,
     };
     for (const id in FIT_SAB_TYPES) {
       const t = FIT_SAB_TYPES[id][0], S = WUP[id]; if (!S) { bad.push('no branch for ' + id); continue; }
