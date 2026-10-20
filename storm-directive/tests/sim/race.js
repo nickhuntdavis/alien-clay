@@ -25,6 +25,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
         }
         UI.lootOpenT -= 1000 / 30; UI.autoAt = (UI.autoAt || 0) - 1000 / 30; UI.autoTick();
         if (GOD && G.player.hp < G.P.maxHp * 0.3) G.player.hp = G.P.maxHp * 0.3;
+        for (const mt of [180, 360, 540, 720, 900]) if (G.t >= mt) mark('t' + mt, 'at' + mt / 60 + 'm');
         if (G.showdown) mark('ff', 'final5');
         if (G.fertile) mark('fert', 'count1');
         if (G.eggE && G.eggE.woke && !G.eggWokeT) G.eggWokeT = G.t;

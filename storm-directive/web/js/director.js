@@ -16,7 +16,7 @@
 //  - Telemetry in G.stats: scr (screens opened), scrBy (by kind), merged, auto (applied at the egg), menuT (seconds
 //    spent on reward screens). Logged in the run log with the rest of G.stats.
 // Hooks: v10.js v10Tick -> dirTick; draft.js draftBox -> dirGate, draftLoot -> dirN; ui.js openLoot -> dirTitle,
-// pickLoot -> dirTwo, dirPicked.
+// pickLoot -> dirTwo, dirPicked. Calls rewardui.js rwSaved.
 
 const DIRECTOR = { gap: 30, minGap: 10, age: 1, maxPicks: 2 };
 const DIR_PRI = { start: 1000, relic: 90, spoils: 85, boss: 80, slot: 75, wupfork: 72, wup: 70, fork: 68, mutation: 50, chest: 40, level: 20 };
@@ -29,7 +29,7 @@ const dirPri = q => (DIR_PRI[q.kind] || 30) + (G.t - (q.dirAt != null ? q.dirAt 
 function dirTick() {
   if (!G || !G.lootQueue || !G.lootQueue.length) return;
   const Q = G.lootQueue;
-  for (const q of Q) if (q.dirAt == null) q.dirAt = G.t;
+  for (const q of Q) if (q.dirAt == null) { q.dirAt = G.t; if (typeof rwSaved === 'function' && (G.wave ? waveHoldsLoot() : dirS().t != null && G.t - dirS().t < dirGapNow())) rwSaved(q); } // (held back: say so, rewardui.js)
   // Two single level drafts become one take-two screen.
   const lv = Q.filter(q => q.kind === 'level' && !(q.picks > 1));
   for (let i = 0; i + 1 < lv.length; i += 2) {

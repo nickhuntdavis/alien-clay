@@ -960,19 +960,19 @@ const UI = {
       if (o.wup) { wrap.appendChild(UI.upgradeCard(o, i)); return; }
       const r = RARITIES[o.rarity];
       const c = document.createElement('button');
-      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '') + (typeof boxCardCls === 'function' ? boxCardCls(o) : ''); // (boxlook.js)
+      c.className = 'card r-' + r.id + (o.fusion ? ' fusion' : '') + (o.cursed ? ' cursed' : '') + (o.tag.startsWith('MODIFIER') ? ' mod' : '') + (typeof boxCardCls === 'function' ? boxCardCls(o) : '') + (typeof rwCls === 'function' ? rwCls(o) : ''); // (boxlook.js; the card language: rewardui.js)
       c.style.setProperty('--rar', r.color);
       c.style.setProperty('--rc', o.cursed ? cardCat(o) : r.color); // the border is the rarity colour
       c.style.setProperty('--ic', cardCat(o));
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
       // Only weapons and spells have real icons; the two-letter badges are gone until proper icons are drawn.
-      c.classList.toggle('noico', !o.def);
+      c.classList.toggle('noico', !o.def && !(typeof rwIco === 'function' && rwIco(o)));
       const el = o.elem ? `<span class="el" style="color:${elemCol(o.elem)}">${ELEMENTS[o.elem].name}</span>` : '';
       c.innerHTML = `<div class="tag">${esc(o.tag)} <b>${esc(r.name)}</b></div>
-        ${o.def ? `<div class="cico" style="--ic:${elemCol(o.elem)}">${iconSVG(o.def, 28, elemCol(o.elem))}</div>` : ''}
+        ${o.def ? `<div class="cico" style="--ic:${elemCol(o.elem)}">${iconSVG(o.def, 28, elemCol(o.elem))}</div>` : typeof rwIcoHtml === 'function' ? rwIcoHtml(o) : ''}
         <div class="ctitle"${o.elem && !o.cursed ? ` style="color:${elemCol(o.elem)}"` : ''}>${esc(o.title)}</div>
         <div class="csub">${esc(o.sub)} ${el}</div>
-        <div class="cdesc">${esc(o.desc)}</div>${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
+        <div class="cdesc">${esc(o.desc)}</div>${typeof rwFitHtml === 'function' ? rwFitHtml(o) : ''}${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}`;
       // Tap to take it; press and hold for the card in full, with every bit of jargon explained (glossary.js).
       holdable(c, () => cardGlossary(o), ev => {
         if (!$('lootCards').classList.contains('ready')) return;
@@ -1007,6 +1007,7 @@ const UI = {
     phTaken(o);
     wsPick(UI.lootReq, UI.lootOpts, o); // (wstats.js)
     o.apply(wuid);
+    if (typeof rwPicked === 'function') rwPicked(o); // (a ring in the card's colour: rewardui.js)
     sfx('pickup');
     // Twin Pick relic: DNA strands let you take a second card.
     const k = UI.lootReq && UI.lootReq.kind;
@@ -1079,7 +1080,8 @@ const UI = {
     if (cur.length) h += `<p class="hint">Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}</p>`;
     h += `</div>`;
     }
-    if (tab === 'build') {
+    if (tab === 'build' && V10 && typeof bpHtml === 'function') h += bpHtml(); // (the v10 Build panel: buildpanel.js)
+    else if (tab === 'build') {
     h += phPauseHtml();
     // Your genome: sequences and mutations.
     if (G.genes) {

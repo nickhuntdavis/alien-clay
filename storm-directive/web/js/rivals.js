@@ -464,5 +464,6 @@ function updateShowdown() {
     sysLine('eggReady', true); achieve('eggready');
     sfx('level'); vibrate(200);
   }
+  if (typeof raceTick === 'function') raceTick(); // (the egg opens at 15:00: race15.js)
   eggTick(); // (game.js: swim into the egg to start the membrane fight)
 }

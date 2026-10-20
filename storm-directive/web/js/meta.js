@@ -67,7 +67,7 @@ function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(META))
 function runDna(G, won) {
   const rivals = Object.values(G.rivalOut || {}).filter(v => v === 'you').length;
   // About 450 for a win (the Gene Bank takes about 10), and beating a named rival is worth more than before.
-  return Math.round((G.level * 1.2 + G.kills / 150 + G.stats.bossKills * 12 + rivals * 25 + (won ? 100 : 0) + G.t / 40) * (typeof prestigeDna === 'function' ? prestigeDna(G) : 1));
+  return Math.round((G.level * 1.2 + G.kills / 150 + G.stats.bossKills * 12 + rivals * 25 + (won ? 100 : 0) + G.t / 40 + (typeof raceDnaBonus === 'function' ? raceDnaBonus(G, won) : 0)) * (typeof prestigeDna === 'function' ? prestigeDna(G) : 1));
 }
 function bankRun(G, won) {
   if (G.banked) return META.lastEarned;
@@ -153,7 +153,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '10.42';
+const APP_VERSION = '10.43';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]').slice(-60); } catch (e) { RUNLOG = []; }
 function saveRunLog() { if (RUNLOG.length > 60) RUNLOG.splice(0, RUNLOG.length - 60); try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG)); } catch (e) { /* ignore */ } }
