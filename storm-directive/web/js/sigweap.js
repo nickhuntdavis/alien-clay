@@ -30,7 +30,7 @@ function sigReg(id, old, name, desc, elem, atk, over) {
   WEAPONS['s_' + id] = d; SIG_IDS.push('s_' + id);
   return d;
 }
-const v10Pool = () => (typeof W24_IDS !== 'undefined' ? w24Live() : v10Ids().concat(SIG_IDS)); // (the 24: weapons24.js)
+const v10Pool = () => (typeof W24_IDS !== 'undefined' ? w24Live().filter(id => typeof kinPool !== 'function' || kinPool(id)) : v10Ids().concat(SIG_IDS)); // (the 24: weapons24.js; a race offers only your and absorbed samples' weapons: kindred.js)
 
 // ---------------------------------------------------------------- the originals (re-typed)
 sigReg('orbit', 'orbit', 'Premature Evangelation', 'Guardian angels circle you and swat whatever comes close. Some eat bullets. They always start too soon.', 'soul', 'contact');

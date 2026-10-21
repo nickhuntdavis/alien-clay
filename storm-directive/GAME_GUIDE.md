@@ -1333,6 +1333,8 @@ Named rivals race you to the egg. They join one at a time, one with each scripte
 
 Knock a named rival out of the race and you choose one of their two relics.
 
+**Kindred spirits (The Race).** At 05:00 and again at 10:00 a stranded sperm of another sample turns up somewhere on the slide, with a gold arrow on the screen edge pointing to it until you reach it. Swim into it to absorb it: its passive works alongside yours, its three weapons join your weapon drafts for the rest of the run (in a race, drafts only offer weapons from samples you carry), and it unlocks as a starting sample. You then pick one of its three weapons, which goes straight onto a new weapon mount. It prefers samples you have never rescued.
+
 **Rivals in wave mode.** From wave 2, a new named rival drops into the dish with each ordinary wave (at most 3 alive at once; none join a boss wave). A wave is beaten without killing them, they leave you alone between waves and in boss waves, and every one that survives a wave comes back healed and 2 levels stronger. Dish rivals are 50% as tough as race rivals, hit 70% as hard and grow at half the pace; beating one gives half the XP, plus the usual relic choice.
 
 The first time you ever meet each named rival, the slide stops to introduce them: personality, five attributes (1 to 5) and two specialities that change how they fight.

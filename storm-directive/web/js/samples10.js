@@ -4,8 +4,8 @@
 //    (BASE_WEAPONS.md 5), a strain number for the Scientist's IDs (1A, 1B; 2A ...). Unique Feats come from
 //    feats10.js when it registers them (s10UniqueFeat); until then a sample starts with no Feat.
 //  - Built-in defence: only Ordered Online (20% Evasion, no Genome slot; its Evasion card is not offered).
-//  - Unlocks in order (SAMPLES.md): wave 10, recover from under 10% to full, beat the dish, a Mythical box, survive
-//    a big hazard, an Alien killing blow on a boss, beat Level 1. META.s10 holds unlocked ids; developer mode unlocks all.
+//  - Unlocks (V11): rescue the sample as a kindred spirit in The Race (kindred.js); the old conditions (unlock.txt) are
+//    retired. META.s10 holds unlocked ids; developer mode unlocks all. Passives read s10Has: yours plus any absorbed.
 //  - The sample screen: pick a sample, then an Experiment (The Petri Dish, The Race, Endless and Level 1: flags S10_PETRI, S10_ENDLESS, S10_LEVELS).
 //  - Three starters each (w24Starters); S10_ALL opens every sample for testing; shield flag for pdef.js (s10Shield); Not of This World
 //    shifts w.typeOver on its weapons (read by fight.js fightHit).
@@ -55,7 +55,9 @@ for (const s of SAMPLES10) {
 
 const s10Of = () => (G && G.genes && PROFILES[G.genes.primary] && PROFILES[G.genes.primary].s10) || null;
 const s10Is = id => s10Of() === id;
-const s10Shield = () => { const s = G && G.s10 && S10_BY[G.s10.id]; return !!(s && s.shield); }; // (Private Schooled and Not of This World: pdef.js reads it)
+const s10Shield = () => !!(G && G.s10 && SAMPLES10.some(s => s.shield && s10Has(s.id)));
+// Is this sample's passive on? Your own, or one absorbed this run (kindred.js).
+const s10Has = id => !!(G && G.s10 && (G.s10.id === id || (typeof kinHas === 'function' && kinHas(id)))); // (Private Schooled and Not of This World: pdef.js reads it)
 const s10Open = id => S10_ALL || !S10_BY[id].unlock || !!META.devAll || !!(META.s10 && META.s10[id]);
 function s10Unlock(id) {
   if (!S10_BY[id] || s10Open(id)) return;
@@ -79,19 +81,15 @@ const s10Evasion = () => (G && G.s10 && G.s10.ev) || 0;
 function s10Tick(dt) {
   const S = G.s10; if (!S) return;
   const p = G.player, moving = Math.hypot(p.vx || 0, p.vy || 0) > 20;
-  if (S.id === 'alpha') for (const w of G.weapons) if (w) w.rateK = moving ? 1.25 : 1;
-  if (S.id === 'ordered' && moving && (S.trailT -= dt) <= 0) { // a Mucus ribbon that Snares whatever follows
+  if (s10Has('alpha')) for (const w of G.weapons) if (w) w.rateK = moving ? 1.25 : 1;
+  if (s10Has('ordered') && moving && (S.trailT -= dt) <= 0) { // a Mucus ribbon that Snares whatever follows
     S.trailT = 0.3;
     const mine = G.zones.filter(z => z.s10trail);
     if (mine.length >= 18) mine[0].life = 0;
     G.zones.push({ x: p.x, y: p.y, r: 26, life: 3, max: 3, dps: 0.5, elem: 'ice', pull: 0, color: ELEMENTS.ice.color, tick: 0, s10trail: true, src: { elem: 'ice', wname: 'Mucus trail', noCrit: true } });
   }
-  if (S.id === 'alien') { if ((S.shiftT -= dt) <= 0) s10Shift(S); else s10Apply(S); } // (weapons picked up later take the type too)
-  // Unlock watch: wave 10; under 10% then back to full; a win in the dish or a level.
-  if (G.wave && G.wave.n >= 10) s10Unlock('alpha');
-  if (p.hp < G.P.maxHp * 0.1) S.low = true; else if (S.low && p.hp >= G.P.maxHp * 0.999) s10Unlock('beta');
-  if (G.state === 'finale' && G.finale && G.finale.kind === 'win' && !S.won) { S.won = true; if (G.wave) s10Unlock('private'); if (G.lvl) s10Unlock('alien'); }
-  if (typeof bigHazList === 'function' && bigHazList().length) S.hazSeen = true; else if (S.hazSeen && p.hp > 0) { S.hazSeen = false; s10Unlock('redtail'); }
+  if (s10Has('alien')) { if ((S.shiftT -= dt) <= 0) s10Shift(S); else s10Apply(S); } // (weapons picked up later take the type too)
+  // (Unlocks: the old watch conditions retired in V11; a sample unlocks when you rescue it in The Race, kindred.js.)
 }
 // Not of This World: every weapon it holds takes the next type (w.typeOver, an internal elem id read by fight.js fightHit
 // and weapons24.js); weapon ids, levels and cards stay put.
@@ -109,19 +107,19 @@ function s10Shift(S) {
 function s10DmgMul(e, src) {
   const S = G.s10; if (!S) return 1;
   let k = 1;
-  if (S.id === 'beta' && G.player.hp < G.P.maxHp * 0.3 && !src.fromAlly) k *= 1 + (1 - G.player.hp / G.P.maxHp); // up to about +100% at death's door
-  if (S.id === 'private' && src.fromAlly) k *= 1.5;
+  if (s10Has('beta') && G.player.hp < G.P.maxHp * 0.3 && !src.fromAlly) k *= 1 + (1 - G.player.hp / G.P.maxHp); // up to about +100% at death's door
+  if (s10Has('private') && src.fromAlly) k *= 1.5;
   return k;
 }
 function s10Hit(e, src, res, t) {
   const S = G.s10; if (!S || res.miss) return;
-  if (S.id === 'beta' && G.player.hp < G.P.maxHp * 0.3 && res.toHp > 0 && !src.fromAlly) healPlayer(res.toHp * 0.04 * (1 - G.player.hp / G.P.maxHp), true);
-  if (S.id === 'private' && t === 'acid' && res.statusOk) { const c = e.cd; c.bars.acid += 0.5 * res.raw / (COMBAT.barSize.acid * Math.max(1, c.layers) * c.maxHp * COMBAT.rankBarK[c.rank || 'normal']); }
-  if (S.id === 'redtail' && t === 'static' && res.statusOk && !e.dead) burnAdd(fightCd(e), res.raw);
-  if (S.id === 'prawn' && src.fromAlly && res.toHp > 0 && !e.dead) fightStatus(e, 'arcane', res.raw, src);
+  if (s10Has('beta') && G.player.hp < G.P.maxHp * 0.3 && res.toHp > 0 && !src.fromAlly) healPlayer(res.toHp * 0.04 * (1 - G.player.hp / G.P.maxHp), true);
+  if (s10Has('private') && t === 'acid' && res.statusOk) { const c = e.cd; c.bars.acid += 0.5 * res.raw / (COMBAT.barSize.acid * Math.max(1, c.layers) * c.maxHp * COMBAT.rankBarK[c.rank || 'normal']); }
+  if (s10Has('redtail') && t === 'static' && res.statusOk && !e.dead) burnAdd(fightCd(e), res.raw);
+  if (s10Has('prawn') && src.fromAlly && res.toHp > 0 && !e.dead) fightStatus(e, 'arcane', res.raw, src);
 }
-// A boss's killing blow with Alien (fight.js fightDeath).
-function s10Kill(e, src) { if ((e.boss || e.bossDef) && src && src.elem === 'soul') s10Unlock('prawn'); }
+// fight.js fightDeath.
+function s10Kill(e, src) { } // (its unlock retired in V11: kindred.js)
 
 // ---------------------------------------------------------------- the sample screen (v10Samples)
 function s10Samples() {
@@ -129,7 +127,7 @@ function s10Samples() {
   const list = SAMPLES10.map(s => {
     const open = s10Open(s.id), col = ELEMENTS[S10_TYPES[s.types[0]]].color;
     const nm = !open && s.unlock.secret ? '???' : s.name;
-    const desc = open ? s.passive + ': ' + s.pdesc : 'Unlock: ' + (s.unlock.secret ? '???' : s.unlock.txt);
+    const desc = open ? s.passive + ': ' + s.pdesc : 'TODO_COPY:kin_unlock_hint'; // (rescue it in The Race: kindred.js)
     const c = card(`data-s10="${s.id}"`, String(s.strain).padStart(3, '0'), nm, desc, col, open ? s.types.map(t => t.toUpperCase()).join(' / ') : 'LOCKED', !open);
     return c.replace('<span class="sx-txt">', `<canvas data-slpic="${s.id}" style="position:relative;inset:auto;flex:none;display:block;width:100%;height:${s.id === 'alien' ? 120 : 96}px"></canvas><span class="sx-txt">`); // (its picture: samplelooks.js)
   }).join('');

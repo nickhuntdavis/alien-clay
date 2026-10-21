@@ -48,11 +48,11 @@ const { chromium } = require('playwright');
     run('redtail'); const e = makeEnemy(ENEMIES.crawler, G.player.x + 90, G.player.y); e.hp = e.maxHp = 1000; G.enemies.push(e);
     damageEnemy(e, 20, { elem: 'shock', atk: 'proj', noCrit: true, wname: 't' });
     if (!(e.cd && e.cd.burnT > 0)) bad.push('Redtail: Static did not burn');
-    // Unlock rules stay in code: with S10_ALL off they still fire.
+    // V11: the old unlock watches are retired (a rescue in The Race unlocks: kindredtest); s10Unlock still works.
     S10_ALL = false; META.s10 = {}; const keepDev = META.devAll; META.devAll = 0;
     run('baseline'); G.wave.n = 10; s10Tick(0.016);
-    if (!s10Open('alpha')) bad.push('wave 10 did not unlock Alpha');
-    if (s10Open('prawn')) bad.push('Prawn Again open too early');
+    if (s10Open('alpha')) bad.push('wave 10 still unlocks Alpha');
+    s10Unlock('prawn'); if (!s10Open('prawn')) bad.push('s10Unlock');
     S10_ALL = true; META.devAll = keepDev;
     return { bad, out };
   });
