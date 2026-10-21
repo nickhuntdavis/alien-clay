@@ -2,6 +2,41 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.59: 2026-10-21 eInk view, Sample 9 copy, rescue copy
+- Merged: claude/exciting-allen-oy8n9q (eInk view), ccr-cbe5a578-nzu9tn (Sample 9 copy), ccr-455e7cea-1tppwd (rescue copy drafts). Suite: 105 passed; weapons24test and wup5test fail as before the merge (they expect 24 weapons; Sample 9 makes 27).
+
+### Folded from ccr-455e7cea-1tppwd: 2026-10-21 Rescue copy drafted (v10.58)
+- Systems: kindred, samples
+- Files: kindred.js, samples10.js
+- What: the two rescue placeholders filled with Claude-drafted lines (the user asked for drafts): the spawn banner "ONE OF YOUR OWN, STRANDED" and the locked-sample hint "Rescue it when it turns up stranded in The Race." Awaiting the user's read-through.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
+### Folded from claude-exciting-allen-oy8n9q: 2026-10-21 eInk view always light (v10.52)
+- Systems: style, settings
+- Files: settings.js, tests/einkshot.js, ARCHITECTURE.md
+- What: eInk view is always Paper (light), whatever the phone's dark setting.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
+### Folded from claude-exciting-allen-oy8n9q: 2026-10-21 eInk view (v10.51)
+- Systems: style, settings, ui
+- Files: eink.css (new), fonts/Barlow-*.ttf + OFL.txt (new), style.css, index.html, settings.js, ui.js, tests/einkshot.js (new), tests/run.sh, ARCHITECTURE.md
+- What: Merged the e-ink UI archive. Settings > View now has a third option, EINK: every DOM screen and the HUD use the Figma e-ink design system (grey paper, 2px ink rules, Barlow, no glow or grain; Ink mode, AMOLED black, when the phone is in dark mode), over the Arcade slide. style.css's hardcoded greys now use the colour tokens (Lab and Arcade look the same as before, near enough).
+- Save data: SET.view gains the value 'eink' (no new keys).
+- Hooks: ui.js applySettings -> applyEink(); index.html loads eink.css (media off) after style.css.
+- Risk: viewArcade() is true in eInk view, so everything gated on Arcade (full colour, rings, Immersive AUTO) applies. TODO_COPY:set_view_eink_hint open. Barlow adds about 530 KB to the APK.
+
+### Folded from ccr-cbe5a578-nzu9tn: 2026-10-20 Sample 9 copy dropped in (v10.51)
+- Systems: weapons, samples, feats
+- Files: acrocopy.js (new), acro.js, acrosample.js, index.html, ARCHITECTURE.md
+- What: all 143 Sample 9 strings (sample card, Premature Evaporation Feat and forks, X9 Watched Pot and forks, three weapons, 45 branch cards) now come from `ACRO_COPY`; no `TODO_COPY` left in play. Written by Claude at the user's request, so the user may want to rewrite.
+- Save data: none
+- Hooks: acro.js / acrosample.js `T()` reads `ACRO_COPY[id]`
+- Risk: none beyond copy quality; limits checked against SAMPLE_9_ACRO.md section 6.
+
 ## v10.57: 2026-10-21 V11: kindred spirits, one pick per screen, power curve
 - Merged: ccr-455e7cea-1tppwd (v10.51 to v10.57).
 
