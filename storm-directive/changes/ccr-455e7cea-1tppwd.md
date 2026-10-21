@@ -1,3 +1,11 @@
+## 2026-10-21 V11 power curve: no early one-shots, range falloff, per-level gains (v10.57)
+- Systems: power11 (new), combat
+- Files: power11.js (new), index.html, tests/p11test.js (new), tests/fighttest.js, tests/tools/guide.js, ARCHITECTURE.md
+- What: until 2:00 one hit can take at most half a germ's or elite's health (lifting by 5:00; branches and mutations still multiply past it); damage against germs starts at 70% and reaches full by 10:00; early germs have x2 health, back to normal by 8:00; each level gives +0.5% damage, +0.5% attack rate and +1.5 max health; direct hits beyond 220 units lose damage, down to 55% at 600. Bosses and rivals keep their tuning (range still applies). Sims: early one-shots ~90% -> 0 to 10% for every starter (median 2 to 3 hits); bot deaths unchanged (mostly 6 to 8 min either way).
+- Save data: none.
+- Hooks: none in shared files (wraps game.js makeEnemy, fight.js fightHit, juice.js levelJuice).
+- Risk: balance in every v10 mode (Petri Dish and Endless too); Level 1 not checked; long-range weapons lose up to 45% on far targets.
+
 ## 2026-10-21 Weapon branch screens back (v10.56)
 - Systems: weapons (branch screens), ui
 - Files: sidemo.js, tests/kindredtest.js

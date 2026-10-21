@@ -8,6 +8,7 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
+    if (typeof P11 !== 'undefined') Object.assign(P11, { cap: 99, start: 1, dmgTo: 1, dmgLv: 0, farK: 1, foeHp: 1 }); // (exact defence numbers: the V11 power curve off, power11.js)
     const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; };
     const foe = (id, dx) => { const p = G.player, e = makeEnemy(ENEMIES[id], p.x + (dx || 90), p.y); e.hp = e.maxHp = 1000; e.speed = 0; G.enemies.push(e); gridBuild(); return e; };
     const hit = (e, elem, amt, atk) => damageEnemy(e, amt, { elem, atk: atk || 'proj', noCrit: true, wname: 'test' });
