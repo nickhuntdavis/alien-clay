@@ -54,11 +54,15 @@ const { chromium } = require('playwright');
     G.wave = null; G.dir = null; const a1 = draftBox({ kind: 'level' }), a2 = draftBox({ kind: 'level' }); G.t += 31; const a3 = draftBox({ kind: 'level' });
     if (a1 !== true || a2 !== 'wait' || a3 !== true) bad.push('director pacing: ' + [a1, a2, a3]);
     if (draftBox({ kind: 'fork', w, lv: 5 }) === 'wait') bad.push('fork held back by the director');
-    // Order and merging: a mutation outranks level drafts, two level drafts become one take-two screen of four
+    // Order, no merging (V11): a mutation outranks level drafts; stacked level drafts stay separate screens of three
     G.lootQueue = [{ kind: 'level' }, { kind: 'level' }, { kind: 'mutation' }, { kind: 'level' }]; dirTick();
     out.queue = G.lootQueue.map(q => q.kind + (q.picks ? 'x' + q.picks : ''));
-    if (out.queue.join() !== 'mutation,levelx2,level') bad.push('director queue: ' + out.queue);
-    if (genLoot({ kind: 'level', picks: 2 }).length !== 4) bad.push('take-two screen not four cards');
+    if (out.queue.join() !== 'mutation,level,level,level') bad.push('director queue: ' + out.queue);
+    if (genLoot({ kind: 'level' }).length !== 3) bad.push('level screen not three cards');
+    // A stack plays back to back: closing a screen with more waiting opens the next one inside the gap
+    G.dir = null; draftBox({ kind: 'level' }); G.t += 1; dirPicked(); G.t += 0.1;
+    if (draftBox({ kind: 'level' }) !== true) bad.push('stacked screen held back');
+    G.t += 0.1; if (draftBox({ kind: 'level' }) !== 'wait') bad.push('gap gone after the stack');
     // Starvation: a level draft that has waited long enough goes before a fresh DNA strand
     G.lootQueue = [{ kind: 'level', dirAt: G.t - 120 }, { kind: 'chest' }]; dirTick();
     if (G.lootQueue[0].kind !== 'level') bad.push('old level draft starved by a strand');

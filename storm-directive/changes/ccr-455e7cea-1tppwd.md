@@ -1,3 +1,11 @@
+## 2026-10-21 One pick per screen; stacked rewards come back to back (v10.54)
+- Systems: reward director, ui (reward screens)
+- Files: director.js, v11ui.js, v10.js, tests/drafttest.js
+- What: waiting level drafts no longer merge into a four-card take-two screen. Every screen offers three cards and one pick; with two or three rewards waiting, closing (or skipping) one screen opens the next at once, then the usual 30 s gap resumes. The no-sample start draft offers three, not four.
+- Save data: none.
+- Hooks: none new (v11ui.js listens on #skipBtn).
+- Risk: more screens in a row after a big XP burst (they were merged before); `DIRECTOR.merge = true` brings take-two back.
+
 ## 2026-10-21 V11 headings, skippable weapon drafts, earlier rescues, fewer race drafts (v10.53)
 - Systems: ui (reward screens), kindred, engine (levelling)
 - Files: v11ui.js (new), kindred.js, game.js, index.html, tests/kindredtest.js, tests/drafttest.js, tests/tools/guide.js, ARCHITECTURE.md

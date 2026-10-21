@@ -5,7 +5,7 @@
 //    kindred.js). Subtitles are unchanged. A rule-breaking box (weird.js) keeps its own title.
 //  - Skip on the Weapon Draft screen (every weapon draft but the first): the mount stays empty for a later draft or a
 //    rescue to fill, and you get V11UI.skipRerolls rerolls.
-// Hooks: none in shared files. Wraps UI.openLoot and UI.openDraft (loads after kindred.js).
+// Hooks: none in shared files. Wraps UI.openLoot and UI.openDraft (loads after kindred.js); listens on #skipBtn.
 
 const V11UI = { skipRerolls: 2 };
 const V11_HEAD = { level: 'CHOOSE AN UPGRADE', chest: 'CHOOSE AN UPGRADE', boss: 'CHOOSE AN UPGRADE', wup: 'UPGRADE A WEAPON', wupfork: 'UPGRADE A WEAPON', mutation: 'CHOOSE A MUTATION' };
@@ -17,14 +17,18 @@ function v11Head(req) {
   if (h) $('lootTitle').textContent = h;
 }
 
+// Skipping a screen counts as closing it: anything else waiting follows at once (director.js DIRECTOR.chain).
+const v11Chain = () => { if (G && G.state === 'play' && G.lootQueue.length && typeof dirS === 'function') dirS().chain = G.t; };
 function v11Skip() {
   if (!G || G.state !== 'loot' || UI.v11Draft !== UI.lootReq || UI.lootReq.kind !== 'slot' || performance.now() - UI.lootOpenT < 500) return;
   clearPreviews(); G.rerolls += V11UI.skipRerolls; sfx('pickup');
   G.state = 'play'; UI.v11Draft = null; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now();
+  v11Chain();
 }
 
 {
   const open = UI.openLoot, draft = UI.openDraft;
+  $('skipBtn').addEventListener('click', v11Chain); // (after ui.js's own skip handler)
   UI.openLoot = function (req) {
     open.call(UI, req);
     if (G && G.state === 'loot' && UI.v11Draft !== req) v11Head(req);

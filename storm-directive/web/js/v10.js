@@ -121,7 +121,7 @@ function v10Box(req) {
 function v10Loot(req) {
   if (sbOn()) { const o = sbLoot(req); if (o) return o; } // (Sandbox: sandbox.js)
   if (req.kind === 'start') { const o = typeof s10Start === 'function' && s10Start(); if (o) return o; } // (a sample starts with its own weapon: samples10.js)
-  if (req.kind === 'start') return shuffle(v10Pool()).slice(0, 4).map(id => optNewWeapon(id, 0));
+  if (req.kind === 'start') return shuffle(v10Pool()).slice(0, 3).map(id => optNewWeapon(id, 0));
   if (req.kind === 'slot') {
     const own = G.weapons.filter(Boolean), have = new Set(own.map(w => w.def.v10atk));
     let pool = v10Pool().filter(id => !own.some(w => (w.sid || w.id) === id) && !have.has(v10Atk(id)));
