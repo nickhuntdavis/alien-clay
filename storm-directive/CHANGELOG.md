@@ -2,6 +2,17 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.62: 2026-10-21 rescues are a race's only weapon drafts
+- Merged: ccr-455e7cea-1tppwd.
+
+### Folded from ccr-455e7cea-1tppwd: 2026-10-21 Rescues are a race's only weapon drafts; Donor DNA when mounts are full (v10.62)
+- Systems: kindred, ui (Tackle Box)
+- Files: kindred.js, tests/kindredtest.js, tests/tools/guide.js, ARCHITECTURE.md
+- What: in The Race there are no level-up weapon drafts. Rescues come at 02:00 and 05:00; their screen offers the sample's three weapons plus one of your own sample's starters you don't hold, and the pick fills an empty mount or grows one (up to 3). Skip keeps the mount free. At 08:00 and 11:00 a rescue comes only if a mount is empty (a skipped rescue or a Recycle). Recycle in a race gives its rerolls and leaves the mount for the next rescue instead of opening a draft (its button text is a TODO_COPY placeholder in races). At 08:00 or 11:00 with every mount full, a Donor DNA strand (weapon modification screen) lies out with the same beacon instead (TODO_COPY banner and source name). With every mount full, a rescue still absorbs and plays the fusion, with no weapon screen.
+- Save data: none.
+- Hooks: none new (kindred.js wraps UI.renderArmoury for the Recycle text; draftBox now drops non-rescue weapon drafts in a race).
+- Risk: balance: one weapon for the first two minutes (the bot sim checks survival); 3 weapons at most, by 05:00.
+
 ## v10.61: 2026-10-21 absorbed samples change your head
 - Merged: ccr-455e7cea-1tppwd.
 
