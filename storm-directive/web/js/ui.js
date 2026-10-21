@@ -408,6 +408,7 @@ const UI = {
     if (typeof refreshPalette === 'function') refreshPalette(); // (Full colour)
     if (typeof resetLook === 'function') resetLook();
     if (typeof applyLayout === 'function') applyLayout();
+    if (typeof applyEink === 'function') applyEink();
   },
 
   // ---------------------------------------------------------------- Tackle Box (weapon management)
