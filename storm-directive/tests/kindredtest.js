@@ -83,7 +83,8 @@ const { chromium } = require('playwright');
     { META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; genLoot({ kind: 'start' })[0].apply(); G.weapons.push(null, null); G.weapons[1] = makeSlot(w24Starters('baseline')[1], false, 1);
       G.t = 1; v10Tick(0.016); const K = G.kin; K.n = KIN.at.length; K.spirits = []; G.weapons[2] = makeSlot(w24Starters('baseline')[2], false, 1); G.t = 480; v10Tick(0.016);
       if (K.spirits.length) bad.push('rescue at 08:00 with every mount full');
-      G.weapons[2] = null; G.t = 660; v10Tick(0.016); if (!K.spirits.length) bad.push('no rescue at 11:00 with an empty mount');
+      { const u = G.pickups.find(x => x.kinB); if (!u || u.type !== 'chest') bad.push('no Donor DNA at 08:00 with every mount full'); else { try { kinDraw(); kinPointers(); } catch (e) { bad.push('dna beacon ' + e.message); } G.player.x = u.x; G.player.y = u.y; G.lootQueue = []; G.state = 'play'; update(1 / 60); if (!G.lootQueue.some(q => q.kind === 'chest')) bad.push('Donor DNA not collected'); } }
+      G.weapons[2] = null; G.t = 660; G.state = 'play'; K.spirits = []; v10Tick(0.016); if (!K.spirits.length) bad.push('no rescue at 11:00 with an empty mount');
       if (draftBox({ kind: 'slot', recycled: true }) !== false) bad.push('race still drafts a Recycle replacement'); }
     // Mounts: no level-up weapon drafts in a race; the dish keeps SLOT_LEVELS.
     UI.sample = 's002'; newGame(); G.state = 'play';

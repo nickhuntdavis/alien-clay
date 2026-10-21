@@ -1,7 +1,8 @@
 'use strict';
 // Spawn Prawn - kindred spirits (V11 brief, 21 Oct): rescue another sample mid-race and absorb it.
 //  - The Race only (raceOn). At KIN.at (02:00 and 05:00) a stranded sperm of another sample appears KIN.dist from you,
-//    and at every KIN.every-second mark after that (08:00, 11:00) one comes only if a weapon mount is empty.
+//    and at every KIN.every-second mark after that (08:00, 11:00) one comes only if a weapon mount is empty; with every
+//    mount full, a Donor DNA strand (weapon modification) lies out instead, with the same beacon (kinDna).
 //    It is hard to miss (user, 21 Oct): sonar pings and a column of light where it is, a big arrow over it on screen, a
 //    gold badge on the screen edge pointing the way off screen, and a nudge (sound, buzz, the marker swells) every
 //    KIN.remind seconds until you reach it. It never expires: a late rescue still counts.
@@ -27,6 +28,8 @@ const KIN = { grow: 0.15, remind: 20, pull: 3, at: [120, 300], every: 180, lastM
 // (at: the rescues every race gets; then a mark every KIN.every seconds up to KIN.lastMark brings one only while a
 // weapon mount is empty: a skipped rescue or a Recycled weapon. slots: no level-up weapon drafts in a race.)
 const kinFull = () => G.weapons.filter(Boolean).length >= MAX_WEAPONS;
+// Everything that wears the beacon: waiting spirits, and the Donor DNA dropped at a mark when every mount was full.
+const kinMarks = () => (G && G.kin ? G.kin.spirits.concat(G.pickups.filter(u => u.kinB && !u.dead)) : []);
 // game.js levelling: a race grows a weapon mount only at KIN.slots (the rescues bring the rest), elsewhere SLOT_LEVELS.
 const kinSlotLv = lv => (raceOn() ? KIN.slots : SLOT_LEVELS).includes(lv);
 const kinHas = id => !!(G && G.kin && G.kin.has.includes(id));
@@ -74,7 +77,8 @@ function kinTick(dt) {
   while (K.n < KIN.at.length && G.t >= KIN.at[K.n]) { K.n++; kinSpawn(); }
   // Later marks: a rescue only while a mount is empty and nobody is already waiting.
   const mark = KIN.at[KIN.at.length - 1] + KIN.every * ((K.m || 0) + 1);
-  if (K.n >= KIN.at.length && mark <= KIN.lastMark && G.t >= mark) { K.m = (K.m || 0) + 1; if (!kinFull() && !K.spirits.length) kinSpawn(); }
+  if (K.n >= KIN.at.length && mark <= KIN.lastMark && G.t >= mark) { K.m = (K.m || 0) + 1; if (K.spirits.length) { /* one already waiting */ } else if (!kinFull()) kinSpawn(); else kinDna(); }
+  for (const u of G.pickups) if (u.kinB && !u.dead && (u.kt = (u.kt || 0) + dt) >= (u.remN || 0) + KIN.remind) { u.remN = (u.remN || 0) + KIN.remind; u.remT = G.realT; sfx('pickup'); vibrate(40); }
   for (const s of K.spirits) {
     s.t += dt;
     if (s.t >= (s.remN || 0) + KIN.remind) { s.remN = (s.remN || 0) + KIN.remind; s.remT = G.realT; sfx('pickup'); vibrate(40); } // (a nudge every KIN.remind s while it waits)
@@ -84,6 +88,16 @@ function kinTick(dt) {
     if (Math.hypot(s.x - p.x, s.y - p.y) < KIN.touch + (p.r || 12)) { s.got = true; kinRescue(s); }
   }
   K.spirits = K.spirits.filter(s => !s.got);
+}
+
+// Every mount full at a mark: a Donor DNA strand (a weapon modification screen) lies out on the slide instead, with the
+// same beacon; it does not expire.
+function kinDna() {
+  const p = G.player; let x = p.x, y = p.y;
+  for (let i = 0; i < 24; i++) { const a = Math.random() * TAU; x = p.x + Math.cos(a) * KIN.dist; y = p.y + Math.sin(a) * KIN.dist; if (typeof terrainDanger !== 'function' || !terrainDanger(x, y, 60)) break; }
+  const u = makePickup('chest', x, y, { t: 'drop', name: 'TODO_COPY:kin_dna_src' }); u.life = 1e9; u.kinB = true;
+  G.pickups.push(u);
+  banner('TODO_COPY:kin_dna_banner', PAL.reward); sfx('level'); vibrate(80);
 }
 
 function kinRescue(s) {
@@ -211,8 +225,8 @@ function kinHead(id, own, g, k, a, now, tag, hit, B) {
 
 // World space (wraps v10Draw): the stranded sperm, drawn as its own sample, with a slow gold halo.
 function kinDraw() {
-  if (!G || !G.kin || !G.kin.spirits.length) return;
-  for (const s of G.kin.spirits) {
+  const marks = kinMarks(); if (!marks.length) return;
+  for (const s of marks) {
     const x = sx(s.x), y = sy(s.y), pulse = 0.5 + 0.5 * Math.sin(G.realT * 3);
     if (x < -400 || y < -200 || x > W + 400 || y > H + 600) continue;
     const rawc = RAW_COL; RAW_COL = true;
@@ -231,6 +245,7 @@ function kinDraw() {
     ctx.globalAlpha = 0.6 + 0.4 * pulse; ctx.fillStyle = g; ctx.fillRect(x - bw / 2, y - 420 * S, bw, 420 * S);
     ctx.globalCompositeOperation = 'source-over';
     ctx.restore();
+    if (s.kinB) { RAW_COL = rawc; continue; } // (the strand draws itself as a pickup)
     if (s.id === 'alien') { if (typeof alienDraw === 'function') alienDraw(x, y, s.face, null, 1, 1, s, G.realT, ELEMENTS.soul.color, 'curious'); }
     else if (typeof SL !== 'undefined' && SL[s.id]) slDraw(s.id, x, y, s.face, null, 1, 1, s, G.realT);
     RAW_COL = rawc;
@@ -239,10 +254,10 @@ function kinDraw() {
 // render.js drawHud (screen space): on screen, a big bobbing arrow over it; off screen, a gold badge on the screen edge
 // with a pulsing ring and an arrow pointing the way, bigger for a moment at every reminder (KIN.remind).
 function kinPointers() {
-  if (!G || !G.kin || !G.kin.spirits.length) return;
+  const marks = kinMarks(); if (!marks.length) return;
   const t = G.realT, pulse = 0.5 + 0.5 * Math.sin(t * 6), rawc = RAW_COL; RAW_COL = true;
   ctx.save(); ctx.shadowBlur = 0;
-  for (const s of G.kin.spirits) {
+  for (const s of marks) {
     const dx = s.x - cam.x, dy = s.y - cam.y, pop = 1 + 0.6 * Math.max(0, 1 - (t - (s.remT || -9)) / 0.8);
     const arrow = (x, y, a, k) => { // a fat arrowhead pointing along a
       ctx.save(); ctx.translate(x, y); ctx.rotate(a);
@@ -261,8 +276,9 @@ function kinPointers() {
     ctx.lineWidth = 3; ctx.strokeStyle = PAL.reward; ctx.stroke();
     // A little sperm inside the badge, swimming the way to go.
     ctx.save(); ctx.translate(px, py); ctx.rotate(a); ctx.fillStyle = PAL.reward; ctx.strokeStyle = PAL.reward; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.ellipse(5, 0, 6, 4.2, 0, 0, TAU); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(-1, 0); for (let i = 1; i <= 6; i++) ctx.lineTo(-1 - i * 2.2, Math.sin(t * 12 - i) * 2.2); ctx.stroke(); ctx.restore();
+    if (s.kinB) { for (const ph of [0, Math.PI]) { ctx.beginPath(); for (let i = 0; i <= 12; i++) { const xx = -9 + i * 1.5; ctx.lineTo(xx, Math.sin(i * 0.6 + ph + t * 3) * 5); } ctx.stroke(); } } // (a strand of DNA)
+    else { ctx.beginPath(); ctx.ellipse(5, 0, 6, 4.2, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.moveTo(-1, 0); for (let i = 1; i <= 6; i++) ctx.lineTo(-1 - i * 2.2, Math.sin(t * 12 - i) * 2.2); ctx.stroke(); }
+    ctx.restore();
     arrow(px + Math.cos(a) * (R + 12), py + Math.sin(a) * (R + 12), a, 0.8 * pop);
   }
   ctx.restore(); RAW_COL = rawc;
@@ -272,7 +288,7 @@ function kinPointers() {
 // mutation carrier (kill it and the mutation flies to you), then pickups and XP past autorun's usual reach.
 function kinCollect(p, goal) {
   let homing = false;
-  if (G.kin) for (const s of G.kin.spirits) {
+  for (const s of kinMarks()) {
     const d = Math.hypot(s.x - p.x, s.y - p.y);
     goal(s.x, s.y, KIN.pull);
     if (d < 260) homing = true;
