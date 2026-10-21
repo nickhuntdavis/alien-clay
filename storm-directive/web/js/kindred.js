@@ -1,6 +1,7 @@
 'use strict';
 // Spawn Prawn - kindred spirits (V11 brief, 21 Oct): rescue another sample mid-race and absorb it.
-//  - The Race only (raceOn). At KIN.at (03:00 and 06:00) a stranded sperm of another sample appears KIN.dist from you.
+//  - The Race only (raceOn). At KIN.at (02:00 and 05:00) a stranded sperm of another sample appears KIN.dist from you,
+//    and at every KIN.every-second mark after that (08:00, 11:00) one comes only if a weapon mount is empty.
 //    It is hard to miss (user, 21 Oct): sonar pings and a column of light where it is, a big arrow over it on screen, a
 //    gold badge on the screen edge pointing the way off screen, and a nudge (sound, buzz, the marker swells) every
 //    KIN.remind seconds until you reach it. It never expires: a late rescue still counts.
@@ -10,8 +11,10 @@
 //      1. its passive works alongside your own (samples10.js s10Has);
 //      2. its three weapons join this run's weapon pool (kinPool: race drafts only offer your sample's and absorbed ones);
 //      3. it unlocks as a starter for later runs (META.s10; S10_ALL still opens everything while testing).
-//    The weapon you pick is equipped straight away on a new mount (KIN.mount). Weapons in a race: the first, a
-//    draft at Lv 5 (KIN.slots, not SLOT_LEVELS' Lv 12) and one per rescue: four drafts, four weapons.
+//    Rescues are a race's only weapon drafts (user, 21 Oct): the screen offers its three weapons and one of your own
+//    sample's starters you don't hold; the pick fills an empty mount or grows one (up to MAX_WEAPONS). Skip keeps the
+//    mount free for a later rescue. No level-up weapon drafts (KIN.slots empty); a Recycle in the Tackle Box gives
+//    its rerolls and leaves the mount empty for the next mark instead of opening a draft.
 //    If you already hold every carried weapon, drafts fall back to the whole roster (never an empty screen).
 //  - The rescue screen has the rescued sample's live portrait at the top (kinPic). Picking a weapon or skipping plays the
 //    fusion (kinFuse): you and it swim together, flash, and you come out wearing its look; the run stays paused.
@@ -20,7 +23,10 @@
 // Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool; game.js levelling -> kinSlotLv. Wraps v10Tick, v10Draw, draftBox, v10Loot,
 // UI.openLoot and samplelooks.js slDraw (loads last, after ui.js).
 
-const KIN = { grow: 0.15, remind: 20, pull: 3, at: [180, 360], dist: 900, touch: 46, mount: 1, skip: ['acro'], extras: ['prawn'], slots: [5] };
+const KIN = { grow: 0.15, remind: 20, pull: 3, at: [120, 300], every: 180, lastMark: 780, dist: 900, touch: 46, skip: ['acro'], extras: ['prawn'], slots: [] };
+// (at: the rescues every race gets; then a mark every KIN.every seconds up to KIN.lastMark brings one only while a
+// weapon mount is empty: a skipped rescue or a Recycled weapon. slots: no level-up weapon drafts in a race.)
+const kinFull = () => G.weapons.filter(Boolean).length >= MAX_WEAPONS;
 // game.js levelling: a race grows a weapon mount only at KIN.slots (the rescues bring the rest), elsewhere SLOT_LEVELS.
 const kinSlotLv = lv => (raceOn() ? KIN.slots : SLOT_LEVELS).includes(lv);
 const kinHas = id => !!(G && G.kin && G.kin.has.includes(id));
@@ -66,6 +72,9 @@ function kinTick(dt) {
   kinInit();
   const K = G.kin, p = G.player;
   while (K.n < KIN.at.length && G.t >= KIN.at[K.n]) { K.n++; kinSpawn(); }
+  // Later marks: a rescue only while a mount is empty and nobody is already waiting.
+  const mark = KIN.at[KIN.at.length - 1] + KIN.every * ((K.m || 0) + 1);
+  if (K.n >= KIN.at.length && mark <= KIN.lastMark && G.t >= mark) { K.m = (K.m || 0) + 1; if (!kinFull() && !K.spirits.length) kinSpawn(); }
   for (const s of K.spirits) {
     s.t += dt;
     if (s.t >= (s.remN || 0) + KIN.remind) { s.remN = (s.remN || 0) + KIN.remind; s.remT = G.realT; sfx('pickup'); vibrate(40); } // (a nudge every KIN.remind s while it waits)
@@ -79,6 +88,7 @@ function kinTick(dt) {
 
 function kinRescue(s) {
   kinAbsorb(s.id);
+  if (kinFull()) { kinFuse(s.id); return; } // (every mount full: no weapon to pick, just the fusion)
   ring(s.x, s.y, 80, PAL.reward, 0.6, 6);
   G.lootQueue.unshift({ kind: 'kindred', id: s.id, now: true });
 }
@@ -95,14 +105,15 @@ function kinAbsorb(id) {
 }
 
 // The card screen: its three weapons, the pick goes on a new mount.
+// Its three weapons, and one of your own sample's starters you don't hold (the way to stay true to your own kit). The
+// pick goes in an empty mount, or a new one (up to MAX_WEAPONS). With every mount full: no cards (the screen is skipped).
 function kinCards(req) {
-  const sm = S10_BY[req.id];
-  return sm.weapons.filter(id => WEAPONS[id]).map(id => {
+  if (kinFull()) return [];
+  const sm = S10_BY[req.id], own = G.s10 && w24Starters(G.s10.id).filter(id => WEAPONS[id] && !G.weapons.some(w => w && (w.sid || w.id) === id));
+  const ids = sm.weapons.filter(id => WEAPONS[id]).concat(own && own.length ? [pick(own)] : []);
+  return ids.map(id => {
     const o = optNewWeapon(id, 0), eq = o.apply;
-    o.apply = () => {
-      if (!G.weapons.some(w => !w) && KIN.mount) { G.weapons.push(null); G.comboMounts = (G.comboMounts || 0) + KIN.mount; }
-      eq();
-    };
+    o.apply = () => { if (!G.weapons.some(w => !w)) G.weapons.push(null); eq(); };
     return o;
   });
 }
@@ -294,7 +305,11 @@ function kinCollect(p, goal) {
   const ag = arGoal;
   arGoal = function (p, mode, goal, add) { const h = ag(p, mode, goal, add); return mode === 'collect' && V10 ? kinCollect(p, goal) || h : h; };
   v10Draw = function () { draw(); if (V10) kinDraw(); };
-  draftBox = function (req) { return req.kind === 'kindred' ? (S10_BY[req.id] ? true : false) : box(req); }; // (full pause, never held back)
+  draftBox = function (req) {
+    if (req.kind === 'kindred') return !!S10_BY[req.id] && !kinFull(); // (full pause, never held back; nothing to pick with every mount full)
+    if (req.kind === 'slot' && !req.kin && raceOn()) return false; // (a race drafts weapons only at rescues: a Recycle leaves the mount for the next one)
+    return box(req);
+  };
   v10Loot = function (req) { return req.kin ? kinCards({ id: req.kin }) : loot(req); };
   // The pick is a weapon choice, so it gets the Weapon Draft screen (the one the starting weapons use), headed for the sample.
   UI.openLoot = function (req) {
@@ -305,6 +320,9 @@ function kinCollect(p, goal) {
     $('dTitle').textContent = 'CHOOSE YOUR DIFFERENCE';
     $('dSub').textContent = sm.pdesc;
   };
+  // The Tackle Box's Recycle button says what it does in a race (no replacement draft: the next rescue fills it).
+  const ra = UI.renderArmoury;
+  UI.renderArmoury = function () { ra.call(UI); const b = $('armRecycle'); if (b && raceOn() && G && G.s10) b.textContent = UI.arm && UI.arm.recycle ? 'TODO_COPY:kin_recycle_confirm' : 'TODO_COPY:kin_recycle_btn'; };
   // Its live portrait above the heading (hidden on every other draft); the pick or the skip plays the fusion.
   const od = UI.openDraft, pk = UI.pickLoot;
   UI.openDraft = function (req) { od.call(UI, req); kinPic(req.kin || null); };
