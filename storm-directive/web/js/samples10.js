@@ -127,7 +127,7 @@ function s10Samples() {
   const list = SAMPLES10.map(s => {
     const open = s10Open(s.id), col = ELEMENTS[S10_TYPES[s.types[0]]].color;
     const nm = !open && s.unlock.secret ? '???' : s.name;
-    const desc = open ? s.passive + ': ' + s.pdesc : 'TODO_COPY:kin_unlock_hint'; // (rescue it in The Race: kindred.js)
+    const desc = open ? s.passive + ': ' + s.pdesc : 'Rescue it when it turns up stranded in The Race.'; // (rescue it in The Race: kindred.js)
     const c = card(`data-s10="${s.id}"`, String(s.strain).padStart(3, '0'), nm, desc, col, open ? s.types.map(t => t.toUpperCase()).join(' / ') : 'LOCKED', !open);
     return c.replace('<span class="sx-txt">', `<canvas data-slpic="${s.id}" style="position:relative;inset:auto;flex:none;display:block;width:100%;height:${s.id === 'alien' ? 120 : 96}px"></canvas><span class="sx-txt">`); // (its picture: samplelooks.js)
   }).join('');

@@ -53,7 +53,7 @@ function kinSpawn() {
     if (typeof terrainDanger !== 'function' || !terrainDanger(x, y, 60)) break;
   }
   G.kin.spirits.push({ id, x, y, vx: 0, vy: 0, tailV: 60, face: Math.random() * TAU, t: 0 });
-  banner('TODO_COPY:kin_banner', PAL.reward);
+  banner('ONE OF YOUR OWN, STRANDED', PAL.reward);
   sfx('level'); vibrate(80);
 }
 
