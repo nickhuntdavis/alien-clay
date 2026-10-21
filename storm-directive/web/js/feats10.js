@@ -54,6 +54,18 @@ function f10Gap(len) { // the direction with the fewest enemies at the far end
 }
 const f10OnView = e => Math.abs(e.x - cam.x) < W / 2 / S + e.r && Math.abs(e.y - cam.y) < H / 2 / S + e.r;
 
+// The enhance card's line: what the NEXT level adds (mirrors f10Stats and computeStats: +35% damage and a 5% shorter cooldown every level,
+// level 2 and 4 are the Develop steps, levels 3 and 5 open a fork).
+function f10UpText(d, w) {
+  const n = (w ? w.lvl : 1) + 1, bits = [];
+  if (d.type) bits.push('+35% damage');
+  if (n === 2) bits.push(d.type ? 'other effects +20%' : 'effect +20%', ...(d.base && d.base.area ? ['area +15%'] : []), 'cooldown 5% shorter');
+  else if (n === 4) bits.push(d.type ? 'other effects +20%' : 'effect +20%', 'cooldown 19% shorter');
+  else bits.push('cooldown 5% shorter');
+  const fork = d.forks && d.forks[n] && d.forks[n].length >= 2 ? ' Then you choose one of two forks.' : '';
+  const t = 'Level ' + n + ': ' + bits.join(', ') + '.' + fork;
+  return t;
+}
 // ---------------------------------------------------------------- the registry
 function feat(d) {
   d.key = 'f10_' + d.id; d.elem = d.type ? F10_INT[d.type] : 'phys';
@@ -65,7 +77,7 @@ function feat(d) {
   F10[d.id] = d; if (d.sample) F10_UNIQUE[d.sample] = d.id; else F10_ORDER.push(d.id);
   const own = () => f10Own(d.id), base = { slot: 'feat', family: 'feat:' + (d.type || 'utility'), type: d.type || null, rarity: d.rar || 0, start: !!d.start, title: d.name, icon: d.icon, color: d.color, maxRank: 5 };
   const acq = Object.assign({ id: 'feat_' + d.id, kind: 'acquire', desc: text, eligible: g => !d.sample && !own() && f10Unlocked(d), apply: g => { const i = g.spells.findIndex(x => !x); if (i >= 0) g.spells[i] = makeSlot(d.key, true, 1); }, rank: () => 0 }, base);
-  const up = Object.assign({ id: 'feat_' + d.id + '_up', kind: 'enhance', desc: d.name + ' to the next level. More of whatever it does, and a quicker cooldown later.', eligible: g => { const w = own(); return !!w && w.lvl < 5; }, apply: g => { const w = own(); if (w && w.lvl < 5) w.lvl++; }, rank: () => { const w = own(); return w ? w.lvl : 0; } }, base);
+  const up = Object.assign({ id: 'feat_' + d.id + '_up', kind: 'enhance', get desc() { return f10UpText(d, own()); }, eligible: g => { const w = own(); return !!w && w.lvl < 5; }, apply: g => { const w = own(); if (w && w.lvl < 5) w.lvl++; }, rank: () => { const w = own(); return w ? w.lvl : 0; } }, base);
   for (const c of [acq, up]) { if (typeof draftRegister === 'function') draftRegister(c); else (window.CARDS10 = window.CARDS10 || []).push(c); }
   for (const lv of [3, 5]) {
     const pair = (d.forks && d.forks[lv]) || []; if (pair.length < 2) continue;
