@@ -20,7 +20,7 @@
 // Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool; game.js levelling -> kinSlotLv. Wraps v10Tick, v10Draw, draftBox, v10Loot,
 // UI.openLoot and samplelooks.js slDraw (loads last, after ui.js).
 
-const KIN = { remind: 20, pull: 3, at: [180, 360], dist: 900, touch: 46, mount: 1, skip: ['acro'], extras: ['prawn'], slots: [5] };
+const KIN = { grow: 0.15, remind: 20, pull: 3, at: [180, 360], dist: 900, touch: 46, mount: 1, skip: ['acro'], extras: ['prawn'], slots: [5] };
 // game.js levelling: a race grows a weapon mount only at KIN.slots (the rescues bring the rest), elsewhere SLOT_LEVELS.
 const kinSlotLv = lv => (raceOn() ? KIN.slots : SLOT_LEVELS).includes(lv);
 const kinHas = id => !!(G && G.kin && G.kin.has.includes(id));
@@ -121,12 +121,83 @@ function kinTail(own, g, t, k, a, now, B, sc) {
     own(t.slice(0, at[1] + 1), k, a, now, B, sc);
     tails.forEach((id, i) => SL_TAIL[id](t.slice(at[i + 1], at[i + 2] + 1), k, a, now, B, sc));
   }
+  if (g.includes('beta') && n >= 8) { // (Beta's coiled tip, big enough to read)
+    const e = t[n - 1], d = t[n - 2], ang = Math.atan2(e.y - d.y, e.x - d.x), r = 4.2 * k, cx = sx(e.x) + Math.cos(ang + Math.PI / 2) * r, cy = sy(e.y) + Math.sin(ang + Math.PI / 2) * r;
+    ctx.globalAlpha = a * 0.45; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.6 * k; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+    ctx.globalAlpha = a * 0.9; ctx.strokeStyle = 'rgb(46,52,48)'; ctx.lineWidth = 1.2 * k; ctx.stroke(); ctx.globalAlpha = a;
+  }
   if (g.includes('alien')) { // (its glow, in Adaptive Biology's current colour)
     const c = ELEMENTS[S10_BY.alien.shift[((G.s10 && G.s10.shiftI) || 0) % 3]].color;
     ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * (0.5 + 0.2 * Math.sin(now * 4)); drawTail(t, c, 2.6 * k, 3.4 * k);
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a;
   }
 }
+// Head grafts (user, 21 Oct: "a key visual characteristic adopted"): each absorbed sample adds one feature to your
+// head, drawn in the head's own frame (centre at 0, facing +x, units of k) round your own head, so you stay you:
+//   Baseline its fluorescent tag; Alpha its pointed nose and ridge (its head drawn just in front, under yours);
+//   Beta a bent neck (your head sits crooked) and its droplet; Private Schooled a gold rim and crest; Ordered Online a
+//   robot shell over the back of your head, seam and blinking light; Redtail a wobbling red blister (and its frayed
+//   tail, kinTail); Prawn Again a white-gold glow with slow rays (and its halo); Not of This World three glowing
+//   tentacles from the neck and a glowing core; Sample 9 a steaming pink rim.
+const KIN_COL = { tag: '#46f08a', gold: '#e2bd5c', navy: '#1d2a5a', steel: ['#cdd6e0', '#8d9aab', '#3a4452'], led: '#46f0ff', red: '#d62839', redDk: '#5a0a14', holy: '#ffe6a3', pink: '#ff8fc8', drop: 'rgba(225,240,232,0.9)' };
+function kinHead(id, own, g, k, a, now, tag, hit, B) {
+  const sh = SL_SHAPE[id] || [1, 7.5, 5], cx = sh[0] * k, rx = sh[1] * k, ry = sh[2] * k, neck = ((SL[id] && SL[id].neck[0]) || -10.5) * k;
+  const ell = (sx, sy) => { ctx.beginPath(); ctx.ellipse(cx, 0, rx * (sx || 1), ry * (sy || 1), 0, 0, TAU); };
+  ctx.save();
+  // Behind your head.
+  if (g.includes('alien')) { // tentacles from the neck, tips in Adaptive Biology's colour
+    const c = ELEMENTS[S10_BY.alien.shift[((G && G.s10 && G.s10.shiftI) || 0) % 3]].color;
+    for (let i = 0; i < 3; i++) {
+      const oy = (i - 1) * 2.6 * k, L = 15 * k;
+      ctx.globalAlpha = a * 0.75; ctx.strokeStyle = '#6a5acd'; ctx.lineWidth = 1.4 * k; ctx.beginPath(); ctx.moveTo(neck + 2 * k, oy);
+      let ex = 0, ey = 0;
+      for (let j = 1; j <= 6; j++) { ex = neck + 2 * k - j * L / 6; ey = oy * (1 + j * 0.15) + Math.sin(now * 4 + i * 2 + j * 0.8) * 1.6 * k * j / 6; ctx.lineTo(ex, ey); }
+      ctx.stroke(); ctx.globalCompositeOperation = 'lighter'; glow(ex, ey, 3.2 * k, c, a * 0.9); ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+  if (g.includes('prawn')) { // slow rays
+    ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = KIN_COL.holy;
+    for (let i = 0; i < 8; i++) {
+      const an = now * 0.25 + i * TAU / 8, w = 0.13, L = (17 + 4 * Math.sin(now * 1.3 + i)) * k;
+      ctx.globalAlpha = a * 0.14; ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx + Math.cos(an - w) * L, Math.sin(an - w) * L); ctx.lineTo(cx + Math.cos(an + w) * L, Math.sin(an + w) * L); ctx.fill();
+    }
+    glow(cx, 0, 16 * k, KIN_COL.holy, a * 0.45); ctx.globalCompositeOperation = 'source-over';
+  }
+  if (g.includes('alpha') && SL_HEAD.alpha && id !== 'alpha') { ctx.save(); ctx.translate(rx * 0.55, 0); SL_HEAD.alpha(k * 0.92, a, now, null, hit, B); ctx.restore(); }
+  if (g.includes('beta')) ctx.rotate(0.24); // (the bent neck: your head sits crooked)
+  ctx.globalAlpha = a;
+  own(k, a, now, tag, hit, B);
+  // Over your head.
+  if (g.includes('beta')) { ctx.globalAlpha = a; ctx.fillStyle = KIN_COL.drop; ctx.beginPath(); ctx.arc(neck + 2.2 * k, 2.6 * k, 1.9 * k, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(40,50,45,0.8)'; ctx.lineWidth = 0.5 * k; ctx.stroke(); }
+  if (g.includes('ordered')) { // a robot shell over the back of the head
+    ctx.save(); ell(); ctx.clip();
+    const gr = ctx.createLinearGradient(0, -ry, 0, ry); gr.addColorStop(0, KIN_COL.steel[0]); gr.addColorStop(0.5, KIN_COL.steel[1]); gr.addColorStop(1, KIN_COL.steel[2]);
+    ctx.globalAlpha = a; ctx.fillStyle = gr; ctx.fillRect(cx - rx - k, -ry - k, rx * 1.15, ry * 2 + 2 * k);
+    ctx.strokeStyle = '#161b22'; ctx.lineWidth = 0.6 * k; ctx.beginPath(); ctx.moveTo(cx + rx * 0.15, -ry); ctx.lineTo(cx + rx * 0.15, ry); ctx.moveTo(cx - rx, 0); ctx.lineTo(cx + rx * 0.15, 0); ctx.stroke();
+    ctx.restore();
+    const on = (now % 1.4) < 1; ctx.globalCompositeOperation = 'lighter'; glow(cx - rx * 0.45, -ry * 0.45, 2.6 * k, KIN_COL.led, a * (on ? 0.9 : 0.15)); ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = on ? KIN_COL.led : '#1e5560'; ctx.beginPath(); ctx.arc(cx - rx * 0.45, -ry * 0.45, 0.9 * k, 0, TAU); ctx.fill();
+  }
+  if (g.includes('prawn')) { ctx.save(); ell(); ctx.clip(); ctx.globalAlpha = a * 0.5; ctx.fillStyle = KIN_COL.holy; ctx.fillRect(cx - rx, -ry, rx * 2, ry * 2); ctx.restore(); }
+  if (g.includes('alien')) { const c = ELEMENTS[S10_BY.alien.shift[((G && G.s10 && G.s10.shiftI) || 0) % 3]].color; ctx.globalCompositeOperation = 'lighter'; for (const sy of [-1, 1]) glow(cx - rx * 0.1, sy * ry * 0.28, 3.4 * k * (0.9 + 0.15 * Math.sin(now * 3 + sy)), c, a * 0.85); ctx.globalCompositeOperation = 'source-over'; }
+  if (g.includes('redtail')) { // a wobbling blister on one side
+    const wob = 1 + 0.12 * Math.sin(now * 7), bx = cx - rx * 0.15, by = ry * 0.82;
+    ctx.globalAlpha = a; ctx.fillStyle = KIN_COL.red; ctx.beginPath(); ctx.ellipse(bx, by, ry * 0.55 * wob, ry * 0.45 / wob, 0.3, 0, TAU); ctx.fill();
+    ctx.strokeStyle = KIN_COL.redDk; ctx.lineWidth = 0.6 * k; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,220,220,0.6)'; ctx.beginPath(); ctx.arc(bx - ry * 0.15, by - ry * 0.12, ry * 0.12, 0, TAU); ctx.fill();
+  }
+  if (g.includes('baseline')) { ctx.globalCompositeOperation = 'lighter'; glow(cx + rx * 0.62, 0, 3.6 * k, KIN_COL.tag, a * (0.75 + 0.25 * Math.sin(now * 4))); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a; ctx.fillStyle = KIN_COL.tag; ctx.beginPath(); ctx.arc(cx + rx * 0.62, 0, 1.4 * k, 0, TAU); ctx.fill(); }
+  if (g.includes('alpha')) { ctx.globalAlpha = a * 0.7; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.7 * k; ctx.beginPath(); ctx.moveTo(cx - rx * 0.55, 0); ctx.lineTo(cx + rx * 0.95, 0); ctx.stroke(); }
+  if (g.includes('private')) { // gold rim and a crest
+    ctx.globalAlpha = a; ctx.strokeStyle = KIN_COL.gold; ctx.lineWidth = 1.1 * k; ell(); ctx.stroke();
+    const qx = cx - rx * 0.1, qy = 0, q = 2.4 * k;
+    ctx.fillStyle = KIN_COL.navy; ctx.beginPath(); ctx.moveTo(qx - q, qy - q); ctx.lineTo(qx + q, qy - q); ctx.lineTo(qx + q, qy + q * 0.3); ctx.quadraticCurveTo(qx, qy + q * 1.5, qx - q, qy + q * 0.3); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = KIN_COL.gold; ctx.lineWidth = 0.6 * k; ctx.stroke();
+  }
+  if (g.includes('acro')) { ctx.globalAlpha = a; ctx.strokeStyle = KIN_COL.pink; ctx.lineWidth = 1.2 * k; ell(1.04, 1.06); ctx.stroke(); ctx.globalAlpha = a * 0.25; ctx.fillStyle = '#ffffff'; for (let i = 0; i < 3; i++) { const ph = (now * 0.6 + i / 3) % 1; ctx.beginPath(); ctx.arc(cx + rx * (0.2 - i * 0.3), -ry - ph * 6 * k, (0.8 + ph * 1.4) * k, 0, TAU); ctx.fill(); } }
+  ctx.restore();
+}
+
 // World space (wraps v10Draw): the stranded sperm, drawn as its own sample, with a slow gold halo.
 function kinDraw() {
   if (!G || !G.kin || !G.kin.spirits.length) return;
@@ -212,8 +283,11 @@ function kinCollect(p, goal) {
   slDraw = function (id, x, y, face, tag, alpha, scale, body, now) {
     const T = SL_TAIL[id], g = body.kinG || (G && body === G.player && G.kin ? kinGrafts() : []); // (body.kinG: the fusion's bodies)
     if (!g.length) return sl(id, x, y, face, tag, alpha, scale, body, now);
+    const Hd = SL_HEAD[id];
     SL_TAIL[id] = (t, k, a, n, B, sc) => kinTail(T, g, t, k, a, n, B, sc);
-    try { sl(id, x, y, face, tag, alpha, scale, body, now); } finally { SL_TAIL[id] = T; }
+    SL_HEAD[id] = (k, a, n, tg, hit, B) => kinHead(id, Hd, g, k, a, n, tg, hit, B);
+    if (G && body === G.player) scale = (scale || 1) * (1 + KIN.grow * g.length); // (you look bigger with each sample absorbed; the hitbox is unchanged)
+    try { sl(id, x, y, face, tag, alpha, scale, body, now); } finally { SL_TAIL[id] = T; SL_HEAD[id] = Hd; }
     for (const gid of g) if (SL_OVER[gid] && KIN.extras.includes(gid)) { SL_OVER[gid](x, y, face, S * (scale || 1) * SL[id].size, alpha, now, body.sl, body, (scale || 1) * SL[id].size); ctx.globalAlpha = 1; }
   };
   v10Tick = function (dt) { tick(dt); if (V10 && G) kinTick(dt); };

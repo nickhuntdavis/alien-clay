@@ -2,6 +2,17 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.61: 2026-10-21 absorbed samples change your head
+- Merged: ccr-455e7cea-1tppwd.
+
+### Folded from ccr-455e7cea-1tppwd: 2026-10-21 Absorbed samples change your head, not just your tail (v10.61)
+- Systems: kindred, samples (looks)
+- Files: kindred.js, ARCHITECTURE.md
+- What: each absorbed sample adds its key feature to your head (user's picks): Baseline its glowing tag; Alpha its pointed nose and ridge; Beta a crooked neck, its droplet and a big coiled tail tip; Private Schooled a gold rim and crest; Ordered Online a robot shell with a blinking light over the back of your head; Redtail a wobbling red blister (plus its frayed tail); Prawn Again a white-gold glow with rays (plus its halo); Not of This World three glowing tentacles and a glowing core; Sample 9 a steaming pink rim (it is not rescuable yet). You also draw 15% bigger per absorbed sample (`KIN.grow`; hitbox unchanged). Shown in the fusion too.
+- Save data: none.
+- Hooks: none new (kindred.js's slDraw wrapper now also swaps SL_HEAD for the call).
+- Risk: none to play; a Not of This World player still takes no grafts.
+
 ## v10.60: 2026-10-21 rescue beacon, autorun COLLECT for every collectable
 - Merged: ccr-455e7cea-1tppwd.
 
