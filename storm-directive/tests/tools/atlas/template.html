@@ -76,6 +76,27 @@ details.o .in p { margin: 0; } details.o .in b { color: var(--ink); }
 .cb { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 8px; margin-top: 10px; }
 .cb div { font-size: 12.5px; border-left: 3px solid var(--combo); padding: 2px 0 2px 9px; }
 .cb div b { display: block; color: var(--combo); } .cb div .tk { display: block; }
+.tree { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
+.tree-top { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.tree select { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.tscroll { overflow-x: auto; padding-bottom: 6px; }
+.tgrid { position: relative; display: grid; grid-template-columns: 170px 220px 250px 230px; grid-auto-rows: auto; column-gap: 46px; row-gap: 8px; min-width: 1000px; align-items: stretch; }
+.tgrid svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.tgrid .hd { font-family: var(--mono); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); }
+.nd { position: relative; border: 1px solid var(--line); border-left: 4px solid var(--c, var(--line)); border-radius: 9px; padding: 7px 10px; font-size: 12px; background: var(--bg); color: var(--dim); min-width: 0; }
+.nd b { display: block; color: var(--ink); font-size: 13px; }
+.nd .tg { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+.nd.root { align-self: center; border-left-width: 1px; border-top: 4px solid var(--c); }
+.nd.pr { cursor: pointer; align-self: center; }
+.nd.wild { border-style: dashed; border-left-style: solid; }
+.nd.ms { align-self: center; }
+.nd .cmb { color: var(--combo); margin-top: 3px; display: block; }
+.nd .bw { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.nd .bw i { font-style: normal; font-family: var(--mono); font-size: 10px; padding: 0 6px; border-radius: 999px; color: #111; background: var(--c); }
+.tgrid.pick .nd.pr:not(.on), .tgrid.pick .nd.lf:not(.on), .tgrid.pick .nd.ms:not(.on) { opacity: 0.28; }
+.nd.on { box-shadow: 0 0 0 2px var(--c); }
+.pa { --c: #2a9d8f; } .pb { --c: #e9a23b; } .pc { --c: #7a6bd6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pa { --c: #4dd6c4; } :root:not([data-theme="light"]) .pb { --c: #ffc05c; } :root:not([data-theme="light"]) .pc { --c: #a99bff; } }
 @media (prefers-reduced-motion: reduce) { .w { transition: none; } }
 </style>
 <div class="wrap">
@@ -86,6 +107,7 @@ details.o .in p { margin: 0; } details.o .in b { color: var(--ink); }
   </header>
   <div class="map"><svg id="ring" viewBox="0 0 760 760" role="img" aria-label="Ring map of all weapons, grouped by damage type, linked by branch combos"></svg><div class="side" id="side"></div></div>
   <div><h2 class="sec">Samples <small>who you play, and the three weapons each one offers first</small></h2><div class="smp" id="smp"></div></div>
+  <div class="tree" id="tree"><div class="tree-top"><h2 class="sec" style="margin:0">Upgrade tree</h2><select id="tsel" aria-label="Weapon"></select><span class="sub" style="margin:0">Tap a promise to follow its branch to the masteries it suits best.</span></div><div class="tscroll"><div class="tgrid" id="tgrid"></div></div></div>
   <nav class="seqs" id="nav"></nav>
   <div id="seqs" style="display:grid;gap:30px"></div>
   <div class="tw"><h2 class="sec">Combos <small id="cbn"></small></h2><p class="sub">A combo changes how two weapons behave together. Each needs both weapons at tier 3 with the promise named. It never sets off an unstable reaction by itself.</p><div class="cb" id="cb"></div></div>
@@ -127,6 +149,7 @@ function setFocus(id) {
   s.querySelectorAll('text').forEach(t => t.classList.toggle('on', mates.has(t.dataset.w)));
   document.querySelectorAll('.w').forEach(c => { c.classList.toggle('dim', !!focus && !mates.has(c.dataset.w)); c.classList.toggle('hi', c.dataset.w === focus); });
   $('#side').innerHTML = sideHtml(focus);
+  if (focus && typeof showTree === 'function') showTree(focus);
 }
 $('#ring').addEventListener('click', e => { const t = e.target.closest('text'); if (t) setFocus(t.dataset.w); });
 $('#side').innerHTML = sideHtml(null);
@@ -149,6 +172,49 @@ document.addEventListener('click', e => {
   const f = e.target.closest('[data-f]'); if (f) { setFocus(f.dataset.f); return; }
   const g = e.target.closest('[data-go]'); if (g) { const el = document.getElementById('w-' + g.dataset.go); if (el) { el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); if (focus !== g.dataset.go) setFocus(g.dataset.go); } }
 });
+// ---- branching upgrade tree (one weapon at a time): weapon > 3 promises > 3 branch cards each > 3 masteries
+const PK = ['pa', 'pb', 'pc'];
+let treeId = null, treePick = null;
+$('#tsel').innerHTML = D.order.filter(t => byType(t).length).map(t => `<optgroup label="${esc(T[t].name)}">${byType(t).map(id => `<option value="${id}">${esc(W[id].name)}</option>`).join('')}</optgroup>`).join('');
+$('#tsel').addEventListener('change', e => showTree(e.target.value));
+function showTree(id, pick) {
+  treeId = id; treePick = pick || null; $('#tsel').value = id;
+  const w = W[id], r = rels(id), g = $('#tgrid'), col = T[w.type].col;
+  g.className = 'tgrid' + (treePick ? ' pick' : '');
+  let h = `<div class="hd" style="grid-column:1;grid-row:1">Tier 1</div><div class="hd" style="grid-column:2;grid-row:1">Tier 2: promise (pick 1)</div><div class="hd" style="grid-column:3;grid-row:1">Tier 3: branch (pick 1)</div><div class="hd" style="grid-column:4;grid-row:1">Tier 4: mastery (one a run)</div>`;
+  h += `<div class="nd root" data-n="root" style="--c:${col};grid-column:1;grid-row:2 / span ${w.promises.length * 3}"><span class="tg">${esc(w.atk)} | ${esc(T[w.type].name)}</span><b>${esc(w.name)}</b>${esc(w.desc)}</div>`;
+  w.promises.forEach((p, i) => {
+    const row = 2 + i * 3, on = treePick === p.k ? ' on' : '', k = PK[i];
+    const cm = r.filter(c => c.mine === p.k).map(c => `<span class="cmb">Combo: ${esc(c.name)} (${esc(W[c.other].name)}, ${esc(pname(c.other, c.theirs))})</span>`).join('');
+    h += `<div class="nd pr ${k}${on}" data-n="p${i}" data-k="${p.k}" style="grid-column:2;grid-row:${row} / span 3"><span class="tg">${esc(p.tag)}</span><b>${esc(p.name)}</b>${esc(p.desc)}${p.costs ? `<br><em>Costs: ${esc(p.costs)}</em>` : ''}${cm}</div>`;
+    const leaves = p.branches.concat(p.wild ? [Object.assign({ wild: 1 }, p.wild)] : []);
+    leaves.forEach((b, j) => { h += `<div class="nd lf ${k}${b.wild ? ' wild' : ''}${on}" data-n="p${i}l${j}" data-p="p${i}" style="grid-column:3;grid-row:${row + j}"><span class="tg">${b.wild ? 'Wildcard' : 'Branch'}</span><b>${esc(b.name)}</b>${esc(b.desc)}</div>`; });
+  });
+  const span = w.promises.length * 3 / Math.max(1, w.masteries.length);
+  w.masteries.forEach((m, i) => {
+    const keys = m.best.map(n => w.promises.findIndex(p => p.name === n)).filter(x => x >= 0);
+    const on = treePick && keys.some(x => w.promises[x].k === treePick) ? ' on' : '';
+    h += `<div class="nd ms${on}" data-n="m${i}" style="--c:${col};grid-column:4;grid-row:${2 + Math.round(i * span)} / span ${Math.round(span)}"><span class="tg">Mastery</span><b>${esc(m.name)}</b>${esc(m.desc)}<span class="bw">${keys.map(x => `<i class="${PK[x]}">${esc(w.promises[x].name)}</i>`).join('')}</span></div>`;
+  });
+  g.innerHTML = h + '<svg id="tl"></svg>';
+  requestAnimationFrame(() => drawLinks(g));
+}
+function drawLinks(g) {
+  const L = [], gb = g.getBoundingClientRect(), pos = n => { const e = g.querySelector(`[data-n="${n}"]`); if (!e) return null; const b = e.getBoundingClientRect(); return { l: b.left - gb.left, r: b.right - gb.left, y: b.top - gb.top + b.height / 2 }; };
+  const curve = (a, b, c, o) => { if (!a || !b) return; const m = (a.r + b.l) / 2; L.push(`<path d="M${a.r},${a.y} C${m},${a.y} ${m},${b.y} ${b.l},${b.y}" fill="none" stroke="${c}" stroke-width="${o ? 2.4 : 1.6}" opacity="${o ? 1 : 0.7}"/>`); };
+  const cs = n => getComputedStyle(g.querySelector(`[data-n="${n}"]`)).getPropertyValue('--c') || '#888';
+  document.querySelectorAll('#tgrid .pr').forEach(pe => {
+    const n = pe.dataset.n, c = getComputedStyle(pe).getPropertyValue('--c'), root = pos('root');
+    curve(root, pos(n), c, 0);
+    g.querySelectorAll(`[data-p="${n}"]`).forEach(l => curve(pos(n), pos(l.dataset.n), c, pe.classList.contains('on')));
+    const w = W[treeId], i = +n.slice(1);
+    w.masteries.forEach((m, mi) => { if (treePick === w.promises[i].k && m.best.includes(w.promises[i].name)) { const a = pos(n), b = pos('m' + mi); if (a && b) L.push(`<path d="M${a.r + 6},${a.y} C${a.r + 22},${a.y} ${b.l - 22},${b.y} ${b.l},${b.y}" fill="none" stroke="${c}" stroke-width="1.4" stroke-dasharray="4 4" opacity="0.5" />`); } });
+  });
+  $('#tl').innerHTML = L.join('');
+}
+$('#tgrid').addEventListener('click', e => { const p = e.target.closest('.pr'); if (p) showTree(treeId, treePick === p.dataset.k ? null : p.dataset.k); });
+addEventListener('resize', () => { if (treeId) drawLinks($('#tgrid')); });
+showTree(ids[0]);
 // ---- combos, types, reactions
 $('#cbn').textContent = D.combos.length + ' in all';
 $('#cb').id = 'cb'; $('#cb').innerHTML = D.combos.map(c => `<div><b>${esc(c.name)}</b><span class="tk">${esc(W[c.a].name)} (${esc(pname(c.a, c.pa))}) + ${esc(W[c.b].name)} (${esc(pname(c.b, c.pb))})</span>${esc(c.desc)}</div>`).join('');
