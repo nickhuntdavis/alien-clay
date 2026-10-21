@@ -51,8 +51,8 @@ const { chromium } = require('playwright');
     G.t = 360; v10Tick(0.016);
     const s2 = G.kin.spirits[0];
     if (!s2 || s2.id === 'alpha' || s2.id === 'baseline') bad.push('second spirit ' + (s2 && s2.id));
-    // Mutations and weapon upgrades: plain cards (no special head, no tier screen).
-    if (BOX_LOOK_ON || SIV_DRAFT) bad.push('box looks or tier screens still on');
+    // Mutations: plain cards; weapon upgrade tiers: the Weapon Draft layout with scenes.
+    if (BOX_LOOK_ON || !SIV_DRAFT) bad.push('box looks on or tier screens off');
     // Draw paths: world and chevrons.
     try { v10Draw(); kinPointers(() => {}); } catch (e) { bad.push('draw ' + e.message); }
     // The rescue screen's portrait, then the fusion after a pick and after a skip (pauses, closes on a late tap).

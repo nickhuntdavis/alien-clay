@@ -1,3 +1,11 @@
+## 2026-10-21 Weapon branch screens back (v10.56)
+- Systems: weapons (branch screens), ui
+- Files: sidemo.js, tests/kindredtest.js
+- What: weapon upgrade tiers open in the Weapon Draft layout again, with a tab and a live scene per branch (`SIV_DRAFT` true). Mutations and modifications stay plain cards.
+- Save data: none.
+- Hooks: none.
+- Risk: the v10.44 run that stalled did so as this screen opened; watch the run log's fps line.
+
 ## 2026-10-21 Rescue made a big deal: portrait, pick or skip, fusion animation (v10.55)
 - Systems: kindred, ui (reward screens)
 - Files: kindred.js, v11ui.js, tests/kindredtest.js, tests/tools/guide.js, ARCHITECTURE.md
