@@ -1,0 +1,404 @@
+/* ================================================================ E-ink theme
+   The Figma design system's Paper and Ink modes (https://www.figma.com/design/waCztn7dWzQVMt7il1lwvB/ac).
+   Loaded after style.css: it overrides the tokens and the film-sheet surfaces. Grey e-ink paper, solid ink
+   rules, square corners, no shadow, glow, gradient or grain. Colour only where it means something.
+   Ink mode is AMOLED black with soft grey ink; it follows the phone's dark setting, and html.ink / html.paper
+   force one or the other. The game canvas (the slide) is not touched: this file styles the DOM UI only. */
+
+/* Barlow (OFL). Files in web/fonts/ (TTF from github.com/google/fonts, licence in OFL.txt); Roboto is the fallback. */
+@font-face { font-family: 'Barlow'; src: url('fonts/Barlow-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Barlow'; src: url('fonts/Barlow-Italic.ttf') format('truetype'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Barlow'; src: url('fonts/Barlow-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Barlow'; src: url('fonts/Barlow-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Barlow'; src: url('fonts/Barlow-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+
+/* ---------------------------------------------------------------- tokens: Paper (default) */
+:root {
+  --color-bg-app: #e4e5e0;
+  --color-bg-sheet: #ecede8;
+  --color-bg-sheet-top: #f4f4f0;
+  --color-bg-sheet-deep: #d8d9d3;
+  --color-bg-raised: #cbccc6;
+  --color-bg-lit: #1e1e1e;
+  --color-bg-lit-end: #3a3a37;
+  --color-text-primary: #1e1e1e;
+  --color-text-strong: #000000;
+  --color-text-secondary: #4a4a46;
+  --color-text-muted: #6b6b66;
+  --color-text-dim: #9a9b95;
+  --color-text-on-lit: #e4e5e0;
+  --color-text-accent: #d9622b;
+  --color-border-edge: #1e1e1e;
+  --color-border-lit: #000000;
+  --color-status-success: #3e7d4f;
+  --color-status-info: #2f7fc1;
+  --color-status-danger: #c2402f;
+  --color-status-danger-soft: #d98c7e;
+  --color-status-reward: #d9a21b;
+  --color-type-force: #1e1e1e;
+  --color-type-acid: #b8457e;
+  --color-type-static: #d9b21b;
+  --color-type-mucus: #6e8f3a;
+  --color-type-blood: #8e2a33;
+  --color-type-alien: #6e55a6;
+  --color-type-fire: #d0602a;
+  --color-rarity-common: #8c8d87;
+  --color-rarity-uncommon: #3e7d4f;
+  --color-rarity-rare: #2f6fb3;
+  --color-rarity-epic: #6e4fa8;
+  --color-rarity-legendary: #d0862a;
+  --color-rarity-mythical: #b83a5e;
+  --color-rarity-immaculate: #1e1e1e;
+  --color-defence-membrane: #4f86c0;
+  --color-defence-shell: #7a5a34;
+  --color-defence-thorns: #a89870;
+  --radius-xs: 0px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  /* type: Barlow everywhere, no mono */
+  --sans: 'Barlow', 'Roboto', 'Helvetica Neue', Arial, system-ui, sans-serif;
+  --mono: var(--sans);
+  /* surfaces: flat */
+  --sheet: var(--color-bg-sheet);
+  --edge: var(--color-border-edge);
+  --film: var(--color-bg-app);
+  --lit: var(--color-bg-lit);
+  --grain: none;
+  --drop: none; --drop-sm: none; --drop-hud: none;
+  --rule: 2px;
+  --line: color-mix(in srgb, var(--color-border-edge) 26%, transparent);
+  --line2: var(--color-border-edge);
+  --track: color-mix(in srgb, var(--color-text-primary) 12%, transparent);
+  --veil: color-mix(in srgb, var(--color-bg-app) 72%, transparent);
+  /* HUD over the slide: translucent paper, thin rules */
+  --glass: color-mix(in srgb, var(--color-bg-app) 78%, transparent);
+  --glass-on: color-mix(in srgb, var(--color-bg-lit) 82%, transparent);
+  --glass-line: color-mix(in srgb, var(--color-border-edge) 70%, transparent);
+  /* meaning colours from JS (--rar, --rc, --ic, --c, --wc, --sc, --bc) are neon; pull them towards the ink so they read on paper */
+  --ink-mix: var(--color-text-primary);
+  --r: var(--radius-lg);
+  --xw: var(--color-text-primary);
+  --xdim: var(--color-text-muted);
+  --txt: var(--color-text-primary);
+  --dim: var(--color-text-muted);
+}
+
+/* ---------------------------------------------------------------- tokens: Ink (AMOLED dark) */
+@media (prefers-color-scheme: dark) {
+  :root:not(.paper) {
+    --color-bg-app: #000000; --color-bg-sheet: #000000; --color-bg-sheet-top: #0d0d0c; --color-bg-sheet-deep: #000000; --color-bg-raised: #161615;
+    --color-bg-lit: #2a2b28; --color-bg-lit-end: #33342f;
+    --color-text-primary: #bfc0ba; --color-text-strong: #d8d9d3; --color-text-secondary: #8f908a; --color-text-muted: #6e6f6a; --color-text-dim: #4f504c;
+    --color-text-on-lit: #d8d9d3; --color-text-accent: #e8874f; --color-border-edge: #3a3b37; --color-border-lit: #6e6f6a;
+    --color-status-success: #6fae7f; --color-status-info: #6fa8de; --color-status-danger: #e06a5c; --color-status-danger-soft: #b0675e; --color-status-reward: #e6b84a;
+    --color-type-force: #bfc0ba; --color-type-acid: #d97aae; --color-type-static: #e6c64a; --color-type-mucus: #9dba62; --color-type-blood: #d0636d; --color-type-alien: #9c87d6; --color-type-fire: #e8865a;
+    --color-rarity-common: #a8a9a3; --color-rarity-uncommon: #6fae7f; --color-rarity-rare: #6fa0da; --color-rarity-epic: #9c83d4; --color-rarity-legendary: #e6a65a; --color-rarity-mythical: #d9718f; --color-rarity-immaculate: #d8d9d3;
+    --color-defence-membrane: #7faad9; --color-defence-shell: #a88660; --color-defence-thorns: #c2b48e;
+    --line: color-mix(in srgb, var(--color-border-edge) 70%, transparent);
+    --track: color-mix(in srgb, var(--color-text-primary) 14%, transparent);
+  }
+}
+:root.ink {
+  --color-bg-app: #000000; --color-bg-sheet: #000000; --color-bg-sheet-top: #0d0d0c; --color-bg-sheet-deep: #000000; --color-bg-raised: #161615;
+  --color-bg-lit: #2a2b28; --color-bg-lit-end: #33342f;
+  --color-text-primary: #bfc0ba; --color-text-strong: #d8d9d3; --color-text-secondary: #8f908a; --color-text-muted: #6e6f6a; --color-text-dim: #4f504c;
+  --color-text-on-lit: #d8d9d3; --color-text-accent: #e8874f; --color-border-edge: #3a3b37; --color-border-lit: #6e6f6a;
+  --color-status-success: #6fae7f; --color-status-info: #6fa8de; --color-status-danger: #e06a5c; --color-status-danger-soft: #b0675e; --color-status-reward: #e6b84a;
+  --color-type-force: #bfc0ba; --color-type-acid: #d97aae; --color-type-static: #e6c64a; --color-type-mucus: #9dba62; --color-type-blood: #d0636d; --color-type-alien: #9c87d6; --color-type-fire: #e8865a;
+  --color-rarity-common: #a8a9a3; --color-rarity-uncommon: #6fae7f; --color-rarity-rare: #6fa0da; --color-rarity-epic: #9c83d4; --color-rarity-legendary: #e6a65a; --color-rarity-mythical: #d9718f; --color-rarity-immaculate: #d8d9d3;
+  --color-defence-membrane: #7faad9; --color-defence-shell: #a88660; --color-defence-thorns: #c2b48e;
+  --line: color-mix(in srgb, var(--color-border-edge) 70%, transparent);
+  --track: color-mix(in srgb, var(--color-text-primary) 14%, transparent);
+}
+
+/* ---------------------------------------------------------------- base */
+html, body { background: var(--color-bg-app); color: var(--color-text-primary); font-family: var(--sans); }
+body { font-size: 14px; }
+.screen, #loot, #pause, #over, #armoury, #draft.screen, #seqsel, #born { background: var(--color-bg-app) !important; }
+#title { background: color-mix(in srgb, var(--color-bg-app) 94%, transparent) !important; }
+.screen::before { display: none !important; }
+*, *::before, *::after, .screen, .screen * { text-shadow: none !important; }
+.ltitle, .ptitle, .big, .logo, #overTitle { text-shadow: none !important; color: var(--color-text-primary); }
+.hint { color: var(--color-text-muted); }
+
+/* ---------------------------------------------------------------- surfaces: sheet + 2px ink rule, no shadow */
+.btn, .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, .sec, .card, .tile, .li, .dbtn, .atab, .chip, .ostats div, .dmgrow,
+#how, .ahead, #sysmsg, .tp, .modslot, .fuse, .aico, .cico, #toast, .trow .tl {
+  border: var(--rule) solid var(--color-border-edge) !important; background: var(--color-bg-sheet) !important; box-shadow: none !important;
+}
+.sec, .card, #sysmsg, .ahead, #how { border-radius: var(--radius-lg) !important; }
+.btn, .slot, #moveBtn, #armBtn, .tile, .li, .dbtn, .atab, .tp, .modslot, .fuse, .ostats div, .dmgrow, #toast { border-radius: var(--radius-md) !important; }
+.chip, .trow .tl { border-radius: var(--radius-sm) !important; border-width: 1.5px !important; }
+.aico, .cico { border-radius: 0 !important; border-width: 2.5px !important; background: var(--color-bg-app) !important; }
+.slot.empty, .modslot.empty, .atab.empty, .atab.locked { border-style: dashed !important; background: transparent !important; }
+.modslot.empty, .tp:not(.chosen):not(.pending) { background: transparent !important; }
+.li:not(.on) { border-color: var(--line) !important; }
+
+/* selected or primary: inverted to ink (lifts to dark grey in Ink mode) */
+.btn.primary, .chip.sel, .dbtn.sel, .atab.sel, .trow.on .tl, #waveBtn {
+  background: var(--color-bg-lit) !important; border-color: var(--color-bg-lit) !important; color: var(--color-text-on-lit) !important;
+}
+.atab.sel b, .atab.sel span, .dbtn.sel b, .dbtn.sel span { color: var(--color-text-on-lit) !important; }
+.atab.sel { transform: none; }
+.trow.br .tl { background: var(--color-bg-raised) !important; }
+.tp.chosen { border-color: var(--color-border-edge) !important; border-width: 3px !important; }
+.tp.pending { border-color: var(--color-status-info) !important; animation: none; }
+
+/* ---------------------------------------------------------------- type */
+.btn, #moveBtn, #armBtn, #pauseBtn { font-family: var(--sans); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; text-transform: uppercase; }
+.chip, .chip.small { font-family: var(--sans); font-weight: 700; letter-spacing: 0.08em; font-size: 11px; text-transform: uppercase; }
+.card .tag, .card .csub, .tile span, .atab span, .sec h3, .bdna, .brole, .cdxpct span, .cdxcount, .sqkick, .sqtag, .sqh, .sqrl, #draft .dkick, #draft .drole, #draft h4, #draft .dbars, #armoury .dbars, .rbars span, #lootCards .lsec, .card .chold { font-family: var(--sans); }
+.tile b, .ostats b, .slot .lv, .slot .ico, #rewindBtn .rl, #rewindBtn .rt, .atab b, .aico, .trow .tl, .svv, .shq, #holdInfo em, .dna, .bown { font-family: var(--sans); }
+
+/* screen titles: big, left, over a 3px rule (the Screen Header pattern) */
+.ptitle, .ltitle, .big, #overTitle, #draft .dtitle, .sqtitle {
+  font-family: var(--sans); font-weight: 700; font-size: 28px; letter-spacing: 0.02em; text-align: left; line-height: 1.1;
+  padding-bottom: 6px; border-bottom: 3px solid var(--color-border-edge); margin-bottom: 8px; color: var(--color-text-primary);
+}
+.big { font-size: 34px; }
+.big.born, #overTitle.won { color: var(--color-text-primary); }
+#pauseStats, .cdxhead, #overBody .hint, .eulogy, .sqtop, #draft .dkick, #draft .dsub, #armQuip { text-align: left !important; }
+.eulogy { font-style: italic; color: var(--color-text-primary); font-size: 15px; }
+
+/* section headers: label, then a 2px rule (panels lose their box) */
+.sec { background: transparent !important; border: 0 !important; padding: 0 !important; margin: 18px 0 !important; border-radius: 0 !important; }
+.sec h3, #overBody h3, #draft h4, .sqh, #lootCards .lsec {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-primary); opacity: 1;
+}
+.sec h3::after, #overBody h3::after, #draft h4::after, .sqh::after, #lootCards .lsec::after { content: ""; flex: 1; height: 2px; background: var(--color-border-edge); }
+
+/* title screen: logo left over a 3px rule, menu full width */
+.tbox { text-align: left; max-width: 420px; }
+.logo { font-family: var(--sans); font-weight: 700; letter-spacing: 0.02em; font-size: 48px; line-height: 1; padding-bottom: 10px; border-bottom: 3px solid var(--color-border-edge); }
+.logo span { font-size: 48px; -webkit-text-stroke: 1.5px var(--color-text-primary); }
+.tag { color: var(--color-text-secondary); font-size: 14px; line-height: 1.4; }
+.btn { max-width: 420px; }
+
+/* pinned actions: a flat paper band with a 2px rule on top */
+.pbtns, .sqbtns { background: var(--color-bg-app) !important; border-top: var(--rule) solid var(--color-border-edge); }
+
+/* ---------------------------------------------------------------- cards (loot, upgrades) */
+.card { --rar-ink: color-mix(in srgb, var(--rar, var(--rc, var(--color-border-edge))) 72%, var(--ink-mix)); border-color: var(--color-border-edge) !important; overflow: hidden; }
+.card .tag b { color: var(--rar-ink); }
+.card .ctitle { font-family: var(--sans); font-weight: 700; font-size: 20px; color: var(--color-text-primary); }
+.card .cdesc { font-size: 14px; color: var(--color-text-primary); line-height: 1.35; }
+.card .cico { color: color-mix(in srgb, var(--ic, var(--color-text-primary)) 75%, var(--ink-mix)); }
+.card.r-uncommon, .card.r-rare, .card.r-epic { border-width: 2px !important; }
+.card.r-legendary, .card.r-mythical, .card.r-celestial, .card.fusion { border: 3px solid var(--color-border-edge) !important; background: var(--color-bg-sheet) !important; box-shadow: none !important; }
+.card.r-mythical::after, .card.r-celestial::after, .card .sheen { display: none !important; }
+.card .rrib { background: var(--rar-ink); color: var(--color-bg-app); box-shadow: none; font-family: var(--sans); }
+.card.r-celestial .rrib { background: var(--color-bg-lit); color: var(--color-text-on-lit); }
+.card .cboon { border: 1.5px solid var(--rar-ink); background: transparent; }
+.card .cboon b { color: var(--rar-ink); font-family: var(--sans); }
+.card.cursed { border-style: dashed !important; }
+.card.wup { border-color: var(--color-border-edge) !important; }
+.card.wup canvas { border: 2px solid var(--color-border-edge); border-radius: 0; }
+#rarBanner { color: var(--color-text-primary); font-family: var(--sans); }
+#rarBanner.on { text-shadow: none; }
+#rarBanner.on.r-celestial { background: none; color: var(--color-text-primary); filter: none; }
+
+/* bars, pips and tracks: outlined segments, ink fill */
+#draft .dbar i, #armoury .dbar i, .sqbar i, .rbars .dbar i, .card.wup .wlv i, #draft .dlv i { background: transparent; border: 1.5px solid var(--color-border-edge); border-radius: 1px; height: 10px; box-shadow: none !important; }
+#draft .dbar i.on, #armoury .dbar i.on, .sqbar i.on, .rbars .dbar i.on, .card.wup .wlv i.on, #draft .dlv i.on { background: var(--color-text-primary); }
+.card.wup .wlv i.up, #draft .dlv i.now { background: var(--color-text-accent); border-color: var(--color-text-accent); }
+.cdxbar, .sqxpb { background: transparent; border: 1.5px solid var(--color-border-edge); border-radius: 2px; height: 10px; }
+.cdxbar i, .sqxpb i { background: var(--color-text-primary); box-shadow: none; }
+.lpips i, .pips i { border: 1px solid var(--color-border-edge); background: transparent; border-radius: 1px; }
+.lpips i.on, .pips i.on { background: var(--color-text-primary); border-color: var(--color-text-primary); }
+.dmgrow i { background: var(--color-bg-raised) !important; }
+.cdxpct b { color: var(--color-text-primary); }
+
+/* game over readouts */
+.ostats div { text-align: left; color: var(--color-text-muted); }
+.ostats b { font-weight: 600; font-size: 20px; color: var(--color-text-primary); }
+
+/* ---------------------------------------------------------------- weapon draft */
+#draft .dstage { border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); box-shadow: none; }
+#draft .dbadge { background: var(--color-bg-lit); color: var(--color-text-on-lit); border-radius: var(--radius-sm); }
+#draft .darr { background: var(--glass); border: 2px solid var(--color-border-edge); color: var(--color-text-primary); }
+#draft .dtab { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); color: var(--color-text-primary); }
+#draft .dtab span { color: var(--color-text-muted); font-family: var(--sans); font-weight: 700; }
+#draft .dtab.sel { background: var(--color-bg-lit); border-color: var(--color-bg-lit); color: var(--color-text-on-lit); box-shadow: none; }
+#draft .dtab.sel span { color: var(--color-text-on-lit); }
+#draft .dname, #draft .dperk .pn { color: var(--color-text-primary); }
+#draft .dplay, #draft .dperk .pd { color: var(--color-text-primary); }
+#draft .dp, #draft .dmount, #draft .dperk { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-md); }
+#draft .dflash { display: none; }
+#draft #dPick { border-color: var(--color-bg-lit); }
+
+/* ---------------------------------------------------------------- sample select (sequence) */
+.sqhero, .bornhero, .youTop { border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); box-shadow: none; }
+.sqhero::after { display: none; }
+.sqtrait, .sqabil, .sqs { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); }
+.sqwep, .sqtile { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-md); }
+.sqtile.sel { border-width: 3px; transform: none; box-shadow: none; }
+.sqrank b { border: 1.5px solid var(--color-border-edge); color: var(--color-text-muted); }
+.sqrank b.on { background: var(--color-bg-lit); color: var(--color-text-on-lit); border-color: var(--color-bg-lit); box-shadow: none; }
+.sqname { font-family: var(--sans); font-weight: 700; }
+.sqhv b { text-shadow: none; }
+.sqhb, .sqnav { background: var(--glass); border: 2px solid var(--color-border-edge); color: var(--color-text-primary); }
+.slide { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); box-shadow: none; }
+.slide .slabel { background: var(--color-bg-app); border-right: 2px solid var(--color-border-edge); }
+.bcard { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); color: var(--color-text-primary); }
+.bcard b { color: var(--color-text-primary); }
+.yslot { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-left-width: 4px; }
+
+/* ---------------------------------------------------------------- boss intro: no glow, bold rules */
+#bossIntro .bi-card { background: var(--color-bg-sheet); border: 3px solid var(--color-border-edge); border-radius: var(--radius-lg); box-shadow: none; }
+#bossIntro .bi-title { background: var(--color-bg-lit); color: var(--color-text-on-lit); border-left: 0; padding: 6px 10px; border-radius: var(--radius-sm); font-family: var(--sans); font-size: 13px; letter-spacing: 0.08em; text-shadow: none; }
+#bossIntro .bi-name { color: var(--color-text-primary); font-family: var(--sans); font-weight: 700; text-transform: uppercase; font-size: 24px; }
+#bossIntro .bi-quote { color: var(--color-text-primary); }
+#bossIntro .bi-col h4 { color: var(--color-text-primary) !important; font-family: var(--sans); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; }
+#bossIntro .bi-count i { background: transparent; border: 1.5px solid var(--color-border-edge); }
+#bossIntro .bi-count i.done { background: var(--color-text-muted); }
+#bossIntro .bi-count i.now { background: var(--color-status-danger); border-color: var(--color-status-danger); box-shadow: none; }
+#bossIntro .bi-warn { background: var(--color-status-danger); color: var(--color-bg-app); border: 0; font-family: var(--sans); }
+#bossIntro #biFight { background: var(--color-bg-lit) !important; color: var(--color-text-on-lit) !important; border-color: var(--color-bg-lit) !important; }
+#bossIntro.ready #biFight { animation: none; }
+
+/* ---------------------------------------------------------------- HUD over the slide: subtle, translucent paper */
+#hud .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, #autoBtn, #spdBtn, #schoolSkip, #dbgBtn {
+  background: var(--glass) !important; border: 1.5px solid var(--glass-line) !important; color: var(--color-text-primary) !important; box-shadow: none !important; border-radius: var(--radius-md) !important;
+}
+#hud .slot.empty { background: color-mix(in srgb, var(--color-bg-app) 35%, transparent) !important; border-style: dashed !important; opacity: 1; }
+#hud .slot.spell { border-radius: var(--radius-md) !important; }
+#hud .slot .dir, #hud .slot .lv, #hud .slot .ico { color: var(--color-text-primary); }
+#hud .slot .bar { background: var(--track); }
+#hud .slot .bar i { background: var(--color-text-primary) !important; }
+#hud .slot.merged { border: 2px solid var(--color-border-edge) !important; }
+#autoBtn.on, #spdBtn.fast { background: var(--glass-on) !important; color: var(--color-text-on-lit) !important; border-color: transparent !important; }
+#rewindBtn { border-radius: var(--radius-md) !important; background: conic-gradient(var(--track) var(--e, 0%), transparent 0), var(--glass) !important; }
+#rewindBtn.ready { border: 2px solid var(--color-border-edge) !important; animation: none; }
+#rewindBtn .pips i { border-color: var(--color-border-edge); background: transparent; }
+#rewindBtn .pips i.on { background: var(--color-text-primary); }
+#abilBtn { border: 1.5px solid var(--glass-line); color: var(--color-text-primary); background: conic-gradient(var(--track) var(--e, 0%), var(--glass) 0); box-shadow: none !important; animation: none !important; }
+#abilBtn.ready { border: 2px solid var(--color-border-edge); opacity: 1; }
+#toast { background: var(--glass-on) !important; border: 0 !important; color: var(--color-text-on-lit) !important; font-family: var(--sans); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 11px; border-radius: var(--radius-sm) !important; }
+body #sysmsg { background: color-mix(in srgb, var(--color-bg-app) 72%, transparent) !important; border: 0 !important; border-left: 2px solid var(--color-border-edge) !important; border-radius: 0 !important; box-shadow: none !important; }
+body #sysmsg span { color: var(--color-text-primary); }
+#waveBtn { animation: none; }
+#holdInfo { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); box-shadow: none; color: var(--color-text-primary); }
+#dbgPanel { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); color: var(--color-text-primary); }
+#dbgPanel .db { background: var(--color-bg-sheet); border: 1.5px solid var(--color-border-edge); color: var(--color-text-primary); }
+#dbgPanel .db.on { background: var(--color-bg-lit); color: var(--color-text-on-lit); }
+
+/* loot box helix: ink rungs, the strand keeps its meaning colour */
+.box .helix .rg { stroke: var(--color-border-edge); }
+.box .body { box-shadow: none !important; }
+.box .burst { background: var(--color-text-primary); }
+
+/* Upgrade All and other gold buttons: ink, with the reward colour on the rule */
+#upAllBtn { color: var(--color-text-primary); border-color: var(--color-status-reward) !important; }
+#lootCards .card .plus2 { background: var(--color-status-reward); color: var(--color-bg-app); }
+.bbuy { color: var(--color-text-primary); border-color: var(--color-border-edge) !important; }
+.wchip { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-md); }
+.shq { border: 1.5px solid var(--color-border-edge); color: var(--color-text-primary); }
+.shq.on { background: var(--color-bg-lit); color: var(--color-text-on-lit); }
+.sslide { accent-color: var(--color-text-primary); }
+canvas.cdxp { box-shadow: 0 0 0 2px var(--color-border-edge); }
+
+/* ---------------------------------------------------------------- sample rack, mode select, campaign path (samples10.js, uikit uiSampleCard) */
+#samples { background: var(--color-bg-app) !important; }
+#samples::before { display: none !important; }
+#samples .ptitle { letter-spacing: 0.02em; font-size: 28px; }
+.sx-h { font-family: var(--sans); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; color: var(--color-text-primary); margin: 18px 0 10px; }
+.sx-h::after { height: 2px; background: var(--color-border-edge); }
+.sx-h span { color: var(--color-text-muted); letter-spacing: 0.04em; }
+.sx-card { --c-ink: color-mix(in srgb, var(--c, var(--color-border-edge)) 70%, var(--ink-mix));
+  background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); box-shadow: none; color: var(--color-text-primary); }
+.sx-card::after { display: none; }
+.sx-card.hero, .sx-grid .sx-card { text-align: left; align-items: stretch; }
+.sx-card.hero .sx-art { animation: none; }
+.sx-art { filter: none; color: var(--c-ink); }
+.sx-txt i { font-family: var(--sans); font-weight: 500; font-size: 12px; letter-spacing: 0; color: var(--color-text-muted); }
+.sx-txt b, .sx-card.hero .sx-txt b { font-family: var(--sans); font-weight: 700; font-size: 22px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--color-text-primary); }
+.sx-txt span { font-size: 14px; color: var(--color-text-primary); }
+.sx-txt em { font-family: var(--sans); font-weight: 700; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-ink); }
+.sx-card.locked, .sx-node.locked { filter: none; opacity: 0.5; }
+.sx-path::before { background: var(--color-border-edge); box-shadow: none; width: 2px; }
+.sx-dot { background: var(--color-bg-lit); color: var(--color-text-on-lit); box-shadow: 0 0 0 3px var(--color-bg-app); font-family: var(--sans); }
+.sx-node.open .sx-dot { animation: none; }
+.sx-node.locked .sx-dot, .sx-node.tease .sx-dot { background: var(--color-bg-app); color: var(--color-text-muted); box-shadow: 0 0 0 3px var(--color-bg-app), inset 0 0 0 2px var(--color-border-edge); }
+.sx-ni { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); }
+.sx-node.open .sx-ni b { text-shadow: none; }
+.sx-ni em { color: var(--color-text-muted); font-family: var(--sans); }
+
+/* ---------------------------------------------------------------- full-screen reveals (seqreveal.js, fusion.js) */
+#seqReveal, #fusion { background: var(--color-bg-app) !important; color: var(--color-text-primary); }
+#seqReveal .srname, #fusion .funame { color: var(--color-text-primary); text-shadow: none; font-family: var(--sans); }
+#seqReveal .srkick, #seqReveal .srtag, #fusion .fukick, #fusion .furow b { color: color-mix(in srgb, var(--rc, var(--cc, var(--color-text-primary))) 70%, var(--ink-mix)); font-family: var(--sans); }
+#seqReveal .srwep, #fusion .furow { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-left-width: 4px; }
+#seqReveal .srbtns .btn.primary, #fusion .fubtns .btn.primary { background: var(--color-bg-lit) !important; color: var(--color-text-on-lit) !important; box-shadow: none !important; }
+#fusion .fuhalo { display: none; }
+#fusion .fuw svg, #fusion .fuj span { filter: none; mix-blend-mode: normal; }
+#fusion.super .funame { background: none; color: var(--color-text-primary); filter: none; animation: srSlam 0.55s 0.1s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+
+/* ---------------------------------------------------------------- loot extras */
+.card.rw { box-shadow: inset 4px 0 0 color-mix(in srgb, var(--cat) 75%, var(--ink-mix)) !important; }
+.card.k-mut, .card.k-mod { border-radius: var(--radius-lg) !important; }
+.card.k-mut::after, .card.k-mod::after, .card.k-feat::after { color: var(--color-text-muted); font-family: var(--sans); }
+.card.k-feat { box-shadow: none !important; }
+.card .rwfit b { color: color-mix(in srgb, var(--cat, var(--color-text-primary)) 70%, var(--ink-mix)); }
+.card.taken { box-shadow: none !important; filter: none; opacity: 0.6 !important; }
+.card.taken::after { color: var(--color-text-primary); }
+#lootCards.stare .card:not(.taken)::before { border-color: var(--color-border-edge); }
+.card.pinned { box-shadow: none !important; border-width: 3px !important; }
+.card .phb { background: var(--color-bg-app); border: 1.5px solid var(--color-border-edge); border-radius: var(--radius-sm); }
+.bhead { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); }
+.bh-sperm { background: var(--color-bg-app); border: 2px solid var(--color-border-edge); border-radius: var(--radius-md); }
+.bh-cap { text-shadow: none; color: var(--color-text-primary); }
+.bh-stats div { background: transparent; border: 1.5px solid var(--color-border-edge); border-radius: var(--radius-sm); }
+.bh-ico { border: 2px solid var(--color-border-edge); border-radius: 0; }
+.bh-wn b { color: var(--color-text-primary); }
+.bh-slot.on { border-color: var(--color-border-edge); background: var(--color-bg-lit); color: var(--color-text-on-lit); }
+#pfCount { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-sm); }
+#pfCount.half { border-color: var(--color-status-success); box-shadow: none; }
+#pfCount.half b { color: var(--color-status-success); }
+#buildBtn { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-md); color: var(--color-text-primary); font-family: var(--sans); }
+
+/* ---------------------------------------------------------------- Tackle Box loadout, Gene Bank rows, inspect, race board */
+.lob, .lot { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-md); font-family: var(--sans); }
+.lob.sel, .lot.on { background: var(--color-bg-lit); border-color: var(--color-bg-lit); color: var(--color-text-on-lit); }
+.lob.sel b, .lob.sel span { color: var(--color-text-on-lit); }
+.lob b { font-family: var(--sans); }
+.loi { background: var(--color-bg-app); border: 2.5px solid var(--color-border-edge); border-radius: 0; }
+.lon b { color: var(--color-text-primary); }
+.losh { background: transparent; border: 1.5px solid var(--color-border-edge); height: 8px; border-radius: 1px; }
+.losh i { background: var(--color-text-primary); }
+.brow { border-top: 1.5px solid var(--line); }
+.bico { border: 2px solid var(--color-border-edge); }
+#inspect .icard { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); }
+#inspect h3 { color: var(--color-text-primary); }
+.ichip { border-radius: var(--radius-sm); border-width: 1.5px; }
+#raceBoard .rb-box { background: var(--glass); border: 1.5px solid var(--glass-line); border-radius: var(--radius-md); font-family: var(--sans); }
+#raceBoard .rb-row.you .rb-dot { box-shadow: 0 0 0 2px var(--color-border-edge); }
+.wbond { box-shadow: none; }
+.wbond.sup { box-shadow: none; animation: none; }
+.killer { border: 2px solid var(--color-status-danger); border-radius: var(--radius-lg); box-shadow: none; }
+.killer .kcap b { text-shadow: none; }
+#wsDot[data-who="sci"] i { background: var(--glass); border: 1.5px solid var(--glass-line); }
+
+/* kickers and hints that markup centres inline: left, like the Screen Header */
+.pwrap > .sqkick, .pwrap > .hint, .owrap > .hint, .lwrap > .hint, .pwrap > p.hint { text-align: left !important; }
+.sqkick { font-family: var(--sans); font-weight: 500; font-size: 12px; letter-spacing: 0.02em; color: var(--color-text-muted); opacity: 1; }
+
+/* icons: the SVGs carry the game's neon type colours as stroke attributes. On paper, darken them so near-white
+   (Force) reads as ink and the type colours stay recognisable; leave them alone on ink fills and in Ink mode. */
+.wicon, .cico svg, .bico svg, .loi svg, .bh-ico svg, .sqwep svg, .dmount svg, .aico svg { filter: brightness(0.4) saturate(1.4); }
+.sel .wicon, .btn.primary .wicon, .dbadge .wicon, .dbadge svg, #draft .dtab.sel svg, .atab.sel svg, .lob.sel svg { filter: none; }
+@media (prefers-color-scheme: dark) { :root:not(.paper) .wicon, :root:not(.paper) .cico svg, :root:not(.paper) .bico svg, :root:not(.paper) .loi svg, :root:not(.paper) .bh-ico svg, :root:not(.paper) .sqwep svg, :root:not(.paper) .dmount svg, :root:not(.paper) .aico svg { filter: none; } }
+:root.ink .wicon, :root.ink .cico svg, :root.ink .bico svg, :root.ink .loi svg, :root.ink .bh-ico svg, :root.ink .sqwep svg, :root.ink .dmount svg, :root.ink .aico svg { filter: none; }
+
+/* weapon draft: kickers in ink, not the weapon's (often near-white) colour; full-width pinned band */
+#draft .dkick, #draft .drole, #armoury .drole, .sqtag, .sqrl { color: var(--color-text-muted) !important; letter-spacing: 0.04em; font-weight: 500; }
+#draft .dkick { font-size: 12px; }
+.pbtns { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
+.pbtns .btn { max-width: none; }
+#draft #dPick { letter-spacing: 0.06em; }
+#draft .ddesc { color: var(--color-text-secondary); }
+.screen > .pbtns { align-self: stretch; }
+#waveBtn { background: var(--glass-on) !important; border-color: transparent !important; width: auto; max-width: 300px; font-size: 14px; padding: 12px 20px; }
+.youCap { text-shadow: none; }
+.youCap b { color: color-mix(in srgb, var(--c, var(--color-text-primary)) 65%, var(--ink-mix)); font-weight: 700; }
+.youCap span { color: var(--color-text-primary); }

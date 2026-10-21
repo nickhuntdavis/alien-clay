@@ -14,7 +14,7 @@ const SETTINGS_DEF = [
   { id: 'intros', tab: 'game', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet; OFF says nothing. Everything still goes in your Field Guide. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
   { id: 'narrator', tab: 'game', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE LAB TECH'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
   // SCREEN
-  { id: 'view', tab: 'screen', label: 'View', hint: 'LAB: a real microscope. Nothing on the slide has colour, you included; effects show in each cell\'s body. ARCADE: everything in full colour, with coloured rings that drain as effects run out.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
+  { id: 'view', tab: 'screen', label: 'View', hint: 'LAB: a real microscope. Nothing on the slide has colour, you included; effects show in each cell\'s body. ARCADE: everything in full colour, with coloured rings that drain as effects run out. TODO_COPY:set_view_eink_hint', opts: [['lab', 'LAB'], ['arcade', 'ARCADE'], ['eink', 'EINK']] },
   { id: 'darkfield', tab: 'screen', label: 'Darkfield', hint: 'A black field with bright specimens (a real microscopy technique).', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'clinical', tab: 'screen', label: 'Clean clinical view', hint: 'No grain, lens blur, vignette, halos or eyepiece dust. The most readable picture.', opts: [[false, 'OFF'], [true, 'ON']] },
   { id: 'dof', tab: 'screen', label: 'Depth of field', hint: 'Out-of-focus layers and a soft lens blur at the edges.', opts: [[true, 'ON'], [false, 'OFF']], off: () => SET.clinical && 'Clean clinical view turns this off.' },
@@ -62,7 +62,11 @@ function applyLayout() {
 }
 window.addEventListener('resize', () => applyLayout());
 // Arcade view: everything in full colour (no stains to find any more). Lab view: the grey slide.
-const viewArcade = () => SET.view === 'arcade'; // (v10: Arcade by default, Lab an option again)
+const viewArcade = () => SET.view === 'arcade' || SET.view === 'eink'; // (v10: Arcade by default, Lab an option again)
+// eInk view: the Arcade slide, with every DOM screen and the HUD in the e-ink design system (eink.css, switched on
+// through its media attribute so Lab and Arcade never see it). Paper or Ink follows the phone's dark setting.
+function applyEink() { const l = document.getElementById('einkCss'); if (l) l.media = SET.view === 'eink' ? 'all' : 'not all'; }
+applyEink();
 function saveSettings() { try { localStorage.setItem('sd_settings', JSON.stringify(SET)); } catch (e) { /* ignore */ } }
 
 // ---------------------------------------------------------------- narrator packs

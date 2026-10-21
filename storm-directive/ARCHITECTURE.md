@@ -3,7 +3,7 @@
 Reference map of every system: which files own it, what it reads and writes, and where it hooks in. Use the **system names** (left column, in bold) in the "Systems" line of `changes/<branch>.md` fragments. Keep this file in step with the code: a new file, a new system or a moved responsibility means an edit here in the same commit.
 
 ## Layout
-- `web/`: the game. `index.html` loads `style.css` and `js/*.js` as plain scripts (no build step, no modules, globals in script order).
+- `web/`: the game. `index.html` loads `style.css`, `eink.css` (eInk view only) and `js/*.js` as plain scripts (no build step, no modules, globals in script order).
 - `android/`: WebView wrapper, Gradle project. Release signing via `spawnprawn.keystore` + `SPAWN_KS_PASS`.
 - `release/SpawnPrawn.apk`: the shipped build.
 - `tests/`: Playwright tests (`run.sh`), sims (`tests/sim/`), tools (`tests/tools/`: `guide.js` builds `GAME_GUIDE.md`, `mouth.py` builds level maps, `copy/copy.sh` syncs `SpawnPrawn_Copy.xlsx`, `atlas/atlas.js` builds the Weapon Atlas page from `atlas/template.html`).
@@ -120,7 +120,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 | **mfdemo** | `mfdemo.js` | The same for the Mucus and Fire weapons (Nocturnal Emission, Ewww Gross, Blowing Bubbles, Hot Mess, Nappy Mines, The Runs). |
 | **aldemo** | `aldemo.js` | The same for the Alien weapons (Rent Free, Peekaboo, Eggs, Chest Burster). |
 | **feel** | `juice.js`, `audio.js` | Hit-stop, haptics, celebrations; synthesised sound and music. |
-| **style** | `style.css`, `index.html` | DOM layout and CSS. |
+| **style** | `style.css`, `eink.css`, `fonts/`, `index.html` | DOM layout and CSS. `eink.css` is the eInk view (Settings > View > EINK): the Figma e-ink design system's Paper and Ink modes over the DOM UI and HUD (Barlow, grey paper, ink rules). Its `<link id="einkCss">` stays `media="not all"` until `applyEink()` (settings.js) switches it on, so Lab and Arcade never see it. Ink (AMOLED dark) follows the phone's dark setting; `html.ink` / `html.paper` force one. The slide is drawn as in Arcade view. |
 
 ## Cross-cutting rules
 - **Hook-file pattern**: a feature lives in its own file; `game.js`, `render.js`, `ui.js` and `bosses.js` get one-line calls into it. Each file's header comment lists its hooks. Add the file to `index.html` in the right order.
