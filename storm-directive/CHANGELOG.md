@@ -2,6 +2,17 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.60: 2026-10-21 rescue beacon, autorun COLLECT for every collectable
+- Merged: ccr-455e7cea-1tppwd.
+
+### Folded from ccr-455e7cea-1tppwd: 2026-10-21 Rescue beacon; autorun COLLECT goes for every collectable (v10.60)
+- Systems: kindred, autorun
+- Files: kindred.js, render.js, tests/kindredtest.js, ARCHITECTURE.md
+- What: a waiting kindred spirit sends sonar pings and a column of light, has a big bobbing arrow over it on screen and a gold edge badge (a sperm inside, an arrow out) off screen, and nudges you (sound, buzz, marker swells) every 20 s. Autorun on COLLECT now heads for it first, chases mutation carriers, and goes for pickups and XP beyond its old reach.
+- Save data: none.
+- Hooks: render.js drawHud -> kinPointers() (no argument now). kindred.js also wraps autorun.js arGoal.
+- Risk: COLLECT runs swim further for loot, so they meet more enemies.
+
 ## v10.59: 2026-10-21 eInk view, Sample 9 copy, rescue copy
 - Merged: claude/exciting-allen-oy8n9q (eInk view), ccr-cbe5a578-nzu9tn (Sample 9 copy), ccr-455e7cea-1tppwd (rescue copy drafts). Suite: 105 passed; weapons24test and wup5test fail as before the merge (they expect 24 weapons; Sample 9 makes 27).
 
