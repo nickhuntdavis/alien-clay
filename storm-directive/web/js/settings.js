@@ -64,8 +64,8 @@ window.addEventListener('resize', () => applyLayout());
 // Arcade view: everything in full colour (no stains to find any more). Lab view: the grey slide.
 const viewArcade = () => SET.view === 'arcade' || SET.view === 'eink'; // (v10: Arcade by default, Lab an option again)
 // eInk view: the Arcade slide, with every DOM screen and the HUD in the e-ink design system (eink.css, switched on
-// through its media attribute so Lab and Arcade never see it). Paper or Ink follows the phone's dark setting.
-function applyEink() { const l = document.getElementById('einkCss'); if (l) l.media = SET.view === 'eink' ? 'all' : 'not all'; }
+// through its media attribute so Lab and Arcade never see it). Always Paper (light): html.paper overrides the phone's dark setting.
+function applyEink() { const on = SET.view === 'eink', l = document.getElementById('einkCss'); if (l) l.media = on ? 'all' : 'not all'; document.documentElement.classList.toggle('paper', on); }
 applyEink();
 function saveSettings() { try { localStorage.setItem('sd_settings', JSON.stringify(SET)); } catch (e) { /* ignore */ } }
 

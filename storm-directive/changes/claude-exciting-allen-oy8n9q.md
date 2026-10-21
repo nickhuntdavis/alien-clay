@@ -1,3 +1,11 @@
+## 2026-10-21 eInk view always light (v10.52)
+- Systems: style, settings
+- Files: settings.js, tests/einkshot.js, ARCHITECTURE.md
+- What: eInk view is always Paper (light), whatever the phone's dark setting.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-21 eInk view (v10.51)
 - Systems: style, settings, ui
 - Files: eink.css (new), fonts/Barlow-*.ttf + OFL.txt (new), style.css, index.html, settings.js, ui.js, tests/einkshot.js (new), tests/run.sh, ARCHITECTURE.md

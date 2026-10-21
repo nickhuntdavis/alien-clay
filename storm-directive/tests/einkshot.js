@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-// eInk view: eink.css is live only when SET.view is 'eink' (Paper, or Ink under the phone's dark setting); Lab and Arcade never see it.
+// eInk view: eink.css is live only when SET.view is 'eink' (always Paper, even under the phone's dark setting); Lab and Arcade never see it.
 (async () => {
   const b = await chromium.launch(); const errors = []; const res = {};
   for (const scheme of ['light', 'dark']) {
@@ -15,6 +15,6 @@ const { chromium } = require('playwright');
     await page.close();
   }
   for (const k in res) console.log(k.padEnd(13), res[k]);
-  const ok = res['light eink'].startsWith('all') && res['light arcade'].startsWith('not all') && res['light lab'].startsWith('not all') && res['light eink'] !== res['dark eink'];
+  const ok = res['light eink'].startsWith('all') && res['light arcade'].startsWith('not all') && res['light lab'].startsWith('not all') && res['light eink'] === res['dark eink'];
   console.log(ok ? 'eink OK' : 'FAIL eink toggle', 'ERRORS', errors.length ? errors.slice(0, 3) : 'none'); await b.close();
 })();

@@ -120,7 +120,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 | **mfdemo** | `mfdemo.js` | The same for the Mucus and Fire weapons (Nocturnal Emission, Ewww Gross, Blowing Bubbles, Hot Mess, Nappy Mines, The Runs). |
 | **aldemo** | `aldemo.js` | The same for the Alien weapons (Rent Free, Peekaboo, Eggs, Chest Burster). |
 | **feel** | `juice.js`, `audio.js` | Hit-stop, haptics, celebrations; synthesised sound and music. |
-| **style** | `style.css`, `eink.css`, `fonts/`, `index.html` | DOM layout and CSS. `eink.css` is the eInk view (Settings > View > EINK): the Figma e-ink design system's Paper and Ink modes over the DOM UI and HUD (Barlow, grey paper, ink rules). Its `<link id="einkCss">` stays `media="not all"` until `applyEink()` (settings.js) switches it on, so Lab and Arcade never see it. Ink (AMOLED dark) follows the phone's dark setting; `html.ink` / `html.paper` force one. The slide is drawn as in Arcade view. |
+| **style** | `style.css`, `eink.css`, `fonts/`, `index.html` | DOM layout and CSS. `eink.css` is the eInk view (Settings > View > EINK): the Figma e-ink design system's Paper and Ink modes over the DOM UI and HUD (Barlow, grey paper, ink rules). Its `<link id="einkCss">` stays `media="not all"` until `applyEink()` (settings.js) switches it on, so Lab and Arcade never see it. eInk view is always Paper: `applyEink()` sets `html.paper`, so the Ink (AMOLED dark) tokens never apply. The slide is drawn as in Arcade view. |
 
 ## Cross-cutting rules
 - **Hook-file pattern**: a feature lives in its own file; `game.js`, `render.js`, `ui.js` and `bosses.js` get one-line calls into it. Each file's header comment lists its hooks. Add the file to `index.html` in the right order.
