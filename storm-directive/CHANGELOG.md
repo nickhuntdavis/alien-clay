@@ -2,6 +2,25 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.63: 2026-10-21 Feat level-up card gains, Weapon Atlas tree
+- Merged: ccr-2c93f95d-u8jz5s, ccr-e216d253-cail6q.
+
+### Folded from ccr-2c93f95d-u8jz5s: 2026-10-21 Feat level-up card says what the level adds
+- Systems: feats, draft
+- Files: feats10.js
+- What: the Feat "enhance" card no longer says "More of whatever it does"; `f10UpText` writes the next level's real gains (+35% damage, effect +20% and area +15% at level 2, effect +20% and cooldown 19% shorter at level 4, 5% shorter cooldown each level, and a fork notice at levels 3 and 5).
+- Save data: none
+- Hooks: none
+- Risk: text only; numbers mirror `f10Stats` and `computeStats`, so change both if those do.
+
+### Folded from ccr-e216d253-cail6q: 2026-10-21 Weapon Atlas rebuilt for v10.62
+- Systems: tests (tools)
+- Files: tests/tools/atlas/atlas.js, tests/tools/atlas/template.html, NOTES.md
+- What: the Atlas also has a branching upgrade tree (weapon > 3 promises > 3 branch cards each > 3 masteries, with combos on each promise). The Atlas builder now reads the v10 data (24 weapons plus Sample 9's three, 9 samples, promise / branch / mastery cards from `WUP`, the 30 `C10` branch combos, 21 `RX10` reactions) instead of the v9 sequences and 78 weapons. Atlas artifact republished at the same URL.
+- Save data: none
+- Hooks: none
+- Risk: none (no game code touched)
+
 ## v10.62: 2026-10-21 rescues are a race's only weapon drafts
 - Merged: ccr-455e7cea-1tppwd.
 
