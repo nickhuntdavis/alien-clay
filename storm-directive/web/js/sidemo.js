@@ -22,8 +22,9 @@ const SIV_PALE = '#f1ecff', SIV_BONK = '#ffd23f', SIV_NUT = '#c9a46a';
 // A weapon with its own preview (PV_OWN, with a flags table) has its tier screen in the Weapon Draft. A 'wup' box with
 // only that weapon ready becomes its fork straight away (as wupCards would), so both routes land here.
 const sivFlags = w => { const o = w && PV_OWN[w24Key(w)]; return (o && o.flags) || null; };
+let SIV_DRAFT = false; // V11 (user, 21 Oct): weapon upgrades use the same plain card screen as every other reward; true brings the tier screens back
 function sivDraftKind(req) {
-  if (!G || typeof wupReady !== 'function') return false;
+  if (!SIV_DRAFT || !G || typeof wupReady !== 'function') return false;
   if (req.kind === 'wup') { const r = wupReady(); if (r.length === 1 && sivFlags(r[0])) Object.assign(req, { kind: 'wupfork', w: r[0], lv: wupNextLv(r[0]) }); }
   return req.kind === 'wupfork' && !!sivFlags(req.w);
 }

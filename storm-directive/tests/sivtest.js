@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
-  await page.evaluate(() => { window.TUT_OFF = 1; try { localStorage.setItem('sd_dev', '0'); } catch (e) { /* storage unavailable */ } splashEnd(); }); await page.waitForTimeout(300);
+  await page.evaluate(() => { window.TUT_OFF = 1; try { localStorage.setItem('sd_dev', '0'); } catch (e) { /* storage unavailable */ } splashEnd(); SIV_DRAFT = true; }); await page.waitForTimeout(300); // (the tier screens are off in play since V11; still tested)
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     // Every scene, simulated for 12 s off screen: count the words each effect puts up.

@@ -31,9 +31,7 @@ const { chromium } = require('playwright');
     if (!v10Pool().some(id => own(id) === 'alpha')) bad.push('alpha weapons not in pool');
     const q = G.lootQueue[0];
     if (!q || q.kind !== 'kindred' || draftBox(q) !== true) bad.push('no kindred screen ' + JSON.stringify(q));
-    const t = draftTitle(q); out.title = t[0];
-    if (t[0] !== 'CHOOSE YOUR DIFFERENCE') bad.push('title ' + t[0]);
-    const cards = genLoot(q);
+    const cards = genLoot({ kind: 'slot', kin: q.id });
     if (cards.map(c => c.title).join() !== w24Starters('alpha').map(id => WEAPONS[id].name).join()) bad.push('cards ' + cards.map(c => c.title));
     // Alpha's passive now runs: moving speeds up every weapon.
     G.player.vx = 100; s10Tick(0.016); if (!(G.weapons[0].rateK > 1)) bad.push('alpha passive off');
@@ -41,13 +39,20 @@ const { chromium } = require('playwright');
     if (G.weapons.filter(Boolean).length !== n0 + 1) bad.push('pick not equipped ' + G.weapons.map(w => w && w.id));
     // Open the real screen once.
     G.lootQueue = [q]; UI.openLoot(G.lootQueue.shift());
-    out.screen = document.getElementById('lootTitle').textContent;
-    if (document.getElementById('rerollBtn').style.display !== 'none') bad.push('reroll shown');
+    out.screen = document.getElementById('dTitle').textContent; out.kick = document.getElementById('dKick').textContent;
+    if (out.screen !== 'CHOOSE YOUR DIFFERENCE' || !UI.draft || UI.lootOpts.length !== 3) bad.push('not the weapon draft screen: ' + out.screen);
+    // Grafts: your tail is drawn in lengths, yours then Alpha's.
+    { const seen = []; const keep = SL_TAIL.alpha; SL_TAIL.alpha = (t, ...r) => { seen.push(t.length); return keep(t, ...r); };
+      UI.show('game'); G.state = 'play'; try { drawShip ? render() : 0; } catch (e) { bad.push('render ' + e.message); }
+      SL_TAIL.alpha = keep; out.graft = seen.slice(0, 2);
+      if (!seen.length) bad.push('no Alpha tail graft'); }
     UI.show('game'); G.state = 'play';
     // 10:00: a second spirit, not Alpha.
     G.t = 600; v10Tick(0.016);
     const s2 = G.kin.spirits[0];
     if (!s2 || s2.id === 'alpha' || s2.id === 'baseline') bad.push('second spirit ' + (s2 && s2.id));
+    // Mutations and weapon upgrades: plain cards (no special head, no tier screen).
+    if (BOX_LOOK_ON || SIV_DRAFT) bad.push('box looks or tier screens still on');
     // Draw paths: world and chevrons.
     try { v10Draw(); kinPointers(() => {}); } catch (e) { bad.push('draw ' + e.message); }
     // Not a race: no spirits.

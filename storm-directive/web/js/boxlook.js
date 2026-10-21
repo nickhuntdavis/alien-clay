@@ -13,7 +13,8 @@ const BOX_LOOK = {
   boss:     { col: '#7fb7d9', title: 'BOSS DNA: WEAPON MODIFICATION', sub: 'Extracted from the boss while still warm. Pick one change to one weapon.' },
 };
 const boxKindOf = o => !o || !o.tag ? '' : o.tag.startsWith('MODIFIER') ? 'mod' : o.tag === 'MUTATION' ? 'mut' : /FEAT/.test(o.tag) ? 'feat' : '';
-const boxCardCls = o => { const k = boxKindOf(o); return k ? ' k-' + k : ''; };
+const BOX_LOOK_ON = false; // V11 (user, 21 Oct): mutations and modifications use the same plain card screen; true brings these looks back
+const boxCardCls = o => { if (!BOX_LOOK_ON) return ''; const k = boxKindOf(o); return k ? ' k-' + k : ''; };
 const boxModsOnly = () => UI.lootOpts && UI.lootOpts.length && UI.lootOpts.every(o => boxKindOf(o) === 'mod');
 
 function boxLook(req, box) {
@@ -24,6 +25,7 @@ function boxLook(req, box) {
   if (!V10 || !L) return;
   if ((req.kind === 'chest' || req.kind === 'boss') && !boxModsOnly()) return; // (nothing fitted: an ordinary draft)
   $('lootTitle').textContent = L.title; $('lootSub').textContent = L.sub;
+  if (!BOX_LOOK_ON) return; // (the words stay; the colour and the head go)
   box.style.setProperty('--bc', L.col); $('lootTitle').style.color = L.col;
   head.className = 'bhead ' + (req.kind === 'mutation' ? 'bh-mut' : 'bh-mod');
   head.style.setProperty('--c', L.col);

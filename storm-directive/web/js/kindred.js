@@ -2,8 +2,8 @@
 // Spawn Prawn - kindred spirits (V11 brief, 21 Oct): rescue another sample mid-race and absorb it.
 //  - The Race only (raceOn). At KIN.at (05:00 and 10:00) a stranded sperm of another sample appears KIN.dist from you.
 //    A gold chevron on the screen edge points to it until you reach it (it never expires: a late rescue still counts).
-//  - Swim into it: it is absorbed at once (kinAbsorb), then a full-pause card screen (CHOOSE YOUR DIFFERENCE) shows
-//    who it is and its passive, and offers its three weapons. Absorbing does three things:
+//  - Swim into it: it is absorbed at once (kinAbsorb), then the Weapon Draft screen (CHOOSE YOUR DIFFERENCE, full pause)
+//    shows who it is and its passive, and offers its three weapons. Your body takes on its look (grafts, below). Absorbing does three things:
 //      1. its passive works alongside your own (samples10.js s10Has);
 //      2. its three weapons join this run's weapon pool (kinPool: race drafts only offer your sample's and absorbed ones);
 //      3. it unlocks as a starter for later runs (META.s10; S10_ALL still opens everything while testing).
@@ -12,9 +12,9 @@
 //  - Which sample: one you have never rescued (META.s10, read directly so S10_ALL does not hide it), else any other one
 //    you are not carrying. KIN.skip keeps proposed samples out.
 // Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool. Wraps v10Tick, v10Draw, draftBox, v10Loot,
-// draftTitle and UI.openLoot (loads last, after ui.js).
+// UI.openLoot and samplelooks.js slDraw (loads last, after ui.js).
 
-const KIN = { at: [300, 600], dist: 900, touch: 46, mount: 1, skip: ['acro'] };
+const KIN = { at: [300, 600], dist: 900, touch: 46, mount: 1, skip: ['acro'], extras: ['prawn'] };
 const kinHas = id => !!(G && G.kin && G.kin.has.includes(id));
 
 function kinInit() {
@@ -99,6 +99,25 @@ function kinCards(req) {
 }
 
 // ---------------------------------------------------------------- drawing
+// Grafts (user, 21 Oct: you take on some of the rescued sample's body, as v9's spliced sequences did): your tail is
+// split into lengths, yours at the root and each absorbed sample's after it in rescue order (Beta's coiled tip, Redtail's
+// fray, Private Schooled's braided cord, Ordered Online's links). Not of This World, having no tail, grafts a glow down
+// your whole tail in its current colour. Prawn Again also brings its halo (KIN.extras). An alien player takes no graft.
+const kinGrafts = () => (G.kin.has.length > 1 && G.s10.id !== 'alien' ? G.kin.has.slice(1) : []);
+function kinTail(own, g, t, k, a, now, B, sc) {
+  const tails = g.filter(id => SL_TAIL[id]), n = t.length, cut = [0.5, 0.38][tails.length - 1] || 0.38;
+  if (!tails.length || n < 8) own(t, k, a, now, B, sc);
+  else {
+    const at = [0, ...tails.map((_, i) => Math.round(n * (cut + (1 - cut) * i / tails.length))), n - 1];
+    own(t.slice(0, at[1] + 1), k, a, now, B, sc);
+    tails.forEach((id, i) => SL_TAIL[id](t.slice(at[i + 1], at[i + 2] + 1), k, a, now, B, sc));
+  }
+  if (g.includes('alien')) { // (its glow, in Adaptive Biology's current colour)
+    const c = ELEMENTS[S10_BY.alien.shift[(G.s10.shiftI || 0) % 3]].color;
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * (0.5 + 0.2 * Math.sin(now * 4)); drawTail(t, c, 2.6 * k, 3.4 * k);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a;
+  }
+}
 // World space (wraps v10Draw): the stranded sperm, drawn as its own sample, with a slow gold halo.
 function kinDraw() {
   if (!G || !G.kin || !G.kin.spirits.length) return;
@@ -123,18 +142,26 @@ function kinPointers(pointer) {
 
 // ---------------------------------------------------------------- wrappers
 {
-  const tick = v10Tick, draw = v10Draw, box = draftBox, loot = v10Loot, title = draftTitle, open = UI.openLoot;
+  const tick = v10Tick, draw = v10Draw, box = draftBox, loot = v10Loot, open = UI.openLoot, sl = slDraw;
+  // Your body wears what you absorbed (samplelooks.js slDraw, you only).
+  slDraw = function (id, x, y, face, tag, alpha, scale, body, now) {
+    const T = SL_TAIL[id], g = G && body === G.player && G.kin ? kinGrafts() : [];
+    if (!g.length) return sl(id, x, y, face, tag, alpha, scale, body, now);
+    SL_TAIL[id] = (t, k, a, n, B, sc) => kinTail(T, g, t, k, a, n, B, sc);
+    try { sl(id, x, y, face, tag, alpha, scale, body, now); } finally { SL_TAIL[id] = T; }
+    for (const gid of g) if (SL_OVER[gid] && KIN.extras.includes(gid)) { SL_OVER[gid](x, y, face, S * (scale || 1) * SL[id].size, alpha, now, body.sl, body, (scale || 1) * SL[id].size); ctx.globalAlpha = 1; }
+  };
   v10Tick = function (dt) { tick(dt); if (V10 && G) kinTick(dt); };
   v10Draw = function () { draw(); if (V10) kinDraw(); };
   draftBox = function (req) { return req.kind === 'kindred' ? (S10_BY[req.id] ? true : false) : box(req); }; // (full pause, never held back)
-  v10Loot = function (req) { return req.kind === 'kindred' ? kinCards(req) : loot(req); };
-  draftTitle = function (req) {
-    if (req.kind !== 'kindred') return title(req);
-    const sm = S10_BY[req.id];
-    return ['CHOOSE YOUR DIFFERENCE', `${sm.name}. ${sm.passive}: ${sm.pdesc}`];
-  };
+  v10Loot = function (req) { return req.kin ? kinCards({ id: req.kin }) : loot(req); };
+  // The pick is a weapon choice, so it gets the Weapon Draft screen (the one the starting weapons use), headed for the sample.
   UI.openLoot = function (req) {
-    open.call(UI, req);
-    if (req.kind === 'kindred') { $('rerollBtn').style.display = 'none'; $('skipBtn').style.display = 'none'; }
+    if (req.kind !== 'kindred') return open.call(UI, req);
+    const sm = S10_BY[req.id];
+    UI.openDraft(Object.assign(req, { kind: 'slot', kin: req.id }));
+    $('dKick').textContent = `${sm.name.toUpperCase()} | ${sm.passive.toUpperCase()}`;
+    $('dTitle').textContent = 'CHOOSE YOUR DIFFERENCE';
+    $('dSub').textContent = sm.pdesc;
   };
 }

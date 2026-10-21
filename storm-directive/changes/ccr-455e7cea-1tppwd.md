@@ -1,3 +1,11 @@
+## 2026-10-21 Rescued samples change your body; one card screen for upgrades (v10.52)
+- Systems: kindred, samples, ui (reward screens), weapons
+- Files: kindred.js, boxlook.js, sidemo.js, tests/kindredtest.js, tests/sivtest.js, tests/tools/guide.js, ARCHITECTURE.md
+- What: an absorbed sample grafts onto your body (your tail in lengths: yours, then each rescued sample's; Not of This World a glow; Prawn Again its halo). The rescue pick now uses the Weapon Draft screen, like the starting weapons. Weapon upgrade tiers, mutations and modifications all use the plain card screen (flags `SIV_DRAFT`, `BOX_LOOK_ON` bring the old screens back).
+- Save data: none.
+- Hooks: none new; kindred.js also wraps samplelooks.js slDraw.
+- Risk: other branches working on sidemo tier screens or boxlook heads will find them switched off.
+
 ## 2026-10-21 Kindred spirits: sample rescue and absorption in The Race (v10.51)
 - Systems: kindred (new), samples, weapons, ui
 - Files: kindred.js (new), samples10.js, sigweap.js, render.js, index.html, tests/kindredtest.js (new), tests/samplestest.js, tests/v10test.js, tests/tools/guide.js, ARCHITECTURE.md
