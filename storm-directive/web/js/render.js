@@ -2510,7 +2510,7 @@ function drawHud() {
   if (G.wave && G.wave.active && G.wave.spawned >= G.wave.budget) { const rest = G.enemies.filter(e => !e.dead && !e.charmed && !e.egg); if (rest.length <= 10) for (const e of rest) pointer(e.x, e.y, XR.white, 0.8, 0.8); }
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   if (!G.lvl && eggKnown()) { const go = G.fertile || G.eggE; pointer(c.x, c.y, go ? PAL.reward : '#ffb3d1', go ? 1.3 : 1); }
-  if (typeof kinPointers === 'function') kinPointers(pointer); // (kindred spirits: kindred.js)
+  if (typeof kinPointers === 'function') kinPointers(); // (kindred spirits: their own edge badge, kindred.js)
   if (!imm) { drawEventBar(); drawMinimap(top); drawZoomGauge(); }
   ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.

@@ -1,7 +1,10 @@
 'use strict';
 // Spawn Prawn - kindred spirits (V11 brief, 21 Oct): rescue another sample mid-race and absorb it.
 //  - The Race only (raceOn). At KIN.at (03:00 and 06:00) a stranded sperm of another sample appears KIN.dist from you.
-//    A gold chevron on the screen edge points to it until you reach it (it never expires: a late rescue still counts).
+//    It is hard to miss (user, 21 Oct): sonar pings and a column of light where it is, a big arrow over it on screen, a
+//    gold badge on the screen edge pointing the way off screen, and a nudge (sound, buzz, the marker swells) every
+//    KIN.remind seconds until you reach it. It never expires: a late rescue still counts.
+//  - Autorun on COLLECT goes for it first (kinCollect), and also chases mutation carriers and far pickups.
 //  - Swim into it: it is absorbed at once (kinAbsorb), then the Weapon Draft screen (CHOOSE YOUR DIFFERENCE, full pause)
 //    shows who it is and its passive, and offers its three weapons. Your body takes on its look (grafts, below). Absorbing does three things:
 //      1. its passive works alongside your own (samples10.js s10Has);
@@ -17,7 +20,7 @@
 // Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool; game.js levelling -> kinSlotLv. Wraps v10Tick, v10Draw, draftBox, v10Loot,
 // UI.openLoot and samplelooks.js slDraw (loads last, after ui.js).
 
-const KIN = { at: [180, 360], dist: 900, touch: 46, mount: 1, skip: ['acro'], extras: ['prawn'], slots: [5] };
+const KIN = { remind: 20, pull: 3, at: [180, 360], dist: 900, touch: 46, mount: 1, skip: ['acro'], extras: ['prawn'], slots: [5] };
 // game.js levelling: a race grows a weapon mount only at KIN.slots (the rescues bring the rest), elsewhere SLOT_LEVELS.
 const kinSlotLv = lv => (raceOn() ? KIN.slots : SLOT_LEVELS).includes(lv);
 const kinHas = id => !!(G && G.kin && G.kin.has.includes(id));
@@ -65,6 +68,7 @@ function kinTick(dt) {
   while (K.n < KIN.at.length && G.t >= KIN.at[K.n]) { K.n++; kinSpawn(); }
   for (const s of K.spirits) {
     s.t += dt;
+    if (s.t >= (s.remN || 0) + KIN.remind) { s.remN = (s.remN || 0) + KIN.remind; s.remT = G.realT; sfx('pickup'); vibrate(40); } // (a nudge every KIN.remind s while it waits)
     // Stranded: it wriggles on the spot, turning slowly.
     s.face += Math.sin(s.t * 0.7) * 0.4 * dt;
     s.vx = Math.cos(s.face) * 60; s.vy = Math.sin(s.face) * 60;
@@ -128,21 +132,77 @@ function kinDraw() {
   if (!G || !G.kin || !G.kin.spirits.length) return;
   for (const s of G.kin.spirits) {
     const x = sx(s.x), y = sy(s.y), pulse = 0.5 + 0.5 * Math.sin(G.realT * 3);
-    if (x < -200 || y < -200 || x > W + 200 || y > H + 200) continue;
+    if (x < -400 || y < -200 || x > W + 400 || y > H + 600) continue;
     const rawc = RAW_COL; RAW_COL = true;
     ctx.save();
     ctx.globalAlpha = 0.25 + 0.25 * pulse; ctx.strokeStyle = PAL.reward; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(x, y, (KIN.touch + 8 * pulse) * S, 0, TAU); ctx.stroke();
+    // Sonar pings and a column of light, so it reads from the edge of the screen.
+    ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 3; k++) {
+      const ph = (G.realT * 0.7 + k / 3) % 1;
+      ctx.globalAlpha = 0.55 * (1 - ph); ctx.strokeStyle = PAL.reward; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(x, y, (KIN.touch + 240 * ph) * S, 0, TAU); ctx.stroke();
+    }
+    const bw = 22 * S, g = ctx.createLinearGradient(0, y - 420 * S, 0, y);
+    g.addColorStop(0, 'rgba(255,210,63,0)'); g.addColorStop(1, 'rgba(255,210,63,0.35)');
+    ctx.globalAlpha = 0.6 + 0.4 * pulse; ctx.fillStyle = g; ctx.fillRect(x - bw / 2, y - 420 * S, bw, 420 * S);
+    ctx.globalCompositeOperation = 'source-over';
     ctx.restore();
     if (s.id === 'alien') { if (typeof alienDraw === 'function') alienDraw(x, y, s.face, null, 1, 1, s, G.realT, ELEMENTS.soul.color, 'curious'); }
     else if (typeof SL !== 'undefined' && SL[s.id]) slDraw(s.id, x, y, s.face, null, 1, 1, s, G.realT);
     RAW_COL = rawc;
   }
 }
-// render.js drawHud: a gold chevron to each waiting spirit (pointer is drawHud's own edge-arrow helper).
-function kinPointers(pointer) {
-  if (!G || !G.kin) return;
-  for (const s of G.kin.spirits) pointer(s.x, s.y, PAL.reward, 1.2, 0.75 + 0.25 * Math.sin(G.realT * 6));
+// render.js drawHud (screen space): on screen, a big bobbing arrow over it; off screen, a gold badge on the screen edge
+// with a pulsing ring and an arrow pointing the way, bigger for a moment at every reminder (KIN.remind).
+function kinPointers() {
+  if (!G || !G.kin || !G.kin.spirits.length) return;
+  const t = G.realT, pulse = 0.5 + 0.5 * Math.sin(t * 6), rawc = RAW_COL; RAW_COL = true;
+  ctx.save(); ctx.shadowBlur = 0;
+  for (const s of G.kin.spirits) {
+    const dx = s.x - cam.x, dy = s.y - cam.y, pop = 1 + 0.6 * Math.max(0, 1 - (t - (s.remT || -9)) / 0.8);
+    const arrow = (x, y, a, k) => { // a fat arrowhead pointing along a
+      ctx.save(); ctx.translate(x, y); ctx.rotate(a);
+      ctx.beginPath(); ctx.moveTo(16 * k, 0); ctx.lineTo(-10 * k, 13 * k); ctx.lineTo(-4 * k, 0); ctx.lineTo(-10 * k, -13 * k); ctx.closePath();
+      ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.stroke(); ctx.fillStyle = PAL.reward; ctx.fill(); ctx.restore();
+    };
+    if (Math.abs(dx * S) < W / 2 - 40 && Math.abs(dy * S) < H / 2 - 40) { // on screen: point down at it
+      arrow(sx(s.x), sy(s.y) - (KIN.touch * S + 34 + 8 * Math.sin(t * 5)), Math.PI / 2, 1.3 * pop);
+      continue;
+    }
+    const a = Math.atan2(dy, dx), hw = W / 2 - 58, hh = H / 2 - 58, d = Math.min(hw / Math.abs(Math.cos(a) || 1e-6), hh / Math.abs(Math.sin(a) || 1e-6));
+    const px = W / 2 + Math.cos(a) * d, py = clamp(H / 2 + Math.sin(a) * d, (UI.safeTop || 0) + 110, H - (UI.bottomH || 200) - 30), R = 20 * pop;
+    ctx.globalAlpha = 0.25 + 0.35 * (1 - pulse); ctx.strokeStyle = PAL.reward; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(px, py, R + 12 * pulse, 0, TAU); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = PAL.reward; ctx.stroke();
+    // A little sperm inside the badge, swimming the way to go.
+    ctx.save(); ctx.translate(px, py); ctx.rotate(a); ctx.fillStyle = PAL.reward; ctx.strokeStyle = PAL.reward; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(5, 0, 6, 4.2, 0, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-1, 0); for (let i = 1; i <= 6; i++) ctx.lineTo(-1 - i * 2.2, Math.sin(t * 12 - i) * 2.2); ctx.stroke(); ctx.restore();
+    arrow(px + Math.cos(a) * (R + 12), py + Math.sin(a) * (R + 12), a, 0.8 * pop);
+  }
+  ctx.restore(); RAW_COL = rawc;
+}
+
+// Autorun on COLLECT (autorun.js arGoal): a waiting spirit is the strongest pull on the slide, then the nearest
+// mutation carrier (kill it and the mutation flies to you), then pickups and XP past autorun's usual reach.
+function kinCollect(p, goal) {
+  let homing = false;
+  if (G.kin) for (const s of G.kin.spirits) {
+    const d = Math.hypot(s.x - p.x, s.y - p.y);
+    goal(s.x, s.y, KIN.pull);
+    if (d < 260) homing = true;
+  }
+  let ce = null, cd = 900;
+  for (const e of G.enemies) { if (!e.mdCarry || e.dead || e.charmed) continue; const d = Math.hypot(e.x - p.x, e.y - p.y); if (d < cd) { cd = d; ce = e; } }
+  if (ce) goal(ce.x, ce.y, 1.2);
+  let fo = null, fd = 2000;
+  for (const u of G.pickups) { const d = Math.hypot(u.x - p.x, u.y - p.y); if (d >= 900 && d < fd) { fd = d; fo = u; } }
+  if (!fo) for (const g of G.gems) { if (g.dead) continue; const d = Math.hypot(g.x - p.x, g.y - p.y); if (d >= 800 && d < fd) { fd = d; fo = g; } }
+  if (fo) goal(fo.x, fo.y, 0.6);
+  return homing;
 }
 
 // ---------------------------------------------------------------- wrappers
@@ -157,6 +217,8 @@ function kinPointers(pointer) {
     for (const gid of g) if (SL_OVER[gid] && KIN.extras.includes(gid)) { SL_OVER[gid](x, y, face, S * (scale || 1) * SL[id].size, alpha, now, body.sl, body, (scale || 1) * SL[id].size); ctx.globalAlpha = 1; }
   };
   v10Tick = function (dt) { tick(dt); if (V10 && G) kinTick(dt); };
+  const ag = arGoal;
+  arGoal = function (p, mode, goal, add) { const h = ag(p, mode, goal, add); return mode === 'collect' && V10 ? kinCollect(p, goal) || h : h; };
   v10Draw = function () { draw(); if (V10) kinDraw(); };
   draftBox = function (req) { return req.kind === 'kindred' ? (S10_BY[req.id] ? true : false) : box(req); }; // (full pause, never held back)
   v10Loot = function (req) { return req.kin ? kinCards({ id: req.kin }) : loot(req); };

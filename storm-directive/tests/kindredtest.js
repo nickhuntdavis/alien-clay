@@ -22,6 +22,12 @@ const { chromium } = require('playwright');
     G.t = 180; v10Tick(0.016);
     const s = G.kin.spirits[0];
     if (!s) { bad.push('no spirit at 03:00'); return { bad, out }; }
+    // Autorun on COLLECT heads for it, whatever else is about.
+    { let gx = 0, gy = 0; const p = G.player; G.moveDir = 'collect';
+      arGoal(p, 'collect', (x, y, w) => { const d = Math.hypot(x - p.x, y - p.y) || 1; gx += (x - p.x) / d * w; gy += (y - p.y) / d * w; }, () => {});
+      const dot = (gx * (s.x - p.x) + gy * (s.y - p.y)) / ((Math.hypot(gx, gy) || 1) * (Math.hypot(s.x - p.x, s.y - p.y) || 1));
+      out.collectDot = +dot.toFixed(2); if (!(dot > 0.7)) bad.push('collect does not head for the spirit ' + dot); }
+    s.t = KIN.remind + 0.1; v10Tick(0.016); if (!(s.remN > 0)) bad.push('no reminder');
     if (s.id !== 'alpha') bad.push('prefers unrescued: got ' + s.id);
     out.dist = Math.round(Math.hypot(s.x - G.player.x, s.y - G.player.y));
     G.player.x = s.x; G.player.y = s.y; v10Tick(0.016);
