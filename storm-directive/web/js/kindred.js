@@ -1,20 +1,23 @@
 'use strict';
 // Spawn Prawn - kindred spirits (V11 brief, 21 Oct): rescue another sample mid-race and absorb it.
-//  - The Race only (raceOn). At KIN.at (05:00 and 10:00) a stranded sperm of another sample appears KIN.dist from you.
+//  - The Race only (raceOn). At KIN.at (03:00 and 06:00) a stranded sperm of another sample appears KIN.dist from you.
 //    A gold chevron on the screen edge points to it until you reach it (it never expires: a late rescue still counts).
 //  - Swim into it: it is absorbed at once (kinAbsorb), then the Weapon Draft screen (CHOOSE YOUR DIFFERENCE, full pause)
 //    shows who it is and its passive, and offers its three weapons. Your body takes on its look (grafts, below). Absorbing does three things:
 //      1. its passive works alongside your own (samples10.js s10Has);
 //      2. its three weapons join this run's weapon pool (kinPool: race drafts only offer your sample's and absorbed ones);
 //      3. it unlocks as a starter for later runs (META.s10; S10_ALL still opens everything while testing).
-//    The weapon you pick is equipped straight away on a new mount (KIN.mount: every 3 mounts are full by 05:00).
+//    The weapon you pick is equipped straight away on a new mount (KIN.mount). Weapons in a race: the first, a
+//    draft at Lv 5 (KIN.slots, not SLOT_LEVELS' Lv 12) and one per rescue: four drafts, four weapons.
 //    If you already hold every carried weapon, drafts fall back to the whole roster (never an empty screen).
 //  - Which sample: one you have never rescued (META.s10, read directly so S10_ALL does not hide it), else any other one
 //    you are not carrying. KIN.skip keeps proposed samples out.
-// Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool. Wraps v10Tick, v10Draw, draftBox, v10Loot,
+// Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool; game.js levelling -> kinSlotLv. Wraps v10Tick, v10Draw, draftBox, v10Loot,
 // UI.openLoot and samplelooks.js slDraw (loads last, after ui.js).
 
-const KIN = { at: [300, 600], dist: 900, touch: 46, mount: 1, skip: ['acro'], extras: ['prawn'] };
+const KIN = { at: [180, 360], dist: 900, touch: 46, mount: 1, skip: ['acro'], extras: ['prawn'], slots: [5] };
+// game.js levelling: a race grows a weapon mount only at KIN.slots (the rescues bring the rest), elsewhere SLOT_LEVELS.
+const kinSlotLv = lv => (raceOn() ? KIN.slots : SLOT_LEVELS).includes(lv);
 const kinHas = id => !!(G && G.kin && G.kin.has.includes(id));
 
 function kinInit() {

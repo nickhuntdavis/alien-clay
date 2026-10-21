@@ -2588,7 +2588,7 @@ function gainXp(v) {
     redLevel(); // (the Redtail: a bane every level)
     evolveCheck(G.level); // (your Primary Sequence evolves at Lv 5, 10, 20 and 50: evolve.js)
     // Weapon drafts: a new weapon mount at every SLOT_LEVELS level.
-    if (SLOT_LEVELS.includes(G.level) && G.weapons.length < MAX_WEAPONS + (G.comboMounts || 0)) {
+    if ((typeof kinSlotLv === 'function' ? kinSlotLv(G.level) : SLOT_LEVELS.includes(G.level)) && G.weapons.length < MAX_WEAPONS + (G.comboMounts || 0)) { // (a race drafts fewer: kindred.js)
       G.weapons.push(null);
       G.lootQueue.push({ kind: 'slot' });
       banner('WEAPON DRAFT!', PAL.upgrade);

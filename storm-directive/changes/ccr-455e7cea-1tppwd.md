@@ -1,3 +1,11 @@
+## 2026-10-21 V11 headings, skippable weapon drafts, earlier rescues, fewer race drafts (v10.53)
+- Systems: ui (reward screens), kindred, engine (levelling)
+- Files: v11ui.js (new), kindred.js, game.js, index.html, tests/kindredtest.js, tests/drafttest.js, tests/tools/guide.js, ARCHITECTURE.md
+- What: reward screens head by kind (CHOOSE AN UPGRADE, CHOOSE A WEAPON, UPGRADE A WEAPON, CHOOSE A MUTATION); every weapon draft but the first has SKIP (+2 REROLLS), leaving the mount empty. Rescues at 03:00 and 06:00. A race grows a weapon mount only at Lv 5 (no Lv 12 draft): four weapon drafts a race (first, Lv 5, two rescues).
+- Save data: none.
+- Hooks: game.js levelling -> kinSlotLv (the SLOT_LEVELS check).
+- Risk: race balance (one fewer level-up weapon, rescues 2 to 4 minutes earlier); the Build panel and pause screen still name Lv 12 as the next draft in a race.
+
 ## 2026-10-21 Rescued samples change your body; one card screen for upgrades (v10.52)
 - Systems: kindred, samples, ui (reward screens), weapons
 - Files: kindred.js, boxlook.js, sidemo.js, tests/kindredtest.js, tests/sivtest.js, tests/tools/guide.js, ARCHITECTURE.md

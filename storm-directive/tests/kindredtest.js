@@ -18,10 +18,10 @@ const { chromium } = require('playwright');
     if (v10Pool().some(id => own(id) !== 'baseline')) bad.push('pool not limited ' + v10Pool().map(own));
     G.weapons.push(null, null); G.weapons[1] = makeSlot(w24Starters('baseline')[1], false, 1); G.weapons[2] = makeSlot(w24Starters('baseline')[2], false, 1); recomputeAll();
     v10Tick(0.016);
-    if (G.kin.spirits.length) bad.push('spirit before 05:00');
-    G.t = 300; v10Tick(0.016);
+    if (G.kin.spirits.length) bad.push('spirit before 03:00');
+    G.t = 180; v10Tick(0.016);
     const s = G.kin.spirits[0];
-    if (!s) { bad.push('no spirit at 05:00'); return { bad, out }; }
+    if (!s) { bad.push('no spirit at 03:00'); return { bad, out }; }
     if (s.id !== 'alpha') bad.push('prefers unrescued: got ' + s.id);
     out.dist = Math.round(Math.hypot(s.x - G.player.x, s.y - G.player.y));
     G.player.x = s.x; G.player.y = s.y; v10Tick(0.016);
@@ -47,8 +47,8 @@ const { chromium } = require('playwright');
       SL_TAIL.alpha = keep; out.graft = seen.slice(0, 2);
       if (!seen.length) bad.push('no Alpha tail graft'); }
     UI.show('game'); G.state = 'play';
-    // 10:00: a second spirit, not Alpha.
-    G.t = 600; v10Tick(0.016);
+    // 06:00: a second spirit, not Alpha.
+    G.t = 360; v10Tick(0.016);
     const s2 = G.kin.spirits[0];
     if (!s2 || s2.id === 'alpha' || s2.id === 'baseline') bad.push('second spirit ' + (s2 && s2.id));
     // Mutations and weapon upgrades: plain cards (no special head, no tier screen).
@@ -58,6 +58,20 @@ const { chromium } = require('playwright');
     // Not a race: no spirits.
     META.profile = 's10_baseline'; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 400; v10Tick(0.016);
     if (G.kin && G.kin.spirits.length) bad.push('spirit in the Petri Dish');
+    // Mounts: a race grows one at Lv 5 only; the dish keeps SLOT_LEVELS.
+    if (!kinSlotLv(12) || !kinSlotLv(5)) bad.push('dish slot levels');
+    META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play';
+    if (kinSlotLv(12) || !kinSlotLv(5)) bad.push('race slot levels');
+    // Skip on a weapon draft: back to play, +2 rerolls, the mount stays empty.
+    G.lootQueue = []; genLoot({ kind: 'start' })[0].apply(); G.weapons.push(null); const rr = G.rerolls;
+    UI.openLoot({ kind: 'slot' }); UI.lootOpenT -= 1000;
+    if (document.getElementById('dTitle').textContent !== 'CHOOSE A WEAPON' || document.getElementById('dSkip').style.display === 'none') bad.push('slot draft head/skip');
+    document.getElementById('dSkip').click();
+    if (G.state !== 'play' || G.rerolls !== rr + 2 || G.weapons[1] !== null) bad.push('skip ' + G.state + ' ' + G.rerolls);
+    UI.openLoot({ kind: 'mutation' }); out.mutHead = document.getElementById('lootTitle').textContent;
+    if (G.state === 'loot' && out.mutHead !== 'CHOOSE A MUTATION') bad.push('mutation heading ' + out.mutHead);
+    G.state = 'play'; UI.show('hud');
+    UI.openLoot({ kind: 'level' }); if (document.getElementById('lootTitle').textContent !== 'CHOOSE AN UPGRADE') bad.push('level heading');
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
