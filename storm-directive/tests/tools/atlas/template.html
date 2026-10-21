@@ -1,121 +1,122 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Spawn Prawn Weapon Atlas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap">
 <style>
-/* Layout: a microscope slide. A ring map of every weapon up top (grouped by sequence, linked by combos and pairings), then one panel per sequence with each weapon's upgrade ladder. */
+/* Layout: a microscope slide. Ring map of every weapon by damage type with the 30 branch combos drawn across it, the nine samples, then one panel per damage type with each weapon's tiers: promise, branch, mastery. */
 :root {
-  --bg: #eef3f1; --panel: #ffffff; --ink: #13201f; --dim: #5d6f6c; --line: #c9d6d2; --accent: #087a45; --combo: #b0228c; --pair: #2a6fb0;
+  --bg: #eef3f1; --panel: #ffffff; --ink: #13201f; --dim: #5d6f6c; --line: #c9d6d2; --accent: #087a45; --combo: #b0228c;
   --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif; --body: 'Atkinson Hyperlegible', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0c1112; --panel: #141b1d; --ink: #e3ecea; --dim: #8fa29e; --line: #26323a; --accent: #4dff9a; --combo: #ff6fd8; --pair: #7fb8ff; color-scheme: dark; } }
-:root[data-theme="dark"] { --bg: #0c1112; --panel: #141b1d; --ink: #e3ecea; --dim: #8fa29e; --line: #26323a; --accent: #4dff9a; --combo: #ff6fd8; --pair: #7fb8ff; color-scheme: dark; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0c1112; --panel: #141b1d; --ink: #e3ecea; --dim: #8fa29e; --line: #26323a; --accent: #4dff9a; --combo: #ff6fd8; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #0c1112; --panel: #141b1d; --ink: #e3ecea; --dim: #8fa29e; --line: #26323a; --accent: #4dff9a; --combo: #ff6fd8; color-scheme: dark; }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); line-height: 1.45; }
 .wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 60px; display: grid; gap: 28px; }
 header h1 { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 6vw, 52px); line-height: 1; margin: 0; text-wrap: balance; letter-spacing: -0.5px; }
-header p { margin: 10px 0 0; max-width: 66ch; color: var(--dim); }
+header p { margin: 10px 0 0; max-width: 68ch; color: var(--dim); }
 .scale { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 14px; }
 .scale i { display: inline-block; width: 22px; height: 0; border-top: 2px solid var(--combo); vertical-align: middle; margin-right: 6px; }
-.scale i.p { border-top: 2px dashed var(--pair); }
-.map { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 12px; }
+.map { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 12px; }
 @media (max-width: 760px) { .map { grid-template-columns: minmax(0, 1fr); } }
 .map svg { width: 100%; height: auto; display: block; }
 .map svg text { font-family: var(--mono); font-size: 10.5px; fill: var(--ink); cursor: pointer; }
 .map svg .arc { fill: none; stroke-width: 6; }
-.map svg .lk { fill: none; stroke-width: 1.4; opacity: 0.55; }
-.map svg .lk.c { stroke: var(--combo); } .map svg .lk.p { stroke: var(--pair); stroke-dasharray: 4 3; }
-.map svg.focus .lk { opacity: 0.06; } .map svg.focus .lk.on { opacity: 1; stroke-width: 2.2; }
+.map svg .lk { fill: none; stroke: var(--combo); stroke-width: 1.3; opacity: 0.5; }
+.map svg.focus .lk { opacity: 0.05; } .map svg.focus .lk.on { opacity: 1; stroke-width: 2.2; }
 .map svg.focus text { opacity: 0.3; } .map svg.focus text.on { opacity: 1; font-weight: 700; }
 .side { font-size: 13px; min-width: 0; }
 .side h3 { font-family: var(--display); font-size: 20px; margin: 4px 0 2px; }
 .side .k { font-family: var(--mono); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); }
 .side ul { padding-left: 16px; margin: 6px 0 10px; } .side li { margin: 3px 0; }
-.side b.c { color: var(--combo); } .side b.p { color: var(--pair); }
+.side b.c { color: var(--combo); }
 nav.seqs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--bg); padding-block: 8px; display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--line); }
 nav.seqs a { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); text-decoration: none; padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
-nav.seqs a span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
-nav.seqs a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+nav.seqs a span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+h2.sec { font-family: var(--display); font-weight: 800; font-size: 26px; margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+h2.sec small { font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); }
+.sub { margin: 4px 0 0; color: var(--dim); max-width: 72ch; }
+.smp { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 10px; margin-top: 12px; }
+.smp div { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--c); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; }
+.smp b { display: block; font-family: var(--display); font-size: 16px; }
+.smp .k, .role, .tk { font-family: var(--mono); font-size: 10px; letter-spacing: 1.1px; text-transform: uppercase; color: var(--dim); }
+.smp p { margin: 4px 0; } .smp button { all: unset; cursor: pointer; border-bottom: 1px dotted currentColor; margin-right: 8px; }
 section.seq { display: grid; gap: 12px; scroll-margin-top: 60px; }
-section.seq > h2 { font-family: var(--display); font-weight: 800; font-size: 26px; margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-section.seq > h2 small { font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); }
-section.seq > p { margin: 0; color: var(--dim); max-width: 70ch; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 12px; }
 .w { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; align-content: start; min-width: 0; transition: opacity .2s, box-shadow .2s; scroll-margin-top: 70px; }
 .w.dim { opacity: 0.3; } .w.hi { box-shadow: 0 0 0 2px var(--accent); }
 .w h3 { margin: 0; font-family: var(--display); font-size: 19px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .w h3 button { all: unset; cursor: pointer; } .w h3 button:hover { text-decoration: underline; }
 .el { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; border: 1px solid currentColor; }
-.role { font-family: var(--mono); font-size: 10.5px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
 .w .play { margin: 0; font-size: 13px; color: var(--dim); }
-.ladder { display: grid; gap: 6px; }
-.rung { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 8px; align-items: start; }
-.rung .lv { font-family: var(--mono); font-size: 10.5px; line-height: 1.2; color: var(--dim); padding-top: 5px; font-variant-numeric: tabular-nums; }
-.rung .lv b { display: block; color: var(--ink); font-size: 12px; }
-.opts { display: flex; flex-wrap: wrap; gap: 5px; position: relative; }
+.tier { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px; align-items: start; }
+.tier > .tk { padding-top: 6px; line-height: 1.25; } .tier > .tk b { display: block; font-size: 12px; color: var(--ink); }
+.opts { display: grid; gap: 5px; position: relative; }
 .opts::before { content: ''; position: absolute; left: -6px; top: 4px; bottom: 4px; border-left: 1px solid var(--line); }
-details.o { border: 1px solid var(--line); border-radius: 8px; font-size: 12.5px; max-width: 100%; }
-details.o summary { cursor: pointer; padding: 4px 8px; list-style: none; }
+details.o { border: 1px solid var(--line); border-radius: 8px; font-size: 12.5px; }
+details.o summary { cursor: pointer; padding: 5px 9px; list-style: none; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
 details.o summary::-webkit-details-marker { display: none; }
-details.o[open] { flex-basis: 100%; } details.o p { margin: 0; padding: 0 8px 6px; color: var(--dim); }
-.rung.sig details.o { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+details.o summary em { font-style: normal; font-size: 11.5px; color: var(--dim); }
+details.o .in { padding: 0 9px 8px; display: grid; gap: 5px; color: var(--dim); }
+details.o .in p { margin: 0; } details.o .in b { color: var(--ink); }
+.br { display: grid; gap: 4px; border-top: 1px dashed var(--line); padding-top: 5px; }
+.br .tk { margin-bottom: 1px; }
+.mast details.o { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .rel { display: grid; gap: 4px; font-size: 12.5px; }
 .rel div { display: flex; flex-wrap: wrap; gap: 4px; align-items: baseline; }
-.rel .k { font-family: var(--mono); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); width: 74px; }
-.rel button { all: unset; cursor: pointer; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); }
-.rel button.c { color: var(--combo); } .rel button.p { color: var(--pair); }
+.rel .k { font-family: var(--mono); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim); width: 60px; }
+.rel button { all: unset; cursor: pointer; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--combo); }
 .rel button:hover { border-color: currentColor; }
-.evo { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 6px; }
-.evo div { border: 1px solid var(--line); border-radius: 10px; padding: 6px 9px; font-size: 12.5px; background: var(--panel); }
-.evo div b { display: block; font-family: var(--display); font-size: 14px; }
-.evo div span { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--dim); }
-.els { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 8px; margin-bottom: 14px; }
+.tw { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+.els { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 8px; margin-block: 10px 14px; }
 .els div { font-size: 12.5px; border-top: 2px solid var(--c); padding-top: 6px; }
 .els div b { display: block; font-family: var(--display); font-size: 15px; color: var(--c); }
-.tw { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
-.tw h2 { font-family: var(--display); margin: 0 0 4px; font-size: 24px; }
-.tw > p { margin: 0 0 10px; color: var(--dim); max-width: 70ch; }
-.tws { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 8px; }
+.tws { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 8px; }
 .tws div { font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 6px; }
-.tws div b { display: block; } .tws div span { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
+.tws div b { display: block; }
+.cb { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 8px; margin-top: 10px; }
+.cb div { font-size: 12.5px; border-left: 3px solid var(--combo); padding: 2px 0 2px 9px; }
+.cb div b { display: block; color: var(--combo); } .cb div .tk { display: block; }
 @media (prefers-reduced-motion: reduce) { .w { transition: none; } }
 </style>
 <div class="wrap">
   <header>
     <h1>Spawn Prawn Weapon Atlas</h1>
-    <p>Every sequence, how it evolves, the weapons it brings, and how each weapon grows: a fork of upgrades at Lv 3, 5, 8 and 10 (pick one of each), its combos and its pairings. Tap a weapon's name to light up everything it works with.</p>
-    <div class="scale"><span><i></i>Combo (both Lv 5+, fuse for a new power)</span><span><i class="p"></i>Pairing (owning both is enough)</span><span>Lv 5 and 10: signature and mastery</span></div>
+    <p id="intro"></p>
+    <div class="scale"><span><i></i>Branch combo (both weapons at tier 3, with the named promises)</span><span>Tap a name to light up its combos</span></div>
   </header>
-  <div class="map"><svg id="ring" viewBox="0 0 760 760" role="img" aria-label="Ring map of all weapons, grouped by sequence, linked by combos and pairings"></svg><div class="side" id="side"></div></div>
+  <div class="map"><svg id="ring" viewBox="0 0 760 760" role="img" aria-label="Ring map of all weapons, grouped by damage type, linked by branch combos"></svg><div class="side" id="side"></div></div>
+  <div><h2 class="sec">Samples <small>who you play, and the three weapons each one offers first</small></h2><div class="smp" id="smp"></div></div>
   <nav class="seqs" id="nav"></nav>
   <div id="seqs" style="display:grid;gap:30px"></div>
-  <div class="tw"><h2>Damage types</h2><p>Nine damage types. Force is plain damage; the other eight each leave a status on what they hit, and landing a second type on top sets off an unstable reaction.</p><div class="els" id="els"></div><div class="tws" id="rxs"></div></div>
-  <div class="tw"><h2>Combo twists</h2><p>Change a combo weapon's damage type with Switched at Birth and the combo picks up the twist for its new pair of damage types, on top of what it already does.</p><div class="tws" id="tws"></div></div>
+  <div class="tw"><h2 class="sec">Combos <small id="cbn"></small></h2><p class="sub">A combo changes how two weapons behave together. Each needs both weapons at tier 3 with the promise named. It never sets off an unstable reaction by itself.</p><div class="cb" id="cb"></div></div>
+  <div class="tw"><h2 class="sec">Damage types</h2><p class="sub">Seven damage types. Each leaves its own status; landing a second type on top can set off an unstable reaction.</p><div class="els" id="els"></div><div class="tws" id="rxs"></div></div>
 </div>
 <script>
 const D = /*DATA*/null;
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const W = D.weapons, seqOf = {};
-for (const s of D.seqs) for (const w of s.weapons) (seqOf[w] = seqOf[w] || []).push(s);
-const rels = id => ({ combos: D.combos.filter(c => c.a === id || c.b === id).map(c => ({ other: c.a === id ? c.b : c.a, name: c.name, desc: c.desc })), pairs: D.pairs.filter(p => p.a === id || p.b === id).map(p => ({ other: p.a === id ? p.b : p.a, name: p.name, desc: p.desc })) });
-const elChip = e => `<span class="el" style="color:${D.elements[e].col}">${esc(D.elements[e].name)}</span>`;
-// ---- ring map
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+D.types.phys.col = '#8a9bb5'; // (the game's pale Force white vanishes on a light page)
+const W = D.weapons, T = D.types, ids = Object.keys(W);
+const byType = t => ids.filter(id => W[id].type === t);
+const sampleOf = id => D.samples.find(s => s.id === W[id].starter);
+const rels = id => D.combos.filter(c => c.a === id || c.b === id).map(c => ({ other: c.a === id ? c.b : c.a, mine: c.a === id ? c.pa : c.pb, theirs: c.a === id ? c.pb : c.pa, name: c.name, desc: c.desc }));
+const pname = (w, k) => ((W[w].promises.find(p => p.k === k)) || {}).name || k;
+const chip = t => `<span class="el" style="color:${T[t].col}">${esc(T[t].name)}</span>`;
+$('#intro').textContent = `v${D.version}. ${ids.length} weapons, ${D.samples.length} samples. Every weapon has three tiers of choice: a promise (pick one of three), a branch card (the promise's two, plus its wildcard), and a mastery (one weapon a run gets one). ${D.combos.length} branch combos tie the weapons together. Tap a weapon's name to light up everything it works with.`;
+// ---- ring map: weapons grouped by damage type
 const order = [], arcs = [];
-for (const s of D.seqs) { const st = order.length; for (const w of s.weapons) if (!order.includes(w)) order.push(w); arcs.push({ s, st, en: order.length }); }
+for (const t of D.order) { const st = order.length; byType(t).forEach(id => order.push(id)); arcs.push({ t, st, en: order.length }); }
 const N = order.length, cx = 380, cy = 380, R = 250, ang = i => (i / N) * Math.PI * 2 - Math.PI / 2, pt = (i, r) => [cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r];
 let svg = '';
-for (const a of arcs) { if (a.en === a.st) continue; const [x0, y0] = pt(a.st - 0.4, R + 8), [x1, y1] = pt(a.en - 0.6, R + 8), big = (a.en - a.st) / N > 0.5 ? 1 : 0; svg += `<path class="arc" stroke="${a.s.col}" d="M${x0},${y0} A${R + 8},${R + 8} 0 ${big} 1 ${x1},${y1}"><title>${esc(a.s.name)}</title></path>`; }
-const link = (a, b, k) => { const i = order.indexOf(a), j = order.indexOf(b); if (i < 0 || j < 0) return ''; const [x0, y0] = pt(i, R - 4), [x1, y1] = pt(j, R - 4); return `<path class="lk ${k}" data-a="${a}" data-b="${b}" d="M${x0},${y0} Q${cx},${cy} ${x1},${y1}"></path>`; };
-for (const p of D.pairs) svg += link(p.a, p.b, 'p');
-for (const c of D.combos) svg += link(c.a, c.b, 'c');
-order.forEach((id, i) => { const a = ang(i), [x, y] = pt(i, R + 22), deg = a * 180 / Math.PI, flip = Math.cos(a) < 0; svg += `<circle cx="${pt(i, R - 4)[0]}" cy="${pt(i, R - 4)[1]}" r="3.5" fill="${D.elements[W[id].elem].col}"></circle><text data-w="${id}" x="${x}" y="${y}" transform="rotate(${flip ? deg + 180 : deg} ${x} ${y})" text-anchor="${flip ? 'end' : 'start'}" dominant-baseline="middle">${esc(W[id].name)}</text>`; });
+for (const a of arcs) { if (a.en === a.st) continue; const [x0, y0] = pt(a.st - 0.4, R + 8), [x1, y1] = pt(a.en - 0.6, R + 8); svg += `<path class="arc" stroke="${T[a.t].col}" d="M${x0},${y0} A${R + 8},${R + 8} 0 ${(a.en - a.st) / N > 0.5 ? 1 : 0} 1 ${x1},${y1}"><title>${esc(T[a.t].name)}</title></path>`; }
+for (const c of D.combos) { const i = order.indexOf(c.a), j = order.indexOf(c.b); if (i < 0 || j < 0) continue; const [x0, y0] = pt(i, R - 4), [x1, y1] = pt(j, R - 4); svg += `<path class="lk" data-a="${c.a}" data-b="${c.b}" d="M${x0},${y0} Q${cx},${cy} ${x1},${y1}"><title>${esc(c.name)}</title></path>`; }
+order.forEach((id, i) => { const a = ang(i), [x, y] = pt(i, R + 22), deg = a * 180 / Math.PI, flip = Math.cos(a) < 0; svg += `<circle cx="${pt(i, R - 4)[0]}" cy="${pt(i, R - 4)[1]}" r="3.5" fill="${T[W[id].type].col}"></circle><text data-w="${id}" x="${x}" y="${y}" transform="rotate(${flip ? deg + 180 : deg} ${x} ${y})" text-anchor="${flip ? 'end' : 'start'}" dominant-baseline="middle">${esc(W[id].name)}</text>`; });
 $('#ring').innerHTML = svg;
 function sideHtml(id) {
-  if (!id) return `<span class="k">Ring map</span><h3>${N} weapons, ${D.seqs.length} sequences</h3><p>Coloured arcs are sequences. Solid lines are the ${D.combos.length} combos; dashed lines the ${D.pairs.length} pairings. Tap a name.</p>`;
-  const r = rels(id), w = W[id];
-  return `<span class="k">${(seqOf[id] || []).map(s => esc(s.name)).join(' / ')}</span><h3>${esc(w.name)}</h3>${elChip(w.elem)} <span class="role">${esc(w.role || '')}</span>
-    <ul>${r.combos.map(c => `<li><b class="c">${esc(c.name)}</b> with ${esc(W[c.other].name)}</li>`).join('')}${r.pairs.map(p => `<li><b class="p">${esc(p.name)}</b> with ${esc(W[p.other].name)}</li>`).join('')}</ul><a href="#w-${id}">Upgrade ladder</a>`;
+  if (!id) return `<span class="k">Ring map</span><h3>${N} weapons, ${D.combos.length} combos</h3><p>Coloured arcs are damage types. Each line is a branch combo. Tap a name.</p>`;
+  const r = rels(id), w = W[id], s = sampleOf(id);
+  return `<span class="k">${s ? 'Starter of ' + esc(s.name) : ''}</span><h3>${esc(w.name)}</h3>${chip(w.type)} <span class="role">${esc(w.atk)}</span>
+    <ul>${r.map(c => `<li><b class="c">${esc(c.name)}</b> with ${esc(W[c.other].name)}<br><span class="role">${esc(pname(id, c.mine))} + ${esc(pname(c.other, c.theirs))}</span></li>`).join('')}</ul><a href="#w-${id}">Open its tiers</a>`;
 }
 let focus = null;
 function setFocus(id) {
@@ -129,25 +130,28 @@ function setFocus(id) {
 }
 $('#ring').addEventListener('click', e => { const t = e.target.closest('text'); if (t) setFocus(t.dataset.w); });
 $('#side').innerHTML = sideHtml(null);
-// ---- sequences and weapons
-$('#nav').innerHTML = D.seqs.map(s => `<a href="#s-${s.id}"><span style="background:${s.col}"></span>${esc(s.name)}</a>`).join('');
-const LVN = { 3: 'Lv 3', 5: 'Lv 5', 8: 'Lv 8', 10: 'Lv 10' };
+// ---- samples
+$('#smp').innerHTML = D.samples.map(s => `<div style="--c:${T[s.types[0]].col}"><span class="k">Strain ${s.strain} | ${s.types.map(t => esc(T[t].name)).join(' / ')}</span><b>${esc(s.name)}</b><p><b style="display:inline;font-size:13px">${esc(s.passive)}</b>: ${esc(s.pdesc)}</p>${s.weapons.map(w => `<button data-go="${w}">${esc(W[w].name)}</button>`).join('')}</div>`).join('');
+// ---- weapons by damage type
+$('#nav').innerHTML = D.order.filter(t => byType(t).length).map(t => `<a href="#t-${t}"><span style="background:${T[t].col}"></span>${esc(T[t].name)}</a>`).join('') + '<a href="#cb">Combos</a>';
+const promise = p => `<details class="o"><summary><b>${esc(p.name)}</b><em>${esc(p.tag)}</em></summary><div class="in"><p>${esc(p.desc)}</p>
+  ${p.costs ? `<p><b>Costs:</b> ${esc(p.costs)}</p>` : ''}${p.shows ? `<p><b>Shows:</b> ${esc(p.shows)}</p>` : ''}${p.modes ? `<p><b>Autorun:</b> ${esc(p.modes)}</p>` : ''}
+  <div class="br"><span class="tk">Tier 3: pick one</span>${p.branches.map(b => `<p><b>${esc(b.name)}.</b> ${esc(b.desc)}</p>`).join('')}${p.wild ? `<p><b>${esc(p.wild.name)}</b> (wildcard). ${esc(p.wild.desc)}</p>` : ''}</div></div></details>`;
 const card = id => {
-  const w = W[id], r = rels(id);
-  const ladder = w.tree.map(t => `<div class="rung ${t.sig ? 'sig' : ''}"><div class="lv"><b>${LVN[t.lv]}</b>${t.lv === 10 ? 'mastery' : t.sig ? 'signature' : 'branch'}</div><div class="opts">${t.opts.map(o => `<details class="o"><summary>${esc(o.name)}</summary><p>${esc(o.desc)}</p></details>`).join('')}</div></div>`).join('');
-  const chips = (arr, k) => arr.map(x => `<button class="${k}" data-go="${x.other}" title="${esc(x.desc)}">${esc(x.name)}: ${esc(W[x.other].name)}</button>`).join('');
-  return `<article class="w" id="w-${id}" data-w="${id}"><h3><button data-f="${id}">${esc(w.name)}</button>${elChip(w.elem)}</h3><span class="role">${esc(w.role || '')}${w.seqOnly ? ' | sequence-only' : ''}</span><p class="play">${esc(w.play || '')}</p>
-    <div class="ladder">${ladder}</div>
-    <div class="rel">${r.combos.length ? `<div><span class="k">Combos</span>${chips(r.combos, 'c')}</div>` : ''}${r.pairs.length ? `<div><span class="k">Pairings</span>${chips(r.pairs, 'p')}</div>` : ''}</div></article>`;
+  const w = W[id], r = rels(id), s = sampleOf(id);
+  return `<article class="w" id="w-${id}" data-w="${id}"><h3><button data-f="${id}">${esc(w.name)}</button>${chip(w.type)}</h3><span class="role">${esc(w.atk)}${s ? ' | starts with ' + esc(s.name) : ''}</span><p class="play">${esc(w.desc)}</p>
+    <div class="tier"><div class="tk"><b>Tier 2</b>promise</div><div class="opts">${w.promises.map(promise).join('')}</div></div>
+    <div class="tier mast"><div class="tk"><b>Tier 4</b>mastery</div><div class="opts">${w.masteries.map(m => `<details class="o"><summary><b>${esc(m.name)}</b>${m.best.length ? `<em>best with ${esc(m.best.join(', '))}</em>` : ''}</summary><div class="in"><p>${esc(m.desc)}</p></div></details>`).join('')}</div></div>
+    ${r.length ? `<div class="rel"><div><span class="k">Combos</span>${r.map(c => `<button data-go="${c.other}" title="${esc(c.desc)}">${esc(c.name)}: ${esc(W[c.other].name)}</button>`).join('')}</div></div>` : ''}</article>`;
 };
-$('#seqs').innerHTML = D.seqs.map(s => `<section class="seq" id="s-${s.id}"><h2><span style="color:${s.col}">&#9679;</span>${esc(s.name)} <small>${esc(s.trait || '')} | ability: ${esc(s.ability || '')}</small></h2><p>${esc(s.desc || '')} ${esc(s.abilityDesc || '')}</p><div class="evo">${(s.evolve || []).map(e => `<div><span>EVOLVES AT LV ${e.lv}</span><b>${esc(e.name)}</b>${esc(e.desc)}</div>`).join('')}</div><div class="grid">${s.weapons.map(card).join('')}</div></section>`).join('');
+$('#seqs').innerHTML = D.order.filter(t => byType(t).length).map(t => `<section class="seq" id="t-${t}"><h2 class="sec"><span style="color:${T[t].col}">&#9679;</span>${esc(T[t].name)} <small>${esc(T[t].status)} | ${byType(t).length} weapons</small></h2><p class="sub">${esc(T[t].blurb)}</p><div class="grid">${byType(t).map(card).join('')}</div></section>`).join('');
 document.addEventListener('click', e => {
   const f = e.target.closest('[data-f]'); if (f) { setFocus(f.dataset.f); return; }
-  const g = e.target.closest('[data-go]'); if (g) { const el = document.getElementById('w-' + g.dataset.go); if (el) { el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); setFocus(g.dataset.go); if (focus !== g.dataset.go) setFocus(g.dataset.go); } }
+  const g = e.target.closest('[data-go]'); if (g) { const el = document.getElementById('w-' + g.dataset.go); if (el) { el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); if (focus !== g.dataset.go) setFocus(g.dataset.go); } }
 });
-$('#els').innerHTML = Object.values(D.elements).map(e => `<div style="--c:${e.col}"><b>${esc(e.name)}</b><span class="role">${esc(e.status || '')}</span><br>${esc(e.blurb || '')}</div>`).join('');
-$('#rxs').innerHTML = D.reactions.map(r => `<div><b>${esc(r.name)}</b>${esc(r.desc)}</div>`).join('');
-$('#tws').innerHTML = D.twists.map(t => `<div><span>${t.k.split('+').map(k => esc(D.elements[k].name)).join(' + ')}</span><b>${esc(t.name)}</b>${esc(t.desc)}</div>`).join('');
+// ---- combos, types, reactions
+$('#cbn').textContent = D.combos.length + ' in all';
+$('#cb').id = 'cb'; $('#cb').innerHTML = D.combos.map(c => `<div><b>${esc(c.name)}</b><span class="tk">${esc(W[c.a].name)} (${esc(pname(c.a, c.pa))}) + ${esc(W[c.b].name)} (${esc(pname(c.b, c.pb))})</span>${esc(c.desc)}</div>`).join('');
+$('#els').innerHTML = D.order.map(t => `<div style="--c:${T[t].col}"><b>${esc(T[t].name)}</b><span class="role">${esc(T[t].status)}</span><br>${esc(T[t].blurb)}</div>`).join('');
+$('#rxs').innerHTML = D.rx.map(r => `<div><span class="tk">${esc(T[r.a].name)} + ${esc(T[r.b].name)}</span>${esc(r.desc)}</div>`).join('');
 </script>
-
-</body></html>
