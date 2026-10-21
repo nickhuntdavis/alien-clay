@@ -1,5 +1,5 @@
 // V11 power curve (power11.js): no early one-shots on germs, damage falls off with range, small gains per level,
-// tougher early germs; bosses keep their own tuning.
+// tougher early germs; bosses keep their own tuning. Only your weapons' and Feats' hits (src.w) are touched.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -12,11 +12,13 @@ const { chromium } = require('playwright');
     const mk = (dx) => { const e = makeEnemy(ENEMIES.crawler, G.player.x + dx, G.player.y); G.enemies.push(e); fightCd(e); return e; };
     // Early: a huge hit takes at most half (crit included).
     const e1 = mk(100); out.hp = Math.round(e1.maxHp);
-    damageEnemy(e1, 1e6, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true });
+    damageEnemy(e1, 1e6, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true, w: G.weapons.find(Boolean) });
     if (e1.dead || e1.hp < e1.maxHp * 0.45) bad.push('early one-shot ' + e1.hp + '/' + e1.maxHp);
+    // A hazard (no weapon) is not limited.
+    const hz = mk(100); damageEnemy(hz, 1e6, { elem: 'phys', wname: 'Hot Flush', noCrit: true }); if (!(hz.dead || hz.hp <= 0)) bad.push('hazard hit limited');
     // Range: the same hit far away does less.
     const near = mk(100), far = mk(650); const d = near.maxHp * 0.2;
-    damageEnemy(near, d, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true }); damageEnemy(far, d, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true });
+    damageEnemy(near, d, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true, w: G.weapons.find(Boolean) }); damageEnemy(far, d, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true, w: G.weapons.find(Boolean) });
     out.near = +(near.maxHp - near.hp).toFixed(2); out.far = +(far.maxHp - far.hp).toFixed(2);
     if (!(out.far < out.near * 0.7)) bad.push('no range falloff ' + out.near + '/' + out.far);
     // Tougher early germs, normal later.
@@ -24,7 +26,7 @@ const { chromium } = require('playwright');
     out.hpK = +(h0 / h1).toFixed(2);
     if (!(out.hpK > 1.5)) bad.push('early germs not tougher ' + out.hpK);
     // Later: the limit has lifted.
-    const e2 = mk(100); damageEnemy(e2, 1e6, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true });
+    const e2 = mk(100); damageEnemy(e2, 1e6, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true, w: G.weapons.find(Boolean) });
     if (!(e2.dead || e2.hp <= 0)) bad.push('limit not lifted at ' + Math.round(PT()) + 's');
     // Levels: attack rate and health grow a little.
     const hs = G.P.haste, mh = G.P.maxHp; G.p11L = G.level; G.level += 3; levelJuice(G.level);

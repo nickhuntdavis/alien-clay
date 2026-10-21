@@ -10,6 +10,7 @@
 //    (healed as it grows).
 //  - Range: a direct hit on something more than P11.near from you loses damage, down to P11.farK at P11.far and beyond.
 //    Pools, damage over time, reactions and allies' hits are not range-checked (they land where they are, not from you).
+//  - Only your own weapons' and Feats' hits (src.w): hazards, terrain and run events are untouched.
 //  - Bosses, rivals and the egg keep their own tuning (range still applies). Off on the Lab Bench and in the Sandbox
 //    (G.debug), and under V10_OFF.
 // Hooks: none in shared files. Wraps game.js makeEnemy, fight.js fightHit (before defences and the other multipliers)
@@ -39,7 +40,7 @@ const p11FoeHp = () => 1 + (P11.foeHp - 1) * Math.max(0, 1 - PT() / P11.foeFade)
 {
   const fh = fightHit, lj = levelJuice, mk = makeEnemy;
   fightHit = function (e, d, src, crit) {
-    if (p11On() && !src.dot && !src.rx && !src.fromAlly) {
+    if (p11On() && src.w && !src.dot && !src.rx && !src.fromAlly) { // (src.w: your weapons and Feats; hazards, terrain and events keep their damage)
       d *= p11Range(e, src);
       if (!p11Big(e)) {
         d *= p11Lv();
