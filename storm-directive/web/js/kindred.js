@@ -10,6 +10,8 @@
 //    The weapon you pick is equipped straight away on a new mount (KIN.mount). Weapons in a race: the first, a
 //    draft at Lv 5 (KIN.slots, not SLOT_LEVELS' Lv 12) and one per rescue: four drafts, four weapons.
 //    If you already hold every carried weapon, drafts fall back to the whole roster (never an empty screen).
+//  - The rescue screen has the rescued sample's live portrait at the top (kinPic). Picking a weapon or skipping plays the
+//    fusion (kinFuse): you and it swim together, flash, and you come out wearing its look; the run stays paused.
 //  - Which sample: one you have never rescued (META.s10, read directly so S10_ALL does not hide it), else any other one
 //    you are not carrying. KIN.skip keeps proposed samples out.
 // Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool; game.js levelling -> kinSlotLv. Wraps v10Tick, v10Draw, draftBox, v10Loot,
@@ -116,7 +118,7 @@ function kinTail(own, g, t, k, a, now, B, sc) {
     tails.forEach((id, i) => SL_TAIL[id](t.slice(at[i + 1], at[i + 2] + 1), k, a, now, B, sc));
   }
   if (g.includes('alien')) { // (its glow, in Adaptive Biology's current colour)
-    const c = ELEMENTS[S10_BY.alien.shift[(G.s10.shiftI || 0) % 3]].color;
+    const c = ELEMENTS[S10_BY.alien.shift[((G.s10 && G.s10.shiftI) || 0) % 3]].color;
     ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a * (0.5 + 0.2 * Math.sin(now * 4)); drawTail(t, c, 2.6 * k, 3.4 * k);
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a;
   }
@@ -148,7 +150,7 @@ function kinPointers(pointer) {
   const tick = v10Tick, draw = v10Draw, box = draftBox, loot = v10Loot, open = UI.openLoot, sl = slDraw;
   // Your body wears what you absorbed (samplelooks.js slDraw, you only).
   slDraw = function (id, x, y, face, tag, alpha, scale, body, now) {
-    const T = SL_TAIL[id], g = G && body === G.player && G.kin ? kinGrafts() : [];
+    const T = SL_TAIL[id], g = body.kinG || (G && body === G.player && G.kin ? kinGrafts() : []); // (body.kinG: the fusion's bodies)
     if (!g.length) return sl(id, x, y, face, tag, alpha, scale, body, now);
     SL_TAIL[id] = (t, k, a, n, B, sc) => kinTail(T, g, t, k, a, n, B, sc);
     try { sl(id, x, y, face, tag, alpha, scale, body, now); } finally { SL_TAIL[id] = T; }
@@ -167,4 +169,101 @@ function kinPointers(pointer) {
     $('dTitle').textContent = 'CHOOSE YOUR DIFFERENCE';
     $('dSub').textContent = sm.pdesc;
   };
+  // Its live portrait above the heading (hidden on every other draft); the pick or the skip plays the fusion.
+  const od = UI.openDraft, pk = UI.pickLoot;
+  UI.openDraft = function (req) { od.call(UI, req); kinPic(req.kin || null); };
+  UI.pickLoot = function (i, wuid) {
+    const r = UI.lootReq; pk.call(UI, i, wuid);
+    if (r && r.kin && G && G.state === 'play') kinFuse(r.kin);
+  };
+}
+
+// ---------------------------------------------------------------- the rescue screen's portrait and the fusion
+// The Weapon Draft screen, for a rescue, has the rescued sample swimming at the top (samplelooks.js slPicStart).
+// (position:relative because canvases are absolute by default.)
+function kinPic(id) {
+  let cv = $('kinPic');
+  if (!cv && !id) return;
+  if (!cv) { cv = document.createElement('canvas'); cv.id = 'kinPic'; cv.style.cssText = 'position:relative;inset:auto;display:block;width:100%;margin:0 auto 6px'; $('dKick').parentNode.insertBefore(cv, $('dKick')); }
+  if (!id) { cv.style.display = 'none'; delete cv.dataset.slpic; return; }
+  cv.style.display = 'block'; cv.style.height = (id === 'alien' ? 140 : 120) + 'px'; cv.width = cv.height = 0;
+  cv.dataset.slpic = id;
+  if (typeof slPicStart === 'function') slPicStart();
+}
+
+// After the pick (or the skip): the two of you swim together, meet in a flash, and what comes out is you with its
+// look grafted on (kinGrafts). The run stays paused; a tap after KIN.fuseMin seconds, or KIN.fuseMax, closes it.
+Object.assign(KIN, { fuseMeet: 1.3, fuseFlash: 0.6, fuseMin: 2.6, fuseMax: 5 });
+function kinFuse(id) {
+  const you = G.s10.id, all = kinGrafts(), before = all.filter(x => x !== id);
+  let el = $('kinFuse');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'kinFuse';
+    el.style.cssText = 'position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#2a200a,#000 70%)';
+    el.innerHTML = '<canvas style="position:relative;inset:auto;width:100vw;height:58vh;display:block"></canvas><div class="kf-n" style="font:900 22px sans-serif;letter-spacing:3px;color:#ffd23f;text-align:center;opacity:0;transition:opacity .5s;padding:0 16px"></div>';
+    document.body.appendChild(el);
+  }
+  const cv = el.querySelector('canvas'), nm = el.querySelector('.kf-n');
+  nm.textContent = `${S10_BY[you].name.toUpperCase()} + ${S10_BY[id].name.toUpperCase()}`; nm.style.opacity = 0;
+  el.style.display = 'flex';
+  G.state = 'loot'; // (paused while it plays)
+  const F = { you, id, t0: performance.now(), done: false,
+    a: { x: -70, y: 0, vx: 140, vy: 0, tailV: 140, id: -3, kinG: before },
+    b: { x: 70, y: 0, vx: -140, vy: 0, tailV: 140, id: -4 },
+    r: { x: 0, y: 0, vx: 140, vy: 0, tailV: 140, id: -5, kinG: all } };
+  UI.kinFuse = F;
+  const close = () => {
+    if (F.done) return; F.done = true; el.style.display = 'none'; UI.kinFuse = null;
+    if (G && G.state === 'loot') G.state = 'play';
+    lastTs = performance.now();
+  };
+  el.onpointerdown = e => { e.stopPropagation(); if ((performance.now() - F.t0) / 1000 >= KIN.fuseMin) close(); };
+  sfx('level'); vibrate(120);
+  const frame = () => {
+    if (F.done) return;
+    const T = (performance.now() - F.t0) / 1000;
+    if (T >= KIN.fuseMax) { close(); return; }
+    requestAnimationFrame(frame);
+    const dpr = window.devicePixelRatio || 1;
+    if (cv.width !== Math.round(cv.clientWidth * dpr)) { cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr); }
+    kinFuseDraw(cv, F, T);
+    if (T > KIN.fuseMeet + KIN.fuseFlash * 0.6) nm.style.opacity = 1;
+  };
+  requestAnimationFrame(frame);
+}
+// One frame of the fusion, drawn with the world's own sample bodies (borrows the drawing globals like slPicDraw).
+function kinFuseDraw(cv, F, T) {
+  const g = cv.getContext('2d'), keep = { ctx, S, W, H, cx: cam.x, cy: cam.y, G }, real = G;
+  try {
+    ctx = g; W = cv.width; H = cv.height; S = Math.min(W / 240, H / 110); cam.x = 0; cam.y = 0; // (about 240 world units across: a whole fused sperm fits a phone's width)
+    G = { realT: T, s10: real.s10 };
+    g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
+    const rawc = RAW_COL; RAW_COL = true;
+    const body = (id, b, face, alpha, scale) => {
+      if (id === 'alien') { if (typeof alienDraw === 'function') alienDraw(sx(b.x), sy(b.y), face, null, alpha, scale, b, T, ELEMENTS[S10_BY.alien.shift[0]].color, 'curious'); return; }
+      if (!SL[id]) return;
+      const nat = id === 'baseline' || id === 'alpha' || id === 'beta';
+      slDraw(id, sx(b.x), sy(b.y), face, nat ? PAL.you : null, alpha, scale, b, T);
+    };
+    const m = KIN.fuseMeet, f = KIN.fuseFlash;
+    if (T < m + f * 0.5) { // swimming in, head to head
+      const e = Math.min(1, T / m), k = e * e * (3 - 2 * e);
+      F.a.x = -70 + 58 * k; F.b.x = 70 - 58 * k; F.a.y = Math.sin(T * 5) * 3; F.b.y = -Math.sin(T * 5) * 3;
+      const al = T < m ? 1 : 1 - (T - m) / (f * 0.5);
+      glow(W / 2, H / 2, (20 + 40 * k) * S, '#ffd23f', 0.25 * k);
+      body(F.you, F.a, 0, al, 1.3); body(F.id, F.b, Math.PI, al, 1.3);
+    }
+    if (T >= m && T < m + f) { // the flash
+      const p = (T - m) / f, a = Math.sin(p * Math.PI);
+      g.globalCompositeOperation = 'lighter'; glow(W / 2, H / 2, (30 + 90 * p) * S, '#fff2c0', a); g.globalCompositeOperation = 'source-over';
+      g.globalAlpha = a; g.strokeStyle = '#ffd23f'; g.lineWidth = 3; g.beginPath(); g.arc(W / 2, H / 2, (20 + 120 * p) * S, 0, TAU); g.stroke(); g.globalAlpha = 1;
+    }
+    if (T >= m + f * 0.5) { // what came out: you, wearing it
+      const p = Math.min(1, (T - m - f * 0.5) / 0.6);
+      F.r.y = Math.sin(T * 2) * 3; F.r.x = 48 + Math.sin(T * 0.9) * 4; // (head right of centre: the long tail trails left)
+      glow(W / 2, H / 2, 70 * S, '#ffd23f', 0.15 * p);
+      body(F.you, F.r, 0, p, 1 + 0.2 * p);
+    }
+    RAW_COL = rawc;
+  } finally { ctx = keep.ctx; S = keep.S; W = keep.W; H = keep.H; cam.x = keep.cx; cam.y = keep.cy; G = keep.G; g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
 }

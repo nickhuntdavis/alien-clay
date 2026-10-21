@@ -1,3 +1,11 @@
+## 2026-10-21 Rescue made a big deal: portrait, pick or skip, fusion animation (v10.55)
+- Systems: kindred, ui (reward screens)
+- Files: kindred.js, v11ui.js, tests/kindredtest.js, tests/tools/guide.js, ARCHITECTURE.md
+- What: the rescue's Weapon Draft screen shows the rescued sample swimming at the top; pick one of its weapons or skip; either way a fusion plays (the two swim together, flash, and your new grafted body swims out, with both names). Paused throughout; tap to close after 2.6 s, closes itself at 5 s.
+- Save data: none.
+- Hooks: none new (kindred.js wraps UI.openDraft and UI.pickLoot; v11ui.js v11Skip calls kinFuse).
+- Risk: none beyond the screens; the fusion borrows the drawing globals for its frames (as slPicDraw does).
+
 ## 2026-10-21 One pick per screen; stacked rewards come back to back (v10.54)
 - Systems: reward director, ui (reward screens)
 - Files: director.js, v11ui.js, v10.js, tests/drafttest.js

@@ -21,9 +21,11 @@ function v11Head(req) {
 const v11Chain = () => { if (G && G.state === 'play' && G.lootQueue.length && typeof dirS === 'function') dirS().chain = G.t; };
 function v11Skip() {
   if (!G || G.state !== 'loot' || UI.v11Draft !== UI.lootReq || UI.lootReq.kind !== 'slot' || performance.now() - UI.lootOpenT < 500) return;
+  const kin = UI.lootReq.kin;
   clearPreviews(); G.rerolls += V11UI.skipRerolls; sfx('pickup');
   G.state = 'play'; UI.v11Draft = null; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now();
   v11Chain();
+  if (kin && typeof kinFuse === 'function') kinFuse(kin); // (a rescue still fuses: kindred.js)
 }
 
 {

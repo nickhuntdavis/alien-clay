@@ -55,6 +55,21 @@ const { chromium } = require('playwright');
     if (BOX_LOOK_ON || SIV_DRAFT) bad.push('box looks or tier screens still on');
     // Draw paths: world and chevrons.
     try { v10Draw(); kinPointers(() => {}); } catch (e) { bad.push('draw ' + e.message); }
+    // The rescue screen's portrait, then the fusion after a pick and after a skip (pauses, closes on a late tap).
+    for (const how of ['pick', 'skip']) {
+      UI.show('hud'); G.state = 'play'; G.lootQueue = [];
+      UI.openLoot({ kind: 'kindred', id: 'redtail', now: true }); UI.lootOpenT -= 1000;
+      const pic = document.getElementById('kinPic');
+      if (!pic || pic.style.display === 'none' || pic.dataset.slpic !== 'redtail') bad.push(how + ': no portrait');
+      if (how === 'pick') UI.pickLoot(0); else document.getElementById('dSkip').click();
+      const el = document.getElementById('kinFuse');
+      if (!el || el.style.display !== 'flex' || G.state !== 'loot' || !UI.kinFuse) { bad.push(how + ': no fusion ' + G.state); continue; }
+      try { kinFuseDraw(el.querySelector('canvas'), UI.kinFuse, 0.5); kinFuseDraw(el.querySelector('canvas'), UI.kinFuse, 1.6); kinFuseDraw(el.querySelector('canvas'), UI.kinFuse, 3); } catch (e) { bad.push('fusion draw ' + e.message); }
+      UI.kinFuse.t0 -= 3000; el.onpointerdown({ stopPropagation() {} });
+      if (el.style.display !== 'none' || G.state !== 'play') bad.push(how + ': fusion did not close');
+    }
+    UI.openLoot({ kind: 'slot' }); if (document.getElementById('kinPic').style.display !== 'none') bad.push('portrait on an ordinary draft');
+    UI.show('hud'); G.state = 'play';
     // Not a race: no spirits.
     META.profile = 's10_baseline'; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 400; v10Tick(0.016);
     if (G.kin && G.kin.spirits.length) bad.push('spirit in the Petri Dish');
