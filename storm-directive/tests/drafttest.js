@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;
+    META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; // (Baseline: a starter with branch cards, not a v9 weapon)
     genLoot({ kind: 'start' })[0].apply();
     const w = G.weapons.find(Boolean);
     // A test card and a test Feat with forks

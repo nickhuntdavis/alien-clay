@@ -16,6 +16,8 @@
 - Open: Immune Response has no v10 entry point (only the v9 sequence screen had the control). Daily Challenge has no entry point while its title button is hidden.
 - Open: How to Play text is out of date (mentions Cooties, Oil, Water, 29 reactions, v9 modifiers); copy for the user to rewrite.
 
+- (`claude/determined-goldberg-3z778m`) v9 weapons, samples, combos and fusions are back (`v9arms.js`, `samples9.js`): 91 live weapons, 20 samples. Copy still to rewrite: about 25 combo/pairing and 11 weapon descriptions naming retired types or old weapon names; `TODO_COPY:s9_origin`, `s9_family`. v9 weapon balance untuned under v10 (`node tests/v9armstest.js` prints 8 s solo damage).
+
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
 

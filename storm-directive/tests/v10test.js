@@ -12,8 +12,8 @@ const { chromium } = require('playwright');
   await page.screenshot({ path: 'v10_samples.png' });
   const bad = [];
   const NAMES = ['Baseline', 'Alpha', 'Beta', 'Private Schooled', 'Ordered Online', 'Redtail', 'Prawn Again', 'Not of This World'];
-  const nine = await page.evaluate(() => typeof S10_BY.acro !== 'undefined'); // (PROPOSED Sample 9, acrosample.js, is a ninth card while it is loaded)
-  if (cards.length !== (nine ? 9 : 8) || NAMES.some((n, i) => !cards[i].includes(n) || /LOCKED/.test(cards[i]))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples, all open: samples10.js)
+  const nine = await page.evaluate(() => typeof S10_BY.acro !== 'undefined'), v9n = await page.evaluate(() => SAMPLES10.filter(s => s.v9).length); // (the v9 samples follow: samples9.js) // (PROPOSED Sample 9, acrosample.js, is a ninth card while it is loaded)
+  if (cards.length !== (nine ? 9 : 8) + v9n || NAMES.some((n, i) => !cards[i].includes(n) || /LOCKED/.test(cards[i]))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples, all open: samples10.js)
   await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
   const modes = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-mode]')].map(b => b.dataset.mode));
   if (modes.join() !== 's001,s002,s006,s007') bad.push('experiments: ' + modes); // (design system v2: The Race, the Petri Dish, Endless and Level 1)

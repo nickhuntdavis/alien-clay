@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
     const run = s => { let jump = 0, prev = G.stam.cur; for (let i = 0; i < s * 60; i++) { update(1 / 60); jump = Math.max(jump, G.stam.cur - prev); prev = G.stam.cur; } return jump; };
     const dealt = () => Object.values(G.stats.dmg).reduce((a, v) => a + v, 0);
     const slot1 = () => G.spells[0];
-    for (const s of SAMPLES10) {
+    for (const s of SAMPLES10.filter(s => !s.v9)) { // (v9 samples have a starting ability, not a Unique Feat)
       start(s.id);
       const w = slot1(), fid = UNIQ[s.id];
       if (!w || w.id !== 'f10_' + fid) bad.push(s.id + ' slot 1 is ' + (w && w.id));
