@@ -7,7 +7,8 @@
 - Sperm passives: from level-up drafts only; 2 slots, then +1 at run Lv 8, 16 and 24; defences use these slots. 3 levels plus one mastery. One sperm-passive mastery per build; Extra Mastery adds one of either kind.
 - **Three weapons per run at most.** The 2 bonus mounts from weapon combos (`combos.js` `COMBO_MOUNTS`) are retired.
 - The Laser (Fire Beam) is Ordered Online's **4th starter**.
-- Gene boxes and elite mutation drops are retired; relics stay as they are.
+- Gene boxes, Epigenetic Profiles and elite mutation drops are retired; relics stay as they are.
+- No base Membrane: the membrane bubble only comes from the Membrane Shield card.
 - The old weapon branch cards (promise Lv 3, choice Lv 6, mastery Lv 10) are scrapped in favour of modifiers.
 
 ## What the code already has
@@ -22,9 +23,8 @@
 | `kindred.js`, `combos.js`, `fusion.js` | Race rescues (fill the 3 mounts) and combo bonus mounts (retire the mounts, keep the fusions). |
 | `wstats.js` | Per-weapon telemetry for sims. |
 
-## Blockers (decide before Phase 2)
-1. **Epigenetic Profiles** (`genes.js`, a pre-run gene pick): retire with the gene box, or keep?
-2. **Base Membrane:** every run starts with one (`pdef.js`). Keep it with Membrane Shield upgrading it, or remove it so the bubble only comes from the card?
+## Blockers
+None. Settled 22 Oct: **Epigenetic Profiles are retired** with the gene box (Phase 1), and **the base Membrane is removed**: the bubble only comes from the Membrane Shield card (Phase 1 turns the base Membrane off in `pdef.js`; Phase 3 builds the card).
 
 ## Phases
 
@@ -34,7 +34,7 @@
 - Done when: no doc disagrees with the matrix or the passives doc.
 
 ### Phase 1: Retire (1 session, Sonnet)
-- Behind flags, nothing deleted (other branches hook into these files): `mutdrop.js` (elite drops), the gene box in `genes.js`, `wup1.js` to `wup6.js` (branch cards), the Genome mutation cards in `mutations.js`, and combo bonus mounts (`COMBO_MOUNTS` 0; fusions keep their other effects).
+- Behind flags, nothing deleted (other branches hook into these files): `mutdrop.js` (elite drops), the gene box and Epigenetic Profiles in `genes.js`, the base Membrane in `pdef.js`, `wup1.js` to `wup6.js` (branch cards), the Genome mutation cards in `mutations.js`, and combo bonus mounts (`COMBO_MOUNTS` 0; fusions keep their other effects).
 - Update the tests that use them; never skip a test.
 - Done when: a run plays with weapons, Feats, defences and the existing modifier cards only, at most 3 weapons, and `./run.sh quick` passes.
 

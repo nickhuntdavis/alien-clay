@@ -109,3 +109,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none in code yet; combos.js/fusion.js bonus mounts change in Phase 1.
+
+## 2026-10-22 Profiles retired; no base Membrane (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/IMPLEMENTATION_PLAN.md, SPERM_PASSIVES.md
+- What: Epigenetic Profiles retire with the gene box; runs no longer start with a Membrane (only the Membrane Shield card gives one). Plan has no blockers left.
+- Save data: none yet (Profiles' META keys stay readable when retired in Phase 1).
+- Hooks: none.
+- Risk: none in code yet; removing the base Membrane will shift difficulty (sim in Phase 4).

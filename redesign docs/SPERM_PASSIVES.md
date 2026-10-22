@@ -32,7 +32,7 @@ Names in quotes are card names: existing ones, plus drafts by Claude where the u
 
 | Passive | Lv 1 | Lv 2 and 3 | Mastery |
 |---|---|---|---|
-| Membrane Shield (the Membrane defence, `DEFENCE_TYPES.md`) | A regenerating membrane bubble round the sperm (Membrane rules: blue bubble, strong recharge tell). | Lv 2, Expansion: a wider shield radius. Lv 3, Rapid Recovery: a shorter recharge. | **Internal Ricochet:** your own projectiles bounce off the inside of the membrane instead of escaping. A high-level transformation, because it changes how every weapon works. |
+| Membrane Shield (the Membrane defence, `DEFENCE_TYPES.md`; the only source of the player's membrane, as runs no longer start with one: user, 22 Oct) | A regenerating membrane bubble round the sperm (Membrane rules: blue bubble, strong recharge tell). | Lv 2, Expansion: a wider shield radius. Lv 3, Rapid Recovery: a shorter recharge. | **Internal Ricochet:** your own projectiles bounce off the inside of the membrane instead of escaping. A high-level transformation, because it changes how every weapon works. |
 | Squishy (defence) | Knockback taken -50%; you squash on hit. | -65%, then -80%. | You squash through gaps between enemies; Contact hits while squeezing do half damage. |
 | Shell (defence) | 1 armour layer: cuts each hit by a flat amount; lost layers are gone for good. | 2, then 3 layers. | A lost layer regrows once per wave. |
 | Thorns (defence) | Enemies that hit you with Contact take 20% of it back. | 35%, then 50%. | Thorns also answers enemy bullets that hit you, at half. |
