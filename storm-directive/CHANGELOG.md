@@ -2,6 +2,25 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.66: 2026-10-22 v9 samples, weapons, combos and fusions back; Dinner Time fix; suite green
+- Merged: claude/determined-goldberg-3z778m.
+
+### Folded from claude/determined-goldberg-3z778m: 2026-10-22 Dinner Time works again; red tests fixed (v10.66)
+- Systems: weapons (Sister Cousin branch), tests
+- Files: wup5.js, tests/wup5test.js, wup6test.js, weapons24test.js, loadouttest.js, wup1test.js
+- What: a Dinner Time sibling gets a fresh range of flight with each kill, so it can reach three kills and swim home (since reach stopped growing with level on 20 Oct it ran out after two). Tests: wup5/wup6 run with the V11 power curve off like wup1 to wup4 (they test card mechanics, not pacing); wup6's egg-cap checks keep enemies off the eggs (they were flaky); weapons24test counts the 24 apart from Sample 9's and the v9 weapons; loadouttest expects the Tackle Box in the bottom row (design system v2 dock); wup1test's Hiccups average takes 4000 samples (400 failed by chance about 1 run in 20).
+- Save data: none
+- Hooks: none
+- Risk: Dinner Time siblings fly a little longer after a kill.
+
+### Folded from claude/determined-goldberg-3z778m: 2026-10-22 v9 samples, weapons, combos and fusions back under v10 (v10.65)
+- Systems: weapons, samples, combos, ui (Sample Rack, Field Guide)
+- Files: v9arms.js (new), samples9.js (new), index.html, tests/v9armstest.js (new), tests/run.sh, tests/drafttest.js, samplestest.js, ufeatstest.js, v10test.js (only v10 samples where a test assumes a Unique Feat or Baseline's starters), ARCHITECTURE.md, GAME_GUIDE.md
+- What: all 64 v9 weapons not already live are back in every weapon draft (91 live weapons). The retired types are re-typed (Cooties to Alien, Oil to Fire, Water to Mucus) and each has one attack type. They have no branch cards, so their tier screens (every 4th level, internal Lv 3 / 6 / 10) offer three fitting v10 modifier cards instead, which also lets them reach Lv 5 for their combos. Their 59 Combos, 40 Pairings and 5 Super Combos (fusion ceremony) can happen again and show in the Field Guide. The 11 v9 samples sit in the Sample Rack after the v10 ones, with their v9 traits, starting abilities and starters.
+- Save data: META.v9pick added (the v9 sample last picked).
+- Hooks: none in shared files (rows pushed into weapons24.js W24/W24_IDS/W24_BY/W24_DESC and SAMPLES10/S10_BY/KIN.skip; wraps weapons24.js wupNextLv and wupForkCards, UI.startGame, genesStart and slPicStart).
+- Risk: the 27 come up far less often in drafts (91-weapon pool). v9 weapon balance under v10 combat is untuned (8 s solo damage: median level with the 27, a few outliers both ways). About 25 combo and 11 weapon descriptions still name retired types or old weapon names (copy for the user). New copy placeholders: TODO_COPY:s9_origin, TODO_COPY:s9_family (Field Guide samples list).
+
 ## v10.64: 2026-10-22 Design system v2 port (e-ink menus, pictograms, Immersive-only HUD, Figma screens)
 - Merged: ccr-ui-port (local session, applied on v10.61 and merged with main at v10.63).
 - Merge: no conflicts. Tests updated to the port's intended copy and order: kindredtest (WEAPON DRAFT, LEVEL UP headings), v10test (mode order Race, Petri Dish, Endless, Level 1). Still failing, as at hand-off and not UI: weapons24test, wup5test, wup6test.

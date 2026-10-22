@@ -8,8 +8,9 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    if (W24_IDS.length !== 24 || W24_IDS.some(id => !WEAPONS[id])) bad.push('roster ' + W24_IDS.filter(id => !WEAPONS[id]));
-    if (v10Pool().length !== 24 - W24_HOLD.length || v10Pool().some(id => W24_HOLD.includes(id))) bad.push('pool ' + v10Pool().length); // (minus the weapons on hold)
+    const n = W24_IDS.length - (typeof V9_IDS !== 'undefined' ? V9_IDS.length : 0) - W24.filter(r => r[4] === 'acro').length; // (the 24 plus Sample 9's three, acro.js, and the v9 weapons, v9arms.js)
+    if (n !== 24 || W24_IDS.some(id => !WEAPONS[id])) bad.push('roster ' + n + ' ' + W24_IDS.filter(id => !WEAPONS[id]));
+    if (v10Pool().length !== W24_IDS.length - W24_HOLD.length || v10Pool().some(id => W24_HOLD.includes(id))) bad.push('pool ' + v10Pool().length); // (minus the weapons on hold)
     const def = Object.values(ENEMIES).find(d => d.ai === 'chase') || Object.values(ENEMIES)[0], rows = [];
     for (const id of W24_IDS) {
       UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;

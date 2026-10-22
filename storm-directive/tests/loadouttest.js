@@ -1,5 +1,5 @@
 // Tackle Box LOADOUT tab (loadout.js): opens first, autorun and targets change, per-Feat timing, combo tracker,
-// YOUR BUILD from a card screen returns to the cards; immersive layout (menus top, actions bottom). Screenshots.
+// YOUR BUILD from a card screen returns to the cards; immersive layout (pause and speed top, Tackle Box, Rewind and Autorun bottom). Screenshots.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 2 });
@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
   await page.screenshot({ path: 'immersive_hud.png' });
   const lay = await page.evaluate(() => { const y = id => document.getElementById(id).getBoundingClientRect().top; return { imm: document.body.classList.contains('immersive'), pause: y('pauseBtn'), arm: y('armBtn'), spd: y('spdBtn'), move: y('moveBtn') }; });
   console.log('layout', JSON.stringify(lay));
-  if (!lay.imm || lay.pause > 100 || lay.arm > 100 || lay.spd > 100 || lay.spd < 5 || lay.move < 600) fails.push('immersive layout');
+  if (!lay.imm || lay.pause > 100 || lay.arm < 600 || lay.spd > 100 || lay.spd < 5 || lay.move < 600) fails.push('immersive layout');
   await page.click('#armBtn'); await page.waitForTimeout(200);
   const r = await page.evaluate(() => ({ tab: UI.arm.k, rows: document.querySelectorAll('#armBody .low').length, combos: document.querySelectorAll('#armBody .loc').length }));
   console.log('loadout', JSON.stringify(r));

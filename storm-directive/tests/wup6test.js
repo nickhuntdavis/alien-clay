@@ -7,6 +7,7 @@ const { chromium } = require('playwright');
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
+  await page.evaluate(() => { if (typeof P11 !== 'undefined') Object.assign(P11, { cap: 99, start: 1, dmgTo: 1, dmgLv: 0, farK: 1, foeHp: 1 }); }); // (weapon mechanics, not pacing: the V11 power curve off, power11.js)
   const r = await page.evaluate(() => {
     const bad = [], rows = [];
     const def = Object.values(ENEMIES).find(d => d.ai === 'chase') || Object.values(ENEMIES)[0];
@@ -93,7 +94,9 @@ const { chromium } = require('playwright');
           c.each = f => {
             const own = eggsOf(c).length; c.max.own = Math.max(c.max.own || 0, own);
             if (((kind === 'l6' && key === 'C' && i < 2) || (kind === 'l6' && key === 'A' && i === 1 && f < 150)) && !(f === 150)) for (const t of eggsOf(c)) for (const e of G.enemies) if (!e.w6used && Math.hypot(e.x - t.x, e.y - t.y) < 36) { e.x += 70; e.y += 70; } // keep greedy neighbours off the eggs: these cards need an egg that waits
-            if (f % 25 === 12 && !(kind === 'l6' && key === 'A' && i === 1) && !(kind === 'l3' && key === 'B')) take();
+            const capTest = (kind === 'l6' && key === 'A' && i === 0) || (kind === 'l10' && i === 1); // (egg caps: nothing may eat the eggs, or the count depends on who wanders onto them)
+            if (capTest) for (const t of eggsOf(c)) for (const e of G.enemies) if (Math.hypot(e.x - t.x, e.y - t.y) < 60) { e.x += 120; e.y += 120; }
+            if (f % 25 === 12 && !capTest && !(kind === 'l6' && key === 'A' && i === 1) && !(kind === 'l3' && key === 'B')) take();
             if (kind === 'l6' && key === 'A' && i === 1 && f === 150) { const E = eggsOf(c).slice(0, 3); if (E.length === 3) E.forEach((t, k) => { const e = G.enemies[k]; moveOnto(e, t); e.w6used = 1; }); }
             if (kind === 'l3' && key === 'B' && f === 120) { const e = G.enemies.find(q => !q.dead && toothLure(q)); if (e) { e.x = 40; e.y = 0; hurtPlayer(5, 'test', e, 'contact'); } else c.max.nolure = 1; }
             if (kind === 'l6' && key === 'C' && i === 2 && f === 100) hurtPlayer(5, 'test', G.enemies[0], 'contact');

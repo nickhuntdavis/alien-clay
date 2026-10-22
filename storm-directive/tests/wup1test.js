@@ -239,8 +239,8 @@ const { chromium } = require('playwright');
     block('MG C hiccups', () => {
       const b = scene(MG, []); const cd0 = b.w.s.cd; const s = scene(MG, [[100, 0]]); pick(s.w, 3, 2); pick(s.w, 6, 2);
       chk('MG Hiccups faster', Math.abs(s.w.s.cd / cd0 - 0.8) < 0.001, [s.w.s.cd, cd0]);
-      let dbl = 0, sum = 0; for (let i = 0; i < 400; i++) { s.w.cd = 0; G.proj.length = 0; fireWeapon(s.w, s.es[0]); const d = s.w.cd / s.w.s.cd; sum += d; if (d < -0.9) dbl++; }
-      chk('MG Hiccups sometimes fire twice, about 30% faster overall', dbl > 40 && dbl < 130 && (s.w.s.cd * (1 + sum / 400)) / cd0 < 0.8, [dbl, sum / 400]); ring12(card(MG, 2, 6, 2), 'MG Hiccups');
+      let dbl = 0, sum = 0; for (let i = 0; i < 4000; i++) { /* (4000 samples: the average is only about 4% under, so 400 failed by chance about 1 run in 20) */ s.w.cd = 0; G.proj.length = 0; fireWeapon(s.w, s.es[0]); const d = s.w.cd / s.w.s.cd; sum += d; if (d < -0.9) dbl++; }
+      chk('MG Hiccups sometimes fire twice, about 30% faster overall', dbl > 400 && dbl < 1300 && (s.w.s.cd * (1 + sum / 4000)) / cd0 < 0.8, [dbl, sum / 4000]); ring12(card(MG, 2, 6, 2), 'MG Hiccups');
     });
     block('MG masteries', () => {
       const b = scene(MG, []); const c0 = b.w.s.count, cd0 = b.w.s.cd, d0 = b.w.s.dmg;

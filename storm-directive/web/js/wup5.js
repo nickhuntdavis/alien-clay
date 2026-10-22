@@ -628,6 +628,7 @@
     }
     if (f.dinner) { // Dinner Time: a sibling survives kills, and with 3 swims back to you
       pr.pierce = (pr.pierce || 0) + 1; pr.tgt = null; pr.mHlost = 0; // (it lives on, so it homes in on the next one)
+      pr.life = Math.max(pr.life, (w.s.range || 300) / Math.max(60, Math.hypot(pr.vx || 0, pr.vy || 0))); // (and a fresh range of flight: reach stopped growing with level on 20 Oct, so 3 kills ran out of flight)
       if (pr.w5k >= 3 && !pr.back) { pr.back = true; pr.hits = null; pr.pierce = 99; pr.w5din = 1; f.dins.push(pr); fx(w, 'dinner_ready'); say('din' + w.uid, e.x, e.y - e.r - 10, 'DINNER TIME', w.def.color, 12, 0.4); }
     }
     if (f.only && pr.w5k >= 5) { pr.pierce = 0; fx(w, 'onlydone'); } // Only Child: five kills and it is done
