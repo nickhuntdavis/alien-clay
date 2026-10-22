@@ -11,7 +11,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
    - **Slots unlock as the weapon levels up** (user, 22 Oct): 2 slots at weapon Lv 1, a 3rd at Lv 3, a 4th at Lv 6 and the 5th at Lv 9. An unlocked slot is a count, not a group: you fill any group you haven't filled yet (proposed starting schedule; sims tune it).
    - **One weapon modifier mastery per build:** only one weapon modifier in the whole build can reach its mastery; the others stop at Lv 3. (Sperm passives have their own, separate mastery: `SPERM_PASSIVES.md`.)
    - **Extra Mastery** (a sperm passive) allows one more mastery of either kind, at the cost of one of the sperm's passive slots.
-   - **Branches (user, 22 Oct; tables not yet rewritten):** Lv 1 is shared; at Lv 2 you choose branch A or B; at the mastery you choose one of that branch's two masteries (4 endings per modifier). Branches and masteries are written **once per modifier** and shared by every weapon; a weapon gets its own cell only where the shared one doesn't fit. Absorbed weapon mutations: "Can't Pick One" is one of Extra Projectiles' branches (Projectile hits have a 20% chance to split into two half-damage homing shots); "A Bit Extra" is one of Exploding Rounds' branches (a bigger burst on kill instead of every hit); "Keep Spinning" joins Orbiting's levels (+5% per enemy hit in a row, cap +50%). The tables in sections 3 and 4 still show the single-path version.
+   - **Branches (user, 22 Oct; written in sections 3 and 4):** Lv 1 is shared; at Lv 2 you choose branch A or B; at the mastery you choose one of that branch's two masteries (4 endings per modifier). Branches and masteries are written **once per modifier**, in a **Branches** block under each table, and shared by every weapon; a weapon gets its own line only where the shared one doesn't fit ("Weapon exceptions"). The per-weapon table cells are flavour that the branches apply. Absorbed weapon mutations: "Can't Pick One" is one of Extra Projectiles' branches (Projectile hits have a 20% chance to split into two half-damage homing shots); "A Bit Extra" is one of Exploding Rounds' branches (a bigger burst on kill instead of every hit); "Keep Spinning" is Orbiting's branch A (+5% per enemy hit in a row, cap +50%). The two combo masteries (5.4) are extra mastery options in Connecting branch B and Orbiting branch B.
 2. **Two kinds of modifier.**
    - **Scaling** (section 3): the same effect grows along a shared ramp. Each table gives what scales on each weapon and its mastery; Lv 1 to 3 follow the ramp in the section's heading.
    - **Shaping** (section 4): each level is a new, weapon-specific step. Each table gives Lv 1, Lv 2, Lv 3 and the mastery.
@@ -78,12 +78,12 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Laser (new) | Fire Beam | Ordered Online: a red laser beam held on one target; Burn. |
 
 ## 3. Scaling modifiers
-*The same effect grows each level. Each heading gives the ramp; each table gives what scales on that weapon and its mastery twist.*
+*The same effect grows each level. Each heading gives the ramp; each table gives what scales on that weapon (and its weapon flavour). The per-weapon cells are flavour that the shared branches apply: every branch follows the heading's ramp at Lv 2, Lv 3 and mastery, and adds a rule on top.*
 
 ### 3.1 Range
 *Ramp: full damage to 300 / 400 / 520 (base 220), floor 65 / 75 / 85% (base 55%); projectile speed +20 / +40 / +60%; camera zoom +1 / +2 / +3 steps. Mastery: no falloff at all, plus the twist. Best on: Projectile, Spread. N/A on every other attack type.*
 
-| Weapon | What scales | Mastery twist |
+| Weapon | What scales | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Falloff, speed. | Hits beyond 400 deal +20%. |
 | Maximum Gains | Falloff; the fan also tightens 10 / 20 / 30%. | The full fan lands intact at 500. |
@@ -101,10 +101,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Enzyme Sneeze | Droplet range (160 to 190 / 220 / 250) and falloff. | The sneeze becomes a long, narrow jet (range 400). |
 | Every other weapon | N/A: Projectile and Spread only. | |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: falloff flattens (full damage to 300, floor 65%), projectile speed +20%, camera zoom +1 step. The table says what scales on each weapon.
+- **Branch A, Long Shot:** Lv 2: ramp step 2, and hits beyond 400 deal +10%. Lv 3: ramp step 3, and the bonus is +20%. Mastery A1, Sniper: no falloff at all (the ramp's mastery); hits beyond 400 deal +30% and beyond 600 deal +50%. Mastery A2, Boomerang: a shot that reaches its full range without hitting anything turns round and flies back along its path at 60% damage, once (max 12 returning shots at a time).
+- **Branch B, Overwatch:** Lv 2: ramp step 2, and the weapon picks targets up to 100 beyond its normal reach, preferring enemies still approaching (over 300 away). Lv 3: ramp step 3, and the first hit on any enemy beyond 400 deals +25% (once per enemy). Mastery B1, Artillery: shots arc over the crowd and land on the target's spot as a 50-radius blast for 80% damage (no hit on the way; still a Projectile for defences). Mastery B2, Tripline: an unseen line 400 out from you; the first time each enemy crosses it inward, it takes a free hit from the weapon (max 3 free hits a second).
+- **Weapon exceptions:** Family Ties: Boomerang brings the hole back towards you (merging on the way); Overwatch lets it be placed 100 further out. Otherwise none; N/A rows stay N/A.
+
 ### 3.2 Up Close
 *Ramp: +40 / +80 / +120% damage within 120; full damage ends at 180 / 160 / 140 and falls to 40 / 35 / 30% by 450. Mastery: the twist. Best on: Projectile, Spread. N/A elsewhere.*
 
-| Weapon | What scales | Mastery twist |
+| Weapon | What scales | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Close damage. | Point-blank hits (under 60) knock the target into its mates. |
 | Maximum Gains | Close damage. | Point-blank fans stun the front row for 0.5 s. |
@@ -122,10 +128,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Enzyme Sneeze | Close damage and Corrosion. | At point blank the droplets merge into one heavy splash. |
 | Every other weapon | N/A: Projectile and Spread only. | |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: +40% damage within 120; full damage ends at 180 and falls to 40% by 450.
+- **Branch A, Point Blank:** Lv 2: ramp step 2, and hits under 60 deal a further +25%. Lv 3: ramp step 3, and the further bonus is +50%. Mastery A1, Execution: point-blank hits (under 60) finish any non-elite enemy below 15% health. Mastery A2, Zero Distance: point-blank hits ignore Shell and Membrane.
+- **Branch B, Packed Room:** Lv 2: ramp step 2, and +5% damage per other enemy within 120 of the target (cap +25%). Lv 3: ramp step 3, and the cap is +50%. Mastery B1, Mosh Pit: with 5 or more enemies within 120 of you, every close hit also hits all enemies within 120 of its target for 40% (max 8 enemies). Mastery B2, Cornered: close hits on an enemy pinned against a wall, or against another enemy directly behind it, deal double damage.
+- **Weapon exceptions:** Family Ties: the bonuses apply to pull strength and crush damage within 120; Execution finishes enemies held at the centre.
+
 ### 3.3 Rapid Fire
 *Ramp: attack rate +40 / +80 / +120%; damage per hit -25 / -30 / -35%. Statuses build per hit, so rapid weapons fill bars well. Mastery: the twist. Best on: Projectile, Beam.*
 
-| Weapon | What scales | Mastery twist |
+| Weapon | What scales | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Rate. | Minigun: rate ramps up while it stays on one target (up to +100%). |
 | Maximum Gains | Rate; 3 fewer pellets per fan. | Fans alternate left and right, covering a wider arc over time. |
@@ -155,10 +167,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | The beam pulses instead of holding. | Each pulse on a Corroded target adds Burn to its neighbours. |
 | Laser | The beam becomes fast pulses. | Pulses alternate between your top 2 targets. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: attack rate +40%, damage per hit -25%. Beam weapons fire in pulses.
+- **Branch A, Hail:** Lv 2: ramp step 2, and each hit has a 15% chance of a free extra shot (free shots never make free shots; max 12 in flight). Lv 3: ramp step 3, and the chance is 20%. Mastery A1, Minigun: spin-up: the rate climbs by a further +100% over 3 s of continuous firing and resets after 1 s idle. Mastery A2, Hose: the shots merge into one continuous stream that ticks 10 times a second; each tick is weak but fills statuses.
+- **Branch B, Burst Fire:** Lv 2: ramp step 2, but attacks come in bursts of 3 with a 0.5 s gap; the third shot deals +50%. Lv 3: ramp step 3, bursts of 4, and the fourth deals +75%. Mastery B1, Clip Dump: every 5th burst empties the clip: 12 shots in 0.5 s at 50% each. Mastery B2, Overheat: after 4 s of continuous fire the weapon vents for 1.5 s, then releases a pulse (radius 100, 150% of a hit).
+- **Weapon exceptions:** Beam weapons: Hail adds a free pulse; Hose is one held beam ticking 10 times a second instead of pulses. Otherwise none; N/A rows stay N/A.
+
 ### 3.4 Charged
 *An automatic wind-up before each attack, then a stronger attack. Ramp: the wind-up shortens 0.5 / 0.4 / 0.3 s (cells that name a longer wind-up shorten by the same steps), and what scales grows +60 / +90 / +120%. Mastery: the twist. Best on: Projectile, Beam, Burst. N/A where waiting longer is already the payoff.*
 
-| Weapon | What scales | Mastery twist |
+| Weapon | What scales | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Pellet damage; +30% knockback. | A full charge pierces the whole line. |
 | Maximum Gains | Pellet damage; the fan tightens to 20°. | A charged point-blank fan stuns the front row for 1 s. |
@@ -188,10 +206,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Burn damage and on-phase length (0.6 s). | Premature Evaporation on every Corroded enemy in its lane at once. |
 | Laser | Beam damage and width (0.6 s). | The charged beam punches through the whole line (an exception to the no-pierce rule). |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: every attack winds up automatically (shortened 0.5 s per the heading), then hits harder (+60% on what the table scales).
+- **Branch A, Full Charge:** Lv 2: ramp step 2, and when no enemy is in range the charge keeps building to twice its bonus (an extra +50%). Lv 3: ramp step 3; a full charge counts as a heavy hit for reactions and its wind-up can't be flinched. Mastery A1, Overcharge: a full charge fires twice, the second 0.2 s later at 60%. Mastery A2, Slow Burn: the charge can be held up to 3 s; each second held adds +60% (cap +180%) and widens the attack by 10% a second.
+- **Branch B, Quick Release:** Lv 2: ramp step 2, and the attack can fire at half charge when an enemy is within 100, keeping half the bonus. Lv 3: ramp step 3, and half charges keep 75%. Mastery B1, Hair Trigger: two charges build at once, alternating, so attacks come at half the wind-up interval with 70% of the bonus. Mastery B2, Capacitor: after 1.5 s with no target in range, the next attack fires with no wind-up at 1.5 times the bonus.
+- **Weapon exceptions:** There Is No Spoon: Full Charge holds the volley until the store is full (A2's hold applies to the store, up to 10). Eggs stays N/A.
+
 ### 3.5 Catalyst
 *Status bars fill faster from this weapon, and the unstable reactions it sets off hit harder. Ramp: bars +25 / +50 / +75%; its reactions +20 / +40 / +60%. Force has no status, so Force weapons boost the reactions they set off by +30 / +60 / +90% instead. Mastery: the twist. Best on: any type with a status.*
 
-| Weapon | What scales | Mastery twist |
+| Weapon | What scales | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Force reactions it sets off. | Every pellet counts as a heavy hit for reaction triggers. |
 | Maximum Gains | Force reactions. | Each pellet can set off a reaction separately (one per enemy per fan). |
@@ -221,10 +245,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Burn; Premature Evaporation. | Premature Evaporation resets Corrosion to half, not zero. |
 | Laser | Burn; its reactions. | Enemies held in the beam for 1 s count as burning for every reaction trigger. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: status bars from this weapon fill +25% faster and its reactions hit +20% harder (Force weapons: reactions +30%).
+- **Branch A, Fuel:** Lv 2: ramp step 2, and bars fill a further +10% per other status on the target (cap +30%). Lv 3: ramp step 3, and the cap is +60%. Mastery A1, Chain Reactor: a reaction this weapon sets off repeats once on the nearest other enemy within 80 at 50% (the repeat never repeats). Mastery A2, Hair Trigger: its hits count as heavy hits for reaction triggers on any enemy carrying 2 or more statuses.
+- **Branch B, Cross-Contamination:** Lv 2: ramp step 2, and status bars from your other weapons fill +15% on enemies this weapon hit in the last 2 s. Lv 3: ramp step 3, and the bonus is +30%. Mastery B1, Reagent: for 3 s after one of this weapon's reactions goes off on an enemy, every hit on it from any of your weapons counts as heavy. Mastery B2, Mixer: its hits copy 50% of the target's strongest bar onto enemies within 60 of it (the copy sets off no reactions).
+- **Weapon exceptions:** Force weapons have no bars: Fuel adds to the reaction boost instead, and Cross-Contamination applies to other weapons' bars only.
+
 ### 3.6 Kinship
 *Rewards committing to a damage type. Ramp: +8 / +16 / +24% damage and status fill for each **other** weapon you carry with the same damage type. Mastery: the weapon's payoff for a full family (3 or more same-type weapons). Best on: any.*
 
-| Weapon | Kin | Mastery twist (3 or more of the type) |
+| Weapon | Kin | Weapon flavour (used by the branch masteries; 3 or more of the type) |
 |---|---|---|
 | Standard Issue | Force | Pellets ignore Squishy's knockback reduction. |
 | Maximum Gains | Force | The fan gains 2 pellets. |
@@ -254,10 +284,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Fire (Acid weapons count half: its kit partner) | It burns Shelled enemies at full damage. |
 | Laser | Fire | The beam sets every enemy it touches alight at once. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: +8% damage and status fill per other weapon of the same damage type.
+- **Branch A, Purist:** Lv 2: ramp step 2, and +10% more if every weapon you carry shares this type. Lv 3: ramp step 3, and the bonus is +20%. Mastery A1, Full Family: with 3 or more weapons of the type, the weapon's own payoff from the flavour column. Mastery A2, Chorus: when this weapon hits, each other weapon of its type (max 3) fires a free echo hit at the same target for 40%.
+- **Branch B, Mixed Marriage:** Lv 2: ramp step 2, and +8% per different damage type you carry beyond this weapon's own (cap 3 types). Lv 3: ramp step 3, and +16% per type. Mastery B1, Melting Pot: with 4 or more damage types in the build, its reactions hit +50% and its hits count as whichever carried type completes an unstable reaction. Mastery B2, Referee: when two of your weapons of different types hit one enemy within 1 s, this weapon deals +20% for 2 s (stacks to 3).
+- **Weapon exceptions:** There Is No Spoon counts the types of its stored bullets for Mixed Marriage. Spark of Life counts Acid weapons as half kin.
+
 ### 3.7 Knockback
 *Ramp: push distance ×1 / ×2 / ×3 of the Lv 1 value. Mastery: the twist. Best on: Projectile, Burst, Contact. N/A where the weapon already knocks back.*
 
-| Weapon | What scales (Lv 1 distance) | Mastery twist |
+| Weapon | What scales (Lv 1 distance) | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Pellet shove (30). | Shoved enemies that hit a mate or wall take 40% collision damage. |
 | Maximum Gains | Point-blank fans (under 100) blast the front row back (50). | Point-blank fans launch enemies into their mates (40%). |
@@ -287,10 +323,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Burning enemies are pushed down the lane (30). | Enemies pushed to the lane's end burst. |
 | Laser | Held enemies are pushed along the beam (40 a second). | Pushed enemies drag a burning streak behind them. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: the push distance in the table (×1).
+- **Branch A, Wall Slam:** Lv 2: ramp step 2, and shoved enemies that hit a mate or wall take 20% collision damage. Lv 3: ramp step 3, and collisions deal 40%. Mastery A1, Bowling Ball: a shoved enemy that hits a mate sends it on at the same speed (chain depth 2, 40% each). Mastery A2, Launch: shoves become launches at ×3 distance; the enemy lands with a 60-radius shockwave for 50%.
+- **Branch B, Keep Away:** Lv 2: ramp step 2, and pushes are always directed away from you, ×1.5 on enemies within 100. Lv 3: ramp step 3, and an enemy shoved twice within 2 s is pushed ×2. Mastery B1, Repulsor: every 5th hit sends a shockwave out from you (radius 140, push 60, no damage). Mastery B2, Trampoline: an enemy that hits a wall rebounds towards the crowd at 60% of the distance (max 2 bounces, 40% collision damage each).
+- **Weapon exceptions:** None; N/A rows stay N/A.
+
 ### 3.8 Pulling
 *Pulls enemies towards the projectile, beam or weapon. Ramp: pull strength and radius ×1 / ×2 / ×3 of the Lv 1 value. Uses the Pull rule (`COMBAT_MATRIX.md` 12.2: Squishy halves it, elites 50%, bosses 25%, never through walls). Mastery: the twist. Best on: Beam, Burst, Pool. N/A where the weapon already pulls.*
 
-| Weapon | What scales (Lv 1) | Mastery twist |
+| Weapon | What scales (Lv 1) | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Pellets tug enemies within 50 of their flight path towards it. | Impact yanks everything within 100 onto the target. |
 | Maximum Gains | Pellets tug enemies towards the fan's centre line. | Net: enemies in the cone are dragged to its centre before the pellets land. |
@@ -320,10 +362,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | The beam pulls Corroded enemies within 60 onto its lane. | Corroded enemies are pulled in from anywhere in range. |
 | Laser | Enemies within 40 of the beam are drawn onto it. | Enemies on the beam are drawn to its tip, bunching on the target. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: the pull in the table (×1 strength and radius), under the Pull rule (12.2).
+- **Branch A, Gravity:** Lv 2: ramp step 2, and pulled enemies take +10% from this weapon while pulled. Lv 3: ramp step 3, and the bonus is +20%. Mastery A1, Singularity: the pull ends with a squeeze: every pulled enemy is drawn to one point and collides for 40%. Mastery A2, Tractor: the pull holds its target for 1.5 s, reeling it in at constant speed (elites 50%, bosses 25%).
+- **Branch B, Pied Piper:** Lv 2: ramp step 2, and when one of your ground objects (pool, hole, mine, egg) is within 250, the pull points at it instead of at the attack. Lv 3: ramp step 3, and pulls towards objects are ×1.5. Mastery B1, Dinner Bell: your ground objects pull enemies within 200 weakly at all times (×0.3; no new objects, object cap unchanged). Mastery B2, Funnel: pulled enemies are drawn into single file along the weapon's line, so Piercing, beams and chains hit more of them.
+- **Weapon exceptions:** Family Ties is N/A. Where a weapon has no ground objects, Pied Piper pulls towards its own attack as normal.
+
 ### 3.9 Sticky
 *Adds sticky globs. Ramp: slow 30 / 50 / 70%, and from Lv 3 the 3rd hit on the same enemy Snares it for 1 s. Mastery: the twist. On Fire weapons, Snared puts their Fire out (rule 11). Best on: Projectile, Spread. N/A where the weapon already sticks enemies in place.*
 
-| Weapon | What scales | Mastery twist |
+| Weapon | What scales | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Pellet slow. | Globbed enemies stick to the first enemy they touch. |
 | Maximum Gains | Slow per pellet (stacks within the cap). | A full fan on one enemy Snares it. |
@@ -353,10 +401,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Beamed enemies are slowed, then Snared, putting its own Fire out: the beam holds instead of burning. | Snared Corroded enemies burst into Premature Evaporation when the Snare ends. |
 | Laser | Held enemies are slowed, then Snared, putting its Fire out. | The beam welds the target to the floor: Snared until the beam leaves it. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: sticky globs slow by 30%. At Lv 3 the 3rd hit on one enemy Snares it for 1 s. On Fire weapons Snared puts Fire out (rule 11).
+- **Branch A, Superglue:** Lv 2: slow 50%, and slowed enemies take +10% from this weapon. Lv 3: slow 70%, the 3rd-hit Snare, and the bonus is +20%. Mastery A1, Roadblock: Snared enemies act as walls that other enemies path round, bunching up (max 6 at once). Mastery A2, Cement: Snared enemies can't be knocked, pulled or flung, and take +30% from all your weapons.
+- **Branch B, Contagious Goo:** Lv 2: slow 50%, and a slowed enemy slows touching neighbours (within 40) at half strength. Lv 3: slow 70%, the 3rd-hit Snare, and the Snare passes to one touching neighbour at half duration. Mastery B1, Epidemic: Snare spreads through touching enemies in a chain of up to 6, at half duration each. Mastery B2, Sticky Shots: shots from your other weapons that hit a stuck enemy also apply a 30% slow.
+- **Weapon exceptions:** Fire weapons (Hot Mess, Nappy Mines, Spark of Life, Laser): Snare still puts their own Fire out, and Epidemic spreads Snare but never Burn. Nocturnal Emission and Ewww, Gross stay N/A.
+
 ### 3.10 Piercing
 *Attacks carry on through enemies, losing 15% per enemy passed (`MODIFIERS.md` 2). Ramp (counts): through 1 / 3 / 6 enemies; mastery 12. Beams do not pierce by default in this matrix (conflict 1). Best on: Projectile, Beam. N/A on Pool and Burst, and where the weapon already pierces.*
 
-| Weapon | What pierces | Mastery twist (12, plus) |
+| Weapon | What pierces | Weapon flavour (used by the branch masteries; 12, plus) |
 |---|---|---|
 | Standard Issue | The pellet. | Railgun: unlimited pierce in a straight line, no damage lost. |
 | Maximum Gains | Each pellet. | Pellets gain 10% per enemy passed instead of losing it. |
@@ -386,10 +440,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | The beam. | Unlimited pierce, damaging only Corroded or unshelled enemies on the way. |
 | Laser | The beam. | Unlimited pierce: a beam through the whole screen. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: the attack carries through 1 enemy, losing 15% per enemy passed. Beams only pierce through this modifier (conflict 1).
+- **Branch A, Through and Through:** Lv 2: through 3 enemies, and the loss drops to 10% per enemy. Lv 3: through 6, loss 5%. Mastery A1, Railgun: pierces 12 (the ramp's mastery), in a straight line, with no loss. Mastery A2, Skewer: the shot stops inside the last enemy it reaches and stays lodged for 3 s, hitting it every 0.5 s for 30% (max 12 lodged).
+- **Branch B, Momentum:** Lv 2: through 3 enemies; instead of losing damage, the shot gains +5% per enemy passed. Lv 3: through 6, +10% per enemy (cap +60%). Mastery B1, Armour Piercing: through 12; the shot ignores Shell and Membrane on everything it passes. Mastery B2, Snowball: through 12; the shot grows 10% wider per enemy passed (radius cap 80), hitting enemies beside the line.
+- **Weapon exceptions:** Beams (Red Flagship, Spark of Life, Laser): Skewer is the beam tip holding on the last enemy for 3 s; Snowball widens the beam with each enemy. Soulmate Signal and Family Ties stay N/A.
+
 ### 3.11 Exploding Rounds
 *Hits explode, damaging enemies near the target. Ramp: radius 40 / 60 / 80 and 40 / 60 / 80% of the hit (unless the cell says otherwise). Mastery: the twist. Best on: Projectile, Beam. N/A on Burst weapons (they already explode).*
 
-| Weapon | What explodes | Mastery twist |
+| Weapon | What explodes | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | The pellet, on impact. | Cluster round: the burst throws 3 mini-pellets that each burst once more. |
 | Maximum Gains | The centre pellet; Lv 2 and 3 add 1 and 2 more bursting pellets. | Every pellet bursts; bursts overlapping on one enemy merge into one blast (radius 90). |
@@ -419,10 +479,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Corroded targets, on first contact, spreading Premature Evaporation. | Each Premature Evaporation it causes bursts again at half size (once). |
 | Laser | The beam's tip, every 0.5 s on target (0.4 / 0.3 s at Lv 2 / 3). | Thermal shock: an enemy killed by the beam explodes for double. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: hits explode, radius 40 for 40% of the hit.
+- **Branch A, Pop Pop (explodes on every hit):** Lv 2: radius 60 for 60%. Lv 3: radius 80 for 80%. Mastery A1, Cluster Round: each burst throws 3 mini-bursts (radius 30, 30%) that don't burst again. Mastery A2, Fragmentation: each burst leaves 4 shards flying outward (25% each; max 12 in flight).
+- **Branch B, A Bit Extra (explodes on kill only):** Lv 2: only killing hits explode, at double the ramp's radius and damage share (80, 120%). Lv 3: radius 120, 180%. Mastery B1, Chain Blast: enemies killed by a burst burst too (max 12 in one chain). Mastery B2, Overkill: the killing hit's excess damage is added to the burst (up to 200% of the hit), and elite kills burst at triple size.
+- **Weapon exceptions:** Beams: the tip bursts at the table's interval under Pop Pop; under A Bit Extra the beam bursts when an enemy dies in it. Burst weapons stay N/A.
+
 ### 3.12 Homing
 *Shots turn towards their target (`MODIFIERS.md` 1; if the target dies, the shot flies on; Evasion still applies). Beams bend towards their target (the user's laser note). Ramp: turn rate ×1 / ×2 / ×3; beams bend up to 10 / 20 / 30°. Mastery: the twist. Best on: Projectile, Spread, Beam. N/A on Contact, Pool and self-centred Burst, and where the weapon already homes.*
 
-| Weapon | What homes | Mastery twist |
+| Weapon | What homes | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Pellets (turn rate 3). | Pellets retarget when their target dies. |
 | Maximum Gains | Each pellet, to the nearest enemy in the cone (2). | Pellets spread themselves across different enemies. |
@@ -444,10 +510,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Laser | The beam bends towards its target: slight at first, more each level. | The beam curves to sweep through every enemy between you and the target. |
 | Every other weapon | N/A: Contact, Pool and self-centred Burst. | |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: shots turn towards their target; beams bend up to 10°.
+- **Branch A, Heat Seeker:** Lv 2: turn rate ×2, and shots pick a new target if theirs dies. Lv 3: turn rate ×3, and they never pick a target another shot will already kill. Mastery A1, Swarm Brain: shots in flight spread across different enemies (no two on one target while others exist). Mastery A2, Terminal Guidance: in the last 100 of flight the turn rate triples, so a shot only misses through Evasion.
+- **Branch B, Loiter:** Lv 2: turn rate ×2, and a shot that loses its target circles for 1 s looking for a new one instead of flying on. Lv 3: turn rate ×3, circling for 2 s. Mastery B1, Hunter: shots never expire; they home until they hit something (life 8 s; max 12 in flight). Mastery B2, Reaction Seeker: shots prefer enemies one hit from an unstable reaction (then enemies with any status), and their hits on those count as heavy.
+- **Weapon exceptions:** Beams: Swarm Brain sends each extra beam to a different enemy; Loiter holds the beam's bend on a dying target for 1 s; Hunter is N/A on beams (they have no flight), so beams take Reaction Seeker (B2) as their only branch B mastery.
+
 ### 3.13 Ricochet
 *Attacks bounce on to another enemy at the true reflection angle, like a beam off a mirror: the bounce isn't aimed, it goes wherever the angle points, and hits whatever is there. Each bounce loses 20%. Ramp (counts): 1 / 3 / 6 bounces; mastery 12. Best on: Beam (prism), Projectile. N/A on Pool and self-centred Burst.*
 
-| Weapon | What bounces | Mastery twist (12, plus) |
+| Weapon | What bounces | Weapon flavour (used by the branch masteries; 12, plus) |
 |---|---|---|
 | Standard Issue | The pellet, off each enemy it hits. | Bounces lose 10% instead of 20%. |
 | Maximum Gains | Each pellet. | Pellets that bounce into each other merge into a bigger pellet. |
@@ -477,10 +549,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | The beam, off Corroded enemies only. | Every bounce sets off Premature Evaporation. |
 | Laser | The beam, like a laser off a mirror: weaker after each hit. | Prism: the beam fills the area with a lattice of reflections. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: one bounce at the true reflection angle, like a laser off a mirror, losing 20%.
+- **Branch A, Mirror:** Lv 2: 3 bounces, off walls and arena edges as well as enemies, losing 15% each. Lv 3: 6 bounces, losing 10%. Mastery A1, Prism: each bounce splits the attack into two at 50% each, ±20° (bounded: 12 segments live). Mastery A2, Pinball: 12 bounces, no loss, off walls and enemies, for up to 4 s.
+- **Branch B, Trick Shot:** Lv 2: 3 bounces, and after reflecting the attack nudges up to 20° towards the nearest enemy. Lv 3: 6 bounces, nudge up to 40°. Mastery B1, Bank Shot: 12 bounces; bounces off walls and arena edges add +30% damage instead of losing 20%. Mastery B2, Seeker Bounce: 12 bounces; if any enemy is within 200 the attack always bounces to the nearest one, with no loss.
+- **Weapon exceptions:** Laser: its mastery is a prism, so A1 is the table's lattice of reflections; Red Flagship's prism is A1 as written. Where a weapon has no flight (Skill Issue, Nappy Mines, Eggs), the bounce acts on what it throws, as the table says.
+
 ### 3.14 Focused Intensity
 *Damage on one enemy ramps up the longer the weapon stays on it uninterrupted: +10% per 0.5 s, up to +40 / +80 / +120%. Switching targets resets it. Mastery: the twist. Best on: Beam, Projectile. N/A on Pool and Burst.*
 
-| Weapon | What ramps | Mastery twist |
+| Weapon | What ramps | Weapon flavour (used by the branch masteries) |
 |---|---|---|
 | Standard Issue | Pellets on the same target. | At full ramp, pellets pierce their target. |
 | Maximum Gains | Pellets on the same target (counts per fan). | At full ramp, the fan narrows onto the target automatically. |
@@ -510,13 +588,19 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | The beam on one Corroded target. | At full ramp, Premature Evaporation goes off every second on that target. |
 | Laser | The beam on one target. | At full ramp, the beam turns white-hot: double damage and it ignores Shell. |
 
+**Branches**
+- **Lv 1 (shared):** ramp step 1: damage on one enemy rises +10% per 0.5 s, to +40%; switching targets resets it.
+- **Branch A, Tunnel Vision:** Lv 2: cap +80%, and switching targets keeps 50% of the ramp. Lv 3: cap +120%, and switching keeps 75%. Mastery A1, Executioner: at full ramp, hits finish any non-elite enemy below 25% health. Mastery A2, Overfocus: the ramp doesn't stop at its cap: another +10% per 0.5 s up to double the cap, but it resets fully on a switch.
+- **Branch B, Spotlight:** Lv 2: cap +80%, and your other weapons get 25% of the ramp bonus on the focused enemy. Lv 3: cap +120%, and they get 50%. Mastery B1, Marked for Death: at full ramp the target is marked; every weapon you carry deals +50% to it until it dies. Mastery B2, Passing the Torch: when the focused enemy dies, its full ramp passes to the nearest enemy within 150 (max 3 passes in a row).
+- **Weapon exceptions:** None; N/A rows stay N/A.
+
 ## 4. Shaping modifiers
-*Each level is a new step, designed for the weapon. Columns: Lv 1, Lv 2, Lv 3, Mastery.*
+*Each level is a new step, designed for the weapon. Columns: Lv 1 (shared, per weapon), then an example default path for Lv 2, Lv 3 and Mastery. The per-weapon cells are flavour that the shared branches under each table apply.*
 
 ### 4.1 Connecting
-*Links enemies the weapon hits; each weapon's link was chosen with the user. Shared damage is echo damage (`COMBAT_MATRIX.md` 12.1: no bars, no reactions, never shares on). Every link is bounded (12.5). Best on: Projectile, Beam.*
+*Links enemies the weapon hits; each weapon's link was chosen with the user. Shared damage is echo damage (`COMBAT_MATRIX.md` 12.1: no bars, no reactions, never shares on). Every link is bounded (12.5). Best on: Projectile, Beam. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | Staple: the pellet staples its target to its nearest neighbour for 3 s; the pellet's knockback drags both. | Staples last 5 s. | Staples to 2 neighbours. | Staples chain: a stapled enemy hit again staples on to the next, up to 4 in a line. |
 | Maximum Gains | Clothesline: enemies hit by the same fan are tied in a line for 3 s and can't spread out. | Lines hold 1 more enemy and last 4 s. | Tied enemies are dragged 20 closer together each time a fan hits them. | Lines that cross knot together into one tight clump. |
@@ -546,10 +630,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Fuse: linked Corroded enemies form a fuse; setting one off sets off Premature Evaporation on each in turn. | Fuses of up to 3. | Fuses of up to 5. | Fuses relight: an enemy that re-Corrodes within 3 s joins the fuse again. |
 | Laser | Energy link (the user's cell): enemies the beam hits are linked by a red thread; linked enemies share 25% of damage (echo). | Up to 3 linked. | Burn on one fills 50% on the others. | The thread is itself a thin laser: enemies crossing it are burnt. |
 
-### 4.2 Turncoat
-*Enemies this weapon kills rise as temporary allies (5 s unless the cell says otherwise). Own cap: 6 per weapon, oldest goes first; elites and bosses never rise. Each weapon's ally was chosen with the user. Best on: Projectile, Burst.*
+**Branches**
+- **Lv 1 (shared):** the weapon's own link (the Lv 1 cell). All shared damage is echo damage and every link is bounded (12.5).
+- **Branch A, Shared Pain:** Lv 2: links last 50% longer, hold one more partner, and share 40%. Lv 3: when a linked enemy dies, its partners take its last hit again at 50% (echo). Mastery A1, Voodoo Doll: damage to a linked enemy from any of your weapons is shared 50% to every enemy linked to it (echo; max 6). Mastery A2, Deadman's Wire: when a linked enemy dies, the link detonates: each partner takes a burst equal to the weapon's hit (radius 60, echo) and the links break.
+- **Branch B, Network:** Lv 2: a hit on a linked enemy from any of your other weapons sends 20% to its partners (echo). Lv 3: 30%. Mastery B1, Switchboard: status bars from any of your weapons fill 40% on linked partners (the copy sets off no reactions). Mastery B2, Tripwire: enemies crossing a link take a 30% hit (once per 0.5 s per enemy; max 6 links). **Combo mastery B3, Static net** (see 5.4): Static weapons only, while you carry a Projectile or Spread weapon.
+- **Weapon exceptions:** Family Ties: the links join holes, so Shared Pain shares damage between enemies held by linked holes. Ewww, Gross stays N/A.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.2 Turncoat
+*Enemies this weapon kills rise as temporary allies (5 s unless the cell says otherwise). Own cap: 6 per weapon, oldest goes first; elites and bosses never rise. Each weapon's ally was chosen with the user. Best on: Projectile, Burst. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | Human shield: rises as a slow ally that follows you and soaks enemy shots for 5 s; it doesn't attack. | Lasts 7 s. | +50% toughness. | Up to 3 shields form a wall that also blocks enemies swimming at you. |
 | Maximum Gains | Gym buddy: rises bulked up (+50% size and damage) and brawls up close for 4 s. | Lasts 6 s. | Its hits knock enemies back. | Each extra gym buddy adds +10% damage to the others. |
@@ -579,10 +669,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Ember: rises as a burning husk and swims at the nearest Corroded enemy, bursting into Premature Evaporation on it. | Burst +30%. | It hunts Corroded enemies anywhere on screen. | An ember's burst can raise another ember. |
 | Laser | Reprogrammed (from the user's laser note): rises scorched and fires a weak red laser of its own at enemies for 5 s. | Lasts 7 s. | Its laser targets whatever your Laser is on. | Reprogrammed allies link their lasers to yours, adding +15% each. |
 
-### 4.3 Melee
-*Turns the weapon into a close-range attack. It becomes Contact unless the cell says otherwise: Thorns answers each hit and Evasion can make it miss (matrix 13). Each version was chosen with the user. Best on: Projectile, Beam. N/A where the weapon is already Contact.*
+**Branches**
+- **Lv 1 (shared):** enemies the weapon kills rise as the weapon's own ally (the Lv 1 cell). Own cap 6, oldest goes first; elites and bosses never rise.
+- **Branch A, Veteran Corps:** Lv 2: allies last 50% longer and hit for 50% of the weapon's damage. Lv 3: allies rise with +50% toughness. Mastery A1, Sergeant: the oldest ally becomes a sergeant (+50% size and damage) and allies within 100 of it deal +25%. Mastery A2, Old Soldier: allies don't expire while they keep killing: each kill adds 3 s (max 15 s of life).
+- **Branch B, Walking Bombs:** Lv 2: allies explode when they expire (radius 60, 80% of the weapon's hit). Lv 3: radius 80, and allies run at the nearest enemy to do it. Mastery B1, Chain Gang: enemies killed by an ally's explosion rise as new bombs (cap 6). Mastery B2, Decoy Army: enemies and enemy shots within 200 target the nearest ally before they target you.
+- **Weapon exceptions:** Chest Burster stays N/A. Red Flagship: the bomb is the relayed beam bursting. Panic Button: the bomb is a small pulse on the runner's last crash.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.3 Melee
+*Turns the weapon into a close-range attack. It becomes Contact unless the cell says otherwise: Thorns answers each hit and Evasion can make it miss (matrix 13). Each version was chosen with the user. Best on: Projectile, Beam. N/A where the weapon is already Contact. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | Head-on ram: the sperm rams forward 60 into the target, +50% damage. | Ram 80. | The ram knocks the target into its mates. | Rams carry through the first target into the next. |
 | Maximum Gains | Flex: a 120° swipe in front (reach 80), then a short recoil backwards. | Reach 100. | 160° swipe. | Every 3rd flex is a full 360° swipe. |
@@ -612,10 +708,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Blowtorch: a short, thick flame (range 60) that burns +60% harder and prefers Corroded enemies. | Range 80. | +90%. | Premature Evaporation from the blowtorch is twice the size. |
 | Laser | Laser sword (the user's cell: a close-range laser blade): a 90-long blade swung in a 150° arc in front. | Blade 110. | Full 360° swing every 3rd swing. | The blade cuts enemy shots out of the air. |
 
-### 4.4 Ranged
-*Turns a close-range weapon into a ranged one. Applies only to Nervous Wreck, Enzyme Headbutt, Peekaboo and Panic Button; N/A on the other 23. Each version was chosen with the user. Best on: Contact, self-centred Burst.*
+**Branches**
+- **Lv 1 (shared):** the weapon becomes a close-range Contact attack (the Lv 1 cell). Thorns and Evasion apply (matrix 13).
+- **Branch A, Brawler:** Lv 2: strikes come as a 3-hit combo; the third hit deals +50% and knocks back 40. Lv 3: a 4-hit combo, the fourth dealing +100%. Mastery A1, Berserker: each consecutive hit raises the attack rate +10% (cap +100%); the bonus drops after 1 s without a hit. Mastery A2, Slam: every combo ends in a ground slam (radius 100, 200%).
+- **Branch B, Hit and Run:** Lv 2: the strike is a dash: you dart 120 to the target and back to your path. Lv 3: you can't be hit during the dash. Mastery B1, Slipstream: the dash passes through every enemy in a straight line (max 6), hitting each. Mastery B2, Counter: when an enemy touches you or a shot would hit you, you strike back at once for 200% and take no damage from that hit (once every 3 s).
+- **Weapon exceptions:** Nappy Mines: Brawler combos are blasts every 2 s; Hit and Run is a pop-and-dash that skips the self-damage during the dash. Soulmate Signal: the twin does the striking. Nervous Wreck and Enzyme Headbutt stay N/A.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.4 Ranged
+*Turns a close-range weapon into a ranged one. Applies only to Nervous Wreck, Enzyme Headbutt, Peekaboo and Panic Button; N/A on the other 23. Each version was chosen with the user. Best on: Contact, self-centred Burst. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Nervous Wreck | Thrown clamp: snaps shut on an enemy up to 220 away and yanks it 60 towards you. Now a Projectile (Evasion applies; Thorns doesn't). | Range 260; yank 80. | The clamp snaps the yanked enemy again when it arrives. | The yanked enemy is slammed into the first enemy in its path (40%). |
 | Enzyme Headbutt | Long lunge: every hit is a lunge from up to 200 away. Still Contact. Past the 160 lunge cap (conflict 3). | Lunges come 0.1 s sooner. | You're immune to contact damage during the lunge. | Each lunge headbutts every enemy it passes on the way in. |
@@ -623,10 +725,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Remote detonator: places a button on the floor that goes off when 3 enemies are near it. | 2 buttons. | It goes off when 2 enemies are near. | Buttons set each other off in a chain (bounded: 3). |
 | Every other weapon | N/A: already ranged. | | | |
 
-### 4.5 Mines
-*Replaces how the weapon fires: it lays mines that trigger when enemies come near (trigger radius 60, life 14 s, 3 on the floor at Lv 1). The mine delivers the weapon's own attack. Mines count towards the object cap. Best on: Burst, Projectile. N/A where the weapon already lays traps.*
+**Branches**
+- **Lv 1 (shared):** the close-range weapon hits at range (the Lv 1 cell). Only Nervous Wreck, Enzyme Headbutt, Peekaboo and Panic Button.
+- **Branch A, Long Arm:** Lv 2: range +30%. Lv 3: range +60%, and the attack hits a second enemy in line. Mastery A1, Grappling Hook: the tether holds for 1.5 s; smaller enemies are pulled to you, elites and bosses pull you to them (you take no contact damage while pulled). Mastery A2, Artillery: the attack lands in an area up to 400 away (0.5 s marker), at double the area.
+- **Branch B, Proxy:** Lv 2: a proxy point up to 220 away repeats the attack every 1 s for 3 s (a marker, never an object); 2 proxies at once. Lv 3: proxies last 5 s. Mastery B1, Puppet: the proxy walks to the nearest enemy and attacks there. Mastery B2, Ventriloquist: the proxy copies each of your attacks at 50% for 4 s.
+- **Weapon exceptions:** Panic Button: the table's remote detonator is its default path; Long Arm throws the pulse to a spot, Proxy makes the buttons the proxy points. Every other weapon stays N/A.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.5 Mines
+*Replaces how the weapon fires: it lays mines that trigger when enemies come near (trigger radius 60, life 14 s, 3 on the floor at Lv 1). The mine delivers the weapon's own attack. Mines count towards the object cap. Best on: Burst, Projectile. N/A where the weapon already lays traps. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | Pellet mines lodge in the floor and fire a pellet at the first enemy to come near. | 5 on the floor. | Each mine fires twice before it's spent. | Mines fire 3 pellets at the 3 nearest enemies. |
 | Maximum Gains | Fan mines fire a fan towards the enemy that tripped them. | 5 on the floor. | Fans +2 pellets. | Mines fire a full ring of pellets. |
@@ -656,10 +764,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Beam traps fire a short Fire beam across a gap when a Corroded enemy crosses it. | 5 traps. | Beam 160. | Traps fire at any enemy, burning Corroded ones +50%. |
 | Laser | Laser tripwires (the user's cell): proximity beam traps fire a laser at enemies that approach. | 5 traps. | Traps hold their beam on the target for 1 s. | Traps aim at each other's targets, crossing beams on one enemy. |
 
-### 4.6 Death from Above
-*Replaces how the weapon fires: the attack lands from above, ignoring walls and line of sight (never into a sealed arena from outside it). Aim and telegraph suit the weapon: homing weapons track their target; area weapons mark a spot for 0.6 s; single-target strikes show a 0.4 s reticle. Best on: Burst, Projectile, Beam.*
+**Branches**
+- **Lv 1 (shared):** the weapon lays mines that deliver its own attack (trigger radius 60, life 14 s, 3 on the floor). Mines count towards the object cap.
+- **Branch A, Minefield:** Lv 2: 5 on the floor. Lv 3: mines within 100 of each other set each other off. Mastery A1, Carpet: each drop lays a line of 5 mines. Mastery A2, Mega Mine: 3 mines within 100 of each other merge into one big mine (radius ×2, damage ×3).
+- **Branch B, Smart Mines:** Lv 2: 5 on the floor, and mines creep towards the nearest enemy at 30 a second. Lv 3: a mine re-arms once after it goes off. Mastery B1, Leech: a mine launches itself onto an enemy, rides it, and goes off when 2 or more other enemies are within 60. Mastery B2, Hunter-Killer: a mine launches as a projectile at an enemy within 250 and lands as a mine again where it hit.
+- **Weapon exceptions:** Nappy Mines and Eggs stay N/A. Soulmate Signal: Smart Mines moves the fixed anchor towards the densest cluster.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.6 Death from Above
+*Replaces how the weapon fires: the attack lands from above, ignoring walls and line of sight (never into a sealed arena from outside it). Aim and telegraph suit the weapon: homing weapons track their target; area weapons mark a spot for 0.6 s; single-target strikes show a 0.4 s reticle. Best on: Burst, Projectile, Beam. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | A heavy Force slug drops on the target (0.4 s reticle), +40% damage. | +70%. | The slug knocks back everything within 40. | Each slug leaves a crater that nudges enemies inward. |
 | Maximum Gains | A shower of pellets over a marked zone (radius 70). | Radius 90. | Twice the pellets. | The shower walks forward across the crowd over 1 s. |
@@ -689,10 +803,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | A Fire bolt strikes a Corroded target (0.4 s reticle). | +30%. | It strikes the 2 most Corroded targets. | Every Corroded enemy within 120 of the bolt is struck too. |
 | Laser | Orbital laser (the user's cell): a targeted overhead beam strikes the target and holds for 1 s. | Holds 1.5 s. | The overhead beam follows its target. | Particle cannon: the overhead beam sweeps a line across the crowd. |
 
-### 4.7 Switched at Birth
-*Changes the weapon's damage type to one fixed alternate: its starter sample's other type. **Switching must never spoil the attack**: where the mechanic is the damage type, the cell is N/A. The attack's shape and mechanic stay the same; the new type brings its own status and unstable reactions. Best on: any.*
+**Branches**
+- **Lv 1 (shared):** the attack lands from above (the Lv 1 cell), ignoring walls and line of sight, with the telegraph that suits the weapon.
+- **Branch A, Orbital Strike:** Lv 2: +30% damage and radius. Lv 3: a second strike lands 0.5 s later on the same spot. Mastery A1, Carpet Bombing: five strikes walk along a 300 line over 1 s. Mastery A2, Siege: the marked spot is struck 4 times in 2 s (the marker stays; nothing is left on the floor).
+- **Branch B, Precision Strike:** Lv 2: the reticle shortens to 0.2 s and the strike ignores Evasion. Lv 3: it also strikes the second-toughest enemy. Mastery B1, Volley: strikes land on up to 6 different targets at once, 60% each. Mastery B2, Guardian Angel: when you take a hit, a strike lands on the attacker for 200% (once every 4 s).
+- **Weapon exceptions:** Nervous Wreck: its stomp is a Burst, so Precision Strike ignores Evasion on the stomp's centre only. Soulmate Signal: the twin dives; Volley sends twin dives to up to 3 points.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.7 Switched at Birth
+*Changes the weapon's damage type to one fixed alternate: its starter sample's other type. **Switching must never spoil the attack**: where the mechanic is the damage type, the cell is N/A. The attack's shape and mechanic stay the same; the new type brings its own status and unstable reactions. Best on: any. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | Force → **Blood**: the pellet makes targets Bleed. | +1 Bleed stack. | Bleed builds +30%. | Dual-type Force and Blood (Blood Pressure on heavy hits). |
 | Maximum Gains | Force → **Static**: each pellet adds Charge. | Charge +20%. | Charge +40%. | Dual-type Force and Static: Shocking Impact on every pellet. |
@@ -722,10 +842,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | N/A: burning stripped enemies is the attack. | | | |
 | Laser | Fire → **Acid**: an acid-green laser that Corrodes; the beam is unchanged. Also gives Ordered Online an Acid weapon. | Corrosion +20%. | Corrosion +40%. | Dual-type Fire and Acid: it strips and burns in one beam. |
 
-### 4.8 Primer
-*Hits leave a primer mark (4 s, one per enemy). Any of your **other** weapons hitting a primed enemy sets it off: a small burst (radius 40) for 50% of the primer weapon's base damage, and the mark is used up. Lv 2: bursts 75% and radius 60. Lv 3: the weapon's step. Builds two-weapon combos. Best on: Projectile, Beam, Spread. N/A where this is already the weapon's signature.*
+**Branches**
+- **Lv 1 (shared):** the weapon takes its fixed alternate damage type (the Lv 1 cell), keeping its shape and mechanic.
+- **Branch A, Dual Nature:** Lv 2: the new type's status builds +20%. Lv 3: +40%. Mastery A1, Dual-type: every hit carries both the old and the new type. Mastery A2, Pendulum: the weapon alternates types each hit; when the type flips on one enemy within 2 s, their unstable reaction goes off automatically (max one per enemy per 3 s).
+- **Branch B, Chameleon:** Lv 2: when the target already carries a status, the hit uses whichever of the two types reacts with it. Lv 3: reactions set off that way deal +30%. Mastery B1, Reaction Hunter: the weapon picks the type that completes a reaction whenever one exists, and those reactions deal +50%. Mastery B2, Mimic: the weapon copies the damage type of your most recent hit on that target from another weapon (still one of the seven).
+- **Weapon exceptions:** None; N/A rows stay N/A.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.8 Primer
+*Hits leave a primer mark (4 s, one per enemy). Any of your **other** weapons hitting a primed enemy sets it off: a small burst (radius 40) for 50% of the primer weapon's base damage, and the mark is used up. Lv 2: bursts 75% and radius 60. Lv 3: the weapon's step. Builds two-weapon combos. Best on: Projectile, Beam, Spread. N/A where this is already the weapon's signature. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | Pellets prime their target. | Bigger detonations. | Detonations knock the enemy back. | Detonations knock enemies into their mates (40%). |
 | Maximum Gains | Every pellet primes. | Bigger detonations. | An enemy primed by 3 pellets detonates twice. | An enemy primed by the whole fan detonates three times as hard. |
@@ -755,10 +881,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Burning enemies are primed. | Bigger detonations. | Detonating a primed Corroded enemy sets off Premature Evaporation. | Premature Evaporation re-primes everything it hits. |
 | Laser | Enemies held in the beam 0.5 s are primed. | Bigger detonations. | Detonations set the enemy alight. | Detonations reflect a short laser to the nearest enemy. |
 
-### 4.9 Every Nth
-*Every Nth attack is empowered, with a visible count on the weapon icon (`MODIFIERS.md` 14). Lv 1: every 4th. Lv 2: every 3rd. Lv 3: the weapon's step. The empowered attack is one hit and may count as heavy. Best on: any. N/A where the weapon already has an every-Nth rhythm.*
+**Branches**
+- **Lv 1 (shared):** hits leave a primer mark (4 s, one per enemy); a hit from one of your other weapons sets it off as a small burst (radius 40, 50% of the primer weapon's base damage).
+- **Branch A, Bomb Squad:** Lv 2: marks last 8 s. Lv 3: a primed enemy that dies explodes as a detonation. Mastery A1, Chain Primer: a detonation primes the enemies in its radius (max 3 steps). Mastery A2, Time Bomb: a primed enemy detonates on its own after 3 s, at full strength, if nothing else sets it off.
+- **Branch B, Tag Team:** Lv 2: the mark isn't spent by the first hit; it detonates once two different weapons have hit the enemy. Lv 3: the burst grows +25% for each different weapon that hit it (cap 3). Mastery B1, Full Roster: when 3 different weapons hit the enemy within 2 s, the detonation is triple. Mastery B2, Handoff: after a detonation, the mark jumps to the nearest enemy within 100 as a fresh 4 s mark.
+- **Weapon exceptions:** Unwanted Contact stays N/A. Family Ties: marks live inside the well, so Bomb Squad's longer mark lasts as long as the hole.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.9 Every Nth
+*Every Nth attack is empowered, with a visible count on the weapon icon (`MODIFIERS.md` 14). Lv 1: every 4th. Lv 2: every 3rd. Lv 3: the weapon's step. The empowered attack is one hit and may count as heavy. Best on: any. N/A where the weapon already has an every-Nth rhythm. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | Every 4th pellet is double size and double damage. | Every 3rd. | The big pellet knocks back. | The big pellet pierces the whole line. |
 | Maximum Gains | Every 4th fan fires double pellets. | Every 3rd. | The double fan is 50% wider. | The empowered fan is a full ring. |
@@ -788,10 +920,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Every 4th on-phase sets off Premature Evaporation on every Corroded enemy in the lane. | Every 3rd. | It lasts 0.5 s longer. | It lasts twice as long. |
 | Laser | Every 4th on-phase is a thick beam (+60%). | Every 3rd. | It pierces (exception to the no-pierce rule). | It's a white-hot burst that ignores Shell. |
 
-### 4.10 Extra Projectiles
-*Adds shots, beams or objects per attack. More of them means less damage each (rule 5). Laser cells follow the user's voice notes exactly: +1 beam (you can set a different target for each), then a rear beam (front beams confined to the front 180°, rear beams to the rear 180°), then the mastery, beams rotating in every direction. Best on: Beam, Projectile.*
+**Branches**
+- **Lv 1 (shared):** every 4th attack is empowered, with a visible count on the weapon icon (the Lv 1 cell).
+- **Branch A, Clockwork:** Lv 2: every 3rd attack. Lv 3: every 3rd, and the empowered attack also fires twice. Mastery A1, Metronome: every 2nd attack is empowered, with 60% of the normal bonus. Mastery A2, Crescendo: every 5th attack is empowered, +25% for each normal attack since the last (cap +125%).
+- **Branch B, Wild Card:** Lv 2: each attack has a 25% chance to be empowered, and the 6th since the last is certain. Lv 3: 30%, and an empowered attack that kills makes the next one empowered too (max 3 in a row). Mastery B1, Jackpot: each empowered attack has a 1 in 6 chance to be a jackpot: triple, with every rider effect. Mastery B2, Loaded Dice: a failed roll is saved: the chance goes up by 10% after each normal attack and resets on an empowered one.
+- **Weapon exceptions:** Enzyme Headbutt stays N/A.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.10 Extra Projectiles
+*Adds shots, beams or objects per attack. More of them means less damage each (rule 5). Laser cells follow the user's voice notes exactly: +1 beam (you can set a different target for each), then a rear beam (front beams confined to the front 180°, rear beams to the rear 180°), then the mastery, beams rotating in every direction. Best on: Beam, Projectile. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | +1 forward pellet (85% damage each). | +1 rear pellet. | +2 side pellets. | A ring of pellets in every direction (50% each). |
 | Maximum Gains | +2 pellets per fan. | A second, smaller fan behind you. | +2 more pellets per fan. | Fans fire front, back and to both sides. |
@@ -821,10 +959,16 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | +1 beam, front 180°, on a different Corroded target. | A rear beam (rear 180°). | +1 more front beam. | Beams rotating in every direction, stopping briefly on Corroded enemies. |
 | Laser | +1 beam; both limited to the front 180°, and you can set a different target for each. | A beam behind you, limited to the rear 180°. | +1 more front beam (3 front, 1 rear). | Beams rotating in every direction (damage per beam lowered; the user's "disco ball", name not decided). |
 
-### 4.11 Orbiting
-*The attack circles you (radius 72 unless the cell says otherwise). For most weapons the attack forms a ring round you, then flies off. For beams it becomes a ring that never leaves (the user's laser hula hoop): strong defence. Orbiters can't be hit and aren't pets; they block enemy shots only where the cell says so (12.8). Best on: Beam, Projectile. N/A where the weapon goes off round you anyway.*
+**Branches**
+- **Lv 1 (shared):** +1 shot, beam or object per attack (the Lv 1 cell), at lower damage each (rule 5). Beams: +1 beam with its own target, front beams limited to the front 180°.
+- **Branch A, Full Circle (the user's beam path):** Lv 2: a rear shot or beam, limited to the rear 180°. Lv 3: +1 more front shot or beam (Projectile weapons: +2 side shots). Mastery A1, Disco Ball: beams rotating in every direction at lower damage per beam; Projectile weapons fire a ring at 50% each. Mastery A2, Crossfire: front and rear shots curve in to meet one target from opposite sides, dealing +30% when both land within 0.3 s.
+- **Branch B, Can't Pick One:** Lv 2: hits have a 20% chance to split into two half-damage shots that home on nearby enemies (split shots never split again; max 12 in flight). Lv 3: 30%, and the two splits go to different targets. Mastery B1, Swarm: 40%, and each split makes three shots at 40% damage (still max 12 in flight). Mastery B2, Overflow: when 12 are in flight, extra splits become small instant blasts (radius 40, 50%).
+- **Weapon exceptions:** Beams (Red Flagship, Spark of Life, Laser): Can't Pick One forks the beam: a hit has a 20% chance to fork two thin half-damage beams that bend to nearby enemies for 1 s (same cap of 12). The Laser takes branch A exactly as the user wrote it. Burst, Pool and Contact weapons follow their table cells for what "a shot" is.
 
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+### 4.11 Orbiting
+*The attack circles you (radius 72 unless the cell says otherwise). For most weapons the attack forms a ring round you, then flies off. For beams it becomes a ring that never leaves (the user's laser hula hoop): strong defence. Orbiters can't be hit and aren't pets; they block enemy shots only where the cell says so (12.8). Best on: Beam, Projectile. N/A where the weapon goes off round you anyway. The Lv 2, Lv 3 and Mastery cells show one example path: they are per-weapon flavour that the shared branches below apply.*
+
+| Weapon | Lv 1 | Lv 2 (default path) | Lv 3 (default path) | Mastery (example) |
 |---|---|---|---|---|
 | Standard Issue | Pellets circle you once, then fly off at the nearest enemy. | They circle twice. | Orbiting pellets block enemy shots. | Up to 6 pellets orbit until an enemy comes near, then fire. |
 | Maximum Gains | The fan forms a ring round you, then flies outward. | The ring turns twice before it flies. | The ring blocks enemy shots while it turns. | The ring stays: a spinning ring of pellets (ring damage, 50% each). |
@@ -853,6 +997,12 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Enzyme Sneeze | Droplets orbit you once, then fly out. | They orbit twice. | Orbiting droplets Corrode what they pass. | A permanent ring of acid mist round you. |
 | Spark of Life | The beam becomes a ring round you that burns Corroded enemies. | Radius 90. | The ring sets off Premature Evaporation on contact. | A second ring turning the other way. |
 | Laser | Hula hoop (the user's note): the beam leaves you, twists, and forms a glowing ring round you. It never goes out again, burning anything that touches it. | Radius 100. | The ring blocks enemy shots. | Two rings at different radii, turning opposite ways. |
+
+**Branches**
+- **Lv 1 (shared):** the attack circles you (radius 72 unless the cell says otherwise), then flies off; beams become a ring that never leaves (the Lv 1 cell).
+- **Branch A, Keep Spinning:** Lv 2: orbiters last 30% longer, and deal +5% damage per enemy hit in a row (cap +50%). Lv 3: orbiters last 60% longer in all, and one miss doesn't break the streak. Mastery A1, Perpetual Motion: orbiters never leave; they stay in orbit for good, hitting what they touch (beams: the ring). Mastery A2, Buzzsaw: the orbit breathes between 40 and 160 every 2 s, sweeping a wide band.
+- **Branch B, Gravity Lens:** Lv 2: shots from your other weapons that pass through the orbit speed up 25%. Lv 3: they also deal +25%. Mastery B1, Slingshot: orbiters fly off at double speed for +100% damage and return to orbit after 2 s if they hit nothing. Mastery B2, Shield Wall: orbiters block enemy shots; each shot blocked adds +10% to the next hit (cap +50%). **Combo mastery B3, Planetary system** (see 5.4): Family Ties only, while you carry a Projectile or Spread weapon.
+- **Weapon exceptions:** Laser: the hula hoop is already its Lv 1, so Perpetual Motion is replaced by the table's mastery of two rings turning opposite ways; its Keep Spinning duration bonus applies to ring spin speed instead. Panic Button and Peekaboo stay N/A.
 
 ## 5. How the modifiers fit together
 
