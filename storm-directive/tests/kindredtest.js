@@ -94,13 +94,13 @@ const { chromium } = require('playwright');
     // Skip on a weapon draft: back to play, +2 rerolls, the mount stays empty.
     G.lootQueue = []; genLoot({ kind: 'start' })[0].apply(); G.weapons.push(null); const rr = G.rerolls;
     UI.openLoot({ kind: 'slot' }); UI.lootOpenT -= 1000;
-    if (document.getElementById('dTitle').textContent !== 'CHOOSE A WEAPON' || document.getElementById('dSkip').style.display === 'none') bad.push('slot draft head/skip');
+    if (document.getElementById('dTitle').textContent !== 'WEAPON DRAFT' || document.getElementById('dSkip').style.display === 'none') bad.push('slot draft head/skip');
     document.getElementById('dSkip').click();
     if (G.state !== 'play' || G.rerolls !== rr + 2 || G.weapons[1] !== null) bad.push('skip ' + G.state + ' ' + G.rerolls);
     UI.openLoot({ kind: 'mutation' }); out.mutHead = document.getElementById('lootTitle').textContent;
     if (G.state === 'loot' && out.mutHead !== 'CHOOSE A MUTATION') bad.push('mutation heading ' + out.mutHead);
     G.state = 'play'; UI.show('hud');
-    UI.openLoot({ kind: 'level' }); if (document.getElementById('lootTitle').textContent !== 'CHOOSE AN UPGRADE') bad.push('level heading');
+    UI.openLoot({ kind: 'level' }); if (document.getElementById('lootTitle').textContent !== 'LEVEL UP') bad.push('level heading');
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

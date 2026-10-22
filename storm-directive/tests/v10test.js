@@ -16,7 +16,7 @@ const { chromium } = require('playwright');
   if (cards.length !== (nine ? 9 : 8) || NAMES.some((n, i) => !cards[i].includes(n) || /LOCKED/.test(cards[i]))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples, all open: samples10.js)
   await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
   const modes = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-mode]')].map(b => b.dataset.mode));
-  if (modes.join() !== 's002,s001,s006,s007') bad.push('experiments: ' + modes); // (v10.35: the Petri Dish, The Race, Endless and Level 1)
+  if (modes.join() !== 's001,s002,s006,s007') bad.push('experiments: ' + modes); // (design system v2: The Race, the Petri Dish, Endless and Level 1)
   await page.click('#sampleList [data-mode="s001"]'); await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
