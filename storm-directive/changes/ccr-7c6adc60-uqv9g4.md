@@ -21,3 +21,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none in code; BASE_WEAPONS.md needs a Laser entry and MODIFIERS.md 4 (Ricochet) disagrees (listed in the doc).
+
+## 2026-10-22 Modifier groups, pair bonuses, Advanced Targeting to sperm passives (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/MODIFIER_MATRIX.md, redesign docs/README.md, storm-directive/NOTES.md
+- What: five modifier groups (Delivery, Flight, Crowd, Tempo, Chemistry); one firing replacement per weapon; look-alike distinctions; 13 pair bonuses with draft weighting; DPS and transformation checks; Charged wind-up shortens per level; Advanced Targeting becomes a sperm passive (adds "elite first" and "nearest threat").
+- Save data: none.
+- Hooks: none.
+- Risk: none.

@@ -1,6 +1,6 @@
 # Weapon Modifier Matrix (matrix 2)
 
-**Status: working draft, 22 Oct 2026. Docs only; nothing is built.** Every cell follows decisions the user made in design sessions on 22 Oct (section 1). The first matrix (40 modifiers, single-line cells) is in Notion: "Spawn Prawn: Weapon Modifier Matrix". This one replaces it for the 26 modifiers below. Weapon facts come from `BASE_WEAPONS.md`; the shared modifier rules in `MODIFIERS.md` ("Shared rules") still apply to every cell.
+**Status: working draft, 22 Oct 2026. Docs only; nothing is built.** Every cell follows decisions the user made in design sessions on 22 Oct (section 1). The first matrix (40 modifiers, single-line cells) is in Notion: "Spawn Prawn: Weapon Modifier Matrix". This one replaces it for the 25 weapon modifiers below (Advanced Targeting became a sperm passive, section 6). Weapon facts come from `BASE_WEAPONS.md`; the shared modifier rules in `MODIFIERS.md` ("Shared rules") still apply to every cell.
 
 Numbers are starting values for sims. All names here are internal; player-facing card text follows the copy process (`CLAUDE.md`, Copy).
 
@@ -13,6 +13,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 2. **Two kinds of modifier.**
    - **Scaling** (section 3): the same effect grows along a shared ramp. Each table gives what scales on each weapon and its mastery; Lv 1 to 3 follow the ramp in the section's heading.
    - **Shaping** (section 4): each level is a new, weapon-specific step. Each table gives Lv 1, Lv 2, Lv 3 and the mastery.
+   - Every modifier also belongs to one of five **groups** by what it changes (section 5.1).
 3. **The ramp.** Counts (bounces, pierces, jumps, extra targets) go **1, 3, 6, then 12 at mastery**. Amounts (damage, radius, slow, time) go ×1, ×2, ×3 of the Lv 1 value. A scaling mastery is the next step of the ramp plus a weapon-specific twist.
 4. **Best on.** Each modifier names the attack types it suits best; the draft offers it more often on weapons of those types.
 5. **More beams, less damage each.** Anything that multiplies a weapon's beams or shots (Extra Projectiles, splits) lowers the damage of each one, so the total rises less than the count.
@@ -24,9 +25,14 @@ Numbers are starting values for sims. All names here are internal; player-facing
 11. **Sticky** applies Snared at its top levels. On Fire weapons this is a deliberate trade-off: Snared puts Fire out, so the weapon gains control and loses burn.
 12. **Turncoat** works on kill only: enemies the weapon kills rise as temporary allies, each weapon its own kind. Own cap: **6 per weapon**, separate from the pets cap (12.3). Elites and bosses never rise (default).
 13. **Connecting, Turncoat, Melee and Ranged** were designed weapon by weapon with the user.
-14. **Advanced Targeting** gives an ordered priority list (nearest, toughest, weakest, fastest, densest cluster, not yet afflicted); levels add slots. Multi-shot weapons can assign different shots to different foes.
+14. **Advanced Targeting is a sperm passive, not a weapon modifier** (adopted 22 Oct): a targeting rule can't compete for one of a weapon's 3 slots against combat upgrades, so it sets targeting for every weapon at once (section 6).
 15. **Switched at Birth** gives each weapon one fixed alternate damage type, its starter sample's other type. **Switching must never spoil the attack**: where the mechanic is the damage type, the cell is N/A.
 16. **Roster:** 27 weapons. The Runs is no longer a weapon (it becomes a sperm passive, `storm-directive/NOTES.md`). The **Laser** is new: Ordered Online's Fire beam (from the user's voice notes).
+
+17. **One firing replacement per weapon.** Melee, Ranged, Mines and Death from Above each replace how the weapon fires, so a weapon can carry only one of them, unless the two form a named pair (section 5.3). Orbiting and Extra Projectiles change delivery without replacing it, so they stack.
+18. **Transformation test.** A Delivery modifier must change more than distance. Melee and Ranged change targeting, animation and hit detection; Mines add placement and a delayed trigger; Death from Above adds a different origin, a warning marker and impact timing. A cell that only changes reach fails and gets rewritten.
+19. **Balance on damage per second.** Every scaling ramp that trades one thing for another is checked on damage per second (DPS), not damage per hit, so no modifier becomes the automatic pick. Starting checks (rate × damage per hit): Rapid Fire 1.05 / 1.26 / 1.43; Charged, on a 1.0 s weapon, 1.07 / 1.36 / 1.69 (wind-up included). Sims tune from there.
+20. **Pair bonuses.** Two specific modifiers on the same weapon unlock an extra effect (section 5.3). Once you hold one half of a pair on a weapon, the draft offers the other half more often (+50% weight).
 
 ### Conflicts and follow-ups in other docs
 1. **Beams do not pierce** (user, 22 Oct). `MODIFIERS.md` 2 says "Beams always pierce", and Spark of Life's spec (`BASE_WEAPONS.md` 27) says it pierces. Here, Piercing applies to Red Flagship, Spark of Life and the Laser. Soulmate Signal is N/A, since its beam hits everything between you and your twin by design.
@@ -148,7 +154,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Laser | The beam becomes fast pulses. | Pulses alternate between your top 2 targets. |
 
 ### 3.4 Charged
-*An automatic wind-up before each attack (0.5 s unless the cell says otherwise), then a stronger attack. Ramp: +60 / +120 / +180% on what scales. Mastery: the twist. Best on: Projectile, Beam, Burst. N/A where waiting longer is already the payoff.*
+*An automatic wind-up before each attack, then a stronger attack. Ramp: the wind-up shortens 0.5 / 0.4 / 0.3 s (cells that name a longer wind-up shorten by the same steps), and what scales grows +60 / +90 / +120%. Mastery: the twist. Best on: Projectile, Beam, Burst. N/A where waiting longer is already the payoff.*
 
 | Weapon | What scales | Mastery twist |
 |---|---|---|
@@ -681,40 +687,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | A Fire bolt strikes a Corroded target (0.4 s reticle). | +30%. | It strikes the 2 most Corroded targets. | Every Corroded enemy within 120 of the bolt is struck too. |
 | Laser | Orbital laser (the user's cell): a targeted overhead beam strikes the target and holds for 1 s. | Holds 1.5 s. | The overhead beam follows its target. | Particle cannon: the overhead beam sweeps a line across the crowd. |
 
-### 4.7 Advanced Targeting
-*The default is one target, picked by the weapon's own rule. Lv 1 gives an ordered list of 2 rules from the menu: nearest, toughest, weakest, fastest, densest cluster, not yet afflicted (by this weapon's status). Lv 2 adds a third slot. Lv 3 adds the weapon's step. The mastery is a weapon specialty, often assigning different shots to different foes. Best on: Projectile, Beam. N/A where the weapon doesn't aim.*
-
-| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
-|---|---|---|---|---|
-| Standard Issue | 2-rule list. | 3 rules. | Never fires at an enemy another shot will already kill. | Lock: stays on a target until it dies, then takes the next by your list. |
-| Maximum Gains | 2-rule list for where the fan points. | 3 rules. | Points the fan to cover the most enemies of your top rule. | Split fan: the left and right halves follow different rules. |
-| Nervous Wreck | 2-rule list for which enemy in contact range to snap. | 3 rules. | Snaps the enemy about to hit you first. | Ignores enemies that would trigger Thorns, unless nothing else is in range. |
-| Panic Button | 2-rule list for when to go off (first in range, densest moment, toughest in range). | 3 rules. | Waits up to 0.5 s for a better moment. | Holds its pulse until at least N enemies are in range (you set N). |
-| Acid Spit | 2-rule list ("not yet afflicted" = not yet Corroded). | 3 rules. | Never wastes a glob on an enemy with no Shell left. | Assign shots: every other glob takes your second rule. |
-| Red Flagship | 2-rule list for the beam's aim. | 3 rules. | Holds on a target until it's Charged, then moves. | Sweep order: the beam moves target to target along your list without returning. |
-| Nocturnal Emission | 2-rule list for where puddles go (densest, path of the fastest, toughest). | 3 rules. | Puddles are laid on enemies' predicted paths. | Each puddle follows a different rule in turn. |
-| Little Prick | 2-rule list ("not yet afflicted" = not yet Bleeding). | 3 rules. | Never stacks Bleed past the cap on one enemy. | Assign shots: needles cycle through your list's top 3 targets. |
-| Rent Free | 2-rule list for who to possess. | 3 rules. | Never possesses an enemy that is already possessed. | Assign shots: alternate ghosts take different rules. |
-| Hot Mess | 2-rule list for where to lay the patch. | 3 rules. | Patches go where enemies will be in 1 s. | Each patch follows a different rule in turn. |
-| Family Ties | 2-rule list for where to place the hole. | 3 rules. | Places holes near existing ones to set up merges. | Places holes so the bent shots of your other weapons pass through them. |
-| Skill Issue | 2-rule list for where to lob. | 3 rules. | Lobs to set up the longest collision chain. | Each dollop of a load follows a different rule. |
-| There Is No Spoon | 2-rule list for returned bullets. | 3 rules. | Each bullet goes to the enemy weakest to its damage type. | Assign by type: each damage type in your store gets its own rule. |
-| Nappy Mines | 2-rule list for where to drop mines (behind you, on enemy paths, near other mines). | 3 rules. | Drops mines to make the most Domino links. | Each mine of a load follows a different rule. |
-| Soulmate Signal | 2-rule list for where the twin anchors. | 3 rules. | The twin anchors so the beam crosses the most enemies. | Two anchor rules: the twin alternates between them. |
-| Unwanted Contact | 2-rule list for the first shot. | A separate 2-rule list for the jumps. | 3 rules each. | Jump rules: each of the jumps can follow a different rule. |
-| Ewww, Gross | 2-rule list for the stamp. | 3 rules. | Picks the target whose neighbours make the biggest bundle. | Assign shots: each stamp of a load follows a different rule. |
-| Blowing Bubbles | 2-rule list (small enemies only, as always). | 3 rules. | Never sends a bubble after an enemy another bubble is chasing. | Assign shots: each bubble of a load follows a different rule. |
-| One of These Days | 2-rule list (default: toughest). | 3 rules. | Never marks an enemy that will die before the countdown ends. | Assign shots: up to 3 marks on 3 different rules. |
-| Sister Cousin | 2-rule list for siblings. | A separate list for split siblings. | 3 rules each. | Assign shots: the two siblings take different targets by default. |
-| Peekaboo | N/A: it goes off round you and doesn't aim. | | | |
-| Eggs | 2-rule list for where eggs are dropped. | 3 rules. | Eggs are dropped to lure the enemy at the top of your list. | Each egg of a load follows a different rule. |
-| Chest Burster | 2-rule list ("not yet afflicted" = not yet infected). | 3 rules. | Infects enemies close to death first, so allies rise sooner. | Assign shots: alternate shots take different rules. |
-| Enzyme Headbutt | 2-rule list for which enemy to headbutt. | 3 rules. | The 4th-hit lunge follows its own rule, separate from the headbutts. | The lunge picks the line through the most enemies. |
-| Enzyme Sneeze | 2-rule list for where the sneeze points. | 3 rules. | Points the sneeze at the most enemies that aren't yet Corroded. | Each droplet follows a different rule. |
-| Spark of Life | 2-rule list (default: Corroded first, as in its spec). | 3 rules. | Waits for a target's Corrosion bar to fill before burning it. | Each on-phase follows a different rule in turn. |
-| Laser | 2-rule list (the user's cell: Ricochet can use the priorities when picking the next enemy). | 3 rules. | Ricochet and Extra Projectiles bounces and beams follow the list too. | Assign beams: with Extra Projectiles, each beam gets its own rule (the user's "two different targets for each beam"). |
-
-### 4.8 Switched at Birth
+### 4.7 Switched at Birth
 *Changes the weapon's damage type to one fixed alternate: its starter sample's other type. **Switching must never spoil the attack**: where the mechanic is the damage type, the cell is N/A. The attack's shape and mechanic stay the same; the new type brings its own status and unstable reactions. Best on: any.*
 
 | Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
@@ -747,7 +720,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | N/A: burning stripped enemies is the attack. | | | |
 | Laser | Fire → **Acid**: an acid-green laser that Corrodes; the beam is unchanged. Also gives Ordered Online an Acid weapon. | Corrosion +20%. | Corrosion +40%. | Dual-type Fire and Acid: it strips and burns in one beam. |
 
-### 4.9 Primer
+### 4.8 Primer
 *Hits leave a primer mark (4 s, one per enemy). Any of your **other** weapons hitting a primed enemy sets it off: a small burst (radius 40) for 50% of the primer weapon's base damage, and the mark is used up. Lv 2: bursts 75% and radius 60. Lv 3: the weapon's step. Builds two-weapon combos. Best on: Projectile, Beam, Spread. N/A where this is already the weapon's signature.*
 
 | Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
@@ -780,7 +753,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Burning enemies are primed. | Bigger detonations. | Detonating a primed Corroded enemy sets off Premature Evaporation. | Premature Evaporation re-primes everything it hits. |
 | Laser | Enemies held in the beam 0.5 s are primed. | Bigger detonations. | Detonations set the enemy alight. | Detonations reflect a short laser to the nearest enemy. |
 
-### 4.10 Every Nth
+### 4.9 Every Nth
 *Every Nth attack is empowered, with a visible count on the weapon icon (`MODIFIERS.md` 14). Lv 1: every 4th. Lv 2: every 3rd. Lv 3: the weapon's step. The empowered attack is one hit and may count as heavy. Best on: any. N/A where the weapon already has an every-Nth rhythm.*
 
 | Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
@@ -813,7 +786,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | Every 4th on-phase sets off Premature Evaporation on every Corroded enemy in the lane. | Every 3rd. | It lasts 0.5 s longer. | It lasts twice as long. |
 | Laser | Every 4th on-phase is a thick beam (+60%). | Every 3rd. | It pierces (exception to the no-pierce rule). | It's a white-hot burst that ignores Shell. |
 
-### 4.11 Extra Projectiles
+### 4.10 Extra Projectiles
 *Adds shots, beams or objects per attack. More of them means less damage each (rule 5). Laser cells follow the user's voice notes exactly: +1 beam (you can set a different target for each), then a rear beam (front beams confined to the front 180°, rear beams to the rear 180°), then the mastery, beams rotating in every direction. Best on: Beam, Projectile.*
 
 | Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
@@ -846,7 +819,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | +1 beam, front 180°, on a different Corroded target. | A rear beam (rear 180°). | +1 more front beam. | Beams rotating in every direction, stopping briefly on Corroded enemies. |
 | Laser | +1 beam; both limited to the front 180°, and you can set a different target for each. | A beam behind you, limited to the rear 180°. | +1 more front beam (3 front, 1 rear). | Beams rotating in every direction (damage per beam lowered; the user's "disco ball", name not decided). |
 
-### 4.12 Orbiting
+### 4.11 Orbiting
 *The attack circles you (radius 72 unless the cell says otherwise). For most weapons the attack forms a ring round you, then flies off. For beams it becomes a ring that never leaves (the user's laser hula hoop): strong defence. Orbiters can't be hit and aren't pets; they block enemy shots only where the cell says so (12.8). Best on: Beam, Projectile. N/A where the weapon goes off round you anyway.*
 
 | Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
@@ -879,7 +852,91 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Spark of Life | The beam becomes a ring round you that burns Corroded enemies. | Radius 90. | The ring sets off Premature Evaporation on contact. | A second ring turning the other way. |
 | Laser | Hula hoop (the user's note): the beam leaves you, twists, and forms a glowing ring round you. It never goes out again, burning anything that touches it. | Radius 100. | The ring blocks enemy shots. | Two rings at different radii, turning opposite ways. |
 
-## 5. Open questions for the user
+## 5. How the modifiers fit together
+
+### 5.1 Groups
+Every modifier belongs to one group by what it changes. Kind (scaling or shaping) says how it levels; group says what it does.
+
+| Group | What it changes | Modifiers |
+|---|---|---|
+| **Delivery** | How the attack reaches enemies | Melee, Ranged, Mines, Death from Above (these four replace firing: one per weapon, rule 17), Orbiting, Extra Projectiles |
+| **Flight** | What the attack does in flight or on impact | Piercing, Ricochet, Homing, Exploding Rounds |
+| **Crowd** | Where enemies go, and whose side they're on | Pulling, Knockback, Sticky, Connecting, Turncoat |
+| **Tempo** | Timing and the damage curve | Charged, Rapid Fire, Focused Intensity, Every Nth, Range, Up Close |
+| **Chemistry** | Damage types, statuses and reactions | Switched at Birth, Catalyst, Kinship, Primer |
+
+### 5.2 Telling look-alikes apart
+One line per pair that sounds alike, so the pool never holds two effects that play the same.
+
+| Pair | The difference |
+|---|---|
+| Ricochet / Connecting | Ricochet **redirects** the attack to a new enemy; Connecting **keeps a link** between enemies already hit. |
+| Piercing / Ricochet | Piercing carries on in a **straight line**; Ricochet **changes direction** at each enemy. |
+| Pulling / Family Ties' well | Pulling drags enemies towards **the attack** while it hits; a well is a **place** that keeps pulling. |
+| Pulling / Knockback | Opposite directions: towards the attack, or away from it. Never both on one weapon. |
+| Mines / Death from Above | Mines are **placed now, triggered by enemies later**; Death from Above **lands now, from a new origin**. |
+| Melee / Orbiting | Melee makes the weapon **strike** close; Orbiting makes the attack **circle** you (it can still fly off). |
+| Range / Up Close | Opposite curves: Range flattens falloff; Up Close steepens it for close damage. Never both on one weapon. |
+| Charged / Every Nth | Charged makes **every** attack slower and stronger; Every Nth keeps the pace and makes **one in N** stronger. |
+| Focused Intensity / Charged | Focused Intensity rewards **staying on one target**; Charged rewards **waiting before each attack**. |
+| Primer / Catalyst | Primer sets up **your other weapons**; Catalyst strengthens **this weapon's own** statuses and reactions. |
+
+### 5.3 Pair bonuses
+Two modifiers on the same weapon (both Lv 1 or higher) unlock the bonus. The draft favours the second half once you hold the first (rule 20). Named pairs may break rule 17 where the table says so.
+
+| Pair | Name (internal) | Bonus |
+|---|---|---|
+| Pulling + Exploding Rounds | Gather and pop | Enemies pulled in take +30% from the explosion, and its radius grows +20. |
+| Piercing + Exploding Rounds | Crowd disintegrator | Every enemy pierced explodes, not only the last (half-size bursts). |
+| Connecting + Sticky | Living web | Snaring one linked enemy Snares every enemy linked to it. |
+| Connecting + Ricochet | Chain reaction | Bounces prefer linked enemies and lose no damage between them. |
+| Homing + Ricochet | Smart bounce | Bounces aim at the next target by your targeting rules instead of the reflection angle. |
+| Mines + Death from Above | Orbital minefield | Allowed despite rule 17: mines are dropped from above onto the densest cluster and arm on landing. |
+| Melee + Knockback | Bouncer | Melee hits knock enemies into each other (40% collision). |
+| Charged + Up Close | Glass cannon | A charged hit within 80 deals triple; you take +15% damage while winding up. |
+| Turncoat + Connecting | Conversion army | Linked enemies that die within 2 s of each other all rise (cap 6). |
+| Rapid Fire + Focused Intensity | Drill | The ramp builds per hit instead of per 0.5 s, so fast weapons ramp faster. |
+| Extra Projectiles + Orbiting | Carousel | Each extra shot or beam becomes another orbiter; beams make rings at different radii. |
+| Primer + Catalyst | Fuse box | Detonations set off the unstable reaction between the two weapons' damage types. |
+| Switched at Birth + Kinship | Mixed family | The weapon counts as both its old and new damage type for Kinship. |
+
+## 6. Moved to sperm passives
+
+### 6.1 Advanced Targeting (sperm passive)
+*A sperm passive: it applies to every weapon you carry and takes a sperm passive slot, not a weapon slot. The default is one target, picked by each weapon's own rule. Lv 1 gives an ordered list of 2 rules from the menu: nearest, toughest, weakest, fastest, densest cluster, **elite first**, **nearest threat** (the enemy about to reach you), not yet afflicted (by that weapon's status). Lv 2 adds a third slot. Lv 3 adds each weapon's own step (column Lv 3). The mastery unlocks each weapon's specialty, often assigning different shots to different foes; it uses the build's one mastery (or Extra Mastery). Rules are set per weapon or once for all. N/A where the weapon doesn't aim.*
+
+| Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
+|---|---|---|---|---|
+| Standard Issue | 2-rule list. | 3 rules. | Never fires at an enemy another shot will already kill. | Lock: stays on a target until it dies, then takes the next by your list. |
+| Maximum Gains | 2-rule list for where the fan points. | 3 rules. | Points the fan to cover the most enemies of your top rule. | Split fan: the left and right halves follow different rules. |
+| Nervous Wreck | 2-rule list for which enemy in contact range to snap. | 3 rules. | Snaps the enemy about to hit you first. | Ignores enemies that would trigger Thorns, unless nothing else is in range. |
+| Panic Button | 2-rule list for when to go off (first in range, densest moment, toughest in range). | 3 rules. | Waits up to 0.5 s for a better moment. | Holds its pulse until at least N enemies are in range (you set N). |
+| Acid Spit | 2-rule list ("not yet afflicted" = not yet Corroded). | 3 rules. | Never wastes a glob on an enemy with no Shell left. | Assign shots: every other glob takes your second rule. |
+| Red Flagship | 2-rule list for the beam's aim. | 3 rules. | Holds on a target until it's Charged, then moves. | Sweep order: the beam moves target to target along your list without returning. |
+| Nocturnal Emission | 2-rule list for where puddles go (densest, path of the fastest, toughest). | 3 rules. | Puddles are laid on enemies' predicted paths. | Each puddle follows a different rule in turn. |
+| Little Prick | 2-rule list ("not yet afflicted" = not yet Bleeding). | 3 rules. | Never stacks Bleed past the cap on one enemy. | Assign shots: needles cycle through your list's top 3 targets. |
+| Rent Free | 2-rule list for who to possess. | 3 rules. | Never possesses an enemy that is already possessed. | Assign shots: alternate ghosts take different rules. |
+| Hot Mess | 2-rule list for where to lay the patch. | 3 rules. | Patches go where enemies will be in 1 s. | Each patch follows a different rule in turn. |
+| Family Ties | 2-rule list for where to place the hole. | 3 rules. | Places holes near existing ones to set up merges. | Places holes so the bent shots of your other weapons pass through them. |
+| Skill Issue | 2-rule list for where to lob. | 3 rules. | Lobs to set up the longest collision chain. | Each dollop of a load follows a different rule. |
+| There Is No Spoon | 2-rule list for returned bullets. | 3 rules. | Each bullet goes to the enemy weakest to its damage type. | Assign by type: each damage type in your store gets its own rule. |
+| Nappy Mines | 2-rule list for where to drop mines (behind you, on enemy paths, near other mines). | 3 rules. | Drops mines to make the most Domino links. | Each mine of a load follows a different rule. |
+| Soulmate Signal | 2-rule list for where the twin anchors. | 3 rules. | The twin anchors so the beam crosses the most enemies. | Two anchor rules: the twin alternates between them. |
+| Unwanted Contact | 2-rule list for the first shot. | A separate 2-rule list for the jumps. | 3 rules each. | Jump rules: each of the jumps can follow a different rule. |
+| Ewww, Gross | 2-rule list for the stamp. | 3 rules. | Picks the target whose neighbours make the biggest bundle. | Assign shots: each stamp of a load follows a different rule. |
+| Blowing Bubbles | 2-rule list (small enemies only, as always). | 3 rules. | Never sends a bubble after an enemy another bubble is chasing. | Assign shots: each bubble of a load follows a different rule. |
+| One of These Days | 2-rule list (default: toughest). | 3 rules. | Never marks an enemy that will die before the countdown ends. | Assign shots: up to 3 marks on 3 different rules. |
+| Sister Cousin | 2-rule list for siblings. | A separate list for split siblings. | 3 rules each. | Assign shots: the two siblings take different targets by default. |
+| Peekaboo | N/A: it goes off round you and doesn't aim. | | | |
+| Eggs | 2-rule list for where eggs are dropped. | 3 rules. | Eggs are dropped to lure the enemy at the top of your list. | Each egg of a load follows a different rule. |
+| Chest Burster | 2-rule list ("not yet afflicted" = not yet infected). | 3 rules. | Infects enemies close to death first, so allies rise sooner. | Assign shots: alternate shots take different rules. |
+| Enzyme Headbutt | 2-rule list for which enemy to headbutt. | 3 rules. | The 4th-hit lunge follows its own rule, separate from the headbutts. | The lunge picks the line through the most enemies. |
+| Enzyme Sneeze | 2-rule list for where the sneeze points. | 3 rules. | Points the sneeze at the most enemies that aren't yet Corroded. | Each droplet follows a different rule. |
+| Spark of Life | 2-rule list (default: Corroded first, as in its spec). | 3 rules. | Waits for a target's Corrosion bar to fill before burning it. | Each on-phase follows a different rule in turn. |
+| Laser | 2-rule list (the user's cell: Ricochet can use the priorities when picking the next enemy). | 3 rules. | Ricochet and Extra Projectiles bounces and beams follow the list too. | Assign beams: with Extra Projectiles, each beam gets its own rule (the user's "two different targets for each beam"). |
+
+
+## 7. Open questions for the user
 1. **Turncoat elites:** elites and bosses never rise (default). Confirm.
 2. **The four "weakened" Switched at Birth weapons** (Little Prick, There Is No Spoon, Peekaboo, Family Ties) are N/A by default. Reverse any?
 3. **Suicide vest:** keep it as a joke trap that only stops hurting you at mastery (as written)?
