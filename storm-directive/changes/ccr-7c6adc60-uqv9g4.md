@@ -85,3 +85,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none in code. Branch numbers are starting values for sims; the Branches block in each section is now the place to tune endings.
+
+## 2026-10-22 Sperm passive source (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/SPERM_PASSIVES.md
+- What: sperm passives come from level-up drafts only; bosses and rivals give relics (separate reward, no slot). Open: what gene boxes and elite drops give now.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
