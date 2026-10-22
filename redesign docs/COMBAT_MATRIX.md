@@ -482,7 +482,7 @@ What each attack type is for lives in `ATTACK_TYPES.md`; how each one meets the 
 | Reactions, statuses, world objects, defence rules, attack-type rules, formulas, numbers | This file |
 | What each damage type, defence and attack type is for, how it looks, strengths and weaknesses | `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md`, `ATTACK_TYPES.md` |
 | Enemy roles, roster, new enemies | `ENEMY_DESIGN.md` (role counterplay: section 5 here) |
-| Weapons, Feats, mutations and modifiers | `BASE_WEAPONS.md`, `WEAPON_UPGRADES.md`, `FEATS.md`, `MUTATIONS.md`, `MODIFIERS.md`, `MODIFIER_MATRIX.md` (draft) |
+| Weapons, Feats, mutations and modifiers | `BASE_WEAPONS.md`, `WEAPON_UPGRADES.md`, `FEATS.md`, `MUTATIONS.md`, `MODIFIERS.md`, `MODIFIER_MATRIX.md` (draft), `SPERM_PASSIVES.md` (draft) |
 | Progression, samples, autorun, voice | `UPGRADES.md`, `SAMPLES.md`, `AUTORUN_AUTOAIM.md`, `VOICE_GUIDE.md`, `CONSCIOUSNESS.md` |
 | Sample 9 (proposal): overview, Feat numbers and forks, copy briefs | `SAMPLE_9_ACRO.md` |
 | Sample 9 (proposal): the sample in the roster | `SAMPLES.md` section 9 |

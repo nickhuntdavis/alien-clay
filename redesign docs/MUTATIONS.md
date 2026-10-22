@@ -1,5 +1,7 @@
 # Mutations
 
+> **Superseded, 22 Oct 2026.** Sections 2, 4, 5 and 6 and the defence cards were re-sorted into `SPERM_PASSIVES.md` (which replaces the Genome slots); section 3 (weapon mutations) was folded into `MODIFIER_MATRIX.md`. Kept for the card lines (copy source) and history.
+
 Working proposal, 17 Oct 2026. **Mutations** are the adaptations, changes and questionable improvements the sample picks up through card choices during a run. Feats are gifts from the consciousness (`FEATS.md`); mutations are the sample's own biology changing in response to its circumstances, sometimes usefully, sometimes in ways that raise questions. The consciousness can still react when one arrives ("Ooh. You're different now." or "That wasn't there before.").
 
 Naming: player-facing these are **Mutations**. The internal list of attack behaviours (homing, orbiting, gravity well and the rest) stays **modifiers** in `MODIFIERS.md`; a weapon mutation may add one of those modifiers to a weapon.

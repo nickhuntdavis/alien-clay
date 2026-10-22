@@ -9,8 +9,9 @@ Numbers are starting values for sims. All names here are internal; player-facing
 1. **Levels.** A modifier has **3 levels, then a mastery as its 4th**.
    - **5 slots per weapon, one per group** (user, 22 Oct): one Delivery, one Flight, one Crowd, one Tempo and one Chemistry modifier (groups: section 5.1).
    - **Slots unlock as the weapon levels up** (user, 22 Oct): 2 slots at weapon Lv 1, a 3rd at Lv 3, a 4th at Lv 6 and the 5th at Lv 9. An unlocked slot is a count, not a group: you fill any group you haven't filled yet (proposed starting schedule; sims tune it).
-   - **One mastery per build:** only one weapon modifier in the whole build can reach its mastery; the others stop at Lv 3.
-   - **Extra Mastery** (a sperm passive) allows one more mastery, at the cost of one of the sperm's passive slots.
+   - **One weapon modifier mastery per build:** only one weapon modifier in the whole build can reach its mastery; the others stop at Lv 3. (Sperm passives have their own, separate mastery: `SPERM_PASSIVES.md`.)
+   - **Extra Mastery** (a sperm passive) allows one more mastery of either kind, at the cost of one of the sperm's passive slots.
+   - **Branches (user, 22 Oct; tables not yet rewritten):** Lv 1 is shared; at Lv 2 you choose branch A or B; at the mastery you choose one of that branch's two masteries (4 endings per modifier). Branches and masteries are written **once per modifier** and shared by every weapon; a weapon gets its own cell only where the shared one doesn't fit. Absorbed weapon mutations: "Can't Pick One" is one of Extra Projectiles' branches (Projectile hits have a 20% chance to split into two half-damage homing shots); "A Bit Extra" is one of Exploding Rounds' branches (a bigger burst on kill instead of every hit); "Keep Spinning" joins Orbiting's levels (+5% per enemy hit in a row, cap +50%). The tables in sections 3 and 4 still show the single-path version.
 2. **Two kinds of modifier.**
    - **Scaling** (section 3): the same effect grows along a shared ramp. Each table gives what scales on each weapon and its mastery; Lv 1 to 3 follow the ramp in the section's heading.
    - **Shaping** (section 4): each level is a new, weapon-specific step. Each table gives Lv 1, Lv 2, Lv 3 and the mastery.
@@ -899,12 +900,14 @@ Two modifiers from different groups on the same weapon (both Lv 1 or higher) unl
 | Melee + Charged (Delivery, Tempo) | Glass cannon | A charged melee hit deals triple; you take +15% damage while winding up. |
 | Focused Intensity + Extra Projectiles (Tempo, Delivery) | Drill | Every extra shot or beam on the same target counts towards the ramp, so more beams ramp faster. |
 | Primer + Exploding Rounds (Chemistry, Flight) | Fuse box | Detonations use the explosion's radius and set off the unstable reaction between the two weapons' damage types. |
+| Ricochet + Focused Intensity (Flight, Tempo) | Not Finished Yet (was a weapon mutation) | A shot that kills flies on to another enemy within 110 at 70%, up to 3 jumps, keeping its ramp. |
+| Every Nth + Extra Projectiles (Tempo, Delivery) | Everywhere! (was a weapon mutation) | The empowered attack also fires an extra shot at the next-best target. |
 | Switched at Birth + Piercing (Chemistry, Flight) | Two-tone | Each enemy pierced is hit by the old and new damage type in turn, setting off their unstable reaction. |
 
 ## 6. Moved to sperm passives
 
 ### 6.1 Advanced Targeting (sperm passive)
-*A sperm passive: it applies to every weapon you carry and takes a sperm passive slot, not a weapon slot. The default is one target, picked by each weapon's own rule. Lv 1 gives an ordered list of 2 rules from the menu: nearest, toughest, weakest, fastest, densest cluster, **elite first**, **nearest threat** (the enemy about to reach you), not yet afflicted (by that weapon's status). Lv 2 adds a third slot. Lv 3 adds each weapon's own step (column Lv 3). The mastery unlocks each weapon's specialty, often assigning different shots to different foes; it uses the build's one mastery (or Extra Mastery). Rules are set per weapon or once for all. N/A where the weapon doesn't aim.*
+*A sperm passive: it applies to every weapon you carry and takes a sperm passive slot, not a weapon slot. The default is one target, picked by each weapon's own rule. Lv 1 gives an ordered list of 2 rules from the menu: nearest, toughest, weakest, fastest, densest cluster, **elite first**, **nearest threat** (the enemy about to reach you), not yet afflicted (by that weapon's status). Lv 2 adds a third slot. Lv 3 adds each weapon's own step (column Lv 3). The mastery unlocks each weapon's specialty, often assigning different shots to different foes; it uses the sperm passive mastery (or Extra Mastery). Rules are set per weapon or once for all. N/A where the weapon doesn't aim.*
 
 | Weapon | Lv 1 | Lv 2 | Lv 3 | Mastery |
 |---|---|---|---|---|
