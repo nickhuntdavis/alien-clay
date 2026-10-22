@@ -1,3 +1,11 @@
+## 2026-10-22 Slice sperm passives and pairs (v10.71)
+- Systems: mutations (sperm passives), defences, weapons (pairs)
+- Files: spslice.js (new), index.html, tests/spslicetest.js (new), run.sh
+- What: Fever Pitch (burning kills spread Burn), Personal Space (push field; a Repel or Attract fork at Rank 2), Internal Ricochet (Membrane Shield's mastery: shots bounce inside the bubble). Pairs: Chain reaction (Connecting + Ricochet) and Not Finished Yet (Ricochet + Focused Intensity); the other half of a pair is dealt 50% more often.
+- Save data: none (run state G.spB, G.spsFevT).
+- Hooks: none in shared files. Wraps weapons24.js wupTick/wupKill/wupDmgMul, draft.js forkCards/draftTitle, modslice.js msRicochet, modmatrix.js modDraftCands.
+- Risk: Personal Space moves enemies directly (wall-checked in campaign levels only, as the gravity well does).
+
 ## 2026-10-22 Slice modifiers with branches and masteries (v10.70)
 - Systems: weapons (modifiers), chemistry (Catalyst bars and reactions), ui (fork screens)
 - Files: modslice.js (new), modmatrix.js (Switched at Birth checks the Chemistry slot), index.html, tests/slicetest.js (new), run.sh
