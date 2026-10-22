@@ -93,7 +93,7 @@ Names in quotes are card names: existing ones, plus drafts by Claude where the u
 4. **Copy:** names for Pile-Up, Wet Floor, Chain Letter, Bleeding Heart, Peer Pressure, Fever Pitch, Leave a Little Something and Personal Space are drafts by Claude (user asked, 22 Oct); every card still needs its line; Membrane Shield, Extra Mastery and Advanced Targeting need card text.
 
 ## 6. Open questions
-1. Gene boxes (Lateral Gene Transfer, `genes.js`) and elite mutation drops (`mutdrop.js`) used to deliver Genome mutations. What do they give now, or are they retired?
+1. (Answered 22 Oct: gene boxes and elite mutation drops are **retired**; relics stay as they are for now.)
 2. Some relics overlap sperm passives (e.g. Pickpocket and Sticky Fingers). Re-sort relics later so they don't duplicate passives?
 3. (Answered 22 Oct: The Runs takes the sample's primary damage type.) Which passive can change its type? No sperm passive changes damage type yet, and Switched at Birth is a weapon modifier.
 4. Extra Mastery as a single level: fine, or should it have levels too?

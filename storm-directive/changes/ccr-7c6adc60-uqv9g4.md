@@ -93,3 +93,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-22 Gene boxes and elite drops retired (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/SPERM_PASSIVES.md
+- What: gene boxes and elite mutation drops are retired; relics unchanged for now.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
