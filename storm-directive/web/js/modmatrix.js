@@ -77,7 +77,7 @@ modCard = (orig => function (w, id) { // (an assignment, not a declaration: a de
   return c;
 })(modCard);
 sabCard = function () {
-  const own = G.weapons.filter(w => w && !w.isSpell && w.def && !w.def.sab && MM_SAB[w24Key(w)] && mmRoom(w));
+  const own = G.weapons.filter(w => w && !w.isSpell && w.def && !mmHeld(w).has('chemistry') && MM_SAB[w24Key(w)] && mmRoom(w));
   if (!own.length) return null;
   const w = pick(own), t = MM_SAB[w24Key(w)], E = ELEMENTS[t];
   if (!E) return null;
@@ -93,7 +93,7 @@ modDraftCands = function (kind) {
     if (!w || w.isSpell || !w.def || !w.def.v10atk) continue;
     for (const id of modsFor(w)) if (!banished('mod:' + id)) out.push({ o: () => modCard(w, id), w: famK('mod:' + id) * (modHas(w, id) ? 1.3 : 1), fam: 'mod:' + id });
   }
-  if (!banished('switch') && G.sabAt !== G.draftN - 1 && G.weapons.some(w => w && !w.isSpell && w.def && !w.def.sab && MM_SAB[w24Key(w)] && mmRoom(w))) {
+  if (!banished('switch') && G.sabAt !== G.draftN - 1 && G.weapons.some(w => w && !w.isSpell && w.def && !mmHeld(w).has('chemistry') && MM_SAB[w24Key(w)] && mmRoom(w))) {
     const n = G.draftN;
     out.push({ o: () => { const c = sabCard(); G.sabAt = n; return c; }, w: 0.6 * famK('switch'), fam: 'switch' });
   }

@@ -1,3 +1,11 @@
+## 2026-10-22 Slice modifiers with branches and masteries (v10.70)
+- Systems: weapons (modifiers), chemistry (Catalyst bars and reactions), ui (fork screens)
+- Files: modslice.js (new), modmatrix.js (Switched at Birth checks the Chemistry slot), index.html, tests/slicetest.js (new), run.sh
+- What: six new modifiers (Rapid Fire, Focused Intensity, Sticky, Connecting, Catalyst, Extra Projectiles), each with a branch fork at Rank 2 and a mastery fork (two masteries of that branch). Ricochet now bounces beams at the reflection angle; Orbiting turns a beam into a ring round you (the Laser's hula hoop).
+- Save data: none (run state w.mmB, w.mmX, G.msS, G.msAny).
+- Hooks: none in shared files. Wraps weapons24.js wupStats/wupFire/wupDmgMul/wupHit/wupKill/wupTick, v10.js v10Fire, fight.js fightReact, mutations.js mutBarK, modifiers.js modOk/modAdd/modDraw, draft.js forkCards/draftTitle, modcards.js modCard.
+- Risk: power (stacked modifiers are unsimulated); Disco Ball and Clip Dump are strong; all new card text is TODO_COPY.
+
 ## 2026-10-22 Masteries, Extra Mastery, The Runs passive, Membrane Shield levels, red Laser (v10.69)
 - Systems: weapons, mutations (sperm passives), defences, fx
 - Files: modmatrix.js, spassives.js, laser.js, modifiers.js (modV), pdef.js (pdHeld), draft.js (defsHeld), tests/sptest.js (new), drafttest, modcardtest, modstest, mutstest, run.sh

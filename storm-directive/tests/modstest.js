@@ -22,7 +22,7 @@ const { chromium } = require('playwright');
     const shot = (w, a) => spawnProj(w, G.player.x, G.player.y, a || 0, weaponSrc(w));
     const ang = pr => Math.atan2(pr.vy, pr.vx);
     const ids = Object.keys(MODS10);
-    if (ids.length !== 20) bad.push('MODS10 has ' + ids.length + ' modifiers, not 20');
+    if (ids.length !== 20 + Object.keys(MS_NEW).length) bad.push('MODS10 has ' + ids.length + ' modifiers, not 20 + the slice (modslice.js)');
 
     // 1. Every modifier: 300 frames against a ring of stationary enemies, no errors.
     for (const id of ids) {
