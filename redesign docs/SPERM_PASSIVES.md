@@ -26,7 +26,7 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 | "Overexcited" | 5 kills within 2 s of each other give +30% attack speed for 3 s. | +45%, then +60%. | The streak never drops while a boss is alive. |
 | "Group Project" (was rare) | When two different weapons hit the same enemy within 0.5 s, the second hit deals +30%. | +45%, then +60%. | The window is 1 s, and the visual shows which pair hit. |
 | "Growing Pains" (was rare) | Each level-up lets off a Force Burst round you, and enemy Contact hits can't hurt you for 1 s. | Burst +50% and immunity 1.5 s; then burst +100% and 2 s. | The burst heals you 5% per enemy hit (cap 25%). |
-| `TODO_COPY:sp_pools` (was "Leave a Little Something") | Every pool you make (weapons, Feats, reactions) lasts 50% longer and gives one last tick at double damage as it ends. | +75%, then +100% duration. | The last tick is triple damage. |
+| "Leave a Little Something" (was a weapon mutation) | Every pool you make (weapons, Feats, reactions) lasts 50% longer and gives one last tick at double damage as it ends. | +75%, then +100% duration. | The last tick is triple damage. |
 
 ### 2.2 Survival (defences and health)
 
@@ -40,16 +40,17 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 | "Extra Padding" | +10% max health; at full health, half the bonus becomes a temporary Membrane. | +20%, then +30%. | Overflow healing becomes Membrane. |
 
 ### 2.3 Damage types (one each, plus one for reactions)
+*Each damage-type passive boosts what that type does best (`DAMAGE_TYPES.md` 1; user, 22 Oct): Force knockback and collisions, Acid ground denial, Static chains, Mucus Snare, Blood wounds and Extraction, Alien possession, Fire spreading Burn. Names are drafts by Claude at the user's request.*
 
 | Passive | Type | Lv 1 | Lv 2 and 3 | Mastery |
 |---|---|---|---|---|
-| "Hit Them Harder" | Force | +50% knockback on enemies already knocked back in the last 1 s. | +75%, then +100%. | An enemy knocked back twice in 1 s takes 40% collision damage when it lands. |
-| `TODO_COPY:sp_acid` (new) | Acid | When an enemy's Shell breaks, 30% of its Corrosion splashes onto enemies within 80. | 45%, then 60%. | A broken Shell leaves the enemy taking +20% from everything for 3 s. |
-| "Pass It On" | Static | When Charged runs out on an enemy, 30% chance it passes to the nearest enemy within 110 (once per Charge). | 45%, then 60%. | It always passes (still once per Charge). |
-| "Stickier" | Mucus | Snared lasts 50% longer; status bars fill 25% faster on Snared enemies. | +75%, then +100% Snare time. | Snared enemies can't be knocked out of a pool or puddle. |
-| "Bad Blood" | Blood | Blood pools from bleeding deaths are 50% bigger and make enemies standing in them Bleed. | +75%, then +100%. | Enemies dying in a blood pool add to it instead of making a new one. |
-| "Come Out of There" | Alien | An enemy killed while Possessed or building Alien has a 25% chance to leave a wisp: collect it to heal 3% or gain +20% attack speed for 3 s. | 35%, then 45%. | Wisps fly to you by themselves. |
-| `TODO_COPY:sp_fire` (new) | Fire | An enemy that dies burning sets 1 neighbour alight. | 2, then 3 neighbours. | Burning enemies that touch each other share their Burn. |
+| "Pile-Up" (was "Hit Them Harder") | Force | All Force hits knock back 30% further, and enemies sent flying take 20% collision damage when they hit something. | Knockback +60% and collisions 30%; then +90% and 40%. | A collision knocks the enemy it hits flying too (depth 2, 12.5). |
+| "Wet Floor" (new) | Acid | Your Acid Pools (matrix 11.6) are 30% bigger and last 30% longer: Acid's ground denial. | +60%, then +90%. | An enemy standing in your Acid Pool loses a Shell layer every 2 s. |
+| "Chain Letter" (was "Pass It On") | Static | Every Static chain and arc gets +1 jump and +20 jump range, and raises Static net's arc cap (`MODIFIER_MATRIX.md` 5.4). | +2 jumps and +40; then +3 and +60. | Chains no longer lose damage per jump. |
+| "Stickier" | Mucus | Snared lasts 50% longer and builds 25% faster. | +75%, then +100% Snare time. | Snared enemies can't be knocked out of a pool or puddle. |
+| "Bleeding Heart" (was "Bad Blood") | Blood | Bleed stacks build 25% faster, and Extraction (kills of bleeding enemies) heals 50% more. | +50% and +100%; then +75% and +150%. | Bad Blood: pools from bleeding deaths are 50% bigger and make enemies standing in them Bleed. |
+| "Peer Pressure" (was "Come Out of There") | Alien | Possessed lasts 30% longer, and possessed enemies hit their mates 20% harder. | +60% and +40%; then +90% and +60%. | A possessed enemy that kills a mate possesses that mate's neighbour for 1 s. |
+| "Fever Pitch" (new) | Fire | An enemy that dies burning sets 1 neighbour alight. | 2, then 3 neighbours. | Burning enemies that touch each other share their Burn. |
 | "Crossed Wires" | Any | Every reaction you have discovered deals 25% more; its lockout drops from 1.5 s to 1 s. | +40%, then +55%. | Lockout 0.5 s. |
 | "Conductive Mess" (was rare) | Static + Blood | A Charged enemy standing in a blood pool Charges every other enemy in the same pool. | The pool's Charge spreads 2, then 3 times. | Charged enemies in the pool also Bleed. |
 
@@ -73,14 +74,14 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 
 | Passive | Lv 1 | Lv 2 (branch) | Lv 3 | Mastery |
 |---|---|---|---|---|
-| `TODO_COPY:sp_field` (new) | A field round the sperm (radius 80) gently pushes enemies away (40 a second; the Pull rule's numbers reversed, 12.2: Squishy halves it, elites 50%, bosses 25%, never through walls). | **A, Repel:** the push doubles, and an enemy pushed out of the field is staggered for 0.3 s. **B, Attract:** the field flips and pulls enemies in instead (for melee, Contact and aura builds). | A: radius 110, and enemies pushed into each other collide (40%). B: radius 110, and enemies pulled close are slowed 20%. | A: enemy bullets entering the field slow by 50%. B: enemies pulled within 60 take +20% from your Contact and Burst hits. |
+| "Personal Space" (new; reuses a cut card's name) | A field round the sperm (radius 80) gently pushes enemies away (40 a second; the Pull rule's numbers reversed, 12.2: Squishy halves it, elites 50%, bosses 25%, never through walls). | **A, Repel:** the push doubles, and an enemy pushed out of the field is staggered for 0.3 s. **B, Attract:** the field flips and pulls enemies in instead (for melee, Contact and aura builds). | A: radius 110, and enemies pushed into each other collide (40%). B: radius 110, and enemies pulled close are slowed 20%. | A: enemy bullets entering the field slow by 50%. B: enemies pulled within 60 take +20% from your Contact and Burst hits. |
 
 ## 3. Sperm passive pairs
 
 | Pair | Name | Bonus |
 |---|---|---|
-| "Stickier" + "Hit Them Harder" | "Come Closer" (was a rare mutation) | Snared enemies take +25% Force damage, and a Force hit on one pulls the other Snared enemies within 80 towards it (Pull rule, 12.2). |
-| "Come Out of There" + "Crossed Wires" | "Death Is Recycling" (was a rare mutation) | A wisp you don't collect flies to the nearest enemy and fills 25% of its Alien bar. Wisp kills never release wisps. |
+| "Stickier" + "Pile-Up" | "Come Closer" (was a rare mutation) | Snared enemies take +25% Force damage, and a Force hit on one pulls the other Snared enemies within 80 towards it (Pull rule, 12.2). |
+| "Peer Pressure" + "Crossed Wires" | "Death Is Recycling" (was a rare mutation) | An enemy you kill while it is Possessed releases a wisp that flies to the nearest enemy and fills 25% of its Alien bar. Wisp kills never release wisps. |
 
 ## 4. Cut in the re-sort
 "Spare Parts", "Personal Space", "Quantity Over Quality" (Rapid Fire and Extra Projectiles cover it per weapon), and from the weapon mutations "Reachy" and "Through and Through" (Piercing covers it). "No Time for Being Careful" and "Hard to Hold" were merged (above).
@@ -89,7 +90,7 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 1. **`UPGRADES.md`** still describes Genome slots (4, shared) and weapon mutations (max 3 per weapon). Both are replaced: sperm passive slots here, weapon modifier slots in `MODIFIER_MATRIX.md` (5, one per group, unlocking with weapon level).
 2. **`MUTATIONS.md`** is superseded by this doc and the modifier matrix; its card lines (the consciousness's voice) stay the source for copy.
 3. **`BASE_WEAPONS.md`**: The Runs leaves the weapon roster.
-4. **Copy:** `TODO_COPY:sp_pools`, `TODO_COPY:sp_acid`, `TODO_COPY:sp_fire` and `TODO_COPY:sp_field` need names and lines; Membrane Shield, Extra Mastery and Advanced Targeting need card text.
+4. **Copy:** names for Pile-Up, Wet Floor, Chain Letter, Bleeding Heart, Peer Pressure, Fever Pitch, Leave a Little Something and Personal Space are drafts by Claude (user asked, 22 Oct); every card still needs its line; Membrane Shield, Extra Mastery and Advanced Targeting need card text.
 
 ## 6. Open questions
 1. (Answered 22 Oct: The Runs takes the sample's primary damage type.) Which passive can change its type? No sperm passive changes damage type yet, and Switched at Birth is a weapon modifier.

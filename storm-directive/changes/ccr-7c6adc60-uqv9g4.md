@@ -69,3 +69,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-22 Damage-type passives boost what each type does best (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/SPERM_PASSIVES.md, MODIFIER_MATRIX.md
+- What: Force (knockback, collisions), Acid (Acid Pools), Static (jumps and range), Mucus (Snare), Blood (wounds, Extraction; pools at mastery), Alien (possession) and Fire (spread) passives reworked; draft names written at the user's request; Static net's arc cap grows with the Static passive.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
