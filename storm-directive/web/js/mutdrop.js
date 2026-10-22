@@ -13,7 +13,7 @@
 
 const MUTDROP = { chance: 0.6, life: 40, dropLife: 20, maxCarriers: 2, col: '#e9f5db' };
 const mdIsMut = c => /^[mwtxrg]_/.test(c.id) && (c.slot === 'genome' || c.slot === 'weaponmut');
-const mdDraftSkip = c => mdIsMut(c); // (draft.js: mutations only come from elites)
+const mdDraftSkip = c => mdIsMut(c) && !(typeof lrOn === 'function' && lrOn()); // (draft.js: mutations only come from elites; under lootrules.js, from level drafts)
 const mdS = () => G.md || (G.md = { drops: [] });
 
 // The mutations you could take right now (none if the Genome and every weapon are full).

@@ -191,3 +191,5 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Reece is a veteran tester friend of the user. The user shares run logs (copied from the game's run log) for balance feedback.
 - (`claude/v9-v10-breaking-changes-1hjfdw`, v10.36) Experiment picker flags in samples10.js: S10_PETRI, S10_ENDLESS, S10_LEVELS (all on). Endless and Level 1 not yet simmed under v10.
 - Branch claude/consciousness-gifts (20 Oct): no APK built yet (no Android SDK or SPAWN_KS_PASS on Nick's Mac, no GitHub remote); build once pushed. X5, X7 and X8 are at full spec and the five old test failures are fixed (same day).
+
+- (`claude/loot-card-restrictions-niygz0`, v10.68) Loot only from level-ups and boss kills (`lootrules.js`): no DNA strands, no mutation carriers (mutations back in level drafts), boss box opens at once, weapon upgrades jump the queue. `window.LOOT_ANY` brings the old sources back. Open: rewarduitest and weirdbox already fail on main.
