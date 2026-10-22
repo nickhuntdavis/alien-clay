@@ -101,3 +101,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-22 Implementation plan; Laser 4th starter; 3 weapons max (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/IMPLEMENTATION_PLAN.md (new), MODIFIER_MATRIX.md, README.md
+- What: phased build plan (vertical slice first). Laser is Ordered Online's 4th starter. Runs hold at most 3 weapons: combo bonus mounts (combos.js COMBO_MOUNTS) to be retired in Phase 1.
+- Save data: none.
+- Hooks: none.
+- Risk: none in code yet; combos.js/fusion.js bonus mounts change in Phase 1.

@@ -42,7 +42,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 3. **Long lunge** (Ranged × Enzyme Headbutt) lunges up to 200, past the Lunge cap of 160 (`MODIFIERS.md` 20).
 4. **Family Ties base change:** without Connecting, its holes drift together only very slightly; Connecting Lv 1 restores today's drift.
 5. **The Runs removed:** `BASE_WEAPONS.md` roster, Redtail's starters (`SAMPLES.md`) and references need updating; Redtail now has two starters.
-6. **Laser added:** it needs a `BASE_WEAPONS.md` entry and start stats. Ordered Online would have 4 starters (Hot Mess, Nappy Mines, Blowing Bubbles, Laser) where every other sample has 3, and its types are Mucus / Acid while the Laser is Fire (open issue 6 there).
+6. **Laser added:** it needs a `BASE_WEAPONS.md` entry and start stats. It is Ordered Online's **4th starter** (user, 22 Oct; every other sample has 3), and its types are Mucus / Acid while the Laser is Fire (open issue 6 there).
 7. **Ricochet** here bounces off enemies at the true reflection angle; `MODIFIERS.md` 4 has it bouncing off walls only. That row needs updating.
 
 ## 2. Weapons (quick reference)
@@ -1102,5 +1102,5 @@ A combo mastery is an extra mastery choice for one modifier on one weapon, offer
 1. **Turncoat elites:** elites and bosses never rise (default). Confirm.
 2. **The four "weakened" Switched at Birth weapons** (Little Prick, There Is No Spoon, Peekaboo, Family Ties) are N/A by default. Reverse any?
 3. **Suicide vest:** keep it as a joke trap that only stops hurting you at mastery (as written)?
-4. **Laser roster:** does the Laser replace one of Ordered Online's three starters, or is it a 4th?
+4. (Answered 22 Oct: the Laser is Ordered Online's 4th starter.)
 5. **Orbiting × Laser blocks shots at Lv 3:** with a ring that never goes out, that may be too strong a defence. Keep?
