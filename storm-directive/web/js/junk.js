@@ -285,7 +285,7 @@ function junkChips() {
 function junkStatusRows() {
   const ids = Object.keys(G.junk || {}).filter(id => G.junk[id] > 0 && JUNK_POWERS[id]);
   const rows = ids.map(id => { const J = JUNK_POWERS[id], k = G.junk[id];
-    return `<div class="li"><b style="color:#c9e4a8">${esc(J.name.toUpperCase())}${k > 1 ? ' x' + k : ''}</b> <em>JUNK DNA${k >= JUNK.stacks ? ' | MAX' : ''}</em><br><span>${esc(capFirst(J.fmt(k)))}.</span></div>`; });
+    return `<div class="li prow">${typeof pictoFor === 'function' ? pictoFor(J.name, 'gene') : ''}<div><b>${esc(J.name.toUpperCase())}${k > 1 ? ' x' + k : ''}</b> <em>JUNK DNA${k >= JUNK.stacks ? ' | MAX' : ''}</em><br><span>${esc(capFirst(J.fmt(k)))}.</span></div></div>`; });
   if (ids.length) G.junkNew = {}; // (seen now: the chips stop showing as new)
   return rows;
 }

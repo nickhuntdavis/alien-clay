@@ -222,12 +222,13 @@ const UI = {
       else frac = w.ammo / w.s.mag;
       el.classList.toggle('reloading', reloading);
       el.querySelector('.bar i').style.width = (clamp(frac, 0, 1) * 100).toFixed(0) + '%';
+      el.style.setProperty('--f', clamp(frac, 0, 1).toFixed(2)); // (the round Immersive key draws it as a ring: eink.css)
     };
     $('wslots').classList.toggle('many', G.weapons.length > 3);
     for (let i = 0; i < wEls.length; i++) { wEls[i].style.display = i < G.weapons.length ? '' : 'none'; if (i < G.weapons.length) fill(wEls[i], G.weapons[i]); sbSlotMark(wEls[i], G.weapons[i]); } // (Sandbox branch mark)
     for (let i = 0; i < sEls.length; i++) fill(sEls[i], G.spells[i]);
     comboBonds(); // (combo partners share one border: fusion.js)
-    $('moveBtn').firstChild.textContent = 'RUN: ' + MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
+    $('moveBtn').querySelector('.mvl').textContent = MOVE_DIRECTIVES.find(m => m.id === G.moveDir).name;
     // Keep the Rewind button clear of the HUD as extra weapon rows appear.
     UI.bottomH = $('bottom').offsetHeight;
     $('side').style.bottom = LAYOUT.land ? '' : (UI.bottomH + 12) + 'px';
@@ -480,7 +481,7 @@ const UI = {
     }
     const d = w.def, s = w.s;
     const elName = ELEMENTS[w.mods.find(m => m.id === 'elemental') ? w.mods.find(m => m.id === 'elemental').elem : d.elem].name + (d.elem2 ? ' / ' + ELEMENTS[d.elem2].name : '');
-    let h = `<div class="ahead" style="--c:${elemCol(wElem(w))}"><div class="aico">${iconSVG(d, 34, elemCol(wElem(w)))}</div><div class="ainfo">
+    let h = `<div class="ahead" style="--c:${elemCol(wElem(w))}"><div class="aico">${defPicto(d, elemCol(wElem(w))) || iconSVG(d, 34, elemCol(wElem(w)))}</div><div class="ainfo">
       <div class="aname">${esc(d.name)}${w.combos && w.combos.length ? ` <span class="fz">COMBO: ${esc(w.combos.map(id => COMBO_BY[id].name).join(', '))}</span>` : ''}</div>
       <div class="asub"><b style="color:${elemCol(wElem(w))}">${esc(elName)}</b> ${w.isSpell ? 'Feat' : 'weapon'} <span class="lpips">${Array.from({ length: wTierMax(w) }, (_, i) => `<i class="${i < wTier(w) ? 'on' : ''}"></i>`).join('')}</span> ${wLvText(w)}</div>
       <div class="adesc">${esc(d.desc)}</div>${w.wpN && Object.keys(w.wpN).length ? `<div class="adesc"><b>Tuned:</b> ${Object.entries(w.wpN).map(([id, n]) => esc(PASSIVES[id].name) + ' x' + n).join(', ')}</div>` : ''}</div></div>`;
@@ -701,7 +702,7 @@ const UI = {
     $('dTabs').innerHTML = UI.lootOpts.map((x, i) => {
       const tc = D.weap ? wc : elemCol(x.def.elem);
       // Weapon drafts: the weapon's icon in its element colour (the names didn't fit); its name and role are in the panel below.
-      if (!D.weap) return `<button class="dtab dwep ${i === D.i ? 'sel' : ''}" data-i="${i}" style="--tc:${tc}">${iconSVG(x.def, 24, tc)}<b>${esc(x.title)}</b><span>${esc((x.def.role || '').toUpperCase())}</span></button>`;
+      if (!D.weap) return `<button class="dtab dwep ${i === D.i ? 'sel' : ''}" data-i="${i}" style="--tc:${tc}">${defPicto(x.def, tc) || iconSVG(x.def, 24, tc)}<b>${esc(x.title)}</b><span>${esc((x.def.role || '').toUpperCase())}</span></button>`;
       return `<button class="dtab ${i === D.i ? 'sel' : ''}" data-i="${i}" style="--tc:${tc}"><b>${esc(x.title)}</b><span>${esc(x.tag === 'BRANCH' ? 'ANY WEAPON' : x.tag)}</span></button>`;
     }).join('');
     $('dTabs').querySelectorAll('.dtab').forEach(b => b.addEventListener('click', () => { D.i = +b.dataset.i; UI.renderDraft(); }));
@@ -968,9 +969,10 @@ const UI = {
       c.style.setProperty('--ic', cardCat(o));
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
       // Only weapons and spells have real icons; the two-letter badges are gone until proper icons are drawn.
-      c.classList.toggle('noico', !o.def && !(typeof rwIco === 'function' && rwIco(o)));
+      c.classList.toggle('noico', !o.def && !(typeof rwIco === 'function' && rwIco(o)) && !(typeof lootPictoHtml === 'function' && lootPictoHtml(o)));
       const el = o.elem ? `<span class="el" style="color:${elemCol(o.elem)}">${ELEMENTS[o.elem].name}</span>` : '';
-      c.innerHTML = uiLootCard({ tag: esc(o.tag), rarity: esc(r.name), icon: o.def ? iconSVG(o.def, 28, elemCol(o.elem)) : '', iconHtml: !o.def && typeof rwIcoHtml === 'function' ? rwIcoHtml(o) : '', iconColor: o.def ? elemCol(o.elem) : '',
+      const lp = typeof lootPictoHtml === 'function' ? lootPictoHtml(o) : ''; // (64px pictogram: pictomap.js)
+      c.innerHTML = uiLootCard({ tag: esc(o.tag), rarity: esc(r.name), icon: o.def && !lp ? iconSVG(o.def, 28, elemCol(o.elem)) : '', iconHtml: lp || (!o.def && typeof rwIcoHtml === 'function' ? rwIcoHtml(o) : ''), iconColor: o.def ? elemCol(o.elem) : '',
         title: esc(o.title), titleColor: o.elem && !o.cursed ? elemCol(o.elem) : '', sub: `${esc(o.sub)} ${el}`, desc: esc(o.desc),
         extra: `${typeof rwFitHtml === 'function' ? rwFitHtml(o) : ''}${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}` });
       // Tap to take it; press and hold for the card in full, with every bit of jargon explained (glossary.js).
@@ -1036,7 +1038,7 @@ const UI = {
     UI.rarityBanner();
     UI.updateReroll();
   },
-  updateReroll() { const free = mutOn('rerolldice') && !UI.freeRerollUsed; $('rerollBtn').textContent = free ? 'REROLL (FREE)' : `REROLL (${G.rerolls})`; $('rerollBtn').disabled = !free && G.rerolls <= 0 && !mutOn('waterbear'); upAllShow(); },
+  updateReroll() { const free = mutOn('rerolldice') && !UI.freeRerollUsed; $('rerollBtn').textContent = free ? 'REROLL (FREE)' : `REROLL (${G.rerolls} LEFT)`; $('rerollBtn').disabled = !free && G.rerolls <= 0 && !mutOn('waterbear'); upAllShow(); },
 
   // ---------------------------------------------------------------- pause & directives
   // Every buff and debuff you have right now, with what it does and how long it has left (statusintro.js).
@@ -1045,10 +1047,12 @@ const UI = {
     G.state = 'pause'; INPUT.active = false; G.manual = null;
     const rows = (UI.chips || []).map(([label, colour]) => {
       const key = statusKey(label) || label.replace(/\s*[\d:].*$/, ''), I = statusInfo(key), t = statusTimer(key);
-      return `<div class="li" data-insp="st:${esc(key)}"><b style="color:${colour}">${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div>`;
+      return `<div class="li prow ${I && !I.buff ? 'debuff' : ''}" data-insp="st:${esc(key)}">${pictoFor(key, 'powerup') || pictoFor(I && !I.buff ? 'snared' : 'power-up')}<div><b>${esc(key)}</b> <em>${I ? (I.buff ? 'BUFF' : 'DEBUFF') : ''}${t != null ? ' | ' + Math.ceil(t) + 's left' : ''}</em><br><span>${esc(I ? I.what + ' ' + I.tip : label)}</span></div></div>`;
     });
     const lgt = typeof junkStatusRows === 'function' ? junkStatusRows() : []; // your junk DNA powers too (junk.js)
-    $('stBody').innerHTML = (rows.length ? uiList(rows.join('')) : lgt.length ? '' : '<p class="hint">Nothing active right now.</p>')
+    const good = rows.filter(r => !r.includes('debuff')), bad = rows.filter(r => r.includes('debuff'));
+    const grp = (label, rs) => rs.length ? `<h3>${label} <em>${rs.length} active</em></h3>${uiList(rs.join(''))}` : '';
+    $('stBody').innerHTML = (rows.length ? grp('For you', good) + grp('Against you', bad) : lgt.length ? '' : '<p class="hint">Nothing active right now.</p>')
       + (lgt.length ? `<h3${rows.length ? ' style="margin-top:10px"' : ''}>Junk DNA (Lateral Gene Transfer)</h3>${uiList(lgt.join(''))}` : '');
     UI.show('stpanel');
   },
@@ -1063,7 +1067,7 @@ const UI = {
     const box = $('pauseBody'), tab = UI.pauseTab || 'you';
     let h = uiTabs([['you', 'YOU'], ['run', 'RUN'], ['build', 'BUILD'], ['show', 'THE LAB'], ['codex', 'GUIDE']].map(([id, l]) => uiChip(l, { sel: tab === id, attrs: `data-ptab="${id}"` })).join(''));
     if (tab === 'run') {
-    h += uiPanel('Autorun directive', uiChips(moveModes().map(m => uiChip(m.name, { sel: G.moveDir === m.id, attrs: `data-move="${m.id}"` })).join(''))
+    h += uiPanel('Autorun directive', `<div class="lomv">${moveModes().map(m => `<button class="lob ${G.moveDir === m.id ? 'sel' : ''}" data-move="${m.id}">${pictoFor(m.id, 'move')}<b>${m.name}</b><span>${esc(m.desc)}</span></button>`).join('')}</div>`
       + uiHint(`${esc(MOVE_DIRECTIVES.find(m => m.id === G.moveDir).desc)}. Drag anywhere on screen to steer manually.`));
     h += uiPanel('Game speed', uiChips(SPEED_OPTS.map(v => uiChip(`x${v}`, { sel: gameSpeed() === v, attrs: `data-spd="${v}"` })).join('')));
 
@@ -1074,7 +1078,7 @@ const UI = {
     // Achievements and the show.
     const got = G.show.order;
     h += `${uiPanelOpen(`Achievements (${got.length}/${Object.keys(ACHIEVEMENTS).length}) | ${showWord()} ${fmtViewers(G.show.viewers)}`)}`;
-    h += got.length ? uiList(got.map(id => `<div class="li on"><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div>`).join('')) : uiHint('None yet. The log is waiting.');
+    h += got.length ? uiList(got.map(id => `<div class="li on prow">${pictoFor(ACHIEVEMENTS[id].name, 'achievement')}<div><b>${esc(ACHIEVEMENTS[id].name)}</b><br><span>${esc(ACHIEVEMENTS[id].desc)}</span></div></div>`).join('')) : uiHint('None yet. The log is waiting.');
     const cur = Object.keys(G.curses);
     if (cur.length) h += uiHint(`Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}`);
     h += `${uiPanelClose()}`;
@@ -1292,7 +1296,7 @@ const UI = {
       let l = '';
       for (const id of wids) {
         const d = WEAPONS[id], r = wl_stat(id), own = run && G.weapons.some(w => w && (w.sid || w.id) === id);
-        l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, r ? elemCol(d.elem) : '#ffffff40')}</span><div><b style="color:${r ? 'inherit' : '#ffffff80'}">${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</span><br><span>${esc(d.play || d.desc)}</span><br><em>${r ? `${r.runs} run${r.runs > 1 ? 's' : ''}, born ${r.born}, best Lv ${r.best}` : 'Never taken into a run.'}</em></div></div>`;
+        l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${defPicto(d, r ? elemCol(d.elem) : '') || iconSVG(d, 22, r ? elemCol(d.elem) : '#ffffff40')}</span><div><b style="color:${r ? 'inherit' : '#ffffff80'}">${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}${d.toy ? ' | TOY' : ''}</span><br><span>${esc(d.play || d.desc)}</span><br><em>${r ? `${r.runs} run${r.runs > 1 ? 's' : ''}, born ${r.born}, best Lv ${r.best}` : 'Never taken into a run.'}</em></div></div>`;
       }
       h += box(`Weapons (${used.length}/${wids.length} used)`, uiList(l), 'Every weapon in the fridge. Take one into a run to log it.');
     }
@@ -1304,7 +1308,7 @@ const UI = {
         const d = SPELLS[id], own = run && G.spells.some(w => w && w.id === id), F = SPELL_FORKS[id];
         const cost = d.passive ? 'performs itself, ' + d.base.cd + 's cooldown' : STAM_FEATS.has(id) ? 'stamina' : d.base.cd + 's cooldown';
         const seq = d.seqOnly && PROFILES[d.seqOnly] ? ` (${esc(PROFILES[d.seqOnly].name)} only)` : '';
-        l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${iconSVG(d, 22, elemCol(d.elem))}</span><div><b>${esc(d.name)}</b> <span class="brole">${esc(ELEMENTS[d.elem].name.toUpperCase())}, ${cost}${seq}</span><br><span>${esc(d.desc)}</span>${F ? `<br><span class="hint">Lv ${SPELL_FORK_LV}: <b>${esc(F[0].name)}</b> (${esc(F[0].desc)}) or <b>${esc(F[1].name)}</b> (${esc(F[1].desc)})</span>` : ''}</div></div>`;
+        l += `<div class="li cdxw ${own ? 'on' : ''}"><span class="bico">${defPicto(d, elemCol(d.elem)) || iconSVG(d, 22, elemCol(d.elem))}</span><div><b>${esc(d.name)}</b> <span class="brole">${esc(ELEMENTS[d.elem].name.toUpperCase())}, ${cost}${seq}</span><br><span>${esc(d.desc)}</span>${F ? `<br><span class="hint">Lv ${SPELL_FORK_LV}: <b>${esc(F[0].name)}</b> (${esc(F[0].desc)}) or <b>${esc(F[1].name)}</b> (${esc(F[1].desc)})</span>` : ''}</div></div>`;
       }
       h += box(`Feats (${Object.keys(SPELLS).filter(wl_feat).length})`, uiList(l), 'Every Feat in the Tackle Box. Attacking Feats are paid for in stamina; the rest wait on a cooldown.');
     }
@@ -1391,21 +1395,22 @@ const UI = {
       ? `<span class="bown" style="color:${cyan}">${label || 'OWNED'}</span>`
       : uiChip(`${cost} DNA`, { cls: `bbuy ${META.dna < cost ? 'poor' : ''}`, attrs: `data-k="${kind}" data-id="${id}"` });
     const spent = metaSpent();
-    let h = `<div class="bdna"><b style="color:${gold}">${fmtNum(META.dna)}</b> DNA banked <span class="hint">(${fmtNum(META.total)} earned, ${fmtNum(spent)} spent)</span></div>
-      ${uiHint('Every run banks DNA: levels, bosses, rival kills, time survived, and a big bonus for being born. Spend it on permanent changes to every future swimmer.')}`;
+    const full = n => Math.round(n || 0).toLocaleString('en-GB');
+    let h = `${uiHint('Every run banks DNA: levels, bosses, rival kills, time survived, and a big bonus for being born. Spend it on permanent changes to every future swimmer.')}
+      <div class="readout r3"><div class="rc hero"><b>${full(META.dna)}<sup>DNA</sup></b><span>Banked</span></div><div class="rc"><b>${full(META.total)}</b><span>Earned</span></div><div class="rc"><b>${full(spent)}</b><span>Spent</span></div></div>`;
     // What the next swimmer starts with.
     const now = META_BONUSES.filter(b => META.ranks[b.id]).map(b => META_NOW[b.id](META.ranks[b.id]));
     const st = META_STARTERS.filter(([id]) => META.starters[id] && WEAPONS[id]).map(([id]) => WEAPONS[id].name);
-    h += uiPanel('Your next swimmer', uiHint(`${now.length ? esc(now.join(', ')) : 'Nothing inherited yet.'}${st.length ? '<br>Extra starters: ' + esc(st.join(', ')) : ''}<br>Tag: ${esc((META_DYES.find(d => d.id === META.dye) || META_DYES[0]).name)}`), 'bnext');
+    h += uiPanel('Your next swimmer', `<div class="nextsw">${pictoFor('swimmer')}${uiHint(`${now.length ? esc(now.join(', ')) : 'Nothing inherited yet.'}${st.length ? '<br>Extra starters: ' + esc(st.join(', ')) : ''}<br>Tag: ${esc((META_DYES.find(d => d.id === META.dye) || META_DYES[0]).name)}`)}</div>`, 'bnext');
     h += `${uiPanelOpen('Inherited traits')}`;
     for (const b of META_BONUSES) {
       const r = META.ranks[b.id] || 0, pips = Array.from({ length: b.max }, (_, i) => `<i class="${i < r ? 'on' : ''}"></i>`).join('');
-      h += uiTraitRow('', `<b>${esc(b.name)}</b><span class="pips">${pips}</span><div class="hint">${esc(b.desc)}${r ? ` <span style="color:${cyan}">(now ${esc(META_NOW[b.id](r))})</span>` : ''}</div>`, buy('rank', b.id, r < b.max ? b.cost(r) : 0, r >= b.max, 'MAX'));
+      h += uiTraitRow(`<div class="bico">${pictoFor(b.id, 'bank')}</div>`, `<b>${esc(b.name)}</b><span class="pips">${pips}</span><div class="hint">${esc(b.desc)}${r ? ` <span style="color:${cyan}">(now ${esc(META_NOW[b.id](r))})</span>` : ''}</div>`, buy('rank', b.id, r < b.max ? b.cost(r) : 0, r >= b.max, 'MAX'));
     }
     const starterRow = ([id, cost]) => {
       const d = WEAPONS[id]; if (!d) return '';
       const ws = META.wstats[id];
-      return uiTraitRow(`<div class="bico">${iconSVG(d, 26, elemCol(d.elem))}</div>`, `<b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div>`, buy('starter', id, cost, META.starters[id]));
+      return uiTraitRow(`<div class="bico">${defPicto(d, elemCol(d.elem)) || iconSVG(d, 26, elemCol(d.elem))}</div>`, `<b>${esc(d.name)}</b> <span class="brole">${esc((d.role || '').toUpperCase())}</span><div class="hint">${esc(d.play || d.desc || '')}${ws ? ` <span style="color:${cyan}">(${ws.runs} run${ws.runs > 1 ? 's' : ''}, born ${ws.born})</span>` : ''}</div>`, buy('starter', id, cost, META.starters[id]));
     };
     h += `${uiPanelClose()}${uiPanelOpen('Epigenetic Profiles')}${uiHint(`Your Primary Sequence (chosen just before a run) is <b>${esc(PROFILES[META.profile] ? PROFILES[META.profile].name : 'The Firstborn')}</b>. Ranks come from kills, unlocks from what you do across all your runs.`)}${uiList(wl_profiles().map(id => `<div class="li ${META.profile === id ? 'on' : ''}">${UI.profileHtml(id)}</div>`).join(''))}`;
     if (wl_starters(META_STARTERS).length) h += `${uiPanelClose()}${uiPanelOpen('Wildcard weapons')}${uiHint('Every weapon belongs to one sequence, and only that sequence can draft it. Unlock one here and it becomes a wildcard: any sequence can draft it, and one is offered at the start of every run.')}`;
@@ -1476,7 +1481,7 @@ const UI = {
     const dr = dailyRecord(won);
     if (dr) h += `<div class="hint daily"><b>DAILY ${G.daily}</b>: ${dr.isBest ? 'NEW BEST FOR TODAY! ' : ''}Best ${dailyFmt(dr.best)} | Attempt ${dr.tries} | ${dr.streak}-day streak</div>`;
     h += `
-      <div class="ostats"><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
+      <div class="ostats"><div><b>${fmtTime(G.t)}</b>Time</div><div><b>${G.level}</b>Level</div><div><b>${G.kills}</b>Kills</div><div><b>${G.stats.reactions}</b>Reactions</div><div><b>${G.stats.bossKills}</b>Bosses</div>
       <div><b>${G.stats.rewinds}</b>Rewinds</div><div><b>${G.stats.charms || 0}</b>Allies won</div><div><b>${G.weapons.reduce((a, w) => a + (w ? w.mods.length : 0), 0)}</b>Modifiers</div><div><b>${G.stats.absorbed}</b>Bullets eaten</div></div>
       <h3>Damage breakdown</h3>`;
     for (const [k, v] of dmg) h += uiDamageRow(esc(k), (v / tot * 100).toFixed(0), fmtNum(v));

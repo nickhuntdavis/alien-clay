@@ -117,7 +117,7 @@ function openBirth() {
   BIRTH.t = 0; BIRTH.picks = babyChoices();
   const next = (META.gen || 0) + 1;
   $('bornKick').textContent = `GENERATION ${next}: ${genName(next).toUpperCase()}`;
-  $('bornCards').innerHTML = BIRTH.picks.length ? BIRTH.picks.map(id => `<button class="bcard" data-baby="${id}"><b>${esc(BABY_TRAITS[id].name)}</b><span>${esc(BABY_TRAITS[id].desc)}</span></button>`).join('')
+  $('bornCards').innerHTML = BIRTH.picks.length ? BIRTH.picks.map(id => `<button class="bcard" data-baby="${id}">${typeof pictoFor === 'function' ? pictoFor(id, 'baby') : ''}<b>${esc(BABY_TRAITS[id].name)}</b><span>${esc(BABY_TRAITS[id].desc)}</span></button>`).join('')
     : '<p class="hint">You have every Baby Trait already. Being born still raises your Generation.</p><button class="bcard" data-baby=""><b>Just be born</b><span>+1 Generation.</span></button>';
   $('bornCards').querySelectorAll('[data-baby]').forEach(b => b.addEventListener('click', () => {
     prestigeBirth(b.dataset.baby);

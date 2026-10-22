@@ -127,6 +127,7 @@ function drawSeqPortrait(g, W, H, id, t, locked, mini) {
 // ---------------------------------------------------------------- the screen
 function seqOrder() { const r = id => (PROFILES[id].unlock && PROFILES[id].unlock.rung) || (PROFILES[id].unlock ? 50 : 0); return Object.keys(PROFILES).sort((a, b) => r(a) - r(b)); } // (starters, then the ladder: seqlock.js)
 function openSeq() {
+  if (typeof V10 !== 'undefined' && V10 && typeof UI !== 'undefined' && UI.openSamples) { UI.openSamples(); return; } // (v10: sequences are the Sample Rack + Mode Select; this v9 screen crashed on v10 profiles)
   if (!PROFILES[META.profile] || !profUnlocked(META.profile)) META.profile = 'vanguard';
   SEQ.id = META.profile;
   SEQ.parts = Array.from({ length: 40 }, () => ({ x: Math.random(), y: Math.random(), r: 0.6 + Math.random() * 1.8, a: 0.2 + Math.random() * 0.5, s: Math.random() * 6, v: 0.01 + Math.random() * 0.03 }));

@@ -77,7 +77,7 @@ function uiHud() {
   return `<div id="hudTop">${uiHudKey('autoBtn', 'AUTO', 'Full Auto')}${uiHudKey('spdBtn', 'x1', 'Game speed')}${uiHudKey('schoolSkip', 'SKIP TUTORIAL')}</div>`
     + uiButton('START WAVE 1', { cls: 'primary', attrs: 'id="waveBtn"' })
     + uiHudKey('dbgBtn', 'DEBUG') + '<div id="dbgPanel"></div>'
-    + `<div id="bottom"><div id="wslots"></div><div id="row2"><div id="sslots"></div>${uiHudKey('moveBtn', '<span class="mvl">RUN: KITE</span>')}${uiHudKey('armBtn', UI_ICON_TACKLE, 'Tackle Box')}${uiHudKey('pauseBtn', '<i></i><i></i>', 'Pause')}</div></div>`
+    + `<div id="bottom"><div id="wslots"></div><div id="row2"><div id="sslots"></div>${uiHudKey('moveBtn', '<span class="mvk">RUN</span><span class="mvl">KITE</span>')}${uiHudKey('armBtn', UI_ICON_TACKLE, 'Tackle Box')}${uiHudKey('pauseBtn', '<i></i><i></i>', 'Pause')}</div></div>`
     + `<div id="side">${uiHudKey('abilBtn', '<b></b><span></span>')}${uiRewindButton()}</div>`
     + uiToast() + uiSystemMessage();
 }

@@ -65,8 +65,8 @@ function fusionOpenCombo(req) {
   fusionShow(req, optCombo(c), {
     id: c.id, name: c.name, sub: `${A.def.name} + ${B.def.name}`, first, cols: [ca, cb, '#ff3df2'],
     kicks: ['COMBO UNLOCKED', 'NEW COMBO!', 'COMBO!'],
-    a: `${iconSVG(A.def, 54, ca)}<b>${esc(A.def.name)}</b><em>Lv ${A.lvl}</em>`,
-    b: `${iconSVG(B.def, 54, cb)}<b>${esc(B.def.name)}</b><em>Lv ${B.lvl}</em>`,
+    a: `${defPicto(A.def, ca) || iconSVG(A.def, 54, ca)}<b>${esc(A.def.name)}</b><em>Lv ${A.lvl}</em>`,
+    b: `${defPicto(B.def, cb) || iconSVG(B.def, 54, cb)}<b>${esc(B.def.name)}</b><em>Lv ${B.lvl}</em>`,
     j: [[A.def, ca], [B.def, cb]],
     rows: [
       ['NEW POWER', c.desc],

@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#14040d">
 <title>Spawn Prawn</title>
 <link rel="stylesheet" href="style.css">
-<link id="einkCss" rel="stylesheet" href="eink.css" media="not all">
+<link id="einkCss" rel="stylesheet" href="eink.css">
 </head>
 <body>
 <canvas id="game"></canvas>
@@ -28,13 +28,16 @@
   <div class="tbox">
     <div class="logo">SPAWN<br><span>PRAWN</span></div>
     <p class="tag">You are Spermy. One egg. Four hundred million swimmers. Get the sperm count down to one, win the Final Five, and fertilise the egg.</p>
+    <div class="thero" data-picto="egg"></div>
     <button id="playBtn" class="btn primary">START SWIMMING</button>
-    <button id="dailyBtn" class="btn">DAILY CHALLENGE <span id="dailyLine" class="dna"></span></button>
+    <button id="dailyBtn" class="btn" hidden>DAILY CHALLENGE <span id="dailyLine" class="dna"></span></button>
     <button id="quickBtn" class="btn">QUICK START <span class="dna">random everything</span></button>
-    <button id="howBtn" class="btn">HOW TO PLAY</button>
-    <button id="bankBtn" class="btn">GENE BANK <span id="dnaLine" class="dna"></span></button>
-    <button id="codexBtn" class="btn">FIELD GUIDE</button>
-    <button id="setBtnTitle" class="btn">SETTINGS</button>
+    <div class="navgrid">
+      <button id="codexBtn" class="btn navtile"><span class="ntp" data-picto="achievement/peer-reviewed"></span>FIELD GUIDE</button>
+      <button id="bankBtn" class="btn navtile"><span class="ntp" data-picto="mutation"></span>GENE BANK <span id="dnaLine" class="dna"></span></button>
+      <button id="howBtn" class="btn navtile"><span class="ntp" data-picto="feat/standard-procedure"></span>HOW TO PLAY</button>
+      <button id="setBtnTitle" class="btn navtile"><span class="ntp" data-picto="modifier"></span>SETTINGS</button>
+    </div>
     <div id="how">
       <p><b>You are Spermy, an alien sperm.</b> So is everyone else, plus the host's entire immune system. There is one egg, in the middle of the arena. The <b>sperm count</b> starts at 400 million and falls as time passes, as you grow and as you kill rival swimmers. At six, the <b>Final Five</b> (the strongest swimmers left) come for you all at once. Beat them and the count is one: swim into the egg to fertilise it and win.</p>
       <p><b>Weapon trees:</b> at Lv 3, 5, 8 and 10 each weapon branches: pick one of three perks. See the whole tree in the Tackle Box. You get a strand of DNA every level, and Donor DNA (Gold+) drops from elites.</p>
@@ -187,7 +190,7 @@
 </div>
 
 <div id="holdInfo"></div>
-<div id="splash"><canvas id="splashCan"></canvas><div class="spw"><div class="spt">SPAWN<br><span>PRAWN</span></div><div class="spp">One egg. Four hundred million swimmers.<br>Only one of you gets to be a person.</div></div><div class="spk">TAP TO SKIP</div></div>
+<div id="splash"><canvas id="splashCan"></canvas><div class="spw"><div class="spt">SPAWN<br><span>PRAWN</span></div><div class="spp">One egg. Four hundred million swimmers. Only one of you gets to be a person.</div></div><div class="spk">TAP TO SKIP</div></div>
 <script src="js/look10.js"></script>
 <script src="js/data.js"></script>
 <script src="js/settings.js"></script>
@@ -314,6 +317,9 @@
 <script src="js/fusion.js"></script>
 <script src="js/supers.js"></script>
 <script src="js/w24look.js"></script>
+<script src="js/pictos.js"></script>
+<script src="js/pictomap.js"></script>
+<script src="js/wicons.js"></script>
 <script src="js/typelook.js"></script>
 <script src="js/daily.js"></script>
 <script src="js/portraits.js"></script>
@@ -335,5 +341,6 @@
 <script src="js/kindred.js"></script>
 <script src="js/v11ui.js"></script>
 <script src="js/power11.js"></script>
+<script src="js/dsheads.js"></script>
 </body>
 </html>
