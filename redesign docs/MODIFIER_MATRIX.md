@@ -6,7 +6,10 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 
 ## 1. Rules for this matrix
 
-1. **Levels.** Each cell gives **Lv 1**, what **Lv 2 and Lv 3** each add, and a **Lv 10 mastery** that transforms the weapon (like Nappy Mines' Nuclear Nappy).
+1. **Levels (user, 22 Oct).** A modifier has **3 levels, then a mastery as its 4th**. Each cell gives Lv 1, what Lv 2 and Lv 3 each add, and the mastery, which transforms the weapon (like Nappy Mines' Nuclear Nappy).
+   - **Up to 3 modifiers per weapon**, each a different modifier.
+   - **One mastery per build:** only one weapon modifier in the whole build can reach its mastery. The others stop at Lv 3.
+   - **Extra Mastery** (a sperm passive) allows one more mastery, at the cost of one of the sperm's passive slots.
 2. **Natural fits are Not applicable.** If the weapon already does what the modifier does, the cell is N/A and the draft never offers it there.
 3. **The attack type still decides defences** (`MODIFIERS.md` shared rule 1). Where a modifier changes the attack type (Melee, Ranged, Mines, Death from Above), the new type decides Thorns, Evasion and so on.
 4. **Charged** is an automatic wind-up (the game autoruns): a visible build-up before each attack, then a stronger one. Slower, harder hits.
@@ -62,7 +65,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.1 Exploding Rounds
 *Hits explode, damaging enemies near the target. N/A on Burst weapons (they already explode).*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Pellets burst on impact (radius 40, 40% of the hit). | +10 radius and +15% each. | Cluster round: the burst throws 3 mini-pellets that each burst once more. |
 | Maximum Gains | The centre pellet bursts (radius 40, 40%). | +1 more bursting pellet each. | Every pellet bursts; bursts overlapping on one enemy merge into one blast (radius 90). |
@@ -94,7 +97,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.2 Piercing
 *Attacks carry on through enemies, losing 15% per enemy passed (`MODIFIERS.md` 2). Beams do not pierce by default in this matrix (conflict 1). N/A on Pool and Burst, and where the weapon already pierces.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | The pellet passes through 1 enemy. | +1 enemy each. | Railgun: unlimited pierce in a straight line, no damage lost. |
 | Maximum Gains | Each pellet passes through 1 enemy. | +1 enemy each. | Pellets gain 10% damage for each enemy they pass instead of losing it. |
@@ -126,7 +129,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.3 Pulling
 *Pulls enemies towards the projectile, beam or weapon. Uses the Pull rule (`COMBAT_MATRIX.md` 12.2: Squishy halves it, elites 50%, bosses 25%, never through walls). N/A where the weapon already pulls.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Pellets tug enemies within 50 of their flight path towards it. | +15 radius each. | Impact yanks everything within 100 onto the target. |
 | Maximum Gains | Pellets tug enemies towards the fan's centre line. | Stronger pull each (+30%). | Net: enemies in the cone are dragged to its centre before the pellets land. |
@@ -158,7 +161,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.4 Knockback
 *Pushes enemies away. N/A where the weapon already knocks back.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Pellets shove targets back 30. | +15 each. | Shoved enemies that hit a mate or wall take 40% collision damage. |
 | Maximum Gains | Fans under 100 range blast the front row back 50. | +20 each. | Point-blank fans launch enemies into their mates (40% collision). |
@@ -190,7 +193,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.5 Connecting
 *Links enemies the weapon hits. Each weapon's link was chosen with the user. Shared damage is echo damage (`COMBAT_MATRIX.md` 12.1: no bars, no reactions, never shares on). Every link is bounded (12.5).*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Staple: the pellet staples its target to its nearest neighbour for 3 s; the pellet's knockback drags both. | +1 s each; Lv 3 staples to 2 neighbours. | Staples chain: a stapled enemy hit again staples on to the next, up to 4 in a line. |
 | Maximum Gains | Clothesline: enemies hit by the same fan are tied in a line for 3 s and can't spread out, so the next fan lands more pellets. | +1 s each; +1 enemy per line. | Lines tighten each fan: tied enemies are dragged 20 closer together every time the fan hits them. |
@@ -222,7 +225,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.6 Turncoat
 *Enemies this weapon kills rise as temporary allies (5 s unless the cell says otherwise). Own cap: 6 per weapon, oldest goes first; elites and bosses never rise. Each weapon's ally was chosen with the user.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Human shield: the killed enemy rises as a slow ally that follows you and soaks enemy shots for 5 s; it doesn't attack. | +1 s and +30% toughness each. | Shields stack: up to 3 shields form a wall that also blocks enemies swimming at you. |
 | Maximum Gains | Gym buddy: rises bulked up (+50% size and damage) and brawls up close for 4 s. | +1 s and +15% damage each. | Gym buddies spot each other: each extra buddy adds +10% damage to the rest. |
@@ -254,7 +257,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.7 Melee
 *Turns the weapon into a close-range attack. It becomes Contact unless the cell says otherwise, so Thorns answers each hit and Evasion can make it miss (matrix 13). Each version was chosen with the user.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Head-on ram: the sperm itself rams forward 60 into the target, +50% damage. | +15 ram length and +15% damage each. | Rams carry through the first target into the next. |
 | Maximum Gains | Flex: a 120° swipe in front, hitting every enemy within 80, then a short recoil backwards (Lunge, Spread recoil). | +15 reach and +15% each. | Every 3rd flex is a full 360° swipe. |
@@ -286,7 +289,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.8 Ranged
 *Turns a close-range weapon into a ranged one. Applies only to Nervous Wreck, Enzyme Headbutt, Peekaboo and Panic Button; N/A on the other 22. Each version was chosen with the user.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Nervous Wreck | Thrown clamp: throws a clamp that snaps shut on an enemy up to 220 away, then yanks it 60 towards you. It is now a Projectile (Evasion applies; Thorns doesn't). | +40 range and +20 yank each. | The yanked enemy is slammed into the first enemy in its path (40% collision). |
 | Enzyme Headbutt | Long lunge: every hit is a lunge from up to 200 away, so you dash in from range. Still Contact. Past the 160 lunge cap (conflict 3). | Lunges come 0.1 s sooner each. | Each lunge headbutts every enemy it passes on the way in. |
@@ -297,7 +300,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.9 Charged
 *An automatic wind-up: a visible build-up before each attack, then a stronger attack. Slower, harder hits. N/A where waiting longer is already the weapon's payoff.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Winds up 0.5 s, then fires a bigger pellet (+70% damage, +30% knockback). | +20% damage each. | A full charge pierces the whole line. |
 | Maximum Gains | Winds up 0.5 s; the fan tightens to 20° and each pellet hits +50% harder. | +15% each. | A charged fan at point blank stuns the front row for 1 s. |
@@ -329,7 +332,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.10 Rapid Fire
 *Faster attacks at lower strength. Baseline: +40% attack rate, -25% damage per hit; each level adds +15% rate. Statuses build per hit, so rapid weapons fill bars well.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Fires faster, weaker pellets (+40% rate, -25% damage). | +15% rate each. | Minigun: rate ramps up the longer it fires at one target (up to +100%). |
 | Maximum Gains | Faster, narrower fans (3 fewer pellets). | +15% rate each. | Fans alternate left and right, covering a wider arc over time. |
@@ -361,7 +364,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.11 Advanced Targeting
 *The default is one target, picked by the weapon's own rule. Lv 1 gives an ordered list of 2 rules from the menu: nearest, toughest, weakest, fastest, densest cluster, not yet afflicted (by this weapon's status). Lv 2 and Lv 3 add a slot each (4 rules). The mastery is a weapon specialty, such as assigning different shots to different foes. N/A where the weapon doesn't aim.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | 2-rule priority list. | +1 slot each. | Last-hit lock: stays on a target until it dies, then takes the next by your list. |
 | Maximum Gains | 2-rule list for where the fan points. | +1 slot each. | Split fan: the left half and right half follow different rules. |
@@ -393,7 +396,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.12 Range
 *Projectile and Spread only (N/A elsewhere). Pushes back the falloff in `power11.js` (full damage to 220, down to 55% at 600), raises projectile speed, and zooms the camera out one step per level (up to 3 steps per weapon; the player can still adjust zoom as normal).*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Full damage to 300; falls to 65% at 700. +20% speed. Zoom +1. | +80 to both, +10% speed, zoom +1 each. | No falloff at all; hits beyond 400 deal +20%. |
 | Maximum Gains | Pellet spread tightens 20%; full damage to 280. +20% speed. Zoom +1. | +60 and tighter, zoom +1 each. | The fan holds its shape at any range: the full fan lands at 500. |
@@ -414,7 +417,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.13 Up Close
 *Projectile and Spread only (N/A elsewhere). Steepens the falloff but raises damage close in: +40% within 120 at Lv 1; full damage ends at 160 and drops to 40% by 450.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | +40% within 120; steeper falloff. | +15% close damage each. | Point-blank hits (under 60) knock the target back into its mates. |
 | Maximum Gains | +40% within 120: the fan at point blank is brutal. | +15% each. | Point-blank fans stun the front row for 0.5 s. |
@@ -435,7 +438,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.14 Mines
 *Replaces how the weapon fires: it lays mines that trigger when enemies come near (trigger radius 60, life 14 s, 5 on the floor at most). The mine delivers the weapon's own attack. N/A where the weapon already lays traps. Mines count towards the object cap.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Pellet mines lodge in the floor and fire a pellet at the first enemy to come near. | +1 mine on the floor and +15% each. | Mines fire 3 pellets at the 3 nearest enemies. |
 | Maximum Gains | Fan mines fire a fan towards the enemy that tripped them. | +1 mine and +1 pellet each. | Mines fire a full ring of pellets. |
@@ -467,7 +470,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.15 Death from Above
 *Replaces how the weapon fires: the attack lands from above, ignoring walls and line of sight (never into a sealed arena from outside it). The aim and telegraph suit the weapon. Homing weapons track their target, with the strike landing where the target is. Area weapons mark a spot on the floor for 0.6 s. Single-target strikes show a 0.4 s reticle.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | A heavy Force slug drops on the target (0.4 s reticle), +40% damage. | +15% each. | Each slug leaves a small crater that nudges enemies inward. |
 | Maximum Gains | A shower of pellets over a marked zone (radius 70, 0.6 s). | +15 radius each. | The shower walks forward across the crowd over 1 s. |
@@ -499,7 +502,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.16 Sticky
 *Adds sticky globs that heavily slow enemies or Snare them. Snared everywhere: on Fire weapons it puts the Fire out, a deliberate trade-off (more control, less burn). N/A where the weapon already sticks enemies in place.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Pellets leave a glob that slows the target 40% for 2 s. | +10% slow each; Lv 3 Snares. | Globbed enemies stick to the first enemy they touch. |
 | Maximum Gains | Each pellet hit adds a stacking 10% slow (up to 50%). | +10% cap each. | A full fan on one enemy Snares it. |
@@ -531,7 +534,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.17 Switched at Birth
 *Changes the weapon's damage type to one fixed alternate: its starter sample's other type. **Switching must never spoil the attack.** Where the mechanic is the damage type, the cell is N/A. The new type brings its own status and unstable reactions; the attack's shape and mechanic stay the same.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Force → **Blood**: the pellet makes targets Bleed. | +1 Bleed stack each. | Dual-type: Force and Blood together (Blood Pressure reactions on heavy hits). |
 | Maximum Gains | Force → **Static**: each pellet adds Charge. | +15% Charge each. | Dual-type Force and Static: Shocking Impact on every pellet. |
@@ -563,7 +566,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.18 Primer
 *Hits leave a primer mark (lasts 4 s, one per enemy). Any of your **other** weapons hitting a primed enemy sets it off: a small burst (radius 40) for 50% of the primer weapon's base damage, and the mark is used up. Builds two-weapon combos. N/A where this is already the weapon's signature.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Pellets prime their target. | +15% detonation damage each. | Detonations knock enemies back into their mates. |
 | Maximum Gains | Every pellet primes. | +15% each. | An enemy primed by 3 pellets detonates three times as hard. |
@@ -595,7 +598,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.19 Catalyst
 *Status bars fill faster from this weapon, and the unstable reactions it sets off hit harder. Lv 1: bars fill +25%, its reactions +20%. Each level adds +10% to both. Force has no status, so Force weapons boost the reactions they set off (the Force rows in matrix section 1) instead of a bar.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Force reactions it sets off (Corrosive Splash, Snot Rocket, Blood Pressure and so on) hit +30%. | +10% each. | Every pellet counts as a heavy hit for reaction triggers. |
 | Maximum Gains | Its Force reactions +30%. | +10% each. | Each pellet can set off a reaction separately (still one per enemy per fan). |
@@ -627,7 +630,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.20 Kinship
 *Rewards committing to a damage type. Lv 1: +8% damage and +8% status fill for each **other** weapon you carry with the same damage type. Each level adds +4% per kin. The mastery is the weapon's own payoff for a full family (3 or more same-type weapons).*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | +8% per other Force weapon. | +4% each. | With 3 Force weapons, pellets ignore Squishy's knockback reduction. |
 | Maximum Gains | +8% per other Force weapon. | +4% each. | With 3 Force weapons, the fan gains 2 pellets. |
@@ -659,7 +662,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.21 Every Nth
 *Every Nth attack is empowered (N = 4 unless the cell says otherwise), with a visible count on the weapon icon. The empowered attack is one hit and may count as heavy if it qualifies (`MODIFIERS.md` 14). N/A where the weapon already has an every-Nth rhythm.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Every 4th pellet is double size and double damage. | Every 3rd at Lv 3; +20% each. | Every 4th pellet pierces the whole line. |
 | Maximum Gains | Every 4th fan fires double pellets. | +20% each. | Every 4th fan is a full ring. |
@@ -691,7 +694,7 @@ Numbers are starting values for sims. All placeholder names here are internal; p
 ### 3.22 Homing
 *Shots turn towards their target (`MODIFIERS.md` 1: turn rate per weapon; if the target dies, the shot flies on; Evasion still applies). Projectile and Spread only; N/A elsewhere and where the weapon already homes.*
 
-| Weapon | Lv 1 | Lv 2 and 3 | Lv 10 mastery |
+| Weapon | Lv 1 | Lv 2 and 3 | Mastery (Lv 4) |
 |---|---|---|---|
 | Standard Issue | Pellets curve towards their target (turn rate 3). | +1 turn rate each. | Pellets retarget when their target dies. |
 | Maximum Gains | Each pellet curves towards the nearest enemy in the cone (turn rate 2). | +1 each. | Pellets spread themselves across different enemies. |

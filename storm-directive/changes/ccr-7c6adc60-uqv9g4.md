@@ -5,3 +5,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none in code; other redesign docs (MODIFIERS.md 2, BASE_WEAPONS.md, SAMPLES.md Redtail) now disagree until the conflicts are resolved.
+
+## 2026-10-22 Modifier levels and mastery limits (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/MODIFIER_MATRIX.md, storm-directive/NOTES.md
+- What: modifiers have 3 levels plus a mastery as the 4th; up to 3 modifiers per weapon; one mastery per build unless the Extra Mastery sperm passive (costs a passive slot).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
