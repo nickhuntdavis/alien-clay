@@ -7,13 +7,13 @@ Names in quotes are card names: existing ones, plus drafts by Claude where the u
 ## 1. Rules
 
 1. **What they are.** A sperm passive applies to the sperm itself and affects every weapon it carries. Weapon modifiers (`MODIFIER_MATRIX.md`) apply to one weapon.
-2. **Slots unlock with run level:** 2 at the start, then +1 at Lv 8, 16 and 24 (5 in all). Defences take these slots too; a built-in defence (from a sample, weapon or Feat) uses none.
-3. **Levels:** 3 levels, then one mastery (no branches; the one exception is the push/pull field, 2.6, where the user asked for a branch). Picking a passive you already hold levels it up instead of using a slot.
-4. **Masteries:** one sperm passive mastery per build, separate from the one weapon modifier mastery. **Extra Mastery** adds one more of either kind.
-5. **Trade-offs:** the benefit grows with each level; the cost stays fixed.
-6. **Pairs:** two specific sperm passives held together unlock a bonus (section 3). The draft favours the second half once you hold the first (+50% weight), as for weapon pairs.
-7. **Card rule kept from `MUTATIONS.md`:** every passive changes a decision, makes a visible event or enables a synergy; a bare stat is a level, never a card of its own.
-
+2. **Source (user, 22 Oct): level-up drafts only.** Sperm passives never come from gene boxes (Lateral Gene Transfer) or elite drops. Bosses and rivals give **relics** instead (the existing relic choice, `bosses.js` and `rrelics.js`), which are a separate reward and use no passive slot.
+3. **Slots unlock with run level:** 2 at the start, then +1 at Lv 8, 16 and 24 (5 in all). Defences take these slots too; a built-in defence (from a sample, weapon or Feat) uses none.
+4. **Levels:** 3 levels, then one mastery (no branches; the one exception is the push/pull field, 2.6, where the user asked for a branch). Picking a passive you already hold levels it up instead of using a slot.
+5. **Masteries:** one sperm passive mastery per build, separate from the one weapon modifier mastery. **Extra Mastery** adds one more of either kind.
+6. **Trade-offs:** the benefit grows with each level; the cost stays fixed.
+7. **Pairs:** two specific sperm passives held together unlock a bonus (section 3). The draft favours the second half once you hold the first (+50% weight), as for weapon pairs.
+8. **Card rule kept from `MUTATIONS.md`:** every passive changes a decision, makes a visible event or enables a synergy; a bare stat is a level, never a card of its own.
 ## 2. The passives (30)
 
 ### 2.1 Movement and offence
@@ -93,6 +93,8 @@ Names in quotes are card names: existing ones, plus drafts by Claude where the u
 4. **Copy:** names for Pile-Up, Wet Floor, Chain Letter, Bleeding Heart, Peer Pressure, Fever Pitch, Leave a Little Something and Personal Space are drafts by Claude (user asked, 22 Oct); every card still needs its line; Membrane Shield, Extra Mastery and Advanced Targeting need card text.
 
 ## 6. Open questions
-1. (Answered 22 Oct: The Runs takes the sample's primary damage type.) Which passive can change its type? No sperm passive changes damage type yet, and Switched at Birth is a weapon modifier.
-2. Extra Mastery as a single level: fine, or should it have levels too?
-3. With defences now competing for 5 slots, will players skip them entirely? Watch in sims.
+1. Gene boxes (Lateral Gene Transfer, `genes.js`) and elite mutation drops (`mutdrop.js`) used to deliver Genome mutations. What do they give now, or are they retired?
+2. Some relics overlap sperm passives (e.g. Pickpocket and Sticky Fingers). Re-sort relics later so they don't duplicate passives?
+3. (Answered 22 Oct: The Runs takes the sample's primary damage type.) Which passive can change its type? No sperm passive changes damage type yet, and Switched at Birth is a weapon modifier.
+4. Extra Mastery as a single level: fine, or should it have levels too?
+5. With defences now competing for 5 slots, will players skip them entirely? Watch in sims.
