@@ -7,7 +7,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 ## 1. Rules for this matrix
 
 1. **Levels.** A modifier has **3 levels, then a mastery as its 4th**.
-   - **5 slots per weapon, one per group** (user, 22 Oct): one Delivery, one Flight, one Crowd, one Tempo and one Chemistry modifier (groups: section 5.1).
+   - **5 slots per weapon, one per group** (user, 22 Oct): one Delivery, one Flight, one Crowd, one Tempo and one Chemistry modifier (groups: section 5.1). All 5 slots are open from the start (user, 22 Oct); balance comes from the draft and sims, not from locked slots.
    - **One mastery per build:** only one weapon modifier in the whole build can reach its mastery; the others stop at Lv 3.
    - **Extra Mastery** (a sperm passive) allows one more mastery, at the cost of one of the sperm's passive slots.
 2. **Two kinds of modifier.**
