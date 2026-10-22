@@ -29,6 +29,7 @@ None. Settled 22 Oct: **Epigenetic Profiles are retired** with the gene box (Pha
 ## Phases
 
 ### Phase 0: Docs straight (half a session, Sonnet)
+**Done 22 Oct:** decisions 47 to 62 logged in `COMBAT_MATRIX.md` 10; `MODIFIERS.md` 2, 4, 10, 20, `BASE_WEAPONS.md`, `SAMPLES.md`, `UPGRADES.md` (summary and slots), `ATTACK_TYPES.md` (Beam), `WEAPON_UPGRADES.md` (retired banner), `README.md` updated. Left for later: the rest of `UPGRADES.md`'s prose (draft weights, triggers) is rewritten in Phase 2 alongside the code.
 - Log the 22 Oct decisions in `COMBAT_MATRIX.md` section 10.
 - Fix conflicts: `MODIFIERS.md` 2 (beams don't pierce), 4 (Ricochet off enemies), 10 (suicide vest), 20 (long lunge); `BASE_WEAPONS.md` (The Runs out, Laser in as Ordered Online's 4th starter); `SAMPLES.md` (Redtail's and Ordered Online's starters); `UPGRADES.md` (slots and draft rules for modifiers and sperm passives; Genome and weapon mutations gone; 3 weapons, no combo mounts).
 - Done when: no doc disagrees with the matrix or the passives doc.

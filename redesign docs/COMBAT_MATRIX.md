@@ -301,7 +301,7 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 28 | Acid colour | Shocking pink stands, even beside the pink campaign levels |
 | 29 | Soul Purpose name clash | The Force + Alien reaction is renamed **Out-of-Body Experience**; the Alien Burst weapon (M34) keeps Soul Purpose |
 | 30 | First Contact | Not of This World's Feat is a fifth trigger kind (Feat): it counts as a hit of the old and new type for reactions only, capped at 8 per use |
-| 31 | Player defence sources | Upgrade cards (Genome slots), or built into some samples, weapons and Feats (no slot). Assimilation is dropped |
+| 31 | Player defence sources | Upgrade cards (sperm passive slots since decision 52; were Genome slots), or built into some samples, weapons and Feats (no slot). Assimilation is dropped |
 | 32 | Built-in defences | Rare, at most one per source: Ordered Online has 20% Evasion, Thorny Onesie gives Thorns; no sample Feat has one |
 | 33 | Reaction damage | The payoff is the whole effect. Only reactions whose payoff is a burst or a hit deal damage (11.3); control, heal and duration reactions deal none |
 | 34 | Corrosion without Shell | The bar builds as if the target had one layer; a full bar on a creature with no Shell makes it visibly **Corroded** for 4 s (no damage over time), then resets |
@@ -319,6 +319,22 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 46 | Who owns Feat card lines (20 Oct) | The docs (`GIFT_LINES.md`, `FEATS.md` 3) via giftvoice.py; Card_Copy_Draft_All.xlsx keeps every other card's lines |
 | 45 | Beams and Charge arcs (20 Oct) | A Beam's hits pass Charge arcs on only every 3rd hit, counted per weapon (11.5). Every other attack type: every hit. Why: a weapon test put Red Flagship about 60% above the field at level 1, a quarter of it from arcs riding the beam's many small hits |
 | 46 | Chains and Charge arcs (20 Oct) | A chaining attack's jumps never pass Charge arcs on; only its first hit does (11.5). Applies to chain weapons (Unwanted Contact) and the chaining modifier. Why: every jump was a Static hit on a Charged enemy, so each started a second chain; Unwanted Contact took about 30% of its damage from arcs and led the weapon test by about 50% |
+| 47 | Weapon modifier slots (22 Oct) | 5 per weapon, one per group (Delivery, Flight, Crowd, Tempo, Chemistry), opening at weapon Lv 1 (2 slots), 3, 6 and 9. Same-group modifiers never stack (`MODIFIER_MATRIX.md` 1, 5.1) |
+| 48 | Modifier levels (22 Oct) | 3 levels, then a mastery. Branch choice at Lv 2, mastery choice at the end (4 endings), written once per modifier and shared by every weapon (`MODIFIER_MATRIX.md` 1) |
+| 49 | Masteries (22 Oct) | One weapon-modifier mastery and one sperm-passive mastery per build; the Extra Mastery sperm passive adds one of either kind. Replaces "one weapon a run reaches Lv 10" |
+| 50 | Beams and piercing (22 Oct) | Beams do not pierce by default; the Piercing modifier applies to them. Soulmate Signal's beam still hits everything between you and the twin by design. Supersedes `MODIFIERS.md` 2's "Beams always pierce" |
+| 51 | Ricochet (22 Oct) | Bounces on to another enemy at the true reflection angle (a beam off a mirror), not only off walls; each bounce loses 20% (`MODIFIER_MATRIX.md` 3.13) |
+| 52 | Sperm passives (22 Oct) | Replace the Genome slots: from level-up drafts only; 2 slots, then +1 at run Lv 8, 16 and 24; defences share these slots; 3 levels and a mastery (`SPERM_PASSIVES.md`) |
+| 53 | Retired reward sources (22 Oct) | Gene boxes (Lateral Gene Transfer), Epigenetic Profiles and elite mutation drops are retired. Weapon mutations fold into the modifiers; Genome mutations were re-sorted into sperm passives. Relics stay as they are |
+| 54 | No base Membrane (22 Oct) | Runs no longer start with a Membrane; the player's membrane comes only from the Membrane Shield sperm passive |
+| 55 | Weapons per run (22 Oct) | 3 at most. The 2 bonus mounts from weapon combos are retired (fusions keep their other effects) |
+| 56 | The Runs (22 Oct) | Leaves the weapon roster and becomes a sperm passive: a trail in the sample's primary damage type, changed only by a passive that changes damage type |
+| 57 | The Laser (22 Oct) | A new Fire Beam, Ordered Online's 4th starter (every other sample has 3) |
+| 58 | Advanced Targeting (22 Oct) | A sperm passive, not a weapon modifier: it sets targeting rules for every weapon |
+| 59 | Switched at Birth (22 Oct) | One fixed alternate per weapon (its starter sample's other type); N/A wherever switching would spoil the attack (the mechanic is the damage type) |
+| 60 | Turncoat (22 Oct) | On kill only: killed enemies rise as temporary allies, own cap of 6 per weapon, separate from pets (12.3); elites and bosses never rise |
+| 61 | Damage-type passives (22 Oct) | Each boosts what its type does best (`DAMAGE_TYPES.md`): Force knockback and collisions, Acid ground denial, Static chains, Mucus Snare, Blood wounds and Extraction, Alien possession, Fire spreading Burn |
+| 62 | Named exceptions (22 Oct) | Melee × Nappy Mines (suicide vest) hurts the player; Ranged × Enzyme Headbutt lunges 200 (past 160); Planetary system (combo mastery) ignores the gravity well's 45° bend limit; Static net's arc cap grows with the Static passive (bounded at 36) |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
@@ -466,7 +482,7 @@ What each attack type is for lives in `ATTACK_TYPES.md`; how each one meets the 
 | Projectile | Direct hit, status application | Never | Can miss | The shot is visible in flight |
 | Spread | Several small direct hits, light impulse | Never | Rolls per pellet; some pellets still land | The fan's angle is readable |
 | Burst | Area direct hit, sometimes impulse or status | Never | Never applies; leaving the marked area avoids it, the edge can still hit | Always shows its area before it goes off |
-| Beam | Rapid small direct hits; pierces | Never | Never applies; leaving the lane stops further hits | Shows its lane before it fires |
+| Beam | Rapid small direct hits; stops at the first enemy unless it has Piercing (decision 50) | Never | Never applies; leaving the lane stops further hits | Shows its lane before it fires |
 | Pool | Hazard ticks, status application | Never | Never applies; only leaving it, or not entering, avoids it | Shows its edge for its whole life |
 
 1. **One attack type per attack**, plus an optional leftover hazard (patch, pool or trail; decision 7). The leftover hazard uses the world-object rules in section 4, not a second attack type.

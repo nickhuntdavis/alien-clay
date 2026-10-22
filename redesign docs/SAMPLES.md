@@ -479,6 +479,7 @@ Chasing this specimen is a series of increasingly unpleasant surprises. Everythi
 | Hot Mess | Fire Pool | A persistent hazardous patch | The ground gets more unpleasant to cross, especially for anything following |
 | Nappy Mines | Fire Burst | Delayed mines dropped behind the sperm. Pursuers find them at precisely the wrong moment | Mines trigger on proximity, chain together or leave a lasting stain |
 | Blowing Bubbles | Mucus Projectile | Traps small enemies in bubbles, taking them out of the fight; contact pops a bubble | Capture pursuers, use bubbles as shields, or slow everything when they burst |
+| Laser (4th starter, 22 Oct) | Fire Beam | A red laser beam held on one target | Extra beams, mirror bounces, a ring round the sperm (`MODIFIER_MATRIX.md`) |
 
 The brief asked for Hot Mess to look like a corrosive slick for this sample. Open: `BASE_WEAPONS.md` section 5, issue 6.
 
@@ -487,7 +488,7 @@ It escalates from unwanted contact to oversharing to a catastrophic group conver
 
 | Weapon (was) | Type, attack | What it does | Upgrade fantasy |
 |---|---|---|---|
-| The Runs | Fire Pool (trail) | A burning trail wherever it swims; the faster it goes, the more of the slide it paints | Crossing old trails sets off waves of fire |
+| ~~The Runs~~ | Fire Pool (trail) | **Removed 22 Oct**: now a sperm passive any sample can take (`SPERM_PASSIVES.md`) | |
 | Unwanted Contact (Static Cling) | Static Projectile | Chains electricity through crowds; other weapons arc again off Charged enemies | One unsolicited interaction becomes the whole crowd's problem |
 | Sister Cousin (Seeker Siblings) | Blood Projectile | Homing siblings that never let go; a sibling that kills splits into two smaller ones | Kills grow the family, and sibling rivalry makes focused fire nastier |
 

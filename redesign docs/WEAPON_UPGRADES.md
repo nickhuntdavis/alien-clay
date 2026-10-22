@@ -1,5 +1,7 @@
 # Weapon Upgrades (first branch)
 
+> **Retired, 22 Oct 2026 (COMBAT_MATRIX decision 48):** the promise / swerve / mastery branch cards are replaced by weapon modifiers with branches (`MODIFIER_MATRIX.md`). Kept for history and as a source of ideas; section 16 (The Runs) now describes a sperm passive's trail.
+
 **Status: working proposal, 18 Oct 2026 (second draft). Docs only.** Numbers are starting points for sims. Roster: `BASE_WEAPONS.md`. Rules: `COMBAT_MATRIX.md` (cited as 11.x and 12.x), `MODIFIERS.md`, autorun modes in `AUTORUN_AUTOAIM.md`.
 
 ## How the branch works

@@ -117,3 +117,11 @@
 - Save data: none yet (Profiles' META keys stay readable when retired in Phase 1).
 - Hooks: none.
 - Risk: none in code yet; removing the base Membrane will shift difficulty (sim in Phase 4).
+
+## 2026-10-22 Phase 0: redesign docs reconciled (docs only)
+- Systems: docs only (redesign docs)
+- Files: COMBAT_MATRIX.md (decisions 47 to 62, Beam row, decision 31), MODIFIERS.md, ATTACK_TYPES.md, BASE_WEAPONS.md, SAMPLES.md, UPGRADES.md, WEAPON_UPGRADES.md, README.md, IMPLEMENTATION_PLAN.md
+- What: today's design decisions logged and the conflicting docs fixed (beams don't pierce, Ricochet off enemies, named exceptions, The Runs out, Laser in, sperm passives replace Genome, branch cards retired).
+- Save data: none.
+- Hooks: none.
+- Risk: none in code.
