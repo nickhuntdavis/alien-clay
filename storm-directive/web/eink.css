@@ -762,3 +762,9 @@ body.immersive:not(.land) #row2 #armBtn { position: fixed; top: auto !important;
 #lootCards .card .csub { display: none !important; }
 #lootCards .card .ctitle { padding-right: 96px; }
 #lootCards .card .cfoot .sw { order: 2; } /* (label, then swatch: as the Figma Reward Card) */
+
+/* ---- Weapon previews on paper (Figma: white grid paper). The preview draws a dark slide with additive glows, so on
+   Paper menus the canvas is inverted with its hues turned back: the slide reads as paper, its faint grid as grid lines,
+   glows as ink in the weapon's own hue. Ink menus keep the dark slide. */
+:root:not(.ink):not(.menus-auto) canvas.pvpaper { filter: invert(1) hue-rotate(180deg); }
+@media (prefers-color-scheme: light) { :root.menus-auto canvas.pvpaper { filter: invert(1) hue-rotate(180deg); } }

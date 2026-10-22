@@ -7,6 +7,7 @@ const PREVIEWS = new Set();
 const PV_OWN = {}; // weapons with their own preview: { init, step, draw } by weapon id (sidemo.js)
 
 function makePreview(canvas, def, opts) {
+  canvas.classList.add('pvpaper'); // (on Paper menus the dark slide shows as grid paper: eink.css)
   const pv = { canvas, def, t: 0, cd: 0.3, shots: [], parts: [], fx: [], puddles: [], mines: [], trail: [], targets: [], opts: opts || {}, ang: 0, stored: 0, seq: 0 };
   pv.col = elemCol(def.elem);
   pv.m = pvTags(pv.opts.perk); pv.n = 0; pv.dx = 0; pv.dy = 0; pv.allies = []; pv.zones = [];

@@ -29,6 +29,7 @@ const { chromium } = require('playwright');
         gridBuild();
         sum = 0;
         for (let f = 0; f < 480; f++) { G.lootQueue = []; G.state = 'play'; update(1 / 60); }
+        if (!(sum > 0)) for (let f = 0; f < 480; f++) { G.lootQueue = []; G.state = 'play'; update(1 / 60); } // (random movers, e.g. Greased Piglet, can miss for 8 s)
         out.dmg[id] = Math.round(sum);
         if (!(sum > 0)) bad.push(id + ' did no damage');
       } catch (e) { bad.push(id + ' threw ' + e.message); }

@@ -411,7 +411,7 @@ function kinFuseDraw(cv, F, T) {
     const rawc = RAW_COL; RAW_COL = true;
     const body = (id, b, face, alpha, scale) => {
       if (id === 'alien') { if (typeof alienDraw === 'function') alienDraw(sx(b.x), sy(b.y), face, null, alpha, scale, b, T, ELEMENTS[S10_BY.alien.shift[0]].color, 'curious'); return; }
-      if (!SL[id]) return;
+      if (!SL[id]) { if (!(S10_BY[id] && S10_BY[id].v9)) return; id = 'baseline'; } // (a v9 sample has no v10 body: samples9.js)
       const nat = id === 'baseline' || id === 'alpha' || id === 'beta';
       slDraw(id, sx(b.x), sy(b.y), face, nat ? PAL.you : null, alpha, scale, b, T);
     };

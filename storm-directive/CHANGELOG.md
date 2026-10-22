@@ -2,6 +2,17 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.67: 2026-10-22 Daily Challenge card, Immune Response on Mode Select, previews on paper
+- Merged: claude/determined-goldberg-3z778m.
+
+### Folded from claude/determined-goldberg-3z778m: 2026-10-22 Daily Challenge and Immune Response back in the v10 start flow; previews on paper (v10.67)
+- Systems: ui (Sample Rack, Mode Select), daily, preview, kindred
+- Files: rackextras.js (new), daily.js, preview.js, eink.css, kindred.js, index.html, tests/rackxtest.js (new), tests/v9armstest.js, tests/run.sh, ARCHITECTURE.md
+- What: the Daily Challenge is a card at the top of the Sample Rack (its title button went with the Figma title) and picks its sample from the v10 samples only. Mode Select has the Immune Response stepper (v9 strings), so it can be set under v10 again. Weapon previews read as white grid paper on Paper menus (the canvas is inverted with its hues turned back; Ink menus keep the dark slide). The Race fusion ceremony draws a v9 sample with the Baseline body instead of nothing.
+- Save data: none (META.heat and META.heatMax as in v9).
+- Hooks: kindred.js kinFuseDraw body -> Baseline for v9 samples; preview.js makePreview adds class pvpaper.
+- Risk: the daily's sample for a given date changes (v10 samples only). Preview colours on paper are the inverted glows (hue kept, lightness flipped).
+
 ## v10.66: 2026-10-22 v9 samples, weapons, combos and fusions back; Dinner Time fix; suite green
 - Merged: claude/determined-goldberg-3z778m.
 
