@@ -37,3 +37,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-22 Modifier slots unlock with weapon level (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/MODIFIER_MATRIX.md
+- What: weapons start with 2 modifier slots and unlock the 3rd, 4th and 5th at weapon Lv 3, 6 and 9 (any unfilled group).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
