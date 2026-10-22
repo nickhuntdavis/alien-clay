@@ -61,3 +61,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-22 The Runs takes the sample's primary damage type (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/SPERM_PASSIVES.md
+- What: The Runs' trail is in the sample's primary damage type, changeable by a type-changing passive.
+- Save data: none.
+- Hooks: none.
+- Risk: none.

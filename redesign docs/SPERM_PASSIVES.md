@@ -20,7 +20,7 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 
 | Passive | Lv 1 | Lv 2 and 3 | Mastery |
 |---|---|---|---|
-| The Runs (was a weapon; also shipped as "Skid Mark") | You shed a burning trail as you swim (Fire Pool trail: one piece per 30 swum, 2.2 s, width 22; counts towards the object cap). | Lv 2: pieces last 50% longer and are 50% wider. Lv 3: +50% damage. | Close a loop of trail and everything inside it Burns. |
+| The Runs (was a weapon; also shipped as "Skid Mark") | You shed a trail as you swim, in **your sample's primary damage type** (the first type listed in `SAMPLES.md`; for Not of This World, its active type). A Pool trail: one piece per 30 swum, 2.2 s, width 22; counts towards the object cap. A passive that changes damage type changes the trail too (user, 22 Oct). | Lv 2: pieces last 50% longer and are 50% wider. Lv 3: +50% damage. | Close a loop of trail and everything inside it takes the trail's damage type. |
 | "Slipstream" (absorbs "Hard to Hold") | Swim speed builds while you keep moving, up to +20% after 3 s; taking damage resets it. | Lv 2: up to +30%. Lv 3: up to +40%, and a hit no longer resets it: it boosts you instead, with half damage from Contact hits for 1.5 s (Hard to Hold). | At full speed, enemy Contact hits do half damage. |
 | "Heartbeat" | Every 3 s, a Force Burst round you; radius 60 at empty health to 120 at full. | Every 2.5 s, then every 2 s, with more damage. | The burst takes your sample's damage type. |
 | "Overexcited" | 5 kills within 2 s of each other give +30% attack speed for 3 s. | +45%, then +60%. | The streak never drops while a boss is alive. |
@@ -92,6 +92,6 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 4. **Copy:** `TODO_COPY:sp_pools`, `TODO_COPY:sp_acid`, `TODO_COPY:sp_fire` and `TODO_COPY:sp_field` need names and lines; Membrane Shield, Extra Mastery and Advanced Targeting need card text.
 
 ## 6. Open questions
-1. Does The Runs' trail stay Fire, or take your sample's damage type?
+1. (Answered 22 Oct: The Runs takes the sample's primary damage type.) Which passive can change its type? No sperm passive changes damage type yet, and Switched at Birth is a weapon modifier.
 2. Extra Mastery as a single level: fine, or should it have levels too?
 3. With defences now competing for 5 slots, will players skip them entirely? Watch in sims.
