@@ -15,7 +15,7 @@
 // Hooks: none in shared files. Wraps weapons24.js wupStats (MM.lvK). Replaces modifiers.js modOk and modAdd, modcards.js modCardOk, modCard, sabCard and
 // modDraftCands, and weapons24.js wupLevel (assigned over the originals, never redeclared: dupetest; loads after modcards.js).
 
-const MM = { on: true, open: [1, 1, 3, 6, 9], lvlCap: 9, lvK: 0.06 }; // (lvK: extra damage a weapon level, standing in for the retired tier cards' power; tuned by wave20 sims)
+const MM = { on: true, open: [1, 1, 3, 6, 9], lvlCap: 9, lvK: 0.06, freeEvery: 4 }; // (freeEvery: every weapon gains a level each 4th player level, the retired upgrade screen's pacing) // (lvK: extra damage a weapon level, standing in for the retired tier cards' power; tuned by wave20 sims)
 DRAFT.groupW.mod = 2.2; // (weapons now grow only through modifiers, so level-ups deal them more often: was 1.1)
 const MM_GROUP = {
   orbiting: 'delivery', delayed: 'delivery', lobbed: 'delivery', trail: 'delivery', selfcentred: 'delivery', sweep: 'delivery',
@@ -105,5 +105,6 @@ wupStats = (orig => function (w, s) { orig(w, s); if (MM.on && !w.isSpell) s.dmg
 // ---------------------------------------------------------------- weapons24.js: no branch screens
 wupLevel = (orig => function (lv) { // (the developer Sandbox keeps the old branch screens: sandbox.js)
   if (typeof sbOn === 'function' && sbOn()) return orig(lv);
+  if (MM.on && MM.freeEvery && lv % MM.freeEvery === 0) for (const w of G.weapons) mmLevelUp(w);
   if (lv % 3 === 0) recomputeAll();
 })(wupLevel);
