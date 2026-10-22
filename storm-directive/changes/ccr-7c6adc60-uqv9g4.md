@@ -29,3 +29,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-22 One modifier slot per group (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/MODIFIER_MATRIX.md, redesign docs/README.md
+- What: weapons have 5 modifier slots, one per group (replaces "up to 3 per weapon"); same-group modifiers never stack; 10 pair bonuses reworked so every pair crosses groups.
+- Save data: none.
+- Hooks: none.
+- Risk: none.

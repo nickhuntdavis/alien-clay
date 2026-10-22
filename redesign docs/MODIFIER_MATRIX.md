@@ -7,7 +7,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 ## 1. Rules for this matrix
 
 1. **Levels.** A modifier has **3 levels, then a mastery as its 4th**.
-   - **Up to 3 modifiers per weapon**, each a different modifier.
+   - **5 slots per weapon, one per group** (user, 22 Oct): one Delivery, one Flight, one Crowd, one Tempo and one Chemistry modifier (groups: section 5.1).
    - **One mastery per build:** only one weapon modifier in the whole build can reach its mastery; the others stop at Lv 3.
    - **Extra Mastery** (a sperm passive) allows one more mastery, at the cost of one of the sperm's passive slots.
 2. **Two kinds of modifier.**
@@ -29,10 +29,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 15. **Switched at Birth** gives each weapon one fixed alternate damage type, its starter sample's other type. **Switching must never spoil the attack**: where the mechanic is the damage type, the cell is N/A.
 16. **Roster:** 27 weapons. The Runs is no longer a weapon (it becomes a sperm passive, `storm-directive/NOTES.md`). The **Laser** is new: Ordered Online's Fire beam (from the user's voice notes).
 
-17. **One firing replacement per weapon.** Melee, Ranged, Mines and Death from Above each replace how the weapon fires, so a weapon can carry only one of them, unless the two form a named pair (section 5.3). Orbiting and Extra Projectiles change delivery without replacing it, so they stack.
+17. **One per group.** Because a weapon has one slot per group, modifiers in the same group never stack. That covers every clash: Melee, Ranged, Mines and Death from Above (which each replace firing) are all Delivery; Pulling and Knockback are both Crowd; Range and Up Close are both Tempo.
 18. **Transformation test.** A Delivery modifier must change more than distance. Melee and Ranged change targeting, animation and hit detection; Mines add placement and a delayed trigger; Death from Above adds a different origin, a warning marker and impact timing. A cell that only changes reach fails and gets rewritten.
 19. **Balance on damage per second.** Every scaling ramp that trades one thing for another is checked on damage per second (DPS), not damage per hit, so no modifier becomes the automatic pick. Starting checks (rate × damage per hit): Rapid Fire 1.05 / 1.26 / 1.43; Charged, on a 1.0 s weapon, 1.07 / 1.36 / 1.69 (wind-up included). Sims tune from there.
-20. **Pair bonuses.** Two specific modifiers on the same weapon unlock an extra effect (section 5.3). Once you hold one half of a pair on a weapon, the draft offers the other half more often (+50% weight).
+20. **Pair bonuses.** Two specific modifiers from **different groups** on the same weapon (or one modifier plus a named sperm passive) unlock an extra effect (section 5.3). Once you hold one half of a pair on a weapon, the draft offers the other half more often (+50% weight).
 
 ### Conflicts and follow-ups in other docs
 1. **Beams do not pierce** (user, 22 Oct). `MODIFIERS.md` 2 says "Beams always pierce", and Spark of Life's spec (`BASE_WEAPONS.md` 27) says it pierces. Here, Piercing applies to Red Flagship, Spark of Life and the Laser. Soulmate Signal is N/A, since its beam hits everything between you and your twin by design.
@@ -855,11 +855,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 ## 5. How the modifiers fit together
 
 ### 5.1 Groups
-Every modifier belongs to one group by what it changes. Kind (scaling or shaping) says how it levels; group says what it does.
+Every modifier belongs to one group by what it changes. A weapon has one slot per group (rule 1). Kind (scaling or shaping) says how it levels; group says what it does and which slot it takes.
 
 | Group | What it changes | Modifiers |
 |---|---|---|
-| **Delivery** | How the attack reaches enemies | Melee, Ranged, Mines, Death from Above (these four replace firing: one per weapon, rule 17), Orbiting, Extra Projectiles |
+| **Delivery** | How the attack reaches enemies | Melee, Ranged, Mines, Death from Above (these four replace firing), Orbiting, Extra Projectiles |
 | **Flight** | What the attack does in flight or on impact | Piercing, Ricochet, Homing, Exploding Rounds |
 | **Crowd** | Where enemies go, and whose side they're on | Pulling, Knockback, Sticky, Connecting, Turncoat |
 | **Tempo** | Timing and the damage curve | Charged, Rapid Fire, Focused Intensity, Every Nth, Range, Up Close |
@@ -873,32 +873,32 @@ One line per pair that sounds alike, so the pool never holds two effects that pl
 | Ricochet / Connecting | Ricochet **redirects** the attack to a new enemy; Connecting **keeps a link** between enemies already hit. |
 | Piercing / Ricochet | Piercing carries on in a **straight line**; Ricochet **changes direction** at each enemy. |
 | Pulling / Family Ties' well | Pulling drags enemies towards **the attack** while it hits; a well is a **place** that keeps pulling. |
-| Pulling / Knockback | Opposite directions: towards the attack, or away from it. Never both on one weapon. |
+| Pulling / Knockback | Opposite directions: towards the attack, or away from it. Both Crowd, so never on one weapon. |
 | Mines / Death from Above | Mines are **placed now, triggered by enemies later**; Death from Above **lands now, from a new origin**. |
 | Melee / Orbiting | Melee makes the weapon **strike** close; Orbiting makes the attack **circle** you (it can still fly off). |
-| Range / Up Close | Opposite curves: Range flattens falloff; Up Close steepens it for close damage. Never both on one weapon. |
+| Range / Up Close | Opposite curves: Range flattens falloff; Up Close steepens it for close damage. Both Tempo, so never on one weapon. |
 | Charged / Every Nth | Charged makes **every** attack slower and stronger; Every Nth keeps the pace and makes **one in N** stronger. |
 | Focused Intensity / Charged | Focused Intensity rewards **staying on one target**; Charged rewards **waiting before each attack**. |
 | Primer / Catalyst | Primer sets up **your other weapons**; Catalyst strengthens **this weapon's own** statuses and reactions. |
 
 ### 5.3 Pair bonuses
-Two modifiers on the same weapon (both Lv 1 or higher) unlock the bonus. The draft favours the second half once you hold the first (rule 20). Named pairs may break rule 17 where the table says so.
+Two modifiers from different groups on the same weapon (both Lv 1 or higher) unlock the bonus; a few pairs use a sperm passive as one half. The draft favours the second half once you hold the first (rule 20). Pairs were reworked on 22 Oct so that none joins two modifiers from the same group.
 
-| Pair | Name (internal) | Bonus |
+| Pair (groups) | Name (internal) | Bonus |
 |---|---|---|
-| Pulling + Exploding Rounds | Gather and pop | Enemies pulled in take +30% from the explosion, and its radius grows +20. |
-| Piercing + Exploding Rounds | Crowd disintegrator | Every enemy pierced explodes, not only the last (half-size bursts). |
-| Connecting + Sticky | Living web | Snaring one linked enemy Snares every enemy linked to it. |
-| Connecting + Ricochet | Chain reaction | Bounces prefer linked enemies and lose no damage between them. |
-| Homing + Ricochet | Smart bounce | Bounces aim at the next target by your targeting rules instead of the reflection angle. |
-| Mines + Death from Above | Orbital minefield | Allowed despite rule 17: mines are dropped from above onto the densest cluster and arm on landing. |
-| Melee + Knockback | Bouncer | Melee hits knock enemies into each other (40% collision). |
-| Charged + Up Close | Glass cannon | A charged hit within 80 deals triple; you take +15% damage while winding up. |
-| Turncoat + Connecting | Conversion army | Linked enemies that die within 2 s of each other all rise (cap 6). |
-| Rapid Fire + Focused Intensity | Drill | The ramp builds per hit instead of per 0.5 s, so fast weapons ramp faster. |
-| Extra Projectiles + Orbiting | Carousel | Each extra shot or beam becomes another orbiter; beams make rings at different radii. |
-| Primer + Catalyst | Fuse box | Detonations set off the unstable reaction between the two weapons' damage types. |
-| Switched at Birth + Kinship | Mixed family | The weapon counts as both its old and new damage type for Kinship. |
+| Pulling + Exploding Rounds (Crowd, Flight) | Gather and pop | Enemies pulled in take +30% from the explosion, and its radius grows +20. |
+| Connecting + Exploding Rounds (Crowd, Flight) | Crowd disintegrator | An explosion on a linked enemy also goes off on every enemy linked to it (half size). |
+| Connecting + Ricochet (Crowd, Flight) | Chain reaction | Bounces prefer linked enemies and lose no damage between them. |
+| Ricochet + Advanced Targeting (Flight, sperm passive) | Smart bounce | Bounces aim at the next target by your targeting rules instead of the reflection angle. |
+| Melee + Knockback (Delivery, Crowd) | Bouncer | Melee hits knock enemies into each other (40% collision). |
+| Mines + Ricochet (Delivery, Flight) | Scatter mines | Mines bounce when laid, spreading into the crowd before they arm (keeps the old orbital minefield's idea: mines delivered into the crowd). |
+| Orbiting + Rapid Fire (Delivery, Tempo) | Carousel | Each attack adds an orbiter (cap 4), and orbiters spin faster with the attack rate. |
+| Sticky + Homing (Crowd, Flight) | Living web | Sticky shots home on enemies not yet stuck; each newly stuck enemy is tethered to the last one. |
+| Turncoat + Piercing (Crowd, Flight) | Conversion army | Enemies killed by the same shot all rise together, as one squad (cap 6). |
+| Melee + Charged (Delivery, Tempo) | Glass cannon | A charged melee hit deals triple; you take +15% damage while winding up. |
+| Focused Intensity + Extra Projectiles (Tempo, Delivery) | Drill | Every extra shot or beam on the same target counts towards the ramp, so more beams ramp faster. |
+| Primer + Exploding Rounds (Chemistry, Flight) | Fuse box | Detonations use the explosion's radius and set off the unstable reaction between the two weapons' damage types. |
+| Switched at Birth + Piercing (Chemistry, Flight) | Two-tone | Each enemy pierced is hit by the old and new damage type in turn, setting off their unstable reaction. |
 
 ## 6. Moved to sperm passives
 

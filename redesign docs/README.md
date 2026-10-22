@@ -12,7 +12,7 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `FEATS.md`: Feats as gifts from the consciousness: 16 gifts for every sample, 8 sample-exclusive gifts, the best 15 originals re-gifted, and a suggested starting pool of about 15.
 - `MUTATIONS.md`: the 33 mutation cards (body, weapon, damage-type, trade-off and rare synergy), how they use Genome slots, and a starting pool of 8.
 - `MODIFIERS.md`: the 20 modifiers (homing, piercing, orbiting, returning, gravity well, lunge and the rest) that change how an attack moves or repeats, with caps.
-- `MODIFIER_MATRIX.md`: working draft (22 Oct 2026) of 25 weapon modifiers (14 scaling, 11 shaping; five groups; pair bonuses) × 27 weapons, each with 3 levels and a mastery; Advanced Targeting moved to sperm passives; also lists the rule conflicts it raises.
+- `MODIFIER_MATRIX.md`: working draft (22 Oct 2026) of 25 weapon modifiers (14 scaling, 11 shaping; five groups, one slot per group; pair bonuses) × 27 weapons, each with 3 levels and a mastery; Advanced Targeting moved to sperm passives; also lists the rule conflicts it raises.
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
 - `GIFT_LINES.md`: approved gift lines, one per sample, for all 31 shared gifts (310 lines).
 - `CONSCIOUSNESS.md`: the eight consciousness personas (one per sample): what the egg is to each, its tell, death, sincere crack and limits, plus existing lines to revisit.
