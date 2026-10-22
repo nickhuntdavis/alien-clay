@@ -2,7 +2,7 @@
 
 **Status: working draft, 22 Oct 2026. Docs only; nothing is built.** Decided with the user in a design session on 22 Oct. **Sperm passives replace the Genome slots**: the body, damage-type, trade-off and rare mutations of `MUTATIONS.md` (sections 2, 4, 5 and 6) and the defence cards were re-sorted into this list, one by one. Weapon mutations (`MUTATIONS.md` 3) were folded into `MODIFIER_MATRIX.md` instead. Combat rules stay in `COMBAT_MATRIX.md`; this doc cites them.
 
-Names in quotes are existing card names; new passives carry a `TODO_COPY` id until the user writes their names. Numbers are starting values for sims.
+Names in quotes are card names: existing ones, plus drafts by Claude where the user asked (22 Oct); the user can replace any of them. Numbers are starting values for sims.
 
 ## 1. Rules
 
