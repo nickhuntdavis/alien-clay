@@ -216,7 +216,7 @@ function pdefDraw() {
 }
 
 // ---------------------------------------------------------------- cards (v10.js v10Loot)
-const pdHeld = D => Object.keys(D.n).filter(k => D.n[k] > 0).length;
+const pdHeld = D => Object.keys(D.n).filter(k => D.n[k] > 0 && k !== 'thick' && k !== 'fast').length; // (Thicker Membrane and Faster Recharge are Membrane Shield's levels, not passives of their own: spassives.js)
 function pdefCard(id) {
   const C = PDEF_CARDS[id], n = pdef().n[id];
   return { rarity: 0, tag: 'DEFENCE', icon: C.icon, color: PDEF_COL.membrane, title: C.name, sub: `Defence | ${C.sub} | ${n ? 'Rank ' + (n + 1) : 'New'}${C.max > 1 ? ' of ' + C.max : ''}`, desc: C.desc, defence: id,

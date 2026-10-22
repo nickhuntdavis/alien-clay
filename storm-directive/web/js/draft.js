@@ -27,7 +27,7 @@ const DRAFT_INT = { force: 'phys', acid: 'fire', static: 'shock', mucus: 'ice', 
 // ---------------------------------------------------------------- slots
 const featsHeld = () => (G.spells || []).filter(Boolean).length;
 const mutsHeld = () => Object.keys(G.muts || {}).filter(k => G.muts[k] > 0).length;
-const defsHeld = () => (typeof pdef === 'function' ? Object.values(pdef().n).filter(n => n > 0).length : 0);
+const defsHeld = () => (typeof pdef === 'function' ? Object.entries(pdef().n).filter(([k, n]) => n > 0 && k !== 'thick' && k !== 'fast').length : 0); // (Membrane Shield's levels share its slot: spassives.js)
 const genomeFree = () => DRAFT.genome - mutsHeld() - defsHeld();
 function cardOk(c) {
   try { if (c.eligible && !c.eligible(G)) return false; } catch (e) { return false; }

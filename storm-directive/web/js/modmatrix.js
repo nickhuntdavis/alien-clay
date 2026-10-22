@@ -9,7 +9,9 @@
 //  - Modifier cards are dealt in level-up drafts as well as DNA strands (were strands only).
 //  - SWITCHED AT BIRTH: one fixed alternate type per weapon (its starter sample's other type), N/A where switching would
 //    spoil the attack (MM_SAB); it takes the weapon's Chemistry slot.
-// Not built yet (later passes): branches at modifier Lv 2, masteries, the new modifiers, pair bonuses, combo masteries.
+//  - MASTERY: a modifier at Rank 3 can take a 4th card, its mastery (for now one more step of its numbers: modifiers.js
+//    modV). One weapon-modifier mastery per build, plus one more with Extra Mastery (spassives.js mmMasteryFree).
+// Not built yet (later passes): branches at modifier Lv 2, transforming masteries, the new modifiers, pairs, combo masteries.
 // Hooks: none in shared files. Replaces modifiers.js modOk and modAdd, modcards.js modCardOk, modCard, sabCard and
 // modDraftCands, and weapons24.js wupLevel (assigned over the originals, never redeclared: dupetest; loads after modcards.js).
 
@@ -41,9 +43,14 @@ const mmRoom = w => mmHeld(w).size < mmSlots(w);
 const mmLevelUp = w => { if (MM.on && w && !w.isSpell) { w.lvl = Math.max(w.lvl || 1, Math.min(MM.lvlCap, (w.lvl || 1) + 1)); computeStats(w); } }; // (never lowers a level set elsewhere, e.g. v9arms tier screens)
 
 // ---------------------------------------------------------------- modifiers.js
+// Masteries held: weapon-modifier masteries (G.mmM: 'weapon id:modifier'). Extra Mastery's one extra is shared with sperm passives.
+const mmMasteries = () => (G && G.mmM ? G.mmM.length : 0);
+const mmMasteryFree = () => typeof spMasteryRoom === 'function' ? spMasteryRoom('weapon') : mmMasteries() < 1;
+const mmIsMastery = (w, id) => MODS10[id] && MODS10[id].max >= 3 && modCount(w, id) === MODS10[id].max;
 modOk = function (w, id) {
   const m = MODS10[id], a = w && w.def && w.def.v10atk;
-  if (!m || !a || !m.atk.includes(a) || modCount(w, id) >= m.max) return false;
+  if (!m || !a || !m.atk.includes(a)) return false;
+  if (modCount(w, id) >= m.max && !(mmIsMastery(w, id) && mmMasteryFree())) return false; // (a 4th card is the mastery)
   const g = mmGroup(id);
   if ((w.m10 || []).some(x => x !== id && mmGroup(x) === g)) return false; // (one per group)
   if (!modHas(w, id) && !mmRoom(w)) return false; // (a new group needs an open slot)
@@ -51,7 +58,9 @@ modOk = function (w, id) {
 };
 modAdd = function (w, id) {
   if (!modOk(w, id)) return false;
+  const mastery = mmIsMastery(w, id);
   (w.m10 || (w.m10 = [])).push(id);
+  if (mastery) (G.mmM || (G.mmM = [])).push(w24Key(w) + ':' + id);
   mmLevelUp(w);
   return true;
 };
@@ -61,6 +70,10 @@ modCardOk = function (w, id) { return modOk(w, id); };
 modCard = (orig => function (w, id) { // (an assignment, not a declaration: a declaration would hoist over orig)
   const c = orig(w, id);
   c.sub = c.sub.replace(' | Delivery', '') + ' | ' + MM_GNAME[mmGroup(id)];
+  if (mmIsMastery(w, id)) { // (the 4th card: the mastery)
+    c.title = MODS10[id].name + ' MASTERY'; c.rarity = 4; c.tag = 'MASTERY';
+    c.sub = 'Rank 3 > Mastery | one a build | ' + MM_GNAME[mmGroup(id)]; c.desc = 'TODO_COPY:mastery_' + id;
+  }
   return c;
 })(modCard);
 sabCard = function () {

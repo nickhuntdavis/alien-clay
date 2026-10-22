@@ -39,7 +39,7 @@ const MODS10 = {
 const modCount = (w, id) => (w && w.m10 ? w.m10.filter(x => x === id).length : 0);
 const modHas = (w, id) => modCount(w, id) > 0;
 // A modifier taken again ranks up (max 3). Per-rank numbers are arrays in cap: modV reads the one for w's rank.
-const modV = (w, id, k) => { const v = MODS10[id].cap[k]; return Array.isArray(v) ? v[Math.max(0, Math.min(v.length, modCount(w, id) || 1) - 1)] : v; };
+const modV = (w, id, k) => { const v = MODS10[id].cap[k], n = modCount(w, id) || 1; if (!Array.isArray(v)) return v; if (n > v.length && v.length > 1) return v[v.length - 1] + (v[v.length - 1] - v[v.length - 2]) * (n - v.length); return v[Math.max(0, Math.min(v.length, n) - 1)]; }; // (past the last rank, a mastery: one more step of the same size, modmatrix.js)
 function modOk(w, id) {
   const m = MODS10[id], a = w && w.def && w.def.v10atk;
   if (!m || !a || !m.atk.includes(a) || modCount(w, id) >= m.max) return false;

@@ -76,7 +76,7 @@ const { chromium } = require('playwright');
     // 4. Ranks stack and cap
     fresh(); give('v_phys_proj'); const sc = card('m_slip');
     for (let i = 0; i < 5; i++) sc.apply(G);
-    if (sc.rank(G) !== 3 || G.muts.m_slip !== 3) bad.push('rank cap: ' + sc.rank(G));
+    if (sc.rank(G) !== 4 || G.muts.m_slip !== 4) bad.push('rank cap (Rank 3 plus its mastery): ' + sc.rank(G)); // (spassives.js)
     out.rank = sc.rank(G);
     META.rxSeen = ['rocket']; const cc = card('cat_rocket'); if (cc.eligible(G)) bad.push('catalyst offered before its reaction happened this run');
     G.fst = G.fst || { rx: {} }; G.fst.rx = G.fst.rx || {}; G.fst.rx.rocket = 1; if (!cc.eligible(G)) bad.push('catalyst not eligible once set off this run');

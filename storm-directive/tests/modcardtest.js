@@ -23,7 +23,8 @@ const { chromium } = require('playwright');
     if (c2.rarity !== 2 || !/Rank 1 > 2 of 3/.test(c2.sub) || c2.desc !== MODUP[id][0]) bad.push('rank 2 card: ' + c2.sub + ' ' + c2.desc);
     c2.apply(); modCard(w, id).apply();
     if (modCount(w, id) !== 3) bad.push('rank after three cards: ' + modCount(w, id));
-    if (modCardOk(w, id)) bad.push('a fourth rank was offered');
+    if (!modCardOk(w, id) || modCard(w, id).tag !== 'MASTERY') bad.push('the mastery (a fourth rank) was not offered');
+    G.mmM = ['test']; if (modCardOk(w, id)) bad.push('a second weapon mastery was offered'); G.mmM = [];
     // 2. One modifier per group, in the slots the weapon's level has opened (22 Oct, modmatrix.js).
     for (let i = 0; i < 3; i++) for (const k of modsFor(w)) if (modCardOk(w, k) && !modHas(w, k)) modCard(w, k).apply();
     out.kinds = modKinds(w); out.slots = mmSlots(w);

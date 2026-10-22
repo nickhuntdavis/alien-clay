@@ -1,3 +1,11 @@
+## 2026-10-22 Masteries, Extra Mastery, The Runs passive, Membrane Shield levels, red Laser (v10.69)
+- Systems: weapons, mutations (sperm passives), defences, fx
+- Files: modmatrix.js, spassives.js, laser.js, modifiers.js (modV), pdef.js (pdHeld), draft.js (defsHeld), tests/sptest.js (new), drafttest, modcardtest, modstest, mutstest, run.sh
+- What: a modifier or sperm passive at Rank 3 can take a 4th card, its mastery (one of each kind a build; Extra Mastery adds one more of either). The Runs is a sperm passive: a trail in the sample's primary damage type. Thicker Membrane and Faster Recharge are one-rank levels of Membrane Shield and use no slot. The Laser draws as a thin red beam.
+- Save data: none (run state G.mmM, G.spM, G.spRuns).
+- Hooks: spassives.js wraps v10.js v10Tick; laser.js wraps v10.js v10Fire. modifiers.js modV extrapolates past the last rank.
+- Risk: masteries are only "one more step" of the numbers for now; The Runs stacks extra damage on every sample.
+
 ## 2026-10-22 Weapon modifier matrix draft (docs only)
 - Systems: docs only (redesign docs)
 - Files: redesign docs/MODIFIER_MATRIX.md (new), redesign docs/README.md, redesign docs/COMBAT_MATRIX.md (section 14 row), storm-directive/NOTES.md (sperm passives bullet)

@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
     const fresh = () => {
       UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
       G.enemies.length = 0; G.zones.length = 0; G.proj.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0;
-      G.terrain = null; G.manual = { x: 0, y: 0 }; G.player.vx = G.player.vy = 0; for (let i = 0; i < G.weapons.length; i++) G.weapons[i] = null;
+      G.terrain = null; G.manual = { x: 0, y: 0 }; G.player.vx = G.player.vy = 0; G.mmM = ['test']; /* (mastery spent: ranks cap at 3, modmatrix.js) */ for (let i = 0; i < G.weapons.length; i++) G.weapons[i] = null;
     };
     const wp = (id, mods, i, quiet) => { const w = makeSlot(id, false, 1); G.weapons[i || 0] = w; recomputeAll(); for (const m of mods || []) if (!modAdd(w, m)) bad.push('modAdd refused ' + m + ' on ' + id); w.cd = quiet ? 1e9 : 0; return w; };
     const foe = (dx, dy, hp) => { const p = G.player, e = makeEnemy(ENEMIES.crawler, p.x + dx, p.y + (dy || 0)); e.hp = e.maxHp = hp || 1e6; e.speed = 0; e.t10 = 1; G.enemies.push(e); gridBuild(); return e; };

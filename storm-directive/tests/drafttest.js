@@ -32,7 +32,7 @@ const { chromium } = require('playwright');
     if (G.lootQueue.some(q => q.kind === 'wup')) bad.push('a weapon branch screen still opens');
     const mid = modsFor(w)[0]; if (!mid || !modAdd(w, mid) || w.lvl !== 2) bad.push('a modifier did not level the weapon: ' + w.lvl);
     // Sperm passives: 2 slots at the start (+1 at Lv 8, 16, 24), shared with defences (spassives.js)
-    G.muts = { a: 1 }; pdef().n.thick = 1;
+    G.muts = { a: 1 }; pdef().n.latex = 1; pdef().n.thick = 1; // (Membrane Shield's levels use no slot of their own)
     if (spSlots() !== 2) bad.push('sperm passive slots at Lv 3: ' + spSlots());
     if (genomeFree() !== 0) bad.push('genome free: ' + genomeFree());
     G.muts.tcard = 0; if (cardOk(CARDS.find(c => c.id === 'tcard'))) bad.push('acquire offered with Genome full');
