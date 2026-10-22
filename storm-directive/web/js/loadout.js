@@ -48,14 +48,14 @@ function loadoutHtml() {
   const A = UI.arm || {};
   let h = '';
   // Autorun.
-  h += uiPanel('Autorun', `<div class="lomv">${moveModes().map(m => `<button class="lob ${G.moveDir === m.id ? 'sel' : ''}" data-mv="${m.id}"><b>${m.name}</b><span>${esc(m.desc)}</span></button>`).join('')}</div>`, 'lo');
+  h += uiPanel('Autorun', `<div class="lomv">${moveModes().map(m => `<button class="lob ${G.moveDir === m.id ? 'sel' : ''}" data-mv="${m.id}">${pictoFor(m.id, 'move')}<b>${m.name}</b><span>${esc(m.desc)}</span></button>`).join('')}</div>`, 'lo');
   // Weapons.
   const W = G.stats.wdmg || {}, tot = G.weapons.reduce((a, x) => a + (x ? W[x.uid] || 0 : 0), 0) || 1;
   h += `${uiPanelOpen('Weapons', 'lo')}`;
   G.weapons.forEach((w, i) => {
     if (!w) return;
     const c = elemCol(wElem(w)), sh = Math.round((W[w.uid] || 0) / tot * 100), dr = DIRECTIVES.find(x => x.id === w.dir), open = A.tgt === w.uid;
-    h += `<div class="low" style="--c:${c}"><div class="lowh"><span class="loi">${iconSVG(w.def, 24, c)}</span><div class="lon"><b>${esc(w.def.name)}</b><em>Lv ${w.lvl}/${MAX_WLVL} | ${esc(loadoutNext(w))}</em>
+    h += `<div class="low" style="--c:${c}"><div class="lowh"><span class="loi">${defPicto(w.def, c) || iconSVG(w.def, 24, c)}</span><div class="lon"><b>${esc(w.def.name)}</b><em>Lv ${w.lvl}/${MAX_WLVL} | ${esc(loadoutNext(w))}</em>
       <div class="losh"><i style="width:${sh}%"></i></div><small>${sh}% of your damage${w.mods.length ? ' | ' + w.mods.map(m => esc(MODS[m.id].name)).join(', ') : ''}</small></div>
       ${w.def.noTarget ? '' : `<button class="lot ${open ? 'on' : ''}" data-tg="${w.uid}">${dr ? dr.short + (w.dir2 && !w.dirs ? '›' + DIRECTIVES.find(x => x.id === w.dir2).short : '') : '?'}</button>`}<button class="lod" data-go="w${i}">&rsaquo;</button></div>`;
     if (open) h += `<div class="lotg">${DIRECTIVES.map(d => uiChip(d.name, { sel: w.dir === d.id, attrs: `data-dir2="${d.id}" data-uid="${w.uid}" title="${esc(d.desc)}"` })).join('')}${uiHint(esc((DIRECTIVES.find(x => x.id === w.dir) || {}).desc || ''))}${w.dirs ? '' : `${uiHint('Then (breaks ties, and takes over when nothing fits):')}${[{ id: '', name: 'NONE' }].concat(DIRECTIVES.filter(d => d.id !== w.dir)).map(d => uiChip(d.name, { sel: (w.dir2 || '') === d.id, attrs: `data-dir3="${d.id}" data-uid="${w.uid}"` })).join('')}`}${aimOwnPick(w, w.dir, w.dirs ? null : w.dir2)}</div>`;
@@ -68,7 +68,7 @@ function loadoutHtml() {
     G.spells.forEach((w, i) => {
       if (!w) return;
       const c = elemCol(wElem(w)), ready = !(w.cd > 0.05), waits = featWaits(w);
-      h += `<div class="low" style="--c:${c}"><div class="lowh"><span class="loi">${iconSVG(w.def, 24, c)}</span><div class="lon"><b>${esc(w.def.name)}</b><em>Lv ${w.lvl}/${MAX_WLVL} | ${ready ? 'ready' : Math.ceil(w.cd) + 's'} | every ${w.s ? w.s.cd.toFixed(0) : '?'}s</em></div>
+      h += `<div class="low" style="--c:${c}"><div class="lowh"><span class="loi">${defPicto(w.def, c) || iconSVG(w.def, 24, c)}</span><div class="lon"><b>${esc(w.def.name)}</b><em>Lv ${w.lvl}/${MAX_WLVL} | ${ready ? 'ready' : Math.ceil(w.cd) + 's'} | every ${w.s ? w.s.cd.toFixed(0) : '?'}s</em></div>
         ${uiChips(`${uiChip('AUTO', { sel: !waits, attrs: `data-fa="${i}" data-v="auto"` })}${uiChip('TAP', { sel: waits, attrs: `data-fa="${i}" data-v="tap"` })}`, 'lofa')}<button class="lod" data-go="s${i}">&rsaquo;</button></div></div>`;
     });
     h += `${uiHint('AUTO: performs itself when ready. TAP: waits for you to tap its button.')}${uiPanelClose()}`;

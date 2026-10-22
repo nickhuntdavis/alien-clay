@@ -12,6 +12,10 @@
 
 - (`ccr-d33b1fde-g92ob2`) Branch combos: 24 of 30 fused in 60 bot Races; never seen in bots: Group Chat, Newton's Cradle, Repeat Offender, Posthumous Review, Word Gets Around, Hatchling. Bot Races won 0 of 92 with or without them: The Race is too hard for the bot (open thread).
 
+- Open (UI port, 22 Oct 2026): weapon preview should sit on white grid paper (Figma) but preview effects draw additively; needs a paper-aware renderer.
+- Open: Immune Response has no v10 entry point (only the v9 sequence screen had the control). Daily Challenge has no entry point while its title button is hidden.
+- Open: How to Play text is out of date (mentions Cooties, Oil, Water, 29 reactions, v9 modifiers); copy for the user to rewrite.
+
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.
 

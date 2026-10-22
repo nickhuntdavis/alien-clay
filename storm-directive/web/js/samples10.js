@@ -142,10 +142,10 @@ function s10Samples() {
 }
 function s10Modes(id) {
   const s = S10_BY[id], c = ELEMENTS[S10_TYPES[s.types[0]]].color;
-  const card = (mode, no, name, desc, tag) => uiSampleCard({ cls: 'hero', attrs: `data-mode="${mode}"`, style: `--c:${c}`, kicker: `EXPERIMENT #${no}`, name: esc(name), desc: esc(desc), tag });
+  const card = (mode, no, name, desc, tag) => uiSampleCard({ cls: 'hero', attrs: `data-mode="${mode}"`, style: `--c:${c}`, art: typeof pictoSVG === 'function' ? pictoSVG({ s001: 'egg', s002: 'dish', s006: 'endless', s007: 'maze' }[mode] || 'egg') : null, kicker: `#${no}`, name: esc(name), desc: esc(desc), tag });
   $('sampleList').innerHTML = `${uiSectionHead(esc(s.name.toUpperCase()))}<div class="sx-q">"${esc(s.line)}"</div>`
-    + (S10_PETRI ? card('s002', '002', 'The Petri Dish', 'Twenty drops into the dish, a boss every fifth.', 'WAVE MODE') : '')
-    + card('s001', '001', 'The Race', 'Four hundred million hopefuls, one egg.', 'RACE TO THE EGG')
+    + card('s001', '001', 'Evolution', 'Four hundred million hopefuls, one egg.', 'RACE TO THE EGG')
+    + (S10_PETRI ? card('s002', '002', 'Iteration', 'Twenty drops into the dish, a boss every fifth.', 'WAVE MODE') : '')
     + (S10_ENDLESS ? card('s006', '006', 'Endless', 'The dish keeps topping itself up. Nobody has found the bottom.', 'NO END') : '')
     + (S10_LEVELS ? card('s007', '007', typeof lvName === 'function' && typeof LEVELS !== 'undefined' ? lvName(LEVELS[LV_SAMPLE.s007]) : 'Level 1', 'The first stretch of the way in. Mapped by nobody who came back.', 'CAMPAIGN') : '')
     + uiButton('BACK', { attrs: 'id="s10Back"' });

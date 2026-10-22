@@ -12,7 +12,9 @@
 @font-face { font-family: 'Barlow'; src: url('fonts/Barlow-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Barlow'; src: url('fonts/Barlow-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
 
-/* ---------------------------------------------------------------- tokens: Paper (default) */
+/* ---------------------------------------------------------------- tokens: Paper (default)
+   Generated from the Figma variables (Color, Spacing, HUD collections and the text styles), 21 Oct 2026.
+   Edit Figma first, then regenerate; don't hand-edit the values. */
 :root {
   --color-bg-app: #e4e5e0;
   --color-bg-sheet: #ecede8;
@@ -23,8 +25,8 @@
   --color-bg-lit-end: #3a3a37;
   --color-text-primary: #1e1e1e;
   --color-text-strong: #000000;
-  --color-text-secondary: #4a4a46;
-  --color-text-muted: #6b6b66;
+  --color-text-secondary: #3a3a37;
+  --color-text-muted: #4a4a46;
   --color-text-dim: #9a9b95;
   --color-text-on-lit: #e4e5e0;
   --color-text-accent: #d9622b;
@@ -35,6 +37,9 @@
   --color-status-danger: #c2402f;
   --color-status-danger-soft: #d98c7e;
   --color-status-reward: #d9a21b;
+  --color-status-you: #3db06f;
+  --color-status-upgrade: #4894a1;
+  --color-status-pickup: #9860a1;
   --color-type-force: #1e1e1e;
   --color-type-acid: #b8457e;
   --color-type-static: #d9b21b;
@@ -52,13 +57,84 @@
   --color-defence-membrane: #4f86c0;
   --color-defence-shell: #7a5a34;
   --color-defence-thorns: #a89870;
+  --color-defence-squishy: #8c8d87;
+  --color-defence-evasion: #b9bab4;
+  --color-reward-weapon: #b4b9bd;
+  --color-reward-branch: #c7a537;
+  --color-reward-feat: #8e71c7;
+  --color-reward-mutation: #b5837a;
+  --color-reward-modifier: #6791aa;
+  --color-reward-defence: #7cb28e;
+  --color-reward-special: #c79158;
+  --color-reward-switch: #bdbdbd;
+  --color-state-stagger: #1e1e1e;
+  --color-state-corroded: #b8457e;
+  --color-state-charged: #d9b21b;
+  --color-state-snared: #6e8f3a;
+  --color-state-bleeding: #8e2a33;
+  --color-state-possessed: #6e55a6;
+  --color-state-burning: #d0602a;
+  --color-state-conjoined: #6e8f3a;
   --radius-xs: 0px;
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
+  --radius-sm: 3px;   /* chips */
+  --radius-md: 5px;   /* buttons */
+  --radius-lg: 7px;   /* cards */
+  --radius-pill: 999px;
+  --space-2: 2px; --space-4: 4px; --space-6: 6px; --space-8: 8px; --space-10: 10px; --space-12: 12px; --space-14: 14px; --space-16: 16px; --space-24: 24px; --space-32: 32px;
+  /* rules */
+  --rule: 2px;        /* card edge */
+  --rule-btn: 3px;    /* button rule */
+  --rule-chip: 1.5px; /* chip and tab rule */
+  --rule-head: 3px;   /* screen header rule */
+  /* pictograms: 64 x 64 wherever possible; the 4px margin is built into the art */
+  --picto: 64px; --picto-sm: 48px; --picto-xl: 96px;
+  /* Immersive HUD: one dark film palette over light field and darkfield (Figma HUD collection) */
+  --hud-bg-sheet: rgba(10,17,24,.62);
+  --hud-bg-app: rgba(4,8,12,.45);
+  --hud-bg-raised: rgba(24,35,47,.7);
+  --hud-bg-lit: rgba(214,228,240,.85);
+  --hud-text-primary: rgba(214,228,240,.85);
+  --hud-text-strong: rgba(255,255,255,.95);
+  --hud-text-secondary: #8395a8;
+  --hud-text-muted: rgba(131,149,168,.75);
+  --hud-text-dim: rgba(214,228,240,.35);
+  --hud-text-on-lit: #0a1118;
+  --hud-text-accent: rgba(95,212,232,.9);
+  --hud-border-edge: rgba(196,218,240,.30);
+  --hud-border-lit: rgba(196,218,240,.62);
+  --hud-status-success: #4dff9a;
+  --hud-status-info: #5fd4e8;
+  --hud-status-danger: #ff3b3b;
+  --hud-status-reward: #ffd23f;
+  --hud-status-pickup: #d983e8;
+  --hud-type-force: #e8eef8;
+  --hud-type-acid: #ff2fa8;
+  --hud-type-static: #ffe94a;
+  --hud-type-mucus: #7fd04a;
+  --hud-type-blood: #c9184a;
+  --hud-type-alien: #b06cff;
+  --hud-type-fire: #ff6a2a;
+  --hud-defence-membrane: #5aa9ff;
   /* type: Barlow everywhere, no mono */
   --sans: 'Barlow', 'Roboto', 'Helvetica Neue', Arial, system-ui, sans-serif;
   --mono: var(--sans);
+  --t-display-logo: 700 48px/1 var(--sans); --ls-display-logo: .02em;
+  --t-display-title: 700 31px/1.1 var(--sans); --ls-display-title: .02em;
+  --t-heading-name-xl: 600 30px/1.1 var(--sans); --ls-heading-name-xl: 0;
+  --t-heading-title: 700 22px/1.15 var(--sans); --ls-heading-title: .02em;
+  --t-heading-card-l: 700 20px/1.15 var(--sans); --ls-heading-card-l: 0;
+  --t-heading-card: 600 17px/1.2 var(--sans); --ls-heading-card: 0;
+  --t-heading-item: 700 14px/1.3 var(--sans); --ls-heading-item: 0;
+  --t-body: 500 14px/1.4 var(--sans); --ls-body: 0;
+  --t-body-small: 500 11px/1.35 var(--sans); --ls-body-small: 0;
+  --t-body-quote: 600 15px/1.4 var(--sans); --ls-body-quote: 0;
+  --t-label-button: 700 15px/1.2 var(--sans); --ls-label-button: .06em;
+  --t-label-section: 700 12px/1.2 var(--sans); --ls-label-section: .08em;
+  --t-label-kicker: 500 12px/1.2 var(--sans); --ls-label-kicker: 0;
+  --t-label-chip: 700 11px/1.2 var(--sans); --ls-label-chip: .04em;
+  --t-label-micro: 600 10px/1.2 var(--sans); --ls-label-micro: .02em;
+  --t-numeric-stat: 600 20px/1.1 var(--sans); --ls-numeric-stat: -.01em;
+  --t-numeric-big: 600 56px/1 var(--sans); --ls-numeric-big: -.03em;
   /* surfaces: flat */
   --sheet: var(--color-bg-sheet);
   --edge: var(--color-border-edge);
@@ -66,15 +142,14 @@
   --lit: var(--color-bg-lit);
   --grain: none;
   --drop: none; --drop-sm: none; --drop-hud: none;
-  --rule: 2px;
   --line: color-mix(in srgb, var(--color-border-edge) 26%, transparent);
   --line2: var(--color-border-edge);
   --track: color-mix(in srgb, var(--color-text-primary) 12%, transparent);
   --veil: color-mix(in srgb, var(--color-bg-app) 72%, transparent);
-  /* HUD over the slide: translucent paper, thin rules */
-  --glass: color-mix(in srgb, var(--color-bg-app) 78%, transparent);
-  --glass-on: color-mix(in srgb, var(--color-bg-lit) 82%, transparent);
-  --glass-line: color-mix(in srgb, var(--color-border-edge) 70%, transparent);
+  /* HUD over the slide (Immersive film) */
+  --glass: var(--hud-bg-app);
+  --glass-on: var(--hud-bg-lit);
+  --glass-line: var(--hud-border-edge);
   /* meaning colours from JS (--rar, --rc, --ic, --c, --wc, --sc, --bc) are neon; pull them towards the ink so they read on paper */
   --ink-mix: var(--color-text-primary);
   --r: var(--radius-lg);
@@ -83,31 +158,37 @@
   --txt: var(--color-text-primary);
   --dim: var(--color-text-muted);
 }
+/* text-style helpers: class="t-heading-card" etc. */
+.t-display-logo { font: var(--t-display-logo); letter-spacing: var(--ls-display-logo); text-transform: uppercase; }
+.t-display-title { font: var(--t-display-title); letter-spacing: var(--ls-display-title); text-transform: uppercase; }
+.t-heading-name-xl { font: var(--t-heading-name-xl); letter-spacing: var(--ls-heading-name-xl); text-transform: none; }
+.t-heading-title { font: var(--t-heading-title); letter-spacing: var(--ls-heading-title); text-transform: uppercase; }
+.t-heading-card-l { font: var(--t-heading-card-l); letter-spacing: var(--ls-heading-card-l); text-transform: none; }
+.t-heading-card { font: var(--t-heading-card); letter-spacing: var(--ls-heading-card); text-transform: none; }
+.t-heading-item { font: var(--t-heading-item); letter-spacing: var(--ls-heading-item); text-transform: none; }
+.t-body { font: var(--t-body); letter-spacing: var(--ls-body); text-transform: none; }
+.t-body-small { font: var(--t-body-small); letter-spacing: var(--ls-body-small); text-transform: none; }
+.t-body-quote { font: var(--t-body-quote); letter-spacing: var(--ls-body-quote); text-transform: none; }
+.t-label-button { font: var(--t-label-button); letter-spacing: var(--ls-label-button); text-transform: uppercase; }
+.t-label-section { font: var(--t-label-section); letter-spacing: var(--ls-label-section); text-transform: uppercase; }
+.t-label-kicker { font: var(--t-label-kicker); letter-spacing: var(--ls-label-kicker); text-transform: none; }
+.t-label-chip { font: var(--t-label-chip); letter-spacing: var(--ls-label-chip); text-transform: uppercase; }
+.t-label-micro { font: var(--t-label-micro); letter-spacing: var(--ls-label-micro); text-transform: none; }
+.t-numeric-stat { font: var(--t-numeric-stat); letter-spacing: var(--ls-numeric-stat); text-transform: none; }
+.t-numeric-big { font: var(--t-numeric-big); letter-spacing: var(--ls-numeric-big); text-transform: none; }
+.t-body-quote { font-style: italic; }
 
-/* ---------------------------------------------------------------- tokens: Ink (AMOLED dark) */
+/* ---------------------------------------------------------------- tokens: Ink (AMOLED dark)
+   Menus: AUTO follows the phone (html.menus-auto), PAPER (html.paper) or INK (html.ink); see settings.js applyMenus. */
 @media (prefers-color-scheme: dark) {
-  :root:not(.paper) {
-    --color-bg-app: #000000; --color-bg-sheet: #000000; --color-bg-sheet-top: #0d0d0c; --color-bg-sheet-deep: #000000; --color-bg-raised: #161615;
-    --color-bg-lit: #2a2b28; --color-bg-lit-end: #33342f;
-    --color-text-primary: #bfc0ba; --color-text-strong: #d8d9d3; --color-text-secondary: #8f908a; --color-text-muted: #6e6f6a; --color-text-dim: #4f504c;
-    --color-text-on-lit: #d8d9d3; --color-text-accent: #e8874f; --color-border-edge: #3a3b37; --color-border-lit: #6e6f6a;
-    --color-status-success: #6fae7f; --color-status-info: #6fa8de; --color-status-danger: #e06a5c; --color-status-danger-soft: #b0675e; --color-status-reward: #e6b84a;
-    --color-type-force: #bfc0ba; --color-type-acid: #d97aae; --color-type-static: #e6c64a; --color-type-mucus: #9dba62; --color-type-blood: #d0636d; --color-type-alien: #9c87d6; --color-type-fire: #e8865a;
-    --color-rarity-common: #a8a9a3; --color-rarity-uncommon: #6fae7f; --color-rarity-rare: #6fa0da; --color-rarity-epic: #9c83d4; --color-rarity-legendary: #e6a65a; --color-rarity-mythical: #d9718f; --color-rarity-immaculate: #d8d9d3;
-    --color-defence-membrane: #7faad9; --color-defence-shell: #a88660; --color-defence-thorns: #c2b48e;
+  :root.menus-auto {
+    --color-bg-app: #000000; --color-bg-sheet: #000000; --color-bg-sheet-top: #0d0d0c; --color-bg-sheet-deep: #000000; --color-bg-raised: #161615; --color-bg-lit: #2a2b28; --color-bg-lit-end: #33342f; --color-text-primary: #bfc0ba; --color-text-strong: #d8d9d3; --color-text-secondary: #8f908a; --color-text-muted: #6e6f6a; --color-text-dim: #4f504c; --color-text-on-lit: #d8d9d3; --color-text-accent: #e8874f; --color-border-edge: #3a3b37; --color-border-lit: #6e6f6a; --color-status-success: #6fae7f; --color-status-info: #6fa8de; --color-status-danger: #e06a5c; --color-status-danger-soft: #b0675e; --color-status-reward: #e6b84a; --color-status-you: #4dff9a; --color-status-upgrade: #5fd4e8; --color-status-pickup: #d983e8; --color-type-force: #bfc0ba; --color-type-acid: #d97aae; --color-type-static: #e6c64a; --color-type-mucus: #9dba62; --color-type-blood: #d0636d; --color-type-alien: #9c87d6; --color-type-fire: #e8865a; --color-rarity-common: #a8a9a3; --color-rarity-uncommon: #6fae7f; --color-rarity-rare: #6fa0da; --color-rarity-epic: #9c83d4; --color-rarity-legendary: #e6a65a; --color-rarity-mythical: #d9718f; --color-rarity-immaculate: #d8d9d3; --color-defence-membrane: #7faad9; --color-defence-shell: #a88660; --color-defence-thorns: #c2b48e; --color-defence-squishy: #8f908a; --color-defence-evasion: #6e6f6a; --color-reward-weapon: #e6edf2; --color-reward-branch: #ffd23f; --color-reward-feat: #b48cff; --color-reward-mutation: #e8a598; --color-reward-modifier: #7fb7d9; --color-reward-defence: #9be3b4; --color-reward-special: #ffb86b; --color-reward-switch: #f2f2f2; --color-state-stagger: #bfc0ba; --color-state-corroded: #d97aae; --color-state-charged: #e6c64a; --color-state-snared: #9dba62; --color-state-bleeding: #d0636d; --color-state-possessed: #9c87d6; --color-state-burning: #e8865a; --color-state-conjoined: #9dba62;
     --line: color-mix(in srgb, var(--color-border-edge) 70%, transparent);
     --track: color-mix(in srgb, var(--color-text-primary) 14%, transparent);
   }
 }
 :root.ink {
-  --color-bg-app: #000000; --color-bg-sheet: #000000; --color-bg-sheet-top: #0d0d0c; --color-bg-sheet-deep: #000000; --color-bg-raised: #161615;
-  --color-bg-lit: #2a2b28; --color-bg-lit-end: #33342f;
-  --color-text-primary: #bfc0ba; --color-text-strong: #d8d9d3; --color-text-secondary: #8f908a; --color-text-muted: #6e6f6a; --color-text-dim: #4f504c;
-  --color-text-on-lit: #d8d9d3; --color-text-accent: #e8874f; --color-border-edge: #3a3b37; --color-border-lit: #6e6f6a;
-  --color-status-success: #6fae7f; --color-status-info: #6fa8de; --color-status-danger: #e06a5c; --color-status-danger-soft: #b0675e; --color-status-reward: #e6b84a;
-  --color-type-force: #bfc0ba; --color-type-acid: #d97aae; --color-type-static: #e6c64a; --color-type-mucus: #9dba62; --color-type-blood: #d0636d; --color-type-alien: #9c87d6; --color-type-fire: #e8865a;
-  --color-rarity-common: #a8a9a3; --color-rarity-uncommon: #6fae7f; --color-rarity-rare: #6fa0da; --color-rarity-epic: #9c83d4; --color-rarity-legendary: #e6a65a; --color-rarity-mythical: #d9718f; --color-rarity-immaculate: #d8d9d3;
-  --color-defence-membrane: #7faad9; --color-defence-shell: #a88660; --color-defence-thorns: #c2b48e;
+  --color-bg-app: #000000; --color-bg-sheet: #000000; --color-bg-sheet-top: #0d0d0c; --color-bg-sheet-deep: #000000; --color-bg-raised: #161615; --color-bg-lit: #2a2b28; --color-bg-lit-end: #33342f; --color-text-primary: #bfc0ba; --color-text-strong: #d8d9d3; --color-text-secondary: #8f908a; --color-text-muted: #6e6f6a; --color-text-dim: #4f504c; --color-text-on-lit: #d8d9d3; --color-text-accent: #e8874f; --color-border-edge: #3a3b37; --color-border-lit: #6e6f6a; --color-status-success: #6fae7f; --color-status-info: #6fa8de; --color-status-danger: #e06a5c; --color-status-danger-soft: #b0675e; --color-status-reward: #e6b84a; --color-status-you: #4dff9a; --color-status-upgrade: #5fd4e8; --color-status-pickup: #d983e8; --color-type-force: #bfc0ba; --color-type-acid: #d97aae; --color-type-static: #e6c64a; --color-type-mucus: #9dba62; --color-type-blood: #d0636d; --color-type-alien: #9c87d6; --color-type-fire: #e8865a; --color-rarity-common: #a8a9a3; --color-rarity-uncommon: #6fae7f; --color-rarity-rare: #6fa0da; --color-rarity-epic: #9c83d4; --color-rarity-legendary: #e6a65a; --color-rarity-mythical: #d9718f; --color-rarity-immaculate: #d8d9d3; --color-defence-membrane: #7faad9; --color-defence-shell: #a88660; --color-defence-thorns: #c2b48e; --color-defence-squishy: #8f908a; --color-defence-evasion: #6e6f6a; --color-reward-weapon: #e6edf2; --color-reward-branch: #ffd23f; --color-reward-feat: #b48cff; --color-reward-mutation: #e8a598; --color-reward-modifier: #7fb7d9; --color-reward-defence: #9be3b4; --color-reward-special: #ffb86b; --color-reward-switch: #f2f2f2; --color-state-stagger: #bfc0ba; --color-state-corroded: #d97aae; --color-state-charged: #e6c64a; --color-state-snared: #9dba62; --color-state-bleeding: #d0636d; --color-state-possessed: #9c87d6; --color-state-burning: #e8865a; --color-state-conjoined: #9dba62;
   --line: color-mix(in srgb, var(--color-border-edge) 70%, transparent);
   --track: color-mix(in srgb, var(--color-text-primary) 14%, transparent);
 }
@@ -257,26 +338,53 @@ body { font-size: 14px; }
 #bossIntro #biFight { background: var(--color-bg-lit) !important; color: var(--color-text-on-lit) !important; border-color: var(--color-bg-lit) !important; }
 #bossIntro.ready #biFight { animation: none; }
 
-/* ---------------------------------------------------------------- HUD over the slide: subtle, translucent paper */
-#hud .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, #autoBtn, #spdBtn, #schoolSkip, #dbgBtn {
-  background: var(--glass) !important; border: 1.5px solid var(--glass-line) !important; color: var(--color-text-primary) !important; box-shadow: none !important; border-radius: var(--radius-md) !important;
+/* ---------------------------------------------------------------- HUD over the slide: v10 Immersive, dark film only
+   One look over light field and darkfield (the --hud-* tokens). Keys rest at 50%, brighten when pressed or lit.
+   Immersive layout (portrait): AUTO + speed top-left, Tackle Box + pause top-right; weapons are round keys stacked
+   bottom-right; Rewind bottom-left with the Autorun key under it; Feats bottom-centre. */
+#hud .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, #autoBtn, #spdBtn, #schoolSkip, #dbgBtn, #abilBtn {
+  background: var(--hud-bg-app) !important; border: 1px solid var(--hud-border-edge) !important; color: var(--hud-text-primary) !important;
+  box-shadow: none !important; border-radius: 12px !important; font-family: var(--sans);
 }
-#hud .slot.empty { background: color-mix(in srgb, var(--color-bg-app) 35%, transparent) !important; border-style: dashed !important; opacity: 1; }
-#hud .slot.spell { border-radius: var(--radius-md) !important; }
-#hud .slot .dir, #hud .slot .lv, #hud .slot .ico { color: var(--color-text-primary); }
-#hud .slot .bar { background: var(--track); }
-#hud .slot .bar i { background: var(--color-text-primary) !important; }
-#hud .slot.merged { border: 2px solid var(--color-border-edge) !important; }
-#autoBtn.on, #spdBtn.fast { background: var(--glass-on) !important; color: var(--color-text-on-lit) !important; border-color: transparent !important; }
-#rewindBtn { border-radius: var(--radius-md) !important; background: conic-gradient(var(--track) var(--e, 0%), transparent 0), var(--glass) !important; }
-#rewindBtn.ready { border: 2px solid var(--color-border-edge) !important; animation: none; }
-#rewindBtn .pips i { border-color: var(--color-border-edge); background: transparent; }
-#rewindBtn .pips i.on { background: var(--color-text-primary); }
-#abilBtn { border: 1.5px solid var(--glass-line); color: var(--color-text-primary); background: conic-gradient(var(--track) var(--e, 0%), var(--glass) 0); box-shadow: none !important; animation: none !important; }
-#abilBtn.ready { border: 2px solid var(--color-border-edge); opacity: 1; }
-#toast { background: var(--glass-on) !important; border: 0 !important; color: var(--color-text-on-lit) !important; font-family: var(--sans); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 11px; border-radius: var(--radius-sm) !important; }
-body #sysmsg { background: color-mix(in srgb, var(--color-bg-app) 72%, transparent) !important; border: 0 !important; border-left: 2px solid var(--color-border-edge) !important; border-radius: 0 !important; box-shadow: none !important; }
-body #sysmsg span { color: var(--color-text-primary); }
+#hud .slot.empty { background: transparent !important; border-style: dashed !important; opacity: 0.7; }
+#hud .slot.spell { border-radius: 25px !important; }
+#hud .slot .dir, #hud .slot .ico { color: var(--hud-text-primary); }
+#hud .slot .lv { color: var(--hud-text-dim); }
+#hud .slot .bar { background: transparent; }
+#hud .slot .bar i { background: var(--c, var(--hud-type-force)) !important; }
+#hud .slot.merged { border-color: var(--hud-border-lit) !important; }
+#autoBtn.on, #spdBtn.fast { border-color: var(--hud-border-lit) !important; color: var(--hud-text-strong) !important; opacity: 0.85 !important; }
+#rewindBtn { background: conic-gradient(color-mix(in srgb, var(--hud-text-primary) 18%, transparent) var(--e, 0%), transparent 0), var(--hud-bg-app) !important; }
+#rewindBtn.ready { border-color: var(--hud-border-lit) !important; animation: none; }
+#rewindBtn .pips i { border-color: var(--hud-border-lit); background: transparent; }
+#rewindBtn .pips i.on { background: var(--hud-text-primary); }
+#abilBtn { background: conic-gradient(color-mix(in srgb, var(--hud-text-primary) 18%, transparent) var(--e, 0%), var(--hud-bg-app) 0) !important; animation: none !important; }
+#abilBtn.ready { border-color: var(--hud-border-lit) !important; opacity: 1; }
+#toast { background: var(--hud-bg-sheet) !important; border: 1px solid var(--hud-border-edge) !important; color: var(--hud-text-primary) !important; font-family: var(--sans); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 11px; border-radius: 12px !important; }
+body #sysmsg { background: var(--hud-bg-sheet) !important; border: 0 !important; border-left: 2px solid var(--hud-border-lit) !important; border-radius: 6px !important; box-shadow: none !important; color: var(--hud-text-primary); }
+body #sysmsg b { color: var(--hud-text-muted); }
+body #sysmsg span { color: var(--hud-text-primary); }
+#moveBtn .mvk { display: block; font-size: 8px; letter-spacing: 0.1em; color: var(--hud-text-dim); line-height: 1; }
+#moveBtn .mvl { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; line-height: 1.2; }
+
+/* Immersive placement (portrait). Landscape keeps the old row. */
+body.immersive:not(.land) #hud .slot.weapon, body.immersive:not(.land) #rewindBtn, body.immersive:not(.land) #moveBtn { width: 62px !important; height: 62px !important; border-radius: 50% !important; padding: 0 !important; min-width: 0 !important; }
+body.immersive:not(.land) #wslots { position: fixed; right: calc(12px + env(safe-area-inset-right)); bottom: calc(24px + env(safe-area-inset-bottom)); flex-direction: column-reverse; gap: 8px; }
+body.immersive:not(.land) #wslots.many { display: flex; }
+body.immersive:not(.land) #hud .slot.weapon { overflow: visible; }
+body.immersive:not(.land) #hud .slot.weapon .ico { left: 50%; top: 10px; transform: translateX(-50%); font-size: 0; }
+body.immersive:not(.land) #hud .slot.weapon .ico svg { width: 20px; height: 20px; }
+body.immersive:not(.land) #hud .slot.weapon .lv { right: auto; left: 50%; top: auto; bottom: 7px; transform: translateX(-50%); font-size: 8px; }
+body.immersive:not(.land) #hud .slot.weapon .dir { bottom: 18px; font-size: 10px; }
+body.immersive:not(.land) #hud .slot.weapon .mp { display: none; }
+body.immersive:not(.land) #hud .slot.weapon .bar { inset: -1px; height: auto; border-radius: 50%; background: conic-gradient(var(--c, var(--hud-type-force)) calc(var(--f, 1) * 360deg), transparent 0); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); opacity: 0.6; }
+body.immersive:not(.land) #hud .slot.weapon.reloading .bar { opacity: 1; }
+body.immersive:not(.land) #hud .slot.weapon .bar i { display: none; }
+body.immersive:not(.land) #side { left: calc(12px + env(safe-area-inset-left)) !important; bottom: calc(94px + env(safe-area-inset-bottom)) !important; flex-direction: column-reverse; gap: 8px; }
+body.immersive:not(.land) #moveBtn { position: fixed; left: calc(12px + env(safe-area-inset-left)); bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; }
+body.immersive:not(.land) #sslots { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(24px + env(safe-area-inset-bottom)); }
+body.immersive:not(.land) #bottom { pointer-events: none; }
+body.mfire.immersive:not(.land) #wslots { display: none; } /* (manual fire: the round FIRE keys take the right-hand column) */
 #waveBtn { animation: none; }
 #holdInfo { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); border-radius: var(--radius-lg); box-shadow: none; color: var(--color-text-primary); }
 #dbgPanel { background: var(--color-bg-sheet); border: 2px solid var(--color-border-edge); color: var(--color-text-primary); }
@@ -387,7 +495,7 @@ canvas.cdxp { box-shadow: 0 0 0 2px var(--color-border-edge); }
    (Force) reads as ink and the type colours stay recognisable; leave them alone on ink fills and in Ink mode. */
 .wicon, .cico svg, .bico svg, .loi svg, .bh-ico svg, .sqwep svg, .dmount svg, .aico svg { filter: brightness(0.4) saturate(1.4); }
 .sel .wicon, .btn.primary .wicon, .dbadge .wicon, .dbadge svg, #draft .dtab.sel svg, .atab.sel svg, .lob.sel svg { filter: none; }
-@media (prefers-color-scheme: dark) { :root:not(.paper) .wicon, :root:not(.paper) .cico svg, :root:not(.paper) .bico svg, :root:not(.paper) .loi svg, :root:not(.paper) .bh-ico svg, :root:not(.paper) .sqwep svg, :root:not(.paper) .dmount svg, :root:not(.paper) .aico svg { filter: none; } }
+@media (prefers-color-scheme: dark) { :root.menus-auto .wicon, :root.menus-auto .cico svg, :root.menus-auto .bico svg, :root.menus-auto .loi svg, :root.menus-auto .bh-ico svg, :root.menus-auto .sqwep svg, :root.menus-auto .dmount svg, :root.menus-auto .aico svg { filter: none; } }
 :root.ink .wicon, :root.ink .cico svg, :root.ink .bico svg, :root.ink .loi svg, :root.ink .bh-ico svg, :root.ink .sqwep svg, :root.ink .dmount svg, :root.ink .aico svg { filter: none; }
 
 /* weapon draft: kickers in ink, not the weapon's (often near-white) colour; full-width pinned band */
@@ -402,3 +510,255 @@ canvas.cdxp { box-shadow: 0 0 0 2px var(--color-border-edge); }
 .youCap { text-shadow: none; }
 .youCap b { color: color-mix(in srgb, var(--c, var(--color-text-primary)) 65%, var(--ink-mix)); font-weight: 700; }
 .youCap span { color: var(--color-text-primary); }
+
+/* ================================================================ Design system v2 port (Figma, 21 Oct 2026)
+   UI_PRINCIPLES.md is the rulebook. Buttons: radius 5 with a 3px rule and 15px labels. Screen titles 31px.
+   Pictograms (pictos.js) at 64 x 64 wherever possible: body in currentColor, cut-outs in --picto-cut. */
+.picto { display: block; width: var(--picto); height: var(--picto); flex: none; color: var(--color-text-primary); --picto-cut: var(--color-bg-sheet); overflow: hidden; }
+.picto.sm { width: var(--picto-sm); height: var(--picto-sm); }
+.picto.xl { width: var(--picto-xl); height: var(--picto-xl); }
+[data-picto] { display: block; }
+.btn, #moveBtn, #armBtn { border-width: var(--rule-btn) !important; font-size: 15px; }
+.ptitle, .ltitle, #overTitle, #draft .dtitle, .sqtitle { font-size: 31px; }
+
+/* 01 Title: hero egg fills the gap so the actions sit low; secondary links as 2 x 2 pictogram tiles */
+#title .tbox { display: flex; flex-direction: column; gap: 12px; min-height: calc(100% - 40px); }
+#title .thero { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 110px; --picto: var(--picto-xl); }
+#title .thero .picto { --picto-cut: var(--color-bg-app); }
+#title .btn { margin: 0 !important; }
+#title .navgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#title .navtile { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 10px !important; height: auto; border-width: var(--rule) !important; border-radius: var(--radius-lg) !important; font-size: 14px; }
+#title .navtile .ntp { width: var(--picto); height: var(--picto); }
+#title .navtile .dna { display: block; font-size: 11px; letter-spacing: 0.02em; text-transform: none; margin: 0; }
+#title #dailyBtn { display: none !important; } /* (Figma: one way in per action; Daily Challenge needs a new home, see changes/local-ui-port.md) */
+/* 14 Splash: the microscope art is drawn on a black canvas, so its words use the HUD ink, not paper ink */
+#splash .spt { font: 700 44px/1 var(--sans); color: var(--hud-text-primary); text-shadow: none; }
+#splash .spt span { -webkit-text-stroke-color: var(--hud-text-primary); }
+#splash .spp { color: var(--hud-text-secondary); font-family: var(--sans); }
+#splash .spk { color: var(--hud-text-dim); font-family: var(--sans); }
+#hud { --veil: var(--hud-bg-app); --line: var(--hud-border-edge); --glass: var(--hud-bg-app); --glass-line: var(--hud-border-edge); }
+
+/* Pictogram tiles: 64px, the pictogram fills the tile; never the old icon darkening filter */
+.picto, .cico .picto, .bico .picto, .aico .picto, .loi .picto { filter: none !important; }
+.card .cico.pk { width: var(--picto); height: var(--picto); padding: 0; border: var(--rule) solid color-mix(in srgb, var(--ic, var(--color-border-edge)) 70%, var(--ink-mix)) !important; border-radius: 0 !important; background: var(--color-bg-sheet) !important; color: color-mix(in srgb, var(--ic, var(--color-text-primary)) 75%, var(--ink-mix)); overflow: hidden; }
+.card .cico.pk .picto { width: 100%; height: 100%; --picto-cut: var(--color-bg-sheet); }
+.card:has(.cico.pk) { padding-left: 88px !important; min-height: 92px; }
+
+/* 06 DNA Loot: the title stays ink (the box colour lives in the rule and the cards); names are ink, colour is the swatch */
+#lootTitle { color: var(--color-text-primary) !important; padding-right: 110px; }
+.card .ctitle { color: var(--color-text-primary) !important; }
+#buildBtn { top: calc(14px + env(safe-area-inset-top)) !important; }
+
+/* 64px pictogram leads: Tackle Box header, Field Guide, Gene Bank, loadout, draft options, fusion */
+.pk { display: block; width: var(--picto); height: var(--picto); flex: none; }
+.pk .picto { width: 100%; height: 100%; color: inherit; }
+.aico:has(.pk) { width: var(--picto) !important; height: var(--picto) !important; padding: 0 !important; border-width: var(--rule) !important; overflow: hidden; }
+.aico .pk .picto, .bico .pk .picto, .loi .pk .picto { --picto-cut: var(--color-bg-app); }
+.li.cdxw .bico, .brow .bico, .bico:has(.pk) { width: var(--picto) !important; height: var(--picto) !important; flex: none; border: 0 !important; background: none !important; }
+.li.cdxw { display: flex; gap: 12px; align-items: center; }
+.loi:has(.pk) { width: var(--picto) !important; height: var(--picto) !important; }
+#draft .dtab.dwep { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+#draft .dtab.dwep .pk { width: var(--picto); height: var(--picto); }
+#draft .dtab.dwep .pk .picto { --picto-cut: var(--color-bg-sheet); }
+#draft .dtab.dwep.sel .pk { color: var(--color-text-on-lit) !important; }
+#draft .dtab.dwep.sel .pk .picto { --picto-cut: var(--color-bg-lit); }
+.fuw .pk { width: var(--picto); height: var(--picto); margin: 0 auto; }
+.fuw .pk .picto { --picto-cut: #000; }
+/* 11 Field Guide: one full-width row per entry, 64px pictogram lead; unseen entries faded, names always ink */
+#codex .list:has(.cdxw) { display: flex !important; flex-direction: column; gap: 8px; grid-template-columns: none !important; }
+.li.cdxw { width: 100%; padding: 10px 12px 10px 10px !important; }
+.li.cdxw b { color: var(--color-text-primary) !important; }
+.li.cdxw:not(.on) .pk { opacity: 0.45; }
+
+/* Rows and options that lead with a 64px pictogram */
+.li.prow { display: flex; gap: 12px; align-items: center; }
+.li.prow > .picto { --picto-cut: var(--color-bg-sheet); }
+.li.prow.debuff { border-color: var(--color-status-danger) !important; }
+.sx-card .sx-art { width: var(--picto) !important; height: var(--picto) !important; }
+.sx-card .sx-art .picto { width: 100%; height: 100%; --picto-cut: var(--color-bg-sheet); }
+.lomv { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.lob { display: flex !important; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 10px !important; border: var(--rule) solid var(--color-border-edge) !important; border-radius: var(--radius-lg) !important; background: var(--color-bg-sheet) !important; color: var(--color-text-primary); }
+.lob .picto { --picto-cut: var(--color-bg-sheet); }
+.lob b { font: var(--t-heading-item); text-transform: uppercase; letter-spacing: 0.04em; }
+.lob span { font: var(--t-body-small); color: var(--color-text-secondary); }
+.lob.sel { background: var(--color-bg-lit) !important; border-color: var(--color-bg-lit) !important; color: var(--color-text-on-lit); }
+.lob.sel b, .lob.sel span { color: var(--color-text-on-lit) !important; }
+.lob.sel .picto { color: var(--color-text-on-lit); --picto-cut: var(--color-bg-lit); }
+#born .bcard { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+#born .bcard .picto { --picto-cut: var(--color-bg-sheet); }
+.list:has(.prow) { display: flex !important; flex-direction: column; gap: 8px; }
+.li.prow { opacity: 1 !important; border-color: var(--color-border-edge) !important; padding: 10px 12px 10px 10px !important; }
+.li.prow.debuff { border-color: var(--color-status-danger) !important; }
+.li.prow b { color: var(--color-text-primary) !important; }
+#stBody h3 { display: flex; align-items: center; gap: 10px; margin: 16px 0 10px; font: var(--t-label-section); letter-spacing: var(--ls-label-section); text-transform: uppercase; color: var(--color-text-primary); }
+#stBody h3::after { content: ""; flex: 1; height: 2px; background: var(--color-border-edge); }
+/* 03 Mode Select: Mode Card = 64px pictogram left, kicker / name / one line beside it */
+#sampleList .sx-card.hero:has(.sx-art .picto) { display: grid !important; grid-template-columns: var(--picto) 1fr; gap: 12px; align-items: center; text-align: left; padding: 12px !important; }
+#sampleList .sx-card.hero:has(.sx-art .picto) .sx-art { margin: 0 !important; }
+/* 09 Tackle Box: tabs share the width (Segmented Tabs, icon over label) */
+#armTabs { display: flex !important; gap: 0 !important; width: 100%; border: var(--rule-chip) solid var(--color-border-edge); border-radius: var(--radius-md); overflow: hidden; }
+#armTabs .atab { flex: 1 1 0; width: auto !important; min-width: 0; border: 0 !important; border-radius: 0 !important; border-right: var(--rule-chip) solid var(--color-border-edge) !important; }
+#armTabs .atab:last-child { border-right: 0 !important; }
+
+/* Dark sheets in Figma (17 Sequence Reveal, 22 Fusion, 34 Kindred Fuse): the Ink tokens, whatever the Menus setting */
+.inkzone, #seqReveal, #fusion, #kinFuse {
+  --color-bg-app: #000000; --color-bg-sheet: #000000; --color-bg-sheet-top: #0d0d0c; --color-bg-sheet-deep: #000000; --color-bg-raised: #161615; --color-bg-lit: #2a2b28; --color-bg-lit-end: #33342f; --color-text-primary: #bfc0ba; --color-text-strong: #d8d9d3; --color-text-secondary: #8f908a; --color-text-muted: #6e6f6a; --color-text-dim: #4f504c; --color-text-on-lit: #d8d9d3; --color-text-accent: #e8874f; --color-border-edge: #3a3b37; --color-border-lit: #6e6f6a; --color-status-success: #6fae7f; --color-status-info: #6fa8de; --color-status-danger: #e06a5c; --color-status-danger-soft: #b0675e; --color-status-reward: #e6b84a; --color-status-you: #4dff9a; --color-status-upgrade: #5fd4e8; --color-status-pickup: #d983e8; --color-type-force: #bfc0ba; --color-type-acid: #d97aae; --color-type-static: #e6c64a; --color-type-mucus: #9dba62; --color-type-blood: #d0636d; --color-type-alien: #9c87d6; --color-type-fire: #e8865a; --color-rarity-common: #a8a9a3; --color-rarity-uncommon: #6fae7f; --color-rarity-rare: #6fa0da; --color-rarity-epic: #9c83d4; --color-rarity-legendary: #e6a65a; --color-rarity-mythical: #d9718f; --color-rarity-immaculate: #d8d9d3; --color-defence-membrane: #7faad9; --color-defence-shell: #a88660; --color-defence-thorns: #c2b48e; --color-defence-squishy: #8f908a; --color-defence-evasion: #6e6f6a; --color-reward-weapon: #e6edf2; --color-reward-branch: #ffd23f; --color-reward-feat: #b48cff; --color-reward-mutation: #e8a598; --color-reward-modifier: #7fb7d9; --color-reward-defence: #9be3b4; --color-reward-special: #ffb86b; --color-reward-switch: #f2f2f2; --color-state-stagger: #bfc0ba; --color-state-corroded: #d97aae; --color-state-charged: #e6c64a; --color-state-snared: #9dba62; --color-state-bleeding: #d0636d; --color-state-possessed: #9c87d6; --color-state-burning: #e8865a; --color-state-conjoined: #9dba62;
+  --line: color-mix(in srgb, var(--color-border-edge) 70%, transparent);
+  --track: color-mix(in srgb, var(--color-text-primary) 14%, transparent);
+  background: var(--color-bg-app); color: var(--color-text-primary);
+}
+/* 10 Settings: every row is its own card; label and ? on top, options below, right-aligned (UI_PRINCIPLES 8) */
+#settings .sec.srow { display: flex !important; flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 14px !important; margin: 0 0 16px !important;
+  background: var(--color-bg-sheet) !important; border: var(--rule) solid var(--color-border-edge) !important; border-radius: var(--radius-lg) !important; }
+#settings .srow .srh { flex: none; justify-content: flex-start; }
+#settings .srow .srh h3 { flex: 0 1 auto; font: var(--t-label-section); letter-spacing: var(--ls-label-section); text-transform: uppercase; }
+#settings .srow .srh h3::after { display: none; }
+#settings .srow .chips { justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+#settings .srow.soff { opacity: 0.55; }
+/* type colour on pictograms, pulled towards the ink so it reads on paper (Force has none: plain ink) */
+.pk { color: color-mix(in srgb, var(--pc, var(--color-text-primary)) 80%, var(--ink-mix)); }
+/* 04 Weapon Draft: three equal option columns, the chosen one lit */
+#draft #dTabs:has(.dwep) { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#draft .dtab.dwep { width: auto !important; min-width: 0; padding: 10px !important; border: var(--rule) solid var(--color-border-edge) !important; border-radius: var(--radius-lg) !important; }
+#draft .dtab.dwep b { font: var(--t-heading-item); white-space: normal; }
+/* 18 It's a Baby: header left; three Baby Traits side by side as option cards */
+#born, #born .sqkick, #born .sqtitle, #born p { text-align: left !important; }
+#bornCards { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#born .bcard { padding: 10px !important; border: var(--rule) solid var(--color-border-edge) !important; border-radius: var(--radius-lg) !important; background: var(--color-bg-sheet) !important; min-width: 0; }
+#born .bcard b { font: var(--t-heading-item); }
+#born .bcard span { font: var(--t-body-small); color: var(--color-text-secondary); }
+#born .sqwrap { text-align: left !important; }
+/* Segmented Tabs: one ruled bar, equal segments, 1.5px dividers, the chosen one lit (Pause, Settings) */
+.ptabs { gap: 0 !important; flex-wrap: nowrap !important; border: var(--rule-chip) solid var(--color-border-edge); border-radius: var(--radius-md); overflow: hidden; margin: 10px 0 6px !important; }
+.ptabs .chip { flex: 1 1 0 !important; min-width: 0 !important; border: 0 !important; border-radius: 0 !important; border-right: var(--rule-chip) solid var(--color-border-edge) !important; margin: 0 !important; padding: 7px 2px !important; }
+.ptabs .chip:last-child { border-right: 0 !important; }
+/* Pinned actions stay at the bottom even when the page is short */
+.screen > .pwrap { min-height: 100%; display: flex; flex-direction: column; }
+.screen > .pwrap > .pbtns { margin-top: auto !important; position: sticky; bottom: 0; }
+
+/* Readout Panel (Figma): big numerals over small muted labels, cells split by thin rules, one ruled card.
+   Gene Bank (DNA banked is the hero), Game Over and Victory run stats. */
+.readout, .ostats { display: grid !important; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0 !important; align-items: stretch; background: var(--color-bg-sheet) !important;
+  border: var(--rule) solid var(--color-border-edge) !important; border-radius: var(--radius-lg) !important; padding: 10px 0 !important; margin: 12px 0 16px !important; }
+.readout.r3 { grid-template-columns: 1.5fr 1fr 1fr; grid-auto-flow: row; }
+.readout .rc, .ostats > div { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2px 6px !important; min-width: 0;
+  border: 0 !important; border-left: var(--rule-chip) solid var(--color-border-edge) !important; border-radius: 0 !important; background: none !important;
+  font: var(--t-label-micro); color: var(--color-text-muted); }
+.readout .rc:first-child, .ostats > div:first-child { border-left: 0 !important; }
+.readout .rc b, .ostats > div b { display: block; font: var(--t-numeric-stat); font-size: 26px; letter-spacing: var(--ls-numeric-stat); color: var(--color-text-primary); }
+.readout .rc.hero b { font-size: 38px; }
+.readout .rc span { font: var(--t-label-micro); color: var(--color-text-muted); }
+/* Gene Bank: the next swimmer in one card with a pictogram */
+.bnext .nextsw { display: flex; gap: 12px; align-items: center; padding: 10px 12px 10px 10px; border: var(--rule) solid var(--color-border-edge); border-radius: var(--radius-lg); background: var(--color-bg-sheet); }
+.bnext .nextsw .picto { --picto-cut: var(--color-bg-sheet); }
+.bnext .nextsw .hint { margin: 0; color: var(--color-text-primary); }
+.screen > .pwrap > .pbtns { bottom: calc(-16px - env(safe-area-inset-bottom)); padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important; z-index: 3; }
+/* 13 Game Over / 20 Victory: four readouts per row; extra stats wrap onto ruled rows below */
+.ostats { grid-auto-flow: row !important; grid-template-columns: repeat(4, 1fr); row-gap: 10px !important; }
+.ostats > div:nth-child(4n+1) { border-left: 0 !important; }
+.ostats > div b { font-size: 24px; }
+/* 15 How to Play: one rule per row, 64px pictogram lead */
+#how p.howp { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 14px; }
+#how p.howp .picto { --picto-cut: var(--color-bg-sheet); }
+#how p.howp > span { flex: 1; min-width: 0; }
+
+/* Screen Header (Figma): counter left, context right, 3px rule, then the title with no rule of its own (dsheads.js) */
+.shead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 6px; margin: 0 0 12px; border-bottom: var(--rule-head) solid var(--color-border-edge); align-self: stretch; }
+.shead .scount { font: var(--t-display-title); letter-spacing: var(--ls-display-title); color: var(--color-text-primary); }
+.shead .sctx { font: var(--t-label-kicker); color: var(--color-text-muted); text-align: right; }
+.has-shead .ptitle, .has-shead .ltitle, .has-shead .dtitle { border-bottom: 0 !important; padding-bottom: 0 !important; margin-bottom: 4px !important; text-align: left !important; }
+.has-shead > .sqkick, .has-shead > .hint, .has-shead .dsub, .has-shead #lootSub { text-align: left !important; }
+#samples .has-shead > .sqkick { display: none; }
+#samples .step2 > .hint { display: none; }
+#draft .drole:has(+ .dname) { display: none; }
+/* Catalogue cards (samples, modes): kicker left and tag right on one row, then name and one line (Figma Mode / Sample Card) */
+#sampleList .sx-card .sx-txt { display: grid !important; grid-template-columns: 1fr auto; grid-template-areas: "k t" "n n" "d d"; column-gap: 8px; row-gap: 2px; text-align: left; }
+#sampleList .sx-card .sx-txt > i { grid-area: k; font: var(--t-label-micro); font-style: normal; color: var(--color-text-muted); }
+#sampleList .sx-card .sx-txt > em { grid-area: t; font: var(--t-label-micro); font-style: normal; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); text-align: right; }
+#sampleList .sx-card .sx-txt > b { grid-area: n; font: var(--t-heading-title); letter-spacing: var(--ls-heading-title); text-transform: uppercase; color: var(--color-text-primary); }
+#sampleList .sx-card .sx-txt > span { grid-area: d; font: var(--t-body); color: var(--color-text-primary); }
+#sampleList .sx-card .sx-txt > em.swatches { grid-area: auto; grid-column: 1 / -1; display: flex; gap: 4px; text-align: left; }
+#sampleList .sx-card .sx-txt .sw { display: inline-block; width: 8px; height: 8px; }
+#s10Back { display: none !important; } /* (one BACK, pinned) */
+#loot.on #buildBtn { top: calc(132px + env(safe-area-inset-top)) !important; right: 16px; }
+/* Reward Card (Figma): 64px tile with the rarity chip flush underneath; category + swatch on the bottom row */
+.card .cico.pk { overflow: visible; top: 14px !important; transform: none !important; }
+.card .cico .rchip { position: absolute; left: calc(-1 * var(--rule)); right: calc(-1 * var(--rule)); top: 100%; padding: 2px 0; text-align: center; font: var(--t-label-chip); letter-spacing: var(--ls-label-chip); text-transform: uppercase;
+  background: color-mix(in srgb, var(--rar, var(--color-rarity-common)) 80%, var(--ink-mix)); color: var(--color-bg-sheet); }
+.card .cfoot { display: flex; align-items: center; gap: 6px; margin-top: 8px; font: var(--t-label-micro); letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in srgb, var(--ic, var(--color-text-muted)) 70%, var(--ink-mix)); }
+.card .cfoot .sw { width: 8px; height: 8px; background: color-mix(in srgb, var(--ic, var(--color-text-muted)) 75%, var(--ink-mix)); }
+.card:has(.cico.pk) { min-height: 112px; }
+.readout .rc b sup { font: var(--t-label-micro); vertical-align: super; margin-left: 2px; color: var(--color-text-muted); }
+#stBody h3 em { margin-left: auto; order: 3; font: var(--t-label-kicker); font-style: normal; text-transform: none; letter-spacing: 0; color: var(--color-text-muted); }
+#stBody h3::after { order: 2; }
+/* 11 Field Guide: completion centred as a readout */
+.cdxpct, .cdxcount { text-align: center !important; justify-content: center; }
+/* Pause YOU: stats as one ruled Readout Grid (3 x n), the ability text unboxed */
+#pauseBody .tiles { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 0 !important; border: var(--rule) solid var(--color-border-edge); border-radius: var(--radius-lg); background: var(--color-bg-sheet); overflow: hidden; }
+#pauseBody .tiles .tile { border: 0 !important; border-radius: 0 !important; background: none !important; text-align: center; padding: 10px 4px !important; border-left: var(--rule-chip) solid var(--line2) !important; border-top: var(--rule-chip) solid var(--line2) !important; }
+#pauseBody .tiles .tile:nth-child(3n+1) { border-left: 0 !important; }
+#pauseBody .tiles .tile:nth-child(-n+3) { border-top: 0 !important; }
+#pauseBody .tiles .tile b { display: block; font: var(--t-numeric-stat); color: var(--color-text-primary); }
+#pauseBody .tiles .tile span { font: var(--t-label-micro); color: var(--color-text-muted); text-transform: none; letter-spacing: 0; }
+#pauseBody .sec .list:not(:has(.prow, .cdxw, .lob)) .li { border: 0 !important; background: none !important; padding: 0 0 8px !important; opacity: 1 !important; }
+#pauseBody .sec .list:not(:has(.prow, .cdxw, .lob)) .li b { color: var(--color-text-primary) !important; }
+.youCap b { color: var(--color-text-primary) !important; text-transform: uppercase; }
+/* Pause BUILD: ink headers with the count on the right, plain rows */
+.bp-h { color: var(--color-text-primary) !important; }
+.bp-h svg { display: none; }
+.bp-h em { margin-left: auto; font: var(--t-label-kicker); font-style: normal; color: var(--color-text-muted); text-transform: none; letter-spacing: 0; }
+.bp .list .li, .bp .bp-w { border: 0 !important; background: none !important; padding: 0 0 8px !important; opacity: 1 !important; }
+.bp .bp-ico { display: none; }
+/* Pause GUIDE: one entry per row, like the Field Guide */
+#pause .list:has(.cdxw) { display: flex !important; flex-direction: column; gap: 8px; }
+.bp-h { display: flex !important; align-items: center; gap: 10px; }
+.bp-h::after { order: 2; }
+.bp-h em { order: 3; margin-left: 0 !important; }
+#born .has-shead > .sqtitle, #born .has-shead > #bornKick { display: none; }
+#over .has-shead #overTitle { display: none; }
+#over .shead .scount { font-size: 28px; }
+#over #overBody .big { display: none; }
+#over #overBody .eulogy { font: var(--t-body-quote); font-style: italic; color: var(--color-text-primary); }
+#over .pbtns { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
+#over .pbtns .btn { margin: 0 !important; width: 100%; }
+#over .pbtns .btn[style*="display: none"] { display: none !important; }
+
+/* 14 Splash (splash.js): paper, the logo where the title screen has it (seamless hand-over), its 3px rule drawing across */
+#splash { background: var(--color-bg-app) !important; }
+#splash .spw { top: calc(36px + env(safe-area-inset-top)); left: 20px; right: 20px; text-align: left; }
+#splash .spt { font: 700 48px/1 var(--sans); letter-spacing: 0.02em; color: var(--color-text-primary); text-shadow: none; transform: none; opacity: var(--sa, 0);
+  padding-bottom: 10px; background: linear-gradient(var(--color-border-edge), var(--color-border-edge)) left bottom / calc(var(--sr, 0) * 100%) 3px no-repeat; }
+#splash .spt span { color: transparent; -webkit-text-stroke: 1.5px var(--color-text-primary); }
+#splash .spp { margin-top: 12px; padding: 0; font: var(--t-body); color: var(--color-text-secondary); opacity: var(--sb, 0); }
+#splash .spp br { display: none; }
+#splash .spk { font: var(--t-label-micro); letter-spacing: 0.12em; color: var(--color-text-muted); }
+
+/* Immersive dock, revised (22 Oct 2026): weapons round on the right, Feats round on the left (opposite),
+   Rewind and Autorun as rounded rectangles along the bottom, Autorun the bigger of the two. */
+body.immersive:not(.land) #sslots { position: fixed; left: calc(12px + env(safe-area-inset-left)); right: auto; bottom: calc(24px + env(safe-area-inset-bottom)); transform: none; display: flex; flex-direction: column-reverse; gap: 8px; }
+body.immersive:not(.land) #hud .slot.spell { width: 62px !important; height: 62px !important; border-radius: 50% !important; padding: 0 !important; overflow: visible; }
+body.immersive:not(.land) #hud .slot.spell .ico { left: 50%; top: 10px; transform: translateX(-50%); font-size: 0; }
+body.immersive:not(.land) #hud .slot.spell .ico svg { width: 20px; height: 20px; }
+body.immersive:not(.land) #hud .slot.spell .lv { right: auto; left: 50%; top: auto; bottom: 7px; transform: translateX(-50%); font-size: 8px; }
+body.immersive:not(.land) #hud .slot.spell .dir { bottom: 18px; font-size: 10px; }
+body.immersive:not(.land) #hud .slot.spell .mp { display: none; }
+body.immersive:not(.land) #hud .slot.spell .bar { inset: -1px; height: auto; border-radius: 50%; background: conic-gradient(var(--c, var(--hud-type-force)) calc(var(--f, 1) * 360deg), transparent 0); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); opacity: 0.6; }
+body.immersive:not(.land) #hud .slot.spell.reloading .bar { opacity: 1; }
+body.immersive:not(.land) #hud .slot.spell .bar i { display: none; }
+/* bottom centre: Rewind (64 x 52) then Autorun (140 x 52), 8px apart */
+body.immersive:not(.land) #rewindBtn { position: fixed; left: calc(50% - 106px); bottom: calc(24px + env(safe-area-inset-bottom)); width: 64px !important; height: 52px !important; border-radius: 12px !important; }
+body.immersive:not(.land) #moveBtn { left: calc(50% - 34px) !important; bottom: calc(24px + env(safe-area-inset-bottom)) !important; width: 140px !important; height: 52px !important; border-radius: 12px !important; }
+body.immersive:not(.land) #moveBtn .mvl { font-size: 15px; }
+body.immersive:not(.land) #side { bottom: calc(24px + 3 * 70px + env(safe-area-inset-bottom)) !important; } /* (the starting ability sits above the Feats) */
+
+/* Immersive bottom row, revised: Rewind 52 x 52, Autorun 106 x 52, Tackle Box 52 x 52 (Rewind's style), 8px apart,
+   centred between the Feat and weapon columns. Pause stays top-right. */
+body.immersive:not(.land) #rewindBtn { left: calc(50% - 113px) !important; width: 52px !important; height: 52px !important; }
+body.immersive:not(.land) #moveBtn { left: calc(50% - 53px) !important; width: 106px !important; }
+body.immersive:not(.land) #row2 #armBtn { position: fixed; top: auto !important; right: auto !important; left: calc(50% + 61px); bottom: calc(24px + env(safe-area-inset-bottom)); width: 52px !important; height: 52px !important; border-radius: 12px !important; display: flex; align-items: center; justify-content: center; }
+/* 06 DNA Loot cards: no pin / hide buttons; the category + swatch sits top-right where they were; no sub-line */
+#lootCards .card .phb { display: none !important; }
+#lootCards .card .cfoot { position: absolute; top: 12px; right: 12px; margin: 0; }
+#lootCards .card .csub { display: none !important; }
+#lootCards .card .ctitle { padding-right: 96px; }
+#lootCards .card .cfoot .sw { order: 2; } /* (label, then swatch: as the Figma Reward Card) */

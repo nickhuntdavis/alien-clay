@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
   R.arrowL = await page.evaluate(() => !!document.querySelector('#wslots .slot .tapArrow.l'));
   w0 = await wd(); await tap('#wslots .slot:nth-child(1)', 1); R.wFwd = (await wd()) === (w0 + 1) % n[1];
   await page.waitForTimeout(700); R.gone = await page.evaluate(() => document.querySelectorAll('.tapArrow').length === 0);
-  R.oneRow = await page.evaluate(() => { const t = [...$('wslots').children].slice(0, 4).map(x => Math.round(x.getBoundingClientRect().top)); return new Set(t).size === 1; });
+  R.oneRow = await page.evaluate(() => { const r = [...$('wslots').children].slice(0, 4).filter(x => x.offsetParent).map(x => x.getBoundingClientRect()); return new Set(r.map(b => Math.round(b.top))).size === 1 || new Set(r.map(b => Math.round(b.left))).size === 1; }); // (one row, or one column: the Immersive portrait dock stacks round weapon keys bottom-right)
   const ok = Object.values(R).every(Boolean);
   if (!ok) console.log('FAIL', JSON.stringify(R));
   console.log(JSON.stringify(R), 'ERRORS ' + JSON.stringify(errors)); await b.close();

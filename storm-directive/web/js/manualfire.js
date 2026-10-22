@@ -27,7 +27,7 @@ const mfGo = w => !mfOn() || w.echo || w.mfHeld || (w.mfTap > 0 && G.t < w.mfTap
   };
   setInterval(() => {
     const on = mfOn() && G.state === 'play';
-    col.style.display = on ? 'flex' : 'none';
+    col.style.display = on ? 'flex' : 'none'; document.body.classList.toggle('mfire', on);
     if (!on) { if (G) G.weapons.forEach(w => { if (w) w.mfHeld = false; }); return; }
     col.style.bottom = side.style.bottom || getComputedStyle(side).bottom;
     const ws = G.weapons.filter(Boolean), k = ws.map(w => w.uid + ':' + wElem(w)).join(',');
