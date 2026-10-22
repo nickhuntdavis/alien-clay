@@ -904,6 +904,14 @@ Two modifiers from different groups on the same weapon (both Lv 1 or higher) unl
 | Every Nth + Extra Projectiles (Tempo, Delivery) | Everywhere! (was a weapon mutation) | The empowered attack also fires an extra shot at the next-best target. |
 | Switched at Birth + Piercing (Chemistry, Flight) | Two-tone | Each enemy pierced is hit by the old and new damage type in turn, setting off their unstable reaction. |
 
+### 5.4 Combo masteries
+A combo mastery is an extra mastery choice for one modifier on one weapon, offered only while a condition is met (user, 22 Oct). It uses the build's one weapon modifier mastery. If the condition stops being true (you drop the other weapon), the mastery falls back to the modifier's normal mastery until it is true again.
+
+| Combo mastery (internal) | Modifier and weapon | Condition | Effect |
+|---|---|---|---|
+| Static net | Connecting, on a Static weapon (Red Flagship, Soulmate Signal, Unwanted Contact) | You also carry a weapon that fires Projectile or Spread shots | Static arcs jump **between your projectiles in flight** (any of your weapons) when two are within 120 of each other, forming a crackling net. Each arc hits enemies that cross it with Static and Charges them. Bounded: each projectile links to at most 2 others, 6 arcs at once, and an arc never starts another arc (12.5). |
+| Planetary system | Orbiting, on Family Ties | You also carry a weapon that fires Projectile or Spread shots | Your projectiles that pass within a black hole's radius are **captured and orbit it** (up to 8 per hole), hitting enemies being pulled in (each enemy at most every 0.25 s). When the hole merges, expires or goes supernova, they fly outward; a supernova flings them at +50%. An exception to the gravity well's 45° bend limit (`MODIFIERS.md` 19), for this mastery only. |
+
 ## 6. Moved to sperm passives
 
 ### 6.1 Advanced Targeting (sperm passive)

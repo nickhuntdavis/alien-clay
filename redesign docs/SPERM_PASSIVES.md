@@ -8,13 +8,13 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 
 1. **What they are.** A sperm passive applies to the sperm itself and affects every weapon it carries. Weapon modifiers (`MODIFIER_MATRIX.md`) apply to one weapon.
 2. **Slots unlock with run level:** 2 at the start, then +1 at Lv 8, 16 and 24 (5 in all). Defences take these slots too; a built-in defence (from a sample, weapon or Feat) uses none.
-3. **Levels:** 3 levels, then one mastery (no branches). Picking a passive you already hold levels it up instead of using a slot.
+3. **Levels:** 3 levels, then one mastery (no branches; the one exception is the push/pull field, 2.6, where the user asked for a branch). Picking a passive you already hold levels it up instead of using a slot.
 4. **Masteries:** one sperm passive mastery per build, separate from the one weapon modifier mastery. **Extra Mastery** adds one more of either kind.
 5. **Trade-offs:** the benefit grows with each level; the cost stays fixed.
 6. **Pairs:** two specific sperm passives held together unlock a bonus (section 3). The draft favours the second half once you hold the first (+50% weight), as for weapon pairs.
 7. **Card rule kept from `MUTATIONS.md`:** every passive changes a decision, makes a visible event or enables a synergy; a bare stat is a level, never a card of its own.
 
-## 2. The passives (29)
+## 2. The passives (30)
 
 ### 2.1 Movement and offence
 
@@ -69,6 +69,12 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 | Extra Mastery | One more mastery of either kind (weapon modifier or sperm passive). Takes a slot; that slot is its whole cost. | None: a single level. | None. |
 | Advanced Targeting (moved from weapon modifiers) | An ordered list of 2 targeting rules for your weapons (menu: nearest, toughest, weakest, fastest, densest cluster, elite first, nearest threat, not yet afflicted). | Lv 2: 3 rules. Lv 3: each weapon's own step (`MODIFIER_MATRIX.md` 6.1). | Each weapon's specialty, such as different shots to different foes (`MODIFIER_MATRIX.md` 6.1). Uses the sperm passive mastery. |
 
+### 2.6 Fields (the one passive with a branch)
+
+| Passive | Lv 1 | Lv 2 (branch) | Lv 3 | Mastery |
+|---|---|---|---|---|
+| `TODO_COPY:sp_field` (new) | A field round the sperm (radius 80) gently pushes enemies away (40 a second; the Pull rule's numbers reversed, 12.2: Squishy halves it, elites 50%, bosses 25%, never through walls). | **A, Repel:** the push doubles, and an enemy pushed out of the field is staggered for 0.3 s. **B, Attract:** the field flips and pulls enemies in instead (for melee, Contact and aura builds). | A: radius 110, and enemies pushed into each other collide (40%). B: radius 110, and enemies pulled close are slowed 20%. | A: enemy bullets entering the field slow by 50%. B: enemies pulled within 60 take +20% from your Contact and Burst hits. |
+
 ## 3. Sperm passive pairs
 
 | Pair | Name | Bonus |
@@ -83,7 +89,7 @@ Names in quotes are existing card names; new passives carry a `TODO_COPY` id unt
 1. **`UPGRADES.md`** still describes Genome slots (4, shared) and weapon mutations (max 3 per weapon). Both are replaced: sperm passive slots here, weapon modifier slots in `MODIFIER_MATRIX.md` (5, one per group, unlocking with weapon level).
 2. **`MUTATIONS.md`** is superseded by this doc and the modifier matrix; its card lines (the consciousness's voice) stay the source for copy.
 3. **`BASE_WEAPONS.md`**: The Runs leaves the weapon roster.
-4. **Copy:** `TODO_COPY:sp_pools`, `TODO_COPY:sp_acid` and `TODO_COPY:sp_fire` need names and lines; Membrane Shield, Extra Mastery and Advanced Targeting need card text.
+4. **Copy:** `TODO_COPY:sp_pools`, `TODO_COPY:sp_acid`, `TODO_COPY:sp_fire` and `TODO_COPY:sp_field` need names and lines; Membrane Shield, Extra Mastery and Advanced Targeting need card text.
 
 ## 6. Open questions
 1. Does The Runs' trail stay Fire, or take your sample's damage type?

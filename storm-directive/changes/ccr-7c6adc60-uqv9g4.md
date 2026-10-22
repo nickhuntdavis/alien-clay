@@ -53,3 +53,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none in code; UPGRADES.md (Genome, max 3 weapon mutations) now disagrees until updated.
+
+## 2026-10-22 Combo masteries and the push/pull field (docs only)
+- Systems: docs only (redesign docs)
+- Files: redesign docs/MODIFIER_MATRIX.md, SPERM_PASSIVES.md, README.md
+- What: combo masteries (a modifier mastery offered only while a condition holds): Static net (Static arcs jump between your projectiles) and Planetary system (projectiles orbit Family Ties' black holes). New sperm passive: a push field that can branch to pull.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
