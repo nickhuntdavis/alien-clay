@@ -12,10 +12,10 @@
 //  - MASTERY: a modifier at Rank 3 can take a 4th card, its mastery (for now one more step of its numbers: modifiers.js
 //    modV). One weapon-modifier mastery per build, plus one more with Extra Mastery (spassives.js mmMasteryFree).
 // Not built yet (later passes): branches at modifier Lv 2, transforming masteries, the new modifiers, pairs, combo masteries.
-// Hooks: none in shared files. Replaces modifiers.js modOk and modAdd, modcards.js modCardOk, modCard, sabCard and
+// Hooks: none in shared files. Wraps weapons24.js wupStats (MM.lvK). Replaces modifiers.js modOk and modAdd, modcards.js modCardOk, modCard, sabCard and
 // modDraftCands, and weapons24.js wupLevel (assigned over the originals, never redeclared: dupetest; loads after modcards.js).
 
-const MM = { on: true, open: [1, 1, 3, 6, 9], lvlCap: 9 };
+const MM = { on: true, open: [1, 1, 3, 6, 9], lvlCap: 9, lvK: 0.06 }; // (lvK: extra damage a weapon level, standing in for the retired tier cards' power; tuned by wave20 sims)
 DRAFT.groupW.mod = 2.2; // (weapons now grow only through modifiers, so level-ups deal them more often: was 1.1)
 const MM_GROUP = {
   orbiting: 'delivery', delayed: 'delivery', lobbed: 'delivery', trail: 'delivery', selfcentred: 'delivery', sweep: 'delivery',
@@ -99,6 +99,8 @@ modDraftCands = function (kind) {
   }
   return out;
 };
+
+wupStats = (orig => function (w, s) { orig(w, s); if (MM.on && !w.isSpell) s.dmg *= 1 + MM.lvK * ((w.lvl || 1) - 1); })(wupStats);
 
 // ---------------------------------------------------------------- weapons24.js: no branch screens
 wupLevel = (orig => function (lv) { // (the developer Sandbox keeps the old branch screens: sandbox.js)

@@ -1,3 +1,11 @@
+## 2026-10-22 Build panel for slots and branches; weapon level damage knob (unshipped)
+- Systems: ui (build panel), weapons
+- Files: buildpanel.js, modmatrix.js
+- What: the build panel shows group slots (held/open), branch and mastery names, Rank IV, Personal Space's branch, and sperm slots counted as the draft counts them; the retired weapon upgrade line is hidden. MM.lvK adds 6% damage per weapon level (being tuned by wave20 sims).
+- Save data: none.
+- Hooks: modmatrix.js wraps weapons24.js wupStats.
+- Risk: balance (lvK under test).
+
 ## 2026-10-22 Slice sperm passives and pairs (v10.71)
 - Systems: mutations (sperm passives), defences, weapons (pairs)
 - Files: spslice.js (new), index.html, tests/spslicetest.js (new), run.sh
