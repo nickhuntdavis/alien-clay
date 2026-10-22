@@ -89,7 +89,7 @@ const { chromium } = require('playwright');
     if (sk.eligible(G) || !sk.why(G)) bad.push('capped weapon mutation still eligible');
     if (card('w_split').eligible(G)) bad.push('Can\'t Pick One offered with no Projectile weapon');
     // 6. Draft integration: Genome slots fill from G.muts
-    fresh(); give('v_phys_proj'); for (const id of ['m_slip', 'm_fingers', 'x_brain', 'x_qty']) card(id).apply(G);
+    fresh(); give('v_phys_proj'); for (const id of ['m_slip', 'm_fingers']) card(id).apply(G); // (2 sperm passive slots at Lv 1, spassives.js)
     if (genomeFree() !== 0) bad.push('genome free ' + genomeFree());
     if (cardOk(card('m_heart'))) bad.push('new Genome card offered with slots full');
     if (!cardOk(card('m_slip')) && card('m_slip').rank(G) < card('m_slip').maxRank) bad.push('owned card should still be offered to rank up');

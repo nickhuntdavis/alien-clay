@@ -5,7 +5,7 @@
 // Most combos pair weapons from the same sequence, so any run can find them; a few need a splice.
 
 const COMBO_LEVEL = 5;
-const COMBO_MOUNTS = 2; // bonus mounts a run can earn from combos
+const COMBO_MOUNTS = 0; // bonus mounts a run can earn from combos (retired 22 Oct: 3 weapons a run at most, COMBAT_MATRIX decision 55; was 2)
 const COMBOS = [
   // Vanguard
   { id: 'bigsib',     a: 'blaster', b: 'seeker',  name: 'Big Sibling',        desc: 'Every 5th Spitball volley also launches a huge homing Big Sibling that explodes on impact.' },

@@ -13,19 +13,25 @@ const { chromium } = require('playwright');
     UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0;
     const wid = W24_IDS.find(i => WEAPONS[i] && WEAPONS[i].v10atk === 'proj' && !WEAPONS[i].sig);
     if (!G.weapons.some(x => !x)) G.weapons.push(null); optNewWeapon(wid, 0).apply();
-    // 1. Drafts: no mutations anywhere; boxes lead with a modifier, level-ups have none.
-    let mutSeen = 0, boxNoMod = 0, lvlMod = 0;
+    // 1. Drafts (22 Oct, spassives.js): sperm passives (Genome mutations) are dealt in level-ups, weapon mutations and cut
+    //    cards never; boxes lead with a modifier, and level-ups deal modifiers too (modmatrix.js).
+    let mutSeen = 0, boxNoMod = 0, lvlMod = 0, wmSeen = 0, cutSeen = 0;
     for (let i = 0; i < 120; i++) {
       const box = i % 2 === 0, cs = draftCards(3, box ? 'chest' : 'level');
       if (cs.some(c => c.card && mdIsMut({ id: c.card, slot: (CARDS.find(x => x.id === c.card) || {}).slot }))) mutSeen++;
+      if (cs.some(c => c.card && (CARDS.find(x => x.id === c.card) || {}).slot === 'weaponmut')) wmSeen++;
+      if (cs.some(c => c.card && SP.cut.includes(c.card))) cutSeen++;
       const mods = cs.filter(c => c.tag === 'MODIFIER').length;
       if (box && !mods) boxNoMod++;
       if (!box && mods) lvlMod++;
     }
-    out.drafts = { mutSeen, boxNoMod, lvlMod };
-    if (mutSeen) bad.push('mutation cards still in drafts: ' + mutSeen);
+    out.drafts = { mutSeen, boxNoMod, lvlMod, wmSeen, cutSeen };
+    if (!mutSeen) bad.push('sperm passives never dealt in drafts');
+    if (wmSeen) bad.push('weapon mutations still dealt: ' + wmSeen);
+    if (cutSeen) bad.push('cut cards still dealt: ' + cutSeen);
     if (boxNoMod) bad.push('loot boxes with no modifier: ' + boxNoMod);
-    if (lvlMod) bad.push('level-ups with a modifier: ' + lvlMod);
+    if (!lvlMod) bad.push('no level-up ever dealt a modifier');
+    if (MUTDROP.chance !== 0) bad.push('elite drops still on: ' + MUTDROP.chance); // (retired; the carrier mechanics below are still tested with the chance forced)
     // 2. An elite carrier: marked, killed, drops a labelled strand, absorbed on touch.
     const p = G.player, e = makeEnemy(ENEMIES.brute, p.x + 300, p.y, { elite: true }); e.speed = 0; G.enemies.push(e);
     const keep = MUTDROP.chance; MUTDROP.chance = 1; mdTick(1 / 60); MUTDROP.chance = keep;

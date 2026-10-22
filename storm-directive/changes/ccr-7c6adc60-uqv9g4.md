@@ -125,3 +125,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none in code.
+
+## 2026-10-22 Modifier slots by group, sperm passive slots, the Laser (v10.68)
+- Systems: weapons, draft, mutations, defences, samples, combos
+- Files: modmatrix.js (new), spassives.js (new), laser.js (new), mutdrop.js, combos.js, index.html; tests: lasershot.js (new), drafttest, modcardtest, modstest, mutdroptest, mutstest, samplestest, weapons24test
+- What: weapons hold one modifier per group (Delivery, Flight, Crowd, Tempo; Switched at Birth is Chemistry) in slots that open at weapon Lv 1 (2), 3, 6, 9; each modifier taken levels the weapon; modifier cards come in level-ups as well as DNA strands; the old branch screens no longer open. Switched at Birth switches to one fixed alternate type, N/A where it would spoil the weapon. Genome mutations and defences are dealt in level-ups as sperm passives (2 slots, +1 at Lv 8, 16, 24); weapon mutations and cut cards are never dealt; elite mutation drops, mid-run splices, built-in sample shields and combo bonus mounts are off. The Laser (Fire Beam) is Ordered Online's 4th starter; The Runs is off the roster.
+- Save data: none.
+- Hooks: mutdrop.js mdDraftSkip -> spSkip. Replaced by assignment (no shared file edited): modifiers.js modOk, modAdd; modcards.js modCardOk, modCard, sabCard, modDraftCands; weapons24.js wupLevel; genes.js genesLevel.
+- Risk: big balance shift (no weapon branch cards, no built-in shields, fewer Genome slots early); weapons level more slowly (only through modifiers); Private Schooled and Not of This World lose their shields; v9 weapon tier cards still open only through modifiers.

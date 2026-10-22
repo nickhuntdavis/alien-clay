@@ -176,13 +176,19 @@ const { chromium } = require('playwright');
     if (!modAdd(w, 'lunge') || modAdd(w, 'lunge')) bad.push('Lunge rank 3 refused, or a fourth copy allowed');
 
     // 22. Caps and rules.
+    // (22 Oct, modmatrix.js: one modifier per group; slots open at weapon Lv 1 (2), 3, 6, 9; each modifier taken adds a level)
     fresh(); w = wp('v_phys_proj', ['homing']);
     if (!modAdd(w, 'homing') || !modAdd(w, 'homing') || modAdd(w, 'homing')) bad.push('Homing ranks: ' + modCount(w, 'homing')); // (ranks 2 and 3, no 4th)
-    if (modAdd(w, 'gravity') === false || modAdd(w, 'piercing') === false) bad.push('refused a fitting modifier');
+    if (modAdd(w, 'piercing')) bad.push('two Flight modifiers on one weapon');
+    if (modAdd(w, 'gravity') === false) bad.push('refused a fitting modifier');
     if (modAdd(w, 'anchored') || modAdd(w, 'trail')) bad.push('accepted a modifier for the wrong attack type');
     if (modAdd(w, 'orbiting') === false || modAdd(w, 'summoned')) bad.push('delivery group not exclusive');
-    if (modsFor(w).includes('homing') || !modsFor(w).includes('ricochet') || !modsFor(w).includes('orbiting')) bad.push('modsFor wrong: ' + modsFor(w));
-    for (let i = 0; i < 4; i++) modAdd(w, 'piercing'); if (modCount(w, 'piercing') !== 3) bad.push('Piercing cap ' + modCount(w, 'piercing'));
+    if (modsFor(w).includes('homing') || modsFor(w).includes('ricochet') || modsFor(w).includes('summoned')) bad.push('modsFor wrong: ' + modsFor(w));
+    for (const k of Object.keys(MODS10)) for (let i = 0; i < 4; i++) modAdd(w, k);
+    const gs = (w.m10 || []).map(mmGroup), gu = new Set(gs);
+    if ([...gu].some(g => new Set((w.m10 || []).filter(x => mmGroup(x) === g)).size > 1)) bad.push('two modifiers in one group');
+    if (gu.size > mmSlots(w) || w.lvl > MM.lvlCap) bad.push('slots ' + gu.size + '/' + mmSlots(w) + ' lv ' + w.lvl);
+    fresh(); w = wp('v_phys_proj', []); for (let i = 0; i < 4; i++) modAdd(w, 'piercing'); if (modCount(w, 'piercing') !== 3) bad.push('Piercing cap ' + modCount(w, 'piercing'));
     if (w.mods.length) bad.push('touched the old w.mods');
     if (modsFor(G.weapons[5] || { def: {} }).length) bad.push('modsFor of a non-v10 weapon');
     return { bad, out };

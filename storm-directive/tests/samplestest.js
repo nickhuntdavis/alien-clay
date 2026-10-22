@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
       if (!w || (w.sid || w.id) !== want[1]) bad.push(s.id + ' weapon ' + (w && w.id));
       if (!G.sampleTypes || G.sampleTypes.primary !== s.types[0]) bad.push(s.id + ' lean');
       if (G.s10.strain !== SAMPLES10.indexOf(s) + 1) bad.push(s.id + ' strain');
-      if (s10Shield() !== (s.id === 'private' || s.id === 'alien')) bad.push(s.id + ' shield flag');
+      if (s10Shield()) bad.push(s.id + ' shield flag'); // (no built-in shields since 22 Oct: the membrane comes only from its card, spassives.js)
       if (s10Open(s.id) !== true) bad.push(s.id + ' not open');
     }
     run('ordered');

@@ -24,10 +24,12 @@ const { chromium } = require('playwright');
     c2.apply(); modCard(w, id).apply();
     if (modCount(w, id) !== 3) bad.push('rank after three cards: ' + modCount(w, id));
     if (modCardOk(w, id)) bad.push('a fourth rank was offered');
-    // 2. Three different modifiers at most.
-    for (const k of modsFor(w)) if (modKinds(w) < 3 && modCardOk(w, k)) modCard(w, k).apply();
-    out.kinds = modKinds(w);
-    if (modKinds(w) === 3 && modsFor(w).some(k => !modHas(w, k) && modCardOk(w, k))) bad.push('a 4th different modifier was offered');
+    // 2. One modifier per group, in the slots the weapon's level has opened (22 Oct, modmatrix.js).
+    for (let i = 0; i < 3; i++) for (const k of modsFor(w)) if (modCardOk(w, k) && !modHas(w, k)) modCard(w, k).apply();
+    out.kinds = modKinds(w); out.slots = mmSlots(w);
+    if (mmHeld(w).size > mmSlots(w)) bad.push('more groups than open slots');
+    if (mmHeld(w).size === mmSlots(w) && modsFor(w).some(k => !modHas(w, k) && modCardOk(w, k))) bad.push('a new group offered with every slot full');
+    w.lvl = MM.lvlCap; if (!mmRoom(w)) bad.push('no room at Lv 9 for Chemistry');
     // 3. Per-rank numbers.
     const t = makeSlot('v_phys_proj', false, 1); t.m10 = ['ricochet'];
     const r1 = modV(t, 'ricochet', 'bounces'); t.m10.push('ricochet', 'ricochet'); const r3 = modV(t, 'ricochet', 'bounces');
@@ -40,10 +42,11 @@ const { chromium } = require('playwright');
     sab.apply();
     out.sab = [sab.title, target && target.def.elem];
     if (!target || target.def.elem !== sab.elem) bad.push('type did not change');
-    if (target === w && (w.lvl !== lvl || (w.m10 || []).join() !== m10.join())) bad.push('switch lost level or modifiers');
+    if (target === w && (w.lvl !== Math.min(MM.lvlCap, MM.lvlCap + 1) || (w.m10 || []).join() !== m10.join())) bad.push('switch lost level or modifiers');
     if (WEAPONS[target.sid || target.id].elem !== (target === w ? base : WEAPONS[target.sid || target.id].elem)) bad.push('shared WEAPONS def changed');
     if (weaponSrc(target).elem !== sab.elem) bad.push('hits still use the old type: ' + weaponSrc(target).elem);
-    // 5. Never two drafts in a row.
+    // 5. Never two drafts in a row (a fresh run: a weapon switches once, then it has nothing left to offer).
+    newGame(); G.state = 'play'; G.lootQueue = []; if (!G.weapons.some(x => !x)) G.weapons.push(null); optNewWeapon(wid, 0).apply();
     let rows = 0, prev = false;
     for (let i = 0; i < 200; i++) {
       const cs = draftCards(3, i % 2 ? 'chest' : 'level'), has = cs.some(c => c && c.tag === 'SWITCHED AT BIRTH');

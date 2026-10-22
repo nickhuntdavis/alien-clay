@@ -63,10 +63,10 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
    **Appetite cards** (from Lv 3): **Acquired Taste: [damage type]** makes cards of that damage type come up more often (x2.25 to x3 by rarity); **Gone Off It: [damage type]** makes them rarer (25% down to 10%, never none). You hold one of each; a new one replaces the old.
 2. **Weapons** level up to Lv10. Each weapon has its own upgrade path:
    - **Lv 3:** pick one of three upgrades any weapon can take (fixed per weapon, so you can plan it). **Lv 5 and Lv 8:** pick one of two signature upgrades only that weapon has. **Lv 10 (mastery):** only one weapon a run can reach it; the others stop at Lv 9.
-3. **Combos:** get two specific weapons to Lv 5+ and the game stops for the combo alone: the two weapons slam together on their own unlock screen. Both keep firing, gain a new power, and (2 times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv5+.
+3. **Combos:** get two specific weapons to Lv 5+ and the game stops for the combo alone: the two weapons slam together on their own unlock screen. Both keep firing, gain a new power, and (0 times a run) you get a bonus weapon mount. **Pairings** are smaller secret bonuses that switch on by themselves when you own both weapons at Lv5+.
 4. **Weapon tuning:** fire rate, reload, magazine, extra projectiles, projectile speed and range, area, duration and pierce cards go on ONE weapon you choose (tap it on the card); each weapon keeps its own stacks. Legendary and better versions tune every weapon at once.
 5. **Modifiers:** up to 3 per weapon. Picking one a weapon already has boosts its power. Two specific modifiers on one weapon unlock a duo combo.
-6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 5, 12 (3 in total, plus up to 2 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
+6. **Weapon drafts:** your first weapon at level 1, then a new weapon mount at Lv 5, 12 (3 in total, plus up to 0 bonus mounts from combos). You can only draft weapons from the sequences you carry (plus any Gene Bank wildcards). Ordinary DNA strands never offer new weapons.
 7. **Sequences:** you start with one Primary Sequence (its trait at full strength, its weapons and its starting ability). At Lv 6, 20, 40 you can splice in another at half strength (three sequences in total: your primary plus two splices), or skip and take a mutation instead (two rerolls if your genome is full).
 8. **Lateral Gene Transfer (junk DNA):** from 35s in, then every 40 to 55s, one ordinary enemy on screen carries junk DNA (a white double helix round it, and 50% more health). Kill it within 30s and it drops a floating helix; swim into that (it fades after 20s) and you absorb a small power of whatever it was, shown on screen at once; the same kind again stacks, up to 3 times. **Mutations** (pick one of four; 6 slots) now come from skipping a sequence splice and from stashes hidden in campaign levels.
 9. **Bosses:** four bosses, at about 2:05, 3:50, 5:35 and 7:20 of game time; a fifth waits until the Fever Pitch. Each run meets 4 of the 15, in a random order. Beat one and choose one of its three relics.
@@ -151,7 +151,7 @@ Choose your Primary Sequence before each run. It gives its trait at full strengt
 
 ## Weapon combos
 
-Both weapons at Lv 5+: the game stops at once for the combo's own unlock screen (never a card in a box). Both keep firing, gain the power below, and the first 2 combos a run open a bonus weapon mount with a draft.
+Both weapons at Lv 5+: the game stops at once for the combo's own unlock screen (never a card in a box). Both keep firing, gain the power below, and the first 0 combos a run open a bonus weapon mount with a draft.
 
 | Combo | Weapons | Sequence | Power |
 |---|---|---|---|
@@ -1509,7 +1509,7 @@ Rules the cards do not spell out, but that change what is worth picking.
 - **Tap to inspect:** Tap an enemy or boss (a quick touch that barely moves; steering is untouched) for its card: HP, speed, armour, what it deals, what it is weak to and resists, and its joke. Enemies you have not met show as a silhouette and "Not met yet". Tap a damage type on a card, or a row in Active effects, for that card. Every damage type card has a Reactions button: an 8 by 8 chart of what each pair sets off, with "?" for ones you have not triggered. The chart is in the Field Guide too. Settings > Game > Tap an enemy: PAUSE (default) stops the game while a card is open, HALF SPEED slows it to half.
 - **Feat slots:** Two. Feats perform themselves on cooldown.
 - **Damage-type set:** Two weapons or Feats of the same damage type turn on its set bonus.
-- **Weapon mounts:** Three (Lv 1 and drafts at 5 and 12), plus up to 2 bonus mounts from combos.
+- **Weapon mounts:** Three (Lv 1 and drafts at 5 and 12), plus up to 0 bonus mounts from combos.
 - **Player base stats:** 120 HP, 150 swim speed, 5% crit, x1.6 crit damage, 105 pickup radius, 0 armour, 0 dodge. You grow with max HP.
 
 ## Secret Field Guide entries (spoilers)
