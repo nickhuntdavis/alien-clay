@@ -1,3 +1,11 @@
+## 2026-10-23 The Laser is a held, smooth beam (v10.79)
+- Systems: weapons (Laser), fx
+- Files: laserbeam.js, tests/laserbeamtest.js, tests/slicetest.js
+- What: the Laser stays on between damage ticks: every frame its aim sweeps smoothly towards the target and its path (bounces, piercing, bubble reflections) is traced again and drawn as a steady beam with a white-hot core, a coloured glow and a bright spot where it lands. More power glows more, pulsing once past full strength. Overheating (Rapid Fire) blinks it off. Damage still lands at the weapon's fire rate.
+- Save data: none.
+- Hooks: laserbeam.js wraps weapons24.js wupTick and modifiers.js modDraw.
+- Risk: per-frame tracing costs a little (32 segments at most per beam).
+
 ## 2026-10-23 Bigger Membrane; plain modifier names (v10.78)
 - Systems: defences (Membrane Shield), weapons (modifier names), copy
 - Files: pdef.js (wide card and state), bodymods.js (bubbleR reads it), draft.js (defsHeld), spslice.js (slice defs), modmatrix.js (Type Swap tag), rewardui.js (Type Swap category), slicecopy.js (SLICE_NAMES), tests/spslicetest.js, tests/modcardtest.js

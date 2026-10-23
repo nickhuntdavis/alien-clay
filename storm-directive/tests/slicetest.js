@@ -32,7 +32,7 @@ const { chromium } = require('playwright');
     w = fresh(); const cd0 = w.s.cd, d0 = w.s.dmg; add(w, 'rapid', 1); out.rapid = [+(cd0 / w.s.cd).toFixed(2), +(w.s.dmg / d0).toFixed(2)];
     if (!(w.s.cd < cd0 && w.s.dmg < d0)) bad.push('rapid ' + out.rapid);
     // 3. Focused Intensity ramps on one target
-    w = fresh(); add(w, 'focus', 1); const ef = foe(120); const k0 = msDmgMul(ef, weaponSrc(w)); let k1 = 1; for (let i = 0; i < 9; i++) { G.t += 0.25; k1 = msDmgMul(ef, weaponSrc(w)); }
+    w = fresh('v_phys_proj'); add(w, 'focus', 1); const ef = foe(120); /* (not the Laser: it ramps its own way, laserbeam.js) */ const k0 = msDmgMul(ef, weaponSrc(w)); let k1 = 1; for (let i = 0; i < 9; i++) { G.t += 0.25; k1 = msDmgMul(ef, weaponSrc(w)); }
     out.focus = [+k0.toFixed(2), +k1.toFixed(2)]; if (!(k1 > k0 + 0.3)) bad.push('focus ramp ' + out.focus);
     // 4. Sticky slows, Snares on the 3rd hit at Rank 3
     w = fresh(); add(w, 'sticky', 3); const es = foe(120); for (let i = 0; i < 3; i++) damageEnemy(es, 1, weaponSrc(w));
@@ -48,10 +48,10 @@ const { chromium } = require('playwright');
     w = fresh(); sabSwitch(w, 'fire'); if (modOk(w, 'catalyst')) bad.push('Catalyst offered on a switched weapon');
     // 8. Extra Projectiles: a second beam at another enemy
     w = fresh(); add(w, 'extra', 1); const x1 = foe(120), x2 = foe(60, 100); G.v10fx = []; v10Fire(w, x1, weaponSrc(w));
-    out.extra = [G.v10fx.length, x2.hp < x2.maxHp]; if (G.v10fx.length < 2 || !(x2.hp < x2.maxHp)) bad.push('extra beams ' + out.extra);
+    out.extra = [(w.lzShotSegs || []).length, x2.hp < x2.maxHp]; if ((w.lzShotSegs || []).length < 2 || !(x2.hp < x2.maxHp)) bad.push('extra beams ' + out.extra);
     // 9. Ricochet bounces the beam on to another enemy
     w = fresh(); add(w, 'ricochet', 1); const r1 = foe(150), r2 = foe(90, 90); G.v10fx = []; v10Fire(w, r1, weaponSrc(w));
-    out.rico = [G.v10fx.length, G.v10fx.map(f => f.t)]; if (G.v10fx.length < 2) bad.push('ricochet beam ' + JSON.stringify(out.rico));
+    out.rico = [(w.lzShotSegs || []).length]; if ((w.lzShotSegs || []).length < 2) bad.push('ricochet beam ' + JSON.stringify(out.rico));
     // 10. Orbiting: the hula hoop hurts what touches it, and the Laser no longer fires its beam
     w = fresh(); add(w, 'orbiting', 1); const o1 = foe(72), o2 = foe(200); run(1.5);
     out.hoop = [Math.round(o1.maxHp - o1.hp), Math.round(o2.maxHp - o2.hp)]; if (!(out.hoop[0] > 0) || out.hoop[1] > 0) bad.push('hula hoop ' + out.hoop);

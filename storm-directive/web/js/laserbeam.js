@@ -57,12 +57,13 @@ function lzMeet(x, y, a, L, skip, bub) {
   }
   return best ? best : { t: L };
 }
-// Trace one beam: damage, bounces, piercing, bubble reflections. st carries the shot's budget.
+// Trace one beam: damage, bounces, piercing, bubble reflections. st carries the shot's budget; st.out collects the
+// segments (drawn every frame, see below); st.dry traces without damage (the per-frame picture).
 function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   if (st.segs >= LZ.segs || k < 0.04 || L < 4) return;
   st.segs++;
   const m = lzMeet(x, y, a, L, skip, st.bub), dx = Math.cos(a), dy = Math.sin(a), cx = x + dx * m.t, cy = y + dy * m.t;
-  msBeamFx(w, x, y, cx, cy, (w.s.width || 10) * Math.max(0.35, Math.sqrt(Math.min(1, k))));
+  st.out.push({ x1: x, y1: y, x2: cx, y2: cy, k, hit: !!m.e });
   if (m.wall) { // reflect off the inside of the membrane (Internal Ricochet)
     if (st.walls >= LZ.wallMax) return; st.walls++;
     const nx = (cx - st.bub.x) / st.bub.r, ny = (cy - st.bub.y) / st.bub.r, dot = dx * nx + dy * ny;
@@ -71,7 +72,7 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   }
   const e = m.e; if (!e) return;
   if (!st.first) st.first = e;
-  damageEnemy(e, w.s.dmg * k * st.ramp, src);
+  if (!st.dry) damageEnemy(e, w.s.dmg * k * st.ramp, src);
   const rest = L - m.t, both = pierce > 0 && bounce > 0;
   if (pierce > 0) { // carry straight on through it
     const ox = e.x - cx, oy = e.y - cy, through = 2 * (ox * dx + oy * dy); // (out the far side of the circle)
@@ -82,27 +83,33 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
     lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), rest, k * (both ? 0.5 : 0.8), src, e, st, both ? pierce : 0, bounce - 1);
   }
 }
-// One shot along angle a from you.
-function lzShot(w, a, src, k, ramp) {
+// One beam along angle a from you.
+function lzShot(w, a, src, k, ramp, dry) {
   const p = G.player, pr = msR(w, 'piercing'), br = msR(w, 'ricochet');
-  const st = { segs: 0, walls: 0, ramp, first: null, bub: null };
+  const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out: [], dry };
   if (typeof mr === 'function' && mr('sp_iric') && typeof pdefBubbleR === 'function') { const R = pdefBubbleR(); if (R > 0) st.bub = { x: p.x, y: p.y, r: R }; }
   lzTrace(w, p.x, p.y, a, st.bub ? 1e4 : w.s.range, k, src, null, st, lzN(pr), lzN(br));
   return st;
 }
+// Every beam the Laser holds right now: [angle, power] (main, Extra Shots' front and rear beams, Disco Ball).
+function lzBeams(w) {
+  const p = G.player, out = [[w.lzA, 1]];
+  for (const e of w.lzXT || []) if (!e.dead) out.push([Math.atan2(e.y - p.y, e.x - p.x), 1]);
+  if (msMa(w, 'extra') === 'A1') for (let i = 0; i < 6; i++) out.push([G.t * 1.5 + i / 6 * TAU, 0.5]);
+  return out;
+}
 
+// Damage ticks at the weapon's fire rate; the beam itself is held and drawn every frame (lzTick, lzDraw).
 v10Fire = (orig => function (w, target, src) {
   if (!lzIs(w) || !target || w.def.v10atk !== 'beam') return orig(w, target, src);
   const p = G.player, want = Math.atan2(target.y - p.y, target.x - p.x);
-  // The aim swings towards the target (a beam that sweeps, not one that snaps)
-  if (w.lzA == null || G.t - (w.lzAT || -9) > 1) w.lzA = want;
-  else { const dt = Math.max(0.016, G.t - w.lzAT), d = angDiff(want, w.lzA), m = LZ.turn * dt; w.lzA += Math.max(-m, Math.min(m, d)); }
-  w.lzAT = G.t;
+  if (w.lzA == null || !lzOnNow(w)) w.lzA = want; // (a fresh beam starts on the target; a held one sweeps: lzTick)
+  w.lzTgt = target; w.lzFireT = G.t;
   // The ramp follows whatever the main beam is actually on
   const probe = lzMeet(p.x, p.y, w.lzA, w.s.range, null, null).e || null;
-  const ramp = lzRamp(w, probe);
-  const main = lzShot(w, w.lzA, src, 1, ramp);
-  // Extra Projectiles: more beams at other targets (front 180 degrees, then rear), Disco Ball's rotating beams
+  const ramp = lzRamp(w, probe); w.lzPow = ramp;
+  // Extra Shots: more beams at other targets (front 180 degrees, then rear)
+  w.lzXT = [];
   if (msR(w, 'extra')) {
     const [f, b] = msBeams(w), front = [], rear = [], L = w.s.range;
     for (const e of G.enemies) {
@@ -111,13 +118,59 @@ v10Fire = (orig => function (w, target, src) {
       (da <= Math.PI / 2 ? front : rear).push(e);
     }
     const byD = (u, v) => Math.hypot(u.x - p.x, u.y - p.y) - Math.hypot(v.x - p.x, v.y - p.y);
-    for (const e of front.sort(byD).slice(0, f)) lzShot(w, Math.atan2(e.y - p.y, e.x - p.x), src, 1, ramp);
-    for (const e of rear.sort(byD).slice(0, b)) lzShot(w, Math.atan2(e.y - p.y, e.x - p.x), src, 1, ramp);
-    if (msMa(w, 'extra') === 'A1') for (let i = 0; i < 6; i++) lzShot(w, G.t * 1.5 + i / 6 * TAU, src, 0.5, ramp);
+    w.lzXT = [...front.sort(byD).slice(0, f), ...rear.sort(byD).slice(0, b)];
   }
-  if (main.first) w.lzOn = main.first;
+  w.lzShotSegs = [];
+  for (const [a, k] of lzBeams(w)) { const st = lzShot(w, a, src, k, ramp, false); w.lzShotSegs.push(...st.out); if (k === 1 && a === w.lzA && st.first) w.lzOn = st.first; }
+  w.lzSegs = w.lzShotSegs;
   return true;
 })(v10Fire);
+
+// ---------------------------------------------------------------- the held beam (user, 23 Oct: a smooth line like a real laser)
+// The beam stays on between damage ticks: each frame its aim sweeps towards the target (LZ.turn) and it is traced again
+// (no damage) for the picture. It goes out when the weapon stops firing. Overheat (Rapid Fire) blinks it off.
+const lzOnNow = w => G.t - (w.lzFireT || -9) < Math.max(0.3, (w.s.cd || 0.2) + 0.15);
+function lzTick(dt) {
+  if (!G || G.state !== 'play') return;
+  const p = G.player;
+  for (const w of G.weapons) {
+    if (!w || !lzIs(w) || w.def.v10atk !== 'beam') continue;
+    if ((!lzOnNow(w) && !(w._ventT > G.t)) || !w.lzTgt || w.lzTgt.dead) { w.lzSegs = null; continue; } // (venting keeps it traced so it can blink)
+    const want = Math.atan2(w.lzTgt.y - p.y, w.lzTgt.x - p.x), d = angDiff(want, w.lzA), m = LZ.turn * dt;
+    w.lzA += Math.max(-m, Math.min(m, d));
+    const segs = [];
+    for (const [a, k] of lzBeams(w)) segs.push(...lzShot(w, a, null, k, w.lzPow || 1, true).out);
+    w.lzSegs = segs;
+  }
+}
+wupTick = (orig => function (dt) { orig(dt); lzTick(dt); })(wupTick);
+// Drawn like a laser: a white-hot core in a coloured beam with a soft glow, a bright spot where it lands. More power
+// glows more, in slow pulses once it is past full strength.
+function lzDraw() {
+  if (!G) return;
+  for (const w of G.weapons) {
+    if (!w || !lzIs(w) || !w.lzSegs || !w.lzSegs.length) continue;
+    if (w._ventT > G.t && Math.floor(G.t * 18) % 6) continue; // overheating: blinks off
+    const pw = w.lzPow || 1, glow = 0.55 + 0.45 * Math.min(1, Math.max(0, (pw - LZ.start) / (1 - LZ.start)));
+    const pulse = pw > 1 ? 1 + 0.45 * Math.min(1, pw - 1) * (0.5 + 0.5 * Math.sin(G.t * 9)) : 1;
+    const c = col(w.def.sab ? w.def.color : LASER.col), base = Math.max(2.4, (w.s.width || 10) * 0.42);
+    ctx.save(); ctx.lineCap = 'round';
+    for (const s of w.lzSegs) {
+      const x1 = sx(s.x1), y1 = sy(s.y1), x2 = sx(s.x2), y2 = sy(s.y2), wd = base * Math.max(0.4, Math.sqrt(Math.min(1, s.k))) * S;
+      const line = (lw, a, st) => { ctx.globalAlpha = a; ctx.strokeStyle = st; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+      line(wd * 5 * pulse, 0.16 * glow * pulse, c);  // (the glow)
+      line(wd * 1.6, 0.55 * glow, c);               // (the beam)
+      line(Math.max(1, wd * 0.45), 0.95, '#fff4f0'); // (the white-hot core)
+      if (s.hit) { // where it lands
+        const r = wd * 1.8 * pulse;
+        ctx.globalAlpha = 0.35 * glow * pulse; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x2, y2, r * 1.6, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 0.9; ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x2, y2, Math.max(1.2, r * 0.45), 0, TAU); ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+}
+modDraw = (orig => function () { orig(); lzDraw(); })(modDraw);
 
 // Focused Intensity on the Laser works through the ramp above, not its usual multiplier (modslice.js msDmgMul reads this).
 const lzOwnFocus = w => lzIs(w);

@@ -1,7 +1,7 @@
 // The Laser fires like a laser (laserbeam.js): stops at the first enemy; Bounce reflects at the true angle off the enemy's
 // surface; Piercing carries on through; both together split the beam; Internal Ricochet keeps it inside the bubble while
 // the membrane is up; its damage ramps up while it stays on one target, faster and higher with Focused Intensity.
-// Screenshot: out/laserbeam.png (pierce + bounce through a crowd).
+// Screenshot: out/laserbeam.png (pierce + bounce through a crowd, drawn as the held beam).
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 2 });
@@ -18,32 +18,33 @@ const { chromium } = require('playwright');
     const p = () => G.player;
     const foe = (dx, dy) => { const e = makeEnemy(ENEMIES.brute, p().x + dx, p().y + dy, {}); e.speed = 0; e.hp = e.maxHp = 1e6; G.enemies.push(e); return e; };
     const hurt = e => Math.round(e.maxHp - e.hp);
-    const fire = (w, t, a) => { w.lzA = a; w.lzAT = G.t; v10Fire(w, t, weaponSrc(w)); };
+    const fire = (w, t, a) => { w.lzA = a; w.lzFireT = G.t; v10Fire(w, t, weaponSrc(w)); }; // (a held beam keeps its aim)
+    const segs = () => G.weapons[0].lzShotSegs || [];
     out.name = MODS10.ricochet.name; if (out.name !== 'Bounce') bad.push('name ' + out.name);
     // 1. No pierce by default: the enemy behind is safe
     let w = fresh(); let a1 = foe(120, 0), a2 = foe(220, 0); fire(w, a1, 0);
     out.stop = [hurt(a1) > 0, hurt(a2)]; if (!(hurt(a1) > 0) || hurt(a2) > 0) bad.push('the laser pierced by default ' + out.stop);
     // 2. Bounce: an off-centre hit reflects at the true angle and hits what is on the reflected line
     w = fresh(); modAdd(w, 'ricochet'); computeStats(w); const A = foe(150, 12); G.v10fx = []; fire(w, A, 0);
-    const s1 = G.v10fx[0], s2 = G.v10fx[1];
+    const s1 = segs()[0], s2 = segs()[1];
     if (!s2) bad.push('no bounce segment');
     else {
-      const cx = s1.x2, cy = s1.y2, l1 = Math.hypot(cx - s1.x, cy - s1.y), dx = (cx - s1.x) / l1, dy = (cy - s1.y) / l1, nx = (cx - A.x) / A.r, ny = (cy - A.y) / A.r, dot = dx * nx + dy * ny, ex = dx - 2 * dot * nx, ey = dy - 2 * dot * ny;
-      const got = Math.atan2(s2.y2 - s2.y, s2.x2 - s2.x), want = Math.atan2(ey, ex), err = Math.abs(angDiff(got, want));
+      const cx = s1.x2, cy = s1.y2, l1 = Math.hypot(cx - s1.x1, cy - s1.y1), dx = (cx - s1.x1) / l1, dy = (cy - s1.y1) / l1, nx = (cx - A.x) / A.r, ny = (cy - A.y) / A.r, dot = dx * nx + dy * ny, ex = dx - 2 * dot * nx, ey = dy - 2 * dot * ny;
+      const got = Math.atan2(s2.y2 - s2.y1, s2.x2 - s2.x1), want = Math.atan2(ey, ex), err = Math.abs(angDiff(got, want));
       out.bounceErr = +err.toFixed(3); if (err > 0.01) bad.push('bounce angle off by ' + err);
-      const Bx = s2.x + Math.cos(want) * 90, By = s2.y + Math.sin(want) * 90;
+      const Bx = s2.x1 + Math.cos(want) * 90, By = s2.y1 + Math.sin(want) * 90;
       w = fresh(); modAdd(w, 'ricochet'); computeStats(w); const A2 = foe(150, 12), B = foe(Bx - p().x, By - p().y); fire(w, A2, 0);
       out.bounceHit = hurt(B); if (!(hurt(B) > 0)) bad.push('the bounce missed the enemy on its line');
     }
     // 3. Piercing + Bounce: through and off, both weaker
     w = fresh(); modAdd(w, 'piercing'); computeStats(w); let c1 = foe(120, 6), c2 = foe(220, 6); fire(w, c1, 0); const solo = hurt(c2);
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w); c1 = foe(120, 6); c2 = foe(220, 6); G.v10fx = []; fire(w, c1, 0);
-    out.split = [solo, hurt(c2), G.v10fx.length]; if (!(solo > 0) || !(hurt(c2) > 0) || !(hurt(c2) < solo) || G.v10fx.length < 3) bad.push('pierce + bounce ' + out.split);
+    out.split = [solo, hurt(c2), segs().length]; if (!(solo > 0) || !(hurt(c2) > 0) || !(hurt(c2) < solo) || segs().length < 3) bad.push('pierce + bounce ' + out.split);
     // 4. Internal Ricochet: membrane up, the beam stays in the bubble; down, it leaves
     w = fresh(); CARDS.find(c => c.id === 'sp_iric') && (G.muts = Object.assign(G.muts || {}, { sp_iric: 1 })); pdefCard('latex').apply(); G.pd.mem.mem = G.pd.mem.memMax = 100;
     const far = foe(200, 0); G.v10fx = []; fire(w, far, 0.3); const R = pdefBubbleR();
-    const outside = G.v10fx.filter(f => Math.hypot(f.x2 - p().x, f.y2 - p().y) > R + 1).length;
-    out.iric = [Math.round(R), G.v10fx.length, outside, hurt(far)]; if (!(R > 0) || G.v10fx.length < 6 || outside || hurt(far) > 0) bad.push('internal ricochet ' + out.iric);
+    const outside = segs().filter(f => Math.hypot(f.x2 - p().x, f.y2 - p().y) > R + 1).length;
+    out.iric = [Math.round(R), segs().length, outside, hurt(far)]; if (!(R > 0) || segs().length < 6 || outside || hurt(far) > 0) bad.push('internal ricochet ' + out.iric);
     G.pd.mem.mem = 0; G.v10fx = []; fire(w, far, 0); out.iricDown = hurt(far); if (!(hurt(far) > 0)) bad.push('membrane down: the beam stayed in');
     // 5. Ramp: weak at first, stronger after a while on one target; Focused Intensity ramps faster and higher
     const ramp = focus => { const ww = fresh(); if (focus) { for (let i = 0; i < 3; i++) modAdd(ww, 'focus'); computeStats(ww); } const e = foe(150, 0); const k = []; for (let i = 0; i <= 12; i++) { const h = e.hp; fire(ww, e, 0); k.push(Math.round(h - e.hp)); G.t += 0.25; } return k; };
@@ -54,7 +55,7 @@ const { chromium } = require('playwright');
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);
-    G.v10fx = []; fire(w, G.enemies[4], 0.05); for (const f of G.v10fx) { f.life = f.max = 5; }
+    G.v10fx = []; fire(w, G.enemies[4], 0.05);
     return { bad, out };
   });
   await page.waitForTimeout(200);
