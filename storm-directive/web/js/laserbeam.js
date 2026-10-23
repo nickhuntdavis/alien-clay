@@ -266,6 +266,7 @@ v10Fire = (orig => function (w, target, src) {
   // The ramp follows whatever the main beam is actually on
   const probe = lzMeet(p.x, p.y, w.lzA, w.s.range, null, null).e || null;
   const ramp = lzRamp(w, probe); w.lzPow = ramp;
+  if (msMa(w, 'rapid') === 'B2' && G.t - (w.lzHeldS || G.t) < 0.5) src = Object.assign({}, src, { mult: (src.mult || 1) * 2 }); // (Strong Start)
   lzXUpdate(w, target); // (Extra Shots' beams: their own targets, charges and damage shares)
   w.lzShotSegs = [];
   lzBeams(w).forEach(([a, k, rp], i) => { const st = lzShot(w, a, src, k, rp, false); w.lzShotSegs.push(...st.out); if (i === 0 && st.first) w.lzOn = st.first; });
@@ -281,10 +282,12 @@ const lzOnNow = w => G.t - (w.lzFireT || -9) < Math.max(0.3, (w.s.cd || 0.2) + 0
 // beam switches off and reloads, unusable until it has cooled right down (LZ.coolT seconds, faster with reload speed:
 // G.P.reloadSpd). It never hurts you. Off the trigger it cools at the same rate.
 function lzHeatTick(w, dt) {
-  const on = lzOnNow(w) && !w.lzOver, cool = dt / LZ.coolT * ((G.P && G.P.reloadSpd) || 1);
+  const on = lzOnNow(w) && !w.lzOver, cool = dt / LZ.coolT * ((G.P && G.P.reloadSpd) || 1) * (msMa(w, 'rapid') === 'A1' ? 2 : 1);
+  const slow = msA(w, 'rapid', 3) ? 0.65 : msA(w, 'rapid', 2) ? 0.8 : 1; // (Rapid Fire's Cooler branch)
   const nX = (w.lzX || []).filter(x => x.a != null && lzXOn(w, x)).length; // (each extra beam heats it 33% faster)
-  w.lzHeat = Math.max(0, Math.min(1, (w.lzHeat || 0) + (on ? dt / LZ.heatT * (1 + 0.33 * nX) : -cool)));
-  if (on && w.lzHeat >= 1) { w.lzOver = true; w.lzFireT = -9; w.lzSegs = null; w.lzChgS = 0; const p = G.player; ring(p.x, p.y, 26, LASER.col, 0.35, 3); }
+  w.lzHeat = Math.max(0, Math.min(1, (w.lzHeat || 0) + (on ? dt / LZ.heatT * (1 + 0.33 * nX) * slow : -cool)));
+  if (on && w.lzHeat >= 1) { w.lzOver = true; w.lzFireT = -9; w.lzSegs = null; w.lzChgS = 0; const p = G.player; ring(p.x, p.y, 26, LASER.col, 0.35, 3);
+    if (msMa(w, 'rapid') === 'A2') { aoe(p.x, p.y, 140, w.s.dmg * 12, weaponSrc(w), w.def.color); ring(p.x, p.y, 140, LASER.col, 0.5, 6); } } // (Vent)
   if (w.lzOver && w.lzHeat <= 0) w.lzOver = false;
 }
 function lzTick(dt) {
@@ -310,7 +313,7 @@ wupTick = (orig => function (dt) { orig(dt); lzTick(dt); })(wupTick);
 // glows more, in slow pulses once it is past full strength.
 // Rapid Fire on the Laser: a shorter charge-up (70 / 50 / 35% of LZ.charge, 20% at mastery), nothing else.
 const lzCR = w => Math.min(4, modCount(w, 'charged'));
-const lzCharge = w => LZ.charge * [1, 0.7, 0.5, 0.35, 0.2][Math.min(4, msR(w, 'rapid'))] * [1, 1.25, 1.5, 1.75, 2][lzCR(w)]; // (Charge-Up: longer)
+const lzCharge = w => msMa(w, 'rapid') === 'B1' ? 0 : LZ.charge * [1, 0.7, 0.5, 0.35, 0.2][Math.min(4, msR(w, 'rapid'))] * (msB(w, 'rapid', 3) ? 0.65 : msB(w, 'rapid', 2) ? 0.8 : 1) * [1, 1.25, 1.5, 1.75, 2][lzCR(w)]; // (Charge-Up: longer; Rapid Fire's Quicker branch: shorter)
 // CHARGE-UP on the Laser (user, 23 Oct): no held beam. Each charge (longer each rank) ends in one big, bright blast that
 // packs the beam's held damage into one hit: a full burn bar's worth (4 s of beam at full strength) at Rank 3 (50 / 75 /
 // 100%, 125% at mastery). It builds enemies' status bars 3 times as fast, and adds half a burn bar of heat to you.
@@ -371,35 +374,41 @@ function lzDraw() {
   for (const w of G.weapons) if (w && lzIs(w) && lzOnNow(w)) for (const x of w.lzX || []) if (x.tgt && !lzXOn(w, x)) lzChargeDraw(w, x.chgS, 0.6); // (an extra beam charging for its new target)
   for (const w of G.weapons) if (w && lzIs(w) && (w.lzHeat > 0.01 || w.lzOver)) lzHeatDraw(w);
   for (const w of G.weapons) {
-    if (!w || !lzIs(w) || !w.lzSegs || !w.lzSegs.length) continue;
+    if (!w || !lzIs(w)) continue;
+    lzExtrasDraw(w); // (orbital strikes, the sword, mines, forks: laserbeam.js below)
+    if (!w.lzSegs || !w.lzSegs.length) continue;
     if (w._ventT > G.t && Math.floor(G.t * 18) % 6) continue; // overheating: blinks off
     if (w.lzOffT > G.t) continue; // (switching to a target too far round to sweep to)
-    const pw = w.lzPow || 1, glow = 0.55 + 0.45 * Math.min(1, Math.max(0, (pw - LZ.start) / (1 - LZ.start)));
-    const pulse = pw > 1 ? 1 + 0.45 * Math.min(1, pw - 1) * (0.5 + 0.5 * Math.sin(G.t * 9)) : 1;
-    const c = col(w.def.sab ? w.def.color : LASER.col), base = Math.max(2.4, (w.s.width || 10) * 0.42) * lzGrow(w);
-    ctx.save(); ctx.lineCap = 'round';
-    for (const s of w.lzSegs) {
-      const x1 = sx(s.x1), y1 = sy(s.y1), x2 = sx(s.x2), y2 = sy(s.y2), wd = base * Math.max(0.4, Math.sqrt(Math.min(1, s.k))) * S;
-      const line = (lw, a, st) => { // (a beam into open water fades over its last stretch instead of stopping dead)
-        ctx.lineWidth = lw; ctx.globalAlpha = a;
-        if (!s.end) { ctx.strokeStyle = st; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); return; }
-        const len = Math.hypot(x2 - x1, y2 - y1) || 1, u = Math.max(0, 1 - (s.fadeL || 0) * S / len), fx = x1 + (x2 - x1) * u, fy = y1 + (y2 - y1) * u;
-        ctx.strokeStyle = st; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(fx, fy); ctx.stroke();
-        const g = ctx.createLinearGradient(fx, fy, x2, y2); g.addColorStop(0, st); g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(x2, y2); ctx.stroke();
-      };
-      const br = Math.pow(Math.min(1, s.k), 0.7); // (brightness falls with the power each bounce keeps)
-      line(wd * 5 * pulse, 0.16 * glow * pulse * br, c);  // (the glow)
-      line(wd * 1.6, 0.55 * glow * br, c);               // (the beam)
-      line(Math.max(1, wd * 0.45), 0.95 * Math.max(0.2, br), '#fff4f0'); // (the white-hot core)
-      if (s.hit) { // where it lands
-        const r = wd * 1.8 * pulse;
-        ctx.globalAlpha = 0.35 * glow * pulse * br; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x2, y2, r * 1.6, 0, TAU); ctx.fill();
-        ctx.globalAlpha = 0.9 * Math.max(0.2, br); ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x2, y2, Math.max(1.2, r * 0.45), 0, TAU); ctx.fill();
-      }
-    }
-    ctx.restore();
+    lzDrawSegs(w, w.lzSegs, w.lzPow || 1, lzGrow(w) * (lzPulseOn(w) ? 1.8 : 1), lzPulseOn(w) ? 1.5 : 1);
   }
+}
+// Draw beam segments the Laser's way (pw: power, for glow and pulse; wk: width factor; bk: brightness factor).
+function lzDrawSegs(w, segs, pw, wk, bk) {
+  const glow = Math.min(1.6, (0.55 + 0.45 * Math.min(1, Math.max(0, (pw - LZ.start) / (1 - LZ.start)))) * (bk || 1));
+  const pulse = pw > 1 ? 1 + 0.45 * Math.min(1, pw - 1) * (0.5 + 0.5 * Math.sin(G.t * 9)) : 1;
+  const c = col(w.def.sab ? w.def.color : LASER.col), base = Math.max(2.4, (w.s.width || 10) * 0.42) * (wk || 1);
+  ctx.save(); ctx.lineCap = 'round';
+  for (const s of segs) {
+    const x1 = sx(s.x1), y1 = sy(s.y1), x2 = sx(s.x2), y2 = sy(s.y2), wd = base * Math.max(0.4, Math.sqrt(Math.min(1, s.k))) * S;
+    const line = (lw, a, st) => { // (a beam into open water fades over its last stretch instead of stopping dead)
+      ctx.lineWidth = lw; ctx.globalAlpha = Math.min(1, a);
+      if (!s.end) { ctx.strokeStyle = st; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); return; }
+      const len = Math.hypot(x2 - x1, y2 - y1) || 1, u = Math.max(0, 1 - (s.fadeL || 0) * S / len), fx = x1 + (x2 - x1) * u, fy = y1 + (y2 - y1) * u;
+      ctx.strokeStyle = st; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(fx, fy); ctx.stroke();
+      const g = ctx.createLinearGradient(fx, fy, x2, y2); g.addColorStop(0, st); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(x2, y2); ctx.stroke();
+    };
+    const br = Math.pow(Math.min(1, s.k), 0.7) * (s.fadeK == null ? 1 : s.fadeK); // (brightness falls with the power each bounce keeps)
+    line(wd * 5 * pulse, 0.16 * glow * pulse * br, c);  // (the glow)
+    line(wd * 1.6, 0.55 * glow * br, c);               // (the beam)
+    line(Math.max(1, wd * 0.45), 0.95 * Math.max(0.2, br), '#fff4f0'); // (the white-hot core)
+    if (s.hit) { // where it lands
+      const r = wd * 1.8 * pulse;
+      ctx.globalAlpha = Math.min(1, 0.35 * glow * pulse * br); ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x2, y2, r * 1.6, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 0.9 * Math.max(0.2, br); ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x2, y2, Math.max(1.2, r * 0.45), 0, TAU); ctx.fill();
+    }
+  }
+  ctx.restore();
 }
 modDraw = (orig => function () { orig(); lzDraw(); })(modDraw);
 
@@ -412,3 +421,153 @@ modFire = (orig => function (w, target, src) { if (lzIs(w) && modHas(w, 'orbitin
 
 // Growing is not offered on the Laser (user, 23 Oct).
 modOk = (orig => function (w, id) { return !(id === 'growing' && lzIs(w)) && orig(w, id); })(modOk);
+
+// ================================================================ the Laser's own versions (user, 23 Oct)
+// EMPOWERED ATTACK: every few seconds (4 / 3 / 3, 2.5 at mastery) the beam pulses wide and bright for 0.5 s, dealing x2.5
+// (x3.2 from Rank 3). Not every Nth tick. Replaces modifiers.js modAtk's count for the Laser.
+const lzPulseOn = w => { const r = Math.min(4, modCount(w, 'nth')); if (!r) return false; const per = [4, 3, 3, 2.5][r - 1]; return ((G.t - (w.lzNthS || 0)) % per) < 0.5; };
+modAtk = (orig => function (w, src) {
+  if (!lzIs(w)) return orig(w, src);
+  if (w.lzNthS == null) w.lzNthS = G.t;
+  w.m10emp = lzPulseOn(w); modAgain(w, src);
+})(modAtk);
+// RAISE ALLIES is not offered on the Laser.
+modOk = (orig => function (w, id) { return !(id === 'turncoat' && lzIs(w)) && orig(w, id); })(modOk);
+
+// Short-lived Laser lines (Can't Pick One forks): drawn the Laser's way for 0.25 s.
+function lzFx(w, x1, y1, x2, y2, k) { (w.lzFxs || (w.lzFxs = [])).push({ x1, y1, x2, y2, k, hit: true, t: G.t }); }
+const lzS = () => G.lzS || (G.lzS = { orb: [], mines: [] });
+function lzExtrasDraw(w) {
+  if (w.lzFxs && w.lzFxs.length) { w.lzFxs = w.lzFxs.filter(f => G.t - f.t < 0.25); for (const f of w.lzFxs) f.fadeK = 1 - (G.t - f.t) / 0.25; lzDrawSegs(w, w.lzFxs, 1, 0.6, 1); }
+  const S2 = lzS(), c = col(w.def.sab ? w.def.color : LASER.col);
+  for (const o of S2.orb) { // strike from above: a marker, then a beam from the sky
+    if (o.w !== w) continue;
+    const x = sx(o.x), y = sy(o.y);
+    if (G.t < o.t0) { ctx.save(); ctx.globalAlpha = 0.7; ctx.strokeStyle = c; ctx.lineWidth = 2 * S; ctx.setLineDash([4 * S, 3 * S]); ctx.beginPath(); ctx.arc(x, y, (16 + 8 * (o.t0 - G.t) / o.mark) * S, 0, TAU); ctx.stroke(); ctx.restore(); continue; }
+    lzDrawSegs(w, [{ x1: o.x, y1: o.y - 520, x2: o.x, y2: o.y, k: 1, hit: true }], LZ.peak, 2.2, 1.3);
+  }
+  for (const m of S2.mines) { // laser mines: a red dot, then spinning beams
+    if (m.w !== w) continue;
+    if (m.firing) lzDrawSegs(w, m.segs || [], LZ.peak, 1.4, 1.2);
+    else { const x = sx(m.x), y = sy(m.y), bl = 0.6 + 0.4 * Math.sin(G.t * 6 + m.x); ctx.save(); ctx.globalAlpha = 0.9; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, 5 * S, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.25 * bl; ctx.beginPath(); ctx.arc(x, y, 60 * S, 0, TAU); ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = bl; ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x, y, 2 * S, 0, TAU); ctx.fill(); ctx.restore(); }
+  }
+  if (w.lzSword && G.t - w.lzSword.t < 0.22) { // the laser sword's swing
+    const sw = w.lzSword, u = (G.t - sw.t) / 0.22, p = G.player, a = sw.a0 + (sw.a1 - sw.a0) * Math.min(1, u * 1.2);
+    const tr = []; for (let i = 0; i <= 5; i++) { const aa = a - (sw.a1 - sw.a0) * i * 0.04; tr.push({ x1: p.x, y1: p.y, x2: p.x + Math.cos(aa) * sw.L, y2: p.y + Math.sin(aa) * sw.L, k: 1 - i * 0.17, hit: false }); }
+    lzDrawSegs(w, tr, LZ.peak, 1.2, 1.1);
+  }
+}
+
+// STRIKE FROM ABOVE: an orbital laser, one strike at a time (0.3 s apart). It marks the target (0.4 s, 0.2 with Precision Strike), then a beam from
+// above holds on the target, following it, for 1 s (1.5 s from Orbital Strike Rank 3, 2.5 s with Siege), hitting it and
+// what crowds it (within 30, 40 with Orbital Strike). Orbital Strike: +30% damage. Precision Strike Rank 3: a second
+// strike on the second-toughest enemy; Volley: up to 4 targets at 60%. Each strike adds 15% heat.
+function lzOrbital(w, target) {
+  if (G.t < (w.lzOrbT || 0)) return;
+  const p = G.player, m = msMa(w, 'dfa'), mark = msB(w, 'dfa', 2) ? 0.2 : 0.4, dur = m === 'A2' ? 2.5 : msA(w, 'dfa', 3) ? 1.5 : 1;
+  w.lzOrbT = G.t + mark + dur + 0.3; // (one strike at a time, with a short gap)
+  let tg = [target];
+  if (m === 'B1') tg = acquireMany('strongest', w.s.range || 400, p.x, p.y, 4);
+  else if (msB(w, 'dfa', 3)) { const t2 = acquireMany('strongest', w.s.range || 400, p.x, p.y, 2).find(e => e !== target); if (t2) tg.push(t2); }
+  for (const e of tg) lzS().orb.push({ w, e, x: e.x, y: e.y, t0: G.t + mark, mark, end: G.t + mark + dur, next: 0, k: (m === 'B1' ? 0.6 : 1) * (msA(w, 'dfa', 2) ? 1.3 : 1) });
+  w.lzHeat = Math.min(1, (w.lzHeat || 0) + 0.15);
+}
+// LASER SWORD (Melee): a 90-long blade (110 from Rank 2) swung through 150 degrees in front of you every 0.6 s, hitting
+// each enemy in the arc once a swing for 0.6 s of beam damage. Brawler: every 3rd swing is a full circle;
+// Hit and Run: you dart up to 120 at the target first. Each swing adds 6% heat.
+function lzSwordSwing(w, target, src) {
+  if (G.t < (w.lzSwT || 0)) return; w.lzSwT = G.t + 0.6;
+  const p = G.player, r = mwR(w, 'melee'), L = r >= 2 ? 110 : 90;
+  let a = Math.atan2(target.y - p.y, target.x - p.x);
+  if (msB(w, 'melee', 2)) { const d = Math.min(120, Math.max(0, Math.hypot(target.x - p.x, target.y - p.y) - (target.r || 10) - 20)); p.x += Math.cos(a) * d; p.y += Math.sin(a) * d; if (r >= 3) p.iframes = Math.max(p.iframes || 0, 0.25); }
+  w.lzSwN = (w.lzSwN || 0) + 1;
+  const full = msA(w, 'melee', 2) && w.lzSwN % 3 === 0, half = full ? Math.PI : Math.PI * 150 / 360;
+  const dir = w.lzSwN % 2 ? 1 : -1, msrc = Object.assign({}, src, { atk: 'contact' }), k = 0.6 / Math.max(0.05, w.s.cd || 0.1); // (0.6 s of beam, before its ramp)
+  for (const e of G.enemies) {
+    if (e.dead || e.charmed) continue;
+    const d = Math.hypot(e.x - p.x, e.y - p.y); if (d > L + e.r) continue;
+    if (Math.abs(angDiff(Math.atan2(e.y - p.y, e.x - p.x), a)) > half) continue;
+    damageEnemy(e, w.s.dmg * k, msrc);
+  }
+  w.lzSword = { t: G.t, a0: a - dir * half, a1: a + dir * half, L };
+  w.lzHeat = Math.min(1, (w.lzHeat || 0) + 0.06);
+}
+// LASER MINES (Mines): a mine every 1.5 s where you are (3 on the floor, 5 with either branch). When an enemy comes within
+// 60 it spins out beams (1, plus one for each Extra Shots beam) that turn round it for 1.2 s and then it is spent. The beams
+// never aim: they sweep, under the beam's rules (bounce, pierce), each hit worth more than a held beam (x2.5 at full
+// strength). Smart Mines creep towards enemies. Each mine adds 10% heat.
+function lzMineLay(w) {
+  if (G.t < (w.lzMnT || 0)) return; w.lzMnT = G.t + 1.5;
+  const p = G.player, M = lzS().mines, cap = msA(w, 'mines', 2) || msB(w, 'mines', 2) ? 5 : 3, mine = M.filter(m => m.w === w && !m.firing);
+  if (mine.length >= cap) M.splice(M.indexOf(mine[0]), 1);
+  M.push({ w, x: p.x, y: p.y, armed: G.t + 0.5, life: G.t + 20, firing: false });
+  w.lzHeat = Math.min(1, (w.lzHeat || 0) + 0.1);
+}
+function lzExtrasTick(dt) {
+  const S2 = lzS();
+  for (const o of S2.orb) {
+    if (!G.weapons.includes(o.w)) { o.end = 0; continue; }
+    if (o.e && !o.e.dead) { o.x = o.e.x; o.y = o.e.y; } // (it follows its target)
+    if (G.t < o.t0 || G.t >= o.end || G.t < o.next) continue;
+    o.next = G.t + 0.1;
+    const R = msA(o.w, 'dfa', 2) ? 40 : 30, src = weaponSrc(o.w);
+    for (const e of G.enemies) if (!e.dead && !e.charmed && Math.hypot(e.x - o.x, e.y - o.y) < R + e.r) damageEnemy(e, o.w.s.dmg * LZ.peak * 0.4 * o.k, src);
+  }
+  S2.orb = S2.orb.filter(o => G.t < o.end);
+  for (const m of S2.mines) {
+    if (!G.weapons.includes(m.w) || G.t > m.life) { m.gone = true; continue; }
+    const w = m.w;
+    if (!m.firing) {
+      if (msB(w, 'mines', 2)) { const o = msNear(m.x, m.y, 250); if (o) { const d = Math.hypot(o.x - m.x, o.y - m.y) || 1; m.x += (o.x - m.x) / d * 30 * dt; m.y += (o.y - m.y) / d * 30 * dt; } }
+      if (G.t >= m.armed && msNear(m.x, m.y, 60)) { m.firing = true; m.t0 = G.t; m.end = G.t + 1.2; m.next = 0; m.a = Math.random() * TAU; }
+      continue;
+    }
+    if (G.t >= m.end) { m.gone = true; continue; }
+    const n = 1 + (msR(w, 'extra') ? msBeams(w).reduce((a, b) => a + b, 0) : 0), spin = m.a + (G.t - m.t0) * 5, hitNow = G.t >= m.next;
+    if (hitNow) m.next = G.t + 0.1;
+    const segs = [], src = hitNow ? weaponSrc(w) : null;
+    for (let i = 0; i < n; i++) {
+      const st = { segs: 0, walls: 0, ramp: LZ.peak * 2.5, first: null, bub: null, out: [], dry: !hitNow, delta: 0.6 };
+      LZC.pad = 0; lzTrace(w, m.x, m.y, spin + i / n * TAU, w.s.range * 0.8, 1 / Math.sqrt(n), src, null, st, lzN(msR(w, 'piercing')), lzN(msR(w, 'ricochet')));
+      segs.push(...st.out);
+    }
+    m.segs = segs;
+  }
+  S2.mines = S2.mines.filter(m => !m.gone);
+}
+wupTick = (orig => function (dt) { orig(dt); if (G && G.state === 'play') lzExtrasTick(dt); })(wupTick);
+// Melee, Mines and Strike from Above replace how the Laser fires (ahead of modwide.js's general versions).
+wupFire = (orig => function (w, t, src) {
+  if (lzIs(w) && w.m10 && (mwR(w, 'melee') || mwR(w, 'mines') || mwR(w, 'dfa'))) {
+    if (w.lzOver) return true;
+    if (mwR(w, 'melee') && t) lzSwordSwing(w, t, src);
+    else if (mwR(w, 'mines')) lzMineLay(w);
+    else if (mwR(w, 'dfa') && t) lzOrbital(w, t);
+    return true;
+  }
+  return orig(w, t, src);
+})(wupFire);
+// The Laser's heat also cools while it swings, lays mines or calls strikes (they add their own heat above).
+
+// RAPID FIRE's branches on the Laser (user, 23 Oct): A, Cooler: the burn bar fills 20% slower (35% from Rank 3); masteries
+// Heat Sink (cools twice as fast) or Vent (overheating sets off a blast round you). B, Quicker: the charge-up shortens a
+// further 20% (35%); masteries Instant (no charge-up) or Strong Start (double damage for the beam's first 0.5 s).
+const LZ_RAPID = {
+  A: ['Cooler', 'The Laser heats up 20% slower. Rank 3: 35% slower.'], B: ['Quicker', 'The charge-up is 20% shorter again. Rank 3: 35% shorter.'],
+  A1: ['Heat Sink', 'The Laser cools down twice as fast.'], A2: ['Vent', 'When the Laser overheats it sets off a blast around you.'],
+  B1: ['Instant', 'No charge-up: the Laser fires at once.'], B2: ['Strong Start', 'The beam deals double damage for its first half second.'],
+};
+forkCards = (orig => function (req) {
+  const cs = orig(req);
+  if (!(req.ms && req.ms.id === 'rapid' && lzIs(req.ms.w))) return cs;
+  for (const c of cs) { const k = (c.desc || '').split('_').pop(); const L = LZ_RAPID[k]; if (L) { c.title = L[0]; c.desc = L[1]; } }
+  return cs;
+})(forkCards);
+modCard = (orig => function (w, id) {
+  const c = orig(w, id);
+  if (!lzIs(w)) return c;
+  const r = modCount(w, id);
+  if (id === 'rapid') c.desc = r === 0 ? 'Shortens the Laser\'s charge-up.' : r === 1 ? 'Shorter charge-up. Choose a branch.' : r === 2 ? (msBr(w, 'rapid') === 'A' ? 'Heats up slower still.' : 'Shorter charge-up still.') : c.desc;
+  if (id === 'charged') c.desc = r === 0 ? 'The Laser charges longer, then fires one big blast instead of a held beam.' : r < 3 ? 'Longer charge, bigger blast.' : c.desc;
+  return c;
+})(modCard);

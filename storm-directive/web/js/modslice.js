@@ -68,7 +68,7 @@ modOk = (orig => function (w, id) {
 // ---------------------------------------------------------------- fork screens
 modAdd = (orig => function (w, id) {
   const ok = orig(w, id);
-  if (ok && MSB[id]) {
+  if (ok && MSB[id] && !(id === 'charged' && (typeof lzIs === 'function' && lzIs(w)))) { // (the Laser's Charge-Up has no branches: user, 23 Oct)
     const r = modCount(w, id);
     if (r === 2 || r === 4) G.lootQueue.unshift({ kind: 'fork', v10ok: true, lv: r, ms: { w, id, st: r === 2 ? 'b' : 'm' } });
   }
@@ -314,7 +314,13 @@ function msHit(e, res, src) {
   if (w._gooT > G.t) msSlow(e, 0.3);
   // Sticky
   const sr = msR(w, 'sticky');
-  if (sr) {
+  if (sr && (typeof lzIs === 'function' && lzIs(w))) { // the Laser: the longer it holds an enemy the slower it gets, then it freezes (Snared)
+    if (G.t - (e.lzStL || -9) > 0.4) e.lzStS = G.t; e.lzStL = G.t;
+    const T = [2, 1.5, 1.1, 0.8][Math.min(4, sr) - 1], u = Math.min(1, (G.t - e.lzStS) / T);
+    msSlow(e, 0.85 * u, 0.5);
+    if (u >= 1 && !(e.snareT > G.t)) { msSnare(e, 1.5); e.msStuckBy = w; e.lzStS = G.t + 1.5; if (msMa(w, 'sticky') === 'A2') e.msCement = G.t + 1.5; }
+    if (msB(w, 'sticky', 2)) forNear(e.x, e.y, e.r + 40, o => { if (o !== e && !o.dead) msSlow(o, 0.4 * u, 0.5); }); // Contagious Goo
+  } else if (sr) {
     const sl = msLv(MS_NEW.sticky.cap.slow, Math.min(3, sr));
     msSlow(e, sl);
     if (msB(w, 'sticky', 2)) forNear(e.x, e.y, e.r + 40, o => { if (o !== e && !o.dead) msSlow(o, sl / 2); }); // Contagious Goo
@@ -351,7 +357,9 @@ function msHit(e, res, src) {
   // Focused Intensity: Executioner
   if (msMa(w, 'focus') === 'A1' && msFocusFull(w) && !e.dead && !e.elite && !e.boss && e.hp < e.maxHp * 0.25) damageEnemy(e, e.hp * 4 + 10, msEcho(src));
   // Extra Projectiles, Can't Pick One: a hit may fork into two (three) weaker shots or beams
-  if (msB(w, 'extra', 2) && !src.msFork && !e.dead) {
+  const lzF = (typeof lzIs === 'function' && lzIs(w));
+  if (msB(w, 'extra', 2) && !src.msFork && !e.dead && (!lzF || G.t >= (w.lzForkT || 0))) { // (the Laser rolls for a fork every 0.5 s, not every tick)
+    if (lzF) w.lzForkT = G.t + 0.5;
     const m = msMa(w, 'extra'), ch = m === 'B1' ? 0.4 : msR(w, 'extra') >= 3 ? 0.3 : 0.2;
     if (Math.random() < ch) {
       const S = msS(); if (G.t - S.forkT > 1) { S.forkT = G.t; S.forkN = 0; }
@@ -359,7 +367,8 @@ function msHit(e, res, src) {
       for (let i = 0; i < n; i++) {
         if (S.forkN >= 12) { if (m === 'B2') aoe(e.x, e.y, 40, w.s.dmg * 0.5, fsrc, w.def.color); break; } // Overflow
         const o = msNear(e.x, e.y, 160, seen); if (!o) break; seen.push(o); S.forkN++;
-        if (w.def.v10atk === 'beam') { msBeamFx(w, e.x, e.y, o.x, o.y, (w.s.width || 10) * 0.5); damageEnemy(o, w.s.dmg * k, fsrc); }
+        if (lzF) { lzFx(w, e.x, e.y, o.x, o.y, k); damageEnemy(o, w.s.dmg * k * 0.5 / Math.max(0.05, w.s.cd || 0.1), fsrc); } // (a short held laser, worth 0.5 s of hits)
+        else if (w.def.v10atk === 'beam') { msBeamFx(w, e.x, e.y, o.x, o.y, (w.s.width || 10) * 0.5); damageEnemy(o, w.s.dmg * k, fsrc); }
         else spawnProj(w, e.x, e.y, Math.atan2(o.y - e.y, o.x - e.x), Object.assign({}, fsrc, { mult: (src.mult || 1) * k }));
       }
     }

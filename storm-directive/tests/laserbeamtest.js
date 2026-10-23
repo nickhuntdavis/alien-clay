@@ -111,6 +111,24 @@ const { chromium } = require('playwright');
     if (dbl.beams !== 2 || Math.abs(dbl.hurt[0] - xsolo.hurt[0]) > xsolo.hurt[0] * 0.15) bad.push('extra beam doubling ' + JSON.stringify(out.extra.dbl) + ' vs ' + xsolo.hurt[0]);
     if (multi.hurt.filter(h => h > 0).length < 2 || multi.mainK > 0.8) bad.push('extra beam own target ' + JSON.stringify(out.extra.multi));
     if (!(dbl.heat > xsolo.heat * 1.2)) bad.push('extra beams heat faster ' + out.extra.heat);
+    // 15. The Laser's own Strike from Above, sword, mines, Sticky, Empowered pulse, Rapid Fire branches, retired options
+    const runT = t => { const px = p().x, py = p().y; for (let f = 0; f < t * 60; f++) { G.state = 'play'; G.lootQueue = []; p().x = px; p().y = py; update(1 / 60); } };
+    w = fresh(); modAdd(w, 'dfa'); computeStats(w); const o1 = foe(160, 0); runT(0.3); const early = hurt(o1); runT(1.5);
+    out.orbital = [early, hurt(o1)]; if (early > 0 || !(hurt(o1) > 0)) bad.push('orbital strike ' + out.orbital);
+    w = fresh(); modAdd(w, 'melee'); computeStats(w); const sNear = foe(70, 0), sFar = foe(0, 200); runT(1.5);
+    out.sword = [hurt(sNear), hurt(sFar), !!w.lzSword]; if (!(hurt(sNear) > 0) || hurt(sFar) > 0 || !w.lzSword) bad.push('laser sword ' + out.sword);
+    w = fresh(); SET.noLimits = true; modAdd(w, 'mines'); modAdd(w, 'extra'); SET.noLimits = false; computeStats(w); const mTgt = foe(200, 0); runT(1.2);
+    const laid = lzS().mines.length; mTgt.x = lzS().mines[0] ? lzS().mines[0].x + 30 : mTgt.x; mTgt.y = lzS().mines[0] ? lzS().mines[0].y : mTgt.y; runT(0.6);
+    const fm = lzS().mines.find(m => m.firing); out.mines = [laid, !!fm, fm ? fm.segs.length : 0, hurt(mTgt)];
+    if (!laid || !fm || !(fm.segs.length >= 2) || !(hurt(mTgt) > 0)) bad.push('laser mines ' + out.mines);
+    w = fresh(); for (let i = 0; i < 3; i++) modAdd(w, 'sticky'); computeStats(w); const st1 = foe(150, 0); const slows = [];
+    for (let i = 0; i < 14; i++) { G.t += 0.1; w.lzFireT = G.t; v10Fire(w, st1, weaponSrc(w)); slows.push(+(st1.chillAmt || 0).toFixed(2)); }
+    out.sticky = [slows[2], slows[8], st1.snareT > G.t]; if (!(slows[8] > slows[2]) || !(st1.snareT > G.t)) bad.push('laser sticky ' + out.sticky + ' ' + slows);
+    w = fresh(); modAdd(w, 'nth'); computeStats(w); w.lzNthS = G.t; out.pulse = [lzPulseOn(w), (G.t += 1, lzPulseOn(w))]; if (!out.pulse[0] || out.pulse[1]) bad.push('empowered pulse ' + out.pulse);
+    w = fresh(); modAdd(w, 'rapid'); modAdd(w, 'rapid'); const fq = G.lootQueue.find(q => q.ms); const titles = fq ? genLoot(fq).map(c => c.title) : [];
+    out.rapidFork = titles; if (titles.join() !== 'Cooler,Quicker') bad.push('laser rapid fork ' + titles);
+    w = fresh(); out.retired = [modOk(w, 'turncoat'), modOk(w, 'growing')]; if (out.retired.some(Boolean)) bad.push('retired modifiers offered on the Laser ' + out.retired);
+    w = fresh(); G.lootQueue = []; modAdd(w, 'charged'); modAdd(w, 'charged'); if (G.lootQueue.some(q => q.ms)) bad.push('Charge-Up fork on the Laser');
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);

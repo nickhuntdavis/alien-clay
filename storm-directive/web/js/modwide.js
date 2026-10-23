@@ -254,8 +254,9 @@ function mwHit(e, res, src) {
   if (src.mwFull) res.heavy = true; // Full Charge Lv 3
   // Exploding Rounds, Pop Pop (and Lv 1 of either branch): hits explode round the target
   const er = mwR(w, 'explode');
-  if (er && !src.mwBoom && res.toHp > 0 && (er < 2 || msBr(w, 'explode') === 'A')) {
-    const R = [40, 60, 80][er - 1], k = [0.4, 0.6, 0.8][er - 1], bsrc = Object.assign({}, src, { mwBoom: 1, noRx: true });
+  const lzBoom = (typeof lzIs === 'function' && lzIs(w)) ? (G.t >= (w.lzBoomT || 0) ? (w.lzBoomT = G.t + 0.5, 0.25 / Math.max(0.05, w.s.cd || 0.1)) : 0) : 1; // (the Laser's beam tip pops every 0.5 s, worth 0.5 s of hits)
+  if (er && lzBoom && !src.mwBoom && res.toHp > 0 && (er < 2 || msBr(w, 'explode') === 'A')) {
+    const R = [40, 60, 80][er - 1], k = [0.4, 0.6, 0.8][er - 1] * lzBoom, bsrc = Object.assign({}, src, { mwBoom: 1, noRx: true });
     aoe(e.x, e.y, R, res.toHp * k, bsrc, w.def.color); ring(e.x, e.y, R, w.def.color, 0.25, 3);
     const m = msMa(w, 'explode');
     if (m === 'A1') for (let i = 0; i < 3; i++) { const a = Math.random() * TAU, x = e.x + Math.cos(a) * R, y = e.y + Math.sin(a) * R; after(0.1, () => G && aoe(x, y, 30, res.toHp * 0.3, bsrc, w.def.color)); } // Cluster Round
@@ -268,10 +269,16 @@ function mwHit(e, res, src) {
   if (msMa(w, 'kinship') === 'A2' && res.toHp > 0) for (const x of mwWs().filter(x => x !== w && mwType(x) === mwType(w)).slice(0, 3)) damageEnemy(e, x.s.dmg * 0.4, msEcho(weaponSrc(x)));
   // Primer: mark
   const pr = mwR(w, 'primer');
-  if (pr && !e.dead && !(e.mwPr && e.mwPr.t > G.t)) e.mwPr = { w, t: G.t + (msA(w, 'primer', 2) ? 8 : 4), by: new Set(), steps: 0 };
+  if (pr && (typeof lzIs === 'function' && lzIs(w))) { if (G.t - (e.lzPrL || -9) > 0.25) e.lzPrS = G.t; e.lzPrL = G.t; } // (the Laser marks an enemy held 0.5 s)
+  if (pr && !e.dead && !(e.mwPr && e.mwPr.t > G.t) && !((typeof lzIs === 'function' && lzIs(w)) && G.t - e.lzPrS < 0.5)) e.mwPr = { w, t: G.t + (msA(w, 'primer', 2) ? 8 : 4), by: new Set(), steps: 0 };
   // Knockback
   const kr = mwR(w, 'knock');
-  if (kr && !e.boss) {
+  if (kr && !e.boss && (typeof lzIs === 'function' && lzIs(w))) { // the Laser pushes steadily along the beam (40 a second a rank) instead of shoving each tick
+    const d = Math.hypot(e.x - p.x, e.y - p.y) || 1, f = 40 * kr * Math.max(0.05, w.s.cd || 0.1) * (msB(w, 'knock', 2) && d < 100 ? 1.5 : 1) * (msMa(w, 'knock') === 'A2' ? 2 : 1);
+    const nx = e.x + (e.x - p.x) / d * f, ny = e.y + (e.y - p.y) / d * f; if (!(G.lvl && lvSolidAt(nx, ny))) { e.x = nx; e.y = ny; }
+    if (!(e.mwKnT > G.t - 0.6)) e.mwKnHit = null; e.mwKnT = G.t; e.mwKnW = w;
+    if (msMa(w, 'knock') === 'B1' && G.t >= (w.lzKnNT || 0)) { w.lzKnNT = G.t + 2.5; ring(p.x, p.y, 140, w.def.color, 0.4, 5); forNear(p.x, p.y, 140, o => { if (!o.dead && !o.boss) shove(o, p.x, p.y, 300); }); }
+  } else if (kr && !e.boss) {
     let f = 150 * kr, d = Math.hypot(e.x - p.x, e.y - p.y);
     if (msB(w, 'knock', 2) && d < 100) f *= 1.5;
     if (msB(w, 'knock', 3) && e.mwKnT > G.t - 2) f *= 2;

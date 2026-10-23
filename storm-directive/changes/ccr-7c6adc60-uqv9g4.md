@@ -1,3 +1,11 @@
+## 2026-10-23 Laser versions of the remaining modifiers (v10.94)
+- Systems: weapons (Laser, modifiers), chemistry (Sticky), fx
+- Files: laserbeam.js (lzOrbital, lzSwordSwing, lzMineLay, lzExtrasTick, lzExtrasDraw, lzDrawSegs, lzFx, lzPulseOn, LZ_RAPID; wraps wupFire, modAtk, forkCards, modCard), modwide.js (Explosive Hits pops every 0.5 s on the Laser, Knockback pushes steadily, Mark and Detonate needs 0.5 s held), modslice.js (Sticky slows then freezes by time held; Can't Pick One rolls every 0.5 s and draws as a held laser; no Charge-Up fork on the Laser), tests/laserbeamtest.js
+- What: the Laser hits 10 times a second, so per-hit modifiers were rescaled for it. Strike from Above is an orbital laser (a mark, then a beam from above that follows the target for 1 s; one at a time). Melee is a laser sword (a 150-degree swing every 0.6 s). Mines are laser mines that spin out 1 beam plus one per Extra Shots beam for 1.2 s when an enemy comes near, never aiming. Empowered Attack is a wide, bright 0.5 s pulse every 4 / 3 / 3 s. Rapid Fire has Laser branches: Cooler (heats slower; Heat Sink, Vent) and Quicker (shorter charge-up; Instant, Strong Start). Raise Allies is not offered on the Laser; Charge-Up has no branches on it.
+- Save data: none.
+- Hooks: laserbeam.js wraps weapons24.js wupFire, modifiers.js modAtk, draft.js forkCards, modcards.js modCard.
+- Risk: crowd damage with Strike from Above (about 5x the beam in a tight cluster), the sword (3x) and Explosive Hits (2x).
+
 ## 2026-10-23 Extra Shots on the Laser: beams with their own targets (v10.93)
 - Systems: weapons (Laser, modifiers), ui (charge glow)
 - Files: laserbeam.js (lzXUpdate, lzXOn, lzRampX, lzXSweep; lzBeams returns per-beam share and ramp), modslice.js (no blanket beam damage cut on the Laser), tests/laserbeamtest.js
