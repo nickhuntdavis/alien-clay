@@ -1,3 +1,11 @@
+## 2026-10-23 Laser bounce angle from the sperm head (v10.84)
+- Systems: weapons (Laser)
+- Files: laserbeam.js (lzHead, lzBounceDir), tests/laserbeamtest.js
+- What: the Laser's bounce angle is set by the sperm head's angle against the beam's line to the enemy (reflected as off a surface tilted by that difference), not by where on the enemy it lands, so hits nearly always reflect; only a beam exactly in line with the head (within 1 degree) doesn't reflect. Replaces v10.83's 12-degree head-on rule. Obstacles and the orbit ring follow the same rule; the membrane wall still reflects physically.
+- Save data: none.
+- Hooks: none new.
+- Risk: Bounce fires on almost every hit again (more damage with Bounce than v10.83).
+
 ## 2026-10-23 Laser: no bounce on a head-on hit (v10.83)
 - Systems: weapons (Laser)
 - Files: laserbeam.js (lzGlance), tests/laserbeamtest.js

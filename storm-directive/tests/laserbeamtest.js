@@ -25,21 +25,20 @@ const { chromium } = require('playwright');
     // 1. No pierce by default: the enemy behind is safe
     let w = fresh(); let a1 = foe(120, 0), a2 = foe(220, 0); fire(w, a1, 0);
     out.stop = [hurt(a1) > 0, hurt(a2)]; if (!(hurt(a1) > 0) || hurt(a2) > 0) bad.push('the laser pierced by default ' + out.stop);
-    // 2. Bounce: an off-centre hit reflects at the true angle and hits what is on the reflected line
-    w = fresh(); modAdd(w, 'ricochet'); computeStats(w); const A = foe(150, 12); G.v10fx = []; fire(w, A, 0);
-    const s1 = segs()[0], s2 = segs()[1];
-    if (!s2) bad.push('no bounce segment');
+    // 2. Bounce: the angle comes from the sperm head against the beam's line; a hit always reflects unless exactly in line
+    w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0.5; const A = foe(150, 0); fire(w, A, 0);
+    const want = lzBounceDir(1, 0, angDiff(0.5, 0)), s2 = segs()[1];
+    if (!s2) bad.push('no bounce with the head turned');
     else {
-      const cx = s1.x2, cy = s1.y2, l1 = Math.hypot(cx - s1.x1, cy - s1.y1), dx = (cx - s1.x1) / l1, dy = (cy - s1.y1) / l1, nx = (cx - A.x) / A.r, ny = (cy - A.y) / A.r, dot = dx * nx + dy * ny, ex = dx - 2 * dot * nx, ey = dy - 2 * dot * ny;
-      const got = Math.atan2(s2.y2 - s2.y1, s2.x2 - s2.x1), want = Math.atan2(ey, ex), err = Math.abs(angDiff(got, want));
-      out.bounceErr = +err.toFixed(3); if (err > 0.01) bad.push('bounce angle off by ' + err);
-      const Bx = s2.x1 + Math.cos(want) * 90, By = s2.y1 + Math.sin(want) * 90;
-      w = fresh(); modAdd(w, 'ricochet'); computeStats(w); const A2 = foe(150, 12), B = foe(Bx - p().x, By - p().y); fire(w, A2, 0);
+      const got = Math.atan2(s2.y2 - s2.y1, s2.x2 - s2.x1), err = Math.abs(angDiff(got, want)); out.bounceErr = +err.toFixed(3);
+      if (err > 0.01) bad.push('bounce angle off by ' + err);
+      w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0.5; const A2 = foe(150, 0), B = foe(s2.x1 + Math.cos(want) * 90 - p().x, s2.y1 + Math.sin(want) * 90 - p().y); fire(w, A2, 0);
       out.bounceHit = hurt(B); if (!(hurt(B) > 0)) bad.push('the bounce missed the enemy on its line');
     }
-    // 2b. A head-on hit doesn't bounce
-    w = fresh(); modAdd(w, 'ricochet'); computeStats(w); const H = foe(150, 0); fire(w, H, 0);
-    out.headOn = segs().length; if (segs().length !== 1) bad.push('a head-on hit bounced: ' + segs().length + ' segments');
+    // 2b. Exactly in line with the head: no bounce; a little off: a bounce
+    w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0; const H = foe(150, 0); fire(w, H, 0); const inLine = segs().length;
+    w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0.15; const H2 = foe(150, 0); fire(w, H2, 0);
+    out.inLine = [inLine, segs().length]; if (inLine !== 1 || segs().length < 2) bad.push('in line ' + out.inLine);
     // 3. Piercing + Bounce: through and off, both weaker
     w = fresh(); modAdd(w, 'piercing'); computeStats(w); let c1 = foe(120, 6), c2 = foe(220, 6); fire(w, c1, 0); const solo = hurt(c2);
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w); c1 = foe(120, 6); c2 = foe(220, 6); G.v10fx = []; fire(w, c1, 0);

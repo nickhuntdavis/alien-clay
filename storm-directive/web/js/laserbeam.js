@@ -5,7 +5,7 @@
 //    target more than 50 degrees away switches it off and back on aimed there instead. A beam that runs into open
 //    water is seen 3 times as far (to the first thing in the way, hurting nothing there) and fades out.
 //  - BOUNCE (the renamed Ricochet modifier): at each enemy the beam reflects off the enemy's surface at the true angle
-//    (a hit within 12 degrees of head-on doesn't bounce)
+//    set by the sperm head's angle against the beam (lzBounceDir); only a beam exactly in line with the head doesn't bounce
 //    of incidence, like a laser pointer off a mirrored ball (1 / 3 / 6 bounces, 12 at mastery; -20% each).
 //  - PIERCING (now fits beams): the beam carries on through 1 / 3 / 6 enemies (12 at mastery), -15% each.
 //    With Bounce as well, every enemy splits the beam: one part carries straight on, one reflects, each at half power.
@@ -19,15 +19,23 @@
 // Extra Projectiles (front, rear and Disco Ball beams) fire through the same ray. Hooks: none in shared files. Wraps
 // v10.js v10Fire (outermost: loads after modwide.js). Renames modifiers.js MODS10.ricochet to Bounce.
 
-const LZ = { headOn: Math.cos(12 * Math.PI / 180), bounceL: 0.75, fade: 0.7, reachK: 3, sweepMax: 50 * Math.PI / 180, gap: 0.08, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
+const LZ = { inLine: 1 * Math.PI / 180, bounceL: 0.75, fade: 0.7, reachK: 3, sweepMax: 50 * Math.PI / 180, gap: 0.08, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
 MODS10.ricochet.name = 'Bounce';
 if (!MODS10.piercing.atk.includes('beam')) MODS10.piercing.atk.push('beam');
 
 // Red in every form (rings, mines, strikes, links, bursts all read w.def.color): later colour passes set the Fire colour
 // on the shared def, so its colour is pinned. A Switched at Birth def (modcards.js sabSwitch) has its own colour.
 { const d = WEAPONS[LASER.id]; if (d) Object.defineProperty(d, 'color', { get: () => LASER.col, set: () => {}, configurable: true, enumerable: true }); }
-// A hit within 12 degrees of head-on doesn't bounce (user, 23 Oct: it would only come straight back at you).
-const lzGlance = (dx, dy, nx, ny) => -(dx * nx + dy * ny) < LZ.headOn;
+// The bounce angle (user, 23 Oct): set by where the sperm head points against the beam's line to the enemy, not by
+// where on the enemy it lands. delta = head angle minus beam angle; the beam reflects as if off a surface tilted by
+// delta (2 x delta away from straight back, at most 80 degrees of tilt). Only a beam exactly in line with the head
+// (within LZ.inLine) doesn't reflect at all.
+const lzHead = () => { const p = G.player; return p.hd != null ? p.hd : p.face || 0; };
+function lzBounceDir(dx, dy, delta) {
+  if (Math.abs(delta) < LZ.inLine) return null;
+  const d = Math.max(-1.4, Math.min(1.4, delta)), na = Math.atan2(dy, dx) + Math.PI + d, c = Math.cos(d);
+  return Math.atan2(dy + 2 * c * Math.sin(na), dx + 2 * c * Math.cos(na));
+}
 const lzIs = w => !!(w && w.def && typeof LASER !== 'undefined' && (w.id === LASER.id || w.def.name === LASER.name));
 const lzN = r => [0, 1, 3, 6, 12][Math.min(4, r || 0)];
 
@@ -88,9 +96,9 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
     return;
   }
   if (m.ob) { // a solid obstacle: reflect with Bounce, otherwise stop
-    const nx = (cx - m.ob.x) / m.ob.r, ny = (cy - m.ob.y) / m.ob.r, dot = dx * nx + dy * ny;
-    if (bounce <= 0 || !lzGlance(dx, dy, nx, ny)) return; // (head-on: it stops)
-    lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), Math.max(L - m.t, w.s.range * LZ.bounceL), k * 0.9, src, null, st, pierce, bounce - 1);
+    const ra = bounce > 0 ? lzBounceDir(dx, dy, st.delta) : null;
+    if (ra == null) return; // (no Bounce, or exactly in line: it stops)
+    lzTrace(w, cx, cy, ra, Math.max(L - m.t, w.s.range * LZ.bounceL), k * 0.9, src, null, st, pierce, bounce - 1);
     return;
   }
   const e = m.e; if (!e) return;
@@ -102,14 +110,14 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
     lzTrace(w, cx + dx * through, cy + dy * through, a, rest - through, k * (both ? 0.5 : 0.85), src, e, st, pierce - 1, both ? bounce : 0);
   }
   if (bounce > 0) { // reflect off its surface at the true angle (not when head-on)
-    const nx = (cx - e.x) / (e.r || 10), ny = (cy - e.y) / (e.r || 10), dot = dx * nx + dy * ny;
-    if (lzGlance(dx, dy, nx, ny)) lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), Math.max(rest, w.s.range * LZ.bounceL), k * (both ? 0.5 : 0.8), src, e, st, both ? pierce : 0, bounce - 1);
+    const ra = lzBounceDir(dx, dy, st.delta);
+    if (ra != null) lzTrace(w, cx, cy, ra, Math.max(rest, w.s.range * LZ.bounceL), k * (both ? 0.5 : 0.8), src, e, st, both ? pierce : 0, bounce - 1);
   }
 }
 // One beam along angle a from you.
 function lzShot(w, a, src, k, ramp, dry) {
   const p = G.player, pr = msR(w, 'piercing'), br = msR(w, 'ricochet');
-  const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out: [], dry };
+  const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out: [], dry, delta: angDiff(lzHead(), a) };
   if (typeof mr === 'function' && mr('sp_iric') && typeof pdefBubbleR === 'function') { const R = pdefBubbleR(); if (R > 0) st.bub = { x: p.x, y: p.y, r: R }; }
   lzTrace(w, p.x, p.y, a, st.bub ? 1e4 : w.s.range, k, src, null, st, lzN(pr), lzN(br));
   return st;
@@ -131,7 +139,7 @@ function lzOrbit(w, src, ramp, dry) {
   const p = G.player, out = [], N = 48;
   let first = null;
   for (const [R, dir] of lzRings(w)) {
-    const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out, dry };
+    const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out, dry, delta: 0 };
     let pierce = lzN(msR(w, 'piercing')), bounce = lzN(msR(w, 'ricochet')), k = 1;
     const a0 = G.t * 1.6 * dir;
     out.push({ x1: p.x, y1: p.y, x2: p.x + Math.cos(a0) * R, y2: p.y + Math.sin(a0) * R, k: 0.6, hit: false }); // (out to the ring)
@@ -146,8 +154,8 @@ function lzOrbit(w, src, ramp, dry) {
       if (m.e) { if (!first) first = m.e; if (!dry) damageEnemy(m.e, w.s.dmg * k * ramp, src); }
       const both = pierce > 0 && bounce > 0, rest = (N - i) / N * TAU * R;
       if (bounce > 0) { // reflect off it and carry on as a straight beam
-        const o = m.e || m.ob, nx = (cx - o.x) / (o.r || 10), ny = (cy - o.y) / (o.r || 10), dx = Math.cos(a), dy = Math.sin(a), dot = dx * nx + dy * ny;
-        if (lzGlance(dx, dy, nx, ny)) lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), w.s.range * LZ.bounceL, k * (both ? 0.5 : 0.8), src, m.e, st, both ? pierce : 0, bounce - 1);
+        st.delta = angDiff(lzHead(), a); const ra = lzBounceDir(Math.cos(a), Math.sin(a), st.delta);
+        if (ra != null) lzTrace(w, cx, cy, ra, w.s.range * LZ.bounceL, k * (both ? 0.5 : 0.8), src, m.e, st, both ? pierce : 0, bounce - 1);
       }
       if (pierce > 0 && m.e) { // on round the ring, past it (the rest of this section too)
         pierce--; k *= both ? 0.5 : 0.85; passed.add(m.e);
