@@ -1,3 +1,11 @@
+## 2026-10-23 Sweep and Growing on the Laser (v10.88)
+- Systems: weapons (Laser, modifiers)
+- Files: laserbeam.js (lzSweep, lzGrow, LZC.pad), tests/laserbeamtest.js
+- What: Sweep swings the Laser either side of its target (about 34 / 42 / 50 degrees, 57 at mastery) under all its beam rules. Growing widens the Laser the longer it is held (up to x1.33 / x1.67 / x2, x2.33 at mastery, over 3 s; resets when it goes out); the wider beam also catches enemies up to 12 units off its line. Both did nothing on the Laser since v10.76.
+- Save data: none.
+- Hooks: none new.
+- Risk: none.
+
 ## 2026-10-23 Anchored Beam retired; Long Range fits beams (v10.87)
 - Systems: weapons (modifiers)
 - Files: modwide.js (modOk refuses anchored; range fits beams, +20% beam reach a rank), tests/modstest.js

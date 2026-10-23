@@ -57,13 +57,19 @@ function lzRamp(w, e) {
 const lzFull = w => G.t - (w.lzS || G.t) >= LZ.time / (1 + 0.2 * Math.min(3, msR(w, 'focus')));
 
 // One ray from (x, y) at angle a: the first enemy (or the bubble wall) it meets.
+// SWEEP and GROWING on the Laser (user, 23 Oct). Sweep: the beam swings either side of its target (about 34 / 42 / 50
+// degrees, 57 at mastery), following all the beam's rules. Growing: the beam widens the longer it is held (up to x1.33
+// / x1.67 / x2, x2.33 at mastery, over 3 s; resets when it goes out); a wider beam catches enemies near its line (LZC.pad).
+const LZC = { pad: 0 };
+const lzSweep = w => { const r = Math.min(4, modCount(w, 'sweep')); return r ? Math.sin(G.t * 3.2) * [1.8, 2.2, 2.6, 3][r - 1] / 3 : 0; };
+const lzGrow = w => { const r = Math.min(4, modCount(w, 'growing')); return r ? 1 + Math.min(1, (G.t - (w.lzHeldS || G.t)) / 3) * [1 / 3, 2 / 3, 1, 4 / 3][r - 1] : 1; };
 function lzMeet(x, y, a, L, skip, bub) {
   const dx = Math.cos(a), dy = Math.sin(a);
   let best = null, bt = L;
   for (const e of G.enemies) {
     if (e.dead || e.charmed || e === skip || (skip && skip.has && skip.has(e))) continue; // (skip: one enemy, or a set of them)
     const fx = e.x - x, fy = e.y - y, tc = fx * dx + fy * dy; if (tc < -e.r) continue;
-    const h2 = fx * fx + fy * fy - tc * tc, r = e.r || 10; if (h2 > r * r) continue;
+    const h2 = fx * fx + fy * fy - tc * tc, r = (e.r || 10) + LZC.pad; if (h2 > r * r) continue;
     let t = tc - Math.sqrt(r * r - h2); if (t < 0.5) t = 0.5;
     if (t < bt) { bt = t; best = { e, t }; }
   }
@@ -119,6 +125,7 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
 }
 // One beam along angle a from you.
 function lzShot(w, a, src, k, ramp, dry) {
+  LZC.pad = (lzGrow(w) - 1) * 12;
   const p = G.player, pr = msR(w, 'piercing'), br = msR(w, 'ricochet');
   const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out: [], dry, delta: angDiff(lzHead(), a) };
   if (typeof mr === 'function' && mr('sp_iric') && typeof pdefBubbleR === 'function') { const R = pdefBubbleR(); if (R > 0) st.bub = { x: p.x, y: p.y, r: R }; }
@@ -127,7 +134,7 @@ function lzShot(w, a, src, k, ramp, dry) {
 }
 // Every beam the Laser holds right now: [angle, power] (main, Extra Shots' front and rear beams, Disco Ball).
 function lzBeams(w) {
-  const p = G.player, out = [[w.lzA, 1]];
+  const p = G.player, out = [[w.lzA + lzSweep(w), 1]];
   for (const e of w.lzXT || []) if (!e.dead) out.push([Math.atan2(e.y - p.y, e.x - p.x), 1]);
   if (msMa(w, 'extra') === 'A1') for (let i = 0; i < 6; i++) out.push([G.t * 1.5 + i / 6 * TAU, 0.5]);
   return out;
@@ -139,6 +146,7 @@ function lzBeams(w) {
 // as a straight beam, and Internal Ricochet's bubble still holds it.
 const lzRings = w => { const r = msR(w, 'orbiting'), R = r >= 2 ? 100 : 72; return modCount(w, 'orbiting') >= 4 ? [[R, 1], [R * 0.6, -1]] : [[R, 1]]; };
 function lzOrbit(w, src, ramp, dry) {
+  LZC.pad = (lzGrow(w) - 1) * 12;
   const p = G.player, out = [], N = 48;
   let first = null;
   for (const [R, dir] of lzRings(w)) {
@@ -184,6 +192,7 @@ v10Fire = (orig => function (w, target, src) {
   const p = G.player, want = Math.atan2(target.y - p.y, target.x - p.x);
   if (w.lzA == null || !lzOnNow(w)) w.lzA = want; // (a fresh beam starts on the target; a held one sweeps: lzTick)
   else if (Math.abs(angDiff(want, w.lzA)) > LZ.sweepMax) { w.lzA = want; w.lzOffT = G.t + LZ.gap; } // (too far to sweep: off, then on again at the target)
+  if (!lzOnNow(w)) w.lzHeldS = G.t; // (Growing counts from when the beam came on)
   w.lzTgt = target; w.lzFireT = G.t;
   if (msR(w, 'orbiting')) { // the ring
     const pre = lzOrbit(w, src, w.lzPow || LZ.start, true), ramp = lzRamp(w, pre.first); w.lzPow = ramp;
@@ -205,7 +214,7 @@ v10Fire = (orig => function (w, target, src) {
     w.lzXT = [...front.sort(byD).slice(0, f), ...rear.sort(byD).slice(0, b)];
   }
   w.lzShotSegs = [];
-  for (const [a, k] of lzBeams(w)) { const st = lzShot(w, a, src, k, ramp, false); w.lzShotSegs.push(...st.out); if (k === 1 && a === w.lzA && st.first) w.lzOn = st.first; }
+  lzBeams(w).forEach(([a, k], i) => { const st = lzShot(w, a, src, k, ramp, false); w.lzShotSegs.push(...st.out); if (i === 0 && st.first) w.lzOn = st.first; });
   w.lzSegs = w.lzShotSegs;
   return true;
 })(v10Fire);
@@ -240,7 +249,7 @@ function lzDraw() {
     if (w.lzOffT > G.t) continue; // (switching to a target too far round to sweep to)
     const pw = w.lzPow || 1, glow = 0.55 + 0.45 * Math.min(1, Math.max(0, (pw - LZ.start) / (1 - LZ.start)));
     const pulse = pw > 1 ? 1 + 0.45 * Math.min(1, pw - 1) * (0.5 + 0.5 * Math.sin(G.t * 9)) : 1;
-    const c = col(w.def.sab ? w.def.color : LASER.col), base = Math.max(2.4, (w.s.width || 10) * 0.42);
+    const c = col(w.def.sab ? w.def.color : LASER.col), base = Math.max(2.4, (w.s.width || 10) * 0.42) * lzGrow(w);
     ctx.save(); ctx.lineCap = 'round';
     for (const s of w.lzSegs) {
       const x1 = sx(s.x1), y1 = sy(s.y1), x2 = sx(s.x2), y2 = sy(s.y2), wd = base * Math.max(0.4, Math.sqrt(Math.min(1, s.k))) * S;

@@ -70,6 +70,14 @@ const { chromium } = require('playwright');
     w = fresh(); G.terrain = G.terrain || { list: [], grid: new Map() }; G.terrain.list.push({ type: 'rock', def: { solid: true }, x: p().x + 80, y: p().y, r: 20 }); const behind = foe(200, 0); fire(w, behind, 0);
     out.rock = hurt(behind); if (hurt(behind) > 0) bad.push('the beam went through a solid obstacle');
     G.terrain.list.length = 0;
+    // 8. Sweep: the beam swings either side of its target
+    w = fresh(); for (let i = 0; i < 3; i++) modAdd(w, 'sweep'); computeStats(w); const sw = foe(200, 0); const angs = [];
+    for (let i = 0; i < 40; i++) { G.t += 0.05; fire(w, sw, 0); const q = segs()[0]; angs.push(Math.atan2(q.y2 - q.y1, q.x2 - q.x1)); }
+    out.sweep = +(Math.max(...angs) - Math.min(...angs)).toFixed(2); if (!(out.sweep > 1.2)) bad.push('Laser sweep ' + out.sweep);
+    // 9. Growing: a beam held 3 s is wider and catches an enemy just off its line
+    w = fresh(); for (let i = 0; i < 3; i++) modAdd(w, 'growing'); computeStats(w); const off = foe(150, 0); off.y = p().y + off.r + 6;
+    fire(w, off, 0); const fresh0 = hurt(off); w.lzHeldS = G.t - 3.1; fire(w, off, 0);
+    out.grow = [+lzGrow(w).toFixed(2), fresh0, hurt(off)]; if (!(lzGrow(w) > 1.9) || fresh0 > 0 || !(hurt(off) > 0)) bad.push('Laser growing ' + out.grow);
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);
