@@ -5,14 +5,6 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 ## v10.105: 2026-10-23 Full sperm passive list with branching masteries; targeting and autorun as passives; loot filters; Area modifier; piercing fixes; HOLD is manual
 - Merged: ccr-7c6adc60-uqv9g4.
 
-### Folded from ccr-7c6adc60-uqv9g4: 2026-10-23 Piercing and Ricochet together (merge build, v10.105)
-- Systems: weapons (modifiers)
-- Files: atkswap.js (modOk, mmHeld wrapped), tests/flightpairtest.js (new)
-- What: Piercing and Ricochet (both Flight) can now share a weapon; the second takes a slot of its own. Other Flight modifiers still one per weapon.
-- Save data: none.
-- Hooks: atkswap.js wraps modmatrix.js mmHeld.
-- Risk: pierce plus bounce stacking on projectile weapons (unsimmed).
-
 ### Folded from ccr-7c6adc60-uqv9g4: 2026-10-23 HOLD is fully manual (merge build, v10.105)
 - Systems: autorun
 - Files: spsteer.js (autoSteer wrapped; HOLD's description), tests/holdtest.js (new)
