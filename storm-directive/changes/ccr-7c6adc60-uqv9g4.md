@@ -1,3 +1,11 @@
+## 2026-10-23 Laser bounces lose damage and brightness by Bounce rank (v10.85)
+- Systems: weapons (Laser), fx
+- Files: laserbeam.js (LZ_KEEP, lzKeep; brightness follows segment power), tests/laserbeamtest.js
+- What: each Laser bounce keeps 35% of the power at Bounce Rank 1, 50% at Rank 2, 65% at Rank 3 and 80% at mastery (x0.6 more when Piercing splits it too); damage and the beam's brightness (glow, beam, core, hit spot) fall with it.
+- Save data: none.
+- Hooks: none new.
+- Risk: Bounce deals less than before at low ranks (was -20% a bounce).
+
 ## 2026-10-23 Laser bounce angle from the sperm head (v10.84)
 - Systems: weapons (Laser)
 - Files: laserbeam.js (lzHead, lzBounceDir), tests/laserbeamtest.js

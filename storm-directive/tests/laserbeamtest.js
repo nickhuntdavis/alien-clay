@@ -35,6 +35,9 @@ const { chromium } = require('playwright');
       w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0.5; const A2 = foe(150, 0), B = foe(s2.x1 + Math.cos(want) * 90 - p().x, s2.y1 + Math.sin(want) * 90 - p().y); fire(w, A2, 0);
       out.bounceHit = hurt(B); if (!(hurt(B) > 0)) bad.push('the bounce missed the enemy on its line');
     }
+    // 2a. Each bounce keeps less at Rank 1 than at Rank 3 (damage and brightness follow k)
+    const keepAt = r => { const ww = fresh(); for (let i = 0; i < r; i++) modAdd(ww, 'ricochet'); computeStats(ww); p().hd = 0.5; const e = foe(150, 0); fire(ww, e, 0); const q = segs(); return q[1] ? +(q[1].k / q[0].k).toFixed(2) : null; };
+    out.keep = [keepAt(1), keepAt(3)]; if (!(out.keep[0] < 0.4 && out.keep[1] > 0.6)) bad.push('bounce keep ' + out.keep);
     // 2b. Exactly in line with the head: no bounce; a little off: a bounce
     w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0; const H = foe(150, 0); fire(w, H, 0); const inLine = segs().length;
     w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0.15; const H2 = foe(150, 0); fire(w, H2, 0);

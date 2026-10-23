@@ -6,7 +6,7 @@
 //    water is seen 3 times as far (to the first thing in the way, hurting nothing there) and fades out.
 //  - BOUNCE (the renamed Ricochet modifier): at each enemy the beam reflects off the enemy's surface at the true angle
 //    set by the sperm head's angle against the beam (lzBounceDir); only a beam exactly in line with the head doesn't bounce
-//    of incidence, like a laser pointer off a mirrored ball (1 / 3 / 6 bounces, 12 at mastery; -20% each).
+//    of incidence, like a laser pointer off a mirrored ball (1 / 3 / 6 bounces, 12 at mastery; each keeps 35 / 50 / 65%, 80% at mastery: LZ_KEEP).
 //  - PIERCING (now fits beams): the beam carries on through 1 / 3 / 6 enemies (12 at mastery), -15% each.
 //    With Bounce as well, every enemy splits the beam: one part carries straight on, one reflects, each at half power.
 //  - INTERNAL RICOCHET (spslice.js sp_iric): while the membrane is up, the beam can't leave the bubble: it reflects
@@ -36,6 +36,9 @@ function lzBounceDir(dx, dy, delta) {
   const d = Math.max(-1.4, Math.min(1.4, delta)), na = Math.atan2(dy, dx) + Math.PI + d, c = Math.cos(d);
   return Math.atan2(dy + 2 * c * Math.sin(na), dx + 2 * c * Math.cos(na));
 }
+// What a bounce keeps (user, 23 Oct): a lot is lost at first, less with each Bounce rank (damage and brightness).
+const LZ_KEEP = [0.35, 0.5, 0.65, 0.8]; // (Rank 1, 2, 3, mastery)
+const lzKeep = (w, both) => LZ_KEEP[Math.max(0, Math.min(4, msR(w, 'ricochet')) - 1)] * (both ? 0.6 : 1);
 const lzIs = w => !!(w && w.def && typeof LASER !== 'undefined' && (w.id === LASER.id || w.def.name === LASER.name));
 const lzN = r => [0, 1, 3, 6, 12][Math.min(4, r || 0)];
 
@@ -98,7 +101,7 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   if (m.ob) { // a solid obstacle: reflect with Bounce, otherwise stop
     const ra = bounce > 0 ? lzBounceDir(dx, dy, st.delta) : null;
     if (ra == null) return; // (no Bounce, or exactly in line: it stops)
-    lzTrace(w, cx, cy, ra, Math.max(L - m.t, w.s.range * LZ.bounceL), k * 0.9, src, null, st, pierce, bounce - 1);
+    lzTrace(w, cx, cy, ra, Math.max(L - m.t, w.s.range * LZ.bounceL), k * lzKeep(w, false), src, null, st, pierce, bounce - 1);
     return;
   }
   const e = m.e; if (!e) return;
@@ -111,7 +114,7 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   }
   if (bounce > 0) { // reflect off its surface at the true angle (not when head-on)
     const ra = lzBounceDir(dx, dy, st.delta);
-    if (ra != null) lzTrace(w, cx, cy, ra, Math.max(rest, w.s.range * LZ.bounceL), k * (both ? 0.5 : 0.8), src, e, st, both ? pierce : 0, bounce - 1);
+    if (ra != null) lzTrace(w, cx, cy, ra, Math.max(rest, w.s.range * LZ.bounceL), k * lzKeep(w, both), src, e, st, both ? pierce : 0, bounce - 1);
   }
 }
 // One beam along angle a from you.
@@ -155,7 +158,7 @@ function lzOrbit(w, src, ramp, dry) {
       const both = pierce > 0 && bounce > 0, rest = (N - i) / N * TAU * R;
       if (bounce > 0) { // reflect off it and carry on as a straight beam
         st.delta = angDiff(lzHead(), a); const ra = lzBounceDir(Math.cos(a), Math.sin(a), st.delta);
-        if (ra != null) lzTrace(w, cx, cy, ra, w.s.range * LZ.bounceL, k * (both ? 0.5 : 0.8), src, m.e, st, both ? pierce : 0, bounce - 1);
+        if (ra != null) lzTrace(w, cx, cy, ra, w.s.range * LZ.bounceL, k * lzKeep(w, both), src, m.e, st, both ? pierce : 0, bounce - 1);
       }
       if (pierce > 0 && m.e) { // on round the ring, past it (the rest of this section too)
         pierce--; k *= both ? 0.5 : 0.85; passed.add(m.e);
@@ -243,13 +246,14 @@ function lzDraw() {
         const g = ctx.createLinearGradient(fx, fy, x2, y2); g.addColorStop(0, st); g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(x2, y2); ctx.stroke();
       };
-      line(wd * 5 * pulse, 0.16 * glow * pulse, c);  // (the glow)
-      line(wd * 1.6, 0.55 * glow, c);               // (the beam)
-      line(Math.max(1, wd * 0.45), 0.95, '#fff4f0'); // (the white-hot core)
+      const br = Math.pow(Math.min(1, s.k), 0.7); // (brightness falls with the power each bounce keeps)
+      line(wd * 5 * pulse, 0.16 * glow * pulse * br, c);  // (the glow)
+      line(wd * 1.6, 0.55 * glow * br, c);               // (the beam)
+      line(Math.max(1, wd * 0.45), 0.95 * Math.max(0.2, br), '#fff4f0'); // (the white-hot core)
       if (s.hit) { // where it lands
         const r = wd * 1.8 * pulse;
-        ctx.globalAlpha = 0.35 * glow * pulse; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x2, y2, r * 1.6, 0, TAU); ctx.fill();
-        ctx.globalAlpha = 0.9; ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x2, y2, Math.max(1.2, r * 0.45), 0, TAU); ctx.fill();
+        ctx.globalAlpha = 0.35 * glow * pulse * br; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x2, y2, r * 1.6, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 0.9 * Math.max(0.2, br); ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x2, y2, Math.max(1.2, r * 0.45), 0, TAU); ctx.fill();
       }
     }
     ctx.restore();
