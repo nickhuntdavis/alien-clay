@@ -1,3 +1,11 @@
+## 2026-10-23 Rewind off (v10.109)
+- Systems: chrono (rewind), ui (HUD)
+- Files: norewind.js (new), index.html, tests/rewindtest.js (checks it is off; NOREWIND.on = false for the old mechanic)
+- What: Rewind is off in v10 runs: no charges, no button, and dying is final. Its Paradox Echo had done half of a Sandbox run's damage from one rewind.
+- Save data: none.
+- Hooks: none in shared files. Wraps td.js startRewind and gainChrono.
+- Risk: runs are harder (no second chance on death); win rate unsimmed.
+
 ## 2026-10-23 The Race's upgrade schedule (v10.108)
 - Systems: rewards (Reward Director), race, draft
 - Files: raceplan.js (new), index.html, tests/raceplantest.js (new), tests/drafttest.js (RPLAN.off for the Director's stacking check)

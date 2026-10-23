@@ -5,6 +5,8 @@ const { chromium } = require('playwright');
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(400);
   const r = await page.evaluate(() => {
+    const offBad = []; { UI.sample = 's001'; newGame(); G.state = 'play'; G.chrono.charges = 3; for (let i = 0; i < 40; i++) update(1 / 30); if (startRewind(false) !== false) offBad.push('rewind is on in v10'); } // (off by default: norewind.js)
+    NOREWIND.on = false; // (the rest tests the old mechanic)
     META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; META.tutWave = 1;
     const step = () => {
       if (G.state === 'play') { if (G.lootQueue.length && !waveHoldsLoot()) UI.openLoot(G.lootQueue.shift()); else update(1 / 30); }
@@ -33,11 +35,13 @@ const { chromium } = require('playwright');
     for (let f = 0; f < 30 * 60; f++) step();
     out.courtN = (G.court || []).length;
     out.courtOk = (G.court || []).every(g => G.enemies.includes(g));
+    out.offBad = offBad; NOREWIND.on = true;
     return out;
   });
   console.log(JSON.stringify(r));
   const bad = [];
   if (!r.hadJunk && !r.v10) bad.push('no junk carrier'); /* (v10: junk DNA is off) */ if (!r.rw1 || !r.rw2) bad.push('rewind did not start');
+  if (r.offBad && r.offBad.length) bad.push(...r.offBad);
   if (!r.junkOk) bad.push('junkE is a ghost'); if (!r.courtN || !r.courtOk) bad.push('court ghosts');
   if (bad.length) console.log('FAIL', bad.join(','));
   console.log('ERRORS:', errors.length ? errors.slice(0, 3) : 'none'); await b.close();
