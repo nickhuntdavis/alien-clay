@@ -11,6 +11,8 @@
 //    Mines and Ranged are not (N/A cells). Homing on Nappy Mines exists only beside Ricochet (no slot limits setting).
 //  - SWITCHED AT BIRTH: two alternates each (user, 23 Oct): Nappy Mines Acid or Mucus, Bubbles Acid or Static; the card
 //    deals one of the two. The ranked "Alternating" mastery is not built (Switched at Birth has no ranks).
+//  - BUBBLES INFLATE before they are sent, on every bubble weapon (xcInflate). Melee's bubble round you is not the
+//    Membrane: touched, it pops in a Force explosion, then grows back from tiny (3 s; 2 s from Lv 2).
 //  - Card text: TODO_COPY:cell_nm_<modifier> and TODO_COPY:cell_bb_<modifier> (one per cell; the user writes it).
 // Hooks: one line in toys.js bubblePop (a switched bubble pops in its new type). Wraps modOk, modAdd, modCard, sabCard,
 // wupStats/wupFire/wupHit/wupKill/wupTick/wupDmgMul, msStats/msFire/msDmgMul/msHit/msKill/msTick (modslice.js),
@@ -482,7 +484,7 @@ function xcTag(b) {
   const w = b.w, R = id => xcR(w, id);
   if (b.e) return;
   if (R('rapid') && !b.xcNoSplit) { // a mixed string: big and small, about half of them pushers that block and shove
-    b.r *= rand(0.6, 1.5);
+    if (!b.xcSized) b.r *= rand(0.6, 1.5);
     if (Math.random() < 0.5) { b.dead = true; xcS().push.push({ x: b.x, y: b.y, vx: b.vx, vy: b.vy, r: b.r, life: 2.6, w }); return; }
   }
   if (R('charged')) b.xcPress = 1; // Pressurised
@@ -615,8 +617,34 @@ function xcOnTrap(b) {
   if (R('primer') && !(e.mwPr && e.mwPr.t > G.t)) e.mwPr = { w, t: G.t + b.life, by: new Set(), steps: 0 }; // Gift wrap
   if (R('piercing') >= 4 && !(b.extra && b.extra.length)) { const t = xcTrappable(w, b.x, b.y, b.r + 20, [e]); if (t) { b.extra = [t]; t.bubT = e.bubT; t.kx = t.ky = 0; } }
 }
+// Every bubble inflates before it is sent (user, 23 Oct): it grows from nothing on your nose (or the machine's nozzle, or
+// its spot in the rain), then leaves. Inflating bubbles sit out of the tick: they can't trap or pop yet.
+function xcInflate(dt) {
+  const T = TOYS(), p = G.player, out = [];
+  T.bubbles = T.bubbles.filter(b => {
+    if (b.dead || b.e || b.xcInfDone) return true;
+    let I = b.xcInf;
+    if (!I) {
+      I = b.xcInf = { t: 0, max: b.xcBig ? 0.6 : 0.25, r: b.r, vx: b.vx, vy: b.vy }; // (Big breath: a longer inhale)
+      if (b.w && xcIs(b.w, 'bb') && xcR(b.w, 'rapid') && !b.xcNoSplit) { I.r *= rand(0.6, 1.5); b.xcSized = 1; } // (Rapid Fire's mixed sizes)
+    }
+    I.t += dt; const k = Math.min(1, I.t / I.max);
+    b.r = Math.max(2, I.r * k); b.vx = b.vy = 0;
+    if (b.xcAnchor) { b.x = b.xcAnchor.x; b.y = b.xcAnchor.y; }
+    else { const a = Math.atan2(I.vy, I.vx); b.x = p.x + Math.cos(a) * (p.r + b.r); b.y = p.y + Math.sin(a) * (p.r + b.r); }
+    if (k < 1) { out.push(b); return false; }
+    b.xcInfDone = 1; b.vx = I.vx; b.vy = I.vy; b.r = I.r;
+    return true;
+  });
+  return out;
+}
 bubbleTick = (orig => function (dt) {
-  if (!G || !G.weapons.some(w => w && xcIs(w, 'bb') && xcAny(w))) return orig(dt);
+  if (!G) return orig(dt);
+  const infl = xcInflate(dt);
+  try { xcBubbleTick(orig, dt); } finally { TOYS().bubbles.push(...infl); }
+})(bubbleTick);
+function xcBubbleTick(orig, dt) {
+  if (!G.weapons.some(w => w && xcIs(w, 'bb') && xcAny(w))) return orig(dt);
   const T = TOYS(), own = [], keep = [], saved = new Map();
   for (const b of T.bubbles) {
     if (!b.dead && b.w && xcIs(b.w, 'bb') && xcAny(b.w)) {
@@ -634,7 +662,7 @@ bubbleTick = (orig => function (dt) {
   try { orig(dt); } finally { if (unpop) G.ebul = eb; }
   for (const b of own) if (!b.dead) TOYS().bubbles.push(b);
   xcHeld(saved, dt);
-})(bubbleTick);
+}
 bubbleSoak = (orig => function (b, d) {
   const w = b && b.w;
   if (w && b.e && xcIs(w, 'bb')) {
@@ -708,18 +736,17 @@ function xcBbTick(w, dt) {
   const R = id => xcR(w, id), p = G.player, S = xcS(), s = w.s;
   // Melee: a bubble round you; touched, it pops (and from Lv 3 it eats shots first)
   if (R('melee')) {
-    const r = R('melee'), Sh = w.xcSh || (w.xcSh = { up: true, t: 0, abs: 0 }), rad = p.r + 26;
-    if (!Sh.up && G.t >= Sh.t) { Sh.up = true; Sh.abs = xcLv([0, 0, 1, 3], r); }
+    const r = R('melee'), Sh = w.xcSh || (w.xcSh = { up: true, g: 1, abs: xcLv([0, 0, 1, 3], r) }), rad = p.r + 26;
+    if (!Sh.up) { Sh.g = Math.min(1, Sh.g + dt / (r >= 2 ? 2 : 3)); if (Sh.g >= 1) { Sh.up = true; Sh.abs = xcLv([0, 0, 1, 3], r); } } // (it grows back from tiny)
     if (Sh.up) {
       let pop = null;
       const o = xcFoe(p.x, p.y, rad); if (o) pop = o;
       if (!pop && r >= 3) for (const q of G.ebul) if (!q.dead && Math.hypot(q.x - p.x, q.y - p.y) < rad + q.r) { q.dead = true; Sh.abs--; if (Sh.abs <= 0) { pop = 'shot'; break; } }
       if (pop) {
-        const R2 = 80 * xcArea(w);
-        forNear(p.x, p.y, R2, e => { if (!e.charmed) damageEnemy(e, s.dmg * 2.2, toySrc(w, 'Bubble pop', { knock: 140, kx: e.x - p.x, ky: e.y - p.y })); });
-        ring(p.x, p.y, R2, w.def.color, 0.3, 3); fxParts('bubble', p.x, p.y, w.def.color, 8, 90, 0.5, 3);
+        aoe(p.x, p.y, 80, s.dmg * 2.2, toySrc(w, 'Bubble pop', { elem: 'phys', knock: 180 }), V10_COL.phys); // a Force explosion (aoe adds Area itself)
+        fxParts('bubble', p.x, p.y, w.def.color, 8, 90, 0.5, 3);
         if (r >= 4 && pop !== 'shot' && xcCanTrap(w, null, pop)) xcTrap(w, pop);
-        Sh.up = false; Sh.t = G.t + (r >= 2 ? 2 : 3);
+        Sh.up = false; Sh.g = 0;
       }
     }
   } else w.xcSh = null;
@@ -764,7 +791,7 @@ function xcBbShared(dt) { // pushers, machines, rain and gum (lists shared by ev
     for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - q.x, b.y - q.y) < q.r + b.r) b.dead = true;
     if (xcR(q.w, 'rapid') >= 4) for (const o of S.push) { // two pushers that touch merge into one that traps larger enemies
       if (o === q || o.life <= 0 || q.life <= 0 || o.w !== q.w || Math.hypot(o.x - q.x, o.y - q.y) > q.r + o.r) continue;
-      xcBlow(q.w, (q.x + o.x) / 2, (q.y + o.y) / 2, Math.atan2(q.vy + o.vy, q.vx + o.vx), { spK: 0.3, r: Math.hypot(q.r, o.r), xcHoldK: 1.6, xcNoSplit: 1 });
+      xcBlow(q.w, (q.x + o.x) / 2, (q.y + o.y) / 2, Math.atan2(q.vy + o.vy, q.vx + o.vx), { spK: 0.3, r: Math.hypot(q.r, o.r), xcHoldK: 1.6, xcNoSplit: 1, xcInfDone: 1 });
       q.life = o.life = 0;
     }
     if (q.life <= 0) fxParts('bubble', q.x, q.y, q.w.def.color, 3, 50, 0.3, 2);
@@ -776,7 +803,7 @@ function xcBbShared(dt) { // pushers, machines, rain and gum (lists shared by ev
     const r = xcR(m.w, 'mines'); m.next = G.t + (r >= 3 ? 1 : 1.5);
     const t = xcTrappable(m.w, m.x, m.y, 350) || xcFoe(m.x, m.y, 350); if (!t) continue;
     const a = Math.atan2(t.y - m.y, t.x - m.x);
-    for (let i = 0; i < (r >= 4 ? 2 : 1); i++) xcBlow(m.w, m.x, m.y, a + i * 0.25);
+    for (let i = 0; i < (r >= 4 ? 2 : 1); i++) xcBlow(m.w, m.x, m.y, a + i * 0.25, { xcAnchor: { x: m.x + Math.cos(a + i * 0.25) * 12, y: m.y + Math.sin(a + i * 0.25) * 12 } });
   }
   S.mach = S.mach.filter(m => m.end > 0);
   for (const q of S.rain) { // Bubble rain
@@ -784,8 +811,8 @@ function xcBbShared(dt) { // pushers, machines, rain and gum (lists shared by ev
     if (xcR(q.w, 'dfa') >= 4) { const c = acquire('cluster', q.w.s.range || 380, G.player.x, G.player.y); if (c) { q.x += (c.x - q.x) * Math.min(1, 1.5 * dt); q.y += (c.y - q.y) * Math.min(1, 1.5 * dt); } }
     if (q.next > G.t) continue;
     q.next = G.t + 0.12;
-    const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * q.r;
-    xcBlow(q.w, q.x + Math.cos(a) * d, q.y + Math.sin(a) * d, Math.random() * TAU, { spK: 0.05, life: 0.6, r: q.w.s.size * 0.7 });
+    const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * q.r, x = q.x + Math.cos(a) * d, y = q.y + Math.sin(a) * d;
+    xcBlow(q.w, x, y, Math.random() * TAU, { spK: 0.05, life: 0.6, r: q.w.s.size * 0.7, xcAnchor: { x, y } });
   }
   S.rain = S.rain.filter(q => q.end > 0);
   for (const g of S.gum) forNear(g.x, g.y, g.r, o => { if (!o.charmed && !(o.xcGumT > G.t)) { msSnare(o, 1); o.xcGumT = G.t + 1.5; } }); // Gum bubble
@@ -859,7 +886,7 @@ modDraw = (orig => function () {
     }
     if (w.xcWires) { ctx.globalAlpha = 0.6; ctx.strokeStyle = c; ctx.setLineDash([4 * S, 4 * S]); for (const [a, b] of w.xcWires) { if (a.dead || b.dead) continue; ctx.beginPath(); ctx.moveTo(sx(a.x), sy(a.y)); ctx.lineTo(sx(b.x), sy(b.y)); ctx.stroke(); } ctx.setLineDash([]); } // tripwires
     if (xcIs(w, 'nm') && xcR(w, 'charged')) for (const q of G.proj) if (q.mine && !q.dead && q.w === w) { const k = xcRipe(q) - 1; if (k > 0.05) { ctx.globalAlpha = 0.25 + 0.35 * k / 1.8; ctx.strokeStyle = c; ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), (9 + 6 * k) * S, 0, TAU); ctx.stroke(); } } // ripening
-    if (w.xcSh && w.xcSh.up) { const r = (p.r + 26) * S; ctx.globalAlpha = 0.18; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), r, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.7; ctx.strokeStyle = c; ctx.stroke(); } // the bubble round you
+    if (w.xcSh && w.xcSh.g > 0.02) { const r = (p.r + 26) * Math.max(0.05, w.xcSh.g) * S, a = w.xcSh.up ? 1 : 0.6; ctx.globalAlpha = 0.18 * a; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), r, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.7 * a; ctx.strokeStyle = c; ctx.stroke(); } // the bubble round you (growing back after a pop)
   }
   if (G.xcS) {
     const X = G.xcS;

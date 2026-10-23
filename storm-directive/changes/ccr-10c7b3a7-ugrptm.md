@@ -1,3 +1,11 @@
+## 2026-10-23 Bubbles inflate before they leave; the melee bubble is its own thing
+- Systems: weapons, modifiers, tests
+- Files: cellmods.js, tests/celltest.js, redesign docs/MODIFIER_MATRIX.md
+- What: every bubble (Blowing Bubbles with or without modifiers, the Bubble machine and Bubble rain) grows from nothing before it is sent (0.25 s; Big breath 0.6 s) and can't trap or pop until it leaves. Melee on Bubbles: the bubble round you pops in a Force explosion on contact, then grows back from tiny (3 s, 2 s from Lv 2); it is not the Membrane and stacks with it.
+- Save data: none.
+- Hooks: none.
+- Risk: Blowing Bubbles fires a little later than before (every bubble waits 0.25 s); celltest now counts every hit and gives bubble cells 8 s.
+
 ## 2026-10-23 Weapon cells for Nappy Mines and Blowing Bubbles
 - Systems: modifiers, weapons, tests, docs
 - Files: cellmods.js (new), toys.js, index.html, tests/celltest.js (new), tests/run.sh, redesign docs/MODIFIER_MATRIX.md

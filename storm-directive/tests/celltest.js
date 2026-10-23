@@ -8,7 +8,8 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); META.seen = META.seen || {}; for (const id in ENEMY_INTRO) META.seen[id] = 1; }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
-    const bad = [], out = { dmg: {} };
+    const bad = [], out = { dmg: {} }, DMG = { n: 0 };
+    damageEnemy = (orig => function (e, d, s) { if (s && s.w && G.weapons.includes(s.w) && !e.charmed) DMG.n += d || 0; return orig.apply(this, arguments); })(damageEnemy); // (every hit counts, even on enemies that die)
     const fresh = id => { META.profile = 's10_ordered'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.P.maxHp = G.player.hp = 1e6; for (let i = 0; i < G.weapons.length; i++) G.weapons[i] = null; const w = G.weapons[0] = makeSlot(id, false, 3); computeStats(w); return w; };
     const foe = (dx, dy, big) => { const p = G.player, e = makeEnemy(ENEMIES.crawler, p.x + dx, p.y + dy, {}); e.speed = 40; e.hp = e.maxHp = 400; if (big) e.r = 40; G.enemies.push(e); return e; };
     const crowd = () => { for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2, d = 70 + (i % 4) * 50; foe(Math.cos(a) * d, Math.sin(a) * d, i % 5 === 0); } };
@@ -27,20 +28,27 @@ const { chromium } = require('playwright');
     // 2. Every cell at Lv 1 and at mastery
     for (const id of ['s_mines', 's_bubble']) for (const m of XC_W[id].cells) for (const n of [1, 4]) {
       w = fresh(id); w.m10 = Array(n).fill(m); computeStats(w); crowd();
-      const hp0 = () => G.enemies.reduce((s, e) => s + (e.charmed ? 0 : e.maxHp - Math.max(0, e.hp)), 0);
-      const k = id.slice(2) + ':' + m + n;
-      try { run(5); } catch (err) { bad.push('error in ' + k + ': ' + err.message + ' ' + (err.stack || '').split('\n')[1]); continue; }
-      out.dmg[k] = Math.round(hp0() + (G.stats.kills || 0));
+      DMG.n = 0;
+      const k = id.slice(2) + ':' + m + n;  // (bubbles deal damage when they pop, often only once the 5 s hold ends)
+      try { run(id === 's_bubble' ? 8 : 5); } catch (err) { bad.push('error in ' + k + ': ' + err.message + ' ' + (err.stack || '').split('\n')[1]); continue; }
+      out.dmg[k] = Math.round(DMG.n);
       if (!(out.dmg[k] > 0)) bad.push('no damage ' + k);
     }
     // 3. Behaviours
-    w = fresh('s_mines'); w.m10 = ['nth', 'nth']; computeStats(w); crowd(); run(4); // Loaded nappy: bigger patches
-    out.loaded = Math.max(0, ...G.zones.filter(z => z.xcNm === w).map(z => Math.round(z.r)));
+    w = fresh('s_mines'); w.m10 = ['nth', 'nth']; computeStats(w); crowd(); out.loaded = 0; // Loaded nappy: bigger patches
+    for (let i = 0; i < 6 * 60; i++) { run(1 / 60); out.loaded = Math.max(out.loaded, ...G.zones.filter(z => z.xcNm === w).map(z => Math.round(z.r))); }
     if (!(out.loaded > 60)) bad.push('loaded patch ' + out.loaded);
     w = fresh('s_mines'); w.m10 = ['ricochet']; computeStats(w); foe(150, 0); xcNmFire(w); const mine = G.proj.find(q => q.mine && q.w === w);
     out.slide = !!(mine && mine.xcSlide); if (!out.slide) bad.push('ricochet mine does not slide');
     w = fresh('s_bubble'); w.m10 = ['melee']; computeStats(w); update(1 / 60); out.shield = !!(w.xcSh && w.xcSh.up); if (!out.shield) bad.push('no bubble round you');
     w = fresh('s_bubble'); w.m10 = ['mines']; computeStats(w); crowd(); run(1); out.machines = xcS().mach.length; if (!(out.machines >= 1)) bad.push('no bubble machine');
+    w = fresh('s_bubble'); foe(200, 0); bubbleFire(w, G.enemies[0]); update(1 / 60); update(1 / 60); // every bubble inflates first
+    const ib = TOYS().bubbles.find(q => q.w === w); out.inflate = ib ? [Math.round(ib.r), Math.round(ib.xcInf ? ib.xcInf.r : 0)] : null;
+    if (!(ib && ib.xcInf && ib.r < ib.xcInf.r * 0.5)) bad.push('bubble not inflating ' + out.inflate);
+    for (let i = 0; i < 30; i++) update(1 / 60); out.sent = !!(ib && ib.xcInfDone && Math.hypot(ib.vx, ib.vy) > 0); if (!out.sent) bad.push('bubble never sent');
+    w = fresh('s_bubble'); w.m10 = ['melee']; computeStats(w); update(1 / 60); const e9 = foe(10, 0); e9.speed = 0; update(1 / 60); update(1 / 60); // the bubble round you pops, then grows back
+    out.melee = [w.xcSh.up, +w.xcSh.g.toFixed(2), Math.round(e9.maxHp - e9.hp)];
+    if (w.xcSh.up || !(w.xcSh.g < 0.2) || !(e9.hp < e9.maxHp)) bad.push('melee bubble ' + out.melee);
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

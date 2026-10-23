@@ -699,7 +699,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | Orbit twin: the twin circles you at 70, sweeping the beam round you like a blade. | Orbit 30% faster. | Orbit radius 90. | Two twins orbit on opposite sides. |
 | Unwanted Contact | Bad touch: any enemy that touches you is zapped and starts a 3-jump chain. | 4 jumps. | Zapped enemies are thrown off you. | Bad touch Charges every enemy within 80 of you once a second. |
 | Ewww, Gross | Tape slap: slaps tape on the nearest enemy within 60, taping it to up to 4 neighbours. | 5 neighbours. | Tape lasts 7 s. | Taped bundles stick to you and are dragged along (up to 1). |
-| Blowing Bubbles | Defensive bubble: the sperm sits in a bubble, like the Membrane but drawn as a bubble; an enemy touching it pops it for the weapon's damage; it reforms after 3 s. | Reforms after 2 s. | It absorbs 1 enemy projectile before popping. | It absorbs 3 projectiles, and the pop traps the enemy that popped it, if it is small. |
+| Blowing Bubbles | Defensive bubble: the sperm sits in a bubble (not the Membrane: user, 23 Oct); an enemy touching it pops it in a Force explosion; it then grows back from tiny over 3 s. | Grows back in 2 s. | It absorbs 1 enemy projectile before popping. | It absorbs 3 projectiles, and the pop traps the enemy that popped it, if it is small. |
 | One of These Days | Tick tock: every enemy that touches you gets a 4 s countdown. | Repeats 50%. | Countdowns 3 s. | Touch countdowns pay out on everything within 60 of the target. |
 | Sister Cousin | Clingy siblings: siblings stay within 80 and peck any enemy that comes close; kills still split. | 3 siblings. | Pecks Bleed. | Split siblings also stay close: a kill-heavy fight builds a swarm round you (cap 12). |
 | Peekaboo | Behind you!: you vanish and reappear behind the nearest enemy, BOOing in radius 80 at double damage. | Radius 100. | Its Fear lasts twice as long. | You reappear behind the toughest enemy instead. |
@@ -1074,7 +1074,8 @@ Nappy Mines' cells were redesigned with the user on 23 Oct and are built in `cel
 ### 5.6 Blowing Bubbles specials (user, 23 Oct)
 Blowing Bubbles' cells were redesigned with the user on 23 Oct and are built in `cellmods.js` (except Switched at Birth's mastery); Exploding Rounds (kept, plus Bubble grenade), Extra Projectiles and Orbiting stayed as written. Ranged stays N/A.
 - **Area** (`areamod.js`): keeps +25% pop radius a rank, and adds **Bigger bubbles** (bubbles are bigger, easier to land, and trap +10 max health a rank) and **Bubble cloud** (each pop leaves a mist of fine bubbles that pops again 1 s later at half damage).
-- **Melee** is now a defence (a bubble round you, Membrane-like), so it should not stack with Membrane Shield; to decide when built.
+- **Melee** is a bubble round you, not the Membrane (user, 23 Oct): it pops in a Force explosion on contact, then grows back from tiny to full size. It stacks with Membrane Shield.
+- **Every bubble inflates before it is sent** (user, 23 Oct): it grows from nothing on your nose (or the Bubble machine's nozzle, or its spot in the rain) in 0.25 s (Big breath: 0.6 s), then leaves. This applies to Blowing Bubbles with or without modifiers.
 
 ## 6. Moved to sperm passives
 
