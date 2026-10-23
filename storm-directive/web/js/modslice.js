@@ -247,7 +247,7 @@ function msDmgMul(e, src) {
       F.e = e; F.s = G.t - old * keep * 5; F.pass = 0;
     }
     F.last = G.t;
-    k *= 1 + msFocusRamp(w);
+    if (!(typeof lzOwnFocus === 'function' && lzOwnFocus(w))) k *= 1 + msFocusRamp(w); // (the Laser ramps its own way: laserbeam.js)
     if (msMa(w, 'focus') === 'B1' && msFocusFull(w)) e.msMark = G.t + 30;
   }
   // Spotlight: your other weapons share the focused enemy's ramp

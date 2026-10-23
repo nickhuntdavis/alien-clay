@@ -1,3 +1,11 @@
+## 2026-10-23 The Laser fires like a laser; Ricochet renamed Bounce (v10.76)
+- Systems: weapons (Laser, modifiers), defences (Internal Ricochet)
+- Files: laserbeam.js (new), modslice.js (Focused Intensity skips its multiplier on the Laser), index.html, tests/laserbeamtest.js (new), run.sh
+- What: the Laser is a traced ray: it stops at the first enemy (no pierce by default) and its aim swings towards the target. Bounce (was Ricochet) reflects it off the enemy's surface at the true angle; Piercing (now fits beams) carries it through; both split it into a straight and a bounced part at half power each. With Internal Ricochet and the membrane up the beam reflects round the inside of the bubble (14 reflections) and never leaves it. Its damage starts at 45% and ramps to 160% over 2.2 s on one target; Focused Intensity ramps it faster and higher.
+- Save data: none.
+- Hooks: none in shared files. Wraps v10.js v10Fire (outermost, Laser only).
+- Risk: the Laser's damage curve changed (weaker on fast target switches); with Internal Ricochet the Laser only hits what touches the bubble.
+
 ## 2026-10-23 The other 13 weapon modifiers; every modifier on a level-up with no slot limits (v10.75)
 - Systems: weapons (modifiers), chemistry (Kinship fill, Primer), ui (fork screens)
 - Files: modwide.js (new), index.html, tests/widetest.js (new), run.sh
