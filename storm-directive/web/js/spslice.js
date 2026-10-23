@@ -143,12 +143,13 @@ wupDmgMul = (orig => function (e, src) { // Attract mastery: close enemies take 
 // spassives.js spSkip -> sliceSkip, pdef.js pdefOffer (wrapped).
 const SLICE = {
   on: true,
-  mods: ['extra', 'orbiting', 'ricochet', 'homing', 'sticky', 'connecting', 'focus', 'rapid', 'catalyst'], // (+ Switched at Birth)
+  mods: ['extra', 'orbiting', 'ricochet', 'piercing', 'homing', 'sticky', 'connecting', 'focus', 'rapid', 'catalyst'], // (+ Switched at Birth)
   muts: ['sp_runs', 'm_slip', 'sp_fever', 'sp_extra', 'sp_space', 'sp_iric'],
   defs: ['latex', 'thick', 'fast'],
   force: false, // (tests and sims set window.TUT_OFF and get the full pool unless this is true)
 };
-const sliceOn = () => SLICE.on && (!(typeof window !== 'undefined' && window.TUT_OFF) || SLICE.force);
+const sliceOn = () => SLICE.on && !(typeof mmFree === 'function' && mmFree()) && ( // (no slot limits shows everything)
+  !(typeof window !== 'undefined' && window.TUT_OFF) || SLICE.force);
 const sliceSkip = c => sliceOn() && !(c.family || '').startsWith('feat:') && !SLICE.muts.includes(c.id);
 modOk = (orig => function (w, id) { return (!sliceOn() || SLICE.mods.includes(id)) && orig(w, id); })(modOk);
 pdefOffer = (orig => function (k) { return sliceOn() ? orig(99).filter(x => SLICE.defs.includes(x.defence)).slice(0, Math.max(0, k)) : orig(k); })(pdefOffer);

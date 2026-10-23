@@ -1,3 +1,11 @@
+## 2026-10-23 Laser always red; no limits shows every modifier; plain copy for placeholders (v10.77)
+- Systems: weapons (Laser colour), draft (slice-only), copy
+- Files: laserbeam.js (colour pinned), spslice.js (sliceOn off under no limits; Piercing in the slice), slicecopy.js (new), index.html
+- What: every form of the Laser (rings, mines, strikes, melee arcs, links, bursts) is red unless Switched at Birth changes its type. With no slot limits, slice-only drafting is off, so every modifier is offered. First-pass plain copy (written at the user's request) fills every TODO_COPY placeholder: modifiers, branches, masteries, sperm passives, the Laser, the setting, race rescue and v9 sample lines (SLICE_COPY in slicecopy.js; the user can rewrite there).
+- Save data: none.
+- Hooks: none in shared files. slicecopy.js wraps modCard, forkCards, banner, makePickup, UI.renderArmoury; loads last.
+- Risk: none.
+
 ## 2026-10-23 The Laser fires like a laser; Ricochet renamed Bounce (v10.76)
 - Systems: weapons (Laser, modifiers), defences (Internal Ricochet)
 - Files: laserbeam.js (new), modslice.js (Focused Intensity skips its multiplier on the Laser), index.html, tests/laserbeamtest.js (new), run.sh

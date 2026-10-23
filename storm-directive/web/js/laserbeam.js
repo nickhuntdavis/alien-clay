@@ -20,6 +20,9 @@ const LZ = { start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, 
 MODS10.ricochet.name = 'Bounce';
 if (!MODS10.piercing.atk.includes('beam')) MODS10.piercing.atk.push('beam');
 
+// Red in every form (rings, mines, strikes, links, bursts all read w.def.color): later colour passes set the Fire colour
+// on the shared def, so its colour is pinned. A Switched at Birth def (modcards.js sabSwitch) has its own colour.
+{ const d = WEAPONS[LASER.id]; if (d) Object.defineProperty(d, 'color', { get: () => LASER.col, set: () => {}, configurable: true, enumerable: true }); }
 const lzIs = w => !!(w && w.def && typeof LASER !== 'undefined' && (w.id === LASER.id || w.def.name === LASER.name));
 const lzN = r => [0, 1, 3, 6, 12][Math.min(4, r || 0)];
 
