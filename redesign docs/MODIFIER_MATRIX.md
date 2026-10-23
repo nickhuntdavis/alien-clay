@@ -44,6 +44,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 5. **The Runs removed:** `BASE_WEAPONS.md` roster, Redtail's starters (`SAMPLES.md`) and references need updating; Redtail now has two starters.
 6. **Laser added:** it needs a `BASE_WEAPONS.md` entry and start stats. It is Ordered Online's **4th starter** (user, 22 Oct; every other sample has 3), and its types are Mucus / Acid while the Laser is Fire (open issue 6 there).
 7. **Ricochet** here bounces off enemies at the true reflection angle; `MODIFIERS.md` 4 has it bouncing off walls only. That row needs updating.
+8. **Nappy Mines has two Switched at Birth alternates** (Acid and Mucus, user, 23 Oct), against rule 15's one fixed alternate. `MM_SAB` in `modmatrix.js` holds one type per weapon, so building it needs a branch choice there.
 
 ## 2. Weapons (quick reference)
 
@@ -152,7 +153,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Hole rate; smaller holes (3-well cap stays). | Small holes merge twice as easily. |
 | Skill Issue | Lob rate; smaller dollops. | A dollop landing on a flying enemy sends it flying again. |
 | There Is No Spoon | Return rate. | Returned bullets fire in pairs. |
-| Nappy Mines | Mine rate; smaller mines. | Mines dropped within 40 of each other fuse into a bigger mine. |
+| Nappy Mines | Breadcrumbs: mine rate, smaller mines, dropped as a tight trail behind you instead of a scatter, so anything following you walks the whole trail. | Mines dropped within 40 of each other fuse into a bigger mine. |
 | Soulmate Signal | The beam pulses instead of holding. | Each pulse arcs once to a Charged enemy off the beam. |
 | Unwanted Contact | Rate. | Chains that cross each other both gain a jump. |
 | Ewww, Gross | Rate; tape lasts 3 s instead of 5. | Stamps on a taped enemy extend its tape. |
@@ -191,7 +192,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Hole radius and pull (0.8 s). | A charged hole counts as 2 for merging. |
 | Skill Issue | Launch distance. | The collision chain goes one step deeper (depth 3). |
 | There Is No Spoon | Holds returns until the store is full, then fires them all as one volley; volley damage scales. | The volley fires as a ring round you. |
-| Nappy Mines | Blast and patch size (0.4 s per mine). | Charged mines count double towards the Nuclear Nappy. |
+| Nappy Mines | Ripening (no wind-up): an unused mine gains blast and patch size while it sits, +10% a second up to +60 / +120 / +180%. | Ripe mines (at the cap) count double towards the Nuclear Nappy. |
 | Soulmate Signal | Beam width for 1 s after each re-anchor. | Charged re-anchors arc 5 jumps instead of 3. |
 | Unwanted Contact | Starting jumps (+1 / 3 / 6, the count ramp); falloff 80%. | A charged chain has no falloff. |
 | Ewww, Gross | Neighbours taped (+1 / 3 / 6). | Charged tape shares 50% instead of 35%. |
@@ -230,7 +231,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Force reactions. | Each reaction inside the well grows its radius 10%. |
 | Skill Issue | Force reactions; collisions count as Force hits. | Collisions set off the reaction between the two enemies' statuses. |
 | There Is No Spoon | Bars and reactions of returned bullets. | Returned bullets react with the shooter's own damage type. |
-| Nappy Mines | Burn; its reactions. | Burning patches count as Fire hits for reactions. |
+| Nappy Mines | Burn; its reactions. Hot nappy: Burn spreads from a burning enemy to any enemy touching it. | Burning patches count as Fire hits for reactions. |
 | Soulmate Signal | Charge; its reactions. | Arcs from the beam set off Static reactions. |
 | Unwanted Contact | Charge; its reactions. | Each chain jump can set off a reaction. |
 | Ewww, Gross | Snare; its reactions. | A reaction on one taped enemy repeats on the bundle as echo damage (12.1). |
@@ -269,7 +270,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Force | The well bends your shots twice as hard. |
 | Skill Issue | Force | The collision chain goes one step deeper. |
 | There Is No Spoon | Force, and each returned bullet counts its own type's kin | Returned bullets gain +8% per weapon you carry of their type. |
-| Nappy Mines | Fire | Every blast leaves a full-size burning patch. |
+| Nappy Mines | Fire. Family gathering: a hit from your other Fire weapons sets a mine off at +30%, and a Hot Mess pool touching a mine sets it off. | Shared heat: mine patches and Hot Mess pools that touch merge into one bigger patch that burns as long as the longest. |
 | Soulmate Signal | Static | The beam arcs 5 jumps. |
 | Unwanted Contact | Static | Chains have no falloff. |
 | Ewww, Gross | Mucus | The bundle shares 50%. |
@@ -308,7 +309,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | The hole repels instead of pulling (its pull strength, reversed). | The supernova blasts everything 200 outward. |
 | Skill Issue | N/A: already knockback-based. | |
 | There Is No Spoon | Returned bullets shove (30). | The shove scales with how hard the bullet would have hit you. |
-| Nappy Mines | Blasts throw enemies clear of the patch (60). | Thrown enemies set off any mine they land near. |
+| Nappy Mines | Cannonball: blasts throw enemies (60); a thrown enemy hits whatever it lands on for 40% and knocks that enemy back too. | Thrown enemies set off any mine they land near. |
 | Soulmate Signal | Dragging shoves enemies the way you swim (30). | Enemies shoved off the beam's end are flung away. |
 | Unwanted Contact | Each jump shoves its target from the last (25). | Jumps launch enemies into each other (40%). |
 | Ewww, Gross | The bundle is knocked back together (40). | The bundle crashes into enemies behind it. |
@@ -347,7 +348,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | N/A: already pulls. | |
 | Skill Issue | The lard pulls enemies within 60 together before launching. | Enemies are pulled into a pile, then launched at once. |
 | There Is No Spoon | Enemy bullets within 140 curve towards you to be eaten (store cap still 10). | Each returned bullet tugs its shooter 40 towards you. |
-| Nappy Mines | Mines pull enemies within 70 in before they go off. | Mines pull nearby mines together, packing them for Domino. |
+| Nappy Mines | Implosion: a tripped mine sucks in enemies within 70 for 0.3 s, then goes off. With the Area modifier, the pull reaches further (5.5). | Mines pull nearby mines together, packing them for Domino. |
 | Soulmate Signal | Enemies within 50 of the beam are pulled onto it. | The twin pulls enemies towards itself. |
 | Unwanted Contact | Each jump tugs its target 30 towards the last. | The chain contracts: every chained enemy is pulled to the first. |
 | Ewww, Gross | Taped bundles are pulled tight into a clump. | Bundles within 140 pull into each other and merge (cap 8). |
@@ -386,7 +387,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Enemies are slowed on their way out of the well. | Enemies at the centre are Snared. |
 | Skill Issue | Flying enemies land slowed. | Stuck enemies stick to the mate they hit. |
 | There Is No Spoon | Returned bullets slow. | Returned bullets Snare. |
-| Nappy Mines | A sticky patch beside the fire slows, then Snares (putting Fire out). | The sticky patch rings the fire, holding enemies at its edge. |
+| Nappy Mines | Fly paper: an enemy that trips a mine is held for 0.5 s before the blast, so it always takes the full hit. The hold is not Snare, so the blast's Burn still lands. | Every enemy within the trigger radius is held, not just the one that tripped it. |
 | Soulmate Signal | Dragged enemies are slowed. | Enemies that leave the beam stay stuck where they left it. |
 | Unwanted Contact | Charged enemies are slowed. | Chained enemies are Snared, setting up Snot Socket with your Static. |
 | Ewww, Gross | N/A: taped enemies are already stuck together. | |
@@ -534,7 +535,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | The hole, off walls and big enemies, changing course. | Each bounce grows the hole 10%. |
 | Skill Issue | Flying enemies bounce off each other (each bounce is a collision; chain depth still 2 per enemy). | Bounces don't count towards the depth limit. |
 | There Is No Spoon | Returned bullets. | Each bounce changes the bullet's damage type to the next one in your store. |
-| Nappy Mines | Thrown enemies bounce off walls before landing. | Each bounce drops a small burning spot. |
+| Nappy Mines | The mine: a new mine bounces off the nearest enemy in range, slides away and comes to rest; it arms only at rest and goes off only when triggered there. With Homing it bounces to the next nearest enemy and goes off at once instead (5.5). | Each bounce drops a small burning spot. |
 | Soulmate Signal | The beam bounces off the twin to one more point. | The beam zigzags between you and the twin through the crowd. |
 | Unwanted Contact | Each arc bounces once more after its chain ends. | Bounced arcs start new chains (bounded: 12 hits in all). |
 | Ewww, Gross | The stamp, taping each enemy it hits to the last. | Every enemy it bounced through ends up in one bundle. |
@@ -788,7 +789,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | The black hole drops onto the densest cluster instead of travelling. | Radius +20. | It drops beside an existing hole if one is on screen. | Holes dropped within 100 of another merge on landing. |
 | Skill Issue | A dollop falls on the densest cluster, sending everything flying outward. | Launch +30%. | Radius +20. | Enemies are launched upward and land on their mates (40%). |
 | There Is No Spoon | Stored bullets rain down on the enemies that fired them (each tracks its shooter). | +20% damage. | Each bullet hits everything within 40 of its shooter. | The rain falls on every enemy within 100 of each shooter. |
-| Nappy Mines | Mines drop from above onto enemy paths instead of behind you. | 2 mines per drop. | Mines drop on the densest cluster. | The Nuclear Nappy always drops on the densest cluster. |
+| Nappy Mines | Random artillery: mines fall on random spots among the enemies instead of behind you, arming where they land. | 2 mines per drop. | Carpet bombing: a line of 4 mines falls across the enemies' path ahead of you and goes off one after another. | The carpet is 6 mines, and the Nuclear Nappy always lands on the densest cluster. |
 | Soulmate Signal | The twin dives from above onto the far anchor point, then the beam forms. | The dive is twice as fast. | The dive point is the densest cluster. | The dive itself is a Static Burst where the twin lands. |
 | Unwanted Contact | A bolt strikes the first target from above, then chains as normal. | +1 jump. | The first target is Charged twice. | Every jump is also struck from above. |
 | Ewww, Gross | Tape drops on the target, bundling it as usual. | +1 neighbour. | It drops on the target with the most neighbours. | Tape drops on 2 targets at once. |
@@ -827,7 +828,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | N/A: it was moved to Force because gravity is displacement. | | | |
 | Skill Issue | Force → **Static**: collisions add Charge. | Charge +20%. | Charge +40%. | Dual-type Force and Static. |
 | There Is No Spoon | N/A: its point is that returned bullets keep their own type. | | | |
-| Nappy Mines | Fire → **Acid** (its original type): blasts Corrode and leave an Acid Pool instead of a burning patch. | Corrosion +20%. | Corrosion +40%. | Dual-type Fire and Acid. |
+| Nappy Mines | **Two alternates** (exception to rule 15, user, 23 Oct); the branch picks one. Fire → **Acid** (its original type): blasts Corrode and leave an Acid Pool; an Acid blast on a burning patch flares it to double size. Fire → **Mucus**: blasts make Snotty and leave a slick that Snares. | Corrosion or Snotty +20%. | +40%. | Alternating: mines take turns between Fire and the chosen type, so Domino chains set off the unstable reaction between the two patches. |
 | Soulmate Signal | N/A: its arcs are the Static mechanic. | | | |
 | Unwanted Contact | N/A: Charging enemies is the whole weapon. | | | |
 | Ewww, Gross | Mucus → **Acid**: the stamp Corrodes; tape and sharing are unchanged. | Corrosion +20%. | Corrosion +40%. | Dual-type Mucus and Acid. |
@@ -866,7 +867,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Enemies inside the well are primed. | Bigger detonations. | Detonations inside the well grow it 10%. | A detonation inside the well counts towards the supernova as a merge. |
 | Skill Issue | Flying enemies are primed. | Bigger detonations. | Detonations on landing send the enemy flying again. | Every collision detonates both enemies (no re-priming). |
 | There Is No Spoon | Returned bullets prime; detonations are in the bullet's type. | Bigger detonations. | Detonations fill that type's status bar. | Detonations set off the unstable reaction between the bullet's type and the detonating weapon's. |
-| Nappy Mines | Blasts prime everything they hit. | Bigger detonations. | Primed enemies set mines off from twice as far. | Detonations near a mine set it off (counts as Domino). |
+| Nappy Mines | Walking mine: blasts prime everything they hit; a primed enemy detonated by another weapon leaves a burning patch where it stood. | Bigger detonations. | Primed enemies set mines off from twice as far. | Detonations near a mine set it off (counts as Domino). |
 | Soulmate Signal | Enemies the beam touches are primed. | Bigger detonations. | Detonations on the beam send an arc to the twin. | The beam re-primes enemies every 1 s. |
 | Unwanted Contact | N/A: priming your other weapons (Charged enemies arc) is already its signature. | | | |
 | Ewww, Gross | Taped enemies are all primed. | Bigger detonations. | Detonating one taped enemy also detonates the next. | Detonating one detonates the whole bundle (echo damage). |
@@ -905,7 +906,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Every 4th hole counts as 2 for merging. | Every 3rd. | It's 30% larger. | The empowered hole goes supernova on its own after 3 s. |
 | Skill Issue | Every 4th dollop launches twice as far. | Every 3rd. | Its chain goes one step deeper. | It launches everything on screen within 200. |
 | There Is No Spoon | Every 4th returned bullet hits double. | Every 3rd. | It pierces. | Every empowered return fires 3 bullets. |
-| Nappy Mines | Every 4th mine has double blast. | Every 3rd. | Its patch is double size. | Every 4th mine is a Nuclear Nappy (in place of every 6th). |
+| Nappy Mines | Loaded nappy: every 4th mine leaves a patch 3× the size that lasts twice as long (the blast is normal). | Every 3rd. | Its blast is double too. | Every 4th mine is a Nuclear Nappy (in place of every 6th). |
 | Soulmate Signal | Every 4th re-anchor doubles beam width for 1 s. | Every 3rd. | 2 s. | It arcs 5 jumps. |
 | Unwanted Contact | Every 4th shot has 2 more jumps. | Every 3rd. | No falloff on it. | The empowered chain loops back to its first target. |
 | Ewww, Gross | Every 4th stamp tapes 3 more neighbours. | Every 3rd. | Its tape lasts twice as long. | The empowered bundle shares 70%. |
@@ -944,7 +945,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | +1 hole (3-well cap stays; smaller holes). | Holes fire front and back. | Holes come in pairs that drift together. | Three holes at once in a triangle that merge in the middle. |
 | Skill Issue | +1 dollop. | +1 more. | Dollops land in a line. | A ring of dollops. |
 | There Is No Spoon | Returns in pairs. | Returns in threes. | Returns fan out over 30°. | Returns in a ring round you. |
-| Nappy Mines | +1 mine per drop. | +1 more. | Mines drop in a line behind you. | Mines drop in a ring. |
+| Nappy Mines | +1 mine per drop. | +1 more. | Mines drop in a short line behind you. | A string: each drop lays a long line of mines behind you. |
 | Soulmate Signal | A second twin and beam. | The second twin mirrors the first across you. | A third twin. | Twins circle you, beams spinning like spokes. |
 | Unwanted Contact | +1 chain shot. | +1 more. | Shots go to different targets by default. | A chain shot in every direction. |
 | Ewww, Gross | +1 stamp. | +1 more. | Stamps go to different bundles. | Stamps in every direction. |
@@ -1061,6 +1062,13 @@ A combo mastery is an extra mastery choice for one modifier on one weapon, offer
 |---|---|---|---|
 | Static net | Connecting, on a Static weapon (Red Flagship, Soulmate Signal, Unwanted Contact) | You also carry a weapon that fires Projectile or Spread shots | Static arcs jump **between your projectiles in flight** (any of your weapons) when two are within 120 of each other, forming a crackling net. Each arc hits enemies that cross it with Static and Charges them. Bounded: each projectile links to at most 2 others, 6 arcs at once, and an arc never starts another arc (12.5). **Empowered by the Static sperm passive** (user, 22 Oct): the arc cap rises to 12 / 18 / 24 at its Lv 1 / 2 / 3 and 36 at its mastery. |
 | Planetary system | Orbiting, on Family Ties | You also carry a weapon that fires Projectile or Spread shots | Your projectiles that pass within a black hole's radius are **captured and orbit it** (up to 8 per hole), hitting enemies being pulled in (each enemy at most every 0.25 s). When the hole merges, expires or goes supernova, they fly outward; a supernova flings them at +50%. An exception to the gravity well's 45° bend limit (`MODIFIERS.md` 19), for this mastery only. |
+
+### 5.5 Nappy Mines specials (user, 23 Oct)
+Nappy Mines' cells were redesigned with the user on 23 Oct; Orbiting, Melee (suicide vest), Connecting (tripwires) and Turncoat (suicide runner) stayed as written.
+- **Area** (`areamod.js`, its own group): keeps +25% blast and patch size a rank, and adds **Shockwave**: an outer ring at 2× the blast radius deals 30% and pulls enemies slightly inwards.
+- **Area + Pulling:** Implosion's pull radius grows with Area's bonus, so it drags enemies in from further away.
+- **Ricochet + Homing:** the bounced mine homes on the next nearest enemy and goes off at once, instead of sliding to rest.
+- **Ricochet with other modifiers** (candidates, not yet chosen): Ripening (a mine that slides far ripens out of reach), Fly paper (the bounce target is held), Implosion (pulls the crowd onto where it came to rest), tripwires (wires stretch as the mine slides), Breadcrumbs (a bouncing trail scatters into the crowd).
 
 ## 6. Moved to sperm passives
 
