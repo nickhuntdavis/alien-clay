@@ -18,7 +18,7 @@ const { chromium } = require('playwright');
     const st = genLoot(G.lootQueue[0]); out.start = st.length;
     if (st.length < 20) bad.push('start offers ' + st.length);
     st[0].apply(); G.lootQueue = [];
-    for (const k of ['level', 'chest', 'boss', 'vesicle', 'fork', 'slot']) if (v10Box({ kind: k })) bad.push(k + ' box opened');
+    for (const k of ['chest', 'boss', 'vesicle', 'fork', 'slot']) if (v10Box({ kind: k })) bad.push(k + ' box opened'); if (!v10Box({ kind: 'level' })) bad.push('level box closed (the Sandbox lists every modifier on level-ups)');
     // The + mount
     update(1 / 30); UI.refreshHud(true);
     if (G.weapons.length !== 2 || G.weapons[1] !== null) bad.push('no + mount: ' + G.weapons.length);
