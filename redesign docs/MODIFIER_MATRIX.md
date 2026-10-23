@@ -1065,14 +1065,14 @@ A combo mastery is an extra mastery choice for one modifier on one weapon, offer
 | Planetary system | Orbiting, on Family Ties | You also carry a weapon that fires Projectile or Spread shots | Your projectiles that pass within a black hole's radius are **captured and orbit it** (up to 8 per hole), hitting enemies being pulled in (each enemy at most every 0.25 s). When the hole merges, expires or goes supernova, they fly outward; a supernova flings them at +50%. An exception to the gravity well's 45° bend limit (`MODIFIERS.md` 19), for this mastery only. |
 
 ### 5.5 Nappy Mines specials (user, 23 Oct)
-Nappy Mines' cells were redesigned with the user on 23 Oct; Orbiting, Melee (suicide vest), Connecting (tripwires) and Turncoat (suicide runner) stayed as written.
+Nappy Mines' cells were redesigned with the user on 23 Oct and are built in `cellmods.js` (except Switched at Birth's Alternating mastery: Switched at Birth has no ranks in code); Orbiting, Melee (suicide vest), Connecting (tripwires) and Turncoat (suicide runner) stayed as written.
 - **Area** (`areamod.js`, its own group): keeps +25% blast and patch size a rank, and adds **Shockwave**: an outer ring at 2× the blast radius deals 30% and pulls enemies slightly inwards.
 - **Area + Pulling:** Implosion's pull radius grows with Area's bonus, so it drags enemies in from further away.
 - **Ricochet + Homing:** the bounced mine homes on the next nearest enemy and goes off at once, instead of sliding to rest.
 - **Ricochet with other modifiers** (candidates, not yet chosen): Ripening (a mine that slides far ripens out of reach), Fly paper (the bounce target is held), Implosion (pulls the crowd onto where it came to rest), tripwires (wires stretch as the mine slides), Breadcrumbs (a bouncing trail scatters into the crowd).
 
 ### 5.6 Blowing Bubbles specials (user, 23 Oct)
-Blowing Bubbles' cells were redesigned with the user on 23 Oct; Exploding Rounds (kept, plus Bubble grenade), Extra Projectiles and Orbiting stayed as written. Ranged stays N/A.
+Blowing Bubbles' cells were redesigned with the user on 23 Oct and are built in `cellmods.js` (except Switched at Birth's mastery); Exploding Rounds (kept, plus Bubble grenade), Extra Projectiles and Orbiting stayed as written. Ranged stays N/A.
 - **Area** (`areamod.js`): keeps +25% pop radius a rank, and adds **Bigger bubbles** (bubbles are bigger, easier to land, and trap +10 max health a rank) and **Bubble cloud** (each pop leaves a mist of fine bubbles that pops again 1 s later at half damage).
 - **Melee** is now a defence (a bubble round you, Membrane-like), so it should not stack with Membrane Shield; to decide when built.
 
