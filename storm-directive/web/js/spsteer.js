@@ -137,5 +137,11 @@ if (typeof UI !== 'undefined' && UI.showGameOver) {
 
 // ---------------------------------------------------------------- HOLD: no autorun at all (user, 23 Oct)
 // Under HOLD the sperm stays where it is unless you steer it yourself: no dodging, no drifting back to a spot.
-autoSteer = (orig => function () { return G && G.moveDir === 'hold' && G.state === 'play' ? { x: 0, y: 0 } : orig(); })(autoSteer);
+autoSteer = (orig => function () {
+  if (G && G.moveDir === 'hold' && G.state === 'play') return { x: 0, y: 0 };
+  // Autorun steers 30 times a second: every other frame reuses the last answer (late-race frame rate, user 23 Oct).
+  const f = G ? G.frameN || 0 : 0;
+  if (G && G.asCache && G.asCache.f === f - 1 && (f & 1)) return G.asCache.r;
+  const r = orig(); if (G) G.asCache = { f, r }; return r;
+})(autoSteer);
 { const h = MOVE_DIRECTIVES.find(m => m.id === 'hold'); if (h) h.desc = 'Stay still and never dodge. You do all the steering'; }

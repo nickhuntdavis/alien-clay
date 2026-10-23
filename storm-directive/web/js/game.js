@@ -54,17 +54,21 @@ resize();
 // ---------------------------------------------------------------- state
 let G = null;
 let uidSeq = 1;
-const CAPS = { enemies: 170, proj: 380, ebul: 800, parts: 300, texts: 40, gems: 350, zones: 120 }; // (was 240 enemies, 450 particles)
+const CAPS = { enemies: 170, proj: 380, ebul: 800, parts: 160, texts: 40, gems: 350, zones: 120 }; // (was 240 enemies, 450 particles)
 // Fewer, tougher monsters: 75% of the spawns, each worth 1.4x the XP (it was 1.8x: level-ups came so often they felt like speed bumps), and up to a third more HP, so the
 // work per minute and the levelling stay where they were (you kill about half as many: XP_K was tuned in
 // simulated runs to keep the old level curve), with a calmer screen. The extra HP builds up over
 // the first four minutes (on the difficulty clock): early on your weapons are weak, and tougher fodder there
 // just slowed your levelling and let crowds swamp you.
-const SPAWN_K = 0.75, XP_K = 1.2, toughK = t => 1 + (1 / SPAWN_K - 1) * Math.min(1, t / 240);
+const SPAWN_K = 0.75, XP_K = 1.2, toughK = t => 1 + (1 / spawnK() - 1) * Math.min(1, t / 240);
+// Fewer, tougher still outside wave mode (user, 23 Oct: late-race frame rate): a quarter fewer enemies alive and spawned,
+// each with a third more health and XP, so the work per minute and the levelling stay put. Wave mode keeps its counts.
+const CROWD = { k: 0.75, far: 600, half: true }; // (half: far enemies and separation on alternate frames)
+const crowdK = () => (G && !G.wave ? CROWD.k : 1), spawnK = () => SPAWN_K * crowdK();
 // Adaptive quality: when frames run slow for a while (busy late game, slower phones), step the costly
 // extras down; step back up once there's headroom again. 0: everything. 1: no lens blur or foreground
 // debris, fewer floating numbers. 2: 1.5x resolution, plainer common enemies, fewer particles. 3: 1x resolution.
-const qualParts = () => (QUAL.lv >= 2 ? 220 : CAPS.parts);
+const qualParts = () => (QUAL.lv >= 2 ? 120 : CAPS.parts);
 const qualTexts = () => (QUAL.lv >= 1 ? 20 : CAPS.texts);
 function qualTick(raw) {
   if (raw > 1 / 40) { QUAL.slow += raw; QUAL.fast = 0; } else if (raw < 1 / 54) { QUAL.fast += raw; QUAL.slow = Math.max(0, QUAL.slow - raw * 0.5); }
@@ -1227,7 +1231,7 @@ function makeEnemy(def, x, y, opts) {
     phased: false, age: 0, dashX: 0, dashY: 0,
   };
   // Fewer, stronger enemies: every monster is a bigger, tougher, more rewarding threat.
-  if (!def.patterns) { const K = enemyScale(t); const tk = toughK(t); e.hp *= K.hp * tk; e.maxHp *= K.hp * tk; e.dmg *= K.dmg; e.xp *= K.xp * XP_K; e.r *= K.r; e.speed *= K.speed; }
+  if (!def.patterns) { const K = enemyScale(t); const tk = toughK(t); e.hp *= K.hp * tk; e.maxHp *= K.hp * tk; e.dmg *= K.dmg; e.xp *= K.xp * XP_K / crowdK(); e.r *= K.r; e.speed *= K.speed; }
   if (!def.patterns && G.wave && G.wave.camp) { e.dmg *= CAMP.dmgK; if (G.wave.phase === 'mobs') e.xp /= CAMP.more; } // (wave mode: campaign.js)
   if (opts && opts.elite) {
     e.elite = true; e.hp *= 5; e.maxHp *= 5; e.r *= 1.35; e.armour += 2; e.dmg *= 1.4; e.xp *= 6;
@@ -1410,12 +1414,21 @@ function shootPattern(e, pat, a0) {
   }
 }
 
-function updateEnemies(dt) {
+function updateEnemies(dt0) {
   const p = G.player, syn = G.synergy;
   const warpF = G.warp > 0 ? 0.3 : 1;
-  const edt = dt * warpF;
+  const frame = G.frameN || 0;
   for (const e of G.enemies) {
     if (e.dead) continue;
+    // Far off (mostly off screen), plain enemies update every other frame with the time carried, so they move as far
+    // (late-race frame rate, user 23 Oct: CROWD.far).
+    let dt = dt0;
+    if (CROWD.half && !e.boss && !e.elite && !e.rival && !e.egg && !e.charmed && !e.orbitBoss && !wormBody(e)) {
+      const fx = p.x - e.x, fy = p.y - e.y;
+      if (fx * fx + fy * fy > CROWD.far * CROWD.far && ((e.id + frame) & 1)) { e.farDt = (e.farDt || 0) + dt0; continue; }
+    }
+    if (e.farDt) { dt += e.farDt; e.farDt = 0; }
+    const edt = dt * warpF;
     shooterName = e.name; shooterEnt = e;
     e.age += dt;
     // Status effects.
@@ -1626,9 +1639,9 @@ function updateEnemies(dt) {
     // Leash: recycle enemies left far behind.
     if (dist > 1500 && !e.boss && !wormBody(e)) { const s = spawnPos(); e.x = s.x; e.y = s.y; } // (a worm's body follows its head)
   }
-  // Separation.
+  // Separation (half the crowd each frame: late-race frame rate).
   for (const e of G.enemies) {
-    if (e.dead || e.boss) continue;
+    if (e.dead || e.boss || (CROWD.half && ((e.id + frame) & 1))) continue;
     forNear(e.x, e.y, e.r * 0.8, o => {
       if (o === e || wormMate(e, o)) return;
       const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 0.01, ov = e.r + o.r - d;
@@ -2747,8 +2760,8 @@ function update(dt) {
   updateAmbient(dt);
   // Director.
   // Dense swarms (each monster is weaker to match: see enemyScale).
-  const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, (24 + T * 0.5) * SPAWN_K);
-  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * (typeof racePace === 'function' ? racePace() : PACE) * heatSpawn() * SPAWN_K;
+  const T = PT(), maxAlive = Math.min((CAPS.enemies - 30) * crowdK(), (24 + T * 0.5) * spawnK());
+  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * (typeof racePace === 'function' ? racePace() : PACE) * heatSpawn() * spawnK();
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   if (G.debug) { debugTick(); if (G.debug.sb) sbSpawn(rate, maxAlive, hostile, dt); } // the Lab Bench: only what you send in (Sandbox: a slow stream, sandbox.js)
   else if (G.lvl) lvTick(dt, maxAlive, hostile); // a campaign level: its own director (levels.js)

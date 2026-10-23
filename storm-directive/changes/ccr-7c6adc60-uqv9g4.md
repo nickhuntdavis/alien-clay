@@ -1,3 +1,11 @@
+## 2026-10-23 Late-race frame rate: thinner crowds, cheaper movement
+- Systems: director (spawning), enemies, autorun, fx (particles)
+- Files: game.js (CROWD, crowdK/spawnK; updateEnemies far half-rate; separation half-rate; particle caps), spsteer.js (autoSteer every other frame)
+- What: outside wave mode a quarter fewer enemies are alive and spawned (late cap 140 -> 105), each with up to a third more health and XP. Enemies over 600 away update every other frame (time carried), separation runs on half the crowd a frame, autorun steers 30 times a second, particles cap 160 (120 at lower quality). Measured 6 to 19% less update time in the same scene, before the smaller crowd.
+- Save data: none.
+- Hooks: game.js updateEnemies(dt0); spsteer.js wraps autoSteer (cache).
+- Risk: CROWD.k changes difficulty feel (fewer, tougher); far enemies' reactions lag a frame.
+
 ## 2026-10-23 Run log lists the Switched at Birth start card
 - Systems: telemetry (run log)
 - Files: wstats.js (wsPick matches a wrapped def)
