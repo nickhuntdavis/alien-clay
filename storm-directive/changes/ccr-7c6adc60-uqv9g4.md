@@ -1,3 +1,11 @@
+## 2026-10-23 Loot filters, attack-type swap, Laser pictogram (v10.102)
+- Systems: ui (loot screen, weapon draft), weapons (modifiers), pictograms
+- Files: atkswap.js (new), lootfilter.js (new), index.html, tests/lootfiltertest.js (new)
+- What: long loot lists (the no-limits level-up list, the 27-weapon pick) get a search box, tabs (by weapon, passives, defences; by attack type for weapons), chips (modifier group, passive kind, damage type) and sort (as dealt, A to Z, by group). Melee, Ranged, Mines and Death from Above now swap: the card is marked SWITCH with a red border and says the old one's ranks, branch and mastery go; once a weapon has one, another is dealt at 15% weight. The Laser uses the spark-of-life pictogram.
+- Save data: none.
+- Hooks: none in shared files. Wraps modOk, modAdd, modCard, modDraftCands, UI.renderLootCards, UI.renderDraft; adds PICTO_ALIAS entries.
+- Risk: the Laser now shares its pictogram with Spark of Life. Attack-type modifiers can now be offered on a weapon that already holds one (was never).
+
 ## 2026-10-23 Kept targeting/autorun masteries use no slot (v10.101)
 - Systems: sperm passives
 - Files: spsteer.js, tests/spsteertest.js
