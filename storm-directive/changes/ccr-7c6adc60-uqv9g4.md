@@ -1,3 +1,11 @@
+## 2026-10-23 Laser charge-up (v10.90)
+- Systems: weapons (Laser), fx
+- Files: laserbeam.js (LZ.charge, lzCharging, lzChargeDraw), tests/laserbeamtest.js, tests/slicetest.js
+- What: a Laser starting from off charges for 0.3 s first: a small glow grows and flickers at the sperm's head, then the beam comes on (no damage while charging). A held beam, or one switching targets, doesn't charge again.
+- Save data: none.
+- Hooks: none new.
+- Risk: the Laser's first hit on a new engagement lands 0.3 s later.
+
 ## 2026-10-23 Laser Piercing: a visible sliver gets through (v10.89)
 - Systems: weapons (Laser)
 - Files: laserbeam.js (LZ_PKEEP, lzPKeep; pierced beam gets its own length), tests/laserbeamtest.js

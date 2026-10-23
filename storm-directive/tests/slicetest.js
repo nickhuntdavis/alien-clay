@@ -47,10 +47,10 @@ const { chromium } = require('playwright');
     w = fresh(); add(w, 'catalyst', 1); if (sabCard()) bad.push('Switched at Birth offered with Catalyst held');
     w = fresh(); sabSwitch(w, 'fire'); if (modOk(w, 'catalyst')) bad.push('Catalyst offered on a switched weapon');
     // 8. Extra Projectiles: a second beam at another enemy
-    w = fresh(); add(w, 'extra', 1); const x1 = foe(120), x2 = foe(60, 100); G.v10fx = []; v10Fire(w, x1, weaponSrc(w));
+    w = fresh(); add(w, 'extra', 1); const x1 = foe(120), x2 = foe(60, 100); G.v10fx = []; w.lzFireT = G.t; v10Fire(w, x1, weaponSrc(w));
     out.extra = [(w.lzShotSegs || []).length, x2.hp < x2.maxHp]; if ((w.lzShotSegs || []).length < 2 || !(x2.hp < x2.maxHp)) bad.push('extra beams ' + out.extra);
     // 9. Ricochet bounces the beam on to another enemy
-    w = fresh(); add(w, 'ricochet', 1); const r1 = foe(150), r2 = foe(90, 90); G.v10fx = []; v10Fire(w, r1, weaponSrc(w));
+    w = fresh(); add(w, 'ricochet', 1); const r1 = foe(150), r2 = foe(90, 90); G.v10fx = []; w.lzFireT = G.t; v10Fire(w, r1, weaponSrc(w));
     out.rico = [(w.lzShotSegs || []).length]; if ((w.lzShotSegs || []).length < 2) bad.push('ricochet beam ' + JSON.stringify(out.rico));
     // 10. Orbiting: the hula hoop hurts what touches it, and the Laser no longer fires its beam
     w = fresh(); add(w, 'orbiting', 1); const o1 = foe(72), o2 = foe(200); run(1.5);

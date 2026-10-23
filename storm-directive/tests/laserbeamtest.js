@@ -82,6 +82,10 @@ const { chromium } = require('playwright');
     w = fresh(); for (let i = 0; i < 3; i++) modAdd(w, 'growing'); computeStats(w); const off = foe(150, 0); off.y = p().y + off.r + 6;
     fire(w, off, 0); const fresh0 = hurt(off); w.lzHeldS = G.t - 3.1; fire(w, off, 0);
     out.grow = [+lzGrow(w).toFixed(2), fresh0, hurt(off)]; if (!(lzGrow(w) > 1.9) || fresh0 > 0 || !(hurt(off) > 0)) bad.push('Laser growing ' + out.grow);
+    // 10. Charge: a beam starting from off charges first (no damage, a glow), then fires
+    w = fresh(); const ch = foe(150, 0); w.lzFireT = -9; v10Fire(w, ch, weaponSrc(w)); const during = [hurt(ch), lzCharging(w)];
+    G.t += 0.35; v10Fire(w, ch, weaponSrc(w));
+    out.charge = [during[0], during[1], hurt(ch) > 0]; if (during[0] > 0 || !during[1] || !(hurt(ch) > 0)) bad.push('charge ' + out.charge);
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);
