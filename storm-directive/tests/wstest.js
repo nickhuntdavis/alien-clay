@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(400);
-  await page.click('#quickBtn'); await page.waitForTimeout(1200);
+  await page.evaluate(() => UI.quickStart()); /* (Quick Start's button is now Sandbox: sandbox.js) */ await page.waitForTimeout(1200);
   const imm = await page.evaluate(() => { SET.immersive = true; UI.applySettings && UI.applySettings(); document.body.classList.add('immersive'); G.show.msgQ.length = 0; UI.msgT = 0; vxPush('con', 'The egg is out there. We can feel it. Swim.', null, 6); return immersiveOn(); });
   await page.waitForTimeout(600);
   const s1 = await page.evaluate(() => ({ dot: $('wsDot') && $('wsDot').classList.contains('on'), who: $('wsDot') && $('wsDot').dataset.who, box: $('sysmsg').classList.contains('on'), mul: inspectMul() }));

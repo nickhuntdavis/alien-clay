@@ -36,7 +36,7 @@ const MM_SAB = {
 SETTINGS_DEF.push({ id: 'noLimits', tab: 'game', label: 'TODO_COPY:set_nolimits', hint: 'TODO_COPY:set_nolimits_hint', opts: [[false, 'OFF'], [true, 'ON']] });
 SET_DEFAULTS.noLimits = false;
 try { SET.noLimits = JSON.parse(localStorage.getItem('sd_settings') || '{}').noLimits === true; } catch (e) { SET.noLimits = false; }
-const mmFree = () => !!(typeof SET !== 'undefined' && SET.noLimits);
+const mmFree = () => !!(typeof SET !== 'undefined' && SET.noLimits) || !!(typeof sbOn === 'function' && sbOn()); // (the Sandbox has no slot limits)
 
 const mmGroup = id => MM_GROUP[id] || 'flight';
 const mmSlots = w => MM.open.filter(l => (w.lvl || 1) >= l).length;

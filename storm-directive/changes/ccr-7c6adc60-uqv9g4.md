@@ -1,3 +1,11 @@
+## 2026-10-23 Sandbox on the home screen (merge build)
+- Systems: ui (home screen), sandbox, weapons (modifiers)
+- Files: index.html (SANDBOX button; Quick Start hidden), sandbox.js (button; level-ups and modifier forks open), modmatrix.js (mmFree true in the Sandbox), tests/quick.js, tests/veilshot.js, tests/wstest.js (call UI.quickStart directly)
+- What: the home screen has SANDBOX in place of Quick Start: straight into the Sandbox with no developer switch. In the Sandbox, level-ups now open and list every weapon modifier and sperm passive with no slot limits (and their branch and mastery forks), so any weapon and modifier can be tried. Also merges the splash lag fix (ccr-5e56e811-ce1r6c).
+- Save data: none.
+- Hooks: none new.
+- Risk: Quick Start is gone from the home screen (UI.quickStart still exists).
+
 ## 2026-10-23 Homing and Crossfire on the Laser (v10.95)
 - Systems: weapons (Laser, modifiers)
 - Files: laserbeam.js (lzSeek and homing steps in lzTrace; lzCross, lzCrossOn), modwide.js (Crossfire pins instead of pushing), tests/laserbeamtest.js
