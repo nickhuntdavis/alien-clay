@@ -1,3 +1,11 @@
+## 2026-10-23 Homing kicks in after a moment (v10.107)
+- Systems: weapons (modifiers)
+- Files: piercefx.js (modStep wrapped), tests/piercetest.js
+- What: the Homing modifier steers a shot only from 0.2 s after it is fired, so a spread fans out first and then each shot turns towards the nearest enemy. Weapons that home by design are unchanged.
+- Save data: none.
+- Hooks: none in shared files.
+- Risk: Homing shots miss a little more at point-blank range.
+
 ## 2026-10-23 Strike from Above is an extra (v10.106)
 - Systems: weapons (modifiers, Laser)
 - Files: modwide.js (MW_DFA_RATE, mwDfaRoll; mwFire falls through), laserbeam.js (orbital strikes on a timer while the beam fires), atkswap.js (no longer an attack type), slicecopy.js (lines), tests/widetest.js, laserbeamtest.js, lootfiltertest.js

@@ -3,7 +3,8 @@
 //  - HOMING + PIERCING: a homing shot that passes through an enemy picks a new target it has not hit yet (it used to
 //    keep steering at the one it had just pierced and curl back round it). None left in reach: it flies straight on.
 //  - A VISIBLE PIERCE: each pass-through sprays sparks out of the far side in the shot's direction, with a small flash.
-// Hooks: none in shared files. Wraps modifiers.js modHit (called by game.js after a shot's hit). Loads after areamod.js.
+//  - HOMING DELAY: the Homing modifier steers a shot only from 0.2 s after it is fired (a spread fans out first).
+// Hooks: none in shared files. Wraps modifiers.js modHit (called by game.js after a shot's hit) and modStep. Loads after areamod.js.
 
 const PIERCE = { reach: 380 };
 modHit = (orig => function (pr, e) {
@@ -25,3 +26,14 @@ modHit = (orig => function (pr, e) {
     if (best) { pr.tgt = best; pr.mHlost = 0; } else { pr.tgt = null; pr.mHlost = 1; pr.homing = 0; }
   }
 })(modHit);
+
+// ---------------------------------------------------------------- Homing kicks in a moment after firing (user, 23 Oct)
+// For HOMING.delay after it leaves, a shot flies as fired (so a spread still fans out), then the Homing modifier steers
+// it at the nearest enemy to the shot. Weapons that home by design (their own stat, game.js pr.homing) are unchanged.
+const HOMING = { delay: 0.2 };
+modStep = (orig => function (pr, dt) {
+  const h = pr.mH; if (!h) return orig(pr, dt);
+  if (pr.mHt0 == null) pr.mHt0 = G.t;
+  if (G.t - pr.mHt0 >= HOMING.delay) return orig(pr, dt);
+  pr.mH = 0; try { return orig(pr, dt); } finally { pr.mH = h; }
+})(modStep);
