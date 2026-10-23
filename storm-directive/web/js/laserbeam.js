@@ -7,7 +7,8 @@
 //  - BOUNCE (the renamed Ricochet modifier): at each enemy the beam reflects off the enemy's surface at the true angle
 //    set by the sperm head's angle against the beam (lzBounceDir); only a beam exactly in line with the head doesn't bounce
 //    of incidence, like a laser pointer off a mirrored ball (1 / 3 / 6 bounces, 12 at mastery; each keeps 35 / 50 / 65%, 80% at mastery: LZ_KEEP).
-//  - PIERCING (now fits beams): the beam carries on through 1 / 3 / 6 enemies (12 at mastery), -15% each.
+//  - PIERCING (now fits beams): the beam carries on through 1 / 3 / 6 enemies (12 at mastery); what gets through each
+//    keeps 30 / 45 / 60%, 75% at mastery (LZ_PKEEP), and gets its own length past the enemy.
 //    With Bounce as well, every enemy splits the beam: one part carries straight on, one reflects, each at half power.
 //  - INTERNAL RICOCHET (spslice.js sp_iric): while the membrane is up, the beam can't leave the bubble: it reflects
 //    off the bubble's inside wall over and over (LZ.wallMax reflections), hitting what touches the bubble.
@@ -38,6 +39,9 @@ function lzBounceDir(dx, dy, delta) {
 }
 // What a bounce keeps (user, 23 Oct): a lot is lost at first, less with each Bounce rank (damage and brightness).
 const LZ_KEEP = [0.35, 0.5, 0.65, 0.8]; // (Rank 1, 2, 3, mastery)
+// What gets through an enemy with Piercing: a sliver at Rank 1, more each rank (damage and brightness).
+const LZ_PKEEP = [0.3, 0.45, 0.6, 0.75];
+const lzPKeep = (w, both) => LZ_PKEEP[Math.max(0, Math.min(4, msR(w, 'piercing')) - 1)] * (both ? 0.6 : 1);
 const lzKeep = (w, both) => LZ_KEEP[Math.max(0, Math.min(4, msR(w, 'ricochet')) - 1)] * (both ? 0.6 : 1);
 const lzIs = w => !!(w && w.def && typeof LASER !== 'undefined' && (w.id === LASER.id || w.def.name === LASER.name));
 const lzN = r => [0, 1, 3, 6, 12][Math.min(4, r || 0)];
@@ -116,7 +120,7 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   const rest = L - m.t, both = pierce > 0 && bounce > 0;
   if (pierce > 0) { // carry straight on through it
     const ox = e.x - cx, oy = e.y - cy, through = 2 * (ox * dx + oy * dy); // (out the far side of the circle)
-    lzTrace(w, cx + dx * through, cy + dy * through, a, rest - through, k * (both ? 0.5 : 0.85), src, e, st, pierce - 1, both ? bounce : 0);
+    lzTrace(w, cx + dx * through, cy + dy * through, a, Math.max(rest - through, w.s.range * LZ.bounceL), k * lzPKeep(w, both), src, e, st, pierce - 1, both ? bounce : 0); // (its own length, like a bounce)
   }
   if (bounce > 0) { // reflect off its surface at the true angle (not when head-on)
     const ra = lzBounceDir(dx, dy, st.delta);
@@ -175,7 +179,7 @@ function lzOrbit(w, src, ramp, dry) {
         if (ra != null) lzTrace(w, cx, cy, ra, w.s.range * LZ.bounceL, k * lzKeep(w, both), src, m.e, st, both ? pierce : 0, bounce - 1);
       }
       if (pierce > 0 && m.e) { // on round the ring, past it (the rest of this section too)
-        pierce--; k *= both ? 0.5 : 0.85; passed.add(m.e);
+        pierce--; k *= lzPKeep(w, both); passed.add(m.e);
         const r2 = lzMeet(cx, cy, a, L - m.t, passed, null); out.push({ x1: cx, y1: cy, x2: cx + Math.cos(a) * r2.t, y2: cy + Math.sin(a) * r2.t, k, hit: false });
         continue;
       }

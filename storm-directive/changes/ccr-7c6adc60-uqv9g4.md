@@ -1,3 +1,11 @@
+## 2026-10-23 Laser Piercing: a visible sliver gets through (v10.89)
+- Systems: weapons (Laser)
+- Files: laserbeam.js (LZ_PKEEP, lzPKeep; pierced beam gets its own length), tests/laserbeamtest.js
+- What: the beam past a pierced enemy gets its own length (75% of range, like a bounce) instead of what was left, so it shows even when the target is near the edge of reach; what gets through keeps 30 / 45 / 60% of the power (75% at mastery), so Rank 1 is a thin, dim sliver. Applies to the orbit ring too.
+- Save data: none.
+- Hooks: none new.
+- Risk: Piercing deals less per pierced enemy than before (was 85%).
+
 ## 2026-10-23 Sweep and Growing on the Laser (v10.88)
 - Systems: weapons (Laser, modifiers)
 - Files: laserbeam.js (lzSweep, lzGrow, LZC.pad), tests/laserbeamtest.js

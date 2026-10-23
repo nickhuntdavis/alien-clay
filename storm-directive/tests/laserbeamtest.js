@@ -32,7 +32,7 @@ const { chromium } = require('playwright');
     else {
       const got = Math.atan2(s2.y2 - s2.y1, s2.x2 - s2.x1), err = Math.abs(angDiff(got, want)); out.bounceErr = +err.toFixed(3);
       if (err > 0.01) bad.push('bounce angle off by ' + err);
-      w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0.5; const A2 = foe(150, 0), B = foe(s2.x1 + Math.cos(want) * 90 - p().x, s2.y1 + Math.sin(want) * 90 - p().y); fire(w, A2, 0);
+      w = fresh(); modAdd(w, 'ricochet'); computeStats(w); w.s.dmg = 2000; /* (big, so a weakened bounce still shows) */ p().hd = 0.5; const A2 = foe(150, 0), B = foe(s2.x1 + Math.cos(want) * 90 - p().x, s2.y1 + Math.sin(want) * 90 - p().y); fire(w, A2, 0);
       out.bounceHit = hurt(B); if (!(hurt(B) > 0)) bad.push('the bounce missed the enemy on its line');
     }
     // 2a. Each bounce keeps less at Rank 1 than at Rank 3 (damage and brightness follow k)
@@ -42,6 +42,10 @@ const { chromium } = require('playwright');
     w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0; const H = foe(150, 0); fire(w, H, 0); const inLine = segs().length;
     w = fresh(); modAdd(w, 'ricochet'); computeStats(w); p().hd = 0.15; const H2 = foe(150, 0); fire(w, H2, 0);
     out.inLine = [inLine, segs().length]; if (inLine !== 1 || segs().length < 2) bad.push('in line ' + out.inLine);
+    // 3a. Piercing on a target near the edge of reach: a sliver still shows past it
+    w = fresh(); modAdd(w, 'piercing'); computeStats(w); const edge = foe(w.s.range - 20, 0); fire(w, edge, 0);
+    const past = segs().filter(q => q.x1 > edge.x); out.pierceEdge = past.map(q => [Math.round(q.x2 - q.x1), +q.k.toFixed(2)]);
+    if (!past.length || !(past[0].x2 - past[0].x1 > 100) || !(past[0].k < 0.4)) bad.push('pierce past an edge target ' + JSON.stringify(out.pierceEdge));
     // 3. Piercing + Bounce: through and off, both weaker
     w = fresh(); modAdd(w, 'piercing'); computeStats(w); let c1 = foe(120, 6), c2 = foe(220, 6); fire(w, c1, 0); const solo = hurt(c2);
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w); c1 = foe(120, 6); c2 = foe(220, 6); G.v10fx = []; fire(w, c1, 0);
