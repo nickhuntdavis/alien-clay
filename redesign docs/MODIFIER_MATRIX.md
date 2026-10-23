@@ -150,7 +150,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | Puddle rate; smaller puddles. | Puddles laid close together merge into one large puddle. |
 | Little Prick | Rate. | Every 10th needle ticks all the target's Bleed stacks at once. |
 | Rent Free | Rate; shorter possessions. | Ghosts hitting a possessed enemy extend its possession. |
-| Hot Mess | Patch rate; smaller patches. | Patches laid in a line join into a burning strip. |
+| Hot Mess | Spatter: patch rate; smaller patches; patches that touch merge into one bigger patch (up to 3× size). | A merged patch of 3 or more flares once a second. |
 | Family Ties | Hole rate; smaller holes (3-well cap stays). | Small holes merge twice as easily. |
 | Skill Issue | Lob rate; smaller dollops. | A dollop landing on a flying enemy sends it flying again. |
 | There Is No Spoon | Return rate. | Returned bullets fire in pairs. |
@@ -162,7 +162,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | One of These Days | Rate; countdowns 3 s at 30%. | Extra marks on the same target stack its stored share (cap 80%). |
 | Sister Cousin | More, weaker siblings. | Siblings hitting one target in quick succession each add +10%. |
 | Peekaboo | Shorter vanishes, smaller BOOs. | Every 3rd BOO is full strength. |
-| Eggs | Egg rate; smaller eggs. | Eggs nobody grabs hatch into a small smite when they expire. |
+| Eggs | Scrambled: egg rate; smaller eggs; two enemies that reach the same egg are both smitten. | Eggs nobody grabs hatch into a small smite when they expire. |
 | Chest Burster | Rate. | Infection stacks: 3 hits raise a stronger undead. |
 | Enzyme Headbutt | Headbutt rate. | The lunge comes every 3rd hit instead of every 4th. |
 | Enzyme Sneeze | Sneeze rate; smaller droplets. | A sneezing fit: every 4th sneeze is 3 in a row. |
@@ -189,7 +189,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | Puddle size (0.6 s). | Charged puddles Snare on contact. |
 | Little Prick | Bleed stacks (+2 / 4 / 6). | A charged needle pierces and Bleeds a whole line. |
 | Rent Free | Possession length. | A charged ghost possesses everything it passes. |
-| Hot Mess | Patch heat and width (0.6 s). | Charged patches flare once a second. |
+| Hot Mess | Simmer (no wind-up): a patch heats up while it burns, +15% damage a second up to +60 / +120 / +180%, orange going white. | At full heat it boils over once, spilling a fresh patch beside it. |
 | Family Ties | Hole radius and pull (0.8 s). | A charged hole counts as 2 for merging. |
 | Skill Issue | Launch distance. | The collision chain goes one step deeper (depth 3). |
 | There Is No Spoon | Holds returns until the store is full, then fires them all as one volley; volley damage scales. | The volley fires as a ring round you. |
@@ -201,7 +201,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | One of These Days | Stored share (50 / 60 / 70%). | The payout also Bleeds everything within 80. |
 | Sister Cousin | Siblings per shot (3 / 4 / 5). | Charged siblings split into 3 on a kill. |
 | Peekaboo | BOO damage per 0.5 s hidden (+10 / 20 / 30%). | A full charge stuns as well as Fears. |
-| Eggs | N/A: eggs already smite harder the longer they wait. | |
+| Eggs | N/A: eggs already smite harder the longer they wait. |  |
 | Chest Burster | Infection length and undead strength (0.4 s). | A charged shot infects everything within 60 of its target. |
 | Enzyme Headbutt | Turns the next headbutt into a lunge (0.4 s); lunge length scales. | Charged lunges Corrode everything they pass. |
 | Enzyme Sneeze | Droplets (4 / 5 / 6). | A charged sneeze leaves a short Acid Pool. |
@@ -228,7 +228,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | Snare; its reactions. | Snare bars stay full 1 s after leaving the puddle. |
 | Little Prick | Bleed; its reactions. | Bleeding enemies hit by any of your weapons take +1 stack. |
 | Rent Free | Possessed; its reactions. | A full Possessed bar lasts twice as long. |
-| Hot Mess | Burn; its reactions. | Burning enemies spread Burn to enemies they touch. |
+| Hot Mess | Burn; its reactions. Fuel spill: each other status on an enemy standing in the patch makes the patch burn it +20%. | An unstable reaction set off inside the patch splashes a new small patch (1 a second at most). |
 | Family Ties | Force reactions. | Each reaction inside the well grows its radius 10%. |
 | Skill Issue | Force reactions; collisions count as Force hits. | Collisions set off the reaction between the two enemies' statuses. |
 | There Is No Spoon | Bars and reactions of returned bullets. | Returned bullets react with the shooter's own damage type. |
@@ -267,7 +267,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | Mucus | Puddles merge with any Mucus effect they touch. |
 | Little Prick | Blood | Bleed stacks have no cap. |
 | Rent Free | Alien | Possessed enemies attack the toughest enemy nearby. |
-| Hot Mess | Fire | Patches never go out while an enemy burns in them. |
+| Hot Mess | Fire. Firestarter: a hit from your other Fire weapons inside a patch makes it flare (×1.5 for 1 s) and grow 10% (up to double). | Patches never go out while an enemy burns in them; with Nappy Mines' Shared heat, mine patches and these pools merge. |
 | Family Ties | Force | The well bends your shots twice as hard. |
 | Skill Issue | Force | The collision chain goes one step deeper. |
 | There Is No Spoon | Force, and each returned bullet counts its own type's kin | Returned bullets gain +8% per weapon you carry of their type. |
@@ -279,7 +279,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | One of These Days | Blood | The payout repeats 60%. |
 | Sister Cousin | Blood | Split siblings can split once more. |
 | Peekaboo | Alien | Feared enemies are also possessed for 1 s. |
-| Eggs | Alien | Eggs lure elites. |
+| Eggs | Alien. Family recipe: your other Alien weapons deal +25% to an enemy on its way to an egg. | Eggs lure elites. |
 | Chest Burster | Alien | The undead cap rises to 6. |
 | Enzyme Headbutt | Acid | Every 3rd hit lunges. |
 | Enzyme Sneeze | Acid | The sneeze fires 5 droplets. |
@@ -306,7 +306,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | Crossing enemies are squirted out of the rim (40). | Squirted enemies stay Snared where they land. |
 | Little Prick | A small flinch that stacks on the same target (10). | Every 5th needle pins the target for 1 s. |
 | Rent Free | The ghost pushes its target (30). | Possessed enemies are pushed into their mates. |
-| Hot Mess | Enemies recoil out of the patch (40). | Enemies bounce around inside the patch instead of leaving. |
+| Hot Mess | Popcorn: burning enemies in the patch pop up and land up to 80 away; one that lands on another enemy hits it for 30%. | Enemies bounce around inside the patch instead of leaving. |
 | Family Ties | The hole repels instead of pulling (its pull strength, reversed). | The supernova blasts everything 200 outward. |
 | Skill Issue | N/A: already knockback-based. | |
 | There Is No Spoon | Returned bullets shove (30). | The shove scales with how hard the bullet would have hit you. |
@@ -318,7 +318,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | One of These Days | The payout launches the target (60). | The launched target hits its mates for 40% of the payout. |
 | Sister Cousin | Siblings shove targets towards the next sibling's target (20). | Killed enemies are flung into the nearest enemy. |
 | Peekaboo | The BOO blows Feared enemies away (60). | Fleeing enemies trample their mates. |
-| Eggs | The smite knocks the grabber and neighbours from the egg (50). | The grabber is flung towards the next egg. |
+| Eggs | Egg toss: the smite flings the grabber into its mates (50); whatever it hits takes 30%. | The grabber is flung towards the next egg, and grabs it. |
 | Chest Burster | Undead allies shove what they attack (30). | Undead rise with a blast that throws enemies back. |
 | Enzyme Headbutt | The lunge bulldozes the target forward (60). | Every headbutt knocks back; the lunge launches. |
 | Enzyme Sneeze | The front row is blown back (40). | Sneezed enemies collide for 40%. |
@@ -345,7 +345,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | The puddle drags enemies within 80 of its rim towards the centre. | Puddles slowly drift towards the densest cluster. |
 | Little Prick | Each needle tugs its target 30 towards you. | Bleeding enemies are drawn towards each other. |
 | Rent Free | The ghost drags enemies it passes 40 along its path. | The possessed enemy walks into its mates, pulling them along. |
-| Hot Mess | The patch draws in enemies within 60 of its edge. | Burning enemies that try to leave are pulled back. |
+| Hot Mess | Plughole: the patch draws in enemies within 60 of its edge; from Lv 3 its centre burns double. | Burning enemies that try to leave are pulled back. |
 | Family Ties | N/A: already pulls. | |
 | Skill Issue | The lard pulls enemies within 60 together before launching. | Enemies are pulled into a pile, then launched at once. |
 | There Is No Spoon | Enemy bullets within 140 curve towards you to be eaten (store cap still 10). | Each returned bullet tugs its shooter 40 towards you. |
@@ -384,7 +384,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | N/A: already Snares. | |
 | Little Prick | Needle slow (pins at Lv 3). | Pinned Bleeding enemies take Bleed ticks twice as fast. |
 | Rent Free | Possessed enemies move slower. | When possession ends, the enemy is Snared for 1 s. |
-| Hot Mess | The patch slows, then Snares, putting its own Fire out on that enemy: control instead of burn. | Snared enemies in the patch reignite when the Snare ends. |
+| Hot Mess | Tar pit: the patch is burning tar that slows 30 / 50 / 70% without Snaring, so it never puts its own Fire out. | An enemy that stays in the tar 2 s is stuck fast (Snared), and bursts back into flame when the Snare ends. |
 | Family Ties | Enemies are slowed on their way out of the well. | Enemies at the centre are Snared. |
 | Skill Issue | Flying enemies land slowed. | Stuck enemies stick to the mate they hit. |
 | There Is No Spoon | Returned bullets slow. | Returned bullets Snare. |
@@ -396,7 +396,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | One of These Days | Marked enemies are slowed. | The payout Snares the target. |
 | Sister Cousin | Sibling hits slow. | Split siblings Snare their targets. |
 | Peekaboo | Feared enemies are slowed as they flee. | Searching enemies are stuck at your last spot. |
-| Eggs | The grabber is slowed. | Grabbers are Snared until the smite. |
+| Eggs | Egg on your face: the smite splatters yolk; enemies within 60 are slowed 40% for 2 s. | Grabbers are Snared until the smite. |
 | Chest Burster | Infected enemies are slowed. | Undead allies Snare what they attack. |
 | Enzyme Headbutt | Headbutted enemies are slowed. | The lunge carries stuck enemies with you. |
 | Enzyme Sneeze | Droplet slow. | The whole sneeze cone Snares. |
@@ -462,7 +462,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | The first enemy to enter sets off a mucus blast that Snares its neighbours; the puddle then shrinks. | The puddle reforms after its blast, once per puddle. |
 | Little Prick | The needle, from inside the target after 0.5 s; neighbours Bleed. | The burst sprays 4 needles that make what they hit Bleed. |
 | Rent Free | The ghost, as it leaves its host. | The burst possesses the weakest enemy it hits for 1 s. |
-| Hot Mess | The patch, as it lands. | The patch flares again as it burns out. |
+| Hot Mess | Grease fire: the patch bursts as it lands, and again whenever an enemy dies in it (once every 0.5 s at most). | When it burns out it explodes, bigger for every enemy that burned in it. |
 | Family Ties | The hole, when it expires: +10% per enemy held (cap +100%). | The burst flings held enemies outward into their mates (40%). |
 | Skill Issue | N/A: Burst. | |
 | There Is No Spoon | Returned bullets, in their own damage type. | Two different types bursting together set off their unstable reaction at once. |
@@ -786,7 +786,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | A mucus drop falls on the densest cluster and spreads into a puddle. | Puddle +30%. | The drop Snares where it lands. | The drop splits into 3 puddles. |
 | Little Prick | A rain of needles over the target, each causing Bleed. | +2 needles. | The rain spreads to enemies within 50. | The needles pin the target for 1 s. |
 | Rent Free | A ghost dives onto the toughest enemy and possesses it (tracks its target). | Possession +1 s. | It dives on 2 targets. | It possesses everything within 60 of where it lands. |
-| Hot Mess | A burning drop falls and becomes a patch. | Patch +30%. | The drop lands with a flare. | The drop splashes into 3 patches. |
+| Hot Mess | Flaming bag: a burning bag falls on the crowd; the first enemy to step in stamps it out and splashes it into 3 patches round them. | Splashes +30%. | The bag lands with a flare. | Each splash can be stamped once more, splashing again. |
 | Family Ties | The black hole drops onto the densest cluster instead of travelling. | Radius +20. | It drops beside an existing hole if one is on screen. | Holes dropped within 100 of another merge on landing. |
 | Skill Issue | A dollop falls on the densest cluster, sending everything flying outward. | Launch +30%. | Radius +20. | Enemies are launched upward and land on their mates (40%). |
 | There Is No Spoon | Stored bullets rain down on the enemies that fired them (each tracks its shooter). | +20% damage. | Each bullet hits everything within 40 of its shooter. | The rain falls on every enemy within 100 of each shooter. |
@@ -798,7 +798,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | One of These Days | The mark falls on the toughest enemy (0.4 s reticle). | Repeats 50%. | The mark can't miss (ignores Evasion: it's a strike). | The payout comes as a strike from above on everything within 80. |
 | Sister Cousin | Siblings dive from above at their targets (homing). | 3 siblings. | Dives Bleed. | Split siblings also dive from above. |
 | Peekaboo | You vanish upward; the BOO comes down on the densest cluster. | Radius +30. | The search spot is where the BOO lands. | You land with it, at the BOO's centre, unharmed. |
-| Eggs | Eggs fall from above near greedy enemies. | 2 eggs. | Eggs land with a small smite. | The smite comes down on every enemy near the grabbed egg. |
+| Eggs | Egg drop: eggs fall onto the crowd; one that lands on an enemy cracks in a small smite, the rest stay as lures. | 2 eggs. | Cracked eggs smite +50%. | The smite comes down on every enemy near the grabbed egg. |
 | Chest Burster | Infecting shots fall on their targets (0.4 s reticle). | Infection +2 s. | Strikes infect everything within 40. | Undead rise by dropping onto enemies. |
 | Enzyme Headbutt | A falling headbutt: you drop onto the nearest enemy within 160 (still Contact). | Range 200. | Acid splashes round the landing. | The 4th-hit lunge becomes a dive that splashes acid round the landing. |
 | Enzyme Sneeze | Acid drizzle over a marked zone (radius 60). | Radius 80. | Drizzle lasts 2 s. | The drizzle follows the densest cluster. |
@@ -825,7 +825,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | N/A: the puddle's Snare is the attack. | | | |
 | Little Prick | N/A: Force has no status; it would lose Bleed and become a thinner Standard Issue. | | | |
 | Rent Free | N/A: possession is the Alien status. | | | |
-| Hot Mess | Fire → **Acid**: an Acid Pool (matrix 11.6) that Corrodes. Gives Ordered Online an Acid weapon (open issue 6). | Corrosion +20%. | Corrosion +40%. | Dual-type Fire and Acid. |
+| Hot Mess | **Two alternates** (exception to rule 15, as Nappy Mines; the branch picks one). Fire → **Acid**: an Acid Pool that Corrodes (gives Ordered Online an Acid weapon, open issue 6). Fire → **Mucus**: a snot slick that slows, then Snares. | Corrosion or Snotty +20%. | +40%. | Dual-type Fire and the chosen type. |
 | Family Ties | N/A: it was moved to Force because gravity is displacement. | | | |
 | Skill Issue | Force → **Static**: collisions add Charge. | Charge +20%. | Charge +40%. | Dual-type Force and Static. |
 | There Is No Spoon | N/A: its point is that returned bullets keep their own type. | | | |
@@ -837,7 +837,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | One of These Days | Blood → **Mucus**: the needle Snares; the countdown is unchanged. | Snare +20%. | Snare +40%. | Dual-type Blood and Mucus. |
 | Sister Cousin | Blood → **Fire**: siblings set targets alight; homing and splitting are unchanged. | Burn +20%. | Burn +40%. | Dual-type Blood and Fire. |
 | Peekaboo | N/A: the BOO's Fear reads as Alien. | | | |
-| Eggs | Alien → **Blood**: the smite makes enemies Bleed; the lure is unchanged. | +1 Bleed stack. | Bleed builds +30%. | Dual-type Alien and Blood. |
+| Eggs | **Two alternates** (as Nappy Mines; the branch picks one). Alien → **Blood**: the smite makes enemies Bleed. Alien → **Acid** (a rotten egg): the smite Corrodes. The lure is unchanged. | +1 Bleed stack, or Corrosion +20%. | Bleed or Corrosion builds +30%. | Dual-type Alien and the chosen type. |
 | Chest Burster | N/A: rising as an ally is the Alien mechanic. | | | |
 | Enzyme Headbutt | N/A: as Fire it would undo Sample 9's strip-then-burn loop. | | | |
 | Enzyme Sneeze | N/A: as Fire it would undo Sample 9's strip-then-burn loop. | | | |
@@ -903,7 +903,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | Every 4th puddle is double size. | Every 3rd. | It Snares instantly. | The empowered puddle pulls enemies in. |
 | Little Prick | Every 4th needle adds 3 Bleed stacks. | Every 3rd. | It pierces. | It ticks all Bleed stacks at once. |
 | Rent Free | Every 4th ghost possesses three times as long. | Every 3rd. | It possesses the 2 nearest enemies. | It possesses everything it passes. |
-| Hot Mess | Every 4th patch flares on landing. | Every 3rd. | It's double size. | The empowered patch is a ring round you. |
+| Hot Mess | Bonfire: every 4th patch is a bonfire: twice the size, three times as long, flaring once a second. | Every 3rd. | Bonfires pull nearby enemies in slightly. | The bonfire is a ring round you. |
 | Family Ties | Every 4th hole counts as 2 for merging. | Every 3rd. | It's 30% larger. | The empowered hole goes supernova on its own after 3 s. |
 | Skill Issue | Every 4th dollop launches twice as far. | Every 3rd. | Its chain goes one step deeper. | It launches everything on screen within 200. |
 | There Is No Spoon | Every 4th returned bullet hits double. | Every 3rd. | It pierces. | Every empowered return fires 3 bullets. |
@@ -915,7 +915,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | One of These Days | Every 4th mark stores 70%. | Every 3rd. | Its countdown is 3 s. | It pays out on every enemy within 100. |
 | Sister Cousin | Every 4th shot fires 4 siblings. | Every 3rd. | They Bleed ×2. | Its siblings split on any hit, not just kills. |
 | Peekaboo | Every 4th BOO is double radius. | Every 3rd. | Fear lasts twice as long. | The empowered BOO stuns as well as Fears. |
-| Eggs | Every 4th egg smites at full strength the moment it's grabbed. | Every 3rd. | It lures from double range. | It hatches a ghost ally after its smite. |
+| Eggs | Golden egg: every 4th egg is gold: it lures from twice as far, and enemies its smite kills drop extra DNA. | Every 3rd. | It smites at full strength the moment it's grabbed. | It hatches a ghost ally after its smite. |
 | Chest Burster | Every 4th shot infects everything within 50. | Every 3rd. | Radius 80. | The empowered shot's undead rise as elite versions. |
 | Enzyme Headbutt | N/A: already lunges every 4th hit. | | | |
 | Enzyme Sneeze | Every 4th sneeze fires 6 droplets. | Every 3rd. | It leaves an Acid Pool. | It's a full ring round you. |
@@ -942,7 +942,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Nocturnal Emission | +1 puddle per cast. | +1 more. | Puddles appear on both sides of you. | A ring of small puddles round you. |
 | Little Prick | +1 needle. | +1 rear needle. | +2 needles. | A burst of needles in every direction. |
 | Rent Free | +1 ghost. | +1 rear ghost. | Ghosts split at the first hit. | A ring of ghosts. |
-| Hot Mess | +1 patch. | +1 more. | Patches land on both sides of you. | A ring of patches round you. |
+| Hot Mess | Splash pattern: +1 patch, landing beyond the target in a line. | +1 more. | The line joins into a wall of fire across the enemies' path. | The wall closes into a ring round the crowd's centre. |
 | Family Ties | +1 hole (3-well cap stays; smaller holes). | Holes fire front and back. | Holes come in pairs that drift together. | Three holes at once in a triangle that merge in the middle. |
 | Skill Issue | +1 dollop. | +1 more. | Dollops land in a line. | A ring of dollops. |
 | There Is No Spoon | Returns in pairs. | Returns in threes. | Returns fan out over 30°. | Returns in a ring round you. |
@@ -1076,6 +1076,16 @@ Blowing Bubbles' cells were redesigned with the user on 23 Oct and are built in 
 - **Area** (`areamod.js`): keeps +25% pop radius a rank, and adds **Bigger bubbles** (bubbles are bigger, easier to land, and trap +10 max health a rank) and **Bubble cloud** (each pop leaves a mist of fine bubbles that pops again 1 s later at half damage).
 - **Melee** is a bubble round you, not the Membrane (user, 23 Oct): it pops in a Force explosion on contact, then grows back from tiny to full size. It stacks with Membrane Shield.
 - **Every bubble inflates before it is sent** (user, 23 Oct): it grows from nothing on your nose (or the Bubble machine's nozzle, or its spot in the rain) in 0.25 s (Big breath: 0.6 s), then leaves. This applies to Blowing Bubbles with or without modifiers.
+
+### 5.7 Hot Mess specials (Claude's picks, 23 Oct; the user asked for them to be chosen)
+Changed: Rapid Fire (Spatter), Charged (Simmer), Catalyst (Fuel spill), Kinship (Firestarter), Knockback (Popcorn), Pulling (Plughole), Sticky (Tar pit), Exploding Rounds (Grease fire), Death from Above (Flaming bag), Switched at Birth (Acid or Mucus), Every Nth (Bonfire), Extra Projectiles (Splash pattern). Kept as written: Connecting (Shared Burn), Turncoat (Fire walker), Melee (Hot to touch), Mines (hidden patches), Primer, Orbiting (ring of fire). N/A: Range, Up Close, Piercing, Ricochet, Focused Intensity, Homing, Ranged.
+- **Area** (`areamod.js`): +25% patch size a rank, and **Spreading**: patches creep outward as they burn (+50% by the end). Area + Pulling: Plughole pulls from further away (as Nappy Mines' Implosion).
+- **Why these:** Tar pit and Simmer remove the two anti-synergies the old cells had (Snare putting the pool's own Fire out; a wind-up on a weapon that doesn't attack in bursts). Firestarter and Shared heat make Hot Mess and Nappy Mines a pair in Ordered Online.
+
+### 5.8 Eggs specials (Claude's picks, 23 Oct)
+Changed: Rapid Fire (Scrambled), Kinship (Family recipe), Knockback (Egg toss), Sticky (Egg on your face), Death from Above (Egg drop), Switched at Birth (Blood or Acid), Every Nth (Golden egg). Kept as written: Catalyst, Pulling, Ricochet, Connecting (Clutch), Turncoat (Hatchling), Melee (Nest egg), Primer, Extra Projectiles, Orbiting. N/A: Range, Up Close, Charged, Piercing, Exploding Rounds, Focused Intensity, Homing, Mines, Ranged.
+- **Area** (`areamod.js`): +25% smite and lure radius a rank, and **Yolk splash**: the smite leaves a ghostly patch for 2 s that Curses what stands in it.
+- **Why these:** Egg toss and Golden egg follow the user's picks on the last two weapons (Cannonball, Golden bubble); Egg drop gives Death from Above a payoff on landing instead of only moving where eggs appear.
 
 ## 6. Moved to sperm passives
 
