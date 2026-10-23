@@ -23,9 +23,10 @@
 //    Force damage, and a Force hit on one pulls the other Snared enemies within 80 towards it. DEATH IS RECYCLING (Peer
 //    Pressure + Crossed Wires): an enemy you kill while it is Possessed lets out a wisp that fills 25% of the nearest
 //    enemy's Alien bar (mutations.js st.fly). Holding one half makes the draft offer the other 50% more often.
-// Not built: the doc's other masteries (for now one step further on the numbers), Advanced Targeting.
+//  - THE RUNS mastery: close a loop of trail and everything inside takes one hit of its damage type (spfLoopTick).
+// Not built: the doc's other masteries (for now one step further on the numbers).
 // Hooks: none in shared files. Wraps fight.js fightStatus, fightDeath, fightArc; chem.js curseFoe; mutations.js mutHit;
-// weapons24.js wupStats, wupDmgMul, wupTick, wupKill; the pair cards' start flag (draft.js weight). Loads after matrixonly.js.
+// weapons24.js wupStats, wupDmgMul, wupTick, wupKill; v10.js v10Draw; the pair cards' start flag (draft.js weight). Loads after matrixonly.js.
 
 const SP_KEEP = ['sp_runs', 'm_slip', 'm_heart', 'm_excite', 'r_group', 'r_pains', 'sp_leave', 'm_pad', 'sp_pile', 'sp_wet', 'sp_chain',
   't_mucus', 'sp_bleed', 'sp_peer', 'sp_fever', 't_wires', 'r_mess', 'x_brain', 'x_still', 'x_once', 'x_hungry', 'sp_extra', 'sp_space', 'sp_iric'];
@@ -202,3 +203,46 @@ for (const [a, b] of SPF_PAIRS) for (const [me, mate] of [[a, b], [b, a]]) {
 // ---------------------------------------------------------------- hooks
 wupTick = (orig => function (dt) { orig(dt); if (!G || G.state !== 'play') return; spfPileTick(); spfZoneTick(); })(wupTick);
 wupKill = (orig => function (e, src) { orig(e, src); spfKill(e, src); })(wupKill);
+
+// ---------------------------------------------------------------- The Runs mastery: close the loop (user, 23 Oct)
+// Swim a loop that crosses your own trail and everything inside it takes one hit of the trail's damage type (3x a
+// trail piece's damage), with a flash of the loop. At most once a second.
+const SPF_LOOP = { step: 30, k: 3, cd: 1, flash: 0.45 };
+function spfSegX(a, b, c, d) { // do segments ab and cd cross?
+  const o = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+  return o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0;
+}
+function spfInPoly(x, y, P) {
+  let inside = false;
+  for (let i = 0, j = P.length - 1; i < P.length; j = i++) if ((P[i].y > y) !== (P[j].y > y) && x < (P[j].x - P[i].x) * (y - P[i].y) / (P[j].y - P[i].y) + P[i].x) inside = !inside;
+  return inside;
+}
+function spfLoopTick() {
+  if (mr('sp_runs') < 4 || !G.spRuns) return;
+  const p = G.player, L = G.spLoop || (G.spLoop = { pts: [], t: -9, fx: [] }), w = G.spRuns.w, life = (w.s && w.s.dur) || 3;
+  while (L.pts.length && G.t - L.pts[0].t > life) L.pts.shift();
+  const last = L.pts[L.pts.length - 1];
+  if (last && Math.hypot(p.x - last.x, p.y - last.y) < SPF_LOOP.step) return;
+  const np = { x: p.x, y: p.y, t: G.t };
+  if (last && G.t - L.t > SPF_LOOP.cd) for (let i = 0; i < L.pts.length - 3; i++) {
+    if (!spfSegX(L.pts[i], L.pts[i + 1], last, np)) continue;
+    const poly = L.pts.slice(i + 1).concat([np]);
+    const src = Object.assign(weaponSrc(w), { mut: 'loop', noCrit: true, atk: 'burst', wname: 'The Runs (loop)' }), dmg = (w.s.dmg || 5) * SPF_LOOP.k;
+    for (const e of G.enemies) if (!e.dead && !e.charmed && !e.egg && spfInPoly(e.x, e.y, poly)) damageEnemy(e, dmg, src);
+    L.fx.push({ poly, t: G.t, col: w.def.color }); L.t = G.t; L.pts = [np];
+    return;
+  }
+  L.pts.push(np);
+}
+function spfLoopDraw() {
+  const L = G && G.spLoop; if (!L || !L.fx.length) return;
+  L.fx = L.fx.filter(f => G.t - f.t < SPF_LOOP.flash);
+  for (const f of L.fx) {
+    const k = 1 - (G.t - f.t) / SPF_LOOP.flash;
+    ctx.save(); ctx.globalAlpha = 0.35 * k; ctx.fillStyle = col(f.col || '#ffffff'); ctx.beginPath();
+    f.poly.forEach((q, i) => (i ? ctx.lineTo(sx(q.x), sy(q.y)) : ctx.moveTo(sx(q.x), sy(q.y)))); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 0.8 * k; ctx.strokeStyle = col(f.col || '#ffffff'); ctx.lineWidth = 3 * S; ctx.stroke(); ctx.restore();
+  }
+}
+wupTick = (orig => function (dt) { orig(dt); if (G && G.state === 'play') spfLoopTick(); })(wupTick);
+v10Draw = (orig => function () { orig(); if (G) spfLoopDraw(); })(v10Draw);

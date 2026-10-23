@@ -182,8 +182,8 @@ const UI = {
       if (kind === 's' && w) { featTap(w); return; } // (Feats: tap to cast)
       if (kind === 'w' && sbSlotTap(i, ev)) return; // (Sandbox: + mount, branch mark: sandbox.js)
       if (!w || w.def.noTarget) { UI.openArmoury(kind, i); return; }
-      const idx = DIRECTIVES.findIndex(d => d.id === w.dir), n = DIRECTIVES.length;
-      w.dir = DIRECTIVES[(idx + tapSide(el, ev) + n) % n].id; if (w.dir2 === w.dir) w.dir2 = null;
+      const DL = aimList(), idx = DL.findIndex(d => d.id === w.dir), n = DL.length;
+      w.dir = DL[(idx + tapSide(el, ev) + n) % n].id; if (w.dir2 === w.dir) w.dir2 = null;
       if (w.dirs) w.dirs[0] = w.dir;
       UI.toast(w.def.name + ' > ' + DIRECTIVES.find(d => d.id === w.dir).name);
       UI.refreshHud(true);
@@ -494,8 +494,8 @@ const UI = {
         h += uiChips(w.dirs.map((dd, bi) => uiChip(`BARREL ${bi + 1}: ${DIRECTIVES.find(x => x.id === dd).short}`, { sel: A.bar === bi, attrs: `data-bar="${bi}"` })).join(''));
         cur = w.dirs[A.bar];
       }
-      h += `<div class="dgrid">${DIRECTIVES.map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
-      if (!w.dirs) h += `<h3 style="margin-top:10px">Then (breaks ties, and takes over when nothing fits)</h3>${uiChips([{ id: '', short: 'NONE' }].concat(DIRECTIVES.filter(dd => dd.id !== w.dir)).map(dd => uiChip(dd.short, { sel: (w.dir2 || '') === dd.id, attrs: `data-dir3="${dd.id}"` })).join(''))}`;
+      h += `<div class="dgrid">${aimList().map(dd => `<button class="dbtn ${cur === dd.id ? 'sel' : ''}" data-dir="${dd.id}"><b>${dd.name}</b><span>${esc(dd.desc)}</span></button>`).join('')}</div>`;
+      if (!w.dirs) h += `<h3 style="margin-top:10px">Then (breaks ties, and takes over when nothing fits)</h3>${uiChips([{ id: '', short: 'NONE' }].concat(aimList().filter(dd => dd.id !== w.dir)).map(dd => uiChip(dd.short, { sel: (w.dir2 || '') === dd.id, attrs: `data-dir3="${dd.id}"` })).join(''))}`;
       h += aimOwnPick(w, cur, w.dirs ? null : w.dir2); // (MY OWN MESS: aimat.js)
     }
     h += `${uiPanelClose()}`;

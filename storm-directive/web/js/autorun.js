@@ -17,6 +17,7 @@ const AR = { kiteIn: 240, kiteOut: 360, kiteFar: 450, holdR: 60, orbitEvery: 1.5
 // ---------------------------------------------------------------- autoaim
 // Default aim prefers the boss: a slot still on its default NEAREST (never set in the aim menu: w.dirSet, no tie-breaker)
 // aims at a boss in reach before its escorts (20 Oct: bot boss fights sent about a quarter of their damage to the boss).
+let aimList = () => DIRECTIVES; // (the rules on offer in the aim menus; spsteer.js narrows it)
 function aimDir(w) {
   if (!w.dirSet && w.dir === 'nearest' && !w.dir2 && G && G.boss && !G.boss.dead) return 'bossfirst';
   return w.dir2 && w.dir2 !== w.dir ? w.dir + '>' + w.dir2 : w.dir;

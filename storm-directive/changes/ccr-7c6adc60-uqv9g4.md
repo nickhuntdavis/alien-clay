@@ -1,3 +1,11 @@
+## 2026-10-23 Targeting and autorun passives; The Runs loop mastery (v10.99)
+- Systems: sperm passives, autorun, autoaim, ui (aim menus, end screen)
+- Files: spsteer.js (new), spfull.js, autorun.js (aimList), ui.js and loadout.js (aim menus read aimList), index.html, tests/spsteertest.js (new)
+- What: targeting starts with Nearest, Furthest, Densest cluster and Elites & bosses; Advanced Targeting adds Toughest and Fastest, then Lowest health and Shooters first, then the rest; its mastery alternates a weapon's shots between its two rules. Autorun starts with Kite and Hold; Autopilot adds Collect, Orbit, then Hunt and Nest; its mastery adds an AUTO mode that picks for you. Win a run holding one and you keep all its levels for good (both held: you pick one); a kept passive's card is gone and its mastery card turns up from run Lv 10. The Runs' mastery: close a loop of trail and everything inside takes a hit of its type.
+- Save data: META.spKeep added ({ aim, auto }).
+- Hooks: ui.js tap-cycle and aim grid, loadout.js aim chips: DIRECTIVES -> aimList(). Wraps autorun.js moveModes, arMode, aimDir; UI.showGameOver; v10.js v10Draw.
+- Risk: tests, sims and the School get every option (STEER.force to test the limits). Weapons whose default rule is not on offer fall back to Nearest.
+
 ## 2026-10-23 Sperm passives: the doc's full list (v10.98)
 - Systems: sperm passives, mutations, chemistry (fight), draft
 - Files: spfull.js (new), index.html, tests/spfulltest.js (new)
