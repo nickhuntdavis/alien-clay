@@ -9,9 +9,9 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    META.s10 = { private: 1, ordered: 1, redtail: 1, prawn: 1, alien: 1, beta: 1 }; // (only Alpha never rescued)
+    META.s10 = { private: 1, ordered: 1, redtail: 1, prawn: 1, alien: 1, beta: 1 }; META.kinSeen = Object.assign({}, META.s10); // (only Alpha never rescued)
     META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 10;
-    genLoot({ kind: 'start' })[0].apply();
+    genLoot({ kind: 'start' }); G.weapons[0] = makeSlot(w24Starters('baseline')[0], false, 1); recomputeAll(); // (the start offer is random now: samplestart.js)
     if (!raceOn()) bad.push('not a race');
     // Pool before: Baseline's weapons only.
     const own = r => W24.find(x => x[0] === r)[4];
@@ -33,7 +33,7 @@ const { chromium } = require('playwright');
     G.player.x = s.x; G.player.y = s.y; v10Tick(0.016);
     if (G.kin.spirits.length) bad.push('not rescued on touch');
     if (!kinHas('alpha') || !s10Has('alpha') || !s10Has('baseline')) bad.push('passives ' + G.kin.has);
-    if (!(META.s10 && META.s10.alpha)) bad.push('not unlocked');
+    if (META.s10 && META.s10.alpha) bad.push('a rescue unlocked Alpha (achievements do now: samplestart.js)');
     if (!v10Pool().some(id => own(id) === 'alpha')) bad.push('alpha weapons not in pool');
     const q = G.lootQueue[0];
     if (!q || q.kind !== 'kindred' || draftBox(q) !== true) bad.push('no kindred screen ' + JSON.stringify(q));

@@ -11,7 +11,7 @@
 //    shows who it is and its passive, and offers its three weapons. Your body takes on its look (grafts, below). Absorbing does three things:
 //      1. its passive works alongside your own (samples10.js s10Has);
 //      2. its three weapons join this run's weapon pool (kinPool: race drafts only offer your sample's and absorbed ones);
-//      3. it unlocks as a starter for later runs (META.s10; S10_ALL still opens everything while testing).
+//      3. (it no longer unlocks the sample: achievements do, samplestart.js; META.kinSeen remembers the rescue).
 //    Rescues are a race's only weapon drafts (user, 21 Oct): the screen offers its three weapons and one of your own
 //    sample's starters you don't hold; the pick fills an empty mount or grows one (up to MAX_WEAPONS). Skip keeps the
 //    mount free for a later rescue. No level-up weapon drafts (KIN.slots empty); a Recycle in the Tackle Box gives
@@ -51,7 +51,7 @@ function kinPool(id) {
 
 function kinChoose() {
   const cand = SAMPLES10.filter(s => !kinHas(s.id) && !KIN.skip.includes(s.id) && s.weapons && s.weapons.length && !G.kin.spirits.some(k => k.id === s.id));
-  const fresh = cand.filter(s => !(META.s10 && META.s10[s.id]));
+  const fresh = cand.filter(s => !(META.kinSeen && META.kinSeen[s.id]));
   const pool = fresh.length ? fresh : cand;
   return pool.length ? pick(pool).id : null;
 }
@@ -113,7 +113,7 @@ function kinAbsorb(id) {
   K.has.push(id);
   if (sm.evasion) G.s10.ev = Math.max(G.s10.ev || 0, sm.evasion); // (Ordered Online's built-in Evasion)
   if (id === 'baseline' && G.genes) { PROFILES.s10_baseline.apply(G.P, 1); G.genes.applied.push(['s10_baseline', 1]); }
-  (META.s10 || (META.s10 = {}))[id] = 1; saveMeta();
+  (META.kinSeen || (META.kinSeen = {}))[id] = 1; saveMeta(); // (rescued before: no longer an unlock; achievements unlock samples now, samplestart.js)
   G.stats.kin = K.has.slice(1);
   if (typeof recomputeAll === 'function') recomputeAll();
 }

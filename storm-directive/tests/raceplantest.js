@@ -20,6 +20,7 @@ const { chromium } = require('playwright');
     G.lootQueue = []; G.t = 301; v10Tick(1 / 60); const m = G.lootQueue.find(q => q.mstone); out.ms = m && [m.mstone, m.boost];
     if (!m || m.mstone !== 5) bad.push('milestone at 5:00');
     const titles = { level: ['x', 'y'] }; dirTitle(m, titles); out.title = titles.level[0]; if (!/MILESTONE/.test(out.title)) bad.push('milestone title');
+    G.lootQueue = []; G.rplan.used = RPLAN.at.findIndex(t => t > 302); G.t = RPLAN.at[G.rplan.used] + 1; v10Tick(1 / 60); out.sched = G.lootQueue.map(q => q.kind).join(); if (out.sched !== 'level') bad.push('empty slot ' + out.sched);
     // other modes: unchanged
     UI.sample = 's002'; newGame(); G.state = 'play'; out.wave = rplanOn(); if (out.wave) bad.push('on in wave mode');
     return { bad, out };

@@ -2,7 +2,8 @@
 // Spawn Prawn - the Race's upgrade schedule (user, 23 Oct; race only: race15.js raceOn).
 //  - SCHEDULE: reward screens open only at set times (RPLAN.at: first at 0:30, then about every 40 to 45 s, last at
 //    14:25), plus two milestones at 5:00 and 10:00: 22 in all. XP and level-ups carry on in the background; a request
-//    that arrives between slots waits for the next one (the Reward Director's queue order decides which goes first).
+//    that arrives between slots waits for the next one (the Reward Director's queue order decides which goes first). A
+//    slot with nothing waiting still opens a level-up screen, so late slots aren't skipped when levels slow down.
 //  - BANKING: when a level-up screen opens, the other level-ups waiting are folded into it and raise its rarity floor
 //    (one rarity per RPLAN.bankPer banked levels, up to Epic). Nothing earned is lost.
 //  - MILESTONES (placeholder until the sample reward sequence is designed): at 5:00 and 10:00, a Sample Milestone
@@ -17,10 +18,10 @@
 
 const RPLAN = {
   at: [30, 70, 110, 150, 190, 230, 270, 335, 375, 415, 455, 495, 535, 575, 640, 685, 730, 775, 820, 865],
-  milestones: [300, 600], bankPer: 2, bankMax: 3, mstoneBoost: 2,
+  milestones: [300, 600], off: false, bankPer: 2, bankMax: 3, mstoneBoost: 2,
   transform: ['melee', 'ranged', 'mines', 'dfa'], early: 0.35, mid: 1.6, mastEarly: 0.5, mastLate: 2,
 };
-const rplanOn = () => typeof raceOn === 'function' && raceOn();
+const rplanOn = () => !RPLAN.off && typeof raceOn === 'function' && raceOn();
 const rplanS = () => G.rplan || (G.rplan = { used: 0, ms: 0 });
 const rplanDue = () => { const S = rplanS(); return S.used < RPLAN.at.length && G.t >= RPLAN.at[S.used]; };
 const rplanFree = req => ['start', 'fork', 'wupfork', 'boss', 'relic'].includes(req.kind) || req.now || req.mstone || (req.kind === 'slot' && G.weapons.filter(Boolean).length < 2);
@@ -45,6 +46,7 @@ v10Tick = (orig => function (dt) {
   orig(dt);
   if (!G || !rplanOn() || G.state !== 'play') return;
   const S = rplanS();
+  if (rplanDue() && !G.lootQueue.length && !dirEgg()) G.lootQueue.push({ kind: 'level', rpSched: 1 }); // (every slot gets a screen, even when no level-up is waiting)
   if (S.ms < RPLAN.milestones.length && G.t >= RPLAN.milestones[S.ms]) {
     const min = Math.round(RPLAN.milestones[S.ms] / 60); S.ms++;
     if (!dirEgg()) G.lootQueue.unshift({ kind: 'level', mstone: min, boost: RPLAN.mstoneBoost, now: true });

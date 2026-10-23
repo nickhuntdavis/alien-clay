@@ -51,8 +51,8 @@ const { chromium } = require('playwright');
     if (out.queue.join() !== 'mutation,level,level,level') bad.push('director queue: ' + out.queue);
     if (genLoot({ kind: 'level' }).length !== 3) bad.push('level screen not three cards');
     // A stack plays back to back: closing a screen with more waiting opens the next one inside the gap
-    G.dir = null; draftBox({ kind: 'level' }); G.t += 1; dirPicked(); G.t += 0.1;
-    if (draftBox({ kind: 'level' }) !== true) bad.push('stacked screen held back');
+    RPLAN.off = true; G.dir = null; draftBox({ kind: 'level' }); G.t += 1; dirPicked(); G.t += 0.1; // (the Race's schedule off: raceplan.js)
+    if (draftBox({ kind: 'level' }) !== true) bad.push('stacked screen held back'); RPLAN.off = false;
     G.t += 0.1; if (draftBox({ kind: 'level' }) !== 'wait') bad.push('gap gone after the stack');
     // Starvation: a level draft that has waited long enough goes before a fresh DNA strand
     G.lootQueue = [{ kind: 'level', dirAt: G.t - 120 }, { kind: 'chest' }]; dirTick();

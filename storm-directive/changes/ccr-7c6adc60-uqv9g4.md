@@ -1,16 +1,16 @@
 ## 2026-10-23 The Race's upgrade schedule
 - Systems: rewards (Reward Director), race, draft
-- Files: raceplan.js (new), index.html, tests/raceplantest.js (new)
-- What: in the Race, reward screens open only at 20 set times (0:30, then about every 40 to 45 s, last 14:25) plus Sample Milestone screens at 5:00 and 10:00 (a Rare-floor level draft, a placeholder for the sample reward sequence). Level-ups between slots fold into the next level screen and raise its rarity floor. Transformations are dealt less before 5:00 and more from 5:00 to 10:00; masteries less before 10:00, more after. Forks, branch screens, boss rewards and the second weapon still open at once; after the egg wakes, waiting rewards apply themselves as before.
+- Files: raceplan.js (new), index.html, tests/raceplantest.js (new), tests/drafttest.js (RPLAN.off for the Director's stacking check)
+- What: in the Race, reward screens open only at 20 set times (0:30, then about every 40 to 45 s, last 14:25) plus Sample Milestone screens at 5:00 and 10:00 (a Rare-floor level draft, a placeholder for the sample reward sequence). Level-ups between slots fold into the next level screen and raise its rarity floor; a slot with nothing waiting still opens a level-up screen. Transformations are dealt less before 5:00 and more from 5:00 to 10:00; masteries less before 10:00, more after. Forks, branch screens, boss rewards and the second weapon still open at once; after the egg wakes, waiting rewards apply themselves as before.
 - Save data: none.
 - Hooks: none in shared files. Wraps director.js dirGate, dirTitle; modmatrix.js modDraftCands; v10.js v10Tick.
 - Risk: fewer screens means slower builds in the Race (difficulty unsimmed); chests wait for slots.
 
 ## 2026-10-23 Samples: achievement unlocks, random starting offer, bigger passives
 - Systems: samples, achievements, weapons (start)
-- Files: samplestart.js (new), samples10.js (locked card line; passive numbers), acrosample.js and acrocopy.js (Early Bird at 50%), index.html, tests/samplestarttest.js (new)
+- Files: samplestart.js (new), samples10.js (locked card line; passive numbers), acrosample.js and acrocopy.js (Early Bird at 50%), kindred.js (rescues remembered in META.kinSeen, no unlock), index.html, tests/samplestarttest.js (new), tests/kindredtest.js
 - What: Baseline is open; every other sample unlocks when you first earn its achievement (Alpha: Still Here?, Beta: Flesh Wound, Private Schooled: Middle Management Removed, Ordered Online: Statistically Significant, Redtail: Contractually Obligated, Prawn Again: Lab Rat, Not of This World: Congratulations It's You, Early Bird: Flawless Specimen). Achievements are remembered between runs; rescues no longer unlock samples. The start offers three random matrix weapons: one of the sample's damage type, one Switched at Birth into it (starts switched), one any. Passives exaggerated: Baseline +15% stats, Alpha +50% fire rate while moving, Beta below 40% up to +200% damage and double lifesteal, Private Schooled twice the Corrosion and ally damage, Ordered Online 30% Evasion and a wider, longer trail, Redtail double burn, Prawn Again 2.5x Bleed, Not of This World shifts every 12 s with a 3 s +30% surge, Early Bird pays off at 50%.
-- Save data: META.achEver added; META.s10 now filled by achievements (S10_ALL off).
+- Save data: META.achEver and META.kinSeen added; META.s10 now filled by achievements (S10_ALL off).
 - Hooks: none in shared files. Wraps samples10.js s10Start, s10Unlock; show.js achieve.
 - Risk: testers lose samples they had through S10_ALL until they earn the achievements. Stronger passives unsimmed.
 
