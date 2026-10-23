@@ -354,6 +354,7 @@ function fightDraw() {
     if (e.dead) continue;
     const c = e.cd || (fightId(e.def) && typeof ROSTER !== 'undefined' && ROSTER[fightId(e.def)] && ROSTER[fightId(e.def)].def ? fightCd(e) : null);
     const x = sx(e.x), y = sy(e.y), r = e.r * S;
+    if (x < -r - 60 || x > W + r + 60 || y < -r - 60 || y > H + r + 60) continue; // (off screen: nothing to draw)
     ctx.save(); ctx.lineCap = 'round';
     if (c && c.def === 'membrane' && c.memMax > 0 && typeof foeMemDraw === 'function') foeMemDraw(e, c, x, y, r); // (your bubble, foemem.js)
     else if (c && c.def === 'membrane' && c.memMax > 0) { // blue ring, full while up; flickers while recharging

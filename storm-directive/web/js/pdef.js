@@ -69,7 +69,7 @@ function pst() {
 }
 const pdEvasion = D => Math.min(COMBAT.evasionCap, D.n.evasion * PDEF.evasionStep + (typeof s10Evasion === 'function' ? s10Evasion() : 0)); // (the Cold Parcel's built-in 20%: samples10.js)
 const pdHasShield = D => !!((D && D.n.latex > 0) || (G && G.relics && G.relics.rubber) || (typeof s10Shield === 'function' && s10Shield())); // (card, Rubber Johnny relic, or a sample that starts with one)
-const pdMemFrac = D => pdHasShield(D) ? PDEF.memFrac + D.n.thick * PDEF.thickStep : 0;
+const pdMemFrac = D => (pdHasShield(D) ? PDEF.memFrac + D.n.thick * PDEF.thickStep : 0) + (typeof stMemFrac === 'function' ? stMemFrac() : 0); // (Membrane stat bonus: statup.js)
 const pdefShieldUp = () => !!(G && G.pd && G.pd.mem.memMax > 0 && G.pd.mem.mem > 0 && pdHasShield(G.pd)); // (the bubble is on: stamina.js armourRing, bodymods.js)
 const pdefShieldK = () => { const m = G.pd.mem; return m.memMax > 0 ? clamp(m.mem / m.memMax, 0, 1) : 0; };
 // The bubble hit a surface too fast: it wears like a hit and the Membrane loses a little (bodymods.js bubbleBump).
