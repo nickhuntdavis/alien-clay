@@ -315,12 +315,13 @@ function unstick(o, r) { pushOut(o, r || 10, 0); if (G.lvl) lvPush(o, r || 10); 
 
 // Everything in the womb drifts: solid growths creep (6 to 12 a second), currents, cilia and slicks wander a
 // little faster. They wander, keep out of the egg's glow and inside the arena, and steer round each other.
-const DRIFT = { solid: [6, 12], soft: [10, 20], gap: 120, regrid: 0.25 };
+const DRIFT = { solid: [6, 12], soft: [10, 20], gap: 120, regrid: 0.25, nEvery: 8 };
 function updateTerrain(dt) {
   const T = G.terrain;
   if (!T) return;
-  const L = T.list;
-  for (const ob of L) {
+  const L = T.list, ph = T.nPh = ((T.nPh || 0) + 1) % DRIFT.nEvery;
+  for (let i = 0; i < L.length; i++) {
+    const ob = L[i];
     if (ob.flash > 0) ob.flash -= dt;
     if (ob.burstT > 0) ob.burstT -= dt;
     if (ob.sp == null) { const r = ob.def.solid ? DRIFT.solid : DRIFT.soft; ob.sp = rand(r[0], r[1]); ob.h = Math.random() * TAU; ob.fixed = Math.hypot(ob.x, ob.y) > CORE.arena - 100; }
@@ -330,13 +331,19 @@ function updateTerrain(dt) {
     // Stay in the band between the egg's glow and the arena wall.
     const d = Math.hypot(ob.x, ob.y) || 1, inner = CORE.sanctuary + 200 + ob.r, outer = CORE.arena - 120 - ob.r;
     if (d < inner || d > outer) turn += angDiff(Math.atan2(ob.y, ob.x) + (d < inner ? 0 : Math.PI), ob.h) * 1.5;
-    // Steer away from neighbours.
-    for (const o of L) {
-      if (o === ob || o.parent === ob || (ob.lake && o.type === 'acid')) continue; // (an acid lake ploughs on into other acid: bighaz.js)
-      const dx = ob.x - o.x, dy = ob.y - o.y, gap = ob.r + o.r + DRIFT.gap;
-      if (Math.abs(dx) > gap || Math.abs(dy) > gap || dx * dx + dy * dy > gap * gap) continue;
-      turn += angDiff(Math.atan2(dy, dx), ob.h) * 0.8;
+    // Steer away from neighbours. They creep at 6 to 20 a second, so each one looks round only every nEvery-th
+    // frame (staggered) and keeps that steer in between: the all-pairs check was the biggest cost in a late Race.
+    if (i % DRIFT.nEvery === ph || ob.nTurn == null) {
+      let nt = 0;
+      for (const o of L) {
+        if (o === ob || o.parent === ob || (ob.lake && o.type === 'acid')) continue; // (an acid lake ploughs on into other acid: bighaz.js)
+        const dx = ob.x - o.x, dy = ob.y - o.y, gap = ob.r + o.r + DRIFT.gap;
+        if (Math.abs(dx) > gap || Math.abs(dy) > gap || dx * dx + dy * dy > gap * gap) continue;
+        nt += angDiff(Math.atan2(dy, dx), ob.h) * 0.8;
+      }
+      ob.nTurn = nt;
     }
+    turn += ob.nTurn;
     ob.h += clamp(turn, -0.8, 0.8) * dt;
     ob.x += Math.cos(ob.h) * ob.sp * dt; ob.y += Math.sin(ob.h) * ob.sp * dt;
   }

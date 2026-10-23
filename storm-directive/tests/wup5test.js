@@ -135,7 +135,7 @@ const { chromium } = require('playwright');
       'The Big Day': { sc: { hp: 1e5, n: 8 }, frames: 400, keys: ['bigday'], cb: (f, w) => { const m = marked(w); st.max = Math.max(st.max, m.filter(q => !q.due.weak).length); if (m[0] && wupDmgMul(m[0], { w }) >= 1.5) st.mul = 1; }, chk: w => (w.s.count === 3 && st.mul && st.max === 3) || 'count ' + w.s.count + ' mul ' + st.mul + ' max ' + st.max },
       'Induced': { sc: { hp: 1e5, n: 8 }, frames: 300, keys: ['induced'], chk: w => (w.s.repeat === 1 && w.w5.fx.induced === 1) || 'repeat ' + w.s.repeat + ' induced ' + w.w5.fx.induced },
       // ---------------- Sister Cousin
-      'Family Planning': { sc: FOD, frames: 400, keys: ['extra'], chk: w => w.s.dmg < st.base * 0.9 || 'dmg ' + w.s.dmg + ' base ' + st.base },
+      'Family Planning': { sc: FOD, frames: 400, keys: ['extra'], chk: w => st.after < st.base * 0.9 || 'dmg ' + st.after + ' base ' + st.base },
       'Runts of the Litter': { sc: FOD, frames: 400, keys: ['extra', 'runt'] },
       'Overcrowding': { sc: { hp: 1e5, n: 8 }, frames: 60, cb: (f, w) => { if (f === 20) { const a = G.player, e0 = G.enemies[0]; for (let i = 0; i < 14; i++) spawnProj(w, a.x, a.y, i, weaponSrc(w), { life: 9, max: 9, homing: 0, speed: 1, vx: 0.1, vy: 0, mSplit: 1 }); const pr = spawnProj(w, a.x, a.y, 0, weaponSrc(w), { life: 9, max: 9, homing: 0, speed: 1, vx: 0.1, vy: 0 }); const d = makeEnemy(def, a.x + 500, a.y); d.dead = true; const n0 = G.proj.filter(q => q.w === w && !q.dead).length; modHit(pr, d); st.grew = G.proj.filter(q => q.w === w && !q.dead).length - n0; } }, chk: w => st.grew >= 1 || 'no room: grew ' + st.grew },
       'Hide and Seek': { sc: { hp: 1e5, n: 8 }, frames: 200, keys: ['hid', 'ambush'], cb: (f, w) => { const a = G.player; if (f === 10) spawnProj(w, a.x + 300, a.y + 300, 0, weaponSrc(w), { life: 0.05, max: 0.05, homing: 0 }); if (f === 40 && w.w5.hiders[0]) { const e = G.enemies[0], h = w.w5.hiders[0]; e.x = h.x; e.y = h.y; slots[0].free = 1; SC.free = 1; } if (f > 40) { const h = w.w5.hiders[0]; if (h) { G.enemies[0].x = h.x + 10; G.enemies[0].y = h.y; } } } },
@@ -169,6 +169,7 @@ const { chromium } = require('playwright');
         else st.base = w.s.dmg;
         if (cs.lv > 3) st.base = w.s.dmg / (cs.name === 'Family Planning' ? 1 : 1);
         if (!take(w, cs.lv, cs.name)) continue;
+        st.after = w.s.dmg; // (right after the card: kills in the run below can level the weapon up)
         run(Object.assign({}, x.sc, x.frames ? { frames: x.frames } : {}), x.cb ? (f => x.cb(f, w)) : null);
         const F = (w.w5 && w.w5.fx) || {}, missing = (x.keys || []).filter(k => !(F[k] > 0));
         if (missing.length) bad.push(`${cs.name} (${w.def.name} Lv ${cs.lv}): no ${missing.join(', ')}; fx ${JSON.stringify(F)}`);

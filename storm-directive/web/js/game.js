@@ -2402,7 +2402,7 @@ function updatePlayer(dt) {
   const hx = Math.cos(p.hd), hy = Math.sin(p.hd);
   let fwd = p.vx * hx + p.vy * hy, lat = -p.vx * hy + p.vy * hx;
   const want = thrust * power * (1 + 0.12 * p.kick);
-  fwd = want >= fwd ? lerp(fwd, want, 1 - Math.pow(0.004, dt * (1 + 4 * p.kick))) // stroke: quick; the big first strokes, much quicker
+  fwd = want >= fwd ? lerp(fwd, want, 1 - Math.pow(0.004, dt * (1 + 4 * p.kick) * (P.accel || 1))) // stroke: quick; the big first strokes, much quicker
     : lerp(fwd, want, 1 - Math.pow(0.4, dt)); // no stroke: glide on momentum, slowly bleeding speed
   // Carving: the grip that stops you sliding sideways turns part of that sideways momentum into forward
   // speed, so you come out of a turn still moving instead of having to build up from nothing.
@@ -2580,13 +2580,14 @@ function applyPickup(type, src) {
 
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
+  const v0 = v; // (the gem's own value, for the run log)
   if (V10) v = f10Xp(v); // (More!, Mine!: feats10.js)
   if (typeof raceXp === 'function') v *= raceXp(); // (the 15-minute race: race15.js)
   // XP bonuses from upgrades count half (they stacked up to x1.9 and runs finished 10-30 levels ahead of the curve).
   const xpUp = G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp;
   const xk = XP_PACE * xpUp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp();
   G.xp += v * xk;
-  G.stats.xpRaw = (G.stats.xpRaw || 0) + v; G.stats.xpGot = (G.stats.xpGot || 0) + v * xk; // run-log telemetry // the morning-after pill halves growth
+  G.stats.xpRaw = (G.stats.xpRaw || 0) + v0; G.stats.xpGot = (G.stats.xpGot || 0) + v * xk; // run-log telemetry // the morning-after pill halves growth
   sfx('gem');
   const lv0 = G.level;
   while (G.xp >= G.xpNeed) {
@@ -2813,6 +2814,7 @@ function compact() {
   if (G.zones.length > CAPS.zones) G.zones.splice(0, G.zones.length - CAPS.zones);
   compactArr(G.turrets, x => x.life > 0);
   compactArr(G.parts, x => x.life > 0);
+  { const cap = qualParts() + 20; if (G.parts.length > cap) G.parts.splice(0, G.parts.length - cap); } // (effects that push straight into G.parts skip the cap: drop the oldest)
   compactArr(G.fx, x => x.life > 0);
   compactArr(G.texts, x => x.life > 0);
   compactArr(G.timers, x => !x.done);

@@ -172,6 +172,19 @@ p('## Modifiers'); p('');
   for (const [id, m] of Object.entries(mc.M.MODS10)) p(`| **${esc(m.name)}**${m.group ? ' (Delivery)' : ''} | ${esc(m.desc)} | ${esc((mc.M.MODUP[id] || [])[0])} | ${esc((mc.M.MODUP[id] || [])[1])} | ${m.atk.map(a => ATK[a]).join(', ')} |`);
   p('');
 }
+{ // stat bonuses (statup.js ST_DEF, ST_MOD)
+  const cut = (f, from) => { const t = fs.readFileSync(J + f, 'utf8'); const i = t.indexOf(from); return t.slice(i, t.indexOf('\n};\n', i) + 4); };
+  const sc = {}; vm.createContext(sc);
+  vm.runInContext(cut('statup.js', 'const ST_DEF') + cut('statup.js', 'const ST_MOD') + cut('modifiers.js', 'const MOD_ALL') + ';globalThis.S = { ST_DEF, ST_MOD, MODS10 };', sc);
+  const { ST_DEF, ST_MOD, MODS10 } = sc.S, r = x => Math.round(x * 10) / 10;
+  const fmt = D => D.fmt === 'pct' ? '+' + r(D.k * 100) + '%' : D.fmt === 'rate' ? '+' + r(D.k) + '/s' : '+' + r(D.k);
+  const nm = id => id === 'switch' ? 'Switched at Birth' : id === 'area' ? 'Area' : MODS10[id] ? MODS10[id].name : id;
+  p('### Stat bonuses'); p('');
+  p('Every modifier card you take (each rank, and Switched at Birth) also adds a small bonus to one stat, shown on the card. Bonuses last the run. Every weapon has its own base stats (damage, fire rate, crit chance and bonus, magazine, reload, range), shown on the weapon draft; they differ weapon to weapon but deal about the same damage over time. Shell takes that much off every hit that gets through (never more than half); Membrane adds that share of max health to your Membrane.'); p('');
+  p('| Modifier | Stat bonus |'); p('|---|---|');
+  for (const [id, k] of Object.entries(ST_MOD)) p(`| ${esc(nm(id))} | ${fmt(ST_DEF[k])} ${ST_DEF[k].name} |`);
+  p('');
+}
 p('## Upgrades that do not fit'); p('');
 p('Some upgrades would break a weapon\'s branch, or do nothing for it, so they are not offered to that weapon (web/js/fitcheck.js; keep this list in step with it). A tier always keeps at least one card.'); p('');
 p('| Weapon | Not offered | Why |'); p('|---|---|---|');

@@ -21,6 +21,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 14. [Upgrades any weapon can take](#upgrades-any-weapon-can-take)
    - [Lv 3 pool](#lv-3-pool)
 15. [Modifiers](#modifiers)
+   - [Stat bonuses](#stat-bonuses)
 16. [Upgrades that do not fit](#upgrades-that-do-not-fit)
 17. [Duo combos](#duo-combos)
 18. [Stains](#stains)
@@ -806,6 +807,39 @@ Level-up cards for one weapon whose attack type fits. A weapon holds up to 3 dif
 | **Little Helpers** (Delivery) | Pets deliver the attack for you. Up to four on this weapon, eight in total. | Three pets on this weapon. | Four pets on this weapon. | Contact, Projectile |
 | **Gravity Well** | Warps space round the attack: drags enemies towards its centre and bends shots passing through. Three wells at most. | Wider wells, four at once. | Wider still, five at once. | Projectile, Burst, Pool |
 | **Lunge** | The attack moves you: forwards through a Contact target, or backwards as recoil from Spread and Burst. | Up to 240 units. | Up to 320 units. | Contact, Spread, Burst |
+
+### Stat bonuses
+
+Every modifier card you take (each rank, and Switched at Birth) also adds a small bonus to one stat, shown on the card. Bonuses last the run. Every weapon has its own base stats (damage, fire rate, crit chance and bonus, magazine, reload, range), shown on the weapon draft; they differ weapon to weapon but deal about the same damage over time. Shell takes that much off every hit that gets through (never more than half); Membrane adds that share of max health to your Membrane.
+
+| Modifier | Stat bonus |
+|---|---|
+| Body Piercing | +3% Bullet Damage |
+| explode | +3% Bullet Damage |
+| rapid | +3% Rate of Fire |
+| Homing Instinct | +1.5% Crit Chance |
+| primer | +1.5% Crit Chance |
+| charged | +8% Crit Bonus |
+| focus | +8% Crit Bonus |
+| mines | +6% Magazine Size |
+| extra | +6% Magazine Size |
+| ranged | +5% Reload Speed |
+| connecting | +5% Reload Speed |
+| range | +5% Bullet Range |
+| catalyst | +5% Feat Power |
+| Wind-Up | +5% Feat Power |
+| upclose | +5 Max Health |
+| kinship | +0.2/s Health Regeneration |
+| Area | +0.2/s Health Regeneration |
+| knock | +1 Shell |
+| melee | +1 Shell |
+| sticky | +3% Membrane |
+| Hangers-On | +3% Membrane |
+| dfa | +3% Move Speed |
+| turncoat | +5% XP Bonus |
+| Switched at Birth | +5% XP Bonus |
+| pull | +5% Traction |
+| Ricochet | +6% Acceleration |
 
 ## Upgrades that do not fit
 
