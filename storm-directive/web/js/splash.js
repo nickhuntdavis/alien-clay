@@ -31,12 +31,18 @@ function splashColours() {
   const cs = getComputedStyle(document.documentElement), v = (n, d) => cs.getPropertyValue(n).trim() || d;
   return { bg: v('--color-bg-app', '#e4e5e0'), ink: v('--color-text-primary', '#1e1e1e'), muted: v('--color-text-muted', '#4a4a46'), dim: v('--color-text-dim', '#9a9b95') };
 }
+function splashSoft(R) {
+  const n = Math.ceil(2 * R);
+  if (!SPLASH.off) SPLASH.off = document.createElement('canvas');
+  if (SPLASH.off.width !== n) { SPLASH.off.width = n; SPLASH.off.height = n; }
+  return SPLASH.off;
+}
 function splashFrame(now) {
   if (!SPLASH.on) return;
   const dt = Math.min(0.05, (now - SPLASH.last) / 1000); SPLASH.last = now; SPLASH.t += dt;
-  const t = SPLASH.t, c = SPLASH.cv, dpr = Math.min(2, window.devicePixelRatio || 1), W = c.clientWidth, H = c.clientHeight;
+  const t = SPLASH.t, c = SPLASH.cv, dpr = Math.min(1.5, window.devicePixelRatio || 1), W = c.clientWidth, H = c.clientHeight;
   if (c.width !== Math.round(W * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
-  const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  let g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
   const C = SPLASH.col || (SPLASH.col = splashColours()), TAU = Math.PI * 2;
   const R = Math.min(W * 0.4, H * 0.27), cx = W / 2, cy = H * 0.58;
   const ring = splashK(t, 0, 0.8), ticks = splashK(t, 0.35, 0.7), lamp = splashK(t, 0.6, 0.6), focus = splashK(t, 0.9, 1.5), lock = splashK(t, 2.4, 0.4);
@@ -46,7 +52,9 @@ function splashFrame(now) {
     g.save(); g.beginPath(); g.arc(cx, cy, R - 2, 0, TAU); g.clip(); g.globalAlpha = lamp;
     const bg = g.createRadialGradient(cx - R * 0.2, cy - R * 0.25, R * 0.1, cx, cy, R); bg.addColorStop(0, '#c4c5c0'); bg.addColorStop(1, '#9c9d98');
     g.fillStyle = bg; g.fillRect(cx - R, cy - R, R * 2, R * 2);
-    g.filter = focus < 1 ? `blur(${((1 - focus) * 9).toFixed(1)}px)` : 'none';
+    // Out of focus = drawn small and scaled up (a canvas blur filter is far too slow in the Android WebView).
+    const soft = focus < 1, sc = soft ? 0.12 + 0.88 * focus * focus : 1, o = soft ? splashSoft(R) : null, g0 = g;
+    if (soft) { const h = o.getContext('2d'); h.setTransform(1, 0, 0, 1, 0, 0); h.clearRect(0, 0, o.width, o.height); h.setTransform(sc, 0, 0, sc, -(cx - R) * sc, -(cy - R) * sc); g = h; }
     g.strokeStyle = 'rgba(30,30,30,0.12)'; g.lineWidth = 1; g.beginPath();
     for (let k = -R; k <= R; k += R / 4) { g.moveTo(cx + k, cy - R); g.lineTo(cx + k, cy + R); g.moveTo(cx - R, cy + k); g.lineTo(cx + R, cy + k); }
     g.stroke();
@@ -64,7 +72,7 @@ function splashFrame(now) {
       g.fillStyle = s.you ? '#4dff9a' : '#1e1e1e'; g.beginPath(); g.ellipse(x, y, 7 * k, 4.8 * k, 0, 0, TAU); g.fill();
       if (s.you) { g.strokeStyle = '#1e1e1e'; g.lineWidth = 1.2; g.stroke(); you = { x, y, k }; }
     }
-    g.filter = 'none';
+    if (soft) { g = g0; g.imageSmoothingEnabled = true; g.drawImage(o, 0, 0, 2 * R * sc, 2 * R * sc, cx - R, cy - R, 2 * R, 2 * R); }
     // Crosshair hairlines.
     g.strokeStyle = 'rgba(30,30,30,0.28)'; g.lineWidth = 1; g.beginPath(); g.moveTo(cx - R, cy); g.lineTo(cx + R, cy); g.moveTo(cx, cy - R); g.lineTo(cx, cy + R); g.stroke();
     // Lock-on: corner brackets close in on you.
