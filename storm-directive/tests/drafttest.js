@@ -30,7 +30,8 @@ const { chromium } = require('playwright');
     // The old branch screens are retired (22 Oct, modmatrix.js): no weapon upgrade screen; a weapon levels by taking modifiers.
     G.lootQueue = []; w.lvl = 1; G.level = 3; wupLevel(4);
     if (G.lootQueue.some(q => q.kind === 'wup')) bad.push('a weapon branch screen still opens');
-    const mid = modsFor(w)[0]; if (!mid || !modAdd(w, mid) || w.lvl !== 2) bad.push('a modifier did not level the weapon: ' + w.lvl);
+    const mid = modsFor(w)[0]; if (w.lvl !== 2) bad.push('no free weapon level at player Lv 4: ' + w.lvl); // (MM.freeEvery, modmatrix.js)
+    if (!mid || !modAdd(w, mid) || w.lvl !== 3) bad.push('a modifier did not level the weapon: ' + w.lvl);
     // Sperm passives: 2 slots at the start (+1 at Lv 8, 16, 24), shared with defences (spassives.js)
     G.muts = { a: 1 }; pdef().n.latex = 1; pdef().n.thick = 1; // (Membrane Shield's levels use no slot of their own)
     if (spSlots() !== 2) bad.push('sperm passive slots at Lv 3: ' + spSlots());

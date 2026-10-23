@@ -1,3 +1,11 @@
+## 2026-10-23 Weapon level pacing, draft crash guard (v10.72)
+- Systems: weapons, draft
+- Files: modmatrix.js (MM.freeEvery), draft.js (draftCards skips empty candidates), tests/drafttest.js, tests/sim/wave20.js (--pre)
+- What: every weapon gains a level each 4th player level (the retired upgrade screen's pacing), on top of a level per modifier card. A draft candidate that comes back empty is skipped instead of reaching the loot screen as null (a bot sim crashed in UI.sortLoot). Ships the build panel and MM.lvK changes above.
+- Save data: none.
+- Hooks: none new.
+- Risk: wave mode is still harder than main (wave20 mortal: this branch dies at waves 5 to 15; main 20, 8, win, 15). 4 starting sperm passive slots got closest to main in sims; left at 2 pending the user.
+
 ## 2026-10-22 Build panel for slots and branches; weapon level damage knob (unshipped)
 - Systems: ui (build panel), weapons
 - Files: buildpanel.js, modmatrix.js
