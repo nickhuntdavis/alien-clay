@@ -26,6 +26,7 @@ const { chromium } = require('playwright');
 
     // 1. Every modifier: 300 frames against a ring of stationary enemies, no errors.
     for (const id of ids) {
+      if (id === 'anchored') continue; // (retired: modwide.js)
       fresh();
       const atk = MODS10[id].atk[0], w = wp('v_phys_' + atk, [id]);
       for (let i = 0; i < 8; i++) foe(Math.cos(i / 8 * TAU) * 150, Math.sin(i / 8 * TAU) * 150);
@@ -115,10 +116,8 @@ const { chromium } = require('playwright');
     out.sweepBeam = +(Math.max(...angs) - Math.min(...angs)).toFixed(2); if (!(out.sweepBeam > 0.2)) bad.push('Beam did not sweep: ' + out.sweepBeam);
 
     // 13. Anchored beam: joins you to the far side of the crowd.
-    fresh(); w = wp('v_fire_beam', ['anchored']); foe(100, 50); const far = foe(250, 0); step(3);
-    const bf = (G.v10fx || []).find(q => q.k === 'beam');
-    out.anchored = bf && [Math.round(Math.hypot(bf.x2 - far.x, bf.y2 - far.y))];
-    if (!bf || Math.hypot(bf.x2 - far.x, bf.y2 - far.y) > 15 || !hurt(far)) bad.push('Anchored beam missed the far end: ' + out.anchored);
+    // Anchored Beam is retired (modwide.js modOk, user 23 Oct): it is never offered.
+    fresh(); w = wp('v_fire_beam', []); if (modOk(w, 'anchored')) bad.push('Anchored Beam still offered');
 
     // 14. Rapid volley: three shots from one attack.
     const count = mods => { fresh(); const w = wp('v_phys_proj', mods); foe(200); let n = 0; const orig = window.spawnProj; window.spawnProj = function (ww) { if (ww === w) n++; return orig.apply(this, arguments); }; step(20); window.spawnProj = orig; return n; };

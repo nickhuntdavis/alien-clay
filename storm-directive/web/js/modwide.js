@@ -22,7 +22,7 @@
 // p11Range, mutations.js mutBarK, game.js hurtPlayer, modifiers.js modDraw. Loads after power11.js (it wraps p11Range).
 
 const MW_NEW = {
-  range:   { name: 'Range', atk: ['proj', 'spread'], g: 'tempo', b: ['Long Shot', 'Overwatch', 'Sniper', 'Boomerang', 'Artillery', 'Tripline'] },
+  range:   { name: 'Range', atk: ['proj', 'spread', 'beam'], g: 'tempo', b: ['Long Shot', 'Overwatch', 'Sniper', 'Boomerang', 'Artillery', 'Tripline'] },
   upclose: { name: 'Up Close', atk: ['proj', 'spread'], g: 'tempo', b: ['Point Blank', 'Packed Room', 'Execution', 'Zero Distance', 'Mosh Pit', 'Cornered'] },
   charged: { name: 'Charged', atk: ['proj', 'beam', 'burst', 'spread'], g: 'tempo', b: ['Full Charge', 'Quick Release', 'Overcharge', 'Slow Burn', 'Hair Trigger', 'Capacitor'] },
   kinship: { name: 'Kinship', atk: MOD_ALL, g: 'chemistry', b: ['Purist', 'Mixed Marriage', 'Full Family', 'Chorus', 'Melting Pot', 'Referee'] },
@@ -44,7 +44,8 @@ for (const id in MW_NEW) {
   MODUP[id] = ['TODO_COPY:mod_' + id + '_up2', 'TODO_COPY:mod_' + id + '_up3'];
 }
 if (typeof SLICE !== 'undefined') SLICE.mods.push(...Object.keys(MW_NEW)); // (slice-only testing deals these too)
-modOk = (orig => function (w, id) { // Ranged fits four close-range weapons only
+modOk = (orig => function (w, id) { // Ranged fits four close-range weapons only; Anchored Beam is retired (user, 23 Oct: the aim menu's FURTHEST does its job)
+  if (id === 'anchored') return false;
   if (id === 'ranged' && !MW_RANGED.includes(w24Key(w))) return false;
   return orig(w, id);
 })(modOk);
@@ -67,7 +68,8 @@ const mwPull = (e, x, y, f) => { // the Pull rule (COMBAT_MATRIX 12.2): Squishy 
 function mwStats(w, s) {
   if (!w.m10 || w.isSpell) return;
   let any = false;
-  const rr = mwR(w, 'range'); if (rr) { any = true; s.speed *= 1 + 0.2 * rr; if (msB(w, 'range', 2)) s.range += 100; } // (Overwatch: picks targets 100 further out)
+  const rr = mwR(w, 'range'); if (rr) { any = true; s.speed *= 1 + 0.2 * rr; if (w.def.v10atk === 'beam') s.range *= 1 + 0.2 * rr; // (beams: +20% reach a rank)
+    if (msB(w, 'range', 2)) s.range += 100; } // (Overwatch: picks targets 100 further out)
   const cr = mwR(w, 'charged');
   if (cr) {
     any = true; const m = msMa(w, 'charged');

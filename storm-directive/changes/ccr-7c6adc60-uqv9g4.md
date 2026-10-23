@@ -1,3 +1,11 @@
+## 2026-10-23 Anchored Beam retired; Long Range fits beams (v10.87)
+- Systems: weapons (modifiers)
+- Files: modwide.js (modOk refuses anchored; range fits beams, +20% beam reach a rank), tests/modstest.js
+- What: Anchored Beam is no longer offered (the aim menu's FURTHEST rule already does its job); Long Range now fits beams, adding 20% reach a rank to them (so a FURTHEST Laser can reach far enemies).
+- Save data: none.
+- Hooks: none new.
+- Risk: none (a run already holding Anchored Beam keeps it).
+
 ## 2026-10-23 The Laser curves into its orbit ring (v10.86)
 - Systems: weapons (Laser), fx
 - Files: laserbeam.js (lzOrbit lead-in)
