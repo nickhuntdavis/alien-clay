@@ -28,6 +28,12 @@ const { chromium } = require('playwright');
     out.iricOk = ir.eligible(G); if (!out.iricOk) bad.push('Internal Ricochet not offered with the full shield');
     ir.apply(G); const R = pdefBubbleR(), p = G.player; G.proj.push({ x: p.x + R + 5, y: p.y, vx: 300, vy: 0, life: 1, w: G.weapons[0], src: weaponSrc(G.weapons[0]) }); tick(1);
     const pr = G.proj[G.proj.length - 1]; out.iric = [Math.round(R), pr.vx]; if (!(R > 0) || !(pr.vx < 0)) bad.push('Internal Ricochet bounce ' + out.iric);
+    // 3b. Bigger Membrane: only with the shield; the bubble is wider; it uses no slot of its own
+    fresh(); const hasWide = () => pdefOffer(99).some(o => o.defence === 'wide');
+    out.wideNoShield = hasWide(); if (hasWide()) bad.push('Bigger Membrane offered without a shield');
+    pdefCard('latex').apply(); G.pd.mem.mem = G.pd.mem.memMax = 100; const r0 = pdefBubbleR(), d0 = defsHeld();
+    pdefCard('wide').apply(); const r1 = pdefBubbleR();
+    out.wide = [Math.round(r0), Math.round(r1), d0, defsHeld()]; if (!(r1 > r0 * 1.5) || defsHeld() !== d0) bad.push('Bigger Membrane ' + out.wide);
     // 4. Chain reaction: Connecting + Ricochet sends the bounce down a link
     fresh(); const w = G.weapons[0]; modAdd(w, 'connecting'); modAdd(w, 'ricochet'); computeStats(w);
     const a = foe(150), c = foe(150, 200); msLinkAdd(w, a, c, 5); const hc = c.hp; v10Fire(w, a, weaponSrc(w));

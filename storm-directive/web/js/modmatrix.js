@@ -87,7 +87,7 @@ sabCard = function () {
   if (!own.length) return null;
   const w = pick(own), t = MM_SAB[w24Key(w)], E = ELEMENTS[t];
   if (!E) return null;
-  return { card: 'switch', family: 'switch', rarity: SAB_RAR, tag: 'SWITCHED AT BIRTH', icon: w.def.icon, color: (typeof V10_COL !== 'undefined' && V10_COL[t]) || E.color, elem: t,
+  return { card: 'switch', family: 'switch', rarity: SAB_RAR, tag: 'TYPE SWAP', icon: w.def.icon, color: (typeof V10_COL !== 'undefined' && V10_COL[t]) || E.color, elem: t,
     title: `${w.def.name} → ${E.name}`, sub: `${ELEMENTS[w.def.elem] ? ELEMENTS[w.def.elem].name : ''} > ${E.name} | Chemistry`,
     desc: `The hospital mixed up the tags. ${w.def.name} now deals ${E.name} damage. Everything else about it stays where it was.`,
     apply: () => { if (G.weapons.includes(w)) { sabSwitch(w, t); mmLevelUp(w); } } };

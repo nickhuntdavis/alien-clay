@@ -145,7 +145,7 @@ const SLICE = {
   on: true,
   mods: ['extra', 'orbiting', 'ricochet', 'piercing', 'homing', 'sticky', 'connecting', 'focus', 'rapid', 'catalyst'], // (+ Switched at Birth)
   muts: ['sp_runs', 'm_slip', 'sp_fever', 'sp_extra', 'sp_space', 'sp_iric'],
-  defs: ['latex', 'thick', 'fast'],
+  defs: ['latex', 'thick', 'fast', 'wide'],
   force: false, // (tests and sims set window.TUT_OFF and get the full pool unless this is true)
 };
 const sliceOn = () => SLICE.on && !(typeof mmFree === 'function' && mmFree()) && ( // (no slot limits shows everything)

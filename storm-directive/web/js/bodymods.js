@@ -93,7 +93,7 @@ function drawPlates(px, py) {
 //    can still squeeze through a gap; your body's own hard collision is unchanged), flattens against the surface
 //    (G.bubC) and bounces you off it. Hitting a surface too fast dents it: armour wears like a hit and it ripples.
 const BUB = { k: 220, damp: 12, mass: 0.5, give: 14, bounceV: 60, rest: 0.6, dentV: 210, dentCd: 0.5 };
-const bubbleR = () => 24 * playerScale() * 1.6; // (world units: the forcefield's drawn radius)
+const bubbleR = () => 24 * playerScale() * 1.6 * (G && G.pd && G.pd.n.wide ? 1.6 : 1); // (world units: the forcefield's drawn radius; Bigger Membrane: pdef.js)
 const bubbleOn = () => V10 ? pdefShieldUp() : G.P.armour > 0 && !G.P.noArmour; // (v10: only while the shield is up, pdef.js)
 // The nearest surface within reach of a circle: terrain obstacles and campaign walls. {nx, ny, d} or null.
 const BUB_N = { nx: 0, ny: 0, d: 0 };

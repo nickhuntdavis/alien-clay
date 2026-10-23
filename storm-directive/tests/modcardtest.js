@@ -38,7 +38,7 @@ const { chromium } = require('playwright');
     // 4. Switched at Birth: Rare, same weapon, new type, level and modifiers kept; WEAPONS entry untouched.
     const lvl = w.lvl, m10 = (w.m10 || []).slice(), base = WEAPONS[w.sid || w.id].elem;
     let sab = null; for (let i = 0; i < 20 && !sab; i++) { const s = sabCard(); if (s && G.weapons.indexOf(w) >= 0) sab = s; }
-    if (!sab || sab.rarity !== 2 || sab.tag !== 'SWITCHED AT BIRTH') bad.push('switch card: ' + JSON.stringify(sab && [sab.rarity, sab.tag]));
+    if (!sab || sab.rarity !== 2 || sab.tag !== 'TYPE SWAP') bad.push('switch card: ' + JSON.stringify(sab && [sab.rarity, sab.tag]));
     const target = G.weapons.find(x => x && sab.title.startsWith(x.def.name));
     sab.apply();
     out.sab = [sab.title, target && target.def.elem];
@@ -50,7 +50,7 @@ const { chromium } = require('playwright');
     newGame(); G.state = 'play'; G.lootQueue = []; if (!G.weapons.some(x => !x)) G.weapons.push(null); optNewWeapon(wid, 0).apply();
     let rows = 0, prev = false;
     for (let i = 0; i < 200; i++) {
-      const cs = draftCards(3, i % 2 ? 'chest' : 'level'), has = cs.some(c => c && c.tag === 'SWITCHED AT BIRTH');
+      const cs = draftCards(3, i % 2 ? 'chest' : 'level'), has = cs.some(c => c && c.tag === 'TYPE SWAP');
       if (has && prev) rows++;
       prev = has;
       if (cs.some(c => !c)) { bad.push('a null card in the draft'); break; }

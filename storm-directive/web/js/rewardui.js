@@ -44,7 +44,7 @@ function rwCatOf(o) {
   if (t.startsWith('MODIFIER')) return 'modifier';
   if (t === 'DEFENCE') return 'defence';
   if (t === 'SPECIALISE') return 'special';
-  if (t === 'SWITCHED AT BIRTH') return 'switch';
+  if (t === 'SWITCHED AT BIRTH' || t === 'TYPE SWAP') return 'switch'; // (Type Swap: modmatrix.js)
   return null;
 }
 // The icon for a card (an IC key), or null.

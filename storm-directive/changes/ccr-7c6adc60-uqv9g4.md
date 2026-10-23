@@ -1,3 +1,11 @@
+## 2026-10-23 Bigger Membrane; plain modifier names (v10.78)
+- Systems: defences (Membrane Shield), weapons (modifier names), copy
+- Files: pdef.js (wide card and state), bodymods.js (bubbleR reads it), draft.js (defsHeld), spslice.js (slice defs), modmatrix.js (Type Swap tag), rewardui.js (Type Swap category), slicecopy.js (SLICE_NAMES), tests/spslicetest.js, tests/modcardtest.js
+- What: Bigger Membrane, a new Membrane Shield level (needs the shield, uses no slot): the bubble is 60% wider. Weapon modifiers get plain names (Chain Hits, Orbiting, Delayed Blast, Around You, Sweep, Anchored Beam, Empowered Attack, Stat Scaling, Split on Kill, Pets, Focus, Link, Status Boost, Extra Shots, Long Range, Close Range, Charge-Up, Same Type Bonus, Pull, Raise Allies, Strike from Above, Explosive Hits, Mark and Detonate...); Switched at Birth's card tag is TYPE SWAP.
+- Save data: G.pd.n.wide (run state only).
+- Hooks: bodymods.js bubbleR -> G.pd.n.wide; rewardui.js accepts the TYPE SWAP tag.
+- Risk: a bigger bubble is a strong defence (it is also a hitbox). fittest already failed before this (it expects the old random Switched at Birth).
+
 ## 2026-10-23 Laser always red; no limits shows every modifier; plain copy for placeholders (v10.77)
 - Systems: weapons (Laser colour), draft (slice-only), copy
 - Files: laserbeam.js (colour pinned), spslice.js (sliceOn off under no limits; Piercing in the slice), slicecopy.js (new), index.html

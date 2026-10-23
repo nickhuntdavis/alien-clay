@@ -3,7 +3,8 @@
 // One map (SLICE_COPY, id -> text). At load it fills the static placeholders (modifier descriptions and rank-up lines,
 // sperm passive cards, the Laser, the no-limits setting, race rescue text, v9 sample text); at runtime it fills the
 // cards built on the fly (branch and mastery forks, mastery cards). A placeholder with no entry stays as TODO_COPY:id.
-// Hooks: none in shared files. Wraps modcards.js modCard (via modmatrix/modslice), draft.js forkCards, game.js banner
+// Also gives the weapon modifiers plain names (SLICE_NAMES; quips still found under the old names).
+// Hooks: none in shared files. Wraps cardvoice.js cardLine, modcards.js modCard (via modmatrix/modslice), draft.js forkCards, game.js banner
 // and makePickup (race rescue text), ui.js UI.renderArmoury. Loads last.
 
 const SLICE_COPY = {
@@ -110,6 +111,23 @@ for (const id in SLICE_MODS) {
     ['mastery_' + id]: 'Mastery: choose one of two final upgrades. One weapon mastery a build.' });
 }
 const slCopy = s => (typeof s === 'string' && s.startsWith('TODO_COPY:') ? SLICE_COPY[s.slice(10)] || (s.startsWith('TODO_COPY:mastery_') ? 'Mastery: pushes its effect one step further. One weapon mastery a build.' : s) : s);
+
+// ---------------------------------------------------------------- plain modifier names (user, 23 Oct: "simple descriptive names, not clever ones")
+const SLICE_NAMES = {
+  homing: 'Homing', piercing: 'Piercing', chaining: 'Chain Hits', ricochet: 'Bounce', returning: 'Returning', orbiting: 'Orbiting',
+  delayed: 'Delayed Blast', lobbed: 'Lobbed', trail: 'Trail', selfcentred: 'Around You', sweep: 'Sweep', anchored: 'Anchored Beam',
+  volley: 'Volley', nth: 'Empowered Attack', growing: 'Growing', scaling: 'Stat Scaling', multiplying: 'Split on Kill', summoned: 'Pets',
+  gravity: 'Gravity Well', lunge: 'Lunge', rapid: 'Rapid Fire', focus: 'Focus', sticky: 'Sticky', connecting: 'Link', catalyst: 'Status Boost',
+  extra: 'Extra Shots', range: 'Long Range', upclose: 'Close Range', charged: 'Charge-Up', kinship: 'Same Type Bonus', knock: 'Knockback',
+  pull: 'Pull', turncoat: 'Raise Allies', melee: 'Melee', ranged: 'Ranged', mines: 'Mines', dfa: 'Strike from Above', explode: 'Explosive Hits',
+  primer: 'Mark and Detonate',
+};
+const SLICE_OLD = {}; // (new name -> old: the card quips are keyed on the old names, cardvoice.js)
+for (const id in SLICE_NAMES) if (MODS10[id]) { SLICE_OLD[SLICE_NAMES[id]] = MODS10[id].name; MODS10[id].name = SLICE_NAMES[id]; }
+if (typeof cardLine === 'function') cardLine = (orig => function (key) {
+  const m = typeof key === 'string' && key.startsWith('mod:') && SLICE_OLD[key.slice(4)];
+  return orig(m ? 'mod:' + m : key);
+})(cardLine);
 
 // ---------------------------------------------------------------- fill the static placeholders
 for (const id in MODS10) MODS10[id].desc = slCopy(MODS10[id].desc);
