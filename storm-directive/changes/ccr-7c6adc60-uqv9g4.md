@@ -1,3 +1,11 @@
+## 2026-10-23 Laser reach and sweep limit (v10.82)
+- Systems: weapons (Laser), fx
+- Files: laserbeam.js
+- What: a beam that ends in open water is drawn 3 times as far (stopping at the first enemy or obstacle, no damage out there) with a fade twice as long; the held beam only sweeps to a new target within 50 degrees, otherwise it switches off for a moment and comes back on aimed at the target.
+- Save data: none.
+- Hooks: none new.
+- Risk: none (visual and aim only).
+
 ## 2026-10-23 Laser bounces always show, open ends fade, orbit Piercing per section (v10.81)
 - Systems: weapons (Laser)
 - Files: laserbeam.js, tests/laserbeamtest.js

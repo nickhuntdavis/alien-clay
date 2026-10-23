@@ -1,7 +1,9 @@
 'use strict';
 // Spawn Prawn - the Laser fires like a laser (user, 23 Oct). Replaces v10.js v10Fire for the Laser only (laser.js LASER).
 //  - RAY: the beam leaves you and stops at the first enemy it meets (it doesn't pierce by default). Its aim swings
-//    towards the target at a turn rate (LZ.turn), so it meets enemies off-centre and reflects at real angles.
+//    towards the target at a turn rate (LZ.turn), so it meets enemies off-centre and reflects at real angles; a new
+//    target more than 50 degrees away switches it off and back on aimed there instead. A beam that runs into open
+//    water is seen 3 times as far (to the first thing in the way, hurting nothing there) and fades out.
 //  - BOUNCE (the renamed Ricochet modifier): at each enemy the beam reflects off the enemy's surface at the true angle
 //    of incidence, like a laser pointer off a mirrored ball (1 / 3 / 6 bounces, 12 at mastery; -20% each).
 //  - PIERCING (now fits beams): the beam carries on through 1 / 3 / 6 enemies (12 at mastery), -15% each.
@@ -16,7 +18,7 @@
 // Extra Projectiles (front, rear and Disco Ball beams) fire through the same ray. Hooks: none in shared files. Wraps
 // v10.js v10Fire (outermost: loads after modwide.js). Renames modifiers.js MODS10.ricochet to Bounce.
 
-const LZ = { bounceL: 0.75, fade: 0.35, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
+const LZ = { bounceL: 0.75, fade: 0.7, reachK: 3, sweepMax: 50 * Math.PI / 180, gap: 0.08, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
 MODS10.ricochet.name = 'Bounce';
 if (!MODS10.piercing.atk.includes('beam')) MODS10.piercing.atk.push('beam');
 
@@ -70,7 +72,12 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   if (st.segs >= LZ.segs || k < 0.04 || L < 4) return;
   st.segs++;
   const m = lzMeet(x, y, a, L, skip, st.bub), dx = Math.cos(a), dy = Math.sin(a), cx = x + dx * m.t, cy = y + dy * m.t;
-  st.out.push({ x1: x, y1: y, x2: cx, y2: cy, k, hit: !!(m.e || m.ob), end: !m.e && !m.ob && !m.wall }); // (end: runs out in open water, so it fades)
+  const seg = { x1: x, y1: y, x2: cx, y2: cy, k, hit: !!(m.e || m.ob), end: !m.e && !m.ob && !m.wall }; // (end: runs out in open water)
+  if (seg.end) { // seen LZ.reachK times as far (to the first thing in the way; it hurts nothing out there), fading over LZ.fade of the old length
+    const ext = lzMeet(cx, cy, a, m.t * (LZ.reachK - 1), skip, st.bub).t;
+    seg.x2 = cx + dx * ext; seg.y2 = cy + dy * ext; seg.fadeL = m.t * LZ.fade;
+  }
+  st.out.push(seg);
   if (m.wall) { // reflect off the inside of the membrane (Internal Ricochet)
     if (st.walls >= LZ.wallMax) return; st.walls++;
     const nx = (cx - st.bub.x) / st.bub.r, ny = (cy - st.bub.y) / st.bub.r, dot = dx * nx + dy * ny;
@@ -156,6 +163,7 @@ v10Fire = (orig => function (w, target, src) {
   if (!lzIs(w) || !target || w.def.v10atk !== 'beam') return orig(w, target, src);
   const p = G.player, want = Math.atan2(target.y - p.y, target.x - p.x);
   if (w.lzA == null || !lzOnNow(w)) w.lzA = want; // (a fresh beam starts on the target; a held one sweeps: lzTick)
+  else if (Math.abs(angDiff(want, w.lzA)) > LZ.sweepMax) { w.lzA = want; w.lzOffT = G.t + LZ.gap; } // (too far to sweep: off, then on again at the target)
   w.lzTgt = target; w.lzFireT = G.t;
   if (msR(w, 'orbiting')) { // the ring
     const pre = lzOrbit(w, src, w.lzPow || LZ.start, true), ramp = lzRamp(w, pre.first); w.lzPow = ramp;
@@ -193,7 +201,8 @@ function lzTick(dt) {
     if (!w || !lzIs(w) || w.def.v10atk !== 'beam') continue;
     if ((!lzOnNow(w) && !(w._ventT > G.t)) || !w.lzTgt || w.lzTgt.dead) { w.lzSegs = null; continue; } // (venting keeps it traced so it can blink)
     const want = Math.atan2(w.lzTgt.y - p.y, w.lzTgt.x - p.x), d = angDiff(want, w.lzA), m = LZ.turn * dt;
-    w.lzA += Math.max(-m, Math.min(m, d));
+    if (Math.abs(d) > LZ.sweepMax) { w.lzA = want; w.lzOffT = G.t + LZ.gap; } // (a new target over 50 degrees away: off and on again)
+    else w.lzA += Math.max(-m, Math.min(m, d));
     if (msR(w, 'orbiting')) { w.lzSegs = lzOrbit(w, null, w.lzPow || 1, true).out; continue; }
     const segs = [];
     for (const [a, k] of lzBeams(w)) segs.push(...lzShot(w, a, null, k, w.lzPow || 1, true).out);
@@ -208,6 +217,7 @@ function lzDraw() {
   for (const w of G.weapons) {
     if (!w || !lzIs(w) || !w.lzSegs || !w.lzSegs.length) continue;
     if (w._ventT > G.t && Math.floor(G.t * 18) % 6) continue; // overheating: blinks off
+    if (w.lzOffT > G.t) continue; // (switching to a target too far round to sweep to)
     const pw = w.lzPow || 1, glow = 0.55 + 0.45 * Math.min(1, Math.max(0, (pw - LZ.start) / (1 - LZ.start)));
     const pulse = pw > 1 ? 1 + 0.45 * Math.min(1, pw - 1) * (0.5 + 0.5 * Math.sin(G.t * 9)) : 1;
     const c = col(w.def.sab ? w.def.color : LASER.col), base = Math.max(2.4, (w.s.width || 10) * 0.42);
@@ -217,7 +227,7 @@ function lzDraw() {
       const line = (lw, a, st) => { // (a beam into open water fades over its last stretch instead of stopping dead)
         ctx.lineWidth = lw; ctx.globalAlpha = a;
         if (!s.end) { ctx.strokeStyle = st; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); return; }
-        const fx = x1 + (x2 - x1) * (1 - LZ.fade), fy = y1 + (y2 - y1) * (1 - LZ.fade);
+        const len = Math.hypot(x2 - x1, y2 - y1) || 1, u = Math.max(0, 1 - (s.fadeL || 0) * S / len), fx = x1 + (x2 - x1) * u, fy = y1 + (y2 - y1) * u;
         ctx.strokeStyle = st; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(fx, fy); ctx.stroke();
         const g = ctx.createLinearGradient(fx, fy, x2, y2); g.addColorStop(0, st); g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(x2, y2); ctx.stroke();
