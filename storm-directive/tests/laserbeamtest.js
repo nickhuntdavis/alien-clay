@@ -98,6 +98,19 @@ const { chromium } = require('playwright');
     const cl = lzCharge(w); let n = 0; while (!(hurt(bl) > 0) && n < 40) { G.t += 0.1; v10Fire(w, bl, weaponSrc(w)); n++; }
     out.blast = [+cl.toFixed(2), +(n * 0.1).toFixed(1), one, hurt(bl), +(w.lzHeat || 0).toFixed(2), lzOnNow(w)];
     if (!(cl > 0.6 * 1.5) || !(hurt(bl) > one * 10) || !(w.lzHeat >= 0.45) || lzOnNow(w)) bad.push('charge-up blast ' + out.blast);
+    // 14. Extra Shots: a spare beam doubles up on the main target (no loss); with other enemies it locks its own after a charge
+    window.spawnRandom = () => {};
+    const total = (ranks, n) => {
+      const ww = fresh(); for (let i = 0; i < ranks; i++) modAdd(ww, 'extra'); computeStats(ww);
+      const es = []; for (let i = 0; i < n; i++) es.push(foe(Math.cos(-0.5 + i * 0.5) * 160, Math.sin(-0.5 + i * 0.5) * 160));
+      for (let i = 0; i < 30; i++) { G.t += 0.05; ww.lzFireT = G.t; v10Fire(ww, es[0], weaponSrc(ww)); lzTick(0.05); }
+      return { hurt: es.map(hurt), beams: lzBeams(ww).length, mainK: +(ww.lzMainK || 0).toFixed(2), heat: +(ww.lzHeat || 0).toFixed(2) };
+    };
+    const xsolo = total(0, 1), dbl = total(1, 1), multi = total(1, 3);
+    out.extra = { solo: xsolo.hurt[0], dbl: [dbl.hurt[0], dbl.beams], multi: [multi.hurt, multi.beams, multi.mainK], heat: [xsolo.heat, dbl.heat] };
+    if (dbl.beams !== 2 || Math.abs(dbl.hurt[0] - xsolo.hurt[0]) > xsolo.hurt[0] * 0.15) bad.push('extra beam doubling ' + JSON.stringify(out.extra.dbl) + ' vs ' + xsolo.hurt[0]);
+    if (multi.hurt.filter(h => h > 0).length < 2 || multi.mainK > 0.8) bad.push('extra beam own target ' + JSON.stringify(out.extra.multi));
+    if (!(dbl.heat > xsolo.heat * 1.2)) bad.push('extra beams heat faster ' + out.extra.heat);
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);

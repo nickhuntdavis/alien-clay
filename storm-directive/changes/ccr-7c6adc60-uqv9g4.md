@@ -1,3 +1,11 @@
+## 2026-10-23 Extra Shots on the Laser: beams with their own targets (v10.93)
+- Systems: weapons (Laser, modifiers), ui (charge glow)
+- Files: laserbeam.js (lzXUpdate, lzXOn, lzRampX, lzXSweep; lzBeams returns per-beam share and ramp), modslice.js (no blanket beam damage cut on the Laser), tests/laserbeamtest.js
+- What: each Extra Shots beam is its own laser: it locks its own target (front beams in your front half; Full Circle's rear beam in your back half), sweeps to it within 50 degrees, has its own ramp, and charges (a smaller glow) before firing on a new target. A beam with no target of its own runs beside the main beam on its target. Beams on one target share one beam's damage (no loss); beams on D different targets deal D^0.6 beams' worth in all. Each extra beam heats the Laser 33% faster. The old blanket damage cut (x0.76 even with nothing to aim at) is gone.
+- Save data: none.
+- Hooks: none new.
+- Risk: more total damage in crowds than v10.92 (x1.52 with 2 targets, x1.93 with 3), offset by faster overheating.
+
 ## 2026-10-23 Charge-Up turns the Laser into a charge-and-blast weapon (v10.92)
 - Systems: weapons (Laser, modifiers), chemistry (status bars), fx
 - Files: laserbeam.js (lzBlast, lzBlastDraw, lzCR; mutBarK wrapped for blasts), modwide.js (Charge-Up's stats and branches skip the Laser), tests/laserbeamtest.js

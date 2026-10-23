@@ -140,12 +140,56 @@ function lzShot(w, a, src, k, ramp, dry) {
   lzTrace(w, p.x, p.y, a, st.bub ? 1e4 : w.s.range, k, src, null, st, lzN(pr), lzN(br));
   return st;
 }
-// Every beam the Laser holds right now: [angle, power] (main, Extra Shots' front and rear beams, Disco Ball).
+// EXTRA SHOTS on the Laser (user, 23 Oct): each extra beam is its own laser (w.lzX): it locks its own target (front
+// beams in your front half, the rear beam (Full Circle, Rank 2) in your back half), sweeps to it (within 50 degrees),
+// has its own ramp and charges before it first fires on a new target. A beam with no target of its own runs beside the
+// main beam on its target. Damage: beams on one target share one beam's damage (no loss, no gain); beams on D
+// different targets deal D^0.6 beams' worth in all (more beams, less each). More beams heat the Laser faster (+33% each).
+function lzXUpdate(w, target) {
+  const p = G.player, [f, b] = msR(w, 'extra') ? msBeams(w) : [0, 0], n = f + b, L = w.s.range;
+  const X = w.lzX = (w.lzX || []).slice(0, n); while (X.length < n) X.push({});
+  const mainA = Math.atan2(target.y - p.y, target.x - p.x), taken = new Set([target]);
+  X.forEach((x, i) => {
+    x.rear = i >= f; x.off = (i % 2 ? -1 : 1) * 0.09 * (1 + Math.floor(i / 2));
+    const inSec = e => { const da = Math.abs(angDiff(Math.atan2(e.y - p.y, e.x - p.x), mainA)); return x.rear ? da > Math.PI / 2 : da <= Math.PI / 2; };
+    const ok = e => e && !e.dead && !e.charmed && !taken.has(e) && Math.hypot(e.x - p.x, e.y - p.y) <= L + (e.r || 0) && inSec(e);
+    if (!ok(x.tgt)) {
+      let best = null, bd = 1e9;
+      for (const e of G.enemies) { if (!ok(e)) continue; const d = Math.hypot(e.x - p.x, e.y - p.y); if (d < bd) { bd = d; best = e; } }
+      if (best !== x.tgt) { x.tgt = best; if (best) { x.chgS = G.t; x.S = G.t; } }
+    }
+    if (x.tgt) taken.add(x.tgt);
+    if (x.a == null) x.a = mainA + x.off;
+  });
+  // damage shares: per target group
+  const on = X.filter(x => lzXOn(w, x)), groups = new Map([[target, 1]]);
+  for (const x of on) { const t = x.tgt || target; groups.set(t, (groups.get(t) || 0) + 1); }
+  const D = groups.size, g = Math.pow(D, 0.6) / D;
+  w.lzMainK = g / groups.get(target);
+  for (const x of X) x.k = g / (groups.get(x.tgt || target) || 1);
+}
+const lzXOn = (w, x) => !x.tgt || G.t - (x.chgS || -9) >= lzCharge(w); // (a beam on its own new target charges first)
+function lzRampX(w, x) { // an extra beam's own ramp on its own target
+  if (!x.tgt) return w.lzPow || 1;
+  const fr = Math.min(3, msR(w, 'focus')), T = LZ.time / (1 + 0.2 * fr), top = LZ.peak + 0.2 * fr;
+  return LZ.start + (top - LZ.start) * Math.min(1, (G.t - (x.S || G.t)) / T);
+}
+// Every beam the Laser holds right now: [angle, power share, ramp] (main, Extra Shots' beams that are on, Disco Ball).
 function lzBeams(w) {
-  const p = G.player, out = [[w.lzA + lzSweep(w), 1]];
-  for (const e of w.lzXT || []) if (!e.dead) out.push([Math.atan2(e.y - p.y, e.x - p.x), 1]);
-  if (msMa(w, 'extra') === 'A1') for (let i = 0; i < 6; i++) out.push([G.t * 1.5 + i / 6 * TAU, 0.5]);
+  const sw = lzSweep(w), out = [[w.lzA + sw, w.lzMainK || 1, w.lzPow || 1]];
+  for (const x of w.lzX || []) if (x.a != null && lzXOn(w, x)) out.push([x.a + sw, x.k || 1, lzRampX(w, x)]);
+  if (msMa(w, 'extra') === 'A1') for (let i = 0; i < 6; i++) out.push([G.t * 1.5 + i / 6 * TAU, 0.5, w.lzPow || 1]);
   return out;
+}
+function lzXSweep(w, dt) { // each extra beam swings to its own target (or beside the main beam)
+  const p = G.player;
+  for (const x of w.lzX || []) {
+    if (x.tgt && x.tgt.dead) x.tgt = null;
+    const want = x.tgt ? Math.atan2(x.tgt.y - p.y, x.tgt.x - p.x) : w.lzA + x.off;
+    if (x.a == null) { x.a = want; continue; }
+    const d = angDiff(want, x.a), m = LZ.turn * dt;
+    if (Math.abs(d) > LZ.sweepMax) x.a = want; else x.a += Math.max(-m, Math.min(m, d));
+  }
 }
 
 // ORBITING: the beam curves out from you into a circle and runs round it (radius 72, 100 from Rank 2; a second, inner ring turning the
@@ -217,25 +261,14 @@ v10Fire = (orig => function (w, target, src) {
   w.lzTgt = target; w.lzFireT = G.t;
   if (msR(w, 'orbiting')) { // the ring
     const pre = lzOrbit(w, src, w.lzPow || LZ.start, true), ramp = lzRamp(w, pre.first); w.lzPow = ramp;
-    const o = lzOrbit(w, src, ramp, false); w.lzShotSegs = w.lzSegs = o.out; w.lzXT = []; return true;
+    const o = lzOrbit(w, src, ramp, false); w.lzShotSegs = w.lzSegs = o.out; w.lzX = []; return true;
   }
   // The ramp follows whatever the main beam is actually on
   const probe = lzMeet(p.x, p.y, w.lzA, w.s.range, null, null).e || null;
   const ramp = lzRamp(w, probe); w.lzPow = ramp;
-  // Extra Shots: more beams at other targets (front 180 degrees, then rear)
-  w.lzXT = [];
-  if (msR(w, 'extra')) {
-    const [f, b] = msBeams(w), front = [], rear = [], L = w.s.range;
-    for (const e of G.enemies) {
-      if (e.dead || e.charmed || e === target || Math.hypot(e.x - p.x, e.y - p.y) > L) continue;
-      const da = Math.abs(angDiff(Math.atan2(e.y - p.y, e.x - p.x), want));
-      (da <= Math.PI / 2 ? front : rear).push(e);
-    }
-    const byD = (u, v) => Math.hypot(u.x - p.x, u.y - p.y) - Math.hypot(v.x - p.x, v.y - p.y);
-    w.lzXT = [...front.sort(byD).slice(0, f), ...rear.sort(byD).slice(0, b)];
-  }
+  lzXUpdate(w, target); // (Extra Shots' beams: their own targets, charges and damage shares)
   w.lzShotSegs = [];
-  lzBeams(w).forEach(([a, k], i) => { const st = lzShot(w, a, src, k, ramp, false); w.lzShotSegs.push(...st.out); if (i === 0 && st.first) w.lzOn = st.first; });
+  lzBeams(w).forEach(([a, k, rp], i) => { const st = lzShot(w, a, src, k, rp, false); w.lzShotSegs.push(...st.out); if (i === 0 && st.first) w.lzOn = st.first; });
   w.lzSegs = w.lzShotSegs;
   return true;
 })(v10Fire);
@@ -249,7 +282,8 @@ const lzOnNow = w => G.t - (w.lzFireT || -9) < Math.max(0.3, (w.s.cd || 0.2) + 0
 // G.P.reloadSpd). It never hurts you. Off the trigger it cools at the same rate.
 function lzHeatTick(w, dt) {
   const on = lzOnNow(w) && !w.lzOver, cool = dt / LZ.coolT * ((G.P && G.P.reloadSpd) || 1);
-  w.lzHeat = Math.max(0, Math.min(1, (w.lzHeat || 0) + (on ? dt / LZ.heatT : -cool)));
+  const nX = (w.lzX || []).filter(x => x.a != null && lzXOn(w, x)).length; // (each extra beam heats it 33% faster)
+  w.lzHeat = Math.max(0, Math.min(1, (w.lzHeat || 0) + (on ? dt / LZ.heatT * (1 + 0.33 * nX) : -cool)));
   if (on && w.lzHeat >= 1) { w.lzOver = true; w.lzFireT = -9; w.lzSegs = null; w.lzChgS = 0; const p = G.player; ring(p.x, p.y, 26, LASER.col, 0.35, 3); }
   if (w.lzOver && w.lzHeat <= 0) w.lzOver = false;
 }
@@ -265,8 +299,9 @@ function lzTick(dt) {
     if (Math.abs(d) > LZ.sweepMax) { w.lzA = want; w.lzOffT = G.t + LZ.gap; } // (a new target over 50 degrees away: off and on again)
     else w.lzA += Math.max(-m, Math.min(m, d));
     if (msR(w, 'orbiting')) { w.lzSegs = lzOrbit(w, null, w.lzPow || 1, true).out; continue; }
+    lzXSweep(w, dt);
     const segs = [];
-    for (const [a, k] of lzBeams(w)) segs.push(...lzShot(w, a, null, k, w.lzPow || 1, true).out);
+    for (const [a, k, rp] of lzBeams(w)) segs.push(...lzShot(w, a, null, k, rp, true).out);
     w.lzSegs = segs;
   }
 }
@@ -286,7 +321,7 @@ function lzBlast(w, target, src) {
   const bsrc = Object.assign({}, src, { lzBlast: true });
   const segs = [];
   if (msR(w, 'orbiting')) segs.push(...lzOrbit(w, bsrc, k, false).out);
-  else for (const [a, kk] of lzBeams(w)) segs.push(...lzShot(w, a, bsrc, kk, k, false).out);
+  else { lzXUpdate(w, target); for (const [a, kk] of lzBeams(w)) segs.push(...lzShot(w, a, bsrc, kk, k, false).out); }
   w.lzBlastSegs = segs; w.lzBlastT = G.t; w.lzShotSegs = segs; w.lzPow = LZ.peak;
   w.lzHeat = Math.min(1, (w.lzHeat || 0) + LZ_BLAST.heat);
   if (w.lzHeat >= 1) { w.lzOver = true; ring(p.x, p.y, 26, LASER.col, 0.35, 3); }
@@ -300,9 +335,9 @@ mutBarK = (orig => function (e) { // a blast builds status bars 3 times as fast
   return out;
 })(mutBarK);
 const lzCharging = w => !!(w.lzChgS && G.t - (w.lzChgLast || -9) < 0.4 && !lzOnNow(w));
-function lzChargeDraw(w) { // a small glow at the head that grows until the beam comes on
-  const p = G.player, hd = lzHead(), u = Math.min(1, (G.t - w.lzChgS) / lzCharge(w)), hx = p.x + Math.cos(hd) * 11, hy = p.y + Math.sin(hd) * 11;
-  const c = col(w.def.sab ? w.def.color : LASER.col), x = sx(hx), y = sy(hy), r = (2 + 7 * u) * (1 + 0.35 * lzCR(w)) * S, fl = 0.85 + 0.15 * Math.sin(G.t * 40);
+function lzChargeDraw(w, t0, sz) { // a small glow at the head that grows until the beam comes on (sz: smaller for extra beams)
+  const p = G.player, hd = lzHead(), u = Math.min(1, (G.t - (t0 || w.lzChgS)) / lzCharge(w)), hx = p.x + Math.cos(hd) * 11, hy = p.y + Math.sin(hd) * 11;
+  const c = col(w.def.sab ? w.def.color : LASER.col), x = sx(hx), y = sy(hy), r = (2 + 7 * u) * (1 + 0.35 * lzCR(w)) * (sz || 1) * S, fl = 0.85 + 0.15 * Math.sin(G.t * 40);
   ctx.save();
   ctx.globalAlpha = 0.25 * u * fl; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r * 2.2, 0, TAU); ctx.fill();
   ctx.globalAlpha = 0.6 * u; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
@@ -333,6 +368,7 @@ function lzDraw() {
   if (!G) return;
   for (const w of G.weapons) if (w && lzIs(w) && w.lzBlastSegs && G.t - w.lzBlastT < LZ_BLAST.show) lzBlastDraw(w);
   for (const w of G.weapons) if (w && lzIs(w) && lzCharging(w)) lzChargeDraw(w);
+  for (const w of G.weapons) if (w && lzIs(w) && lzOnNow(w)) for (const x of w.lzX || []) if (x.tgt && !lzXOn(w, x)) lzChargeDraw(w, x.chgS, 0.6); // (an extra beam charging for its new target)
   for (const w of G.weapons) if (w && lzIs(w) && (w.lzHeat > 0.01 || w.lzOver)) lzHeatDraw(w);
   for (const w of G.weapons) {
     if (!w || !lzIs(w) || !w.lzSegs || !w.lzSegs.length) continue;

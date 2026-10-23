@@ -111,7 +111,8 @@ function msStats(w, s) {
   const x = msR(w, 'extra');
   if (x) {
     any = true;
-    if (w.def.v10atk === 'beam') { const [f, b] = msBeams(w); s.dmg *= Math.pow(1 / (1 + f + b), 0.4); }
+    if (w.def.v10atk === 'beam' && typeof lzIs === 'function' && lzIs(w)) { /* (the Laser splits its damage per target itself: laserbeam.js lzXUpdate) */ }
+    else if (w.def.v10atk === 'beam') { const [f, b] = msBeams(w); s.dmg *= Math.pow(1 / (1 + f + b), 0.4); }
     else { const n0 = s.count || 1, n1 = n0 + (msA(w, 'extra', 3) ? 2 : 1); s.count = n1; s.dmg *= Math.pow(n0 / n1, 0.4); } // (more shots, less each: rule 5)
   }
   for (const id of ['focus', 'sticky', 'connecting', 'catalyst', 'ricochet', 'orbiting']) if (msR(w, id)) any = true;
