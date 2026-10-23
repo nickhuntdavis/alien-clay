@@ -2580,13 +2580,14 @@ function applyPickup(type, src) {
 
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
+  const v0 = v; // (the gem's own value, for the run log)
   if (V10) v = f10Xp(v); // (More!, Mine!: feats10.js)
   if (typeof raceXp === 'function') v *= raceXp(); // (the 15-minute race: race15.js)
   // XP bonuses from upgrades count half (they stacked up to x1.9 and runs finished 10-30 levels ahead of the curve).
   const xpUp = G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp;
   const xk = XP_PACE * xpUp * G.evm.xp * (G.inPill ? 0.5 : 1) * puXp();
   G.xp += v * xk;
-  G.stats.xpRaw = (G.stats.xpRaw || 0) + v; G.stats.xpGot = (G.stats.xpGot || 0) + v * xk; // run-log telemetry // the morning-after pill halves growth
+  G.stats.xpRaw = (G.stats.xpRaw || 0) + v0; G.stats.xpGot = (G.stats.xpGot || 0) + v * xk; // run-log telemetry // the morning-after pill halves growth
   sfx('gem');
   const lv0 = G.level;
   while (G.xp >= G.xpNeed) {

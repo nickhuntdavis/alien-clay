@@ -14,7 +14,7 @@
 //    Base crit chance is b.critBonus (on top of P.crit), the base crit bonus b.critX (added to P.critDmg for its hits).
 //    The weapon draft (weapon select) shows them (stBaseHtml); the pause BUILD tab lists your bonus totals.
 // Hooks: game.js updatePlayer swim thrust reads P.accel; pdef.js pdMemFrac -> stMemFrac. Wraps computeStats, fightHit,
-// pdefHurt, modAdd, modCard, sabCard, UI.boonHtml, UI.renderDraft, bpHtml. Loads after areamod.js.
+// pdefHurt, modAdd, modCard, sabCard, UI.boonHtml, UI.renderDraft, bpHtml, runSummary, runText (a stats line). Loads after areamod.js.
 
 const ST_DEF = {
   dmg:      { name: 'Bullet Damage',       k: 0.03,  fmt: 'pct' },
@@ -182,3 +182,13 @@ if (typeof bpHtml === 'function') bpHtml = (orig => function () {
   if (ks.length) h += `<h3 class="bp-h">TODO_COPY:stats_build_head</h3>${uiTiles(ks.map(k => uiTile(esc(stFmt(k, B[k])), esc(ST_DEF[k].name))).join(''))}`;
   return h;
 })(bpHtml);
+// The run log: your bonus totals under the build line (" stats: +9% Rate of Fire, +10 Max Health").
+runSummary = (orig => function (G, result) {
+  const r = orig(G, result), B = (G && G.stb) || {};
+  r.stb = ST_ORDER.filter(k => B[k] > 0).map(k => `${stFmt(k, B[k])} ${ST_DEF[k].name}`);
+  return r;
+})(runSummary);
+runText = (orig => function (r) {
+  const out = orig(r);
+  return r && r.stb ? out.replace(/( build: [^\n]*\n)/, `$1 stats: ${r.stb.join(', ') || '-'}\n`) : out;
+})(runText);

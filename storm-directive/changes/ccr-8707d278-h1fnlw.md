@@ -1,3 +1,11 @@
+## 2026-10-23 Run log: stats line, honest XP line
+- Systems: run log, stat bonuses
+- Files: statup.js, game.js, meta.js, tests/statuptest.js
+- What: the run log has a ` stats:` line (your stat bonus totals) under the build line. The xp line's "collected" is now the gems' own value (it used to include the Race and Feat XP multipliers, so it read about 1.7x what was dropped) and its "bonus" is every multiplier together.
+- Save data: run log records gain `stb`; `xpK` now means total multiplier.
+- Hooks: none new (statup.js wraps runSummary, runText).
+- Risk: none for play; old run log entries keep their old xp numbers.
+
 ## 2026-10-23 Stat bonuses on modifiers; distinct weapon base stats (v10.113)
 - Systems: stat bonuses (new), weapons, modifier cards, ui (weapon draft, BUILD tab), defences, movement
 - Files: statup.js (new), game.js, pdef.js, index.html, style.css, tests/statuptest.js (new), tests/run.sh, tests/tools/guide.js, GAME_GUIDE.md, ARCHITECTURE.md

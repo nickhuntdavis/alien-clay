@@ -57,10 +57,20 @@ const { chromium } = require('playwright');
     if (!info.includes('BASE STATS') || !info.includes('CRIT CHANCE')) bad.push('draft has no base stats');
     out.draft = document.getElementById('dInfo').querySelector('.stBase') ? document.getElementById('dInfo').querySelector('.stBase').innerText.replace(/\n/g, ' ') : '';
     if (!bpHtml().includes('Rate of Fire')) bad.push('build panel has no bonus');
+    // 5. The run log has a stats line; collected XP is the gems' own value (never more than was dropped).
+    const txt = runText(runSummary(G, 'CLOSED'));
+    if (!/ stats: .*Rate of Fire/.test(txt)) bad.push('no stats line');
+    out.stats = (txt.split('\n').find(l => l.startsWith(' stats:')) || '');
+    UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = [];
+    for (let i = 0; i < 20; i++) dropGem(G.player.x + 3, G.player.y, 5);
+    for (let f = 0; f < 30; f++) { G.state = 'play'; G.lootQueue.length = 0; update(1 / 60); }
+    const rs = runSummary(G, 'CLOSED');
+    if (!(rs.xpRaw > 0 && rs.xpRaw <= rs.xpDrop)) bad.push(`xp collected ${rs.xpRaw} of ${rs.xpDrop}`);
+    out.xp = runText(rs).split('\n').find(l => l.startsWith(' xp:'));
     return { bad, out };
   });
   await page.screenshot({ path: 'statup_draft.png' });
-  console.log(r.out.dps.join('\n')); console.log(r.out.draft);
+  console.log(r.out.dps.join('\n')); console.log(r.out.draft); console.log(r.out.stats); console.log(r.out.xp);
   console.log('statuptest:', r.bad.length || errors.length ? 'FAIL ' + r.bad.concat(errors).join(' | ') : 'ok');
   await b.close(); process.exit(r.bad.length || errors.length ? 1 : 0);
 })();
