@@ -37,6 +37,9 @@ const { chromium } = require('playwright');
       w = fresh(); modAdd(w, 'ricochet'); computeStats(w); const A2 = foe(150, 12), B = foe(Bx - p().x, By - p().y); fire(w, A2, 0);
       out.bounceHit = hurt(B); if (!(hurt(B) > 0)) bad.push('the bounce missed the enemy on its line');
     }
+    // 2b. A head-on hit doesn't bounce
+    w = fresh(); modAdd(w, 'ricochet'); computeStats(w); const H = foe(150, 0); fire(w, H, 0);
+    out.headOn = segs().length; if (segs().length !== 1) bad.push('a head-on hit bounced: ' + segs().length + ' segments');
     // 3. Piercing + Bounce: through and off, both weaker
     w = fresh(); modAdd(w, 'piercing'); computeStats(w); let c1 = foe(120, 6), c2 = foe(220, 6); fire(w, c1, 0); const solo = hurt(c2);
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w); c1 = foe(120, 6); c2 = foe(220, 6); G.v10fx = []; fire(w, c1, 0);

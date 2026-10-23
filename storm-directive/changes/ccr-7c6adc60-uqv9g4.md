@@ -1,3 +1,11 @@
+## 2026-10-23 Laser: no bounce on a head-on hit (v10.83)
+- Systems: weapons (Laser)
+- Files: laserbeam.js (lzGlance), tests/laserbeamtest.js
+- What: a Laser hit within 12 degrees of head-on doesn't bounce (it would only come straight back at you); off-centre hits still reflect at the true angle. Applies to enemies, obstacles and the orbit ring (user's choice of three options).
+- Save data: none.
+- Hooks: none new.
+- Risk: Bounce triggers less often on a beam held dead on its target (mostly while sweeping or on moving enemies).
+
 ## 2026-10-23 Laser reach and sweep limit (v10.82)
 - Systems: weapons (Laser), fx
 - Files: laserbeam.js
