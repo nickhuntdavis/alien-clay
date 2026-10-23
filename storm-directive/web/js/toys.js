@@ -573,7 +573,7 @@ function bubblePop(b, throwA, fling) {
   for (const e of inside) { e.bubT = 0; e.phased = false; }
   const boost = b.boost || 1, held = clamp((G.t - (b.heldAt || G.t)) / 3, 0, 1);
   const R = (70 + b.r * 1.2) * Math.sqrt(boost), dmg = (s.dmg * 2.2 * (1 + held) + (b.soaked || 0)) * boost;
-  const elem = s.rainbow ? pick(BUB_ELEMS) : 'phys', c = s.rainbow ? ELEMENTS[elem].color : w.def.color;
+  const elem = s.rainbow ? pick(BUB_ELEMS) : w.def.sab ? w.def.elem : 'phys', c = s.rainbow ? ELEMENTS[elem].color : w.def.color;
   const out = new Set(inside);
   IN_AOE = true;
   forNear(b.x, b.y, R, o => {

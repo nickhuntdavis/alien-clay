@@ -44,6 +44,8 @@ Numbers are starting values for sims. All names here are internal; player-facing
 5. **The Runs removed:** `BASE_WEAPONS.md` roster, Redtail's starters (`SAMPLES.md`) and references need updating; Redtail now has two starters.
 6. **Laser added:** it needs a `BASE_WEAPONS.md` entry and start stats. It is Ordered Online's **4th starter** (user, 22 Oct; every other sample has 3), and its types are Mucus / Acid while the Laser is Fire (open issue 6 there).
 7. **Ricochet** here bounces off enemies at the true reflection angle; `MODIFIERS.md` 4 has it bouncing off walls only. That row needs updating.
+8. **Nappy Mines has two Switched at Birth alternates** (Acid and Mucus, user, 23 Oct), against rule 15's one fixed alternate. `MM_SAB` in `modmatrix.js` holds one type per weapon, so building it needs a branch choice there.
+9. **Blowing Bubbles has two Switched at Birth alternates** too (Acid and Static, user, 23 Oct).
 
 ## 2. Weapons (quick reference)
 
@@ -94,7 +96,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | There Is No Spoon | Falloff and speed of returned bullets. | Returned bullets gain damage the further they fly (up to +50%). |
 | Unwanted Contact | Falloff, speed, jump range (+20 / 40 / 60). | Jump range doubles. |
 | Ewww, Gross | Falloff, speed, tape radius (+20 / 40 / 60). | Tape reaches neighbours up to 260 away. |
-| Blowing Bubbles | Bubble travel and speed. | Bubbles never pop on their own: they drift until touched. |
+| Blowing Bubbles | Bubble post: travel and speed; a bubble carries its trapped enemy away from you as it drifts. | It drops the enemy far behind the front line when it pops. |
 | One of These Days | Falloff, speed. | Marks placed from more than 400 away store 55%. |
 | Sister Cousin | Sibling search range and speed. | Split siblings can reach targets anywhere on screen. |
 | Chest Burster | Falloff, speed. | Shots that fly more than 400 infect everything within 50 of the target. |
@@ -121,7 +123,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | There Is No Spoon | Close damage of returned bullets. | Bullets returned within 60 hit at double damage. |
 | Unwanted Contact | Close damage; close chains start with +1 / 2 / 3 jumps. | Every jump within 120 of you Charges twice. |
 | Ewww, Gross | Close damage; close stamps tape +1 / 2 / 3 neighbours. | Point-blank stamps bundle every enemy within 80. |
-| Blowing Bubbles | Close bubbles trap bigger enemies (max health 50 / 65 / 80). | Point-blank pops double in radius. |
+| Blowing Bubbles | Personal space: close damage; a bubble that traps within 120 pushes its enemy away from you as it forms (100). | Point-blank traps push the enemy 200 and pop on whatever it hits. |
 | One of These Days | Close marks store 50 / 55 / 60%. | Point-blank marks count down in 2 s. |
 | Sister Cousin | Close damage. | Siblings return to you after each hit, striking again on the way. |
 | Chest Burster | Close damage; undead from close infections +30 / 60 / 90%. | Point-blank infection raises the undead on the next hit. |
@@ -152,11 +154,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Hole rate; smaller holes (3-well cap stays). | Small holes merge twice as easily. |
 | Skill Issue | Lob rate; smaller dollops. | A dollop landing on a flying enemy sends it flying again. |
 | There Is No Spoon | Return rate. | Returned bullets fire in pairs. |
-| Nappy Mines | Mine rate; smaller mines. | Mines dropped within 40 of each other fuse into a bigger mine. |
+| Nappy Mines | Breadcrumbs: mine rate, smaller mines, dropped as a tight trail behind you instead of a scatter, so anything following you walks the whole trail. | Mines dropped within 40 of each other fuse into a bigger mine. |
 | Soulmate Signal | The beam pulses instead of holding. | Each pulse arcs once to a Charged enemy off the beam. |
 | Unwanted Contact | Rate. | Chains that cross each other both gain a jump. |
 | Ewww, Gross | Rate; tape lasts 3 s instead of 5. | Stamps on a taped enemy extend its tape. |
-| Blowing Bubbles | A stream of smaller bubbles. | Small bubbles merge into one that traps larger enemies. |
+| Blowing Bubbles | Rate: a faster, random string of big and small bubbles. Some trap as normal; the others (about half) don't trap but block enemies and push them back as they drift. | Pushing bubbles that touch merge into one that traps larger enemies. |
 | One of These Days | Rate; countdowns 3 s at 30%. | Extra marks on the same target stack its stored share (cap 80%). |
 | Sister Cousin | More, weaker siblings. | Siblings hitting one target in quick succession each add +10%. |
 | Peekaboo | Shorter vanishes, smaller BOOs. | Every 3rd BOO is full strength. |
@@ -191,11 +193,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Hole radius and pull (0.8 s). | A charged hole counts as 2 for merging. |
 | Skill Issue | Launch distance. | The collision chain goes one step deeper (depth 3). |
 | There Is No Spoon | Holds returns until the store is full, then fires them all as one volley; volley damage scales. | The volley fires as a ring round you. |
-| Nappy Mines | Blast and patch size (0.4 s per mine). | Charged mines count double towards the Nuclear Nappy. |
+| Nappy Mines | Ripening (no wind-up): an unused mine gains blast and patch size while it sits, +10% a second up to +60 / +120 / +180%. | Ripe mines (at the cap) count double towards the Nuclear Nappy. |
 | Soulmate Signal | Beam width for 1 s after each re-anchor. | Charged re-anchors arc 5 jumps instead of 3. |
 | Unwanted Contact | Starting jumps (+1 / 3 / 6, the count ramp); falloff 80%. | A charged chain has no falloff. |
 | Ewww, Gross | Neighbours taped (+1 / 3 / 6). | Charged tape shares 50% instead of 35%. |
-| Blowing Bubbles | Trappable size (max health 50 / 65 / 80). | Charged bubbles can trap elites (never bosses). |
+| Blowing Bubbles | Big breath: a visible inhale, then one huge bubble that traps every small enemy it rolls over (up to 3 together); trappable size 50 / 65 / 80. Pressurised: it survives the first touch and pops on the second, for double damage. | Charged bubbles can trap elites (never bosses). |
 | One of These Days | Stored share (50 / 60 / 70%). | The payout also Bleeds everything within 80. |
 | Sister Cousin | Siblings per shot (3 / 4 / 5). | Charged siblings split into 3 on a kill. |
 | Peekaboo | BOO damage per 0.5 s hidden (+10 / 20 / 30%). | A full charge stuns as well as Fears. |
@@ -230,11 +232,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Force reactions. | Each reaction inside the well grows its radius 10%. |
 | Skill Issue | Force reactions; collisions count as Force hits. | Collisions set off the reaction between the two enemies' statuses. |
 | There Is No Spoon | Bars and reactions of returned bullets. | Returned bullets react with the shooter's own damage type. |
-| Nappy Mines | Burn; its reactions. | Burning patches count as Fire hits for reactions. |
+| Nappy Mines | Burn; its reactions. Hot nappy: Burn spreads from a burning enemy to any enemy touching it. | Burning patches count as Fire hits for reactions. |
 | Soulmate Signal | Charge; its reactions. | Arcs from the beam set off Static reactions. |
 | Unwanted Contact | Charge; its reactions. | Each chain jump can set off a reaction. |
 | Ewww, Gross | Snare; its reactions. | A reaction on one taped enemy repeats on the bundle as echo damage (12.1). |
-| Blowing Bubbles | Snare; its reactions. | Pops set off reactions on everything they hit. |
+| Blowing Bubbles | Snare; its reactions. Test tube: a trapped enemy's statuses tick ×1.5 faster inside the bubble. | Bubble soup: a bubble keeps every status of what it trapped and spreads them all in the pop. |
 | One of These Days | Bleed; its reactions. | Reactions on the marked target add 20% of their damage to the payout. |
 | Sister Cousin | Bleed; its reactions. | Split siblings carry the reaction their parent set off. |
 | Peekaboo | Possessed from the BOO; its reactions. | Feared enemies take +30% from every reaction. |
@@ -269,11 +271,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Force | The well bends your shots twice as hard. |
 | Skill Issue | Force | The collision chain goes one step deeper. |
 | There Is No Spoon | Force, and each returned bullet counts its own type's kin | Returned bullets gain +8% per weapon you carry of their type. |
-| Nappy Mines | Fire | Every blast leaves a full-size burning patch. |
+| Nappy Mines | Fire. Family gathering: a hit from your other Fire weapons sets a mine off at +30%, and a Hot Mess pool touching a mine sets it off. | Shared heat: mine patches and Hot Mess pools that touch merge into one bigger patch that burns as long as the longest. |
 | Soulmate Signal | Static | The beam arcs 5 jumps. |
 | Unwanted Contact | Static | Chains have no falloff. |
 | Ewww, Gross | Mucus | The bundle shares 50%. |
-| Blowing Bubbles | Mucus | Bubbles trap elites (never bosses). |
+| Blowing Bubbles | Mucus. Snot bubbles: your other Mucus weapons' hits blow a free bubble on a Snotty enemy (max 1 a second). | Puddle froth: a bubble drifting through a Nocturnal Emission puddle doubles in size and can trap any non-elite. |
 | One of These Days | Blood | The payout repeats 60%. |
 | Sister Cousin | Blood | Split siblings can split once more. |
 | Peekaboo | Alien | Feared enemies are also possessed for 1 s. |
@@ -308,11 +310,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | The hole repels instead of pulling (its pull strength, reversed). | The supernova blasts everything 200 outward. |
 | Skill Issue | N/A: already knockback-based. | |
 | There Is No Spoon | Returned bullets shove (30). | The shove scales with how hard the bullet would have hit you. |
-| Nappy Mines | Blasts throw enemies clear of the patch (60). | Thrown enemies set off any mine they land near. |
+| Nappy Mines | Cannonball: blasts throw enemies (60); a thrown enemy hits whatever it lands on for 40% and knocks that enemy back too. | Thrown enemies set off any mine they land near. |
 | Soulmate Signal | Dragging shoves enemies the way you swim (30). | Enemies shoved off the beam's end are flung away. |
 | Unwanted Contact | Each jump shoves its target from the last (25). | Jumps launch enemies into each other (40%). |
 | Ewww, Gross | The bundle is knocked back together (40). | The bundle crashes into enemies behind it. |
-| Blowing Bubbles | Pops throw nearby enemies out (50). | The freed enemy flies out like a cannonball. |
+| Blowing Bubbles | Beach ball: a bubble holding an enemy can be bumped; anything that hits it knocks the whole bubble away (50) without popping it. | A knocked bubble that hits an enemy pops, throwing the freed enemy into its mates. |
 | One of These Days | The payout launches the target (60). | The launched target hits its mates for 40% of the payout. |
 | Sister Cousin | Siblings shove targets towards the next sibling's target (20). | Killed enemies are flung into the nearest enemy. |
 | Peekaboo | The BOO blows Feared enemies away (60). | Fleeing enemies trample their mates. |
@@ -347,11 +349,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | N/A: already pulls. | |
 | Skill Issue | The lard pulls enemies within 60 together before launching. | Enemies are pulled into a pile, then launched at once. |
 | There Is No Spoon | Enemy bullets within 140 curve towards you to be eaten (store cap still 10). | Each returned bullet tugs its shooter 40 towards you. |
-| Nappy Mines | Mines pull enemies within 70 in before they go off. | Mines pull nearby mines together, packing them for Domino. |
+| Nappy Mines | Implosion: a tripped mine sucks in enemies within 70 for 0.3 s, then goes off. With the Area modifier, the pull reaches further (5.5). | Mines pull nearby mines together, packing them for Domino. |
 | Soulmate Signal | Enemies within 50 of the beam are pulled onto it. | The twin pulls enemies towards itself. |
 | Unwanted Contact | Each jump tugs its target 30 towards the last. | The chain contracts: every chained enemy is pulled to the first. |
 | Ewww, Gross | Taped bundles are pulled tight into a clump. | Bundles within 140 pull into each other and merge (cap 8). |
-| Blowing Bubbles | Bubbles pull small enemies within 60 towards them. | Bubbles drift towards small enemies by themselves. |
+| Blowing Bubbles | Bubble magnet: a bubble holding an enemy pulls other enemies within 60 towards it, gathering the crowd round the pop to come. | The pull reaches 150. |
 | One of These Days | The marked target pulls enemies within 80 towards it before the payout. | The payout bursts on everything it pulled in. |
 | Sister Cousin | A sibling's hit tugs its target towards the other sibling's target. | Kill sites pull targets in for the split siblings. |
 | Peekaboo | Your last spot pulls searching enemies 40 tighter before the BOO. | Everything in the BOO radius is pulled to the centre first. |
@@ -386,11 +388,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Enemies are slowed on their way out of the well. | Enemies at the centre are Snared. |
 | Skill Issue | Flying enemies land slowed. | Stuck enemies stick to the mate they hit. |
 | There Is No Spoon | Returned bullets slow. | Returned bullets Snare. |
-| Nappy Mines | A sticky patch beside the fire slows, then Snares (putting Fire out). | The sticky patch rings the fire, holding enemies at its edge. |
+| Nappy Mines | Fly paper: an enemy that trips a mine is held for 0.5 s before the blast, so it always takes the full hit. The hold is not Snare, so the blast's Burn still lands. | Every enemy within the trigger radius is held, not just the one that tripped it. |
 | Soulmate Signal | Dragged enemies are slowed. | Enemies that leave the beam stay stuck where they left it. |
 | Unwanted Contact | Charged enemies are slowed. | Chained enemies are Snared, setting up Snot Socket with your Static. |
 | Ewww, Gross | N/A: taped enemies are already stuck together. | |
-| Blowing Bubbles | Freed enemies are slowed; bubbles linger +1 / 2 / 3 s. | Pops Snare everything in the pop. |
+| Blowing Bubbles | Gum bubble: the pop leaves a sticky splat that Snares anything crossing it for 3 s. Gummed up: a big enemy a bubble can't trap is slowed 40% and its next attack is cancelled. | Stuck together: bubbles that touch stick into a cluster; it pops all at once when an enemy touches it. |
 | One of These Days | Marked enemies are slowed. | The payout Snares the target. |
 | Sister Cousin | Sibling hits slow. | Split siblings Snare their targets. |
 | Peekaboo | Feared enemies are slowed as they flee. | Searching enemies are stuck at your last spot. |
@@ -429,7 +431,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | N/A: the beam already hits everything between you and the twin. | |
 | Unwanted Contact | The opening shot; the chain starts from the last enemy hit. | Every enemy it pierces starts its own chain. |
 | Ewww, Gross | The stamp; each bundle it passes is taped. | Every bundle the stamp passed through is taped to the others. |
-| Blowing Bubbles | Bubbles pass enemies too big to trap until they find a small one. | A bubble can trap 2 small enemies together. |
+| Blowing Bubbles | Unpoppable: enemy shots pass through bubbles instead of popping them; only touch frees the trapped enemy. Bubbles pass big enemies until they find a small one. | A bubble can trap 2 small enemies together. |
 | One of These Days | The needle, on its way to the toughest. | Every enemy it passes gets a 2 s mini-countdown (20%). |
 | Sister Cousin | Siblings, before homing on the next. | A kill made while piercing counts for splitting. |
 | Peekaboo | N/A: Burst. | |
@@ -468,7 +470,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | The twin's anchor, once a second (0.8 / 0.6 s at Lv 2 / 3). | Both ends burst: you emit one too (it never hurts you). |
 | Unwanted Contact | The last target in each chain, Charging what it hits. | Every jump bursts (bursts never start new chains). |
 | Ewww, Gross | The stamp; enemies in the blast are taped too (still up to 3 neighbours). | When the tape expires, the bundle bursts as one. |
-| Blowing Bubbles | Pops become full blasts (radius ×2); the trapped enemy is spared. | The freed enemy is launched by its own pop into its mates. |
+| Blowing Bubbles | Pops become full blasts (radius ×2); the trapped enemy is spared. Bubble grenade: a bubble that hits a big enemy explodes on it (small blast) instead of passing. | The freed enemy is launched by its own pop into its mates. |
 | One of These Days | The payout: the target takes it all, everything near takes 50 / 60 / 70%. | The burst puts a fresh 2 s countdown on the toughest enemy it hits. |
 | Sister Cousin | A sibling's kill, in blood, before it splits. | Split siblings also burst on their kills. |
 | Peekaboo | N/A: Burst. | |
@@ -501,7 +503,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | The twin's anchor tracks the densest cluster. | The anchor jumps to the next cluster the moment the current one thins. |
 | Unwanted Contact | The opening shot (4); jumps pick their own targets. | The shot retargets until it starts a chain. |
 | Ewww, Gross | Stamps (3). | Stamps seek the target with the most neighbours. |
-| Blowing Bubbles | Bubbles drift towards small enemies (2). | Bubbles chase small enemies until they trap one or expire. |
+| Blowing Bubbles | Homing balloon: bubbles drift towards small enemies (2); once one traps, it floats towards the densest group. | Return to sender: a bubble holding an enemy drifts to you instead, so you pop it by touch when you choose (no damage to you). |
 | One of These Days | The needle, to the toughest target (4). | The needle retargets if its target would die before the payout. |
 | Sister Cousin | N/A: already homes. | |
 | Chest Burster | Infecting shots (4). | Shots retarget to the nearest uninfected enemy. |
@@ -534,11 +536,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | The hole, off walls and big enemies, changing course. | Each bounce grows the hole 10%. |
 | Skill Issue | Flying enemies bounce off each other (each bounce is a collision; chain depth still 2 per enemy). | Bounces don't count towards the depth limit. |
 | There Is No Spoon | Returned bullets. | Each bounce changes the bullet's damage type to the next one in your store. |
-| Nappy Mines | Thrown enemies bounce off walls before landing. | Each bounce drops a small burning spot. |
+| Nappy Mines | The mine: a new mine bounces off the nearest enemy in range, slides away and comes to rest; it arms only at rest and goes off only when triggered there. With Homing it bounces to the next nearest enemy and goes off at once instead (5.5). | Each bounce drops a small burning spot. |
 | Soulmate Signal | The beam bounces off the twin to one more point. | The beam zigzags between you and the twin through the crowd. |
 | Unwanted Contact | Each arc bounces once more after its chain ends. | Bounced arcs start new chains (bounded: 12 hits in all). |
 | Ewww, Gross | The stamp, taping each enemy it hits to the last. | Every enemy it bounced through ends up in one bundle. |
-| Blowing Bubbles | Bubbles bounce off big enemies until they find a small one. | A bubble that bounces 6 times can trap any non-elite. |
+| Blowing Bubbles | Bubble pinball: bubbles bounce off big enemies and off each other; each bounce grows the bubble 10%, so it traps bigger enemies. | Rubber bubble: a bubble holding an enemy bounces off walls and enemies like a ball, each bounce dealing a pop's damage without breaking. |
 | One of These Days | The mark bounces to a new target when the countdown ends. | Each bounce carries the payout with it, 70% each time. |
 | Sister Cousin | Siblings bounce to a fresh target after each hit. | Split siblings bounce too. |
 | Peekaboo | N/A: self-centred Burst. | |
@@ -577,7 +579,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | The beam on enemies it stays on. | At full ramp, enemies on the beam are Charged permanently. |
 | Unwanted Contact | Chains starting on the same target. | At full ramp, the chain hits the first target again at the end. |
 | Ewww, Gross | Hits on the same bundle. | At full ramp, the bundle shares 70%. |
-| Blowing Bubbles | Bubbles on the same enemy trap it for longer. | At full ramp, the pop is three times the size. |
+| Blowing Bubbles | Inflating: repeated hits on the same big enemy inflate it: it slows and floats, and at 5 hits (4 / 3 at Lv 2 / 3) it is trapped whatever its size (never elites). | At full ramp, an inflated enemy's pop is three times the size. |
 | One of These Days | Hits on the marked target add to the stored share. | At full ramp, the payout repeats 80%. |
 | Sister Cousin | Siblings on the same target. | At full ramp, every sibling that hits splits. |
 | Peekaboo | N/A: Burst. | |
@@ -619,7 +621,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | Third point: the beam bends through one linked enemy, making a triangle of you, it and the twin. | The bend point is the densest spot near the line. | A second bend point (a four-sided shape). | Bend points jump to whichever enemies make the beam cover the most of the crowd. |
 | Unwanted Contact | Aftershocks: enemies the chain jumps through stay linked for 3 s. No solid beam: stuttering sparks crack between them at intervals, and any hit on one arcs to the others. | Sparks twice as often. | Links last 5 s. | Aftershocks Charge any enemy that wanders between two linked enemies. |
 | Ewww, Gross | N/A: linking enemies is the whole weapon. | | | |
-| Blowing Bubbles | Bubble string: bubbles are linked by a film; popping one pops every bubble on its string. | Strings of up to 3. | Each pop on the string is bigger than the last. | Strings of up to 5, and the last pop traps the nearest small enemy. |
+| Blowing Bubbles | Bubble pack: bubbles holding enemies near each other (within 140) drift together into one clump; popping it pops the lot. | Clumps of up to 3. | Each pop in the clump is bigger than the last. | Clumps of up to 5, and the clump's pop traps the nearest small enemy. |
 | One of These Days | Joint account: the mark also links the nearest neighbour; damage to either counts towards the payout, and both pay out together. | 2 neighbours. | Linked neighbours' damage counts 100% (Lv 1 and 2: 50%). | The total is split evenly across every linked enemy (still echo damage). |
 | Sister Cousin | Family feud: enemies hit by siblings from the same shot are linked; when one dies, the others take a burst of Bleed. | +1 Bleed stack in the burst. | The burst reaches enemies within 60 of each partner. | A feud death counts as a kill for splitting. |
 | Peekaboo | Echo BOO: searching enemies are linked; each linked enemy that is Feared lets out a small BOO (radius 60, Fear only). | Radius 80. | Echo BOOs deal 30% of the BOO's damage. | Echo BOOs can Fear enemies that weren't searching (no further echoes). |
@@ -658,7 +660,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | Third wheel: rises as a second anchor; the beam runs you, twin, ally for 5 s. | Lasts 7 s. | The third wheel moves to cover the densest part of the crowd. | Two third wheels make a four-point beam. |
 | Unwanted Contact | Tesla zombie: rises crackling and shocks enemies near it every 1 s for 5 s, starting a 2-jump chain. | 3 jumps. | Shocks every 0.6 s. | Tesla zombies Charge everything they shock, so your other weapons arc off them. |
 | Ewww, Gross | Sticky friend: rises still taped and hugs the nearest enemy; damage to the ally is shared to the enemy, never the other way. | Shares 50%. | Lasts 7 s. | It tapes itself to a whole bundle (up to 3). |
-| Blowing Bubbles | Bubble boy: rises inside a bubble that rolls towards enemies and pops on the first one it meets. | Pop +30%. | It rolls through 2 enemies before popping. | The pop traps the next small enemy in a fresh bubble. |
+| Blowing Bubbles | Hamster ball: rises inside a bubble and rolls around bowling over enemies; it lasts until the bubble pops. | Pop +30%. | It bowls through 2 enemies before the bubble can pop. | The pop traps the next small enemy in a fresh bubble. |
 | One of These Days | Debt collector: a marked enemy that dies early rises and sticks a fresh countdown on the toughest enemy nearby. | The new countdown repeats 50%. | The collector swims twice as fast. | It brings the old target's stored damage along, adding it to the new payout. |
 | Sister Cousin | Adopted: rises as an adopted sibling and fights for 5 s; your siblings home on whatever it attacks. | Lasts 7 s. | Its hits Bleed. | Adopted siblings split like real ones when they kill (cap still 6). |
 | Peekaboo | Decoy: enemies killed by the BOO rise looking like you; enemies search for them too. | Lasts 7 s. | Up to 3 decoys at once. | Decoys BOO with you, each in a small radius. |
@@ -697,7 +699,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | Orbit twin: the twin circles you at 70, sweeping the beam round you like a blade. | Orbit 30% faster. | Orbit radius 90. | Two twins orbit on opposite sides. |
 | Unwanted Contact | Bad touch: any enemy that touches you is zapped and starts a 3-jump chain. | 4 jumps. | Zapped enemies are thrown off you. | Bad touch Charges every enemy within 80 of you once a second. |
 | Ewww, Gross | Tape slap: slaps tape on the nearest enemy within 60, taping it to up to 4 neighbours. | 5 neighbours. | Tape lasts 7 s. | Taped bundles stick to you and are dragged along (up to 1). |
-| Blowing Bubbles | Bubble butt: the sperm sits in a bubble; an enemy touching it pops it as a Burst; it reforms after 3 s. | Reforms after 2 s. | Pop +40%. | The pop traps the enemy that popped it, if it is small. |
+| Blowing Bubbles | Defensive bubble: the sperm sits in a bubble (not the Membrane: user, 23 Oct); an enemy touching it pops it in a Force explosion; it then grows back from tiny over 3 s. | Grows back in 2 s. | It absorbs 1 enemy projectile before popping. | It absorbs 3 projectiles, and the pop traps the enemy that popped it, if it is small. |
 | One of These Days | Tick tock: every enemy that touches you gets a 4 s countdown. | Repeats 50%. | Countdowns 3 s. | Touch countdowns pay out on everything within 60 of the target. |
 | Sister Cousin | Clingy siblings: siblings stay within 80 and peck any enemy that comes close; kills still split. | 3 siblings. | Pecks Bleed. | Split siblings also stay close: a kill-heavy fight builds a swarm round you (cap 12). |
 | Peekaboo | Behind you!: you vanish and reappear behind the nearest enemy, BOOing in radius 80 at double damage. | Radius 100. | Its Fear lasts twice as long. | You reappear behind the toughest enemy instead. |
@@ -753,7 +755,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Soulmate Signal | The twin becomes a fixed anchor; the beam fires when enemies come between you and it. | Anchor range +60. | The beam stays on 1 s after the last enemy leaves. | A second fixed anchor; the beam runs between all three points. |
 | Unwanted Contact | Charged mines start a chain when tripped. | 5 mines. | +1 jump. | Charged mines link to each other: a chain from one jumps through the others. |
 | Ewww, Gross | Tape traps bundle whoever steps in with their neighbours. | 5 traps. | +1 neighbour. | A trap that bundles 4 enemies sets the next trap. |
-| Blowing Bubbles | Bubbles hover in place as traps until a small enemy touches one. | 5 bubbles. | They last 20 s. | Hovering bubbles drift slowly towards small enemies. |
+| Blowing Bubbles | Bubble machine: a small machine on the floor blows a bubble every 1.5 s at the nearest small enemy, for 8 s. | 2 machines. | Every 1 s, for 12 s. | Machines blow 2 bubbles at a time. |
 | One of These Days | Countdown mines mark whoever trips them. | 5 mines. | Repeats 50%. | The payout re-arms the mine. |
 | Sister Cousin | Sibling nests release 2 siblings at enemies that come near. | 3 siblings. | 5 nests. | Nests release siblings again when one of theirs kills. |
 | Peekaboo | You leave a decoy that BOOs when enemies arrive (you don't vanish). | 2 decoys. | Radius +40. | Enemies hunt the decoys instead of you. |
@@ -788,11 +790,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | The black hole drops onto the densest cluster instead of travelling. | Radius +20. | It drops beside an existing hole if one is on screen. | Holes dropped within 100 of another merge on landing. |
 | Skill Issue | A dollop falls on the densest cluster, sending everything flying outward. | Launch +30%. | Radius +20. | Enemies are launched upward and land on their mates (40%). |
 | There Is No Spoon | Stored bullets rain down on the enemies that fired them (each tracks its shooter). | +20% damage. | Each bullet hits everything within 40 of its shooter. | The rain falls on every enemy within 100 of each shooter. |
-| Nappy Mines | Mines drop from above onto enemy paths instead of behind you. | 2 mines per drop. | Mines drop on the densest cluster. | The Nuclear Nappy always drops on the densest cluster. |
+| Nappy Mines | Random artillery: mines fall on random spots among the enemies instead of behind you, arming where they land. | 2 mines per drop. | Carpet bombing: a line of 4 mines falls across the enemies' path ahead of you and goes off one after another. | The carpet is 6 mines, and the Nuclear Nappy always lands on the densest cluster. |
 | Soulmate Signal | The twin dives from above onto the far anchor point, then the beam forms. | The dive is twice as fast. | The dive point is the densest cluster. | The dive itself is a Static Burst where the twin lands. |
 | Unwanted Contact | A bolt strikes the first target from above, then chains as normal. | +1 jump. | The first target is Charged twice. | Every jump is also struck from above. |
 | Ewww, Gross | Tape drops on the target, bundling it as usual. | +1 neighbour. | It drops on the target with the most neighbours. | Tape drops on 2 targets at once. |
-| Blowing Bubbles | Bubbles fall from above onto small enemies (tracking them). | 2 bubbles. | Bubbles that miss bounce once towards the nearest small enemy. | Bubbles fall in a ring of 6 round the densest cluster. |
+| Blowing Bubbles | Bubble rain: a shower of small bubbles falls over an area for 2 s, trapping small enemies in it and popping on the rest. | Rain lasts 3 s. | The area is 50% wider. | The rain follows the densest cluster. |
 | One of These Days | The mark falls on the toughest enemy (0.4 s reticle). | Repeats 50%. | The mark can't miss (ignores Evasion: it's a strike). | The payout comes as a strike from above on everything within 80. |
 | Sister Cousin | Siblings dive from above at their targets (homing). | 3 siblings. | Dives Bleed. | Split siblings also dive from above. |
 | Peekaboo | You vanish upward; the BOO comes down on the densest cluster. | Radius +30. | The search spot is where the BOO lands. | You land with it, at the BOO's centre, unharmed. |
@@ -827,11 +829,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | N/A: it was moved to Force because gravity is displacement. | | | |
 | Skill Issue | Force → **Static**: collisions add Charge. | Charge +20%. | Charge +40%. | Dual-type Force and Static. |
 | There Is No Spoon | N/A: its point is that returned bullets keep their own type. | | | |
-| Nappy Mines | Fire → **Acid** (its original type): blasts Corrode and leave an Acid Pool instead of a burning patch. | Corrosion +20%. | Corrosion +40%. | Dual-type Fire and Acid. |
+| Nappy Mines | **Two alternates** (exception to rule 15, user, 23 Oct); the branch picks one. Fire → **Acid** (its original type): blasts Corrode and leave an Acid Pool; an Acid blast on a burning patch flares it to double size. Fire → **Mucus**: blasts make Snotty and leave a slick that Snares. | Corrosion or Snotty +20%. | +40%. | Alternating: mines take turns between Fire and the chosen type, so Domino chains set off the unstable reaction between the two patches. |
 | Soulmate Signal | N/A: its arcs are the Static mechanic. | | | |
 | Unwanted Contact | N/A: Charging enemies is the whole weapon. | | | |
 | Ewww, Gross | Mucus → **Acid**: the stamp Corrodes; tape and sharing are unchanged. | Corrosion +20%. | Corrosion +40%. | Dual-type Mucus and Acid. |
-| Blowing Bubbles | Mucus → **Acid**: pops Corrode; trapping is unchanged. | Corrosion +20%. | Corrosion +40%. | Dual-type Mucus and Acid. |
+| Blowing Bubbles | **Two alternates** (exception to rule 15, user, 23 Oct); the branch picks one. Mucus → **Acid** (Acid bath): the trapped enemy is Corroded while inside, stripping its Shell before the pop. Mucus → **Static**: the pop arcs to 2 nearby enemies, Charging them. | Corrosion or Charge +20%. | +40%; Static arcs to 3. | Dual-type Mucus and the chosen type. |
 | One of These Days | Blood → **Mucus**: the needle Snares; the countdown is unchanged. | Snare +20%. | Snare +40%. | Dual-type Blood and Mucus. |
 | Sister Cousin | Blood → **Fire**: siblings set targets alight; homing and splitting are unchanged. | Burn +20%. | Burn +40%. | Dual-type Blood and Fire. |
 | Peekaboo | N/A: the BOO's Fear reads as Alien. | | | |
@@ -866,11 +868,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Enemies inside the well are primed. | Bigger detonations. | Detonations inside the well grow it 10%. | A detonation inside the well counts towards the supernova as a merge. |
 | Skill Issue | Flying enemies are primed. | Bigger detonations. | Detonations on landing send the enemy flying again. | Every collision detonates both enemies (no re-priming). |
 | There Is No Spoon | Returned bullets prime; detonations are in the bullet's type. | Bigger detonations. | Detonations fill that type's status bar. | Detonations set off the unstable reaction between the bullet's type and the detonating weapon's. |
-| Nappy Mines | Blasts prime everything they hit. | Bigger detonations. | Primed enemies set mines off from twice as far. | Detonations near a mine set it off (counts as Domino). |
+| Nappy Mines | Walking mine: blasts prime everything they hit; a primed enemy detonated by another weapon leaves a burning patch where it stood. | Bigger detonations. | Primed enemies set mines off from twice as far. | Detonations near a mine set it off (counts as Domino). |
 | Soulmate Signal | Enemies the beam touches are primed. | Bigger detonations. | Detonations on the beam send an arc to the twin. | The beam re-primes enemies every 1 s. |
 | Unwanted Contact | N/A: priming your other weapons (Charged enemies arc) is already its signature. | | | |
 | Ewww, Gross | Taped enemies are all primed. | Bigger detonations. | Detonating one taped enemy also detonates the next. | Detonating one detonates the whole bundle (echo damage). |
-| Blowing Bubbles | Trapped and freed enemies are primed. | Bigger detonations. | A pop detonates every primed enemy in it. | Detonations trap the next small enemy nearby. |
+| Blowing Bubbles | Gift wrap: a trapped enemy is primed; your other weapons' hits on its bubble detonate it for +50% instead of popping it. | Bigger detonations. | A pop detonates every primed enemy in it. | Detonations trap the next small enemy nearby. |
 | One of These Days | The marked target is primed throughout the countdown. | Bigger detonations. | It re-primes after each detonation. | Each detonation adds 10% to the stored payout. |
 | Sister Cousin | Sibling hits prime. | Bigger detonations. | A detonation kill counts for splitting. | Split siblings prime too. |
 | Peekaboo | Feared enemies are primed. | Bigger detonations. | Detonating a Feared enemy Fears its neighbours. | Detonations extend the Fear on everything in range. |
@@ -905,11 +907,11 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | Every 4th hole counts as 2 for merging. | Every 3rd. | It's 30% larger. | The empowered hole goes supernova on its own after 3 s. |
 | Skill Issue | Every 4th dollop launches twice as far. | Every 3rd. | Its chain goes one step deeper. | It launches everything on screen within 200. |
 | There Is No Spoon | Every 4th returned bullet hits double. | Every 3rd. | It pierces. | Every empowered return fires 3 bullets. |
-| Nappy Mines | Every 4th mine has double blast. | Every 3rd. | Its patch is double size. | Every 4th mine is a Nuclear Nappy (in place of every 6th). |
+| Nappy Mines | Loaded nappy: every 4th mine leaves a patch 3× the size that lasts twice as long (the blast is normal). | Every 3rd. | Its blast is double too. | Every 4th mine is a Nuclear Nappy (in place of every 6th). |
 | Soulmate Signal | Every 4th re-anchor doubles beam width for 1 s. | Every 3rd. | 2 s. | It arcs 5 jumps. |
 | Unwanted Contact | Every 4th shot has 2 more jumps. | Every 3rd. | No falloff on it. | The empowered chain loops back to its first target. |
 | Ewww, Gross | Every 4th stamp tapes 3 more neighbours. | Every 3rd. | Its tape lasts twice as long. | The empowered bundle shares 70%. |
-| Blowing Bubbles | Every 4th bubble traps any non-elite. | Every 3rd. | Its pop is double. | It traps elites (never bosses). |
+| Blowing Bubbles | Iron lung: every 4th bubble traps any non-elite and can't be popped by touch for 3 s. | Every 3rd. | Golden bubble: an enemy that dies in or near its pop drops extra DNA. | It traps elites (never bosses). |
 | One of These Days | Every 4th mark stores 70%. | Every 3rd. | Its countdown is 3 s. | It pays out on every enemy within 100. |
 | Sister Cousin | Every 4th shot fires 4 siblings. | Every 3rd. | They Bleed ×2. | Its siblings split on any hit, not just kills. |
 | Peekaboo | Every 4th BOO is double radius. | Every 3rd. | Fear lasts twice as long. | The empowered BOO stuns as well as Fears. |
@@ -944,7 +946,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Family Ties | +1 hole (3-well cap stays; smaller holes). | Holes fire front and back. | Holes come in pairs that drift together. | Three holes at once in a triangle that merge in the middle. |
 | Skill Issue | +1 dollop. | +1 more. | Dollops land in a line. | A ring of dollops. |
 | There Is No Spoon | Returns in pairs. | Returns in threes. | Returns fan out over 30°. | Returns in a ring round you. |
-| Nappy Mines | +1 mine per drop. | +1 more. | Mines drop in a line behind you. | Mines drop in a ring. |
+| Nappy Mines | +1 mine per drop. | +1 more. | Mines drop in a short line behind you. | A string: each drop lays a long line of mines behind you. |
 | Soulmate Signal | A second twin and beam. | The second twin mirrors the first across you. | A third twin. | Twins circle you, beams spinning like spokes. |
 | Unwanted Contact | +1 chain shot. | +1 more. | Shots go to different targets by default. | A chain shot in every direction. |
 | Ewww, Gross | +1 stamp. | +1 more. | Stamps go to different bundles. | Stamps in every direction. |
@@ -1061,6 +1063,19 @@ A combo mastery is an extra mastery choice for one modifier on one weapon, offer
 |---|---|---|---|
 | Static net | Connecting, on a Static weapon (Red Flagship, Soulmate Signal, Unwanted Contact) | You also carry a weapon that fires Projectile or Spread shots | Static arcs jump **between your projectiles in flight** (any of your weapons) when two are within 120 of each other, forming a crackling net. Each arc hits enemies that cross it with Static and Charges them. Bounded: each projectile links to at most 2 others, 6 arcs at once, and an arc never starts another arc (12.5). **Empowered by the Static sperm passive** (user, 22 Oct): the arc cap rises to 12 / 18 / 24 at its Lv 1 / 2 / 3 and 36 at its mastery. |
 | Planetary system | Orbiting, on Family Ties | You also carry a weapon that fires Projectile or Spread shots | Your projectiles that pass within a black hole's radius are **captured and orbit it** (up to 8 per hole), hitting enemies being pulled in (each enemy at most every 0.25 s). When the hole merges, expires or goes supernova, they fly outward; a supernova flings them at +50%. An exception to the gravity well's 45° bend limit (`MODIFIERS.md` 19), for this mastery only. |
+
+### 5.5 Nappy Mines specials (user, 23 Oct)
+Nappy Mines' cells were redesigned with the user on 23 Oct and are built in `cellmods.js` (except Switched at Birth's Alternating mastery: Switched at Birth has no ranks in code); Orbiting, Melee (suicide vest), Connecting (tripwires) and Turncoat (suicide runner) stayed as written.
+- **Area** (`areamod.js`, its own group): keeps +25% blast and patch size a rank, and adds **Shockwave**: an outer ring at 2× the blast radius deals 30% and pulls enemies slightly inwards.
+- **Area + Pulling:** Implosion's pull radius grows with Area's bonus, so it drags enemies in from further away.
+- **Ricochet + Homing:** the bounced mine homes on the next nearest enemy and goes off at once, instead of sliding to rest.
+- **Ricochet with other modifiers** (candidates, not yet chosen): Ripening (a mine that slides far ripens out of reach), Fly paper (the bounce target is held), Implosion (pulls the crowd onto where it came to rest), tripwires (wires stretch as the mine slides), Breadcrumbs (a bouncing trail scatters into the crowd).
+
+### 5.6 Blowing Bubbles specials (user, 23 Oct)
+Blowing Bubbles' cells were redesigned with the user on 23 Oct and are built in `cellmods.js` (except Switched at Birth's mastery); Exploding Rounds (kept, plus Bubble grenade), Extra Projectiles and Orbiting stayed as written. Ranged stays N/A.
+- **Area** (`areamod.js`): keeps +25% pop radius a rank, and adds **Bigger bubbles** (bubbles are bigger, easier to land, and trap +10 max health a rank) and **Bubble cloud** (each pop leaves a mist of fine bubbles that pops again 1 s later at half damage).
+- **Melee** is a bubble round you, not the Membrane (user, 23 Oct): it pops in a Force explosion on contact, then grows back from tiny to full size. It stacks with Membrane Shield.
+- **Every bubble inflates before it is sent** (user, 23 Oct): it grows from nothing on your nose (or the Bubble machine's nozzle, or its spot in the rain) in 0.25 s (Big breath: 0.6 s), then leaves. This applies to Blowing Bubbles with or without modifiers.
 
 ## 6. Moved to sperm passives
 
