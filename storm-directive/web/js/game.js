@@ -65,6 +65,7 @@ const SPAWN_K = 0.75, XP_K = 1.2, toughK = t => 1 + (1 / spawnK() - 1) * Math.mi
 // each with a third more health and XP, so the work per minute and the levelling stay put. Wave mode keeps its counts.
 const CROWD = { k: 0.75, far: 600, half: true }; // (half: far enemies and separation on alternate frames)
 const crowdK = () => (G && !G.wave ? CROWD.k : 1), spawnK = () => SPAWN_K * crowdK();
+{ const E = CAPS.enemies; Object.defineProperty(CAPS, 'enemies', { get: () => Math.round(E * crowdK()), configurable: true }); } // (the hard cap every spawner checks: 128 outside wave mode)
 // Adaptive quality: when frames run slow for a while (busy late game, slower phones), step the costly
 // extras down; step back up once there's headroom again. 0: everything. 1: no lens blur or foreground
 // debris, fewer floating numbers. 2: 1.5x resolution, plainer common enemies, fewer particles. 3: 1x resolution.
@@ -2760,7 +2761,7 @@ function update(dt) {
   updateAmbient(dt);
   // Director.
   // Dense swarms (each monster is weaker to match: see enemyScale).
-  const T = PT(), maxAlive = Math.min((CAPS.enemies - 30) * crowdK(), (24 + T * 0.5) * spawnK());
+  const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, (24 + T * 0.5) * spawnK());
   const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * (typeof racePace === 'function' ? racePace() : PACE) * heatSpawn() * spawnK();
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   if (G.debug) { debugTick(); if (G.debug.sb) sbSpawn(rate, maxAlive, hostile, dt); } // the Lab Bench: only what you send in (Sandbox: a slow stream, sandbox.js)
