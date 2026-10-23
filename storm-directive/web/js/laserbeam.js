@@ -133,7 +133,7 @@ function lzBeams(w) {
   return out;
 }
 
-// ORBITING: the beam leaves you, then runs round a circle (radius 72, 100 from Rank 2; a second, inner ring turning the
+// ORBITING: the beam curves out from you into a circle and runs round it (radius 72, 100 from Rank 2; a second, inner ring turning the
 // other way at mastery), traced as short straight sections with the beam's own rules: an enemy in the way breaks the
 // ring there (Piercing carries it on past, weaker, spending a charge in each section that meets the enemy), Bounce reflects it off the enemy or an obstacle and it carries on
 // as a straight beam, and Internal Ricochet's bubble still holds it.
@@ -145,7 +145,13 @@ function lzOrbit(w, src, ramp, dry) {
     const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out, dry, delta: 0 };
     let pierce = lzN(msR(w, 'piercing')), bounce = lzN(msR(w, 'ricochet')), k = 1;
     const a0 = G.t * 1.6 * dir;
-    out.push({ x1: p.x, y1: p.y, x2: p.x + Math.cos(a0) * R, y2: p.y + Math.sin(a0) * R, k: 0.6, hit: false }); // (out to the ring)
+    { // out to the ring: a curve that spirals out from you and runs into the ring along it (user, 23 Oct)
+      let px = p.x, py = p.y;
+      for (let j = 1; j <= 10; j++) {
+        const u = j / 10, r = R * (1 - Math.pow(1 - u, 2)), th = a0 - dir * (1 - u) * Math.PI * 0.75, qx = p.x + Math.cos(th) * r, qy = p.y + Math.sin(th) * r;
+        out.push({ x1: px, y1: py, x2: qx, y2: qy, k: 0.6 + 0.4 * u, hit: false }); px = qx; py = qy;
+      }
+    }
     for (let i = 0; i < N; i++) {
       const t1 = a0 + dir * i / N * TAU, t2 = a0 + dir * (i + 1) / N * TAU;
       const x1 = p.x + Math.cos(t1) * R, y1 = p.y + Math.sin(t1) * R, x2 = p.x + Math.cos(t2) * R, y2 = p.y + Math.sin(t2) * R;

@@ -1,3 +1,11 @@
+## 2026-10-23 The Laser curves into its orbit ring (v10.86)
+- Systems: weapons (Laser), fx
+- Files: laserbeam.js (lzOrbit lead-in)
+- What: with Orbiting, the beam spirals out from you (three quarters of a turn) and runs into the ring along it, instead of a straight spoke out to it. Visual only.
+- Save data: none.
+- Hooks: none new.
+- Risk: none.
+
 ## 2026-10-23 Laser bounces lose damage and brightness by Bounce rank (v10.85)
 - Systems: weapons (Laser), fx
 - Files: laserbeam.js (LZ_KEEP, lzKeep; brightness follows segment power), tests/laserbeamtest.js
