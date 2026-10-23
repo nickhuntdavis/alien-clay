@@ -32,6 +32,12 @@ const MM_SAB = {
   s_bubble: 'fire', s_seeker: 'flame', s_toothfairy: 'arcane', v_flame_beam: 'fire',
 };
 
+// Test setting: no slot limits (weapon modifier slots and groups, sperm passive slots: spassives.js spSlots).
+SETTINGS_DEF.push({ id: 'noLimits', tab: 'game', label: 'TODO_COPY:set_nolimits', hint: 'TODO_COPY:set_nolimits_hint', opts: [[false, 'OFF'], [true, 'ON']] });
+SET_DEFAULTS.noLimits = false;
+try { SET.noLimits = JSON.parse(localStorage.getItem('sd_settings') || '{}').noLimits === true; } catch (e) { SET.noLimits = false; }
+const mmFree = () => !!(typeof SET !== 'undefined' && SET.noLimits);
+
 const mmGroup = id => MM_GROUP[id] || 'flight';
 const mmSlots = w => MM.open.filter(l => (w.lvl || 1) >= l).length;
 function mmHeld(w) {
@@ -39,7 +45,7 @@ function mmHeld(w) {
   if (w.def && w.def.sab) g.add('chemistry');
   return g;
 }
-const mmRoom = w => mmHeld(w).size < mmSlots(w);
+const mmRoom = w => mmFree() || mmHeld(w).size < mmSlots(w);
 const mmLevelUp = w => { if (MM.on && w && !w.isSpell) { w.lvl = Math.max(w.lvl || 1, Math.min(MM.lvlCap, (w.lvl || 1) + 1)); computeStats(w); } }; // (never lowers a level set elsewhere, e.g. v9arms tier screens)
 
 // ---------------------------------------------------------------- modifiers.js
@@ -52,8 +58,8 @@ modOk = function (w, id) {
   if (!m || !a || !m.atk.includes(a)) return false;
   if (modCount(w, id) >= m.max && !(mmIsMastery(w, id) && mmMasteryFree())) return false; // (a 4th card is the mastery)
   const g = mmGroup(id);
-  if ((w.m10 || []).some(x => x !== id && mmGroup(x) === g)) return false; // (one per group)
-  if (!modHas(w, id) && !mmRoom(w)) return false; // (a new group needs an open slot)
+  if (!mmFree() && (w.m10 || []).some(x => x !== id && mmGroup(x) === g)) return false; // (one per group)
+  if (!mmFree() && !modHas(w, id) && !mmRoom(w)) return false; // (a new group needs an open slot)
   return true;
 };
 modAdd = function (w, id) {

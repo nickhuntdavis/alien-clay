@@ -1,3 +1,11 @@
+## 2026-10-23 No slot limits setting (v10.73)
+- Systems: settings, weapons, mutations (sperm passives), ui (build panel)
+- Files: modmatrix.js (setting row, mmFree, modOk, mmRoom), spassives.js (spSlots), buildpanel.js, tests/sptest.js
+- What: a GAME tab setting (off by default) lifts weapon modifier slot and group limits and sperm passive slot limits, for testing. Weapon count (3) and masteries are unchanged.
+- Save data: SET.noLimits (sd_settings).
+- Hooks: none new (SETTINGS_DEF.push, SET_DEFAULTS.noLimits from modmatrix.js).
+- Risk: none with it off.
+
 ## 2026-10-23 Weapon level pacing, draft crash guard (v10.72)
 - Systems: weapons, draft
 - Files: modmatrix.js (MM.freeEvery), draft.js (draftCards skips empty candidates), tests/drafttest.js, tests/sim/wave20.js (--pre)

@@ -22,7 +22,7 @@
 // mutdrop.js and samples10.js.
 
 const SP = { on: true, base: 2, at: [8, 16, 24], cut: ['m_parts', 'm_space', 'm_hold', 'x_qty', 'x_careless'] };
-const spSlots = () => SP.base + SP.at.filter(l => ((G && G.level) || 1) >= l).length;
+const spSlots = () => (typeof mmFree === 'function' && mmFree() ? 99 : 0) + SP.base + SP.at.filter(l => ((G && G.level) || 1) >= l).length;
 Object.defineProperty(DRAFT, 'genome', { get: () => spSlots(), configurable: true });
 
 // draft.js (through mutdrop.js mdDraftSkip): which mutation cards stay out of level-up drafts.

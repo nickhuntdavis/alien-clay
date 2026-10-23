@@ -41,6 +41,10 @@ const { chromium } = require('playwright');
     // 5. Membrane Shield: Latex Protection plus its levels use one slot.
     fresh(); G.level = 1; for (const id of ['latex', 'thick', 'fast']) pdefCard(id).apply();
     out.defs = defsHeld(); if (defsHeld() !== 1) bad.push('Membrane Shield slots ' + defsHeld());
+    // 7. No slot limits (setting): any number of passives and modifiers, groups ignored.
+    fresh(); SET.noLimits = true; const fw = G.weapons.find(Boolean); let nm = 0; for (const id of modsFor(fw)) if (modAdd(fw, id)) nm++;
+    out.noLimits = [spSlots() > 20, nm]; if (!(spSlots() > 20) || nm < 6) bad.push('no limits ' + out.noLimits);
+    SET.noLimits = false;
     // 6. The Laser draws as a laser.
     fresh(); const lw = G.weapons.find(Boolean); G.weapons[0] = makeSlot('v_flame_beam', false, 1); computeStats(G.weapons[0]);
     const tgt = makeEnemy(ENEMIES.brute, p.x + 120, p.y, {}); G.enemies.push(tgt); v10Fire(G.weapons[0], tgt, weaponSrc(G.weapons[0]));
