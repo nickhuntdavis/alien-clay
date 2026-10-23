@@ -19,7 +19,7 @@
 //  - CHARGE: a beam starting from off first charges for LZ.charge seconds (shorter with Rapid Fire: lzCharge), a small
 //    glow growing at the sperm's head.
 //  - OVERHEAT: a burn bar under you fills while it fires; full, the Laser switches off and reloads until cool (lzHeatTick).
-//  - Growing is not offered on the Laser.
+//  - Growing is not offered on the Laser. CHARGE-UP turns it into a charge-and-blast weapon (lzBlast).
 //  - Bounded: at most LZ.segs beam segments a shot.
 // Extra Projectiles (front, rear and Disco Ball beams) fire through the same ray. Hooks: none in shared files. Wraps
 // v10.js v10Fire (outermost: loads after modwide.js). Renames modifiers.js MODS10.ricochet to Bounce.
@@ -201,6 +201,12 @@ v10Fire = (orig => function (w, target, src) {
   if (w.lzA == null || !lzOnNow(w)) w.lzA = want; // (a fresh beam starts on the target; a held one sweeps: lzTick)
   else if (Math.abs(angDiff(want, w.lzA)) > LZ.sweepMax) { w.lzA = want; w.lzOffT = G.t + LZ.gap; } // (too far to sweep: off, then on again at the target)
   if (w.lzOver) return true; // (overheated: reloading until it has cooled right down, lzHeatTick)
+  if (lzCR(w)) { // Charge-Up: charge, then one blast
+    if (!w.lzChgS || G.t - (w.lzChgLast || -9) > 0.4) w.lzChgS = G.t;
+    w.lzChgLast = G.t; w.lzTgt = target;
+    if (G.t - w.lzChgS >= lzCharge(w)) lzBlast(w, target, src);
+    return true;
+  }
   if (!lzOnNow(w)) { // a beam starting from off charges first: a glow grows at the head for LZ.charge seconds (lzDraw)
     if (!w.lzChgS || G.t - (w.lzChgLast || -9) > 0.4) w.lzChgS = G.t;
     w.lzChgLast = G.t; w.lzTgt = target;
@@ -268,11 +274,35 @@ wupTick = (orig => function (dt) { orig(dt); lzTick(dt); })(wupTick);
 // Drawn like a laser: a white-hot core in a coloured beam with a soft glow, a bright spot where it lands. More power
 // glows more, in slow pulses once it is past full strength.
 // Rapid Fire on the Laser: a shorter charge-up (70 / 50 / 35% of LZ.charge, 20% at mastery), nothing else.
-const lzCharge = w => LZ.charge * [1, 0.7, 0.5, 0.35, 0.2][Math.min(4, msR(w, 'rapid'))];
+const lzCR = w => Math.min(4, modCount(w, 'charged'));
+const lzCharge = w => LZ.charge * [1, 0.7, 0.5, 0.35, 0.2][Math.min(4, msR(w, 'rapid'))] * [1, 1.25, 1.5, 1.75, 2][lzCR(w)]; // (Charge-Up: longer)
+// CHARGE-UP on the Laser (user, 23 Oct): no held beam. Each charge (longer each rank) ends in one big, bright blast that
+// packs the beam's held damage into one hit: a full burn bar's worth (4 s of beam at full strength) at Rank 3 (50 / 75 /
+// 100%, 125% at mastery). It builds enemies' status bars 3 times as fast, and adds half a burn bar of heat to you.
+const LZ_BLAST = { share: [0.5, 0.75, 1, 1.25], heat: 0.5, bars: 3, show: 0.3 };
+function lzBlast(w, target, src) {
+  const p = G.player, r = lzCR(w), k = (LZ.heatT / Math.max(0.05, w.s.cd || 0.2)) * LZ.peak * LZ_BLAST.share[r - 1];
+  w.lzA = Math.atan2(target.y - p.y, target.x - p.x);
+  const bsrc = Object.assign({}, src, { lzBlast: true });
+  const segs = [];
+  if (msR(w, 'orbiting')) segs.push(...lzOrbit(w, bsrc, k, false).out);
+  else for (const [a, kk] of lzBeams(w)) segs.push(...lzShot(w, a, bsrc, kk, k, false).out);
+  w.lzBlastSegs = segs; w.lzBlastT = G.t; w.lzShotSegs = segs; w.lzPow = LZ.peak;
+  w.lzHeat = Math.min(1, (w.lzHeat || 0) + LZ_BLAST.heat);
+  if (w.lzHeat >= 1) { w.lzOver = true; ring(p.x, p.y, 26, LASER.col, 0.35, 3); }
+  cam.shake = Math.min(10, (cam.shake || 0) + 2 + r);
+  w.lzChgS = 0; w.lzChgLast = -9; w.lzFireT = -9;
+}
+mutBarK = (orig => function (e) { // a blast builds status bars 3 times as fast
+  const src = MSC.src, k0 = orig(e);
+  if (!src || !src.lzBlast) return k0;
+  const out = {}; for (const t of ['acid', 'fire', 'force', 'soul']) out[t] = ((k0 && k0[t]) || 1) * LZ_BLAST.bars;
+  return out;
+})(mutBarK);
 const lzCharging = w => !!(w.lzChgS && G.t - (w.lzChgLast || -9) < 0.4 && !lzOnNow(w));
 function lzChargeDraw(w) { // a small glow at the head that grows until the beam comes on
   const p = G.player, hd = lzHead(), u = Math.min(1, (G.t - w.lzChgS) / lzCharge(w)), hx = p.x + Math.cos(hd) * 11, hy = p.y + Math.sin(hd) * 11;
-  const c = col(w.def.sab ? w.def.color : LASER.col), x = sx(hx), y = sy(hy), r = (2 + 7 * u) * S, fl = 0.85 + 0.15 * Math.sin(G.t * 40);
+  const c = col(w.def.sab ? w.def.color : LASER.col), x = sx(hx), y = sy(hy), r = (2 + 7 * u) * (1 + 0.35 * lzCR(w)) * S, fl = 0.85 + 0.15 * Math.sin(G.t * 40);
   ctx.save();
   ctx.globalAlpha = 0.25 * u * fl; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r * 2.2, 0, TAU); ctx.fill();
   ctx.globalAlpha = 0.6 * u; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
@@ -288,8 +318,20 @@ function lzHeatDraw(w) { // the burn bar under you: orange to red as it fills; w
   ctx.globalAlpha = 0.95; ctx.fillStyle = col(col2); ctx.fillRect(x - bw / 2, y, bw * h, bh);
   ctx.restore();
 }
+function lzBlastDraw(w) { // the blast: a wide, white-hot flash along its path that fades in LZ_BLAST.show seconds
+  const age = G.t - w.lzBlastT, f = 1 - age / LZ_BLAST.show; if (f <= 0) return;
+  const c = col(w.def.sab ? w.def.color : LASER.col), base = Math.max(3, (w.s.width || 10) * 0.42) * (2.2 + 0.5 * lzCR(w)) * S;
+  ctx.save(); ctx.lineCap = 'round';
+  for (const s of w.lzBlastSegs) {
+    const x1 = sx(s.x1), y1 = sy(s.y1), x2 = sx(s.x2), y2 = sy(s.y2), wd = base * Math.max(0.35, Math.sqrt(Math.min(1, s.k))), br = Math.pow(Math.min(1, s.k), 0.7);
+    for (const [lw, a, st] of [[wd * 3, 0.22, c], [wd * 1.4, 0.7, c], [wd * 0.6, 1, '#fff8f4']]) { ctx.globalAlpha = a * f * Math.max(0.2, br); ctx.strokeStyle = st; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+    if (s.hit) { ctx.globalAlpha = 0.6 * f * br; ctx.fillStyle = '#fff8f4'; ctx.beginPath(); ctx.arc(x2, y2, wd * 1.5, 0, TAU); ctx.fill(); }
+  }
+  ctx.restore();
+}
 function lzDraw() {
   if (!G) return;
+  for (const w of G.weapons) if (w && lzIs(w) && w.lzBlastSegs && G.t - w.lzBlastT < LZ_BLAST.show) lzBlastDraw(w);
   for (const w of G.weapons) if (w && lzIs(w) && lzCharging(w)) lzChargeDraw(w);
   for (const w of G.weapons) if (w && lzIs(w) && (w.lzHeat > 0.01 || w.lzOver)) lzHeatDraw(w);
   for (const w of G.weapons) {

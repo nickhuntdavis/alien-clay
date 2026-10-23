@@ -92,6 +92,12 @@ const { chromium } = require('playwright');
     const over = !!w.lzOver, h0 = hurt(hot); w.lzFireT = G.t; v10Fire(w, hot, weaponSrc(w)); const blocked = hurt(hot) === h0;
     for (let i = 0; i < 50; i++) { G.t += 0.05; lzHeatTick(w, 0.05); }
     out.heat = [over, blocked, !!w.lzOver, +(w.lzHeat || 0).toFixed(2)]; if (!over || !blocked || w.lzOver) bad.push('overheat ' + out.heat);
+    // 13. Charge-Up: a longer charge, then one big blast (many ticks' worth), heat on you, no held beam
+    w = fresh(); const tick = foe(150, 0); fire(w, tick, 0); const one = hurt(tick);
+    w = fresh(); for (let i = 0; i < 3; i++) modAdd(w, 'charged'); computeStats(w); const bl = foe(150, 0); w.lzFireT = -9;
+    const cl = lzCharge(w); let n = 0; while (!(hurt(bl) > 0) && n < 40) { G.t += 0.1; v10Fire(w, bl, weaponSrc(w)); n++; }
+    out.blast = [+cl.toFixed(2), +(n * 0.1).toFixed(1), one, hurt(bl), +(w.lzHeat || 0).toFixed(2), lzOnNow(w)];
+    if (!(cl > 0.6 * 1.5) || !(hurt(bl) > one * 10) || !(w.lzHeat >= 0.45) || lzOnNow(w)) bad.push('charge-up blast ' + out.blast);
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);

@@ -1,3 +1,11 @@
+## 2026-10-23 Charge-Up turns the Laser into a charge-and-blast weapon (v10.92)
+- Systems: weapons (Laser, modifiers), chemistry (status bars), fx
+- Files: laserbeam.js (lzBlast, lzBlastDraw, lzCR; mutBarK wrapped for blasts), modwide.js (Charge-Up's stats and branches skip the Laser), tests/laserbeamtest.js
+- What: with Charge-Up the Laser has no held beam: its charge-up is longer each rank (x1.25 / 1.5 / 1.75, x2 at mastery) and ends in one wide, white-hot blast (0.3 s flash) under all the beam's rules, dealing the held beam's damage at once: 4 s of full-strength beam at Rank 3 (50 / 75 / 100%, 125% at mastery). Blasts build enemies' status bars 3 times as fast and add half a burn bar of heat to you. The charge glow is bigger each rank.
+- Save data: none.
+- Hooks: laserbeam.js wraps mutations.js mutBarK.
+- Risk: single huge hits (power11.js still caps early one-shots on germs).
+
 ## 2026-10-23 Laser overheat bar; Rapid Fire shortens its charge; no Growing; longer charge (v10.91)
 - Systems: weapons (Laser, modifiers), ui (burn bar)
 - Files: laserbeam.js (lzHeatTick, lzHeatDraw, lzCharge, modOk drops Growing), modslice.js (Rapid Fire's rate and branches skip the Laser), tests/laserbeamtest.js

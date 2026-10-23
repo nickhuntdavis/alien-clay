@@ -70,7 +70,8 @@ function mwStats(w, s) {
   let any = false;
   const rr = mwR(w, 'range'); if (rr) { any = true; s.speed *= 1 + 0.2 * rr; if (w.def.v10atk === 'beam') s.range *= 1 + 0.2 * rr; // (beams: +20% reach a rank)
     if (msB(w, 'range', 2)) s.range += 100; } // (Overwatch: picks targets 100 further out)
-  const cr = mwR(w, 'charged');
+  const cr = (typeof lzIs === 'function' && lzIs(w)) ? 0 : mwR(w, 'charged'); // (the Laser's Charge-Up is a blast: laserbeam.js)
+  if (mwR(w, 'charged')) any = true;
   if (cr) {
     any = true; const m = msMa(w, 'charged');
     const wind = [0.5, 0.4, 0.3][cr - 1], bonus = [0.6, 0.9, 1.2][cr - 1] + (modCount(w, 'charged') >= 4 ? 0.3 : 0);
@@ -119,7 +120,7 @@ function mwFire(w, target, src) {
   if (!w.m10 || !G.mwAny) return false;
   const p = G.player, s = w.s;
   // Charged
-  if (mwR(w, 'charged')) {
+  if (mwR(w, 'charged') && !(typeof lzIs === 'function' && lzIs(w))) {
     const m = msMa(w, 'charged'), idle = G.t - (w.mwLastF || G.t);
     if (msA(w, 'charged', 2) && idle > 1) src.mult = (src.mult || 1) * (1 + Math.min(0.5, (idle - 1) * 0.25)); // Full Charge: keeps building
     if (m === 'A2' && idle > 1) src.mult = (src.mult || 1) * (1 + Math.min(1.8, (idle - 1) * 0.6)); // Slow Burn
