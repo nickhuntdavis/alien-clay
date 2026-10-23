@@ -1,3 +1,11 @@
+## 2026-10-23 Piercing fixes (v10.104)
+- Systems: weapons (modifiers)
+- Files: piercefx.js (new), index.html, tests/piercetest.js (new)
+- What: a homing shot that pierces an enemy now steers to one it has not hit (it used to curl back round the one it pierced); with none in reach it flies straight. Each pierce sprays sparks out of the far side with a small flash.
+- Save data: none.
+- Hooks: none in shared files. Wraps modifiers.js modHit.
+- Risk: none.
+
 ## 2026-10-23 Area weapon modifier (v10.103)
 - Systems: weapons (modifiers)
 - Files: areamod.js (new), modwide.js (Melee reach, Pulling and Repulsor read areaK), index.html, tests/areatest.js (new), tests/modstest.js (count)
