@@ -3,8 +3,8 @@
 // weapon fires (MODIFIER_MATRIX.md 17). A weapon holds one at a time: taking another switches to it, and the old one's
 // ranks, branch and mastery are lost (its weapon levels stay). The card says so before you take it. Once a weapon has
 // an attack-type modifier, the draft offers it another one far less often (ATKSW.k). Holds in the Sandbox too.
-// Also: the Laser's pictogram (pictomap.js PICTO_ALIAS).
-// Hooks: none in shared files. Wraps modmatrix.js modOk, modAdd, modCard, modDraftCands. Loads after spmast.js.
+// Also: the Laser's pictogram (pictomap.js PICTO_ALIAS); the Laser alone may hold Piercing and Ricochet together.
+// Hooks: none in shared files. Wraps modmatrix.js modOk, modAdd, modCard, modDraftCands, mmHeld. Loads after spmast.js.
 
 const ATKSW = { ids: ['melee', 'ranged', 'mines', 'dfa'], k: 0.15 };
 const atkHeld = (w, id) => ((w && w.m10) || []).filter(x => ATKSW.ids.includes(x) && x !== id).filter((x, i, a) => a.indexOf(x) === i);
@@ -56,3 +56,15 @@ modDraftCands = (orig => function (kind) {
 
 // The Laser (v_flame_beam, renamed in laser.js): the beam-and-flash pictogram.
 PICTO_ALIAS['weapon:laser'] = 'spark-of-life'; PICTO_ALIAS[':laser'] = 'spark-of-life';
+
+// ---------------------------------------------------------------- the Laser: Piercing and Ricochet together (user, 23 Oct)
+// Both are Flight, so the one-per-group rule keeps them apart on every weapon but the Laser, which may hold both; the
+// second takes a slot of its own (mmHeld counts an extra group for it).
+const LZ_PAIR = ['piercing', 'ricochet'];
+modOk = (orig => function (w, id) {
+  if (!w || !LZ_PAIR.includes(id) || !(typeof lzIs === 'function' && lzIs(w))) return orig(w, id);
+  const mate = LZ_PAIR.find(x => x !== id);
+  if (!modHas(w, mate)) return orig(w, id);
+  return atkWithout(w, [mate], () => orig(w, id)) && (mmFree() || modHas(w, id) || mmHeld(w).size < mmSlots(w)); // (the slot check with the mate counted)
+})(modOk);
+mmHeld = (orig => function (w) { const g = orig(w); if (typeof lzIs === 'function' && lzIs(w) && LZ_PAIR.every(x => modHas(w, x))) g.add('flight2'); return g; })(mmHeld);
