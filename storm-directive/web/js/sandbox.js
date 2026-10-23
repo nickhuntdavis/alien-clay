@@ -7,7 +7,8 @@
 //    pick whenever you tap it. Every 4th level banks a weapon upgrade; a small branch mark on a weapon's slot
 //    spends it (promise, branch, mastery, in the weapon draft screen). Every other box is dropped; no power-ups.
 //  - No Acid Crypts or big hazards (terrain.js makeTerrain, bighaz.js makeBigHaz): they took 25 to 65% of the damage.
-//  - Developer mode: tap the samples title five times (sd_dev).
+//  - Developer mode: tap the samples title five times (sd_dev). Also the SANDBOX button on the home screen (in place of
+//    Quick Start). Level-ups list every weapon modifier and sperm passive with no slot limits (modmatrix.js mmFree).
 // Hooks: game.js PT -> sbPT, director -> sbSpawn, newGame -> sbInit; v10.js v10Box -> sbBox, v10Loot -> sbLoot;
 // ui.js openLoot -> sbDraftKind, openDraft -> sbDraftHead, renderDraft -> sbDraftInfo, refreshHud -> sbSlotShow/sbSlotMark,
 // slot tap -> sbSlotTap; samples10.js s10Samples -> sbCards/sbWire.
@@ -41,6 +42,7 @@ function sbBox(req) {
   if (k === 'slot') return !!req.sb && own < MAX_WEAPONS; // (only a tapped + mount)
   if (k === 'wup') { G.debug.sb.tok++; UI.refreshHud(true); return false; } // (banked: spent on a branch mark)
   if (k === 'wupfork') return wupNextLv(req.w) === req.lv;
+  if (k === 'level' || (k === 'fork' && (req.ms || req.sp))) return true; // (level-ups list every modifier and passive; their branch and mastery forks: modwide.js, modmatrix.js mmFree)
   return false;
 }
 function sbLoot(req) {
@@ -102,6 +104,9 @@ function sbWire() {
       UI.toast(on ? 'DEVELOPER MODE ON' : 'DEVELOPER MODE OFF'); UI.openSamples();
     });
   }
+  // Home screen: SANDBOX in place of Quick Start (user, 23 Oct): straight into the Sandbox, no developer switch needed.
+  const hb = document.getElementById('sandboxBtn');
+  if (hb) hb.addEventListener('click', () => { UI.sample = 's010'; META.profile = 'human1'; saveMeta(); UI.startGame(true); });
   // The HEAT bar (ugly on purpose: developer only).
   const bar = document.createElement('div');
   bar.id = 'sbBar';

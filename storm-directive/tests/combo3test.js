@@ -31,7 +31,7 @@ const { chromium } = require('playwright');
     return R;
   });
   let bad = 0;
-  for (const k in r) { console.log(k, JSON.stringify(r[k])); if (!r[k].offered || !r[k].mount || !r[k].linked) bad++; }
+  for (const k in r) { console.log(k, JSON.stringify(r[k])); if (!r[k].offered || r[k].mount || !r[k].linked) bad++; /* (no bonus mount since 22 Oct: 3 weapons a run, COMBO_MOUNTS 0) */ }
   console.log('ERRORS:', errors.length ? [...new Set(errors)].slice(0, 5).join('\n') : 'none', bad ? 'FAIL ' + bad + ' combos broken' : '');
   await b.close();
 })();

@@ -76,7 +76,7 @@ const { chromium } = require('playwright');
     // 4. Ranks stack and cap
     fresh(); give('v_phys_proj'); const sc = card('m_slip');
     for (let i = 0; i < 5; i++) sc.apply(G);
-    if (sc.rank(G) !== 3 || G.muts.m_slip !== 3) bad.push('rank cap: ' + sc.rank(G));
+    if (sc.rank(G) !== 4 || G.muts.m_slip !== 4) bad.push('rank cap (Rank 3 plus its mastery): ' + sc.rank(G)); // (spassives.js)
     out.rank = sc.rank(G);
     META.rxSeen = ['rocket']; const cc = card('cat_rocket'); if (cc.eligible(G)) bad.push('catalyst offered before its reaction happened this run');
     G.fst = G.fst || { rx: {} }; G.fst.rx = G.fst.rx || {}; G.fst.rx.rocket = 1; if (!cc.eligible(G)) bad.push('catalyst not eligible once set off this run');
@@ -89,7 +89,7 @@ const { chromium } = require('playwright');
     if (sk.eligible(G) || !sk.why(G)) bad.push('capped weapon mutation still eligible');
     if (card('w_split').eligible(G)) bad.push('Can\'t Pick One offered with no Projectile weapon');
     // 6. Draft integration: Genome slots fill from G.muts
-    fresh(); give('v_phys_proj'); for (const id of ['m_slip', 'm_fingers', 'x_brain', 'x_qty']) card(id).apply(G);
+    fresh(); give('v_phys_proj'); for (const id of ['m_slip', 'm_fingers']) card(id).apply(G); // (2 sperm passive slots at Lv 1, spassives.js)
     if (genomeFree() !== 0) bad.push('genome free ' + genomeFree());
     if (cardOk(card('m_heart'))) bad.push('new Genome card offered with slots full');
     if (!cardOk(card('m_slip')) && card('m_slip').rank(G) < card('m_slip').maxRank) bad.push('owned card should still be offered to rank up');

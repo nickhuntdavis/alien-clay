@@ -10,14 +10,17 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 - `ATTACK_TYPES.md`: the six attack types (Contact, Projectile, Spread, Burst, Beam, Pool), for weapons and enemies. Rules: matrix section 13.
 - `ENEMY_DESIGN.md`: enemy principles, roster review, new concepts (including Fire enemies) and the 17 Oct decisions.
 - `FEATS.md`: Feats as gifts from the consciousness: 16 gifts for every sample, 8 sample-exclusive gifts, the best 15 originals re-gifted, and a suggested starting pool of about 15.
-- `MUTATIONS.md`: the 33 mutation cards (body, weapon, damage-type, trade-off and rare synergy), how they use Genome slots, and a starting pool of 8.
+- `MUTATIONS.md`: **superseded 22 Oct** by `SPERM_PASSIVES.md` and `MODIFIER_MATRIX.md`; kept for its card lines (copy source).
 - `MODIFIERS.md`: the 20 modifiers (homing, piercing, orbiting, returning, gravity well, lunge and the rest) that change how an attack moves or repeats, with caps.
+- `IMPLEMENTATION_PLAN.md`: the build plan (22 Oct 2026) for the modifier matrix and sperm passives: phases, vertical slice, blockers, risks.
+- `SPERM_PASSIVES.md`: working draft (22 Oct 2026) of the 30 sperm passives that replace the Genome slots (mutations and defences re-sorted), with slots, levels, masteries and pairs.
+- `MODIFIER_MATRIX.md`: working draft (22 Oct 2026) of 25 weapon modifiers (14 scaling, 11 shaping; five groups, one slot per group; pair bonuses) × 27 weapons, each with 3 levels and a mastery; Advanced Targeting moved to sperm passives; also lists the rule conflicts it raises.
 - `VOICE_GUIDE.md`: tone and character voices, with demo lines.
 - `GIFT_LINES.md`: approved gift lines, one per sample, for all 31 shared gifts (310 lines).
 - `CONSCIOUSNESS.md`: the eight consciousness personas (one per sample): what the egg is to each, its tell, death, sincere crack and limits, plus existing lines to revisit.
 - `SAMPLES.md`: the eight playable samples (characters): Baseline, Alpha, Beta, Private Schooled, Ordered Online, Redtail, Prawn Again, Not of This World: roster, three starting weapons each, unlocks, Scientist lines, stories and visual language.
 - `SAMPLE_9_ACRO.md`: a ninth sample (Acid / Fire), its three new weapons with full branches, copy briefs for every player-facing string, and the six old Feats to bring back first. Design approved 20 Oct 2026; not built.
-- `UPGRADES.md`: in-run progression and unlocks: one card-draft system, slot caps (3 weapons, 3 Feats, 4 Genome), Feat levels and milestone forks, the sample-type pool lean, Skip/Reroll/Banish and the interruption budget.
+- `UPGRADES.md`: in-run progression and unlocks: one card-draft system, slot caps (3 weapons, 3 Feats; sperm passives replace the 4 Genome slots, 22 Oct), Feat levels and milestone forks, the sample-type pool lean, Skip/Reroll/Banish and the interruption budget.
 - `AUTORUN_AUTOAIM.md`: autorun modes and autoaim directives, including the THEN tie-breaker, with exact rules and numbers (shipped in v9.28; merged into v10 in v10.04).
 - `tables/`: the old Notion databases as CSV (statuses and world objects, defences, interactions), generated from the matrix by `tables/export.py`. Never edit them by hand; rerun the script after changing a matrix table.
 

@@ -1,5 +1,7 @@
 # Base Weapons
 
+**Update 22 Oct 2026 (matrix decisions 56, 57):** The Runs leaves the roster (it becomes a sperm passive, `SPERM_PASSIVES.md`), and the **Laser** joins as Ordered Online's 4th starter (row 28). With Sample 9's three, that makes 27 weapons.
+
 **Status: roster decision of 18 Oct 2026; names and sample starters revised the same day (section 5, decision 4). Docs only; the code pass is not done (section 6).** Damage types, reactions and attack-type rules live in `COMBAT_MATRIX.md`; this doc cites them and adds none. `WEAPONS.md` and `SIGNATURE_WEAPONS.md` are archived (`archive/`); this doc is the weapon source of truth.
 
 The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) and 14 signatures (taken from the 26). **Every other weapon is archived (72, section 7).** Signature playstyle and visuals stay as in the current game; only the damage type changes, to the matrix types.
@@ -31,10 +33,11 @@ The roster is **24 weapons**: 10 foundations (taken from the 42-weapon matrix) a
 | 21 | Peekaboo | Alien | Burst (reveal; Fear) | Prawn Again | S4, `peekaboo` |
 | 22 | Eggs | Alien | Burst (smite) | Prawn Again | S14, `toothfairy`; "Tooth Fairy" until 18 Oct |
 | 23 | Chest Burster | Alien | Projectile | Prawn Again | S6, `parasite`; "Tapeworm Seeder" until 18 Oct |
-| 24 | The Runs | Fire | Pool (trail) | Redtail | S3, `wake`, was "Pub Crawl" (shipped as "Skid Mark") |
+| 24 | ~~The Runs~~ | Fire | Pool (trail) | ~~Redtail~~ | **Removed 22 Oct: now a sperm passive.** S3, `wake`, was "Pub Crawl" (shipped as "Skid Mark") |
 | 25 | `TODO_COPY:w25_name` *(proposed)* | Acid | Contact (Every Nth lunge) | Sample 9 | New, `acro_cap` (section 8) |
 | 26 | `TODO_COPY:w26_name` *(proposed)* | Acid | Spread | Sample 9 | New, `acro_spray` (section 8) |
 | 27 | `TODO_COPY:w27_name` *(proposed)* | Fire | Beam | Sample 9 | New, `acro_spark` (section 8) |
+| 28 | Laser | Fire | Beam (held on one target) | Ordered Online (4th starter) | New, 22 Oct (user's voice notes); needs start stats and a spec section |
 
 | Damage type | Weapons | | Attack type | Weapons |
 | --- | --- | --- | --- | --- |
@@ -208,7 +211,8 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Limits:** pets rule (12.3); at most **4 undead** at once; each lasts 6 s.
 - **Start stats:** 12 damage, 0.4 s between shots, 8 per load.
 
-### 24. The Runs (`wake`, was "Pub Crawl", shipped as "Skid Mark")
+### 24. The Runs (`wake`, was "Pub Crawl", shipped as "Skid Mark"): removed 22 Oct
+*No longer a weapon: it is a sperm passive (`SPERM_PASSIVES.md` 2.1), a trail in the sample's primary damage type. The spec below is kept for the trail's numbers.*
 - **Playstyle:** Weaponised movement and pursuit manipulation. Leaves a burning trail behind the sperm.
 - **Is:** Fire, Pool laid as a trail. No aiming: you shed a boozy trail wherever you swim. Alcohol burns.
 - **Signature:** the trail (Skid Mark's shipped trail, now Fire) burns whatever wades through it, filling its Burn bar. Swim circles round a crowd to set the whole thing alight.
@@ -235,8 +239,8 @@ Decided:
 | Alpha | Red Flagship (Static Beam), Maximum Gains (Force Spread), Skill Issue (Force Burst) |
 | Beta | Nocturnal Emission (Mucus Pool), Nervous Wreck (Force Contact), One of These Days (Blood Projectile) |
 | Private Schooled | Acid Spit (Acid Projectile), Rent Free (Alien Projectile), Ewww, Gross (Mucus Projectile) |
-| Ordered Online | Hot Mess (Fire Pool), Nappy Mines (Fire Burst), Blowing Bubbles (Mucus Projectile) |
-| Redtail | The Runs (Fire Pool trail), Unwanted Contact (Static Projectile), Sister Cousin (Blood Projectile) |
+| Ordered Online | Hot Mess (Fire Pool), Nappy Mines (Fire Burst), Blowing Bubbles (Mucus Projectile), Laser (Fire Beam; 4th starter, 22 Oct) |
+| Redtail | Unwanted Contact (Static Projectile), Sister Cousin (Blood Projectile) (The Runs left, 22 Oct) |
 | Prawn Again | Chest Burster (Alien Projectile), Peekaboo (Alien Burst), Eggs (Alien Burst) |
 | Not of This World | Soulmate Signal (Static Beam), There Is No Spoon (Force Projectile), Family Ties (Force Projectile) |
 

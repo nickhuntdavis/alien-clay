@@ -5,6 +5,8 @@ const ARGS = process.argv.slice(2), BI = ARGS.indexOf('--boss'), BOSS = BI >= 0 
 const FI = ARGS.indexOf('--feat'), FEAT = FI >= 0 ? ARGS.splice(FI, 2)[1] : '';
 // --move <id> runs the whole thing on that autorun mode (kite, collect, orbit, hunt, hold, defend).
 const MI = ARGS.indexOf('--move'), MOVE = MI >= 0 ? ARGS.splice(MI, 2)[1] : '';
+// --pre <js> runs that code once after loading (balance experiments: e.g. --pre 'SP.base = 4').
+const PI = ARGS.indexOf('--pre'), PRE = PI >= 0 ? ARGS.splice(PI, 2)[1] : '';
 const N = +(ARGS[0] || 2), GOD = ARGS[1] !== 'mortal', SEQ = ARGS[2] || '';
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -12,6 +14,7 @@ const N = +(ARGS[0] || 2), GOD = ARGS[1] !== 'mortal', SEQ = ARGS[2] || '';
   await page.goto('file://' + require('path').resolve(__dirname, '../../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(400);
   await page.evaluate(() => { META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; for (const k in POWERUPS) META.seenSt[POWERUPS[k].name] = 1; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; for (const R of RIVALS) META.seen['rival_' + R.id] = 1;
     RUNLOG.push({ n: 77, at: '2026-10-09 10:55', res: 'LOST', lvl: 44, seq: 'redtail+acid', w: ['wedding9[elemental]', 'orbit8', 'venom7'] }); });
+  if (PRE) await page.evaluate(PRE);
   for (let seed = 0; seed < N; seed++) {
     const r = await page.evaluate(async ([GOD, SEQ, BOSS, FEAT, MOVE]) => {
       self.FORCE_BOSS = BOSS || null;

@@ -27,23 +27,14 @@ const { chromium } = require('playwright');
     else { const fc = genLoot(fq); if (fc.length !== 2) bad.push('Feat fork cards: ' + fc.length); else fc[0].apply(); }
     if (out.fork !== 'left') bad.push('Feat fork did not apply');
     // Weapon upgrades: their own screen every 4th level; tiers 1 > 2 > 3 > 4 (internal levels 1, 3, 6, 10); one mastery a run
+    // The old branch screens are retired (22 Oct, modmatrix.js): no weapon upgrade screen; a weapon levels by taking modifiers.
     G.lootQueue = []; w.lvl = 1; G.level = 3; wupLevel(4);
-    const uq = G.lootQueue.find(q => q.kind === 'wup');
-    if (!uq) bad.push('no weapon upgrade screen at level 4');
-    else {
-      UI.openLoot(uq); const tierScreen = uq.kind === 'wupfork' && UI.draft && UI.draft.req === uq; // (one weapon ready with a preview: sidemo.js opens its tabbed tier screen instead, v10.38)
-      if (G.state !== 'loot' || !(tierScreen || /WEAPON UPGRADE|UPGRADE A WEAPON/.test($('lootTitle').textContent))) bad.push('wup screen: ' + G.state + ' ' + $('lootTitle').textContent);
-      out.wfork = UI.lootOpts.map(o => o.title); if (UI.lootOpts.length !== 3) bad.push('tier 2 cards: ' + out.wfork);
-      UI.pickLoot(0); if (wTier(w) !== 2 || w.lvl !== 3 || !(w.up && w.up.p)) bad.push('tier 2 not taken: lvl ' + w.lvl);
-    }
-    G.lootQueue = []; wupLevel(5); if (G.lootQueue.some(q => q.kind === 'wup')) bad.push('wup screen off the 4-level beat');
-    wupRaise(w, 6)[0].apply(); wupRaise(w, 10)[0].apply();
-    if (wTier(w) !== 4) bad.push('tier 4: ' + wTier(w));
-    const w2 = makeSlot(W24_IDS.find(id => id !== w24Key(w)), false, 1); G.weapons[1] = w2; w2.lvl = 6;
-    if (wupNextLv(w2)) bad.push('second mastery offered');
-    G.weapons[1] = null;
-    // Genome: 4 slots shared with defences
-    G.muts = { a: 1, b: 1, c: 1 }; pdef().n.thick = 1;
+    if (G.lootQueue.some(q => q.kind === 'wup')) bad.push('a weapon branch screen still opens');
+    const mid = modsFor(w)[0]; if (w.lvl !== 2) bad.push('no free weapon level at player Lv 4: ' + w.lvl); // (MM.freeEvery, modmatrix.js)
+    if (!mid || !modAdd(w, mid) || w.lvl !== 3) bad.push('a modifier did not level the weapon: ' + w.lvl);
+    // Sperm passives: 2 slots at the start (+1 at Lv 8, 16, 24), shared with defences (spassives.js)
+    G.muts = { a: 1 }; pdef().n.latex = 1; pdef().n.thick = 1; // (Membrane Shield's levels use no slot of their own)
+    if (spSlots() !== 2) bad.push('sperm passive slots at Lv 3: ' + spSlots());
     if (genomeFree() !== 0) bad.push('genome free: ' + genomeFree());
     G.muts.tcard = 0; if (cardOk(CARDS.find(c => c.id === 'tcard'))) bad.push('acquire offered with Genome full');
     // Banish

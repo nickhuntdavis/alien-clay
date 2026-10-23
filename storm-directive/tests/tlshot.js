@@ -31,7 +31,7 @@ const { chromium } = require('playwright');
     await page.evaluate(() => { G.v10fx = []; });
     out[t + '_' + set] = r; Object.assign(r.n, seen);
     const need = { shock: null, fire: 'drip', ice: 'goo', arcane: 'blood', soul: 'wisp', flame: 'tongue' }[t];
-    if (need && !(r.n[need] > 0) && !(t === 'ice' && r.n.string > 0)) bad.push(`${t} ${set}: no ${need} (${JSON.stringify(r.n)})`);
+    if (need && !(t === 'flame' && set === 'beam') && !(r.n[need] > 0) && !(t === 'ice' && r.n.string > 0)) bad.push(`${t} ${set}: no ${need} (${JSON.stringify(r.n)})`);
     if (t === 'shock' && !(r.onFoe > 0)) bad.push('shock ' + set + ': no arcs onto enemies');
   }
   if (bad.length) console.log('FAIL', bad.join('; '));

@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
     const fresh = () => {
       UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
       G.enemies.length = 0; G.zones.length = 0; G.proj.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0;
-      G.terrain = null; G.manual = { x: 0, y: 0 }; G.player.vx = G.player.vy = 0; for (let i = 0; i < G.weapons.length; i++) G.weapons[i] = null;
+      G.terrain = null; G.manual = { x: 0, y: 0 }; G.player.vx = G.player.vy = 0; G.mmM = ['test']; /* (mastery spent: ranks cap at 3, modmatrix.js) */ for (let i = 0; i < G.weapons.length; i++) G.weapons[i] = null;
     };
     const wp = (id, mods, i, quiet) => { const w = makeSlot(id, false, 1); G.weapons[i || 0] = w; recomputeAll(); for (const m of mods || []) if (!modAdd(w, m)) bad.push('modAdd refused ' + m + ' on ' + id); w.cd = quiet ? 1e9 : 0; return w; };
     const foe = (dx, dy, hp) => { const p = G.player, e = makeEnemy(ENEMIES.crawler, p.x + dx, p.y + (dy || 0)); e.hp = e.maxHp = hp || 1e6; e.speed = 0; e.t10 = 1; G.enemies.push(e); gridBuild(); return e; };
@@ -22,10 +22,11 @@ const { chromium } = require('playwright');
     const shot = (w, a) => spawnProj(w, G.player.x, G.player.y, a || 0, weaponSrc(w));
     const ang = pr => Math.atan2(pr.vy, pr.vx);
     const ids = Object.keys(MODS10);
-    if (ids.length !== 20) bad.push('MODS10 has ' + ids.length + ' modifiers, not 20');
+    if (ids.length !== 20 + Object.keys(MS_NEW).length + Object.keys(MW_NEW).length) bad.push('MODS10 has ' + ids.length + ' modifiers, not 20 + modslice.js + modwide.js');
 
     // 1. Every modifier: 300 frames against a ring of stationary enemies, no errors.
     for (const id of ids) {
+      if (id === 'anchored') continue; // (retired: modwide.js)
       fresh();
       const atk = MODS10[id].atk[0], w = wp('v_phys_' + atk, [id]);
       for (let i = 0; i < 8; i++) foe(Math.cos(i / 8 * TAU) * 150, Math.sin(i / 8 * TAU) * 150);
@@ -115,10 +116,8 @@ const { chromium } = require('playwright');
     out.sweepBeam = +(Math.max(...angs) - Math.min(...angs)).toFixed(2); if (!(out.sweepBeam > 0.2)) bad.push('Beam did not sweep: ' + out.sweepBeam);
 
     // 13. Anchored beam: joins you to the far side of the crowd.
-    fresh(); w = wp('v_fire_beam', ['anchored']); foe(100, 50); const far = foe(250, 0); step(3);
-    const bf = (G.v10fx || []).find(q => q.k === 'beam');
-    out.anchored = bf && [Math.round(Math.hypot(bf.x2 - far.x, bf.y2 - far.y))];
-    if (!bf || Math.hypot(bf.x2 - far.x, bf.y2 - far.y) > 15 || !hurt(far)) bad.push('Anchored beam missed the far end: ' + out.anchored);
+    // Anchored Beam is retired (modwide.js modOk, user 23 Oct): it is never offered.
+    fresh(); w = wp('v_fire_beam', []); if (modOk(w, 'anchored')) bad.push('Anchored Beam still offered');
 
     // 14. Rapid volley: three shots from one attack.
     const count = mods => { fresh(); const w = wp('v_phys_proj', mods); foe(200); let n = 0; const orig = window.spawnProj; window.spawnProj = function (ww) { if (ww === w) n++; return orig.apply(this, arguments); }; step(20); window.spawnProj = orig; return n; };
@@ -176,13 +175,19 @@ const { chromium } = require('playwright');
     if (!modAdd(w, 'lunge') || modAdd(w, 'lunge')) bad.push('Lunge rank 3 refused, or a fourth copy allowed');
 
     // 22. Caps and rules.
+    // (22 Oct, modmatrix.js: one modifier per group; slots open at weapon Lv 1 (2), 3, 6, 9; each modifier taken adds a level)
     fresh(); w = wp('v_phys_proj', ['homing']);
     if (!modAdd(w, 'homing') || !modAdd(w, 'homing') || modAdd(w, 'homing')) bad.push('Homing ranks: ' + modCount(w, 'homing')); // (ranks 2 and 3, no 4th)
-    if (modAdd(w, 'gravity') === false || modAdd(w, 'piercing') === false) bad.push('refused a fitting modifier');
+    if (modAdd(w, 'piercing')) bad.push('two Flight modifiers on one weapon');
+    if (modAdd(w, 'gravity') === false) bad.push('refused a fitting modifier');
     if (modAdd(w, 'anchored') || modAdd(w, 'trail')) bad.push('accepted a modifier for the wrong attack type');
     if (modAdd(w, 'orbiting') === false || modAdd(w, 'summoned')) bad.push('delivery group not exclusive');
-    if (modsFor(w).includes('homing') || !modsFor(w).includes('ricochet') || !modsFor(w).includes('orbiting')) bad.push('modsFor wrong: ' + modsFor(w));
-    for (let i = 0; i < 4; i++) modAdd(w, 'piercing'); if (modCount(w, 'piercing') !== 3) bad.push('Piercing cap ' + modCount(w, 'piercing'));
+    if (modsFor(w).includes('homing') || modsFor(w).includes('ricochet') || modsFor(w).includes('summoned')) bad.push('modsFor wrong: ' + modsFor(w));
+    for (const k of Object.keys(MODS10)) for (let i = 0; i < 4; i++) modAdd(w, k);
+    const gs = (w.m10 || []).map(mmGroup), gu = new Set(gs);
+    if ([...gu].some(g => new Set((w.m10 || []).filter(x => mmGroup(x) === g)).size > 1)) bad.push('two modifiers in one group');
+    if (gu.size > mmSlots(w) || w.lvl > MM.lvlCap) bad.push('slots ' + gu.size + '/' + mmSlots(w) + ' lv ' + w.lvl);
+    fresh(); w = wp('v_phys_proj', []); for (let i = 0; i < 4; i++) modAdd(w, 'piercing'); if (modCount(w, 'piercing') !== 3) bad.push('Piercing cap ' + modCount(w, 'piercing'));
     if (w.mods.length) bad.push('touched the old w.mods');
     if (modsFor(G.weapons[5] || { def: {} }).length) bad.push('modsFor of a non-v10 weapon');
     return { bad, out };

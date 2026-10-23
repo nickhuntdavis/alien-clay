@@ -43,6 +43,8 @@ const PDEF_CARDS = {
     desc: 'You were already wrapped in something thin and wet. Now it is thicker and wetter. +10% of your max health in Membrane.' },
   fast: { name: 'Faster Recharge', max: 3, icon: 'R', sub: 'Membrane',
     desc: 'Your Membrane starts mending sooner and finishes sooner. Nobody asked it to hurry. It did anyway.' },
+  wide: { name: 'Bigger Membrane', max: 1, icon: 'B', sub: 'Membrane', // (a Membrane Shield level, user 23 Oct: bodymods.js bubbleR reads it)
+    desc: 'The membrane bubble round you is 60% wider, so enemies and shots are stopped further away.' },
   shell: { name: 'Shell Layer', max: 4, icon: 'S', sub: 'Shell',
     desc: 'You grow a hard brown layer. Each hit loses 3 before it reaches you. It wears, it cracks, and it does not grow back until the next wave.' },
   squishy: { name: 'Squishy', max: 1, icon: 'Q', sub: 'Squishy',
@@ -57,7 +59,7 @@ const PDEF_CARDS = {
 function pdef() {
   if (G.pd) return G.pd;
   const mem = makeDefence(G.P.maxHp, 'membrane', 'normal', { memFrac: pdHasShield(null) ? PDEF.memFrac : 0 }); // (no shield, no Membrane)
-  return G.pd = { mem, n: { latex: 0, thick: 0, fast: 0, shell: 0, squishy: 0, evasion: 0, thorns: 0 }, layers: 0, layerHp: 0, wave: null, shellT: 0, missT: 0, flashT: -9 };
+  return G.pd = { mem, n: { latex: 0, thick: 0, fast: 0, wide: 0, shell: 0, squishy: 0, evasion: 0, thorns: 0 }, layers: 0, layerHp: 0, wave: null, shellT: 0, missT: 0, flashT: -9 };
 }
 const pdLayerHp = () => G.P.maxHp * COMBAT.shellLayerHpFrac;
 function pst() {
@@ -216,7 +218,7 @@ function pdefDraw() {
 }
 
 // ---------------------------------------------------------------- cards (v10.js v10Loot)
-const pdHeld = D => Object.keys(D.n).filter(k => D.n[k] > 0).length;
+const pdHeld = D => Object.keys(D.n).filter(k => D.n[k] > 0 && k !== 'thick' && k !== 'fast' && k !== 'wide').length; // (Thicker Membrane and Faster Recharge are Membrane Shield's levels, not passives of their own: spassives.js)
 function pdefCard(id) {
   const C = PDEF_CARDS[id], n = pdef().n[id];
   return { rarity: 0, tag: 'DEFENCE', icon: C.icon, color: PDEF_COL.membrane, title: C.name, sub: `Defence | ${C.sub} | ${n ? 'Rank ' + (n + 1) : 'New'}${C.max > 1 ? ' of ' + C.max : ''}`, desc: C.desc, defence: id,
@@ -226,7 +228,7 @@ function pdefCard(id) {
 function pdefOffer(k) {
   const D = pdef(), full = pdHeld(D) >= PDEF.slots;
   const sh = pdHasShield(D); // Latex Protection only while you have no shield; Thicker Membrane and Faster Recharge only with one
-  const ok = Object.keys(PDEF_CARDS).filter(id => D.n[id] < PDEF_CARDS[id].max && (id === 'latex' ? !sh : (id !== 'thick' && id !== 'fast') || sh) && !(full && D.n[id] === 0) && !(id === 'evasion' && typeof s10Evasion === 'function' && s10Evasion() > 0)); // (no Evasion card with Evasion built in)
+  const ok = Object.keys(PDEF_CARDS).filter(id => D.n[id] < PDEF_CARDS[id].max && (id === 'latex' ? !sh : (id !== 'thick' && id !== 'fast' && id !== 'wide') || sh) && !(full && D.n[id] === 0) && !(id === 'evasion' && typeof s10Evasion === 'function' && s10Evasion() > 0)); // (no Evasion card with Evasion built in)
   return shuffle(ok).slice(0, Math.max(0, k)).map(pdefCard);
 }
 

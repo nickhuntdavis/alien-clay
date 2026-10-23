@@ -27,7 +27,7 @@ const DRAFT_INT = { force: 'phys', acid: 'fire', static: 'shock', mucus: 'ice', 
 // ---------------------------------------------------------------- slots
 const featsHeld = () => (G.spells || []).filter(Boolean).length;
 const mutsHeld = () => Object.keys(G.muts || {}).filter(k => G.muts[k] > 0).length;
-const defsHeld = () => (typeof pdef === 'function' ? Object.values(pdef().n).filter(n => n > 0).length : 0);
+const defsHeld = () => (typeof pdef === 'function' ? Object.entries(pdef().n).filter(([k, n]) => n > 0 && k !== 'thick' && k !== 'fast' && k !== 'wide').length : 0); // (Membrane Shield's levels share its slot: spassives.js)
 const genomeFree = () => DRAFT.genome - mutsHeld() - defsHeld();
 function cardOk(c) {
   try { if (c.eligible && !c.eligible(G)) return false; } catch (e) { return false; }
@@ -97,17 +97,17 @@ function draftCards(n, kind) {
   const out = [], fams = new Set();
   // One weapon upgrade always leads the draft while any weapon can still level (the "upgrade a weapon" row).
   const ups = cand.filter(c => c.fam.startsWith('weapon:'));
-  if (ups.length && n > 1) { const c = ups[Math.floor(Math.random() * ups.length)]; cand.splice(cand.indexOf(c), 1); fams.add(c.fam); out.push(c.o()); }
+  if (ups.length && n > 1) { const c = ups[Math.floor(Math.random() * ups.length)]; cand.splice(cand.indexOf(c), 1); fams.add(c.fam); { const k = c.o(); if (k) out.push(k); } /* (a candidate can come back empty, e.g. no weapon left to switch) */; }
   // A DNA strand (loot box) always deals a modifier card when one fits (modcards.js).
   const mods = kind === 'chest' || kind === 'boss' ? cand.filter(c => c.fam.startsWith('mod:')) : [];
-  if (mods.length && out.length < n) { const c = mods[Math.floor(Math.random() * mods.length)]; cand.splice(cand.indexOf(c), 1); fams.add(c.fam); out.push(c.o()); }
+  if (mods.length && out.length < n) { const c = mods[Math.floor(Math.random() * mods.length)]; cand.splice(cand.indexOf(c), 1); fams.add(c.fam); { const k = c.o(); if (k) out.push(k); } /* (a candidate can come back empty, e.g. no weapon left to switch) */; }
   while (out.length < n && cand.length) {
     const tot = cand.reduce((a, c) => a + c.w, 0);
     let x = Math.random() * tot, i = 0;
     for (; i < cand.length - 1; i++) { x -= cand[i].w; if (x <= 0) break; }
     const c = cand.splice(i, 1)[0];
     if (fams.has(c.fam) && cand.some(o => !fams.has(o.fam))) continue; // one card per family when there's a choice
-    fams.add(c.fam); out.push(c.o());
+    fams.add(c.fam); { const k = c.o(); if (k) out.push(k); } /* (a candidate can come back empty, e.g. no weapon left to switch) */;
   }
   return out;
 }

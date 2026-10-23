@@ -23,8 +23,10 @@ function bpHtml() {
     if (U.l6) br.push(U.l6);
     if (U.l10) br.push(U.l10 + ' (mastery)');
     if (br.length) bits.push(`<span class="bp-tag" style="--cat:${C.branch.col}">${esc(br.join(' > '))}</span>`);
-    const mods = [...new Set(w.m10 || [])].map(id => `${esc((MODS10[id] || {}).name || id)}${modCount(w, id) > 1 ? ' ' + ['', '', 'II', 'III'][modCount(w, id)] : ''}`);
-    if (mods.length) bits.push(`<span class="bp-tag" style="--cat:${C.modifier.col}">${mods.join(', ')} (${mods.length}/3)</span>`);
+    const brOf = id => (typeof MSB !== 'undefined' && MSB[id] && modCount(w, id) >= 2 ? MSB[id][{ A: 0, B: 1, A1: 2, A2: 3, B1: 4, B2: 5 }[modCount(w, id) >= 4 ? msMa(w, id) : msBr(w, id)]] : ''); // (branch or mastery taken: modslice.js)
+    const mods = [...new Set(w.m10 || [])].map(id => `${esc((MODS10[id] || {}).name || id)}${modCount(w, id) > 1 ? ' ' + ['', '', 'II', 'III', 'IV'][modCount(w, id)] : ''}${brOf(id) ? ' (' + esc(brOf(id)) + ')' : ''}`);
+    const slots = typeof mmSlots === 'function' ? `${mmHeld(w).size}/${mmFree() ? '∞' : mmSlots(w)}` : `${mods.length}/3`; // (group slots by weapon level: modmatrix.js)
+    if (mods.length) bits.push(`<span class="bp-tag" style="--cat:${C.modifier.col}">${mods.join(', ')} (${slots})</span>`);
     const wm = (w.wm10 || []).map(id => (card(id) || {}).title || id);
     if (wm.length) bits.push(`<span class="bp-tag" style="--cat:${C.mutation.col}">${esc(wm.join(', '))}</span>`);
     const nx = typeof wupNextLv === 'function' ? wupNextLv(w) : 0;
@@ -46,11 +48,11 @@ function bpHtml() {
   // Genome: mutations and defences share the 4 slots.
   const muts = Object.keys(G.muts || {}).filter(k => G.muts[k] > 0), D = typeof pdef === 'function' ? pdef() : null;
   const defs = D ? Object.keys(D.n).filter(k => D.n[k] > 0) : [];
-  const used = muts.length + defs.length, cap = typeof DRAFT !== 'undefined' ? DRAFT.genome : 4;
-  h += `<div class="sec bp">${head('mutation', 'Genome', `${used}/${cap} slots`)}<div class="bp-chips">`;
-  for (const id of muts) { const c = card(id) || {}; h += `<span class="bp-chip" style="--cat:${C.mutation.col}">${esc(c.title || id)}${c.maxRank > 1 ? ' ' + G.muts[id] + '/' + c.maxRank : ''}</span>`; }
+  const cap = typeof DRAFT !== 'undefined' ? DRAFT.genome : 4, used = typeof genomeFree === 'function' ? cap - genomeFree() : muts.length + defs.length; // (Membrane Shield's levels share its slot: spassives.js)
+  h += `<div class="sec bp">${head('mutation', 'Genome', `${used}/${cap > 50 ? '∞' : cap} slots`)}<div class="bp-chips">`;
+  for (const id of muts) { const c = card(id) || {}, sb = typeof SPS_BR !== 'undefined' && SPS_BR[id] && G.muts[id] >= 2 ? (SPS_BR[id].find(b => b[0] === spsBr(id)) || [])[1] : ''; h += `<span class="bp-chip" style="--cat:${C.mutation.col}">${esc(c.title || id)}${c.maxRank > 1 ? ' ' + G.muts[id] + '/' + c.maxRank : ''}${sb ? ' (' + esc(sb) + ')' : ''}</span>`; }
   for (const id of defs) { const P = PDEF_CARDS[id]; h += `<span class="bp-chip" style="--cat:${C.defence.col}">${esc(P.name)}${P.max > 1 ? ' ' + D.n[id] + '/' + P.max : ''}</span>`; }
-  for (let i = used; i < cap; i++) h += `<span class="bp-chip empty">empty</span>`;
+  for (let i = used; i < Math.min(cap, used + 8); i++) h += `<span class="bp-chip empty">empty</span>`; // (no slot limits: a few empties, not 99)
   h += `</div>`;
   const cats = Object.keys(G.cat || {}).filter(k => G.cat[k] > 0), conc = Object.keys(G.conc || {}).filter(k => G.conc[k] > 0);
   if (cats.length || conc.length) h += `<p class="hint" style="color:${C.special.col}">Specialised: ${[...cats.map(k => (REACTIONS[k] || {}).name || k), ...conc.map(k => 'Concentration (' + (RW_TYPE_NAME[k] || k) + ')')].map(esc).join(', ')}</p>`;
@@ -59,7 +61,7 @@ function bpHtml() {
   // What comes next.
   const next = [];
   const ready = typeof wupReady === 'function' ? wupReady() : [];
-  if (ready.length) next.push(`Weapon upgrade at Lv ${Math.ceil((G.level + 1) / WUP_EVERY) * WUP_EVERY} (${ready.length} weapon${ready.length > 1 ? 's' : ''} can grow)`);
+  if (ready.length && !(typeof MM !== 'undefined' && MM.on)) next.push(`Weapon upgrade at Lv ${Math.ceil((G.level + 1) / WUP_EVERY) * WUP_EVERY} (${ready.length} weapon${ready.length > 1 ? 's' : ''} can grow)`);
   const sl = SLOT_LEVELS.find(l => l > G.level);
   if (sl && ws.length < MAX_WEAPONS) next.push(`New weapon slot at Lv ${sl}`);
   if (typeof raceOn === 'function' && raceOn()) next.push(eggBreakable() ? 'The egg is open. Swim in.' : `The egg opens in ${mmss(raceLeft())}, or at Lv ${EGG.level} (you are Lv ${G.level})`);

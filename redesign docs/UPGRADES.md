@@ -1,5 +1,7 @@
 # Upgrades, Feats and Progression
 
+**Update 22 Oct 2026 (matrix decisions 47 to 60):** weapon branch cards and Genome slots are replaced. Weapons carry **weapon modifiers** in 5 group slots (`MODIFIER_MATRIX.md`); the sperm carries **sperm passives** in up to 5 slots, defences included (`SPERM_PASSIVES.md`). Rows 1, 3 and 4 of the summary and the Weapons and Genome slot rows are updated below; other sections still describe the old system until rewritten.
+
 Working proposal, 17 Oct 2026. How the build grows during a run and how the game grows between runs. Settled one decision at a time; the numbers are starting points for sims and playtesting. It sits on top of `COMBAT_MATRIX.md` (damage types, attack types, defences), `SAMPLES.md` (primary and support types, unique Feats), `FEATS.md` (Feats, the consciousness's gifts), `MUTATIONS.md` (mutation cards) and `WEAPONS.md`.
 
 **What this is not:** an RPG skill tree. Spawn Prawn is a fast autoshooter. The player makes a series of small, consequential choices, then watches them interact in combat.
@@ -8,10 +10,10 @@ Working proposal, 17 Oct 2026. How the build grows during a run and how the game
 
 | # | Decision | Locked |
 | --- | --- | --- |
-| 1 | Weapons | 3 slots, offered at levels 1, 8 and 22 (plus up to 2 Weapon Combo mounts), as today |
+| 1 | Weapons | 3 slots, no more (combo bonus mounts retired, decision 55). Drafts as in the game (`data.js` SLOT_LEVELS) |
 | 2 | Feats | 3 slots: the sample's unique Feat starts in slot 1; 2 more are drafted. Feats cap at about level 5 |
-| 3 | Mutations and defences | 4 shared Genome slots, each rankable. Defences come from upgrade cards (or are built into some samples, weapons and Feats), mutations from Lateral Gene Transfer |
-| 4 | Milestones | Weapons pick a promise at level 3 (3 cards), grow it or swerve at 6 (3 cards) and take a mastery at 10 (3 cards) (`WEAPON_UPGRADES.md`), Feats at 3 and 5. Each fork is its own 2-card screen. Only one weapon a run reaches level 10 |
+| 3 | Sperm passives and defences | Up to 5 sperm passive slots (2, then +1 at Lv 8, 16, 24), shared with defences; level-up drafts only; 3 levels and a mastery (`SPERM_PASSIVES.md`, decision 52). Gene boxes and Lateral Gene Transfer retired (decision 53) |
+| 4 | Milestones | Weapons: modifier slots open at weapon Lv 1 (2), 3, 6 and 9; each modifier branches at its Lv 2 and has a mastery choice (decisions 47, 48). One weapon-modifier mastery and one sperm-passive mastery per build (decision 49). The old promise / swerve / mastery branch cards (`WEAPON_UPGRADES.md`) are retired. Feats still fork at 3 and 5 |
 | 5 | Pool | Moderate lean: 50% primary type, 25% support, 25% other. No Instability cost. Novelty weighting stays inside each band |
 | 6 | Draft controls | Skip, Reroll and Banish (Remove, or Fewer like this), all paid in rerolls. No Freeze |
 | 7 | Triggers | Level-ups and elite or boss kills open drafts; everything else adds cards to the pool with a toast. At most one screen per ~40 s of combat |
@@ -62,9 +64,9 @@ A card is offered only when it can matter:
 
 | Slot | Count | How it fills |
 | --- | --- | --- |
-| Weapons | 3 (+ up to 2 combo mounts) | Weapon draft at levels 1, 8 and 22, as today. The level 1 draft offers the sample's three starting weapons (`SAMPLES.md`). Weapons never appear as random cards |
+| Weapons | 3 (no combo mounts) | Weapon draft at level 1 and the game's SLOT_LEVELS. Each weapon has 5 modifier slots, one per group (`MODIFIER_MATRIX.md`). The level 1 draft offers the sample's three starting weapons (`SAMPLES.md`). Weapons never appear as random cards |
 | Feats | 3 | Slot 1: the sample's unique Feat, from the start. Slots 2 and 3: Feat cards in normal drafts while a slot is free |
-| Genome | 4, shared | Mutations (body, damage-type, trade-off and rare: `MUTATIONS.md`; also from Lateral Gene Transfer) and defence cards. Weapon mutations attach to a weapon instead (max 3 per weapon). Each rankable. Taking Shell means one fewer mutation. Built-in defences use no slot |
+| Sperm passives | 2, then +1 at Lv 8, 16, 24 (5) | Sperm passives and defence cards (`SPERM_PASSIVES.md`), from level-up drafts only. Picking one you hold levels it. Built-in defences use no slot. (Replaces the 4 Genome slots and weapon mutations) |
 
 Few weapons keeps each one readable on a phone screen and leaves the draft for Feats, upgrades and Genome cards.
 
