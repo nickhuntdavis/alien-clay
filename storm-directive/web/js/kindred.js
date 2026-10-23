@@ -69,6 +69,7 @@ function kinSpawn() {
     const a = Math.random() * TAU;
     x = p.x + Math.cos(a) * KIN.dist; y = p.y + Math.sin(a) * KIN.dist;
     ({ x, y } = kinIn(x, y));
+    if (Math.hypot(x - p.x, y - p.y) < KIN.dist * 0.6) continue; // (pulled in from the rim onto you: try another way)
     if (typeof terrainDanger !== 'function' || !terrainDanger(x, y, 60)) break;
   }
   G.kin.spirits.push({ id, x, y, vx: 0, vy: 0, tailV: 60, face: Math.random() * TAU, t: 0 });
@@ -101,7 +102,7 @@ function kinTick(dt) {
 // same beacon; it does not expire.
 function kinDna() {
   const p = G.player; let x = p.x, y = p.y;
-  for (let i = 0; i < 24; i++) { const a = Math.random() * TAU; x = p.x + Math.cos(a) * KIN.dist; y = p.y + Math.sin(a) * KIN.dist; ({ x, y } = kinIn(x, y)); if (typeof terrainDanger !== 'function' || !terrainDanger(x, y, 60)) break; }
+  for (let i = 0; i < 24; i++) { const a = Math.random() * TAU; x = p.x + Math.cos(a) * KIN.dist; y = p.y + Math.sin(a) * KIN.dist; ({ x, y } = kinIn(x, y)); if (Math.hypot(x - p.x, y - p.y) < KIN.dist * 0.6) continue; if (typeof terrainDanger !== 'function' || !terrainDanger(x, y, 60)) break; }
   const u = makePickup('chest', x, y, { t: 'drop', name: 'TODO_COPY:kin_dna_src' }); u.life = 1e9; u.kinB = true;
   G.pickups.push(u);
   banner('TODO_COPY:kin_dna_banner', PAL.reward); sfx('level'); vibrate(80);

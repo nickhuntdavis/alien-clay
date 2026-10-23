@@ -141,7 +141,7 @@ autoSteer = (orig => function () {
   if (G && G.moveDir === 'hold' && G.state === 'play') return { x: 0, y: 0 };
   // Autorun steers 30 times a second: every other frame reuses the last answer (late-race frame rate, user 23 Oct).
   const f = G ? G.frameN || 0 : 0;
-  if (G && G.asCache && G.asCache.f === f - 1 && (f & 1)) return G.asCache.r;
-  const r = orig(); if (G) G.asCache = { f, r }; return r;
+  if (G && G.asCache && G.asCache.f === f - 1 && G.asCache.m === G.moveDir && (f & 1)) return G.asCache.r;
+  const r = orig(); if (G) G.asCache = { f, r, m: G.moveDir }; return r;
 })(autoSteer);
 { const h = MOVE_DIRECTIVES.find(m => m.id === 'hold'); if (h) h.desc = 'Stay still and never dodge. You do all the steering'; }

@@ -56,7 +56,7 @@ const { chromium } = require('playwright');
     // 05:00: a second spirit, not Alpha.
     G.t = 300; v10Tick(0.016);
     const s2 = G.kin.spirits[0];
-    if (!s2 || s2.id === 'alpha' || s2.id === 'baseline') bad.push('second spirit ' + (s2 && s2.id));
+    if (!s2 || s2.id === 'alpha' || s2.id === 'baseline') bad.push('second spirit ' + (s2 && s2.id) + ' ' + JSON.stringify({ n: G.kin.n, sp: G.kin.spirits.length, has: G.kin.has, p: [Math.round(G.player.x), Math.round(G.player.y)], st: G.state }));
     // Mutations: plain cards; weapon upgrade tiers: the Weapon Draft layout with scenes.
     if (BOX_LOOK_ON || !SIV_DRAFT) bad.push('box looks on or tier screens off');
     // Draw paths: world and chevrons.

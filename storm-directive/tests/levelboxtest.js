@@ -22,8 +22,9 @@ const { chromium } = require('playwright');
     LVBOX.force = true; UI.sample = 's002'; newGame(); G.state = 'play'; out.dish = CORE.arena; if (CORE.arena !== 1750) bad.push('dish ' + CORE.arena);
     G.lootQueue = [{ kind: 'level', lvbox: true, now: true }]; out.hold = waveHoldsLoot(); if (out.hold) bad.push('wave holds a picked box');
     // 4. Rescue spots stay inside the arena, even from the rim
-    UI.sample = 's001'; newGame(); G.state = 'play'; G.player.x = CORE.arena - 50; G.player.y = 0;
+    UI.sample = 's001'; newGame(); genLoot({ kind: 'start' }); G.state = 'play'; G.player.x = CORE.arena - 50; G.player.y = 0;
     let worst = 0; for (let i = 0; i < 50; i++) { const s = kinIn(G.player.x + 900 * Math.cos(i), 900 * Math.sin(i)); worst = Math.max(worst, Math.hypot(s.x - G.core.x, s.y - G.core.y)); }
+    { const p = G.player; let near = 1e9; for (let i = 0; i < 30; i++) { G.kin = null; kinInit(); kinSpawn(); const s = G.kin.spirits[0]; if (s) near = Math.min(near, Math.hypot(s.x - p.x, s.y - p.y)); } out.kinNear = Math.round(near); if (near < 500) bad.push('rescue spawned on top of you ' + near); }
     out.kin = Math.round(worst); if (worst > CORE.arena - KIN.rim + 1) bad.push('rescue outside ' + worst);
     LVBOX.force = false;
     return { bad, out };
