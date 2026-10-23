@@ -1,3 +1,11 @@
+## 2026-10-23 The other 13 weapon modifiers; every modifier on a level-up with no slot limits (v10.75)
+- Systems: weapons (modifiers), chemistry (Kinship fill, Primer), ui (fork screens)
+- Files: modwide.js (new), index.html, tests/widetest.js (new), run.sh
+- What: Range, Up Close, Charged, Kinship, Knockback, Pulling, Turncoat, Melee, Ranged, Mines, Death from Above, Primer and Exploding Rounds, each with both branches and four masteries (generic versions; per-weapon cells later). Slice-only drafts deal them too. With the no-limits setting on, a level-up lists every card you could take (modifiers, Switched at Birth, passives, defences) in a scrolling list. wup2/5/6 tests run with MM.on off (they test the retired branch screens).
+- Save data: none (run state G.mwS, G.mwAny).
+- Hooks: none in shared files. Wraps weapons24.js wup* hooks, power11.js p11Range, mutations.js mutBarK, game.js hurtPlayer, modifiers.js modOk/modDraw, draft.js draftLoot, ui.js UI.renderLootCards.
+- Risk: power (unsimulated); Melee shortens the weapon's reach to 110; Counter cancels a hit every 3 s.
+
 ## 2026-10-23 Slice only drafts (v10.74)
 - Systems: draft, weapons (modifiers), mutations (sperm passives), defences
 - Files: spslice.js (SLICE, sliceSkip, modOk and pdefOffer wrappers), spassives.js (spSkip -> sliceSkip), tests/spslicetest.js
