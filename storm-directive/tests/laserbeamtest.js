@@ -78,14 +78,20 @@ const { chromium } = require('playwright');
     w = fresh(); for (let i = 0; i < 3; i++) modAdd(w, 'sweep'); computeStats(w); const sw = foe(200, 0); const angs = [];
     for (let i = 0; i < 40; i++) { G.t += 0.05; fire(w, sw, 0); const q = segs()[0]; angs.push(Math.atan2(q.y2 - q.y1, q.x2 - q.x1)); }
     out.sweep = +(Math.max(...angs) - Math.min(...angs)).toFixed(2); if (!(out.sweep > 1.2)) bad.push('Laser sweep ' + out.sweep);
-    // 9. Growing: a beam held 3 s is wider and catches an enemy just off its line
-    w = fresh(); for (let i = 0; i < 3; i++) modAdd(w, 'growing'); computeStats(w); const off = foe(150, 0); off.y = p().y + off.r + 6;
-    fire(w, off, 0); const fresh0 = hurt(off); w.lzHeldS = G.t - 3.1; fire(w, off, 0);
-    out.grow = [+lzGrow(w).toFixed(2), fresh0, hurt(off)]; if (!(lzGrow(w) > 1.9) || fresh0 > 0 || !(hurt(off) > 0)) bad.push('Laser growing ' + out.grow);
+    // 9. (Growing is not offered on the Laser any more: see 11.)
     // 10. Charge: a beam starting from off charges first (no damage, a glow), then fires
     w = fresh(); const ch = foe(150, 0); w.lzFireT = -9; v10Fire(w, ch, weaponSrc(w)); const during = [hurt(ch), lzCharging(w)];
-    G.t += 0.35; v10Fire(w, ch, weaponSrc(w));
+    for (let i = 0; i < 7; i++) { G.t += 0.1; v10Fire(w, ch, weaponSrc(w)); } // (fire ticks keep the charge going)
     out.charge = [during[0], during[1], hurt(ch) > 0]; if (during[0] > 0 || !during[1] || !(hurt(ch) > 0)) bad.push('charge ' + out.charge);
+    // 11. Rapid Fire shortens the charge-up; Growing isn't offered on the Laser
+    w = fresh(); const c0 = lzCharge(w); modAdd(w, 'rapid'); modAdd(w, 'rapid'); computeStats(w); const cd0 = w.s.cd;
+    out.rapid = [c0, +lzCharge(w).toFixed(2), modOk(w, 'growing')]; if (!(c0 >= 0.6) || !(lzCharge(w) < c0 * 0.6) || modOk(w, 'growing')) bad.push('rapid / growing ' + out.rapid);
+    // 12. Overheat: about 4 s of beam fills the bar, the Laser switches off and won't fire until it has cooled
+    w = fresh(); const hot = foe(150, 0);
+    for (let i = 0; i < 90; i++) { G.t += 0.05; w.lzFireT = G.t; lzHeatTick(w, 0.05); }
+    const over = !!w.lzOver, h0 = hurt(hot); w.lzFireT = G.t; v10Fire(w, hot, weaponSrc(w)); const blocked = hurt(hot) === h0;
+    for (let i = 0; i < 50; i++) { G.t += 0.05; lzHeatTick(w, 0.05); }
+    out.heat = [over, blocked, !!w.lzOver, +(w.lzHeat || 0).toFixed(2)]; if (!over || !blocked || w.lzOver) bad.push('overheat ' + out.heat);
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);

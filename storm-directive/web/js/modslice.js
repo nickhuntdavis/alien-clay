@@ -102,7 +102,8 @@ const msBeams = w => { // front extra beams, rear beams (Extra Projectiles)
 function msStats(w, s) {
   if (!w.m10 || w.isSpell) return;
   let any = false;
-  const r = msR(w, 'rapid');
+  const r = (typeof lzIs === 'function' && lzIs(w)) ? 0 : msR(w, 'rapid'); // (on the Laser, Rapid Fire shortens its charge-up instead: laserbeam.js)
+  if (msR(w, 'rapid')) any = true;
   if (r) {
     any = true; s.cd /= 1 + msLv(MS_NEW.rapid.cap.rate, r); s.dmg *= msLv(MS_NEW.rapid.cap.dmg, r);
     if (msMa(w, 'rapid') === 'A2' && s.cd > 0.1) { s.dmg *= 0.1 / s.cd * 1.15; s.cd = 0.1; } // Hose: one weak, fast stream
@@ -131,7 +132,7 @@ function msFire(w, target, src) {
   if (w._msK && w._msK !== 1) src.mult = (src.mult || 1) * w._msK;
   if (w._ventT > G.t) return true; // Overheat: venting
   // Rapid Fire
-  const r = msR(w, 'rapid');
+  const r = (typeof lzIs === 'function' && lzIs(w)) ? 0 : msR(w, 'rapid');
   if (r) {
     if (!(G.t - (w._lastF || -9) < 1)) { w._spinS = G.t; w._heatS = G.t; }
     w._lastF = G.t;

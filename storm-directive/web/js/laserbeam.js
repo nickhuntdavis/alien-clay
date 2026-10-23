@@ -16,12 +16,15 @@
 //    LZ.time seconds; a new target starts again. Focused Intensity speeds the ramp up (+20% a rank) and raises the peak
 //    (+0.2 a rank) instead of its usual multiplier; its branches (Tunnel Vision keeps part of the ramp on a switch)
 //    and masteries still apply.
-//  - CHARGE: a beam starting from off first charges for LZ.charge seconds, a small glow growing at the sperm's head.
+//  - CHARGE: a beam starting from off first charges for LZ.charge seconds (shorter with Rapid Fire: lzCharge), a small
+//    glow growing at the sperm's head.
+//  - OVERHEAT: a burn bar under you fills while it fires; full, the Laser switches off and reloads until cool (lzHeatTick).
+//  - Growing is not offered on the Laser.
 //  - Bounded: at most LZ.segs beam segments a shot.
 // Extra Projectiles (front, rear and Disco Ball beams) fire through the same ray. Hooks: none in shared files. Wraps
 // v10.js v10Fire (outermost: loads after modwide.js). Renames modifiers.js MODS10.ricochet to Bounce.
 
-const LZ = { charge: 0.3, inLine: 1 * Math.PI / 180, bounceL: 0.75, fade: 0.7, reachK: 3, sweepMax: 50 * Math.PI / 180, gap: 0.08, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
+const LZ = { charge: 0.6, heatT: 4, coolT: 2.2, inLine: 1 * Math.PI / 180, bounceL: 0.75, fade: 0.7, reachK: 3, sweepMax: 50 * Math.PI / 180, gap: 0.08, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
 MODS10.ricochet.name = 'Bounce';
 if (!MODS10.piercing.atk.includes('beam')) MODS10.piercing.atk.push('beam');
 
@@ -197,10 +200,11 @@ v10Fire = (orig => function (w, target, src) {
   const p = G.player, want = Math.atan2(target.y - p.y, target.x - p.x);
   if (w.lzA == null || !lzOnNow(w)) w.lzA = want; // (a fresh beam starts on the target; a held one sweeps: lzTick)
   else if (Math.abs(angDiff(want, w.lzA)) > LZ.sweepMax) { w.lzA = want; w.lzOffT = G.t + LZ.gap; } // (too far to sweep: off, then on again at the target)
+  if (w.lzOver) return true; // (overheated: reloading until it has cooled right down, lzHeatTick)
   if (!lzOnNow(w)) { // a beam starting from off charges first: a glow grows at the head for LZ.charge seconds (lzDraw)
     if (!w.lzChgS || G.t - (w.lzChgLast || -9) > 0.4) w.lzChgS = G.t;
     w.lzChgLast = G.t; w.lzTgt = target;
-    if (G.t - w.lzChgS < LZ.charge) return true;
+    if (G.t - w.lzChgS < lzCharge(w)) return true;
   }
   w.lzChgS = 0;
   if (!lzOnNow(w)) w.lzHeldS = G.t; // (Growing counts from when the beam came on)
@@ -234,12 +238,22 @@ v10Fire = (orig => function (w, target, src) {
 // The beam stays on between damage ticks: each frame its aim sweeps towards the target (LZ.turn) and it is traced again
 // (no damage) for the picture. It goes out when the weapon stops firing. Overheat (Rapid Fire) blinks it off.
 const lzOnNow = w => G.t - (w.lzFireT || -9) < Math.max(0.3, (w.s.cd || 0.2) + 0.15);
+// OVERHEAT (user, 23 Oct): firing heats the Laser (a burn bar under you; full after LZ.heatT seconds of beam). Full: the
+// beam switches off and reloads, unusable until it has cooled right down (LZ.coolT seconds, faster with reload speed:
+// G.P.reloadSpd). It never hurts you. Off the trigger it cools at the same rate.
+function lzHeatTick(w, dt) {
+  const on = lzOnNow(w) && !w.lzOver, cool = dt / LZ.coolT * ((G.P && G.P.reloadSpd) || 1);
+  w.lzHeat = Math.max(0, Math.min(1, (w.lzHeat || 0) + (on ? dt / LZ.heatT : -cool)));
+  if (on && w.lzHeat >= 1) { w.lzOver = true; w.lzFireT = -9; w.lzSegs = null; w.lzChgS = 0; const p = G.player; ring(p.x, p.y, 26, LASER.col, 0.35, 3); }
+  if (w.lzOver && w.lzHeat <= 0) w.lzOver = false;
+}
 function lzTick(dt) {
   if (!G || G.state !== 'play') return;
+  for (const w of G.weapons) if (w && lzIs(w) && w.def.v10atk === 'beam') lzHeatTick(w, dt);
   const p = G.player;
   for (const w of G.weapons) {
     if (!w || !lzIs(w) || w.def.v10atk !== 'beam') continue;
-    if (w.lzChgS && G.t - (w.lzChgLast || -9) < 0.4 && G.t - w.lzChgS >= LZ.charge) w.cd = Math.min(w.cd, 0); // (charged: fire on the next frame)
+    if (w.lzChgS && G.t - (w.lzChgLast || -9) < 0.4 && G.t - w.lzChgS >= lzCharge(w)) w.cd = Math.min(w.cd, 0); // (charged: fire on the next frame)
     if ((!lzOnNow(w) && !(w._ventT > G.t)) || !w.lzTgt || w.lzTgt.dead) { w.lzSegs = null; continue; } // (venting keeps it traced so it can blink)
     const want = Math.atan2(w.lzTgt.y - p.y, w.lzTgt.x - p.x), d = angDiff(want, w.lzA), m = LZ.turn * dt;
     if (Math.abs(d) > LZ.sweepMax) { w.lzA = want; w.lzOffT = G.t + LZ.gap; } // (a new target over 50 degrees away: off and on again)
@@ -253,9 +267,11 @@ function lzTick(dt) {
 wupTick = (orig => function (dt) { orig(dt); lzTick(dt); })(wupTick);
 // Drawn like a laser: a white-hot core in a coloured beam with a soft glow, a bright spot where it lands. More power
 // glows more, in slow pulses once it is past full strength.
+// Rapid Fire on the Laser: a shorter charge-up (70 / 50 / 35% of LZ.charge, 20% at mastery), nothing else.
+const lzCharge = w => LZ.charge * [1, 0.7, 0.5, 0.35, 0.2][Math.min(4, msR(w, 'rapid'))];
 const lzCharging = w => !!(w.lzChgS && G.t - (w.lzChgLast || -9) < 0.4 && !lzOnNow(w));
 function lzChargeDraw(w) { // a small glow at the head that grows until the beam comes on
-  const p = G.player, hd = lzHead(), u = Math.min(1, (G.t - w.lzChgS) / LZ.charge), hx = p.x + Math.cos(hd) * 11, hy = p.y + Math.sin(hd) * 11;
+  const p = G.player, hd = lzHead(), u = Math.min(1, (G.t - w.lzChgS) / lzCharge(w)), hx = p.x + Math.cos(hd) * 11, hy = p.y + Math.sin(hd) * 11;
   const c = col(w.def.sab ? w.def.color : LASER.col), x = sx(hx), y = sy(hy), r = (2 + 7 * u) * S, fl = 0.85 + 0.15 * Math.sin(G.t * 40);
   ctx.save();
   ctx.globalAlpha = 0.25 * u * fl; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r * 2.2, 0, TAU); ctx.fill();
@@ -263,9 +279,19 @@ function lzChargeDraw(w) { // a small glow at the head that grows until the beam
   ctx.globalAlpha = 0.5 + 0.5 * u; ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x, y, Math.max(1, r * 0.35), 0, TAU); ctx.fill();
   ctx.restore();
 }
+function lzHeatDraw(w) { // the burn bar under you: orange to red as it fills; while reloading it blinks and drains
+  const p = G.player, x = sx(p.x), y = sy(p.y) + 22 * S, bw = 34 * S, bh = 4 * S, h = w.lzHeat || 0;
+  if (w.lzOver && Math.floor(G.t * 8) % 2) return;
+  ctx.save();
+  ctx.globalAlpha = 0.55; ctx.fillStyle = '#1b1b1b'; ctx.fillRect(x - bw / 2 - S, y - S, bw + 2 * S, bh + 2 * S);
+  const r = 255, g = Math.round(150 * (1 - h)), col2 = w.lzOver ? '#ff2a1f' : `rgb(${r},${g},40)`;
+  ctx.globalAlpha = 0.95; ctx.fillStyle = col(col2); ctx.fillRect(x - bw / 2, y, bw * h, bh);
+  ctx.restore();
+}
 function lzDraw() {
   if (!G) return;
   for (const w of G.weapons) if (w && lzIs(w) && lzCharging(w)) lzChargeDraw(w);
+  for (const w of G.weapons) if (w && lzIs(w) && (w.lzHeat > 0.01 || w.lzOver)) lzHeatDraw(w);
   for (const w of G.weapons) {
     if (!w || !lzIs(w) || !w.lzSegs || !w.lzSegs.length) continue;
     if (w._ventT > G.t && Math.floor(G.t * 18) % 6) continue; // overheating: blinks off
@@ -305,3 +331,6 @@ const lzOwnFocus = w => lzIs(w);
 // The old orbiting bodies (modifiers.js modOrbit) are not the Laser's: its orbit is the traced ring above, fired by v10Fire.
 modOrbit = (orig => function (w, dt) { if (!lzIs(w)) orig(w, dt); })(modOrbit);
 modFire = (orig => function (w, target, src) { if (lzIs(w) && modHas(w, 'orbiting')) return false; return orig(w, target, src); })(modFire);
+
+// Growing is not offered on the Laser (user, 23 Oct).
+modOk = (orig => function (w, id) { return !(id === 'growing' && lzIs(w)) && orig(w, id); })(modOk);

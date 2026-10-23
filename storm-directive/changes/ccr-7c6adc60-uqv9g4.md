@@ -1,3 +1,11 @@
+## 2026-10-23 Laser overheat bar; Rapid Fire shortens its charge; no Growing; longer charge (v10.91)
+- Systems: weapons (Laser, modifiers), ui (burn bar)
+- Files: laserbeam.js (lzHeatTick, lzHeatDraw, lzCharge, modOk drops Growing), modslice.js (Rapid Fire's rate and branches skip the Laser), tests/laserbeamtest.js
+- What: firing heats the Laser (a burn bar under you, full after 4 s of beam); full, it switches off and reloads until it has cooled right down (2.2 s, faster with reload speed); it never hurts you. Rapid Fire on the Laser only shortens the charge-up (70 / 50 / 35%, 20% at mastery). The base charge-up is 0.6 s (was 0.3). Growing is no longer offered on the Laser.
+- Save data: none.
+- Hooks: none new.
+- Risk: the Laser's damage over time drops (it rests about 2 s in every 6 under constant fire).
+
 ## 2026-10-23 Laser charge-up (v10.90)
 - Systems: weapons (Laser), fx
 - Files: laserbeam.js (LZ.charge, lzCharging, lzChargeDraw), tests/laserbeamtest.js, tests/slicetest.js
