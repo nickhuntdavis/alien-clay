@@ -200,3 +200,4 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Reece is a veteran tester friend of the user. The user shares run logs (copied from the game's run log) for balance feedback.
 - (`claude/v9-v10-breaking-changes-1hjfdw`, v10.36) Experiment picker flags in samples10.js: S10_PETRI, S10_ENDLESS, S10_LEVELS (all on). Endless and Level 1 not yet simmed under v10.
 - Branch claude/consciousness-gifts (20 Oct): no APK built yet (no Android SDK or SPAWN_KS_PASS on Nick's Mac, no GitHub remote); build once pushed. X5, X7 and X8 are at full spec and the five old test failures are fixed (same day).
+- (ccr-7c6adc60-uqv9g4, v10.98) Sperm passives: spfull.js holds the doc's list (SP_KEEP). Doc masteries other than Bad Blood, Pile-Up knock-on, Wet Floor layer loss, Chain Letter no-falloff, Peer Pressure spread and triple last tick are still 'one step further' numbers. Advanced Targeting not built.
