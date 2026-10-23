@@ -10,7 +10,8 @@
 //  - KEEPING: win a run holding one of them and you keep all its levels for good (META.spKeep.aim / .auto); holding both,
 //    the end screen lets you pick one. A kept passive's card is gone; only its mastery card stays, from run Lv 10, and it uses no slot.
 //  Tests and sims (window.TUT_OFF) and the School level get every option unless STEER.force.
-// Hooks: autorun.js aimList (reassigned; ui.js and loadout.js aim menus read it), moveModes, arMode, aimDir (wrapped);
+// HOLD: no autorun movement at all (game.js autoSteer wrapped).
+// Hooks: autorun.js aimList (reassigned; ui.js and loadout.js aim menus read it), moveModes, arMode, aimDir (wrapped); game.js autoSteer;
 // weapons24.js wupTick (clamps rules no longer on offer); ui.js UI.showGameOver (wrapped: the keep choice).
 // Save data: META.spKeep = { aim: 1, auto: 1 }. Loads after spfull.js.
 
@@ -133,3 +134,8 @@ if (typeof UI !== 'undefined' && UI.showGameOver) {
     return r;
   };
 }
+
+// ---------------------------------------------------------------- HOLD: no autorun at all (user, 23 Oct)
+// Under HOLD the sperm stays where it is unless you steer it yourself: no dodging, no drifting back to a spot.
+autoSteer = (orig => function () { return G && G.moveDir === 'hold' && G.state === 'play' ? { x: 0, y: 0 } : orig(); })(autoSteer);
+{ const h = MOVE_DIRECTIVES.find(m => m.id === 'hold'); if (h) h.desc = 'Stay still and never dodge. You do all the steering'; }
