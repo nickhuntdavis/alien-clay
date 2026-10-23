@@ -1,3 +1,11 @@
+## 2026-10-23 Kept targeting/autorun masteries use no slot (v10.101)
+- Systems: sperm passives
+- Files: spsteer.js, tests/spsteertest.js
+- What: the mastery card for a kept Advanced Targeting or Autopilot no longer takes a passive slot (stored in G.spMx, like the defence masteries).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-23 Branching passive masteries (v10.100)
 - Systems: sperm passives, mutations, defences (pdef), draft (forks)
 - Files: spmast.js (new), index.html, tests/spmasttest.js (new)

@@ -8,7 +8,7 @@
 //    from moment to moment (Kite while a boss is alive or you are hurt, Collect when it is safe, Hunt an elite when
 //    you are healthy, Orbit a big crowd).
 //  - KEEPING: win a run holding one of them and you keep all its levels for good (META.spKeep.aim / .auto); holding both,
-//    the end screen lets you pick one. A kept passive's card is gone; only its mastery card stays, from run Lv 10.
+//    the end screen lets you pick one. A kept passive's card is gone; only its mastery card stays, from run Lv 10, and it uses no slot.
 //  Tests and sims (window.TUT_OFF) and the School level get every option unless STEER.force.
 // Hooks: autorun.js aimList (reassigned; ui.js and loadout.js aim menus read it), moveModes, arMode, aimDir (wrapped);
 // weapons24.js wupTick (clamps rules no longer on offer); ui.js UI.showGameOver (wrapped: the keep choice).
@@ -25,7 +25,7 @@ MOVE_DIRECTIVES.push({ id: 'auto', name: 'AUTO', desc: 'Picks the best mode for 
 const steerOn = () => !(typeof window !== 'undefined' && window.TUT_OFF && !STEER.force) && !(G && G.lvl && G.lvl.L && G.lvl.L.school); // (the School teaches every mode)
 const steerKept = k => !!(META.spKeep && META.spKeep[k]);
 const steerRank = (id, k) => (steerKept(k) ? 3 : Math.min(3, mr(id)));
-const steerMast = (id, k) => mr(id) >= 4 || mr(id + 'M') > 0;
+const steerMast = (id, k) => mr(id) >= 4 || !!(G && G.spMx && G.spMx[id + 'M']);
 function aimAllowed(dir) {
   if (!steerOn() || !G) return true;
   const r = steerRank('sp_aim', 'aim');
@@ -54,7 +54,11 @@ for (const id of ['sp_aim', 'sp_auto']) { // a 4th rank: the mastery, one a buil
   c.maxRank = 4; c.eligible = G => el(G) && (mr(id) < 3 || (spMasteryRoom('sperm') && G.level >= STEER.masteryLv));
   c.apply = (G, t) => { const r0 = mr(id); ap(G, t); if (r0 === 3 && mr(id) === 4) (G.spM || (G.spM = [])).push(id); };
 }
-for (const id of ['sp_aimM', 'sp_autoM']) { const c = MUT_REG.find(x => x.id === id), ap = c.apply; c.apply = (G, t) => { ap(G, t); (G.spM || (G.spM = [])).push(id); }; }
+for (const id of ['sp_aimM', 'sp_autoM']) { // (a kept passive's mastery uses no slot: user, 23 Oct)
+  const c = MUT_REG.find(x => x.id === id);
+  c.rank = () => (G && G.spMx && G.spMx[id] ? 1 : 0);
+  c.apply = G => { (G.spMx || (G.spMx = {}))[id] = 1; (G.spM || (G.spM = [])).push(id); };
+}
 SP_KEEP.push('sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM');
 for (const id of ['sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM']) { const i = SP.cut.indexOf(id); if (i >= 0) SP.cut.splice(i, 1); }
 if (typeof SLICE !== 'undefined') SLICE.muts.push('sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM');

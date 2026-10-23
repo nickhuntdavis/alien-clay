@@ -32,6 +32,7 @@ const { chromium } = require('playwright');
     fresh(); out.mvKept = mv(); if (!out.mvKept.includes('hunt')) bad.push('kept modes ' + out.mvKept);
     out.cardGone = !card('sp_auto').eligible(G); G.level = 5; out.mastLow = card('sp_autoM').eligible(G); G.level = 12; out.mastHigh = card('sp_autoM').eligible(G);
     if (!out.cardGone || out.mastLow || !out.mastHigh) bad.push('kept cards ' + [out.cardGone, out.mastLow, out.mastHigh]);
+    const h0 = mutsHeld(); card('sp_autoM').apply(G); out.freeM = [mutsHeld() - h0, mv().includes('auto')]; if (out.freeM[0] !== 0 || !out.freeM[1]) bad.push('kept mastery slot ' + out.freeM);
     // both held -> a choice
     delete META.spKeep; fresh(); card('sp_auto').apply(G); card('sp_aim').apply(G); out.choice = (steerKeepHtml().match(/data-spkeep/g) || []).length;
     if (out.choice !== 2 || META.spKeep) bad.push('keep choice ' + out.choice);
