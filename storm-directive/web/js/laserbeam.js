@@ -16,7 +16,7 @@
 // Extra Projectiles (front, rear and Disco Ball beams) fire through the same ray. Hooks: none in shared files. Wraps
 // v10.js v10Fire (outermost: loads after modwide.js). Renames modifiers.js MODS10.ricochet to Bounce.
 
-const LZ = { start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
+const LZ = { bounceL: 0.75, fade: 0.35, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
 MODS10.ricochet.name = 'Bounce';
 if (!MODS10.piercing.atk.includes('beam')) MODS10.piercing.atk.push('beam');
 
@@ -70,7 +70,7 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   if (st.segs >= LZ.segs || k < 0.04 || L < 4) return;
   st.segs++;
   const m = lzMeet(x, y, a, L, skip, st.bub), dx = Math.cos(a), dy = Math.sin(a), cx = x + dx * m.t, cy = y + dy * m.t;
-  st.out.push({ x1: x, y1: y, x2: cx, y2: cy, k, hit: !!(m.e || m.ob) });
+  st.out.push({ x1: x, y1: y, x2: cx, y2: cy, k, hit: !!(m.e || m.ob), end: !m.e && !m.ob && !m.wall }); // (end: runs out in open water, so it fades)
   if (m.wall) { // reflect off the inside of the membrane (Internal Ricochet)
     if (st.walls >= LZ.wallMax) return; st.walls++;
     const nx = (cx - st.bub.x) / st.bub.r, ny = (cy - st.bub.y) / st.bub.r, dot = dx * nx + dy * ny;
@@ -80,7 +80,7 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   if (m.ob) { // a solid obstacle: reflect with Bounce, otherwise stop
     if (bounce <= 0) return;
     const nx = (cx - m.ob.x) / m.ob.r, ny = (cy - m.ob.y) / m.ob.r, dot = dx * nx + dy * ny;
-    lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), L - m.t, k * 0.9, src, null, st, pierce, bounce - 1);
+    lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), Math.max(L - m.t, w.s.range * LZ.bounceL), k * 0.9, src, null, st, pierce, bounce - 1);
     return;
   }
   const e = m.e; if (!e) return;
@@ -93,7 +93,7 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   }
   if (bounce > 0) { // reflect off its surface at the true angle
     const nx = (cx - e.x) / (e.r || 10), ny = (cy - e.y) / (e.r || 10), dot = dx * nx + dy * ny;
-    lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), rest, k * (both ? 0.5 : 0.8), src, e, st, both ? pierce : 0, bounce - 1);
+    lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), Math.max(rest, w.s.range * LZ.bounceL), k * (both ? 0.5 : 0.8), src, e, st, both ? pierce : 0, bounce - 1);
   }
 }
 // One beam along angle a from you.
@@ -114,7 +114,7 @@ function lzBeams(w) {
 
 // ORBITING: the beam leaves you, then runs round a circle (radius 72, 100 from Rank 2; a second, inner ring turning the
 // other way at mastery), traced as short straight sections with the beam's own rules: an enemy in the way breaks the
-// ring there (Piercing carries it on past, weaker), Bounce reflects it off the enemy or an obstacle and it carries on
+// ring there (Piercing carries it on past, weaker, spending a charge in each section that meets the enemy), Bounce reflects it off the enemy or an obstacle and it carries on
 // as a straight beam, and Internal Ricochet's bubble still holds it.
 const lzRings = w => { const r = msR(w, 'orbiting'), R = r >= 2 ? 100 : 72; return modCount(w, 'orbiting') >= 4 ? [[R, 1], [R * 0.6, -1]] : [[R, 1]]; };
 function lzOrbit(w, src, ramp, dry) {
@@ -122,12 +122,13 @@ function lzOrbit(w, src, ramp, dry) {
   let first = null;
   for (const [R, dir] of lzRings(w)) {
     const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out, dry };
-    let pierce = lzN(msR(w, 'piercing')), bounce = lzN(msR(w, 'ricochet')), k = 1; const passed = new Set();
+    let pierce = lzN(msR(w, 'piercing')), bounce = lzN(msR(w, 'ricochet')), k = 1;
     const a0 = G.t * 1.6 * dir;
     out.push({ x1: p.x, y1: p.y, x2: p.x + Math.cos(a0) * R, y2: p.y + Math.sin(a0) * R, k: 0.6, hit: false }); // (out to the ring)
     for (let i = 0; i < N; i++) {
       const t1 = a0 + dir * i / N * TAU, t2 = a0 + dir * (i + 1) / N * TAU;
       const x1 = p.x + Math.cos(t1) * R, y1 = p.y + Math.sin(t1) * R, x2 = p.x + Math.cos(t2) * R, y2 = p.y + Math.sin(t2) * R;
+      const passed = new Set(); // (per section: the next section can meet the same enemy again and spend Piercing again)
       const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), m = lzMeet(x1, y1, a, L, passed, null);
       const cx = x1 + Math.cos(a) * m.t, cy = y1 + Math.sin(a) * m.t;
       out.push({ x1, y1, x2: cx, y2: cy, k, hit: !!(m.e || m.ob) });
@@ -136,7 +137,7 @@ function lzOrbit(w, src, ramp, dry) {
       const both = pierce > 0 && bounce > 0, rest = (N - i) / N * TAU * R;
       if (bounce > 0) { // reflect off it and carry on as a straight beam
         const o = m.e || m.ob, nx = (cx - o.x) / (o.r || 10), ny = (cy - o.y) / (o.r || 10), dx = Math.cos(a), dy = Math.sin(a), dot = dx * nx + dy * ny;
-        lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), Math.min(rest, w.s.range), k * (both ? 0.5 : 0.8), src, m.e, st, both ? pierce : 0, bounce - 1);
+        lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), w.s.range * LZ.bounceL, k * (both ? 0.5 : 0.8), src, m.e, st, both ? pierce : 0, bounce - 1);
       }
       if (pierce > 0 && m.e) { // on round the ring, past it (the rest of this section too)
         pierce--; k *= both ? 0.5 : 0.85; passed.add(m.e);
@@ -213,7 +214,14 @@ function lzDraw() {
     ctx.save(); ctx.lineCap = 'round';
     for (const s of w.lzSegs) {
       const x1 = sx(s.x1), y1 = sy(s.y1), x2 = sx(s.x2), y2 = sy(s.y2), wd = base * Math.max(0.4, Math.sqrt(Math.min(1, s.k))) * S;
-      const line = (lw, a, st) => { ctx.globalAlpha = a; ctx.strokeStyle = st; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+      const line = (lw, a, st) => { // (a beam into open water fades over its last stretch instead of stopping dead)
+        ctx.lineWidth = lw; ctx.globalAlpha = a;
+        if (!s.end) { ctx.strokeStyle = st; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); return; }
+        const fx = x1 + (x2 - x1) * (1 - LZ.fade), fy = y1 + (y2 - y1) * (1 - LZ.fade);
+        ctx.strokeStyle = st; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(fx, fy); ctx.stroke();
+        const g = ctx.createLinearGradient(fx, fy, x2, y2); g.addColorStop(0, st); g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(x2, y2); ctx.stroke();
+      };
       line(wd * 5 * pulse, 0.16 * glow * pulse, c);  // (the glow)
       line(wd * 1.6, 0.55 * glow, c);               // (the beam)
       line(Math.max(1, wd * 0.45), 0.95, '#fff4f0'); // (the white-hot core)

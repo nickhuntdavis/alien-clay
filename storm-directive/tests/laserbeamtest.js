@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
     const fresh = () => {
       META.profile = 's10_ordered'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 400; G.nextBoss = 1e9; G.ev.next = 1e9;
       G.enemies.length = 0; G.P.maxHp = G.player.hp = 1e6; G.manual = { x: 0, y: 0 }; G.player.vx = G.player.vy = 0;
-      G.weapons = [makeSlot('v_flame_beam', false, 9), null, null]; computeStats(G.weapons[0]); G.v10fx = []; return G.weapons[0];
+      if (G.terrain && G.terrain.list) G.terrain.list.length = 0; /* (no random rocks in the way) */ G.weapons = [makeSlot('v_flame_beam', false, 9), null, null]; computeStats(G.weapons[0]); G.v10fx = []; return G.weapons[0];
     };
     const p = () => G.player;
     const foe = (dx, dy) => { const e = makeEnemy(ENEMIES.brute, p().x + dx, p().y + dy, {}); e.speed = 0; e.hp = e.maxHp = 1e6; G.enemies.push(e); return e; };

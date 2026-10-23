@@ -1,3 +1,11 @@
+## 2026-10-23 Laser bounces always show, open ends fade, orbit Piercing per section (v10.81)
+- Systems: weapons (Laser)
+- Files: laserbeam.js, tests/laserbeamtest.js
+- What: a bounced beam gets its own length (75% of the weapon's range) instead of what was left, so a reflection always shows after a hit; a beam that ends in open water fades out over its last 35%; the orbit ring spends a Piercing charge in every section that meets an enemy, the same enemy included.
+- Save data: none.
+- Hooks: none new.
+- Risk: longer bounces reach more enemies (more damage with Bounce).
+
 ## 2026-10-23 The Laser's orbit is a traced ring; beams meet obstacles (v10.80)
 - Systems: weapons (Laser, Orbiting), terrain
 - Files: laserbeam.js (lzOrbit, obstacles in lzMeet, modOrbit/modFire wrapped), modslice.js (old hoop skips the Laser), tests/laserbeamtest.js
