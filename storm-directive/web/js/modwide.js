@@ -116,6 +116,10 @@ function mwDfa(w, t, src, k, delay) { // one strike from above: a 0.4 s mark, th
   G.fx.push({ type: 'warn', x, y, r, color: w.def.color, life: dl, max: dl });
   after(dl, () => { if (G) mwStrike(w, x, y, r, 1.4 * k * (msA(w, 'dfa', 2) ? 1.3 : 1), src); });
 }
+// Strike from Above is an extra now (user, 23 Oct): the weapon keeps its own attack, and now and then a strike from above
+// lands too. Strikes a second on average by rank (4: mastery), turned into a chance per attack from the weapon's cooldown.
+const MW_DFA_RATE = [0.15, 0.25, 0.35, 0.5];
+const mwDfaRoll = w => Math.random() < 1 - Math.exp(-MW_DFA_RATE[Math.min(4, mwR(w, 'dfa')) - 1] * Math.max(0.1, (w.s && w.s.cd) || 1));
 function mwFire(w, target, src) {
   if (!w.m10 || !G.mwAny) return false;
   const p = G.player, s = w.s;
@@ -135,15 +139,15 @@ function mwFire(w, target, src) {
   if (mwR(w, 'melee') && target) return mwMelee(w, target, src);
   if (mwR(w, 'ranged') && target) { const r = (w.s.area || 60) * (msMa(w, 'ranged') === 'A2' ? 2 : 1); mwStrike(w, target.x, target.y, r, 1, src); mwRangedExtra(w, target, src); return true; }
   if (mwR(w, 'mines')) { mwLay(w, target, src); return true; }
-  if (mwR(w, 'dfa') && target) {
+  if (mwR(w, 'dfa') && target && mwDfaRoll(w)) { // (an extra: falls through to the weapon's own attack)
     const m = msMa(w, 'dfa');
-    if (m === 'B1') { for (const e of acquireMany('strongest', s.range || 400, p.x, p.y, 6)) mwDfa(w, e, src, 0.6); return true; }
+    if (m === 'B1') { for (const e of acquireMany('strongest', s.range || 400, p.x, p.y, 6)) mwDfa(w, e, src, 0.6); return false; }
     mwDfa(w, target, src, 1);
     if (msA(w, 'dfa', 3)) after(0.5, () => G && mwStrike(w, target.x, target.y, w.s.area || 40, 1, src));
     if (msB(w, 'dfa', 3)) { const t2 = acquireMany('strongest', s.range || 400, p.x, p.y, 2)[1]; if (t2) mwDfa(w, t2, src, 1); }
     if (m === 'A1') { const a = Math.atan2(target.y - p.y, target.x - p.x); for (let i = 1; i <= 4; i++) after(i * 0.2, () => G && mwStrike(w, target.x + Math.cos(a) * 60 * i, target.y + Math.sin(a) * 60 * i, w.s.area || 40, 1, src)); }
     if (m === 'A2') for (let i = 1; i <= 3; i++) after(i * 0.5, () => G && mwStrike(w, target.x, target.y, w.s.area || 40, 1, src));
-    return true;
+    return false;
   }
   return false;
 }

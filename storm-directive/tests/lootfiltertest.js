@@ -39,7 +39,7 @@ const { chromium } = require('playwright');
         const ok2 = modAdd(w, 'mines'); out.after = (w.m10 || []).join();
         if (!ok1 || !ok2 || !card.warn || w.m10.includes('melee') || !w.m10.includes('mines') || (w.mmB && w.mmB.melee)) bad.push('swap ' + JSON.stringify([ok1, ok2, out.after, out.warn]));
         // 3. Draft weight: another attack type is rarer once one is held
-        const c = modDraftCands('level').find(x => x.fam === 'mod:dfa'); const c2 = modDraftCands('level').find(x => x.fam === 'mod:knock');
+        const c = modDraftCands('level').find(x => x.fam === 'mod:melee'); const c2 = modDraftCands('level').find(x => x.fam === 'mod:knock');
         out.w = [c && +c.w.toFixed(3), c2 && +c2.w.toFixed(3)]; if (!c || !(c.w < 0.5)) bad.push('weight ' + out.w);
         res({ bad, out });
       }, 600);

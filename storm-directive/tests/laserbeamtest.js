@@ -113,8 +113,8 @@ const { chromium } = require('playwright');
     if (!(dbl.heat > xsolo.heat * 1.2)) bad.push('extra beams heat faster ' + out.extra.heat);
     // 15. The Laser's own Strike from Above, sword, mines, Sticky, Empowered pulse, Rapid Fire branches, retired options
     const runT = t => { const px = p().x, py = p().y; for (let f = 0; f < t * 60; f++) { G.state = 'play'; G.lootQueue = []; p().x = px; p().y = py; update(1 / 60); } };
-    w = fresh(); modAdd(w, 'dfa'); computeStats(w); const o1 = foe(160, 0); runT(0.3); const early = hurt(o1); runT(1.5);
-    out.orbital = [early, hurt(o1)]; if (early > 0 || !(hurt(o1) > 0)) bad.push('orbital strike ' + out.orbital);
+    w = fresh(); modAdd(w, 'dfa'); computeStats(w); const o1 = foe(160, 0); runT(0.5); const early = hurt(o1); w.lzDfaT = G.t; runT(0.1); const orbN = lzS().orb.length; // (Strike from Above is an extra: the beam keeps firing)
+    out.orbital = [early, orbN]; if (!(early > 0) || !orbN) bad.push('orbital strike ' + out.orbital);
     w = fresh(); modAdd(w, 'melee'); computeStats(w); const sNear = foe(70, 0), sFar = foe(0, 200); runT(1.5);
     out.sword = [hurt(sNear), hurt(sFar), !!w.lzSword]; if (!(hurt(sNear) > 0) || hurt(sFar) > 0 || !w.lzSword) bad.push('laser sword ' + out.sword);
     w = fresh(); SET.noLimits = true; modAdd(w, 'mines'); modAdd(w, 'extra'); SET.noLimits = false; computeStats(w); const mTgt = foe(200, 0); runT(1.2);

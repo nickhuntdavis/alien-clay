@@ -90,7 +90,7 @@ const SLICE_MODS = {
     'Minefield: more mines; mines set each other off.', 'Smart Mines: mines creep towards enemies.',
     'Nearby mines set each other off.', 'Mines re-arm once after going off.',
     'Carpet: lays a line of mines.', 'Mega Mine: three close mines merge into one big one.', 'Leech: mines are thrown at enemies.', 'Hunter-Killer: mines are thrown at enemies.'],
-  dfa: ['The attack strikes from above after a short warning.', 'Choose a branch.', 'A second strike follows.',
+  dfa: ['Now and then, a strike from above lands on the target after a short warning. The weapon keeps its own attack.', 'Strikes come more often. Choose a branch.', 'Strikes come more often, and a second strike follows.',
     'Orbital Strike: bigger, stronger strikes.', 'Precision Strike: faster strikes.',
     'A second strike lands on the same spot.', 'Also strikes the second-toughest enemy.',
     'Carpet Bombing: five strikes walk across the crowd.', 'Siege: the spot is struck 4 times.', 'Volley: strikes up to 6 targets at once.', 'Guardian Angel: when you are hit, a strike lands on the attacker.'],

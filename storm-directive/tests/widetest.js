@@ -52,7 +52,7 @@ const { chromium } = require('playwright');
     w = fresh(); add(w, 'mines'); const mk = foe(150); run(3); out.minesDbg = [w.s.cd, w.cd, G.weapons.filter(Boolean).length, mk.hp < mk.maxHp]; out.mines = mwS().mines.length; mk.x = G.player.x; mk.y = G.player.y; run(0.6);
     out.minesHit = Math.round(mk.maxHp - mk.hp); if (!out.mines || !(out.minesHit > 0)) bad.push('mines ' + out.mines + ' ' + out.minesHit);
     // 11. Death from Above: a strike lands on the target after its mark
-    w = fresh(); add(w, 'dfa'); const df = foe(200); run(3); out.dfa = Math.round(df.maxHp - df.hp); if (!(out.dfa > 0)) bad.push('death from above');
+    w = fresh(); add(w, 'dfa'); const df = foe(200); { let n = 0; const od = mwDfa; mwDfa = function () { n++; return od.apply(this, arguments); }; const rnd = Math.random; Math.random = () => 0; run(1); Math.random = rnd; mwDfa = od; out.dfa = [n, Math.round(df.maxHp - df.hp)]; if (!n || !(df.maxHp - df.hp > 0)) bad.push('strike from above ' + out.dfa); }
     // 12. Primer: another weapon's hit detonates the mark
     w = fresh('v_phys_proj', ['v_phys_spread']); add(w, 'primer'); const a = foe(150), bb = foe(170, 10); G.state = 'play'; update(1 / 60); damageEnemy(a, 1, src(w)); const hb = bb.hp; damageEnemy(a, 1, src(G.weapons[1]));
     out.primer = [!!a.mwPr, Math.round(hb - bb.hp)]; if (!(bb.hp < hb)) bad.push('primer ' + out.primer);

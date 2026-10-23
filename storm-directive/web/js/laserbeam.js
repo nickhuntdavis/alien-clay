@@ -584,13 +584,16 @@ function lzExtrasTick(dt) {
   S2.mines = S2.mines.filter(m => !m.gone);
 }
 wupTick = (orig => function (dt) { orig(dt); if (G && G.state === 'play') lzExtrasTick(dt); })(wupTick);
-// Melee, Mines and Strike from Above replace how the Laser fires (ahead of modwide.js's general versions).
+// Melee and Mines replace how the Laser fires (ahead of modwide.js's general versions); Strike from Above adds orbital strikes.
 wupFire = (orig => function (w, t, src) {
-  if (lzIs(w) && w.m10 && (mwR(w, 'melee') || mwR(w, 'mines') || mwR(w, 'dfa'))) {
+  if (lzIs(w) && w.m10 && mwR(w, 'dfa') && t && !w.lzOver) { // Strike from Above is an extra (user, 23 Oct): an orbital strike every so often while the beam fires
+    if (w.lzDfaT == null) w.lzDfaT = G.t + 1 / MW_DFA_RATE[Math.min(4, mwR(w, 'dfa')) - 1];
+    if (G.t >= w.lzDfaT) { lzOrbital(w, t); w.lzDfaT = G.t - Math.log(1 - Math.random() * 0.95) / MW_DFA_RATE[Math.min(4, mwR(w, 'dfa')) - 1]; }
+  }
+  if (lzIs(w) && w.m10 && (mwR(w, 'melee') || mwR(w, 'mines'))) {
     if (w.lzOver) return true;
     if (mwR(w, 'melee') && t) lzSwordSwing(w, t, src);
     else if (mwR(w, 'mines')) lzMineLay(w);
-    else if (mwR(w, 'dfa') && t) lzOrbital(w, t);
     return true;
   }
   return orig(w, t, src);

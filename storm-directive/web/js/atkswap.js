@@ -1,12 +1,12 @@
 'use strict';
-// Spawn Prawn - attack-type modifiers swap (user, 23 Oct). Melee, Ranged, Mines and Death from Above each replace how a
+// Spawn Prawn - attack-type modifiers swap (user, 23 Oct). Melee, Ranged and Mines each replace how a
 // weapon fires (MODIFIER_MATRIX.md 17). A weapon holds one at a time: taking another switches to it, and the old one's
 // ranks, branch and mastery are lost (its weapon levels stay). The card says so before you take it. Once a weapon has
 // an attack-type modifier, the draft offers it another one far less often (ATKSW.k). Holds in the Sandbox too.
 // Also: the Laser's pictogram (pictomap.js PICTO_ALIAS); the Laser alone may hold Piercing and Ricochet together.
 // Hooks: none in shared files. Wraps modmatrix.js modOk, modAdd, modCard, modDraftCands, mmHeld. Loads after spmast.js.
 
-const ATKSW = { ids: ['melee', 'ranged', 'mines', 'dfa'], k: 0.15 };
+const ATKSW = { ids: ['melee', 'ranged', 'mines'], k: 0.15 }; // (Strike from Above is an extra now, not an attack type)
 const atkHeld = (w, id) => ((w && w.m10) || []).filter(x => ATKSW.ids.includes(x) && x !== id).filter((x, i, a) => a.indexOf(x) === i);
 // Test with the other attack type(s) set aside, as if the slot were free.
 function atkWithout(w, olds, f) {
