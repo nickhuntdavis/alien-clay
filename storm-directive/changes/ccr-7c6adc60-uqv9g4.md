@@ -1,3 +1,11 @@
+## 2026-10-23 Level-up boxes to pick up; bigger arenas; rescues inside the dish
+- Systems: rewards (level-ups), pickups, kindred (rescues), terrain, waves, race
+- Files: levelbox.js (new), kindred.js (kinIn, KIN.rim), data.js (CORE.arena 3600), waves.js (DISH.arena 1750), terrain.js (terrain counts scale with arena area), raceplan.js (RPLAN.fill), index.html, tests/levelboxtest.js (new)
+- What: a level-up drops a gold-ringed box 120 to 300 away (inside the arena, off hazards); swimming into it opens its screen at once (no Director gap, Race slot or wave-break hold). The Race keeps its 5:00 and 10:00 milestones and its schedule for other rewards, but no longer adds empty-slot screens. The Race arena is 3600 (was 2400) and the Petri Dish 1750 (was 1150), with terrain counts scaled to keep the same density. Rescue spirits and Donor DNA strands are placed at least 160 inside the rim.
+- Save data: none.
+- Hooks: levelbox.js wraps game.js applyPickup, weapons24.js wupTick, v10.js v10Draw; adds POWERUPS.lvbox.
+- Risk: bigger arenas lengthen travel (to the egg, to rescues); terrain counts up to 2.3x (performance). Bots in sims (TUT_OFF) still get level screens directly.
+
 ## 2026-10-23 Late-race frame rate: thinner crowds, cheaper movement (v10.110)
 - Systems: director (spawning), enemies, autorun, fx (particles)
 - Files: game.js (CROWD, crowdK/spawnK, CAPS.enemies a getter; updateEnemies far half-rate; separation half-rate; particle caps), spsteer.js (autoSteer every other frame)

@@ -46,7 +46,7 @@ v10Tick = (orig => function (dt) {
   orig(dt);
   if (!G || !rplanOn() || G.state !== 'play') return;
   const S = rplanS();
-  if (rplanDue() && !G.lootQueue.length && !dirEgg()) G.lootQueue.push({ kind: 'level', rpSched: 1 }); // (every slot gets a screen, even when no level-up is waiting)
+  if (RPLAN.fill !== false && rplanDue() && !G.lootQueue.length && !dirEgg()) G.lootQueue.push({ kind: 'level', rpSched: 1 }); // (every slot gets a screen, even when no level-up is waiting)
   if (S.ms < RPLAN.milestones.length && G.t >= RPLAN.milestones[S.ms]) {
     const min = Math.round(RPLAN.milestones[S.ms] / 60); S.ms++;
     if (!dirEgg()) G.lootQueue.unshift({ kind: 'level', mstone: min, boost: RPLAN.mstoneBoost, now: true });

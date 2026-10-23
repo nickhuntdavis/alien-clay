@@ -6,7 +6,7 @@
 //  - Endless (Sample 006, unlocked by winning wave mode): wave after wave, each nastier than the last, with
 //    something big every fifth. How many can you take?
 
-const DISH = { arena: 1150, waveSec: 75 };
+const DISH = { arena: 1750, waveSec: 75 }; // (was 1150: user, 23 Oct, much bigger)
 const DROPS = ['Saline', 'Agar Broth', 'Growth Serum', 'Hormone Cocktail', 'Mutagen', 'Steroid Drip', 'Spicy Reagent', 'Unlabelled Vial',
   'Something Glowing', 'Formula X', 'The Good Stuff', 'Grant Money', 'Super Serum', 'Forbidden Pipette', 'Professor Nobody\'s Tears'];
 const SCIENTIST = ['The scientist adjusts her goggles. "Again."', '"Fascinating. Make it stronger."', '"Write that down. No, the other notebook."',

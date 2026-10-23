@@ -24,7 +24,7 @@
 // Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool; game.js levelling -> kinSlotLv. Wraps v10Tick, v10Draw, draftBox, v10Loot,
 // UI.openLoot and samplelooks.js slDraw (loads last, after ui.js).
 
-const KIN = { grow: 0.15, remind: 20, pull: 3, at: [120, 300], every: 180, lastMark: 780, dist: 900, touch: 46, skip: ['acro'], extras: ['prawn'], slots: [] };
+const KIN = { grow: 0.15, remind: 20, pull: 3, at: [120, 300], every: 180, lastMark: 780, dist: 900, rim: 160, touch: 46, skip: ['acro'], extras: ['prawn'], slots: [] };
 // (at: the rescues every race gets; then a mark every KIN.every seconds up to KIN.lastMark brings one only while a
 // weapon mount is empty: a skipped rescue or a Recycled weapon. slots: no level-up weapon drafts in a race.)
 const kinFull = () => G.weapons.filter(Boolean).length >= MAX_WEAPONS;
@@ -55,6 +55,12 @@ function kinChoose() {
   const pool = fresh.length ? fresh : cand;
   return pool.length ? pick(pool).id : null;
 }
+// A spot inside the arena (the slide's rim, CORE.arena round the egg), at least KIN.rim in from the edge (user, 23 Oct:
+// rescues were turning up outside the dish).
+function kinIn(x, y) {
+  const c = G.core || { x: 0, y: 0 }, R = CORE.arena - KIN.rim, d = Math.hypot(x - c.x, y - c.y);
+  return d > R ? { x: c.x + (x - c.x) / d * R, y: c.y + (y - c.y) / d * R } : { x, y };
+}
 function kinSpawn() {
   const id = kinChoose(); if (!id) return;
   const p = G.player;
@@ -62,6 +68,7 @@ function kinSpawn() {
   for (let i = 0; i < 24; i++) {
     const a = Math.random() * TAU;
     x = p.x + Math.cos(a) * KIN.dist; y = p.y + Math.sin(a) * KIN.dist;
+    ({ x, y } = kinIn(x, y));
     if (typeof terrainDanger !== 'function' || !terrainDanger(x, y, 60)) break;
   }
   G.kin.spirits.push({ id, x, y, vx: 0, vy: 0, tailV: 60, face: Math.random() * TAU, t: 0 });
@@ -94,7 +101,7 @@ function kinTick(dt) {
 // same beacon; it does not expire.
 function kinDna() {
   const p = G.player; let x = p.x, y = p.y;
-  for (let i = 0; i < 24; i++) { const a = Math.random() * TAU; x = p.x + Math.cos(a) * KIN.dist; y = p.y + Math.sin(a) * KIN.dist; if (typeof terrainDanger !== 'function' || !terrainDanger(x, y, 60)) break; }
+  for (let i = 0; i < 24; i++) { const a = Math.random() * TAU; x = p.x + Math.cos(a) * KIN.dist; y = p.y + Math.sin(a) * KIN.dist; ({ x, y } = kinIn(x, y)); if (typeof terrainDanger !== 'function' || !terrainDanger(x, y, 60)) break; }
   const u = makePickup('chest', x, y, { t: 'drop', name: 'TODO_COPY:kin_dna_src' }); u.life = 1e9; u.kinB = true;
   G.pickups.push(u);
   banner('TODO_COPY:kin_dna_banner', PAL.reward); sfx('level'); vibrate(80);
