@@ -1,3 +1,11 @@
+## 2026-10-23 Samples: achievement unlocks, random starting offer, bigger passives
+- Systems: samples, achievements, weapons (start)
+- Files: samplestart.js (new), samples10.js (locked card line; passive numbers), acrosample.js and acrocopy.js (Early Bird at 50%), index.html, tests/samplestarttest.js (new)
+- What: Baseline is open; every other sample unlocks when you first earn its achievement (Alpha: Still Here?, Beta: Flesh Wound, Private Schooled: Middle Management Removed, Ordered Online: Statistically Significant, Redtail: Contractually Obligated, Prawn Again: Lab Rat, Not of This World: Congratulations It's You, Early Bird: Flawless Specimen). Achievements are remembered between runs; rescues no longer unlock samples. The start offers three random matrix weapons: one of the sample's damage type, one Switched at Birth into it (starts switched), one any. Passives exaggerated: Baseline +15% stats, Alpha +50% fire rate while moving, Beta below 40% up to +200% damage and double lifesteal, Private Schooled twice the Corrosion and ally damage, Ordered Online 30% Evasion and a wider, longer trail, Redtail double burn, Prawn Again 2.5x Bleed, Not of This World shifts every 12 s with a 3 s +30% surge, Early Bird pays off at 50%.
+- Save data: META.achEver added; META.s10 now filled by achievements (S10_ALL off).
+- Hooks: none in shared files. Wraps samples10.js s10Start, s10Unlock; show.js achieve.
+- Risk: testers lose samples they had through S10_ALL until they earn the achievements. Stronger passives unsimmed.
+
 ## 2026-10-23 Homing kicks in after a moment (v10.107)
 - Systems: weapons (modifiers)
 - Files: piercefx.js (modStep wrapped), tests/piercetest.js, tests/modstest.js (Homing curve checked after 0.5 s)

@@ -3,7 +3,7 @@
 //  - Each sample: a primary and support damage type (the draft's pool lean, G.sampleTypes), one passive, its three starting weapons
 //    (BASE_WEAPONS.md 5), a strain number for the Scientist's IDs (1A, 1B; 2A ...). Unique Feats come from
 //    feats10.js when it registers them (s10UniqueFeat); until then a sample starts with no Feat.
-//  - Built-in defence: only Ordered Online (20% Evasion, no Genome slot; its Evasion card is not offered).
+//  - Built-in defence: only Ordered Online (30% Evasion, no Genome slot; its Evasion card is not offered). Passives exaggerated (user, 23 Oct).
 //  - Unlocks (V11): rescue the sample as a kindred spirit in The Race (kindred.js); the old conditions (unlock.txt) are
 //    retired. META.s10 holds unlocked ids; developer mode unlocks all. Passives read s10Has: yours plus any absorbed.
 //  - The sample screen: pick a sample, then an Experiment (The Petri Dish, The Race, Endless and Level 1: flags S10_PETRI, S10_ENDLESS, S10_LEVELS).
@@ -19,28 +19,28 @@ const S10_LEVELS = true; // Level 1 (s007, levels.js), not named until it has be
 let S10_ALL = true; // every sample open from the start for testing (the unlock rules below stay in code; set false to restore them)
 const SAMPLES10 = [
   { id: 'baseline', name: 'Baseline', origin: 'Human', types: ['force', 'blood'], passive: 'Within Normal Limits',
-    pdesc: '+5% to every base stat. No conditions, no caveats.', line: 'There. That\'s the egg. Go to the egg. We have one job.',
+    pdesc: '+15% to every base stat. No conditions, no caveats.', line: 'There. That\'s the egg. Go to the egg. We have one job.',
     sci: 'Sample {id} established as control. It continues to be disappointingly difficult to kill.', unlock: null },
   { id: 'alpha', name: 'Alpha', origin: 'Human', types: ['static', 'force'], passive: 'No Days Off',
-    pdesc: 'Fires 25% faster while moving. Back to normal the moment it stops.', line: 'Real talk. Women, sorry, eggs, want a provider. Ninety-eight per cent of sperm are betas. Be the two per cent.',
+    pdesc: 'Fires 50% faster while moving. Back to normal the moment it stops.', line: 'Real talk. Women, sorry, eggs, want a provider. Ninety-eight per cent of sperm are betas. Be the two per cent.',
     sci: 'Sample {id} describes itself as the top 1% of specimens. It is one of approximately 250 million.', unlock: { txt: 'Reach wave 10 of the Petri Dish in one run.' } },
   { id: 'beta', name: 'Beta', origin: 'Human', types: ['blood', 'mucus'], passive: 'Not Dead Yet',
-    pdesc: 'Below 30% health: more damage and a little lifesteal, more the closer it is to death.', line: 'We meant to do that. Getting hit is how we learn. The egg isn\'t going anywhere. Neither are we, ideally.',
+    pdesc: 'Below 40% health: much more damage and some lifesteal, more the closer it is to death.', line: 'We meant to do that. Getting hit is how we learn. The egg isn\'t going anywhere. Neither are we, ideally.',
     sci: 'Sample {id} was initially classified as sluggish. Its subsequent behaviour has made that classification difficult to defend.', unlock: { txt: 'Recover from below 10% health to full health in one run.' } },
   { id: 'private', name: 'Private Schooled', origin: 'Human (paperwork sealed)', types: ['acid', 'soul'], passive: 'Who Do You Think You\'re Dealing With?',
-    pdesc: 'Acid builds Corrosion 50% faster. Enemies it Possesses hit their old friends 50% harder.', line: 'That\'s the one in charge. Go say hello. Actually, don\'t bother. They\'ll come to us.',
+    pdesc: 'Acid builds Corrosion twice as fast. Enemies it Possesses hit their old friends twice as hard.', line: 'That\'s the one in charge. Go say hello. Actually, don\'t bother. They\'ll come to us.',
     sci: 'Sample {id} arrived with complete documentation. The donor\'s identity remains confidential. The accompanying note was written in familiar handwriting.', unlock: { txt: 'Beat the Petri Dish with any sample.' }, shield: true },
   { id: 'ordered', name: 'Ordered Online', origin: 'Synthetic (nanobot)', types: ['mucus', 'fire'], passive: 'Nothing Sticks',
-    pdesc: 'Leaves a Mucus trail while moving that Snares whatever follows. 20% Evasion, built in.', line: 'Unit activated. Delivery address confirmed: egg. Threat level: everything. Thank you for choosing you.',
-    sci: 'Sample {id} arrived in an anti-static bag. It is not biological. It has been filed as biological, as the form has no other box.', unlock: { txt: 'Open a Mythical box.' }, evasion: 0.2 },
+    pdesc: 'Leaves a wide Mucus trail while moving that Snares whatever follows. 30% Evasion, built in.', line: 'Unit activated. Delivery address confirmed: egg. Threat level: everything. Thank you for choosing you.',
+    sci: 'Sample {id} arrived in an anti-static bag. It is not biological. It has been filed as biological, as the form has no other box.', unlock: { txt: 'Open a Mythical box.' }, evasion: 0.3 },
   { id: 'redtail', name: 'Redtail', origin: 'Unknown', types: ['fire', 'static'], passive: 'Touch Everything',
-    pdesc: 'Static hits also add to the target\'s burn.', line: 'What\'s that? Can we touch it? We touched it. Oh, it\'s hot. OH, EVERYONE\'S HOT. DO IT AGAIN!',
+    pdesc: 'Static hits also add double their damage to the target\'s burn.', line: 'What\'s that? Can we touch it? We touched it. Oh, it\'s hot. OH, EVERYONE\'S HOT. DO IT AGAIN!',
     sci: 'Sample {id} was discovered outside the laboratory. The door was locked. Eleven minutes of footage are missing.', unlock: { txt: 'Survive one of the slide\'s rare big hazards.' } },
   { id: 'prawn', name: 'Prawn Again', origin: 'Impossible', types: ['soul', 'blood'], passive: 'Collateral Memory',
-    pdesc: 'Enemies it Possesses make their old friends Bleed.', line: 'There you are. You were here before. Keep going. The ending is different this time.',
+    pdesc: 'Enemies it Possesses make their old friends Bleed hard.', line: 'There you are. You were here before. Keep going. The ending is different this time.',
     sci: 'Sample {id} was not introduced to the slide. The count is correct. No amendment is required.', unlock: { txt: 'Land a boss\'s killing blow with Alien damage.', secret: true } },
   { id: 'alien', name: 'Not of This World', origin: 'Extraterrestrial', types: ['fire', 'soul', 'static'], passive: 'Adaptive Biology',
-    pdesc: 'Its weapons shift between Fire, Alien and Static every 20 seconds.', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
+    pdesc: 'Its weapons shift between Fire, Alien and Static every 12 seconds, and hit 30% harder for 3 seconds after each shift.', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
     sci: 'Sample {id} has responded to the target. The target has not yet been introduced.', unlock: { txt: 'Beat the campaign\'s furthest level.' }, shift: ['flame', 'soul', 'shock'], shield: true },
 ];
 for (const s of SAMPLES10) s.weapons = w24Starters(s.id); // (the sample's three starters: weapons24.js)
@@ -49,7 +49,7 @@ const S10_BY = Object.fromEntries(SAMPLES10.map((s, i) => [s.id, Object.assign(s
 // Each sample is also a profile (genes.js applies it at the start of a run).
 for (const s of SAMPLES10) {
   PROFILES['s10_' + s.id] = { name: s.name, trait: s.passive, fmt: () => s.pdesc, desc: s.pdesc, weapons: s.weapons, s10: s.id,
-    apply: s.id === 'baseline' ? (P, k) => { const g = Math.sign(k) || 1; P.might += 0.05 * g; P.haste += 0.05 * g; P.maxHp += 6 * g; P.speed += 0.05 * g; P.reloadSpd += 0.05 * g; } : () => {} };
+    apply: s.id === 'baseline' ? (P, k) => { const g = Math.sign(k) || 1; P.might += 0.15 * g; P.haste += 0.15 * g; P.maxHp += 18 * g; P.speed += 0.15 * g; P.reloadSpd += 0.15 * g; /* (exaggerated: was +5%, user 23 Oct) */ } : () => {} };
   if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK['s10_' + s.id] = Object.assign({}, SEQ_LOOK.human1 || SEQ_LOOK.vanguard, { short: s.name.replace('The ', '').toUpperCase() });
 }
 
@@ -70,7 +70,7 @@ function s10Start() {
   const id = s10Of(); if (!id) return null;
   const s = S10_BY[id];
   G.sampleTypes = { primary: s.types[0], support: s.types[1] };
-  G.s10 = { id, strain: s.strain, run: ((META.s10runs && META.s10runs[id]) || 0) + 1, ev: s.evasion || 0, shiftT: 20, shiftI: 0, trailT: 0, low: false };
+  G.s10 = { id, strain: s.strain, run: ((META.s10runs && META.s10runs[id]) || 0) + 1, ev: s.evasion || 0, shiftT: 12, shiftI: 0, trailT: 0, low: false };
   (META.s10runs || (META.s10runs = {}))[id] = G.s10.run; saveMeta();
   if (typeof s10UniqueFeat === 'function') s10UniqueFeat(id); // (feats10.js puts the sample's Feat in slot 1)
   return s.weapons.map(id => optNewWeapon(id, 0)); // (the draft offers its three starters; the other two stay in the pool)
@@ -81,12 +81,12 @@ const s10Evasion = () => (G && G.s10 && G.s10.ev) || 0;
 function s10Tick(dt) {
   const S = G.s10; if (!S) return;
   const p = G.player, moving = Math.hypot(p.vx || 0, p.vy || 0) > 20;
-  if (s10Has('alpha')) for (const w of G.weapons) if (w) w.rateK = moving ? 1.25 : 1;
+  if (s10Has('alpha')) for (const w of G.weapons) if (w) w.rateK = moving ? 1.5 : 1;
   if (s10Has('ordered') && moving && (S.trailT -= dt) <= 0) { // a Mucus ribbon that Snares whatever follows
     S.trailT = 0.3;
     const mine = G.zones.filter(z => z.s10trail);
     if (mine.length >= 18) mine[0].life = 0;
-    G.zones.push({ x: p.x, y: p.y, r: 26, life: 3, max: 3, dps: 0.5, elem: 'ice', pull: 0, color: ELEMENTS.ice.color, tick: 0, s10trail: true, src: { elem: 'ice', wname: 'Mucus trail', noCrit: true } });
+    G.zones.push({ x: p.x, y: p.y, r: 40, life: 4, max: 4, dps: 0.5, elem: 'ice', pull: 0, color: ELEMENTS.ice.color, tick: 0, s10trail: true, src: { elem: 'ice', wname: 'Mucus trail', noCrit: true } });
   }
   if (s10Has('alien')) { if ((S.shiftT -= dt) <= 0) s10Shift(S); else s10Apply(S); } // (weapons picked up later take the type too)
   // (Unlocks: the old watch conditions retired in V11; a sample unlocks when you rescue it in The Race, kindred.js.)
@@ -96,7 +96,7 @@ function s10Tick(dt) {
 function s10Apply(S) { const to = S10_BY.alien.shift[S.shiftI]; for (const w of G.weapons) if (w && w.typeOver !== to) w.typeOver = to; }
 function s10Shift(S) {
   const cyc = S10_BY.alien.shift;
-  S.shiftT = 20; S.shiftI = (S.shiftI + 1) % cyc.length;
+  S.shiftT = 12; S.shiftI = (S.shiftI + 1) % cyc.length; S.surgeT = G.t + 3;
   const to = cyc[S.shiftI];
   s10Apply(S);
   G.sampleTypes = { primary: { flame: 'fire', soul: 'soul', shock: 'static' }[to], support: 'soul' };
@@ -107,16 +107,17 @@ function s10Shift(S) {
 function s10DmgMul(e, src) {
   const S = G.s10; if (!S) return 1;
   let k = 1;
-  if (s10Has('beta') && G.player.hp < G.P.maxHp * 0.3 && !src.fromAlly) k *= 1 + (1 - G.player.hp / G.P.maxHp); // up to about +100% at death's door
-  if (s10Has('private') && src.fromAlly) k *= 1.5;
+  if (s10Has('beta') && G.player.hp < G.P.maxHp * 0.4 && !src.fromAlly) k *= 1 + 2 * (1 - G.player.hp / G.P.maxHp); // up to about +200% at death's door
+  if (s10Has('private') && src.fromAlly) k *= 2;
+  if (s10Has('alien') && S.surgeT > G.t) k *= 1.3; // (the surge after each shift)
   return k;
 }
 function s10Hit(e, src, res, t) {
   const S = G.s10; if (!S || res.miss) return;
-  if (s10Has('beta') && G.player.hp < G.P.maxHp * 0.3 && res.toHp > 0 && !src.fromAlly) healPlayer(res.toHp * 0.04 * (1 - G.player.hp / G.P.maxHp), true);
-  if (s10Has('private') && t === 'acid' && res.statusOk) { const c = e.cd; c.bars.acid += 0.5 * res.raw / (COMBAT.barSize.acid * Math.max(1, c.layers) * c.maxHp * COMBAT.rankBarK[c.rank || 'normal']); }
-  if (s10Has('redtail') && t === 'static' && res.statusOk && !e.dead) burnAdd(fightCd(e), res.raw);
-  if (s10Has('prawn') && src.fromAlly && res.toHp > 0 && !e.dead) fightStatus(e, 'arcane', res.raw, src);
+  if (s10Has('beta') && G.player.hp < G.P.maxHp * 0.4 && res.toHp > 0 && !src.fromAlly) healPlayer(res.toHp * 0.08 * (1 - G.player.hp / G.P.maxHp), true);
+  if (s10Has('private') && t === 'acid' && res.statusOk) { const c = e.cd; c.bars.acid += 1 * res.raw / (COMBAT.barSize.acid * Math.max(1, c.layers) * c.maxHp * COMBAT.rankBarK[c.rank || 'normal']); }
+  if (s10Has('redtail') && t === 'static' && res.statusOk && !e.dead) burnAdd(fightCd(e), res.raw * 2);
+  if (s10Has('prawn') && src.fromAlly && res.toHp > 0 && !e.dead) fightStatus(e, 'arcane', res.raw * 2.5, src);
 }
 // fight.js fightDeath.
 function s10Kill(e, src) { } // (its unlock retired in V11: kindred.js)
@@ -127,7 +128,7 @@ function s10Samples() {
   const list = SAMPLES10.map(s => {
     const open = s10Open(s.id), col = ELEMENTS[S10_TYPES[s.types[0]]].color;
     const nm = !open && s.unlock.secret ? '???' : s.name;
-    const desc = open ? s.passive + ': ' + s.pdesc : 'Rescue it when it turns up stranded in The Race.'; // (rescue it in The Race: kindred.js)
+    const desc = open ? s.passive + ': ' + s.pdesc : (typeof s10LockTxt === 'function' ? s10LockTxt(s) : 'Rescue it when it turns up stranded in The Race.'); // (its achievement: samplestart.js)
     const c = card(`data-s10="${s.id}"`, String(s.strain).padStart(3, '0'), nm, desc, col, open ? s.types.map(t => t.toUpperCase()).join(' / ') : 'LOCKED', !open);
     return c.replace('<span class="sx-txt">', `<canvas data-slpic="${s.id}" style="position:relative;inset:auto;flex:none;display:block;width:100%;height:${s.id === 'alien' ? 120 : 96}px"></canvas><span class="sx-txt">`); // (its picture: samplelooks.js)
   }).join('');

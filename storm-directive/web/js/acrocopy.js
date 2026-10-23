@@ -4,7 +4,7 @@
 const ACRO_COPY = (function () {
   const C = {
     s9_name: 'Early Bird', acro_origin: 'Human, unpunctual', acro_passive: 'Jumping the Gun',
-    acro_pdesc: 'Corrosion pays off at 70%: Shell layers strip early, and unshelled enemies turn Corroded early.',
+    acro_pdesc: 'Corrosion pays off at 50%: Shell layers strip early, and unshelled enemies turn Corroded early.',
     acro_line: 'Already there. Already done. Go, go, GO, before anyone notices we have not started.',
     acro_sci: 'Sample {id} released its enzymes before reaching the egg. A recognised cause of infertility. It seemed pleased.',
     acro_unlock: 'Strip 50 Shell layers in one run',

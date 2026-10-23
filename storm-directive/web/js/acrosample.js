@@ -2,7 +2,7 @@
 // Spawn Prawn - Sample 9 (PROPOSED; spec: ../redesign docs/SAMPLE_9_ACRO.md, SAMPLES.md 9, FEATS.md X9, CONSCIOUSNESS.md 9).
 // Every player-facing string is a TODO_COPY placeholder (briefs: SAMPLE_9_ACRO.md 6.1, 6.2, 6.2a).
 //  - The sample: id 'acro', strain 9, Acid / Fire (the draft lean), starters acro_cap, acro_spray, acro_spark (acro.js).
-//  - Passive: Corrosion bars pay off at 70% (a Shell layer strips early; with no Shell, Corroded early).
+//  - Passive: Corrosion bars pay off at 50% (exaggerated from 70%, user 23 Oct) (a Shell layer strips early; with no Shell, Corroded early).
 //  - Unique Feat 'acro_release' (slot 1): an Acid burst fills every nearby Corrosion bar and leaves an Acid Pool; then your
 //    Acid damage is -25% for 4 s (the cap is spent), shown by a bare head. (Tuned 20 Oct after a sim: was -50% for 6 s.)
 //  - Exclusive gift X9 'acro_x9' (drafted, this sample only): stay still for 1 s and an Acid Pool spills out around you. The
@@ -36,7 +36,7 @@
   s10Hit = function (e, src, res, t) {
     _hit(e, src, res, t);
     if (!G.s10 || G.s10.id !== ID || res.miss) return;
-    if (t === 'acid' && res.statusOk && !e.dead && e.cd && e.cd.bars.acid >= 0.7) { payNow(e, src); ring(e.x, e.y, e.r + 5, PINK, 0.25, 2); } // (early payoff)
+    if (t === 'acid' && res.statusOk && !e.dead && e.cd && e.cd.bars.acid >= 0.5) { payNow(e, src); ring(e.x, e.y, e.r + 5, PINK, 0.25, 2); } // (early payoff)
     const sp = spent(), w = sp && f10Own('acro_release');
     if (sp && res.layersLost > 0 && f10Fk(w, 'regrow')) { sp.end -= 1; if (w) w.cd = Math.max(0, w.cd - 1); }
   };
