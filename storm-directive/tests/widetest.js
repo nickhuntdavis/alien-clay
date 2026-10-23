@@ -39,8 +39,9 @@ const { chromium } = require('playwright');
     w = fresh(); add(w, 'pull', 3); const ep = foe(150), e2 = foe(150, 100); const dd0 = Math.hypot(e2.x - ep.x, e2.y - ep.y); damageEnemy(ep, 1, src(w)); const dd1 = Math.hypot(e2.x - ep.x, e2.y - ep.y);
     out.pull = [Math.round(dd0), Math.round(dd1)]; if (!(dd1 < dd0)) bad.push('pulling ' + out.pull);
     // 7. Turncoat: a kill rises as an ally
-    w = fresh(); add(w, 'turncoat'); const et = foe(120, 0, 30); damageEnemy(et, 1e4, src(w)); run(0.1);
+    w = fresh(); add(w, 'turncoat'); const rnd = Math.random; Math.random = () => 0; const et = foe(120, 0, 30); damageEnemy(et, 1e4, src(w)); Math.random = rnd; run(0.1);
     out.turncoat = G.enemies.filter(e => e.charmed && !e.dead).length; if (!out.turncoat) bad.push('turncoat');
+    { let n = 0; for (let i = 0; i < 400; i++) { const k = foe(140, 40, 30); const a = G.enemies.length; damageEnemy(k, 1e4, src(w)); if (G.enemies.length > a) n++; } out.turnRate = n / 400; if (out.turnRate > 0.12 || out.turnRate < 0.01) bad.push('turncoat chance ' + out.turnRate); } // (Rank 1: 1 in 20)
     // 8. Melee: the weapon strikes close, not far
     w = fresh(); add(w, 'melee'); const m1 = foe(70), m2 = foe(240, 0); run(1.5);
     out.melee = [Math.round(m1.maxHp - m1.hp), Math.round(m2.maxHp - m2.hp), w.s.range]; if (!(out.melee[0] > 0) || out.melee[1] > 0) bad.push('melee ' + out.melee);

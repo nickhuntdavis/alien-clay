@@ -2,8 +2,16 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
-## v10.105: 2026-10-23 Full sperm passive list with branching masteries; targeting and autorun as passives; loot filters; Area modifier; piercing fixes; HOLD is manual
+## v10.105: 2026-10-23 Full sperm passive list with branching masteries; targeting and autorun as passives; loot filters; Area modifier; piercing fixes; HOLD is manual; Turncoat by chance
 - Merged: ccr-7c6adc60-uqv9g4.
+
+### Folded from ccr-7c6adc60-uqv9g4: 2026-10-23 Turncoat is a chance (merge build, v10.105)
+- Systems: weapons (modifiers)
+- Files: modwide.js (MW_TURN_CH), slicecopy.js (Turncoat lines), tests/widetest.js
+- What: a Turncoat kill rises as an ally only by chance: 1 in 20 at Rank 1, then 10%, 15%, and 20% at mastery (was every kill).
+- Save data: none.
+- Hooks: none.
+- Risk: Turncoat builds are much weaker.
 
 ### Folded from ccr-7c6adc60-uqv9g4: 2026-10-23 The Laser holds Piercing and Ricochet together (merge build, v10.105)
 - Systems: weapons (Laser, modifiers)

@@ -74,7 +74,7 @@ const SLICE_MODS = {
     'Gravity: pulled enemies take more damage from this weapon.', 'Pied Piper: pulls enemies towards your pools and other ground objects instead.',
     'Pulled enemies take more again.', 'Stronger pull towards objects.',
     'Singularity: pulled enemies are crushed together for damage.', 'Tractor: the target is reeled in towards you.', 'Dinner Bell: your ground objects always pull nearby enemies a little.', 'Funnel: pulled enemies line up in single file.'],
-  turncoat: ['Enemies it kills rise as allies for a few seconds.', 'Allies last longer. Choose a branch.', 'Tougher allies.',
+  turncoat: ['1 in 20 enemies it kills rises as an ally for a few seconds.', 'Allies last longer, and 1 in 10 kills rises. Choose a branch.', 'Tougher allies, and 3 in 20 kills rise.',
     'Veteran Corps: allies last longer and hit harder.', 'Walking Bombs: allies explode when they expire.',
     'Allies rise tougher.', 'Bigger blasts, and allies run at enemies first.',
     'Sergeant: one ally leads, bigger and stronger.', 'Old Soldier: allies that keep killing stay longer.', 'Chain Gang: enemies killed by a bomb rise as new bombs.', 'Decoy Army: enemies go for your allies before you.'],

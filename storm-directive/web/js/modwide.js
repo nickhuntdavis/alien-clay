@@ -333,8 +333,10 @@ function mwKill(e, src) {
   // Turncoat: the kill rises as an ally (old Soldier keeps its allies alive while they kill)
   if (src && src.fromAlly) { const A = mwS().allies.filter(a => !a.z.dead && Math.hypot(a.z.x - e.x, a.z.y - e.y) < a.z.r + e.r + 12)[0]; if (A && msMa(A.w, 'turncoat') === 'A2') A.end = Math.min(G.t + 15, A.end + 3); } // Old Soldier (the ally touching it made the kill)
   if (!w || !mwR(w, 'turncoat') || e.elite || e.boss || e.rival || e.egg || e.charmed || e.mwAllyOf) return;
+  if (Math.random() >= MW_TURN_CH[Math.min(4, mwR(w, 'turncoat')) - 1]) return; // (a chance, not every kill: user, 23 Oct)
   mwRise(w, e, src && src.mwBomb);
 }
+const MW_TURN_CH = [0.05, 0.1, 0.15, 0.2]; // Turncoat: the chance a kill rises as an ally, by rank (4: mastery)
 function mwRise(w, e, bomb) {
   const S = mwS(), A = msA(w, 'turncoat', 2), life = 5 * (A ? 1.5 : 1);
   const z = makeEnemy(e.def, e.x, e.y);
