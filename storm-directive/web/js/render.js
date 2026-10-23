@@ -1469,10 +1469,11 @@ function render() {
   // Pickups: temporary power-ups are monitor magenta; DNA strands (loot) are gold.
   for (const u of G.pickups) {
     if (!vis(u)) continue;
-    const d = POWERUPS[u.type], x = sx(u.x), y = sy(u.y) + Math.sin(u.bob) * 3, r = 13 * S, pc = u.type === 'chest' ? PAL.reward : PAL.pickup;
+    const lvb = u.type === 'lvbox', d = POWERUPS[u.type], x = sx(u.x), y = sy(u.y) + Math.sin(u.bob) * 3, r = (lvb ? 21 : 13) * S, pc = u.type === 'chest' || lvb ? PAL.reward : PAL.pickup; // (lvbox: a level-up, levelbox.js)
     if (u.life < 5 && Math.floor(u.life * 6) % 2) continue;
-    if (u.type === 'chest') {
-      // A strand of DNA: a short spinning double helix, gold.
+    if (u.type === 'chest' || lvb) {
+      // A strand of DNA: a short spinning double helix, gold. A level-up box is a bigger one that glows (user, 23 Oct).
+      if (lvb) { const pu = 0.5 + 0.5 * Math.sin(G.realT * 4 + u.bob); ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * (2.4 + 0.8 * pu), pc, 0.85); glow(x, y, r * 1.2, '#fff6c8', 0.5 + 0.3 * pu); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
       const ph = G.realT * 4 + u.bob, len = r * 1.6;
       ctx.save(); ctx.translate(x, y); ctx.rotate(-0.6);
       ctx.strokeStyle = 'rgba(214,228,240,0.7)'; ctx.lineWidth = 1.2; ctx.beginPath();

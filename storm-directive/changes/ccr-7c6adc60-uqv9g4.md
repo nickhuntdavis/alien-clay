@@ -1,3 +1,11 @@
+## 2026-10-23 Glowing level-up boxes; arenas even bigger
+- Systems: pickups (draw), race, waves, terrain, big hazards
+- Files: render.js (a level-up box draws as a bigger, glowing gold DNA strand), data.js (CORE.arena 5400), waves.js (DISH.arena 2600), terrain.js (terrain count scale capped at 2.5x), bighaz.js (Petri Dish sizing reads DISH.arena), tests/levelboxtest.js
+- What: level-up boxes are a large gold DNA strand with a pulsing glow, so they stand out from Donor DNA strands and power-ups. The Race arena is 5400 (was 3600) and the Petri Dish 2600 (was 1750); terrain grows with the area but at most 2.5x the old count, so the biggest arena is sparser.
+- Save data: none.
+- Hooks: render.js pickups loop (lvbox draws with the chest strand).
+- Risk: longer swims; sparser terrain in the Race.
+
 ## 2026-10-23 Level-up boxes to pick up; bigger arenas; rescues inside the dish (v10.111)
 - Systems: rewards (level-ups), pickups, kindred (rescues), terrain, waves, race
 - Files: levelbox.js (new), kindred.js (kinIn, KIN.rim), data.js (CORE.arena 3600), waves.js (DISH.arena 1750), terrain.js (terrain counts scale with arena area), raceplan.js (RPLAN.fill), spsteer.js (cache keyed on mode), index.html, tests/levelboxtest.js (new), tests/kindredtest.js (diagnostics)

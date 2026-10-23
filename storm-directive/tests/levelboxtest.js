@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
     const bad = [], out = {};
     LVBOX.force = true;
     META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 20; G.enemies.length = 0;
-    out.arena = CORE.arena; if (CORE.arena !== 3600) bad.push('race arena ' + CORE.arena);
+    out.arena = CORE.arena; if (CORE.arena !== 5400) bad.push('race arena ' + CORE.arena);
     // 1. A level-up becomes a box on the slide, inside the arena
     G.lootQueue.push({ kind: 'level' }); lvboxTick();
     const u = G.pickups.find(x => x.type === 'lvbox'); const p = G.player;
@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
     G.t = 45; G.rplan = { used: 1, ms: 0 }; applyPickup('lvbox', u.src); const q = G.lootQueue[0];
     out.open = q && [q.kind, q.now, dirGate(q)]; if (!q || q.kind !== 'level' || dirGate(q) !== true) bad.push('open ' + JSON.stringify(out.open));
     // 3. Wave mode: no wave-break hold for it; dish bigger
-    LVBOX.force = true; UI.sample = 's002'; newGame(); G.state = 'play'; out.dish = CORE.arena; if (CORE.arena !== 1750) bad.push('dish ' + CORE.arena);
+    LVBOX.force = true; UI.sample = 's002'; newGame(); G.state = 'play'; out.dish = CORE.arena; if (CORE.arena !== 2600) bad.push('dish ' + CORE.arena);
     G.lootQueue = [{ kind: 'level', lvbox: true, now: true }]; out.hold = waveHoldsLoot(); if (out.hold) bad.push('wave holds a picked box');
     // 4. Rescue spots stay inside the arena, even from the rim
     UI.sample = 's001'; newGame(); genLoot({ kind: 'start' }); G.state = 'play'; G.player.x = CORE.arena - 50; G.player.y = 0;

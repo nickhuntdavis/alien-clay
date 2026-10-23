@@ -18,7 +18,7 @@ function makeTerrain() {
   for (const type in OBSTACLES) {
     const def = OBSTACLES[type];
     if (type === 'acid' && sbOn()) continue; // (Sandbox: no Acid Crypts, so the damage list is weapons only)
-    const nK = Math.pow(CORE.arena / (CORE.arena < 2000 || (typeof DISH !== 'undefined' && CORE.arena === DISH.arena) ? 1150 : 2400), 2); // (the arenas grew, user 23 Oct: same density of terrain)
+    const nK = Math.min(2.5, Math.pow(CORE.arena / (typeof DISH !== 'undefined' && CORE.arena === DISH.arena ? 1150 : 2400), 2)); // (the arenas grew, user 23 Oct: more terrain, up to 2.5x, so the big Race stays light on frame rate)
     for (let i = 0; i < Math.round(def.n * nK); i++) {
       for (let tries = 0; tries < 40; tries++) {
         const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * CORE.arena, r = rand(def.r[0], def.r[1]);

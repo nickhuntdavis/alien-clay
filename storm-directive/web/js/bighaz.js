@@ -29,7 +29,7 @@ function makeBigHaz() {
   if (typeof UI !== 'undefined' && LV_SAMPLE[UI.sample] != null) return []; // (campaign levels have their own maps)
   if (CORE.arena > 1e8) return [];
   if (sbOn()) return []; // (Sandbox: weapons only)
-  const k = CORE.arena < 2000 ? 0.6 : 1; // (smaller in the Petri Dish)
+  const k = typeof DISH !== 'undefined' && CORE.arena === DISH.arena ? 0.6 : 1; // (smaller in the Petri Dish)
   let x = Math.random(), n = 1;
   for (const [c, w] of BH.count) { if (x < w) { n = c; break; } x -= w; }
   const types = Object.keys(BIG_HAZ).sort(() => Math.random() - 0.5).slice(0, n), out = [];
@@ -83,7 +83,7 @@ function bhLake(L, x, y, R) {
   return root;
 }
 function bhField(L, x, y, F) {
-  const k = CORE.arena < 2000 ? 0.7 : 1, n = 9 + Math.floor(Math.random() * 6), beds = [];
+  const k = typeof DISH !== 'undefined' && CORE.arena === DISH.arena ? 0.7 : 1, n = 9 + Math.floor(Math.random() * 6), beds = [];
   for (let i = 0; i < n * 3 && beds.length < n; i++) {
     const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * F * 0.85, r = rand(50, 115) * k, bx = x + Math.cos(a) * d, by = y + Math.sin(a) * d;
     if (beds.some(b => Math.hypot(b.x - bx, b.y - by) < (b.r + r) * 0.75)) continue;

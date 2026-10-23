@@ -988,7 +988,7 @@ const POWERUPS = {
 
 // ---------------------------------------------------------------- The Egg
 // The egg sits at the world origin: the arena's centre. Standing in its glow heals you.
-const CORE = { r: 80, sanctuary: 290, arena: 3600, arena0: 3600 }; // (was 2400: user, 23 Oct, much bigger) // arena shrinks to the dish in the Petri Dish
+const CORE = { r: 80, sanctuary: 290, arena: 5400, arena0: 5400 }; // (was 2400, then 3600: user, 23 Oct, even bigger) // arena shrinks to the dish in the Petri Dish
 // The race ends at the egg: win the race (sperm count 1) or reach EGG.level, swim into it, and its membrane
 // fights back. Destroy it to be born (you win). hpBase scales with hpNow(); it takes at most 2.5% a second.
 // fire: ring interval multiplier; ring: bullets per ring; bullet: damage (x dmgNow); buds every budEvery s.
