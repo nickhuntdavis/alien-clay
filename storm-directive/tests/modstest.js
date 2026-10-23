@@ -37,7 +37,7 @@ const { chromium } = require('playwright');
 
     // 2. Homing: a shot fired straight ahead turns towards an enemy off its line; the target dying lets it fly on.
     fresh(); let w = wp('v_phys_proj', ['homing'], 0, 1); foe(150, 150); let pr = shot(w, 0);
-    step(15); out.homing = +ang(pr).toFixed(2);
+    step(30); // (Homing waits 0.2 s after firing: piercefx.js) out.homing = +ang(pr).toFixed(2);
     if (!(ang(pr) > 0.25)) bad.push('Homing did not curve: ' + out.homing);
     G.enemies[0].dead = true; pr.tgt = G.enemies[0]; step(2); const a1 = ang(pr); step(10);
     if (Math.abs(ang(pr) - a1) > 0.01) bad.push('Homing kept turning after the target died');

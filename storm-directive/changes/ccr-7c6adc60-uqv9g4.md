@@ -1,6 +1,6 @@
 ## 2026-10-23 Homing kicks in after a moment (v10.107)
 - Systems: weapons (modifiers)
-- Files: piercefx.js (modStep wrapped), tests/piercetest.js
+- Files: piercefx.js (modStep wrapped), tests/piercetest.js, tests/modstest.js (Homing curve checked after 0.5 s)
 - What: the Homing modifier steers a shot only from 0.2 s after it is fired, so a spread fans out first and then each shot turns towards the nearest enemy. Weapons that home by design are unchanged.
 - Save data: none.
 - Hooks: none in shared files.
