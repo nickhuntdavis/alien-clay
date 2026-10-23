@@ -202,3 +202,4 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Branch claude/consciousness-gifts (20 Oct): no APK built yet (no Android SDK or SPAWN_KS_PASS on Nick's Mac, no GitHub remote); build once pushed. X5, X7 and X8 are at full spec and the five old test failures are fixed (same day).
 - (ccr-7c6adc60-uqv9g4, v10.98) Sperm passives: spfull.js holds the doc's list (SP_KEEP). Doc masteries other than Bad Blood, Pile-Up knock-on, Wet Floor layer loss, Chain Letter no-falloff, Peer Pressure spread and triple last tick are still 'one step further' numbers. Advanced Targeting not built.
 - (ccr-7c6adc60-uqv9g4, v10.99) Targeting/autorun are sperm passives (spsteer.js); META.spKeep keeps one after a win. Kept mastery cards take a passive slot. Mastery review with the user: The Runs done (loop); next Slipstream.
+- (ccr-7c6adc60-uqv9g4, v10.100) All passive masteries are A/B forks (spmast.js SPM_BR). Mastery numbers are unsimmed.

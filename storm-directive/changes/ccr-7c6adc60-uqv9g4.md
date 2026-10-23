@@ -1,3 +1,11 @@
+## 2026-10-23 Branching passive masteries (v10.100)
+- Systems: sperm passives, mutations, defences (pdef), draft (forks)
+- Files: spmast.js (new), index.html, tests/spmasttest.js (new)
+- What: taking a passive's mastery opens a fork of two masteries (user: the first two options of each). Covers Slipstream, Heartbeat, Overexcited, Group Project, Growing Pains, Extra Padding, Stickier, Crossed Wires, Conductive Mess, Big Brain, Can't Sit Still, All at Once and Hungry Hungry; Squishy, Shell, Thorns and Evasion get mastery cards (no slot) once held at 3 (Squishy at 1). Group Project, Growing Pains, Conductive Mess and the four trade-offs now have 3 levels (trade-off costs stay fixed). Shell's option A became "a lost layer regrows after 15 s without a hit", as layers already refit each wave.
+- Save data: none.
+- Hooks: none in shared files. Wraps mutations.js mutDmg, mutRate, mutSpeed, mutHurtIn, mutKill, mutLevel, mutBurst, mutRxLock, mutHit; pdef.js pdefHurt; game.js healPlayer, gainXp, fireWeapon; weapons24.js wupTick; draft.js forkCards, draftTitle.
+- Risk: many wrappers on mutation hooks (order: after spfull and spsteer). Mastery numbers are unsimmed (bots rarely reach Rank 4).
+
 ## 2026-10-23 Targeting and autorun passives; The Runs loop mastery (v10.99)
 - Systems: sperm passives, autorun, autoaim, ui (aim menus, end screen)
 - Files: spsteer.js (new), spfull.js, autorun.js (aimList), ui.js and loadout.js (aim menus read aimList), index.html, tests/spsteertest.js (new)
