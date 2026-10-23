@@ -2402,7 +2402,7 @@ function updatePlayer(dt) {
   const hx = Math.cos(p.hd), hy = Math.sin(p.hd);
   let fwd = p.vx * hx + p.vy * hy, lat = -p.vx * hy + p.vy * hx;
   const want = thrust * power * (1 + 0.12 * p.kick);
-  fwd = want >= fwd ? lerp(fwd, want, 1 - Math.pow(0.004, dt * (1 + 4 * p.kick))) // stroke: quick; the big first strokes, much quicker
+  fwd = want >= fwd ? lerp(fwd, want, 1 - Math.pow(0.004, dt * (1 + 4 * p.kick) * (P.accel || 1))) // stroke: quick; the big first strokes, much quicker
     : lerp(fwd, want, 1 - Math.pow(0.4, dt)); // no stroke: glide on momentum, slowly bleeding speed
   // Carving: the grip that stops you sliding sideways turns part of that sideways momentum into forward
   // speed, so you come out of a turn still moving instead of having to build up from nothing.
