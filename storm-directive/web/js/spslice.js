@@ -136,3 +136,19 @@ wupDmgMul = (orig => function (e, src) { // Attract mastery: close enemies take 
   if (mr('sp_space') >= 4 && spsBr('sp_space') === 'B' && src && src.w && ['contact', 'burst'].includes(src.w.def.v10atk) && Math.hypot(e.x - G.player.x, e.y - G.player.y) < 60) k *= 1.2;
   return k;
 })(wupDmgMul);
+
+// ---------------------------------------------------------------- slice only (testing, user 23 Oct)
+// While SLICE.on, drafts deal only the vertical slice: its 10 weapon modifiers (plus Switched at Birth's card), its sperm
+// passives and Membrane Shield. Feats still come as normal. Off: SLICE.on = false. Hooks: modmatrix.js modOk (wrapped),
+// spassives.js spSkip -> sliceSkip, pdef.js pdefOffer (wrapped).
+const SLICE = {
+  on: true,
+  mods: ['extra', 'orbiting', 'ricochet', 'homing', 'sticky', 'connecting', 'focus', 'rapid', 'catalyst'], // (+ Switched at Birth)
+  muts: ['sp_runs', 'm_slip', 'sp_fever', 'sp_extra', 'sp_space', 'sp_iric'],
+  defs: ['latex', 'thick', 'fast'],
+  force: false, // (tests and sims set window.TUT_OFF and get the full pool unless this is true)
+};
+const sliceOn = () => SLICE.on && (!(typeof window !== 'undefined' && window.TUT_OFF) || SLICE.force);
+const sliceSkip = c => sliceOn() && !(c.family || '').startsWith('feat:') && !SLICE.muts.includes(c.id);
+modOk = (orig => function (w, id) { return (!sliceOn() || SLICE.mods.includes(id)) && orig(w, id); })(modOk);
+pdefOffer = (orig => function (k) { return sliceOn() ? orig(99).filter(x => SLICE.defs.includes(x.defence)).slice(0, Math.max(0, k)) : orig(k); })(pdefOffer);

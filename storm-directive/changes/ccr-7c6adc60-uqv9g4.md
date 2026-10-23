@@ -1,3 +1,11 @@
+## 2026-10-23 Slice only drafts (v10.74)
+- Systems: draft, weapons (modifiers), mutations (sperm passives), defences
+- Files: spslice.js (SLICE, sliceSkip, modOk and pdefOffer wrappers), spassives.js (spSkip -> sliceSkip), tests/spslicetest.js
+- What: for testing, drafts deal only the vertical slice: 9 weapon modifiers plus Switched at Birth, 6 sperm passives (The Runs, Slipstream, Fever Pitch, Extra Mastery, Personal Space, Internal Ricochet) and Membrane Shield's 3 cards; Feats as normal; v9 upgrades, catalysts, Concentration and other defences off. SLICE.on = false restores the full pool. Tests and sims (window.TUT_OFF) keep the full pool unless SLICE.force.
+- Save data: none.
+- Hooks: spassives.js spSkip -> sliceSkip.
+- Risk: fewer power sources while on (harder runs).
+
 ## 2026-10-23 No slot limits setting (v10.73)
 - Systems: settings, weapons, mutations (sperm passives), ui (build panel)
 - Files: modmatrix.js (setting row, mmFree, modOk, mmRoom), spassives.js (spSlots), buildpanel.js, tests/sptest.js

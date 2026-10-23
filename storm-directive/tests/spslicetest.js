@@ -36,6 +36,12 @@ const { chromium } = require('playwright');
     fresh(); const w2 = G.weapons[0]; const base = modDraftCands('level').find(x => x.fam === 'mod:ricochet'); const w0 = base && base.w;
     modAdd(w2, 'connecting'); computeStats(w2); const after1 = modDraftCands('level').find(x => x.fam === 'mod:ricochet');
     out.pairW = [w0, after1 && after1.w]; if (!(after1 && after1.w > w0 * 1.4)) bad.push('pair weight ' + out.pairW);
+    // 6. Slice only: drafts deal the slice's modifiers, passives and Membrane Shield, plus Feats
+    SLICE.force = true; fresh(); const seen = new Set();
+    for (let i = 0; i < 60; i++) for (const c of genLoot({ kind: 'level' })) if (c) seen.add(c.card || (c.defence && 'def:' + c.defence) || c.id || c.title);
+    SLICE.force = false;
+    const stray = [...seen].filter(k => !(k.startsWith('feat') || k === 'switch' || (k.startsWith('mod:') && SLICE.mods.includes(k.slice(4))) || (k.startsWith('def:') && SLICE.defs.includes(k.slice(4))) || SLICE.muts.includes(k)));
+    out.stray = stray; if (stray.length) bad.push('slice only dealt ' + stray);
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

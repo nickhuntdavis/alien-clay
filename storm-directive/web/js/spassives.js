@@ -26,7 +26,7 @@ const spSlots = () => (typeof mmFree === 'function' && mmFree() ? 99 : 0) + SP.b
 Object.defineProperty(DRAFT, 'genome', { get: () => spSlots(), configurable: true });
 
 // draft.js (through mutdrop.js mdDraftSkip): which mutation cards stay out of level-up drafts.
-const spSkip = c => c.slot === 'weaponmut' || SP.cut.includes(c.id);
+const spSkip = c => c.slot === 'weaponmut' || SP.cut.includes(c.id) || (typeof sliceSkip === 'function' && sliceSkip(c)); // (sliceSkip: slice-only testing, spslice.js)
 
 // Retired sources.
 MUTDROP.chance = 0;
