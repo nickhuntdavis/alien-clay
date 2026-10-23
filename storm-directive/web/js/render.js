@@ -1015,6 +1015,7 @@ const MICROBES = {
     }
     const a = e.id * 1.7;
     ctx.beginPath(); ctx.ellipse(x, y, r * 1.12, r * 0.86, a, 0, TAU); ctx.fillStyle = mBody(e, 0.4); ctx.fill(); mHalo(r * 0.14);
+    if (STATUS_LOD && !e.elite) return; // (a crowd: the commonest late enemy keeps its body and rim, drops its two spots)
     ctx.fillStyle = 'rgba(230,236,232,0.55)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.25, r * 0.3, 0, TAU); ctx.fill();
     ctx.fillStyle = 'rgba(30,36,32,0.45)'; ctx.beginPath(); ctx.arc(x - Math.cos(a) * r * 0.5, y - Math.sin(a) * r * 0.5, r * 0.12, 0, TAU); ctx.fill();
   },
@@ -1095,7 +1096,7 @@ const MICROBES = {
       ctx.stroke();
     }
     // Whatever XP it has swallowed glints inside it.
-    if (e.stolen > 0) { ctx.fillStyle = PAL.reward; for (let i = 0; i < Math.min(6, 1 + e.stolen / 8); i++) { ctx.beginPath(); ctx.arc(-r * 0.3 + (i % 3) * r * 0.2, (i < 3 ? -1 : 1) * r * 0.12, r * 0.07, 0, TAU); ctx.fill(); } }
+    if (e.stolen > 0) { ctx.fillStyle = PAL.reward; ctx.beginPath(); for (let i = 0; i < Math.min(6, 1 + e.stolen / 8); i++) { const gx = -r * 0.3 + (i % 3) * r * 0.2, gy = (i < 3 ? -1 : 1) * r * 0.12; ctx.moveTo(gx + r * 0.07, gy); ctx.arc(gx, gy, r * 0.07, 0, TAU); } ctx.fill(); }
     ctx.restore();
   },
   // Volvox: a hollow ball colony of hundreds of cells, rolling, with daughter colonies inside.
@@ -1104,9 +1105,10 @@ const MICROBES = {
     const roll = e.age * 0.8, m = Math.min(40, Math.floor(r * 1.2)), n = Math.min(50, Math.floor(r * 1.4)), dot = Math.max(0.8, r * 0.045);
     // Cells round the rim (seen edge-on, so they crowd together), then the near face, sparser.
     ctx.fillStyle = 'rgba(40,46,42,0.6)';
-    for (let i = 0; i < m; i++) { const a = roll * 0.3 + i / m * TAU; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 0.86, y + Math.sin(a) * r * 0.86, dot, 0, TAU); ctx.fill(); }
+    // (Each pass is one path: dozens of dots, two draw calls.)
+    ctx.beginPath(); for (let i = 0; i < m; i++) { const a = roll * 0.3 + i / m * TAU, px = x + Math.cos(a) * r * 0.86, py = y + Math.sin(a) * r * 0.86; ctx.moveTo(px + dot, py); ctx.arc(px, py, dot, 0, TAU); } ctx.fill();
     ctx.fillStyle = 'rgba(40,46,42,0.3)';
-    for (let i = 0; i < n; i++) { const a = i * 2.39996 + roll * 0.3, d = r * 0.8 * Math.sqrt((i + 0.5) / n); ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, dot * 0.8, 0, TAU); ctx.fill(); }
+    ctx.beginPath(); for (let i = 0; i < n; i++) { const a = i * 2.39996 + roll * 0.3, d = r * 0.8 * Math.sqrt((i + 0.5) / n), px = x + Math.cos(a) * d, py = y + Math.sin(a) * d; ctx.moveTo(px + dot * 0.8, py); ctx.arc(px, py, dot * 0.8, 0, TAU); } ctx.fill();
     if (e.def.split) for (let i = 0; i < 3; i++) {
       const a = roll * 0.5 + i * 2.1, cx = x + Math.cos(a) * r * 0.35, cy = y + Math.sin(a) * r * 0.35;
       ctx.beginPath(); ctx.arc(cx, cy, r * 0.2, 0, TAU); ctx.fillStyle = 'rgba(60,68,62,0.45)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1; ctx.stroke();
@@ -2802,11 +2804,16 @@ function drawBossAura(e, x, y, r) {
   // directions, faster as it enrages, and a soft pulse of pressure rolling outwards.
   const col1 = ph ? '#ff3b3b' : '#ffffff', spd = 0.4 + ph * 0.5;
   ctx.fillStyle = col1;
+  // (Motes batched into 4 brightness steps a band: 8 fills, not 68.)
   for (const [rr, n, dir, sz] of [[R, 28, -1, 2], [R * 1.3, 40, 1, 1.4]]) {
-    for (let i = 0; i < n; i++) {
-      const a = i / n * TAU + dir * t * spd * (dir > 0 ? 0.8 : 1.1) + Math.sin(i * 7.3) * 0.08, d = rr * (1 + 0.06 * Math.sin(i * 3.1 + t * 2));
-      ctx.globalAlpha = (0.25 + 0.2 * ph) * (0.5 + 0.5 * Math.sin(i * 1.7 + t * 3));
-      ctx.fillRect(x + Math.cos(a) * d - sz / 2, y + Math.sin(a) * d - sz / 2, sz * S + 1, sz * S + 1);
+    for (let q = 0; q < 4; q++) {
+      ctx.globalAlpha = (0.25 + 0.2 * ph) * (q + 0.5) / 4; ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const lit = 0.5 + 0.5 * Math.sin(i * 1.7 + t * 3); if (Math.min(3, Math.floor(lit * 4)) !== q) continue;
+        const a = i / n * TAU + dir * t * spd * (dir > 0 ? 0.8 : 1.1) + Math.sin(i * 7.3) * 0.08, d = rr * (1 + 0.06 * Math.sin(i * 3.1 + t * 2));
+        ctx.rect(x + Math.cos(a) * d - sz / 2, y + Math.sin(a) * d - sz / 2, sz * S + 1, sz * S + 1);
+      }
+      ctx.fill();
     }
   }
   const pk = (t * (0.35 + 0.3 * ph)) % 1, pg = ctx.createRadialGradient(x, y, R * (0.8 + pk), x, y, R * (1 + pk));

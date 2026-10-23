@@ -1,3 +1,11 @@
+## 2026-10-23 Frame rate in a late Race (v10.114)
+- Systems: terrain, render (enemies, bosses), combat (status draw), particles, tests (sims)
+- Files: terrain.js, render.js, fight.js, game.js, tests/sim/framebench.js (new)
+- What: terrain drift checks its neighbours every 8th frame (staggered) instead of all pairs every frame (0.65 to 0.2 ms a frame). Enemy status rings and bars skip enemies off screen. Volvox dots, boss aura motes and rotifer glints draw as a few batched paths; in a crowd, yeast drops its two surface spots. A fixed late-Race scene goes from 421 to 122 canvas calls for enemies and 70 to 10 for a boss aura. Particles are trimmed to the quality cap even when an effect adds them directly. New `sim/framebench.js` times a late Race at a chosen quality step.
+- Save data: none.
+- Hooks: none.
+- Risk: terrain steering reacts up to 8 frames late (it creeps at 6 to 20 a second); crowd-mode yeast look plainer; boss motes flicker in 4 brightness steps instead of smoothly.
+
 ## 2026-10-23 Run log: stats line, honest XP line
 - Systems: run log, stat bonuses
 - Files: statup.js, game.js, meta.js, tests/statuptest.js

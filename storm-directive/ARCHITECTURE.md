@@ -6,7 +6,7 @@ Reference map of every system: which files own it, what it reads and writes, and
 - `web/`: the game. `index.html` loads `style.css`, `eink.css` (eInk view only) and `js/*.js` as plain scripts (no build step, no modules, globals in script order).
 - `android/`: WebView wrapper, Gradle project. Release signing via `spawnprawn.keystore` + `SPAWN_KS_PASS`.
 - `release/SpawnPrawn.apk`: the shipped build.
-- `tests/`: Playwright tests (`run.sh`), sims (`tests/sim/`), tools (`tests/tools/`: `guide.js` builds `GAME_GUIDE.md`, `mouth.py` builds level maps, `copy/copy.sh` syncs `SpawnPrawn_Copy.xlsx`, `atlas/atlas.js` builds the Weapon Atlas page from `atlas/template.html`).
+- `tests/`: Playwright tests (`run.sh`), sims (`tests/sim/`), tools (`tests/tools/`: `guide.js` builds `GAME_GUIDE.md`, `mouth.py` builds level maps, `copy/copy.sh` syncs `SpawnPrawn_Copy.xlsx`, `atlas/atlas.js` builds the Weapon Atlas page from `atlas/template.html`; `sim/framebench.js` times a late Race frame).
 - Docs: `CLAUDE.md` (rules), `NOTES.md` (current state), `changes/<branch>.md` (per-session change log) and `CHANGELOG.md` (folded on merge into `main`), `STYLE.md` (visual style), `GAME_GUIDE.md` (generated player guide), `WEAPON_IDEAS.md` / `FEAT_IDEAS.md` (idea banks), `log.md` (run log reviews).
 
 ## Core spine

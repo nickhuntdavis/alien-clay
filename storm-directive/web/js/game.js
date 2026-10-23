@@ -2814,6 +2814,7 @@ function compact() {
   if (G.zones.length > CAPS.zones) G.zones.splice(0, G.zones.length - CAPS.zones);
   compactArr(G.turrets, x => x.life > 0);
   compactArr(G.parts, x => x.life > 0);
+  { const cap = qualParts() + 20; if (G.parts.length > cap) G.parts.splice(0, G.parts.length - cap); } // (effects that push straight into G.parts skip the cap: drop the oldest)
   compactArr(G.fx, x => x.life > 0);
   compactArr(G.texts, x => x.life > 0);
   compactArr(G.timers, x => !x.done);
