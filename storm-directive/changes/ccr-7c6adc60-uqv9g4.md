@@ -1,3 +1,11 @@
+## 2026-10-23 Area weapon modifier (v10.103)
+- Systems: weapons (modifiers)
+- Files: areamod.js (new), modwide.js (Melee reach, Pulling and Repulsor read areaK), index.html, tests/areatest.js (new), tests/modstest.js (count)
+- What: a new modifier, Area, on any attack type: +25/50/75% (mastery +100%) to everything the weapon does over an area: blasts (bursts, Exploding Rounds, Death from Above, Mines, Ranged), its pools, Contact reach, Melee reach, beam width, aura shots, Pulling reach, the Repulsor wave and gravity wells. It has its own group, so it only competes for a slot.
+- Save data: none.
+- Hooks: none in shared files. Wraps game.js aoe and ring, modifiers.js modWell, weapons24.js wupStats, wupTick.
+- Risk: a 6th modifier group with 5 slots, so a weapon can no longer fill every group. Area-heavy builds unsimmed.
+
 ## 2026-10-23 Loot filters, attack-type swap, Laser pictogram (v10.102)
 - Systems: ui (loot screen, weapon draft), weapons (modifiers), pictograms
 - Files: atkswap.js (new), lootfilter.js (new), index.html, tests/lootfiltertest.js (new)

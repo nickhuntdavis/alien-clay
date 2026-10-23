@@ -151,7 +151,7 @@ wupFire = (orig => function (w, t, src) { const took = orig(w, t, src); return m
 
 // Melee: a strike in a 150-degree arc in front, reach 90 (a Contact attack). Brawler combos; Hit and Run dashes.
 function mwMelee(w, target, src) {
-  const p = G.player, a = Math.atan2(target.y - p.y, target.x - p.x), reach = 90, m = msMa(w, 'melee');
+  const p = G.player, a = Math.atan2(target.y - p.y, target.x - p.x), reach = 90 * (typeof areaK === 'function' ? areaK(w) : 1), m = msMa(w, 'melee');
   const msrc = Object.assign({}, src, { atk: 'contact' });
   let k = 1.5;
   if (msA(w, 'melee', 2)) { w.mwCombo = ((w.mwCombo || 0) % (mwR(w, 'melee') >= 3 ? 4 : 3)) + 1; const last = w.mwCombo === (mwR(w, 'melee') >= 3 ? 4 : 3); if (last) { k *= mwR(w, 'melee') >= 3 ? 2 : 1.5; if (m === 'A2') mwStrike(w, p.x, p.y, 100, 2, msrc); } }
@@ -285,14 +285,14 @@ function mwHit(e, res, src) {
     if (msB(w, 'knock', 3) && e.mwKnT > G.t - 2) f *= 2;
     if (msMa(w, 'knock') === 'A2') { f *= 3; const ex = e; after(0.4, () => { if (G && !ex.dead) mwStrike(w, ex.x, ex.y, 60, 0.5, msEcho(src)); }); }
     shove(e, p.x, p.y, f); e.mwKnT = G.t; e.mwKnW = w; e.mwKnHit = null;
-    if (msMa(w, 'knock') === 'B1') { w.mwKnN = (w.mwKnN || 0) + 1; if (w.mwKnN % 5 === 0) { ring(p.x, p.y, 140, w.def.color, 0.4, 5); forNear(p.x, p.y, 140, o => { if (!o.dead && !o.boss) shove(o, p.x, p.y, 300); }); } }
+    if (msMa(w, 'knock') === 'B1') { w.mwKnN = (w.mwKnN || 0) + 1; if (w.mwKnN % 5 === 0) { const RR = 140 * (typeof areaK === 'function' ? areaK(w) : 1); ring(p.x, p.y, RR, w.def.color, 0.4, 5); forNear(p.x, p.y, RR, o => { if (!o.dead && !o.boss) shove(o, p.x, p.y, 300); }); } }
   }
   // Pulling: enemies near the hit are drawn onto it
   const pl = mwR(w, 'pull');
   if (pl) {
     let tx = e.x, ty = e.y;
     if (msB(w, 'pull', 2)) { const z = G.zones.filter(z => z.src && z.src.w && Math.hypot(z.x - e.x, z.y - e.y) < 250).sort((a, b) => Math.hypot(a.x - e.x, a.y - e.y) - Math.hypot(b.x - e.x, b.y - e.y))[0]; if (z) { tx = z.x; ty = z.y; } } // Pied Piper
-    const f = 18 * pl * (tx !== e.x && mwR(w, 'pull') >= 3 ? 1.5 : 1), R = 50 * pl;
+    const f = 18 * pl * (tx !== e.x && mwR(w, 'pull') >= 3 ? 1.5 : 1), R = 50 * pl * (typeof areaK === 'function' ? areaK(w) : 1);
     let n = 0;
     for (const o of G.enemies) { if (o.dead || o.charmed || n >= 12 || Math.hypot(o.x - e.x, o.y - e.y) > R) continue; n++; mwPull(o, tx, ty, f); o.mwPulledT = G.t + 1; } // (not forNear: its grid lags a frame behind)
     if (msMa(w, 'pull') === 'A1' && n >= 3) forNear(e.x, e.y, 40, o => { if (o !== e && !o.dead) damageEnemy(o, w.s.dmg * 0.4, msEcho(src)); }); // Singularity
