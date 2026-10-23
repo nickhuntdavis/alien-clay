@@ -44,7 +44,7 @@ function wsProj(w) { const r = wsRec(w); if (r) r.proj++; }
 // A draft that offers weapons: remember what was on the table and what was taken.
 function wsPick(req, opts, o) {
   if (!G || !req || (req.kind !== 'start' && req.kind !== 'slot')) return;
-  const id = x => x && x.def && W24_IDS.find(k => WEAPONS[k] === x.def);
+  const id = x => x && x.def && W24_IDS.find(k => WEAPONS[k] === x.def || WEAPONS[k] === Object.getPrototypeOf(x.def)); // (a Switched at Birth start card wraps its def: samplestart.js)
   const off = (opts || []).map(id).filter(Boolean), got = id(o);
   if (!got) return;
   (G.ws || (G.ws = { slots: {}, offers: [] })).offers.push({ k: req.kind, off, got, t: Math.round(G.t) });

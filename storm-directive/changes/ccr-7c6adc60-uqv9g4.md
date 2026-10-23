@@ -1,3 +1,11 @@
+## 2026-10-23 Run log lists the Switched at Birth start card
+- Systems: telemetry (run log)
+- Files: wstats.js (wsPick matches a wrapped def)
+- What: the run log's start offers now include the Switched at Birth card (it was dropped, so starts looked like two offers).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-23 Rewind off (v10.109)
 - Systems: chrono (rewind), ui (HUD)
 - Files: norewind.js (new), index.html, tests/rewindtest.js (checks it is off; NOREWIND.on = false for the old mechanic)
