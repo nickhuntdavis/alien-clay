@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
-  await page.evaluate(() => { window.TUT_OFF = 1; window.FIT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
+  await page.evaluate(() => { window.TUT_OFF = 1; window.FIT_OFF = 1; splashEnd(), (typeof matrixRestore === "function" && matrixRestore()); }); await page.waitForTimeout(300);
   await page.evaluate(() => { if (typeof P11 !== 'undefined') Object.assign(P11, { cap: 99, start: 1, dmgTo: 1, dmgLv: 0, farK: 1, foeHp: 1 }); }); // (weapon mechanics, not pacing: the V11 power curve off, power11.js)
   const r = await page.evaluate(() => {
     const bad = [], rows = [];
