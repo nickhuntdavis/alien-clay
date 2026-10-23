@@ -129,6 +129,14 @@ const { chromium } = require('playwright');
     out.rapidFork = titles; if (titles.join() !== 'Cooler,Quicker') bad.push('laser rapid fork ' + titles);
     w = fresh(); out.retired = [modOk(w, 'turncoat'), modOk(w, 'growing')]; if (out.retired.some(Boolean)) bad.push('retired modifiers offered on the Laser ' + out.retired);
     w = fresh(); G.lootQueue = []; modAdd(w, 'charged'); modAdd(w, 'charged'); if (G.lootQueue.some(q => q.ms)) bad.push('Charge-Up fork on the Laser');
+    // 16. Homing: a bounce curves onto an enemy just off its line
+    const homeHit = hr => { const ww = fresh(); SET.noLimits = true; modAdd(ww, 'ricochet'); for (let i = 0; i < hr; i++) modAdd(ww, 'homing'); SET.noLimits = false; computeStats(ww); ww.s.dmg = 2000; p().hd = 0.5;
+      const A0 = foe(150, 0); const ra = lzBounceDir(1, 0, angDiff(0.5, 0)) + 0.45; const cxp = A0.x - A0.r, B0 = foe(cxp - p().x + Math.cos(ra) * 160, Math.sin(ra) * 160); fire(ww, A0, 0); return hurt(B0); };
+    out.homing = [homeHit(0), homeHit(3)]; if (out.homing[0] > 0 || !(out.homing[1] > 0)) bad.push('laser homing ' + out.homing);
+    // 17. Crossfire: the rear beam curves round onto the main target from behind; +30% while both hold it
+    w = fresh(); for (let i = 0; i < 4; i++) modAdd(w, 'extra'); w.mmB = { extra: 'A' }; w.mmX = { extra: 'A2' }; computeStats(w); w.s.dmg = 2000; w.s.crit = 0; G.P.crit = 0; const cf = foe(150, 0);
+    fire(w, cf, 0); const h1 = hurt(cf); fire(w, cf, 0); const h2 = hurt(cf) - h1; const curved = segs().filter(q => !q.hit).length;
+    out.cross = [h1, h2, curved, cf.lzCrossT > G.t]; if (!(cf.lzCrossT > G.t) || !(h2 > h1 * 1.2) || curved < 10) bad.push('crossfire ' + out.cross);
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);

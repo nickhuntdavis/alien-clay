@@ -273,7 +273,8 @@ function mwHit(e, res, src) {
   if (pr && !e.dead && !(e.mwPr && e.mwPr.t > G.t) && !((typeof lzIs === 'function' && lzIs(w)) && G.t - e.lzPrS < 0.5)) e.mwPr = { w, t: G.t + (msA(w, 'primer', 2) ? 8 : 4), by: new Set(), steps: 0 };
   // Knockback
   const kr = mwR(w, 'knock');
-  if (kr && !e.boss && (typeof lzIs === 'function' && lzIs(w))) { // the Laser pushes steadily along the beam (40 a second a rank) instead of shoving each tick
+  if (kr && !e.boss && (typeof lzIs === 'function' && lzIs(w)) && e.lzCrossT > G.t) { /* (caught in Crossfire: pinned, not pushed) */ }
+  else if (kr && !e.boss && (typeof lzIs === 'function' && lzIs(w))) { // the Laser pushes steadily along the beam (40 a second a rank) instead of shoving each tick
     const d = Math.hypot(e.x - p.x, e.y - p.y) || 1, f = 40 * kr * Math.max(0.05, w.s.cd || 0.1) * (msB(w, 'knock', 2) && d < 100 ? 1.5 : 1) * (msMa(w, 'knock') === 'A2' ? 2 : 1);
     const nx = e.x + (e.x - p.x) / d * f, ny = e.y + (e.y - p.y) / d * f; if (!(G.lvl && lvSolidAt(nx, ny))) { e.x = nx; e.y = ny; }
     if (!(e.mwKnT > G.t - 0.6)) e.mwKnHit = null; e.mwKnT = G.t; e.mwKnW = w;

@@ -24,8 +24,9 @@
 // Extra Projectiles (front, rear and Disco Ball beams) fire through the same ray. Hooks: none in shared files. Wraps
 // v10.js v10Fire (outermost: loads after modwide.js). Renames modifiers.js MODS10.ricochet to Bounce.
 
-const LZ = { charge: 0.6, heatT: 4, coolT: 2.2, inLine: 1 * Math.PI / 180, bounceL: 0.75, fade: 0.7, reachK: 3, sweepMax: 50 * Math.PI / 180, gap: 0.08, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 32, wallMax: 14, keep: 0.5 };
+const LZ = { charge: 0.6, heatT: 4, coolT: 2.2, inLine: 1 * Math.PI / 180, bounceL: 0.75, fade: 0.7, reachK: 3, sweepMax: 50 * Math.PI / 180, gap: 0.08, start: 0.45, peak: 1.6, time: 2.2, turn: 5, segs: 64, wallMax: 14, keep: 0.5 };
 MODS10.ricochet.name = 'Bounce';
+if (!MODS10.homing.atk.includes('beam')) MODS10.homing.atk.push('beam'); // (Homing bends the Laser: lzTrace)
 if (!MODS10.piercing.atk.includes('beam')) MODS10.piercing.atk.push('beam');
 
 // Red in every form (rings, mines, strikes, links, bursts all read w.def.color): later colour passes set the Fire colour
@@ -96,9 +97,34 @@ function lzMeet(x, y, a, L, skip, bub) {
 }
 // Trace one beam: damage, bounces, piercing, bubble reflections. st carries the shot's budget; st.out collects the
 // segments (drawn every frame, see below); st.dry traces without damage (the per-frame picture).
+// HOMING on the Laser (user, 23 Oct): the beam, and every bounce and pierce, curves towards the enemy ahead of it (the one
+// nearest its line within 70 degrees), turning up to 7 / 13 / 18 degrees (26 at mastery) every 45 units. Laser mines' beams
+// don't home (they spin).
+function lzSeek(x, y, a, L, skip) {
+  let best = null, ba = 1.22;
+  for (const e of G.enemies) {
+    if (e.dead || e.charmed || e === skip || (skip && skip.has && skip.has(e))) continue;
+    const d = Math.hypot(e.x - x, e.y - y); if (d > L || d < 1) continue;
+    const da = Math.abs(angDiff(Math.atan2(e.y - y, e.x - x), a)); if (da < ba) { ba = da; best = e; }
+  }
+  return best;
+}
 function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   if (st.segs >= LZ.segs || k < 0.04 || L < 4) return;
   st.segs++;
+  const hr = st.noHome ? 0 : Math.min(4, msR(w, 'homing'));
+  if (hr && L > 50) { // curve towards the enemy ahead, 45 units at a time
+    const tg = lzSeek(x, y, a, L, skip);
+    if (tg) {
+      const m0 = lzMeet(x, y, a, 45, skip, st.bub);
+      if (!m0.e && !m0.ob && !m0.wall) {
+        const nx = x + Math.cos(a) * 45, ny = y + Math.sin(a) * 45, turn = [0.12, 0.22, 0.32, 0.45][hr - 1];
+        st.out.push({ x1: x, y1: y, x2: nx, y2: ny, k, hit: false });
+        lzTrace(w, nx, ny, a + Math.max(-turn, Math.min(turn, angDiff(Math.atan2(tg.y - ny, tg.x - nx), a))), L - 45, k, src, skip, st, pierce, bounce);
+        return;
+      }
+    }
+  }
   const m = lzMeet(x, y, a, L, skip, st.bub), dx = Math.cos(a), dy = Math.sin(a), cx = x + dx * m.t, cy = y + dy * m.t;
   const seg = { x1: x, y1: y, x2: cx, y2: cy, k, hit: !!(m.e || m.ob), end: !m.e && !m.ob && !m.wall }; // (end: runs out in open water)
   if (seg.end) { // seen LZ.reachK times as far (to the first thing in the way; it hurts nothing out there), fading over LZ.fade of the old length
@@ -151,6 +177,8 @@ function lzXUpdate(w, target) {
   const mainA = Math.atan2(target.y - p.y, target.x - p.x), taken = new Set([target]);
   X.forEach((x, i) => {
     x.rear = i >= f; x.off = (i % 2 ? -1 : 1) * 0.09 * (1 + Math.floor(i / 2));
+    x.cross = x.rear && msMa(w, 'extra') === 'A2'; // (Crossfire: the rear beam curves round onto the main target: lzCross)
+    if (x.cross) { x.tgt = null; x.a = null; return; }
     const inSec = e => { const da = Math.abs(angDiff(Math.atan2(e.y - p.y, e.x - p.x), mainA)); return x.rear ? da > Math.PI / 2 : da <= Math.PI / 2; };
     const ok = e => e && !e.dead && !e.charmed && !taken.has(e) && Math.hypot(e.x - p.x, e.y - p.y) <= L + (e.r || 0) && inSec(e);
     if (!ok(x.tgt)) {
@@ -174,10 +202,27 @@ function lzRampX(w, x) { // an extra beam's own ramp on its own target
   const fr = Math.min(3, msR(w, 'focus')), T = LZ.time / (1 + 0.2 * fr), top = LZ.peak + 0.2 * fr;
   return LZ.start + (top - LZ.start) * Math.min(1, (G.t - (x.S || G.t)) / T);
 }
+// CROSSFIRE (Extra Shots mastery, Full Circle) on the Laser (user, 23 Oct): the rear beam leaves you, curves round and
+// strikes the main target from the far side, so it is caught between two beams: while both are on it, it takes +30% and
+// can't be pushed out (Knockback pins it instead). Returns the shot's segments.
+const lzCrossOn = w => msMa(w, 'extra') === 'A2' && (w.lzX || []).some(x => x.cross);
+function lzCross(w, t, src, k, ramp, dry) {
+  const p = G.player, ux = t.x - p.x, uy = t.y - p.y, d = Math.hypot(ux, uy) || 1, nx = ux / d, ny = uy / d, side = (w.lzCrossSide || (w.lzCrossSide = 1));
+  const bx = t.x + nx * 70, by = t.y + ny * 70, cx = (p.x + bx) / 2 - ny * side * Math.max(120, d * 0.6), cy = (p.y + by) / 2 + nx * side * Math.max(120, d * 0.6);
+  const out = []; let px = p.x, py = p.y;
+  for (let j = 1; j <= 12; j++) { // (a curve out and round to behind the target)
+    const u = j / 12, qx = (1 - u) * (1 - u) * p.x + 2 * (1 - u) * u * cx + u * u * bx, qy = (1 - u) * (1 - u) * p.y + 2 * (1 - u) * u * cy + u * u * by;
+    out.push({ x1: px, y1: py, x2: qx, y2: qy, k: k * (0.6 + 0.4 * u), hit: false }); px = qx; py = qy;
+  }
+  const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out, dry, delta: angDiff(lzHead(), Math.atan2(t.y - by, t.x - bx)), noHome: true };
+  LZC.pad = 0; lzTrace(w, bx, by, Math.atan2(t.y - by, t.x - bx), w.s.range * 0.6, k, src, null, st, lzN(msR(w, 'piercing')), lzN(msR(w, 'ricochet')));
+  if (!dry && st.first === t) t.lzCrossT = G.t + 0.25;
+  return out;
+}
 // Every beam the Laser holds right now: [angle, power share, ramp] (main, Extra Shots' beams that are on, Disco Ball).
 function lzBeams(w) {
   const sw = lzSweep(w), out = [[w.lzA + sw, w.lzMainK || 1, w.lzPow || 1]];
-  for (const x of w.lzX || []) if (x.a != null && lzXOn(w, x)) out.push([x.a + sw, x.k || 1, lzRampX(w, x)]);
+  for (const x of w.lzX || []) if (!x.cross && x.a != null && lzXOn(w, x)) out.push([x.a + sw, x.k || 1, lzRampX(w, x)]);
   if (msMa(w, 'extra') === 'A1') for (let i = 0; i < 6; i++) out.push([G.t * 1.5 + i / 6 * TAU, 0.5, w.lzPow || 1]);
   return out;
 }
@@ -269,7 +314,9 @@ v10Fire = (orig => function (w, target, src) {
   if (msMa(w, 'rapid') === 'B2' && G.t - (w.lzHeldS || G.t) < 0.5) src = Object.assign({}, src, { mult: (src.mult || 1) * 2 }); // (Strong Start)
   lzXUpdate(w, target); // (Extra Shots' beams: their own targets, charges and damage shares)
   w.lzShotSegs = [];
+  if (lzCrossOn(w) && target.lzCrossT > G.t) src = Object.assign({}, src, { mult: (src.mult || 1) * 1.3 }); // (caught between two beams)
   lzBeams(w).forEach(([a, k, rp], i) => { const st = lzShot(w, a, src, k, rp, false); w.lzShotSegs.push(...st.out); if (i === 0 && st.first) w.lzOn = st.first; });
+  if (lzCrossOn(w)) { const x = w.lzX.find(q => q.cross); w.lzShotSegs.push(...lzCross(w, target, src, x.k || 1, w.lzPow || 1, false)); }
   w.lzSegs = w.lzShotSegs;
   return true;
 })(v10Fire);
@@ -305,6 +352,7 @@ function lzTick(dt) {
     lzXSweep(w, dt);
     const segs = [];
     for (const [a, k, rp] of lzBeams(w)) segs.push(...lzShot(w, a, null, k, rp, true).out);
+    if (lzCrossOn(w) && w.lzTgt && !w.lzTgt.dead) { const x = w.lzX.find(q => q.cross); segs.push(...lzCross(w, w.lzTgt, null, x.k || 1, w.lzPow || 1, true)); }
     w.lzSegs = segs;
   }
 }
@@ -527,7 +575,7 @@ function lzExtrasTick(dt) {
     if (hitNow) m.next = G.t + 0.1;
     const segs = [], src = hitNow ? weaponSrc(w) : null;
     for (let i = 0; i < n; i++) {
-      const st = { segs: 0, walls: 0, ramp: LZ.peak * 2.5, first: null, bub: null, out: [], dry: !hitNow, delta: 0.6 };
+      const st = { segs: 0, walls: 0, ramp: LZ.peak * 2.5, first: null, bub: null, out: [], dry: !hitNow, delta: 0.6, noHome: true };
       LZC.pad = 0; lzTrace(w, m.x, m.y, spin + i / n * TAU, w.s.range * 0.8, 1 / Math.sqrt(n), src, null, st, lzN(msR(w, 'piercing')), lzN(msR(w, 'ricochet')));
       segs.push(...st.out);
     }

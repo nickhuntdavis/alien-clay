@@ -1,3 +1,11 @@
+## 2026-10-23 Homing and Crossfire on the Laser (v10.95)
+- Systems: weapons (Laser, modifiers)
+- Files: laserbeam.js (lzSeek and homing steps in lzTrace; lzCross, lzCrossOn), modwide.js (Crossfire pins instead of pushing), tests/laserbeamtest.js
+- What: Homing now fits beams: the Laser and every bounce and pierce curve towards the enemy ahead (within 70 degrees), turning up to 7 / 13 / 18 degrees (26 at mastery) every 45 units; Laser mines' beams don't home. Crossfire (Extra Shots mastery, Full Circle): the rear beam curves round and strikes the main target from the far side; while both beams hold it, it takes +30% and Knockback pins it instead of pushing.
+- Save data: none.
+- Hooks: none new.
+- Risk: Homing makes bounces reliably find enemies (more damage with Bounce).
+
 ## 2026-10-23 Laser versions of the remaining modifiers (v10.94)
 - Systems: weapons (Laser, modifiers), chemistry (Sticky), fx
 - Files: laserbeam.js (lzOrbital, lzSwordSwing, lzMineLay, lzExtrasTick, lzExtrasDraw, lzDrawSegs, lzFx, lzPulseOn, LZ_RAPID; wraps wupFire, modAtk, forkCards, modCard), modwide.js (Explosive Hits pops every 0.5 s on the Laser, Knockback pushes steadily, Mark and Detonate needs 0.5 s held), modslice.js (Sticky slows then freezes by time held; Can't Pick One rolls every 0.5 s and draws as a held laser; no Charge-Up fork on the Laser), tests/laserbeamtest.js
