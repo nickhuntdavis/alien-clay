@@ -20,6 +20,7 @@ const { chromium } = require('playwright');
     const hurt = e => Math.round(e.maxHp - e.hp);
     const fire = (w, t, a) => { w.lzA = a; w.lzFireT = G.t; v10Fire(w, t, weaponSrc(w)); }; // (a held beam keeps its aim)
     const segs = () => G.weapons[0].lzShotSegs || [];
+    const run1 = () => { for (let f = 0; f < 20; f++) { G.state = 'play'; update(1 / 60); } };
     out.name = MODS10.ricochet.name; if (out.name !== 'Bounce') bad.push('name ' + out.name);
     // 1. No pierce by default: the enemy behind is safe
     let w = fresh(); let a1 = foe(120, 0), a2 = foe(220, 0); fire(w, a1, 0);
@@ -52,6 +53,18 @@ const { chromium } = require('playwright');
     out.ramp = [k0[0], k0[6], k0[12], k1[0], k1[6], k1[12]];
     if (!(k0[12] > k0[0] * 2)) bad.push('no ramp ' + k0);
     if (!(k1[6] > k0[6] && k1[12] > k0[12])) bad.push('focus did not speed or raise the ramp ' + out.ramp);
+    // 6. Orbiting: a traced ring; an enemy on it breaks it; Piercing carries on round; no orbiting bodies
+    const ringLen = () => segs().slice(1).reduce((t, q) => t + Math.hypot(q.x2 - q.x1, q.y2 - q.y1), 0);
+    w = fresh(); modAdd(w, 'orbiting'); computeStats(w); const t0 = foe(250, 0); fire(w, t0, 0); const full = ringLen();
+    w = fresh(); modAdd(w, 'orbiting'); computeStats(w); const t1 = foe(250, 0), blk = foe(0, -72); fire(w, t1, 0); const broken = ringLen();
+    w = fresh(); SET.noLimits = true; modAdd(w, 'orbiting'); modAdd(w, 'piercing'); SET.noLimits = false; computeStats(w); const t2 = foe(250, 0), blk2 = foe(0, -72); fire(w, t2, 0); const pierced = ringLen();
+    out.orbit = [Math.round(full), Math.round(broken), Math.round(pierced), hurt(blk) > 0, hurt(t1)];
+    if (!(full > 400) || !(broken < full * 0.95) || !(pierced > broken) || !(hurt(blk) > 0) || hurt(t1) > 0) bad.push('orbit ring ' + out.orbit);
+    run1(); if ((modS().pets || []).length || G.weapons[0].orbs) bad.push('orbiting bodies spawned for the Laser');
+    // 7. A solid obstacle stops the beam (and reflects it with Bounce)
+    w = fresh(); G.terrain = G.terrain || { list: [], grid: new Map() }; G.terrain.list.push({ type: 'rock', def: { solid: true }, x: p().x + 80, y: p().y, r: 20 }); const behind = foe(200, 0); fire(w, behind, 0);
+    out.rock = hurt(behind); if (hurt(behind) > 0) bad.push('the beam went through a solid obstacle');
+    G.terrain.list.length = 0;
     // for the picture
     w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w);
     for (let i = 0; i < 9; i++) foe(100 + (i % 3) * 70, -90 + Math.floor(i / 3) * 80 + (i % 2) * 14);

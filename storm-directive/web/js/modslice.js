@@ -147,7 +147,7 @@ function msFire(w, target, src) {
     }
   }
   // Orbiting beam: the hula hoop
-  if (w.def.v10atk === 'beam' && msR(w, 'orbiting')) {
+  if (w.def.v10atk === 'beam' && msR(w, 'orbiting') && !(typeof lzIs === 'function' && lzIs(w))) { // (the Laser's orbit is a traced beam: laserbeam.js)
     for (const R of msHoops(w)) for (const e of G.enemies) if (!e.dead && Math.abs(Math.hypot(e.x - p.x, e.y - p.y) - R) < e.r + (s.width || 10) + 6) damageEnemy(e, s.dmg, src);
     return true;
   }
@@ -418,7 +418,7 @@ modDraw = (orig => function () {
     ctx.globalAlpha = 0.55; ctx.lineWidth = 1.5 * S; ctx.beginPath(); ctx.moveTo(sx(L.a.x), sy(L.a.y)); ctx.lineTo(sx(L.b.x), sy(L.b.y)); ctx.stroke();
   }
   for (const w of G.weapons) { // the hula hoop
-    if (!w || w.def.v10atk !== 'beam' || !msR(w, 'orbiting')) continue;
+    if (!w || w.def.v10atk !== 'beam' || !msR(w, 'orbiting') || (typeof lzIs === 'function' && lzIs(w))) continue;
     const las = typeof LASER !== 'undefined' && w.def.name === LASER.name && !w.def.sab, c = col(las ? LASER.col : w.def.color), wd = (w.s.width || 10) * (las ? 0.45 : 1);
     for (const R of msHoops(w)) {
       ctx.strokeStyle = c; ctx.globalAlpha = 0.22; ctx.lineWidth = wd * 2 * S; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), R * S, 0, TAU); ctx.stroke();

@@ -45,11 +45,18 @@ function lzMeet(x, y, a, L, skip, bub) {
   const dx = Math.cos(a), dy = Math.sin(a);
   let best = null, bt = L;
   for (const e of G.enemies) {
-    if (e.dead || e.charmed || e === skip) continue;
+    if (e.dead || e.charmed || e === skip || (skip && skip.has && skip.has(e))) continue; // (skip: one enemy, or a set of them)
     const fx = e.x - x, fy = e.y - y, tc = fx * dx + fy * dy; if (tc < -e.r) continue;
     const h2 = fx * fx + fy * fy - tc * tc, r = e.r || 10; if (h2 > r * r) continue;
     let t = tc - Math.sqrt(r * r - h2); if (t < 0.5) t = 0.5;
     if (t < bt) { bt = t; best = { e, t }; }
+  }
+  if (G.terrain && G.terrain.list) for (const ob of G.terrain.list) { // solid obstacles: the beam stops or reflects
+    if (!ob.def || !ob.def.solid) continue;
+    const fx = ob.x - x, fy = ob.y - y, tc = fx * dx + fy * dy; if (tc < -ob.r) continue;
+    const h2 = fx * fx + fy * fy - tc * tc; if (h2 > ob.r * ob.r) continue;
+    let t = tc - Math.sqrt(ob.r * ob.r - h2); if (t < 0.5) continue;
+    if (t < bt) { bt = t; best = { ob, t }; }
   }
   if (bub) { // leaving the bubble from inside: |p + t d - c| = R
     const fx = x - bub.x, fy = y - bub.y, b = fx * dx + fy * dy, c = fx * fx + fy * fy - bub.r * bub.r, disc = b * b - c;
@@ -63,11 +70,17 @@ function lzTrace(w, x, y, a, L, k, src, skip, st, pierce, bounce) {
   if (st.segs >= LZ.segs || k < 0.04 || L < 4) return;
   st.segs++;
   const m = lzMeet(x, y, a, L, skip, st.bub), dx = Math.cos(a), dy = Math.sin(a), cx = x + dx * m.t, cy = y + dy * m.t;
-  st.out.push({ x1: x, y1: y, x2: cx, y2: cy, k, hit: !!m.e });
+  st.out.push({ x1: x, y1: y, x2: cx, y2: cy, k, hit: !!(m.e || m.ob) });
   if (m.wall) { // reflect off the inside of the membrane (Internal Ricochet)
     if (st.walls >= LZ.wallMax) return; st.walls++;
     const nx = (cx - st.bub.x) / st.bub.r, ny = (cy - st.bub.y) / st.bub.r, dot = dx * nx + dy * ny;
     lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), L, k * 0.97, src, null, st, pierce, bounce);
+    return;
+  }
+  if (m.ob) { // a solid obstacle: reflect with Bounce, otherwise stop
+    if (bounce <= 0) return;
+    const nx = (cx - m.ob.x) / m.ob.r, ny = (cy - m.ob.y) / m.ob.r, dot = dx * nx + dy * ny;
+    lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), L - m.t, k * 0.9, src, null, st, pierce, bounce - 1);
     return;
   }
   const e = m.e; if (!e) return;
@@ -99,12 +112,54 @@ function lzBeams(w) {
   return out;
 }
 
+// ORBITING: the beam leaves you, then runs round a circle (radius 72, 100 from Rank 2; a second, inner ring turning the
+// other way at mastery), traced as short straight sections with the beam's own rules: an enemy in the way breaks the
+// ring there (Piercing carries it on past, weaker), Bounce reflects it off the enemy or an obstacle and it carries on
+// as a straight beam, and Internal Ricochet's bubble still holds it.
+const lzRings = w => { const r = msR(w, 'orbiting'), R = r >= 2 ? 100 : 72; return modCount(w, 'orbiting') >= 4 ? [[R, 1], [R * 0.6, -1]] : [[R, 1]]; };
+function lzOrbit(w, src, ramp, dry) {
+  const p = G.player, out = [], N = 48;
+  let first = null;
+  for (const [R, dir] of lzRings(w)) {
+    const st = { segs: 0, walls: 0, ramp, first: null, bub: null, out, dry };
+    let pierce = lzN(msR(w, 'piercing')), bounce = lzN(msR(w, 'ricochet')), k = 1; const passed = new Set();
+    const a0 = G.t * 1.6 * dir;
+    out.push({ x1: p.x, y1: p.y, x2: p.x + Math.cos(a0) * R, y2: p.y + Math.sin(a0) * R, k: 0.6, hit: false }); // (out to the ring)
+    for (let i = 0; i < N; i++) {
+      const t1 = a0 + dir * i / N * TAU, t2 = a0 + dir * (i + 1) / N * TAU;
+      const x1 = p.x + Math.cos(t1) * R, y1 = p.y + Math.sin(t1) * R, x2 = p.x + Math.cos(t2) * R, y2 = p.y + Math.sin(t2) * R;
+      const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), m = lzMeet(x1, y1, a, L, passed, null);
+      const cx = x1 + Math.cos(a) * m.t, cy = y1 + Math.sin(a) * m.t;
+      out.push({ x1, y1, x2: cx, y2: cy, k, hit: !!(m.e || m.ob) });
+      if (!m.e && !m.ob) continue;
+      if (m.e) { if (!first) first = m.e; if (!dry) damageEnemy(m.e, w.s.dmg * k * ramp, src); }
+      const both = pierce > 0 && bounce > 0, rest = (N - i) / N * TAU * R;
+      if (bounce > 0) { // reflect off it and carry on as a straight beam
+        const o = m.e || m.ob, nx = (cx - o.x) / (o.r || 10), ny = (cy - o.y) / (o.r || 10), dx = Math.cos(a), dy = Math.sin(a), dot = dx * nx + dy * ny;
+        lzTrace(w, cx, cy, Math.atan2(dy - 2 * dot * ny, dx - 2 * dot * nx), Math.min(rest, w.s.range), k * (both ? 0.5 : 0.8), src, m.e, st, both ? pierce : 0, bounce - 1);
+      }
+      if (pierce > 0 && m.e) { // on round the ring, past it (the rest of this section too)
+        pierce--; k *= both ? 0.5 : 0.85; passed.add(m.e);
+        const r2 = lzMeet(cx, cy, a, L - m.t, passed, null); out.push({ x1: cx, y1: cy, x2: cx + Math.cos(a) * r2.t, y2: cy + Math.sin(a) * r2.t, k, hit: false });
+        continue;
+      }
+      break; // (the ring is broken here)
+    }
+    if (st.first && !first) first = st.first;
+  }
+  return { out, first };
+}
+
 // Damage ticks at the weapon's fire rate; the beam itself is held and drawn every frame (lzTick, lzDraw).
 v10Fire = (orig => function (w, target, src) {
   if (!lzIs(w) || !target || w.def.v10atk !== 'beam') return orig(w, target, src);
   const p = G.player, want = Math.atan2(target.y - p.y, target.x - p.x);
   if (w.lzA == null || !lzOnNow(w)) w.lzA = want; // (a fresh beam starts on the target; a held one sweeps: lzTick)
   w.lzTgt = target; w.lzFireT = G.t;
+  if (msR(w, 'orbiting')) { // the ring
+    const pre = lzOrbit(w, src, w.lzPow || LZ.start, true), ramp = lzRamp(w, pre.first); w.lzPow = ramp;
+    const o = lzOrbit(w, src, ramp, false); w.lzShotSegs = w.lzSegs = o.out; w.lzXT = []; return true;
+  }
   // The ramp follows whatever the main beam is actually on
   const probe = lzMeet(p.x, p.y, w.lzA, w.s.range, null, null).e || null;
   const ramp = lzRamp(w, probe); w.lzPow = ramp;
@@ -138,6 +193,7 @@ function lzTick(dt) {
     if ((!lzOnNow(w) && !(w._ventT > G.t)) || !w.lzTgt || w.lzTgt.dead) { w.lzSegs = null; continue; } // (venting keeps it traced so it can blink)
     const want = Math.atan2(w.lzTgt.y - p.y, w.lzTgt.x - p.x), d = angDiff(want, w.lzA), m = LZ.turn * dt;
     w.lzA += Math.max(-m, Math.min(m, d));
+    if (msR(w, 'orbiting')) { w.lzSegs = lzOrbit(w, null, w.lzPow || 1, true).out; continue; }
     const segs = [];
     for (const [a, k] of lzBeams(w)) segs.push(...lzShot(w, a, null, k, w.lzPow || 1, true).out);
     w.lzSegs = segs;
@@ -174,3 +230,7 @@ modDraw = (orig => function () { orig(); lzDraw(); })(modDraw);
 
 // Focused Intensity on the Laser works through the ramp above, not its usual multiplier (modslice.js msDmgMul reads this).
 const lzOwnFocus = w => lzIs(w);
+
+// The old orbiting bodies (modifiers.js modOrbit) are not the Laser's: its orbit is the traced ring above, fired by v10Fire.
+modOrbit = (orig => function (w, dt) { if (!lzIs(w)) orig(w, dt); })(modOrbit);
+modFire = (orig => function (w, target, src) { if (lzIs(w) && modHas(w, 'orbiting')) return false; return orig(w, target, src); })(modFire);

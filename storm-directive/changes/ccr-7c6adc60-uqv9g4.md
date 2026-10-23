@@ -1,3 +1,11 @@
+## 2026-10-23 The Laser's orbit is a traced ring; beams meet obstacles (v10.80)
+- Systems: weapons (Laser, Orbiting), terrain
+- Files: laserbeam.js (lzOrbit, obstacles in lzMeet, modOrbit/modFire wrapped), modslice.js (old hoop skips the Laser), tests/laserbeamtest.js
+- What: with Orbiting the Laser leaves you and runs round a circle as one solid beam, traced in 48 sections with the beam's rules: an enemy in the way breaks the ring until it moves (Piercing carries on past it, weaker), Bounce reflects it off enemies and obstacles as a straight beam; a second inner ring turning the other way at mastery. No orbiting bodies for the Laser. Every Laser beam now stops at solid terrain, or reflects off it with Bounce.
+- Save data: none.
+- Hooks: laserbeam.js wraps modifiers.js modOrbit and modFire.
+- Risk: solid terrain now blocks the Laser (it used to shine through).
+
 ## 2026-10-23 The Laser is a held, smooth beam (v10.79)
 - Systems: weapons (Laser), fx
 - Files: laserbeam.js, tests/laserbeamtest.js, tests/slicetest.js
