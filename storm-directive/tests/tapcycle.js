@@ -9,8 +9,8 @@ const { chromium } = require('playwright');
   const R = {};
   const tap = async (sel, side) => { const bb = await page.locator(sel).boundingBox(); await page.mouse.click(bb.x + bb.width * (side < 0 ? 0.2 : 0.8), bb.y + bb.height / 2); await page.waitForTimeout(60); };
   const mv = () => page.evaluate(() => MOVE_DIRECTIVES.findIndex(m => m.id === G.moveDir));
-  const wd = () => page.evaluate(() => DIRECTIVES.findIndex(d => d.id === G.weapons[0].dir));
-  const n = await page.evaluate(() => [MOVE_DIRECTIVES.length, DIRECTIVES.length]);
+  const wd = () => page.evaluate(() => aimList().findIndex(d => d.id === G.weapons[0].dir)); // (tapping cycles the rules on offer)
+  const n = await page.evaluate(() => [MOVE_DIRECTIVES.length, aimList().length]);
   let m0 = await mv(); await tap('#moveBtn', 1); R.moveFwd = (await mv()) === (m0 + 1) % n[0];
   R.arrowR = await page.evaluate(() => !!document.querySelector('#moveBtn .tapArrow.r'));
   await page.screenshot({ path: 'tapcycle.png' });
