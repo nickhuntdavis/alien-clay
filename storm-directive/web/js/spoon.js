@@ -9,12 +9,11 @@
 //  - Mastery (Rank 4, the build's one sperm mastery, spassives.js spMasteryRoom): eats from 60% further, stores twice as many,
 //    and returned bullets hit twice as hard. (The doc's other masteries are numbers only too: spfull.js.)
 // Stats follow the player's level as a held weapon's do (computeStats reads weapons24.js wStatLv); refreshed every 3 levels.
-// Card text: TODO_COPY:sp_spoon_desc, TODO_COPY:sp_spoon_line.
 // Hooks: none in shared files. Wraps v10.js v10Tick; adds to spfull.js SP_KEEP. Loads after spmast.js.
 
 const SPOON = { lv2: { area: 1.3, mag: 1.5 }, lv3: { dmg: 1.5 }, lv4: { area: 1.6, mag: 2, dmg: 2 } };
-mutCard({ id: 'sp_spoon', title: 'There Is No Spoon', icon: 'NS', rarity: 2, maxRank: 3, family: 'mut:body', flavour: 'TODO_COPY:sp_spoon_line',
-  desc: 'TODO_COPY:sp_spoon_desc' });
+mutCard({ id: 'sp_spoon', title: 'There Is No Spoon', icon: 'NS', rarity: 2, maxRank: 3, family: 'mut:body', flavour: 'We swallow. Then we spit.',
+  desc: 'Eats enemy bullets that come close and spits them back just as hard. Holds 10. Ranks: reach and storage, then harder hits.' });
 { const c = MUT_REG.find(x => x.id === 'sp_spoon'), el = c.eligible, ap = c.apply; // (it can be mastered, as The Runs can)
   c.maxRank = 4; c.eligible = G => el(G) && (mr('sp_spoon') < 3 || spMasteryRoom('sperm'));
   c.apply = (G, t) => { const r0 = mr('sp_spoon'); ap(G, t); if (r0 === 3 && mr('sp_spoon') === 4) (G.spM || (G.spM = [])).push('sp_spoon'); }; }
