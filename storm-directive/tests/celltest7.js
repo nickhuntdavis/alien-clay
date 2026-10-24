@@ -100,7 +100,7 @@ const { chromium } = require('playwright');
     w = sp0(['upclose']); sh = foe(80, 0); sh.speed = 0; eat(w, sh, null); w.cd = 0; updateSiphon(w, 1 / 60); out.pellets = G.proj.filter(q => q.w === w && q.c7 && q.c7.pel).length; if (!(out.pellets >= 3)) bad.push('no spit take ' + out.pellets);
     w = sp0(['rapid', 'rapid', 'rapid', 'rapid']); sh = foe(250, 0); sh.speed = 0; w.q = w.q || []; for (let i = 0; i < 5; i++) w.q.push(1); C7.SPS(w).hicT = G.t; update(1 / 60); out.hiccup = w.q.length; if (w.q.length) bad.push('no hiccup ' + w.q.length);
     w = sp0(['catalyst']); const ce = foe(30, 0); ce.speed = 0; rxFired('splash', ce); out.digest = C7.SPS(w).meta.filter(m => m.rx).length; if (!(out.digest >= 1)) bad.push('reaction not digested');
-    w = sp0(['kinship']); const kw = G.weapons[1] = makeSlot('v_phys_proj', false, 3); computeStats(kw); const kp = spawnProj(kw, G.player.x + 50, G.player.y, 0, weaponSrc(kw)); const q0 = w.q.length; projEnd(kp);
+    w = sp0(['kinship']); const kw = G.weapons[1] = makeSlot('v_phys_proj', false, 3); computeStats(kw); const kp = spawnProj(kw, G.player.x + 50, G.player.y, 0, weaponSrc(kw)); w.q = w.q || []; const q0 = w.q.length; projEnd(kp);
     out.kin = [q0, w.q.length]; if (!(w.q.length > q0 && C7.SPS(w).meta.some(m => m.kin === kw))) bad.push('kin shot not eaten ' + out.kin);
     w = sp0(['knock']); sh = foe(300, 0); sh.speed = 0; const kv = foe(120, 0); kv.speed = 0; wupHit(kv, { toHp: 10 }, Object.assign(weaponSrc(w), { c7: { m: { o: sh, t: 'phys' }, k: 1, pr: null } }));
     out.knockHome = !!(kv.c7kn && kv.c7kn.o === sh && kv.kx > 0); if (!out.knockHome) bad.push('not knocked towards its shooter');
