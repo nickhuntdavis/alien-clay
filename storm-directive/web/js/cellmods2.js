@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - weapon cells, part 2: Hot Mess and Eggs (redesign docs/MODIFIER_MATRIX.md, those two rows of every table,
 // and 5.7 / 5.8; Claude's picks, built 24 Oct). Same engine as cellmods.js (XC_W masking, no fork screens, two Switched at
-// Birth alternates, card text TODO_COPY:cell_hm_<modifier> / cell_eg_<modifier>).
+// Birth alternates, card text cell_hm_<modifier> / cell_eg_<modifier> in cellcopy.js).
 //  - HOT MESS (v_flame_pool, Fire Pool): every patch it lays is tagged (z.xcHm) as it lands (game.js landLob) and run here
 //    each frame: Spatter merges, Simmer heats, Tar pit slows, Plughole pulls, Popcorn hops, Shared Burn, Grease fire,
 //    Bonfire, Spreading (Area). Hot to touch (Melee), the ring of fire (Orbiting), hidden patches (Mines) and the

@@ -13,7 +13,7 @@
 //    deals one of the two. The ranked "Alternating" mastery is not built (Switched at Birth has no ranks).
 //  - BUBBLES INFLATE before they are sent, on every bubble weapon (xcInflate). Melee's bubble round you is not the
 //    Membrane: touched, it pops in a Force explosion, then grows back from tiny (3 s; 2 s from Lv 2).
-//  - Card text: TODO_COPY:cell_nm_<modifier> and TODO_COPY:cell_bb_<modifier> (one per cell; the user writes it).
+//  - Card text: cell_nm_<modifier>, cell_bb_<modifier> (one per cell), written in cellcopy.js.
 // Hooks: one line in toys.js bubblePop (a switched bubble pops in its new type). Wraps modOk, modAdd, modCard, sabCard,
 // wupStats/wupFire/wupHit/wupKill/wupTick/wupDmgMul, msStats/msFire/msDmgMul/msHit/msKill/msTick (modslice.js),
 // mwStats/mwFire/mwDmgMul/mwHit/mwKill/mwTick/mwDetonate (modwide.js), p11Range, modFire/modProj/modTick/modDraw
@@ -90,7 +90,7 @@ modAdd = (orig => function (w, id) {
 })(modAdd);
 modCard = (orig => function (w, id) {
   const c = orig(w, id);
-  if (c && xcCell(w, id)) c.desc = 'TODO_COPY:cell_' + xcDef(w).tag + '_' + id;
+  if (c && xcCell(w, id)) c.desc = 'TODO_COPY:cell_' + xcDef(w).tag + '_' + id; // (filled by cellcopy.js)
   return c;
 })(modCard);
 sabCard = (orig => function () {
