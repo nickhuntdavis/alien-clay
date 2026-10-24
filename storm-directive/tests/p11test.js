@@ -26,7 +26,7 @@ const { chromium } = require('playwright');
     out.hpK = +(h0 / h1).toFixed(2);
     if (!(out.hpK > 1.5)) bad.push('early germs not tougher ' + out.hpK);
     // Later: the limit has lifted.
-    const e2 = mk(100); damageEnemy(e2, 1e6, { elem: 'phys', atk: 'proj', wname: 't', noCrit: true, w: G.weapons.find(Boolean) });
+    const e2 = mk(100); damageEnemy(e2, e2.maxHp * 10, /* (late germs scale past 1e6 health: enemyScale) */ { elem: 'phys', atk: 'proj', wname: 't', noCrit: true, w: G.weapons.find(Boolean) });
     if (!(e2.dead || e2.hp <= 0)) bad.push('limit not lifted at ' + Math.round(PT()) + 's');
     // Levels: attack rate and health grow a little.
     const hs = G.P.haste, mh = G.P.maxHp; G.p11L = G.level; G.level += 3; levelJuice(G.level);
