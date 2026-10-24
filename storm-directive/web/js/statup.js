@@ -179,7 +179,7 @@ UI.renderDraft = (orig => function () {
 if (typeof bpHtml === 'function') bpHtml = (orig => function () {
   let h = orig.apply(this, arguments);
   const B = (G && G.stb) || {}, ks = ST_ORDER.filter(k => B[k] > 0);
-  if (ks.length) h += `<h3 class="bp-h">TODO_COPY:stats_build_head</h3>${uiTiles(ks.map(k => uiTile(esc(stFmt(k, B[k])), esc(ST_DEF[k].name))).join(''))}`;
+  if (ks.length) h += `<h3 class="bp-h">Stat bonuses</h3>${uiTiles(ks.map(k => uiTile(esc(stFmt(k, B[k])), esc(ST_DEF[k].name))).join(''))}`;
   return h;
 })(bpHtml);
 // The run log: your bonus totals under the build line (" stats: +9% Rate of Fire, +10 Max Health").
