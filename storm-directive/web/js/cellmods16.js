@@ -1,7 +1,7 @@
 'use strict';
-// Spawn Prawn - weapon cells, part 8: Unwanted Contact (s_tesla, tag uc; redesign docs/MODIFIER_MATRIX.md 5.9 and the
+// Spawn Prawn - weapon cells, part 8: Unwanted Contact (s_tesla, tag uc; redesign docs/MODIFIER_MATRIX.md 5.10 and the
 // weapon's row in every table of sections 3 and 4). Same engine as cellmods.js (XC_W masking, no fork screens, rank 1 to
-// 3 then the mastery). Card text cell_uc_<modifier> in cellcopy8.js.
+// 3 then the mastery). Card text cell_uc_<modifier> in cellcopy16.js.
 //  - THE CHAIN: once the weapon holds any cell, this file fires it (XC_FIRE.uc) with its own bounded chain (ucxChain, a copy
 //    of game.js doChain: 88% a jump, Charge, Conductive Spit, Baby Monitor Network, sigs.js afterChain), so every cell can
 //    act on each jump. Hits per attack (a "volley") are capped at 48; hits that are not part of a normal chain (Ricochet's
@@ -15,10 +15,10 @@
 //    (fight.js fightArc is wrapped). Drawn as a second ring.
 //  - N/A: Primer (Charged enemies arcing to your other weapons is already its job), Ranged, Switched at Birth (no MM_SAB
 //    entry; Charging is the whole weapon).
-// Deviations from the table (also in MODIFIER_MATRIX.md 5.9): Charged adds +60% chain damage at ranks 1 to 3 (+20% at the
+// Deviations from the table (also in MODIFIER_MATRIX.md 5.10): Charged adds +60% chain damage at ranks 1 to 3 (+20% at the
 // mastery) so its wind-up passes the rule 19 DPS check; Homing on an instant bolt is +15% reach a rank and a bent opening
 // bolt; Death from Above's opening strike lands after a 0.4 s reticle and hits for 140%.
-// Round 2 (24 Oct, the plain cells reworked; MODIFIER_MATRIX.md 5.9 "Round 2"): Range Long arc, Up Close Short circuit,
+// Round 2 (24 Oct, the plain cells reworked; MODIFIER_MATRIX.md 5.10 "Round 2"): Range Long arc, Up Close Short circuit,
 // Rapid Fire Hum, Catalyst Conductor, Kinship Capacitor bank, Homing Lightning rod, Sticky Static cling, Every Nth Forked
 // bolt, Focused Intensity Spot weld. Range, Up Close, Rapid Fire, Catalyst and Kinship keep their shared numbers underneath.
 // Hooks: none in shared files. Fills cellmods.js XC_W/XC_FIRE/XC_STATS/XC_TICK/XC_RUN/XC_LIFE; wraps fight.js fightArc and

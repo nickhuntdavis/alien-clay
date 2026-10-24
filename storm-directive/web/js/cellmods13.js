@@ -1,7 +1,7 @@
 'use strict';
-// Spawn Prawn - weapon cells, part 5: One of These Days and Sister Cousin (redesign docs/MODIFIER_MATRIX.md 5.9, and those
+// Spawn Prawn - weapon cells, part 5: One of These Days and Sister Cousin (redesign docs/MODIFIER_MATRIX.md 5.10, and those
 // two rows of sections 3 and 4; built 24 Oct). Same engine as cellmods.js (XC_W masking, no fork screens, rank 1 to 3 then
-// the mastery). Card text: cell_od_<modifier> / cell_sc_<modifier> in cellcopy5.js.
+// the mastery). Card text: cell_od_<modifier> / cell_sc_<modifier> in cellcopy13.js.
 //  - ONE OF THESE DAYS (s_duedate, toys.js Due Date: dueFire / dueMark / duePop / toyHurt / toyKill). With a cell this file
 //    places the marks itself (dueFire): a mark is placed "free" and its needle hit is dealt here, so a cell can choose the
 //    source (Death from Above's strike ignores Evasion). Each new mark is set up once (xcOdInit: share, length, links,

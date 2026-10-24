@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - plain copy for the weapon cells, part 4 (cellmods4.js): Acid Spit (as) and Ewww, Gross (ew). One line per
+// Spawn Prawn - plain copy for the weapon cells, part 4 (cellmods12.js): Acid Spit (as) and Ewww, Gross (ew). One line per
 // cell, shown at every rank: the effect, then what ranks 2, 3 and the mastery add (user, 24 Oct). Ids are cell_<tag>_<modifier>.
 // Adds to SLICE_COPY (slicecopy.js), which fills the placeholders at runtime. Hooks: none. Loads after slicecopy.js and cellcopy.js.
 Object.assign(SLICE_COPY, {

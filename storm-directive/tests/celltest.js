@@ -28,7 +28,7 @@ const { chromium } = require('playwright');
     const alts = new Set(); for (let i = 0; i < 40; i++) { const k = sabCard(); if (k) alts.add(k.elem); } out.alts = [...alts];
     if (!(alts.has('fire') && alts.has('ice') && alts.size === 2)) bad.push('nappy alternates ' + out.alts);
     // 2. Every cell at Lv 1 and at mastery
-    for (const id of ['s_mines', 's_bubble', 'v_flame_pool', 's_toothfairy']) for (const m of XC_W[id].cells) for (const n of [1, 4]) {
+    for (const id of ['s_mines', 's_bubble', 'v_flame_pool', 's_toothfairy', 'v_shock_beam', 's_twin', 'acro_spark', 'v_phys_spread', 'acro_spray']) for (const m of XC_W[id].cells) for (const n of [1, 4]) {
       w = fresh(id); w.m10 = Array(n).fill(m); computeStats(w); crowd();
       DMG.n = 0;
       const k = XC_W[id].tag + ':' + m + n;  // (bubbles deal damage when they pop, often only once the 5 s hold ends)

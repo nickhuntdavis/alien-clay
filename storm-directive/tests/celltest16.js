@@ -1,4 +1,4 @@
-// Weapon cells part 8 (cellmods8.js): Unwanted Contact. Card rules (dealt / N/A, no fork screens, a plain card line for
+// Weapon cells part 8 (cellmods16.js): Unwanted Contact. Card rules (dealt / N/A, no fork screens, a plain card line for
 // every cell), every cell at Lv 1 and at mastery against a crowd (no errors, still deals damage, the chain stays bounded),
 // and the headline behaviours (one assertion per weapon-specific effect).
 const { chromium } = require('playwright');

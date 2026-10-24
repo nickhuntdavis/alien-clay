@@ -1,8 +1,8 @@
 'use strict';
 // Spawn Prawn - weapon cells, part 7: There Is No Spoon (s_siphon, tag sp) and Family Ties (s_void, tag ft)
-// (redesign docs/MODIFIER_MATRIX.md 5.9 and those two rows of every table in sections 3 and 4; built 24 Oct). Same engine
-// as cellmods.js (XC_W masking, no fork screens, rank 1 to 3 then the mastery as rank 4). Card text: cell_sp_<modifier> /
-// cell_ft_<modifier> in cellcopy7.js. Neither weapon is dealt Ranged or Switched at Birth (not in MM_SAB); Family Ties is
+// (redesign docs/MODIFIER_MATRIX.md 5.10 and those two rows of every table in sections 3 and 4; built 24 Oct). Same engine
+// as cellmods.js (XC_W masking, no fork screens, rank 1 to 3 then the mastery as rank 4). Card text: cell_ns_<modifier> /
+// cell_ft_<modifier> in cellcopy15.js. Neither weapon is dealt Ranged or Switched at Birth (not in MM_SAB); Family Ties is
 // also never dealt Pulling, Piercing or Gravity Well (it already pulls and pierces).
 //  - THERE IS NO SPOON fires from arsenal.js updateSiphon (wup4.js swaps in w4SipUpdate), not fireWeapon, so this file wraps
 //    updateSiphon: Charged (a held volley), Melee (the spoon whack), Mines (planted bullets), Death from Above (rain on the
@@ -27,7 +27,7 @@
 // game.js spawnProj, modifiers.js modStep/modHit/modDraw, aim.js aimBend, fight.js rxFired, modwide.js mwDetonate,
 // weapons24.js wupHit/wupDmgMul; fills cellmods.js XC_W/XC_TICK/XC_FIRE/XC_STATS/XC_RUN/XC_LIFE. Loads after cellmods.js.
 (function () {
-  XC_W.s_siphon = { tag: 'sp',
+  XC_W.s_siphon = { tag: 'ns',
     cells: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'area'],
     mask: ['charged', 'catalyst', 'kinship', 'upclose', 'sticky', 'focus', 'knock', 'pull', 'piercing', 'homing', 'ricochet', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
     deny: ['ranged'], atkOk: [] };
@@ -44,7 +44,7 @@
   const foeOk = e => e && !e.dead && !e.charmed && !e.egg;
   const SPS = w => w.c7 || (w.c7 = { meta: [], dry: 0, fi: 0, n: 0, mines: [], rain: [], links: [], shot: [], orbP: [], oa: 0, holdS: 0 });
   const FTS = w => w.c7f || (w.c7f = { known: [], nth: 0, dorm: [], orb: [], oa: 0 });
-  const spOn = w => !!w && xcIs(w, 'sp') && xcAny(w);
+  const spOn = w => !!w && xcIs(w, 'ns') && xcAny(w);
   const ftOn = w => !!w && xcIs(w, 'ft') && xcAny(w);
   // Returns read their bullet's type while one of these is held.
   const spTyped = w => ['catalyst', 'kinship', 'explode', 'primer', 'melee'].some(id => xcR(w, id) > 0) || xcR(w, 'piercing') >= 4 || xcR(w, 'ricochet') >= 4;
@@ -231,7 +231,7 @@
     A.dfaT = G.t + Math.max(0.15, (s.cd || 0.1) * 2);
   }
   // Each frame: orbiting bullets, planted mines, the rain, links and who has shot at you.
-  XC_TICK.sp = function (w, dt) {
+  XC_TICK.ns = function (w, dt) {
     const A = SPS(w), R = id => xcR(w, id), s = w.s, p = G.player;
     const wave = G.wave ? G.wave.n : 0; if (A.wave !== wave) { A.wave = wave; A.shot.length = 0; }
     if (!(A.shotT > G.t)) { A.shotT = G.t + 0.5; A.shot = A.shot.filter(foeOk); for (const b of G.ebul) if (A.shot.length < 12 && b.owner && foeOk(b.owner) && !A.shot.includes(b.owner)) A.shot.push(b.owner); }
@@ -306,15 +306,15 @@
     A.rain = A.rain.filter(q => !q.done);
     if (A.tug && A.tug.t < G.t) A.tug = null;
   };
-  XC_STATS.sp = function (w, s) {
+  XC_STATS.ns = function (w, s) {
     const R = id => xcR(w, id);
     if (R('area')) s.area *= xcArea(w); // Wide gape
     const ex = R('extra');
     if (ex) { const n0 = s.count || 1, n1 = ex >= 4 ? 6 : ex >= 2 ? n0 + 2 : n0 + 1; s.count = n1; s.dmg *= Math.pow(n0 / n1, 0.4); }
   };
   // Turncoat: a bullet sponge stands in front of you and soaks up enemy shots.
-  XC_LIFE.sp = w => (xcR(w, 'turncoat') >= 2 ? 6 : 4);
-  XC_RUN.sp = function (z, dt) {
+  XC_LIFE.ns = w => (xcR(w, 'turncoat') >= 2 ? 6 : 4);
+  XC_RUN.ns = function (z, dt) {
     const w = z.xcRun.w, r = xcR(w, 'turncoat'), p = G.player;
     const o = xcFoe(p.x, p.y, 500, [z]), a = o ? Math.atan2(o.y - p.y, o.x - p.x) : (p.face || 0);
     const k = Math.min(1, 8 * dt); z.x += (p.x + Math.cos(a) * 55 - z.x) * k; z.y += (p.y + Math.sin(a) * 55 - z.y) * k; z.kx = 0; z.ky = 0;
@@ -708,7 +708,7 @@
     for (const w of G.weapons) {
       if (!w || !xcAny(w) || !xcR(w, 'catalyst')) continue;
       const r = xcR(w, 'catalyst');
-      if (xcIs(w, 'sp')) {
+      if (xcIs(w, 'ns')) {
         const A = SPS(w), p = G.player, ts = rxTypes(id);
         if (!ts || Math.hypot(e.x - p.x, e.y - p.y) > w.s.area + (e.r || 0) + 40) continue;
         if (Math.floor(G.t) !== A.rxS) { A.rxS = Math.floor(G.t); A.rxN = 0; }
@@ -728,7 +728,7 @@
 
   // ---------------------------------------------------------------- both: detonations, hits, damage
   mwDetonate = (orig => function (e, pw, M) {
-    if (G && pw && G.weapons.includes(pw) && xcIs(pw, 'sp') && xcR(pw, 'primer')) { // in the bullet's type
+    if (G && pw && G.weapons.includes(pw) && xcIs(pw, 'ns') && xcR(pw, 'primer')) { // in the bullet's type
       const r = xcR(pw, 'primer'), t = (M && M.c7t) || 'phys', RR = r >= 2 ? 60 : 40, k = r >= 2 ? 0.75 : 0.5;
       const src = mwSrc(pw, { mwDet: true, noRx: false, elem: t });
       aoe(e.x, e.y, RR, pw.s.dmg * k, src, tcol(t)); ring(e.x, e.y, RR, tcol(t), 0.35, 4);
@@ -756,7 +756,7 @@
       const o = ftNearOrb(fw, e.x, e.y, 9999); if (!o || Math.hypot(o.x - e.x, o.y - e.y) > o.aura + 200) continue;
       e.c7kinT = G.t + 0.2; mwPull(e, o.x, o.y, 40 * Math.min(3, xcR(fw, 'kinship'))); spawnPart(e.x, e.y, fw.def.color, 2, 50, 0.2, 2); break;
     }
-    if (!w || !xcIs(w, 'sp') || !xcAny(w) || src.dot || src.echo) return;
+    if (!w || !xcIs(w, 'ns') || !xcAny(w) || src.dot || src.echo) return;
     if (src.c7 && !src.c7x && !src.mwBoom && !src.mwDet && !src.rx) spHit(w, e, res, src);
     const L = SPS(w).links; if (!L.length || !(res.toHp > 0)) return; // Connecting: linked enemies share
     for (const l of L) if ((l.a === e || l.b === e) && l.t > G.t) { const o = l.a === e ? l.b : l.a; if (foeOk(o)) damageEnemy(o, res.toHp * l.share, msEcho(src)); }
@@ -783,7 +783,7 @@
     for (const w of G.weapons) {
       if (!w || !xcAny(w)) continue;
       const c = col(w.def.color);
-      if (xcIs(w, 'sp')) {
+      if (xcIs(w, 'ns')) {
         const A = SPS(w);
         ctx.fillStyle = c;
         for (const o of A.orbP) { ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(sx(o.x), sy(o.y), 4.5 * k, 0, TAU); ctx.fill(); } // orbiting bullets
@@ -814,7 +814,7 @@
         if (xcR(w, 'charged')) { const wd = xcLv([0.8, 0.7, 0.6, 0.5], xcR(w, 'charged')); if (w.cd > 0 && w.cd < wd && !(w.reloadT > 0)) { ctx.globalAlpha = 0.7; ctx.lineWidth = 3 * k; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 10) * k, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - w.cd / wd)); ctx.stroke(); ctx.lineWidth = Math.max(1, 1.5 * k); } } // the wind-up
       }
     }
-    for (const z of G.enemies) if (z.xcRun && !z.dead && z.c7rr && xcIs(z.xcRun.w, 'sp')) { ctx.globalAlpha = 0.45; ctx.strokeStyle = col(z.xcRun.w.def.color); ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), z.c7rr * k, 0, TAU); ctx.stroke(); } // the bullet sponge
+    for (const z of G.enemies) if (z.xcRun && !z.dead && z.c7rr && xcIs(z.xcRun.w, 'ns')) { ctx.globalAlpha = 0.45; ctx.strokeStyle = col(z.xcRun.w.def.color); ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), z.c7rr * k, 0, TAU); ctx.stroke(); } // the bullet sponge
     ctx.restore();
   })(modDraw);
 

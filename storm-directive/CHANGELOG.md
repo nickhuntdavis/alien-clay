@@ -2,8 +2,54 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
-## Unreleased: 2026-10-24 Plain copy for weapon cells, aim choices and stat bonuses
-- Merged: ccr-eff39359-vaxudl.
+## v10.123: 2026-10-24 weapon cells for the eleven Projectile weapons
+- Merged: claude/dreamy-brahmagupta-2xfice.
+
+### Folded from claude/dreamy-brahmagupta-2xfice: 2026-10-24 Weapon cells for the eleven Projectile weapons, then their plain cells reworked (v10.123)
+- Systems: weapon cells, modifiers
+- Files: cellmods11.js to cellmods16.js (new), cellcopy11.js to cellcopy16.js (new), index.html, MODIFIER_MATRIX.md 5.10, tests/celltest11.js to celltest16.js (new), modcardtest.js, modstest.js
+- What: Standard Issue, Little Prick, Acid Spit, Ewww Gross, One of These Days, Sister Cousin, Rent Free, Chest Burster, There Is No Spoon, Family Ties and Unwanted Contact each have their own effect for every modifier they are dealt (rank 1 to 3 and a mastery), plus an Area cell. A second pass replaced the cells that were only a number or the shared form (about 90 cells). Card lines are plain copy in the cellcopy files (Claude-written at the user's earlier request). Tags are rn (Rent Free) and ns (There Is No Spoon) because rf and sp belong to cellmods3.js.
+- Save data: none.
+- Hooks: none in shared files (wraps from the new files, as cellmods2.js does).
+- Risk: balance unsimmed (One of These Days Melee was brought to about 0.6x to 1.4x of plain in a crowd test, but swings between runs); celltest11/13/16 and the older cell tests are timing-flaky under load (rerun); modcardtest and modstest clear XC_W so they keep testing the shared forms.
+
+## v10.122: 2026-10-24 v9 samples redrawn and back on the rack
+- Merged: claude/serene-mayer-hzufbe.
+
+### Folded from claude/serene-mayer-hzufbe: 2026-10-24 v9 samples back on the Sample Rack (v10.121)
+- Systems: samples (rack), matrix only
+- Files: matrixonly.js, samples9.js, tests/v9lookshot.js
+- What: the eleven v9 samples are on the rack again, open from the start, and start like every sample with an offer from the matrix's 27 weapons (not their v9 starters). A picked v9 sample whose v9 sequence is still locked (e.g. The Favourite) now runs as itself instead of falling back to The Firstborn.
+- Save data: none (META.v9pick reused).
+- Hooks: none.
+- Risk: v9 traits and abilities with matrix-only weapons are unsimmed; v9 sequence synergies name v9 weapons that are on hold.
+
+### Folded from claude/serene-mayer-hzufbe: 2026-10-24 v9 sample bodies redrawn in the v10 style (v10.121)
+- Systems: samplelooks (sample bodies), samples9
+- Files: v9looks.js (new), samples9.js, index.html, tests/v9lookshot.js (new), ARCHITECTURE.md
+- What: the eleven v9 samples no longer use the old v9 ship; each has its own v10-style body (anatomy that shows its character, its v9 colour, defences and upgrades worn on the body), on sample cards, the Field Guide, fusions and in play. The Twins' ghost twin uses the same body. Rack pictures are the live body instead of a pictogram.
+- Save data: none.
+- Hooks: none (fills samplelooks.js tables; wraps sampleLook for the twin).
+- Risk: Kindred fusions with a v9 sample now draw its own body instead of Baseline's.
+
+## v10.120: 2026-10-24 Cells for five more weapons, Laser branches, plain cell copy
+- Merged: ccr-eff39359-vaxudl, then ccr-10c7b3a7-ugrptm.
+
+### Folded from ccr-10c7b3a7-ugrptm: 2026-10-24 Cells for five more weapons (v10.120, merge build)
+- Systems: weapons (modifiers), tests
+- Files: cellmods3.js (new), cellcopy3.js (new), index.html, tests/celltest.js, redesign docs/MODIFIER_MATRIX.md
+- What: every modifier now does something specific on Red Flagship, Soulmate Signal, Spark of Life, Maximum Gains and Enzyme Sneeze (MODIFIER_MATRIX.md 5.9, 120 cells), with plain card text for each.
+- Save data: none.
+- Hooks: none in shared files (wraps spawnProj, twinTick, wupHit, wupDmgMul, wupFire, wupTick, modDraw).
+- Risk: balance on those five weapons; spawnProj wrapper tags every pellet of those weapons.
+
+### Folded from ccr-10c7b3a7-ugrptm: 2026-10-24 Laser branches
+- Systems: weapons (upgrades), tests
+- Files: laserbranch.js (new), index.html, tests/branchtest.js
+- What: the Laser gets branch upgrades at Lv 3, 6 and 9 (designed with the user): Laser Hair Removal (the beam strips Shell and Membrane; Ingrown, Wax Strip, Patch Test), Cat Toy (the red dot lures small enemies; Dot Trail, Bigger Dot, Two Dots), Overclocked (the ramp climbs three times as high, about 4 s of beam overheats it into a vent with a burst; Heat Sink, Redline, Meltdown); masteries Full Body Wax, Laser Show, Death Ray.
+- Save data: none.
+- Hooks: none.
+- Risk: Laser balance (Overclocked's x3 ramp; Hair Removal ignores defences); every weapon now has branches.
 
 ### Folded from ccr-eff39359-vaxudl: 2026-10-24 Plain copy for weapon cells, aim choices and stat bonuses
 - Systems: weapons, ui

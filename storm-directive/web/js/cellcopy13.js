@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - plain copy for weapon cells part 5 (cellmods5.js): One of These Days (od) and Sister Cousin (sc). Same style
+// Spawn Prawn - plain copy for weapon cells part 5 (cellmods13.js): One of These Days (od) and Sister Cousin (sc). Same style
 // as cellcopy.js: the effect on that weapon, then what ranks 2, 3 and the mastery add. Ids are cell_<tag>_<modifier>.
 // Hooks: none. Loads after slicecopy.js and cellcopy.js.
 Object.assign(SLICE_COPY, {

@@ -1,4 +1,4 @@
-// Weapon cells part 5 (cellmods5.js): One of These Days (od) and Sister Cousin (sc). Card rules (dealt / N/A, no fork
+// Weapon cells part 5 (cellmods13.js): One of These Days (od) and Sister Cousin (sc). Card rules (dealt / N/A, no fork
 // screens, a card line for every cell, the Switched at Birth types), every cell at rank 1 and at its mastery against a crowd
 // (no errors, the weapon still deals damage), and the headline behaviours of each weapon's cells.
 const { chromium } = require('playwright');

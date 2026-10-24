@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - plain copy for the weapon cells, part 8: Unwanted Contact (cellmods8.js, tag uc). Same style as cellcopy.js:
+// Spawn Prawn - plain copy for the weapon cells, part 8: Unwanted Contact (cellmods16.js, tag uc). Same style as cellcopy.js:
 // what the modifier does to this one weapon, with numbers, then what ranks 2, 3 and the mastery add. Hooks: none.
 // Loads after slicecopy.js and cellcopy.js.
 Object.assign(SLICE_COPY, {

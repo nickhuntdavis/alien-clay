@@ -1,7 +1,7 @@
 'use strict';
-// Spawn Prawn - weapon cells, part 4: Acid Spit and Ewww, Gross (redesign docs/MODIFIER_MATRIX.md 5.9 and those two rows of
+// Spawn Prawn - weapon cells, part 4: Acid Spit and Ewww, Gross (redesign docs/MODIFIER_MATRIX.md 5.10 and those two rows of
 // sections 3 and 4; built 24 Oct). Same engine as cellmods.js (XC_W masking, no fork screens, rank 1 to 3 then the mastery).
-// Card text: cell_as_<modifier> / cell_ew_<modifier> in cellcopy4.js.
+// Card text: cell_as_<modifier> / cell_ew_<modifier> in cellcopy12.js.
 //  - ACID SPIT (v_fire_proj, Acid Projectile, tag as): its globs are ordinary shots (game.js spawnProj), so the cells mark a
 //    glob as it spawns (modProj), act when it lands on an enemy (sigs.js projHit) or at the end of its flight (projEnd).
 //    Kept shared forms (plus this weapon's flavour): Range, Up Close, Rapid Fire, Charged, Catalyst, Kinship, Homing, Focused
@@ -15,12 +15,12 @@
 //    Switched at Birth (Acid): the stamp Corrodes (its damage type does that by itself).
 // Round 2 (24 Oct): the shared-form cells got weapon-shaped extras (Splash-through, Pooling, Fizz, Spill, Seed pod, Thick coat, Burst
 // blister, Hocker, String of spit, Splat; Hand-wrapped, Tape gun, Heat shrink, Group project, Tape bomb, Sticky fingers, Duct
-// tape, Spare roll): MODIFIER_MATRIX.md 5.9.
+// tape, Spare roll): MODIFIER_MATRIX.md 5.10.
 // Simplified: Acid Spit's Lob bursts after 200 of flight, not 400 (its reach is 270); Ewww's Piercing, Homing and Ricochet
 // act on the instant stamp (a line, a better target, bounces to enemies ahead); Ewww's Focused Intensity ramps the share.
 // Hooks: none in shared files. Wraps modifiers.js modProj, sigs.js projHit/projEnd, toys.js tapeFire/tapeTick/toyHurt,
 // fight.js rxFired, weapons24.js wupHit/wupDmgMul, modwide.js mwDetonate, modDraw; fills cellmods.js XC_W, XC_TICK,
-// XC_FIRE, XC_STATS, XC_RUN, XC_LIFE. Loads after cellmods.js (and cellmods2.js, cellmods3.js).
+// XC_FIRE, XC_STATS, XC_RUN, XC_LIFE. Loads after cellmods.js (and cellmods2.js, cellmods11.js).
 
 const C4 = { det: 0, rx: 0, mark: (w, k) => { const F = w.c4fx || (w.c4fx = {}); F[k] = (F[k] || 0) + 1; } };
 {

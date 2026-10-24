@@ -1,4 +1,4 @@
-// Weapon cells part 7 (cellmods7.js): There Is No Spoon (sp) and Family Ties (ft). Card rules (dealt / not dealt, no fork
+// Weapon cells part 7 (cellmods15.js): There Is No Spoon (sp) and Family Ties (ft). Card rules (dealt / not dealt, no fork
 // screens, every cell has its card line), every cell at rank 1 and at its mastery against a crowd that shoots (no errors,
 // the weapon still deals damage), and the headline behaviours of each weapon's own cells.
 const { chromium } = require('playwright');
@@ -33,7 +33,7 @@ const { chromium } = require('playwright');
     w = fresh('s_void'); SET.noLimits = true; modAdd(w, 'sticky'); modAdd(w, 'sticky'); SET.noLimits = false;
     if (G.lootQueue.some(q => q.kind === 'fork')) bad.push('fork screen on a family ties cell');
     const c = modCard(w, 'sticky'); if (!c.desc || /TODO_COPY/.test(c.desc)) bad.push('card text ' + c.desc);
-    for (const [id, tag] of [['s_siphon', 'sp'], ['s_void', 'ft']]) for (const m of cellsOf(id)) { const t = SLICE_COPY['cell_' + tag + '_' + m]; if (!t || /TODO_COPY/.test(t)) bad.push('no card line cell_' + tag + '_' + m); }
+    for (const [id, tag] of [['s_siphon', 'ns'], ['s_void', 'ft']]) for (const m of cellsOf(id)) { const t = SLICE_COPY['cell_' + tag + '_' + m]; if (!t || /TODO_COPY/.test(t)) bad.push('no card line cell_' + tag + '_' + m); }
     // 2. Every cell at rank 1 and at mastery (the spoon gets a crowd that shoots)
     for (const id of ['s_siphon', 's_void']) for (const m of cellsOf(id)) for (const n of [1, 4]) {
       w = fresh(id); w.m10 = Array(n).fill(m); computeStats(w); crowd(); feed = id === 's_siphon';

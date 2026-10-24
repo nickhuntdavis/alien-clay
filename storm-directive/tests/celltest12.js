@@ -1,4 +1,4 @@
-// Weapon cells, part 4 (cellmods4.js): Acid Spit and Ewww, Gross. Card rules (dealt / N/A, no fork screens, a plain line for
+// Weapon cells, part 4 (cellmods12.js): Acid Spit and Ewww, Gross. Card rules (dealt / N/A, no fork screens, a plain line for
 // every cell, the Switched at Birth alternate), every cell at Lv 1 and at its mastery against a crowd (no errors, the weapon
 // still deals damage), and the headline behaviours (each cell counts what it did in w.c4fx).
 const { chromium } = require('playwright');

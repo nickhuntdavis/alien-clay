@@ -1,4 +1,4 @@
-// Weapon cells, part 6 (cellmods6.js): Rent Free and Chest Burster. Card rules (dealt and N/A, no fork screens, a plain card
+// Weapon cells, part 6 (cellmods14.js): Rent Free and Chest Burster. Card rules (dealt and N/A, no fork screens, a plain card
 // line for every cell), every cell at rank 1 and at its mastery against a crowd (no errors, the weapon still deals damage),
 // and the headline behaviours: possession cells, the poltergeist, ghost mines, the undead cells, contagion and traps.
 const { chromium } = require('playwright');

@@ -11,7 +11,7 @@ const path = require('path'), out = f => path.resolve(__dirname, 'out', f);
   const bad = [], ids = await page.evaluate(() => SAMPLES10.map(s => s.id));
   for (const id of ids) for (const df of [false, true]) {
     const got = await page.evaluate(([id, df]) => {
-      META.profile = 's10_' + id; UI.sample = 's001'; newGame(); s10Start(); G.state = 'play'; G.lootQueue = []; G.nextBoss = 1e9; G.ev.next = 1e9; window.spawnRandom = () => {}; G.enemies.length = 0; G.P.maxHp = G.player.hp = 1e6; UI.show('hud');
+      if (/^v9_/.test(id)) { META.profile = META.v9pick = id.slice(3); s9Sync(); } else META.profile = 's10_' + id; UI.sample = 's001'; newGame(); s10Start(); G.state = 'play'; G.lootQueue = []; G.nextBoss = 1e9; G.ev.next = 1e9; window.spawnRandom = () => {}; G.enemies.length = 0; G.P.maxHp = G.player.hp = 1e6; UI.show('hud');
       SET.darkfield = df; G.pdef && (G.pdef.shield = 0);
       const p = G.player, x0 = p.x, y0 = p.y;
       for (let i = 0; i < 60; i++) { update(1 / 60); p.x = x0; p.y = y0; p.vx = 150; p.vy = 0; p.face = p.hd = 0; cam.x = p.x - 30; cam.y = p.y; G.realT += 1 / 60; render(); G.player.hp = 1e6; }

@@ -1,7 +1,7 @@
 'use strict';
-// Spawn Prawn - weapon cells, part 6: Rent Free and Chest Burster (redesign docs/MODIFIER_MATRIX.md 5.9, plus those two
+// Spawn Prawn - weapon cells, part 6: Rent Free and Chest Burster (redesign docs/MODIFIER_MATRIX.md 5.10, plus those two
 // rows of every table in sections 3 and 4; Claude's picks, built 24 Oct). Same engine as cellmods.js (XC_W masking, rank 1
-// to 3 then the mastery, no fork screens). Card text: cell_rf_<modifier> / cell_cb_<modifier> in cellcopy6.js.
+// to 3 then the mastery, no fork screens). Card text: cell_rn_<modifier> / cell_cb_<modifier> in cellcopy14.js.
 //  - RENT FREE (v_soul_proj, tag rf): a slow Alien ghost. A cell possession (c6Poss) uses the game's own Possessed state
 //    (chem.js curseFoe: the enemy fights its mates), at most 6 hosts a weapon, never bosses, half as long on elites.
 //    Possessions from the Alien bar (fight.js fightPayoff) count as this weapon's too, so every cell that reads "possessed"
@@ -10,7 +10,7 @@
 //    (game.js killEnemy, G.turrets). This file adopts those turrets (t.c6), keeps them out of sigweap.js's cap (4, or 6 with
 //    Kinship's mastery or Orbiting from rank 3), moves them (bodyguards, Death from Above) and reads their shots
 //    (src.c6U) for the undead cells (Knockback, Sticky, Primer, Catalyst).
-// Changed from the table (written into MODIFIER_MATRIX.md 5.9): both weapons' reach is 300 in code, so Range adds +40 reach
+// Changed from the table (written into MODIFIER_MATRIX.md 5.10): both weapons' reach is 300 in code, so Range adds +40 reach
 // a rank; Chest Burster's Ricochet mastery infects what lies along each bounce's path (every shot infects what it hits).
 // Round 2 (24 Oct): the plain cells have their own behaviour now (5.9 "Round 2"): Rent Free Range (haunts), Rapid Fire
 // (Crowded house), Catalyst (Exorcism), Kinship (Shared custody), Sticky (Ectoplasm), Homing (Unfinished business), Focused
@@ -22,7 +22,7 @@
 // Loads after cellmods2.js. Tests reach the internals through C6.
 (function () {
   const RF = 'v_soul_proj', CB = 's_parasite', CB_COL = '#b5e48c';
-  XC_W[RF] = { tag: 'rf',
+  XC_W[RF] = { tag: 'rn',
     cells: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'area'],
     mask: ['knock', 'pull', 'piercing', 'explode', 'ricochet', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
     deny: ['ranged'], atkOk: [] };
@@ -32,7 +32,7 @@
     deny: ['turncoat', 'ranged'], atkOk: [] };
 
   const C = () => G.c6 || (G.c6 = { pg: [], mines: [], dives: [], traps: [], links: [], clouds: [], haunts: [], goo: [], larva: [], glue: [] });
-  const isRF = w => xcIs(w, 'rf'), isCB = w => xcIs(w, 'cb');
+  const isRF = w => xcIs(w, 'rn'), isCB = w => xcIs(w, 'cb');
   const mine6 = w => !!w && (isRF(w) || isCB(w)) && xcAny(w);
   const held = w => !!(G && G.weapons && G.weapons.includes(w));
   const foeOk = e => !!e && !e.dead && !e.charmed && !e.egg && !e.phased;
@@ -140,7 +140,7 @@
     else if (t && !t.dead) { damageEnemy(t, w.s.dmg * 1.4, weaponSrc(w)); infect(w, t, inf); ring(x, y, 22, w.def.color, 0.3, 3); }
   }
 
-  XC_STATS.rf = function (w, s) {
+  XC_STATS.rn = function (w, s) {
     const R = id => xcR(w, id);
     if (R('range')) s.range += 40 * R('range');
     if (R('piercing')) s.pierce = Math.max(s.pierce || 0, XC_RAMP(R('piercing')));
@@ -148,7 +148,7 @@
     const ex = R('extra'); if (ex) { const n0 = s.count || 1; s.count = n0 + 1; s.dmg *= Math.pow(n0 / (n0 + (ex >= 2 ? 2 : 1)), 0.4); }
     if (R('orbiting')) s.orbitMod = 1.05; // (one lap round you, then off: game.js spawnProj)
   };
-  XC_FIRE.rf = function (w, target, src) {
+  XC_FIRE.rn = function (w, target, src) {
     const R = id => xcR(w, id), p = G.player;
     if (R('melee')) return true; // (Haunted touch runs in the tick)
     if (R('mines')) { rfMine(w, p.x + rand(-20, 20), p.y + rand(-20, 20)); return true; }
@@ -217,7 +217,7 @@
   }
   function track(w, pr) { const T = w.c6Trk || (w.c6Trk = []); if (!T.includes(pr)) { T.push(pr); if (T.length > 30) T.shift(); } }
 
-  XC_TICK.rf = function (w, dt) {
+  XC_TICK.rn = function (w, dt) {
     const R = id => xcR(w, id), p = G.player, S = C(), s = w.s, col0 = w.def.color;
     // possessions: ended ones, and what the hosts do
     for (const e of G.enemies) if (e.c6H === w && (e.dead || !e.charmed)) { e.c6H = null; c6End(w, e); }
