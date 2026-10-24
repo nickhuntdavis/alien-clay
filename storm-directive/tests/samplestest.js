@@ -1,5 +1,7 @@
 // The eight v10 samples (samples10.js): new ids and names, three starters each in the start draft, pool lean, passives, Ordered Online's built-in
 // Evasion, Not of This World shifts w.typeOver every 20 s without swapping weapons, shield flags, unlock rules.
+// Since 23 Oct (samplestart.js): the start draft is three matrix weapons (one of the sample's type, one Switched at Birth into
+// one of its types, one other), only Baseline is open on a fresh save, and an achievement unlocks the rest.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -16,18 +18,20 @@ const { chromium } = require('playwright');
     if (S10_BY.ordered.types.join() !== 'mucus,fire') bad.push('Ordered Online types ' + S10_BY.ordered.types);
     for (const s of SAMPLES10.filter(s => !s.v9)) { // (the v9 samples: v9armstest)
       META.profile = 's10_' + s.id; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;
-      const offer = genLoot({ kind: 'start' }), want = w24Starters(s.id);
-      const n3 = W24.filter(r => r[4] === s.id).length - W24.filter(r => r[4] === s.id && W24_HOLD.includes(r[0])).length; // (3, minus starters on hold)
-      if (want.length !== n3 || offer.length !== n3 || offer.map(o => o.def.name).join() !== want.map(id => WEAPONS[id].name).join()) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
-      offer[1].apply(); const w = G.weapons.find(Boolean);
-      if (!w || (w.sid || w.id) !== want[1]) bad.push(s.id + ' weapon ' + (w && w.id));
+      const offer = genLoot({ kind: 'start' }), pool = s10Pool(), types = s.types.map(t => S10_TYPES[t]);
+      const ids = offer.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
+      const sab = offer.filter(o => o.sab), nat = offer.filter(o => !o.sab && types.includes(o.def.elem));
+      if (offer.length !== 3 || new Set(ids).size !== 3 || !ids.every(id => pool.includes(id)) || sab.length !== 1 || !types.includes(sab[0].sab) || !nat.length) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
+      const k = offer.indexOf(sab[0]); offer[k >= 0 ? k : 0].apply(); const w = G.weapons.find(Boolean);
+      if (!w || (w.sid || w.id) !== ids[k >= 0 ? k : 0]) bad.push(s.id + ' weapon ' + (w && w.id));
+      if (k >= 0 && w && (w.typeOver || w.def.elem) !== sab[0].sab && !(w.sab || w.sabT)) out[s.id + 'sab'] = 'type ' + (w.typeOver || w.def.elem);
       if (!G.sampleTypes || G.sampleTypes.primary !== s.types[0]) bad.push(s.id + ' lean');
       if (G.s10.strain !== SAMPLES10.indexOf(s) + 1) bad.push(s.id + ' strain');
       if (s10Shield()) bad.push(s.id + ' shield flag'); // (no built-in shields since 22 Oct: the membrane comes only from its card, spassives.js)
-      if (s10Open(s.id) !== true) bad.push(s.id + ' not open');
+      if (s10Open(s.id) !== (s.id === 'baseline' || !s.unlock)) bad.push(s.id + (s10Open(s.id) ? ' open on a fresh save' : ' not open'));
     }
     run('ordered');
-    if (s10Evasion() !== 0.2) bad.push('Ordered Online evasion ' + s10Evasion());
+    if (s10Evasion() !== 0.3) bad.push('Ordered Online evasion ' + s10Evasion());
     for (let i = 0; i < 20; i++) if (pdefOffer(6).some(o => o.defence === 'evasion')) { bad.push('Evasion card offered to Ordered Online'); break; }
     G.player.vx = 100; for (let i = 0; i < 30; i++) s10Tick(1 / 30);
     if (!G.zones.some(z => z.s10trail)) bad.push('no Mucus trail');
@@ -48,12 +52,13 @@ const { chromium } = require('playwright');
     run('redtail'); const e = makeEnemy(ENEMIES.crawler, G.player.x + 90, G.player.y); e.hp = e.maxHp = 1000; G.enemies.push(e);
     damageEnemy(e, 20, { elem: 'shock', atk: 'proj', noCrit: true, wname: 't' });
     if (!(e.cd && e.cd.burnT > 0)) bad.push('Redtail: Static did not burn');
-    // V11: the old unlock watches are retired (a rescue in The Race unlocks: kindredtest); s10Unlock still works.
-    S10_ALL = false; META.s10 = {}; const keepDev = META.devAll; META.devAll = 0;
+    // Only an achievement unlocks a sample now (samplestart.js S10_ACH): not waves, not a bare s10Unlock.
+    S10_ALL = false; META.s10 = {}; META.achEver = {}; const keepDev = META.devAll; META.devAll = 0;
     run('baseline'); G.wave.n = 10; s10Tick(0.016);
     if (s10Open('alpha')) bad.push('wave 10 still unlocks Alpha');
-    s10Unlock('prawn'); if (!s10Open('prawn')) bad.push('s10Unlock');
-    S10_ALL = true; META.devAll = keepDev;
+    s10Unlock('prawn'); if (s10Open('prawn')) bad.push('bare s10Unlock still unlocks');
+    achieve(S10_ACH.alpha); if (!s10Open('alpha')) bad.push('achievement did not unlock Alpha');
+    META.devAll = keepDev;
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

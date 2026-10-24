@@ -13,7 +13,8 @@ const { chromium } = require('playwright');
   const bad = [];
   const NAMES = ['Baseline', 'Alpha', 'Beta', 'Private Schooled', 'Ordered Online', 'Redtail', 'Prawn Again', 'Not of This World'];
   const nine = await page.evaluate(() => typeof S10_BY.acro !== 'undefined'), v9n = await page.evaluate(() => SAMPLES10.filter(s => s.v9).length); // (the v9 samples follow: samples9.js) // (PROPOSED Sample 9, acrosample.js, is a ninth card while it is loaded)
-  if (cards.length !== (nine ? 9 : 8) + v9n || NAMES.some((n, i) => !cards[i].includes(n) || /LOCKED/.test(cards[i]))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples, all open: samples10.js)
+  const secret = await page.evaluate(() => SAMPLES10.slice(0, 8).map(s => !!(s.unlock && s.unlock.secret)));
+  if (cards.length !== (nine ? 9 : 8) + v9n || NAMES.some((n, i) => !cards[i].includes(secret[i] ? '???' : n) || /LOCKED/.test(cards[i]) !== (i > 0))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples: Baseline open, the rest locked until their achievement, samplestart.js)
   await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
   const modes = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-mode]')].map(b => b.dataset.mode));
   if (modes.join() !== 's001,s002,s006,s007') bad.push('experiments: ' + modes); // (design system v2: The Race, the Petri Dish, Endless and Level 1)
@@ -25,8 +26,10 @@ const { chromium } = require('playwright');
     const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10 && !WEAPONS[id].sig);
     if (ids.length !== (typeof S10_BY.acro !== 'undefined' ? 45 : 42)) bad.push('weapons: ' + ids.length); // (PROPOSED Sample 9 brings three starters: acro.js)
     const st = genLoot({ kind: 'start' });
-    if (st.map(o => o.def.name).join() !== w24Starters('baseline').map(id => WEAPONS[id].name).join() || st.length !== 3) bad.push('start draft is not the three Baseline starters: ' + st.map(o => o.title)); // (weapons24.js)
-    st[0].apply();
+    const stIds = st.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
+    if (st.length !== 3 || !stIds.every(id => s10Pool().includes(id)) || st.filter(o => o.sab).length !== 1) bad.push('start draft is not a matrix starting offer: ' + st.map(o => o.title)); // (samplestart.js)
+    const c0 = st.find(o => o.def.v10 && !o.def.sig && !o.sab); // (the type switch below only works on v10 weapons; the random offer may have none)
+    if (c0) c0.apply(); else { G.weapons[0] = makeSlot('v_phys_proj', false, 1); recomputeAll(); }
     const w0 = G.weapons.find(Boolean);
     const lv = genLoot({ kind: 'level' });
     if (lv.length !== 3) bad.push('level box: ' + lv.map(o => o.tag + ' ' + o.title)); // (one draft: draft.js)
