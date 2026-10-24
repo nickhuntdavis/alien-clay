@@ -6,7 +6,7 @@
 //    The screen is a fork request (req.xbr); taking a card records it on the slot as before (w.up.p, .l6, .l10).
 //  - ELITE CARRIERS: elites carry a DNA strand again (mutdrop.js: the helix, the beacon and the countdown). Killing a
 //    carrier in time drops the strand; it now holds a loot box (a DNA strand box: modifier cards), not a mutation.
-//    Its banner, float text and labels are TODO_COPY:elite_carrier, elite_secured, elite_lost, elite_strand, elite_killfor.
+//    Its banner, float text and labels say LOOT, not MUTATION.
 //  Tests and sims (window.TUT_OFF) get neither unless XBR.force / XEB.force.
 // Hooks: none in shared files. Wraps weapons24.js wupTick, modslice.js forkCards, draft.js draftTitle, mutdrop.js
 // mdTick and mdKill, game.js banner and floatText (the carrier lines only); mutdrop.js's two strand labels are placeholders in place. Loads after modslice.js and spassives.js.
@@ -41,7 +41,7 @@ draftTitle = (orig => function (req) {
 })(draftTitle);
 
 // ---------------------------------------------------------------- elite carriers
-const XEB_TEXT = { 'MUTATION CARRIER!': 'TODO_COPY:elite_carrier', 'MUTATION SECURED': 'TODO_COPY:elite_secured', 'MUTATION LOST': 'TODO_COPY:elite_lost' };
+const XEB_TEXT = { 'MUTATION CARRIER!': 'LOOT CARRIER!', 'MUTATION SECURED': 'LOOT SECURED', 'MUTATION LOST': 'LOOT LOST' };
 mdTick = (orig => function (dt) {
   if (G && !xbrTest(XEB.force)) MUTDROP.chance = XEB.chance; // (tests set their own)
   return orig(dt);

@@ -24,7 +24,7 @@ const { chromium } = require('playwright');
     if (out.bbOk.join() !== 'false,true,true,true') bad.push('bubble dealt ' + out.bbOk);
     w = fresh('s_mines'); SET.noLimits = true; modAdd(w, 'pull'); modAdd(w, 'pull'); SET.noLimits = false;
     if (G.lootQueue.some(q => q.kind === 'fork')) bad.push('fork screen on a cell');
-    const c = modCard(w, 'pull'); if (c.desc !== 'TODO_COPY:cell_nm_pull') bad.push('card text ' + c.desc);
+    const c = modCard(w, 'pull'); if (c.desc !== XC_COPY.cell_nm_pull || /TODO_COPY/.test(c.desc)) bad.push('card text ' + c.desc);
     const alts = new Set(); for (let i = 0; i < 40; i++) { const k = sabCard(); if (k) alts.add(k.elem); } out.alts = [...alts];
     if (!(alts.has('fire') && alts.has('ice') && alts.size === 2)) bad.push('nappy alternates ' + out.alts);
     // 2. Every cell at Lv 1 and at mastery

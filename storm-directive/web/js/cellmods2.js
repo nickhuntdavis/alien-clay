@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - weapon cells, part 2: Hot Mess and Eggs (redesign docs/MODIFIER_MATRIX.md, those two rows of every table,
 // and 5.7 / 5.8; Claude's picks, built 24 Oct). Same engine as cellmods.js (XC_W masking, no fork screens, two Switched at
-// Birth alternates, card text TODO_COPY:cell_hm_<modifier> / cell_eg_<modifier>).
+// Birth alternates, card text in XC_COPY: cell_hm_<modifier> / cell_eg_<modifier>).
 //  - HOT MESS (v_flame_pool, Fire Pool): every patch it lays is tagged (z.xcHm) as it lands (game.js landLob) and run here
 //    each frame: Spatter merges, Simmer heats, Tar pit slows, Plughole pulls, Popcorn hops, Shared Burn, Grease fire,
 //    Bonfire, Spreading (Area). Hot to touch (Melee), the ring of fire (Orbiting), hidden patches (Mines) and the
@@ -24,6 +24,42 @@ XC_W.s_toothfairy = { tag: 'eg',
   mask: ['rapid', 'knock', 'pull', 'sticky', 'ricochet', 'connecting', 'turncoat', 'melee', 'dfa', 'nth', 'extra', 'orbiting'],
   deny: ['range', 'upclose', 'charged', 'piercing', 'explode', 'focus', 'homing', 'mines', 'ranged'],
   atkOk: ['rapid', 'sticky', 'ricochet', 'connecting', 'extra', 'orbiting'] };
+Object.assign(XC_COPY, {
+  cell_hm_rapid: "Faster, smaller patches. Patches that touch merge into a bigger one. Mastery: big merged patches flare every second.",
+  cell_hm_charged: "Patches heat up the longer they burn, from orange to white. Mastery: at full heat a patch boils over into a second one.",
+  cell_hm_catalyst: "Stronger Burn. Enemies carrying other statuses burn harder in a patch. Mastery: reactions in a patch spill new ones.",
+  cell_hm_kinship: "Your other Fire weapons make a patch flare and spread. Mastery: patches don't go out while anything is burning in them.",
+  cell_hm_knock: "Burning enemies hop out of the patch and land on their friends. Mastery: they bounce around inside it instead.",
+  cell_hm_pull: "Patches drag nearby enemies towards the middle, which burns twice as hot from Lv 3. Mastery: burning enemies can't leave.",
+  cell_hm_sticky: "The patch is burning tar that slows enemies without putting the fire out. Mastery: stay too long and you're stuck, then lit again.",
+  cell_hm_explode: "Patches burst as they land, and again whenever something dies in them. Mastery: they explode as they burn out.",
+  cell_hm_connecting: "Enemies in the same patch share their Burn. Later the link outlasts the patch. Mastery: when one goes up, they all do.",
+  cell_hm_turncoat: "Some enemies it kills get back up on fire and chase their friends, setting them alight. Mastery: they collapse into a patch.",
+  cell_hm_melee: "You're hot to the touch: anything close to you burns. Wider, then hotter. Mastery: you leave a scorch wherever you swim.",
+  cell_hm_mines: "Patches lie hidden until an enemy steps in, then flare up. More of them, then hotter. Mastery: they spread to twice the size.",
+  cell_hm_dfa: "A burning bag drops on the crowd. The first enemy to stamp on it gets three patches round them. Mastery: the splashes splash too.",
+  cell_hm_primer: "Enemies in a patch are primed, and detonations set things alight. Then they leave patches. Mastery: the whole patch goes at once.",
+  cell_hm_nth: "Every 4th patch, then every 3rd, is a bonfire: bigger, longer, flaring every second. Later it pulls enemies in. Mastery: it follows you.",
+  cell_hm_extra: "Extra patches land in a line past the target. Then a wall of fire across their path. Mastery: a ring of fire round the crowd.",
+  cell_hm_orbiting: "A ring of fire circles you, burning what it touches. Wider, then it leaves a trail. Mastery: two rings, turning opposite ways.",
+  cell_hm_area: "Bigger patches that keep spreading as they burn.",
+  cell_eg_rapid: "Faster, smaller eggs, and one more on the ground. Two enemies reaching one egg are both smitten. Mastery: ignored eggs go off.",
+  cell_eg_catalyst: "The smite's Curse builds faster, and its reactions hit harder.",
+  cell_eg_kinship: "Your other Alien weapons hit harder on enemies heading for an egg. Mastery: eggs lure from further away.",
+  cell_eg_knock: "The smite flings the grabber into its friends. Mastery: it's flung at the next egg, and grabs that too.",
+  cell_eg_pull: "Eggs lure from further away. Mastery: lured enemies hurry.",
+  cell_eg_sticky: "The smite splatters yolk that slows everything nearby. Mastery: the grabber is held still until the smite lands.",
+  cell_eg_ricochet: "Eggs bounce on landing and end up deeper in the crowd. Mastery: after a smite, the egg bounces on and hits the next enemy.",
+  cell_eg_connecting: "Eggs laid together form a clutch. Grabbing one smites round all of them. Mastery: the clutch hatches into one big smite.",
+  cell_eg_turncoat: "Some enemies the eggs kill hatch as small ghosts that fight for you. From Lv 3 they scare what they touch. Mastery: they lay an egg.",
+  cell_eg_melee: "You carry an egg. Anything that comes close tries to take it and is smitten. Two eggs, then wider. Mastery: the neighbours panic.",
+  cell_eg_dfa: "Eggs drop onto the crowd. One that lands on an enemy cracks on it; the rest stay as lures. Mastery: smites hit everything nearby.",
+  cell_eg_primer: "Enemies heading for an egg are primed. Later, detonations near an egg set it off. Mastery: the smite sets off everything primed.",
+  cell_eg_nth: "Every 4th egg, then every 3rd, is golden: it lures from twice as far and its kills drop extra DNA. Mastery: it hatches an ally.",
+  cell_eg_extra: "More eggs per drop, then they're spread round you. Mastery: a ring of five.",
+  cell_eg_orbiting: "Eggs circle you, so anything greedy has to come close. More eggs, then a wider orbit. Mastery: a grab smites the whole orbit.",
+  cell_eg_area: "Lures reach further, and the smite leaves a ghostly patch that Curses whatever stands in it.",
+});
 XC_ALT.v_flame_pool = ['fire', 'ice']; XC_ALT.s_toothfairy = ['arcane', 'fire']; // (Acid or Mucus; Blood or Acid)
 MM_SAB.s_toothfairy = MM_SAB.s_toothfairy || 'arcane';
 const xcInZ = (z, e) => Math.hypot(e.x - z.x, e.y - z.y) < z.r + (e.r || 0) * 0.5;
