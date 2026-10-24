@@ -1534,7 +1534,7 @@ function render() {
       // A shadow on the ground under it, smaller and darker as it comes down.
       if (!WORLD_DF) { const hk = clamp(1 - (pr.h || 0) / 160, 0.35, 1); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 0.35 * hk; ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.ellipse(x, y + 3 * S, 7 * S * (1.6 - hk * 0.6), 3.5 * S * (1.6 - hk * 0.6), 0, 0, TAU); ctx.fill(); ctx.globalCompositeOperation = hot ? 'lighter' : 'source-over'; }
       if (hot) { glow(x, yy, 16 * S, pr.color, 0.8); }
-      ctx.globalAlpha = 1; droplet(x, yy, -Math.PI / 2, 6 * S, pr.color); ctx.globalAlpha = 1;
+      ctx.globalAlpha = 1; if (!blDraw(pr, x, yy, 6 * S)) droplet(x, yy, -Math.PI / 2, 6 * S, pr.color); ctx.globalAlpha = 1; // (pool weapons are balloons: balloon.js)
       continue;
     }
     const a = Math.atan2(pr.vy, pr.vx), r = pr.r * S;
