@@ -139,6 +139,6 @@ function glossFor(text) {
 function cardGlossary(o) {
   const text = [o.title, o.sub, o.desc, o.boon || ''].join(' ');
   const g = glossFor(text);
-  return `<b>${esc(o.title)}</b><em>${esc(o.tag || '')}</em><p>${esc(o.desc || '')}</p>` +
+  return `<b>${esc(o.title)}</b><em>${esc(o.tag || '')}</em><p>${esc(o.desc || '')}</p>` + (typeof rwFitHtml === 'function' ? rwFitHtml(o, true) : '') +
     (g.length ? `<ul class="gloss">${g.map(([t, d]) => `<li><b>${esc(t)}</b>: ${esc(d)}</li>`).join('')}</ul>` : '<p class="hint">Nothing here needs explaining.</p>');
 }

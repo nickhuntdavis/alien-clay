@@ -5,3 +5,11 @@
 - Save data: none
 - Hooks: none (uiLootCard wraps the tag text in span.tk; ui.js sets --ec)
 - Risk: Lab view/e-ink skins may still style .card borders elsewhere; check visually.
+
+## 2026-10-24 Fit line moves to press and hold
+- Systems: rewardui, glossary
+- Files: js/rewardui.js, js/glossary.js
+- What: the Direct / Fits your build / Wildcard / Trade-off line is gone from loot cards and shows in the press-and-hold card instead. Feat "Next level" numbers stay on the card.
+- Save data: none
+- Hooks: glossary.js cardGlossary -> rwFitHtml(o, true)
+- Risk: none
