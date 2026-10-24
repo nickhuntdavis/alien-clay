@@ -3,7 +3,7 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
-## After v10.122: 2026-10-24 No barge between waves; two flaky tests fixed (no build)
+## v10.123: 2026-10-24 No barge between waves; two flaky tests fixed
 - Merged: claude/serene-mayer-hzufbe.
 
 ### Folded from claude/serene-mayer-hzufbe: 2026-10-24 wup4test and rivalwave made reliable; no barge between waves
