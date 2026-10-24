@@ -1090,7 +1090,7 @@ Changed: Rapid Fire (Scrambled), Kinship (Family recipe), Knockback (Egg toss), 
 - **Why these:** Egg toss and Golden egg follow the user's picks on the last two weapons (Cannonball, Golden bubble); Egg drop gives Death from Above a payoff on landing instead of only moving where eggs appear.
 
 ### 5.9 Five more weapons (Claude's design, 24 Oct; the user asked for all 26 modifiers on each)
-Red Flagship, Soulmate Signal, Spark of Life, Maximum Gains and Enzyme Sneeze, designed from each weapon's physics: electricity (current, capacitors, earthing), a tether between you and a mirrored twin, fire that needs fuel (the stripped, Corroded enemy) and air, a shotgun in a gym, and a real sneeze. These tables replace those five weapons' rows in sections 3 and 4 (names in bold are internal working names). Ranged stays N/A on all five. Not built yet.
+Red Flagship, Soulmate Signal, Spark of Life, Maximum Gains and Enzyme Sneeze, designed from each weapon's physics: electricity (current, capacitors, earthing), a tether between you and a mirrored twin, fire that needs fuel (the stripped, Corroded enemy) and air, a shotgun in a gym, and a real sneeze. These tables replace those five weapons' rows in sections 3 and 4 (names in bold are internal working names). Ranged stays N/A on all five. Built 24 Oct (`cellmods3.js`); Pilot Lights also flare at any enemy that steps on a light, so they work without another Acid weapon.
 
 #### Red Flagship (Static Beam: a thin electrical beam fired forward; Charges)
 
