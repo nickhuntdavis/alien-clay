@@ -1079,13 +1079,11 @@ Blowing Bubbles' cells were redesigned with the user on 23 Oct and are built in 
 
 ### 5.7 Hot Mess specials (Claude's picks, 23 Oct; the user asked for them to be chosen)
 Built in `cellmods2.js` (24 Oct). Hot to touch and the ring of fire hit for half the weapon's damage every 0.25 s (first build: they were far behind the patches they replace).
-Built in `cellmods2.js` (24 Oct). Hot to touch and the ring of fire hit for half the weapon's damage every 0.25 s (first build: they were far behind the patches they replace).
 Changed: Rapid Fire (Spatter), Charged (Simmer), Catalyst (Fuel spill), Kinship (Firestarter), Knockback (Popcorn), Pulling (Plughole), Sticky (Tar pit), Exploding Rounds (Grease fire), Death from Above (Flaming bag), Switched at Birth (Acid or Mucus), Every Nth (Bonfire), Extra Projectiles (Splash pattern). Kept as written: Connecting (Shared Burn), Turncoat (Fire walker), Melee (Hot to touch), Mines (hidden patches), Primer, Orbiting (ring of fire). N/A: Range, Up Close, Piercing, Ricochet, Focused Intensity, Homing, Ranged.
 - **Area** (`areamod.js`): +25% patch size a rank, and **Spreading**: patches creep outward as they burn (+50% by the end). Area + Pulling: Plughole pulls from further away (as Nappy Mines' Implosion).
 - **Why these:** Tar pit and Simmer remove the two anti-synergies the old cells had (Snare putting the pool's own Fire out; a wind-up on a weapon that doesn't attack in bursts). Firestarter and Shared heat make Hot Mess and Nappy Mines a pair in Ordered Online.
 
 ### 5.8 Eggs specials (Claude's picks, 23 Oct)
-Built in `cellmods2.js` (24 Oct). In code every enemy but bosses already follows a lure, so two masteries became: Kinship, eggs lure from 50% further; Pulling, lured enemies rush to the egg (+50% speed). Catalyst's mastery is the shared one.
 Built in `cellmods2.js` (24 Oct). In code every enemy but bosses already follows a lure, so two masteries became: Kinship, eggs lure from 50% further; Pulling, lured enemies rush to the egg (+50% speed). Catalyst's mastery is the shared one.
 Changed: Rapid Fire (Scrambled), Kinship (Family recipe), Knockback (Egg toss), Sticky (Egg on your face), Death from Above (Egg drop), Switched at Birth (Blood or Acid), Every Nth (Golden egg). Kept as written: Catalyst, Pulling, Ricochet, Connecting (Clutch), Turncoat (Hatchling), Melee (Nest egg), Primer, Extra Projectiles, Orbiting. N/A: Range, Up Close, Charged, Piercing, Exploding Rounds, Focused Intensity, Homing, Mines, Ranged.
 - **Area** (`areamod.js`): +25% smite and lure radius a rank, and **Yolk splash**: the smite leaves a ghostly patch for 2 s that Curses what stands in it.
