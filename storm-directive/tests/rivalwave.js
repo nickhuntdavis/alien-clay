@@ -36,8 +36,11 @@ const { chromium } = require('playwright');
     V.spawned = V.budget; for (const o of G.enemies) if (!o.rival && !o.egg) o.dead = true; run(1);
     out.cleared = !V.active; out.lv1 = e && e.lvl; out.alive = !!(e && !e.dead);
     // Between waves it keeps its distance and holds fire.
-    if (e) { e.x = G.player.x + 200; e.y = G.player.y; e.mode = 'hunt'; } const hp0 = G.player.hp, b0 = G.ebul.length; run(3);
-    out.calm = e && e.mode !== 'hunt' && G.player.hp >= hp0 && G.ebul.length <= b0;
+    // (only the rival's own hits count: the player may be standing in random terrain, such as an Acid Crypt)
+    if (e) { e.x = G.player.x + 200; e.y = G.player.y; e.mode = 'hunt'; } const b0 = G.ebul.length; let hitByRival = 0;
+    const hp_ = hurtPlayer; hurtPlayer = function (d, from, ent) { if (ent === e || String(from || '').startsWith(e && e.name)) hitByRival++; return hp_.apply(this, arguments); };
+    try { run(3); } finally { hurtPlayer = hp_; }
+    out.calm = e && e.mode !== 'hunt' && !hitByRival && G.ebul.length <= b0;
     out.egg = e && e.mode !== 'egg';
     return out;
   }, seenAll.toString());

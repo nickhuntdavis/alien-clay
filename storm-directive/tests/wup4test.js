@@ -121,7 +121,7 @@ const { chromium } = require('playwright');
       // Nappy Mines
       'Proximity Problems': { sc: ST, cb: w => mset(w, { gap: 'prox', sp: 2.4 }), keys: ['prox'] },
       'Pass the Parcel': { sc: ST, cb: w => mset(w, { gap: 'prox', sp: 2.4 }), keys: ['fling'] },
-      'Crawling Baby': { sc: {}, cb: () => null, keys: ['crawl'], frames: 420 },
+      'Crawling Baby': { sc: {}, cb: () => null, keys: ['crawl'], frames: 900 }, // (a chance scene: a mine must creep 12 units before a nearby enemy sets it off)
       'Hand-Me-Down': { sc: ST, cb: w => mset(w, { gap: 25 }), keys: ['carry'] },
       'Cluster Diaper': { sc: ST, cb: w => mset(w, {}), keys: ['link', 'group'] },
       'Compound Interest': { sc: ST, cb: w => mset(w, {}), keys: ['group', 'grow'] },
