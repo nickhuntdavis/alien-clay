@@ -32,6 +32,8 @@ const XC_W = {
     deny: ['ranged'], atkOk: [] },
 };
 const XC_ALT = { s_mines: ['fire', 'ice'], s_bubble: ['fire', 'shock'] }; // (Switched at Birth: Acid or Mucus; Acid or Static)
+// Per-weapon parts, by tag (cellmods2.js adds Hot Mess and Eggs): every frame, firing (true: delivered), stats, risen allies.
+const XC_TICK = { nm: (w, dt) => xcNmTick(w, dt), bb: (w, dt) => xcBbTick(w, dt) }, XC_FIRE = {}, XC_STATS = {}, XC_RUN = {}, XC_LIFE = {};
 const XC_RAMP = n => [1, 3, 6, 12][Math.max(1, Math.min(4, n)) - 1];
 const xcDef = w => (w && w.def && !w.isSpell ? XC_W[w24Key(w)] : null);
 const xcIs = (w, tag) => { const D = xcDef(w); return !!D && D.tag === tag; };
@@ -105,11 +107,12 @@ wupStats = (orig => function (w, s) {
   if (xcIs(w, 'nm')) {
     if (R('rapid')) { s.cd /= 1 + xcLv([0.4, 0.8, 1.2, 1.6], R('rapid')); s.dmg *= xcLv([0.75, 0.7, 0.65, 0.6], R('rapid')); } // Breadcrumbs: faster, smaller
     const ex = R('extra'); if (ex) { const n0 = s.count || 1, n1 = n0 + xcLv([1, 2, 2, 6], ex); s.dmg *= Math.pow(n0 / n1, 0.4); }
-  } else {
+  } else if (xcIs(w, 'bb')) {
     const ex = R('extra'); if (ex) { const n0 = s.count || 1, n1 = n0 + xcLv([1, 2, 2, 2], ex); s.count = n1; s.dmg *= Math.pow(n0 / n1, 0.4); }
     if (R('charged')) s.hold *= xcLv([1.2, 1.4, 1.6, 1.6], R('charged')); // Big breath: traps bigger enemies
     if (R('area')) { s.size *= xcArea(w); s.hold += 4 * R('area'); } // Bigger bubbles
   }
+  const st = XC_STATS[xcDef(w).tag]; if (st) st(w, s);
 })(wupStats);
 
 // ================================================================ NAPPY MINES
@@ -181,6 +184,8 @@ function xcNmDfa(w, n) {
 }
 wupFire = (orig => function (w, t, src) {
   if (xcIs(w, 'nm') && xcAny(w)) { xcNmFire(w); return true; }
+  const F = xcDef(w) && XC_FIRE[xcDef(w).tag];
+  if (F && xcAny(w) && F(w, t, src)) return true;
   return orig(w, t, src);
 })(wupFire);
 
@@ -381,12 +386,15 @@ function xcRise(w, e) {
   const z = makeEnemy(e.def, e.x, e.y);
   z.charmed = true; z.charmT = 1e9; z.zombie = true; z.xp = 0; z.mwAllyOf = w; z.name = e.name;
   z.hp = z.maxHp = z.maxHp * 0.5;
-  z.xcRun = { w, end: G.t + 6, hits: 0 };
+  const tag = xcDef(w).tag;
+  z.xcRun = { w, end: G.t + (XC_LIFE[tag] ? XC_LIFE[tag](w) : 6), hits: 0, tag };
+  if (tag === 'eg') z.r *= 0.7; // (a hatchling: small)
   G.enemies.push(z); ring(z.x, z.y, z.r + 8, w.def.color, 0.4, 3);
 }
 function xcRunTick(z, dt) {
   const w = z.xcRun.w, r = xcR(w, 'turncoat'), bb = xcIs(w, 'bb');
   if (!G.weapons.includes(w)) { z.dead = true; return; }
+  if (XC_RUN[z.xcRun.tag]) { XC_RUN[z.xcRun.tag](z, dt); return; }
   const o = xcFoe(z.x, z.y, 420, [z]);
   if (o) { const d = Math.hypot(o.x - z.x, o.y - z.y) || 1, sp = bb ? 170 : 140; z.x += (o.x - z.x) / d * sp * dt; z.y += (o.y - z.y) / d * sp * dt; }
   const touch = o && Math.hypot(o.x - z.x, o.y - z.y) < z.r + o.r + 6;
@@ -854,7 +862,7 @@ function xcTick(dt) {
   if (!G || G.state !== 'play') return;
   for (const w of G.weapons) {
     if (!w || !xcAny(w)) continue;
-    if (xcIs(w, 'nm')) xcNmTick(w, dt); else xcBbTick(w, dt);
+    const f = XC_TICK[xcDef(w).tag]; if (f) f(w, dt);
   }
   for (const e of G.enemies) {
     if (e.dead) continue;
@@ -862,7 +870,7 @@ function xcTick(dt) {
     if (e.xcRun) xcRunTick(e, dt);
     if (e.xcCan && e.xcCan.t > G.t) { // Cannonball
       const C = e.xcCan, o = msNear(e.x, e.y, e.r + 4, [e]);
-      if (o && !o.charmed && G.weapons.includes(C.w)) { damageEnemy(o, C.w.s.dmg * 0.4, msEcho(weaponSrc(C.w))); shove(o, e.x, e.y, C.f * 0.6); e.xcCan = null; }
+      if (o && !o.charmed && G.weapons.includes(C.w)) { damageEnemy(o, C.w.s.dmg * (C.k || 0.4), msEcho(weaponSrc(C.w))); shove(o, e.x, e.y, C.f * 0.6); e.xcCan = null; }
       else if (xcR(C.w, 'knock') >= 4) for (const q of G.proj) if (q.mine && !q.dead && q.w === C.w && q.arm <= 0 && Math.hypot(q.x - e.x, q.y - e.y) < e.r + 20) { xcGo(q, null); e.xcCan = null; break; }
     }
   }
