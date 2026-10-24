@@ -9,16 +9,16 @@
 //    when its attack arrives (travel time by attack type) the stand-in is used up. Anything that would damage one
 //    uses it up instead (damageEnemy is asked first). With nothing of that kind in reach, the weapon falls back to its
 //    "Then" rule, or the nearest enemy.
-// Text: names are the user's words.
+// Text: names are the user's words; descriptions are plain first-pass copy (user, 24 Oct).
 // Hooks: none in shared files. Adds DIRECTIVES entries; wraps aimAllowed, aimList (spsteer.js), targetScore, acquire,
 // acquireMany, fireWeapon, damageEnemy (game.js). Loads after spsteer.js and modwide.js.
 
 const XAIM_IDS = ['mines', 'shots', 'enemies', 'me'];
 DIRECTIVES.push(
-  { id: 'mines', name: 'MINES', short: 'MINES', desc: 'Your nearest mine. Shooting it sets it off.', xtop: 1 },
-  { id: 'shots', name: 'PROJECTILES', short: 'PROJ', desc: 'The nearest enemy shot. Shoots it down.', xtop: 1 },
-  { id: 'enemies', name: 'ENEMIES', short: 'ENEMY', desc: 'The nearest enemy. The rules below pick which.', xtop: 1 },
-  { id: 'me', name: 'ME', short: 'ME', desc: 'You. Pools and blasts land on you. Shots go where you swim.', xtop: 1 });
+  { id: 'mines', name: 'MINES', short: 'MINES', desc: 'Aims at your nearest mine and sets it off when the attack arrives.', xtop: 1 },
+  { id: 'shots', name: 'PROJECTILES', short: 'PROJ', desc: 'Aims at the nearest enemy shot and destroys it.', xtop: 1 },
+  { id: 'enemies', name: 'ENEMIES', short: 'ENEMY', desc: 'Aims at the nearest enemy. The rules below it pick which enemy.', xtop: 1 },
+  { id: 'me', name: 'ME', short: 'ME', desc: 'Lands on you: pools, blasts and lures appear round you, and shots fly the way you swim.', xtop: 1 });
 aimAllowed = (orig => function (dir) {
   if (XAIM_IDS.includes(dir)) return true; // (always: user, 24 Oct)
   return orig(dir);

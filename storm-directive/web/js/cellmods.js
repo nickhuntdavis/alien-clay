@@ -13,7 +13,7 @@
 //    deals one of the two. The ranked "Alternating" mastery is not built (Switched at Birth has no ranks).
 //  - BUBBLES INFLATE before they are sent, on every bubble weapon (xcInflate). Melee's bubble round you is not the
 //    Membrane: touched, it pops in a Force explosion, then grows back from tiny (3 s; 2 s from Lv 2).
-//  - Card text: XC_COPY (cell_nm_<modifier>, cell_bb_<modifier>; one per cell).
+//  - Card text: cell_nm_<modifier>, cell_bb_<modifier> (one per cell), written in cellcopy.js.
 // Hooks: one line in toys.js bubblePop (a switched bubble pops in its new type). Wraps modOk, modAdd, modCard, sabCard,
 // wupStats/wupFire/wupHit/wupKill/wupTick/wupDmgMul, msStats/msFire/msDmgMul/msHit/msKill/msTick (modslice.js),
 // mwStats/mwFire/mwDmgMul/mwHit/mwKill/mwTick/mwDetonate (modwide.js), p11Range, modFire/modProj/modTick/modDraw
@@ -32,51 +32,6 @@ const XC_W = {
     deny: ['ranged'], atkOk: [] },
 };
 const XC_ALT = { s_mines: ['fire', 'ice'], s_bubble: ['fire', 'shock'] }; // (Switched at Birth: Acid or Mucus; Acid or Static)
-// Card text for each cell (written for the user, 24 Oct; cellmods2.js adds Hot Mess and Eggs).
-const XC_COPY = {
-  cell_nm_orbiting: "Your mines circle you and go off when something touches them. More mines, then a wider orbit. Mastery: they leave burning spots.",
-  cell_nm_extra: "More mines per drop. Then they're laid in a line behind you, and at mastery a long string of them. Tidy, in its way.",
-  cell_nm_melee: "A mine goes off on you every 2 seconds. It hurts enemies. It also hurts you. Mastery: it heals you instead if it catches five.",
-  cell_nm_dfa: "Mines fall among the enemies instead of behind you. Later they land as a carpet that goes off in order. Mastery: a Nuclear Nappy.",
-  cell_nm_ricochet: "A new mine bounces off the nearest enemy, slides away and arms where it stops. Mastery: each bounce leaves a burning spot.",
-  cell_nm_pull: "A tripped mine sucks enemies in for a moment, then goes off. The pull reaches further. Mastery: it drags nearby mines in too.",
-  cell_nm_knock: "Blasts throw enemies, and a thrown enemy hits whatever it lands on. Mastery: thrown enemies set off any mine they land near.",
-  cell_nm_sticky: "An enemy that trips a mine is held in place until the blast. Polite of it. Mastery: every enemy near the mine is held.",
-  cell_nm_connecting: "Mines are joined by tripwires. Crossing one sets off both ends. Longer wires, then two each. Mastery: triangles set off all three.",
-  cell_nm_turncoat: "Some enemies the mines kill get back up carrying a mine and swim into the nearest crowd. Bigger blasts. Mastery: bigger patches.",
-  cell_nm_charged: "Mines left alone grow stronger, slowly. Old mines are the dangerous ones. Mastery: ripe mines count double towards a Nuclear Nappy.",
-  cell_nm_rapid: "Faster, smaller mines, dropped in a tight trail behind you. Mastery: mines dropped close together fuse into a bigger one.",
-  cell_nm_nth: "Every 4th mine, then every 3rd, leaves a much bigger patch that burns twice as long. Then a bigger blast. Mastery: a Nuclear Nappy.",
-  cell_nm_catalyst: "Stronger Burn. Burn spreads from a burning enemy to anything touching it. Personal space was always optional.",
-  cell_nm_kinship: "Hits from your other Fire weapons set mines off harder, and Hot Mess pools set them off too. Mastery: patches and pools merge.",
-  cell_nm_primer: "Blasts prime enemies. A primed enemy set off by another weapon leaves a burning patch. Mastery: detonations set off nearby mines.",
-  cell_nm_area: "Bigger blasts and patches, plus a shockwave ring that tugs enemies inwards. Bigger each level.",
-  cell_nm_homing: "With Ricochet: a bounced mine heads for the next enemy and goes off on contact instead of resting.",
-  cell_bb_range: "Bubbles fly further. A full bubble drifts away from you with its enemy inside. Mastery: it drops them far behind the rest.",
-  cell_bb_upclose: "Stronger up close. A bubble that traps near you shoves its enemy away. Mastery: further, and it pops on whatever it hits.",
-  cell_bb_rapid: "Faster bubbles, big and small. About half don't trap: they block and shove. Mastery: shovers that meet merge into a big trap.",
-  cell_bb_charged: "A long breath in, then one huge bubble that rolls up to three enemies. It takes two touches to pop. Mastery: it traps elites.",
-  cell_bb_catalyst: "Statuses tick faster inside a bubble. A small laboratory, briefly. Mastery: the pop spreads every status the bubble held.",
-  cell_bb_kinship: "Your other Mucus weapons blow free bubbles on Snotty enemies. Mastery: a bubble crossing a Nocturnal Emission puddle doubles.",
-  cell_bb_knock: "Hitting a full bubble knocks it away instead of popping it. Mastery: a knocked bubble pops on impact and flings its occupant.",
-  cell_bb_pull: "A full bubble pulls nearby enemies towards it, from further each level. They gather round the pop that's coming.",
-  cell_bb_sticky: "Pops leave gum that sticks enemies down, and big enemies get gummed up. Mastery: bubbles that touch stick and pop together.",
-  cell_bb_piercing: "Enemy shots pass straight through bubbles, and bubbles pass big enemies by. Mastery: one bubble can hold two.",
-  cell_bb_explode: "Pops are full blasts, and a bubble bursts on any big enemy it can't trap. Mastery: the freed enemy is flung into its friends.",
-  cell_bb_homing: "Bubbles steer towards small enemies, and a full one floats to the crowd. Mastery: full bubbles float back to you instead.",
-  cell_bb_ricochet: "Bubbles bounce off big enemies and each other, growing each time, so they hold bigger enemies. Mastery: full bubbles bounce too.",
-  cell_bb_focus: "Hitting the same big enemy inflates it. Enough hits and it's trapped, whatever its size. Mastery: its pop is three times bigger.",
-  cell_bb_connecting: "Full bubbles near each other drift into a clump that pops together, each pop bigger. Mastery: the last pop traps again.",
-  cell_bb_turncoat: "Some enemies the bubbles kill get back up in a hamster ball and bowl into their friends. Mastery: the pop traps a new one.",
-  cell_bb_melee: "You sit in a bubble. Anything that touches it gets a Force explosion, then it grows back. From Lv 3 it eats enemy shots too.",
-  cell_bb_mines: "Drop a bubble machine that blows bubbles at small enemies for a while. Two machines, then faster. Mastery: two bubbles at a time.",
-  cell_bb_dfa: "Bubbles rain down over the crowd for a few seconds. Longer, then wider. Mastery: the rain follows the crowd around.",
-  cell_bb_primer: "A trapped enemy is primed. Your other weapons set it off without popping the bubble, and harder than usual.",
-  cell_bb_nth: "Every 4th bubble, then 3rd, traps any non-elite and won't pop for 3 seconds. Then kills near it drop extra DNA. Mastery: elites too.",
-  cell_bb_extra: "More bubbles per breath. Then each one goes after a different small enemy. Mastery: a full ring of them.",
-  cell_bb_orbiting: "Bubbles circle you and trap whatever touches them. From Lv 3 they block shots. Mastery: popped ones come back in 2 seconds.",
-  cell_bb_area: "Bigger bubbles that hold bigger enemies, and bigger pops. Each pop leaves a mist that pops again a second later.",
-};
 // Per-weapon parts, by tag (cellmods2.js adds Hot Mess and Eggs): every frame, firing (true: delivered), stats, risen allies.
 const XC_TICK = { nm: (w, dt) => xcNmTick(w, dt), bb: (w, dt) => xcBbTick(w, dt) }, XC_FIRE = {}, XC_STATS = {}, XC_RUN = {}, XC_LIFE = {};
 const XC_RAMP = n => [1, 3, 6, 12][Math.max(1, Math.min(4, n)) - 1];
@@ -135,7 +90,7 @@ modAdd = (orig => function (w, id) {
 })(modAdd);
 modCard = (orig => function (w, id) {
   const c = orig(w, id);
-  if (c && xcCell(w, id)) { const k = 'cell_' + xcDef(w).tag + '_' + id; c.desc = XC_COPY[k] || 'TODO_COPY:' + k; }
+  if (c && xcCell(w, id)) c.desc = 'TODO_COPY:cell_' + xcDef(w).tag + '_' + id; // (filled by cellcopy.js)
   return c;
 })(modCard);
 sabCard = (orig => function () {
