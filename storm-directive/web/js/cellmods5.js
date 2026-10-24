@@ -341,11 +341,11 @@ modProj = (orig => function (pr, w) {
 function xcScProj(pr, w) {
   const R = id => xcR(w, id), S = xcSc(w), kid = !!pr.mSplit;
   pr.xcSc = 1; pr.xcVol = kid && XSC.vol != null ? XSC.vol : S.vol;
-  if (!kid && S.nthF != null && S.nthF === G.frameN) pr.xcNth = 1;
+  if (!kid && S.nthF != null && S.nthF === (G.frameN || 0)) pr.xcNth = 1;
   if (R('piercing') && !kid) { pr.pierce = (pr.pierce || 0) + XC_RAMP(R('piercing')); pr.xcPc = 1; }
   if (R('ricochet') && (!kid || R('ricochet') >= 4)) pr.bounce = (pr.bounce || 0) + XC_RAMP(R('ricochet'));
   if (R('extra') >= 3 && !kid) { // front and back; the mastery is a brood in every direction
-    if (S.exF !== G.frameN) { S.exF = G.frameN; S.exI = 0; }
+    if (S.exF !== (G.frameN || 0) || S.exI == null) { S.exF = G.frameN || 0; S.exI = 0; }
     const i = S.exI++, sp = pr.speed;
     if (R('extra') >= 4) { const a = i / Math.max(1, w.s.count) * TAU + rand(-0.1, 0.1); pr.vx = Math.cos(a) * sp; pr.vy = Math.sin(a) * sp; }
     else if (i % 2) { pr.vx = -pr.vx; pr.vy = -pr.vy; }
