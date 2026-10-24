@@ -1,7 +1,6 @@
 'use strict';
 // Spawn Prawn - two v9 ways in that the v10 start flow had lost (user, 22 Oct 2026: "fix it all"):
-//  - Daily Challenge: its title button went with the Figma title (one way in per action), so it is a card at the top of
-//    the Sample Rack (the daily picks its own sample: daily.js dailySetup, v10 samples only). Same name, line and start.
+//  - Daily Challenge: back on the main menu (24 Oct 2026), so no longer a card on the Sample Rack.
 //  - Immune Response: only the v9 sequence screen could set it, so Mode Select carries the same stepper (META.heat, up to
 //    META.heatMax; meta.js applies it to the run, prestige.js unlocks the next level on a birth at the top one).
 // No new copy: the card and stepper reuse the v9 strings. Hooks: none (wraps s10Samples and s10Modes). Off with V10_OFF.
@@ -9,20 +8,6 @@
 
 (function () {
   if (typeof V10 === 'undefined' || !V10 || typeof s10Samples !== 'function') return;
-  const samples = s10Samples;
-  s10Samples = function () {
-    const r = samples.apply(this, arguments);
-    const list = $('sampleList');
-    if (list && typeof startDaily === 'function' && typeof dailySetup === 'function') {
-      const D = dailySetup();
-      const html = uiSampleCard({ cls: 'hero', attrs: 'data-daily="1"', style: `--c:${PAL.reward}`, art: typeof pictoSVG === 'function' ? pictoSVG('daily') : null,
-        kicker: '#' + esc(D.date), name: 'DAILY CHALLENGE', desc: esc(dailyLine()), tag: '' });
-      list.insertAdjacentHTML('afterbegin', html);
-      const b = list.querySelector('[data-daily]');
-      if (b) b.addEventListener('click', () => startDaily());
-    }
-    return r;
-  };
   const modes = s10Modes;
   s10Modes = function () {
     const r = modes.apply(this, arguments);
