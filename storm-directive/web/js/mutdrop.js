@@ -101,7 +101,7 @@ function mdDraw() {
     ctx.globalAlpha = d.life < 5 && Math.floor(t * 6) % 2 ? 0.35 : 1;
     ctx.globalCompositeOperation = 'lighter'; glow(x, y, R * 2.4, col, 0.55); ctx.globalCompositeOperation = 'source-over';
     mdHelix(x, y, R, t, '#ffffff');
-    mdLabel('MUTATION', x, y - R - 8, 10);
+    mdLabel('TODO_COPY:elite_strand', x, y - R - 8, 10);
   }
   for (const e of G.enemies) { // carriers: the helix wound round them, a ping, a beacon with its countdown
     if (!e.mdCarry || e.dead) continue;
@@ -117,7 +117,7 @@ function mdDraw() {
     if (pk >= 0 && pk < 1) for (let q = 0; q < 3; q++) { const f = pk * 1.6 - q * 0.25; if (f <= 0 || f >= 1) continue; ctx.globalAlpha = 1 - f; ctx.lineWidth = 4 * (1 - f) + 1; ctx.beginPath(); ctx.arc(x, y, R + f * 90, 0, TAU); ctx.stroke(); }
     const by = y - R - 18 - Math.abs(Math.sin(t * 4)) * 8;
     ctx.globalAlpha = 1; junkArrow(x, by, Math.PI / 2, 11, 1);
-    mdLabel('KILL FOR A MUTATION ' + Math.ceil(left) + 's', x, by - 16, 12);
+    mdLabel('TODO_COPY:elite_killfor ' + Math.ceil(left) + 's', x, by - 16, 12);
     const dW = Math.hypot(e.x - p.x, e.y - p.y), a = Math.atan2(e.y - p.y, e.x - p.x), px = sx(p.x), py = sy(p.y);
     if (dW > 120) for (let q = 0; q < 3; q++) { const ph = (t * 1.8 + q / 3) % 1, rr = 44 * Math.max(1, S * 0.6) + ph * 34; junkArrow(px + Math.cos(a) * rr, py + Math.sin(a) * rr, a, 9, Math.sin(ph * Math.PI)); }
     if (x < 0 || x > W || y < 0 || y > H) { // off screen: a big arrow at the edge
