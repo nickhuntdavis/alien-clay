@@ -361,7 +361,7 @@ function ewStamp(w, t, o) {
     return null;
   }
   let n = s.chain + 1 + (R('dfa') >= 2 ? 1 : 0) + (R('mines') >= 3 ? 1 : 0), list = null, emp = false;
-  if (R('nth') && !o.free) { w.c4n = (w.c4n || 0) + 1; emp = w.c4n % (R('nth') >= 2 ? 3 : 4) === 0; if (emp) n += 3; }
+  if (R('nth') && w.c4empP) { w.c4empP = 0; emp = true; n += 3; } // (Every Nth: counted per shot in ewFire, spent on the next bundle)
   const d = Math.hypot(t.x - p.x, t.y - p.y);
   if (R('upclose') && d < 120 + t.r) { n += xcLv([1, 2, 3, 3], R('upclose')); if (R('upclose') >= 4 && d < 60 + t.r) { list = around(t, 80, 12); mark(w, 'pointblank'); } }
   if (R('explode') && !o.free) { // the stamp explodes; the bundle is made from what it hit
@@ -380,7 +380,7 @@ function ewStamp(w, t, o) {
 }
 function ewKnock(w, B, t) { // Elastic: the bundle is knocked back together
   const r = xcR(w, 'knock'), p = G.player, f = 5 * xcLv([40, 60, 80, 80], r), d = Math.hypot(t.x - p.x, t.y - p.y) || 1, ux = (t.x - p.x) / d, uy = (t.y - p.y) / d;
-  for (const e of B.members) if (!e.boss) shove(e, e.x - ux, e.y - uy, f);
+  B.members.forEach((e, i) => { if (!e.boss) shove(e, e.x - ux, e.y - uy, f * Math.max(0.25, 1 - 0.3 * i)); }); // (the stamped end takes the full knock: the tape stretches)
   B.c4kn = G.t + 0.7; B.c4snap = new Set(); B.c4yank = new Set(); mark(w, 'knock');
 }
 function ewBounce(w, t, B, k) { // Ricochet: the stamp bounces on to enemies ahead, taping each to the last bundle (8 a bundle; the mastery: all in one)
@@ -425,6 +425,7 @@ function ewPierce(w, t, B) { // Piercing: the stamp carries on in a line, starti
 }
 function ewFire(w, target) {
   const R = id => xcR(w, id), s = w.s, p = G.player;
+  if (R('nth')) { w.c4n = (w.c4n || 0) + 1; if (w.c4n % (R('nth') >= 2 ? 3 : 4) === 0) w.c4empP = 1; }
   if (R('orbiting')) return true; // (the orbs stamp in the tick)
   if (R('mines')) { ewLay(w, target); return true; }
   if (R('dfa')) { ewDrop(w, target); return true; }

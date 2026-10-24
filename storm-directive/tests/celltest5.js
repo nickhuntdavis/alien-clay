@@ -71,6 +71,8 @@ const { chromium } = require('playwright');
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
-  console.log(r.bad.length ? 'FAIL ' + r.bad.join('; ') : 'OK', 'ERRORS', JSON.stringify(errors.slice(0, 5)));
+  console.log(r.bad.length ? 'FAIL ' + r.bad.join('; ') : 'OK'); // (own line: run.sh drops lines that say ERRORS [])
+  console.log('ERRORS', JSON.stringify(errors.slice(0, 5)));
+  if (r.bad.length || errors.length) process.exitCode = 1;
   await b.close();
 })();

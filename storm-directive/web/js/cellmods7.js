@@ -115,13 +115,13 @@
       }
       if (ex >= 3 && n > 1) { const off = i - (n - 1) / 2, a0 = a - off * 0.12; a = ex >= 4 ? a0 + i / n * TAU : a0 + off * 0.52 / (n - 1); } // fan, then a ring
       const emp = spEvent(w, i === 0);
-      const pr = spTag(w, orig(w, x, y, a, src, over), A.m, { emp });
+      const pr = spTag(w, orig(w, x, y, a, src, over), A.m, { emp, k: A.k0 });
       if (pr && i === 0) {
         const extra = [];
         if (R('rapid') >= 4) extra.push(0.09); // in pairs
         if (emp && R('nth') >= 4) extra.push(-0.16, 0.16); // three
         C.cur = null;
-        try { for (const da of extra) spTag(w, orig(w, x, y, a + da, src, over), A.m, { emp }); } finally { C.cur = w; }
+        try { for (const da of extra) spTag(w, orig(w, x, y, a + da, src, over), A.m, { emp, k: A.k0 }); } finally { C.cur = w; }
       }
       return pr;
     }
@@ -150,7 +150,7 @@
     }
     const mode = R('melee') ? 'melee' : R('mines') ? 'mines' : R('dfa') ? 'dfa' : R('orbiting') ? 'orb' : R('charged') ? 'charged' : null;
     const cap = mode === 'orb' ? xcLv([3, 5, 5, 5], R('orbiting')) : 0, block = !!mode && (mode !== 'orb' || w.q.length <= cap), cd0 = w.cd;
-    A.q0 = w.q.length; A.ate = 0; A.fi = 0; A.trick = 0;
+    A.q0 = w.q.length; A.ate = 0; A.fi = 0; A.trick = 0; A.k0 = w.q.length ? ek(w.q.find(x => typeof x === 'number' || !x.fill) || 1) : SIPHON.dry;
     if (block) w.cd = 9;
     C.cur = w;
     try { orig(w, dt); } finally { C.cur = null; if (block) w.cd = Math.max(0, cd0 - dt); }
