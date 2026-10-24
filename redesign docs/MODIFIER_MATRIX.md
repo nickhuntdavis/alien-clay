@@ -1089,6 +1089,164 @@ Changed: Rapid Fire (Scrambled), Kinship (Family recipe), Knockback (Egg toss), 
 - **Area** (`areamod.js`): +25% smite and lure radius a rank, and **Yolk splash**: the smite leaves a ghostly patch for 2 s that Curses what stands in it.
 - **Why these:** Egg toss and Golden egg follow the user's picks on the last two weapons (Cannonball, Golden bubble); Egg drop gives Death from Above a payoff on landing instead of only moving where eggs appear.
 
+### 5.9 Five more weapons (Claude's design, 24 Oct; the user asked for all 26 modifiers on each)
+Red Flagship, Soulmate Signal, Spark of Life, Maximum Gains and Enzyme Sneeze, designed from each weapon's physics: electricity (current, capacitors, earthing), a tether between you and a mirrored twin, fire that needs fuel (the stripped, Corroded enemy) and air, a shotgun in a gym, and a real sneeze. These tables replace those five weapons' rows in sections 3 and 4 (names in bold are internal working names). Ranged stays N/A on all five. Built 24 Oct (`cellmods3.js`); Pilot Lights also flare at any enemy that steps on a light, so they work without another Acid weapon.
+
+#### Red Flagship (Static Beam: a thin electrical beam fired forward; Charges)
+
+| Modifier | Lv 1 | Lv 2 and 3 | Mastery |
+|---|---|---|---|
+| Range | **Long Distance Call:** reach +20%; past 300 the tip forks into an arc hunting for ground. | Reach +40 / 60%; 2, then 3 arcs. | **Earthing:** where the beam ends on the floor it leaves a static puddle (2 s) that Charges anything standing in it. |
+| Up Close | **Short Circuit:** enemies within 120 take +40% and Charge twice as fast. | +80 / 120%. | Anything that touches you while the beam is on is thrown off by a discharge and stunned 0.5 s. |
+| Rapid Fire | **Alternating Current:** the beam flickers in fast pulses (rate +40%, each weaker); each pulse makes Charged enemies twitch (0.05 s stun). | Rate +80 / 120%. | **50 Hz:** the twitches sync: Charged enemies on the beam are held still while it is on (not bosses). |
+| Charged | **Capacitor:** while off, the beam stores up; its first 0.3 s on is a thick surge, +100%. | +150 / 200%. | The surge Charges everything it touches at once. |
+| Catalyst | **Conductor:** Charge fills faster; Static reactions hit harder. | Stronger. | A Charged enemy on the beam passes its Charge to every enemy touching it. |
+| Kinship | **Grid:** the beam bends to brush 1 enemy near its line that another Static weapon has Charged. | 2, then 3. | The beam completes a circuit through every one of your Static weapons' targets. |
+| Knockback | **Railgun:** enemies on the beam slide along it away from you (40 a second). | 80 / 120. | An enemy that reaches the end is fired off like a slug and hits whatever it meets for 60%. |
+| Pulling | **Electromagnet:** enemies within 40 of the beam are drawn onto it. | 60 / 80. | The beam reels everything on it towards you, nose to tail. |
+| Sticky | **Static Cling:** enemies on the beam cling to it, slowed 30%, and are dragged as it sweeps. | 50 / 70%. | An enemy clinging for 1 s is welded in place (Snared) and stays Charged. |
+| Piercing | **Series Circuit:** each enemy the beam passes adds +10% to the next one. | +20 / 30%. | The last enemy in the line takes a discharge worth the whole line. |
+| Exploding Rounds | **Arc Flash:** the tip bursts every 0.5 s on target, Charging. | Every 0.4 / 0.3 s. | The burst runs back down the beam to you, Charging everything on the line. |
+| Homing | **Path of Least Resistance:** the beam bends towards Charged enemies near its line. | Bends harder. | Like lightning, it bends round walls and enemies to reach its target. |
+| Ricochet | **Mirror Ball:** the beam reflects off enemies at the true angle (1 bounce). | 3 / 6 bounces. | **Prism:** every bounce splits into two weaker beams (12 segments at most). |
+| Focused Intensity | **Breakdown:** held on one target the damage climbs; at full ramp it takes +50% Charge. | Faster ramp, higher peak. | At full ramp the target arcs to every Charged enemy within 100. |
+| Connecting | **Jump Leads:** the beam carries on from its target to 1 linked enemy within 100. | 2 enemies (70% each); relayed enemies are Charged. | Relays chain on, 6 enemies in all. |
+| Turncoat | **Antenna:** a kill rises as an ally that catches your beam and re-transmits it from itself for 5 s. | 7 s; the relayed beam Charges. | Antennas relay to each other. |
+| Melee | **Live Wire:** the beam shortens into a whip that cracks across a 140° arc in front (reach 90) every 0.4 s, Charging. | Reach 110; every 0.3 s. | A Charged enemy hit by the whip passes the crack to one neighbour (4 in a chain). |
+| Ranged | N/A: Ranged is for close-range weapons. |  |  |
+| Mines | **Electric Fence:** 3 posts on the floor; an enemy crossing between two fires a beam across the gap. | 5 posts; gaps up to 200. | Three posts close into a triangle fence that is always on. |
+| Death from Above | **Thunderstorm:** a lightning bolt strikes the target (0.4 s reticle), Charging everything within 50. | Radius 70; +40%. | The bolt forks into 3 more on nearby Charged enemies. |
+| Switched at Birth | Static → **Force:** a plain, heavy beam that pushes (no Charge), +20% damage. | +30 / 40%. | Dual Static and Force: Shocking Impact all along the beam. |
+| Primer | **Spark Gap:** enemies on the beam for 0.5 s are primed; detonations Charge. | Bigger detonations; they arc to a neighbour. | Detonating a Charged enemy sets off a Static reaction round it. |
+| Every Nth | **Red Flag:** every 4th on-phase is a thick red beam (+50%) that pins its target for 0.5 s. | Every 3rd; it lasts 0.5 s longer. | It Charges everything it touches at once. |
+| Extra Projectiles | **Fleet:** +1 beam in front, on a different target. | A rear beam; then +1 more in front. | **Lighthouse:** beams turn in every direction (less damage each). |
+| Orbiting | **Hula Hoop:** the beam bends into a ring round you (radius 72). | Radius 100; the ring burns enemy shots. | A second, inner ring turning the other way. |
+| Area | **Crackle:** the beam is 25% wider a rank, and enemies within twice its width get a little Charge as it passes. | +50 / 75%. | +100%. |
+
+#### Soulmate Signal (Static Beam: a twin mirrors you across the crowd; a beam joins you; Charged enemies pass arcs)
+
+| Modifier | Lv 1 | Lv 2 and 3 | Mastery |
+|---|---|---|---|
+| Range | **Long Distance Relationship:** the twin can stand 20% further away; the longer the beam, the harder it hits (up to +30%). | +40 / 60%. | The beam holds even with the twin off screen. It's not you, it's the distance. |
+| Up Close | **Clingy:** while the twin is within 200, the beam is thicker and +40%. | +80 / 120%. | If the twin touches you, you both burst (a hug, Static, it never hurts you). |
+| Rapid Fire | **Heartbeat:** the beam beats (two quick pulses, a gap); each pulse arcs once to a Charged enemy. | Beats faster. | Below half health your heart races: it beats twice as fast. |
+| Charged | **Long Look:** while you and the twin hold still the beam builds; moving releases a thick surge, +60%. | +90 / 120%. | A held stare Charges everything between you at once. |
+| Catalyst | **Chemistry:** Charge and its reactions are stronger; arcs from the beam set off Static reactions. | Stronger. | A reaction on the beam happens again at the twin's end. |
+| Kinship | **Matchmaker:** each other Static weapon adds an arc jump. | +2 / 3 jumps a weapon. | The twin fires your other Static weapons too, mirrored, at 40%. |
+| Knockback | **Third Wheel:** enemies the beam sweeps are shoved the way it moves (30). | 60 / 90. | An enemy shoved off the end is flung away and bowls over what it hits. |
+| Pulling | **Gravitational Pull:** the twin draws enemies within 60 towards itself, onto the beam's end. | 90 / 120. | Both ends pull: the crowd is drawn onto the line. |
+| Sticky | **Attachment Issues:** enemies on the beam are slowed and dragged along as it moves. | Slower, dragged further. | Enemies that leave the beam stay stuck where they left it. |
+| Piercing | **Sees Right Through You:** the beam ignores 25% of Shell (it already hits everything on the line). | 50 / 75%. | It ignores Shell and Membrane completely. |
+| Exploding Rounds | **Fireworks:** the twin's end bursts once a second. | Every 0.8 / 0.6 s. | Both ends burst: you do too (it never hurts you). |
+| Homing | **Soul Searching:** the twin drifts towards the densest cluster. | Faster. | It jumps to the next cluster the moment the current one thins. |
+| Ricochet | **Love Triangle:** the beam bounces off the twin to one more point. | 2 / 3 points: a zigzag. | The zigzag weaves through the crowd between you. |
+| Focused Intensity | **Devotion:** an enemy that stays on the beam takes more and more. | Faster ramp, higher peak. | At full ramp it is Charged for good. |
+| Connecting | **Mutual Friend:** the beam bends through one linked enemy (a triangle of you, it and the twin). | The bend point is the densest spot near the line; then a second bend. | Bend points jump to whoever is Charged. |
+| Turncoat | **Rebound:** a kill rises as a second partner; the beam runs you, twin, ally for 5 s. | 7 s; it moves to the densest part of the crowd. | Two rebounds make a four-point beam. |
+| Melee | **Slow Dance:** the twin circles you at 70, sweeping the beam round you like a blade. | 30% faster; radius 90. | Two twins on opposite sides. |
+| Ranged | N/A: Ranged is for close-range weapons. |  |  |
+| Mines | **Waiting at the Altar:** the twin waits as a fixed anchor; the beam fires when enemies come between you. | Anchor range +60; it stays on 1 s after the last enemy leaves. | A second anchor: the beam runs between all three points. |
+| Death from Above | **Falling for You:** the twin dives from above onto the far anchor, then the beam forms. | Twice as fast; it lands on the densest cluster. | The landing is a Static burst. |
+| Switched at Birth | Static → **Blood** (**Heartstrings**): the beam turns red; enemies on it Bleed, and Bleed passes along the line instead of arcs. | Bleed builds +20 / 40%. | Dual Static and Blood. |
+| Primer | **Matchmaking:** enemies the beam touches are primed. | Bigger detonations; a detonation on the beam sends an arc to the twin. | The beam re-primes everything on it every second. |
+| Every Nth | **Anniversary:** every 4th re-anchor doubles the beam's width for 1 s. | Every 3rd; 2 s. | It arcs 5 jumps. |
+| Extra Projectiles | **Polycule:** a second twin and beam. | It mirrors the first across you; then a third. | The twins circle you, their beams turning like spokes. |
+| Orbiting | **Honeymoon:** the twin circles the crowd's centre instead of you, so the beam sweeps through the crowd from outside. | Faster; wider. | Two twins on opposite sides of the crowd. |
+| Area | **Wide Berth:** the beam is 25% wider a rank, and its arcs jump 25% further. | +50 / 75%. | +100%. |
+
+#### Spark of Life (Fire Beam: burns enemies the Acid has stripped; Premature Evaporation on Corroded targets)
+
+| Modifier | Lv 1 | Lv 2 and 3 | Mastery |
+|---|---|---|---|
+| Range | **Long Fuse:** reach +20%; the far end lights Corroded enemies first. | +40 / 60%. | The far end drips burning acid into a small patch. |
+| Up Close | **Blue Flame:** within 120 the flame burns blue, +40%. | +80 / 120%. | At point blank, Premature Evaporation is twice the size. |
+| Rapid Fire | **Spark Plug:** the beam fires as fast sparks; a spark on a Corroded enemy lights one neighbour. | Faster. | Sparks ignite every Corroded enemy they pass. |
+| Charged | **Pilot Light:** the beam idles as a tiny flame, then roars for 0.6 s, +60%. | +90 / 120%. | The roar sets off Premature Evaporation on every Corroded enemy in its lane. |
+| Catalyst | **Accelerant:** Burn and Premature Evaporation are stronger. | Stronger. | Premature Evaporation leaves Corrosion at half instead of none, so it can go again. |
+| Kinship | **Kindling:** Fire weapons count as kin, Acid weapons as half. | Stronger. | It burns Shelled enemies at full damage. |
+| Knockback | **Updraft:** hot air pushes burning enemies down the lane (30). | 60 / 90. | Enemies pushed to the lane's end burst into flame. |
+| Pulling | **Oxygen Draw:** fire draws in air: enemies within 60 of the flame are drawn into it, Corroded ones twice as hard. | 90 / 120. | Corroded enemies anywhere in range are drawn in. |
+| Sticky | **Melted Wax:** enemies in the beam are slowed by melting wax (no Snare, so the fire stays lit). | Slower. | A Corroded enemy held for 1 s sticks fast, then flares into Premature Evaporation. |
+| Piercing | **Through and Through:** the beam carries on through 1 enemy, losing less on Corroded ones. | 3 / 6. | It pierces every Corroded or unshelled enemy in its way. |
+| Exploding Rounds | **Flashover:** a Corroded target bursts on first contact, spreading Premature Evaporation. | Bigger. | Each Premature Evaporation it causes bursts again at half size. |
+| Homing | **Seeks Fuel:** the beam bends towards Corroded enemies. | Bends harder. | It bends to touch every Corroded enemy within 60 of its line. |
+| Ricochet | **Flare:** the beam reflects off Corroded enemies only (they're wet and shiny). | 3 / 6 bounces. | Every bounce sets off Premature Evaporation. |
+| Focused Intensity | **Slow Roast:** held on one Corroded target, damage climbs. | Faster ramp, higher peak. | At full ramp, Premature Evaporation goes off on it every second. |
+| Connecting | **Fuse:** linked Corroded enemies form a fuse; lighting one burns along it, enemy to enemy. | Fuses of 3, then 5. | Fuses relight: an enemy that re-Corrodes within 3 s joins again. |
+| Turncoat | **Ember:** a kill rises as a burning husk that swims at the nearest Corroded enemy and bursts on it. | Burst +30%; it hunts anywhere on screen. | An ember's burst can raise another ember. |
+| Melee | **Blowtorch:** a short, thick flame (60) that burns +60% and prefers Corroded enemies. | Range 80; +90%. | Its Premature Evaporation is twice the size. |
+| Ranged | N/A: Ranged is for close-range weapons. |  |  |
+| Mines | **Pilot Lights:** small flames on the floor that flare into a short beam when a Corroded enemy crosses. | 5 lights; beam 160. | They flare at any enemy, Corroded ones +50%. |
+| Death from Above | **Fire from Heaven:** a Fire bolt strikes a Corroded target (0.4 s reticle). | +30%; the two most Corroded targets. | Every Corroded enemy within 120 of the bolt is struck too. |
+| Switched at Birth | Fire → **Static** (**A Literal Spark**): the beam Charges instead of Burning; Premature Evaporation still goes off on Corroded targets. | Charge +20 / 40%. | Dual Fire and Static. |
+| Primer | **Tinder:** burning enemies are primed. | Bigger detonations; detonating a Corroded one sets off Premature Evaporation. | Premature Evaporation re-primes everything it hits. |
+| Every Nth | **Backdraft:** every 4th on-phase sets off Premature Evaporation on every Corroded enemy in the lane. | Every 3rd; 0.5 s longer. | It lasts twice as long. |
+| Extra Projectiles | **Candelabra:** +1 beam in front, on a different Corroded target. | A rear beam; then +1 more. | Beams turn in every direction, stopping briefly on Corroded enemies. |
+| Orbiting | **Ring of Fire:** the beam becomes a ring round you that burns Corroded enemies. | Radius 90; it sets off Premature Evaporation on contact. | A second ring turning the other way. |
+| Area | **Heat Haze:** the beam is 25% wider a rank, and enemies near its line pick up a little Burn. | +50 / 75%. | +100%. |
+
+#### Maximum Gains (Force Spread: a fan of pellets, strongest up close)
+
+| Modifier | Lv 1 | Lv 2 and 3 | Mastery |
+|---|---|---|---|
+| Range | **Choke:** the fan tightens 10% and reaches further. | 20 / 30%. | **Slug:** the full fan lands intact at 500. |
+| Up Close | **Point Blank Press:** +40% within 120. | +80 / 120%. | Point-blank fans stun the front row for 0.5 s. |
+| Rapid Fire | **Reps:** more fans, 3 fewer pellets each; they alternate left and right. | Faster. | **Burnout Set:** every 10th rep fires every pellet the reps skipped, in one fan. |
+| Charged | **Deadlift:** a visible strain, then a tight 20° fan, +60%. | +90 / 120%. | A charged point-blank fan stuns the front row for 1 s. |
+| Catalyst | **Pre-Workout:** Force reactions are stronger; each pellet can set one off. | Stronger. | Staggers from this weapon last twice as long. |
+| Kinship | **Gym Buddies:** each other Force weapon adds a pellet. | +2 / 3 a weapon. | **Spotter:** when it fires, your other Force weapons fire 25% faster for 2 s. |
+| Knockback | **Power Clean:** point-blank fans (under 100) blast the front row back (50). | 80 / 110. | Launched enemies bowl into their mates for 40%. |
+| Pulling | **Lat Pulldown:** pellets tug enemies towards the fan's centre line. | Harder. | **Net:** enemies in the cone are dragged to its centre before the pellets land. |
+| Sticky | **Grip:** each pellet slows (stacks within the cap). | Stronger. | A full fan on one enemy Snares it. |
+| Piercing | **Through the Wall:** each pellet passes 1 enemy. | 3 / 6. | **Momentum:** pellets gain 10% per enemy passed instead of losing it. |
+| Exploding Rounds | **Drop Set:** the centre pellet bursts. | 1, then 2 more bursting pellets. | Every pellet bursts; bursts on one enemy merge into one blast (radius 90). |
+| Homing | **Form Check:** each pellet turns to the nearest enemy in the cone. | Turns harder. | Pellets spread themselves across different enemies. |
+| Ricochet | **Ball Slam:** pellets bounce off enemies (1). | 3 / 6. | Pellets that bounce into each other merge into a bigger one. |
+| Focused Intensity | **Isolation:** pellets on the same target count towards the ramp, each fan. | Faster ramp, higher peak. | At full ramp the fan narrows onto the target by itself. |
+| Connecting | **Clothesline:** enemies hit by the same fan are tied in a line for 3 s and can't spread out. | 1 more enemy, 4 s; tied enemies are dragged 20 closer each fan. | Lines that cross knot together. |
+| Turncoat | **Gym Bro:** a kill rises bulked up (+50% size and damage) and brawls up close for 4 s. | 6 s; its hits knock enemies back. | Each extra gym bro adds +10% damage to the others. |
+| Melee | **Flex:** a 120° swipe in front (reach 80), then a short recoil back. | Reach 100; 160°. | Every 3rd flex is a full 360°. |
+| Ranged | N/A: Ranged is for close-range weapons. |  |  |
+| Mines | **Kettlebells:** dropped weights that fire a fan at whatever trips them. | 5 on the floor; +2 pellets. | They fire a full ring. |
+| Death from Above | **Dumbbell Drop:** a shower of pellets over a marked zone (radius 70). | Radius 90; twice the pellets. | The shower walks forward across the crowd over 1 s. |
+| Switched at Birth | Force → **Static** (**Treadmill Static**): each pellet adds Charge. | Charge +20 / 40%. | Dual Force and Static: Shocking Impact on every pellet. |
+| Primer | **Superset:** every pellet primes. | Bigger detonations; an enemy primed by 3 pellets detonates twice. | An enemy primed by the whole fan detonates three times as hard. |
+| Every Nth | **Personal Best:** every 4th fan fires double pellets. | Every 3rd; 50% wider. | The empowered fan is a full ring. |
+| Extra Projectiles | **More Plates:** +2 pellets a fan. | A smaller fan behind you; then +2 more. | Fans fire front, back and to both sides. |
+| Orbiting | **Spin Class:** the fan forms a ring round you, then flies out. | It turns twice first; it blocks enemy shots while it turns. | The ring stays: a spinning ring of pellets. |
+| Area | **Bulk:** pellets 25% bigger a rank, and the fan 10% wider. | +50 / 75%. | +100%. |
+
+#### Enzyme Sneeze (Acid Spread: a short fan of 3 heavy acid droplets)
+
+| Modifier | Lv 1 | Lv 2 and 3 | Mastery |
+|---|---|---|---|
+| Range | **Projectile Sneeze:** droplets fly to 190. | 220 / 250. | The sneeze becomes a long, narrow jet (400). |
+| Up Close | **In Your Face:** close damage and double Corrosion within 120. | Stronger. | At point blank the droplets merge into one heavy splash. |
+| Rapid Fire | **Hay Fever:** faster sneezes, smaller droplets. | Faster. | **Sneezing Fit:** every 4th sneeze is three in a row. |
+| Charged | **Ah... Ah...:** a visible build-up (the head tilts back), then a big sneeze of 4 droplets. | 5 / 6 droplets. | **...Choo:** the big one leaves an Acid Pool. |
+| Catalyst | **Allergen:** Corrosion fills faster; each droplet can set off a reaction. | Stronger. | A Corroded enemy hit again loses a Shell layer at once. |
+| Kinship | **Contagion:** your other Acid weapons' hits make an enemy sneeze on its neighbours, spreading a little Corrosion. | More. | The sneeze fires 5 droplets. |
+| Knockback | **Bless You:** the front row is blown back (40). | 70 / 100. | Sneezed enemies collide for 40%. |
+| Pulling | **Sniff:** a sharp inward sniff before each sneeze pulls the front row together (30). | 50 / 70. | The sniff reaches twice as far, and the sneeze lands on the bunch. |
+| Sticky | **Phlegm:** droplets slow. | Stronger. | The whole sneeze cone Snares. |
+| Piercing | **Through the Tissue:** droplets pass 1 enemy; each enemy passed keeps filling Corrosion for 1 s. | 3 / 6. | Droplets carry on until each has hit 12. |
+| Exploding Rounds | **Splatter:** droplets that hit the same enemy merge into a burst. | Bigger. | Every droplet bursts on its own; misses burst on the floor. |
+| Homing | **Aim for the Tissue:** droplets swerve to the nearest enemy. | Swerve harder. | Droplets spread themselves across different enemies. |
+| Ricochet | **Bounce:** droplets bounce off enemies (1). | 3 / 6. | A droplet that bounces off a Corroded enemy splits into 2. |
+| Focused Intensity | **Target Practice:** sneezes on the same target build up. | Faster ramp, higher peak. | At full ramp, the sneeze strips a Shell layer. |
+| Connecting | **Snot Web:** droplets that land on different enemies string them together for 3 s; Corrosion on one fills 50% on the others. | 70%; the strands catch enemies that touch them. | When one is Corroded, the whole web is. |
+| Turncoat | **Contagious:** a kill rises and sneezes acid at enemies every 1.5 s for 5 s. | Every 1 s; 5 droplets. | Enemies it kills also rise contagious (cap 6). |
+| Melee | **Face Full:** sneezes point blank (60) in a 90° spray, double Corrosion. | 120°; 5 droplets. | Every 3rd sneeze is a ring round you. |
+| Ranged | N/A: Ranged is for close-range weapons. |  |  |
+| Mines | **Pollen Pods:** pods on the floor; the next enemy to pass one sneezes acid on its friends. | 5 pods; bigger sneezes. | Pods burst twice. |
+| Death from Above | **Acid Rain:** a drizzle over a marked zone (radius 60). | Radius 80; 2 s. | The drizzle follows the densest cluster. |
+| Switched at Birth | Acid → **Mucus** (**Head Cold**): droplets make enemies Snotty instead of Corroding them. | Snotty +20 / 40%. | Dual Acid and Mucus. |
+| Primer | **Germs:** droplets prime. | Bigger detonations; they splash a droplet onto a neighbour. | Detonations fill Corrosion to full. |
+| Every Nth | **The Big One:** every 4th sneeze fires 6 droplets. | Every 3rd; it leaves an Acid Pool. | It's a full ring round you. |
+| Extra Projectiles | **Double Sneeze:** +1 droplet. | A smaller sneeze behind you; then +2 droplets. | A ring sneeze. |
+| Orbiting | **Holding It In:** droplets circle you once, then fly out. | Twice; they Corrode what they pass. | A permanent ring of acid mist round you. |
+| Area | **Spray:** droplets 25% bigger a rank, and their splash wider. | +50 / 75%. | +100%. |
+
 ## 6. Moved to sperm passives
 
 ### 6.1 Advanced Targeting (sperm passive)
