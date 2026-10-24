@@ -8,7 +8,7 @@
 //    Regular mode: every level-up and DNA strand is a Switched at Birth card instead.
 //  - Fire is a new damage type (internal id 'flame', since 'fire' is Acid): Burning, a short damage over time.
 //  - The old automatic reactions are off; each type keeps its own status (chem.js applyElement).
-// The v9 fallback (window.V10_OFF) was removed in v10.124: V10 is always true.
+// The v9 fallback (window.V10_OFF) was removed in v10.125: V10 is always true.
 // Hooks: game.js main loop v10Box, genLoot v10Loot, fireWeapon v10Fire, update v10Tick, newGame (no junkStart),
 // newStats elem.flame; render.js v10Draw; chem.js applyElement v10Burn and V10 guards; ui.js openSamples v10Samples;
 // meta.js storage key sd_meta10.
@@ -207,7 +207,7 @@ function v10Tick(dt) {
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
-  if (G) { fightDraw(); pdefDraw(); mutDraw(); f10Draw(); f9Draw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
+  if (G) { pdefDraw(); mutDraw(); f10Draw(); f9Draw(); sigDraw(); } // (enemy defence rings and status marks: fight.js, drawn later by ringtop.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
   if (G) nf10Draw(); // (telegraphs, wax, trails: newfoes.js)
   if (G && typeof mdDraw === 'function') mdDraw(); // (mutation carriers and drops: mutdrop.js)
   if (G) modDraw(); // (v10 modifiers, modifiers.js)

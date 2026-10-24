@@ -1654,8 +1654,9 @@ function render() {
   // (A crowd: common enemies drop their halo and surface detail, and status effects draw as a single tint.)
   const lod = (QUAL.lv >= 1 && G.enemies.length > 60) || G.enemies.length > 80;
   STATUS_LOD = lod;
+  RING_DEFER = true; // (enemy rings wait until the effects are drawn: ringtop.js)
   for (const e of G.enemies) if (vis(e) && !e.egg) { if (e.ghost) { typeGhostUnder(e); const ga = ctx.globalAlpha; ctx.globalAlpha = ga * (0.45 + 0.1 * Math.sin(G.realT * 5 + e.id)); drawEnemy(e, lod); ctx.globalAlpha = ga; } else drawEnemy(e, lod); } // (Alien ghosts are see-through: chem.js)
-  ctx.globalAlpha = 1;
+  RING_DEFER = false; ctx.globalAlpha = 1;
 
   drawTracks(vis);
   // Paradox echoes: translucent ghosts with afterimages.
@@ -1907,6 +1908,7 @@ function render() {
     }
   }
   fxDim(false);
+  ringsOnTop(); // (enemy rings over explosions and effects, under enemy bullets: ringtop.js)
 
   // Enemy bullets on top, drawn like debris under phase contrast: a black granule with a solid white
   // halo, so they stand out on any background. With the Anti-Immune Stain the granule takes up the red dye at its core.
@@ -2117,7 +2119,7 @@ function drawEnemy(e, lod) {
   // A ring for each damage type's status on it, in that type's colour, and one for every damage over time
   // (Acid, Ethanol, Bleed, an Acid Crypt burn, Tapeworm).
   // (Arcade view only: in Lab view statuses show in the body alone. Damage-type rings drain as they run out: typefx.js.)
-  if (!labOn()) {
+  if (!labOn()) ringLater(() => {
     si += typeRings(e, x, y, r, si);
     if (e.acidT > G.t && !(e.burn > 0)) st(ELEMENTS.fire.color);
     if (e.bleed > 0) st('#ff3b3b');
@@ -2128,7 +2130,7 @@ function drawEnemy(e, lod) {
     if (e.guiltT > G.t) st('#c77dff');
     // Other temporary effects you put on them: each its own colour (STATUS_RINGS).
     for (const R of STATUS_RINGS) if (R.on(e)) st(R.c);
-  }
+  });
   if (e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
   if (e === G.grudge) {
     // Grudge target: a rotating red crosshair.

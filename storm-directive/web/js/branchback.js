@@ -8,7 +8,8 @@
 //    carrier in time drops the strand; it now holds a loot box (a DNA strand box: modifier cards), not a mutation.
 //    Its banner, float text and labels say LOOT, not MUTATION.
 //  Tests and sims (window.TUT_OFF) get neither unless XBR.force / XEB.force.
-// Hooks: none in shared files. Wraps weapons24.js wupTick, modslice.js forkCards, draft.js draftTitle, mutdrop.js
+// Hooks: none in shared files. Wraps weapons24.js wupTick, modslice.js forkCards, draft.js draftTitle and draftBox, sidemo.js
+// sivDraftKind and sivDraftHead (the branch screen in the Weapon Draft layout), mutdrop.js
 // mdTick and mdKill, game.js banner and floatText (the carrier lines only); mutdrop.js's two strand labels are placeholders in place. Loads after modslice.js and spassives.js.
 
 const XBR = { at: [3, 6, 9], force: false };
@@ -39,6 +40,36 @@ draftTitle = (orig => function (req) {
   if (!req.xbr) return orig(req);
   return orig({ kind: 'wupfork', w: req.xbr.w, lv: req.xbr.lv }); // (the old upgrade screen's title)
 })(draftTitle);
+// The branch screen opens in the Weapon Draft layout (user, 24 Oct): tabs, the details panel and the live stage, as the
+// old upgrade route did (sidemo.js). The request becomes a 'wupfork' for the screen (so ui.js openDraft finds its weapon)
+// with its cards fixed first; weapons with their own branch scenes (sivFlags) play each tab's card on the stage.
+const XBR_HEAD = { 3: 2, 6: 3, 10: 4 };
+sivDraftKind = (orig => function (req) {
+  if (!req.xbr) return orig(req);
+  if (!G || !G.weapons.includes(req.xbr.w)) return false;
+  if (!req.fixed) req.fixed = forkCards(req);
+  if (!req.fixed.length) return false;
+  Object.assign(req, { kind: 'wupfork', w: req.xbr.w, lv: req.xbr.lv });
+  return true;
+})(sivDraftKind);
+sivDraftHead = (orig => function (req, weap) {
+  if (!req.xbr) return orig(req, weap);
+  const t = XBR_HEAD[req.lv] || 2, U = weap.up || {}, S = WUP[w24Key(weap)], FL = sivFlags(weap);
+  for (const o of UI.lootOpts) {
+    if (FL) o.perk = 'siv|' + [...new Set([FL[U.p], U.l6 && FL[U.l6], FL[o.title]].filter(Boolean))].join(',');
+    if (o.tag === 'BRANCH') o.tag = 'BRANCH CARD';
+  }
+  $('dKick').textContent = `${weap.def.name.toUpperCase()} | TIER ${t - 1} > ${t}`;
+  $('dTitle').textContent = ['', '', 'PROMISE', 'BRANCH', 'MASTERY'][t] || 'UPGRADE';
+  $('dSub').textContent = t === 2 ? 'Three ways for it to grow. Take one: the other two are gone for the run.'
+    : t === 3 ? `How ${S && S[U.p] ? S[U.p].name : 'its promise'} grows. Take one: the others are gone for the run.`
+    : 'Its mastery. Only one weapon a run gets one.';
+  return true;
+})(sivDraftHead);
+draftBox = (orig => function (req) { // (a branch screen put back in the queue is still a fork: wupNextLv knows no Lv 9 mastery)
+  if (!req.xbr) return orig(req);
+  return G.weapons.includes(req.xbr.w) && forkCards(req).length > 0 && (typeof dirGate === 'function' ? dirGate(req) : true);
+})(draftBox);
 
 // ---------------------------------------------------------------- elite carriers
 const XEB_TEXT = { 'MUTATION CARRIER!': 'LOOT CARRIER!', 'MUTATION SECURED': 'LOOT SECURED', 'MUTATION LOST': 'LOOT LOST' };

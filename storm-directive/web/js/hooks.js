@@ -36,7 +36,7 @@ function hookFirst(ev, a, b, c) { const L = HOOKS[ev]; if (L) for (const h of L)
 function hookSafe(ev, a) { const L = HOOKS[ev]; if (L) for (const h of L) safely(h.name, () => h.fn(a)); }
 
 // ---------------------------------------------------------------- the wiring that used to be written out in game.js
-// Moved here in its old call order (v10.124). New features register from their own file, not here.
+// Moved here in its old call order (v10.125). New features register from their own file, not here.
 [
   ['fightDeath', (e, src) => fightDeath(e, src)], // (a Charged enemy discharges: fight.js)
   ['mutKill', (e, src) => mutKill(e, src)], // (mutation cards: mutations.js)

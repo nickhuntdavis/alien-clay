@@ -61,7 +61,7 @@ const { chromium } = require('playwright');
         if (G.genes.primary !== pid) bad.push(pid + ' primary ' + G.genes.primary);
         if (!G.s10 && s10Of() !== 'v9_' + pid) bad.push(pid + ' not a sample');
         const opts = v10Loot({ kind: 'start' }), pool = s10Pool(), ids = (opts || []).map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
-        if (!opts || opts.length !== 3 || !ids.every(id => pool.includes(id)) || new Set(ids).size !== 3) bad.push(pid + ' starters ' + (opts || []).map(o => o.title));
+        if (!opts || opts.length !== 4 || !ids.every(id => pool.includes(id)) || new Set(ids).size !== 4 || !S10_FIT['v9_' + pid].every(id => ids.includes(id))) bad.push(pid + ' starters ' + (opts || []).map(o => o.title));
         opts[0].apply(); G.state = 'play';
         for (let f = 0; f < 300; f++) { G.lootQueue = []; G.state = 'play'; update(1 / 60); }
         if (!G.s10 || G.s10.id !== 'v9_' + pid) bad.push(pid + ' G.s10 ' + (G.s10 && G.s10.id));

@@ -1,7 +1,7 @@
 // The eight v10 samples (samples10.js): new ids and names, three starters each in the start draft, pool lean, passives, Ordered Online's built-in
 // Evasion, Not of This World shifts w.typeOver every 20 s without swapping weapons, shield flags, unlock rules.
-// Since 23 Oct (samplestart.js): the start draft is three matrix weapons (one of the sample's type, one Switched at Birth into
-// one of its types, one other), only Baseline is open on a fresh save, and an achievement unlocks the rest.
+// Since 24 Oct (samplestart.js): the start draft is the sample's two best weapons (S10_FIT) and two random others from the
+// matrix's 27. Since 23 Oct: only Baseline is open on a fresh save, and an achievement unlocks the rest.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -16,15 +16,15 @@ const { chromium } = require('playwright');
     if (SAMPLES10.filter(s => !s.v9).map(s => s.id).join() !== IDS.join()) bad.push('ids ' + SAMPLES10.filter(s => !s.v9).map(s => s.id));
     if (SAMPLES10.slice(0, 8).map(s => s.name).join('|') !== 'Baseline|Alpha|Beta|Private Schooled|Ordered Online|Redtail|Prawn Again|Not of This World') bad.push('names');
     if (S10_BY.ordered.types.join() !== 'mucus,fire') bad.push('Ordered Online types ' + S10_BY.ordered.types);
+    for (const s of SAMPLES10) if (!(S10_FIT[s.id] || []).every(id => MATRIX_ONLY.weapons.includes(id))) bad.push(s.id + ' fit off the matrix');
     for (const s of SAMPLES10.filter(s => !s.v9)) { // (the v9 samples: v9armstest)
       META.profile = 's10_' + s.id; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;
       const offer = genLoot({ kind: 'start' }), pool = s10Pool(), types = s.types.map(t => S10_TYPES[t]);
       const ids = offer.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
-      const sab = offer.filter(o => o.sab), nat = offer.filter(o => !o.sab && types.includes(o.def.elem));
-      if (offer.length !== 3 || new Set(ids).size !== 3 || !ids.every(id => pool.includes(id)) || sab.length !== 1 || !types.includes(sab[0].sab) || !nat.length) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
-      const k = offer.indexOf(sab[0]); offer[k >= 0 ? k : 0].apply(); const w = G.weapons.find(Boolean);
+      const fit = S10_FIT[s.id] || [];
+      if (offer.length !== 4 || new Set(ids).size !== 4 || !ids.every(id => pool.includes(id)) || fit.length !== 2 || !fit.every(id => ids.includes(id))) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
+      const k = ids.indexOf(fit[0]); offer[k >= 0 ? k : 0].apply(); const w = G.weapons.find(Boolean);
       if (!w || (w.sid || w.id) !== ids[k >= 0 ? k : 0]) bad.push(s.id + ' weapon ' + (w && w.id));
-      if (k >= 0 && w && (w.typeOver || w.def.elem) !== sab[0].sab && !(w.sab || w.sabT)) out[s.id + 'sab'] = 'type ' + (w.typeOver || w.def.elem);
       if (!G.sampleTypes || G.sampleTypes.primary !== s.types[0]) bad.push(s.id + ' lean');
       if (G.s10.strain !== SAMPLES10.indexOf(s) + 1) bad.push(s.id + ' strain');
       if (s10Shield()) bad.push(s.id + ' shield flag'); // (no built-in shields since 22 Oct: the membrane comes only from its card, spassives.js)

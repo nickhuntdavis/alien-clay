@@ -3,12 +3,9 @@
 //  - UNLOCKS: Baseline is open; every other sample unlocks the first time you earn its achievement (S10_ACH), in any run.
 //    Achievements are now remembered between runs (META.achEver). Rescues in The Race (kindred.js) no longer unlock
 //    samples. Developer mode (META.devAll) still opens everything.
-//  - STARTING OFFER: three random weapons from the matrix's 27 (matrixonly.js), not the sample's fixed three:
-//      1. one whose own damage type is one of the sample's types (its first type when it can);
-//      2. one that has had Switched at Birth into one of the sample's types (modmatrix.js MM_SAB first; any weapon that
-//         can be switched when none fits); the card shows the new type, and the weapon starts switched;
-//      3. any other weapon.
-//    The offers come in a random order.
+//  - STARTING OFFER (user, 24 Oct): the two weapons that suit the sample best (S10_FIT, picked for its passive and damage
+//    types) plus two random others from the matrix's 27 (matrixonly.js), in a random order. (Was: three random, one of
+//    them Switched at Birth; s10SabOpt is kept for that.)
 // Hooks: none in shared files. Wraps samples10.js s10Start and s10Unlock; show.js achieve. samples10.js reads s10LockTxt
 // (the locked card's line). Save data: META.achEver { id: 1 }. Loads after matrixonly.js.
 
@@ -35,21 +32,33 @@ function s10Pool() {
   return ids.filter(id => WEAPONS[id] && !(typeof W24_HOLD !== 'undefined' && W24_HOLD.includes(id)) && WEAPONS[id].elem);
 }
 const s10Shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+// Each sample's two best weapons (all from MATRIX_ONLY.weapons), and why.
+const S10_FIT = {
+  baseline: ['v_phys_proj', 'v_arcane_proj'],      // plain stats, plain guns: Standard Issue, Little Prick
+  alpha: ['s_twin', 'v_phys_spread'],              // faster while moving: a beam you drag by swimming; a fan at close range
+  beta: ['s_seeker', 'v_ice_pool'],                // low health, lifesteal: homing Blood that needs no aim; Mucus that keeps them off
+  private: ['v_fire_proj', 's_parasite'],          // double Corrosion, Possession: Acid Spit; Chest Burster turns them
+  ordered: ['s_mines', 's_bubble'],                // a Mucus trail while moving: mines dropped behind; bubbles for what follows
+  redtail: ['v_shock_beam', 's_tesla'],            // Static adds to burn: a constant beam; chains through a crowd
+  prawn: ['v_soul_proj', 's_peekaboo'],            // Possessed foes make friends Bleed: Rent Free; Peekaboo sets them on each other
+  alien: ['v_soul_proj', 's_tesla'],               // shifts type every 12 s: fast hits that cash in the shift bonus
+  acro: ['acro_spray', 'acro_spark'],              // early Corrosion: Enzyme Sneeze sets up, Spark of Life finishes
+  v9_vanguard: ['v_phys_proj', 'v_phys_contact'],  // reload speed and a headbutt charge: the magazine gun; contact
+  v9_bruiser: ['v_phys_burst', 's_lard'],          // armour and a knock-back fury: Panic Button, Skill Issue
+  v9_nerd: ['s_tesla', 'v_shock_beam'],            // fire rate and an EMP: Static
+  v9_eggseeker: ['s_duedate', 'v_arcane_proj'],    // crits on the toughest: One of These Days on big targets; Little Prick
+  v9_stealth: ['v_phys_contact', 'acro_cap'],      // melee damage and slipping through: contact weapons
+  v9_pusher: ['s_parasite', 's_redtape'],          // regeneration and draining: Chest Burster, Ewww, Gross
+  v9_acid: ['v_fire_proj', 'v_flame_pool'],        // up close and burning: Acid Spit, Hot Mess
+  v9_splicer: ['s_void', 's_toothfairy'],          // more area: Family Ties' vortex, Eggs
+  v9_reborn: ['v_soul_proj', 's_parasite'],        // past lives: Rent Free; Chest Burster's dead rise again
+  v9_redtail: ['s_lard', 's_seeker'],              // luck and a small family tree: Skill Issue, Sister Cousin
+  v9_twins: ['s_twin', 's_seeker'],                // never apart: Soulmate Signal, two siblings per shot
+};
 function s10Offer(s) {
-  const types = s.types.map(t => S10_TYPES[t]), pool = s10Shuffle(s10Pool()), used = new Set(), out = [];
-  const take = id => { used.add(id); return id; };
-  // 1. naturally the sample's type (its first type when it can)
-  const nat = pool.find(id => WEAPONS[id].elem === types[0]) || pool.find(id => types.includes(WEAPONS[id].elem));
-  if (nat) out.push(optNewWeapon(take(nat), 0));
-  // 2. Switched at Birth into one of its types
-  let sw = pool.find(id => !used.has(id) && typeof MM_SAB !== 'undefined' && types.includes(MM_SAB[id]) && !types.includes(WEAPONS[id].elem));
-  let to = sw && MM_SAB[sw];
-  if (!sw) { sw = pool.find(id => !used.has(id) && typeof MM_SAB !== 'undefined' && MM_SAB[id] && !types.includes(WEAPONS[id].elem)); to = types[0]; }
-  if (sw) out.push(s10SabOpt(take(sw), to));
-  // 3. any other
-  const any = pool.find(id => !used.has(id));
-  if (any) out.push(optNewWeapon(take(any), 0));
-  return s10Shuffle(out);
+  const pool = s10Shuffle(s10Pool()), fit = (S10_FIT[s.id] || []).filter(id => pool.includes(id));
+  const rest = pool.filter(id => !fit.includes(id)).slice(0, 4 - fit.length);
+  return s10Shuffle([...fit, ...rest]).map(id => optNewWeapon(id, 0));
 }
 // A starting card for a weapon that comes already switched to type t (internal id).
 function s10SabOpt(id, t) {
