@@ -1,5 +1,7 @@
 'use strict';
-// Spawn Prawn - targeting and autorun as sperm passives (user, 23 Oct).
+// Spawn Prawn - targeting and autorun as sperm passives (user, 23 Oct). RETIRED (user, 24 Oct): every targeting rule and
+// every autorun mode, AUTO included, is always available, and the four cards are never dealt (steerOn is always false;
+// SP.cut keeps them out). The code below is kept so the old behaviour can come back.
 //  - TARGETING starts with Nearest, Furthest, Densest cluster and Elites & bosses. ADVANCED TARGETING (a sperm passive)
 //    adds Toughest and Fastest (Lv 1), Lowest health and Shooters first (Lv 2), and the rest (Lv 3). Mastery: each
 //    weapon with a second rule ("Then") alternates its shots between the two rules, so shots go to different targets.
@@ -23,7 +25,7 @@ const STEER = {
   masteryLv: 10, force: false,
 };
 MOVE_DIRECTIVES.push({ id: 'auto', name: 'AUTO', desc: 'Picks the best mode for the moment: kites when in danger, collects when safe, hunts elites when healthy' });
-const steerOn = () => !(typeof window !== 'undefined' && window.TUT_OFF && !STEER.force) && !(G && G.lvl && G.lvl.L && G.lvl.L.school); // (the School teaches every mode)
+const steerOn = () => false; // (retired, user 24 Oct; was: on outside tests and the School)
 const steerKept = k => !!(META.spKeep && META.spKeep[k]);
 const steerRank = (id, k) => (steerKept(k) ? 3 : Math.min(3, mr(id)));
 const steerMast = (id, k) => mr(id) >= 4 || !!(G && G.spMx && G.spMx[id + 'M']);
@@ -33,7 +35,7 @@ function aimAllowed(dir) {
   return STEER.aimBase.includes(dir) || r >= 3 || STEER.aimLv.slice(0, r).some(l => l && l.includes(dir));
 }
 function moveAllowed(id) {
-  if (id === 'auto') return !!G && steerMast('sp_auto', 'auto');
+  if (id === 'auto') return true; // (always: user, 24 Oct)
   if (!steerOn() || !G) return true;
   const r = steerRank('sp_auto', 'auto');
   return STEER.moveBase.includes(id) || STEER.moveLv.slice(0, r).some(l => l.includes(id));
@@ -61,8 +63,7 @@ for (const id of ['sp_aimM', 'sp_autoM']) { // (a kept passive's mastery uses no
   c.apply = G => { (G.spMx || (G.spMx = {}))[id] = 1; (G.spM || (G.spM = [])).push(id); };
 }
 SP_KEEP.push('sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM');
-for (const id of ['sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM']) { const i = SP.cut.indexOf(id); if (i >= 0) SP.cut.splice(i, 1); }
-if (typeof SLICE !== 'undefined') SLICE.muts.push('sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM');
+for (const id of ['sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM']) if (!SP.cut.includes(id)) SP.cut.push(id); // (never dealt: everything is always on, user 24 Oct)
 
 // ---------------------------------------------------------------- Advanced Targeting mastery: alternate the two rules
 aimDir = (orig => function (w) {

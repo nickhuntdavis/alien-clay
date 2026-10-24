@@ -1,6 +1,6 @@
 'use strict';
-// Spawn Prawn - more to aim at (user, 24 Oct): with the Advanced Targeting mastery, every weapon's aim menu gets four
-// top-level choices above the enemy rules: MINES, PROJECTILES, ENEMIES and ME.
+// Spawn Prawn - more to aim at (user, 24 Oct): every weapon's aim menu has four top-level choices above the enemy rules
+// (first with the Advanced Targeting mastery; now always, as every targeting rule is): MINES, PROJECTILES, ENEMIES and ME.
 //  - MINES: the weapon aims at your nearest mine (Nappy Mines, the Mines modifier's mines) and sets it off when its
 //    attack gets there. PROJECTILES: it aims at the nearest enemy shot and destroys it. ME: its attack lands on you
 //    (pools, blasts and lures round you; shots go the way you are swimming). ENEMIES: the nearest enemy (the enemy rules
@@ -20,7 +20,7 @@ DIRECTIVES.push(
   { id: 'enemies', name: 'ENEMIES', short: 'ENEMY', desc: 'Aims at the nearest enemy. The rules below it pick which enemy.', xtop: 1 },
   { id: 'me', name: 'ME', short: 'ME', desc: 'Lands on you: pools, blasts and lures appear round you, and shots fly the way you swim.', xtop: 1 });
 aimAllowed = (orig => function (dir) {
-  if (XAIM_IDS.includes(dir)) return !!G && typeof steerMast === 'function' && steerMast('sp_aim', 'aim');
+  if (XAIM_IDS.includes(dir)) return true; // (always: user, 24 Oct)
   return orig(dir);
 })(aimAllowed);
 aimList = (orig => function () { const L = orig(); return L.filter(d => d.xtop).concat(L.filter(d => !d.xtop)); })(aimList); // (top-level choices first)

@@ -2,6 +2,25 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.118: 2026-10-24 Weapon branches at Lv 3, 6 and 9; elite carriers drop a loot box; every targeting rule and autorun mode always on
+- Merged: ccr-10c7b3a7-ugrptm.
+
+### Folded from ccr-10c7b3a7-ugrptm: 2026-10-24 Every targeting rule and autorun mode always on (v10.118, merge build)
+- Systems: targeting, autorun, sperm passives, tests
+- Files: spsteer.js, aimplus.js, tests/aimplustest.js
+- What: Advanced Targeting, Autopilot and their masteries are no longer dealt; every targeting rule (MINES, PROJECTILES, ENEMIES and ME included) and every autorun mode (AUTO included) is always available. Alternating two rules every other shot (the old targeting mastery) is gone.
+- Save data: META.spKeep is no longer read (left in old saves, harmless).
+- Hooks: none.
+- Risk: four sperm passive cards fewer in the draft; spsteertest (not in the suite) still describes the old rules.
+
+### Folded from ccr-10c7b3a7-ugrptm: 2026-10-24 Weapon branches and elite carriers back
+- Systems: weapons (upgrades), rewards (elite drops), tests
+- Files: branchback.js (new), mutdrop.js (two strand labels are TODO_COPY), index.html, tests/branchtest.js (new), tests/mutdroptest.js, tests/run.sh
+- What: a weapon's old upgrade path opens again as it reaches Lv 3 (pick one of three promises), Lv 6 (that promise's cards and its wildcard) and Lv 9 (a mastery; one weapon a run). Some elites carry a DNA strand again (the helix, the beacon, a 40 s countdown); kill one in time and the strand gives you a loot box with modifier cards.
+- Save data: none.
+- Hooks: none in shared files (mutdrop.js labels changed in place).
+- Risk: more power per run (branch cards on top of modifiers, plus carrier boxes); branch cards and the new weapon cells both act on Nappy Mines, Blowing Bubbles, Hot Mess and Eggs (e.g. Domino and Loaded nappy together); 5 TODO_COPY lines for the carrier.
+
 ## v10.117: 2026-10-24 Weapon cells for Hot Mess and Eggs; aim at mines, shots or yourself; mines show their charge; a level-up box every level
 - Merged: ccr-10c7b3a7-ugrptm.
 
