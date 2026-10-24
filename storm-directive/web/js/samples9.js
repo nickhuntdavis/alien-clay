@@ -8,9 +8,9 @@
 //    is 'vanguard' and every v9 check still holds) and remembers the pick in META.v9pick. The profile carries .s10 (read
 //    by samples10.js s10Of) only while it is the current pick, so a fresh save's default 'vanguard' stays as it was.
 //  - Not rescued as kindred spirits (KIN.skip: no v10 body to draw); a v9 sample can rescue v10 ones.
-//  - Rack picture: a pictogram instead of the drawn body (samplelooks.js has no v9 bodies; in a run they look as in v9).
+//  - Bodies: v9looks.js (drawn like the v10 samples' in samplelooks.js).
 // Copy: TODO_COPY:s9_origin and TODO_COPY:s9_family (Field Guide samples list); everything else is existing v9 text.
-// Save data: META.v9pick (the v9 sample last picked). Hooks: none (wraps UI.startGame, genesStart and slPicStart).
+// Save data: META.v9pick (the v9 sample last picked). Hooks: none (wraps UI.startGame and genesStart).
 // Off with window.V10_OFF. Loads after kindred.js, before dsheads.js.
 
 const S9_IDS = ['vanguard', 'bruiser', 'nerd', 'eggseeker', 'stealth', 'pusher', 'acid', 'splicer', 'reborn', 'redtail', 'twins'];
@@ -43,20 +43,10 @@ function s9Sync() { // tag only the current pick as a sample (samples10.js s10Of
     s9Sync();
     return sg.apply(this, arguments);
   };
-  const gs = genesStart; // (a picked v9 sample is open while S10_ALL is: genes.js profUnlocked would fall back to vanguard)
+  const gs = genesStart; // (a picked v9 sample is open while its rack entry is: genes.js profUnlocked would fall back to vanguard)
   genesStart = function () {
-    const P = PROFILES[META.profile], u = P && P.s10 && S10_ALL ? P.unlock : null;
+    const P = PROFILES[META.profile], u = P && P.s10 && s10Open(P.s10) ? P.unlock : null;
     if (u) delete P.unlock;
     try { return gs.apply(this, arguments); } finally { if (u) P.unlock = u; }
-  };
-  const sp = slPicStart;
-  slPicStart = function () {
-    document.querySelectorAll('canvas[data-slpic^="v9_"]').forEach(cv => {
-      const d = document.createElement('div');
-      d.style.cssText = `height:${cv.style.height || '96px'};display:flex;align-items:center;justify-content:center`;
-      d.innerHTML = typeof pictoSVG === 'function' ? pictoSVG('swimmer') : '';
-      cv.replaceWith(d);
-    });
-    return sp.apply(this, arguments);
   };
 })();

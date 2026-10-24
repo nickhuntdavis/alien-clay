@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.122 (versionCode 401): merge of `claude/serene-mayer-hzufbe`: the eleven v9 samples have v10-style bodies (`v9looks.js`: anatomy per sample in its v9 colour, defences and upgrades on the body, live rack and Field Guide pictures; the Twins' ghost twin uses the same body) and are back on the Sample Rack, open from the start, starting with a matrix weapon offer. Suite 114/121 (v9armstest, p11test, wup2test, v10test, samplestest already fail on main; wup4test, rivalwave flaky). Open: v9 sample balance with matrix weapons unsimmed.
 - Version v10.120 (versionCode 399): merge of `ccr-10c7b3a7-ugrptm`: every modifier has its own effect on Red Flagship, Soulmate Signal, Spark of Life, Maximum Gains and Enzyme Sneeze (`cellmods3.js`, plain card text in `cellcopy3.js`, MODIFIER_MATRIX.md 5.9); the Laser has branch upgrades (`laserbranch.js`: Laser Hair Removal, Cat Toy, Overclocked).
 - Version v10.119 (versionCode 398): copy for every placeholder from `ccr-10c7b3a7-ugrptm`: weapon-cell cards, aim menu and stats heading from `cellcopy.js` (ccr-eff39359-vaxudl, plain with numbers), elite carrier lines (LOOT CARRIER!, KILL FOR LOOT 12s). No TODO_COPY reaches the screen.
 - Version v10.118 (versionCode 397): merge of `ccr-10c7b3a7-ugrptm`: the old weapon branches open at weapon Lv 3, 6 and 9 (`branchback.js`); elite carriers are back and their strand holds a DNA strand loot box; Advanced Targeting and Autopilot retired, every rule and mode always on. Open: 5 `TODO_COPY:elite_*` lines; balance with branches plus modifiers not simmed.
@@ -15,6 +16,7 @@
 - Level 0 (from `ccr-34ee239c`): fresh saves now go straight into it (with a skip link), wave 0 is retired, and it has an 11th room (junk DNA). Was: Session 2 still to do: a fresh save goes straight into it (with a skip link), wave 0 (Pre-pre-pre-pre-school) is retired, `resetTutorial()` clears `META.school`
 - Combos batch 1 (8 for Armoury/Playpen weapons) is in `combos3.js`; about 37 of the 45 new weapons still have no combo. Natural synergy lines were not built.
 - The Weapon Atlas artifact lives at https://claude.ai/artifact/LBga1dJ3q2QyAX1uee8Ef9. It was built from the old scratchpad (`weapon-atlas.html` plus a data generator), which is now lost. To update it, read it back with the Artifact tool and republish to that URL.
+- (`claude/serene-mayer-hzufbe`, v10.121) The eleven v9 samples have v10-style bodies (`v9looks.js`; `./run.sh v9lookshot` saves `tests/out/v9look_*.png`) and are back on the rack, starting with matrix weapons. Balance unsimmed. `samplestest` already fails on main (start drafts and unlocks), unrelated.
 
 - (`claude/festive-allen-xmea8i`, v9.28) Autorun modes now live in `autorun.js` (`arGoal`, memory in `G.ar`); autoaim tie-breaker is slot field `w.dir2` (acquire calls take `aimDir(w)`). Wave sims per mode, 4 runs each, old -> new: KITE 3->2, ORBIT 1->3, HUNT 3->2, HOLD 2->2 (9/16 both). `wave20.js` takes `--move <mode>`.
 - (`claude/alien-sample-design-xdoks8`, v10.29) Not of This World draws as a tentacled bell (`alienyou.js`), not a sperm; moods in `AY.moods`. Screenshots: `./run.sh alienyoushot` -> `tests/out/alien_*.png`. Every v10 sample has its own body (v10.31, `samplelooks.js`, three families) and a live card picture (`slPicStart`). `./run.sh lineupshot` saves the lineup to `tests/out/lineup_*.png`. The Field Guide has a SAMPLES tab (`slCodex`). Defences show on the body (v10.32): Shell bands, Squishy jelly, Thorns spikes, Evasion after-images; `./run.sh defbodyshot` saves `tests/out/defbody_*.png`.
@@ -52,6 +54,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
+- v10.122: merged `claude/serene-mayer-hzufbe` (v9 sample bodies, v9 samples back on the rack). Details in CHANGELOG.md v10.122.
 - v10.115: merged `ccr-8707d278-h1fnlw` (stat bonuses, weapon base stats, run log fixes, frame rate). Details in CHANGELOG.md v10.115.
 - v10.112: merged `ccr-7c6adc60-uqv9g4` (Race schedule, samples, Rewind off, frame rate, level-up boxes, bigger arenas). Details in CHANGELOG.md v10.112.
 - v10.105: merged `ccr-7c6adc60-uqv9g4` (passives, masteries, targeting/autorun passives, loot filters, Area, piercing, HOLD). Details in CHANGELOG.md v10.105.
