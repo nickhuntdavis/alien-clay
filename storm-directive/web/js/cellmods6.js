@@ -11,9 +11,13 @@
 //    Kinship's mastery or Orbiting from rank 3), moves them (bodyguards, Death from Above) and reads their shots
 //    (src.c6U) for the undead cells (Knockback, Sticky, Primer, Catalyst).
 // Changed from the table (written into MODIFIER_MATRIX.md 5.9): both weapons' reach is 300 in code, so Range adds +40 reach
-// a rank (its mastery's "more than 400" can happen); Rent Free's Homing mastery retargets (Alien shots already pass walls);
-// Chest Burster's Ricochet mastery infects what lies along each bounce's path (every shot infects what it hits anyway).
-// Hooks: none in shared files. Wraps game.js spawnProj, killEnemy; sigs.js projHit; fight.js fightPayoff; sigweap.js
+// a rank; Chest Burster's Ricochet mastery infects what lies along each bounce's path (every shot infects what it hits).
+// Round 2 (24 Oct): the plain cells have their own behaviour now (5.9 "Round 2"): Rent Free Range (haunts), Rapid Fire
+// (Crowded house), Catalyst (Exorcism), Kinship (Shared custody), Sticky (Ectoplasm), Homing (Unfinished business), Focused
+// Intensity (Eviction notice), Primer (Squatter's rights); Chest Burster Rapid Fire (larvae), Range (Spore cough), Charged
+// (Bigger brood), Catalyst (Incubator), Kinship (Host family), Sticky (Egg sac), Homing (seeks a host), Focused Intensity
+// (Gestation), Primer (Water breaking).
+// Hooks: none in shared files. Wraps game.js spawnProj, killEnemy; sigs.js projHit, projEnd; fight.js rxFired; wupHit, wupKill; fight.js fightPayoff; sigweap.js
 // sigwTick; cellmods.js xcKill; modwide.js mwDetonate; wupTick and modDraw; fills cellmods.js XC_TICK/XC_FIRE/XC_STATS.
 // Loads after cellmods2.js. Tests reach the internals through C6.
 (function () {

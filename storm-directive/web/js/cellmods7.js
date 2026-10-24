@@ -45,7 +45,8 @@
   const spTyped = w => ['catalyst', 'kinship', 'explode', 'primer', 'melee'].some(id => xcR(w, id) > 0) || xcR(w, 'piercing') >= 4 || xcR(w, 'ricochet') >= 4;
   const rec = b => ({ t: typeOf(b.pel), o: b.owner && !b.owner.dead ? b.owner : null, x: b.x, y: b.y });
   function spPut(w, k, m) { // a bullet into the store that was never an enemy bullet (recycled, digested, a kin shot)
-    if (!w.q || w.q.length >= w.s.mag) return false;
+    w.q = w.q || [];
+    if (w.q.length >= w.s.mag) return false;
     const A = SPS(w); w.q.push(k); w.stored = w.q.length; A.meta.push(m); if (A.meta.length > 40) A.meta.shift();
     return true;
   }
