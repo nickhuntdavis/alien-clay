@@ -29,7 +29,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 13. **Connecting, Turncoat, Melee and Ranged** were designed weapon by weapon with the user.
 14. **Advanced Targeting is a sperm passive, not a weapon modifier** (adopted 22 Oct): a targeting rule can't compete for one of a weapon's 3 slots against combat upgrades, so it sets targeting for every weapon at once (section 6).
 15. **Switched at Birth** gives each weapon one fixed alternate damage type, its starter sample's other type. **Switching must never spoil the attack**: where the mechanic is the damage type, the cell is N/A.
-16. **Roster:** 27 weapons. The Runs is no longer a weapon (it becomes a sperm passive, `storm-directive/NOTES.md`). The **Laser** is new: Ordered Online's Fire beam (from the user's voice notes).
+16. **Roster:** 27 weapons (26 in code from 24 Oct: There Is No Spoon became a sperm passive, `SPERM_PASSIVES.md` 2.2; its rows stay here for reference). The Runs is no longer a weapon (it becomes a sperm passive, `storm-directive/NOTES.md`). The **Laser** is new: Ordered Online's Fire beam (from the user's voice notes).
 
 17. **One per group.** Because a weapon has one slot per group, modifiers in the same group never stack. That covers every clash: Melee, Ranged, Mines and Death from Above (which each replace firing) are all Delivery; Pulling and Knockback are both Crowd; Range and Up Close are both Tempo.
 18. **Transformation test.** A Delivery modifier must change more than distance. Melee and Ranged change targeting, animation and hit detection; Mines add placement and a delayed trigger; Death from Above adds a different origin, a warning marker and impact timing. A cell that only changes reach fails and gets rewritten.

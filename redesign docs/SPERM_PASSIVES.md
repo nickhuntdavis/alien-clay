@@ -37,6 +37,7 @@ Names in quotes are card names: existing ones, plus drafts by Claude where the u
 | Shell (defence) | 1 armour layer: cuts each hit by a flat amount; lost layers are gone for good. | 2, then 3 layers. | A lost layer regrows once per wave. |
 | Thorns (defence) | Enemies that hit you with Contact take 20% of it back. | 35%, then 50%. | Thorns also answers enemy bullets that hit you, at half. |
 | Evasion (defence) | 10% of Projectile, Spread and Contact hits miss you. | 15%, then 20% (capped low so it never feels random). | After an evade, your next hit within 1 s deals +50%. |
+| There Is No Spoon (was a weapon; user, 24 Oct; built in `spoon.js`) | Eats enemy bullets within 90 (store 10) and fires them back as hard as they hit you. | Lv 2: eats from 30% further, stores 50% more. Lv 3: returned bullets hit 50% harder. | Eats from 60% further, stores twice as many, returns hit twice as hard (numbers only for now). |
 | "Extra Padding" | +10% max health; at full health, half the bonus becomes a temporary Membrane. | +20%, then +30%. | Overflow healing becomes Membrane. |
 
 ### 2.3 Damage types (one each, plus one for reactions)
