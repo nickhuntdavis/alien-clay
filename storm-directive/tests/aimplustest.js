@@ -1,5 +1,5 @@
-// More to aim at (aimplus.js): with the Advanced Targeting mastery the aim menu leads with MINES, PROJECTILES, ENEMIES and ME;
-// a weapon aimed at a mine sets it off, at a shot destroys it, at ME lands on you. Also: every level-up queues a box.
+// More to aim at (aimplus.js): every aim menu leads with MINES, PROJECTILES, ENEMIES and ME;
+// (every rule and autorun mode is always on, and their cards are never dealt); a weapon aimed at a mine sets it off, at a shot destroys it, at ME lands on you. Also: every level-up queues a box.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -13,9 +13,10 @@ const { chromium } = require('playwright');
     const foe = (dx, dy) => { const p = G.player, e = makeEnemy(ENEMIES.crawler, p.x + dx, p.y + dy, {}); e.speed = 0; e.hp = e.maxHp = 1e5; G.enemies.push(e); return e; };
     const run = s => { for (let i = 0; i < s * 60; i++) { G.state = 'play'; G.lootQueue.length = 0; update(1 / 60); G.player.hp = 1e6; } };
     // 1. Only with the mastery, and first in the list
-    fresh(['v_phys_proj']); out.without = aimList().filter(d => d.xtop).length;
-    G.spMx = { sp_aimM: 1 }; out.with = aimList().slice(0, 4).map(d => d.id).join();
-    if (out.without !== 0 || out.with !== 'mines,shots,enemies,me') bad.push('menu ' + out.without + ' / ' + out.with);
+    STEER.force = true; fresh(['v_phys_proj']); out.with = aimList().slice(0, 4).map(d => d.id).join(); // (always on, no upgrade needed: user, 24 Oct)
+    if (out.with !== 'mines,shots,enemies,me') bad.push('menu ' + out.with);
+    out.all = [aimList().length === DIRECTIVES.length, moveModes().some(m => m.id === 'auto'), ['sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM'].every(id => spSkip(CARDS.find(c => c.id === id)))];
+    if (out.all.includes(false)) bad.push('targeting and autorun not all on, or their cards still dealt ' + out.all);
     // 2. MINES: a mine within reach is set off
     let [w, nm] = fresh(['v_phys_proj', 's_mines']); G.spMx = { sp_aimM: 1 }; w.dir = 'mines'; nm.cd = 99;
     const m = mineDrop(nm, G.player.x + 150, G.player.y); m.arm = 0; G.proj.push(m); foe(0, 330);

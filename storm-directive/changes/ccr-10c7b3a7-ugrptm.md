@@ -1,3 +1,11 @@
+## 2026-10-24 Every targeting rule and autorun mode always on
+- Systems: targeting, autorun, sperm passives, tests
+- Files: spsteer.js, aimplus.js, tests/aimplustest.js
+- What: Advanced Targeting, Autopilot and their masteries are no longer dealt; every targeting rule (MINES, PROJECTILES, ENEMIES and ME included) and every autorun mode (AUTO included) is always available. Alternating two rules every other shot (the old targeting mastery) is gone.
+- Save data: META.spKeep is no longer read (left in old saves, harmless).
+- Hooks: none.
+- Risk: four sperm passive cards fewer in the draft; spsteertest (not in the suite) still describes the old rules.
+
 ## 2026-10-24 Weapon branches and elite carriers back
 - Systems: weapons (upgrades), rewards (elite drops), tests
 - Files: branchback.js (new), mutdrop.js (two strand labels are TODO_COPY), index.html, tests/branchtest.js (new), tests/mutdroptest.js, tests/run.sh
