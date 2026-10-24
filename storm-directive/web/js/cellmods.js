@@ -32,6 +32,8 @@ const XC_W = {
     deny: ['ranged'], atkOk: [] },
 };
 const XC_ALT = { s_mines: ['fire', 'ice'], s_bubble: ['fire', 'shock'] }; // (Switched at Birth: Acid or Mucus; Acid or Static)
+// Per-weapon parts, by tag (cellmods2.js adds Hot Mess and Eggs): every frame, firing (true: delivered), stats, risen allies.
+const XC_TICK = { nm: (w, dt) => xcNmTick(w, dt), bb: (w, dt) => xcBbTick(w, dt) }, XC_FIRE = {}, XC_STATS = {}, XC_RUN = {}, XC_LIFE = {};
 const XC_RAMP = n => [1, 3, 6, 12][Math.max(1, Math.min(4, n)) - 1];
 const xcDef = w => (w && w.def && !w.isSpell ? XC_W[w24Key(w)] : null);
 const xcIs = (w, tag) => { const D = xcDef(w); return !!D && D.tag === tag; };
@@ -105,11 +107,12 @@ wupStats = (orig => function (w, s) {
   if (xcIs(w, 'nm')) {
     if (R('rapid')) { s.cd /= 1 + xcLv([0.4, 0.8, 1.2, 1.6], R('rapid')); s.dmg *= xcLv([0.75, 0.7, 0.65, 0.6], R('rapid')); } // Breadcrumbs: faster, smaller
     const ex = R('extra'); if (ex) { const n0 = s.count || 1, n1 = n0 + xcLv([1, 2, 2, 6], ex); s.dmg *= Math.pow(n0 / n1, 0.4); }
-  } else {
+  } else if (xcIs(w, 'bb')) {
     const ex = R('extra'); if (ex) { const n0 = s.count || 1, n1 = n0 + xcLv([1, 2, 2, 2], ex); s.count = n1; s.dmg *= Math.pow(n0 / n1, 0.4); }
     if (R('charged')) s.hold *= xcLv([1.2, 1.4, 1.6, 1.6], R('charged')); // Big breath: traps bigger enemies
     if (R('area')) { s.size *= xcArea(w); s.hold += 4 * R('area'); } // Bigger bubbles
   }
+  const st = XC_STATS[xcDef(w).tag]; if (st) st(w, s);
 })(wupStats);
 
 // ================================================================ NAPPY MINES
@@ -181,6 +184,8 @@ function xcNmDfa(w, n) {
 }
 wupFire = (orig => function (w, t, src) {
   if (xcIs(w, 'nm') && xcAny(w)) { xcNmFire(w); return true; }
+  const F = xcDef(w) && XC_FIRE[xcDef(w).tag];
+  if (F && xcAny(w) && F(w, t, src)) return true;
   return orig(w, t, src);
 })(wupFire);
 
@@ -320,6 +325,16 @@ function xcNmTick(w, dt) {
       else if (r >= 4 && !(sl.spot > G.t) && G.zones.length < 150) { sl.spot = G.t + 0.5; G.zones.push(xcSpot(w, sl.x, sl.y, 22, 1.5)); }
     });
   } else w.xcOrb = null;
+  // Charged (Ripening): ripening mines fizzle; a ripe one flashes once
+  if (R('charged')) {
+    const cap = xcLv([0.6, 1.2, 1.8, 1.8], R('charged'));
+    for (const q of G.proj) {
+      if (!q.mine || q.dead || q.w !== w || q.arm > 0 || q.xcSlide) continue;
+      const k = xcRipe(q) - 1;
+      if (k >= cap - 1e-6) { if (!q.xcRipeFx) { q.xcRipeFx = 1; ring(q.x, q.y, 22, w.def.color, 0.45, 3); fxParts('spark', q.x, q.y, w.def.color, 6, 90, 0.35, 2); } }
+      else if (Math.random() < dt * (4 + 8 * k / cap)) fxParts('spark', q.x + rand(-4, 4), q.y + rand(-4, 4), w.def.color, 1, 40 + 40 * k / cap, 0.3, 1.5);
+    }
+  }
   // Melee: the suicide vest
   if (R('melee') && !(w.xcVestT > G.t) && xcFoe(p.x, p.y, 90)) {
     const r = R('melee'); w.xcVestT = G.t + (r >= 3 ? 1.5 : 2);
@@ -381,12 +396,15 @@ function xcRise(w, e) {
   const z = makeEnemy(e.def, e.x, e.y);
   z.charmed = true; z.charmT = 1e9; z.zombie = true; z.xp = 0; z.mwAllyOf = w; z.name = e.name;
   z.hp = z.maxHp = z.maxHp * 0.5;
-  z.xcRun = { w, end: G.t + 6, hits: 0 };
+  const tag = xcDef(w).tag;
+  z.xcRun = { w, end: G.t + (XC_LIFE[tag] ? XC_LIFE[tag](w) : 6), hits: 0, tag };
+  if (tag === 'eg') z.r *= 0.7; // (a hatchling: small)
   G.enemies.push(z); ring(z.x, z.y, z.r + 8, w.def.color, 0.4, 3);
 }
 function xcRunTick(z, dt) {
   const w = z.xcRun.w, r = xcR(w, 'turncoat'), bb = xcIs(w, 'bb');
   if (!G.weapons.includes(w)) { z.dead = true; return; }
+  if (XC_RUN[z.xcRun.tag]) { XC_RUN[z.xcRun.tag](z, dt); return; }
   const o = xcFoe(z.x, z.y, 420, [z]);
   if (o) { const d = Math.hypot(o.x - z.x, o.y - z.y) || 1, sp = bb ? 170 : 140; z.x += (o.x - z.x) / d * sp * dt; z.y += (o.y - z.y) / d * sp * dt; }
   const touch = o && Math.hypot(o.x - z.x, o.y - z.y) < z.r + o.r + 6;
@@ -854,7 +872,7 @@ function xcTick(dt) {
   if (!G || G.state !== 'play') return;
   for (const w of G.weapons) {
     if (!w || !xcAny(w)) continue;
-    if (xcIs(w, 'nm')) xcNmTick(w, dt); else xcBbTick(w, dt);
+    const f = XC_TICK[xcDef(w).tag]; if (f) f(w, dt);
   }
   for (const e of G.enemies) {
     if (e.dead) continue;
@@ -862,7 +880,7 @@ function xcTick(dt) {
     if (e.xcRun) xcRunTick(e, dt);
     if (e.xcCan && e.xcCan.t > G.t) { // Cannonball
       const C = e.xcCan, o = msNear(e.x, e.y, e.r + 4, [e]);
-      if (o && !o.charmed && G.weapons.includes(C.w)) { damageEnemy(o, C.w.s.dmg * 0.4, msEcho(weaponSrc(C.w))); shove(o, e.x, e.y, C.f * 0.6); e.xcCan = null; }
+      if (o && !o.charmed && G.weapons.includes(C.w)) { damageEnemy(o, C.w.s.dmg * (C.k || 0.4), msEcho(weaponSrc(C.w))); shove(o, e.x, e.y, C.f * 0.6); e.xcCan = null; }
       else if (xcR(C.w, 'knock') >= 4) for (const q of G.proj) if (q.mine && !q.dead && q.w === C.w && q.arm <= 0 && Math.hypot(q.x - e.x, q.y - e.y) < e.r + 20) { xcGo(q, null); e.xcCan = null; break; }
     }
   }
@@ -871,6 +889,21 @@ function xcTick(dt) {
 wupTick = (orig => function (dt) { orig(dt); xcTick(dt); })(wupTick);
 
 // ---------------------------------------------------------------- drawing (world space)
+const xcMixC = (a, b, k) => { if (!/^#[0-9a-f]{6}$/i.test(a)) return a; const h = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)), A = h(a), B = h(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * k).toString(16).padStart(2, '0')).join(''); };
+// A mine drawn over the plain one (render.js): the more it is empowered (Ripening, Loaded nappy, fused, a nuke) the
+// bigger and brighter it is; while it ripens it glows and pulses (the fizzle is particles, in xcNmTick).
+function xcMineLook(q, w) {
+  const cap = xcR(w, 'charged') ? xcLv([0.6, 1.2, 1.8, 1.8], xcR(w, 'charged')) : 0, rip = cap ? (xcRipe(q) - 1) / cap : 0;
+  const pw = mineScale(q).k * Math.min(4, q.charge || 1) * (q.xcLoaded ? 1.5 : 1), lg = Math.log2(Math.max(1, pw));
+  if (lg < 0.05 && !(rip > 0)) return;
+  const x = sx(q.x), y = sy(q.y), R = Math.min(18, 7 * (1 + 0.35 * lg)) * S, pulse = rip > 0 && rip < 1 ? 0.5 + 0.5 * Math.sin(G.realT * (6 + 10 * rip)) : 1;
+  const base = w.def.color, glowA = Math.min(0.75, 0.2 + 0.12 * lg + 0.35 * rip * pulse);
+  const g = ctx.createRadialGradient(x, y, R * 0.3, x, y, R * 2.6); g.addColorStop(0, col(xcMixC(base, '#ffffff', 0.3))); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.globalAlpha = glowA; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, R * 2.6, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1; ctx.fillStyle = '#1a1a22'; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.fill();
+  ctx.strokeStyle = col(base); ctx.lineWidth = Math.max(1, (1.2 + lg) * S); ctx.stroke();
+  ctx.fillStyle = col(xcMixC(base, '#ffffff', Math.min(0.85, 0.25 + 0.2 * lg + 0.3 * rip))); ctx.beginPath(); ctx.arc(x, y, 3.5 * S * (1 + 0.3 * lg + 0.3 * rip), 0, TAU); ctx.fill();
+}
 modDraw = (orig => function () {
   orig();
   if (!G || !G.weapons) return;
@@ -885,7 +918,7 @@ modDraw = (orig => function () {
       if (xcIs(w, 'bb')) ctx.stroke(); else ctx.fill();
     }
     if (w.xcWires) { ctx.globalAlpha = 0.6; ctx.strokeStyle = c; ctx.setLineDash([4 * S, 4 * S]); for (const [a, b] of w.xcWires) { if (a.dead || b.dead) continue; ctx.beginPath(); ctx.moveTo(sx(a.x), sy(a.y)); ctx.lineTo(sx(b.x), sy(b.y)); ctx.stroke(); } ctx.setLineDash([]); } // tripwires
-    if (xcIs(w, 'nm') && xcR(w, 'charged')) for (const q of G.proj) if (q.mine && !q.dead && q.w === w) { const k = xcRipe(q) - 1; if (k > 0.05) { ctx.globalAlpha = 0.25 + 0.35 * k / 1.8; ctx.strokeStyle = c; ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), (9 + 6 * k) * S, 0, TAU); ctx.stroke(); } } // ripening
+    if (xcIs(w, 'nm')) for (const q of G.proj) if (q.mine && !q.dead && q.w === w) xcMineLook(q, w); // charging and empowered mines
     if (w.xcSh && w.xcSh.g > 0.02) { const r = (p.r + 26) * Math.max(0.05, w.xcSh.g) * S, a = w.xcSh.up ? 1 : 0.6; ctx.globalAlpha = 0.18 * a; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), r, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.7 * a; ctx.strokeStyle = c; ctx.stroke(); } // the bubble round you (growing back after a pop)
   }
   if (G.xcS) {
