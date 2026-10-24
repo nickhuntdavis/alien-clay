@@ -1,6 +1,6 @@
 // The v9 weapons and samples back under v10 (v9arms.js, samples9.js): every v9 weapon is on the live roster with a
 // live damage type and an attack type, fires and does damage on its own for 8 s without errors; the v9 combos are
-// listed and one fuses; the rack shows all samples; each v9 sample starts as its v9 profile with its own starters and
+// listed and one fuses; the rack shows all samples; each v9 sample starts as its v9 profile with the matrix starting offer (samplestart.js) and
 // plays a few seconds; the default profile (no pick) is untouched.
 const { chromium } = require('playwright');
 (async () => {
@@ -60,8 +60,8 @@ const { chromium } = require('playwright');
         META.profile = 's10_v9_' + pid; UI.sample = 's002'; UI.startGame(false);
         if (G.genes.primary !== pid) bad.push(pid + ' primary ' + G.genes.primary);
         if (!G.s10 && s10Of() !== 'v9_' + pid) bad.push(pid + ' not a sample');
-        const opts = v10Loot({ kind: 'start' }), want = S10_BY['v9_' + pid].weapons;
-        if (!opts || !opts.length || !opts.every(o => want.includes(W24_IDS.find(k => WEAPONS[k] === o.def)))) bad.push(pid + ' starters ' + (opts || []).map(o => o.title));
+        const opts = v10Loot({ kind: 'start' }), pool = s10Pool(), ids = (opts || []).map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
+        if (!opts || opts.length !== 3 || !ids.every(id => pool.includes(id)) || new Set(ids).size !== 3) bad.push(pid + ' starters ' + (opts || []).map(o => o.title));
         opts[0].apply(); G.state = 'play';
         for (let f = 0; f < 300; f++) { G.lootQueue = []; G.state = 'play'; update(1 / 60); }
         if (!G.s10 || G.s10.id !== 'v9_' + pid) bad.push(pid + ' G.s10 ' + (G.s10 && G.s10.id));
