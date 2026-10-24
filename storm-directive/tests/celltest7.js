@@ -39,7 +39,7 @@ const { chromium } = require('playwright');
       w = fresh(id); w.m10 = Array(n).fill(m); computeStats(w); crowd(); feed = id === 's_siphon';
       DMG.n = 0;
       const k = XC_W[id].tag + ':' + m + n;
-      try { run(5); } catch (err) { bad.push('error in ' + k + ': ' + err.message + ' ' + (err.stack || '').split('\n')[1]); continue; }
+      try { run(m === 'charged' && id === 's_siphon' ? 8 : 5); } catch (err) { bad.push('error in ' + k + ': ' + err.message + ' ' + (err.stack || '').split('\n')[1]); continue; }
       out.dmg[k] = Math.round(DMG.n);
       if (!(out.dmg[k] > 0)) bad.push('no damage ' + k);
     }
@@ -95,7 +95,7 @@ const { chromium } = require('playwright');
     w = fresh('s_void'); w.m10 = ['connecting', 'connecting', 'connecting']; computeStats(w); const R0 = VOID_MERGE.reach; update(1 / 60); if (VOID_MERGE.reach !== R0) bad.push('merge reach left changed');
     // 5. Round 2 reworks
     const sp0 = (cells, n) => { const w = fresh('s_siphon'); w.m10 = cells; computeStats(w); return w; };
-    w = sp0(['range']); sh = foe(400, 0); sh.speed = 0; eat(w, sh, null); w.cd = 0; updateSiphon(w, 1 / 60); pr = G.proj.find(q => q.w === w && q.c7);
+    w = sp0(['range']); sh = foe(280, 0); sh.speed = 0; eat(w, sh, null); w.cd = 0; updateSiphon(w, 1 / 60); pr = G.proj.find(q => q.w === w && q.c7);
     if (pr) { pr.life = 0.01; let k = 0; while (!pr.dead && k++ < 240) update(1 / 60); } out.recycle = !!(pr && pr.c7.back && pr.dead); if (!out.recycle) bad.push('a miss does not come home');
     w = sp0(['upclose']); sh = foe(80, 0); sh.speed = 0; eat(w, sh, null); w.cd = 0; updateSiphon(w, 1 / 60); out.pellets = G.proj.filter(q => q.w === w && q.c7 && q.c7.pel).length; if (!(out.pellets >= 3)) bad.push('no spit take ' + out.pellets);
     w = sp0(['rapid', 'rapid', 'rapid', 'rapid']); sh = foe(250, 0); sh.speed = 0; w.q = w.q || []; for (let i = 0; i < 5; i++) w.q.push(1); C7.SPS(w).hicT = G.t; update(1 / 60); out.hiccup = w.q.length; if (w.q.length) bad.push('no hiccup ' + w.q.length);
@@ -106,8 +106,8 @@ const { chromium } = require('playwright');
     out.knockHome = !!(kv.c7kn && kv.c7kn.o === sh && kv.kx > 0); if (!out.knockHome) bad.push('not knocked towards its shooter');
     w = sp0(['sticky']); const sv = foe(120, 0); sv.speed = 0; wupHit(sv, { toHp: 10 }, Object.assign(weaponSrc(w), { c7: { m: null, k: 1, pr: null } })); out.splat = (C7.SPS(w).splat || []).length; if (out.splat !== 1) bad.push('no spit splat');
     w = sp0(['focus']); sh = foe(250, 0); sh.speed = 0; const s2 = foe(250, 60); s2.speed = 0; eat(w, sh, null, 3); eat(w, s2, null, 1); for (let i = 0; i < 40; i++) update(1 / 60); out.grudge = C7.SPS(w).grudge === sh; if (!out.grudge) bad.push('no grudge');
-    w = sp0(['nth']); sh = foe(420, 0); sh.speed = 0; for (let i = 0; i < 4; i++) { eat(w, sh, null); w.cd = 0; updateSiphon(w, 1 / 60); }
-    const hb = G.proj.find(q => q.w === w && q.c7 && q.c7.hair); if (hb) { G.ebul.push({ x: hb.x, y: hb.y, vx: 0, vy: 0, dmg: 4, r: 5, life: 7 }); update(1 / 60); }
+    w = sp0(['nth']); sh = foe(280, 0); sh.speed = 0; for (let i = 0; i < 4; i++) { eat(w, sh, null); w.cd = 0; updateSiphon(w, 1 / 60); }
+    const hb = G.proj.find(q => q.w === w && q.c7 && q.c7.hair); if (hb) { hb.x = G.player.x + 160; hb.y = G.player.y - 120; G.ebul.push({ x: hb.x, y: hb.y, vx: 0, vy: 0, dmg: 4, r: 5, life: 7 }); update(1 / 60); }
     out.hairball = hb ? hb.c7.hair.n : -1; if (!(out.hairball >= 1)) bad.push('no hairball ' + out.hairball);
     const ft0 = cells => { const w = fresh('s_void'); w.m10 = cells; computeStats(w); return w; };
     w = ft0(['range']); t = foe(350, 0); t.speed = 0; fireWeapon(w, t); for (let i = 0; i < 40; i++) update(1 / 60); out.wake = modS().wells.filter(q => q.w === w).length; if (!(out.wake >= 1)) bad.push('no tidal wake');

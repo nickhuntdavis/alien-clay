@@ -15,6 +15,11 @@
 //    the way out, homing, bounces, the centre hold, the 120 bonus, the trap); ended holes are noticed once (Exploding
 //    Rounds). Melee (a hole on you), Orbiting, Mines (dormant holes) and Death from Above replace the shot (XC_FIRE.ft).
 //    Merges: voidMerge (Connecting: reach and drift), voidCombine (masses), voidSupernova (Area, Knockback, Turncoat).
+// Round 2 (25 Oct): the plain cells reworked (MODIFIER_MATRIX 5.9 "Round 2"): on the spoon Range comes home, Up Close is a
+// spit take, Rapid Fire rakes and hiccups, Catalyst digests reactions, Kinship eats your missed Force shots, Knockback sends
+// enemies back to their shooter, Sticky spits splats, Focus holds a grudge, Every Nth is a hairball; on the holes Range
+// leaves a tidal wake, Up Close swings round you, Rapid Fire evaporates in a flash, Charged accretes, Catalyst adds mass,
+// Kinship gathers, Sticky tethers, Primer flares. Also wraps sigs.js projEnd (Kinship).
 // Simplified: Family Ties' base drift is unchanged (MODIFIER_MATRIX conflict 4 is a base change), so Connecting Lv 1 adds a
 // little drift instead; Charged on There Is No Spoon also lets go after 6 s with anything stored (a dry store still
 // fires); its Kinship status fill stays the shared (Force) one.
