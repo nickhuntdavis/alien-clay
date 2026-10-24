@@ -69,6 +69,13 @@ const { chromium } = require('playwright');
     w = set('s_redtape', 'turncoat', 1); { const e = foe(150, 0); xcRise(w, e); crowd(); step(120); out.hug = fx(w, 'hug'); if (!(out.hug > 0)) bad.push('sticky friend never hugged'); }
     w = set('s_redtape', 'range', 1); out.ewJump = w.s.jump; w = set('s_redtape', 'range', 4); out.ewJump4 = w.s.jump; if (!(out.ewJump4 >= 260)) bad.push('range mastery tape reach ' + out.ewJump4);
     w = set('s_redtape', 'nth', 4); { crowd(); for (let i = 0; i < 3; i++) { w.c4empP = 1; const t = G.enemies.find(o => !o.dead && !o.tape && !o.charmed); if (t) C4.stamp(w, t); } const B = TOYS().tapes.find(q => q.w === w && q.c4share); out.nthShare = B ? B.c4share : 0; if (out.nthShare !== 0.7) bad.push('nth mastery share ' + out.nthShare); }
+    // Switched at Birth (Acid Spit to Alien: the cells fill the Alien bar; Ewww to Acid)
+    for (const [id, ms] of [['v_fire_proj', ['charged', 'sticky', 'melee', 'mines', 'connecting', 'explode', 'nth', 'upclose']], ['s_redtape', ['explode', 'knock', 'orbiting']]]) for (const m of ms) {
+      w = set(id, m, 4); sabSwitch(w, MM_SAB[id]); computeStats(w); crowd(); DMG.n = 0;
+      try { run(3); } catch (err) { bad.push('error switched ' + m + ': ' + err.message); continue; }
+      if (!(DMG.n > 0)) bad.push('no damage switched ' + id + ' ' + m);
+      if (id === 'v_fire_proj' && m === 'charged') { out.soulBar = Math.max(...G.enemies.filter(e => e.cd).map(e => e.cd.bars.soul)); if (!(out.soulBar > 0)) bad.push('switched glob fills no Alien bar'); }
+    }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out).slice(0, 4000));

@@ -30,42 +30,42 @@ XC_W.s_redtape = { tag: 'ew',
   mask: ['charged', 'knock', 'pull', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
   deny: ['sticky', 'connecting', 'ranged'], atkOk: [] };
 
-const mark = C4.mark;
-const AS = w => !!w && xcIs(w, 'as') && xcAny(w);
-const EW = w => !!w && xcIs(w, 'ew') && xcAny(w);
-const live = w => !!(G && w && G.weapons.includes(w));
-const same = w => G.weapons.filter(x => x && !x.isSpell && x.def && mwType(x) === mwType(w)).length; // (weapons of its type, itself included)
+const c4Mark = C4.mark;
+const c4As = w => !!w && xcIs(w, 'as') && xcAny(w);
+const c4Ew = w => !!w && xcIs(w, 'ew') && xcAny(w);
+const c4Live = w => !!(G && w && G.weapons.includes(w));
+const c4Same = w => G.weapons.filter(x => x && !x.isSpell && x.def && mwType(x) === mwType(w)).length; // (weapons of its type, itself included)
 
 // ================================================================ ACID SPIT
 // Corrosion (or, switched to Alien, the Alien bar) from a cell. A glob's worth is what one hit of dmg fills.
-const bar = w => (mwType(w) === 'soul' ? 'soul' : 'acid');
-const worth = (w, e, dmg) => w2AcidFrac(e, dmg || w.s.dmg);
-function fill(w, e, f) {
+const c4Bar = w => (mwType(w) === 'soul' ? 'soul' : 'acid');
+const c4Worth = (w, e, dmg) => w2AcidFrac(e, dmg || w.s.dmg);
+function c4Fill(w, e, f) {
   if (!e || e.dead || e.charmed || e.egg || !(f > 0)) return;
-  if (bar(w) === 'acid') { w2BarBump(e, 'acid', f, w2Base(w)); return; }
+  if (c4Bar(w) === 'acid') { w2BarBump(e, 'acid', f, w2Base(w)); return; }
   const c = fightCd(e); c.bars.soul = Math.min(0.99, c.bars.soul + f); c.barQuietT.soul = 0;
 }
-function strip(w, e) { // a full Shell layer (no Shell: a full bar, which Corrodes)
+function c4Strip(w, e) { // a full Shell layer (no Shell: a full bar, which Corrodes)
   if (!e || e.dead || e.charmed || e.egg) return;
   const c = fightCd(e);
-  if (bar(w) === 'acid') w2BarBump(e, 'acid', Math.max(0.01, 1.001 - c.bars.acid), w2Base(w));
+  if (c4Bar(w) === 'acid') w2BarBump(e, 'acid', Math.max(0.01, 1.001 - c.bars.acid), w2Base(w));
   else c.bars.soul = 0.99;
-  ring(e.x, e.y, e.r + 8, w.def.color, 0.35, 4); mark(w, 'strip');
+  ring(e.x, e.y, e.r + 8, w.def.color, 0.35, 4); c4Mark(w, 'strip');
 }
-function pud(w, x, y, r, life) { // a thin acid puddle (16 a weapon; the oldest dries up)
+function c4Pud(w, x, y, r, life) { // a thin acid puddle (16 a weapon; the oldest dries up)
   if (G.zones.length >= 150) return null;
   const L = (w.c4pud || []).filter(z => z.life > 0); w.c4pud = L;
   if (L.length >= 16) L.shift().life = 0.001;
   const z = { x, y, r, life, max: life, dps: w.s.dmg * 0.12, elem: w.def.elem, pull: 0, color: w.def.color, tick: 0,
     src: Object.assign(weaponSrc(w), { zoneHit: true, wname: w.def.name + ' (puddle)' }), c4pud: w };
-  G.zones.push(z); L.push(z); mark(w, 'puddle');
+  G.zones.push(z); L.push(z); c4Mark(w, 'puddle');
   return z;
 }
-const spray = (pr, extra) => Object.assign({}, pr.src, { c4sp: 1, noRx: true, knock: 0 }, extra || {}); // (secondary hits: never cells again)
+const c4Spray = (pr, extra) => Object.assign({}, pr.src, { c4sp: 1, noRx: true, knock: 0 }, extra || {}); // (secondary hits: never cells again)
 
 modProj = (orig => function (pr, w) { // a glob as it leaves
   orig(pr, w);
-  if (!AS(w) || pr.c4drop || pr.c4ally) return;
+  if (!c4As(w) || pr.c4drop || pr.c4ally) return;
   const R = id => xcR(w, id);
   pr.c4x = pr.x; pr.c4y = pr.y;
   if (w.c4emp === G.frameN) { pr.c4emp = 1; pr.r *= 1.6; } // Every Nth
@@ -79,46 +79,46 @@ modProj = (orig => function (pr, w) { // a glob as it leaves
 projHit = (orig => function (pr, e) {
   orig(pr, e);
   const w = pr.w;
-  if (!G || !AS(w) || !e) return;
-  if (pr.c4ally) { if (xcR(w, 'turncoat') >= 3) fill(w, e, worth(w, e, pr.dmg)); return; } // (a spitter's spit: Corrosion x2 from Lv 3)
+  if (!G || !c4As(w) || !e) return;
+  if (pr.c4ally) { if (xcR(w, 'turncoat') >= 3) c4Fill(w, e, c4Worth(w, e, pr.dmg)); return; } // (a spitter's spit: Corrosion x2 from Lv 3)
   if (pr.c4drop) return;
-  asHit(w, pr, e);
+  c4AsHit(w, pr, e);
 })(projHit);
 projEnd = (orig => function (pr) {
   orig(pr);
-  if (G && pr && AS(pr.w) && !pr.c4drop && !pr.c4ally) asLand(pr.w, pr, pr.x, pr.y);
+  if (G && pr && c4As(pr.w) && !pr.c4drop && !pr.c4ally) c4AsLand(pr.w, pr, pr.x, pr.y);
 })(projEnd);
 
-function asHit(w, pr, e) {
-  const R = id => xcR(w, id), p = G.player, f0 = worth(w, e, pr.dmg), dist = Math.hypot(e.x - p.x, e.y - p.y);
+function c4AsHit(w, pr, e) {
+  const R = id => xcR(w, id), p = G.player, f0 = c4Worth(w, e, pr.dmg), dist = Math.hypot(e.x - p.x, e.y - p.y);
   if (R('upclose') && dist < 120 + e.r) { // close globs Corrode harder; the mastery strips point-blank
-    fill(w, e, f0 * xcLv([0.4, 0.8, 1.2, 1.2], R('upclose')));
-    if (R('upclose') >= 4 && dist < 60 + e.r && !(e.c4ucT > G.t)) { e.c4ucT = G.t + 0.6; strip(w, e); }
+    c4Fill(w, e, f0 * xcLv([0.4, 0.8, 1.2, 1.2], R('upclose')));
+    if (R('upclose') >= 4 && dist < 60 + e.r && !(e.c4ucT > G.t)) { e.c4ucT = G.t + 0.6; c4Strip(w, e); }
   }
   if (R('charged')) { // Surface tension: a bigger glob that breaks into droplets
     const r = R('charged');
-    fill(w, e, f0 * xcLv([0.6, 0.9, 1.2, 1.2], r));
-    if (r >= 4) strip(w, e);
-    asDrops(w, pr, e, xcLv([3, 5, 7, 14], r));
+    c4Fill(w, e, f0 * xcLv([0.6, 0.9, 1.2, 1.2], r));
+    if (r >= 4) c4Strip(w, e);
+    c4AsDrops(w, pr, e, xcLv([3, 5, 7, 14], r));
   }
-  if (R('focus') && typeof msFocusRamp === 'function') { const k = msFocusRamp(w); if (k > 0) fill(w, e, f0 * k); if (R('focus') >= 4 && msFocusFull(w)) strip(w, e); }
+  if (R('focus') && typeof msFocusRamp === 'function') { const k = msFocusRamp(w); if (k > 0) c4Fill(w, e, f0 * k); if (R('focus') >= 4 && msFocusFull(w)) c4Strip(w, e); }
   if (pr.c4emp) { // Every Nth: the empowered glob
     const r = R('nth');
-    fill(w, e, f0 * 2); ring(e.x, e.y, e.r + 10, w.def.color, 0.35, 4); mark(w, 'nth');
-    if (r >= 3) { let n = 0; forNear(e.x, e.y, 50, o => { if (o !== e && !o.charmed && n++ < 6) { fill(w, o, f0); damageEnemy(o, pr.dmg * 0.4, spray(pr)); } }); }
-    if (r >= 4) strip(w, e);
+    c4Fill(w, e, f0 * 2); ring(e.x, e.y, e.r + 10, w.def.color, 0.35, 4); c4Mark(w, 'nth');
+    if (r >= 3) { let n = 0; forNear(e.x, e.y, 50, o => { if (o !== e && !o.charmed && n++ < 6) { c4Fill(w, o, f0); damageEnemy(o, pr.dmg * 0.4, c4Spray(pr)); } }); }
+    if (r >= 4) c4Strip(w, e);
   }
   if (R('sticky') && !e.dead) { // the glob slows; from Lv 3 the 3rd hit Snares
     const r = R('sticky');
     msSlow(e, xcLv([0.3, 0.5, 0.7, 0.7], r), 1.5); e.c4stW = w;
     if (r >= 3) {
       e.c4stN = G.t - (e.c4stL || -9) < 2 ? (e.c4stN || 0) + 1 : 1; e.c4stL = G.t;
-      if (e.c4stN >= 3) { e.c4stN = 0; msSnare(e, 1); ring(e.x, e.y, e.r + 6, w.def.color, 0.4, 3); mark(w, 'snare'); }
+      if (e.c4stN >= 3) { e.c4stN = 0; msSnare(e, 1); ring(e.x, e.y, e.r + 6, w.def.color, 0.4, 3); c4Mark(w, 'snare'); }
     }
   }
   if (R('knock') && !e.dead && !e.boss) { // a shove along the glob's flight, twice as hard on Corroded enemies
     const r = R('knock'), cor = corroded(e);
-    shove(e, e.x - pr.vx, e.y - pr.vy, 5 * (cor ? 50 : 25) * Math.min(3, r)); mark(w, 'shove');
+    shove(e, e.x - pr.vx, e.y - pr.vy, 5 * (cor ? 50 : 25) * Math.min(3, r)); c4Mark(w, 'shove');
     if (r >= 4 && cor) e.c4streak = { w, end: G.t + 0.7, x: e.x, y: e.y };
   }
   if (R('pull') && !e.dead) { // enemies near the splash are dragged into it
@@ -128,57 +128,57 @@ function asHit(w, pr, e) {
       if (o === e || o.dead || o.charmed || n >= 8 || Math.hypot(o.x - e.x, o.y - e.y) > RR + o.r) continue;
       n++; mwPull(o, e.x, e.y, 14 * Math.min(3, r)); o.mwPulledT = G.t + 1;
     }
-    if (n) { mark(w, 'pull'); ring(e.x, e.y, RR, w.def.color, 0.2, 2); }
+    if (n) { c4Mark(w, 'pull'); ring(e.x, e.y, RR, w.def.color, 0.2, 2); }
     if (r >= 4 && !e.boss) { e.c4reel = { w, left: 80 }; w2Line(p.x, p.y, e.x, e.y, 2, w.def.color, 0.3); } // an acid strand reels it in
   }
   if (pr.c4P) { // Piercing: thins as it passes (the mastery swells instead, adding Corrosion to the next)
-    if (R('piercing') >= 4) { fill(w, e, f0 * 0.5 * (pr.c4sw || 0)); pr.c4sw = (pr.c4sw || 0) + 1; pr.r = Math.min(14, pr.r * 1.15); }
+    if (R('piercing') >= 4) { c4Fill(w, e, f0 * 0.5 * (pr.c4sw || 0)); pr.c4sw = (pr.c4sw || 0) + 1; pr.r = Math.min(14, pr.r * 1.15); }
     else pr.dmg *= 0.85;
   }
   if (R('explode')) { // an acid spray; the mastery bursts twice as wide on a Corroded target and leaves a pool
     const r = R('explode'), big = r >= 4 && corroded(e), RR = xcLv([40, 60, 80, 80], r) * (big ? 2 : 1);
-    aoe(e.x, e.y, RR, pr.dmg * xcLv([0.4, 0.6, 0.8, 0.8], r), spray(pr, { mwBoom: 1 }), w.def.color); ring(e.x, e.y, RR, w.def.color, 0.25, 3);
-    let n = 0; forNear(e.x, e.y, RR * xcArea(w), o => { if (o !== e && !o.charmed && n++ < 10) fill(w, o, f0 * 0.5); });
-    if (big) pud(w, e.x, e.y, 40, 2);
-    mark(w, 'spray');
+    aoe(e.x, e.y, RR, pr.dmg * xcLv([0.4, 0.6, 0.8, 0.8], r), c4Spray(pr, { mwBoom: 1 }), w.def.color); ring(e.x, e.y, RR, w.def.color, 0.25, 3);
+    let n = 0; forNear(e.x, e.y, RR * xcArea(w), o => { if (o !== e && !o.charmed && n++ < 10) c4Fill(w, o, f0 * 0.5); });
+    if (big) c4Pud(w, e.x, e.y, 40, 2);
+    c4Mark(w, 'spray');
   }
   if (R('ricochet') && (pr.c4rb || 0) < XC_RAMP(R('ricochet'))) { // off the enemy at the reflection angle
     const a = Math.atan2(pr.y - e.y, pr.x - e.x) + rand(-0.5, 0.5), nx = Math.cos(a), ny = Math.sin(a), dot = pr.vx * nx + pr.vy * ny;
     if (dot < 0) { pr.vx -= 2 * dot * nx; pr.vy -= 2 * dot * ny; }
     pr.c4rb = (pr.c4rb || 0) + 1; pr.pierce = (pr.pierce || 0) + 1; pr.dmg *= 0.8; pr.hits = [e.id]; pr.life = Math.max(pr.life, 0.6);
-    spawnPart(pr.x, pr.y, w.def.color, 3, 60, 0.2, 2); mark(w, 'bounce');
-    if (R('ricochet') >= 4) { fxParts('drop', pr.x, pr.y, w.def.color, 3, 30, 0.5, 2.5); forNear(pr.x, pr.y, 22, o => { if (!o.charmed) fill(w, o, f0 * 0.4); }); } // a drop of acid
+    spawnPart(pr.x, pr.y, w.def.color, 3, 60, 0.2, 2); c4Mark(w, 'bounce');
+    if (R('ricochet') >= 4) { fxParts('drop', pr.x, pr.y, w.def.color, 3, 30, 0.5, 2.5); forNear(pr.x, pr.y, 22, o => { if (!o.charmed) c4Fill(w, o, f0 * 0.4); }); } // a drop of acid
   }
-  if (R('connecting') && !e.dead) asTie(w, e);
-  asLand(w, pr, e.x, e.y);
+  if (R('connecting') && !e.dead) c4AsTie(w, e);
+  c4AsLand(w, pr, e.x, e.y);
 }
 // A glob's first landing (on an enemy, or at the end of its flight): Range's Lob and puddles; Area's spill.
-function asLand(w, pr, x, y) {
+function c4AsLand(w, pr, x, y) {
   if (pr.c4landed) return;
   pr.c4landed = 1;
   const R = id => xcR(w, id), flown = pr.c4x != null ? Math.hypot(x - pr.c4x, y - pr.c4y) : 0;
   if (R('range') && flown > 200) {
     const RR = 40 * (1 + Math.min(0.6, 0.1 * flown / 100));
-    aoe(x, y, RR, pr.dmg * 0.5, spray(pr), w.def.color); ring(x, y, RR, w.def.color, 0.3, 3); mark(w, 'lob');
+    aoe(x, y, RR, pr.dmg * 0.5, c4Spray(pr), w.def.color); ring(x, y, RR, w.def.color, 0.3, 3); c4Mark(w, 'lob');
   }
-  if (R('range') >= 4) pud(w, x, y, 26, 2);
-  if (R('area')) pud(w, x, y, 22, 2);
+  if (R('range') >= 4) c4Pud(w, x, y, 26, 2);
+  if (R('area')) c4Pud(w, x, y, 22, 2);
 }
-function asDrops(w, pr, e, n) { // Charged: droplets fly to different nearby enemies
+function c4AsDrops(w, pr, e, n) { // Charged: droplets fly to different nearby enemies
   const ts = acquireMany('nearest', 160, e.x, e.y, n + 1).filter(o => o !== e);
   for (let i = 0; i < n; i++) {
     const t = ts.length ? ts[i % ts.length] : null, a = t ? Math.atan2(t.y - e.y, t.x - e.x) + rand(-0.08, 0.08) : Math.random() * TAU, sp = 380;
     spawnProj(w, e.x, e.y, a, pr.src, { noMods: true, c4drop: 1, dmg: pr.dmg * 0.2, r: 2.5, speed: sp, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.5, max: 0.5, hits: [e.id], pierce: 0 });
   }
-  mark(w, 'drops');
+  c4Mark(w, 'drops');
 }
-function asTie(w, e) { // Connecting: a strand of acid ties the target to a neighbour for 3 s (8 strands a weapon)
+function c4AsTie(w, e) { // Connecting: a strand of acid ties the target to a neighbour for 3 s (8 strands a weapon)
   const S = xcS(), L = S.c4str || (S.c4str = []), r = xcR(w, 'connecting');
   if (L.some(q => q.w === w && !q.gone && (q.a === e || q.b === e))) return;
   if (L.filter(q => q.w === w && !q.gone).length >= 8) return;
   const ns = acquireMany('nearest', 140 + e.r, e.x, e.y, 4).filter(o => o !== e).slice(0, r >= 2 ? 2 : 1);
   for (const o of ns) L.push({ w, a: e, b: o, end: G.t + 3, next: 0, drip: 0 });
-  if (ns.length) mark(w, 'strand');
+  if (ns.length) c4Mark(w, 'strand');
 }
 
 XC_STATS.as = function (w, s) {
@@ -192,14 +192,14 @@ XC_FIRE.as = function (w, target, src) {
   const R = id => xcR(w, id), p = G.player, s = w.s;
   if (R('nth')) { w.c4n = (w.c4n || 0) + 1; if (w.c4n % (R('nth') >= 2 ? 3 : 4) === 0) { w.c4emp = G.frameN; ring(p.x, p.y, p.r + 10, w.def.color, 0.3, 3); } }
   if (!target) return false;
-  if (R('melee')) { asKiss(w, target, src); return true; }
-  if (R('mines')) { asLay(w, target); return true; }
-  if (R('dfa')) { asRain(w, target); return true; }
+  if (R('melee')) { c4AsKiss(w, target, src); return true; }
+  if (R('mines')) { c4AsLay(w, target); return true; }
+  if (R('dfa')) { c4AsRain(w, target); return true; }
   if (R('orbiting')) { // globs circle you (once; twice from Lv 3), then fly off; the mastery holds 4 until an enemy comes near
     const r = R('orbiting');
     if (r >= 4 && G.proj.filter(q => q.w === w && !q.dead && q.c4hold).length >= 4) return true;
     const pr = spawnProj(w, p.x, p.y, 0, Object.assign({}, src, { c4orb: 1 }), { orbitT: r >= 4 ? 99 : r >= 3 ? 2.1 : 1.05, oa: Math.random() * TAU, orad: 56, c4hold: r >= 4 ? 1 : 0 });
-    if (pr) mark(w, 'orbit');
+    if (pr) c4Mark(w, 'orbit');
     return true;
   }
   if (R('extra')) { // +1 glob; a rear glob; two side globs; the mastery a ring of 8
@@ -207,57 +207,57 @@ XC_FIRE.as = function (w, target, src) {
     if (r >= 4) for (let i = 0; i < 8; i++) as.push(a0 + i / 8 * TAU);
     else { as.push(a0 - 0.07, a0 + 0.07); if (r >= 2) as.push(a0 + Math.PI); if (r >= 3) as.push(a0 + Math.PI / 2, a0 - Math.PI / 2); }
     for (const a of as) spawnProj(w, p.x, p.y, a + rand(-s.spread, s.spread) * 0.5, src);
-    p.face = a0; sfx('shot'); mark(w, 'extra');
+    p.face = a0; sfx('shot'); c4Mark(w, 'extra');
     return true;
   }
   return false;
 };
-function asKiss(w, target, src) { // Melee: a wet bite on the nearest enemy within 70
+function c4AsKiss(w, target, src) { // Melee: a wet bite on the nearest enemy within 70
   const p = G.player, r = xcR(w, 'melee'), reach = 70 * xcArea(w), emp = w.c4emp === G.frameN;
   const e = Math.hypot(target.x - p.x, target.y - p.y) < reach + target.r ? target : xcFoe(p.x, p.y, reach);
   if (!e) return;
-  const f0 = worth(w, e, w.s.dmg);
+  const f0 = c4Worth(w, e, w.s.dmg);
   damageEnemy(e, w.s.dmg * 1.4, Object.assign({}, src, { atk: 'contact', c4kiss: 1 }));
-  fill(w, e, f0 * (r >= 2 ? 2 : 1) + (emp ? f0 * 2 : 0));
+  c4Fill(w, e, f0 * (r >= 2 ? 2 : 1) + (emp ? f0 * 2 : 0));
   if (r >= 3) e.c4drool = { w, end: G.t + 2, next: 0 };
   w.c4kissN = (w.c4kissN || 0) + 1;
-  if (r >= 4 && w.c4kissN % 3 === 0) strip(w, e);
+  if (r >= 4 && w.c4kissN % 3 === 0) c4Strip(w, e);
   p.face = Math.atan2(e.y - p.y, e.x - p.x);
-  ring(e.x, e.y, e.r + 4, w.def.color, 0.2, 3); fxParts('drop', e.x, e.y, w.def.color, 3, 40, 0.4, 2.5); mark(w, 'kiss'); sfx('shot');
+  ring(e.x, e.y, e.r + 4, w.def.color, 0.2, 3); fxParts('drop', e.x, e.y, w.def.color, 3, 40, 0.4, 2.5); c4Mark(w, 'kiss'); sfx('shot');
 }
-function asLay(w, target) { // Mines: 3 (5 from Lv 2) acid mines between you and the crowd
+function c4AsLay(w, target) { // Mines: 3 (5 from Lv 2) acid mines between you and the crowd
   if (w.c4layT > G.t) return;
   w.c4layT = G.t + Math.max(0.6, w.s.cd * 2);
   const S = xcS(), L = S.c4mine || (S.c4mine = []), p = G.player, cap = xcR(w, 'mines') >= 2 ? 5 : 3;
   L.push({ w, x: p.x + (target.x - p.x) * 0.35 + rand(-15, 15), y: p.y + (target.y - p.y) * 0.35 + rand(-15, 15), end: G.t + 14, armed: G.t + 0.4 });
   const mine = L.filter(q => q.w === w && !q.gone);
   while (mine.length > cap) mine.shift().gone = 1;
-  mark(w, 'mine');
+  c4Mark(w, 'mine');
 }
-function asRain(w, target) { // Death from Above: acid rain over a marked zone (2 at once)
+function c4AsRain(w, target) { // Death from Above: acid rain over a marked zone (2 at once)
   const S = xcS(), L = S.c4rain || (S.c4rain = []), r = xcR(w, 'dfa'), p = G.player;
   if (L.filter(q => q.w === w && !q.gone).length >= 2) return;
   const c = (r >= 4 && acquire('cluster', w.s.range || 300, p.x, p.y)) || target, RR = (r >= 3 ? 90 : 70) * xcArea(w);
   G.fx.push({ type: 'warn', x: c.x, y: c.y, r: RR, color: w.def.color, life: 0.6, max: 0.6 });
   L.push({ w, x: c.x, y: c.y, r: RR, start: G.t + 0.6, end: G.t + 0.6 + (r >= 2 ? 2.5 : 1.5), next: 0 });
-  mark(w, 'rain');
+  c4Mark(w, 'rain');
 }
 XC_TICK.as = function (w, dt) {
   const R = id => xcR(w, id), s = w.s, p = G.player, S = xcS(), src = () => Object.assign(weaponSrc(w), { c4sp: 1 });
   const t4 = !(w.c4t4 > G.t); if (t4) w.c4t4 = G.t + 0.25;
-  if (t4 && w.c4pud) for (const z of w.c4pud) if (z.life > 0) forNear(z.x, z.y, z.r, o => { if (!o.charmed) fill(w, o, 0.05); }); // puddles Corrode what stands in them
+  if (t4 && w.c4pud) for (const z of w.c4pud) if (z.life > 0) forNear(z.x, z.y, z.r, o => { if (!o.charmed) c4Fill(w, o, 0.05); }); // puddles Corrode what stands in them
   if (S.c4str) { // Connecting: strands hold their pair, Corrode what crosses them, drip (Lv 3) and sag into pools (mastery)
     for (const q of S.c4str) {
       if (q.w !== w || q.gone) continue;
-      if (q.end <= G.t || q.a.dead || q.b.dead || !R('connecting')) { q.gone = 1; if (R('connecting') >= 4) pud(w, (q.a.x + q.b.x) / 2, (q.a.y + q.b.y) / 2, 35, 2.5); continue; }
+      if (q.end <= G.t || q.a.dead || q.b.dead || !R('connecting')) { q.gone = 1; if (R('connecting') >= 4) c4Pud(w, (q.a.x + q.b.x) / 2, (q.a.y + q.b.y) / 2, 35, 2.5); continue; }
       if (Math.hypot(q.a.x - q.b.x, q.a.y - q.b.y) > 160) { mwPull(q.a, q.b.x, q.b.y, 60 * dt); mwPull(q.b, q.a.x, q.a.y, 60 * dt); }
-      if (q.next <= G.t) { q.next = G.t + 0.5; for (const o of G.enemies) if (!o.dead && !o.charmed && o !== q.a && o !== q.b && w2SegDist(o.x, o.y, q.a.x, q.a.y, q.b.x, q.b.y) < o.r + 5) { fill(w, o, 0.08); mark(w, 'cross'); } }
+      if (q.next <= G.t) { q.next = G.t + 0.5; for (const o of G.enemies) if (!o.dead && !o.charmed && o !== q.a && o !== q.b && w2SegDist(o.x, o.y, q.a.x, q.a.y, q.b.x, q.b.y) < o.r + 5) { c4Fill(w, o, 0.08); c4Mark(w, 'cross'); } }
       if (R('connecting') >= 3 && q.drip <= G.t) {
         q.drip = G.t + 0.4; const k = Math.random(), x = q.a.x + (q.b.x - q.a.x) * k, y = q.a.y + (q.b.y - q.a.y) * k + 6;
-        fxParts('drop', x, y, w.def.color, 1, 20, 0.5, 2.5, Math.PI / 2, 0.3); forNear(x, y, 24, o => { if (!o.charmed) fill(w, o, 0.06); }); mark(w, 'drip');
+        fxParts('drop', x, y, w.def.color, 1, 20, 0.5, 2.5, Math.PI / 2, 0.3); forNear(x, y, 24, o => { if (!o.charmed) c4Fill(w, o, 0.06); }); c4Mark(w, 'drip');
       }
     }
-    S.c4str = S.c4str.filter(q => !q.gone && live(q.w));
+    S.c4str = S.c4str.filter(q => !q.gone && c4Live(q.w));
   }
   if (S.c4mine) { // Mines: go off when an enemy comes within 40
     for (const q of S.c4mine) {
@@ -266,11 +266,11 @@ XC_TICK.as = function (w, dt) {
       if (q.armed > G.t || !xcFoe(q.x, q.y, 40)) continue;
       q.gone = 1; const RR = 60;
       aoe(q.x, q.y, RR, s.dmg * 1.6, src(), w.def.color); ring(q.x, q.y, RR, w.def.color, 0.3, 4);
-      let n = 0; forNear(q.x, q.y, RR * xcArea(w), o => { if (!o.charmed && n++ < 12) fill(w, o, worth(w, o, s.dmg) * (R('mines') >= 3 ? 2 : 1)); });
-      if (R('mines') >= 4) pud(w, q.x, q.y, 50, 3);
-      mark(w, 'boom');
+      let n = 0; forNear(q.x, q.y, RR * xcArea(w), o => { if (!o.charmed && n++ < 12) c4Fill(w, o, c4Worth(w, o, s.dmg) * (R('mines') >= 3 ? 2 : 1)); });
+      if (R('mines') >= 4) c4Pud(w, q.x, q.y, 50, 3);
+      c4Mark(w, 'boom');
     }
-    S.c4mine = S.c4mine.filter(q => !q.gone && live(q.w));
+    S.c4mine = S.c4mine.filter(q => !q.gone && c4Live(q.w));
   }
   if (S.c4rain) { // Death from Above: drops land 10 a second; the mastery's rain follows the densest crowd
     for (const q of S.c4rain) {
@@ -283,7 +283,7 @@ XC_TICK.as = function (w, dt) {
       const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * q.r, x = q.x + Math.cos(a) * d, y = q.y + Math.sin(a) * d;
       aoe(x, y, 16, s.dmg * 0.45, src(), w.def.color); fxParts('drop', x, y - 24, w.def.color, 1, 60, 0.3, 2.5, Math.PI / 2, 0.1);
     }
-    S.c4rain = S.c4rain.filter(q => !q.gone && live(q.w));
+    S.c4rain = S.c4rain.filter(q => !q.gone && c4Live(q.w));
   }
   if (R('orbiting')) for (const pr of G.proj) { // orbiting globs: the mastery lets one go when an enemy comes near
     if (pr.w !== w || pr.dead) continue;
@@ -292,10 +292,10 @@ XC_TICK.as = function (w, dt) {
   }
   for (const e of G.enemies) { // per enemy: Sticky's mastery, the acid streak, the reel and the drool
     if (e.dead) continue;
-    if (e.c4stW === w && R('sticky') >= 4 && e.snareT > G.t && e.cd) { e.cd.barQuietT[bar(w)] = 0; if (Math.random() < dt * 3) fxParts('drop', e.x, e.y, w.def.color, 1, 15, 0.5, 2.5, Math.PI / 2, 0.3); } // can't shed Corrosion while stuck
-    if (e.c4streak && e.c4streak.w === w) { const K = e.c4streak; if (K.end < G.t) e.c4streak = null; else if (Math.hypot(e.x - K.x, e.y - K.y) > 22) { K.x = e.x; K.y = e.y; pud(w, e.x, e.y, 14, 1.5); mark(w, 'streak'); } }
+    if (e.c4stW === w && R('sticky') >= 4 && e.snareT > G.t && e.cd) { e.cd.barQuietT[c4Bar(w)] = 0; if (Math.random() < dt * 3) fxParts('drop', e.x, e.y, w.def.color, 1, 15, 0.5, 2.5, Math.PI / 2, 0.3); } // can't shed Corrosion while stuck
+    if (e.c4streak && e.c4streak.w === w) { const K = e.c4streak; if (K.end < G.t) e.c4streak = null; else if (Math.hypot(e.x - K.x, e.y - K.y) > 22) { K.x = e.x; K.y = e.y; c4Pud(w, e.x, e.y, 14, 1.5); c4Mark(w, 'streak'); } }
     if (e.c4reel && e.c4reel.w === w) { const K = e.c4reel, d = Math.hypot(p.x - e.x, p.y - e.y) || 1; if (K.left <= 0 || d < e.r + p.r + 30) e.c4reel = null; else { const st = Math.min(K.left, 240 * dt); K.left -= st; mwPull(e, p.x, p.y, st); } }
-    if (e.c4drool && e.c4drool.w === w) { const K = e.c4drool; if (K.end < G.t) e.c4drool = null; else if (K.next <= G.t) { K.next = G.t + 0.5; fxParts('drop', e.x, e.y + e.r * 0.5, w.def.color, 2, 25, 0.5, 2.5, Math.PI / 2, 0.4); forNear(e.x, e.y, 45, o => { if (o !== e && !o.charmed) fill(w, o, 0.08); }); mark(w, 'drool'); } }
+    if (e.c4drool && e.c4drool.w === w) { const K = e.c4drool; if (K.end < G.t) e.c4drool = null; else if (K.next <= G.t) { K.next = G.t + 0.5; fxParts('drop', e.x, e.y + e.r * 0.5, w.def.color, 2, 25, 0.5, 2.5, Math.PI / 2, 0.4); forNear(e.x, e.y, 45, o => { if (o !== e && !o.charmed) c4Fill(w, o, 0.08); }); c4Mark(w, 'drool'); } }
   }
 };
 XC_LIFE.as = w => (xcR(w, 'turncoat') >= 2 ? 7 : 5);
@@ -307,22 +307,22 @@ XC_RUN.as = function (z, dt) { // Spitter: keeps its distance and spits acid; th
   if (t) {
     const d = Math.hypot(t.x - z.x, t.y - z.y) || 1;
     if (d > 140) { z.x += (t.x - z.x) / d * 110 * dt; z.y += (t.y - z.y) / d * 110 * dt; }
-    if (!(z.c4spT > G.t) && d < 320) { z.c4spT = G.t + 0.7; spawnProj(w, z.x, z.y, Math.atan2(t.y - z.y, t.x - z.x), Object.assign(weaponSrc(w), { fromAlly: true }), { noMods: true, c4ally: 1, dmg: w.s.dmg * 0.6 }); mark(w, 'spit'); }
+    if (!(z.c4spT > G.t) && d < 320) { z.c4spT = G.t + 0.7; spawnProj(w, z.x, z.y, Math.atan2(t.y - z.y, t.x - z.x), Object.assign(weaponSrc(w), { fromAlly: true }), { noMods: true, c4ally: 1, dmg: w.s.dmg * 0.6 }); c4Mark(w, 'spit'); }
   }
   if (z.xcRun.end > G.t) return;
   z.dead = true;
 };
 
 // ================================================================ EWWW, GROSS
-const free = o => !!o && !o.dead && !o.charmed && !o.egg && !o.phased && !o.tape;
+const c4Free = o => !!o && !o.dead && !o.charmed && !o.egg && !o.phased && !o.tape;
 function c4Up(w, first, n, k, list) { // a bundle, as toys.js tapeUp makes one (or from a given list), and its stamp
   const s = w.s, T = TOYS();
-  let members = list ? list.filter(e => e === first || free(e)) : null;
+  let members = list ? list.filter(e => e === first || c4Free(e)) : null;
   if (!members) {
     members = [first]; let cur = first;
     while (members.length < n) {
       let nx = null, bd = s.jump * s.jump;
-      forNear(cur.x, cur.y, s.jump, (e, d2) => { if (free(e) && !members.includes(e) && d2 < bd) { bd = d2; nx = e; } });
+      forNear(cur.x, cur.y, s.jump, (e, d2) => { if (c4Free(e) && !members.includes(e) && d2 < bd) { bd = d2; nx = e; } });
       if (!nx) break;
       members.push(nx); cur = nx;
     }
@@ -335,27 +335,27 @@ function c4Up(w, first, n, k, list) { // a bundle, as toys.js tapeUp makes one (
   B.stampT = G.t + 0.35;
   return B;
 }
-function around(t, R, n) { // t and the free enemies nearest it within R
+function c4Around(t, R, n) { // t and the c4Free enemies nearest it within R
   const out = [];
-  forNear(t.x, t.y, R, o => { if (o !== t && free(o)) out.push(o); });
+  forNear(t.x, t.y, R, o => { if (o !== t && c4Free(o)) out.push(o); });
   out.sort((a, b) => Math.hypot(a.x - t.x, a.y - t.y) - Math.hypot(b.x - t.x, b.y - t.y));
   return [t].concat(out.slice(0, Math.max(0, n - 1)));
 }
-function score(w, e) { let n = 0; forNear(e.x, e.y, w.s.jump, o => { if (o !== e && free(o)) n++; }); return n; }
-function ewBest(w, n) { // the free targets with the most free neighbours
-  const p = G.player, c = acquireMany('nearest', w.s.range, p.x, p.y, 12).filter(free).map(e => [score(w, e), e]);
+function c4Score(w, e) { let n = 0; forNear(e.x, e.y, w.s.jump, o => { if (o !== e && c4Free(o)) n++; }); return n; }
+function c4EwBest(w, n) { // the c4Free targets with the most c4Free neighbours
+  const p = G.player, c = acquireMany('nearest', w.s.range, p.x, p.y, 12).filter(c4Free).map(e => [c4Score(w, e), e]);
   c.sort((a, b) => b[0] - a[0]);
   return c.slice(0, n).map(x => x[1]);
 }
 // One stamp, with every cell that marks a stamp or its bundle. o.free: a stamp made by another cell (no blast, bounce or pierce of its own).
-function ewStamp(w, t, o) {
+function c4EwStamp(w, t, o) {
   o = o || {};
   const R = id => xcR(w, id), s = w.s, p = G.player;
   if (!t || t.dead || t.charmed || t.egg) return null;
   if (t.tape) {
     if (R('rapid') >= 4 && t.tape.w === w) { // stamps on a taped enemy extend its tape
       const B = t.tape; B.end = Math.min(G.t + s.dur * 2, B.end + 1.5);
-      damageEnemy(t, s.dmg * 1.5, toySrc(w, 'Red Tape')); B.stampT = G.t + 0.35; mark(w, 'extend');
+      damageEnemy(t, s.dmg * 1.5, toySrc(w, 'Red Tape')); B.stampT = G.t + 0.35; c4Mark(w, 'extend');
       return B;
     }
     return null;
@@ -363,27 +363,27 @@ function ewStamp(w, t, o) {
   let n = s.chain + 1 + (R('dfa') >= 2 ? 1 : 0) + (R('mines') >= 3 ? 1 : 0), list = null, emp = false;
   if (R('nth') && w.c4empP) { w.c4empP = 0; emp = true; n += 3; } // (Every Nth: counted per shot in ewFire, spent on the next bundle)
   const d = Math.hypot(t.x - p.x, t.y - p.y);
-  if (R('upclose') && d < 120 + t.r) { n += xcLv([1, 2, 3, 3], R('upclose')); if (R('upclose') >= 4 && d < 60 + t.r) { list = around(t, 80, 12); mark(w, 'pointblank'); } }
+  if (R('upclose') && d < 120 + t.r) { n += xcLv([1, 2, 3, 3], R('upclose')); if (R('upclose') >= 4 && d < 60 + t.r) { list = c4Around(t, 80, 12); c4Mark(w, 'pointblank'); } }
   if (R('explode') && !o.free) { // the stamp explodes; the bundle is made from what it hit
     const r = R('explode'), RR = xcLv([40, 60, 80, 80], r);
     aoe(t.x, t.y, RR, s.dmg * 1.5 * xcLv([0.4, 0.6, 0.8, 0.8], r), toySrc(w, 'Red Tape', { c4sp: 1 }), w.def.color); ring(t.x, t.y, RR, w.def.color, 0.25, 3);
-    if (!list) { list = around(t, RR * xcArea(w), n); if (list.length < n) list = null; } // (too few in the blast: tape on along the chain as usual)
-    mark(w, 'blast');
+    if (!list) { list = c4Around(t, RR * xcArea(w), n); if (list.length < n) list = null; } // (too few in the blast: tape on along the chain as usual)
+    c4Mark(w, 'blast');
   }
   const B = c4Up(w, t, n, o.k, list);
-  if (emp) { if (R('nth') >= 3) B.end += s.dur; if (R('nth') >= 4) B.c4share = 0.7; ring(t.x, t.y, t.r + 14, w.def.color, 0.4, 4); mark(w, 'nth'); }
-  if (R('knock') && !o.free) ewKnock(w, B, t);
-  if (R('ricochet') && !o.free) ewBounce(w, t, B, o.k || 1);
-  if (R('piercing') && !o.free) ewPierce(w, t, B);
+  if (emp) { if (R('nth') >= 3) B.end += s.dur; if (R('nth') >= 4) B.c4share = 0.7; ring(t.x, t.y, t.r + 14, w.def.color, 0.4, 4); c4Mark(w, 'nth'); }
+  if (R('knock') && !o.free) c4EwKnock(w, B, t);
+  if (R('ricochet') && !o.free) c4EwBounce(w, t, B, o.k || 1);
+  if (R('piercing') && !o.free) c4EwPierce(w, t, B);
   if (R('melee') >= 4) w.c4drag = B; // (one bundle stuck to you)
   return B;
 }
-function ewKnock(w, B, t) { // Elastic: the bundle is knocked back together
+function c4EwKnock(w, B, t) { // Elastic: the bundle is knocked back together
   const r = xcR(w, 'knock'), p = G.player, f = 5 * xcLv([40, 60, 80, 80], r), d = Math.hypot(t.x - p.x, t.y - p.y) || 1, ux = (t.x - p.x) / d, uy = (t.y - p.y) / d;
   B.members.forEach((e, i) => { if (!e.boss) shove(e, e.x - ux, e.y - uy, f * Math.max(0.25, 1 - 0.3 * i)); }); // (the stamped end takes the full knock: the tape stretches)
-  B.c4kn = G.t + 0.7; B.c4snap = new Set(); B.c4yank = new Set(); mark(w, 'knock');
+  B.c4kn = G.t + 0.7; B.c4snap = new Set(); B.c4yank = new Set(); c4Mark(w, 'knock');
 }
-function ewBounce(w, t, B, k) { // Ricochet: the stamp bounces on to enemies ahead, taping each to the last bundle (8 a bundle; the mastery: all in one)
+function c4EwBounce(w, t, B, k) { // Ricochet: the stamp bounces on to enemies ahead, taping each to the last bundle (8 a bundle; the mastery: all in one)
   const n = XC_RAMP(xcR(w, 'ricochet')), cap = xcR(w, 'ricochet') >= 4 ? 16 : 8, p = G.player, s = w.s, hit = [t];
   let last = t, a = Math.atan2(t.y - p.y, t.x - p.x);
   for (let i = 0; i < n; i++) {
@@ -397,17 +397,17 @@ function ewBounce(w, t, B, k) { // Ricochet: the stamp bounces on to enemies ahe
     }
     if (!nx) break;
     k *= 0.8; hit.push(nx);
-    damageEnemy(nx, s.dmg * 1.5 * k, toySrc(w, 'Red Tape')); w2Line(last.x, last.y, nx.x, nx.y, 3, w.def.color, 0.25); mark(w, 'bounce');
+    damageEnemy(nx, s.dmg * 1.5 * k, toySrc(w, 'Red Tape')); w2Line(last.x, last.y, nx.x, nx.y, 3, w.def.color, 0.25); c4Mark(w, 'bounce');
     a = Math.atan2(nx.y - last.y, nx.x - last.x);
-    if (free(nx)) {
+    if (c4Free(nx)) {
       let host = cap > 8 ? B : (last.tape && !last.tape.dead && last.tape.members.length < cap ? last.tape : null);
       if (host && host.members.length < cap) { host.members.push(nx); nx.tape = host; }
-      else c4Up(w, nx, 2, 0.001, [nx].concat(around(nx, s.jump, 2).slice(1)));
+      else c4Up(w, nx, 2, 0.001, [nx].concat(c4Around(nx, s.jump, 2).slice(1)));
     }
     last = nx;
   }
 }
-function ewPierce(w, t, B) { // Piercing: the stamp carries on in a line, starting a bundle on each enemy it passes (the mastery joins them all)
+function c4EwPierce(w, t, B) { // Piercing: the stamp carries on in a line, starting a bundle on each enemy it passes (the mastery joins them all)
   const r = xcR(w, 'piercing'), p = G.player, a = Math.atan2(t.y - p.y, t.x - p.x), L = w.s.range * 1.2, c = Math.cos(a), sn = Math.sin(a), line = [];
   for (const e of G.enemies) {
     if (e.dead || e.charmed || e.egg || e === t) continue;
@@ -416,30 +416,30 @@ function ewPierce(w, t, B) { // Piercing: the stamp carries on in a line, starti
   }
   line.sort((x, y) => x[0] - y[0]);
   const Bs = [B]; let k = 1;
-  for (const [, e] of line.slice(0, XC_RAMP(r))) { k *= 0.85; if (free(e)) Bs.push(c4Up(w, e, w.s.chain + 1, k)); }
-  w2Line(p.x, p.y, p.x + c * L, p.y + sn * L, 3, w.def.color, 0.2); mark(w, 'pierce');
+  for (const [, e] of line.slice(0, XC_RAMP(r))) { k *= 0.85; if (c4Free(e)) Bs.push(c4Up(w, e, w.s.chain + 1, k)); }
+  w2Line(p.x, p.y, p.x + c * L, p.y + sn * L, 3, w.def.color, 0.2); c4Mark(w, 'pierce');
   if (r >= 4 && Bs.length > 1) {
     for (const b of Bs.slice(1)) { for (const e of b.members) if (B.members.length < 16) { B.members.push(e); e.tape = B; } b.c4merged = 1; }
-    mark(w, 'joined');
+    c4Mark(w, 'joined');
   }
 }
-function ewFire(w, target) {
+function c4EwFire(w, target) {
   const R = id => xcR(w, id), s = w.s, p = G.player;
   if (R('nth')) { w.c4n = (w.c4n || 0) + 1; if (w.c4n % (R('nth') >= 2 ? 3 : 4) === 0) w.c4empP = 1; }
   if (R('orbiting')) return true; // (the orbs stamp in the tick)
-  if (R('mines')) { ewLay(w, target); return true; }
-  if (R('dfa')) { ewDrop(w, target); return true; }
-  if (R('melee')) { // Tape slap: the nearest free enemy within 60
+  if (R('mines')) { c4EwLay(w, target); return true; }
+  if (R('dfa')) { c4EwDrop(w, target); return true; }
+  if (R('melee')) { // Tape slap: the nearest c4Free enemy within 60
     let e = null, bd = s.range;
-    for (const o of G.enemies) { if (!free(o)) continue; const d = Math.hypot(o.x - p.x, o.y - p.y) - o.r; if (d < bd) { bd = d; e = o; } }
-    if (e) { ewStamp(w, e); ring(e.x, e.y, e.r + 6, w.def.color, 0.2, 3); mark(w, 'slap'); sfx('shot'); }
+    for (const o of G.enemies) { if (!c4Free(o)) continue; const d = Math.hypot(o.x - p.x, o.y - p.y) - o.r; if (d < bd) { bd = d; e = o; } }
+    if (e) { c4EwStamp(w, e); ring(e.x, e.y, e.r + 6, w.def.color, 0.2, 3); c4Mark(w, 'slap'); sfx('shot'); }
     return true;
   }
   let first = target;
-  if (R('homing')) { // the stamp seeks a free enemy (the mastery: the one with the most neighbours)
-    if (R('homing') >= 4) first = ewBest(w, 1)[0] || first;
-    else if (!free(first)) { first = null; let bd = s.range; for (const o of G.enemies) { if (!free(o)) continue; const d = Math.hypot(o.x - p.x, o.y - p.y) - o.r; if (d < bd) { bd = d; first = o; } } }
-    if (first) { w2Line(p.x, p.y, first.x, first.y, 2, w.def.color, 0.2); mark(w, 'seek'); }
+  if (R('homing')) { // the stamp seeks a c4Free enemy (the mastery: the one with the most neighbours)
+    if (R('homing') >= 4) first = c4EwBest(w, 1)[0] || first;
+    else if (!c4Free(first)) { first = null; let bd = s.range; for (const o of G.enemies) { if (!c4Free(o)) continue; const d = Math.hypot(o.x - p.x, o.y - p.y) - o.r; if (d < bd) { bd = d; first = o; } } }
+    if (first) { w2Line(p.x, p.y, first.x, first.y, 2, w.def.color, 0.2); c4Mark(w, 'seek'); }
   }
   let ts = [first];
   const ex = R('extra');
@@ -447,24 +447,24 @@ function ewFire(w, target) {
     ts = [first];
     for (let i = 0; i < 6; i++) {
       let b = null, bd = s.range;
-      for (const o of G.enemies) { if (!free(o) || ts.includes(o)) continue; const da = Math.abs(angDiff(Math.atan2(o.y - p.y, o.x - p.x), i / 6 * TAU)); if (da > Math.PI / 6) continue; const d = Math.hypot(o.x - p.x, o.y - p.y) - o.r; if (d < bd) { bd = d; b = o; } }
+      for (const o of G.enemies) { if (!c4Free(o) || ts.includes(o)) continue; const da = Math.abs(angDiff(Math.atan2(o.y - p.y, o.x - p.x), i / 6 * TAU)); if (da > Math.PI / 6) continue; const d = Math.hypot(o.x - p.x, o.y - p.y) - o.r; if (d < bd) { bd = d; b = o; } }
       if (b) ts.push(b);
     }
     ts = ts.slice(0, s.count);
   } else if (s.count > 1) {
-    const c = acquireMany(aimDir(w), s.range, p.x, p.y, s.count + 8).filter(o => free(o) && o !== first);
+    const c = acquireMany(aimDir(w), s.range, p.x, p.y, s.count + 8).filter(o => c4Free(o) && o !== first);
     for (const o of c) { if (ts.length >= s.count) break; if (ex >= 3 && ts.some(q => q && Math.hypot(q.x - o.x, q.y - o.y) < s.jump * 1.2)) continue; ts.push(o); } // (Lv 3: to different bundles)
   }
-  for (const t of ts) if (t) ewStamp(w, t);
-  if (ex) mark(w, 'extra');
+  for (const t of ts) if (t) c4EwStamp(w, t);
+  if (ex) c4Mark(w, 'extra');
   sfx('shot');
   return true;
 }
 tapeFire = (orig => function (w, target) {
-  if (G && EW(w) && ewFire(w, target)) return;
+  if (G && c4Ew(w) && c4EwFire(w, target)) return;
   return orig(w, target);
 })(tapeFire);
-function ewLay(w, target) { // Mines: tape traps between you and the crowd (3; 5 from Lv 2)
+function c4EwLay(w, target) { // Mines: tape traps between you and the crowd (3; 5 from Lv 2)
   if (w.c4layT > G.t) return;
   w.c4layT = G.t + Math.max(0.8, w.s.cd);
   const S = xcS(), L = S.c4trap || (S.c4trap = []), p = G.player, cap = xcR(w, 'mines') >= 2 ? 5 : 3;
@@ -472,23 +472,23 @@ function ewLay(w, target) { // Mines: tape traps between you and the crowd (3; 5
   L.push({ w, x: p.x + (t.x - p.x) * 0.35 + rand(-15, 15), y: p.y + (t.y - p.y) * 0.35 + rand(-15, 15), end: G.t + 14, armed: G.t + 0.4 });
   const mine = L.filter(q => q.w === w && !q.gone);
   while (mine.length > cap) mine.shift().gone = 1;
-  mark(w, 'trap');
+  c4Mark(w, 'trap');
 }
-function ewDrop(w, target) { // Death from Above: tape drops on the target after a 0.4 s reticle
-  const r = xcR(w, 'dfa'), ts = r >= 3 ? ewBest(w, r >= 4 ? 2 : 1) : [];
+function c4EwDrop(w, target) { // Death from Above: tape drops on the target after a 0.4 s reticle
+  const r = xcR(w, 'dfa'), ts = r >= 3 ? c4EwBest(w, r >= 4 ? 2 : 1) : [];
   if (!ts.length && target) ts.push(target);
   for (const t of ts) {
     const x = t.x, y = t.y;
     G.fx.push({ type: 'warn', x, y, r: 22, color: w.def.color, life: 0.4, max: 0.4 });
     after(0.4, () => {
-      if (!live(w)) return;
+      if (!c4Live(w)) return;
       let e = null, bd = 40;
-      for (const o of G.enemies) { if (!free(o)) continue; const d = Math.hypot(o.x - x, o.y - y) - o.r; if (d < bd) { bd = d; e = o; } }
+      for (const o of G.enemies) { if (!c4Free(o)) continue; const d = Math.hypot(o.x - x, o.y - y) - o.r; if (d < bd) { bd = d; e = o; } }
       ring(x, y, 26, w.def.color, 0.3, 3);
-      if (e) ewStamp(w, e);
+      if (e) c4EwStamp(w, e);
     });
   }
-  mark(w, 'drop');
+  c4Mark(w, 'drop');
 }
 XC_STATS.ew = function (w, s) {
   const R = id => xcR(w, id);
@@ -496,13 +496,13 @@ XC_STATS.ew = function (w, s) {
   if (R('area')) s.jump *= xcArea(w);
   if (R('rapid')) s.dur = Math.min(s.dur, 3);
   if (R('charged')) { const r = R('charged'); s.cd += xcLv([0.5, 0.4, 0.3, 0.3], r); s.chain += xcLv([1, 3, 6, 6], r); if (r >= 4) s.share = Math.max(s.share, 0.5); } // a wind-up, then a bigger bundle
-  if (R('kinship') >= 4 && G && same(w) >= 3) s.share = Math.max(s.share, 0.5);
+  if (R('kinship') >= 4 && G && c4Same(w) >= 3) s.share = Math.max(s.share, 0.5);
   if (R('melee')) { s.range = 60 * xcArea(w); s.chain = Math.max(s.chain, R('melee') >= 2 ? 5 : 4); if (R('melee') >= 3) s.dur = Math.max(s.dur, 7); }
   if (R('homing')) s.range *= 1 + 0.1 * Math.min(3, R('homing'));
   if (R('extra')) { const n0 = s.count || 1, n1 = R('extra') >= 4 ? 6 : n0 + Math.min(2, R('extra')); s.count = n1; s.dmg *= Math.pow(n0 / n1, 0.4); }
 };
 // The share of a bundle (toys.js toyHurt reads w.s.share): Every Nth's 70%, and Focused Intensity's ramp.
-function ewShare(B) {
+function c4EwShare(B) {
   const w = B.w, f = xcR(w, 'focus');
   let k = Math.max(w.s.share, B.c4share || 0);
   if (f) {
@@ -513,30 +513,30 @@ function ewShare(B) {
 }
 toyHurt = (orig => function (e, lost, src) {
   const B = e && e.tape, w = B && B.w;
-  if (!G || !w || !w.s || !EW(w)) return orig(e, lost, src);
-  const k = ewShare(B), s0 = w.s.share;
+  if (!G || !w || !w.s || !c4Ew(w)) return orig(e, lost, src);
+  const k = c4EwShare(B), s0 = w.s.share;
   if (k === s0) return orig(e, lost, src);
   w.s.share = k;
   try { return orig(e, lost, src); } finally { w.s.share = s0; }
 })(toyHurt);
 tapeTick = (orig => function (dt) { // a bundle of this weapon coming off
-  const T = G && G.toy, mine = T ? T.tapes.filter(B => !B.dead && EW(B.w)) : [];
+  const T = G && G.toy, mine = T ? T.tapes.filter(B => !B.dead && c4Ew(B.w)) : [];
   orig(dt);
-  for (const B of mine) if (B.dead) ewEnd(B);
+  for (const B of mine) if (B.dead) c4EwEnd(B);
 })(tapeTick);
-function ewEnd(B) {
+function c4EwEnd(B) {
   const w = B.w;
-  if (!live(w) || B.c4merged) return;
+  if (!c4Live(w) || B.c4merged) return;
   const al = B.members.filter(e => !e.dead), x = al.length ? al.reduce((u, e) => u + e.x, 0) / al.length : B.c4cx, y = al.length ? al.reduce((u, e) => u + e.y, 0) / al.length : B.c4cy;
   if (x == null) return;
   if (xcR(w, 'explode') >= 4 && G.t >= B.end - 1e-6 && al.length) { // the bundle bursts as one
     const RR = Math.max(...al.map(e => Math.hypot(e.x - x, e.y - y))) + 50;
-    aoe(x, y, RR, w.s.dmg * Math.min(3, 1 + 0.3 * al.length), toySrc(w, 'Red Tape', { c4sp: 1 }), w.def.color); ring(x, y, RR, w.def.color, 0.35, 5); mark(w, 'burst');
+    aoe(x, y, RR, w.s.dmg * Math.min(3, 1 + 0.3 * al.length), toySrc(w, 'Red Tape', { c4sp: 1 }), w.def.color); ring(x, y, RR, w.def.color, 0.35, 5); c4Mark(w, 'burst');
   }
   if (xcR(w, 'area')) { // Residue: a sticky smear where the bundle was
     const S = xcS(), L = S.c4smear || (S.c4smear = []);
     if (L.length >= 8) L.shift();
-    L.push({ w, x, y, r: 40 * xcArea(w), end: G.t + 2 }); mark(w, 'smear');
+    L.push({ w, x, y, r: 40 * xcArea(w), end: G.t + 2 }); c4Mark(w, 'smear');
   }
 }
 XC_TICK.ew = function (w, dt) {
@@ -555,12 +555,12 @@ XC_TICK.ew = function (w, dt) {
         if (B.c4snap.has(key)) continue;
         if (d > 120) B.c4yank.add(key);
         if (!B.c4yank.has(key)) continue;
-        if (d < a.r + b.r + 10) { B.c4snap.add(key); const src = toySrc(w, 'Red Tape', { taped: true, noCrit: true, noProc: true }); damageEnemy(a, s.dmg * 0.3, src); damageEnemy(b, s.dmg * 0.3, src); ring((a.x + b.x) / 2, (a.y + b.y) / 2, 18, w.def.color, 0.3, 4); mark(w, 'snap'); }
+        if (d < a.r + b.r + 10) { B.c4snap.add(key); const src = toySrc(w, 'Red Tape', { taped: true, noCrit: true, noProc: true }); damageEnemy(a, s.dmg * 0.3, src); damageEnemy(b, s.dmg * 0.3, src); ring((a.x + b.x) / 2, (a.y + b.y) / 2, 18, w.def.color, 0.3, 4); c4Mark(w, 'snap'); }
         else { mwPull(a, b.x, b.y, 400 * dt); mwPull(b, a.x, a.y, 400 * dt); }
       }
       if (R('knock') >= 4) for (const e of m) forNear(e.x, e.y, 14, o => { // the bundle crashes into enemies behind it
         if (o.tape === B || o.charmed || o.boss || o.c4crT > G.t) return;
-        o.c4crT = G.t + 0.6; shove(o, e.x, e.y, 200); damageEnemy(o, s.dmg * 0.4, toySrc(w, 'Red Tape')); mark(w, 'crash');
+        o.c4crT = G.t + 0.6; shove(o, e.x, e.y, 200); damageEnemy(o, s.dmg * 0.4, toySrc(w, 'Red Tape')); c4Mark(w, 'crash');
       });
     }
   }
@@ -572,7 +572,7 @@ XC_TICK.ew = function (w, dt) {
       if (d > 140) continue;
       if (d > 50) { for (const e of a.members) mwPull(e, b.c4cx, b.c4cy, 120 * 0.25); for (const e of b.members) mwPull(e, a.c4cx, a.c4cy, 120 * 0.25); continue; }
       for (const e of b.members) { a.members.push(e); e.tape = a; }
-      b.members = []; b.c4merged = 1; a.end = Math.max(a.end, b.end); ring(a.c4cx, a.c4cy, 30, w.def.color, 0.35, 4); mark(w, 'merge');
+      b.members = []; b.c4merged = 1; a.end = Math.max(a.end, b.end); ring(a.c4cx, a.c4cy, 30, w.def.color, 0.35, 4); c4Mark(w, 'merge');
     }
   }
   if (R('melee') >= 4 && w.c4drag && !w.c4drag.dead) { // the slapped bundle is stuck to you, dragged along behind
@@ -585,16 +585,16 @@ XC_TICK.ew = function (w, dt) {
     O.slots.forEach((sl, i) => {
       const a = O.a + i / n * TAU; sl.x = p.x + Math.cos(a) * rad; sl.y = p.y + Math.sin(a) * rad;
       if (sl.ready > G.t) return;
-      let e = null; forNear(sl.x, sl.y, 10, o => { if (free(o)) { e = o; return true; } });
+      let e = null; forNear(sl.x, sl.y, 10, o => { if (c4Free(o)) { e = o; return true; } });
       if (!e) return;
-      const B = ewStamp(w, e); sl.ready = G.t + Math.max(1, s.cd); mark(w, 'orb');
+      const B = c4EwStamp(w, e); sl.ready = G.t + Math.max(1, s.cd); c4Mark(w, 'orb');
       if (B && r >= 3 && !e.boss) e.c4drag = { w, i, end: G.t + 2 };
     });
     for (const e of G.enemies) {
       const D = e.c4drag; if (!D || D.w !== w) continue;
       if (e.dead || D.end < G.t || !O.slots[D.i]) { e.c4drag = null; continue; }
       const sl = O.slots[D.i], d = Math.hypot(sl.x - e.x, sl.y - e.y); if (d > 1) { const st = Math.min(d, 300 * dt); e.x += (sl.x - e.x) / d * st; e.y += (sl.y - e.y) / d * st; }
-      if (r >= 4 && e.tape && e.tape.members.length < 8) forNear(e.x, e.y, 4, o => { if (o !== e && free(o)) { e.tape.members.push(o); o.tape = e.tape; mark(w, 'bump'); return true; } }); // dragged enemies tape what they bump into
+      if (r >= 4 && e.tape && e.tape.members.length < 8) forNear(e.x, e.y, 4, o => { if (o !== e && c4Free(o)) { e.tape.members.push(o); o.tape = e.tape; c4Mark(w, 'bump'); return true; } }); // dragged enemies tape what they bump into
     }
   } else w.c4orb = null;
   if (S.c4trap) { // tape traps: whoever steps in is bundled with their neighbours; the mastery's trap that bundles 4 sets the next
@@ -603,16 +603,16 @@ XC_TICK.ew = function (w, dt) {
       if (q.w !== w || q.gone) continue;
       if (q.end < G.t || !R('mines')) { q.gone = 1; continue; }
       if (q.armed > G.t) continue;
-      let e = null; forNear(q.x, q.y, 28, o => { if (free(o)) { e = o; return true; } });
+      let e = null; forNear(q.x, q.y, 28, o => { if (c4Free(o)) { e = o; return true; } });
       if (!e) continue;
-      q.gone = 1; const B = ewStamp(w, e); ring(q.x, q.y, 30, w.def.color, 0.3, 3); mark(w, 'sprung');
+      q.gone = 1; const B = c4EwStamp(w, e); ring(q.x, q.y, 30, w.def.color, 0.3, 3); c4Mark(w, 'sprung');
       if (B && R('mines') >= 4 && B.members.length >= 4) add.push({ w, x: q.x, y: q.y, end: G.t + 14, armed: G.t + 0.6 });
     }
-    S.c4trap = S.c4trap.filter(q => !q.gone && live(q.w)).concat(add);
+    S.c4trap = S.c4trap.filter(q => !q.gone && c4Live(q.w)).concat(add);
   }
   if (S.c4smear) { // Residue slows 30%
     for (const q of S.c4smear) if (q.w === w && q.end > G.t) forNear(q.x, q.y, q.r, o => { if (!o.charmed) msSlow(o, 0.3, 0.3); });
-    S.c4smear = S.c4smear.filter(q => q.end > G.t && live(q.w));
+    S.c4smear = S.c4smear.filter(q => q.end > G.t && c4Live(q.w));
   }
 };
 XC_LIFE.ew = w => (xcR(w, 'turncoat') >= 3 ? 7 : 5);
@@ -625,7 +625,7 @@ XC_RUN.ew = function (z, dt) { // Sticky friend: hugs the nearest enemy, slows i
     const d = Math.hypot(h.x - z.x, h.y - z.y) || 1, gap = h.r + z.r + 2;
     if (d > gap) { const st = Math.min(d - gap, 160 * dt); z.x += (h.x - z.x) / d * st; z.y += (h.y - z.y) / d * st; }
     held = d < gap + 10;
-    if (held) { msSlow(h, 0.4, 0.3); if (r >= 4 && !X.mates) X.mates = acquireMany('nearest', w.s.jump, h.x, h.y, 4).filter(o => o !== h && o !== z).slice(0, 2); if (!X.hugged) { X.hugged = 1; mark(w, 'hug'); } }
+    if (held) { msSlow(h, 0.4, 0.3); if (r >= 4 && !X.mates) X.mates = acquireMany('nearest', w.s.jump, h.x, h.y, 4).filter(o => o !== h && o !== z).slice(0, 2); if (!X.hugged) { X.hugged = 1; c4Mark(w, 'hug'); } }
   }
   if (X.hp0 == null) X.hp0 = z.hp;
   const lost = X.hp0 - z.hp; X.hp0 = z.hp;
@@ -634,43 +634,43 @@ XC_RUN.ew = function (z, dt) { // Sticky friend: hugs the nearest enemy, slows i
   z.dead = true;
 };
 
-C4.share = ewShare; C4.stamp = ewStamp; // (for tests)
+C4.share = c4EwShare; C4.stamp = c4EwStamp; // (for tests)
 
 // ================================================================ both: hits, damage, reactions, detonations
 wupHit = (orig => function (e, res, src) {
   orig(e, res, src);
   if (!G || !src || !src.w || src.dot || src.echo || !e) return;
   const w = src.w;
-  if (src.c4orb && AS(w) && xcR(w, 'orbiting') >= 2) fill(w, e, worth(w, e, (res && res.raw) || w.s.dmg)); // orbiting globs Corrode what they pass
+  if (src.c4orb && c4As(w) && xcR(w, 'orbiting') >= 2) c4Fill(w, e, c4Worth(w, e, (res && res.raw) || w.s.dmg)); // orbiting globs Corrode what they pass
   for (const ow of G.weapons) // Acid Spit's Catalyst mastery: Corroded enemies hit by your other weapons gain Corrosion too
-    if (ow && ow !== w && AS(ow) && xcR(ow, 'catalyst') >= 4 && !e.dead && corroded(e) && !(e.c4catT > G.t)) { e.c4catT = G.t + 0.25; fill(ow, e, 0.06); mark(ow, 'catalyst'); }
+    if (ow && ow !== w && c4As(ow) && xcR(ow, 'catalyst') >= 4 && !e.dead && corroded(e) && !(e.c4catT > G.t)) { e.c4catT = G.t + 0.25; c4Fill(ow, e, 0.06); c4Mark(ow, 'catalyst'); }
 })(wupHit);
 wupDmgMul = (orig => function (e, src) { // Acid Spit's Kinship mastery: with 3 Acid weapons, Corroded enemies take +20% from all of yours
   let k = orig(e, src);
-  if (G && src && src.w && !src.dot && e && corroded(e)) for (const ow of G.weapons) if (ow && AS(ow) && xcR(ow, 'kinship') >= 4 && same(ow) >= 3) { k *= 1.2; break; }
+  if (G && src && src.w && !src.dot && e && corroded(e)) for (const ow of G.weapons) if (ow && c4As(ow) && xcR(ow, 'kinship') >= 4 && c4Same(ow) >= 3) { k *= 1.2; break; }
   return k;
 })(wupDmgMul);
 rxFired = (orig => function (id, e) { // Ewww's Catalyst mastery: a reaction on one taped enemy repeats on the bundle as echo damage
   orig(id, e);
   const B = e && e.tape, w = B && B.w;
-  if (!G || !w || !w.s || !EW(w) || xcR(w, 'catalyst') < 4 || B.c4rxT > G.t || C4.rx) return;
+  if (!G || !w || !w.s || !c4Ew(w) || xcR(w, 'catalyst') < 4 || B.c4rxT > G.t || C4.rx) return;
   B.c4rxT = G.t + 0.3; C4.rx = 1;
   try { for (const o of B.members) if (o !== e && !o.dead) damageEnemy(o, w.s.dmg * 0.6, toySrc(w, 'Red Tape', { taped: true, echo: true, noStatus: true, noRx: true, noCrit: true, noProc: true })); } finally { C4.rx = 0; }
-  mark(w, 'rxecho');
+  c4Mark(w, 'rxecho');
 })(rxFired);
 mwDetonate = (orig => function (e, pw, M) {
   orig(e, pw, M);
-  if (!G || !pw || !live(pw)) return;
-  if (AS(pw) && xcR(pw, 'primer')) { // detonations add Corrosion; Lv 3 strip a Corroded target; the mastery spreads it to everything near
+  if (!G || !pw || !c4Live(pw)) return;
+  if (c4As(pw) && xcR(pw, 'primer')) { // detonations add Corrosion; Lv 3 strip a Corroded target; the mastery spreads it to everything near
     const r = xcR(pw, 'primer'), cor = corroded(e);
-    fill(pw, e, 0.3); if (r >= 3 && cor) strip(pw, e);
-    if (r >= 4) { let n = 0; forNear(e.x, e.y, 70, o => { if (o !== e && !o.charmed && n++ < 8) fill(pw, o, 0.3); }); }
-    mark(pw, 'det');
+    c4Fill(pw, e, 0.3); if (r >= 3 && cor) c4Strip(pw, e);
+    if (r >= 4) { let n = 0; forNear(e.x, e.y, 70, o => { if (o !== e && !o.charmed && n++ < 8) c4Fill(pw, o, 0.3); }); }
+    c4Mark(pw, 'det');
   }
-  if (EW(pw) && xcR(pw, 'primer') >= 3 && e.tape && e.tape.w === pw && !C4.det) { // detonating one taped enemy sets off the next (the mastery: the whole bundle)
+  if (c4Ew(pw) && xcR(pw, 'primer') >= 3 && e.tape && e.tape.w === pw && !C4.det) { // detonating one taped enemy sets off the next (the mastery: the whole bundle)
     const B = e.tape, i = B.members.indexOf(e), next = xcR(pw, 'primer') >= 4 ? B.members.filter(o => o !== e) : [B.members[i + 1] || B.members[0]].filter(o => o && o !== e);
     C4.det = 1;
-    try { for (const o of next) if (!o.dead && o.mwPr && o.mwPr.w === pw) { const N = o.mwPr; o.mwPr = null; mwDetonate(o, pw, N); mark(pw, 'chaindet'); } } finally { C4.det = 0; }
+    try { for (const o of next) if (!o.dead && o.mwPr && o.mwPr.w === pw) { const N = o.mwPr; o.mwPr = null; mwDetonate(o, pw, N); c4Mark(pw, 'chaindet'); } } finally { C4.det = 0; }
   }
 })(mwDetonate);
 
@@ -681,7 +681,7 @@ modDraw = (orig => function () {
   const p = G.player, X = G.xcS, k = S_();
   ctx.save(); ctx.lineWidth = Math.max(1, 1.5 * k);
   for (const w of G.weapons) {
-    if (!w || !(AS(w) || EW(w))) continue;
+    if (!w || !(c4As(w) || c4Ew(w))) continue;
     const c = col(w.def.color);
     if (xcR(w, 'charged') && w.s && w.s.cd > 0) { // the wind-up: an arc that fills before each attack
       const f = 1 - clamp(w.cd / w.s.cd, 0, 1);
