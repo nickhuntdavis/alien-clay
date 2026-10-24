@@ -1089,6 +1089,62 @@ Changed: Rapid Fire (Scrambled), Kinship (Family recipe), Knockback (Egg toss), 
 - **Area** (`areamod.js`): +25% smite and lure radius a rank, and **Yolk splash**: the smite leaves a ghostly patch for 2 s that Curses what stands in it.
 - **Why these:** Egg toss and Golden egg follow the user's picks on the last two weapons (Cannonball, Golden bubble); Egg drop gives Death from Above a payoff on landing instead of only moving where eggs appear.
 
+### 5.9 The eleven Projectile weapons (Claude's picks, 24 Oct; the user asked for every modifier to be applied with physics, fun and a small surprise in mind)
+Built in `cellmods3.js` to `cellmods8.js` (one tag per weapon, copy in `cellcopy3.js` to `cellcopy8.js`). Same engine as 5.5 to 5.8 (`XC_W`, masking, no fork screens, rank 1 to 3 then the mastery). **Every modifier a weapon is dealt gets a cell and a card line**, even where the cell keeps the shared form with the weapon's flavour. **Where this section is silent, the weapon's row in sections 3 and 4 stands** (Lv 1, Lv 2, Lv 3, mastery as written there, branches ignored: rank 1 to 3 then the first mastery). Where it speaks, it replaces that row. Area (`areamod.js`, its own group) gets a cell on every weapon.
+
+| Weapon (tag, file) | Dealt switched at birth | Not dealt (N/A) |
+|---|---|---|
+| Standard Issue (`si`, cellmods3) | Blood | Ranged |
+| Little Prick (`lp`, cellmods3) | none | Ranged |
+| Acid Spit (`as`, cellmods4) | Alien | Ranged |
+| Ewww, Gross (`ew`, cellmods4) | Acid | Sticky, Connecting, Ranged |
+| One of These Days (`od`, cellmods5) | Mucus | Ranged |
+| Sister Cousin (`sc`, cellmods5) | Fire | Homing, Ranged |
+| Rent Free (`rf`, cellmods6) | none | Ranged |
+| Chest Burster (`cb`, cellmods6) | none | Turncoat, Ranged |
+| There Is No Spoon (`sp`, cellmods7) | none | Ranged |
+| Family Ties (`ft`, cellmods7) | none | Pulling (already pulls; the fit check blocks it), Piercing, Ranged |
+| Unwanted Contact (`uc`, cellmods8) | none | Primer, Ranged |
+
+**Standard Issue** (a heavy pellet: mass and momentum; think billiards). Changed:
+- **Range, Sling:** the pellet hits harder the further it has flown: +8% per 100 beyond 150, capped at +24 / 48 / 72% by rank (the shared flatter falloff, speed and zoom stay). Mastery: no falloff, and a pellet that flew more than 500 lands with a 60-radius shock ring for 50%.
+- **Up Close:** Rank 3 as the table (point-blank hits knock the target into its mates). Mastery, Over-penetration: a pellet fired from under 60 carries on through its target into the next enemy in line at full damage.
+- **Rapid Fire, Minigun:** as the table. Mastery, Suppressing fire: at full spin the stream pins what it hits (speed -60% while it is being hit).
+- **Knockback, Billiards:** the pellet shoves 30 and the shoved enemy shoves whatever it hits: a chain 1 / 2 / 3 deep, each collision for 40%. Mastery, Break shot: the 4th enemy in a chain scatters, and everything within 80 of it is shoved outward 60.
+- **Sticky, Lodged:** the pellet stays in the target (5 at most); each slows it 8 / 12 / 16%. When it dies, the lodged pellets pop out as spent pellets that shove its neighbours 30. Mastery, Dead weight: an enemy with 5 pellets lodged is Snared for 1 s.
+- **Orbiting, Slingshot:** as the table, and a pellet hits 10% harder for each lap it made before it left (rank 2: two laps).
+- **Area, Wide load:** the pellet is 25% wider a rank, and every hit sends out a ring (40 radius, 30% damage).
+
+**Little Prick** (a needle: Bleed ticks only while the target moves). Changed: **Area, Blood mist:** a hit sprays a mist (35 radius, +25% a rank) that gives every enemy in it 1 Bleed stack. Everything else as the table.
+
+**Acid Spit** (a glob: viscosity, surface tension, drips). Changed:
+- **Range, Lob:** as the table (a glob that flew more than 400 bursts on landing), and the splash is 10% wider per 100 flown (cap +60%). Mastery: every landing leaves a 2 s acid puddle.
+- **Charged, Surface tension:** the glob gets bigger and holds more Corrosion; on impact it breaks into 3 / 5 / 7 droplets that fly out to different nearby enemies and Corrode them. Mastery: the charged glob strips a full Shell layer and throws double the droplets.
+- **Area, Spill:** splashes are 25% bigger a rank, and each splat leaves a thin puddle for 2 s that Corrodes whatever stands in it.
+
+**Ewww, Gross** (tape: bundles, shared damage). Changed:
+- **Knockback, Elastic:** the bundle is knocked back 40 together; if that leaves any two taped enemies more than 120 apart the tape snaps taut and yanks them together (they collide for 30%). Rank 2: 60. Rank 3: 80. Mastery as the table (the bundle crashes into enemies behind it).
+- **Range, Bungee:** as the table (tape reaches 260), and stretched tape (ends more than 200 apart) slowly draws its ends together.
+- **Area, Residue:** tape reach and the bundle search are 25% wider a rank, and expired tape leaves a sticky smear at the bundle's centre (slow 30%, 2 s).
+
+**One of These Days** (a bill that falls due). Changed:
+- **Sticky, Late fee:** marked enemies are slowed, and the stored share grows 4% a second while the clock runs (cap +12 / 18 / 24 points). Mastery: the payout Snares for 2 s.
+- **Area, Collateral:** the payout splashes: enemies within 40 (+25% a rank) take 25% of it and Bleed.
+
+**Sister Cousin** (siblings; a kill splits one in two). Changed: **Area, Family reunion:** when a sibling splits it sends out a pulse (50 radius, +25% a rank) for 40%. Everything else as the table.
+
+**Rent Free** (a ghost that possesses). Changed: **Area, Cold spot:** when the ghost enters a host, a ring (60 radius, +25% a rank) shoves the host's neighbours outward 20 and makes them flinch. Everything else as the table.
+
+**Chest Burster** (infection, then undead allies). Changed: **Area, Rot cloud:** the undead rise in a rotting cloud (40 radius, +25% a rank) that infects enemies in it for 1 s. Everything else as the table.
+
+**There Is No Spoon** (eats enemy bullets, fires them back). Changed: **Area, Wide gape:** the eating radius (90) is 25% wider a rank, and eating pushes the shooter's neighbours back 10. Everything else as the table.
+
+**Family Ties** (a slow black hole). Changed: **Area, Event horizon:** the hole's radius, pull reach and the supernova are 25% bigger a rank (`modWell` and areamod.js already scale wells; the cell adds the supernova). Everything else as the table; Pulling stays blocked by the fit check.
+
+**Unwanted Contact** (Static chains). Changed: **Area, Arc flash:** each jump sets off a small Static burst (40 radius, +25% a rank) round the enemy it lands on, Charging what it touches. Everything else as the table.
+
+- **Why so few changes:** the table rows for these 11 weapons already say something specific (Staple, Human shield, Tick tock, Hive mind, Family feud, Sibling nests). They were checked for physics, fun and one surprise; the plain ones (a bare slow, a bare shove, a bare range) are the ones replaced above. Any builder who finds a table cell that cannot be built as written may adjust it, and must say so in the weapon's section here.
+
 ## 6. Moved to sperm passives
 
 ### 6.1 Advanced Targeting (sperm passive)
