@@ -15,4 +15,4 @@ The v10 test build already uses these six for its weapon matrix (6 attack types 
 | **Spread** | Several projectiles fired across a readable angle. | Close groups; many pellets average out Evasion's luck (but Shell takes its cut off each one) | 7 pellets over a wide cone, short range |
 | **Burst** | A delayed blast over an area, marked before it goes off. | Clusters and evasive enemies | Blast of radius 70 after a 0.45 s delay, aimed at the densest cluster |
 | **Beam** | A line or lane of danger that hits everything along it. | Lines of enemies and evasive ones | Continuous lane, range 300; stops at the first enemy unless it has Piercing (COMBAT_MATRIX decision 50) |
-| **Pool** | A ground hazard with a visible edge and lifetime. | Denying ground; evasive enemies | Lobbed puddle, radius 58, lasts 3.5 s, aimed at the densest cluster |
+| **Pool** | A ground hazard with a visible edge and lifetime. | Denying ground; evasive enemies | A water balloon thrown at one enemy in the densest cluster: it bursts on the face and leaves a puddle, radius 58, lasting 3.5 s (decision 63) |
