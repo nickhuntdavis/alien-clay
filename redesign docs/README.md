@@ -33,3 +33,4 @@ Imported 17 Oct 2026 from the Notion exports. Working proposals, not shipped beh
 5. **Rename v10's Mucus Pool weapon** from "Sticky Situation" to "Nocturnal Emission" (`V10_ATK`, v10.js).
 6. **Damage types for the rest of the roster** (spawned-only, feature-file enemies, bosses), same bell curve as `ENEMY_DESIGN.md` 5.1.
 7. **Port the 14 signature weapons** (`BASE_WEAPONS.md`) into v10, name `wake` The Runs (shipped as Skid Mark), apply the 18 Oct weapon renames (`BASE_WEAPONS.md` 5, decision 4), give each sample its three starters, and recheck their old Pairings.
+8. **Pools as water balloons** (decision 63): rebuild Nocturnal Emission and Hot Mess's throw (a balloon at one enemy, bursting on the face) and recode their modifier cells to `MODIFIER_MATRIX.md` 5.10; the Hot Mess cells in `cellmods2.js` (5.7) are superseded. Card text needs `TODO_COPY` briefs.

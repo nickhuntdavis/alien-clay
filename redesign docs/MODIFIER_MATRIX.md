@@ -23,7 +23,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 7. **The attack type still decides defences** (`MODIFIERS.md` shared rule 1). Where a modifier changes the attack type (Melee, Ranged, Mines, Death from Above), the new type decides Thorns, Evasion and so on.
 8. **Charged** is an automatic wind-up (the game autoruns): a visible build-up before each attack, then a stronger one.
 9. **Mines** and **Death from Above** replace how the weapon fires. Death from Above's aim and telegraph suit the weapon (homing weapons track their target; area weapons mark a spot for 0.6 s; single-target strikes show a 0.4 s reticle).
-10. **Range** and **Up Close** act on the falloff already in the build (`power11.js`: full damage to 220 units, down to 55% at 600) and apply to **Projectile and Spread only**. (In code, `power11.js` checks range on every direct hit, beams and bursts included; only pools, damage over time, reactions and allies are exempt.) **Range** also raises projectile speed and zooms the camera out one step per level (up to 3 steps per weapon; the player can still adjust zoom as normal).
+10. **Range** and **Up Close** act on the falloff already in the build (`power11.js`: full damage to 220 units, down to 55% at 600) and apply to **Projectile and Spread only** (exception: the two pools, which follow the water-balloon model in 5.10). (In code, `power11.js` checks range on every direct hit, beams and bursts included; only pools, damage over time, reactions and allies are exempt.) **Range** also raises projectile speed and zooms the camera out one step per level (up to 3 steps per weapon; the player can still adjust zoom as normal).
 11. **Sticky** applies Snared at its top levels. On Fire weapons this is a deliberate trade-off: Snared puts Fire out, so the weapon gains control and loses burn.
 12. **Turncoat** works on kill only: enemies the weapon kills rise as temporary allies, each weapon its own kind. Own cap: **6 per weapon**, separate from the pets cap (12.3). Elites and bosses never rise (default).
 13. **Connecting, Turncoat, Melee and Ranged** were designed weapon by weapon with the user.
@@ -101,6 +101,8 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Sister Cousin | Sibling search range and speed. | Split siblings can reach targets anywhere on screen. |
 | Chest Burster | Falloff, speed. | Shots that fly more than 400 infect everything within 50 of the target. |
 | Enzyme Sneeze | Droplet range (160 to 190 / 220 / 250) and falloff. | The sneeze becomes a long, narrow jet (range 400). |
+| Nocturnal Emission | See 5.10 (water balloon). | |
+| Hot Mess | See 5.10 (water balloon). | |
 | Every other weapon | N/A: Projectile and Spread only. | |
 
 **Branches**
@@ -128,6 +130,8 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Sister Cousin | Close damage. | Siblings return to you after each hit, striking again on the way. |
 | Chest Burster | Close damage; undead from close infections +30 / 60 / 90%. | Point-blank infection raises the undead on the next hit. |
 | Enzyme Sneeze | Close damage and Corrosion. | At point blank the droplets merge into one heavy splash. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
+| Hot Mess | See 5.10 (water balloon). | |
 | Every other weapon | N/A: Projectile and Spread only. | |
 
 **Branches**
@@ -147,10 +151,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Pulse rate; radius -20%. | Pulses ripple outward one after another from the same point. |
 | Acid Spit | Rate; smaller globs. | A continuous stream: a short acid jet. |
 | Red Flagship | The beam becomes fast pulses. | Pulses fork to a second target. |
-| Nocturnal Emission | Puddle rate; smaller puddles. | Puddles laid close together merge into one large puddle. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | Rate. | Every 10th needle ticks all the target's Bleed stacks at once. |
 | Rent Free | Rate; shorter possessions. | Ghosts hitting a possessed enemy extend its possession. |
-| Hot Mess | Spatter: patch rate; smaller patches; patches that touch merge into one bigger patch (up to 3× size). | A merged patch of 3 or more flares once a second. |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | Hole rate; smaller holes (3-well cap stays). | Small holes merge twice as easily. |
 | Skill Issue | Lob rate; smaller dollops. | A dollop landing on a flying enemy sends it flying again. |
 | There Is No Spoon | Return rate. | Returned bullets fire in pairs. |
@@ -186,10 +190,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Pulse radius and damage (0.6 s). | Thrown enemies collide (40%). |
 | Acid Spit | Glob size and Corrosion. | A charged glob strips a full Shell layer. |
 | Red Flagship | Beam damage and width for the next on-phase (0.6 s). | A charged beam Charges everything it touches at once. |
-| Nocturnal Emission | Puddle size (0.6 s). | Charged puddles Snare on contact. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | Bleed stacks (+2 / 4 / 6). | A charged needle pierces and Bleeds a whole line. |
 | Rent Free | Possession length. | A charged ghost possesses everything it passes. |
-| Hot Mess | Simmer (no wind-up): a patch heats up while it burns, +15% damage a second up to +60 / +120 / +180%, orange going white. | At full heat it boils over once, spilling a fresh patch beside it. |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | Hole radius and pull (0.8 s). | A charged hole counts as 2 for merging. |
 | Skill Issue | Launch distance. | The collision chain goes one step deeper (depth 3). |
 | There Is No Spoon | Holds returns until the store is full, then fires them all as one volley; volley damage scales. | The volley fires as a ring round you. |
@@ -225,10 +229,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Force reactions. | Reactions it sets off also throw enemies outward. |
 | Acid Spit | Corrosion; its reactions. | Corroded enemies hit by your other weapons gain Corrosion too. |
 | Red Flagship | Charge; its reactions. | Charged enemies on the beam pass Charge to their neighbours. |
-| Nocturnal Emission | Snare; its reactions. | Snare bars stay full 1 s after leaving the puddle. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | Bleed; its reactions. | Bleeding enemies hit by any of your weapons take +1 stack. |
 | Rent Free | Possessed; its reactions. | A full Possessed bar lasts twice as long. |
-| Hot Mess | Burn; its reactions. Fuel spill: each other status on an enemy standing in the patch makes the patch burn it +20%. | An unstable reaction set off inside the patch splashes a new small patch (1 a second at most). |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | Force reactions. | Each reaction inside the well grows its radius 10%. |
 | Skill Issue | Force reactions; collisions count as Force hits. | Collisions set off the reaction between the two enemies' statuses. |
 | There Is No Spoon | Bars and reactions of returned bullets. | Returned bullets react with the shooter's own damage type. |
@@ -264,10 +268,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Force | The pulse goes off twice. |
 | Acid Spit | Acid | Corroded enemies take +20% from all your weapons. |
 | Red Flagship | Static | The beam arcs to one Charged enemy off its line. |
-| Nocturnal Emission | Mucus | Puddles merge with any Mucus effect they touch. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | Blood | Bleed stacks have no cap. |
 | Rent Free | Alien | Possessed enemies attack the toughest enemy nearby. |
-| Hot Mess | Fire. Firestarter: a hit from your other Fire weapons inside a patch makes it flare (×1.5 for 1 s) and grow 10% (up to double). | Patches never go out while an enemy burns in them; with Nappy Mines' Shared heat, mine patches and these pools merge. |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | Force | The well bends your shots twice as hard. |
 | Skill Issue | Force | The collision chain goes one step deeper. |
 | There Is No Spoon | Force, and each returned bullet counts its own type's kin | Returned bullets gain +8% per weapon you carry of their type. |
@@ -303,10 +307,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | N/A: the pulse already throws enemies out. | |
 | Acid Spit | Glob shove (25; Corroded targets 50). | Shoved Corroded enemies leave an acid streak. |
 | Red Flagship | Push along the beam (40 a second). | Enemies pushed to the beam's end are flung off it. |
-| Nocturnal Emission | Crossing enemies are squirted out of the rim (40). | Squirted enemies stay Snared where they land. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | A small flinch that stacks on the same target (10). | Every 5th needle pins the target for 1 s. |
 | Rent Free | The ghost pushes its target (30). | Possessed enemies are pushed into their mates. |
-| Hot Mess | Popcorn: burning enemies in the patch pop up and land up to 80 away; one that lands on another enemy hits it for 30%. | Enemies bounce around inside the patch instead of leaving. |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | The hole repels instead of pulling (its pull strength, reversed). | The supernova blasts everything 200 outward. |
 | Skill Issue | N/A: already knockback-based. | |
 | There Is No Spoon | Returned bullets shove (30). | The shove scales with how hard the bullet would have hit you. |
@@ -342,10 +346,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | The pulse pulls inward for 0.3 s before it throws out. | Implosion: pull only, then double damage at the centre. |
 | Acid Spit | Globs drag enemies within 40 into the splash. | An acid strand reels the target 80 towards you. |
 | Red Flagship | Enemies within 40 of the beam are drawn onto it. | The beam reels everything on it towards you. |
-| Nocturnal Emission | The puddle drags enemies within 80 of its rim towards the centre. | Puddles slowly drift towards the densest cluster. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | Each needle tugs its target 30 towards you. | Bleeding enemies are drawn towards each other. |
 | Rent Free | The ghost drags enemies it passes 40 along its path. | The possessed enemy walks into its mates, pulling them along. |
-| Hot Mess | Plughole: the patch draws in enemies within 60 of its edge; from Lv 3 its centre burns double. | Burning enemies that try to leave are pulled back. |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | N/A: already pulls. | |
 | Skill Issue | The lard pulls enemies within 60 together before launching. | Enemies are pulled into a pile, then launched at once. |
 | There Is No Spoon | Enemy bullets within 140 curve towards you to be eaten (store cap still 10). | Each returned bullet tugs its shooter 40 towards you. |
@@ -381,10 +385,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Thrown enemies land slowed. | Stuck enemies are pulled back to the centre for the next pulse. |
 | Acid Spit | Glob slow. | Snared enemies can't shed Corrosion while stuck. |
 | Red Flagship | Slow while on the beam. | Enemies held on the beam for 1 s are Snared. |
-| Nocturnal Emission | N/A: already Snares. | |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | Needle slow (pins at Lv 3). | Pinned Bleeding enemies take Bleed ticks twice as fast. |
 | Rent Free | Possessed enemies move slower. | When possession ends, the enemy is Snared for 1 s. |
-| Hot Mess | Tar pit: the patch is burning tar that slows 30 / 50 / 70% without Snaring, so it never puts its own Fire out. | An enemy that stays in the tar 2 s is stuck fast (Snared), and bursts back into flame when the Snare ends. |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | Enemies are slowed on their way out of the well. | Enemies at the centre are Snared. |
 | Skill Issue | Flying enemies land slowed. | Stuck enemies stick to the mate they hit. |
 | There Is No Spoon | Returned bullets slow. | Returned bullets Snare. |
@@ -420,10 +424,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | N/A: Burst. | |
 | Acid Spit | Globs, Corroding each enemy passed. | Globs swell with each enemy passed, adding more Corrosion to the next. |
 | Red Flagship | The beam. | Each enemy passed adds Charge to every enemy beyond it. |
-| Nocturnal Emission | N/A: Pool. | |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | Needles; every enemy passed Bleeds. | Needles stitch every enemy they pass together (tether 2 s). |
 | Rent Free | The ghost; it possesses the last enemy it reaches. | It possesses every enemy it passes for 1 s. |
-| Hot Mess | N/A: Pool. | |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | N/A: already pierces everything. | |
 | Skill Issue | N/A: Burst. | |
 | There Is No Spoon | Returned bullets. | Each pierced enemy takes a hit in every damage type currently in your store. |
@@ -459,10 +463,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | N/A: Burst. | |
 | Acid Spit | The glob, in an acid spray that adds Corrosion. | Corroded targets burst twice as wide and leave a short Acid Pool. |
 | Red Flagship | The beam's tip, every 0.5 s on target (0.4 / 0.3 s at Lv 2 / 3), Charging. | The burst runs back along the beam to you, Charging everything on the line. |
-| Nocturnal Emission | The first enemy to enter sets off a mucus blast that Snares its neighbours; the puddle then shrinks. | The puddle reforms after its blast, once per puddle. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | The needle, from inside the target after 0.5 s; neighbours Bleed. | The burst sprays 4 needles that make what they hit Bleed. |
 | Rent Free | The ghost, as it leaves its host. | The burst possesses the weakest enemy it hits for 1 s. |
-| Hot Mess | Grease fire: the patch bursts as it lands, and again whenever an enemy dies in it (once every 0.5 s at most). | When it burns out it explodes, bigger for every enemy that burned in it. |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | The hole, when it expires: +10% per enemy held (cap +100%). | The burst flings held enemies outward into their mates (40%). |
 | Skill Issue | N/A: Burst. | |
 | There Is No Spoon | Returned bullets, in their own damage type. | Two different types bursting together set off their unstable reaction at once. |
@@ -510,6 +514,8 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Enzyme Sneeze | Droplets, to the nearest enemy (2). | Droplets spread themselves across different enemies. |
 | Spark of Life | The beam bends towards Corroded enemies. | The beam bends to touch every Corroded enemy within 60 of its line. |
 | Laser | The beam bends towards its target: slight at first, more each level. | The beam curves to sweep through every enemy between you and the target. |
+| Nocturnal Emission | See 5.10 (water balloon). | |
+| Hot Mess | See 5.10 (water balloon). | |
 | Every other weapon | N/A: Contact, Pool and self-centred Burst. | |
 
 **Branches**
@@ -529,10 +535,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | N/A: self-centred Burst. | |
 | Acid Spit | The glob, adding Corrosion to each enemy. | Each bounce leaves a drop of acid on the floor (no pool). |
 | Red Flagship | The beam, off each enemy, like a mirror. | Prism: every bounce splits into 2 weaker beams (bounded: 12 segments). |
-| Nocturnal Emission | N/A: Pool. | |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | The needle, Bleeding each enemy. | Each bounce adds a Bleed stack to every enemy hit before it. |
 | Rent Free | The ghost, possessing the last enemy it reaches. | Each bounce possesses for 0.5 s. |
-| Hot Mess | N/A: Pool. | |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | The hole, off walls and big enemies, changing course. | Each bounce grows the hole 10%. |
 | Skill Issue | Flying enemies bounce off each other (each bounce is a collision; chain depth still 2 per enemy). | Bounces don't count towards the depth limit. |
 | There Is No Spoon | Returned bullets. | Each bounce changes the bullet's damage type to the next one in your store. |
@@ -568,10 +574,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | N/A: Burst. | |
 | Acid Spit | Damage and Corrosion on the same target. | At full ramp, each glob strips a Shell layer. |
 | Red Flagship | The beam on one target. | At full ramp, the beam arcs to every Charged enemy within 100. |
-| Nocturnal Emission | N/A: Pool. | |
+| Nocturnal Emission | See 5.10 (water balloon). | |
 | Little Prick | Needles on the same target; Bleed stacks too. | At full ramp, every needle ticks all Bleed stacks. |
 | Rent Free | Possession length on the same target. | At full ramp, the possession becomes permanent until the enemy dies (cap 1). |
-| Hot Mess | N/A: Pool. | |
+| Hot Mess | See 5.10 (water balloon). | |
 | Family Ties | Crush damage on enemies held in the centre. | At full ramp, the held enemy is spaghettified (instant kill on non-elites). |
 | Skill Issue | N/A: Burst. | |
 | There Is No Spoon | Returned bullets on the same shooter. | At full ramp, every bullet you eat from that shooter is returned twice. |
@@ -610,10 +616,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Snap-back: thrown enemies stay tethered to the centre and snap back together after 1 s. | They snap back after 0.6 s, ready for the next pulse. | Snapped-back enemies take +20% from the next pulse. | Snapped-back enemies collide at the centre (40% each). |
 | Acid Spit | Drip tether: a strand of acid ties the target to one neighbour for 3 s; anything crossing it is Corroded. | 2 strands. | Strands drip, Corroding enemies that pass under them. | Strands sag into Acid Pools when they expire (counts towards the object cap). |
 | Red Flagship | Beam relay: the beam carries on from its target to 1 linked enemy within 100. | Relays to 2 (70% each). | Relayed enemies are Charged. | Every relayed enemy relays to 1 more (bounded: 6 enemies in all). |
-| Nocturnal Emission | Snot strings: enemies that leave the puddle stay tied to it for 3 s and are dragged back. | Strings last 5 s and drag harder. | Strings catch a second enemy that crosses them. | Strings Snare everything they touch on the way back. |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | Blood thread: the needle threads its target to a neighbour; Bleeding on one ticks on both. | 2 neighbours. | Threads pass new Bleed stacks along, not just the ticks. | A dying enemy passes all its Bleed stacks to its partners. |
 | Rent Free | Hive mind: possessed enemies are linked and all move to the same point, bunching their mates. | Up to 3 linked. | They gather twice as fast. | When the possession ends, the bunch is Conjoined for 2 s (can't move apart). |
-| Hot Mess | Shared Burn: enemies in the same patch are linked; Burn filling on one fills 50% on the others. | 70%. | Links last 2 s after leaving the patch. | When one linked enemy goes up in flames, its partners do too. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | Merge magnet: holes drift towards each other (Lv 1 is today's drift; without this modifier they drift together only very slightly, conflict 4). | Faster drift. | Holes drift towards each other from twice as far. | Linked holes merge from any distance on screen. |
 | Skill Issue | Bolas: an enemy sent flying is tethered to the mate it hits, and they fly on together into a third (depth 2). | Collisions +20%. | The pair stays tethered 2 s after landing. | Bolas wrap a third enemy, tying all three. |
 | There Is No Spoon | Return to sender: each eaten bullet homes on the enemy that fired it. | The hit links that shooter to its nearest mate (shares 25%). | Shares 40%. | Every enemy that has shot at you this wave is linked: returns spread 25% to all of them. |
@@ -649,10 +655,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Panic room: enemies killed by the pulse rise and run outward, crashing into enemies (Force collision). | Each runner crashes twice. | Runners are 50% faster. | Runners carry a small pulse that goes off on their last crash. |
 | Acid Spit | Spitter: rises and spits acid at enemies for 5 s. | Lasts 7 s. | Spits fill Corrosion ×2. | Spitters aim at whatever you are hitting, stripping it for you. |
 | Red Flagship | Relay: your beam passes through the ally and carries on from it, as a second emitter. | Relay range +40. | Relayed beams Charge. | Relay allies can relay to each other (bounded by the cap of 6). |
-| Nocturnal Emission | Bogeyman: rises mucus-covered and wraps the nearest enemy, Snaring both for 3 s. | 4 s. | Wraps 2 enemies. | When it expires, it leaves a puddle where it stood. |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | Blood brother: attacks for 5 s; its hits make enemies Bleed. | Lasts 7 s. | +1 Bleed stack per hit. | Blood brothers' kills rise as blood brothers too (cap still 6). |
 | Rent Free | Poltergeist: its ghost rises (no body) and passes through enemies, Fearing them, for 5 s; it can't be hit. | Lasts 7 s. | Fear lasts twice as long. | Poltergeists possess the first enemy they Fear for 2 s. |
-| Hot Mess | Fire walker: rises burning and chases enemies for 4 s, setting them alight on contact. | Lasts 6 s. | +50% Burn on contact. | Fire walkers leave a burning patch where they collapse. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | Satellite: enemies crushed in the hole rise and orbit it, slamming into enemies being pulled in. | Slams +30%. | Satellites outlast the hole by 2 s, orbiting where it was. | Satellites survive the supernova and are flung outward through the crowd. |
 | Skill Issue | Bowling ball: rises greased and rolls through the crowd once, sending each enemy it hits flying. | Rolls twice as far. | Knocked enemies start collision chains. | Bowling balls bounce off walls and roll a second time. |
 | There Is No Spoon | Bullet sponge: rises and stands in front of you, absorbing enemy bullets for 4 s. | Lasts 6 s. | Absorbs from a wider arc. | Bullets it absorbs go into your store (still capped at 10). |
@@ -688,10 +694,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Panic slap: 3 quick slaps on the nearest enemy; the third throws it outward. | 4 slaps. | The throw sends it into its mates (40%). | The final slap sets off the old pulse round the target. |
 | Acid Spit | Acid kiss: a wet bite on the nearest enemy within 70; Corrosion fills ×2. | ×3. | The bite leaves the target drooling acid on its neighbours for 2 s. | Kisses strip a Shell layer on every 3rd bite. |
 | Red Flagship | Static aura: a ring round the sperm (radius 50) zaps anything inside every 0.2 s. | Radius 70. | The aura Charges what it zaps. | Charged enemies in the aura pass the zap to one neighbour. |
-| Nocturnal Emission | Slime coat: enemies that touch you are Snared and take mucus damage. | Snare lasts 1 s longer. | The coat reaches 30 beyond you. | Snared enemies stick to you as a shield (up to 2). |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | Stab: a quick jab at the nearest enemy within 60, double Bleed stacks. | Reach 80. | Every stab adds +1 stack. | Every 4th stab ticks all the target's Bleed stacks at once. |
 | Rent Free | Haunted touch: any enemy that touches you is possessed for 2 s. | 3 s. | Possessed enemies swim away, dragging their mates. | Your touch possesses every enemy within 60 at once (every 3 s). |
-| Hot Mess | Hot to touch: enemies within 40 of you, or touching you, fill their Burn bar. | Radius 60. | Burn fills ×2. | You leave a short scorch where you swim (counts towards the object cap). |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | Event horizon: a small black hole sits on the sperm (radius 60); enemies near you are pulled in and crushed. | Radius 80. | Enemy shots passing near you bend away. | Your shots passing near you bend towards enemies. |
 | Skill Issue | Lard slap: a greasy slap on the nearest enemy sends it flying into its mates. | Launch +30%. | The slapped enemy stays greased for 2 s: anything it touches is launched too. | Every slap starts a chain one step deeper (depth 3). |
 | There Is No Spoon | Spoon whack: when stocked, it smacks the nearest enemy with all stored bullets at once (each keeps its type). | Reach 80. | The whack hits everything within 40 of the target too. | A whack with 3 or more damage types sets off their unstable reactions on the target. |
@@ -725,6 +731,8 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Enzyme Headbutt | Long lunge: every hit is a lunge from up to 200 away. Still Contact. Past the 160 lunge cap (conflict 3). | Lunges come 0.1 s sooner. | You're immune to contact damage during the lunge. | Each lunge headbutts every enemy it passes on the way in. |
 | Peekaboo | Throw your voice: the BOO goes off at a decoy spot up to 260 away (the densest cluster); enemies search there, not where you were. | Range 300. | The decoy spot lingers 1 s after the BOO, drawing a second search. | Two decoy spots, each BOOing in turn. |
 | Panic Button | Remote detonator: places a button on the floor that goes off when 3 enemies are near it. | 2 buttons. | It goes off when 2 enemies are near. | Buttons set each other off in a chain (bounded: 3). |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Every other weapon | N/A: already ranged. | | | |
 
 **Branches**
@@ -744,10 +752,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Pulse mines go off when an enemy comes near. | 5 mines. | Radius +20. | Pulse mines set each other off in a chain (up to 3). |
 | Acid Spit | Acid mines spray a glob's worth of Corrosion over everything near. | 5 mines. | Corrosion ×2. | Acid mines leave an Acid Pool. |
 | Red Flagship | Beam traps fire a short beam (120) across a gap when an enemy crosses it. | 5 traps. | Beam 160. | Two traps within 200 join with a standing beam between them. |
-| Nocturnal Emission | Puddles stay hidden until an enemy steps in, then Snare instantly. | 5 hidden puddles. | A sprung puddle is 30% larger. | A sprung puddle springs every hidden puddle within 160. |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | Needle traps spring a needle at passing enemies. | 5 traps. | +1 Bleed stack. | Traps spring 3 needles. |
 | Rent Free | Ghost mines possess the first enemy to pass. | 5 mines. | Possession +1 s. | The possessed enemy carries a new ghost mine with it. |
-| Hot Mess | Patches stay hidden until an enemy steps in, then flare. | 5 hidden patches. | Flares +30%. | Sprung patches spread to twice their size. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | A dormant hole opens when enemies come near. | 2 dormant holes (3-well cap stays). | Dormant holes open 30% larger. | Dormant holes open together and merge at once. |
 | Skill Issue | Lard mines launch whoever steps on them. | 5 mines. | Launch +30%. | Launched enemies land on the next lard mine. |
 | There Is No Spoon | Eaten bullets are planted as mines that fire back at the first enemy to come near. | Each planted bullet fires twice. | Planted bullets keep 100% damage (Lv 1 and 2: 70%). | Planted bullets fire at every enemy that comes near, until spent. |
@@ -783,10 +791,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | The pulse lands from above on the densest cluster. | Radius +20. | Thrown enemies collide (40%). | Two pulses land in quick succession on the two densest clusters. |
 | Acid Spit | Acid rain over a marked zone (radius 70) for 1.5 s. | 2.5 s. | Radius 90. | The rain follows the densest cluster while it falls. |
 | Red Flagship | A lightning bolt strikes the target (0.4 s reticle), Charging everything within 50. | Radius 70. | +40% damage. | The bolt forks into 3 more bolts on nearby enemies. |
-| Nocturnal Emission | A mucus drop falls on the densest cluster and spreads into a puddle. | Puddle +30%. | The drop Snares where it lands. | The drop splits into 3 puddles. |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | A rain of needles over the target, each causing Bleed. | +2 needles. | The rain spreads to enemies within 50. | The needles pin the target for 1 s. |
 | Rent Free | A ghost dives onto the toughest enemy and possesses it (tracks its target). | Possession +1 s. | It dives on 2 targets. | It possesses everything within 60 of where it lands. |
-| Hot Mess | Flaming bag: a burning bag falls on the crowd; the first enemy to step in stamps it out and splashes it into 3 patches round them. | Splashes +30%. | The bag lands with a flare. | Each splash can be stamped once more, splashing again. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | The black hole drops onto the densest cluster instead of travelling. | Radius +20. | It drops beside an existing hole if one is on screen. | Holes dropped within 100 of another merge on landing. |
 | Skill Issue | A dollop falls on the densest cluster, sending everything flying outward. | Launch +30%. | Radius +20. | Enemies are launched upward and land on their mates (40%). |
 | There Is No Spoon | Stored bullets rain down on the enemies that fired them (each tracks its shooter). | +20% damage. | Each bullet hits everything within 40 of its shooter. | The rain falls on every enemy within 100 of each shooter. |
@@ -822,10 +830,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Force → **Blood**: the pulse makes everything Bleed. | +1 Bleed stack. | Bleed builds +30%. | Dual-type Force and Blood. |
 | Acid Spit | Acid → **Alien**: globs build Possessed instead of Corrosion. | Possessed +20%. | Possessed +40%. | Dual-type Acid and Alien. |
 | Red Flagship | Static → **Force**: a plain Force beam with no Charge, but +20% damage. | +30%. | +40%. | Dual-type Static and Force (Shocking Impact along the beam). |
-| Nocturnal Emission | N/A: the puddle's Snare is the attack. | | | |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | N/A: Force has no status; it would lose Bleed and become a thinner Standard Issue. | | | |
 | Rent Free | N/A: possession is the Alien status. | | | |
-| Hot Mess | **Two alternates** (exception to rule 15, as Nappy Mines; the branch picks one). Fire → **Acid**: an Acid Pool that Corrodes (gives Ordered Online an Acid weapon, open issue 6). Fire → **Mucus**: a snot slick that slows, then Snares. | Corrosion or Snotty +20%. | +40%. | Dual-type Fire and the chosen type. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | N/A: it was moved to Force because gravity is displacement. | | | |
 | Skill Issue | Force → **Static**: collisions add Charge. | Charge +20%. | Charge +40%. | Dual-type Force and Static. |
 | There Is No Spoon | N/A: its point is that returned bullets keep their own type. | | | |
@@ -861,10 +869,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Everything in the pulse is primed. | Bigger detonations. | Detonations throw enemies outward. | Detonations are small pulses that prime what they hit (no further chain). |
 | Acid Spit | Globs prime; detonations add Corrosion. | Bigger detonations. | A detonation on a Corroded enemy strips a Shell layer. | Detonations spread Corrosion to everything they hit. |
 | Red Flagship | Enemies on the beam 0.5 s are primed; detonations Charge. | Bigger detonations. | Detonations arc to one neighbour. | Detonating a Charged enemy sets off a Static reaction around it. |
-| Nocturnal Emission | Enemies in the puddle are primed; detonations Snare. | Bigger detonations. | Detonations spread the puddle to where the enemy stands. | Detonations prime every enemy in the puddle again. |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | Needles prime; detonations add Bleed. | Bigger detonations. | A detonation adds 2 Bleed stacks. | A detonation ticks all the target's Bleed stacks at once. |
 | Rent Free | Possessed enemies are primed. | Bigger detonations. | The detonation extends the possession 1 s. | Detonating a possessed enemy possesses its neighbours for 1 s. |
-| Hot Mess | Enemies in the patch are primed; detonations add Burn. | Bigger detonations. | Detonations leave a small burning patch. | Detonations set every primed enemy in the patch off at once. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | Enemies inside the well are primed. | Bigger detonations. | Detonations inside the well grow it 10%. | A detonation inside the well counts towards the supernova as a merge. |
 | Skill Issue | Flying enemies are primed. | Bigger detonations. | Detonations on landing send the enemy flying again. | Every collision detonates both enemies (no re-priming). |
 | There Is No Spoon | Returned bullets prime; detonations are in the bullet's type. | Bigger detonations. | Detonations fill that type's status bar. | Detonations set off the unstable reaction between the bullet's type and the detonating weapon's. |
@@ -900,10 +908,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | Every 4th pulse is double radius. | Every 3rd. | It pulls first, then throws. | The empowered pulse throws enemies into each other (40%). |
 | Acid Spit | Every 4th glob fills Corrosion ×3. | Every 3rd. | It splashes neighbours. | The empowered glob strips a full Shell layer. |
 | Red Flagship | Every 4th on-phase is a thick beam (+50%). | Every 3rd. | It lasts 0.5 s longer. | It Charges everything it touches at once. |
-| Nocturnal Emission | Every 4th puddle is double size. | Every 3rd. | It Snares instantly. | The empowered puddle pulls enemies in. |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | Every 4th needle adds 3 Bleed stacks. | Every 3rd. | It pierces. | It ticks all Bleed stacks at once. |
 | Rent Free | Every 4th ghost possesses three times as long. | Every 3rd. | It possesses the 2 nearest enemies. | It possesses everything it passes. |
-| Hot Mess | Bonfire: every 4th patch is a bonfire: twice the size, three times as long, flaring once a second. | Every 3rd. | Bonfires pull nearby enemies in slightly. | The bonfire is a ring round you. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | Every 4th hole counts as 2 for merging. | Every 3rd. | It's 30% larger. | The empowered hole goes supernova on its own after 3 s. |
 | Skill Issue | Every 4th dollop launches twice as far. | Every 3rd. | Its chain goes one step deeper. | It launches everything on screen within 200. |
 | There Is No Spoon | Every 4th returned bullet hits double. | Every 3rd. | It pierces. | Every empowered return fires 3 bullets. |
@@ -939,10 +947,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | A second pulse goes off 0.3 s later. | A third pulse. | Each pulse is offset to cover a different side. | Pulses ripple out in a ring of 5. |
 | Acid Spit | +1 glob (85% each). | +1 rear glob. | +2 side globs. | A ring of globs. |
 | Red Flagship | +1 beam, front 180°, on a different target. | A rear beam (rear 180°). | +1 more front beam. | Beams rotating in every direction (damage per beam lowered). |
-| Nocturnal Emission | +1 puddle per cast. | +1 more. | Puddles appear on both sides of you. | A ring of small puddles round you. |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | +1 needle. | +1 rear needle. | +2 needles. | A burst of needles in every direction. |
 | Rent Free | +1 ghost. | +1 rear ghost. | Ghosts split at the first hit. | A ring of ghosts. |
-| Hot Mess | Splash pattern: +1 patch, landing beyond the target in a line. | +1 more. | The line joins into a wall of fire across the enemies' path. | The wall closes into a ring round the crowd's centre. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | +1 hole (3-well cap stays; smaller holes). | Holes fire front and back. | Holes come in pairs that drift together. | Three holes at once in a triangle that merge in the middle. |
 | Skill Issue | +1 dollop. | +1 more. | Dollops land in a line. | A ring of dollops. |
 | There Is No Spoon | Returns in pairs. | Returns in threes. | Returns fan out over 30°. | Returns in a ring round you. |
@@ -978,10 +986,10 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Panic Button | N/A: the pulse already goes off round you. | | | |
 | Acid Spit | Globs circle you once, then fly off. | Orbiting globs Corrode enemies they pass. | They circle twice. | Up to 4 globs orbit, firing when an enemy comes near. |
 | Red Flagship | The beam bends into a ring round you (radius 72) that zaps enemies it touches. | Radius 90. | The ring Charges what it touches. | A second, wider ring turns the other way. |
-| Nocturnal Emission | Small puddles orbit you, Snaring what they cross. | 3 puddles. | Radius 100. | The orbit leaves a sticky trail behind it. |
+| Nocturnal Emission | See 5.10 (water balloon). | | | |
 | Little Prick | Needles circle you once, stabbing what they pass, then fly off. | They circle twice. | Up to 3 needles stay in orbit. | Orbiting needles block enemy shots. |
 | Rent Free | Ghosts circle you once, then fly off. | Orbiting ghosts possess enemies they pass for 0.5 s. | 3 ghosts stay in orbit. | Orbiting ghosts make enemies near you flee (Fear). |
-| Hot Mess | A ring of fire orbits you, burning what it touches. | Radius 90. | The ring leaves a short burning trail. | Two rings turning opposite ways. |
+| Hot Mess | See 5.10 (water balloon). | | | |
 | Family Ties | The black hole orbits you, dragging enemies round with it and bending shots. | It orbits wider (100). | Enemy shots it bends are thrown away from you. | Two holes orbit opposite each other (still the 3-well cap). |
 | Skill Issue | Dollops orbit you until an enemy touches one, then launch it. | 3 dollops. | Orbit radius 90. | Launched enemies are thrown along the orbit into others. |
 | There Is No Spoon | Stored bullets orbit you and block enemy shots (12.8). | Up to 5 orbit at once. | Blocked shots are eaten into the store. | Orbiting bullets fire themselves at enemies that come within 80. |
@@ -1078,6 +1086,7 @@ Blowing Bubbles' cells were redesigned with the user on 23 Oct and are built in 
 - **Every bubble inflates before it is sent** (user, 23 Oct): it grows from nothing on your nose (or the Bubble machine's nozzle, or its spot in the rain) in 0.25 s (Big breath: 0.6 s), then leaves. This applies to Blowing Bubbles with or without modifiers.
 
 ### 5.7 Hot Mess specials (Claude's picks, 23 Oct; the user asked for them to be chosen)
+**Superseded by 5.10 (24 Oct): Hot Mess now follows the water-balloon model; the cells below are the build to recode.**
 Built in `cellmods2.js` (24 Oct). Hot to touch and the ring of fire hit for half the weapon's damage every 0.25 s (first build: they were far behind the patches they replace).
 Changed: Rapid Fire (Spatter), Charged (Simmer), Catalyst (Fuel spill), Kinship (Firestarter), Knockback (Popcorn), Pulling (Plughole), Sticky (Tar pit), Exploding Rounds (Grease fire), Death from Above (Flaming bag), Switched at Birth (Acid or Mucus), Every Nth (Bonfire), Extra Projectiles (Splash pattern). Kept as written: Connecting (Shared Burn), Turncoat (Fire walker), Melee (Hot to touch), Mines (hidden patches), Primer, Orbiting (ring of fire). N/A: Range, Up Close, Piercing, Ricochet, Focused Intensity, Homing, Ranged.
 - **Area** (`areamod.js`): +25% patch size a rank, and **Spreading**: patches creep outward as they burn (+50% by the end). Area + Pulling: Plughole pulls from further away (as Nappy Mines' Implosion).
@@ -1247,6 +1256,45 @@ Red Flagship, Soulmate Signal, Spark of Life, Maximum Gains and Enzyme Sneeze, d
 | Orbiting | **Holding It In:** droplets circle you once, then fly out. | Twice; they Corrode what they pass. | A permanent ring of acid mist round you. |
 | Area | **Spray:** droplets 25% bigger a rank, and their splash wider. | +50 / 75%. | +100%. |
 
+### 5.10 The two pools as water balloons (user's picks, 24 Oct)
+Built in `balloon.js` (the throw) and `cellmods4.js` (the cells), 24 Oct. Simplified there: Switched at Birth's ranks and swapping halves are not built (it has no ranks); the Range wave and the Cluster lake are a line of puddles and one big puddle.
+Nocturnal Emission and Hot Mess, designed from one physical idea the user gave: **a pool is thrown like a water balloon to the face.** The user chose each modifier from three options; Claude picked the masteries the user didn't (the user's instruction: follow Claude's recommendations, ask only where unsure). **This section replaces both weapons' cells in sections 3 and 4 and the Hot Mess specials in 5.7** (decision 63). The Hot Mess cells built in `cellmods2.js` need recoding to match (follow-on work).
+
+**The shared model (both pools):**
+- **Throw:** the weapon throws a balloon at one enemy (the face), chosen by its autoaim (the enemy nearest the centre of the densest cluster). It arcs over enemies on the way (`MODIFIERS.md` 8, Lobbed).
+- **Burst:** it bursts on the face. The face takes the hit, the spray splashes its neighbours, and a puddle settles round the face (radius 58, 3.5 s, `ATTACK_TYPES.md`). Nocturnal Emission is a balloon of snot (the puddle Snares); Hot Mess is a balloon of burning fuel (the puddle Burns).
+- **Limits:** every puddle, mini puddle and floor balloon is a standard world object and counts towards the 40-object cap (oldest goes first). Every chain is bounded (12.5); echoed damage is echo damage (12.1).
+- **N/A cells lifted:** on these two weapons Range, Up Close, Piercing, Homing, Ricochet, Focused Intensity and Ranged now apply, as do Sticky and Switched at Birth on Nocturnal Emission. Rule 10 (Range and Up Close only on Projectile and Spread) has this exception.
+- One table serves both weapons; a cell names a weapon only where they differ.
+
+| Modifier | Lv 1 | Lv 2 and 3 | Mastery |
+|---|---|---|---|
+| Range | **Through the crowd:** reach +20%. The balloon bursts on the first enemy in its line and the spray fans on in the throw direction (60°, 120 long), soaking the enemies behind; the puddle is long, not round. | Reach +40 / 60%; fan 180 / 240 long. | **Water balloon cannon:** at full reach the fan rolls on as a wave to the edge of the screen, pushing and soaking everything on its line (once per throw), then settles as a river-shaped puddle. |
+| Up Close | **Face takes it all:** the face takes +40%; the spray and the puddle's rim do 60%. | Face +80 / 120%; rim 50 / 40%. | **Point-blank balloon:** an enemy that comes within 120 of you gets a balloon in the face at once (once every 3 s) with the full face bonus; a few harmless drips land on you. |
+| Rapid Fire | **Balloon barrage:** throw rate +40%, splats 20% smaller. Splats that overlap merge into one puddle (up to 3× size). Hot Mess: replaces Spatter. | Rate +80 / 120%; splats 30 / 35% smaller. | A merged puddle of 3 or more splats ripples once a second, hitting everything in it for 30%. |
+| Charged | **Overfilled balloon:** the balloon visibly swells on your nose for 0.5 s; the splat is +60% bigger and the face takes +60%. Hot Mess: replaces Simmer. | Wind-up 0.4 / 0.3 s; +90 / 120%. | **Delayed pop:** the balloon sticks to the face and bursts 1 s later, after the enemy has carried it into its friends. |
+| Catalyst | **Evaporating puddle:** the puddle shrinks to 60% of its size over its life but gets more concentrated: status fill rises as it shrinks (+25% by the end), and unstable reactions set off in it hit +20%. Hot Mess: replaces Fuel spill. | Fill +50 / 75%; reactions +40 / 60%. | A reaction set off in a puddle's last second refills it to full size (once per puddle). |
+| Kinship | **Family pack:** besides the ramp, each other same-type weapon you carry adds one small extra to every splat. Nocturnal Emission: Blowing Bubbles adds 1 bubble trap; Ewww, Gross ties the face to 1 neighbour (shared damage). Hot Mess: Nappy Mines adds 1 mine; the Laser adds a 0.3 s beam flash on the face. Replaces Firestarter. | Extras +25 / 50%. | Full family (3 or more): every 3rd balloon carries each extra twice. |
+| Knockback | **Slip and slide:** the puddle has no friction. Enemies in it keep sliding the way they were going, and any knockback (from any of your weapons) sends them skating; a skater that hits another enemy deals 30% to both. Replaces Popcorn and the rim squirt. | Slide ×2 / ×3. | **Bowling face:** the balloon's impact sends the face skidding through the crowd, bowling over what it meets (30% each). |
+| Pulling | **Plughole:** the puddle drains towards its centre, swirling in enemies within 60 of its rim; in its last second it gurgles and pulls hard once. Uses the Pull rule (12.2). | 120 / 180. | The last gurgle swallows everything to the centre and spits a fresh balloon at the nearest group. |
+| Sticky | **Sticky footprints:** enemies leaving the puddle leave footprints for 2 s that slow anyone walking on them 30%. Footprints never Snare, so Hot Mess's Fire stays lit (rule 11 does not apply; replaces Tar pit). | 3 / 4 s; 50 / 70%. | **Clump:** enemies that bump into each other in the puddle stick together into a slow-rolling ball (up to 8) that the puddle keeps hitting. |
+| Piercing | **Leaky balloon:** the balloon punches through 1 enemy, dripping on it (20% of a status fill), and bursts on the next. | Through 3 / 6. | Through 12, and when it bursts a jet carries on through the next 6 in line. |
+| Exploding Rounds | **Pop goes the enemy:** an enemy that dies in the puddle bursts like a balloon, hitting enemies within 40 for 40% and leaving a small puddle (radius 25, 2 s); once every 0.5 s at most. Replaces Grease fire and the entry blast. | Radius 60 / 80; 60 / 80%. | **Geyser:** when the puddle runs out it erupts, +10% radius and damage for every enemy that stood in it (up to double). |
+| Homing | **Creeping puddle:** the puddle flows towards the nearest enemy outside it at 20 a second, like spilt water finding the low point. Never through walls. | 40 / 60 a second. | When it reaches an enemy it splits in two to chase two more (once per puddle). |
+| Ricochet | **Rubber balloon:** too thick to burst on the first face, the balloon bounces off it at the true reflection angle, leaving a small splat (80%), and bursts on the next. | 3 / 6 bounces; each splat 20% smaller. | **Pinball:** it also bounces off walls, and each wall bounce makes its splat 10% bigger, not smaller (12 bounces in all). |
+| Focused Intensity | **Marinating:** each enemy takes +10% for every 0.5 s it stays in the puddle, up to +40%; leaving resets it. | Up to +80 / 120%. | **Fully cooked:** an enemy at the full bonus drips its own small puddle (radius 25) wherever it walks for 3 s. |
+| Connecting | **Connected vessels:** all your puddles are joined like linked tanks: 30% of the damage dealt in one is echoed to enemies standing in the others. Replaces Snot strings and Shared Burn. | 50 / 70%. | When a puddle ends, its remaining time pours into your nearest other puddle, which grows to match. |
+| Turncoat | **Lifeguards:** an enemy that dies in the puddle rises at its rim for 5 s and shoves escaping enemies back in. Replaces Bogeyman and Fire walker. | 7 s; shoves twice as hard. | When a lifeguard's time ends it throws a balloon at the nearest group. |
+| Melee | **Smash it on them:** no throw; the balloon is smashed into the face of the nearest enemy within 80 (Contact) for +50%, and the puddle forms round you both (you are unharmed). Replaces Slime coat and Hot to touch. | Reach 100; +75%. | **Belly flop:** swimming into your own puddle sends a splash wave through it, hitting everything in it (once per puddle). |
+| Ranged | **Water pistol puddles:** each puddle squirts a jet at the nearest enemy outside it (within 150) once a second, for 30% plus its status. | 2 / 3 jets a second. | **Sprinkler:** the jets spin out in every direction (6 a second, 20% each). |
+| Mines | **Balloons on the floor:** unburst balloons lie on the floor (3 at once, life 14 s); an enemy that treads on one bursts it up into its own face. Replaces the hidden puddles. | 4 / 5 balloons. | A burst floor balloon bursts every other one within 160. |
+| Death from Above | **Stamp it out:** the balloon drops on the crowd unburst (0.6 s marker); the first enemy to tread on it splashes 3 puddles round itself. Hot Mess's Flaming bag, now on both. | Splashes +30%; then 4 splashes. | **Rain cloud:** it bursts high above and rains for 2 s; the puddle fills and grows while the rain falls. |
+| Switched at Birth | **Two-tone balloon:** half the balloon is the weapon's type, half its alternate (Nocturnal Emission: Blood; Hot Mess: Acid or Mucus, the branch picks). The puddle lands in two halves, each giving its own status, so an enemy crossing the line can set off an unstable reaction by itself. The Snare half keeps Nocturnal Emission's attack whole (rule 15). | Each half's status +20 / 40%. | The halves swap every second, so enemies standing still react too. |
+| Primer | **Primed puddle:** the puddle itself is the primer. The first hit from another of your weapons inside it detonates the whole puddle at once (radius = the puddle, 50% of base damage) and uses it up. | 75 / 100%. | The detonation throws the puddle's remains as 3 new balloons at nearby enemies. |
+| Every Nth | **Giant balloon:** every 4th balloon is twice the size and lasts three times as long. Hot Mess: replaces Bonfire. | Every 3rd; its face takes +50%. | **Water bomb:** the giant balloon bursts in the air over the crowd and rains a puddle over all of it. |
+| Extra Projectiles | **Cluster balloon:** the balloon splits in mid-air into 2 smaller balloons that burst on 2 faces (rule 5: less each). | 3, then 4. | The splits land in a ring round the crowd and join into one lake, trapping it. |
+| Orbiting | **Juggling:** 1 unburst balloon circles you (radius 72) and bursts on the first enemy it touches; it regrows after 2 s. | 2 / 3 balloons; radius 100. | When you are hit, every orbiting balloon bursts round you at once. |
+| Area | **Wetter balloon:** splats +25% a rank. Spreading (5.7) is dropped for pools: it fights the Evaporating puddle. | +50 / 75%. | **High tide:** every 10 s all your puddles surge to double size for 1 s. |
 ## 6. Moved to sperm passives
 
 ### 6.1 Advanced Targeting (sperm passive)

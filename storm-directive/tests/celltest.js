@@ -1,6 +1,7 @@
 // Weapon cells (cellmods.js, cellmods2.js): Nappy Mines, Blowing Bubbles, Hot Mess and Eggs get their own modifier effects. Every cell runs at Lv 1 and at
 // its mastery against a crowd of small and big enemies: no errors, and the weapon still deals damage. Plus the card rules
 // (which modifiers are dealt, no fork screens, the two Switched at Birth alternates) and a few behaviours.
+// Hot Mess's cells moved to cellmods4.js (the pools as water balloons): tested in cell4test.js.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -28,7 +29,7 @@ const { chromium } = require('playwright');
     const alts = new Set(); for (let i = 0; i < 40; i++) { const k = sabCard(); if (k) alts.add(k.elem); } out.alts = [...alts];
     if (!(alts.has('fire') && alts.has('ice') && alts.size === 2)) bad.push('nappy alternates ' + out.alts);
     // 2. Every cell at Lv 1 and at mastery
-    for (const id of ['s_mines', 's_bubble', 'v_flame_pool', 's_toothfairy', 'v_shock_beam', 's_twin', 'acro_spark', 'v_phys_spread', 'acro_spray']) for (const m of XC_W[id].cells) for (const n of [1, 4]) {
+    for (const id of ['s_mines', 's_bubble', 's_toothfairy', 'v_shock_beam', 's_twin', 'acro_spark', 'v_phys_spread', 'acro_spray']) for (const m of XC_W[id].cells) for (const n of [1, 4]) {
       w = fresh(id); w.m10 = Array(n).fill(m); computeStats(w); crowd();
       DMG.n = 0;
       const k = XC_W[id].tag + ':' + m + n;  // (bubbles deal damage when they pop, often only once the 5 s hold ends)
@@ -51,14 +52,8 @@ const { chromium } = require('playwright');
     w = fresh('s_bubble'); w.m10 = ['melee']; computeStats(w); update(1 / 60); const e9 = foe(10, 0); e9.speed = 0; update(1 / 60); update(1 / 60); // the bubble round you pops, then grows back
     out.melee = [w.xcSh.up, +w.xcSh.g.toFixed(2), Math.round(e9.maxHp - e9.hp)];
     if (w.xcSh.up || !(w.xcSh.g < 0.2) || !(e9.hp < e9.maxHp)) bad.push('melee bubble ' + out.melee);
-    w = fresh('v_flame_pool'); out.hmOk = ['rapid', 'sticky', 'mines', 'orbiting', 'ricochet', 'range'].map(id => modOk(w, id));
-    if (out.hmOk.join() !== 'true,true,true,true,false,false') bad.push('hot mess dealt ' + out.hmOk);
     w = fresh('s_toothfairy'); out.egOk = ['ricochet', 'extra', 'melee', 'charged', 'mines'].map(id => modOk(w, id));
     if (out.egOk.join() !== 'true,true,true,false,false') bad.push('eggs dealt ' + out.egOk);
-    w = fresh('v_flame_pool'); w.m10 = ['sticky']; computeStats(w); const e1 = foe(0, 200); e1.speed = 0; xcHmPatch(w, e1.x, e1.y); update(1 / 60); update(1 / 60); // Tar pit slows without Snaring
-    out.tar = [e1.chill > 0, !(e1.snareT > G.t)]; if (out.tar.includes(false)) bad.push('tar pit ' + out.tar);
-    w = fresh('v_flame_pool'); w.m10 = ['charged']; computeStats(w); const z1 = xcHmPatch(w, 0, 0); update(1 / 60); const d0 = z1.dps; for (let i = 0; i < 120; i++) update(1 / 60); // Simmer heats up
-    out.simmer = [Math.round(d0 * 10) / 10, Math.round(z1.dps * 10) / 10]; if (!(z1.dps > d0 * 1.2)) bad.push('simmer ' + out.simmer);
     w = fresh('s_toothfairy'); w.m10 = ['nth']; computeStats(w); const e2 = foe(250, 0); e2.speed = 0; for (let i = 0; i < 6; i++) { TOYS().teeth.length = 0; toothFire(w, e2); } // Golden egg
     out.gold = TOYS().teeth.some(t => t.xcGoldE) || w.toothN; if (!(w.toothN >= 4)) bad.push('eggs not laid ' + w.toothN);
     w = fresh('s_toothfairy'); w.m10 = ['orbiting']; computeStats(w); out.orbEggs = 0; for (let i = 0; i < 200; i++) { update(1 / 60); out.orbEggs = Math.max(out.orbEggs, TOYS().teeth.filter(t => t.xcOrb && !t.dead).length); } // (enemies may grab them: count the most seen) if (!(out.orbEggs >= 1)) bad.push('no orbiting eggs');
