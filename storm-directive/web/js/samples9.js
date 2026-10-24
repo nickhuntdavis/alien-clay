@@ -43,9 +43,9 @@ function s9Sync() { // tag only the current pick as a sample (samples10.js s10Of
     s9Sync();
     return sg.apply(this, arguments);
   };
-  const gs = genesStart; // (a picked v9 sample is open while S10_ALL is: genes.js profUnlocked would fall back to vanguard)
+  const gs = genesStart; // (a picked v9 sample is open while its rack entry is: genes.js profUnlocked would fall back to vanguard)
   genesStart = function () {
-    const P = PROFILES[META.profile], u = P && P.s10 && S10_ALL ? P.unlock : null;
+    const P = PROFILES[META.profile], u = P && P.s10 && s10Open(P.s10) ? P.unlock : null;
     if (u) delete P.unlock;
     try { return gs.apply(this, arguments); } finally { if (u) P.unlock = u; }
   };

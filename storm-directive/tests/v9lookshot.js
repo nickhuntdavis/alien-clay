@@ -7,7 +7,7 @@ const path = require('path'), out = f => path.resolve(__dirname, 'out', f);
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 2 });
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + path.resolve(__dirname, '../web/index.html'));
-  await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); SET.intros = 'off'; matrixRestore(); META.devAll = 1; }); await page.waitForTimeout(300);
+  await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); SET.intros = 'off';  }); await page.waitForTimeout(300);
   const bad = [], ids = await page.evaluate(() => S9_IDS.slice());
   const only = process.argv[2] ? process.argv[2].split(',') : null;
   for (const pid of ids) for (const df of [false, true]) {

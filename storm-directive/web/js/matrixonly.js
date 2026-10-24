@@ -1,7 +1,8 @@
 'use strict';
 // Spawn Prawn - matrix only (user, 23 Oct): for now the game deals only what redesign docs/MODIFIER_MATRIX.md covers.
 //  - WEAPONS: the matrix's 27 (MATRIX_ONLY.weapons). Every other weapon is put on hold (weapons24.js W24_HOLD), so no
-//    draft, starting pick, rescue or Sandbox offers it. The v9 samples leave the Sample Rack (their starters are v9 weapons).
+//    draft, starting pick, rescue or Sandbox offers it. The v9 samples stay on the Sample Rack (user, 24 Oct): like every
+//    sample they start with an offer from the matrix's weapons (samplestart.js), not their v9 starters.
 //  - MODIFIERS: the matrix's 25 (MATRIX_ONLY.mods, plus Switched at Birth's card). The others are never offered;
 //    a slot that already holds one keeps it.
 // To undo: MATRIX_ONLY.on = false before this file runs, or matrixRestore() at runtime (tests that need the full roster).
@@ -18,7 +19,6 @@ const MATRIX_ONLY = {
 };
 function matrixApply() {
   for (const id of W24_IDS) if (!MATRIX_ONLY.weapons.includes(id) && !W24_HOLD.includes(id)) { W24_HOLD.push(id); MATRIX_ONLY.held.push(id); if (WEAPONS[id]) WEAPONS[id].archived = 1; }
-  for (let i = SAMPLES10.length - 1; i >= 0; i--) if (SAMPLES10[i].v9) MATRIX_ONLY.samples.unshift(SAMPLES10.splice(i, 1)[0]);
 }
 function matrixRestore() { // (the full roster again: for tests that cover the v9 weapons and samples)
   MATRIX_ONLY.on = false;
