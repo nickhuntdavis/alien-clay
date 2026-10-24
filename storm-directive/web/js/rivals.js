@@ -289,6 +289,7 @@ function rivalLeech(ent) {
 // line. Returns true while it is happening (it replaces his normal movement).
 function rivalBarge(e, dx, dy, dist, dt) {
   if (!rivalHas(e, 'barge') || e.frozen > 0) return false;
+  if (G.wave && (!G.wave.active || G.wave.boss)) { e.bargeWind = e.bargeT = 0; return false; } // (calm between waves and in boss waves: no barge, not even one wound up during the wave)
   e.bargeCd = (e.bargeCd == null ? 3 : e.bargeCd) - dt;
   if (e.bargeWind > 0) {
     e.bargeWind -= dt; e.flash = Math.max(e.flash, 0.04);
