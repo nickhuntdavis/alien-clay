@@ -52,6 +52,16 @@ const { chromium } = require('playwright');
     w = set(fresh('s_duedate'), ['homing', 'homing', 'homing', 'homing']); { const a = foe(200, 0, false, true), c = foe(260, 0, true, true); const D = xcOdMark(w, a, 'fire'); kill(a, w); update(1 / 60); odB.retarget = c.due === D; }
     w = set(fresh('s_duedate'), ['turncoat']); { const a = foe(150, 0, false, true), c = foe(-250, 0, true, true); xcOdMark(w, a, 'fire'); kill(a, w); let ally = false; quiet(() => { update(1 / 60); ally = G.enemies.some(z => z.xcRun && z.xcRun.w === w); for (let i = 0; i < 180; i++) { update(1 / 60); G.player.hp = 1e6; } }); odB.collector = [ally, !!(c.due && c.due.tag === 'turn')]; }
     w = set(fresh('s_duedate'), ['mines']); { const a = foe(200, 0, false, true); dueFire(w, a); const m = w.xcOd.mines[0]; const c = foe(0, 0, false, true); if (m) { c.x = m.x; c.y = m.y; } for (let i = 0; i < 40; i++) update(1 / 60); odB.mine = [!!m, !!(c.due && c.due.tag === 'mine')]; }
+    // round 2 reworks
+    w = set(fresh('s_duedate'), ['catalyst']); { const a = foe(200, 0, true, true); const D = xcOdMark(w, a, 'fire'); const e0 = D.end; rxFired('pressure', a); odB.interest = [D.end < e0 - 0.4, D.xcPct > 0]; }
+    w = set(fresh('s_duedate'), ['kinship']); { const w2 = G.weapons[1] = makeSlot('v_arcane_proj', false, 3); computeStats(w2); const a = foe(200, 0, true, true), c = foe(260, 0, false, true); quiet(() => update(1 / 60)); xcOdMark(w, a, 'fire'); damageEnemy(c, 5, weaponSrc(w2)); const h0 = c.hp; a.due.end = G.t; quiet(() => { update(1 / 60); update(1 / 60); }); odB.debt = [c.xcKinT > 0, c.hp < h0]; }
+    w = set(fresh('s_duedate'), ['primer']); { const a = foe(200, 0, true, true); const D = xcOdMark(w, a, 'fire'); const e0 = D.end; mwDetonate(a, w, { w, by: new Set(), steps: 0, t: G.t + 4 }); odB.collect = D.end <= e0 - 0.9; }
+    w = set(fresh('s_duedate'), ['focus']); { const a = foe(200, 0, true, true); const D = xcOdMark(w, a, 'fire'); for (let i = 0; i < 12; i++) damageEnemy(a, 1, weaponSrc(w)); odB.tab = [!!D.xcEarly, D.end <= G.t]; }
+    w = set(fresh('s_duedate'), ['rapid']); { const a = foe(200, 0, true, true); xcOdMark(w, a, 'fire'); let n = 0; const d0 = damageEnemy; damageEnemy = function (e, d, sr) { if (e === a && sr && sr.due) n++; return d0.apply(this, arguments); }; try { a.due.end = G.t; quiet(() => { for (let i = 0; i < 30; i++) update(1 / 60); }); } finally { damageEnemy = d0; } odB.instal = n >= 2; }
+    w = set(fresh('s_duedate'), ['range']); { const a = foe(350, 0, true, true), c = foe(60, 0, false, true); quiet(() => update(1 / 60)); xcOdMark(w, a, 'fire'); const h0 = c.hp; a.due.end = G.t; quiet(() => { update(1 / 60); update(1 / 60); }); odB.forward = c.hp < h0; }
+    w = set(fresh('s_duedate'), ['upclose']); { const a = foe(80, 0, true, true); const D = xcOdMark(w, a, 'fire'); const e0 = D.end; quiet(() => { for (let i = 0; i < 30; i++) update(1 / 60); }); odB.express = D.end < e0 - 0.4; }
+    w = set(fresh('s_duedate'), ['extra']); { const a = foe(200, 0, true, true), c = foe(240, 0, false, true); quiet(() => update(1 / 60)); const D = xcOdMark(w, a, 'fire'); odB.copy = !!(c.due && c.due.xcCopyOf === D && c.due.end === D.end); }
+    w = set(fresh('s_duedate'), ['melee']); crowd(); DMG.n = 0; run(7); const mel = DMG.n; w = set(fresh('s_duedate'), []); crowd(); DMG.n = 0; run(7); out.meleeK = +(mel / Math.max(1, DMG.n)).toFixed(2); odB.meleeDps = out.meleeK > 0.6 && out.meleeK < 1.6; // (rule 19: about the needle's damage per second)
     out.od = odB;
     for (const k in odB) if ([].concat(odB[k]).includes(false)) bad.push('od ' + k + ' ' + odB[k]);
     // 4. Sister Cousin
@@ -66,6 +76,17 @@ const { chromium } = require('playwright');
     w = set(fresh('s_seeker'), ['extra', 'extra', 'extra', 'extra']); { const t = foe(250, 0, true, true); fireWeapon(w, t); const q = mine(w); scB.brood = [q.length >= 8, q.some(o => o.vx < 0), q.some(o => o.vx > 0)]; }
     w = set(fresh('s_seeker'), ['nth']); { const t = foe(250, 0, true, true); const n = []; for (let i = 0; i < 4; i++) { G.proj.length = 0; fireWeapon(w, t); n.push(mine(w).length); } scB.nth = n[3] > n[0] && mine(w).some(q => q.xcNth); out.nthN = n; }
     w = set(fresh('s_seeker'), ['area']); { const a = foe(250, 0, false, true); foe(270, 0, false, true); a.hp = 1; let A = 0; const a0 = aoe; aoe = function (...x) { if (x[4] && x[4].w === w) A++; return a0.apply(this, x); }; try { fireWeapon(w, a); for (let i = 0; i < 90; i++) update(1 / 60); } finally { aoe = a0; } scB.pulse = A > 0; }
+    // round 2 reworks
+    const shot = (w, e) => { const q = spawnProj(w, G.player.x, G.player.y, 0, weaponSrc(w)); q.pierce = 0; q.bounce = 0; damageEnemy(e, 1, weaponSrc(w)); modHit(q, e); return q; };
+    w = set(fresh('s_seeker'), ['catalyst']); { const a = foe(200, 0, true, true); shot(w, a); const q = spawnProj(w, G.player.x + 100, G.player.y + 50, 0, weaponSrc(w)); rxFired('pressure', a); scB.gossip = [q.tgt === a, a.xcGosT > G.t]; }
+    w = set(fresh('s_seeker'), ['kinship']); { const w2 = G.weapons[1] = makeSlot('v_arcane_proj', false, 3); computeStats(w2); const a = foe(200, 0, true, true); foe(260, 0, false, true); quiet(() => update(1 / 60)); shot(w, a); damageEnemy(a, 5, weaponSrc(w2)); scB.cousin = G.proj.some(q => q.w === w && q.xcCousin); }
+    w = set(fresh('s_seeker'), ['primer']); { const a = foe(200, 0, true, true); foe(260, 0, false, true); quiet(() => update(1 / 60)); const n0 = G.proj.filter(q => q.w === w && q.mSplit).length; mwDetonate(a, w, { w, by: new Set(), steps: 0, t: G.t + 4 }); scB.hatch = G.proj.filter(q => q.w === w && q.mSplit).length > n0; }
+    w = set(fresh('s_seeker'), ['focus']); { const a = foe(200, 0, true, true); for (let i = 0; i < 3; i++) shot(w, a); scB.dogpile = a.xcDog > G.t; }
+    w = set(fresh('s_seeker'), ['sticky']); { const a = foe(200, 0, true, true); shot(w, a); shot(w, a); scB.hang = !!(a.xcHang && a.xcHang.length === 2); }
+    w = set(fresh('s_seeker'), ['upclose']); { const a = foe(60, 0, true, true); a.kx = 0; shot(w, a); scB.huddle = a.kx > 0; }
+    w = set(fresh('s_seeker'), ['rapid']); { const t = foe(250, 0, true, true); quiet(() => update(1 / 60)); xcSc(w).sq = 0; fireWeapon(w, t); for (let i = 0; i < 12; i++) update(1 / 60); scB.squabble = xcSc(w).sq > 0; }
+    w = set(fresh('s_seeker'), ['range']); { const t = foe(250, 0, false, true); fireWeapon(w, t); G.enemies.length = 0; for (let i = 0; i < 40; i++) update(1 / 60); scB.wait = G.proj.some(q => q.w === w && q.xcWait > 0.3); }
+    w = set(fresh('s_seeker'), ['nth']); { const t = foe(250, 0, true, true); for (let i = 0; i < 4; i++) fireWeapon(w, t); scB.bigSister = G.proj.some(q => q.w === w && q.xcNth && q.r > 6); }
     out.sc = scB;
     for (const k in scB) if ([].concat(scB[k]).includes(false)) bad.push('sc ' + k + ' ' + scB[k]);
     return { bad, out };

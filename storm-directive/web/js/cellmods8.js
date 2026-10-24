@@ -18,8 +18,11 @@
 // Deviations from the table (also in MODIFIER_MATRIX.md 5.9): Charged adds +60% chain damage at ranks 1 to 3 (+20% at the
 // mastery) so its wind-up passes the rule 19 DPS check; Homing on an instant bolt is +15% reach a rank and a bent opening
 // bolt; Death from Above's opening strike lands after a 0.4 s reticle and hits for 140%.
-// Hooks: none in shared files. Fills cellmods.js XC_W/XC_FIRE/XC_STATS/XC_TICK/XC_RUN/XC_LIFE; wraps fight.js fightArc,
-// weapons24.js wupHit, modifiers.js modDraw. Loads after cellmods.js.
+// Round 2 (24 Oct, the plain cells reworked; MODIFIER_MATRIX.md 5.9 "Round 2"): Range Long arc, Up Close Short circuit,
+// Rapid Fire Hum, Catalyst Conductor, Kinship Capacitor bank, Homing Lightning rod, Sticky Static cling, Every Nth Forked
+// bolt, Focused Intensity Spot weld. Range, Up Close, Rapid Fire, Catalyst and Kinship keep their shared numbers underneath.
+// Hooks: none in shared files. Fills cellmods.js XC_W/XC_FIRE/XC_STATS/XC_TICK/XC_RUN/XC_LIFE; wraps fight.js fightArc and
+// rxFired, weapons24.js wupHit and wupKill, modifiers.js modDraw. Loads after cellmods.js.
 (function () {
   XC_W.s_tesla = { tag: 'uc',
     cells: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting', 'area'],
@@ -34,9 +37,10 @@
   const mark = k => { UCX.fx[k] = (UCX.fx[k] || 0) + 1; };
   const volley = () => ({ n: 0, cap: CAP, xb: XB });
   const foeOk = e => e && !e.dead && !e.charmed && !e.phased && !(e.egg && !(e.woke && eggBreakable())); // (the egg only once it can be broken, as game.js acquire)
-  function next(x, y, R, seen) { // the nearest enemy within jump range not yet hit
+  const conducts = e => e.chargeT > G.t || e.wetT > G.t || e.snareT > G.t; // (Homing, Lightning rod: what the arc prefers)
+  function next(x, y, R, seen, rod) { // the nearest enemy within jump range not yet hit (rod: a conductor counts as half as far)
     let best = null, bd = R;
-    forNear(x, y, R, e => { if (!foeOk(e) || seen.has(e)) return; const d = Math.hypot(e.x - x, e.y - y) - (e.r || 0) * 0.5; if (d < bd) { bd = d; best = e; } });
+    forNear(x, y, R, e => { if (!foeOk(e) || seen.has(e)) return; let d = Math.hypot(e.x - x, e.y - y) - (e.r || 0) * 0.5; if (d > R) return; if (rod && conducts(e)) d *= 0.5; if (d < bd) { bd = d; best = e; } });
     return best;
   }
   const charge = (e, t) => { e.chargeT = Math.max(e.chargeT || 0, G.t + (t || 3)); };
@@ -47,9 +51,9 @@
   function plan(w, first, from, extra) {
     const R = id => xcR(w, id), s = w.s, p = G.player, o = Object.assign({ jumps: Math.max(0, s.chain || 0), jumpR: s.jump || 140, fall: 0.88 }, extra || {});
     if (R('charged')) { o.jumps += XC_RAMP(R('charged')); o.fall = R('charged') >= 4 ? 1 : 0.8; }
-    if (R('upclose') && first && Math.hypot(first.x - from.x, first.y - from.y) < 120 && from.x === p.x && from.y === p.y) o.jumps += xcLv([1, 2, 3, 3], R('upclose'));
     if (R('kinship') >= 4 && family(w) >= 3) o.fall = 1;
-    if (o.emp) { o.jumps += 2; if (R('nth') >= 3) o.fall = 1; }
+    if (o.emp) o.fork = R('nth') >= 3 ? 1 : 0.5; // Forked bolt: every jump branches (at full damage from rank 3)
+    if (R('homing') >= 2) o.rod = 1; // Lightning rod: jumps prefer conductors
     if (R('dfa') >= 2 && o.dfa) o.jumps += 1;
     o.jumps = Math.min(MAXJ, o.jumps);
     return o;
@@ -80,7 +84,28 @@
     damageEnemy(e, d, src);
     if (G.pair && G.pair.monitor) chainNearMine(e.x, e.y);
     // Charge
-    if (R('catalyst')) charge(e, 3 * (1 + 0.25 * Math.min(3, R('catalyst'))));
+    if (R('kinship')) { e.xcUcBy = w; e.xcUcByT = G.t + 3; } // (Capacitor bank: your other Static weapons' hits on it feed this weapon)
+    // Range, Long arc: a jump longer than 140 drags a thin arc through whatever it passes
+    const rr = R('range');
+    if (rr && (k || o.hopX) && o.V && Math.hypot(e.x - px, e.y - py) > 140) {
+      const vx = e.x - px, vy = e.y - py, l2 = vx * vx + vy * vy, P = o.V.pass || (o.V.pass = new Set()); // (each passer once a volley; enemies already hit count: the arc runs back through the crowd)
+      let n = 0;
+      forNear((px + e.x) / 2, (py + e.y) / 2, Math.sqrt(l2) / 2 + 16, q => {
+        if (n >= 4 || q === e || q === prev || !foeOk(q) || P.has(q) || o.V.xb <= 0 || Math.hypot(q.x - px, q.y - py) < 12) return;
+        const t = clamp(((q.x - px) * vx + (q.y - py) * vy) / l2, 0, 1);
+        if (Math.hypot(q.x - (px + vx * t), q.y - (py + vy * t)) > (q.r || 10) + 16) return;
+        n++; P.add(q); o.V.xb--; o.V.n++;
+        damageEnemy(q, d * (rr >= 4 ? 0.6 : 0.3), Object.assign({}, o.src, { chainHop: 1 })); if (rr >= 4) charge(q);
+        if (G.fx.length < 240) fxParts('spark', q.x, q.y, c, 3, 90, 0.2, 1.6);
+        mark('longarc');
+      });
+    }
+    // Rapid Fire, Hum: an enemy hit by 3 chains in quick succession (0.6 s apart at most) overheats and pops
+    if (R('rapid') && !o.hopX) {
+      const H = e.xcUcHum || (e.xcUcHum = { n: 0, t: -9 });
+      H.n = G.t - H.t < 0.6 && H.v !== o.V ? H.n + 1 : H.v === o.V ? H.n : 1; H.t = G.t; H.v = o.V;
+      if (H.n >= 3) { H.n = 0; burst(w, e.x, e.y, xcLv([40, 50, 60, 60], R('rapid')), w.s.dmg * 0.3, src, null); mark('hum'); }
+    }
     if (R('upclose') >= 4 && Math.hypot(e.x - p.x, e.y - p.y) < 120) dbl(e);
     if (k === 0 && o.dbl) dbl(e);
     if (e.dead) { if (R('area')) burst(w, e.x, e.y, 40, d * 0.25, src, e); return d; }
@@ -112,10 +137,23 @@
       hit.push(cur); seen.add(cur);
       lastD = hop(w, cur, prev, px, py, k, o);
       ix = px; iy = py; px = cur.x; py = cur.y; prev = cur;
-      cur = next(px, py, o.jumpR, seen);
+      cur = next(px, py, o.jumpR, seen, o.rod);
+      if (o.fork && V.xb > 0) { // Forked bolt: a side branch to an enemy the chain is not going to
+        if (cur) seen.add(cur);
+        const f = next(px, py, o.jumpR * 0.8, seen);
+        if (cur) seen.delete(cur);
+        if (f) { extraHop(w, prev, f, Object.assign({}, o, { seen, fork: 0 }), o.fork * Math.pow(o.fall, k)); mark('fork'); }
+      }
     }
     if (!hit.length) return { hit, seen };
     const last = hit[hit.length - 1];
+    if (R('catalyst')) { const rec = { w, hit, t: G.t }; for (const e of hit) e.xcUcC = rec; } // (Conductor: a reaction on one runs along the rest)
+    if (R('sticky') && hit.length > 1) { // Static cling: neighbours in the chain cling together
+      const Cl = w.xcUcCl || (w.xcUcCl = []), end = G.t + xcLv([1.5, 2.5, 3.5, 3.5], R('sticky'));
+      for (let i = 1; i < hit.length && i <= 6; i++) Cl.push({ a: hit[i - 1], b: hit[i], end });
+      while (Cl.length > 24) Cl.shift();
+      mark('cling');
+    }
     if (R('explode') && R('explode') < 4) { const er = R('explode'); burst(w, last.x, last.y, [40, 60, 80][er - 1], lastD * [0.4, 0.6, 0.8][er - 1], o.src, null); mark('lastburst'); } // the last target bursts
     if (R('pull') >= 4 && hit.length > 1) { for (const e of hit.slice(1)) if (!e.dead) mwPull(e, hit[0].x, hit[0].y, 80); ring(hit[0].x, hit[0].y, 40, w.def.color, 0.3, 3); mark('contract'); } // the chain contracts
     if (R('connecting') && hit.length > 1) link(w, hit);
@@ -134,6 +172,14 @@
     const R = id => xcR(w, id), p = G.player, s = w.s, from = opt.from || { x: p.x, y: p.y };
     const o = plan(w, t, from, { V, dmg: s.dmg * (opt.dk || 1) * (opt.fk || 1), src: opt.src, emp: opt.emp, dfa: opt.dfa, firstK: opt.firstK, dbl: opt.dbl, curve: !!R('homing'), seen: opt.seen || new Set() });
     let start = t, sx0 = from.x, sy0 = from.y;
+    // Kinship, Capacitor bank: charge your other Static weapons stored here is spent as extra jumps
+    if (R('kinship') && w.xcUcCap > 0) { o.jumps = Math.min(MAXJ, o.jumps + w.xcUcCap); w.xcUcCap = 0; mark('capspend'); }
+    // Homing, Lightning rod: the opening bolt bends to the best conductor near its target (Charged, wet or Snared)
+    if (R('homing') && start && !conducts(start)) {
+      let rod = null, bd = o.jumpR;
+      for (const e of G.enemies) { if (!foeOk(e) || !conducts(e) || o.seen.has(e) || Math.hypot(e.x - p.x, e.y - p.y) > s.range + (e.r || 0)) continue; const d = dist(e, start); if (d < bd) { bd = d; rod = e; } }
+      if (rod) { start = rod; mark('rod'); }
+    }
     // Homing mastery: the shot retargets until it can start a chain
     if (R('homing') >= 4) for (let i = 0; i < 3 && start && !next(start.x, start.y, o.jumpR, new Set([start])); i++) {
       let alt = null, bd = 1e9;
@@ -165,6 +211,12 @@
     const C = chain(w, sx0, sy0, start, o);
     if (!C.hit.length) return C;
     const first = C.hit[0];
+    // Up Close, Short circuit: a chain that starts within 120 of you runs back through you and out again as a second branch
+    const uc = R('upclose');
+    if (uc && from.x === p.x && from.y === p.y && Math.hypot(first.x - p.x, first.y - p.y) < 120 + (first.r || 0)) {
+      const b0 = next(p.x, p.y, 160, o.seen);
+      if (b0) { bolt(first.x, first.y, p.x, p.y, w.def.color, 0.14); chain(w, p.x, p.y, b0, Object.assign({}, o, { sec: 1, hopX: 1, firstK: 0, dbl: 0, curve: 0, emp: 0, fork: 0, seen: o.seen, jumps: xcLv([0, 1, 2, 2], uc) })); mark('short'); }
+    }
     // Every Nth mastery: the empowered chain loops back; Focused Intensity mastery: at full ramp, back to the first
     if ((o.emp && R('nth') >= 4) || (opt.full && R('focus') >= 4)) { if (C.hit.length > 1 && extraHop(w, C.last, first, o, 1)) mark('loop'); }
     // Ricochet: the arc bounces on after the chain ends, at the angle it came in (a 70-degree cone), -20% a bounce
@@ -259,9 +311,43 @@
     if (!F || F.e !== t || t.dead || G.t - F.last > 1.5) F = w.xcUcF = { e: t, t0: G.t };
     F.last = G.t;
     const top = xcLv([0.4, 0.8, 1.2, 1.6], r), b = Math.min(top, 0.1 * Math.floor((G.t - F.t0) / 0.5));
-    if (b > 0) ring(t.x, t.y, (t.r || 10) + 4 + b * 8, w.def.color, 0.2, 1 + b * 2);
+    if (b > 0) { // Spot weld: each focused chain leaves a weld on the target (3 / 5 / 8); when it dies, each weld arcs to a neighbour
+      ring(t.x, t.y, (t.r || 10) + 4 + b * 8, w.def.color, 0.2, 1 + b * 2);
+      const Wd = t.xcUcWeld && t.xcUcWeld.w === w ? t.xcUcWeld : (t.xcUcWeld = { w, n: 0 });
+      Wd.n = Math.min(xcLv([3, 5, 8, 8], r), Wd.n + 1); mark('weld');
+    }
     return { k: 1 + b, full: b >= top - 1e-6 };
   }
+  wupKill = (orig => function (e, src) {
+    orig(e, src);
+    const Wd = e && e.xcUcWeld; if (!G || !Wd || !live(Wd.w)) return;
+    e.xcUcWeld = null;
+    const w = Wd.w, seen = new Set([e]);
+    for (let i = 0; i < Wd.n; i++) { const o = next(e.x, e.y, 160, seen); if (!o) break; seen.add(o); bolt(e.x, e.y, o.x, o.y, w.def.color, 0.16); damageEnemy(o, w.s.dmg * 0.6, Object.assign(weaponSrc(w), { chainHop: 1 })); }
+    ring(e.x, e.y, (e.r || 10) + 10, w.def.color, 0.3, 3); mark('weldpop');
+  })(wupKill);
+  // Catalyst, Conductor: an unstable reaction on an enemy a chain just hit runs on down the rest of that chain (1 / 2 / 3
+  // enemies after it, 40% Static, in the reaction's colour); each enemy passes it on at most twice a second.
+  rxFired = (orig => function (id, e) {
+    orig(id, e);
+    const C = e && e.xcUcC; if (!G || !C || G.t - C.t > 1 || !live(C.w) || e.xcUcRxT > G.t) return;
+    e.xcUcRxT = G.t + 0.5;
+    const w = C.w, i = C.hit.indexOf(e), n = xcLv([1, 2, 3, 3], xcR(w, 'catalyst')), c = (FIGHT_RX[id] && FIGHT_RX[id].color) || w.def.color;
+    let from = e;
+    for (const o of C.hit.slice(i + 1, i + 1 + n)) { if (o.dead) continue; bolt(from.x, from.y, o.x, o.y, c, 0.18); damageEnemy(o, w.s.dmg * 0.4, Object.assign(weaponSrc(w), { chainHop: 1, noRx: true, wname: w.def.name })); charge(o); ring(o.x, o.y, (o.r || 10) + 5, c, 0.3, 2); from = o; }
+    mark('conduct');
+  })(rxFired);
+  // Kinship, Capacitor bank: another Static weapon's hit on an enemy this weapon Charged stores a charge here (3 / 5 / 8),
+  // spent as extra jumps by the next chain; once per enemy a second.
+  wupHit = (orig => function (e, res, src) {
+    orig(e, res, src);
+    const w = e && e.xcUcBy;
+    if (!G || !w || !(e.xcUcByT > G.t) || !src || !src.w || src.w === w || src.dot || src.wupEcho || src.rx || e.xcUcKT > G.t || !live(w) || !xcR(w, 'kinship')) return;
+    if (src.w.isSpell || mwType(src.w) !== 'shock') return;
+    e.xcUcKT = G.t + 1;
+    const cap = xcLv([3, 5, 8, 8], xcR(w, 'kinship'));
+    if ((w.xcUcCap || 0) < cap) { w.xcUcCap = (w.xcUcCap || 0) + 1; bolt(e.x, e.y, G.player.x, G.player.y, w.def.color, 0.1); mark('capstore'); }
+  })(wupHit);
   XC_FIRE.uc = function (w, target, src) {
     const R = id => xcR(w, id), p = G.player, s = w.s;
     if (R('melee') || R('orbiting')) return true; // (Bad touch and the orbs run in the tick)
@@ -324,8 +410,16 @@
   XC_TICK.uc = function (w, dt) {
     const R = id => xcR(w, id), p = G.player, s = w.s, c = w.def.color;
     const q4 = !(w.xcUcQ > G.t); if (q4) w.xcUcQ = G.t + 0.25;
-    // Sticky: Charged enemies are slowed
-    if (R('sticky') && q4) for (const e of G.enemies) if (e.chargeT > G.t && foeOk(e)) msSlow(e, xcLv([0.3, 0.5, 0.7, 0.7], R('sticky')), 0.35);
+    // Sticky, Static cling: chained neighbours drift together and are slowed while they touch
+    if (w.xcUcCl) {
+      const sl = xcLv([0.4, 0.55, 0.7, 0.7], R('sticky') || 1);
+      w.xcUcCl = R('sticky') ? w.xcUcCl.filter(q => q.end > G.t && foeOk(q.a) && foeOk(q.b)) : null;
+      for (const q of w.xcUcCl || []) {
+        const d = dist(q.a, q.b), touch = (q.a.r || 10) + (q.b.r || 10) + 4;
+        if (d > touch) { mwPull(q.a, q.b.x, q.b.y, 60 * dt); mwPull(q.b, q.a.x, q.a.y, 60 * dt); }
+        else if (q4) { msSlow(q.a, sl, 0.35); msSlow(q.b, sl, 0.35); }
+      }
+    }
     linkTick(w, dt, q4);
     // Melee: Bad touch
     if (R('melee')) {
@@ -435,11 +529,14 @@
       }
       if (w.xcUcM) for (const m of w.xcUcM) { const x = sx(m.x), y = sy(m.y), r = 6 * Z; ctx.globalAlpha = m.arm > G.t ? 0.35 : 0.6 + 0.3 * Math.sin(G.realT * 14 + m.x); ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y); ctx.closePath(); ctx.stroke(); } // Charged mines
       if (w.xcUcL) { ctx.globalAlpha = 0.25; ctx.setLineDash([3 * Z, 6 * Z]); for (const g of w.xcUcL) for (let j = 1; j < g.m.length; j++) { const a = g.m[j - 1], b = g.m[j]; ctx.beginPath(); ctx.moveTo(sx(a.x), sy(a.y)); ctx.lineTo(sx(b.x), sy(b.y)); ctx.stroke(); } ctx.setLineDash([]); } // Aftershocks
+      if (w.xcUcCl) { ctx.globalAlpha = 0.4; for (const q of w.xcUcCl) jag(sx(q.a.x), sy(q.a.y), sx(q.b.x), sy(q.b.y), 4); } // Static cling
+      if (w.xcUcCap > 0) { ctx.globalAlpha = 0.9; for (let i = 0; i < w.xcUcCap; i++) { const a = G.realT * 3 + i / w.xcUcCap * TAU; ctx.beginPath(); ctx.arc(sx(p.x + Math.cos(a) * (p.r + 12)), sy(p.y + Math.sin(a) * (p.r + 12)), 2 * Z, 0, TAU); ctx.fill(); } } // stored charge (Capacitor bank)
       if (xcR(w, 'melee')) { ctx.globalAlpha = 0.15 + 0.1 * Math.sin(G.realT * 20); ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 6) * Z, 0, TAU); ctx.stroke(); } // Bad touch
     }
     for (const e of G.enemies) {
       if (e.dead) continue;
       if (e.xcUc2 > G.t) { ctx.globalAlpha = 0.7; ctx.strokeStyle = col(V10_COL.shock || '#ffe94a'); ctx.beginPath(); ctx.arc(sx(e.x), sy(e.y), ((e.r || 10) + 9) * Z, 0, TAU); ctx.stroke(); } // Charged twice
+      if (e.xcUcWeld && e.xcUcWeld.n) { ctx.globalAlpha = 0.9; ctx.fillStyle = '#ffffff'; for (let i = 0; i < e.xcUcWeld.n; i++) { const a = i / e.xcUcWeld.n * TAU + 0.4; ctx.beginPath(); ctx.arc(sx(e.x + Math.cos(a) * (e.r || 10) * 0.7), sy(e.y + Math.sin(a) * (e.r || 10) * 0.7), 1.6 * Z, 0, TAU); ctx.fill(); } } // spot welds
       if (e.xcRun && e.xcRun.tag === 'uc') { ctx.globalAlpha = 0.6; ctx.strokeStyle = col(e.xcRun.w.def.color); const R = (e.r || 10) + 8; for (let i = 0; i < 3; i++) { const a = G.realT * 6 + i * 2.1; jag(sx(e.x + Math.cos(a) * R), sy(e.y + Math.sin(a) * R), sx(e.x + Math.cos(a + 0.9) * R), sy(e.y + Math.sin(a + 0.9) * R), 3); } } // a crackling zombie
     }
     ctx.restore();

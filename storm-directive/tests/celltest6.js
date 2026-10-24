@@ -56,8 +56,24 @@ const { chromium } = require('playwright');
     out.cold = Math.round(nb.x - nx0); if (!(out.cold > 5)) bad.push('cold spot ' + out.cold);
     w = set(fresh(RF), ['connecting']); const h1 = foe(250, -120), h2 = foe(250, 120); h1.speed = h2.speed = 0; C6.poss(w, h1, 5); C6.poss(w, h2, 5); const gap0 = Math.hypot(h1.x - h2.x, h1.y - h2.y); step(60); // Hive mind
     out.hive = [Math.round(gap0), Math.round(Math.hypot(h1.x - h2.x, h1.y - h2.y))]; if (!(out.hive[1] < out.hive[0] - 30)) bad.push('hive mind ' + out.hive);
-    w = set(fresh(RF), ['sticky']); e = foe(300, 0); C6.poss(w, e, 4); const sp0 = e.c6Spd; step(5); out.sticky = [sp0, +e.speed.toFixed(1)]; if (!(e.speed < sp0)) bad.push('sticky host speed ' + out.sticky);
-    e.charmT = 0.01; step(5); out.stickyEnd = e.speed === sp0; if (!out.stickyEnd) bad.push('host speed not restored');
+    // Round 2 (reworked plain cells): Rent Free
+    w = set(fresh(RF), ['range']); spawnProj(w, G.player.x, G.player.y, 0, weaponSrc(w)); step(100); let hq = C6.C().haunts[0]; out.haunt = !!hq; // Long-distance haunting
+    if (hq) { e = foe(hq.x - G.player.x, hq.y - G.player.y); e.speed = 0; step(3); out.haunt = [!!hq, !!e.charmed]; if (!e.charmed) bad.push('haunt ' + out.haunt); } else bad.push('no haunt');
+    w = set(fresh(RF), ['rapid', 'rapid', 'rapid']); e = foe(150, 0); e.speed = 0; for (const [x, y] of [[230, 0], [150, 90], [150, -90]]) foe(x, y).speed = 0; // Crowded house
+    out.crowd = 0; for (let i = 0; i < 2; i++) spawnProj(w, G.player.x, G.player.y, 0, weaponSrc(w)); for (let i = 0; i < 60; i++) { step(1); out.crowd = Math.max(out.crowd, G.proj.filter(q => q.w === w && q.c6Child && !q.dead).length); }
+    if (!(out.crowd >= 2)) bad.push('crowded house ' + out.crowd);
+    w = set(fresh(RF), ['catalyst']); e = foe(250, 0); e.speed = 0; let o = foe(300, 0); o.speed = 0; C6.poss(w, e, 5); rxFired('oob', e); step(2); // Exorcism
+    out.exorcism = [!e.charmed, !!o.charmed]; if (out.exorcism.includes(false)) bad.push('exorcism ' + out.exorcism);
+    w = set(fresh(RF), ['kinship']); G.weapons[1] = makeSlot(CB, false, 3); computeStats(G.weapons[1]); e = foe(250, 0); e.speed = 0; o = foe(300, 0); o.speed = 0; C6.poss(w, e, 3); e.allyT = o; const ct0 = e.charmT; // Shared custody
+    damageEnemy(e, 30, weaponSrc(G.weapons[1])); out.custody = [+(e.charmT - ct0).toFixed(2), Math.round(o.maxHp - o.hp)]; if (!(out.custody[0] > 0.3 && out.custody[1] > 0)) bad.push('shared custody ' + out.custody);
+    w = set(fresh(RF), ['sticky']); e = foe(250, 0); hit(w, e); step(60); out.goo = C6.C().goo.length; if (!(out.goo >= 1)) bad.push('ectoplasm ' + out.goo); // Ectoplasm
+    if (out.goo) { const q = C6.C().goo[0]; o = foe(q.x - G.player.x, q.y - G.player.y); o.speed = 0; step(16); if (!(o.chill > 0)) bad.push('ectoplasm does not slow'); }
+    w = set(fresh(RF), ['homing']); e = foe(250, 0); e.speed = 0; o = foe(270, 50); o.speed = 0; let gp = spawnProj(w, G.player.x, G.player.y, 0, weaponSrc(w)); gp.tgt = e; step(2); killEnemy(e, {}); step(5); // Unfinished business
+    out.unfinished = !!o.charmed; if (!out.unfinished) bad.push('unfinished business');
+    w = set(fresh(RF), ['focus']); e = foe(250, 0); e.speed = 0; o = foe(300, 0); o.speed = 0; w._f = { e, s: G.t - 10, last: G.t, pass: 0 }; step(1); // Eviction notice
+    out.eviction = [!!e.charmed, o.fearT > G.t]; if (out.eviction.includes(false)) bad.push('eviction notice ' + out.eviction);
+    w = set(fresh(RF), ['primer']); e = foe(250, 0); e.speed = 0; o = foe(300, 0); o.speed = 0; C6.poss(w, e, 5); step(1); mwDetonate(e, w, { w, by: new Set(), steps: 0 }); step(2); // Squatter's rights
+    out.squat = [!e.charmed, !!o.charmed]; if (out.squat.includes(false)) bad.push("squatter's rights " + out.squat);
     w = set(fresh(RF), ['turncoat']); e = foe(300, 0); C6.rfPolter(w, e); const f = foe(320, 40); f.speed = 0; step(90); // poltergeist Fears
     out.polter = [C6.C().pg.length, f.fearT > 100]; if (!(out.polter[0] === 1 && out.polter[1])) bad.push('poltergeist ' + out.polter);
     w = set(fresh(RF), ['mines']); fireWeapon(w, foe(400, 0)); const mn = C6.C().mines.find(q => q.w === w); out.mine = !!mn;
@@ -84,6 +100,19 @@ const { chromium } = require('playwright');
     w = set(fresh(CB), ['area']); kill(w, foe(250, 0)); out.cloud = C6.C().clouds.length; if (!(out.cloud >= 1)) bad.push('rot cloud ' + out.cloud);
     w = set(fresh(CB), ['nth']); e = foe(250, 0); e.speed = 0; const m4 = foe(280, 0); m4.speed = 0; for (let i = 0; i < 4; i++) { fireWeapon(w, e); step(40); } out.nth = m4.parasiteT > 0; if (!out.nth) bad.push('empowered shot infects round its target');
     w = set(fresh(CB), ['pull']); kill(w, foe(250, 0)); const pz = foe(300, 0); pz.speed = 0; const px0 = pz.x; step(30); out.cbPull = Math.round(px0 - pz.x); if (!(out.cbPull > 3)) bad.push('undead pull ' + out.cbPull);
+    // Round 2: Chest Burster
+    w = set(fresh(CB), ['rapid']); spawnProj(w, G.player.x, G.player.y, 0, weaponSrc(w)); step(80); hq = C6.C().larva[0]; // larvae
+    if (hq) { e = foe(hq.x - G.player.x, hq.y - G.player.y); e.speed = 0; step(3); out.larva = e.parasiteT > 0; if (!out.larva) bad.push('larva does not infect'); } else bad.push('no larva');
+    w = set(fresh(CB), ['range']); e = foe(280, 0); e.speed = 0; o = foe(300, 20); o.speed = 0; hit(w, e); step(100); out.cough = [e.c6Cough > G.t, o.parasiteT > 0]; if (out.cough.includes(false)) bad.push('spore cough ' + out.cough);
+    w = set(fresh(CB), ['charged']); e = foe(150, 0); e.speed = 0; o = foe(150, 120); o.speed = 0; const o2 = foe(260, 0); o2.speed = 0; hit(w, e); step(90); out.brood = [o.parasiteT > 0, o2.parasiteT > 0]; if (out.brood.includes(false)) bad.push('bigger brood ' + out.brood);
+    w = set(fresh(CB), ['catalyst']); e = foe(250, 0); e.speed = 0; C6.infect(w, e); rxFired('oob', e); out.hatch = G.turrets.filter(t => t.c6 && t.c6.worm).length; if (out.hatch !== 1) bad.push('incubator ' + out.hatch);
+    w = set(fresh(CB), ['kinship']); G.weapons[1] = makeSlot(RF, false, 3); computeStats(G.weapons[1]); e = foe(250, 0); e.speed = 0; foe(320, 0).speed = 0; foe(250, 80).speed = 0; C6.infect(w, e); // Host family
+    damageEnemy(e, 5, weaponSrc(G.weapons[1])); step(30); damageEnemy(e, 5, weaponSrc(G.weapons[1])); out.eggs = e.c6Egg; kill(w, e); out.spit = G.proj.filter(q => q.w === w && q.c6Child && !q.dead).length;
+    if (!(out.eggs === 2 && out.spit >= 2)) bad.push('host family ' + [out.eggs, out.spit]);
+    w = set(fresh(CB), ['sticky']); e = foe(250, 0); o = foe(262, 0); e.speed = o.speed = 0; C6.infect(w, e); C6.infect(w, o); step(20); out.glue = C6.C().glue.length; if (!(out.glue >= 1)) bad.push('egg sac ' + out.glue);
+    w = set(fresh(CB), ['homing']); e = foe(200, 0); e.speed = 0; o = foe(200, 150); o.speed = 0; C6.infect(w, e); gp = spawnProj(w, G.player.x, G.player.y, 0, weaponSrc(w)); step(20); out.seek = gp.tgt === o; if (!out.seek) bad.push('homing does not seek the uninfected');
+    w = set(fresh(CB), ['focus']); e = foe(250, 0); e.speed = 0; C6.infect(w, e); w._f = { e, s: G.t - 10, last: G.t, pass: 0 }; step(2); out.swell = [Math.round(e.c6R0 || 0), Math.round(e.r)]; if (!(e.c6R0 && e.r > e.c6R0 * 1.2)) bad.push('gestation ' + out.swell);
+    w = set(fresh(CB), ['primer']); e = foe(250, 0); e.speed = 0; C6.infect(w, e); e.hp = e.maxHp * 0.2; mwDetonate(e, w, { w, by: new Set(), steps: 0 }); out.waters = !!e.dead; if (!out.waters) bad.push('water breaking');
     if (C6.err.length) bad.push('caught: ' + C6.err.slice(0, 3).join(' | '));
     return { bad, out };
   });

@@ -23,11 +23,11 @@
 
 XC_W.s_duedate = { tag: 'od',
   cells: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'area'],
-  mask: ['rapid', 'charged', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
+  mask: ['rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
   deny: ['ranged'], atkOk: [] };
 XC_W.s_seeker = { tag: 'sc',
   cells: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'area'],
-  mask: ['rapid', 'charged', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting'],
+  mask: ['rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting'],
   deny: ['homing', 'ranged'], atkOk: [] };
 
 const x5Bleed = (e, dmg, w) => { if (!e || e.dead || e.charmed) return; const b = e.bleeds || (e.bleeds = []); if (b.length >= 3) b.shift(); b.push({ dps: Math.max(0.5, dmg) * 0.3 / 3, t: 3, by: w.def.name }); };
@@ -37,7 +37,7 @@ const x5Tough = (x, y, R, not, free) => { let b = null, bv = -1; for (const o of
 const x5Near = (x, y, R, e, n, fn) => { let k = 0; forNear(x, y, R, o => { if (o === e || !toyCan(o) || k >= n) return; k++; fn(o); }); return k; };
 
 // ================================================================ ONE OF THESE DAYS
-const XOD = { tag: null };
+const XOD = { tag: null, main: null };
 const xcOd = w => w.xcOd || (w.xcOd = { nd: null, mines: [], fly: [] });
 const xcOdDur = (D, t) => { D.end = G.t + t; D.max = t; };
 const xcOdSrc = (w, extra) => toySrc(w, 'Due Date', Object.assign({ due: true, noCrit: true }, extra || {})); // (payout shares: echo)
@@ -54,8 +54,10 @@ function xcOdInit(w, e, D) {
   const R = id => xcR(w, id), p = G.player, s = w.s, dist = Math.hypot(e.x - p.x, e.y - p.y), tag = XOD.tag;
   D.xcSeen = 1; D.t0 = G.t; D.xcRep = 0; D.tag = tag;
   const rep = v => { D.xcRep = Math.max(D.xcRep, v); };
+  if (R('range') && dist > 300) D.xcFar = 1; // Forwarding address
   if (R('range') >= 4 && dist > 400) rep(0.55);
-  if (R('upclose') && dist < 120) { rep(xcLv([0.5, 0.55, 0.6, 0.6], R('upclose'))); if (R('upclose') >= 4 && dist < 60) xcOdDur(D, 2); }
+  if (R('upclose') && dist < 120) { D.xcNear = 1; if (R('upclose') >= 4 && dist < 60) xcOdDur(D, 2); } // Express delivery
+  if (tag === 'copy' && XOD.main) { D.xcRepK = R('extra') >= 3 ? 0.75 : 0.5; D.xcCopyOf = XOD.main; D.end = XOD.main.end; D.max = XOD.main.max; } // a carbon copy
   if (R('charged')) rep(xcLv([0.5, 0.6, 0.7, 0.7], R('charged')));
   if (tag === 'melee') { if (R('melee') >= 2) rep(0.5); if (R('melee') >= 3) xcOdDur(D, 3); }
   if (tag === 'mine' && R('mines') >= 3) rep(0.5);
@@ -73,6 +75,13 @@ function xcOdInit(w, e, D) {
     for (const o of acquireMany('nearest', 160, e.x, e.y, n + 3)) { if (L.length >= n) break; if (o === e || o.due || o.xcJA && o.xcJA.e.due === o.xcJA.D) continue; L.push(o); o.xcJA = { D, e }; }
   }
   if (w.def.sab && mwType(w) === 'ice') msSnare(e, 1); // (Switched at Birth: the needle Snares)
+  if (R('extra') && (tag === 'fire' || tag === 'dfa') && !XOD.main) { // Carbon copies: the same bill on its neighbours, paid at the same moment
+    const k = xcLv([1, 2, 2, 2], R('extra')), cs = acquireMany('nearest', 160, e.x, e.y, k + 4).filter(o => o !== e && !o.due).slice(0, k);
+    if (R('extra') >= 4) for (const o of G.enemies) { if (cs.length >= 10) break; if (toyCan(o) && (o.elite || o.boss || o.rival) && !o.due && o !== e && !cs.includes(o) && Math.hypot(o.x - p.x, o.y - p.y) < 700) cs.push(o); }
+    XOD.main = D;
+    try { for (const o of cs) { bolt(e.x, e.y, o.x, o.y, '#f8f9fa', 0.2); xcOdMark(w, o, 'copy', { k: 0.5 }); } } finally { XOD.main = null; }
+    D.xcCopies = cs;
+  }
 }
 dueMark = (orig => function (w, e, free) {
   const had = e && e.due;
@@ -115,13 +124,12 @@ function xcOdFire(w, target) {
     O.mines = O.mines.filter(m => m.end > G.t).slice(-12);
     sfx('shot'); return;
   }
-  const h = R('homing'), ex = R('extra'), dir = h || ex >= 3 ? 'strongest' : aimDir(w), rng = s.range * (h ? 1 + 0.25 * Math.min(3, h) : 1);
-  const n = ex >= 3 ? Math.max(3, s.count) : s.count;
+  const h = R('homing'), dir = h ? 'strongest' : aimDir(w), rng = s.range * (h ? 1 + 0.25 * Math.min(3, h) : 1);
+  const n = s.count;
   let ts = acquireMany(dir, rng, p.x, p.y, n + 6).filter(e => !e.due || R('rapid') >= 4);
   if (h >= 4) { const safe = ts.filter(e => e.hp > s.dmg * 2); if (safe.length) ts = safe; } // (never a target about to die)
   ts = ts.slice(0, n);
   if (!ts.length && target && !target.dead && !target.due) ts.push(target);
-  if (ex >= 4) for (const e of G.enemies) { if (ts.length >= 10) break; if (toyCan(e) && (e.elite || e.boss || e.rival) && !e.due && !ts.includes(e) && Math.hypot(e.x - p.x, e.y - p.y) < 700) ts.push(e); } // every elite on screen
   for (const e of ts) xcOdSend(w, e);
   if (ts.length) sfx('shot');
 }
@@ -133,7 +141,6 @@ XC_STATS.od = function (w, s) {
   const R = id => xcR(w, id);
   if (R('rapid')) { s.cd /= 1 + xcLv([0.4, 0.8, 1.2, 1.6], R('rapid')); s.dur = Math.min(s.dur, 3); s.repeat *= 0.75; } // more, smaller, sooner bills
   if (R('range')) s.range *= 1 + 0.15 * Math.min(3, R('range'));
-  if (R('extra')) { const n0 = s.count || 1, n1 = n0 + xcLv([1, 2, 2, 2], R('extra')); s.count = n1; s.dmg *= Math.pow(n0 / n1, 0.4); }
 };
 // The payout: the mark's own share, then everything a payout sets off.
 duePop = (orig => function (e) {
@@ -142,15 +149,22 @@ duePop = (orig => function (e) {
   const s = w.s, R = id => xcR(w, id), keep = s.repeat;
   let rep = D.xcFix != null ? D.xcFix : Math.max(s.repeat, D.xcRep || 0);
   rep += (D.xcFee || 0) + (D.xcFoc || 0) + (D.xcPct || 0);
-  if (R('kinship') >= 4 && x5Fam(w)) rep = Math.max(rep, 0.6);
-  if (R('focus') >= 4 && (D.xcFoc || 0) >= xcLv([0.15, 0.3, 0.45, 0.45], 4) - 1e-6) rep = Math.max(rep, 0.8);
+  if (D.xcEarly && R('focus') >= 4) rep = Math.max(rep, 0.8); // (paid in full early)
+  if (D.xcRepK) rep *= D.xcRepK;
   rep = Math.min(1.5, rep);
   if (D.xcBonus) D.stored += D.xcBonus / Math.max(0.05, rep); // (carried and added damage lands as itself)
   const P = D.stored * rep + s.dmg * 3, x = e.x, y = e.y;
   const links = (D.xcLinks || []).filter(o => !o.dead), split = R('connecting') >= 4 && links.length ? 1 / (links.length + 1) : 1;
   if (split < 1) D.stored *= split;
-  s.repeat = rep;
-  try { orig(e); } finally { s.repeat = keep; }
+  const parts = R('rapid') ? xcLv([2, 3, 4, 4], R('rapid')) : 1, d0 = s.dmg; // Instalments: the first part now, the rest 0.25 s apart
+  s.repeat = rep / parts; s.dmg = d0 / parts;
+  try { orig(e); } finally { s.repeat = keep; s.dmg = d0; }
+  for (let i = 1; i < parts; i++) after(0.25 * i, () => {
+    if (!G || e.dead || !G.weapons.includes(w)) return;
+    damageEnemy(e, P * split / parts, xcOdSrc(w)); floatText(e.x, e.y - e.r - 18, (i + 1) + '/' + parts, w.def.color, 12, 0.5); ring(e.x, e.y, e.r + 20, w.def.color, 0.25, 3);
+    if (i === parts - 1 && R('rapid') >= 4 && !e.dead && !e.due) xcOdMark(w, e, 'mini', { free: true }); // the last instalment opens a new bill
+  });
+  if (D.xcCopies) for (const o of D.xcCopies) if (!o.dead && o.due && o.due.xcCopyOf === D) o.due.end = G.t; // copies are paid at the same moment
   xcOdPaid(w, e, D, P, x, y, links, split);
 })(duePop);
 function xcOdPaid(w, e, D, P, x, y, links, split) {
@@ -182,6 +196,19 @@ function xcOdPaid(w, e, D, P, x, y, links, split) {
     if (t) { bolt(x, y, t.x, t.y, w.def.color, 0.2); const N = xcOdMark(w, t, 'bounce', { free: true }); if (N) { N.xcB = D.xcB - 1; if (R('ricochet') >= 4) N.xcBonus = P * 0.7; } }
   }
   if (D.tag === 'orbit' && R('orbiting') >= 4) { const t = x5Tough(x, y, 250, [e], true); if (t) { bolt(x, y, t.x, t.y, w.def.color, 0.2); xcOdMark(w, t, 'orbit', { free: true }); } }
+  if (D.xcFar) { // Forwarding address: part of a far bill is forwarded to the enemy nearest you
+    const o = msNear(p.x, p.y, 250, [e]);
+    if (o && toyCan(o)) { bolt(x, y, o.x, o.y, w.def.color, 0.25); damageEnemy(o, P * xcLv([0.3, 0.45, 0.6, 0.6], R('range')), src); ring(o.x, o.y, o.r + 12, w.def.color, 0.3, 3); }
+  }
+  if (D.xcNear && R('upclose') >= 4 && !e.dead && !e.boss && Math.hypot(e.x - p.x, e.y - p.y) < 120) shove(e, p.x, p.y, 220); // a delivery to the door
+  if (R('kinship')) { // Family debt: enemies your other weapons of this type hit lately share the bill
+    let n = 0;
+    for (const o of G.enemies) {
+      if (n >= 6 || o === e || !toyCan(o) || !(o.xcKinT > G.t - 2) || o.xcKinTy !== mwType(w) || Math.hypot(o.x - x, o.y - y) > 150) continue;
+      n++; bolt(x, y, o.x, o.y, w.def.color, 0.2); damageEnemy(o, P * xcLv([0.2, 0.3, 0.4, 0.4], R('kinship')), src);
+      if (R('kinship') >= 4 && !o.due) xcOdMark(w, o, 'mini', { free: true });
+    }
+  }
   if (D.xcMine) { D.xcMine.used = false; D.xcMine.wait = false; D.xcMine.arm = G.t + 0.5; } // the payout re-arms the mine
 }
 toyHurt = (orig => function (e, lost, src) {
@@ -191,8 +218,11 @@ toyHurt = (orig => function (e, lost, src) {
   if (J && J.e.due === J.D && !J.e.dead && J.D.w && xcR(J.D.w, 'connecting')) J.D.stored += lost * (xcR(J.D.w, 'connecting') >= 3 ? 1 : 0.5);
   const D = e.due, w = D && D.w;
   if (!w || !D.xcSeen || !xcIs(w, 'od')) return;
-  if (xcR(w, 'focus') && src.w) D.xcFoc = Math.min(xcLv([0.15, 0.3, 0.45, 0.45], xcR(w, 'focus')), (D.xcFoc || 0) + 0.015); // every hit adds to the share
-  if (xcR(w, 'catalyst') >= 4 && src.rx) D.xcBonus = (D.xcBonus || 0) + lost * 0.2; // reactions add to the payout
+  if (xcR(w, 'focus') && src.w && !D.xcEarly) { // Running tab: every hit adds to the share; a full tab is paid at once
+    const cap = xcLv([0.15, 0.3, 0.45, 0.45], xcR(w, 'focus'));
+    D.xcFoc = Math.min(cap, (D.xcFoc || 0) + 0.015);
+    if (D.xcFoc >= cap - 1e-6) { D.xcEarly = 1; D.end = G.t; floatText(e.x, e.y - e.r - 30, 'PAID IN FULL', w.def.color, 13, 0.8); }
+  }
 })(toyHurt);
 toyKill = (orig => function (e, src) {
   const D = e && e.due, w = D && D.w;
@@ -237,11 +267,12 @@ XC_TICK.od = function (w, dt) {
       const rr = 80 * xcLv([1, 1.5, 2, 2], R('pull')) * xcArea(w); D.xcPullR = rr;
       forNear(e.x, e.y, rr, o => { if (o === e || o.charmed || o.boss) return; mwPull(o, e.x, e.y, 90 * Math.min(3, R('pull')) * dt); if (R('pull') >= 4) { const L = D.xcPulled || (D.xcPulled = []); if (L.length < 12 && !L.includes(o)) L.push(o); } });
     }
+    if (D.xcNear && R('upclose') && Math.hypot(e.x - p.x, e.y - p.y) < 120) { D.end -= dt * (xcLv([2, 2.5, 3, 3], R('upclose')) - 1); D.xcExp = G.t + 0.1; } // Express delivery: the clock runs fast while it is close
     if (R('primer') >= 3 && t4 && !(e.mwPr && e.mwPr.t > G.t)) e.mwPr = { w, t: D.end, by: new Set(), steps: 0 }; // primed all the way to the payout
   }
   if (R('melee') && t4) { // Tick tock: whatever touches you gets a bill
     let n = TOYS().marks.filter(e => e.due && e.due.w === w && e.due.tag === 'melee').length;
-    forNear(p.x, p.y, (p.r || 12) + 30, e => { if (n >= 12 || !toyCan(e) || e.due) return; n++; xcOdMark(w, e, 'melee'); });
+    forNear(p.x, p.y, (p.r || 12) + 30, e => { if (n >= 12 || !toyCan(e) || e.due || w.xcOdMT > G.t) return; n++; w.xcOdMT = G.t + s.cd * 0.75; xcOdMark(w, e, 'melee'); }); // (about one bill per shot: the needle's damage per second, which also pauses to reload)
   }
   if (R('orbiting')) { // a needle circles you and marks the biggest enemy to come close
     const n = R('orbiting') >= 2 ? 2 : 1;
@@ -277,7 +308,7 @@ wupKill = (orig => function (e, src) {
 
 // ================================================================ SISTER COUSIN
 const XSC = { vol: null, rx: null };
-const xcSc = w => w.xcSc || (w.xcSc = { vol: 0, orb: [], cl: [], nests: [], dives: [], feud: [] });
+const xcSc = w => w.xcSc || (w.xcSc = { vol: 0, orb: [], cl: [], nests: [], dives: [], feud: [], hang: [] });
 const xcScLive = w => { let n = 0; for (const q of G.proj) if (q.w === w && !q.dead) n++; return n; };
 const xcScCap = w => (typeof modV === 'function' && modHas(w, 'multiplying') ? modV(w, 'multiplying', 'flight') : 12) + 4;
 // Split siblings made by a cell (the engine's own split is modifiers.js modHit): up to n, at the nearest other enemies.
@@ -323,14 +354,9 @@ XC_FIRE.sc = function (w, target, src) {
     for (const e of ts) xcScDive(w, e, false);
     if (ts.length) sfx('shot'); return true;
   }
-  if (R('nth')) { // every 4th volley is 4 siblings
+  if (R('nth')) { // Big sister: every 4th volley brings one big sibling (2.5x, pierces 2)
     w.xcN = (w.xcN || 0) + 1;
-    if (w.xcN % (R('nth') >= 2 ? 3 : 4) === 0) {
-      S.nthF = G.frameN || 0;
-      const a0 = Math.atan2(target.y - p.y, target.x - p.x), add = Math.max(2, 4 - (s.count || 2));
-      for (let i = 0; i < add; i++) spawnProj(w, p.x, p.y, a0 + (i % 2 ? 1 : -1) * (0.5 + 0.2 * i), src);
-      floatText(p.x, p.y - 34, 'x' + ((s.count || 2) + add), w.def.color, 12, 0.5);
-    }
+    if (w.xcN % (R('nth') >= 2 ? 3 : 4) === 0) spawnProj(w, p.x, p.y, Math.atan2(target.y - p.y, target.x - p.x), src, { dmg: s.dmg * 2.5, r: (s.size || 4) * 2.2, pierce: 2, xcNth: 1, speed: s.speed * 0.85 });
   }
   return false;
 };
@@ -341,7 +367,6 @@ modProj = (orig => function (pr, w) {
 function xcScProj(pr, w) {
   const R = id => xcR(w, id), S = xcSc(w), kid = !!pr.mSplit;
   pr.xcSc = 1; pr.xcVol = kid && XSC.vol != null ? XSC.vol : S.vol;
-  if (!kid && S.nthF != null && S.nthF === (G.frameN || 0)) pr.xcNth = 1;
   if (R('piercing') && !kid) { pr.pierce = (pr.pierce || 0) + XC_RAMP(R('piercing')); pr.xcPc = 1; }
   if (R('ricochet') && (!kid || R('ricochet') >= 4)) pr.bounce = (pr.bounce || 0) + XC_RAMP(R('ricochet'));
   if (R('extra') >= 3 && !kid) { // front and back; the mastery is a brood in every direction
@@ -362,7 +387,6 @@ modHit = (orig => function (pr, e) {
   try { orig(pr, e); } finally { XSC.vol = null; }
   if (dead) {
     if (R('charged') >= 4 && !kid && pr.mSplitDone) xcScKids(w, pr, e, 1); // a charged sibling splits into 3
-    if (R('kinship') >= 4 && kid && !pr.xcG2 && x5Fam(w)) xcScKids(w, pr, e, 2, { xcG2: 1 }); // split siblings split once more
     if (pr.xcNest && pr.xcNest.wait) { pr.xcNest.wait = false; pr.xcNest.ready = G.t + 0.5; } // the nest releases again
     if (R('explode') && (!kid || R('explode') >= 4)) aoe(e.x, e.y, 40 * xcLv([1, 1.5, 2, 2], R('explode')), pr.dmg * xcLv([0.4, 0.8, 1.2, 1.2], R('explode')), Object.assign({}, pr.src, { noProc: true }), w.def.color);
     if (R('pull') >= 4) { forNear(e.x, e.y, 140, o => { if (!o.charmed) mwPull(o, e.x, e.y, 40); }); ring(e.x, e.y, 140, w.def.color, 0.3, 2); } // the kill site draws them in
@@ -371,13 +395,13 @@ modHit = (orig => function (pr, e) {
     if (R('knock') && !e.boss) { const t = other() || msNear(e.x, e.y, 220, [e]); if (t) { xcToward(e, t.x, t.y, xcLv([60, 110, 160, 160], R('knock'))); e.xcCan = { w, t: G.t + 0.5, f: 60, k: 0.3 }; } }
     if (R('pull')) { const t = other(); if (t && !t.boss) { mwPull(t, e.x, e.y, 30 * Math.min(3, R('pull'))); bolt(t.x, t.y, e.x, e.y, w.def.color, 0.1); } }
   }
-  if (R('focus') >= 4 && !pr.xcFS && e.xcScF && e.xcScF.k >= xcLv([0.4, 0.8, 1.2, 1.2], 4) - 1e-6) { pr.xcFS = 1; xcScKids(w, pr, e, 2); } // at full ramp every sibling splits
+  if (R('focus') >= 4 && !pr.xcFS && e.xcDog > G.t && e.xcDogW === w) { pr.xcFS = 1; xcScKids(w, pr, e, 2); } // every sibling that joins a dogpile splits
   if (R('nth') >= 4 && pr.xcNth && !pr.xcNS) { pr.xcNS = 1; xcScKids(w, pr, e, 2); } // its siblings split on any hit
   // what the hit did to e
-  if (R('sticky')) {
-    msSlow(e, xcLv([0.3, 0.5, 0.7, 0.7], R('sticky')), 1.5);
-    if (R('sticky') >= 3) { e.xcScSt = (e.xcScSt || 0) + 1; if (e.xcScSt >= 3) { e.xcScSt = 0; msSnare(e, 1); } }
-    if (R('sticky') >= 4 && kid) msSnare(e, 1);
+  if (R('sticky') && !e.dead && !(pr.pierce > 0) && !(pr.bounce > 0) && !pr.back) { // Hangers-on: a sibling that stops in an enemy stays stuck to it
+    const L = (e.xcHang || []).filter(h => h.end > G.t);
+    if (L.length < 3) { L.push({ end: G.t + xcLv([1, 1.5, 2, 2], R('sticky')), a: Math.random() * TAU }); if (L.length === 3 && R('sticky') >= 3) { msSnare(e, 1); ring(e.x, e.y, e.r + 10, w.def.color, 0.3, 3); } }
+    e.xcHang = L; e.xcHangW = w; if (!S.hang.includes(e) && S.hang.length < 24) S.hang.push(e);
   }
   if (R('primer') && (!kid || R('primer') >= 4) && !e.dead && !(e.mwPr && e.mwPr.t > G.t)) e.mwPr = { w, t: G.t + 4, by: new Set(), steps: 0 };
   if (R('connecting') && !e.dead) { // Family feud: one volley's targets are linked
@@ -386,9 +410,14 @@ modHit = (orig => function (pr, e) {
     if (!F.list.includes(e) && F.list.length < 6) F.list.push(e);
   }
   if (pr.xcNth && R('nth') >= 3) { x5Bleed(e, pr.dmg, w); x5Bleed(e, pr.dmg, w); }
+  e.xcScHit = { w, t: G.t }; // (Gossip and Cousins read it)
   if (pr.xcRxB && !e.dead) { const c = fightCd(e); for (const k in pr.xcRxB) if (k in c.bars) c.bars[k] = Math.max(c.bars[k], Math.min(0.99, pr.xcRxB[k] * 0.8)); fightReactAs(e, FIGHT_TYPE[mwType(w)], Object.assign({}, pr.src, { raw: pr.dmg })); pr.xcRxB = null; } // carries the parent's reaction
   if (!e.dead) { // the ramps (read by wupDmgMul)
-    const F = e.xcScF; if (!F || F.w !== w || G.t - F.last > 0.6) e.xcScF = { w, t0: G.t, last: G.t, k: 0 }; else { F.last = G.t; F.k = R('focus') ? Math.min(xcLv([0.4, 0.8, 1.2, 1.2], R('focus')), 0.1 * Math.floor((G.t - F.t0) / 0.5)) : 0; }
+    if (R('focus') && !(e.xcDog > G.t)) { // Dogpile: 3 siblings on one enemy inside 1 s pin it, and it takes more from them for 1 s
+      const L = e.xcDogL || (e.xcDogL = []); L.push(G.t); while (L.length && G.t - L[0] > 1) L.shift(); if (L.length > 6) L.shift();
+      if (L.length >= 3) { L.length = 0; e.xcDog = G.t + 1; e.xcDogW = w; msSnare(e, 0.5); ring(e.x, e.y, e.r + 14, w.def.color, 0.35, 4); }
+    }
+    if (R('upclose') && !e.boss && Math.hypot(e.x - G.player.x, e.y - G.player.y) < 120) { shove(e, G.player.x, G.player.y, xcLv([40, 70, 100, 100], R('upclose'))); spawnPart(e.x, e.y, w.def.color, 2, 60, 0.2, 2); } // Huddle: close hits push it away from you
     const Q = e.xcScQ || (e.xcScQ = []); Q.push(G.t); while (Q.length && G.t - Q[0] > 0.4) Q.shift(); if (Q.length > 8) Q.shift();
   }
   if (R('upclose') >= 4 && !pr.xcRet && !pr.back) { pr.xcRet = 1; pr.back = true; pr.hits = [e.id]; pr.pierce = Math.max(pr.pierce || 0, 3); } // back to you, striking on the way
@@ -407,7 +436,8 @@ wupDmgMul = (orig => function (e, src) {
   let k = orig(e, src);
   const w = src && src.w;
   if (!G || !w || src.dot || src.echo || !xcIs(w, 'sc') || !xcAny(w)) return k;
-  const F = e.xcScF; if (xcR(w, 'focus') && F && F.w === w && G.t - F.last < 0.6) k *= 1 + (F.k || 0); // Focused Intensity
+  if (xcR(w, 'focus') && e.xcDog > G.t && e.xcDogW === w) k *= 1 + xcLv([0.4, 0.8, 1.2, 1.2], xcR(w, 'focus')); // a dogpiled enemy
+  if (xcR(w, 'catalyst') && e.xcGosT > G.t && e.xcGosW === w) k *= 1 + xcLv([0.25, 0.4, 0.55, 0.55], xcR(w, 'catalyst')); // the gossip
   if (xcR(w, 'rapid') >= 4 && e.xcScQ) k *= 1 + 0.1 * Math.min(5, e.xcScQ.filter(t => G.t - t < 0.4).length); // in quick succession
   return k;
 })(wupDmgMul);
@@ -437,6 +467,27 @@ XC_TICK.sc = function (w, dt) {
     if (pr.w !== w || pr.dead || !pr.xcSc || pr.back || pr.orbitT > 0) continue;
     if (S.adopt && S.adopt.t > G.t && toyCan(S.adopt.e) && !pr.mSplit) pr.tgt = S.adopt.e;
     else if (R('range') && (!pr.tgt || pr.tgt.dead)) pr.tgt = acquire('nearest', pr.xcFar ? 900 : 380 * (1 + 0.25 * Math.min(3, R('range'))), pr.x, pr.y);
+  }
+  if (R('range')) for (const pr of G.proj) { // Late arrivals: a sibling with nobody to chase circles where it is and waits
+    if (pr.w !== w || pr.dead || !pr.xcSc || pr.back || pr.orbitT > 0 || (pr.tgt && !pr.tgt.dead)) continue;
+    const wait = xcLv([1, 1.5, 2, 2], R('range')); pr.xcWait = (pr.xcWait || 0) + dt;
+    if (pr.xcWait > wait) continue;
+    const a = Math.atan2(pr.vy, pr.vx) + 5 * dt, sp = Math.hypot(pr.vx, pr.vy) || pr.speed; pr.vx = Math.cos(a) * sp; pr.vy = Math.sin(a) * sp; pr.life = Math.max(pr.life, dt * 2);
+  }
+  if (R('rapid') && t10) { // Squabbling: siblings of one volley that bump into each other push apart and pick different targets
+    const L = []; for (const q of G.proj) if (q.w === w && !q.dead && q.xcSc && !q.back && !(q.orbitT > 0) && L.length < 16) L.push(q);
+    for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) {
+      const a = L[i], b = L[j]; if (a.xcVol !== b.xcVol || a.xcSq > G.t || b.xcSq > G.t || Math.hypot(a.x - b.x, a.y - b.y) > 14) continue;
+      a.xcSq = b.xcSq = G.t + 0.6;
+      const ang = Math.atan2(b.y - a.y, b.x - a.x) || Math.random() * TAU, sp = b.speed;
+      b.vx = Math.cos(ang) * sp; b.vy = Math.sin(ang) * sp;
+      const t = acquireMany('nearest', 380, b.x, b.y, 4).find(o => o !== a.tgt); if (t) b.tgt = t;
+      spawnPart((a.x + b.x) / 2, (a.y + b.y) / 2, w.def.color, 2, 50, 0.2, 2); S.sq = (S.sq || 0) + 1;
+    }
+  }
+  if (S.hang.length) { // hangers-on slow what they cling to (15% each)
+    S.hang = S.hang.filter(e => !e.dead && e.xcHang && (e.xcHang = e.xcHang.filter(h => h.end > G.t)).length);
+    for (const e of S.hang) msSlow(e, 0.15 * e.xcHang.length, 0.2);
   }
   if (R('orbiting')) { // siblings circle you, then dive at whatever comes close
     const base = R('orbiting') >= 2 ? 3 : 2;
@@ -502,6 +553,9 @@ wupKill = (orig => function (e, src) {
     }
     if (r >= 4 && !(src && src.w === w && !src.dot)) xcScKids(w, { src: weaponSrc(w), dmg: w.s.dmg }, e, 2); // a feud death counts as a kill
   }
+  const hw = e.xcHangW; // Hangers-on mastery: when it dies, each sibling stuck to it hops off as a fresh sibling
+  if (hw && e.xcHang && G.weapons.includes(hw) && xcR(hw, 'sticky') >= 4) { const n = e.xcHang.filter(h => h.end > G.t).length; if (n) xcScKids(hw, { src: weaponSrc(hw), dmg: hw.s.dmg * 2 }, e, n); }
+  e.xcHang = null;
   const w = src && src.w;
   if (!w || !xcIs(w, 'sc') || !xcAny(w)) return;
   if (xcR(w, 'knock') >= 4) { const o = msNear(e.x, e.y, 150, [e]); if (o && !o.charmed) { bolt(e.x, e.y, o.x, o.y, w.def.color, 0.15); damageEnemy(o, w.s.dmg * 0.8, msEcho(weaponSrc(w))); shove(o, e.x, e.y, 120); } } // flung into the nearest
@@ -510,10 +564,47 @@ wupKill = (orig => function (e, src) {
 mwDetonate = (orig => function (e, pw, M) {
   orig(e, pw, M);
   if (!G || !pw || !G.weapons.includes(pw)) return;
-  if (xcIs(pw, 'sc') && xcR(pw, 'primer') >= 3 && e.dead) xcScKids(pw, { src: weaponSrc(pw), dmg: pw.s.dmg }, e, 2); // a detonation kill splits
-  if (xcIs(pw, 'od') && xcR(pw, 'primer') >= 4 && e.due && e.due.w === pw) e.due.xcPct = Math.min(0.5, (e.due.xcPct || 0) + 0.1); // each detonation adds 10%
+  if (xcIs(pw, 'sc') && xcR(pw, 'primer')) { // Family emergency: a detonation hatches siblings; from rank 3 a detonation kill splits as well
+    const n = (xcR(pw, 'primer') >= 2 ? 2 : 1) + (xcR(pw, 'primer') >= 3 && e.dead ? 2 : 0);
+    if (xcScKids(pw, { src: weaponSrc(pw), dmg: pw.s.dmg }, e, n)) ring(e.x, e.y, e.r + 16, pw.def.color, 0.3, 3);
+  }
+  if (xcIs(pw, 'od') && xcR(pw, 'primer') && e.due && e.due.w === pw && !e.dead) { // Collections: a detonation knocks time off the clock
+    const D = e.due;
+    if (xcR(pw, 'primer') >= 4) { D.xcPct = (D.xcPct || 0) + 0.25; D.end = G.t; floatText(e.x, e.y - e.r - 30, 'COLLECTED', pw.def.color, 13, 0.8); } // pays out at once, +25%
+    else { D.end = Math.max(G.t, D.end - xcLv([1, 1.5, 2], xcR(pw, 'primer'))); ring(e.x, e.y, e.r + 18, pw.def.color, 0.3, 3); }
+  }
 })(mwDetonate);
-rxFired = (orig => function (id, e) { orig(id, e); if (e) e.xcRxT = G ? G.t : 0; })(rxFired);
+rxFired = (orig => function (id, e) {
+  orig(id, e);
+  if (!e || !G) return;
+  e.xcRxT = G.t;
+  const D = e.due, w = D && D.w;
+  if (w && D.xcSeen && xcIs(w, 'od') && xcR(w, 'catalyst') && !e.dead && (D.xcCat || 0) < 3 && !(D.xcCatT > G.t)) { // Compound interest: a reaction moves the clock on and adds 5%
+    D.xcCat = (D.xcCat || 0) + 1; D.xcCatT = G.t + 0.4; D.xcPct = (D.xcPct || 0) + 0.05;
+    if (xcR(w, 'catalyst') >= 4 && !D.xcCatPaid) { D.xcCatPaid = 1; D.end = G.t; after(0.05, () => { if (G && !e.dead && !e.due) xcOdMark(w, e, 'fire', { free: true }); }); } // pays at once and opens a new bill
+    else D.end = Math.max(G.t, D.end - xcLv([0.5, 1, 1.5], xcR(w, 'catalyst')));
+    floatText(e.x, e.y - e.r - 30, '+INTEREST', w.def.color, 12, 0.6);
+  }
+  const H = e.xcScHit, sw = H && H.w;
+  if (sw && G.t - H.t < 0.5 && xcIs(sw, 'sc') && xcR(sw, 'catalyst') && G.weapons.includes(sw) && !e.dead) { // Gossip: every sibling near turns to watch, and joins in harder
+    e.xcGosT = G.t + 1; e.xcGosW = sw; let n = 0;
+    for (const q of G.proj) if (q.w === sw && !q.dead && !q.back && !(q.orbitT > 0) && n < 8 && Math.hypot(q.x - e.x, q.y - e.y) < 220) { q.tgt = e; n++; }
+    if (n) ring(e.x, e.y, e.r + 18, sw.def.color, 0.3, 2);
+  }
+})(rxFired);
+// Kinship. One of These Days: Family debt (hits by your other weapons of its type are remembered). Sister Cousin: Cousins
+// (another weapon of its type hitting an enemy a sibling hit in the last second hatches a cousin there).
+wupHit = (orig => function (e, res, src) {
+  orig(e, res, src);
+  const x = src && src.w;
+  if (!G || !x || x.isSpell || !x.def || src.dot || src.echo || e.dead) return;
+  if (!xcIs(x, 'od')) { e.xcKinT = G.t; e.xcKinTy = mwType(x); }
+  const H = e.xcScHit, w = H && H.w;
+  if (w && w !== x && G.t - H.t < 1 && xcIs(w, 'sc') && xcR(w, 'kinship') && mwType(w) === mwType(x) && !(w.xcCousT > G.t) && G.weapons.includes(w)) {
+    w.xcCousT = G.t + xcLv([1, 0.7, 0.5, 0.5], xcR(w, 'kinship'));
+    if (xcScKids(w, { src: weaponSrc(w), dmg: w.s.dmg }, e, 1, xcR(w, 'kinship') >= 4 ? { mSplit: 0, mS: 1, xcCousin: 1 } : { xcCousin: 1 })) ring(e.x, e.y, e.r + 12, w.def.color, 0.3, 3); // (mastery: a cousin splits like a real sibling)
+  }
+})(wupHit);
 // Sister Cousin's split is its own ('multiplying'): it never takes the Flight slot from Piercing, Ricochet or Exploding Rounds.
 modOk = (orig => function (w, id) {
   if (!(w && id !== 'multiplying' && xcIs(w, 'sc') && w.m10 && w.m10.includes('multiplying'))) return orig(w, id);
@@ -541,6 +632,8 @@ modDraw = (orig => function () {
         if (D.xcLinks) { ctx.globalAlpha = 0.55; ctx.setLineDash([4 * S, 4 * S]); for (const o of D.xcLinks) if (!o.dead) { ctx.beginPath(); ctx.moveTo(sx(e.x), sy(e.y)); ctx.lineTo(sx(o.x), sy(o.y)); ctx.stroke(); } ctx.setLineDash([]); } // joint account
         if (D.xcPullR && D.end - G.t < 1.2) { ctx.globalAlpha = 0.2; ctx.beginPath(); ctx.arc(sx(e.x), sy(e.y), D.xcPullR * S, 0, TAU); ctx.stroke(); }
         if (D.xcNth) { ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.arc(sx(e.x), sy(e.y), (e.r + 9) * S, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.arc(sx(e.x), sy(e.y), (e.r + 13) * S, 0, TAU); ctx.stroke(); } // a big bill
+        if (D.xcExp > G.t) { ctx.globalAlpha = 0.35; ctx.setLineDash([2 * S, 3 * S]); ctx.beginPath(); ctx.moveTo(sx(p.x), sy(p.y)); ctx.lineTo(sx(e.x), sy(e.y)); ctx.stroke(); ctx.setLineDash([]); } // express delivery
+        if (D.xcCopyOf) { ctx.globalAlpha = 0.5; ctx.strokeStyle = '#f8f9fa'; ctx.strokeRect(sx(e.x) - 4 * S, sy(e.y - e.r) - 16 * S, 8 * S, 8 * S); ctx.strokeStyle = c; } // a carbon copy
         if (D.xcFee > 0.01) { ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.arc(sx(e.x), sy(e.y), (e.r + 6) * S, -Math.PI / 2, -Math.PI / 2 + TAU * D.xcFee / 0.24); ctx.stroke(); } // the late fee growing
       }
     } else if (xcIs(w, 'sc')) {
@@ -550,6 +643,8 @@ modDraw = (orig => function () {
         for (const q of X.cl) if (q.x != null) { ctx.globalAlpha = q.ready > G.t ? 0.4 : 0.9; ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), 3 * S, 0, TAU); ctx.fill(); }
         for (const n of X.nests) { ctx.globalAlpha = n.ready > G.t ? 0.3 : 0.75; ctx.beginPath(); ctx.arc(sx(n.x), sy(n.y), 9 * S, 0, TAU); ctx.stroke(); for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(sx(n.x + Math.cos(i * 2.1) * 4), sy(n.y + Math.sin(i * 2.1) * 4), 1.8 * S, 0, TAU); ctx.fill(); } } // nests with siblings in
         for (const d of X.dives) { const k = clamp((d.at - G.t) / 0.4, 0, 1); ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(sx(d.x), sy(d.y), (8 + 14 * k) * S, 0, TAU); ctx.stroke(); } // dive reticles closing
+        for (const e of X.hang) if (!e.dead && e.xcHang) e.xcHang.forEach(h => { ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(sx(e.x + Math.cos(h.a) * e.r), sy(e.y + Math.sin(h.a) * e.r), 2.5 * S, 0, TAU); ctx.fill(); }); // hangers-on
+        for (const e of G.enemies) if (e.xcDog > G.t && e.xcDogW === w && !e.dead) for (let i = 0; i < 5; i++) { const a = G.realT * 4 + i / 5 * TAU; ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(sx(e.x + Math.cos(a) * (e.r + 6)), sy(e.y + Math.sin(a) * (e.r + 6)), 2 * S, 0, TAU); ctx.fill(); } // a dogpile
         if (xcR(w, 'connecting')) { ctx.globalAlpha = 0.4; ctx.setLineDash([3 * S, 4 * S]); for (const F of X.feud) { const L = F.list.filter(o => !o.dead && o.xcFeud && o.xcFeud.vol === F.vol && o.xcFeud.t > G.t); for (let i = 1; i < L.length; i++) { ctx.beginPath(); ctx.moveTo(sx(L[i - 1].x), sy(L[i - 1].y)); ctx.lineTo(sx(L[i].x), sy(L[i].y)); ctx.stroke(); } } ctx.setLineDash([]); } // family feuds
       }
       const wind = w.s && w.s.xcWind; // Charged: the wind-up fills round you

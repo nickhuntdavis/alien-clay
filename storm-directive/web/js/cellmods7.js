@@ -24,11 +24,11 @@
 (function () {
   XC_W.s_siphon = { tag: 'sp',
     cells: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'area'],
-    mask: ['charged', 'kinship', 'knock', 'pull', 'piercing', 'homing', 'ricochet', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
+    mask: ['charged', 'catalyst', 'kinship', 'upclose', 'sticky', 'focus', 'knock', 'pull', 'piercing', 'homing', 'ricochet', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
     deny: ['ranged'], atkOk: [] };
   XC_W.s_void = { tag: 'ft',
     cells: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'sticky', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'area'],
-    mask: ['range', 'upclose', 'charged', 'knock', 'sticky', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
+    mask: ['range', 'upclose', 'charged', 'catalyst', 'kinship', 'knock', 'sticky', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
     deny: ['pull', 'piercing', 'ranged', 'gravity'], atkOk: [] };
 
   const C = { cur: null, ftKin: false };
@@ -44,6 +44,14 @@
   // Returns read their bullet's type while one of these is held.
   const spTyped = w => ['catalyst', 'kinship', 'explode', 'primer', 'melee'].some(id => xcR(w, id) > 0) || xcR(w, 'piercing') >= 4 || xcR(w, 'ricochet') >= 4;
   const rec = b => ({ t: typeOf(b.pel), o: b.owner && !b.owner.dead ? b.owner : null, x: b.x, y: b.y });
+  function spPut(w, k, m) { // a bullet into the store that was never an enemy bullet (recycled, digested, a kin shot)
+    if (!w.q || w.q.length >= w.s.mag) return false;
+    const A = SPS(w); w.q.push(k); w.stored = w.q.length; A.meta.push(m); if (A.meta.length > 40) A.meta.shift();
+    return true;
+  }
+  let RXT = null; // reaction id -> its two damage types (fight.js RX10)
+  const rxTypes = id => { if (!RXT) { RXT = {}; for (const k in RX10) if (!RXT[RX10[k][0]]) RXT[RX10[k][0]] = k.split('+'); } return RXT[id] || null; };
+  const spRamp = (A, r) => Math.min(xcLv([0.4, 0.8, 1.2, 1.2], r), Math.floor((G.t - (A.grS || G.t)) / 0.5) * 0.1);
   // A status of type t on e (Primer Lv 3): the bar where the type has one, otherwise its status.
   function c7Fill(e, t, dmg, src) {
     const ft = FIGHT_TYPE[t] || 'force', c = fightCd(e), bar = { acid: 'acid', fire: 'fire', soul: 'soul', force: 'force' }[ft];
@@ -76,7 +84,8 @@
       forNear(o.x, o.y, 80, q => { if (q !== o && !q.charmed) shove(q, o.x, o.y, 40); });
       ring(o.x, o.y, 34, w.def.color, 0.25, 2);
     }
-    if (xcR(w, 'focus') >= 4 && w._f && b.owner && b.owner === w._f.e && msFocusFull(w) && w.q.length < w.s.mag) { // returned twice
+    if (m.o && xcR(w, 'focus')) m.o.c7gr = (m.o.c7gr || 0) + 1; // (the grudge counts who has fed you most)
+    if (xcR(w, 'focus') >= 4 && m.o && m.o === A.grudge && spRamp(A, 4) >= 1.2 - 1e-6 && w.q.length < w.s.mag) { // returned twice
       w.q.push(w.q[w.q.length - 1]); w.stored = w.q.length; A.meta.push(Object.assign({}, m));
       ring(G.player.x, G.player.y, G.player.r + 12, w.def.color, 0.25, 2);
     }
@@ -94,7 +103,12 @@
     if (R('ricochet')) c.rb = XC_RAMP(R('ricochet'));
     const ho = R('homing'), cn = R('connecting');
     if ((ho || cn) && m && m.o && !m.o.dead) c.h = { t: m.o, turn: ho ? 4 * Math.min(3, ho) : 6, def: m.o.def };
-    if (o.emp) { pr.dmg *= 2; pr.r *= 1.6; if (R('nth') >= 3) { pr.pierce = (pr.pierce || 0) + 3; pr.mP = 1; } }
+    if (m && m.kin && R('kinship') >= 4) pr.dmg *= 1.3;
+    if (o.pel) { c.pel = 1; pr.dmg *= o.pel; pr.r *= 0.7; }
+    if (o.emp) { // a hairball: big and slow, eating enemy bullets on its way
+      pr.dmg *= 2; pr.r *= 2.2; pr.vx *= 0.5; pr.vy *= 0.5; pr.speed *= 0.5; pr.life *= 2; pr.max = pr.life; c.hair = { n: 0 };
+      if (R('nth') >= 3) { pr.pierce = (pr.pierce || 0) + 3; pr.mP = 1; }
+    }
     return pr;
   }
   function spEvent(w, first) { // once per return (not per projectile): Every Nth, Pulling's tug
@@ -112,16 +126,18 @@
         if (A.q0 === 0 && !A.ate) { A.trick = 1; A.m = null; } // (the dry spit, fired the frame it was made)
         else if (A.dry > 0) { A.dry--; A.m = null; } else A.m = A.meta.shift() || null;
         if (R('pull') >= 4 && A.m && foeOk(A.m.o)) { mwPull(A.m.o, G.player.x, G.player.y, 40); A.tug = { a: A.m.o, t: G.t + 0.15 }; } // the tug
+        A.rake = 0; if (R('rapid')) { A.rk = (A.rk || 0) + 1; A.rake = Math.sin(A.rk * 0.7) * xcLv([0.26, 0.35, 0.44, 0.44], R('rapid')); } // the stream rakes the crowd
+        const t = w.curTarget, uc = R('upclose');
+        A.pel = uc && t && !t.dead && Math.hypot(t.x - G.player.x, t.y - G.player.y) < 120 + t.r ? xcLv([3, 4, 5, 5], uc) : 0; // a spit take: pellets
       }
+      a += A.rake;
       if (ex >= 3 && n > 1) { const off = i - (n - 1) / 2, a0 = a - off * 0.12; a = ex >= 4 ? a0 + i / n * TAU : a0 + off * 0.52 / (n - 1); } // fan, then a ring
       const emp = spEvent(w, i === 0);
-      const pr = spTag(w, orig(w, x, y, a, src, over), A.m, { emp, k: A.k0 });
-      if (pr && i === 0) {
-        const extra = [];
-        if (R('rapid') >= 4) extra.push(0.09); // in pairs
-        if (emp && R('nth') >= 4) extra.push(-0.16, 0.16); // three
+      const pel = A.pel ? xcLv([0.45, 0.4, 0.38, 0.38], R('upclose')) : 0;
+      const pr = spTag(w, orig(w, x, y, a, src, over), A.m, { emp, k: A.k0, pel });
+      if (pr && A.pel > 1) {
         C.cur = null;
-        try { for (const da of extra) spTag(w, orig(w, x, y, a + da, src, over), A.m, { emp, k: A.k0 }); } finally { C.cur = w; }
+        try { for (let j = 1; j < A.pel; j++) spTag(w, orig(w, x, y, a + (j % 2 ? 1 : -1) * Math.ceil(j / 2) * 0.13, src, over), A.m, { k: A.k0, pel }); } finally { C.cur = w; }
       }
       return pr;
     }
@@ -129,9 +145,9 @@
     if (pr && pr.style === 'void' && ftOn(w)) ftBorn(w, pr);
     return pr;
   })(spawnProj);
-  function spFire(w, x, y, a, k, m, first) { // a shot this file sends (volley, mines, orbit): the stream's shot, cells and all
+  function spFire(w, x, y, a, k, m, first, noEmp) { // a shot this file sends (volley, mines, orbit): the stream's shot, cells and all
     const src = weaponSrc(w); src.mult *= k;
-    const emp = spEvent(w, first);
+    const emp = noEmp ? false : spEvent(w, first);
     return spTag(w, spawnProj(w, x, y, a, src), m, { emp, k });
   }
 
@@ -214,6 +230,36 @@
     const wave = G.wave ? G.wave.n : 0; if (A.wave !== wave) { A.wave = wave; A.shot.length = 0; }
     if (!(A.shotT > G.t)) { A.shotT = G.t + 0.5; A.shot = A.shot.filter(foeOk); for (const b of G.ebul) if (A.shot.length < 12 && b.owner && foeOk(b.owner) && !A.shot.includes(b.owner)) A.shot.push(b.owner); }
     A.links = A.links.filter(L => L.t > G.t && !L.a.dead && !L.b.dead);
+    if (R('focus') && !(A.grT > G.t)) { // the grudge: whoever has fed you the most bullets
+      A.grT = G.t + 0.5; let best = foeOk(A.grudge) ? A.grudge : null;
+      for (const o of A.shot) if (foeOk(o) && (o.c7gr || 0) > ((best && best.c7gr) || 0)) best = o;
+      if (best !== A.grudge) { A.grudge = best; A.grS = G.t; }
+    }
+    if (A.splat) { // Sticky: spit splats
+      const sl = xcLv([0.3, 0.5, 0.7, 0.7], R('sticky') || 1);
+      for (const q of A.splat) {
+        forNear(q.x, q.y, q.r, e => { if (!e.charmed) msSlow(e, sl, 0.4); });
+        if (R('sticky') >= 4) for (const b of G.ebul) if (!b.dead && Math.abs(b.x - q.x) < q.r && Math.abs(b.y - q.y) < q.r && Math.hypot(b.x - q.x, b.y - q.y) < q.r) { b.vx = 0; b.vy = 0; } // shots stick in it
+      }
+      A.splat = A.splat.filter(q => q.end > G.t);
+    }
+    for (const e of G.enemies) { // Knockback: knocked back into its own shooter
+      const K = e.c7kn; if (!K) continue;
+      if (K.t < G.t || e.dead || !foeOk(K.o)) { e.c7kn = null; continue; }
+      if (Math.hypot(e.x - K.o.x, e.y - K.o.y) < e.r + K.o.r + 4) { const src = msEcho(weaponSrc(w)); damageEnemy(e, K.d, src); damageEnemy(K.o, K.d, src); ring((e.x + K.o.x) / 2, (e.y + K.o.y) / 2, 24, w.def.color, 0.3, 3); e.c7kn = null; }
+    }
+    if (R('rapid') >= 4 && w.q) { // the hiccup: every 4 s the store comes up all at once
+      if (A.hicT == null) A.hicT = G.t + 4;
+      if (G.t >= A.hicT && w.q.length >= 3) {
+        const t = acquire(aimDir(w), s.range, p.x, p.y);
+        if (t) {
+          A.hicT = G.t + 4; const all = []; let x; while ((x = spTake(w))) all.push(x);
+          const a0 = Math.atan2(t.y - p.y, t.x - p.x);
+          all.forEach((e, i) => spFire(w, p.x, p.y, a0 + (i - (all.length - 1) / 2) * 0.09, e.k * 1.25, e.m, i === 0));
+          ring(p.x, p.y, p.r + 22, w.def.color, 0.35, 5); fxParts('spark', p.x, p.y, w.def.color, 8, 140, 0.3, 2);
+        }
+      }
+    }
     // Orbiting: stored bullets circle you, block shots and hit what they touch
     A.orbP.length = 0;
     if (R('orbiting') && w.q) {
@@ -273,12 +319,18 @@
   // Hits of returned bullets (src.c7): Knockback, Sticky, Connecting, Catalyst, Exploding Rounds, Primer.
   function spHit(w, e, res, src) {
     const R = id => xcR(w, id), A = SPS(w), c = src.c7, m = c.m, p = G.player;
-    if (R('knock') && !e.dead) {
+    if (R('knock') && !e.dead) { // knocked back towards whoever fired the bullet
       const r = R('knock'), f = 117 * xcLv([1, 2, 3, 3], r) * (r >= 4 ? clamp(c.k || 1, 0.5, 2) : 1), v = c.pr;
-      if (v) shove(e, e.x - v.vx, e.y - v.vy, f); else shove(e, p.x, p.y, f);
+      if (m && foeOk(m.o) && m.o !== e && !e.boss) { xcToward(e, m.o.x, m.o.y, f * 1.5); e.c7kn = { o: m.o, t: G.t + 0.8, d: (res.toHp || w.s.dmg) * 0.4 }; }
+      else if (v) shove(e, e.x - v.vx, e.y - v.vy, f); else shove(e, p.x, p.y, f);
     }
-    if (R('sticky') >= 4 && !e.dead && !(e.c7snT > G.t)) { msSnare(e, 1); e.c7snT = G.t + 1.2; }
-    if (Math.hypot(e.x - p.x, e.y - p.y) < 60 + e.r && R('upclose') >= 4) ring(e.x, e.y, e.r + 6, w.def.color, 0.2, 2); // (double damage: wupDmgMul)
+    if (R('sticky') && !c.splat) { // a spit splat on the floor
+      c.splat = 1; const B = A.splat || (A.splat = []), rr = xcLv([30, 40, 50, 50], R('sticky')) * xcArea(w);
+      const q = B.find(o => Math.hypot(o.x - e.x, o.y - e.y) < 20);
+      if (q) q.end = G.t + 2; else { if (B.length >= 12) B.shift(); B.push({ x: e.x, y: e.y, r: rr, end: G.t + 2 }); }
+    }
+    if (c.pel && R('upclose') >= 4 && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < 60 + e.r && !(e.c7dzT > G.t)) { e.c7dzT = G.t + 0.5; shove(e, p.x, p.y, 230); e.dazeT = Math.max(e.dazeT || 0, G.t + 0.3); ring(e.x, e.y, e.r + 6, w.def.color, 0.2, 2); } // point blank
+    if (R('focus') && e === A.grudge) { if (G.t - (A.grL || -9) > 1) A.grS = G.t; A.grL = G.t; }
     const cn = R('connecting');
     if (cn >= 2 && m && m.o === e && !c.linked) { // the shooter is linked to its nearest mate
       c.linked = 1; const o = msNear(e.x, e.y, 140, [e]);
@@ -288,9 +340,9 @@
       A.sprT = G.t + 0.2; A.sprFx = G.t + 0.15;
       for (const o of A.shot) if (o !== e && foeOk(o)) damageEnemy(o, res.toHp * 0.25, msEcho(src));
     }
-    if (R('catalyst') >= 4 && !e.dead && !(e.c7rxT > G.t)) { // the hit reacts with the shooter's own damage type
-      const et = pstElem(e), t = et && typeOf(et);
-      if (t && t !== 'phys') { e.c7rxT = G.t + 0.3; fightReactAs(e, FIGHT_TYPE[t], { raw: res.toHp || w.s.dmg, once: { n: 0 }, w }); }
+    if (R('catalyst') >= 4 && m && m.rx && !e.dead) { // a digested reaction hits in both its types: it goes off again
+      const ot = m.rx[0] === m.t ? m.rx[1] : m.rx[0];
+      damageEnemy(e, (res.toHp || w.s.dmg) * 0.5, Object.assign({}, src, { elem: ot, c7x: 1, noCrit: true })); ring(e.x, e.y, e.r + 8, tcol(ot), 0.25, 3);
     }
     if (R('explode') >= 4 && m) { // two different types bursting together: their unstable reaction
       const B = A.booms || (A.booms = []), t = m.t;
@@ -319,7 +371,18 @@
         }
         if (t) { const ca = Math.atan2(pr.vy, pr.vx), na = ca + clamp(angDiff(Math.atan2(t.y - pr.y, t.x - pr.x), ca), -c.h.turn * dt, c.h.turn * dt), sp = Math.hypot(pr.vx, pr.vy) || pr.speed; pr.vx = Math.cos(na) * sp; pr.vy = Math.sin(na) * sp; }
       }
-      if (R('range') >= 4) { const fl = Math.hypot(pr.x - c.x0, pr.y - c.y0), nk = 1 + 0.5 * Math.min(1, fl / 500); pr.dmg *= nk / c.rk; c.rk = nk; } // further, harder
+      const A = SPS(w), p = G.player;
+      if (!c.h && !c.back && R('focus') && foeOk(A.grudge) && Math.hypot(A.grudge.x - pr.x, A.grudge.y - pr.y) < 400) { const t = A.grudge, ca = Math.atan2(pr.vy, pr.vx), na = ca + clamp(angDiff(Math.atan2(t.y - pr.y, t.x - pr.x), ca), -5 * dt, 5 * dt), sp = Math.hypot(pr.vx, pr.vy) || pr.speed; pr.vx = Math.cos(na) * sp; pr.vy = Math.sin(na) * sp; } // the grudge
+      if (c.hair) { // the hairball eats enemy bullets (+10% each, up to double)
+        for (const b of G.ebul) if (!b.dead && Math.abs(b.x - pr.x) < pr.r + b.r && Math.abs(b.y - pr.y) < pr.r + b.r) { b.dead = true; if (c.hair.n < 10) { pr.dmg *= (1.1 + 0.1 * c.hair.n) / (1 + 0.1 * c.hair.n); pr.r *= 1.03; } c.hair.n++; spawnPart(b.x, b.y, pr.color, 1, 40, 0.2, 2); }
+        if (R('nth') >= 4 && pr.life <= dt * 1.5 && !c.hair.burst && c.hair.n) { c.hair.burst = 1; const n = Math.min(12, c.hair.n); for (let i = 0; i < n; i++) spFire(w, pr.x, pr.y, i / n * TAU, 1, c.m, false, true); ring(pr.x, pr.y, 30, pr.color, 0.3, 3); } // it bursts, everything it ate
+      }
+      if (R('range') && !c.back && !c.hair && pr.life <= dt * 1.5) { c.back = 1; c.h = null; pr.life = 3; pr.max = Math.max(pr.max, 3); pr.hits = null; pr.dmg *= xcLv([0.5, 0.75, 1, 1], R('range')); } // a miss comes home
+      if (c.back) {
+        const dx = p.x - pr.x, dy = p.y - pr.y, d = Math.hypot(dx, dy) || 1, sp = Math.max(pr.speed, 300);
+        pr.vx = dx / d * sp; pr.vy = dy / d * sp;
+        if (d < Math.max(20, w.s.area * 0.4)) { pr.dead = true; if (spPut(w, Math.min(2, (c.k || 1) * (R('range') >= 4 ? 1.25 : 1)), c.m || { t: 'phys', o: null, x: pr.x, y: pr.y })) ring(p.x, p.y, p.r + 6, w.def.color, 0.2, 2); return true; } // eaten again
+      }
     }
     return orig(pr, dt);
   })(modStep);
@@ -346,6 +409,21 @@
     }
   })(modHit);
 
+  // Kinship: your other weapons' missed shots that run out near you are eaten (Force ones; from Rank 2 any type in the store).
+  projEnd = (orig => function (pr) {
+    orig(pr);
+    const pw = pr && pr.w;
+    if (!G || !pw || pw.isSpell || !pw.def || pr.style === 'void' || pr.lob || pr.mine || (pr.hits && pr.hits.length)) return;
+    for (const w of G.weapons) {
+      if (!w || w === pw || !spOn(w) || !xcR(w, 'kinship')) continue;
+      const r = xcR(w, 'kinship'), A = SPS(w), t = mwType(pw), p = G.player;
+      if (Math.hypot(pr.x - p.x, pr.y - p.y) > 220 || !(t === mwType(w) || (r >= 2 && A.meta.some(m => m.t === t)))) continue;
+      if (Math.floor(G.t) !== A.kinS) { A.kinS = Math.floor(G.t); A.kinN = 0; }
+      if (A.kinN >= xcLv([2, 4, 6, 6], r)) continue;
+      if (spPut(w, xcLv([1, 1.2, 1.4, 1.4], r), { t, o: null, x: pr.x, y: pr.y, kin: pw })) { A.kinN++; (A.kinFx || (A.kinFx = [])).push({ x: pr.x, y: pr.y, t: G.t + 0.25 }); if (A.kinFx.length > 8) A.kinFx.shift(); }
+    }
+  })(projEnd);
+
   // ================================================================ FAMILY TIES
   const ftOrbs = w => G.proj.filter(pr => pr.w === w && pr.style === 'void' && !pr.dead && !pr.lob);
   function ftNearOrb(w, x, y, R, not) { let b = null, bd = R; for (const o of G.proj) { if (o.dead || o.w !== w || o.style !== 'void' || o === not) continue; const d = Math.hypot(o.x - x, o.y - y); if (d < bd) { bd = d; b = o; } } return b; }
@@ -362,7 +440,7 @@
     if (R('range')) { const k = xcLv([1.3, 1.6, 1.9, 1.9], R('range')); pr.vx *= k; pr.vy *= k; pr.speed *= k; if (R('range') >= 4) { pr.life *= 2; pr.max = pr.life; } }
     if (R('rapid')) { rk *= 0.8; ak *= 0.85; }
     if (R('extra')) { rk *= 0.85; ak *= 0.9; }
-    if (R('charged')) { const k = xcLv([1.6, 1.9, 2.2, 2.2], R('charged')); rk *= k; ak *= k; pk *= k; if (R('charged') >= 4) pr.mass = (pr.mass || 1) + 1; }
+    if (R('charged')) { const k = Math.min(1 + xcLv([0.6, 0.9, 1.2, 1.2], R('charged')), 1.3 + 0.15 * (A.accF || 0)); rk *= k; ak *= k; pk *= k; f.acc = A.accF || 0; if (R('charged') >= 4) pr.mass = (pr.mass || 1) + 1; } // accretion: bigger for every bullet swallowed while it charged
     if (R('nth')) {
       A.nth++; w.m10n = A.nth;
       if (A.nth % (R('nth') >= 2 ? 3 : 4) === 0) { f.emp = 1; pr.mass = (pr.mass || 1) + 1; if (R('nth') >= 3) { rk *= 1.3; ak *= 1.3; } if (R('nth') >= 4) f.nova = G.t + 3; }
@@ -380,6 +458,7 @@
   };
   XC_FIRE.ft = function (w, target, src) {
     const R = id => xcR(w, id), p = G.player, s = w.s, A = FTS(w);
+    A.accF = A.acc || 0; A.acc = 0; // (Charged: what the proto-hole swallowed goes into this shot)
     if (R('melee') || R('orbiting')) return true; // (the hole on you and the orbit run in the tick)
     if (R('mines')) { // a dormant hole
       if (A.dorm.length >= (R('mines') >= 2 ? 2 : 1)) A.dorm.shift();
@@ -416,6 +495,11 @@
     return false;
   };
   function ftExpire(w, o) { // a hole ran out (not merged, not a supernova)
+    const rp = xcR(w, 'rapid');
+    if (rp) { // Hawking flash: it evaporates, wiping enemy bullets and crushing what is inside
+      for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - o.x, b.y - o.y) < o.aura) b.dead = true;
+      aoe(o.x, o.y, o.aura, (o.dmg || w.s.dmg) * 4 * xcLv([0.5, 0.75, 1, 1], rp), weaponSrc(w), '#ffffff'); ring(o.x, o.y, o.aura, '#ffffff', 0.3, 4);
+    }
     const r = xcR(w, 'explode'); if (!r) return;
     const held = []; forNear(o.x, o.y, o.aura, e => { if (!e.charmed && !e.dead && held.length < 30) held.push(e); });
     const base = (o.dmg || w.s.dmg) * 4 * xcLv([1, 1.5, 2, 2], r) * (1 + 0.1 * Math.min(10, held.length)), RR = o.aura + xcLv([40, 60, 80, 80], r);
@@ -437,9 +521,14 @@
     for (const o of orbs) {
       const f = o.c7f || (o.c7f = { born: G.t, a0: o.aura });
       const dp = Math.hypot(o.x - p.x, o.y - p.y);
-      if (R('upclose')) { // stronger within 120 of you; the mastery traps what is inside
-        const k = xcLv([1.4, 1.8, 2.2, 2.2], R('upclose'));
-        if (dp < 120) { if (o.pull > 0) forNear(o.x, o.y, o.aura, e => { if (!e.boss && !e.charmed) mwPull(e, o.x, o.y, o.pull * (k - 1) * dt); }); if (R('upclose') >= 4 && !f.trap) { f.trap = 1; ring(o.x, o.y, o.aura, w.def.color, 0.4, 4); } }
+      if (R('range') && Math.hypot(o.vx, o.vy) > 5 && !(f.dropT > G.t)) { f.dropT = G.t + 0.5; modWell(o.x, o.y, 50, 300, xcLv([1, 1.5, 2, 2], R('range')), w, true, false); } // a tidal wake along its path
+      if (R('upclose') && !f.orb) { // a hole that passes within 120 swings once round you, catch and all
+        const sp = Math.hypot(o.vx, o.vy);
+        if (!f.swung && dp < 120 && sp > 5) { const a = Math.atan2(o.y - p.y, o.x - p.x); f.swung = 1; f.sw = { a, end: G.t + 0.9, dir: (o.vx * (o.y - p.y) - o.vy * (o.x - p.x)) > 0 ? -1 : 1, sp }; ring(p.x, p.y, 110, w.def.color, 0.3, 2); }
+        if (f.sw) {
+          f.sw.a += f.sw.dir * Math.PI / 0.9 * dt; o.x = p.x + Math.cos(f.sw.a) * 110; o.y = p.y + Math.sin(f.sw.a) * 110; o.vx = o.vy = 0; o.life += dt;
+          if (G.t >= f.sw.end) { o.vx = -Math.sin(f.sw.a) * f.sw.dir * f.sw.sp; o.vy = Math.cos(f.sw.a) * f.sw.dir * f.sw.sp; f.sw = null; if (R('upclose') >= 4) { f.trap = 1; ring(o.x, o.y, o.aura, w.def.color, 0.4, 4); } }
+        }
         if (f.trap) forNear(o.x, o.y, o.aura * 1.3, e => { if (e.boss || e.charmed) return; const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1; if (d > o.aura * 0.85) { e.x = o.x + dx / d * o.aura * 0.85; e.y = o.y + dy / d * o.aura * 0.85; e.kx = e.ky = 0; } });
       }
       if (R('knock') && f.push) { // the hole repels
@@ -447,7 +536,7 @@
         forNear(o.x, o.y, o.aura, e => { if (e.boss || e.charmed || e.egg) return; const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1, nx = e.x + dx / d * m, ny = e.y + dy / d * m; if (!(G.lvl && lvSolidAt(nx, ny))) { e.x = nx; e.y = ny; } });
         if (!(f.kT > G.t)) { f.kT = G.t + 0.5; ring(o.x, o.y, o.aura, w.def.color, 0.3, 2); }
       }
-      if (R('sticky')) forNear(o.x, o.y, o.aura, e => { // (slowed on the way out: below)
+      if (R('sticky')) forNear(o.x, o.y, o.aura, e => { // (tethered on the way out: below)
         if (e.charmed) return; e.c7sO = o; e.c7sL = G.t;
         if (R('sticky') >= 4 && Math.hypot(e.x - o.x, e.y - o.y) < Math.max(o.r, o.aura * 0.25) + e.r * 0.3 && !(e.c7snT > G.t)) { msSnare(e, 0.5); e.c7snT = G.t + 0.4; }
       });
@@ -482,13 +571,20 @@
       });
       if (f.nova && G.t >= f.nova && !o.dead) { f.nova = 0; G.novaT = G.t + VOID_MERGE.gap; voidSupernova(o); } // Every Nth mastery
     }
-    if (R('sticky')) for (const e of G.enemies) { // left the well: slowed
+    if (R('sticky')) for (const e of G.enemies) { // left the well: a tidal tether pulls it back
+      const T = e.c7teth;
+      if (T) { if (T.o.dead || T.end < G.t || e.dead) e.c7teth = null; else if (Math.hypot(e.x - T.o.x, e.y - T.o.y) > T.o.aura * 0.8) mwPull(e, T.o.x, T.o.y, xcLv([60, 90, 120, 120], R('sticky')) * dt); }
       const o = e.c7sO; if (!o || e.dead || G.t - e.c7sL < dt * 0.5) continue;
-      e.c7sO = null; if (G.t - e.c7sL > 0.3) continue;
-      msSlow(e, xcLv([0.3, 0.5, 0.7, 0.7], R('sticky')), 2); spawnPart(e.x, e.y, w.def.color, 2, 40, 0.3, 2);
+      e.c7sO = null; if (G.t - e.c7sL > 0.3 || o.dead) continue;
+      e.c7teth = { o, end: G.t + xcLv([1, 1.5, 2, 2], R('sticky')), w }; spawnPart(e.x, e.y, w.def.color, 2, 40, 0.3, 2);
     }
     if (R('rapid') >= 4 && t4) for (let i = 0; i < orbs.length; i++) for (let j = i + 1; j < orbs.length; j++) { // small holes merge twice as easily
       const a = orbs[i], b = orbs[j]; if (!a.dead && !b.dead && Math.hypot(a.x - b.x, a.y - b.y) < (a.r + b.r) * 1.3) ftMerge(a, b);
+    }
+    if (R('charged')) { // accretion: while it winds up, a proto-hole on you swallows enemy bullets within 80
+      const wd = xcLv([0.8, 0.7, 0.6, 0.5], R('charged')), cap = xcLv([2, 4, 6, 6], R('charged'));
+      A.proto = w.cd > 0 && w.cd < wd && !(w.reloadT > 0);
+      if (A.proto) for (const b of G.ebul) if (!b.dead && (A.acc || 0) < cap && Math.hypot(b.x - p.x, b.y - p.y) < 80) { b.dead = true; A.acc = (A.acc || 0) + 1; spawnPart(b.x, b.y, w.def.color, 2, 60, 0.2, 2); }
     }
     // Mines: dormant holes open when enemies come near (the mastery opens them all at once, merged)
     if (A.dorm.length) {
@@ -515,6 +611,7 @@
         const a = A.oa + i * Math.PI, x = p.x + Math.cos(a) * rad, y = p.y + Math.sin(a) * rad;
         if ((!o || o.dead) && !(A.orbT > G.t)) { o = A.orb[i] = spawnProj(w, x, y, a + Math.PI / 2, weaponSrc(w)) || null; A.orbT = G.t + Math.min(1, s.cd || 1); }
         if (!o || o.dead) continue;
+        if (o.c7f) o.c7f.orb = 1;
         o.x = x; o.y = y; o.vx = o.vy = 0;
         if (r >= 3) for (const b of G.ebul) { // shots it bends are thrown away from you
           if (b.dead || b.c7th || Math.hypot(b.x - x, b.y - y) > o.aura * 1.6) continue;
@@ -598,14 +695,28 @@
     const H = G.aimHoles;
     if (H && H.some(h => h.src && h.src.c7f && h.src.w && xcR(h.src.w, 'kinship') >= 4 && Math.hypot(h.x - pr.x, h.y - pr.y) < h.R)) orig(pr, dt);
   })(aimBend);
-  // Catalyst mastery: each reaction inside the well grows it 10%.
+  // Catalyst. The spoon digests reactions near you into bullets; a hole turns a reaction inside it into mass (towards its supernova).
   rxFired = (orig => function (id, e) {
     orig(id, e);
     if (!G || !e || !G.weapons) return;
     for (const w of G.weapons) {
-      if (!w || !xcIs(w, 'ft') || xcR(w, 'catalyst') < 4) continue;
+      if (!w || !xcAny(w) || !xcR(w, 'catalyst')) continue;
+      const r = xcR(w, 'catalyst');
+      if (xcIs(w, 'sp')) {
+        const A = SPS(w), p = G.player, ts = rxTypes(id);
+        if (!ts || Math.hypot(e.x - p.x, e.y - p.y) > w.s.area + (e.r || 0) + 40) continue;
+        if (Math.floor(G.t) !== A.rxS) { A.rxS = Math.floor(G.t); A.rxN = 0; }
+        if (A.rxN >= 6) continue; A.rxN++;
+        let n = 0; for (let i = 0; i < xcLv([1, 2, 3, 3], r); i++) if (spPut(w, 1.5, { t: typeOf(ts[i % 2]), o: null, x: e.x, y: e.y, rx: ts.map(typeOf) })) n++;
+        if (n) { ring(e.x, e.y, 26, w.def.color, 0.3, 3); A.digFx = { x: e.x, y: e.y, t: G.t + 0.25 }; }
+        continue;
+      }
+      if (!xcIs(w, 'ft')) continue;
       const o = ftNearOrb(w, e.x, e.y, 9999); if (!o || Math.hypot(o.x - e.x, o.y - e.y) > o.aura || o.c7f && o.c7f.rxT > G.t) continue;
-      if (o.c7f) o.c7f.rxT = G.t + 0.2; ftGrow(o, 1.1); ring(o.x, o.y, o.aura, w.def.color, 0.3, 3);
+      if (o.c7f) o.c7f.rxT = G.t + 0.2;
+      o.mass = (o.mass || 1) + xcLv([0.5, 0.75, 1, 1], r); if (r >= 4) ftGrow(o, 1.1);
+      ring(o.x, o.y, o.aura, w.def.color, 0.3, 3); fxParts('spark', e.x, e.y, w.def.color, 5, 120, 0.3, 2);
+      if (o.mass >= VOID_MERGE.supernova && G.t >= (G.novaT || 0)) { G.novaT = G.t + VOID_MERGE.gap; voidSupernova(o); }
     }
   })(rxFired);
 
@@ -620,9 +731,11 @@
       return;
     }
     orig(e, pw, M);
-    if (!G || !pw || !G.weapons.includes(pw) || !xcIs(pw, 'ft') || xcR(pw, 'primer') < 3) return;
+    if (!G || !pw || !G.weapons.includes(pw) || !xcIs(pw, 'ft') || !xcR(pw, 'primer')) return;
     const o = ftNearOrb(pw, e.x, e.y, 9999); if (!o || Math.hypot(o.x - e.x, o.y - e.y) > o.aura) return;
-    ftGrow(o, 1.1); ring(o.x, o.y, o.aura, pw.def.color, 0.3, 3); // detonations inside the well grow it
+    forNear(o.x, o.y, o.aura * 2, q => { if (!q.charmed) mwPull(q, o.x, o.y, 60); }); ring(o.x, o.y, o.aura * 2, pw.def.color, 0.3, 3); // the well flares and gulps
+    if (xcR(pw, 'primer') < 3) return;
+    ftGrow(o, 1.1); // detonations inside the well grow it
     if (xcR(pw, 'primer') >= 4) { // and count as a merge
       o.mass = (o.mass || 1) + 1;
       if (o.mass >= VOID_MERGE.supernova && G.t >= (G.novaT || 0)) { G.novaT = G.t + VOID_MERGE.gap; voidSupernova(o); }
@@ -632,6 +745,11 @@
     orig(e, res, src);
     if (!G || !src || !res) return;
     const w = src.w;
+    if (w && !w.isSpell && w.def && !src.dot && !src.echo && !src.rx && mwType(w) === 'phys' && !xcIs(w, 'ft') && !e.dead && !(e.c7kinT > G.t)) for (const fw of G.weapons) { // Kinship: your other Force hits knock enemies towards the nearest hole
+      if (!fw || !ftOn(fw) || !xcR(fw, 'kinship')) continue;
+      const o = ftNearOrb(fw, e.x, e.y, 9999); if (!o || Math.hypot(o.x - e.x, o.y - e.y) > o.aura + 200) continue;
+      e.c7kinT = G.t + 0.2; mwPull(e, o.x, o.y, 40 * Math.min(3, xcR(fw, 'kinship'))); spawnPart(e.x, e.y, fw.def.color, 2, 50, 0.2, 2); break;
+    }
     if (!w || !xcIs(w, 'sp') || !xcAny(w) || src.dot || src.echo) return;
     if (src.c7 && !src.c7x && !src.mwBoom && !src.mwDet && !src.rx) spHit(w, e, res, src);
     const L = SPS(w).links; if (!L.length || !(res.toHp > 0)) return; // Connecting: linked enemies share
@@ -642,11 +760,9 @@
     const w = src && src.w;
     if (!G || !w || w.isSpell || src.dot || src.echo || src.rx) return k;
     if (spOn(w)) {
-      if (xcR(w, 'upclose') >= 4 && Math.hypot(e.x - G.player.x, e.y - G.player.y) < 60 + (e.r || 0)) k *= 2;
-      const kr = xcR(w, 'kinship');
-      if (kr) { const t = src.c7 && src.c7.m ? src.c7.m.t : 'phys', kin = G.weapons.filter(x => x && x !== w && !x.isSpell && x.def && mwType(x) === t).length; k *= 1 + (xcLv([0.08, 0.16, 0.24, 0.24], kr) + (kr >= 4 ? 0.08 : 0)) * kin; }
+      const A = SPS(w); if (xcR(w, 'focus') && e === A.grudge) k *= 1 + spRamp(A, xcR(w, 'focus')); // the grudge ramps
     } else if (ftOn(w)) {
-      if (xcR(w, 'upclose') && Math.hypot(e.x - G.player.x, e.y - G.player.y) < 120 + (e.r || 0)) k *= xcLv([1.4, 1.8, 2.2, 2.2], xcR(w, 'upclose'));
+      if (xcR(w, 'upclose') >= 2 && ftOrbs(w).some(o => o.c7f && o.c7f.sw && Math.hypot(o.x - e.x, o.y - e.y) < o.aura + (e.r || 0))) k *= xcLv([1, 1.4, 1.8, 1.8], xcR(w, 'upclose')); // crushes harder while it swings round you
       if (xcR(w, 'focus') && e.c7hW === w && G.t - (e.c7hL || -9) < 0.3) k *= 1 + ftRamp(e, xcR(w, 'focus'));
     }
     return k;
@@ -671,6 +787,10 @@
         ctx.globalAlpha = 0.5; for (const l of A.links) { ctx.beginPath(); ctx.moveTo(sx(l.a.x), sy(l.a.y)); ctx.lineTo(sx(l.b.x), sy(l.b.y)); ctx.stroke(); } // linked shooters
         if (A.sprFx > G.t) { ctx.globalAlpha = 0.35; for (const o of A.shot) if (foeOk(o)) { ctx.beginPath(); ctx.moveTo(sx(p.x), sy(p.y)); ctx.lineTo(sx(o.x), sy(o.y)); ctx.stroke(); } }
         if (A.tug && foeOk(A.tug.a)) { ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.moveTo(sx(p.x), sy(p.y)); ctx.lineTo(sx(A.tug.a.x), sy(A.tug.a.y)); ctx.stroke(); } // the tug
+        if (A.splat) { ctx.fillStyle = c; for (const q of A.splat) { ctx.globalAlpha = 0.2 * Math.min(1, (q.end - G.t) * 2); ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), q.r * k, 0, TAU); ctx.fill(); } } // spit splats
+        if (foeOk(A.grudge) && xcR(w, 'focus')) { const g = A.grudge, f = spRamp(A, xcR(w, 'focus')) / 1.2; ctx.globalAlpha = 0.6; ctx.setLineDash([4 * k, 4 * k]); ctx.beginPath(); ctx.arc(sx(g.x), sy(g.y), (g.r + 7) * k, 0, TAU); ctx.stroke(); ctx.setLineDash([]); if (f > 0) { ctx.lineWidth = 3 * k; ctx.beginPath(); ctx.arc(sx(g.x), sy(g.y), (g.r + 7) * k, -Math.PI / 2, -Math.PI / 2 + TAU * f); ctx.stroke(); ctx.lineWidth = Math.max(1, 1.5 * k); } } // the grudge
+        ctx.globalAlpha = 0.6; for (const q of A.kinFx || []) if (q.t > G.t) { ctx.beginPath(); ctx.moveTo(sx(q.x), sy(q.y)); ctx.lineTo(sx(p.x), sy(p.y)); ctx.stroke(); } // kin shots sucked in
+        if (A.digFx && A.digFx.t > G.t) { ctx.beginPath(); ctx.moveTo(sx(A.digFx.x), sy(A.digFx.y)); ctx.lineTo(sx(p.x), sy(p.y)); ctx.stroke(); } // a reaction digested
         if (xcR(w, 'charged') && w.q) { const f = Math.min(1, w.q.length / (w.s.mag || 10)); ctx.globalAlpha = 0.25 + 0.5 * f; ctx.lineWidth = (2 + 4 * f) * k; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 8 + 16 * f) * k, 0, TAU); ctx.stroke(); ctx.lineWidth = Math.max(1, 1.5 * k); } // the held volley swelling
       } else if (xcIs(w, 'ft')) {
         const A = FTS(w);
@@ -681,6 +801,8 @@
           if (o.c7f.trap) { ctx.globalAlpha = 0.55; ctx.setLineDash([6 * k, 5 * k]); ctx.lineDashOffset = -G.realT * 20; ctx.beginPath(); ctx.arc(sx(o.x), sy(o.y), o.aura * 0.85 * k, 0, TAU); ctx.stroke(); ctx.setLineDash([]); } // the trap
           if (o.c7f.emp) { ctx.globalAlpha = 0.6 + 0.3 * Math.sin(G.realT * 8); ctx.strokeStyle = col('#ffffff'); ctx.beginPath(); ctx.arc(sx(o.x), sy(o.y), (o.r + 6) * k, 0, TAU); ctx.stroke(); ctx.strokeStyle = c; } // the empowered hole
         }
+        if (A.proto) { ctx.globalAlpha = 0.5; ctx.fillStyle = '#10121a'; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (6 + 2 * (A.acc || 0)) * k, 0, TAU); ctx.fill(); } // the proto-hole
+        if (xcR(w, 'sticky')) { ctx.globalAlpha = 0.45; for (const e of G.enemies) { const T = e.c7teth; if (!T || e.dead || T.o.dead || T.w !== w) continue; ctx.beginPath(); ctx.moveTo(sx(e.x), sy(e.y)); ctx.lineTo(sx(T.o.x), sy(T.o.y)); ctx.stroke(); } } // tidal tethers
         if (xcR(w, 'focus')) for (const e of G.enemies) { if (e.dead || e.c7hW !== w || G.t - (e.c7hL || -9) > 0.3) continue; const f = ftRamp(e, xcR(w, 'focus')) / 1.2; if (f <= 0) continue; ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(sx(e.x), sy(e.y), (e.r + 5) * k, -Math.PI / 2, -Math.PI / 2 + TAU * f); ctx.stroke(); } // the crush ramp
         if (xcR(w, 'melee')) { const RR = (xcR(w, 'melee') >= 2 ? 80 : 60) * xcArea(w); ctx.globalAlpha = 0.16; ctx.fillStyle = '#10121a'; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), RR * k, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.5; ctx.setLineDash([3 * k, 6 * k]); ctx.lineDashOffset = G.realT * 30; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), RR * k, 0, TAU); ctx.stroke(); ctx.setLineDash([]); } // the hole on you
         if (xcR(w, 'charged')) { const wd = xcLv([0.8, 0.7, 0.6, 0.5], xcR(w, 'charged')); if (w.cd > 0 && w.cd < wd && !(w.reloadT > 0)) { ctx.globalAlpha = 0.7; ctx.lineWidth = 3 * k; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 10) * k, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - w.cd / wd)); ctx.stroke(); ctx.lineWidth = Math.max(1, 1.5 * k); } } // the wind-up
@@ -690,5 +812,5 @@
     ctx.restore();
   })(modDraw);
 
-  window.C7 = { SPS, FTS, spTake, ftOrbs, ftMerge }; // (tests)
+  window.C7 = { SPS, FTS, spTake, ftOrbs, ftMerge, spPut, rxTypes }; // (tests)
 })();

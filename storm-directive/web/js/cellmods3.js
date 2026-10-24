@@ -2,40 +2,40 @@
 // Spawn Prawn - weapon cells, part 3: Standard Issue (si) and Little Prick (lp) (redesign docs/MODIFIER_MATRIX.md, those
 // two rows of sections 3 and 4, and 5.9; Claude's picks, built 24 Oct). Same engine as cellmods.js (XC_W masking, no
 // fork screens, rank 1 to 3 then the mastery as rank 4). Card text cell_si_<modifier> / cell_lp_<modifier> in cellcopy3.js.
-//  - STANDARD ISSUE (v_phys_proj): a heavy pellet, played as billiards. Sling (Range), Billiards (Knockback), Lodged
-//    (Sticky), Staple (Connecting), Human shield (Turncoat), Head-on ram (Melee), pellet mines, a slug from above, Slingshot
-//    orbit, Wide load (Area). Switched at Birth deals Blood (MM_SAB; it has no ranks in code, so no Lv 2 to mastery steps).
+//  - STANDARD ISSUE (v_phys_proj): a heavy pellet, played as billiards. Billiards (Knockback), Lodged (Sticky), Staple
+//    (Connecting), Human shield (Turncoat), Head-on ram (Melee), pellet mines, a slug from above, Slingshot orbit, Wide load
+//    (Area); round 2 (25 Oct): Long shot (Range), Brass casings (Rapid Fire), Blowback (Charged), Shrapnel (Catalyst),
+//    Back-up (Kinship), Cartridge (Primer), Tap tap crack (Focused Intensity), Hook shot (Homing). Switched at Birth deals
+//    Blood (MM_SAB; it has no ranks in code, so no Lv 2 to mastery steps).
 //  - LITTLE PRICK (v_arcane_proj): a needle; most cells add or cash in Bleed stacks (xc3Bleed adds them, up to 12 on one
 //    enemy; xc3BleedAll "ticks all stacks at once": the Bleed left is dealt now and the stacks end). Blood thread
 //    (Connecting), stitches (Piercing mastery), blood brothers (Turncoat), stab (Melee), needle traps, needle rain, Blood
-//    mist (Area). Switched at Birth is N/A (not in MM_SAB).
-//  - Kept shared (the cell adds its own mastery; the shared mastery is switched off with w.mmX[id] = 'X'): Catalyst,
-//    Kinship, Focused Intensity, Primer on both; Sticky on Little Prick. Exploding Rounds on Standard Issue is the shared
-//    Pop Pop with Cluster Round as its mastery (that row matches it). Every other cell masks the shared form.
+//    mist (Area); round 2 (25 Oct): Dart (Range), Sewing machine (Rapid Fire), Spatter (Catalyst), Transfusion (Kinship),
+//    Syringe (Primer), Pressure point (Focused Intensity), Bloodhound (Homing), Pinned (Sticky). Switched at Birth is N/A.
+//  - Kept shared: Kinship's +8% a kin weapon on both (the cell adds Back-up / Transfusion and its own mastery; the shared
+//    mastery is off via w.mmX.kinship = 'X'), and Exploding Rounds on Standard Issue (shared Pop Pop, Cluster Round
+//    mastery). Every other cell masks the shared form.
 // Deviations (also in MODIFIER_MATRIX.md 5.9): reach is capped near 300 on screen, so Range adds +50 reach a rank (standing
-// in for the camera zoom, not built) and its distances are scaled down (Sling +8% per 50 flown past 100; the mastery ring
-// past 350; Little Prick's double Bleed past 300). Death from Above is an extra strike now and then (user, 23 Oct: the
-// shared form), not a replacement. Kinship's mastery on Standard Issue: Squishy has no knockback cut in code, so pellets
-// ignore Squishy's Force cut instead.
+// in for the camera zoom, not built) and its distances are scaled down (the mastery ring past 350; Little Prick's double
+// Bleed past 300). Death from Above is an extra strike now and then (user, 23 Oct: the shared form), not a replacement.
 // Hooks: none in shared files. Wraps game.js fireWeapon, sigs.js projHit, modifiers.js modProj/modStep/modDraw, aim.js
-// aimMul, power11.js p11Range, fight.js fightStatus, arsenal.js allyAI, modwide.js mwDetonate, weapons24.js wupHit/
+// aimMul, power11.js p11Range, fight.js fightStatus/rxFired, arsenal.js allyAI, modwide.js mwDetonate, weapons24.js wupHit/
 // wupDmgMul/wupTick; fills cellmods.js XC_W/XC_TICK/XC_FIRE/XC_STATS/XC_RUN/XC_LIFE. Loads after cellmods2.js.
 
 const XC3_CELLS = ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'area'];
 XC_W.v_phys_proj = { tag: 'si', cells: XC3_CELLS.slice(),
-  mask: ['range', 'upclose', 'rapid', 'charged', 'knock', 'pull', 'sticky', 'piercing', 'homing', 'ricochet', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
+  mask: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'knock', 'pull', 'sticky', 'piercing', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting'],
   deny: ['ranged'], atkOk: [] };
 XC_W.v_arcane_proj = { tag: 'lp', cells: XC3_CELLS.slice(),
-  mask: ['range', 'upclose', 'rapid', 'charged', 'knock', 'pull', 'piercing', 'explode', 'homing', 'ricochet', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'nth', 'extra', 'orbiting'],
+  mask: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting'],
   deny: ['ranged'], atkOk: [] };
-const XC3_OWNM = { si: ['catalyst', 'kinship', 'focus', 'primer'], lp: ['catalyst', 'kinship', 'focus', 'primer', 'sticky'] }; // (kept shared, own mastery)
+const XC3_OWNM = { si: ['kinship'], lp: ['kinship'] }; // (kept shared, own mastery)
 const XC3_BLOOD = '#c9184a', XC3_BMAX = 12;
 const xc3Is = w => !!w && (xcIs(w, 'si') || xcIs(w, 'lp'));
 const xc3On = w => xc3Is(w) && xcAny(w);
-const xc3S = () => G.xc3 || (G.xc3 = { st: [], th: [], sti: [], lodge: [], bil: [], mine: [], cr: [] });
+const xc3S = () => G.xc3 || (G.xc3 = { st: [], th: [], sti: [], lodge: [], bil: [], mine: [], cr: [], cas: [], ck: [], dart: [] });
 const xc3R3 = (w, id) => Math.min(3, xcR(w, id));
 const xc3Live = w => G && G.weapons.includes(w);
-const xc3Kin = w => mwWs().filter(x => x !== w && mwType(x) === mwType(w)).length;
 
 // ---------------------------------------------------------------- Bleed stacks (Little Prick)
 function xc3Bleed(e, dmg, n, nopass) {
@@ -58,11 +58,7 @@ fightStatus = (orig => function (e, elem, dmg, src) {
     if (G && FIGHT_TYPE[elem] === 'blood' && e && e.xc3Th && e.bleeds && e.bleeds.length >= n0) xc3ThreadPass(e, 1, dmg); // (threads pass any new stack)
     return r;
   }
-  const b = e.bleeds || (e.bleeds = []), first = b[0], free = xcR(w, 'kinship') >= 4 && xc3Kin(w) >= 2; // Kinship mastery: no cap
   const r = orig(e, elem, dmg, src);
-  if (free && first && e.bleeds[0] !== first && e.bleeds.length < XC3_BMAX) e.bleeds.unshift(first);
-  const last = e.bleeds[e.bleeds.length - 1], cat = xcR(w, 'catalyst');
-  if (last && cat) last.dps *= 1 + 0.25 * cat; // Catalyst: Bleed hits harder
   xc3ThreadPass(e, 1, dmg);
   return r;
 })(fightStatus);
@@ -103,9 +99,17 @@ function xc3Fire(w, target, src) {
   const R = id => xcR(w, id), p = G.player, s = w.s, si = xcIs(w, 'si');
   if (R('nth')) { w.xc3N = (w.xc3N || 0) + 1; w.m10n = w.xc3N; w.xc3Emp = w.xc3N % (R('nth') >= 2 ? 3 : 4) === 0; if (w.xc3Emp && si) src.mult = (src.mult || 1) * 2; } // (the pips: modifiers.js modDraw)
   if (R('rapid')) {
-    if (target !== w.xc3SpE || G.t - (w.xc3LastF || -9) > 1) { w.xc3SpE = target; w.xc3SpS = G.t; }
-    w.xc3LastF = G.t;
     if (!si && R('rapid') >= 4) { w.xc3RN = (w.xc3RN || 0) + 1; w.xc3Ten = w.xc3RN % 10 === 0; }
+    if (si && target) { // Brass: each shot kicks a spent casing out behind you
+      const S = xc3S(), a = Math.atan2(target.y - p.y, target.x - p.x) + Math.PI + rand(-0.9, 0.9), d = rand(16, 34);
+      S.cas.push({ w, x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, end: G.t + 4, rot: Math.random() * 3 });
+      const cap = xcLv([8, 12, 16, 16], R('rapid')); while (S.cas.length > cap) S.cas.shift();
+    }
+  }
+  if (si && R('charged') && target && !R('melee') && !R('mines')) { // Blowback: the charged shot's muzzle blast
+    const a = Math.atan2(target.y - p.y, target.x - p.x), RR = (60 + 10 * xc3R3(w, 'charged')) * xcArea(w);
+    forNear(p.x, p.y, RR, o => { if (o.charmed || Math.abs(angDiff(Math.atan2(o.y - p.y, o.x - p.x), a)) > Math.PI / 4) return; damageEnemy(o, s.dmg * 0.2, Object.assign({}, src, { mwBoom: 1 })); if (!o.boss) shove(o, p.x, p.y, 150); });
+    G.fx.push({ type: 'swing', x: p.x, y: p.y, a, arc: Math.PI / 2, r: RR, color: w.def.color, life: 0.16, max: 0.16 });
   }
   if (R('dfa') && target && xc3DfaRoll(w)) xc3Dfa(w, target, src); // (an extra: the weapon still fires)
   if (R('melee')) { if (target) xc3Melee(w, target, src); w.xc3Del = 1; return true; }
@@ -181,7 +185,13 @@ function xc3Pj(pr, w) {
   const R = id => xcR(w, id), si = xcIs(w, 'si'), fired = w.xc3Fire && !pr.xc3MineP;
   pr.xc3 = 1; pr.xc3Fly = 0;
   if (si && xcArea(w) > 1) pr.r *= xcArea(w); // Wide load
-  if (R('homing')) { pr.mH = (si ? 3 : 5) * xc3R3(w, 'homing'); pr.xc3Re = R('homing') >= 4; }
+  if (R('homing')) {
+    pr.xc3Re = R('homing') >= 4;
+    if (si) { // Hook shot: out wide on alternate sides, then curving in; clips what it swings past
+      pr.mH = xcLv([4, 5, 6, 6], R('homing')); pr.xc3Clip = xcLv([1, 2, 3, 3], R('homing'));
+      if (fired) { w.xc3HS = -(w.xc3HS || 1); const a = Math.atan2(pr.vy, pr.vx) + 0.55 * w.xc3HS; pr.vx = Math.cos(a) * pr.speed; pr.vy = Math.sin(a) * pr.speed; if (w.curTarget && !w.curTarget.dead) pr.tgt = w.curTarget; }
+    } else { pr.mH = 5 * xc3R3(w, 'homing'); pr.xc3Sniff = xcLv([60, 90, 120, 120], R('homing')); } // Bloodhound
+  }
   if (R('piercing')) { pr.pierce += XC_RAMP(R('piercing')); pr.xc3PL = si && R('piercing') >= 4 ? 0 : 0.15; if (!si && R('piercing') >= 4) pr.xc3Sti = 1; }
   if (R('ricochet')) { pr.xc3B = XC_RAMP(R('ricochet')); pr.xc3BL = si && R('ricochet') >= 4 ? 0.1 : 0.2; if (!si && R('ricochet') >= 4) pr.xc3BH = []; }
   if (R('charged')) { if (!si) pr.xc3Chg = xcLv([2, 4, 6, 6], R('charged')); if (R('charged') >= 4) pr.pierce += 12; }
@@ -209,6 +219,11 @@ function xc3Step(pr, dt) {
     let t = null;
     if (xcIs(w, 'lp')) { let bd = 380; for (const o of G.enemies) { if (o.dead || o.charmed || !(o.bleeds && o.bleeds.length)) continue; const d = Math.hypot(o.x - pr.x, o.y - pr.y); if (d < bd) { bd = d; t = o; } } }
     pr.tgt = t || acquire('nearest', 380, pr.x, pr.y); pr.mHlost = 0;
+  }
+  if (pr.xc3Sniff && !(pr.xc3SnT > G.t)) { // Bloodhound: swerves to a Bleeding enemy with few stacks it passes near
+    pr.xc3SnT = G.t + 0.1; let t = null, bd = pr.xc3Sniff;
+    for (const o of G.enemies) { if (o.dead || o.charmed || o === pr.tgt || !o.bleeds || !o.bleeds.length || o.bleeds.length >= 3 || (pr.hits && pr.hits.includes(o.id))) continue; const d = Math.hypot(o.x - pr.x, o.y - pr.y); if (d < bd) { bd = d; t = o; } }
+    if (t) { pr.tgt = t; pr.mHlost = 0; pr.xc3Sniff = 0; fxParts('drop', pr.x, pr.y, XC3_BLOOD, 2, 40, 0.3, 2); }
   }
   if (xcIs(w, 'si') && R('pull') && !(pr.xc3PT > G.t)) { // pellets tug what they pass towards them
     pr.xc3PT = G.t + 0.1; const r3 = xc3R3(w, 'pull'); let n = 0;
@@ -240,10 +255,7 @@ function xc3OrbStep(pr, dt) { // Orbiting: circle you, then fly off at the neare
 }
 aimMul = (orig => function (pr, e) {
   if (!pr || !pr.xc3 || !pr.w) return orig(pr, e);
-  let k = orig(pr.xc3NoF ? { w: pr.w, speed: pr.speed, slung: 1 } : pr, e); // (Range mastery: no falloff)
-  const r = xcR(pr.w, 'range');
-  if (r && xcIs(pr.w, 'si')) k *= 1 + Math.min(xcLv([0.24, 0.48, 0.72, 0.72], r), 0.08 * Math.max(0, Math.floor((pr.xc3Fly - 100) / 50))); // Sling
-  return k;
+  return orig(pr.xc3NoF ? { w: pr.w, speed: pr.speed, slung: 1 } : pr, e); // (Range mastery: no falloff)
 })(aimMul);
 p11Range = (orig => function (e, src) { // Range and Up Close on these two (the shared forms are masked)
   const w = src && src.w;
@@ -268,11 +280,20 @@ function xc3Hit(pr, e) {
   const w = pr.w, R = id => xcR(w, id), p = G.player, d = Math.hypot(e.x - p.x, e.y - p.y), S = xc3S();
   const si = xcIs(w, 'si');
   if (pr.pierce > 0 && pr.xc3PL) pr.dmg *= 1 - pr.xc3PL; // (Piercing: -15% an enemy)
+  if (R('primer') && !e.dead && !(e.mwPr && e.mwPr.t > G.t)) e.mwPr = { w, t: G.t + 4, by: new Set(), steps: 0 }; // (the mark: modwide.js sets it off)
+  if (R('catalyst')) { e.xc3CatW = w; e.xc3CatT = G.t + 1; } // (rxFired reads it)
   if (si) {
+    if (R('range') && pr.xc3Fly > 200 && !pr.xc3Far) { pr.xc3Far = 1; pr.pierce += xc3R3(w, 'range'); spawnPart(e.x, e.y, w.def.color, 3, 90, 0.2, 2); } // Long shot: carries on through
+    if (pr.xc3Clip > 0 && pr.tgt && e !== pr.tgt && !pr.tgt.dead) { pr.xc3Clip--; pr.pierce += 1; if (R('homing') >= 4 && !e.boss) { const a = Math.atan2(pr.vy, pr.vx) + Math.PI / 2; shove(e, e.x - Math.cos(a), e.y - Math.sin(a), 150); } } // the hook clips it
+    if (R('focus') && !e.dead) { // Tap, tap, crack
+      const C = e.xc3Ck && e.xc3Ck.w === w && G.t - e.xc3Ck.t < 1 ? e.xc3Ck : (e.xc3Ck = { w, n: 0, t: 0 });
+      C.n++; C.t = G.t; if (!S.ck.includes(e)) { S.ck.push(e); if (S.ck.length > 30) S.ck.shift().xc3Ck = null; }
+      if (C.n >= xcLv([5, 4, 3, 3], R('focus'))) { C.n = 0; pr.pierce += 1; fxParts('shard', e.x, e.y, '#e8e8f0', 8, 180, 0.4, 2.5); ring(e.x, e.y, e.r + 8, w.def.color, 0.3, 4); if (R('focus') >= 4) stun(e, 0.5); }
+    }
+    if (pr.xc3BkBil && !e.boss && !e.dead) { shove(e, p.x, p.y, 300); e.xc3Bil = { w, t: G.t + 0.6, depth: 1, idx: 1, f: 300, m: false }; if (!S.bil.includes(e)) S.bil.push(e); } // Back-up mastery: a billiards shot
     if (R('range') >= 4 && pr.xc3Fly > 350 && !pr.xc3Shk) { pr.xc3Shk = 1; aoe(e.x, e.y, 60, pr.dmg * 0.5, msEcho(pr.src, { mwBoom: 1 }), w.def.color); } // the long shot lands with a shock ring
     if (R('upclose') >= 3 && d < 60 + e.r && !e.boss && !e.dead) { shove(e, p.x, p.y, 250); e.xcCan = { w, t: G.t + 0.6, f: 200, k: 0.4 }; }
     if (R('upclose') >= 4 && d < 60 + e.r && !pr.xc3OP) { pr.xc3OP = 1; pr.pierce += 1; } // Over-penetration
-    if (R('rapid') >= 4 && xc3Spin(w) >= 0.999) msSlow(e, 0.6, 0.3); // Suppressing fire
     if (R('knock') && !e.boss && !e.dead) { // Billiards
       shove(e, pr.x - pr.vx, pr.y - pr.vy, 150 * xc3R3(w, 'knock'));
       e.xc3Bil = { w, t: G.t + 0.6, depth: xc3R3(w, 'knock'), idx: 1, f: 150 * xc3R3(w, 'knock'), m: R('knock') >= 4 };
@@ -286,7 +307,6 @@ function xc3Hit(pr, e) {
       if (!S.lodge.includes(e)) { S.lodge.push(e); if (S.lodge.length > 40) { const o = S.lodge.shift(); o.xc3Lg = null; } }
     }
     if (pr.xc3Kn && !e.boss && !e.dead) { shove(e, p.x, p.y, 250); }
-    if (R('focus') >= 4 && !pr.xc3FP && msFocusFull(w)) { pr.xc3FP = 1; pr.pierce += 1; } // at full ramp, through its target
     if (R('connecting') && !e.dead) xc3Staple(w, e);
     if (xcArea(w) > 1) { const RR = 40 * xcArea(w), src = Object.assign({}, pr.src, { mwBoom: 1, noRx: true }); forNear(e.x, e.y, RR, o => { if (o !== e && !o.charmed) damageEnemy(o, pr.dmg * 0.3, src); }); ring(e.x, e.y, RR, w.def.color, 0.25, 2); } // Wide load: a ring
   } else {
@@ -297,6 +317,22 @@ function xc3Hit(pr, e) {
     if (R('range') >= 4 && pr.xc3Fly > 300) n += 1; // double Bleed
     if (pr.xc3Stk) n += 1;
     if (n) xc3Bleed(e, pr.dmg, n);
+    if (R('range') && pr.xc3Fly > 200 && !e.dead && !e.xc3Dart) { e.xc3Dart = { w, n: xcLv([2, 3, 4, 4], R('range')), next: G.t + 1, dmg: pr.dmg, a: Math.atan2(-pr.vy, -pr.vx) }; S.dart.push(e); if (S.dart.length > 20) S.dart.shift().xc3Dart = null; } // Dart: it stays in, adding a stack a second
+    if (R('rapid')) { w.xc3RS = (w.xc3RS || 0) + 1; if (w.xc3RS % xcLv([4, 3, 2, 2], R('rapid')) === 0 && !e.dead) { const o = msNear(e.x, e.y, 120, [e]); if (o && !o.charmed) xc3Stitch(e, o); } } // Sewing machine
+    if (R('sticky') && !e.dead) { // Pinned
+      const h = xcLv([0.15, 0.25, 0.35, 0.35], R('sticky')) * (e.boss ? 0 : e.elite ? 0.5 : 1);
+      if (h > 0) { if (!(e.xcHeldT > G.t)) { e.xcHX = e.x; e.xcHY = e.y; } e.xcHeldT = Math.max(e.xcHeldT || 0, G.t + h); e.xc3PinW = w; }
+      e.xc3PinN = G.t - (e.xc3PinL || -9) < 2 ? (e.xc3PinN || 0) + 1 : 1; e.xc3PinL = G.t;
+      if (R('sticky') >= 3 && e.xc3PinN >= 3) { e.xc3PinN = 0; msSnare(e, 1); e.msStuckBy = w; if (!e.boss) { e.xcHeldT = Math.max(e.xcHeldT, G.t + 1); } ring(e.x, e.y, e.r + 5, XC3_BLOOD, 0.3, 3); }
+    }
+    if (R('focus') && !e.dead) { // Pressure point
+      const C = e.xc3Ck && e.xc3Ck.w === w && G.t - e.xc3Ck.t < 1 ? e.xc3Ck : (e.xc3Ck = { w, n: 0, t: 0 });
+      C.n++; C.t = G.t; if (!S.ck.includes(e)) { S.ck.push(e); if (S.ck.length > 30) S.ck.shift().xc3Ck = null; }
+      if (C.n >= xcLv([5, 4, 3, 3], R('focus'))) {
+        C.n = 0; let k = 0; forNear(e.x, e.y, 60 * xcArea(w), o => { if (o === e || o.charmed || k++ >= 6) return; xc3Bleed(o, pr.dmg, 1); bolt(e.x, e.y, o.x, o.y, XC3_BLOOD, 0.12); });
+        fxParts('drop', e.x, e.y, XC3_BLOOD, 8, 160, 0.45, 3); if (R('focus') >= 4) xc3BleedAll(e, w);
+      }
+    }
     if (R('upclose') >= 4 && d < 60 + e.r && !pr.xc3Tw && !e.dead) { pr.xc3Tw = 1; damageEnemy(e, pr.dmg, pr.src); } // point-blank: hits twice
     if (R('knock') && !e.boss && !e.dead) { // a flinch that stacks on the same target
       e.xc3Fl = e.xc3FlW === w && G.t - (e.xc3FlT || -9) < 1 ? Math.min(5, (e.xc3Fl || 0) + 1) : 1; e.xc3FlW = w; e.xc3FlT = G.t;
@@ -308,7 +344,7 @@ function xc3Hit(pr, e) {
     if (R('connecting') && !e.dead) xc3Thread(w, e);
     if (R('explode') && !pr.xc3Frag && !(e.xc3BmT > G.t)) xc3Burst(w, pr, e);
     if (xcArea(w) > 1) { const RR = 35 * xcArea(w); forNear(e.x, e.y, RR, o => { if (!o.charmed) xc3Bleed(o, pr.dmg, 1); }); fxParts('drop', e.x, e.y, XC3_BLOOD, 6, RR * 2.5, 0.4, 2.5); ring(e.x, e.y, RR, XC3_BLOOD, 0.25, 2); } // Blood mist
-    if (pr.xc3All || (R('focus') >= 4 && msFocusFull(w))) xc3BleedAll(e, w);
+    if (pr.xc3All) xc3BleedAll(e, w);
   }
   if (pr.xc3B > 0) xc3Bounce(pr, e); // Ricochet
 }
@@ -369,32 +405,68 @@ function xc3Stitch(a, b) { // Piercing mastery on Little Prick: the needle stitc
   const S = xc3S(); if (S.sti.length >= 12) S.sti.shift();
   S.sti.push({ a, b, t: G.t + 2 });
 }
-const xc3Spin = w => (xcR(w, 'rapid') && G.t - (w.xc3LastF || -9) < 1 ? Math.min(1, (G.t - (w.xc3SpS || G.t)) / 3) : 0);
 
 // ---------------------------------------------------------------- hits from any source, damage, detonations, allies
 wupHit = (orig => function (e, res, src) {
   orig(e, res, src);
   const w = src && src.w;
   if (!G || !w || src.dot || src.echo) return;
-  if (res && xcIs(w, 'si') && xcR(w, 'catalyst') >= 4 && !src.rx && !src.mwDet) res.heavy = true; // every pellet is a heavy hit for reactions
+  if (res && src.xc3Heavy) res.heavy = true; // (Shrapnel mastery: the shrapnel counts as heavy hits)
+  if (!src.rx && !src.fromAlly && !e.dead && !xcIs(w, 'si') && mwType(w) === 'phys') for (const sw of G.weapons) { // Back-up: your other Force weapons call in a pellet
+    if (!sw || !xcIs(sw, 'si') || !xcR(sw, 'kinship') || sw.xc3BkT > G.t) continue;
+    sw.xc3BkT = G.t + xcLv([1, 0.8, 0.6, 0.6], xcR(sw, 'kinship'));
+    const p = G.player, ss = weaponSrc(sw), pr = spawnProj(sw, p.x, p.y, Math.atan2(e.y - p.y, e.x - p.x), Object.assign(ss, { mult: (ss.mult || 1) * xcLv([0.5, 0.6, 0.7, 0.7], xcR(sw, 'kinship')) }));
+    if (pr && xcR(sw, 'kinship') >= 4) pr.xc3BkBil = 1;
+  }
+  if (!src.rx && !src.fromAlly && !xcIs(w, 'lp') && mwType(w) === 'arcane' && e.bleeds && e.bleeds.length) for (const lw of G.weapons) { // Transfusion: your other Blood weapons move a stack on
+    if (!lw || !xcIs(lw, 'lp') || !xcR(lw, 'kinship') || lw.xc3TfT > G.t) continue;
+    lw.xc3TfT = G.t + xcLv([0.5, 0.35, 0.25, 0.25], xcR(lw, 'kinship'));
+    let t = null, bd = 100; for (const o of G.enemies) { if (o === e || o.dead || o.charmed || (o.bleeds && o.bleeds.length)) continue; const d = Math.hypot(o.x - e.x, o.y - e.y); if (d < bd) { bd = d; t = o; } }
+    if (!t) continue;
+    const st = e.bleeds[e.bleeds.length - 1];
+    if (xcR(lw, 'kinship') >= 4) xc3Bleed(t, st.dps * 10, 2, true); else { e.bleeds.pop(); xc3Bleed(t, st.dps * 10, 1, true); }
+    bolt(e.x, e.y, t.x, t.y, XC3_BLOOD, 0.15);
+  }
   if (e.bleeds && e.bleeds.length && !e.dead && !(e.xc3CatT > G.t)) { // Catalyst mastery on Little Prick: any of your weapons adds a stack
     const lw = G.weapons.find(x => x && xcIs(x, 'lp') && xcR(x, 'catalyst') >= 4);
     if (lw) { e.xc3CatT = G.t + 0.3; xc3Bleed(e, lw.s.dmg, 1); }
   }
 })(wupHit);
-wupDmgMul = (orig => function (e, src) {
-  let k = orig(e, src);
-  const w = src && src.w;
-  if (G && w && !src.dot && xcIs(w, 'si') && xcR(w, 'kinship') >= 4 && xc3Kin(w) >= 2 && fightCd(e).def === 'squishy') k /= 1 - COMBAT.squishyForceCut; // Full family: Squishy's cut is ignored
-  return k;
-})(wupDmgMul);
+rxFired = (orig => function (id, e) { // Catalyst: what the weapon does once a reaction starts on what it hit
+  orig(id, e);
+  if (!G || !e || !e.xc3CatW || !(e.xc3CatT > G.t) || e.xc3RxT > G.t) return;
+  const w = e.xc3CatW, r = xcR(w, 'catalyst'); if (!r || !xc3Live(w)) return;
+  e.xc3RxT = G.t + 0.5;
+  if (xcIs(w, 'si')) { // Shrapnel: the reacting enemy throws spent pellets at its neighbours
+    const ts = acquireMany('nearest', 180, e.x, e.y, xcLv([2, 3, 4, 6], r) + 1).filter(o => o !== e), src = Object.assign(weaponSrc(w), { mwBoom: 1, xc3Heavy: r >= 4 });
+    src.mult = (src.mult || 1) * 0.3;
+    for (const o of ts) spawnProj(w, e.x, e.y, Math.atan2(o.y - e.y, o.x - e.x), src, { noMods: true, xc3Frag: 1, life: 0.45, hits: [e.id] });
+    ring(e.x, e.y, e.r + 8, w.def.color, 0.25, 3);
+  } else if (e.bleeds && e.bleeds.length) { // Spatter: a reaction on a Bleeding enemy sprays its blood on the neighbours
+    const RR = xcLv([50, 65, 80, 80], r) * xcArea(w), n = r >= 3 ? 2 : 1;
+    forNear(e.x, e.y, RR, o => { if (o !== e && !o.charmed) xc3Bleed(o, w.s.dmg, n); });
+    fxParts('drop', e.x, e.y, XC3_BLOOD, 10, RR * 3, 0.5, 3); ring(e.x, e.y, RR, XC3_BLOOD, 0.3, 2);
+  }
+})(rxFired);
 mwDetonate = (orig => function (e, pw, M) {
-  orig(e, pw, M);
-  if (!G || !pw || !xc3Live(pw) || !xc3Is(pw)) return;
-  const r = xcR(pw, 'primer'); if (r < 3) return;
-  if (xcIs(pw, 'lp')) { xc3Bleed(e, pw.s.dmg, 2); if (r >= 4) xc3BleedAll(e, pw); return; }
-  const R = (r >= 2 ? 60 : 40) * xcArea(pw); // Standard Issue: detonations knock back (the mastery: into their mates)
-  forNear(e.x, e.y, R, o => { if (o.charmed || o.boss) return; shove(o, e.x, e.y, 180); if (r >= 4) o.xcCan = { w: pw, t: G.t + 0.6, f: 150, k: 0.4 }; });
+  if (!G || !pw || !xc3Is(pw) || !xcR(pw, 'primer')) return orig(e, pw, M);
+  if (!xc3Live(pw)) return;
+  const r = xcR(pw, 'primer'), p = G.player, src = mwSrc(pw, { mwDet: true, noRx: false });
+  if (xcIs(pw, 'si')) { // Cartridge: the mark goes off like a round, in a cone away from you
+    const a = Math.atan2(e.y - p.y, e.x - p.x), L = xcLv([100, 130, 160, 160], r) * xcArea(pw), k = xcLv([0.6, 0.8, 1, 1], r), S = xc3S();
+    forNear(e.x, e.y, L, o => {
+      if (o.charmed || (o !== e && Math.abs(angDiff(Math.atan2(o.y - e.y, o.x - e.x), a)) > 0.6)) return;
+      damageEnemy(o, pw.s.dmg * k, src);
+      if (r >= 4 && !o.boss && !o.dead) { shove(o, e.x - Math.cos(a) * 10, e.y - Math.sin(a) * 10, 300); o.xc3Bil = { w: pw, t: G.t + 0.6, depth: 1, idx: 1, f: 300, m: false }; if (!S.bil.includes(o)) S.bil.push(o); }
+    });
+    G.fx.push({ type: 'swing', x: e.x, y: e.y, a, arc: 1.2, r: L, color: pw.def.color, life: 0.2, max: 0.2 }); ring(e.x, e.y, e.r + 6, pw.def.color, 0.25, 4);
+    return;
+  }
+  const ts = acquireMany('nearest', 200, e.x, e.y, xcLv([2, 3, 4, 4], r) + 1).filter(o => o !== e); // Syringe: the mark sprays needles
+  src.mult = (src.mult || 1) * 0.4;
+  for (const o of ts) spawnProj(pw, e.x, e.y, Math.atan2(o.y - e.y, o.x - e.x), src, { noMods: true, xc3Frag: 1, life: 0.45, hits: [e.id] });
+  ring(e.x, e.y, e.r + 6, XC3_BLOOD, 0.25, 4);
+  if (r >= 4) for (const o of [e, ...ts]) xc3BleedAll(o, pw); // (the mastery: and every Bleed it touches goes at once)
 })(mwDetonate);
 XC_LIFE.si = w => (xcR(w, 'turncoat') >= 2 ? 7 : 5); XC_LIFE.lp = XC_LIFE.si;
 XC_RUN.si = function (z, dt) { // Human shield: follows you and soaks enemy shots; it does not attack
@@ -431,7 +503,6 @@ allyAI = (orig => function (e, dt) {
 // ---------------------------------------------------------------- every frame
 function xc3Tick(w, dt) {
   const R = id => xcR(w, id), p = G.player;
-  if (R('rapid') && G.t - (w.xc3LastF || -9) < 1) w.cd -= dt * xcLv([0.25, 0.5, 0.75, 1], R('rapid')) * xc3Spin(w); // Minigun: spins up on one target
   if (R('turncoat')) w.xc3Sh = G.enemies.filter(z => z.xcRun && z.xcRun.w === w && !z.dead); else w.xc3Sh = null;
   if (w.xc3Orbs) { // Orbiting: which pellets stay in orbit
     w.xc3Orbs = w.xc3Orbs.filter(q => !q.dead && q.xc3Orb);
@@ -509,6 +580,27 @@ function xc3Shared(dt) {
     ring(m.x, m.y, 10, w.def.color, 0.2, 2);
   }
   S.mine = S.mine.filter(m => m.end > G.t);
+  // Brass: casings trip what steps on them (the mastery: three in 2 s and it falls over)
+  for (const c of S.cas) {
+    if (c.end <= G.t || !xc3Live(c.w)) { c.end = 0; continue; }
+    forNear(c.x, c.y, 6, o => {
+      if (o.charmed || o.boss || o.xc3SlT > G.t) return;
+      o.xc3SlT = G.t + 0.6; c.end = 0; msSlow(o, 0.4, 0.5); const a = Math.random() * TAU; shove(o, o.x - Math.cos(a), o.y - Math.sin(a), 120);
+      o.xc3SlN = G.t - (o.xc3SlL || -9) < 2 ? (o.xc3SlN || 0) + 1 : 1; o.xc3SlL = G.t;
+      if (xcR(c.w, 'rapid') >= 4 && o.xc3SlN >= 3) { o.xc3SlN = 0; stun(o, 1); ring(o.x, o.y, o.r + 6, c.w.def.color, 0.3, 3); }
+      return true;
+    });
+  }
+  S.cas = S.cas.filter(c => c.end > G.t);
+  // Darts: a stack a second while they stay in
+  S.dart = S.dart.filter(e => {
+    const D = e.xc3Dart; if (!D) return false;
+    if (e.dead || !xc3Live(D.w)) { e.xc3Dart = null; return false; }
+    if (G.t >= D.next) { D.next = G.t + 1; D.n--; xc3Bleed(e, D.dmg, 1); }
+    if (D.n <= 0) { e.xc3Dart = null; return false; }
+    return true;
+  });
+  S.ck = S.ck.filter(e => e.xc3Ck && !e.dead && G.t - e.xc3Ck.t < 1);
   // Craters: nudge enemies inwards
   S.cr = S.cr.filter(c => c.end > G.t && xc3Live(c.w));
   for (const c of S.cr) forNear(c.x, c.y, 70, o => { if (!o.charmed) mwPull(o, c.x, c.y, 40 * dt); });
@@ -534,7 +626,6 @@ modDraw = (orig => function () {
     if (!w || !xc3On(w)) continue;
     const c = col(w.def.color);
     if (xcR(w, 'charged') && w.s && w.s.cd > 0) { const u = clamp(1 - w.cd / w.s.cd, 0, 1); ctx.globalAlpha = 0.25 + 0.5 * u; ctx.strokeStyle = c; ctx.lineWidth = (1 + 2 * u) * k; ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 9) * k, -Math.PI / 2, -Math.PI / 2 + u * TAU); ctx.stroke(); } // the wind-up
-    const sp = xc3Spin(w); if (sp > 0.05) { ctx.globalAlpha = 0.6; ctx.strokeStyle = c; ctx.lineWidth = 2 * k; const a0 = G.realT * (6 + 14 * sp); for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), (p.r + 14) * k, a0 + i * TAU / 3, a0 + i * TAU / 3 + 0.5 * sp); ctx.stroke(); } } // the spin
     if (w.xc3Sh) for (const z of w.xc3Sh) if (xcIs(w, 'si')) { ctx.globalAlpha = 0.55; ctx.strokeStyle = c; ctx.lineWidth = 3 * k; ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), (z.r + 6) * k, 0, TAU); ctx.stroke(); } // human shields
   }
   const X = G.xc3;
@@ -549,6 +640,11 @@ modDraw = (orig => function () {
     ctx.fillStyle = col('#cfd3da');
     for (const e of X.lodge) { const L = e.xc3Lg; if (!L || e.dead) continue; ctx.globalAlpha = 0.9; for (let i = 0; i < L.n; i++) { const a = i / 5 * TAU + 0.7; ctx.beginPath(); ctx.arc(sx(e.x + Math.cos(a) * e.r * 0.7), sy(e.y + Math.sin(a) * e.r * 0.7), 2 * k, 0, TAU); ctx.fill(); } } // lodged pellets
     for (const m of X.mine) { const c = col(m.w.def.color); ctx.globalAlpha = m.arm > G.t ? 0.4 : 0.9; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(sx(m.x), sy(m.y), 4 * k, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.18; ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(sx(m.x), sy(m.y), 60 * k, 0, TAU); ctx.stroke(); } // pellet mines, needle traps
+    ctx.fillStyle = col('#d8b45a'); ctx.globalAlpha = 0.9;
+    for (const c of X.cas) { ctx.save(); ctx.translate(sx(c.x), sy(c.y)); ctx.rotate(c.rot); ctx.fillRect(-3 * k, -1.2 * k, 6 * k, 2.4 * k); ctx.restore(); } // spent casings
+    ctx.strokeStyle = col('#e8e8f0'); ctx.lineWidth = 1.2 * k;
+    for (const e of X.dart) { const D = e.xc3Dart; if (!D) continue; ctx.globalAlpha = 0.9; const x = e.x + Math.cos(D.a) * e.r * 0.6, y = e.y + Math.sin(D.a) * e.r * 0.6; ctx.beginPath(); ctx.moveTo(sx(x), sy(y)); ctx.lineTo(sx(x + Math.cos(D.a) * 10), sy(y + Math.sin(D.a) * 10)); ctx.stroke(); } // darts
+    for (const e of X.ck) { const C = e.xc3Ck; if (!C || !C.n) continue; ctx.globalAlpha = 0.8; ctx.strokeStyle = col(xcIs(C.w, 'lp') ? XC3_BLOOD : '#ffffff'); for (let i = 0; i < C.n; i++) { const a = i * 2.4 + 0.5; ctx.beginPath(); ctx.moveTo(sx(e.x + Math.cos(a) * e.r * 0.2), sy(e.y + Math.sin(a) * e.r * 0.2)); ctx.lineTo(sx(e.x + Math.cos(a) * e.r * 0.8), sy(e.y + Math.sin(a) * e.r * 0.8)); ctx.stroke(); } } // cracks, pressure
     for (const q of X.cr) { ctx.globalAlpha = 0.35 * Math.min(1, q.end - G.t); ctx.strokeStyle = col(q.w.def.color); ctx.lineWidth = 2 * k; ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), 30 * k, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), 70 * k, 0, TAU); ctx.globalAlpha *= 0.4; ctx.stroke(); } // craters
   }
   ctx.restore();
