@@ -49,7 +49,7 @@ function skinEarn() {
 }
 
 // v10 test build: a fresh save (v10.js). The old one stays in sd_meta; best times, run logs and a saved run go.
-const META_KEY = typeof window !== 'undefined' && window.V10_OFF ? 'sd_meta' : 'sd_meta10';
+const META_KEY = 'sd_meta10';
 try { if (META_KEY === 'sd_meta10' && !localStorage.getItem(META_KEY)) for (const k of ['sd_best', 'sd_runs', 'sd_live']) localStorage.removeItem(k); } catch (e) { /* storage unavailable */ }
 const META = { dna: 0, total: 0, ranks: {}, starters: {}, dyes: { egfp: true }, dye: 'egfp', lastEarned: 0, pairs: {}, bosses: {} };
 try { Object.assign(META, JSON.parse(localStorage.getItem(META_KEY) || '{}')); } catch (e) { /* storage unavailable */ }

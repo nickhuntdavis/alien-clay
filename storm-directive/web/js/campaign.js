@@ -229,7 +229,7 @@ function campBoss(V) {
   spawnBoss();
   for (const e of [G.boss, G.boss && G.boss.twin]) {
     if (!e) continue;
-    e.hp = e.maxHp = e.def.hp * CAMP.hp[s] * (1 + PT() / 600) * (V.boss === 'failed' ? 1.4 : 1) * (V10 ? V10_DIFF.bossHp : 1); // (alone, so a little tougher; v10: boss10.js)
+    e.hp = e.maxHp = e.def.hp * CAMP.hp[s] * (1 + PT() / 600) * (V.boss === 'failed' ? 1.4 : 1) * V10_DIFF.bossHp; // (alone, so a little tougher; v10: boss10.js)
     e.armour = e.def.armour + s;
     e.campK = CAMP.hit[s]; // (its attacks: softer in the first boss wave, while your build is thin)
   }

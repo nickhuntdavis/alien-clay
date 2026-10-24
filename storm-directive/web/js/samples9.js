@@ -11,7 +11,7 @@
 //  - Bodies: v9looks.js (drawn like the v10 samples' in samplelooks.js).
 // Copy: TODO_COPY:s9_origin and TODO_COPY:s9_family (Field Guide samples list); everything else is existing v9 text.
 // Save data: META.v9pick (the v9 sample last picked). Hooks: none (wraps UI.startGame and genesStart).
-// Off with window.V10_OFF. Loads after kindred.js, before dsheads.js.
+// Loads after kindred.js, before dsheads.js.
 
 const S9_IDS = ['vanguard', 'bruiser', 'nerd', 'eggseeker', 'stealth', 'pusher', 'acid', 'splicer', 'reborn', 'redtail', 'twins'];
 const S9_NAME = Object.fromEntries(Object.entries(S10_TYPES).map(([n, t]) => [t, n])); // internal type -> sample type name
@@ -20,7 +20,7 @@ function s9Sync() { // tag only the current pick as a sample (samples10.js s10Of
 }
 
 (function () {
-  if (typeof V10 === 'undefined' || !V10 || typeof SAMPLES10 === 'undefined' || typeof V9_IDS === 'undefined') return;
+  if (typeof SAMPLES10 === 'undefined' || typeof V9_IDS === 'undefined') return;
   for (const pid of S9_IDS) {
     const P = PROFILES[pid]; if (!P) continue;
     const id = 'v9_' + pid, base = (P.weapons || []).slice(0, 3);

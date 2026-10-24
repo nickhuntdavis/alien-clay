@@ -8,12 +8,12 @@
 //    Regular mode: every level-up and DNA strand is a Switched at Birth card instead.
 //  - Fire is a new damage type (internal id 'flame', since 'fire' is Acid): Burning, a short damage over time.
 //  - The old automatic reactions are off; each type keeps its own status (chem.js applyElement).
-// Old content is still in the code but out of reach. window.V10_OFF = 1 (before load) switches all of this off.
+// The v9 fallback (window.V10_OFF) was removed in v10.124: V10 is always true.
 // Hooks: game.js main loop v10Box, genLoot v10Loot, fireWeapon v10Fire, update v10Tick, newGame (no junkStart),
 // newStats elem.flame; render.js v10Draw; chem.js applyElement v10Burn and V10 guards; ui.js openSamples v10Samples;
 // meta.js storage key sd_meta10.
 
-const V10 = !(typeof window !== 'undefined' && window.V10_OFF);
+const V10 = true; // (kept so code that still checks it, including older branches, runs as v10)
 
 ELEMENTS.flame = { name: 'Fire', color: TYPE_PAL.flame, status: 'burning', blurb: 'Sets things alight. Burning enemies take damage for a few seconds after the hit. Fire does not make every surface explode.' };
 
@@ -114,7 +114,6 @@ for (const t of V10_TYPES) for (const a of V10_ATKS) {
 // ---------------------------------------------------------------- boxes
 // Which boxes open at all (game.js main loop): weapon drafts, and one level-up a wave. Everything else is dropped.
 function v10Box(req) {
-  if (!V10) return true;
   if (sbOn()) return sbBox(req); // (Sandbox: weapons only, sandbox.js)
   return draftBox(req); // (level-ups, chests, forks and the interruption budget: draft.js)
 }
@@ -180,7 +179,7 @@ function v10Burn(e, dmg, src) {
   e.v10bBy = dotName(src);
 }
 function v10Tick(dt) {
-  if (!V10 || !G) return;
+  if (!G) return;
   fightTick(dt); // (defences, charged patches: fight.js)
   wupTick(dt); // (weapon branches: weapons24.js)
   if (typeof vxTick === 'function') vxTick(dt); // (the two voices: voice10.js)
@@ -208,10 +207,10 @@ function v10Tick(dt) {
 
 // ---------------------------------------------------------------- drawing (render.js, world space)
 function v10Draw() {
-  if (G && V10) { fightDraw(); pdefDraw(); mutDraw(); f10Draw(); f9Draw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
-  if (G && V10) nf10Draw(); // (telegraphs, wax, trails: newfoes.js)
-  if (G && V10 && typeof mdDraw === 'function') mdDraw(); // (mutation carriers and drops: mutdrop.js)
-  if (G && V10) modDraw(); // (v10 modifiers, modifiers.js)
+  if (G) { fightDraw(); pdefDraw(); mutDraw(); f10Draw(); f9Draw(); sigDraw(); } // (defence rings, status marks: fight.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
+  if (G) nf10Draw(); // (telegraphs, wax, trails: newfoes.js)
+  if (G && typeof mdDraw === 'function') mdDraw(); // (mutation carriers and drops: mutdrop.js)
+  if (G) modDraw(); // (v10 modifiers, modifiers.js)
   if (!G || !G.v10fx) return;
   for (const f of G.v10fx) {
     if (tlBeam(f)) continue; // (each type's beam: typelook.js)

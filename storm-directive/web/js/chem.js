@@ -35,18 +35,13 @@ function curseFoe(e, t) {
 const neighbours = (e, r, n) => acquireMany('nearest', r, e.x, e.y, n + 1).filter(o => o !== e && !o.dead);
 
 function applyElement(e, elem, dmg, src) {
-  if (V10 && fightStatus(e, elem, dmg, src)) return; // (v10 slice: Acid, Mucus, Static statuses: fight.js)
+  if (fightStatus(e, elem, dmg, src)) return; // (v10 slice: Acid, Mucus, Static statuses: fight.js)
   const P = G.P, syn = G.synergy, has = chemHas(e);
   chemStick(e, dmg, src);
   const rsrc = { elem, noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' };
   if (P.mixologist && chemCount(e) >= 2) dmg *= 1 + P.mixologist; // (Mixologist: stronger doses on an enemy that is already a cocktail)
   G.chemDmg = dmg; // (for Chain Reaction)
   // A reaction first: the first status already on it that pairs with this type.
-  if (!V10) for (const k of ELEM_ORDER) { // (v10: no automatic reactions)
-    if (!has[k]) continue;
-    const id = RX_PAIR[elem + '+' + k];
-    if (id && k !== elem && react(e, id, src)) { reactDo(id, e, dmg, src, rsrc); break; }
-  }
   if (e.dead) return;
   // Then this type's own status.
   switch (elem) {
@@ -101,13 +96,7 @@ function applyElement(e, elem, dmg, src) {
       break;
     case 'flame': v10Burn(e, dmg, src); break; // Fire: Burning (v10.js)
   }
-  if (e.dead || V10) return; // (v10: no overloads, triples, terrain or enemy reactions)
-  chemOverload(e, elem, dmg, src, rsrc);
-  if (!e.dead) chemTriple(e, dmg, src, rsrc);
-  if (!e.dead) chemTerrain(e, elem, dmg, src, rsrc);
-  if (!e.dead && chemFoes().has(e.def)) chemFoe(e, elem, dmg, src, rsrc);
-  if (!e.dead && e.def.f3rx) foes3Chem(e, elem, dmg, src, rsrc); // (Phlegm Hocker, Hayfever Cell: foes3.js)
-  if (!e.dead) chemPuddle(e, elem);
+  // (v10: no overloads, triples, terrain or enemy reactions)
 }
 
 // ---------------------------------------------------------------- overloads (a type with itself)

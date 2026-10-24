@@ -82,7 +82,7 @@ function w10Check(n) {
   return bad;
 }
 
-const w10On = () => typeof V10 !== 'undefined' && V10 && typeof ROSTER !== 'undefined' && !(typeof window !== 'undefined' && window.W10_OFF) && !!(G && G.wave && G.wave.camp);
+const w10On = () => typeof ROSTER !== 'undefined' && !(typeof window !== 'undefined' && window.W10_OFF) && !!(G && G.wave && G.wave.camp);
 const w10Entry = V => (w10On() && V && V.phase === 'mobs' && V.n >= 1 && WAVES10[V.n] && !WAVES10[V.n].boss) ? WAVES10[V.n] : null;
 
 // campBegin: the ids this wave brings for the first time (the table replaces the random newcomers).

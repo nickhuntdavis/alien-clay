@@ -12,7 +12,7 @@
 //    forkCards falls back to two fitting modifiers).
 //  - V9_START: which v9 sample each weapon started (samples9.js uses it for the W24 starter column).
 // Hooks: none (pushes rows into weapons24.js W24, W24_IDS, W24_BY and W24_DESC; icons into icons.js ICON_OF).
-// Off with window.V10_OFF. Loads after acro.js, before samples10.js and w24look.js.
+// Loads after acro.js, before samples10.js and w24look.js.
 
 const V9_RETYPE = { poison: 'soul', oxi: 'flame', salt: 'ice' };
 const V9_ATK = {
@@ -31,7 +31,7 @@ const V9_IDS = []; // the live ids this file added or switched back on
 const V9_START = {}; // live id -> v9 sample id (samples9.js)
 
 (function () {
-  if (typeof V10 === 'undefined' || !V10 || typeof W24 === 'undefined') return;
+  if (typeof W24 === 'undefined') return;
   const sampleOf = {};
   for (const [pid, P] of Object.entries(PROFILES)) if (!P.s10 && pid !== 'human1') for (const id of P.weapons || []) if (!sampleOf[id]) sampleOf[id] = pid;
   const live = new Set(W24_IDS);

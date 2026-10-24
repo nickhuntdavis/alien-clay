@@ -325,10 +325,10 @@ function kinCollect(p, goal) {
     try { sl(id, x, y, face, tag, alpha, scale, body, now); } finally { SL_TAIL[id] = T; SL_HEAD[id] = Hd; }
     for (const gid of g) if (SL_OVER[gid] && KIN.extras.includes(gid)) { SL_OVER[gid](x, y, face, S * (scale || 1) * SL[id].size, alpha, now, body.sl, body, (scale || 1) * SL[id].size); ctx.globalAlpha = 1; }
   };
-  v10Tick = function (dt) { tick(dt); if (V10 && G) kinTick(dt); };
+  v10Tick = function (dt) { tick(dt); if (G) kinTick(dt); };
   const ag = arGoal;
-  arGoal = function (p, mode, goal, add) { const h = ag(p, mode, goal, add); return mode === 'collect' && V10 ? kinCollect(p, goal) || h : h; };
-  v10Draw = function () { draw(); if (V10) kinDraw(); };
+  arGoal = function (p, mode, goal, add) { const h = ag(p, mode, goal, add); return mode === 'collect' ? kinCollect(p, goal) || h : h; };
+  v10Draw = function () { draw(); kinDraw(); };
   draftBox = function (req) {
     if (req.kind === 'kindred') return !!S10_BY[req.id] && !kinFull(); // (full pause, never held back; nothing to pick with every mount full)
     if (req.kind === 'slot' && !req.kin && raceOn()) return false; // (a race drafts weapons only at rescues: a Recycle leaves the mount for the next one)

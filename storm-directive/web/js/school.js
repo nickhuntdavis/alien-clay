@@ -273,7 +273,7 @@ const SCHOOL_ST = {
     task: () => 'DRAG TO THE EDGE TO SPRINT' },
   feat: {
     enter(R) {
-      if (!G.spells.some(w => w && !w.def.passive)) { if (V10 && typeof f10Give === 'function') f10Give('brown_fat'); else G.spells[0] = makeSlot('frostnova', true, 1); recomputeAll(); if (typeof UI !== 'undefined') UI.refreshHud(true); tutShow('feats', true); }
+      if (!G.spells.some(w => w && !w.def.passive)) { if (typeof f10Give === 'function') f10Give('brown_fat'); else G.spells[0] = makeSlot('frostnova', true, 1); recomputeAll(); if (typeof UI !== 'undefined') UI.refreshHud(true); tutShow('feats', true); }
       schoolSay('A Feat: a big move in its own slot (bottom right). It goes off by itself when ready, or tap it to perform it now. Attacking Feats cost stamina.');
       R.casts = G.stats.casts || 0;
       schoolFoes(R, ['crawler', 'crawler', 'crawler', 'crawler', 'crawler', 'crawler'], R.A.rect, 300);
@@ -301,45 +301,28 @@ const SCHOOL_ST = {
     tick(R) { if (G.armFlash && G.armFlash !== R.flash) { R.flash = G.armFlash; if (!R.hits++) floatText(me().x, me().y - 40, 'ARMOUR SOAKED IT', '#d6e4f0', 13, 1.2); } },
     done: R => !schoolLeft(R),
     task: R => `ARMOUR SOAKS HITS: ${schoolLeft(R)} LEFT` },
-  junk: { // (Lateral Gene Transfer: in a real run a carrier turns up every 40 to 55s, and sheds its junk after 30s. Under V10 it teaches the mutation strand from mutdrop.js instead.)
+  junk: { // (Lateral Gene Transfer: in a real run a carrier turns up every 40 to 55s, and sheds its junk after 30s. Here it teaches the mutation strand from mutdrop.js.)
     enter(R) {
-      if (V10) {
-        schoolSay('See the pale helix round that Antibody? It is carrying a mutation. Kill it and the mutation is yours: pick one, and it changes you for the rest of the run. Usually a carrier sheds it after 40 seconds; here it waits.');
-        R.k0 = (G.stats && G.stats.mutDrops) || 0;
-        schoolFoes(R, ['crawler', 'crawler', 'crawler'], R.A.rect, 300);
-        return;
-      }
-      schoolSay('See the white helix round that Antibody? Junk DNA. Kill it, then swim into the helix it drops: you keep a little of what it was for the rest of the run. Usually it sheds after 30 seconds; here it waits.');
-      R.k0 = junkK('spitter');
+      schoolSay('See the pale helix round that Antibody? It is carrying a mutation. Kill it and the mutation is yours: pick one, and it changes you for the rest of the run. Usually a carrier sheds it after 40 seconds; here it waits.');
+      R.k0 = (G.stats && G.stats.mutDrops) || 0;
       schoolFoes(R, ['crawler', 'crawler', 'crawler'], R.A.rect, 300);
     },
     tick(R) {
-      if (V10) {
-        if (SCHOOL_ST.junk.got(R)) return;
-        const D = mdS();
-        for (const d of D.drops) d.life = Math.max(d.life, MUTDROP.dropLife); // (it never decays in school)
-        const C = R.mdE;
-        if (C && !C.dead) { C.mdT = G.t; C.mdCarry = true; } // (it never sheds in school)
-        else if (!D.drops.length) { // (a carrier, and another if the last one was lost)
-          schoolFoes(R, ['spitter'], stFar(R.A.rect));
-          const e = R.foes[R.foes.length - 1];
-          e.mdRoll = true; e.mdCarry = true; e.mdT = G.t; e.mdPing = G.realT; R.mdE = e;
-          banner('MUTATION CARRIER!', MUTDROP.col); sfx('level');
-        }
-        return;
-      }
-      const C = G.junkE;
-      if (C && !C.dead) C.junk = G.t; // (it never sheds in school)
-      else if (!C && !G.junkDrops.length && junkK('spitter') <= R.k0 && junkK('spitter') < JUNK.stacks) { // (a carrier, and another if the helix decayed)
+      if (SCHOOL_ST.junk.got(R)) return;
+      const D = mdS();
+      for (const d of D.drops) d.life = Math.max(d.life, MUTDROP.dropLife); // (it never decays in school)
+      const C = R.mdE;
+      if (C && !C.dead) { C.mdT = G.t; C.mdCarry = true; } // (it never sheds in school)
+      else if (!D.drops.length) { // (a carrier, and another if the last one was lost)
         schoolFoes(R, ['spitter'], stFar(R.A.rect));
         const e = R.foes[R.foes.length - 1];
-        e.junk = G.t; e.junkPing = G.realT; G.junkE = e; e.hp *= JUNK.hpK; e.maxHp *= JUNK.hpK;
-        banner('JUNK DNA!', '#e9f5db'); sfx('level');
+        e.mdRoll = true; e.mdCarry = true; e.mdT = G.t; e.mdPing = G.realT; R.mdE = e;
+        banner('MUTATION CARRIER!', MUTDROP.col); sfx('level');
       }
     },
-    got: R => V10 ? ((G.stats && G.stats.mutDrops) || 0) > R.k0 || !mdOk().length : junkK('spitter') > R.k0 || junkK('spitter') >= JUNK.stacks,
+    got: R => ((G.stats && G.stats.mutDrops) || 0) > R.k0 || !mdOk().length,
     done: R => SCHOOL_ST.junk.got(R) && !schoolLeft(R),
-    task: R => SCHOOL_ST.junk.got(R) ? `${schoolLeft(R)} LEFT` : (V10 ? mdS().drops.length : G.junkDrops.length) ? 'SWIM INTO THE STRAND' : 'KILL THE ONE WITH THE HELIX' },
+    task: R => SCHOOL_ST.junk.got(R) ? `${schoolLeft(R)} LEFT` : mdS().drops.length ? 'SWIM INTO THE STRAND' : 'KILL THE ONE WITH THE HELIX' },
 };
 
 // ---------------------------------------------------------------- hooks
@@ -374,7 +357,7 @@ function schoolSteer(p) {
     if (t && td > 160) return { x: t.x, y: t.y, w: 0.8 };
   }
   if (st === 'junk') { // (V10: the mutation strand and its carrier, mutdrop.js; G.junkDrops is v9 only and absent under V10)
-    const drops = V10 ? mdS().drops : G.junkDrops || [], C = V10 ? R.mdE : G.junkE;
+    const drops = mdS().drops, C = R.mdE;
     if (drops.length) return { x: drops[0].x, y: drops[0].y, w: 1.6 };
     if (C && !C.dead && Math.hypot(C.x - p.x, C.y - p.y) > 200) return { x: C.x, y: C.y, w: 0.8 };
   }

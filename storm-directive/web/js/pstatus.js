@@ -57,11 +57,7 @@ function pstHurtMul(hf, kind) {
   return PST.wet.shock;
 }
 // A typed bullet landed (after dodges, shields and armour).
-function pstHit(hf) {
-  if (typeof V10 !== 'undefined' && V10) return; // (v10: player statuses come from damage types: pdef.js)
-  const k = hf && PST_OF[hf.pel];
-  if (k) pstGive(k, PST[k].add * (hf.pk || 1)); // (pk: a bigger dose, e.g. a Phlegm Hocker glob: foes3.js)
-}
+function pstHit(hf) {} // (v10: player statuses come from damage types: pdef.js)
 // Give a status for `add` seconds (up to its cap). Also used by the Hayfever Cell's sneeze (foes3.js).
 function pstGive(k, add) {
   const S = pstS(), C = PST[k], p = me(), was = S[k] > G.t;

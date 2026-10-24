@@ -35,7 +35,7 @@ const NF = {
 
 // ---------------------------------------------------------------- 1. roster wiring
 function nfWire() {
-  if (typeof V10 === 'undefined' || !V10 || typeof ROSTER === 'undefined') return;
+  if (typeof ROSTER === 'undefined') return;
   const old = Object.assign({}, ENEMIES), drop = { weak: 1, resist: 1, does: 1, armour: 1 };
   for (const id in ROSTER) {
     const r = ROSTER[id], o = old[id];
@@ -250,7 +250,7 @@ function nf10Kill(e, src) {
 }
 
 function nf10Tick(dt) {
-  if (typeof V10 === 'undefined' || !V10 || !G || G.state !== 'play') return;
+  if (!G || G.state !== 'play') return;
   const p = me(), enemies = G.enemies;
   // Smouldering: a quarter of elites carry it, decided once.
   for (const e of enemies) if (e.elite && !e.boss && !e.dead && e.nfSm == null) e.nfSm = Math.random() < NF.smoulder.chance;

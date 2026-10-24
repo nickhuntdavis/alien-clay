@@ -749,7 +749,7 @@
   // fireWeapon (game.js) sends toy weapons (Red Tape, Due Date, Bubble Wand) to toyFire before it asks wupFire, so ask it here.
   const toyFire0 = toyFire;
   toyFire = function (w, target, src) {
-    if (V10 && w.uh && w.uh.fire && wupFire(w, target, src)) return;
+    if (w.uh && w.uh.fire && wupFire(w, target, src)) return;
     return toyFire0(w, target, src);
   };
 

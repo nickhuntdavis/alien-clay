@@ -4,11 +4,11 @@
 //    the Sample Rack (the daily picks its own sample: daily.js dailySetup, v10 samples only). Same name, line and start.
 //  - Immune Response: only the v9 sequence screen could set it, so Mode Select carries the same stepper (META.heat, up to
 //    META.heatMax; meta.js applies it to the run, prestige.js unlocks the next level on a birth at the top one).
-// No new copy: the card and stepper reuse the v9 strings. Hooks: none (wraps s10Samples and s10Modes). Off with V10_OFF.
+// No new copy: the card and stepper reuse the v9 strings. Hooks: none (wraps s10Samples and s10Modes).
 // Loads after samples9.js, before dsheads.js (which wraps both again).
 
 (function () {
-  if (typeof V10 === 'undefined' || !V10 || typeof s10Samples !== 'function') return;
+  if (typeof s10Samples !== 'function') return;
   const samples = s10Samples;
   s10Samples = function () {
     const r = samples.apply(this, arguments);

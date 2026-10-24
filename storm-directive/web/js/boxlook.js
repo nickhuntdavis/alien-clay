@@ -22,7 +22,7 @@ function boxLook(req, box) {
   if (!head) return;
   head.innerHTML = ''; head.className = '';
   const L = BOX_LOOK[req.kind];
-  if (!V10 || !L) return;
+  if (!L) return;
   if ((req.kind === 'chest' || req.kind === 'boss') && !boxModsOnly()) return; // (nothing fitted: an ordinary draft)
   $('lootTitle').textContent = L.title; $('lootSub').textContent = L.sub;
   if (!BOX_LOOK_ON) return; // (the words stay; the colour and the head go)

@@ -11,7 +11,7 @@ const V11UI = { skipRerolls: 2 };
 const V11_HEAD = { level: 'CHOOSE AN UPGRADE', chest: 'CHOOSE AN UPGRADE', boss: 'CHOOSE AN UPGRADE', wup: 'UPGRADE A WEAPON', wupfork: 'UPGRADE A WEAPON', mutation: 'CHOOSE A MUTATION' };
 
 function v11Head(req) {
-  if (!V10 || req.rule || req.imm) return;
+  if (req.rule || req.imm) return;
   let h = V11_HEAD[req.kind];
   if ((req.kind === 'chest' || req.kind === 'boss') && typeof boxModsOnly === 'function' && boxModsOnly()) h = 'UPGRADE A WEAPON';
   if (h) $('lootTitle').textContent = h;

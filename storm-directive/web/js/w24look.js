@@ -8,12 +8,11 @@
 //    rewritten with the new names; menus list only the live ones (wl_combos, wl_pairs, wl_supers).
 //  - Field Guide and Gene Bank: 24 weapons (not 123), live combos only, V10 sample sequences, V10 Feats; the
 //    Gene Bank's wildcard-weapon shop (archived weapons for DNA) is empty under V10.
-// Everything here is off with window.V10_OFF (the wl_* helpers return the old lists).
 // Hooks (one line each): ui.js codexHtml (wl_wids, wl_stat, wl_combos, wl_supers, wl_pairs, wl_profiles, wl_feat),
 // ui.js renderBank (wl_profiles, wl_starters), ui.js profileHtml (guard), ui.js weapon info panel (wl_combos, wl_pairs),
 // loadout.js loadoutCombos (wl_combos, wl_supers, wl_pairs).
 
-const wl_on = () => typeof V10 !== 'undefined' && !!V10 && typeof W24_IDS !== 'undefined';
+const wl_on = () => typeof W24_IDS !== 'undefined';
 const wl_old = id => (WEAPONS[id] && WEAPONS[id].sigOf) || id; // the id a slot's w.id carries
 let wl_setC = null;
 const wl_set = () => wl_setC || (wl_setC = new Set(W24_IDS.map(wl_old)));

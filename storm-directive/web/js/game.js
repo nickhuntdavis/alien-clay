@@ -131,7 +131,6 @@ function newGame() {
   for (const id in (META.pstains || {})) if (DYES[id] && !(META.pstainOff || {})[id] && !(G.wave && id === 'rival')) G.dyes[id] = true;
   applyMeta(G);
   genesStart(G);
-  if (!V10) junkStart(G); // Lateral Gene Transfer: junk DNA (junk.js)
   refreshPalette(); // greyscale apart from your permanent stains: colour comes from stains picked up during the run
 }
 
@@ -287,7 +286,7 @@ function computeStats(w) {
   wRecolour(w); // (a changed damage type changes the colour)
 }
 function computeStatsInner(w) {
-  const d = w.def, b = d.base, P = G.P, L = V10 && d.w24 && !w.isSpell ? wStatLv(w) : w.lvl, syn = G.synergy; // (the 24 grow with you between tiers: weapons24.js)
+  const d = w.def, b = d.base, P = G.P, L = d.w24 && !w.isSpell ? wStatLv(w) : w.lvl, syn = G.synergy; // (the 24 grow with you between tiers: weapons24.js)
   const s = Object.assign({}, b);
   let dmgB = 0, areaB = 0, durB = 0, cdB = 0, magB = 0, rangeB = 0;
   for (let l = 2; l <= L; l++) {
@@ -368,8 +367,8 @@ function computeStatsInner(w) {
   s.perkCount = 0;
   applyPerks(w, s);
   genesAdapt(w, s);
-  if (V10) mutWeaponStats(w, s); // (mutation cards: mutations.js)
-  if (V10) wupStats(w, s); // (weapon branches: weapons24.js)
+  mutWeaponStats(w, s); // (mutation cards: mutations.js)
+  wupStats(w, s); // (weapon branches: weapons24.js)
   // Extra projectiles (Split Personality, Plus One, Twins!, Octuplets) share the damage, and add half what they
   // used to: 3 extra shots on a one-shot weapon give about 1.65x damage in all (it was 2.3x).
   const n1 = baseCount + extraMulti + s.perkCount;
@@ -462,7 +461,7 @@ function lvBonusText(def, from, to) {
 }
 
 function genLoot(req) {
-  if (V10) { const o = v10Loot(req); if (o) return o; } // (v10 test build: drafts and Switched at Birth only, v10.js)
+  const v10o = v10Loot(req); if (v10o) return v10o; // (v10 test build: drafts and Switched at Birth only, v10.js)
   const opts = [];
   if (req.rule || req.imm) { const wl = weirdLoot(req); if (wl) { if (req.rule) for (const o of wl) delete o.pk; return wl; } } // (weird.js: a rule-breaking box)
   if (req.kind === 'myth') { // Achievement DNA: Mythical or Immaculate cards only
@@ -794,7 +793,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
-  if (e.dead || e.phased || (e.charmed && !src.fromAlly && !V10)) return 0; // (v10: autoaim skips a Possessed enemy, but area hits still land and set off Alien reactions)
+  if (e.dead || e.phased) return 0; // (v10: autoaim skips a Possessed enemy, but area hits still land and set off Alien reactions)
   if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
   if (e.def.spongy) e.sorryT = G.t; // (amoebas only knit back together when left alone: arsenal.js engulfAI)
@@ -826,13 +825,12 @@ function damageEnemy(e, dmg, src) {
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
-  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; if (!V10) d *= P.critDmg + Math.max(0, cc - 1); } // (v10: the resolver applies crits last, fight.js)
+  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; } // (v10: the resolver applies crits last, fight.js)
   if (e.mark > 0) d *= 1.3; // (marked by other things: Grassed Up and the like)
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
-  if (V10) { const r = fightHit(e, d, src, crit); if (r < 0) return 0; d = r; } // (v10: Evasion, Membrane, Shell, Squishy, crit: fight.js)
-  else if (!src.dot && src.elem !== 'soul') d = Math.max(d * 0.15, d - effArmour(e) * (G.relics.ectoplasm ? 0.5 : 1)); // (Ectoplasm: hits pass half through armour)
-  if (V10) nf10Hit(e, src, d); // (Stress Ball counts Force hits, Trapped Wind lights: newfoes.js)
+  { const r = fightHit(e, d, src, crit); if (r < 0) return 0; d = r; } // (Evasion, Membrane, Shell, Squishy, crit: fight.js)
+  nf10Hit(e, src, d); // (Stress Ball counts Force hits, Trapped Wind lights: newfoes.js)
   d = foes2Dmg(e, d, src); // (ordinary weak/resist, Litmus, Interferon shields, Puffball spores: foes2.js)
   if (e.egg) {
     // Sealed to you until you win the race or reach EGG.level, and swim into it (a rival may have opened it early).
@@ -876,7 +874,7 @@ function damageEnemy(e, dmg, src) {
   if ((src.combo || (src.w && !src.noProc)) && !src.dot) chemComboHit(e, dmg, src); // combo twists (chem.js)
   if (!src.dot) relicHit(e, d, src);
   if (!src.dot && !src.env && (src.w || src.combo || src.elem)) tutElem(src.elem || 'phys'); // (a first-time chemistry card: tutorial.js)
-  if (src.elem && src.elem !== 'phys' && !src.noStatus && !(V10 && e.fOk === false)) applyElement(e, src.elem, dmg, src); // (v10: no status through a soaked or missed hit)
+  if (src.elem && src.elem !== 'phys' && !src.noStatus && e.fOk !== false) applyElement(e, src.elem, dmg, src); // (v10: no status through a soaked or missed hit)
   else if ((src.elem || 'phys') === 'phys') chemForce(e, dmg, src); // Force: soap bursts, drunks fall over (chem.js)
   // Charged enemies arc a portion of incoming damage to a neighbour.
   if (e.shock > 0 && !src.noArc && src.elem !== 'shock' && Math.random() < (syn.shock ? 0.5 : 0.25) * (e.pickle > 0 ? 2 : 1)) { // (pickled: conducts twice as well)
@@ -989,12 +987,12 @@ function killEnemy(e, src) {
   if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
-  if (V10) fightDeath(e, src); // (a Charged enemy discharges: fight.js)
-  if (V10) mutKill(e, src); // (mutation cards: mutations.js)
-  if (V10 && typeof mdKill === 'function') mdKill(e); // (elites drop mutations: mutdrop.js)
-  if (V10) wupKill(e, src); // (weapon branches: weapons24.js)
-  if (V10) f10Kill(e, src); // (v10 Feats that watch kills: feats10.js)
-  if (V10) nf10Kill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)
+  fightDeath(e, src); // (a Charged enemy discharges: fight.js)
+  mutKill(e, src); // (mutation cards: mutations.js)
+  if (typeof mdKill === 'function') mdKill(e); // (elites drop mutations: mutdrop.js)
+  wupKill(e, src); // (weapon branches: weapons24.js)
+  f10Kill(e, src); // (v10 Feats that watch kills: feats10.js)
+  nf10Kill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)
   if (e.dummy) dummyBurst(e); // (Dummy Spit)
   if (G.nf) nfKill(e, src); // (Hostile Environment grows: newfeats.js)
   G.kills++;
@@ -1163,7 +1161,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
   dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
-  if (V10) dmg *= f10HurtMul(); // (Survivor's Guilt: feats10.js)
+  dmg *= f10HurtMul(); // (Survivor's Guilt: feats10.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt() * nfHurtMul(ent, kind, from) * pstHurtMul(G.hitFrom, kind); // (Personal Space: seqfeats.js; the v9.23 Feats: newfeats.js)
   dmg = relicDamageIn(dmg, ent);
@@ -1173,26 +1171,18 @@ function hurtPlayer(dmg, from, ent, kind) {
   // The cap has a fixed part (22% of a 120 HP swimmer, growing with the clock) and a part from your own max HP,
   // so more max HP still means more boss hits to go down (it used to be 22% of yours, so HP made no difference).
   if (ent && (ent.boss || ent.bossDef) && !ent.egg) dmg = Math.min(dmg, P.maxHp * 0.15 + 120 * 0.07 * defClock());
-  if (V10) dmg = mutHurtIn(dmg, ent, kind); // (mutation cards: mutations.js)
+  dmg = mutHurtIn(dmg, ent, kind); // (mutation cards: mutations.js)
   dmg = plateAbsorb(dmg); if (dmg <= 0) return; // (Rubber Johnny plates soak it first: bodymods.js)
-  // Armour is flat but scales with the enemy damage clock (1 armour blocks about 1 point of a minute-0 hit, about 7 at minute 10), and never blocks more than 75% of a hit.
-  // Your armour wears down: every hit that lands knocks a point off (two from a boss), and it grows back slowly once
-  // you stop getting hit (armourRegen). Temporary plating (Bear Hug, Fortress) does not wear.
-  const hf = G.hitFrom || ent, pp = G.player; G.hitFrom = null;
-  let d;
-  if (V10) { d = pdefHurt(dmg, from, ent, kind); if (d <= 0) return; } else { // (v10: Evasion, Membrane, Shell, Squishy, Thorns: pdef.js)
-  const armBase = Math.max(0, P.armour - (G.armourLost || 0));
-  const arm = P.noArmour ? 0 : (armBase + (G.hugArm || 0) + (G.fortArm || 0) + genesArmour() + junkArmour()) * defClock();
-  d = Math.max(1, dmg * 0.25, dmg - arm); // Bear Hug, Fortress and Clingy Cell Velcro add armour
-  if (!P.noArmour && P.armour > 0) { G.armFlash = { t: G.realT, k: Math.min(1, armBase / 20), a: hf && hf.x != null ? Math.atan2(hf.y - pp.y, hf.x - pp.x) : null }; G.armourLost = Math.min(P.armour, (G.armourLost || 0) + (ent && (ent.boss || ent.bossDef) ? 2 : 1)); G.armourHitT = G.t; } } // (the forcefield flashes: armourRing)
-  if (V10 && f10Hurt(d, ent, kind)) return; // (v10 Feats that take a hit: feats10.js)
+  const hf = G.hitFrom || ent; G.hitFrom = null;
+  const d = pdefHurt(dmg, from, ent, kind); if (d <= 0) return; // (Evasion, Membrane, Shell, Squishy, Thorns: pdef.js)
+  if (f10Hurt(d, ent, kind)) return; // (v10 Feats that take a hit: feats10.js)
   if (nfLethal(d)) return; // (Anhydrobiosis: newfeats.js)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
   p.hp -= d; tantrumHurt(d); seqHurt(); pstHit(hf); // (Snotty, Sick, Soaking wet: pstatus.js) // (a clean boss fight: seqlock.js)
   sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
   if (ent && !ent.dead) { G.grudge = ent; tutShow('grudge'); }
   G.lastHitEnt = ent || null;
-  if (V10) mutHurt(d); // (mutation cards: mutations.js)
+  mutHurt(d); // (mutation cards: mutations.js)
   rebornHurt(d); // (Karma)
   rivalLeech(ent); // (rivals with the leech trait) // (the end-of-run screen shows whoever finished you off)
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
@@ -1239,7 +1229,7 @@ function makeEnemy(def, x, y, opts) {
   }
   e.armK = Math.min(3, Math.pow(hpMul(t), 0.3)); // armour keeps pace a little (x1 at the start, about x2.8 by minute 9)
   heatEnemy(e); // Immune Response
-  if (V10) { e.hp *= V10_DIFF.hp; e.maxHp *= V10_DIFF.hp; e.dmg *= V10_DIFF.dmg; } // (v10 builds are leaner than v9's: boss10.js)
+  e.hp *= V10_DIFF.hp; e.maxHp *= V10_DIFF.hp; e.dmg *= V10_DIFF.dmg; // (v10 builds are leaner than v9's: boss10.js)
   foes2Make(e); // (type caps, G.typeN: foes2.js)
   return e;
 }
@@ -1384,11 +1374,11 @@ let shooterName = '', shooterEnt = null;
 // and each one that flies hits 1.7x as hard.
 const BUL = { keep: [1, 1, 1, 1, 0, 1, 1, 1, 1, 1], dmg: 1.7, size: 1 }; // 9 of every 10 shots fly (was 3 of 5) // small and dense, like real specks
 function eBullet(x, y, a, speed, dmg, r, color) {
-  if (G.ebul.length >= (V10 ? V10_DIFF.ebulCap : CAPS.ebul) || (G.toy && tapeGagged(shooterEnt))) return;
+  if (G.ebul.length >= V10_DIFF.ebulCap || (G.toy && tapeGagged(shooterEnt))) return;
   G.bulSeq = ((G.bulSeq || 0) + 1) % BUL.keep.length;
   if (!BUL.keep[G.bulSeq]) return;
   dmg *= BUL.dmg * (shooterEnt && shooterEnt.weakT > G.t ? 0.6 : 1); r = (r || 5) * BUL.size;
-  if (V10 && !(shooterEnt && shooterEnt.rival)) dmg *= V10_DIFF.bullet; // (bullets read the def's damage, so V10_DIFF.dmg never reached them; rivals have their own knob: boss10.js)
+  if (!(shooterEnt && shooterEnt.rival)) dmg *= V10_DIFF.bullet; // (bullets read the def's damage, so V10_DIFF.dmg never reached them; rivals have their own knob: boss10.js)
   speed *= (1 + Math.min(0.7, PT() / 1500)) * G.P.bulletSpeed * G.evm.bulspd * heatBullet();
   G.ebul.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, dmg, r: r || 5, color: PAL.danger, life: 7, from: (shooterName || 'Enemy') + ' bullets', owner: shooterEnt, pel: pstElem(shooterEnt) }); // (a typed bullet: pstatus.js)
   // A boss opening fire flares up.
@@ -1529,7 +1519,7 @@ function updateEnemies(dt0) {
           if (sh.pattern === 'snipe') {
             if (e.aimT > 0) { e.aimT -= edt; spd = 0; if (e.aimT <= 0) { shootPattern(e, 'snipe', e.aimA); e.shootCd = sh.cd; } }
             else if (e.shootCd <= 0 && dist < 560) { e.aimT = 0.8; e.aimA = Math.atan2(dy, dx); }
-          } else if (e.shootCd <= 0 && dist < 520) { shootPattern(e, sh.pattern); e.shootCd = sh.cd * rand(0.85, 1.15) / fireMul(PT()) / G.evm.fire * (V10 ? V10_DIFF.fireGap : 1); }
+          } else if (e.shootCd <= 0 && dist < 520) { shootPattern(e, sh.pattern); e.shootCd = sh.cd * rand(0.85, 1.15) / fireMul(PT()) / G.evm.fire * V10_DIFF.fireGap; }
           break;
         }
         case 'turret':
@@ -1621,7 +1611,7 @@ function updateEnemies(dt0) {
     terrainBody(e, dt);
     if (e.dead) continue;
     // Contact damage.
-    const bubR = V10 ? pdefBubbleR() : 0; // (v10: your Membrane bubble is a hitbox, pdef.js)
+    const bubR = pdefBubbleR(); // (v10: your Membrane bubble is a hitbox, pdef.js)
     if (bubR && !e.phased && dist < e.r + bubR) pdefBubbleBounce(e, dx / dist, dy / dist, dist, bubR);
     if (!e.phased && dist < e.r + (bubR || p.r)) {
       if (G.barrier > 0) {
@@ -1687,7 +1677,7 @@ function bossAI(e, dt, dist, ux, uy) {
       if (e.st === 0) {
         e.st = 1; const n0 = G.enemies.length;
         for (let i = 0; i < 8 && G.enemies.length < CAPS.enemies && boss10SummonOk(e); i++) { const a = i / 8 * TAU; G.enemies.push(makeEnemy(pick([ENEMIES.skitter, ENEMIES.crawler, ENEMIES.bomber]), e.x + Math.cos(a) * 70, e.y + Math.sin(a) * 70)); }
-        if (V10) G.enemies.slice(n0).forEach(o => (o.summonedBy = e)); // (capped adds: boss10.js)
+        G.enemies.slice(n0).forEach(o => (o.summonedBy = e)); // (capped adds: boss10.js)
         ring(e.x, e.y, 90, e.color, 0.5, 5);
       }
       if (e.fireT <= 0) { e.fireT = 1.2; shootPattern(e, 'aimed'); }
@@ -1782,9 +1772,9 @@ function fireWeapon(w, target) {
   if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
   if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
   if (d.armoury && armFire(w, target, src)) return; // (the Armoury's weapons, armoury.js)
-  if (V10 && w.uh && wupFire(w, target, src)) return; // (weapon branches: weapons24.js)
+  if (w.uh && wupFire(w, target, src)) return; // (weapon branches: weapons24.js)
   if (d.v10 && w.m10 && modFire(w, target, src)) return; // (v10 modifiers, modifiers.js)
-  if (V10) mutFire(w, target, src); // (Everywhere!: mutations.js)
+  mutFire(w, target, src); // (Everywhere!: mutations.js)
   if (d.v10 && v10Fire(w, target, src)) return; // (v10 beams and bursts, v10.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
@@ -2189,7 +2179,7 @@ function updateProjectiles(dt) {
       const hm = (pr.pb ? 1 + 1.5 * clamp(pr.life / pr.max, 0, 1) : 1) * (pr.vsOwner === e ? 3 : 1) * aimMul(pr, e); // (range falloff, sniper shots: aim.js)
       damageEnemy(e, pr.dmg * hm, Object.assign({}, pr.src, pr.src.knock ? { kx: pr.vx, ky: pr.vy } : null));
       projHit(pr, e);
-      if (V10) mutProjHit(pr, e); // (mutation cards: mutations.js)
+      mutProjHit(pr, e); // (mutation cards: mutations.js)
       if (pr.m10) modHit(pr, e); // (v10 modifiers, modifiers.js)
       if (pr.ghost) rebornHit(pr, e); // (Ghosts of You: reborn.js)
       if (pr.pair) geneHit(pr, e); // (Gene Gun: edits)
@@ -2350,8 +2340,8 @@ function updatePlayer(dt) {
   if (G.yeastN) forNear(p.x, p.y, 40, e => { if (!G.sticky && e.def.ai === 'yeast' && !e.dead && Math.hypot(e.x - p.x, e.y - p.y) < e.r + p.r + 8) G.sticky = true; });
   const speed = 165 * P.speed * oobSpeed() * chemPlayerSpeed() * nfSpeed() * // (LUBED UP: chem.js; the v9.23 Feats: newfeats.js)
     // (base 165: was 150; Out of Body: faster)
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (V10 ? pdefSpeed() * mutSpeed() : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
-    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * (V10 ? pdefSpeed() * mutSpeed() : 1) * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed() * pstSpeed(); // (Snotty: pstatus.js)
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * pdefSpeed() * mutSpeed() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * bigHazSpeed() * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed();
+    (G.inCurrent && P.flow ? 1 + 0.2 * P.flow : 1) * (p.slick && P.skid ? 1 + 0.4 * P.skid : 1) * (G.sprintT > G.t ? 2.3 : 1) * sprintMul() * pdefSpeed() * mutSpeed() * (p.atpT > 0 ? 1.3 : 1) * (G.inPill ? 0.65 : 1) * (G.inCilia ? TERRAIN_MOVE.cilia : 1) * (G.sticky ? 0.7 : 1) * (G.lvl ? lvSlow(p.x, p.y) : 1) * G.evm.pspd * (G.slip ? 1.35 : 1) * (G.onIce ? 1.4 : 1) * (G.peek && G.peek.t > G.t && hasSig(G.peek.w, 'hideandseek') ? 1.4 : 1) * genesSpeed() * puSpeed() * foes2Speed() * pstSpeed(); // (Snotty: pstatus.js)
   // You grow 1.5% per level (your hitbox grows half as fast).
   p.r = 12 * hpScale(0.5) * puScale() * (G.relics.smallmercies ? 0.75 : 1); // bigger with more max HP (the hitbox grows half as fast as the body)
   let dx = 0, dy = 0;
@@ -2526,7 +2516,7 @@ function autoSteer() {
 function updatePickups(dt) {
   const p = G.player, P = G.P;
   // The race swims on, so XP left behind follows you further and faster there (most of it was being stranded).
-  const race = V10 && !G.wave, magR = 105 * P.magnet * (race ? 1.5 : 1), driftR = race ? 1600 : 650, driftV = race ? 190 : 85;
+  const race = !G.wave, magR = 105 * P.magnet * (race ? 1.5 : 1), driftR = race ? 1600 : 650, driftV = race ? 190 : 85;
   for (const g of G.gems) {
     if (g.dead) continue;
     const dx = p.x - g.x, dy = p.y - g.y, d = Math.hypot(dx, dy) || 1;
@@ -2581,7 +2571,7 @@ function applyPickup(type, src) {
 const XP_PACE = 1.1; // 10-minute runs: you grow faster (enemies keep up if you get ahead, see levelsAhead)
 function gainXp(v) {
   const v0 = v; // (the gem's own value, for the run log)
-  if (V10) v = f10Xp(v); // (More!, Mine!: feats10.js)
+  v = f10Xp(v); // (More!, Mine!: feats10.js)
   if (typeof raceXp === 'function') v *= raceXp(); // (the 15-minute race: race15.js)
   // XP bonuses from upgrades count half (they stacked up to x1.9 and runs finished 10-30 levels ahead of the curve).
   const xpUp = G.P.xp > 1 ? 1 + (G.P.xp - 1) * 0.5 : G.P.xp;
@@ -2595,8 +2585,8 @@ function gainXp(v) {
     G.level++;
     G.xpNeed = xpNeed(G.level);
     G.lootQueue.push({ kind: 'level' }); // A box every level (user, 24 Oct; was every level to Lv 8, every second to Lv 24, then every third).
-    if (V10) mutLevel(G.level); // (mutation cards: mutations.js)
-    if (V10) wupLevel(G.level); // (the weapon upgrade screen every 4th level: weapons24.js)
+    mutLevel(G.level); // (mutation cards: mutations.js)
+    wupLevel(G.level); // (the weapon upgrade screen every 4th level: weapons24.js)
     genesLevel(G.level); // a chance to splice in another Epigenetic Profile
     rebornLevel(G.level); // (Prawn Again: memories of a past life)
     redLevel(); // (the Redtail: a bane every level)
@@ -2626,7 +2616,7 @@ const EGG_DEF = { id: 'egg', name: "THE EGG'S MEMBRANE", title: 'THE ZONA PELLUC
 function openEgg(by) {
   if (!G.eggE || G.eggE.dead) {
     const e = makeEnemy(EGG_DEF, G.core.x, G.core.y);
-    e.hp = e.maxHp = EGG.hpBase * hpNow() * (1 + VET.big * vetK()) * (V10 ? V10_DIFF.egg : 1); // (v10: boss10.js)
+    e.hp = e.maxHp = EGG.hpBase * hpNow() * (1 + VET.big * vetK()) * V10_DIFF.egg; // (v10: boss10.js)
     e.boss = true; e.egg = true; e.shootCd = 2; e.stT = 3;
     G.enemies.push(e);
     G.eggE = e;
@@ -2723,7 +2713,7 @@ function update(dt) {
   pstTick(dt); // (Sick: pstatus.js)
   safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
   safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)
-  if (V10) safely('nf10Tick', () => nf10Tick(dt)); // v10 enemies: wax, bursts, trails (newfoes.js)
+  safely('nf10Tick', () => nf10Tick(dt)); // v10 enemies: wax, bursts, trails (newfoes.js)
   safely('boonTick', () => boonTick(dt));
   updateTethers(dt);
   meleeTick(dt);
@@ -2754,7 +2744,7 @@ function update(dt) {
     if (G.nf && nfBullet(b, dt)) continue; // (decoys, slime, domes, membranes: newfeats.js)
     const dx = b.x - p.x, dy = b.y - p.y, d2 = dx * dx + dy * dy;
     if (G.barrier > 0 && d2 < G.barrierR * G.barrierR) { b.dead = true; rubberCatch(b, dx, dy); continue; } // (caught, then flung back: rubber.js)
-    const bubR = V10 ? pdefBubbleR() : 0, rr = b.r + (bubR || p.r * 0.6); // (v10: the Membrane bubble stops shots at its edge, pdef.js)
+    const bubR = pdefBubbleR(), rr = b.r + (bubR || p.r * 0.6); // (v10: the Membrane bubble stops shots at its edge, pdef.js)
     if (d2 < rr * rr) { b.dead = true; if (!(p.iframes > 0) && mirrorWomb(b)) continue; G.hitFrom = b; hurtPlayer(b.dmg, b.from, b.owner, 'bullets'); if (bubR) pdefBubbleReflect(b, dx, dy); }
   }
   updatePickups(dt);

@@ -17,7 +17,7 @@
 // featTap (f10Wait), computeStats (f10Stats), hurtPlayer (f10Hurt, f10HurtMul), killEnemy (f10Kill), gainXp (f10Xp);
 // stamina.js featCost (f10Cost), sprintMul (f10Speed); v10.js v10Tick (f10Tick), v10Draw (f10Draw); ui.js Feat slot count.
 
-const F10_SLOTS = V10 ? 3 : 2;
+const F10_SLOTS = 3;
 const F10 = {};
 const F10_ORDER = [];
 const F10_UNIQUE = {}; // sample id -> its Unique Feat id (SAMPLES.md); not in F10_ORDER, never drafted for anyone else

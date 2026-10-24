@@ -13,7 +13,7 @@
 // the second pellet's damage instead of merging two shots; the drilling cap hits only its target (the lash can't miss sideways).
 // Hooks: none in shared files. index.html loads this after wup6.js (needs wup2.js w2* helpers, weapons24.js, modifiers.js modS).
 (function () {
-  if (typeof V10 === 'undefined' || !V10 || typeof W24 === 'undefined') return;
+  if (typeof W24 === 'undefined') return;
   const CAP = 'acro_cap', SPRAY = 'acro_spray', SPARK = 'acro_spark', IDS = [CAP, SPRAY, SPARK];
   const T = id => (typeof ACRO_COPY !== 'undefined' && ACRO_COPY[id]) || 'TODO_COPY:' + id;
   const PINK = TYPE_PAL.fire, ORANGE = TYPE_PAL.flame, TWO = Math.PI * 2;

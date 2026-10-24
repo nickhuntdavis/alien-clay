@@ -45,7 +45,7 @@ const TUT_CARDS = {
       'It refills on its own once you stop for a moment.',
       'Attacking Feats spend the same stamina, so keep a little back.'] }),
   feats: () => {
-    const att = V10 && typeof F10_ORDER !== 'undefined' ? F10_ORDER.filter(id => F10[id].stam && !F10[id].trig).slice(0, 4).map(id => F10[id].name) : Object.keys(SPELLS).filter(id => STAM_FEATS.has(id)).map(id => SPELLS[id].name); // (V10: its own Feats)
+    const att = typeof F10_ORDER !== 'undefined' ? F10_ORDER.filter(id => F10[id].stam && !F10[id].trig).slice(0, 4).map(id => F10[id].name) : Object.keys(SPELLS).filter(id => STAM_FEATS.has(id)).map(id => SPELLS[id].name); // (V10: its own Feats)
     return { title: 'YOU FOUND A FEAT', name: 'FEATS', colour: PAL.upgrade,
       what: `You just took your first Feat: a big move that goes off by itself. You have ${typeof F10_SLOTS !== 'undefined' ? F10_SLOTS : 2} Feat slots.`,
       head: 'HOW THEY WORK', tips: [
@@ -112,12 +112,7 @@ TUT_CARDS.arcade = () => ({ title: 'HOW DO YOU LIKE IT?', name: 'A MORE ARCADE E
   tips: ['Everything in full colour: you, danger, damage types, enemies, terrain.', 'Coloured rings drain to show how long each effect has left.', 'Switch back any time: Settings > Colour > View.'],
   footHtml: '<button class="chip" id="arcadeYes">SWITCH TO ARCADE VIEW</button> <span class="hint">or GOT IT to stay in Lab view.</span>',
   bind: el => { const b = el.querySelector('#arcadeYes'); if (b) b.onclick = () => { SET.view = 'arcade'; saveSettings(); refreshPalette(); b.textContent = 'ARCADE VIEW ON'; b.disabled = true; }; } });
-function viewOffer(V) {
-  if (!V || !V.camp || V.n !== 1 || L10 || SET.view !== 'lab' || META.arcadeAsked) return;
-  META.arcadeAsked = 1; saveMeta();
-  if (tutOff()) { sysMsg('A MORE ARCADE EXPERIENCE?', 'Settings > Colour > View > ARCADE puts everything in full colour, with rings on timed effects.', '#ff5fa2', true); return; }
-  tutShow('arcade', true);
-}
+function viewOffer(V) {} // (v10 starts everyone in Arcade view: nothing to offer)
 // Terrain: one card the first time each kind comes on screen.
 const TUT_TERRAIN = {
   ridge:   { what: 'A hard lump of cartilage growing in the womb.', tips: ['Nothing can swim through it: you, the swarm and bosses slide round it.', 'Shots bounce off it. Use it as cover.'] },

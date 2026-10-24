@@ -30,7 +30,7 @@ function stamTick(dt) {
   // A little wake while sprinting.
   if (S.sprint && Math.random() < dt * 20) { const p = me(); fxParts('spark', p.x - (p.vx || 0) * 0.04, p.y - (p.vy || 0) * 0.04, PAL.you, 1, 40, 0.3, 2); }
 }
-const sprintMul = () => (G.stam && G.stam.sprint ? STAM.sprintK + (G.P.sprintSpd || 0) : 1) * (V10 ? f10Speed() : 1); // (v10 Feats: husk, boosts)
+const sprintMul = () => (G.stam && G.stam.sprint ? STAM.sprintK + (G.P.sprintSpd || 0) : 1) * f10Speed(); // (v10 Feats: husk, boosts)
 // What a Feat costs (0: it runs on a cooldown). Scales with the Feat's cooldown, so cooldown upgrades make it cheaper.
 // (Never more than 90% of a full bar, so a small bar can still afford its biggest Feat.)
 const featCost = w => w.def.f10 ? (w.echo ? 0 : f10Cost(w)) : (!w.echo && STAM_FEATS.has(w.id) ? Math.max(10, Math.min(Math.round(stamMax() * 0.9), Math.round(w.s.cd * STAM.featK * (G.P.featCost || 1)))) : 0);
@@ -67,8 +67,8 @@ function stamRing(px, py) {
 const ARM_RIP = [];
 function armourRing(px, py) {
   const P = G.P;
-  if (V10 ? !pdefShieldUp() : (!(P.armour > 0) || P.noArmour)) { ARM_RIP.length = 0; return; } // (v10: the bubble is the Membrane, pdef.js)
-  const k = V10 ? pdefShieldK() : clamp(1 - (G.armourLost || 0) / P.armour, 0, 1), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.6, t = G.realT, a0 = ctx.globalAlpha;
+  if (!pdefShieldUp()) { ARM_RIP.length = 0; return; } // (v10: the bubble is the Membrane, pdef.js)
+  const k = pdefShieldK(), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.6, t = G.realT, a0 = ctx.globalAlpha;
   // Elastic (bodymods.js): it sloshes behind you on its spring and flattens against whatever it is pressed on.
   const B = G.bub, ox = B ? B.ox * sc : 0, oy = B ? B.oy * sc : 0, C = G.bubC;
   px += ox * 0.4; py += oy * 0.4;

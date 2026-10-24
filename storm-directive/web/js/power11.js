@@ -12,13 +12,13 @@
 //    Pools, damage over time, reactions and allies' hits are not range-checked (they land where they are, not from you).
 //  - Only your own weapons' and Feats' hits (src.w): hazards, terrain and run events are untouched.
 //  - Bosses, rivals and the egg keep their own tuning (range still applies). Off on the Lab Bench and in the Sandbox
-//    (G.debug), and under V10_OFF.
+//    (G.debug).
 // Hooks: none in shared files. Wraps game.js makeEnemy, fight.js fightHit (before defences and the other multipliers)
 // and juice.js levelJuice (called after each level-up, once per batch).
 
 const P11 = { cap: 0.5, capT: 120, capEnd: 300, start: 0.7, dmgTo: 1, dmgFade: 600, dmgLv: 0.005, hasteLv: 0.005, hpLv: 1.5,
   near: 220, far: 600, farK: 0.55, foeHp: 2, foeFade: 480 };
-const p11On = () => !!(V10 && G && !G.debug);
+const p11On = () => !!(G && !G.debug);
 const p11Big = e => !!(e.boss || e.rival || e.egg);
 const p11Lv = () => (P11.start + (P11.dmgTo - P11.start) * Math.min(1, PT() / P11.dmgFade)) * (1 + P11.dmgLv * Math.max(0, ((G && G.level) || 1) - 1));
 // The most of a germ's health one hit may take (Infinity once lifted).

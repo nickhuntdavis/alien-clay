@@ -20,7 +20,7 @@
 // Hooks: none in shared files. Wraps feats10.js f10Hurt, f10Kill, f10Tick, f10Draw; sigweap.js sigPetCount; autorun.js arGoal (THIS WAY's trail);
 // samplelooks.js sampleLook (X1's swelling). index.html loads this after acrosample.js.
 (function () {
-  if (typeof V10 === 'undefined' || !V10 || typeof feat !== 'function') return;
+  if (typeof feat !== 'function') return;
   const D = () => f10(), mine = id => !!(G && G.s10 && G.s10.id === id);
   const only = (d, id) => { Object.defineProperty(d, 'start', { get: () => mine(id), configurable: true }); return d; };
   const segD = (px, py, ax, ay, bx, by) => { const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy || 1, t = clamp(((px - ax) * dx + (py - ay) * dy) / l2, 0, 1); return Math.hypot(px - (ax + dx * t), py - (ay + dy * t)); };

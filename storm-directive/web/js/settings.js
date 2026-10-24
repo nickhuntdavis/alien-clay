@@ -31,7 +31,7 @@ const SETTINGS_DEF = [
   { id: 'vibe', tab: 'sound', label: 'Vibration', hint: 'Buzzes on big hits, kills, level ups and bosses.', opts: [[true, 'ON'], [false, 'OFF']] },
 ];
 const SET_TABS = [['game', 'GAME'], ['screen', 'SCREEN'], ['sound', 'SOUND'], ['data', 'DATA']];
-const SET_DEFAULTS = { view: typeof L10 !== 'undefined' && L10 ? 'arcade' : 'lab', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, autoFire: true, immersive: 'auto', menus: 'paper', dmgNums: 'all', setTab: 'game', lab10: 0 };
+const SET_DEFAULTS = { view: 'arcade', fx: 'auto', darkfield: false, detail: 'standard', clinical: false, dof: true, fpsCap: 60, layout: 'auto', narrator: 'system', sfxVol: 1, musVol: 1, shake: true, vibe: true, auto: false, autoWaves: true, intros: 'auto', inspect: 'pause', speed: 1, featAuto: true, autoFire: true, immersive: 'auto', menus: 'paper', dmgNums: 'all', setTab: 'game', lab10: 0 };
 const SET = Object.assign({}, SET_DEFAULTS);
 // Sound or music at 0% counts as off (the old ON/OFF switches became volumes in v9.20).
 // Immersive mode: AUTO means on in Arcade view.
@@ -47,7 +47,7 @@ try {
   if (s.immersive === false && !('setTab' in s)) SET.immersive = 'auto'; // (OFF was the old default: AUTO is the new one, v9.20)
   if (SET.view === 'eink') { SET.view = 'arcade'; SET.menus = 'paper'; } // (the EINK view became the only menu style: Menus PAPER / INK)
   if (s.fullColour && !s.view) SET.view = 'arcade'; // (Full colour became Arcade view in v9.11)
-  if (L10 && !s.lab10) { SET.view = 'arcade'; SET.lab10 = 1; } // (v10 starts everyone in Arcade once; Lab is an option again from v10.32)
+  if (!s.lab10) { SET.view = 'arcade'; SET.lab10 = 1; } // (v10 starts everyone in Arcade once; Lab is an option again from v10.32)
   if (!SET_TABS.some(t => t[0] === SET.setTab)) SET.setTab = 'game';
 } catch (e) { /* storage unavailable */ }
 // Landscape layout: weapons down the left, a bigger minimap. Auto switches when the screen is wide.

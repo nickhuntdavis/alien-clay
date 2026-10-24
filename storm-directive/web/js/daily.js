@@ -20,7 +20,7 @@ function withSeed(key, fn) {
 }
 // Today's setup (the same on every phone).
 function dailySetup() {
-  const r = dailyRng(dailyDate() + ':rules'), seqs = Object.keys(PROFILES).filter(id => typeof V10 === 'undefined' || !V10 || id.startsWith('s10_')).sort(); // (v10: the rack's v10 samples)
+  const r = dailyRng(dailyDate() + ':rules'), seqs = Object.keys(PROFILES).filter(id => id.startsWith('s10_')).sort(); // (v10: the rack's v10 samples)
   const shuffled = withSeed('rivals', () => shuffle(RIVALS.slice()).slice(0, 5));
   return { date: dailyDate(), seq: seqs[Math.floor(r() * seqs.length)], heat: Math.floor(r() * 4), rivals: shuffled };
 }

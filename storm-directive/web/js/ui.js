@@ -61,7 +61,7 @@ const UI = {
       if (G.chrono.snaps.length < 2) { UI.toast('Timeline too short to rewind yet'); return; }
       startRewind(false);
     });
-    $('playBtn').addEventListener('click', () => !V10 && schoolDue() ? schoolStart() : UI.openSamples()); // (a fresh save goes to Level 0 first: school.js)
+    $('playBtn').addEventListener('click', () => UI.openSamples()); // (a fresh save goes to Level 0 first: school.js)
     $('schoolSkip').addEventListener('click', schoolSkip);
     $('quickBtn').addEventListener('click', () => UI.quickStart());
     $('dailyBtn').addEventListener('click', () => startDaily());
@@ -136,7 +136,7 @@ const UI = {
   // starting weapon. No sample screen, no sequence screen, no microscope dive, no weapon draft. Your chosen
   // sequence for normal runs is left as it was.
   quickStart() {
-    const keep = META.profile, seqs = V10 ? ['s10_baseline'] : Object.keys(PROFILES).filter(id => profUnlocked(id));
+    const keep = META.profile, seqs = ['s10_baseline'];
     META.profile = pick(seqs.length ? seqs : ['vanguard']);
     UI.sample = 's001'; // (v10: Baseline in the Race; the Petri Dish is hidden for now, samples10.js)
     UI.startGame(false);
@@ -197,7 +197,7 @@ const UI = {
     const wEls = $('wslots').children, sEls = $('sslots').children;
     const fill = (el, w) => {
       if (!w) {
-        el.style.display = V10 && !(sbSlotShow() && el.classList.contains('weapon')) ? 'none' : ''; // (v10: no empty slots on the HUD; Sandbox keeps its + mount)
+        el.style.display = !(sbSlotShow() && el.classList.contains('weapon')) ? 'none' : ''; // (v10: no empty slots on the HUD; Sandbox keeps its + mount)
         if (el.dataset.k !== 'empty') { el.dataset.k = 'empty'; el.classList.add('empty'); el.querySelector('.ico').textContent = '+'; el.querySelector('.lv').textContent = ''; el.querySelector('.mp').innerHTML = ''; el.querySelector('.dir').textContent = 'EMPTY'; el.style.setProperty('--c', '#445'); }
         el.querySelector('.bar i').style.width = '0%';
         return;
@@ -261,7 +261,7 @@ const UI = {
       const opts = (UI.lootOpts || []).map((o, i) => [o, i]).filter(([o]) => o && !o.taken);
       if (!opts.length) return;
       UI.autoAt = now;
-      const up = V10 && Math.random() < 0.5 && opts.find(([o]) => o.wup); // (v10 auto-pick: the weapon upgrade half the time, UPGRADES.md 10)
+      const up = Math.random() < 0.5 && opts.find(([o]) => o.wup); // (v10 auto-pick: the weapon upgrade half the time, UPGRADES.md 10)
       UI.pickLoot((up || pick(opts))[1]);
       return;
     }
@@ -460,12 +460,10 @@ const UI = {
     let t = uiLoadoutTab({ cls: 'lotab', sel: A.k === 'L', attrs: 'data-k="L" data-i="0"', icon: '&#9776;', label: 'LOADOUT' });
     const tab = (k, i, x) => {
       const sel = A.k === k && A.i === i;
-      if (!x && V10) return ''; // (v10: no empty slots)
-      if (!x) return uiLoadoutTab({ cls: 'empty', sel, attrs: `data-k="${k}" data-i="${i}"`, icon: '+', label: `${k === 'w' ? 'WEAPON' : 'FEAT'} ${i + 1}` });
+      if (!x) return ''; // (v10: no empty slots)
       return uiLoadoutTab({ cls: k === 's' && 'spell', sel, attrs: `data-k="${k}" data-i="${i}"`, style: `--c:${elemCol(wElem(x))}`, icon: iconSVG(x.def, 24, elemCol(wElem(x))), label: `Lv ${wTier(x)}`, pips: x.mods.map(m => `<i style="background:${MODS[m.id].color}"></i>`).join('') });
     };
     G.weapons.forEach((x, i) => { t += tab('w', i, x); });
-    if (!V10) SLOT_LEVELS.filter(l => l > G.level).forEach((l, j) => { const i = G.weapons.length + j; t += uiLoadoutTab({ cls: 'locked', sel: A.k === 'w' && A.i === i, attrs: `data-k="w" data-i="${i}"`, icon: 'LOCK', label: `Lv ${l}` }); });
     G.spells.forEach((x, i) => { t += tab('s', i, x); });
     $('armTabs').innerHTML = t;
     $('armTabs').querySelectorAll('.atab').forEach(b => b.addEventListener('click', () => { UI.arm = { k: b.dataset.k, i: +b.dataset.i, bar: 0, recycle: false, from: A.from }; UI.renderArmoury(); }));
@@ -993,7 +991,7 @@ const UI = {
         UI.pickLoot(i);
       });
       phButtons(c, o);
-      if (V10) draftBanishBtns(c, o); // (Banish and Fewer like this: draft.js)
+      draftBanishBtns(c, o); // (Banish and Fewer like this: draft.js)
       wrap.appendChild(c);
     });
     if (UI.lootReq && UI.lootReq.rule === 'recycler' && UI.lootOpts.some(o => o.locked)) wrap.appendChild(weirdRecycleList(UI.lootReq));
@@ -1083,7 +1081,7 @@ const UI = {
     if (cur.length) h += uiHint(`Curses: ${cur.map(id => esc(CURSES.find(c => c.id === id).name)).join(', ')}`);
     h += `${uiPanelClose()}`;
     }
-    if (tab === 'build' && V10 && typeof bpHtml === 'function') h += bpHtml(); // (the v10 Build panel: buildpanel.js)
+    if (tab === 'build' && typeof bpHtml === 'function') h += bpHtml(); // (the v10 Build panel: buildpanel.js)
     else if (tab === 'build') {
     h += phPauseHtml();
     // Your genome: sequences and mutations.
@@ -1225,58 +1223,7 @@ const UI = {
       + (opts && opts.full && SEQ_ABILITY[id] ? `<br><span class="hint">Starting ability: ${esc(SEQ_ABILITY[id].name)}. ${esc(SEQ_ABILITY[id].desc)}</span><br><span class="hint">As your Primary it evolves at ${esc(evolveText(id))}.</span><br><span class="hint">Weapons: ${Pr.weapons.map(w => esc(WEAPONS[w].name)).join(', ')}.${syn ? ' Splice with ' + syn + '.' : ''}</span>` : '');
   },
   openSamples() {
-    if (V10) return v10Samples(); // (v10 test build: one sample, v10.js)
-    const best = UI.loadBest();
-    // Developer mode (tap the title five times) shows the Lab Bench.
-    let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
-    const shut = s => !s.open || (s.locked && s.locked());
-    const by = id => SAMPLES.find(s => s.id === id);
-    const extra = s => s.id === 's009' ? (META.lvBest && META.lvBest.school ? 'PASSED IN ' + fmtTime(META.lvBest.school) : 'START HERE') : s.id === 's007' ? (META.lvBest && META.lvBest.mouth ? 'BEST ' + fmtTime(META.lvBest.mouth) : 'NOT YET BEATEN') : s.id === 's002' ? (best.campBest ? (best.campBest >= CAMP.waves ? 'BEATEN' : 'BEST: WAVE ' + best.campBest + ' OF ' + CAMP.waves) : '20 WAVES') : s.id === 's006' ? (best.wave ? 'BEST: WAVE ' + best.wave : 'NO END') : s.id === 's001' ? (best.born ? 'FASTEST ' + fmtTime(best.born) : 'ONE EGG') : '';
-    // Line art for each mode, drawn in its accent colour.
-    const ART = {
-      s002: '<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" stroke-width="1" opacity=".5"/><path d="M16 60h88M60 16v88M28 32l64 56M92 32L28 88" stroke="currentColor" stroke-width=".6" opacity=".3"/><circle cx="60" cy="60" r="9" fill="currentColor" opacity=".85"/><g fill="currentColor"><circle cx="34" cy="44" r="2.5"/><circle cx="82" cy="40" r="2"/><circle cx="76" cy="82" r="2.5"/><circle cx="40" cy="80" r="2"/></g></svg>',
-      s001: '<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="26" fill="currentColor" opacity=".18"/><circle cx="60" cy="60" r="26" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="60" r="33" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity=".6"/>' + [0, 1, 2, 3, 4, 5, 6, 7].map(i => { const a = i / 8 * 6.283, x = 60 + Math.cos(a) * 50, y = 60 + Math.sin(a) * 50, tx = 60 + Math.cos(a) * 64, ty = 60 + Math.sin(a) * 64; return `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="3.2" ry="2.2" fill="currentColor" transform="rotate(${(a * 57.3).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/><path d="M${x.toFixed(1)} ${y.toFixed(1)}Q${((x + tx) / 2 + 4).toFixed(1)} ${((y + ty) / 2 - 4).toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}" stroke="currentColor" fill="none" stroke-width="1"/>`; }).join('') + '</svg>',
-      s006: '<svg viewBox="0 0 120 120"><path d="M60 60c-14-20-40-20-40 0s26 20 40 0 40-20 40 0-26 20-40 0z" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/></svg>',
-      s000: '<svg viewBox="0 0 120 120"><path d="M48 18h24M52 18v32L28 94a8 8 0 0 0 7 12h50a8 8 0 0 0 7-12L68 50V18" fill="none" stroke="currentColor" stroke-width="3"/><path d="M38 80h44" stroke="currentColor" opacity=".6"/></svg>',
-    };
-    ART.s009 = '<svg viewBox="0 0 120 120"><path d="M44 112V40a16 16 0 0 1 32 0v72" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="34" r="11" fill="currentColor" opacity=".85"/><circle cx="60" cy="34" r="15" fill="none" stroke="currentColor" stroke-width="1" opacity=".6"/><path d="M44 66h32M44 88h32" stroke="currentColor" stroke-width="1.5" opacity=".6"/><ellipse cx="60" cy="100" rx="3" ry="2.2" fill="currentColor"/></svg>'; // (Level 0: a tube with the egg at the top)
-    const ACC = { s002: '#5fd4e8', s001: '#ffd6e8', s006: '#ffd23f', s000: '#9fb3c8', s009: '#ffb3c6' };
-    const card = (s, hero) => uiSampleCard({ cls: uiCls(hero && 'hero', shut(s) && 'locked'), attrs: `data-sample="${s.id}"`, style: `--c:${ACC[s.id] || '#9fb3c8'}`, art: ART[s.id] || '',
-      kicker: `#${s.no} | ${esc(shut(s) ? 'LOCKED' : s.tag || 'IN STOCK')}`, name: esc(s.name), desc: hero ? esc(s.desc) : undefined, tag: esc(shut(s) ? (s.lockText || 'Locked.') : extra(s)) });
-    const modes = ['s001', 's006'].concat(dev ? ['s000'] : []).map(by).filter(Boolean);
-    // The campaign: a way into the body, one region at a time (the far ones are only rumours so far).
-    const lvls = [by('s009'), by('s007'), by('s008'), { teaser: true, name: 'Level 3', no: '?' }, { teaser: true, name: 'Level 4', no: '?' }];
-    const node = (s, i) => s.teaser
-      ? `<div class="sx-node tease"><span class="sx-dot">${i}</span><span class="sx-ni"><b>${esc(s.name)}</b><em>UNCHARTED</em></span></div>`
-      : `<button class="sx-node ${shut(s) ? 'locked' : 'open'}" data-sample="${s.id}"><span class="sx-dot">${i}</span><span class="sx-ni"><b>${esc(s.name)}</b><span>${esc(s.desc)}</span><em>${esc(shut(s) ? (s.lockText || 'Locked.') : extra(s))}</em></span></button>`;
-    // A brand-new save sees one choice only: Level 0, the tutorial. The rest opens once it is passed or skipped (school.js).
-    if (schoolFresh()) $('sampleList').innerHTML = `${uiSectionHead('START HERE')}${card(by('s009'), true)}${uiHint('Everything else opens once you have passed or skipped your swimming lessons.', '', 'style="margin:14px 4px"')}${dev ? `<div class="sx-grid"><button class="sx-card" id="devAll" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Unlock Everything</b><em>${UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA'}</em></span></button><button class="sx-card" id="devStart" style="--c:#ff9f43"><span class="sx-art">${ART.s000}</span><span class="sx-txt"><i>DEVELOPER</i><b>Reset Starters</b><em>DRAFTS USE RUN SEQUENCES ONLY</em></span></button></div>` : ''}`; // (developer mode stays reachable on a fresh save)
-    else $('sampleList').innerHTML = `${uiSectionHead('MAIN EVENT')}${card(by('s002'), true)}
-      ${uiSectionHead('QUICK RUNS')}<div class="sx-grid">${modes.map(s => card(s, false)).join('')}${dev ? uiSampleCard({ attrs: 'id="devAll"', style: '--c:#ff9f43', art: ART.s000, kicker: 'DEVELOPER', name: 'Unlock Everything', tag: UI.devArm ? 'TAP AGAIN TO CONFIRM' : 'ALL PROGRESS + 100K DNA' }) + uiSampleCard({ attrs: 'id="devStart"', style: '--c:#ff9f43', art: ART.s000, kicker: 'DEVELOPER', name: 'Reset Starters', tag: 'DRAFTS USE RUN SEQUENCES ONLY' }) : ''}</div>
-      ${uiSectionHead('THE CAMPAIGN <span>INTO THE BODY</span>')}<div class="sx-path">${lvls.map(node).join('')}</div>`;
-    $('sampleList').querySelectorAll('[data-sample]').forEach(b => b.addEventListener('click', () => {
-      const s = SAMPLES.find(x => x.id === b.dataset.sample);
-      if (!s.open || (s.locked && s.locked())) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); if (s.lockText) UI.toast(s.lockText.toUpperCase()); return; }
-      UI.sample = s.id; openSeq();
-    }));
-    const da = $('devAll');
-    if (da) da.addEventListener('click', () => {
-      if (!UI.devArm) { UI.devArm = true; UI.openSamples(); return; }
-      UI.devArm = false; devUnlockAll(); UI.toast('EVERYTHING UNLOCKED'); UI.openSamples();
-    });
-    const ds = $('devStart');
-    if (ds) ds.addEventListener('click', () => { devResetStarters(); UI.toast('STARTERS RESET'); });
-    UI.show('samples');
-    const st = $('sampTitle');
-    if (st && !st.dataset.dev) {
-      st.dataset.dev = '1'; let taps = 0, last = 0;
-      st.addEventListener('click', () => {
-        const now = performance.now(); taps = now - last < 600 ? taps + 1 : 1; last = now;
-        if (taps < 5) return;
-        taps = 0; let on = false; try { on = localStorage.getItem('sd_dev') !== '1'; localStorage.setItem('sd_dev', on ? '1' : '0'); } catch (e) { /* storage unavailable */ }
-        UI.toast(on ? 'DEVELOPER MODE: LAB BENCH ON' : 'DEVELOPER MODE OFF'); UI.openSamples();
-      });
-    }
+    return v10Samples(); // (the Sample Rack: v10.js)
   },
 
   // ---------------------------------------------------------------- Field Guide (from the pause menu, or the title screen between runs)

@@ -20,10 +20,10 @@ function spawnBoss() {
     e.hp = e.maxHp = def.hp * 5 * (1 + (idx % BOSSES_PER_RUN) * 0.9) * Math.pow(2.4, idx % BOSSES_PER_RUN) * (1 + PT() / 320) * (1 + 0.05 * levelsAhead()) * (1 + round * 4) * (G.wave || G.lvl ? 1 : RACE.boss[Math.min(idx, RACE.boss.length - 1)]);
     e.armour = def.armour + round * 4;
     e.speed = def.speed;
-    e.dmg = def.dmg * dmgNow() * (V10 ? V10_DIFF.dmg : 1); // (this overwrote makeEnemy's v10 cut, so bosses touched at full v9 strength)
+    e.dmg = def.dmg * dmgNow() * V10_DIFF.dmg; // (this overwrote makeEnemy's v10 cut, so bosses touched at full v9 strength)
     if (!G.wave && !G.lvl) { e.campK = RACE.bossHit[Math.min(idx, RACE.bossHit.length - 1)]; e.dmg *= e.campK; } // (race mode: the first bosses hit softer, while your build is thin)
     heatBoss(e); // Immune Response
-    if (V10) { e.hp *= V10_DIFF.bossHp; e.maxHp *= V10_DIFF.bossHp; } // (boss10.js)
+    e.hp *= V10_DIFF.bossHp; e.maxHp *= V10_DIFF.bossHp; // (boss10.js)
     e.pat = 0; e.patT = 0; e.fireT = 0; e.st = 0;
     return e;
   };
@@ -101,12 +101,8 @@ let IN_AOE = false; // set while aoe() deals its damage, for bosses weak to blas
 function bossDamageMul(e, src) {
   const d = e.bossDef || e.def;
   let m = 1;
-  const el = src.elem;
-  if (el && d.weak && d.weak[el] && !V10) m *= d.weak[el]; // (v10: no type weaknesses or immunities; defences instead: boss10.js)
-  if (!V10 && d.noForce && (el || 'phys') === 'phys' && !src.env && !G.relics.teststrip) m = 0; // (the Phantom Pregnancy: Force passes straight through it; the womb itself still hurts)
-  if (!V10 && el && d.resist && d.resist[el] != null) m *= G.relics.teststrip ? Math.max(1, d.resist[el]) : d.resist[el]; // (Test Strip: no resisting)
+  // (v10: no type weaknesses or immunities; defences instead: boss10.js)
   m *= bpDamageMul(e, src); // (the boss pack's gimmicks: bosspack.js)
-  if (!V10 && d.weakAoe && (IN_AOE || src.zoneHit)) m *= d.weakAoe;
   if (e.glaring) m *= 2;
   if (e.winded > G.t) m *= 2;
   if (e.nurses && e.nurses.length && e.nurses.every(n => n.dead)) m *= 1.5;
@@ -150,7 +146,7 @@ function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
     case 'glare': {
       // The Eye locks on, then sweeps a beam after you. It can't dodge while it glares.
       e.mvs = 0;
-      if (e.st === 0) { e.st = 1; e.stT = V10 ? 1.6 : 1.1; e.glareA = aim; e.glaring = false; }
+      if (e.st === 0) { e.st = 1; e.stT = 1.6; e.glareA = aim; e.glaring = false; }
       if (e.st === 1) {
         e.stT -= dt; e.glareA += clamp(angDiff(aim, e.glareA), -2.2 * dt, 2.2 * dt);
         if (e.stT <= 0) { e.st = 2; e.stT = 1.8; e.glaring = true; sfx('zap'); }
@@ -158,7 +154,7 @@ function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
         e.stT -= dt; e.glareA += clamp(angDiff(aim, e.glareA), -0.6 * dt, 0.6 * dt); // (slow enough to outswim sideways)
         const cx = Math.cos(e.glareA), cy = Math.sin(e.glareA), px = p.x - e.x, py = p.y - e.y;
         const along = px * cx + py * cy, perp = Math.abs(px * cy - py * cx);
-        if (along > 0 && along < 950 && perp < 15 + p.r) hurtPlayer(bd * (V10 ? 0.6 : 1.0), e.name + ' death stare', e);
+        if (along > 0 && along < 950 && perp < 15 + p.r) hurtPlayer(bd * 0.6, e.name + ' death stare', e);
         if (e.stT <= 0) { e.st = 3; e.glaring = false; }
       }
       return true;
@@ -264,7 +260,7 @@ function orbitNurse(e, dt) {
 // ---------------------------------------------------------------- hazards (enemy ground effects that hurt you)
 function addHazard(x, y, r, life, dmg, color, name, warn) {
   if (G.hazards.length > 40) return;
-  if (V10) dmg *= V10_DIFF.dmg; // (hazards read dmgNow() directly, so the v10 damage cut never reached them: boss10.js)
+  dmg *= V10_DIFF.dmg; // (hazards read dmgNow() directly, so the v10 damage cut never reached them: boss10.js)
   G.hazards.push({ x, y, r, life, max: life, dmg, color, name, warn: warn == null ? 0.8 : warn });
 }
 function updateHazards(dt) {

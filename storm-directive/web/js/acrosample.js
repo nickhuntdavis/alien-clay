@@ -16,7 +16,7 @@
 // samplelooks.js sampleLook (the lurch).
 // index.html loads this after feats10.js (needs SAMPLES10, S10_BY, PROFILES, feat(), SL tables, w2BarBump).
 (function () {
-  if (typeof V10 === 'undefined' || !V10 || typeof SAMPLES10 === 'undefined' || typeof feat !== 'function') return;
+  if (typeof SAMPLES10 === 'undefined' || typeof feat !== 'function') return;
   const T = id => (typeof ACRO_COPY !== 'undefined' && ACRO_COPY[id]) || 'TODO_COPY:' + id, ID = 'acro', PINK = TYPE_PAL.fire;
 
   // ------------------------------------------------------------ the sample

@@ -5,7 +5,7 @@
 // (VOICE_GUIDE "Screen and content ownership"). In-run commentary is sparse: at most one line every VX_GAP seconds of
 // run time, never a repeat (voiceLine remembers the last three), and forced moments (start, bosses, firsts, the end
 // screen) still count towards the gap. Tier 2 and 3 lines show their `recover` line next.
-// Everything is under V10; with V10_OFF nothing here runs and the old narrator (show.js) talks as before.
+// The old narrator (show.js) still runs underneath; vxSysLine swallows its chatter.
 // Hooks: show.js sysLine -> vxSysLine (swallows the old chatter under V10); v10.js v10Tick -> vxTick (polls run events,
 // first-time status hints); intro.js startFoeIntro -> vxSight; bosses.js startBossIntro -> vxBossIntro;
 // ui.js showGameOver/showDishOver -> vxEnd; fight.js rxFired -> vxReaction, fightReact -> vxSpectral;
@@ -18,7 +18,7 @@ const VX_COL = { sci: '#cfd8dc', con: '#8dffc0' };
 
 // The sample's ID for this run ('1A', '2C'): strain from the sample, letter from META.s10runs (samples10.js).
 const vxSid = g => { g = g || G; return g && g.s10 && typeof sampleId === 'function' ? sampleId(g.s10.strain, g.s10.run) : ''; };
-const vxOn = () => V10 && !!G && !!G.show && !G.debug && !(G.lvl && G.lvl.L && G.lvl.L.school);
+const vxOn = () => !!G && !!G.show && !G.debug && !(G.lvl && G.lvl.L && G.lvl.L.school);
 const vxs = () => G.vx || (G.vx = { next: 0, log: [], acc: 0, hintAcc: 0, hintCd: 0, ups: 0, quiet: 0 });
 function vxCtx() {
   const c = {}, id = vxSid();
@@ -61,7 +61,7 @@ function vxTier0(event, ctx) {
 
 // The old chatter (idle jokes, level and boss one-liners, low health) gives way to the new lines under V10.
 const VX_SWALLOW = ['start', 'level', 'boss', 'lowhp', 'idle', 'death', 'cursed', 'gacha', 'grudge', 'slot', 'surge', 'rewind', 'fusion', 'mimic'];
-function vxSysLine(kind) { return !!V10 && VX_SWALLOW.indexOf(kind) >= 0; }
+function vxSysLine(kind) { return VX_SWALLOW.indexOf(kind) >= 0; }
 
 // ---------------------------------------------------------------- run start
 function vxRunStart() {
@@ -167,7 +167,7 @@ function vxSpectral() {
 
 // ---------------------------------------------------------------- end screen (ui.js showGameOver / showDishOver)
 function vxEnd(won) {
-  if (!V10 || !G || !G.show || G.debug || typeof $ !== 'function') return;
+  if (!G || !G.show || G.debug || typeof $ !== 'function') return;
   const body = $('overBody'); if (!body) return;
   const ctx = vxCtx(), sid = vxSid(), S = vxs();
   const row = (who, L) => L ? `<div class="vxl" style="margin:6px 0;font-style:italic;opacity:0.9;color:${who === 'sci' ? '#cfd8dc' : '#8dffc0'}">${esc(L.text)}${L.recover ? ' <span style="opacity:0.7">' + esc(L.recover) + '</span>' : ''}</div>` : '';
