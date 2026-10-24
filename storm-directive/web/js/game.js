@@ -808,14 +808,12 @@ function damageEnemy(e, dmg, src) {
   }
   if (src.grudge && e === G.grudge) d *= 3;
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
-  d *= sigDamageMul(e, src) * toyDamageMul(e) * genesDamageMul(e, src) * junkDmgMul(e, src) * comboDamageMul(e, src) * pair2Mul(e, src) * chemMul(e, src) * twistMul(e, src);
+  d *= hookMul('dmgMul', e, src); // (signatures, toys, genes, combos, chemistry, silly mods, rival relics ...: hooks.js)
   // Stain boons: you can see who matters.
   if (G.dyeBoon.luciferase && (e.elite || e.boss)) d *= 1.25; // (boons only from stains found this run)
   if (G.dyeBoon.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
   if (G.dyeBoon.rival && e.rival) d *= 1.4;
   if (e.boss || e.bossDef) d *= bossDamageMul(e, src);
-  if (src.w && src.w.mods && src.w.mods.length) d *= sillyModMul(e, src); // (silly.js modifiers)
-  if (src.w) d *= rrelicDmgMul(e, src) * redDmgMul(); // (rival relics, rrelics.js; Keeping It in the Family, redtail.js)
   if (src.w && src.w.s) {
     const ws = src.w.s;
     if (ws.pExec && e.hp < e.maxHp * 0.35) d *= 1 + ws.pExec;
@@ -870,7 +868,7 @@ function damageEnemy(e, dmg, src) {
     e.kx += kx / l * k; e.ky += ky / l * k;
   }
   if (src.freezeHit && !e.boss) { e.frozen = Math.max(e.frozen, 1.2); }
-  if (src.w && !src.noProc && !src.dot) { modProcs(e, dmg, src); if (src.w.s) perkProcs(e, dmg, src); sigHit(e, dmg, src); comboHit(e, dmg, src); pair2Hit(e, dmg, src); puHit(e, d, src); }
+  if (src.w && !src.noProc && !src.dot) hookRun('proc', e, dmg, src, d); // (modifier and perk procs, signatures, combos ...: hooks.js)
   if ((src.combo || (src.w && !src.noProc)) && !src.dot) chemComboHit(e, dmg, src); // combo twists (chem.js)
   if (!src.dot) relicHit(e, d, src);
   if (!src.dot && !src.env && (src.w || src.combo || src.elem)) tutElem(src.elem || 'phys'); // (a first-time chemistry card: tutorial.js)
@@ -884,10 +882,8 @@ function damageEnemy(e, dmg, src) {
       if (!n.boss && !n.dead) { const cx = e.x - n.x, cy = e.y - n.y, cl = Math.hypot(cx, cy) || 1; n.kx += cx / cl * 90; n.ky += cy / cl * 90; } // (static cling)
     }
   }
-  if (G.toy) toyHurt(e, Math.min(d, Math.max(0, hp0)), src); // Due Date keeps count; Red Tape shares it
-  if (G.nf && d > 0) nfDamaged(e, Math.min(d, Math.max(0, hp0)), src); // (Shared Placenta, Brown Fat, Fecal Transplant: newfeats.js)
   if (src.elem && src.elem !== 'phys') G.stats.elemDmg = (G.stats.elemDmg || 0) + d; // for the Acid-Burner unlock
-  if (src.w) { genesHit(e, d, src, crit); junkHit(e, d, src); }
+  hookRun('hit:late', e, d, src, crit, hp0); // (Due Date, Shared Placenta, genes, junk DNA ...: hooks.js)
   if (e.hp <= 0 && !e.dead) {
     const excess = -e.hp;
     killEnemy(e, src);
@@ -987,34 +983,14 @@ function killEnemy(e, src) {
   if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
   e.dead = true;
-  fightDeath(e, src); // (a Charged enemy discharges: fight.js)
-  mutKill(e, src); // (mutation cards: mutations.js)
-  if (typeof mdKill === 'function') mdKill(e); // (elites drop mutations: mutdrop.js)
-  wupKill(e, src); // (weapon branches: weapons24.js)
-  f10Kill(e, src); // (v10 Feats that watch kills: feats10.js)
-  nf10Kill(e, src); // (Mosquito refund and blood pool, Smouldering: newfoes.js)
-  if (e.dummy) dummyBurst(e); // (Dummy Spit)
-  if (G.nf) nfKill(e, src); // (Hostile Environment grows: newfeats.js)
+  hookRun('kill:early', e, src); // (Charged discharges, mutations, weapon branches, Feats ...: hooks.js)
   G.kills++;
   if (e.elite && !e.boss && hitStop(0.05)) buzz('elite');
   sfx(e.elite || e.boss ? 'killBig' : 'kill');
   if (e.def.shape === 'sperm') G.stats.spermKills = (G.stats.spermKills || 0) + 1;
   countKill(e.x, e.y);
   const P = G.P;
-  onShowKill(e, src);
-  sigKill(e, src);
-  foeKill(e, src);
-  puKill(e);
-  sillyKill(e, src);
-  pair2Kill(e, src);
-  chemKill(e, src);
-  toyKill(e, src);
-  genesKill(e, src);
-  junkKill(e, src); // (junk DNA: junk.js)
-  heatKill(e);
-  relicKill(e, src);
-  eventKill(e);
-  boonKill();
+  hookRun('kill', e, src); // (the narrator, signatures, toys, genes, relics, events ...: hooks.js)
   // Split on Kill mod.
   const shrap = src.w && !src.noSplit && src.w.mods && src.w.mods.find(m => m.id === 'shrapnel');
   if (shrap) {
@@ -1160,10 +1136,9 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (flinchHit(ent)) return; // (Flinch: bodymods.js)
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
-  dmg *= foes2HurtMul(ent); // (marked by a Complement Protein: foes2.js)
-  dmg *= f10HurtMul(); // (Survivor's Guilt: feats10.js)
+  dmg *= hookMul('hurtMul', ent, kind, from); // (Complement Protein, Survivor's Guilt, Personal Space, statuses ...: hooks.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
-  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * puHurt() * (P.takenMul || 1) * seqFeatHurt() * nfHurtMul(ent, kind, from) * pstHurtMul(G.hitFrom, kind); // (Personal Space: seqfeats.js; the v9.23 Feats: newfeats.js)
+  dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * (P.takenMul || 1);
   dmg = relicDamageIn(dmg, ent);
   if (dmg > 0) dmg = junkHurtIn(dmg, ent, kind); // (Now You See Me, Phlegm, Glass Case: junk.js)
   if (dmg <= 0) return;
@@ -1178,13 +1153,10 @@ function hurtPlayer(dmg, from, ent, kind) {
   if (f10Hurt(d, ent, kind)) return; // (v10 Feats that take a hit: feats10.js)
   if (nfLethal(d)) return; // (Anhydrobiosis: newfeats.js)
   if (sillyInsure(d) || rrelicSave(d)) return; // (Life Insurance; Not Today, Undead Membership)
-  p.hp -= d; tantrumHurt(d); seqHurt(); pstHit(hf); // (Snotty, Sick, Soaking wet: pstatus.js) // (a clean boss fight: seqlock.js)
-  sillyHurt(); redHurt(); // (Trash Talk; the Redtail's Sister-Cousin)
+  p.hp -= d;
   if (ent && !ent.dead) { G.grudge = ent; tutShow('grudge'); }
-  G.lastHitEnt = ent || null;
-  mutHurt(d); // (mutation cards: mutations.js)
-  rebornHurt(d); // (Karma)
-  rivalLeech(ent); // (rivals with the leech trait) // (the end-of-run screen shows whoever finished you off)
+  G.lastHitEnt = ent || null; // (the end-of-run screen shows whoever finished you off)
+  hookRun('hurt', d, ent, hf); // (tantrums, statuses, mutations, Karma, leech rivals ...: hooks.js)
   if (p.hp > 0 && p.hp < P.maxHp * 0.05) achieve('lowhp');
   const k = from || 'Unknown';
   G.stats.hurt[k] = (G.stats.hurt[k] || 0) + d;
@@ -1195,13 +1167,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   floatText(p.x, p.y - 24, '-' + Math.round(d), '#ff4d6d', 15);
   sfx('hurt');
   if (d > P.maxHp * 0.15) { hitStop(0.07, 0.4); buzz('bigHurt'); } else buzz('hurt');
-  acidReflux();
-  relicHurt(d, ent);
-  thornsHit(ent);
-  sigHurt();
-  toyPlayerHurt();
-  genesHurt(d);
-  boonHurt();
+  hookRun('hurt:late', d, ent, hf); // (Acid Reflux, relics, thorns, signatures, toys, genes ...: hooks.js)
   if (p.hp <= 0) { p.hp = 0; if (!genesLethal() && !boonSave() && !schoolSave() && !startRewind(true)) gameOver(); } // (no dying in Level 0: school.js)
 }
 
@@ -1767,15 +1733,7 @@ function dronePos(w, i, n) {
 function fireWeapon(w, target) {
   const s = w.s, d = w.def, p = G.player, src = weaponSrc(w);
   wsFire(w); // (wstats.js)
-  if (d.toy) { toyFire(w, target, src); return; }
-  if (d.reborn && rebornFire(w, target, src)) return; // (Prawn Again's weapons, reborn.js)
-  if (d.gene && geneFire(w, target, src)) return; // (the Gene Gun, genegun.js)
-  if (d.redtail && redFire(w, target, src)) return; // (the Redtail's weapons, redtail.js)
-  if (d.armoury && armFire(w, target, src)) return; // (the Armoury's weapons, armoury.js)
-  if (w.uh && wupFire(w, target, src)) return; // (weapon branches: weapons24.js)
-  if (d.v10 && w.m10 && modFire(w, target, src)) return; // (v10 modifiers, modifiers.js)
-  mutFire(w, target, src); // (Everywhere!: mutations.js)
-  if (d.v10 && v10Fire(w, target, src)) return; // (v10 beams and bursts, v10.js)
+  if (hookFirst('fire', w, target, src)) return; // (toys, Prawn Again, the Gene Gun, the Armoury, branches, modifiers, v10 beams ...: hooks.js)
   if (d.reborn) after(0, () => rebornAfterFire(w));
   switch (d.kind) {
     case 'gun': {
@@ -2701,20 +2659,7 @@ function update(dt) {
   updatePlayer(dt);
   updateCrossfire();
   for (const w of G.weapons) if (w) updateWeapon(w, dt);
-  safely('sigTick', () => sigTick(dt));
-  safely('comboTick', () => comboTick(dt));
-  safely('bigHazTick', () => bigHazTick(dt));
-  safely('overkillTick', () => overkillTick(dt));
-  safely('puTick', () => puTick(dt)); safely('redTick', () => redTick(dt)); safely('twinsTick', () => twinsTick(dt));
-  safely('rebornTick', () => rebornTick(dt));
-  safely('introTick', () => introTick()); // first sightings
-  safely('tutTick', () => tutTick()); // first-time tutorial cards (tutorial.js)
-  chemPlayerZones(); // (your own puddles: chem.js)
-  pstTick(dt); // (Sick: pstatus.js)
-  safely('junkTick', () => junkTick(dt)); // junk DNA carriers and powers (junk.js)
-  safely('foes2Tick', () => foes2Tick(dt)); // caps, support buffs, bogeys (foes2.js)
-  safely('nf10Tick', () => nf10Tick(dt)); // v10 enemies: wax, bursts, trails (newfoes.js)
-  safely('boonTick', () => boonTick(dt));
+  hookSafe('tick', dt); // (signatures, combos, hazards, first sightings, tutorials, foes, Feats ...: hooks.js; each in safely)
   updateTethers(dt);
   meleeTick(dt);
   safely('updateShow', () => updateShow(dt));

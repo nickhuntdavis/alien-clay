@@ -121,6 +121,7 @@ After resolving: run the full suite (`./run.sh`, a merge counts as a big batch),
 
 ## Architecture (the hook-file pattern)
 - Each feature lives in its own file with small hook calls into `game.js`, `render.js`, `ui.js` and `bosses.js`. Each file's header comment lists its hooks. Follow the pattern: add a file, add it to `index.html` in the right order, then add one-line hooks.
+- For kills, hits, damage multipliers, being hurt, firing and per-frame ticks, don't edit `game.js`: register from your own file with `hookOn('kill', 'myKill', (e, src) => myKill(e, src))` (events and arguments: header of `hooks.js`).
 - Script order matters (globals). `data.js` and `game.js` come first. Later files include … `chem`, `spoils`, `campaign`, `statusintro`, `tutorial`, `levels`, `glossary`, `evolve`, `stamina` …, `splash`, `finale`, `juice`, `audio`, `daily`, `portraits`, `lab`, `ui`.
 - Globals:
   - `G` is the run state; `null` on the title screen.
