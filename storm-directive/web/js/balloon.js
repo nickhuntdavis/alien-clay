@@ -64,17 +64,19 @@ function blBurst(pr) {
 // Returns true when it drew (render.js then skips the droplet).
 function blDraw(pr, x, y, r) {
   if (!pr.bl) return false;
-  r *= 1.6; // (a balloon reads bigger than a droplet)
   const b = pr.bl, k = Math.min(1, pr.t / (pr.flight || 0.55));
   const vx = pr.tx - pr.sx, vy = (pr.ty - pr.sy) - Math.cos(k * Math.PI) * 180; // (direction of travel, arc included)
-  const a = Math.atan2(vy, vx), wob = Math.sin(G.t * 26 + b.seed) * 0.12, c = pr.color;
-  const rx = r * (1.25 + wob), ry = r * (1.05 - wob);
+  blShape(x, y, r * 1.6 * (pr.w && pr.w.s && pr.w.s.blSize || 1), Math.atan2(vy, vx), pr.color, b.seed); // (a balloon reads bigger than a droplet)
+  return true;
+}
+// The balloon itself, in screen space (also used by cellmods4.js for balloons that wait on the floor, circle you or swell).
+function blShape(x, y, r, a, c, seed) {
+  const wob = Math.sin(G.t * 26 + (seed || 0)) * 0.12, rx = r * (1.25 + wob), ry = r * (1.05 - wob);
   ctx.save(); ctx.translate(x, y); ctx.rotate(a);
   ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, TAU); ctx.fill();
   ctx.beginPath(); ctx.moveTo(-rx * 0.92, 0); ctx.lineTo(-rx - r * 0.45, -r * 0.32); ctx.lineTo(-rx - r * 0.45, r * 0.32); ctx.closePath(); ctx.fill(); // (the knot)
   ctx.strokeStyle = c; ctx.lineWidth = Math.max(1, r * 0.18); ctx.beginPath(); ctx.moveTo(-rx - r * 0.4, 0);
-  ctx.quadraticCurveTo(-rx - r * 0.9, Math.sin(G.t * 18 + b.seed) * r * 0.5, -rx - r * 1.5, 0); ctx.stroke(); // (a bit of string)
+  ctx.quadraticCurveTo(-rx - r * 0.9, Math.sin(G.t * 18 + (seed || 0)) * r * 0.5, -rx - r * 1.5, 0); ctx.stroke(); // (a bit of string)
   ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.65; ctx.beginPath(); ctx.ellipse(rx * 0.3, -ry * 0.4, rx * 0.28, ry * 0.18, -0.4, 0, TAU); ctx.fill();
   ctx.restore(); ctx.globalAlpha = 1;
-  return true;
 }

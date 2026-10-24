@@ -29,7 +29,7 @@
 
 - (`claude/determined-goldberg-3z778m`) v9 weapons, samples, combos and fusions are back (`v9arms.js`, `samples9.js`): 91 live weapons, 20 samples. Copy still to rewrite: about 25 combo/pairing and 11 weapon descriptions naming retired types or old weapon names; `TODO_COPY:s9_origin`, `s9_family`. v9 weapon balance untuned under v10 (`node tests/v9armstest.js` prints 8 s solo damage).
 
-- (`claude/fervent-mendel-3f1ud8`, v10.123) Pool weapons are water balloons (`balloon.js`, MODIFIER_MATRIX.md 5.10, decision 63): the throw is built, the 26 modifier cells for pools are not (Hot Mess still runs the 5.7 cells in `cellmods2.js`). Pools now land on their target every time: not simmed. `wup2test` fails on main too (Little Prick: Final Prick, Terminal Clause).
+- (`claude/fervent-mendel-3f1ud8`, v10.123) Pool weapons are water balloons (`balloon.js`, MODIFIER_MATRIX.md 5.10, decision 63): the throw is built, the 26 modifier cells for pools are not (Hot Mess still runs the 5.7 cells in `cellmods2.js`). Pools now land on their target every time: not simmed. The 26 pool cells are built too (`cellmods4.js`, 25 `TODO_COPY:cell_bl_*` card texts open); damage per cell is in `cell4test` output. `wup2test` fails on main too (Little Prick: Final Prick, Terminal Clause).
 
 ## Copy sheet
 - `SpawnPrawn_Copy.xlsx` holds every player-facing string (about 4,600) in 12 tabs. `tests/tools/copy/copy.sh export` rebuilds it from the code; `copy.sh import [file.xlsx]` writes edited cells (the yellow NEW TEXT column) back into `web/js` and `index.html`. Strings are matched by file and position, with the old text checked first. After an import: run `node --check` on the js files, a few tests, then ship. Re-export afterwards so the sheet matches the code.

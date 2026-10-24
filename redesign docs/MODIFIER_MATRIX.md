@@ -1257,6 +1257,7 @@ Red Flagship, Soulmate Signal, Spark of Life, Maximum Gains and Enzyme Sneeze, d
 | Area | **Spray:** droplets 25% bigger a rank, and their splash wider. | +50 / 75%. | +100%. |
 
 ### 5.10 The two pools as water balloons (user's picks, 24 Oct)
+Built in `balloon.js` (the throw) and `cellmods4.js` (the cells), 24 Oct. Simplified there: Switched at Birth's ranks and swapping halves are not built (it has no ranks); the Range wave and the Cluster lake are a line of puddles and one big puddle.
 Nocturnal Emission and Hot Mess, designed from one physical idea the user gave: **a pool is thrown like a water balloon to the face.** The user chose each modifier from three options; Claude picked the masteries the user didn't (the user's instruction: follow Claude's recommendations, ask only where unsure). **This section replaces both weapons' cells in sections 3 and 4 and the Hot Mess specials in 5.7** (decision 63). The Hot Mess cells built in `cellmods2.js` need recoding to match (follow-on work).
 
 **The shared model (both pools):**
