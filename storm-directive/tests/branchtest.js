@@ -32,6 +32,30 @@ const { chromium } = require('playwright');
     mdTick(1 / 60); out.carry = !!e.mdCarry; if (!e.mdCarry) bad.push('no carrier');
     mdKill(e); out.box = G.lootQueue.map(x => x.kind).join(); if (out.box !== 'chest') bad.push('box ' + out.box);
     out.cards = (draftLoot(G.lootQueue[0]) || []).length; if (!out.cards) bad.push('empty box');
+    // 5. The Laser has branches; each promise runs
+    const lz = id => { for (let i = 0; i < G.weapons.length; i++) G.weapons[i] = null; G.enemies.length = 0; G.lootQueue = []; G.zones.length = 0; const L = G.weapons[0] = makeSlot('v_flame_beam', false, 1); computeStats(L); L.lvl = 3; return L; };
+    const foes = (n, armour) => { for (let i = 0; i < n; i++) { const e = makeEnemy(ENEMIES.crawler, G.player.x + 120 + i * 30, G.player.y + (i % 2) * 20, {}); e.speed = 10; e.hp = e.maxHp = 5000; if (armour) e.cd = makeDefence(e.maxHp, i % 2 ? 'shell' : 'membrane', 'normal', { layers: 2 }); G.enemies.push(e); } };
+    const seen = { dots: 0, vent: 0 }, run = (s, L) => { for (let i = 0; i < s * 60; i++) { G.state = 'play'; G.lootQueue.length = 0; update(1 / 60); G.player.hp = G.P.maxHp = 1e6; if (L && L.xlz) { seen.dots = Math.max(seen.dots, (L.xlz.dots || []).length); if (L.xlz.vents) seen.vent = 1; } } };
+    zoneForce = (orig => function () { const z = orig.apply(this, arguments); z.cilia = null; return z; })(zoneForce);
+    let L = lz(); xbrTick(); q = forks(); cards = q.length ? forkCards(q[0]) : []; out.lzPromises = cards.map(c => c.title).join();
+    if (cards.length !== 3) bad.push('laser promises ' + out.lzPromises);
+    out.lz = {};
+    ['A', 'B', 'C'].forEach((k, i) => {
+      L = lz(); foes(6, k === 'A'); seen.dots = seen.vent = 0; const C = forkCards({ kind: 'fork', xbr: { w: L, lv: 3 } }); C[i].apply();
+      const C6 = forkCards({ kind: 'fork', xbr: { w: L, lv: 6 } }); C6.forEach(c => c.apply()); // (every Lv 6 card at once, to run them all)
+      const C9 = forkCards({ kind: 'fork', xbr: { w: L, lv: 10 } }); C9[i].apply();
+      if (k === 'C') L.xlz.heat = XL_HOT - 0.3; // (nearly hot: the test checks the vent, not how long heating takes)
+      try { run(7, L); } catch (err) { bad.push('laser ' + k + ' error ' + err.message); }
+      const R = { hp: Math.round(G.enemies.reduce((s, e) => s + e.maxHp - Math.max(0, e.hp), 0)) };
+      if (k === 'A') R.stripped = G.enemies.filter(e => e.xlBare).length;
+      if (k === 'B') R.dots = seen.dots;
+      if (k === 'C') R.vent = seen.vent || (L.xlz.vents || 0); // (about 9 s of play before the first vent)
+      out.lz[k] = R;
+      if (!(R.hp > 0)) bad.push('laser ' + k + ' no damage');
+    });
+    if (!(out.lz.A.stripped > 0)) bad.push('hair removal stripped nothing');
+    if (!(out.lz.B.dots >= 2)) bad.push('cat toy: no two dots ' + out.lz.B.dots);
+    if (!out.lz.C.vent) bad.push('overclocked never vented');
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
