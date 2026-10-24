@@ -1,5 +1,5 @@
 // Mutations from elites (mutdrop.js) and modifiers in loot boxes (modcards.js): no mutation card in any draft, a DNA
-// strand always deals a modifier and a level-up never does, killing an elite carrier secures the mutation (the strand
+// strand always deals a modifier and a level-up never does, killing an elite carrier secures a loot box (the strand
 // flies to you as the show), and a full Genome offers swaps.
 const { chromium } = require('playwright');
 (async () => {
@@ -40,7 +40,7 @@ const { chromium } = require('playwright');
     e.hp = 0; killEnemy(e, {});
     const d = mdS().drops[0];
     out.drop = !!d;
-    if (!G.lootQueue.length || G.lootQueue[0].kind !== 'mutation') bad.push('kill did not secure a mutation screen');
+    if (!G.lootQueue.length || G.lootQueue[0].kind !== 'chest') bad.push('kill did not secure a loot box'); // (the strand holds a loot box now: branchback.js)
     if (!d) bad.push('no strand dropped');
     else {
       p.x = d.x; p.y = d.y; mdTick(1 / 60);
