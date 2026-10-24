@@ -13,6 +13,17 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Hooks: none
 - Risk: copy only; cell cards are long (150 to 260 characters), so check they fit on a small phone.
 
+## v10.119: 2026-10-24 Copy for the weapon cells, aim menu and elite carriers
+- Merged: ccr-10c7b3a7-ugrptm (after ccr-eff39359-vaxudl's copy, folded above).
+
+### Folded from ccr-10c7b3a7-ugrptm: 2026-10-24 Copy for the elite carriers (v10.119, merge build)
+- Systems: copy (elite carriers)
+- Files: branchback.js, mutdrop.js, SpawnPrawn_Copy.xlsx
+- What: the elite carrier's banner, float text and labels read LOOT CARRIER!, LOOT SECURED, LOOT LOST, LOOT and KILL FOR LOOT 12s. The weapon-cell cards, aim choices and stats heading keep the plain copy from ccr-eff39359-vaxudl (cellcopy.js), by the user's choice. Written by Claude at the user's request.
+- Save data: none.
+- Hooks: none.
+- Risk: none (text only).
+
 ## v10.118: 2026-10-24 Weapon branches at Lv 3, 6 and 9; elite carriers drop a loot box; every targeting rule and autorun mode always on
 - Merged: ccr-10c7b3a7-ugrptm.
 
