@@ -27,7 +27,7 @@ const { chromium } = require('playwright');
     if (ids.length !== (typeof S10_BY.acro !== 'undefined' ? 45 : 42)) bad.push('weapons: ' + ids.length); // (PROPOSED Sample 9 brings three starters: acro.js)
     const st = genLoot({ kind: 'start' });
     const stIds = st.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
-    if (st.length !== 3 || !stIds.every(id => s10Pool().includes(id)) || st.filter(o => o.sab).length !== 1) bad.push('start draft is not a matrix starting offer: ' + st.map(o => o.title)); // (samplestart.js)
+    if (st.length !== 4 || !stIds.every(id => s10Pool().includes(id)) || !S10_FIT.baseline.every(id => stIds.includes(id))) bad.push('start draft is not a matrix starting offer: ' + st.map(o => o.title)); // (samplestart.js)
     const c0 = st.find(o => o.def.v10 && !o.def.sig && !o.sab); // (the type switch below only works on v10 weapons; the random offer may have none)
     if (c0) c0.apply(); else { G.weapons[0] = makeSlot('v_phys_proj', false, 1); recomputeAll(); }
     const w0 = G.weapons.find(Boolean);

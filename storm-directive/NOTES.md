@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.124 (versionCode 403): merge of `claude/serene-mayer-hzufbe`: enemy rings draw over explosions and effects (`ringtop.js`); the Lv 3/6/9 weapon branch screens open in the Weapon Draft layout (`branchback.js`); each sample's start draft offers its two best weapons (`S10_FIT` in samplestart.js) plus two random. Suite 123/125 (v9armstest, dotrings: chance failures, pass on rerun). Unsimmed: win rate with suited starting weapons.
 - Version v10.123 (versionCode 402): build of main after v10.122: main's water-balloon pool weapons (`claude/fervent-mendel-3f1ud8`), rivals no longer finish a Shoulder Barge between waves, and the tests fixed after v10.122.
 - After v10.122 (no build): merge of `claude/fervent-mendel-3f1ud8`: Nocturnal Emission and Hot Mess throw water balloons that follow and burst on their target (`balloon.js`), and every modifier has its own pool cell (`cellmods4.js`, MODIFIER_MATRIX.md 5.10, decision 63); Hot Mess's 5.7 cells retired. Open: 25 `TODO_COPY:cell_bl_*` card texts; pool balance not simmed; no APK yet (Maven Central refused the build's downloads, HTTP 429).
 - Version v10.122 (versionCode 401): merge of `claude/serene-mayer-hzufbe`: the eleven v9 samples have v10-style bodies (`v9looks.js`: anatomy per sample in its v9 colour, defences and upgrades on the body, live rack and Field Guide pictures; the Twins' ghost twin uses the same body) and are back on the Sample Rack, open from the start, starting with a matrix weapon offer. Suite: v9armstest, p11test, wup2test, v10test and samplestest updated to the 23 Oct sample rules and pass (merged after v10.122, tests only); wup4test and rivalwave made reliable (rivalwave was blaming Acid Crypt terrain on the rival). Rivals no longer finish a Shoulder Barge between waves (rivals.js, not yet in an APK). Open: v9 sample balance with matrix weapons unsimmed.
@@ -58,6 +59,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
+- v10.124: merged `claude/serene-mayer-hzufbe` (rings on top, branch screens, two best weapons per sample). Details in CHANGELOG.md v10.124.
 - v10.122: merged `claude/serene-mayer-hzufbe` (v9 sample bodies, v9 samples back on the rack). Details in CHANGELOG.md v10.122.
 - v10.115: merged `ccr-8707d278-h1fnlw` (stat bonuses, weapon base stats, run log fixes, frame rate). Details in CHANGELOG.md v10.115.
 - v10.112: merged `ccr-7c6adc60-uqv9g4` (Race schedule, samples, Rewind off, frame rate, level-up boxes, bigger arenas). Details in CHANGELOG.md v10.112.
