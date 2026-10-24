@@ -1295,3 +1295,15 @@ body #sysmsg.ws { pointer-events: auto; }
 .card.taken::after { content: '\2713'; position: absolute; top: 6px; right: 10px; font-size: 22px; font-weight: 900; color: #8fe3a8; }
 #lootCards.stare .card:not(.taken)::before { content: ''; position: absolute; inset: -4px; border-radius: inherit; border: 2px solid var(--rc); pointer-events: none; animation: pfstare 1.2s ease-in-out infinite; }
 @keyframes pfstare { 0%, 100% { opacity: 0; transform: scale(0.99); } 50% { opacity: 0.8; transform: scale(1.02); } }
+
+/* Loot screen cards: neutral. Colour only on the rarity word, the reward-type label (top right) and a left border for damage type. */
+#lootCards .card, #lootCards .card.r-epic, #lootCards .card.r-legendary, #lootCards .card.r-mythical, #lootCards .card.r-celestial, #lootCards .card.fusion, #lootCards .card.cursed {
+  background: var(--color-bg-sheet) !important; border: 1px solid var(--line) !important;
+  border-left: 4px solid var(--ec, var(--line)) !important; box-shadow: none !important; }
+#lootCards .card.mod { border-style: solid !important; }
+#lootCards .card .sheen, #lootCards .card .rrib, #lootCards .card::after { display: none !important; }
+#lootCards .card .cico { background: var(--color-bg-sheet) !important; border-color: var(--line) !important; }
+#lootCards .card .el { color: inherit !important; }
+#lootCards .card .tag { display: flex; justify-content: space-between; gap: 8px; }
+#lootCards .card .tag b { order: -1; color: var(--rar, var(--rc)); }
+#lootCards .card .tag .tk { color: var(--cat, var(--color-text-secondary)); }
