@@ -1295,3 +1295,12 @@ body #sysmsg.ws { pointer-events: auto; }
 .card.taken::after { content: '\2713'; position: absolute; top: 6px; right: 10px; font-size: 22px; font-weight: 900; color: #8fe3a8; }
 #lootCards.stare .card:not(.taken)::before { content: ''; position: absolute; inset: -4px; border-radius: inherit; border: 2px solid var(--rc); pointer-events: none; animation: pfstare 1.2s ease-in-out infinite; }
 @keyframes pfstare { 0%, 100% { opacity: 0; transform: scale(0.99); } 50% { opacity: 0.8; transform: scale(1.02); } }
+
+/* Sample Rack grid (rackgrid.js): picture, name, type swatches; the description is hidden */
+.sx-rack { margin-top: 4px; }
+.sx-rack .sx-card { padding: 10px 8px 12px; min-width: 0; }
+.sx-rack .sx-card .sx-txt > span { display: none; }
+.sx-rack .sx-card canvas[data-slpic] { height: 76px !important; }
+.sx-rack .sx-txt b { font-size: 14px; letter-spacing: 0.3px; }
+.sx-rack .sx-random { grid-column: 1 / -1; flex-direction: row; justify-content: center; text-align: left; padding: 12px 14px; }
+.sx-rack .sx-random .sx-art { width: 44px; height: 44px; }
