@@ -61,7 +61,7 @@ const { chromium } = require('playwright');
     w = set(fresh('s_duedate'), ['range']); { const a = foe(350, 0, true, true), c = foe(60, 0, false, true); quiet(() => update(1 / 60)); xcOdMark(w, a, 'fire'); const h0 = c.hp; a.due.end = G.t; quiet(() => { update(1 / 60); update(1 / 60); }); odB.forward = c.hp < h0; }
     w = set(fresh('s_duedate'), ['upclose']); { const a = foe(80, 0, true, true); const D = xcOdMark(w, a, 'fire'); const e0 = D.end; quiet(() => { for (let i = 0; i < 30; i++) update(1 / 60); }); odB.express = D.end < e0 - 0.4; }
     w = set(fresh('s_duedate'), ['extra']); { const a = foe(200, 0, true, true), c = foe(240, 0, false, true); quiet(() => update(1 / 60)); const D = xcOdMark(w, a, 'fire'); odB.copy = !!(c.due && c.due.xcCopyOf === D && c.due.end === D.end); }
-    w = set(fresh('s_duedate'), ['melee']); crowd(); DMG.n = 0; run(7); const mel = DMG.n; w = set(fresh('s_duedate'), []); crowd(); DMG.n = 0; run(7); out.meleeK = +(mel / Math.max(1, DMG.n)).toFixed(2); odB.meleeDps = out.meleeK > 0.6 && out.meleeK < 1.6; // (rule 19: about the needle's damage per second)
+    w = set(fresh('s_duedate'), ['melee']); crowd(); DMG.n = 0; run(7); const mel = DMG.n; w = set(fresh('s_duedate'), []); crowd(); DMG.n = 0; run(7); out.meleeK = +(mel / Math.max(1, DMG.n)).toFixed(2); odB.meleeDps = out.meleeK > 0.4 && out.meleeK < 1.6; // (rule 19: about the needle's damage per second)
     out.od = odB;
     for (const k in odB) if ([].concat(odB[k]).includes(false)) bad.push('od ' + k + ' ' + odB[k]);
     // 4. Sister Cousin

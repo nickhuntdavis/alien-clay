@@ -185,7 +185,7 @@ function xcOdPaid(w, e, D, P, x, y, links, split) {
   if (R('charged') >= 4) { forNear(x, y, 80, o => { if (toyCan(o)) x5Bleed(o, P * 0.3, w); }); ring(x, y, 80, '#c9184a', 0.35, 3); }
   const splash = (rr, k) => { x5Near(x, y, rr, e, 8, o => damageEnemy(o, P * k, src)); ring(x, y, rr, w.def.color, 0.4, 3); };
   if (D.xcNth && R('nth') >= 4) splash(100, 0.5);
-  if (D.tag === 'melee' && R('melee') >= 4) splash(60, 0.5);
+  if (D.tag === 'melee' && R('melee') >= 4) splash(60, 0.25);
   if (D.tag === 'dfa' && R('dfa') >= 4) { G.fx.push({ type: 'warn', x, y, r: 80, color: w.def.color, life: 0.2, max: 0.2 }); bolt(x, y - 180, x, y, w.def.color, 0.2); splash(80, 0.5); }
   if (links.length) { // Joint account: the partners pay out too
     const k = split < 1 ? split : 0.5;
@@ -272,7 +272,7 @@ XC_TICK.od = function (w, dt) {
   }
   if (R('melee') && t4) { // Tick tock: whatever touches you gets a bill
     let n = TOYS().marks.filter(e => e.due && e.due.w === w && e.due.tag === 'melee').length;
-    forNear(p.x, p.y, (p.r || 12) + 30, e => { if (n >= 12 || !toyCan(e) || e.due || w.xcOdMT > G.t) return; n++; w.xcOdMT = G.t + s.cd * 0.75; xcOdMark(w, e, 'melee'); }); // (about one bill per shot: the needle's damage per second, which also pauses to reload)
+    forNear(p.x, p.y, (p.r || 12) + 30, e => { if (n >= 12 || !toyCan(e) || e.due || w.xcOdMT > G.t) return; n++; w.xcOdMT = G.t + s.cd * 0.35; xcOdMark(w, e, 'melee'); }); // (about one bill per shot: the needle's damage per second, which also pauses to reload)
   }
   if (R('orbiting')) { // a needle circles you and marks the biggest enemy to come close
     const n = R('orbiting') >= 2 ? 2 : 1;

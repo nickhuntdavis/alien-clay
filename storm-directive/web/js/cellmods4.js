@@ -13,6 +13,9 @@
 //    (toyHurt) and an expiring bundle is seen in tapeTick. Kept shared forms: Range, Up Close, Rapid Fire, Catalyst,
 //    Kinship, Primer, Area; every other cell is this file's. Sticky, Connecting and Ranged are N/A (taping is the weapon).
 //    Switched at Birth (Acid): the stamp Corrodes (its damage type does that by itself).
+// Round 2 (24 Oct): the shared-form cells got weapon-shaped extras (Splash-through, Pooling, Fizz, Spill, Seed pod, Thick coat, Burst
+// blister, Hocker, String of spit, Splat; Hand-wrapped, Tape gun, Heat shrink, Group project, Tape bomb, Sticky fingers, Duct
+// tape, Spare roll): MODIFIER_MATRIX.md 5.9.
 // Simplified: Acid Spit's Lob bursts after 200 of flight, not 400 (its reach is 270); Ewww's Piercing, Homing and Ricochet
 // act on the instant stamp (a line, a better target, bounces to enemies ahead); Ewww's Focused Intensity ramps the share.
 // Hooks: none in shared files. Wraps modifiers.js modProj, sigs.js projHit/projEnd, toys.js tapeFire/tapeTick/toyHurt,
