@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.120 (versionCode 399): merge of `ccr-10c7b3a7-ugrptm`: every modifier has its own effect on Red Flagship, Soulmate Signal, Spark of Life, Maximum Gains and Enzyme Sneeze (`cellmods3.js`, plain card text in `cellcopy3.js`, MODIFIER_MATRIX.md 5.9); the Laser has branch upgrades (`laserbranch.js`: Laser Hair Removal, Cat Toy, Overclocked).
 - Version v10.119 (versionCode 398): copy for every placeholder from `ccr-10c7b3a7-ugrptm`: weapon-cell cards, aim menu and stats heading from `cellcopy.js` (ccr-eff39359-vaxudl, plain with numbers), elite carrier lines (LOOT CARRIER!, KILL FOR LOOT 12s). No TODO_COPY reaches the screen.
 - Version v10.118 (versionCode 397): merge of `ccr-10c7b3a7-ugrptm`: the old weapon branches open at weapon Lv 3, 6 and 9 (`branchback.js`); elite carriers are back and their strand holds a DNA strand loot box; Advanced Targeting and Autopilot retired, every rule and mode always on. Open: 5 `TODO_COPY:elite_*` lines; balance with branches plus modifiers not simmed.
 - Version v10.117 (versionCode 396): merge of `ccr-10c7b3a7-ugrptm`: Hot Mess and Eggs modifier cells (`cellmods2.js`, MODIFIER_MATRIX.md 5.7, 5.8); with the Advanced Targeting mastery, MINES / PROJECTILES / ENEMIES / ME lead the aim menu (`aimplus.js`); ripening and empowered mines are drawn bigger and brighter; every level-up gives a box. Open: 34 `TODO_COPY:cell_hm_*`/`cell_eg_*` and 4 `aim_*_desc` texts; balance of the extra boxes not simmed.
