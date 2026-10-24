@@ -335,6 +335,7 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 60 | Turncoat (22 Oct) | On kill only: killed enemies rise as temporary allies, own cap of 6 per weapon, separate from pets (12.3); elites and bosses never rise |
 | 61 | Damage-type passives (22 Oct) | Each boosts what its type does best (`DAMAGE_TYPES.md`): Force knockback and collisions, Acid ground denial, Static chains, Mucus Snare, Blood wounds and Extraction, Alien possession, Fire spreading Burn |
 | 62 | Named exceptions (22 Oct) | Melee × Nappy Mines (suicide vest) hurts the player; Ranged × Enzyme Headbutt lunges 200 (past 160); Planetary system (combo mastery) ignores the gravity well's 45° bend limit; Static net's arc cap grows with the Static passive (bounded at 36) |
+| 63 | Pools as water balloons (24 Oct) | Pool weapons (Nocturnal Emission, Hot Mess) are thrown like a water balloon at one enemy: it bursts on the face, splashes its neighbours and leaves the puddle round it. Every one of the 26 modifiers applies to them, including those N/A on pools before (`MODIFIER_MATRIX.md` 5.10) |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
