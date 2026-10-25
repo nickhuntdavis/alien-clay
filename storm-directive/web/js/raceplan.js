@@ -24,7 +24,7 @@ const RPLAN = {
 const rplanOn = () => !RPLAN.off && typeof raceOn === 'function' && raceOn();
 const rplanS = () => G.rplan || (G.rplan = { used: 0, ms: 0 });
 const rplanDue = () => { const S = rplanS(); return S.used < RPLAN.at.length && G.t >= RPLAN.at[S.used]; };
-const rplanFree = req => ['start', 'fork', 'wupfork', 'boss', 'relic'].includes(req.kind) || req.now || req.mstone || (req.kind === 'slot' && G.weapons.filter(Boolean).length < 2);
+const rplanFree = req => ['start', 'fork', 'wupfork', 'boss', 'relic', 'spoils', 'rrelic'].includes(req.kind) || req.now || req.mstone || (req.kind === 'slot' && G.weapons.filter(Boolean).length < 2);
 
 dirGate = (orig => function (req) {
   if (!rplanOn() || dirEgg() || rplanFree(req)) return orig(req);
