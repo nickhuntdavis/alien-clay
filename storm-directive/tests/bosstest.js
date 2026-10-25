@@ -44,7 +44,7 @@ const { chromium } = require('playwright');
       const b = tellBoss(id, 'blink'); let tellAt = -1, jumpAt = -1, dest = null, ringAt = -1;
       step(240, (t) => {
         const s = b.tl10; if (s.dest && tellAt < 0) { tellAt = t; dest = { x: s.dest.x, y: s.dest.y }; render(); }
-        if (jumpAt < 0 && dest && Math.hypot(b.x - dest.x, b.y - dest.y) < 1) jumpAt = t;
+        if (jumpAt < 0 && dest && (s.arrivedT || Math.hypot(b.x - dest.x, b.y - dest.y) < 1)) jumpAt = t; // (arrivedT: a landing inside terrain is pushed out a pixel before this check)
         if (jumpAt > 0 && ringAt < 0 && G.ebul.length) ringAt = t;
         return ringAt > 0;
       });
