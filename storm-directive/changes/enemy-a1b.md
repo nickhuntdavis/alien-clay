@@ -9,7 +9,7 @@
 - Risk: balance. Shell relics are strong early (3 off per layer; Border Wall 3 layers, Calcified 4); See-Through now lets half of all bullets through (as its card always said); Running Hot fills Burn bars on every weapon hit. Shared: the Gene Swap filter also applies to the 'elemental' modifier wherever optMod offers it.
 
 ### Relic audit (keep / port / retire)
-Totals: 84 relics (45 boss, 39 rival incl. the duplicate id `ectoplasm`), 8 SPOILS plus Gene Swap. Kept 66, ported 18 (+ 3 SPOILS), retired 0 (every boss has exactly three relics, so none could go).
+Totals: 84 relics (45 boss, 39 rival incl. the duplicate id `ectoplasm`), 8 SPOILS plus Gene Swap. Kept 67, ported 17 (+ 3 SPOILS), retired 0 (every boss has exactly three relics, so none could go).
 
 | Relic (id) | Verdict | Old mechanic -> v10 mechanic |
 |---|---|---|
