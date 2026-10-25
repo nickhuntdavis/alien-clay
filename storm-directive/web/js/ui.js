@@ -965,13 +965,14 @@ const UI = {
       c.style.setProperty('--rar', r.color);
       c.style.setProperty('--rc', o.cursed ? cardCat(o) : r.color); // the border is the rarity colour
       c.style.setProperty('--ic', cardCat(o));
+      if (o.elem && !o.cursed) c.style.setProperty('--ec', elemCol(o.elem)); // (loot cards: damage-type left border only)
       c.style.animationDelay = (0.45 + i * 0.12) + 's';
       // Only weapons and spells have real icons; the two-letter badges are gone until proper icons are drawn.
       c.classList.toggle('noico', !o.def && !(typeof rwIco === 'function' && rwIco(o)) && !(typeof lootPictoHtml === 'function' && lootPictoHtml(o)));
       const el = o.elem ? `<span class="el" style="color:${elemCol(o.elem)}">${ELEMENTS[o.elem].name}</span>` : '';
       const lp = typeof lootPictoHtml === 'function' ? lootPictoHtml(o) : ''; // (64px pictogram: pictomap.js)
       c.innerHTML = uiLootCard({ tag: esc(o.tag), rarity: esc(r.name), icon: o.def && !lp ? iconSVG(o.def, 28, elemCol(o.elem)) : '', iconHtml: lp || (!o.def && typeof rwIcoHtml === 'function' ? rwIcoHtml(o) : ''), iconColor: o.def ? elemCol(o.elem) : '',
-        title: esc(o.title), titleColor: o.elem && !o.cursed ? elemCol(o.elem) : '', sub: `${esc(o.sub)} ${el}`, desc: esc(o.desc),
+        title: esc(o.title), titleColor: '', sub: `${esc(o.sub)} ${el}`, desc: esc(o.desc),
         extra: `${typeof rwFitHtml === 'function' ? rwFitHtml(o) : ''}${o.pickW ? UI.pickChips(o) : ''}${o.modFor ? `<div class="cfor">For weapon: <b>${esc(o.modFor)}</b></div>` : ''}${UI.boonHtml(o)}${o.quip ? `<div class="cquip">${esc(o.quip)}</div>` : ''}${UI.rarityFlair(o)}` });
       // Tap to take it; press and hold for the card in full, with every bit of jargon explained (glossary.js).
       holdable(c, () => cardGlossary(o), ev => {

@@ -96,7 +96,7 @@ function uiBossIntro() { return '<div class="bi-bar top"></div><div class="bi-ba
 // Body of a DNA loot card. The <button class="card r-..."> itself is made in ui.js (it carries the rarity
 // colours and the tap handlers). o: { lead, tag, rarity, icon, iconColor, title, titleColor, sub, meter, desc, extra }.
 function uiLootCard(o) {
-  return (o.lead || '') + `<div class="tag">${o.tag} <b>${o.rarity}</b></div>`
+  return (o.lead || '') + `<div class="tag"><span class="tk">${o.tag}</span> <b>${o.rarity}</b></div>`
     + (o.icon ? `<div class="cico" style="--ic:${o.iconColor}">${o.icon}</div>` : o.iconHtml || '')
     + `<div class="ctitle"${o.titleColor ? ` style="color:${o.titleColor}"` : ''}>${o.title}</div><div class="csub">${o.sub}</div>`
     + (o.meter != null ? `<div class="wlv">${o.meter}</div>` : '')

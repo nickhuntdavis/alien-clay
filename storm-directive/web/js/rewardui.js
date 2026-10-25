@@ -124,9 +124,10 @@ function rwDelta(o) {
   for (const [k, l] of [['area', 'Area'], ['range', 'Reach'], ['dur', 'Lasts']]) if (out.length < 2 && s0[k] > 0 && Math.abs(s1[k] - s0[k]) > 0.05) out.push(`${l} ${n(s0[k])} → ${n(s1[k])}`);
   return out.length ? out.slice(0, 2) : null;
 }
-function rwFitHtml(o) {
+function rwFitHtml(o, hold) {
   const dl = rwDelta(o);
   if (dl) return `<div class="rwfit"><b>Next level</b> ${dl.map(esc).join(' · ')}</div>`;
+  if (!hold) return ''; // the fit line shows on press and hold only (cardGlossary)
   const f = rwFit(o); if (!f) return '';
   return `<div class="rwfit${f.k === 'Trade-off' ? ' trade' : ''}"><b>${esc(f.k)}</b> ${esc(f.t)}</div>`;
 }
