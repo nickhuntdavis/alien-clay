@@ -143,7 +143,6 @@ function foes2Dmg(e, d, src) {
   F[el] = (F[el] || 0) + d;
   const D = e.def; // (no type multipliers: defences do that work now)
   if (D.f3dmg) foes3Dmg(e, src); // (Snot Bubble swells: foes3.js)
-  if (e.ifn > 0 && d > 0) { const a = Math.min(e.ifn, d); e.ifn -= a; d -= a; if (e.ifn <= 0) spawnPart(e.x, e.y, '#bde0fe', 4, 80, 0.3, 2); }
   if (D.puff && (IN_AOE || src.zoneHit)) {
     e.puffHit = G.t;
     if (!(e.puffT > G.t)) { e.puffT = G.t + 1.5; e.puffRT = G.realT; const a = Math.random() * TAU; f2spawn(ENEMIES[D.puff], e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r); }
@@ -226,12 +225,7 @@ Object.assign(FOE_AI, {
   },
   plasma(e, dt, dist, ux, uy) { f2aura(e, dt, 200, o => { if (o.def.shoot) o.plasT = G.t + 0.6; }); return f2keep(e, dist, ux, uy); },
   interferon(e, dt, dist, ux, uy) {
-    e.ifnT = (e.ifnT == null ? 1 : e.ifnT) - dt;
-    if (e.ifnT <= 0) {
-      e.ifnT = 4; const amt = 30 * hpNow();
-      forNear(e.x, e.y, 170, o => { if (o !== e && !o.boss && !o.charmed && !o.rival && !o.egg && o.def !== e.def) o.ifn = Math.max(o.ifn || 0, amt); });
-      e.pulseRT = G.realT;
-    }
+    // (the Membrane grant is foeaura10.js)
     return f2keep(e, dist, ux, uy);
   },
   cortisol(e, dt, dist, ux, uy) { f2aura(e, dt, 180, o => { o.cortT = G.t + 0.6; }); return f2keep(e, dist, ux, uy); },
