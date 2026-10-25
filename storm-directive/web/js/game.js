@@ -257,7 +257,7 @@ function acquireMany(dir, range, x, y, n) {
   return list.slice(0, n).map(o => o.e);
 }
 // Enemy armour scales with the square root of the enemy health clock, so armour and shred still matter late.
-function effArmour(e) { return Math.max(0, e.armour + (e.auraArm > 0 ? 4 : 0) - e.shred) * (e.armK || 1); }
+function effArmour(e) { return Math.max(0, e.armour - e.shred) * (e.armK || 1); }
 
 // ---------------------------------------------------------------- inventory & stats
 function makeSlot(id, isSpell, lvl) {
@@ -1520,7 +1520,7 @@ function updateEnemies(dt0) {
           break;
         case 'aura':
           e.stT -= edt;
-          if (e.stT <= 0) { e.stT = 0.5; forNear(e.x, e.y, 115, o => { if (o !== e) o.auraArm = 0.6; }); }
+          // (Mucus Wall's Membrane grant: foeaura10.js)
           break;
         case 'phase':
           e.stT -= edt;
