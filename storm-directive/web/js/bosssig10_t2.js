@@ -6,11 +6,12 @@
 //   crossfire (Mitch & Osis)   They take opposite sides of you (200 px out), light the lane between them 0.9 s, then ONE body's Beam runs it 0.4 s.
 //                              Outside the lit lane they keep a boss's usual distance; no lane is lit from far away. Rebuilds come back weaker each time (60%, 36%, 22% ...).
 //   fragment  (Kidney Stone)   Each shed Shell layer (any cause) rolls off as a gravel chunk down a lane marked 0.8 s; the pattern also calves one.
-//   rounds    (Matron)         Her route is marked bed to bed (3 beds) for 0.9 s, then she walks it, healing what she passes.
+//   rounds    (Matron)         Her route is marked bed to bed (3 beds) for 0.9 s, then she walks it (240 px/s), healing what she passes (an add takes at most 6 ticks in its life).
 //   falsepos  (Phantom)        Two see-through copies blink with her for 4 s; the real one is ringed. Copies are drawn only (not enemies).
 //   saccade   (Immune Eye)     A 60 degree sector is marked 0.8 s, then the glare sweeps it over 1.2 s. One a slot; the rest of the slot it closes in as usual.
 //   reflux    (Pepsinator)     One half of the arena is shaded 1 s, then acid pools roll out across it over 1 s.
 //   dinner    (Macrophage Queen) Her line is marked 0.9 s, her adds queue up on it and rush down it 1 s, then she devours the survivors.
+//                              Devour and both dinners share one snack budget a cycle (6 snacks, 18% of her health): past it she eats but does not heal.
 // State lives on the boss (e.sg2), nothing is saved. Wraps bossAI (bosstells10.js's wrapper, game.js) and nf10Draw.
 // Hooks: wraps bossAI, nf10Draw and updateRevive (bosses.js); data.js BOSSES / roster.js ROSTER_BOSSES patterns and campaign.js ENTOURAGE.twins.on are rewritten at load. Save data: none.
 
@@ -19,11 +20,11 @@ const SG2 = {
   window: 5.5, // (game.js: a pattern lasts 5.5 s, the first 0.6 s of it a pause)
   cfR: 200, cfMove: 1.8, cfMoveMax: 3.2, cfNear: 120, cfSpd: 260, cfTell: 0.9, cfFire: 0.4, cfTicks: 4, cfW: 36, cfBeam: 0.8, // (crossfire: distance from you, reposition cap and its stretch while a body is still more than cfNear outside the ring, swing speed, tell, Beam length, lane width, damage share per tick of bd)
   chunkTell: 0.8, chunkRoll: 0.8, chunkLen: 560, chunkR: 26, chunkEvery: 1.7, chunkMax: 4, // (fragment)
-  bedR: 170, bedSpeed: 300, bedTell: 0.9, bedHeal: 0.012, bedRad: 160, bedPause: 0.2, // (rounds: bed ring radius round you, her walking speed, tell, heal per 0.25 s tick as a share of max HP, heal radius)
+  bedR: 170, bedSpeed: 240, bedTell: 0.9, bedHeal: 0.012, bedRad: 160, bedPause: 0.2, bedCap: 6, // (rounds: bed ring radius round you, her walking speed, tell, heal per 0.25 s tick as a share of max HP, heal radius, ticks an add can take in its life: unlimited, the adds round you never died and bot fights ran 260 to 400 s)
   fpCopies: 2, fpLen: 4, fpTell: 0.5, fpGap: 1.6, fpRing: 0.3, fpR: 220, // (falsepos)
   scHalf: Math.PI / 6, scTell: 0.8, scSweep: 1.2, scLen: 950, // (saccade: half angle = 30 degrees, so a 60 degree sector)
   rfTell: 1.0, rfWave: 1.0, rfRows: 4, rfCols: 4, rfR: 52, rfLife: 4, // (reflux)
-  dnTell: 0.9, dnRush: 1.0, dnSpeed: 360, dnGap: 46,
+  dnTell: 0.9, dnRush: 1.0, dnSpeed: 360, dnGap: 46, noms: 6, // (dinner; noms: snacks that heal her per pattern cycle, devour and both dinners together, 3% each: with each feed healing 18% she healed back everything the bot dealt)
 };
 
 // The new patterns replace every generic spray slot (data.js BOSSES and roster.js ROSTER_BOSSES share one array).
@@ -80,9 +81,10 @@ bossAI = function (e, dt, dist, ux, uy) {
     if (cfo.ph === 0) sg2Swing(e, G.player, cfo.delta / 2, SG2.cfR, SG2.cfSpd); else if (cfo.ph < 3) { e.mvx = 0; e.mvy = 0; e.mvs = 0; } // (still only while the lane is lit and fired; the breath keeps the usual distance)
     return;
   }
-  const patT0 = e.patT, pat0 = d.patterns[e.pat];
+  const patT0 = e.patT, pat0 = d.patterns[e.pat], hp0 = e.hp;
   sg2AI0(e, dt, dist, ux, uy);
   const pat = d.patterns[e.pat];
+  if (d.id === 'queen') sg2Noms(e, s, pat, pat0, hp0);
   if (e.patT < patT0 || pat !== pat0) { s.pat = null; s.cf = s.rd = s.fp = s.sc = s.rf = s.dn = null; } // (a new pattern run: every beat's state goes)
   if (!SG2.ids.includes(pat) || e.patT < 0.6) return;
   if (s.pat !== pat) { s.pat = pat; s.t = 0; s.cf = s.rd = s.fp = s.sc = s.rf = s.dn = null; s.n = 0; s.rfDone = false; }
@@ -197,7 +199,7 @@ function sg2Rounds(e, s, dt, p, left) {
   if (rd.heal <= 0) {
     rd.heal = 0.25;
     const k = e.poison > 0 ? 0.5 : 1;
-    forNear(e.x, e.y, SG2.bedRad, o => { if (o === e || o.boss || o.rival || o.charmed || o.egg || o.dead) return; o.hp = Math.min(o.maxHp, o.hp + o.maxHp * SG2.bedHeal * k); });
+    forNear(e.x, e.y, SG2.bedRad, o => { if (o === e || o.boss || o.rival || o.charmed || o.egg || o.dead || (o.rdN || 0) >= SG2.bedCap) return; o.rdN = (o.rdN || 0) + 1; o.hp = Math.min(o.maxHp, o.hp + o.maxHp * SG2.bedHeal * k); });
   }
 }
 
@@ -268,6 +270,16 @@ function sg2Reflux(e, s, dt, bd, p) {
 }
 
 // ---------------------------------------------------------------- The Macrophage Queen: dinner bell
+// One snack budget a pattern cycle (SG2.noms, 3% of her health each) shared by devour and both dinners. She still eats past it
+// (the adds go), it just stops healing her. Counted from her health rising while she feeds: devour's own code is untouched.
+function sg2Noms(e, s, pat, pat0, hp0) {
+  if (pat === 'summon' && pat0 !== 'summon') s.noms = SG2.noms; // (the cycle starts with the summon)
+  if (s.noms == null) s.noms = SG2.noms;
+  if (!(e.hp > hp0) || (pat !== 'devour' && pat !== 'dinner')) return;
+  const per = e.maxHp * 0.03, ate = Math.max(1, Math.round((e.hp - hp0) / per)), ok = Math.max(0, Math.min(ate, s.noms));
+  s.noms -= ok;
+  e.hp = Math.min(e.maxHp, hp0 + per * ok);
+}
 function sg2Dinner(e, s, dt, bd, dist, ux, uy, p) {
   let dn = s.dn;
   const adds = () => G.enemies.filter(o => !o.dead && o.summonedBy === e && !o.charmed);
@@ -303,7 +315,9 @@ function sg2Dinner(e, s, dt, bd, dist, ux, uy, p) {
     const ddx = e.x - o.x, ddy = e.y - o.y, dd = Math.hypot(ddx, ddy) || 1;
     if (dd > 290) { o.x += ddx / dd * 180 * dt; o.y += ddy / dd * 180 * dt; }
   }
+  const h0 = e.hp;
   bossSpecial(e, 'devour', dt, dist, ux, uy, a, bd); // (reuse devour: the pull, the heal, the ring)
+  sg2Noms(e, s, 'dinner', 'dinner', h0); // (the cycle's snack budget applies here too: the wrapper's check ran before this call)
 }
 // A dinner cut short (the pattern rolled over) must not leave adds frozen.
 function sg2Release(e) {
