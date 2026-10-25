@@ -209,6 +209,7 @@ function v10Tick(dt) {
 function v10Draw() {
   if (G) { pdefDraw(); mutDraw(); f10Draw(); f9Draw(); sigDraw(); } // (enemy defence rings and status marks: fight.js, drawn later by ringtop.js; yours: pdef.js; mutations; Feats: feats10.js; signature weapons: sigweap.js)
   if (G) nf10Draw(); // (telegraphs, wax, trails: newfoes.js)
+  if (G) el10Draw(); // (elite affix marks, pools, telegraphs: elites10.js)
   if (G && typeof mdDraw === 'function') mdDraw(); // (mutation carriers and drops: mutdrop.js)
   if (G) modDraw(); // (v10 modifiers, modifiers.js)
   if (!G || !G.v10fx) return;

@@ -20,12 +20,12 @@ Regular enemies have no per-type weaknesses in v10: counterplay is the defence (
 | 10 | Daughter Cell | swarm | none | force | contact (5 dmg) | - | chase | 9 | 0 | - | - | spawned |
 | 11 | Also-Ran | chaser | none | force | contact (8 dmg) | - | chase | 12 | 10 | - | - | keep |
 | 12 | Bogey | controller | none | mucus | contact stick (0 dmg) | - | bogey | 11 | 1 | cap 8 | - | keep-merge-check |
-| 13 | Acid Bubble | carrier | none | acid | burst (18 dmg, 0.5s tell) | - | bomber | 12 | 3 | - | - | keep-clarify |
+| 13 | Acid Bubble | carrier | none | acid | burst (18 dmg, 0.5s tell) | - | new_bomber | 12 | 3 | - | - | keep-clarify |
 | 14 | Navel Fluff | chaser | none | force | contact (3 dmg) | - | drift | 13 | 1.1 | cap 8 | - | keep |
 | 15 | Candida | swarm | none | force | contact (5 dmg) | - | yeast | 11 | 0 | - | - | spawned |
 | 16 | Matchstick | charger | none | fire | contact charge (12 dmg, 0.7s tell) | - | new_matchstick | 10 | 1.4 | - | - | new |
 | 17 | Antibody | shooter | none | acid | proj (6 dmg) | aimed, 6 dmg, speed 170, every 2.6s | ranged | 13 | 4 | - | - | keep-clarify |
-| 18 | Killer T-Cell | shooter, sniper | none | blood | beam (16 dmg, 0.9s tell) | snipe, 16 dmg, speed 430, every 3.6s | ranged | 13 | 1.5 | - | - | keep-if-distinct |
+| 18 | Killer T-Cell | shooter, sniper | none | blood | beam (16 dmg, 0.9s tell) | - | new_lancer | 13 | 1.5 | - | - | keep-if-distinct |
 | 19 | Daughter Colony | swarm | none | force | contact (6 dmg) | - | chase | 12 | 0 | - | cut from random spawns | spawned |
 | 20 | Complement Protein | controller | none | force | contact mark (6 dmg) | - | complement | 12 | 0.9 | cap 3 | - | keep-clarify |
 | 21 | Cortisol Puff | relay | none | force | contact (6 dmg) | - | cortisol | 13 | 0.9 | cap 3 | - | keep |
@@ -44,7 +44,7 @@ Regular enemies have no per-type weaknesses in v10: counterplay is the defence (
 | 34 | Puffball | carrier | none | force | contact (8 dmg) | - | chase | 17 | 1.4 | cap 6 | - | keep |
 | 35 | Fibrin Weaver | relay | none | force | contact (8 dmg) | - | fibrin | 15 | 0.8 | cap 3 | - | keep |
 | 36 | Second Dose | shooter | none | force | burst volley (4.2 dmg, 0.7s tell) | aimed, 7 dmg, speed 360, every 3s | sperminator | 12 | 0 | - | - | spawned |
-| 37 | Cytokine Caster | shooter | none | fire | spread (9 dmg, 0.5s tell) | ring x8, 9 dmg, speed 140, every 3.2s | ranged | 15 | 2 | - | - | keep-if-distinct |
+| 37 | Cytokine Caster | shooter | none | fire | spread (9 dmg, 0.5s tell) | - | new_caster | 15 | 2 | - | - | keep-if-distinct |
 | 38 | Platelet Clump | tank | none | force | contact (10 dmg) | - | chase | 15 | 1.2 | cap 6 | - | keep |
 | 39 | Plasma Cell | relay | Membrane (30% pool) | force | contact (7 dmg) | - | plasma | 15 | 0.9 | cap 3 | - | keep |
 | 40 | Headbutter | charger | none | force | contact charge (18 dmg, 0.7s tell) | - | charge | 16 | 3 | - | - | keep-clarify |
@@ -57,7 +57,7 @@ Regular enemies have no per-type weaknesses in v10: counterplay is the defence (
 | 47 | Stem Cell | summoner | Membrane (30% pool) | force | contact (6 dmg) | - | stem | 15 | 0.7 | cap 3 | - | keep |
 | 48 | Pepsinator Jr | chaser | none | acid | contact (14 dmg) | - | chase | 24 | 0 | - | cut from random spawns | spawned |
 | 49 | Callus | tank | Shell x1 (-3/hit) | force | contact (12 dmg) | - | chase | 16 | 1.1 | cap 6 | - | keep-merge-check |
-| 50 | Diatom | shooter, tank | Shell x2 (-3/hit) | force | spread (8 dmg, 0.4s tell) | ring x6, 8 dmg, speed 150, every 2.8s | ranged | 16 | 1.4 | - | - | keep-if-distinct |
+| 50 | Diatom | shooter, tank | Shell x2 (-3/hit) | force | spread (8 dmg, 0.4s tell) | - | new_diatom | 16 | 1.4 | - | - | keep-if-distinct |
 | 51 | Natural Killer | charger | Evasion (35% miss) | force | contact pounce (13 dmg, 0.4s tell) | - | alien | 13 | 1.3 | - | - | keep |
 | 52 | Grease Ball | tank | Squishy (-35% Force) | force | contact (11 dmg) | - | chase | 16 | 1.2 | cap 6 | heavy | keep |
 | 53 | Birthday Candle | controller | Shell x2 (-3/hit) | fire | pool wax (0.6s tell) | - | new_candle | 14 | 0.8 | cap 1 | - | new |
@@ -70,8 +70,8 @@ Regular enemies have no per-type weaknesses in v10: counterplay is the defence (
 | 60 | Brood Cyst | summoner | none | force | proj launch (6 dmg, 0.35s tell) | - | brood | 26 | 1 | - | - | keep |
 | 61 | Mucus Wall | support, tank | Membrane (50% pool) | mucus | contact (14 dmg) | - | aura | 20 | 2 | - | - | revise |
 | 62 | Booster | elite, shooter | Shell x2 (-3/hit) | force | burst volley (5.4 dmg, 0.7s tell) | aimed, 9 dmg, speed 360, every 4s | sperminator | 14 | 1.1 | - | - | keep |
-| 63 | Amoeba | tank, controller | Squishy (-35% Force) | acid | contact engulf (14 dmg, 0.6s tell) | - | engulf | 30 | 0.9 | - | spongy, grows to 175 | revise |
-| 64 | Water Bear | tank | Shell x4 (-3/hit) | force | contact (20 dmg) | - | chase | 22 | 0.8 | - | heavy, tunnels | keep-clarify |
+| 63 | Amoeba | tank, controller | Squishy (-35% Force) | acid | contact engulf (14 dmg, 0.6s tell) | - | engulf | 30 | 0 | - | spongy, grows to 175 | park |
+| 64 | Water Bear | tank | Shell x4 (-3/hit) | force | contact (20 dmg) | - | chase | 22 | 0.8 | - | heavy | keep-clarify |
 | 65 | Alpha Swimmer | tank | Membrane (50% pool) | force + static | contact (30 dmg) | - | chase | 28 | 0.6 | - | - | review-role |
 
 ## Bosses

@@ -2014,7 +2014,7 @@ function drawEnemy(e, lod) {
   let jx = 0, jy = 0;
   if (hk > 0) { const kick = 3.2 * hk * hk * (e.hitK || 1) * big * S, sh = 1.4 * hk * big * S * (Math.floor(G.realT * 60) % 2 ? 1 : -1); jx = Math.cos(e.hitA) * kick - Math.sin(e.hitA) * sh; jy = Math.sin(e.hitA) * kick + Math.cos(e.hitA) * sh; }
   const x = sx(e.x) + jx, y = sy(e.y) + jy, r = e.r * S * squash * e.vs * breathe;
-  ctx.globalAlpha = e.phased ? 0.25 : e.def.ethereal ? 0.55 : 1;
+  ctx.globalAlpha = e.phased || e.phTell ? phFlick(e) : e.def.ethereal ? 0.55 : 1;
   if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
   if (e.boss && !e.egg) drawBossAura(e, x, y, r);
   if (e.boss) drawBossTells(e, x, y, r);
@@ -2042,7 +2042,7 @@ function drawEnemy(e, lod) {
     const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : fst ? e.color : null;
     const lk = enemyLook(e);
     if (lk && lk.flicker && Math.random() < 0.08) ctx.globalAlpha = 0.3; // Quantum Swimmer: not entirely here
-    drawShip(x, y, face, tag, e.phased ? 0.25 : ctx.globalAlpha, e.r * squash * e.vs / 8, e, lk);
+    drawShip(x, y, face, tag, e.phased || e.phTell ? phFlick(e) : ctx.globalAlpha, e.r * squash * e.vs / 8, e, lk);
   } else if (sh === 'krill') {
     drawKrill(e, x, y, r, face);
   } else if (MICROBES[sh]) {
@@ -2499,7 +2499,7 @@ function drawHud() {
   // Off-screen shooters: red chevrons on the screen edge, flashing just before they fire.
   const shooters = [];
   for (const e of G.enemies) {
-    if (e.dead || e.boss || e.charmed || e.rival || !e.def.shoot) continue;
+    if (e.dead || e.boss || e.charmed || e.rival || !defShoots(e.def)) continue;
     const d = Math.hypot(e.x - cam.x, e.y - cam.y);
     if (d < 1100) shooters.push([d, e]);
   }
@@ -2871,7 +2871,7 @@ function drawEnemyDetail(e, x, y, r, rot) {
     case 'bulwark': { // Mucus Wall: thick layered slime, oozing
       for (let i = 1; i <= 2; i++) { ctx.beginPath(); for (let j = 0; j <= 24; j++) { const a = j / 24 * TAU, rr = r * (1 + 0.16 * i + 0.05 * Math.sin(a * 4 + t * (1 + i * 0.4))); j ? ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } halo(2.2 - i * 0.6, 0.35 - i * 0.1); }
       ctx.fillStyle = 'rgba(255,255,255,0.35)'; for (let i = 0; i < 3; i++) { const ph = (t * 0.5 + i / 3) % 1, a = e.id + i * 2.1; ctx.globalAlpha = 1 - ph; ctx.beginPath(); ctx.arc(x + Math.cos(a) * r * 1.2, y + Math.sin(a) * r * 1.2 + ph * r * 0.8, 2 + 2 * (1 - ph), 0, TAU); ctx.fill(); }
-      ctx.globalAlpha = e.phased ? 0.25 : e.def.ethereal ? 0.55 : 1;
+      ctx.globalAlpha = e.phased || e.phTell ? phFlick(e) : e.def.ethereal ? 0.55 : 1;
       break;
     }
     case 'summoner': { // Mother Cell: buds swelling round the rim, bigger as the next brood nears

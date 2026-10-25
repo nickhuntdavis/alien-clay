@@ -50,7 +50,14 @@ function fightCd(e) {
   const rank = e.boss ? 'boss' : e.elite ? 'elite' : 'normal';
   e.cd = makeDefence(e.maxHp, d ? d.kind : null, rank, { layers: d && d.layers, memFrac: d && d.memFrac }); // (memFrac: foemem.js)
   e.cd.hp = e.hp;
+  const tl = r && r.thickLayers; // (Callus: one layer with twice the usual Shell hit points, ENEMY_HANDOFF B8)
+  if (tl && e.cd.layers > 0) { e.cd.layerHp *= 2; e.cd.layerHpK = 2; }
   return e.cd;
+}
+// Knockback multiplier from the defence (COMBAT_MATRIX 3, 11.4): Squishy halves it; a Membrane that is up cuts it too.
+function knockDefMul(e) {
+  const c = fightCd(e);
+  return c.def === 'squishy' ? 1 - COMBAT.squishyKnockCut : c.def === 'membrane' && c.memMax > 0 && c.mem > 0 ? 1 - COMBAT.membraneKnockCut : 1;
 }
 const fst = () => G.fst || (G.fst = { rx: {}, dmg: { weapon: 0, reaction: 0, dot: 0 }, miss: 0, mem: 0, layers: 0, thorns: 0, stagger: 0, possess: 0, corrode: 0, ignite: 0, snareT: 0 });
 const inZone = (z, x, y) => z.life > 0 && Math.hypot(z.x - x, z.y - y) <= z.r;
@@ -363,7 +370,7 @@ function fightDraw() {
       ctx.lineWidth = 2 + 2 * k; ctx.beginPath(); ctx.arc(x, y, r + 5 * S, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0.02, k)); ctx.stroke();
     }
     if (c && c.def === 'shell') for (let i = 0; i < c.layers; i++) { // one brown ring per layer; the outer one fades as it wears
-      const outer = i === c.layers - 1, hp = c.layerHp / (c.maxHp * 0.15);
+      const outer = i === c.layers - 1, hp = c.layerHp / (c.maxHp * 0.15 * (c.layerHpK || 1));
       ctx.strokeStyle = col(FIGHT_COL.shell); ctx.globalAlpha = outer ? 0.35 + 0.55 * Math.max(0, hp) : 0.9; ctx.lineWidth = 2.2;
       ctx.beginPath(); ctx.arc(x, y, r + (3 + i * 3.5) * S, 0, TAU); ctx.stroke();
     }

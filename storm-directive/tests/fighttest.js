@@ -18,6 +18,9 @@ const { chromium } = require('playwright');
     out.squishy = [hit(sq, 'phys', 100), hit(pl, 'phys', 100)].map(Math.round);
     if (!(out.squishy[0] < out.squishy[1] * 0.7)) bad.push('Squishy did not soften Force: ' + out.squishy);
     if (Math.round(hit(sq, 'fire', 100)) < 99) bad.push('Squishy cut Acid');
+    { const shove = e => { e.kx = e.ky = 0; damageEnemy(e, 1, { elem: 'phys', atk: 'proj', noCrit: true, wname: 'test', knock: 100, kx: 1, ky: 0 }); return e.kx; };
+      const a1 = shove(sq), b1 = shove(pl); out.knock = [Math.round(a1), Math.round(b1)];
+      if (!(b1 > 0 && Math.abs(a1 / b1 - 0.5) < 0.05)) bad.push('Squishy knockback not half of plain: ' + out.knock); }
     const mb = foe('bulwark');
     const d1 = hit(mb, 'fire', 100); out.membrane = [Math.round(d1), Math.round(mb.cd.mem)];
     if (d1 !== 0 || !(mb.cd.mem < mb.cd.memMax)) bad.push('Membrane did not absorb: ' + out.membrane);

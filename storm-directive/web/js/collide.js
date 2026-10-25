@@ -47,6 +47,7 @@ const cdBase = e => Math.max(40, e.speed || 0);
 const cdWall = (x, y) => !!(G.lvl && typeof lvSolidAt === 'function' && lvSolidAt(x, y));
 
 function cdDamage(e, o, h, f, w) {
+  G.cdN = (G.cdN || 0) + 1; // (collisions this run: tests and stats)
   if (!(h > 0) || !w) return;
   const src = Object.assign({}, weaponSrc(w), { elem: 'phys', knock: 0, noCrit: true, wname: 'Collision', cdHit: true, mwDet: true });
   if (e && !e.dead) damageEnemy(e, h * f * cdTake(e), src);

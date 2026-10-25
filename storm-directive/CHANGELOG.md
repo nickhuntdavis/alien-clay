@@ -3,6 +3,108 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.131 (versionCode 410): 2026-10-25 Shared mechanics batch 1: tags, bodies, collisions
+- Merged: `ccr-f8b59347-xf7dl4` into `main` on main's v10.130. COMBAT_MATRIX.md section 15 (shared mechanics proposal) and rules 15.1 to 15.3 in code; MODIFIER_MATRIX.md section 8 lists the cells they cover.
+
+### Folded from ccr-f8b59347-xf7dl4: 2026-10-25 Shared mechanics batch 1: tags, bodies, collisions
+- Systems: weapon tags (new), bodies (new), collisions (new), wide modifiers
+- Files: wtags.js (new), bodies.js (new), collide.js (new), modwide.js, index.html, tests/wtagstest.js, tests/bodiestest.js, tests/collidetest.js, tests/run.sh
+- What: COMBAT_MATRIX.md 15.1 to 15.3 in code. Every weapon carries tags (`wTags(w)`, live with its modifiers). Your mines and pools are bodies: wells pull, hold and fling them (mine half, pool quarter; +50% on a supernova) and knockback blasts scatter them. A knocked enemy moving faster than its base speed deals Force collision damage to itself and whatever it hits (mate or wall; 40% to 100% of the launching hit by speed), trips your mines, and passes on velocity slower than it had. Collide.js owns collisions; modwide's Wall Slam loop stands down when it is loaded (Knockback branch A adds +20/+40% to collision damage, Bowling Ball and Trampoline change the transfer). Laser mines are not bodies yet.
+- Save data: none.
+- Hooks: modwide.js mwTick Wall Slam loop, delivforms.js Melee Bouncer loop and wup1.js shove tracker (Bumper Cars, Pile-Up, Skittles, Riot Control) -> one-line skip when `cdOn()`; wup1.js shoveTrack records the launching hit (`e.cdLast`). `G.cdN` counts collisions. bodies.js wraps wellTick, aoe, mwMineGo and detonateMine. collide.js registers hookOn('tick', 'cdTick') and hookOn('proc', 'cdProc'); bodies.js hookOn('tick', 'bdTick').
+- Risk: balance. Collision damage is new damage on every knockback build (Skill Issue, Panic Button, Knockback modifier); wells now carry mines, so Family Ties next to a mine-layer moves the minefield. Not simulated yet: run `node sim/wave20.js 4 mortal` before trusting the win rate.
+
+### Folded from ccr-f8b59347-xf7dl4: 2026-10-25 Shared mechanics proposal (docs only)
+- Systems: docs
+- Files: redesign docs/COMBAT_MATRIX.md (section 15, decisions 64 to 68), redesign docs/WEAPON_TAGS.md (new), redesign docs/MODIFIER_MATRIX.md (section 8, Range and Up Close N/A rows)
+- What: five game-layer rules proposed so weapons and modifiers combine through shared nouns; 42 modifier cells listed for removal once simulated.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs).
+
+## v10.130 (versionCode 409): 2026-10-25 Enemy handoff Batch B
+- Merged: `claude/enemy-b1` to `claude/enemy-b11` (ENEMY_HANDOFF.md Batch B: the roster's promised behaviours) into `claude/practical-brahmagupta-ry2k05` on main's v10.129. One build. Post-merge fixes: shooter detection by attack type (`defShoots`, game.js) for the chevron, SHOOTERS FIRST tier and spawn weight; no Gifting affix on an aura giver; the Snot Bubble's Static pop on the `hit:late` event; f3test drops the Cooties-only antihistamine check.
+
+### Folded from enemy-b1: 2026-10-25 Marked bursts: Acid Bubble and Snot Bubble (enemy handoff B1)
+- Systems: enemies
+- Files: bursts10.js (new), roster.js (bomber ai -> new_bomber), game.js (one ai name in the danger weight), index.html, ARCHITECTURE.md, tests/newfoestest.js
+- What: the Acid Bubble stops near you, marks its ring for 0.5 s, then bursts once (18, Burst, Evasion never applies) and leaves an Acid Pool; killed first it only pops the pool (no blast, no friendly fire). A Snot Bubble killed by you marks its splash area for 0.5 s before it lands, then leaves a Mucus Pool (80 radius, 4 s, Snotty while you stand in it); Static still pops it at once and harmlessly.
+- Save data: none
+- Hooks: hooks.js tick and kill via hookOn; wraps nf10Draw (newfoes.js) and foes3Kill (foes3.js, deferred only when called with a src, so f3test is unchanged)
+- Risk: the Acid Bubble's old contact-kill blast and its friendly fire are gone; Acid Pool tick damage (0.2 x 18 per 0.5 s) and Snot pool dose (0.6 s) are my choices, the roster gives none. Levels' Amylase Droplet copies the bubble and inherits it.
+
+### Folded from enemy-b2: 2026-10-25 Killer T-Cell fires a telegraphed Beam (B2, not shipped)
+- Systems: new enemies, player defences
+- Files: lancer10.js (new), index.html, roster.js, pdef.js, game.js, tests/newfoestest.js, tests/pdeftest.js
+- What: the Killer T-Cell holds range, lights a fixed lane to you for 0.9 s (nothing hurts during it), then fires a 0.4 s Beam of four hits down that lane, stopped by walls. Hits go through `hurtPlayer` as kind `beam`, so Evasion and the old dodge roll never apply and leaving the lane avoids it; Membrane and Shell still do. Force or Static hits during the wind-up interrupt it. Its v9 `shoot` row is gone.
+- Save data: none
+- Hooks: pdef.js PDEF_ATK gains `beam: 'beam'`; game.js hurtPlayer skips the old `P.dodge` roll when kind is `beam`; `proc` hook (lancerInterrupt); wraps `nf10Draw`.
+- Risk: damage is the roster 16 per Beam, then the usual V10 hurt scaling (about 12 landed in tests). Unsimmed. `ENEMY_BEHAVIOUR.md` not regenerated.
+
+### Folded from enemy-b3: 2026-10-25 Cytokine Caster fan and Diatom ring with tells
+- Systems: enemies
+- Files: shooters10.js (new), roster.js (Caster and Diatom rows only), index.html, tests/newfoestest.js, ARCHITECTURE.md
+- What: the Caster shows a 0.5 s fan outline then fires 5 Acid shots over 70 degrees; the Diatom shows a 0.4 s ring outline (a tick per shot) then fires a ring of 6. Both stand still during the tell; aim is locked when it starts. Their `shoot` rows are gone (damage, count, arc, speed and cooldown read from `atk[0]`).
+- Save data: none.
+- Hooks: none in shared files (index.html script tag after newfoes.js; wraps `nf10Draw`).
+- Risk: with no `def.shoot` the two lose the off-screen shooter chevron (render.js), the autorun aim tier (autorun.js `aimShootTier`) and the 0.4x spawn weight for shooters (game.js `wOf`), so they spawn more often than before. Global `BUL.keep` still drops 1 bullet in 10, so a fan can show 4.
+
+### Folded from enemy-b4: 2026-10-25 Mucus Wall and Interferon grant a capped Membrane (enemy handoff B4)
+- Systems: enemies
+- Files: foeaura10.js (new), index.html, game.js, foes.js, foes2.js, ARCHITECTURE.md, tests/foememtest.js
+- What: allies without a defence of their own near a Mucus Wall (115) or Interferon (170) get a 25% Membrane through fight.js's pool, drawn as the enemy bubble; it is removed 1.5 s after the last giver stops refreshing it. Native Membranes, Shell, Thorns and Evasion are left alone, so nothing stacks past the cap. `auraArm` (+4 armour) and Interferon's flat absorb (`ifn`) are gone.
+- Save data: none
+- Hooks: hookOn('tick') in foeaura10.js; game.js 'aura' case emptied, effArmour and foes.js no longer read auraArm; foes2.js interferon AI and foes2Dmg no longer use ifn.
+- Risk: Mucus Wall/Interferon packs now make enemies sturdier by a Membrane instead of 4 armour / flat absorb (balance unsimmed); old `ifn`/`auraArm` writes in newfeats.js are harmless.
+
+### Folded from enemy-b5: 2026-10-25 Ghost Swimmer phases as Evasion, Quantum Swimmer tells its jump (B5, unshipped)
+- Systems: enemies (roster behaviours), rendering
+- Files: phasers10.js (new), game.js, render.js, index.html, ARCHITECTURE.md, tests/newfoestest.js
+- What: a phased Ghost Swimmer stays hittable (damageEnemy no longer returns 0; autoaim can pick it; its Evasion defence still rolls) with contact off and a flicker (also the last 0.4 s before it fades). Quantum Swimmer picks its landing spot, draws a puff there for 0.4 s, then jumps; one jump per 2 s at most.
+- Save data: none.
+- Hooks: game.js 'blink' case -> qsBlink; render.js enemy alpha (2 lines) -> phFlick; phasers10.js wraps nf10Draw and registers a 'tick' hook.
+- Risk: Ghost is now killable while faded (easier); Quantum's jump is 0.4 s slower.
+
+### Folded from enemy-b6: 2026-10-25 Summon and heal caps (enemy handoff B6)
+- Systems: enemies, roster
+- Files: game.js (medic, summon, split), foes2.js (stem), tests/newfoestest.js
+- What: Mother Cell keeps at most `summon.cap` (6) living children; Nurse Cell heals each ally at most `heal.perTargetCap` (3) times and skips full-health allies; Stem Cell revives at most `summon.cap` (3) per Stem; Mitotic Cell splits only while `splitGen < splitCap`.
+- Save data: none
+- Hooks: none (edits in place)
+- Risk: Nurse/Mother waves are slightly easier to clear; Stem stops after 3 revives (it idles).
+
+### Folded from enemy-b7: 2026-10-25 Elite affixes (ENEMY_HANDOFF B7)
+- Systems: enemies, elites
+- Files: elites10.js (new), v10.js, index.html, tests/elitetest.js (new), tests/run.sh, ARCHITECTURE.md
+- What: every elite (not boss, rival or egg) gets exactly one affix picked by its roster role: Trailing (chargers leave 2 s pools, hurt 30% of contact damage per 0.5 s), Fanning (shooters swap every third volley for a 0.8 s telegraphed 5-shot 60 degree spread), Gifting (tanks give one unshielded ally within 260 a 25% Membrane for 3 s, drawn link, every 7 s), Hasty (chasers x1.5 speed below 30% health, ring and streaks). Smouldering (newfoes.js) is routed through the picker: 25% where the role has a specific affix, always where it has none. A small mark above the elite shows the affix; no text on screen. Elite HP stays x5.
+- Save data: none
+- Hooks: v10.js v10Draw -> el10Draw; `hookOn('tick', 'el10Tick', ..., -1)` (runs before nf10Tick); `shootPattern` is wrapped in elites10.js (Fanning volley counter).
+- Risk: roles with no specific affix (swarm, carrier, summoner, leech, relay, sprinter, sniper, controller, support) now always roll Smouldering (was 25%), so every elite of those roles bursts on death; shooters that do not call `shootPattern` never fan.
+
+### Folded from enemy-b8: 2026-10-25 Hidden sixth defences and Amoeba parked (B8, B9)
+- Systems: enemies (roster), combat (defences), fight
+- Files: roster.js (Callus, Water Bear, Amoeba rows), game.js (damageEnemy: `tun` and `noCrit` checks removed), fight.js (`thickLayers`, Shell ring display), data.js and foes2.js (legacy `tun`/`noCrit` flags removed), ENEMY_STATS.md, ENEMY_BEHAVIOUR.md
+- What: Callus can be crit again and instead has one Shell layer with twice the usual layer hit points (`thickLayers`, read in `fightCd`). Water Bears no longer curl into a near-invulnerable tun. The Amoeba is parked (`w: 0`, `status: 'park'`) until its engulf is designed.
+- Save data: none
+- Hooks: none
+- Risk: Water Bear is easier to kill below 30% health; Callus takes crits (balance unsimmed). Amoeba and Plasmodium (splits into Amoeba, already a cut candidate) no longer spawn from the director.
+
+### Folded from enemy-b10: 2026-10-25 Phlegm Hocker leaves a Mucus patch (not shipped)
+- Systems: enemies (foes3), world objects (Mucus patch)
+- Files: web/js/foes3.js, tests/f3test.js
+- What: the Hocker's glob now leaves a 40-wide, 4 s Mucus patch (`fightPatch`, fight.js) where it lands, bursts or runs out of range; standing in one keeps you Snotty. The gargle (Water makes the next 3 globs rinse puddles), the GARGLED reaction and the unused `pk` dose are deleted. Hocker tip text is `TODO_COPY:hocker_tip`.
+- Save data: none
+- Hooks: hookOn('tick', 'f3patch') in foes3.js; no shared file edited.
+- Risk: more ice zones on screen (capped at 150); patches feed Slick Move, Snot Socket and Flammable Mucus. f3test's antihistamine and popped checks already failed before this change (unrelated).
+
+### Folded from enemy-b11: 2026-10-25 Knockback rules from the matrix (B11)
+- Systems: combat, fight
+- Files: game.js (damageEnemy knockback line), fight.js (knockDefMul), combat.js (two COMBAT constants), tests/fighttest.js
+- What: Squishy enemies take 50% less knockback (COMBAT_MATRIX 11.4); an enemy whose Membrane is up takes 50% less too (matrix 3 gives no figure; Force already does 50% to Membrane). The generic x1.5 knockback on Snotty (chill) enemies is gone; Snot Rocket keeps its own launch.
+- Save data: none
+- Hooks: none (game.js calls knockDefMul from fight.js)
+- Risk: Snotty enemies slide less far; Squishy and Membrane enemies are shoved half as far, so Force/Knockback builds feel weaker against them. Pull (12.2) not changed here.
+
 ## v10.129 (versionCode 408): 2026-10-25 Enemy handoff Batch A
 - Merged: `claude/practical-brahmagupta-ry2k05` (enemy assessment; ENEMY_HANDOFF.md Batch A, branches enemy-a1a to enemy-a7) into main's v10.127. One build.
 - Also merged: `claude/enemy-a1b` (A1b, relics ported to v10: `relics10.js`, `tests/relictest.js`; 12 `TODO_COPY:relic_*`/`spoils_hide_desc` placeholders).

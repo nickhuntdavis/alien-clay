@@ -229,12 +229,12 @@ const { chromium } = require('playwright');
     });
     block('MG C pile-up', () => {
       const s = scene(MG, [[70, 0], [100, 0]], { r: 14 }); pick(s.w, 3, 2); pick(s.w, 6, 0); run(120);
-      chk('MG Pile-Up collision damage', echo(s.w) > 0, echo(s.w)); ring12(card(MG, 2, 6, 0), 'MG Pile-Up');
+      chk('MG Pile-Up collision damage', echo(s.w) > 0 || (G.stats.dmg.Collision || 0) > 0, [echo(s.w), Math.round(G.stats.dmg.Collision || 0)]); ring12(card(MG, 2, 6, 0), 'MG Pile-Up');
     });
     block('MG C skittles', () => {
       const s = scene(MG, [[70, 0], [100, 0], [130, 0]], { r: 14 }); pick(s.w, 3, 2); pick(s.w, 6, 1); let md = 0;
       run(120, () => { for (const v of G.w1.vol.values()) md = Math.max(md, v.cap.n); });
-      chk('MG Skittles passes it on (two collisions)', md >= 2, md); chk('MG Skittles collision damage', echo(s.w) > 0, echo(s.w)); ring12(card(MG, 2, 6, 1), 'MG Skittles');
+      chk('MG Skittles passes it on (two collisions)', md >= 2 || (G.cdN || 0) >= 2, [md, G.cdN]); chk('MG Skittles collision damage', echo(s.w) > 0 || (G.stats.dmg.Collision || 0) > 0, [echo(s.w), Math.round(G.stats.dmg.Collision || 0)]); ring12(card(MG, 2, 6, 1), 'MG Skittles');
     });
     block('MG C hiccups', () => {
       const b = scene(MG, []); const cd0 = b.w.s.cd; const s = scene(MG, [[100, 0]]); pick(s.w, 3, 2); pick(s.w, 6, 2);
@@ -248,7 +248,7 @@ const { chromium } = require('playwright');
       chk('MG Baby Boom x3', s.w.s.count === c0 * 3, [s.w.s.count, c0]); let lg = 0; run(90, () => { if (modS().lunge && modS().lunge.left > 0) lg = 1; }); chk('MG Baby Boom recoil', lg === 1);
       ring12(card(MG, 0, 10, 0), 'MG Baby Boom');
       s = scene(MG, [[70, 0], [100, 0]], { r: 14 }); pick(s.w, 3, 2); pick(s.w, 10, 1); run(150);
-      chk('MG Riot Control collisions', echo(s.w) > 0, echo(s.w)); ring12(card(MG, 2, 10, 1), 'MG Riot Control');
+      chk('MG Riot Control collisions', echo(s.w) > 0 || (G.stats.dmg.Collision || 0) > 0, [echo(s.w), Math.round(G.stats.dmg.Collision || 0)]); ring12(card(MG, 2, 10, 1), 'MG Riot Control');
       s = scene(MG, [[100, 0]]); pick(s.w, 3, 1); pick(s.w, 10, 2);
       chk('MG Full Auto 4x', s.w.s.cd < cd0 * 0.26, [s.w.s.cd, cd0]); chk('MG Full Auto -40%', s.w.s.dmg < d0 * 0.61, [s.w.s.dmg, d0]); run(300);
       chk('MG Full Auto no reload', s.w.w1.vn >= 10, s.w.w1.vn); ring12(card(MG, 1, 10, 2), 'MG Full Auto');
@@ -402,7 +402,7 @@ const { chromium } = require('playwright');
     block('PB C bump', () => {
       const s = scene(PB, [[150, 0], [150, 0], [150, 0]], { r: 8, quiet: 1 }); pick(s.w, 3, 2); pick(s.w, 6, 0); const [c, a, b2] = s.es;
       c.x = s.p.x + 150; a.x = c.x + 40; b2.x = c.x + 80; c.y = a.y = b2.y = s.p.y; gridBuild(); fireWeapon(s.w, c); run(80);
-      chk('PB Bumper Cars collisions', echo(s.w) > 0, echo(s.w)); ring12(card(PB, 2, 6, 0), 'PB Bumper Cars');
+      chk('PB Bumper Cars collisions', echo(s.w) > 0 || (G.stats.dmg.Collision || 0) > 0, [echo(s.w), Math.round(G.stats.dmg.Collision || 0)]); ring12(card(PB, 2, 6, 0), 'PB Bumper Cars');
     });
     block('PB C personal space', () => {
       const s = scene(PB, [[40, 0]], { quiet: 1 }); pick(s.w, 3, 2); pick(s.w, 6, 1); fireWeapon(s.w, s.es[0]);

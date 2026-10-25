@@ -209,6 +209,8 @@ function forNear(x, y, r, fn) {
 }
 
 // ---------------------------------------------------------------- targeting
+// A def that shoots: the legacy shoot row, or a roster attack that is a Projectile, Spread or Beam (shooters10.js, lancer10.js have no shoot row).
+const defShoots = d => !!(d && (d.shoot || (d.atk && d.atk.some(a => a.type === 'proj' || a.type === 'spread' || a.type === 'beam'))));
 function targetScore(dir, e, d2) {
   if (dir.length > 9 && dir.includes('>')) return aimPair(dir, e, d2); // (a primary plus a tie-breaker: autorun.js)
   switch (dir) {
@@ -236,7 +238,7 @@ function acquire(dir, range, x, y, exclude) {
   if (egg && !egg.dead && egg.woke && eggBreakable() && egg !== exclude && Math.random() < 0.5 && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg;
   let best = null, bv = -Infinity;
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e.charmed || e === exclude || (e.egg && !(e.woke && eggBreakable()))) continue;
+    if (e.dead || e.charmed || e === exclude || (e.egg && !(e.woke && eggBreakable()))) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy, re = range + (e.r || 0);
     if (d2 > re * re) continue; // (in reach when its edge is: big bosses no longer drop out at their centre)
     const v = targetScore(dir, e, d2) + (e.evTag ? 1e13 : 0); // run-event targets come first
@@ -248,7 +250,7 @@ function acquireMany(dir, range, x, y, n) {
   if (dir.includes('ownmess')) dir = aimOwnSet(dir, x, y, range); // (MY OWN MESS: aimat.js)
   const list = [];
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e.charmed || (e.egg && !(e.woke && eggBreakable()))) continue;
+    if (e.dead || e.charmed || (e.egg && !(e.woke && eggBreakable()))) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     const re = range + (e.r || 0); if (d2 > re * re) continue; // (in reach when its edge is, as in acquire)
     list.push({ e, v: targetScore(dir, e, d2) });
@@ -257,7 +259,7 @@ function acquireMany(dir, range, x, y, n) {
   return list.slice(0, n).map(o => o.e);
 }
 // Enemy armour scales with the square root of the enemy health clock, so armour and shred still matter late.
-function effArmour(e) { return Math.max(0, e.armour + (e.auraArm > 0 ? 4 : 0) - e.shred) * (e.armK || 1); }
+function effArmour(e) { return Math.max(0, e.armour - e.shred) * (e.armK || 1); }
 
 // ---------------------------------------------------------------- inventory & stats
 function makeSlot(id, isSpell, lvl) {
@@ -793,7 +795,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
-  if (e.dead || e.phased) return 0; // (v10: autoaim skips a Possessed enemy, but area hits still land and set off Alien reactions)
+  if (e.dead) return 0; // (v10: a phased Ghost Swimmer stays hittable at its Evasion cap, phasers10.js; autoaim skips a Possessed enemy, but area hits still land and set off Alien reactions)
   if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
   if (e.def.spongy) e.sorryT = G.t; // (amoebas only knit back together when left alone: arsenal.js engulfAI)
@@ -801,11 +803,6 @@ function damageEnemy(e, dmg, src) {
   // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
   if (e.final) d = Math.min(d, e.maxHp * 0.06);
   if (e.boss) d = Math.min(d, e.maxHp * 0.04); // no one-shotting a boss
-  // Water bears curl into a 'tun' once when badly hurt: nearly invulnerable for a few seconds.
-  if (e.def.tun) {
-    if (e.tunT > G.t) d *= 0.08;
-    else if (!e.tunUsed && e.hp - d < e.maxHp * 0.3) { e.tunUsed = true; e.tunT = G.t + 2.5; d *= 0.08; floatText(e.x, e.y - e.r - 10, 'TUN!', XR.white, 13); }
-  }
   if (src.grudge && e === G.grudge) d *= 3;
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
   d *= hookMul('dmgMul', e, src); // (signatures, toys, genes, combos, chemistry, silly mods, rival relics ...: hooks.js)
@@ -823,7 +820,7 @@ function damageEnemy(e, dmg, src) {
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
-  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; } // (v10: the resolver applies crits last, fight.js)
+  if (!src.noCrit && Math.random() < cc) { crit = true; } // (v10: the resolver applies crits last, fight.js)
   if (e.mark > 0) d *= 1.3; // (marked by other things: Grassed Up and the like)
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
@@ -862,7 +859,7 @@ function damageEnemy(e, dmg, src) {
   if (!src.dot) dmgNumber(e, d, src, crit);
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
   if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy && !(e.tethT > G.t)) { // (tethered by a Fibrin Weaver: foes2.js)
-    const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * (e.chill > 0 ? 1.5 : 1); // (lathered enemies slide further)
+    const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * knockDefMul(e); // (Squishy cuts 50%, Membrane while up: COMBAT_MATRIX 11.4; no generic Snared bonus, Snot Rocket has its own)
     const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
     const l = Math.hypot(kx, ky) || 1;
     e.kx += kx / l * k; e.ky += ky / l * k;
@@ -1035,9 +1032,10 @@ function killEnemy(e, src) {
   if (e.boss) { G.chrono.charges = Math.min(G.chrono.max, G.chrono.charges + 1); }
   addDecal(e.x, e.y, e.r * (e.boss ? 2.2 : 1.4), e.def.color || e.color);
   if (P.lifesteal > 0 && G.lsBudget > 0) { const h = Math.min(P.lifesteal, G.lsBudget); G.lsBudget -= h; healPlayer(h, true); }
-  if (e.def.split) {
+  if (e.def.split && (e.splitGen || 0) < (e.def.splitCap || 1)) { // roster splitCap = generations
     for (let i = 0; i < (e.def.splitN || 2) && G.enemies.length < CAPS.enemies; i++) {
       const s = makeEnemy(ENEMIES[e.def.split], e.x + rand(-12, 12), e.y + rand(-12, 12));
+      s.splitGen = (e.splitGen || 0) + 1;
       G.enemies.push(s);
     }
   }
@@ -1132,7 +1130,7 @@ function setPoison(e, dps, src) { if (!(dps < (e.poisonDps || 0))) e.poisonBy = 
 function hurtPlayer(dmg, from, ent, kind) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
-  if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
+  if (kind !== 'beam' && Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (flinchHit(ent)) return; // (Flinch: bodymods.js)
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
@@ -1281,7 +1279,7 @@ function spawnRandom() {
   let tot = 0;
   // Shooters become more common as the storm builds.
   // Shooters stay as common as they were before the swarms got denser: the extra bodies are melee and swarmers.
-  const wOf = d => d.w * (d.shoot ? 0.4 * (1 + t / 300) : 1);
+  const wOf = d => d.w * (defShoots(d) ? 0.4 * (1 + t / 300) : 1);
   for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t && foeRoom(d)) { pool.push(d); tot += wOf(d); } } // (types at their cap roll another: foes2.js)
   if (!pool.length) return;
   let x = Math.random() * tot, def = pool[0];
@@ -1505,19 +1503,14 @@ function updateEnemies(dt0) {
           if (dist < e.r + p.r + 10) { e.hp = 0; killEnemy(e, {}); continue; }
           break;
         case 'blink':
-          e.stT -= edt;
-          if (e.stT <= 0 && dist > 130) {
-            spawnPart(e.x, e.y, e.color, 8, 120, 0.3);
-            const a = Math.random() * TAU, r = rand(110, 170);
-            e.x = p.x + Math.cos(a) * r; e.y = p.y + Math.sin(a) * r; e.stT = rand(3, 4.5);
-            ring(e.x, e.y, 26, e.color, 0.3);
-          }
+          qsBlink(e, edt, dist); // (tell at the landing spot, then jump: phasers10.js)
           break;
         case 'medic':
           e.stT -= edt;
           if (e.stT <= 0) {
             e.stT = 3;
-            forNear(e.x, e.y, 130, o => { if (o !== e && !o.boss) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * 0.12); } });
+            const hcap = (ROSTER.medic.heal || {}).perTargetCap || 3; // roster: each ally can be healed this many times in its life
+            forNear(e.x, e.y, 130, o => { if (o !== e && !o.boss && (o.nurseN || 0) < hcap && o.hp < o.maxHp) { o.nurseN = (o.nurseN || 0) + 1; o.hp = Math.min(o.maxHp, o.hp + o.maxHp * 0.12); } });
             ring(e.x, e.y, 130, '#7bed9f', 0.5, 2);
           }
           if (dist < 220) { mx = -ux; my = -uy; spd *= 0.7; }
@@ -1529,7 +1522,7 @@ function updateEnemies(dt0) {
           break;
         case 'aura':
           e.stT -= edt;
-          if (e.stT <= 0) { e.stT = 0.5; forNear(e.x, e.y, 115, o => { if (o !== e) o.auraArm = 0.6; }); }
+          // (Mucus Wall's Membrane grant: foeaura10.js)
           break;
         case 'phase':
           e.stT -= edt;
@@ -1543,7 +1536,9 @@ function updateEnemies(dt0) {
           e.shootCd -= edt;
           if (e.shootCd <= 0) {
             e.shootCd = 5;
-            for (let i = 0; i < 2 && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(ENEMIES.skitter, e.x + rand(-20, 20), e.y + rand(-20, 20)));
+            const scap = ROSTER.summoner.summon.cap; let kids = 0; // roster: at most this many of its children alive
+            for (const o of G.enemies) if (o.momId === e.id && o.hp > 0) kids++;
+            for (let i = 0; i < 2 && kids < scap && G.enemies.length < CAPS.enemies; i++, kids++) { const k = makeEnemy(ENEMIES.skitter, e.x + rand(-20, 20), e.y + rand(-20, 20)); k.momId = e.id; G.enemies.push(k); }
             ring(e.x, e.y, 40, e.color, 0.3);
           }
           break;
@@ -2424,7 +2419,7 @@ function autoSteer() {
       // Enemies close in on us, so predict them a little towards the player.
       const ex = e.x + (p.x - e.x) * 0.15, ey = e.y + (p.y - e.y) * 0.15;
       const d = Math.hypot(qx - ex, qy - ey) - e.r - p.r;
-      const w = (e.boss ? 3 : e.elite ? 1.6 : 1) * (e.def.ai === 'bomber' || e.def.ai === 'charge' ? 1.8 : 1) * (e.frozen > 0 ? 0.3 : 1);
+      const w = (e.boss ? 3 : e.elite ? 1.6 : 1) * (e.def.ai === 'bomber' || e.def.ai === 'new_bomber' || e.def.ai === 'charge' ? 1.8 : 1) * (e.frozen > 0 ? 0.3 : 1);
       if (d < threatR) { const k = (threatR - d) / threatR; danger += w * k * k * 1.2; }
       if (d < 14) danger += 4 * w;
     }

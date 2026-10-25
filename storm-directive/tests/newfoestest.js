@@ -17,13 +17,27 @@ const { chromium } = require('playwright');
     // Roster wiring
     const cut = Object.keys(ROSTER).filter(k => ROSTER[k].cut);
     const live = cut.filter(k => ENEMIES[k] && ENEMIES[k].w > 0);
+    // B6 caps: Mother Cell alone keeps at most 6 children, Nurse heals each ally at most 3 times, Mitotic Cell splits one generation
+    fresh(); { const m = foe('summoner', 400, 0); G.player.x = -3000; run(3600, () => { for (const q of G.enemies) if (q !== m && q.momId !== m.id) q.hp = 1e9; });
+      const kids = G.enemies.filter(q => q.momId === m.id && q.hp > 0).length; out.momKids = kids; if (kids > ROSTER.summoner.summon.cap) bad.push('Mother Cell has ' + kids + ' children'); if (!kids) bad.push('Mother Cell summoned none'); }
+    fresh(); { const n = foe('medic', 400, 0), a = foe('crawler', 420, 0); a.maxHp = 1e6; a.hp = 1; run(60 * 40); out.nurseN = a.nurseN; if (a.nurseN > ROSTER.medic.heal.perTargetCap) bad.push('Nurse healed ' + a.nurseN + ' times'); }
     out.cut = cut.length; out.kept = cut.filter(k => ENEMIES[k]).join(',');
     if (live.length) bad.push('spawnable cut entries: ' + live);
     if (cut.filter(k => ENEMIES[k] && !ENEMIES[k].nfKept).length) bad.push('cut entries left in ENEMIES');
     for (const id of ['staticsock', 'stressball', 'mosquito', 'matchstick', 'candle', 'trappedwind', 'ingrown']) {
       if (!ENEMIES[id]) bad.push('missing ' + id); else if (ENEMIES[id].armour !== 0) bad.push(id + ' has armour');
     }
-    if (!ENEMIES.lancer || ENEMIES.lancer.ai !== 'ranged') bad.push('lancer lost its AI: ' + (ENEMIES.lancer && ENEMIES.lancer.ai));
+    if (!ENEMIES.lancer || ENEMIES.lancer.ai !== 'new_lancer' || ENEMIES.lancer.shoot) bad.push('lancer not wired as a Beam: ' + (ENEMIES.lancer && ENEMIES.lancer.ai));
+    // Killer T-Cell (lancer10.js): no damage in the 0.9 s tell, a player who leaves the lane is untouched, one who stays takes a Beam hit
+    for (const stay of [false, true]) {
+      fresh(); G.P.dodge = 0.9; const p = G.player, e = foe('lancer', 250, 0); e.lcCd = 0; e.lcS = null; e.side = 1; e.speed = 0;
+      const hp0 = p.hp; let tele = 0, early = 0, fired = false;
+      run(260, () => { G.state = 'play'; if (e.lcS === 1) { tele++; if (p.hp < hp0) early++; if (!stay && tele === 20) { p.y += 80; } if (stay) e.lcA = Math.atan2(p.y - e.y, p.x - e.x); } if (stay) { p.x = e.x - 250; p.y = e.y; } if (e.lcS === 2) fired = true; p.iframes = Math.min(p.iframes, 0.7); });
+      if (!tele) bad.push('lancer never showed its lane'); if (early) bad.push('lancer hurt during the tell');
+      if (stay && !(p.hp < hp0 && p.hp > hp0 - 17)) bad.push('beam on a player in the lane: ' + (hp0 - p.hp)); // (dodge 0.9 set: a Beam is never dodged)
+      if (!stay && p.hp < hp0) bad.push('player left the lane and was hit: ' + (hp0 - p.hp));
+      out["lancer" + (stay ? "In" : "Out")] = (hp0 - p.hp).toFixed(1) + " tele" + tele + " fired" + fired + " s" + e.lcS + " d" + Math.round(Math.hypot(p.x-e.x,p.y-e.y)) + " len" + Math.round(e.lcLen);
+    }
     if (!ENEMIES.brood || !ENEMIES.planarian) bad.push('feature-file enemies lost');
     // 300 frames each, near the player, no errors; then a draw pass
     for (const id of ['staticsock', 'stressball', 'mosquito', 'matchstick', 'candle', 'trappedwind', 'ingrown']) {
@@ -117,6 +131,42 @@ const { chromium } = require('playwright');
     if (!(nbr.hp < nbr.maxHp)) bad.push('Smouldering Burst hurt nobody');
     let sm = 0; for (let i = 0; i < 200; i++) { const q = makeEnemy(ENEMIES.crawler, 0, 0, { elite: true }); G.enemies.push(q); } run(1); for (const q of G.enemies) if (q.elite && q.nfSm) sm++;
     out.smouldering = sm + '/200'; if (sm < 20 || sm > 85) bad.push('Smouldering share off: ' + sm + '/200');
+    // Ghost Swimmer: phased, it still takes hits (Evasion rolls, not immunity)
+    fresh(); const gh = foe('phantom', 200); gh.speed = 0; gh.phased = true; gh.stT = 99; const g0 = gh.hp;
+    for (let i = 0; i < 40; i++) hit(gh, 'phys', 10, { atk: 'burst' });
+    out.ghost = Math.round(g0 - gh.hp); if (!(gh.hp < g0)) bad.push('phased Ghost took no damage from Burst hits');
+    // Quantum Swimmer: shows its landing spot for 0.4 s, then jumps there; jumps at least 2 s apart
+    fresh(); const qs = foe('blinker', 400); qs.speed = 0; qs.stT = 0; let seen = null, jumps = [], lx = null;
+    run(600, () => { if (qs.qDest && !seen) seen = { x: qs.qDest.x, y: qs.qDest.y, px: qs.x, py: qs.y }; if (qs.qLast != null && qs.qLast !== lx) { jumps.push(qs.qLast); lx = qs.qLast; } });
+    if (!seen) bad.push('Quantum showed no landing spot'); else if (!jumps.length) bad.push('Quantum did not jump to its shown spot');
+    for (let i = 1; i < jumps.length; i++) if (jumps[i] - jumps[i - 1] < 1.99) bad.push('Quantum jumped twice within 2 s');
+    out.quantumJumps = jumps.length;
+    // Caster fan and Diatom ring: no bullet before the tell ends; then 5 (fan, within 70 degrees) or 6 (ring)
+    for (const [id, n, tele] of [['warlock', 5, 0.5], ['diatom', 6, 0.4]]) {
+      fresh(); BUL.keep.fill(true); const c = foe(id, 230); c.speed = 0; c.shootCd = 0; c.hp = c.maxHp = 1e9; G.ebul.length = 0;
+      if (ENEMIES[id].shoot) bad.push(id + ' still has a shoot row');
+      let first = -1, t = 0, tellAt = -1;
+      for (let i = 0; i < 90 && first < 0; i++) { update(1 / 60); t += 1 / 60; if (c.s10T > 0 && tellAt < 0) tellAt = t; if (G.ebul.length) first = t; }
+      if (tellAt < 0) bad.push(id + ' showed no tell');
+      else if (first - tellAt < tele - 0.05) bad.push(id + ' fired ' + (first - tellAt).toFixed(2) + ' s after the tell began (want ' + tele + ')');
+      const mine = G.ebul.filter(b => b.owner === c); out[id + 'N'] = mine.length;
+      if (mine.length !== n) bad.push(id + ' fired ' + mine.length + ' not ' + n);
+      if (id === 'warlock') { const as = mine.map(b => Math.atan2(Math.sin(Math.atan2(b.vy, b.vx) - c.s10A), Math.cos(Math.atan2(b.vy, b.vx) - c.s10A))), sp = Math.max(...as) - Math.min(...as); if (sp > 70 * Math.PI / 180 + 0.02) bad.push('fan wider than 70 degrees: ' + sp); }
+      render();
+    }
+    // B1: Acid Bubble marks its ring, does nothing for the tell, then bursts once and leaves a pool; killed first it only pops the pool
+    fresh(); { const ab = foe('bomber', 40); ab.hp = ab.maxHp = 1; const hp1 = G.player.hp;
+      run(3); out.abMark = (G.b10 || []).length; if (!out.abMark) bad.push('Acid Bubble showed no ring');
+      run(15); if (G.player.hp < hp1) bad.push('Acid Bubble hurt inside its tell');
+      run(40); if (!(G.player.hp < hp1)) bad.push('Acid Bubble burst did nothing'); if (!ab.dead) bad.push('Acid Bubble survived its burst');
+      if (!(G.b10pool && G.b10pool.length)) bad.push('Acid Bubble left no pool'); }
+    fresh(); { const ab = foe('bomber', 40); const hp1 = G.player.hp; run(3); ab.hp = 0; killEnemy(ab, { wname: 'test' }); run(60);
+      if (G.player.hp < hp1 && !(G.b10pool && G.b10pool.length)) bad.push('killed Acid Bubble blasted'); if (!(G.b10pool && G.b10pool.length)) bad.push('killed Acid Bubble left no pool'); }
+    fresh(); { const ab = foe('bomber', 40); ab.hp = ab.maxHp = 1; const hp1 = G.player.hp; run(3); G.player.x += 200; G.player.y += 200; run(60); if (G.player.hp < hp1) bad.push('leaving the ring still got hit'); }
+    // B1: Snot Bubble killed by the player marks its area first, then bursts and leaves a Mucus pool
+    fresh(); { const sb = foe('snotbubble', 40); const nb = foe('crawler', 60); nb.speed = 0; nb.hp = nb.maxHp = 1e6; sb.hp = 1; damageEnemy(sb, 5, { elem: 'phys', wname: 'T' });
+      out.snotMark = (G.b10 || []).length; if (!out.snotMark) bad.push('Snot Bubble kill showed no ring'); if (nb.chill > 0) bad.push('Snot burst landed before its tell');
+      run(40); if (!(nb.chill > 0)) bad.push('Snot burst never landed'); if (!(G.b10pool && G.b10pool.length)) bad.push('Snot Bubble left no pool'); }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

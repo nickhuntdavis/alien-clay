@@ -46,9 +46,10 @@ const { chromium } = require('playwright');
     if (!(Math.abs(f2 - f1 * 0.65) < 0.5)) bad.push('Squishy: ' + f1 + ' -> ' + f2);
     // Evasion: misses some projectiles, never a pool/hazard/blast.
     fresh(); G.pd.mem.memMax = 0.0000001; G.pd.mem.mem = 0; pdefOffer(6).find(o => o.defence === 'evasion').apply(); pdefOffer(6); for (let i = 0; i < 3; i++) G.pd.n.evasion++;
-    let miss = 0, poolMiss = 0, blastMiss = 0, contactMiss = 0;
-    for (let i = 0; i < 300; i++) { if (ph(1, 'bullets') === 0) miss++; if (ph(1, 'other') === 0) poolMiss++; if (ph(1, 'blast') === 0) blastMiss++; if (ph(1, 'contact') === 0) contactMiss++; }
+    let miss = 0, poolMiss = 0, blastMiss = 0, contactMiss = 0, beamMiss = 0;
+    for (let i = 0; i < 300; i++) { if (ph(1, 'beam') === 0) beamMiss++; if (ph(1, 'bullets') === 0) miss++; if (ph(1, 'other') === 0) poolMiss++; if (ph(1, 'blast') === 0) blastMiss++; if (ph(1, 'contact') === 0) contactMiss++; }
     out.evasion = [miss, contactMiss];
+    if (beamMiss) bad.push('Evasion missed a Beam (' + beamMiss + ' of 300)');
     if (miss < 70 || miss > 170) bad.push('Evasion 40% should miss about 120 of 300: ' + miss);
     if (contactMiss < 70) bad.push('Evasion should miss Contact: ' + contactMiss);
     if (poolMiss || blastMiss) bad.push('Evasion missed a pool/blast: ' + poolMiss + '/' + blastMiss);

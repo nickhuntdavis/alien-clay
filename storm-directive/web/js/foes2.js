@@ -27,8 +27,8 @@ Object.assign(ENEMIES, {
     weak: { salt: 1.6 }, resist: { arcane: 0.5 }, does: 'Drains your stamina within 120' },
   platelet:  { name: 'Platelet Clump', hp: 46, speed: 46, armour: 2, r: 15, dmg: 10, xp: 4, color: '#e8b4bc', shape: 'platelet', ai: 'chase', from: 160, w: 1.2, cap: 6, shotFx: true, clot: true,
     weak: { poison: 1.4 }, resist: { arcane: 0.6 }, does: 'Stops piercing shots dead' },
-  callus:    { name: 'Callus', hp: 58, speed: 40, armour: 4, r: 16, dmg: 12, xp: 5, color: '#e9d8a6', shape: 'callus', ai: 'chase', from: 200, w: 1.1, cap: 6, noCrit: true,
-    weak: { salt: 1.4 }, resist: { phys: 0.8 }, does: 'Immune to crits' },
+  callus:    { name: 'Callus', hp: 58, speed: 40, armour: 4, r: 16, dmg: 12, xp: 5, color: '#e9d8a6', shape: 'callus', ai: 'chase', from: 200, w: 1.1, cap: 6,
+    weak: { salt: 1.4 }, resist: { phys: 0.8 } },
   // ---- support (cap 3): they hang back
   plasma:    { name: 'Plasma Cell', hp: 38, speed: 46, armour: 1, r: 15, dmg: 7, xp: 6, color: '#b8c0ff', shape: 'plasma', ai: 'plasma', from: 175, w: 0.9, cap: 3, support: true, pack: 2,
     weak: { shock: 1.4 }, does: 'Shooters within 200 fire 40% faster' },
@@ -143,7 +143,6 @@ function foes2Dmg(e, d, src) {
   F[el] = (F[el] || 0) + d;
   const D = e.def; // (no type multipliers: defences do that work now)
   if (D.f3dmg) foes3Dmg(e, src); // (Snot Bubble swells: foes3.js)
-  if (e.ifn > 0 && d > 0) { const a = Math.min(e.ifn, d); e.ifn -= a; d -= a; if (e.ifn <= 0) spawnPart(e.x, e.y, '#bde0fe', 4, 80, 0.3, 2); }
   if (D.puff && (IN_AOE || src.zoneHit)) {
     e.puffHit = G.t;
     if (!(e.puffT > G.t)) { e.puffT = G.t + 1.5; e.puffRT = G.realT; const a = Math.random() * TAU; f2spawn(ENEMIES[D.puff], e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r); }
@@ -226,12 +225,7 @@ Object.assign(FOE_AI, {
   },
   plasma(e, dt, dist, ux, uy) { f2aura(e, dt, 200, o => { if (o.def.shoot) o.plasT = G.t + 0.6; }); return f2keep(e, dist, ux, uy); },
   interferon(e, dt, dist, ux, uy) {
-    e.ifnT = (e.ifnT == null ? 1 : e.ifnT) - dt;
-    if (e.ifnT <= 0) {
-      e.ifnT = 4; const amt = 30 * hpNow();
-      forNear(e.x, e.y, 170, o => { if (o !== e && !o.boss && !o.charmed && !o.rival && !o.egg && o.def !== e.def) o.ifn = Math.max(o.ifn || 0, amt); });
-      e.pulseRT = G.realT;
-    }
+    // (the Membrane grant is foeaura10.js)
     return f2keep(e, dist, ux, uy);
   },
   cortisol(e, dt, dist, ux, uy) { f2aura(e, dt, 180, o => { o.cortT = G.t + 0.6; }); return f2keep(e, dist, ux, uy); },
@@ -258,13 +252,14 @@ Object.assign(FOE_AI, {
   },
   stem(e, dt, dist, ux, uy) {
     e.stemT = (e.stemT == null ? 6 : e.stemT) - dt;
-    if (e.stemT <= 0 && G.f2dead && G.f2dead.length) {
+    if (e.stemT <= 0 && (e.stemN || 0) >= ((e.def.summon || {}).cap || 3)) e.stemT = 1e9; // roster: revive.cap per Stem
+    else if (e.stemT <= 0 && G.f2dead && G.f2dead.length) {
       let best = -1;
       for (let i = G.f2dead.length - 1; i >= 0; i--) { const c = G.f2dead[i]; if (G.t - c.t < 30 && Math.hypot(c.x - e.x, c.y - e.y) < 340 && foeRoom(c.def)) { best = i; break; } }
       if (best >= 0) {
         const c = G.f2dead.splice(best, 1)[0], z = f2spawn(c.def, c.x, c.y, { revived: true });
         if (z) { z.xp *= 0.5; spawnPart(c.x, c.y, '#caffbf', 8, 90, 0.5, 3); f2msg(z, 'BACK AGAIN', '#caffbf', 3); }
-        e.stemT = 10;
+        e.stemN = (e.stemN || 0) + 1; e.stemT = 10;
       } else e.stemT = 1;
     }
     return f2keep(e, dist, ux, uy);

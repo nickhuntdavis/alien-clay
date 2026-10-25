@@ -22,6 +22,24 @@ const { chromium } = require('playwright');
     damageEnemy(e, 30, { elem: 'fire', w: null, kx: 1, ky: 0 });
     out.soak = [Math.round(m0), Math.round(c.mem), Math.round(e.hp)];
     if (!(c.mem < m0) || e.hp < 400) bad.push('Membrane did not soak: ' + out.soak);
+    { // B4: an Also-Ran next to a Mucus Wall soaks a hit into a granted Membrane, gone 1.5 s after the Wall dies
+      G.enemies.length = 0;
+      const w = makeEnemy(ENEMIES.bulwark, p.x, p.y - 300), a = makeEnemy(ENEMIES[Object.keys(ENEMIES).find(k => ROSTER[k] && !ROSTER[k].def && ROSTER[k].w > 0 && !ROSTER[k].boss)], p.x + 60, p.y - 300);
+      for (const q of [w, a]) { q.speed = 0; q.hp = q.maxHp = 400; q.cd = null; G.enemies.push(q); }
+      gridBuild(); for (let k = 0; k < 40; k++) update(1 / 60);
+      const c = fightCd(a); out.grant = [c.def, Math.round(c.memMax)];
+      if (c.def !== 'membrane' || Math.abs(c.memMax - 100) > 1) bad.push('no 25% grant: ' + out.grant);
+      const h0 = a.hp; damageEnemy(a, 30, { elem: 'fire', w: null, kx: 1, ky: 0 });
+      if (a.hp < h0 || c.mem >= c.memMax) bad.push('grant did not soak');
+      w.dead = true; w.hp = 0; G.enemies.splice(G.enemies.indexOf(w), 1);
+      for (let k = 0; k < 110; k++) update(1 / 60);
+      if (c.def !== null || c.memMax !== 0) bad.push('grant outlived the Wall');
+      // never beyond the cap with a native Membrane
+      const m = makeEnemy(ENEMIES.medic, p.x, p.y - 300), w2 = makeEnemy(ENEMIES.bulwark, p.x + 40, p.y - 300);
+      for (const q of [m, w2]) { q.speed = 0; q.hp = q.maxHp = 400; q.cd = null; G.enemies.push(q); }
+      gridBuild(); for (let k = 0; k < 40; k++) update(1 / 60);
+      if (fightCd(m).memMax > 0.3 * 400 + 1) bad.push('native Membrane stacked: ' + fightCd(m).memMax);
+    }
     return { bad, out };
   });
   for (const df of [false, true]) {

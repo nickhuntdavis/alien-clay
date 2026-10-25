@@ -66,6 +66,7 @@
   // shove's damage each, echo damage). s.max = how many more enemies the shove may be passed on to (0 = none).
   function shoveTrack(e, w, ux, uy, dist, o) {
     if (!shove(e, ux, uy, dist)) return false;
+    if (o && o.dmg != null) e.cdLast = { dmg: (typeof o.dmg === 'function' ? o.dmg() : o.dmg) || 0, w, t: G.t }; // (collide.js reads the launching hit)
     S1().shoved.push(Object.assign({ e, w, age: 0, hit: new Set([e]), depth: 0, max: 0 }, o));
     return true;
   }
@@ -91,6 +92,7 @@
     const S = S1();
     for (let i = 0; i < S.shoved.length; i++) {
       const s = S.shoved[i], e = s.e;
+      if (!s.noDmg && typeof cdOn === 'function' && cdOn()) { s.done = 1; continue; } // Bumper Cars: collide.js owns collisions when loaded
       s.age += dt;
       if (e.dead || s.age > 0.7 || !live(s.w)) { s.done = 1; continue; }
       const sp = Math.hypot(e.kx, e.ky);

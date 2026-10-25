@@ -33,7 +33,7 @@ v10 replaced armour with five defences (Squishy, Membrane, Shell, Thorns, Evasio
 | 15 | Candida | 18 | 16.8 | 282.8 | none | 16.8 | 22 | 1.9 | 2.7 | - | 2.7 | 1 | spawned only |
 | 16 | Matchstick | 20 | 18.7 | 314.2 | none | 18.7 | 60 | 4.5 | 6.4 | - | 6.4 | 3 | 150 |
 | 17 | Antibody | 20 | 18.7 | 314.2 | none | 18.7 | 58 | 2.2 | 3.2 | 1 | 4.2 | 3 | 35 |
-| 18 | Killer T-Cell | 26 | 24.3 | 408.5 | none | 24.3 | 52 | 2.2 | 3.2 | 2 | 5.2 | 5 | 260 |
+| 18 | Killer T-Cell | 26 | 24.3 | 408.5 | none | 24.3 | 52 | 2.2 | 3.2 | - | 3.2 | 5 | 260 |
 | 19 | Daughter Colony | 26 | 24.3 | 408.5 | none | 24.3 | 62 | 2.2 | 3.2 | - | 3.2 | 2 | events and bosses only |
 | 20 | Complement Protein | 28 | 26.2 | 439.9 | none | 26.2 | 60 | 2.2 | 3.2 | - | 3.2 | 5 | 165 |
 | 21 | Cortisol Puff | 30 | 28.1 | 471.4 | none | 28.1 | 50 | 2.2 | 3.2 | - | 3.2 | 5 | 145 |
@@ -52,7 +52,7 @@ v10 replaced armour with five defences (Squishy, Membrane, Shell, Thorns, Evasio
 | 34 | Puffball | 42 | 39.3 | 659.9 | none | 39.3 | 42 | 3 | 4.3 | - | 4.3 | 4 | 110 |
 | 35 | Fibrin Weaver | 44 | 41.2 | 691.3 | none | 41.2 | 40 | 3 | 4.3 | - | 4.3 | 6 | 205 |
 | 36 | Second Dose | 45 | 42.1 | 707.1 | none | 42.1 | 92 | 4.5 | 6.4 | 1.1 | 7.4 | 6 | spawned only |
-| 37 | Cytokine Caster | 45 | 42.1 | 707.1 | none | 42.1 | 46 | 3 | 4.3 | 10.2 | 14.4 | 6 | 170 |
+| 37 | Cytokine Caster | 45 | 42.1 | 707.1 | none | 42.1 | 46 | 3 | 4.3 | - | 4.3 | 6 | 170 |
 | 38 | Platelet Clump | 46 | 43.1 | 722.8 | none | 43.1 | 46 | 3.7 | 5.3 | - | 5.3 | 4 | 160 |
 | 39 | Plasma Cell | 38 | 35.6 | 597.1 | Membrane (30% pool) | 46.2 | 46 | 2.6 | 3.7 | - | 3.7 | 6 | 175 |
 | 40 | Headbutter | 50 | 46.8 | 785.6 | none | 46.8 | 56 | 6.7 | 9.6 | - | 9.6 | 4 | 130 |
@@ -65,7 +65,7 @@ v10 replaced armour with five defences (Squishy, Membrane, Shell, Thorns, Evasio
 | 47 | Stem Cell | 44 | 41.2 | 691.3 | Membrane (30% pool) | 53.5 | 36 | 2.2 | 3.2 | - | 3.2 | 8 | 230 |
 | 48 | Pepsinator Jr | 60 | 56.2 | 942.7 | none | 56.2 | 72 | 5.2 | 7.4 | - | 7.4 | 6 | events and bosses only |
 | 49 | Callus | 58 | 54.3 | 911.3 | Shell x1 (-3/hit) | 62.4 | 40 | 4.5 | 6.4 | - | 6.4 | 5 | 200 |
-| 50 | Diatom | 55 | 51.5 | 864.2 | Shell x2 (-3/hit) | 66.9 | 24 | 3 | 4.3 | 7.7 | 12 | 6 | 180 |
+| 50 | Diatom | 55 | 51.5 | 864.2 | Shell x2 (-3/hit) | 66.9 | 24 | 3 | 4.3 | - | 4.3 | 6 | 180 |
 | 51 | Natural Killer | 48 | 44.9 | 754.2 | Evasion (35% miss) | 69.1 | 70 | 4.8 | 6.9 | - | 6.9 | 6 | 180 |
 | 52 | Grease Ball | 52 | 48.7 | 817 | Squishy (-35% Force) | 74.9 | 52 | 4.1 | 5.8 | - | 5.8 | 5 | 190 |
 | 53 | Birthday Candle | 70 | 65.5 | 1099.9 | Shell x2 (-3/hit) | 85.2 | 0 | 2.2 | 3.2 | - | 3.2 | 7 | 220 |

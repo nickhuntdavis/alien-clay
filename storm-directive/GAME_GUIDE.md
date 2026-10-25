@@ -1054,7 +1054,6 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **SNOT SHIELD** | You in a blob of snot: it blocks the next hit (every 10s at most). |
 | **PANDEMIC** | An enemy topped up to its Cooties limit spreads it: 6 enemies nearby get two doses each. |
 | **POPPED** | Static on a Snot Bubble: it bursts at once, harmless to you, and every enemy nearby is Snotty. |
-| **GARGLED** | Water on a Phlegm Hocker: its next 3 globs land as rinse puddles that wash you clean. |
 | **ANTIHISTAMINE** | Water, then Cooties, on a Hayfever Cell: it sneezes on its own side, and everything near it is Sick. |
 
 ## Combo twists
@@ -1353,7 +1352,7 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Bogey** | A bogey. It flicks itself at you and sticks: each one stuck on you slows you down a little. | Your weapons will pick them off you. Water helps, as does a tissue. |
 | **Bit of Sweetcorn** | A bit of sweetcorn. It has been through the whole system intact and it is not stopping now. Tough as anything, completely harmless. | Don't waste your best hits on it. It can't hurt you. |
 | **Glitter** | Glitter from a hen do. Kill it and it comes back. You will be finding it for weeks. | Area damage. It only comes back once. |
-| **Phlegm Hocker** | Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds. | Strafe, don't back off in a straight line. Water makes it gargle, and its next globs land as puddles that rinse you clean. |
+| **Phlegm Hocker** | Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds. | TODO_COPY:hocker_tip |
 | **Snot Bubble** | A bubble blown out of a nostril. Every hit makes it swell. Pop it too late and it bursts all over the neighbourhood, you included. | Pop it early for a small splash, or from range. Static pops it at once, and harmlessly. |
 | **Hayfever Cell** | Allergic to everything, mostly you. Every few seconds it winds up (AH... AH...) and sneezes a cone at you, and it sneezes back whatever statuses you have given it. | Step out of the cone when it winds up, and go easy on the statuses. Soak it with Water, then give it Cooties, and it sneezes on its friends instead. |
 | **Static Sock** | A sock that has been dragged across every carpet in the body. The further it travels, the more it crackles. | Kill it before it is fully charged, or step aside when it stops to zap. Being shoved does not charge it. |

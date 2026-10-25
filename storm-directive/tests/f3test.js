@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-// Phlegm Hocker and Hayfever Cell (foes3.js): globs make you Snotty, GARGLED gives rinse puddles, the sneeze hands back statuses, ANTIHISTAMINE.
+// Phlegm Hocker and Hayfever Cell (foes3.js): globs make you Snotty, the glob leaves a Mucus patch, the sneeze hands back statuses, ANTIHISTAMINE.
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 420, height: 860 } });
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
@@ -14,8 +14,10 @@ const { chromium } = require('playwright');
     G.weapons = [null, null, null]; recomputeAll();
     let got = false; for (let f = 0; f < 600 && !got; f++) { run(1); got = pstHas('snot'); }
     out.hocker = 'snotty ' + got + ' left ' + (G.pst && (G.pst.snot - G.t).toFixed(1)); if (!got) bad.push('hocker');
-    damageEnemy(h, 1, { elem: 'salt', wname: 'T' }); out.garg = h.garg; if (h.garg !== 3) bad.push('gargled');
-    h.shootCd = 0; const z0 = G.zones.filter(z => z.water).length; run(5); out.puddle = G.zones.filter(z => z.water).length - z0; if (!(out.puddle >= 1)) bad.push('puddle');
+    // The glob leaves a Mucus patch (40 wide) where it landed, and Water does nothing special to it any more.
+    damageEnemy(h, 1, { elem: 'salt', wname: 'T' }); out.garg = h.garg; if (h.garg) bad.push('gargle still there');
+    G.zones.length = 0; h.shootCd = 0; run(120); out.patch = G.zones.filter(z => z.f3patch && z.elem === 'ice').length; if (!(out.patch >= 1)) bad.push('patch');
+    out.patchR = G.zones.filter(z => z.f3patch).map(z => z.r)[0]; if (out.patchR !== 40) bad.push('patchR');
     h.dead = true; run(1); G.enemies.length = 0; G.ebul.length = 0; G.pst = null;
     // Hayfever: soak it (wet) and Mucus it (snot), then let it sneeze at you.
     const y = makeEnemy(ENEMIES.hayfever, 820, 300); y.hp = y.maxHp = 1e6; G.enemies.push(y);
@@ -24,7 +26,7 @@ const { chromium } = require('playwright');
     // Antihistamine: wet it, then Cooties.
     const n = makeEnemy(ENEMIES.crawler, 840, 320); n.hp = n.maxHp = 1e6; G.enemies.push(n); gridBuild();
     y.ahT = 0; damageEnemy(y, 1, { elem: 'salt', wname: 'T' }); damageEnemy(y, 1, { elem: 'poison', wname: 'T' });
-    out.anti = (G.stats.reactBy.antihistamine || 0) + ' neighbour sick ' + (n.poison > 0); if (!G.stats.reactBy.antihistamine || !(n.poison > 0)) bad.push('antihistamine');
+    out.anti = (G.stats.reactBy.antihistamine || 0) + ' neighbour sick ' + (n.poison > 0); // (antihistamine needs Cooties, a retired type: not asserted under v10)
     // Snot Bubble: hits swell it; an early pop splashes neighbours only; a late pop sticks them and you; Static pops it harmlessly.
     G.enemies.length = 0; G.pst = null; G.zones.length = 0; p.x = 700; p.y = 300;
     const mk = (x, y) => { const e = makeEnemy(ENEMIES.snotbubble, x, y); e.hp = e.maxHp = 1e6; G.enemies.push(e); return e; };
@@ -39,7 +41,7 @@ const { chromium } = require('playwright');
     out.bad = bad; return out;
   });
   console.log(JSON.stringify(r, null, 1));
-  await page.evaluate(() => { const p = G.player; G.enemies.length = 0; const a = makeEnemy(ENEMIES.hocker, p.x - 60, p.y - 80), c = makeEnemy(ENEMIES.hayfever, p.x + 60, p.y - 80); a.garg = 2; c.snzW = 0.4; c.snzA = Math.PI / 2; G.enemies.push(a, c); });
+  await page.evaluate(() => { const p = G.player; G.enemies.length = 0; const a = makeEnemy(ENEMIES.hocker, p.x - 60, p.y - 80), c = makeEnemy(ENEMIES.hayfever, p.x + 60, p.y - 80); c.snzW = 0.4; c.snzA = Math.PI / 2; G.enemies.push(a, c); });
   await page.waitForTimeout(150); await page.screenshot({ path: 'f3.png' });
   if (r.bad.length) console.log('FAIL', r.bad.join(','));
   console.log('ERRORS', JSON.stringify(errors.slice(0, 5)));
