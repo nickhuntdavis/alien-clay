@@ -215,7 +215,7 @@ A Y-shaped wall of protein. Heavily armoured, cannot be moved or glued, and char
 
 | Trophy | Effect |
 |---|---|
-| **Border Wall** | +10 armour and +40% max HP, but you swim 10% slower. |
+| **Border Wall** | TODO_COPY:relic_borderwall_desc |
 | **Bouncer** | Enemies that touch you are hurled away and take ten times their own contact damage. You take 40% less from them. |
 | **Diplomatic Immunity** | Every 5s, a shield blocks the next hit completely. |
 
@@ -260,7 +260,7 @@ A blob of stomach acid with ambitions. Rains acid puddles and splits off smaller
 
 | Trophy | Effect |
 |---|---|
-| **Acid Tongue** | Every hit shreds armour and adds a dose of Cooties. |
+| **Acid Tongue** | TODO_COPY:relic_corrosive_desc |
 | **Bad Blood** | When you are hit, you splash acid around you for ten times the damage you took. |
 | **Ulcer** | Enemies you kill leave acid puddles that dissolve their friends. |
 
@@ -290,9 +290,9 @@ A walking temperature spike. Rings of heat, scalding ground, and it runs hotter 
 
 | Trophy | Effect |
 |---|---|
-| **Running Hot** | Every weapon you own melts what it hits. |
-| **Fever Dream** | Every melting enemy near you makes all your weapons fire 3% faster (up to +60%). |
-| **Heatstroke** | Melting enemies explode when they die, spreading the acid. |
+| **Running Hot** | TODO_COPY:relic_runninghot_desc |
+| **Fever Dream** | TODO_COPY:relic_feverdream_desc |
+| **Heatstroke** | TODO_COPY:relic_heatstroke_desc |
 
 ### MITCH & OSIS: The Mitosis Twins
 
@@ -336,7 +336,7 @@ A strip of paper with a superiority complex. Only one damage type hurts it at a 
 | Trophy | Effect |
 |---|---|
 | **Universal Indicator** | +6% damage and +3% fire rate for every different damage type you carry when you take it. |
-| **Blue to Red** | Every hit has a 15% chance to melt its target (Acid) and a 15% chance to slime it (Mucus). |
+| **Blue to Red** | TODO_COPY:relic_bluetored_desc |
 | **Test Strip** | Bosses can no longer resist or ignore any of your damage types. |
 
 ### THE JOHNNY: Ninety-Eight Percent Effective
@@ -351,7 +351,7 @@ A sheath of latex with one job. Its front sends your shots straight back at you;
 | Trophy | Effect |
 |---|---|
 | **Rubber Johnny** | Ninety-eight percent effective, per the packet. You are wrapped in a latex forcefield worth 30% of your max health: it soaks what hits it, mends after two quiet seconds, and has opinions about walls. The other two percent is how you got here. |
-| **Ribbed** | +2 Headstrong and +4 armour. For their displeasure. |
+| **Ribbed** | TODO_COPY:relic_ribbed_desc |
 | **Reservoir Tip** | Damage you take is collected. Every 10s it all comes back out as a blast around you, ten times over. |
 
 ### THE MUCUS PLUG: Doorman of the Cervix
@@ -410,9 +410,9 @@ A crystal of calcium oxalate the size of a grudge. 40 armour: ordinary hits bare
 
 | Trophy | Effect |
 |---|---|
-| **Lithotripsy** | Every hit shreds 2 armour. |
-| **Calcified** | +12 armour and +25% max HP, but you swim 8% slower. |
-| **Pissing Razor Blades** | When you are hit, crystal shards burst out of you, shredding armour and cutting everything nearby. |
+| **Lithotripsy** | TODO_COPY:relic_lithotripsy_desc |
+| **Calcified** | TODO_COPY:relic_calcified_desc |
+| **Pissing Razor Blades** | TODO_COPY:relic_razors_desc |
 
 ## Run events
 
@@ -1054,7 +1054,6 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **SNOT SHIELD** | You in a blob of snot: it blocks the next hit (every 10s at most). |
 | **PANDEMIC** | An enemy topped up to its Cooties limit spreads it: 6 enemies nearby get two doses each. |
 | **POPPED** | Static on a Snot Bubble: it bursts at once, harmless to you, and every enemy nearby is Snotty. |
-| **GARGLED** | Water on a Phlegm Hocker: its next 3 globs land as rinse puddles that wash you clean. |
 | **ANTIHISTAMINE** | Water, then Cooties, on a Hayfever Cell: it sneezes on its own side, and everything near it is Sick. |
 
 ## Combo twists
@@ -1353,7 +1352,7 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Bogey** | A bogey. It flicks itself at you and sticks: each one stuck on you slows you down a little. | Your weapons will pick them off you. Water helps, as does a tissue. |
 | **Bit of Sweetcorn** | A bit of sweetcorn. It has been through the whole system intact and it is not stopping now. Tough as anything, completely harmless. | Don't waste your best hits on it. It can't hurt you. |
 | **Glitter** | Glitter from a hen do. Kill it and it comes back. You will be finding it for weeks. | Area damage. It only comes back once. |
-| **Phlegm Hocker** | Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds. | Strafe, don't back off in a straight line. Water makes it gargle, and its next globs land as puddles that rinse you clean. |
+| **Phlegm Hocker** | Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds. | TODO_COPY:hocker_tip |
 | **Snot Bubble** | A bubble blown out of a nostril. Every hit makes it swell. Pop it too late and it bursts all over the neighbourhood, you included. | Pop it early for a small splash, or from range. Static pops it at once, and harmlessly. |
 | **Hayfever Cell** | Allergic to everything, mostly you. Every few seconds it winds up (AH... AH...) and sneezes a cone at you, and it sneezes back whatever statuses you have given it. | Step out of the cone when it winds up, and go easy on the statuses. Soak it with Water, then give it Cooties, and it sneezes on its friends instead. |
 | **Static Sock** | A sock that has been dragged across every carpet in the body. The further it travels, the more it crackles. | Kill it before it is fully charged, or step aside when it stops to zap. Being shoved does not charge it. |
@@ -1391,7 +1390,7 @@ The first time you ever meet each named rival, the slide stops to introduce them
 | **Kevin** (JUST KEVIN) | x0.95 | 0.4 | 3 / 3 / 3 / 3 / 3 | **Unremarkable**: Nothing special about him at all.<br>**Somehow Fine**: The first time you knock him out, he gets back up with 30% HP and swims off. | You have to beat him twice. Don't stop shooting when he goes down. | **Just Kevin**: A little of everything: +6% damage, fire rate, swim speed, max HP and crit chance.<br>**Kevin's Mum**: Every 45s she drops off a power-up next to you. She worries. |
 | **Dash Mitosis** (THE SPRINTER) | x1.05 | 0.7 | 5 / 2 / 3 / 3 / 3 | **Burst**: Every 7s he sprints at more than twice his speed for over a second.<br>**Lightweight**: 15% less HP. | Let the sprint go past you, then hit him while he catches his breath. | **Head Start**: Every 8s you burst forward at double speed for 0.6s, and nothing can hurt you while you do.<br>**Early Bird**: +40% damage to enemies that are still at full health. |
 | **Sly Motility** (THE PICKPOCKET) | x1 | 0.4 | 4 / 2 / 2 / 2 / 5 | **Sticky Fingers**: Hoovers up your XP granules from all around him, and grows on them.<br>**Slippery**: 10% faster than most rivals. | Collect before he does, and take him out early: he only gets bigger. | **Pickpocket**: +50% pickup range, and XP gems are worth 15% more.<br>**Five-Finger Discount**: Elites always drop a power-up when they die. |
-| **Brick Wallace** (THE TANK) | x0.9 | 0.5 | 1 / 5 / 2 / 2 / 2 | **Plated**: +4 armour and 40% more HP.<br>**Lumbering**: 20% slower than other rivals. | Armour shred and damage over time. Or just outswim him. | **Mucus Wall**: +6 armour, but 5% slower.<br>**Load-Bearing**: While you are barely moving, you take 35% less damage. |
+| **Brick Wallace** (THE TANK) | x0.9 | 0.5 | 1 / 5 / 2 / 2 / 2 | **Plated**: +4 armour and 40% more HP.<br>**Lumbering**: 20% slower than other rivals. | Armour shred and damage over time. Or just outswim him. | **Mucus Wall**: TODO_COPY:relic_mucuswall_desc<br>**Load-Bearing**: While you are barely moving, you take 35% less damage. |
 | **Hawkeye Harriet** (THE SNIPER) | x1.05 | 0.5 | 3 / 2 / 5 / 3 / 3 | **Long Shot**: One heavy, fast shot instead of a fan, from much further away.<br>**Keeps Her Distance**: Duels from long range. | Keep moving sideways to her: a single shot is easy to dodge if you are not where she aimed. | **Eagle Eye**: +45% damage to enemies more than 350 away from you.<br>**Steady Hand**: +35% range and +20% shot speed for every weapon. |
 | **Buckshot Bev** (THE SCATTERER) | x0.95 | 0.8 | 3 / 3 / 5 / 4 / 2 | **Wide Load**: Two more bullets in every fan, spread wider.<br>**Trigger Happy**: Picks fights often. | Get close or very far: the fan is deadliest at middle distance. | **Buckshot**: +1 projectile for every weapon and +10% fire rate.<br>**Trigger Happy**: +15% fire rate and +25% reload speed. |
 | **Casper Flagella** (THE PHANTOM) | x1 | 0.5 | 3 / 2 / 3 / 3 / 3 | **Fade**: Every 9s he fades out for 2s: shots pass straight through him.<br>**Unsettling**: Very polite about it. | Save big hits for when he is solid. Auras and trails catch him as he comes back. | **Ectoplasm**: Bullets sometimes pass straight through you: +15% dodge.<br>**Now You See Me**: Every 12s you fade out for 2s: nothing can touch you. |
@@ -1505,7 +1504,7 @@ Every boss pays twice: a relic (its own three, plus one smuggled relic from a bo
 | **Trophy Polish** | Every weapon you own goes up a level. |
 | **Boss Blood** | +15% max HP, and heal to full. |
 | **Adrenal Gland** | +8% damage and +8% fire rate, for good. |
-| **Trophy Hide** | +4 armour and +6% dodge. |
+| **Trophy Hide** | TODO_COPY:spoils_hide_desc |
 | **Lab Notes** | Reactions hit 40% harder, and your damage types +10%. |
 | **Victory Lap** | +12% swim speed and +30% pickup range. |
 | **Finder's Fee** | +3 rerolls and +15% luck. |
