@@ -1132,7 +1132,7 @@ function setPoison(e, dps, src) { if (!(dps < (e.poisonDps || 0))) e.poisonBy = 
 function hurtPlayer(dmg, from, ent, kind) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
-  if (Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
+  if (kind !== 'beam' && Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (flinchHit(ent)) return; // (Flinch: bodymods.js)
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea

@@ -23,7 +23,17 @@ const { chromium } = require('playwright');
     for (const id of ['staticsock', 'stressball', 'mosquito', 'matchstick', 'candle', 'trappedwind', 'ingrown']) {
       if (!ENEMIES[id]) bad.push('missing ' + id); else if (ENEMIES[id].armour !== 0) bad.push(id + ' has armour');
     }
-    if (!ENEMIES.lancer || ENEMIES.lancer.ai !== 'ranged') bad.push('lancer lost its AI: ' + (ENEMIES.lancer && ENEMIES.lancer.ai));
+    if (!ENEMIES.lancer || ENEMIES.lancer.ai !== 'new_lancer' || ENEMIES.lancer.shoot) bad.push('lancer not wired as a Beam: ' + (ENEMIES.lancer && ENEMIES.lancer.ai));
+    // Killer T-Cell (lancer10.js): no damage in the 0.9 s tell, a player who leaves the lane is untouched, one who stays takes a Beam hit
+    for (const stay of [false, true]) {
+      fresh(); G.P.dodge = 0.9; const p = G.player, e = foe('lancer', 250, 0); e.lcCd = 0; e.lcS = null; e.side = 1; e.speed = 0;
+      const hp0 = p.hp; let tele = 0, early = 0, fired = false;
+      run(260, () => { G.state = 'play'; if (e.lcS === 1) { tele++; if (p.hp < hp0) early++; if (!stay && tele === 20) { p.y += 80; } if (stay) e.lcA = Math.atan2(p.y - e.y, p.x - e.x); } if (stay) { p.x = e.x - 250; p.y = e.y; } if (e.lcS === 2) fired = true; p.iframes = Math.min(p.iframes, 0.7); });
+      if (!tele) bad.push('lancer never showed its lane'); if (early) bad.push('lancer hurt during the tell');
+      if (stay && !(p.hp < hp0 && p.hp > hp0 - 17)) bad.push('beam on a player in the lane: ' + (hp0 - p.hp)); // (dodge 0.9 set: a Beam is never dodged)
+      if (!stay && p.hp < hp0) bad.push('player left the lane and was hit: ' + (hp0 - p.hp));
+      out["lancer" + (stay ? "In" : "Out")] = (hp0 - p.hp).toFixed(1) + " tele" + tele + " fired" + fired + " s" + e.lcS + " d" + Math.round(Math.hypot(p.x-e.x,p.y-e.y)) + " len" + Math.round(e.lcLen);
+    }
     if (!ENEMIES.brood || !ENEMIES.planarian) bad.push('feature-file enemies lost');
     // 300 frames each, near the player, no errors; then a draw pass
     for (const id of ['staticsock', 'stressball', 'mosquito', 'matchstick', 'candle', 'trappedwind', 'ingrown']) {

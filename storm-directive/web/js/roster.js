@@ -137,7 +137,6 @@ const ROSTER = {
     atk: [{ type: 'proj', mode: 'sweep', dmg: 7, speed: 125, cd: 0.16, sweepSpeed: 0.9, tele: 0 }],
     notes: 'Stationary turret with a slow rotating stream (Projectile; Beam is the alternative). Read: the lane is the rotation. Counter: reposition out of the sweep, or prioritise it.' },
   lancer: { name: 'Killer T-Cell', hp: 26, speed: 52, r: 13, dmg: 6, xp: 5, color: '#ff99c8', shape: 'antibody', ai: 'new_lancer', from: 260, w: 1.5,
-    shoot: { pattern: 'snipe', cd: 3.6, speed: 430, dmg: 16 },
     status: 'keep-if-distinct', review: true, role: ['shooter', 'sniper'], def: null, dmgType: 'blood',
     atk: [{ type: 'beam', dmg: 16, range: 480, width: 10, cd: 3.6, tele: 0.9, interruptible: true }],
     notes: 'Read: a thin lane lights up for about a second, then fires. Counter: change lane; Force or Static interrupts within the wind-up. Not a third "aimed shot" enemy.' },
