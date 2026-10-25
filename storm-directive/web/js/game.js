@@ -862,7 +862,7 @@ function damageEnemy(e, dmg, src) {
   if (!src.dot) dmgNumber(e, d, src, crit);
   if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
   if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy && !(e.tethT > G.t)) { // (tethered by a Fibrin Weaver: foes2.js)
-    const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * (e.chill > 0 ? 1.5 : 1); // (lathered enemies slide further)
+    const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * knockDefMul(e); // (Squishy cuts 50%, Membrane while up: COMBAT_MATRIX 11.4; no generic Snared bonus, Snot Rocket has its own)
     const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
     const l = Math.hypot(kx, ky) || 1;
     e.kx += kx / l * k; e.ky += ky / l * k;

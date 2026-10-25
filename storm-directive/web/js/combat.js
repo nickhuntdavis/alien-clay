@@ -18,6 +18,8 @@ const COMBAT = {
   staticRechargeFrac: 0.25, staticRechargeCd: 5,
   shellPerLayer: 3, shellFloor: 1, shellLayerHpFrac: 0.15,
   squishyForceCut: 0.35,
+  squishyKnockCut: 0.5, // 11.4: 50% less knockback (and pull, 12.2)
+  membraneKnockCut: 0.5, // 3: knocks back less while the Membrane is up (no figure given; Force does 50% to it, same number)
   critMult: 1.6,
   heavyFrac: { normal: 0.15, elite: 0.10, boss: 0.05 }, // raw Force vs max health (11.3)
   barSize: { acid: 0.25, fire: 0.4, force: 0.3, soul: 0.6 }, // acid is per Shell layer

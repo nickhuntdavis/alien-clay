@@ -52,6 +52,11 @@ function fightCd(e) {
   e.cd.hp = e.hp;
   return e.cd;
 }
+// Knockback multiplier from the defence (COMBAT_MATRIX 3, 11.4): Squishy halves it; a Membrane that is up cuts it too.
+function knockDefMul(e) {
+  const c = fightCd(e);
+  return c.def === 'squishy' ? 1 - COMBAT.squishyKnockCut : c.def === 'membrane' && c.memMax > 0 && c.mem > 0 ? 1 - COMBAT.membraneKnockCut : 1;
+}
 const fst = () => G.fst || (G.fst = { rx: {}, dmg: { weapon: 0, reaction: 0, dot: 0 }, miss: 0, mem: 0, layers: 0, thorns: 0, stagger: 0, possess: 0, corrode: 0, ignite: 0, snareT: 0 });
 const inZone = (z, x, y) => z.life > 0 && Math.hypot(z.x - x, z.y - y) <= z.r;
 const zoneAt = (elem, x, y) => G.zones.find(z => z.elem === elem && !z.rxDone && inZone(z, x, y));
