@@ -2,6 +2,7 @@
 // Range flattens falloff, Up Close boosts close hits, Charged slows and strengthens, Kinship rewards same-type weapons,
 // Knockback shoves, Pulling draws enemies in, Turncoat raises allies, Melee strikes close, Ranged lands at range (four
 // weapons only), Mines lay and go off, Death from Above strikes after a mark, Primer detonates on another weapon's hit.
+// Deliveries carry the other modifiers (Empowered Attack, Focus, Piercing; the Laser's Charge-Up blast mines).
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 2 });
@@ -59,6 +60,14 @@ const { chromium } = require('playwright');
     // 13. Exploding Rounds: a hit bursts on its neighbours
     w = fresh(); add(w, 'explode'); const x1 = foe(150), x2 = foe(170, 15); G.state = 'play'; update(1 / 60); const hx = x2.hp; damageEnemy(x1, 50, src(w));
     out.explode = Math.round(hx - x2.hp); if (!(x2.hp < hx)) bad.push('exploding rounds');
+    // 15. A Delivery runs the modifier path (MODAUDIT_HANDOFF task 2): Empowered Attack counts swings, Focus builds,
+    // Piercing thrusts past the arc, and the Laser's mines with Charge-Up are blast mines
+    w = fresh(); SET.noLimits = true; add(w, 'melee'); add(w, 'nth'); add(w, 'focus'); add(w, 'piercing'); SET.noLimits = false; const d1 = foe(60), d2 = foe(150, 4); G.state = 'play'; update(1 / 60);
+    const hd2 = d2.hp; for (let i = 0; i < 4; i++) { G.t += 0.5; fireWeapon(w, d1); }
+    out.deliv = [w.m10n || 0, +(w.mwFdK || 0).toFixed(2), Math.round(hd2 - d2.hp)];
+    if (!(w.m10n === 4 && w.mwFdK > 0 && d2.hp < hd2)) bad.push('delivery modifiers ' + out.deliv);
+    w = fresh('v_flame_beam'); add(w, 'mines'); add(w, 'charged'); foe(200); for (let i = 0; i < 90; i++) { G.t += 1 / 60; lzDelFire(w, G.enemies[0], weaponSrc(w)); }
+    out.lzMine = lzS().mines.filter(m => m.w === w).map(m => Math.round(m.blast)); if (!out.lzMine.some(k => k > 0)) bad.push('laser blast mine ' + out.lzMine);
     // 14. No slot limits: a level-up lists every modifier and passive you could take
     w = fresh('v_phys_proj', ['v_phys_burst']); SET.noLimits = true; const all = genLoot({ kind: 'level' }); SET.noLimits = false;
     out.all = [all.length, all.filter(c => c.tag === 'MODIFIER').length]; if (!(all.length >= 25)) bad.push('all cards ' + out.all);

@@ -461,7 +461,7 @@ function lzDrawSegs(w, segs, pw, wk, bk) {
 modDraw = (orig => function () { orig(); lzDraw(); })(modDraw);
 
 // Focused Intensity on the Laser works through the ramp above, not its usual multiplier (modslice.js msDmgMul reads this).
-const lzOwnFocus = w => lzIs(w);
+const lzOwnFocus = w => lzIs(w); // (the sword and the mines take Focus's Delivery form instead: modwide.js mwFocusStep)
 
 // The old orbiting bodies (modifiers.js modOrbit) are not the Laser's: its orbit is the traced ring above, fired by v10Fire.
 modOrbit = (orig => function (w, dt) { if (!lzIs(w)) orig(w, dt); })(modOrbit);
@@ -496,13 +496,13 @@ function lzExtrasDraw(w) {
   }
   for (const m of S2.mines) { // laser mines: a red dot, then spinning beams
     if (m.w !== w) continue;
-    if (m.firing) lzDrawSegs(w, m.segs || [], LZ.peak, 1.4, 1.2);
+    if (m.firing) lzDrawSegs(w, m.segs || [], LZ.peak, m.blast ? 2.6 : 1.4, m.blast ? 1.6 : 1.2);
     else { const x = sx(m.x), y = sy(m.y), bl = 0.6 + 0.4 * Math.sin(G.t * 6 + m.x); ctx.save(); ctx.globalAlpha = 0.9; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, 5 * S, 0, TAU); ctx.fill(); ctx.globalAlpha = 0.25 * bl; ctx.beginPath(); ctx.arc(x, y, 60 * S, 0, TAU); ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = bl; ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x, y, 2 * S, 0, TAU); ctx.fill(); ctx.restore(); }
   }
   if (w.lzSword && G.t - w.lzSword.t < 0.22) { // the laser sword's swing
     const sw = w.lzSword, u = (G.t - sw.t) / 0.22, p = G.player, a = sw.a0 + (sw.a1 - sw.a0) * Math.min(1, u * 1.2);
     const tr = []; for (let i = 0; i <= 5; i++) { const aa = a - (sw.a1 - sw.a0) * i * 0.04; tr.push({ x1: p.x, y1: p.y, x2: p.x + Math.cos(aa) * sw.L, y2: p.y + Math.sin(aa) * sw.L, k: 1 - i * 0.17, hit: false }); }
-    lzDrawSegs(w, tr, LZ.peak, 1.2, 1.1);
+    lzDrawSegs(w, tr, LZ.peak, sw.blast ? 2.6 : 1.2, sw.blast ? 1.6 : 1.1);
   }
 }
 
@@ -522,34 +522,50 @@ function lzOrbital(w, target) {
 }
 // LASER SWORD (Melee): a 90-long blade (110 from Rank 2) swung through 150 degrees in front of you every 0.6 s, hitting
 // each enemy in the arc once a swing for 0.6 s of beam damage. Brawler: every 3rd swing is a full circle;
-// Hit and Run: you dart up to 120 at the target first. Each swing adds 6% heat.
-function lzSwordSwing(w, target, src) {
-  if (G.t < (w.lzSwT || 0)) return; w.lzSwT = G.t + 0.6;
-  const p = G.player, r = mwR(w, 'melee'), L = r >= 2 ? 110 : 90;
+// Hit and Run: you dart up to 120 at the target first. Each swing adds 6% heat. A blast swing (Charge-Up, lzDelFire)
+// packs lzBlast's share into each hit and adds lzBlast's heat; Area and Long Range lengthen the blade; Piercing thrusts
+// past it (modwide.js mwThrust); Rapid Fire swings sooner.
+const lzAreaK = w => (typeof areaK === 'function' ? areaK(w) : 1); // (Area: areamod.js, loaded later)
+const lzRapK = w => [1, 0.8, 0.65, 0.5, 0.4][Math.min(4, msR(w, 'rapid'))]; // (Rapid Fire on the sword and the mines: shorter gaps)
+const lzBlastK = w => (LZ.heatT / Math.max(0.05, w.s.cd || 0.2)) * LZ.peak * LZ_BLAST.share[lzCR(w) - 1]; // (lzBlast's packed damage)
+const lzDelSrc = (w, src, gap) => { const o = Object.assign({}, src, { lzDel: true, mwDel: true }); modAtk(w, o); mwFocusStep(w, gap); return o; }; // (Empowered Attack, Stat Scaling and Focus count each swing or mine)
+function lzSwordSwing(w, target, src, blast) {
+  if (!blast) { if (G.t < (w.lzSwT || 0)) return; w.lzSwT = G.t + 0.6 * lzRapK(w); }
+  src = lzDelSrc(w, src, blast ? lzCharge(w) : 0.6 * lzRapK(w));
+  const p = G.player, r = mwR(w, 'melee'), L = (r >= 2 ? 110 : 90) * lzAreaK(w) * (1 + 0.2 * mwR(w, 'range')); // (Long Range: a longer blade)
   let a = Math.atan2(target.y - p.y, target.x - p.x);
   if (msB(w, 'melee', 2)) { const d = Math.min(120, Math.max(0, Math.hypot(target.x - p.x, target.y - p.y) - (target.r || 10) - 20)); p.x += Math.cos(a) * d; p.y += Math.sin(a) * d; if (r >= 3) p.iframes = Math.max(p.iframes || 0, 0.25); }
   w.lzSwN = (w.lzSwN || 0) + 1;
   const full = msA(w, 'melee', 2) && w.lzSwN % 3 === 0, half = full ? Math.PI : Math.PI * 150 / 360;
-  const dir = w.lzSwN % 2 ? 1 : -1, msrc = Object.assign({}, src, { atk: 'contact' }), k = 0.6 / Math.max(0.05, w.s.cd || 0.1); // (0.6 s of beam, before its ramp)
+  const dir = w.lzSwN % 2 ? 1 : -1, msrc = Object.assign({}, src, { atk: 'contact' }, blast ? { lzBlast: true } : null), k = blast ? lzBlastK(w) : 0.6 / Math.max(0.05, w.s.cd || 0.1); // (0.6 s of beam, before its ramp)
   for (const e of G.enemies) {
     if (e.dead || e.charmed) continue;
     const d = Math.hypot(e.x - p.x, e.y - p.y); if (d > L + e.r) continue;
     if (Math.abs(angDiff(Math.atan2(e.y - p.y, e.x - p.x), a)) > half) continue;
     damageEnemy(e, w.s.dmg * k, msrc);
   }
-  w.lzSword = { t: G.t, a0: a - dir * half, a1: a + dir * half, L };
-  w.lzHeat = Math.min(1, (w.lzHeat || 0) + 0.06);
+  mwThrust(w, a, L, w.s.dmg * k, msrc); // (Piercing: a thrust past the blade)
+  w.lzSword = { t: G.t, a0: a - dir * half, a1: a + dir * half, L, blast };
+  w.lzHeat = Math.min(1, (w.lzHeat || 0) + (blast ? LZ_BLAST.heat : 0.06));
+  if (blast) lzBlastHeat(w);
+}
+function lzBlastHeat(w) { // (as lzBlast: a full burn bar overheats it, and the blast shakes the camera)
+  if (w.lzHeat >= 1) { w.lzOver = true; ring(G.player.x, G.player.y, 26, LASER.col, 0.35, 3); }
+  cam.shake = Math.min(10, (cam.shake || 0) + 2 + lzCR(w));
 }
 // LASER MINES (Mines): a mine every 1.5 s where you are (3 on the floor, 5 with either branch). When an enemy comes within
 // 60 it spins out beams (1, plus one for each Extra Shots beam) that turn round it for 1.2 s and then it is spent. The beams
 // never aim: they sweep, under the beam's rules (bounce, pierce), each hit worth more than a held beam (x2.5 at full
-// strength). Smart Mines creep towards enemies. Each mine adds 10% heat.
-function lzMineLay(w) {
-  if (G.t < (w.lzMnT || 0)) return; w.lzMnT = G.t + 1.5;
+// strength). Smart Mines creep towards enemies. Each mine adds 10% heat. A blast mine (Charge-Up, lzDelFire) is laid
+// after the charge with lzBlast's heat; set off, it fires one starburst of 8 beams (8 more per Extra Shots beam) at half
+// lzBlast's share each, then it is spent. The mine keeps the hit it was laid with (Empowered Attack); Area widens the trigger.
+function lzMineLay(w, src, blast) {
+  if (!blast) { if (G.t < (w.lzMnT || 0)) return; w.lzMnT = G.t + 1.5 * lzRapK(w); }
   const p = G.player, M = lzS().mines, cap = msA(w, 'mines', 2) || msB(w, 'mines', 2) ? 5 : 3, mine = M.filter(m => m.w === w && !m.firing);
   if (mine.length >= cap) M.splice(M.indexOf(mine[0]), 1);
-  M.push({ w, x: p.x, y: p.y, armed: G.t + 0.5, life: G.t + 20, firing: false });
-  w.lzHeat = Math.min(1, (w.lzHeat || 0) + 0.1);
+  M.push({ w, x: p.x, y: p.y, armed: G.t + 0.5, life: G.t + 20, firing: false, src: lzDelSrc(w, src || weaponSrc(w), blast ? lzCharge(w) : 1.5 * lzRapK(w)), blast: blast ? lzBlastK(w) : 0 });
+  w.lzHeat = Math.min(1, (w.lzHeat || 0) + (blast ? LZ_BLAST.heat : 0.1));
+  if (blast) lzBlastHeat(w);
 }
 function lzExtrasTick(dt) {
   const S2 = lzS();
@@ -567,13 +583,20 @@ function lzExtrasTick(dt) {
     const w = m.w;
     if (!m.firing) {
       if (msB(w, 'mines', 2)) { const o = msNear(m.x, m.y, 250); if (o) { const d = Math.hypot(o.x - m.x, o.y - m.y) || 1; m.x += (o.x - m.x) / d * 30 * dt; m.y += (o.y - m.y) / d * 30 * dt; } }
-      if (G.t >= m.armed && msNear(m.x, m.y, 60)) { m.firing = true; m.t0 = G.t; m.end = G.t + 1.2; m.next = 0; m.a = Math.random() * TAU; }
+      if (G.t >= m.armed && msNear(m.x, m.y, 60 * lzAreaK(w))) { m.firing = true; m.t0 = G.t; m.end = G.t + (m.blast ? LZ_BLAST.show : 1.2); m.next = 0; m.a = Math.random() * TAU; }
       continue;
     }
     if (G.t >= m.end) { m.gone = true; continue; }
-    const n = 1 + (msR(w, 'extra') ? msBeams(w).reduce((a, b) => a + b, 0) : 0), spin = m.a + (G.t - m.t0) * 5, hitNow = G.t >= m.next;
+    const nx = 1 + (msR(w, 'extra') ? msBeams(w).reduce((a, b) => a + b, 0) : 0);
+    if (m.blast) { // the starburst: one hit, then its picture holds for LZ_BLAST.show
+      if (!m.segs) { m.segs = []; const n = 8 * nx, src = Object.assign({}, m.src, { lzBlast: true });
+        for (let i = 0; i < n; i++) { const st = { segs: 0, walls: 0, ramp: m.blast * 0.5, first: null, bub: null, out: [], dry: false, delta: 0.6, noHome: true };
+          LZC.pad = 0; lzTrace(w, m.x, m.y, m.a + i / n * TAU, w.s.range * 0.8, 1, src, null, st, lzN(msR(w, 'piercing')), lzN(msR(w, 'ricochet'))); m.segs.push(...st.out); } }
+      continue;
+    }
+    const n = nx, spin = m.a + (G.t - m.t0) * 5, hitNow = G.t >= m.next;
     if (hitNow) m.next = G.t + 0.1;
-    const segs = [], src = hitNow ? weaponSrc(w) : null;
+    const segs = [], src = hitNow ? Object.assign({}, m.src || weaponSrc(w)) : null;
     for (let i = 0; i < n; i++) {
       const st = { segs: 0, walls: 0, ramp: LZ.peak * 2.5, first: null, bub: null, out: [], dry: !hitNow, delta: 0.6, noHome: true };
       LZC.pad = 0; lzTrace(w, m.x, m.y, spin + i / n * TAU, w.s.range * 0.8, 1 / Math.sqrt(n), src, null, st, lzN(msR(w, 'piercing')), lzN(msR(w, 'ricochet')));
@@ -590,14 +613,23 @@ wupFire = (orig => function (w, t, src) {
     if (w.lzDfaT == null) w.lzDfaT = G.t + 1 / MW_DFA_RATE[Math.min(4, mwR(w, 'dfa')) - 1];
     if (G.t >= w.lzDfaT) { lzOrbital(w, t); w.lzDfaT = G.t - Math.log(1 - Math.random() * 0.95) / MW_DFA_RATE[Math.min(4, mwR(w, 'dfa')) - 1]; }
   }
-  if (lzIs(w) && w.m10 && (mwR(w, 'melee') || mwR(w, 'mines'))) {
-    if (w.lzOver) return true;
-    if (mwR(w, 'melee') && t) lzSwordSwing(w, t, src);
-    else if (mwR(w, 'mines')) lzMineLay(w);
-    return true;
-  }
+  if (lzIs(w) && w.m10 && (mwR(w, 'melee') || mwR(w, 'mines'))) { lzDelFire(w, t, src); return true; }
   return orig(w, t, src);
 })(wupFire);
+// The sword and the mines with Charge-Up: the Laser charges as it does for its beam (lzCharge: the glow at the head,
+// Rapid Fire shortens it), then swings or lays one blast (lzBlastK, lzBlast's heat) instead of the plain swing or mine.
+function lzDelFire(w, t, src) {
+  if (w.lzOver) return;
+  const melee = mwR(w, 'melee') && t;
+  if (!melee && !mwR(w, 'mines')) return;
+  if (lzCR(w)) {
+    if (!w.lzChgS || G.t - (w.lzChgLast || -9) > 0.4) w.lzChgS = G.t;
+    w.lzChgLast = G.t; if (t) w.lzTgt = t;
+    if (G.t - w.lzChgS < lzCharge(w)) return;
+    w.lzChgS = 0; w.lzChgLast = -9; w.lzFireT = -9;
+  }
+  if (melee) lzSwordSwing(w, t, src, !!lzCR(w)); else lzMineLay(w, src, !!lzCR(w));
+}
 // The Laser's heat also cools while it swings, lays mines or calls strikes (they add their own heat above).
 
 // RAPID FIRE's branches on the Laser (user, 23 Oct): A, Cooler: the burn bar fills 20% slower (35% from Rank 3); masteries
