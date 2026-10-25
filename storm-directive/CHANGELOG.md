@@ -3,6 +3,17 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## After v10.125 (no build): 2026-10-25 Enemy tables from the live v10 game
+- Merged: ccr-e5f84558-da830u. Docs and a test tool only: no game change, no build.
+
+### Folded from ccr-e5f84558-da830u: 2026-10-25 Enemy tables regenerated from the live v10 game
+- Systems: tests (tools), docs
+- Files: tests/tools/enemytables.js (new), ENEMY_STATS.md, ENEMY_BEHAVIOUR.md
+- What: the two enemy tables now come from the running game (65 enemies, 15 bosses, v10 defences, V10_DIFF scaling) instead of data.js, and can be regenerated with one command.
+- Save data: none.
+- Hooks: none.
+- Risk: none (docs and a test tool only).
+
 ## After v10.125 (no build): 2026-10-25 Weapon modifier no-op audit sim and handoff
 - Merged: ccr-fdb45298-03p6vq. Tests and docs only: no game change, no build.
 
