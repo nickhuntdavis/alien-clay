@@ -9,7 +9,8 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     const bad = []; UI.sample = 's000'; newGame();
     const mk = (id, m) => { const w = makeSlot(id, false, 9); w.lvl = 9; w.m10 = m.slice(); return w; };
-    if (modOk(mk('v_flame_beam', ['mines']), 'charged') !== false) bad.push('Laser + Mines still offers Charge-Up');
+    if (modOk(mk('v_flame_beam', ['melee']), 'homing') !== false) bad.push('Laser + Melee still offers Homing (dead in the audit)');
+    if (modOk(mk('v_flame_beam', ['mines']), 'charged') !== true) bad.push('Laser + Mines lost Charge-Up (it works since the Delivery routing)');
     if (modOk(mk('v_flame_beam', []), 'charged') !== true) bad.push('naked Laser lost Charge-Up');
     const si = mk('v_phys_proj', []); for (const m of ['charged', 'knock', 'rapid']) if (!modOk(si, m)) bad.push('Standard Issue lost ' + m);
     const dl = Object.keys(MODS10).filter(id => MM_GROUP[id] === 'delivery');

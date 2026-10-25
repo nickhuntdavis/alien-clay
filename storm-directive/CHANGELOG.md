@@ -3,6 +3,11 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.126 -> v10.127: 2026-10-25 Dead-card table regenerated after the Delivery routing and the Mines forms
+- Built on main (no branch). Systems: modifier cards, tests. Files: moddead.js, tests/moddead.js, tests/sim/modaudit.js (clears MOD_DEAD before planning, from c0f0687).
+- What: `MOD_DEAD` is regenerated from a full audit of main with tasks 1, 2 and 3 (batch 1) in: 648 NO-OP combos of 2810 are hidden (was 761 before the routing; Laser + Mines now hides nothing, so Charge-Up on it is offered again). The filter test now checks Laser + Melee + Homing stays hidden and Laser + Mines + Charge-Up is offered.
+- Save data: none. Hooks: none. Risk: cards hidden or shown differ from v10.126 by the routing and Mines-form changes only.
+
 ## v10.126 (versionCode 405): 2026-10-25 Mines forms for Flight and Crowd modifiers
 - Merged: ccr-task3-forms (MODAUDIT_HANDOFF.md task 3, batch 1: the Mines column of MODIFIER_MATRIX.md 5.11). This build also ships the unbuilt main changes below it (draft hides dead modifier cards, Deliveries carry the other modifiers). Built without running tests (user's request).
 - Copy still open: TODO_COPY:xd_mines_homing, _ricochet, _returning, _connecting, _pull, _knock (card text on a Mines weapon).
