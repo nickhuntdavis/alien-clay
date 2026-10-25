@@ -17,7 +17,7 @@ const SPOILS = {
     apply: () => { for (const w of G.weapons) if (w && w.lvl < wCap(w)) { setWeaponLevel(w, w.lvl + 1); computeStats(w); } } }),
   blood: () => ({ title: 'Boss Blood', icon: 'BB', desc: '+15% max HP, and heal to full.', apply: () => { const p = me(), add = Math.round(G.P.maxHp * 0.15); G.P.maxHp += add; p.hp = G.P.maxHp; } }),
   gland: () => ({ title: 'Adrenal Gland', icon: 'AG', desc: '+8% damage and +8% fire rate, for good.', apply: () => { G.P.might += 0.08; G.P.haste += 0.08; } }),
-  hide: () => ({ title: 'Trophy Hide', icon: 'TH', desc: 'TODO_COPY:spoils_hide_desc', apply: () => { G.relHide = (G.relHide || 0) + 1; relShellAdd(RELIC10.hideShell); G.P.dodge = Math.min(0.7, G.P.dodge + 0.06); } }), // (a Shell layer: relics10.js)
+  hide: () => ({ title: 'Trophy Hide', icon: 'TH', desc: '+1 Shell layer and +6% dodge. Someone else\'s skin, worn with pride.', apply: () => { G.relHide = (G.relHide || 0) + 1; relShellAdd(RELIC10.hideShell); G.P.dodge = Math.min(0.7, G.P.dodge + 0.06); } }), // (a Shell layer: relics10.js)
   notes: () => ({ title: 'Lab Notes', icon: 'LN', desc: 'Reactions hit 40% harder, and your damage types +10%.', apply: () => { G.P.react += 0.4; G.relRx = (G.relRx || 0) + 1; for (const k in G.P.elem) G.P.elem[k] += 0.1; } }), // (G.relRx: v10 reactions, relics10.js)
   lap: () => ({ title: 'Victory Lap', icon: 'VL', desc: '+12% swim speed and +30% pickup range.', apply: () => { G.P.speed += 0.12; G.P.magnet += 0.3; } }),
   bounty: () => ({ title: "Finder's Fee", icon: 'FF', desc: '+3 rerolls and +15% luck.', apply: () => { G.rerolls += 3; G.P.luck += 0.15; } }),

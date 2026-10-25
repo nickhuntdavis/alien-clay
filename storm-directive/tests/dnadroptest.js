@@ -43,7 +43,7 @@ const { chromium } = require('playwright');
     return { noteStack: a, noteLow: b };
   }));
   await page.screenshot({ path: 'dnadrop_note.png' });
-  if (!/sci_note_stack/.test(out.noteStack || '')) bad.push('stack note ' + out.noteStack);
+  if (!/saving them up/.test(out.noteStack || '')) bad.push('stack note ' + out.noteStack);
   if (!/faltering/.test(out.noteLow || '')) bad.push('low note ' + out.noteLow);
   Object.assign(out, await page.evaluate(() => {
     UI.pickLoot(0); G.state = 'play'; UI.openLoot({ kind: 'chest' }); const el = document.getElementById('lootNote');

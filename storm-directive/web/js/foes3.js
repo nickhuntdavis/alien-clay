@@ -20,7 +20,7 @@ Object.assign(ENEMIES, {
     },
 });
 Object.assign(ENEMY_INTRO, {
-  hocker:   { what: 'Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds.', tip: 'TODO_COPY:hocker_tip' },
+  hocker:   { what: 'Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds.', tip: 'When it clears its throat, step sideways. The glob is big and slow, not clever.' },
   snotbubble: { what: 'A bubble blown out of a nostril. Every hit makes it swell. Pop it too late and it bursts all over the neighbourhood, you included.', tip: 'Pop it early for a small splash, or from range. Static pops it at once, and harmlessly.' },
   hayfever: { what: 'Allergic to everything, mostly you. Every few seconds it winds up (AH... AH...) and sneezes a cone at you, and it sneezes back whatever statuses you have given it.', tip: 'Step out of the cone when it winds up, and go easy on the statuses. Soak it with Water, then give it Cooties, and it sneezes on its friends instead.' },
 });
