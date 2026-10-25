@@ -92,8 +92,10 @@ modDraftCands = (orig => function (kind) {
 
 // ---------------------------------------------------------------- Blend (level 3, option b)
 const sabBlend = src => !!(src && src.w && src.w.sab && src.w.sab.mode === 'blend');
-hookOn('dmgMul', 'sabBlendMul', (e, src) => (sabBlend(src) && !src.sabEcho ? SAB_TIER.blendMain : 1));
-hookOn('proc', 'sabBlendProc', (e, dmg, src) => {
+function sabBlendMul(e, src) { return sabBlend(src) && !src.sabEcho ? SAB_TIER.blendMain : 1; }
+function sabBlendProc(e, dmg, src) {
   if (!sabBlend(src) || src.sabEcho || e.dead) return;
   damageEnemy(e, dmg * SAB_TIER.blendEcho, Object.assign({}, src, { elem: sabOld(src.w), elem2: undefined, sabEcho: true, noProc: true, noCrit: true, noArc: true }));
-});
+}
+hookOn('dmgMul', 'sabBlendMul', (e, src) => sabBlendMul(e, src));
+hookOn('proc', 'sabBlendProc', (e, dmg, src) => sabBlendProc(e, dmg, src));
