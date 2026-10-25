@@ -1,0 +1,7 @@
+## 2026-10-25 Tier 2 boss signature beats (C3, not yet shipped)
+- Systems: bosses, boss telegraphs, tests
+- Files: bosssig10_t2.js (new), index.html, ARCHITECTURE.md, tests/bosstest.js
+- What: the seven tier 2 bosses lose every generic spray (aimedFan, spiral, ring, flower, doubleSpiral) and each gets one signature beat that shows its area first: Twins crossfire (opposite sides, lane lit 0.9 s, one body's 0.4 s Beam), Stone fragment (a gravel chunk per shed Shell layer down a lane marked 0.8 s), Matron rounds (3 beds marked 0.9 s, she walks them healing what she passes), Phantom false positive (two drawn copies blink with her for 4 s, real one ringed; copies are not enemies), Eye saccade (60 degree sector marked 0.8 s, glare sweeps it over 1.2 s), Pepsinator reflux (one half shaded 1 s, pools roll out over it in 1 s), Queen dinner (adds queue and rush one marked line, then devour). Boss strength lines now carry TODO_COPY:boss_<id>_sig. The campaign twins entourage trigger 'spiral' becomes 'crossfire'.
+- Save data: none
+- Hooks: none in shared files (wraps bossAI and nf10Draw; rewrites BOSSES/ROSTER_BOSSES patterns and ENTOURAGE.twins.on at load)
+- Risk: pattern mix per boss changes (no HP, damage or rate number changed; the Beams, chunks and pools use the boss's own bd as the sprays did). Siblings bosssig10_t1.js and t3.js also load after bosstells10.js (index.html tag lines will conflict: keep all). Twins swing round you at 360 px/s while repositioning (contact damage possible then, as with any twin movement).
