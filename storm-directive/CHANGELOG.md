@@ -3,8 +3,8 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
-## v10.131 (versionCode 410): 2026-10-25 Shared mechanics batch 1: tags, bodies, collisions
-- Merged: `ccr-f8b59347-xf7dl4` into `main` on main's v10.130. COMBAT_MATRIX.md section 15 (shared mechanics proposal) and rules 15.1 to 15.3 in code; MODIFIER_MATRIX.md section 8 lists the cells they cover.
+## v10.132 (versionCode 411): 2026-10-25 Shared mechanics batch 1: tags, bodies, collisions
+- Merged: `ccr-f8b59347-xf7dl4` into `main` on main's v10.131. COMBAT_MATRIX.md section 15 (shared mechanics proposal) and rules 15.1 to 15.3 in code; MODIFIER_MATRIX.md section 8 lists the cells they cover.
 
 ### Folded from ccr-f8b59347-xf7dl4: 2026-10-25 Shared mechanics batch 1: tags, bodies, collisions
 - Systems: weapon tags (new), bodies (new), collisions (new), wide modifiers
@@ -21,6 +21,17 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Save data: none.
 - Hooks: none.
 - Risk: none (docs).
+## v10.131 (versionCode 410): 2026-10-25 Strike from Above forms for Flight and Crowd modifiers (task 3 batch 3)
+- Merged: ccr-task3-dfa (MODAUDIT_HANDOFF.md task 3, batch 3). Dead-card table regenerated in the branch.
+
+### Folded from ccr-task3-dfa: 2026-10-25 Strike from Above forms for Flight and Crowd modifiers (task 3, batch 3)
+- Systems: modifier cards, weapons (Delivery), laser, tests
+- Files: delivforms.js, moddead.js (regenerated), tests/delivtest.js, ARCHITECTURE.md
+- What: Homing, Bounce, Returning, Link, Pull and Knockback now have a Strike from Above form (MODIFIER_MATRIX.md 5.11). The marker follows its target (Homing) and pulls enemies onto it (Pull); the strike lands again on up to 1 / 2 / 3 nearby enemies at 60% (Bounce), sends a line of small strikes back to you (Returning), is joined to the last strike by a 2 s damaging beam (Link) and shoves outward from where it lands (Knockback). The Laser's orbital strikes get the same forms (a new target on Homing, a short second orbital strike on Bounce, a beam sweeping back on Returning). Card text is TODO_COPY:xd_dfa_<mod> until the user writes it.
+- Save data: none.
+- Hooks: none in shared files. delivforms.js wraps modwide.js mwDfa and laserbeam.js lzOrbital (plus another mwTick and lzExtrasTick wrap).
+- Risk: Strike from Above builds with these modifiers deal more damage (bounces, walk-back strikes, link beams). The Laser's orbital strike hits run in delivforms.js (a copy of lzExtrasTick's formula) whenever one of the six modifiers is held: a change to that formula in laserbeam.js must be copied to xdOrbs.
+
 
 ## v10.130 (versionCode 409): 2026-10-25 Enemy handoff Batch B
 - Merged: `claude/enemy-b1` to `claude/enemy-b11` (ENEMY_HANDOFF.md Batch B: the roster's promised behaviours) into `claude/practical-brahmagupta-ry2k05` on main's v10.129. One build. Post-merge fixes: shooter detection by attack type (`defShoots`, game.js) for the chevron, SHOOTERS FIRST tier and spawn weight; no Gifting affix on an aura giver; the Snot Bubble's Static pop on the `hit:late` event; f3test drops the Cooties-only antihistamine check.
