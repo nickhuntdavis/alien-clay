@@ -218,7 +218,7 @@ function targetScore(dir, e, d2) {
     case 'strongest': return aimTough(e) * 1e6 - d2;
     case 'weakest': return -e.maxHp * 1e6 - d2;
     case 'lowhp': return -e.hp * 1e6 - d2;
-    case 'armour': return effArmour(e) * 1e6 - d2;
+    case 'armour': return aimTough(e) * 1e6 - d2; // (retired id: old saves and pairs read as TOUGHEST)
     case 'fastest': return e.speed * 1e6 - d2;
     case 'cluster': return e.crowd * 1e6 - d2;
     case 'elite': return (e.boss ? 2 : e.rival ? 1.5 : e.elite ? 1 : 0) * 1e9 - d2;
