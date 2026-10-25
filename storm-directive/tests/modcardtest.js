@@ -7,7 +7,6 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
-    for (const k of Object.keys(XC_W)) delete XC_W[k]; // (these tests cover the shared forms; the weapon cells have celltest*.js)
     const bad = [], out = {};
     UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = [];
     const wid = W24_IDS.find(i => WEAPONS[i] && WEAPONS[i].v10atk === 'proj' && !WEAPONS[i].sig);
