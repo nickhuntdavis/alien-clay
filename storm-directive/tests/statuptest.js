@@ -19,14 +19,14 @@ const { chromium } = require('playwright');
       for (let f = 0; f < 1200; f++) { G.state = 'play'; G.lootQueue.length = 0; G.player.hp = 1e6; G.manual = { x: 0, y: 0 }; p.x = 0; p.y = 0; p.vx = p.vy = 0; update(1 / 60); }
       let t = 0; for (const k in G.stats.dmg) t += G.stats.dmg[k]; Math.random = R0; out.keys = Object.keys(G.stats.dmg).join(','); return t / 20;
     };
-    // 1. Every matrix weapon has a shape, and keeps its damage output within 20% (three runs each side).
+    // 1. Every matrix weapon has a shape, and keeps its damage output within 20% (seven runs each side, highest and lowest dropped: one wild run can't tip it).
     for (const id of MATRIX_ONLY.weapons) {
       const d = WEAPONS[id];
       if (!ST_W[id]) { bad.push('no shape ' + id); continue; }
       if (!d.base.stOld) { bad.push('not applied ' + id); continue; }
       const nb = d.base, ob = d.base.stOld;
       const N = [], O = [], med = a => a.slice().sort((x, y) => x - y)[a.length >> 1];
-      for (let k = 0; k < 5; k++) { seed = 7 + k * 101; d.base = nb; N.push(run(id)); seed = 7 + k * 101; d.base = ob; O.push(run(id)); }
+      for (let k = 0; k < 7; k++) { seed = 7 + k * 101; d.base = nb; N.push(run(id)); seed = 7 + k * 101; d.base = ob; O.push(run(id)); }
       d.base = nb;
       const avg = a => a.slice().sort((x, y) => x - y).slice(1, -1).reduce((x, y) => x + y, 0) / (a.length - 2), n = avg(N), o = avg(O), ratio = o > 0 ? n / o : 1;
       out.dps.push(`${d.name}: ${Math.round(o)} -> ${Math.round(n)} (${ratio.toFixed(2)}) [${O.map(Math.round)} | ${N.map(Math.round)}]`);
