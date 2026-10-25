@@ -127,7 +127,7 @@ const { chromium } = require('playwright');
         const b = tellBoss('colossus', 'yvolley'); const hp0 = hs(); let tellSeen = 0, hurtTell = 0, sweepAt = -1, hurtAt = -1, lanes = null, set = false, hold = null;
         step3(300, t => {
           const s = b.sg3; if (!s || s.y == null) { place(b, 0, 250); return false; }
-          if (s.y === 0) { tellSeen++; render(); if (hs() > hp0) hurtTell++; if (!lanes) lanes = [0, 1, 2].map(k => sg3YAng(s, k, 0.5)); if (!set) { set = true; hold = onLane ? s.a0 : s.a0 - SG3.yOff; } }
+          if (s.y === 0) { tellSeen++; render(); if (hs() > hp0) hurtTell++; if (!lanes) lanes = [0, 1, 2].map(k => sg3YAng(s, k, 0.5)); if (!set) { set = true; hold = onLane ? s.a0 + SG3.yArc * 0.5 : s.a0 - SG3.yOff; } }
           if (hold != null) place(b, hold, 250);
           if (s.y === 1 && sweepAt < 0) sweepAt = t;
           if (hs() > hp0 && hurtAt < 0) hurtAt = t;
