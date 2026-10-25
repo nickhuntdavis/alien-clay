@@ -84,15 +84,15 @@ v10 replaced armour with five defences (Squishy, Membrane, Shell, Thorns, Evasio
 
 ## Bosses
 
-Boss HP in wave mode is base HP x 2.2 / 13 / 50 / 160 (for the boss on waves 5 / 10 / 15 / 20) x (1 + run clock / 600) x 0.45 (v10 boss HP knob). Tier 1 bosses only appear on wave 5, tier 2 on waves 10 and 15, tier 3 on wave 20. The run clock is estimated as 30s per wave, ignoring the early-wave bonus. Boss damage also gets a per-boss-wave softener (`CAMP.hit` = 0.55 / 0.82 / 1 / 1.1) that is not applied below. Race and level modes use different formulas. Contact dmg/s uses base damage x 0.6; boss attacks come from named patterns with no per-bullet numbers in the data, so there is no shot column.
+Boss HP in wave mode is base HP x 3.5 / 13 / 50 / 130 (for the boss on waves 5 / 10 / 15 / 20) x (1 + run clock / 600) x 0.45 (v10 boss HP knob). Tier 1 bosses only appear on wave 5, tier 2 on waves 10 and 15, tier 3 on wave 20. The run clock is estimated as 30s per wave, ignoring the early-wave bonus. Boss damage also gets a per-boss-wave softener (`CAMP.hit` = 0.55 / 0.82 / 1 / 1.1) that is not applied below. Race and level modes use different formulas. Contact dmg/s uses base damage x 0.6; boss attacks come from named patterns with no per-bullet numbers in the data, so there is no shot column.
 
 | # | Boss | Tier | Base HP | HP in wave mode (wave: HP) | Defence | Damage type | Speed | Contact dmg/s | XP |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | **The Litmus Strip** | 1 | 1500 | 5: 1782 | none | acid | 40 | 15.4 | 85 |
-| 2 | **The Mucus Plug** | 1 | 1500 | 5: 1782 | none | mucus | 34 | 15.4 | 85 |
-| 3 | **The Cramp** | 1 | 1500 | 5: 1782 | none | blood | 38 | 15.4 | 85 |
-| 4 | **The Sneeze** | 1 | 1500 | 5: 1782 | none | mucus | 44 | 15.4 | 85 |
-| 5 | **The Johnny** | 1 | 1500 | 5: 1782 | Membrane (50% pool) | force | 52 | 15.4 | 85 |
+| 1 | **The Litmus Strip** | 1 | 1500 | 5: 2835 | none | acid | 40 | 15.4 | 85 |
+| 2 | **The Mucus Plug** | 1 | 1500 | 5: 2835 | none | mucus | 34 | 15.4 | 85 |
+| 3 | **The Cramp** | 1 | 1500 | 5: 2835 | none | blood | 38 | 15.4 | 85 |
+| 4 | **The Sneeze** | 1 | 1500 | 5: 2835 | none | mucus | 44 | 15.4 | 85 |
+| 5 | **The Johnny** | 1 | 1500 | 5: 2835 | Membrane (50% pool) | force | 52 | 15.4 | 85 |
 | 6 | **Mitch & Osis** | 2 | 1900 | 10: 16117; 15: 72675 | none | force + acid | 58 | 22.3 | 50 |
 | 7 | **The Kidney Stone** | 2 | 1500 | 10: 12724; 15: 57375 | Shell x6 (-3/hit) | force | 30 | 24 | 85 |
 | 8 | **The Matron** | 2 | 3000 | 10: 25448; 15: 114750 | none | force | 40 | 20.6 | 80 |
@@ -100,6 +100,6 @@ Boss HP in wave mode is base HP x 2.2 / 13 / 50 / 160 (for the boss on waves 5 /
 | 10 | **The Immune Eye** | 2 | 3400 | 10: 28841; 15: 130050 | none | soul | 52 | 25.7 | 80 |
 | 11 | **The Pepsinator** | 2 | 3600 | 10: 30537; 15: 137700 | none | acid | 44 | 24 | 85 |
 | 12 | **The Macrophage Queen** | 2 | 2600 | 10: 22055; 15: 99450 | Squishy (-35% Force) | force | 46 | 21.4 | 60 |
-| 13 | **The Fever** | 3 | 3200 | 20: 449280 | none | fire | 48 | 25.7 | 85 |
-| 14 | **Chad Prime** | 3 | 3000 | 20: 421200 | Evasion (35% miss) | force | 95 | 27.4 | 85 |
-| 15 | **The Antibody Colossus** | 3 | 3800 | 20: 533520 | Shell x5 (-3/hit) | force | 36 | 30 | 90 |
+| 13 | **The Fever** | 3 | 3200 | 20: 365040 | none | fire | 48 | 25.7 | 85 |
+| 14 | **Chad Prime** | 3 | 3000 | 20: 342225 | Evasion (35% miss) | force | 95 | 27.4 | 85 |
+| 15 | **The Antibody Colossus** | 3 | 3800 | 20: 433485 | Shell x5 (-3/hit) | force | 36 | 30 | 90 |
