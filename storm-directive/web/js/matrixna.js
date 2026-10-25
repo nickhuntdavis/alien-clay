@@ -17,5 +17,6 @@ const MATRIX_NA = {
   acro_cap: ['nth'],                     // Enzyme Headbutt: already lunges every 4th hit
   v_flame_beam: ['range'],               // Laser: Range is Projectile and Spread only (rule 10)
 };
-const matrixNa = (w, id) => !!(w && w.def && !w.isSpell && (MATRIX_NA[w24Key(w)] || []).includes(id));
+const matrixNa = (w, id) => !!(w && w.def && !w.isSpell && (MATRIX_NA[w24Key(w)] || []).includes(id))
+  && !(id === 'knock' && typeof mwR === 'function' && mwR(w, 'ranged')); // (Ranged replaces the snap and the pulse: Knockback throws from the strike, delivforms.js)
 modOk = (orig => function (w, id) { return !matrixNa(w, id) && orig(w, id); })(modOk);

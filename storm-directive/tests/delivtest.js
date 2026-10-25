@@ -5,7 +5,9 @@
 // follows (Homing) and pulls (Pull), the strike bounces, walks back, links to the last one and shoves from where it lands;
 // the Laser's orbital strike bounces, sweeps back and pulls. Orbiting: a body chases (Homing) and rebounds (Bounce), the
 // ring flings out (Returning), the bodies' beam hurts (Link), the ring drags in (Pull) and bats away (Knockback); the
-// Laser's ring sends a spark, flings, hits what crosses it and pulls; the hoop's hit rebounds.
+// Laser's ring sends a spark, flings, hits what crosses it and pulls; the hoop's hit rebounds. Ranged: the strike hops (Bounce), a hit
+// runs home (Returning), the area links (Link), drags in first (Pull) and throws from the strike (Knockback); Peekaboo's
+// BOO is thrown to the crowd; the draft deals the forms on a Ranged weapon.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -19,7 +21,7 @@ const { chromium } = require('playwright');
       G.enemies.length = 0; G.zones.length = 0; G.P.maxHp = G.player.hp = 1e6;
       G.weapons = [makeSlot(wid || 'v_phys_proj', false, 9), null, null];
       const w = G.weapons[0];
-      for (const [id, n] of mods) for (let i = 0; i < n; i++) if (!modAdd(w, id)) w.m10.push(id); // (the draft filter may still hide it: this tests the form)
+      for (const [id, n] of mods) for (let i = 0; i < n; i++) if (!modAdd(w, id)) (w.m10 || (w.m10 = [])).push(id); // (the draft filter may still hide it: this tests the form)
       computeStats(w); G.mwAny = true; return w;
     };
     const foe = (dx, dy) => { const p = G.player, e = makeEnemy(ENEMIES.brute, p.x + dx, p.y + dy, {}); e.speed = 0; e.hp = e.maxHp = 1e5; G.enemies.push(e); gridBuild(); return e; };
@@ -148,6 +150,32 @@ const { chromium } = require('playwright');
     out.hoopBounce = [lost(e), lost(fo)]; if (!(lost(e) > 0) || !(lost(fo) > 0)) bad.push('hoop bounce ' + out.hoopBounce);
     // Card text: an Orbiting weapon's Pull card describes the Orbiting form
     w = fresh('v_phys_proj', [['orbiting', 1]]); out.oCard = (modCard(w, 'pull') || {}).desc; if (out.oCard !== 'TODO_COPY:xd_orbiting_pull' && !/ring|orbit/i.test(out.oCard || '')) bad.push('orbit card ' + out.oCard);
+    // ---- Ranged (batch 5): Nervous Wreck's strike lands on an enemy 200 away
+    const shoot = (w, t) => mwFire(w, t, weaponSrc(w));
+    // Bounce: the strike hops to an enemy 130 beyond the target, outside its blast
+    w = fresh('v_phys_contact', [['ranged', 1], ['ricochet', 1]]); e = foe(200, 0); fo = foe(200, 130); shoot(w, e); const rb0 = lost(fo); tickT(0.3);
+    out.rBounce = [lost(e) > 0, rb0, lost(fo)]; if (!(lost(e) > 0) || rb0 || !(lost(fo) > 0)) bad.push('ranged bounce ' + out.rBounce);
+    // Returning: a hit runs back from the target and catches an enemy halfway home
+    w = fresh('v_phys_contact', [['ranged', 1], ['returning', 1]]); e = foe(300, 0); fo = foe(150, 0); shoot(w, e); const rr0 = lost(fo); tickT(0.6);
+    out.rRet = [rr0, lost(fo), G.xdRg ? G.xdRg.rt.length : -1]; if (rr0 || !(lost(fo) > 0)) bad.push('ranged returning ' + out.rRet);
+    // Link: two enemies in the strike's area share a later hit on one of them
+    w = fresh('v_phys_contact', [['ranged', 1], ['connecting', 1]]); e = foe(200, -20); fo = foe(200, 25); shoot(w, e); const rl0 = lost(fo); damageEnemy(e, 1000, weaponSrc(w));
+    out.rLink = [!!e.xdLk, lost(fo) - rl0]; if (!e.xdLk || !(lost(fo) - rl0 > 50)) bad.push('ranged link ' + out.rLink);
+    // Pull: an enemy 110 from the target, outside the blast, is dragged in and hit
+    w = fresh('v_phys_burst', [['ranged', 1], ['pull', 1]]); e = foe(200, 0); fo = foe(200, 110); const rp0 = fo.y - e.y; shoot(w, e);
+    out.rPull = [Math.round(rp0 - (fo.y - e.y)), lost(fo)]; if (!(out.rPull[0] > 40) || !(lost(fo) > 0)) bad.push('ranged pull ' + out.rPull);
+    // Knockback: an enemy beside the strike, square to you, is thrown sideways (outward from the strike, not from you)
+    w = fresh('v_phys_contact', [['ranged', 1], ['knock', 1]]); e = foe(200, 0); fo = foe(200, 25); shoot(w, e); tickT(0.1);
+    out.rKnock = Math.round((fo.y - G.player.y - 25) + (fo.ky || 0)); if (!(out.rKnock > 60)) bad.push('ranged knockback ' + out.rKnock);
+    // Peekaboo: the decoy is thrown to the crowd 200 away and the BOO goes off there; Bounce hops on from it
+    w = fresh('s_peekaboo', [['ranged', 1], ['ricochet', 1]]); e = foe(200, 0); const e3 = foe(215, 12); fo = foe(200, 330); G.peek = null; peekFire(w);
+    const pk = G.peek ? [Math.round(G.peek.x - G.player.x), Math.round(G.peek.y - G.player.y)] : null; if (G.peek) G.peek.t = G.t; peekTick(0); const pb0 = lost(fo); tickT(0.3);
+    out.peek = [pk, lost(e) > 0, lost(e3) > 0, pb0, lost(fo)]; if (!pk || !(pk[0] > 150) || !(lost(e) > 0) || !(lost(fo) > pb0)) bad.push('peekaboo ranged ' + JSON.stringify(out.peek));
+    // The draft: Bounce and Knockback are dealt on a Ranged Nervous Wreck (not on a naked one); Homing never is
+    w = fresh('v_phys_contact', []); const rd0 = [modOk(w, "ricochet"), modOk(w, "knock")]; w.m10 = ['ranged']; computeStats(w);
+    out.rDraft = [rd0, modOk(w, 'ricochet'), modOk(w, 'knock'), modOk(w, 'homing')]; if (rd0[0] || rd0[1] || !out.rDraft[1] || !out.rDraft[2] || out.rDraft[3]) bad.push('ranged draft ' + JSON.stringify(out.rDraft));
+    // Card text: a Ranged weapon's Link card describes the Ranged form
+    out.rCard = (modCard(w, 'connecting') || {}).desc; if (out.rCard !== 'TODO_COPY:xd_ranged_connecting' && !/strike|link/i.test(out.rCard || '')) bad.push('ranged card ' + out.rCard);
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

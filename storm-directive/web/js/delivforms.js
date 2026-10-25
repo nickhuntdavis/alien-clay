@@ -635,12 +635,156 @@ wupFire = (orig => function (w, t, src) {
 function xdOrbProc(e, dmg, src) { if (src.xdOr && !src.xdF) src.xdOr.hits.push(e); }
 hookOn('proc', 'xdOrbProc', (e, dmg, src) => xdOrbProc(e, dmg, src));
 
-// Card text: a modifier offered on a weapon that lays mines describes its Mines form (TODO_COPY:xd_mines_<modifier>, the
-// user writes it). cellmods.js wraps modCard after this file, so a weapon's own cell text still wins.
+// ---------------------------------------------------------------- Ranged (batch 5)
+// Ranged (modwide.js MW_RANGED: Nervous Wreck, Panic Button, Peekaboo, Enzyme Headbutt) lands the attack on the target up
+// to 220 away as a strike (mwFire's Ranged branch: mwStrike, then mwRangedExtra, whose Grappling Hook still yanks the
+// target in after Pull). Peekaboo is a toy (toyFire takes its shot before wupFire), so its Ranged is its own matrix cell
+// (4.4, Throw your voice): the decoy spot is thrown to the densest crowd within 260 and the BOO goes off there, not round
+// you. The forms wrap both: Pull before the strike, Knockback's origin during it, the rest after it. Homing is N/A (rule 6).
+// Base damage: the strike's (the weapon's hit); the BOO's is the weapon's hit too.
+//  - Bounce (Ricochet): the strike hops to 1 / 2 / 3 more enemies within 120 (60%; a half-size strike on each).
+//  - Returning: a hit (40 / 50 / 60%) runs along the line from the target back to you (700 a second), once per enemy.
+//  - Link (Connecting): everything in the strike's area is linked for 3 / 4 / 5 s; a hit on one passes 25% to the others
+//    (Melee's link: xdProc).
+//  - Pull: before it lands, the strike drags enemies within its radius + 60 / 90 / 120 into its centre.
+//  - Knockback: the strike throws enemies outward from where it lands, not away from you: what it hits from a point 20
+//    short of its centre (src.mwAt; so the target itself still flies away from you), what it misses within the forms' area
+//    100 a rank.
+// Nervous Wreck's and Enzyme Headbutt's strike is 1 across (their area is a multiplier: the clamp hits one enemy), so the
+// forms read an area of at least 50 (XD.ranged.area).
+// The draft: on a Ranged weapon these five are dealt although the weapon's own attack type is not on their list (modOk,
+// as cellmods.js atkOk), and Knockback's N/A on Nervous Wreck and Panic Button (matrixna.js) lifts while Ranged is held.
+Object.assign(XD, {
+  ranged: {
+    ricochet:   { r: 120, k: 0.6, n: [1, 2, 3], step: 0.1, rk: 0.5 },
+    returning:  { v: 700, k: [0.4, 0.5, 0.6], w: 12 },
+    connecting: { t: [3, 4, 5], share: 0.25, max: 8 },
+    pull:       { r: [60, 90, 120], k: 0.85, max: 12 },
+    knock:      { f: 100 },                                          // (f: a rank, the shove for enemies near the strike it missed)
+    area:       50,                                                  // (the forms' area at least: Nervous Wreck's and Enzyme Headbutt's strike is 1 across)
+    peek:       { reach: 260, crowd: 90 },                           // (Peekaboo's thrown decoy: the densest crowd within reach)
+  },
+});
+const XD_RG = ['ricochet', 'returning', 'connecting', 'pull', 'knock'];
+const xdRgOn = w => !!w && !!w.m10 && mwR(w, 'ranged') > 0 && MW_RANGED.includes(w24Key(w));
+const xdRgAny = w => xdRgOn(w) && XD_RG.some(id => modCount(w, id) > 0);
+const xdRg = () => G.xdRg || (G.xdRg = { rt: [] });
+const xdRgA = r => Math.max(r, XD.ranged.area);
+const xdRgAt = (x, y) => { const p = G.player, d = Math.hypot(x - p.x, y - p.y) || 1, b = Math.min(20, d); return { x: x - (x - p.x) / d * b, y: y - (y - p.y) / d * b }; };
+const xdRgIn = (x, y, r) => G.enemies.filter(e => !e.dead && !e.charmed && !e.egg && Math.hypot(e.x - x, e.y - y) < r + (e.r || 10));
+// Pull: before the strike, enemies near it are dragged into its centre
+function xdRgPull(w, x, y, r) {
+  const pr = xdR(w, 'pull'); if (!pr) return;
+  const C = XD.ranged.pull, R = xdRgA(r) + xdLv(C.r, pr) * (typeof areaK === 'function' ? areaK(w) : 1);
+  let n = 0;
+  for (const o of xdRgIn(x, y, R)) { if (n >= C.max) break; const d = Math.hypot(o.x - x, o.y - y); if (d < 4) continue; mwPull(o, x, y, d * C.k); o.mwPulledT = G.t + 1; n++; }
+  if (n) ring(x, y, R, w.def.color, 0.2, 2);
+}
+// After the strike: Link, Bounce and Returning. src: the strike's (its multipliers carry over); base: one strike's damage.
+function xdRgLand(w, x, y, r, base, src, target) {
+  const C = XD.ranged, g0 = G, fsrc = Object.assign({}, src, { xdF: 1, xdSw: null, mwAt: null }), hit = xdRgIn(x, y, xdRgA(r));
+  if (target && !target.dead && !hit.includes(target)) hit.push(target);
+  // Link: everything in the strike's area shares damage for a while
+  const lr = xdR(w, 'connecting');
+  if (lr && hit.length >= 2) {
+    const L = { w, es: hit.slice(0, C.connecting.max), end: G.t + xdLv(C.connecting.t, lr), share: C.connecting.share };
+    for (const e of L.es) e.xdLk = L;
+    const M = xdM(); M.lk = M.lk.filter(o => o.end > G.t); M.lk.push(L);
+  }
+  // Knockback: what the strike missed near it is thrown outward too
+  const kr = xdR(w, 'knock');
+  if (kr) { let n = 0; for (const o of hit) if (!o.boss && o !== target && Math.hypot(o.x - x, o.y - y) > r + (o.r || 10) && n++ < 12) shove(o, x, y, C.knock.f * kr); }
+  // Bounce: the strike hops on to more enemies
+  const br = xdR(w, 'ricochet');
+  if (br) {
+    const used = hit.slice(); let cx = x, cy = y;
+    for (let i = 0; i < xdLv(C.ricochet.n, br); i++) {
+      const nx = xdFoe(cx, cy, C.ricochet.r + r, used); if (!nx) break;
+      used.push(nx); const fx = cx, fy = cy;
+      after(C.ricochet.step * (i + 1), () => {
+        if (G !== g0 || nx.dead || !G.weapons.includes(w)) return;
+        const s2 = Object.assign({}, fsrc, xdR(w, 'knock') ? { mwAt: xdRgAt(nx.x, nx.y) } : null);
+        bolt(fx, fy, nx.x, nx.y, w.def.color, 0.15);
+        mwStrike(w, nx.x, nx.y, Math.max(24, r * C.ricochet.rk), base / Math.max(1e-6, w.s.dmg) * C.ricochet.k, s2);
+      });
+      cx = nx.x; cy = nx.y;
+    }
+  }
+  // Returning: a hit runs from the target back to you
+  const rr = xdR(w, 'returning'), p = G.player;
+  if (rr && Math.hypot(p.x - x, p.y - y) > 40) xdRg().rt.push({ w, x0: x, y0: y, x, y, u: 0, hit: [], dmg: base * xdLv(C.returning.k, rr), src: fsrc });
+}
+function xdRgTick(dt) {
+  const R = xdRg(), C = XD.ranged.returning, p = G.player;
+  for (const q of R.rt) {
+    if (!G.weapons.includes(q.w)) { q.u = 1; continue; }
+    const L = Math.hypot(p.x - q.x0, p.y - q.y0) || 1;
+    q.u = Math.min(1, q.u + C.v * dt / L);
+    q.x = q.x0 + (p.x - q.x0) * q.u; q.y = q.y0 + (p.y - q.y0) * q.u;
+    for (const e of G.enemies) {
+      if (e.dead || e.charmed || q.hit.includes(e) || Math.hypot(e.x - q.x, e.y - q.y) > (e.r || 10) + C.w) continue;
+      q.hit.push(e); damageEnemy(e, q.dmg, q.src); ring(e.x, e.y, 10, q.w.def.color, 0.15, 2);
+    }
+  }
+  R.rt = R.rt.filter(q => q.u < 1);
+}
+mwTick = (orig => function (dt) { const r = orig(dt); if (G && G.xdRg && G.xdRg.rt.length && G.state === 'play') xdRgTick(dt); return r; })(mwTick);
+// The strike (mwFire's Ranged branch): Pull first, Knockback's origin while it lands, the rest after
+mwFire = (orig => function (w, target, src) {
+  if (!target || !src || !G.mwAny || !xdRgAny(w)) return orig(w, target, src);
+  const x = target.x, y = target.y, r = (w.s.area || 60) * (msMa(w, 'ranged') === 'A2' ? 2 : 1); // (as mwFire)
+  xdRgPull(w, x, y, r);
+  const had = src.mwAt; if (xdR(w, 'knock')) src.mwAt = xdRgAt(x, y);
+  let res; try { res = orig(w, target, src); } finally { src.mwAt = had; }
+  if (res) xdRgLand(w, x, y, r, w.s.dmg, src, target); // (src carries Charge-Up's multiplier: damageEnemy reads it)
+  return res;
+})(mwFire);
+// Peekaboo: the decoy spot is thrown to the densest crowd within reach, and the BOO goes off there
+function xdPeekSpot(w) {
+  const C = XD.ranged.peek, p = G.player, R = C.reach * (msA(w, 'ranged', 2) ? (mwR(w, 'ranged') >= 3 ? 1.6 : 1.3) : 1);
+  let best = null, bn = 0;
+  for (const e of G.enemies) {
+    if (e.dead || e.charmed || e.egg || Math.hypot(e.x - p.x, e.y - p.y) > R) continue;
+    let n = 0; for (const o of G.enemies) if (!o.dead && !o.charmed && Math.hypot(o.x - e.x, o.y - e.y) < C.crowd) n++;
+    if (n > bn) { bn = n; best = e; }
+  }
+  return best && { x: best.x, y: best.y };
+}
+peekFire = (orig => function (w) {
+  const had = G.peek; orig(w);
+  const k = G.peek;
+  if (!k || k === had || k.w !== w || w.echo || !xdRgOn(w)) return;
+  const at = xdPeekSpot(w); if (!at) return;
+  bolt(G.player.x, G.player.y, at.x, at.y, w.def.color, 0.2); ring(at.x, at.y, 26, w.def.color, 0.4, 3);
+  k.x = at.x; k.y = at.y; k.xdRg = 1; // (enemies search there: peekSpot)
+})(peekFire);
+peekBoo = (orig => function (w, x, y, minLook, quiet) {
+  const k = G.peek, p = G.player;
+  if (quiet || !k || !k.xdRg || k.w !== w || x !== p.x || y !== p.y) return orig(w, x, y, minLook, quiet);
+  x = k.x; y = k.y;
+  const r = w.s.area || 60, ts = toySrc;
+  xdRgPull(w, x, y, r);
+  if (xdR(w, 'knock')) { const at = xdRgAt(x, y); toySrc = function () { return Object.assign(ts.apply(this, arguments), { mwAt: at }); }; }
+  let res; try { res = orig(w, x, y, minLook, quiet); } finally { toySrc = ts; }
+  xdRgLand(w, x, y, r, w.s.dmg, Object.assign(weaponSrc(w), { wname: 'BOO!' }), null);
+  return res;
+})(peekBoo);
+// The draft: a Ranged weapon is dealt the five forms although its attack type is not on their list
+modOk = (orig => function (w, id) {
+  if (!XD_RG.includes(id) || !xdRgOn(w)) return orig(w, id);
+  const m = MODS10[id], a = w.def.v10atk;
+  if (!m || !a || m.atk.includes(a)) return orig(w, id);
+  m.atk.push(a);
+  try { return orig(w, id); } finally { m.atk.splice(m.atk.lastIndexOf(a), 1); }
+})(modOk);
+
+// Card text: a modifier offered on a weapon with a Delivery describes that Delivery's form (TODO_COPY:xd_<delivery>_<modifier>,
+// the user writes it; Ranged comes before Strike from Above and Orbiting, the extras it can sit beside). cellmods.js wraps modCard after this file, so a weapon's own cell text still wins.
 modCard = (orig => function (w, id) {
   const c = orig(w, id);
   if (c && w && w.m10 && mwR(w, 'mines') && XD.mines[id]) c.desc = 'TODO_COPY:xd_mines_' + id;
   else if (c && w && w.m10 && mwR(w, 'melee') && XD.melee[id]) c.desc = 'TODO_COPY:xd_melee_' + id;
+  else if (c && w && w.m10 && mwR(w, 'ranged') && XD.ranged[id] && id !== 'peek') c.desc = 'TODO_COPY:xd_ranged_' + id;
   else if (c && w && w.m10 && mwR(w, 'dfa') && XD.dfa[id]) c.desc = 'TODO_COPY:xd_dfa_' + id;
   else if (c && w && w.m10 && modCount(w, 'orbiting') && XD.orbit[id]) c.desc = 'TODO_COPY:xd_orbiting_' + id;
   return c;
@@ -687,6 +831,11 @@ modDraw = (orig => function () {
       ctx.beginPath(); ctx.moveTo(sx(pts[0].x), sy(pts[0].y)); for (const q of pts.slice(1)) ctx.lineTo(sx(q.x), sy(q.y)); if (pts.length > 2) ctx.closePath(); ctx.stroke();
     }
     if (w.xdFl) { const p = G.player; ctx.globalAlpha = 0.5; ctx.strokeStyle = col(w.def.color); ctx.lineWidth = 3 * S; for (const R of w.xdFl) { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), R * S, 0, TAU); ctx.stroke(); } }
+  }
+  if (G.xdRg) for (const q of G.xdRg.rt) { // Ranged's Returning: a spark running home, with a short tail
+    const p = G.player, d = Math.hypot(p.x - q.x0, p.y - q.y0) || 1, tx = q.x - (p.x - q.x0) / d * 24, ty = q.y - (p.y - q.y0) / d * 24;
+    ctx.globalAlpha = 0.85; ctx.strokeStyle = col(q.w.def.color); ctx.lineWidth = 3 * S;
+    ctx.beginPath(); ctx.moveTo(sx(tx), sy(ty)); ctx.lineTo(sx(q.x), sy(q.y)); ctx.stroke();
   }
   if (G.xdO) for (const c of G.xdO.ch) { // (a spark off the ring, with a short tail)
     ctx.globalAlpha = 0.9; ctx.fillStyle = col(c.w.def.color); ctx.beginPath(); ctx.arc(sx(c.x), sy(c.y), 5 * S, 0, TAU); ctx.fill();

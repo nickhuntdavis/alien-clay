@@ -75,6 +75,23 @@ Order-of-operations traps: `mwFire` runs after the weapon's own `wupFire` (modwi
 modifiers per weapon (`XC_W` in cellmods.js); the Laser's `lzIs` guard in the Charge-Up block (:127) is deliberate.
 
 ## Task 3: per-Delivery forms for Flight and Crowd modifiers (Opus, design conversation first)
+Status (25 Oct): complete. The table is `redesign docs/MODIFIER_MATRIX.md` 5.11 (user approved); all five batches are in
+`web/js/delivforms.js` (`XD.mines`, `XD.melee`, `XD.dfa`, `XD.orbit`, `XD.ranged`), tested by `tests/delivtest.js`.
+Batch 5 (Ranged, `ccr-task3-ranged`) also: deals Bounce, Returning, Link, Pull and Knockback on a Ranged weapon (they were
+proj-only or N/A there), lifts Knockback's N/A on Nervous Wreck and Panic Button while Ranged is held (matrixna.js), and
+gives Peekaboo its Ranged cell (4.4, Throw your voice: the decoy and the BOO land on the crowd within 260), without which
+Peekaboo's Ranged and every form on it did nothing.
+Still open after task 3:
+- Card text: every form shows `TODO_COPY:xd_<delivery>_<modifier>` (mines, melee, dfa, orbiting: homing, ricochet,
+  returning, connecting, pull, knock; ranged: the same less homing). 29 briefs for the user; see each batch's reply.
+- Returning is not in `MATRIX_ONLY.mods` (matrixonly.js), so the shipped draft never offers it: its five forms are built
+  and tested but unreachable until the user adds it.
+- Audit blind spots that hide these forms: no walls (Bounce off walls), one enemy kind, 20 s, rank 1 only (ranks 2 and 3
+  of each form, branches and masteries such as Grappling Hook beside Pull are untested), no bosses (Pull and Knockback
+  scale down on them).
+- `tests/delivtest.js` melee Knockback (Bouncer) fails on main since collide.js took over collisions (`cdOn()`: the
+  Bouncer pass in xdMelee stands down and the test ticks only mwTick). run.sh hides it: its FAIL line also carries
+  `ERRORS []`, which run.sh's filter drops.
 Goal: Homing, Bounce, Returning, Link, Pull, Knockback and Extra Shots each have a stated form on Mines, Melee, Strike
 from Above and Orbiting, so no combo is "the flag is set but nothing can use it".
 Start as a design chat with the user, not code: propose one line per cell (Homing on Mines = mines creep towards enemies,
