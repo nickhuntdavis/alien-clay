@@ -8,16 +8,16 @@
 //   Snot Bubble (Mucus, carrier): a nostril bubble that swells with every hit. Pop it early and it only splashes
 //     Snotty on the neighbours; pop it late (4+ hits) and it bursts, sticking every enemy nearby and you if you are close.
 //     POPPED (Static on it): bursts at once, harmless to you, every enemy nearby Snotty.
-// Hooks: chem.js (after an enemy takes a damage type's status) -> foes3Chem; foes2.js foes2Dmg -> foes3Dmg and
+// Hooks: f3popped (hit:late) -> foes3Chem; foes2.js foes2Dmg -> foes3Dmg and
 //   foes2Kill -> foes3Kill (Snot Bubble). Everything else rides foes2's tables (cap, FOE_AI, MICROBES, ENEMY_INTRO).
 
 Object.assign(ENEMIES, {
-  hocker:   { name: 'Phlegm Hocker', hp: 32, speed: 50, armour: 0, r: 14, dmg: 8, xp: 4, color: '#b9c98a', shape: 'hocker', ai: 'hocker', from: 140, w: 1.2, cap: 6, f3rx: true,
-    weak: { salt: 1.5 }, resist: { ice: 0.6 }, does: 'Lobs sticky globs that make you Snotty' },
-  hayfever: { name: 'Hayfever Cell', hp: 50, speed: 48, armour: 1, r: 16, dmg: 10, xp: 5, color: '#f2c6d6', shape: 'hayfever', ai: 'hayfever', from: 200, w: 1.0, cap: 6, f3rx: true,
-    weak: { salt: 1.5 }, resist: { poison: 0.6 }, does: 'Sneezes the statuses you gave it back at you' },
-  snotbubble: { name: 'Snot Bubble', hp: 30, speed: 34, armour: 0, r: 13, dmg: 6, xp: 4, color: '#cfe3c0', shape: 'snotbubble', ai: 'chase', from: 120, w: 1.0, cap: 4, f3rx: true, f3dmg: true, f3kill: true,
-    weak: { shock: 1.5 }, resist: { phys: 0.6 }, does: 'Swells with every hit, then bursts and sticks everything nearby' },
+  hocker:   { name: 'Phlegm Hocker', hp: 32, speed: 50, r: 14, dmg: 8, xp: 4, color: '#b9c98a', shape: 'hocker', ai: 'hocker', from: 140, w: 1.2, cap: 6, f3rx: true,
+    },
+  hayfever: { name: 'Hayfever Cell', hp: 50, speed: 48, r: 16, dmg: 10, xp: 5, color: '#f2c6d6', shape: 'hayfever', ai: 'hayfever', from: 200, w: 1.0, cap: 6, f3rx: true,
+    },
+  snotbubble: { name: 'Snot Bubble', hp: 30, speed: 34, r: 13, dmg: 6, xp: 4, color: '#cfe3c0', shape: 'snotbubble', ai: 'chase', from: 120, w: 1.0, cap: 4, f3rx: true, f3dmg: true, f3kill: true,
+    },
 });
 Object.assign(ENEMY_INTRO, {
   hocker:   { what: 'Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds.', tip: 'TODO_COPY:hocker_tip' },
@@ -26,7 +26,6 @@ Object.assign(ENEMY_INTRO, {
 });
 Object.assign(REACTIONS, {
   popped:        { name: 'POPPED',        color: '#9fd46a', desc: 'Static on a Snot Bubble: it bursts at once, harmless to you, and every enemy nearby is Snotty.' },
-  antihistamine: { name: 'ANTIHISTAMINE', color: '#ff5fa2', desc: 'Water, then Cooties, on a Hayfever Cell: it sneezes on its own side, and everything near it is Sick.' },
 });
 Object.assign(JUNK_POWERS, {
   hocker:   { name: 'Clear Your Throat', fmt: k => `+${5 * k}% projectile speed`, apply: P => { P.projSpeed += 0.05; } },
@@ -34,7 +33,7 @@ Object.assign(JUNK_POWERS, {
   hayfever: { name: 'Bless You', fmt: k => `+${3 * k}% dodge`, apply: P => { P.dodge += 0.03; } },
 });
 if (typeof PST_SHOOTERS !== 'undefined') PST_SHOOTERS.hocker = 'ice';
-if (typeof RX_OF !== 'undefined') { RX_OF.antihistamine = 'pop'; RX_OF.popped = 'pop'; }
+if (typeof RX_OF !== 'undefined') { RX_OF.popped = 'pop'; }
 
 const F3 = {
   globs: [], // (live Hocker globs, watched until they land: f3patchTick)
@@ -43,7 +42,7 @@ const F3 = {
   sneeze: { cd: 4.5, wind: 0.8, range: 230, half: 0.5, dur: 2, dmg: 0.6 }, // (half: cone half-angle; dmg: share of its contact damage)
 };
 // What the Hayfever Cell is carrying, as player statuses.
-const f3carry = e => [e.pickle > 0 && 'wet', e.poison > 0 && 'sick', (e.chill > 0 || e.frozen > 0) && 'snot'].filter(Boolean);
+const f3carry = e => [(e.chill > 0 || e.frozen > 0) && 'snot'].filter(Boolean);
 
 Object.assign(FOE_AI, {
   hocker(e, dt, dist, ux, uy) {
@@ -131,17 +130,10 @@ function f3sneeze(e) {
   for (const k of c) pstGive(k, S.dur);
 }
 
-// After an enemy takes a damage type's status (chem.js).
+// The Snot Bubble's Static pop (called by f3popped below).
 function foes3Chem(e, elem, dmg, src, rsrc) {
   const say = id => { e.reactCd = 0; return react(e, id, src); }; // (always fires: a pair reaction on the same hit has not used it up)
   if (e.def === ENEMIES.snotbubble && elem === 'shock' && !e.popped && say('popped')) { e.popped = 1; damageEnemy(e, e.hp + 1, rsrc); return; }
-  if (e.def === ENEMIES.hayfever) {
-    if (elem === 'salt') e.f3wetT = G.t + 3;
-    else if (elem === 'poison' && (e.pickle > 0 || e.f3wetT > G.t) && !(e.ahT > G.t) && say('antihistamine')) {
-      e.ahT = G.t + 6; e.f3wetT = 0; e.snzW = 0; e.snzCd = F3.sneeze.cd; e.snzRT = G.realT; e.snzRing = true;
-      forNear(e.x, e.y, 180, o => { if (o !== e && !o.boss && !o.charmed && !o.rival && !o.egg) { addSick(o, 3, dmg * 0.3 * rxK(o), rsrc.wname); bolt(e.x, e.y, o.x, o.y, REACTIONS.antihistamine.color, 0.15); } });
-    }
-  }
 }
 
 // ---------------------------------------------------------------- drawing (STYLE.md: soft waxy edges, no rings)

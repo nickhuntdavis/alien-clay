@@ -1,15 +1,12 @@
 'use strict';
-// Spawn Prawn - chemistry. Force (phys) is plain untyped damage. The eight damage types (internal keys in brackets)
-// each leave a status on what they hit:
-//   Acid (fire)      - Melting: damage over time that eats armour (e.burn); once the armour is gone it eats through, +50%.
-//   Mucus (ice)      - Snotty: slower and slower (e.chill/chillAmt); enough and it's stuck fast (e.frozen).
-//   Static (shock)   - Shocked: some damage it takes arcs to a neighbour (e.shock); every 4th Static hit stuns it.
+// Spawn Prawn - chemistry. Force (phys) is plain untyped damage. Under v10 Acid, Mucus, Static, Blood, Alien and Fire
+// statuses on enemies live in fight.js (fightStatus); what is left here is the v9 statuses a few weapons and Feats still
+// leave (internal keys in brackets):
 //   Cooties (poison) - Sick: stacking damage over time (e.poison, e.poisonStacks); it sneezes it onto its mates and hits you softer.
 //   Oil (oxi)        - Lubricated (e.fizz): no grip, so knockback sends it much further, and reactions on it are 50% stronger.
-//   Water (salt)     - Soaking wet (e.pickle): each hit shoves it away; wet things carry Static twice as well.
-//   Blood (arcane)   - Bleeding (e.bloodT, bloodDps, bloodN): damage over time that only ticks while it moves.
-//   Alien (soul)      - Cursed (e.curse): Alien ignores armour; cursed enemies sometimes turn on their mates; bosses are Spooked.
-// When a type lands on something already carrying another's status, they react (RX_PAIR in inspect.js, REACTIONS in data.js).
+//   Water (salt)     - Soaking wet (e.pickle): each hit shoves it away.
+//   Alien (soul)     - Cursed (e.curse, set by Feats): a cursed kill leaves a ghost that fights for you.
+// The pair reactions (reactDo) mostly fire from combo twists and Feats (RX_PAIR in inspect.js, REACTIONS in data.js).
 // Combos have chemistry too: fuse two weapons whose damage types are not their usual ones (Switched at Birth)
 // and the combo picks up a TWIST from the pair it is made of.
 // Hooks: applyElement and chemForce (damageEnemy), chemTick (status upkeep), chemWobble (enemy steering),
@@ -36,31 +33,14 @@ const neighbours = (e, r, n) => acquireMany('nearest', r, e.x, e.y, n + 1).filte
 
 function applyElement(e, elem, dmg, src) {
   if (fightStatus(e, elem, dmg, src)) return; // (v10 slice: Acid, Mucus, Static statuses: fight.js)
-  const P = G.P, syn = G.synergy, has = chemHas(e);
+  const P = G.P, syn = G.synergy;
   chemStick(e, dmg, src);
-  const rsrc = { elem, noStatus: true, noArc: true, noCrit: true, wname: 'Reactions' };
   if (P.mixologist && chemCount(e) >= 2) dmg *= 1 + P.mixologist; // (Mixologist: stronger doses on an enemy that is already a cocktail)
   G.chemDmg = dmg; // (for Chain Reaction)
   // A reaction first: the first status already on it that pairs with this type.
   if (e.dead) return;
   // Then this type's own status.
   switch (elem) {
-    case 'fire': // Acid: Melting
-      e.burn = syn.fire ? 4.5 : 3;
-      setBurn(e, dmg * 0.4 * (syn.fire ? 1.5 : 1) * P.elem.fire, src);
-      break;
-    case 'ice': { // Mucus: Snotty
-      e.chill = 2.5;
-      e.chillAmt = Math.min(0.6, e.chillAmt + 0.14 * P.elem.ice);
-      const thresh = syn.ice ? 0.3 : 0.58;
-      if (e.chillAmt >= thresh && e.frozen <= 0) { e.frozen = e.boss ? 0.4 : 1.3; e.chillAmt = 0.2; }
-      break;
-    }
-    case 'shock': // Static: Shocked
-      e.shock = 2.2;
-      e.shockN = (e.shockN || 0) + 1;
-      if (e.shockN >= CHEM.stunEvery) { e.shockN = 0; stun(e, syn.shock ? 0.9 : 0.6); }
-      break;
     case 'poison': // Cooties: Sick
       addSick(e, 1, dmg * 0.14 * P.elem.poison, src);
       if (e.poisonStacks >= P.poisonCap && !(e.pandT > G.t) && react(e, 'pandemic', src)) {
@@ -75,151 +55,15 @@ function applyElement(e, elem, dmg, src) {
     case 'salt': { // Water: Soaking wet, and shoved
       e.pickle = syn.salt ? 4.5 : 3;
       const p = me(); shove(e, p.x, p.y, 90 * P.elem.salt);
-      if (!(e.splashT > G.t) && chemCount(e) > 1) { e.splashT = G.t + 1; for (const n of neighbours(e, 100, 2)) { chemSplash(e, n); bolt(e.x, e.y, n.x, n.y, ELEMENTS.salt.color, 0.12); } }
       break;
     }
-    case 'arcane': // Blood: Bleeding
-      e.bloodT = syn.arcane ? 6 : 4;
-      e.bloodN = Math.min(5, (e.bloodN || 0) + 1);
-      e.bloodDps = Math.max((e.bloodDps || 0) * 0.85, dmg * 0.25 * P.elem.arcane) + dmg * 0.05 * e.bloodN;
-      e.bloodBy = dotName(src);
-      if (e.bloodN >= 5 && !(e.clotT > G.t)) { // five deep: the blood clots, dragging its neighbours into one slow lump
-        e.clotT = G.t + 5; e.dazeSlowT = G.t + 2;
-        forNear(e.x, e.y, 120, o => { if (o === e || !plainFoe(o)) return; const dx = e.x - o.x, dy = e.y - o.y, d = Math.hypot(dx, dy) || 1; o.kx += dx / d * 200; o.ky += dy / d * 200; o.dazeSlowT = G.t + 2; });
-        floatText(e.x, e.y - e.r - 14, 'CLOTTED', ELEMENTS.arcane.color, 11, 0.7);
-      }
-      break;
-    case 'soul': // Alien: Cursed
-      e.curse = syn.soul ? 4.5 : 3;
-      if (e.boss) { if (!(e.spookT > G.t)) { e.spookT = G.t + 4; e.dazeSlowT = G.t + 1.5; floatText(e.x, e.y - e.r - 14, 'SPOOKED', ELEMENTS.soul.color, 12, 0.8); } }
-      else if (Math.random() < 0.12 * P.elem.soul) curseFoe(e, 2);
-      break;
-    case 'flame': v10Burn(e, dmg, src); break; // Fire: Burning (v10.js)
   }
   // (v10: no overloads, triples, terrain or enemy reactions)
 }
 
-// ---------------------------------------------------------------- overloads (a type with itself)
-// Six hits of one type inside 3 seconds overloads it (Cooties has its own: Pandemic, at its dose limit).
-const OVERLOAD_OF = { fire: 'meltdown', ice: 'booger', shock: 'overload', oxi: 'slipnslide', salt: 'waterlogged', arcane: 'hemorrhage', soul: 'possession' };
-function chemOverload(e, elem, dmg, src, rsrc) {
-  const id = OVERLOAD_OF[elem];
-  if (!id) return;
-  const O = e.ov || (e.ov = {});
-  if (!(O[elem + 'T'] > G.t - 3)) O[elem] = 0;
-  O[elem + 'T'] = G.t; O[elem] = (O[elem] || 0) + 1;
-  if (O[elem] < 6 || O[elem + 'cd'] > G.t) return;
-  O[elem] = 0; O[elem + 'cd'] = G.t + 5;
-  if (!react(e, id, src)) return;
-  const rm = rxK(e), c = REACTIONS[id].color, p = me();
-  switch (id) {
-    case 'meltdown': // it melts into a puddle that burns its mates
-      damageEnemy(e, ((e.burnDps || 0) * 4 + dmg) * rm, rsrc);
-      if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 70, life: 3, max: 3, dps: ((e.burnDps || dmg * 0.4) * 1.5 + 4) * rm, elem: 'fire', pull: 0, color: c, tick: 0, src: rsrc });
-      break;
-    case 'booger': // stuck fast, then flicked into its mates
-      if (plainFoe(e)) { e.frozen = 0; chemBowl(e, p, 650, dmg * 1.5 * rm, rsrc); } else damageEnemy(e, dmg * 2 * rm, rsrc);
-      break;
-    case 'overload': // every shocked enemy nearby discharges
-      for (const n of G.enemies) if (!n.dead && n.shock > 0 && Math.hypot(n.x - e.x, n.y - e.y) < 450) { bolt(e.x, e.y, n.x, n.y, c, 0.18); damageEnemy(n, dmg * 0.9 * rm, Object.assign({}, rsrc, { elem: 'shock' })); stun(n, 0.4); }
-      break;
-    case 'slipnslide': // no grip at all: it bowls through the crowd
-      if (plainFoe(e)) chemBowl(e, p, 700, dmg * 1.2 * rm, rsrc); else damageEnemy(e, dmg * 1.5 * rm, rsrc);
-      break;
-    case 'waterlogged': // it bloats, then bursts in a shove
-      e.dazeSlowT = G.t + 1.5;
-      after(1.2, () => { if (!G || e.dead) return; forNear(e.x, e.y, 140, o => { if (o !== e) shove(o, e.x, e.y, 420); }); aoe(e.x, e.y, 90, (dmg * 1.5 + 6) * rm, rsrc, c); });
-      break;
-    case 'hemorrhage': // it bursts and sprays its neighbours
-      damageEnemy(e, ((e.bloodDps || 0) * 3 + dmg) * rm, rsrc);
-      for (const n of neighbours(e, 140, 5)) { n.bloodT = Math.max(n.bloodT || 0, 3); n.bloodN = Math.min(5, (n.bloodN || 0) + 2); n.bloodDps = Math.max(n.bloodDps || 0, (e.bloodDps || dmg * 0.25) * 0.8); n.bloodBy = e.bloodBy; }
-      fxParts('drop', e.x, e.y, c, 14, 200, 0.6, 3);
-      break;
-    case 'possession': // it fights for you for 6s (bosses: a long spook and a big hit)
-      if (plainFoe(e)) curseFoe(e, 6); else { e.dazeSlowT = G.t + 3; damageEnemy(e, dmg * 3 * rm, rsrc); }
-      break;
-  }
-}
 // An enemy sent sliding: it hurts whatever it hits on the way (chemTick does the hitting).
 function chemBowl(e, from, f, dmg, rsrc) { shove(e, from.x, from.y, f); e.bowlT = G.t + 0.7; e.bowlD = dmg; e.bowlS = rsrc; e.bowlHit = [e.id]; }
 
-// ---------------------------------------------------------------- triples (three statuses at once)
-const TRIPLES = [
-  ['zombie', ['arcane', 'soul', 'poison']], ['baptism', ['salt', 'soul', 'oxi']], ['napalm', ['fire', 'oxi', 'shock']],
-  ['flesheating', ['fire', 'arcane', 'poison']], ['fluseason', ['ice', 'poison', 'salt']], ['bloodyshow', ['ice', 'arcane', 'shock']], ['oilrig', ['shock', 'salt', 'oxi']],
-];
-function chemTriple(e, dmg, src, rsrc) {
-  if (e.triT > G.t) return;
-  const has = chemHas(e), T = TRIPLES.find(([, ks]) => ks.every(k => has[k]));
-  if (!T) return;
-  const id = T[0];
-  e.reactCd = 0;
-  if (!react(e, id, src)) return;
-  e.triT = G.t + 6;
-  const rm = rxK(e), c = REACTIONS[id].color, far = (r, f) => { for (const n of G.enemies) if (!n.dead && n !== e && Math.hypot(n.x - e.x, n.y - e.y) < r) f(n); };
-  switch (id) {
-    case 'zombie': // it fights for you, and what dies near it gets back up on your side
-      curseFoe(e, 6); e.zombify = G.t + 6;
-      break;
-    case 'baptism': // converted for good (not bosses; 3 at most)
-      if (plainFoe(e) && G.enemies.filter(o => o.baptised && !o.dead).length < 3) { e.charmed = true; e.charmT = 1e9; e.baptised = true; e.frozen = 0; e.allyT = null; e.name = e.name + ' (born again)'; floatText(e.x, e.y - e.r - 12, 'BORN AGAIN', ELEMENTS.soul.color, 12, 0.9); }
-      else damageEnemy(e, dmg * 3 * rm, rsrc);
-      break;
-    case 'napalm': // a sticky burning patch that spreads
-      if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 100, r0: 100, grow: 18, life: 5, max: 5, dps: (dmg * 1.2 + 8) * rm, elem: 'fire', pull: 0, color: c, tick: 0, src: rsrc, flame: true });
-      break;
-    case 'flesheating': // melting spreads to every sick enemy nearby
-      far(320, n => { if (sick(n)) { addBurn(n, (e.burnDps || dmg * 0.4) * rm, rsrc.wname); bolt(e.x, e.y, n.x, n.y, c, 0.12); } });
-      break;
-    case 'fluseason': { // the whole screen catches it
-      let k = 0; far(700, n => { if (k++ < 30) addSick(n, 1, e.poisonDps || dmg * 0.14, rsrc.wname); });
-      break;
-    }
-    case 'bloodyshow': { // labour: six contractions over 3s, each a squeeze, a short stun and a spray of bloody mucus (bosses: no stun, harder)
-      const boss = !plainFoe(e), base = (dmg * 0.7 + 6) * rm;
-      e.labourT = G.t + 3.1;
-      for (let i = 0; i < 6; i++) after(0.5 * (i + 1), () => {
-        if (!G || e.dead) return;
-        const k = (i === 5 ? 2.5 : 1) * (boss ? 1 + 0.5 * (i + 1) : 1);
-        damageEnemy(e, base * k, Object.assign({}, rsrc, { elem: 'shock' }));
-        if (!boss && !e.dead) e.dazeT = Math.max(e.dazeT || 0, G.t + 0.2);
-        e.squeezeT = G.realT;
-        forNear(e.x, e.y, i === 5 ? 150 : 110, o => {
-          if (o === e || o.charmed) return;
-          o.chill = 2.5; o.chillAmt = Math.min(0.6, (o.chillAmt || 0) + 0.12);
-          o.bloodT = Math.max(o.bloodT || 0, 3); o.bloodN = Math.min(5, (o.bloodN || 0) + 1); o.bloodDps = Math.max(o.bloodDps || 0, base * 0.2); o.bloodBy = rsrc.wname;
-        });
-        fxParts('drop', e.x, e.y, i === 5 ? '#c9184a' : '#b5c96a', i === 5 ? 14 : 6, i === 5 ? 220 : 150, 0.7, 3);
-      });
-      break;
-    }
-    case 'oilrig': // every oil slick nearby goes up
-      for (const z of G.zones) if (z.oil && z.life > 0 && Math.hypot(z.x - e.x, z.y - e.y) < 500) { z.life = 0; aoe(z.x, z.y, z.r + 30, (dmg * 1.2 + 6) * rm, rsrc, c); }
-      aoe(e.x, e.y, 70, dmg * rm, rsrc, c);
-      break;
-  }
-}
-
-// ---------------------------------------------------------------- terrain reactions
-const terrAt = (x, y, type) => { const c = tCell(x, y); if (c) for (const ob of c) if (ob.type === type && Math.hypot(x - ob.x, y - ob.y) < ob.r) return ob; return null; };
-function chemTerrain(e, elem, dmg, src, rsrc) {
-  if (!G.terrain || src.dot) return;
-  const inOb = (ob, f) => forNear(ob.x, ob.y, ob.r, o => { if (Math.hypot(o.x - ob.x, o.y - ob.y) < ob.r) f(o); });
-  if (elem === 'shock' || elem === 'poison') {
-    const ob = terrAt(e.x, e.y, 'current');
-    if (ob && !(ob.rxT > G.t)) {
-      if (elem === 'shock' && react(e, 'livewire', src)) { ob.rxT = G.t + 1.5; inOb(ob, o => { if (o !== e) { damageEnemy(o, dmg * 0.6 * rxK(o), Object.assign({}, rsrc, { elem: 'shock' })); o.shock = Math.max(o.shock || 0, 1.5); } }); }
-      else if (elem === 'poison' && react(e, 'downstream', src)) { ob.rxT = G.t + 1.5; inOb(ob, o => { if (o !== e) addSick(o, 1, e.poisonDps || dmg * 0.14, rsrc.wname); }); }
-    }
-  }
-  if (elem === 'oxi' || elem === 'salt') {
-    const ob = terrAt(e.x, e.y, 'acid');
-    if (ob && !(ob.rxT > G.t)) {
-      if (elem === 'oxi' && react(e, 'flareup', src)) { ob.rxT = G.t + 5; ob.flareT = G.t + 5; ob.dilT = 0; }
-      else if (elem === 'salt' && react(e, 'diluted', src)) { ob.rxT = G.t + 4; ob.dilT = G.t + 4; ob.flareT = 0; }
-    }
-  }
-}
 // Static shots into a mitochondrion overcharge it (terrainShot, terrain.js): three times the fill.
 function chemMitoK(s, ob) {
   if (!(s.src && s.src.elem === 'shock')) return 1;
@@ -227,28 +71,6 @@ function chemMitoK(s, ob) {
   return 3;
 }
 
-// ---------------------------------------------------------------- reactions with particular enemies
-let CHEM_FOES_M = null; // (built on first use: foes2.js adds these enemies after chem.js loads)
-const chemFoes = () => CHEM_FOES_M || (CHEM_FOES_M = new Map(['grease', 'leech', 'puffball', 'shell', 'callus', 'platelet', 'pube', 'bogey'].filter(k => ENEMIES[k]).map(k => [ENEMIES[k], k])));
-function chemFoe(e, elem, dmg, src, rsrc) {
-  const D = e.def, k = chemFoes().get(D), rm = rxK(e), say = id => react(e, id, src);
-  if (D.grease && elem === 'shock' && !(e.fbT > G.t) && say('fireball')) { e.fbT = G.t + 4; chemBowl(e, me(), 600, dmg * 1.5 * rm, Object.assign({}, rsrc, { elem: 'fire' })); e.burn = 3; setBurn(e, dmg * 0.5, rsrc.wname); }
-  else if (k === 'leech' && elem === 'arcane' && say('gorged')) aoe(e.x, e.y, 90, (e.maxHp + dmg) * rm, rsrc, REACTIONS.gorged.color);
-  else if (D.puff && elem === 'poison' && !(e.fbT > G.t) && say('sporesneeze')) { e.fbT = G.t + 3; forNear(e.x, e.y, 160, o => { if (o !== e) addSick(o, 2, dmg * 0.14, rsrc.wname); }); }
-  else if (k === 'shell' && elem === 'fire' && e.armour > 0 && say('shellshock')) { e.armour = 0; e.shred = 0; }
-  else if (k === 'callus' && elem === 'salt' && !(e.softT > G.t) && say('softened')) e.softT = G.t + 6;
-  else if (D.clot && elem === 'arcane' && !(e.thinT > G.t) && say('thinned')) e.thinT = G.t + 6;
-  else if (k === 'pube' && elem === 'ice' && say('gluedown')) e.frozen = Math.max(e.frozen, 3);
-  else if (k === 'bogey' && elem === 'salt' && say('washedoff')) { e.stuck = null; damageEnemy(e, e.hp + 1, rsrc); }
-}
-
-// ---------------------------------------------------------------- puddles you can use (C)
-// Water hits leave a brief puddle; a Mucus enemy stuck fast leaves a blob of snot. Swim through them.
-function chemPuddle(e, elem) {
-  if (G.zones.length > 180) return;
-  if (elem === 'salt' && !(e.pudT > G.t)) { e.pudT = G.t + 1.5; G.zones.push({ x: e.x, y: e.y, r: 34, life: 2, max: 2, dps: 0, elem: 'salt', pull: 0, color: ELEMENTS.salt.color, tick: 0, src: { elem: 'salt', noStatus: true, wname: 'Puddle' }, water: true, quiet: true }); }
-  if (elem === 'ice' && e.frozen > 0 && !(e.pudT > G.t)) { e.pudT = G.t + 3; G.zones.push({ x: e.x, y: e.y, r: 28, life: 5, max: 5, dps: 0, elem: 'ice', pull: 0, color: ELEMENTS.ice.color, tick: 0, src: { elem: 'ice', noStatus: true, wname: 'Snot' }, snot: true, quiet: true }); }
-}
 // Every frame (game.js update): what your own puddles do for you.
 function chemPlayerZones() {
   if (!G || G.state !== 'play') return;
@@ -397,16 +219,6 @@ function battery(e, dmg) {
 function chemForce(e, dmg, src) { chemStick(e, dmg, src); }
 // Mucus: shots stick in snotty enemies, and pop out when they die (chemKill).
 function chemStick(e, dmg, src) { if (e.chill > 0 && !src.dot && !src.noStatus && dmg > 0) e.snot = Math.min(e.maxHp * 0.5, (e.snot || 0) + dmg * 0.15); }
-// Water: a splash carries an enemy's other statuses onto a neighbour, at half strength.
-function chemSplash(e, n) {
-  if (e.burn > 0) addBurn(n, (e.burnDps || 0) * 0.5, e.burnBy);
-  if (sick(e)) addSick(n, 1, (e.poisonDps || 0) * 0.5, e.poisonBy);
-  if (e.shock > 0) n.shock = Math.max(n.shock || 0, 1.2);
-  if (e.fizz > 0) n.fizz = Math.max(n.fizz || 0, 1.5);
-  if (e.chill > 0) { n.chill = 2.5; n.chillAmt = Math.min(0.6, (n.chillAmt || 0) + e.chillAmt * 0.5); }
-  if (e.bloodT > 0) { n.bloodT = Math.max(n.bloodT || 0, 2); n.bloodDps = Math.max(n.bloodDps || 0, (e.bloodDps || 0) * 0.5); n.bloodBy = e.bloodBy; }
-  if (e.curse > 0) n.curse = Math.max(n.curse || 0, 1.5);
-}
 // A Blood pool (left by a bleeding kill) heals you while you're in it.
 function chemPool(z) { const q = me(); if (G.poolHealT > G.t) return; if (Math.hypot(q.x - z.x, q.y - z.y) < z.r + (q.r || 12)) { G.poolHealT = G.t + 0.24; healPlayer(G.P.maxHp * z.heal, true); if (!(G.saytopup > G.t)) { G.saytopup = G.t + 6; floatText(q.x, q.y - 30, 'TOP-UP', REACTIONS.topup.color, 12, 0.8); G.stats.reactBy.topup = (G.stats.reactBy.topup || 0) + 1; inspectSeeRx('topup'); typeRxFx(q.x, q.y, q.r, 'topup'); } } } // (pools don't stack)
 // Alien shots pass through walls, shields, mirrors and dodges.

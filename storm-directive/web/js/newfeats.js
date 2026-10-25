@@ -170,7 +170,6 @@ const NF_FIRE = {
     const line = nfLine(A, B, s.area), carry = new Set(), zona = nfPath(w, 'b');
     line.forEach((e, i) => after(T * Math.min(1, Math.hypot(e.x - A.x, e.y - A.y) / D), () => {
       if (!G || e.dead) return;
-      e.ifn = 0;
       damageEnemy(e, s.dmg, Object.assign({}, src, { shred: 6, kx: Math.cos(a), ky: Math.sin(a), knock: 120 }));
       for (const k of carry) if (!e.dead) { e.reactCd = 0; applyElement(e, k, s.dmg * 0.35, src); }
       if (e.dead) return;
@@ -411,7 +410,7 @@ function nfTick(dt) {
     compactArr(N.under, u => !u.done);
   }
   // Perished shields (Not Latex-Safe): no armour, no shield.
-  if (N.perished.length) { for (const e of N.perished) if (!e.dead && e.nfPerishT > G.t) { e.shred = Math.max(e.shred || 0, (e.armour || 0) + 4); e.ifn = 0; e.auraArm = 0; e.tunT = 0; } compactArr(N.perished, e => !e.dead && e.nfPerishT > G.t); }
+  if (N.perished.length) { for (const e of N.perished) if (!e.dead && e.nfPerishT > G.t) { e.shred = Math.max(e.shred || 0, (e.armour || 0) + 4); } compactArr(N.perished, e => !e.dead && e.nfPerishT > G.t); }
   // Incubating (Asymptomatic).
   if (N.inc.length) {
     for (const e of N.inc) {
@@ -611,10 +610,10 @@ const NFK = {
         if (!nfFoe(e)) return;
         damageEnemy(e, o.s.dmg * 0.5, nfZone(o.src));
         if (e.dead) return;
-        const fresh = !(e.nfPerishT > G.t), had = (e.ifn || 0) + Math.max(0, (e.armour || 0) - (e.shred || 0)) * (e.armK || 1);
+        const fresh = !(e.nfPerishT > G.t), had = Math.max(0, (e.armour || 0) - (e.shred || 0)) * (e.armK || 1);
         e.nfPerishT = G.t + 6;
         if (fresh) { e.nfPerishR = G.realT; NFS().perished.push(e); if (had > 0) floatText(e.x, e.y - e.r - 12, 'PERISHED', '#c8a2ff', 11, 0.7); }
-        e.ifn = 0; e.shred = (e.armour || 0) + 4;
+        e.shred = (e.armour || 0) + 4;
         if (fresh && o.expired && had > 0) after(0.25, () => { if (!G) return; forNear(e.x, e.y, 90, n => { if (n !== e && nfFoe(n)) damageEnemy(n, o.s.dmg * 1.5 + had * 2, Object.assign({}, o.src, { knock: 160, kx: n.x - e.x, ky: n.y - e.y })); }); spawnPart(e.x, e.y, '#e9d8ff', 8, 160, 0.4, 2.5); });
       });
     },

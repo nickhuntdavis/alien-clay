@@ -25,10 +25,6 @@ const RX_PAIR = (() => {
   m['salt+salt'] = 'waterlogged'; m['arcane+arcane'] = 'hemorrhage'; m['soul+soul'] = 'possession';
   return m;
 })();
-const RX_ABBR = { bath: 'BATH', greasefire: 'FIRE', holywater: 'HOLY', penicillin: 'PEN', soulrot: 'ROT', bloodclot: 'CLOT', sushi: 'SUSHI', publicpool: 'POOL',
-  ectoplasm: 'ECTO', cardiac: 'CARD', lastrites: 'RITE', snotrocket: 'SNOT', dirtyneedle: 'NDL', crimescene: 'CRIM', scab: 'SCAB', bloodpact: 'PACT',
-  battery: 'BATT', acidrain: 'RAIN', heartburn: 'HBRN', ulcer: 'ULC', vinaigrette: 'VIN', dontmix: 'MIX', snotslick: 'SLCK', snailtrail: 'SNAIL',
-  shortcircuit: 'SHRT', poltergeist: 'POLT', shakes: 'SHAK', patientzero: 'PT0', pandemic: 'PAND', meltdown: 'MELT', booger: 'BOOG', overload: 'OVLD', slipnslide: 'SLIP', waterlogged: 'LOGD', hemorrhage: 'HEM', possession: 'POSS' };
 const rxSeen = id => !!((META.seenRx && META.seenRx[id]) || (typeof G !== 'undefined' && G && G.stats && G.stats.reactBy && G.stats.reactBy[id]));
 // From react() in game.js: log a reaction the first time it ever goes off.
 function inspectSeeRx(id) { META.seenRx = META.seenRx || {}; if (!META.seenRx[id]) { META.seenRx[id] = 1; saveMeta(); } }

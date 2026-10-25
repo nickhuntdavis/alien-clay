@@ -22,11 +22,9 @@ const { chromium } = require('playwright');
     // Hayfever: soak it (wet) and Mucus it (snot), then let it sneeze at you.
     const y = makeEnemy(ENEMIES.hayfever, 820, 300); y.hp = y.maxHp = 1e6; G.enemies.push(y);
     y.chill = 30; y.pickle = 30; y.snzCd = 0; run(90);
-    out.sneeze = JSON.stringify(G.pst && { wet: pstHas('wet'), snot: pstHas('snot'), sick: pstHas('sick') }); if (!pstHas('wet')) bad.push('sneeze');
-    // Antihistamine: wet it, then Cooties.
+    out.sneeze = JSON.stringify(G.pst && { snot: pstHas('snot') }); if (!pstHas('snot')) bad.push('sneeze');
+    // (the Antihistamine reaction was deleted with Cooties and Water: E1)
     const n = makeEnemy(ENEMIES.crawler, 840, 320); n.hp = n.maxHp = 1e6; G.enemies.push(n); gridBuild();
-    y.ahT = 0; damageEnemy(y, 1, { elem: 'salt', wname: 'T' }); damageEnemy(y, 1, { elem: 'poison', wname: 'T' });
-    out.anti = (G.stats.reactBy.antihistamine || 0) + ' neighbour sick ' + (n.poison > 0); // (antihistamine needs Cooties, a retired type: not asserted under v10)
     // Snot Bubble: hits swell it; an early pop splashes neighbours only; a late pop sticks them and you; Static pops it harmlessly.
     G.enemies.length = 0; G.pst = null; G.zones.length = 0; p.x = 700; p.y = 300;
     const mk = (x, y) => { const e = makeEnemy(ENEMIES.snotbubble, x, y); e.hp = e.maxHp = 1e6; G.enemies.push(e); return e; };

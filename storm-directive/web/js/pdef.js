@@ -9,7 +9,7 @@
 //  - Hit type: kind 'contact' is Contact, 'bullets' Projectile (Spread if the shooter only has Spread attacks), 'blast' and
 //    Thorns recoil Burst, anything else (hazards, beams, puddles) Pool. Damage type comes from the shooter's roster entry
 //    (default Force; two types split the hit evenly).
-//  - A hit fully soaked by the Membrane applies no status (decision 35): hurtPlayer returns before pstHit.
+//  - A hit fully soaked by the Membrane applies no status (decision 35): hurtPlayer returns before any status is applied.
 //  - Shell layers from cards do not regrow inside a wave: they come back when a wave starts (wave mode) or every 60 s (race).
 //  - Thorns: Contact hits that connect return 5 + 35% of the hit (x rank) to the attacker as echo damage (never missed, no status).
 //  - The shield (v10 decision, 18 Oct): the Membrane is only there if you have a shield: Private Schooled and Not of This World

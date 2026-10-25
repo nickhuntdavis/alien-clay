@@ -1040,15 +1040,9 @@ const MICROBES = {
     ctx.beginPath(); ctx.arc(x, y, r * 0.62, 0, TAU); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.stroke();
     ctx.fillStyle = 'rgba(20,24,22,0.6)'; ctx.beginPath(); ctx.arc(x, y, r * 0.18, 0, TAU); ctx.fill();
   },
-  // Water bear: a plump, segmented tardigrade on eight stubby clawed legs. Curls into a round 'tun' when hurt.
+  // Water bear: a plump, segmented tardigrade on eight stubby clawed legs. 
   tardigrade(e, x, y, r, face) {
     ctx.save(); ctx.translate(x, y); ctx.rotate(face);
-    if (e.tunT > G.t) {
-      ctx.beginPath(); ctx.ellipse(0, 0, r * 0.8, r * 0.72, 0, 0, TAU); ctx.fillStyle = mBody(e, 0.3); ctx.fill(); mHalo(r * 0.14);
-      ctx.strokeStyle = 'rgba(30,36,32,0.5)'; ctx.lineWidth = r * 0.06;
-      for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.ellipse(i * r * 0.14, 0, r * 0.1, r * 0.66, 0, 0, TAU); ctx.stroke(); }
-      ctx.restore(); return;
-    }
     const step = Math.sin(e.age * 6);
     ctx.strokeStyle = 'rgba(40,46,42,0.85)'; ctx.lineWidth = Math.max(1.2, r * 0.16); ctx.lineCap = 'round';
     for (let i = 0; i < 4; i++) for (const s of [-1, 1]) {
@@ -2146,7 +2140,7 @@ function drawEnemy(e, lod) {
     const label = `${e.name}  LV ${e.lvl}` + (e.mode === 'hunt' ? '  !' : e.mode === 'flee' ? '  (fleeing)' : '');
     ctx.strokeText(label, x, by - 5); ctx.fillStyle = e.color; ctx.fillText(label, x, by - 5);
   }
-  if (e.ifn > 0 || e.cortT > G.t || e.plasT > G.t) foes2Fx(e, x, y, r); // (support buffs: foes2.js)
+  if (e.cortT > G.t || e.plasT > G.t) foes2Fx(e, x, y, r); // (support buffs: foes2.js)
   enemyRing(e, x, y, r);
 }
 // The pause menu's YOU portrait: your sperm exactly as it looks in play (upgrades and every active sequence's
