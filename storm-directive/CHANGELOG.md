@@ -3,6 +3,11 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.140 (versionCode 419): 2026-10-25 Returning offered again; dead-card table regenerated
+- Built on main. Systems: modifier cards, tests. Files: matrixonly.js, moddead.js.
+- What: Returning (Return to Sender) is in `MATRIX_ONLY.mods` again, so the draft offers it on projectile and spread weapons, naked and under every Delivery (its five Delivery forms from task 3 were unreachable). `MOD_DEAD` regenerated from a full audit with Returning in the plan: 550 NO-OP of 2764 combos hidden (Returning itself: 32 dead, 50 visible). The audit ran on main before the v10.139 six-branch merge; regenerate again after the next modifier change.
+- Save data: none. Hooks: none. Risk: Returning builds come back into play on 11 weapons; untested in wave sims.
+
 ## v10.139 (versionCode 418): 2026-10-25 Six feature branches: charge-up looks, feedback animations, health loot, Switched at Birth levels, pick-the-weapon modifiers, DNA drops
 - Merged: `ccr-charge-fx`, `ccr-feedback-fx`, `ccr-loot-health`, `ccr-switched-levels`, `ccr-mod-weaponpick`, `ccr-dna-drop`. Conflicts were only shared bookkeeping (ARCHITECTURE.md rows and script order, run.sh test list, index.html script tags, NOTES.md bullets, version files, APK). feedbackfx.js still uses its own per-type stand-in colours rather than chargefx.js `drawChargeFx`.
 
