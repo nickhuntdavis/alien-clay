@@ -1,14 +1,14 @@
 'use strict';
 // Spawn Prawn - feedback animations: small soft cues for things that used to happen silently. No player-facing text.
-//  1. Reload: a thin arc round you fills while a weapon reloads (tinted by its damage type); a pop when it is back.
+//  1. Reload: a thin arc round you fills while a weapon reloads, with the damage type's charge-up look (chargefx.js) building inside it; a pop when it is back.
 //  2. Ready: a Feat slot pulses (and you flash) when a Feat comes off a real cooldown; the same flash when WINDED ends
 //     and when Sprint Start's 5 s timer comes round.
 //  3. Invulnerable: a shimmer round you for Stair Gate, State of Grace, Ghosting and post-hit iframes; a burst at the
 //     start and a flicker in the last stretch. Blips under 0.3 s (dodge, See-Through) are skipped.
 //  4. Healing: watches p.hp each frame, so every heal path (regen, lifesteal, kills, pickups, cards) is covered without
 //     hooking any of them. Gains are added up and shown as one green puff per chunk, at most one per 0.45 s.
-//  5. Status wearing off: a fade-out puff in the damage type's colour and motion when a status ends on an enemy or on you.
-// Per-type looks are all in ffxTypePuff (one function), so the shared per-type helper of ccr-charge-fx can replace it.
+//  5. Status wearing off: the damage type's charge-up look unwinding (chargefx.js) plus its release snap when a status ends on an enemy or on you.
+// Per-type looks come only from chargefx.js (drawChargeFx / chargeSnap / cfxMain); nothing per-type lives here.
 // Hooks: hooks.js 'tick' -> ffxTick (everything is detected there, from state; no shared file knows about heals,
 //   iframes or reloads); render.js render -> ffxDraw (after ringsOnTop, over the world, under enemy bullets).
 // Loads after reach.js (last). State lives in FFX, rebuilt for each run (FFX.g !== G).
@@ -17,7 +17,8 @@ const FFX = { g: null, fx: [], hp: 0, acc: 0, accT: 0, inv: 0, invPeak: 0, ready
 const FFX_CAP = 40;
 // status bit -> damage type (the eight statuses, as chemHas lists them)
 const FFX_TYPES = ['fire', 'ice', 'shock', 'poison', 'oxi', 'salt', 'arcane', 'soul'];
-const ffxCol = k => col(k === 'heal' ? '#8ac926' : (ELEMENTS[k] || ELEMENTS.phys).color);
+const ffxEl = w => { const e = wElemOf(w); return e && CFX_LIGHT[e] ? e : 'phys'; }; // (a damage type chargefx.js knows)
+const ffxCol = k => col(k === 'heal' ? '#8ac926' : cfxMain(k));
 function ffxStyle() {
   if (document.getElementById('ffxCss')) return;
   const s = document.createElement('style'); s.id = 'ffxCss';
@@ -30,21 +31,11 @@ function ffxReset() {
   FFX.hp = G.player ? G.player.hp : 0; FFX.stm = null; FFX.spw = null; FFX.winded = false; FFX.pst = null; FFX.ready = 0;
 }
 
-// ---------------------------------------------------------------- the per-type puff (swap point for the shared helper)
-// A soft blob of the type's colour that swells and fades, plus a few particles that move the way the type moves.
+// ---------------------------------------------------------------- the per-type puff (chargefx.js owns the look)
+// A status ending is the charge-up look unwinding (drawChargeFx with k running 1 -> 0, in ffxDraw) plus chargeSnap's release.
 function ffxTypePuff(x, y, r, k, big) {
-  const c = ffxCol(k);
-  ffxAdd({ k: 'puff', x, y, r, c, t: 0, life: big ? 0.6 : 0.45 });
-  switch (k) {
-    case 'fire': fxParts('bubble', x, y, c, 3, 50, 0.5, 2); break;                                  // Acid: it fizzes off
-    case 'ice': fxParts('drop', x, y + r * 0.3, c, 3, 22, 0.6, 2.5, Math.PI / 2, 0.6); break;       // Mucus: sags and drips
-    case 'shock': fxParts('spark', x, y, c, 4, 110, 0.22, 2); break;                                 // Static: a last crackle
-    case 'poison': fxParts('bubble', x, y, c, 3, 40, 0.6, 2.5, -Math.PI / 2, 1.2); break;            // Cooties: wisps rise
-    case 'oxi': fxParts('drop', x, y, c, 3, 35, 0.5, 2); break;                                      // Oil: beads roll off
-    case 'salt': fxParts('drop', x, y, c, 3, 45, 0.55, 2, Math.PI / 2, 0.9); break;                  // Water: drips fall
-    case 'arcane': fxParts('drop', x, y, c, 3, 40, 0.55, 2.5, Math.PI / 2, 0.7); break;              // Blood: a few drops
-    case 'soul': fxParts('spark', x, y, c, 4, 45, 0.7, 2, -Math.PI / 2, 1.4); break;                 // Alien: sparkles drift up
-  }
+  ffxAdd({ k: 'puff', x, y, r, el: k, t: 0, life: big ? 0.6 : 0.45, seed: ++FFX.n });
+  chargeSnap(x, y, r * 0.6, k);
 }
 
 // ---------------------------------------------------------------- detection (one 'tick' per frame, no allocation)
@@ -97,7 +88,7 @@ function ffxTick(dt) {
   for (let i = 0; i < ws.length; i++) {
     const w = ws[i]; if (!w || w.echo) continue;
     const was = FFX.rl.get(w.uid) || 0, now = w.reloadT > 0 ? w.reloadMax : 0;
-    if (was && !now && was >= 0.8) ffxAdd({ k: 'ring', x: p.x, y: p.y, r: 18 + (i % 4) * 3, t: 0, life: 0.25, c: ffxCol(wElemOf(w) || 'phys') });
+    if (was && !now && was >= 0.8) ffxAdd({ k: 'ring', x: p.x, y: p.y, r: 18 + (i % 4) * 3, t: 0, life: 0.25, c: ffxCol(ffxEl(w)) });
     if (was !== now) FFX.rl.set(w.uid, now);
   }
 
@@ -137,9 +128,11 @@ function ffxDraw() {
     const w = ws[i];
     if (!w || w.echo || !(w.reloadT > 0) || !(w.reloadMax >= 0.8)) continue;
     const k = 1 - w.reloadT / w.reloadMax, rr = (24 + n * 3.5) * S;
-    ctx.strokeStyle = ffxCol(wElemOf(w) || 'phys'); ctx.lineWidth = Math.max(1.5, 2 * S); ctx.lineCap = 'round';
+    const el = ffxEl(w);
+    ctx.strokeStyle = ffxCol(el); ctx.lineWidth = Math.max(1.5, 2 * S); ctx.lineCap = 'round';
     ctx.globalAlpha = 0.18; ctx.beginPath(); ctx.arc(px, py, rr, 0, TAU); ctx.stroke(); // (the empty track)
     ctx.globalAlpha = 0.75; ctx.beginPath(); ctx.arc(px, py, rr, -Math.PI / 2, -Math.PI / 2 + TAU * k); ctx.stroke();
+    drawChargeFx(px, py, (p.r || 11) * S + n * 3 * S, k, el, n + 5); // (the same per-type wind-up look as the charge-ups)
     n++;
   }
   // 3. invulnerable shimmer: a soft breathing halo; the last 0.5 s (1.2 s for the Stair Gate) it flickers
@@ -162,8 +155,7 @@ function ffxDraw() {
       ctx.strokeStyle = f.c; ctx.lineWidth = Math.max(1, 2.5 * (1 - k) * S); ctx.globalAlpha = 0.8 * (1 - k);
       ctx.beginPath(); ctx.arc(x, y, (f.r + k * 16) * S, 0, TAU); ctx.stroke();
     } else if (f.k === 'puff') {
-      ctx.fillStyle = f.c; const rr = f.r * (0.6 + 0.9 * k) * S; // (three nested discs make the soft edge)
-      for (let j = 0; j < 3; j++) { ctx.globalAlpha = 0.16 * (1 - k) * (j === 0 ? 1 : 0.7); ctx.beginPath(); ctx.arc(x, y, rr * (1 - j * 0.28), 0, TAU); ctx.fill(); }
+      drawChargeFx(x, y, f.r * S, 1 - k, f.el, f.seed);
     } else if (f.k === 'heal') {
       const c = ffxCol('heal'), a = (1 - k) * (f.big ? 0.9 : 0.7), s = (f.big ? 1.3 : 1) * S;
       ctx.strokeStyle = c; ctx.lineWidth = 2 * s; ctx.lineCap = 'round'; ctx.globalAlpha = a;
