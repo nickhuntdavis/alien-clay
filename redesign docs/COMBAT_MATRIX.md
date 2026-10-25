@@ -336,6 +336,11 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 61 | Damage-type passives (22 Oct) | Each boosts what its type does best (`DAMAGE_TYPES.md`): Force knockback and collisions, Acid ground denial, Static chains, Mucus Snare, Blood wounds and Extraction, Alien possession, Fire spreading Burn |
 | 62 | Named exceptions (22 Oct) | Melee × Nappy Mines (suicide vest) hurts the player; Ranged × Enzyme Headbutt lunges 200 (past 160); Planetary system (combo mastery) ignores the gravity well's 45° bend limit; Static net's arc cap grows with the Static passive (bounded at 36) |
 | 63 | Pools as water balloons (24 Oct) | Pool weapons (Nocturnal Emission, Hot Mess) are thrown like a water balloon at one enemy: it bursts on the face, splashes its neighbours and leaves the puddle round it. Every one of the 26 modifiers applies to them, including those N/A on pools before (`MODIFIER_MATRIX.md` 5.10) |
+| 64 | Tags (25 Oct) | Every weapon carries tags from a fixed vocabulary (`WEAPON_TAGS.md`); N/A rows, pair bonuses and combo masteries are written against tags, never weapon names, and modifiers add tags while equipped. Why: new weapons join combos without a cell each (15.1) |
+| 65 | Bodies (25 Oct) | Everything you place or fire is a body with position, velocity, mass and radius, so pull, push, knockback and wells act on your shots and objects as on enemies; a well releases what it holds outward when it ends. Why: pull, push and well effects then reach your own objects (15.2) |
+| 66 | Collisions (25 Oct) | Any body moving faster than its base speed deals Force collision damage (40% of the launching hit at 2x, 100% at 4x) to both bodies on impact and trips ground objects; never echo, never leaves the struck body faster than the striker. Why: pull and push compose, and six masteries become one ramp (15.3) |
+| 67 | Objects hold hits (25 Oct) | A ground object hit by your attacks stores one hit and its status, then delivers its own attack plus the stored hit when it triggers; objects relay and never source (decision 46 holds). Why: any mine-layer can relay any damage type (15.4) |
+| 68 | Reach and proximity (25 Oct) | Range scales reach on every attack type and never damage; Up Close scales damage by the target's distance from you on every attack type; both stay Tempo, so a weapon takes one. Why: a puller can overinvest in Range and a hitter in Up Close (15.5) |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
@@ -500,6 +505,7 @@ What each attack type is for lives in `ATTACK_TYPES.md`; how each one meets the 
 | What each damage type, defence and attack type is for, how it looks, strengths and weaknesses | `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md`, `ATTACK_TYPES.md` |
 | Enemy roles, roster, new enemies | `ENEMY_DESIGN.md` (role counterplay: section 5 here) |
 | Weapons, Feats, mutations and modifiers | `BASE_WEAPONS.md`, `WEAPON_UPGRADES.md`, `FEATS.md`, `MUTATIONS.md`, `MODIFIERS.md`, `MODIFIER_MATRIX.md` (draft), `SPERM_PASSIVES.md` (draft) |
+| Weapon tags (the fixed vocabulary and every weapon's base tags) | `WEAPON_TAGS.md` |
 | Progression, samples, autorun, voice | `UPGRADES.md`, `SAMPLES.md`, `AUTORUN_AUTOAIM.md`, `VOICE_GUIDE.md`, `CONSCIOUSNESS.md` |
 | Sample 9 (proposal): overview, Feat numbers and forks, copy briefs | `SAMPLE_9_ACRO.md` |
 | Sample 9 (proposal): the sample in the roster | `SAMPLES.md` section 9 |
@@ -514,3 +520,31 @@ The three CSVs in `tables/` (the old Notion databases) are generated from the ta
 - `mechanics_statuses.csv`: section 4's statuses and world objects, with section 11.5 and 11.6's starting values.
 
 After changing any of those tables, run `python3 "redesign docs/tables/export.py"` and commit the CSVs in the same commit.
+
+## 15. Shared mechanics (25 Oct 2026)
+
+Status: proposal, not yet built or simulated. Five rules at the game and modifier layer, written so that weapons and modifiers combine through shared nouns (bodies, collisions, stored hits, tags, reach) rather than through a cell per weapon in `MODIFIER_MATRIX.md`. Every depth cap in 11.5 and 12.5 is unchanged. Section 8 of `MODIFIER_MATRIX.md` lists the cells each rule covers.
+
+### 15.1 Tags
+
+Every weapon carries tags from a fixed vocabulary, listed with every weapon's base tags in `WEAPON_TAGS.md`: `shots` (Projectile or Spread), `beam`, `burst`, `melee` (Contact), `places` (leaves a ground object), `displaces` (pulls or pushes bodies), `chains`, `burns`, `pets`, `orbits`. **Every N/A row, pair-bonus condition and combo-mastery condition is written against a tag, never a weapon name.** "N/A on `displaces`" replaces "N/A: already pulls"; Static net's condition becomes "you carry a weapon tagged `shots`". Modifiers add tags while equipped (Mines adds `places`, Pulling and Knockback add `displaces`, Orbiting adds `orbits`, Summoned adds `pets`, Connecting adds `chains`), so a weapon's tag set is live and a new weapon joins every combo its tags qualify for.
+
+### 15.2 Bodies
+
+Everything you place or fire is a **body**: shots in flight and ground objects (mines, pools, patches, holes, eggs, tripwires, lures, trail pieces). A body has position, velocity, mass and radius. Every displacement effect (Pull 12.2, Knockback 11.5, gravity wells `MODIFIERS.md` 19, Ricochet, Lunge recoil, thrown enemies) acts on your bodies as it acts on enemies, with the same formula. Mass: a shot moves as a Squishy enemy would (half), a mine at half an enemy's displacement, a pool or patch at a quarter, a hole never (it is a well). A well holds any body that reaches its centre; when the well merges, expires or goes supernova, everything it holds flies outward at the well's pull strength (Planetary system's rule in `MODIFIER_MATRIX.md` 5.4, made general; a supernova adds +50%). Caps unchanged: 40 objects, 3 wells, 12 shots per weapon.
+
+### 15.3 Collisions
+
+Pull, push, throw, launch, lunge and well drift all add velocity to a body, and impulses sum. A body moving faster than its own base speed (an enemy's walk speed; zero for a ground object) is **fast**. **A fast body that hits another body or a wall deals collision damage to both:** 40% of the launching hit at twice base speed, rising linearly to 100% at four times (the wall rule in 11.5, made general). A fast enemy that hits one of your ground objects trips it: a mine goes off, a pool splashes its status onto the enemy, an egg breaks. Collision damage is Force, counts as a hit for Poise and reactions, is never echo (12.1), and never leaves the struck body faster than the striker, so every collision chain slows down and ends without a counter. Elites take 50% of collision damage, bosses 25%. Wall Slam, Bowling Ball, Launch, Trampoline, Cannonball and Singularity (`MODIFIER_MATRIX.md` 3.7 and 3.8) are instances of this rule, not separate mechanics.
+
+### 15.4 Objects hold hits and statuses
+
+Any of your ground objects hit by any of your attacks **stores that hit** (one per object; newest replaces oldest) and carries the hit's status as an enemy would: a Charged object is an arc node (arcs jump to and through it under the Charge rule in 11.5, counting against the same 3 jumps; the object takes no damage), a Burning object ignites whatever trips it, a Snotty object snares, a Corroded object's trigger strips a Shell layer. When the object triggers it delivers its own attack and then the stored hit, at the stored hit's damage and damage type, as a hit from the weapon that made it. **Objects are relays, never sources:** a stored hit never starts a new chain or arc, never sets off a reaction a direct hit would not, and is spent on delivery (decision 46 holds). The Static passive Chain Letter (`SPERM_PASSIVES.md`) applies to jumps through objects as to enemies.
+
+### 15.5 Reach and proximity
+
+**Range scales the reach of whatever the weapon does, on every attack type, and never damage:** Projectile and Spread falloff distance and speed (the 3.1 ramp), beam length, Burst and Pool radius, mine trigger radius, chain and arc jump range, pull and push radius, pet leash and orbit radius. **Up Close scales damage by the target's distance from you,** not from the attack, on every attack type, with the 3.2 curve. Both stay Tempo modifiers, so a weapon takes one or the other: a wide, weak puller on one weapon and a short, heavy hitter on another is a build the player can find without a cell naming either weapon. The N/A rows in `MODIFIER_MATRIX.md` 3.1 and 3.2 go.
+
+### 15.6 Why these are safe
+
+No rule adds a new damage source except collision damage, which is self-limiting (the struck body is never faster than the striker). Stored hits are spent on delivery, and arcs through objects count against the existing jump cap. Object, well and shot caps are unchanged. So P1 in section 9 (reaction damage multiplying) is not reopened. Note that 15.3 and 15.4 reverse the direction of decisions 45 and 46 in spirit, so they must be simulated (wave20 and lvsim bots) before any cell in `MODIFIER_MATRIX.md` is removed.
