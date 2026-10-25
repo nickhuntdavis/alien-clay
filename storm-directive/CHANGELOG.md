@@ -3,7 +3,7 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
-## v10.141 (versionCode 420): 2026-10-25 Enemy handoff C3, boss signature beats
+## v10.142 (versionCode 421): 2026-10-25 Enemy handoff C3, boss signature beats
 - Merged: `claude/enemy-c3-t3`, `claude/enemy-c3-t1`, `claude/enemy-c3-t2` (one signature beat per boss built from its own mechanic, replacing the generic aimedFan/spiral/ring slots; tier 1 keeps one spray as a breather; `bosssig10_t1.js`, `bosssig10_t2.js`, `bosssig10_t3.js`) into `claude/practical-brahmagupta-ry2k05` on main's v10.138. One build. Orchestrator: bosstest.js rebuilt from the three branch patches after the merge.
 
 ### Folded from enemy-c3-t3: 2026-10-25 Tier 3 boss signature beats (not shipped)
@@ -38,6 +38,18 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Built on main. Systems: modifier cards, tests. Files: matrixonly.js, moddead.js.
 - What: Returning (Return to Sender) is in `MATRIX_ONLY.mods` again, so the draft offers it on projectile and spread weapons, naked and under every Delivery (its five Delivery forms from task 3 were unreachable). `MOD_DEAD` regenerated from a full audit with Returning in the plan: 550 NO-OP of 2764 combos hidden (Returning itself: 32 dead, 50 visible). The audit ran on main before the v10.139 six-branch merge; regenerate again after the next modifier change.
 - Save data: none. Hooks: none. Risk: Returning builds come back into play on 11 weapons; untested in wave sims.
+
+## v10.141 (versionCode 420): 2026-10-25 Feedback animations use the shared charge-up look
+- Merged: `ccr-feedback-chargefx` (reload arcs and status-end puffs drawn with chargefx.js `drawChargeFx`), on top of main's Melee Knockback test fix.
+
+### Folded from ccr-feedback-chargefx: 2026-10-25 feedbackfx uses the shared charge-up look (v10.140)
+- Systems: feedback fx, charge-up look
+- Files: feedbackfx.js, NOTES.md, ARCHITECTURE.md
+- What: reload arcs now show the damage type's charge-up look building inside the arc, and a status wearing off shows that look unwinding plus its release snap. The stand-in per-type puff code is deleted. chargefx.js is unchanged.
+- Save data: none
+- Hooks: none (feedbackfx hooks and rate limits unchanged)
+- Risk: a reload now draws up to 4 drawChargeFx calls (one per reloading weapon); check frame rate on a phone.
+
 
 ## v10.139 (versionCode 418): 2026-10-25 Six feature branches: charge-up looks, feedback animations, health loot, Switched at Birth levels, pick-the-weapon modifiers, DNA drops
 - Merged: `ccr-charge-fx`, `ccr-feedback-fx`, `ccr-loot-health`, `ccr-switched-levels`, `ccr-mod-weaponpick`, `ccr-dna-drop`. Conflicts were only shared bookkeeping (ARCHITECTURE.md rows and script order, run.sh test list, index.html script tags, NOTES.md bullets, version files, APK). feedbackfx.js still uses its own per-type stand-in colours rather than chargefx.js `drawChargeFx`.
