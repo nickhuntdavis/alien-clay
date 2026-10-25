@@ -3,6 +3,18 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.137 (versionCode 416): 2026-10-25 Ranged forms for Flight and Crowd modifiers (task 3 batch 5, the last)
+- Merged: ccr-task3-ranged (MODAUDIT_HANDOFF.md task 3, batch 5). Dead-card table regenerated in the branch: 516 of 2682 hidden. Task 3 complete.
+
+### Folded from ccr-task3-ranged: 2026-10-25 Ranged forms for Flight and Crowd modifiers (task 3, batch 5)
+- Systems: modifier cards, weapons (Delivery), toys (Peekaboo), tests
+- Files: delivforms.js, matrixna.js, moddead.js (regenerated), tests/delivtest.js, ARCHITECTURE.md, MODAUDIT_HANDOFF.md
+- What: Bounce, Returning, Link, Pull and Knockback now have a Ranged form (MODIFIER_MATRIX.md 5.11; Homing is N/A). The strike hops to 1 / 2 / 3 more enemies within 120 at 60% (Bounce), a 40 / 50 / 60% hit runs from the target back to you (Returning), everything in its area is linked for 3 / 4 / 5 s sharing 25% (Link), enemies within its radius + 60 / 90 / 120 are dragged into its centre before it lands (Pull), and it throws enemies outward from where it lands (Knockback). The forms read an area of at least 50 (Nervous Wreck's and Enzyme Headbutt's strike is 1 across). Peekaboo with Ranged now throws its decoy spot to the densest crowd within 260 and the BOO goes off there (its matrix cell 4.4; before this its Ranged did nothing). The draft deals the five on a Ranged weapon, and Knockback's N/A on Nervous Wreck and Panic Button lifts while Ranged is held. Card text is TODO_COPY:xd_ranged_<mod> until the user writes it. MOD_DEAD regenerated from the full audit (2682 combos, 516 NO-OP; main had 519 of 2672): Peekaboo's Ranged card is offered again.
+- Save data: none.
+- Hooks: none in game.js, render.js, ui.js or bosses.js. delivforms.js wraps modwide.js mwFire, toys.js peekFire and peekBoo, and modOk (plus another mwTick and modDraw wrap); matrixna.js matrixNa reads mwR (one condition).
+- Risk: Ranged builds deal more damage and get five more cards in the draft. Peekaboo with Ranged plays differently (the BOO lands at the crowd, not round you). Returning is still outside MATRIX_ONLY.mods, so the shipped draft never offers it on any Delivery.
+
+
 ## v10.136 (versionCode 415): 2026-10-25 Enemy handoff Batch D1 and E
 - Merged: `claude/enemy-e4` (per-enemy error isolation, far-enemy skip in fight.js), `claude/enemy-e3` (rostertest, rosterint), `claude/enemy-d1` (WAVES10 rework: relays, sniper, Booster, Diatom, Spire, Leech, Rotifer, Natural Killer, Complement, Stem, Puffball, a joke wave; per-id caps on the slog waves; entourage wisps are krill) and `claude/enemy-e1` (dead v9 enemy code gone: overloads, triples, terrain and per-enemy reactions, Sick/Wet/Lubricated, armour and weakness fields on every def, 25 dead reaction rows; the duplicate `ectoplasm` relic id split; the old dodge roll only on Contact and Projectile hits) into `claude/practical-brahmagupta-ry2k05` on main's v10.135. One build. E2 was a no-op (A1b retired no relics). Orchestrator fix: rosterint also counts shapes picked by `sh === 'x'` in render.js (Krill); run.sh's test list rebuilt after a merge mangled it.
 
