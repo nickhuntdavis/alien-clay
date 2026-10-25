@@ -1903,6 +1903,7 @@ function render() {
   }
   fxDim(false);
   ringsOnTop(); // (enemy rings over explosions and effects, under enemy bullets: ringtop.js)
+  ffxDraw(); // (reload arcs, ready, invulnerable and heal cues: feedbackfx.js)
 
   // Enemy bullets on top, drawn like debris under phase contrast: a black granule with a solid white
   // halo, so they stand out on any background. With the Anti-Immune Stain the granule takes up the red dye at its core.
