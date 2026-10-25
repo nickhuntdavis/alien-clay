@@ -1461,7 +1461,7 @@ Rare and huge: 1 to 3 a run (45% one, 40% two, 15% three), never two the same (e
 
 A fresh save (and the first START SWIMMING after Settings > Data > Tutorials reset) goes straight into **Level 0, Swimming Lessons** (see Campaign), with a SKIP TUTORIAL button at the top of the screen. During runs, tutorial cards explain sprinting (after your first sprint), Feats (before your first upgrade), Lateral Gene Transfer (your first junk DNA), the egg (the first time you swim up to it; until then no arrow points to it), stains (your first grant) and each damage type and reactions (soon after you first use them). Cards come well apart and in order of need: mechanics first (at least 40 seconds apart), then damage types (from 15 seconds into a run, 45 seconds apart), reactions (from 2 minutes) and terrain (from 100 seconds, 80 seconds apart). Only the first two buffs or debuffs get a full card; after that a new one flashes NEW POWERUP UNLOCKED! beside its chip for 12 seconds, and tapping the chip or the message opens its card. Every card has a skip tutorial link, which also ends wave 0 where it stands.
 
-From wave 15 the boss can be **the Failed Experiment**: a copy of one of your own past runs (a lost one if you have any), alone in the dish, with an attack for each weapon that run carried and health that grows with the level it reached.
+In 1 run of 4 the wave 20 boss is **the Failed Experiment**: a copy of one of your own past runs (a lost one if you have any), alone in the dish, with an attack for each weapon that run carried (by its attack type) and the health of a tier 3 boss.
 
 | Boss | Drop name | Entourage | Arrives | Cued by |
 |---|---|---|---|---|
@@ -1493,7 +1493,7 @@ From wave 15 the boss can be **the Failed Experiment**: a copy of one of your ow
 
 **Sequences:** you start with the Firstborn, the Chonker and the Bright Spark. The rest unlock one rung at a time (see the Unlock column under Sequences), alternating skill and grind. After a wave-mode win, NEW SEQUENCE takes you straight back to sequence select.
 
-Boss waves: entourage warm-up (seconds) 16, 12, 10, 10; boss health (times its base) 2.2, 13, 50, 160; boss attack strength 0.55, 0.82, 1, 1.1.
+Boss waves: entourage warm-up (seconds) 16, 12, 10, 10; boss health (times its base) 3.5, 13, 50, 130; boss attack strength 0.55, 0.82, 1, 1.1.
 
 ## Boss rewards
 
