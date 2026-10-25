@@ -3,6 +3,33 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.139 (versionCode 418): 2026-10-25 Enemy handoff C3, boss signature beats
+- Merged: `claude/enemy-c3-t3`, `claude/enemy-c3-t1`, `claude/enemy-c3-t2` (one signature beat per boss built from its own mechanic, replacing the generic aimedFan/spiral/ring slots; tier 1 keeps one spray as a breather; `bosssig10_t1.js`, `bosssig10_t2.js`, `bosssig10_t3.js`) into `claude/practical-brahmagupta-ry2k05` on main's v10.138. One build. Orchestrator: bosstest.js rebuilt from the three branch patches after the merge.
+
+### Folded from enemy-c3-t3: 2026-10-25 Tier 3 boss signature beats (not shipped)
+- Systems: bosses, boss telegraphs, tests
+- Files: bosssig10_t3.js (new), index.html, ARCHITECTURE.md, tests/bosstest.js
+- What: The Fever, Chad Prime and the Antibody Colossus lose every generic spray slot (spiral, ring, aimedFan). The Fever's list is firering/flush x2: Flush sends three expanding heat waves 0.8 s apart, each with one 50 degree safe gap that steps 30 degrees a wave, gaps marked for 0.7 s first. Chad's list is dash3/tailwhip x2: each dash landing is marked (from the wind-up) and a shockwave of radius 2.5 x his r goes off 0.3 s after he lands. The Colossus's list is yvolley/charge x2: three lanes 120 degrees apart sweep 40 degrees over 1.2 s after a 0.9 s mark, twice a pattern. All hits use the boss's own bullet damage base through V10_DIFF.dmg x 0.8 (as hazards do); no HP, damage or rate number changed.
+- Save data: none.
+- Hooks: none in shared files. Wraps bossAI and nf10Draw from bosssig10_t3.js, edits `patterns` of three BOSSES and ROSTER_BOSSES rows in place, adds `TODO_COPY:boss_<id>_sig` to each boss's strengths.
+- Risk: boss cycle makeup shifts (fewer bullets on screen); other tier files (bosssig10_t1/t2) touch other rows only. The Colossus entourage still pulses on `charge` only.
+
+### Folded from enemy-c3-t1: 2026-10-25 Tier 1 boss signature beats (C3)
+- Systems: bosses, boss telegraphs, hazards
+- Files: bosssig10_t1.js (new), index.html, ARCHITECTURE.md, tests/bosstest.js
+- What: each tier 1 boss swaps one generic spray for a signature beat with a tell: Litmus Strip Titration (a line of marked drips sweeps over 3 s in its colour), Johnny Unroll (a latex band blocks movement for 2 s, its back open), Mucus Plug Drip (3 or 4 marked drops, each a Mucus patch), Cramp Contraction (a ring closes over 2 s, pulls you in, hurts once), Sneeze Sniffle (a slow droplet cloud that lands as small Mucus patches). Patterns now: litmus [litmusdrip, titration, aimedFan, litmusdrip], johnny [johnnyroll, aimedFan, johnnyroll, unroll], mucus [mucusspit, drip, aimedFan, mucusspit], cramp [crampgrip, aimedFan, crampgrip, contract], sneeze [sneezecone, aimedFan, sneezecone, sniffle]. Johnny, Cramp and Sneeze end their pattern early when the beat is done. One intro line per boss is a TODO_COPY placeholder.
+- Save data: none.
+- Hooks: none (wraps bossAI and nf10Draw from its own file).
+- Risk: boss cycles are shorter where a beat ends early; the Plug's drop and the Cramp's contraction add one hit each (bd x 0.7, the glob's number). No HP, damage or rate number changed.
+
+### Folded from enemy-c3-t2: 2026-10-25 Tier 2 boss signature beats (C3, not yet shipped)
+- Systems: bosses, boss telegraphs, tests
+- Files: bosssig10_t2.js (new), index.html, ARCHITECTURE.md, tests/bosstest.js
+- What: the seven tier 2 bosses lose every generic spray (aimedFan, spiral, ring, flower, doubleSpiral) and each gets one signature beat that shows its area first: Twins crossfire (opposite sides, lane lit 0.9 s, one body's 0.4 s Beam), Stone fragment (a gravel chunk per shed Shell layer down a lane marked 0.8 s), Matron rounds (3 beds marked 0.9 s, she walks them healing what she passes), Phantom false positive (two drawn copies blink with her for 4 s, real one ringed; copies are not enemies), Eye saccade (60 degree sector marked 0.8 s, glare sweeps it over 1.2 s), Pepsinator reflux (one half shaded 1 s, pools roll out over it in 1 s), Queen dinner (adds queue and rush one marked line, then devour). Boss strength lines now carry TODO_COPY:boss_<id>_sig. The campaign twins entourage trigger 'spiral' becomes 'crossfire'.
+- Save data: none
+- Hooks: none in shared files (wraps bossAI and nf10Draw; rewrites BOSSES/ROSTER_BOSSES patterns and ENTOURAGE.twins.on at load)
+- Risk: pattern mix per boss changes (no HP, damage or rate number changed; the Beams, chunks and pools use the boss's own bd as the sprays did). Siblings bosssig10_t1.js and t3.js also load after bosstells10.js (index.html tag lines will conflict: keep all). Twins swing round you at 360 px/s while repositioning (contact damage possible then, as with any twin movement).
+
 ## v10.138 (versionCode 417): 2026-10-25 Card lines for the Delivery forms
 - Built on main. Systems: modifier cards. Files: delivforms.js.
 - What: the 29 `TODO_COPY:xd_*` placeholders (Mines, Melee, Strike from Above, Orbiting and Ranged forms of Homing, Bounce, Returning, Link, Pull and Knockback) have their card lines in `XD_COPY` in delivforms.js (written by the session at the user's request: what it does, then at most one dry clause, no numbers). Every form card now renders under 120 characters with no placeholder.

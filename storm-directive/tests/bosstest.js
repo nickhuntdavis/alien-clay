@@ -71,9 +71,10 @@ const { chromium } = require('playwright');
     const hs = () => Object.values(G.stats.hurt).reduce((a, b) => a + b, 0); // (damage taken so far: hp is clamped to max)
     const place = (b, ang, d) => { G.state = 'play'; G.player.x = b.x + Math.cos(ang) * d; G.player.y = b.y + Math.sin(ang) * d; G.player.iframes = 0; };
     if (BOSSES.some(B => ['fever', 'alpha', 'colossus'].includes(B.id) && B.patterns.some(q => ['aimedFan', 'spiral', 'ring'].includes(q)))) bad.push('tier 3 still has a generic spray slot');
+    const sgHit = {}, hurt0 = window.hurtPlayer; window.hurtPlayer = function (d, f) { sgHit[f] = (sgHit[f] || 0) + 1; return hurt0.apply(this, arguments); }; // (calls by source: a loot screen opening that frame would swallow the hit itself)
     { // Flush: gaps marked 0.7 s first, a player in the gap takes nothing, a player outside it does
       const run = inGap => {
-        const b = tellBoss('fever', 'flush'); const hp0 = hs(); let tellSeen = 0, hurtTell = 0, hurt = 0, tellEnd = -1;
+        const b = tellBoss('fever', 'flush'); const hs = () => sgHit[b.name + ' heat wave'] || 0; const hp0 = hs(); let tellSeen = 0, hurtTell = 0, hurt = 0, tellEnd = -1; // (only heat-wave hits count, not her other shots)
         step3(420, t => {
           const s = b.sg3, f = s && s.fl; if (!f) { place(b, 0, 250); return false; }
           if (f.t < 0) { tellSeen++; render(); if (hs() > hp0) hurtTell++; } else if (tellEnd < 0) tellEnd = t;
@@ -92,16 +93,16 @@ const { chromium } = require('playwright');
     }
     { // Flex: the landing is marked, the shockwave comes 0.3 s after it, a player clear of the spot is untouched
       const run = near => {
-        const b = tellBoss('alpha', 'dash3'); const hp0 = hs(); let land = -1, hurtAt = -1, marker = 0, fx = null, hold = null;
+        const b = tellBoss('alpha', 'dash3'); const hf = () => sgHit[b.name + ' flex'] || 0; const hp0 = hf(); let land = -1, hurtAt = -1, marker = 0, fx = null, hold = null; // (only Flex calls count: the pattern's later dashes land on the held player, and a loot screen opening that frame would swallow the hit)
         step3(480, t => {
           const f = b.sg3 && b.sg3.flex;
-          if (!f) { if (land < 0) place(b, Math.PI, 700); else if (land > 0 && hs() <= hp0) return t - land > 0.6; return false; }
-          if (land < 0) { land = t; G.state = 'play'; fx = { x: f.x, y: f.y, R: f.R }; hold = { x: f.x + (near ? 70 : f.R * 2 + 80), y: f.y }; }
+          if (!f) { if (land < 0) place(b, Math.PI, 700); else if (land > 0) return t - land > 0.6; return false; }
+          if (land < 0) { land = t; G.state = 'play'; fx = { x: f.x, y: f.y, R: f.R }; hold = { x: f.x + (near ? f.R - 10 : f.R * 2 + 80), y: f.y }; } // (inside the ring but clear of his body: a contact hit's iframes would swallow the shockwave)
           if (hold) { G.player.x = hold.x; G.player.y = hold.y; G.player.iframes = 0; }
           marker++; render();
           return false;
         });
-        return { land, marker, hurt: hs() > hp0, fx, b };
+        return { land, marker, hurt: hf() > hp0, fx, b };
       };
       const n = run(true), f = run(false);
       if (n.land < 0) bad.push('Chad never landed a dash');
@@ -110,13 +111,13 @@ const { chromium } = require('playwright');
       out.flex = [n.land > 0, n.hurt, f.hurt].join('/');
     }
     { // Flex timing: no damage before 0.3 s after the landing
-      const b = tellBoss('alpha', 'dash3'); const hp0 = hs(); let land = -1, hurtAt = -1, hold = null;
+      const b = tellBoss('alpha', 'dash3'); const hf = () => sgHit[b.name + ' flex'] || 0; const hp0 = hf(); let land = -1, hurtAt = -1, hold = null;
       step3(480, t => {
         const f = b.sg3 && b.sg3.flex;
         if (!f && land < 0) { place(b, Math.PI, 700); return false; }
-        if (f && land < 0) { land = t; hold = { x: f.x + 70, y: f.y }; }
+        if (f && land < 0) { land = t; hold = { x: f.x + f.R - 10, y: f.y }; }
         if (hold) { G.player.x = hold.x; G.player.y = hold.y; G.player.iframes = 0; }
-        if (land > 0 && hurtAt < 0 && hs() > hp0) { hurtAt = t; return true; }
+        if (land > 0 && hurtAt < 0 && hf() > hp0) { hurtAt = t; return true; }
         return land > 0 && t - land > 1;
       });
       if (hurtAt < 0) bad.push('Flex timing: no hit'); else if (hurtAt - land < 0.25) bad.push('Flex landed ' + (hurtAt - land).toFixed(2) + ' s after the dash (want 0.3)');
@@ -124,7 +125,7 @@ const { chromium } = require('playwright');
     }
     { // Y-volley: three lanes 120 degrees apart, a player between the arms is safe, one on a lane is hit only after the mark
       const run = onLane => {
-        const b = tellBoss('colossus', 'yvolley'); const hp0 = hs(); let tellSeen = 0, hurtTell = 0, sweepAt = -1, hurtAt = -1, lanes = null, set = false, hold = null;
+        const b = tellBoss('colossus', 'yvolley'); const hs = () => sgHit[b.name + ' Y-volley'] || 0; const hp0 = hs(); let tellSeen = 0, hurtTell = 0, sweepAt = -1, hurtAt = -1, lanes = null, set = false, hold = null; // (only Y-volley hits count, not contact or stray shots)
         step3(300, t => {
           const s = b.sg3; if (!s || s.y == null) { place(b, 0, 250); return false; }
           if (s.y === 0) { tellSeen++; render(); if (hs() > hp0) hurtTell++; if (!lanes) lanes = [0, 1, 2].map(k => sg3YAng(s, k, 0.5)); if (!set) { set = true; hold = onLane ? s.a0 + SG3.yArc * 0.5 : s.a0 - SG3.yOff; } }
@@ -142,6 +143,7 @@ const { chromium } = require('playwright');
       if (safe.lanes) for (let k = 0; k < 3; k++) { const d = Math.abs(angDiff(safe.lanes[(k + 1) % 3], safe.lanes[k])); if (Math.abs(d - TAU / 3) > 1e-6) bad.push('Y-volley lanes are not 120 degrees apart'); }
       out.yvolley = [safe.tellSeen, safe.hurt, hit.hurt].join('/');
     }
+    window.hurtPlayer = hurt0;
     // C3 tier 1 signature beats (bosssig10_t1.js): the tell shows first, nothing lands inside it, then the beat does what it says.
     { const hurts = []; const hp0 = window.hurtPlayer; window.hurtPlayer = function (d, f) { hurts.push(G.t); (window.hn = window.hn || []).push(f); return hp0.apply(this, arguments); };
       const beat = (id, pat) => { const b = tellBoss(id, pat); hurts.length = 0; window.hn = []; G.zones.length = 0; G.P.speed = 0; G.manual = { x: 0, y: 0 }; if (G.genes) G.genes.abilT = 1e9; b.t0 = -1; b.x = G.core.x; b.y = G.core.y; G.player.x = b.x + 300; G.player.y = b.y; return b; }; // (you hold still)
