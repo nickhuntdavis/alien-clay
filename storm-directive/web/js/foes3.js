@@ -92,7 +92,7 @@ function f3patchTick() {
   const p = me();
   if (p && G.zones.length) for (const z of G.zones) if (z.f3patch && z.life > 0 && Math.hypot(p.x - z.x, p.y - z.y) < z.r + (p.r || 12) * 0.5) { pstGive('snot', F3.glob.stay); break; }
 }
-hookOn('tick', 'f3patch', () => f3patchTick());
+hookOn('tick', 'f3patchTick', f3patchTick);
 
 // Snot Bubble: every hit swells it (not more than once every 0.1 s, so one burst of pellets is one hit).
 function foes3Dmg(e, src) {
@@ -190,4 +190,5 @@ Object.assign(MICROBES, {
   },
 });
 // v10: chem.js no longer calls foes3Chem; the Snot Bubble's Static pop (ENEMY_DESIGN 6.1) rides the proc event instead.
-hookOn('hit:late', 'f3popped', (e, dmg, src) => { if (e && src && !src.dot && src.elem === 'shock' && e.def === ENEMIES.snotbubble && !e.popped && !e.dead) foes3Chem(e, 'shock', dmg, src, src); });
+function f3popped(e, dmg, src) { if (e && src && !src.dot && src.elem === 'shock' && e.def === ENEMIES.snotbubble && !e.popped && !e.dead) foes3Chem(e, 'shock', dmg, src, src); }
+hookOn('hit:late', 'f3popped', f3popped);

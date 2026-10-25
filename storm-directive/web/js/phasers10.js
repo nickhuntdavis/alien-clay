@@ -30,10 +30,11 @@ function qsBlink(e, edt, dist) {
 }
 
 // ghost tell: flicker through the last 0.4 s of the solid spell (stT is the time left in the current spell)
-hookOn('tick', 'phaserTell', () => {
+function phaserTell() {
   if (!G) return;
   for (const e of G.enemies) if (e.def && e.def.ai === 'phase') e.phTell = !e.phased && e.stT > 0 && e.stT < PH10.tele;
-});
+}
+hookOn('tick', 'phaserTell', phaserTell);
 
 const _nf10DrawPh = nf10Draw;
 nf10Draw = function () {

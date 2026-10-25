@@ -21,7 +21,7 @@ function foeAuraGive(g, range) {
   });
 }
 
-hookOn('tick', 'foeAura', dt => {
+function foeAura(dt) {
   if (!G || typeof fightCd !== 'function' || typeof ROSTER === 'undefined') return;
   for (const e of G.enemies) {
     if (e.dead) continue;
@@ -37,4 +37,5 @@ hookOn('tick', 'foeAura', dt => {
       if (e.auraT <= 0) { e.auraT = FOEAURA.every; const a = ROSTER[id] && ROSTER[id].aura; foeAuraGive(e, a ? a.range : 115); e.pulseRT = G.realT; }
     }
   }
-});
+}
+hookOn('tick', 'foeAura', foeAura);

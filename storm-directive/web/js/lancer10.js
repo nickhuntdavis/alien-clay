@@ -57,10 +57,11 @@ FOE_AI.new_lancer = function (e, dt, dist, ux, uy) {
 };
 
 // Force or Static during the wind-up breaks it off.
-hookOn('proc', 'lancerInterrupt', (e, dmg, src) => {
+function lancerInterrupt(e, dmg, src) {
   if (!e || e.lcS !== 1 || !src) return;
   if (src.elem === 'phys' || src.elem === 'shock') { e.lcS = 0; e.lcCd = LC.retry; floatText(e.x, e.y - e.r - 10, 'interrupted', TYPE_PAL.phys, 11, 0.6); }
-});
+}
+hookOn('proc', 'lancerInterrupt', lancerInterrupt);
 
 function lancerDraw() {
   const now = performance.now() / 1000;
