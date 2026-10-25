@@ -39,9 +39,10 @@ function heatEnemy(e) {
   if (heatOn(2)) e.speed *= 1.1;
   if (heatOn(6)) e.dmg *= 1.2;
 }
+const heatBossHp = () => (1 + VET.big * vetK()) * (heatOn(5) ? 1.25 : 1); // (wave mode sets boss health itself and multiplies this back in: campaign.js campBoss)
 function heatBoss(e) {
-  { const k = vetK(); if (k) { e.hp *= 1 + VET.big * k; e.maxHp *= 1 + VET.big * k; e.dmg *= 1 + VET.dmg * k; } }
-  if (heatOn(5)) { e.hp *= 1.25; e.maxHp *= 1.25; }
+  const h = heatBossHp(); e.hp *= h; e.maxHp *= h;
+  e.dmg *= 1 + VET.dmg * vetK();
   if (heatOn(9)) e.dmg *= 1.25;
 }
 const heatElite = () => (heatOn(3) ? 2 : 1);

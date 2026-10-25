@@ -142,7 +142,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 | System | Files | Role |
 |---|---|---|
 | **enemies** | `data.js`, `game.js`, `foes.js`, `foes2.js`, `foes3.js`, `brood.js` | Enemy defs, AI, caps (`G.typeN`), status VFX. `foes3.js`: enemies that use player statuses (Phlegm Hocker, Hayfever Cell) and their reactions (`foes3Chem`). |
-| **bosses** | `bosses.js`, `bosspack.js` | Roster, intro cinematic, abilities, death, relic choice; the mechanic-teaching boss pack. |
+| **bosses** | `bosses.js`, `bosspack.js` | Roster, intro cinematic, abilities, death, relic choice; the mechanic-teaching boss pack. Health growth by boss index (`bossGrow`, Race and Endless); wave mode and Endless draw bosses by tier (`bossTierRoster`, campaign.js) and wave mode sets boss health in `campBoss` (`CAMP.hp`, `CAMP.hpClock`, `CAMP.failedOdds`/`failedHp`). |
 | **rivals** | `rivals.js`, `rrelics.js` | Named rival swimmers and their relics. |
 | **terrain** | `terrain.js`, `bighaz.js` | Nodules, mitochondria, acid crypts, cilia, currents, slicks; rare big hazards. |
 | **events** | `events.js`, `dishfx.js` | Timed run events (DIRE from Lv 40); wave conditions ride this. |

@@ -3,7 +3,7 @@
 // ordinary wave brings in a couple of enemy types you have not had in this run yet, on top of the ones you
 // have. Every fifth wave is a boss wave instead: the boss and its entourage, timed to its moves (snacks just
 // before the Queen feeds, shooters behind the Colossus's wall). Beat the boss and the wave is beaten.
-// From wave 15 the boss can be the FAILED EXPERIMENT: a copy of one of your own past runs, alone in the dish.
+// In 1 run of 4 the wave 20 boss is the FAILED EXPERIMENT: a copy of one of your own past runs, alone in the dish.
 // Beat wave 20 and the scientist fertilises you in the dish: a win.
 // Hooks (waves.js): campInit (initWaves), campBegin (waveBegin), campSpawn (waveSpawn), campTick (waveTick).
 
@@ -13,12 +13,14 @@ const CAMP = {
   gateFrom: 40, gatePer: 22,                  // from wave 4, a type can be drawn once its `from` is under gateFrom + gatePer x wave
   fixedWaves: 3, drawFrom: 6,                 // waves 1-3 bring them in order; later ones draw from the next 6 unmet
   lead: [16, 12, 10, 10],                      // boss waves: seconds of entourage before the boss drops in
-  hp: [2.2, 13, 50, 160],                       // boss health, times its base, for the 1st to 4th boss wave
+  hp: [3.5, 13, 50, 130],                       // boss health, times its base, for the 1st to 4th boss wave (C1 sims: 45 to 90 s fights, about 120 s at wave 20)
   hit: [0.55, 0.82, 1, 1.1],                    // boss attack strength, same order
   more: 1.5, dmgK: 1.15,                      // ordinary waves: 50% more enemies (each worth 1/1.5 of the XP, so levels keep pace) hitting 15% harder
   long: 1.3, spread: 70,                      // ordinary waves fed in over 30% longer, each group landing more spread out
   pulse: [7, 6.5, 6, 5.5],                    // seconds between entourage cues during a fight (at least)
   early: 0.12, earlyPT: 45, earlyTo: 12,      // waves before earlyTo: up to 12% more enemies and 45 s more on the clock (tougher, harder-hitting), fading out by then
+  hpClock: 600,                               // boss health also grows by 1/hpClock per second on the difficulty clock (campBoss)
+  failedOdds: 0.25, failedHp: 1,              // the Failed Experiment takes wave 20 in 1 run of 4 (D6); its health, times a tier-3 boss's
 };
 // Who comes with each boss, where they arrive, and which of its moves cue them.
 //   at: near (round the boss), behind (on the far side of the boss from you), ring (round you), flank (from both sides).
@@ -54,21 +56,27 @@ const bossSlot = n => n / CAMP.bossEvery - 1; // 0..3
 function campInit() {
   const V = G.wave;
   V.camp = true; V.met = []; // enemy types brought in so far, in order
-  // Four boss waves, drawn by tier (BOSSES): a tier 1 teacher at wave 5, tier 2 at waves 10 and 15, tier 3 at
-  // wave 20 (each falls back a tier if it runs out). The Failed Experiment (if you have a past run to copy) takes
-  // wave 15 or 20, always alone. FORCE_BOSS (sims, sim/wave20.js --boss) puts one boss in its tier's slot.
-  const order = [], fb = self.FORCE_BOSS && BOSSES.find(b => b.id === self.FORCE_BOSS);
-  const draw = tiers => { for (const t of tiers) { const c = shuffle(BOSSES.filter(b => (b.tier || 2) === t && !order.includes(b.id) && b !== fb)); if (c.length) return c[0].id; } return shuffle(BOSSES.filter(b => !order.includes(b.id)))[0].id; };
-  for (const tiers of [[1, 2], [2, 1], [2, 1], [3, 2]]) order.push(draw(tiers));
-  const fs = fb ? [0, 1, 3][(fb.tier || 2) - 1] : -1;
-  if (fb) order[fs] = fb.id;
+  // Four boss waves, drawn by tier (bossTierRoster). The Failed Experiment (if you have a past run to copy) takes
+  // wave 20 in 1 run of 4 (CAMP.failedOdds), always alone. FORCE_BOSS (sims, sim/wave20.js --boss) puts one boss
+  // in its tier's slot; --boss failed puts the Failed Experiment on wave 20.
+  const order = bossTierRoster(self.FORCE_BOSS);
   G.failedDef = failedExperimentDef();
-  if (G.failedDef) order[fs === 2 || fs === 3 ? 5 - fs : Math.random() < 0.5 ? 2 : 3] = 'failed';
+  const fTier3 = self.FORCE_BOSS && order[3] === self.FORCE_BOSS; // (a forced tier-3 boss keeps wave 20)
+  if (G.failedDef && !fTier3 && (self.FORCE_BOSS === 'failed' || Math.random() < CAMP.failedOdds)) order[3] = 'failed';
   G.bossRoster = order;
   G.bossCount = 0;
   tutWaveInit(V); // (wave 0 first, the first time: tutorial.js)
 }
 const campBossId = n => G.bossRoster[bossSlot(n)];
+// A tier 1 teacher at wave 5, tier 2 at waves 10 and 15, tier 3 at wave 20 (each falls back a tier if it runs out);
+// forceId (a BOSSES id) takes its tier's slot. Wave mode and Endless (waves.js initWaves) both draw this way.
+function bossTierRoster(forceId) {
+  const order = [], fb = forceId && BOSSES.find(b => b.id === forceId);
+  const draw = tiers => { for (const t of tiers) { const c = shuffle(BOSSES.filter(b => (b.tier || 2) === t && !order.includes(b.id) && b !== fb)); if (c.length) return c[0].id; } return shuffle(BOSSES.filter(b => !order.includes(b.id) && b !== fb))[0].id; };
+  for (const tiers of [[1, 2], [2, 1], [2, 1], [3, 2]]) order.push(draw(tiers));
+  if (fb) order[[0, 1, 3][(fb.tier || 2) - 1]] = fb.id;
+  return order;
+}
 
 // The enemy types an ordinary wave can send: everything met so far, plus a couple of new ones.
 const CAMP_ORDER = () => Object.keys(ENEMIES).filter(id => ENEMIES[id].w > 0).sort((a, b) => ENEMIES[a].from - ENEMIES[b].from);
@@ -229,7 +237,7 @@ function campBoss(V) {
   spawnBoss();
   for (const e of [G.boss, G.boss && G.boss.twin]) {
     if (!e) continue;
-    e.hp = e.maxHp = e.def.hp * CAMP.hp[s] * (1 + PT() / 600) * (V.boss === 'failed' ? 1.4 : 1) * V10_DIFF.bossHp; // (alone, so a little tougher; v10: boss10.js)
+    e.hp = e.maxHp = e.def.hp * CAMP.hp[s] * (1 + PT() / CAMP.hpClock) * (V.boss === 'failed' ? CAMP.failedHp : 1) * (e.def.twins ? BOSS_TWIN_HP : 1) * heatBossHp() * V10_DIFF.bossHp; // (Immune Response kept: prestige.js; v10: boss10.js)
     e.armour = e.def.armour + s;
     e.campK = CAMP.hit[s]; // (its attacks: softer in the first boss wave, while your build is thin)
   }
@@ -247,21 +255,22 @@ const endlessOpen = () => (META.waveWins || 0) > 0;
 
 // ---------------------------------------------------------------- the Failed Experiment
 // A copy of one of your past runs (a lost one if you have any): its sequence's colour, its level, and an
-// attack for each weapon it carried. Built when the run starts, so the same copy turns up when its wave comes.
-const FAILED_MOVES = { blaster: 'aimedFan', shotgun: 'aimedFan', wedding: 'aimedFan', glaive: 'doubleSpiral', seeker: 'spiral', genegun: 'doubleSpiral', tesla: 'ring', banjo: 'flower', karma: 'ring',
-  venom: 'acidrain', moonshine: 'acidrain', mines: 'acidrain', flamer: 'firering', redtape: 'firering', frost: 'ring', void: 'spiral', orbit: 'flower', paddle: 'charge', flail: 'charge', onesie: 'ring', peekaboo: 'blink', ghosts: 'blink', dejavu: 'spiral' };
+// attack for each weapon it carried, by the weapon's v10 attack type (WEAPONS[id].v10atk). Built when the run
+// starts, so the same copy turns up when its wave comes. Health: the tier-3 bosses' average (CAMP.failedHp).
+const FAILED_MOVES = { proj: 'spiral', spread: 'aimedFan', burst: 'ring', beam: 'doubleSpiral', pool: 'acidrain', contact: 'charge' };
 function failedExperimentDef() {
   const past = (typeof RUNLOG !== 'undefined' ? RUNLOG : []).filter(r => r && r.w && r.w.length && r.lvl >= 5);
   if (!past.length) return null;
   const lost = past.filter(r => r.res !== 'WON'), r = pick((lost.length ? lost : past).slice(-12));
-  const wids = r.w.map(s => (s.match(/^[a-z]+/) || [''])[0]).filter(id => WEAPONS[id]);
-  const moves = [...new Set(wids.map(id => FAILED_MOVES[id] || 'aimedFan'))].slice(0, 4);
-  while (moves.length < 3) moves.push(['aimedFan', 'spiral', 'ring'][moves.length]);
+  const wids = r.w.map(s => s.replace(/[[{].*$/, '').replace(/\d+$/, '')).filter(id => WEAPONS[id]); // ('v_fire_proj9[extra]' -> 'v_fire_proj')
+  const moves = [...new Set(wids.map(id => FAILED_MOVES[WEAPONS[id].v10atk] || 'aimedFan'))].slice(0, 4);
+  for (const m of ['aimedFan', 'spiral', 'ring']) if (moves.length < 3 && !moves.includes(m)) moves.push(m);
+  const t3 = BOSSES.filter(b => b.tier === 3);
   const seq = (r.seq || '').split('+')[0], col = (SEQ_LOOK[seq] || {}).color || '#d6e4f0';
   const pool = []; for (const b of BOSSES) for (const id of b.relics) if (!G.relics[id]) pool.push(id);
   return {
     id: 'failed', name: 'THE FAILED EXPERIMENT', title: `Subject ${r.n}: you, ${r.at || 'a while ago'}`, run: '#' + r.n, shape: 'sperm', color: col,
-    hp: 2600 + r.lvl * 25, speed: 78, armour: 3 + Math.floor(r.lvl / 20), r: 38, dmg: 28, xp: 90, patterns: moves,
+    hp: Math.round(t3.reduce((a, b) => a + b.hp, 0) / t3.length), speed: 78, armour: 3 + Math.floor(r.lvl / 20), r: 38, dmg: 28, xp: 90, patterns: moves,
     quote: 'I know every move you are about to make. I made them first.',
     desc: `A copy of your run #${r.n} (Lv ${r.lvl}${r.seq ? ', ' + r.seq : ''}), grown back in the dish. It fights with what that run carried: ${wids.map(id => WEAPONS[id].name).join(', ') || 'nothing much'}.`,
     strengths: ['Fights alone, with your old weapons', `Lv ${r.lvl} of experience`], weaknesses: ['It only knows the old build', 'No entourage to hide behind'],

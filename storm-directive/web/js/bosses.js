@@ -6,6 +6,11 @@
 function bossRoster() { return shuffle(BOSSES.map(b => b.id)).slice(0, BOSSES_PER_RUN); } // (race mode; wave mode draws by tier: campaign.js campInit)
 const bossDef = id => (id === 'failed' && G && G.failedDef) || (typeof LV_BOSSES !== 'undefined' && LV_BOSSES[id]) || BOSSES.find(b => b.id === id); // (the Failed Experiment is built per run, campaign.js)
 
+// Health growth by boss index: steep through the first four, then x BOSS_GROW_ON per boss after that (was a
+// sawtooth: the fifth boss restarted at the first one's size times 5; this ends round two where that did).
+const BOSS_GROW_ON = 1.5;
+const BOSS_TWIN_HP = 0.5; // (Mitch & Osis: each body gets half, so the pair holds one boss's health; campaign.js campBoss reads it too)
+const bossGrow = idx => { const i = Math.min(idx, 3); return (1 + i * 0.9) * Math.pow(2.4, i) * Math.pow(BOSS_GROW_ON, Math.max(0, idx - 3)); };
 function spawnBoss() {
   if (!G.bossRoster) G.bossRoster = bossRoster();
   const nR = G.bossRoster.length, idx = G.bossCount, round = Math.floor(idx / nR);
@@ -17,7 +22,7 @@ function spawnBoss() {
     const e = makeEnemy(def, x, y);
     e.boss = true;
     // Proper fights: each boss in a run is much tougher than the last (your build grows fast too).
-    e.hp = e.maxHp = def.hp * 5 * (1 + (idx % BOSSES_PER_RUN) * 0.9) * Math.pow(2.4, idx % BOSSES_PER_RUN) * (1 + PT() / 320) * (1 + 0.05 * levelsAhead()) * (1 + round * 4) * (G.wave || G.lvl ? 1 : RACE.boss[Math.min(idx, RACE.boss.length - 1)]);
+    e.hp = e.maxHp = def.hp * 5 * bossGrow(idx) * (1 + PT() / 320) * (1 + 0.05 * levelsAhead()) * (G.wave || G.lvl ? 1 : RACE.boss[Math.min(idx, RACE.boss.length - 1)]) * (def.twins ? BOSS_TWIN_HP : 1);
     e.armour = def.armour + round * 4;
     e.speed = def.speed;
     e.dmg = def.dmg * dmgNow() * V10_DIFF.dmg; // (this overwrote makeEnemy's v10 cut, so bosses touched at full v9 strength)
@@ -154,7 +159,7 @@ function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
         e.stT -= dt; e.glareA += clamp(angDiff(aim, e.glareA), -0.6 * dt, 0.6 * dt); // (slow enough to outswim sideways)
         const cx = Math.cos(e.glareA), cy = Math.sin(e.glareA), px = p.x - e.x, py = p.y - e.y;
         const along = px * cx + py * cy, perp = Math.abs(px * cy - py * cx);
-        if (along > 0 && along < 950 && perp < 15 + p.r) hurtPlayer(bd * 0.6, e.name + ' death stare', e);
+        if (along > 0 && along < 950 && perp < 15 + p.r) hurtPlayer(bd * 0.6 * V10_DIFF.dmg, e.name + ' death stare', e); // (bd skips the v10 cut: boss10.js)
         if (e.stT <= 0) { e.st = 3; e.glaring = false; }
       }
       return true;
