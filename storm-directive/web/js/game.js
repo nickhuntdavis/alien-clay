@@ -1369,6 +1369,12 @@ function shootPattern(e, pat, a0) {
   }
 }
 
+function enemyFault(e, err) {
+  const n = (e.def && e.def.name) || e.name || '?', seen = ERRS.foes || (ERRS.foes = {});
+  if (seen[n]) return;
+  seen[n] = true;
+  safely('enemy ' + n, () => { throw err; });
+}
 function updateEnemies(dt0) {
   const p = G.player, syn = G.synergy;
   const warpF = G.warp > 0 ? 0.3 : 1;
@@ -1383,6 +1389,7 @@ function updateEnemies(dt0) {
       if (fx * fx + fy * fy > CROWD.far * CROWD.far && ((e.id + frame) & 1)) { e.farDt = (e.farDt || 0) + dt0; continue; }
     }
     if (e.farDt) { dt += e.farDt; e.farDt = 0; }
+    try { // (one enemy's bad handler must not abort the rest of the frame: reported once per enemy name, enemyFault)
     const edt = dt * warpF;
     shooterName = e.name; shooterEnt = e;
     e.age += dt;
@@ -1590,6 +1597,7 @@ function updateEnemies(dt0) {
     }
     // Leash: recycle enemies left far behind.
     if (dist > 1500 && !e.boss && !wormBody(e)) { const s = spawnPos(); e.x = s.x; e.y = s.y; } // (a worm's body follows its head)
+    } catch (err) { enemyFault(e, err); }
   }
   // Separation (half the crowd each frame: late-race frame rate).
   for (const e of G.enemies) {

@@ -299,9 +299,16 @@ const fightPatch = (x, y, tag) => ({ x, y, r: 50, life: 4, max: 4, dps: 0, quiet
 // ---------------------------------------------------------------- each frame (v10.js v10Tick)
 function fightTick(dt) {
   if (!G) return;
-  const S = fst();
-  for (const e of G.enemies) {
-    if (e.dead || !e.cd) continue;
+  const dt0 = dt, S = fst(), frame = G.frameN || 0, p = G.player;
+  for (const e0 of G.enemies) {
+    if (e0.dead || !e0.cd) continue;
+    const e = e0; let dt = dt0;
+    // Far off, plain enemies tick every other frame with the time carried (same rule as updateEnemies, CROWD.far).
+    if (CROWD.half && !e.boss && !e.elite && !e.rival && !e.egg && !e.charmed && !e.orbitBoss && !wormBody(e)) {
+      const fx = p.x - e.x, fy = p.y - e.y;
+      if (fx * fx + fy * fy > CROWD.far * CROWD.far && ((e.id + frame) & 1)) { e.fFarDt = (e.fFarDt || 0) + dt0; continue; }
+    }
+    if (e.fFarDt) { dt += e.fFarDt; e.fFarDt = 0; }
     tickDefence(e.cd, dt);
     if (snared(e)) S.snareT += dt;
     if (e.cd.burnDmg > 0) { const b = e.cd.burnDmg; e.cd.burnDmg = 0; damageEnemy(e, b, { elem: 'flame', dot: true, noCrit: true, noStatus: true, noArc: true, wname: (e.burnBy || '?') + ' (burning)' }); if (Math.random() < dt * 8) fxParts('ember', e.x + rand(-e.r, e.r), e.y, '#ff6a2a', 1, 30, 0.5, 2.5, -Math.PI / 2, 0.6); }
@@ -359,9 +366,9 @@ function fightDraw() {
   const now = G.t;
   for (const e of G.enemies) {
     if (e.dead) continue;
-    const c = e.cd || (fightId(e.def) && typeof ROSTER !== 'undefined' && ROSTER[fightId(e.def)] && ROSTER[fightId(e.def)].def ? fightCd(e) : null);
     const x = sx(e.x), y = sy(e.y), r = e.r * S;
     if (x < -r - 60 || x > W + r + 60 || y < -r - 60 || y > H + r + 60) continue; // (off screen: nothing to draw)
+    const fid = e.cd ? 0 : fightId(e.def), c = e.cd || (fid && typeof ROSTER !== 'undefined' && ROSTER[fid] && ROSTER[fid].def ? fightCd(e) : null);
     ctx.save(); ctx.lineCap = 'round';
     if (c && c.def === 'membrane' && c.memMax > 0 && typeof foeMemDraw === 'function') foeMemDraw(e, c, x, y, r); // (your bubble, foemem.js)
     else if (c && c.def === 'membrane' && c.memMax > 0) { // blue ring, full while up; flickers while recharging
