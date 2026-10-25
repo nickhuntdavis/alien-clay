@@ -19,7 +19,7 @@ LIST="${*:-$ALL}"
 pass=0; fail=0
 for t in $LIST; do
   out=$(cd out && $TO node "../$t.js" 2>&1); code=$?
-  bad=$(printf '%s' "$out" | grep -iE "ERRORS \[[^]]|Error:|broke|exception|FAIL" | grep -v "ERRORS \[\]")
+  bad=$(printf '%s' "$out" | grep -iE "ERRORS \[[^]]|Error:|broke|exception|FAIL" | grep -v "^ERRORS \[\]")
   if [ $code -ne 0 ] || [ -n "$bad" ]; then fail=$((fail+1)); echo "FAIL $t (exit $code)"; printf '%s\n' "$out" | tail -4 | cut -c1-300; else pass=$((pass+1)); fi
 done
 echo "$pass passed, $fail failed"

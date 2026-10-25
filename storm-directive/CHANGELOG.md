@@ -3,6 +3,11 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## After v10.140 (no build): 2026-10-25 Melee Knockback test runs the collision system; run.sh filter fix
+- On main. Systems: tests. Files: tests/delivtest.js, tests/run.sh, MODAUDIT_HANDOFF.md.
+- What: the Delivery-forms test's Melee Knockback (Bouncer) case ticks collide.js's `cdTick` with a fast shove, since collide.js owns collisions and the form's own pass stands down when it is loaded; it had been failing silently. run.sh now keeps a FAIL line that also carries `ERRORS []` (it dropped the whole line before).
+- Save data: none. Hooks: none. Risk: none.
+
 ## v10.140 (versionCode 419): 2026-10-25 Returning offered again; dead-card table regenerated
 - Built on main. Systems: modifier cards, tests. Files: matrixonly.js, moddead.js.
 - What: Returning (Return to Sender) is in `MATRIX_ONLY.mods` again, so the draft offers it on projectile and spread weapons, naked and under every Delivery (its five Delivery forms from task 3 were unreachable). `MOD_DEAD` regenerated from a full audit with Returning in the plan: 550 NO-OP of 2764 combos hidden (Returning itself: 32 dead, 50 visible). The audit ran on main before the v10.139 six-branch merge; regenerate again after the next modifier change.
