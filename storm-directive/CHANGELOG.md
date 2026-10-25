@@ -3,6 +3,18 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## After v10.125 (no build): 2026-10-25 Draft hides dead modifier cards
+- Merged: ccr-9712267e-z2y0pu (MODAUDIT_HANDOFF.md task 1). Game change, not yet built: ship it with the next build.
+
+### Folded from ccr-9712267e-z2y0pu: 2026-10-25 Draft hides dead modifier cards
+- Systems: modifier cards, tests
+- Files: moddead.js (new), index.html, ARCHITECTURE.md, tests/moddead.js (new), tests/tools/moddead.js (new)
+- What: a modifier the audit found does nothing on a weapon in its current form (e.g. Charge-Up on a Laser holding Mines) is no longer offered in the draft. Table `MOD_DEAD` is generated from the audit.
+- Save data: none.
+- Hooks: none (wraps `modOk`).
+- Risk: players see fewer cards after a Delivery; rerun `tests/tools/moddead.js --write` after any audit change.
+
+
 ## After v10.125 (no build): 2026-10-25 Enemy tables from the live v10 game
 - Merged: ccr-e5f84558-da830u. Docs and a test tool only: no game change, no build.
 
