@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.143 (versionCode 422): 2026-10-25 Tier 2 boss fights end: Eye closes in between saccades, Twins stay in reach and rebuild weaker
+- Systems: bosses, boss telegraphs, campaign entourage, tests
+- Files: bosssig10_t2.js, tests/bosstest.js
+- What: Bot fights against the Immune Eye ran 70 to 572 s and the Twins 104 to 1044 s (god-mode wave sims) after C3. Probe (reach, distance, boss damage per second): the saccade held the Eye still for the whole slot, so a kiting player sat 450 px away out of every weapon's reach; the crossfire parked the Twins 240 px out and still for 3.7 s of every 5.5 s, and its entourage pulsed on 3 slots in 4 (about 150 adds alive, boss damage near zero); the rest was the rebuild loop (one body felled, the other never finished inside 8 s, the first back at 60% again and again). Now: one saccade a slot, the Eye keeps its usual distance otherwise. Crossfire ring 200 px, swing 260 px/s; outside the lit lane the bodies keep the usual boss distance; no lane is lit unless both bodies are within 320 px of you and near enough to opposite that it runs through where you stood (up to 3.2 s to get there, else they close in and try again); adds pulse on the charge and the lull timer only. Each rebuild of the pair comes back weaker (60%, then 36%, 22%, 13% ...). Probe after: Eye 62 to 181 s (median about 95), Twins 66 to 260 s (median about 110), every fight ends.
+- Save data: none.
+- Hooks: bosssig10_t2.js now also wraps bosses.js updateRevive. ENTOURAGE.twins.on is filtered to ['charge'] at load.
+- Risk: the Twins' second phase is easier to close out (by design); fewer Mitotic Cells in that fight; the Eye sweeps half as often.
+
 ## v10.142 (versionCode 421): 2026-10-25 Enemy handoff C3, boss signature beats
 - Merged: `claude/enemy-c3-t3`, `claude/enemy-c3-t1`, `claude/enemy-c3-t2` (one signature beat per boss built from its own mechanic, replacing the generic aimedFan/spiral/ring slots; tier 1 keeps one spray as a breather; `bosssig10_t1.js`, `bosssig10_t2.js`, `bosssig10_t3.js`) into `claude/practical-brahmagupta-ry2k05` on main's v10.138. One build. Orchestrator: bosstest.js rebuilt from the three branch patches after the merge.
 
