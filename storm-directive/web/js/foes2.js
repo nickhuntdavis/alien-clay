@@ -141,16 +141,7 @@ function foes2Kill(e, src) {
 function foes2Dmg(e, d, src) {
   const el = src.elem || 'phys', F = G.f2el || (G.f2el = {});
   F[el] = (F[el] || 0) + d;
-  const D = e.def;
-  if (!e.boss && !e.bossDef && !e.rival && (D.weak || D.resist)) {
-    let m = 1;
-    if (D.weak && D.weak[el]) m *= D.weak[el];
-    if (D.resist && D.resist[el] != null) m *= D.resist[el];
-    if (m !== 1) {
-      d *= m;
-      if (D.litmus && m < 1 && !src.dot && !(e.resT > G.realT)) { e.resT = G.realT + 1.2; floatText(e.x, e.y - e.r - 10, 'RESISTED', XR.dim, 11, 0.7); }
-    }
-  }
+  const D = e.def; // (no type multipliers: defences do that work now)
   if (D.f3dmg) foes3Dmg(e, src); // (Snot Bubble swells: foes3.js)
   if (e.ifn > 0 && d > 0) { const a = Math.min(e.ifn, d); e.ifn -= a; d -= a; if (e.ifn <= 0) spawnPart(e.x, e.y, '#bde0fe', 4, 80, 0.3, 2); }
   if (D.puff && (IN_AOE || src.zoneHit)) {
@@ -163,20 +154,6 @@ function foes2Dmg(e, d, src) {
 // From the projectile collision: 0 = hit as normal, 1 = this enemy is skipped, 2 = the shot is spent.
 function foes2Shot(pr, e) {
   const D = e.def;
-  if (D.mirror) {
-    const fa = e.mface != null ? e.mface : 0, vl = Math.hypot(pr.vx, pr.vy) || 1;
-    if ((pr.vx * Math.cos(fa) + pr.vy * Math.sin(fa)) / vl < -0.45) {
-      if (!(e.refT > G.t)) {
-        e.refT = G.t + 0.18;
-        const p = me(), sn = shooterName, se = shooterEnt;
-        shooterName = e.name; shooterEnt = e;
-        eBullet(e.x + Math.cos(fa) * e.r, e.y + Math.sin(fa) * e.r, Math.atan2(p.y - e.y, p.x - e.x) + rand(-0.08, 0.08), 260, 5 * dmgNow(), 4, '#ffffff');
-        shooterName = sn; shooterEnt = se;
-        e.glintRT = G.realT;
-      }
-      return pr.orbitT > 0 ? 1 : 2;
-    }
-  }
   if (D.grease && pr.homing > 0) {
     pr.homing = 0; pr.tgt = null;
     const a = Math.atan2(pr.vy, pr.vx) + (Math.random() < 0.5 ? 1 : -1) * 0.9, sp = Math.hypot(pr.vx, pr.vy);
@@ -184,8 +161,8 @@ function foes2Shot(pr, e) {
     if (!(e.slipT > G.realT)) { e.slipT = G.realT + 1; floatText(e.x, e.y - e.r - 10, 'SLIPPED OFF', XR.dim, 11, 0.7); }
     return 1;
   }
-  if (D.clot && pr.pierce > 0 && !(e.thinT > G.t)) { // (THINNED by Blood: chem.js)
-    pr.pierce = 0; if (!(e.slipT > G.realT)) { e.slipT = G.realT + 1; floatText(e.x, e.y - e.r - 10, 'CLOTTED', XR.dim, 11, 0.7); } }
+  if (D.clot && pr.pierce > 0 && !(e.thinT > G.t)) { // (a Platelet Clump costs a shot one extra pierce)
+    pr.pierce--; if (!(e.slipT > G.realT)) { e.slipT = G.realT + 1; floatText(e.x, e.y - e.r - 10, 'CLOTTED', XR.dim, 11, 0.7); } }
   return 0;
 }
 
@@ -204,7 +181,7 @@ function foes2Tick(dt) {
     // The Litmus Cell's paper: whichever damage type you have dealt most this run (not before 200 of it).
     let top = null, best = 200;
     for (const k in (G.f2el || {})) if (G.f2el[k] > best) { best = G.f2el[k]; top = k; }
-    G.f2top = top; ENEMIES.litmus.resist = top ? { [top]: 0.35 } : {};
+    G.f2top = top;
   }
   let bog = 0;
   for (const e of G.enemies) {

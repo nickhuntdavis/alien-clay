@@ -73,7 +73,6 @@ function pstTick(dt) {
   if (G.state !== 'play') return;
   pstGrease(dt);
   const p = me();
-  for (const z of G.zones) if (z.foe && z.life > 0 && Math.hypot(p.x - z.x, p.y - z.y) < z.r + (p.r || 12)) { pstGive('lube', 0.5 + dt); break; } // (stood in a Grease Ball's slick)
   if (!G.pst) return;
   if (pstHas('sick') && p.hp > 1 && !(G.debug && G.debug.god)) {
     const d = Math.min(p.hp - 1, G.P.maxHp * PST.sick.dps * dt);
@@ -90,16 +89,11 @@ function pstChips(chips) {
   if (pstHas('wet')) chips.push(['SOAKING WET: STATIC +60% ' + left('wet'), ELEMENTS.salt.color]);
   if (pstHas('lube')) chips.push(['LUBRICATED: NO GRIP ' + left('lube'), ELEMENTS.oxi.color]);
 }
-// Grease Balls: an oil slick left behind them, and a slow oil glob now and then.
+// Grease Balls: a slow oil glob now and then (the slick they left is gone: Lubricated is retired).
 function pstGrease(dt) {
   const L = PST.lube, p = me();
   for (const e of G.enemies) {
     if (e.dead || !e.def.grease || e.charmed || e.boss) continue;
-    e.gsT = (e.gsT == null ? rand(0.5, L.slick) : e.gsT) - dt;
-    if (e.gsT <= 0) {
-      e.gsT = L.slick;
-      if (G.zones.length < 180) G.zones.push({ x: e.x, y: e.y, r: 34, life: 5, max: 5, dps: 0, elem: 'oxi', pull: 0, color: ELEMENTS.oxi.color, tick: 0, src: { elem: 'oxi', noStatus: true, wname: 'Grease trail' }, oil: true, foe: true, quiet: true });
-    }
     e.ggT = (e.ggT == null ? rand(2, L.glob) : e.ggT) - dt;
     const d = Math.hypot(p.x - e.x, p.y - e.y);
     if (e.ggT <= 0 && d > 90 && d < 340) {

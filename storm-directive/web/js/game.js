@@ -2265,7 +2265,6 @@ function updateZones(dt) {
         e.x += dx / d * f; e.y += dy / d * f;
       }
       if (z.root && doTick && !e.boss) e.frozen = Math.max(e.frozen, 0.5); // Naughty Corner: rooted
-      if (z.oil) e.fizz = Math.max(e.fizz || 0, 1.5); // (an Oil slick: chem.js)
       if (doTick && !z.quiet) { sigZone(z, e); damageEnemy(e, z.dps * 0.25, z.hs); }
     });
     if (z.heal && doTick) chemPool(z); // (a Blood pool heals you: chem.js)
@@ -2310,7 +2309,7 @@ function updatePlayer(dt) {
   // Swim physics: the head can only turn so fast (traction), thrust drops mid-turn,
   // and sideways momentum drifts off rather than stopping dead.
   if (p.hd == null) p.hd = p.face;
-  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1) * (G.onIce ? 0.35 : 1) * pstGrip(); // (Lubricated: pstatus.js)
+  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1) * (G.onIce ? 0.35 : 1); // (Lubricated is retired)
   const cur = Math.hypot(p.vx, p.vy);
   let thrust = 0;
   if (m > 0.05) {
