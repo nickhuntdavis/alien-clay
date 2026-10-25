@@ -3,20 +3,21 @@
 // (aimedFan, spiral, ring, flower, doubleSpiral) and gets one beat built from its own mechanic. Every beat shows its area
 // first (COMBAT_MATRIX 13.4), keeps two or more answers, and uses no new boss HP, damage or rate number (damage is the
 // boss's own bd, as the beats it replaces used).
-//   crossfire (Mitch & Osis)   They take opposite sides of you, light the lane between them 0.9 s, then ONE body's Beam runs it 0.4 s.
+//   crossfire (Mitch & Osis)   They take opposite sides of you (200 px out), light the lane between them 0.9 s, then ONE body's Beam runs it 0.4 s.
+//                              Outside the lit lane they keep a boss's usual distance; no lane is lit from far away. Rebuilds come back weaker each time (60%, 36%, 22% ...).
 //   fragment  (Kidney Stone)   Each shed Shell layer (any cause) rolls off as a gravel chunk down a lane marked 0.8 s; the pattern also calves one.
 //   rounds    (Matron)         Her route is marked bed to bed (3 beds) for 0.9 s, then she walks it, healing what she passes.
 //   falsepos  (Phantom)        Two see-through copies blink with her for 4 s; the real one is ringed. Copies are drawn only (not enemies).
-//   saccade   (Immune Eye)     A 60 degree sector is marked 0.8 s, then the glare sweeps it over 1.2 s.
+//   saccade   (Immune Eye)     A 60 degree sector is marked 0.8 s, then the glare sweeps it over 1.2 s. One a slot; the rest of the slot it closes in as usual.
 //   reflux    (Pepsinator)     One half of the arena is shaded 1 s, then acid pools roll out across it over 1 s.
 //   dinner    (Macrophage Queen) Her line is marked 0.9 s, her adds queue up on it and rush down it 1 s, then she devours the survivors.
 // State lives on the boss (e.sg2), nothing is saved. Wraps bossAI (bosstells10.js's wrapper, game.js) and nf10Draw.
-// Hooks: wraps bossAI and nf10Draw; data.js BOSSES / roster.js ROSTER_BOSSES patterns are rewritten at load. Save data: none.
+// Hooks: wraps bossAI, nf10Draw and updateRevive (bosses.js); data.js BOSSES / roster.js ROSTER_BOSSES patterns and campaign.js ENTOURAGE.twins.on are rewritten at load. Save data: none.
 
 const SG2 = {
   ids: ['crossfire', 'fragment', 'rounds', 'falsepos', 'saccade', 'reflux', 'dinner'],
   window: 5.5, // (game.js: a pattern lasts 5.5 s, the first 0.6 s of it a pause)
-  cfR: 240, cfMove: 1.8, cfSpd: 360, cfTell: 0.9, cfFire: 0.4, cfTicks: 4, cfW: 36, cfBeam: 0.8, // (crossfire: distance from you, reposition cap, tell, Beam length, lane width, damage share per tick of bd)
+  cfR: 200, cfMove: 1.8, cfMoveMax: 3.2, cfNear: 120, cfSpd: 260, cfTell: 0.9, cfFire: 0.4, cfTicks: 4, cfW: 36, cfBeam: 0.8, // (crossfire: distance from you, reposition cap and its stretch while a body is still more than cfNear outside the ring, swing speed, tell, Beam length, lane width, damage share per tick of bd)
   chunkTell: 0.8, chunkRoll: 0.8, chunkLen: 560, chunkR: 26, chunkEvery: 1.7, chunkMax: 4, // (fragment)
   bedR: 170, bedSpeed: 300, bedTell: 0.9, bedHeal: 0.012, bedRad: 160, bedPause: 0.2, // (rounds: bed ring radius round you, her walking speed, tell, heal per 0.25 s tick as a share of max HP, heal radius)
   fpCopies: 2, fpLen: 4, fpTell: 0.5, fpGap: 1.6, fpRing: 0.3, fpR: 220, // (falsepos)
@@ -42,7 +43,7 @@ for (const id in SG2_PATTERNS) {
   if (R) R.patterns = B.patterns;
   B.strengths = (B.strengths || []).filter(s => !/crossfire/i.test(s)).slice(0, 2).concat('TODO_COPY:boss_' + id + '_sig'); // (copy: the user writes it)
 }
-if (typeof ENTOURAGE !== 'undefined' && ENTOURAGE.twins) ENTOURAGE.twins.on = ENTOURAGE.twins.on.map(p => p === 'spiral' ? 'crossfire' : p); // (the twins' entourage cadence follows the new beat)
+if (typeof ENTOURAGE !== 'undefined' && ENTOURAGE.twins) ENTOURAGE.twins.on = ENTOURAGE.twins.on.filter(p => p !== 'spiral'); // (adds come on the charge and the lull timer only: the crossfire fills 3 slots in 4, and pulsing on it too put about 150 adds in the dish and the bot's boss damage near zero)
 
 const sg2St = e => e.sg2 || (e.sg2 = { pat: null, last: 99, t: 0 });
 const sg2Alive = e => e && !e.dead;
@@ -76,7 +77,7 @@ bossAI = function (e, dt, dist, ux, uy) {
   if (d.twins && cfo && !s.cf) {
     const saved = e.patT;
     e.patT = 0; sg2AI0(e, dt, dist, ux, uy); e.patT = saved + dt;
-    if (cfo.ph === 0) sg2Swing(e, G.player, cfo.delta / 2, SG2.cfR, SG2.cfSpd); else { e.mvx = 0; e.mvy = 0; e.mvs = 0; }
+    if (cfo.ph === 0) sg2Swing(e, G.player, cfo.delta / 2, SG2.cfR, SG2.cfSpd); else if (cfo.ph < 3) { e.mvx = 0; e.mvy = 0; e.mvs = 0; } // (still only while the lane is lit and fired; the breath keeps the usual distance)
     return;
   }
   const patT0 = e.patT, pat0 = d.patterns[e.pat];
@@ -101,7 +102,7 @@ bossAI = function (e, dt, dist, ux, uy) {
 function sg2Crossfire(e, s, dt, bd, tw, p, left) {
   let cf = s.cf;
   if (!cf) {
-    if (left < SG2.cfMove + SG2.cfTell + SG2.cfFire + 0.3) { e.mvs = 0; return; } // (no time for a whole one: wait for the next pattern)
+    if (left < SG2.cfMove + SG2.cfTell + SG2.cfFire + 0.3) return; // (no time for a whole one: keep the usual distance until the next pattern. Standing still here and in the breath left the bodies parked 3.7 s of every 5.5 s while a kiting player walked off: bot fights ran 150 to 400 s)
     if (tw && tw.def.patterns[tw.pat] === 'charge' && tw.st) return; // (the partner is mid-dash: let it finish)
     s.n = (s.n || 0) + 1;
     cf = s.cf = { ph: 0, t: 0, tick: 0, delta: 0 };
@@ -111,8 +112,11 @@ function sg2Crossfire(e, s, dt, bd, tw, p, left) {
     const th = e.x === p.x && e.y === p.y ? 0 : Math.atan2(e.y - p.y, e.x - p.x), tp = tw ? Math.atan2(tw.y - p.y, tw.x - p.x) : th + Math.PI;
     cf.delta = Math.atan2(Math.sin(Math.PI - (tp - th)), Math.cos(Math.PI - (tp - th)));
     sg2Swing(e, p, -cf.delta / 2, SG2.cfR, SG2.cfSpd);
-    const ok = r => Math.abs(r - SG2.cfR) < 30;
-    if (cf.t >= SG2.cfMove || (Math.abs(cf.delta) < 0.1 && ok(Math.hypot(e.x - p.x, e.y - p.y)) && (!tw || ok(Math.hypot(tw.x - p.x, tw.y - p.y))))) {
+    const ok = r => Math.abs(r - SG2.cfR) < 30, near = r => r < SG2.cfR + SG2.cfNear;
+    const de = Math.hypot(e.x - p.x, e.y - p.y), dtw = tw ? Math.hypot(tw.x - p.x, tw.y - p.y) : de;
+    const set = near(de) && near(dtw), opp = Math.abs(cf.delta) < 0.35; // (both bodies close enough, and near enough to opposite that the lane runs through where you stood)
+    if (cf.t >= SG2.cfMoveMax && !set) { s.cf = null; return; } // (you walked off: no lane lit from across the dish; close in and try again)
+    if ((cf.t >= SG2.cfMoveMax && set) || (cf.t >= SG2.cfMove && set && opp) || (Math.abs(cf.delta) < 0.1 && ok(de) && (!tw || ok(dtw)))) {
       cf.ph = 1; cf.t = 0; cf.ax = e.x; cf.ay = e.y;
       cf.bx = tw ? tw.x : e.x + (p.x - e.x) * 2; cf.by = tw ? tw.y : e.y + (p.y - e.y) * 2; // (a lone twin lights the line through you)
       e.mvx = 0; e.mvy = 0; e.mvs = 0;
@@ -133,9 +137,20 @@ function sg2Crossfire(e, s, dt, bd, tw, p, left) {
       }
     }
     if (cf.t >= SG2.cfFire) { cf.ph = 3; cf.t = 0; }
-  } else if (cf.t >= 0.3) s.cf = null; // (a breath, then the next one if there is time)
-  else { e.mvx = 0; e.mvy = 0; e.mvs = 0; }
+  } else if (cf.t >= 0.3) s.cf = null; // (a breath at the usual distance, then the next one if there is time)
 }
+
+// Each rebuild brings the twin back weaker (60% of its health, then 36%, 22%, 13% ...), so a fight that keeps felling one body
+// still ends: with the first body always back at 60%, bot fights with a weak build looped five rebuilds and ran past 400 s.
+const sg2Revive0 = updateRevive;
+updateRevive = function () {
+  const R = G.revive, e = R && R.e;
+  sg2Revive0();
+  if (!e || G.revive || e.dead || !(e.hp > 0)) return; // (nothing happened, or the pair is finished)
+  const n = ((e.twin && e.twin.rebuilt) || e.rebuilt || 0) + 1; // (one count for the pair, whichever body fell)
+  e.rebuilt = n; if (e.twin) e.twin.rebuilt = n;
+  if (n > 1) e.hp = Math.max(1, Math.round(e.hp * Math.pow(0.6, n - 1)));
+};
 
 // ---------------------------------------------------------------- Kidney Stone: fragment
 function sg2Chunk(e, s) {
@@ -215,14 +230,14 @@ function sg2FalsePos(e, s, dt, bd, p) {
 // ---------------------------------------------------------------- The Immune Eye: saccade
 function sg2Saccade(e, s, dt, bd, p, left) {
   let sc = s.sc;
-  e.mvx = 0; e.mvy = 0; e.mvs = 0;
-  if (!sc) {
-    if (left < SG2.scTell + SG2.scSweep + 0.1) return;
+  if (!sc) { // one saccade a slot; the rest of the slot the Eye keeps its usual distance (held still all slot, it sat 450 px from a kiting player and the fight ran 4 minutes)
+    if ((s.n || 0) >= 1 || left < SG2.scTell + SG2.scSweep + 0.1) return;
     s.n = (s.n || 0) + 1;
     sc = s.sc = { ph: 0, t: 0, a0: Math.atan2(p.y - e.y, p.x - e.x), dir: s.n % 2 ? 1 : -1, ang: 0 };
     sc.ang = sc.a0 - sc.dir * SG2.scHalf;
   }
   sc.t += dt;
+  e.mvx = 0; e.mvy = 0; e.mvs = 0; // (still from the mark to the end of the sweep: the sector it showed is the sector it sweeps)
   if (sc.ph === 0) { if (sc.t >= SG2.scTell) { sc.ph = 1; sc.t = 0; sfx('zap'); } return; }
   if (sc.ph === 1) {
     sc.ang = sc.a0 + sc.dir * (-SG2.scHalf + 2 * SG2.scHalf * Math.min(1, sc.t / SG2.scSweep));

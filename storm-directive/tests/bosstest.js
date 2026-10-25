@@ -193,13 +193,14 @@ const { chromium } = require('playwright');
         out.sniffle = first.toFixed(2) + '/' + patches; }
       window.hurtPlayer = hp0; }
     // C3 tier 2 signature beats (bosssig10_t2.js): the tell shows first, no damage lands before it ends, and the beat does what it says.
-    const mid = (b, dx) => { const c = G.core; G.player.x = c.x; G.player.y = c.y; b.x = c.x - (dx == null ? 300 : dx); b.y = c.y; if (b.twin) { b.twin.x = b.x - 60; b.twin.y = b.y + 40; } return b; }; // (player in the middle of the dish, the boss to its left)
+    const mid = (b, dx) => { const c = G.core; G.player.x = c.x; G.player.y = c.y; G.P.speed = 0; G.manual = { x: 0, y: 0 }; b.x = c.x - (dx == null ? 300 : dx); b.y = c.y; if (b.twin) { b.twin.x = b.x - 60; b.twin.y = b.y + 40; } return b; }; // (player in the middle of the dish, the boss to its left)
     const spy = () => { const log = [], h0 = hurtPlayer; let T = 0; window.__sgT = () => T; hurtPlayer = function (dmg, from, ent, kind) { log.push({ from: String(from), ent, kind, t: window.__sgNow }); return h0.apply(this, arguments); }; return { log, restore: () => { hurtPlayer = h0; } }; };
     const run = (n, fn) => { let t = 0; for (let i = 0; i < n; i++) { window.__sgNow = t; update(1 / 60); t += 1 / 60; if (fn && fn(t, i)) break; } return t; };
     { // Mitch & Osis: crossfire
       const b = mid(tellBoss('twins', 'crossfire')), tw = b.twin; tw.hp = tw.maxHp = 1e9; tw.speed = 0; tw.pat = tw.def.patterns.indexOf('charge'); tw.patT = 0; tw.st = 0;
       const sp = spy(); let own = null, laneT = -1, fireT = -1, lane = null, endT = -1, shown = 0, between = false, partnerShots = 0;
       run(420, t => {
+        G.player.x = G.core.x; G.player.y = G.core.y; G.player.vx = G.player.vy = 0; // (standing in the lane: a melee lunge or a shove would carry you off it)
         const o = [b, tw].find(x => x.sg2 && x.sg2.cf); const cf = o && o.sg2.cf;
         if (cf && cf.ph === 1 && laneT < 0) { laneT = t; own = o; const q = o === b ? tw : b; lane = { ax: cf.ax, ay: cf.ay, bx: cf.bx, by: cf.by }; between = ((cf.ax - G.player.x) * (cf.bx - G.player.x) + (cf.ay - G.player.y) * (cf.by - G.player.y)) < 0 && Math.hypot(cf.ax - o.x, cf.ay - o.y) < 2 && Math.hypot(cf.bx - q.x, cf.by - q.y) < 2; }
         if (cf && cf.ph === 1) { shown++; render(); }
