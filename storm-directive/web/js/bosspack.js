@@ -267,21 +267,22 @@ function bpRelicApply(id) {
   const P = G.P, p = me();
   switch (id) {
     case 'indicator': { const n = Math.max(1, bpOwnTypes().length); P.might += 0.06 * n; P.haste += 0.03 * n; return true; }
-    case 'ribbed': P.ram += 2; P.armour += 4; return true;
+    case 'ribbed': P.ram += 2; relShellAdd(RELIC10.shell.ribbed); return true;
     case 'membrane': { const add = Math.round(P.maxHp * 0.2); P.maxHp += add; p.hp += add; P.magnet += 0.5; return true; }
     case 'charleyhorse': P.speed += 0.2; P.sprintCost *= 0.6; return true;
     case 'blessyou': P.dodge = Math.max(P.dodge, Math.min(0.7, P.dodge + 0.15)); return true;
-    case 'calcified': { P.armour += 12; const add = Math.round(P.maxHp * 0.25); P.maxHp += add; p.hp += add; P.speed -= 0.08; return true; }
+    case 'calcified': { relShellAdd(RELIC10.shell.calcified); const add = Math.round(P.maxHp * 0.25); P.maxHp += add; p.hp += add; P.speed -= 0.08; return true; }
     case 'bluetored': case 'teststrip': case 'rubber': case 'reservoir': case 'plugged': case 'snotrocket': case 'stitch': case 'clench': case 'atishoo': case 'binit': case 'lithotripsy': case 'razors': return true;
   }
   return false;
 }
 function bpRelicHit(e, d) {
   const R = G.relics;
-  if (R.bluetored) {
-    if (Math.random() < 0.15) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Blue to Red'); }
-    if (Math.random() < 0.15) { e.chill = Math.max(e.chill, 1.5); e.chillAmt = Math.max(e.chillAmt, 0.3); }
-  }  if (R.lithotripsy) e.shred = Math.min(e.armour + 4, e.shred + 2);
+  if (R.bluetored) { // (the litmus pair: Acid Corrosion and a Mucus Snare, relics10.js)
+    if (Math.random() < 0.15) relBar(e, 'acid', d);
+    if (Math.random() < 0.15 && !e.dead) fightStatus(e, 'ice', d, {});
+  }
+  if (R.lithotripsy) relWear(e, d * 0.5); // (wears Shell layers: relics10.js)
 }
 function bpRelicKill(e) {
   if (!G.relics.binit) return;
@@ -303,7 +304,9 @@ function bpRelicHurt(d) {
   if (R.reservoir) G.resv = (G.resv || 0) + d;
   if (R.razors && G.t >= (G.razorAt || 0)) {
     G.razorAt = G.t + 0.5;
-    aoe(p.x, p.y, 120, (20 + G.level * 5) * P.might, { elem: 'phys', wname: 'Pissing Razor Blades', shred: 6, noCrit: true }, '#e0c48a');
+    const dmg = (20 + G.level * 5) * P.might;
+    aoe(p.x, p.y, 120, dmg, { elem: 'phys', wname: 'Pissing Razor Blades', noCrit: true, atk: 'burst' }, '#e0c48a');
+    forNear(p.x, p.y, 120, e => relWear(e, dmg)); // (the shards wear Shell layers: relics10.js)
   }
 }
 // You sneeze: a cone ahead of you (Atishoo, and Bless You on a dodge).
