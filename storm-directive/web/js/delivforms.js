@@ -778,15 +778,47 @@ modOk = (orig => function (w, id) {
   try { return orig(w, id); } finally { m.atk.splice(m.atk.lastIndexOf(a), 1); }
 })(modOk);
 
-// Card text: a modifier offered on a weapon with a Delivery describes that Delivery's form (TODO_COPY:xd_<delivery>_<modifier>,
-// the user writes it; Ranged comes before Strike from Above and Orbiting, the extras it can sit beside). cellmods.js wraps modCard after this file, so a weapon's own cell text still wins.
+// Card text: a modifier offered on a weapon with a Delivery describes that Delivery's form (XD_COPY, xd_<delivery>_<modifier>; Ranged comes before Strike from Above and Orbiting, the extras it can sit beside). cellmods.js wraps modCard after this file, so a weapon's own cell text still wins.
+// The lines (user, 25 Oct: written on request; what it visibly does, then at most one dry clause, no numbers).
+const XD_COPY = {
+  xd_mines_homing: 'Armed mines creep towards the nearest enemy. Slowly. They have all night.',
+  xd_mines_ricochet: 'A fresh mine bounces off the nearest enemy and slides into the crowd before it arms.',
+  xd_mines_returning: 'A mine nobody steps on rolls back towards you and goes off on the first enemy it meets.',
+  xd_mines_connecting: 'Each mine strings a tripwire to its nearest neighbour. Cross the wire and both ends go off.',
+  xd_mines_pull: 'A tripped mine sucks in everything nearby first, then goes off. Tidier.',
+  xd_mines_knock: 'Blasts throw enemies outward from the mine, into whatever was standing next to them.',
+  xd_melee_homing: 'Each swing also throws a small homing slash at the nearest enemy just out of reach.',
+  xd_melee_ricochet: 'The last hit of a swing rebounds to more enemies nearby. The follow-through has opinions.',
+  xd_melee_returning: 'Every swing sweeps back a moment later as a second arc. The backswing counts.',
+  xd_melee_connecting: 'Enemies hit by the same swing are linked for a few seconds and share the damage. Group work.',
+  xd_melee_pull: 'Each swing drags nearby enemies a step towards you before it lands. They were coming anyway.',
+  xd_melee_knock: 'Enemies you shove hurt whatever they hit. Bowling, with less equipment.',
+  xd_dfa_homing: 'The marker follows its target through the warning. Running is noted, and ignored.',
+  xd_dfa_ricochet: 'The strike lands again on the nearest enemies, each with its own short warning.',
+  xd_dfa_returning: 'A line of small strikes walks back from the target to you. The ground remembers the route.',
+  xd_dfa_connecting: 'Each strike is joined to the last one by a beam that hurts whatever crosses it. Mind the gap.',
+  xd_dfa_pull: 'The marker pulls enemies in while the warning is up. They arrive in time for the strike.',
+  xd_dfa_knock: 'The strike throws enemies outward from where it lands. Attendance was not optional.',
+  xd_orbiting_homing: 'A body breaks off to chase a nearby enemy, hits it, and returns to its place in the ring.',
+  xd_orbiting_ricochet: 'A body that hits bounces on to one more enemy, then snaps back into orbit.',
+  xd_orbiting_returning: 'Every few seconds the ring flings out to twice its size and back, hitting both ways. Deep breath.',
+  xd_orbiting_connecting: 'The bodies are joined by a beam. Anything crossing the ring gets a reading.',
+  xd_orbiting_pull: 'Enemies near the ring are dragged onto it. The ring does the rest.',
+  xd_orbiting_knock: 'Bodies bat enemies away from the ring, harder with each rank. Personal space, enforced.',
+  xd_ranged_ricochet: 'The strike hops to more enemies nearby after it lands. One throw, several recipients.',
+  xd_ranged_returning: 'A hit runs along the line from the target back to you. Return postage included.',
+  xd_ranged_connecting: 'Everything in the strike\'s area is linked for a few seconds and shares the damage. A joint account.',
+  xd_ranged_pull: 'The strike drags nearby enemies into its centre before it lands. Then it lands.',
+  xd_ranged_knock: 'The strike throws enemies outward from where it lands. Seating is reassigned.',
+};
+const xdCopy = k => XD_COPY[k] || 'TODO_COPY:' + k;
 modCard = (orig => function (w, id) {
   const c = orig(w, id);
-  if (c && w && w.m10 && mwR(w, 'mines') && XD.mines[id]) c.desc = 'TODO_COPY:xd_mines_' + id;
-  else if (c && w && w.m10 && mwR(w, 'melee') && XD.melee[id]) c.desc = 'TODO_COPY:xd_melee_' + id;
-  else if (c && w && w.m10 && mwR(w, 'ranged') && XD.ranged[id] && id !== 'peek') c.desc = 'TODO_COPY:xd_ranged_' + id;
-  else if (c && w && w.m10 && mwR(w, 'dfa') && XD.dfa[id]) c.desc = 'TODO_COPY:xd_dfa_' + id;
-  else if (c && w && w.m10 && modCount(w, 'orbiting') && XD.orbit[id]) c.desc = 'TODO_COPY:xd_orbiting_' + id;
+  if (c && w && w.m10 && mwR(w, 'mines') && XD.mines[id]) c.desc = xdCopy('xd_mines_' + id);
+  else if (c && w && w.m10 && mwR(w, 'melee') && XD.melee[id]) c.desc = xdCopy('xd_melee_' + id);
+  else if (c && w && w.m10 && mwR(w, 'ranged') && XD.ranged[id] && id !== 'peek') c.desc = xdCopy('xd_ranged_' + id);
+  else if (c && w && w.m10 && mwR(w, 'dfa') && XD.dfa[id]) c.desc = xdCopy('xd_dfa_' + id);
+  else if (c && w && w.m10 && modCount(w, 'orbiting') && XD.orbit[id]) c.desc = xdCopy('xd_orbiting_' + id);
   return c;
 })(modCard);
 

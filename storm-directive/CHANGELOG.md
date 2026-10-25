@@ -3,7 +3,7 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
-## v10.138 (versionCode 417): 2026-10-25 Six feature branches: charge-up looks, feedback animations, health loot, Switched at Birth levels, pick-the-weapon modifiers, DNA drops
+## v10.139 (versionCode 418): 2026-10-25 Six feature branches: charge-up looks, feedback animations, health loot, Switched at Birth levels, pick-the-weapon modifiers, DNA drops
 - Merged: `ccr-charge-fx`, `ccr-feedback-fx`, `ccr-loot-health`, `ccr-switched-levels`, `ccr-mod-weaponpick`, `ccr-dna-drop`. Conflicts were only shared bookkeeping (ARCHITECTURE.md rows and script order, run.sh test list, index.html script tags, NOTES.md bullets, version files, APK). feedbackfx.js still uses its own per-type stand-in colours rather than chargefx.js `drawChargeFx`.
 
 ### Folded from ccr-charge-fx: 2026-10-25 One charge-up look per damage type (v10.135)
@@ -54,6 +54,10 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Hooks: none in shared files. dnadrop.js replaces levelbox.js lvboxTick/lvboxSpot, wraps applyPickup, autorun.js arPickups, v10Draw, UI.openLoot; hookOn('tick', 'ddTick'). junk.js junkArrow gains an optional fill colour.
 - Risk: autorun detours more (bot win rate; see sims in NOTES.md); TODO_COPY placeholders show on the drop label, three note moods and the tutorial card until the copy lands.
 
+## v10.138 (versionCode 417): 2026-10-25 Card lines for the Delivery forms
+- Built on main. Systems: modifier cards. Files: delivforms.js.
+- What: the 29 `TODO_COPY:xd_*` placeholders (Mines, Melee, Strike from Above, Orbiting and Ranged forms of Homing, Bounce, Returning, Link, Pull and Knockback) have their card lines in `XD_COPY` in delivforms.js (written by the session at the user's request: what it does, then at most one dry clause, no numbers). Every form card now renders under 120 characters with no placeholder.
+- Save data: none. Hooks: none. Risk: none.
 
 ## v10.137 (versionCode 416): 2026-10-25 Ranged forms for Flight and Crowd modifiers (task 3 batch 5, the last)
 - Merged: ccr-task3-ranged (MODAUDIT_HANDOFF.md task 3, batch 5). Dead-card table regenerated in the branch: 516 of 2682 hidden. Task 3 complete.

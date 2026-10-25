@@ -14,7 +14,7 @@ const MATRIX_ONLY = {
     'v_soul_proj', 'v_flame_pool', 's_void', 's_lard', 's_mines', 's_twin', 's_tesla', 's_redtape', 's_bubble', 's_duedate',
     's_seeker', 's_peekaboo', 's_toothfairy', 's_parasite', 'acro_cap', 'acro_spray', 'acro_spark', 'v_flame_beam'],
   mods: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet',
-    'focus', 'connecting', 'turncoat', 'melee', 'ranged', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting'],
+    'focus', 'connecting', 'turncoat', 'melee', 'ranged', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'returning'], // (returning: user, 25 Oct; its five Delivery forms are in delivforms.js, MODIFIER_MATRIX.md 5.11)
   held: [], samples: [], force: false,
 };
 function matrixApply() {
