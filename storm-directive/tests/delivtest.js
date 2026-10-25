@@ -3,7 +3,9 @@
 // mine; and the Laser's mines creep with Homing. Melee: Homing slashes, Bounce rebounds, Returning sweeps back, Link shares,
 // Pull draws in, Knockback (Bouncer) collides; the Laser's sword slashes and rebounds. Strike from Above: the marker
 // follows (Homing) and pulls (Pull), the strike bounces, walks back, links to the last one and shoves from where it lands;
-// the Laser's orbital strike bounces, sweeps back and pulls.
+// the Laser's orbital strike bounces, sweeps back and pulls. Orbiting: a body chases (Homing) and rebounds (Bounce), the
+// ring flings out (Returning), the bodies' beam hurts (Link), the ring drags in (Pull) and bats away (Knockback); the
+// Laser's ring sends a spark, flings, hits what crosses it and pulls; the hoop's hit rebounds.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -107,6 +109,45 @@ const { chromium } = require('playwright');
     out.lzPull = Math.round(lp - fo.y); if (!(out.lzPull > 10)) bad.push('laser strike pull ' + out.lzPull);
     // Card text: a Strike from Above weapon's Link card describes the Strike form
     w = fresh('v_phys_proj', [['dfa', 1]]); out.dCard = (modCard(w, 'connecting') || {}).desc; if (out.dCard !== 'TODO_COPY:xd_dfa_connecting' && !/strike|beam/i.test(out.dCard || '')) bad.push('strike card ' + out.dCard);
+    // ---- Orbiting (batch 4): bodies round you (Standard Issue), the Laser's ring and the hoop
+    const ot = dt => { modTick(dt); mwTick(dt); for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } } };
+    const at = (e, d, an) => { const p = G.player; e.x = p.x + Math.cos(an || 0) * d; e.y = p.y + Math.sin(an || 0) * d; gridBuild(); return e; };
+    const dist = e => Math.hypot(e.x - G.player.x, e.y - G.player.y);
+    // Homing: a body breaks off for an enemy 190 away (out of the ring's reach) and comes back
+    w = fresh('v_phys_proj', [['orbiting', 1], ['homing', 1]]); e = at(foe(0, 0), 190); let went = 0; tick(1.5, dt => { ot(dt); if (w.xdOb && w.xdOb.some(o => o.st)) went = 1; });
+    out.oHoming = [went, lost(e), w.xdOb.every(o => !o.st || o.st === 'back') ? 1 : 0]; if (!went || !(lost(e) > 0)) bad.push('orbit homing ' + out.oHoming);
+    w = fresh('v_phys_proj', [['orbiting', 1]]); e = at(foe(0, 0), 190); tick(1.5, ot); if (lost(e)) bad.push('orbit homing: hit without it ' + lost(e));
+    // Bounce: a body that hits an enemy on the ring goes on to one 70 behind it
+    w = fresh('v_phys_proj', [['orbiting', 1], ['ricochet', 1]]); e = at(foe(0, 0), 72); fo = at(foe(0, 0), 142); fo.r = 8; tick(1.5, ot);
+    out.oBounce = [lost(e), lost(fo)]; if (!(lost(e) > 0) || !(lost(fo) > 0)) bad.push('orbit bounce ' + out.oBounce);
+    // Returning: the ring flings out over an enemy at 135 (out of its reach at rest)
+    w = fresh('v_phys_proj', [['orbiting', 1], ['returning', 1]]); e = at(foe(0, 0), 135); e.r = 8; tick(1.5, ot); const or0 = lost(e); tick(2.5, ot);
+    out.oRet = [or0, lost(e)]; if (or0 || !(lost(e) > 0)) bad.push('orbit returning ' + out.oRet);
+    // Link: the beam between the bodies hurts an enemy inside the ring that no body touches
+    w = fresh('v_phys_proj', [['orbiting', 1], ['connecting', 1]]); e = at(foe(0, 0), 34); e.r = 8; tick(2, ot);
+    out.oLink = lost(e); if (!(lost(e) > 0)) bad.push('orbit link ' + out.oLink);
+    // Pull: an enemy 50 outside the ring is dragged onto it
+    w = fresh('v_phys_proj', [['orbiting', 1], ['pull', 1]]); e = at(foe(0, 0), 122, 2); const op0 = dist(e); tick(0.3, ot);
+    out.oPull = Math.round(op0 - dist(e)); if (!(out.oPull > 10)) bad.push('orbit pull ' + out.oPull);
+    // Knockback: a body bats an enemy on the ring harder than the bodies' own nudge
+    const bat = mods => { const w = fresh('v_phys_proj', mods), e = at(foe(0, 0), 72), x = e.x, y = e.y; let m = 0; tick(0.6, dt => { ot(dt); m = Math.max(m, Math.hypot(e.x - x, e.y - y) + Math.hypot(e.kx || 0, e.ky || 0) * 0.1); }); return Math.round(m); };
+    out.oKnock = [bat([['orbiting', 1]]), bat([['orbiting', 1], ['knock', 1]])]; if (!(out.oKnock[1] > out.oKnock[0] + 10)) bad.push('orbit knockback ' + out.oKnock);
+    // The Laser's ring (held on: lzFireT): a spark chases an enemy 100 outside it; the ring flings over one at 130;
+    // an enemy crossing it is hit; one 40 outside is dragged onto it
+    const lzOn = w => dt => { w.lzFireT = G.t; w.lzPow = 1; ot(dt); };
+    w = fresh('v_flame_beam', [['orbiting', 1], ['homing', 1]]); e = at(foe(0, 0), 175); let spk = 0; tick(1.5, dt => { lzOn(w)(dt); if (G.xdO && G.xdO.ch.length) spk = 1; });
+    out.lzOHoming = [spk, lost(e)]; if (!spk || !(lost(e) > 0)) bad.push('laser orbit homing ' + out.lzOHoming);
+    w = fresh('v_flame_beam', [['orbiting', 1], ['returning', 1]]); e = at(foe(0, 0), 130); e.r = 8; tick(4, lzOn(w));
+    out.lzORet = lost(e); if (!(lost(e) > 0)) bad.push('laser orbit returning ' + out.lzORet);
+    w = fresh('v_flame_beam', [['orbiting', 1], ['connecting', 1]]); e = at(foe(0, 0), 90); tick(0.1, lzOn(w)); const lc0 = lost(e); at(e, 55); tick(0.1, lzOn(w));
+    out.lzOLink = [lc0, lost(e)]; if (lc0 || !(lost(e) > 0)) bad.push('laser orbit link ' + out.lzOLink);
+    w = fresh('v_flame_beam', [['orbiting', 1], ['pull', 1]]); e = at(foe(0, 0), 115, 1); const lp0 = dist(e); tick(0.3, lzOn(w));
+    out.lzOPull = Math.round(lp0 - dist(e)); if (!(out.lzOPull > 10)) bad.push('laser orbit pull ' + out.lzOPull);
+    // The hoop (Static's beam): Bounce sends a hit on the hoop to an enemy 60 outside it
+    w = fresh('v_shock_beam', [['orbiting', 1], ['ricochet', 1]]); e = at(foe(0, 0), 72); fo = at(foe(0, 0), 140); fo.r = 8; wupFire(w, e, weaponSrc(w)); tick(0.2, ot);
+    out.hoopBounce = [lost(e), lost(fo)]; if (!(lost(e) > 0) || !(lost(fo) > 0)) bad.push('hoop bounce ' + out.hoopBounce);
+    // Card text: an Orbiting weapon's Pull card describes the Orbiting form
+    w = fresh('v_phys_proj', [['orbiting', 1]]); out.oCard = (modCard(w, 'pull') || {}).desc; if (out.oCard !== 'TODO_COPY:xd_orbiting_pull' && !/ring|orbit/i.test(out.oCard || '')) bad.push('orbit card ' + out.oCard);
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
