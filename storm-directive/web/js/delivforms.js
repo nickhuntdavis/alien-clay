@@ -35,8 +35,21 @@
 //    (6 / 8 / 10% of the strike every 0.25 s).
 //  - Pull: the marker pulls enemies within its radius + 60 / 90 / 120 towards it through the warning.
 //  - Knockback: the strike throws enemies outward from where it lands (src.mwAt), not away from you.
-// Hooks: none in shared files; hookOn('proc', 'xdProc') from this file. Wraps modwide.js mwLay/mwMineGo/mwTick/mwMelee/mwDfa,
-// modifiers.js modCard/modDraw and laserbeam.js lzMineLay/lzExtrasTick/lzSwordSwing/lzOrbital.
+// Batch 4: Orbiting (modifiers.js modOrbit's bodies on projectile, spread and contact weapons; a beam's ring: the Laser's,
+// laserbeam.js lzOrbit, and modslice.js's hoop, msHoops). A body's hit is 0.6x the weapon's; a ring's extras are worth one
+// hoop hit, or half a second of the Laser's beam at its present strength.
+//  - Homing: a body breaks off for an enemy within 150, hits it and flies back to its place (1 / 2 / 3 bodies out at
+//    once); a ring sends a spark off it instead.
+//  - Bounce (Ricochet): a body that hits goes on to one more enemy within 80 / 100 / 120 (60%), then snaps back; the hoop's
+//    first 1 / 2 / 3 hits a shot rebound the same way. The Laser's ring already reflects off what it meets (lzOrbit).
+//  - Returning: every 3 / 2.5 / 2 s the ring flings out to double radius and back over 0.6 s, hitting once each way.
+//  - Link (Connecting): a beam joins the bodies and hurts what crosses it (20 / 30 / 40% of a body hit every 0.25 s); a
+//    ring hits an enemy each time it crosses it (50 / 75 / 100%).
+//  - Pull: enemies within 40 / 60 / 80 of the ring are dragged onto it.
+//  - Knockback: a body bats what it hits away from itself (src.mwAt), plus 60 / 90 / 120 on top. A ring already shoves
+//    outward from you.
+// Hooks: none in shared files; hookOn('proc', 'xdProc') and hookOn('proc', 'xdOrbProc') from this file. Wraps modwide.js mwLay/mwMineGo/mwTick/mwMelee/mwDfa,
+// modifiers.js modOrbit/modCard/modDraw, weapons24.js wupFire and laserbeam.js lzMineLay/lzExtrasTick/lzSwordSwing/lzOrbital.
 // Loads after laserbeam.js and before cellmods.js (so cellmods.js's mask wraps this file's mwTick).
 
 const XD = {
@@ -64,6 +77,14 @@ const XD = {
     connecting: { t: 2, reach: 500, tick: 0.25, k: [0.06, 0.08, 0.1] },
     pull:       { r: [60, 90, 120], f: 300 },
     knock:      {},                                                  // (the shove's origin: src.mwAt, as Mines)
+  },
+  orbit: {                                                           // (n: bodies or sparks out at once; cd: before a body goes again)
+    homing:     { r: 150, v: 420, n: [1, 2, 3], k: 1, cd: 0.6, life: 2 },
+    ricochet:   { r: [80, 100, 120], v: 600, n: [1, 2, 3], k: 0.6 }, // (n: the hoop's hits that rebound, a shot)
+    returning:  { every: [3, 2.5, 2], t: 0.6, k: [1, 1.2, 1.4] },
+    connecting: { tick: 0.25, k: [0.2, 0.3, 0.4], cross: [0.5, 0.75, 1] }, // (k: the bodies' beam, a tick; cross: a ring crossed)
+    pull:       { r: [40, 60, 80], f: 220, max: 12 },
+    knock:      { f: [60, 90, 120] },                                // (the bat, on top of Knockback's own shove from the body)
   },
 };
 const xdR = (w, id) => Math.min(3, modCount(w, id));
@@ -422,6 +443,198 @@ function xdOrbs(dt) {
 }
 lzExtrasTick = (orig => function (dt) { if (G && G.lzS && G.lzS.orb.length) xdOrbs(dt); return orig(dt); })(lzExtrasTick); // (Link beams tick in mwTick)
 
+// ---------------------------------------------------------------- Orbiting (batch 4)
+// Two kinds of orbit: bodies (modifiers.js modOrbit: projectile, spread and contact weapons) and a ring (a beam: the
+// Laser's traced ring, laserbeam.js lzOrbit, or modslice.js's hoop, msHoops). Bodies move themselves; a ring stays put
+// and its forms are things that leave it. A hit from a body is worth 0.6 of the weapon's; a ring's extras are worth one
+// hoop hit, or half a second of the Laser's beam at its present strength.
+const xdOrbAny = w => !!w && !!w.m10 && modCount(w, 'orbiting') > 0 && ['homing', 'ricochet', 'returning', 'connecting', 'pull', 'knock'].some(id => modCount(w, id) > 0);
+const xdO = () => G.xdO || (G.xdO = { ch: [] });
+const xdOrbRings = w => w.def.v10atk !== 'beam' ? [MODS10.orbiting.cap.radius] : lzIs(w) ? lzRings(w).map(r => r[0]) : msHoops(w);
+const xdOrbBase = w => w.def.v10atk !== 'beam' ? w.s.dmg * 0.6 : lzIs(w) ? w.s.dmg * (w.lzPow || LZ.start) * 0.5 / Math.max(0.05, w.s.cd || 0.1) : w.s.dmg;
+const xdOrbOn = w => w.def.v10atk !== 'beam' || (lzIs(w) ? lzOnNow(w) && !w.lzOver : G.t - (w.xdOrbF || -9) < Math.max(0.5, (w.s.cd || 0.2) + 0.2));
+function xdOrbSrc(w, at) {
+  const s = Object.assign(weaponSrc(w), { xdF: 1 }); modAgain(w, s);
+  if (lzIs(w)) { s.lzDel = true; s.mwDel = true; }
+  if (at && xdR(w, 'knock')) s.mwAt = { x: at.x, y: at.y };
+  return s;
+}
+const xdStep = (q, tx, ty, v, dt) => { const d = Math.hypot(tx - q.x, ty - q.y); if (d <= v * dt) { q.x = tx; q.y = ty; return true; } q.x += (tx - q.x) / d * v * dt; q.y += (ty - q.y) / d * v * dt; return false; };
+// Returning: every 3 / 2.5 / 2 s the ring flings out to double radius and back (0.6 s). Returns the radius factor and
+// which way it is going ('o' out, 'b' back), or null between flings.
+function xdFling(w) {
+  const rr = xdR(w, 'returning'); if (!rr) return null;
+  const C = XD.orbit.returning; if (w.xdFlT == null) w.xdFlT = G.t - C.t;
+  if (G.t - w.xdFlT >= xdLv(C.every, rr)) w.xdFlT = G.t;
+  const u = (G.t - w.xdFlT) / C.t; if (u < 0 || u >= 1) return null;
+  return { k: 1 + Math.sin(Math.PI * u), dir: u < 0.5 ? 'o' : 'b' };
+}
+// Pull: enemies within 40 / 60 / 80 of a ring are dragged onto it
+function xdOrbPull(w, Rs, dt) {
+  const pr = xdR(w, 'pull'); if (!pr) return;
+  const C = XD.orbit.pull, p = G.player, band = xdLv(C.r, pr) * (typeof areaK === 'function' ? areaK(w) : 1);
+  let n = 0;
+  for (const o of G.enemies) {
+    if (o.dead || o.charmed || o.egg || n >= C.max) continue;
+    const d = Math.hypot(o.x - p.x, o.y - p.y) || 1;
+    let R = null; for (const r of Rs) if (Math.abs(d - r) < band + (o.r || 10) && (R == null || Math.abs(d - r) < Math.abs(d - R))) R = r;
+    if (R == null || Math.abs(d - R) < 3) continue;
+    mwPull(o, p.x + (o.x - p.x) / d * R, p.y + (o.y - p.y) / d * R, C.f * dt); o.mwPulledT = G.t + 1; n++;
+  }
+}
+// One hit from a body (the ring's own, or a chaser's): Knockback bats the enemy away from the body
+function xdBodyHit(w, e, bx, by, dmg, src) {
+  damageEnemy(e, dmg, src);
+  if (modHas(w, 'chaining') && !src.xdF) modChain(e, dmg, src);
+  const kr = xdR(w, 'knock'); if (kr && !e.boss && !e.dead) shove(e, bx, by, xdLv(XD.orbit.knock.f, kr));
+}
+// Bodies: modOrbit, with bodies that break off (Homing, Bounce), fling out (Returning), are joined by a beam (Link),
+// drag enemies onto the ring (Pull) and bat them off it (Knockback).
+function xdOrbit(w, dt) {
+  const s = w.s, p = G.player, C = XD.orbit, n = modV(w, 'orbiting', 'bodies'), src0 = weaponSrc(w), R0 = MODS10.orbiting.cap.radius;
+  w.m10ang = (w.m10ang || 0) + 3 * dt;
+  const obs = w.xdOb || (w.xdOb = []); while (obs.length < n) obs.push({ st: 0, x: p.x, y: p.y, cd: 0 }); obs.length = n;
+  const fl = xdFling(w), fk = fl ? fl.k : 1, hr = xdR(w, 'homing'), br = xdR(w, 'ricochet');
+  const busy = () => obs.filter(o => o.st).length, chased = obs.filter(o => o.st && o.e).map(o => o.e);
+  w.m10orb = [];
+  for (let i = 0; i < n; i++) {
+    const ob = obs[i], a = w.m10ang + i / n * TAU, hx = p.x + Math.cos(a) * R0 * fk, hy = p.y + Math.sin(a) * R0 * fk, key = 'm' + w.uid + '_' + i;
+    // Homing: a body on the ring breaks off for an enemy within 150 of it
+    if (!ob.st && hr && G.t >= ob.cd && busy() < Math.min(n, xdLv(C.homing.n, hr))) {
+      const e = xdFoe(hx, hy, C.homing.r, chased);
+      if (e && Math.hypot(e.x - hx, e.y - hy) > (e.r || 10) + 14) { Object.assign(ob, { st: 'out', e, x: hx, y: hy, t0: G.t, k: C.homing.k, v: C.homing.v, nb: br ? 1 : 0, hit: [] }); chased.push(e); }
+    }
+    if (ob.st === 'out') {
+      if (!ob.e || ob.e.dead || G.t - ob.t0 > C.homing.life) ob.st = 'back';
+      else if (xdStep(ob, ob.e.x, ob.e.y, ob.v, dt) || Math.hypot(ob.e.x - ob.x, ob.e.y - ob.y) < (ob.e.r || 10) + 8) {
+        const e = ob.e; ob.hit.push(e);
+        xdBodyHit(w, e, ob.x, ob.y, xdOrbBase(w) * ob.k, xdOrbSrc(w, ob));
+        ring(ob.x, ob.y, 10, w.def.color, 0.15, 2);
+        const nx = ob.nb > 0 ? xdFoe(e.x, e.y, xdLv(C.ricochet.r, Math.max(1, br)), ob.hit.concat(chased.filter(o => o !== e))) : null;
+        if (nx) { ob.nb--; ob.e = nx; ob.k = C.ricochet.k; ob.v = C.ricochet.v; bolt(ob.x, ob.y, nx.x, nx.y, w.def.color, 0.12); }
+        else { ob.st = 'back'; ob.e = null; }
+      }
+    }
+    if (ob.st === 'back' && xdStep(ob, hx, hy, Math.max(ob.v || 0, C.ricochet.v), dt)) { ob.st = 0; ob.e = null; ob.cd = G.t + C.homing.cd; }
+    const bx = ob.st ? ob.x : hx, by = ob.st ? ob.y : hy;
+    if (!ob.st) { ob.x = bx; ob.y = by; }
+    w.m10orb.push({ x: bx, y: by });
+    if (ob.st) continue; // (a body away from the ring hits only what it chases)
+    if (w.m10block) for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - bx, b.y - by) < 12 + b.r) { b.dead = true; spawnPart(b.x, b.y, w.def.color, 1, 40, 0.2); }
+    const k2 = fl ? key + 'f' + fl.dir : key; // (Returning: one hit on the way out and one on the way back)
+    let bounced = false;
+    forNear(bx, by, 12, e => {
+      if (e.charmed || e.hitT[k2] > G.t) return;
+      e.hitT[k2] = G.t + (fl ? 1 : 0.5);
+      const src = Object.assign({}, src0, { knock: 50, kx: e.x - p.x, ky: e.y - p.y }); modAtk(w, src);
+      if (xdR(w, 'knock')) src.mwAt = { x: bx, y: by };
+      xdBodyHit(w, e, bx, by, s.dmg * 0.6, src);
+      // Bounce: the body that hit goes on to one more enemy, then snaps back
+      if (br && !bounced && G.t >= ob.cd) {
+        const nx = xdFoe(e.x, e.y, xdLv(C.ricochet.r, br), [e].concat(chased));
+        if (nx) { bounced = true; Object.assign(ob, { st: 'out', e: nx, x: bx, y: by, t0: G.t, k: C.ricochet.k, v: C.ricochet.v, nb: 0, hit: [e] }); chased.push(nx); bolt(bx, by, nx.x, nx.y, w.def.color, 0.12); }
+      }
+    });
+  }
+  // Link: a beam joins the bodies (round the ring) and hurts what crosses it
+  const lr = xdR(w, 'connecting');
+  if (lr && n >= 2 && G.t >= (w.xdLkT || 0)) {
+    w.xdLkT = G.t + C.connecting.tick;
+    const pts = w.m10orb, dmg = xdOrbBase(w) * xdLv(C.connecting.k, lr), src = xdOrbSrc(w);
+    for (const e of G.enemies) {
+      if (e.dead || e.charmed) continue;
+      for (let i = 0; i < pts.length; i++) {
+        const A = pts[i], B = pts[(i + 1) % pts.length]; if (n === 2 && i === 1) break;
+        const vx = B.x - A.x, vy = B.y - A.y, l2 = vx * vx + vy * vy || 1, u = Math.max(0, Math.min(1, ((e.x - A.x) * vx + (e.y - A.y) * vy) / l2));
+        if (Math.hypot(e.x - (A.x + vx * u), e.y - (A.y + vy * u)) < (e.r || 10) + 4) { damageEnemy(e, dmg, src); break; }
+      }
+    }
+  }
+  xdOrbPull(w, [R0 * fk], dt);
+}
+modOrbit = (orig => function (w, dt) {
+  if (w.def.v10atk === 'beam' || !xdOrbAny(w)) { w.xdOb = null; return orig(w, dt); }
+  xdOrbit(w, dt);
+})(modOrbit);
+// A ring (beam): sparks break off it to chase (Homing), it flings out and back (Returning), an enemy crossing it is hit
+// (Link), it drags enemies onto it (Pull). Bounce on the Laser's ring is its own (lzOrbit reflects); on the hoop, each
+// shot's first hits rebound to one more enemy (wupFire below). Knockback already shoves outward from you.
+function xdRing(w, dt) {
+  const C = XD.orbit, p = G.player, Rs = xdOrbRings(w), on = xdOrbOn(w), O = xdO();
+  if (!on) { w.xdFl = null; return; }
+  // Homing
+  const hr = xdR(w, 'homing'), mine = O.ch.filter(c => c.w === w);
+  if (hr && mine.length < xdLv(C.homing.n, hr) && G.t >= (w.xdChT || 0)) {
+    const R = Rs[0], chased = O.ch.map(c => c.e);
+    const e = G.enemies.filter(o => !o.dead && !o.charmed && !o.egg && !chased.includes(o)).map(o => [Math.abs(Math.hypot(o.x - p.x, o.y - p.y) - R) - (o.r || 10), o]).filter(([d]) => d > 10 && d < C.homing.r).sort((u, v) => u[0] - v[0])[0];
+    if (e) { const a = Math.atan2(e[1].y - p.y, e[1].x - p.x); O.ch.push({ w, e: e[1], a, R, x: p.x + Math.cos(a) * R, y: p.y + Math.sin(a) * R, st: 'out', t0: G.t }); w.xdChT = G.t + C.homing.cd / hr; }
+  }
+  // Returning
+  const fl = xdFling(w);
+  w.xdFl = fl ? Rs.map(R => R * fl.k) : null;
+  if (fl) {
+    const key = 'xf' + w.uid + fl.dir, src = xdOrbSrc(w), dmg = xdOrbBase(w) * xdLv(C.returning.k, xdR(w, 'returning'));
+    for (const e of G.enemies) {
+      if (e.dead || e.charmed || e.hitT[key] > G.t) continue;
+      const d = Math.hypot(e.x - p.x, e.y - p.y);
+      if (w.xdFl.some(R => Math.abs(d - R) < (e.r || 10) + (w.s.width || 10))) { e.hitT[key] = G.t + C.returning.t; damageEnemy(e, dmg, src); }
+    }
+  }
+  // Link: an enemy crossing the ring (inside to outside, or back) is hit
+  const lr = xdR(w, 'connecting');
+  if (lr) {
+    const k = 'xdSd' + w.uid, R = Rs[0], dmg = xdOrbBase(w) * xdLv(C.connecting.cross, lr);
+    for (const e of G.enemies) {
+      if (e.dead || e.charmed) continue;
+      const side = Math.hypot(e.x - p.x, e.y - p.y) > R ? 1 : 0;
+      if (e[k] != null && e[k] !== side) { damageEnemy(e, dmg, xdOrbSrc(w)); ring(e.x, e.y, 12, w.def.color, 0.15, 2); }
+      e[k] = side;
+    }
+  }
+  xdOrbPull(w, Rs, dt);
+}
+function xdChasers(dt) {
+  const O = xdO(), C = XD.orbit, p = G.player;
+  for (const c of O.ch) {
+    const w = c.w;
+    if (!G.weapons.includes(w)) { c.st = 0; continue; }
+    if (c.st === 'out') {
+      if (!c.e || c.e.dead || G.t - c.t0 > C.homing.life) c.st = 'back';
+      else if (xdStep(c, c.e.x, c.e.y, C.homing.v, dt) || Math.hypot(c.e.x - c.x, c.e.y - c.y) < (c.e.r || 10) + 6) {
+        damageEnemy(c.e, xdOrbBase(w) * C.homing.k, xdOrbSrc(w, c)); ring(c.x, c.y, 10, w.def.color, 0.15, 2); c.st = 'back';
+      }
+    }
+    if (c.st === 'back' && xdStep(c, p.x + Math.cos(c.a) * c.R, p.y + Math.sin(c.a) * c.R, C.homing.v, dt)) c.st = 0;
+  }
+  O.ch = O.ch.filter(c => c.st);
+}
+mwTick = (orig => function (dt) {
+  const r = orig(dt);
+  if (G && G.state === 'play') {
+    for (const w of G.weapons) if (w && w.def && w.def.v10atk === 'beam' && xdOrbAny(w)) xdRing(w, dt);
+    if (G.xdO && G.xdO.ch.length) xdChasers(dt);
+  }
+  return r;
+})(mwTick);
+// The hoop (a beam that isn't the Laser): marks when it last went round, and Bounce sends its first hits on to one more
+// enemy each (1 / 2 / 3 hits; 60%).
+wupFire = (orig => function (w, t, src) {
+  if (!w || !w.def || w.def.v10atk !== 'beam' || lzIs(w) || !xdOrbAny(w)) return orig(w, t, src);
+  w.xdOrbF = G.t;
+  const br = xdR(w, 'ricochet'); if (!br || !src) return orig(w, t, src);
+  const sw = { hits: [] }; src.xdOr = sw;
+  let r; try { r = orig(w, t, src); } finally { src.xdOr = null; }
+  const C = XD.orbit.ricochet, g0 = G, used = sw.hits.slice(), fsrc = xdOrbSrc(w);
+  for (const e of [...new Set(sw.hits)].slice(0, xdLv(C.n, br))) {
+    const nx = xdFoe(e.x, e.y, xdLv(C.r, br), used); if (!nx) continue;
+    used.push(nx); const fx = e.x, fy = e.y;
+    after(0.06, () => { if (G !== g0 || nx.dead) return; damageEnemy(nx, w.s.dmg * C.k, fsrc); bolt(fx, fy, nx.x, nx.y, w.def.color, 0.15); });
+  }
+  return r;
+})(wupFire);
+function xdOrbProc(e, dmg, src) { if (src.xdOr && !src.xdF) src.xdOr.hits.push(e); }
+hookOn('proc', 'xdOrbProc', (e, dmg, src) => xdOrbProc(e, dmg, src));
+
 // Card text: a modifier offered on a weapon that lays mines describes its Mines form (TODO_COPY:xd_mines_<modifier>, the
 // user writes it). cellmods.js wraps modCard after this file, so a weapon's own cell text still wins.
 modCard = (orig => function (w, id) {
@@ -429,6 +642,7 @@ modCard = (orig => function (w, id) {
   if (c && w && w.m10 && mwR(w, 'mines') && XD.mines[id]) c.desc = 'TODO_COPY:xd_mines_' + id;
   else if (c && w && w.m10 && mwR(w, 'melee') && XD.melee[id]) c.desc = 'TODO_COPY:xd_melee_' + id;
   else if (c && w && w.m10 && mwR(w, 'dfa') && XD.dfa[id]) c.desc = 'TODO_COPY:xd_dfa_' + id;
+  else if (c && w && w.m10 && modCount(w, 'orbiting') && XD.orbit[id]) c.desc = 'TODO_COPY:xd_orbiting_' + id;
   return c;
 })(modCard);
 
@@ -465,6 +679,17 @@ modDraw = (orig => function () {
       ctx.globalAlpha = 0.25; ctx.strokeStyle = col(m.w.def.color); ctx.lineWidth = 1 * S; ctx.setLineDash([3 * S, 4 * S]);
       ctx.beginPath(); ctx.arc(sx(m.f.x), sy(m.f.y), (m.r + xdLv(XD.dfa.pull.r, pr)) * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
     }
+  }
+  for (const w of G.weapons) { // Orbiting: the bodies' Link beam; a ring's fling
+    if (!w || !w.def) continue;
+    if (w.xdOb && w.m10orb && w.m10orb.length >= 2 && xdR(w, 'connecting')) {
+      const pts = w.m10orb; ctx.globalAlpha = 0.55; ctx.strokeStyle = col(w.def.color); ctx.lineWidth = 2 * S;
+      ctx.beginPath(); ctx.moveTo(sx(pts[0].x), sy(pts[0].y)); for (const q of pts.slice(1)) ctx.lineTo(sx(q.x), sy(q.y)); if (pts.length > 2) ctx.closePath(); ctx.stroke();
+    }
+    if (w.xdFl) { const p = G.player; ctx.globalAlpha = 0.5; ctx.strokeStyle = col(w.def.color); ctx.lineWidth = 3 * S; for (const R of w.xdFl) { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), R * S, 0, TAU); ctx.stroke(); } }
+  }
+  if (G.xdO) for (const c of G.xdO.ch) { // (a spark off the ring, with a short tail)
+    ctx.globalAlpha = 0.9; ctx.fillStyle = col(c.w.def.color); ctx.beginPath(); ctx.arc(sx(c.x), sy(c.y), 5 * S, 0, TAU); ctx.fill();
   }
   ctx.restore();
 })(modDraw);
