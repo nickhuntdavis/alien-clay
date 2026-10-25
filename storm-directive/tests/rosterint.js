@@ -54,6 +54,9 @@ for (const f of files) parsed[f].forEachChild(n => {
 // `case 'x':` labels in game.js (the AI switch) and render.js (shape switch); ai ids handled elsewhere by name are listed in ALSO
 const cases = f => { const s = new Set(); parsed[f].forEachChild(function w(n) { if (ts.isCaseClause(n) && ts.isStringLiteral(n.expression)) s.add(n.expression.text); n.forEachChild(w); }); return s; };
 const gameCases = cases('game.js'), renderCases = cases('render.js');
+// render.js also picks shapes with `sh === 'x'` chains (e.g. krill), not only case labels: count those string literals too
+const eqLits = f => { const s = new Set(); parsed[f].forEachChild(function w(n) { if (ts.isBinaryExpression(n) && (n.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken || n.operatorToken.kind === ts.SyntaxKind.EqualsEqualsToken)) { if (ts.isStringLiteral(n.right)) s.add(n.right.text); if (ts.isStringLiteral(n.left)) s.add(n.left.text); } n.forEachChild(w); }); return s; };
+for (const l of eqLits('render.js')) renderCases.add(l);
 const anyCase = new Set(); for (const f of files) for (const c of cases(f)) anyCase.add(c);
 for (const [id, r] of Object.entries(rows)) {
   if (r.ai && !BASE_AI.has(r.ai) && !FOE_AI.has(r.ai) && !gameCases.has(r.ai)) bad.push(`ROSTER.${id}: ai '${r.ai}' has no FOE_AI entry and no case in game.js` + (anyCase.has(r.ai) ? ' (a case exists in another file)' : ''));

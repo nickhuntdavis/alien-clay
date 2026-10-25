@@ -3,6 +3,59 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.136 (versionCode 415): 2026-10-25 Enemy handoff Batch D1 and E
+- Merged: `claude/enemy-e4` (per-enemy error isolation, far-enemy skip in fight.js), `claude/enemy-e3` (rostertest, rosterint), `claude/enemy-d1` (WAVES10 rework: relays, sniper, Booster, Diatom, Spire, Leech, Rotifer, Natural Killer, Complement, Stem, Puffball, a joke wave; per-id caps on the slog waves; entourage wisps are krill) and `claude/enemy-e1` (dead v9 enemy code gone: overloads, triples, terrain and per-enemy reactions, Sick/Wet/Lubricated, armour and weakness fields on every def, 25 dead reaction rows; the duplicate `ectoplasm` relic id split; the old dodge roll only on Contact and Projectile hits) into `claude/practical-brahmagupta-ry2k05` on main's v10.135. One build. E2 was a no-op (A1b retired no relics). Orchestrator fix: rosterint also counts shapes picked by `sh === 'x'` in render.js (Krill); run.sh's test list rebuilt after a merge mangled it.
+
+### Folded from enemy-e4: 2026-10-25 Enemy loop robustness and frame cost (E4, not shipped)
+- Systems: enemies, fight (v10 defences)
+- Files: game.js (updateEnemies, new enemyFault), fight.js (fightTick, fightDraw), tests/fighttest.js
+- What: one enemy's AI throwing no longer aborts the frame for the rest (caught per enemy, reported once per enemy name through `safely`, error box shows once). `fightTick` skips far enemies (beyond CROWD.far) on alternate frames with the time carried (`fFarDt`), same exemptions as updateEnemies. `fightDraw` culls off screen before calling `fightId`, once per enemy. framebench (q4, 240 frames, seeded): update 4.15 ms -> 3.81 ms, draw 8.6 ms -> 8.09 ms, calls 629 -> 628.
+- Save data: none
+- Hooks: none
+- Risk: far enemies' defence timers now tick in 2-frame steps (carry keeps totals equal). A throwing AI now skips that enemy's rest-of-frame (leash, contact) instead of the whole frame.
+
+### Folded from enemy-e3: 2026-10-25 Roster sweep, telegraph and integrity tests (not shipped)
+- Systems: tests
+- Files: tests/rostertest.js (new), tests/rosterint.js (new), tests/run.sh
+- What: `rostertest` spawns the 15 enemies no other test covers plus Colossus and Immune Eye in the Lab Bench for 10 s each (no page errors, each dies to damage, no single hit above roster damage x live knobs x 2), then one ROSTER-driven loop checks that no damage lands before `tele` seconds after the tell starts for the 13 built tells (ids with no detector are printed as SKIPPED; tells that never land a timed hit are printed as vacuous). `rosterint` (plain node, TypeScript parser, no browser) checks every ROSTER `ai` has a FOE_AI entry or game.js case, every `shape` a MICROBES entry or render.js case, and fails on a duplicate key in ENEMIES, ROSTER, BOSSES, FOE_AI, MICROBES.
+- Save data: none.
+- Hooks: none.
+- Risk: none for the game (tests only). `rosterint` fails today on ROSTER.krill (shape 'krill' has no draw code, it falls back to a circle), so the full suite shows that failure until the game is fixed.
+
+### Folded from enemy-d1: 2026-10-25 WAVES10 rework: relays, sniper, Booster, Diatom, Spire and the rest meet the player (D1, not shipped)
+- Systems: waves (waves10.js, campaign.js entourage), tests
+- Files: web/js/waves10.js, web/js/campaign.js (ENTOURAGE `wisp` -> `krill`), tests/waves10test.js
+- What: the 16 ordinary waves now bring in Puffball (7), Sweetcorn (the joke wave, 8), Rotifer (9), Leech (11), Enzyme Spire (12), Plasma Cell (13, Shooter + Relay), Killer T-Cell (14, sniper), Complement (16), Diatom (17, Shell tank + Shooter), Cortisol Puff (18, Swarm + Relay) and, in the wave 19 big mix, Booster, Stem Cell, Fibrin Weaver and Natural Killer. Waves 1 to 4 and 6 are unchanged. New per-wave `cap` (bodies of an id sent in all) cuts the slog waves by count: bulwark 2 and max 30 (wave 9), summoner 1 and max 34 (16), stressball 3 and max 38 (14), staticsock 4, spire 1, max 34 (12). `W10_STATUS` now names `drain` (leech, mosquito), `mark` (complement), `steal` (rotifer); amoeba removed (parked). Entourage `wisp` slots are `krill`. The `teaches` strings are developer notes (nothing reads them on screen).
+- Smallest design choice: twelve ordinary waves cannot give 28 first-timers a wave each, so from wave 11 a new behaviour may arrive with one pair partner (ENEMY_DESIGN 10); before wave 11 it is one at a time (plain tag-alongs puffball, sweetcorn, rotifer excepted). waves10test's "alone first" check is relaxed to match.
+- Save data: none.
+- Hooks: none.
+- Risk: balance after wave 11 is new ground (waves 12, 14, 16, 19 carry two new behaviours). Run-to-run variance is large (2 runs per sim); waves 1 to 4 are untouched and the bot still sometimes dies there to the Sprinter (also in the baseline).
+
+### Per-wave seconds (hurt), `node sim/wave20.js 2 mortal`
+Before (v10.133): run 0 w1 40 (19), w2 57 (128), died wave 3 to Sprinter. Run 1 w1 47, w2 49, w3 47, w4 61, w5 boss 91 (102), w6 65 (84), w7 80 (39), w8 55 (31), w9 bulwark 111 (180), w10 boss 37, w11 44 (146), died wave 12. 0 wins.
+After, final table: run 0 w1 69, w2 54 (148), w3 62, died wave 4 to Sprinter (waves 1 to 4 untouched). Run 1 w1 109 (48), w2 39, w3 43, w4 70, w5 boss 73 (116), w6 53, w7 64, w8 54 (164), w9 69 (66), w10 boss 29, w11 36, w12 64, w13 59, w14 83 (135), died wave 15 (Matron). 0 wins.
+After, caps-less intermediate table: run 1 reached wave 20 and WON: w9 87, w12 78, w14 85 (240), w16 128 (65), w17 75, w18 43, w19 63 (187), boss 182 s. Other runs died at waves 10, 12, 13 in the middle tables.
+Slog waves: wave 9 111 s -> 64 to 87 s; wave 12 (sock + spire) 99 s -> 64 s after caps; wave 14 83 to 85 s; wave 16 was 128 s before its caps and has not been timed again (no final run reached it).
+
+### Folded from enemy-e1: 2026-10-25 Dead enemy code removed (ENEMY_HANDOFF.md E1) (no build)
+- Systems: chemistry, enemies, relics, player-defence (hurtPlayer Evasion roll)
+- Files: chem.js, pstatus.js, foes3.js, foes2.js, foes.js, brood.js, events.js, bosspack.js, data.js, inspect.js, game.js, hooks.js, newfeats.js, render.js, rrelics.js, pdef.js (comment), tests/rxtest.js, tests/psttest.js, tests/f3test.js, tests/relictest.js, tests/tools/guide.js, ARCHITECTURE.md
+- What: deleted v9 code nothing reaches under v10, and made Evasion skip Burst and Pool hits.
+  - chem.js removed: `OVERLOAD_OF`, `chemOverload` (the six-hit overloads), `TRIPLES`, `chemTriple`, `terrAt`, `chemTerrain`, `CHEM_FOES_M`, `chemFoes`, `chemFoe`, `chemPuddle`, `chemSplash`; the `applyElement` cases for Acid, Mucus, Static, Blood, Alien and Fire (`fightStatus` returns before them), the unused `has`/`rsrc` locals, and the water-splash call. Kept: the Cooties, Oil and Water cases (v9 weapons still reach them), `chemGhost`/`chemKill` (Feats set `e.curse`), `chemBowl`, `curseFoe`, `reactDo`, `e.fizz`/`z.oil` reads (the Oil case sets both).
+  - pstatus.js removed: `pstHit`, `pstHurtMul`, `pstHeal`, `pstGrip`, the `sick`/`wet`/`lube` entries of `PST`, `PST_OF`, `PST_NAME`, `pstS`, `pstOn`, `pstClear`, the SICK / LUBRICATED / SOAKING WET chips and `STATUS_INTRO` entries, the Sick tick, and the salt/oil/poison bullet glyphs. `PST_SHOOTERS` trimmed to spitter, lancer, sperminator and endoskeleton (warlock, diatom, grease dropped). Grease Ball globs stay (`PST_GLOB`).
+  - hooks.js removed: the `pstHurtMul` hurtMul hook and the `pstHit` hurt hook. game.js `healPlayer` no longer multiplies by `pstHeal()`.
+  - foes3.js removed: the `foes3Chem` Hayfever antihistamine branch, the `wet`/`sick` entries of `f3carry`, the `antihistamine` REACTIONS row and its `RX_OF` entry. `foes3Chem` keeps the `popped` branch (live via `f3popped`).
+  - game.js removed: stain boons in `damageEnemy` (`G.dyeBoon.luciferase/motility/rival`), the `src.shred` line in `damageEnemy`; `makeEnemy` now sets `armour: def.armour || 0`.
+  - Def fields removed (data.js ENEMIES and BOSSES, foes.js, foes2.js, foes3.js, brood.js, events.js `GOLDEN_DEF`, bosspack.js `PLUG_DEF`): `armour`, `weak`, `resist`, `weakAoe`, `noForce`, `shredStick`, `does`. No def had `dodge` left (A2 removed Chad Prime's).
+  - Leftovers: newfeats.js Perished no longer writes `ifn`, `auraArm`, `tunT`; foes2.js `foes2Fx` `e.ifn` shield film and the render.js `e.ifn` test; render.js Water Bear `tunT` curl drawing; brood.js `h.tunT`; inspect.js `RX_ABBR`.
+  - Relics: `RELICS.ectoplasm` was defined twice (data.js armour version, rrelics.js dodge version won). The Phantom Pregnancy keeps `ectoplasm`; the rival Casper's is now `ectoplasm_r` (rrelics.js row, `RIVAL_RELICS.casper`, `rrelicApply` case). Both still give +15% dodge, so the data.js row now carries the text that was already on screen.
+  - Evasion fix: `hurtPlayer` rolls `P.dodge` only for Contact and Projectile hits (`PDEF_ATK` kinds `contact` and `bullets`); Burst (`blast`, `thorns`), Beam and Pool hits skip it (COMBAT_MATRIX 13).
+  - Field Guide reaction rows deleted (data.js `REACTIONS`, 25): meltdown, booger, overload, slipnslide, waterlogged, hemorrhage (overloads); zombie, baptism, napalm, flesheating, fluseason, bloodyshow, oilrig (triples); livewire, downstream, flareup, diluted (terrain); fireball, gorged, sporesneeze, shellshock, softened, thinned, gluedown, washedoff (per-enemy). inspect.js `RX_PAIR` loses its four self-pair entries (fire, ice, salt, arcane twice, shock, oxi); `possession` and `pandemic` stay (Feats fire them). typefx.js `RX_STYLE` still names the old ids (harmless, unused).
+  - tests/tools/guide.js no longer prints `armour` for bosses.
+- Save data: none. `META.relics.ectoplasm` keeps meaning the boss relic; `ectoplasm_r` is new and starts untaken.
+- Hooks: hooks.js loses the `pstHurtMul` (hurtMul) and `pstHit` (hurt) rows; game.js `healPlayer` loses `pstHeal()`; game.js `hurtPlayer` dodge line reads `PDEF_ATK`.
+- Risk: Evasion now stops fewer hits (Burst and Pool), so those hurt a little more for builds with dodge. Grease Ball, Warlock and Diatom bullets lose their white type mark. The Field Guide "Unstable reactions" list loses ANTIHISTAMINE; it still lists the overload, triple, terrain and per-enemy reaction rows whose code is gone (copy decision, not touched). Kept because they have live readers: `RX_PAIR`, `TYPE_RING` and the typefx status looks (the v9 statuses are still set by weapons, Feats and genes), the `e.shock` arc block in `damageEnemy` (genes.js Short Fuse sets `e.shock`), `bossDodges`. Not touched because they sit in `updateEnemies`: the `e.shred`, `e.auraArm` decays and the `e.tunT` read.
+
 ## v10.135 (versionCode 414): 2026-10-25 Dead-card table regenerated on v10.134 (Orbiting forms, shared mechanics, stored hits)
 - Built on main. Systems: modifier cards, tests. Files: moddead.js.
 - What: `MOD_DEAD` regenerated from a full audit of main at v10.134 plus the Orbiting-forms table: 519 NO-OP of 2672 combos hidden (the plan shrank from 2810 with the modifiers v10.134 retired). Nothing else changes.
