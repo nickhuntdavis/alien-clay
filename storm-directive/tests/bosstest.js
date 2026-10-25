@@ -142,6 +142,54 @@ const { chromium } = require('playwright');
       if (safe.lanes) for (let k = 0; k < 3; k++) { const d = Math.abs(angDiff(safe.lanes[(k + 1) % 3], safe.lanes[k])); if (Math.abs(d - TAU / 3) > 1e-6) bad.push('Y-volley lanes are not 120 degrees apart'); }
       out.yvolley = [safe.tellSeen, safe.hurt, hit.hurt].join('/');
     }
+    // C3 tier 1 signature beats (bosssig10_t1.js): the tell shows first, nothing lands inside it, then the beat does what it says.
+    { const hurts = []; const hp0 = window.hurtPlayer; window.hurtPlayer = function (d, f) { hurts.push(G.t); (window.hn = window.hn || []).push(f); return hp0.apply(this, arguments); };
+      const beat = (id, pat) => { const b = tellBoss(id, pat); hurts.length = 0; window.hn = []; G.zones.length = 0; G.P.speed = 0; G.manual = { x: 0, y: 0 }; if (G.genes) G.genes.abilT = 1e9; b.t0 = -1; b.x = G.core.x; b.y = G.core.y; G.player.x = b.x + 300; G.player.y = b.y; return b; }; // (you hold still)
+      const run = (b, secs, fn) => step(secs * 60, t => { if (b.t0 < 0 && b.patT >= 0.6) b.t0 = G.t; const bt = Math.max(0, b.patT - 0.6); b.rel = h => h - b.t0; if (b.sg1 && b.sg1.on) render(); return fn && fn(bt); });
+      { const b = beat('litmus', 'titration'); let first = -1, n = 0, rows = 0, early = 0;
+        run(b, 4.6, bt => { if (b.sg1.on && bt < 0.9 && G.hazards.length) early++; if (hurts.length && first < 0) first = bt; });
+        n = G.hazards.length; rows = b.sg1.k;
+        if (!b.sg1 || b.sg1.t < 1) bad.push('Litmus never started Titration'); if (early) bad.push('Litmus dropped drips inside the line tell');
+        if (first >= 0 && first < 1.0) bad.push('Litmus drip hurt ' + first.toFixed(2) + ' s in (tell is 1.0)');
+        if (rows < 4 || n < 20) bad.push('Titration left ' + n + ' drips over ' + rows + ' rows (want 4 rows)');
+        if (n && G.hazards[0].color !== ELEMENTS[b.lit].color) bad.push('Titration drips are not the current colour');
+        out.titration = [rows, n].join('/'); }
+      { const b = beat('johnny', 'unroll'); let exposedEarly = 0, band = null, crossed = 0, started = -1;
+        const p = G.player;
+        run(b, 1.6, bt => { if (b.sg1.on && bt < 0.7 && b.bpExposed > G.t) exposedEarly++; if (b.sg1.band) { started = bt; return true; } });
+        if (started < 0) bad.push('Johnny band never stretched'); else {
+          if (started < 0.75) bad.push('Johnny band stretched ' + started.toFixed(2) + ' s in (tell is 0.8)');
+          if (!(b.bpExposed > G.t)) bad.push('Johnny not exposed while the band is stretched');
+          const s = b.sg1, a = s.a, nx = -Math.sin(a), ny = Math.cos(a), mx = b.x + Math.cos(a) * s.L * 0.5, my = b.y + Math.sin(a) * s.L * 0.5;
+          p.x = mx + nx * 30; p.y = my + ny * 30; let side = 1;
+          for (let i = 0; i < 40; i++) { p.x -= nx * 6; p.y -= ny * 6; update(1 / 60); if ((p.x - mx) * nx + (p.y - my) * ny < 0) crossed++; if (!s.band) break; }
+          if (crossed) bad.push('Johnny band let the player through (' + crossed + ' frames)');
+        }
+        if (exposedEarly) bad.push('Johnny exposed during the band tell'); }
+      { const b = beat('mucus', 'drip'); let landed = -1, early = 0, seen = 0;
+        run(b, 4.5, bt => { if (b.sg1.marks.length && !seen) { seen = bt; render(); } if (hurts.length && landed < 0) landed = bt; });
+        const patches = G.zones.filter(z => z.rxMade === 'mucusdrip').length;
+        if (!seen && seen !== 0) bad.push('Plug drip never marked a drop');
+        if (landed >= 0 && landed < 0.65) bad.push('Plug drop hit ' + landed.toFixed(2) + ' s in (mark is 0.6 s)');
+        if (patches < 3) bad.push('Plug drip left ' + patches + ' Mucus patches (want 3 or 4)');
+        out.drip = patches + '@' + landed.toFixed(2); }
+      { const b = beat('cramp', 'contract'); const p = G.player; let pulledEarly = 0, d0 = Math.hypot(p.x - b.x, p.y - b.y), hitAt = -1;
+        run(b, 3.7, bt => { if (bt < 0.78 && Math.abs(Math.hypot(p.x - b.x, p.y - b.y) - d0) > 3) pulledEarly++; if (hurts.length && hitAt < 0) hitAt = bt; });
+        const d1 = Math.hypot(p.x - b.x, p.y - b.y);
+        if (pulledEarly) bad.push('Cramp pulled during the ring tell');
+        if (d1 > d0 - 40) bad.push('Cramp contraction pulled nothing (' + d0.toFixed(0) + ' to ' + d1.toFixed(0) + ')');
+        if (hurts.length !== 1) bad.push('Cramp contraction hurt ' + hurts.length + ' times (want once): ' + window.hn.slice(0, 4)); else if (hitAt < 2.75) bad.push('Cramp hurt ' + hitAt.toFixed(2) + ' s in (ring shuts at 2.8) by ' + window.hn + ' d ' + Math.hypot(p.x - b.x, p.y - b.y).toFixed(0));
+        const c2 = beat('cramp', 'contract'); const q = G.player; q.x = c2.x + 300; q.y = c2.y; // swimming outward all the way: nothing lands
+        run(c2, 3.7, () => { q.x += 5; });
+        if (hurts.length) bad.push('Cramp contraction hurt a player swimming outward');
+        out.contract = [d0.toFixed(0), d1.toFixed(0), hitAt.toFixed(2)].join('/'); }
+      { const b = beat('sneeze', 'sniffle'); let first = -1, early = 0;
+        run(b, 4.5, bt => { if (G.ebul.some(q => q.owner === b) && first < 0) first = bt; });
+        const patches = G.zones.filter(z => z.rxMade === 'sniffle').length;
+        if (first < 0.75) bad.push('Sneeze cloud launched ' + first.toFixed(2) + ' s in (tell is 0.8)');
+        if (patches < 3) bad.push('Sniffle left ' + patches + ' Mucus patches (want about 10)');
+        out.sniffle = first.toFixed(2) + '/' + patches; }
+      window.hurtPlayer = hp0; }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
