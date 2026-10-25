@@ -117,6 +117,7 @@ After resolving: run the full suite (`./run.sh`, a merge counts as a big batch),
   - `node sim/variety.js 6`: which cards get offered.
   - `node sim/boxrate.js 3 s002`: boxes per minute.
   - `node sim/eggbump.js`: how often autorun touches the egg.
+  - `node sim/modaudit.js --w v_flame_beam --mod charged`: which weapon modifiers do nothing (or only change numbers) on each weapon and Delivery. No flags runs everything (about 15 minutes).
 - Node and Playwright: `NODE_PATH=/opt/node22/lib/node_modules` (`run.sh` sets it). Chromium comes pre-installed; never run `playwright install`.
 
 ## Architecture (the hook-file pattern)
