@@ -497,7 +497,7 @@ const SIGHTING = {
   matchstick: { sci: 'Matchstick. Head: phosphorus. Intent: obvious.', con: 'It is going to run. Fire behind it. Get out of the line.' },
   candle: { sci: 'Birthday candle. It drips wax. The wax sets. I have nothing to add about the occasion.', con: 'Burning thing. It builds walls. Kill it, and mind the wax.' },
   trappedwind: { sci: 'Trapped wind. A pocket of gas in an unfortunate place. I will not name the place.', con: "It's a fart. Don't light it near you. Light it near them." },
-  thorny: { sci: 'Thorny. Spines on the outside. The sample is encouraged to hit it from further away.', con: "Don't touch it. Shoot it. From over there." },
+  ingrown: { sci: 'Thorny. Spines on the outside. The sample is encouraged to hit it from further away.', con: "Don't touch it. Shoot it. From over there." },
 
   // Bosses (flat Scientist, louder consciousness)
   queen: { sci: 'The Macrophage Queen. A white blood cell who ate her way to the top.', con: 'She eats the little ones to heal. Kill the snacks first. Then her.' },

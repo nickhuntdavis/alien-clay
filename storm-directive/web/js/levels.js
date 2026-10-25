@@ -25,15 +25,24 @@ const LV_SAMPLE = { s007: 0 };
 const lvKnown = L => typeof META !== 'undefined' && !!(META.lvBest && META.lvBest[L.id]);
 const lvName = L => lvKnown(L) ? L.name : 'LEVEL ' + L.no;
 
-// The mouth's own germs: existing behaviours under new names.
-const LV_FOES = {
-  mutans:  Object.assign({}, ENEMIES.crawler, { id: 'mutans', name: 'Cavity Creep', color: '#f6d7a7', shape: 'cell', r: 11, hp: 14, speed: 66 }),
-  strep:   Object.assign({}, ENEMIES.wisp, { id: 'strep', name: 'Strep Chain', color: '#ffe1ec', shape: 'cell', group: 8 }),
-  thrush:  Object.assign({}, ENEMIES.spitter, { id: 'thrush', name: 'Thrush Spore', color: '#fff4d6', shape: 'yeast' }),
-  amylase: Object.assign({}, ENEMIES.bomber, { id: 'amylase', name: 'Amylase Droplet', color: '#bde0fe' }),
-  tartar:  Object.assign({}, ENEMIES.bulwark, { id: 'tartar', name: 'Tartar Crust', color: '#efe0b0' }),
+// The mouth's own germs: existing behaviours under new names. Built on first use, after newfoes.js has wired the roster,
+// so each copy keeps its base's v10 defence and attacks (`rosterId` lets fightId find them: fight.js).
+const LV_FOES_SRC = {
+  mutans:  ['crawler', { id: 'mutans', name: 'Cavity Creep', color: '#f6d7a7', shape: 'cell', r: 11, hp: 14, speed: 66 }],
+  strep:   ['wisp', { id: 'strep', name: 'Strep Chain', color: '#ffe1ec', shape: 'cell', group: 8 }],
+  thrush:  ['spitter', { id: 'thrush', name: 'Thrush Spore', color: '#fff4d6', shape: 'yeast' }],
+  amylase: ['bomber', { id: 'amylase', name: 'Amylase Droplet', color: '#bde0fe' }],
+  tartar:  ['bulwark', { id: 'tartar', name: 'Tartar Crust', color: '#efe0b0' }],
 };
-for (const id in LV_FOES) { LV_FOES[id].from = 99999; LV_FOES[id].w = 0; }
+const lvLazy = (build) => { let o = null; const get = () => o || (o = build()); return new Proxy({}, { get: (t, k) => get()[k], has: (t, k) => k in get(), ownKeys: () => Reflect.ownKeys(get()), getOwnPropertyDescriptor: (t, k) => { const d = Reflect.getOwnPropertyDescriptor(get(), k); if (d) d.configurable = true; return d; } }); };
+const LV_FOES = lvLazy(() => {
+  const o = {};
+  for (const id in LV_FOES_SRC) {
+    const [base, over] = LV_FOES_SRC[id];
+    o[id] = Object.assign({}, ENEMIES[base], over, { rosterId: base, from: 99999, w: 0 });
+  }
+  return o;
+});
 Object.assign(ENEMY_INTRO, {
   mutans:  { what: 'The bacterium behind every cavity. Eats sugar, makes acid, never stops coming.', tip: 'Fodder. Keep moving and let your weapons chew through them.' },
   strep:   { what: 'A string of beads that slithers down the gum trenches all at once.', tip: 'One hit pops a bead. Anything that hits a line hits all of them.' },
@@ -41,13 +50,12 @@ Object.assign(ENEMY_INTRO, {
   amylase: { what: 'A drop of the enzyme in spit. It drifts at you and bursts.', tip: 'Shoot it before it reaches you, or let it pop on the crowd.' },
   tartar:  { what: 'Hardened plaque that walks. Heavily armoured, and it shields the germs behind it.', tip: 'Shred, Static and big hits. Or go round.' },
 });
-// The Tartar Colony: the Colossus's moves in calcified plaque.
-const LV_BOSSES = {
+// The Tartar Colony: the Colossus's moves in calcified plaque. Built on first use, after boss10.js has set the Colossus's v10 defence (Shell x5).
+const LV_BOSSES = lvLazy(() => ({
   tartar: Object.assign({}, BOSSES.find(b => b.id === 'colossus'), { id: 'tartar', name: 'THE TARTAR COLONY', title: 'Calcified, and Proud of It', color: '#efe0b0', shape: 'cell',
-    hp: 2600, armour: 8, quote: 'Twenty years without a dentist. We built a city.',
-    desc: 'A slab of something hard and yellow, blocking the way on. Armoured, it cannot be shoved, and it charges in straight lines.',
-    strengths: ['8 armour: small hits barely scratch it', 'Cannot be knocked back'], weaknesses: ['Static: +60% damage', 'Charges are telegraphed: side-step', 'The tonsils make good cover'] }),
-};
+    hp: 2600, armour: 0, quote: 'Twenty years without a dentist. We built a city.',
+    desc: 'TODO_COPY:tartar_desc' }), // (strengths and weaknesses: the Colossus's, which boss10.js rewrote for its v10 defence)
+}));
 
 const LEVELS = [{
   id: 'mouth', no: 1, name: 'THE MOUTH', sub: 'Lips to throat', next: 'Esophagus Descent',
@@ -522,7 +530,7 @@ function lvTick(dt, maxAlive, hostile) {
     if (b) {
       const c = { x: (L.boss.rect[0] + L.boss.rect[2] + 1) / 2 * LV_C, y: (L.boss.rect[1] + 2) * LV_C };
       b.x = c.x; b.y = c.y;
-      b.hp = b.maxHp = b.def.hp * (1 + lvPT() / 320) * (1 + 0.04 * G.level);
+      b.hp = b.maxHp = b.def.hp * (1 + lvPT() / 320) * (1 + 0.04 * G.level) * V10_DIFF.bossHp; // (the same v10 knob as the other modes: boss10.js)
       b.campK = 0.65; // (its attacks: softer than a Petri Dish boss, it is level 1)
     }
   }

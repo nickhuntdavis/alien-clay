@@ -177,7 +177,7 @@ function draftBox(req) {
   else if (req.kind === 'wup') ok = wupReady().length > 0;
   else if (req.kind === 'wupfork') ok = wupNextLv(req.w) === req.lv;
   else if (req.kind === 'fork') ok = forkCards(req).length > 0;
-  else if (req.kind !== 'slot' && !['level', 'chest', 'boss'].includes(req.kind)) ok = false;
+  else if (req.kind !== 'slot' && !['level', 'chest', 'boss', 'relic', 'spoils', 'rrelic'].includes(req.kind)) ok = false; // (boss relics, spoils and a rival's trophy: genLoot builds them)
   if (!ok) return false;
   return typeof dirGate === 'function' ? dirGate(req) : true; // (order, pacing, the egg; wave mode plays at the break: director.js)
 }

@@ -3,6 +3,131 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.129 (versionCode 408): 2026-10-25 Enemy handoff Batch A
+- Merged: `claude/practical-brahmagupta-ry2k05` (enemy assessment; ENEMY_HANDOFF.md Batch A, branches enemy-a1a to enemy-a7) into main's v10.127. One build.
+- Also merged: `claude/enemy-a1b` (A1b, relics ported to v10: `relics10.js`, `tests/relictest.js`; 12 `TODO_COPY:relic_*`/`spoils_hide_desc` placeholders).
+
+### Folded from enemy-a1b: 2026-10-25 Relics ported to v10 (A1b)
+- Systems: relics, pdef, spoils, bosses
+- Files: relics10.js (new), bosses.js, bosspack.js, rrelics.js, spoils.js, pdef.js, game.js, data.js, index.html, tests/relictest.js (new), tests/run.sh, ARCHITECTURE.md
+- What: every boss and rival relic and every SPOILS card now does something under v10. Armour relics grow the player's v10 Shell layers instead (refit with card layers, capped at 6); Acid relics build Corrosion and make Acid Pools instead of Cooties and armour shred; heat relics use the one shared Burn and its bar instead of the v9 melting burn; Cooties zones became Acid (Ulcer) and Mucus (Slime Trail); Gene Swap only offers v10 damage types. Three card promises that were never built now are (See-Through's pass-through, Pickpocket's XP, the Queen's third guard at once). 11 relic texts and Trophy Hide are `TODO_COPY` placeholders.
+- Save data: none (no relic id renamed or removed; run-only G.relHide, G.relRx, G.courtN).
+- Hooks: pdef.js pdRefit -> relShell; game.js hurtPlayer passes `kind` to relicDamageIn; game.js optMod 'elemental' filters by V10_TYPES; relics10.js registers dmgMul 'relRxMul'.
+- Risk: balance. Shell relics are strong early (3 off per layer; Border Wall 3 layers, Calcified 4); See-Through now lets half of all bullets through (as its card always said); Running Hot fills Burn bars on every weapon hit. Shared: the Gene Swap filter also applies to the 'elemental' modifier wherever optMod offers it.
+
+### Relic audit (keep / port / retire)
+Totals: 84 relics (45 boss, 39 rival incl. the duplicate id `ectoplasm`), 8 SPOILS plus Gene Swap. Kept 67, ported 17 (+ 3 SPOILS), retired 0 (every boss has exactly three relics, so none could go).
+
+| Relic (id) | Verdict | Old mechanic -> v10 mechanic |
+|---|---|---|
+| Border Wall (borderwall) | port | +10 armour -> +3 Shell layers (pdef); +40% HP, -10% speed kept |
+| Calcified (calcified) | port | +12 armour -> +4 Shell layers; +25% HP, -8% speed kept |
+| Ribbed (ribbed) | port | +4 armour -> +1 Shell layer; +2 Headstrong kept |
+| Mucus Wall (mucuswall, rival) | port | +6 armour -> +2 Shell layers; -5% speed kept |
+| Acid Tongue (corrosive) | port | armour shred + Cooties DoT -> each weapon hit fills the Corrosion bar by 30% of the hit (strips a Shell layer, or Corroded) |
+| Bad Blood (acidblood) | port | Cooties (poison) burst -> Acid (fire) Burst, builds Corrosion |
+| Ulcer (ulcer) | port | Cooties puddle -> Acid Pool (elem fire): Corrosion and Pool damage |
+| Running Hot (runninghot) | port | v9 melting `e.burn` -> 30% of each weapon hit feeds the shared burn (burnAdd) and the Burn bar (Ignition) |
+| Fever Dream (feverdream) | port | counts `e.burn` -> counts burning enemies (`cd.burnT`, f_burning) |
+| Heatstroke (heatstroke) | port | melting enemies blow up as Acid -> burning enemies blow up as a Fire (flame) Burst |
+| Blue to Red (bluetored) | port | 15% v9 melt + 15% chill -> 15% Corrosion fill (a full hit as Acid) + 15% Mucus Snare (fightStatus). Kept Acid/Mucus (the litmus pair) rather than the Burn bar the brief suggested |
+| Lithotripsy (lithotripsy) | port | 2 armour shred per hit -> each weapon hit wears the outer Shell layer by 50% of the hit |
+| Pissing Razor Blades (razors) | port | Force burst with shred 6 -> Force Burst that also wears each hit enemy's Shell layer by its damage |
+| Slime Trail (slimetrail, rival) | port | Cooties trail -> Mucus (ice) trail: Snares, same damage |
+| See-Through (seethrough) | port | only +20% dodge was built -> also half of all bullet hits pass straight through (card text unchanged) |
+| Pickpocket (pickpocket, rival) | port | only +50% pickup range was built -> also +15% XP |
+| The Queen's Court (court) | port | only two guards for the first 15 s -> three at once, a fallen one back in 15 s |
+| Universal Indicator (indicator) | keep | counts v10 types already (weaponSrc) |
+| Test Strip (teststrip) | keep | Litmus Strip only |
+| Rubber Johnny (rubber) | keep | already v10 (pdef shield) |
+| Second Stomach, Swallow Whole, Bouncer, Diplomatic Immunity, Third Eye, Death Stare, Mother's Intuition, Bedside Manner, Triage, Transfusion, Pre-Workout, Tail Whip, Flying Start, Mirror Twin, Double Trouble, Seconds, Poltergeist, Reservoir Tip, Plugged, Snot Rocket, Mucous Membrane, Stitch, Charley Horse, Clench, Bless You, Atishoo, Catch It Bin It Kill It | keep | work as written (stats, ticks, heals, Force/Blood hits, `e.mark`, stasis) |
+| Rival: Personal Best, Marathon, Gains, Head Coach, Honorary Degree, Thesis Defence, Small Mercies, Throwing a Wobbly, Just Kevin, Kevin's Mum, Head Start, Early Bird, Five-Finger Discount, Load-Bearing, Eagle Eye, Steady Hand, Buckshot, Trigger Happy, Ectoplasm, Now You See Me, Her Boys, Packed Lunch, Blood Bank, Undead Membership, Sticky Situation, Pep Talk, The Whistle, Encore, Exit Stage Left, Knitted Cardigan, Not Today Dear, Nine Espressos, Full Meltdown, Calculated Odds, Probability Cloud, Powerhouse of the Cell, Mourning Wear | keep | work as written |
+| SPOILS Trophy Hide (hide) | port | +4 armour -> +1 Shell layer per pick; +6% dodge kept |
+| SPOILS Lab Notes (notes) | port | `P.react` is v9 only -> reaction damage x1.4 per pick (relRxMul); +10% damage types kept |
+| SPOILS Gene Swap | port | any `ELEMENTS` key (Cooties, Oil, Water...) -> `V10_TYPES` only |
+| SPOILS Trophy Polish, Boss Blood, Adrenal Gland, Victory Lap, Finder's Fee, Killer Instinct | keep | work as written |
+
+### Folded from claude-practical-brahmagupta-ry2k05: 2026-10-25 Enemy assessment: Batch A merged (v10.126)
+- Systems: bosses, enemies, roster, campaign, ui, docs
+- Files: ENEMY_HANDOFF.md (new), ENEMY_COPY_BRIEF.md (new, from enemy-a7), tests/statuptest.js, tests/v10test.js, tests/autoruntest.js, plus the seven `changes/enemy-a*.md` fragments merged with their branches (enemy-a1a, a2, a3, a4, a5, a6, a7)
+- What: the seven Batch A tasks from `ENEMY_HANDOFF.md` merged and shipped as one build: relic, spoils and rival-trophy boxes open again; Chad Prime's second dodge, the Johnny's front rules and the Litmus Strip's retired colours gone, Kidney Stone sheds a Shell layer per enrage, the twins get their roster defences; armour display and HIGHEST ARMOUR targeting gone (TOUGHEST counts Membrane and Shell); Mirror Cell, Grease Ball, Platelet Clump, Brood Cyst, Broodling and Planarian join ROSTER, Litmus Cell parked, no v9 type multipliers; Level 1 germs and the Tartar Colony use the wired roster; Field Guide counts, the Ingrown Hair sighting line and the player guide fixed. Tests: v10test no longer expects relic boxes dropped; autoruntest expects the retired armour directive to read as TOUGHEST; statuptest silences first-sighting cards and narrator lines (it is still noisy: the same weapon swings 39 to 71 damage between identical seeded runs on main, so a 20% band fails by chance).
+- Save data: none.
+- Hooks: bosses.js spawnBoss -> boss10Twins (boss10.js); fight.js fightCd reads e.v10def first and fightId falls back to def.rosterId (levels.js).
+- Risk: boss fights untested in play (A2 sims could not force a named boss); Level 1 balance after the 0.45 boss knob (bot won once in the sim); three live placeholders: TODO_COPY:aim_tough_desc (TOUGHEST aim line), boss_stone_crack (Kidney Stone float text), tartar_desc (Level 1 boss card).
+
+### Folded from enemy-a1a: 2026-10-25 Relic boxes open again (handoff A1a, not shipped)
+- Systems: loot, bosses, rewards
+- Files: web/js/draft.js, web/js/raceplan.js, tests/bosstest.js
+- What: `draftBox` now lets `relic`, `spoils` and `rrelic` boxes open (v10 dropped them, so boss relics never appeared); `rplanFree` passes `spoils` and `rrelic` in the Race. Wave mode already exempts `now` boxes in `waveHoldsLoot`; `dirGate` opens `now` boxes at once.
+- Save data: none
+- Hooks: none (one list extended in draft.js draftBox, one in raceplan.js rplanFree)
+- Risk: boss kills now open two extra screens (relic, spoils); relic effects are unported (A1b), so some do nothing under v10.
+
+### Folded from enemy-a2: 2026-10-25 Boss rules against v10 (A2, no build)
+- Systems: bosses, defences
+- Files: data.js, bosses.js, bosspack.js, boss10.js, fight.js (one token), tests/bossshot.js
+- What: Chad Prime has only Evasion (the 30% `dodge` is gone). The Johnny no longer bounces shots off its front or takes 0.4x there (its Membrane is the defence; the overshoot opening still pays 1.5x). Litmus Strip tests the seven live damage types and resists a wrong type by 35% (0.65). Mitch has a Membrane and Osis a Shell, each from the roster `parts` (`boss10Twins`, `e.v10def` read first by `fightCd`). Each Kidney Stone enrage sheds one Shell layer (armour, shred-stick and "-10 ARMOUR" code removed). The Fever's rage is speed x2 and attack rate x1.5 (was dt x2); `resist.fire === 0` checks removed. The Fever's `frozen` glue trigger is kept: Conjoined and Held in Suspension both set `frozen` on bosses (0.5 s, 0.3 s).
+- Save data: none
+- Hooks: bosses.js spawnBoss -> boss10Twins; fight.js fightCd reads e.v10def; bpBounce hook in bossDodges removed.
+- Risk: Johnny and Kidney Stone fights are easier to damage (no 0.4x front); Stone's Shell is 6 layers on the roster, not 40 armour. Intro cards for Johnny, Stone, Prime and Fever may still name the old rules (copy, see report). Boss HP untouched.
+
+### Folded from enemy-a3: 2026-10-25 Armour display and targeting purge (A3)
+- Systems: ui (inspector), render, targeting (aim), data
+- Files: inspect.js, render.js, data.js, game.js, autorun.js, newfeats.js
+- What: the inspector no longer shows an Armour stat or WEAK TO / RESISTS rows; the boss `[ARMOUR N]` tag and the armour arc on aura-armoured enemies are gone. HIGHEST ARMOUR is removed from the aim menu; TOUGHEST now ranks by max HP plus the defence pool (Membrane pool, Shell layers' health). The retired id `armour` still resolves (as TOUGHEST) so stored directives and pairs work; Formic Acid now aims at `strongest`.
+- Save data: none
+- Hooks: none
+- Risk: TOUGHEST now creates the defence state (`fightCd`) when it scores an enemy; `armour` fields on defs untouched (E1 deletes them). TOUGHEST description is `TODO_COPY:aim_tough_desc`.
+
+### Folded from enemy-a4: 2026-10-25 Strays into the roster (no build)
+- Systems: enemies, roster
+- Files: roster.js, foes2.js, pstatus.js, game.js, ENEMY_STATS.md, ENEMY_BEHAVIOUR.md
+- What: Mirror Cell (Membrane), Grease Ball (Squishy), Platelet Clump, Brood Cyst, Broodling, Planarian are ROSTER rows with v10 defences; the Litmus Cell is retired (`w: 0`, `status: 'park'`, kept by id). `foes2Dmg` no longer applies weak/resist. Mirror's front reflection is gone; Grease Ball no longer lubricates you (slick zone, `pstGrip` effect and the enemy Oil look removed, its slow glob stays); Platelet Clump costs a piercing shot one extra pierce instead of stopping it.
+- Save data: none.
+- Hooks: none added (game.js: removed the `pstGrip()` factor and the `z.oil` fizz line).
+- Risk: Mirror Cell and Grease Ball are now tankier in effect (Membrane/Squishy on top of old HP); not simmed for balance.
+
+### Folded from enemy-a5: 2026-10-25 Level 1 enemies on the v10 roster (handoff A5)
+- Systems: campaign (levels), fight
+- Files: levels.js, fight.js
+- What: Level 1's five germs and the Tartar Colony are now built on first use (after the roster is wired), so they keep their base enemy's v10 defence and attacks instead of pre-roster copies; the Colony gets the Colossus's Shell x5 and no armour, and its HP takes the V10_DIFF.bossHp knob like every other mode. Its description is `TODO_COPY:tartar_desc`; its strengths and weaknesses are the Colossus's v10 ones.
+- Save data: none
+- Hooks: fight.js fightId falls back to `def.rosterId` (set on the Level 1 copies).
+- Risk: Level 1 enemies are tougher or squishier by their base's v10 defence; Colony HP is about 0.45x what it was. Level 1 balance not re-simmed beyond one bot win (207 s).
+
+### Folded from enemy-a6: 2026-10-25 Enemy bookkeeping: intro keys, live Field Guide counts, guide and litmus sprite (no version)
+- Systems: enemies, ui (Field Guide), tools
+- Files: voice.js, intro.js, junk.js, ui.js, bosspack.js, data.js, roster.js, tests/tools/guide.js, GAME_GUIDE.md
+- What: the Ingrown Hair sighting line is keyed `ingrown` (it was `thorny`, so it never showed). Pinworm and Plasmodium are gone from the first-sighting cards and from the Junk DNA powers. The "n OF N" counts (first-sighting card, Field Guide header, enemy list, Tutorials line) count only enemies that can still turn up: a live roster weight, a wave mix or a campaign level's own enemy (63 of 70 today). The Litmus Strip boss draws with its own `litmusstrip` sprite; the Litmus Cell keeps `litmus`, so the boss no longer runs the cell's paper strip drawing. The player guide's enemy table is built from the wired roster: no Armour or Weak/resists columns, a Defence column (Squishy, Membrane, Shell, Thorns, Evasion) instead, and roster role names where the old AI label is missing.
+- Save data: none (ids unchanged; `META.seen` keys unchanged).
+- Hooks: none.
+- Risk: Field Guide counts drop from 70 to 63 (N) and seen counts follow the same rule. Splitling, Volvoxling, Yeast, Pepsinjr, Endoskeleton, Broodling and Spore are not counted while they have no live spawn; meeting one does not raise the count. Ingrown Hair's sighting line still reads "Thorny" (copy, not changed). Guide enemy behaviour for new_* AIs shows roster roles, not sentences (copy, not changed).
+
+### Folded from enemy-a7: 2026-10-25 Copy brief for stale enemy text
+- Systems: docs
+- Files: ENEMY_COPY_BRIEF.md (new)
+- What: One brief lists the enemy, boss, status, glossary and Field Guide lines that name dead or changed mechanics. Each row has a TODO_COPY id (or a delete), the current text and its length, the facts the new line must convey, and a neighbour line. No game code or existing text changed.
+- Save data: none
+- Hooks: none
+- Risk: none
+
+## v10.128: 2026-10-25 Melee forms for Flight and Crowd modifiers (task 3 batch 2)
+- Merged: ccr-task3-melee (MODAUDIT_HANDOFF.md task 3, batch 2). Dead-card table regenerated in the branch: 648 -> 631 no-op combos hidden.
+
+### Folded from ccr-task3-melee: 2026-10-25 Melee forms for Flight and Crowd modifiers (handoff task 3, batch 2)
+- Systems: modifier cards (Delivery forms), weapons (Melee, Laser sword), tests
+- Files: delivforms.js, moddead.js (regenerated), ARCHITECTURE.md, tests/delivtest.js, tests/moddead.js
+- What: on the Melee Delivery and the Laser's sword, Homing throws homing slashes (40%) at enemies just out of reach, Bounce rebounds the last hit to 1 to 3 more enemies within 100 (60%), Returning sweeps back 0.2 s later (60 / 75 / 90%), Link shares 25% of damage between enemies hit by one swing (3 to 5 s), Pull draws enemies within 120 to 180 a step in before the swing, Knockback (Bouncer) makes shoved enemies hurt what they hit (40%). Card text `TODO_COPY:xd_melee_<mod>` (6 placeholders). MOD_DEAD regenerated from a fresh full audit.
+- Save data: none
+- Hooks: none in shared files; hookOn('proc', 'xdProc') in delivforms.js. Wraps mwMelee (modwide.js) and lzSwordSwing (laserbeam.js).
+- Audit: Standard Issue NO-OP 21 -> 19, Laser 13 -> 11; full audit 648 -> 631 of 2810.
+- Risk: Melee weapons get more damage (the follow-up hits); Link shares any weapon's hits on a linked enemy. Wall Slam keeps its own collision when held (Bouncer skips an enemy Wall Slam already counted).
+
+## v10.126 -> v10.127: 2026-10-25 Dead-card table regenerated after the Delivery routing and the Mines forms
+- Built on main (no branch). Systems: modifier cards, tests. Files: moddead.js, tests/moddead.js, tests/sim/modaudit.js (clears MOD_DEAD before planning, from c0f0687).
+- What: `MOD_DEAD` is regenerated from a full audit of main with tasks 1, 2 and 3 (batch 1) in: 648 NO-OP combos of 2810 are hidden (was 761 before the routing; Laser + Mines now hides nothing, so Charge-Up on it is offered again). The filter test now checks Laser + Melee + Homing stays hidden and Laser + Mines + Charge-Up is offered.
+- Save data: none. Hooks: none. Risk: cards hidden or shown differ from v10.126 by the routing and Mines-form changes only.
+
 ## v10.126 (versionCode 405): 2026-10-25 Mines forms for Flight and Crowd modifiers
 - Merged: ccr-task3-forms (MODAUDIT_HANDOFF.md task 3, batch 1: the Mines column of MODIFIER_MATRIX.md 5.11). This build also ships the unbuilt main changes below it (draft hides dead modifier cards, Deliveries carry the other modifiers). Built without running tests (user's request).
 - Copy still open: TODO_COPY:xd_mines_homing, _ricochet, _returning, _connecting, _pull, _knock (card text on a Mines weapon).

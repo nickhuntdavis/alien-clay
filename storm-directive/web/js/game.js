@@ -218,7 +218,7 @@ function targetScore(dir, e, d2) {
     case 'strongest': return aimTough(e) * 1e6 - d2;
     case 'weakest': return -e.maxHp * 1e6 - d2;
     case 'lowhp': return -e.hp * 1e6 - d2;
-    case 'armour': return effArmour(e) * 1e6 - d2;
+    case 'armour': return aimTough(e) * 1e6 - d2; // (retired id: old saves and pairs read as TOUGHEST)
     case 'fastest': return e.speed * 1e6 - d2;
     case 'cluster': return e.crowd * 1e6 - d2;
     case 'elite': return (e.boss ? 2 : e.rival ? 1.5 : e.elite ? 1 : 0) * 1e9 - d2;
@@ -685,7 +685,7 @@ function optMod(w, id, r) {
   const M = MODS[id], rr = Math.max(1, r), pw = MOD_POWER[rr];
   const have = w.mods.find(m => m.id === id);
   let elem = null, desc;
-  if (id === 'elemental' && !have) { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem)); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.${pw > 1 ? ` +${Math.round(15 * (pw - 1))}% damage.` : ''}` + elemTwistNote(w, elem); }
+  if (id === 'elemental' && !have) { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem && V10_TYPES.includes(e))); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.${pw > 1 ? ` +${Math.round(15 * (pw - 1))}% damage.` : ''}` + elemTwistNote(w, elem); }
   else { const np = have ? Math.min(MOD_MAX_POWER, have.p + pw * 0.5) : pw; desc = have ? `Power ${have.p.toFixed(2)} > ${np.toFixed(2)}: ${M.desc(np)}` : M.desc(pw); }
   return { rarity: rr, tag: have ? 'MODIFIER BOOST' : 'MODIFIER', icon: M.icon, color: M.color, elem: elem || w.def.elem, title: M.name,
     sub: have ? `Boosts ${w.def.name}'s ${M.name}` : `Installs into ${w.def.name} (slot ${w.mods.length + 1}/${MOD_SLOTS})`, desc, modFor: w.def.name,
@@ -1139,7 +1139,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   dmg *= hookMul('hurtMul', ent, kind, from); // (Complement Protein, Survivor's Guilt, Personal Space, statuses ...: hooks.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * (P.takenMul || 1);
-  dmg = relicDamageIn(dmg, ent);
+  dmg = relicDamageIn(dmg, ent, kind);
   if (dmg > 0) dmg = junkHurtIn(dmg, ent, kind); // (Now You See Me, Phlegm, Glass Case: junk.js)
   if (dmg <= 0) return;
   // No one-shots from a boss: a single boss hit (body, beam or bullet) takes at most 22% of your max HP.
@@ -2265,7 +2265,6 @@ function updateZones(dt) {
         e.x += dx / d * f; e.y += dy / d * f;
       }
       if (z.root && doTick && !e.boss) e.frozen = Math.max(e.frozen, 0.5); // Naughty Corner: rooted
-      if (z.oil) e.fizz = Math.max(e.fizz || 0, 1.5); // (an Oil slick: chem.js)
       if (doTick && !z.quiet) { sigZone(z, e); damageEnemy(e, z.dps * 0.25, z.hs); }
     });
     if (z.heal && doTick) chemPool(z); // (a Blood pool heals you: chem.js)
@@ -2310,7 +2309,7 @@ function updatePlayer(dt) {
   // Swim physics: the head can only turn so fast (traction), thrust drops mid-turn,
   // and sideways momentum drifts off rather than stopping dead.
   if (p.hd == null) p.hd = p.face;
-  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1) * (G.onIce ? 0.35 : 1) * pstGrip(); // (Lubricated: pstatus.js)
+  const trac = P.traction * (p.slick ? OBSTACLES.slick.traction : 1) * (G.onIce ? 0.35 : 1); // (Lubricated is retired)
   const cur = Math.hypot(p.vx, p.vy);
   let thrust = 0;
   if (m > 0.05) {

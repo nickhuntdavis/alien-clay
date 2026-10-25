@@ -27,7 +27,7 @@ const { chromium } = require('playwright');
     };
     for (const e of G.enemies) e.crowd = e === S.clus ? 9 : 1;
     G.grudge = S.frag; gridBuild();
-    const want = { nearest: 'near', weakest: 'frag', lowhp: 'wounded', strongest: 'tank', armour: 'armoured', fastest: 'fast', furthest: 'far', cluster: 'clus', elite: 'elite', shooters: 'shooter', revenge: 'frag' };
+    const want = { nearest: 'near', weakest: 'frag', lowhp: 'wounded', strongest: 'tank', armour: 'tank', fastest: 'fast', furthest: 'far', cluster: 'clus', elite: 'elite', shooters: 'shooter', revenge: 'frag' };
     const name = e => Object.keys(S).find(k => S[k] === e) || (e ? e.def.name : 'none');
     out.picks = {};
     for (const d in want) { const got = name(acquire(d, 440, P.x, P.y)); out.picks[d] = got; if (got !== want[d]) fail(`${d}: wanted ${want[d]}, got ${got}`); }

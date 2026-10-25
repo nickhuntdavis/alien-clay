@@ -19,6 +19,18 @@ const { chromium } = require('playwright');
     if (!boss10SummonOk(q)) bad.push('summons blocked with no adds');
     for (let i = 0; i < 8; i++) { const o = makeEnemy(ENEMIES.crawler, q.x, q.y); o.summonedBy = q; G.enemies.push(o); }
     if (boss10SummonOk(q)) bad.push('summon cap not enforced');
+    // A1a: a boss kill queues a relic then spoils; both open, and picking a relic sets G.relics.
+    const bk = boss('alpha'); G.lootQueue.length = 0; bossDown(bk);
+    const rq = G.lootQueue[0];
+    if (!rq || rq.kind !== 'relic') bad.push('boss kill does not queue a relic first');
+    else {
+      if (!draftBox(rq)) bad.push('draftBox refuses the relic');
+      UI.openLoot(rq);
+      const ro = UI.lootOpts || [];
+      if (ro.length < 3) bad.push('relic screen has ' + ro.length + ' cards');
+      else { const rid = ro[0].rid || ro[0].id; ro[0].apply(); if (!(G.relics && Object.values(G.relics).some(Boolean))) bad.push('picking a relic sets nothing in G.relics'); }
+    }
+    const sq = G.lootQueue.find(q => q.kind === 'spoils'); if (!sq || !draftBox(sq)) bad.push('spoils box does not open');
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

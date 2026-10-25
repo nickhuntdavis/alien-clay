@@ -98,12 +98,11 @@ const INSPECTOR = {
       INSPECTOR.show('<div class="isil"></div><h3>???</h3><p class="hint">Not met yet.</p><p>Run into it first. It will introduce itself.</p>', '#555');
       return;
     }
-    const I = (!boss && id && ENEMY_INTRO[id]) || null, hp = Math.round(e.maxHp || d.hp), arm = Math.round(e.armour != null ? e.armour : d.armour || 0);
+    const I = (!boss && id && ENEMY_INTRO[id]) || null, hp = Math.round(e.maxHp || d.hp);
     const dmg = `${Math.round(e.dmg != null ? e.dmg : d.dmg || 0)} on touch` + (d.shoot ? `, ${d.shoot.dmg} per shot` : '');
-    const typ = o => Object.keys(o || {}).filter(k => ELEMENTS[k]).map(k => `<button class="ichip" style="--c:${ELEMENTS[k].color}" data-insp="el:${k}">${inspectEsc(ELEMENTS[k].name)}${o[k] === 0 ? ' (immune)' : ' x' + o[k]}</button>`).join('') || '<span class="hint">none known</span>';
     const html = `<div class="idot" style="background:${d.color}"></div><h3>${inspectEsc(d.name)}</h3>` + (boss && d.title ? `<em>${inspectEsc(d.title)}</em>` : '') +
-      `<div class="istats"><span>HP <b>${hp}</b></span><span>Speed <b>${Math.round(d.speed || 0)}</b></span><span>Armour <b>${arm}</b></span></div>` +
-      `<p>Hits for <b>${dmg}</b>.</p><div class="irow"><h4>WEAK TO</h4>${typ(d.weak)}</div><div class="irow"><h4>RESISTS</h4>${typ(d.resist)}</div>` +
+      `<div class="istats"><span>HP <b>${hp}</b></span><span>Speed <b>${Math.round(d.speed || 0)}</b></span></div>` +
+      `<p>Hits for <b>${dmg}</b>.</p>` +
       (I ? `<p class="ijoke">${inspectEsc(I.what)}</p>${uiHint(inspectEsc(I.tip))}` : boss && d.quote ? `<p class="ijoke">${inspectEsc(d.quote)}</p>` : '');
     INSPECTOR.show(html, d.color);
   },

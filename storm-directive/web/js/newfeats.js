@@ -134,7 +134,7 @@ const NF_FIRE = {
     nfAdd({ k: 'ouija', L, word, i: 0, next: G.t + 0.45, px: L[0].x - Math.cos(a) * 60, py: L[0].y - Math.sin(a) * 60, cursed: new Set(), s, src, bye: nfPath(w, 'b'), end: 0 });
   },
   formicacid(w, s, t, src, p) {
-    const ts = acquireMany('armour', s.range, p.x, p.y, s.count || 1);
+    const ts = acquireMany('strongest', s.range, p.x, p.y, s.count || 1);
     if (t && !ts.includes(t)) ts.unshift(t);
     ts.slice(0, s.count || 1).forEach((e, i) => nfAdd({ k: 'ant', e, x: e.x, y: e.y, a: Math.atan2(e.y - p.y, e.x - p.x) + (i ? 0.9 : 0), hit: false, end: G.t + 1.1, s, src, trail: nfPath(w, 'b') }));
   },

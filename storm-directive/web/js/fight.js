@@ -42,11 +42,11 @@ const FIGHT_RX = {
 if (typeof ROSTER !== 'undefined' && ROSTER.ingrown && !ENEMIES.ingrown) ENEMIES.ingrown = Object.assign({}, ROSTER.ingrown, { shape: 'worm', armour: 0 });
 
 let FIGHT_IDS = null;
-const fightId = def => { if (!FIGHT_IDS) FIGHT_IDS = new Map(Object.keys(ENEMIES).map(k => [ENEMIES[k], k])); return FIGHT_IDS.get(def); };
+const fightId = def => { if (!FIGHT_IDS) FIGHT_IDS = new Map(Object.keys(ENEMIES).map(k => [ENEMIES[k], k])); return FIGHT_IDS.get(def) || (def && def.rosterId); }; // (rosterId: Level 1's germ copies, levels.js)
 // The defence state lives on the enemy (e.cd), made on first need so elite and boss flags are already set.
 function fightCd(e) {
   if (e.cd) return e.cd;
-  const id = fightId(e.def), r = typeof ROSTER !== 'undefined' && ROSTER[id], bd = e.bossDef || e.def, d = (bd && bd.v10def) || (r && r.def); // (bosses: boss10.js)
+  const id = fightId(e.def), r = typeof ROSTER !== 'undefined' && ROSTER[id], bd = e.bossDef || e.def, d = e.v10def || (bd && bd.v10def) || (r && r.def); // (bosses: boss10.js)
   const rank = e.boss ? 'boss' : e.elite ? 'elite' : 'normal';
   e.cd = makeDefence(e.maxHp, d ? d.kind : null, rank, { layers: d && d.layers, memFrac: d && d.memFrac }); // (memFrac: foemem.js)
   e.cd.hp = e.hp;

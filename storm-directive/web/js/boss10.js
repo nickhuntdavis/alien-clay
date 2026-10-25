@@ -32,6 +32,12 @@ if (typeof ROSTER_BOSSES !== 'undefined') {
     if (!B.weaknesses.length) B.weaknesses = ['Learn the telegraph; every big attack shows where it lands first'];
   }
 }
+// Mitch & Osis: each twin has its own defence from the roster's parts (Mitch Membrane, Osis Shell). fightCd reads e.v10def first.
+function boss10Twins(a, b) {
+  const R = typeof ROSTER_BOSSES !== 'undefined' && ROSTER_BOSSES.find(r => r.id === 'twins');
+  if (!R || !R.parts) return;
+  a.v10def = R.parts[0].def; b.v10def = R.parts[1].def;
+}
 // The Queen may not flood the dish: summons stop while this many of her adds are alive.
 function boss10SummonOk(boss) {
   return G.enemies.filter(e => !e.dead && e.summonedBy === boss).length < BOSS10_SUMMON_CAP;

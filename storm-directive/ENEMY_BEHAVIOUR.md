@@ -15,7 +15,7 @@ Regular enemies have no per-type weaknesses in v10: counterplay is the defence (
 | 5 | Glitter | swarm | none | force | contact (2 dmg) | - | chase | 7 | 0.9 | pack of 4; cap 8 | - | keep |
 | 6 | Mosquito | leech, sprinter | none | blood | contact bite (4 dmg) | - | new_mosquito | 8 | 1.2 | cap 4 | - | new |
 | 7 | Sprinter | sprinter | Evasion (35% miss) | force | contact (5 dmg) | - | chase | 8 | 7 | - | - | keep |
-| 8 | Broodling | - | none | - | - | - | broodling | 8 | 0 | - | - | - |
+| 8 | Broodling | swarm | none | force | contact (6 dmg) | - | broodling | 8 | 0 | - | - | spawned |
 | 9 | Stray Pube | controller | none | force | contact tangle (0 dmg) | - | pube | 10 | 1.1 | cap 8 | - | keep |
 | 10 | Daughter Cell | swarm | none | force | contact (5 dmg) | - | chase | 9 | 0 | - | - | spawned |
 | 11 | Also-Ran | chaser | none | force | contact (8 dmg) | - | chase | 12 | 10 | - | - | keep |
@@ -35,31 +35,31 @@ Regular enemies have no per-type weaknesses in v10: counterplay is the defence (
 | 25 | Phlegm Hocker | shooter | none | mucus | proj (8 dmg, 0.3s tell) | - | hocker | 14 | 1.2 | cap 6 | - | keep-simplify |
 | 26 | Quantum Swimmer | sprinter | Evasion (35% miss) | static | contact (9 dmg) | - | blink | 12 | 2 | - | - | revise |
 | 27 | Interferon | support | none | force | contact (6 dmg) | - | interferon | 14 | 0.9 | cap 3 | - | keep |
-| 28 | Mirror Cell | - | none | - | - | - | mirror | 14 | 1.3 | cap 6 | - | - |
-| 29 | Planarian | - | none | - | - | - | planarian | 12 | 0.9 | - | - | - |
-| 30 | Ingrown Hair | chaser | Thorns (5 + 35%) | blood | contact (9 dmg) | - | chase | 12 | 2.2 | - | - | new |
-| 31 | Trapped Wind | carrier | Squishy (-35% Force) | fire | burst (14 dmg, 0.5s tell) | - | new_trappedwind | 15 | 0.6 | cap 2 | - | new |
-| 32 | Nurse Cell | support | Membrane (30% pool) | force | contact (6 dmg) | - | medic | 13 | 2 | - | - | keep |
-| 33 | Litmus Cell | - | none | - | - | - | chase | 15 | 1.5 | cap 6 | - | - |
-| 34 | Rotifer | leech | none | force | contact steal (8 dmg) | - | thief | 14 | 1.4 | - | - | keep-if-distinct |
-| 35 | Puffball | carrier | none | force | contact (8 dmg) | - | chase | 17 | 1.4 | cap 6 | - | keep |
-| 36 | Fibrin Weaver | relay | none | force | contact (8 dmg) | - | fibrin | 15 | 0.8 | cap 3 | - | keep |
-| 37 | Second Dose | shooter | none | force | burst volley (4.2 dmg, 0.7s tell) | aimed, 7 dmg, speed 360, every 3s | sperminator | 12 | 0 | - | - | spawned |
-| 38 | Cytokine Caster | shooter | none | fire | spread (9 dmg, 0.5s tell) | ring x8, 9 dmg, speed 140, every 3.2s | ranged | 15 | 2 | - | - | keep-if-distinct |
-| 39 | Platelet Clump | - | none | - | - | - | chase | 15 | 1.2 | cap 6 | - | - |
-| 40 | Plasma Cell | relay | Membrane (30% pool) | force | contact (7 dmg) | - | plasma | 15 | 0.9 | cap 3 | - | keep |
-| 41 | Headbutter | charger | none | force | contact charge (18 dmg, 0.7s tell) | - | charge | 16 | 3 | - | - | keep-clarify |
-| 42 | Hayfever Cell | shooter, carrier | none | mucus | spread cone (6 dmg, 0.8s tell) | - | hayfever | 16 | 1 | cap 6 | - | revise |
-| 43 | Grease Ball | - | none | - | - | - | chase | 16 | 1.2 | cap 6 | heavy | - |
-| 44 | Static Sock | chaser | Squishy (-35% Force) | static | contact (5 dmg); contact (22 dmg, 0.3s tell) | - | new_staticsock | 13 | 1.8 | - | - | new |
-| 45 | Shell Cell | tank | Shell x1 (-3/hit) | force | contact (12 dmg) | - | chase | 16 | 1.2 | cap 6 | - | keep |
-| 46 | Ghost Swimmer | chaser | Evasion (35% miss) | soul | contact (10 dmg) | - | phase | 13 | 2 | - | - | revise |
-| 47 | Mitotic Cell | swarm | Membrane (30% pool) | force | contact (10 dmg) | - | chase | 17 | 3 | splits into splitling | - | keep-simplify |
-| 48 | Stem Cell | summoner | Membrane (30% pool) | force | contact (6 dmg) | - | stem | 15 | 0.7 | cap 3 | - | keep |
-| 49 | Pepsinator Jr | chaser | none | acid | contact (14 dmg) | - | chase | 24 | 0 | - | cut from random spawns | spawned |
-| 50 | Callus | tank | Shell x1 (-3/hit) | force | contact (12 dmg) | - | chase | 16 | 1.1 | cap 6 | - | keep-merge-check |
-| 51 | Diatom | shooter, tank | Shell x2 (-3/hit) | force | spread (8 dmg, 0.4s tell) | ring x6, 8 dmg, speed 150, every 2.8s | ranged | 16 | 1.4 | - | - | keep-if-distinct |
-| 52 | Natural Killer | charger | Evasion (35% miss) | force | contact pounce (13 dmg, 0.4s tell) | - | alien | 13 | 1.3 | - | - | keep |
+| 28 | Planarian | swarm | none | force | contact (10 dmg) | - | planarian | 12 | 0.9 | - | - | keep |
+| 29 | Ingrown Hair | chaser | Thorns (5 + 35%) | blood | contact (9 dmg) | - | chase | 12 | 2.2 | - | - | new |
+| 30 | Trapped Wind | carrier | Squishy (-35% Force) | fire | burst (14 dmg, 0.5s tell) | - | new_trappedwind | 15 | 0.6 | cap 2 | - | new |
+| 31 | Nurse Cell | support | Membrane (30% pool) | force | contact (6 dmg) | - | medic | 13 | 2 | - | - | keep |
+| 32 | Litmus Cell | chaser | none | force | contact (10 dmg) | - | chase | 15 | 0 | cap 6 | - | park |
+| 33 | Rotifer | leech | none | force | contact steal (8 dmg) | - | thief | 14 | 1.4 | - | - | keep-if-distinct |
+| 34 | Puffball | carrier | none | force | contact (8 dmg) | - | chase | 17 | 1.4 | cap 6 | - | keep |
+| 35 | Fibrin Weaver | relay | none | force | contact (8 dmg) | - | fibrin | 15 | 0.8 | cap 3 | - | keep |
+| 36 | Second Dose | shooter | none | force | burst volley (4.2 dmg, 0.7s tell) | aimed, 7 dmg, speed 360, every 3s | sperminator | 12 | 0 | - | - | spawned |
+| 37 | Cytokine Caster | shooter | none | fire | spread (9 dmg, 0.5s tell) | ring x8, 9 dmg, speed 140, every 3.2s | ranged | 15 | 2 | - | - | keep-if-distinct |
+| 38 | Platelet Clump | tank | none | force | contact (10 dmg) | - | chase | 15 | 1.2 | cap 6 | - | keep |
+| 39 | Plasma Cell | relay | Membrane (30% pool) | force | contact (7 dmg) | - | plasma | 15 | 0.9 | cap 3 | - | keep |
+| 40 | Headbutter | charger | none | force | contact charge (18 dmg, 0.7s tell) | - | charge | 16 | 3 | - | - | keep-clarify |
+| 41 | Hayfever Cell | shooter, carrier | none | mucus | spread cone (6 dmg, 0.8s tell) | - | hayfever | 16 | 1 | cap 6 | - | revise |
+| 42 | Mirror Cell | tank | Membrane (50% pool) | force | contact (9 dmg) | - | mirror | 14 | 1.3 | cap 6 | - | keep |
+| 43 | Static Sock | chaser | Squishy (-35% Force) | static | contact (5 dmg); contact (22 dmg, 0.3s tell) | - | new_staticsock | 13 | 1.8 | - | - | new |
+| 44 | Shell Cell | tank | Shell x1 (-3/hit) | force | contact (12 dmg) | - | chase | 16 | 1.2 | cap 6 | - | keep |
+| 45 | Ghost Swimmer | chaser | Evasion (35% miss) | soul | contact (10 dmg) | - | phase | 13 | 2 | - | - | revise |
+| 46 | Mitotic Cell | swarm | Membrane (30% pool) | force | contact (10 dmg) | - | chase | 17 | 3 | splits into splitling | - | keep-simplify |
+| 47 | Stem Cell | summoner | Membrane (30% pool) | force | contact (6 dmg) | - | stem | 15 | 0.7 | cap 3 | - | keep |
+| 48 | Pepsinator Jr | chaser | none | acid | contact (14 dmg) | - | chase | 24 | 0 | - | cut from random spawns | spawned |
+| 49 | Callus | tank | Shell x1 (-3/hit) | force | contact (12 dmg) | - | chase | 16 | 1.1 | cap 6 | - | keep-merge-check |
+| 50 | Diatom | shooter, tank | Shell x2 (-3/hit) | force | spread (8 dmg, 0.4s tell) | ring x6, 8 dmg, speed 150, every 2.8s | ranged | 16 | 1.4 | - | - | keep-if-distinct |
+| 51 | Natural Killer | charger | Evasion (35% miss) | force | contact pounce (13 dmg, 0.4s tell) | - | alien | 13 | 1.3 | - | - | keep |
+| 52 | Grease Ball | tank | Squishy (-35% Force) | force | contact (11 dmg) | - | chase | 16 | 1.2 | cap 6 | heavy | keep |
 | 53 | Birthday Candle | controller | Shell x2 (-3/hit) | fire | pool wax (0.6s tell) | - | new_candle | 14 | 0.8 | cap 1 | - | new |
 | 54 | Macrophage | tank | Squishy (-35% Force) | force + acid | contact (16 dmg) | - | chase | 20 | 4 | - | - | keep-clarify |
 | 55 | Mother Cell | summoner | Membrane (30% pool) | mucus | contact (10 dmg) | - | summon | 18 | 1.2 | - | - | keep |
@@ -67,7 +67,7 @@ Regular enemies have no per-type weaknesses in v10: counterplay is the defence (
 | 57 | Volvox | swarm | none | force | contact (14 dmg) | - | chase | 26 | 0 | splits into volvoxling x4 | cut from random spawns | review-overlap |
 | 58 | Bit of Sweetcorn | tank | Shell x1 (-3/hit) | force |  | - | drift | 12 | 0.8 | cap 8 | - | keep |
 | 59 | Stress Ball | tank | Squishy (-35% Force) | force | contact (8 dmg); burst rebound (0 dmg, 0.5s tell) | - | new_stressball | 17 | 1.1 | - | - | new |
-| 60 | Brood Cyst | - | none | - | - | - | brood | 26 | 1 | - | - | - |
+| 60 | Brood Cyst | summoner | none | force | proj launch (6 dmg, 0.35s tell) | - | brood | 26 | 1 | - | - | keep |
 | 61 | Mucus Wall | support, tank | Membrane (50% pool) | mucus | contact (14 dmg) | - | aura | 20 | 2 | - | - | revise |
 | 62 | Booster | elite, shooter | Shell x2 (-3/hit) | force | burst volley (5.4 dmg, 0.7s tell) | aimed, 9 dmg, speed 360, every 4s | sperminator | 14 | 1.1 | - | - | keep |
 | 63 | Amoeba | tank, controller | Squishy (-35% Force) | acid | contact engulf (14 dmg, 0.6s tell) | - | engulf | 30 | 0.9 | - | spongy, grows to 175 | revise |
@@ -114,6 +114,7 @@ Enemies cut from random spawns but still spawned by id (events and bosses): Sper
 - **Glitter**: Comes back once after you kill it (joke version of the Booster's second life). Area damage.
 - **Mosquito**: Read: swells as it feeds, then retreats. Counter: kill it within 4 s for half the bite back (FASTEST picks it). Dies into a small blood pool. Not Extraction.
 - **Sprinter**: Read: small and quick, zig-zags. Counter: FASTEST, Mucus Snare, or a Spread/Burst that ignores its misses.
+- **Broodling**: Spawned only, from the Brood Cyst; a plain chaser, or a kamikaze after the cyst bursts.
 - **Stray Pube**: Joke Controller: touching it tangles you for about a second. Short and capped.
 - **Daughter Cell**: Spawned only, from Mitotic Cell. Clearly the result of another enemy's action; counts against its source's budget.
 - **Also-Ran**: Read: a plain rival swimmer. Counter: move and shoot; it teaches kiting.
@@ -133,17 +134,21 @@ Enemies cut from random spawns but still spawned by id (events and bosses): Sper
 - **Phlegm Hocker**: Simplify: a visible sticky glob that leaves a Mucus patch. One avoidable shot; drop the cleanse rule. Counter: strafe; the patch feeds Static, Fire and Acid reactions.
 - **Quantum Swimmer**: Revise: short predictable relocation with a puff where it will land; never untargetable for more than a beat. Counter: Burst or Beam ignore its Evasion.
 - **Interferon**: Gives allies in range a capped Membrane (visible ring). Overlaps Mucus Wall: keep one. Counter: kill it first; it hangs back.
+- **Planarian**: A looping flatworm: destroy a segment and it splits in two, each half slowly regrowing. Counter: area damage on the pair.
 - **Ingrown Hair**: Read: a bristling dark curl, spines out. Counter: Contact weapons take 5 + 35% of the hit back; use Projectile, Spread, Burst, Beam or Pool and it is an ordinary chaser.
 - **Trapped Wind**: Read: a swelling, wobbling cloud; flickers when Burning enemies are near. Counter: light it among enemies, or keep away. One Burst, no chain. Prototype only after Matchstick and Candle show it is a distinct decision.
 - **Nurse Cell**: Read: green cross, ring pulse each heal. Counter: reach it (it keeps its distance); no endless sustain (per-target heal cap).
+- **Litmus Cell**: Retired (decision D2): the hard type-resist is gone; the idea lives on in the Litmus Strip boss. Kept by id, never spawned.
 - **Rotifer**: Thief: hoovers up your XP; killing it returns it. Keep only if the stolen thing and the recovery are obvious (a visible trail of motes).
 - **Puffball**: Burst and Pool hits burst it into Spores. Releases an existing threat, as the Carrier rule allows. Counter: single shots are fine; save the blasts for after.
 - **Fibrin Weaver**: Tethers up to 4 allies so they cannot be knocked back; visible threads, killing it frees them.
 - **Second Dose**: Spawned only, from the Booster: the second life. Counts against its source.
 - **Cytokine Caster**: One job only: a telegraphed fan of Fire shots (damage). No buff or control. Counter: sidestep the fan. The Spread shooter beside Antibody (Projectile) and Killer T (Beam).
+- **Platelet Clump**: Piercing shots lose one extra pierce passing through it (they are no longer stopped dead). Counter: blasts and chains go round it.
 - **Plasma Cell**: Shooters within 200 fire 40% faster. The Shooter + Relay pairing; kill it first.
 - **Headbutter**: Read: crouches and a lane lights up. Counter: step out of the lane; Force or Static interrupts. Tell must be long enough to leave.
 - **Hayfever Cell**: Revise: AH... AH... wind-up, then one clearly signalled reflection of a status you gave it. Counter: step out of the cone; go easy on the statuses.
+- **Mirror Cell**: Its polished front is now a recharging Membrane all round (no reflection). Counter: burst it with Static or heavy hits, or outlast the recharge.
 - **Static Sock**: Read: crackles harder in 3 steps as it travels. Counter: kill it before full, avoid its path, or dodge the zap. Crackle is its own meter, not a status.
 - **Shell Cell**: The plainest Shell enemy (the old 15 flat armour becomes one layer). Counter: Acid or one heavy hit sheds it, then it is soft.
 - **Ghost Swimmer**: Revise: brief fade (1.4 s) with a flicker before it goes and returns; stays targetable (Evasion, not immunity). Counter: wait it out, Burst or Beam.
@@ -153,6 +158,7 @@ Enemies cut from random spawns but still spawned by id (events and bosses): Sper
 - **Callus**: Crit immunity gone. Keep only if it differs from Shell Cell: one thicker layer (thickLayers: layerHpPct x2).
 - **Diatom**: Glass-shelled turret: 2 Shell layers; Acid or heavy Force sheds them. A slow full ring (not a fan), so it differs from the Caster. Counter: outrange it, or strip the shell.
 - **Natural Killer**: Weaves in, crouches (the tell), then pounces in a straight line. Counter: leave the lane when it crouches; Burst and Beam ignore Evasion. Bleeds acid on death (flavour).
+- **Grease Ball**: Homing shots slide off it; Squishy covers its knockback resistance. No slick on you any more (Lubricated is retired). Counter: aim properly, or use pools and auras.
 - **Birthday Candle**: Read: flame flares before each drip; wax cools and hardens; lit patches glow. Counter: kill it, keep Mucus away, route round the walls, or lure enemies into the lit patch. One per arena.
 - **Macrophage**: Read: big soft pink blob; Force visibly dents it and barely pushes it. Counter: any other type works normally; kite, it is slow.
 - **Mother Cell**: Read: ring pulse and a bulge before each pair of Sprinters; strict cap of 6 alive. Counter: SHOOTERS FIRST picks it; area damage for the adds.
@@ -160,6 +166,7 @@ Enemies cut from random spawns but still spawned by id (events and bosses): Sper
 - **Volvox**: Cut candidate: a third splitter beside Mitotic Cell and Plasmodium. Keep only if the ring formation or a single big split adds a distinct role.
 - **Bit of Sweetcorn**: Joke Tank: tough and harmless; a Shell punchbag. Do not waste your best hits on it.
 - **Stress Ball**: Read: squeezes tighter with each Force hit; the 5th is unmistakable. Counter: keep your distance when fully squeezed, or use another type. Drop it if the knockback feels awkward.
+- **Brood Cyst**: Swells for 0.35 s, then lobs a Broodling; killed, the rest scatter and dive as kamikazes. Counter: kill it from range before its brood is out.
 - **Mucus Wall**: Revise: gives nearby allies a visible, capped Membrane; never untouchable. Overlaps Interferon, keep one. Counter: Acid; avoid Static, which recharges it; separate it from allies.
 - **Booster**: Elite: red sight line, then a three-round volley; when killed, Second Dose climbs out. Counter: move when the line appears; both lives need killing.
 - **Amoeba**: Revise or test: engulf needs a clear tell, a short hold (about 1.2 s) and a reliable escape. Counter: kite it; it is slow.

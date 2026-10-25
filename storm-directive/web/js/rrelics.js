@@ -12,7 +12,7 @@ Object.assign(RELICS, {
   pickpocket:  { name: 'Pickpocket', desc: '+50% pickup range, and XP gems are worth 15% more.' },
   fivefinger:  { name: 'Five-Finger Discount', desc: 'Elites always drop a power-up when they die.' },
   // Brick Wallace: a wall.
-  mucuswall:   { name: 'Mucus Wall', desc: '+6 armour, but 5% slower.' },
+  mucuswall:   { name: 'Mucus Wall', desc: 'TODO_COPY:relic_mucuswall_desc' },
   loadbearing: { name: 'Load-Bearing', desc: 'While you are barely moving, you take 35% less damage.' },
   // Hawkeye Harriet: never misses.
   eagleeye:    { name: 'Eagle Eye', desc: '+45% damage to enemies more than 350 away from you.' },
@@ -62,8 +62,8 @@ Object.assign(RIVAL_RELICS, {
 function rrelicApply(id) {
   const P = G.P, p = me();
   switch (id) {
-    case 'pickpocket': P.magnet += 0.5; break;
-    case 'mucuswall': P.armour += 6; P.speed -= 0.05; break;
+    case 'pickpocket': P.magnet += 0.5; P.xp += 0.15; break; // (the XP half was never built: +15% XP, gems are nearly all of it)
+    case 'mucuswall': relShellAdd(RELIC10.shell.mucuswall); P.speed -= 0.05; break; // (Shell layers: relics10.js)
     case 'steadyhand': P.range += 0.35; P.projSpeed += 0.2; break;
     case 'buckshot': P.multishot += 1; P.haste += 0.1; break;
     case 'triggerhappy': P.haste += 0.15; P.reloadSpd += 0.25; break;
@@ -160,7 +160,7 @@ function rrelicTick(dt) {
   }
   if (R.slimetrail && !(G.slimeT > G.t) && Math.hypot(p.vx || 0, p.vy || 0) > 40 && G.zones.length < 200) {
     G.slimeT = G.t + 0.2;
-    G.zones.push({ x: p.x, y: p.y, r: 24, life: 2.5, max: 2.5, dps: (6 + G.level * 2) * P.might, elem: 'poison', pull: 0, color: '#80ed99', tick: 0, src: { elem: 'poison', wname: 'Slime Trail' } });
+    G.zones.push({ x: p.x, y: p.y, r: 24, life: 2.5, max: 2.5, dps: (6 + G.level * 2) * P.might, elem: 'ice', pull: 0, color: '#80ed99', tick: 0, src: { elem: 'ice', wname: 'Slime Trail' } }); // (Mucus: it Snares, matrix 4)
   }
   // Her Boys: two escorts, each back 20s after it falls.
   if (R.herboys) {
