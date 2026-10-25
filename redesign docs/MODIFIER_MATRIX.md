@@ -83,7 +83,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 *The same effect grows each level. Each heading gives the ramp; each table gives what scales on that weapon (and its weapon flavour). The per-weapon cells are flavour that the shared branches apply: every branch follows the heading's ramp at Lv 2, Lv 3 and mastery, and adds a rule on top.*
 
 ### 3.1 Range
-*Ramp: full damage to 300 / 400 / 520 (base 220), floor 65 / 75 / 85% (base 55%); projectile speed +20 / +40 / +60%; camera zoom +1 / +2 / +3 steps. Mastery: no falloff at all, plus the twist. Best on: Projectile, Spread. N/A on every other attack type.*
+*Ramp: full damage to 300 / 400 / 520 (base 220), floor 65 / 75 / 85% (base 55%); projectile speed +20 / +40 / +60%; camera zoom +1 / +2 / +3 steps. Mastery: no falloff at all, plus the twist. Best on: Projectile, Spread. Applies to every attack type as reach (15.5 of `COMBAT_MATRIX.md`).*
 
 | Weapon | What scales | Weapon flavour (used by the branch masteries) |
 |---|---|---|
@@ -103,7 +103,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Enzyme Sneeze | Droplet range (160 to 190 / 220 / 250) and falloff. | The sneeze becomes a long, narrow jet (range 400). |
 | Nocturnal Emission | See 5.10 (water balloon). | |
 | Hot Mess | See 5.10 (water balloon). | |
-| Every other weapon | N/A: Projectile and Spread only. | |
+| Every other weapon | Reach (15.5). | |
 
 **Branches**
 - **Lv 1 (shared):** ramp step 1: falloff flattens (full damage to 300, floor 65%), projectile speed +20%, camera zoom +1 step. The table says what scales on each weapon.
@@ -112,7 +112,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 - **Weapon exceptions:** Family Ties: Boomerang brings the hole back towards you (merging on the way); Overwatch lets it be placed 100 further out. Otherwise none; N/A rows stay N/A.
 
 ### 3.2 Up Close
-*Ramp: +40 / +80 / +120% damage within 120; full damage ends at 180 / 160 / 140 and falls to 40 / 35 / 30% by 450. Mastery: the twist. Best on: Projectile, Spread. N/A elsewhere.*
+*Ramp: +40 / +80 / +120% damage within 120; full damage ends at 180 / 160 / 140 and falls to 40 / 35 / 30% by 450. Mastery: the twist. Best on: Projectile, Spread. Applies to every attack type, by the target's distance from you (15.5).*
 
 | Weapon | What scales | Weapon flavour (used by the branch masteries) |
 |---|---|---|
@@ -132,7 +132,7 @@ Numbers are starting values for sims. All names here are internal; player-facing
 | Enzyme Sneeze | Close damage and Corrosion. | At point blank the droplets merge into one heavy splash. |
 | Nocturnal Emission | See 5.10 (water balloon). | |
 | Hot Mess | See 5.10 (water balloon). | |
-| Every other weapon | N/A: Projectile and Spread only. | |
+| Every other weapon | Proximity (15.5). | |
 
 **Branches**
 - **Lv 1 (shared):** ramp step 1: +40% damage within 120; full damage ends at 180 and falls to 40% by 450.
@@ -1357,3 +1357,51 @@ the shove's origin to the blast.
 3. **Suicide vest:** keep it as a joke trap that only stops hurting you at mastery (as written)?
 4. (Answered 22 Oct: the Laser is Ordered Online's 4th starter.)
 5. **Orbiting × Laser blocks shots at Lv 3:** with a ring that never goes out, that may be too strong a defence. Keep?
+
+## 8. Cells covered by COMBAT_MATRIX.md section 15 (25 Oct 2026; nothing removed yet)
+Each row is a cell, branch, mastery, pair bonus or condition whose behaviour the shared rule now gives. None is deleted until the rules are simulated; this is the removal list.
+
+| Where | Item | Covered by | Action |
+|---|---|---|---|
+| 1 rule 6 | "Natural fits are Not applicable" (N/A written per weapon) | 15.1 (tags) | rewrite condition against tag |
+| 1 rule 10 | Range and Up Close "apply to Projectile and Spread only", and the pools exception | 15.5 (reach on every attack type), 15.1 | rewrite condition against tag |
+| 1 Conflicts 1 | Piercing: Soulmate Signal N/A by name; "Piercing applies to Red Flagship, Spark of Life and the Laser" | 15.1 (`beam` tag) | rewrite condition against tag |
+| 3.1 Range | "Every other weapon" N/A row (now "Reach (15.5).") | 15.5 | delete N/A row |
+| 3.1 Range | Weapon exceptions: "N/A rows stay N/A" | 15.5 | delete N/A row |
+| 3.2 Up Close | "Every other weapon" N/A row (now "Proximity (15.5).") | 15.5 | delete N/A row |
+| 3.7 Knockback | Branch A Wall Slam (shoved enemies that hit a mate or wall take 20% / 40% collision damage) | 15.3 (collision damage by speed) | becomes an instance (delete cell) |
+| 3.7 Knockback | Mastery A1 Bowling Ball (a shoved enemy sends a mate on, chain depth 2, 40% each) | 15.3 | becomes an instance (delete cell) |
+| 3.7 Knockback | Mastery A2 Launch (shoves become launches, landing shockwave) | 15.3 (launch adds velocity) | becomes an instance (delete cell) |
+| 3.7 Knockback | Mastery B2 Trampoline (wall rebound, max 2 bounces, 40% collision each) | 15.3 (wall collisions), 15.2 | becomes an instance (delete cell) |
+| 3.7 Knockback | Nappy Mines cell Cannonball (a thrown enemy hits what it lands on for 40% and knocks that enemy back) | 15.3 | becomes an instance (delete cell) |
+| 3.7 Knockback | Nappy Mines mastery "Thrown enemies set off any mine they land near" | 15.3 (a fast enemy hitting your ground object trips it) | becomes an instance (delete cell) |
+| 3.7 Knockback | Flavour cells that restate a fixed 40% collision (Standard Issue, Maximum Gains, Unwanted Contact, One of These Days, Enzyme Sneeze, Skill Issue's bounce) | 15.3 (the rule sets the damage by speed) | keep as flavour (the rule gives the base; the cell adds a twist) |
+| 3.7 Knockback | N/A rows and intro: Nervous Wreck, Panic Button, Skill Issue ("already knocks back") | 15.1 (`displaces` tag) | rewrite condition against tag |
+| 3.8 Pulling | Mastery A1 Singularity (pulled enemies drawn to one point, collide for 40%) | 15.3 (pull adds velocity; collisions deal damage) | becomes an instance (delete cell) |
+| 3.8 Pulling | Nappy Mines mastery "Mines pull nearby mines together, packing them for Domino" | 15.2 (mines are bodies; pulls act on them) | becomes an instance (delete cell) |
+| 3.8 Pulling | Family Ties "N/A: already pulls", the intro line and the weapon exception | 15.1 (`displaces` tag) | rewrite condition against tag |
+| 3.10 Piercing | N/A rows by name: Panic Button, Skill Issue, Nappy Mines, Peekaboo, Eggs (Burst), Family Ties, Soulmate Signal | 15.1 (`burst`, `beam`, `displaces` tags) | rewrite condition against tag |
+| 3.11 Exploding Rounds, 3.14 Focused Intensity | N/A rows by name: Panic Button, Skill Issue, Nappy Mines, Peekaboo, Eggs (Burst) | 15.1 (`burst` tag) | rewrite condition against tag |
+| 3.12 Homing | N/A rows by name: Sister Cousin ("already homes"), "Every other weapon" (Contact, Pool, self-centred Burst) | 15.1 | rewrite condition against tag |
+| 3.13 Ricochet | N/A rows by name: Panic Button, Peekaboo (self-centred Burst) and the intro | 15.1 (`burst` tag) | rewrite condition against tag |
+| 3.13 Ricochet | Cells where the bounced thing is a body: Nappy Mines mine, Family Ties hole, Eggs, Blowing Bubbles pinball and rubber bubble, Skill Issue flyers (each bounce a collision) | 15.2 (ricochet acts on bodies), 15.3 | keep as flavour (the rule gives the base; the cell adds a twist) |
+| 3.9 Sticky, 4.1 Connecting, 4.2 Turncoat, 4.9 Every Nth, 3.4 Charged | Natural-fit N/A rows by name: Ewww, Gross (taped, linking), Chest Burster (raises allies), Enzyme Headbutt (lunge), Eggs (waits) | 15.1 (`chains`, `pets`, `melee`, `places` tags) | rewrite condition against tag |
+| 4.3 Melee, 4.4 Ranged | Melee N/A: Nervous Wreck, Enzyme Headbutt; Ranged "applies only to Nervous Wreck, Enzyme Headbutt, Peekaboo and Panic Button" and "Every other weapon" N/A, plus the five Ranged N/A rows in 5.9 | 15.1 (`melee` tag) | rewrite condition against tag |
+| 4.5 Mines | Intro "N/A where the weapon already lays traps"; Nappy Mines and Eggs N/A rows; weapon exceptions; N/A lists in 5.8 | 15.1 (`places` tag) | rewrite condition against tag |
+| 4.5 Mines | Unwanted Contact Lv 1 "Charged mines start a chain when tripped" | 15.4 (a Charged object is an arc node) | becomes an instance (delete cell) |
+| 4.5 Mines | Unwanted Contact mastery "Charged mines link to each other" | 15.4 | becomes an instance (delete cell) |
+| 4.5 Mines | Skill Issue mastery "Launched enemies land on the next lard mine" | 15.3 (a fast enemy hitting your ground object trips it) | becomes an instance (delete cell) |
+| 4.8 Primer | Nappy Mines Lv 3 "Primed enemies set mines off from twice as far" and mastery "Detonations near a mine set it off" | 15.4 (objects store hits), 15.3 | becomes an instance (delete cell) |
+| 4.8 Primer | Nappy Mines Lv 1 (blasts prime; detonated enemy leaves a burning patch) and Eggs Lv 3 "Detonations near an egg set it off early" | 15.4 | keep as flavour (the rule gives the base; the cell adds a twist) |
+| 4.8 Primer | Unwanted Contact N/A row, intro and weapon exception | 15.1 (`chains` tag) | rewrite condition against tag |
+| 4.11 Orbiting | N/A rows by name: Panic Button, Peekaboo (goes off round you) | 15.1 (`burst`, `orbits` tags) | rewrite condition against tag |
+| 5.3 Pair bonuses | Scatter mines (Mines + Ricochet): mines bounce when laid; also the Mines row of 5.11 Bounce | 15.2 (mines are bodies; ricochet acts on them) | becomes an instance (delete cell) |
+| 5.3 Pair bonuses | Gather and pop (Pulling + Exploding Rounds): pulled enemies take +30%, radius +20 | 15.3 gives collision damage only, not a bonus on an explosion | keep as flavour (the rule gives the base; the cell adds a twist) |
+| 5.3 Pair bonuses | Fuse box (Primer + Exploding Rounds): detonations use the explosion's radius and set off the unstable reaction | 15.4 (stored hit and status delivered on trigger) | keep as flavour (the rule gives the base; the cell adds a twist) |
+| 5.3 Pair bonuses | Bouncer (Melee + Knockback): 40% collision between enemies; also the Melee column of 5.11 Knockback | 15.3 | keep as flavour (the rule gives the base; the cell adds a twist) |
+| 5.4 Combo masteries | Static net: condition names Red Flagship, Soulmate Signal, Unwanted Contact and "Projectile or Spread shots" | 15.1 (`beam`, `chains`, `shots` tags) | rewrite condition against tag |
+| 5.4 Combo masteries | Planetary system: condition "Projectile or Spread shots" (tag rewrite); effect (projectiles captured by the hole, flung when it ends, +50% on supernova) | 15.2 (a well holds bodies and flings them), 15.1 | becomes an instance (delete cell) |
+| 5.5 / 5.7 / 3.8 | Area + Pulling (Nappy Mines Implosion, Hot Mess Plughole): pull radius grows with Area | 15.5 (reach scales pull radius) | becomes an instance (delete cell) |
+| 5.5 Nappy Mines | Ricochet candidates Fly paper, Implosion and tripwires (bounced mine holds, pulls or stretches wires) | 15.2, 15.3 | becomes an instance (delete cell) |
+| 5.5 Nappy Mines | Ricochet candidates Ripening and Breadcrumbs | 15.2 gives the bounce only | keep as flavour (the rule gives the base; the cell adds a twist) |
+| 5.10 Pools | Knockback "a skater that hits another enemy deals 30% to both" and Bowling face (30% each) | 15.3 | keep as flavour (the rule gives the base; the cell adds a twist) |
