@@ -2139,7 +2139,6 @@ function drawEnemy(e, lod) {
     for (let i = 0; i < 4; i++) { const a = ga + i * Math.PI / 2; ctx.beginPath(); ctx.arc(x, y, gr, a, a + 0.9); ctx.stroke(); }
     ctx.fillStyle = '#ff4d6d'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('GRUDGE', x, y - gr - 6);
   }
-  if ((e.auraArm > 0 || e.armour >= 8) && !e.boss) { ctx.strokeStyle = '#8da9c4'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r + 1, -2.4, -0.7); ctx.stroke(); }
   if (e.rival && !e.portrait) {
     // Rival champions: name and level (their health ring comes with the Rival Dyes or the Anti-Immune Stain).
     const by = y - r - 12;
@@ -2448,7 +2447,7 @@ function drawHud() {
     ctx.fillStyle = '#000000'; for (const m of [0.33, 0.66]) ctx.fillRect(bx + jx + bw * m - 1, by - 2, 2, 14);
     ctx.textAlign = 'center'; ctx.fillStyle = XR.white; ctx.font = 'bold 15px ' + MONO;
     const nm = b.twin ? b.def.name : b.name;
-    const tag = G.revive ? `  REBUILDING IN ${Math.max(0, Math.ceil(G.revive.t - G.t))}s` : b.winded > G.t ? '  WINDED: HIT IT!' : b.glaring ? '  GLARING: HIT IT!' : b.armour >= 6 ? `  [ARMOUR ${Math.round(effArmour(b))}]` : '';
+    const tag = G.revive ? `  REBUILDING IN ${Math.max(0, Math.ceil(G.revive.t - G.t))}s` : b.winded > G.t ? '  WINDED: HIT IT!' : b.glaring ? '  GLARING: HIT IT!' : '';
     ctx.fillText(nm + tag, bx + bw / 2, by - 8);
   }
   // The sperm count (always ticking down), then the Final Five, then the egg.
