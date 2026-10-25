@@ -280,6 +280,7 @@ const { chromium } = require('playwright');
         if (off) { G.player.x = b.x; G.player.y = b.y + 300; }
         run(300, t => {
           const sc = b.sg2 && b.sg2.sc;
+          if (off && sc) { G.player.x = b.x - Math.cos(sc.a0) * 300; G.player.y = b.y - Math.sin(sc.a0) * 300; } // (outside: behind the Eye, opposite the locked sector, every frame so autorun cannot drift in)
           if (sc && sc.ph === 0) { if (tellAt < 0) tellAt = t; render(); }
           if (sc && sc.ph === 1) { if (sweepAt < 0) { sweepAt = t; a0 = sc.ang; } a1 = sc.ang; }
           if (sc && sc.ph === 2) { endT = t; return true; }
