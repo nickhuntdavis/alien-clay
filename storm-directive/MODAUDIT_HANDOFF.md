@@ -56,6 +56,7 @@ Acceptance: the test passes, the audit's NO-OP count is under 20, and no weapon 
 Known cost: the Delivery cards themselves (Melee, Mines and so on) stay offered; this only hides what dies after them.
 
 ## Task 2: route the Delivery replacements through the modifier path (Opus, high effort)
+Status (25 Oct): done on `ccr-01uaxx2k-delivmods`: 761 -> 670 NO-OP. Step 4 (regenerate MOD_DEAD) waits for task 1 to merge.
 Goal: Charge-Up, Empowered Attack, Focus, Close Range, Long Range, Status Boost, Explosive Hits and Piercing apply to
 melee swings, mines, ranged strikes and the Laser's mine beams and sword, so taking them after a Delivery does something.
 1. In `mwFire` (modwide.js:123) the Charge-Up block (:127) already runs before the early returns, but Mines and Melee then

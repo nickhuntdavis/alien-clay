@@ -241,7 +241,7 @@ function msDmgMul(e, src) {
   if (e.snareT > G.t && e.msCement > G.t) k *= 1.3; // Cement
   if (!w || msSkip(src)) return k;
   // Focused Intensity on this weapon
-  if (msR(w, 'focus')) {
+  if (msR(w, 'focus') && !src.mwDel) { // (a Delivery's hits take Focus's Delivery form: modwide.js mwFocusStep)
     const F = w._f || (w._f = { e: null, s: G.t, last: -9, pass: 0 });
     if (F.e !== e && F.e && !F.e.dead && G.t - F.last < 0.3) return k; // (a second enemy in the same beam or volley: no ramp, no switch)
     if (F.e !== e || G.t - F.last > 1) {

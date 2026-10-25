@@ -135,10 +135,10 @@ function mwFire(w, target, src) {
   }
   w.mwLastF = G.t;
   // Kinship, Chorus: the other weapons of this type echo the hit
-  // Delivery replacements
-  if (mwR(w, 'melee') && target) return mwMelee(w, target, src);
-  if (mwR(w, 'ranged') && target) { const r = (w.s.area || 60) * (msMa(w, 'ranged') === 'A2' ? 2 : 1); mwStrike(w, target.x, target.y, r, 1, src); mwRangedExtra(w, target, src); return true; }
-  if (mwR(w, 'mines')) { mwLay(w, target, src); return true; }
+  // Delivery replacements (mwDel: the modifier path for the attack they replace)
+  if (mwR(w, 'melee') && target) return mwMelee(w, target, mwDel(w, target, src));
+  if (mwR(w, 'ranged') && target) { src = mwDel(w, target, src); const r = (w.s.area || 60) * (msMa(w, 'ranged') === 'A2' ? 2 : 1); mwStrike(w, target.x, target.y, r, 1, src); mwRangedExtra(w, target, src); return true; }
+  if (mwR(w, 'mines')) { mwLay(w, target, mwDel(w, target, src)); return true; }
   if (mwR(w, 'dfa') && target && mwDfaRoll(w)) { // (an extra: falls through to the weapon's own attack)
     const m = msMa(w, 'dfa');
     if (m === 'B1') { for (const e of acquireMany('strongest', s.range || 400, p.x, p.y, 6)) mwDfa(w, e, src, 0.6); return false; }
@@ -153,9 +153,29 @@ function mwFire(w, target, src) {
 }
 wupFire = (orig => function (w, t, src) { const took = orig(w, t, src); return mwFire(w, t, src) || took; })(wupFire);
 
+// A Delivery that replaces the attack (Melee, Ranged, Mines; the Laser's sword and mines in laserbeam.js) takes the shot
+// before modifiers.js modFire runs (wupFire is asked first), so it runs modFire's part here: Empowered Attack and Stat
+// Scaling (modAtk), Volley and Lunge. Its hits carry src.mwDel, which these read:
+//  - Focus: no per-target ramp (a swing or blast hits a crowd): each attack that follows a hit within 1.5 s adds a quarter
+//    of Focus's peak (40 / 80 / 120%), and a miss or a pause clears it (1.5 s, or two attack gaps if longer: mwFocusStep).
+//  - Piercing (Melee): the swing also thrusts past the arc, 60 further a rank, through 2 enemies a rank (15% less each).
+//  - Long Range: a 20% longer reach a rank (Melee); mines are thrown up to 100 a rank towards the target (Mines).
+// Explosive Hits, Close Range, Charge-Up (wupStats) and Status Boost reach these hits already. (Homing and Bounce on a
+// Delivery: MODAUDIT_HANDOFF.md task 3.)
+function mwDel(w, target, src) {
+  if (w.def.v10 && typeof modFire === 'function') modFire(w, target, src);
+  mwFocusStep(w);
+  return Object.assign(src, { mwDel: true });
+}
+function mwFocusStep(w, gap) { // gap: seconds between this weapon's attacks (slow layers get a longer window)
+  const r = Math.min(3, msR(w, 'focus')); if (!r) return;
+  const top = msLv(MS_NEW.focus.cap.top, r) * (msMa(w, 'focus') === 'A2' ? 2 : 1);
+  w.mwFdK = G.t - (w.mwFdHitT || -9) < Math.max(1.5, 2 * (gap != null ? gap : (w.s && w.s.cd) || 0)) ? Math.min(top, (w.mwFdK || 0) + top / 4) : 0;
+}
+
 // Melee: a strike in a 150-degree arc in front, reach 90 (a Contact attack). Brawler combos; Hit and Run dashes.
 function mwMelee(w, target, src) {
-  const p = G.player, a = Math.atan2(target.y - p.y, target.x - p.x), reach = 90 * (typeof areaK === 'function' ? areaK(w) : 1), m = msMa(w, 'melee');
+  const p = G.player, a = Math.atan2(target.y - p.y, target.x - p.x), reach = 90 * (typeof areaK === 'function' ? areaK(w) : 1) * (1 + 0.2 * mwR(w, 'range')), m = msMa(w, 'melee');
   const msrc = Object.assign({}, src, { atk: 'contact' });
   let k = 1.5;
   if (msA(w, 'melee', 2)) { w.mwCombo = ((w.mwCombo || 0) % (mwR(w, 'melee') >= 3 ? 4 : 3)) + 1; const last = w.mwCombo === (mwR(w, 'melee') >= 3 ? 4 : 3); if (last) { k *= mwR(w, 'melee') >= 3 ? 2 : 1.5; if (m === 'A2') mwStrike(w, p.x, p.y, 100, 2, msrc); } }
@@ -175,10 +195,22 @@ function mwMelee(w, target, src) {
     damageEnemy(e, w.s.dmg * k, msrc); hits++;
     if (msA(w, 'melee', 2) && w.mwCombo === (mwR(w, 'melee') >= 3 ? 4 : 3)) shove(e, p.x, p.y, 200);
   }
+  hits += mwThrust(w, a, reach, w.s.dmg * k, msrc);
   if (m === 'A1') { w.mwBers = hits ? Math.min(10, (w.mwBers || 0) + 1) : 0; w.mwBersT = G.t; } // Berserker
   (G.v10fx || (G.v10fx = [])).push({ k: 'arc', x: p.x, y: p.y, a, r: reach, c: w.def.color, life: 0.15, max: 0.15 });
   ring(p.x + Math.cos(a) * reach * 0.6, p.y + Math.sin(a) * reach * 0.6, reach * 0.5, w.def.color, 0.15, 3);
   return true;
+}
+// Piercing on a swing (Melee here, the Laser's sword in laserbeam.js): a thrust along the aim past the arc, 60 further a
+// rank, through 2 enemies a rank, each 15% weaker. Returns the hits.
+function mwThrust(w, a, reach, dmg, src) {
+  const pc = Math.min(3, modCount(w, 'piercing')); if (!pc) return 0;
+  const p = G.player, L = reach + 60 * pc, ux = Math.cos(a), uy = Math.sin(a), line = [];
+  for (const e of G.enemies) { if (e.dead || e.charmed) continue; const t = (e.x - p.x) * ux + (e.y - p.y) * uy; if (t > reach * 0.5 && t < L + e.r && Math.abs((e.y - p.y) * ux - (e.x - p.x) * uy) < e.r + 14 && Math.hypot(e.x - p.x, e.y - p.y) > reach + e.r) line.push([t, e]); }
+  const hit = line.sort((u, v) => u[0] - v[0]).slice(0, 2 * pc);
+  hit.forEach(([, e], i) => damageEnemy(e, dmg * (1 - MODS10.piercing.cap.cost * (i + 1)), src));
+  bolt(p.x + ux * reach, p.y + uy * reach, p.x + ux * L, p.y + uy * L, w.def.color, 0.15);
+  return hit.length;
 }
 // Ranged extras: Long Arm Lv 3 hits a second enemy in line; Grappling Hook pulls the target in; Proxy repeats the attack.
 function mwRangedExtra(w, target, src) {
@@ -196,6 +228,7 @@ function mwLay(w, target, src) {
   const put = (x, y) => { S.mines.push({ w, x, y, t: G.t + 14, armed: G.t + 0.4, src, big: 1, rearm: msB(w, 'mines', 3) ? 1 : 0 }); };
   if (m === 'A1') { const a = target ? Math.atan2(target.y - p.y, target.x - p.x) : 0; for (let i = 0; i < 5; i++) put(p.x - Math.cos(a) * 30 * i, p.y - Math.sin(a) * 30 * i); }
   else if ((m === 'B1' || m === 'B2') && target) { const a = Math.atan2(target.y - p.y, target.x - p.x); put(p.x + Math.cos(a) * 120, p.y + Math.sin(a) * 120); } // (thrown towards an enemy: simplified)
+  else if (mwR(w, 'range') && target) { const a = Math.atan2(target.y - p.y, target.x - p.x), d = Math.min(100 * mwR(w, 'range'), Math.hypot(target.x - p.x, target.y - p.y)); put(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d); } // (Long Range: thrown)
   else put(p.x + rand(-20, 20), p.y + rand(-20, 20));
   const mine = S.mines.filter(q => q.w === w); while (mine.length > cap * (m === 'A1' ? 2 : 1)) { const o = mine.shift(); S.mines.splice(S.mines.indexOf(o), 1); }
   if (m === 'A2') { // Mega Mine: three close together merge
@@ -225,6 +258,8 @@ function mwDmgMul(e, src) {
     if (msMa(w, 'kinship') === 'A1' && kin >= 2) k *= 1.3; // Full Family
     if (msMa(w, 'kinship') === 'B2' && w.mwRefT > G.t) k *= 1 + 0.2 * (w.mwRefN || 1); // Referee
   }
+  // Focus on a Delivery's hits (mwFocusStep)
+  if (src.mwDel && w.mwFdK) k *= 1 + w.mwFdK;
   // Pulling, Gravity: pulled enemies take more from this weapon
   if (msA(w, 'pull', 2) && e.mwPulledT > G.t) k *= mwR(w, 'pull') >= 3 ? 1.2 : 1.1;
   // Up Close masteries
@@ -255,6 +290,7 @@ function mwHit(e, res, src) {
     if (!B || M.by.size >= 2) { e.mwPr = null; mwDetonate(e, pw, M); }
   }
   if (!w || src.dot || src.echo || src.rx || src.wupEcho || src.mwDet) return;
+  if (src.mwDel) w.mwFdHitT = G.t; // (Focus on a Delivery: mwFocusStep)
   if (src.mwFull) res.heavy = true; // Full Charge Lv 3
   // Exploding Rounds, Pop Pop (and Lv 1 of either branch): hits explode round the target
   const er = mwR(w, 'explode');
@@ -273,8 +309,8 @@ function mwHit(e, res, src) {
   if (msMa(w, 'kinship') === 'A2' && res.toHp > 0) for (const x of mwWs().filter(x => x !== w && mwType(x) === mwType(w)).slice(0, 3)) damageEnemy(e, x.s.dmg * 0.4, msEcho(weaponSrc(x)));
   // Primer: mark
   const pr = mwR(w, 'primer');
-  if (pr && (typeof lzIs === 'function' && lzIs(w))) { if (G.t - (e.lzPrL || -9) > 0.25) e.lzPrS = G.t; e.lzPrL = G.t; } // (the Laser marks an enemy held 0.5 s)
-  if (pr && !e.dead && !(e.mwPr && e.mwPr.t > G.t) && !((typeof lzIs === 'function' && lzIs(w)) && G.t - e.lzPrS < 0.5)) e.mwPr = { w, t: G.t + (msA(w, 'primer', 2) ? 8 : 4), by: new Set(), steps: 0 };
+  if (pr && (typeof lzIs === 'function' && lzIs(w)) && !src.lzDel) { if (G.t - (e.lzPrL || -9) > 0.25) e.lzPrS = G.t; e.lzPrL = G.t; } // (the Laser marks an enemy held 0.5 s)
+  if (pr && !e.dead && !(e.mwPr && e.mwPr.t > G.t) && !((typeof lzIs === 'function' && lzIs(w)) && !src.lzDel && G.t - e.lzPrS < 0.5)) e.mwPr = { w, t: G.t + (msA(w, 'primer', 2) ? 8 : 4), by: new Set(), steps: 0 };
   // Knockback
   const kr = mwR(w, 'knock');
   if (kr && !e.boss && (typeof lzIs === 'function' && lzIs(w)) && e.lzCrossT > G.t) { /* (caught in Crossfire: pinned, not pushed) */ }
