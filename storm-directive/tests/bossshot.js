@@ -1,6 +1,6 @@
 // The boss pack (bosspack.js): all six sprites (Litmus Strip, Johnny with its back open, Mucus Plug in its seal
 // with the four plugs, Cramp, Sneeze, cracked Kidney Stone) in both fields, then the Sneeze's cone and the
-// Cramp's tendon. Also checks the gimmicks: litmus types, the Johnny bouncing a shot, the seal widening, the stone's armour.
+// Cramp's tendon. Also checks the gimmicks: litmus types, the Johnny no longer bouncing a shot, the seal widening, the stone cracking a Shell layer per enrage.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 2 });
@@ -42,9 +42,9 @@ const { chromium } = require('playwright');
     out.litmus = [bossDamageMul(L, { elem: right === 'phys' ? null : right }), bossDamageMul(L, { elem: wrong === 'phys' ? null : wrong })];
     const J = mk('johnny'); J.face = Math.PI; // facing you (you are to its left)
     const pr = { x: J.x - J.r, y: J.y, vx: 400, vy: 0, dead: false };
-    const n0 = G.ebul.length; out.bounce = bossDodges(J, pr) && pr.dead && G.ebul.length > n0;
+    const n0 = G.ebul.length; out.bounce = bossDodges(J, pr) || pr.dead || G.ebul.length > n0; // (v10: no front bounce, so all three are false)
     const pr2 = { x: J.x + J.r, y: J.y, vx: -400, vy: 0, dead: false }; out.backHit = !bossDodges(J, pr2) && bossDamageMul(J, {}) >= 1;
-    const S2 = mk('stone'); out.stoneArmour = S2.armour; out.stoneK = S2.armK; bpPhase(S2, 1); out.stoneCracked = S2.armour;
+    const S2 = mk('stone'); const L0 = fightCd(S2).layers; bpPhase(S2, 1); out.stoneArmour = L0; out.stoneCracked = fightCd(S2).layers; out.frontMul = bossDamageMul(J, {});
     G.enemies = G.enemies.filter(e => e.def.id !== 'mucus' && e.plugA == null);
     const M = mk('mucus'); G.boss = M; M.sealed = false; bpUpkeep(M, 1 / 60); const r0 = G.bpRing.r, plugs = G.enemies.filter(e => e.plugA != null);
     out.plugs = plugs.length; plugs[0].dead = true; for (let i = 0; i < 120; i++) bpTick(1 / 60); out.widened = G.bpRing.want > 380;
@@ -52,7 +52,7 @@ const { chromium } = require('playwright');
     return out;
   });
   console.log(JSON.stringify({ sn, cr, g }));
-  const ok = g.litmus[0] > 1 && g.litmus[1] < 0.5 && g.bounce && g.backHit && g.stoneArmour >= 40 && g.stoneK === 1 && g.stoneCracked === g.stoneArmour - 10 && g.plugs === 4 && g.widened && g.open && sn.coneA && cr.gripping;
+  const ok = g.litmus[0] > 1 && g.litmus[1] === 0.65 && !g.bounce && g.backHit && g.frontMul === 1 && g.stoneArmour === 6 && g.stoneCracked === 5 && g.plugs === 4 && g.widened && g.open && sn.coneA && cr.gripping;
   if (!ok) console.log('FAIL gimmicks');
   console.log('ERRORS', JSON.stringify(errors)); await b.close(); process.exit(errors.length || !ok ? 1 : 0);
 })();
