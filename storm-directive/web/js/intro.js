@@ -5,6 +5,11 @@
 // Once ever (saved in META.seen), not once a run. Settings > Tutorial resets it. Bosses always get the
 // full introduction (bosses.js). Everything you've met goes in the Field Guide.
 
+// The Field Guide counts only enemies that can still turn up: a live weight in the roster (or the enemy table), a place in a wave mix, or a campaign level's own enemy.
+const introLive = id => { const d = (typeof ROSTER !== 'undefined' && ROSTER[id]) || (typeof ENEMIES !== 'undefined' && ENEMIES[id]) || {}; return d.w > 0 || Object.values(WAVES10).some(W => W.mix && W.mix[id]) || (typeof LV_FOES !== 'undefined' && !!LV_FOES[id]); };
+const introIds = () => Object.keys(ENEMY_INTRO).filter(introLive);
+const introSeen = () => Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k] && introLive(k)).length;
+
 // what: what it is and does. tip: how to deal with it.
 const ENEMY_INTRO = {
   crawler:    { what: 'One of the four hundred million. Not a threat on its own. There is never one on its own.', tip: 'Anything that hits a crowd. Keep swimming and let your weapons mow them down.' },
@@ -26,8 +31,6 @@ const ENEMY_INTRO = {
   spire:      { what: 'Rooted to the spot, spraying a spiral of enzymes.', tip: 'Stay out of its reach or kill it fast. The spiral has gaps: time your way through.' },
   lancer:     { what: 'A sniper. A thin line shows where it is aiming, then a fast, heavy shot.', tip: 'Move when you see the line. Kill it from the side.' },
   amoeba:     { what: 'Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback.', tip: 'Acid and big blasts. Don\'t let it eat its way to a giant size.' },
-  plasmod:    { what: 'A giant amoeba made of many. It splits into amoebas when it dies.', tip: 'Save your area damage for when it bursts.' },
-  pinworm:    { what: 'A wriggling worm. Tougher than it looks and hard to hit side on.', tip: 'Piercing shots go down its length.' },
   diatom:     { what: 'A glass-shelled turret: heavy armour and a ring of shots.', tip: 'Armour shred and big hits. Its rings have gaps.' },
   waterbear:  { what: 'A tardigrade: very tough, very armoured, and it curls into a near-indestructible ball when hurt.', tip: 'Back off while it is curled up, then finish it. Damage over time ignores its armour.' },
   paramecium: { what: 'Swims in long straight lines and backs off when it bumps into you.', tip: 'Predictable: put a trap or a mine in its path.' },

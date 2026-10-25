@@ -442,7 +442,7 @@ function bpDraw() {
 const bpHalo = (w, a) => { ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = Math.max(1, w); ctx.stroke(); };
 Object.assign(MICROBES, {
   // A strip of indicator paper, swaying; the dipped end shows the one damage type that hurts it.
-  litmus(e, x, y, r) {
+  litmusstrip(e, x, y, r) {
     const fl = e.flash > 0, lit = e.lit || 'fire', c = ELEMENTS[lit].color, soak = e.soakUntil > G.t, sw = Math.sin(e.age * 0.7 + e.id) * 0.25;
     ctx.save(); ctx.translate(x, y); ctx.rotate(sw);
     const w = r * 0.62, L = r * 1.25, bend = r * 0.12 * Math.sin(e.age * 1.3);

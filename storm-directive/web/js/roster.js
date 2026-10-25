@@ -393,7 +393,7 @@ const ROSTER_BOSSES = [
     atk: [{ type: 'spread', mode: 'ring', dmg: 10, count: 14, arc: 360, tele: 0.6 }, { type: 'proj', mode: 'spiral', dmg: 8, tele: 0 }],
     illusion: { copies: 2, maxSeconds: 4, realOneMarked: true, possessedReduced: true },
     notes: 'Boss-scale illusion with no long target confusion: the real one stays marked. Force immunity is dropped (a hard counter); takes a reduced Possessed like every boss. Answers: any damage once the copies fade.' },
-  { id: 'litmus', tier: 1, name: 'THE LITMUS STRIP', title: 'Tester of Everything, Twice', shape: 'litmus', color: '#ff5d8f',
+  { id: 'litmus', tier: 1, name: 'THE LITMUS STRIP', title: 'Tester of Everything, Twice', shape: 'litmusstrip', color: '#ff5d8f',
     hp: 1500, speed: 40, r: 46, dmg: 18, xp: 85, patterns: ['litmusdrip', 'ring', 'aimedFan', 'litmusdrip'], litmus: true,
     role: ['boss'], def: null, dmgType: 'acid',
     atk: [{ type: 'pool', mode: 'litmusdrip', dmgType: 'acid', radius: 45, life: 4, tele: 0.6 }, { type: 'spread', dmg: 8, count: 10, arc: 360, tele: 0.6 }],

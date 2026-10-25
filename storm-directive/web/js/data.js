@@ -853,7 +853,7 @@ const BOSSES = [
     strengths: ['Immune to Force damage', 'Swims through obstacles'], weaknesses: ['Blood: +50% damage', 'Terrain still hurts it: Acid Crypts, cilia and ATP bursts'],
     weak: { arcane: 1.5 }, relics: ['seethrough', 'poltergeist', 'ectoplasm'] },
   // The boss pack (bosspack.js): one gimmick each, and each one teaches a mechanic.
-  { id: 'litmus', tier: 1, name: 'THE LITMUS STRIP', title: 'Tester of Everything, Twice', shape: 'litmus', color: '#ff5d8f',
+  { id: 'litmus', tier: 1, name: 'THE LITMUS STRIP', title: 'Tester of Everything, Twice', shape: 'litmusstrip', color: '#ff5d8f',
     hp: 1500, speed: 40, armour: 0, r: 46, dmg: 18, xp: 85, patterns: ['litmusdrip', 'ring', 'aimedFan', 'litmusdrip'], litmus: true,
     phase: ['It is turning a funny colour. Funnier than usual.', 'Now it is changing its mind every few seconds. Typical.'],
     quote: 'Hold still. I need to know exactly how acidic you are.',

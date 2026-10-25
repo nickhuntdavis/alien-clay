@@ -337,7 +337,7 @@ const UI = {
     if (tab !== 'data') { UI.bindSettingChips(body); return; }
     body.innerHTML += uiPanel('Back up your save', `${uiHint('Copies everything this phone keeps (progress, run log, settings) as one code. Paste it somewhere safe; if you ever reinstall the game, paste it back here.')}${uiChips(uiChip('COPY SAVE CODE', { attrs: 'id="saveExport"' }))}<textarea id="saveText" style="display:none;width:100%;height:90px;font-size:10px" placeholder="Paste a save code here"></textarea>${uiChips(uiChip('RESTORE FROM A CODE', { attrs: 'id="saveImport"' }))}${uiHint('', '', 'id="saveMsg"')}`, 'setrow');
     body.innerHTML += uiPanel('Reset all progress', `${uiHint('Wipes everything this phone has earned: DNA, Gene Bank ranks, unlocked sequences and weapons, swimmer skins, generations, bests, achievements, the Field Guide and the run log. Your settings stay. This cannot be undone.')}${uiChips(uiChip('RESET ALL PROGRESS', { attrs: 'id="resetAll"' }))}`, 'setrow');
-    body.innerHTML += uiPanel('Tutorials', `${uiHint(`Brings back every tutorial: Level 0 (Swimming Lessons) on your next START SWIMMING, the tips cards, the effect and damage type cards, and the first-meeting card for each enemy (${Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length} of ${Object.keys(ENEMY_INTRO).length} met). Your Field Guide keeps everything you have found.`)}${uiChips(uiChip('RESET TUTORIALS', { attrs: 'id="tutReset"' }))}`, 'setrow');
+    body.innerHTML += uiPanel('Tutorials', `${uiHint(`Brings back every tutorial: Level 0 (Swimming Lessons) on your next START SWIMMING, the tips cards, the effect and damage type cards, and the first-meeting card for each enemy (${introSeen()} of ${introIds().length} met). Your Field Guide keeps everything you have found.`)}${uiChips(uiChip('RESET TUTORIALS', { attrs: 'id="tutReset"' }))}`, 'setrow');
     body.innerHTML += uiPanel('Reset settings', `${uiHint('Puts every setting on this screen back to how it started. Your progress is not touched.')}${uiChips(uiChip('RESET SETTINGS', { attrs: 'id="setReset"' }))}`, 'setrow');
     body.innerHTML += uiPanel('Run log', `${uiHint(`${RUNLOG.length} run${RUNLOG.length === 1 ? '' : 's'} recorded on this phone (${RUNLOG.filter(r => r.res === 'WON').length} born). Copy it and paste it to whoever is balancing the game.`)}
       ${uiChips(`${uiChip('COPY RUN LOG', { attrs: 'id="logCopy"' })}${uiChip('CLEAR', { attrs: 'id="logClear"' })}`)}${uiHint('', '', 'id="logMsg"')}<textarea id="logText" readonly style="display:none;width:100%;height:160px;margin-top:8px;background:#000;color:#d6e4f0;font:10px monospace;border:1px solid #ffffff30;border-radius:6px"></textarea>`, 'setrow');
@@ -747,11 +747,11 @@ const UI = {
   // does and how to beat it instead of a boss's strengths and weaknesses.
   openFoeIntro(e, id) {
     $('biFight').textContent = 'FIGHT';
-    const d = e.def, I = ENEMY_INTRO[id], box = $('bossIntro'), seen = Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length;
+    const d = e.def, I = ENEMY_INTRO[id], box = $('bossIntro'), seen = introSeen();
     box.classList.add('foe');
     box.style.setProperty('--bc', d.color);
     const word = (v, lo, hi, a, b, c) => (v < lo ? a : v < hi ? b : c);
-    $('biCount').innerHTML = `FIRST SIGHTING <span>${seen} OF ${Object.keys(ENEMY_INTRO).length} IN YOUR FIELD GUIDE</span>`;
+    $('biCount').innerHTML = `FIRST SIGHTING <span>${seen} OF ${introIds().length} IN YOUR FIELD GUIDE</span>`;
     $('biTitle').textContent = 'NEW ON THE SLIDE';
     $('biName').textContent = d.name;
     // The first shooter you ever meet is told, in as many words, that shooters shoot.
@@ -1231,12 +1231,12 @@ const UI = {
     const run = !!G, cyan = PAL.upgrade, sec = UI.codexSec || 'all', box = (title, inner, hint) => uiPanel(`${title}`, `${hint ? uiHint(hint) : ''}${inner}`);
     const wids = wl_wids(), used = wids.filter(id => wl_stat(id));
     const pf = wl_pairs().filter(q => META.pairs[q.id]), qs = Object.keys(QUIRKS), qf = qs.filter(id => META.quirks[id]);
-    const beasts = Object.keys(META.seen || {}).filter(k => ENEMY_INTRO[k]).length;
+    const beasts = introSeen();
     const met = Object.keys(META.bosses).length, rel = Object.keys(RELICS).filter(id => META.relics[id]);
     const pids = wl_profiles(), pu = pids.filter(profUnlocked), mids = Object.keys(MUTATIONS), mf = mids.filter(id => META.muts[id]);
-    const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts, all = wids.length + wl_pairs().length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + Object.keys(ENEMY_INTRO).length;
+    const got = used.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts, all = wids.length + wl_pairs().length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + introIds().length;
     let h = uiPanel('', `<div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>FIELD GUIDE COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
-      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${wl_combos().filter(c => META.combos && META.combos[c.id]).length}/${wl_combos().length}</span><span>Pairings ${pf.length}/${wl_pairs().length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${Object.keys(ENEMY_INTRO).length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div>`, 'cdxhead');
+      <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${wl_combos().filter(c => META.combos && META.combos[c.id]).length}/${wl_combos().length}</span><span>Pairings ${pf.length}/${wl_pairs().length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${introIds().length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div>`, 'cdxhead');
     h += uiChips([['all', 'ALL'], ['samples', 'SAMPLES'], ['weapons', 'WEAPONS'], ['feats', 'FEATS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => uiChip(l, { sel: sec === id, attrs: `data-cdx="${id}"` })).join(''), 'cdxtabs');
     const show = id => sec === 'all' || sec === id;
     if (show('weapons')) {
@@ -1305,7 +1305,7 @@ const UI = {
         rv += `<div class="li cdxe">${portraitTag('rival', R.id, m)}<div><b${m ? ` style="color:${R.color}"` : ''}>${m ? esc(R.name) : '???'}</b>${m ? ' <em>' + esc(R.nick) + '</em>' : ''}<br><span>${m ? esc(R.bio) + UI.rivalBars(R) + R.specs.map(x => '<b>' + esc(x.name) + '</b>: ' + esc(x.desc)).join('<br>') + '<br><i>' + esc(R.tip) + '</i>' : 'Not met yet.'}</span></div></div>`;
       }
       h += box(`Rivals (${RIVALS.filter(R => META.seen && META.seen['rival_' + R.id]).length}/${RIVALS.length} met)`, uiList(rv), 'The other swimmers in the race, with their specialities.');
-      h += box(`Enemies (${beasts}/${Object.keys(ENEMY_INTRO).length} met)`, uiList(l), 'Every enemy type you have met, with how to beat it. Settings > Tutorial lets you meet them again.');
+      h += box(`Enemies (${beasts}/${introIds().length} met)`, uiList(l), 'Every enemy type you have met, with how to beat it. Settings > Tutorial lets you meet them again.');
     }
     if (show('bosses')) {
       let l = '';
