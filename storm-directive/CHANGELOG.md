@@ -3,6 +3,73 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.128 (versionCode 407): 2026-10-25 Enemy handoff Batch A
+- Merged: `claude/practical-brahmagupta-ry2k05` (enemy assessment; ENEMY_HANDOFF.md Batch A, branches enemy-a1a to enemy-a7) into main's v10.127. One build.
+
+### Folded from claude-practical-brahmagupta-ry2k05: 2026-10-25 Enemy assessment: Batch A merged (v10.126)
+- Systems: bosses, enemies, roster, campaign, ui, docs
+- Files: ENEMY_HANDOFF.md (new), ENEMY_COPY_BRIEF.md (new, from enemy-a7), tests/statuptest.js, tests/v10test.js, tests/autoruntest.js, plus the seven `changes/enemy-a*.md` fragments merged with their branches (enemy-a1a, a2, a3, a4, a5, a6, a7)
+- What: the seven Batch A tasks from `ENEMY_HANDOFF.md` merged and shipped as one build: relic, spoils and rival-trophy boxes open again; Chad Prime's second dodge, the Johnny's front rules and the Litmus Strip's retired colours gone, Kidney Stone sheds a Shell layer per enrage, the twins get their roster defences; armour display and HIGHEST ARMOUR targeting gone (TOUGHEST counts Membrane and Shell); Mirror Cell, Grease Ball, Platelet Clump, Brood Cyst, Broodling and Planarian join ROSTER, Litmus Cell parked, no v9 type multipliers; Level 1 germs and the Tartar Colony use the wired roster; Field Guide counts, the Ingrown Hair sighting line and the player guide fixed. Tests: v10test no longer expects relic boxes dropped; autoruntest expects the retired armour directive to read as TOUGHEST; statuptest silences first-sighting cards and narrator lines (it is still noisy: the same weapon swings 39 to 71 damage between identical seeded runs on main, so a 20% band fails by chance).
+- Save data: none.
+- Hooks: bosses.js spawnBoss -> boss10Twins (boss10.js); fight.js fightCd reads e.v10def first and fightId falls back to def.rosterId (levels.js).
+- Risk: boss fights untested in play (A2 sims could not force a named boss); Level 1 balance after the 0.45 boss knob (bot won once in the sim); three live placeholders: TODO_COPY:aim_tough_desc (TOUGHEST aim line), boss_stone_crack (Kidney Stone float text), tartar_desc (Level 1 boss card).
+
+### Folded from enemy-a1a: 2026-10-25 Relic boxes open again (handoff A1a, not shipped)
+- Systems: loot, bosses, rewards
+- Files: web/js/draft.js, web/js/raceplan.js, tests/bosstest.js
+- What: `draftBox` now lets `relic`, `spoils` and `rrelic` boxes open (v10 dropped them, so boss relics never appeared); `rplanFree` passes `spoils` and `rrelic` in the Race. Wave mode already exempts `now` boxes in `waveHoldsLoot`; `dirGate` opens `now` boxes at once.
+- Save data: none
+- Hooks: none (one list extended in draft.js draftBox, one in raceplan.js rplanFree)
+- Risk: boss kills now open two extra screens (relic, spoils); relic effects are unported (A1b), so some do nothing under v10.
+
+### Folded from enemy-a2: 2026-10-25 Boss rules against v10 (A2, no build)
+- Systems: bosses, defences
+- Files: data.js, bosses.js, bosspack.js, boss10.js, fight.js (one token), tests/bossshot.js
+- What: Chad Prime has only Evasion (the 30% `dodge` is gone). The Johnny no longer bounces shots off its front or takes 0.4x there (its Membrane is the defence; the overshoot opening still pays 1.5x). Litmus Strip tests the seven live damage types and resists a wrong type by 35% (0.65). Mitch has a Membrane and Osis a Shell, each from the roster `parts` (`boss10Twins`, `e.v10def` read first by `fightCd`). Each Kidney Stone enrage sheds one Shell layer (armour, shred-stick and "-10 ARMOUR" code removed). The Fever's rage is speed x2 and attack rate x1.5 (was dt x2); `resist.fire === 0` checks removed. The Fever's `frozen` glue trigger is kept: Conjoined and Held in Suspension both set `frozen` on bosses (0.5 s, 0.3 s).
+- Save data: none
+- Hooks: bosses.js spawnBoss -> boss10Twins; fight.js fightCd reads e.v10def; bpBounce hook in bossDodges removed.
+- Risk: Johnny and Kidney Stone fights are easier to damage (no 0.4x front); Stone's Shell is 6 layers on the roster, not 40 armour. Intro cards for Johnny, Stone, Prime and Fever may still name the old rules (copy, see report). Boss HP untouched.
+
+### Folded from enemy-a3: 2026-10-25 Armour display and targeting purge (A3)
+- Systems: ui (inspector), render, targeting (aim), data
+- Files: inspect.js, render.js, data.js, game.js, autorun.js, newfeats.js
+- What: the inspector no longer shows an Armour stat or WEAK TO / RESISTS rows; the boss `[ARMOUR N]` tag and the armour arc on aura-armoured enemies are gone. HIGHEST ARMOUR is removed from the aim menu; TOUGHEST now ranks by max HP plus the defence pool (Membrane pool, Shell layers' health). The retired id `armour` still resolves (as TOUGHEST) so stored directives and pairs work; Formic Acid now aims at `strongest`.
+- Save data: none
+- Hooks: none
+- Risk: TOUGHEST now creates the defence state (`fightCd`) when it scores an enemy; `armour` fields on defs untouched (E1 deletes them). TOUGHEST description is `TODO_COPY:aim_tough_desc`.
+
+### Folded from enemy-a4: 2026-10-25 Strays into the roster (no build)
+- Systems: enemies, roster
+- Files: roster.js, foes2.js, pstatus.js, game.js, ENEMY_STATS.md, ENEMY_BEHAVIOUR.md
+- What: Mirror Cell (Membrane), Grease Ball (Squishy), Platelet Clump, Brood Cyst, Broodling, Planarian are ROSTER rows with v10 defences; the Litmus Cell is retired (`w: 0`, `status: 'park'`, kept by id). `foes2Dmg` no longer applies weak/resist. Mirror's front reflection is gone; Grease Ball no longer lubricates you (slick zone, `pstGrip` effect and the enemy Oil look removed, its slow glob stays); Platelet Clump costs a piercing shot one extra pierce instead of stopping it.
+- Save data: none.
+- Hooks: none added (game.js: removed the `pstGrip()` factor and the `z.oil` fizz line).
+- Risk: Mirror Cell and Grease Ball are now tankier in effect (Membrane/Squishy on top of old HP); not simmed for balance.
+
+### Folded from enemy-a5: 2026-10-25 Level 1 enemies on the v10 roster (handoff A5)
+- Systems: campaign (levels), fight
+- Files: levels.js, fight.js
+- What: Level 1's five germs and the Tartar Colony are now built on first use (after the roster is wired), so they keep their base enemy's v10 defence and attacks instead of pre-roster copies; the Colony gets the Colossus's Shell x5 and no armour, and its HP takes the V10_DIFF.bossHp knob like every other mode. Its description is `TODO_COPY:tartar_desc`; its strengths and weaknesses are the Colossus's v10 ones.
+- Save data: none
+- Hooks: fight.js fightId falls back to `def.rosterId` (set on the Level 1 copies).
+- Risk: Level 1 enemies are tougher or squishier by their base's v10 defence; Colony HP is about 0.45x what it was. Level 1 balance not re-simmed beyond one bot win (207 s).
+
+### Folded from enemy-a6: 2026-10-25 Enemy bookkeeping: intro keys, live Field Guide counts, guide and litmus sprite (no version)
+- Systems: enemies, ui (Field Guide), tools
+- Files: voice.js, intro.js, junk.js, ui.js, bosspack.js, data.js, roster.js, tests/tools/guide.js, GAME_GUIDE.md
+- What: the Ingrown Hair sighting line is keyed `ingrown` (it was `thorny`, so it never showed). Pinworm and Plasmodium are gone from the first-sighting cards and from the Junk DNA powers. The "n OF N" counts (first-sighting card, Field Guide header, enemy list, Tutorials line) count only enemies that can still turn up: a live roster weight, a wave mix or a campaign level's own enemy (63 of 70 today). The Litmus Strip boss draws with its own `litmusstrip` sprite; the Litmus Cell keeps `litmus`, so the boss no longer runs the cell's paper strip drawing. The player guide's enemy table is built from the wired roster: no Armour or Weak/resists columns, a Defence column (Squishy, Membrane, Shell, Thorns, Evasion) instead, and roster role names where the old AI label is missing.
+- Save data: none (ids unchanged; `META.seen` keys unchanged).
+- Hooks: none.
+- Risk: Field Guide counts drop from 70 to 63 (N) and seen counts follow the same rule. Splitling, Volvoxling, Yeast, Pepsinjr, Endoskeleton, Broodling and Spore are not counted while they have no live spawn; meeting one does not raise the count. Ingrown Hair's sighting line still reads "Thorny" (copy, not changed). Guide enemy behaviour for new_* AIs shows roster roles, not sentences (copy, not changed).
+
+### Folded from enemy-a7: 2026-10-25 Copy brief for stale enemy text
+- Systems: docs
+- Files: ENEMY_COPY_BRIEF.md (new)
+- What: One brief lists the enemy, boss, status, glossary and Field Guide lines that name dead or changed mechanics. Each row has a TODO_COPY id (or a delete), the current text and its length, the facts the new line must convey, and a neighbour line. No game code or existing text changed.
+- Save data: none
+- Hooks: none
+- Risk: none
+
 ## v10.126 -> v10.127: 2026-10-25 Dead-card table regenerated after the Delivery routing and the Mines forms
 - Built on main (no branch). Systems: modifier cards, tests. Files: moddead.js, tests/moddead.js, tests/sim/modaudit.js (clears MOD_DEAD before planning, from c0f0687).
 - What: `MOD_DEAD` is regenerated from a full audit of main with tasks 1, 2 and 3 (batch 1) in: 648 NO-OP combos of 2810 are hidden (was 761 before the routing; Laser + Mines now hides nothing, so Charge-Up on it is offered again). The filter test now checks Laser + Melee + Homing stays hidden and Laser + Mines + Charge-Up is offered.

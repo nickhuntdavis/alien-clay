@@ -1,7 +1,0 @@
-## 2026-10-25 Enemy bookkeeping: intro keys, live Field Guide counts, guide and litmus sprite (no version)
-- Systems: enemies, ui (Field Guide), tools
-- Files: voice.js, intro.js, junk.js, ui.js, bosspack.js, data.js, roster.js, tests/tools/guide.js, GAME_GUIDE.md
-- What: the Ingrown Hair sighting line is keyed `ingrown` (it was `thorny`, so it never showed). Pinworm and Plasmodium are gone from the first-sighting cards and from the Junk DNA powers. The "n OF N" counts (first-sighting card, Field Guide header, enemy list, Tutorials line) count only enemies that can still turn up: a live roster weight, a wave mix or a campaign level's own enemy (63 of 70 today). The Litmus Strip boss draws with its own `litmusstrip` sprite; the Litmus Cell keeps `litmus`, so the boss no longer runs the cell's paper strip drawing. The player guide's enemy table is built from the wired roster: no Armour or Weak/resists columns, a Defence column (Squishy, Membrane, Shell, Thorns, Evasion) instead, and roster role names where the old AI label is missing.
-- Save data: none (ids unchanged; `META.seen` keys unchanged).
-- Hooks: none.
-- Risk: Field Guide counts drop from 70 to 63 (N) and seen counts follow the same rule. Splitling, Volvoxling, Yeast, Pepsinjr, Endoskeleton, Broodling and Spore are not counted while they have no live spawn; meeting one does not raise the count. Ingrown Hair's sighting line still reads "Thorny" (copy, not changed). Guide enemy behaviour for new_* AIs shows roster roles, not sentences (copy, not changed).
