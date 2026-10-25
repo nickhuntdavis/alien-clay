@@ -386,14 +386,9 @@ mutBarK = (orig => function (e) { // a blast builds status bars 3 times as fast
   return out;
 })(mutBarK);
 const lzCharging = w => !!(w.lzChgS && G.t - (w.lzChgLast || -9) < 0.4 && !lzOnNow(w));
-function lzChargeDraw(w, t0, sz) { // a small glow at the head that grows until the beam comes on (sz: smaller for extra beams)
-  const p = G.player, hd = lzHead(), u = Math.min(1, (G.t - (t0 || w.lzChgS)) / lzCharge(w)), hx = p.x + Math.cos(hd) * 11, hy = p.y + Math.sin(hd) * 11;
-  const c = col(w.def.sab ? w.def.color : LASER.col), x = sx(hx), y = sy(hy), r = (2 + 7 * u) * (1 + 0.35 * lzCR(w)) * (sz || 1) * S, fl = 0.85 + 0.15 * Math.sin(G.t * 40);
-  ctx.save();
-  ctx.globalAlpha = 0.25 * u * fl; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r * 2.2, 0, TAU); ctx.fill();
-  ctx.globalAlpha = 0.6 * u; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-  ctx.globalAlpha = 0.5 + 0.5 * u; ctx.fillStyle = '#fff4f0'; ctx.beginPath(); ctx.arc(x, y, Math.max(1, r * 0.35), 0, TAU); ctx.fill();
-  ctx.restore();
+function lzChargeDraw(w, t0, sz) { // the charge-up look (chargefx.js) at the head until the beam comes on (sz: smaller for extra beams)
+  const p = G.player, hd = lzHead(), u = Math.min(1, (G.t - (t0 || w.lzChgS)) / lzCharge(w));
+  drawChargeFx(sx(p.x + Math.cos(hd) * 11), sy(p.y + Math.sin(hd) * 11), 6 * (1 + 0.35 * lzCR(w)) * (sz || 1) * S, u, wElem(w), sz ? 1 : 0);
 }
 function lzHeatDraw(w) { // the burn bar under you: orange to red as it fills; while reloading it blinks and drains
   const p = G.player, x = sx(p.x), y = sy(p.y) + 22 * S, bw = 34 * S, bh = 4 * S, h = w.lzHeat || 0;

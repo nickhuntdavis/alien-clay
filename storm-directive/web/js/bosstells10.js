@@ -86,6 +86,7 @@ nf10Draw = function () {
       const L = (e.speed * BT10.chargeK * BT10.chargeTime + e.r) * S, a = Math.atan2(e.dashY, e.dashX), w = e.r * S * 0.9, k = 1 - clamp(e.stT / 0.8, 0, 1);
       const g = ctx.createLinearGradient(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L);
       g.addColorStop(0, `rgba(255,70,90,${(0.2 + 0.2 * k).toFixed(3)})`); g.addColorStop(1, 'rgba(255,70,90,0.04)');
+      drawChargeFx(x, y, e.r * S, k, 'phys', e.id); // (chargefx.js: the body winds up as well as the lane)
       ctx.fillStyle = g; ctx.beginPath();
       ctx.moveTo(x - Math.sin(a) * w, y + Math.cos(a) * w); ctx.lineTo(x + Math.cos(a) * L - Math.sin(a) * w, y + Math.sin(a) * L + Math.cos(a) * w);
       ctx.lineTo(x + Math.cos(a) * L + Math.sin(a) * w, y + Math.sin(a) * L - Math.cos(a) * w); ctx.lineTo(x + Math.sin(a) * w, y - Math.cos(a) * w); ctx.closePath(); ctx.fill();

@@ -1393,10 +1393,7 @@ const nfDrawOver = () => nfDraw('over');
 function nfDrawCharge(df) {
   const w = nfOwned('lacticacid'), k = w ? w.nfCharge || 0 : 0;
   if (k < 0.05) return;
-  const p = me(), x = sx(p.x), y = sy(p.y), t = G.realT;
-  ctx.fillStyle = ha(df ? '#e2ff9a' : '#7fbf2a', 0.5 * k); ctx.beginPath();
-  for (let i = 0; i < Math.round(3 + k * 8); i++) { const a = i * 2.4 + t * 2, d = ((t * 1.5 + i * 0.37) % 1) * 7 * S; ctx.moveTo(x + Math.cos(a) * d + S, y + Math.sin(a) * d); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, (0.7 + k) * S, 0, TAU); }
-  ctx.fill();
+  const p = me(); drawChargeFx(sx(p.x), sy(p.y), 9 * S, k, wElem(w), 2); // (chargefx.js)
 }
 function nfDrawPolar(d, df) {
   const x = sx(d.x), y = sy(d.y), t = G.realT, k = clamp((d.end - G.t) / 0.3, 0, 1) * clamp((G.t - d.t0) / 0.2, 0, 1), w = d.wob, R = d.r * S;
