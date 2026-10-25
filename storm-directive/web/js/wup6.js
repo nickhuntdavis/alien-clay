@@ -9,7 +9,7 @@
 //  - a collision hit is 40% of the weapon's hit size; every chain or repeat has a fixed depth; every list is capped.
 // Peekaboo and Eggs are toy weapons (toys.js): fireWeapon sends them to toyFire before the 'fire' hook is reached, so this
 // file wraps the toy functions it needs (peekSpot, toySteer, toyAim, toothFire, toothTaken, toothLure). Also wrapped:
-// hurtPlayer (Peekaboo B shield, Eggs B no-attack and Egg on Your Face), killEnemy (Chest Burster deaths), sigwTick (its
+// hooks.js hurt:before (Peekaboo B shield, Eggs B no-attack and Egg on Your Face), kill:before/after (Chest Burster deaths), sigwTick (its
 // undead are managed here once a card is taken), wupDmgMul (Sneak Attack) and v10Draw (outlines, glows, worms). No shared
 // file is edited.
 // Simplifications are noted at each card (search "simplified").
@@ -403,13 +403,13 @@
       }
       try { sw(dt); } finally { for (const t of hold) G.turrets.push(t); }
     };
-    const ke = killEnemy;
-    killEnemy = function (e, src) {
-      const pw = e && !e.dead && e.parasiteT > 0 && e.parasiteW, wasInf = !!(pw && pw.w6 && pw.w6.cb && held(pw));
-      const r = ke(e, src);
-      if (wasInf && !e.w6died) { e.w6died = 1; safe(() => cbDied(pw, e)); }
-      return r;
-    };
+    hookOn('kill:before', 'wup6:infected', (e, src, c) => {
+      const pw = e && !e.dead && e.parasiteT > 0 && e.parasiteW;
+      c.w6pw = pw && pw.w6 && pw.w6.cb && held(pw) ? pw : null;
+    }, 20);
+    hookOn('kill:after', 'wup6:infected', (e, src, c) => {
+      if (c.w6pw && !e.w6died) { e.w6died = 1; safe(() => cbDied(c.w6pw, e)); }
+    }, 20);
   }
   cbPatch();
   const waveId = () => (G.wave ? G.wave.n : Math.floor(G.t / 60));
@@ -709,23 +709,22 @@
       { name: 'Scorched Route', best: 'C', desc: 'The trail stays at full heat for much longer.', apply: SET('scorch') }] });
 
   // ================================================================ shared wrappers
-  const hp = hurtPlayer;
-  hurtPlayer = function (dmg, from, ent, kind) {
+  hookOn('hurt:before', 'wup6:passThrough', (dmg, from, ent, kind) => {
     if (G && G.weapons) {
       for (const w of G.weapons) {
         const st = w && w.w6; if (!st || !st.inst) continue;
         const k = w24Key(w);
         if (k === 's_peekaboo' && st.p === 'B' && kind === 'bullets' && peekHidden()) { // shots pass through your old position
-          say('pk-pass2', G.player.x, G.player.y - 26, 'PASSES THROUGH', w.def.color, 11, 0.5); bump(w, 'passed'); return;
+          say('pk-pass2', G.player.x, G.player.y - 26, 'PASSES THROUGH', w.def.color, 11, 0.5); bump(w, 'passed'); return null;
         }
         if (k === 's_toothfairy') {
-          if (st.p === 'B' && ent && ent.w6lure > G.t && kind === 'contact') { bump(w, 'spared'); say('eg-spare', ent.x, ent.y - 20, 'BUSY', w.def.color, 11, 0.5); return; }
+          if (st.p === 'B' && ent && ent.w6lure > G.t && kind === 'contact') { bump(w, 'spared'); say('eg-spare', ent.x, ent.y - 20, 'BUSY', w.def.color, 11, 0.5); return null; }
           if (st.face && ent && live(ent) && !(st.faceT > G.t)) { st.faceT = G.t + 0.4; if (egPlace(w, ent.x, ent.y, {})) { bump(w, 'face'); floatText(ent.x, ent.y - ent.r - 12, 'EGG ON YOUR FACE', w.def.color, 12, 0.8); } }
         }
       }
     }
-    return hp(dmg, from, ent, kind);
-  };
+    return dmg;
+  }, 30);
   const dm = wupDmgMul;
   wupDmgMul = function (e, src) { // Sneak Attack: your other weapons hit 30% harder while Peekaboo has you hidden
     let k = dm(e, src);

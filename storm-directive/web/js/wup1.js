@@ -6,7 +6,7 @@
 // the dispatchers. Run state lives in G.w1 (lists of marks, lanes, nuts, lumps ... all capped).
 // Extra hook kinds used here, dispatched by two wrappers at the bottom (projHit and projEnd are wrapped, no shared file
 // is edited): 'phit' (w, pr, e) after one of this weapon's shots hit e; 'pend' (w, pr) when a shot's flight ends.
-// Also wrapped: wupDmgMul (marks that raise damage from your other weapons), hurtPlayer (Untouchable), v10Draw (marks).
+// Also wrapped: wupDmgMul (marks that raise damage from your other weapons), v10Draw (marks); hooks.js hurt:before (Untouchable).
 // Simplifications: a "heavy hit" from a card is applied directly (one Shell layer off, Poise up), because the resolver only
 // calls a hit heavy by its size; it does not trigger Blood Pressure. Knockback is simulated by e.kx/e.ky (never on bosses).
 (function () {
@@ -756,11 +756,10 @@
     }
     return k;
   };
-  const hp = hurtPlayer; // Untouchable: half Contact damage while something is in clamp range
-  hurtPlayer = function (dmg, from, ent, kind) {
+  hookOn('hurt:before', 'wup1:untouchable', (dmg, from, ent, kind) => { // Untouchable: half Contact damage while something is in clamp range
     if (kind === 'contact' && G && G.weapons) for (const w of G.weapons) if (w && w.w1 && w.w1.untouch && w.w1.inRange) { dmg *= 0.5; break; }
-    return hp(dmg, from, ent, kind);
-  };
+    return dmg;
+  }, 50);
   const vd = v10Draw;
   v10Draw = function () { vd(); w1Draw(); };
 })();

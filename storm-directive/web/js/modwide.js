@@ -19,7 +19,7 @@
 // between targets; Grappling Hook pulls the target to you; Decoy Army is not built (its allies only explode); Leech and
 // Hunter-Killer mines are thrown 120 towards an enemy. Burst Fire-style per-weapon cells come later.
 // Hooks: none in shared files. Wraps weapons24.js wupStats/wupFire/wupDmgMul/wupHit/wupKill/wupTick, power11.js
-// p11Range, mutations.js mutBarK, game.js hurtPlayer, modifiers.js modDraw. Loads after power11.js (it wraps p11Range).
+// p11Range, mutations.js mutBarK, modifiers.js modDraw; hooks.js hurt:before (Counter). Loads after power11.js (it wraps p11Range).
 
 const MW_NEW = {
   range:   { name: 'Range', atk: ['proj', 'spread', 'beam'], g: 'tempo', b: ['Long Shot', 'Overwatch', 'Sniper', 'Boomerang', 'Artillery', 'Tripline'] },
@@ -355,15 +355,15 @@ function mwRise(w, e, bomb) {
 wupKill = (orig => function (e, src) { orig(e, src); mwKill(e, src); })(wupKill);
 
 // ---------------------------------------------------------------- hurt: Melee Counter, Guardian Angel
-hurtPlayer = (orig => function (dmg, from, ent, kind) {
+hookOn('hurt:before', 'modwide:counter', (dmg, from, ent, kind) => {
   if (G && G.mwAny && ent && !ent.dead && kind !== 'thorns') {
     for (const w of mwWs()) {
-      if (msMa(w, 'melee') === 'B2' && !(w.mwCtrT > G.t)) { w.mwCtrT = G.t + 3; damageEnemy(ent, w.s.dmg * 2, mwSrc(w, { atk: 'contact' })); ring(G.player.x, G.player.y, 40, w.def.color, 0.3, 4); return 0; } // Counter: no damage from that hit
+      if (msMa(w, 'melee') === 'B2' && !(w.mwCtrT > G.t)) { w.mwCtrT = G.t + 3; damageEnemy(ent, w.s.dmg * 2, mwSrc(w, { atk: 'contact' })); ring(G.player.x, G.player.y, 40, w.def.color, 0.3, 4); return null; } // Counter: no damage from that hit
       if (msMa(w, 'dfa') === 'B2' && !(w.mwGaT > G.t)) { w.mwGaT = G.t + 4; mwDfa(w, ent, weaponSrc(w), 2, 0.3); }
     }
   }
-  return orig(dmg, from, ent, kind);
-})(hurtPlayer);
+  return dmg;
+}, 10);
 
 // ---------------------------------------------------------------- every frame
 function mwTick(dt) {

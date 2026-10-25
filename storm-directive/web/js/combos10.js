@@ -11,8 +11,8 @@
 //  - The weapon draft (v10Loot 'slot') swaps one card for a combo partner of a weapon you hold, even one whose attack
 //    type you already have (this also makes the old same-type combos, Storm in a Teacup and Worm Farm, reachable).
 //  - A Lv 3 promise card says which of your weapons it fuses with; autorun prefers a card that completes a combo.
-// Hooks (no shared file edited except one guard in fight.js): wraps fightHit (every hit), killEnemy, projHit, comboFire,
-// comboTick, wupDmgMul, bubblePop, toothTaken, availableCombos, wupForkCards, v10Loot and UI.autoTick. Counters in G.c10n (tests).
+// Hooks (no shared file edited except one guard in fight.js): wraps fightHit (every hit), projHit, comboFire,
+// comboTick, wupDmgMul, bubblePop, toothTaken, availableCombos, wupForkCards, v10Loot and UI.autoTick; hooks.js kill:before/after. Counters in G.c10n (tests).
 // Simplifications: Running Stitch threads shots that pass within 24 of each other; Flashback's wave is any crossing of
 // your own trail (cooldown 1 s); Screen Share's Codependency boost is its own +10% per enemy (2 s, up to +100%).
 
@@ -655,12 +655,8 @@ function c10Each(kind, fn) {
     }
     return r;
   };
-  const ke = killEnemy;
-  killEnemy = function (e, src) {
-    const was = e && !e.dead, r = ke(e, src);
-    if (was && e.dead && G && G.combo) c10Each('kill', (f, c, A, B) => f(c, A, B, e, src || {}));
-    return r;
-  };
+  hookOn('kill:before', 'combos10:kill', (e, src, k) => { k.c10 = e && !e.dead; }, 10);
+  hookOn('kill:after', 'combos10:kill', (e, src, k) => { if (k.c10 && e.dead && G && G.combo) c10Each('kill', (f, c, A, B) => f(c, A, B, e, src || {})); }, 30);
   const ph = projHit;
   projHit = function (pr, e) {
     ph(pr, e);
