@@ -117,6 +117,16 @@ const { chromium } = require('playwright');
     if (!(nbr.hp < nbr.maxHp)) bad.push('Smouldering Burst hurt nobody');
     let sm = 0; for (let i = 0; i < 200; i++) { const q = makeEnemy(ENEMIES.crawler, 0, 0, { elite: true }); G.enemies.push(q); } run(1); for (const q of G.enemies) if (q.elite && q.nfSm) sm++;
     out.smouldering = sm + '/200'; if (sm < 20 || sm > 85) bad.push('Smouldering share off: ' + sm + '/200');
+    // Ghost Swimmer: phased, it still takes hits (Evasion rolls, not immunity)
+    fresh(); const gh = foe('phantom', 200); gh.speed = 0; gh.phased = true; gh.stT = 99; const g0 = gh.hp;
+    for (let i = 0; i < 40; i++) hit(gh, 'phys', 10, { atk: 'burst' });
+    out.ghost = Math.round(g0 - gh.hp); if (!(gh.hp < g0)) bad.push('phased Ghost took no damage from Burst hits');
+    // Quantum Swimmer: shows its landing spot for 0.4 s, then jumps there; jumps at least 2 s apart
+    fresh(); const qs = foe('blinker', 400); qs.speed = 0; qs.stT = 0; let seen = null, jumps = [], lx = null;
+    run(600, () => { if (qs.qDest && !seen) seen = { x: qs.qDest.x, y: qs.qDest.y, px: qs.x, py: qs.y }; if (qs.qLast != null && qs.qLast !== lx) { jumps.push(qs.qLast); lx = qs.qLast; } });
+    if (!seen) bad.push('Quantum showed no landing spot'); else if (!jumps.length) bad.push('Quantum did not jump to its shown spot');
+    for (let i = 1; i < jumps.length; i++) if (jumps[i] - jumps[i - 1] < 1.99) bad.push('Quantum jumped twice within 2 s');
+    out.quantumJumps = jumps.length;
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

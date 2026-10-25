@@ -236,7 +236,7 @@ function acquire(dir, range, x, y, exclude) {
   if (egg && !egg.dead && egg.woke && eggBreakable() && egg !== exclude && Math.random() < 0.5 && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg;
   let best = null, bv = -Infinity;
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e.charmed || e === exclude || (e.egg && !(e.woke && eggBreakable()))) continue;
+    if (e.dead || e.charmed || e === exclude || (e.egg && !(e.woke && eggBreakable()))) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy, re = range + (e.r || 0);
     if (d2 > re * re) continue; // (in reach when its edge is: big bosses no longer drop out at their centre)
     const v = targetScore(dir, e, d2) + (e.evTag ? 1e13 : 0); // run-event targets come first
@@ -248,7 +248,7 @@ function acquireMany(dir, range, x, y, n) {
   if (dir.includes('ownmess')) dir = aimOwnSet(dir, x, y, range); // (MY OWN MESS: aimat.js)
   const list = [];
   for (const e of G.enemies) {
-    if (e.dead || e.phased || e.charmed || (e.egg && !(e.woke && eggBreakable()))) continue;
+    if (e.dead || e.charmed || (e.egg && !(e.woke && eggBreakable()))) continue;
     const dx = e.x - x, dy = e.y - y, d2 = dx * dx + dy * dy;
     const re = range + (e.r || 0); if (d2 > re * re) continue; // (in reach when its edge is, as in acquire)
     list.push({ e, v: targetScore(dir, e, d2) });
@@ -793,7 +793,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
-  if (e.dead || e.phased) return 0; // (v10: autoaim skips a Possessed enemy, but area hits still land and set off Alien reactions)
+  if (e.dead) return 0; // (v10: a phased Ghost Swimmer stays hittable at its Evasion cap, phasers10.js; autoaim skips a Possessed enemy, but area hits still land and set off Alien reactions)
   if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
   if (e.def.spongy) e.sorryT = G.t; // (amoebas only knit back together when left alone: arsenal.js engulfAI)
@@ -1505,13 +1505,7 @@ function updateEnemies(dt0) {
           if (dist < e.r + p.r + 10) { e.hp = 0; killEnemy(e, {}); continue; }
           break;
         case 'blink':
-          e.stT -= edt;
-          if (e.stT <= 0 && dist > 130) {
-            spawnPart(e.x, e.y, e.color, 8, 120, 0.3);
-            const a = Math.random() * TAU, r = rand(110, 170);
-            e.x = p.x + Math.cos(a) * r; e.y = p.y + Math.sin(a) * r; e.stT = rand(3, 4.5);
-            ring(e.x, e.y, 26, e.color, 0.3);
-          }
+          qsBlink(e, edt, dist); // (tell at the landing spot, then jump: phasers10.js)
           break;
         case 'medic':
           e.stT -= edt;
