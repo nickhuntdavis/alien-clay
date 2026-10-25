@@ -3,6 +3,11 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.135 (versionCode 414): 2026-10-25 Dead-card table regenerated on v10.134 (Orbiting forms, shared mechanics, stored hits)
+- Built on main. Systems: modifier cards, tests. Files: moddead.js.
+- What: `MOD_DEAD` regenerated from a full audit of main at v10.134 plus the Orbiting-forms table: 519 NO-OP of 2672 combos hidden (the plan shrank from 2810 with the modifiers v10.134 retired). Nothing else changes.
+- Save data: none. Hooks: none. Risk: none.
+
 ## v10.134 (versionCode 413): 2026-10-25 Recent branches merged: stored hits and reach, Orbiting forms, Sample Rack grid, There Is No Spoon passive, loot card look
 - Merged: `ccr-f8b59347-xf7dl4` (its 15.4 and 15.5 commits after v10.132), `ccr-task3-orbit`, `claude/loot-screen-card-styling-p6siwe`, `ccr-6a936695-aj8p25`, `claude/tender-mccarthy-qr4h3k`, `ccr-f661268a-k7ifmw` (WEAPON_STATS.md), and the modifier matrix spreadsheet from `ccr-07fe00d5-7fh873`, on main's v10.133.
 - Left out (user, 25 Oct): `claude/dreamy-brahmagupta-2xfice` (per-weapon cells for the eleven Projectile weapons mask main's shared forms: Orbiting forms, stored hits, reach; merged then reverted), `claude/loot-card-restrictions-niygz0` (v10.68 loot rule, replaced by v10.117 and v10.118).
