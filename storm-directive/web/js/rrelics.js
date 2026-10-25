@@ -21,7 +21,7 @@ Object.assign(RELICS, {
   buckshot:    { name: 'Buckshot', desc: '+1 projectile for every weapon and +10% fire rate.' },
   triggerhappy:{ name: 'Trigger Happy', desc: '+15% fire rate and +25% reload speed.' },
   // Casper Flagella: was there a moment ago.
-  ectoplasm:   { name: 'Ectoplasm', desc: 'Bullets sometimes pass straight through you: +15% dodge.' },
+  ectoplasm_r: { name: 'Ectoplasm', desc: 'Bullets sometimes pass straight through you: +15% dodge.' },
   nowyouseeme: { name: 'Now You See Me', desc: 'Every 12s you fade out for 2s: nothing can touch you.' },
   // Big Mama Morula: brought her boys.
   herboys:     { name: 'Her Boys', desc: 'Two of Mama\'s boys escort you for the rest of the run. One that falls is back 20s later.' },
@@ -53,7 +53,7 @@ Object.assign(RELICS, {
 });
 Object.assign(RIVAL_RELICS, {
   dash: ['headstart', 'earlybird'], sly: ['pickpocket', 'fivefinger'], brick: ['mucuswall', 'loadbearing'], hawk: ['eagleeye', 'steadyhand'],
-  bev: ['buckshot', 'triggerhappy'], casper: ['ectoplasm', 'nowyouseeme'], mama: ['herboys', 'packedlunch'], vlad: ['bloodbank', 'undying'],
+  bev: ['buckshot', 'triggerhappy'], casper: ['ectoplasm_r', 'nowyouseeme'], mama: ['herboys', 'packedlunch'], vlad: ['bloodbank', 'undying'],
   ricky: ['slimetrail', 'stickysit'], coach: ['peptalk', 'whistle'], delores: ['encore', 'exitstage'], nana: ['cardigan', 'nottoday'],
   turbo: ['espresso', 'meltdown'], norman: ['calculated', 'probcloud'], morticia: ['powerhouse', 'mourning'],
 });
@@ -67,7 +67,7 @@ function rrelicApply(id) {
     case 'steadyhand': P.range += 0.35; P.projSpeed += 0.2; break;
     case 'buckshot': P.multishot += 1; P.haste += 0.1; break;
     case 'triggerhappy': P.haste += 0.15; P.reloadSpd += 0.25; break;
-    case 'ectoplasm': P.dodge = Math.min(0.7, P.dodge + 0.15); break;
+    case 'ectoplasm': case 'ectoplasm_r': P.dodge = Math.min(0.7, P.dodge + 0.15); break;
     case 'peptalk': P.might += 0.12; P.haste += 0.12; break;
     case 'cardigan': { P.regen += 2; const add = Math.round(P.maxHp * 0.1); P.maxHp += add; p.hp += add; break; }
     case 'espresso': P.speed += 0.25; P.haste += 0.1; break;

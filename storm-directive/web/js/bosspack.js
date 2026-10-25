@@ -11,7 +11,7 @@
 
 const BP = { litmusEvery: 12, soak: 4, wrong: 0.65, ringR0: 380, ringStep: 110, pull: 72, coneLen: 720, coneHalf: 0.32, coneTrack: 0.9, sneezeK: 1.8, turn: 0.75 };
 const LITMUS_TYPES = ['phys', 'fire', 'shock', 'ice', 'arcane', 'soul', 'flame'];
-const PLUG_DEF = { name: 'Mucus Plug', hp: 1, speed: 0, armour: 0, r: 26, dmg: 0, xp: 10, color: '#d9f0a3', shape: 'mucusplug', ai: 'plug', from: 99999, w: 0 };
+const PLUG_DEF = { name: 'Mucus Plug', hp: 1, speed: 0, r: 26, dmg: 0, xp: 10, color: '#d9f0a3', shape: 'mucusplug', ai: 'plug', from: 99999, w: 0 };
 
 const bpBd = e => e.def.dmg * 0.35 * dmgNow() * (e.campK || 1); // (the same as bossAI's bullet damage)
 function bpOwnTypes() {

@@ -67,7 +67,7 @@ const { chromium } = require('playwright');
       // The Phantom Pregnancy.
       seethrough: () => { if (!up('dodge')) return false; G.P.dodge = 0; let through = 0; for (let i = 0; i < 40; i++) if (hurt(1, foe(300, 0), 'bullets') === 0) through++; return through > 5 && through < 35; },
       poltergeist: () => { const a = foe(60, 0), c = foe(200, 0); c.hp = c.maxHp = 1e6; c.elite = true; tick(2.2); return c.hp < 1e6 || a.hp < a.maxHp; },
-      ectoplasm: () => up('dodge'),
+      ectoplasm: () => up('dodge'), ectoplasm_r: () => up('dodge'),
       // The Litmus Strip.
       indicator: () => up('might') && up('haste'),
       bluetored: () => { const e = foe(60, 0); e.hp = e.maxHp = 1e7; e.cd = null; for (let i = 0; i < 60; i++) hit(e, 50); return fightCd(e).bars.acid > 0 && snared(e); },

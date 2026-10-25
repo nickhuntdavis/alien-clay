@@ -111,7 +111,7 @@ p(`In a race (Standard Issue) the bosses come in softer, in run order: health x$
 for (const b of D.BOSSES) {
   p(`### ${b.name}: ${b.title}`); p('');
   p(`> "${b.quote}"`); p('');
-  p(`${b.desc} Base HP ${b.hp}${b.twins ? ' each' : ''}, armour ${b.armour}, speed ${b.speed}. Wave mode tier ${b.tier || 2}.`); p('');
+  p(`${b.desc} Base HP ${b.hp}${b.twins ? ' each' : ''}, speed ${b.speed}. Wave mode tier ${b.tier || 2}.`); p('');
   p(`- **Strengths:** ${b.strengths.join('; ')}.`);
   p(`- **Weaknesses:** ${b.weaknesses.join('; ')}.`);
   p('');

@@ -6,9 +6,9 @@
 // half (each one!) very slowly grows back to full length. Planarians really do this.
 
 Object.assign(ENEMIES, {
-  brood:     { name: 'Brood Cyst', hp: 140, speed: 30, armour: 2, r: 26, dmg: 14, xp: 10, color: '#f4b6c2', shape: 'brood', ai: 'brood', from: 200, w: 1, pack: 2 },
-  broodling: { name: 'Broodling', hp: 10, speed: 108, armour: 0, r: 8, dmg: 6, xp: 0.5, color: '#f4b6c2', shape: 'broodling', ai: 'broodling', from: 99999, w: 0 },
-  planarian: { name: 'Planarian', hp: 34, speed: 72, armour: 1, r: 12, dmg: 10, xp: 2, color: '#d8b48a', shape: 'planarian', ai: 'planarian', from: 230, w: 0.9, pack: 1 },
+  brood:     { name: 'Brood Cyst', hp: 140, speed: 30, r: 26, dmg: 14, xp: 10, color: '#f4b6c2', shape: 'brood', ai: 'brood', from: 200, w: 1, pack: 2 },
+  broodling: { name: 'Broodling', hp: 10, speed: 108, r: 8, dmg: 6, xp: 0.5, color: '#f4b6c2', shape: 'broodling', ai: 'broodling', from: 99999, w: 0 },
+  planarian: { name: 'Planarian', hp: 34, speed: 72, r: 12, dmg: 10, xp: 2, color: '#d8b48a', shape: 'planarian', ai: 'planarian', from: 230, w: 0.9, pack: 1 },
 });
 const BROOD = { max: 6, start: 6, fireCd: 2.4, refill: 5, range: 520, launch: 430, burst: 2, fuse: 5 };
 const WORM = { max: 8, gap: 1.45, grow: 10, cap: 40, turn: 1.9 };
@@ -114,7 +114,7 @@ function wormTick(W0, dt) {
     W0.trail = [{ x: h.x, y: h.y }, { x: h.x - Math.cos(W0.ang) * gap * (WORM.max + 2), y: h.y - Math.sin(W0.ang) * gap * (WORM.max + 2) }];
   }
   // The head: swims at you with a limited turn rate and a lazy wobble, so it overshoots and loops round.
-  const slow = h.frozen > 0 || h.dazeT > G.t || h.tunT > G.t ? 0 : (1 - h.chillAmt) * (h.stasisT > G.realT ? 0.35 : 1) * (h.soapT > G.t ? 0.5 : 1) * (h.guiltT > G.t ? 0.6 : 1);
+  const slow = h.frozen > 0 || h.dazeT > G.t ? 0 : (1 - h.chillAmt) * (h.stasisT > G.realT ? 0.35 : 1) * (h.soapT > G.t ? 0.5 : 1) * (h.guiltT > G.t ? 0.6 : 1);
   const want = Math.atan2(p.y - h.y, p.x - h.x) + Math.sin(h.age * 1.1 + h.id) * 0.8;
   let da = want - W0.ang; while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
   W0.ang += Math.max(-WORM.turn * dt, Math.min(WORM.turn * dt, da)) * (slow > 0 ? 1 : 0);
