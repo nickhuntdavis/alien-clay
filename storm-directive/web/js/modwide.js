@@ -22,8 +22,8 @@
 // p11Range, mutations.js mutBarK, game.js hurtPlayer, modifiers.js modDraw. Loads after power11.js (it wraps p11Range).
 
 const MW_NEW = {
-  range:   { name: 'Range', atk: ['proj', 'spread', 'beam'], g: 'tempo', b: ['Long Shot', 'Overwatch', 'Sniper', 'Boomerang', 'Artillery', 'Tripline'] },
-  upclose: { name: 'Up Close', atk: ['proj', 'spread'], g: 'tempo', b: ['Point Blank', 'Packed Room', 'Execution', 'Zero Distance', 'Mosh Pit', 'Cornered'] },
+  range:   { name: 'Range', atk: ['proj', 'spread', 'beam', 'burst', 'pool', 'contact'], g: 'tempo', b: ['Long Shot', 'Overwatch', 'Sniper', 'Boomerang', 'Artillery', 'Tripline'] },
+  upclose: { name: 'Up Close', atk: ['proj', 'spread', 'beam', 'burst', 'pool', 'contact'], g: 'tempo', b: ['Point Blank', 'Packed Room', 'Execution', 'Zero Distance', 'Mosh Pit', 'Cornered'] },
   charged: { name: 'Charged', atk: ['proj', 'beam', 'burst', 'spread'], g: 'tempo', b: ['Full Charge', 'Quick Release', 'Overcharge', 'Slow Burn', 'Hair Trigger', 'Capacitor'] },
   kinship: { name: 'Kinship', atk: MOD_ALL, g: 'chemistry', b: ['Purist', 'Mixed Marriage', 'Full Family', 'Chorus', 'Melting Pot', 'Referee'] },
   knock:   { name: 'Knockback', atk: ['proj', 'burst', 'contact', 'beam', 'spread'], g: 'crowd', b: ['Wall Slam', 'Keep Away', 'Bowling Ball', 'Launch', 'Repulsor', 'Trampoline'] },
@@ -412,7 +412,7 @@ function mwTick(dt) {
     if (q.t < G.t || !G.weapons.includes(q.w)) { q.gone = true; continue; }
     if (q.armed > G.t) continue;
     if (msB(q.w, 'mines', 2)) { const o = msNear(q.x, q.y, 250); if (o) { const d = Math.hypot(o.x - q.x, o.y - q.y) || 1; q.x += (o.x - q.x) / d * 30 * dt; q.y += (o.y - q.y) / d * 30 * dt; } }
-    const trig = msNear(q.x, q.y, 60 * (q.big > 1 ? 1.5 : 1));
+    const trig = msNear(q.x, q.y, 60 * (q.big > 1 ? 1.5 : 1) * (typeof reachMul === 'function' ? reachMul(q.w) : 1)); // (Range: reach.js)
     if (trig) { mwMineGo(q); if (q.rearm) { q.rearm = 0; q.armed = G.t + 1; } else q.gone = true; }
   }
   S.mines = S.mines.filter(q => !q.gone);
