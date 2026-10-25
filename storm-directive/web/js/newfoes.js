@@ -332,6 +332,7 @@ function nf10Draw() {
       const L = e.speed * ROSTER.matchstick.atk[0].speedMult * NF.chargeLen, k = 1 - e.stT / 0.7;
       ctx.globalAlpha = 0.25 + 0.4 * k; ctx.strokeStyle = '#ff7a2f'; ctx.lineWidth = e.r * 2 * S; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * L * S, y + e.dashY * L * S); ctx.stroke();
       ctx.globalAlpha = 0.8; ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 2; ctx.setLineDash([6 * S, 5 * S]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha = 1; drawChargeFx(x, y, e.r * S, k, 'flame', e.id);
     } else if (ai === 'new_stressball' && e.sbWind > 0) { // where the rebound reaches
       const R = ROSTER.stressball.rebound, k = 1 - e.sbWind / R.tele;
       ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 25) ** 2; ctx.strokeStyle = '#f2a65a'; ctx.lineWidth = 2; ctx.setLineDash([6 * S, 5 * S]); ctx.beginPath(); ctx.arc(x, y, R.radius * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);

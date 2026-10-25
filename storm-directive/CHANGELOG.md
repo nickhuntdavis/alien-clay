@@ -3,7 +3,7 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
-## v10.139 (versionCode 418): 2026-10-25 Enemy handoff C3, boss signature beats
+## v10.141 (versionCode 420): 2026-10-25 Enemy handoff C3, boss signature beats
 - Merged: `claude/enemy-c3-t3`, `claude/enemy-c3-t1`, `claude/enemy-c3-t2` (one signature beat per boss built from its own mechanic, replacing the generic aimedFan/spiral/ring slots; tier 1 keeps one spray as a breather; `bosssig10_t1.js`, `bosssig10_t2.js`, `bosssig10_t3.js`) into `claude/practical-brahmagupta-ry2k05` on main's v10.138. One build. Orchestrator: bosstest.js rebuilt from the three branch patches after the merge.
 
 ### Folded from enemy-c3-t3: 2026-10-25 Tier 3 boss signature beats (not shipped)
@@ -29,6 +29,66 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Save data: none
 - Hooks: none in shared files (wraps bossAI and nf10Draw; rewrites BOSSES/ROSTER_BOSSES patterns and ENTOURAGE.twins.on at load)
 - Risk: pattern mix per boss changes (no HP, damage or rate number changed; the Beams, chunks and pools use the boss's own bd as the sprays did). Siblings bosssig10_t1.js and t3.js also load after bosstells10.js (index.html tag lines will conflict: keep all). Twins swing round you at 360 px/s while repositioning (contact damage possible then, as with any twin movement).
+## After v10.140 (no build): 2026-10-25 Melee Knockback test runs the collision system; run.sh filter fix
+- On main. Systems: tests. Files: tests/delivtest.js, tests/run.sh, MODAUDIT_HANDOFF.md.
+- What: the Delivery-forms test's Melee Knockback (Bouncer) case ticks collide.js's `cdTick` with a fast shove, since collide.js owns collisions and the form's own pass stands down when it is loaded; it had been failing silently. run.sh now keeps a FAIL line that also carries `ERRORS []` (it dropped the whole line before).
+- Save data: none. Hooks: none. Risk: none.
+
+## v10.140 (versionCode 419): 2026-10-25 Returning offered again; dead-card table regenerated
+- Built on main. Systems: modifier cards, tests. Files: matrixonly.js, moddead.js.
+- What: Returning (Return to Sender) is in `MATRIX_ONLY.mods` again, so the draft offers it on projectile and spread weapons, naked and under every Delivery (its five Delivery forms from task 3 were unreachable). `MOD_DEAD` regenerated from a full audit with Returning in the plan: 550 NO-OP of 2764 combos hidden (Returning itself: 32 dead, 50 visible). The audit ran on main before the v10.139 six-branch merge; regenerate again after the next modifier change.
+- Save data: none. Hooks: none. Risk: Returning builds come back into play on 11 weapons; untested in wave sims.
+
+## v10.139 (versionCode 418): 2026-10-25 Six feature branches: charge-up looks, feedback animations, health loot, Switched at Birth levels, pick-the-weapon modifiers, DNA drops
+- Merged: `ccr-charge-fx`, `ccr-feedback-fx`, `ccr-loot-health`, `ccr-switched-levels`, `ccr-mod-weaponpick`, `ccr-dna-drop`. Conflicts were only shared bookkeeping (ARCHITECTURE.md rows and script order, run.sh test list, index.html script tags, NOTES.md bullets, version files, APK). feedbackfx.js still uses its own per-type stand-in colours rather than chargefx.js `drawChargeFx`.
+
+### Folded from ccr-charge-fx: 2026-10-25 One charge-up look per damage type (v10.135)
+- Systems: weapons, damage types, ui (world drawing)
+- Files: chargefx.js (new), laserbeam.js, newfeats.js, render.js, bosstells10.js, newfoes.js, foes3.js, index.html, tests/chargeshot.js (new), tests/run.sh
+- What: `drawChargeFx(x, y, r, k, elem, seed)` draws a charge-up in each damage type's own motion (Force ring, Acid drips, Mucus strands, Static arcs, Cooties rash, Oil gleam, Water ripples, Blood heartbeat, Alien wisps, Fire tongues) and `chargeSnap` draws the release. The Charged modifier now shows its wind-up (it had none); the Laser, Lactic Acid, charger, boss charge, Matchstick and Hayfever sneeze use it too. Boss and charger lanes are unchanged.
+- Save data: none.
+- Hooks: render.js drawEnemy (charger st 1), bosstells10.js (charge), newfoes.js (Matchstick), foes3.js (hayfever) each call drawChargeFx; chargefx.js wraps modDraw.
+- Risk: purely visual; extra gradients while a charge is up (counts scale down with QUAL).
+
+### Folded from ccr-feedback-fx: 2026-10-25 Feedback animations (v10.135)
+- Systems: feedback fx (new), render
+- Files: feedbackfx.js (new), index.html, render.js, ARCHITECTURE.md, tests/feedbackfxtest.js
+- What: reload arcs round you (tinted by damage type), a pulse on the Feat slot and a flash when a Feat, WINDED or Sprint Start comes off cooldown, an invulnerable shimmer with a start burst and an end flicker, soft heal puffs for any HP gain (rate limited), and a fade-out puff per damage type when a status ends on an enemy or on you.
+- Save data: none.
+- Hooks: hooks.js tick -> ffxTick (own file); render.js render -> ffxDraw after ringsOnTop.
+- Risk: draw cost is small (capped at 40 effects, no per-frame allocation). Per-type looks are a stand-in (`ffxTypePuff`); swap for the ccr-charge-fx helper when it exists.
+
+### Folded from ccr-loot-health: 2026-10-25 Health and Membrane cards (v10.135)
+- Systems: draft cards, defences (pdef), healing
+- Files: membrane.js (new), index.html, ARCHITECTURE.md
+- What: six new slotless draft cards (family 'up:'): max HP %, low-health regen, kill heal within the lifesteal pool, post-hit damage cut, overheal into Membrane, faster Membrane mend. The last two only appear with a Membrane.
+- Save data: none
+- Hooks: none in shared files (hookOn tick, kill, hurt, hurtMul; wraps healPlayer).
+- Risk: more healing in the 'up' draft group; wave balance unsimmed beyond wave20 4 runs. Copy is TODO_COPY:hp_*_title / _desc (12).
+
+### Folded from ccr-switched-levels: 2026-10-25 Switched at Birth in three levels (v10.135)
+- Systems: weapons, draft, chemistry
+- Files: sabtiers.js (new), index.html, ARCHITECTURE.md, tests/sabtierstest.js (new)
+- What: Switched at Birth now levels. Level 1: 35% of attacks use the new damage type; Level 2: 70%; Level 3 opens a fork: Full (every attack) or Blend (every attack in the new type at 60%, plus an echo hit of the original type at 60%). The per-attack swap changes the weapon's def when it fires, so projectile colour and switched effects follow the shot. Later copies of the card on a switched weapon rank it up (it takes no extra slot). Card and fork text are TODO_COPY placeholders (sab_l1_desc, sab_l2_desc, sab_l3_desc, sab_l3a_name/desc, sab_l3b_name/desc).
+- Save data: none (run state only: w.sab).
+- Hooks: none in shared files; hookOn dmgMul and proc from sabtiers.js. Wraps fireWeapon, sabCard, modDraftCands, mmHeld, modOk.
+- Risk: weapons whose damage lands later (pools, mines, bubbles, contact) read the type at hit time, so their observed share drifts from 35/70%. Starting-switched samples stay fully switched with no levels. modstest already fails on the branch before this change.
+
+### Folded from ccr-mod-weaponpick: 2026-10-25 One modifier card, choose the weapon (v10.135)
+- Systems: modifier cards, draft, loot filters
+- Files: modpick.js (new), lootfilter.js, rewardui.js, index.html, tests/modpicktest.js (new)
+- What: a modifier that fits more than one weapon is dealt as one level-up card with the v9 weapon chips; tap a chip to pick the weapon, a plain tap or the bot picks the highest-level weapon. Draft keeps its card count. DNA strand boxes are unchanged (already one card per modifier).
+- Save data: none
+- Hooks: lootfilter.js lfInfo reads o.modTab; rewardui.js fit line reads o.pickW
+- Risk: modifier frequency in level-ups follows the best of the group's weight instead of each weapon's; TODO_COPY:modpick_fit is open.
+
+### Folded from ccr-dna-drop: 2026-10-25 Level-up DNA dropped onto the slide by the scientist (v10.135)
+- Systems: rewards (DNA drops, new), autorun, ui (loot screen), tutorials, tests
+- Files: dnadrop.js (new), junk.js, index.html, ARCHITECTURE.md, tests/dnadroptest.js (new), tests/levelboxtest.js, tests/run.sh, tests/sim/wave20.js, tests/sim/lvsim.js
+- What: a level-up is pipetted onto the slide 300 to 560 away (a reachable floor cell 4 to 8 route cells away in a campaign level), never in walls, terrain or boss hazards; one drop at a time, further level-ups add to its count and swimming into it opens every screen back to back. Boss fights: it lands nearer and autorun only fetches it when the way is safe. Autorun goes for it before other pickups (in levels only when in sight). Gold outlined edge chevrons with distance and count point to it. The level-up screen shows a note from the scientist, picked by health, boss, stack.
+- Save data: none (META.seenTut.dnadrop when the tutorial card shows).
+- Hooks: none in shared files. dnadrop.js replaces levelbox.js lvboxTick/lvboxSpot, wraps applyPickup, autorun.js arPickups, v10Draw, UI.openLoot; hookOn('tick', 'ddTick'). junk.js junkArrow gains an optional fill colour.
+- Risk: autorun detours more (bot win rate; see sims in NOTES.md); TODO_COPY placeholders show on the drop label, three note moods and the tutorial card until the copy lands.
 
 ## v10.138 (versionCode 417): 2026-10-25 Card lines for the Delivery forms
 - Built on main. Systems: modifier cards. Files: delivforms.js.

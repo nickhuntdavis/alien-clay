@@ -14,7 +14,7 @@ const LF_MUT = f => f.startsWith('mut:type') ? 'Damage type' : f === 'mut:trade'
 function lfInfo(o) { // tab, chip and group label for one card
   const f = o.family || '';
   if (f.startsWith('mod:') || f === 'switch') {
-    const id = f.slice(4), w = o.modFor || (o.title || '').split(' →')[0];
+    const id = f.slice(4), w = o.modFor || o.modTab || (o.title || '').split(' →')[0];
     return { kind: 'mod', tab: 'w:' + w, chip: f === 'switch' ? 'Chemistry' : (typeof MM_GNAME !== 'undefined' ? MM_GNAME[mmGroup(id)] : 'Modifier') };
   }
   if (f.startsWith('mut:')) return { kind: 'passive', tab: 'passive', chip: LF_MUT(f) };

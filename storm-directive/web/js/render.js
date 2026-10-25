@@ -1903,6 +1903,7 @@ function render() {
   }
   fxDim(false);
   ringsOnTop(); // (enemy rings over explosions and effects, under enemy bullets: ringtop.js)
+  ffxDraw(); // (reload arcs, ready, invulnerable and heal cues: feedbackfx.js)
 
   // Enemy bullets on top, drawn like debris under phase contrast: a black granule with a solid white
   // halo, so they stand out on any background. With the Anti-Immune Stain the granule takes up the red dye at its core.
@@ -2009,7 +2010,7 @@ function drawEnemy(e, lod) {
   if (hk > 0) { const kick = 3.2 * hk * hk * (e.hitK || 1) * big * S, sh = 1.4 * hk * big * S * (Math.floor(G.realT * 60) % 2 ? 1 : -1); jx = Math.cos(e.hitA) * kick - Math.sin(e.hitA) * sh; jy = Math.sin(e.hitA) * kick + Math.cos(e.hitA) * sh; }
   const x = sx(e.x) + jx, y = sy(e.y) + jy, r = e.r * S * squash * e.vs * breathe;
   ctx.globalAlpha = e.phased || e.phTell ? phFlick(e) : e.def.ethereal ? 0.55 : 1;
-  if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); }
+  if (e.def.ai === 'charge' && e.st === 1) { ctx.strokeStyle = 'rgba(241,91,181,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + e.dashX * 250 * S, y + e.dashY * 250 * S); ctx.stroke(); drawChargeFx(x, y, r, 1 - e.stT / 0.7, 'phys', e.id); }
   if (e.boss && !e.egg) drawBossAura(e, x, y, r);
   if (e.boss) drawBossTells(e, x, y, r);
   if (e.aimT > 0) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 - e.aimT) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(e.aimA) * 700 * S, y + Math.sin(e.aimA) * 700 * S); ctx.stroke(); }

@@ -71,9 +71,10 @@ const { chromium } = require('playwright');
     // Pull: an enemy just outside the reach is drawn a step in before the swing lands
     w = fresh('v_phys_proj', [['melee', 1], ['pull', 1]]); e = foe(60, 0); fo = foe(0, -(110 + 20)); const pd0 = Math.hypot(fo.x - G.player.x, fo.y - G.player.y); swing(w, e);
     out.mPull = Math.round(pd0 - Math.hypot(fo.x - G.player.x, fo.y - G.player.y)); if (!(out.mPull > 10)) bad.push('melee pull ' + out.mPull);
-    // Knockback (Bouncer): the shoved enemy runs into another and both take collision damage
+    // Knockback (Bouncer): the shoved enemy runs into another and both take collision damage. collide.js owns collisions
+    // (a knocked enemy faster than its base speed hurts the mate it hits), so the tick runs cdTick too and the shove is kept fast.
     w = fresh('v_phys_proj', [['melee', 1], ['knock', 1]]); e = foe(60, 0); fo = foe(260, 0); swing(w, e); const k0 = lost(fo);
-    e.x = fo.x - e.r - fo.r + 1; gridBuild(); tickT(0.05);
+    e.x = fo.x - e.r - fo.r + 1; e.kx = Math.max(e.kx || 0, 300); e.ky = 0; gridBuild(); tick(0.05, dt => { mwTick(dt); if (typeof cdTick === 'function') cdTick(dt); });
     out.mKnock = [k0, lost(fo)]; if (k0 || !(lost(fo) > 0)) bad.push('melee knockback ' + out.mKnock);
     // The Laser's sword: Homing slashes and Bounce rebounds too
     w = fresh('v_flame_beam', [['melee', 1], ['homing', 1]]); e = foe(60, 0); fo = foe(230, 0); lzSwordSwing(w, e, weaponSrc(w), false); tickT(1);

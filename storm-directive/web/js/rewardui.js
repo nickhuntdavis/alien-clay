@@ -101,6 +101,7 @@ function rwFit(o) {
   }
   if (cat === 'modifier') {
     const rk = /Rank (\d)/.exec(o.sub || '');
+    if (o.pickW) return { k: 'Direct', t: 'TODO_COPY:modpick_fit' };
     return { k: 'Direct', t: rk ? `${o.modFor} already has it: this ranks it up.` : `Tunes ${o.modFor}. Three modifiers a weapon.` };
   }
   if (cat === 'defence') {

@@ -163,6 +163,7 @@ Object.assign(MICROBES, {
   hayfever(e, x, y, r, face) {
     // A puffy cell dusted with pollen grains, two nostrils at the front. It swells as it winds up.
     const w = e.snzW > 0 ? 1 - e.snzW / F3.sneeze.wind : 0, sw = 1 + 0.18 * w;
+    drawChargeFx(x, y, r, w, 'poison', e.id); // (chargefx.js)
     f2blob(x, y, r * sw, 18, 0.05, e.id, f2t(e)); ctx.fillStyle = mBody(e, 0.4); ctx.fill(); mHalo(r * 0.12);
     ctx.fillStyle = 'rgba(30,36,32,0.42)'; ctx.beginPath();
     for (let i = 0; i < 7; i++) { const a = i * 2.39 + e.id, d = r * 0.82 * sw, pr = r * 0.09; ctx.moveTo(x + Math.cos(a) * d + pr, y + Math.sin(a) * d); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, pr, 0, TAU); }

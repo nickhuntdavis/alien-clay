@@ -198,11 +198,11 @@ const junkRate = () => { const k = junkK('spire'); return k && G.junkT && G.junk
 
 // ---------------------------------------------------------------- drawing (world space, from render)
 // A bold chevron with a dark outline, so it reads on a pale slide and a dark one.
-function junkArrow(x, y, a, sz, alpha) {
+function junkArrow(x, y, a, sz, alpha, fill) { // (fill: another colour, e.g. dnadrop.js's gold)
   const c = Math.cos(a), sn = Math.sin(a), pt = (u, v) => [x + c * u - sn * v, y + sn * u + c * v];
   ctx.globalAlpha = alpha; ctx.beginPath();
   for (const [u, v] of [[sz, 0], [-sz * 0.6, sz * 0.85], [-sz * 0.2, 0], [-sz * 0.6, -sz * 0.85]]) { const [X, Y] = pt(u, v); ctx.lineTo(X, Y); }
-  ctx.closePath(); ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.stroke(); ctx.fillStyle = '#e9f5db'; ctx.fill();
+  ctx.closePath(); ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.stroke(); ctx.fillStyle = fill || '#e9f5db'; ctx.fill();
   ctx.globalAlpha = 1;
 }
 function drawJunkDrops() {

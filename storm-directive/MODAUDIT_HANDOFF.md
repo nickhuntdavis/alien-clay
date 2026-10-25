@@ -89,9 +89,8 @@ Still open after task 3:
 - Audit blind spots that hide these forms: no walls (Bounce off walls), one enemy kind, 20 s, rank 1 only (ranks 2 and 3
   of each form, branches and masteries such as Grappling Hook beside Pull are untested), no bosses (Pull and Knockback
   scale down on them).
-- `tests/delivtest.js` melee Knockback (Bouncer) fails on main since collide.js took over collisions (`cdOn()`: the
-  Bouncer pass in xdMelee stands down and the test ticks only mwTick). run.sh hides it: its FAIL line also carries
-  `ERRORS []`, which run.sh's filter drops.
+- Fixed (25 Oct, v10.140+): `tests/delivtest.js` melee Knockback now ticks collide.js's cdTick with a fast shove, and run.sh
+  no longer drops a FAIL line that also carries `ERRORS []`.
 Goal: Homing, Bounce, Returning, Link, Pull, Knockback and Extra Shots each have a stated form on Mines, Melee, Strike
 from Above and Orbiting, so no combo is "the flag is set but nothing can use it".
 Start as a design chat with the user, not code: propose one line per cell (Homing on Mines = mines creep towards enemies,
