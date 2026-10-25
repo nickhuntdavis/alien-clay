@@ -801,11 +801,6 @@ function damageEnemy(e, dmg, src) {
   // The Final Five can't be burst down in one go: no single hit takes more than 6% of one.
   if (e.final) d = Math.min(d, e.maxHp * 0.06);
   if (e.boss) d = Math.min(d, e.maxHp * 0.04); // no one-shotting a boss
-  // Water bears curl into a 'tun' once when badly hurt: nearly invulnerable for a few seconds.
-  if (e.def.tun) {
-    if (e.tunT > G.t) d *= 0.08;
-    else if (!e.tunUsed && e.hp - d < e.maxHp * 0.3) { e.tunUsed = true; e.tunT = G.t + 2.5; d *= 0.08; floatText(e.x, e.y - e.r - 10, 'TUN!', XR.white, 13); }
-  }
   if (src.grudge && e === G.grudge) d *= 3;
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
   d *= hookMul('dmgMul', e, src); // (signatures, toys, genes, combos, chemistry, silly mods, rival relics ...: hooks.js)
@@ -823,7 +818,7 @@ function damageEnemy(e, dmg, src) {
   let crit = false;
   // Crit chance over 100% isn't wasted: the overflow adds to crit damage one for one.
   const cc = (src.crit != null ? src.crit : P.crit) + genesCrit(e, src) + (G.clarityT > G.t ? 0.4 : 0); // (Post-Nut Clarity: you see every weak spot)
-  if (!src.noCrit && !(e.def.noCrit && !(e.softT > G.t)) && Math.random() < cc) { crit = true; } // (v10: the resolver applies crits last, fight.js)
+  if (!src.noCrit && Math.random() < cc) { crit = true; } // (v10: the resolver applies crits last, fight.js)
   if (e.mark > 0) d *= 1.3; // (marked by other things: Grassed Up and the like)
   if (e.edited > G.t) d *= geneDamageMul(e); // (edited by the Gene Gun)
   if (e.frozen > 0 && syn.ice) d *= 1.25;
