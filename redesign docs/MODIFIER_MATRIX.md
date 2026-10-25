@@ -1295,6 +1295,26 @@ Nocturnal Emission and Hot Mess, designed from one physical idea the user gave: 
 | Extra Projectiles | **Cluster balloon:** the balloon splits in mid-air into 2 smaller balloons that burst on 2 faces (rule 5: less each). | 3, then 4. | The splits land in a ring round the crowd and join into one lake, trapping it. |
 | Orbiting | **Juggling:** 1 unburst balloon circles you (radius 72) and bursts on the first enemy it touches; it regrows after 2 s. | 2 / 3 balloons; radius 100. | When you are hit, every orbiting balloon bursts round you at once. |
 | Area | **Wetter balloon:** splats +25% a rank. Spreading (5.7) is dropped for pools: it fights the Evaporating puddle. | +50 / 75%. | **High tide:** every 10 s all your puddles surge to double size for 1 s. |
+### 5.11 Flight and Crowd modifiers on each Delivery (user approved, 25 Oct)
+Shared forms for Homing, Bounce (Ricochet), Returning, Link (Connecting), Pull and Knockback on the four firing
+Deliveries and Ranged (MODAUDIT_HANDOFF.md task 3). To be built as one table `XD[delivery][mod]` in modwide.js that the
+Delivery paths read; per-weapon cells (5.5 to 5.10, cellmods*.js) override. Cost: S = a few lines in an existing path,
+M = new behaviour plus a drawn effect. Decisions: rule 17 stays, so Extra Projectiles (a Delivery) never joins another
+Delivery and has no row; Pull on Ranged and Grappling Hook (Ranged A1) both stay.
+
+| Mod | Mines | Melee | Strike from Above | Orbiting | Ranged |
+|---|---|---|---|---|---|
+| Homing | Armed mines creep to the nearest enemy within 250 at 60 / 80 / 100 a second (Smart Mines does 30). S | Each swing also throws a small homing slash at the nearest enemy just out of reach (40%). M | The marker follows its target through the warning. S | A body breaks off to chase an enemy within 150, hits, and returns to its place. M | N/A (rule 6). |
+| Bounce | A new mine bounces off the nearest enemy and slides into the crowd before arming (Scatter mines, 5.3). M | The swing's last hit rebounds to 1 / 2 / 3 more enemies within 100 at 60%. S | The strike lands again on the nearest enemy within 120 (1 / 2 / 3 times, 60%), each with a short marker. S | A body that hits bounces to one more enemy within 80, then snaps back. M | The strike hops to 1 / 2 / 3 more enemies within 120 at 60%. S |
+| Returning | A mine untouched for 6 s rolls back towards you and goes off on the first enemy it meets. M | Each swing sweeps back 0.2 s later as a second arc at 60%. S | A line of small strikes walks back from the target to you (Orbital Strike reversed). S | Every 3 s the ring flings out to double radius and back, hitting both ways. M | A 40% hit runs along the line from the target back to you. M |
+| Link | Tripwires: each mine links to the nearest within 140; crossing a wire sets off both ends (Nappy Mines). S | Enemies hit by the same swing are linked for 3 s, sharing 25% of damage. S | Each strike is joined to the last strike's spot by a 2 s beam that hurts what crosses it. M | The bodies are joined by a beam that hits enemies crossing the ring. M | Everything in the strike's area is linked for 3 s, sharing 25%. S |
+| Pull | A tripped mine sucks in enemies within 70 for 0.3 s, then goes off (Implosion). S | Each swing draws enemies within 120 a step towards you before it lands. S | The marker pulls enemies in during the warning. S | Enemies within 40 of the ring are dragged onto it. S | The strike drags enemies within 60 into its centre before it hits. S |
+| Knockback | The blast throws enemies outward from the mine, into each other. S | Bouncer: hits knock enemies into each other, 40% collision (5.3). S | The strike throws enemies outward from where it lands. S | Bodies bat enemies away from the ring, harder each rank (works today; may need to be stronger). S | The strike throws enemies outward from where it lands. S |
+
+Build order: one Delivery a batch, Mines first; rerun the audit after each batch and shrink `MOD_DEAD` (moddead.js).
+Knockback today shoves away from the player on every Delivery hit (`mwDmgMul`); the Mines, Strike and Ranged cells move
+the shove's origin to the blast.
+
 ## 6. Moved to sperm passives
 
 ### 6.1 Advanced Targeting (sperm passive)
