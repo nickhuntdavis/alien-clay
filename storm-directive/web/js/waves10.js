@@ -23,6 +23,7 @@
 const W10 = { maxShooters: 7, maxPools: 4, maxPerShooterId: 2 };
 
 // mix: enemy id -> draw weight. roles: what the wave is about. max: most hostiles alive at once (summons included).
+// cap: most bodies of an id the wave sends in all (by count, never by HP: slog waves stay under 90 s).
 // teaches: one line on the lesson. Boss waves (boss: true) are built by campaign.js, untouched.
 const WAVES10 = {
   1:  { roles: ['chaser'], mix: { crawler: 1 }, max: 28,
@@ -36,36 +37,36 @@ const WAVES10 = {
   5:  { boss: true, teaches: 'Boss wave (campaign.js): the first boss and its entourage.' },
   6:  { roles: ['chaser'], mix: { ingrown: 3, crawler: 2, spitter: 1 }, max: 38,
     teaches: 'Thorns: the Ingrown Hair hurts Contact weapons. Projectile, Spread, Burst, Beam and Pool treat it as a chaser.' },
-  7:  { roles: ['tank', 'shooter'], mix: { shell: 2, spitter: 2, crawler: 2 }, max: 40,
-    teaches: 'Shell tank + Shooter: the Shell Cell holds space while the Antibody fires. Acid or one heavy hit sheds the shell.' },
-  8:  { roles: ['leech', 'sprinter'], mix: { mosquito: 2, crawler: 2, skitter: 1, spitter: 1 }, max: 40,
-    teaches: 'Mosquito: a fixed bite, then it flies off. Kill it within 4 s and you get half the bite back.' },
-  9:  { roles: ['support', 'tank'], mix: { bulwark: 2, crawler: 3, brute: 1 }, max: 42,
-    teaches: 'Membrane: the Mucus Wall soaks half of every hit until broken. Force is poor into it; Static only recharges it.' },
+  7:  { roles: ['tank', 'shooter', 'carrier'], mix: { shell: 2, spitter: 2, crawler: 2, puffball: 1 }, max: 40,
+    teaches: 'Shell tank + Shooter: the Shell Cell holds space while the Antibody fires. Acid or one heavy hit sheds the shell. Puffball: Burst and Pool hits free its Spores.' },
+  8:  { roles: ['leech', 'sprinter'], mix: { mosquito: 2, crawler: 2, skitter: 1, spitter: 1, sweetcorn: 1 }, max: 40,
+    teaches: 'Mosquito: a fixed bite, then it flies off. Kill it within 4 s and you get half the bite back. Sweetcorn is the joke wave: tough, harmless, a punchbag.' },
+  9:  { roles: ['support', 'tank', 'leech'], mix: { bulwark: 1, rotifer: 2, crawler: 3, brute: 1 }, max: 30, cap: { bulwark: 2, brute: 3 },
+    teaches: 'Membrane: the Mucus Wall soaks half of every hit until broken. Force is poor into it; Static only recharges it. Rotifer: a thief that runs off with what it takes.' },
   10: { boss: true, teaches: 'Boss wave (campaign.js): the second boss and its entourage.' },
-  11: { roles: ['support', 'swarm'], mix: { medic: 1, krill: 3, crawler: 1 }, max: 46,
-    teaches: 'Healer + Swarm: the Nurse Cell mends the shoal. Hunt it first, or burst the whole crowd.' },
-  12: { roles: ['chaser'], mix: { staticsock: 3, crawler: 2, shell: 1 }, max: 46,
-    teaches: 'Static Sock: Crackle builds by distance swum, in 3 steps. At full, one heavy zap. Kill it before it fills.' },
-  13: { roles: ['charger', 'shooter'], mix: { matchstick: 3, spitter: 2, crawler: 1 }, max: 48,
-    teaches: 'Matchstick: strikes, lights its lane, charges and leaves a burning trail. Step out of the lane, then avoid the trail.' },
-  14: { roles: ['tank', 'chaser'], mix: { stressball: 2, brute: 1, crawler: 2 }, max: 50,
-    teaches: 'Stress Ball (Squishy): every 5th Force hit springs it back and knocks you off. Back away at full squeeze.' },
+  11: { roles: ['support', 'swarm', 'leech'], mix: { medic: 1, krill: 3, crawler: 1, leech: 2 }, max: 46,
+    teaches: 'Healer + Swarm: the Nurse Cell mends the shoal. Hunt it first, or burst the whole crowd. Leech: drains stamina in reach, so swim off.' },
+  12: { roles: ['chaser', 'shooter'], mix: { staticsock: 2, crawler: 2, shell: 1, spire: 1 }, max: 34, cap: { staticsock: 4, spire: 1, shell: 3 },
+    teaches: 'Static Sock: Crackle builds by distance swum, in 3 steps. At full, one heavy zap. Enzyme Spire: a slow spiral turret behind a Shell layer, Acid sheds it.' },
+  13: { roles: ['charger', 'shooter', 'relay'], mix: { matchstick: 2, spitter: 2, crawler: 1, plasma: 1 }, max: 44,
+    teaches: 'Matchstick: strikes, lights its lane, charges and leaves a burning trail. Shooter + Relay: the Plasma Cell makes shooters near it fire 40% faster, so kill it first.' },
+  14: { roles: ['tank', 'sniper'], mix: { stressball: 1, brute: 1, crawler: 2, lancer: 2 }, max: 38, cap: { stressball: 3, brute: 3 },
+    teaches: 'Stress Ball (Squishy): every 5th Force hit springs it back and knocks you off. Sniper: the Killer T-Cell shows its Beam line first, so step out of it.' },
   15: { boss: true, teaches: 'Boss wave (campaign.js): the third boss and its entourage.' },
-  16: { roles: ['summoner', 'charger'], mix: { summoner: 1, charger: 2, crawler: 2 }, max: 54,
-    teaches: 'Summoner + Charger: the Mother Cell adds Sprinters (they count against the cap) while the Headbutter threatens a lane.' },
-  17: { roles: ['controller', 'shooter'], mix: { candle: 1, spitter: 3, shell: 1, crawler: 2 }, max: 56,
-    teaches: 'Controller + Shooter: the Birthday Candle drips wax walls that block movement and shots while Antibodies fire past them.' },
-  18: { roles: ['carrier', 'swarm'], mix: { trappedwind: 2, krill: 3, crawler: 1 }, max: 58,
-    teaches: 'Carrier + Swarm: Trapped Wind goes up in one Burst if a Fire hit lights it. Light it while it sits among the shoal.' },
-  19: { roles: ['mixed'], mix: { crawler: 2, skitter: 1, ingrown: 1, spitter: 2, shell: 1, medic: 1, krill: 2, charger: 1, stressball: 1, mosquito: 1, staticsock: 1 }, max: 64,
-    teaches: 'The big mix: every defence and most roles at once, one Pool-maker and one shooter type at most.' },
+  16: { roles: ['summoner', 'charger', 'controller'], mix: { summoner: 1, charger: 2, crawler: 2, complement: 2 }, max: 34, cap: { summoner: 1, charger: 6 },
+    teaches: 'Summoner + Charger: the Mother Cell adds Sprinters (they count against the cap) while the Headbutter threatens a lane. Complement: marks you for 25% more damage, kill it as it closes.' },
+  17: { roles: ['controller', 'shooter', 'tank'], mix: { candle: 1, spitter: 2, diatom: 2, shell: 1, crawler: 2 }, max: 50,
+    teaches: 'Controller + Shooter: the Birthday Candle drips wax walls that block movement and shots. Shell tank + Shooter: the Diatom fires a slow ring from behind two shell layers.' },
+  18: { roles: ['carrier', 'swarm', 'relay'], mix: { trappedwind: 2, krill: 3, crawler: 1, cortisol: 2 }, max: 52,
+    teaches: 'Carrier + Swarm: Trapped Wind goes up in one Burst if a Fire hit lights it. Swarm + Relay: the Cortisol Puff makes the shoal 30% faster, so kill it first.' },
+  19: { roles: ['mixed'], mix: { crawler: 2, skitter: 1, ingrown: 1, lancer: 1, sperminator: 1, shell: 1, medic: 1, krill: 2, charger: 1, mosquito: 1, stem: 1, fibrin: 1, alien: 1 }, max: 60,
+    teaches: 'The big mix: every defence and most roles at once. Booster (elite shooter), Stem Cell (revives), Fibrin Weaver (relay), Natural Killer (lane pounce) join the others.' },
   20: { boss: true, teaches: 'Boss wave (campaign.js): the final boss and its entourage.' },
 };
 
 // Disruptive statuses and Pool-makers, by enemy id (ENEMY_DESIGN 10: do not stack the same status).
 const W10_STATUS = { snare: ['hocker', 'bogey', 'snotbubble'], burning: ['matchstick', 'candle', 'trappedwind', 'warlock'], tangle: ['pube'],
-  drain: ['leech'], mark: ['complement'], engulf: ['amoeba'] };
+  drain: ['leech', 'mosquito'], mark: ['complement'], steal: ['rotifer'] };
 const W10_POOLS = ['bomber', 'matchstick', 'candle', 'hocker', 'snotbubble'];
 const w10Shooter = id => { const r = typeof ROSTER !== 'undefined' && ROSTER[id]; return !!r && r.role.some(x => x === 'shooter' || x === 'sniper'); };
 const w10Pool = id => W10_POOLS.includes(id);
@@ -105,7 +106,7 @@ function w10Spawn(V) {
   const N = V.w10.cnt, q = V.w10.q;
   const roomFor = id => foeRoom(ENEMIES[id]);
   const shootersFull = w10Alive(w10Shooter) >= W10.maxShooters, poolsFull = w10Alive(w10Pool) >= W10.maxPools;
-  const ok = id => roomFor(id) && !(shootersFull && w10Shooter(id)) && !(poolsFull && w10Pool(id));
+  const ok = id => roomFor(id) && !(E.cap && E.cap[id] != null && (N[id] || 0) >= E.cap[id]) && !(shootersFull && w10Shooter(id)) && !(poolsFull && w10Pool(id));
   let id = null;
   while (q.length && !id) { const c = q.shift(); if (ok(c)) id = c; }
   if (!id) {
