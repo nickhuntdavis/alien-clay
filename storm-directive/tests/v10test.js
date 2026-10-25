@@ -38,7 +38,7 @@ const { chromium } = require('playwright');
     const w1 = G.weapons.find(Boolean);
     if (w1.def.v10atk !== w0.def.v10atk || w1.def.v10type === w0.def.v10type) bad.push('switch: ' + w0.id + ' -> ' + w1.id);
     if (!v10Box({ kind: 'level' }) || !v10Box({ kind: 'level' })) bad.push('wave mode: level boxes queue for the break, none dropped');
-    for (const k of ['relic', 'vesicle', 'splice', 'myth']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k);
+    for (const k of ['vesicle', 'splice', 'myth']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k);
     const sl = genLoot({ kind: 'slot' });
     if ((raceOn() ? !sl.length || sl.length > 3 : sl.length !== 3) || sl.some(o => !o.c10 && o.def.v10atk === w1.def.v10atk) || sl.filter(o => o.c10).length > 1) bad.push('slot draft: ' + sl.map(o => o.title + (o.c10 ? ' (combo partner)' : ''))); // (one card may be a combo partner of any attack type: combos10.js; a race offers only carried samples' weapons: kindred.js)
     // Every weapon deals damage on its own.

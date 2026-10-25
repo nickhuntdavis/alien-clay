@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
-  await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
+  await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; voiceLine = () => null; }); await page.waitForTimeout(300); // (no first-sighting cards or narrator lines: a line fired in one run and not its twin spends the seeded dice differently)
   const r = await page.evaluate(() => {
     const bad = [], out = { dps: [] }, def = Object.values(ENEMIES).find(d => d.ai === 'chase') || Object.values(ENEMIES)[0];
     const R0 = Math.random; let seed = 1;

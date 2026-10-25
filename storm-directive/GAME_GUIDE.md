@@ -1108,8 +1108,7 @@ Own two or more weapons or Feats of one damage type to unlock its set bonus.
 | **NEAREST** | Whatever is closest. Safe, boring, effective. |
 | **FRAGILEST** | Lowest max health, wounded or not. Clears fodder. |
 | **LOWEST HEALTH** | Least health left right now. Finishes off the wounded. |
-| **TOUGHEST** | Most max health and armour combined. Tank busting. |
-| **HIGHEST ARMOUR** | Most armour first. Pair with shred. |
+| **TOUGHEST** | TODO_COPY:aim_tough_desc |
 | **FASTEST** | Chargers and skitters before they reach you. |
 | **FURTHEST** | The farthest enemy in range. Snipes the back line. |
 | **DENSEST CLUSTER** | The middle of the crowd. Best for splash. |
@@ -1235,7 +1234,6 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Puffball** | 42 | 8 | 42 | 4 | 1:50 | 6 |  | Swims straight at you |
 | **Bit of Sweetcorn** | 110 | 0 | 32 | 2 | 1:55 | 8 | Shell | tank |
 | **Nurse Cell** | 30 | 6 | 56 | 4 | 2:00 |  |  | Heals nearby enemies |
-| **Litmus Cell** | 40 | 10 | 50 | 4 | 2:00 | 6 |  | Resists the damage type you have dealt most this run |
 | **Snot Bubble** | 30 | 6 | 34 | 4 | 2:00 | 4 |  | Swims straight at you |
 | **Stress Ball** | 90 | 8 | 36 | 5 | 2:05 |  | Squishy | tank |
 | **Headbutter** | 50 | 18 | 56 | 4 | 2:10 |  |  | Winds up, then charges |
@@ -1243,9 +1241,9 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Phlegm Hocker** | 32 | 8 | 50 | 4 | 2:20 | 6 |  | shooter |
 | **Cortisol Puff** | 30 | 6 | 50 | 5 | 2:25 | 3 |  | relay |
 | **Mucus Wall** | 95 | 14 | 40 | 6 | 2:30 |  | Membrane | Damages anything close |
-| **Mirror Cell** | 34 | 9 | 54 | 4 | 2:30 | 6 |  | Reflects shots that hit its front |
+| **Mirror Cell** | 34 | 9 | 54 | 4 | 2:30 | 6 | Membrane | tank |
 | **Matchstick** | 20 | 12 | 60 | 3 | 2:30 |  |  | charger |
-| **Platelet Clump** | 46 | 10 | 46 | 4 | 2:40 | 6 |  | Stops piercing shots dead |
+| **Platelet Clump** | 46 | 10 | 46 | 4 | 2:40 | 6 |  | Swims straight at you |
 | **Complement Protein** | 28 | 6 | 60 | 5 | 2:45 | 3 |  | controller |
 | **Cytokine Caster** | 45 | 8 | 46 | 6 | 2:50 |  |  | Keeps distance and shoots |
 | **Shell Cell** | 46 | 12 | 38 | 5 | 2:55 | 6 | Shell | Swims straight at you |
@@ -1253,15 +1251,15 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Diatom** | 55 | 8 | 24 | 6 | 3:00 |  | Shell | Keeps distance and shoots |
 | **Natural Killer** | 48 | 13 | 70 | 6 | 3:00 |  | Evasion | Weaves, crouches, pounces; acid blood |
 | **Interferon** | 34 | 6 | 46 | 6 | 3:05 | 3 |  | support |
-| **Grease Ball** | 52 | 11 | 52 | 5 | 3:10 | 6 |  | Homing shots slide off; cannot be knocked back |
+| **Grease Ball** | 52 | 11 | 52 | 5 | 3:10 | 6 | Squishy | Swims straight at you |
 | **Ghost Swimmer** | 35 | 10 | 82 | 5 | 3:15 |  | Evasion | Phases in and out |
-| **Brood Cyst** | 140 | 14 | 30 | 10 | 3:20 |  |  | brood |
+| **Brood Cyst** | 140 | 14 | 30 | 10 | 3:20 |  |  | summoner |
 | **Callus** | 58 | 12 | 40 | 5 | 3:20 | 6 | Shell | Swims straight at you |
 | **Hayfever Cell** | 50 | 10 | 48 | 5 | 3:20 | 6 |  | shooter, carrier |
 | **Fibrin Weaver** | 44 | 8 | 40 | 6 | 3:25 | 3 |  | relay |
 | **Mother Cell** | 75 | 10 | 40 | 8 | 3:30 |  |  | Spawns minions |
 | **Birthday Candle** | 70 | 6 | 0 | 7 | 3:40 | 1 | Shell | controller |
-| **Planarian** | 34 | 10 | 72 | 2 | 3:50 |  |  | planarian |
+| **Planarian** | 34 | 10 | 72 | 2 | 3:50 |  |  | swarm |
 | **Stem Cell** | 44 | 6 | 36 | 8 | 3:50 | 3 |  | summoner |
 | **Enzyme Spire** | 85 | 10 | 16 | 8 | 4:00 |  | Shell | Sits still and shoots |
 | **Trapped Wind** | 24 | 0 | 28 | 3 | 4:10 | 2 | Squishy | carrier |
@@ -1277,7 +1275,8 @@ HP and damage are at the start; both scale up over the run. **From** is the earl
 | **Candida** | 18 | 5 | 22 | 1 | Spawned by others |  |  | Buds new yeast cells |
 | **Pepsinator Jr** | 60 | 14 | 72 | 6 | Spawned by others |  |  | Swims straight at you |
 | **Second Dose** | 45 | 12 | 92 | 6 | Spawned by others |  |  | Laser lock-on, burst fire |
-| **Broodling** | 10 | 6 | 108 | 0.5 | Spawned by others |  |  | broodling |
+| **Broodling** | 10 | 6 | 108 | 0.5 | Spawned by others |  |  | swarm |
+| **Litmus Cell** | 40 | 10 | 50 | 4 | Spawned by others | 6 |  | Swims straight at you |
 | **Spore** | 6 | 4 | 84 | 0.3 | Spawned by others | 10 |  | Swims straight at you |
 
 ### Typed bullets and your statuses
