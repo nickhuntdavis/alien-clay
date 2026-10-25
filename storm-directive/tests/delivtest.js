@@ -1,6 +1,7 @@
 // Flight and Crowd modifiers on the Mines Delivery (delivforms.js, MODIFIER_MATRIX.md 5.11): Homing creeps, Bounce flings
 // and slides to rest, Returning rolls back, Link's tripwires set off both ends, Pull implodes, Knockback shoves from the
-// mine; and the Laser's mines creep with Homing.
+// mine; and the Laser's mines creep with Homing. Melee: Homing slashes, Bounce rebounds, Returning sweeps back, Link shares,
+// Pull draws in, Knockback (Bouncer) collides; the Laser's sword slashes and rebounds.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -45,6 +46,36 @@ const { chromium } = require('playwright');
     tick(0.5, dt => xdMines(XD_LZ, dt)); out.lzHoming = Math.round(m.x - lx); if (!(out.lzHoming > 15)) bad.push('laser homing ' + out.lzHoming);
     // Card text: a Mines weapon's Homing card describes the Mines form (placeholder until the user writes it)
     w = fresh('v_phys_proj', [['mines', 1]]); out.card = (modCard(w, 'homing') || {}).desc; if (out.card !== 'TODO_COPY:xd_mines_homing' && !/creep|mine/i.test(out.card || '')) bad.push('card ' + out.card);
+    // ---- Melee (batch 2): a swing at an enemy 60 in front
+    const swing = (w, t) => mwMelee(w, t, weaponSrc(w));
+    const tickT = t => tick(t, dt => { mwTick(dt); for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } } }); // (with the after() timers)
+    const lost = e => Math.round(e.maxHp - e.hp);
+    // Homing: a slash flies at an enemy just out of reach
+    w = fresh('v_phys_proj', [['melee', 1], ['homing', 1]]); e = foe(60, 0); let fo = foe(230, 0); swing(w, e); const nSl = G.xdM ? G.xdM.sl.length : 0; tickT(1);
+    out.mHoming = [nSl, lost(fo)]; if (!nSl || !(lost(fo) > 0)) bad.push('melee homing ' + out.mHoming);
+    // Bounce: the last hit rebounds to an enemy behind it, out of the arc
+    w = fresh('v_phys_proj', [['melee', 1], ['ricochet', 1]]); e = foe(60, 0); fo = foe(60 + e.r * 2 + 40, 0); const fb = lost(fo); swing(w, e); tickT(0.2);
+    out.mBounce = [fb, lost(fo)]; if (fb || !(lost(fo) > 0)) bad.push('melee bounce ' + out.mBounce);
+    // Returning: the swing sweeps back 0.2 s later
+    w = fresh('v_phys_proj', [['melee', 1], ['returning', 1]]); e = foe(60, 0); swing(w, e); const r1 = lost(e); tickT(0.3);
+    out.mRet = [r1, lost(e)]; if (!(r1 > 0) || !(lost(e) > r1 * 1.3)) bad.push('melee returning ' + out.mRet);
+    // Link: two enemies hit by one swing share a later hit on one of them
+    w = fresh('v_phys_proj', [['melee', 1], ['connecting', 1]]); e = foe(60, -25); fo = foe(60, 25); swing(w, e); const l0 = lost(fo); damageEnemy(e, 1000, weaponSrc(w));
+    out.mLink = [!!e.xdLk, lost(fo) - l0]; if (!e.xdLk || !(lost(fo) - l0 > 50)) bad.push('melee link ' + out.mLink);
+    // Pull: an enemy just outside the reach is drawn a step in before the swing lands
+    w = fresh('v_phys_proj', [['melee', 1], ['pull', 1]]); e = foe(60, 0); fo = foe(0, -(110 + 20)); const pd0 = Math.hypot(fo.x - G.player.x, fo.y - G.player.y); swing(w, e);
+    out.mPull = Math.round(pd0 - Math.hypot(fo.x - G.player.x, fo.y - G.player.y)); if (!(out.mPull > 10)) bad.push('melee pull ' + out.mPull);
+    // Knockback (Bouncer): the shoved enemy runs into another and both take collision damage
+    w = fresh('v_phys_proj', [['melee', 1], ['knock', 1]]); e = foe(60, 0); fo = foe(260, 0); swing(w, e); const k0 = lost(fo);
+    e.x = fo.x - e.r - fo.r + 1; gridBuild(); tickT(0.05);
+    out.mKnock = [k0, lost(fo)]; if (k0 || !(lost(fo) > 0)) bad.push('melee knockback ' + out.mKnock);
+    // The Laser's sword: Homing slashes and Bounce rebounds too
+    w = fresh('v_flame_beam', [['melee', 1], ['homing', 1]]); e = foe(60, 0); fo = foe(230, 0); lzSwordSwing(w, e, weaponSrc(w), false); tickT(1);
+    out.lzSwHoming = lost(fo); if (!(lost(fo) > 0)) bad.push('laser sword homing ' + out.lzSwHoming);
+    w = fresh('v_flame_beam', [['melee', 1], ['ricochet', 1]]); e = foe(60, 0); fo = foe(60 + e.r * 2 + 40, 0); lzSwordSwing(w, e, weaponSrc(w), false); tickT(0.2);
+    out.lzBounce = lost(fo); if (!(lost(fo) > 0)) bad.push('laser sword bounce ' + out.lzBounce);
+    // Card text: a Melee weapon's Bounce card describes the Melee form
+    w = fresh('v_phys_proj', [['melee', 1]]); out.mCard = (modCard(w, 'ricochet') || {}).desc; if (out.mCard !== 'TODO_COPY:xd_melee_ricochet' && !/swing|rebound/i.test(out.mCard || '')) bad.push('melee card ' + out.mCard);
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
