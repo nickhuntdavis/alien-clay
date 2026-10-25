@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - two enemies that use the player statuses (pstatus.js) against you, from ENEMY_IDEAS.md.
 //   Phlegm Hocker (Mucus, punisher): hangs back and lobs big sticky globs that make you Snotty.
-//     GARGLED (Water on it): its next 3 globs come out as rinse puddles that wash you clean.
+//     The glob leaves a Mucus patch (fight.js fightPatch, 40 wide, 4 s) where it lands or bursts; standing in it keeps you Snotty.
 //   Hayfever Cell (Cooties, punisher): every few seconds it winds up and sneezes a cone at you, giving you
 //     whichever of Snotty, Sick and Soaking wet you have put on it. Pile statuses on it carelessly and it backfires.
 //     ANTIHISTAMINE (Water, then Cooties on it): it sneezes on its own side instead, making its neighbours Sick.
@@ -20,13 +20,12 @@ Object.assign(ENEMIES, {
     weak: { shock: 1.5 }, resist: { phys: 0.6 }, does: 'Swells with every hit, then bursts and sticks everything nearby' },
 });
 Object.assign(ENEMY_INTRO, {
-  hocker:   { what: 'Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds.', tip: 'Strafe, don\'t back off in a straight line. Water makes it gargle, and its next globs land as puddles that rinse you clean.' },
+  hocker:   { what: 'Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds.', tip: 'TODO_COPY:hocker_tip' },
   snotbubble: { what: 'A bubble blown out of a nostril. Every hit makes it swell. Pop it too late and it bursts all over the neighbourhood, you included.', tip: 'Pop it early for a small splash, or from range. Static pops it at once, and harmlessly.' },
   hayfever: { what: 'Allergic to everything, mostly you. Every few seconds it winds up (AH... AH...) and sneezes a cone at you, and it sneezes back whatever statuses you have given it.', tip: 'Step out of the cone when it winds up, and go easy on the statuses. Soak it with Water, then give it Cooties, and it sneezes on its friends instead.' },
 });
 Object.assign(REACTIONS, {
   popped:        { name: 'POPPED',        color: '#9fd46a', desc: 'Static on a Snot Bubble: it bursts at once, harmless to you, and every enemy nearby is Snotty.' },
-  gargled:       { name: 'GARGLED',       color: '#3d8bff', desc: 'Water on a Phlegm Hocker: its next 3 globs land as rinse puddles that wash you clean.' },
   antihistamine: { name: 'ANTIHISTAMINE', color: '#ff5fa2', desc: 'Water, then Cooties, on a Hayfever Cell: it sneezes on its own side, and everything near it is Sick.' },
 });
 Object.assign(JUNK_POWERS, {
@@ -35,10 +34,11 @@ Object.assign(JUNK_POWERS, {
   hayfever: { name: 'Bless You', fmt: k => `+${3 * k}% dodge`, apply: P => { P.dodge += 0.03; } },
 });
 if (typeof PST_SHOOTERS !== 'undefined') PST_SHOOTERS.hocker = 'ice';
-if (typeof RX_OF !== 'undefined') { RX_OF.gargled = 'splash'; RX_OF.antihistamine = 'pop'; RX_OF.popped = 'pop'; }
+if (typeof RX_OF !== 'undefined') { RX_OF.antihistamine = 'pop'; RX_OF.popped = 'pop'; }
 
 const F3 = {
-  glob: { cd: 2.4, speed: 150, dmg: 8, r: 8, dose: 1.7 },        // (dose: Snotty seconds x this)
+  globs: [], // (live Hocker globs, watched until they land: f3patchTick)
+  glob: { cd: 2.4, speed: 150, dmg: 8, r: 8, patchR: 40, stay: 1 }, // (patchR: Mucus patch radius it leaves; stay: Snotty seconds while you stand in a patch)
   bubble: { swell: 0.07, late: 4, max: 8, early: 80, big: 170, near: 24, snot: 3 }, // (grow per hit, hits that count as late, most hits that show, radii, your Snotty seconds when close)
   sneeze: { cd: 4.5, wind: 0.8, range: 230, half: 0.5, dur: 2, dmg: 0.6 }, // (half: cone half-angle; dmg: share of its contact damage)
 };
@@ -51,18 +51,12 @@ Object.assign(FOE_AI, {
     if (e.shootCd <= 0 && dist < 460 && !e.charmed) {
       e.shootCd = F3.glob.cd * rand(0.85, 1.15);
       e.hockRT = G.realT;
-      const p = me();
-      if (e.garg > 0) { // (gargled: a rinse puddle on the way to you instead)
-        e.garg--;
-        if (G.zones.length < 200) { const k = 0.7, x = e.x + (p.x - e.x) * k, y = e.y + (p.y - e.y) * k; G.zones.push({ x, y, r: 42, life: 5, max: 5, dps: 0, elem: 'salt', pull: 0, color: ELEMENTS.salt.color, tick: 0, src: { elem: 'salt', noStatus: true, wname: 'Rinse' }, water: true, quiet: true }); spawnPart(x, y, ELEMENTS.salt.color, 6, 70, 0.4); }
-      } else {
-        const se = shooterEnt, sn = shooterName, n = G.ebul.length;
-        shooterEnt = e; shooterName = e.name;
-        G.bulSeq = 0; // (a single glob always flies)
-        eBullet(e.x + ux * e.r, e.y + uy * e.r, Math.atan2(uy, ux), F3.glob.speed, F3.glob.dmg * dmgNow(), F3.glob.r);
-        shooterEnt = se; shooterName = sn;
-        if (G.ebul.length > n) G.ebul[G.ebul.length - 1].pk = F3.glob.dose;
-      }
+      const se = shooterEnt, sn = shooterName, n = G.ebul.length;
+      shooterEnt = e; shooterName = e.name;
+      G.bulSeq = 0; // (a single glob always flies)
+      eBullet(e.x + ux * e.r, e.y + uy * e.r, Math.atan2(uy, ux), F3.glob.speed, F3.glob.dmg * dmgNow(), F3.glob.r);
+      shooterEnt = se; shooterName = sn;
+      if (G.ebul.length > n) { const g = G.ebul[G.ebul.length - 1]; g.f3run = G; F3.globs.push(g); }
     }
     if (dist > 300) return null;
     if (dist < 200) return { x: -ux, y: -uy };
@@ -83,6 +77,22 @@ Object.assign(FOE_AI, {
     return null;
   },
 });
+
+// A Hocker glob that has landed (hit you, hit a wall, or run out of range) leaves a Mucus patch; standing in one keeps you Snotty.
+function f3patchTick() {
+  if (!G) return;
+  const gl = F3.globs;
+  for (let i = gl.length - 1; i >= 0; i--) {
+    const b = gl[i];
+    if (!b.dead && b.f3run === G) continue;
+    gl.splice(i, 1);
+    if (b.f3run !== G) continue; // (a glob from an earlier run)
+    if (G.zones.length < 150 && typeof fightPatch === 'function') { const z = fightPatch(b.x, b.y, 'hocker'); z.r = F3.glob.patchR; z.f3patch = true; G.zones.push(z); }
+  }
+  const p = me();
+  if (p && G.zones.length) for (const z of G.zones) if (z.f3patch && z.life > 0 && Math.hypot(p.x - z.x, p.y - z.y) < z.r + (p.r || 12) * 0.5) { pstGive('snot', F3.glob.stay); break; }
+}
+hookOn('tick', 'f3patch', () => f3patchTick());
 
 // Snot Bubble: every hit swells it (not more than once every 0.1 s, so one burst of pellets is one hit).
 function foes3Dmg(e, src) {
@@ -124,7 +134,6 @@ function f3sneeze(e) {
 // After an enemy takes a damage type's status (chem.js).
 function foes3Chem(e, elem, dmg, src, rsrc) {
   const say = id => { e.reactCd = 0; return react(e, id, src); }; // (always fires: a pair reaction on the same hit has not used it up)
-  if (e.def === ENEMIES.hocker && elem === 'salt' && !(e.garg > 0) && say('gargled')) e.garg = 3;
   if (e.def === ENEMIES.snotbubble && elem === 'shock' && !e.popped && say('popped')) { e.popped = 1; damageEnemy(e, e.hp + 1, rsrc); return; }
   if (e.def === ENEMIES.hayfever) {
     if (elem === 'salt') e.f3wetT = G.t + 3;
