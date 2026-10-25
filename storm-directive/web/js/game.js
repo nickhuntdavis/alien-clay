@@ -685,7 +685,7 @@ function optMod(w, id, r) {
   const M = MODS[id], rr = Math.max(1, r), pw = MOD_POWER[rr];
   const have = w.mods.find(m => m.id === id);
   let elem = null, desc;
-  if (id === 'elemental' && !have) { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem)); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.${pw > 1 ? ` +${Math.round(15 * (pw - 1))}% damage.` : ''}` + elemTwistNote(w, elem); }
+  if (id === 'elemental' && !have) { elem = pick(Object.keys(ELEMENTS).filter(e => e !== 'phys' && e !== w.def.elem && V10_TYPES.includes(e))); desc = `Converts ${w.def.name} to ${ELEMENTS[elem].name} damage.${pw > 1 ? ` +${Math.round(15 * (pw - 1))}% damage.` : ''}` + elemTwistNote(w, elem); }
   else { const np = have ? Math.min(MOD_MAX_POWER, have.p + pw * 0.5) : pw; desc = have ? `Power ${have.p.toFixed(2)} > ${np.toFixed(2)}: ${M.desc(np)}` : M.desc(pw); }
   return { rarity: rr, tag: have ? 'MODIFIER BOOST' : 'MODIFIER', icon: M.icon, color: M.color, elem: elem || w.def.elem, title: M.name,
     sub: have ? `Boosts ${w.def.name}'s ${M.name}` : `Installs into ${w.def.name} (slot ${w.mods.length + 1}/${MOD_SLOTS})`, desc, modFor: w.def.name,
@@ -1139,7 +1139,7 @@ function hurtPlayer(dmg, from, ent, kind) {
   dmg *= hookMul('hurtMul', ent, kind, from); // (Complement Protein, Survivor's Guilt, Personal Space, statuses ...: hooks.js)
   if (!G.wave && !G.lvl && !G.debug) dmg *= RACE.hurt; // (race mode's own difficulty)
   dmg *= G.evm.in * tankDamageIn() * (G.slip ? 0.75 : 1) * (P.takenMul || 1);
-  dmg = relicDamageIn(dmg, ent);
+  dmg = relicDamageIn(dmg, ent, kind);
   if (dmg > 0) dmg = junkHurtIn(dmg, ent, kind); // (Now You See Me, Phlegm, Glass Case: junk.js)
   if (dmg <= 0) return;
   // No one-shots from a boss: a single boss hit (body, beam or bullet) takes at most 22% of your max HP.

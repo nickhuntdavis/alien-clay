@@ -75,7 +75,7 @@ const pdefShieldK = () => { const m = G.pd.mem; return m.memMax > 0 ? clamp(m.me
 // The bubble hit a surface too fast: it wears like a hit and the Membrane loses a little (bodymods.js bubbleBump).
 function pdefDent(n) { const m = pdef().mem; if (m.memMax > 0) { m.mem = Math.max(0, m.mem - n * 0.04 * m.memMax); m.memQuietT = 0; } }
 // Refit the Shell: every owned layer, full health.
-function pdRefit(D) { D.layers = D.n.shell; D.layerHp = D.layers ? pdLayerHp() : 0; }
+function pdRefit(D) { D.layers = Math.min(Math.max(D.n.shell, RELIC10.shellCap), D.n.shell + relShell()); D.layerHp = D.layers ? pdLayerHp() : 0; } // (relic layers: relics10.js)
 
 // What attacked you, as matrix attack and damage types.
 function pdefAtk(kind, ent) {

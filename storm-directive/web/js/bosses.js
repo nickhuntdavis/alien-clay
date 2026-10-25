@@ -343,7 +343,7 @@ function applyRelic(id) {
   G.relics[id] = true;
   switch (id) {
     case 'secondstomach': { const add = Math.round(P.maxHp * 0.6); P.maxHp += add; p.hp += add; break; }
-    case 'borderwall': { P.armour += 10; const add = Math.round(P.maxHp * 0.4); P.maxHp += add; p.hp += add; P.speed -= 0.1; break; }
+    case 'borderwall': { relShellAdd(RELIC10.shell.borderwall); const add = Math.round(P.maxHp * 0.4); P.maxHp += add; p.hp += add; P.speed -= 0.1; break; }
     case 'thirdeye': P.crit += 0.25; P.critDmg += 1; break;
     case 'precog': P.dodge = Math.max(P.dodge, Math.min(0.7, P.dodge + 0.25)); break;
     case 'proteinpro': P.speed += 0.35; P.momentum += 0.5; break;
@@ -370,8 +370,8 @@ function relicHit(e, d, src) {
   const R = G.relics;
   if (!src.w || e.dead) return;
   if (R.transfusion && G.lsBudget > 0) { const h = Math.min(G.lsBudget, d * 0.01); G.lsBudget -= h; healPlayer(h, true); }
-  if (R.corrosive) { e.shred = Math.min(e.armour + 4, e.shred + 1); e.poison = Math.max(e.poison, 3); e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, d * 0.05, 'Acid Tongue'); }
-  if (R.runninghot) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Running Hot'); }
+  if (R.corrosive) relBar(e, 'acid', d * 0.3); // (Acid Corrosion: relics10.js)
+  if (R.runninghot) relBurn(e, d * 0.3, 'Running Hot'); // (the v10 Burn: relics10.js)
   rrelicHit(e, d, src);
   bpRelicHit(e, d);
 }
@@ -380,16 +380,18 @@ function relicKill(e, src) {
   if (R.secondstomach) healPlayer(1, true);
   rrelicKill(e, src);
   bpRelicKill(e);
-  if (R.ulcer && G.zones.length < 200 && Math.random() < 0.5) G.zones.push({ x: e.x, y: e.y, r: 46, life: 3, max: 3, dps: (8 + G.level * 3) * P.might, elem: 'poison', pull: 0, color: '#b8f35a', tick: 0, src: { elem: 'poison', wname: 'Ulcer' } });
-  if (R.heatstroke && e.burn > 0 && (G.heatF !== G.frameN || (G.heatN || 0) < 6)) {
+  if (R.ulcer && G.zones.length < 200 && Math.random() < 0.5) G.zones.push({ x: e.x, y: e.y, r: 46, life: 3, max: 3, dps: (8 + G.level * 3) * P.might, elem: 'fire', pull: 0, color: '#b8f35a', tick: 0, src: { elem: 'fire', wname: 'Ulcer' } }); // (an Acid Pool: Corrosion, matrix 4)
+  if (R.heatstroke && f_burning(e) && (G.heatF !== G.frameN || (G.heatN || 0) < 6)) {
     if (G.heatF !== G.frameN) { G.heatF = G.frameN; G.heatN = 0; }
     G.heatN++;
-    aoe(e.x, e.y, 66, Math.max(e.maxHp * 0.25, (20 + G.level * 5) * P.might), { elem: 'fire', wname: 'Heatstroke', noCrit: true }, '#ff7a2f');
+    aoe(e.x, e.y, 66, Math.max(e.maxHp * 0.25, (20 + G.level * 5) * P.might), { elem: 'flame', wname: 'Heatstroke', noCrit: true, atk: 'burst' }, '#ff7a2f'); // (Fire: it spreads the burn)
   }
 }
 // Incoming damage adjustments; 0 means blocked.
-function relicDamageIn(dmg, ent) {
+function relicDamageIn(dmg, ent, kind) {
   const R = G.relics, p = me();
+  if (!(dmg > 0)) return dmg;
+  if (R.seethrough && kind === 'bullets' && Math.random() < 0.5) { p.iframes = Math.max(p.iframes, 0.1); return 0; } // (See-Through: half the bullets pass through)
   if (R.diplomatic && G.t >= (G.dipAt || 0)) {
     G.dipAt = G.t + 5;
     ring(p.x, p.y, 34, PAL.reward, 0.4, 4); floatText(p.x, p.y - 26, 'DIPLOMATIC IMMUNITY', PAL.reward, 12);
@@ -407,7 +409,7 @@ function relicDamageIn(dmg, ent) {
 function relicHurt(d) {
   const R = G.relics, p = me(), P = G.P;
   bpRelicHurt(d);
-  if (R.acidblood) aoe(p.x, p.y, 130, d * 10, { elem: 'poison', wname: 'Bad Blood', noCrit: true }, '#b8f35a');
+  if (R.acidblood) aoe(p.x, p.y, 130, d * 10, { elem: 'fire', wname: 'Bad Blood', noCrit: true, atk: 'burst' }, '#b8f35a'); // (Acid: builds Corrosion)
   if (R.triage && p.hp < P.maxHp * 0.25 && G.t >= (G.triageAt || 0)) {
     G.triageAt = G.t + 45;
     p.hp = P.maxHp * 0.7; p.iframes = 2;
@@ -434,13 +436,14 @@ function relicTick(dt) {
   // The Queen's Court: three guards, each back 15 s after it falls.
   if (R.court) {
     G.court = (G.court || []).filter(g => !g.dead && g.charmed);
+    if (G.court.length < (G.courtN || 0)) G.courtT = G.t + 15; // (a guard fell: back in 15 s; the first three come at once)
     if (G.court.length < 3 && G.t >= (G.courtT || 0)) {
-      G.courtT = G.t + (G.court.length ? 15 : 0);
       const g = makeEnemy(ENEMIES.brute, p.x + rand(-40, 40), p.y + rand(-40, 40));
       g.charmed = true; g.charmT = 1e9; g.guard = true; g.name = 'Royal Guard'; g.hp = g.maxHp = g.maxHp * 4; g.xp = 0;
       G.court.push(g); G.enemies.push(g);
       ring(g.x, g.y, 30, PAL.you, 0.4, 3);
     }
+    G.courtN = G.court.length;
   }
   // Poltergeist: every 3 s, the nearest ordinary enemy is picked up and thrown at another.
   if (R.poltergeist) {
@@ -496,7 +499,7 @@ function relicTick(dt) {
   // Fever Dream: count the burning enemies near you.
   if (R.feverdream) {
     G.feverScanT = (G.feverScanT || 0) - dt;
-    if (G.feverScanT <= 0) { G.feverScanT = 0.25; let n = 0; forNear(p.x, p.y, 230, e => { if (e.burn > 0) n++; }); G.feverN = n; }
+    if (G.feverScanT <= 0) { G.feverScanT = 0.25; let n = 0; forNear(p.x, p.y, 230, e => { if (f_burning(e)) n++; }); G.feverN = n; }
   }
 }
 

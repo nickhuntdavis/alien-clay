@@ -906,7 +906,7 @@ const RELICS = {
   swallow:       { name: 'Swallow Whole', desc: 'Touching a small, ordinary enemy swallows it whole instead of hurting you, and heals you 3 HP.' },
   court:         { name: "The Queen's Court", desc: 'Three loyal macrophage guards follow you and fight for you. A fallen guard returns 15s later.' },
   // The Antibody Colossus: armour.
-  borderwall:    { name: 'Border Wall', desc: '+10 armour and +40% max HP, but you swim 10% slower.' },
+  borderwall:    { name: 'Border Wall', desc: 'TODO_COPY:relic_borderwall_desc' },
   bouncer:       { name: 'Bouncer', desc: 'Enemies that touch you are hurled away and take ten times their own contact damage. You take 40% less from them.' },
   diplomatic:    { name: 'Diplomatic Immunity', desc: 'Every 5s, a shield blocks the next hit completely.' },
   // The Immune Eye: sight.
@@ -918,7 +918,7 @@ const RELICS = {
   triage:        { name: 'Triage', desc: 'Dropping below 25% HP heals you to 70% and makes you untouchable for 2s. Once every 45s.' },
   transfusion:   { name: 'Transfusion', desc: 'Every hit you land heals you a little, and your lifesteal limit is three times higher.' },
   // The Pepsinator: acid.
-  corrosive:     { name: 'Acid Tongue', desc: 'Every hit shreds armour and adds a dose of Cooties.' },
+  corrosive:     { name: 'Acid Tongue', desc: 'TODO_COPY:relic_corrosive_desc' },
   acidblood:     { name: 'Bad Blood', desc: 'When you are hit, you splash acid around you for ten times the damage you took.' },
   ulcer:         { name: 'Ulcer', desc: 'Enemies you kill leave acid puddles that dissolve their friends.' },
   // Chad Prime: speed.
@@ -926,9 +926,9 @@ const RELICS = {
   tailwhip:      { name: 'Tail Whip', desc: 'Your tail becomes a weapon: it lashes everything behind you twice a second.' },
   sprint:        { name: 'Flying Start', desc: 'Every 5s you surge forward, untouchable for a moment, leaving a shockwave behind you.' },
   // The Fever: heat.
-  runninghot:    { name: 'Running Hot', desc: 'Every weapon you own melts what it hits.' },
-  feverdream:    { name: 'Fever Dream', desc: 'Every melting enemy near you makes all your weapons fire 3% faster (up to +60%).' },
-  heatstroke:    { name: 'Heatstroke', desc: 'Melting enemies explode when they die, spreading the acid.' },
+  runninghot:    { name: 'Running Hot', desc: 'TODO_COPY:relic_runninghot_desc' },
+  feverdream:    { name: 'Fever Dream', desc: 'TODO_COPY:relic_feverdream_desc' },
+  heatstroke:    { name: 'Heatstroke', desc: 'TODO_COPY:relic_heatstroke_desc' },
   // Mitch & Osis: doubling.
   mirror:        { name: 'Mirror Twin', desc: 'Every shot-firing weapon also fires a twin shot backwards at 50% damage.' },
   doubletrouble: { name: 'Double Trouble', desc: '+1 projectile, +1 pierce and +1 chain jump for every weapon.' },
@@ -939,11 +939,11 @@ const RELICS = {
   ectoplasm:     { name: 'Ectoplasm', desc: 'Your hits pass halfway through armour: enemies keep only half their armour against you.' },
   // The boss pack (effects in bosspack.js). The Litmus Strip: damage types.
   indicator:     { name: 'Universal Indicator', desc: '+6% damage and +3% fire rate for every different damage type you carry when you take it.' },
-  bluetored:     { name: 'Blue to Red', desc: 'Every hit has a 15% chance to melt its target (Acid) and a 15% chance to slime it (Mucus).' },
+  bluetored:     { name: 'Blue to Red', desc: 'TODO_COPY:relic_bluetored_desc' },
   teststrip:     { name: 'Test Strip', desc: 'Bosses can no longer resist or ignore any of your damage types.' },
   // The Johnny: protection.
   rubber:        { name: 'Rubber Johnny', desc: 'Ninety-eight percent effective, per the packet. You are wrapped in a latex forcefield worth 30% of your max health: it soaks what hits it, mends after two quiet seconds, and has opinions about walls. The other two percent is how you got here.' },
-  ribbed:        { name: 'Ribbed', desc: '+2 Headstrong and +4 armour. For their displeasure.' },
+  ribbed:        { name: 'Ribbed', desc: 'TODO_COPY:relic_ribbed_desc' },
   reservoir:     { name: 'Reservoir Tip', desc: 'Damage you take is collected. Every 10s it all comes back out as a blast around you, ten times over.' },
   // The Mucus Plug: sticky.
   plugged:       { name: 'Plugged', desc: 'Enemies that touch you get stuck in mucus: 65% slower for 3s.' },
@@ -958,9 +958,9 @@ const RELICS = {
   atishoo:       { name: 'Atishoo', desc: 'Every 6s you sneeze a wide cone ahead of you: big damage and a hard shove.' },
   binit:         { name: 'Catch It, Bin It, Kill It', desc: 'Enemies you kill sneeze on their neighbours, hexing them: they take more from everything.' },
   // The Kidney Stone: armour.
-  lithotripsy:   { name: 'Lithotripsy', desc: 'Every hit shreds 2 armour.' },
-  calcified:     { name: 'Calcified', desc: '+12 armour and +25% max HP, but you swim 8% slower.' },
-  razors:        { name: 'Pissing Razor Blades', desc: 'When you are hit, crystal shards burst out of you, shredding armour and cutting everything nearby.' },
+  lithotripsy:   { name: 'Lithotripsy', desc: 'TODO_COPY:relic_lithotripsy_desc' },
+  calcified:     { name: 'Calcified', desc: 'TODO_COPY:relic_calcified_desc' },
+  razors:        { name: 'Pissing Razor Blades', desc: 'TODO_COPY:relic_razors_desc' },
   // Rival relics (RIVAL_RELICS).
   personalbest:  { name: 'Personal Best', desc: '+20% swim speed, and +10% dodge while you are swimming fast.' },
   marathon:      { name: 'Marathon', desc: 'While you keep swimming fast you heal 1% of your max HP every second.' },
