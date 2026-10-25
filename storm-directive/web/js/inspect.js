@@ -21,8 +21,8 @@ const RX_PAIR = (() => {
   set('fire', 'shock', 'battery'); set('fire', 'salt', 'acidrain'); set('fire', 'ice', 'heartburn'); set('fire', 'arcane', 'ulcer');
   set('fire', 'oxi', 'vinaigrette'); set('salt', 'oxi', 'dontmix'); set('ice', 'salt', 'snotslick'); set('ice', 'oxi', 'snailtrail');
   set('ice', 'shock', 'shortcircuit'); set('shock', 'soul', 'poltergeist'); set('shock', 'poison', 'shakes'); set('soul', 'poison', 'patientzero');
-  m['poison+poison'] = 'pandemic'; m['fire+fire'] = 'meltdown'; m['ice+ice'] = 'booger'; m['shock+shock'] = 'overload'; m['oxi+oxi'] = 'slipnslide';
-  m['salt+salt'] = 'waterlogged'; m['arcane+arcane'] = 'hemorrhage'; m['soul+soul'] = 'possession';
+  m['poison+poison'] = 'pandemic';
+  m['soul+soul'] = 'possession';
   return m;
 })();
 const rxSeen = id => !!((META.seenRx && META.seenRx[id]) || (typeof G !== 'undefined' && G && G.stats && G.stats.reactBy && G.stats.reactBy[id]));
