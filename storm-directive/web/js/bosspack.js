@@ -5,14 +5,13 @@
 // Kidney Stone (40 armour: shred is the way in). Their moves, tells, sprites and relics live here; the defs are
 // in data.js (BOSSES, RELICS) and the entourages in campaign.js.
 // Hooks (bosses.js): bpSpawn (spawnBoss), bpSpecial (bossSpecial), bpUpkeep (bossUpkeep), bpDamageMul
-// (bossDamageMul), bpBounce (bossDodges), bpPlug (orbitNurse), bpTick (updateBosses), bpDown (bossDown), bpPhase
+// (bossDamageMul), bpPlug (orbitNurse), bpTick (updateBosses), bpDown (bossDown), bpPhase
 // (bossEnrage), bpDanger (hazardDanger), bpRelicApply/Hit/Kill/In/Hurt/Dodge/Tick (the relic hooks).
 // Hook (render.js): bpDraw (drawHazards).
 
-const BP = { litmusEvery: 12, soak: 4, wrong: 0.25, ringR0: 380, ringStep: 110, pull: 72, coneLen: 720, coneHalf: 0.32, coneTrack: 0.9, sneezeK: 1.8, turn: 0.75 };
-const LITMUS_TYPES = ['phys', 'fire', 'ice', 'shock', 'poison', 'oxi', 'salt', 'arcane', 'soul'];
+const BP = { litmusEvery: 12, soak: 4, wrong: 0.65, ringR0: 380, ringStep: 110, pull: 72, coneLen: 720, coneHalf: 0.32, coneTrack: 0.9, sneezeK: 1.8, turn: 0.75 };
+const LITMUS_TYPES = ['phys', 'fire', 'shock', 'ice', 'arcane', 'soul', 'flame'];
 const PLUG_DEF = { name: 'Mucus Plug', hp: 1, speed: 0, armour: 0, r: 26, dmg: 0, xp: 10, color: '#d9f0a3', shape: 'mucusplug', ai: 'plug', from: 99999, w: 0 };
-let BP_BACK = null; // the boss a projectile just hit from behind (the Johnny: set by bpBounce, read once by bpDamageMul)
 
 const bpBd = e => e.def.dmg * 0.35 * dmgNow() * (e.campK || 1); // (the same as bossAI's bullet damage)
 function bpOwnTypes() {
@@ -27,7 +26,6 @@ function bpSpawn(e) {
   const d = e.def;
   if (d.litmus) bpLitmusShift(e, true);
   if (d.latex) e.face = Math.atan2(me().y - e.y, me().x - e.x);
-  if (d.stone) e.armK = 1; // (its armour is the whole point: it doesn't grow with the clock)
 }
 
 // ---------------------------------------------------------------- the Litmus Strip
@@ -43,22 +41,6 @@ function bpLitmusShift(e, first) {
   ring(e.x, e.y, e.r * 2.4, c, 0.6, 6); spawnPart(e.x, e.y, c, 16, 200, 0.6, 3);
   floatText(e.x, e.y - e.r - 20, 'SOAKED! THEN ' + ELEMENTS[e.lit].name.toUpperCase() + ' ONLY', c, 14, 1.4);
   bpShoot(e, () => { for (let i = 0; i < 16; i++) eBullet(e.x, e.y, i / 16 * TAU + e.age, 115, bpBd(e), 6); });
-}
-
-// ---------------------------------------------------------------- the Johnny
-const bpFront = (e, x, y) => Math.abs(angDiff(Math.atan2(y - e.y, x - e.x), e.face || 0)) < 1.1; // (its latex end: about 125 degrees)
-// From bossDodges, for every projectile that reaches a boss: true means the shot is spent (bounced).
-function bpBounce(e, pr) {
-  if (!e.def.latex || !pr || pr.orbitT > 0) return false;
-  if (!bpFront(e, pr.x - (pr.vx || 0) * 0.03, pr.y - (pr.vy || 0) * 0.03)) { BP_BACK = e; return false; }
-  pr.dead = true;
-  if (G.realT >= (e.bounceT || 0)) {
-    e.bounceT = G.realT + 0.14; // (fast guns don't turn it into a bullet hose)
-    const p = me();
-    bpShoot(e, () => eBullet(pr.x, pr.y, Math.atan2(p.y - pr.y, p.x - pr.x) + rand(-0.15, 0.15), 230, bpBd(e) * 0.5, 5));
-  }
-  if (!(e.boingT > G.realT)) { e.boingT = G.realT + 0.7; floatText(pr.x, pr.y - 10, 'BOING', XR.white, 13, 0.6); }
-  return true;
 }
 
 // ---------------------------------------------------------------- the Mucus Plug
@@ -223,7 +205,6 @@ function bpUpkeep(e, dt) {
   }
   if (d.latex && e.rolling && e.def.patterns[e.pat] !== 'johnnyroll') e.rolling = false;
   if (d.grip && e.gripping && e.def.patterns[e.pat] !== 'crampgrip') e.gripping = false;
-  if (d.stone && e.shred > 0) e.shred = Math.min(e.armour + 4, e.shred + 0.4 * dt); // (shred sticks: cancels the usual wear-off)
   if (d.plugs && !e.sealed && G.state === 'play') bpSeal(e);
 }
 // Damage multipliers (from bossDamageMul).
@@ -234,11 +215,7 @@ function bpDamageMul(e, src) {
     if (src.dot) m *= 0.5;
     else if (!(e.soakUntil > G.t)) m *= (src.elem || 'phys') === e.lit ? 1.5 : G.relics.teststrip ? 1 : BP.wrong;
   }
-  if (d.latex && !src.dot && !src.env) {
-    const back = BP_BACK === e || (BP_BACK !== e && !bpFront(e, me().x, me().y));
-    BP_BACK = null;
-    m *= back ? (e.bpExposed > G.t ? 1.5 : 1) : 0.4;
-  }
+  if (d.latex && !src.dot && !src.env && e.bpExposed > G.t) m *= 1.5; // (its Membrane is the defence; only the overshoot opening pays extra)
   if (d.plugs && e.bpOpen) m *= 1.25;
   if (d.cone && e.sniff > G.t) m *= 1.3;
   return m;
@@ -247,7 +224,7 @@ function bpDamageMul(e, src) {
 function bpPhase(e, ph) {
   const d = e.def;
   if (d.phase && d.phase[ph - 1]) sysMsg(d.name, d.phase[ph - 1], PAL.danger, true);
-  if (d.stone) { e.armour = Math.max(0, e.armour - 10); floatText(e.x, e.y - e.r - 24, 'CRACK! -10 ARMOUR', PAL.reward, 16, 1.4); }
+  if (d.stone) { const res = { layersLost: 0 }; dropLayer(fightCd(e), res); if (res.layersLost) { ring(e.x, e.y, e.r + 6, FIGHT_COL.shell, 0.5, 6); fxParts('spark', e.x, e.y, FIGHT_COL.shell, 12, 160, 0.5, 3); floatText(e.x, e.y - e.r - 24, 'TODO_COPY:boss_stone_crack', PAL.reward, 16, 1.4); } } // (each enrage cracks one Shell layer)
   if (d.litmus) e.litT = Math.min(e.litT, 1);
 }
 // Per frame (from updateBosses).
@@ -302,10 +279,9 @@ function bpRelicApply(id) {
 function bpRelicHit(e, d) {
   const R = G.relics;
   if (R.bluetored) {
-    if (Math.random() < 0.15 && !(e.boss && e.def.resist && e.def.resist.fire === 0)) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Blue to Red'); }
+    if (Math.random() < 0.15) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Blue to Red'); }
     if (Math.random() < 0.15) { e.chill = Math.max(e.chill, 1.5); e.chillAmt = Math.max(e.chillAmt, 0.3); }
-  }
-  if (R.lithotripsy) e.shred = Math.min(e.armour + 4, e.shred + 2);
+  }  if (R.lithotripsy) e.shred = Math.min(e.armour + 4, e.shred + 2);
 }
 function bpRelicKill(e) {
   if (!G.relics.binit) return;

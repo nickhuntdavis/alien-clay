@@ -832,7 +832,7 @@ const BOSSES = [
     quote: 'Bro. Bro. You swim like a sneeze.',
     desc: 'The biggest swimmer anyone has ever seen. Dashes through you three times, then has to catch his breath.',
     strengths: ['Blindingly fast triple dash', 'Flexes: dodges 30% of your shots'], weaknesses: ['Winded after every dash: stunned, double damage', 'Blasts, beams and pools never miss him'],
-    dodge: 0.3, relics: ['proteinpro', 'tailwhip', 'sprint'] },
+    relics: ['proteinpro', 'tailwhip', 'sprint'] },
   { id: 'fever', tier: 3, name: 'THE FEVER', title: 'Pyrogen Prime, 41 Degrees', shape: 'star', color: '#ff6b35',
     hp: 3200, speed: 48, armour: 2, r: 48, dmg: 30, xp: 85, patterns: ['firering', 'spiral', 'firering', 'ring'],
     quote: "Is it hot in here, or is it me? It's me. It's always me.",

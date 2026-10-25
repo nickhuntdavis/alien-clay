@@ -35,6 +35,7 @@ function spawnBoss() {
     const t = mk(s.x + Math.cos(s.a + 1.2) * 110, s.y + Math.sin(s.a + 1.2) * 110);
     e.name = 'MITCH'; t.name = 'OSIS'; e.twin = t; t.twin = e; t.pat = 2;
     G.enemies.push(t);
+    boss10Twins(e, t);
   }
   G.bossCount++;
   G.bossHits0 = Object.values(G.stats.hurtKind).reduce((a, b) => a + b, 0); // (Flawless Specimen)
@@ -112,9 +113,8 @@ function bossDamageMul(e, src) {
   }
   return m;
 }
-// Chad Prime flexes out of the way of a shot (true: it missed).
+// A boss with a dodge chance flexes out of the way of a shot (true: it missed). v10: none has one (Chad Prime's Evasion is its roster defence).
 function bossDodges(e, pr) {
-  if (bpBounce(e, pr)) return true; // (the Johnny's latex front: bosspack.js)
   if (!e.def.dodge || e.winded > G.t || Math.random() > e.def.dodge) return false;
   if (!(e.missT > G.realT)) { e.missT = G.realT + 0.4; floatText(e.x, e.y - e.r - 12, 'FLEX. MISS.', XR.white, 12, 0.6); }
   return true;
@@ -222,13 +222,12 @@ function bossSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
 // Per-frame boss upkeep outside of their attack patterns (from bossAI, before patterns).
 function bossUpkeep(e, dt) {
   const d = e.def;
-  if (d.resist && d.resist.fire === 0) e.burn = 0;
   // The Fever: freezing it snuffs out whatever it was doing; below 35% it rages.
   bpUpkeep(e, dt);
   if (d.id === 'fever') {
     if (e.frozen > 0 && e.patT < 5) { e.patT = 5.4; e.fireT = 0.8; }
-    if (e.hp < e.maxHp * 0.35 && !e.raged) { e.raged = true; banner('THE FEVER SPIKES: 42 DEGREES', PAL.danger); e.speed *= 1.5; }
-    if (e.raged) return 2;
+    if (e.hp < e.maxHp * 0.35 && !e.raged) { e.raged = true; banner('THE FEVER SPIKES: 42 DEGREES', PAL.danger); e.speed *= 4 / 3; } // (roster: speed x2 and attack rate x1.5; the 1.5 below scales both, so speed gets the rest)
+    if (e.raged) return 1.5;
   }
   // The Pepsinator splits off blobs at 60% and 30%.
   if (d.id === 'pepsin') {
@@ -372,7 +371,7 @@ function relicHit(e, d, src) {
   if (!src.w || e.dead) return;
   if (R.transfusion && G.lsBudget > 0) { const h = Math.min(G.lsBudget, d * 0.01); G.lsBudget -= h; healPlayer(h, true); }
   if (R.corrosive) { e.shred = Math.min(e.armour + 4, e.shred + 1); e.poison = Math.max(e.poison, 3); e.poisonStacks = Math.min(G.P.poisonCap, e.poisonStacks + 1); setPoison(e, d * 0.05, 'Acid Tongue'); }
-  if (R.runninghot && !(e.boss && e.def.resist && e.def.resist.fire === 0)) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Running Hot'); }
+  if (R.runninghot) { e.burn = Math.max(e.burn, 2.5); setBurn(e, d * 0.3, 'Running Hot'); }
   rrelicHit(e, d, src);
   bpRelicHit(e, d);
 }
