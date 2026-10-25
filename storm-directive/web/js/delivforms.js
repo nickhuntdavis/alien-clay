@@ -11,8 +11,19 @@
 //    an enemy crossing a wire sets off both ends, and the snapping wire hits it (60%).
 //  - Pull: a tripped mine sucks in enemies within 70 / 105 / 140 for 0.3 s, then goes off (Implosion).
 //  - Knockback: the blast shoves outward from the mine (src.mwAt, read by modwide.js mwDmgMul), not from you.
-// Hooks: none in shared files. Wraps modwide.js mwLay/mwMineGo/mwTick, modifiers.js modCard/modDraw and laserbeam.js
-// lzMineLay/lzExtrasTick.
+// Batch 2: Melee (modwide.js mwMelee and the Laser's sword, laserbeam.js lzSwordSwing). A swing tags its src (src.xdSw);
+// the 'proc' hook collects what it hit, and the forms run once the swing is over. Follow-up hits carry src.xdF (never
+// collected again). Base damage per hit: the swing's own (1.5x the weapon's hit; the sword's 0.6 s of beam or its blast).
+//  - Homing: each swing also throws a small homing slash (40%) at the nearest enemy just out of reach (1 / 2 / 3 slashes,
+//    at different enemies, up to 220 past the reach).
+//  - Bounce (Ricochet): the swing's last hit rebounds to 1 / 2 / 3 more enemies within 100 at 60%.
+//  - Returning: the swing sweeps back 0.2 s later as a second arc at 60 / 75 / 90%.
+//  - Link (Connecting): enemies hit by the same swing are linked for 3 / 4 / 5 s; a hit on one passes 25% to the others.
+//  - Pull: before it lands, the swing draws enemies within 120 / 150 / 180 a step (30 / 40 / 50) towards you.
+//  - Knockback (Bouncer): enemies the swing shoves hurt the first enemy they hit, and themselves, for 40% of the swing.
+//    (Wall Slam's own collision, modwide.js mwTick, takes the shove first when the weapon has it.)
+// Hooks: none in shared files; hookOn('proc', 'xdProc') from this file. Wraps modwide.js mwLay/mwMineGo/mwTick/mwMelee,
+// modifiers.js modCard/modDraw and laserbeam.js lzMineLay/lzExtrasTick/lzSwordSwing.
 // Loads after laserbeam.js and before cellmods.js (so cellmods.js's mask wraps this file's mwTick).
 
 const XD = {
@@ -24,6 +35,14 @@ const XD = {
                                                                       //  midway, outside both blasts, still counts; 0 turns it off)
     pull:       { r: [70, 105, 140], t: 0.3, f: 380 },
     knock:      {}, // (the shove's origin: modwide.js mwDmgMul reads src.mwAt)
+  },
+  melee: {
+    homing:     { gap: 220, v: 520, k: 0.4, n: [1, 2, 3], life: 1 },
+    ricochet:   { r: 100, k: 0.6, n: [1, 2, 3], step: 0.06 },
+    returning:  { t: 0.2, k: [0.6, 0.75, 0.9] },
+    connecting: { t: [3, 4, 5], share: 0.25, max: 8 },
+    pull:       { r: [120, 150, 180], step: [30, 40, 50] },
+    knock:      { k: 0.4, f: 150 },
   },
 };
 const xdR = (w, id) => Math.min(3, modCount(w, id));
@@ -143,15 +162,132 @@ lzMineLay = (orig => function (w, src, blast) {
 })(lzMineLay);
 lzExtrasTick = (orig => function (dt) { xdMines(XD_LZ, dt); return orig(dt); })(lzExtrasTick);
 
+// ---------------------------------------------------------------- Melee (batch 2)
+const xdM = () => G.xdM || (G.xdM = { sl: [], lk: [] });
+const xdSwAny = w => !!w && !!w.m10 && ['homing', 'ricochet', 'returning', 'connecting', 'pull', 'knock'].some(id => modCount(w, id) > 0);
+const xdSrcF = (src, lz) => Object.assign({}, src, { atk: 'contact', xdF: 1, xdSw: null }, lz ? { lzDel: true, mwDel: true } : null);
+function xdHitArc(w, a, reach, half, dmg, src, not) { // (the Returning sweep: one arc round where you are now)
+  const p = G.player; let n = 0;
+  for (const e of G.enemies) {
+    if (e.dead || e.charmed || (not && not.includes(e))) continue;
+    if (Math.hypot(e.x - p.x, e.y - p.y) > reach + e.r) continue;
+    if (Math.abs(angDiff(Math.atan2(e.y - p.y, e.x - p.x), a)) > half) continue;
+    damageEnemy(e, dmg, src); n++;
+  }
+  return n;
+}
+// Pull: before the swing lands
+function xdSwPull(w, reach) {
+  const r = xdR(w, 'pull'); if (!r) return;
+  const C = XD.melee.pull, p = G.player, R = xdLv(C.r, r) * (typeof areaK === 'function' ? areaK(w) : 1), f = xdLv(C.step, r);
+  let n = 0;
+  for (const o of G.enemies) { if (o.dead || o.charmed || n >= 12) continue; const d = Math.hypot(o.x - p.x, o.y - p.y) - (o.r || 0); if (d > R || d < reach * 0.5) continue; mwPull(o, p.x, p.y, f); o.mwPulledT = G.t + 1; n++; }
+  if (n) ring(p.x, p.y, R, w.def.color, 0.2, 2);
+}
+// After the swing: what it hit (sw.hits, in hit order), its angle and reach, the damage one of its hits was worth
+function xdSwung(w, src, sw, a, reach, base, lz) {
+  xdM(); const C = XD.melee, p = G.player, g0 = G, hits = [...new Set(sw.hits)].filter(e => !e.dead), fsrc = xdSrcF(src, lz);
+  // Homing: slashes at the nearest enemies just out of reach
+  const hr = xdR(w, 'homing');
+  if (hr) {
+    const far = G.enemies.filter(e => !e.dead && !e.charmed && !e.egg && !sw.hits.includes(e)).map(e => [Math.hypot(e.x - p.x, e.y - p.y) - (e.r || 0), e]).filter(([d]) => d > reach * 0.8 && d < reach + C.homing.gap).sort((u, v) => u[0] - v[0]).slice(0, xdLv(C.homing.n, hr));
+    for (const [, e] of far) xdM().sl.push({ w, e, x: p.x, y: p.y, a: Math.atan2(e.y - p.y, e.x - p.x), end: G.t + C.homing.life, dmg: base * C.homing.k, src: fsrc });
+  }
+  // Bounce: the last hit rebounds
+  const br = xdR(w, 'ricochet');
+  if (br && hits.length) {
+    let cur = hits[hits.length - 1]; const used = hits.slice();
+    for (let i = 0; i < xdLv(C.ricochet.n, br); i++) {
+      const nx = xdFoe(cur.x, cur.y, C.ricochet.r, used); if (!nx) break;
+      used.push(nx); const fx = cur.x, fy = cur.y;
+      after(C.ricochet.step * i, () => { if (G !== g0 || nx.dead) return; damageEnemy(nx, base * C.ricochet.k, fsrc); bolt(fx, fy, nx.x, nx.y, w.def.color, 0.15); ring(nx.x, nx.y, 10, w.def.color, 0.15, 2); });
+      cur = nx;
+    }
+  }
+  // Returning: the swing sweeps back
+  const rr = xdR(w, 'returning');
+  if (rr) after(C.returning.t, () => {
+    if (G !== g0 || !G.weapons.includes(w)) return;
+    xdHitArc(w, a, reach, Math.PI * 150 / 360, base * xdLv(C.returning.k, rr), fsrc);
+    (G.v10fx || (G.v10fx = [])).push({ k: 'arc', x: G.player.x, y: G.player.y, a, r: reach * 0.9, c: w.def.color, life: 0.15, max: 0.15 });
+  });
+  // Link: everything this swing hit shares damage for a while
+  const lr = xdR(w, 'connecting');
+  if (lr && hits.length >= 2) {
+    const L = { w, es: hits.slice(0, C.connecting.max), end: G.t + xdLv(C.connecting.t, lr), share: C.connecting.share };
+    for (const e of L.es) e.xdLk = L;
+    const M = xdM(); M.lk = M.lk.filter(o => o.end > G.t); M.lk.push(L);
+  }
+  // Knockback (Bouncer): shoved enemies hurt what they hit
+  const kr = xdR(w, 'knock');
+  if (kr) for (const e of hits) {
+    if (e.boss) continue;
+    if (lz) { shove(e, p.x, p.y, C.knock.f * kr); e.mwKnT = G.t; e.mwKnW = w; e.mwKnHit = null; } // (the Laser's own Knockback only pushes along its beam)
+    e.xdBnT = G.t; e.xdBnW = w; e.xdBnD = base * C.knock.k; e.xdBnSrc = fsrc;
+  }
+}
+function xdProc(e, dmg, src, d) {
+  if (src.xdSw && !src.xdF && !src.echo && !src.mwBoom) src.xdSw.hits.push(e);
+  const L = e.xdLk; // Link: a hit on one passes a share to the others
+  if (L && !src.xdLk && d > 0) {
+    if (L.end <= G.t) { e.xdLk = null; return; }
+    const s2 = msEcho(src, { xdLk: 1, xdF: 1, xdSw: null, mult: 1 });
+    for (const o of L.es) if (o !== e && !o.dead) damageEnemy(o, d * L.share, s2);
+  }
+}
+hookOn('proc', 'xdProc', (e, dmg, src, d) => xdProc(e, dmg, src, d));
+function xdMelee(dt) {
+  const M = xdM();
+  // Homing slashes
+  for (const q of M.sl) {
+    if (q.e.dead) q.e = xdFoe(q.x, q.y, 200);
+    if (!q.e || G.t > q.end) { q.end = 0; continue; }
+    const v = XD.melee.homing.v, ta = Math.atan2(q.e.y - q.y, q.e.x - q.x);
+    q.a += Math.max(-10 * dt, Math.min(10 * dt, angDiff(ta, q.a))); // (turns 10 radians a second)
+    q.x += Math.cos(q.a) * v * dt; q.y += Math.sin(q.a) * v * dt;
+    if (Math.hypot(q.e.x - q.x, q.e.y - q.y) < (q.e.r || 10) + 8) { damageEnemy(q.e, q.dmg, q.src); ring(q.x, q.y, 12, q.w.def.color, 0.15, 2); q.end = 0; }
+  }
+  M.sl = M.sl.filter(q => q.end > G.t);
+  M.lk = M.lk.filter(L => L.end > G.t);
+  // Bouncer: a shoved enemy that runs into another hurts both (once per shove)
+  for (const e of G.enemies) {
+    if (e.dead || !(e.xdBnT > G.t - 0.6) || e.mwKnHit || !G.weapons.includes(e.xdBnW)) continue;
+    const o = msNear(e.x, e.y, e.r + 2, [e]); if (!o) continue;
+    e.mwKnHit = 1; e.xdBnT = 0;
+    damageEnemy(e, e.xdBnD, e.xdBnSrc); damageEnemy(o, e.xdBnD, e.xdBnSrc);
+    ring((e.x + o.x) / 2, (e.y + o.y) / 2, 14, e.xdBnW.def.color, 0.2, 3);
+  }
+}
+mwMelee = (orig => function (w, target, src) {
+  if (!xdSwAny(w)) return orig(w, target, src);
+  const p = G.player, a = Math.atan2(target.y - p.y, target.x - p.x), reach = 90 * (typeof areaK === 'function' ? areaK(w) : 1) * (1 + 0.2 * mwR(w, 'range'));
+  xdSwPull(w, reach);
+  const sw = { hits: [] }; src.xdSw = sw;
+  let r; try { r = orig(w, target, src); } finally { src.xdSw = null; }
+  xdSwung(w, src, sw, a, reach, w.s.dmg * 1.5, false);
+  return r;
+})(mwMelee);
+lzSwordSwing = (orig => function (w, target, src, blast) {
+  if (!xdSwAny(w) || !target) return orig(w, target, src, blast);
+  const n0 = w.lzSwN || 0, p = G.player, a = Math.atan2(target.y - p.y, target.x - p.x), reach = (mwR(w, 'melee') >= 2 ? 110 : 90) * lzAreaK(w) * (1 + 0.2 * mwR(w, 'range'));
+  if (blast || G.t >= (w.lzSwT || 0)) xdSwPull(w, reach);
+  const sw = { hits: [] }; src.xdSw = sw;
+  let r; try { r = orig(w, target, src, blast); } finally { src.xdSw = null; }
+  if ((w.lzSwN || 0) !== n0) xdSwung(w, src, sw, a, reach, w.s.dmg * (blast ? lzBlastK(w) : 0.6 / Math.max(0.05, w.s.cd || 0.1)), true); // (only when it swung)
+  return r;
+})(lzSwordSwing);
+mwTick = (orig => function (dt) { const r = orig(dt); if (G && G.xdM && G.state === 'play') xdMelee(dt); return r; })(mwTick);
+
 // Card text: a modifier offered on a weapon that lays mines describes its Mines form (TODO_COPY:xd_mines_<modifier>, the
 // user writes it). cellmods.js wraps modCard after this file, so a weapon's own cell text still wins.
 modCard = (orig => function (w, id) {
   const c = orig(w, id);
   if (c && w && w.m10 && mwR(w, 'mines') && XD.mines[id]) c.desc = 'TODO_COPY:xd_mines_' + id;
+  else if (c && w && w.m10 && mwR(w, 'melee') && XD.melee[id]) c.desc = 'TODO_COPY:xd_melee_' + id;
   return c;
 })(modCard);
 
-// Drawing: tripwires (dashed, as Nappy Mines' are)
+// Drawing: tripwires (dashed, as Nappy Mines' are); Melee's homing slashes and links
 modDraw = (orig => function () {
   orig();
   if (!G || !G.weapons) return;
@@ -161,5 +297,18 @@ modDraw = (orig => function () {
     ctx.globalAlpha = 0.6; ctx.strokeStyle = col(w.def.color); ctx.lineWidth = 1.5 * S; ctx.setLineDash([4 * S, 4 * S]);
     for (const [a, b] of w.xdWires) { ctx.beginPath(); ctx.moveTo(sx(a.x), sy(a.y)); ctx.lineTo(sx(b.x), sy(b.y)); ctx.stroke(); }
   }
-  ctx.setLineDash([]); ctx.restore();
+  ctx.setLineDash([]);
+  if (G.xdM) {
+    for (const L of G.xdM.lk) { // (a thin dotted line through the linked enemies)
+      const es = L.es.filter(e => !e.dead); if (es.length < 2 || L.end <= G.t) continue;
+      ctx.globalAlpha = 0.5 * Math.min(1, (L.end - G.t) / 0.5); ctx.strokeStyle = col(L.w.def.color); ctx.lineWidth = 1 * S; ctx.setLineDash([2 * S, 3 * S]);
+      ctx.beginPath(); ctx.moveTo(sx(es[0].x), sy(es[0].y)); for (const e of es.slice(1)) ctx.lineTo(sx(e.x), sy(e.y)); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    for (const q of G.xdM.sl) { // (a small crescent, facing where it flies)
+      ctx.globalAlpha = 0.85; ctx.strokeStyle = col(q.w.def.color); ctx.lineWidth = 2.5 * S;
+      ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), 9 * S, q.a - 1.1, q.a + 1.1); ctx.stroke();
+    }
+  }
+  ctx.restore();
 })(modDraw);
