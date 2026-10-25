@@ -3,6 +3,7 @@
 // same seed; Same Type Bonus and Mark and Detonate get a partner weapon) with and without the modifier and compare what
 // happened (damage, hits, statuses, reactions, shoves, mines/allies/marks, shots, hit sources). A modifier that changes
 // nothing measurable is a NO-OP; one that only moves damage or hit counts is NUMBERS; the rest is VISIBLE.
+// A second attack-type card (Melee, Ranged, Mines) is tried as the swap it is in the game (atkswap.js), not stacked.
 // Blind spots: the arena has no walls (Bounce bounces off walls only) and one enemy kind (no elites, bosses or shooters).
 // Every trial runs in a freshly loaded page (something in the game carries the previous trial's modifiers over; a fresh
 // page keeps identical trials identical), several pages at a time.
@@ -84,6 +85,8 @@ const ONLY_W = arg('--w', ''), ONLY_M = arg('--mod', ''), SECS = +arg('--secs', 
   const page = pages[0]; await fresh(page);
   const plan = await page.evaluate(([w, m]) => audPlan(w, m), [ONLY_W, ONLY_M]);
   const WNAME = await page.evaluate(() => Object.fromEntries(MATRIX_ONLY.weapons.map(id => [id, WEAPONS[id].name])));
+  const SWAP = await page.evaluate(() => (typeof ATKSW !== 'undefined' ? ATKSW.ids : [])); // (atkswap.js: taking one of these swaps out the one held)
+  const withMod = (base, m, rank) => [...(SWAP.includes(m) ? base.filter(x => !SWAP.includes(x)) : base), ...Array(rank).fill(m)];
   const rel = (a, b) => Math.abs(a - b) / Math.max(Math.abs(b), 1e-9);
   const sgn = (a, b) => { const r = b ? Math.round(100 * (a - b) / b) : (a ? '+new' : 0); return typeof r === 'number' ? (r > 0 ? '+' : '') + r + '%' : r; };
   const classify = (o, b) => { // o: with the modifier, b: without
@@ -102,7 +105,7 @@ const ONLY_W = arg('--w', ''), ONLY_M = arg('--mod', ''), SECS = +arg('--secs', 
     for (const rank of RANKS) {
       const bases = { '': trial(P.wid, P.base, SECS, '') }; // (one base per partner weapon)
       for (const m of P.mods) { const k = P.w2[m] || ''; if (!bases[k]) bases[k] = trial(P.wid, P.base, SECS, k); }
-      const outs = await Promise.all(P.mods.map(m => (m === 'kinship' && !P.w2.kinship) ? null : trial(P.wid, [...P.base, ...Array(rank).fill(m)], SECS, P.w2[m] || '')));
+      const outs = await Promise.all(P.mods.map(m => (m === 'kinship' && !P.w2.kinship) ? null : trial(P.wid, withMod(P.base, m, rank), SECS, P.w2[m] || '')));
       const base = await bases[''];
       if (!base.fires && !base.hits) lines.push(`  !! base itself does nothing (fires ${base.fires}, hits ${base.hits})`);
       for (let i = 0; i < P.mods.length; i++) {
