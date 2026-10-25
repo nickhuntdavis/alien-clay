@@ -68,22 +68,22 @@ Code (five audits, verified by reading each path):
     throwing AI handler aborts the rest of the frame (game.js:2981); 15 enemies and 2 bosses (Colossus, Immune Eye)
     appear in no test.
 
-## Decisions the user owns (defaults in brackets; tasks use the default unless told otherwise)
-- D1 Boss reward: [a `boss` box: the existing Gold modifier-strand draft, +3 rarity] or rebuild relics for v10.
-- D2 Litmus Cell: [retire: `w: 0`, kept by id] or a mild, capped, visible resist.
-- D3 Amoeba: [drop to `w: 0` until an engulf is designed] or build the engulf (Opus, half a day).
-- D4 Mucus Wall and Interferon both grant Membrane: [keep both, one mechanism, different range] or retire Interferon.
-- D5 Water Bear tunnelling: [remove; Shell x4 is its identity].
-- D6 Failed Experiment: [wave 20 only, 1 in 4 runs] or keep 50/50 at 15 or 20.
+## Decisions (user, 25 Oct 2026; final, tasks follow them)
+- D1 Boss reward: **rebuild relics for v10** (tasks A1a and A1b). Rival trophies (`rrelic`) come back with them.
+- D2 Litmus Cell: **retire** (`w: 0`, kept by id, `status: 'park'`).
+- D3 Amoeba: **park** at `w: 0` until an engulf is designed.
+- D4 Mucus Wall and Interferon: **keep both**, one Membrane-aura mechanism, different range.
+- D5 Water Bear tunnelling: **remove**; Shell x4 is its identity.
+- D6 Failed Experiment: **wave 20 only, 1 run in 4**.
 
 ## Order and parallelism
-Batch A can run as six parallel sessions (A1 and A2 both touch bosses.js on different lines: merge is clean). Run A4
+Batch A: A1a and A2 to A7 run as seven parallel sessions (A1a and A2 both touch bosses.js on different lines: merge is clean); A1b runs after A1a, A2 and A3 have merged. Run A4
 before B3 and B4 (they touch roster.js rows). Batch B tasks each add their own file. Batch C needs A1, A2 and B done
 first (sims measure the real fights). D after C. E last.
 
 | Batch | Tasks | Model | Time |
 |---|---|---|---|
-| A clean-up | A1 to A7 | Sonnet, A6 and A7 Haiku | one afternoon in parallel |
+| A clean-up | A1a, A2 to A7 in parallel, then A1b | Sonnet; A6, A7 Haiku; A1b Opus | one afternoon, plus one day for A1b |
 | B behaviours | B1 to B11 | Sonnet (B2, B4, B7, B11 high effort) | two to three days |
 | C bosses | C1 to C3 | Opus (C2 Sonnet high) | one day |
 | D encounters | D1, D2 | Sonnet | half a day |
@@ -96,13 +96,22 @@ files, in `changes/<branch>.md`.
 
 ## Batch A: clean-up (ship once, as one merged build)
 
-### A1 Boss reward box (Sonnet, 1 hour)
-Goal: every boss kill opens a reward screen again (D1 default).
-1. bosses.js:295: replace the `relic` and `spoils` unshift with one box: `{ kind: 'boss', boss: e.def.id, now: true, src: { t: 'boss', name: e.def.name } }`. Keep the `campFinal()` guard.
-2. Check `draftBox` (draft.js:180) accepts `boss` (it does today) and `modBoxCards(3)` (draft.js:168) returns cards when the player holds a weapon; if it returns none (no weapon can take a modifier), fall through to `draftCards`.
-3. Leave relic code in place (E2 deletes it). Remove `relic` and `spoils` from `DIR_PRI` (director.js:25) and `rplanFree` (raceplan.js:27) only if the tests still pass; otherwise leave them.
-Test: `./run.sh quick bosstest`; add an assertion in bosstest: after `bossDown`, `G.lootQueue[0].kind === 'boss'` and `draftBox(G.lootQueue[0])` is truthy. Run `node sim/wave20.js 1 mortal` and confirm a `boss` box opened after wave 5 (the run log's `screens` field).
-Don't: touch relic descriptions, spoils.js, rrelics.js.
+### A1a Relic boxes open again (Sonnet, 2 hours; before A1b)
+Goal: a boss kill opens the RELIC screen, then SPOILS, as it did under v9; a rival kill opens its trophy.
+1. draft.js:180 `draftBox`: add `relic`, `spoils` and `rrelic` to the kinds that open. `v10Loot` (v10.js:120) already returns null for them, so `genLoot` (game.js:484-485) builds the cards from `spoilsRelics` / `spoilsOpts`; confirm `rrelic` has its own `genLoot` branch (grep `rrelic` in game.js and rivals.js) and the screen titles at ui.js:888-907 still render.
+2. `dirGate` (director.js): relic boxes carry `now: true` (bosses.js:295); confirm the director lets them through at once in every mode (it whitelists `relic` in `rplanFree`, raceplan.js:27; add `spoils` and `rrelic` there too).
+3. Wave mode holds boxes until the break (`waveHoldsLoot`): a relic should open straight after the boss dies, before the next-wave button. Check `waveHoldsLoot` (waves.js) and exempt `now` boxes if it does not already.
+4. Do not change any relic effect yet (A1b). `applyRelic` (bosses.js:342) runs as is.
+Test: `./run.sh quick bosstest rivalwave`; add to bosstest: after `bossDown`, `G.lootQueue[0].kind === 'relic'`, `draftBox` returns truthy, and `UI.openLoot` renders 3 cards; after picking, `G.relics[id]` is true. `node sim/wave20.js 1 mortal`: the `screens` field shows a relic after wave 5, no page errors.
+Don't: touch relic descriptions, data.js RELICS, spoils.js effects.
+
+### A1b Relics ported to v10 (Opus, one day; after A1a, A2 and A3)
+Goal: all 48 boss relics (data.js:904-964) and the rival relics (data.js:1258, rrelics.js) do what their card says under v10 rules, or are replaced.
+1. Audit each relic's apply code (bosses.js:342-505 `applyRelic` and its hooks, bosspack.js:286-370 `bpRelicApply`, rrelics.js) against the live systems. Known breakages from the audit: Border Wall, Calcified, Ribbed, Trophy Hide add `P.armour`, which `pdefHurt` replaced (pdef.js:8, 18) (port: player Shell layers via `PDEF`, pdef.js); Acid Tongue sets Cooties (bosses.js:374) and Ulcer / Bad Blood deal `elem: 'poison'` (bosses.js:384, 410) (port to `fire`, Acid, through `fightHit`); Blue to Red / Running Hot set v9 `e.burn` (bosspack.js:305, bosses.js:375) and Fever Dream / Heatstroke count it (bosses.js:385, 500) (port to the v10 Burn bar `cd.burnT`, fight.js); Test Strip only matters for the Litmus Strip (keep); Gene Swap (spoils.js:30 -> game.js:688) picks from all `ELEMENTS` keys (restrict to `V10_TYPES`, v10.js); any relic touching Rewind, chrono, stains or dyes is retired (`G.dyeBoon`, `startRewind` are off: norewind.js).
+2. For each relic: keep (works), port (one line each in the fragment: old mechanic -> v10 mechanic), or retire (remove from `RELICS` and the boss's `relics` list; every boss keeps at least three). Where the card text no longer matches, replace it with `TODO_COPY:relic_<id>_desc` and brief it (the user writes all card text).
+3. `spoils.js` SPOILS options and the smuggled trophy: same audit.
+Test: new `relictest`: in the Lab Bench, take every relic once and assert its hook fires (a Shell layer appears, a Burn bar fills, a heal lands); `./run.sh quick bosstest relictest`; full suite before shipping (relics touch hurtPlayer, damageEnemy and killEnemy hooks).
+Don't: invent new relics; rename ids (saves and `RUNLOG` store them).
 
 ### A2 Boss rules against v10 (Sonnet, 2 hours)
 Goal: no boss has a second defence or a retired-type rule.
@@ -259,8 +268,8 @@ The Sprinter is the top hurt source in every bot Race and the bot dies at 3 to 5
 Delete, then run the full suite: chem.js `chemFoe`, `CHEM_FOES_M`, `chemOverload`/`OVERLOAD_OF`, `chemTriple`/`TRIPLES`, `chemTerrain`, `chemPuddle`, `chemSplash`, `chemGhost`, the v9 status switch in `applyElement` (chem.js:47-97) except what `fightStatus` does not cover; foes3.js `foes3Chem` and the `f3carry` wet/sick entries; pstatus.js `pstHit`, Sick and Wet entries, `pstBulletMarks` salt/poison glyphs; game.js stain boons (812-814), `e.shock` arc block (889-896), shred (863, 1395); typefx.js `TYPE_RING` entries and looks for shock/poison/oxi/salt/arcane/soul statuses that fight.js no longer sets; inspect.js `RX_PAIR`/`RX_ABBR`; data.js v9 `REACTIONS` rows the Field Guide no longer shows; `armour`, `weak`, `resist`, `noForce`, `weakAoe`, `shredStick`, `dodge` on every def and boss (data.js:800-899, foes2.js, brood.js, levels.js); `PST_SHOOTERS` (pstatus.js:17). Grep each name for callers before deleting; `node --check` every file; `./run.sh`.
 Don't: delete anything a test still references without updating the test in the same commit.
 
-### E2 Relic code (Sonnet, 2 hours; after A1)
-Delete `applyRelic` and the relic hooks (bosses.js:330-505), bosspack.js relics (:286-370), rrelics.js (check rivals do not grant relics by another path first: grep `rrelic`), spoils.js, data.js:904-968, the `relic`/`spoils` entries in director.js:25 and raceplan.js:27, `G.relics`. Remove the script tags. Update ARCHITECTURE.md (the relics row). Full suite.
+### E2 Retired relic code (Sonnet, 1 hour; after A1b)
+Delete only the relics A1b retired: their `RELICS` rows, `apply` cases in `applyRelic` / `bpRelicApply` / `rrelicApply`, hooks that nothing else reaches, and their ids in each boss's `relics` list. Update ARCHITECTURE.md's relics row to say the relics are v10-live. Full suite.
 
 ### E3 Tests (Sonnet, 3 hours)
 1. `foescenetest` (or a new `rostertest`): spawn each of the 15 untested enemies (paramecium, krill, amoeba, splitling, blinker, rotifer, volvox, volvoxling, phantom, waterbear, juggernaut, yeast, pepsinjr, endoskeleton, broodling) and bosses Colossus and Immune Eye in the Lab Bench for 10 s each: no page errors, each dies to damage, each hurts a stationary player at most its roster `dmg` x knobs per hit.
