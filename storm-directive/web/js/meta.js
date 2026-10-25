@@ -153,7 +153,7 @@ function metaBuy(kind, id) {
 // ---------------------------------------------------------------- run log
 // Every run (win, loss or quit after 30 s) is summarised and kept on the device (last 60), so it can be
 // copied from Settings and shared for balancing. Nothing leaves the phone unless you copy it.
-const APP_VERSION = '10.144';
+const APP_VERSION = '10.145';
 let RUNLOG = [];
 try { RUNLOG = JSON.parse(localStorage.getItem('sd_runs') || '[]').slice(-60); } catch (e) { RUNLOG = []; }
 function saveRunLog() { if (RUNLOG.length > 60) RUNLOG.splice(0, RUNLOG.length - 60); try { localStorage.setItem('sd_runs', JSON.stringify(RUNLOG)); } catch (e) { /* ignore */ } }
@@ -201,7 +201,8 @@ function runLogText() {
   // Only errors from this version: anything older has been fixed or is out of date.
   let err = ''; try { err = localStorage.getItem('sd_err') || ''; } catch (e) { /* ignore */ }
   if (!err.startsWith('v' + APP_VERSION + ' ')) err = '';
-  return `SPAWN PRAWN RUN LOG (v${APP_VERSION}) - ${RUNLOG.length} runs, ${wins} born | ${winTally()}\n` + (err ? 'Last error: ' + err + '\n' : '') + RUNLOG.map(r => '\n' + runText(r)).join('');
+  // Newest run first: a long log gets cut off when pasted, and the latest runs are the ones that matter.
+  return `SPAWN PRAWN RUN LOG (v${APP_VERSION}) - ${RUNLOG.length} runs, newest first, ${wins} born | ${winTally()}\n` + (err ? 'Last error: ' + err + '\n' : '') + RUNLOG.slice().reverse().map(r => '\n' + runText(r)).join('');
 }
 // Win rate over the last 9 finished runs (wins and losses only; quits and closed runs don't count). Target: 1 in 3.
 function winTally() {
