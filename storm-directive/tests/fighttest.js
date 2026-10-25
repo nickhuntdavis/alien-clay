@@ -120,6 +120,17 @@ const { chromium } = require('playwright');
     const x = foe('crawler'); for (const el of ['fire', 'shock', 'ice', 'phys']) hit(x, el, 5);
     out.mixed = JSON.stringify(G.fst.rx);
     if (Object.keys(G.fst.rx).some(k => k !== 'rocket')) bad.push('mixed types reacted: ' + out.mixed); // (Mucus then Force is a real Snot Rocket)
+    // One enemy whose AI throws must not stop the others moving that frame, and is reported once.
+    fresh();
+    { const p = G.player, bd = Object.assign({}, ENEMIES.crawler, { name: 'Boomer', ai: 'boom' });
+      FOE_AI.boom = () => { throw new Error('boom'); };
+      const bm = makeEnemy(bd, p.x + 200, p.y), ok = makeEnemy(ENEMIES.crawler, p.x - 200, p.y);
+      for (const q of [bm, ok]) { q.hp = q.maxHp = 1000; q.speed = 60; G.enemies.push(q); }
+      gridBuild(); delete ERRS.foes; const seen0 = Object.keys(ERRS.seen).length, x0 = ok.x;
+      for (let i = 0; i < 10; i++) { gridBuild(); update(1 / 60); }
+      delete FOE_AI.boom;
+      if (Math.abs(ok.x - x0) < 1) bad.push('a throwing enemy stopped the others moving');
+      if (Object.keys(ERRS.seen).length - seen0 !== 1) bad.push('throwing AI reported ' + (Object.keys(ERRS.seen).length - seen0) + ' times, not once'); }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
