@@ -20,6 +20,7 @@ function initWaves() {
   G.nextPill = 1e12; G.nextYeast = 1e12; // the yeast and the pill are Sample 001's hazards (budding yeast would never let a wave end)
   // (no race in the dish, but rivals still join one a wave in wave mode: rivals.js)
   if (typeof UI === 'undefined' || UI.sample !== 's006') campInit(); // wave mode (campaign.js); Endless otherwise
+  else G.bossRoster = bossTierRoster(); // (Endless draws its bosses by tier too: tier 1 at wave 5 up to tier 3 at wave 20)
 }
 
 // The difficulty clock in the dish follows the waves, not the stopwatch.

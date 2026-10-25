@@ -108,7 +108,7 @@ function bpInCone(e, a, x, y, pad) {
 function bpSneeze(e, bd) {
   const p = me();
   for (const a of bpCones(e)) {
-    if (bpInCone(e, a, p.x, p.y, p.r * 0.5)) hurtPlayer(bd * BP.sneezeK, e.name + ' sneeze', e);
+    if (bpInCone(e, a, p.x, p.y, p.r * 0.5)) hurtPlayer(bd * BP.sneezeK * V10_DIFF.dmg, e.name + ' sneeze', e); // (bd skips the v10 cut: boss10.js)
     bpShoot(e, () => { for (let i = 0; i < 8; i++) eBullet(e.x, e.y, a + rand(-BP.coneHalf, BP.coneHalf) * 0.9, rand(200, 360), bd * 0.4, rand(3.5, 6)); });
     fxParts('drop', e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r, '#e6f4ff', 26, 700, 0.6, 4, a, BP.coneHalf);
   }
