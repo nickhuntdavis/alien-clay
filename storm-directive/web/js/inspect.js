@@ -21,14 +21,10 @@ const RX_PAIR = (() => {
   set('fire', 'shock', 'battery'); set('fire', 'salt', 'acidrain'); set('fire', 'ice', 'heartburn'); set('fire', 'arcane', 'ulcer');
   set('fire', 'oxi', 'vinaigrette'); set('salt', 'oxi', 'dontmix'); set('ice', 'salt', 'snotslick'); set('ice', 'oxi', 'snailtrail');
   set('ice', 'shock', 'shortcircuit'); set('shock', 'soul', 'poltergeist'); set('shock', 'poison', 'shakes'); set('soul', 'poison', 'patientzero');
-  m['poison+poison'] = 'pandemic'; m['fire+fire'] = 'meltdown'; m['ice+ice'] = 'booger'; m['shock+shock'] = 'overload'; m['oxi+oxi'] = 'slipnslide';
-  m['salt+salt'] = 'waterlogged'; m['arcane+arcane'] = 'hemorrhage'; m['soul+soul'] = 'possession';
+  m['poison+poison'] = 'pandemic';
+  m['soul+soul'] = 'possession';
   return m;
 })();
-const RX_ABBR = { bath: 'BATH', greasefire: 'FIRE', holywater: 'HOLY', penicillin: 'PEN', soulrot: 'ROT', bloodclot: 'CLOT', sushi: 'SUSHI', publicpool: 'POOL',
-  ectoplasm: 'ECTO', cardiac: 'CARD', lastrites: 'RITE', snotrocket: 'SNOT', dirtyneedle: 'NDL', crimescene: 'CRIM', scab: 'SCAB', bloodpact: 'PACT',
-  battery: 'BATT', acidrain: 'RAIN', heartburn: 'HBRN', ulcer: 'ULC', vinaigrette: 'VIN', dontmix: 'MIX', snotslick: 'SLCK', snailtrail: 'SNAIL',
-  shortcircuit: 'SHRT', poltergeist: 'POLT', shakes: 'SHAK', patientzero: 'PT0', pandemic: 'PAND', meltdown: 'MELT', booger: 'BOOG', overload: 'OVLD', slipnslide: 'SLIP', waterlogged: 'LOGD', hemorrhage: 'HEM', possession: 'POSS' };
 const rxSeen = id => !!((META.seenRx && META.seenRx[id]) || (typeof G !== 'undefined' && G && G.stats && G.stats.reactBy && G.stats.reactBy[id]));
 // From react() in game.js: log a reaction the first time it ever goes off.
 function inspectSeeRx(id) { META.seenRx = META.seenRx || {}; if (!META.seenRx[id]) { META.seenRx[id] = 1; saveMeta(); } }

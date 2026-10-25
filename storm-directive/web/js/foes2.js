@@ -11,50 +11,50 @@
 
 Object.assign(ENEMIES, {
   // ---- build-punishers (cap 6)
-  litmus:    { name: 'Litmus Cell', hp: 40, speed: 50, armour: 1, r: 15, dmg: 10, xp: 4, color: '#d9a7c7', shape: 'litmus', ai: 'chase', from: 120, w: 1.5, cap: 6, litmus: true,
-    weak: { oxi: 1.4 }, resist: {}, does: 'Resists the damage type you have dealt most this run' },
-  mirror:    { name: 'Mirror Cell', hp: 34, speed: 54, armour: 0, r: 14, dmg: 9, xp: 4, color: '#cfd8e3', shape: 'mirror', ai: 'mirror', from: 150, w: 1.3, cap: 6, shotFx: true, mirror: true,
-    weak: { fire: 1.4 }, resist: { shock: 0.6 }, does: 'Reflects shots that hit its front' },
-  shell:     { name: 'Shell Cell', hp: 46, speed: 38, armour: 15, r: 16, dmg: 12, xp: 5, color: '#e6dcc4', shape: 'shell', ai: 'chase', from: 175, w: 1.2, cap: 6,
-    weak: { fire: 1.5 }, resist: { phys: 0.7 }, does: '15 armour' },
-  puffball:  { name: 'Puffball', hp: 42, speed: 42, armour: 0, r: 17, dmg: 8, xp: 4, color: '#e2d6b4', shape: 'puffball', ai: 'chase', from: 110, w: 1.4, cap: 6, puff: 'spore',
-    weak: { fire: 1.3 }, resist: { poison: 0.6 }, does: 'Blasts and pools burst it into spores' },
-  spore:     { name: 'Spore', hp: 6, speed: 84, armour: 0, r: 7, dmg: 4, xp: 0.3, color: '#ece2c0', shape: 'spore', ai: 'chase', from: 99999, w: 0, cap: 10,
-    weak: { fire: 1.3 } },
-  grease:    { name: 'Grease Ball', hp: 52, speed: 52, armour: 2, r: 16, dmg: 11, xp: 5, color: '#d8c98f', shape: 'grease', ai: 'chase', from: 190, w: 1.2, cap: 6, heavy: true, shotFx: true, grease: true,
-    weak: { ice: 1.5 }, resist: { salt: 0.6 }, does: 'Homing shots slide off; cannot be knocked back' },
-  leech:     { name: 'Leech', hp: 30, speed: 72, armour: 0, r: 12, dmg: 7, xp: 4, color: '#8a6f78', shape: 'leech', ai: 'leech', from: 130, w: 1.3, cap: 6,
-    weak: { salt: 1.6 }, resist: { arcane: 0.5 }, does: 'Drains your stamina within 120' },
-  platelet:  { name: 'Platelet Clump', hp: 46, speed: 46, armour: 2, r: 15, dmg: 10, xp: 4, color: '#e8b4bc', shape: 'platelet', ai: 'chase', from: 160, w: 1.2, cap: 6, shotFx: true, clot: true,
-    weak: { poison: 1.4 }, resist: { arcane: 0.6 }, does: 'Stops piercing shots dead' },
-  callus:    { name: 'Callus', hp: 58, speed: 40, armour: 4, r: 16, dmg: 12, xp: 5, color: '#e9d8a6', shape: 'callus', ai: 'chase', from: 200, w: 1.1, cap: 6,
-    weak: { salt: 1.4 }, resist: { phys: 0.8 } },
+  litmus:    { name: 'Litmus Cell', hp: 40, speed: 50, r: 15, dmg: 10, xp: 4, color: '#d9a7c7', shape: 'litmus', ai: 'chase', from: 120, w: 1.5, cap: 6, litmus: true,
+    },
+  mirror:    { name: 'Mirror Cell', hp: 34, speed: 54, r: 14, dmg: 9, xp: 4, color: '#cfd8e3', shape: 'mirror', ai: 'mirror', from: 150, w: 1.3, cap: 6, shotFx: true, mirror: true,
+    },
+  shell:     { name: 'Shell Cell', hp: 46, speed: 38, r: 16, dmg: 12, xp: 5, color: '#e6dcc4', shape: 'shell', ai: 'chase', from: 175, w: 1.2, cap: 6,
+    },
+  puffball:  { name: 'Puffball', hp: 42, speed: 42, r: 17, dmg: 8, xp: 4, color: '#e2d6b4', shape: 'puffball', ai: 'chase', from: 110, w: 1.4, cap: 6, puff: 'spore',
+    },
+  spore:     { name: 'Spore', hp: 6, speed: 84, r: 7, dmg: 4, xp: 0.3, color: '#ece2c0', shape: 'spore', ai: 'chase', from: 99999, w: 0, cap: 10,
+    },
+  grease:    { name: 'Grease Ball', hp: 52, speed: 52, r: 16, dmg: 11, xp: 5, color: '#d8c98f', shape: 'grease', ai: 'chase', from: 190, w: 1.2, cap: 6, heavy: true, shotFx: true, grease: true,
+    },
+  leech:     { name: 'Leech', hp: 30, speed: 72, r: 12, dmg: 7, xp: 4, color: '#8a6f78', shape: 'leech', ai: 'leech', from: 130, w: 1.3, cap: 6,
+    },
+  platelet:  { name: 'Platelet Clump', hp: 46, speed: 46, r: 15, dmg: 10, xp: 4, color: '#e8b4bc', shape: 'platelet', ai: 'chase', from: 160, w: 1.2, cap: 6, shotFx: true, clot: true,
+    },
+  callus:    { name: 'Callus', hp: 58, speed: 40, r: 16, dmg: 12, xp: 5, color: '#e9d8a6', shape: 'callus', ai: 'chase', from: 200, w: 1.1, cap: 6,
+    },
   // ---- support (cap 3): they hang back
-  plasma:    { name: 'Plasma Cell', hp: 38, speed: 46, armour: 1, r: 15, dmg: 7, xp: 6, color: '#b8c0ff', shape: 'plasma', ai: 'plasma', from: 175, w: 0.9, cap: 3, support: true, pack: 2,
-    weak: { shock: 1.4 }, does: 'Shooters within 200 fire 40% faster' },
-  interferon:{ name: 'Interferon', hp: 34, speed: 46, armour: 0, r: 14, dmg: 6, xp: 6, color: '#bde0fe', shape: 'interferon', ai: 'interferon', from: 185, w: 0.9, cap: 3, support: true, pack: 2,
-    weak: { fire: 1.3 }, does: 'Shields allies within 170 (30 HP, scaling)' },
-  cortisol:  { name: 'Cortisol Puff', hp: 30, speed: 50, armour: 0, r: 13, dmg: 6, xp: 5, color: '#ffd6a5', shape: 'cortisol', ai: 'cortisol', from: 145, w: 0.9, cap: 3, support: true, pack: 2,
-    weak: { poison: 1.4 }, does: 'Allies within 180 swim 30% faster' },
-  fibrin:    { name: 'Fibrin Weaver', hp: 44, speed: 40, armour: 1, r: 15, dmg: 8, xp: 6, color: '#efe3d0', shape: 'fibrin', ai: 'fibrin', from: 205, w: 0.8, cap: 3, support: true, pack: 2,
-    weak: { oxi: 1.4 }, resist: { phys: 0.8 }, does: 'Tethers up to 4 allies: they cannot be knocked back' },
-  complement:{ name: 'Complement Protein', hp: 28, speed: 60, armour: 0, r: 12, dmg: 6, xp: 5, color: '#ffafcc', shape: 'complement', ai: 'complement', from: 165, w: 0.9, cap: 3, support: true, pack: 2,
-    weak: { arcane: 1.4 }, does: 'Marks you: enemies hit you 25% harder for 5s' },
-  stem:      { name: 'Stem Cell', hp: 44, speed: 36, armour: 1, r: 15, dmg: 6, xp: 8, color: '#caffbf', shape: 'stem', ai: 'stem', from: 230, w: 0.7, cap: 3, support: true, pack: 2,
-    weak: { shock: 1.3 }, does: 'Revives a dead ordinary enemy every 10s' },
+  plasma:    { name: 'Plasma Cell', hp: 38, speed: 46, r: 15, dmg: 7, xp: 6, color: '#b8c0ff', shape: 'plasma', ai: 'plasma', from: 175, w: 0.9, cap: 3, support: true, pack: 2,
+    },
+  interferon:{ name: 'Interferon', hp: 34, speed: 46, r: 14, dmg: 6, xp: 6, color: '#bde0fe', shape: 'interferon', ai: 'interferon', from: 185, w: 0.9, cap: 3, support: true, pack: 2,
+    },
+  cortisol:  { name: 'Cortisol Puff', hp: 30, speed: 50, r: 13, dmg: 6, xp: 5, color: '#ffd6a5', shape: 'cortisol', ai: 'cortisol', from: 145, w: 0.9, cap: 3, support: true, pack: 2,
+    },
+  fibrin:    { name: 'Fibrin Weaver', hp: 44, speed: 40, r: 15, dmg: 8, xp: 6, color: '#efe3d0', shape: 'fibrin', ai: 'fibrin', from: 205, w: 0.8, cap: 3, support: true, pack: 2,
+    },
+  complement:{ name: 'Complement Protein', hp: 28, speed: 60, r: 12, dmg: 6, xp: 5, color: '#ffafcc', shape: 'complement', ai: 'complement', from: 165, w: 0.9, cap: 3, support: true, pack: 2,
+    },
+  stem:      { name: 'Stem Cell', hp: 44, speed: 36, r: 15, dmg: 6, xp: 8, color: '#caffbf', shape: 'stem', ai: 'stem', from: 230, w: 0.7, cap: 3, support: true, pack: 2,
+    },
   // ---- joke (cap 8)
-  tadpole:   { name: 'Lost Tadpole', hp: 1, speed: 46, armour: 0, r: 9, dmg: 0, xp: 0.5, color: '#4a4a4a', shape: 'tadpole', ai: 'tadpole', from: 80, w: 1.1, cap: 8, oneHp: true,
-    weak: { salt: 2 }, does: '1 HP. Harmless. Asks for directions' },
-  pube:      { name: 'Stray Pube', hp: 10, speed: 30, armour: 0, r: 10, dmg: 0, xp: 0.5, color: '#3d3530', shape: 'pube', ai: 'pube', from: 90, w: 1.1, cap: 8,
-    weak: { ice: 1.6 }, does: 'Drifts in; touching it tangles you briefly' },
-  fluff:     { name: 'Navel Fluff', hp: 18, speed: 34, armour: 0, r: 13, dmg: 3, xp: 0.6, color: '#9fa8c0', shape: 'fluff', ai: 'drift', from: 75, w: 1.1, cap: 8,
-    weak: { shock: 1.5 }, does: 'Drifts about. Nobody knows where it comes from' },
-  bogey:     { name: 'Bogey', hp: 16, speed: 58, armour: 0, r: 11, dmg: 0, xp: 0.6, color: '#a8c256', shape: 'bogey', ai: 'bogey', from: 100, w: 1.0, cap: 8,
-    weak: { salt: 1.4 }, resist: { ice: 0.7 }, does: 'Sticks to you: 5% slower each (up to 20%)' },
-  sweetcorn: { name: 'Bit of Sweetcorn', hp: 110, speed: 32, armour: 6, r: 12, dmg: 0, xp: 2, color: '#ffd166', shape: 'sweetcorn', ai: 'drift', from: 115, w: 0.8, cap: 8,
-    weak: { fire: 1.2 }, resist: { phys: 0.6, poison: 0.6 }, does: 'Tough and completely harmless' },
-  glitter:   { name: 'Glitter', hp: 8, speed: 76, armour: 0, r: 7, dmg: 2, xp: 0.4, color: '#f7c6ff', shape: 'glitter', ai: 'chase', from: 95, w: 0.9, cap: 8, group: 4, glitter: true,
-    weak: { oxi: 1.3 }, resist: { shock: 0.6 }, does: 'Comes back once after you kill it' },
+  tadpole:   { name: 'Lost Tadpole', hp: 1, speed: 46, r: 9, dmg: 0, xp: 0.5, color: '#4a4a4a', shape: 'tadpole', ai: 'tadpole', from: 80, w: 1.1, cap: 8, oneHp: true,
+    },
+  pube:      { name: 'Stray Pube', hp: 10, speed: 30, r: 10, dmg: 0, xp: 0.5, color: '#3d3530', shape: 'pube', ai: 'pube', from: 90, w: 1.1, cap: 8,
+    },
+  fluff:     { name: 'Navel Fluff', hp: 18, speed: 34, r: 13, dmg: 3, xp: 0.6, color: '#9fa8c0', shape: 'fluff', ai: 'drift', from: 75, w: 1.1, cap: 8,
+    },
+  bogey:     { name: 'Bogey', hp: 16, speed: 58, r: 11, dmg: 0, xp: 0.6, color: '#a8c256', shape: 'bogey', ai: 'bogey', from: 100, w: 1.0, cap: 8,
+    },
+  sweetcorn: { name: 'Bit of Sweetcorn', hp: 110, speed: 32, r: 12, dmg: 0, xp: 2, color: '#ffd166', shape: 'sweetcorn', ai: 'drift', from: 115, w: 0.8, cap: 8,
+    },
+  glitter:   { name: 'Glitter', hp: 8, speed: 76, r: 7, dmg: 2, xp: 0.4, color: '#f7c6ff', shape: 'glitter', ai: 'chase', from: 95, w: 0.9, cap: 8, group: 4, glitter: true,
+    },
 });
 
 Object.assign(ENEMY_INTRO, {
@@ -527,13 +527,6 @@ Object.assign(MICROBES, {
 // Buffs from the support cells, drawn on whoever has them (drawEnemy): a soap-film shield, a hint of hurry.
 function foes2Fx(e, x, y, r) {
   if (!G || e.boss) return;
-  if (e.ifn > 0) {
-    const t = G.realT + e.id, g0 = ctx.globalCompositeOperation;
-    ctx.globalCompositeOperation = 'lighter'; // (a film of light: shows on the grey slide and in darkfield alike)
-    ctx.strokeStyle = 'rgba(189,224,254,0.22)'; ctx.lineWidth = Math.max(2, r * 0.25); ctx.beginPath(); ctx.arc(x, y, r * 1.2, 0, TAU); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.beginPath(); ctx.arc(x, y, r * 1.2, t, t + 0.9); ctx.stroke();
-    ctx.globalCompositeOperation = g0;
-  }
   if (e.cortT > G.t && (e.svx || e.svy)) {
     const a = Math.atan2(e.svy, e.svx) + Math.PI, c = Math.cos(a), s = Math.sin(a);
     ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1; ctx.beginPath();

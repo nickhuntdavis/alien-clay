@@ -806,10 +806,6 @@ function damageEnemy(e, dmg, src) {
   if (src.grudge && e === G.grudge) d *= 3;
   if (G.inCurrent && G.P.flow && (src.w || src.spell)) d *= 1 + 0.3 * G.P.flow; // Go With the Flow
   d *= hookMul('dmgMul', e, src); // (signatures, toys, genes, combos, chemistry, silly mods, rival relics ...: hooks.js)
-  // Stain boons: you can see who matters.
-  if (G.dyeBoon.luciferase && (e.elite || e.boss)) d *= 1.25; // (boons only from stains found this run)
-  if (G.dyeBoon.motility && e.def.speed >= 95 && !e.boss) d *= 1.3;
-  if (G.dyeBoon.rival && e.rival) d *= 1.4;
   if (e.boss || e.bossDef) d *= bossDamageMul(e, src);
   if (src.w && src.w.s) {
     const ws = src.w.s;
@@ -857,7 +853,6 @@ function damageEnemy(e, dmg, src) {
   if (!src.dot && !IN_AOE) { hitFx(e, src, crit, d); sfx(crit ? 'crit' : 'hit'); }
   if (!src.dot && e.puddleT > G.t) puddleQuirks(e, src, dmg); // lightning, fire and frost meet a puddle
   if (!src.dot) dmgNumber(e, d, src, crit);
-  if (src.shred) e.shred = Math.min(e.armour + 4, e.shred + src.shred);
   if (src.knock && !e.boss && !e.def.spongy && !e.def.heavy && !(e.tethT > G.t)) { // (tethered by a Fibrin Weaver: foes2.js)
     const k = src.knock * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * knockDefMul(e); // (Squishy cuts 50%, Membrane while up: COMBAT_MATRIX 11.4; no generic Snared bonus, Snot Rocket has its own)
     const kx = src.kx != null ? src.kx : e.x - G.player.x, ky = src.ky != null ? src.ky : e.y - G.player.y;
@@ -1117,7 +1112,7 @@ function armourRegen(dt) {
 function healPlayer(n, silent) {
   const p = me(), P = G.P;
   const before = p.hp;
-  p.hp = Math.min(P.maxHp, p.hp + n * P.healMult * pstHeal()); // (Sick: pstatus.js)
+  p.hp = Math.min(P.maxHp, p.hp + n * P.healMult);
   if (!silent && p.hp - before >= 1) floatText(p.x, p.y - 24, '+' + Math.round(p.hp - before), '#8ac926', 15);
 }
 
@@ -1130,7 +1125,8 @@ function setPoison(e, dps, src) { if (!(dps < (e.poisonDps || 0))) e.poisonBy = 
 function hurtPlayer(dmg, from, ent, kind) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
-  if (kind !== 'beam' && Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
+  const dodgeAtk = PDEF_ATK[kind || 'other'] || 'pool'; // (Evasion never applies to Burst, Beam or Pool: COMBAT_MATRIX 13; pdef.js)
+  if ((dodgeAtk === 'contact' || dodgeAtk === 'proj') && Math.random() < Math.min(DODGE_CAP, P.dodge + (G.pbDodge ? 0.1 : 0))) { floatText(p.x, p.y - 24, 'DODGE', '#9ef0ff', 14); p.iframes = 0.25; relicDodge(); return; }
   if (flinchHit(ent)) return; // (Flinch: bodymods.js)
   if (toyBlock()) return; // Bubble Boy
   if (ent && ent.weakT > G.t) dmg *= 0.6; // Nausea
@@ -1179,7 +1175,7 @@ function makeEnemy(def, x, y, opts) {
   const t = PT(), hm = hpNow(), dm = dmgNow();
   const e = {
     id: uidSeq++, def, name: def.name, x, y, vx: 0, vy: 0, kx: 0, ky: 0,
-    hp: def.hp * hm, maxHp: def.hp * hm, armour: def.armour, r: def.r, speed: def.speed * (1 + Math.min(0.6, t / 2000)),
+    hp: def.hp * hm, maxHp: def.hp * hm, armour: def.armour || 0, r: def.r, speed: def.speed * (1 + Math.min(0.6, t / 2000)),
     dmg: def.dmg * dm, xp: def.xp, color: def.color, elite: false, boss: false, dead: false, flash: 0, hitT: {},
     burn: 0, burnDps: 0, chill: 0, chillAmt: 0, frozen: 0, shock: 0, poison: 0, poisonStacks: 0, poisonDps: 0, mark: 0, shred: 0,
     reactCd: 0, auraArm: 0, crowd: 0, shootCd: rand(0.5, 2), st: 0, stT: rand(1, 3), side: Math.random() < 0.5 ? 1 : -1, spin: Math.random() * TAU,

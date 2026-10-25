@@ -6,12 +6,12 @@
 Object.assign(ENEMIES, {
   // A booster shot built in a lab to win the race. Locks on with a red sight line, fires a burst, and
   // when you destroy it, it isn't finished: the chrome endoskeleton climbs out and keeps coming.
-  sperminator: { name: 'Booster', hp: 120, speed: 62, armour: 6, r: 14, dmg: 14, xp: 10, color: '#b8c4cc', shape: 'sperminator', ai: 'sperminator', from: 300, w: 1.1, rebuild: 'endoskeleton',
+  sperminator: { name: 'Booster', hp: 120, speed: 62, r: 14, dmg: 14, xp: 10, color: '#b8c4cc', shape: 'sperminator', ai: 'sperminator', from: 300, w: 1.1, rebuild: 'endoskeleton',
     shoot: { pattern: 'aimed', cd: 4, speed: 360, dmg: 9 } },
-  endoskeleton: { name: 'Second Dose', hp: 45, speed: 92, armour: 0, r: 12, dmg: 12, xp: 6, color: '#dfe7ec', shape: 'sperminator', ai: 'sperminator', from: 99999, w: 0, endo: true,
+  endoskeleton: { name: 'Second Dose', hp: 45, speed: 92, r: 12, dmg: 12, xp: 6, color: '#dfe7ec', shape: 'sperminator', ai: 'sperminator', from: 99999, w: 0, endo: true,
     shoot: { pattern: 'aimed', cd: 3, speed: 360, dmg: 7 } },
   // From somewhere a long way from here. It weaves in, crouches and pounces, and bleeds acid when it dies.
-  alien: { name: 'Natural Killer', hp: 48, speed: 70, armour: 2, r: 13, dmg: 13, xp: 6, color: '#3a3d4a', shape: 'alien', ai: 'alien', from: 180, w: 1.3 },
+  alien: { name: 'Natural Killer', hp: 48, speed: 70, r: 13, dmg: 13, xp: 6, color: '#3a3d4a', shape: 'alien', ai: 'alien', from: 180, w: 1.3 },
 });
 
 // Behaviour (from updateEnemies' switch): returns the swim direction and speed, or nothing for a plain chase.

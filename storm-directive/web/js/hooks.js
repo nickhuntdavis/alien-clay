@@ -95,12 +95,10 @@ function hookSafe(ev, a) { const L = HOOKS[ev]; if (L) for (const h of L) safely
   ['puHurt', () => puHurt()],
   ['seqFeatHurt', () => seqFeatHurt()], // (Personal Space: seqfeats.js)
   ['nfHurtMul', (ent, kind, from) => nfHurtMul(ent, kind, from)],
-  ['pstHurtMul', (ent, kind) => pstHurtMul(G.hitFrom, kind)],
 ].forEach(([n, f], i) => hookOn('hurtMul', n, f, i * 10));
 [
   ['tantrumHurt', d => tantrumHurt(d)],
   ['seqHurt', () => seqHurt()], // (a clean boss fight: seqlock.js)
-  ['pstHit', (d, ent, hf) => pstHit(hf)], // (pstatus.js)
   ['sillyHurt', () => sillyHurt()], // (Trash Talk)
   ['redHurt', () => redHurt()], // (the Redtail's Sister-Cousin)
   ['mutHurt', d => mutHurt(d)], // (mutation cards: mutations.js)

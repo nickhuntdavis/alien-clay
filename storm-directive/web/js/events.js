@@ -7,7 +7,7 @@ const EVENT_FIRST_LV = 6, DIRE_LV = 40;
 // Multipliers the rest of the game reads (all 1 when nothing is on).
 const EVM0 = { espd: 1, out: 1, in: 1, xp: 1, pspd: 1, ram: 1, contact: 1, fire: 1, bulspd: 1, dark: 0, mitosis: 0, tideX: 0, tideY: 0 };
 
-const GOLDEN_DEF = { id: 'golden', name: 'Golden Swimmer', hp: 55, speed: 115, armour: 0, r: 15, dmg: 0, xp: 60, color: '#ffd23f', shape: 'sperm', ai: 'flee', from: 99999, w: 0 };
+const GOLDEN_DEF = { id: 'golden', name: 'Golden Swimmer', hp: 55, speed: 115, r: 15, dmg: 0, xp: 60, color: '#ffd23f', shape: 'sperm', ai: 'flee', from: 99999, w: 0 };
 const BOUNTY_NAMES = ['Gary From Accounts', 'The Other Twin', 'Big Kev', 'Tadpole Terry', 'Swimmy McSwimface', 'Lance the Lancer', 'Your Evil Clone', 'Mr Motility'];
 
 // mods(dire): multipliers while it runs. start/tick/end(dire, ev): what it does. win: what decides a payout.
