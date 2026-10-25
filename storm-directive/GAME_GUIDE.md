@@ -646,7 +646,6 @@ One power per enemy type (offspring such as Daughter Cells carry their parent's)
 | Rotifer | **Light-Fingered** | +20% pickup range | +60% pickup range |
 | Nurse Cell | **Bedside Manner** | +0.6 HP/s regeneration | +1.8 HP/s regeneration |
 | Headbutter | **Hard Head** | enemies you swim into take a headbutt (+0.4 Headstrong) | enemies you swim into take a headbutt (+1.2 Headstrong) |
-| Pinworm | **Wriggle Through** | shots pierce 1 more enemy | shots pierce 3 more enemies |
 | Mucus Wall | **Phlegm** | 10% less damage from enemy shots | 30% less damage from enemy shots |
 | Volvox | **Colony** | +8% XP | +24% XP |
 | Cytokine Caster | **Inflamed** | every 6s, a ring of 6 small shots bursts out of you | every 6s, a ring of 18 small shots bursts out of you |
@@ -657,7 +656,6 @@ One power per enemy type (offspring such as Daughter Cells carry their parent's)
 | Mother Cell | **Broody** | every 20s, a friendly spermlet fights beside you for 10s | every 20s, 3 friendly spermlets fight beside you for 10s |
 | Planarian | **Regrowth** | +1.5 HP/s regeneration below 50% HP | +4.5 HP/s regeneration below 50% HP |
 | Enzyme Spire | **Rooted** | stay still for 1s: +15% fire rate until you move | stay still for 1s: +45% fire rate until you move |
-| Plasmodium | **Big-Boned** | +10% max HP | +30% max HP |
 | Killer T-Cell | **Long Shot** | +20% damage to enemies more than 350 away | +60% damage to enemies more than 350 away |
 | Water Bear | **Hard to Kill** | +4 armour below 30% HP | +12 armour below 30% HP |
 | Alpha Swimmer | **Alpha** | +8% damage | +24% damage |
@@ -1212,70 +1210,75 @@ Every run earns DNA: 2 per level, 1 per 80 kills, 15 per boss, 12 per rival you 
 
 HP and damage are at the start; both scale up over the run. **From** is the earliest spawn time.
 
-**Cap** is the most of that type on the slide at once (support cells 3, build-punishers 6, joke ones 8); a spawn over its cap becomes another type. **Weak/resists** multiply damage of that type (the Litmus Cell's resistance follows whichever damage type you have dealt most this run).
+**Cap** is the most of that type on the slide at once (support cells 3, build-punishers 6, joke ones 8); a spawn over its cap becomes another type.
 
-| Enemy | HP | Damage | Speed | Armour | XP | From | Cap | Weak / resists | Behaviour |
-|---|---|---|---|---|---|---|---|---|---|
-| **Also-Ran** | 14 | 8 | 64 | 0 | 1 | 0:00 |  |  | Swims straight at you |
-| **Sprinter** | 6 | 5 | 125 | 0 | 1 | 0:15 |  |  | Swims straight at you |
-| **Antibody** | 20 | 6 | 58 | 0 | 3 | 0:35 |  |  | Keeps distance and shoots |
-| **Krill** | 5 | 3 | 140 | 0 | 0.5 | 0:45 |  |  | Swarms in schools |
-| **Macrophage** | 60 | 16 | 44 | 3 | 4 | 0:55 |  |  | Swims straight at you |
-| **Amoeba** | 150 | 14 | 30 | 1 | 10 | 1:10 |  |  | Swallows you if it touches |
-| **Paramecium** | 30 | 10 | 105 | 0 | 4 | 1:15 |  |  | Darts in bursts |
-| **Navel Fluff** | 18 | 3 | 34 | 0 | 0.6 | 1:15 | 8 | Static x1.5 | Drifts about. Nobody knows where it comes from |
-| **Lost Tadpole** | 1 | 0 | 46 | 0 | 0.5 | 1:20 | 8 | Water x2 | 1 HP. Harmless. Asks for directions |
-| **Mitotic Cell** | 42 | 10 | 52 | 0 | 3 | 1:25 |  |  | Swims straight at you |
-| **Stray Pube** | 10 | 0 | 30 | 0 | 0.5 | 1:30 | 8 | Mucus x1.6 | Drifts in; touching it tangles you briefly |
-| **Spermlet Swarm** | 4 | 4 | 145 | 0 | 0.5 | 1:35 |  |  | Swims straight at you |
-| **Glitter** | 8 | 2 | 76 | 0 | 0.4 | 1:35 | 8 | Oil x1.3, Static x0.6 | Comes back once after you kill it |
-| **Acid Bubble** | 16 | 18 | 98 | 0 | 2 | 1:40 |  |  | Rushes in and explodes |
-| **Bogey** | 16 | 0 | 58 | 0 | 0.6 | 1:40 | 8 | Water x1.4, Mucus x0.7 | Sticks to you: 5% slower each (up to 20%) |
-| **Quantum Swimmer** | 22 | 9 | 72 | 0 | 3 | 1:45 |  |  | Teleports around |
-| **Rotifer** | 40 | 8 | 50 | 1 | 5 | 1:50 |  |  | Steals XP and runs |
-| **Puffball** | 42 | 8 | 42 | 0 | 4 | 1:50 | 6 | Acid x1.3, Cooties x0.6 | Blasts and pools burst it into spores |
-| **Bit of Sweetcorn** | 110 | 0 | 32 | 6 | 2 | 1:55 | 8 | Acid x1.2, Force x0.6, Cooties x0.6 | Tough and completely harmless |
-| **Nurse Cell** | 30 | 6 | 56 | 1 | 4 | 2:00 |  |  | Heals nearby enemies |
-| **Litmus Cell** | 40 | 10 | 50 | 1 | 4 | 2:00 | 6 | Oil x1.4 | Resists the damage type you have dealt most this run |
-| **Snot Bubble** | 30 | 6 | 34 | 0 | 4 | 2:00 | 4 | Static x1.5, Force x0.6 | Swells with every hit, then bursts and sticks everything nearby |
-| **Headbutter** | 50 | 18 | 56 | 2 | 4 | 2:10 |  |  | Winds up, then charges |
-| **Leech** | 30 | 7 | 72 | 0 | 4 | 2:10 | 6 | Water x1.6, Blood x0.5 | Drains your stamina within 120 |
-| **Pinworm** | 70 | 12 | 60 | 1 | 5 | 2:20 |  |  | Swims straight at you |
-| **Phlegm Hocker** | 32 | 8 | 50 | 0 | 4 | 2:20 | 6 | Water x1.5, Mucus x0.6 | Lobs sticky globs that make you Snotty |
-| **Cortisol Puff** | 30 | 6 | 50 | 0 | 5 | 2:25 | 3 | Cooties x1.4 | Allies within 180 swim 30% faster |
-| **Mucus Wall** | 95 | 14 | 40 | 8 | 6 | 2:30 |  |  | Damages anything close |
-| **Mirror Cell** | 34 | 9 | 54 | 0 | 4 | 2:30 | 6 | Acid x1.4, Static x0.6 | Reflects shots that hit its front |
-| **Volvox** | 110 | 14 | 34 | 2 | 8 | 2:40 |  |  | Swims straight at you |
-| **Platelet Clump** | 46 | 10 | 46 | 2 | 4 | 2:40 | 6 | Cooties x1.4, Blood x0.6 | Stops piercing shots dead |
-| **Complement Protein** | 28 | 6 | 60 | 0 | 5 | 2:45 | 3 | Blood x1.4 | Marks you: enemies hit you 25% harder for 5s |
-| **Cytokine Caster** | 45 | 8 | 46 | 1 | 6 | 2:50 |  |  | Keeps distance and shoots |
-| **Shell Cell** | 46 | 12 | 38 | 15 | 5 | 2:55 | 6 | Acid x1.5, Force x0.7 | 15 armour |
-| **Plasma Cell** | 38 | 7 | 46 | 1 | 6 | 2:55 | 3 | Static x1.4 | Shooters within 200 fire 40% faster |
-| **Diatom** | 55 | 8 | 24 | 6 | 6 | 3:00 |  |  | Keeps distance and shoots |
-| **Natural Killer** | 48 | 13 | 70 | 2 | 6 | 3:00 |  |  | Weaves, crouches, pounces; acid blood |
-| **Interferon** | 34 | 6 | 46 | 0 | 6 | 3:05 | 3 | Acid x1.3 | Shields allies within 170 (30 HP, scaling) |
-| **Grease Ball** | 52 | 11 | 52 | 2 | 5 | 3:10 | 6 | Mucus x1.5, Water x0.6 | Homing shots slide off; cannot be knocked back |
-| **Ghost Swimmer** | 35 | 10 | 82 | 0 | 5 | 3:15 |  |  | Phases in and out |
-| **Brood Cyst** | 140 | 14 | 30 | 2 | 10 | 3:20 |  |  | brood |
-| **Callus** | 58 | 12 | 40 | 4 | 5 | 3:20 | 6 | Water x1.4, Force x0.8 | Immune to crits |
-| **Hayfever Cell** | 50 | 10 | 48 | 1 | 5 | 3:20 | 6 | Water x1.5, Cooties x0.6 | Sneezes the statuses you gave it back at you |
-| **Fibrin Weaver** | 44 | 8 | 40 | 1 | 6 | 3:25 | 3 | Oil x1.4, Force x0.8 | Tethers up to 4 allies: they cannot be knocked back |
-| **Mother Cell** | 75 | 10 | 40 | 2 | 8 | 3:30 |  |  | Spawns minions |
-| **Planarian** | 34 | 10 | 72 | 1 | 2 | 3:50 |  |  | planarian |
-| **Stem Cell** | 44 | 6 | 36 | 1 | 8 | 3:50 | 3 | Static x1.3 | Revives a dead ordinary enemy every 10s |
-| **Enzyme Spire** | 85 | 10 | 16 | 4 | 8 | 4:00 |  |  | Sits still and shoots |
-| **Plasmodium** | 380 | 22 | 22 | 3 | 24 | 4:00 |  |  | Swallows you if it touches |
-| **Killer T-Cell** | 26 | 6 | 52 | 0 | 5 | 4:20 |  |  | Keeps distance and shoots |
-| **Water Bear** | 240 | 20 | 30 | 10 | 14 | 4:30 |  |  | Swims straight at you |
-| **Alpha Swimmer** | 420 | 30 | 34 | 12 | 20 | 5:00 |  |  | Swims straight at you |
-| **Booster** | 120 | 14 | 62 | 6 | 10 | 5:00 |  |  | Laser lock-on, burst fire, comes back once as a Second Dose |
-| **Daughter Cell** | 12 | 5 | 92 | 0 | 1 | Spawned by others |  |  | Swims straight at you |
-| **Daughter Colony** | 26 | 6 | 62 | 0 | 2 | Spawned by others |  |  | Swims straight at you |
-| **Candida** | 18 | 5 | 22 | 0 | 1 | Spawned by others |  |  | Buds new yeast cells |
-| **Pepsinator Jr** | 60 | 14 | 72 | 0 | 6 | Spawned by others |  |  | Swims straight at you |
-| **Second Dose** | 45 | 12 | 92 | 0 | 6 | Spawned by others |  |  | Laser lock-on, burst fire |
-| **Broodling** | 10 | 6 | 108 | 0 | 0.5 | Spawned by others |  |  | broodling |
-| **Spore** | 6 | 4 | 84 | 0 | 0.3 | Spawned by others | 10 | Acid x1.3 | Swims straight at you |
+| Enemy | HP | Damage | Speed | XP | From | Cap | Defence | Behaviour |
+|---|---|---|---|---|---|---|---|---|
+| **Also-Ran** | 14 | 8 | 64 | 1 | 0:00 |  |  | Swims straight at you |
+| **Sprinter** | 6 | 5 | 125 | 1 | 0:15 |  | Evasion | Swims straight at you |
+| **Antibody** | 20 | 6 | 58 | 3 | 0:35 |  |  | Keeps distance and shoots |
+| **Krill** | 5 | 3 | 140 | 0.5 | 0:45 |  |  | Swarms in schools |
+| **Macrophage** | 60 | 16 | 44 | 4 | 0:55 |  | Squishy | Swims straight at you |
+| **Ingrown Hair** | 36 | 9 | 54 | 3 | 1:05 |  | Thorns | Swims straight at you |
+| **Amoeba** | 150 | 14 | 30 | 10 | 1:10 |  | Squishy | Swallows you if it touches |
+| **Navel Fluff** | 18 | 3 | 34 | 0.6 | 1:15 | 8 |  | chaser |
+| **Lost Tadpole** | 1 | 0 | 46 | 0.5 | 1:20 | 8 |  | chaser |
+| **Mitotic Cell** | 42 | 10 | 52 | 3 | 1:25 |  |  | Swims straight at you |
+| **Mosquito** | 8 | 4 | 118 | 1.5 | 1:25 | 4 |  | leech, sprinter |
+| **Stray Pube** | 10 | 0 | 30 | 0.5 | 1:30 | 8 |  | controller |
+| **Glitter** | 8 | 2 | 76 | 0.4 | 1:35 | 8 |  | Swims straight at you |
+| **Acid Bubble** | 16 | 18 | 98 | 2 | 1:40 |  |  | Rushes in and explodes |
+| **Bogey** | 16 | 0 | 58 | 0.6 | 1:40 | 8 |  | controller |
+| **Static Sock** | 34 | 5 | 58 | 3 | 1:40 |  | Squishy | chaser |
+| **Quantum Swimmer** | 22 | 9 | 72 | 3 | 1:45 |  | Evasion | Teleports around |
+| **Rotifer** | 40 | 8 | 50 | 5 | 1:50 |  |  | Steals XP and runs |
+| **Puffball** | 42 | 8 | 42 | 4 | 1:50 | 6 |  | Swims straight at you |
+| **Bit of Sweetcorn** | 110 | 0 | 32 | 2 | 1:55 | 8 | Shell | tank |
+| **Nurse Cell** | 30 | 6 | 56 | 4 | 2:00 |  |  | Heals nearby enemies |
+| **Litmus Cell** | 40 | 10 | 50 | 4 | 2:00 | 6 |  | Resists the damage type you have dealt most this run |
+| **Snot Bubble** | 30 | 6 | 34 | 4 | 2:00 | 4 |  | Swims straight at you |
+| **Stress Ball** | 90 | 8 | 36 | 5 | 2:05 |  | Squishy | tank |
+| **Headbutter** | 50 | 18 | 56 | 4 | 2:10 |  |  | Winds up, then charges |
+| **Leech** | 30 | 7 | 72 | 4 | 2:10 | 6 |  | leech |
+| **Phlegm Hocker** | 32 | 8 | 50 | 4 | 2:20 | 6 |  | shooter |
+| **Cortisol Puff** | 30 | 6 | 50 | 5 | 2:25 | 3 |  | relay |
+| **Mucus Wall** | 95 | 14 | 40 | 6 | 2:30 |  | Membrane | Damages anything close |
+| **Mirror Cell** | 34 | 9 | 54 | 4 | 2:30 | 6 |  | Reflects shots that hit its front |
+| **Matchstick** | 20 | 12 | 60 | 3 | 2:30 |  |  | charger |
+| **Platelet Clump** | 46 | 10 | 46 | 4 | 2:40 | 6 |  | Stops piercing shots dead |
+| **Complement Protein** | 28 | 6 | 60 | 5 | 2:45 | 3 |  | controller |
+| **Cytokine Caster** | 45 | 8 | 46 | 6 | 2:50 |  |  | Keeps distance and shoots |
+| **Shell Cell** | 46 | 12 | 38 | 5 | 2:55 | 6 | Shell | Swims straight at you |
+| **Plasma Cell** | 38 | 7 | 46 | 6 | 2:55 | 3 |  | relay |
+| **Diatom** | 55 | 8 | 24 | 6 | 3:00 |  | Shell | Keeps distance and shoots |
+| **Natural Killer** | 48 | 13 | 70 | 6 | 3:00 |  | Evasion | Weaves, crouches, pounces; acid blood |
+| **Interferon** | 34 | 6 | 46 | 6 | 3:05 | 3 |  | support |
+| **Grease Ball** | 52 | 11 | 52 | 5 | 3:10 | 6 |  | Homing shots slide off; cannot be knocked back |
+| **Ghost Swimmer** | 35 | 10 | 82 | 5 | 3:15 |  | Evasion | Phases in and out |
+| **Brood Cyst** | 140 | 14 | 30 | 10 | 3:20 |  |  | brood |
+| **Callus** | 58 | 12 | 40 | 5 | 3:20 | 6 | Shell | Swims straight at you |
+| **Hayfever Cell** | 50 | 10 | 48 | 5 | 3:20 | 6 |  | shooter, carrier |
+| **Fibrin Weaver** | 44 | 8 | 40 | 6 | 3:25 | 3 |  | relay |
+| **Mother Cell** | 75 | 10 | 40 | 8 | 3:30 |  |  | Spawns minions |
+| **Birthday Candle** | 70 | 6 | 0 | 7 | 3:40 | 1 | Shell | controller |
+| **Planarian** | 34 | 10 | 72 | 2 | 3:50 |  |  | planarian |
+| **Stem Cell** | 44 | 6 | 36 | 8 | 3:50 | 3 |  | summoner |
+| **Enzyme Spire** | 85 | 10 | 16 | 8 | 4:00 |  | Shell | Sits still and shoots |
+| **Trapped Wind** | 24 | 0 | 28 | 3 | 4:10 | 2 | Squishy | carrier |
+| **Killer T-Cell** | 26 | 6 | 52 | 5 | 4:20 |  |  | Keeps distance and shoots |
+| **Water Bear** | 240 | 20 | 30 | 14 | 4:30 |  | Shell | Swims straight at you |
+| **Alpha Swimmer** | 420 | 30 | 34 | 20 | 5:00 |  | Membrane | Swims straight at you |
+| **Booster** | 120 | 14 | 62 | 10 | 5:00 |  | Shell | Laser lock-on, burst fire, comes back once as a Second Dose |
+| **Daughter Cell** | 12 | 5 | 92 | 1 | Spawned by others |  |  | Swims straight at you |
+| **Spermlet Swarm** | 4 | 4 | 145 | 0.5 | Spawned by others |  |  | Swims straight at you |
+| **Paramecium** | 30 | 10 | 105 | 4 | Spawned by others |  |  | Darts in bursts |
+| **Volvox** | 110 | 14 | 34 | 8 | Spawned by others |  |  | Swims straight at you |
+| **Daughter Colony** | 26 | 6 | 62 | 2 | Spawned by others |  |  | Swims straight at you |
+| **Candida** | 18 | 5 | 22 | 1 | Spawned by others |  |  | Buds new yeast cells |
+| **Pepsinator Jr** | 60 | 14 | 72 | 6 | Spawned by others |  |  | Swims straight at you |
+| **Second Dose** | 45 | 12 | 92 | 6 | Spawned by others |  |  | Laser lock-on, burst fire |
+| **Broodling** | 10 | 6 | 108 | 0.5 | Spawned by others |  |  | broodling |
+| **Spore** | 6 | 4 | 84 | 0.3 | Spawned by others | 10 |  | Swims straight at you |
 
 ### Typed bullets and your statuses
 
@@ -1315,8 +1318,6 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Enzyme Spire** | Rooted to the spot, spraying a spiral of enzymes. | Stay out of its reach or kill it fast. The spiral has gaps: time your way through. |
 | **Killer T-Cell** | A sniper. A thin line shows where it is aiming, then a fast, heavy shot. | Move when you see the line. Kill it from the side. |
 | **Amoeba** | Soft, slow and huge. It eats other enemies and grows, and shrugs off knockback. | Acid and big blasts. Don't let it eat its way to a giant size. |
-| **Plasmodium** | A giant amoeba made of many. It splits into amoebas when it dies. | Save your area damage for when it bursts. |
-| **Pinworm** | A wriggling worm. Tougher than it looks and hard to hit side on. | Piercing shots go down its length. |
 | **Diatom** | A glass-shelled turret: heavy armour and a ring of shots. | Armour shred and big hits. Its rings have gaps. |
 | **Water Bear** | A tardigrade: very tough, very armoured, and it curls into a near-indestructible ball when hurt. | Back off while it is curled up, then finish it. Damage over time ignores its armour. |
 | **Paramecium** | Swims in long straight lines and backs off when it bumps into you. | Predictable: put a trap or a mine in its path. |
@@ -1356,6 +1357,13 @@ The first time you ever see each kind of enemy (once ever, not once a run), the 
 | **Phlegm Hocker** | Clears its throat, then lobs a big glob of phlegm at you. A direct hit leaves you Snotty: slower for a few seconds. | Strafe, don't back off in a straight line. Water makes it gargle, and its next globs land as puddles that rinse you clean. |
 | **Snot Bubble** | A bubble blown out of a nostril. Every hit makes it swell. Pop it too late and it bursts all over the neighbourhood, you included. | Pop it early for a small splash, or from range. Static pops it at once, and harmlessly. |
 | **Hayfever Cell** | Allergic to everything, mostly you. Every few seconds it winds up (AH... AH...) and sneezes a cone at you, and it sneezes back whatever statuses you have given it. | Step out of the cone when it winds up, and go easy on the statuses. Soak it with Water, then give it Cooties, and it sneezes on its friends instead. |
+| **Static Sock** | A sock that has been dragged across every carpet in the body. The further it travels, the more it crackles. | Kill it before it is fully charged, or step aside when it stops to zap. Being shoved does not charge it. |
+| **Stress Ball** | A stress ball. It takes every hit personally and, on the fifth Force hit, springs back and shoves you. | Use another damage type, or keep your distance once it is fully squeezed. The rebound never pushes you through a wall. |
+| **Mosquito** | Bites once, then flies off with your blood. It is only borrowing it. | Kill it within four seconds for half the bite back. Once it leaves the screen, the blood goes with it. |
+| **Matchstick** | Strikes itself on whatever is nearest, then charges in a straight line trailing fire. Safety was never a priority. | Step out of the lit lane, and do not swim back through the trail. |
+| **Birthday Candle** | A birthday candle, lit, with a wax problem. It drips wax that sets into short-lived walls, and it lights any Mucus beside it. | Kill it, keep Mucus away from it, and swim round the wax. Wax blocks shots too. |
+| **Trapped Wind** | A pocket of trapped gas. Handle with care, and do not light it near anything you are fond of. | A Fire hit or a Burning enemy touching it sets it off, once, setting Burning on everyone inside. Light it among enemies. |
+| **Ingrown Hair** | An ingrown hair. It has curled the wrong way and taken it badly. | Contact weapons take damage back from its spines. Use anything that is not Contact. |
 
 ## Rival champions
 
