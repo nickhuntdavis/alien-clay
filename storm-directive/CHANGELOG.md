@@ -3,6 +3,69 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.134 (versionCode 413): 2026-10-25 Recent branches merged: stored hits and reach, Orbiting forms, Sample Rack grid, There Is No Spoon passive, loot card look
+- Merged: `ccr-f8b59347-xf7dl4` (its 15.4 and 15.5 commits after v10.132), `ccr-task3-orbit`, `claude/loot-screen-card-styling-p6siwe`, `ccr-6a936695-aj8p25`, `claude/tender-mccarthy-qr4h3k`, `ccr-f661268a-k7ifmw` (WEAPON_STATS.md), and the modifier matrix spreadsheet from `ccr-07fe00d5-7fh873`, on main's v10.133.
+- Left out (user, 25 Oct): `claude/dreamy-brahmagupta-2xfice` (per-weapon cells for the eleven Projectile weapons mask main's shared forms: Orbiting forms, stored hits, reach; merged then reverted), `claude/loot-card-restrictions-niygz0` (v10.68 loot rule, replaced by v10.117 and v10.118).
+- Post-merge fixes: rackextras.js keeps only the Immune Response stepper (no V10 guard: the v9 fallback is gone); spoontest checks Piercing on Standard Issue (moddead.js lists Homing as dead there).
+- Known red on main before this merge, unchanged: statuptest (Enzyme Sneeze dps ratio), modstest (expects Homing and Ricochet on Standard Issue, which moddead.js hides).
+
+### Folded from ccr-6a936695-aj8p25: 2026-10-24 Daily Challenge card off the Sample Rack (v10.126)
+- Systems: ui
+- Files: rackextras.js
+- What: the Sample Rack no longer shows the Daily Challenge card (it is on the main menu).
+- Save data: none
+- Hooks: none
+- Risk: none
+
+### Folded from ccr-6a936695-aj8p25: 2026-10-24 Sample Rack as a grid, Random card (v10.125)
+- Systems: ui
+- Files: rackgrid.js (new), style.css, index.html
+- What: the Sample Rack shows the samples as a two-column grid (picture, name, type swatches; descriptions hidden). A RANDOM card sits first and opens Mode Select for a random unlocked sample.
+- Save data: none
+- Hooks: none (wraps s10Samples, loads after dsheads.js)
+- Risk: `TODO_COPY:rack_random_tag` shows on the Random card until the copy is written; paper/eInk menus not checked beyond the default.
+
+### Folded from ccr-f8b59347-xf7dl4: 2026-10-25 Shared mechanics batch 2: objects hold hits, reach (v10.133)
+- Systems: stored hits (new), reach (new), wide modifiers, fight, modifier dead table
+- Files: holdhits.js (new), reach.js (new), modwide.js, moddead.js, index.html, ARCHITECTURE.md, tests/holdhitstest.js, tests/reachtest.js, tests/run.sh
+- What: COMBAT_MATRIX.md 15.4 and 15.5 in code. Your mines store the newest hit from any of your blasts, shots or pools (damage and type) and deliver it as a second typed hit when they go off, as a relay (noArc, so it never starts a chain or arc); a mine holding a Static hit is Charged and Charge arcs jump through it at full strength. Range and Up Close are offered on every attack type: Range scales reach only (blast, pool and contact radius, mine trigger radius, chain jump range, well radius, orbit radius, pet leash; +20% a rank), Up Close scales damage by distance from you as before. MOD_DEAD no longer hides either.
+- Save data: none.
+- Hooks: holdhits.js wraps aoe, mwMineGo, detonateMine and replaces fightArc; hookOn('tick', 'hhTick'). reach.js: modwide.js MW_NEW range/upclose atk lists widened and the mine trigger radius line reads reachMul(w); reach.js wraps aoe, ring, modWell, wupTick, wupStats, modChain, modOrbit and p11Range (Up Close on pool ticks). Not reached: pet leash (wup3.js), Nappy Mines trigger (game.js), beam blasts. moddead.js table edited by hand (regenerate after this lands).
+- Risk: balance. Relayed hits add damage to every mine build next to a second weapon; Range on Burst and Pool weapons makes blasts and pools bigger with no damage cost. Not simulated beyond bot spot checks.
+
+### Folded from ccr-task3-orbit: 2026-10-25 Orbiting forms for Flight and Crowd modifiers (task 3, batch 4)
+- Systems: modifier cards, weapons (Delivery), laser, tests
+- Files: delivforms.js, moddead.js (regenerated), tests/delivtest.js, tests/moddead.js, ARCHITECTURE.md
+- What: Homing, Bounce, Returning, Link, Pull and Knockback now have an Orbiting form (MODIFIER_MATRIX.md 5.11). Bodies break off to chase an enemy within 150 and fly back (Homing), rebound to one more enemy within 80 / 100 / 120 at 60% (Bounce), fling out to double radius and back every 3 / 2.5 / 2 s (Returning), are joined by a damaging beam (Link), drag enemies within 40 / 60 / 80 onto the ring (Pull) and bat what they hit away from themselves (Knockback). A beam's ring (the Laser's and the hoop) sends sparks off to chase, flings, hits enemies crossing it and pulls; the hoop's hits rebound with Bounce. Card text is TODO_COPY:xd_orbiting_<mod> until the user writes it.
+- Save data: none.
+- Hooks: none in shared files. delivforms.js wraps modifiers.js modOrbit and weapons24.js wupFire (plus another mwTick and modDraw wrap); hookOn('proc', 'xdOrbProc').
+- Risk: Orbiting builds with these modifiers deal more damage. When one of the six is held, the bodies run in delivforms.js xdOrbit (a copy of modOrbit plus the forms): a change to modOrbit must be copied there.
+
+### Folded from claude-loot-screen-card-styling-p6siwe: 2026-10-24 Loot cards: neutral with targeted colour
+- Systems: ui, rewardui
+- Files: style.css, js/uikit.js, js/ui.js
+- What: loot screen cards are now neutral. Colour only on the rarity word, the reward-type label (MUTATION, DEFENCE, FEAT and so on, top right, in its rw-* category colour) and a left border in the damage-type colour when the card has one.
+- Save data: none
+- Hooks: none (uiLootCard wraps the tag text in span.tk; ui.js sets --ec)
+- Risk: Lab view/e-ink skins may still style .card borders elsewhere; check visually.
+
+### Folded from claude-loot-screen-card-styling-p6siwe: 2026-10-24 Fit line moves to press and hold
+- Systems: rewardui, glossary
+- Files: js/rewardui.js, js/glossary.js
+- What: the Direct / Fits your build / Wildcard / Trade-off line is gone from loot cards and shows in the press-and-hold card instead. Feat "Next level" numbers stay on the card.
+- Save data: none
+- Hooks: glossary.js cardGlossary -> rwFitHtml(o, true)
+- Risk: none
+
+### Folded from claude-tender-mccarthy-qr4h3k: 2026-10-24 There Is No Spoon becomes a passive; matrix N/A cells enforced (v10.123)
+- Systems: sperm passives, modifier matrix, matrix only, tests
+- Files: spoon.js (new), matrixna.js (new), matrixonly.js, index.html, meta.js, build.gradle (v10.123, versionCode 402), tests/spoontest.js (new), tests/statuptest.js, tests/run.sh
+- What: There Is No Spoon is no longer a weapon; it is a sperm passive (3 ranks and a mastery) that eats enemy bullets near you and fires them back, wider, bigger store and harder hitting per rank. Thirteen modifiers the matrix marks N/A on ten weapons are no longer dealt there (Family Ties: Pulling, Piercing; Ewww, Gross: Connecting, Sticky; Panic Button, Skill Issue, Nervous Wreck: Knockback; Sister Cousin: Homing; Chest Burster: Turncoat; Unwanted Contact: Primer; Enzyme Headbutt: Every Nth; Laser: Range).
+- Save data: none (run state G.spSpoon; passive rank in G.muts.sp_spoon).
+- Hooks: none (spoon.js wraps v10Tick and pushes to SP_KEEP; matrixna.js wraps modOk).
+- Copy: the passive's card text and quip written in-session at the user's request (no TODO_COPY left).
+- Risk: There Is No Spoon's combos and branch cards are unreachable now; the passive's balance is not simmed. statuptest now runs 7 trials a side (its result depended on weapon order).
+
 ## v10.133 (versionCode 412): 2026-10-25 Enemy handoff Batch C
 - Merged: `claude/enemy-c2` (boss telegraphs) and `claude/enemy-c1` (boss HP and placement with sims) into `claude/practical-brahmagupta-ry2k05` on main's v10.132. One build. C3 (one signature pattern per boss) waits on a design conversation.
 
