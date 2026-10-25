@@ -27,8 +27,8 @@ Object.assign(ENEMIES, {
     weak: { salt: 1.6 }, resist: { arcane: 0.5 }, does: 'Drains your stamina within 120' },
   platelet:  { name: 'Platelet Clump', hp: 46, speed: 46, armour: 2, r: 15, dmg: 10, xp: 4, color: '#e8b4bc', shape: 'platelet', ai: 'chase', from: 160, w: 1.2, cap: 6, shotFx: true, clot: true,
     weak: { poison: 1.4 }, resist: { arcane: 0.6 }, does: 'Stops piercing shots dead' },
-  callus:    { name: 'Callus', hp: 58, speed: 40, armour: 4, r: 16, dmg: 12, xp: 5, color: '#e9d8a6', shape: 'callus', ai: 'chase', from: 200, w: 1.1, cap: 6, noCrit: true,
-    weak: { salt: 1.4 }, resist: { phys: 0.8 }, does: 'Immune to crits' },
+  callus:    { name: 'Callus', hp: 58, speed: 40, armour: 4, r: 16, dmg: 12, xp: 5, color: '#e9d8a6', shape: 'callus', ai: 'chase', from: 200, w: 1.1, cap: 6,
+    weak: { salt: 1.4 }, resist: { phys: 0.8 } },
   // ---- support (cap 3): they hang back
   plasma:    { name: 'Plasma Cell', hp: 38, speed: 46, armour: 1, r: 15, dmg: 7, xp: 6, color: '#b8c0ff', shape: 'plasma', ai: 'plasma', from: 175, w: 0.9, cap: 3, support: true, pack: 2,
     weak: { shock: 1.4 }, does: 'Shooters within 200 fire 40% faster' },

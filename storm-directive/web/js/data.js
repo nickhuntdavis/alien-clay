@@ -779,7 +779,7 @@ const ENEMIES = {
   pinworm:  { name: 'Pinworm', hp: 70, speed: 60, armour: 1, r: 11, dmg: 12, xp: 5, color: '#e8e2d6', shape: 'worm', ai: 'chase', from: 140, w: 1.6 },
   diatom:   { name: 'Diatom', hp: 55, speed: 24, armour: 6, r: 16, dmg: 8, xp: 6, color: '#cfe0d8', shape: 'diatom', ai: 'ranged', from: 180, w: 1.4,
     shoot: { pattern: 'ring', count: 6, cd: 2.8, speed: 150, dmg: 8 } },
-  waterbear:{ name: 'Water Bear', hp: 240, speed: 30, armour: 10, r: 22, dmg: 20, xp: 14, color: '#d9cdb8', shape: 'tardigrade', ai: 'chase', from: 270, w: 0.8, heavy: true, tun: true },
+  waterbear:{ name: 'Water Bear', hp: 240, speed: 30, armour: 10, r: 22, dmg: 20, xp: 14, color: '#d9cdb8', shape: 'tardigrade', ai: 'chase', from: 270, w: 0.8, heavy: true },
   paramecium:{ name: 'Paramecium', hp: 30, speed: 105, armour: 0, r: 13, dmg: 10, xp: 4, color: '#dfe6d2', shape: 'slipper', ai: 'ciliate', from: 75, w: 2 },
   rotifer:  { name: 'Rotifer', hp: 40, speed: 50, armour: 1, r: 14, dmg: 8, xp: 5, color: '#e3dccb', shape: 'rotifer', ai: 'thief', from: 110, w: 1.4 },
   volvox:   { name: 'Volvox', hp: 110, speed: 34, armour: 2, r: 26, dmg: 14, xp: 8, color: '#c8d9b8', shape: 'volvox', ai: 'chase', from: 160, w: 1.1, split: 'volvoxling', splitN: 4 },

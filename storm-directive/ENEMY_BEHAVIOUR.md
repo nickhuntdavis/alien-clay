@@ -70,8 +70,8 @@ Regular enemies have no per-type weaknesses in v10: counterplay is the defence (
 | 60 | Brood Cyst | summoner | none | force | proj launch (6 dmg, 0.35s tell) | - | brood | 26 | 1 | - | - | keep |
 | 61 | Mucus Wall | support, tank | Membrane (50% pool) | mucus | contact (14 dmg) | - | aura | 20 | 2 | - | - | revise |
 | 62 | Booster | elite, shooter | Shell x2 (-3/hit) | force | burst volley (5.4 dmg, 0.7s tell) | aimed, 9 dmg, speed 360, every 4s | sperminator | 14 | 1.1 | - | - | keep |
-| 63 | Amoeba | tank, controller | Squishy (-35% Force) | acid | contact engulf (14 dmg, 0.6s tell) | - | engulf | 30 | 0.9 | - | spongy, grows to 175 | revise |
-| 64 | Water Bear | tank | Shell x4 (-3/hit) | force | contact (20 dmg) | - | chase | 22 | 0.8 | - | heavy, tunnels | keep-clarify |
+| 63 | Amoeba | tank, controller | Squishy (-35% Force) | acid | contact engulf (14 dmg, 0.6s tell) | - | engulf | 30 | 0 | - | spongy, grows to 175 | park |
+| 64 | Water Bear | tank | Shell x4 (-3/hit) | force | contact (20 dmg) | - | chase | 22 | 0.8 | - | heavy | keep-clarify |
 | 65 | Alpha Swimmer | tank | Membrane (50% pool) | force + static | contact (30 dmg) | - | chase | 28 | 0.6 | - | - | review-role |
 
 ## Bosses
