@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
     for (const id in MATRIX_NA) { const w = fresh(id); for (const m of MATRIX_NA[id]) if (modOk(w, m)) bad.push('dealt N/A ' + id + ' ' + m); }
     let w = fresh('s_void'); if (!modOk(w, 'homing')) bad.push('Family Ties lost homing');
     w = fresh('s_seeker'); if (!modOk(w, 'piercing')) bad.push('Sister Cousin lost piercing');
-    w = fresh('v_phys_proj'); if (!modOk(w, 'knock') || !modOk(w, 'homing')) bad.push('Standard Issue lost a modifier');
+    w = fresh('v_phys_proj'); if (!modOk(w, 'knock') || !modOk(w, 'piercing')) bad.push('Standard Issue lost a modifier'); // not homing: moddead.js lists it as dead on Standard Issue
     SET.noLimits = false;
     // 2. Off the roster
     if (MATRIX_ONLY.weapons.includes('s_siphon') || !W24_HOLD.includes('s_siphon')) bad.push('There Is No Spoon still a weapon');
