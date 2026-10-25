@@ -37,10 +37,10 @@ const { chromium } = require('playwright');
     const wantFirst = { 1: 'crawler', 2: 'skitter', 3: 'spitter', 4: 'brute' };
     for (const n in wantFirst) if (firstWave[wantFirst[n]] != n) bad.push(`${wantFirst[n]} should first appear in wave ${n}`);
     for (const id of NEW) {
-      const n = firstWave[id], others = (introduced[n] || []).filter(x => x !== id && NEW.includes(x));
-      if (others.length) bad.push(`${id} arrives in wave ${n} with other new enemies: ${others}`);
-      const also = (introduced[n] || []).filter(x => x !== id);
-      if (also.length) bad.push(`${id} arrives in wave ${n} with other first-timers: ${also}`);
+      const n = firstWave[id], PLAIN = ['puffball', 'sweetcorn', 'rotifer']; // (plain tag-alongs: no new rule to learn)
+      const also = (introduced[n] || []).filter(x => x !== id && !PLAIN.includes(x));
+      // D1: twelve ordinary waves cannot give 28 first-timers a wave each, so from wave 11 a pair (a new behaviour plus its ENEMY_DESIGN 10 partner) may arrive together; before that, one at a time.
+      if (also.length > (n >= 11 ? 1 : 0)) bad.push(`${id} arrives in wave ${n} with other first-timers: ${also}`);
       if (Object.keys(WAVES10[n].mix).length < 2) { /* a lone new enemy is fine */ }
     }
     out.firstWave = firstWave;

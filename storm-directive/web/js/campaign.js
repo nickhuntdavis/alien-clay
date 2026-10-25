@@ -25,21 +25,21 @@ const CAMP = {
 // Who comes with each boss, where they arrive, and which of its moves cue them.
 //   at: near (round the boss), behind (on the far side of the boss from you), ring (round you), flank (from both sides).
 const ENTOURAGE = {
-  queen:    { mix: ['crawler', 'crawler', 'skitter', 'wisp', 'krill'], at: 'near', on: ['summon', 'devour'], line: 'Snacks for the Queen. She eats her own to heal: get to them before she does.' },
+  queen:    { mix: ['crawler', 'crawler', 'skitter', 'krill', 'krill'], at: 'near', on: ['summon', 'devour'], line: 'Snacks for the Queen. She eats her own to heal: get to them before she does.' },
   colossus: { mix: ['spitter', 'spitter', 'bulwark', 'crawler'], at: 'behind', on: ['charge'], line: 'Antibodies, shooting from behind the wall. He charges; they cover him.' },
   eye:      { mix: ['blinker', 'spitter', 'skitter', 'phantom'], at: 'behind', on: ['blink'], line: 'Every time the Eye blinks, more of its watchers turn up behind it.' },
   matron:   { mix: ['brute', 'medic', 'bulwark', 'charger'], at: 'near', on: ['wardround'], line: 'Patients for her ward round. Everything she heals comes back for more.' },
   pepsin:   { mix: ['bomber', 'bomber', 'splitter', 'crawler'], at: 'flank', on: ['acidrain'], line: 'Acid bubbles roll in from the sides whenever it rains acid.' },
-  alpha:    { mix: ['charger', 'skitter', 'skitter', 'wisp'], at: 'ring', on: ['dash3'], line: 'His gym buddies charge in while he dashes. Do not skip leg day.' },
+  alpha:    { mix: ['charger', 'skitter', 'skitter', 'krill'], at: 'ring', on: ['dash3'], line: 'His gym buddies charge in while he dashes. Do not skip leg day.' },
   fever:    { mix: ['spitter', 'bomber', 'crawler', 'warlock'], at: 'ring', on: ['firering'], line: 'Shooters on the outside keep you penned in his rings of heat.' },
   twins:    { mix: ['splitter', 'splitter', 'crawler', 'medic'], at: 'near', on: ['charge', 'spiral'], line: 'Mitotic cells, dividing round the twins.' },
-  ghost:    { mix: ['phantom', 'phantom', 'wisp', 'blinker'], at: 'ring', on: ['blink'], line: 'Ghost swimmers drift in through the walls with it.' },
+  ghost:    { mix: ['phantom', 'phantom', 'krill', 'blinker'], at: 'ring', on: ['blink'], line: 'Ghost swimmers drift in through the walls with it.' },
   // The boss pack (bosspack.js).
-  litmus:   { mix: ['spitter', 'crawler', 'skitter', 'wisp'], at: 'ring', on: ['litmusdrip'], line: 'Lab rats, here to watch it change colour. Check what it is weak to before you waste a magazine.' },
+  litmus:   { mix: ['spitter', 'crawler', 'skitter', 'krill'], at: 'ring', on: ['litmusdrip'], line: 'Lab rats, here to watch it change colour. Check what it is weak to before you waste a magazine.' },
   johnny:   { mix: ['charger', 'crawler', 'skitter'], at: 'behind', on: ['johnnyroll'], line: 'Its mates come in round the back. So should you: the front is bulletproof.' },
-  mucus:    { mix: ['crawler', 'crawler', 'splitter', 'wisp'], at: 'near', on: ['mucusspit'], line: 'Stuck in the seal with you. Break the plugs and give yourself some room.' },
+  mucus:    { mix: ['crawler', 'crawler', 'splitter', 'krill'], at: 'near', on: ['mucusspit'], line: 'Stuck in the seal with you. Break the plugs and give yourself some room.' },
   cramp:    { mix: ['skitter', 'skitter', 'crawler', 'charger'], at: 'ring', on: ['crampgrip'], line: 'Twitchy little things that come in when it clenches. When it grabs you, sprint.' },
-  sneeze:   { mix: ['crawler', 'wisp', 'skitter', 'krill'], at: 'flank', on: ['sneezecone'], line: 'Germs from both sides on every sneeze. Watch the nose, not the germs.' },
+  sneeze:   { mix: ['crawler', 'krill', 'skitter', 'krill'], at: 'flank', on: ['sneezecone'], line: 'Germs from both sides on every sneeze. Watch the nose, not the germs.' },
   stone:    { mix: ['bulwark', 'spitter', 'crawler', 'brute'], at: 'behind', on: ['stoneroll'], line: 'Grit that rolls in behind it. Anything that shreds armour, use it now.' },
   failed:   { mix: [], at: 'ring', on: [], line: 'It came alone. It always did.' },
 };
