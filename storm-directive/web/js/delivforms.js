@@ -22,8 +22,21 @@
 //  - Pull: before it lands, the swing draws enemies within 120 / 150 / 180 a step (30 / 40 / 50) towards you.
 //  - Knockback (Bouncer): enemies the swing shoves hurt the first enemy they hit, and themselves, for 40% of the swing.
 //    (Wall Slam's own collision, modwide.js mwTick, takes the shove first when the weapon has it.)
-// Hooks: none in shared files; hookOn('proc', 'xdProc') from this file. Wraps modwide.js mwLay/mwMineGo/mwTick/mwMelee,
-// modifiers.js modCard/modDraw and laserbeam.js lzMineLay/lzExtrasTick/lzSwordSwing.
+// Batch 3: Strike from Above (an extra: modwide.js mwDfa's marked strikes, and the Laser's orbital strikes, laserbeam.js
+// lzOrbital). The forms attach to the strike and its marker, never the weapon's own shot. A strike's hit is 1.4x the
+// weapon's (mwDfa); an orbital strike's is its whole beam (0.4 of the peak beam every 0.1 s).
+//  - Homing: the marker follows its target through the warning (an orbital strike, which already follows, takes the
+//    nearest enemy within 150 when its target dies).
+//  - Bounce (Ricochet): the strike lands again on the nearest enemy within 120 (1 / 2 / 3 times, 60%), each with a 0.2 s
+//    marker (an orbital strike: a 0.2 s mark, then half as long a beam).
+//  - Returning: a line of small strikes (0.6x the radius; 30 / 40 / 50%) walks back from the target to you, 70 apart, every
+//    0.15 s (Orbital Strike reversed); an orbital strike's beam sweeps back to you over 0.6 s (50 / 60 / 70%).
+//  - Link (Connecting): each strike is joined to the last one's spot (within 500) by a 2 s beam that hurts what crosses it
+//    (6 / 8 / 10% of the strike every 0.25 s).
+//  - Pull: the marker pulls enemies within its radius + 60 / 90 / 120 towards it through the warning.
+//  - Knockback: the strike throws enemies outward from where it lands (src.mwAt), not away from you.
+// Hooks: none in shared files; hookOn('proc', 'xdProc') from this file. Wraps modwide.js mwLay/mwMineGo/mwTick/mwMelee/mwDfa,
+// modifiers.js modCard/modDraw and laserbeam.js lzMineLay/lzExtrasTick/lzSwordSwing/lzOrbital.
 // Loads after laserbeam.js and before cellmods.js (so cellmods.js's mask wraps this file's mwTick).
 
 const XD = {
@@ -43,6 +56,14 @@ const XD = {
     connecting: { t: [3, 4, 5], share: 0.25, max: 8 },
     pull:       { r: [120, 150, 180], step: [30, 40, 50] },
     knock:      { k: 0.4, f: 150 },
+  },
+  dfa: {
+    homing:     { re: 150 },                                         // (re: an orbital strike's new target when its own dies)
+    ricochet:   { r: 120, k: 0.6, n: [1, 2, 3], mark: 0.2, lzDur: 0.5 },
+    returning:  { step: 70, gap: 0.15, max: 6, rk: 0.6, k: [0.3, 0.4, 0.5], lzT: 0.6, lzK: [0.5, 0.6, 0.7] },
+    connecting: { t: 2, reach: 500, tick: 0.25, k: [0.06, 0.08, 0.1] },
+    pull:       { r: [60, 90, 120], f: 300 },
+    knock:      {},                                                  // (the shove's origin: src.mwAt, as Mines)
   },
 };
 const xdR = (w, id) => Math.min(3, modCount(w, id));
@@ -278,12 +299,135 @@ lzSwordSwing = (orig => function (w, target, src, blast) {
 })(lzSwordSwing);
 mwTick = (orig => function (dt) { const r = orig(dt); if (G && G.xdM && G.state === 'play') xdMelee(dt); return r; })(mwTick);
 
+// ---------------------------------------------------------------- Strike from Above (batch 3)
+const xdD = () => G.xdD || (G.xdD = { mk: [], lk: [] });
+const xdDfaAny = w => !!w && !!w.m10 && ['homing', 'ricochet', 'returning', 'connecting', 'pull', 'knock'].some(id => modCount(w, id) > 0);
+const xdDfaSrc = (src, x, y, w) => Object.assign({}, src, { xdF: 1 }, xdR(w, 'knock') ? { mwAt: { x, y } } : null);
+// A marker (the 'warn' fx): Homing makes it follow, Pull drags enemies onto it. Returns the fx, whose spot the strike takes.
+function xdMark(w, t, r, dl, follow) {
+  const f = { type: 'warn', x: t.x, y: t.y, r, color: w.def.color, life: dl, max: dl };
+  G.fx.push(f);
+  xdD().mk.push({ w, e: follow ? t : null, f, r, end: G.t + dl });
+  return f;
+}
+// Link: a beam from this strike's spot to the last one's
+function xdLinkAt(w, x, y, base, src) {
+  const C = XD.dfa.connecting, r = xdR(w, 'connecting'), L = w.xdLastS;
+  w.xdLastS = { x, y };
+  if (!r || !L || Math.hypot(L.x - x, L.y - y) > C.reach || Math.hypot(L.x - x, L.y - y) < 1) return;
+  xdD().lk.push({ w, x0: L.x, y0: L.y, x1: x, y1: y, end: G.t + C.t, next: G.t, dmg: base * xdLv(C.k, r), src: Object.assign({}, src, { xdF: 1, mwAt: null }) });
+}
+// A strike from above landing (mwDfa's, or a bounce): the blast, then Link, Bounce and Returning
+function xdLand(w, x, y, r, k, src, hit, nB, main) {
+  const s2 = xdDfaSrc(src, x, y, w), g0 = G, C = XD.dfa;
+  mwStrike(w, x, y, r, k, s2);
+  if (main) xdLinkAt(w, x, y, w.s.dmg * k, src);
+  if (nB > 0) { // Bounce: again on the nearest enemy within 120, after a short marker
+    const nx = xdFoe(x, y, C.ricochet.r, hit);
+    if (nx) {
+      const f = xdMark(w, nx, r, C.ricochet.mark, true);
+      bolt(x, y, nx.x, nx.y, w.def.color, 0.15);
+      after(C.ricochet.mark, () => { if (G === g0 && G.weapons.includes(w)) xdLand(w, f.x, f.y, r, k * C.ricochet.k, src, hit.concat(nx), nB - 1, false); });
+    }
+  }
+  const rr = main ? xdR(w, 'returning') : 0;
+  if (rr) { // Returning: small strikes walk back towards you
+    const R = C.returning, p = G.player, n = Math.min(R.max, Math.floor((Math.hypot(p.x - x, p.y - y) - 50) / R.step));
+    for (let i = 1; i <= n; i++) after(R.gap * i, () => {
+      if (G !== g0 || !G.weapons.includes(w)) return;
+      const q = G.player, d = Math.hypot(q.x - x, q.y - y) || 1, s = Math.min(d - 30, R.step * i);
+      const sx2 = x + (q.x - x) / d * s, sy2 = y + (q.y - y) / d * s;
+      if (s > 0) mwStrike(w, sx2, sy2, r * R.rk, k * xdLv(R.k, rr), xdDfaSrc(src, sx2, sy2, w));
+    });
+  }
+}
+mwDfa = (orig => function (w, t, src, k, delay) {
+  if (!xdDfaAny(w) || !t) return orig(w, t, src, k, delay);
+  const r = (w.s.area || 40) * (msA(w, 'dfa', 2) ? 1.3 : 1), dl = delay != null ? delay : msB(w, 'dfa', 2) ? 0.2 : 0.4; // (as mwDfa)
+  const f = xdMark(w, t, r, dl, xdR(w, 'homing') > 0), g0 = G, km = 1.4 * k * (msA(w, 'dfa', 2) ? 1.3 : 1), nB = xdR(w, 'ricochet') ? xdLv(XD.dfa.ricochet.n, xdR(w, 'ricochet')) : 0;
+  after(dl, () => { if (G === g0) xdLand(w, f.x, f.y, r, km, src, [t], nB, true); });
+})(mwDfa);
+// Every frame: markers follow and pull; Link beams hurt what crosses them
+function xdStrikes(dt) {
+  const D = xdD(), C = XD.dfa;
+  for (const m of D.mk) {
+    if (G.t >= m.end) continue;
+    if (m.e && !m.e.dead) { m.f.x = m.e.x; m.f.y = m.e.y; }
+    const pr = xdR(m.w, 'pull');
+    if (pr) {
+      const R = m.r + xdLv(C.pull.r, pr) * (typeof areaK === 'function' ? areaK(m.w) : 1);
+      for (const o of G.enemies) if (!o.dead && !o.charmed && Math.hypot(o.x - m.f.x, o.y - m.f.y) < R) { mwPull(o, m.f.x, m.f.y, C.pull.f * dt); o.mwPulledT = G.t + 1; }
+    }
+  }
+  D.mk = D.mk.filter(m => G.t < m.end);
+  for (const L of D.lk) {
+    if (G.t < L.next || !G.weapons.includes(L.w)) continue;
+    L.next = G.t + C.connecting.tick;
+    const vx = L.x1 - L.x0, vy = L.y1 - L.y0, l2 = vx * vx + vy * vy || 1;
+    for (const e of G.enemies) {
+      if (e.dead || e.charmed) continue;
+      const u = Math.max(0, Math.min(1, ((e.x - L.x0) * vx + (e.y - L.y0) * vy) / l2));
+      if (Math.hypot(e.x - (L.x0 + vx * u), e.y - (L.y0 + vy * u)) < (e.r || 10) + 6) damageEnemy(e, L.dmg, L.src);
+    }
+  }
+  D.lk = D.lk.filter(L => G.t < L.end);
+}
+mwTick = (orig => function (dt) { const r = orig(dt); if (G && G.xdD && G.state === 'play') xdStrikes(dt); return r; })(mwTick);
+// The Laser's orbital strikes: tagged with a src (Knockback's origin) when a form is held; this file then runs their hits
+// (as lzExtrasTick does, which skips them) and adds Homing's new target, Pull, Link, Bounce and Returning.
+lzOrbital = (orig => function (w, target) {
+  const O = lzS().orb, n = O.length; orig(w, target);
+  if (!xdDfaAny(w)) return;
+  const br = xdR(w, 'ricochet');
+  for (const o of O.slice(n)) { o.src = Object.assign({}, weaponSrc(w), { xdF: 1 }); if (xdR(w, 'knock')) o.src.mwAt = o; o.xdMain = 1; o.xdN = br ? xdLv(XD.dfa.ricochet.n, br) : 0; o.xdHit = [o.e]; }
+})(lzOrbital);
+function xdOrbs(dt) {
+  const S2 = lzS(), C = XD.dfa, add = [];
+  for (const o of S2.orb) {
+    const w = o.w;
+    if (!o.src || !G.weapons.includes(w)) continue;
+    if (o.e && o.e.dead && xdR(w, 'homing')) o.e = xdFoe(o.x, o.y, C.homing.re); // (Homing: a new target)
+    if (o.e && !o.e.dead) { o.x = o.e.x; o.y = o.e.y; }
+    if (o.xdV) { o.x += o.xdV.x * dt; o.y += o.xdV.y * dt; }
+    const R = msA(w, 'dfa', 2) ? 40 : 30, per = w.s.dmg * LZ.peak * 0.4 * o.k; // (as lzExtrasTick)
+    if (G.t < o.t0) { // the mark: Pull
+      const pr = xdR(w, 'pull');
+      if (pr) { const RR = R + xdLv(C.pull.r, pr) * lzAreaK(w); for (const e of G.enemies) if (!e.dead && !e.charmed && Math.hypot(e.x - o.x, e.y - o.y) < RR) { mwPull(e, o.x, o.y, C.pull.f * dt); e.mwPulledT = G.t + 1; } }
+      continue;
+    }
+    if (!o.xdLand) { o.xdLand = 1; if (o.xdMain) xdLinkAt(w, o.x, o.y, per * (o.end - o.t0) / 0.1, o.src); }
+    if (G.t < o.end && G.t >= o.next) {
+      o.next = G.t + 0.1;
+      for (const e of G.enemies) if (!e.dead && !e.charmed && Math.hypot(e.x - o.x, e.y - o.y) < R + e.r) damageEnemy(e, per, Object.assign({}, o.src));
+    }
+    if (G.t >= o.end && !o.xdDone) {
+      o.xdDone = 1;
+      const nx = o.xdN > 0 ? xdFoe(o.x, o.y, C.ricochet.r, o.xdHit) : null;
+      if (nx) { // Bounce: a short orbital strike on the nearest enemy
+        const b = { w, e: nx, x: nx.x, y: nx.y, t0: G.t + C.ricochet.mark, mark: C.ricochet.mark, end: G.t + C.ricochet.mark + C.ricochet.lzDur, next: 0, k: o.k * C.ricochet.k, src: Object.assign({}, o.src), xdN: o.xdN - 1, xdHit: o.xdHit.concat(nx) };
+        if (b.src.mwAt) b.src.mwAt = b;
+        bolt(o.x, o.y, nx.x, nx.y, w.def.color, 0.15); add.push(b);
+      }
+      const rr = o.xdMain ? xdR(w, 'returning') : 0, p = G.player, d = Math.hypot(p.x - o.x, p.y - o.y);
+      if (rr && d > 60) { // Returning: the beam sweeps back to you
+        const T = C.returning.lzT, b = { w, e: null, x: o.x, y: o.y, t0: G.t, mark: 0, end: G.t + T, next: 0, k: o.k * xdLv(C.returning.lzK, rr), src: Object.assign({}, o.src), xdN: 0, xdHit: [], xdV: { x: (p.x - o.x) / d * (d - 40) / T, y: (p.y - o.y) / d * (d - 40) / T } };
+        if (b.src.mwAt) b.src.mwAt = b;
+        add.push(b);
+      }
+    }
+  }
+  S2.orb.push(...add);
+  for (const o of S2.orb) if (o.src && G.t >= o.t0 && G.t < o.end) o.next = Math.max(o.next, G.t + 1e-6); // (lzExtrasTick skips the hits this file ran)
+}
+lzExtrasTick = (orig => function (dt) { if (G && G.lzS && G.lzS.orb.length) xdOrbs(dt); return orig(dt); })(lzExtrasTick); // (Link beams tick in mwTick)
+
 // Card text: a modifier offered on a weapon that lays mines describes its Mines form (TODO_COPY:xd_mines_<modifier>, the
 // user writes it). cellmods.js wraps modCard after this file, so a weapon's own cell text still wins.
 modCard = (orig => function (w, id) {
   const c = orig(w, id);
   if (c && w && w.m10 && mwR(w, 'mines') && XD.mines[id]) c.desc = 'TODO_COPY:xd_mines_' + id;
   else if (c && w && w.m10 && mwR(w, 'melee') && XD.melee[id]) c.desc = 'TODO_COPY:xd_melee_' + id;
+  else if (c && w && w.m10 && mwR(w, 'dfa') && XD.dfa[id]) c.desc = 'TODO_COPY:xd_dfa_' + id;
   return c;
 })(modCard);
 
@@ -308,6 +452,17 @@ modDraw = (orig => function () {
     for (const q of G.xdM.sl) { // (a small crescent, facing where it flies)
       ctx.globalAlpha = 0.85; ctx.strokeStyle = col(q.w.def.color); ctx.lineWidth = 2.5 * S;
       ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), 9 * S, q.a - 1.1, q.a + 1.1); ctx.stroke();
+    }
+  }
+  if (G.xdD) {
+    for (const L of G.xdD.lk) { // (a thin beam between two strike spots, fading out)
+      ctx.globalAlpha = 0.55 * Math.min(1, (L.end - G.t) / 0.5); ctx.strokeStyle = col(L.w.def.color); ctx.lineWidth = 2 * S;
+      ctx.beginPath(); ctx.moveTo(sx(L.x0), sy(L.y0)); ctx.lineTo(sx(L.x1), sy(L.y1)); ctx.stroke();
+    }
+    for (const m of G.xdD.mk) { // (Pull: a faint ring at the marker's reach)
+      const pr = xdR(m.w, 'pull'); if (!pr || G.t >= m.end) continue;
+      ctx.globalAlpha = 0.25; ctx.strokeStyle = col(m.w.def.color); ctx.lineWidth = 1 * S; ctx.setLineDash([3 * S, 4 * S]);
+      ctx.beginPath(); ctx.arc(sx(m.f.x), sy(m.f.y), (m.r + xdLv(XD.dfa.pull.r, pr)) * S, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
     }
   }
   ctx.restore();

@@ -1,7 +1,9 @@
 // Flight and Crowd modifiers on the Mines Delivery (delivforms.js, MODIFIER_MATRIX.md 5.11): Homing creeps, Bounce flings
 // and slides to rest, Returning rolls back, Link's tripwires set off both ends, Pull implodes, Knockback shoves from the
 // mine; and the Laser's mines creep with Homing. Melee: Homing slashes, Bounce rebounds, Returning sweeps back, Link shares,
-// Pull draws in, Knockback (Bouncer) collides; the Laser's sword slashes and rebounds.
+// Pull draws in, Knockback (Bouncer) collides; the Laser's sword slashes and rebounds. Strike from Above: the marker
+// follows (Homing) and pulls (Pull), the strike bounces, walks back, links to the last one and shoves from where it lands;
+// the Laser's orbital strike bounces, sweeps back and pulls.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -76,6 +78,35 @@ const { chromium } = require('playwright');
     out.lzBounce = lost(fo); if (!(lost(fo) > 0)) bad.push('laser sword bounce ' + out.lzBounce);
     // Card text: a Melee weapon's Bounce card describes the Melee form
     w = fresh('v_phys_proj', [['melee', 1]]); out.mCard = (modCard(w, 'ricochet') || {}).desc; if (out.mCard !== 'TODO_COPY:xd_melee_ricochet' && !/swing|rebound/i.test(out.mCard || '')) bad.push('melee card ' + out.mCard);
+    // ---- Strike from Above (batch 3): one marked strike at an enemy 200 away
+    const strike = (w, t) => { mwDfa(w, t, weaponSrc(w), 1); };
+    // Homing: the marker follows a target that moves during the warning, so the strike still hits it
+    w = fresh('v_phys_proj', [['dfa', 1], ['homing', 1]]); e = foe(200, 0); strike(w, e); e.x += 80; gridBuild(); tickT(0.5);
+    out.dHoming = lost(e); if (!(lost(e) > 0)) bad.push('strike homing ' + out.dHoming);
+    // Bounce: the strike lands again on an enemy 100 from the target, outside its blast
+    w = fresh('v_phys_proj', [['dfa', 1], ['ricochet', 1]]); e = foe(200, 0); fo = foe(200, 100); strike(w, e); tickT(0.45); const db0 = lost(fo); tickT(0.3);
+    out.dBounce = [db0, lost(fo)]; if (db0 || !(lost(fo) > 0)) bad.push('strike bounce ' + out.dBounce);
+    // Returning: small strikes walk back and hit an enemy halfway between the target and you
+    w = fresh('v_phys_proj', [['dfa', 1], ['returning', 1]]); e = foe(300, 0); fo = foe(160, 0); strike(w, e); tickT(0.45); const dr0 = lost(fo); tickT(1);
+    out.dRet = [dr0, lost(fo)]; if (dr0 || !(lost(fo) > 0)) bad.push('strike returning ' + out.dRet);
+    // Link: a second strike is joined to the first by a beam that hurts an enemy standing on it
+    w = fresh('v_phys_proj', [['dfa', 1], ['connecting', 1]]); e = foe(200, -150); const e2 = foe(200, 150); fo = foe(200, 0); strike(w, e); tickT(0.5); strike(w, e2); tickT(0.35); const dl0 = lost(fo); tickT(1);
+    out.dLink = [dl0, lost(fo), G.xdD ? G.xdD.lk.length : 0]; if (dl0 || !(lost(fo) > 0)) bad.push('strike link ' + out.dLink);
+    // Pull: an enemy beside the marker is dragged towards it during the warning
+    w = fresh('v_phys_proj', [['dfa', 1], ['pull', 1]]); e = foe(200, 0); fo = foe(200, 80); strike(w, e); const pd = fo.y - e.y; tickT(0.3);
+    out.dPull = Math.round(pd - (fo.y - e.y)); if (!(out.dPull > 10)) bad.push('strike pull ' + out.dPull);
+    // Knockback: an enemy beside the blast, square to you, is thrown sideways (outward from the strike: shoved from you, it would move about 18)
+    w = fresh('v_phys_proj', [['dfa', 1], ['knock', 1]]); e = foe(200, 0); fo = foe(200, 25); strike(w, e); tickT(0.45);
+    out.dKnock = Math.round((fo.y - G.player.y - 25) + (fo.ky || 0)); if (!(out.dKnock > 100)) bad.push('strike knockback ' + out.dKnock);
+    // The Laser's orbital strike: Bounce adds a second orbital strike; Returning sweeps a beam back; Pull drags in during the mark
+    w = fresh('v_flame_beam', [['dfa', 1], ['ricochet', 1]]); e = foe(200, 0); fo = foe(200, 100); lzOrbital(w, e); const lt = dt => { lzExtrasTick(dt); mwTick(dt); };
+    tick(1.45, lt); const lb0 = lost(fo); tick(0.8, lt); out.lzSBounce = [lb0, lost(fo)]; if (lb0 || !(lost(fo) > 0)) bad.push("laser strike bounce " + out.lzSBounce);
+    w = fresh('v_flame_beam', [['dfa', 1], ['returning', 1]]); e = foe(300, 0); fo = foe(160, 0); lzOrbital(w, e); tick(1.4, lt); const lr0 = lost(fo); tick(0.7, lt);
+    out.lzRet = [lr0, lost(fo)]; if (lr0 || !(lost(fo) > lr0)) bad.push('laser strike returning ' + out.lzRet);
+    w = fresh('v_flame_beam', [['dfa', 1], ['pull', 1]]); e = foe(200, 0); fo = foe(200, 80); lzOrbital(w, e); const lp = fo.y; tick(0.3, lt);
+    out.lzPull = Math.round(lp - fo.y); if (!(out.lzPull > 10)) bad.push('laser strike pull ' + out.lzPull);
+    // Card text: a Strike from Above weapon's Link card describes the Strike form
+    w = fresh('v_phys_proj', [['dfa', 1]]); out.dCard = (modCard(w, 'connecting') || {}).desc; if (out.dCard !== 'TODO_COPY:xd_dfa_connecting' && !/strike|beam/i.test(out.dCard || '')) bad.push('strike card ' + out.dCard);
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
