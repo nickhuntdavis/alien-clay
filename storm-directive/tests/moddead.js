@@ -9,7 +9,8 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     const bad = []; UI.sample = 's000'; newGame();
     const mk = (id, m) => { const w = makeSlot(id, false, 9); w.lvl = 9; w.m10 = m.slice(); return w; };
-    if (modOk(mk('v_flame_beam', ['orbiting']), 'homing') !== false) bad.push('Laser + Orbiting still offers Homing (dead in the audit)');
+    if (modOk(mk('v_flame_beam', ['orbiting']), 'homing') !== true) bad.push('Laser + Orbiting hides Homing (live since the Orbiting forms, delivforms.js)');
+    if (modOk(mk('v_flame_beam', ['orbiting']), 'nth') !== false) bad.push('Laser + Orbiting still offers Wind-Up (dead in the audit)');
     if (modOk(mk('v_flame_beam', ['melee']), 'homing') !== true) bad.push('Laser + Melee hides Homing (live since the Melee forms, delivforms.js)');
     if (modOk(mk('v_flame_beam', ['mines']), 'charged') !== true) bad.push('Laser + Mines lost Charge-Up (it works since the Delivery routing)');
     if (modOk(mk('v_flame_beam', []), 'charged') !== true) bad.push('naked Laser lost Charge-Up');
