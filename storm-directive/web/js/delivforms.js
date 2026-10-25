@@ -251,6 +251,7 @@ function xdMelee(dt) {
   M.lk = M.lk.filter(L => L.end > G.t);
   // Bouncer: a shoved enemy that runs into another hurts both (once per shove)
   for (const e of G.enemies) {
+    if (typeof cdOn === 'function' && cdOn()) break; // collide.js owns collisions when loaded
     if (e.dead || !(e.xdBnT > G.t - 0.6) || e.mwKnHit || !G.weapons.includes(e.xdBnW)) continue;
     const o = msNear(e.x, e.y, e.r + 2, [e]); if (!o) continue;
     e.mwKnHit = 1; e.xdBnT = 0;

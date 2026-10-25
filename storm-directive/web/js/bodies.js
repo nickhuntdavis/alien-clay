@@ -12,7 +12,7 @@
 //  - Motion: o.bdVx/o.bdVy, integrated each frame with friction (0.9 per 1/60 s) and stopped by walls; mines mid-slide
 //    (delivforms.js xdSl) and imploding or sticky mines are left alone. Nothing is created: caps are untouched.
 //  - bdTrip(body) sets a body off now (collisions will call it).
-// Hooks: wrap-and-replace of wellTick, aoe, mwMineGo and detonateMine; hookOn('tick', 'bodies'). No shared-file edits.
+// Hooks: wrap-and-replace of wellTick, aoe, mwMineGo and detonateMine; hookOn('tick', 'bdTick'). No shared-file edits.
 
 const BD = { mine: 0.5, pool: 0.25, held: 10, fric: 0.9, stop: 5, novaK: 1.5 };
 const BD_K = -60 * Math.log(BD.fric); // (a push of d units of travel is a start speed of d x BD_K, since friction sums to 1 / BD_K)
@@ -139,4 +139,4 @@ function bdTick(dt) {
   const _det0 = detonateMine;
   detonateMine = function (pr) { const was = bdFrom; bdFrom = pr; try { return _det0(pr); } finally { bdFrom = was; } };
 }
-hookOn('tick', 'bodies', dt => bdTick(dt));
+hookOn('tick', 'bdTick', dt => bdTick(dt));

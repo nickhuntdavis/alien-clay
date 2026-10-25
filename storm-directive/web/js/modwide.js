@@ -453,6 +453,7 @@ function mwTick(dt) {
   for (const e of G.enemies) {
     if (e.dead) continue;
     if (e.mwTract > G.t && e.mwTractW) mwPull(e, p.x, p.y, 90 * dt); // Tractor: reeled in
+    if (typeof cdOn === 'function' && cdOn()) continue; // collide.js owns collisions when loaded
     if (!(e.mwKnT > G.t - 0.6) || e.mwKnHit || !msA(e.mwKnW, 'knock', 2)) continue;
     const o = msNear(e.x, e.y, e.r + 2, [e]); if (!o) continue;
     e.mwKnHit = 1; const w = e.mwKnW, k = mwR(w, 'knock') >= 3 ? 0.4 : 0.2;
