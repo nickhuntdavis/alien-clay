@@ -117,6 +117,19 @@ const { chromium } = require('playwright');
     if (!(nbr.hp < nbr.maxHp)) bad.push('Smouldering Burst hurt nobody');
     let sm = 0; for (let i = 0; i < 200; i++) { const q = makeEnemy(ENEMIES.crawler, 0, 0, { elite: true }); G.enemies.push(q); } run(1); for (const q of G.enemies) if (q.elite && q.nfSm) sm++;
     out.smouldering = sm + '/200'; if (sm < 20 || sm > 85) bad.push('Smouldering share off: ' + sm + '/200');
+    // Caster fan and Diatom ring: no bullet before the tell ends; then 5 (fan, within 70 degrees) or 6 (ring)
+    for (const [id, n, tele] of [['warlock', 5, 0.5], ['diatom', 6, 0.4]]) {
+      fresh(); BUL.keep.fill(true); const c = foe(id, 230); c.speed = 0; c.shootCd = 0; c.hp = c.maxHp = 1e9; G.ebul.length = 0;
+      if (ENEMIES[id].shoot) bad.push(id + ' still has a shoot row');
+      let first = -1, t = 0, tellAt = -1;
+      for (let i = 0; i < 90 && first < 0; i++) { update(1 / 60); t += 1 / 60; if (c.s10T > 0 && tellAt < 0) tellAt = t; if (G.ebul.length) first = t; }
+      if (tellAt < 0) bad.push(id + ' showed no tell');
+      else if (first - tellAt < tele - 0.05) bad.push(id + ' fired ' + (first - tellAt).toFixed(2) + ' s after the tell began (want ' + tele + ')');
+      const mine = G.ebul.filter(b => b.owner === c); out[id + 'N'] = mine.length;
+      if (mine.length !== n) bad.push(id + ' fired ' + mine.length + ' not ' + n);
+      if (id === 'warlock') { const as = mine.map(b => Math.atan2(Math.sin(Math.atan2(b.vy, b.vx) - c.s10A), Math.cos(Math.atan2(b.vy, b.vx) - c.s10A))), sp = Math.max(...as) - Math.min(...as); if (sp > 70 * Math.PI / 180 + 0.02) bad.push('fan wider than 70 degrees: ' + sp); }
+      render();
+    }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
