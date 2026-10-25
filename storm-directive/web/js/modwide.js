@@ -315,16 +315,17 @@ function mwHit(e, res, src) {
   const kr = mwR(w, 'knock');
   if (kr && !e.boss && (typeof lzIs === 'function' && lzIs(w)) && e.lzCrossT > G.t) { /* (caught in Crossfire: pinned, not pushed) */ }
   else if (kr && !e.boss && (typeof lzIs === 'function' && lzIs(w))) { // the Laser pushes steadily along the beam (40 a second a rank) instead of shoving each tick
-    const d = Math.hypot(e.x - p.x, e.y - p.y) || 1, f = 40 * kr * Math.max(0.05, w.s.cd || 0.1) * (msB(w, 'knock', 2) && d < 100 ? 1.5 : 1) * (msMa(w, 'knock') === 'A2' ? 2 : 1);
-    const nx = e.x + (e.x - p.x) / d * f, ny = e.y + (e.y - p.y) / d * f; if (!(G.lvl && lvSolidAt(nx, ny))) { e.x = nx; e.y = ny; }
+    const o = src.mwAt || p, d = Math.hypot(e.x - o.x, e.y - o.y) || 1, f = 40 * kr * Math.max(0.05, w.s.cd || 0.1) * (msB(w, 'knock', 2) && d < 100 ? 1.5 : 1) * (msMa(w, 'knock') === 'A2' ? 2 : 1);
+    const nx = e.x + (e.x - o.x) / d * f, ny = e.y + (e.y - o.y) / d * f; if (!(G.lvl && lvSolidAt(nx, ny))) { e.x = nx; e.y = ny; }
     if (!(e.mwKnT > G.t - 0.6)) e.mwKnHit = null; e.mwKnT = G.t; e.mwKnW = w;
     if (msMa(w, 'knock') === 'B1' && G.t >= (w.lzKnNT || 0)) { w.lzKnNT = G.t + 2.5; ring(p.x, p.y, 140, w.def.color, 0.4, 5); forNear(p.x, p.y, 140, o => { if (!o.dead && !o.boss) shove(o, p.x, p.y, 300); }); }
   } else if (kr && !e.boss) {
+    const o = src.mwAt || p; // (a blast shoves outward from where it went off: delivforms.js sets mwAt)
     let f = 150 * kr, d = Math.hypot(e.x - p.x, e.y - p.y);
     if (msB(w, 'knock', 2) && d < 100) f *= 1.5;
     if (msB(w, 'knock', 3) && e.mwKnT > G.t - 2) f *= 2;
     if (msMa(w, 'knock') === 'A2') { f *= 3; const ex = e; after(0.4, () => { if (G && !ex.dead) mwStrike(w, ex.x, ex.y, 60, 0.5, msEcho(src)); }); }
-    shove(e, p.x, p.y, f); e.mwKnT = G.t; e.mwKnW = w; e.mwKnHit = null;
+    shove(e, o.x, o.y, f); e.mwKnT = G.t; e.mwKnW = w; e.mwKnHit = null;
     if (msMa(w, 'knock') === 'B1') { w.mwKnN = (w.mwKnN || 0) + 1; if (w.mwKnN % 5 === 0) { const RR = 140 * (typeof areaK === 'function' ? areaK(w) : 1); ring(p.x, p.y, RR, w.def.color, 0.4, 5); forNear(p.x, p.y, RR, o => { if (!o.dead && !o.boss) shove(o, p.x, p.y, 300); }); } }
   }
   // Pulling: enemies near the hit are drawn onto it

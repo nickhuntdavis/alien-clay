@@ -567,6 +567,7 @@ function lzMineLay(w, src, blast) {
   w.lzHeat = Math.min(1, (w.lzHeat || 0) + (blast ? LZ_BLAST.heat : 0.1));
   if (blast) lzBlastHeat(w);
 }
+function lzMineFire(m) { m.firing = true; m.t0 = G.t; m.end = G.t + (m.blast ? LZ_BLAST.show : 1.2); m.next = 0; m.a = Math.random() * TAU; } // (also set off by delivforms.js: tripwires, Implosion)
 function lzExtrasTick(dt) {
   const S2 = lzS();
   for (const o of S2.orb) {
@@ -583,7 +584,7 @@ function lzExtrasTick(dt) {
     const w = m.w;
     if (!m.firing) {
       if (msB(w, 'mines', 2)) { const o = msNear(m.x, m.y, 250); if (o) { const d = Math.hypot(o.x - m.x, o.y - m.y) || 1; m.x += (o.x - m.x) / d * 30 * dt; m.y += (o.y - m.y) / d * 30 * dt; } }
-      if (G.t >= m.armed && msNear(m.x, m.y, 60 * lzAreaK(w))) { m.firing = true; m.t0 = G.t; m.end = G.t + (m.blast ? LZ_BLAST.show : 1.2); m.next = 0; m.a = Math.random() * TAU; }
+      if (G.t >= m.armed && msNear(m.x, m.y, 60 * lzAreaK(w))) lzMineFire(m);
       continue;
     }
     if (G.t >= m.end) { m.gone = true; continue; }
