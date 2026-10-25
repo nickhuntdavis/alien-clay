@@ -1035,9 +1035,10 @@ function killEnemy(e, src) {
   if (e.boss) { G.chrono.charges = Math.min(G.chrono.max, G.chrono.charges + 1); }
   addDecal(e.x, e.y, e.r * (e.boss ? 2.2 : 1.4), e.def.color || e.color);
   if (P.lifesteal > 0 && G.lsBudget > 0) { const h = Math.min(P.lifesteal, G.lsBudget); G.lsBudget -= h; healPlayer(h, true); }
-  if (e.def.split) {
+  if (e.def.split && (e.splitGen || 0) < (e.def.splitCap || 1)) { // roster splitCap = generations
     for (let i = 0; i < (e.def.splitN || 2) && G.enemies.length < CAPS.enemies; i++) {
       const s = makeEnemy(ENEMIES[e.def.split], e.x + rand(-12, 12), e.y + rand(-12, 12));
+      s.splitGen = (e.splitGen || 0) + 1;
       G.enemies.push(s);
     }
   }
@@ -1517,7 +1518,8 @@ function updateEnemies(dt0) {
           e.stT -= edt;
           if (e.stT <= 0) {
             e.stT = 3;
-            forNear(e.x, e.y, 130, o => { if (o !== e && !o.boss) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * 0.12); } });
+            const hcap = (ROSTER.medic.heal || {}).perTargetCap || 3; // roster: each ally can be healed this many times in its life
+            forNear(e.x, e.y, 130, o => { if (o !== e && !o.boss && (o.nurseN || 0) < hcap && o.hp < o.maxHp) { o.nurseN = (o.nurseN || 0) + 1; o.hp = Math.min(o.maxHp, o.hp + o.maxHp * 0.12); } });
             ring(e.x, e.y, 130, '#7bed9f', 0.5, 2);
           }
           if (dist < 220) { mx = -ux; my = -uy; spd *= 0.7; }
@@ -1543,7 +1545,9 @@ function updateEnemies(dt0) {
           e.shootCd -= edt;
           if (e.shootCd <= 0) {
             e.shootCd = 5;
-            for (let i = 0; i < 2 && G.enemies.length < CAPS.enemies; i++) G.enemies.push(makeEnemy(ENEMIES.skitter, e.x + rand(-20, 20), e.y + rand(-20, 20)));
+            const scap = ROSTER.summoner.summon.cap; let kids = 0; // roster: at most this many of its children alive
+            for (const o of G.enemies) if (o.momId === e.id && o.hp > 0) kids++;
+            for (let i = 0; i < 2 && kids < scap && G.enemies.length < CAPS.enemies; i++, kids++) { const k = makeEnemy(ENEMIES.skitter, e.x + rand(-20, 20), e.y + rand(-20, 20)); k.momId = e.id; G.enemies.push(k); }
             ring(e.x, e.y, 40, e.color, 0.3);
           }
           break;

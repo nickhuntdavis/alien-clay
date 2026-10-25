@@ -258,13 +258,14 @@ Object.assign(FOE_AI, {
   },
   stem(e, dt, dist, ux, uy) {
     e.stemT = (e.stemT == null ? 6 : e.stemT) - dt;
-    if (e.stemT <= 0 && G.f2dead && G.f2dead.length) {
+    if (e.stemT <= 0 && (e.stemN || 0) >= ((e.def.summon || {}).cap || 3)) e.stemT = 1e9; // roster: revive.cap per Stem
+    else if (e.stemT <= 0 && G.f2dead && G.f2dead.length) {
       let best = -1;
       for (let i = G.f2dead.length - 1; i >= 0; i--) { const c = G.f2dead[i]; if (G.t - c.t < 30 && Math.hypot(c.x - e.x, c.y - e.y) < 340 && foeRoom(c.def)) { best = i; break; } }
       if (best >= 0) {
         const c = G.f2dead.splice(best, 1)[0], z = f2spawn(c.def, c.x, c.y, { revived: true });
         if (z) { z.xp *= 0.5; spawnPart(c.x, c.y, '#caffbf', 8, 90, 0.5, 3); f2msg(z, 'BACK AGAIN', '#caffbf', 3); }
-        e.stemT = 10;
+        e.stemN = (e.stemN || 0) + 1; e.stemT = 10;
       } else e.stemT = 1;
     }
     return f2keep(e, dist, ux, uy);

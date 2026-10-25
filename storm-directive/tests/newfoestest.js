@@ -17,6 +17,10 @@ const { chromium } = require('playwright');
     // Roster wiring
     const cut = Object.keys(ROSTER).filter(k => ROSTER[k].cut);
     const live = cut.filter(k => ENEMIES[k] && ENEMIES[k].w > 0);
+    // B6 caps: Mother Cell alone keeps at most 6 children, Nurse heals each ally at most 3 times, Mitotic Cell splits one generation
+    fresh(); { const m = foe('summoner', 400, 0); G.player.x = -3000; run(3600, () => { for (const q of G.enemies) if (q !== m && q.momId !== m.id) q.hp = 1e9; });
+      const kids = G.enemies.filter(q => q.momId === m.id && q.hp > 0).length; out.momKids = kids; if (kids > ROSTER.summoner.summon.cap) bad.push('Mother Cell has ' + kids + ' children'); if (!kids) bad.push('Mother Cell summoned none'); }
+    fresh(); { const n = foe('medic', 400, 0), a = foe('crawler', 420, 0); a.maxHp = 1e6; a.hp = 1; run(60 * 40); out.nurseN = a.nurseN; if (a.nurseN > ROSTER.medic.heal.perTargetCap) bad.push('Nurse healed ' + a.nurseN + ' times'); }
     out.cut = cut.length; out.kept = cut.filter(k => ENEMIES[k]).join(',');
     if (live.length) bad.push('spawnable cut entries: ' + live);
     if (cut.filter(k => ENEMIES[k] && !ENEMIES[k].nfKept).length) bad.push('cut entries left in ENEMIES');
