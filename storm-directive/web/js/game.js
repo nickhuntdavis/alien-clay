@@ -2417,7 +2417,7 @@ function autoSteer() {
       // Enemies close in on us, so predict them a little towards the player.
       const ex = e.x + (p.x - e.x) * 0.15, ey = e.y + (p.y - e.y) * 0.15;
       const d = Math.hypot(qx - ex, qy - ey) - e.r - p.r;
-      const w = (e.boss ? 3 : e.elite ? 1.6 : 1) * (e.def.ai === 'bomber' || e.def.ai === 'charge' ? 1.8 : 1) * (e.frozen > 0 ? 0.3 : 1);
+      const w = (e.boss ? 3 : e.elite ? 1.6 : 1) * (e.def.ai === 'bomber' || e.def.ai === 'new_bomber' || e.def.ai === 'charge' ? 1.8 : 1) * (e.frozen > 0 ? 0.3 : 1);
       if (d < threatR) { const k = (threatR - d) / threatR; danger += w * k * k * 1.2; }
       if (d < 14) danger += 4 * w;
     }

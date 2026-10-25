@@ -76,7 +76,7 @@ const ROSTER = {
     status: 'review-overlap', cut: true, role: ['swarm'], def: null, dmgType: 'force',
     atk: [{ type: 'contact', dmg: 4, tele: 0 }],
     notes: 'Cut candidate: a second Krill. Keep only if its formation or movement differs (it does not, today).' },
-  bomber: { name: 'Acid Bubble', hp: 16, speed: 98, r: 12, dmg: 18, xp: 2, color: '#b8f35a', shape: 'spike', ai: 'bomber', from: 100, w: 3,
+  bomber: { name: 'Acid Bubble', hp: 16, speed: 98, r: 12, dmg: 18, xp: 2, color: '#b8f35a', shape: 'spike', ai: 'new_bomber', from: 100, w: 3,
     status: 'keep-clarify', role: ['carrier'], def: null, dmgType: 'acid',
     atk: [{ type: 'burst', dmg: 18, radius: 70, tele: 0.5, leftover: { type: 'pool', dmgType: 'acid', radius: 50, life: 3.5 } }],
     notes: 'Read: a green bubble that rushes you, area marked before it pops. Counter: kill it at range; the Acid Pool must look nothing like a projectile.' },

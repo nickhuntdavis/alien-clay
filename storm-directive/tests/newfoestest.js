@@ -144,6 +144,19 @@ const { chromium } = require('playwright');
       if (id === 'warlock') { const as = mine.map(b => Math.atan2(Math.sin(Math.atan2(b.vy, b.vx) - c.s10A), Math.cos(Math.atan2(b.vy, b.vx) - c.s10A))), sp = Math.max(...as) - Math.min(...as); if (sp > 70 * Math.PI / 180 + 0.02) bad.push('fan wider than 70 degrees: ' + sp); }
       render();
     }
+    // B1: Acid Bubble marks its ring, does nothing for the tell, then bursts once and leaves a pool; killed first it only pops the pool
+    fresh(); { const ab = foe('bomber', 40); ab.hp = ab.maxHp = 1; const hp1 = G.player.hp;
+      run(3); out.abMark = (G.b10 || []).length; if (!out.abMark) bad.push('Acid Bubble showed no ring');
+      run(15); if (G.player.hp < hp1) bad.push('Acid Bubble hurt inside its tell');
+      run(40); if (!(G.player.hp < hp1)) bad.push('Acid Bubble burst did nothing'); if (!ab.dead) bad.push('Acid Bubble survived its burst');
+      if (!(G.b10pool && G.b10pool.length)) bad.push('Acid Bubble left no pool'); }
+    fresh(); { const ab = foe('bomber', 40); const hp1 = G.player.hp; run(3); ab.hp = 0; killEnemy(ab, { wname: 'test' }); run(60);
+      if (G.player.hp < hp1 && !(G.b10pool && G.b10pool.length)) bad.push('killed Acid Bubble blasted'); if (!(G.b10pool && G.b10pool.length)) bad.push('killed Acid Bubble left no pool'); }
+    fresh(); { const ab = foe('bomber', 40); ab.hp = ab.maxHp = 1; const hp1 = G.player.hp; run(3); G.player.x += 200; G.player.y += 200; run(60); if (G.player.hp < hp1) bad.push('leaving the ring still got hit'); }
+    // B1: Snot Bubble killed by the player marks its area first, then bursts and leaves a Mucus pool
+    fresh(); { const sb = foe('snotbubble', 40); const nb = foe('crawler', 60); nb.speed = 0; nb.hp = nb.maxHp = 1e6; sb.hp = 1; damageEnemy(sb, 5, { elem: 'phys', wname: 'T' });
+      out.snotMark = (G.b10 || []).length; if (!out.snotMark) bad.push('Snot Bubble kill showed no ring'); if (nb.chill > 0) bad.push('Snot burst landed before its tell');
+      run(40); if (!(nb.chill > 0)) bad.push('Snot burst never landed'); if (!(G.b10pool && G.b10pool.length)) bad.push('Snot Bubble left no pool'); }
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));
