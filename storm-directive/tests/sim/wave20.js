@@ -41,7 +41,7 @@ const N = +(ARGS[0] || 2), GOD = ARGS[1] !== 'mortal', SEQ = ARGS[2] || '';
         if (f % 600 === 0) await new Promise(r => setTimeout(r, 0));
       }
       if (G && G.fst) { const S = G.fst, r = n => Math.round(n); ev.push('fst rx ' + JSON.stringify(S.rx) + ' dmg w' + r(S.dmg.weapon) + '/rx' + r(S.dmg.reaction) + '/dot' + r(S.dmg.dot) + ' miss' + S.miss + ' memSoak' + r(S.mem) + ' layers' + S.layers + ' stagger' + S.stagger + ' possess' + S.possess + ' snare' + r(S.snareT) + 's heal' + r(S.heal || 0) + ' | you: mem' + r(S.pMem || 0) + ' layers' + (S.pLayers || 0) + ' miss' + (S.pMiss || 0) + ' thorns' + r(S.pThorns || 0)); }
-      if (G) ev.push('build ' + G.weapons.filter(Boolean).map(w => w.def.name + w.lvl + (w.m10 && w.m10.length ? '[' + w.m10 + ']' : '')).join(', ') + (G.pd ? ' def ' + JSON.stringify(G.pd.n) : '') + (G.muts ? ' muts ' + JSON.stringify(G.muts) : '') + ' feats ' + (G.spells || []).filter(Boolean).map(s => s.def.name + s.lvl).join(','));
+      if (G) ev.push('build ' + G.weapons.filter(Boolean).map(w => w.def.name + w.lvl + (w.m10 && w.m10.length ? '[' + w.m10 + ']' : '')).join(', ') + (G.pd ? ' def ' + JSON.stringify(G.pd.n) : '') + (G.muts ? ' muts ' + JSON.stringify(G.muts) : '') + ' feats ' + (G.spells || []).filter(Boolean).map(s => s.def.name + s.lvl).join(',') + (G.stats.ddLv ? ' dnadrop ' + (G.stats.ddGot || 0) + '/' + G.stats.ddLv : ''));
       return ev.filter(Boolean).join('\n  ');
     }, [GOD, SEQ, BOSS, FEAT, MOVE]);
     console.log('RUN', seed, '\n  ' + r);

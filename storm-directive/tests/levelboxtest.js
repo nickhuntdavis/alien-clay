@@ -11,10 +11,10 @@ const { chromium } = require('playwright');
     META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 20; G.enemies.length = 0;
     out.arena = CORE.arena; if (CORE.arena !== 5400) bad.push('race arena ' + CORE.arena);
     // 1. A level-up becomes a box on the slide, inside the arena
-    G.lootQueue.push({ kind: 'level' }); lvboxTick();
+    G.lootQueue.push({ kind: 'level' }); lvboxTick(); ddTick(2); // (the pipette drip lands: dnadrop.js)
     const u = G.pickups.find(x => x.type === 'lvbox'); const p = G.player;
     out.box = u && [Math.round(Math.hypot(u.x - p.x, u.y - p.y)), G.lootQueue.length];
-    if (!u || G.lootQueue.length || Math.hypot(u.x - p.x, u.y - p.y) > 310) bad.push('box ' + JSON.stringify(out.box));
+    if (!u || G.lootQueue.length || Math.hypot(u.x - p.x, u.y - p.y) > DNADROP.max + 10) bad.push('box ' + JSON.stringify(out.box));
     // 2. Touching it opens the screen at once, even between Race slots
     G.t = 45; G.rplan = { used: 1, ms: 0 }; applyPickup('lvbox', u.src); const q = G.lootQueue[0];
     out.open = q && [q.kind, q.now, dirGate(q)]; if (!q || q.kind !== 'level' || dirGate(q) !== true) bad.push('open ' + JSON.stringify(out.open));
